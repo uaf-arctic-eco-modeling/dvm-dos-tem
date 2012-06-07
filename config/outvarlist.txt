@@ -1,0 +1,80 @@
+outvarlist.txt  // 0 - not output; 1 - yearly; 2 - monthly; NOTE - DON'T CHANGE THE ORDER
+------------------------------------------------------------
+1                         //GROWSTART   - (1) growing starting day
+1                         //GROWEND     - (2) growing ending day
+1                         //VEGFRAC     - (3) each pft's land coverage fraction (m2/m2)
+1                         //VEGAGE      - (4) each pft's age (years)
+2                         //LAI         - (5) each pft's LAI (m2/m2)
+2                         //VEGC        - (6) each pft's total veg. biomass C (gC/m2)
+2                         //LEAFC       - (7) each pft's leaf biomass C (gC/m2)
+2                         //STEMC       - (8) each pft's stem biomass C (gC/m2)
+2                         //ROOTC       - (9) each pft's root biomass C (gC/m2)
+2                         //VEGN        - (10) each pft's total veg. biomass N  (gC/m2)
+2                         //LABN        - (11) each pft's labile N (gN/m2)
+2                         //LEAFN       - (12) each pft's leaf structural N (gN/m2)
+2                         //STEMN       - (13) each pft's stem structural N (gN/m2)
+2                         //ROOTN       - (14) each pft's root structural N (gN/m2)
+2                         //GPP         - (15) each pft's GPP (gC/m2/month-year)
+2                         //NPP         - (16) each pft's NPP (gC/m2/month-year)
+2                         //RH          - (17) each pft's Heteotrophic respiration  (gC/m2/month-year)
+0                         //LTRFALC     - (18) each pft's litterfalling C (gC/m2/month-year)
+0                         //LTRFALN     - (19) each pft's litterfalling N (gN/m2/month-year)
+0                         //NUPTAKE     - (20) each pft's N uptake by plants (gN/m2/month-year)
+1                         //PERMAFROST  - (21) permafrost (1) or not (0)
+1                         //MOSSDZ      - (22) moss thickness (m)
+1                         //OSHLWDZ     - (23) shallow fibrous organic soil horizon thickness (m)
+1                         //ODEEPDZ     - (24) deep amorphous organic soil horizon thickness (m)
+1                         //MINEADZ     - (25) upper minearal soil horizon thickness (m)
+1                         //MINEBDZ     - (26) middel mineral soil horizon thickness (m)
+1                         //MINECDZ     - (27) lower mineral soil horizon thickness (m)
+1                         //OSHLWC      - (28) SOM C in firbrous soil horizon  (gC/m2)
+1                         //ODEEPC      - (29) SOM C in amorphous soil horizon  (gC/m2)
+1                         //MINEAC      - (30) SOM C in upper mineral soil horizon  (gC/m2)
+1                         //MINEBC      - (31) SOM C in middle mineral soil horizon  (gC/m2)
+1                         //MINECC      - (32) SOM C in lower mineral soil horizon  (gC/m2)
+1                         //ORGN        - (33) total soil organic N (gN/m2)
+2                         //AVLN        - (35) total soil mineral N  (gN/m2)
+0                         //NETNMIN     - (36) soil net N mineralization (gN/m2/month-year)
+0                         //ORGNINPUT   - (37) organic N addition into soil-plant system (gN/m2/month-year)
+0                         //AVLNINPUT   - (38) mineral N addition into soil-plant system (gN/m2/month-year)
+0                         //ORGNLOST    - (39) organic N loss (with water drainage/runoff) out of soil-plant system (gN/m2/month-year)
+0                         //ALVNLOST    - (40) mineral N loss (i.e., leaching) from soil-plant system (gN/m2/month-year)
+0                         //DOCLOST     - (41) DOC lost into soil-plant system (gC/m2/month-year)
+2                         //EET         - (42) actual ET (mm/month-year)
+2                         //PET         - (43) potential ET (mm/month-year)
+0                         //QINFL       - (44) water infiltration (mm/month-year)
+0                         //QDRAIN      - (45) water drainage (mm/month-year)
+0                         //QRUNOFF     - (46) water runoff (mm/month-year)
+2                         //SNWTHICK    - (47) snow pack thickness (m)
+2                         //SWE         - (48) snow water equivalent (kg/m2 or mm)
+0                         //WTD         - (49) water table depth (m)
+2                         //ALC         - (50) soil active layer cap (m)
+2                         //ALD         - (51) soil active layer depth (m)
+2                         //VWCSHLW     - (52) Volume water content (vwc) in fibrious horizon
+2                         //VWCDEEP     - (53) vwc in amorphous horizon
+2                         //VWCMINEA    - (54) vwc upper mineral horizon
+2                         //VWCMINEB    - (55) vwc middle mineral horizon
+2                         //VWCMINEC    - (56) vwc lower mineral horizon
+2                         //TSHLW       - (57) temperature in fibrious horizon (oC)
+2                         //TDEEP       - (58) temperature in amorphous horizon
+2                         //TMINEA      - (59) temperature in upper mineral horizon
+2                         //TMINEB      - (60) temperature in middle mineral horizon
+2                         //TMINEC      - (61) temperature in lower mineral horizon
+2                         //HKSHLW      - (62) hydraulic conductivity in fibrous horizon (mm/day)
+2                         //HKDEEP      - (63) hydraulic conductivity in amorphous horizon
+2                         //HKMINEA     - (64) hydraulic conductivity in upper mineral horizon
+2                         //HKMINEB     - (65) hydraulic conductivity in middle mineral horizon
+2                         //HKMINEC     - (66) hydraulic conductivity in lower mineral horizon
+2                         //TCSHLW      - (67) thermal conductivity in fibrous horizon (w/m/K)
+2                         //TCDEEP      - (68) thermal conductivity in amorphous horizon
+2                         //TCMINEA     - (69) thermal conductivity in upper mineral horizon
+2                         //TCMINEB     - (70) thermal conductivity in middle mineral horizon
+2                         //TCMINEC     - (71) thermal conductivity in lower mineral horizon
+0                         //TBOTROCK    - (72) temperature in bottom rock layer
+1                         //BURNTHICK   - (73) ground-burn thickness (m)
+1                         //BURNSOIC    - (74) burned soil C (gC/m2)
+1                         //BURNVEGC    - (75) burned vegetation C (gC/m2)
+1                         //BURNSOIN    - (76) burned soil N (gN/m2)
+1                         //BURNVEGN    - (77) burned vegetation N (gN/m2)
+1                         //BURNRETAINC - (78) burned C retained (gC/m2)
+1                         //BURNRETAINN - (79) burned N retained (gN/m2)

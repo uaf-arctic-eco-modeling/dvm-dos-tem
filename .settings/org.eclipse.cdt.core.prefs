@@ -1,0 +1,4 @@
+#Mon Jun 14 11:38:40 AKDT 2010
+eclipse.preferences.version=1
+environment/project/cdt.managedbuild.config.gnu.cygwin.exe.debug.1428165643=<?xml version\="1.0" encoding\="UTF-8" standalone\="no"?>\r\n<environment append\="true" appendContributed\="true">\r\n<variable delimiter\=";" name\="TMP" operation\="append" value\=""/>\r\n<variable delimiter\=";" name\="TEMP" operation\="replace" value\="C\:\\DOCUME~1\\Yuan\\LOCALS~1\\Temp"/>\r\n</environment>\r\n
+environment/project/cdt.managedbuild.config.gnu.cygwin.exe.release.1595837830=<?xml version\="1.0" encoding\="UTF-8" standalone\="no"?>\r\n<environment append\="true" appendContributed\="true">\r\n<variable delimiter\=";" name\="TMP" operation\="append" value\=""/>\r\n<variable delimiter\=";" name\="TEMP" operation\="append" value\=""/>\r\n</environment>\r\n
