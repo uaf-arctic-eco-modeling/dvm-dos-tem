@@ -2,7 +2,9 @@
 
 CC=g++
 CFLAGS=-c -Wall -ansi -O2 -g -fPIC
-LNX_LIBS=-lnetcdf_c++ -lnetcdf
+LIBS=-lnetcdf_c++ -lnetcdf
+LIBDIR=
+INCLUDES=
 SOURCES= 	src/TEM.o \
 		src/assembler/RunCohort.o \
 		src/assembler/RunGrid.o \
@@ -128,11 +130,12 @@ OBJECTS = 	RunCohort.o \
 		SoilLayer.o
 TEMOBJ=	TEM.o
 
+
 dvm: $(SOURCES) $(TEMOBJ)
-	$(CC) -o DVMDOSTEM $(OBJECTS) $(TEMOBJ) $(LINUX_LIBPATH) $(LNX_LIBS)
+	$(CC) -o DVMDOSTEM $(INCLUDES) $(OBJECTS) $(TEMOBJ) $(LIBDIR) $(LIBS)
 
 lib: $(SOURCES) 
-	$(CC) -o libTEM.so -shared $(OBJECTS) $(LINUX_LIBPATH) $(LNX_LIBS)
+	$(CC) -o libTEM.so -shared $(INCLUDES) $(OBJECTS) $(LIBDIR) $(LIBS)
 
 .cpp.o:  
 	$(CC) $(CFLAGS) $(INCLUDES) $<
