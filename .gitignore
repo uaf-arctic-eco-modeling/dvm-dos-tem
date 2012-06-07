@@ -1,2 +1,4 @@
 DATA/output/*.nc
 *.o
+docs/*
+
