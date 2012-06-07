@@ -24,4 +24,5 @@ $ make dvm
 
 Run
 ---------
+The project is provided with enough data in the DATA/ to run a single test site. It should work out of the box.
 $ ./DVMDOSTEM config/controlfile_site.txt
