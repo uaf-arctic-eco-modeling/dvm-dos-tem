@@ -4,7 +4,7 @@ A process based bio-geo-chemical ecosystem model.
 
 Workflow
 -----------
-For starters we will try the "integration manager" workflow [ref to git docs?]. This means that to get started you should first "fork" the project from the github.com/ua-snap/dvm-dos-tem.git repository. This will give you your own dvm-dos-tem repository in your own github account (github.com/YOU/dvm-dos-tem.git). Next you will "clone" from your account to your own machine (where ever you perform your coding work). Finally when you have made changes on your own working machine you will "push" those changes back to your fork. If you would like the changes you made to be incorporated into the shared project (github.com/ua-snap/dvm-dos-tem.git), then issue a "pull request" from your github account.
+For starters we will try the "integration manager" workflow. This is what is described [here](https://help.github.com/articles/fork-a-repo). This means that to get started you should first "fork" the project from the github.com/ua-snap/dvm-dos-tem.git repository. This will give you your own dvm-dos-tem repository in your own github account (github.com/YOU/dvm-dos-tem.git). Next you will "clone" from your account to your own machine (where ever you perform your coding work). Finally when you have made changes on your own working machine you will "push" those changes back to your fork. If you would like the changes you made to be incorporated into the shared project (github.com/ua-snap/dvm-dos-tem.git), then issue a "pull request" from your github account.
 
 Documentation
 -------------
