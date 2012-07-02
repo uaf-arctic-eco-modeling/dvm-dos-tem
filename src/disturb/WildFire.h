@@ -13,7 +13,7 @@ using namespace std;
 #include "../data/BgcData.h"
 #include "../data/RestartData.h"
 
-#include "../inc/ErrorCode.h"
+#include "../inc/errorcode.h"
 #include "../inc/timeconst.h"
 #include "../inc/parameters.h"
 

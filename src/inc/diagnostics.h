@@ -15,6 +15,20 @@ struct atmdiag_env{
   	double svp; 	// saturated vapor pressure (Pa)
 };
 
+struct vegdiag_dim{
+    double fpcsum;                   // sum of fpc[] (must not be greater than 1.0)
+
+    // phenoloy variables
+    double fleaf[NUM_PFT];            // (current)normalized (scalar) foliage growth index based on current and previous EET
+    double ffoliage[NUM_PFT];         // (current)foliage growth index (scalar) based on vegetation C (stand age related)
+	double eetmx[NUM_PFT];            // (yearly) max. month eet
+	double growingttime[NUM_PFT];     // (current but accumulated) growing thermal time
+	double unnormleafmx[NUM_PFT];     // (yearly max.) un-normarlized fleaf
+	double topt[NUM_PFT];             // (yearly) evolving optimium temperature for temperature-scalar of GPP
+    double foliagemx[NUM_PFT];        // this is for 'ffoliage' not growing backward
+
+};
+
 struct vegdiag_env{
   	double btran;
   
@@ -23,6 +37,7 @@ struct vegdiag_env{
 
   	double m_ppfd;     //
   	double m_vpd;
+
 };
 
 struct vegdiag_bgc{
@@ -105,7 +120,8 @@ struct soidiag_env{
 };
 
 struct soidiag_bgc{
-  	double knmoist[MAX_SOI_LAY];        //soil liq water factor to be used in N immobilization and mineralization
+	double knmoist[MAX_SOI_LAY];        // soil liq water factor to be used in N immobilization and mineralization
+
   	double rhmoist[MAX_SOI_LAY];
   	double rhq10[MAX_SOI_LAY];
 

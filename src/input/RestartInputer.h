@@ -3,35 +3,34 @@
 
 #include "netcdfcpp.h"
 
+#include <math.h>
 #include <iostream>
 #include <string>
 #include <sstream>
 #include <ctime>
 #include <cstdlib>
-using namespace std;
 #include <string>
-using std::string;
+using namespace std;
 
 #include "../inc/layerconst.h"
 #include "../inc/timeconst.h"
+#include "../inc/errorcode.h"
 
 #include "../data/RestartData.h"
 
 class RestartInputer {
-	public :
+	public:
 		RestartInputer();
 		~RestartInputer();
 
 		void init(string & dirfile);
-		int getRecordId(const int &chtid);
-		void getChtId(int & chtid, const int &cid);
-		void getErrcode(int & errcode, const int &cid);
-		void getRestartData(RestartData *resid, const int &cid);
-
-    private:
+		void getReschtId(int & chtid, const int &recno);
+		void getErrcode(int & errcode, const int &recno);
+		void getRestartData(RestartData *resid, const int &recno);
 
 		NcFile* restartFile;
 
+	private:
    		NcDim * chtD;
    		NcDim * pftD;
    		NcDim * pftpartD;
@@ -41,8 +40,9 @@ class RestartInputer {
    		NcDim * minelayerD ;
    		NcDim * rocklayerD;
    		NcDim * frontD;
-   		NcDim * prvyearD ;
-	
+   		NcDim * prvyearD;
+   		NcDim * prvmonthD;
+
 		NcVar* chtidV;
 		NcVar* errcodeV;
 
@@ -50,9 +50,9 @@ class RestartInputer {
 		NcVar* dsrV;
 		NcVar* firea2sorgnV;
 
-	    //veg
-		NcVar* numpftV;
 		NcVar* ysfV;
+
+	    //veg
 	    NcVar* ifwoodyV;
 	    NcVar* ifdeciwoodyV;
 	    NcVar* ifperenialV;
@@ -72,11 +72,16 @@ class RestartInputer {
 		NcVar* deadcV;
 		NcVar* deadnV;
 
+		NcVar* toptV;
+	    NcVar* eetmxV;
+	    NcVar* growingttimeV;
+	    NcVar* unnormleafmxV;
+	    NcVar* foliagemxV;
+
 		NcVar* toptAV;
 	    NcVar* eetmxAV;
-	    NcVar* unnormleafmxAV;
 	    NcVar* growingttimeAV;
-	    NcVar* prvfoliagemxV;
+	    NcVar* unnormleafmxAV;
 
 	    //snow
 	    NcVar* numsnwlV;
@@ -91,6 +96,8 @@ class RestartInputer {
 	    //ground-soil
 	    NcVar* numslV;
 	    NcVar* monthsfrozenV;
+		NcVar* rtfrozendaysV;
+		NcVar* rtunfrozendaysV;
 	    NcVar* watertabV;
 
 	    NcVar* DZsoilV;
@@ -118,8 +125,9 @@ class RestartInputer {
 	    NcVar* solnV;
 	    NcVar* avlnV;
 
-	    NcVar* prvltrfcnV;
-   	
+	    NcVar* prvltrfcnAV;
+
+
 };
 
 #endif /*RESTARTINPUTER_H_*/

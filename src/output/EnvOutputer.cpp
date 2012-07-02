@@ -142,10 +142,10 @@ void EnvOutputer::init(string & dirfile){
 
 }
 
-void EnvOutputer::outputCohortEnvVars_dly(EnvDataDly * envod, const int&iy, const int&im, const int &id, const int &ipft, const int & tstepcnt){
+void EnvOutputer::outputCohortEnvVars_dly(const int &ipft, EnvDataDly * envod, const int&iy, const int&im, const int &id, const int & tstepcnt){
  	NcError err(NcError::verbose_nonfatal);
 
- 	if (ipft==0) {
+ 	if (ipft<=0) {
 
  		if (tstepcnt==0) chtidV->put(&envod->chtid);
 
@@ -176,62 +176,65 @@ void EnvOutputer::outputCohortEnvVars_dly(EnvDataDly * envod, const int&iy, cons
  		petV->put_rec(&envod->d_l2a.pet, tstepcnt);
  	}
 
-   	//canopy-env variables for ipft
- 	vegwaterV->set_cur(tstepcnt, ipft);
-   	vegwaterV->put(&envod->d_vegs.rwater, 1, 1);
+ 	if (ipft>=0) {
+ 		//canopy-env variables for ipft
+ 		vegwaterV->set_cur(tstepcnt, ipft);
+ 		vegwaterV->put(&envod->d_vegs.rwater, 1, 1);
 
- 	vegsnowV->set_cur(tstepcnt, ipft);
-   	vegsnowV->put(&envod->d_vegs.snow, 1, 1);
+ 		vegsnowV->set_cur(tstepcnt, ipft);
+ 		vegsnowV->put(&envod->d_vegs.snow, 1, 1);
 
- 	vegrcV->set_cur(tstepcnt, ipft);
- 	vegrcV->put(&envod->d_vegd.rc, 1, 1);
+ 		vegrcV->set_cur(tstepcnt, ipft);
+ 		vegrcV->put(&envod->d_vegd.rc, 1, 1);
 
- 	vegccV->set_cur(tstepcnt, ipft);
- 	vegccV->put(&envod->d_vegd.cc, 1, 1);
+ 		vegccV->set_cur(tstepcnt, ipft);
+ 		vegccV->put(&envod->d_vegd.cc, 1, 1);
 
- 	vegbtranV->set_cur(tstepcnt, ipft);
-   	vegbtranV->put(&envod->d_vegd.btran, 1, 1);
+ 		vegbtranV->set_cur(tstepcnt, ipft);
+   		vegbtranV->put(&envod->d_vegd.btran, 1, 1);
 
-   	vegm_ppfdV->set_cur(tstepcnt, ipft);
-   	vegm_ppfdV->put(&envod->d_vegd.m_ppfd, 1, 1);
+   		vegm_ppfdV->set_cur(tstepcnt, ipft);
+   		vegm_ppfdV->put(&envod->d_vegd.m_ppfd, 1, 1);
 
-   	vegm_vpdV->set_cur(tstepcnt, ipft);
-   	vegm_vpdV->put(&envod->d_vegd.m_vpd, 1, 1);
+   		vegm_vpdV->set_cur(tstepcnt, ipft);
+   		vegm_vpdV->put(&envod->d_vegd.m_vpd, 1, 1);
 
- 	vegswreflV->set_cur(tstepcnt, ipft);
-   	vegswreflV->put(&envod->d_v2a.swrefl, 1, 1);
+ 		vegswreflV->set_cur(tstepcnt, ipft);
+   		vegswreflV->put(&envod->d_v2a.swrefl, 1, 1);
 
-   	vegswthflV->set_cur(tstepcnt, ipft);
-   	vegswthflV->put(&envod->d_v2g.swthfl, 1, 1);
+   		vegswthflV->set_cur(tstepcnt, ipft);
+   		vegswthflV->put(&envod->d_v2g.swthfl, 1, 1);
 
- 	vegevapV->set_cur(tstepcnt, ipft);
-   	vegevapV->put(&envod->d_v2a.evap, 1, 1);
+ 		vegevapV->set_cur(tstepcnt, ipft);
+   		vegevapV->put(&envod->d_v2a.evap, 1, 1);
 
-   	vegtranV->set_cur(tstepcnt, ipft);
-   	vegtranV->put(&envod->d_v2a.tran, 1, 1);
+   		vegtranV->set_cur(tstepcnt, ipft);
+   		vegtranV->put(&envod->d_v2a.tran, 1, 1);
 
-   	vegevap_pV->set_cur(tstepcnt, ipft);
-   	vegevap_pV->put(&envod->d_v2a.evap_pet, 1, 1);
+   		vegevap_pV->set_cur(tstepcnt, ipft);
+   		vegevap_pV->put(&envod->d_v2a.evap_pet, 1, 1);
 
-   	vegtran_pV->set_cur(tstepcnt, ipft);
-   	vegtran_pV->put(&envod->d_v2a.tran_pet, 1, 1);
+   		vegtran_pV->set_cur(tstepcnt, ipft);
+   		vegtran_pV->put(&envod->d_v2a.tran_pet, 1, 1);
 
-   	vegsublimV->set_cur(tstepcnt, ipft);
-   	vegsublimV->put(&envod->d_v2a.sublim, 1, 1);
+   		vegsublimV->set_cur(tstepcnt, ipft);
+   		vegsublimV->put(&envod->d_v2a.sublim, 1, 1);
 
- 	vegrdripV->set_cur(tstepcnt, ipft);
-   	vegrdripV->put(&envod->d_v2g.rdrip, 1, 1);
+ 		vegrdripV->set_cur(tstepcnt, ipft);
+   		vegrdripV->put(&envod->d_v2g.rdrip, 1, 1);
 
-   	vegrthflV->set_cur(tstepcnt, ipft);
-   	vegrthflV->put(&envod->d_v2g.rthfl, 1, 1);
+   		vegrthflV->set_cur(tstepcnt, ipft);
+   		vegrthflV->put(&envod->d_v2g.rthfl, 1, 1);
 
-   	vegsdripV->set_cur(tstepcnt, ipft);
-   	vegsdripV->put(&envod->d_v2g.sdrip, 1, 1);
+   		vegsdripV->set_cur(tstepcnt, ipft);
+   		vegsdripV->put(&envod->d_v2g.sdrip, 1, 1);
 
-   	vegsthflV->set_cur(tstepcnt, ipft);
-   	vegsthflV->put(&envod->d_v2g.sthfl, 1, 1);
+   		vegsthflV->set_cur(tstepcnt, ipft);
+   		vegsthflV->put(&envod->d_v2g.sthfl, 1, 1);
 
-	if (ipft==0) {
+ 	}
+
+	if (ipft<=0) {
 		//snow
 
 		snwlnumV->put_rec(&envod->d_snow.numsnwl, tstepcnt);
@@ -295,10 +298,10 @@ void EnvOutputer::outputCohortEnvVars_dly(EnvDataDly * envod, const int&iy, cons
 
 }
 
-void EnvOutputer::outputCohortEnvVars_mly(snwstate_dim *m_snow, EnvData* envod, const int&iy, const int&im, const int &ipft, const int & tstepcnt){
+void EnvOutputer::outputCohortEnvVars_mly(const int &ipft, snwstate_dim *m_snow, EnvData* envod, const int&iy, const int&im, const int & tstepcnt){
  	NcError err(NcError::verbose_nonfatal);
 
- 	if (ipft==0) {
+ 	if (ipft<0) {
  		if (tstepcnt==0) chtidV->put(&envod->cd->chtid);
 
  		yearV->put_rec(&iy, tstepcnt);
@@ -328,62 +331,65 @@ void EnvOutputer::outputCohortEnvVars_mly(snwstate_dim *m_snow, EnvData* envod, 
  		petV->put_rec(&envod->m_l2a.pet, tstepcnt);
  	}
 
-   	//canopy-env variables for ipft
- 	vegwaterV->set_cur(tstepcnt, ipft);
-   	vegwaterV->put(&envod->m_vegs.rwater, 1, 1);
+ 	if (ipft>=0) {
+ 		//canopy-env variables for ipft
+ 		vegwaterV->set_cur(tstepcnt, ipft);
+   		vegwaterV->put(&envod->m_vegs.rwater, 1, 1);
 
- 	vegsnowV->set_cur(tstepcnt, ipft);
-   	vegsnowV->put(&envod->m_vegs.snow, 1, 1);
+ 		vegsnowV->set_cur(tstepcnt, ipft);
+   		vegsnowV->put(&envod->m_vegs.snow, 1, 1);
 
- 	vegrcV->set_cur(tstepcnt, ipft);
- 	vegrcV->put(&envod->m_vegd.rc, 1, 1);
+ 		vegrcV->set_cur(tstepcnt, ipft);
+ 		vegrcV->put(&envod->m_vegd.rc, 1, 1);
 
- 	vegccV->set_cur(tstepcnt, ipft);
- 	vegccV->put(&envod->m_vegd.cc, 1, 1);
+ 		vegccV->set_cur(tstepcnt, ipft);
+ 		vegccV->put(&envod->m_vegd.cc, 1, 1);
 
- 	vegbtranV->set_cur(tstepcnt, ipft);
-   	vegbtranV->put(&envod->m_vegd.btran, 1, 1);
+ 		vegbtranV->set_cur(tstepcnt, ipft);
+   		vegbtranV->put(&envod->m_vegd.btran, 1, 1);
 
-   	vegm_ppfdV->set_cur(tstepcnt, ipft);
-   	vegm_ppfdV->put(&envod->m_vegd.m_ppfd, 1, 1);
+   		vegm_ppfdV->set_cur(tstepcnt, ipft);
+   		vegm_ppfdV->put(&envod->m_vegd.m_ppfd, 1, 1);
 
-   	vegm_vpdV->set_cur(tstepcnt, ipft);
-   	vegm_vpdV->put(&envod->m_vegd.m_vpd, 1, 1);
+   		vegm_vpdV->set_cur(tstepcnt, ipft);
+   		vegm_vpdV->put(&envod->m_vegd.m_vpd, 1, 1);
 
- 	vegswreflV->set_cur(tstepcnt, ipft);
-   	vegswreflV->put(&envod->m_v2a.swrefl, 1, 1);
+ 		vegswreflV->set_cur(tstepcnt, ipft);
+   		vegswreflV->put(&envod->m_v2a.swrefl, 1, 1);
 
-   	vegswthflV->set_cur(tstepcnt, ipft);
-   	vegswthflV->put(&envod->m_v2g.swthfl, 1, 1);
+   		vegswthflV->set_cur(tstepcnt, ipft);
+   		vegswthflV->put(&envod->m_v2g.swthfl, 1, 1);
 
- 	vegevapV->set_cur(tstepcnt, ipft);
-   	vegevapV->put(&envod->m_v2a.evap, 1, 1);
+ 		vegevapV->set_cur(tstepcnt, ipft);
+   		vegevapV->put(&envod->m_v2a.evap, 1, 1);
 
-   	vegtranV->set_cur(tstepcnt, ipft);
-   	vegtranV->put(&envod->m_v2a.tran, 1, 1);
+   		vegtranV->set_cur(tstepcnt, ipft);
+   		vegtranV->put(&envod->m_v2a.tran, 1, 1);
 
-   	vegevap_pV->set_cur(tstepcnt, ipft);
-   	vegevap_pV->put(&envod->m_v2a.evap_pet, 1, 1);
+   		vegevap_pV->set_cur(tstepcnt, ipft);
+   		vegevap_pV->put(&envod->m_v2a.evap_pet, 1, 1);
 
-   	vegtran_pV->set_cur(tstepcnt, ipft);
-   	vegtran_pV->put(&envod->m_v2a.tran_pet, 1, 1);
+   		vegtran_pV->set_cur(tstepcnt, ipft);
+   		vegtran_pV->put(&envod->m_v2a.tran_pet, 1, 1);
 
-   	vegsublimV->set_cur(tstepcnt, ipft);
-   	vegsublimV->put(&envod->m_v2a.sublim, 1, 1);
+   		vegsublimV->set_cur(tstepcnt, ipft);
+   		vegsublimV->put(&envod->m_v2a.sublim, 1, 1);
 
- 	vegrdripV->set_cur(tstepcnt, ipft);
-   	vegrdripV->put(&envod->m_v2g.rdrip, 1, 1);
+ 		vegrdripV->set_cur(tstepcnt, ipft);
+   		vegrdripV->put(&envod->m_v2g.rdrip, 1, 1);
 
-   	vegrthflV->set_cur(tstepcnt, ipft);
-   	vegrthflV->put(&envod->m_v2g.rthfl, 1, 1);
+   		vegrthflV->set_cur(tstepcnt, ipft);
+   		vegrthflV->put(&envod->m_v2g.rthfl, 1, 1);
 
-   	vegsdripV->set_cur(tstepcnt, ipft);
-   	vegsdripV->put(&envod->m_v2g.sdrip, 1, 1);
+   		vegsdripV->set_cur(tstepcnt, ipft);
+   		vegsdripV->put(&envod->m_v2g.sdrip, 1, 1);
 
-   	vegsthflV->set_cur(tstepcnt, ipft);
-   	vegsthflV->put(&envod->m_v2g.sthfl, 1, 1);
+   		vegsthflV->set_cur(tstepcnt, ipft);
+   		vegsthflV->put(&envod->m_v2g.sthfl, 1, 1);
 
-	if (ipft==0) {
+ 	}
+
+	if (ipft<0) {
 		//snow
 		snwlnumV->put_rec(&m_snow->numsnwl, tstepcnt);
 		snwthickV->put_rec(&m_snow->thick, tstepcnt);
@@ -446,10 +452,10 @@ void EnvOutputer::outputCohortEnvVars_mly(snwstate_dim *m_snow, EnvData* envod, 
 
 }
 
-void EnvOutputer::outputCohortEnvVars_yly(snwstate_dim* y_snow, EnvData *envod, const int&iy, const int &ipft, const int & tstepcnt){
+void EnvOutputer::outputCohortEnvVars_yly(const int &ipft, snwstate_dim* y_snow, EnvData *envod, const int&iy, const int & tstepcnt){
  	NcError err(NcError::verbose_nonfatal);
 
- 	if (ipft==0) {
+ 	if (ipft<0) {
 
  		if (tstepcnt==0) chtidV->put(&envod->cd->chtid);
 
@@ -480,62 +486,65 @@ void EnvOutputer::outputCohortEnvVars_yly(snwstate_dim* y_snow, EnvData *envod, 
  		petV->put_rec(&envod->y_l2a.pet, tstepcnt);
  	}
 
-   	//canopy-env variables for ipft
- 	vegwaterV->set_cur(tstepcnt, ipft);
-   	vegwaterV->put(&envod->y_vegs.rwater, 1, 1);
+ 	if (ipft>=0) {
+ 		//canopy-env variables for ipft
+ 		vegwaterV->set_cur(tstepcnt, ipft);
+ 		vegwaterV->put(&envod->y_vegs.rwater, 1, 1);
 
- 	vegsnowV->set_cur(tstepcnt, ipft);
-   	vegsnowV->put(&envod->y_vegs.snow, 1, 1);
+ 		vegsnowV->set_cur(tstepcnt, ipft);
+ 		vegsnowV->put(&envod->y_vegs.snow, 1, 1);
 
- 	vegrcV->set_cur(tstepcnt, ipft);
- 	vegrcV->put(&envod->y_vegd.rc, 1, 1);
+ 		vegrcV->set_cur(tstepcnt, ipft);
+ 		vegrcV->put(&envod->y_vegd.rc, 1, 1);
 
- 	vegccV->set_cur(tstepcnt, ipft);
- 	vegccV->put(&envod->y_vegd.cc, 1, 1);
+ 		vegccV->set_cur(tstepcnt, ipft);
+ 		vegccV->put(&envod->y_vegd.cc, 1, 1);
 
- 	vegbtranV->set_cur(tstepcnt, ipft);
-   	vegbtranV->put(&envod->y_vegd.btran, 1, 1);
+ 		vegbtranV->set_cur(tstepcnt, ipft);
+   		vegbtranV->put(&envod->y_vegd.btran, 1, 1);
 
-   	vegm_ppfdV->set_cur(tstepcnt, ipft);
-   	vegm_ppfdV->put(&envod->y_vegd.m_ppfd, 1, 1);
+   		vegm_ppfdV->set_cur(tstepcnt, ipft);
+   		vegm_ppfdV->put(&envod->y_vegd.m_ppfd, 1, 1);
 
-   	vegm_vpdV->set_cur(tstepcnt, ipft);
-   	vegm_vpdV->put(&envod->y_vegd.m_vpd, 1, 1);
+   		vegm_vpdV->set_cur(tstepcnt, ipft);
+   		vegm_vpdV->put(&envod->y_vegd.m_vpd, 1, 1);
 
- 	vegswreflV->set_cur(tstepcnt, ipft);
-   	vegswreflV->put(&envod->y_v2a.swrefl, 1, 1);
+ 		vegswreflV->set_cur(tstepcnt, ipft);
+   		vegswreflV->put(&envod->y_v2a.swrefl, 1, 1);
 
-   	vegswthflV->set_cur(tstepcnt, ipft);
-   	vegswthflV->put(&envod->y_v2g.swthfl, 1, 1);
+   		vegswthflV->set_cur(tstepcnt, ipft);
+   		vegswthflV->put(&envod->y_v2g.swthfl, 1, 1);
 
- 	vegevapV->set_cur(tstepcnt, ipft);
-   	vegevapV->put(&envod->y_v2a.evap, 1, 1);
+ 		vegevapV->set_cur(tstepcnt, ipft);
+   		vegevapV->put(&envod->y_v2a.evap, 1, 1);
 
-   	vegtranV->set_cur(tstepcnt, ipft);
-   	vegtranV->put(&envod->y_v2a.tran, 1, 1);
+   		vegtranV->set_cur(tstepcnt, ipft);
+   		vegtranV->put(&envod->y_v2a.tran, 1, 1);
 
-   	vegevap_pV->set_cur(tstepcnt, ipft);
-   	vegevap_pV->put(&envod->y_v2a.evap_pet, 1, 1);
+   		vegevap_pV->set_cur(tstepcnt, ipft);
+   		vegevap_pV->put(&envod->y_v2a.evap_pet, 1, 1);
 
-   	vegtran_pV->set_cur(tstepcnt, ipft);
-   	vegtran_pV->put(&envod->y_v2a.tran_pet, 1, 1);
+   		vegtran_pV->set_cur(tstepcnt, ipft);
+   		vegtran_pV->put(&envod->y_v2a.tran_pet, 1, 1);
 
-   	vegsublimV->set_cur(tstepcnt, ipft);
-   	vegsublimV->put(&envod->y_v2a.sublim, 1, 1);
+   		vegsublimV->set_cur(tstepcnt, ipft);
+   		vegsublimV->put(&envod->y_v2a.sublim, 1, 1);
 
- 	vegrdripV->set_cur(tstepcnt, ipft);
-   	vegrdripV->put(&envod->y_v2g.rdrip, 1, 1);
+ 		vegrdripV->set_cur(tstepcnt, ipft);
+   		vegrdripV->put(&envod->y_v2g.rdrip, 1, 1);
 
-   	vegrthflV->set_cur(tstepcnt, ipft);
-   	vegrthflV->put(&envod->y_v2g.rthfl, 1, 1);
+   		vegrthflV->set_cur(tstepcnt, ipft);
+   		vegrthflV->put(&envod->y_v2g.rthfl, 1, 1);
 
-   	vegsdripV->set_cur(tstepcnt, ipft);
-   	vegsdripV->put(&envod->y_v2g.sdrip, 1, 1);
+   		vegsdripV->set_cur(tstepcnt, ipft);
+   		vegsdripV->put(&envod->y_v2g.sdrip, 1, 1);
 
-   	vegsthflV->set_cur(tstepcnt, ipft);
-   	vegsthflV->put(&envod->y_v2g.sthfl, 1, 1);
+   		vegsthflV->set_cur(tstepcnt, ipft);
+   		vegsthflV->put(&envod->y_v2g.sthfl, 1, 1);
 
-	if (ipft==0) {
+ 	}
+
+	if (ipft<0) {
 		//snow
 		snwlnumV->put_rec(&y_snow->numsnwl, tstepcnt);
 		snwthickV->put_rec(&y_snow->thick, tstepcnt);

@@ -29,7 +29,8 @@ void WildFire::initializeParameter(){
 	
 
 	for (int i=0; i<NUM_FSEVR; i++){
-		for (int ip=0; ip<cd->numpft; ip++) {
+		for (int ip=0; ip<NUM_PFT; ip++) {
+
 			firpar.fvcomb[i][ip] = chtlu->fvcombust[i][ip];
 			firpar.fvdead[i][ip] = chtlu->fvslash[i][ip];
 		}
@@ -201,7 +202,7 @@ void WildFire::burn(const int & yrind, const bool & friderived){
  	double burnedsoln=0.;
 
  	double r_burn2bg_cn[NUM_PFT]; //ratio of dead veg. after burning
- 	for (int ip=0; ip<cd->numpft; ip++) {
+ 	for (int ip=0; ip<NUM_PFT; ip++) {
  		r_burn2bg_cn[ip] = 0.; //used for vegetation below-ground (root) loss, and calculated below
  	}
 
@@ -227,9 +228,13 @@ void WildFire::burn(const int & yrind, const bool & friderived){
 	  	  		bd[0]->m_sois.orgn[il]=0.;
 	  	  		bd[0]->m_sois.avln[il]=0.;
 
-	  	  		for (int ip=0; ip<cd->numpft; ip++) {
-	  	  			r_burn2bg_cn[ip] += cd->m_soil.frootfrac[il][ip];
-	  	  			cd->m_soil.frootfrac[il][ip]=0.;
+	  	  		for (int ip=0; ip<NUM_PFT; ip++) {
+	  		    	if (cd->m_veg.vegcov[ip]>0.){
+
+	  		    		r_burn2bg_cn[ip] += cd->m_soil.frootfrac[il][ip];
+	  		    		cd->m_soil.frootfrac[il][ip]=0.;
+
+	  		    	}
 	  	  		}
 	  		}else{
 	  	  		double partleft = totbotdepth -burndepth;
@@ -247,9 +252,11 @@ void WildFire::burn(const int & yrind, const bool & friderived){
 	  	  			bd[0]->m_sois.orgn[il] *= partleft/cd->m_soil.dz[il];
 	  	  			bd[0]->m_sois.avln[il] *= partleft/cd->m_soil.dz[il];
 
-		  	  		for (int ip=0; ip<cd->numpft; ip++) {
-		  	  			r_burn2bg_cn[ip] += (1-partleft/cd->m_soil.dz[il])* cd->m_soil.frootfrac[il][ip];
-		  	  			cd->m_soil.frootfrac[il][ip] *=partleft/cd->m_soil.dz[il];
+		  	  		for (int ip=0; ip<NUM_PFT; ip++) {
+		  		    	if (cd->m_veg.vegcov[ip]>0.){
+		  		    		r_burn2bg_cn[ip] += (1-partleft/cd->m_soil.dz[il])* cd->m_soil.frootfrac[il][ip];
+		  		    		cd->m_soil.frootfrac[il][ip] *=partleft/cd->m_soil.dz[il];
+		  		    	}
 		  	  		}
 
 	  	  		}else{
@@ -302,68 +309,70 @@ void WildFire::burn(const int & yrind, const bool & friderived){
 	double dead_bg_vegc = 0.;
 	double dead_bg_vegn = 0.;
 
-	for (int ip=0; ip<cd->numpft; ip++) {
-		// vegetation burning/dead/living fraction for above-ground
-		getBurnAbgVegetation(ip);
+	for (int ip=0; ip<NUM_PFT; ip++) {
+    	if (cd->m_veg.vegcov[ip]>0.){
 
-		//root death ratio: must be called after both above-ground and below-ground burning
-		double r_dead2bg_cn = 1.0-r_burn2bg_cn[ip]- r_live_cn;   //r_live_cn is same for both above-ground and below-ground
+    		// vegetation burning/dead/living fraction for above-ground
+    		getBurnAbgVegetation(ip);
 
-		// dead veg c/n
-		comb_deadc += bd[ip]->m_vegs.deadc*cd->m_veg.vegcov[ip];         //assuming all previous deadc burned
-		comb_deadn += bd[ip]->m_vegs.deadn*cd->m_veg.vegcov[ip];         //assuming all previous deadn burned
-		bd[ip]->m_vegs.deadc = 0.;
-		bd[ip]->m_vegs.deadn = 0.;
+    		//root death ratio: must be called after both above-ground and below-ground burning
+    		double r_dead2bg_cn = 1.0-r_burn2bg_cn[ip]- r_live_cn;   //r_live_cn is same for both above-ground and below-ground
 
-		// above-ground veg. burning/death during fire
-		comb_vegc += bd[ip]->m_vegs.c[I_leaf]*r_burn2ag_cn*cd->m_veg.vegcov[ip];     // when summing, needs adjusting by 'vegcov'
-		bd[ip]->m_vegs.deadc = bd[ip]->m_vegs.c[I_leaf]*r_dead2ag_cn;   // we define deadc/n as the not-falling veg (or binding with living veg) during fire,
+    		// dead veg c/n
+    		comb_deadc += bd[ip]->m_vegs.deadc*cd->m_veg.vegcov[ip];         //assuming all previous deadc burned
+    		comb_deadn += bd[ip]->m_vegs.deadn*cd->m_veg.vegcov[ip];         //assuming all previous deadn burned
+    		bd[ip]->m_vegs.deadc = 0.;
+    		bd[ip]->m_vegs.deadn = 0.;
+
+    		// above-ground veg. burning/death during fire
+    		comb_vegc += bd[ip]->m_vegs.c[I_leaf]*r_burn2ag_cn*cd->m_veg.vegcov[ip];     // when summing, needs adjusting by 'vegcov'
+    		bd[ip]->m_vegs.deadc = bd[ip]->m_vegs.c[I_leaf]*r_dead2ag_cn;   // we define deadc/n as the not-falling veg (or binding with living veg) during fire,
 		                                                        // which then is the source of ground debris (this is for woody plants only, others could be set deadc/n to zero)
-		bd[ip]->m_vegs.c[I_leaf] *= (1.0-r_burn2ag_cn-r_dead2ag_cn);
+    		bd[ip]->m_vegs.c[I_leaf] *= (1.0-r_burn2ag_cn-r_dead2ag_cn);
 
-		comb_vegc += bd[ip]->m_vegs.c[I_stem]*r_burn2ag_cn*cd->m_veg.vegcov[ip];
-		bd[ip]->m_vegs.deadc += bd[ip]->m_vegs.c[I_stem]*r_dead2ag_cn;
-		bd[ip]->m_vegs.c[I_stem] *= (1.0-r_burn2ag_cn-r_dead2ag_cn);
+    		comb_vegc += bd[ip]->m_vegs.c[I_stem]*r_burn2ag_cn*cd->m_veg.vegcov[ip];
+    		bd[ip]->m_vegs.deadc += bd[ip]->m_vegs.c[I_stem]*r_dead2ag_cn;
+    		bd[ip]->m_vegs.c[I_stem] *= (1.0-r_burn2ag_cn-r_dead2ag_cn);
 
+    		comb_vegn += bd[ip]->m_vegs.strn[I_leaf]*r_burn2ag_cn*cd->m_veg.vegcov[ip];
+    		bd[ip]->m_vegs.deadn += bd[ip]->m_vegs.strn[I_leaf]*r_dead2ag_cn;
+    		bd[ip]->m_vegs.strn[I_leaf] *= (1.0-r_burn2ag_cn-r_dead2ag_cn);
 
-		comb_vegn += bd[ip]->m_vegs.strn[I_leaf]*r_burn2ag_cn*cd->m_veg.vegcov[ip];
-		bd[ip]->m_vegs.deadn += bd[ip]->m_vegs.strn[I_leaf]*r_dead2ag_cn;
-		bd[ip]->m_vegs.strn[I_leaf] *= (1.0-r_burn2ag_cn-r_dead2ag_cn);
+    		comb_vegn += bd[ip]->m_vegs.strn[I_stem]*r_burn2ag_cn;
+    		bd[ip]->m_vegs.deadn += bd[ip]->m_vegs.strn[I_stem]*r_dead2ag_cn;
+    		bd[ip]->m_vegs.strn[I_stem] *= (1.0-r_burn2ag_cn-r_dead2ag_cn);
 
-		comb_vegn += bd[ip]->m_vegs.strn[I_stem]*r_burn2ag_cn;
-		bd[ip]->m_vegs.deadn += bd[ip]->m_vegs.strn[I_stem]*r_dead2ag_cn;
-		bd[ip]->m_vegs.strn[I_stem] *= (1.0-r_burn2ag_cn-r_dead2ag_cn);
-
-		// below-ground veg. (root) burning/death during fire
-		comb_vegc += bd[ip]->m_vegs.c[I_root]*r_burn2bg_cn[ip]*cd->m_veg.vegcov[ip];
-	    double deadc_tmp = bd[ip]->m_vegs.c[I_root]*r_dead2bg_cn*cd->m_veg.vegcov[ip];
-	    for (int il =0; il <cd->m_soil.numsl; il++){
+    		// below-ground veg. (root) burning/death during fire
+    		comb_vegc += bd[ip]->m_vegs.c[I_root]*r_burn2bg_cn[ip]*cd->m_veg.vegcov[ip];
+    		double deadc_tmp = bd[ip]->m_vegs.c[I_root]*r_dead2bg_cn*cd->m_veg.vegcov[ip];
+    		for (int il =0; il <cd->m_soil.numsl; il++){
 	    	// for the dead below-ground C/N caused by fire, they are put into original layer
-	    	if (cd->m_soil.frootfrac[il][ip]>0.)
+    			if (cd->m_soil.frootfrac[il][ip]>0.)
 	    		bd[0]->m_sois.somcr[il] += deadc_tmp*cd->m_soil.frootfrac[il][ip];   //'rootfrac' must be updated above
-	    }
-	    dead_bg_vegc +=deadc_tmp;
+    		}
+    		dead_bg_vegc +=deadc_tmp;
 
-		bd[ip]->m_vegs.c[I_root] *= (1.0-r_burn2bg_cn[ip]-r_dead2bg_cn);
+    		bd[ip]->m_vegs.c[I_root] *= (1.0-r_burn2bg_cn[ip]-r_dead2bg_cn);
 
-		comb_vegn += bd[ip]->m_vegs.strn[I_root]*r_burn2bg_cn[ip]*cd->m_veg.vegcov[ip];
-		double deadn_tmp = bd[ip]->m_vegs.strn[I_root]*r_dead2bg_cn*cd->m_veg.vegcov[ip];   // this is needed below
-	    for (int il =0; il <cd->m_soil.numsl; il++){
-	    	// for the dead below-ground C/N caused by fire, they are put into original layer
-	    	if (cd->m_soil.frootfrac[il][ip]>0.)
+    		comb_vegn += bd[ip]->m_vegs.strn[I_root]*r_burn2bg_cn[ip]*cd->m_veg.vegcov[ip];
+    		double deadn_tmp = bd[ip]->m_vegs.strn[I_root]*r_dead2bg_cn*cd->m_veg.vegcov[ip];   // this is needed below
+    		for (int il =0; il <cd->m_soil.numsl; il++){
+    			// for the dead below-ground C/N caused by fire, they are put into original layer
+    			if (cd->m_soil.frootfrac[il][ip]>0.)
 	    		bd[0]->m_sois.somcr[il] += deadn_tmp*cd->m_soil.frootfrac[il][ip];   //'rootfrac' must be updated above
-	    }
-	    dead_bg_vegn +=deadn_tmp;
-		bd[ip]->m_vegs.strn[I_root] *= (1.0-r_burn2bg_cn[ip]-r_dead2bg_cn);
+    		}
+    		dead_bg_vegn +=deadn_tmp;
+    		bd[ip]->m_vegs.strn[I_root] *= (1.0-r_burn2bg_cn[ip]-r_dead2bg_cn);
 
-		// one more veg N pool (labile N)
-		comb_vegn += bd[ip]->m_vegs.labn*(1.-r_live_cn)*cd->m_veg.vegcov[ip];  //assuming all labn emitted, leaving none into deadn
-		bd[ip]->m_vegs.labn *= r_live_cn;
+    		// one more veg N pool (labile N)
+    		comb_vegn += bd[ip]->m_vegs.labn*(1.-r_live_cn)*cd->m_veg.vegcov[ip];  //assuming all labn emitted, leaving none into deadn
+    		bd[ip]->m_vegs.labn *= r_live_cn;
 
-		// finally, we have:
-		bd[ip]->m_vegs.call = bd[ip]->m_vegs.c[I_leaf]+bd[ip]->m_vegs.c[I_stem]+bd[ip]->m_vegs.c[I_root];
-		bd[ip]->m_vegs.nall = bd[ip]->m_vegs.strn[I_leaf]+bd[ip]->m_vegs.strn[I_stem]+bd[ip]->m_vegs.strn[I_root]+bd[ip]->m_vegs.labn;
+    		// finally, we have:
+    		bd[ip]->m_vegs.call = bd[ip]->m_vegs.c[I_leaf]+bd[ip]->m_vegs.c[I_stem]+bd[ip]->m_vegs.c[I_root];
+    		bd[ip]->m_vegs.nall = bd[ip]->m_vegs.strn[I_leaf]+bd[ip]->m_vegs.strn[I_stem]+bd[ip]->m_vegs.strn[I_root]+bd[ip]->m_vegs.labn;
 
+    	}// end of 'vegcov[ip]>0.'
 	}
 
 	double reta_vegc = (comb_vegc+comb_deadc) * firpar.r_retain_c;
@@ -402,8 +411,10 @@ void WildFire::burn(const int & yrind, const bool & friderived){
 	}
 
     //Need to copy 'bd[0]->m_soils' to other PFTs, because above soil portion of 'bd' is done on 'bd[0]'
-    for (int ip=1; ip<cd->numpft; ip++) {
-    	bd[ip]->m_sois = bd[0]->m_sois;
+    for (int ip=1; ip<NUM_PFT; ip++) {
+    	if (cd->m_veg.vegcov[ip]>0.){
+    		bd[ip]->m_sois = bd[0]->m_sois;
+    	}
     }
 
 	
@@ -434,11 +445,10 @@ void WildFire::deriveFireSeverity(){
 // above ground burning ONLY, based on fire severity indirectly or directly
 void WildFire::getBurnAbgVegetation(const int &ip) {
 
-
 	if (!fd->useseverity){
 		oneseverity = 0;
 		if (cd->gd->drgtype == 0 ) {
-			if (oneseason == 2) {  //late fire
+			if (oneseason == 3) {  //late fire
 				oneseverity = 4;
 			} else {   // early- or cold-season fires
 				if(onesize==1){

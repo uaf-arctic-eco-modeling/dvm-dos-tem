@@ -8,10 +8,6 @@ BgcData::~BgcData(){
 	
 };
 
-void BgcData::init(){
-
-};
-
 void BgcData::land_endOfMonth(){
 	m_l2a.nep = m_a2v.nppall-m_soi2a.rhtot;
 
@@ -291,12 +287,6 @@ void BgcData::soil_endOfMonth(const bool &baseline){
  			prvltrfcnque[il].pop_back();
  		}
 
- 		deque <double> ltrfcnque = prvltrfcnque[il];
- 		int numrec = ltrfcnque.size();
- 		prvltrfcn[il] = 0.;
- 		for (int i=0; i<numrec; i++){
- 		  prvltrfcn[il] += ltrfcnque[il]/numrec;
- 		}
  	}
 
  	//annually mean variables

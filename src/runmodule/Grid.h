@@ -5,14 +5,12 @@
 #include <iostream>
 using namespace std;
 
-#include "../atmosphere/Atmosphere.h"
-
 #include "../data/GridData.h"
 #include "../data/RegionData.h"
 #include "../data/EnvData.h"
 #include "../data/BgcData.h"
 
-#include "../inc/ErrorCode.h"
+#include "../inc/errorcode.h"
 
 class Grid{
 	public :
@@ -24,8 +22,6 @@ class Grid{
  	void setEnvData(EnvData * ed);
  	void setBgcData(BgcData * bd);
  	void setRegionData(RegionData *rd);
-
- 	//Atmosphere atm;
 	
     EnvData *grded;   // 'ed' integrated over whole grid
     BgcData *grdbd;   // 'bd' integrated over whole grid
