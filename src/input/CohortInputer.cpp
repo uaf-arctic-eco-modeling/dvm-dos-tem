@@ -1,3 +1,5 @@
+/** Implementation file for CohortInputer class. */
+
 #include "CohortInputer.h"
 
 CohortInputer::CohortInputer(){
@@ -145,6 +147,9 @@ int CohortInputer::initVegFile(){
 
 };
 
+/**
+*
+*/
 int CohortInputer::initFireFile(){
 	firefname = md->chtinputdir + "fire.nc";
 
@@ -176,7 +181,9 @@ int CohortInputer::initFireFile(){
  	return 0;
 };
 
-// the following is for a input file containing data ids for each cohort
+/** Get the ids of each cohort.
+* The following is for a input file containing data ids for each cohort.
+*/
 int CohortInputer::getChtDataids(int &chtid, int & initchtid, int & grdid,
 		int & clmid,  int & vegid, int & fireid, const int &recno){
 	NcError err(NcError::silent_nonfatal);
@@ -240,7 +247,9 @@ int CohortInputer::getChtDataids(int &chtid, int & initchtid, int & grdid,
 
 };
 
-// the following are for data Ids from input data files
+/** The following are for data Ids from input data files.
+*
+*/
 int CohortInputer::getInitchtId(int &initchtid, const int &recno){
 	NcError err(NcError::silent_nonfatal);
 
@@ -257,6 +266,9 @@ int CohortInputer::getInitchtId(int &initchtid, const int &recno){
 	return 0;
 };
 
+/** lookup the climate id.
+*
+*/
 int CohortInputer::getClmId(int &clmid, const int &recno){
 	NcError err(NcError::silent_nonfatal);
 
@@ -273,6 +285,9 @@ int CohortInputer::getClmId(int &clmid, const int &recno){
 	return 0;
 };
 
+/** Lookup the vegetation id.
+*
+*/
 int CohortInputer::getVegId(int &vegid, const int &recno){
 	NcError err(NcError::silent_nonfatal);
 
@@ -307,7 +322,9 @@ int CohortInputer::getFireId(int &fireid, const int &recno){
 	return 0;
 };
 
-// read-in clm data for 'yrs' years and ONE record only
+/** read-in clm data for 'yrs' years and ONE record only.
+*
+*/
 void CohortInputer::getClimate(float tair[], float prec[], float nirr[], float vapo[],
 		const int & yrs, const int & recid){
 
@@ -380,7 +397,9 @@ void CohortInputer::getClimate(float tair[], float prec[], float nirr[], float v
 
 };
 
-// read-in vegetation data for ONE record only
+/** read-in vegetation data for ONE record only.
+*
+*/
 void CohortInputer::getVegetation(int vsetyr[], int vtype[], double vfrac[], const int &recid){
 	NcError err(NcError::silent_nonfatal);
 
@@ -418,7 +437,9 @@ void CohortInputer::getVegetation(int vsetyr[], int vtype[], double vfrac[], con
 
 };
 
-// read-in fire data, except for 'severity', for ONE record only
+/** read-in fire data, except for 'severity', for ONE record only.
+*
+*/
 void CohortInputer::getFire(int fyear[], int fseason[], int fsize[], const int & recid){
 
 	NcError err(NcError::silent_nonfatal);
@@ -468,7 +489,9 @@ void CohortInputer::getFire(int fyear[], int fseason[], int fsize[], const int &
 
 };
 
-// read-in fire 'severity', for ONE record only
+/** read-in fire 'severity', for ONE record only
+*
+*/
 void CohortInputer::getFireSeverity(int fseverity[], const int & recid){
 	NcError err(NcError::silent_nonfatal);
 	NcFile fireFile(firefname.c_str(), NcFile::ReadOnly);

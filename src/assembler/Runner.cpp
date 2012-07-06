@@ -1,15 +1,23 @@
+/** Implementation file for the Runner class. */
 
 #include "Runner.h"
 
+/** Constructor. */
 Runner::Runner(){
 	chtid = -1;
 	error = 0;
 };
 
+/** Destructor. */
 Runner::~Runner(){
 	
 };
 
+/** Manages a run.
+* - choose run mode based on config file
+* - get some inputs
+* - add cohorts to a list if necessary
+*/
 void Runner::initInput(const string &controlfile, const string &runmode){
 
 		cout <<"Starting initialization ...\n";
@@ -85,7 +93,9 @@ void Runner::initInput(const string &controlfile, const string &runmode){
 
 };
 
-//output setting-up
+/** Setting up output
+*
+*/
 void Runner::initOutput() {
 
 		string stage = "-"+md.runstages;
@@ -166,7 +176,9 @@ void Runner::initOutput() {
 
 };
 
-//set up data connection and data pointer initialization
+/** Set up data connection and data pointer initialization.
+*
+*/
 void Runner::setupData(){
 
 		// input data connection
@@ -187,6 +199,7 @@ void Runner::setupData(){
 
 };
 
+/** Set up the IDs. ? */
 void Runner::setupIDs(){
 
 	// all grid data ids
@@ -279,7 +292,7 @@ void Runner::setupIDs(){
 
 };
 
-// one-site runmode
+/** One-site run mode. */
 void Runner::runmode1(){
 
 	//read-in region-level data (Yuan: this is the portal for multiple region run, if needed in the future)
@@ -328,6 +341,7 @@ void Runner::runmode1(){
 
 };
 
+/** Run mode 2. */
 void Runner::runmode2(){
 
 	//read-in region-level data (Yuan: this is the portal for multiple region run, if needed in the future)
@@ -384,6 +398,7 @@ void Runner::runmode2(){
 
 };
 
+/** Run mode 3. */
 void Runner::runmode3(){
 
 	//read-in region-level data (Yuan: this is the portal for multiple region run, if needed in the future)
@@ -505,8 +520,8 @@ void Runner::runmode3(){
 
 };
 
+/** Read in a list of cohorts to run. */
 void Runner::createCohortList4Run(){
-	// read in a list of cohorts to run
 
 	//netcdf error
 	NcError err(NcError::silent_nonfatal);
@@ -553,6 +568,7 @@ void Runner::createCohortList4Run(){
 
 };
 
+/** Create the output variable list. */
 void Runner::createOutvarList(string & txtfile){
 
 	string outvarfile = txtfile;

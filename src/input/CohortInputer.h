@@ -1,9 +1,9 @@
+/** Cohort Inputer.
+* This class is used to readin input of parameters, forcings for TEM.
+*/
+
 #ifndef COHORTINPUTER_H_
 #define COHORTINPUTER_H_
-
-/*! this class is used to readin input of parameters, forcings for TEM
- * \file
- */
 
 #include <iostream>
 #include <fstream>
@@ -14,9 +14,8 @@ using namespace std;
 
 #include "netcdfcpp.h"
 
-//local header
+//local headers
 #include "../runmodule/ModelData.h"
-
 #include "../inc/cohortconst.h"
 #include "../inc/layerconst.h"
 #include "../inc/timeconst.h"
