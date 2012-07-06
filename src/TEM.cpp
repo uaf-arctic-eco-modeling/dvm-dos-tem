@@ -34,13 +34,13 @@ using namespace std;
 #include "assembler/Runner.h"
 
 // defines the mode of run: Single-site or Multiple-site (regional)
-//#define SITERUN
-#define REGNRUN
+#define SITERUN
+//#define REGNRUN
 
 int main(int argc, char* argv[]){
 
-	setvbuf(stdout, NULL, _IONBF, 0);
-	setvbuf(stderr, NULL, _IONBF, 0);
+	setvbuf(stdout, NULL, _IONBF, 0); // no buffering
+	setvbuf(stderr, NULL, _IONBF, 0); // no buffering
 
 	#ifdef SITERUN 
 		time_t stime;
