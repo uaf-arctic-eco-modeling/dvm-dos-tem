@@ -9,11 +9,11 @@
 using namespace std;
 
 #include "DoubleLinkedList.h"
-#include "Snow.h"
-#include "Moss.h"
-#include "Organic.h"
-#include "Mineral.h"
-#include "SoilParent.h"
+#include "horizon/Snow.h"
+#include "horizon/Moss.h"
+#include "horizon/Organic.h"
+#include "horizon/Mineral.h"
+#include "horizon/SoilParent.h"
 
 #include "layer/Layer.h"
 #include "layer/MossLayer.h"

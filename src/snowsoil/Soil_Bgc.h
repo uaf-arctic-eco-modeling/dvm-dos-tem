@@ -1,7 +1,7 @@
 #ifndef SOIL_BGC_H_
 #define SOIL_BGC_H_
 
-#include "../inc/ErrorCode.h"
+#include "../inc/errorcode.h"
 
 #include "../data/CohortData.h"
 #include "../data/EnvData.h"
@@ -103,6 +103,7 @@ class Soil_Bgc{
   	double getNetmin(const double & nimmob, const double & soilorgc, const double & soilorgn,
 					 const double & rh, const double & tcnsoil,
 					  const double & decay, const double & nup );
+
   	double getKnsoilmoist(const double & vsm);   //
 
   	void updateKdyrly4all();

@@ -11,7 +11,7 @@
 struct atmstate_env{
 	double co2; //ppmv
 	double ta;
-	int dsr; // day since rain
+	int dsr;   // day since rain
 };
 
 struct vegstate_dim{
@@ -26,15 +26,7 @@ struct vegstate_dim{
 
     double lai[NUM_PFT];             // lai
     double fpc[NUM_PFT];             // foliage percentage coverage (seasonally dynamics), related to LAI
-    double fpcsum;                   // sum of fpc[] (must not be greater than 1.0)
     double frootfrac[MAX_ROT_LAY][NUM_PFT];    // fine root distribution
-
-    // phenoloy variables
-    double fleaf[NUM_PFT];            // normalized foliage growth index based on current and previous EET
-    double ffoliage[NUM_PFT];         // normalized foliage growth index based on vegetation C (stand age related)
-	double prvunnormleafmx[NUM_PFT];  // averaged 'unnormleafmx' of at-most previous 10 years
-    double prvfoliagemx[NUM_PFT];     // this is for 'ffoliage' not growing backward
-    double prvthermaltime[NUM_PFT];   // avaraged growing (air or soil))thermal time (degree-day) of at-most previous 10 years, used for seasonal variation
 
 };
 

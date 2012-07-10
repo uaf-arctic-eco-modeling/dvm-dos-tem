@@ -1,6 +1,5 @@
 #include "GridData.h"
 
-
 GridData::GridData(){
 	
 };

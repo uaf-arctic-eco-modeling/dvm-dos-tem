@@ -59,20 +59,6 @@ void Vegetation_Env::initializeState5restart(RestartData* resin){
 	ed->d_vegs.rwater = resin->vegwater[ipft];
 	ed->d_vegs.snow   = resin->vegsnow[ipft];
 	
- 	double eetmxa[10];
- 	int numyr = 0;
- 	ed->prveetmx = 0.;
-	for(int i=0; i<10; i++){
-		eetmxa[i]=resin->eetmxA[i][ipft];
-		if(eetmxa[i]>0){
-			ed->eetmxque.push_back(eetmxa[i]);
-
-			numyr+=1;
-			ed->prveetmx +=eetmxa[i];
-		}
-	}
-	if (numyr>0) ed->prveetmx /=numyr;
-
 };
 
 //solar radiation (unit: W/m2) on canopy and its energy balance
@@ -236,7 +222,7 @@ void Vegetation_Env::updateWaterBalance(const double & daylhr){
 	 	ed->d_v2g.rdrip = ed->d_a2v.rinter - ed->d_v2a.evap;
 	 	ed->d_v2g.sdrip = ed->d_a2v.sinter - ed->d_v2a.sublim;
 	
-	 	ed->d_vegs.snow  += ed->d_a2v.sinter - ed->d_v2g.sdrip - ed->d_v2a.sublim;   // no water storage
+	 	ed->d_vegs.snow  += ed->d_a2v.sinter - ed->d_v2g.sdrip - ed->d_v2a.sublim;
 	 	ed->d_vegs.rwater+= ed->d_a2v.rinter - ed->d_v2g.rdrip - ed->d_v2a.evap;
 	 
 	} else {   //envlai <=0, i.e., no vegetation?

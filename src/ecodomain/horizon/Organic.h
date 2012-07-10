@@ -6,9 +6,7 @@
 #include "iostream"
 using namespace std;
 
-#include "../inc/ErrorCode.h"
-#include "../inc/cohortconst.h"
-#include "../inc/layerconst.h"
+#include "../layer/OrganicLayer.h"
 
 class Organic{
 	public:

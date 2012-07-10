@@ -8,11 +8,6 @@ EnvData::~EnvData(){
 	
 };
 
-void EnvData::init(){
-	d_atms.dsr = 0;
-	monthsfrozen = 0;
-};
-
 // initialize yearly accumulators
 void EnvData::atm_beginOfYear(){
 
@@ -642,20 +637,6 @@ void EnvData::veg_endOfMonth(const int & currmind){
 	y_v2g.rthfl += m_v2g.rthfl;
 	y_v2g.sthfl += m_v2g.sthfl;
 
-    // vegetation EET max. value in a year, used for EET determined leaf phenology
-	if(currmind==0){
-		eetmx = m_v2a.evap+m_v2a.tran;             //previously, used total land eet - it's not fair, because this is for leaf phenology
-    }else {
-    	if (m_l2a.eet>eetmx) eetmx = m_v2a.evap+m_v2a.tran;
-    }
-
-	if (currmind == 11) { //at end of year, store the current eetmx/petmx values
-		eetmxque.push_back(eetmx);
-		if(eetmxque.size()>10){
-			eetmxque.pop_front();    // remove the oldest value
-		}
-	}
-
 };
 
 void EnvData::grnd_endOfMonth(){
@@ -756,27 +737,6 @@ void EnvData::grnd_endOfMonth(){
 	y_soi2l.qdrain += m_soi2l.qdrain;
 
 };
-
-// update the prveetmx and prvpetmx,
-// which is the mean of the eetmx/petmx in the deque of previous 10 years
-void EnvData::assignPrveetmx(){
-
-	int numrec = eetmxque.size();
-	int valideet =0;
-
-	double sumeet=0;
-	for(int i=	0; i<numrec; i++){
-	  	if(eetmxque[i]>0){
-	  		valideet++;
-	  		sumeet+=eetmxque[i];
-	  	}
-	}
-	if(valideet>0){
-		prveetmx = sumeet/valideet;
-	}
-
-};
-
 
 
 

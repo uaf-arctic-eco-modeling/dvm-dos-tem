@@ -8,23 +8,25 @@ GridInputer::~GridInputer(){
 
 }
 
-void GridInputer::init(){
-  if(md!=NULL){
+int GridInputer::init(){
 
-	  initGrid(md->grdinputdir);
-	  initDrainType(md->grdinputdir);
-	  initSoilTexture(md->grdinputdir);
-	  initFireStatistics(md->grdinputdir);
+	if(md!=NULL){
 
-  }else{
+	  md->act_gridno  = initGrid(md->grdinputdir);
+	  md->act_drainno = initDrainType(md->grdinputdir);
+	  md->act_soilno  = initSoilTexture(md->grdinputdir);
+	  md->act_gfireno = initFireStatistics(md->grdinputdir);
+
+    }else{
 	  std::string msg ="GridInputer::init - ModelData is NULL";
-		cout<<msg+"\n";
-		exit(-1);
-  }
+	  cout<<msg+"\n";
+	  return -1;
+    }
 	
+	return 0;
 }
 
-void GridInputer::initGrid(string& dir){
+int GridInputer::initGrid(string& dir){
 	//netcdf error
 	NcError err(NcError::silent_nonfatal);
 
@@ -44,9 +46,13 @@ void GridInputer::initGrid(string& dir){
 
  	}
 
+ 	int act_gridno = grdD->size();  //actual grid number
+
+ 	return act_gridno;
+
 }
 
-void GridInputer::initSoilTexture(string& dir){
+int GridInputer::initSoilTexture(string& dir){
 	//netcdf error
 	NcError err(NcError::silent_nonfatal);
 
@@ -66,9 +72,13 @@ void GridInputer::initSoilTexture(string& dir){
 
  	}
 
+ 	int act_soilidno = soilD->size();  //actual soil dataset number
+
+ 	return act_soilidno;
+
 }
 
-void GridInputer::initDrainType(string& dir){
+int GridInputer::initDrainType(string& dir){
 	drainfname = dir +"drainage.nc";
 
 	NcError err(NcError::silent_nonfatal);
@@ -87,9 +97,13 @@ void GridInputer::initDrainType(string& dir){
 
  	}
 
+ 	int act_drainno = drainD->size();  //actual drainage type datset number
+
+ 	return act_drainno;
+
 }
 
-void GridInputer::initFireStatistics(string & dir){
+int GridInputer::initFireStatistics(string & dir){
 	//netcdf error
 	NcError err(NcError::silent_nonfatal);
 
@@ -123,69 +137,59 @@ void GridInputer::initFireStatistics(string & dir){
  		exit(-1);
  	}
 
+ 	int act_gfireno = gfireD->size();  //actual grid fire dataset number
+
+ 	return act_gfireno;
+
 }
 
-//recid - the order (from ZERO) in the .nc file, gid - the grid id
-// if given gid, search for corresponding lat/lon, drainid, soilid, and gfireid
-int GridInputer::getGridDataids(float &lat, float &lon, int &drainid, int &soilid,
-		int &gfireid, const int &gid){
+//recno - the order (from ZERO) in the .nc file, ids - the real ids in the *.nc files
+int GridInputer::getGridids(int & grdid, int &grddrgid, int &grdsoilid,
+		int &grdfireid,	const int & recno){
 	//netcdf error
 	NcError err(NcError::silent_nonfatal);
-
 	NcFile gridFile(gridfname.c_str(), NcFile::ReadOnly);
 
 	NcVar* grdidV = gridFile.get_var("GRIDID");
 	if(grdidV==NULL){
 		string msg="Cannot get GRIDID in 'grid.nc'! ";
  		cout<<msg+"\n";
- 		exit(-1);
+ 		return -1;
 	}
+	grdidV->set_cur(recno);
+	grdidV->get(&grdid, 1);
 
-	NcVar* drainidV = gridFile.get_var("DRAINAGEID");
-	if(drainidV==NULL){
+	NcVar* drgidV = gridFile.get_var("DRAINAGEID");
+	if(drgidV==NULL){
 		string msg="Cannot get DRAINAGEID in 'grid.nc'! ";
  		cout<<msg+"\n";
- 		exit(-1);
+ 		return -1;
 	}
+	drgidV->set_cur(recno);
+	drgidV->get(&grddrgid, 1);
 
 	NcVar* soilidV = gridFile.get_var("SOILID");
 	if(soilidV==NULL){
 		string msg="Cannot get SOILID in 'grid.nc'! ";
  		cout<<msg+"\n";
- 		exit(-1);
+ 		return -1;
 	}
+	soilidV->set_cur(recno);
+	soilidV->get(&grdsoilid, 1);
 
 	NcVar* gfireidV = gridFile.get_var("GFIREID");
 	if(gfireidV==NULL){
 		string msg="Cannot get GFIREID in 'grid.nc'! ";
  		cout<<msg+"\n";
- 		exit(-1);
+ 		return -1;
 	}
+	gfireidV->set_cur(recno);
+	gfireidV->get(&grdfireid, 1);
 
-	int id=-1;
-	for (int i=0; i<(int)grdidV->num_vals(); i++){
-		grdidV->set_cur(i);
-		grdidV->get(&id,1);
-		if(id==gid) {
-			getLatLon(lat, lon, i);
-
-			drainidV->set_cur(i);
-			drainidV->get(&drainid,1);
-
-			soilidV->set_cur(i);
-			soilidV->get(&soilid,1);
-
-			gfireidV->set_cur(i);
-			gfireidV->get(&gfireid,1);
-
-			return i;
-		}
-	}
-
-	return -1;
+	return 0;
 }
 
-int GridInputer::getDrainRecid(const int &drainid){
+int GridInputer::getDrainId(int & drainid, const int & recno){
 	//netcdf error
 	NcError err(NcError::silent_nonfatal);
 
@@ -195,20 +199,16 @@ int GridInputer::getDrainRecid(const int &drainid){
 	if(drainidV==NULL){
 		string msg="Cannot get DRAINAGEID in 'drainage.nc'! ";
  		cout<<msg+"\n";
- 		exit(-1);
+ 		return -1;
 	}
 
-	int id=-1;
-	for (int i=0; i<(int)drainidV->num_vals(); i++){
-		drainidV->set_cur(i);
-		drainidV->get(&id,1);
-		if(id==drainid) return i;
-	}
+	drainidV->set_cur(recno);
+	drainidV->get(&drainid, 1);
 
-	return -1;
+	return 0;
 }
 
-int GridInputer::getSoilRecid(const int &soilid){
+int GridInputer::getSoilId(int & soilid, const int & recno){
 	//netcdf error
 	NcError err(NcError::silent_nonfatal);
 	NcFile soilFile(soilfname.c_str(), NcFile::ReadOnly);
@@ -217,20 +217,16 @@ int GridInputer::getSoilRecid(const int &soilid){
 	if(soilidV==NULL){
 		string msg="Cannot get SOILID in 'soiltexture.nc'! ";
  		cout<<msg+"\n";
- 		exit(-1);
+ 		return -1;
 	}
 
-	int id=-1;
-	for (int i=0; i<(int)soilidV->num_vals(); i++){
-		soilidV->set_cur(i);
-		soilidV->get(&id,1);
-		if(id==soilid) return i;
-	}
+	soilidV->set_cur(recno);
+	soilidV->get(&soilid, 1);
 
-	return -1;
+	return 0;
 }
 
-int GridInputer::getGfireRecid(const int &gfireid){
+int GridInputer::getGfireId(int &gfireid, const int & recno){
 	//netcdf error
 	NcError err(NcError::silent_nonfatal);
 	NcFile gfireFile(gfirefname.c_str(), NcFile::ReadOnly);
@@ -239,21 +235,17 @@ int GridInputer::getGfireRecid(const int &gfireid){
 	if(gfireidV==NULL){
 		string msg="Cannot get GFIREID in 'firestatistics.nc'! ";
  		cout<<msg+"\n";
- 		exit(-1);
+ 		return -1;
 	}
 
-	int id=-1;
-	for (int i=0; i<(int)gfireidV->num_vals(); i++){
-		gfireidV->set_cur(i);
-		gfireidV->get(&id,1);
-		if(id==gfireid) return i;
-	}
+	gfireidV->set_cur(recno);
+	gfireidV->get(&gfireid, 1);
 
-	return -1;
+	return 0;
 }
 
 //recid - the order (from ZERO) in the .nc file, gridid - the grid id user-defined in the dataset
-void GridInputer::getLatLon(float & lat, float & lon, const int & recid ){
+void GridInputer::getLatlon(float & lat, float & lon, const int & recid ){
 
 	NcError err(NcError::silent_nonfatal);
 	NcFile gridFile(gridfname.c_str(), NcFile::ReadOnly);

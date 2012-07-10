@@ -7,13 +7,14 @@
 #define RUNCOHORT_H_
 
 #include <iostream>
+#include <vector>
+using namespace std;
 
 //local headers
 #include "../input/CohortInputer.h"
 #include "../input/RestartInputer.h"
 //#include "../input/SiteInputer.h"
 
-#include "../output/StatusOutputer.h"
 #include "../output/ChtOutputer.h"
 #include "../output/EnvOutputer.h"
 #include "../output/BgcOutputer.h"
@@ -27,9 +28,38 @@ class RunCohort {
 	 	RunCohort();
 	 	~RunCohort();
 
+		/* all cohort data id lists
+		 * ids are labeling the datasets, which exist in 5 *.nc files
+	 	 * and, the order (index, staring from 0) in these lists are actually record no. in the *.nc files
+	 	 */
+		vector<int> chtids;   // 'cohortid.nc'
+		vector<int> chtinitids;
+		vector<int> chtgridids;
+		vector<int> chtclmids;
+		vector<int> chtvegids;
+		vector<int> chtfireids;
+
+		vector<int> chtdrainids;  // from 'grid.nc' to 'cohortid.nc', related by 'GRIDID'
+		vector<int> chtsoilids;
+		vector<int> chtgfireids;
+
+		vector<int> initids;  // 'restart.nc' or 'sitein.nc'
+		vector<int> clmids;   // 'climate.nc'
+		vector<int> vegids;   // 'vegetation.nc'
+		vector<int> fireids;  // 'fire.nc'
+
+		/* the following is FOR one cohort only (current cohort)
+		 *
+		 */
 	 	int cohortcount;
-	 	// the index (from 0) of data for a chort in their .nc input files
-	 	int inichtind;
+	 	int initrecno;
+	 	int clmrecno;
+	 	int vegrecno;
+	 	int firerecno;
+
+	 	int used_atmyr;
+	    int yrstart;
+	    int yrend;
 
  		Cohort cht;
 
@@ -56,31 +86,26 @@ class RunCohort {
         RestartOutputer resouter;
 
  		void setModelData(ModelData * mdp);
- 		void initData(string & cmttype);
+ 		int allchtids();
 
+ 		void init();
 	    int readData();
-	    int reinit(const int &cid);
+	    int reinit();
 
-     	void run();
+     	void run_cohortly();
+
+		void run_monthly();
 
 	private :
  	  		 	 
 		ModelData *md;
 
-	    int usedatmyr;
+		int dstepcnt;   //day timesteps since starting output
+	    int mstepcnt;   //month timesteps since starting output
+	    int ystepcnt;   //year timesteps since starting output
 
-	    int yrstart;
-	    int yrend;
-	    int dstepcnt;
-	    int mstepcnt;
-	    int ystepcnt;
-
-		void runEquilibrium();
- 		void runSpinup();
- 		void runTransit();
- 		void runScenario();
-
- 		void modulerun();
+		void runEnvmodule();
+ 		void runmodule_cohortly();
 
 };
 #endif /*RUNCOHORT_H_*/
