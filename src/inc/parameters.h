@@ -63,7 +63,6 @@ struct vegpar_bgc{
 
 	// new production allocation (partioning)
 	double cpart[NUM_PFT_PART];   //Yuan: biomass partioning
-	double npart[NUM_PFT_PART];   //Yuan: N partioning
 
 	// new production C:N ratios - determining the N requirements
 	double c2neven[NUM_PFT_PART];    // C:N ratio in new production at current CO2, and adjsted by eet/pet

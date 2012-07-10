@@ -5,7 +5,7 @@
 #include "../inc/fluxes.h"
 #include "../inc/states.h"
 
-#include "../inc/ErrorCode.h"
+#include "../inc/errorcode.h"
 #include "../inc/layerconst.h"
 #include "../inc/timeconst.h"
 #include "../inc/physicalconst.h"

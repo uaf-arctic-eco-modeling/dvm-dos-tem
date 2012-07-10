@@ -106,6 +106,12 @@ void Soil_Env::initializeState(){
 		currl = currl->nextl;
 	}
 
+	//
+	ed->d_atms.dsr     = 0;
+	ed->monthsfrozen   = 0;
+	ed->rtfrozendays   = 0;
+	ed->rtunfrozendays = 0;
+
 };
 
 void Soil_Env::initializeState5restart(RestartData* resin){
@@ -139,8 +145,6 @@ void Soil_Env::initializeState5restart(RestartData* resin){
 			  currl->frozen = 0;
 		  }
 
-
-
 		}else{
 		  break;
 		}
@@ -149,7 +153,10 @@ void Soil_Env::initializeState5restart(RestartData* resin){
 	}
 
 	//
-	ed->monthsfrozen = resin->monthsfrozen;
+	ed->d_atms.dsr     = resin->dsr;
+	ed->monthsfrozen   = resin->monthsfrozen;
+	ed->rtfrozendays   = resin->rtfrozendays;
+	ed->rtunfrozendays = resin->rtunfrozendays;
 
 };
 
@@ -211,8 +218,8 @@ void Soil_Env::updateDailySurfFlux(Layer* toplayer, const double & dayl){
 	double albvis = dynamic_cast<SoilLayer*>(toplayer)->getAlbedoVis();
 	double albnir = dynamic_cast<SoilLayer*>(toplayer)->getAlbedoNir();
 
-	double insw =  ed->d_v2g.swthfl * cd->m_veg.fpcsum
-			      + ed->d_a2l.nirr * (1.- cd->m_veg.fpcsum);
+	double insw =  ed->d_v2g.swthfl * cd->m_vegd.fpcsum
+			      + ed->d_a2l.nirr * (1.- cd->m_vegd.fpcsum);
 
 	ed->d_soi2a.swrefl = insw *0.5 * albvis + insw *0.5*albnir;
 
@@ -503,7 +510,7 @@ void Soil_Env::updateDailySM(){
 	}
     evap  = ed->d_soi2a.evap; //mm/day: summed for soil evaporation
     rnth  = (ed->d_v2g.rthfl +ed->d_v2g.rdrip)   // note: rthfl and rdrip are already fpc adjusted
-    		+(1.- cd->m_veg.fpcsum)*ed->d_a2l.rnfl; //mm/day
+    		+(1.- cd->m_vegd.fpcsum)*ed->d_a2l.rnfl; //mm/day
 
     melt  = ed->d_snw2soi.melt; //mm/day
 

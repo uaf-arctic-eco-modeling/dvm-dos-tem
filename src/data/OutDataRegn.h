@@ -6,7 +6,7 @@
  *  rather than cohort by cohort - Yuan
  */
 
-#include "../inc/ErrorCode.h"
+#include "../inc/errorcode.h"
 #include "../inc/timeconst.h"
 #include "../inc/cohortconst.h"
 

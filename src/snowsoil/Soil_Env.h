@@ -9,7 +9,7 @@
 #include "../data/FirData.h"
 #include "../data/RestartData.h"
 
-#include "../inc/ErrorCode.h"
+#include "../inc/errorcode.h"
 #include "../inc/parameters.h"
 #include "../inc/layerconst.h"
 #include "../lookup/CohortLookup.h"

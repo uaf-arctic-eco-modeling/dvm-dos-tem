@@ -4,7 +4,6 @@
 #define DOUBLELINKEDLIST_H_
 
 #include "layer/Layer.h"
-#include "layer/SoilLayer.h"
 
 #include <string>
 #include <iostream>

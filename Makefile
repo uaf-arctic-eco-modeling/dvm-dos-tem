@@ -24,11 +24,11 @@ SOURCES= 	src/TEM.o \
 		src/disturb/WildFire.o \
 		src/ecodomain/DoubleLinkedList.o \
 		src/ecodomain/Ground.o \
-		src/ecodomain/Mineral.o \
-		src/ecodomain/Moss.o \
-		src/ecodomain/Organic.o \
-		src/ecodomain/Snow.o \
-		src/ecodomain/SoilParent.o \
+		src/ecodomain/horizon/Mineral.o \
+		src/ecodomain/horizon/Moss.o \
+		src/ecodomain/horizon/Organic.o \
+		src/ecodomain/horizon/Snow.o \
+		src/ecodomain/horizon/SoilParent.o \
 		src/ecodomain/Vegetation.o \
 		src/input/CohortInputer.o \
 		src/input/GridInputer.o \
@@ -41,7 +41,6 @@ SOURCES= 	src/TEM.o \
 		src/output/EnvOutputer.o \
 		src/output/RegnOutputer.o \
 		src/output/RestartOutputer.o \
-		src/output/StatusOutputer.o \
 		src/runmodule/Cohort.o \
 		src/runmodule/Controller.o \
 		src/runmodule/Grid.o \
@@ -102,7 +101,6 @@ OBJECTS = 	RunCohort.o \
 		EnvOutputer.o \
 		RegnOutputer.o \
 		RestartOutputer.o \
-		StatusOutputer.o \
 		Cohort.o \
 		Controller.o \
 		Grid.o \

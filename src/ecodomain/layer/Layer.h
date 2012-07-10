@@ -11,7 +11,7 @@
 
 using namespace std;
 
-#include "../../inc/ErrorCode.h"
+#include "../../inc/errorcode.h"
 #include "../../inc/physicalconst.h"
 #include "../../inc/layerconst.h"
 

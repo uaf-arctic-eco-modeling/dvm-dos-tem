@@ -1,16 +1,16 @@
 #include "RestartInputer.h"
 
 /*! constructor */
- RestartInputer::RestartInputer(){
+RestartInputer::RestartInputer(){
  
 };
 
- RestartInputer::~RestartInputer(){
+RestartInputer::~RestartInputer(){
  	//cout<< "closing output files in RestartInputer \n";
    
     if(restartFile!=NULL){
     	restartFile->close();
-	delete restartFile;
+    	delete restartFile;
     }
 
 };
@@ -48,7 +48,6 @@ void RestartInputer::init(string & dirfile){
 	firea2sorgnV =restartFile->get_var("FIREA2SORGN");   //fire-emitted N deposition
 
 	// - veg
-	numpftV      =restartFile->get_var("NUMPFT");
 	ysfV         =restartFile->get_var("YSF");  // years since fire
 
 	ifwoodyV     =restartFile->get_var("IFWOODY");
@@ -69,13 +68,16 @@ void RestartInputer::init(string & dirfile){
     deadcV  =restartFile->get_var("DEADC");
     deadnV  =restartFile->get_var("DEADN");
 
- 	toptAV   =restartFile->get_var("TOPTA");
+ 	toptV         =restartFile->get_var("TOPT");
+	eetmxV        =restartFile->get_var("EETMX");
+	unnormleafmxV =restartFile->get_var("UNNORMLEAFMX");
+ 	growingttimeV =restartFile->get_var("GROWINGTTIME");
+	foliagemxV =restartFile->get_var("FOLIAGEMX");
 
+ 	toptAV         =restartFile->get_var("TOPTA");
 	eetmxAV        =restartFile->get_var("EETMXA");
 	unnormleafmxAV =restartFile->get_var("UNNORMLEAFMXA");
  	growingttimeAV =restartFile->get_var("GROWINGTTIMEA");
-
-	prvfoliagemxV =restartFile->get_var("PRVFOLIAGEMX");
 
     //snow
     numsnwlV =restartFile->get_var("NUMSNWL");
@@ -88,8 +90,10 @@ void RestartInputer::init(string & dirfile){
     RHOsnowV =restartFile->get_var("RHOsnow");
 
     //ground-soil
-    numslV       =restartFile->get_var("NUMSL");
-    monthsfrozenV=restartFile->get_var("MONTHSFROZEN");
+    numslV         =restartFile->get_var("NUMSL");
+    monthsfrozenV  =restartFile->get_var("MONTHSFROZEN");
+	rtfrozendaysV  =restartFile->get_var("RTFROZENDAYS");
+	rtunfrozendaysV=restartFile->get_var("RTUNFROZENDAYS");
     watertabV    =restartFile->get_var("WATERTAB");
 
     DZsoilV   =restartFile->get_var("DZsoil");
@@ -117,30 +121,16 @@ void RestartInputer::init(string & dirfile){
     solnV  =restartFile->get_var("SOLN");
     avlnV  =restartFile->get_var("AVLN");
 
-    prvltrfcnV  =restartFile->get_var("PRVLTRFCN");
+    prvltrfcnAV  =restartFile->get_var("PRVLTRFCNA");
 
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////
-int RestartInputer::getRecordId(const int &chtid){
-
-	int chtno = (int)chtD->size();
-	int id;
-	for (int i=0; i<chtno; i++){
-		getChtId(id, i);
-		if (id==chtid) return i;
-		
-	}
-	cout << "cohort "<< chtid<<" NOT exists in RestartInputer\n";	
-	return -1;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////
 //NOTE: the cid in the following is actually the record order number (starting 0)
-void RestartInputer::getChtId(int &chtid, const int &cid){       
+void RestartInputer::getReschtId(int &reschtid, const int &recno){
 	
-	chtidV->set_cur(cid);
-	NcBool nb1 = chtidV->get(&chtid,1);
+	chtidV->set_cur(recno);
+	NcBool nb1 = chtidV->get(&reschtid, 1);
 	if(!nb1){	 
 	 string msg = "problem in reading chtid in  RestartInputer";
 		cout<<msg+"\n";
@@ -148,10 +138,10 @@ void RestartInputer::getChtId(int &chtid, const int &cid){
 	}
 }
 
-void RestartInputer::getErrcode(int & errcode, const int &cid){
+void RestartInputer::getErrcode(int & errcode, const int &recno){
 	
-	errcodeV->set_cur(cid);
-	NcBool nb1 = errcodeV->get(&errcode,1);
+	errcodeV->set_cur(recno);
+	NcBool nb1 = errcodeV->get(&errcode, 1);
 	if(!nb1){	 
 	 string msg = "problem in reading errcode in  RestartInputer";
 		cout<<msg+"\n";
@@ -184,14 +174,6 @@ void RestartInputer::getRestartData(RestartData *resid, const int &cid){
 	varbool = ysfV->get(&resid->ysf,1);
 	if(!varbool){
 		string msg = "problem in reading 'YSF' in RestartInputer";
- 		cout<<msg+"\n";
- 		exit(-1);
-	}
-
-	numpftV->set_cur(cid);
-	varbool = numpftV->get(&resid->numpft,1);
-	if(!varbool){
-		string msg = "problem in reading 'NUMPFT' in RestartInputer";
  		cout<<msg+"\n";
  		exit(-1);
 	}
@@ -316,8 +298,40 @@ void RestartInputer::getRestartData(RestartData *resid, const int &cid){
  		exit(-1);
 	}
 
+	toptV->set_cur(cid, 0);
+	varbool = toptV->get(&resid->topt[0], 1, NUM_PFT);
+	if(!varbool){
+		string msg = "problem in reading 'TOPT' in RestartInputer";
+ 		cout<<msg+"\n";
+ 		exit(-1);
+	}
+
+	eetmxV->set_cur(cid, 0);
+	varbool = eetmxV->get(&resid->eetmx[0], 1, NUM_PFT);
+	if(!varbool){
+		string msg = "problem in reading 'EETMX' in RestartInputer";
+ 		cout<<msg+"\n";
+ 		exit(-1);
+	}
+
+	growingttimeV->set_cur(cid, 0);
+	varbool = growingttimeV->get(&resid->growingttime[0], 1, NUM_PFT);
+	if(!varbool){
+		string msg = "problem in reading 'GROWINGTTIME' in RestartInputer";
+ 		cout<<msg+"\n";
+ 		exit(-1);
+	}
+
+	unnormleafmxV->set_cur(cid, 0);
+	varbool = unnormleafmxV->get(&resid->unnormleafmx[0], 1, NUM_PFT);
+	if(!varbool){
+		string msg = "problem in reading 'UNNORMLEAFMX' in RestartInputer";
+ 		cout<<msg+"\n";
+ 		exit(-1);
+	}
+
 	toptAV->set_cur(cid, 0, 0);
-	varbool = toptAV->get(&resid->toptA[0][0], 1, NUM_PFT, 10);
+	varbool = toptAV->get(&resid->toptA[0][0], 1, 10, NUM_PFT);
 	if(!varbool){
 		string msg = "problem in reading 'TOPTA' in RestartInputer";
  		cout<<msg+"\n";
@@ -325,7 +339,7 @@ void RestartInputer::getRestartData(RestartData *resid, const int &cid){
 	}
 
 	eetmxAV->set_cur(cid, 0, 0);
-	varbool = eetmxAV->get(&resid->eetmxA[0][0], 1, NUM_PFT, 10);
+	varbool = eetmxAV->get(&resid->eetmxA[0][0], 1, 10, NUM_PFT);
 	if(!varbool){
 		string msg = "problem in reading 'EETMXA' in RestartInputer";
  		cout<<msg+"\n";
@@ -333,25 +347,25 @@ void RestartInputer::getRestartData(RestartData *resid, const int &cid){
 	}
 
 	growingttimeAV->set_cur(cid, 0, 0);
-	varbool = growingttimeAV->get(&resid->growingttimeA[0][0], 1, NUM_PFT, 10);
+	varbool = growingttimeAV->get(&resid->growingttimeA[0][0], 1, 10, NUM_PFT);
 	if(!varbool){
-		string msg = "problem in reading 'PETMXA' in RestartInputer";
+		string msg = "problem in reading 'GROWINGTTIMEA' in RestartInputer";
  		cout<<msg+"\n";
  		exit(-1);
 	}
 
 	unnormleafmxAV->set_cur(cid, 0, 0);
-	varbool = unnormleafmxAV->get(&resid->unnormleafmxA[0][0], 1, NUM_PFT, 10);
+	varbool = unnormleafmxAV->get(&resid->unnormleafmxA[0][0], 1, 10, NUM_PFT);
 	if(!varbool){
 		string msg = "problem in reading 'UNNORMLEAFMXA' in RestartInputer";
  		cout<<msg+"\n";
  		exit(-1);
 	}
 
-	prvfoliagemxV->set_cur(cid, 0);
-	varbool = prvfoliagemxV->get(&resid->prvfoliagemx[0], 1, NUM_PFT);
+	foliagemxV->set_cur(cid, 0);
+	varbool = foliagemxV->get(&resid->foliagemx[0], 1, NUM_PFT);
 	if(!varbool){
-		string msg = "problem in reading 'PRVFOLIAGEMX' in RestartInputer";
+		string msg = "problem in reading 'FOLIAGEMX' in RestartInputer";
  		cout<<msg+"\n";
  		exit(-1);
 	}
@@ -431,9 +445,25 @@ void RestartInputer::getRestartData(RestartData *resid, const int &cid){
 	}
 
 	monthsfrozenV->set_cur(cid);
-	varbool = monthsfrozenV->get(&resid->monthsfrozen,1);
+	varbool = monthsfrozenV->get(&resid->monthsfrozen, 1);
 	if(!varbool){
 		string msg = "problem in reading 'MONTHSFROZEN' in RestartInputer";
+ 		cout<<msg+"\n";
+ 		exit(-1);
+	}
+
+	rtfrozendaysV->set_cur(cid);
+	varbool = rtfrozendaysV->get(&resid->rtfrozendays, 1);
+	if(!varbool){
+		string msg = "problem in reading 'RTFROZENDAYS' in RestartInputer";
+ 		cout<<msg+"\n";
+ 		exit(-1);
+	}
+
+	rtunfrozendaysV->set_cur(cid);
+	varbool = rtunfrozendaysV->get(&resid->rtunfrozendays,1);
+	if(!varbool){
+		string msg = "problem in reading 'RTUNFROZENDAYS' in RestartInputer";
  		cout<<msg+"\n";
  		exit(-1);
 	}
@@ -606,10 +636,10 @@ void RestartInputer::getRestartData(RestartData *resid, const int &cid){
  		exit(-1);
 	}
 
-	prvltrfcnV->set_cur(cid, 0);
-	varbool = prvltrfcnV->get(&resid->prvltrfcn[0], 1, MAX_SOI_LAY);
+	prvltrfcnAV->set_cur(cid, 0, 0);
+	varbool = prvltrfcnAV->get(&resid->prvltrfcnA[0][0], 1, 12, MAX_SOI_LAY);
 	if(!varbool){
-		string msg = "problem in reading 'PRVLTRFCN' in RestartInputer";
+		string msg = "problem in reading 'PRVLTRFCNA' in RestartInputer";
  		cout<<msg+"\n";
  		exit(-1);
 	}

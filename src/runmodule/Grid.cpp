@@ -2,7 +2,7 @@
  */
  
 #include "Grid.h"
-// constructor 
+
 Grid::Grid(){
   
 }
@@ -21,7 +21,6 @@ int Grid::reinit(){
        	gd.alldaylengths[id] = ampl * (sin ((id -79) *0.01721)) +12.0;
 	}
 
- 
     //check for the validity of grid level data
   	if(gd.fri<0|| gd.fri>2000){
   	 	gd.fri =2000;

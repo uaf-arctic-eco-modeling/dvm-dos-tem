@@ -12,11 +12,11 @@
 
 class FirData{
  	public:
-            FirData();
-            ~FirData();
+        FirData();
+        ~FirData();
 
-            int ysf;
-            bool useseverity;
+        int ysf;
+        bool useseverity;
 
 		soidiag_fir fire_soid;
 
@@ -27,9 +27,9 @@ class FirData{
 		atm2soi_fir fire_a2soi;
   
 	    void init();
-            void beginOfYear();
-            void endOfYear();
-            void burn();
+        void beginOfYear();
+        void endOfYear();
+        void burn();
     
 };
 
