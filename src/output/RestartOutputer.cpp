@@ -87,7 +87,7 @@ void RestartOutputer::init(string& outputdir,string& stage){
  
     //ground-soil
     numslV         =restartFile->add_var("NUMSL", ncInt, chtD);
-    monthsfrozenV  =restartFile->add_var("MONTHSFROZEN", ncInt, chtD);
+    monthsfrozenV  =restartFile->add_var("MONTHSFROZEN", ncDouble, chtD);
     rtfrozendaysV  =restartFile->add_var("RTFROZENDAYS", ncInt, chtD);
     rtunfrozendaysV=restartFile->add_var("RTUNFROZENDAYS", ncInt, chtD);
 

@@ -1,23 +1,15 @@
-/** Implementation file for the Runner class. */
 
 #include "Runner.h"
 
-/** Constructor. */
 Runner::Runner(){
 	chtid = -1;
 	error = 0;
 };
 
-/** Destructor. */
 Runner::~Runner(){
 	
 };
 
-/** Manages a run.
-* - choose run mode based on config file
-* - get some inputs
-* - add cohorts to a list if necessary
-*/
 void Runner::initInput(const string &controlfile, const string &runmode){
 
 		cout <<"Starting initialization ...\n";
@@ -93,9 +85,7 @@ void Runner::initInput(const string &controlfile, const string &runmode){
 
 };
 
-/** Setting up output
-*
-*/
+//output setting-up
 void Runner::initOutput() {
 
 		string stage = "-"+md.runstages;
@@ -176,9 +166,7 @@ void Runner::initOutput() {
 
 };
 
-/** Set up data connection and data pointer initialization.
-*
-*/
+//set up data connection and data pointer initialization
 void Runner::setupData(){
 
 		// input data connection
@@ -199,7 +187,6 @@ void Runner::setupData(){
 
 };
 
-/** Set up the IDs. ? */
 void Runner::setupIDs(){
 
 	// all grid data ids
@@ -292,7 +279,7 @@ void Runner::setupIDs(){
 
 };
 
-/** One-site run mode. */
+// one-site runmode
 void Runner::runmode1(){
 
 	//read-in region-level data (Yuan: this is the portal for multiple region run, if needed in the future)
@@ -341,7 +328,6 @@ void Runner::runmode1(){
 
 };
 
-/** Run mode 2. */
 void Runner::runmode2(){
 
 	//read-in region-level data (Yuan: this is the portal for multiple region run, if needed in the future)
@@ -393,12 +379,17 @@ void Runner::runmode2(){
 
 		runcht.cohortcount++;
 
-		if (runcht.cohortcount>1) break;
+		// may need to clear up data containers for new cohort
+		runcht.cht.clearData();
+ 		runcht.cht.setModelData(&md);
+ 		runcht.cht.setTime(&timer);
+ 		runcht.cht.setInputData(&runreg.region.rd, &rungrd.grid.gd);
+ 		runcht.cht.setProcessData(&chted, &chtbd, &chtfd);  //
+
 	}
 
 };
 
-/** Run mode 3. */
 void Runner::runmode3(){
 
 	//read-in region-level data (Yuan: this is the portal for multiple region run, if needed in the future)
@@ -411,12 +402,42 @@ void Runner::runmode3(){
     //
 	timer.reset();
 
-    // options for different run-stages
-	timer.stageyrind   = 0;
-	runcht.cht.fd->ysf = 0;
-	runcht.yrstart = 0;
-	runcht.yrend   = 100;
-	md.friderived  = true;
+    // options for different run-stages:
+	// NOTE: the following setting will not allow run two or more stages continuesly
+	if(md.runeq){
+		timer.stageyrind   = 0;
+		runcht.cht.fd->ysf = 0;
+		runcht.yrstart = 0;
+		runcht.yrend   = MAX_EQ_YR;
+		md.friderived  = true;
+	}
+	if(md.runsp){
+		timer.stageyrind = 0;
+		timer.eqend = true;
+	    runcht.used_atmyr = min(MAX_ATM_NOM_YR, runcht.cht.cd.act_atm_drv_yr);
+	    runcht.yrstart = timer.spbegyr;
+	    runcht.yrend   = timer.spendyr;
+	    md.friderived= false;
+	}
+	if(md.runtr){
+		timer.stageyrind = 0;
+		timer.eqend = true;
+		timer.spend = true;
+		runcht.used_atmyr = runcht.cht.cd.act_atm_drv_yr;
+		runcht.yrstart = timer.trbegyr;
+		runcht.yrend   = timer.trendyr;
+	    md.friderived= false;
+	}
+	if(md.runsc){
+		timer.stageyrind = 0;
+		timer.eqend = true;
+		timer.spend = true;
+		timer.trend = true;
+		runcht.used_atmyr = runcht.cht.cd.act_atm_drv_yr;
+		runcht.yrstart = timer.scbegyr;
+		runcht.yrend   = timer.scendyr;
+	    md.friderived= false;
+	}
 
 	//loop through time-step
 	for (int icalyr=runcht.yrstart; icalyr<=runcht.yrend; icalyr++){
@@ -428,10 +449,12 @@ void Runner::runmode3(){
 
 			runcht.cohortcount = 0;
 			unsigned int jj ;
-//			for (jj=0; jj<runchtlist.size(); jj++){
-			for (jj=0; jj<1; jj++){
+			for (jj=0; jj<runchtlist.size(); jj++){
 				chtid = runchtlist.at(jj);
+
 				runcht.cht.cd.chtid = chtid;
+				runcht.cht.cd.year  = icalyr;
+				runcht.cht.cd.month = im+1;
 
 				// assgning the record no. for all needed data IDs
 				rungrd.gridrecno  = reclistgrid.at(jj);
@@ -454,6 +477,16 @@ void Runner::runmode3(){
 				if (error!=0){
 					cout <<"problem in reading grided data in Runner::runmode3\n";
 					exit(-1);
+				}
+				if (md.runeq && icalyr > 20*runcht.cht.gd->fri-2){  //20 FRI-2
+					if (jj<runchtlist.size()-1) {  // if not the last cohort
+						continue;    // when at 'eq' runstage, max. run year for a cohort is 20*FRI-2;
+					                 // here stop and go to the next cohort
+					} else {   // if the last cohort
+						im=11;
+						icalyr = runcht.yrend;
+						break;       // break the time-step loop
+					}
 				}
 
 				// getting the cohort data for the current cohort
@@ -483,7 +516,12 @@ void Runner::runmode3(){
 
 				runcht.cohortcount++;
 
-				//
+				// may need to clear up data containers for new cohort
+				runcht.cht.clearData();
+		 		runcht.cht.setModelData(&md);
+		 		runcht.cht.setTime(&timer);
+		 		runcht.cht.setInputData(&runreg.region.rd, &rungrd.grid.gd);
+		 		runcht.cht.setProcessData(&chted, &chtbd, &chtfd);  //
 
 			} // end of cohort counter loop
 
@@ -520,8 +558,8 @@ void Runner::runmode3(){
 
 };
 
-/** Read in a list of cohorts to run. */
 void Runner::createCohortList4Run(){
+	// read in a list of cohorts to run
 
 	//netcdf error
 	NcError err(NcError::silent_nonfatal);
@@ -568,7 +606,6 @@ void Runner::createCohortList4Run(){
 
 };
 
-/** Create the output variable list. */
 void Runner::createOutvarList(string & txtfile){
 
 	string outvarfile = txtfile;

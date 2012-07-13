@@ -8,6 +8,61 @@ CohortData::~CohortData(){
 
 };
 
+// initialize CohortData class explicitly
+void CohortData::clear(){
+
+	chtid = MISSING_I;
+ 	year  = MISSING_I;
+ 	month = MISSING_I;
+ 	day   = MISSING_I;
+
+	cmttype = MISSING_I;
+	ysdist  = MISSING_I;
+
+    hasnonvascular = false;
+
+	act_vegset  = MISSING_I;
+	fill_n(vegyear, MAX_VEG_SET, MISSING_I);
+	fill_n(vegtype, MAX_VEG_SET, MISSING_I);
+	fill_n(vegfrac, MAX_VEG_SET, MISSING_I);
+
+	act_fireset  = MISSING_I;
+	fill_n(fireyear, MAX_FIR_OCRNUM, MISSING_I);
+	fill_n(fireseason, MAX_FIR_OCRNUM, MISSING_I);
+	fill_n(firesize, MAX_FIR_OCRNUM, MISSING_I);
+	fill_n(fireseverity, MAX_FIR_OCRNUM, MISSING_I);
+
+    act_atm_drv_yr  = MISSING_I;
+    fill_n(tair, MAX_ATM_DRV_YR*12, MISSING_F);
+    fill_n(prec, MAX_ATM_DRV_YR*12, MISSING_F);
+    fill_n(nirr, MAX_ATM_DRV_YR*12, MISSING_F);
+    fill_n(vapo, MAX_ATM_DRV_YR*12, MISSING_F);
+
+  	// community dimension
+    d_veg = vegstate_dim();
+    m_veg = vegstate_dim();
+    y_veg = vegstate_dim();
+
+	m_vegd = vegdiag_dim();
+	y_vegd = vegdiag_dim();
+
+	d_snow = snwstate_dim();
+	m_snow = snwstate_dim();
+	y_snow = snwstate_dim();
+
+	d_soil = soistate_dim();
+	m_soil = soistate_dim();
+	y_soil = soistate_dim();
+
+	for (int ip=0; ip<NUM_PFT; ip++){
+		if(!prveetmxque[ip].empty()) prveetmxque[ip].clear();
+		if(!prvunnormleafmxque[ip].empty()) prvunnormleafmxque[ip].clear();
+		if(!prvgrowingttimeque[ip].empty()) prvgrowingttimeque[ip].clear();
+		if(!toptque[ip].empty()) toptque[ip].clear();
+	}
+
+};
+
 //accumulators for yearly-averaged/-summed variables from the monthly ones
 void CohortData::beginOfYear(){
 

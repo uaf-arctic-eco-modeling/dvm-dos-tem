@@ -8,6 +8,50 @@ BgcData::~BgcData(){
 	
 };
 
+// re-initialize BgcData class explicitly
+void BgcData::clear(){
+	cd->clear();
+
+	//monthly
+	m_vegs = vegstate_bgc();
+	m_sois = soistate_bgc();
+	m_vegd = vegdiag_bgc();
+	m_soid = soidiag_bgc();
+	m_l2a  = lnd2atm_bgc();
+	m_a2v  = atm2veg_bgc();
+	m_v2a  = veg2atm_bgc();
+	m_v2soi = veg2soi_bgc();
+	m_soi2v = soi2veg_bgc();
+	m_v2v   = veg2veg_bgc();
+	m_soi2l = soi2lnd_bgc();
+	m_soi2a = soi2atm_bgc();
+	m_a2soi = atm2soi_bgc();
+	m_soi2soi = soi2soi_bgc();
+
+	//yearly
+	y_vegs = vegstate_bgc();
+	y_sois = soistate_bgc();
+	y_vegd = vegdiag_bgc();
+	y_soid = soidiag_bgc();
+	y_l2a  = lnd2atm_bgc();
+	y_a2v  = atm2veg_bgc();
+	y_v2a  = veg2atm_bgc();
+	y_v2soi = veg2soi_bgc();
+	y_soi2v = soi2veg_bgc();
+	y_v2v   = veg2veg_bgc();
+	y_soi2l = soi2lnd_bgc();
+	y_soi2a = soi2atm_bgc();
+	y_a2soi = atm2soi_bgc();
+	y_soi2soi = soi2soi_bgc();
+
+	for (int il=0; il<MAX_SOI_LAY; il++){
+		if (!prvltrfcnque[il].empty()) {
+			prvltrfcnque[il].clear();
+		};
+	}
+
+};
+
 void BgcData::land_endOfMonth(){
 	m_l2a.nep = m_a2v.nppall-m_soi2a.rhtot;
 

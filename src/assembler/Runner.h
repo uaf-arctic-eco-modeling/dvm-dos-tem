@@ -1,13 +1,12 @@
-/** Runner.h
-*
-* Runner is a general class used to:
-*  -# Initialize all the necessary classes
-*  -# get I/O
-*  -# run one or more cohort(s)
-*
-* A Runner instance has...
-*
-*/
+/*  Runner.h
+ *
+ *  Runner is a general class used to:
+ *
+ *  1) Initialize all the necessary classes
+ *  2) get I/O
+ *  3) run one or more cohort(s)
+ *
+ */
 
 #ifndef RUNNER_H_
 #define RUNNER_H_

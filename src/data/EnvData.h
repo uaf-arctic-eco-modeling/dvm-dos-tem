@@ -23,6 +23,8 @@ class EnvData{
   	EnvData();
   	~EnvData();	 
 
+  	void clear();
+
   	// for daily  - 'd' is daily
     atmstate_env d_atms;  // last 's' - state variable
     vegstate_env d_vegs;

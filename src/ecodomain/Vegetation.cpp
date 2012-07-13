@@ -116,38 +116,38 @@ void Vegetation::initializeState5restart(RestartData *resin){
           cd->m_veg.frootfrac[il][ip] = resin->rootfrac[il][ip];
     	}
 
-    	cd->m_vegd.eetmx[ip]      = resin->eetmx[ip];
+    	cd->m_vegd.eetmx[ip]        = resin->eetmx[ip];
     	cd->m_vegd.unnormleafmx[ip] = resin->unnormleafmx[ip];
     	cd->m_vegd.growingttime[ip] = resin->growingttime[ip];
     	cd->m_vegd.topt[ip]         = resin->topt[ip];
     	cd->m_vegd.foliagemx[ip]    = resin->foliagemx[ip];
 
-    	for(int i=0; i<10; i++){
-    		cd->prveetmxque[ip].clear();
+   		cd->prveetmxque[ip].clear();
+       	for(int i=0; i<10; i++){
     		double eetmxa = resin->eetmxA[i][ip];    //note: older value is in the lower position in the deque
     		if(eetmxa!=MISSING_D){
     			cd->prveetmxque[ip].push_back(eetmxa);
     		}
     	}
 
+		cd->prvunnormleafmxque[ip].clear();
     	for(int i=0; i<10; i++){
-    		cd->prvunnormleafmxque[ip].clear();
     		double unleafmxa = resin->unnormleafmxA[i][ip];    //note: older value is in the lower position in the deque
     		if(unleafmxa!=MISSING_D){
     			cd->prvunnormleafmxque[ip].push_back(unleafmxa);
     		}
     	}
 
+		cd->prvgrowingttimeque[ip].clear();
     	for(int i=0; i<10; i++){
-    		cd->prvgrowingttimeque[ip].clear();
     		double growingttimea = resin->growingttimeA[i][ip];    //note: older value is, lower in the deque
     		if(growingttimea!=MISSING_D){
     			cd->prvgrowingttimeque[ip].push_back(growingttimea);
     		}
     	}
 
+		cd->toptque[ip].clear();
     	for(int i=0; i<10; i++){
-    		cd->toptque[ip].clear();
     		double topta = resin->toptA[i][ip];    //note: older value is, lower in the deque
     		if(topta!=MISSING_D){
     			cd->toptque[ip].push_back(topta);

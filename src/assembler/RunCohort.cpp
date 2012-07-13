@@ -25,8 +25,7 @@ void RunCohort::setModelData(ModelData * mdp){
   	md = mdp;
 }
 
-/** Reading cohort-level all data ids.
-*/
+//reading cohort-level all data ids
 int RunCohort::allchtids(){
 	int error = 0;
 	int id = MISSING_I;

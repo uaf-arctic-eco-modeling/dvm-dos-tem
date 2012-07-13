@@ -39,8 +39,8 @@ using namespace std;
 
 int main(int argc, char* argv[]){
 
-	setvbuf(stdout, NULL, _IONBF, 0); // no buffering
-	setvbuf(stderr, NULL, _IONBF, 0); // no buffering
+	setvbuf(stdout, NULL, _IONBF, 0);
+	setvbuf(stderr, NULL, _IONBF, 0);
 
 	#ifdef SITERUN 
 		time_t stime;
