@@ -34,8 +34,8 @@ using namespace std;
 #include "assembler/Runner.h"
 
 // defines the mode of run: Single-site or Multiple-site (regional)
-#define SITERUN
-//#define REGNRUN
+//#define SITERUN
+#define REGNRUN
 
 int main(int argc, char* argv[]){
 
