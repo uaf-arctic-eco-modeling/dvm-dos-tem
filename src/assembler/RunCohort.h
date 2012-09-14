@@ -105,7 +105,7 @@ class RunCohort {
 	    int ystepcnt;   //year timesteps since starting output
 
 		void runEnvmodule();
- 		void runmodule_cohortly();
+ 		void run_timeseries();
 
 };
 #endif /*RUNCOHORT_H_*/

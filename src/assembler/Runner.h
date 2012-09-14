@@ -42,6 +42,7 @@ class Runner {
     	void runmode1();  /* one site run-mode, used for stand-alone TEM for any purpose */
     	void runmode2();  /* multi-site (regional) run-mode 1, i.e., time series */
     	void runmode3();  /* multi-site (regional) run-mode 2, i.e., spatially */
+    	void runSpatially(const int icalyr, const int im);
 
     private:
 
