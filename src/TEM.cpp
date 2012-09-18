@@ -32,13 +32,20 @@
 using namespace std;
 
 #include "assembler/Runner.h"
+#include "ArgHandler.h"
 
 // defines the mode of run: Single-site or Multiple-site (regional)
 //#define SITERUN
 #define REGNRUN
 
+ArgHandler* args = new ArgHandler();
+
 int main(int argc, char* argv[]){
 
+	if (args->getHelp()){
+		args->showHelp();
+		return 0;
+	}
 	setvbuf(stdout, NULL, _IONBF, 0);
 	setvbuf(stderr, NULL, _IONBF, 0);
 
