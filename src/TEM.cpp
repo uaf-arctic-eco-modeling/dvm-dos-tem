@@ -34,10 +34,6 @@ using namespace std;
 #include "assembler/Runner.h"
 #include "ArgHandler.h"
 
-// defines the mode of run: Single-site or Multiple-site (regional)
-//#define SITERUN
-#define REGNRUN
-
 ArgHandler* args = new ArgHandler();
 
 int main(int argc, char* argv[]){
@@ -46,25 +42,29 @@ int main(int argc, char* argv[]){
 		args->showHelp();
 		return 0;
 	}
+	
 	setvbuf(stdout, NULL, _IONBF, 0);
 	setvbuf(stderr, NULL, _IONBF, 0);
 
-	#ifdef SITERUN 
+	if (args->getMode() == "siterun") {
 		time_t stime;
 		time_t etime;
 		stime=time(0);
 		cout<<"run TEM stand-alone - start @"<<ctime(&stime)<<"\n";
 
-		string controlfile="";
-		string chtid = "1";    /* default chtid 1 for siter-runmode  */
-		if(argc == 1){   //if there is no control file specified
-			controlfile ="config/controlfile_site.txt";
-		} else if(argc == 2) { // if only control file specified
-			controlfile = argv[1];
-		} else if(argc == 3) { // both control file and chtid specified in the order
-			controlfile = argv[1];
-			chtid = argv[2];
-		}
+		string controlfile = args->getCtrlfile();
+		string chtid = args->getChtid();
+
+// 		string controlfile="";
+// 		string chtid = "1";    /* default chtid 1 for siter-runmode  */
+// 		if(argc == 1){   //if there is no control file specified
+// 			controlfile ="config/controlfile_site.txt";
+// 		} else if(argc == 2) { // if only control file specified
+// 			controlfile = argv[1];
+// 		} else if(argc == 3) { // both control file and chtid specified in the order
+// 			controlfile = argv[1];
+// 			chtid = argv[2];
+// 		}
 
 		Runner siter;
 
@@ -83,24 +83,16 @@ int main(int argc, char* argv[]){
  		etime=time(0);
 		cout <<"run TEM stand-alone - done @"<<ctime(&etime)<<"\n";
 		cout <<"total seconds: "<<difftime(etime, stime)<<"\n";
-	#endif
 
-	#ifdef REGNRUN
+	} else if (args->getMode() == "regnrun") {
+
 		time_t stime;
 		time_t etime;
 		stime=time(0);
 		cout <<"run TEM regionally - start @"<<ctime(&stime)<<"\n";
 
-		string controlfile="";
-		string runmode = "regner2";
-		if(argc == 1){ //if there is no control file specified
-			controlfile ="config/controlfile_regn.txt";
-		} else if(argc == 2) {
-			controlfile = argv[1];
-		} else if (argc == 3) {   // both control file and runmode specified in order
-			controlfile = argv[1];
-			runmode     = argv[2];
-		}
+		string controlfile = args->getCtrlfile();
+		string runmode = args->getRegrunmode(); //"regner2";
 
 		Runner regner;
 
@@ -126,8 +118,8 @@ int main(int argc, char* argv[]){
 		cout <<"run TEM regionally - done @"<<ctime(&etime)<<"\n";
 		cout <<"total seconds: "<<difftime(etime, stime)<<"\n";
 
-	#endif
-
+	}
+	
 	return 0;
 
 };
