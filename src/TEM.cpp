@@ -41,7 +41,7 @@ using namespace std;
 ArgHandler* args = new ArgHandler();
 
 int main(int argc, char* argv[]){
-
+	args->parse(argc, argv);
 	if (args->getHelp()){
 		args->showHelp();
 		return 0;

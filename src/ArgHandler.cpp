@@ -38,5 +38,5 @@ void ArgHandler::showHelp(){
 /**
  * Print out command help
  */
-	//std::cout << desc << std::endl;
+	std::cout << desc << std::endl;
 }
