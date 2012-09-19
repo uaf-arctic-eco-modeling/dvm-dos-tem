@@ -15,11 +15,13 @@
  *                                        to fix memory-leaks
  *                                        (5) fix the snow/soil thermal/hydraulic algorithms
  *                                        (6) DVM coupled
+ * 			Tobey Carman - modifications and maintenance
+ *            1) update application entry point with boost command line arg. handling.
  *
  * Affilation: Spatial Ecology Lab, University of Alaska Fairbanks 
  *
  * started: 11/01/2010
- * last modified: 06/25/2012
+ * last modified: 09/18/2012
 */
 
 #include <string>
@@ -55,17 +57,6 @@ int main(int argc, char* argv[]){
 		string controlfile = args->getCtrlfile();
 		string chtid = args->getChtid();
 
-// 		string controlfile="";
-// 		string chtid = "1";    /* default chtid 1 for siter-runmode  */
-// 		if(argc == 1){   //if there is no control file specified
-// 			controlfile ="config/controlfile_site.txt";
-// 		} else if(argc == 2) { // if only control file specified
-// 			controlfile = argv[1];
-// 		} else if(argc == 3) { // both control file and chtid specified in the order
-// 			controlfile = argv[1];
-// 			chtid = argv[2];
-// 		}
-
 		Runner siter;
 
 		siter.chtid = atoi(chtid.c_str());
@@ -92,7 +83,7 @@ int main(int argc, char* argv[]){
 		cout <<"run TEM regionally - start @"<<ctime(&stime)<<"\n";
 
 		string controlfile = args->getCtrlfile();
-		string runmode = args->getRegrunmode(); //"regner2";
+		string runmode = args->getRegrunmode();
 
 		Runner regner;
 
@@ -109,6 +100,8 @@ int main(int argc, char* argv[]){
  		} else if (runmode.compare("regner2")==0){
  			regner.runmode3();
 		} else {
+
+			// Should move this to the ArgHandler class.
 			cout <<"run-mode for TEM regional run must be: \n";
 			cout <<" EITHER 'regner1' OR 'regner2' \n";
 			exit(-1);

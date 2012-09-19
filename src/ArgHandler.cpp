@@ -2,30 +2,14 @@
 
 
 ArgHandler::ArgHandler() {
-	//boost::filesystem::path p = boost::filesystem::initial_path();
-	mode = "siterun";
-
-	if (mode == "siterun") {
-		ctrlfile = "config/controlfile_site.txt";
-		chtid = "1";
-		regrunmode = ""; // meaningless in this context
-	} else if (mode == "regnrun") {
-		ctrlfile = "config/controlfile_regn.txt";
-		chtid = ""; // meaningless in this context
-		regrunmode = "regner2"; 
-	}
-
-	help = false;
-	version = false;
-	debug = false;
-
+	// handle defaults in the parse(..) and verify(..) functions
 }
 void ArgHandler::parse(int argc, char** argv) {
 	desc.add_options()
-		("mode,m", boost::program_options::value<string>(), "change mode between siterun and regnrun")
-		("ctrlfile,cf", "choose a control file to use")
-		("chtid,cid", "choose a specific cohort to run")
-		("regrunmode,rrm", "choose spatial or temporal running mode")
+		("mode,m", boost::program_options::value<string>(&mode)->default_value("siterun"),"change mode between siterun and regnrun")
+		("control-file,f", boost::program_options::value<string>(&ctrlfile)->default_value("config/controlfile_site.txt"), "choose a control file to use")
+		("cohort-id,c", boost::program_options::value<string>(&chtid)->default_value("1"), "choose a specific cohort to run")
+		("space-time-config,s", boost::program_options::value<string>(), "choose spatial or temporal running mode")
 		("help,h", "produces helps message")
 		("version,v", "show the version information")
 		("debug,d", "enable debug mode")
@@ -34,20 +18,14 @@ void ArgHandler::parse(int argc, char** argv) {
 	boost::program_options::store(boost::program_options::parse_command_line(argc, argv, desc), varmap);
 	boost::program_options::notify(varmap);
 
-	if (varmap.count("mode")) {
-    	mode = varmap["mode"].as<string>();
+	if (varmap.count("cohort-id")) {
+		chtid = varmap["cohort-id"].as<string>();
+	}
+	
+	if (varmap.count("space-time-config")) {
+		regrunmode = varmap["space-time-config"].as<string>();
 	}
 
-	if (varmap.count("ctrlfile")) {
-		ctrlfile = varmap["ctrlfile"].as<string>();
-	}
-
-	if (varmap.count("chtid")) {
-		chtid = varmap["chtid"].as<string>();
-	}
-	if (varmap.count("regrunmode")) {
-		regrunmode = varmap["regrunmode"].as<string>();
-	}
 	if (varmap.count("help")) {
 		help = true;
 	}
@@ -60,7 +38,12 @@ void ArgHandler::parse(int argc, char** argv) {
 		debug = true;
 	}
 
+	verify();
 
+}
+
+void ArgHandler::verify() {
+	std::cout << "Could/should do some option verification here...?\n";
 }
 
 string ArgHandler::getMode(){

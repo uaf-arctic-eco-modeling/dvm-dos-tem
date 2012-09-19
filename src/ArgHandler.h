@@ -21,7 +21,7 @@ class ArgHandler {
 public:
 	ArgHandler();
 	void parse(int argc, char** argv);
-
+	void verify();
 	void showHelp();
 	
 	string getMode();
