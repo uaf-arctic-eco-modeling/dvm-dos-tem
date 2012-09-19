@@ -15,6 +15,8 @@ class FirData{
         FirData();
         ~FirData();
 
+        void clear();
+
         int ysf;
         bool useseverity;
 

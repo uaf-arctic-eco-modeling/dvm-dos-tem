@@ -24,6 +24,8 @@ class BgcData{
  	public:
   		BgcData();
   		~BgcData();	
+
+  		void clear();
 	
 		CohortData * cd;
 

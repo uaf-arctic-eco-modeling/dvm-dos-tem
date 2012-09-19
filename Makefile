@@ -2,10 +2,11 @@
 
 CC=g++
 CFLAGS=-c -Wall -ansi -O2 -g -fPIC
-LIBS=-lnetcdf_c++ -lnetcdf
-LIBDIR=
-INCLUDES=
+LIBS=-lnetcdf_c++ -lnetcdf -lboost_system -lboost_filesystem -lboost_program_options
+LIBDIR=-L/home/tobey/usr/local/lib
+INCLUDES=-I/home/tobey/usr/local/include
 SOURCES= 	src/TEM.o \
+		src/ArgHandler.o \
 		src/assembler/RunCohort.o \
 		src/assembler/RunGrid.o \
 		src/assembler/Runner.o \
@@ -66,7 +67,8 @@ SOURCES= 	src/TEM.o \
 		src/ecodomain/layer/ParentLayer.o \
 		src/ecodomain/layer/SnowLayer.o \
 		src/ecodomain/layer/SoilLayer.o
-OBJECTS = 	RunCohort.o \
+OBJECTS =	ArgHandler.o \
+		RunCohort.o \
 		RunGrid.o \
 		Runner.o \
 		RunRegion.o \

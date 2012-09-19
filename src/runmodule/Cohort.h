@@ -90,6 +90,7 @@
  		    void setModelData(ModelData* md);
  		    void setInputData(RegionData * rd, GridData * gd);
  		    void setProcessData(EnvData * alledp, BgcData * allbdp, FirData *fdp);
+ 		    void clearData();
 
  		    void initStatePar();
  		    void prepareAllDrivingData();
@@ -118,12 +119,11 @@
      	void assignAtmEd2pfts_daily();
      	void assignGroundEd2pfts_daily();
 		void getSoilTransfactor4all_daily();
-     	void getEd4allveg_daily();
+		void getEd4allveg_daily();
      	void getEd4land_daily();
 
      	void assignSoilBd2pfts_monthly();
      	void getBd4allveg_monthly();
 
-		void resetSoilclm(const int & im);
 };
 #endif /*COHORT_H_*/

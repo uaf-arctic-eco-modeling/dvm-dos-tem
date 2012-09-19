@@ -1,13 +1,12 @@
-/** Runner.h
-*
-* Runner is a general class used to:
-*  -# Initialize all the necessary classes
-*  -# get I/O
-*  -# run one or more cohort(s)
-*
-* A Runner instance has...
-*
-*/
+/*  Runner.h
+ *
+ *  Runner is a general class used to:
+ *
+ *  1) Initialize all the necessary classes
+ *  2) get I/O
+ *  3) run one or more cohort(s)
+ *
+ */
 
 #ifndef RUNNER_H_
 #define RUNNER_H_
@@ -43,6 +42,7 @@ class Runner {
     	void runmode1();  /* one site run-mode, used for stand-alone TEM for any purpose */
     	void runmode2();  /* multi-site (regional) run-mode 1, i.e., time series */
     	void runmode3();  /* multi-site (regional) run-mode 2, i.e., spatially */
+    	void runSpatially(const int icalyr, const int im);
 
     private:
 
