@@ -25,8 +25,7 @@ void RunCohort::setModelData(ModelData * mdp){
   	md = mdp;
 }
 
-/** Reading cohort-level all data ids.
-*/
+//reading cohort-level all data ids
 int RunCohort::allchtids(){
 	int error = 0;
 	int id = MISSING_I;
@@ -207,6 +206,7 @@ int RunCohort::reinit(){
      return 0;
 };
 
+// run one cohort for a period of time
 void RunCohort::run_cohortly(){
 
 	    //
@@ -234,7 +234,7 @@ void RunCohort::run_cohortly(){
 		    yrstart = 0;
 		    yrend   = min(MAX_EQ_YR, 20*cht.gd->fri-2);   //20 FRI or max. MAX_EQ_YR
 
-		    runmodule_cohortly();
+		    run_timeseries();
 
 		}
 
@@ -249,7 +249,7 @@ void RunCohort::run_cohortly(){
 
 		    md->friderived= false;
 
-		    runmodule_cohortly();
+		    run_timeseries();
 
 		}
 		
@@ -265,7 +265,7 @@ void RunCohort::run_cohortly(){
 
 		    md->friderived= false;
 
-		    runmodule_cohortly();
+		    run_timeseries();
 
 		}
 
@@ -282,7 +282,7 @@ void RunCohort::run_cohortly(){
 
 		    md->friderived= false;
 
-		    runmodule_cohortly();
+		    run_timeseries();
 
 		}
 
@@ -305,11 +305,12 @@ void RunCohort::runEnvmodule(){
      yrstart = 0;
      yrend   = 100;
 
-     runmodule_cohortly();
+     run_timeseries();
 
 };
 
-void RunCohort::runmodule_cohortly(){
+// run one cohort in time series
+void RunCohort::run_timeseries(){
 
 	for (int icalyr=yrstart; icalyr<=yrend; icalyr++){
 
@@ -406,6 +407,7 @@ void RunCohort::runmodule_cohortly(){
 
 };
 
+// run one cohort at one time-step (monthly)
 void RunCohort::run_monthly(){
 
 	 // timing

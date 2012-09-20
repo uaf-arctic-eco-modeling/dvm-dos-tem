@@ -157,6 +157,7 @@ void Soil_Env::initializeState5restart(RestartData* resin){
 	ed->monthsfrozen   = resin->monthsfrozen;
 	ed->rtfrozendays   = resin->rtfrozendays;
 	ed->rtunfrozendays = resin->rtunfrozendays;
+	ed->d_soid.tsdegday= resin->growingttime[0];
 
 };
 
@@ -380,7 +381,7 @@ void Soil_Env::updateDailySoilThermal4Growth(Layer* fstsoill, const double &tsur
 
 	while (currl!=NULL){
 		if(currl->isSoil){
-				if(toprtdep<=envpar.rtdp4growpct) {
+				if(toprtdep<envpar.rtdp4growpct) {
 					  double restrtdz = max(0., envpar.rtdp4growpct-toprtdep);
 
 					  toprtdep += min(currl->dz, restrtdz);

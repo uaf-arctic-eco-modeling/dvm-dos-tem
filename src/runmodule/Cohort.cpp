@@ -101,7 +101,6 @@ void Cohort::initSubmodules(){
 	}
 	outbuffer.setCurrentFireData(fd);
 
-
 };
 
 // The following 'set...' functions allow initialized data pointers outside be used here
@@ -136,6 +135,19 @@ void Cohort::setProcessData(EnvData * alledp, BgcData * allbdp, FirData *fdp){
 		bd[i].cd = &cd;
 		ed[i].cd = &cd;
  	}
+
+};
+
+void Cohort::clearData(){
+ 	cd.clear();
+ 	for (int ip=0; ip<NUM_PFT; ip++){
+ 		ed[ip].clear();
+ 		bd[ip].clear();
+ 	}
+
+   	edall->clear();
+    bdall->clear();
+    fd    = NULL;
 
 };
 
@@ -835,12 +847,16 @@ void Cohort::assignGroundEd2pfts_daily(){
     		ed[ip].d_snwd = edall->d_snwd;
     		ed[ip].d_soid = edall->d_soid;
 
-    		ed[ip].d_soi2l= edall->d_soi2l;
-    		ed[ip].d_soi2a= edall->d_soi2a;
-    		ed[ip].d_snw2a= edall->d_snw2a;
+    		ed[ip].d_soi2l  = edall->d_soi2l;
+    		ed[ip].d_soi2a  = edall->d_soi2a;
+    		ed[ip].d_snw2a  = edall->d_snw2a;
     		ed[ip].d_snw2soi= edall->d_snw2soi;
 
+    		ed[ip].monthsfrozen  = edall->monthsfrozen;
+    		ed[ip].rtfrozendays  = edall->rtfrozendays;
+    		ed[ip].rtunfrozendays= edall->rtunfrozendays;
     	}
+
 	}
 }
 
@@ -973,7 +989,9 @@ void Cohort::assignSoilBd2pfts_monthly(){
     		bd[ip].y_a2soi  = bdall->y_a2soi;
     		bd[ip].y_soi2soi= bdall->y_soi2soi;
 
-    		memcpy(bd[ip].prvltrfcnque, bdall->prvltrfcnque, sizeof(bd[ip].prvltrfcnque));
+    		for (int il=0; il<MAX_SOI_LAY; il++){
+    			bd[ip].prvltrfcnque[il] = bdall->prvltrfcnque[il];
+    		}
 
     	}
 	}

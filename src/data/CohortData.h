@@ -18,6 +18,8 @@ class CohortData{
   	public:
   		CohortData();
   		~CohortData();
+
+  		void clear();
   
   		int chtid;
 	 	int year;

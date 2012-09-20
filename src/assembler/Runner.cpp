@@ -1,23 +1,15 @@
-/** Implementation file for the Runner class. */
 
 #include "Runner.h"
 
-/** Constructor. */
 Runner::Runner(){
 	chtid = -1;
 	error = 0;
 };
 
-/** Destructor. */
 Runner::~Runner(){
 	
 };
 
-/** Manages a run.
-* - choose run mode based on config file
-* - get some inputs
-* - add cohorts to a list if necessary
-*/
 void Runner::initInput(const string &controlfile, const string &runmode){
 
 		cout <<"Starting initialization ...\n";
@@ -93,9 +85,7 @@ void Runner::initInput(const string &controlfile, const string &runmode){
 
 };
 
-/** Setting up output
-*
-*/
+//output setting-up
 void Runner::initOutput() {
 
 		string stage = "-"+md.runstages;
@@ -176,9 +166,7 @@ void Runner::initOutput() {
 
 };
 
-/** Set up data connection and data pointer initialization.
-*
-*/
+//set up data connection and data pointer initialization
 void Runner::setupData(){
 
 		// input data connection
@@ -199,7 +187,6 @@ void Runner::setupData(){
 
 };
 
-/** Set up the IDs. ? */
 void Runner::setupIDs(){
 
 	// all grid data ids
@@ -292,7 +279,7 @@ void Runner::setupIDs(){
 
 };
 
-/** One-site run mode. */
+// one-site runmode
 void Runner::runmode1(){
 
 	//read-in region-level data (Yuan: this is the portal for multiple region run, if needed in the future)
@@ -341,7 +328,6 @@ void Runner::runmode1(){
 
 };
 
-/** Run mode 2. */
 void Runner::runmode2(){
 
 	//read-in region-level data (Yuan: this is the portal for multiple region run, if needed in the future)
@@ -355,6 +341,15 @@ void Runner::runmode2(){
 	unsigned int jj ;
 	for (jj=0; jj<runchtlist.size(); jj++){
 		chtid = runchtlist.at(jj);
+
+		// may need to clear up data containers for new cohort
+		runcht.cht.clearData();
+ 		runcht.cht.setModelData(&md);
+ 		runcht.cht.setTime(&timer);
+ 		runcht.cht.setInputData(&runreg.region.rd, &rungrd.grid.gd);
+ 		runcht.cht.setProcessData(&chted, &chtbd, &chtfd);  //
+
+		//
 		runcht.cht.cd.chtid = chtid;
 
 		// assgning the record no. for all needed data IDs
@@ -393,12 +388,10 @@ void Runner::runmode2(){
 
 		runcht.cohortcount++;
 
-		if (runcht.cohortcount>1) break;
 	}
 
 };
 
-/** Run mode 3. */
 void Runner::runmode3(){
 
 	//read-in region-level data (Yuan: this is the portal for multiple region run, if needed in the future)
@@ -411,117 +404,166 @@ void Runner::runmode3(){
     //
 	timer.reset();
 
-    // options for different run-stages
-	timer.stageyrind   = 0;
-	runcht.cht.fd->ysf = 0;
-	runcht.yrstart = 0;
-	runcht.yrend   = 100;
-	md.friderived  = true;
+    // options for different run-stages:
+	// NOTE: the following setting will not allow run two or more stages continuesly
+	if(md.runeq){
+		timer.stageyrind   = 0;
+		runcht.cht.fd->ysf = 0;
+		runcht.yrstart = 0;
+		runcht.yrend   = MAX_EQ_YR;
+		md.friderived  = true;
+	}
+	if(md.runsp){
+		timer.stageyrind = 0;
+		timer.eqend = true;
+	    runcht.used_atmyr = min(MAX_ATM_NOM_YR, runcht.cht.cd.act_atm_drv_yr);
+	    runcht.yrstart = timer.spbegyr;
+	    runcht.yrend   = timer.spendyr;
+	    md.friderived= false;
+	}
+	if(md.runtr){
+		timer.stageyrind = 0;
+		timer.eqend = true;
+		timer.spend = true;
+		runcht.used_atmyr = runcht.cht.cd.act_atm_drv_yr;
+		runcht.yrstart = timer.trbegyr;
+		runcht.yrend   = timer.trendyr;
+	    md.friderived= false;
+	}
+	if(md.runsc){
+		timer.stageyrind = 0;
+		timer.eqend = true;
+		timer.spend = true;
+		timer.trend = true;
+		runcht.used_atmyr = runcht.cht.cd.act_atm_drv_yr;
+		runcht.yrstart = timer.scbegyr;
+		runcht.yrend   = timer.scendyr;
+	    md.friderived= false;
+	}
 
 	//loop through time-step
 	for (int icalyr=runcht.yrstart; icalyr<=runcht.yrend; icalyr++){
 		for (int im=0; im<12; im++) {
+			runSpatially(icalyr, im);
+		}
+	}
+};
 
-			// after the first timestep, 'restart' as the initial conditions
-			// So essentially every cohort has to be restarting from the previous time-step
-			if (!(icalyr==runcht.yrstart && im==0))	md.initmode=3;
+void Runner::runSpatially(const int icalyr, const int im) {
 
-			runcht.cohortcount = 0;
-			unsigned int jj ;
-//			for (jj=0; jj<runchtlist.size(); jj++){
-			for (jj=0; jj<1; jj++){
-				chtid = runchtlist.at(jj);
-				runcht.cht.cd.chtid = chtid;
+	// after the first timestep, 'restart' as the initial conditions
+	// So essentially every cohort has to be restarting from the previous time-step
+	if (!(icalyr==runcht.yrstart && im==0))	md.initmode=3;
 
-				// assgning the record no. for all needed data IDs
-				rungrd.gridrecno  = reclistgrid.at(jj);
-				rungrd.drainrecno = reclistdrain.at(jj);
-				rungrd.soilrecno  = reclistsoil.at(jj);
-				rungrd.gfirerecno = reclistgfire.at(jj);
+	runcht.cohortcount = 0;
+	unsigned int jj ;
+	for (jj=0; jj<runchtlist.size(); jj++){
+		chtid = runchtlist.at(jj);
 
-				if (icalyr==runcht.yrstart && im==0) {
-					runcht.initrecno  = reclistinit.at(jj);
-				} else {    // after the first time-step, the initial record no. must be exactly same as in the runchtlist
-					runcht.initrecno  = jj;
-				}
+		// may need to clear up data containers for new cohort
+		runcht.cht.clearData();
+ 		runcht.cht.setModelData(&md);
+ 		runcht.cht.setTime(&timer);
+ 		runcht.cht.setInputData(&runreg.region.rd, &rungrd.grid.gd);
+ 		runcht.cht.setProcessData(&chted, &chtbd, &chtfd);  //
 
-				runcht.clmrecno   = reclistclm.at(jj);
-				runcht.vegrecno   = reclistveg.at(jj);
-				runcht.firerecno  = reclistfire.at(jj);
+ 		// starting new cohort here
+		runcht.cht.cd.chtid = chtid;
+		runcht.cht.cd.year  = icalyr;
+		runcht.cht.cd.month = im+1;
 
-				//getting the grided data for current cohort
-				error = rungrd.readData();
-				if (error!=0){
-					cout <<"problem in reading grided data in Runner::runmode3\n";
-					exit(-1);
-				}
+		// assgning the record no. for all needed data IDs
+		rungrd.gridrecno  = reclistgrid.at(jj);
+		rungrd.drainrecno = reclistdrain.at(jj);
+		rungrd.soilrecno  = reclistsoil.at(jj);
+		rungrd.gfirerecno = reclistgfire.at(jj);
 
-				// getting the cohort data for the current cohort
-				error = runcht.readData();
-				if (error!=0){
-					cout <<"problem in reading cohort data in Runner::runmode3\n";
-					exit(-1);
-				}
+		if (icalyr==runcht.yrstart && im==0) {
+			runcht.initrecno  = reclistinit.at(jj);
+		} else {    // after the first time-step, the initial record no. must be exactly same as in the runchtlist
+			runcht.initrecno  = jj;
+		}
 
-				// getting the restart data for the current cohort
-				error = runcht.reinit();
-				if (error!=0){
-					cout <<"problem in re-initialzing cohort in Runner::runmode3\n";
-					exit(-1);
-				}
+		runcht.clmrecno   = reclistclm.at(jj);
+		runcht.vegrecno   = reclistveg.at(jj);
+		runcht.firerecno  = reclistfire.at(jj);
 
-				// run one timestep (monthly)
-				runcht.run_monthly();
+		//getting the grided data for current cohort
+		error = rungrd.readData();
+		if (error!=0){
+			cout <<"problem in reading grided data in Runner::runmode3\n";
+			exit(-1);
+		}
 
-				if(md.consoledebug){
-					cout <<"TEM " << md.runstages
-							<<" run: year "<<icalyr
-							<<" month "<<im
-							<<" @cohort "<<runcht.cht.cd.chtid<<"\n";
-
-				}
-
-				runcht.cohortcount++;
-
-				//
-
-			} // end of cohort counter loop
-
-			// The following is to save monthly-generated 'restart' file FOR
-			// using to initialize the next time-steps for all cohorts
-			// 1) need to close monthly I/O 'restart' files
-			if (runcht.resouter.restartFile!=NULL) {
-				runcht.resouter.restartFile->close();
-				delete runcht.resouter.restartFile;
+		if (md.runeq && icalyr > 20*runcht.cht.gd->fri-2){  //20 FRI-2
+			if (jj<runchtlist.size()) {  // if not the last cohort
+				continue;    // when at 'eq' runstage, max. run year for a cohort is 20*FRI-2;
+					                 // here stop and go to the next cohort
+			} else {   // if the last cohort
+				break;       // break the cohort loop
 			}
-			if (runcht.resinputer.restartFile!=NULL) {
-				runcht.resinputer.restartFile->close();
-				delete runcht.resinputer.restartFile;
-			}
+		}
 
-			// 2) copy the output 'restart' to the input 'restart'
-			ifstream src((char*)runcht.resouter.restartfname.c_str(), ios::binary);
-			ofstream dst((char*)md.initialfile.c_str(), ios::binary);
-			dst<<src.rdbuf();
-			src.close();
-			dst.close();
+		// getting the cohort data for the current cohort
+		error = runcht.readData();
+		if (error!=0){
+			cout <<"problem in reading cohort data in Runner::runmode3\n";
+			exit(-1);
+		}
 
-			// 3) have to re-initialize I/O files for next timestep
-			runcht.resinputer.init(md.initialfile);
-			string stage="-"+md.runstages;
-			runcht.resouter.init(md.outputdir, stage);
+		// getting the restart data for the current cohort
+		error = runcht.reinit();
+		if (error!=0){
+			cout <<"problem in re-initialzing cohort in Runner::runmode3\n";
+			exit(-1);
+		}
 
-			// ticking timer once
-			timer.advanceOneMonth();
+		// run one timestep (monthly)
+		runcht.run_monthly();
 
-	    } // end of month loop
+		if(md.consoledebug){
+			cout <<"TEM " << md.runstages
+				<<" run: year "<<icalyr
+				<<" month "<<im
+				<<" @cohort "<<runcht.cht.cd.chtid<<"\n";
 
-	} // end of year loop
+		}
+
+		runcht.cohortcount++;
+
+	} // end of cohort counter loop
+
+	// The following is to save monthly-generated 'restart' file FOR
+	// using to initialize the next time-steps for all cohorts
+	// 1) need to close monthly I/O 'restart' files
+	if (runcht.resouter.restartFile!=NULL) {
+		runcht.resouter.restartFile->close();
+		delete runcht.resouter.restartFile;
+	}
+	if (runcht.resinputer.restartFile!=NULL) {
+		runcht.resinputer.restartFile->close();
+		delete runcht.resinputer.restartFile;
+	}
+
+	// 2) copy the output 'restart' to the input 'restart'
+	ifstream src((char*)runcht.resouter.restartfname.c_str(), ios::binary);
+	ofstream dst((char*)md.initialfile.c_str(), ios::binary);
+	dst<<src.rdbuf();
+	src.close();
+	dst.close();
+
+	// 3) have to re-initialize I/O files for next timestep
+	runcht.resinputer.init(md.initialfile);
+	string stage="-"+md.runstages;
+	runcht.resouter.init(md.outputdir, stage);
+
+	// ticking timer once
+	timer.advanceOneMonth();
 
 };
 
-/** Read in a list of cohorts to run. */
 void Runner::createCohortList4Run(){
+	// read in a list of cohorts to run
 
 	//netcdf error
 	NcError err(NcError::silent_nonfatal);
@@ -568,7 +610,6 @@ void Runner::createCohortList4Run(){
 
 };
 
-/** Create the output variable list. */
 void Runner::createOutvarList(string & txtfile){
 
 	string outvarfile = txtfile;

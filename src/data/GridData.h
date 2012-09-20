@@ -12,6 +12,8 @@ class GridData{
   public:
   	GridData();
   	~GridData();
+
+  	void clear();
   
   	/* data for ONE grid (current) */
   	float lat;
