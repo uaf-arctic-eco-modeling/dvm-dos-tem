@@ -416,7 +416,7 @@ void Runner::runmode3(){
 	if(md.runsp){
 		timer.stageyrind = 0;
 		timer.eqend = true;
-	    runcht.used_atmyr = min(MAX_ATM_NOM_YR, runcht.cht.cd.act_atm_drv_yr);
+	    runcht.used_atmyr = min(MAX_ATM_NOM_YR, md.act_clmyr);
 	    runcht.yrstart = timer.spbegyr;
 	    runcht.yrend   = timer.spendyr;
 	    md.friderived= false;
@@ -425,7 +425,7 @@ void Runner::runmode3(){
 		timer.stageyrind = 0;
 		timer.eqend = true;
 		timer.spend = true;
-		runcht.used_atmyr = runcht.cht.cd.act_atm_drv_yr;
+		runcht.used_atmyr = md.act_clmyr;
 		runcht.yrstart = timer.trbegyr;
 		runcht.yrend   = timer.trendyr;
 	    md.friderived= false;
@@ -435,7 +435,7 @@ void Runner::runmode3(){
 		timer.eqend = true;
 		timer.spend = true;
 		timer.trend = true;
-		runcht.used_atmyr = runcht.cht.cd.act_atm_drv_yr;
+		runcht.used_atmyr = md.act_clmyr;
 		runcht.yrstart = timer.scbegyr;
 		runcht.yrend   = timer.scendyr;
 	    md.friderived= false;
@@ -461,11 +461,14 @@ void Runner::runSpatially(const int icalyr, const int im) {
 		chtid = runchtlist.at(jj);
 
 		// may need to clear up data containers for new cohort
-		runcht.cht.clearData();
- 		runcht.cht.setModelData(&md);
- 		runcht.cht.setTime(&timer);
- 		runcht.cht.setInputData(&runreg.region.rd, &rungrd.grid.gd);
- 		runcht.cht.setProcessData(&chted, &chtbd, &chtfd);  //
+		chted = EnvData();
+		chtbd = BgcData();
+		chtfd = FirData();
+		rungrd.grid = Grid();
+		runcht.cht = Cohort();
+
+		//reset data pointer connection
+		setupData();
 
  		// starting new cohort here
 		runcht.cht.cd.chtid = chtid;

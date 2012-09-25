@@ -147,7 +147,7 @@ void Cohort::clearData(){
 
    	edall->clear();
     bdall->clear();
-    fd    = NULL;
+    fd->clear();
 
 };
 
