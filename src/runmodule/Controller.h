@@ -4,7 +4,6 @@
 	#include <iostream>
 	#include <fstream>
 	#include <sstream>
-	#include <list> // list class-template definition
 
 	using namespace std;
 

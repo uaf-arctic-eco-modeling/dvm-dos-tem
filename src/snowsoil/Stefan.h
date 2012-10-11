@@ -7,7 +7,7 @@
 #include <math.h>
 
 #include "../ecodomain/Ground.h"
-#include "../inc/ErrorCode.h"
+#include "../inc/errorcode.h"
 #include "../inc/layerconst.h"
 
 #include "../util/CrankNicholson.h"

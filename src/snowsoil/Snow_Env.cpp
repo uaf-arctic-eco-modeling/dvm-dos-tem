@@ -16,7 +16,7 @@ void Snow_Env::updateDailyM(const double & tdrv){
 
     // dsmass is the total snowfall during one timestep:
     double dsmass = ed->d_v2g.sthfl + ed->d_v2g.sdrip   //these 2 items has already been adjusted by FPC
-    		        + (1.- cd->m_veg.fpcsum)* ed->d_a2l.snfl;
+    		        + (1.- cd->m_vegd.fpcsum)* ed->d_a2l.snfl;
      //Note unit converstion: 1 mm H2O = 1 kgH2O/m2
 
 	bool slchg1 = false;
@@ -98,8 +98,8 @@ void Snow_Env::updateDailySurfFlux( Layer* toplayer, const double & tdrv){
 		double albnir = getAlbedoNir(toplayer->tem);
 		double albvis = getAlbedoVis(toplayer->tem);
 	
-		double insw =  ed->d_v2g.swthfl * cd->m_veg.fpcsum
-			     + ed->d_a2l.nirr *(1.- cd->m_veg.fpcsum);
+		double insw =  ed->d_v2g.swthfl * cd->m_vegd.fpcsum
+			     + ed->d_a2l.nirr *(1.- cd->m_vegd.fpcsum);
 
 		ed->d_snw2a.swrefl = insw *0.5 * albnir + insw *0.5 * albvis;
 	 

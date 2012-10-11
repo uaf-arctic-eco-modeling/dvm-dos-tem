@@ -90,6 +90,7 @@
  		    void setModelData(ModelData* md);
  		    void setInputData(RegionData * rd, GridData * gd);
  		    void setProcessData(EnvData * alledp, BgcData * allbdp, FirData *fdp);
+ 		    void clearData();
 
  		    void initStatePar();
  		    void prepareAllDrivingData();
@@ -102,28 +103,27 @@
             Integrator solintegrator;
 
 
-     	void updateMonthly_DIMveg(const int & currmind, const bool & dvmmodule);
-     	void updateMonthly_DIMgrd(const int & currmind, const bool & dslmodule);
+     	    void updateMonthly_DIMveg(const int & currmind, const bool & dvmmodule);
+     	    void updateMonthly_DIMgrd(const int & currmind, const bool & dslmodule);
 
-     	void updateMonthly_Env(const int & currmind, const int & dinmcurr);
- 	 	void updateMonthly_Bgc(const int & currmind);
-     	void updateMonthly_Fir(const int & yrcnt, const int & currmind);
+     	    void updateMonthly_Env(const int & currmind, const int & dinmcurr);
+ 	 	    void updateMonthly_Bgc(const int & currmind);
+     	    void updateMonthly_Fir(const int & yrcnt, const int & currmind);
 
-		// update root distribution
-		void getSoilFineRootFrac_Monthly();
-		double assignSoilLayerRootFrac(const double & topz, const double & botz,
+		    // update root distribution
+		    void getSoilFineRootFrac_Monthly();
+		    double assignSoilLayerRootFrac(const double & topz, const double & botz,
 		           const double csumrootfrac[MAX_ROT_LAY], const double dzrotlay[MAX_ROT_LAY]);
 
-		//
-     	void assignAtmEd2pfts_daily();
-     	void assignGroundEd2pfts_daily();
-		void getSoilTransfactor4all_daily();
-     	void getEd4allveg_daily();
-     	void getEd4land_daily();
+		   //
+     	   void assignAtmEd2pfts_daily();
+     	   void assignGroundEd2pfts_daily();
+		   void getSoilTransfactor4all_daily();
+		   void getEd4allveg_daily();
+     	   void getEd4land_daily();
 
-     	void assignSoilBd2pfts_monthly();
-     	void getBd4allveg_monthly();
+     	   void assignSoilBd2pfts_monthly();
+     	   void getBd4allveg_monthly();
 
-		void resetSoilclm(const int & im);
 };
 #endif /*COHORT_H_*/

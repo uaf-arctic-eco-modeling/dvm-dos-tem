@@ -4,8 +4,7 @@
 #ifndef MOSS_H_
 #define MOSS_H_
 
-#include "../inc/cohortconst.h"
-#include "../inc/layerconst.h"
+#include "../layer/MossLayer.h"
 
 class Moss{
 	public:

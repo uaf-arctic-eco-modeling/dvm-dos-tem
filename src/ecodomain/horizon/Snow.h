@@ -4,10 +4,7 @@
 #ifndef SNOW_H_
 #define SNOW_H_
 
-#include "layer/SnowLayer.h"
-
-#include "../inc/ErrorCode.h"
-#include "../inc/layerconst.h"
+#include "../layer/SnowLayer.h"
 
 class Snow{
 	public:

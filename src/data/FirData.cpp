@@ -10,6 +10,19 @@ FirData::~FirData(){
 	
 };
 
+void FirData::clear(){
+    ysf         = 0;
+    useseverity = false;
+
+	fire_soid = soidiag_fir();
+
+	fire_v2a  = veg2atm_fir();
+	fire_v2soi= veg2soi_fir();
+
+	fire_soi2a= soi2atm_fir();
+	fire_a2soi= atm2soi_fir();
+
+};
 
 void FirData::init(){
 	ysf =0;

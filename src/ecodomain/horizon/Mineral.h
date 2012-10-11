@@ -4,7 +4,8 @@
 #define MINERAL_H_
  
 #include <iostream>
-#include "../inc/layerconst.h"
+#include "../layer/MineralLayer.h"
+
 using namespace std;
 
 class Mineral{

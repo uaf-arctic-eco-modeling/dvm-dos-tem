@@ -1,5 +1,4 @@
-////////////////////////////////////////////////////////////////////////////////////////
-/* 
+/**
  *  TEM.cpp
  *  main program for running DVM-DOS-TEM
  *  
@@ -20,12 +19,8 @@
  * Affilation: Spatial Ecology Lab, University of Alaska Fairbanks 
  *
  * started: 11/01/2010
- * last modified: 04/25/2012
-
+ * last modified: 06/25/2012
 */
-/////////////////////////////////////////////////////////////////////////////////////////         
- 
-//include        
 
 #include <string>
 #include <iostream>
@@ -35,15 +30,13 @@
 #include <cstdlib>
 #include <exception>
 using namespace std;
- 
+
 #include "assembler/Runner.h"
 
-// defines the mode of run: Singe-site or Multiple-site (regional)
-#define SITERUN
-//#define REGNRUN
+// defines the mode of run: Single-site or Multiple-site (regional)
+//#define SITERUN
+#define REGNRUN
 
-/////////////////////////////////////////////////////////////////////////////////
-       
 int main(int argc, char* argv[]){
 
 	setvbuf(stdout, NULL, _IONBF, 0);
@@ -56,21 +49,29 @@ int main(int argc, char* argv[]){
 		cout<<"run TEM stand-alone - start @"<<ctime(&stime)<<"\n";
 
 		string controlfile="";
-		if(argc==1){ //if there is no control file specified
+		string chtid = "1";    /* default chtid 1 for siter-runmode  */
+		if(argc == 1){   //if there is no control file specified
 			controlfile ="config/controlfile_site.txt";
-		} else if(argc ==2) {
-			controlfile =argv[1];
+		} else if(argc == 2) { // if only control file specified
+			controlfile = argv[1];
+		} else if(argc == 3) { // both control file and chtid specified in the order
+			controlfile = argv[1];
+			chtid = argv[2];
 		}
 
 		Runner siter;
 
+		siter.chtid = atoi(chtid.c_str());
+
 		siter.initInput(controlfile, "siter");
+
 		siter.initOutput();
 
  		siter.setupData();
 
- 		//
- 		siter.run();
+ 		siter.setupIDs();
+
+ 		siter.runmode1();
  
  		etime=time(0);
 		cout <<"run TEM stand-alone - done @"<<ctime(&etime)<<"\n";
@@ -80,26 +81,41 @@ int main(int argc, char* argv[]){
 	#ifdef REGNRUN
 		time_t stime;
 		time_t etime;
-		stime=time(NULL);
+		stime=time(0);
 		cout <<"run TEM regionally - start @"<<ctime(&stime)<<"\n";
 
 		string controlfile="";
-		if(argc==1){ //if there is no control file specified
+		string runmode = "regner2";
+		if(argc == 1){ //if there is no control file specified
 			controlfile ="config/controlfile_regn.txt";
-		} else if(argc ==2) {
-			controlfile =argv[1];
+		} else if(argc == 2) {
+			controlfile = argv[1];
+		} else if (argc == 3) {   // both control file and runmode specified in order
+			controlfile = argv[1];
+			runmode     = argv[2];
 		}
 
 		Runner regner;
 
-		regner.initInput(controlfile, "regner1");
+		regner.initInput(controlfile, runmode);
+
 		regner.initOutput();
 
 		regner.setupData();
 
-		regner.run();
+		regner.setupIDs();
 
-		etime=time(NULL);
+ 		if (runmode.compare("regner1")==0) {
+ 			regner.runmode2();
+ 		} else if (runmode.compare("regner2")==0){
+ 			regner.runmode3();
+		} else {
+			cout <<"run-mode for TEM regional run must be: \n";
+			cout <<" EITHER 'regner1' OR 'regner2' \n";
+			exit(-1);
+		}
+
+		etime=time(0);
 		cout <<"run TEM regionally - done @"<<ctime(&etime)<<"\n";
 		cout <<"total seconds: "<<difftime(etime, stime)<<"\n";
 

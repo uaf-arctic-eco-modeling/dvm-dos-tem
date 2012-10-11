@@ -8,12 +8,59 @@ CohortData::~CohortData(){
 
 };
 
-void CohortData::init(){
-	for (int ip=0; ip<NUM_PFT; ip++){
-		m_veg.prvfoliagemx[ip]  = 0.;
-		m_veg.vegage[ip]  = 0;
+// initialize CohortData class explicitly
+void CohortData::clear(){
 
+	chtid = MISSING_I;
+ 	year  = MISSING_I;
+ 	month = MISSING_I;
+ 	day   = MISSING_I;
+
+	cmttype = MISSING_I;
+	ysdist  = MISSING_I;
+
+    hasnonvascular = false;
+
+	act_vegset  = MISSING_I;
+	fill_n(vegyear, MAX_VEG_SET, MISSING_I);
+	fill_n(vegtype, MAX_VEG_SET, MISSING_I);
+	fill_n(vegfrac, MAX_VEG_SET, MISSING_I);
+
+	act_fireset  = MISSING_I;
+	fill_n(fireyear, MAX_FIR_OCRNUM, MISSING_I);
+	fill_n(fireseason, MAX_FIR_OCRNUM, MISSING_I);
+	fill_n(firesize, MAX_FIR_OCRNUM, MISSING_I);
+	fill_n(fireseverity, MAX_FIR_OCRNUM, MISSING_I);
+
+    act_atm_drv_yr  = MISSING_I;
+    fill_n(tair, MAX_ATM_DRV_YR*12, MISSING_F);
+    fill_n(prec, MAX_ATM_DRV_YR*12, MISSING_F);
+    fill_n(nirr, MAX_ATM_DRV_YR*12, MISSING_F);
+    fill_n(vapo, MAX_ATM_DRV_YR*12, MISSING_F);
+
+  	// community dimension
+    d_veg = vegstate_dim();
+    m_veg = vegstate_dim();
+    y_veg = vegstate_dim();
+
+	m_vegd = vegdiag_dim();
+	y_vegd = vegdiag_dim();
+
+	d_snow = snwstate_dim();
+	m_snow = snwstate_dim();
+	y_snow = snwstate_dim();
+
+	d_soil = soistate_dim();
+	m_soil = soistate_dim();
+	y_soil = soistate_dim();
+
+	for (int ip=0; ip<NUM_PFT; ip++){
+		if(!prveetmxque[ip].empty()) prveetmxque[ip].clear();
+		if(!prvunnormleafmxque[ip].empty()) prvunnormleafmxque[ip].clear();
+		if(!prvgrowingttimeque[ip].empty()) prvgrowingttimeque[ip].clear();
+		if(!toptque[ip].empty()) toptque[ip].clear();
 	}
+
 };
 
 //accumulators for yearly-averaged/-summed variables from the monthly ones
@@ -30,18 +77,23 @@ void CohortData::beginOfYear(){
 	// then, initialize the accumulators ONLY for those varies within a year
 
 	// 1) for vegetation dimension/structure variables
-	y_veg.fpcsum = 0.;
-	for (int ip=0; ip<numpft; ip++){
+	y_vegd.fpcsum = 0.;
+	for (int ip=0; ip<NUM_PFT; ip++){
 
 		y_veg.lai[ip]  = 0.;
 		y_veg.fpc[ip]  = 0.;
 
-		y_veg.fleaf[ip]    = 0.;
-		y_veg.ffoliage[ip] = 0.;
-
 		for (int il=0; il<MAX_ROT_LAY; il++){
 			y_veg.frootfrac[il][ip] = 0.;
 		}
+
+		y_vegd.fleaf[ip]        = 0.;
+		y_vegd.ffoliage[ip]     = 0.;
+		y_vegd.eetmx[ip]        = 0.;
+		y_vegd.growingttime[ip] = 0.;
+		y_vegd.topt[ip]         = 0.;
+		y_vegd.unnormleafmx[ip] = 0.;
+
 	}
 
 	// 2) snow
@@ -109,21 +161,26 @@ void CohortData::endOfDay(const int & dinm){
 void CohortData::endOfMonth(){
 
 	// 1) for vegetation dimension/structure variables
-	y_veg.fpcsum += m_veg.fpcsum/12.;
-	for (int ip=0; ip<numpft; ip++){
+	y_vegd.fpcsum += m_vegd.fpcsum/12.;
+	for (int ip=0; ip<NUM_PFT; ip++){
+    	if (m_veg.vegcov[ip]>0.){
 
-		y_veg.lai[ip] += m_veg.lai[ip]/12.;
-		y_veg.fpc[ip] += m_veg.fpc[ip]/12.;
+    		y_veg.lai[ip] += m_veg.lai[ip]/12.;
+    		y_veg.fpc[ip] += m_veg.fpc[ip]/12.;
+    		for (int il=0; il<MAX_ROT_LAY; il++){
+    			y_veg.frootfrac[il][ip] += m_veg.frootfrac[il][ip]/12.;
+    		}
 
-		y_veg.fleaf[ip]   += m_veg.fleaf[ip]/12.;
-		y_veg.prvunnormleafmx[ip]= m_veg.prvunnormleafmx[ip];
+    		y_vegd.fleaf[ip]        += m_vegd.fleaf[ip]/12.;
+    		y_vegd.ffoliage[ip]     += m_vegd.ffoliage[ip]/12.;
 
-		y_veg.ffoliage[ip]+= m_veg.ffoliage[ip]/12.;
-		y_veg.prvfoliagemx[ip]= m_veg.prvfoliagemx[ip];
+    		y_vegd.eetmx[ip]         = m_vegd.eetmx[ip];
+    		y_vegd.unnormleafmx[ip]  = m_vegd.unnormleafmx[ip];
+    		y_vegd.growingttime[ip]  = m_vegd.growingttime[ip];
+    		y_vegd.topt[ip]          = m_vegd.topt[ip];
+    		y_vegd.foliagemx[ip]     = m_vegd.foliagemx[ip];
 
-		for (int il=0; il<MAX_ROT_LAY; il++){
-			y_veg.frootfrac[il][ip] += m_veg.frootfrac[il][ip]/12.;
-		}
+    	}
 	}
 
 	// 2) snow
@@ -142,6 +199,31 @@ void CohortData::endOfMonth(){
 };
 
 void CohortData::endOfYear(){
+	// save the yearly max. 'unnormaleaf', 'growing thermal time', and 'topt' into the deque
+	for (int ip=0; ip<NUM_PFT; ip++){
+		double tmpeetmx = y_vegd.eetmx[ip];
+		prveetmxque[ip].push_front(tmpeetmx);
+		if (prveetmxque[ip].size()>10) {
+			prveetmxque[ip].pop_back();
+		}
 
+		double tmpmx = y_vegd.unnormleafmx[ip];
+		prvunnormleafmxque[ip].push_front(tmpmx);
+		if (prvunnormleafmxque[ip].size()>10) {
+			prvunnormleafmxque[ip].pop_back();
+		}
+
+		double tmpttimex = y_vegd.growingttime[ip];
+		prvgrowingttimeque[ip].push_front(tmpttimex);
+		if (prvgrowingttimeque[ip].size()>10) {
+			prvgrowingttimeque[ip].pop_back();
+		}
+
+		double tmptopt = y_vegd.topt[ip];
+		toptque[ip].push_front(tmptopt);
+		if (toptque[ip].size()>10) {
+			toptque[ip].pop_back();
+		}
+	}
 };
 
