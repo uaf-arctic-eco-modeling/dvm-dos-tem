@@ -204,7 +204,7 @@ void Runner::setupIDs(){
 	}
 
 	// 1) assign grid-level data IDs (in 'grid.nc') for 'chtid' in 'cohortid.nc': related key - 'GRIDID'
-	//    note: one 'chtid' only has one set of grid=level data IDs, while not in reverse
+	//    note: one 'chtid' only has one set of grid-level data IDs, while not in reverse
 	unsigned int icht;
 	unsigned int igrd;
 	vector<int>:: iterator it;
@@ -241,6 +241,13 @@ void Runner::setupIDs(){
 		jt    = find(rungrd.grdids.begin(), rungrd.grdids.end(), runcht.chtgridids.at(jcht));
 		jdata = (int)(jt - rungrd.grdids.begin());
 		reclistgrid.push_back(jdata);
+
+		float lat = -999.0f;
+		float lon = -999.0f;
+		rungrd.ginputer.getLatlon(lat, lon, jdata);
+		runchtlats.push_back(lat);
+		runchtlons.push_back(lon);
+
 		// drainage-type record no. (in 'drainage.nc') for 'chtid'
 		jt    = find(rungrd.drainids.begin(), rungrd.drainids.end(), runcht.chtdrainids.at(jcht));
 		jdata = (int)(jt - rungrd.drainids.begin());

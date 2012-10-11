@@ -44,10 +44,11 @@ class Runner {
     	void runmode3();  /* multi-site (regional) run-mode 2, i.e., spatially */
     	void runSpatially(const int icalyr, const int im);
 
-    private:
+    	vector<int> runchtlist;  //a vector listing all cohort id
+ 	    vector<int> runchtlats;  //a vector of latitudes for all cohorts in order of 'runchtlist'
+ 	    vector<int> runchtlons;  //a vector of longitudes for all cohorts in order of 'runchtlist'
 
-    	vector<int> runchtlist;
- 		/* all data record no. lists FOR all cohorts in 'runchtlist', IN EXACTLY SAME ORDER, for all !
+    	/* all data record no. lists FOR all cohorts in 'runchtlist', IN EXACTLY SAME ORDER, for all !
     	 * the 'record' no. (starting from 0) is the order in the netcdf files
     	 * for all 'chort (cell)' in the 'runchtlist',
     	 * so, the length of all these lists are same as that of 'runchtlist'
@@ -65,6 +66,8 @@ class Runner {
     	vector<int> reclistclm;
     	vector<int> reclistveg;
     	vector<int> reclistfire;
+
+	private:
 
     	//TEM domains (hiarchy)
     	RunRegion runreg;
