@@ -61,11 +61,12 @@ void SoilParent_Env::retrieveDailyTM(Layer* lstsoill){
 
 	Layer *currl = lstsoill->nextl;
 
+	double trock = lstsoill->tem;
 	int rcind = -1;
 	while (currl!=NULL) {
 		if (currl->isRock) {
 			rcind++;
-			ed->d_sois.trock[rcind] = lstsoill->tem;
+			ed->d_sois.trock[rcind] = trock;
 		}
 		currl = currl->nextl;
 	}
