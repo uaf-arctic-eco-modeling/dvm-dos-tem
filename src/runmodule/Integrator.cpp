@@ -223,7 +223,7 @@ int Integrator::adapt(float pstate[], const int & numeq){
   	float time = 0.0;
   	float dt = 1.0;
   	int mflag = 0;
-  	long nintmon = 0;
+  	int nintmon = 0;
   	float oldstate[numeq];
   	float  ptol =0.01;
 
