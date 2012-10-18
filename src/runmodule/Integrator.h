@@ -123,7 +123,7 @@ class Integrator{
        int blackhol;
        float inittol;
        int maxit;
-       long maxitmon;
+       int maxitmon;
        int retry;
 
        int syint;

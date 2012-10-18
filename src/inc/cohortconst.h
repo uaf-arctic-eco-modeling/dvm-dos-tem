@@ -15,11 +15,4 @@
 	const int NUM_FSEASON  = 4;   // no. of fire season categories: season: 1 (pre-season), 2(early fire), 3(late fire), and 4 (after-season) with 3 months in the order
 	const int NUM_FSIZE    = 5;   // no. of fire size categories
 
-	enum CMTKEY{SEDGETUNDRA = 0,
-		          SHRUBTUNDRA,
-		          UPBSPRUCE,    LOWBSPRUCE,
-		          UPWSPRUCE,    LOWWSPRUCE,
-		          UPDECIDUOUS,  LOWDECIDUOUS,
-		          };
-
 #endif /*COHORTCONST_H_*/
