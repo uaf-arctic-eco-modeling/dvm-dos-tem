@@ -88,11 +88,11 @@ void Soil_Bgc::prepareIntegration(const bool &mdnfeedback, const bool &mdavlnflg
      
  	 // litter-fall C/N from Vegetation_bgc.cpp
  	 double blwlfc = bd->m_v2soi.ltrfalc[I_root];
- 	 double abvlfc = bd->m_v2soi.ltrfalcall - blwlfc;
+ 	 double abvlfc = max(0., bd->m_v2soi.ltrfalcall - blwlfc);
  	 double blwlfn = bd->m_v2soi.ltrfaln[I_root];
- 	 double abvlfn = bd->m_v2soi.ltrfalnall - blwlfn;
+ 	 double abvlfn = max(0., bd->m_v2soi.ltrfalnall - blwlfn);
 
-     for(int i=0;i<cd->m_soil.numsl; i++){
+     for(int i=0; i<cd->m_soil.numsl; i++){
     	 if (cd->m_soil.type[i]>0) {
     		 ltrflc[i] = abvlfc + bd->m_v2soi.rtlfalfrac[i] * blwlfc;   //always put the litter-falling in the first non-moss soil layer
     		 ltrfln[i] = abvlfn + bd->m_v2soi.rtlfalfrac[i] * blwlfn;
@@ -104,10 +104,10 @@ void Soil_Bgc::prepareIntegration(const bool &mdnfeedback, const bool &mdavlnflg
     		 ltrfln[i] = bd->m_v2soi.rtlfalfrac[i] * blwlfn;
     	 }
 
-    	 if (ltrfln[i]> 0.) {
+    	 if (ltrflc[i]>0. && ltrfln[i]> 0.) {
     		 bd->m_soid.ltrfcn[i] = ltrflc[i]/ltrfln[i];
     	 } else {
-    		 bd->m_soid.ltrfcn[i] = MISSING_D;
+    		 bd->m_soid.ltrfcn[i] = 0.0;
     	 }
 
      }
@@ -167,6 +167,7 @@ void Soil_Bgc::afterIntegration(){
 	 	bd->m_soid.tsomc[i] = bd->m_sois.rawc[i]+bd->m_sois.soma[i]
 	 	                    +bd->m_sois.sompr[i]+bd->m_sois.somcr[i];
      }
+
 };
 
 void Soil_Bgc::initializeState(){
@@ -193,6 +194,7 @@ void Soil_Bgc::initializeState(){
 		   bd->m_sois.avln [il] = 0.;
 		   bd->m_sois.orgn [il] = 0.;
 	   }
+
    }
    
 };
@@ -209,7 +211,13 @@ void Soil_Bgc::initializeState5restart(RestartData* resin){
 		bd->m_sois.orgn[il] = resin->orgn[il];
 		bd->m_sois.avln[il] = resin->avln[il];
 
-		bd->prvltrfcn[il] = resin->prvltrfcn[il];
+    	for(int i=0; i<10; i++){
+    		bd->prvltrfcnque[il].clear();
+    		double tmpcn = resin->prvltrfcnA[i][il];
+    		if(tmpcn!=MISSING_D){
+    			bd->prvltrfcnque[il].push_back(tmpcn);
+    		}
+    	}
 			
 	}
 
@@ -432,10 +440,10 @@ void Soil_Bgc::initMslayerCarbon(double & minec){
 // before delta and afterdelta are considered in Integrator
 void Soil_Bgc::deltac(){
 	
-    double krawc;     //for littering materials (in model, rawc)
-    double ksoma;     //for active SOM (in model, soma)
-    double ksompr;    //for PR SOM (in model, sompr)
-    double ksomcr;    //for CR SOM (in model, somcr)
+    double krawc = 0.;     //for littering materials (in model, rawc)
+    double ksoma = 0.;     //for active SOM (in model, soma)
+    double ksompr = 0.;    //for PR SOM (in model, sompr)
+    double ksomcr = 0.;    //for CR SOM (in model, somcr)
 
  	for (int il =0; il<cd->m_soil.numsl; il++){
 //		bd->m_soid.rhmoist[il] = getRhmoist(ed->m_soid.aws[il],  //Yuan: vwc normalized by (total pore - ice volume), which makes almost no respiration for poorly-drained BS
@@ -448,7 +456,7 @@ void Soil_Bgc::deltac(){
 	   	ksompr = bgcpar.kdsompr[il];
 	   	ksomcr = bgcpar.kdsomcr[il];
 
-		if(tmp_sois.rawc[il]>0){
+		if(tmp_sois.rawc[il]>0.){
 			del_soi2a.rhrawc[il] = krawc * tmp_sois.rawc[il]
 			                      * bd->m_soid.rhmoist[il] * bd->m_soid.rhq10[il];
 		} else {
@@ -587,8 +595,6 @@ void Soil_Bgc::deltastate(){
 	double fsompr   = (double)bgcpar.fsompr;    // the fraction of SOMPR in total SOM product
 	double fsomcr   = (double)bgcpar.fsomcr;    // the fraction of SOMCR in total SOM product
 
-	double del_orgn[MAX_SOI_LAY]; // soil org. N change with SOMC transformation and/or allocation
-
 		// 2) If soil respiration known, then internal C pool transformation can be estimated as following
 	for(int il =0; il<cd->m_soil.numsl; il++){
 
@@ -628,7 +634,9 @@ void Soil_Bgc::deltastate(){
    	double mlleft    = xtopmlthick;
   	double dcaddfrac = 0.0;
   	double thickadded= 0.0;
-   	for(int il =0; il<cd->m_soil.numsl; il++){
+
+  	double del_orgn[MAX_SOI_LAY]={0.0}; // soil org. N change with SOMC transformation and/or allocation
+	for(int il =0; il<cd->m_soil.numsl; il++){
 
     	// 1) most of resistant-C increment into the fibric-horizon (generated above) will move down
    		//    so that fibric horizon will be coarse-material dominated (active SOM will remain)
@@ -724,7 +732,6 @@ void Soil_Bgc::deltastate(){
  	   		if (nfeed==1) {
  	   			del_orgn[il]=d2morgn *dcaddfrac;
  	   		}
-
 
  	   		if (mlleft<=0.0) break;
    		}
@@ -854,7 +861,12 @@ void Soil_Bgc::updateKdyrly4all(){
 	for(int il=0; il<cd->m_soil.numsl; il++){
 		// adjust SOM component respiration rate (kdc) due to literfall C/N ratio changing
 		if (nfeed==1) {
-				double ltrfalcn = bd->prvltrfcn[il];
+				double ltrfalcn = 0.;
+		 		deque <double> ltrfcnque = bd->prvltrfcnque[il];
+		 		int numrec = ltrfcnque.size();
+		 		for (int i=0; i<numrec; i++){
+		 			ltrfalcn += ltrfcnque[i]/numrec;
+		 		}
 
 				if (ltrfalcn>0.) {
 
@@ -862,6 +874,12 @@ void Soil_Bgc::updateKdyrly4all(){
 					kdsoma  = getKdyrly(ltrfalcn, bgcpar.lcclnc, calpar.kdcsoma);
 					kdsompr = getKdyrly(ltrfalcn, bgcpar.lcclnc, calpar.kdcsompr);
 					kdsomcr = getKdyrly(ltrfalcn, bgcpar.lcclnc, calpar.kdcsomcr);
+				} else {
+
+					kdrawc  = calpar.kdcrawc;
+					kdsoma  = calpar.kdcsoma;
+					kdsompr = calpar.kdcsompr;
+					kdsomcr = calpar.kdcsomcr;
 				}
 		}
 

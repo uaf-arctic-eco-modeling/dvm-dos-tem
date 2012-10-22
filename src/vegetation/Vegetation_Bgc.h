@@ -57,8 +57,8 @@
 
   		private:
 
-			double sumfrtfrac;            //sum of current PFT fine root fraction in the soil profile
-			double fltrfall;              //season fraction of max. monthly litterfalling fraction
+			double fracnuptake[MAX_SOI_LAY];  //fraction of N extraction in each soil layer for current PFT
+			double fltrfall;                  //season fraction of max. monthly litterfalling fraction
 
   			CohortLookup * chtlu;
 

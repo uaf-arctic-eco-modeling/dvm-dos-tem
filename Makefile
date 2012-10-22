@@ -2,10 +2,11 @@
 
 CC=g++
 CFLAGS=-c -Wall -ansi -O2 -g -fPIC
-LIBS=-lnetcdf_c++ -lnetcdf
-LIBDIR=
-INCLUDES=
+LIBS=-lnetcdf_c++ -lnetcdf -lboost_system -lboost_filesystem -lboost_program_options
+LIBDIR=-L/home/tobey/usr/local/lib
+INCLUDES=-I/home/tobey/usr/local/include
 SOURCES= 	src/TEM.o \
+		src/ArgHandler.o \
 		src/assembler/RunCohort.o \
 		src/assembler/RunGrid.o \
 		src/assembler/Runner.o \
@@ -24,11 +25,11 @@ SOURCES= 	src/TEM.o \
 		src/disturb/WildFire.o \
 		src/ecodomain/DoubleLinkedList.o \
 		src/ecodomain/Ground.o \
-		src/ecodomain/Mineral.o \
-		src/ecodomain/Moss.o \
-		src/ecodomain/Organic.o \
-		src/ecodomain/Snow.o \
-		src/ecodomain/SoilParent.o \
+		src/ecodomain/horizon/Mineral.o \
+		src/ecodomain/horizon/Moss.o \
+		src/ecodomain/horizon/Organic.o \
+		src/ecodomain/horizon/Snow.o \
+		src/ecodomain/horizon/SoilParent.o \
 		src/ecodomain/Vegetation.o \
 		src/input/CohortInputer.o \
 		src/input/GridInputer.o \
@@ -41,7 +42,6 @@ SOURCES= 	src/TEM.o \
 		src/output/EnvOutputer.o \
 		src/output/RegnOutputer.o \
 		src/output/RestartOutputer.o \
-		src/output/StatusOutputer.o \
 		src/runmodule/Cohort.o \
 		src/runmodule/Controller.o \
 		src/runmodule/Grid.o \
@@ -67,7 +67,8 @@ SOURCES= 	src/TEM.o \
 		src/ecodomain/layer/ParentLayer.o \
 		src/ecodomain/layer/SnowLayer.o \
 		src/ecodomain/layer/SoilLayer.o
-OBJECTS = 	RunCohort.o \
+OBJECTS =	ArgHandler.o \
+		RunCohort.o \
 		RunGrid.o \
 		Runner.o \
 		RunRegion.o \
@@ -102,7 +103,6 @@ OBJECTS = 	RunCohort.o \
 		EnvOutputer.o \
 		RegnOutputer.o \
 		RestartOutputer.o \
-		StatusOutputer.o \
 		Cohort.o \
 		Controller.o \
 		Grid.o \

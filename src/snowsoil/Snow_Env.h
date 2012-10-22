@@ -1,7 +1,7 @@
 #ifndef SNOW_ENV_H_
 #define SNOW_ENV_H_
 
-#include "../inc/ErrorCode.h"
+#include "../inc/errorcode.h"
 
 #include "../data/CohortData.h"
 #include "../data/EnvData.h"

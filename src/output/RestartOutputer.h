@@ -2,7 +2,6 @@
 #define RESTARTOUTPUTER_H_
 
 /*! this class is used to output the state in the netcdf format
-
  */
 
 #include "netcdfcpp.h"
@@ -13,14 +12,17 @@
 #include <sstream>
 #include <ctime>
 #include <cstdlib>
-using namespace std;
 #include <string>
-using std::string;
+using namespace std;
+
+#include "../inc/layerconst.h"
+#include "../inc/timeconst.h"
+#include "../inc/errorcode.h"
 
 #include "../data/RestartData.h"
 
 class RestartOutputer {
-	public :
+	public:
 		RestartOutputer();
 		~RestartOutputer();
 
@@ -30,14 +32,12 @@ class RestartOutputer {
 		void setRestartOutData(RestartData * resodp);
 		int errorChecking();
 
-		RestartData * resod;
-
+		NcFile* restartFile;
 		string restartfname;
 
 	private:
+		RestartData * resod;
 
-		NcFile* restartFile;
-	   
    		NcDim * chtD;
    		NcDim * pftD;
    		NcDim * pftpartD;
@@ -47,8 +47,9 @@ class RestartOutputer {
    		NcDim * minelayerD ;
    		NcDim * rocklayerD;
    		NcDim * frontD;
-   		NcDim * prvyearD ;
-	
+   		NcDim * prvyearD;
+   		NcDim * prvmonthD;
+
 		NcVar* chtidV;
 		NcVar* errcodeV;
 
@@ -59,7 +60,6 @@ class RestartOutputer {
 		NcVar* ysfV;
 
 	    //veg
-		NcVar* numpftV;
 	    NcVar* ifwoodyV;
 	    NcVar* ifdeciwoodyV;
 	    NcVar* ifperenialV;
@@ -78,13 +78,17 @@ class RestartOutputer {
 		NcVar* strnV;
 		NcVar* deadcV;
 		NcVar* deadnV;
-		NcVar* unnormleafV;
+
+		NcVar* toptV;
+	    NcVar* eetmxV;
+	    NcVar* growingttimeV;
+	    NcVar* unnormleafmxV;
 
 		NcVar* toptAV;
 	    NcVar* eetmxAV;
 	    NcVar* growingttimeAV;
 	    NcVar* unnormleafmxAV;
-	    NcVar* prvfoliagemxV;
+	    NcVar* foliagemxV;
 
 	    //snow
 	    NcVar* numsnwlV;
@@ -99,6 +103,9 @@ class RestartOutputer {
 	    //ground-soil
 	    NcVar* numslV;
 	    NcVar* monthsfrozenV;
+	    NcVar* rtfrozendaysV;
+	    NcVar* rtunfrozendaysV;
+
 	    NcVar* watertabV;
 
 	    NcVar* DZsoilV;
@@ -126,7 +133,8 @@ class RestartOutputer {
 	    NcVar* solnV;
 	    NcVar* avlnV;
 
-	    NcVar* prvltrfcnV;
+	    NcVar* prvltrfcnAV;
+
 
 };
 

@@ -18,7 +18,8 @@ class CohortLookup{
 		CohortLookup();
 		~CohortLookup();
 
-		string dircmtname;
+		string dir;
+		string cmtcode;
 
 		void init();
         void assignBgcCalpar(string & dirname);
@@ -165,7 +166,6 @@ class CohortLookup{
 
 	    // parameters for GPP/NPP allocations in tissues
 	    double cpart[NUM_PFT_PART][NUM_PFT];   //biomass C partioning fraction
-	    double npart[NUM_PFT_PART][NUM_PFT];   //biomass N partioning fraction
 
 	    // parameters for tissue C/N ratios at optimal states ('cneven')
 	    double initc2neven[NUM_PFT_PART][NUM_PFT];
@@ -225,11 +225,6 @@ class CohortLookup{
 
 	    double r_retain_c;         // 0.1 calculated from Harden et al., 2003 (ATHarden42003a)
 	    double r_retain_n;         // 0.3 calculated from Harden et al., 2003 (ATHarden42003a)
-
-	    int fireyear[MAX_FIR_OCRNUM];
-	    int fireseason[MAX_FIR_OCRNUM];
-	    int firesize[MAX_FIR_OCRNUM];
-	    int fireseverity[MAX_FIR_OCRNUM];
 
   private:
 

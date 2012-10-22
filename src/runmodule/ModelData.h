@@ -67,7 +67,24 @@
    			bool outRegn;
    			bool outSoilClm;
 
-    		//
+   	 		// the data record numbers of all input datasets
+   			// grided data (1D)
+   	 		int act_gridno;
+   	 		int act_drainno;
+   	 		int act_soilno;
+   	 		int act_gfireno;
+
+   	 		// chort-level data (2D or 3D)
+   	 		int act_chtno;
+   	 		int act_initchtno;
+   	 		int act_clmno;  // climate data in clmid-year-month(12) (3D)
+   	 		int act_clmyr;
+   	 		int act_vegno;  // vegetation community data in vegid-yearset (2D)
+   			int act_vegset;
+   	 		int act_fireno; // fire data in fireid-yearset (2D)
+   			int act_fireset;
+
+   			//
     		void checking4run();
 
  		private:

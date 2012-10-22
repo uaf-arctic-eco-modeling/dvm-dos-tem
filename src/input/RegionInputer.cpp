@@ -31,9 +31,11 @@ int RegionInputer::initCO2file(string &dir){
 
 	NcFile co2File(co2filename.c_str(), NcFile::ReadOnly);
  	if(!co2File.is_valid()){
- 		string msg = co2filename+" is not valid";
- 		cout<<msg+"\n";
- 		exit(-1);
+ 		string msg = co2filename + " is not valid";
+ 		cout << msg + "\n";
+ 		//exit(-1);
+		co2filename = dir + "co2.nc";
+ 		cout << "WARNING: Running with historic co2 (" << co2filename <<")\n";
  	}
  	
  	NcDim* yrD = co2File.get_dim("YEAR");

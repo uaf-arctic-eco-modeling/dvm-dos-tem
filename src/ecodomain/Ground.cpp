@@ -89,6 +89,8 @@ void Ground::initDimension(){
 }
 
 void Ground::initLayerStructure(snwstate_dim *snowdim, soistate_dim *soildim){
+	//needs to clean up old 'ground', if any
+	cleanAllLayers();
 
 	//layers are constructed from bottom
 	if(rocklayercreated){
@@ -169,6 +171,8 @@ void Ground::initSnowSoilLayers(){
 };
 
 void Ground::initLayerStructure5restart(snwstate_dim *snowdim, soistate_dim *soildim, RestartData * resin){
+	//needs to clean up old 'ground'
+	cleanAllLayers();
 
 	//
 	soilparent.num = 0;
@@ -179,11 +183,11 @@ void Ground::initLayerStructure5restart(snwstate_dim *snowdim, soistate_dim *soi
 		soilparent.num += 1;
 		soilparent.thick += soilparent.dz[i];
 	}
-	rocklayercreated = true;
 	for(int il =soilparent.num-1; il>=0; il--){
 		ParentLayer* rl = new ParentLayer(soilparent.dz[il]);
 		insertFront(rl);
 	}
+	rocklayercreated = true;
 
 	//
 	int soiltype[MAX_SOI_LAY];
@@ -248,6 +252,9 @@ void Ground::initLayerStructure5restart(snwstate_dim *snowdim, soistate_dim *soi
 
 	}
 
+  	//
+  	frontsz.clear();
+  	frontstype.clear();
 	int frontFT[MAX_NUM_FNT];
 	double frontZ[MAX_NUM_FNT];
 	for (int i=0; i<MAX_NUM_FNT; i++){
@@ -919,7 +926,7 @@ void  Ground::redivideMossLayers(const int &mosstype){
 	    resortGroundLayers();
 
 	}
-
+ // the above code causes pertubalation from year to year - needs more thought here
 };
 
 void Ground::redivideShlwLayers(){

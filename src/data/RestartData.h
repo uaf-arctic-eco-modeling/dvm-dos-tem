@@ -1,7 +1,7 @@
 #ifndef RESTARTDATA_H_
 #define RESTARTDATA_H_
 
-#include "../inc/ErrorCode.h"
+#include "../inc/errorcode.h"
 #include "../inc/cohortconst.h"
 #include "../inc/layerconst.h"
 
@@ -18,7 +18,6 @@ class RestartData {
 	    double firea2sorgn;
 
 		//vegegetation
-	    int numpft;
 	    int ysf;
 
 	    int ifwoody[NUM_PFT];                  // - 'veg_dim'
@@ -39,13 +38,16 @@ class RestartData {
 	    double deadc[NUM_PFT];
 	    double deadn[NUM_PFT];
 
-	    double toptA[10][NUM_PFT];           // this is for f(temp) in GPP to calculate the mean of the 10 previous values
+	    double topt[NUM_PFT];            // yearly-evolved 'topt'
+	    double eetmx[NUM_PFT];           // yearly max. month 'eet'
+	    double unnormleafmx[NUM_PFT];    // yearly max. unnormalized 'fleaf'
+	    double growingttime[NUM_PFT];    // yearly growthing t-time
+	    double foliagemx[NUM_PFT];        // this is for f(foliage) in GPP to be sure f(foliage) not going down
 
+	    double toptA[10][NUM_PFT];           // this is for f(temp) in GPP to calculate the mean of the 10 previous values
 	    double eetmxA[10][NUM_PFT];           // this is for f(phenology) in GPP to calculate the mean of the 10 previous values
 	    double unnormleafmxA[10][NUM_PFT];
 	    double growingttimeA[10][NUM_PFT];
-
-	    double prvfoliagemx[NUM_PFT];        // this is for f(foliage) in GPP to be sure f(foliage) not going down
 
 	    //snow
 	    int numsnwl;
@@ -60,6 +62,8 @@ class RestartData {
 	    //ground-soil
 	    int numsl;
 	    double monthsfrozen;
+		int rtfrozendays;
+		int rtunfrozendays;
 	    double watertab;
 
 	    double DZsoil[MAX_SOI_LAY];
@@ -87,8 +91,7 @@ class RestartData {
 	    double orgn[MAX_SOI_LAY];
 	    double avln[MAX_SOI_LAY];
 
-	  	double prvltrfcn[MAX_SOI_LAY];    //previous year litterfall (root death) input C/N ratios in each soil layer for adjusting 'kd'
-
+	  	double prvltrfcnA[12][MAX_SOI_LAY];   //previous 12-month litterfall (root death) input C/N ratios in each soil layer for adjusting 'kd'
    	
 };
 

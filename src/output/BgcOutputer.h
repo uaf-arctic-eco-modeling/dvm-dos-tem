@@ -9,9 +9,10 @@
 #include "../inc/timeconst.h"
 #include "../inc/cohortconst.h"
 #include "../inc/layerconst.h"
-#include "../inc/ErrorCode.h"
+#include "../inc/errorcode.h"
 
 #include "../data/BgcData.h"
+#include "../data/FirData.h"
 
 using namespace std;
 
@@ -21,8 +22,8 @@ class BgcOutputer{
 		~BgcOutputer();
 				
 		void init(string & dirfile);
-		void outputCohortBgcVars_mly(BgcData *bgcod, const int & calyr, const int &calmon, const int &ipft, const int & recordcnt);
-		void outputCohortBgcVars_yly(BgcData *bgcod, const int & calyr, const int &ipft, const int & recordcnt);
+		void outputCohortBgcVars_mly(const int &ipft, BgcData *bgcod, FirData *fod, const int & calyr, const int & calmon, const int & recordcnt);
+		void outputCohortBgcVars_yly(const int &ipft, BgcData *bgcod, FirData *fod, const int & calyr, const int & recordcnt);
 
 		string ncfname;
 
@@ -40,6 +41,7 @@ class BgcOutputer{
 		NcVar* yearV;
 		NcVar* monV;
 
+		// vegetation stats/fluxes
 	   	NcVar* callV;
 	   	NcVar* cV;
 	   	NcVar* nallV;
@@ -48,7 +50,47 @@ class BgcOutputer{
 	   	NcVar* strnV;
 	   	NcVar* deadcV;
 	   	NcVar* deadnV;
-	   	NcVar* wdebriscV;
+
+	   	NcVar* gppftV;
+	   	NcVar* gppgvV;
+	   	NcVar* gppfnaV;
+	   	NcVar* gppfcaV;
+	   	NcVar* rmkrV;
+	   	NcVar* raq10V;
+
+  		NcVar* ingppallV;  // gpp not limited by nitrogen availability
+  		NcVar* ingppV;
+  		NcVar* innppallV;
+  		NcVar* innppV;
+
+  		NcVar* gppallV;
+  		NcVar* gppV;
+  		NcVar* nppallV;
+  		NcVar* nppV;
+
+  		NcVar* rmallV; // maintainance respiration
+ 		NcVar* rmV;
+ 		NcVar* rgallV;  // growth respirationV;
+ 		NcVar* rgV;
+  		NcVar* ltrfalcallV;
+ 		NcVar* ltrfalcV;
+
+  		NcVar* ltrfalnallV;
+  		NcVar* ltrfalnV;
+  		NcVar* innuptakeV;
+   		NcVar* luptakeV;
+ 		NcVar* suptakeallV;
+ 		NcVar* suptakeV;
+  		NcVar* nmobilallV;      //N allocation from labile-N pool to tissue pool when needed
+  		NcVar* nmobilV;
+
+  		NcVar* nresorballV;     //N resorbation into labile-N pool when litter-falling
+  		NcVar* nresorbV;
+
+  		NcVar* nrootextractV;
+
+  		// ground-soil states/fluxes
+  		NcVar* wdebriscV;
 	   	NcVar* wdebrisnV;
 
 	   	NcVar* rawcV;
@@ -70,56 +112,34 @@ class BgcOutputer{
 	   	NcVar* orgnsumV;
 	   	NcVar* avlnsumV;
 
-	   	NcVar* gppftV;
-	   	NcVar* raq10V;
-	   	NcVar* rmkrV;
-	   	NcVar* gvV;
-	   	NcVar* fnaV;
-	   	NcVar* fcaV;
-
-	   	NcVar* knmoistV;
+	   	NcVar* rhV;
 	   	NcVar* rhmoistV;
 	   	NcVar* rhq10V;
 	   	NcVar* soilltrfcnV;
 
-	   	// C fluxes
+	   	NcVar* grsnminV;
+	   	NcVar* netnminV;
+	   	NcVar* knmoistV;
+
 	   	NcVar* nepV;
 
-  		NcVar* ingppallV;  // gpp not limited by nitrogen availability
-  		NcVar* ingppV;
-  		NcVar* innppallV;
-  		NcVar* innppV;
+	   	NcVar* orgcinputV;     // org. C inputs
+ 		NcVar* orgninputV;     // org. N inputs
+ 		NcVar* avlninputV;     // inorg. N inputs (deposition+fertilization)
 
-  		NcVar* gppallV;
-  		NcVar* gppV;
-  		NcVar* nppallV;
-  		NcVar* nppV;
-
-  		NcVar* rmallV; // maintainance respiration
- 		NcVar* rmV;
- 		NcVar* rgallV;  // growth respirationV;
- 		NcVar* rgV;
-  		NcVar* ltrfalcallV;
- 		NcVar* ltrfalcV;
-
-  		// N fluxes
-  		NcVar* ltrfalnallV;
-  		NcVar* ltrfalnV;
-  		NcVar* innuptakeV;
-  		NcVar* nrootextractV;
-   		NcVar* luptakeV;
- 		NcVar* suptakeallV;
- 		NcVar* suptakeV;
-  		NcVar* nmobilallV;      //N allocation from labile-N pool to tissue pool when needed
-  		NcVar* nmobilV;
-
-  		NcVar* nresorballV;     //N resorbation into labile-N pool when litter-falling
-  		NcVar* nresorbV;
-
-  		//
-  		NcVar* doclostV;      //DOC lost
+ 		NcVar* doclostV;      // DOC lost
  		NcVar* avlnlostV;     // N leaching
  		NcVar* orgnlostV;     // N loss with DOC
+
+   		// fire disturbance caused C/N in/out
+   		NcVar* burnthickV;
+   		NcVar* burnsoicV;
+   		NcVar* burnvegcV;
+   		NcVar* burnsoinV;
+   		NcVar* burnvegnV;
+   		NcVar* burnretaincV;
+   		NcVar* burnretainnV;
+
 
 };
 

@@ -115,7 +115,7 @@ class Integrator{
  	   void y2tcstate_veg(float pdstate[]);// t stands for temporary
  	   void y2tcstate_soi(float pdstate[]);// t stands for temporary
 
- 	   bool checkPools();
+ 	   int checkPools();
        void step(const int& numeq, float pstate[], float pdstate[],
                  float ptstate[], float& pdt);
        int boundcon( float ptstate[], float err[], float& ptol) ;
@@ -123,7 +123,7 @@ class Integrator{
        int blackhol;
        float inittol;
        int maxit;
-       long maxitmon;
+       int maxitmon;
        int retry;
 
        int syint;
