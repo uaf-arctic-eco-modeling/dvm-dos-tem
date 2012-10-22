@@ -8,9 +8,77 @@ EnvData::~EnvData(){
 	
 };
 
-void EnvData::init(){
-	d_atms.dsr = 0;
-	monthsfrozen = 0;
+//re-initialize EnvData class explicitly
+void EnvData::clear(){
+   // daily
+    d_atms = atmstate_env();
+    d_vegs = vegstate_env();
+    d_snws = snwstate_env();
+    d_sois = soistate_env();
+
+    d_atmd = atmdiag_env();
+    d_vegd = vegdiag_env();
+    d_snwd = snwdiag_env();
+    d_soid = soidiag_env();
+
+    d_l2a = lnd2atm_env();
+    d_a2l = atm2lnd_env();
+    d_a2v = atm2veg_env();
+    d_v2a = veg2atm_env();
+    d_v2g = veg2gnd_env();
+    d_soi2l = soi2lnd_env();
+    d_soi2a = soi2atm_env();
+    d_snw2a = snw2atm_env();
+    d_snw2soi = snw2soi_env();
+
+   // monthly
+    m_atms = atmstate_env();
+    m_vegs = vegstate_env();
+    m_snws = snwstate_env();
+    m_sois = soistate_env();
+
+    m_atmd = atmdiag_env();
+    m_vegd = vegdiag_env();
+    m_snwd = snwdiag_env();
+    m_soid = soidiag_env();
+
+    m_l2a = lnd2atm_env();
+    m_a2l = atm2lnd_env();
+    m_a2v = atm2veg_env();
+    m_v2a = veg2atm_env();
+    m_v2g = veg2gnd_env();
+    m_soi2l = soi2lnd_env();
+    m_soi2a = soi2atm_env();
+    m_snw2a = snw2atm_env();
+    m_snw2soi = snw2soi_env();
+
+    // monthly
+    y_atms = atmstate_env();
+    y_vegs = vegstate_env();
+    y_snws = snwstate_env();
+    y_sois = soistate_env();
+
+    y_atmd = atmdiag_env();
+    y_vegd = vegdiag_env();
+    y_snwd = snwdiag_env();
+    y_soid = soidiag_env();
+
+    y_l2a = lnd2atm_env();
+    y_a2l = atm2lnd_env();
+    y_a2v = atm2veg_env();
+    y_v2a = veg2atm_env();
+    y_v2g = veg2gnd_env();
+    y_soi2l = soi2lnd_env();
+    y_soi2a = soi2atm_env();
+    y_snw2a = snw2atm_env();
+    y_snw2soi = snw2soi_env();
+
+    //
+    monthsfrozen  = 0.;
+	rtfrozendays  = 0;
+	rtunfrozendays= 0;
+
+	cd->clear();
 };
 
 // initialize yearly accumulators
@@ -538,40 +606,40 @@ void EnvData::grnd_endOfDay(const int & dinm, const int & doy){
 
 	if(d_soid.growpct<=0){
 		rtunfrozendays = 0;
-		rtfrozendays++;
+		rtfrozendays += 1;
 	} else {
 		rtfrozendays = 0;
-		rtunfrozendays++;
+		rtunfrozendays += 1;
 	}
 
-	if (d_soid.growstart < 0){
+	if (d_soid.growstart <= 0){
 	    if(rtunfrozendays >= 5){    //top soil root zone is unfrozen for continuous 5 days, marking the begining of growing
 	      d_soid.growstart = doy;
 	      m_soid.growstart = doy;
 	      y_soid.growstart = doy;
 
-	      d_soid.tsdegday = 0.;
+	      m_soid.tsdegday = 0.;
 	      d_soid.growend = MISSING_I;
 	    }
 
-	} else if (d_soid.growend < 0){
+	} else if (d_soid.growend <= 0){
 
 		if (rtfrozendays>=5) {    //top soil root zone is frozen for continuous 5 days, marking the end of growing
 			d_soid.growend = doy;
 			m_soid.growend = doy;
 			y_soid.growend = doy;
 
-			d_soid.tsdegday = 0.;
+			m_soid.tsdegday = 0.;
 		    d_soid.growstart= MISSING_I;
 		}
 
 	}
 
 	// growing season soil root zone degree day: used in TEM phenology for seasonal litter-falling variation
-	if (y_soid.growstart>=0 && y_soid.growend <0) {
-		d_soid.tsdegday += d_soid.tsrtdp;
+	if (y_soid.growstart>=0 && y_soid.growend <=0) {
+		m_soid.tsdegday += d_soid.tsrtdp;
+		d_soid.tsdegday = m_soid.tsdegday;      // let the 'root zone' deg-days same for daily/monthly/yearly
 	}
-	if (d_soid.tsdegday>m_soid.tsdegday) m_soid.tsdegday = d_soid.tsdegday;
 
 	// growing season adjusting factor for monthly GPP
     m_soid.growpct  += d_soid.growpct/dinm;     // m_soid.growpct: growing days percentage of a month, used in monthly GPP function
@@ -641,20 +709,6 @@ void EnvData::veg_endOfMonth(const int & currmind){
 	y_v2g.sdrip += m_v2g.sdrip;
 	y_v2g.rthfl += m_v2g.rthfl;
 	y_v2g.sthfl += m_v2g.sthfl;
-
-    // vegetation EET max. value in a year, used for EET determined leaf phenology
-	if(currmind==0){
-		eetmx = m_v2a.evap+m_v2a.tran;             //previously, used total land eet - it's not fair, because this is for leaf phenology
-    }else {
-    	if (m_l2a.eet>eetmx) eetmx = m_v2a.evap+m_v2a.tran;
-    }
-
-	if (currmind == 11) { //at end of year, store the current eetmx/petmx values
-		eetmxque.push_back(eetmx);
-		if(eetmxque.size()>10){
-			eetmxque.pop_front();    // remove the oldest value
-		}
-	}
 
 };
 
@@ -744,7 +798,7 @@ void EnvData::grnd_endOfMonth(){
 
 	//
     y_soid.tsrtdp   += m_soid.tsrtdp/12.;
-	if (d_soid.tsdegday>y_soid.tsdegday) y_soid.tsdegday = d_soid.tsdegday;
+	y_soid.tsdegday = m_soid.tsdegday;
 
 	//
  	y_soi2a.swrefl  += m_soi2a.swrefl/12.;
@@ -756,27 +810,6 @@ void EnvData::grnd_endOfMonth(){
 	y_soi2l.qdrain += m_soi2l.qdrain;
 
 };
-
-// update the prveetmx and prvpetmx,
-// which is the mean of the eetmx/petmx in the deque of previous 10 years
-void EnvData::assignPrveetmx(){
-
-	int numrec = eetmxque.size();
-	int valideet =0;
-
-	double sumeet=0;
-	for(int i=	0; i<numrec; i++){
-	  	if(eetmxque[i]>0){
-	  		valideet++;
-	  		sumeet+=eetmxque[i];
-	  	}
-	}
-	if(valideet>0){
-		prveetmx = sumeet/valideet;
-	}
-
-};
-
 
 
 

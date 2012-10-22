@@ -54,7 +54,6 @@ Integrator::Integrator(){
     maxitmon = 100;
     syint = 1;
 
-/*
 	//vegetation C & N state variables
   	for(int i =0; i<NUM_PFT_PART; i++){     //Yuan: here is the reason that the "temconst.h" is needed
 		stringstream ipart;
@@ -128,7 +127,7 @@ Integrator::Integrator(){
   	// Total Ecosystem N loss
 	strcpy(predstr_soi[I_AVLNLOSS],"AVLNLOSS" );   // total inorganic nitrogen loss
 	strcpy(predstr_soi[I_ORGNLOSS],"ORGNLOSS" );   // total organic nitrogen loss
-*/
+
 };
 
 Integrator::~Integrator(){
@@ -224,7 +223,7 @@ int Integrator::adapt(float pstate[], const int & numeq){
   	float time = 0.0;
   	float dt = 1.0;
   	int mflag = 0;
-  	long nintmon = 0;
+  	int nintmon = 0;
   	float oldstate[numeq];
   	float  ptol =0.01;
 
@@ -275,7 +274,7 @@ int Integrator::adapt(float pstate[], const int & numeq){
 };
 
 bool Integrator::rkf45( const int& numeq, float pstate[], float& pdt) {
-  	bool negativepool =false;
+  	int negativepool = -1;
   	int i;
   	float ptdt = 0;
 
@@ -293,7 +292,7 @@ bool Integrator::rkf45( const int& numeq, float pstate[], float& pdt) {
   	step( numeq,rk45,f11,rk45,b1 );
   	step( numeq,dum4,f11,ydum,ptdt );
   	negativepool = checkPools();
-  	if(negativepool){
+  	if(negativepool>=0){
   	  	return false;	
   	}
   	
@@ -304,7 +303,7 @@ bool Integrator::rkf45( const int& numeq, float pstate[], float& pdt) {
   
   	step( numeq,dum4,f13,ydum,pdt );
  	negativepool = checkPools();
-  	if(negativepool){
+  	if(negativepool>=0){
   	  return false;	
   	}
   	
@@ -317,7 +316,7 @@ bool Integrator::rkf45( const int& numeq, float pstate[], float& pdt) {
   	
   	step( numeq,dum4,f14,ydum,pdt );
   	negativepool = checkPools();
-  	if(negativepool){
+  	if(negativepool>=0){
   	  return false;	
   	}
   	
@@ -330,7 +329,7 @@ bool Integrator::rkf45( const int& numeq, float pstate[], float& pdt) {
   	
   	step( numeq,dum4,f15,ydum,pdt );
   	negativepool = checkPools();
-  	if(negativepool){
+  	if(negativepool>=0){
   	  return false;	
   	}
   	
@@ -343,7 +342,7 @@ bool Integrator::rkf45( const int& numeq, float pstate[], float& pdt) {
   	
   	step( numeq,dum4,f16,ydum,pdt );
   	negativepool = checkPools();
-  	if(negativepool){
+  	if(negativepool>=0){
   	  return false;	
   	}
   	
@@ -592,28 +591,26 @@ void Integrator::step( const int& numeq, float pstate[],
 	
 };
 
-bool Integrator::checkPools(){
+int Integrator::checkPools(){
 
-	bool negativepool =false;
+	int negativepool = -1;
 
 	/////
    	if (vegbgc) {
    		for (int i=0; i<NUM_PFT_PART; i++) {
-   			if(ydum[I_VEGC+i]<0) return true;
+   			if(ydum[I_VEGC+i]<0) return I_VEGC+i;
 
    			if (veg->nfeed) {
-   				if(ydum[I_STRN+i]<0) return true;
+   				if(ydum[I_STRN+i]<0) return I_STRN+i;
    			}
    		}
 
-   		if(ydum[I_DEADC]<0){
-   			return true;
-   		}
+   		if(ydum[I_DEADC]<0)	return I_DEADC;
 
 		if (veg->nfeed) {
-			if(ydum[I_LABN]<0 || ydum[I_DEADN]<0) return true;
+			if(ydum[I_LABN]<0) return I_LABN;
+			if(ydum[I_DEADN]<0) return I_DEADN;
    		}
-
 
    	}
 
@@ -622,35 +619,35 @@ bool Integrator::checkPools(){
 
    		for (int il=0; il<numsl; il++){
    			if(ydum[I_L_RAWC+il]<0) {
-   				return true;
+   				return I_L_RAWC+il;
    			}
 
    			if(ydum[I_L_SOMA+il]<0) {
-   				return true;
+   				return I_L_SOMA+il;
    			}
 
    			if(ydum[I_L_SOMPR+il]<0) {
-   				return true;
+   				return I_L_SOMPR+il;
    			}
 
    			if(ydum[I_L_SOMCR+il]<0) {
-   				return true;
+   				return I_L_SOMCR+il;
    			}
 
    			if (ssl->nfeed) {
    				if(ydum[I_L_AVLN+il]<0) {
-   					return true;
+   					return I_L_AVLN+il;
    				}
 
    				if(ydum[I_L_ORGN+il]<0) {
-   					return true;
+   					return I_L_ORGN+il;
    				}
    			}
 
    		}
 
    		if(ydum[I_WDEBRIS]<0) {
-			return true;
+			return I_WDEBRIS;
 		}
    	}
 
@@ -787,7 +784,9 @@ int Integrator::boundcon( float ptstate[], float err[], float& ptol ) {
    				if (same>zero) return test = soivarkey(I_L_NIMMOB)+1+il;
 
    				same = err[I_L_NMIN+il] - fabs( ptol * ptstate[I_L_NMIN+il]);
-   				if (same>zero) return test = soivarkey(I_L_NMIN)+1+il;
+   				if (same>zero) {
+   					return test = soivarkey(I_L_NMIN)+1+il;
+   				}
 
    			}
 		} // end of soil N module

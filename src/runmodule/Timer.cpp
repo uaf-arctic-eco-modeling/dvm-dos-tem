@@ -59,7 +59,7 @@ void Timer::advanceOneMonth(){
 int Timer::getCalendarYear(){
 
 	if(!eqend){
-	  	return 1000;     //always set the calendar year at EQ run as year 1000
+	  	return stageyrind;
 	} else if (!spend) {
 		return stageyrind+spbegyr;
 	} else if (!trend) {

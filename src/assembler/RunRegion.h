@@ -20,7 +20,6 @@ class RunRegion {
 	 	
 	 	RegionInputer rinputer;
  		Region region;
- 		
 
 	private :
  	  		 	 

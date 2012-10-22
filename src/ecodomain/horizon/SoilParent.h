@@ -1,9 +1,6 @@
 #ifndef SOILPARENT_H_
 #define SOILPARENT_H_
-#include "layer/ParentLayer.h"
-
-#include "../inc/ErrorCode.h"
-#include "../inc/layerconst.h"
+#include "../layer/ParentLayer.h"
 
 class SoilParent{
 	public:

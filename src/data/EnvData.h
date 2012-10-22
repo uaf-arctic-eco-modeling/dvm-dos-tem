@@ -5,7 +5,7 @@
 #include "../inc/fluxes.h"
 #include "../inc/states.h"
 
-#include "../inc/ErrorCode.h"
+#include "../inc/errorcode.h"
 #include "../inc/layerconst.h"
 #include "../inc/timeconst.h"
 #include "../inc/physicalconst.h"
@@ -22,6 +22,8 @@ class EnvData{
   public:
   	EnvData();
   	~EnvData();	 
+
+  	void clear();
 
   	// for daily  - 'd' is daily
     atmstate_env d_atms;  // last 's' - state variable
@@ -86,17 +88,11 @@ class EnvData{
     snw2atm_env y_snw2a;
     snw2soi_env y_snw2soi;
     
-    double eetmx;   //curren year only vegetation  max. monthly EET
-    double prveetmx; // mean of previous 10 years, calculated from 'eetmxque' below
-	deque <double> eetmxque;   //the last 10 years eet/ppt for long-lasting effect of drought on GPP, through f(phenology)
-
-    double monthsfrozen;  // months since bottom soil frozen started - 24 months is the criterial for permafrost
+    double monthsfrozen;      // months since bottom soil frozen started - 24 months is the criterial for permafrost
 	int rtfrozendays;         // soil top rootzone continously frozen days
 	int rtunfrozendays;       // soil top rootzone continously unfrozen days
      
 	CohortData * cd;
-	//
-	void init();
 
 	// initializing yearly/monthly accumulators
     void atm_beginOfYear();
@@ -119,7 +115,7 @@ class EnvData{
 	void veg_endOfMonth(const int & currmind);
 	void grnd_endOfMonth();
 
-	void assignPrveetmx();
+	void veg_endOfYear();
 
   private:
 	

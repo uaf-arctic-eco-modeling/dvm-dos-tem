@@ -181,6 +181,7 @@
 	};
 
 	struct atm2soi_bgc{
+  		double orgcinput;
   		double orgninput;
  		double avlninput;
 	};

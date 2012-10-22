@@ -74,7 +74,7 @@ void OutRetrive::updateRegnOutputBuffer(const int & im){
 	}
 
 	//
-	for (int ip=0; ip<cd->numpft; ip++) {
+	for (int ip=0; ip<NUM_PFT; ip++) {
 
 		if (im==11 && regnod->outvarlist[I_growstart]==1) {   // yearly
 			regnod->growstart[0][ip]=ed[ip]->y_soid.growstart;
@@ -573,7 +573,6 @@ void OutRetrive::updateRestartOutputBuffer(){
  		resod->firea2sorgn = fd->fire_a2soi.orgn;     //this is 'fire_a2soi.orgn' to re-deposit fire-emitted N in one FRI
 
  		//vegegetation
- 		resod->numpft= cd->numpft;
  		resod->ysf   = fd->ysf;
 
  	    for (int ip=0; ip<NUM_PFT; ip++) {
@@ -600,36 +599,36 @@ void OutRetrive::updateRestartOutputBuffer(){
  	    	resod->deadc[ip]     = bd[ip]->m_vegs.deadc;
  	    	resod->deadn[ip]     = bd[ip]->m_vegs.deadn;
 
-    		deque<double> tmpdeque1 = cd->toptque[ip];
+ 	    	resod->eetmx[ip]        = cd->m_vegd.eetmx[ip];
+ 	    	resod->topt[ip]         = cd->m_vegd.topt[ip];
+ 	    	resod->unnormleafmx[ip] = cd->m_vegd.unnormleafmx[ip];
+ 	    	resod->growingttime[ip] = cd->m_vegd.growingttime[ip];
+ 	    	resod->foliagemx[ip]    = cd->m_vegd.foliagemx[ip];        // this is for f(foliage) in GPP to be sure f(foliage) not going down
+
+ 	    	deque<double> tmpdeque1 = cd->toptque[ip];
  	    	int recnum = tmpdeque1.size();
  	    	for (int i=0; i<recnum; i++) {
  	    		resod->toptA[i][ip] = tmpdeque1[i];
  	    	}
-
  	    	deque<double> tmpdeque2 = cd->prvunnormleafmxque[ip];
  	    	recnum = tmpdeque2.size();
  	    	for (int i=0; i<recnum; i++) {
  	    		resod->unnormleafmxA[i][ip] = tmpdeque2[i];
  	    	}
-
   	    	deque<double> tmpdeque3 = cd->prvgrowingttimeque[ip];
  	    	recnum = tmpdeque3.size();
  	    	for (int i=0; i<recnum; i++) {
  	    		resod->growingttimeA[i][ip]= tmpdeque3[i];
  	    	}
-
- 	    	resod->prvfoliagemx[ip] = cd->m_veg.prvfoliagemx[ip];        // this is for f(foliage) in GPP to be sure f(foliage) not going down
-
- 	    	deque<double> tmpdeque4 = ed[ip]->eetmxque;
+ 	    	deque<double> tmpdeque4 = cd->prveetmxque[ip];
  	    	recnum = tmpdeque4.size();
  	    	for (int i=0; i<recnum; i++) {
  	    		resod->eetmxA[i][ip]= tmpdeque4[i];
  	    	}
 
-
 	    }
 
- 	    // snow
+ 	    // snow - 'restart' from the last point, so be the daily for 'cd' and 'ed', but monthly for 'bd'
  	    resod->numsnwl = cd->d_snow.numsnwl;
  	    resod->snwextramass = cd->d_snow.extramass;
  	    for(int il =0;il<cd->d_snow.numsnwl; il++){
@@ -644,7 +643,9 @@ void OutRetrive::updateRestartOutputBuffer(){
  		
  	    //ground-soil
  	    resod->numsl  = cd->d_soil.numsl;     //actual number of soil layers
- 	    resod->monthsfrozen = ed[0]->monthsfrozen;
+ 	    resod->monthsfrozen   = ed[0]->monthsfrozen;
+ 	    resod->rtfrozendays   = ed[0]->rtfrozendays;
+ 	    resod->rtunfrozendays = ed[0]->rtunfrozendays;
  	    resod->watertab   = ed[0]->d_sois.watertab;
  		for(int il =0;il<cd->d_soil.numsl; il++){
  			resod->DZsoil[il]   = cd->d_soil.dz[il];
@@ -656,7 +657,6 @@ void OutRetrive::updateRestartOutputBuffer(){
  			resod->LIQsoil[il]   = ed[0]->d_sois.liq[il];
  			resod->ICEsoil[il]   = ed[0]->d_sois.ice[il];
  			resod->FROZENFRACsoil[il]= ed[0]->d_sois.frozenfrac[il];
-
 
  		}
 
@@ -682,7 +682,12 @@ void OutRetrive::updateRestartOutputBuffer(){
  			resod->orgn[il] = bd[0]->m_sois.orgn[il];
  			resod->avln[il] = bd[0]->m_sois.avln[il];
 
- 			resod->prvltrfcn[il] = bd[0]->prvltrfcn[il];
+ 	    	deque<double> tmpdeque = bd[0]->prvltrfcnque[il];
+ 	    	int recnum = tmpdeque.size();
+ 	    	for (int i=0; i<recnum; i++) {
+ 	    		resod->prvltrfcnA[i][il]= tmpdeque[i];
+ 	    	}
+
  		}
 
 };

@@ -9,7 +9,7 @@
 #include "ModelData.h"
 #include "../inc/timeconst.h"
 #include "../inc/cohortconst.h"
-#include "../inc/ErrorCode.h"
+#include "../inc/errorcode.h"
 
 class Timer{
 	public:

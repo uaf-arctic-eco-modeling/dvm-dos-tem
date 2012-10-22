@@ -2,7 +2,7 @@
 #include "CohortLookup.h"
 
 CohortLookup::CohortLookup(){
-   
+	cmtcode = "CMT00";     // the default community code (5 alphnumerics)
 };
 
 CohortLookup::~CohortLookup(){
@@ -10,24 +10,24 @@ CohortLookup::~CohortLookup(){
 };
 
 void CohortLookup::init(){
-	assignBgcCalpar(dircmtname);
+	assignBgcCalpar(dir);
 
-	assignVegDimension(dircmtname);
-	assignGroundDimension(dircmtname);
+	assignVegDimension(dir);
+	assignGroundDimension(dir);
 
-	assignEnv4Canopy(dircmtname);
-	assignBgc4Vegetation(dircmtname);
+	assignEnv4Canopy(dir);
+	assignBgc4Vegetation(dir);
 
-	assignEnv4Ground(dircmtname);
-	assignBgc4Ground(dircmtname);
+	assignEnv4Ground(dir);
+	assignBgc4Ground(dir);
 
-	assignFirePar(dircmtname);
+	assignFirePar(dir);
   
 };
 
 void CohortLookup::assignBgcCalpar(string & dircmt){
 
-	string parfilecal = dircmt+"_calparbgc.txt";
+	string parfilecal = dircmt+"cmt_calparbgc.txt";
 	ifstream fctrcomm;
 	fctrcomm.open(parfilecal.c_str(),ios::in );
 	bool isOpen = fctrcomm.is_open();
@@ -37,10 +37,25 @@ void CohortLookup::assignBgcCalpar(string & dircmt){
 	}
 
 	string str;
-	getline(fctrcomm, str);     //comments in the file
-	getline(fctrcomm, str);     //comments in the file
-	getline(fctrcomm, str);     //comments in the file
+	string code;
+	int lines = 20;   // total lines of one block of community data/info, except for 2 header lines
 
+	getline(fctrcomm, str);     // community separation line ("//====" or something or empty line)
+	getline(fctrcomm, str);     // community code - 'CMTxx' (xx: two digits)
+	code = str.substr(0, 5);
+	while (code.compare(cmtcode)!=0) {
+		for (int il=0; il<lines; il++) getline(fctrcomm, str);   //skip lines
+		if (fctrcomm.eof()) {
+	  		cout << "Cannot find community type: " << cmtcode << " in file: " <<parfilecal << "  \n" ;
+	  		exit( -1 );
+		}
+
+		getline(fctrcomm, str);     // community separation line ("//====" or something or empty line)
+		getline(fctrcomm, str);     // community code - 'CMTxx' (xx: two digits)
+		code = str.substr(0, 5);
+	}
+
+	getline(fctrcomm, str);     //comments in the file
 	for(int ip=0; ip<NUM_PFT; ip++)	fctrcomm >> cmax[ip];  getline(fctrcomm, str);
 	for(int ip=0; ip<NUM_PFT; ip++)	fctrcomm >> nmax[ip];  getline(fctrcomm, str);
 
@@ -73,7 +88,7 @@ void CohortLookup::assignBgcCalpar(string & dircmt){
 
 void CohortLookup::assignVegDimension(string &dircmt){
 
-	string parfilecomm = dircmt+"_dimvegetation.txt";
+	string parfilecomm = dircmt+"cmt_dimvegetation.txt";
 	ifstream fctrpft;
 	fctrpft.open(parfilecomm.c_str(),ios::in );
 	bool isOpen = fctrpft.is_open();
@@ -82,10 +97,26 @@ void CohortLookup::assignVegDimension(string &dircmt){
   		exit( -1 );
 	}
 
-	string str;    //dummy string for comments in the file
-	getline(fctrpft,str);     //read comments
-	getline(fctrpft,str);     //read comments
+	string str;
+	string code;
+	int lines = 41;   // total lines of one block of community data/info, except for 2 header lines
 
+	getline(fctrpft, str);     // community separation line ("//====" or something or empty line)
+	getline(fctrpft, str);     // community code - 'CMTxx' (xx: two digits)
+	code = str.substr(0, 5);
+	while (code.compare(cmtcode)!=0) {
+		for (int il=0; il<lines; il++) getline(fctrpft, str);   //skip lines
+		if (fctrpft.eof()) {
+	  		cout << "Cannot find community type: " << cmtcode << " in file: " <<parfilecomm << "  \n" ;
+	  		exit( -1 );
+		}
+
+		getline(fctrpft, str);     // community separation line ("//====" or something or empty line)
+		getline(fctrpft, str);     // community code - 'CMTxx' (xx: two digits)
+		code = str.substr(0, 5);
+	}
+
+	getline(fctrpft,str);     //read comments
 	for(int ip=0; ip<NUM_PFT; ip++) fctrpft >> vegcov[ip];
 	getline(fctrpft,str);     // read comments
 
@@ -148,7 +179,7 @@ void CohortLookup::assignVegDimension(string &dircmt){
 
 void CohortLookup::assignGroundDimension(string &dircmt){
 
-	string parfilecomm = dircmt+"_dimground.txt";
+	string parfilecomm = dircmt+"cmt_dimground.txt";
 
 	ifstream fctrcomm;
 	fctrcomm.open(parfilecomm.c_str(),ios::in );
@@ -159,7 +190,23 @@ void CohortLookup::assignGroundDimension(string &dircmt){
 	}
 
 	string str;
-	getline(fctrcomm,str);     //comments in the file
+	string code;
+	int lines = 20;   // total lines of one block of community data/info, except for 2 header lines
+
+	getline(fctrcomm, str);     // community separation line ("//====" or something or empty line)
+	getline(fctrcomm, str);     // community code - 'CMTxx' (xx: two digits)
+	code = str.substr(0, 5);
+	while (code.compare(cmtcode)!=0) {
+		for (int il=0; il<lines; il++) getline(fctrcomm, str);   //skip lines
+		if (fctrcomm.eof()) {
+	  		cout << "Cannot find community type: " << cmtcode << " in file: " <<parfilecomm << "  \n" ;
+	  		exit( -1 );
+		}
+
+		getline(fctrcomm, str);     // community separation line ("//====" or something or empty line)
+		getline(fctrcomm, str);     // community code - 'CMTxx' (xx: two digits)
+		code = str.substr(0, 5);
+	}
 
 	//snow
 	getline(fctrcomm,str);     //comments in the file
@@ -199,7 +246,7 @@ void CohortLookup::assignGroundDimension(string &dircmt){
 
 void CohortLookup::assignEnv4Canopy(string &dir){
 
-	string parfilecomm = dir+"_envcanopy.txt";
+	string parfilecomm = dir+"cmt_envcanopy.txt";
 	ifstream fctrpft;
 	fctrpft.open(parfilecomm.c_str(),ios::in );
 	bool isOpen = fctrpft.is_open();
@@ -209,8 +256,25 @@ void CohortLookup::assignEnv4Canopy(string &dir){
 	}
 
 	string str;
-	getline(fctrpft,str);     //comments in the file
-	getline(fctrpft,str);     //comments in the file
+	string code;
+	int lines = 13;   // total lines of one block of community data/info, except for 2 header lines
+
+	getline(fctrpft, str);     // community separation line ("//====" or something or empty line)
+	getline(fctrpft, str);     // community code - 'CMTxx' (xx: two digits)
+	code = str.substr(0, 5);
+	while (code.compare(cmtcode)!=0) {
+		for (int il=0; il<lines; il++) getline(fctrpft, str);   //skip lines
+		if (fctrpft.eof()) {
+	  		cout << "Cannot find community type: " << cmtcode << " in file: " <<parfilecomm << "  \n" ;
+	  		exit( -1 );
+		}
+
+		getline(fctrpft, str);     // community separation line ("//====" or something or empty line)
+		getline(fctrpft, str);     // community code - 'CMTxx' (xx: two digits)
+		code = str.substr(0, 5);
+	}
+
+	getline(fctrpft,str);     //PFT name/code comments in the file
 
 	for(int ip=0; ip<NUM_PFT; ip++)	fctrpft >> albvisnir[ip];
 	getline(fctrpft,str);
@@ -250,7 +314,7 @@ void CohortLookup::assignEnv4Canopy(string &dir){
 // vegetation C/N parameters
 void CohortLookup::assignBgc4Vegetation(string & dircmt){
 
-	string parfilecomm = dircmt+"_bgcvegetation.txt";
+	string parfilecomm = dircmt+"cmt_bgcvegetation.txt";
 	ifstream fctrpft;
 	fctrpft.open(parfilecomm.c_str(),ios::in );
 	bool isOpen = fctrpft.is_open();
@@ -260,7 +324,24 @@ void CohortLookup::assignBgc4Vegetation(string & dircmt){
 	}
 
 	string str;
-	getline(fctrpft,str);     //comments in the file
+	string code;
+	int lines = 34;   // total lines of one block of community data/info, except for 2 header lines
+
+	getline(fctrpft, str);     // community separation line ("//====" or something or empty line)
+	getline(fctrpft, str);     // community code - 'CMTxx' (xx: two digits)
+	code = str.substr(0, 5);
+	while (code.compare(cmtcode)!=0) {
+		for (int il=0; il<lines; il++) getline(fctrpft, str);   //skip lines
+		if (fctrpft.eof()) {
+	  		cout << "Cannot find community type: " << cmtcode << " in file: " <<parfilecomm << "  \n" ;
+	  		exit( -1 );
+		}
+
+		getline(fctrpft, str);     // community separation line ("//====" or something or empty line)
+		getline(fctrpft, str);     // community code - 'CMTxx' (xx: two digits)
+		code = str.substr(0, 5);
+	}
+
 	getline(fctrpft,str);     //comments in the file
 
 	for(int ip=0; ip<NUM_PFT; ip++)	fctrpft >> kc[ip];
@@ -292,11 +373,6 @@ void CohortLookup::assignBgc4Vegetation(string & dircmt){
 
 	for (int i=0; i<NUM_PFT_PART; i++){
 		for(int ip=0; ip<NUM_PFT; ip++)	fctrpft >> cpart[i][ip];
-		getline(fctrpft,str);
-	}
-
-	for (int i=0; i<NUM_PFT_PART; i++){
-		for(int ip=0; ip<NUM_PFT; ip++)	fctrpft >> npart[i][ip];
 		getline(fctrpft,str);
 	}
 
@@ -342,7 +418,7 @@ void CohortLookup::assignBgc4Vegetation(string & dircmt){
 
 void CohortLookup::assignEnv4Ground(string &dircmt){
 
-	string parfilecomm = dircmt+"_envground.txt";
+	string parfilecomm = dircmt+"cmt_envground.txt";
 
 	ifstream fctrcomm;
 	fctrcomm.open(parfilecomm.c_str(),ios::in );
@@ -353,7 +429,23 @@ void CohortLookup::assignEnv4Ground(string &dircmt){
 	}
 
 	string str;
-	getline(fctrcomm,str);     //comments in the file
+	string code;
+	int lines = 27;   // total lines of one block of community data/info, except for 2 header lines
+
+	getline(fctrcomm, str);     // community separation line ("//====" or something or empty line)
+	getline(fctrcomm, str);     // community code - 'CMTxx' (xx: two digits)
+	code = str.substr(0, 5);
+	while (code.compare(cmtcode)!=0) {
+		for (int il=0; il<lines; il++) getline(fctrcomm, str);   //skip lines
+		if (fctrcomm.eof()) {
+	  		cout << "Cannot find community type: " << cmtcode << " in file: " <<parfilecomm << "  \n" ;
+	  		exit( -1 );
+		}
+
+		getline(fctrcomm, str);     // community separation line ("//====" or something or empty line)
+		getline(fctrcomm, str);     // community code - 'CMTxx' (xx: two digits)
+		code = str.substr(0, 5);
+	}
 
 	fctrcomm >> snwalbmax; getline(fctrcomm,str);     //comments in the file
 	fctrcomm >> snwalbmin; getline(fctrcomm,str);     //comments in the file
@@ -380,7 +472,7 @@ void CohortLookup::assignEnv4Ground(string &dircmt){
 };
 
 void CohortLookup::assignBgc4Ground(string &dircmt){
-	string parfilecomm = dircmt+"_bgcsoil.txt";
+	string parfilecomm = dircmt+"cmt_bgcsoil.txt";
 
 	ifstream fctrcomm;
 	fctrcomm.open(parfilecomm.c_str(),ios::in );
@@ -391,7 +483,23 @@ void CohortLookup::assignBgc4Ground(string &dircmt){
 	}
 	
 	string str;
-	getline(fctrcomm,str);     //comments in the file
+	string code;
+	int lines = 18;   // total lines of one block of community data/info, except for 2 header lines
+
+	getline(fctrcomm, str);     // community separation line ("//====" or something or empty line)
+	getline(fctrcomm, str);     // community code - 'CMTxx' (xx: two digits)
+	code = str.substr(0, 5);
+	while (code.compare(cmtcode)!=0) {
+		for (int il=0; il<lines; il++) getline(fctrcomm, str);   //skip lines
+		if (fctrcomm.eof()) {
+	  		cout << "Cannot find community type: " << cmtcode << " in file: " <<parfilecomm << "  \n" ;
+	  		exit( -1 );
+		}
+
+		getline(fctrcomm, str);     // community separation line ("//====" or something or empty line)
+		getline(fctrcomm, str);     // community code - 'CMTxx' (xx: two digits)
+		code = str.substr(0, 5);
+	}
 
 	fctrcomm >> rhq10; getline(fctrcomm,str);
 	fctrcomm >> moistmin; getline(fctrcomm,str);
@@ -424,7 +532,7 @@ void CohortLookup::assignBgc4Ground(string &dircmt){
 
 void CohortLookup::assignFirePar(string &dircmt){
 
-	string parfilecomm = dircmt+"_firepar.txt";
+	string parfilecomm = dircmt+"cmt_firepar.txt";
 	ifstream fctrcomm;
 	fctrcomm.open(parfilecomm.c_str(),ios::in );
 	bool isOpen = fctrcomm.is_open();
@@ -434,8 +542,25 @@ void CohortLookup::assignFirePar(string &dircmt){
 	}
 
 	string str;
-	getline(fctrcomm,str);     //comments in the file
-	getline(fctrcomm,str);     //comments in the file
+	string code;
+	int lines = 21;   // total lines of one block of community data/info, except for 2 header lines
+
+	getline(fctrcomm, str);     // community separation line ("//====" or something or empty line)
+	getline(fctrcomm, str);     // community code - 'CMTxx' (xx: two digits)
+	code = str.substr(0, 5);
+	while (code.compare(cmtcode)!=0) {
+		for (int il=0; il<lines; il++) getline(fctrcomm, str);   //skip lines
+		if (fctrcomm.eof()) {
+	  		cout << "Cannot find community type: " << cmtcode << " in file: " <<parfilecomm << "  \n" ;
+	  		exit( -1 );
+		}
+
+		getline(fctrcomm, str);     // community separation line ("//====" or something or empty line)
+		getline(fctrcomm, str);     // community code - 'CMTxx' (xx: two digits)
+		code = str.substr(0, 5);
+	}
+
+	getline(fctrcomm,str);     // PFT code/name comments in the file
 
 	for(int i=0; i<NUM_FSEVR; i++){
 		for(int ip=0; ip<NUM_PFT; ip++) fctrcomm >> fvcombust[i][ip];
@@ -457,15 +582,6 @@ void CohortLookup::assignFirePar(string &dircmt){
 	fctrcomm >> vsmburn;      getline(fctrcomm,str);
   	fctrcomm >> r_retain_c;   getline(fctrcomm,str);
   	fctrcomm >> r_retain_n;   getline(fctrcomm,str);
-
-	getline(fctrcomm,str);     //comments in the file
-	for(int i=0; i<MAX_FIR_OCRNUM; i++) {
-		fctrcomm >> fireyear[i];
-		fctrcomm >> fireseason[i];
-		fctrcomm >> firesize[i];
-		fctrcomm >> fireseverity[i];
-		getline(fctrcomm,str);
-	}
 
 	fctrcomm.close();
 

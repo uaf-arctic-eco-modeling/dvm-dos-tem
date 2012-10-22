@@ -1,7 +1,7 @@
 #include "RestartOutputer.h"
 
 /*! constructor */
- RestartOutputer::RestartOutputer(){
+RestartOutputer::RestartOutputer(){
  
 };
 
@@ -33,6 +33,7 @@ void RestartOutputer::init(string& outputdir,string& stage){
 	rocklayerD = restartFile->add_dim("ROCKLAYER", MAX_ROC_LAY);
 	frontD     = restartFile->add_dim("FRONTNUM", MAX_NUM_FNT);
 	prvyearD   = restartFile->add_dim("PRVYEAR", 10);
+	prvmonthD  = restartFile->add_dim("PRVMONTH", 12);
 	
 	//variable definition
     chtidV   =restartFile->add_var("CHTID", ncInt, chtD);
@@ -43,7 +44,6 @@ void RestartOutputer::init(string& outputdir,string& stage){
 	firea2sorgnV =restartFile->add_var("FIREA2SORGN", ncInt, chtD);   //fire-emitted N deposition
 
 	// - veg
-	numpftV      =restartFile->add_var("NUMPFT", ncInt, chtD);  // years since fire
 	ysfV         =restartFile->add_var("YSF", ncInt, chtD);  // years since fire
 
 	ifwoodyV     =restartFile->add_var("IFWOODY", ncInt, chtD, pftD);
@@ -64,15 +64,16 @@ void RestartOutputer::init(string& outputdir,string& stage){
     deadcV  =restartFile->add_var("DEADC", ncDouble, chtD, pftD);
     deadnV  =restartFile->add_var("DEADN", ncDouble, chtD, pftD);
 
-    unnormleafV =restartFile->add_var("UNNORMLEAF", ncDouble, chtD, pftD);
+ 	toptV         =restartFile->add_var("TOPT", ncDouble, chtD, pftD);
+	eetmxV        =restartFile->add_var("EETMX", ncDouble, chtD, pftD);
+ 	growingttimeV =restartFile->add_var("GROWINGTTIME", ncDouble, chtD, pftD);
+	unnormleafmxV =restartFile->add_var("UNNORMLEAFMX", ncDouble, chtD, pftD);
+	foliagemxV =restartFile->add_var("FOLIAGEMX", ncDouble, chtD, pftD);
 
- 	toptAV   =restartFile->add_var("TOPTA", ncDouble, chtD, prvyearD, pftD);
-
+	toptAV         =restartFile->add_var("TOPTA", ncDouble, chtD, prvyearD, pftD);
 	eetmxAV        =restartFile->add_var("EETMXA", ncDouble, chtD, prvyearD, pftD);
  	growingttimeAV =restartFile->add_var("GROWINGTTIMEA", ncDouble, chtD, prvyearD, pftD);
 	unnormleafmxAV =restartFile->add_var("UNNORMLEAFMXA", ncDouble, chtD, prvyearD, pftD);
-
-	prvfoliagemxV =restartFile->add_var("PRVFOLIAGEMX", ncDouble, chtD, pftD);
 
     //snow
     numsnwlV =restartFile->add_var("NUMSNWL", ncInt, chtD);
@@ -85,9 +86,12 @@ void RestartOutputer::init(string& outputdir,string& stage){
     RHOsnowV =restartFile->add_var("RHOsnow", ncDouble, chtD, snowlayerD);
  
     //ground-soil
-    numslV       =restartFile->add_var("NUMSL", ncInt, chtD);
-    monthsfrozenV=restartFile->add_var("MONTHSFROZEN", ncInt, chtD);
-    watertabV    =restartFile->add_var("WATERTAB", ncDouble, chtD);
+    numslV         =restartFile->add_var("NUMSL", ncInt, chtD);
+    monthsfrozenV  =restartFile->add_var("MONTHSFROZEN", ncDouble, chtD);
+    rtfrozendaysV  =restartFile->add_var("RTFROZENDAYS", ncInt, chtD);
+    rtunfrozendaysV=restartFile->add_var("RTUNFROZENDAYS", ncInt, chtD);
+
+    watertabV      =restartFile->add_var("WATERTAB", ncDouble, chtD);
 
     DZsoilV   =restartFile->add_var("DZsoil", ncDouble, chtD, soillayerD);
     AGEsoilV  =restartFile->add_var("AGEsoil", ncInt, chtD, soillayerD);
@@ -114,7 +118,7 @@ void RestartOutputer::init(string& outputdir,string& stage){
     solnV  =restartFile->add_var("SOLN", ncDouble, chtD, soillayerD);
     avlnV  =restartFile->add_var("AVLN", ncDouble, chtD, soillayerD);
 
-    prvltrfcnV  =restartFile->add_var("PRVLTRFCN", ncDouble, chtD, soillayerD);
+    prvltrfcnAV  =restartFile->add_var("PRVLTRFCNA", ncDouble, chtD, prvmonthD, soillayerD);
 
 }
 
@@ -130,7 +134,6 @@ void RestartOutputer::outputVariables(const int & chtcount){
 	firea2sorgnV->put_rec(&resod->firea2sorgn, chtcount);
 
 	//veg
-	numpftV->put_rec(&resod->numpft, chtcount);
 	ysfV->put_rec(&resod->ysf, chtcount);
 
 	ifwoodyV->put_rec(&resod->ifwoody[0], chtcount);
@@ -151,11 +154,16 @@ void RestartOutputer::outputVariables(const int & chtcount){
 	deadcV->put_rec(&resod->deadc[0], chtcount);
 	deadnV->put_rec(&resod->deadn[0], chtcount);
 
-    toptAV->put_rec(&resod->toptA[0][0], chtcount);
+    toptV->put_rec(&resod->topt[0], chtcount);
+	eetmxV->put_rec(&resod->eetmx[0], chtcount);
+	growingttimeV->put_rec(&resod->growingttime[0], chtcount);
+	unnormleafmxV->put_rec(&resod->unnormleafmx[0], chtcount);
+	foliagemxV->put_rec(&resod->foliagemx[0], chtcount);
+
+	toptAV->put_rec(&resod->toptA[0][0], chtcount);
 	eetmxAV->put_rec(&resod->eetmxA[0][0], chtcount);
 	growingttimeAV->put_rec(&resod->growingttimeA[0][0], chtcount);
 	unnormleafmxAV->put_rec(&resod->unnormleafmxA[0][0], chtcount);
-	prvfoliagemxV->put_rec(&resod->prvfoliagemx[0], chtcount);
 
 	//snow
 	numsnwlV->put_rec(&resod->numsnwl, chtcount);
@@ -170,6 +178,9 @@ void RestartOutputer::outputVariables(const int & chtcount){
 	//ground-soil
 	numslV->put_rec(&resod->numsl, chtcount);
 	monthsfrozenV->put_rec(&resod->monthsfrozen, chtcount);
+	rtfrozendaysV->put_rec(&resod->rtfrozendays, chtcount);
+	rtunfrozendaysV->put_rec(&resod->rtunfrozendays, chtcount);
+
 	watertabV->put_rec(&resod->watertab, chtcount);
 
 	DZsoilV->put_rec(&resod->DZsoil[0], chtcount);
@@ -197,7 +208,7 @@ void RestartOutputer::outputVariables(const int & chtcount){
 	solnV->put_rec(&resod->orgn[0], chtcount);
 	avlnV->put_rec(&resod->avln[0], chtcount);
 
-	prvltrfcnV->put_rec(&resod->prvltrfcn[0], chtcount);
+	prvltrfcnAV->put_rec(&resod->prvltrfcnA[0][0], chtcount);
 		
 }
 
@@ -256,7 +267,6 @@ int RestartOutputer::errorChecking(){
 	if (isnan(resod->deadn[0]) || isinf(resod->deadn[0])) errcode = -1;
 	if (isnan(resod->prveetmx[0]) || isinf(resod->prveetmx[0])) errcode = -1;
 	if (isnan(resod->prvpetmx[0]) || isinf(resod->prvpetmx[0])) errcode = -1;
-	if (isnan(resod->unnormleaf[0]) || isinf(resod->unnormleaf[0])) errcode = -1;
 	if (isnan(resod->prvunnormleafmx[0]) || isinf(resod->prvunnormleafmx[0])) errcode = -1;
 	if (isnan(resod->prvtopt[0]) || isinf(resod->prvtopt[0])) errcode = -1;
 	//if (isnan(resod->vc2nl[0]) || isinf(resod->vc2nl[0])) errcode = -1;

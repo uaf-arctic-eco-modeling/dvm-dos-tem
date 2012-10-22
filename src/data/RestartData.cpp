@@ -33,10 +33,9 @@ void RestartData::reinitValue(){
 
 	// atm
 	dsr         = MISSING_I;
-    firea2sorgn = MISSING_D;     //this is 'fire_a2soi.orgn' to re-deposit fire-emitted N in one FRI
+    firea2sorgn = MISSING_D;
 
 	//vegegetation
-    numpft= MISSING_I;
     ysf   = MISSING_I;
 
     for (int ip=0; ip<NUM_PFT; ip++) {
@@ -52,21 +51,26 @@ void RestartData::reinitValue(){
     		rootfrac[ip][i] = MISSING_D;
     	}
 
-    	vegwater[ip] = MISSING_D;             //canopy water - 'vegs_env'
-    	vegsnow[ip]  = MISSING_D;              //canopy snow  - 'vegs_env'
+    	vegwater[ip] = MISSING_D;
+    	vegsnow[ip]  = MISSING_D;
 
     	for (int i=0; i<NUM_PFT_PART; i++) {
-    		vegc[i][ip] = MISSING_D;   // - 'vegs_bgc'
+    		vegc[i][ip] = MISSING_D;
     		strn[i][ip] = MISSING_D;
     	}
     	labn[ip]      = MISSING_D;
     	deadc[ip]     = MISSING_D;
     	deadn[ip]     = MISSING_D;
 
-    	for (int i=0; i<10; i++) {
+		topt[ip]  = MISSING_D;
+		eetmx[ip] = MISSING_D;
+		unnormleafmx[ip] = MISSING_D;
+		growingttime[ip] = MISSING_D;
+		foliagemx[ip]    = MISSING_D;
+
+		for (int i=0; i<10; i++) {
     		toptA[i][ip] = MISSING_D;
     	}
-
     	for (int i=0; i<10; i++) {
     		eetmxA[i][ip]= MISSING_D;
     	}
@@ -77,7 +81,6 @@ void RestartData::reinitValue(){
     		growingttimeA[i][ip] = MISSING_D;
     	}
 
-		prvfoliagemx[ip] = MISSING_D;        // this is for f(foliage) in GPP to be sure f(foliage) not going down
     }
 
     // snow
@@ -93,8 +96,10 @@ void RestartData::reinitValue(){
 	}
 	
     //ground-soil
-    numsl  = MISSING_I;     //actual number of soil layers
-    monthsfrozen = MISSING_D;
+    numsl  = MISSING_I;
+    monthsfrozen   = MISSING_D;
+	rtfrozendays   = MISSING_I;
+	rtunfrozendays = MISSING_I;
     watertab     = MISSING_D;
 	for(int il =0;il<MAX_SOI_LAY; il++){
 		DZsoil[il]   = MISSING_D;
@@ -128,7 +133,9 @@ void RestartData::reinitValue(){
 		orgn[il] = MISSING_D;
 		avln[il] = MISSING_D;
 
-		prvltrfcn[il]  = MISSING_D;
+		for (int i=0; i<12; i++){
+			prvltrfcnA[i][il]  = MISSING_D;
+		}
 	}
 
 };
