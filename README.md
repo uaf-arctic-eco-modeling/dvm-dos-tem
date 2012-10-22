@@ -60,13 +60,13 @@ After installing git on your computer and downloading the source code, here are 
 
 * It is helpful if the prompt in your terminal program displays which branch you currently have checked out when you enter a directory with a git repository. To do this, you add a function to your `.bashrc` file. The `.bashrc` file is a setting file that is present in every user's home directory on most Linux like computers. The '.' in the file name makes the file "hidden"; use `ls -a` to see the file. If it is not present in your directory, you can create it. Add this to your `.bashrc` file:
 
-    \# function to find the current git branch
-    function parse_git_branch {
-        git branch --no-color 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/[\1] /'
-    }
-    
-    \# use parse_git_branch to add the git branch to your terminal prompt
-    PS1=$PS1: $(parse_git_branch)
+        \# function to find the current git branch
+        function parse_git_branch {
+            git branch --no-color 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/[\1] /'
+        }
+        
+        \# use parse_git_branch to add the git branch to your terminal prompt
+        PS1=$PS1: $(parse_git_branch)
 
 **NOTE:** You have to remember to reload the `.bashrc` file, either by closing and re-opening your terminal window, or typing:
 
