@@ -16,6 +16,13 @@ or
 
     $ make dvm
 
+Calibration Version
+-------------------
+We need to get the calibration version added to this code base.
+Ideally we want the cal. version to livein a sub directory or the main folder.
+See DOS-TEM for an example. Also we want the source codes for the cal version to link to the C++ codes for the extrapolation versions so that there is no need to manually update the cal. version...
+
+
 Running
 ---------
 The DATA/ directory of this project should have enough data for a single site and also for a small handful of sites (grid cells or cohorts).
