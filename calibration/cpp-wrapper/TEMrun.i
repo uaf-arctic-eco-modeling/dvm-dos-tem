@@ -3,7 +3,7 @@
  *
  */
 
-	%module TEMrun
+	%module temcore
 
 //Translate operators
 %rename(add) operator+;
