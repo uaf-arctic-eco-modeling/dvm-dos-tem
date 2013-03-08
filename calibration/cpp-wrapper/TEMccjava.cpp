@@ -1,7 +1,8 @@
 /*
  * TEMccjava.cpp
  *
- * Purpose: some data/info connection between C++ and Java, because of unmatch 'string', 2D-array
+ * Purpose: some data/info connection between C++ and Java, because of unmatch 'string', 
+ * 2D-array
  *
  */
 
@@ -19,7 +20,7 @@ void TEMccjava::setCohort(Cohort * chtp) {
      cht = chtp;
 };
 
-/////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////
 // for Java calling to reset some initial conditions and calibrated BGC parameters
 // NOTE: all inputs are assigned into 'chtlu', which is regarded as the portal
 //

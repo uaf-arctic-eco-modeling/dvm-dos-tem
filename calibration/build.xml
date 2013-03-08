@@ -36,7 +36,7 @@
                                CreateSharedLibraries,
                                Compile,
                                Jar">
-    <echo>Finished building the dos-tem-calibrator.</echo>
+    <echo>Finished building the dvm-dos-tem-calibrator.</echo>
        
   </target>
 
@@ -70,8 +70,7 @@
                 ${INCLUDES}
                 -o ../lib/${CORESHAREDLIBNAME}
                 ../cpp-wrapper/TEMrun_wrap.cxx 
-                ../../src/TEMccjava.cpp
-                ../../src/TEMwrapper.cpp
+                ../cpp-wrapper/TEMccjava.cpp
                 ../../src/atmosphere/Atmosphere.cpp
                 ../../src/atmosphere/AtmosUtil.cpp
                 ../../src/data/BgcData.cpp
@@ -93,11 +92,11 @@
                 ../../src/ecodomain/layer/ParentLayer.cpp
                 ../../src/ecodomain/layer/SnowLayer.cpp
                 ../../src/ecodomain/layer/SoilLayer.cpp
-                ../../src/ecodomain/Mineral.cpp
-                ../../src/ecodomain/Moss.cpp
-                ../../src/ecodomain/Organic.cpp
-                ../../src/ecodomain/Snow.cpp
-                ../../src/ecodomain/SoilParent.cpp
+                ../../src/ecodomain/horizon/Mineral.cpp
+                ../../src/ecodomain/horizon/Moss.cpp
+                ../../src/ecodomain/horizon/Organic.cpp
+                ../../src/ecodomain/horizon/Snow.cpp
+                ../../src/ecodomain/horizon/SoilParent.cpp
                 ../../src/ecodomain/Vegetation.cpp
                 ../../src/lookup/CohortLookup.cpp
                 ../../src/lookup/SoilLookup.cpp
@@ -134,13 +133,14 @@
     
       <src path="java-code" />
       <src path="${BUILDDIR}" />
+      <src path="${BUILDDIR}/TEMJNI" />
       
       <classpath>
         <pathelement location="jars/l2fprod-common-all.jar"/>
         <pathelement location="jars/jchart2d-3.2.2.jar"/>
         <pathelement location="jars/netcdfUI-2.2.22.jar"/>
         <pathelement location="jars/log4j-1.2.9.jar"/>
-        <pathelement location="java-code/TEMJNI"/>
+        <pathelement location="build/TEMJNI/"/>
       </classpath>
 
     </javac>
@@ -156,7 +156,7 @@
          <manifest>
           <attribute name="Author" value="${author}"/>
           <section name="Shared">
-              <attribute name="Title" value="dos-tem-calibrator and gui"/>
+              <attribute name="Title" value="dvm-dos-tem-calibrator and gui"/>
           </section>
           <attribute name="Main-Class" value="TEMCalibrator" />
           <attribute name="Class-Path" value="jars/l2fprod-common-all.jar 

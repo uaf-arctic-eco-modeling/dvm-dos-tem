@@ -1,9 +1,9 @@
 #ifndef TEMCCJAVA_H_
     #define TEMCCJAVA_H_
 
-    #include "runmodule/Controller.h"
-    #include "runmodule/ModelData.h"
-    #include "runmodule/Cohort.h"
+    #include "../../src/runmodule/Controller.h"
+    #include "../../src/runmodule/ModelData.h"
+    #include "../../src/runmodule/Cohort.h"
 
     class TEMccjava{
 	public :
@@ -27,7 +27,8 @@
             double initsoln;    // total soil organic N
             double initavln;    // total soil available N
 
-            // ONE pft's 'ed','bd', and calibrated par, which needed for operating individually in java
+            // ONE pft's 'ed','bd', and calibrated par, which needed for operating 
+            // individually in java
             EnvData ed1pft;
             BgcData bd1pft;
 
