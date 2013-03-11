@@ -18,7 +18,9 @@
 	const float LHSUB  = 2.8338e6 ; // latent heat of sublimation  J/kg
 	
 	const float G        = 9.80616 ;  //  acceleration of gravity m/s2
+#ifndef PI
 	const float PI       = 3.14159265358979; // pi -
+#endif
 	const float Pstd     = 101325 ; // standard pressure Pa
 	const float STFBOLTZ = 5.67e-8 ;// Stefan-Boltzmann constant W/m2K4
 	const float BOLTZ    = 1.38e-23 ; // Boltzmann constant J/Kmolecule
