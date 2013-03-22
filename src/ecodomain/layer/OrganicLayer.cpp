@@ -5,6 +5,7 @@
 
 OrganicLayer::OrganicLayer(const double & pdz, const int & type){
 	
+	stkey=I_NONE;
 
 	isMoss    = false;
 	isMineral = false;

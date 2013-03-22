@@ -46,71 +46,157 @@ void Soil_Env::initializeParameter(){
 
 void Soil_Env::initializeState(){
 
-	//in 'chtlu', intial soil tem and vwc are in each 10 cm thickness of layers for at most 10 layers
-	// here, these 10 layers of 10 cm are thickness-weightedly assigned to the soil structure already set in 'ground.cpp' (which already in cd->m_soil)
-	double Zsoil[10];
-	double TSsoil[10];
-	double VWCsoil[10];
-	for (int i=0; i<10; i++){
-		Zsoil[i]=i*0.10;
-		TSsoil[i]=chtlu->initts[i];
-		VWCsoil[i]=chtlu->initvwc[i];
-	}
-
-	Layer* currl = ground->fstsoill;
-	int ilint = 0;
-	while(currl!=NULL){
-		if(currl->isSoil){
-			double ts  = 0.;
-			double vwc = 0.;
-			double dzleft = currl->dz;
-			while (dzleft>0.){
-				if (currl->z<=Zsoil[ilint] && currl->z<=Zsoil[ilint]+0.10) {
-					double dzdone = min(currl->dz, (Zsoil[ilint]+0.10)-currl->z);
-
-					ts  += TSsoil[ilint]*dzdone/currl->dz;
-					vwc += VWCsoil[ilint]*dzdone/currl->dz;
-
-					dzleft -= dzdone;
-				} else {
-					ilint++;
-					if (ilint>=9) {
-						ilint=9;     // assuming the 1.0m below is same Ts/VWCsoil as the last 10 cm' input
-						ts = TSsoil[ilint];
-						vwc= VWCsoil[ilint];
-						dzleft = 0.;
-					}
-				}
-
-			}
-
-			currl->tem = ts;
-
-			if (currl->tem>0.){
-				currl->liq = vwc*currl->dz*DENLIQ;
-				currl->ice = 0.;
-				currl->frozen = -1;
-			} else {
-				currl->ice = vwc*currl->dz*DENICE;
-				currl->liq = currl->minliq;
-				currl->frozen = 1;
-			}
-
-			currl->age =0;
-			currl->rho =0;    //soil layer's actual density NOT used in model
-
-		}else{
-			break;
+	bool sitein = false;
+	if (sitein) {
+		//in 'chtlu', intial soil tem and vwc are in each 10 cm thickness of layers for at most 10 layers
+		// here, these 10 layers of 10 cm are thickness-weightedly assigned to the soil structure already set in 'ground.cpp' (which already in cd->m_soil)
+		double Zsoil[10];
+		double TSsoil[10];
+		double VWCsoil[10];
+		for (int i=0; i<10; i++){
+			Zsoil[i]=i*0.10;
+			TSsoil[i]=chtlu->initts[i];
+			VWCsoil[i]=chtlu->initvwc[i];
 		}
 
-		currl = currl->nextl;
+		Layer* currl = ground->fstsoill;
+		int ilint = 0;
+		while(currl!=NULL){
+			if(currl->isSoil){
+				double ts  = 0.;
+				double vwc = 0.;
+				double dzleft = currl->dz;
+				while (dzleft>0.){
+					if (currl->z<=Zsoil[ilint] && currl->z<=Zsoil[ilint]+0.10) {
+						double dzdone = min(currl->dz, (Zsoil[ilint]+0.10)-currl->z);
+
+						ts  += TSsoil[ilint]*dzdone/currl->dz;
+						vwc += VWCsoil[ilint]*dzdone/currl->dz;
+
+						dzleft -= dzdone;
+					} else {
+						ilint++;
+						if (ilint>=9) {
+							ilint=9;     // assuming the 1.0m below is same Ts/VWCsoil as the last 10 cm' input
+							ts = TSsoil[ilint];
+							vwc= VWCsoil[ilint];
+							dzleft = 0.;
+						}
+					}
+
+				}
+
+				currl->tem = ts;
+
+				if (currl->tem>0.){
+					currl->liq = max(currl->minliq, max(currl->maxliq, vwc*currl->dz*DENLIQ));
+					currl->ice = 0.;
+					currl->frozen = -1;
+				} else {
+					currl->ice = max(0., max(currl->maxice, vwc*currl->dz*DENICE));
+					currl->liq = 0.;
+					currl->frozen = 1;
+				}
+
+				currl->age =0;
+				currl->rho =0;    //soil layer's actual density NOT used in model
+
+			}else if (currl->isRock) {
+				currl->tem = currl->prevl->tem;
+				currl->liq = currl->prevl->liq;
+				currl->ice = currl->prevl->ice;
+				currl->frozen = currl->prevl->frozen;
+				currl->age = MISSING_I;
+				currl->rho = MISSING_D;
+
+			}else{
+				break;
+			}
+
+			currl = currl->nextl;
+		}
+
+		// end of 'sitein'
+
+	} else {
+		Layer* currl = ground->fstsoill;
+		while(currl!=NULL){
+			if(currl->isSoil){
+				double ts  = ed->d_atms.ta;
+				double psifc = -2.e6;  // filed capacity of -2MPsi
+				psifc /=currl->psisat;
+			  	double vwc = pow(abs(psifc), -1.0/currl->bsw);
+
+				currl->tem = ts;
+
+				if (currl->tem>0.){
+					currl->liq = max(currl->minliq, max(currl->maxliq, vwc*currl->dz*DENLIQ));
+					currl->ice = 0.;
+					currl->frozen = -1;
+				} else {
+					currl->ice = max(0., max(currl->maxice, vwc*currl->dz*DENICE));
+					currl->liq = 0.;
+					currl->frozen = 1;
+				}
+
+				currl->age =0;
+				currl->rho =0;    //soil layer's actual density NOT used in model
+
+			}else if (currl->isRock) {
+				currl->tem = currl->prevl->tem;
+				currl->liq = currl->prevl->liq;
+				currl->ice = currl->prevl->ice;
+				currl->frozen = currl->prevl->frozen;
+				currl->age = MISSING_I;
+				currl->rho = MISSING_D;
+
+			}else{
+				break;
+			}
+
+			currl = currl->nextl;
+		}
+
 	}
 
-	//
+ 	//fronts initialization, if any
+ 	ground->frontsz.clear();
+ 	ground->frontstype.clear();
+	int frontFT[MAX_NUM_FNT];
+	double frontZ[MAX_NUM_FNT];
+	std::fill_n(frontFT, MAX_NUM_FNT, -9999);
+	std::fill_n(frontZ, MAX_NUM_FNT, -9999.0);
+
+	Layer* currl = ground->toplayer;
+	int ilint = 0;
+	while(currl!=NULL){
+		if(!currl->isSnow && currl->nextl!=NULL){
+			if (currl->frozen != currl->nextl->frozen) {
+				frontZ[ilint]=currl->z+currl->dz*0.9999;
+				frontFT[ilint]=currl->frozen;
+				ilint+=1;
+			}
+		}
+		currl=currl->nextl;
+	}
+
+	for(int ifnt = 0; ifnt<MAX_NUM_FNT; ifnt++){
+  	    if(frontZ[ifnt]>0.){
+  	    	ground->frontsz.push_front(frontZ[ifnt]);
+  	    	ground->frontstype.push_front(frontFT[ifnt]);
+  	    }
+  	}
+
+	ground->setFstLstFrontLayers();
+
+	//misc. items
 	ed->d_atms.dsr     = 0;
 	ed->monthsfrozen   = 0;
 	ed->rtfrozendays   = 0;
 	ed->rtunfrozendays = 0;
+
+	//
+	ground->checkWaterValidity();
 
 };
 
@@ -164,52 +250,64 @@ void Soil_Env::initializeState5restart(RestartData* resin){
 // Ground (snow-soil) thermal process
 void Soil_Env::updateDailyGroundT(const double & tdrv, const double & dayl){
 
-	Layer * toplayer = ground->toplayer;
-	Layer * botlayer = ground->botlayer;
-	Layer * fstsoill = ground->fstsoill;
-	Layer * lstsoill = ground->lstsoill;
-
-	Layer * fstfntl = ground->fstfntl;
-	Layer * lstfntl = ground->lstfntl;
-
 	double tsurface;
 	tsurface = tdrv *ed->d_soid.nfactor;
 
-	if(toplayer->isSoil){
-		updateDailySurfFlux(toplayer, dayl);
+	if(ground->toplayer->isSoil){
+		updateDailySurfFlux(ground->toplayer, dayl);
 		ed->d_snw2a.swrefl = 0.;
 		ed->d_snw2a.sublim = 0.;
 	}
 
-	// 1a) find the thawing/freezing fronts
-	int tstate = ground->ststate;
-    if(ground->fstfntl==NULL && ground->lstfntl==NULL ){   // there is no front
+    // solution for snow-soil column thermal process
+	int nstep = 1;
+    if (ground->toplayer->isSoil){
+    	//when there is an abrupt change of surface status, reduce timestep
+   		if((ground->fstsoill->frozen==1 and tsurface>0.0)
+   			  || (ground->fstsoill->frozen==-1 and tsurface<0.0)
+   			  || ground->fstsoill->frozen==0) {
+
+   			nstep = 24;
+
+   		}
+     }
+
+     double timestep=86400.0/nstep;
+     bool meltsnow =false;
+     if (ed->d_snw2soi.melt>0.) meltsnow = true;  //So, 'snow melting in snow water process' must be done prior to this
+
+     stefan.initpce();
+     for (int i=0; i<nstep ;i++){
+    	// 1) find the thawing/freezing fronts
+    	int tstate = ground->ststate;
+    	if(ground->fstfntl==NULL && ground->lstfntl==NULL ){   // no front
        		if((tstate == 1 && tsurface>0) ||     // frozen soil and above-zero air
        		   (tstate == -1 && tsurface<0) ||    // unfrozen soil and below-zero air
        		    tstate == 0){                     // partially frozen soil column
 
-       			stefan.updateFronts(tsurface, toplayer, botlayer, fstfntl, lstfntl);
+       			stefan.updateFronts(tsurface, timestep);
        		}
-    }else{
-		stefan.updateFronts(tsurface, toplayer, botlayer, fstfntl, lstfntl);
-    }
+    	}else{
+    		stefan.updateFronts(tsurface, timestep);
+    	}
 
-    // 1b) post-front positioning adjustments
-    combineFronts();                      // it is possible that there are too many fronts exist after above, so combine them if there are too many
+    	// 2) ground (snow/soil) temperature solution
+    	ground->setFstLstFrontLayers();        // this must be called before the following
+    	tempupdator.updateTemps(tsurface, ground->toplayer, ground->botlayer, ground->fstsoill,
+    			ground->fstfntl, ground->lstfntl, timestep, meltsnow);
 
-    getLayerFrozenfraction(toplayer);     // this must be done before the following call
-    updateWaterAfterFront(toplayer);	  // after fronts processed, need to update 'ice' and 'liq' water in a layer due to phase change
+       	// checking
+       	ground->checkWaterValidity();
 
-    // 2) ground (snow/soil) temperature solution
-    ground->setFstLstFrontLayers();        // this must be called before the following
-    stefan.updateTemps(tsurface, toplayer, botlayer, fstfntl, lstfntl);
+     }
 
    	ground->updateWholeFrozenStatus();        // for the whole column
 
+
 	// 3) at end of each day, 'ed' should be updated for thermal properties
-	updateDailySoilThermal4Growth(fstsoill, tdrv);  // this is needed for growing
-	updateLayerStateAfterThermal(fstsoill, lstsoill, botlayer);  //this shall be done before the following
-	retrieveDailyFronts();  // soil thawing/freezing fronts, and daily 'ald', 'cld'
+	updateDailySoilThermal4Growth(ground->fstsoill, tsurface);  // this is needed for growing
+	updateLayerStateAfterThermal(ground->fstsoill, ground->lstsoill, ground->botlayer);  //this shall be done before the following
+	retrieveDailyFronts();  // update 'ed' with new soil thawing/freezing fronts, and daily 'ald', 'cld'
 
 };
 
@@ -236,10 +334,10 @@ void Soil_Env::updateDailySurfFlux(Layer* toplayer, const double & dayl){
 			if(dzsum <totthick){
 				if(dzsum + currl->dz <totthick){
 					dzsum +=currl->dz;
-					availliq += currl->liq-currl->minliq;
+					availliq += max(0., currl->liq-0.01*currl->maxliq);
 
 				}else{
-					availliq += (currl->liq-currl->minliq) * (totthick-dzsum)/totthick;
+					availliq += max(0., currl->liq-0.01*currl->maxliq) * (totthick-dzsum)/totthick;
 					dzsum = totthick;
 
 				}
@@ -259,115 +357,6 @@ void Soil_Env::updateDailySurfFlux(Layer* toplayer, const double & dayl){
 	}else{
 	    ed->d_soi2a.evap = 0.;
 	}
-
-};
-
-// it is possible that there are too many fronts exist (e.g., freezing and thawing alternatively occur from day to day)
-// combine them if there are too many (here, not less than 2*MAX_FNT_NUM - so that in 'ed', 'frzfnt' and 'thwfnt' can hold them all)
-void Soil_Env::combineFronts() {
-
-	int frntnum  = ground->frontsz.size();
-	double mindz = 1000.;     // (unit: meter) a number bigger enough to do the following comparison
-
-	while (frntnum >MAX_NUM_FNT) {       // because freezing and thawing fronts are alternatively ordered in 'ground->frontsz'
-
-		int removefntid = -1;
-
-		// find the nearest two fronts
-		for(int i=0; i<frntnum-1; i++){
-			double dz = ground->frontsz[i+1] - ground->frontsz[i];   // Note: the distance is in order in the fronts 'deque'
-   			if(dz < mindz){
-   				mindz = dz;
-   				removefntid = i;
-   			}
-   	   }
-
-	   // remove these two fronts (NOTE: not one front, otherwise fronts are not alternatively ordered)
-   	   if(removefntid >=0){
-   		   ground->frontsz.erase(ground->frontsz.begin()+removefntid+1);
-   		   ground->frontsz.erase(ground->frontsz.begin()+removefntid);
-
-   		   ground->frontstype.erase(ground->frontstype.begin()+removefntid+1);
-   		   ground->frontstype.erase(ground->frontstype.begin()+removefntid);
-   	   }
-
-   	   frntnum = ground->frontsz.size();
-
-   	}
-
-};
-
-// update the fraction of frozen portion (thickness) for each layer in a column
-void Soil_Env::getLayerFrozenfraction(Layer * toplayer){
-
-	int fntnum = ground->frontsz.size();
-	int fntind = 0;
-
-	Layer *currl = toplayer;
-	while (currl!=NULL) {
-	 	double fracfrozen = 0.;
-	 	double dzabvfnt   = 0.;
-
-		if(currl->frozen == 1){         // totally frozen layer
- 			  currl->frozenfrac = 1.0;
- 		}else if(currl->frozen == -1){  //totally unfrozen layer
- 			  currl->frozenfrac = 0.0;
- 		}else if (currl->frozen == 0){  //partially frozen layer
-
- 			while (fntind<fntnum){
- 				double fntz = ground->frontsz[fntind];
- 				int fnttype = ground->frontstype[fntind];
-
- 				if (fntz>currl->z && fntz<=currl->z+currl->dz){
-
- 				 	double dzfnt = fntz-currl->z; // the distance of the 'fntind'th front from the 'currl->z'
- 					if (fnttype==1) {                             //freezing front: from this front up to the neibored previous front IS frozen portion
- 						fracfrozen += (dzfnt - dzabvfnt);
- 					} else if (fnttype==-1 &&    // thawing front without following freezing front in the 'currl'
- 							( (fntind==fntnum-1) ||                      // thawing front already the last one in the deque
- 							  (fntind<fntnum-1 && ground->frontsz[fntind+1]>(currl->z+currl->dz)))){  //   // the following (freezing) front out of 'currl'
- 						fracfrozen += currl->dz - dzfnt;
- 					}
-
- 					dzabvfnt = dzfnt;    //update the upper front 'dz' for following front
- 				} else if (fntz>currl->z+currl->dz) {
- 					break;
- 				}
-
- 				fntind++;
-
- 			}
-
- 			currl->frozenfrac = fracfrozen/currl->dz;
-
- 		}
-
- 		currl=currl->nextl;
-	}
-
-}
-
-// when a front moves through or in a layer
-// the corresponding liq and ice content should be changed due to phase change (no total water amount change)
-void Soil_Env::updateWaterAfterFront(Layer* toplayer){
-	Layer * currl = toplayer;
-    double tice = 0.;
- 	double tliq = 0.;
-
- 	while (currl!=NULL) {
- 		tice = currl->ice;
- 		tliq = currl->liq;
- 		currl->ice = (tice +tliq ) * currl->frozenfrac;  // NOTE: 'frozenfrac' must be updated already
- 		currl->liq = (tice +tliq ) * (1. - currl->frozenfrac);
- 		if(currl->liq<currl->minliq){
- 			double delta = currl->minliq - currl->liq;
- 			currl->liq = currl->minliq;
- 		  	currl->ice -= delta;
- 		  	if(currl->ice < 0.) currl->ice = 0.;
- 		}
-
- 		currl = currl->nextl;
- 	}
 
 };
 
@@ -531,7 +520,7 @@ void Soil_Env::updateDailySM(){
 
     // 2) Then soil water dynamics at daily time step
 
-    double sinday= 24.*3600.;
+    double sinday= 86400.;
 
 	for (int i=0; i<MAX_SOI_LAY; i++) {
 		trans[i] /=sinday; // mm/day to mm/s
@@ -542,12 +531,14 @@ void Soil_Env::updateDailySM(){
  	// water drainage condition
 	double baseflow = 1.;    //fraction of bottom drainage (free) into water system: 0 - 1 upon drainage condition
     if(cd->gd->drgtype==1){  //0: well-drained; 1: poorly-drained
- 		 baseflow = 0.;
+ 		baseflow = 0.;
   	}
-    richards.update(fstsoill, drainl, draindepth, baseflow, trans, evap, infil);
 
-    ed->d_soi2l.qdrain  = richards.qdrain;
+   	richards.update(fstsoill, drainl, draindepth, baseflow, trans, evap, infil, sinday);
+   	ed->d_soi2l.qdrain  += richards.qdrain;
 
+   	//
+   	ground->checkWaterValidity();
 };
 
 
@@ -589,8 +580,11 @@ double Soil_Env::getEvaporation(const double & dayl, const double &rad){
 	double evap=0.;
 	double tair = ed->d_atms.ta;
 	double vpdpa = ed->d_atmd.vpd;
-	double daylsec =   dayl*3600;
-	double daytimerad = rad  *86400/daylsec; //w/m2
+	double daylsec = dayl*3600;
+	if (daylsec < 0.1) { // 0.1 sec for mathmatical purpose, otherwise 'daytimerad' below will be 'inf'
+		return 0.;
+	}
+	double daytimerad = rad*86400/daylsec; //w/m2
 	/* correct conductances for temperature and pressure based on Jones (1992)
 	with standard conditions assumed to be 20 deg C, 101300 Pa */
 	double rcorr = 1.0/(pow((tair+273.15)/293.15, 1.75) );
@@ -599,6 +593,7 @@ double Soil_Env::getEvaporation(const double & dayl, const double &rad){
 	
 	double pmet = getPenMonET( tair, vpdpa, daytimerad,rbl, rbl);
 	double dsr = ed->d_atms.dsr;
+	if (dsr<=1.0) dsr=1.0;
 	double ratiomin =envpar.evapmin;
  
 	evap = pmet *  daylsec;
@@ -635,7 +630,7 @@ double Soil_Env::getWaterTable(Layer* lstsoill){
 			ztot +=dz;
 			por = currl->poro;
 			thetai = currl->getVolIce();
-			thetai = min(por-currl->minliq/(dz*1000.), thetai);
+			thetai = min(por, thetai);
 			thetal = currl->getVolLiq();
 			thetal = min(por-thetai, thetal);
 
@@ -716,7 +711,7 @@ double Soil_Env::getRunoff(Layer* toplayer, Layer* drainl, const double & rnth,c
 /*! calculates the factor which provides controls from soil on transpiration
  *  Oleson, T. R., 2004
  *  */
-void Soil_Env::getSoilTransFactor(double btran[MAX_SOI_LAY], Layer* fstsoill, const double rootfr [MAX_SOI_LAY]){
+void Soil_Env::getSoilTransFactor(double btran[MAX_SOI_LAY], Layer* fstsoill, const double rootfr[MAX_SOI_LAY]){
 
 	double psimax, psi, psisat;
 	double rresis;
@@ -854,6 +849,7 @@ void Soil_Env::retrieveDailyTM(Layer* toplayer, Layer *lstsoill){
 void Soil_Env::setGround(Ground* grndp){
 	ground = grndp;
 	stefan.setGround(grndp);
+	tempupdator.setGround(grndp);
 };
 
 void Soil_Env::setCohortLookup(CohortLookup * chtlup){
