@@ -50,6 +50,7 @@ public class TEMeqrunner implements Runnable{
    	 	eqrunner.initInput(controlfile,"GUI");				
 		eqrunner.initOutput();
 		eqrunner.setupData();
+		eqrunner.setupIDs();
 		
 		temcj.setCohort(eqrunner.runcht.cht);
 		
@@ -61,15 +62,25 @@ public class TEMeqrunner implements Runnable{
 				System.exit(-1);
 			}
 		
-			//IDs for ONE single cohort		
-			error = eqrunner.setupIDs();
-			if (error!=0){
-				System.out.println("problem in setupIDs for CHTID = "+eqrunner.runcht.jcd.chtid+" in Runner::run ()");
-				System.exit(-1);
-			}
+			//IDs for ONE single cohort
+			int eqchtid = eqrunner.chtid;  // this is input from configurer in GUI
+			eqrunner.runcht.cht.getCd().setChtid(eqchtid);
 			
+			// assgning the record no. for all needed data IDs to run 'chtid'
+			// for 'siter', all record no. are in the first position of the lists
+			// because, 'chtid' is the only one in 'runchtlist', which are synchorized with all the lists.
+			eqrunner.rungrd.gridrecno  = eqrunner.reclistgrid.get(0);
+			eqrunner.rungrd.drainrecno = eqrunner.reclistdrain.get(0);
+			eqrunner.rungrd.soilrecno  = eqrunner.reclistsoil.get(0);
+			eqrunner.rungrd.gfirerecno = eqrunner.reclistgfire.get(0);
+
+			eqrunner.runcht.initrecno  = eqrunner.reclistinit.get(0);
+			eqrunner.runcht.clmrecno   = eqrunner.reclistclm.get(0);
+			eqrunner.runcht.vegrecno   = eqrunner.reclistveg.get(0);
+			eqrunner.runcht.firerecno  = eqrunner.reclistfire.get(0);
+
 			//getting the grided data for ONE single cohort
-			error = eqrunner.rungrd.reinit(eqrunner.runcht.cht.getCd().getGrdid());
+			error = eqrunner.rungrd.readData();
 			if (error!=0){
 				System.out.println("problem in reinitialize grid-module");
 				System.exit(-1);
@@ -78,7 +89,7 @@ public class TEMeqrunner implements Runnable{
 			//getting the cohort data
 			error = eqrunner.runcht.readData();
 
-			error = eqrunner.runcht.reinit(eqrunner.runcht.jcd.chtid);
+			error = eqrunner.runcht.reinit();
 
 			if (error!=0) {
 				System.out.println("Error for reinit cohort: "+ eqrunner.runcht.jcd.chtid +" - will exit! ");
@@ -179,11 +190,11 @@ public class TEMeqrunner implements Runnable{
 	//the following will reset soil organic layer thickness when called
 	private void resetOMthickness(float mossthick, float fibthick, float humthick){
 	
-		eqrunner.runcht.cht.getChtlu().setInitmossthick(mossthick);
+		eqrunner.runcht.cht.getChtlu().setInitdmossthick(mossthick);
 		eqrunner.runcht.cht.getChtlu().setInitfibthick(fibthick);
 		eqrunner.runcht.cht.getChtlu().setInithumthick(humthick);
 		
-		temcj.initSbState();
+		temcj.setInitSbState();
 	};
 	
 //-----------------------------------------------------------------------------

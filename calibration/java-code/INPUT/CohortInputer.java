@@ -8,29 +8,33 @@ import ucar.ma2.Index;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
-import DATA.DataCohort;
+import TEMJNI.ModelData;
 
 public class CohortInputer {
 	public int act_chtno;
+	public int act_initchtno;
 	
-	public int act_clmidno;   //
+	public int act_clmno;   //
 	public int act_clmyr;
 	
-	public int act_vegidno;
+	public int act_vegno;
 	public int act_vegset;
 	
-	public int act_fireidno;
+	public int act_fireno;
 	public int act_fireset;
 
-	//ids for a cohort
+	//ids for a cohort, as in 'cohortid.nc' file
 	Array chtidA;
-	Array initchtidA;
-
+	Array chtinitidA;
 	Array chtgrididA;
 	Array chtclmidA;
 	Array chtvegidA;
 	Array chtfireidA;
+
+	// id in initial file ('sitein.nc', or 'restart.nc')
+	Array initchtidA;
 	
+	// id and data in 'climate.nc'
 	Array clmidA;
 	Array clmyearA;
 	Array tairA;
@@ -38,11 +42,13 @@ public class CohortInputer {
 	Array nirrA;
 	Array vapoA;
 	
+	// id and data in 'vegetation.nc'
 	Array vegidA;
 	Array vegsetyrA;
 	Array vegtypeA;
 	Array vegfracA;
 	
+	// id and data in 'fire.nc'
 	Array fireidA;
 	Array fyearA;
 	Array fseasonA;
@@ -52,16 +58,17 @@ public class CohortInputer {
 	//one cohort-level data set will be done in cohort.java, 
 	// but functions are defined here.
 	
-	public void init(String chtinputdir){
+	public void init(ModelData md){
 		  
-	  	initChtidFile(chtinputdir);
-	  	initClmFile(chtinputdir);
-	  	initVegFile(chtinputdir);
-		initFireFile(chtinputdir);
+	  	initChtidFile(md.getChtinputdir());
+	  	if (!md.getRuneq()) initChtinitFile(md.getInitialfile());
+	  	initClmFile(md.getChtinputdir());
+	  	initVegFile(md.getChtinputdir());
+		initFireFile(md.getChtinputdir());
 	    
   	}; 
   	
-	public void initChtidFile(String dir){
+	void initChtidFile(String dir){
 		String chtidfname = dir +"cohortid.nc";
 		NetcdfFile chtidncfile = null;
 		File chtidfile = new File(chtidfname);
@@ -70,24 +77,24 @@ public class CohortInputer {
 				chtidncfile = NetcdfFile.open(chtidfname);
 
 				Variable chtidV = chtidncfile.findVariable("CHTID");
-				chtidA = chtidV.read();
+				this.chtidA = chtidV.read();
 				
-				act_chtno = chtidA.getShape()[0];
+				this.act_chtno = this.chtidA.getShape()[0];
 
-				Variable initchtidV = chtidncfile.findVariable("INITCHTID");
-				initchtidA = initchtidV.read();
+				Variable chtinitidV = chtidncfile.findVariable("INITCHTID");
+				this.chtinitidA = chtinitidV.read();
 
 				Variable chtgrididV = chtidncfile.findVariable("GRIDID");
-				chtgrididA = chtgrididV.read();
+				this.chtgrididA = chtgrididV.read();
 
 				Variable chtclmidV = chtidncfile.findVariable("CLMID");
-				chtclmidA = chtclmidV.read();
+				this.chtclmidA = chtclmidV.read();
 
 				Variable chtvegidV = chtidncfile.findVariable("VEGID");
-				chtvegidA = chtvegidV.read();
+				this.chtvegidA = chtvegidV.read();
 
 				Variable chtfireidV = chtidncfile.findVariable("FIREID");
-				chtfireidA = chtfireidV.read();
+				this.chtfireidA = chtfireidV.read();
 
 			} catch (IOException ioe) {
 					System.out.println(ioe.getMessage());
@@ -106,8 +113,42 @@ public class CohortInputer {
 		}
  	 
 	};
+	
+	void initChtinitFile(String initialfile){
+
+		String chtinitfname = initialfile;
+
+		NetcdfFile chtinitncfile = null;
+		File chtinitfile = new File(chtinitfname);
+		if (chtinitfile.exists()){
+			try {
+				chtinitncfile = NetcdfFile.open(chtinitfname);
+
+				Variable initchtidV = chtinitncfile.findVariable("CHTID");
+				this.initchtidA = initchtidV.read();
+				
+				this.act_initchtno = this.initchtidA.getShape()[0];
+
+
+			} catch (IOException ioe) {
+					System.out.println(ioe.getMessage());
+			} finally {
+					if (chtinitncfile != null) {
+						try {
+							chtinitncfile.close();
+						} catch (IOException ioee) {
+							System.out.println(ioee.getMessage());
+						}
+					}
+			}
+		} else {   //file not exist
+			System.out.println("Input file: "+chtinitfname+" NOT existed");
+			System.exit(-1);
+		}
+
+	}
   	
-	public void initClmFile(String dir){
+	void initClmFile(String dir){
 		String clmfname = dir +"climate.nc";
 		NetcdfFile clmncfile = null;
 		File clmfile = new File(clmfname);
@@ -116,26 +157,26 @@ public class CohortInputer {
 				clmncfile = NetcdfFile.open(clmfname);
 
 				Variable clmidV = clmncfile.findVariable("CLMID");
-				clmidA = clmidV.read();
+				this.clmidA = clmidV.read();
 				
-				act_clmidno = clmidA.getShape()[0];
+				this.act_clmno = this.clmidA.getShape()[0];
 
 				Variable clmyearV = clmncfile.findVariable("YEAR");
-				clmyearA = clmyearV.read();
+				this.clmyearA = clmyearV.read();
 				
-				act_clmyr = clmyearA.getShape()[0];
+				this.act_clmyr = this.clmyearA.getShape()[0];
 
 				Variable tairV = clmncfile.findVariable("TAIR");
-				tairA = tairV.read();
+				this.tairA = tairV.read();
 
 				Variable precV = clmncfile.findVariable("PREC");
-				precA = precV.read();
+				this.precA = precV.read();
 
 				Variable nirrV = clmncfile.findVariable("NIRR");
-				nirrA = nirrV.read();
+				this.nirrA = nirrV.read();
 
 				Variable vapoV = clmncfile.findVariable("VAPO");
-				vapoA = vapoV.read();
+				this.vapoA = vapoV.read();
 
 			} catch (IOException ioe) {
 					System.out.println(ioe.getMessage());
@@ -155,7 +196,7 @@ public class CohortInputer {
  	 
 	};
   	
-	public void initVegFile(String dir){
+	void initVegFile(String dir){
 		String filename = dir +"vegetation.nc";
 
 		NetcdfFile ncfile = null;
@@ -165,18 +206,18 @@ public class CohortInputer {
 				ncfile = NetcdfFile.open(filename);
 				
 				Variable vegidV = ncfile.findVariable("VEGID");
-				vegidA = vegidV.read();
-				act_vegidno = vegidA.getShape()[0];
+				this.vegidA = vegidV.read();
+				this.act_vegno = this.vegidA.getShape()[0];
 				
 				Variable vegsetyrV = ncfile.findVariable("VEGSETYR");
-				vegsetyrA = vegsetyrV.read();				
-				act_vegset = vegsetyrA.getShape()[1];
+				this.vegsetyrA = vegsetyrV.read();				
+				this.act_vegset = this.vegsetyrA.getShape()[1];
 
 				Variable vegtypeV = ncfile.findVariable("VEGTYPE");
-				vegtypeA = vegtypeV.read();
+				this.vegtypeA = vegtypeV.read();
 
 				Variable vegfracV = ncfile.findVariable("VEGFRAC");
-				vegfracA = vegfracV.read();
+				this.vegfracA = vegfracV.read();
 
 			} catch (IOException ioe) {
 					System.out.println(ioe.getMessage());
@@ -195,7 +236,7 @@ public class CohortInputer {
 		 	 	
 	};
 
-	public void initFireFile(String dir){
+	void initFireFile(String dir){
 		String filename = dir +"fire.nc";
 		NetcdfFile ncfile = null;
 		File spchtidfile = new File(filename);
@@ -203,21 +244,21 @@ public class CohortInputer {
 			try {
 				ncfile = NetcdfFile.open(filename);
 				Variable fireidV = ncfile.findVariable("FIREID");
-				fireidA = fireidV.read();
-				act_fireidno = fireidA.getShape()[0];
+				this.fireidA = fireidV.read();
+				this.act_fireno = this.fireidA.getShape()[0];
 				
 				Variable fyearV = ncfile.findVariable("YEAR");
-				fyearA = fyearV.read();				
-				act_fireset = fyearA.getShape()[1];
+				this.fyearA = fyearV.read();				
+				this.act_fireset = this.fyearA.getShape()[1];
 
 				Variable fseasonV = ncfile.findVariable("SEASON");
-				fseasonA = fseasonV.read();
+				this.fseasonA = fseasonV.read();
 
 				Variable fsizeV = ncfile.findVariable("SIZE");
-				fsizeA = fsizeV.read();
+				this.fsizeA = fsizeV.read();
 
 				Variable fseverityV = ncfile.findVariable("SEVERITY");
-				fseverityA = fseverityV.read();
+				this.fseverityA = fseverityV.read();
 
 			} catch (IOException ioe) {
 					System.out.println(ioe.getMessage());
@@ -237,126 +278,214 @@ public class CohortInputer {
  	 
 	};
 
- 	//cid - record id (starting from 0), NOT chtid
-	public int getChtDataids(DataCohort jcd, int chtid){
-		Index ind = chtidA.getIndex();
-		for (int i=0; i<chtidA.getSize(); i++) {
-			if (chtidA.getInt(ind.set(i))==chtid) {
-				Index ind1 = initchtidA.getIndex();
-				jcd.inichtid = initchtidA.getInt(ind1.set(i));
+	// the following is for a input file containing data ids for each cohort
+ 	//recno - record number (starting from 0), NOT chtid
+	public int getChtDataids(int chtdataids[], int recno){
+		
+		try {
+			Index ind1 = this.chtidA.getIndex();
+			chtdataids[0] = this.chtidA.getInt(ind1.set(recno));
+		
+			Index ind2 = this.chtinitidA.getIndex();
+			chtdataids[1] = this.chtinitidA.getInt(ind2.set(recno));
 
-				Index ind2 = chtgrididA.getIndex();
-				jcd.grdid = chtgrididA.getInt(ind2.set(i));
+			Index ind3 = this.chtgrididA.getIndex();
+			chtdataids[2] = this.chtgrididA.getInt(ind3.set(recno));
 
-				Index ind3 = chtclmidA.getIndex();
-				jcd.clmid = chtclmidA.getInt(ind3.set(i));
+			Index ind4 = this.chtclmidA.getIndex();
+			chtdataids[3] = this.chtclmidA.getInt(ind4.set(recno));
 
-				Index ind4 = chtvegidA.getIndex();
-				jcd.vegid = chtvegidA.getInt(ind4.set(i));
+			Index ind5 = this.chtvegidA.getIndex();
+			chtdataids[4] = this.chtvegidA.getInt(ind5.set(recno));
 
-				Index ind5 = chtfireidA.getIndex();
-				jcd.fireid = chtfireidA.getInt(ind5.set(i));
+			Index ind6 = this.chtfireidA.getIndex();
+			chtdataids[5] = this.chtfireidA.getInt(ind6.set(recno));
+		
+			return 0;
+		
+		} catch (Exception ex) {
 
-				return i;
-				
-			}
+			System.err.println("TEM input 'cohortid.nc' failed (ids reading)! - "+ex);		
+		
+			return -1;
 		}
 		
-		return -1;
+	};
+
+	// the following are for data Ids from input data files
+	public int getInitchtId(int recno){
+		try {
+			Index ind = this.initchtidA.getIndex();
+			return this.initchtidA.getInt(ind.set(recno));
 		
-	};
+		} catch (Exception ex) {
 
-	public int getClmRec(int chtid){
-		Index ind = clmidA.getIndex();
-		for (int i=0; i<clmidA.getSize(); i++) {
-			if (clmidA.getInt(ind.set(i))==chtid) return i;
+			System.err.println("TEM input initial file ('restart.nc' or 'sitein.nc' failed (ids reading)! - "+ex);		
+	
+			return -1;
 		}
-		return -1;
 	};
 
-	public int getVegRec(int vegid){
-		Index ind = vegidA.getIndex();
-		for (int i=0; i<vegidA.getSize(); i++) {
-			if (vegidA.getInt(ind.set(i))==vegid) return i;
+	public int getClmId(int recno){
+	
+		try {
+			Index ind = this.clmidA.getIndex();
+		
+			return this.clmidA.getInt(ind.set(recno));
+		
+		} catch (Exception ex) {
+
+			System.err.println("TEM input 'climate.nc' failed (ids reading)! - "+ex);		
+
+			return -1;
 		}
-		return -1;
 	};
 
-	public int getFireRec(int fireid){
-		Index ind = fireidA.getIndex();
-		for (int i=0; i<fireidA.getSize(); i++) {
-			if (fireidA.getInt(ind.set(i))==fireid) return i;
+	public int getVegId(int recno){
+		try {
+			Index ind = this.vegidA.getIndex();
+			return this.vegidA.getInt(ind.set(recno));
+
+		} catch (Exception ex) {
+
+			System.err.println("TEM input 'vegetiation.nc' failed (ids reading)! - "+ex);		
+
+			return -1;
 		}
-		return -1;
 	};
 
-	public void getClimate(float tair[], float prec[], float nirr[], float vapo[], 
+	public int getFireId(int recno){
+	
+		try {
+			Index ind = this.fireidA.getIndex();
+			return this.fireidA.getInt(ind.set(recno));
+	
+		} catch (Exception ex) {
+
+			System.err.println("TEM input 'fire.nc' failed (ids reading)! - "+ex);		
+
+			return -1;
+		}
+	};
+
+	//data reading for one record
+	//Note: initial file has two types: 'sitein.nc', 'restart.nc', which are 
+	//very different, so NOT read here.
+	public int getClimate(float tair[], float prec[], float nirr[], float vapo[], 
 			int act_atm_drv_yr, int recid){     //recid starts from 0
 		
-		Index ind1 = tairA.getIndex();
-		for (int iy = 0; iy < act_atm_drv_yr; iy++) {
-			for (int im = 0; im < 12; im++) {
-				int iyim =iy*12+im;
-				tair[iyim] = tairA.getFloat(ind1.set(recid,iy,im));
+		try {
+			Index ind1 = this.tairA.getIndex();
+			for (int iy = 0; iy < act_atm_drv_yr; iy++) {
+				for (int im = 0; im < 12; im++) {
+					int iyim =iy*12+im;
+					tair[iyim] = this.tairA.getFloat(ind1.set(recid,iy,im));
+				}
 			}
-		}
 
-		Index ind2 = nirrA.getIndex();
-		for (int iy = 0; iy < act_atm_drv_yr; iy++) {
-			for (int im = 0; im < 12; im++){
-				int iyim =iy*12+im;
-				nirr[iyim] = nirrA.getFloat(ind2.set(recid,iy,im));
+			Index ind2 = this.nirrA.getIndex();
+			for (int iy = 0; iy < act_atm_drv_yr; iy++) {
+				for (int im = 0; im < 12; im++){
+					int iyim =iy*12+im;
+					nirr[iyim] = this.nirrA.getFloat(ind2.set(recid,iy,im));
+				}
 			}
-		}
 
-		Index ind3 = precA.getIndex();
-		for (int iy = 0; iy < act_atm_drv_yr; iy++) {
-			for (int im = 0; im < 12; im++) {
-				int iyim =iy*12+im;
-				prec[iyim] = precA.getFloat(ind3.set(recid,iy,im));
+			Index ind3 = this.precA.getIndex();
+			for (int iy = 0; iy < act_atm_drv_yr; iy++) {
+				for (int im = 0; im < 12; im++) {
+					int iyim =iy*12+im;
+					prec[iyim] = this.precA.getFloat(ind3.set(recid,iy,im));
+				}
 			}
-		}
 
-		Index ind4 = vapoA.getIndex();
-		for (int iy = 0; iy < act_atm_drv_yr; iy++) {
-			for (int im = 0; im < 12; im++) {
-				int iyim =iy*12+im;
-				vapo[iyim] = vapoA.getFloat(ind4.set(recid,iy,im));
+			Index ind4 = this.vapoA.getIndex();
+			for (int iy = 0; iy < act_atm_drv_yr; iy++) {
+				for (int im = 0; im < 12; im++) {
+					int iyim =iy*12+im;
+					vapo[iyim] = this.vapoA.getFloat(ind4.set(recid,iy,im));
+				}
 			}
+			
+			return 0;
+		
+		
+		} catch (Exception ex) {
+
+			System.err.println("TEM input 'climate.nc' failed (data reading)! - "+ex);		
+
+			return -1;
 		}
 
 	}; 
 
-	public void getVegetation(int vsetyr[], int vtype[], double vfrac[], int recid){
-		Index vsetyri = vegsetyrA.getIndex();
-		Index vtypei  = vegtypeA.getIndex();
-		Index vfraci  = vegfracA.getIndex();
-		for (int i=0; i<act_vegset; i++){
-			vsetyr[i] = vegsetyrA.getInt(vsetyri.set(recid, i));
-			vtype[i] = vegtypeA.getInt(vtypei.set(recid, i));
-			vfrac[i] = vegfracA.getDouble(vfraci.set(recid, i));
+	public int getVegetation(int vsetyr[], int vtype[], double vfrac[], int recid){
+		
+		try {
+			Index vsetyri = this.vegsetyrA.getIndex();
+			Index vtypei  = this.vegtypeA.getIndex();
+			Index vfraci  = this.vegfracA.getIndex();
+			for (int i=0; i<this.act_vegset; i++){
+				vsetyr[i] = this.vegsetyrA.getInt(vsetyri.set(recid, i));
+				vtype[i] = this.vegtypeA.getInt(vtypei.set(recid, i));
+				vfrac[i] = this.vegfracA.getDouble(vfraci.set(recid, i));
+			}
+		
+			return 0;
+		
+		
+		} catch (Exception ex) {
+
+			System.err.println("TEM input 'climate.nc' failed (data reading)! - "+ex);		
+
+			return -1;
 		}
+
 	};
 
-	public void getFire(int fyear[], int fseason[], int fsize[], int recid){
-				
-		Index ind1 = fyearA.getIndex();
-		Index ind2 = fseasonA.getIndex();
-		Index ind3 = fsizeA.getIndex();
+	public int getFire(int fyear[], int fseason[], int fsize[], int recid){
+		
+		try {
+			Index ind1 = this.fyearA.getIndex();
+			Index ind2 = this.fseasonA.getIndex();
+			Index ind3 = this.fsizeA.getIndex();
 
-		for (int i=0; i<act_fireset; i++) {
-			fyear[i]   = fyearA.getInt(ind1.set(recid, i));
-			fseason[i] = fseasonA.getInt(ind2.set(recid, i));
-			fsize[i]   = fsizeA.getInt(ind3.set(recid, i));
+			for (int i=0; i<this.act_fireset; i++) {
+				fyear[i]   = this.fyearA.getInt(ind1.set(recid, i));
+				fseason[i] = this.fseasonA.getInt(ind2.set(recid, i));
+				fsize[i]   = this.fsizeA.getInt(ind3.set(recid, i));
+			}
+		
+			return 0;
+		
+		
+		} catch (Exception ex) {
+
+			System.err.println("TEM input 'climate.nc' failed (data reading)! - "+ex);		
+
+			return -1;
 		}
-	}
+
+	};
 	
-	public void getFireSeverity(int fseverity[], int recid){
+	public int getFireSeverity(int fseverity[], int recid){
 
-		Index ind = fseverityA.getIndex();
-		for (int i=0; i<act_fireset; i++) {
-			fseverity[i] = fseverityA.getInt(ind.set(recid, i));
+		try {
+			Index ind = this.fseverityA.getIndex();
+			for (int i=0; i<this.act_fireset; i++) {
+				fseverity[i] = this.fseverityA.getInt(ind.set(recid, i));
+			}
+		
+			return 0;
+		
+		
+		} catch (Exception ex) {
+
+			System.err.println("TEM input 'climate.nc' failed (data reading)! - "+ex);		
+
+			return -1;
 		}
+
 		
 	};
 

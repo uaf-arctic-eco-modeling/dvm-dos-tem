@@ -67,10 +67,11 @@ public class Configurer{
 	public static int I_FRG    =12;
     // one row empty as break line	
 	public static int I_MICBNUP =14;
-	public static int I_KDCRAWC =15;
-	public static int I_KDCSOMA =16;
-	public static int I_KDCSOMPR=17;
-	public static int I_KDCSOMCR=18;
+	public static int I_KDCMOSS =15;
+	public static int I_KDCRAWC =16;
+	public static int I_KDCSOMA =17;
+	public static int I_KDCSOMPR=18;
+	public static int I_KDCSOMCR=19;
  
 	//BGC targetted flux/state variable Index (in table)
 	public static int I_GPPt    =0;
@@ -85,11 +86,12 @@ public class Configurer{
 	public static int I_VEGNSt =9;
 	public static int I_VEGNRt =10;
        // one row empty as break line
-	public static int I_FIBSOILCt =12;
-	public static int I_HUMSOILCt =13;
-	public static int I_MINESOILCt=14;
-	public static int I_SOILNt    =15;
-	public static int I_AVLNt     =16;
+	public static int I_DMOSSCt   =12;
+	public static int I_FIBSOILCt =13;
+	public static int I_HUMSOILCt =14;
+	public static int I_MINESOILCt=15;
+	public static int I_SOILNt    =16;
+	public static int I_AVLNt     =17;
 	
 	//BGC intial state variable Index (in table)
 	public static int I_VEGCL =0;
@@ -101,13 +103,14 @@ public class Configurer{
 	public static int I_DEADC =6;
 	public static int I_DEADN =7;
        // one row empty as break line
-	public static int I_FIBTHICK =9;
-	public static int I_HUMTHICK =10;
-	public static int I_FIBSOILC =11;
-	public static int I_HUMSOILC =12;
-	public static int I_MINESOILC=13;
-	public static int I_SOILN =14;
-	public static int I_AVLN=15;
+	public static int I_DMOSSTHICK =9;
+	public static int I_FIBTHICK   =10;
+	public static int I_HUMTHICK   =11;
+	public static int I_FIBSOILC   =12;
+	public static int I_HUMSOILC   =13;
+	public static int I_MINESOILC  =14;
+	public static int I_SOILN      =15;
+	public static int I_AVLN       =16;
 
 	public Configurer(){
 		 

@@ -52,10 +52,10 @@ public class TEMCalibrator {
 			//System.out.println("In final");
 		}
 
-		System.out.println("DOSDVMTEM Calibrator - Java Version 2.0");
+		System.out.println("DVM-DOS-TEM Calibrator - Java Version 2.0");
 		System.out.println("F.-M. YUAN");
-		System.out.println("The Spatial Ecological Laboratory");
-		System.out.println("University of Alaska Fairbanks");
+		System.out.println("Climate Change Science Institute, ORNL; and");
+		System.out.println("The Spatial Ecological Laboratory, University of Alaska Fairbanks");
 		
 		//logger
 		org.apache.log4j.BasicConfigurator.configure();
@@ -83,13 +83,16 @@ public class TEMCalibrator {
 			String controlfile = "config/controlfile_site.txt";
 			String runmode = "siter";
 						
+			Siter.chtid = 1;
+			
 			//TEM general initialization and data-reading
 			Siter.initInput(controlfile, runmode);
 			Siter.initOutput();
 			Siter.setupData();
+			Siter.setupIDs();
 			
 			//run
-			int error = Siter.run();
+			int error = Siter.run_siter();
 			
 			if (error ==0) {
 				System.out.println("run TEM stand-alone - sucessfully done!");

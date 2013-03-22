@@ -8,18 +8,21 @@ import ucar.ma2.Index;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
-import DATA.DataGrid;
-
 public class GridInputer {
 	
+	public int act_gridno;    // 'grid' number in 'grid.nc'
+	public int act_drainno;   // 'drainageid' number in 'drainage.nc'
+	public int act_soilno;    // 'soilid' number in 'soiltexture.nc'
+	public int act_gfireno;   // 'gfireid' number in 'firestatistics.nc'	
+
 	//all-grids
 	
-	Array grididA;
-	Array latA;
-	Array lonA;
-	Array gdrainidA;
-	Array gsoilidA;
-	Array gfireidA;
+	Array grdidA;
+	Array grdlatA;
+	Array grdlonA;
+	Array grddrainidA;
+	Array grdsoilidA;
+	Array grdfireidA;
 	
 	Array drainidA;
 	Array drainagetypeA;
@@ -28,7 +31,7 @@ public class GridInputer {
 	Array topsoilA;
 	Array botsoilA;
 
-	Array fireidA;
+	Array gfireidA;
 	Array friA;
 	Array pfseasonA;
 	Array pfsizeA;
@@ -52,22 +55,24 @@ public class GridInputer {
 				ncfile = NetcdfFile.open(filename);
 
 				Variable var0 = ncfile.findVariable("GRIDID");
-				grididA = var0.read();
+				grdidA = var0.read();
+				
+				act_gridno = grdidA.getShape()[0];
 
 				Variable var1 = ncfile.findVariable("LAT");
-				latA = var1.read();
+				grdlatA = var1.read();
 
 				Variable var2 = ncfile.findVariable("LON");
-				lonA = var2.read();
+				grdlonA = var2.read();
 
 				Variable var3 = ncfile.findVariable("DRAINAGEID");
-				gdrainidA = var3.read();
+				grddrainidA = var3.read();
 
 				Variable var4 = ncfile.findVariable("SOILID");
-				gsoilidA = var4.read();
+				grdsoilidA = var4.read();
 				
 				Variable var5 = ncfile.findVariable("GFIREID");
-				gfireidA = var5.read();
+				grdfireidA = var5.read();
 												
 			} catch (IOException ioe) {
 					System.out.println(ioe.getMessage());
@@ -98,6 +103,8 @@ public class GridInputer {
 				Variable var6 = ncfile.findVariable("SOILID");
 				soilidA = var6.read();
 
+				act_soilno = soilidA.getShape()[0];
+
 				Variable var7 = ncfile.findVariable("TOPSOIL");
 				topsoilA = var7.read();
 
@@ -122,7 +129,7 @@ public class GridInputer {
 
 	};
 
-	public void initDrainType(String dir){
+	void initDrainType(String dir){
 		String filename = dir +"drainage.nc";
  	
 		NetcdfFile ncfile = null;
@@ -132,6 +139,8 @@ public class GridInputer {
 				ncfile = NetcdfFile.open(filename);
 				Variable drgidV = ncfile.findVariable("DRAINAGEID");
 				drainidA = drgidV.read();
+
+				act_drainno = drainidA.getShape()[0];
 
 				Variable drgtypeV = ncfile.findVariable("DRAINAGETYPE");
 				drainagetypeA = drgtypeV.read();
@@ -162,7 +171,9 @@ public class GridInputer {
 			try {
 				ncfile = NetcdfFile.open(filename);
 				Variable var0 = ncfile.findVariable("GFIREID");
-				fireidA = var0.read();
+				gfireidA = var0.read();
+
+				act_gfireno = gfireidA.getShape()[0];
 
 				Variable var1 = ncfile.findVariable("FRI");
 				friA = var1.read();
@@ -191,98 +202,157 @@ public class GridInputer {
  
 	};
 
-	public int getGridDataids(DataGrid jgd, int gid){    //get recid (starts from 0) from grid id (gid)
-		Index ind = grididA.getIndex();
-		for (int i=0; i<grididA.getSize(); i++) {
-			if (grididA.getInt(ind.set(i))==gid) {
-
-				Index ind1 = latA.getIndex();
-				jgd.lat = latA.getFloat(ind1.set(i));
-
-				Index ind2 = lonA.getIndex();
-				jgd.lon = lonA.getFloat(ind2.set(i));
-
-				Index ind3 = gdrainidA.getIndex();
-				jgd.drainageid = gdrainidA.getInt(ind3.set(i));
-
-				Index ind4 = gsoilidA.getIndex();
-				jgd.soilid = gsoilidA.getInt(ind4.set(i));
-
-				Index ind5 = gfireidA.getIndex();
-				jgd.gfireid = gfireidA.getInt(ind5.set(i));
-
-				return i;
-			}
-		}
-		return -1;
-
-	}; 
-
-	public int getDrainRecid(int drainid){    //get recid (starts from 0)
-		Index ind = drainidA.getIndex();
-		for (int i=0; i<drainidA.getSize(); i++) {
-			if (drainidA.getInt(ind.set(i))==drainid) {
-				return i;
-			}
-		}
-		return -1;
-
-	}; 
-
-	public int getSoilRecid(int soilid){    //get recid (starts from 0)
-		Index ind = soilidA.getIndex();
-		for (int i=0; i<soilidA.getSize(); i++) {
-			if (soilidA.getInt(ind.set(i))==soilid) {
-				return i;
-			}
-		}
-		return -1;
-
-	}; 
-
-	public int getGfireRecid(int fireid){    //get recid (starts from 0)
-		Index ind = fireidA.getIndex();
-		for (int i=0; i<fireidA.getSize(); i++) {
-			if (fireidA.getInt(ind.set(i))==fireid) {
-				return i;
-			}
-		}
-		return -1;
-
-	}; 
-
-	public void getDrainType(int drainagetype, int recid){   //recid starts from 0
+	public int getGridids(int gridids [], int recno){    //get recid (starts from 0) from grid id (gid)
+		try {
+			Index ind0 = grdidA.getIndex();
+			gridids[0] = grdidA.getInt(ind0.set(recno));
 		
-		Index ind = drainagetypeA.getIndex();
-		drainagetype = drainagetypeA.getInt(ind.set(recid));
+			Index ind1 = grddrainidA.getIndex();
+			gridids[1] = grddrainidA.getInt(ind1.set(recno));
+
+			Index ind2 = grdsoilidA.getIndex();
+			gridids[2] = grdsoilidA.getInt(ind2.set(recno));
+
+			Index ind3 = grdfireidA.getIndex();
+			gridids[3] = grdfireidA.getInt(ind3.set(recno));
+				
+			return 0;
 		
-	}; 
+		} catch (Exception ex) {
 
-	public void getSoilTexture(DataGrid jgd, int recid){   //recid starts from 0
-		Index ind1 = topsoilA.getIndex();
-		jgd.topsoil = topsoilA.getInt(ind1.set(recid));
-
-		Index ind2 = botsoilA.getIndex();
-		jgd.botsoil = botsoilA.getInt(ind2.set(recid));
-		
-	}; 
-
-	public void getGfire(DataGrid jgd, int recid){     //recid starts from 0
-
-		Index ind1 = friA.getIndex();
-		jgd.fri = friA.getInt(ind1.set(recid));
+			System.err.println("TEM input 'grid.nc' failed (ids reading)! - "+ex);		
 			
-		Index ind2 = pfseasonA.getIndex();
-		int[] ij = pfseasonA.getShape();
-		for (int j = 0; j <ij[1]; j++) {
-			jgd.pfseason[j] = pfseasonA.getDouble(ind2.set(recid,j));
+			return -1;
 		}
 
-		Index ind3 = pfsizeA.getIndex();
-		ij = pfsizeA.getShape();
-		for (int j = 0; j < ij[1]; j++) {
-			jgd.pfsize[j] = pfsizeA.getDouble(ind3.set(recid,j));
+	}; 
+
+	public int getDrainId(int recno){ 
+		try {
+			Index ind = drainidA.getIndex();
+			return drainidA.getInt(ind.set(recno));
+		
+		} catch (Exception ex) {
+
+			System.err.println("TEM input 'drainage.nc' failed (id reading)! - "+ex);		
+		
+			return -1;
 		}
+
+	}; 
+
+	public int getSoilId(int recno){
+		try {
+			Index ind = soilidA.getIndex();
+
+			return soilidA.getInt(ind.set(recno));
+		} catch (Exception ex) {
+
+			System.err.println("TEM input 'soiltexture.nc' failed (id reading)! - "+ex);		
+	
+			return -1;
+		}
+
+	}; 
+
+	public int getGfireId(int recno){
+		try {
+			Index ind = gfireidA.getIndex();
+
+			return gfireidA.getInt(ind.set(recno));
+		} catch (Exception ex) {
+
+			System.err.println("TEM input 'firestatistic.nc' failed (id reading)! - "+ex);		
+	
+			return -1;
+		}
+		
+	}; 
+
+	public int getDrainType(int recid){   //recid starts from 0
+		
+		try {
+			Index ind = drainagetypeA.getIndex();
+			return drainagetypeA.getInt(ind.set(recid));
+		
+		} catch (Exception ex) {
+
+			System.err.println("TEM input 'drainage.nc' failed (drainage type reading)! - "+ex);		
+	
+			return -1;
+		}
+		
+	}; 
+
+	//
+	public int getLatlon(float latlon[], int recid){   //recid starts from 0
+		try {
+			
+			Index ind0 = grdlatA.getIndex();
+			latlon[0]  = grdlatA.getFloat(ind0.set(recid));
+		
+			Index ind1 = grdlonA.getIndex();
+			latlon[1]  = grdlonA.getFloat(ind1.set(recid));
+			
+			return 0;
+		
+		} catch (Exception ex) {
+
+			System.err.println("TEM input 'grid.nc' failed (lat/lon reading)! - "+ex);		
+	
+			return -1;
+		}
+	
+	}; 
+
+	public int getSoilTexture(int soiltexture[], int recid){   //recid starts from 0
+		try {
+			
+			Index ind1 = topsoilA.getIndex();
+			soiltexture[0] = topsoilA.getInt(ind1.set(recid));
+
+			Index ind2 = botsoilA.getIndex();
+			soiltexture[1] = botsoilA.getInt(ind2.set(recid));
+			
+			return 0;
+		
+		} catch (Exception ex) {
+
+			System.err.println("TEM input 'soiltexture.nc' failed (texture reading)! - "+ex);		
+
+			return -1;
+		}
+		
+	}; 
+
+	public int getGfire(double pfseason[], double pfsize[], int recid){     //recid starts from 0
+
+		try {
+		
+			Index ind1 = friA.getIndex();
+			int fri=friA.getInt(ind1.set(recid));
+			
+			Index ind2 = pfseasonA.getIndex();
+			int[] ij = pfseasonA.getShape();
+			for (int j = 0; j <ij[1]; j++) {
+				pfseason[j] = pfseasonA.getDouble(ind2.set(recid,j));
+			}
+
+			Index ind3 = pfsizeA.getIndex();
+			ij = pfsizeA.getShape();
+			for (int j = 0; j < ij[1]; j++) {
+				pfsize[j] = pfsizeA.getDouble(ind3.set(recid,j));
+			}
+		
+			return fri;
+				
+		} catch (Exception ex) {
+
+			System.err.println("TEM input 'firestatistic.nc' failed (data reading)! - "+ex);		
+
+			return -1;
+		}
+
 
 	}; 
 

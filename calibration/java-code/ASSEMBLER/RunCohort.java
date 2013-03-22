@@ -6,6 +6,9 @@ package ASSEMBLER;
  * 		Note: the output modules are put here, so can be flexible for outputs
  *
 */
+import java.util.ArrayList;
+import java.util.List;
+
 import TEMJNI.Cohort;
 import TEMJNI.OutDataRegn;
 import TEMJNI.RestartData;
@@ -21,9 +24,7 @@ import INPUT.RestartInputer;
 
 public class RunCohort {
 
-	 public int cohortcount=0;
-
- 	 public Cohort cht = new Cohort();
+	 public Cohort cht = new Cohort();
  		
  	 public DataCohort jcd = new DataCohort();
  	 public DataRestart jresid = new DataRestart();
@@ -49,53 +50,149 @@ public class RunCohort {
     	public RegnOutputer regnouter;
     	public RestartOutputer resouter;
 */ 	  		 	 
-	 int usedatmyr=-999;
 
-	 int yrstart=-999;
-	 int yrend=-999;
+ 	/* all cohort data id lists
+ 	 * ids are labeling the datasets, which exist in .nc files
+  	 * and, the order (index) in these lists are actually record no. in the .nc files
+  	 */
+ 	 public List<Integer> chtids     = new ArrayList<Integer>();   // 'cohortid.nc'
+ 	 public List<Integer> chtinitids = new ArrayList<Integer>(); 
+ 	 public List<Integer> chtgridids = new ArrayList<Integer>(); 
+ 	 public List<Integer> chtclmids  = new ArrayList<Integer>(); 
+ 	 public List<Integer> chtvegids  = new ArrayList<Integer>(); 
+ 	 public List<Integer> chtfireids = new ArrayList<Integer>(); 
+
+ 	 public List<Integer> chtdrainids = new ArrayList<Integer>(); // from 'grid.nc' to 'cohortid.nc' via 'GRIDID'
+ 	 public List<Integer> chtsoilids  = new ArrayList<Integer>(); 
+ 	 public List<Integer> chtgfireids = new ArrayList<Integer>(); 
+
+ 	 public List<Integer> initids = new ArrayList<Integer>();   // from 'restart.nc' or 'sitein.nc'
+ 	 public List<Integer> clmids  = new ArrayList<Integer>();   // from 'climate.nc'
+ 	 public List<Integer> vegids  = new ArrayList<Integer>();   // from 'vegetation.nc'
+ 	 public List<Integer> fireids = new ArrayList<Integer>();   // from 'fire.nc'
+
+	/* the following is FOR one cohort only (current cohort)
+	 *
+	 */
+ 	 public int cohortcount=0;
+ 	 public int initrecno  =-9999;
+ 	 public int clmrecno   =-9999;
+ 	 public int vegrecno   =-9999;
+ 	 public int firerecno  =-9999;
+	
+ 	 public int usedatmyr  =-9999;
+	 public int yrstart    =-9999;
+	 public int yrend      =-9999;
+	 
 	 int dstepcnt=0;
 	 int mstepcnt=0;
 	 int ystepcnt=0;
 
-	// data connections in modules
-	public void initData(){
-				
-		// output (buffer) data connection
-		if (cht.getMd().getOutRegn()) {
-			cht.getOutbuffer().setRegnOutData(regnod);
-		}
+	//reading cohort-level all data ids
+	 public int allchtids(){
+	 	int error = 0;
+	 	int id  = -9999;
+	 	int ids[] = new int []{-9999,-9999,-9999,-9999,-9999, -9999};
 
-		cht.getOutbuffer().setRestartOutData(resod);   //restart output data sets connenction
+	 	// from 'cohortid.nc'
+	 	for (int i=0; i<cht.getMd().getAct_chtno(); i++) {
+	 		error = cinputer.getChtDataids(ids, i);
+	 		if (error!=0) return error;
 
-		// output operators
-		// regnouter.setOutData(&regnod);
-		// resouter.setRestartOutData(&resod);
-	};
+	 		chtids.add(ids[0]);
+	 		chtinitids.add(ids[1]);
+	 		chtgridids.add(ids[2]);
+	 		chtclmids.add(ids[3]);
+	 		chtvegids.add(ids[4]);
+	 		chtfireids.add(ids[5]);
+
+	 	}
+
+	 	// from 'restart.nc' or 'sitein.nc'
+	 	if (!cht.getMd().getRuneq()) { // 'runeq' stage doesn't require initial file
+	 		for (int i=0; i<cht.getMd().getAct_initchtno(); i++) {
+	 			id = cinputer.getInitchtId(i);
+		 		if (id<0) return id;
+	 			initids.add(id);
+	 		}
+	 	}
+
+	 	// from 'climate.nc'
+	 	for (int i=0; i<cht.getMd().getAct_clmno(); i++) {
+	 		id = cinputer.getClmId(i);
+	 		if (id<0) return id;
+	 		clmids.add(id);
+	 	}
+
+	 	// from 'vegetation.nc'
+	 	for (int i=0; i<cht.getMd().getAct_vegno(); i++) {
+	 		id = cinputer.getVegId(i);
+	 		if (id<0) return id;
+	 		vegids.add(id);
+	 	}
+
+	 	// from 'fire.nc'
+	 	for (int i=0; i<cht.getMd().getAct_fireno(); i++) {
+	 		id = cinputer.getFireId(i);
+	 		if (id<0) return id;
+	 		fireids.add(id);
+	 	}
+
+	 	return error;
+	 };
+
+	 // general initialization
+	 public void init(){
+
+	 	// switches of N cycles
+	     cht.getMd().setNfeed(true);
+	     cht.getMd().setAvlnflg(false);
+	     cht.getMd().setBaseline(true);
+
+	 	// switches of modules
+	     cht.getMd().setEnvmodule(true);
+	     cht.getMd().setBgcmodule(true);
+	     cht.getMd().setDsbmodule(true);
+	     cht.getMd().setDslmodule(true);
+	     cht.getMd().setDvmmodule(true);
+
+	 	// output (buffer) data connection
+	 	 if (cht.getMd().getOutRegn()) {
+	 		 cht.getOutbuffer().setRegnOutData(regnod);
+	 	 }
+
+	 	 cht.getOutbuffer().setRestartOutData(resod);   //restart output data sets connenction
+
+	 	 // output operators
+	 	 //regnouter.setOutData(&regnod);
+	 	 //resouter.setRestartOutData(&resod);
+	 }
 
 	//read-in data for a cohort
 	public int readData(){
 
-		// record ids in '.nc' datasets
-		int clmrecid = -999;
-		int vegrecid = -999;
-		int firerecid= -999;
-
-		//reading the climate data
-		jcd.act_atm_drv_yr = cinputer.act_clmyr;
-		clmrecid = cinputer.getClmRec(jcd.clmid);
-		if (clmrecid<0) return -1;
+		int error = 0;
 		
-		cinputer.getClimate(jcd.tair, jcd.prec, jcd.nirr, jcd.vapo, jcd.act_atm_drv_yr, clmrecid);
+		//reading the climate data
+		jcd.act_atm_drv_yr = cinputer.act_clmyr;	
+		error = cinputer.getClimate(jcd.tair, jcd.prec, jcd.nirr, jcd.vapo, 
+				jcd.act_atm_drv_yr,	clmrecno);
+		if (error<0) return error;
 
-		//reading the vegetation community type data from '.nc', otherwise from 'chtlu' for site-run
+		//reading the vegetation community type data from 'vegetation.nc'
 		jcd.act_vegset = cinputer.act_vegset;
+		error = cinputer.getVegetation(jcd.vegyear, jcd.vegtype, 
+				jcd.vegfrac, vegrecno);
+		if (error<0) return error;
 
-		vegrecid = cinputer.getVegRec(jcd.vegid);
-		if (vegrecid<0) return -2;
-		cinputer.getVegetation(jcd.vegyear, jcd.vegtype, jcd.vegfrac, vegrecid);
-
+		//INDEX of veg. community codes, must be one of in those parameter files under 'config/'
 		jcd.cmttype = jcd.vegtype[0];  //default, i.e., the first set of data
-
+		for (int i=1; i<jcd.act_vegset; i++) {
+			if (jcd.year>=jcd.vegyear[i]) {
+				jcd.cmttype = jcd.vegtype[i];
+			}
+		}
+		
 		// read-in parameters AND initial conditions as inputs
 		String configdir = "config/";
 		cht.getChtlu().setDir(configdir);
@@ -119,13 +216,11 @@ public class RunCohort {
 		}
 		cht.getChtlu().setMinetexture(soiltexture);
 
-		//reading the fire occurence data from '.nc', otherwise from 'chtlu' for site-run
+		//reading the fire occurence data from 'fire.nc'
 		jcd.act_fireset = cinputer.act_fireset;
-		firerecid = cinputer.getFireRec(jcd.vegid);
-		if (firerecid<0) return -3;
-		cinputer.getFire(jcd.fireyear, jcd.fireseason, jcd.firesize, firerecid);
+		cinputer.getFire(jcd.fireyear, jcd.fireseason, jcd.firesize, firerecno);
 		if (cht.getMd().getUseseverity()) {
-			cinputer.getFireSeverity(jcd.fireseverity, firerecid);
+			cinputer.getFireSeverity(jcd.fireseverity, firerecno);
 		}
 		
 		// transfer 'jcd' (only variables assinged above) to 'cht.cd'		
@@ -147,12 +242,11 @@ public class RunCohort {
 		cht.getCd().setFiresize(jcd.firesize);
 		cht.getCd().setFireseverity(jcd.fireseverity);
 		
-  		return 0;
+  		return error;
 	};
 
 	// when initializing a cohort, using its record ids RATHER THAN chtids
-	// cid - the record id for chort;
-	public int reinit(int cid){
+	public int reinit(){
 
 		// initializing module-calling controls
 		cht.setFailed(false);
@@ -160,7 +254,7 @@ public class RunCohort {
 
 		int errcode = 0;
 
-		if (cid < 0) return -1;
+		if (initrecno < 0 && cht.getMd().getInitmode()!=1) return -1;
 
 		//initial modes other than lookup (i.e., initmode = 1)
 		if (cht.getMd().getInitmode()==2) {
@@ -170,14 +264,13 @@ public class RunCohort {
 		 	 if (err!=0) return -1;
 */
 		} else if (cht.getMd().getInitmode() == 3) {
-			int inichtid = cht.getCd().getInichtid();
-			resinputer.getErrcode(errcode, inichtid);
+			resinputer.getErrcode(errcode, initrecno);
 			if (errcode!=0) {
 				return -1;
 			} else {
 
-				cht.getResid().setChtid(inichtid);
-				resinputer.getRestartData(jresid, inichtid);
+				cht.getResid().setChtid(initrecno);
+				resinputer.getRestartData(jresid, initrecno);
 				
 				//'jresid' to 'cht.resid'
 				
@@ -195,46 +288,75 @@ public class RunCohort {
 		return 0;
 	};
 	
-	public void run(){
-
-		// N cycles
-	    cht.getMd().setNfeed(false);
-	    cht.getMd().setBaseline(true);
-	    cht.getMd().setAvlnflg(false);
-
-	    //
-	    cht.getTimer().reset();
+	public void run_cohortly(){
 
 		if(cht.getMd().getRuneq()){
+			// a quick pre-run to get reasonably-well 'env' conditions, which may be good for 'eq' run
+			runEnvmodule();
+
+		    //
+		    cht.getTimer().reset();
+			cht.getMd().setEnvmodule(true);
+			cht.getMd().setBgcmodule(true);
+			cht.getMd().setDsbmodule(true);
+			cht.getMd().setDslmodule(true);
+			cht.getMd().setDvmmodule(true);
+
+			cht.getMd().setFriderived(true);	
+			cht.getFd().setYsf(0);
+
 			cht.getTimer().setStageyrind(0);
-    		runEquilibrium();               //module options included
+
+		    yrstart = 0;
+		    yrend   = Math.min(ConstTime.MAX_EQ_YR, 20*cht.getGd().getFri()-2);   //20 FRI or max. MAX_EQ_YR
+    		
+		    run_timeseries();               
 		}
 
-		cht.getMd().setEnvmodule(true);
-		cht.getMd().setBgcmodule(true);
-		cht.getMd().setDsbmodule(true);
-		cht.getMd().setDslmodule(true);
-		cht.getMd().setDvmmodule(true);
 
 		if(cht.getMd().getRunsp()){
+			cht.getMd().setFriderived(false);	
+
 			cht.getTimer().setStageyrind(0);
 			cht.getTimer().setEqend(true);
-    		runSpinup();
+
+			usedatmyr = Math.min(ConstTime.MAX_ATM_NOM_YR, cht.getCd().getAct_atm_drv_yr());
+
+			yrstart = cht.getTimer().getSpbegyr();
+			yrend   = cht.getTimer().getSpendyr();
+			
+			run_timeseries();
 		}
 
 		if(cht.getMd().getRuntr()){
+			cht.getMd().setFriderived(false);	
+
 			cht.getTimer().setStageyrind(0);
 			cht.getTimer().setEqend(true);
 			cht.getTimer().setSpend(true);
-			runTransit();
+
+			usedatmyr = cht.getCd().getAct_atm_drv_yr();
+
+			yrstart = cht.getTimer().getTrbegyr();
+			yrend   = cht.getTimer().getTrendyr();
+			
+			run_timeseries();
 		}
 
 		if(cht.getMd().getRunsc()){
+			cht.getMd().setFriderived(false);	
+
 			cht.getTimer().setStageyrind(0);
 			cht.getTimer().setEqend(true);
 			cht.getTimer().setSpend(true);
 			cht.getTimer().setTrend(true);
-			runScenario();
+
+			usedatmyr = cht.getCd().getAct_atm_drv_yr();
+
+			yrstart = cht.getTimer().getScbegyr();
+			yrend   = cht.getTimer().getScendyr();
+			
+			run_timeseries();
 		}
 		
 		//restart.nc always output
@@ -242,9 +364,9 @@ public class RunCohort {
 
 	};
 
-	private void runEquilibrium(){
+	// run model with "ENV module" on only
+	private void runEnvmodule(){
 
-		// first, run model with "ENV module" only
 
 		cht.getMd().setEnvmodule(true);
 		cht.getMd().setBgcmodule(false);
@@ -260,61 +382,12 @@ public class RunCohort {
 
 		yrstart = 0;
 		yrend   = 100;
-		modulerun();
-
-	    //Then, use equilibrium environment driver to run model with all modules ON
-
-		cht.getTimer().reset();
-
-		cht.getMd().setEnvmodule(true);
-		cht.getMd().setBgcmodule(true);
-		cht.getMd().setDsbmodule(true);
-		cht.getMd().setDslmodule(true);
-		cht.getMd().setDvmmodule(true);
-
-		dstepcnt = 0;
-		mstepcnt = 0;
-		ystepcnt = 0;
-		cht.getFd().setYsf(0);
-
-		yrstart = 0;
-		yrend   = Math.min(ConstTime.MAX_EQ_YR, 20*cht.getGd().getFri()-2);   //20 FRI or max. MAX_EQ_YR
-		cht.getMd().setFriderived(true);
-		modulerun();
+		
+		run_timeseries();
 
 	};
 
-	private void runSpinup(){
-
-		usedatmyr = Math.min(ConstTime.MAX_ATM_NOM_YR, cht.getCd().getAct_atm_drv_yr());
-
-		yrstart = cht.getTimer().getSpbegyr();
-		yrend   = cht.getTimer().getSpendyr();
-		modulerun();
-
-	};
-
-	private void runTransit(){
-
-		usedatmyr = cht.getCd().getAct_atm_drv_yr();
-
-		yrstart = cht.getTimer().getTrbegyr();
-		yrend   = cht.getTimer().getTrendyr();
-		modulerun();
-
-	};
-
-	private void runScenario(){
-
-		usedatmyr = cht.getCd().getAct_atm_drv_yr();
-
-		yrstart = cht.getTimer().getScbegyr();
-		yrend   = cht.getTimer().getScendyr();
-		modulerun();
-
-	};
-
-	private void modulerun(){
+	private void run_timeseries(){
 
 		for (int icalyr=yrstart; icalyr<=yrend; icalyr++){
 
