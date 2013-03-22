@@ -138,7 +138,7 @@ void EnvOutputer::init(string & dirfile){
 	soilevap_pV= ncfileenv->add_var("SOILPEVAP", ncDouble, timeD);
 
 	qoverV= ncfileenv->add_var("RUNOFF", ncDouble, timeD);
-	qdrainV= ncfileenv->add_var("DRINAGE", ncDouble, timeD);
+	qdrainV= ncfileenv->add_var("DRAINAGE", ncDouble, timeD);
 
 }
 
