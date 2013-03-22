@@ -20,14 +20,14 @@ void Snow_Env::updateDailyM(const double & tdrv){
      //Note unit converstion: 1 mm H2O = 1 kgH2O/m2
 
 	bool slchg1 = false;
-	if (!ground->toplayer->isSnow && ground->toplayer->tem>0) {   //melting all snowfall
+	if (!ground->toplayer->isSnow && ground->toplayer->tem>0.01) {   //melting all snowfalling ('dsmass')
     	ed->d_snw2soi.melt = dsmass;
     	ground->snow.extramass = 0.;
-    } else {    // otherwise, construct a new snow layer
+    } else {    // otherwise, construct a new snow layer, if any
     	slchg1 = ground->constructSnowLayers(dsmass, tsurface);  //add a new snow layer as the new toplayer
     	if(slchg1)	{
     		ground->resortGroundLayers();
-       		initializeState();   //for new snow layer when it is a front layer
+       		initializeNewSnowState();   //for new snow layer when it is a front layer
     	}
     }
 
@@ -35,7 +35,7 @@ void Snow_Env::updateDailyM(const double & tdrv){
 	bool slchg2 = false;
     if(ground->toplayer->isSnow){
 
-	 	// sublimating existed surface snow layers accompanying snow surface energy budget process (Yuan: need further thinking here ???)
+	 	// sublimating of existed surface snow layers accompanying snow surface energy budget process (Yuan: need further thinking here ???)
 	 	updateDailySurfFlux(ground->toplayer, tsurface);
 
 	 	// melting below snow layers, if any
@@ -62,10 +62,8 @@ void Snow_Env::updateDailyM(const double & tdrv){
     }
 
     // after snow layer adding/removal/adjusting, needs updating thickness
-	if( slchg1 || slchg2 || slchg3 || slchg4){
-		ground->updateSnowLayerProperties();
-		ground->updateSnowLayerZ();
-	}
+	ground->updateSnowLayerPropertiesDaily();
+	ground->updateSnowLayerZ();
 
 	updateSWE(ground->toplayer);
 	if (ed->d_snws.swesum > 0.) {
@@ -89,6 +87,8 @@ void Snow_Env::updateDailyM(const double & tdrv){
 		ground->snow.thick = 0.;
 		ground->snow.extramass = 0.;
 	}
+
+	ground->checkWaterValidity();
 
 };
 
@@ -238,17 +238,16 @@ void Snow_Env::initializeParameter(){
 	snowenvpar.albmin = chtlu->snwalbmin;
 };
 
-void Snow_Env::initializeState(){
+void Snow_Env::initializeNewSnowState(){
 
 	Layer *toplayer = ground->toplayer;
 	while(toplayer!=NULL){
 		if(toplayer->isSnow){
-			// other 'Layer' properties already updated in 'Ground.cpp'
+			// other 'Layer' properties already updated in 'Ground.cpp', when constructing this layer
 
-			toplayer->frozen =1;
-			toplayer->maxliq =0;
-			toplayer->minliq =0;
-			toplayer->maxice =0;
+			toplayer->frozen = 1;
+			toplayer->maxliq = 0.;
+			toplayer->maxice = toplayer->dz*ground->snowdimpar.denmax;
 
 			toplayer->liq = 0.;
 			toplayer->ice = toplayer->dz*toplayer->rho;
@@ -283,8 +282,7 @@ void Snow_Env::initializeState5restart(RestartData* resin){
 		  currl->liq = 0.;
 		  currl->frozen = 1;
 		  currl->maxliq = 0.;
-		  currl->minliq = 0.;
-		  currl->maxice = 0.;
+		  currl->maxice = currl->dz*ground->snowdimpar.denmax;
 	 		  
 		}else{
 		  break;
@@ -292,7 +290,10 @@ void Snow_Env::initializeState5restart(RestartData* resin){
 		
 		currl = currl->nextl; 
 	}
-	
+
+	//
+	ground->checkWaterValidity();
+
 };
 
 double Snow_Env::getSublimation(double const & rn, double const & swe, double const & ta){ 
@@ -338,9 +339,7 @@ void Snow_Env::checkSnowLayersT(Layer* toplayer){
  	while(currl!=NULL){
     	if (currl->isSnow){
       		sl = dynamic_cast<SnowLayer*>(currl);
-      		//sl->check();
        		if(currl->tem>0){
-           		//cout <<"Snow temprature >0\n";
            		currl->tem =-0.01;
          	}
     	}
