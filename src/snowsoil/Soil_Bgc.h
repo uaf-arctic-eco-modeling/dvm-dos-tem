@@ -65,6 +65,8 @@ class Soil_Bgc{
   
   private:
   
+  	double mossdeathc;
+  	double mossdeathn;
   	double ltrflc[MAX_SOI_LAY];     //litterfall C into each soil layer
   	double ltrfln[MAX_SOI_LAY];     //litterfall N into each soil layer
 
@@ -109,8 +111,6 @@ class Soil_Bgc{
   	void updateKdyrly4all();
 
   	double getKdyrly(double& yrltrcn, const double lcclnc, const double & kdc);
-
-
 					  					 
 };
 #endif /*SOIL_BGC_H_*/
