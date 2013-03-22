@@ -28,6 +28,12 @@ Cohort::~Cohort(){
 // initialization of pointers used in modules called here
 void Cohort::initSubmodules(){
 
+	// for controlling of error messaging in some subroutines
+	ground.debugging = md->consoledebug;
+	soilenv.tempupdator.debugging = md->consoledebug;
+	soilenv.stefan.debugging      = md->consoledebug;
+	soilenv.richards.debugging    = md->consoledebug;
+
  	//atmosphere module pointers
 	atm.setCohortData(&cd);
 	atm.setEnvData(edall);
@@ -79,7 +85,7 @@ void Cohort::initSubmodules(){
     //fire module pointers
 	fire.setCohortLookup(&chtlu);
 	fire.setCohortData(&cd);
-	fire.setEnvData(&ed[0]);
+	fire.setAllEnvBgcData(edall, bdall);
  	for (int i=0; i<NUM_PFT; i++){
  		fire.setBgcData(&bd[i], i);
  	}
@@ -135,19 +141,6 @@ void Cohort::setProcessData(EnvData * alledp, BgcData * allbdp, FirData *fdp){
 		bd[i].cd = &cd;
 		ed[i].cd = &cd;
  	}
-
-};
-
-void Cohort::clearData(){
- 	cd.clear();
- 	for (int ip=0; ip<NUM_PFT; ip++){
- 		ed[ip].clear();
- 		bd[ip].clear();
- 	}
-
-   	edall->clear();
-    bdall->clear();
-    fd->clear();
 
 };
 
@@ -222,7 +215,7 @@ void Cohort::initStatePar() {
 	    cd.d_soil = cd.m_soil;
 
 	    // initializing snow/soil/soilparent env state conditions after layerStructure done
-	    snowenv.initializeState();  //Note: ONE initial snow layer
+	    snowenv.initializeNewSnowState();  //Note: ONE initial snow layer as new snow
 	    soilenv.initializeState();
 	    solprntenv.initializeState();
 
@@ -312,7 +305,6 @@ void Cohort::prepareDayDrivingData(const int & yrindx, const int & usedatmyr){
 void Cohort::updateMonthly(const int & yrcnt, const int & currmind, const int & dinmcurr){
 
 	//
-
 	if(currmind==0) cd.beginOfYear();
 	cd.beginOfMonth();
 
@@ -455,15 +447,22 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr){
 		// integrating daily 'veg' portion in 'ed' of all PFTs for 'edall'
 		getEd4allveg_daily();
 
+/*
+		if (cd.year==183 && doy==267){
+			cout<<"checking";
+		}
+//*/
 		tdrv = edall->d_atms.ta;
 
-		// Snow-soil Env-module: ground/soil temperature/moisture dynamics at daily timestep
-		soilenv.updateDailyGroundT(tdrv, daylength); // snow-soil temperature
+		// Snow-soil Env-module: ground/soil temperatur e- moisture dynamics at daily timestep
+		// note: hydrology is done separately for snow and soil, but thermal process is done as a continuous column
+		//       so, thermal process (including phase changing) is carried out before hydrological process
+		soilenv.updateDailyGroundT(tdrv, daylength); // snow-soil temperature, including snow-melting and soil water phase changing
 
-		// get the new bottom drainage layer and its depth
+		snowenv.updateDailyM(tdrv);                  // snow water/thickness changing - must be done after 'T' because of melting
+
+		// get the new bottom drainage layer and its depth, which needed for soil moisture calculation
 		ground.setDrainL(ground.lstsoill, edall->d_soid.ald, edall->d_sois.watertab);
-
-		snowenv.updateDailyM(tdrv); //snow water/thickness changing
 		soilenv.updateDailySM();  //soil moisture
 
 		// save the variables to daily 'edall' (Note: not PFT specified)
@@ -580,18 +579,18 @@ void Cohort::updateMonthly_Bgc(const int & currmind){
 
 //fire disturbance module calling
 /////////////////////////////////////////////////////////////////////////////////
-void Cohort::updateMonthly_Fir(const int & yrcnt, const int & currmind){
+void Cohort::updateMonthly_Fir(const int & yrind, const int & currmind){
 
 	if(currmind ==0){
 		fd->beginOfYear();
+
+		fire.getOccur(yrind, md->friderived);
 	}
 
-  	int fireoccur = fire.getOccur(yrcnt, currmind, md->friderived);
-
-   	if(fireoccur==1 ){
+   	if (yrind==fire.oneyear && currmind==fire.onemonth){
 		//fire, C burning for each PFT, and C/N pools updated through 'bd', but not soil structure
    		// soil root fraction also updated through 'cd'
-   		fire.burn(yrcnt, md->friderived);
+   		fire.burn();
 
    		// summarize burned veg C/N of individual 'bd' for each PFT above
    		for (int ip=0; ip<NUM_PFT; ip++){
@@ -614,9 +613,6 @@ void Cohort::updateMonthly_Fir(const int & yrcnt, const int & currmind){
    			}
    		}
 
-   		// copy the 'bd[0].m_sois', ONLY which actually updated during fire, to 'bdall' which going to update in 'soilbgc'
-   		bdall->m_sois = bd[0].m_sois;
-
    		// assign the updated soil C/N pools during firing to double-linked layer matrix in 'ground'
    		soilbgc.assignCarbonBd2LayerMonthly();
 
@@ -630,6 +626,7 @@ void Cohort::updateMonthly_Fir(const int & yrcnt, const int & currmind){
 		assignSoilBd2pfts_monthly();
 
 		// update 'cd'
+		cd.yrsdist = 0.;
 		ground.retrieveSnowDimension(&cd.d_snow);
 		ground.retrieveSoilDimension(&cd.m_soil);
 		cd.d_soil = cd.m_soil;
@@ -637,11 +634,6 @@ void Cohort::updateMonthly_Fir(const int & yrcnt, const int & currmind){
 
  		getSoilFineRootFrac_Monthly();
   	}
-
-   	if(currmind==11){
-  		fd->endOfYear();
-   	}
-
 
 };
 
@@ -662,7 +654,7 @@ void Cohort::updateMonthly_DIMveg(const int & currmind, const bool & dvmmodule){
 	// tentatively set to a common age from 'ysf' - year since fire - should have more varability based on PFT types
 	for (int ip=0; ip<NUM_PFT; ip++){
     	if (cd.m_veg.vegcov[ip]>0.){
-    		cd.m_veg.vegage[ip] = fd->ysf;
+    		cd.m_veg.vegage[ip] = cd.yrsdist;
     		if (cd.m_veg.vegage[ip]<=0) cd.m_vegd.foliagemx[ip] = 0.;
     	}
 	}
@@ -694,13 +686,21 @@ void Cohort::updateMonthly_DIMgrd(const int & currmind, const bool & dslmodule){
 		// above callings didn't modify the layer matrix structure
 		// in case that some layers may be getting too thick or too thin due to C content dynamics
 		// then, re-do layer division or combination is necessary for better thermal/hydrological simulation
-		if (cd.hasnonvascular && ground.moss.num <= 0) {
-			ground.moss.thick = ground.soildimpar.minmossthick;   // have to create a moss-layer, if none but non-vascular PFT exists.
+		if (cd.hasnonvascular && ground.moss.type<=0) {  //
+			double prvpft = 0.;
+			for (int ip=0; ip<NUM_PFT; ip++){
+		    	if (cd.m_veg.nonvascular[ip]!=I_vascular){
+		    		if (cd.m_veg.vegcov[ip]>prvpft)
+		    			ground.moss.type = cd.d_veg.nonvascular[ip];
+		    	}
+			}
+
 		}
 	    ground.redivideSoilLayers();
 
 		// and save the bgc data in double-linked structure back to 'bdall'
 		soilbgc.assignCarbonLayer2BdMonthly();
+
 	}
 
 	// update soil dimension
