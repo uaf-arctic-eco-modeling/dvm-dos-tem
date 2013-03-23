@@ -114,6 +114,7 @@
                 ../../src/snowsoil/Soil_Env.cpp
                 ../../src/snowsoil/SoilParent_Env.cpp
                 ../../src/snowsoil/Stefan.cpp
+                ../../src/snowsoil/TemperatureUpdator.cpp
                 ../../src/util/CrankNicholson.cpp
                 ../../src/util/Interpolator.cpp
                 ../../src/vegetation/Vegetation_Bgc.cpp
@@ -148,11 +149,11 @@
 
 
   <!-- ############################################## -->
-  <!-- ## Create the dos-tem-calibrator jar file    # -->
+  <!-- ## Create the dvm-dos-tem-calibrator jar file # -->
   <!-- ############################################## -->
   <target name="Jar" depends="Compile">
       <echo>Compressing into ${APPNAME} file</echo>
-      <jar destfile="dos-tem-calibrator.jar" basedir="${BUILDDIR}">
+      <jar destfile="dvm-dos-tem-calibrator.jar" basedir="${BUILDDIR}">
          <manifest>
           <attribute name="Author" value="${author}"/>
           <section name="Shared">
