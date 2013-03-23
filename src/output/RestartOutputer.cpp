@@ -111,6 +111,9 @@ void RestartOutputer::init(string& outputdir,string& stage){
     wdebriscV =restartFile->add_var("WDEBRISC", ncDouble, chtD);
     wdebrisnV =restartFile->add_var("WDEBRISN", ncDouble, chtD);
 
+    dmosscV =restartFile->add_var("DMOSSC", ncDouble, chtD);
+    dmossnV =restartFile->add_var("DMOSSN", ncDouble, chtD);
+
     rawcV  =restartFile->add_var("RAWC", ncDouble, chtD, soillayerD);
     somaV  =restartFile->add_var("SOMA", ncDouble, chtD, soillayerD);
     somprV =restartFile->add_var("SOMPR", ncDouble, chtD, soillayerD);
@@ -134,7 +137,7 @@ void RestartOutputer::outputVariables(const int & chtcount){
 	firea2sorgnV->put_rec(&resod->firea2sorgn, chtcount);
 
 	//veg
-	ysfV->put_rec(&resod->ysf, chtcount);
+	ysfV->put_rec(&resod->yrsdist, chtcount);
 
 	ifwoodyV->put_rec(&resod->ifwoody[0], chtcount);
 	ifdeciwoodyV->put_rec(&resod->ifdeciwoody[0], chtcount);
@@ -200,6 +203,9 @@ void RestartOutputer::outputVariables(const int & chtcount){
 	
 	wdebriscV->put_rec(&resod->wdebrisc, chtcount);
 	wdebrisnV->put_rec(&resod->wdebrisn, chtcount);
+
+	dmosscV->put_rec(&resod->dmossc, chtcount);
+	dmossnV->put_rec(&resod->dmossn, chtcount);
 
 	rawcV->put_rec(&resod->rawc[0], chtcount);
 	somaV->put_rec(&resod->soma[0], chtcount);

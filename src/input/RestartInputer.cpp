@@ -114,6 +114,9 @@ void RestartInputer::init(string & dirfile){
     wdebriscV =restartFile->get_var("WDEBRISC");
     wdebrisnV =restartFile->get_var("WDEBRISN");
 
+    dmosscV =restartFile->get_var("DMOSSC");
+    dmossnV =restartFile->get_var("DMOSSN");
+
     rawcV  =restartFile->get_var("RAWC");
     somaV  =restartFile->get_var("SOMA");
     somprV =restartFile->get_var("SOMPR");
@@ -171,7 +174,7 @@ void RestartInputer::getRestartData(RestartData *resid, const int &cid){
 
 	// - veg
 	ysfV->set_cur(cid);
-	varbool = ysfV->get(&resid->ysf,1);
+	varbool = ysfV->get(&resid->yrsdist,1);
 	if(!varbool){
 		string msg = "problem in reading 'YSF' in RestartInputer";
  		cout<<msg+"\n";
@@ -584,6 +587,22 @@ void RestartInputer::getRestartData(RestartData *resid, const int &cid){
 	varbool = wdebrisnV->get(&resid->wdebrisn,1);
 	if(!varbool){
 		string msg = "problem in reading 'WDEBRISN' in RestartInputer";
+ 		cout<<msg+"\n";
+ 		exit(-1);
+	}
+
+	dmosscV->set_cur(cid);
+	varbool = dmosscV->get(&resid->dmossc,1);
+	if(!varbool){
+		string msg = "problem in reading 'DMOSSC' in RestartInputer";
+ 		cout<<msg+"\n";
+ 		exit(-1);
+	}
+
+	dmossnV->set_cur(cid);
+	varbool = dmossnV->get(&resid->dmossn,1);
+	if(!varbool){
+		string msg = "problem in reading 'DMOSSN' in RestartInputer";
  		cout<<msg+"\n";
  		exit(-1);
 	}

@@ -56,6 +56,7 @@ SOURCES= 	src/TEM.o \
 		src/snowsoil/Soil_Env.o \
 		src/snowsoil/SoilParent_Env.o \
 		src/snowsoil/Stefan.o \
+		src/snowsoil/TemperatureUpdator.o \
 		src/util/CrankNicholson.o \
 		src/util/Interpolator.o \
 		src/vegetation/Vegetation_Bgc.o \
@@ -127,7 +128,8 @@ OBJECTS =	ArgHandler.o \
 		OrganicLayer.o \
 		ParentLayer.o \
 		SnowLayer.o \
-		SoilLayer.o
+		SoilLayer.o \
+		TemperatureUpdator.o 
 TEMOBJ=	TEM.o
 
 

@@ -16,14 +16,64 @@
     isFibric = false;
     isHumic  = false;
 
-    age    = 0.;
+    tkey  = I_UNKNOWN;
+    stkey = I_NONE;
     
+	indl  = MISSING_I;
+	solind= MISSING_I;
+    age   = 0.;
+	dz    = MISSING_D;
+	z     = MISSING_D;
+
+	rho= MISSING_D;
+	bulkden= MISSING_D;
+	poro= MISSING_D;
+
+	tcmin= MISSING_D;
+	tcdry= MISSING_D;
+	tcsolid= MISSING_D;
+	tcsatfrz= MISSING_D;
+	tcsatunf= MISSING_D;
+	vhcsolid= MISSING_D;
+
+	albdryvis= MISSING_D;
+	albdrynir= MISSING_D;
+	albsatvis= MISSING_D;
+	albsatnir= MISSING_D;
+
+	maxliq  = MISSING_D;
+	maxice  = MISSING_D;
+
+	psisat= MISSING_D;
+	hksat = MISSING_D;
+	bsw   = MISSING_D;
+
+	// thermal status
+	frozen    = MISSING_I;
+	frozenfrac= MISSING_D;
+	tem  = MISSING_D;
+	tcond= MISSING_D;
+	pce_t= MISSING_D;
+	pce_f= MISSING_D;
+
+	// hydrological status
+	liq  = MISSING_D;
+	ice  = MISSING_D;
+	hcond= MISSING_D;
+
+	// soil carbon pool
+	rawc = MISSING_D;
+	soma = MISSING_D;
+	sompr= MISSING_D;
+	somcr= MISSING_D;
+
+	cfrac= MISSING_D;
+
 };
  
 Layer::~Layer(){
 
 };
- 
  
 void Layer::advanceOneDay(){
 	age+=1/365.;
@@ -78,7 +128,7 @@ double Layer::getVolWater(){
 double Layer::getEffVolWater(){
  	double effvol = 0.;
  	if(isSoil){
- 	  effvol = getVolWater() - minliq/DENLIQ/dz * poro;
+ 	  effvol = getVolWater() - minliq/DENLIQ/dz;
  	}else if (isSnow){
  	  effvol = getVolWater();	
  	}
@@ -98,4 +148,10 @@ double Layer::getVolLiq(){
     double vliq = liq/DENLIQ/dz;
     vliq = min((double)vliq,(double)poro);
     return vliq;
+};
+
+double Layer::getEffVolLiq(){
+    double evliq = (liq-minliq)/DENLIQ/dz;
+    evliq = min((double)evliq,(double)poro);
+    return evliq;
 };

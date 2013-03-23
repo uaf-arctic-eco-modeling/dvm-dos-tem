@@ -1,8 +1,7 @@
 /*
  * TEMccjava.cpp
  *
- * Purpose: some data/info connection between C++ and Java, because of unmatch 'string', 
- * 2D-array
+ * Purpose: some data/info connection between C++ and Java, because of unmatch 'string', 2D-array
  *
  */
 
@@ -20,11 +19,11 @@ void TEMccjava::setCohort(Cohort * chtp) {
      cht = chtp;
 };
 
-/////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////
 // for Java calling to reset some initial conditions and calibrated BGC parameters
 // NOTE: all inputs are assigned into 'chtlu', which is regarded as the portal
 //
-void TEMccjava::initVbState1pft(const int & ipft) {
+void TEMccjava::setInitVbState1pft(const int & ipft) {
 
         // FOR VEGETATION BGC
         for (int i=0; i<NUM_PFT_PART; i++){
@@ -39,26 +38,28 @@ void TEMccjava::initVbState1pft(const int & ipft) {
 
 };
 
-void TEMccjava::initSbState() {
+void TEMccjava::setInitSbState() {
 
          // get data from outside
-         cht->chtlu.initfibthick = initfibthick;
-         cht->chtlu.inithumthick = inithumthick;
+    	cht->chtlu.initdmossthick= initdmossthick;
+        cht->chtlu.initfibthick  = initfibthick;
+        cht->chtlu.inithumthick  = inithumthick;
 
-         cht->chtlu.initshlwc = initshlwc;
-         cht->chtlu.initdeepc = initdeepc;
-         cht->chtlu.initminec = initminec;
-         cht->chtlu.initavln  = initavln;
-         cht->chtlu.initsoln  = initsoln;
+        cht->chtlu.initdmossc= initdmossc;
+        cht->chtlu.initshlwc = initshlwc;
+        cht->chtlu.initdeepc = initdeepc;
+        cht->chtlu.initminec = initminec;
+        cht->chtlu.initavln  = initavln;
+        cht->chtlu.initsoln  = initsoln;
 
          // initialize dimension/structure for snow-soil
-         cht->ground.initDimension();   //read-in snow/soil structure from 'chtlu'
+        cht->ground.initDimension();   //read-in snow/soil structure from 'chtlu'
 
          // set-up the snow-soil-soilparent structure
-         cht->ground.initLayerStructure(&cht->cd.d_snow, &cht->cd.m_soil);
+        cht->ground.initLayerStructure(&cht->cd.d_snow, &cht->cd.m_soil);
 
          // initializing soil bgc state conditions
-         cht->soilbgc.initializeState();
+        cht->soilbgc.initializeState();
 
 };
 
@@ -89,6 +90,7 @@ void TEMccjava::setSbCalPar(soipar_cal *jscalpar) {
 
         // Calibrated parameters for soil BGC
         cht->chtlu.micbnup = jscalpar->micbnup;
+        cht->chtlu.kdcmoss = jscalpar->kdcmoss;
         cht->chtlu.kdcrawc = jscalpar->kdcrawc;
         cht->chtlu.kdcsoma = jscalpar->kdcsoma;
         cht->chtlu.kdcsompr= jscalpar->kdcsompr;
@@ -124,6 +126,7 @@ void TEMccjava::getSbCalPar() {
 
         // Calibrated parameters for soil BGC
 		scalpar.micbnup = cht->chtlu.micbnup;
+		scalpar.kdcmoss = cht->chtlu.kdcmoss;
 		scalpar.kdcrawc = cht->chtlu.kdcrawc;
 		scalpar.kdcsoma = cht->chtlu.kdcsoma;
 		scalpar.kdcsompr= cht->chtlu.kdcsompr;
@@ -131,7 +134,7 @@ void TEMccjava::getSbCalPar() {
 
 };
 
-void TEMccjava::getVbState1pft(const int & ipft) {
+void TEMccjava::getInitVbState1pft(const int & ipft) {
 
         // FOR VEGETATION BGC
         for (int i=0; i<NUM_PFT_PART; i++){
@@ -144,7 +147,7 @@ void TEMccjava::getVbState1pft(const int & ipft) {
 
 };
 
-void TEMccjava::getSbState() {
+void TEMccjava::getInitSbState() {
 
          // get data from outside
          initfibthick = cht->chtlu.initfibthick;
@@ -161,5 +164,6 @@ void TEMccjava::getSbState() {
 void TEMccjava::getData1pft(const int & ipft) {
 	ed1pft = cht->ed[ipft];
 	bd1pft = cht->bd[ipft];
+	cd     = cht->cd;
 
 };

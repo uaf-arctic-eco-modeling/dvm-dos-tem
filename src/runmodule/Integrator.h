@@ -64,7 +64,9 @@ class Integrator{
                      I_L_ORGN  = 4*MAX_SOI_LAY,
                      I_L_AVLN  = 5*MAX_SOI_LAY,     // (4*LAYERS) these 2 lines - Layered Soil N state variables
 
-                     I_WDEBRIS = 6*MAX_SOI_LAY,    //because indexed from zero, so here is the sum of all above
+                     I_WDEBRISC= 6*MAX_SOI_LAY,    //because indexed from zero, so here is the sum of all above
+                     I_WDEBRISN,
+                     I_DMOSSC, I_DMOSSN,
 
                      I_L_RH_RAW  = NUM_SOI_STATE,
                      I_L_RH_SOMA = NUM_SOI_STATE + MAX_SOI_LAY,
@@ -74,6 +76,7 @@ class Integrator{
                      I_L_NIMMOB  = NUM_SOI_STATE + 5*MAX_SOI_LAY,   // 6*MAX_SOI_LAY soil C/N flux variables
 
                      I_RH_WD = NUM_SOI_STATE + 6*MAX_SOI_LAY,       //because indexed from zero, so here is the sum of all above
+                     I_RH_DMOSS,
 
                      I_ORGNLOSS, I_AVLNLOSS
 

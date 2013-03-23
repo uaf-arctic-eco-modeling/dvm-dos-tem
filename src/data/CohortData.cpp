@@ -17,7 +17,7 @@ void CohortData::clear(){
  	day   = MISSING_I;
 
 	cmttype = MISSING_I;
-	ysdist  = MISSING_I;
+	yrsdist = MISSING_I;
 
     hasnonvascular = false;
 
@@ -199,6 +199,9 @@ void CohortData::endOfMonth(){
 };
 
 void CohortData::endOfYear(){
+
+	yrsdist++;
+
 	// save the yearly max. 'unnormaleaf', 'growing thermal time', and 'topt' into the deque
 	for (int ip=0; ip<NUM_PFT; ip++){
 		double tmpeetmx = y_vegd.eetmx[ip];
