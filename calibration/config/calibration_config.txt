@@ -1,7 +1,7 @@
 DVM-DOS-TEM-Test                                            /* TEM running case */
 config/                                                     /* directory of initial states and parameter files (8 files - cmt_calbgc.txt, cmt_dimvegetation.txt, cmt_dimground.txt, cmt_envcanopy.txt, cmt_envground.txt, cmt_bgcvegetation.txt, cmt_begsoil.txt, cmt_firepar.txt)
-C:/TEM/Simulations/Test_DVM/output/                         /* directory of outputs
-C:/TEM/Simulations/Test_DVM/dataregion/                     /* directory of regional-level inputs
-C:/TEM/Simulations/Test_DVM/datagrid/                       /* directory of grided data inputs
-C:/TEM/Simulations/Test_DVM/datacht/                        /* directory of cohort inputs
+TEST_DATA/output/                         /* directory of outputs
+TEST_DATA/dataregion/                     /* directory of regional-level inputs
+TEST_DATA/datagrid/                       /* directory of grided data inputs
+TEST_DATA/datacht/                        /* directory of cohort inputs
 0                                                           /* community type index (0 is the default)
