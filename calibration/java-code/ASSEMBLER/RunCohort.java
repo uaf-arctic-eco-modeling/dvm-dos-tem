@@ -303,7 +303,6 @@ public class RunCohort {
 			cht.getMd().setDvmmodule(true);
 
 			cht.getMd().setFriderived(true);	
-			cht.getFd().setYsf(0);
 
 			cht.getTimer().setStageyrind(0);
 
@@ -377,8 +376,6 @@ public class RunCohort {
 		dstepcnt = 0;
 		mstepcnt = 0;
 		ystepcnt = 0;
-
-		cht.getFd().setYsf(1000);
 
 		yrstart = 0;
 		yrend   = 100;
