@@ -4,7 +4,7 @@
 #ifndef BGCOUTPUTER_H_
 #define BGCOUTPUTER_H_
 #include <iostream>
-#include "netcdfcpp.h"
+#include <netcdfcpp.h>
 
 #include "../inc/timeconst.h"
 #include "../inc/cohortconst.h"

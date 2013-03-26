@@ -25,7 +25,7 @@ void Runner::initInput(const string &controlfile, const string &runmode){
  		} else if (runmode.compare("regner1")==0) {
  			md.runmode = 2;                            //regional run - time-series
  		} else if (runmode.compare("regner2")==0) {
- 			md.runmode = 3;                            //regional run - spatially (NOT yet configured!)
+ 			md.runmode = 3;                            //regional run - spatially
  		} else {
  			cout <<"TEM run mode: "+runmode+" must be ONE of:\n";
  			cout <<"'siter', 'regner1', or, 'regner2'\n";
@@ -33,7 +33,7 @@ void Runner::initInput(const string &controlfile, const string &runmode){
  		}
 
  		//
- 		if (md.runmode!=1) md.consoledebug=true; //false;
+ 		if (md.runmode!=1) md.consoledebug=false;
 
  		configin.ctrl4run(&md);   //read in model configure info from "config/controlfile_site.txt"
 		md.checking4run();
@@ -350,7 +350,7 @@ void Runner::runmode2(){
 		chtid = runchtlist.at(jj);
 
 		// may need to clear up data containers for new cohort
-		runcht.cht.clearData();
+
  		runcht.cht.setModelData(&md);
  		runcht.cht.setTime(&timer);
  		runcht.cht.setInputData(&runreg.region.rd, &rungrd.grid.gd);
@@ -415,7 +415,6 @@ void Runner::runmode3(){
 	// NOTE: the following setting will not allow run two or more stages continuesly
 	if(md.runeq){
 		timer.stageyrind   = 0;
-		runcht.cht.fd->ysf = 0;
 		runcht.yrstart = 0;
 		runcht.yrend   = MAX_EQ_YR;
 		md.friderived  = true;

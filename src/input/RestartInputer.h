@@ -1,7 +1,7 @@
 #ifndef RESTARTINPUTER_H_
 #define RESTARTINPUTER_H_
 
-#include "netcdfcpp.h"
+#include <netcdfcpp.h>
 
 #include <math.h>
 #include <iostream>
@@ -116,12 +116,14 @@ class RestartInputer {
 	    NcVar* frontFTV;
 
 	    NcVar* wdebriscV;
+	    NcVar* dmosscV;
 	    NcVar* rawcV;
 	    NcVar* somaV;
 	    NcVar* somprV;
 	    NcVar* somcrV;
 
 	    NcVar* wdebrisnV;
+	    NcVar* dmossnV;
 	    NcVar* solnV;
 	    NcVar* avlnV;
 

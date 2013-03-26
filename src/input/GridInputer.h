@@ -15,7 +15,7 @@
 #include <cmath>
 using namespace std;
 
-#include "netcdfcpp.h"
+#include <netcdfcpp.h>
 
 #include "../inc/layerconst.h"
 #include "../inc/errorcode.h"

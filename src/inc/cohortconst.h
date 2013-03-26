@@ -6,6 +6,8 @@
 	const int NUM_PFT_PART = 3; //max. no. of plant parts (e.g., leaves, stems, roots)
 	enum VPARTKEY{I_leaf = 0, I_stem, I_root};
 
+	enum VASCULARKEY{I_vascular = 0, I_sphagnum, I_feathermoss, I_other};
+
 	const int MAX_DRG_TYPE = 2; //max. no. of drainage types
 
 	const int NUM_FSEVR    = 5;   // no. of fire severity classes

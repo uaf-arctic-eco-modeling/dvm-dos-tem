@@ -70,7 +70,7 @@ void OutRetrive::updateRegnOutputBuffer(const int & im){
 	regnod->month[im] = im;
 
 	if (im==11) {
-		regnod->ysf =fd->ysf;
+		regnod->yrsdist =cd->yrsdist;
 	}
 
 	//
@@ -573,7 +573,7 @@ void OutRetrive::updateRestartOutputBuffer(){
  		resod->firea2sorgn = fd->fire_a2soi.orgn;     //this is 'fire_a2soi.orgn' to re-deposit fire-emitted N in one FRI
 
  		//vegegetation
- 		resod->ysf   = fd->ysf;
+ 		resod->yrsdist   = cd->yrsdist;
 
  	    for (int ip=0; ip<NUM_PFT; ip++) {
  	    	resod->ifwoody[ip]    = cd->m_veg.ifwoody[ip];
@@ -673,6 +673,8 @@ void OutRetrive::updateRestartOutputBuffer(){
  		//
  		resod->wdebrisc = bd[0]->m_sois.wdebrisc;
  		resod->wdebrisn = bd[0]->m_sois.wdebrisn;
+ 		resod->dmossc = bd[0]->m_sois.dmossc;
+ 		resod->dmossn = bd[0]->m_sois.dmossn;
  		for(int il =0;il<cd->m_soil.numsl; il++){
  			resod->rawc[il]  = bd[0]->m_sois.rawc[il];
  			resod->soma[il]  = bd[0]->m_sois.soma[il];

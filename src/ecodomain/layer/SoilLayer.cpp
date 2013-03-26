@@ -76,11 +76,11 @@ double SoilLayer::getMatricPotential(){
 		psi =1000. * lf/g *(tem/(tem+273.16));
 		if (psi<-1.e8)psi=-1.e8;
 	}else{
-	  	double voliq = getVolLiq()/(poro-getVolIce());
+	  	double voliq = getEffVolLiq();
 
 	  	double ws = max(0.01, voliq);
-	  	ws = min(1. , ws);
-	  	psi = psisat * pow(ws, -bsw*1.0);
+	  	ws = min(1.0, ws);
+	  	psi = psisat * pow(ws, -bsw);
 	  	if (psi<-1.e8){	
 	  		psi=-1.e8;
 	  	}
@@ -113,63 +113,21 @@ double SoilLayer::getAlbedoNir(){
        	return nir;
 };
      
-//when a layer's thickness changed, update corresponding physical properties
-void SoilLayer::updateProperty4LayerChange(){
-
-	derivePhysicalProperty();
-	
-	//some data checking
-/*   	if(frozen==1){       // frozen layer
-   	  double deltaliq = 0.;
-   	  if(liq>minliq){
-   	  	 deltaliq = liq-minliq;
-   	  	 liq = minliq;
-   	  	 ice += deltaliq;
-   	  	 if(ice>maxice){
-   	  	   ice = maxice;
-   	  	 }
-   	  }
-
-   	  if (frozenfrac<1.) frozenfrac = 1.;
-   		
-   	}else if(frozen == -1){ //unfrozen layer
-   		if(ice>0){
-   		  liq += ice;
-   		  if(liq>maxliq){
-   		  	 liq = maxliq;
-   		  }	
-   		}
-
-     	if (frozenfrac>0.) frozenfrac = 0.;
-
-   	}
-   	
-   	 if( frozen ==1 &&  tem>0){
-	  	  tem = -0.01;
-	 }else if( frozen ==-1 &&  tem<0){
-		  tem = 0.01;
-	 }
-*/
-};
-
-
 // derive properties from the assigned property
 // called when porosity/thickness is changed
 void SoilLayer::derivePhysicalProperty(){
 
-	//radiation properties
-
 	 //hydraulic properties
-   	 minliq = 0.05 * DENLIQ * dz;
+  	 minliq = 0.05*poro * DENLIQ * dz;
    	 maxliq = poro * DENLIQ * dz;
-   	 maxice = poro * DENICE * dz - minliq;
+   	 maxice = poro * DENICE * dz;
 
    	 //thermal properties
 
    	 tcsatunf= pow((double)tcsolid , (double)1- poro) * pow((double)TCLIQ, (double)poro);
 	 tcsatfrz= pow((double)tcsolid , (double)1- poro) * pow((double)TCICE, (double)poro);
 	 tcdry   = pow((double)tcsolid , (double)1- poro) * pow((double)TCAIR, (double)poro);
-   	 tcmin = tcdry;
+   	 tcmin   = tcdry;
    	 
 };
    

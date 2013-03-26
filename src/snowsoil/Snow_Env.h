@@ -28,7 +28,7 @@ class Snow_Env{
 	    void setEnvData(EnvData* edp);
 
 	    void initializeParameter();
-	    void initializeState();
+	    void initializeNewSnowState();
 	    void initializeState5restart(RestartData* resin);
 
 	    void updateDailyM(const double & tdrv);

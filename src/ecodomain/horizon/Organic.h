@@ -15,9 +15,11 @@ class Organic{
 	
 		int shlwnum;
 		double shlwthick;
+		double shlwc;   // used as a tracker to determine if a shallow Organic horizon exists.
 	
 		int deepnum;
 		double deepthick;
+		double deepc;   // used as a tracker to determine if a deep Organic horizon exists.
 	
 		double shlwdz[MAX_SLW_LAY];
 		double deepdz[MAX_DEP_LAY];
@@ -25,14 +27,11 @@ class Organic{
 		bool shlwchanged;
 		double lstshlwdz;
 	
-		void initShlwThicknesses(const double & thickness);
-		void initDeepThicknesses(const double & thickness);
+		void ShlwThickScheme(const double & totthickness);
+		void DeepThickScheme(const double & totthickness);
 	
-		void setShlwThicknesses(int type[], double dz[],const int & maxnum);
-		void setDeepThicknesses(int type[], double dz[],const int & maxnum);
-
-		bool sameShlwThickRange(const double & thickness);
-		bool sameDeepThickRange(const double & thickness);
+		void assignShlwThicknesses(int type[], double dz[],const int & maxnum);
+		void assignDeepThicknesses(int type[], double dz[],const int & maxnum);
 
 	private:
 	
