@@ -14,4 +14,4 @@ export SITE_SPECIFIC_INCLUDES="-I/home/tobey/usr/local/include"
 export SITE_SPECIFIC_LIBS="-L/home/tobey/usr/local/lib"
 
 # For locating the boost libs at run time
-export LD_LIBRARY_PATH="/home/tobey/usr/local/lib"
+export LD_LIBRARY_PATH="/home/tobey/usr/local/lib:$LD_LIBRARY_PATH"
