@@ -1,0 +1,60 @@
+//===========================================================
+CMT00 // Default TEM Community  - soil microbial activity (BGC) parameters and default initial conditions
+2.0               // rhq10:
+0.0               // moistmin:
+0.5               // moistopt:
+1.0               // moistmax:
+84.44             // lcclnc:
+0.372             // fsoma:
+0.611             // fsompr:
+0.017             // fsomcr:
+0.346             // som2co2:
+0.0042            // kn2:
+29.73             // nmincnsoil:
+0.2               // propftos:
+0.0               // fnloss:  fraction N leaching (0 - 1) when drainage occurs
+1783              // initshlwc:
+5021              // initdeepc:
+9000              // initminec:
+363               // initsoln:
+0.76              // initavln:
+//===========================================================
+CMT01 // CMT1 TEM Community  - soil microbial activity (BGC) parameters and default initial conditions
+2.0               // rhq10:
+0.0               // moistmin:
+0.5               // moistopt:
+1.0               // moistmax:
+84.44             // lcclnc:
+0.372             // fsoma:
+0.611             // fsompr:
+0.017             // fsomcr:
+0.346             // som2co2:
+0.0042            // kn2:
+29.73             // nmincnsoil:
+0.2               // propftos:
+0.0               // fnloss:  fraction N leaching (0 - 1) when drainage occurs
+1783              // initshlwc:
+5021              // initdeepc:
+9000              // initminec:
+363               // initsoln:
+0.76              // initavln:
+//===========================================================
+CMT02 // CMT2 TEM Community  - soil microbial activity (BGC) parameters and default initial conditions
+2.0               // rhq10:
+0.0               // moistmin:
+0.5               // moistopt:
+1.0               // moistmax:
+84.44             // lcclnc:
+0.372             // fsoma:
+0.611             // fsompr:
+0.017             // fsomcr:
+0.346             // som2co2:
+0.0042            // kn2:
+29.73             // nmincnsoil:
+0.2               // propftos:
+0.0               // fnloss:  fraction N leaching (0 - 1) when drainage occurs
+1783              // initshlwc:
+5021              // initdeepc:
+9000              // initminec:
+363               // initsoln:
+0.76              // initavln:

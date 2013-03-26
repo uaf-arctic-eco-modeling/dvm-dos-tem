@@ -38,7 +38,7 @@ void CohortLookup::assignBgcCalpar(string & dircmt){
 
 	string str;
 	string code;
-	int lines = 20;   // total lines of one block of community data/info, except for 2 header lines
+	int lines = 21;   // total lines of one block of community data/info, except for 2 header lines
 
 	getline(fctrcomm, str);     // community separation line ("//====" or something or empty line)
 	getline(fctrcomm, str);     // community code - 'CMTxx' (xx: two digits)
@@ -77,6 +77,7 @@ void CohortLookup::assignBgcCalpar(string & dircmt){
 	// soil bgc Calibrated parameters
 	getline(fctrcomm, str);     //comments in the file
 	fctrcomm >> micbnup; getline(fctrcomm, str);
+	fctrcomm >> kdcmoss; getline(fctrcomm, str);
 	fctrcomm >> kdcrawc; getline(fctrcomm, str);
 	fctrcomm >> kdcsoma; getline(fctrcomm, str);
 	fctrcomm >> kdcsompr; getline(fctrcomm, str);
@@ -217,9 +218,9 @@ void CohortLookup::assignGroundDimension(string &dircmt){
 
 	//moss
 	getline(fctrcomm,str);     //comments in the file
-	fctrcomm >> maxmossthick; getline(fctrcomm,str);     //comments in the file
-  	fctrcomm >> initmossthick; getline(fctrcomm,str);    //comments in the file
-  	fctrcomm >> initmosstype; getline(fctrcomm,str);     //comments in the file
+	fctrcomm >> maxdmossthick; getline(fctrcomm,str);   //comments in the file
+  	fctrcomm >> initdmossthick; getline(fctrcomm,str);  //comments in the file
+  	fctrcomm >> mosstype; getline(fctrcomm,str);        //comments in the file
   	fctrcomm >> coefmossa; getline(fctrcomm,str);       //comments in the file
   	fctrcomm >> coefmossb; getline(fctrcomm,str);       //comments in the file
 
@@ -520,6 +521,7 @@ void CohortLookup::assignBgc4Ground(string &dircmt){
 	fctrcomm >> fnloss; getline(fctrcomm,str);
 
 	//
+	fctrcomm >> initdmossc; getline(fctrcomm,str);
 	fctrcomm >> initshlwc; getline(fctrcomm,str);
 	fctrcomm >> initdeepc; getline(fctrcomm,str);
 	fctrcomm >> initminec; getline(fctrcomm,str);

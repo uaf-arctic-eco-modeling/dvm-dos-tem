@@ -4,7 +4,7 @@
 #ifndef CHTOUTPUTER_H_
 #define CHTOUTPUTER_H_
 #include <iostream>
-#include "netcdfcpp.h"
+#include <netcdfcpp.h>
 
 #include "../inc/errorcode.h"
 #include "../data/CohortData.h"

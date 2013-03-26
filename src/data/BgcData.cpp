@@ -199,24 +199,32 @@ void BgcData::veg_endOfYear(){
 }
 
 void BgcData::soil_beginOfMonth(){
-
+/*
 	for(int il=0; il<MAX_SOI_LAY; il++){
 		m_sois.rawc[il] = 0.;
 		m_sois.soma[il] = 0.;
 		m_sois.sompr[il]= 0.;
 		m_sois.somcr[il]= 0.;
 
+		m_sois.orgn[il] = 0.;
+		m_sois.avln[il] = 0.;
+
 		m_soi2a.rhrawc[il] = 0.;
 	  	m_soi2a.rhsoma[il] = 0.;
 	  	m_soi2a.rhsoma[il] = 0.;
 	  	m_soi2a.rhsompr[il]= 0.;
 	  	m_soi2a.rhsomcr[il]= 0.;
+
 	}
+*/
 };
 
 void BgcData::soil_beginOfYear(){
 
- 	y_sois.wdebrisc=0.;
+ 	y_sois.wdebrisc= 0.;
+ 	y_sois.wdebrisn= 0.;
+ 	y_sois.dmossc  = 0.;
+ 	y_sois.dmossn  = 0.;
 
  	y_soid.shlwc   = 0.;
  	y_soid.deepc   = 0.;
@@ -350,7 +358,11 @@ void BgcData::soil_endOfMonth(const bool &baseline){
    		y_sois.orgn[il] += m_sois.orgn[il]/12.;
    		y_sois.avln[il] += m_sois.avln[il]/12.;
  	}
+   	y_sois.dmossc += m_sois.dmossc/12.;
+   	y_sois.dmossn += m_sois.dmossn/12.;
+
    	y_sois.wdebrisc += m_sois.wdebrisc/12.;
+   	y_sois.wdebrisn += m_sois.wdebrisn/12.;
 
    	y_soid.shlwc += m_soid.shlwc/12;
    	y_soid.deepc += m_soid.deepc/12;
@@ -387,7 +399,7 @@ void BgcData::soil_endOfMonth(const bool &baseline){
  	}
  	m_soi2a.rhtot = m_soi2a.rhrawcsum + m_soi2a.rhsomasum
  			    +m_soi2a.rhsomprsum + m_soi2a.rhsomcrsum
- 			    +m_soi2a.rhwdeb;
+ 			    +m_soi2a.rhwdeb + m_soi2a.rhmossc;
 
  	//cumulative annually
  	y_soi2a.rhwdeb    += m_soi2a.rhwdeb;

@@ -229,10 +229,17 @@ void RunCohort::run_cohortly(){
 			md->friderived = true;
 			cht.timer->stageyrind = 0;
 
-			cht.fd->ysf =0;
+			cht.cd.yrsdist = 0;
 
 		    yrstart = 0;
-		    yrend   = min(MAX_EQ_YR, 20*cht.gd->fri-2);   //20 FRI or max. MAX_EQ_YR
+
+		    if (cht.gd->fri>0) {
+		    	int nfri = max(MIN_EQ_YR/cht.gd->fri, 20);
+		    	nfri = min(nfri, MAX_EQ_YR/cht.gd->fri); //20 FRI and within range of min. and max. MAX_EQ_YR
+		    	yrend   = nfri*cht.gd->fri-1;   // ending just prior to the fire occurrency year
+		    } else {
+		    	yrend = MAX_EQ_YR;
+		    }
 
 		    run_timeseries();
 
@@ -300,7 +307,7 @@ void RunCohort::runEnvmodule(){
      md->dslmodule = false;
      md->dvmmodule = false;
 
-     cht.fd->ysf =1000;
+     cht.cd.yrsdist = 1000;
 
      yrstart = 0;
      yrend   = 100;
@@ -394,7 +401,7 @@ void RunCohort::run_timeseries(){
 
 		if(cht.md->consoledebug){
 	    	cout <<"TEM " << cht.md->runstages <<" run: year "
-	    	<<icalyr<<" @cohort "<<cohortcount<<"\n";
+	    	<<icalyr<<" @cohort "<<cohortcount+1<<"\n";
 
 	    }
 

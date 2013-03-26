@@ -4,7 +4,7 @@
 #ifndef ENVOUTPUTER_H_
 #define ENVOUTPUTER_H_
 #include <iostream>
-#include "netcdfcpp.h"
+#include <netcdfcpp.h>
 
 #include "../data/EnvData.h"
 #include "../data/EnvDataDly.h"

@@ -5,11 +5,12 @@
 
 SnowLayer::SnowLayer(){
 	tkey = I_SNOW;
+	stkey= I_NONE;
 
 	isSnow = true;
+	solind = MISSING_I;
 
 	liq    = MISSING_D;
-    minliq = MISSING_D;
     maxliq = MISSING_D;
     
 	frozen = 1;
@@ -39,6 +40,8 @@ void SnowLayer::updateDensity(snwpar_dim *snwpar){
     double tao  = 86400.; // one day time step
 	rho = (rho-snwpar->denmax)* exp(- tao/tao1* adjust) + snwpar->denmax;
 	if(rho>snwpar->denmax) rho= snwpar->denmax;
+	maxice = snwpar->denmax*dz;
+	maxliq = maxice;  // note: this is SWE max
 };
 
 // after the update of density, snow thickness should also be changed

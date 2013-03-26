@@ -1,9 +1,8 @@
 #include "FirData.h"
 
 FirData::FirData(){
-	ysf=0;
-	fire_a2soi.orgn=0;
-	useseverity =false;
+	fire_a2soi.orgn = 0.0;
+	useseverity = false;
 };
 
 FirData::~FirData(){
@@ -11,7 +10,6 @@ FirData::~FirData(){
 };
 
 void FirData::clear(){
-    ysf         = 0;
     useseverity = false;
 
 	fire_soid = soidiag_fir();
@@ -25,7 +23,7 @@ void FirData::clear(){
 };
 
 void FirData::init(){
-	ysf =0;
+	//
 };
 
 void FirData::beginOfYear(){
@@ -45,9 +43,9 @@ void FirData::beginOfYear(){
 };
 
 void FirData::endOfYear(){
-	ysf++;
+//
 };
 
 void FirData::burn(){
-	ysf=0;
+	clear();
 }

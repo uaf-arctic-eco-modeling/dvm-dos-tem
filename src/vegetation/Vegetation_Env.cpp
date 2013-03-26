@@ -21,7 +21,7 @@
 #include "Vegetation_Env.h"
 
 Vegetation_Env::Vegetation_Env(){
-	
+	ipft = MISSING_I;
 };
 
 Vegetation_Env::~Vegetation_Env(){

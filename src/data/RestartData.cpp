@@ -36,7 +36,7 @@ void RestartData::reinitValue(){
     firea2sorgn = MISSING_D;
 
 	//vegegetation
-    ysf   = MISSING_I;
+    yrsdist     = MISSING_I;
 
     for (int ip=0; ip<NUM_PFT; ip++) {
     	ifwoody[ip]     = MISSING_I;
