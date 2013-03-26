@@ -40,7 +40,7 @@ struct vegstate_bgc{
     double c[NUM_PFT_PART];
 
     double nall;        //Yuan: total N in vegetation
-    double labn;     //Yuan: labile N in vegetation
+    double labn;        //Yuan: labile N in vegetation
     double strnall;     //Yuan: total structural-N
     double strn[NUM_PFT_PART];    //Yuan: part structural-N
 
@@ -97,7 +97,7 @@ struct soistate_dim{
 	double dz[MAX_SOI_LAY];  // layer thickness
 	double por[MAX_SOI_LAY];
 	int age[MAX_SOI_LAY];
-	int type[MAX_SOI_LAY];   // layer type://0,1,2, 3, for moss, shallow peat, deep peat, mineral
+	int type[MAX_SOI_LAY];   // layer type://0,1,2,3 for moss, shallow peat, deep peat, mineral
 	int texture[MAX_SOI_LAY];  // 0 ~ 11, see the SoilLookup.cpp
 	double frootfrac[MAX_SOI_LAY][NUM_PFT];    //fine root vertical distribution
 
@@ -123,6 +123,9 @@ struct soistate_env{
 struct soistate_bgc{
 	double wdebrisc;    //wood debris C
 	double wdebrisn;    //wood debris N
+
+	double dmossc;  //dead moss material C
+	double dmossn;  //dead moss material N
 
 	double rawc[MAX_SOI_LAY];   //soil raw plant material C
 	double soma[MAX_SOI_LAY];   //active som c

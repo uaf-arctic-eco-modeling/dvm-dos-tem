@@ -158,6 +158,8 @@
 	struct soi2atm_bgc{
   		double rhwdeb; //rh from wood debris
 
+  		double rhmossc;
+
   		double rhrawc[MAX_SOI_LAY];
   		double rhsoma[MAX_SOI_LAY];
   		double rhsompr[MAX_SOI_LAY];

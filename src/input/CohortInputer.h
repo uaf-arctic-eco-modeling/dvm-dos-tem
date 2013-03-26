@@ -12,7 +12,7 @@
 #include <cmath>
 using namespace std;
 
-#include "netcdfcpp.h"
+#include <netcdfcpp.h>
 
 //local header
 #include "../runmodule/ModelData.h"

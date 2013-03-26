@@ -27,7 +27,7 @@ class CohortData{
 	 	int day;
 
   		int cmttype;   // vegetation community type
-  		int ysdist;    // yeas since last disturbance
+  		int yrsdist;    // years since last disturbance
 
   		bool hasnonvascular;  //if exists non-vascular PFT(s) within the vegetation community
 
@@ -49,10 +49,11 @@ class CohortData{
 		float vapo[MAX_ATM_DRV_YR*12];
 
   	  	// community dimension
-  	    vegstate_dim d_veg;   //at monthly-interval - 'd' is for daily
+  	    vegstate_dim d_veg;   //at daily-interval   - 'd' is for daily
   	    vegstate_dim m_veg;   //at monthly-interval - 'm' is for monthly
   	    vegstate_dim y_veg;   //at yearly-interval  - 'y' is for yearly
 
+  	    vegdiag_dim d_vegd;   //at daily-interval   - 'd' is for monthly
   	    vegdiag_dim m_vegd;   //at monthly-interval - 'm' is for monthly
   	    vegdiag_dim y_vegd;   //at yearly-interval  - 'y' is for yearly
 
