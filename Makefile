@@ -3,8 +3,8 @@
 CC=g++
 CFLAGS=-c -Wall -ansi -O2 -g -fPIC
 LIBS=-lnetcdf_c++ -lnetcdf -lboost_system -lboost_filesystem -lboost_program_options
-LIBDIR=
-INCLUDES=
+LIBDIR=$(SITE_SPECIFIC_LIBS)
+INCLUDES=$(SITE_SPECIFIC_INCLUDES)
 SOURCES= 	src/TEM.o \
 		src/ArgHandler.o \
 		src/assembler/RunCohort.o \
