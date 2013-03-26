@@ -19,7 +19,7 @@ To build and run the calibration version, use these commands:
 
     $ ant distclean
     $ ant
-    $ java -Djava.library.path="lib" -jar dos-tem-calibrator.jar
+    $ java -Djava.library.path="lib" -jar dvm-dos-tem-calibrator.jar
 
 The build is done with a tool called "ant" and the commands are provided in `build.xml`
 script.
