@@ -100,8 +100,8 @@ class Ground: public DoubleLinkedList {
 		bool divideSnowLayers();
 		bool combineSnowLayers();
 
-		void updateSnowLayerZ();
 		void updateSnowLayerPropertiesDaily();
+		void updateSnowHorizon();
 		void checkSnowLayer();
 
 		// soil layers
@@ -143,8 +143,9 @@ class Ground: public DoubleLinkedList {
 		void setFstLstDeepLayers();
 		void setFstLstMineLayers();
 		void updateLayerIndex();
-		void updateSoilLayerZ();
-	    void updateSoilHorizons();
+		void updateLayerZ();
+
+		void updateSoilHorizons();
 
 		void redivideMossLayers(const int &mosstype);
 		void redivideShlwLayers();

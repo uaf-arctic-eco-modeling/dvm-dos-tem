@@ -101,11 +101,12 @@ void Cohort::initSubmodules(){
  	solintegrator.setSoil_Bgc(&soilbgc);
 
  	// Output data pointers
- 	outbuffer.setCurrentDimensionData(&cd);
+ 	outbuffer.setDimensionData(&cd);
+	outbuffer.setProcessData(-1, edall, bdall);
 	for (int ip=0; ip<NUM_PFT; ip++){
-		outbuffer.setCurrentProcessData(ip, &ed[ip], &bd[ip]);
+		outbuffer.setProcessData(ip, &ed[ip], &bd[ip]);
 	}
-	outbuffer.setCurrentFireData(fd);
+	outbuffer.setFireData(fd);
 
 };
 
@@ -448,7 +449,7 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr){
 		getEd4allveg_daily();
 
 /*
-		if (cd.year==183 && doy==267){
+		if (cd.year==18 && doy==111){
 			cout<<"checking";
 		}
 //*/
@@ -504,11 +505,12 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr){
 		}
 
 		////////////////////////////
-		//output data store for daily - because the output is carried out monthly
+		//output data store for daily - because the output is implemented monthly
 		if (md->outSiteDay) {
+			outbuffer.assignSiteDlyOutputBuffer_Env(cd.d_snow, -1, id);   // '-1' indicates for all-pft integrated datasets
 			for (int ip=0; ip<NUM_PFT; ip++) {
 				if (cd.d_veg.vegcov[ip]>0.0)
-				outbuffer.assignSiteDlyOutputBuffer_Env(cd.d_snow, &ed[ip], ip, id);
+				outbuffer.assignSiteDlyOutputBuffer_Env(cd.d_snow, ip, id);
 			}
 		}
 	
@@ -664,7 +666,8 @@ void Cohort::updateMonthly_DIMveg(const int & currmind, const bool & dvmmodule){
 	veg.updateLai(currmind);    // this must be done after phenology
 
     // LAI updated above for each PFT, but FPC (foliage percent cover) may need adjustment
-	veg.updateFpc(cd.m_veg.lai);
+	veg.updateFpc();
+	veg.updateVegcov();
 
 	veg.updateFrootfrac();
 

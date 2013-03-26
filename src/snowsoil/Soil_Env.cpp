@@ -40,7 +40,7 @@ void Soil_Env::initializeParameter(){
 
     envpar.drainmax = chtlu->drainmax;
 
-    envpar.rtdp4growpct = chtlu->rtdp4growpct;
+    envpar.rtdp4gdd = chtlu->rtdp4gdd;
 
 };
 
@@ -243,7 +243,7 @@ void Soil_Env::initializeState5restart(RestartData* resin){
 	ed->monthsfrozen   = resin->monthsfrozen;
 	ed->rtfrozendays   = resin->rtfrozendays;
 	ed->rtunfrozendays = resin->rtunfrozendays;
-	ed->d_soid.tsdegday= resin->growingttime[0];
+	ed->d_soid.rtdpgdd = resin->growingttime[0];
 
 };
 
@@ -364,14 +364,14 @@ void Soil_Env::updateDailySoilThermal4Growth(Layer* fstsoill, const double &tsur
 
 	Layer* currl = fstsoill;
 
-	double toprtdep = 0.;
-	double toptsrtdep  = 0.;
+	double toprtdep = 0.; //top root zone depth
+	double toptsrtdep  = 0.; // top root zone soil temperature
 	double unfrzrtdep = 0.;
 
 	while (currl!=NULL){
 		if(currl->isSoil){
-				if(toprtdep<envpar.rtdp4growpct) {
-					  double restrtdz = max(0., envpar.rtdp4growpct-toprtdep);
+				if(toprtdep<envpar.rtdp4gdd) {
+					  double restrtdz = max(0., envpar.rtdp4gdd-toprtdep);
 
 					  toprtdep += min(currl->dz, restrtdz);
 
@@ -399,13 +399,24 @@ void Soil_Env::updateDailySoilThermal4Growth(Layer* fstsoill, const double &tsur
 		currl =currl->nextl;
 	}
 
-	if (toprtdep > 0.) ed->d_soid.tsrtdp = toptsrtdep/toprtdep;
+	if (toprtdep > 0.) {
+		ed->d_soid.rtdpts = toptsrtdep/toprtdep;
+	} else {
+		ed->d_soid.rtdpts = MISSING_D;
+	}
 
-	if(unfrzrtdep>=envpar.rtdp4growpct){
-    	ed->d_soid.growpct =1.;
-    }else{
-    	ed->d_soid.growpct =0.;
-    }
+	//if(unfrzrtdep>=envpar.rtdp4growpct){  // Apparently this will not consistent with 'tsrtdp' (because if tsrt>0., not whole toprtzone unfrozen)
+	if (ed->d_soid.rtdpts!=MISSING_D) {
+		if(ed->d_soid.rtdpts>=0.10 ){
+			ed->d_soid.rtdpthawpct =1.;
+		}else{
+			ed->d_soid.rtdpthawpct =0.;
+		}
+
+	} else {
+		ed->d_soid.rtdpthawpct = MISSING_D;
+	}
+
 
 };
 

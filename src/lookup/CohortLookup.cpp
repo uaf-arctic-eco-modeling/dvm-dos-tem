@@ -455,7 +455,7 @@ void CohortLookup::assignEnv4Ground(string &dircmt){
 	fctrcomm >> evapmin;  getline(fctrcomm,str);     //comments in the file
 	fctrcomm >> drainmax;  getline(fctrcomm,str);     //comments in the file
 
-  	fctrcomm >> rtdp4growpct; getline(fctrcomm,str);     //comments in the file
+  	fctrcomm >> rtdp4gdd; getline(fctrcomm,str);     //comments in the file
 
 	fctrcomm >> initsnwtem;  getline(fctrcomm,str);     //comments in the file
 

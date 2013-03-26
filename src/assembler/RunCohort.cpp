@@ -340,10 +340,11 @@ void RunCohort::run_timeseries(){
 	       if (outputyrind >=0) {
 	    	   if (md->outSiteDay){
 	    		   for (int id=0; id<dinmcurr; id++) {
+	    			   cht.outbuffer.envoddlyall[id].chtid = cht.cd.chtid;
+	    			   envdlyouter.outputCohortEnvVars_dly(-1, &cht.outbuffer.envoddlyall[id],
+			    				                               icalyr, im, id, dstepcnt);     // this will output non-veg (multiple PFT) related variables
 	    			   for (int ip=0; ip<NUM_PFT; ip++) {
 	    			    	if (cht.cd.d_veg.vegcov[ip]>0.){
-
-	    			    		cht.outbuffer.envoddly[ip][id].chtid = cht.cd.chtid;
 	    			    		envdlyouter.outputCohortEnvVars_dly(ip, &cht.outbuffer.envoddly[ip][id],
 	    			    				                               icalyr, im, id, dstepcnt);
 

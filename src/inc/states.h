@@ -51,6 +51,7 @@ struct vegstate_bgc{
 
 struct snwstate_dim{
 	int numsnwl;
+	double olds;      // the oldest snow layer age
 	double thick;     // unit: m
   	double dense;     // unit: kg/m3
 

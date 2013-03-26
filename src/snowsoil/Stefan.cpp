@@ -94,7 +94,9 @@ void Stefan::updateFronts(const double & tdrv, const double &timestep){
 
 	ground->setFstLstFrontLayers();
 
-//*  // After testing - the bottom-up appears having shallower ALD and colder soil T - be sure of validating this in field
+/*  // there exists a bug, turn off temporarily - to be checking (fmyuan: 3/22/2013)
+
+    // After testing - the bottom-up appears having shallower ALD and colder soil T - be sure of validating this in field
  	// bottom-up determined front moving
  	// (1) determine the bottom driving layer
 

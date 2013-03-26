@@ -291,8 +291,7 @@ void Ground::resortGroundLayers(){
 	setFstLstSoilLayer();       // This must be called at first
 
 	updateLayerIndex();
-	updateSoilLayerZ();
-	updateSnowLayerZ();
+	updateLayerZ();
 
 	setFstLstMineLayers();
 	setFstLstMossLayers();
@@ -483,9 +482,10 @@ void Ground::updateLayerIndex(){
 };
 
 // update the z, which is the distance between soil surface and top of a soil layer
-// note that the dz for each soil layer already known.
-void Ground::updateSoilLayerZ(){
+// note that the dz for each layer already known.
+void Ground::updateLayerZ(){
 
+	// soil layers are indexed downwardly
 	Layer* currl = fstsoill;     // 'fstsoill' must be first set up or updated
 	while(currl!=NULL){
 		if (currl==fstsoill) {
@@ -495,6 +495,18 @@ void Ground::updateSoilLayerZ(){
 		}
 
 		currl = currl->nextl;
+	}
+
+	// snow layers ar indexed upwardly
+	currl = fstsoill;     // 'fstsoill' must be first set up or updated
+	while(currl!=NULL){
+		if (currl->isSnow) {
+			currl->z = currl->nextl->z+currl->nextl->dz;
+		} else {
+			break;
+		}
+
+		currl = currl->prevl;
 	}
 
 };
@@ -578,41 +590,9 @@ void Ground::updateSoilHorizons(){
 
 };
 
-void Ground::cleanSnowSoilLayers(){
-	Layer* currl = toplayer;
-	Layer* templ;
-
-	while(currl!=NULL){
-	  	templ = currl->nextl;
-	  	if (!currl->isRock) {
-	  		removeLayer(currl);
-	  	} else {
-	  		break;
-	  	}
-	  	currl = templ ;
-
-	}
-
-}
-
-void Ground::cleanAllLayers(){
-	Layer* currl = toplayer;
-	Layer* templ;
-
-	while(currl!=NULL){
-	  	templ = currl->nextl;
-
-	  	removeLayer(currl);
-
-	  	currl = templ ;
-
-	}
-
-}
-
 ///////////////////////////////////////////////////////////////////////
 //update the snowlayer z, which is the distance between soil surface and top of a snow layer
-void Ground::updateSnowLayerZ(){
+void Ground::updateSnowHorizon(){
 		snow.reset();
 		Layer* curr = fstsoill;
 		int snowind = 0;
@@ -623,12 +603,29 @@ void Ground::updateSnowLayerZ(){
 			  oldz = curr->z;
 
 			  snow.numl++;
-			  snow.dz[snowind] = curr->dz;
+			  snow.dz[snowind] = curr->dz;   // note: snow layer index 0 starting from 'fstsoill' upwardly
 			  snow.thick += curr->dz;
+
+			  if (snow.age<=curr->age) snow.age = curr->age;  // the oldest layer age
+
+			  snow.swe += curr->ice;
+
 			  snowind ++;
 		  }
 
-		  curr = curr->prevl;   //Note: 'snow', the index is ordered upward
+		  curr = curr->prevl;   //Note: 'snow', the index is ordered upwardly
+		}
+
+		if (snow.thick > 0.) {  //d_snws.swesum includes 'extramass', which is less than that for constructing a single snow layer
+			snow.dense = snow.swe/snow.thick;
+			snow.coverage = 1.;
+
+		} else if (snow.extramass>0.){
+			snow.dense = snowdimpar.newden;
+			snow.coverage = snow.extramass/snowdimpar.newden/snow.mindz[1];
+		} else {
+			snow.dense = 0.;
+			snow.coverage = 0.;
 		}
 
 };
@@ -867,6 +864,7 @@ void Ground::updateSnowLayerPropertiesDaily(){
 
    		currl=currl->nextl;
    	}
+
 };
 
 // save double-linked snow structure to 'cd' snow states
@@ -899,6 +897,7 @@ void Ground::retrieveSnowDimension(snwstate_dim * snowdim){
 
 	}
 
+	snowdim->olds   = snow.age;
 	snowdim->thick  = snow.thick;
 	snowdim->numsnwl= snow.numl;
 	snowdim->dense  = snow.dense;
@@ -1747,7 +1746,7 @@ void Ground::updateOslThickness5Carbon(Layer* fstsoil){
 
 			}
 
-			updateSoilLayerZ();   //'dz' changes, so 'z' needs update for all (index will not change).
+			updateLayerZ();   //'dz' changes, so 'z' needs update for all (index will not change).
 
  			sl->derivePhysicalProperty();
 
@@ -1870,19 +1869,16 @@ void Ground::getOslCarbon5Thickness(Layer* sl, const double &plztop, const doubl
 //check the validity of fronts in soil column
 void Ground::checkFrontsValidity(){
 
-	int d = frontsz.size();
-	if (frontsz.size()>0) {
-		// checking if the 'front' may be out of the top soil layer
-		while (frontsz[0]<=fstsoill->z) {
-			frontsz.pop_front();
-			frontstype.pop_front();    // this will update the 'deque'
-		}
+	// checking if the 'front' may be out of the top soil layer
+	while (frontsz.size()>0 && frontsz[0]<=fstsoill->z) {
+		frontsz.pop_front();
+		frontstype.pop_front();    // this will update the 'deque'
+	}
 
-		// checking if the 'front' may be out of soil bottom
-		while (frontsz[frontsz.size()-1]>=(lstsoill->z+lstsoill->dz*0.9999)) {
-			frontsz.pop_back();
-			frontstype.pop_back();    // this will update the 'deque'
-		}
+	// checking if the 'front' may be out of soil bottom
+	while (frontsz.size()>0 && frontsz[frontsz.size()-1]>=(lstsoill->z+lstsoill->dz*0.9999)) {
+		frontsz.pop_back();
+		frontstype.pop_back();    // this will update the 'deque'
 	}
 
 	if (debugging) {
@@ -1935,13 +1931,21 @@ void Ground::checkWaterValidity(){
 		Layer*currl=toplayer;
 		while (currl!=NULL) {
 
+			if (fabs(currl->ice)<1.e-9) currl->ice = 0.;
+			if (fabs(currl->liq)<1.e-9) currl->liq = 0.;
+
+			if (currl->ice<0. || currl->liq<0.) {
+				string msg = "layer shall NOT have negative ice/liq water";
+				cout << msg + ":: in Layer "<<currl->indl<< "\n";
+			}
+
 			if (currl->frozen==1) {
 				if (currl->liq>0.) {
 					string msg = "frozen layer shall NOT have liquid water";
 					cout << msg + ":: in Layer "<<currl->indl<< "\n";
 				}
 
-				if ((currl->ice-currl->maxice)>1.0e-6) {
+				if ((currl->ice-currl->maxice)>1.0e-3) {        // it may be from some mathmatical round up, so '1.e-3' used as a critrial'
 					string msg = "frozen layer shall NOT have too much ice water";
 					cout << msg + ":: in Layer "<<currl->indl<< "\n";
 				}
@@ -1982,6 +1986,38 @@ void Ground::checkWaterValidity(){
 
 	} // end of 'checking'
 };
+
+void Ground::cleanSnowSoilLayers(){
+	Layer* currl = toplayer;
+	Layer* templ;
+
+	while(currl!=NULL){
+	  	templ = currl->nextl;
+	  	if (!currl->isRock) {
+	  		removeLayer(currl);
+	  	} else {
+	  		break;
+	  	}
+	  	currl = templ ;
+
+	}
+
+}
+
+void Ground::cleanAllLayers(){
+	Layer* currl = toplayer;
+	Layer* templ;
+
+	while(currl!=NULL){
+	  	templ = currl->nextl;
+
+	  	removeLayer(currl);
+
+	  	currl = templ ;
+
+	}
+
+}
 
 //////////////////////////////////////////////////////////////////////
 

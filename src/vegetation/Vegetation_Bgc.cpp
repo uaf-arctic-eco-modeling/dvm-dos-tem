@@ -145,6 +145,7 @@ void Vegetation_Bgc::prepareIntegration(const bool &nfeedback){
 	bd->m_vegd.gv = getGV(eet,  pet);
 
 	// previous 'topt' is the average of previous 10 years
+	// which is used as Topt in GPP tfactor AND updated every year in 'phenology'
 	double prvtopt = 0.;
 	deque<double> toptdeque = cd->toptque[ipft];
 	int recnum=toptdeque.size();
@@ -161,6 +162,11 @@ void Vegetation_Bgc::prepareIntegration(const bool &nfeedback){
 
 	// temperature factor for plant respiration
 	bd->m_vegd.raq10 = getRaq10(ed->m_atms.ta);
+
+	// leaf C requirement for growth, used to dynamically determine C allocation
+	dleafc = cd->m_vegd.maxleafc[ipft]*cd->m_vegd.fleaf[ipft];  //yearly max. leaf C, adjusted by seasonal foliage growth index 'fleaf'
+	dleafc -= bd->m_vegs.c[I_leaf];   // C requirement of foliage growth at current timestep
+	dleafc = max(0., dleafc);
 
 	// litter-falling seasonal adjustment
 	double prvttime = 0.;   //previous 10 year mean of growing season degree-day, using for normalizing current growing period needed for litterfalling
@@ -190,7 +196,6 @@ void Vegetation_Bgc::prepareIntegration(const bool &nfeedback){
 	if (cd->m_vegd.growingttime[ipft]>0. && prvttime>0.) {
 		fltrfall = min(1., cd->m_vegd.growingttime[ipft]/prvttime);
 	}
-
 
 	//assign states to temporary state variable
 	tmp_vegs.call    = 0.;
@@ -228,12 +233,50 @@ void Vegetation_Bgc::delta(){
   	//GPP without N limitation
   	double ingppall = getGPP(co2, par, fleaf, ffoliage,
   			        bd->m_vegd.ftemp, bd->m_vegd.gv);
+
+  	// maintainence respiration first estimation
+  	double rm = 0.;
 	for (int i=0; i<NUM_PFT_PART; i++){
-		if (bgcpar.cpart[i]>0.) {
-			del_a2v.ingpp[i] = ingppall*bgcpar.cpart[i];
+		if (tmp_vegs.c[i]>0.) {
+			bd->m_vegd.kr[i] = getKr(tmp_vegs.c[i], i);
+			del_v2a.rm[i]    = getRm(tmp_vegs.c[i], bd->m_vegd.raq10, bd->m_vegd.kr[i]);
 		} else {
-			del_a2v.ingpp[i] = 0.;
+			del_v2a.rm[i]    = 0.;
 		}
+		rm += del_v2a.rm[i];
+	}
+	double rmadj = 1.0;  //used below for summarizing ingpp[]
+	if (rm>ingppall && rm>0.0) rmadj=ingppall/rm;
+
+	// total available C for allocation
+	double innppall = max(0., ingppall-rm)/(1.0+calpar.frg);  // if C assimilation available, first goes to maintaince respiration
+
+	// NPP allocation to leaf estimated first
+  	double nppl = dleafc/(1.0+calpar.frg);
+  	del_a2v.innpp[I_leaf] = min(nppl, innppall);    // leaf has the second priority for C assimilation
+  	del_v2a.rg[I_leaf] = calpar.frg * del_a2v.innpp[I_leaf];
+  	double npprgl = del_a2v.innpp[I_leaf]+del_v2a.rg[I_leaf];
+
+  	// the rest goes to stem/root, assuming equal priority
+  	innppall = max(0., ingppall-rm-npprgl)/(1.0+calpar.frg);
+  	double cpartrest = 0.;
+	for (int i=I_leaf+1; i<NUM_PFT_PART; i++){
+		cpartrest +=bgcpar.cpart[i];
+	}
+
+	for (int i=I_leaf+1; i<NUM_PFT_PART; i++){
+		del_a2v.innpp[i] = 0.;
+		del_v2a.rg[i]    = 0.;
+		if (cpartrest>0. && innppall>0.) {
+			del_a2v.innpp[i] = innppall *bgcpar.cpart[i]/cpartrest;
+			del_v2a.rg[i]    = calpar.frg * del_a2v.innpp[i];
+		}
+	}
+
+	// summary of INGPP
+	for (int i=0; i<NUM_PFT_PART; i++){
+		del_a2v.ingpp[i] = del_a2v.innpp[i]+del_v2a.rm[i]*rmadj+del_v2a.rg[i];
+		//may be over the 'ingppall' due to 'rm', which are biomass-C based, if not adjusted by 'rmadj'
 	}
 
   	// litter-falling
@@ -246,30 +289,6 @@ void Vegetation_Bgc::delta(){
 		}
  	}
 
-  	// maintainence respiration and NPP first estimation
-	for (int i=0; i<NUM_PFT_PART; i++){
-		if (tmp_vegs.c[i]>0.) {
-
-			bd->m_vegd.kr[i] = getKr(tmp_vegs.c[i], i);
-			del_v2a.rm[i]    = getRm(tmp_vegs.c[i], bd->m_vegd.raq10, bd->m_vegd.kr[i]);
-			if (del_v2a.rm[i]>=del_a2v.ingpp[i]) del_v2a.rm[i]=del_a2v.ingpp[i];
-
-			del_a2v.innpp[i] = del_a2v.ingpp[i] - del_v2a.rm[i];
-		} else {
-			del_v2a.rm[i]    = 0.;
-			del_a2v.innpp[i] = 0.;
-		}
-
-	}
-
-  	// growth respiration and NPP adjusting
-	for (int i=0; i<NUM_PFT_PART; i++){
-		del_v2a.rg[i] = 0.;
-		if ( del_a2v.innpp[i] > 0.0 ){
-			del_v2a.rg[i]     = calpar.frg * del_a2v.innpp[i];
-			del_a2v.innpp[i] *= (1.-calpar.frg);
-		}
-	}
  
 };
 
@@ -572,7 +591,7 @@ double  Vegetation_Bgc::getGPP(const double &co2, const double & par,
                    const double &ftemp, const double & gv) {
 
   	double ci  = co2 * gv;
-  	double thawpcnt = ed->m_soid.growpct;
+  	double thawpcnt = ed->m_soid.rtdpthawpct;
   	double fpar = par/(bgcpar.ki +par);   // par : photosynthetically active radiation in J/(m2s)
   	double gpp = calpar.cmax * foliage * ci / (bgcpar.kc + ci);
   	gpp *= leaf * fpar;
