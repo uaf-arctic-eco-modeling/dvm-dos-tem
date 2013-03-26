@@ -3,8 +3,8 @@
 CC=g++
 CFLAGS=-c -Wall -ansi -O2 -g -fPIC
 LIBS=-lnetcdf_c++ -lnetcdf -lboost_system -lboost_filesystem -lboost_program_options
-LIBDIR=-L/home/tobey/usr/local/lib
-INCLUDES=-I/home/tobey/usr/local/include
+LIBDIR=
+INCLUDES=
 SOURCES= 	src/TEM.o \
 		src/ArgHandler.o \
 		src/assembler/RunCohort.o \

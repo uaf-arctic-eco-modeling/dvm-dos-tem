@@ -449,11 +449,12 @@ void Runner::runmode3(){
 	}
 
 	//loop through time-step
-	for (int icalyr=runcht.yrstart; icalyr<=runcht.yrend; icalyr++){
+/*	for (int icalyr=runcht.yrstart; icalyr<=runcht.yrend; icalyr++){
 		for (int im=0; im<12; im++) {
 			runSpatially(icalyr, im);
 		}
 	}
+*/
 };
 
 void Runner::runSpatially(const int icalyr, const int im) {
