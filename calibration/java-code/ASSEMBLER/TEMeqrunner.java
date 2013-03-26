@@ -127,6 +127,7 @@ public class TEMeqrunner implements Runnable{
 		eqrunner.runcht.cht.getMd().setDslmodule(false);
 		
 		eqrunner.runcht.cht.getMd().setUpdatelai(false);
+		eqrunner.runcht.cht.getCd().setYrsdist(1000);
 		
 		//option of dynamic soil organic layer thickness for testing code
 		boolean dsl = false;
@@ -218,6 +219,8 @@ public class TEMeqrunner implements Runnable{
 
    	 		//reset disturbance options
 			eqrunner.runcht.cht.getMd().setFriderived(friderived);
+			if (!friderived) eqrunner.runcht.cht.getCd().setYrsdist(1000);			
+			if (eqrunner.runcht.cht.getGd().getFri()<=0) eqrunner.runcht.cht.getCd().setYrsdist(1000);			
 			
 			int yrindex = eqrunner.runcht.cht.getTimer().getCurrentYearIndex();   //starting from 0
 			eqrunner.runcht.cht.getCd().setYear(eqrunner.runcht.cht.getTimer().getCalendarYear());

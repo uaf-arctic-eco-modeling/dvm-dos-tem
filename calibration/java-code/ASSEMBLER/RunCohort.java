@@ -303,11 +303,14 @@ public class RunCohort {
 			cht.getMd().setDvmmodule(true);
 
 			cht.getMd().setFriderived(true);	
+			cht.getCd().setYrsdist(0);
 
 			cht.getTimer().setStageyrind(0);
 
 		    yrstart = 0;
-		    yrend   = Math.min(ConstTime.MAX_EQ_YR, 20*cht.getGd().getFri()-2);   //20 FRI or max. MAX_EQ_YR
+		    int nfri = Math.max(ConstTime.MIN_EQ_YR/cht.getGd().getFri(), 20);
+		    nfri     = Math.min(nfri, ConstTime.MAX_EQ_YR/cht.getGd().getFri());
+		    yrend    = nfri*cht.getGd().getFri()-1;   //20 FRI and within min. and max. MAX_EQ_YR
     		
 		    run_timeseries();               
 		}
@@ -376,6 +379,8 @@ public class RunCohort {
 		dstepcnt = 0;
 		mstepcnt = 0;
 		ystepcnt = 0;
+
+		cht.getCd().setYrsdist(1000);
 
 		yrstart = 0;
 		yrend   = 100;

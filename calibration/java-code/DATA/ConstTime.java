@@ -24,7 +24,9 @@ public class ConstTime{
 	public final static int BEG_SC_YR = temcore.getBEG_SC_YR(); // starting year of scenario
 	public final static int END_SC_YR = temcore.getEND_SC_YR(); // ending year of scenario
 	
+	public final static int MIN_EQ_YR = temcore.getMIN_EQ_YR(); // minimum number of years of equilibrium run
 	public final static int MAX_EQ_YR = temcore.getMAX_EQ_YR(); // maximum number of years of equilibrium run
+
 	public final static int MAX_SP_YR = temcore.getMAX_SP_YR(); // maximum number of years of spinup run;
 	public final static int MAX_TR_YR = temcore.getMAX_TR_YR(); // maximum number of years of transient run;
 	public final static int MAX_SC_YR = temcore.getMAX_SC_YR();
