@@ -11,6 +11,7 @@
 2.74         3.05         3.10         0.23         0.0          0.0          0.0          0.0          0.0          0.0          // vegnw: (gN/m2)
 3.52         0.06         0.06         0.01         0.19         0.17         0.07         0.0          0.0          0.0          // vegnr: (gN/m2)
 //Soil organic matters
+178               // dmossc: (gC/m2)
 1783              // shlwc: (gC/m2)
 5021              // deepc: (gC/m2)
 9000              // minec: (gC/m2)
