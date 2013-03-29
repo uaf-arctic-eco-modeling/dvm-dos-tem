@@ -163,9 +163,9 @@
           <attribute name="Class-Path" value="jars/l2fprod-common-all.jar 
                                               jars/jchart2d-3.2.2.jar 
                                               jars/netcdfUI-2.2.22.jar 
-                                              jars/log4j-1.2.9.jar
-                                              jars/slf4j-api-1.5.6.jar
-                                              jars/slf4j-log4j12-1.5.6.jar" />
+                                              jars/log4j-1.2.17.jar
+                                              jars/slf4j-api-1.7.5.jar
+                                              jars/slf4j-log4j12-1.7.5.jar" />
          </manifest>
       </jar>
       
