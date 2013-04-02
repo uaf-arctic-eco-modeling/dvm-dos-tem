@@ -130,8 +130,9 @@
     <echo>Compiling java sources</echo>
     <mkdir dir="${BUILDDIR}" />
 
-    <javac destdir="${BUILDDIR}">
-    
+    <javac destdir="${BUILDDIR}"
+           debug="true"
+           debuglevel="lines,vars,source">
       <src path="java-code" />
       <src path="${BUILDDIR}" />
       <src path="${BUILDDIR}/TEMJNI" />
