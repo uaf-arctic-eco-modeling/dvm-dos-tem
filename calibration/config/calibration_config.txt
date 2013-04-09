@@ -4,4 +4,4 @@ TEST_DATA/output/                         /* directory of outputs
 TEST_DATA/dataregion/                     /* directory of regional-level inputs
 TEST_DATA/datagrid/                       /* directory of grided data inputs
 TEST_DATA/datacht/                        /* directory of cohort inputs
-0                                                           /* community type index (0 is the default)
+1                                                           /* community type index (0 is the default)
