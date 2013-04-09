@@ -141,7 +141,7 @@
         <pathelement location="jars/l2fprod-common-all.jar"/>
         <pathelement location="jars/jchart2d-3.2.2.jar"/>
         <pathelement location="jars/netcdfUI-2.2.22.jar"/>
-        <pathelement location="jars/log4j-1.2.9.jar"/>
+        <pathelement location="jars/log4j-1.2.17.jar"/>
         <pathelement location="build/TEMJNI/"/>
       </classpath>
 
