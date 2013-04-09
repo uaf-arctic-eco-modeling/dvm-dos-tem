@@ -156,8 +156,8 @@ void Ground::initSnowSoilLayers(){
    // if nonvascular PFT exists
    if (moss.thick>0.) {
 	   double initmldz[] = {0., 0.};
-	   initmldz[0] = min(0.01, moss.thick);    //moss thick in m, which needs input, assuming 0.01 m is living, and the rest is dead
-	   initmldz[1] = max(0., moss.thick - initmldz[0]);
+	   initmldz[0] = fmin(0.01, moss.thick);    //moss thick in m, which needs input, assuming 0.01 m is living, and the rest is dead
+	   initmldz[1] = fmax(0., moss.thick - initmldz[0]);
 	   int soiltype[] = {-1, -1};
 	   if (initmldz[0] > 0.) soiltype[0] = 0;
 	   if (initmldz[1] > 0.) soiltype[1] = 0;
@@ -252,7 +252,7 @@ void Ground::initLayerStructure5restart(snwstate_dim *snowdim, soistate_dim *soi
 
 			snow.coverage = 1.;
 			snow.dz[il] = resin->DZsnow[il];
-			snow.numl ++;
+			snow.numl++;
 			snow.thick += resin->DZsnow[il];
 		} else {
 			snow.dz[il] = MISSING_D;
@@ -964,7 +964,7 @@ void  Ground::redivideMossLayers(const int &mosstype){
 	    resortGroundLayers();
 	    updateSoilHorizons();
 
-	}
+	}  // one-layer moss currently assumed, so no need to do redivision
 
 	// moss.thick is too small
 	// remove the moss layer, but 'moss.dmossc' is keeping track of change.
@@ -1023,7 +1023,7 @@ void Ground::redivideShlwLayers(){
 				fstshlwl=NULL;
 				lstshlwl=NULL;
 		
-			} else if (organic.shlwnum ==1){    //only change the properties of layer
+			} else if (organic.shlwnum ==1){    //only change the 'dz' dependent properties of layer
 				fstshlwl->dz = organic.shlwdz[0];
 				SoilLayer* shlwsl = dynamic_cast<SoilLayer*>(fstshlwl);
 				shlwsl->derivePhysicalProperty();
@@ -1062,8 +1062,8 @@ void Ground::redivideShlwLayers(){
 			double frac = MINSLWTHICK/nextsl->dz;
 
 			// assign properties for the new-created 'shlw' layer
-			plnew->ice = max(0., nextsl->ice*frac);
-			plnew->liq = max(0., nextsl->liq*frac);
+			plnew->ice = fmax(0., nextsl->ice*frac);
+			plnew->liq = fmax(0., nextsl->liq*frac);
 			if (plnew->ice>plnew->maxice) plnew->ice = plnew->maxice;
 			if (plnew->liq>plnew->maxliq) plnew->liq = plnew->maxliq;
 
@@ -1151,7 +1151,6 @@ void Ground::redivideDeepLayers(){
 				//only change the properties of layer
 				fstdeepl->dz = organic.deepdz[0];
 				SoilLayer* deepsl = dynamic_cast<SoilLayer*>(fstdeepl);
-
 				deepsl->derivePhysicalProperty();
 
 		}else {
@@ -1230,6 +1229,9 @@ void Ground::splitOneSoilLayer(SoilLayer*usl, SoilLayer* lsl, const double & upd
      usl->dz -= lsldz;    // the upper one will not change its depth from the surface
 	 lsl->z   = usl->z + usl->dz;
 	 lsl->dz  = lsldz;
+	 // update layer physical properties ('dz' and 'poro' dependent only)
+	 lsl->derivePhysicalProperty();
+	 usl->derivePhysicalProperty();
 
 	 //update layer temperature first, because it's needed for determine frozen status below
 	 if(usl->nextl==NULL){
@@ -1274,8 +1276,8 @@ void Ground::splitOneSoilLayer(SoilLayer*usl, SoilLayer* lsl, const double & upd
 		 ice2 = (totwat*f1-totice)/(f1/f2-1.0);
 		 ice1 = totice - ice2;
 	 }
-	 usl->ice = ice1;
-	 lsl->ice = ice2;
+	 usl->ice = fmin(ice1, usl->maxice);
+	 lsl->ice = fmin(ice2, lsl->maxice);
 
 	 double liq1, liq2;
 	 f1=1.0-usl->frozenfrac;
@@ -1290,13 +1292,9 @@ void Ground::splitOneSoilLayer(SoilLayer*usl, SoilLayer* lsl, const double & upd
 		 liq2 = (totwat*f1-totliq)/(f1/f2-1.0);
 		 liq1 = totliq - liq2;
 	 }
-	 usl->liq = liq1;
-	 lsl->liq = liq2;
-	  	 	
-	 // update layer physical properties
-	 lsl->derivePhysicalProperty();
-	 usl->derivePhysicalProperty();
-	  	 	
+	 usl->liq = fmin(liq1, usl->maxliq);
+	 lsl->liq = fmin(liq2, lsl->maxliq);
+
 	 //update C in new 'lsl' and 'usl' - note: at this point, 'usl' C must be not updated
 	 	 //first, assign 'lsl' C with original 'usl', then update it using actual thickness and depth
 	 lsl->rawc =usl->rawc;
@@ -1427,15 +1425,10 @@ double Ground::adjustSoilAfterburn(){
   	while (currl!=NULL){
   		if(currl->isFibric){
   			OrganicLayer * pl = dynamic_cast<OrganicLayer*>(currl);
-			pl->humify();   // here only update 'physical' properties
+			pl->humify();   // here only update 'physical' properties, but not states (will do below when adjusting 'dz'
 
 			pl->somcr += pl->rawc;  //assuming all 'raw material' converted into 'chemically-resistant' SOM
 			pl->rawc = 0.;
-
-			// when humifying, extra water due to porosity change if any has to be lost (via fire process?)
-			pl->liq+=pl->ice;
-			pl->ice = 0.;
-			if (pl->liq>0.50*pl->maxliq) pl->liq = 0.50*pl->maxliq;
 
   		}else if (currl->isHumic || currl->isMineral || currl->isRock){
 
@@ -1456,19 +1449,11 @@ double Ground::adjustSoilAfterburn(){
  			double plcarbon = pl->rawc+pl->soma+pl->sompr+pl->somcr;
  			if (plcarbon > 0.) { // this may not be needed, if we do things carefully above. But just in case
 				 // update 'dz' for 'pl' from its C content
-				 deepcbot = deepctop+pl->rawc+currl->soma+currl->sompr+currl->somcr;
-				 getOslThickness5Carbon(currl, deepctop, deepcbot);
+				 deepcbot = deepctop+pl->rawc+pl->soma+pl->sompr+pl->somcr;
+				 getOslThickness5Carbon(pl, deepctop, deepcbot);
 
 				 deepctop = deepcbot;
-				 bdepthadj += (olddz - currl->dz);  // adjuting the difference to that 'err' counting
-
-				 double oldporo = pl->poro;
-				 pl->derivePhysicalProperty(); //update soil physical property after thickness change from C is done
-				 double f=min(1., pl->dz/olddz); //so if layer shrinks, it will adjust water; otherwise, no change.
-				 double f2=min(1., pl->poro/oldporo);  // for whatever reason, if porosity changes
-				 f = min(f, f2);
-				 pl->liq *=max(0., f);
-				 pl->ice *=max(0., f);
+				 bdepthadj += (olddz - pl->dz);  // adjuting the difference to that 'err' counting
 
  			}
 
@@ -1554,14 +1539,16 @@ void Ground::getLayerFrozenstatusByFronts(Layer * soill){
 
 				} else {
 
-					if (fntz<=soill->z) soill->frozen = -fnttype;
+					if (fntz<=soill->z) {
+						soill->frozen = -fnttype;
+						if (soill->frozen==1) fracfrozen = soill->dz;
+					}
 
 					if (fntz>soill->z+soill->dz) break;
 				}
 
 				fntind++;
 		} // end of loop 'frontsz' deque
-
 		soill->frozenfrac = fracfrozen/soill->dz;
 
  	} // end of possible front existing in the 'soill'
@@ -1719,8 +1706,6 @@ void Ground::updateOslThickness5Carbon(Layer* fstsoil){
  	double deepctop = 0.;
 
  	double olddz = 0.;
- 	double newdz = 0.;
-
  	Layer* currl=fstsoil;
  	while(currl!=NULL){
  	  	if(currl->isSoil && (currl->isOrganic || currl->isMoss)){
@@ -1746,11 +1731,8 @@ void Ground::updateOslThickness5Carbon(Layer* fstsoil){
 
 			}
 
+			//
 			updateLayerZ();   //'dz' changes, so 'z' needs update for all (index will not change).
-
- 			sl->derivePhysicalProperty();
-
- 			newdz = sl->dz;
 
  		}else{
  			break;
@@ -1767,7 +1749,7 @@ void Ground::updateOslThickness5Carbon(Layer* fstsoil){
 };
 
 // conversion from OSL C to thickness
-void Ground::getDmossThickness5Carbon(Layer* sl, const double &dmossc){
+void Ground::getDmossThickness5Carbon(SoilLayer* sl, const double &dmossc){
 
 	// NOTE: the Dead Moss C - thickness relationship is for the whole dead moss layer
 
@@ -1783,10 +1765,19 @@ void Ground::getDmossThickness5Carbon(Layer* sl, const double &dmossc){
   	// need to adjust 'freezing/thawing front depth', if 'fronts' depth below 'sl->z'
   	adjustFrontsAfterThickchange(sl->z, osdznew - osdzold);
 
+	//'dz' dependent physical properties
+	double oldporo = sl->poro;
+	sl->derivePhysicalProperty(); //update soil physical property after thickness change from C is done
+	double f=fmin(1., sl->dz/osdzold); //so if layer shrinks, it will adjust water; otherwise, no change.
+	double f2=fmin(1., sl->poro/oldporo);  // for whatever reason, if porosity changes
+	f = fmin(f, f2);
+	sl->liq *=fmax(0., f);
+	sl->ice *=fmax(0., f);
+
 };
 
 // conversion from dead Moss thickness to its C content
-void Ground::getDmossCarbon5Thickness(Layer* sl, const double &dmossdz){
+void Ground::getDmossCarbon5Thickness(SoilLayer* sl, const double &dmossdz){
 
 	if(sl->isMoss){
 		moss.dmossc = soildimpar.coefmossa * pow(dmossdz*100., soildimpar.coefmossb*1.)*10000.;  //Note: in Yi et al.(2009) - C in gC/cm2, depth in cm
@@ -1797,7 +1788,7 @@ void Ground::getDmossCarbon5Thickness(Layer* sl, const double &dmossdz){
 };
 
 // conversion from OSL C to thickness
-void Ground::getOslThickness5Carbon(Layer* sl, const double &plctop, const double &plcbot){
+void Ground::getOslThickness5Carbon(SoilLayer* sl, const double &plctop, const double &plcbot){
 
 	// NOTE: the OSL C - thickness relationship is for the whole same-type OSL horizon
 	// the estimation here is for ONE layer only in the whole horizon
@@ -1827,11 +1818,22 @@ void Ground::getOslThickness5Carbon(Layer* sl, const double &plctop, const doubl
   	// need to adjust 'freezing/thawing front depth', if 'fronts' depth below 'sl->z'
   	adjustFrontsAfterThickchange(sl->z, osdznew - osdzold);
 
+	//'dz' dependent physical properties
+	double oldporo = sl->poro;
+	sl->derivePhysicalProperty(); //update soil physical property after thickness change from C is done
+	double f=fmin(1., sl->dz/osdzold); //so if layer shrinks, it will adjust water; otherwise, no change.
+	double f2=fmin(1., sl->poro/oldporo);  // for whatever reason, if porosity changes
+	f = fmin(f, f2);
+	sl->liq *=fmax(0., f);
+	sl->ice *=fmax(0., f);
+
+	// above soil temperature and frozen status not modified
+
 };
 
 // conversion from OSL thickness to C content
 // note- only for thickness changing, i.e. previous fraction of SOM C pools must be known
-void Ground::getOslCarbon5Thickness(Layer* sl, const double &plztop, const double &plzbot){
+void Ground::getOslCarbon5Thickness(SoilLayer* sl, const double &plztop, const double &plzbot){
 
 	// NOTE: the OSL C - thickness relationship is for the whole OSL horizon
 	// the estimation here is for ONE layer only in the whole horizon
@@ -1966,7 +1968,7 @@ void Ground::checkWaterValidity(){
 			}
 
 			if (currl->frozen==0 && currl->isSoil) {
-	 		    double maxwat = currl->maxliq-currl->getVolIce()*currl->dz*DENLIQ; //adjust max. liq by ice occupied space
+	 		    double maxwat = fmax(0., currl->maxliq-currl->getVolIce()*currl->dz*DENLIQ); //adjust max. liq by ice occupied space
 				if ((currl->liq-maxwat)>1.e-6) {
 					string msg = "partially unfrozen soil layer shall NOT have too much liquid water";
 					cout << msg + ":: in Soil Layer "<<currl->indl<< "\n";

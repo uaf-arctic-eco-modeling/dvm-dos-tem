@@ -68,7 +68,7 @@ void Soil_Env::initializeState(){
 				double dzleft = currl->dz;
 				while (dzleft>0.){
 					if (currl->z<=Zsoil[ilint] && currl->z<=Zsoil[ilint]+0.10) {
-						double dzdone = min(currl->dz, (Zsoil[ilint]+0.10)-currl->z);
+						double dzdone = fmin(currl->dz, (Zsoil[ilint]+0.10)-currl->z);
 
 						ts  += TSsoil[ilint]*dzdone/currl->dz;
 						vwc += VWCsoil[ilint]*dzdone/currl->dz;
@@ -89,11 +89,11 @@ void Soil_Env::initializeState(){
 				currl->tem = ts;
 
 				if (currl->tem>0.){
-					currl->liq = max(currl->minliq, max(currl->maxliq, vwc*currl->dz*DENLIQ));
+					currl->liq = fmax(currl->minliq, fmax(currl->maxliq, vwc*currl->dz*DENLIQ));
 					currl->ice = 0.;
 					currl->frozen = -1;
 				} else {
-					currl->ice = max(0., max(currl->maxice, vwc*currl->dz*DENICE));
+					currl->ice = fmax(0., fmax(currl->maxice, vwc*currl->dz*DENICE));
 					currl->liq = 0.;
 					currl->frozen = 1;
 				}
@@ -130,11 +130,11 @@ void Soil_Env::initializeState(){
 				currl->tem = ts;
 
 				if (currl->tem>0.){
-					currl->liq = max(currl->minliq, max(currl->maxliq, vwc*currl->dz*DENLIQ));
+					currl->liq = fmax(currl->minliq, fmax(currl->maxliq, vwc*currl->dz*DENLIQ));
 					currl->ice = 0.;
 					currl->frozen = -1;
 				} else {
-					currl->ice = max(0., max(currl->maxice, vwc*currl->dz*DENICE));
+					currl->ice = fmax(0., fmax(currl->maxice, vwc*currl->dz*DENICE));
 					currl->liq = 0.;
 					currl->frozen = 1;
 				}
@@ -334,10 +334,10 @@ void Soil_Env::updateDailySurfFlux(Layer* toplayer, const double & dayl){
 			if(dzsum <totthick){
 				if(dzsum + currl->dz <totthick){
 					dzsum +=currl->dz;
-					availliq += max(0., currl->liq-0.01*currl->maxliq);
+					availliq += fmax(0., currl->liq-0.01*currl->maxliq);
 
 				}else{
-					availliq += max(0., currl->liq-0.01*currl->maxliq) * (totthick-dzsum)/totthick;
+					availliq += fmax(0., currl->liq-0.01*currl->maxliq) * (totthick-dzsum)/totthick;
 					dzsum = totthick;
 
 				}
@@ -353,7 +353,7 @@ void Soil_Env::updateDailySurfFlux(Layer* toplayer, const double & dayl){
 	double evap =0.;
 	if(availliq>0 && toplayer->frozen==-1 && toplayer->isSoil){
 		evap = getEvaporation(dayl, rad);
-		ed->d_soi2a.evap = min(availliq,evap);
+		ed->d_soi2a.evap = fmin(availliq,evap);
 	}else{
 	    ed->d_soi2a.evap = 0.;
 	}
@@ -371,11 +371,11 @@ void Soil_Env::updateDailySoilThermal4Growth(Layer* fstsoill, const double &tsur
 	while (currl!=NULL){
 		if(currl->isSoil){
 				if(toprtdep<envpar.rtdp4gdd) {
-					  double restrtdz = max(0., envpar.rtdp4gdd-toprtdep);
+					  double restrtdz = fmax(0., envpar.rtdp4gdd-toprtdep);
 
-					  toprtdep += min(currl->dz, restrtdz);
+					  toprtdep += fmin(currl->dz, restrtdz);
 
-			  		  toptsrtdep += currl->tem *min(currl->dz, restrtdz);
+			  		  toptsrtdep += currl->tem *fmin(currl->dz, restrtdz);
 
 		  			  // unfrozen thickness of root zone
 		  			  if(currl->frozen==-1){//unfrozen
@@ -641,9 +641,9 @@ double Soil_Env::getWaterTable(Layer* lstsoill){
 			ztot +=dz;
 			por = currl->poro;
 			thetai = currl->getVolIce();
-			thetai = min(por, thetai);
+			thetai = fmin(por, thetai);
 			thetal = currl->getVolLiq();
-			thetal = min(por-thetai, thetal);
+			thetal = fmin(por-thetai, thetal);
 
 			s= thetal/(por-thetai);
 			if (bottomsat) {    //if bottom-layer saturated
@@ -651,7 +651,7 @@ double Soil_Env::getWaterTable(Layer* lstsoill){
 					sums = ztot;
 				} else {
 					bottomsat = false;
-					sums+=(max(0., s-0.6))/(1.0-0.6)*dz;
+					sums+=(fmax(0., s-0.6))/(1.0-0.6)*dz;
 					//if over 0.6 saturation, let the lower porition be part of below water table
 					// this is arbitrary, but useful if the deeper layer is thick (1 or 2 m)
 
@@ -697,7 +697,7 @@ double Soil_Env::getRunoff(Layer* toplayer, Layer* drainl, const double & rnth,c
 			thetal = currl->getVolLiq();
 				
 			s = (thetai + thetal)/por;
-			s = min((double)s , 1.0);
+			s = fmin((double)s , 1.0);
 
 			sums+=s * dz;
 			ztot +=dz;
@@ -738,8 +738,8 @@ void Soil_Env::getSoilTransFactor(double btran[MAX_SOI_LAY], Layer* fstsoill, co
 				psisat = currl->psisat;
 				psi = dynamic_cast<SoilLayer*>(currl)->getMatricPotential();
 
-				psi = max(psimax, psi);
-				psi = min(psisat, psi);
+				psi = fmax(psimax, psi);
+				psi = fmin(psisat, psi);
 				rresis = (1.- psi/psimax)/(1.- psisat/psimax);
 
 				btran[sind] = rootfr[sind]* rresis;

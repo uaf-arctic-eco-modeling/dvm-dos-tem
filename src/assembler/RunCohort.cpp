@@ -234,9 +234,9 @@ void RunCohort::run_cohortly(){
 		    yrstart = 0;
 
 		    if (cht.gd->fri>0) {
-		    	int nfri = max(MIN_EQ_YR/cht.gd->fri, 20);
-		    	nfri = min(nfri, MAX_EQ_YR/cht.gd->fri); //20 FRI and within range of min. and max. MAX_EQ_YR
-		    	yrend   = nfri*cht.gd->fri-1;   // ending just prior to the fire occurrency year
+		    	int nfri = fmax(MIN_EQ_YR/cht.gd->fri, 20);
+		    	nfri = fmin(nfri, MAX_EQ_YR/cht.gd->fri); //20 FRI and within range of min. and max. MAX_EQ_YR
+		    	yrend= nfri*cht.gd->fri-1;   // ending just prior to the fire occurrency year
 		    } else {
 		    	yrend = MAX_EQ_YR;
 		    }
@@ -249,7 +249,7 @@ void RunCohort::run_cohortly(){
 			cht.timer->stageyrind = 0;
 			cht.timer->eqend = true;
 
-		    used_atmyr = min(MAX_ATM_NOM_YR, cht.cd.act_atm_drv_yr);
+		    used_atmyr = fmin(MAX_ATM_NOM_YR, cht.cd.act_atm_drv_yr);
 
 		    yrstart = cht.timer->spbegyr;
 		    yrend   = cht.timer->spendyr;

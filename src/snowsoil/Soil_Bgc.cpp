@@ -81,10 +81,11 @@ void Soil_Bgc::assignCarbonLayer2BdMonthly(){
  	bd->m_sois.dmossc = ground->moss.dmossc;
 };
 
-void Soil_Bgc::prepareIntegration(const bool &mdnfeedback, const bool &mdavlnflg){
+void Soil_Bgc::prepareIntegration(const bool &mdnfeedback, const bool &mdavlnflg, const bool &mdbaseline){
 
 	 nfeed   = mdnfeedback;
 	 avlnflg = mdavlnflg;
+	 baseline= mdbaseline;
      
 	 // moss death rate if any (from Vegetation_bgc.cpp)
 	 mossdeathc    = bd->m_v2soi.mossdeathc;
@@ -92,9 +93,9 @@ void Soil_Bgc::prepareIntegration(const bool &mdnfeedback, const bool &mdavlnflg
 
  	 // litter-fall C/N from Vegetation_bgc.cpp
  	 double blwlfc = bd->m_v2soi.ltrfalc[I_root];
- 	 double abvlfc = max(0., bd->m_v2soi.ltrfalcall - blwlfc);
+ 	 double abvlfc = fmax(0., bd->m_v2soi.ltrfalcall - blwlfc);
  	 double blwlfn = bd->m_v2soi.ltrfaln[I_root];
- 	 double abvlfn = max(0., bd->m_v2soi.ltrfalnall - blwlfn);
+ 	 double abvlfn = fmax(0., bd->m_v2soi.ltrfalnall - blwlfn);
 
      for(int i=0; i<cd->m_soil.numsl; i++){
     	 if (cd->m_soil.type[i]>0) {
@@ -116,53 +117,51 @@ void Soil_Bgc::prepareIntegration(const bool &mdnfeedback, const bool &mdavlnflg
 
      }
 
-     // vegetation root N extraction
-     for (int i=0; i<cd->m_soil.numsl; i++) {
-    	 rtnextract[i] = bd->m_soi2v.nextract[i];
-     }
-
-     // soil liq. water controlling factor for soil N minralization/immobilization and root N extraction
-     for (int i=0; i<cd->m_soil.numsl; i++) {
-		bd->m_soid.knmoist[i] = getKnsoilmoist(ed->m_soid.sws[i]); //lwc[i]);
-     }
-
      //SOM decompositin Kd will updated based on previous 12 month accumulative littering C/N
      updateKdyrly4all();
 
- 	//prepare total liq water and available N in soil zones above drainage depth
-    // In this version of model, N leaching loss is assumed to with drainage flow from
-    // all above-drainage profile as the drainage zone - needs improvement here!
-      totdzliq     = 0.;
-      totdzavln    = 0.;
-      for(int i=0;i<cd->m_soil.numsl; i++){
-     	if((cd->m_soil.z[i]+cd->m_soil.dz[i]) <= ed->m_sois.draindepth){  //note: z is at the top of a layer
-     		totdzliq += max(0., ed->m_sois.liq[i]);
-     		totdzavln += max(0., bd->m_sois.avln[i]);
-     	} else {
-     		if (cd->m_soil.z[i]<ed->m_sois.draindepth){     // note: z is at the top of a layer
-         		double fdz = (ed->m_sois.draindepth - cd->m_soil.z[i])
-         				    /cd->m_soil.dz[i];
-     			totdzliq += max(0., ed->m_sois.liq[i])*fdz;
-         		totdzavln += max(0., bd->m_sois.avln[i])*fdz;
+     if (nfeed==1) {
+    	 // vegetation root N extraction
+    	 for (int i=0; i<cd->m_soil.numsl; i++) {
+    		 rtnextract[i] = bd->m_soi2v.nextract[i];
+    	 }
 
-     		} else {
-     			break;
-     		}
-     	}
-     }
+    	 // soil liq. water controlling factor for soil N minralization/immobilization and root N extraction
+    	 for (int i=0; i<cd->m_soil.numsl; i++) {
+    		 bd->m_soid.knmoist[i] = getKnsoilmoist(ed->m_soid.sws[i]); //lwc[i]);
+    	 }
+
+    	 //prepare total liq water and available N in soil zones above drainage depth
+    	 // In this version of model, N leaching loss is assumed to with drainage flow from
+    	 // all above-drainage profile as the drainage zone - needs improvement here!
+    	 totdzliq     = 0.;
+    	 totdzavln    = 0.;
+    	 for(int i=0;i<cd->m_soil.numsl; i++){
+    		 if((cd->m_soil.z[i]+cd->m_soil.dz[i]) <= ed->m_sois.draindepth){  //note: z is at the top of a layer
+    			 totdzliq += fmax(0., ed->m_sois.liq[i]);
+    			 totdzavln += fmax(0., bd->m_sois.avln[i]);
+    		 } else {
+    			 if (cd->m_soil.z[i]<ed->m_sois.draindepth){     // note: z is at the top of a layer
+    				 double fdz = (ed->m_sois.draindepth - cd->m_soil.z[i])
+         				    /cd->m_soil.dz[i];
+    				 totdzliq += fmax(0., ed->m_sois.liq[i])*fdz;
+    				 totdzavln += fmax(0., bd->m_sois.avln[i])*fdz;
+
+    			 } else {
+    				 break;
+    			 }
+    		 }
+    	 }
   
-  	 if(cd->yrsdist<cd->gd->fri){
-  		bd->m_a2soi.orgninput = fd->fire_a2soi.orgn/12.;
-  	 }
-  	 
-  	 if(cd->yrsdist<9.){
-  		if(bd->m_vegs.deadc>0){
-  			bd->m_sois.wdebrisc += bd->m_vegs.deadc/9./12.;
-  		}  	
-  	 }else{
-  		bd->m_vegs.deadc =0.;
-  		bd->m_vegs.deadn =0.;
-  	 }
+    	 if(cd->yrsdist<cd->gd->fri){
+    		 bd->m_a2soi.orgninput = fd->fire_a2soi.orgn/12.;
+    	 }
+
+     }
+
+     // dead standing C due to fire will put into ground debris
+     d2wdebrisc = bd->m_v2soi.d2wdebrisc;
+     if (nfeed==1) d2wdebrisn = bd->m_v2soi.d2wdebrisn;
 
 };
 
@@ -530,7 +529,7 @@ void Soil_Bgc::deltac(){
 // soil N budget
 void Soil_Bgc::deltan(){
 
-	if (nfeed == 1){ // soil-plant close-N cycle switched on
+	if (nfeed == 1){ // soil-plant N cycle switched on
 
 		//total N immobilization and net mineralization
 		totnetnmin = 0.;
@@ -563,9 +562,7 @@ void Soil_Bgc::deltan(){
 			totnextract += bd->m_soi2v.nextract[il];
 		}
 
-		if (avlnflg == 1){ // open-N swithed on - note here ONLY 'lost' considered, while 'input' shall be from outside if any
-
-			del_soi2l.orgnlost = 0.; //DON lost - not yet done and this is the portal for future development
+		if (avlnflg == 1){ // open-N (inorganic) swithed on - note here ONLY 'lost' considered, while 'input' shall be from outside if any
 
 			del_soi2l.avlnlost = 0.;  // N leaching out with drainage water
 			if(totdzliq>0){
@@ -592,11 +589,28 @@ void Soil_Bgc::deltan(){
 				}
 			}
   	
-		} else {  //N budget estimation of inorganic N loss
-
+		} else { //N budget estimation of inorganic N loss
 			del_soi2l.avlnlost = bd->m_a2soi.avlninput - totnextract
                                  +totnetnmin;
+		}
+
+		if (!baseline) {
+
+			del_soi2l.orgnlost = 0.; //DON lost - not yet done and this is the portal for future development
+
+		} else {
+			// note: this will re-estimate the fire-emission re-deposition
+			del_a2soi.orgninput = 0.;
 			del_soi2l.orgnlost = 0.;
+	   		double tsomcsum=bd->m_soid.rawcsum+bd->m_soid.somasum
+	   				+bd->m_soid.somprsum+bd->m_soid.somcrsum;
+	   		double orgneven = tsomcsum/bgcpar.nmincnsoil;
+	      	if ( orgneven >= bd->m_soid.orgnsum) {
+	      		del_a2soi.orgninput += orgneven - bd->m_soid.orgnsum;
+	      	} else {
+	      		del_soi2l.orgnlost  += bd->m_soid.orgnsum - orgneven;
+	      	}
+
 		}
 	}
   
@@ -649,13 +663,13 @@ void Soil_Bgc::deltastate(){
 	//dead moss, if any
 	del_sois.dmossc = mossdeathc - del_soi2a.rhmossc*(1.0+somtoco2);
  	//ground surface wood debris decrement, if any
-  	del_sois.wdebrisc = - del_soi2a.rhwdeb;
+  	del_sois.wdebrisc = d2wdebrisc- del_soi2a.rhwdeb;
 
  	//(II) moving/mixing portion of C among layers
  	//fibric-C (rawc) will NOT to move between layers
    	double s2dfraction = 1.0;
    	double mobiletoco2 = (double)bgcpar.fsoma*(double)bgcpar.som2co2;
-   	double xtopdlthick  = min(0.10, cd->m_soil.deepthick);  //Yuan: the max. thickness of deep-C layers, which shallow-C can move into
+   	double xtopdlthick  = fmin(0.10, cd->m_soil.deepthick);  //Yuan: the max. thickness of deep-C layers, which shallow-C can move into
    	double xtopmlthick  = 0.20;  //Yuan: the max. thickness of mineral-C layers, which deep-C can move into
 
    	double s2dcarbon1 = 0.0;
@@ -704,7 +718,7 @@ void Soil_Bgc::deltastate(){
 
 	   	} else if (cd->m_soil.type[il]==2 && dlleft>0) {
    		// 2) s2dcarbon from above will move into the 'xtopdlthick';
-	   		thickadded = min(cd->m_soil.dz[il], dlleft);
+	   		thickadded = fmin(cd->m_soil.dz[il], dlleft);
  	   		dcaddfrac = thickadded/xtopdlthick;
   	   		dlleft -=thickadded;
 
@@ -747,7 +761,7 @@ void Soil_Bgc::deltastate(){
 
 	   	// 4) d2mcarbon from above will move into the 'xtopmlthick';
    		} else if (cd->m_soil.type[il]==3) {
- 	   		thickadded = min(cd->m_soil.dz[il], mlleft);
+ 	   		thickadded = fmin(cd->m_soil.dz[il], mlleft);
  	   		dcaddfrac = thickadded/xtopmlthick;
  	   		mlleft -=thickadded;
 
@@ -781,7 +795,7 @@ void Soil_Bgc::deltastate(){
   				del_sois.orgn[il] += del_soi2a.rhmossc*tmp_sois.dmossn/tmp_sois.dmossc;  //because 'netmin' above included moss decomposition
   			}
 
-   			if (il==0){    // put the deposited orgn (here, mainly fire emitted) into the first soil layer
+   			if (il==0){    // put the deposited orgn (here, mainly fire emitted or budget estimation) into the first soil layer
    				del_sois.orgn[il] += bd->m_a2soi.orgninput;
    			}
 
@@ -789,13 +803,13 @@ void Soil_Bgc::deltastate(){
    			if (totdzliq>0.01) {
    				if((cd->m_soil.z[il]+cd->m_soil.dz[il]) <= ed->m_sois.draindepth){  //note: z is at the top of a layer
   	   				dondrain = del_soi2l.orgnlost
-	   		  		     *(ed->m_sois.liq[il]/totdzliq*ed->m_soi2l.qdrain);
+	   		  		     *(ed->m_sois.liq[il]/totdzliq);
    				} else {
   	   				if (cd->m_soil.z[il]<ed->m_sois.draindepth){     // note: z is at the top of a layer
   	   					double fdz = (ed->m_sois.draindepth - cd->m_soil.z[il])
 	          				         /cd->m_soil.dz[il];
   	   					dondrain = del_soi2l.orgnlost
-	  	   		  		     *(ed->m_sois.liq[il]/totdzliq*ed->m_soi2l.qdrain)*fdz;
+	  	   		  		     *(ed->m_sois.liq[il]/totdzliq)*fdz;
   	   				}
    				}
    			}
@@ -829,13 +843,16 @@ void Soil_Bgc::deltastate(){
   	   	} // end of soil layer loop
 
   	   	// dead moss layers
-  	   	if (tmp_sois.dmossc > 0.)
-  	   	del_sois.dmossn -= del_soi2a.rhmossc*tmp_sois.dmossn/tmp_sois.dmossc;
-
+  	   	if (tmp_sois.dmossc > 0.){
+  	   		del_sois.dmossn = mossdeathn;
+  	   		del_sois.dmossn -= del_soi2a.rhmossc*tmp_sois.dmossn/tmp_sois.dmossc;
+  	   	}
   	   	// wood debris
-  	   	if (tmp_sois.wdebrisc > 0.)
-  	   	del_sois.wdebrisn -=del_soi2a.rhwdeb*tmp_sois.wdebrisn/tmp_sois.wdebrisc;
-  	}
+  	   	if (tmp_sois.wdebrisc > 0.){
+  	   		del_sois.wdebrisn = d2wdebrisn;
+  	   		del_sois.wdebrisn -=del_soi2a.rhwdeb*tmp_sois.wdebrisn/tmp_sois.wdebrisc;
+  	   	}
+  	} // end of 'if nfeed==1'
 
 };
 

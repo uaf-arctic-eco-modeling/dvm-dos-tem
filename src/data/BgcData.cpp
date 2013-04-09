@@ -285,7 +285,7 @@ void BgcData::soil_beginOfYear(){
 
 };
 
-void BgcData::soil_endOfMonth(const bool &baseline){
+void BgcData::soil_endOfMonth(){
  
 	// status variable (diagnostics)
  	m_soid.shlwc   = 0.;
@@ -421,31 +421,10 @@ void BgcData::soil_endOfMonth(const bool &baseline){
 	y_soi2soi.nimmobsum += m_soi2soi.nimmobsum/12.;
 
     // connection to open-N cycle
- 	if (baseline){
- 		y_a2soi.orgninput += m_a2soi.orgninput;
- 		y_soi2l.orgnlost += m_soi2l.orgnlost;
- 		y_a2soi.avlninput += m_a2soi.avlninput;
- 		y_soi2l.avlnlost += m_soi2l.avlnlost;
- 	}
-
-};
-
-void BgcData::soil_endOfYear(const double & cnsoileven, const bool &baseline){
-
-   	//need to balance soil org. N, if 'baseline' switched on
-   	if (baseline) {
-   		double tsomcsum=y_soid.rawcsum+y_soid.somasum+y_soid.somprsum+y_soid.somcrsum;
-      	if ( tsomcsum/cnsoileven >= y_soid.orgnsum) {
-      		y_a2soi.orgninput = (tsomcsum/cnsoileven) - y_soid.orgnsum;
-      	} else {
-      		y_soi2l.orgnlost  = y_soid.orgnsum - (tsomcsum/cnsoileven);
-      	}
-
-      	y_soid.orgnsum = tsomcsum/cnsoileven;
-      	for (int il=0; il<cd->y_soil.numsl; il++) {
-      		y_sois.orgn[il] = y_soid.tsomc[il]/cnsoileven;
-      	}
-    }
+	y_a2soi.orgninput += m_a2soi.orgninput;
+	y_soi2l.orgnlost += m_soi2l.orgnlost;
+	y_a2soi.avlninput += m_a2soi.avlninput;
+	y_soi2l.avlnlost += m_soi2l.avlnlost;
 
 };
 

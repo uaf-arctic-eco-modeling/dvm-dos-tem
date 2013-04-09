@@ -166,7 +166,7 @@ void Vegetation_Bgc::prepareIntegration(const bool &nfeedback){
 	// leaf C requirement for growth, used to dynamically determine C allocation
 	dleafc = cd->m_vegd.maxleafc[ipft]*cd->m_vegd.fleaf[ipft];  //yearly max. leaf C, adjusted by seasonal foliage growth index 'fleaf'
 	dleafc -= bd->m_vegs.c[I_leaf];   // C requirement of foliage growth at current timestep
-	dleafc = max(0., dleafc);
+	dleafc = fmax(0., dleafc);
 
 	// litter-falling seasonal adjustment
 	double prvttime = 0.;   //previous 10 year mean of growing season degree-day, using for normalizing current growing period needed for litterfalling
@@ -194,12 +194,25 @@ void Vegetation_Bgc::prepareIntegration(const bool &nfeedback){
 	// assuming 'calpar.cfall' is the max. monthly fraction, and allowing the following seasonal variation
 	fltrfall = 1.;              // non-growing season, max. litterfall assumed
 	if (cd->m_vegd.growingttime[ipft]>0. && prvttime>0.) {
-		fltrfall = min(1., cd->m_vegd.growingttime[ipft]/prvttime);
+		fltrfall = fmin(1., cd->m_vegd.growingttime[ipft]/prvttime);
 	}
 
+	// dead standing C falling
+    if(cd->yrsdist<9.){
+ 		if(bd->m_vegs.deadc>0){
+ 			d2wdebrisc = bd->m_vegs.deadc/9./12.;
+ 			if (nfeed==1) d2wdebrisn = bd->m_vegs.deadn/9./12.;
+ 		}
+ 	 }else{
+ 		bd->m_vegs.deadc =0.;
+ 		if (nfeed==1) bd->m_vegs.deadn =0.;
+ 	 }
+
 	//assign states to temporary state variable
+    tmp_vegs.deadc            = bd->m_vegs.deadc;
+    if (nfeed) tmp_vegs.deadn = bd->m_vegs.deadn;
 	tmp_vegs.call    = 0.;
-	tmp_vegs.strnall = 0.;
+	if (nfeed) tmp_vegs.strnall = 0.;
 	for (int i=0; i<NUM_PFT_PART; i++){
 		tmp_vegs.c[i]    = bd->m_vegs.c[i];
 		tmp_vegs.call   += bd->m_vegs.c[i];
@@ -249,16 +262,16 @@ void Vegetation_Bgc::delta(){
 	if (rm>ingppall && rm>0.0) rmadj=ingppall/rm;
 
 	// total available C for allocation
-	double innppall = max(0., ingppall-rm)/(1.0+calpar.frg);  // if C assimilation available, first goes to maintaince respiration
+	double innppall = fmax(0., ingppall-rm)/(1.0+calpar.frg);  // if C assimilation available, first goes to maintaince respiration
 
 	// NPP allocation to leaf estimated first
   	double nppl = dleafc/(1.0+calpar.frg);
-  	del_a2v.innpp[I_leaf] = min(nppl, innppall);    // leaf has the second priority for C assimilation
+  	del_a2v.innpp[I_leaf] = fmin(nppl, innppall);    // leaf has the second priority for C assimilation
   	del_v2a.rg[I_leaf] = calpar.frg * del_a2v.innpp[I_leaf];
   	double npprgl = del_a2v.innpp[I_leaf]+del_v2a.rg[I_leaf];
 
   	// the rest goes to stem/root, assuming equal priority
-  	innppall = max(0., ingppall-rm-npprgl)/(1.0+calpar.frg);
+  	innppall = fmax(0., ingppall-rm-npprgl)/(1.0+calpar.frg);
   	double cpartrest = 0.;
 	for (int i=I_leaf+1; i<NUM_PFT_PART; i++){
 		cpartrest +=bgcpar.cpart[i];
@@ -282,7 +295,7 @@ void Vegetation_Bgc::delta(){
   	// litter-falling
 	for (int i=0; i<NUM_PFT_PART; i++){
 		if (calpar.cfall[i]>0.) {
-			del_v2soi.ltrfalc[i] = max(0., fltrfall*calpar.cfall[i] * tmp_vegs.c[i]);
+			del_v2soi.ltrfalc[i] = fmax(0., fltrfall*calpar.cfall[i] * tmp_vegs.c[i]);
 
 		} else {
 			del_v2soi.ltrfalc[i] = 0.;
@@ -313,7 +326,7 @@ void Vegetation_Bgc::deltanfeed(){
 		for (int i=0; i<NUM_PFT_PART; i++){
 			if (calpar.nfall[i]>0.) {
 				// assuming 'calpar.nfall' is the max. monthly fraction, and allowing the following seasonal variation
-				del_v2soi.ltrfaln[i] = max(0., fltrfall*calpar.nfall[i] * tmp_vegs.strn[i]);
+				del_v2soi.ltrfaln[i] = fmax(0., fltrfall*calpar.nfall[i] * tmp_vegs.strn[i]);
 
 			} else {
 				del_v2soi.ltrfaln[i] = 0.;
@@ -365,7 +378,7 @@ void Vegetation_Bgc::deltanfeed(){
 
 		//C fluxes regulated by N uptake and labile N and N requirements
 		double reduction = 1.0;
-		if (nrequireall>0.) reduction = max(0., nsupply/nrequireall);
+		if (nrequireall>0.) reduction = fmax(0., nsupply/nrequireall);
 
 		if (reduction < 1.0) {
 
@@ -394,11 +407,11 @@ void Vegetation_Bgc::deltanfeed(){
     			if (bgcpar.cpart[i]>0.) {
 
     				//empties the labile N pools to each nmobil pools, which later on added to each N pool
-    				del_v2v.nmobil[i]  = min(1., max(0., nrequire[i]/max(1.e-8, nrequireall)))
+    				del_v2v.nmobil[i]  = fmin(1., fmax(0., nrequire[i]/fmax(1.e-8, nrequireall)))
 						            *templabn;
 
     				//allocates uptaken N to each structural N pool
-    				del_soi2v.snuptake[i] = min(1., max(0., nrequire[i]/max(1.e-8, nrequireall)))
+    				del_soi2v.snuptake[i] = fmin(1., fmax(0., nrequire[i]/fmax(1.e-8, nrequireall)))
 				                       *tempnuptake;
     			} else {
     				del_v2v.nmobil[i] = 0.;
@@ -420,7 +433,7 @@ void Vegetation_Bgc::deltanfeed(){
 
 			double inprodcn = nppall / nsupply;
 
-		  	tempnuptake  *= (inprodcn * (inprodcn - 2*nppall/max(1.e-8, nrequireall)));  //Yuan: from E.E. 2009 paper, seems not correct
+		  	tempnuptake  *= (inprodcn * (inprodcn - 2*nppall/fmax(1.e-8, nrequireall)));  //Yuan: from E.E. 2009 paper, seems not correct
 		  	if (tempnuptake< 0.0 ) {tempnuptake = 0.0; }
 
 		  	// if N require even less than labile N + resorbed N
@@ -440,7 +453,7 @@ void Vegetation_Bgc::deltanfeed(){
 
         		for (int i=0; i<NUM_PFT_PART; i++){
         			if (bgcpar.cpart[i]>0.) {
-        				del_v2v.nmobil[i]     = templabn*nrequire[i]/max(1.e-8, nrequireall); //empty all available labile N first
+        				del_v2v.nmobil[i]     = templabn*nrequire[i]/fmax(1.e-8, nrequireall); //empty all available labile N first
         				del_soi2v.snuptake[i] = (del_a2v.npp[i]/bgcpar.c2neven[i]) - del_v2v.nmobil[i];
 				
         				if ( del_soi2v.snuptake[i] < 0.0 ) del_soi2v.snuptake[i] = 0.0; // it's possible, because npp may be negative
@@ -493,11 +506,14 @@ void Vegetation_Bgc::deltanfeed(){
 // summarize C and N state variable changes
 void Vegetation_Bgc::deltastate(){
 
+	del_vegs.deadc = d2wdebrisc;
+
 	for (int i=0; i<NUM_PFT_PART; i++) {
   		del_vegs.c[i] = del_a2v.npp[i] - del_v2soi.ltrfalc[i];
   	}
 
   	if(nfeed){
+  		del_vegs.deadn = d2wdebrisn;
   		del_vegs.labn = del_soi2v.lnuptake;
   		for (int i=0; i<NUM_PFT_PART; i++) {
   			del_vegs.strn[i] = del_soi2v.snuptake[i] + del_v2v.nmobil[i] - del_v2soi.ltrfaln[i] - del_v2v.nresorb[i];

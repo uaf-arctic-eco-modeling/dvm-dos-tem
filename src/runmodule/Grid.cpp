@@ -27,8 +27,8 @@ int Grid::reinit(){
         //make sure all arguments in sin, cos and tan are in unit of arc (not degree)
     	double pi =3.14159;
     	double m = 1- tan(gd.lat*pi/180.0)* tan(23.45*cos(id*pi/182.625)*pi/180.0);
-    	m = max(m, 0.);
-    	m = min(m, 2.);
+    	m = fmax(m, 0.);
+    	m = fmin(m, 2.);
 
     	double b = acos(1-m)/pi;
 
