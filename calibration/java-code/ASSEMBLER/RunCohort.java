@@ -169,7 +169,7 @@ public class RunCohort {
 	 }
 
 	//read-in data for a cohort
-	public int readData(){
+	public int readData(boolean vegread){
 
 		int error = 0;
 		
@@ -179,18 +179,24 @@ public class RunCohort {
 				jcd.act_atm_drv_yr,	clmrecno);
 		if (error<0) return error;
 
-		//reading the vegetation community type data from 'vegetation.nc'
-		jcd.act_vegset = cinputer.act_vegset;
-		error = cinputer.getVegetation(jcd.vegyear, jcd.vegtype, 
+		if (vegread) {
+			//reading the vegetation community type data from 'vegetation.nc'
+			jcd.act_vegset = cinputer.act_vegset;
+			error = cinputer.getVegetation(jcd.vegyear, jcd.vegtype, 
 				jcd.vegfrac, vegrecno);
-		if (error<0) return error;
+			if (error<0) return error;
 
-		//INDEX of veg. community codes, must be one of in those parameter files under 'config/'
-		jcd.cmttype = jcd.vegtype[0];  //default, i.e., the first set of data
-		for (int i=1; i<jcd.act_vegset; i++) {
-			if (jcd.year>=jcd.vegyear[i]) {
-				jcd.cmttype = jcd.vegtype[i];
+			//INDEX of veg. community codes, must be one of in those parameter files under 'config/'
+			jcd.cmttype = jcd.vegtype[0];  //default, i.e., the first set of data
+			for (int i=1; i<jcd.act_vegset; i++) {
+				if (jcd.year>=jcd.vegyear[i]) {
+					jcd.cmttype = jcd.vegtype[i];
+				}
 			}
+		
+		} else { // for calibration - veg type not yet defined
+			jcd.cmttype = 0;   // will take the default parameters except for those to be calibrated
+			jcd.vegfrac[0] = 1.0;
 		}
 		
 		// read-in parameters AND initial conditions as inputs
