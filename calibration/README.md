@@ -73,7 +73,7 @@ In a terminal window, start the JVM (Java Virtual Machine) with a variety of opt
 In another terminal window, attach jdb (Java command line Debugger tool) to the JVM you 
 just started in the first terminal window.
 
-    $ jdb -attach 5005
+    $ jdb -attach 5005 -sourcepath java-code
     Set uncaught java.lang.Throwable
     Set deferred uncaught java.lang.Throwable
     Initializing jdb ...
@@ -84,6 +84,7 @@ just started in the first terminal window.
     >
     Step completed: "thread=main", TEMCalibrator.<clinit>(), line=19 bci=0
 
+The `-sourcepath` flag tells the debugger where to look for source code.
 
 ## Interact with the debugger
 Type the help command to see a list of available commands for jdb.
@@ -102,3 +103,10 @@ Type the help command to see a list of available commands for jdb.
     wherei [<thread id> | all]-- dump a thread's stack, with pc info
     ....
     ....etc (many more commands available)
+    
+One thing to remember is that to set breakpoints it is necessary to specify the fully
+qualified path, including the package hierarchy. So for instance to stop in a method of 
+the TemCalGUI class you would type:
+
+    > main[1] stop in GUI.TemCalGUI.readInitparFromFile
+    
