@@ -73,8 +73,7 @@ class BgcData{
 
    		void soil_beginOfYear();
    		void soil_beginOfMonth();
-   		void soil_endOfMonth(const bool &baseline);
-   		void soil_endOfYear(const double &cnsoil, const bool &baseline);
+   		void soil_endOfMonth();
     
     private:
 

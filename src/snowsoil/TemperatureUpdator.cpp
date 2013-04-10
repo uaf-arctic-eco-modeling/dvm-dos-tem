@@ -144,7 +144,7 @@ void TemperatureUpdator::processColumnNofront(Layer* fstvalidl, Layer *backl, co
 	//check whether is nan
 	if (debugging) {
 		for (int il = startind; il <= endind; il++) {
-			if (isnan(tld[il])) {
+			if ((tld[il])!=(tld[il])) {
 				string msg = "TemperatureUpdator::procesColumnNofront - tld is nan";
 				cout << msg << "\n";
 			}
@@ -266,7 +266,7 @@ void TemperatureUpdator::processAboveFronts(Layer* fstvalidl, Layer*fstfntl, con
 	// checking
 	if (debugging) {
 		for (int il = startind; il <= endind; il++) {
-			if (isnan(tld[il])) {
+			if (tld[il]!=tld[il]) {
 				string msg = "TemperatureUpdator::processAboveFronts - tld is nan";
 				cout << msg << "\n";
 			}
@@ -445,7 +445,7 @@ void TemperatureUpdator::processBetweenFronts(Layer*fstfntl, Layer*lstfntl, cons
 	// checking
 	if (debugging) {
 		for (int il = startind; il <= endind; il++) {
-			if (isnan(tld[il])) {
+			if (tld[il]!=tld[il]) {
 				string msg = "TemperatureUpdator::processBetweenFronts - tld is nan";
 				cout << msg << "\n";
 			}
@@ -576,7 +576,7 @@ void TemperatureUpdator::processBelowFronts(Layer* backl, Layer*lstfntl, const b
 	// checking
 	if (debugging) {
 		for (int il = startind; il <= endind; il++) {
-			if (isnan(tld[il])) {
+			if (tld[il]!=tld[il]) {
 				string msg = "TemperatureUpdator::processBelowFronts - tld is nan";
 				cout << msg << "\n";
 			}
@@ -654,7 +654,7 @@ void TemperatureUpdator::iterate(const int &startind, const int &endind) {
 			}
 
 			// make sure tleft is greater than zero
-			tstep = min(tleft, tstep);
+			tstep = fmin(tleft, tstep);
 			if (tstep == 0)
 				tmld = 1;
 		}

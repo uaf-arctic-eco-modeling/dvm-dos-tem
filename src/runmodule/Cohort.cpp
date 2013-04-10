@@ -449,7 +449,7 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr){
 		getEd4allveg_daily();
 
 /*
-		if (cd.year==18 && doy==111){
+		if (cd.year==1 && doy==37){
 			cout<<"checking";
 		}
 //*/
@@ -474,6 +474,9 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr){
 
 		getEd4land_daily();  // integrating 'veg' and 'ground' into 'land'
 
+		ground.retrieveSnowDimension(&cd.d_snow);   // update Snow structure at daily timestep (for soil structure at yearly timestep in ::updateMonthly_DIMgrd)
+		cd.endOfDay(dinmcurr);   // this must be done first, because it's needed for below
+
 		//accumulate daily vars into monthly for 'ed' of each PFT
 		for (int ip=0; ip<NUM_PFT; ip++){
 			if (cd.d_veg.vegcov[ip] > 0.0) {
@@ -493,9 +496,6 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr){
 		edall->atm_endOfDay(dinmcurr);
 		edall->veg_endOfDay(dinmcurr);              //be sure 'getEd4allpfts_daily' called above
 		edall->grnd_endOfDay(dinmcurr, doy);
-
-		ground.retrieveSnowDimension(&cd.d_snow);   // update Snow structure at daily timestep (for soil structure at yearly timestep in ::updateMonthly_DIMgrd)
-		cd.endOfDay(dinmcurr);
 
 		// accumulate yearly vars at the last day of a month for all pfts
 		if(id==dinmcurr-1){
@@ -563,17 +563,12 @@ void Cohort::updateMonthly_Bgc(const int & currmind){
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 	// soil BGC module calling
-	soilbgc.prepareIntegration(md->nfeed, md->avlnflg);
+	soilbgc.prepareIntegration(md->nfeed, md->avlnflg, md->baseline);
 	solintegrator.updateMonthlySbgc(MAX_SOI_LAY);
     soilbgc.afterIntegration();
 
-	bdall->soil_endOfMonth(md->baseline);   // yearly data accumulation
+	bdall->soil_endOfMonth();   // yearly data accumulation
 	bdall->land_endOfMonth();
-
-	if(currmind==11){
-		double cnsoil = chtlu.nmincnsoil;
-		bdall->soil_endOfYear(cnsoil, md->baseline);   // yearly adjustment if 'N baseline' switched on
-	}
 
 	assignSoilBd2pfts_monthly();      //sharing the 'ground' portion in 'bdall' with each pft 'bd'
 
@@ -1034,6 +1029,9 @@ void Cohort::getBd4allveg_monthly(){
 	bdall->m_v2a.rgall    = 0.;
 	bdall->m_v2a.rmall    = 0.;
 
+	bdall->m_v2soi.d2wdebrisc = 0.;
+	bdall->m_v2soi.d2wdebrisn = 0.;
+
 	bdall->m_v2soi.ltrfalcall = 0.;  // excluding moss/lichen
 	bdall->m_v2soi.ltrfalnall = 0.;  // excluding moss/lichen
 	bdall->m_v2soi.mossdeathc = 0.;
@@ -1051,58 +1049,60 @@ void Cohort::getBd4allveg_monthly(){
 
 	for (int ip=0; ip<NUM_PFT; ip++){
     	if (cd.m_veg.vegcov[ip]>0.){
+    		bdall->m_v2soi.d2wdebrisc += bd[ip].m_v2soi.d2wdebrisc * cd.m_veg.vegcov[ip];
+    		bdall->m_v2soi.d2wdebrisn += bd[ip].m_v2soi.d2wdebrisn * cd.m_veg.vegcov[ip];
 
-		for (int i=0; i<NUM_PFT_PART; i++){
-			bdall->m_vegs.c[i]    += bd[ip].m_vegs.c[i] * cd.m_veg.vegcov[ip];
-			bdall->m_vegs.strn[i] += bd[ip].m_vegs.strn[i] * cd.m_veg.vegcov[ip];
+    		for (int i=0; i<NUM_PFT_PART; i++){
+    			bdall->m_vegs.c[i]    += bd[ip].m_vegs.c[i] * cd.m_veg.vegcov[ip];
+    			bdall->m_vegs.strn[i] += bd[ip].m_vegs.strn[i] * cd.m_veg.vegcov[ip];
 
-			bdall->m_a2v.ingpp[i] += bd[ip].m_a2v.ingpp[i] * cd.m_veg.vegcov[ip];
-			bdall->m_a2v.innpp[i] += bd[ip].m_a2v.innpp[i] * cd.m_veg.vegcov[ip];
-			bdall->m_a2v.gpp[i]   += bd[ip].m_a2v.gpp[i] * cd.m_veg.vegcov[ip];
-			bdall->m_a2v.npp[i]   += bd[ip].m_a2v.npp[i] * cd.m_veg.vegcov[ip];
-			bdall->m_v2a.rg[i]    += bd[ip].m_v2a.rg[i] * cd.m_veg.vegcov[ip];
-	 		bdall->m_v2a.rm[i]    += bd[ip].m_v2a.rm[i] * cd.m_veg.vegcov[ip];
+    			bdall->m_a2v.ingpp[i] += bd[ip].m_a2v.ingpp[i] * cd.m_veg.vegcov[ip];
+    			bdall->m_a2v.innpp[i] += bd[ip].m_a2v.innpp[i] * cd.m_veg.vegcov[ip];
+    			bdall->m_a2v.gpp[i]   += bd[ip].m_a2v.gpp[i] * cd.m_veg.vegcov[ip];
+    			bdall->m_a2v.npp[i]   += bd[ip].m_a2v.npp[i] * cd.m_veg.vegcov[ip];
+    			bdall->m_v2a.rg[i]    += bd[ip].m_v2a.rg[i] * cd.m_veg.vegcov[ip];
+    			bdall->m_v2a.rm[i]    += bd[ip].m_v2a.rm[i] * cd.m_veg.vegcov[ip];
 
-	 		bdall->m_v2v.nmobil[i]  += bd[ip].m_v2v.nmobil[i] * cd.m_veg.vegcov[ip];
-	 		bdall->m_v2v.nresorb[i] += bd[ip].m_v2v.nresorb[i] * cd.m_veg.vegcov[ip];
+    			bdall->m_v2v.nmobil[i]  += bd[ip].m_v2v.nmobil[i] * cd.m_veg.vegcov[ip];
+    			bdall->m_v2v.nresorb[i] += bd[ip].m_v2v.nresorb[i] * cd.m_veg.vegcov[ip];
 
-	 		if (cd.m_veg.nonvascular[ip]==0) {
-	 			bdall->m_v2soi.ltrfalc[i] += bd[ip].m_v2soi.ltrfalc[i] * cd.m_veg.vegcov[ip];
-	 			bdall->m_v2soi.ltrfaln[i] += bd[ip].m_v2soi.ltrfaln[i] * cd.m_veg.vegcov[ip];
-	 		}
+    			if (cd.m_veg.nonvascular[ip]==0) {
+    				bdall->m_v2soi.ltrfalc[i] += bd[ip].m_v2soi.ltrfalc[i] * cd.m_veg.vegcov[ip];
+    				bdall->m_v2soi.ltrfaln[i] += bd[ip].m_v2soi.ltrfaln[i] * cd.m_veg.vegcov[ip];
+    			}
 
-			bdall->m_soi2v.snuptake[i] += bd[ip].m_soi2v.snuptake[i] * cd.m_veg.vegcov[ip];
-		}
-	 	bdall->m_vegs.labn    += bd[ip].m_vegs.labn * cd.m_veg.vegcov[ip];
-		bdall->m_vegs.call    += bd[ip].m_vegs.call * cd.m_veg.vegcov[ip];
-		bdall->m_vegs.strnall += bd[ip].m_vegs.strnall * cd.m_veg.vegcov[ip];
-		bdall->m_vegs.nall    += bd[ip].m_vegs.nall * cd.m_veg.vegcov[ip];
+    			bdall->m_soi2v.snuptake[i] += bd[ip].m_soi2v.snuptake[i] * cd.m_veg.vegcov[ip];
+    		}
+    		bdall->m_vegs.labn    += bd[ip].m_vegs.labn * cd.m_veg.vegcov[ip];
+    		bdall->m_vegs.call    += bd[ip].m_vegs.call * cd.m_veg.vegcov[ip];
+    		bdall->m_vegs.strnall += bd[ip].m_vegs.strnall * cd.m_veg.vegcov[ip];
+    		bdall->m_vegs.nall    += bd[ip].m_vegs.nall * cd.m_veg.vegcov[ip];
 
-		bdall->m_a2v.ingppall += bd[ip].m_a2v.ingppall * cd.m_veg.vegcov[ip];
-		bdall->m_a2v.innppall += bd[ip].m_a2v.innppall * cd.m_veg.vegcov[ip];
-		bdall->m_a2v.gppall   += bd[ip].m_a2v.gppall * cd.m_veg.vegcov[ip];
-		bdall->m_a2v.nppall   += bd[ip].m_a2v.nppall * cd.m_veg.vegcov[ip];
-		bdall->m_v2a.rgall    += bd[ip].m_v2a.rgall * cd.m_veg.vegcov[ip];
-		bdall->m_v2a.rmall    += bd[ip].m_v2a.rmall * cd.m_veg.vegcov[ip];
+    		bdall->m_a2v.ingppall += bd[ip].m_a2v.ingppall * cd.m_veg.vegcov[ip];
+    		bdall->m_a2v.innppall += bd[ip].m_a2v.innppall * cd.m_veg.vegcov[ip];
+			bdall->m_a2v.gppall   += bd[ip].m_a2v.gppall * cd.m_veg.vegcov[ip];
+			bdall->m_a2v.nppall   += bd[ip].m_a2v.nppall * cd.m_veg.vegcov[ip];
+			bdall->m_v2a.rgall    += bd[ip].m_v2a.rgall * cd.m_veg.vegcov[ip];
+			bdall->m_v2a.rmall    += bd[ip].m_v2a.rmall * cd.m_veg.vegcov[ip];
 
- 		if (cd.m_veg.nonvascular[ip]==0) {
- 			bdall->m_v2soi.ltrfalcall += bd[ip].m_v2soi.ltrfalcall * cd.m_veg.vegcov[ip];
- 			bdall->m_v2soi.ltrfalnall += bd[ip].m_v2soi.ltrfalnall * cd.m_veg.vegcov[ip];
- 		}
- 		if (cd.m_veg.nonvascular[ip]>0){
- 			bdall->m_v2soi.mossdeathc += bd[ip].m_v2soi.mossdeathc * cd.m_veg.vegcov[ip];  //NOTE: non-vascular plants' litterfalling (mortality) is for death moss layer C
- 			bdall->m_v2soi.mossdeathn += bd[ip].m_v2soi.mossdeathn * cd.m_veg.vegcov[ip];
- 		}
+			if (cd.m_veg.nonvascular[ip]==0) {
+				bdall->m_v2soi.ltrfalcall += bd[ip].m_v2soi.ltrfalcall * cd.m_veg.vegcov[ip];
+				bdall->m_v2soi.ltrfalnall += bd[ip].m_v2soi.ltrfalnall * cd.m_veg.vegcov[ip];
+			}
+			if (cd.m_veg.nonvascular[ip]>0){
+				bdall->m_v2soi.mossdeathc += bd[ip].m_v2soi.mossdeathc * cd.m_veg.vegcov[ip];  //NOTE: non-vascular plants' litterfalling (mortality) is for death moss layer C
+				bdall->m_v2soi.mossdeathn += bd[ip].m_v2soi.mossdeathn * cd.m_veg.vegcov[ip];
+			}
 
-		bdall->m_v2v.nmobilall  += bd[ip].m_v2v.nmobilall * cd.m_veg.vegcov[ip];
-		bdall->m_v2v.nresorball += bd[ip].m_v2v.nresorball * cd.m_veg.vegcov[ip];
+			bdall->m_v2v.nmobilall  += bd[ip].m_v2v.nmobilall * cd.m_veg.vegcov[ip];
+			bdall->m_v2v.nresorball += bd[ip].m_v2v.nresorball * cd.m_veg.vegcov[ip];
 
-	  	bdall->m_soi2v.innuptake += bd[ip].m_soi2v.innuptake * cd.m_veg.vegcov[ip];
-	  	for (int il=0; il<cd.m_soil.numsl; il++) {
-	  		bdall->m_soi2v.nextract[il] += bd[ip].m_soi2v.nextract[il] * cd.m_veg.vegcov[ip];
-	  	}
-	 	bdall->m_soi2v.lnuptake   += bd[ip].m_soi2v.lnuptake * cd.m_veg.vegcov[ip];
-	 	bdall->m_soi2v.snuptakeall+= bd[ip].m_soi2v.snuptakeall * cd.m_veg.vegcov[ip];
+			bdall->m_soi2v.innuptake += bd[ip].m_soi2v.innuptake * cd.m_veg.vegcov[ip];
+			for (int il=0; il<cd.m_soil.numsl; il++) {
+				bdall->m_soi2v.nextract[il] += bd[ip].m_soi2v.nextract[il] * cd.m_veg.vegcov[ip];
+			}
+			bdall->m_soi2v.lnuptake   += bd[ip].m_soi2v.lnuptake * cd.m_veg.vegcov[ip];
+			bdall->m_soi2v.snuptakeall+= bd[ip].m_soi2v.snuptakeall * cd.m_veg.vegcov[ip];
 
     	} // end of 'vegcov[ip]>0'
 

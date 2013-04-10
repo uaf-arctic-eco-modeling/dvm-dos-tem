@@ -88,7 +88,7 @@ void Snow_Env::updateDailySurfFlux( Layer* toplayer, const double & tdrv){
 		double actsub = 0.;
 		while (currl!=NULL){
 			if (currl->isSnow && sublim>0.) {
-				double layicermv = min(sublim, currl->ice);
+				double layicermv = fmin(sublim, currl->ice);
 				actsub += layicermv;
 				sublim -= layicermv;
 
@@ -132,8 +132,8 @@ double Snow_Env::getAlbedoVis(const double & tem){
     	vis =0.9;
     }else{
     	vis = snowenvpar.albmax - (snowenvpar.albmax -snowenvpar.albmin) * (tem+10)/10;
-    	vis = min(snowenvpar.albmax, vis);
-    	vis = max(snowenvpar.albmin, vis);
+    	vis = fmin(snowenvpar.albmax, vis);
+    	vis = fmax(snowenvpar.albmin, vis);
     }
 
     return vis;

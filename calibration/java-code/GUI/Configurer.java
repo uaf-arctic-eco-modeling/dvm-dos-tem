@@ -25,7 +25,7 @@ public class Configurer{
   	// options
   	public int changeclimate = 0;
   	public int changeco2     = 0; 	
-  	public boolean updtaelai  = false;   
+  	public boolean updatelai  = false;   
   	public boolean useseverity= false;
   	
   	// output options
@@ -106,11 +106,12 @@ public class Configurer{
 	public static int I_DMOSSTHICK =9;
 	public static int I_FIBTHICK   =10;
 	public static int I_HUMTHICK   =11;
-	public static int I_FIBSOILC   =12;
-	public static int I_HUMSOILC   =13;
-	public static int I_MINESOILC  =14;
-	public static int I_SOILN      =15;
-	public static int I_AVLN       =16;
+	public static int I_DMOSSC     =12;
+	public static int I_FIBSOILC   =13;
+	public static int I_HUMSOILC   =14;
+	public static int I_MINESOILC  =15;
+	public static int I_SOILN      =16;
+	public static int I_AVLN       =17;
 
 	public Configurer(){
 		 
