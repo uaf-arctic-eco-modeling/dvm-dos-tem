@@ -13,6 +13,7 @@ CMT00 // Default TEM Community  - soil microbial activity (BGC) parameters and d
 29.73             // nmincnsoil:
 0.2               // propftos:
 0.0               // fnloss:  fraction N leaching (0 - 1) when drainage occurs
+17                // initdmossc:
 1783              // initshlwc:
 5021              // initdeepc:
 9000              // initminec:
@@ -33,6 +34,7 @@ CMT01 // CMT1 TEM Community  - soil microbial activity (BGC) parameters and defa
 29.73             // nmincnsoil:
 0.2               // propftos:
 0.0               // fnloss:  fraction N leaching (0 - 1) when drainage occurs
+178               // initdmossc:
 1783              // initshlwc:
 5021              // initdeepc:
 9000              // initminec:
@@ -53,6 +55,7 @@ CMT02 // CMT2 TEM Community  - soil microbial activity (BGC) parameters and defa
 29.73             // nmincnsoil:
 0.2               // propftos:
 0.0               // fnloss:  fraction N leaching (0 - 1) when drainage occurs
+0.0               // initdmossc:
 1783              // initshlwc:
 5021              // initdeepc:
 9000              // initminec:
@@ -73,6 +76,7 @@ CMT03 // CMT3 TEM Community  - soil microbial activity (BGC) parameters and defa
 29.73             // nmincnsoil:
 0.2               // propftos:
 0.0               // fnloss:  fraction N leaching (0 - 1) when drainage occurs
+0.0               // initdmossc:
 1783              // initshlwc:
 5021              // initdeepc:
 9000              // initminec:
@@ -93,6 +97,7 @@ CMT04 // CMT4 TEM Community  - soil microbial activity (BGC) parameters and defa
 29.73             // nmincnsoil:
 0.2               // propftos:
 0.0               // fnloss:  fraction N leaching (0 - 1) when drainage occurs
+0.0               // initdmossc:
 1783              // initshlwc:
 5021              // initdeepc:
 9000              // initminec:
@@ -113,6 +118,7 @@ CMT05 // CMT5 TEM Community  - soil microbial activity (BGC) parameters and defa
 29.73             // nmincnsoil:
 0.2               // propftos:
 0.0               // fnloss:  fraction N leaching (0 - 1) when drainage occurs
+0.0               // initdmossc:
 1783              // initshlwc:
 5021              // initdeepc:
 9000              // initminec:
@@ -133,6 +139,7 @@ CMT06 // CMT6 TEM Community  - soil microbial activity (BGC) parameters and defa
 29.73             // nmincnsoil:
 0.2               // propftos:
 0.0               // fnloss:  fraction N leaching (0 - 1) when drainage occurs
+0.0               // initdmossc:
 1783              // initshlwc:
 5021              // initdeepc:
 9000              // initminec:
