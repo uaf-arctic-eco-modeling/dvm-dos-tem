@@ -422,7 +422,7 @@ void Runner::runmode3(){
 	if(md.runsp){
 		timer.stageyrind = 0;
 		timer.eqend = true;
-	    runcht.used_atmyr = min(MAX_ATM_NOM_YR, md.act_clmyr);
+	    runcht.used_atmyr = fmin(MAX_ATM_NOM_YR, md.act_clmyr);
 	    runcht.yrstart = timer.spbegyr;
 	    runcht.yrend   = timer.spendyr;
 	    md.friderived= false;
@@ -448,12 +448,11 @@ void Runner::runmode3(){
 	}
 
 	//loop through time-step
-/*	for (int icalyr=runcht.yrstart; icalyr<=runcht.yrend; icalyr++){
+	for (int icalyr=runcht.yrstart; icalyr<=runcht.yrend; icalyr++){
 		for (int im=0; im<12; im++) {
 			runSpatially(icalyr, im);
 		}
 	}
-*/
 };
 
 void Runner::runSpatially(const int icalyr, const int im) {

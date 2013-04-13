@@ -96,15 +96,15 @@ public class Runner {
 
  		   	this.md.setChangeclimate(this.jconfigin.changeclimate);
  			this.md.setChangeco2(this.jconfigin.changeco2);
- 			this.md.setUpdatelai(this.jconfigin.updtaelai);
+ 			this.md.setUpdatelai(this.jconfigin.updatelai);
  			this.md.setUseseverity(this.jconfigin.useseverity);
 
  			this.md.setOutstartyr(this.jconfigin.outstartyr);
  			
- 			this.md.setOutSiteDay(this.jconfigin.useseverity);
- 			this.md.setOutSiteMonth(this.jconfigin.useseverity);
- 			this.md.setOutSiteYear(this.jconfigin.useseverity);
- 			this.md.setOutRegn(this.jconfigin.useseverity);			
+ 			this.md.setOutSiteDay(this.jconfigin.outsiteday);
+ 			this.md.setOutSiteMonth(this.jconfigin.outsitemonth);
+ 			this.md.setOutSiteYear(this.jconfigin.outsiteyear);
+ 			this.md.setOutRegn(this.jconfigin.outregn);			
 			
 		} else {  //configuration by control file
 
@@ -337,7 +337,7 @@ public class Runner {
 				}
 			}
 
-			// 2) output the record no. for all data IDs, in the 'runchtlist'in so that read-data doesn't need to
+			// 2) output the record no. for all data IDs, in the 'runchtlist' so that read-data doesn't need to
 			// search each IDs in the .nc files during computation, which may cost a lot of computation time
 			int jcht  = -1;
 			int jt    = -1;
@@ -463,7 +463,7 @@ public class Runner {
 			}
 
 			//getting the cohort data for current cohort
-			error = runcht.readData();
+			error = runcht.readData(true);
 			if (error!=0){
 				System.out.println("problem in reading grided data in Runner::run_siter \n");
 				System.exit(-1);
@@ -529,7 +529,7 @@ public class Runner {
 				}
 
 				//getting the cohort data for current cohort
-				error = runcht.readData();
+				error = runcht.readData(true);
 				if (error!=0){
 					System.out.println("problem in reading grided data in Runner::run_regner \n");
 					System.exit(-1);

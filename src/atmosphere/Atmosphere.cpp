@@ -58,7 +58,7 @@ void Atmosphere::prepareMonthDrivingData(){
     	eq_nirr[im]=0.;
     	eq_vapo[im]=0.;
     			
-    	int max_yr = min(MAX_ATM_NOM_YR, cd->act_atm_drv_yr);
+    	int max_yr = fmin(MAX_ATM_NOM_YR, cd->act_atm_drv_yr);
     	for(int iy=0; iy<max_yr; iy++){    //Yuan: average over the first 30 yrs atm data
     		eq_tair[im] += tair[iy][im]/max_yr;
     		eq_prec[im] += prec[iy][im]/max_yr;

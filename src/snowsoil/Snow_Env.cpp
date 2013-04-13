@@ -62,33 +62,11 @@ void Snow_Env::updateDailyM(const double & tdrv){
     }
 
     // after snow layer adding/removal/adjusting, needs updating thickness
-	ground->updateSnowLayerPropertiesDaily();
-	ground->updateSnowLayerZ();
-
-	updateSWE(ground->toplayer);
-	if (ed->d_snws.swesum > 0.) {
-		if (ground->snow.thick > 0.) {  //d_snws.swesum includes 'extramass', which is less than that for constructing a single snow layer
-			ground->snow.dense = ed->d_snws.swesum/ground->snow.thick;
-			ground->snow.coverage = 1.;
-
-			// assuming no evap and reflection from soil surface, if snow layer still exists or is constructed
-			ed->d_soi2a.evap   = 0.;  // Yuan: these might not be needed? but no harmless here to do so
-			ed->d_soi2a.swrefl = 0.;
-			ed->d_soi2l.qover  = 0.;
-		} else {
-			ground->snow.dense = ground->snowdimpar.newden;
-			ground->snow.coverage = ground->snow.extramass/ground->snowdimpar.newden/ground->snow.mindz[1];
-
-		}
-	} else {
-		ground->snow.numl = 0;
-		ground->snow.coverage = 0.;
-		ground->snow.dense = 0.;
-		ground->snow.thick = 0.;
-		ground->snow.extramass = 0.;
-	}
-
+	ground->updateSnowLayerPropertiesDaily();   // each layer
+	ground->updateSnowHorizon();                // all snow horizon
 	ground->checkWaterValidity();
+
+	updateSnowEd(ground->toplayer);
 
 };
 
@@ -110,7 +88,7 @@ void Snow_Env::updateDailySurfFlux( Layer* toplayer, const double & tdrv){
 		double actsub = 0.;
 		while (currl!=NULL){
 			if (currl->isSnow && sublim>0.) {
-				double layicermv = min(sublim, currl->ice);
+				double layicermv = fmin(sublim, currl->ice);
 				actsub += layicermv;
 				sublim -= layicermv;
 
@@ -154,8 +132,8 @@ double Snow_Env::getAlbedoVis(const double & tem){
     	vis =0.9;
     }else{
     	vis = snowenvpar.albmax - (snowenvpar.albmax -snowenvpar.albmin) * (tem+10)/10;
-    	vis = min(snowenvpar.albmax, vis);
-    	vis = max(snowenvpar.albmin, vis);
+    	vis = fmin(snowenvpar.albmax, vis);
+    	vis = fmax(snowenvpar.albmin, vis);
     }
 
     return vis;
@@ -207,7 +185,8 @@ double  Snow_Env::meltSnowLayersAfterT(Layer* toplayer){
 	return melt;    //Note: 1kgH2O/m2 = 1 mm H2O
 };
 
-void Snow_Env::updateSWE(Layer *toplayer){
+// assign double-linked snow horizon data to 'ed'
+void Snow_Env::updateSnowEd(Layer *toplayer){
 	ed->d_snws.swesum = 0.;
 	Layer* currl=toplayer;
 	int snowind = 0;
@@ -230,6 +209,13 @@ void Snow_Env::updateSWE(Layer *toplayer){
 
 	ed->d_snws.extraswe= ground->snow.extramass;
 	ed->d_snws.swesum += ground->snow.extramass;
+
+	if (ed->d_snws.swesum>0.){
+		// assuming no evap and reflection from soil surface, if snow layer still exists or is constructed
+		ed->d_soi2a.evap   = 0.;  // Yuan: these might not be needed? but no harmless here to do so
+		ed->d_soi2a.swrefl = 0.;
+		ed->d_soi2l.qover  = 0.;
+	}
 
 };
 

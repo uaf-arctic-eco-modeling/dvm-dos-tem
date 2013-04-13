@@ -55,7 +55,6 @@ class ChtOutputer{
 	   	//
 		NcVar* snwthickV;
 		NcVar* snwdenseV;
-		NcVar* snwrhoV;
 		NcVar* snwextramassV;
 		NcVar* snwageV;
 

@@ -94,7 +94,9 @@ void Stefan::updateFronts(const double & tdrv, const double &timestep){
 
 	ground->setFstLstFrontLayers();
 
-//*  // After testing - the bottom-up appears having shallower ALD and colder soil T - be sure of validating this in field
+/*  // there exists a bug, turn off temporarily - to be checking (fmyuan: 3/22/2013)
+
+    // After testing - the bottom-up appears having shallower ALD and colder soil T - be sure of validating this in field
  	// bottom-up determined front moving
  	// (1) determine the bottom driving layer
 
@@ -203,11 +205,11 @@ void Stefan::processNewFrontSoilLayerDown(const int &freezing, double const & su
 
 	 dz =sl->dz;  // this is the max. thickness
 	 if (freezing==1) {
-		 dz *= max(0., 1.0-sl->frozenfrac); //assuming frozen/unfrozen soil segments not mixed
-		 volwat = max(0.0, sl->getVolLiq())*sl->dz;
+		 dz *= fmax(0., 1.0-sl->frozenfrac); //assuming frozen/unfrozen soil segments not mixed
+		 volwat = fmax(0.0, sl->getVolLiq())*sl->dz;
 	 } else {
 		 dz *= sl->frozenfrac; //assuming frozen/unfrozen soil segments not mixed
-		 volwat = max(0.0, sl->getVolIce())*sl->dz;
+		 volwat = fmax(0.0, sl->getVolIce())*sl->dz;
 	 }
 
 	 if (dz<=0.0001*sl->dz) {    // this will avoid 'front' exactly falling on the boundary between layers that causes a lot of mathmatic issues
@@ -255,10 +257,10 @@ void Stefan::processNewFrontSoilLayerDown(const int &freezing, double const & su
 				 int fnttype = fntsintype[i];
 				 double fntdz = fntsindz[i];
 
-				 if (i<fntinnum-1) newfntdzmax=min(newfntdzmax, fntsindz[i+1]);
+				 if (i<fntinnum-1) newfntdzmax=fmin(newfntdzmax, fntsindz[i+1]);
 				 if (fnttype == freezing) {
 					 // moving the same-type front
-					 newfntdz = min(newfntdzmax, fntdz+partdleft);  //moving the same type front down until the layer boundry or the next inside front
+					 newfntdz = fmin(newfntdzmax, fntdz+partdleft);  //moving the same type front down until the layer boundry or the next inside front
 					 partdleft -=newfntdz;
 				 } else {
 					 // for the opposite type front
@@ -338,7 +340,7 @@ void Stefan::frontsDequeDown(const double &newfntz, const int &newfnttype){
 		} else { // new front sweeps every front
 
 			if (newfnttype == lstfrnttype) { // new front will move the last old front, if they're same type
-				double fntz= min(newfntz, ground->lstsoill->z+0.9999*ground->lstsoill->dz);
+				double fntz= fmin(newfntz, ground->lstsoill->z+0.9999*ground->lstsoill->dz);
 				ground->frontsz.push_front(fntz);
 				ground->frontstype.push_front(newfnttype);
 
@@ -361,11 +363,11 @@ void Stefan::processNewFrontSoilLayerUp(const int &freezing, double const & sumr
 
 	 dz =sl->dz;  // this is the max. thickness of water to be freezing/thawing
 	 if (freezing==1) {
-		 dz *= max(0., 1.0-sl->frozenfrac); //assuming frozen/unfrozen soil segments not mixed
-		 volwat = max(0.0, sl->getVolLiq())*sl->dz;
+		 dz *= fmax(0., 1.0-sl->frozenfrac); //assuming frozen/unfrozen soil segments not mixed
+		 volwat = fmax(0.0, sl->getVolLiq())*sl->dz;
 	 } else {
 		 dz *= sl->frozenfrac; //assuming frozen/unfrozen soil segments not mixed
-		 volwat = max(0.0, sl->getVolIce())*sl->dz;
+		 volwat = fmax(0.0, sl->getVolIce())*sl->dz;
 	 }
 
 	 if (dz<=0.0001*sl->dz) {    // this will avoid 'front' exactly falling on the boundary between layers that causes a lot of mathmatic issues
@@ -413,10 +415,10 @@ void Stefan::processNewFrontSoilLayerUp(const int &freezing, double const & sumr
 				 int fnttype = fntsintype[i];
 				 double fntdz = fntsindz[i];
 
-				 if (i<fntinnum-1) newfntdzmax=min(newfntdzmax, fntsindz[i+1]);
+				 if (i<fntinnum-1) newfntdzmax=fmin(newfntdzmax, fntsindz[i+1]);
 				 if (fnttype != freezing) {   //note: opposite of front type and 'freezing/thawing' force
 					 // moving the same-type front
-					 newfntdz = min(newfntdzmax, fntdz+partdleft);  //moving the same type front up until the layer boundry or the next inside front
+					 newfntdz = fmin(newfntdzmax, fntdz+partdleft);  //moving the same type front up until the layer boundry or the next inside front
 					 partdleft -=newfntdz;
 				 } else {
 					 // for the opposite type front
@@ -496,7 +498,7 @@ void Stefan::frontsDequeUp(const double &newfntz, const int &newfnttype){
 		} else { // new front sweeps every front
 
 			if (newfnttype == fstfrnttype) { // new front will move upwardly the first old front, if they're same type
-				double fntz= max(newfntz, ground->fstsoill->z+0.0001*ground->lstsoill->dz);
+				double fntz= fmax(newfntz, ground->fstsoill->z+0.0001*ground->lstsoill->dz);
 				ground->frontsz.push_back(fntz);
 				ground->frontstype.push_back(newfnttype);
 
@@ -664,7 +666,7 @@ void Stefan::updateLayerFrozenState(Layer * toplayer){
 				 fntindz.push_back(ground->frontsz[i]-currl->z);
 
 			 } else {
-				 if (abs(dz)<=abs(fntoutdz)) {
+				 if (fabs(dz)<=fabs(fntoutdz)) {
 					 fntoutdz   = dz;
 					 fntouttype = ground->frontstype[i];
 				 }
@@ -729,8 +731,9 @@ void Stefan::updateWaterAfterFront(Layer* toplayer){
  		currl->liq = (tice +tliq ) * (1. - currl->frozenfrac);
 
  		// there may be a situation that freezing may cause ice 'expansion' over the maxice -
- 		if (currl->ice>=(currl->maxice-currl->liq)) {
- 			currl->ice=currl->maxice-currl->liq;   // what to do about the 'extra' water??? - next step
+ 		double icebylwc = currl->getVolLiq()*DENICE*currl->dz;
+ 		if (currl->ice>=(currl->maxice-icebylwc)) {
+ 			currl->ice=fmax(0., currl->maxice-icebylwc);   // what to do about the 'extra' water??? - next step
  		}
 
  		// phase change energy

@@ -47,10 +47,66 @@ Finally to run the program:
 * The java virtual machine is started with the right jar and told where to 
 look for the shared C++ library.
 
+# Debugging Info
+Generally the steps to debug are:
 
+* Compile in debug mode.
+* Launching the program in debug mode.
+* Attach the debugger.
+* Use the debugger to interact with the program...
 
+## Compile in debug mode
+In order to use the debugger, the code must be compiled in debug mode. This includes 
+special symbols in the final files so that the debugger can provide useful information 
+while stepping through the program. For now we are simply leaving the debug flags in the 
+build.xml file, so the build will always be in debug mode. If performance becomes an 
+issue, a different, non-debug step could be added to build.xml.
 
+## Launching the program in debug mode.
+In a terminal window, start the JVM (Java Virtual Machine) with a variety of options
+ that allow a debugger to be attached to the code.
 
+    $ java -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005 \
+    -Djava.library.path="lib" -jar dvm-dos-tem-calibrator.jar
 
+## Attaching the debugger
+In another terminal window, attach jdb (Java command line Debugger tool) to the JVM you 
+just started in the first terminal window.
 
+    $ jdb -attach 5005 -sourcepath java-code
+    Set uncaught java.lang.Throwable
+    Set deferred uncaught java.lang.Throwable
+    Initializing jdb ...
+    >
+    VM Started: No frames on the current call stack
+    
+    main[1] step
+    >
+    Step completed: "thread=main", TEMCalibrator.<clinit>(), line=19 bci=0
 
+The `-sourcepath` flag tells the debugger where to look for source code.
+
+## Interact with the debugger
+Type the help command to see a list of available commands for jdb.
+
+    > main[1] help
+    ** command list **
+    connectors                -- list available connectors and transports in this VM
+    
+    run [class [args]]        -- start execution of application's main class
+    
+    threads [threadgroup]     -- list threads
+    thread <thread id>        -- set default thread
+    suspend [thread id(s)]    -- suspend threads (default: all)
+    resume [thread id(s)]     -- resume threads (default: all)
+    where [<thread id> | all] -- dump a thread's stack
+    wherei [<thread id> | all]-- dump a thread's stack, with pc info
+    ....
+    ....etc (many more commands available)
+    
+One thing to remember is that to set breakpoints it is necessary to specify the fully
+qualified path, including the package hierarchy. So for instance to stop in a method of 
+the TemCalGUI class you would type:
+
+    > main[1] stop in GUI.TemCalGUI.readInitparFromFile
+    

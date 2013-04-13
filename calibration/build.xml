@@ -130,8 +130,9 @@
     <echo>Compiling java sources</echo>
     <mkdir dir="${BUILDDIR}" />
 
-    <javac destdir="${BUILDDIR}">
-    
+    <javac destdir="${BUILDDIR}"
+           debug="true"
+           debuglevel="lines,vars,source">
       <src path="java-code" />
       <src path="${BUILDDIR}" />
       <src path="${BUILDDIR}/TEMJNI" />
@@ -140,7 +141,7 @@
         <pathelement location="jars/l2fprod-common-all.jar"/>
         <pathelement location="jars/jchart2d-3.2.2.jar"/>
         <pathelement location="jars/netcdfUI-2.2.22.jar"/>
-        <pathelement location="jars/log4j-1.2.9.jar"/>
+        <pathelement location="jars/log4j-1.2.17.jar"/>
         <pathelement location="build/TEMJNI/"/>
       </classpath>
 
@@ -163,9 +164,9 @@
           <attribute name="Class-Path" value="jars/l2fprod-common-all.jar 
                                               jars/jchart2d-3.2.2.jar 
                                               jars/netcdfUI-2.2.22.jar 
-                                              jars/log4j-1.2.9.jar
-                                              jars/slf4j-api-1.5.6.jar
-                                              jars/slf4j-log4j12-1.5.6.jar" />
+                                              jars/log4j-1.2.17.jar
+                                              jars/slf4j-api-1.7.5.jar
+                                              jars/slf4j-log4j12-1.7.5.jar" />
          </manifest>
       </jar>
       

@@ -59,6 +59,9 @@
 
 			double fracnuptake[MAX_SOI_LAY];  //fraction of N extraction in each soil layer for current PFT
 			double fltrfall;                  //season fraction of max. monthly litterfalling fraction
+			double dleafc;                    // C requirement of foliage growth at current timestep
+		    double d2wdebrisc;
+		    double d2wdebrisn;
 
   			CohortLookup * chtlu;
 

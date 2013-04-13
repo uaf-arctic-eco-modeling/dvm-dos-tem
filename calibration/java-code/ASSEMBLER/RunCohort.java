@@ -169,7 +169,7 @@ public class RunCohort {
 	 }
 
 	//read-in data for a cohort
-	public int readData(){
+	public int readData(boolean vegread){
 
 		int error = 0;
 		
@@ -179,18 +179,24 @@ public class RunCohort {
 				jcd.act_atm_drv_yr,	clmrecno);
 		if (error<0) return error;
 
-		//reading the vegetation community type data from 'vegetation.nc'
-		jcd.act_vegset = cinputer.act_vegset;
-		error = cinputer.getVegetation(jcd.vegyear, jcd.vegtype, 
+		if (vegread) {
+			//reading the vegetation community type data from 'vegetation.nc'
+			jcd.act_vegset = cinputer.act_vegset;
+			error = cinputer.getVegetation(jcd.vegyear, jcd.vegtype, 
 				jcd.vegfrac, vegrecno);
-		if (error<0) return error;
+			if (error<0) return error;
 
-		//INDEX of veg. community codes, must be one of in those parameter files under 'config/'
-		jcd.cmttype = jcd.vegtype[0];  //default, i.e., the first set of data
-		for (int i=1; i<jcd.act_vegset; i++) {
-			if (jcd.year>=jcd.vegyear[i]) {
-				jcd.cmttype = jcd.vegtype[i];
+			//INDEX of veg. community codes, must be one of in those parameter files under 'config/'
+			jcd.cmttype = jcd.vegtype[0];  //default, i.e., the first set of data
+			for (int i=1; i<jcd.act_vegset; i++) {
+				if (jcd.year>=jcd.vegyear[i]) {
+					jcd.cmttype = jcd.vegtype[i];
+				}
 			}
+		
+		} else { // for calibration - veg type not yet defined
+			jcd.cmttype = 0;   // will take the default parameters except for those to be calibrated
+			jcd.vegfrac[0] = 1.0;
 		}
 		
 		// read-in parameters AND initial conditions as inputs
@@ -303,11 +309,14 @@ public class RunCohort {
 			cht.getMd().setDvmmodule(true);
 
 			cht.getMd().setFriderived(true);	
+			cht.getCd().setYrsdist(0);
 
 			cht.getTimer().setStageyrind(0);
 
 		    yrstart = 0;
-		    yrend   = Math.min(ConstTime.MAX_EQ_YR, 20*cht.getGd().getFri()-2);   //20 FRI or max. MAX_EQ_YR
+		    int nfri = Math.max(ConstTime.MIN_EQ_YR/cht.getGd().getFri(), 20);
+		    nfri     = Math.min(nfri, ConstTime.MAX_EQ_YR/cht.getGd().getFri());
+		    yrend    = nfri*cht.getGd().getFri()-1;   //20 FRI and within min. and max. MAX_EQ_YR
     		
 		    run_timeseries();               
 		}
@@ -376,6 +385,8 @@ public class RunCohort {
 		dstepcnt = 0;
 		mstepcnt = 0;
 		ystepcnt = 0;
+
+		cht.getCd().setYrsdist(1000);
 
 		yrstart = 0;
 		yrend   = 100;

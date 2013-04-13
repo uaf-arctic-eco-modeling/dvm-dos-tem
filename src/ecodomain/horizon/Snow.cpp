@@ -26,6 +26,8 @@ Snow::Snow(){
 	mindz[indl] =0.670;
 	maxdz[indl] =100;
 	
+	reset();
+
 };
 
 Snow::~Snow(){
@@ -35,6 +37,7 @@ Snow::~Snow(){
 void Snow::setSnowThicknesses(double dzp[], const int & maxnum){
 	numl   = 0;
 	thick  = 0.;
+
    	for(int i=0; i<maxnum; i++){
    		if (i<MAX_SNW_LAY) {
    			dz[i] = dzp[i];
@@ -50,10 +53,16 @@ void Snow::setSnowThicknesses(double dzp[], const int & maxnum){
 void Snow::reset(){
 	thick= 0.;
 	numl = 0;
+	age  = 0.;
 
    	for(int i=0; i<MAX_SNW_LAY; i++){
    		dz[i] = MISSING_D;
    	}
+
+	coverage = 0.;
+	swe      = 0.;
+	dense    = 0.;
+	extramass = 0.;
 
 };
 

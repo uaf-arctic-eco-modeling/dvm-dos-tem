@@ -65,6 +65,7 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl, const double & bdraindept
 		rmx[il] = MISSING_D;
 		dwat[il]= MISSING_D;
 	}
+	qdrain = 0.;
 
 	// loop for continuous unfrozen soil column section
 	// in a soil profile, there may be a few or none
@@ -92,15 +93,15 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl, const double & bdraindept
 					* pow((double)s1, (double)2*bsw[ind] +2);
 			hk[ind] = s1*s2;
 			if (ind==drainl->solind) {
-				qout[ind] = -hk[ind]*fbaseflow - trans[ind];
+				qout[ind] = hk[ind]*fbaseflow + trans[ind];
 			} else {  //no drainage occurs if not in 'drainl'
-				qout[ind] = -trans[ind];
+				qout[ind] = trans[ind];
 			}
 
-			liqld[ind] += (qin[ind]+qout[ind]);
+			liqld[ind] += (qin[ind]-qout[ind]);
 
 			if (ind==drainl->solind) {
-				qdrain = -hk[ind]*fbaseflow*timestep/86400.;            //bottom drainage: mm/day->mm/sec
+				qdrain += hk[ind]*fbaseflow*timestep/86400.;            //bottom drainage: mm/day->mm/sec
 			}
 		} else if(numal>1) {    // iteration for unfrozen column with multiple layers
 			iterate(trans, evap, infil, fbaseflow);
@@ -184,20 +185,20 @@ void Richards::prepareSoilNodes(Layer* currsoill, const double & draindepth){
 				if (currl->frozen==0) {
 					frntdzadj=1.0-currl->frozenfrac; //fraction of unfrozen thickness for both top/bottom partially-frozen layers
 					if (currl->solind==indx0al || currl->solind==drainl->solind) {
-						frntzadj = max(0., currl->dz*currl->frozenfrac);   // depth adding of unfrozen section of top partially-frozen layer
+						frntzadj = fmax(0., currl->dz*currl->frozenfrac);   // depth adding of unfrozen section of top partially-frozen layer
 					}
 				} else if (currl->solind == drainl->solind) {  //unfrozen layer but drainl, indicates a watertable in the layer
 					drdzadj = (draindepth-currl->z)/currl->dz;     //if 'draindepth' is inside of 'drainl'
 				}
 
 				double minvolliq = currl->minliq/DENLIQ/currl->dz;
-				effporo[ind] = max(0., currl->poro-minvolliq); //-currl->getVolIce());
-				dzmm[ind] = currl->dz*1.e3*min(frntdzadj, drdzadj);
+				effporo[ind] = fmax(0., currl->poro-minvolliq);
+				dzmm[ind] = currl->dz*1.e3*fmin(frntdzadj, drdzadj);
 				zmm[ind]  = (currl->z+frntzadj)*1.e3 + 0.5 *dzmm[ind]; // the node depth (middle point of a layer)
 
-				effminliq[ind] = currl->minliq*min(frntdzadj, drdzadj);
-				effmaxliq[ind] = (effporo[ind]*dzmm[ind])*min(frntdzadj, drdzadj);
-				effliq[ind] = max(0.0, currl->liq*drdzadj-effminliq[ind]);
+				effminliq[ind] = currl->minliq*fmin(frntdzadj, drdzadj);
+				effmaxliq[ind] = (effporo[ind]*dzmm[ind])*fmin(frntdzadj, drdzadj);
+				effliq[ind] = fmax(0.0, currl->liq*drdzadj-effminliq[ind]);
 
 				if (effliq[ind]<0. || effminliq[ind]<0. || effmaxliq[ind]<0.) {
 					if (debugging) cout<<"effective liq is less than 0!";
@@ -207,10 +208,12 @@ void Richards::prepareSoilNodes(Layer* currsoill, const double & draindepth){
 				hksat[ind] = currl->hksat;
 				bsw[ind]   = currl->bsw;
 
+			} else {
+				break;
 			}
 
 		}else{
-			break;	
+			break;
 		}
 
 		currl= currl->nextl;
@@ -263,7 +266,7 @@ void Richards::iterate(const double trans[], const double & evap,
 			}
 			
 			// make sure tleft is greater than zero
-			tstep = min(tleft, tstep);	
+			tstep = fmin(tleft, tstep);
 			if(tstep<=0) {  //starting the next iterative-interval
 				qdrain = 0.;
 			}
@@ -320,20 +323,20 @@ int Richards::updateOneIteration(const double &fbaseflow){
 	for (int indx=indx0al; indx<indx0al+numal; indx++) {
 			
 		effporo0 = effporo[indx];
-		volliq = max(0., liqii[indx]/dzmm[indx]);
-		volliq = min(volliq, effporo0);
+		volliq = fmax(0., liqii[indx]/dzmm[indx]);
+		volliq = fmin(volliq, effporo0);
 			
 		if(indx==indx0al+numal-1){
-			s1 = volliq/max(wimp, effporo0);
+			s1 = volliq/fmax(wimp, effporo0);
 			s2 = hksat[indx] * exp (-2.0*(zmm[indx]/1000.0))
 					* pow(s1, 2.0*bsw[indx]+2.0);
 			hk[indx] = s1*s2;
-			dhkdw[indx] = (2.0*bsw[indx]+3.0)*s2*0.5/max(wimp, effporo0);
+			dhkdw[indx] = (2.0*bsw[indx]+3.0)*s2*0.5/fmax(wimp, effporo0);
 		} else {			
 
 			effporo2 = effporo[indx+1];
-			volliq2 = max(0., liqii[indx+1]/dzmm[indx+1]);
-			volliq2 = min(volliq2, effporo2);
+			volliq2 = fmax(0., liqii[indx+1]/dzmm[indx+1]);
+			volliq2 = fmin(volliq2, effporo2);
 			
 			if(effporo0<wimp || effporo2<wimp){
 				hk[indx] = 0.;
@@ -358,12 +361,12 @@ int Richards::updateOneIteration(const double &fbaseflow){
 		}
 
 		//
-		s_node = volliq/max(wimp, effporo0);
-		s_node = max(0.001, (double)s_node);
-		s_node = min(1.0, (double)s_node);
+		s_node = volliq/fmax(wimp, effporo0);
+		s_node = fmax(0.001, (double)s_node);
+		s_node = fmin(1.0, (double)s_node);
 		smp[indx] = psisat[indx]*pow(s_node, -bsw[indx]);
-		smp[indx] = max(smpmin, smp[indx]);
-		dsmpdw[indx]= -bsw[indx]*smp[indx]/(s_node*max(wimp,effporo0));
+		smp[indx] = fmax(smpmin, smp[indx]);
+		dsmpdw[indx]= -bsw[indx]*smp[indx]/(s_node*fmax(wimp,effporo0));
 
 		//
 		if (smp[indx]>=numeric_limits<double>::infinity() || dsmpdw[indx]>=numeric_limits<double>::infinity()){
@@ -414,6 +417,12 @@ int Richards::updateOneIteration(const double &fbaseflow){
 				amx[ind] =-dqidw0;
 				bmx[ind] = dzmm[ind] /dt - dqidw1 + dqodw1;
 				cmx[ind] = dqodw2;
+
+				if (debugging) {
+					if (amx[ind] != amx[ind] || bmx[ind] != bmx[ind] || cmx[ind] != cmx[ind] || rmx[ind] != rmx[ind]) {
+						cout<<"checking here!";
+					}
+				}
 			}
 		}
 
@@ -443,7 +452,7 @@ int Richards::updateOneIteration(const double &fbaseflow){
     	liqit[il] = liqii[il] + dzmm[il] * dwat[il];
 
     	if (debugging) {
-    		if(isnan(liqit[il])){
+    		if(liqit[il]!=liqit[il]){
     			string msg = "water is nan ";
     			cout << msg + " - in Richardss::updateOneIteration\n";
     		}

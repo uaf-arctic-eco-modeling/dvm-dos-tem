@@ -122,7 +122,7 @@ double Layer::getThermalConductivity(){
 double Layer::getVolWater(){
  	double vice = getVolIce();
  	double vliq = getVolLiq();
- 	return min((double)poro,(double)vice+vliq);
+ 	return fmin((double)poro,(double)vice+vliq);
 };
  
 double Layer::getEffVolWater(){
@@ -140,18 +140,18 @@ double Layer::getEffVolWater(){
  
 double Layer::getVolIce(){
     double vice = ice/DENICE/dz;
-    vice = min((double)vice, (double)poro);
+    vice = fmin((double)vice, (double)poro);
     return vice;
 };
  
 double Layer::getVolLiq(){
     double vliq = liq/DENLIQ/dz;
-    vliq = min((double)vliq,(double)poro);
+    vliq = fmin((double)vliq,(double)poro);
     return vliq;
 };
 
 double Layer::getEffVolLiq(){
     double evliq = (liq-minliq)/DENLIQ/dz;
-    evliq = min((double)evliq,(double)poro);
+    evliq = fmin((double)evliq,(double)poro);
     return evliq;
 };

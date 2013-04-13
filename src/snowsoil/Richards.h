@@ -6,6 +6,7 @@
 #define RICHARDS_H_
 
 #include <cmath>
+#include <limits>
 
 #include "../data/CohortData.h"
 #include "../data/EnvData.h"
