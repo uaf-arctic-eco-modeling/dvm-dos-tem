@@ -100,11 +100,13 @@
 		double rtlfalfrac[MAX_SOI_LAY];  //root mortality vertical distribution
 
 		// carbon
+  		double d2wdebrisc;   // dead standing C to ground debris
   		double ltrfalcall;     //excluding moss/lichen mortality
   		double mossdeathc;     // moss/lichen mortality
  		double ltrfalc[NUM_PFT_PART];
   
   		// nitrogen
+  		double d2wdebrisn;   // dead standing N to ground debris
   		double ltrfalnall;     //excluding moss/lichen mortality
   		double mossdeathn;     // moss/lichen mortality
   		double ltrfaln[NUM_PFT_PART];
@@ -157,6 +159,8 @@
 
 	struct soi2atm_bgc{
   		double rhwdeb; //rh from wood debris
+
+  		double rhmossc;
 
   		double rhrawc[MAX_SOI_LAY];
   		double rhsoma[MAX_SOI_LAY];

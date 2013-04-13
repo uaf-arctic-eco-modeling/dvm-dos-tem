@@ -17,7 +17,6 @@ class FirData{
 
         void clear();
 
-        int ysf;
         bool useseverity;
 
 		soidiag_fir fire_soid;

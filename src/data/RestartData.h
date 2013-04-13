@@ -18,7 +18,7 @@ class RestartData {
 	    double firea2sorgn;
 
 		//vegegetation
-	    int ysf;
+	    int yrsdist;
 
 	    int ifwoody[NUM_PFT];                  // - 'veg_dim'
 	    int ifdeciwoody[NUM_PFT];
@@ -82,12 +82,14 @@ class RestartData {
 	    int frontFT[MAX_NUM_FNT];
 	     
 	    double wdebrisc;
+	    double dmossc;
 	    double rawc[MAX_SOI_LAY];
 	    double soma[MAX_SOI_LAY];
 	    double sompr[MAX_SOI_LAY];
 	    double somcr[MAX_SOI_LAY];
 
 	    double wdebrisn;
+	    double dmossn;
 	    double orgn[MAX_SOI_LAY];
 	    double avln[MAX_SOI_LAY];
 

@@ -45,8 +45,8 @@ class Runner {
     	void runSpatially(const int icalyr, const int im);
 
     	vector<int> runchtlist;  //a vector listing all cohort id
- 	    vector<int> runchtlats;  //a vector of latitudes for all cohorts in order of 'runchtlist'
- 	    vector<int> runchtlons;  //a vector of longitudes for all cohorts in order of 'runchtlist'
+ 	    vector<float> runchtlats;  //a vector of latitudes for all cohorts in order of 'runchtlist'
+ 	    vector<float> runchtlons;  //a vector of longitudes for all cohorts in order of 'runchtlist'
 
     	/* all data record no. lists FOR all cohorts in 'runchtlist', IN EXACTLY SAME ORDER, for all !
     	 * the 'record' no. (starting from 0) is the order in the netcdf files

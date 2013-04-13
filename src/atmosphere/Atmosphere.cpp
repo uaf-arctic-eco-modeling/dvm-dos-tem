@@ -24,7 +24,7 @@ void Atmosphere::prepareMonthDrivingData(){
      //ta degC, prec mm/mon, nirr w/m2, vap mbar, 
      for(int iy =0; iy<cd->act_atm_drv_yr; iy++){
        	for (int im=0; im<12; im++){
-                int iyim =iy*12+im;
+            int iyim =iy*12+im;
        		tair[iy][im] = cd->tair[iyim];
        		prec[iy][im] = cd->prec[iyim];
        		nirr[iy][im] = cd->nirr[iyim];
@@ -58,7 +58,7 @@ void Atmosphere::prepareMonthDrivingData(){
     	eq_nirr[im]=0.;
     	eq_vapo[im]=0.;
     			
-    	int max_yr = min(MAX_ATM_NOM_YR, cd->act_atm_drv_yr);
+    	int max_yr = fmin(MAX_ATM_NOM_YR, cd->act_atm_drv_yr);
     	for(int iy=0; iy<max_yr; iy++){    //Yuan: average over the first 30 yrs atm data
     		eq_tair[im] += tair[iy][im]/max_yr;
     		eq_prec[im] += prec[iy][im]/max_yr;
@@ -256,7 +256,7 @@ void Atmosphere::updateDailyAtm(const int & mid, const int & dayid){
 	ed->d_atms.co2 = co2;
 	ed->d_atms.ta  = ta_d[mid][dayid];
 	ed->d_a2l.rnfl = rain_d[mid][dayid];
-	ed->d_a2l.snfl = snow_d[mid][dayid] ;
+	ed->d_a2l.snfl = snow_d[mid][dayid];
 	ed->d_a2l.prec = rain_d[mid][dayid]+snow_d[mid][dayid];
 	ed->d_a2l.par  = par_d[mid][dayid];
 	ed->d_a2l.nirr = nirr_d[mid][dayid];
@@ -264,8 +264,8 @@ void Atmosphere::updateDailyAtm(const int & mid, const int & dayid){
 	ed->d_atmd.svp = svp_d[mid][dayid];
 	ed->d_atmd.vpd = vpd_d[mid][dayid];
 	
-	if(ed->d_a2l.rnfl+ed->d_a2l.snfl >0){
-	  	ed->d_atms.dsr =0;	
+	if(ed->d_a2l.prec >0.0){
+	  	ed->d_atms.dsr = 0;
 	}else{
 	  	ed->d_atms.dsr++;	
 	}
@@ -277,7 +277,7 @@ void Atmosphere::precsplt(const float & tair,const float & prec, float & snfl, f
   /* *************************************************************
   Willmott's assumptions on snow/rain split:
   ************************************************************** */
-  	if ( tair >= 0.0 ) { // monthly use -1.0
+  	if ( tair > 0.0 ) { // monthly use -1.0
     	rnfl = prec;
     	snfl = 0.0;
   	} else  {

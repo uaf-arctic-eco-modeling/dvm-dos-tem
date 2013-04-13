@@ -93,7 +93,7 @@ void Vegetation::initializeState(){
 
     }
 
-    updateFpc(cd->m_veg.lai);
+    updateFpc();
 
     updateFrootfrac();
 
@@ -157,7 +157,7 @@ void Vegetation::initializeState5restart(RestartData *resin){
 
     }
 
-    updateFpc(cd->m_veg.lai);
+    updateFpc();
 
     updateFrootfrac();
 
@@ -174,7 +174,7 @@ void Vegetation::updateLai(const int &currmind){
     			if (bd[ip]->m_vegs.c[I_leaf] > 0.) {
     				cd->m_veg.lai[ip] = vegdimpar.sla[ip] * bd[ip]->m_vegs.c[I_leaf];
     			} else {
-    				if (ed[ip]->m_soid.growstart>0 && ed[ip]->m_soid.growend<0) {
+    				if (ed[ip]->m_soid.rtdpgrowstart>0 && ed[ip]->m_soid.rtdpgrowend<0) {
     					cd->m_veg.lai[ip] = 0.001;   // this is needed for leaf emerging
     				}
     			}
@@ -184,7 +184,7 @@ void Vegetation::updateLai(const int &currmind){
 };
 
 // sum of all PFTs' fpc must be not greater than 1.0
-void Vegetation::updateFpc(double lai[NUM_PFT]){
+void Vegetation::updateFpc(){
 	double fpcmx = 0.;
 	double fpcsum = 0.;
 	double fpc[NUM_PFT];
@@ -192,7 +192,7 @@ void Vegetation::updateFpc(double lai[NUM_PFT]){
 
 		if (cd->m_veg.vegcov[ip]>0.){
 
-			double ilai = lai[ip];
+			double ilai = cd->m_veg.lai[ip];
 			fpc[ip] = 1.0 - exp(-vegdimpar.klai[ip] * ilai);
 			if (fpc[ip]>fpcmx) {
 				fpcmx = fpc[ip];
@@ -218,11 +218,11 @@ void Vegetation::updateFpc(double lai[NUM_PFT]){
 // vegetation coverage update (note - this is not same as FPC)
 // and Here it's simply assumed as the max. foliage coverage projected on ground throughout the whole plant lift-time
 // shall be more working on this in future
-void Vegetation::updateVegcov(double lai[NUM_PFT]){
+void Vegetation::updateVegcov(){
 	double foliagecov = 0.;
 	cd->hasnonvascular = false;
 	for(int ip=0; ip<NUM_PFT; ip++)	{
-		double ilai = lai[ip];
+		double ilai = cd->m_veg.lai[ip];
 		foliagecov = 1.0 - exp(-vegdimpar.klai[ip] * ilai);
 		if (cd->m_veg.vegcov[ip]<foliagecov) {
 			cd->m_veg.vegcov[ip]=foliagecov;
@@ -262,18 +262,23 @@ void Vegetation::phenology(const int &currmind){
 			}
 
 			// 1) current EET and previous max. EET controlled
-			double tempunnormleaf;
-
+			double tempunnormleaf = 0.;;
 			double eet = ed[ip]->m_v2a.tran;  //originally it's using 'l2a.eet', which includes soil/veg evaporation - that may not relate to leaf phenology
-			tempunnormleaf = getUnnormleaf(ip, prveetmx, eet, prvunnormleafmx);
-			cd->m_vegd.fleaf[ip] = getFleaf(ip, tempunnormleaf, prveetmx);
+			tempunnormleaf = getUnnormleaf(ip, prveetmx, eet, cd->m_vegd.unnormleaf[ip]);
+			cd->m_vegd.unnormleaf[ip] = tempunnormleaf;  // prior to here, the 'unnormleaf[ip]' is from the previous month
+
+			double fleaf = getFleaf(ip, tempunnormleaf, prvunnormleafmx);
+			if (cd->m_veg.lai[ip]<=0.) fleaf = 0.;
+			cd->m_vegd.fleaf[ip] = fleaf;
 
 			// set the phenological variables of the year
 			if (currmind == 0) {
 				cd->m_vegd.eetmx[ip] = eet;
 				cd->m_vegd.unnormleafmx[ip] = tempunnormleaf;
-				cd->m_vegd.growingttime[ip] = ed[ip]->m_soid.tsdegday;
+				cd->m_vegd.growingttime[ip] = ed[ip]->m_soid.rtdpgdd;
 				cd->m_vegd.topt[ip] = ed[ip]->m_atms.ta;
+
+				cd->m_vegd.maxleafc[ip] = getYearlyMaxLAI(ip)/vegdimpar.sla[ip];
 			} else {
 		    	if (eet>cd->m_vegd.eetmx[ip]) {
 		    		cd->m_vegd.eetmx[ip] = eet;
@@ -281,20 +286,29 @@ void Vegetation::phenology(const int &currmind){
 
 		    	if (cd->m_vegd.unnormleafmx[ip] < tempunnormleaf) {
 					cd->m_vegd.unnormleafmx[ip] = tempunnormleaf;
-					cd->m_vegd.topt[ip] = ed[ip]->m_atms.ta;
+					cd->m_vegd.topt[ip] = ed[ip]->m_atms.ta;   // it's updating monthly for current year and then update the 'deque', but not used in 'GPP' estimation
 				}
 
-				if (cd->m_vegd.growingttime[ip]<ed[ip]->m_soid.tsdegday) {  // here, we take the top root zone degree-days since growing started
-					cd->m_vegd.growingttime[ip]=ed[ip]->m_soid.tsdegday;
+				if (cd->m_vegd.growingttime[ip]<ed[ip]->m_soid.rtdpgdd) {  // here, we take the top root zone degree-days since growing started
+					cd->m_vegd.growingttime[ip]=ed[ip]->m_soid.rtdpgdd;
 				}
 			}
 
 			// 2) plant size (biomass C) or age controlled foliage fraction rative to the max. leaf C
 			cd->m_vegd.ffoliage[ip] = getFfoliage(ip, cd->m_veg.ifwoody[ip], cd->m_veg.ifperenial[ip], bd[ip]->m_vegs.call);
 
-		} else {
-			cd->m_vegd.fleaf[ip] = 0.;
-			cd->m_vegd.ffoliage[ip] = 0.;
+		} else { // 'vegcov' is 0
+			cd->m_vegd.unnormleaf[ip] = MISSING_D;
+			cd->m_vegd.fleaf[ip]      = MISSING_D;
+
+			cd->m_vegd.eetmx[ip]        = MISSING_D;
+			cd->m_vegd.unnormleafmx[ip] = MISSING_D;
+			cd->m_vegd.topt[ip]         = MISSING_D;
+			cd->m_vegd.maxleafc[ip]     = MISSING_D;
+
+			cd->m_vegd.growingttime[ip] = MISSING_D;
+
+			cd->m_vegd.ffoliage[ip] = MISSING_D;
 		}
 
 	}
@@ -319,8 +333,8 @@ double Vegetation::getUnnormleaf(const int& ipft, double &prveetmx, const double
   			    +(vegdimpar.bleaf[ipft] * prvunleaf)
                 +vegdimpar.cleaf[ipft];
 
-  	if (unnormleaf < (0.5 * vegdimpar.minleaf[ipft])) {
-    	unnormleaf = 0.5 * vegdimpar.minleaf[ipft];
+  	if (unnormleaf < (0.1 * vegdimpar.minleaf[ipft])) {
+    	unnormleaf = 0.1 * vegdimpar.minleaf[ipft];
   	}
 
   	return unnormleaf;
@@ -346,7 +360,7 @@ double Vegetation::getFleaf(const int &ipft, const double & unnormleaf, const do
   	return fleaf;
 };
 
-// function for biomass C adjusted foliage growth index
+// function for biomass C adjusted foliage growth index (0 - 1.0)
 double Vegetation::getFfoliage(const int &ipft, const bool & ifwoody, const bool &ifperenial, const double &vegc){
 
 	double ffoliage =0;
@@ -379,6 +393,20 @@ double Vegetation::getFfoliage(const int &ipft, const bool & ifwoody, const bool
 
   	return ffoliage;
 };
+
+// plant max. LAI function derived from biomass C
+double Vegetation::getYearlyMaxLAI(const int &ipft){
+
+	double laimax = 0.;
+
+	for (int im=0; im<12; im++) {   // taking the max. of input 'envlai[12]' adjusted by 'vegcov'
+		double covlai = chtlu->envlai[im][ipft]*cd->m_veg.vegcov[ipft];
+		if (laimax<=covlai) laimax = covlai;
+	}
+
+  	return laimax;
+};
+
 
 // the following can be developed further for dynamical fine root distribution
 // currently, it's only do some checking

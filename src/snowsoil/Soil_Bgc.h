@@ -27,6 +27,7 @@ class Soil_Bgc{
 	
   	int nfeed;     // soil-plant-air N module switch
   	int avlnflg;   // open-N cycle switch; otherwise, N budget method used to balance the N I/O from the ecosystem
+  	int baseline;  // open-N cycle switch; otherwise, N budget method used to balance the N I/O from the ecosystem
 
   	soistate_bgc tmp_sois;   // the previous soistate_bgc
   	soistate_bgc del_sois;   // the change of soistate_bgc
@@ -60,11 +61,15 @@ class Soil_Bgc{
   	void deltan();
   	void deltastate();
 
-  	void prepareIntegration(const bool &mdnfeedback, const bool &mdavlnflg);
+  	void prepareIntegration(const bool &mdnfeedback, const bool &mdavlnflg, const bool &mdbaseline);
   	void afterIntegration();
   
   private:
   
+  	double d2wdebrisc;
+  	double d2wdebrisn;
+  	double mossdeathc;
+  	double mossdeathn;
   	double ltrflc[MAX_SOI_LAY];     //litterfall C into each soil layer
   	double ltrfln[MAX_SOI_LAY];     //litterfall N into each soil layer
 
@@ -109,8 +114,6 @@ class Soil_Bgc{
   	void updateKdyrly4all();
 
   	double getKdyrly(double& yrltrcn, const double lcclnc, const double & kdc);
-
-
 					  					 
 };
 #endif /*SOIL_BGC_H_*/

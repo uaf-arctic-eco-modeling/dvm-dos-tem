@@ -28,6 +28,12 @@ Cohort::~Cohort(){
 // initialization of pointers used in modules called here
 void Cohort::initSubmodules(){
 
+	// for controlling of error messaging in some subroutines
+	ground.debugging = md->consoledebug;
+	soilenv.tempupdator.debugging = md->consoledebug;
+	soilenv.stefan.debugging      = md->consoledebug;
+	soilenv.richards.debugging    = md->consoledebug;
+
  	//atmosphere module pointers
 	atm.setCohortData(&cd);
 	atm.setEnvData(edall);
@@ -79,7 +85,7 @@ void Cohort::initSubmodules(){
     //fire module pointers
 	fire.setCohortLookup(&chtlu);
 	fire.setCohortData(&cd);
-	fire.setEnvData(&ed[0]);
+	fire.setAllEnvBgcData(edall, bdall);
  	for (int i=0; i<NUM_PFT; i++){
  		fire.setBgcData(&bd[i], i);
  	}
@@ -95,11 +101,12 @@ void Cohort::initSubmodules(){
  	solintegrator.setSoil_Bgc(&soilbgc);
 
  	// Output data pointers
- 	outbuffer.setCurrentDimensionData(&cd);
+ 	outbuffer.setDimensionData(&cd);
+	outbuffer.setProcessData(-1, edall, bdall);
 	for (int ip=0; ip<NUM_PFT; ip++){
-		outbuffer.setCurrentProcessData(ip, &ed[ip], &bd[ip]);
+		outbuffer.setProcessData(ip, &ed[ip], &bd[ip]);
 	}
-	outbuffer.setCurrentFireData(fd);
+	outbuffer.setFireData(fd);
 
 };
 
@@ -135,19 +142,6 @@ void Cohort::setProcessData(EnvData * alledp, BgcData * allbdp, FirData *fdp){
 		bd[i].cd = &cd;
 		ed[i].cd = &cd;
  	}
-
-};
-
-void Cohort::clearData(){
- 	cd.clear();
- 	for (int ip=0; ip<NUM_PFT; ip++){
- 		ed[ip].clear();
- 		bd[ip].clear();
- 	}
-
-   	edall->clear();
-    bdall->clear();
-    fd->clear();
 
 };
 
@@ -222,7 +216,7 @@ void Cohort::initStatePar() {
 	    cd.d_soil = cd.m_soil;
 
 	    // initializing snow/soil/soilparent env state conditions after layerStructure done
-	    snowenv.initializeState();  //Note: ONE initial snow layer
+	    snowenv.initializeNewSnowState();  //Note: ONE initial snow layer as new snow
 	    soilenv.initializeState();
 	    solprntenv.initializeState();
 
@@ -312,7 +306,6 @@ void Cohort::prepareDayDrivingData(const int & yrindx, const int & usedatmyr){
 void Cohort::updateMonthly(const int & yrcnt, const int & currmind, const int & dinmcurr){
 
 	//
-
 	if(currmind==0) cd.beginOfYear();
 	cd.beginOfMonth();
 
@@ -455,15 +448,22 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr){
 		// integrating daily 'veg' portion in 'ed' of all PFTs for 'edall'
 		getEd4allveg_daily();
 
+/*
+		if (cd.year==1 && doy==37){
+			cout<<"checking";
+		}
+//*/
 		tdrv = edall->d_atms.ta;
 
-		// Snow-soil Env-module: ground/soil temperature/moisture dynamics at daily timestep
-		soilenv.updateDailyGroundT(tdrv, daylength); // snow-soil temperature
+		// Snow-soil Env-module: ground/soil temperatur e- moisture dynamics at daily timestep
+		// note: hydrology is done separately for snow and soil, but thermal process is done as a continuous column
+		//       so, thermal process (including phase changing) is carried out before hydrological process
+		soilenv.updateDailyGroundT(tdrv, daylength); // snow-soil temperature, including snow-melting and soil water phase changing
 
-		// get the new bottom drainage layer and its depth
+		snowenv.updateDailyM(tdrv);                  // snow water/thickness changing - must be done after 'T' because of melting
+
+		// get the new bottom drainage layer and its depth, which needed for soil moisture calculation
 		ground.setDrainL(ground.lstsoill, edall->d_soid.ald, edall->d_sois.watertab);
-
-		snowenv.updateDailyM(tdrv); //snow water/thickness changing
 		soilenv.updateDailySM();  //soil moisture
 
 		// save the variables to daily 'edall' (Note: not PFT specified)
@@ -473,6 +473,9 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr){
 		assignGroundEd2pfts_daily();      //sharing the 'ground' portion in 'edall' with each pft 'ed'
 
 		getEd4land_daily();  // integrating 'veg' and 'ground' into 'land'
+
+		ground.retrieveSnowDimension(&cd.d_snow);   // update Snow structure at daily timestep (for soil structure at yearly timestep in ::updateMonthly_DIMgrd)
+		cd.endOfDay(dinmcurr);   // this must be done first, because it's needed for below
 
 		//accumulate daily vars into monthly for 'ed' of each PFT
 		for (int ip=0; ip<NUM_PFT; ip++){
@@ -494,9 +497,6 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr){
 		edall->veg_endOfDay(dinmcurr);              //be sure 'getEd4allpfts_daily' called above
 		edall->grnd_endOfDay(dinmcurr, doy);
 
-		ground.retrieveSnowDimension(&cd.d_snow);   // update Snow structure at daily timestep (for soil structure at yearly timestep in ::updateMonthly_DIMgrd)
-		cd.endOfDay(dinmcurr);
-
 		// accumulate yearly vars at the last day of a month for all pfts
 		if(id==dinmcurr-1){
 			edall->atm_endOfMonth();
@@ -505,11 +505,12 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr){
 		}
 
 		////////////////////////////
-		//output data store for daily - because the output is carried out monthly
+		//output data store for daily - because the output is implemented monthly
 		if (md->outSiteDay) {
+			outbuffer.assignSiteDlyOutputBuffer_Env(cd.d_snow, -1, id);   // '-1' indicates for all-pft integrated datasets
 			for (int ip=0; ip<NUM_PFT; ip++) {
 				if (cd.d_veg.vegcov[ip]>0.0)
-				outbuffer.assignSiteDlyOutputBuffer_Env(cd.d_snow, &ed[ip], ip, id);
+				outbuffer.assignSiteDlyOutputBuffer_Env(cd.d_snow, ip, id);
 			}
 		}
 	
@@ -562,17 +563,12 @@ void Cohort::updateMonthly_Bgc(const int & currmind){
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 	// soil BGC module calling
-	soilbgc.prepareIntegration(md->nfeed, md->avlnflg);
+	soilbgc.prepareIntegration(md->nfeed, md->avlnflg, md->baseline);
 	solintegrator.updateMonthlySbgc(MAX_SOI_LAY);
     soilbgc.afterIntegration();
 
-	bdall->soil_endOfMonth(md->baseline);   // yearly data accumulation
+	bdall->soil_endOfMonth();   // yearly data accumulation
 	bdall->land_endOfMonth();
-
-	if(currmind==11){
-		double cnsoil = chtlu.nmincnsoil;
-		bdall->soil_endOfYear(cnsoil, md->baseline);   // yearly adjustment if 'N baseline' switched on
-	}
 
 	assignSoilBd2pfts_monthly();      //sharing the 'ground' portion in 'bdall' with each pft 'bd'
 
@@ -580,18 +576,18 @@ void Cohort::updateMonthly_Bgc(const int & currmind){
 
 //fire disturbance module calling
 /////////////////////////////////////////////////////////////////////////////////
-void Cohort::updateMonthly_Fir(const int & yrcnt, const int & currmind){
+void Cohort::updateMonthly_Fir(const int & yrind, const int & currmind){
 
 	if(currmind ==0){
 		fd->beginOfYear();
+
+		fire.getOccur(yrind, md->friderived);
 	}
 
-  	int fireoccur = fire.getOccur(yrcnt, currmind, md->friderived);
-
-   	if(fireoccur==1 ){
+   	if (yrind==fire.oneyear && currmind==fire.onemonth){
 		//fire, C burning for each PFT, and C/N pools updated through 'bd', but not soil structure
    		// soil root fraction also updated through 'cd'
-   		fire.burn(yrcnt, md->friderived);
+   		fire.burn();
 
    		// summarize burned veg C/N of individual 'bd' for each PFT above
    		for (int ip=0; ip<NUM_PFT; ip++){
@@ -614,9 +610,6 @@ void Cohort::updateMonthly_Fir(const int & yrcnt, const int & currmind){
    			}
    		}
 
-   		// copy the 'bd[0].m_sois', ONLY which actually updated during fire, to 'bdall' which going to update in 'soilbgc'
-   		bdall->m_sois = bd[0].m_sois;
-
    		// assign the updated soil C/N pools during firing to double-linked layer matrix in 'ground'
    		soilbgc.assignCarbonBd2LayerMonthly();
 
@@ -630,6 +623,7 @@ void Cohort::updateMonthly_Fir(const int & yrcnt, const int & currmind){
 		assignSoilBd2pfts_monthly();
 
 		// update 'cd'
+		cd.yrsdist = 0.;
 		ground.retrieveSnowDimension(&cd.d_snow);
 		ground.retrieveSoilDimension(&cd.m_soil);
 		cd.d_soil = cd.m_soil;
@@ -637,11 +631,6 @@ void Cohort::updateMonthly_Fir(const int & yrcnt, const int & currmind){
 
  		getSoilFineRootFrac_Monthly();
   	}
-
-   	if(currmind==11){
-  		fd->endOfYear();
-   	}
-
 
 };
 
@@ -662,7 +651,7 @@ void Cohort::updateMonthly_DIMveg(const int & currmind, const bool & dvmmodule){
 	// tentatively set to a common age from 'ysf' - year since fire - should have more varability based on PFT types
 	for (int ip=0; ip<NUM_PFT; ip++){
     	if (cd.m_veg.vegcov[ip]>0.){
-    		cd.m_veg.vegage[ip] = fd->ysf;
+    		cd.m_veg.vegage[ip] = cd.yrsdist;
     		if (cd.m_veg.vegage[ip]<=0) cd.m_vegd.foliagemx[ip] = 0.;
     	}
 	}
@@ -672,7 +661,8 @@ void Cohort::updateMonthly_DIMveg(const int & currmind, const bool & dvmmodule){
 	veg.updateLai(currmind);    // this must be done after phenology
 
     // LAI updated above for each PFT, but FPC (foliage percent cover) may need adjustment
-	veg.updateFpc(cd.m_veg.lai);
+	veg.updateFpc();
+	veg.updateVegcov();
 
 	veg.updateFrootfrac();
 
@@ -694,13 +684,21 @@ void Cohort::updateMonthly_DIMgrd(const int & currmind, const bool & dslmodule){
 		// above callings didn't modify the layer matrix structure
 		// in case that some layers may be getting too thick or too thin due to C content dynamics
 		// then, re-do layer division or combination is necessary for better thermal/hydrological simulation
-		if (cd.hasnonvascular && ground.moss.num <= 0) {
-			ground.moss.thick = ground.soildimpar.minmossthick;   // have to create a moss-layer, if none but non-vascular PFT exists.
+		if (cd.hasnonvascular && ground.moss.type<=0) {  //
+			double prvpft = 0.;
+			for (int ip=0; ip<NUM_PFT; ip++){
+		    	if (cd.m_veg.nonvascular[ip]!=I_vascular){
+		    		if (cd.m_veg.vegcov[ip]>prvpft)
+		    			ground.moss.type = cd.d_veg.nonvascular[ip];
+		    	}
+			}
+
 		}
 	    ground.redivideSoilLayers();
 
 		// and save the bgc data in double-linked structure back to 'bdall'
 		soilbgc.assignCarbonLayer2BdMonthly();
+
 	}
 
 	// update soil dimension
@@ -1031,6 +1029,9 @@ void Cohort::getBd4allveg_monthly(){
 	bdall->m_v2a.rgall    = 0.;
 	bdall->m_v2a.rmall    = 0.;
 
+	bdall->m_v2soi.d2wdebrisc = 0.;
+	bdall->m_v2soi.d2wdebrisn = 0.;
+
 	bdall->m_v2soi.ltrfalcall = 0.;  // excluding moss/lichen
 	bdall->m_v2soi.ltrfalnall = 0.;  // excluding moss/lichen
 	bdall->m_v2soi.mossdeathc = 0.;
@@ -1048,58 +1049,60 @@ void Cohort::getBd4allveg_monthly(){
 
 	for (int ip=0; ip<NUM_PFT; ip++){
     	if (cd.m_veg.vegcov[ip]>0.){
+    		bdall->m_v2soi.d2wdebrisc += bd[ip].m_v2soi.d2wdebrisc * cd.m_veg.vegcov[ip];
+    		bdall->m_v2soi.d2wdebrisn += bd[ip].m_v2soi.d2wdebrisn * cd.m_veg.vegcov[ip];
 
-		for (int i=0; i<NUM_PFT_PART; i++){
-			bdall->m_vegs.c[i]    += bd[ip].m_vegs.c[i] * cd.m_veg.vegcov[ip];
-			bdall->m_vegs.strn[i] += bd[ip].m_vegs.strn[i] * cd.m_veg.vegcov[ip];
+    		for (int i=0; i<NUM_PFT_PART; i++){
+    			bdall->m_vegs.c[i]    += bd[ip].m_vegs.c[i] * cd.m_veg.vegcov[ip];
+    			bdall->m_vegs.strn[i] += bd[ip].m_vegs.strn[i] * cd.m_veg.vegcov[ip];
 
-			bdall->m_a2v.ingpp[i] += bd[ip].m_a2v.ingpp[i] * cd.m_veg.vegcov[ip];
-			bdall->m_a2v.innpp[i] += bd[ip].m_a2v.innpp[i] * cd.m_veg.vegcov[ip];
-			bdall->m_a2v.gpp[i]   += bd[ip].m_a2v.gpp[i] * cd.m_veg.vegcov[ip];
-			bdall->m_a2v.npp[i]   += bd[ip].m_a2v.npp[i] * cd.m_veg.vegcov[ip];
-			bdall->m_v2a.rg[i]    += bd[ip].m_v2a.rg[i] * cd.m_veg.vegcov[ip];
-	 		bdall->m_v2a.rm[i]    += bd[ip].m_v2a.rm[i] * cd.m_veg.vegcov[ip];
+    			bdall->m_a2v.ingpp[i] += bd[ip].m_a2v.ingpp[i] * cd.m_veg.vegcov[ip];
+    			bdall->m_a2v.innpp[i] += bd[ip].m_a2v.innpp[i] * cd.m_veg.vegcov[ip];
+    			bdall->m_a2v.gpp[i]   += bd[ip].m_a2v.gpp[i] * cd.m_veg.vegcov[ip];
+    			bdall->m_a2v.npp[i]   += bd[ip].m_a2v.npp[i] * cd.m_veg.vegcov[ip];
+    			bdall->m_v2a.rg[i]    += bd[ip].m_v2a.rg[i] * cd.m_veg.vegcov[ip];
+    			bdall->m_v2a.rm[i]    += bd[ip].m_v2a.rm[i] * cd.m_veg.vegcov[ip];
 
-	 		bdall->m_v2v.nmobil[i]  += bd[ip].m_v2v.nmobil[i] * cd.m_veg.vegcov[ip];
-	 		bdall->m_v2v.nresorb[i] += bd[ip].m_v2v.nresorb[i] * cd.m_veg.vegcov[ip];
+    			bdall->m_v2v.nmobil[i]  += bd[ip].m_v2v.nmobil[i] * cd.m_veg.vegcov[ip];
+    			bdall->m_v2v.nresorb[i] += bd[ip].m_v2v.nresorb[i] * cd.m_veg.vegcov[ip];
 
-	 		if (cd.m_veg.nonvascular[ip]==0) {
-	 			bdall->m_v2soi.ltrfalc[i] += bd[ip].m_v2soi.ltrfalc[i] * cd.m_veg.vegcov[ip];
-	 			bdall->m_v2soi.ltrfaln[i] += bd[ip].m_v2soi.ltrfaln[i] * cd.m_veg.vegcov[ip];
-	 		}
+    			if (cd.m_veg.nonvascular[ip]==0) {
+    				bdall->m_v2soi.ltrfalc[i] += bd[ip].m_v2soi.ltrfalc[i] * cd.m_veg.vegcov[ip];
+    				bdall->m_v2soi.ltrfaln[i] += bd[ip].m_v2soi.ltrfaln[i] * cd.m_veg.vegcov[ip];
+    			}
 
-			bdall->m_soi2v.snuptake[i] += bd[ip].m_soi2v.snuptake[i] * cd.m_veg.vegcov[ip];
-		}
-	 	bdall->m_vegs.labn    += bd[ip].m_vegs.labn * cd.m_veg.vegcov[ip];
-		bdall->m_vegs.call    += bd[ip].m_vegs.call * cd.m_veg.vegcov[ip];
-		bdall->m_vegs.strnall += bd[ip].m_vegs.strnall * cd.m_veg.vegcov[ip];
-		bdall->m_vegs.nall    += bd[ip].m_vegs.nall * cd.m_veg.vegcov[ip];
+    			bdall->m_soi2v.snuptake[i] += bd[ip].m_soi2v.snuptake[i] * cd.m_veg.vegcov[ip];
+    		}
+    		bdall->m_vegs.labn    += bd[ip].m_vegs.labn * cd.m_veg.vegcov[ip];
+    		bdall->m_vegs.call    += bd[ip].m_vegs.call * cd.m_veg.vegcov[ip];
+    		bdall->m_vegs.strnall += bd[ip].m_vegs.strnall * cd.m_veg.vegcov[ip];
+    		bdall->m_vegs.nall    += bd[ip].m_vegs.nall * cd.m_veg.vegcov[ip];
 
-		bdall->m_a2v.ingppall += bd[ip].m_a2v.ingppall * cd.m_veg.vegcov[ip];
-		bdall->m_a2v.innppall += bd[ip].m_a2v.innppall * cd.m_veg.vegcov[ip];
-		bdall->m_a2v.gppall   += bd[ip].m_a2v.gppall * cd.m_veg.vegcov[ip];
-		bdall->m_a2v.nppall   += bd[ip].m_a2v.nppall * cd.m_veg.vegcov[ip];
-		bdall->m_v2a.rgall    += bd[ip].m_v2a.rgall * cd.m_veg.vegcov[ip];
-		bdall->m_v2a.rmall    += bd[ip].m_v2a.rmall * cd.m_veg.vegcov[ip];
+    		bdall->m_a2v.ingppall += bd[ip].m_a2v.ingppall * cd.m_veg.vegcov[ip];
+    		bdall->m_a2v.innppall += bd[ip].m_a2v.innppall * cd.m_veg.vegcov[ip];
+			bdall->m_a2v.gppall   += bd[ip].m_a2v.gppall * cd.m_veg.vegcov[ip];
+			bdall->m_a2v.nppall   += bd[ip].m_a2v.nppall * cd.m_veg.vegcov[ip];
+			bdall->m_v2a.rgall    += bd[ip].m_v2a.rgall * cd.m_veg.vegcov[ip];
+			bdall->m_v2a.rmall    += bd[ip].m_v2a.rmall * cd.m_veg.vegcov[ip];
 
- 		if (cd.m_veg.nonvascular[ip]==0) {
- 			bdall->m_v2soi.ltrfalcall += bd[ip].m_v2soi.ltrfalcall * cd.m_veg.vegcov[ip];
- 			bdall->m_v2soi.ltrfalnall += bd[ip].m_v2soi.ltrfalnall * cd.m_veg.vegcov[ip];
- 		}
- 		if (cd.m_veg.nonvascular[ip]>0){
- 			bdall->m_v2soi.mossdeathc += bd[ip].m_v2soi.mossdeathc * cd.m_veg.vegcov[ip];  //NOTE: non-vascular plants' litterfalling (mortality) is for death moss layer C
- 			bdall->m_v2soi.mossdeathn += bd[ip].m_v2soi.mossdeathn * cd.m_veg.vegcov[ip];
- 		}
+			if (cd.m_veg.nonvascular[ip]==0) {
+				bdall->m_v2soi.ltrfalcall += bd[ip].m_v2soi.ltrfalcall * cd.m_veg.vegcov[ip];
+				bdall->m_v2soi.ltrfalnall += bd[ip].m_v2soi.ltrfalnall * cd.m_veg.vegcov[ip];
+			}
+			if (cd.m_veg.nonvascular[ip]>0){
+				bdall->m_v2soi.mossdeathc += bd[ip].m_v2soi.mossdeathc * cd.m_veg.vegcov[ip];  //NOTE: non-vascular plants' litterfalling (mortality) is for death moss layer C
+				bdall->m_v2soi.mossdeathn += bd[ip].m_v2soi.mossdeathn * cd.m_veg.vegcov[ip];
+			}
 
-		bdall->m_v2v.nmobilall  += bd[ip].m_v2v.nmobilall * cd.m_veg.vegcov[ip];
-		bdall->m_v2v.nresorball += bd[ip].m_v2v.nresorball * cd.m_veg.vegcov[ip];
+			bdall->m_v2v.nmobilall  += bd[ip].m_v2v.nmobilall * cd.m_veg.vegcov[ip];
+			bdall->m_v2v.nresorball += bd[ip].m_v2v.nresorball * cd.m_veg.vegcov[ip];
 
-	  	bdall->m_soi2v.innuptake += bd[ip].m_soi2v.innuptake * cd.m_veg.vegcov[ip];
-	  	for (int il=0; il<cd.m_soil.numsl; il++) {
-	  		bdall->m_soi2v.nextract[il] += bd[ip].m_soi2v.nextract[il] * cd.m_veg.vegcov[ip];
-	  	}
-	 	bdall->m_soi2v.lnuptake   += bd[ip].m_soi2v.lnuptake * cd.m_veg.vegcov[ip];
-	 	bdall->m_soi2v.snuptakeall+= bd[ip].m_soi2v.snuptakeall * cd.m_veg.vegcov[ip];
+			bdall->m_soi2v.innuptake += bd[ip].m_soi2v.innuptake * cd.m_veg.vegcov[ip];
+			for (int il=0; il<cd.m_soil.numsl; il++) {
+				bdall->m_soi2v.nextract[il] += bd[ip].m_soi2v.nextract[il] * cd.m_veg.vegcov[ip];
+			}
+			bdall->m_soi2v.lnuptake   += bd[ip].m_soi2v.lnuptake * cd.m_veg.vegcov[ip];
+			bdall->m_soi2v.snuptakeall+= bd[ip].m_soi2v.snuptakeall * cd.m_veg.vegcov[ip];
 
     	} // end of 'vegcov[ip]>0'
 

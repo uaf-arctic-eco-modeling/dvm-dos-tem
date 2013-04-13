@@ -3,8 +3,8 @@
 CC=g++
 CFLAGS=-c -Wall -ansi -O2 -g -fPIC
 LIBS=-lnetcdf_c++ -lnetcdf -lboost_system -lboost_filesystem -lboost_program_options
-LIBDIR=-L/home/tobey/usr/local/lib
-INCLUDES=-I/home/tobey/usr/local/include
+LIBDIR=$(SITE_SPECIFIC_LIBS)
+INCLUDES=$(SITE_SPECIFIC_INCLUDES)
 SOURCES= 	src/TEM.o \
 		src/ArgHandler.o \
 		src/assembler/RunCohort.o \
@@ -56,6 +56,7 @@ SOURCES= 	src/TEM.o \
 		src/snowsoil/Soil_Env.o \
 		src/snowsoil/SoilParent_Env.o \
 		src/snowsoil/Stefan.o \
+		src/snowsoil/TemperatureUpdator.o \
 		src/util/CrankNicholson.o \
 		src/util/Interpolator.o \
 		src/vegetation/Vegetation_Bgc.o \
@@ -127,7 +128,8 @@ OBJECTS =	ArgHandler.o \
 		OrganicLayer.o \
 		ParentLayer.o \
 		SnowLayer.o \
-		SoilLayer.o
+		SoilLayer.o \
+		TemperatureUpdator.o 
 TEMOBJ=	TEM.o
 
 

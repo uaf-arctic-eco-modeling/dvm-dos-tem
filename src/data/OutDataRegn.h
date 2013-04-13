@@ -50,7 +50,7 @@ class OutDataRegn{
 	  	int status[12];
 		int year;
 		int month[12];
-   		int ysf;
+   		int yrsdist;
 
    		int outvarlist[78];
 

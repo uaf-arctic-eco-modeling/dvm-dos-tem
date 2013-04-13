@@ -229,10 +229,17 @@ void RunCohort::run_cohortly(){
 			md->friderived = true;
 			cht.timer->stageyrind = 0;
 
-			cht.fd->ysf =0;
+			cht.cd.yrsdist = 0;
 
 		    yrstart = 0;
-		    yrend   = min(MAX_EQ_YR, 20*cht.gd->fri-2);   //20 FRI or max. MAX_EQ_YR
+
+		    if (cht.gd->fri>0) {
+		    	int nfri = fmax(MIN_EQ_YR/cht.gd->fri, 20);
+		    	nfri = fmin(nfri, MAX_EQ_YR/cht.gd->fri); //20 FRI and within range of min. and max. MAX_EQ_YR
+		    	yrend= nfri*cht.gd->fri-1;   // ending just prior to the fire occurrency year
+		    } else {
+		    	yrend = MAX_EQ_YR;
+		    }
 
 		    run_timeseries();
 
@@ -242,7 +249,7 @@ void RunCohort::run_cohortly(){
 			cht.timer->stageyrind = 0;
 			cht.timer->eqend = true;
 
-		    used_atmyr = min(MAX_ATM_NOM_YR, cht.cd.act_atm_drv_yr);
+		    used_atmyr = fmin(MAX_ATM_NOM_YR, cht.cd.act_atm_drv_yr);
 
 		    yrstart = cht.timer->spbegyr;
 		    yrend   = cht.timer->spendyr;
@@ -300,7 +307,7 @@ void RunCohort::runEnvmodule(){
      md->dslmodule = false;
      md->dvmmodule = false;
 
-     cht.fd->ysf =1000;
+     cht.cd.yrsdist = 1000;
 
      yrstart = 0;
      yrend   = 100;
@@ -333,10 +340,11 @@ void RunCohort::run_timeseries(){
 	       if (outputyrind >=0) {
 	    	   if (md->outSiteDay){
 	    		   for (int id=0; id<dinmcurr; id++) {
+	    			   cht.outbuffer.envoddlyall[id].chtid = cht.cd.chtid;
+	    			   envdlyouter.outputCohortEnvVars_dly(-1, &cht.outbuffer.envoddlyall[id],
+			    				                               icalyr, im, id, dstepcnt);     // this will output non-veg (multiple PFT) related variables
 	    			   for (int ip=0; ip<NUM_PFT; ip++) {
 	    			    	if (cht.cd.d_veg.vegcov[ip]>0.){
-
-	    			    		cht.outbuffer.envoddly[ip][id].chtid = cht.cd.chtid;
 	    			    		envdlyouter.outputCohortEnvVars_dly(ip, &cht.outbuffer.envoddly[ip][id],
 	    			    				                               icalyr, im, id, dstepcnt);
 
@@ -394,7 +402,7 @@ void RunCohort::run_timeseries(){
 
 		if(cht.md->consoledebug){
 	    	cout <<"TEM " << cht.md->runstages <<" run: year "
-	    	<<icalyr<<" @cohort "<<cohortcount<<"\n";
+	    	<<icalyr<<" @cohort "<<cohortcount+1<<"\n";
 
 	    }
 
