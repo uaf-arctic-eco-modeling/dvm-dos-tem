@@ -115,8 +115,6 @@ class EnvData{
 	void veg_endOfMonth(const int & currmind);
 	void grnd_endOfMonth();
 
-	void veg_endOfYear();
-
   private:
 	
 };

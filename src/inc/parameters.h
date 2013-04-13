@@ -93,6 +93,7 @@ struct vegpar_bgc{
 struct soipar_cal{
 	double micbnup;  // parameter related to N immoblization by soil microbial
 
+    double kdcmoss;    // calibrated dead moss C material respiration rate (at 0oC, favoriable soil moisture)
     double kdcrawc;    // calibrated soil raw C material respiration rate (at 0oC, favoriable soil moisture, and not litter C/N adjusted)
     double kdcsoma;    // calibrated soil active SOM respiration rate (at 0oC)
     double kdcsompr;   // calibrated soil physically-resistant SOM respiration rate (at 0oC)
@@ -109,9 +110,11 @@ struct soipar_dim{
   	double coefmossb;//carbon vs thick
 
   	// soils
+  	double minshlwthick;
   	double coefshlwa;//carbon vs thick
   	double coefshlwb;//carbon vs thick
 
+  	double mindeepthick;
     double coefdeepa;//carbon vs thick
   	double coefdeepb;//carbon vs thick
 
@@ -122,8 +125,8 @@ struct soipar_dim{
 
 struct soipar_env{
 	
-  	// root depth criteria for determining thawing-derived growth factor, used in GPP
-	double rtdp4growpct;
+  	// active root depth criteria for determining thawing/freezing-derived growing season and degree-day
+	double rtdp4gdd;
 
     double psimax;
 	double evapmin;
@@ -159,10 +162,13 @@ struct soipar_bgc{
     double eqsompr;   // physically-resistant SOM
     double eqsomcr;   // chemically-resistant SOM
 
-    // litter C/N ratio adjusted C discomposition rate
+    // dead moss material decomposition rate
+    double kdmoss;
+
+    // litter C/N ratio adjusted C decomposition rate
     double lcclnc;    // the litterfalling C/N ratio base for adjusting 'kdc' to 'kd'
     double kdrawc[MAX_SOI_LAY];
-  	double kdsoma[MAX_SOI_LAY];
+    double kdsoma[MAX_SOI_LAY];
   	double kdsompr[MAX_SOI_LAY];
   	double kdsomcr[MAX_SOI_LAY];
 

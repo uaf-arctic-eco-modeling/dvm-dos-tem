@@ -21,13 +21,12 @@ ModelData::ModelData(){
 	numprocs = 1;
 
 	// module switches
-	dslmodule = false;
-	dvmmodule = false;
-
 	envmodule = false;
 	bgcmodule = false;
+	dslmodule = false;
 	dsbmodule = false;
  	friderived= false;
+	dvmmodule = false;
 
 	// the data record numbers of all input datasets
 	act_gridno = 0;

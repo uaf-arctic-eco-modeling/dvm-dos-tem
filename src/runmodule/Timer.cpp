@@ -75,7 +75,8 @@ int Timer::getOutputYearIndex(){
 
 	if (md->outstartyr != MISSING_I) {
 		int calyr = getCalendarYear();
-		outyrind = max(0, calyr-md->outstartyr);
+		outyrind = calyr-md->outstartyr;
+		if (outyrind<0) outyrind = 0;
 	} else {
 		outyrind = yearind;
 	}

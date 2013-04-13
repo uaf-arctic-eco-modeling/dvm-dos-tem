@@ -138,7 +138,7 @@ void EnvOutputer::init(string & dirfile){
 	soilevap_pV= ncfileenv->add_var("SOILPEVAP", ncDouble, timeD);
 
 	qoverV= ncfileenv->add_var("RUNOFF", ncDouble, timeD);
-	qdrainV= ncfileenv->add_var("DRINAGE", ncDouble, timeD);
+	qdrainV= ncfileenv->add_var("DRAINAGE", ncDouble, timeD);
 
 }
 
@@ -282,11 +282,11 @@ void EnvOutputer::outputCohortEnvVars_dly(const int &ipft, EnvDataDly * envod, c
 		soilaldV->put_rec(&envod->d_soid.ald, tstepcnt);
 		soilalcV->put_rec(&envod->d_soid.alc, tstepcnt);
 
-		soilgrowstartV->put_rec(&envod->d_soid.growstart, tstepcnt);
-		soilgrowendV->put_rec(&envod->d_soid.growend, tstepcnt);
-		soiltsrtdpV->put_rec(&envod->d_soid.tsrtdp, tstepcnt);
-		soiltsdegdayV->put_rec(&envod->d_soid.tsdegday, tstepcnt);
-		soilrtthawpctV->put_rec(&envod->d_soid.growpct, tstepcnt);
+		soilgrowstartV->put_rec(&envod->d_soid.rtdpgrowstart, tstepcnt);
+		soilgrowendV->put_rec(&envod->d_soid.rtdpgrowend, tstepcnt);
+		soiltsrtdpV->put_rec(&envod->d_soid.rtdpts, tstepcnt);
+		soiltsdegdayV->put_rec(&envod->d_soid.rtdpgdd, tstepcnt);
+		soilrtthawpctV->put_rec(&envod->d_soid.rtdpthawpct, tstepcnt);
 
 		soilswreflV->put_rec(&envod->d_soi2a.swrefl, tstepcnt);
 		soilevapV->put_rec(&envod->d_soi2a.evap, tstepcnt);
@@ -436,11 +436,11 @@ void EnvOutputer::outputCohortEnvVars_mly(const int &ipft, snwstate_dim *m_snow,
 		soilaldV->put_rec(&envod->m_soid.ald, tstepcnt);
 		soilalcV->put_rec(&envod->m_soid.alc, tstepcnt);
 
-		soilgrowstartV->put_rec(&envod->m_soid.growstart, tstepcnt);
-		soilgrowendV->put_rec(&envod->m_soid.growend, tstepcnt);
-		soiltsrtdpV->put_rec(&envod->m_soid.tsrtdp, tstepcnt);
-		soiltsdegdayV->put_rec(&envod->m_soid.tsdegday, tstepcnt);
-		soilrtthawpctV->put_rec(&envod->m_soid.growpct, tstepcnt);
+		soilgrowstartV->put_rec(&envod->m_soid.rtdpgrowstart, tstepcnt);
+		soilgrowendV->put_rec(&envod->m_soid.rtdpgrowend, tstepcnt);
+		soiltsrtdpV->put_rec(&envod->m_soid.rtdpts, tstepcnt);
+		soiltsdegdayV->put_rec(&envod->m_soid.rtdpgdd, tstepcnt);
+		soilrtthawpctV->put_rec(&envod->m_soid.rtdpthawpct, tstepcnt);
 
 		soilswreflV->put_rec(&envod->m_soi2a.swrefl, tstepcnt);
 		soilevapV->put_rec(&envod->m_soi2a.evap, tstepcnt);
@@ -591,11 +591,11 @@ void EnvOutputer::outputCohortEnvVars_yly(const int &ipft, snwstate_dim* y_snow,
 		soilaldV->put_rec(&envod->y_soid.ald, tstepcnt);
 		soilalcV->put_rec(&envod->y_soid.alc, tstepcnt);
 
-		soilgrowstartV->put_rec(&envod->y_soid.growstart, tstepcnt);
-		soilgrowendV->put_rec(&envod->y_soid.growend, tstepcnt);
-		soiltsrtdpV->put_rec(&envod->y_soid.tsrtdp, tstepcnt);
-		soiltsdegdayV->put_rec(&envod->y_soid.tsdegday, tstepcnt);
-		soilrtthawpctV->put_rec(&envod->y_soid.growpct, tstepcnt);
+		soilgrowstartV->put_rec(&envod->y_soid.rtdpgrowstart, tstepcnt);
+		soilgrowendV->put_rec(&envod->y_soid.rtdpgrowend, tstepcnt);
+		soiltsrtdpV->put_rec(&envod->y_soid.rtdpts, tstepcnt);
+		soiltsdegdayV->put_rec(&envod->y_soid.rtdpgdd, tstepcnt);
+		soilrtthawpctV->put_rec(&envod->y_soid.rtdpthawpct, tstepcnt);
 
 		soilswreflV->put_rec(&envod->y_soi2a.swrefl, tstepcnt);
 		soilevapV->put_rec(&envod->y_soi2a.evap, tstepcnt);

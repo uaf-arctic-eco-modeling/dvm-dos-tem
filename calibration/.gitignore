@@ -1,0 +1,12 @@
+# all auto generated swig stuff...
+*.class
+
+lib/
+*_wrap.cxx
+dvm-dos-tem-calibrator.jar
+*.o
+
+
+TEMJNI/
+
+doxygen-outputs/

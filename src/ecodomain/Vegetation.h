@@ -26,8 +26,8 @@
     		void initializeState5restart(RestartData *resin);
     
     		void updateLai(const int & currmind);
-    		void updateFpc(double lai[NUM_PFT]);
-    		void updateVegcov(double lai[NUM_PFT]);
+    		void updateFpc();
+    		void updateVegcov();
 			void updateFrootfrac();
 
 			void phenology(const int &currmind);
@@ -48,6 +48,7 @@
 			double getFleaf(const int &ipft, const double & unnormleaf, const double &prvunnormleafmx);
    			double getUnnormleaf(const int& ipft, double &prveetmx, const double & eet, const double & prvunleaf);
 			double getFfoliage(const int &ipft, const bool & ifwoody, const bool &ifperenial, const double &vegc);
+			double getYearlyMaxLAI(const int &ipft);
 
 	};
 

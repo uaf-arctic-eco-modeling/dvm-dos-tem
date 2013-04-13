@@ -90,7 +90,6 @@
  		    void setModelData(ModelData* md);
  		    void setInputData(RegionData * rd, GridData * gd);
  		    void setProcessData(EnvData * alledp, BgcData * allbdp, FirData *fdp);
- 		    void clearData();
 
  		    void initStatePar();
  		    void prepareAllDrivingData();
