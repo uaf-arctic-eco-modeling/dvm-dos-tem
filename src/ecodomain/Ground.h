@@ -100,8 +100,8 @@ class Ground: public DoubleLinkedList {
 		bool divideSnowLayers();
 		bool combineSnowLayers();
 
-		void updateSnowLayerZ();
 		void updateSnowLayerPropertiesDaily();
+		void updateSnowHorizon();
 		void checkSnowLayer();
 
 		// soil layers
@@ -143,8 +143,9 @@ class Ground: public DoubleLinkedList {
 		void setFstLstDeepLayers();
 		void setFstLstMineLayers();
 		void updateLayerIndex();
-		void updateSoilLayerZ();
-	    void updateSoilHorizons();
+		void updateLayerZ();
+
+		void updateSoilHorizons();
 
 		void redivideMossLayers(const int &mosstype);
 		void redivideShlwLayers();
@@ -157,11 +158,11 @@ class Ground: public DoubleLinkedList {
 		void adjustFrontsAfterThickchange(const double & depth, const double & thickchange);
 		void getLayerFrozenstatusByFronts(Layer * soill);
 
-		void getDmossCarbon5Thickness(Layer* sl, const double &dmossdz);
-		void getDmossThickness5Carbon(Layer* sl, const double &dmossc);
+		void getDmossCarbon5Thickness(SoilLayer* sl, const double &dmossdz);
+		void getDmossThickness5Carbon(SoilLayer* sl, const double &dmossc);
 
-		void getOslCarbon5Thickness(Layer* sl, const double &plctop, const double &plcbot);
-	  	void getOslThickness5Carbon(Layer* sl, const double &plztop, const double &plzbot);
+		void getOslCarbon5Thickness(SoilLayer* sl, const double &plctop, const double &plcbot);
+	  	void getOslThickness5Carbon(SoilLayer* sl, const double &plztop, const double &plzbot);
 
 		void checkFrontsValidity();
 

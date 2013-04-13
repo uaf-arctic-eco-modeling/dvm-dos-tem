@@ -54,7 +54,7 @@ double SoilLayer::getUnfThermCond(){
   	double s = (vice + vliq)/poro;
   	s = min(s, 1.0);
   	double ke= log(s) +1; // for unfrozen case
-  	ke = max(ke, 0.);
+  	ke = fmax(ke, 0.);
   	if(s < 1.e-7){
 	  	 tc = tcdry;	
   	}else{
@@ -62,7 +62,7 @@ double SoilLayer::getUnfThermCond(){
   	}
 
   	if(poro>=0.9 || (poro>=0.8 &&solind ==1)){
-	  	tc = max(tc, tcmin);
+	  	tc = fmax(tc, tcmin);
   	}
 
   	return tc;
@@ -78,8 +78,8 @@ double SoilLayer::getMatricPotential(){
 	}else{
 	  	double voliq = getEffVolLiq();
 
-	  	double ws = max(0.01, voliq);
-	  	ws = min(1.0, ws);
+	  	double ws = fmax(0.01, voliq);
+	  	ws = fmin(1.0, ws);
 	  	psi = psisat * pow(ws, -bsw);
 	  	if (psi<-1.e8){	
 	  		psi=-1.e8;
@@ -96,7 +96,7 @@ double SoilLayer::getAlbedoVis(){
       	double liq1 = getVolLiq();
       	double ice1 = getVolIce();
        	double delta = 0.11-0.4*(liq1+ice1);
-       	delta =max(0., delta);
+       	delta =fmax(0., delta);
        	vis = albsatvis + delta;
        	vis = min(vis, (double)albdryvis);
        	return vis;
@@ -107,9 +107,9 @@ double SoilLayer::getAlbedoNir(){
        	double nir;
        	double wat = getVolLiq()+getVolIce();
        	double delta = 0.11-0.4*wat;
-       	delta =max(0., delta);
+       	delta =fmax(0., delta);
        	nir = albsatnir + delta;
-       	nir = min(nir, (double)albdrynir);
+       	nir = fmin(nir, (double)albdrynir);
        	return nir;
 };
      

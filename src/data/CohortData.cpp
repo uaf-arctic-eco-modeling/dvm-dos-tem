@@ -150,9 +150,11 @@ void CohortData::beginOfDay(){
 // accumulating monthly variables from the daily ones after the daily process is done
 void CohortData::endOfDay(const int & dinm){
 
+	// only 'snow' dimension changes at daily timestep ('veg' updaates monthly, while 'soil' yearly)
 	m_snow.thick += d_snow.thick/dinm;
 	m_snow.dense += d_snow.dense/dinm;
 	m_snow.extramass += d_snow.extramass/dinm;
+	m_snow.olds = d_snow.olds;
 
 }
 
@@ -171,15 +173,17 @@ void CohortData::endOfMonth(){
     			y_veg.frootfrac[il][ip] += m_veg.frootfrac[il][ip]/12.;
     		}
 
+    		y_vegd.growingttime[ip]  = m_vegd.growingttime[ip];
+
+    		y_vegd.unnormleaf[ip]   += m_vegd.unnormleaf[ip]/12.;
     		y_vegd.fleaf[ip]        += m_vegd.fleaf[ip]/12.;
     		y_vegd.ffoliage[ip]     += m_vegd.ffoliage[ip]/12.;
 
     		y_vegd.eetmx[ip]         = m_vegd.eetmx[ip];
     		y_vegd.unnormleafmx[ip]  = m_vegd.unnormleafmx[ip];
-    		y_vegd.growingttime[ip]  = m_vegd.growingttime[ip];
     		y_vegd.topt[ip]          = m_vegd.topt[ip];
     		y_vegd.foliagemx[ip]     = m_vegd.foliagemx[ip];
-
+    		y_vegd.maxleafc[ip]      = m_vegd.maxleafc[ip];
     	}
 	}
 

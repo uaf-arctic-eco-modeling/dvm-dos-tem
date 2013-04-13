@@ -42,7 +42,7 @@ class Snow_Env{
 
 	    Ground * ground;
 
-	    void updateSWE(Layer * frontl);
+	    void updateSnowEd(Layer * frontl);
 		double meltSnowLayersAfterT(Layer * frontl);
 
 	    void updateDailySurfFlux( Layer* frontl, const double & tdrv);

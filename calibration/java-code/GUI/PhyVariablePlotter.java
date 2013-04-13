@@ -58,7 +58,7 @@ public class PhyVariablePlotter {
 
 			tp.add("Yealy Variables", ylypanel);
 			tp.add("Monthly Variables - Hydrological", mly1panel);
-			tp.add("Monthly Variables - Theraml", mly2panel);
+			tp.add("Monthly Variables - Thermal", mly2panel);
 
 			f.add(tp, BorderLayout.CENTER);
 

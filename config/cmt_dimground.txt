@@ -6,9 +6,9 @@ CMT00 // Default TEM Community - ground structure/dimension
 0.                 // initsnwthick: initial snow thickness (m)
 0.                 // initsnwdense: initial snow density (kg/m3)
 // moss characteristics
-0.035              // maxmossthick: max. moss thickness (m)
-0.005              // initmossthick: initial moss thickness (m)
-0                  // initmosstype: moss type (1: spagnum; 0: ferthermoss)
+0.035              // maxmossthick: max. dead moss thickness (m)
+0.005              // initdmossthick: initial dead moss thickness (m)
+1                  // mosstype: moss type (1: sphagnum; 2: furthermoss; 3: other)
 0.049              // coefmossa:
 0.50               // coefmossb:
 // soil characteristics
@@ -29,8 +29,8 @@ CMT01 // CMT1 TEM Community - ground structure/dimension
 0.                 // initsnwdense: initial snow density (kg/m3)
 // moss characteristics
 0.035              // maxmossthick: max. moss thickness (m)
-0.005              // initmossthick: initial moss thickness (m)
-0                  // initmosstype: moss type (1: spagnum; 0: ferthermoss)
+0.005              // initdmossthick: initial dead moss thickness (m)
+1                  // mosstype: moss type (1: sphagnum; 2: furthermoss; 3: other)
 0.049              // coefmossa:
 0.50               // coefmossb:
 // soil characteristics
@@ -51,8 +51,8 @@ CMT02 // CMT2 TEM Community - ground structure/dimension
 0.                 // initsnwdense: initial snow density (kg/m3)
 // moss characteristics
 0.035              // maxmossthick: max. moss thickness (m)
-0.005              // initmossthick: initial moss thickness (m)
-0                  // initmosstype: moss type (1: spagnum; 0: ferthermoss)
+0.005              // initdmossthick: initial dead moss thickness (m)
+1                  // mosstype: moss type (1: sphagnum; 2: furthermoss; 3: other)
 0.049              // coefmossa:
 0.50               // coefmossb:
 // soil characteristics
@@ -73,8 +73,8 @@ CMT03 // CMT3 TEM Community - ground structure/dimension
 0.                 // initsnwdense: initial snow density (kg/m3)
 // moss characteristics
 0.035              // maxmossthick: max. moss thickness (m)
-0.005              // initmossthick: initial moss thickness (m)
-0                  // initmosstype: moss type (1: spagnum; 0: ferthermoss)
+0.005              // initdmossthick: initial dead moss thickness (m)
+1                  // mosstype: moss type (1: sphagnum; 2: furthermoss; 3: other)
 0.049              // coefmossa:
 0.50               // coefmossb:
 // soil characteristics
@@ -95,8 +95,8 @@ CMT04 // CMT4 TEM Community - ground structure/dimension
 0.                 // initsnwdense: initial snow density (kg/m3)
 // moss characteristics
 0.035              // maxmossthick: max. moss thickness (m)
-0.005              // initmossthick: initial moss thickness (m)
-0                  // initmosstype: moss type (1: spagnum; 0: ferthermoss)
+0.005              // initdmossthick: initial dead moss thickness (m)
+1                  // mosstype: moss type (1: sphagnum; 2: furthermoss; 3: other)
 0.049              // coefmossa:
 0.50               // coefmossb:
 // soil characteristics
@@ -117,8 +117,8 @@ CMT05 // CMT5 TEM Community - ground structure/dimension
 0.                 // initsnwdense: initial snow density (kg/m3)
 // moss characteristics
 0.035              // maxmossthick: max. moss thickness (m)
-0.005              // initmossthick: initial moss thickness (m)
-0                  // initmosstype: moss type (1: spagnum; 0: ferthermoss)
+0.005              // initdmossthick: initial dead moss thickness (m)
+1                  // mosstype: moss type (1: sphagnum; 2: furthermoss; 3: other)
 0.049              // coefmossa:
 0.50               // coefmossb:
 // soil characteristics
@@ -139,8 +139,8 @@ CMT06 // CMT6 TEM Community - ground structure/dimension
 0.                 // initsnwdense: initial snow density (kg/m3)
 // moss characteristics
 0.035              // maxmossthick: max. moss thickness (m)
-0.005              // initmossthick: initial moss thickness (m)
-0                  // initmosstype: moss type (1: spagnum; 0: ferthermoss)
+0.005              // initdmossthick: initial dead moss thickness (m)
+1                  // mosstype: moss type (1: sphagnum; 2: furthermoss; 3: other)
 0.049              // coefmossa:
 0.50               // coefmossb:
 // soil characteristics

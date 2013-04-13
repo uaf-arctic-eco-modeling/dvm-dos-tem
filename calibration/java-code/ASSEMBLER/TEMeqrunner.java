@@ -15,10 +15,7 @@ public class TEMeqrunner implements Runnable{
 		
 	// model-run entities
 	public Runner eqrunner;
-	
-	// model options
-	public boolean friderived = false;
-	
+		
 	// parameters to be calibrated
 	public int ipft;
 	public vegpar_cal jvcalpar = new vegpar_cal();
@@ -87,7 +84,7 @@ public class TEMeqrunner implements Runnable{
 			}
 				
 			//getting the cohort data
-			error = eqrunner.runcht.readData();
+			error = eqrunner.runcht.readData(false);
 
 			error = eqrunner.runcht.reinit();
 
@@ -115,37 +112,33 @@ public class TEMeqrunner implements Runnable{
 	};
 
 //--------------------------------------------------------------------------------------			
-	//TEM run for updating calibration driver
-	public void updatedriver(){					
+	//TEM run for testing calibration
+	public void testrun(){					
 		//
 		eqrunner.runcht.cht.getTimer().reset();
 		    	 		 	
-		//Turn Env-Module only on
+		System.out.println("TEM Test RUN with new Calpar... ");
+
+	    //
 		eqrunner.runcht.cht.getMd().setEnvmodule(true);
-		eqrunner.runcht.cht.getMd().setBgcmodule(false);
-		eqrunner.runcht.cht.getMd().setDsbmodule(false);
-		eqrunner.runcht.cht.getMd().setDslmodule(false);
+		eqrunner.runcht.cht.getMd().setBgcmodule(true);
+		eqrunner.runcht.cht.getMd().setDsbmodule(true);
+		eqrunner.runcht.cht.getMd().setDslmodule(true);
+		eqrunner.runcht.cht.getMd().setDvmmodule(true);
+		eqrunner.runcht.cht.getMd().setUpdatelai(true);
+		eqrunner.runcht.cht.getMd().setFriderived(true);	
 		
-		eqrunner.runcht.cht.getMd().setUpdatelai(false);
+		eqrunner.runcht.cht.getCd().setYrsdist(0);
+		eqrunner.runcht.cht.getTimer().setStageyrind(0);
+
+	    int yrstart = 0;
+	    int fri =eqrunner.runcht.cht.getGd().getFri();
+	    int nfri = Math.max(ConstTime.MIN_EQ_YR/fri, 20);
+	    nfri     = Math.min(nfri, ConstTime.MAX_EQ_YR/fri);
+	    int yrend    = nfri*fri-1;   //20 FRI and within min. and max. MAX_EQ_YR
 		
-		//option of dynamic soil organic layer thickness for testing code
-		boolean dsl = false;
-		float moss = 0.001f;
-		float fib  = 0.02f;
-		float hum  = 0.02f;
-
-		System.out.println("TEM Env-Module only RUN ... ");
-
-		for (int iyr=0; iyr<100; iyr++) {
-			
-			//reset soil organic layer thickness as desired
-			if (dsl) {
-				moss+=0.001;
-//				fib+=0.005;
-//				hum+=0.005;
-				resetOMthickness(moss, fib, hum);
-			}
-
+		for (int icalyr=yrstart; icalyr<=yrend; icalyr++){
+	                   
 			yearlyrun();
 		}		
 		
@@ -154,16 +147,15 @@ public class TEMeqrunner implements Runnable{
 	};
 
 	// non-controlled run
-	public void yearlyrun(){					
-						    
-			System.out.println("TEM CALIBRATION RUN: year "+yrcnt);
+	private void yearlyrun(){					
+		System.out.println("TEM EQ RUN: year "+yrcnt);
 
-			// process module calling
-			int yrindex = eqrunner.runcht.cht.getTimer().getCurrentYearIndex();   //starting from 0
-			eqrunner.runcht.cht.getCd().setYear(eqrunner.runcht.cht.getTimer().getCalendarYear());
+		// process module calling
+		int yrindex = eqrunner.runcht.cht.getTimer().getCurrentYearIndex();   //starting from 0
+		eqrunner.runcht.cht.getCd().setYear(eqrunner.runcht.cht.getTimer().getCalendarYear());
 
-			int usedatmyr = Math.min(ConstTime.MAX_ATM_DRV_YR, ConstTime.MAX_ATM_NOM_YR);
-			eqrunner.runcht.cht.prepareDayDrivingData(yrindex, usedatmyr);
+		int usedatmyr = Math.min(ConstTime.MAX_ATM_DRV_YR, ConstTime.MAX_ATM_NOM_YR);
+		eqrunner.runcht.cht.prepareDayDrivingData(yrindex, usedatmyr);
 
 			for (int im=0; im<12;im++){
 
@@ -173,27 +165,17 @@ public class TEMeqrunner implements Runnable{
 
 				eqrunner.runcht.cht.updateMonthly(yrindex, currmind, dinmcurr);
 				eqrunner.runcht.cht.getTimer().advanceOneMonth();
-
-				temcj.getData1pft(ipft);
 				
+				temcj.getData1pft(ipft);			
 				plotting.updateMlyBioGraph(yrcnt, im, temcj.getBd1pft(), eqrunner.runcht.cht.getBdall());
 				plotting.updateMlyPhyGraph(yrcnt, im, eqrunner.runcht.cht.getEdall());
+				
 			}
 			plotting.updateYlyBioGraph(yrcnt, eqrunner.runcht.cht.getCd(), temcj.getBd1pft(), ipft, eqrunner.runcht.cht.getBdall());
 			plotting.updateYlyPhyGraph(yrcnt, eqrunner.runcht.cht.getCd(), eqrunner.runcht.cht.getEdall());
 			
 			yrcnt++;
 			
-	};
-
-	//the following will reset soil organic layer thickness when called
-	private void resetOMthickness(float mossthick, float fibthick, float humthick){
-	
-		eqrunner.runcht.cht.getChtlu().setInitdmossthick(mossthick);
-		eqrunner.runcht.cht.getChtlu().setInitfibthick(fibthick);
-		eqrunner.runcht.cht.getChtlu().setInithumthick(humthick);
-		
-		temcj.setInitSbState();
 	};
 	
 //-----------------------------------------------------------------------------
@@ -209,15 +191,18 @@ public class TEMeqrunner implements Runnable{
 		//thread status initialization
 		this.m_stop = false;
 				    
+ 		//adjusting disturbance options
+		boolean friderived = eqrunner.runcht.cht.getMd().getFriderived();
+		if (!friderived) eqrunner.runcht.cht.getCd().setYrsdist(1000);			
+		if (eqrunner.runcht.cht.getGd().getFri()<=0) eqrunner.runcht.cht.getCd().setYrsdist(1000);			
+		eqrunner.runcht.cht.getTimer().setStageyrind(0);
+
 		while (!this.m_stop){	
 			System.out.println("TEM CALIBRATION RUN: year "+yrcnt);
 
 			//reset calibration parameters
-			//temcj.setVbCalPar1pft(ipft, jvcalpar);
-			//temcj.setSbCalPar(jscalpar);
-
-   	 		//reset disturbance options
-			eqrunner.runcht.cht.getMd().setFriderived(friderived);
+			temcj.setVbCalPar1pft(ipft, jvcalpar);
+			temcj.setSbCalPar(jscalpar);
 			
 			int yrindex = eqrunner.runcht.cht.getTimer().getCurrentYearIndex();   //starting from 0
 			eqrunner.runcht.cht.getCd().setYear(eqrunner.runcht.cht.getTimer().getCalendarYear());

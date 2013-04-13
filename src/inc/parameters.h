@@ -125,8 +125,8 @@ struct soipar_dim{
 
 struct soipar_env{
 	
-  	// root depth criteria for determining thawing-derived growth factor, used in GPP
-	double rtdp4growpct;
+  	// active root depth criteria for determining thawing/freezing-derived growing season and degree-day
+	double rtdp4gdd;
 
     double psimax;
 	double evapmin;

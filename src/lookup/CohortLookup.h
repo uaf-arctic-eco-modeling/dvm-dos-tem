@@ -91,8 +91,8 @@ class CohortLookup{
 
 	  	int minetexture[MAX_MIN_LAY];
 
-	  	// root depth criteria for determining thawing-derived growth period
-	  	double rtdp4growpct;
+	  	// active root depth criteria for determining thawing/freezing-derived growing season and degree-day
+	  	double rtdp4gdd;
 
   //for canopy biometeorological processes
 

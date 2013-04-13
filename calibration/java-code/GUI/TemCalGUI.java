@@ -42,8 +42,6 @@ public class TemCalGUI{
 		var2plotter = pvp;
 	}
 
-
-
 //////////////////////////////////////////////////////////////////////////
 	JFrame fcontrol = new JFrame("TEM Calibrator Java Interface");
 
@@ -71,15 +69,23 @@ public class TemCalGUI{
 	// for model module switches
 	JRadioButton[] envmodjrb= new JRadioButton[2];
 	ButtonGroup envmodjbg = new ButtonGroup();
+
 	JRadioButton[] bgcmodjrb= new JRadioButton[2];
 	ButtonGroup bgcmodjbg = new ButtonGroup();
-	JRadioButton[] dslmodjrb= new JRadioButton[2];
-	ButtonGroup dslmodjbg = new ButtonGroup();
-
 	JRadioButton[] nfeedjrb = new JRadioButton[2];
 	ButtonGroup nfeedjbg = new ButtonGroup();
 	JRadioButton[] avlnjrb= new JRadioButton[2];
 	ButtonGroup avlnjbg = new ButtonGroup();
+	JRadioButton[] baselinejrb= new JRadioButton[2];
+	ButtonGroup baselinejbg = new ButtonGroup();
+
+	JRadioButton[] dslmodjrb= new JRadioButton[2];
+	ButtonGroup dslmodjbg = new ButtonGroup();
+
+	JRadioButton[] dvmmodjrb= new JRadioButton[2];
+	ButtonGroup dvmmodjbg = new ButtonGroup();
+	JRadioButton[] updatelaijrb= new JRadioButton[2];
+	ButtonGroup updatelaijbg = new ButtonGroup();
 
 	JRadioButton[] firemodjrb= new JRadioButton[2];
 	ButtonGroup firemodjbg = new ButtonGroup();
@@ -152,15 +158,15 @@ public class TemCalGUI{
 
 	        JLabel controlL = new JLabel(" ------------------- MODEL CONTROL FILE ------------------");
 			controlL.setPreferredSize(new Dimension(450, 30));
-			slayout.putConstraint(SpringLayout.NORTH, controlL, 10, SpringLayout.NORTH, configP);
+			slayout.putConstraint(SpringLayout.NORTH, controlL, 5, SpringLayout.NORTH, configP);
 			slayout.putConstraint(SpringLayout.WEST,controlL, 5, SpringLayout.WEST, configP);
 			configP.add(controlL);
 			controlfileTF.setPreferredSize(new Dimension(390, 30));
-			slayout.putConstraint(SpringLayout.NORTH, controlfileTF, 35, SpringLayout.NORTH, configP);
+			slayout.putConstraint(SpringLayout.NORTH, controlfileTF, 30, SpringLayout.NORTH, configP);
 			slayout.putConstraint(SpringLayout.WEST,controlfileTF, 10, SpringLayout.WEST, configP);
 			configP.add(controlfileTF);
 			selectControlfileB.setPreferredSize(new Dimension(80, 30));
-			slayout.putConstraint(SpringLayout.NORTH, selectControlfileB, 35, SpringLayout.NORTH, configP);
+			slayout.putConstraint(SpringLayout.NORTH, selectControlfileB, 30, SpringLayout.NORTH, configP);
 			slayout.putConstraint(SpringLayout.WEST,selectControlfileB, 405, SpringLayout.WEST, configP);
 			configP.add(selectControlfileB);
 		    selectControlfileB.addActionListener(new ControlSelector());
@@ -168,11 +174,11 @@ public class TemCalGUI{
 			// 2) run case name
 	        JLabel casenameL = new JLabel("Run Case Title");
 			casenameL.setPreferredSize(new Dimension(400, 30));
-			slayout.putConstraint(SpringLayout.NORTH, casenameL, 70, SpringLayout.NORTH, configP);
+			slayout.putConstraint(SpringLayout.NORTH, casenameL, 60, SpringLayout.NORTH, configP);
 			slayout.putConstraint(SpringLayout.WEST,casenameL, 5, SpringLayout.WEST, configP);
 			configP.add(casenameL);
 			casenameTF.setPreferredSize(new Dimension(380, 30));
-			slayout.putConstraint(SpringLayout.NORTH, casenameTF, 95, SpringLayout.NORTH, configP);
+			slayout.putConstraint(SpringLayout.NORTH, casenameTF, 85, SpringLayout.NORTH, configP);
 			slayout.putConstraint(SpringLayout.WEST,casenameTF, 20, SpringLayout.WEST, configP);
 			configP.add(casenameTF);
 
@@ -180,15 +186,15 @@ public class TemCalGUI{
 
 	        JLabel configdirL = new JLabel("Model Config Diretory");
 			configdirL.setPreferredSize(new Dimension(400, 30));
-			slayout.putConstraint(SpringLayout.NORTH, configdirL, 130, SpringLayout.NORTH, configP);
+			slayout.putConstraint(SpringLayout.NORTH, configdirL, 115, SpringLayout.NORTH, configP);
 			slayout.putConstraint(SpringLayout.WEST,configdirL, 5, SpringLayout.WEST, configP);
 			configP.add(configdirL);
 			configdirTF.setPreferredSize(new Dimension(380, 30));
-			slayout.putConstraint(SpringLayout.NORTH, configdirTF, 155, SpringLayout.NORTH, configP);
+			slayout.putConstraint(SpringLayout.NORTH, configdirTF, 140, SpringLayout.NORTH, configP);
 			slayout.putConstraint(SpringLayout.WEST,configdirTF, 20, SpringLayout.WEST, configP);
 			configP.add(configdirTF);
 			selectConfigdirB.setPreferredSize(new Dimension(80, 30));
-			slayout.putConstraint(SpringLayout.NORTH, selectConfigdirB, 155, SpringLayout.NORTH, configP);
+			slayout.putConstraint(SpringLayout.NORTH, selectConfigdirB, 140, SpringLayout.NORTH, configP);
 			slayout.putConstraint(SpringLayout.WEST,selectConfigdirB, 405, SpringLayout.WEST, configP);
 			configP.add(selectConfigdirB);
 
@@ -196,15 +202,15 @@ public class TemCalGUI{
 
 			JLabel reginputdirL = new JLabel("Regional Input Directory");
 			reginputdirL.setPreferredSize(new Dimension(400, 30));
-			slayout.putConstraint(SpringLayout.NORTH, reginputdirL, 190, SpringLayout.NORTH, configP);
+			slayout.putConstraint(SpringLayout.NORTH, reginputdirL, 170, SpringLayout.NORTH, configP);
 			slayout.putConstraint(SpringLayout.WEST,reginputdirL, 5, SpringLayout.WEST, configP);
 			configP.add(reginputdirL);
 			reginputdirTF.setPreferredSize(new Dimension(380, 30));
-			slayout.putConstraint(SpringLayout.NORTH, reginputdirTF, 215, SpringLayout.NORTH, configP);
+			slayout.putConstraint(SpringLayout.NORTH, reginputdirTF, 195, SpringLayout.NORTH, configP);
 			slayout.putConstraint(SpringLayout.WEST,reginputdirTF, 20, SpringLayout.WEST, configP);
 			configP.add(reginputdirTF);
 			selectReginputdirB.setPreferredSize(new Dimension(80, 30));
-			slayout.putConstraint(SpringLayout.NORTH, selectReginputdirB, 215, SpringLayout.NORTH, configP);
+			slayout.putConstraint(SpringLayout.NORTH, selectReginputdirB, 195, SpringLayout.NORTH, configP);
 			slayout.putConstraint(SpringLayout.WEST,selectReginputdirB, 405, SpringLayout.WEST, configP);
 			configP.add(selectReginputdirB);
 
@@ -212,15 +218,15 @@ public class TemCalGUI{
 
 	        JLabel grdinputdirL = new JLabel("Grided Input Directory");
 			grdinputdirL.setPreferredSize(new Dimension(400, 30));
-			slayout.putConstraint(SpringLayout.NORTH, grdinputdirL, 250, SpringLayout.NORTH, configP);
+			slayout.putConstraint(SpringLayout.NORTH, grdinputdirL, 225, SpringLayout.NORTH, configP);
 			slayout.putConstraint(SpringLayout.WEST,grdinputdirL, 5, SpringLayout.WEST, configP);
 			configP.add(grdinputdirL);
 			grdinputdirTF.setPreferredSize(new Dimension(380, 30));
-			slayout.putConstraint(SpringLayout.NORTH, grdinputdirTF, 275, SpringLayout.NORTH, configP);
+			slayout.putConstraint(SpringLayout.NORTH, grdinputdirTF, 250, SpringLayout.NORTH, configP);
 			slayout.putConstraint(SpringLayout.WEST,grdinputdirTF, 20, SpringLayout.WEST, configP);
 			configP.add(grdinputdirTF);
 			selectGrdinputdirB.setPreferredSize(new Dimension(80, 30));
-			slayout.putConstraint(SpringLayout.NORTH, selectGrdinputdirB, 275, SpringLayout.NORTH, configP);
+			slayout.putConstraint(SpringLayout.NORTH, selectGrdinputdirB, 250, SpringLayout.NORTH, configP);
 			slayout.putConstraint(SpringLayout.WEST,selectGrdinputdirB, 405, SpringLayout.WEST, configP);
 			configP.add(selectGrdinputdirB);
 
@@ -228,33 +234,33 @@ public class TemCalGUI{
 
 	        JLabel chtinputdirL = new JLabel("Cohort (grided/dynamical) Input Directory");
 			chtinputdirL.setPreferredSize(new Dimension(400, 30));
-			slayout.putConstraint(SpringLayout.NORTH, chtinputdirL, 310, SpringLayout.NORTH, configP);
+			slayout.putConstraint(SpringLayout.NORTH, chtinputdirL, 280, SpringLayout.NORTH, configP);
 			slayout.putConstraint(SpringLayout.WEST,chtinputdirL, 5, SpringLayout.WEST, configP);
 			configP.add(chtinputdirL);
 			chtinputdirTF.setPreferredSize(new Dimension(380, 30));
-			slayout.putConstraint(SpringLayout.NORTH, chtinputdirTF, 335, SpringLayout.NORTH, configP);
+			slayout.putConstraint(SpringLayout.NORTH, chtinputdirTF, 305, SpringLayout.NORTH, configP);
 			slayout.putConstraint(SpringLayout.WEST,chtinputdirTF, 20, SpringLayout.WEST, configP);
 			configP.add(chtinputdirTF);
 			selectChtinputdirB.setPreferredSize(new Dimension(80, 30));
-			slayout.putConstraint(SpringLayout.NORTH, selectChtinputdirB, 335, SpringLayout.NORTH, configP);
+			slayout.putConstraint(SpringLayout.NORTH, selectChtinputdirB, 305, SpringLayout.NORTH, configP);
 			slayout.putConstraint(SpringLayout.WEST,selectChtinputdirB, 405, SpringLayout.WEST, configP);
 			configP.add(selectChtinputdirB);
 
 			// cohort id to be calibrated
 	        JLabel chtidinputL = new JLabel("Cohort ID");
 	        chtidinputL.setPreferredSize(new Dimension(400, 30));
-			slayout.putConstraint(SpringLayout.NORTH, chtidinputL, 365, SpringLayout.NORTH, configP);
+			slayout.putConstraint(SpringLayout.NORTH, chtidinputL, 335, SpringLayout.NORTH, configP);
 			slayout.putConstraint(SpringLayout.WEST,chtidinputL, 5, SpringLayout.WEST, configP);
 			configP.add(chtidinputL);
-			chtidinputTF.setPreferredSize(new Dimension(380, 30));
-			slayout.putConstraint(SpringLayout.NORTH, chtidinputTF, 395, SpringLayout.NORTH, configP);
-			slayout.putConstraint(SpringLayout.WEST,chtidinputTF, 20, SpringLayout.WEST, configP);
+			chtidinputTF.setPreferredSize(new Dimension(300, 30));
+			slayout.putConstraint(SpringLayout.NORTH, chtidinputTF, 335, SpringLayout.NORTH, configP);
+			slayout.putConstraint(SpringLayout.WEST,chtidinputTF, 100, SpringLayout.WEST, configP);
 			configP.add(chtidinputTF);
 			
 			//
 			// 7) update the config and file
 			updateConfigB.setPreferredSize(new Dimension(200, 30));
-			slayout.putConstraint(SpringLayout.NORTH, updateConfigB, 425, SpringLayout.NORTH, configP);
+			slayout.putConstraint(SpringLayout.NORTH, updateConfigB, 365, SpringLayout.NORTH, configP);
 			slayout.putConstraint(SpringLayout.WEST, updateConfigB, 100, SpringLayout.WEST, configP);
 			configP.add(updateConfigB);
 			updateConfigB.addActionListener(new configUpdater());
@@ -263,13 +269,13 @@ public class TemCalGUI{
 			// 8) module switches for TEM
 			JLabel label1= new JLabel ("----------------- MODEL MODULE SWITCHES ---------------");
 			label1.setPreferredSize(new Dimension(450, 30));
-			slayout.putConstraint(SpringLayout.NORTH, label1, 460, SpringLayout.NORTH, configP);
+			slayout.putConstraint(SpringLayout.NORTH, label1, 400, SpringLayout.NORTH, configP);
 			slayout.putConstraint(SpringLayout.WEST, label1, 0, SpringLayout.WEST, configP);
 			configP.add(label1);
 
 			JLabel envmodL= new JLabel ("Env-module");
 			envmodL.setPreferredSize(new Dimension(80, 25));
-			slayout.putConstraint(SpringLayout.NORTH, envmodL, 485, SpringLayout.NORTH, configP);
+			slayout.putConstraint(SpringLayout.NORTH, envmodL, 430, SpringLayout.NORTH, configP);
 			slayout.putConstraint(SpringLayout.WEST, envmodL, 10, SpringLayout.WEST, configP);
 			configP.add(envmodL);
 			String envmodS[] = new String[2];
@@ -277,8 +283,8 @@ public class TemCalGUI{
 			envmodS[1] = "On";
 			JPanel envmodP = getRBPanel(envmodjbg, 2, 200, 30, envmodjrb, envmodS);
 			envmodP.setPreferredSize(new Dimension(200,30));
-			slayout.putConstraint(SpringLayout.NORTH, envmodP, 485,SpringLayout.NORTH, configP);
-			slayout.putConstraint(SpringLayout.WEST, envmodP, 80,SpringLayout.WEST, configP);
+			slayout.putConstraint(SpringLayout.NORTH, envmodP, 430,SpringLayout.NORTH, configP);
+			slayout.putConstraint(SpringLayout.WEST, envmodP, 85,SpringLayout.WEST, configP);
 			configP.add(envmodP);
 			envmodjrb[0].addActionListener(ProcessSwitcher);
 			envmodjrb[1].addActionListener(ProcessSwitcher);
@@ -287,7 +293,7 @@ public class TemCalGUI{
 
 			JLabel bgcmodL= new JLabel ("Bgc-module");
 			bgcmodL.setPreferredSize(new Dimension(80, 25));
-			slayout.putConstraint(SpringLayout.NORTH, bgcmodL, 515,SpringLayout.NORTH, configP);
+			slayout.putConstraint(SpringLayout.NORTH, bgcmodL, 460,SpringLayout.NORTH, configP);
 			slayout.putConstraint(SpringLayout.WEST, bgcmodL, 10 ,SpringLayout.WEST, configP);
 			configP.add(bgcmodL);
 			String bgcmodS[] = new String[2];
@@ -295,53 +301,72 @@ public class TemCalGUI{
 			bgcmodS[1] = "On";
 			JPanel bgcmodP = getRBPanel(bgcmodjbg, 2, 150, 30, bgcmodjrb, bgcmodS);
 			bgcmodP.setPreferredSize(new Dimension(150,30));
-			slayout.putConstraint(SpringLayout.NORTH, bgcmodP, 515,SpringLayout.NORTH, configP);
-			slayout.putConstraint(SpringLayout.WEST, bgcmodP, 80,SpringLayout.WEST, configP);
+			slayout.putConstraint(SpringLayout.NORTH, bgcmodP, 460,SpringLayout.NORTH, configP);
+			slayout.putConstraint(SpringLayout.WEST, bgcmodP, 85,SpringLayout.WEST, configP);
 			configP.add(bgcmodP);
 			bgcmodjrb[0].addActionListener(ProcessSwitcher);
 			bgcmodjrb[1].addActionListener(ProcessSwitcher);
 			bgcmodjrb[0].setEnabled(false);
 			bgcmodjrb[1].setEnabled(false);
 
-			JLabel nfeedL= new JLabel ("Close N module");
+			JLabel nfeedL= new JLabel ("C-N coupled");
 			nfeedL.setPreferredSize(new Dimension(100, 25));
-			slayout.putConstraint(SpringLayout.NORTH, nfeedL, 540, SpringLayout.NORTH, configP);
+			slayout.putConstraint(SpringLayout.NORTH, nfeedL, 485, SpringLayout.NORTH, configP);
 			slayout.putConstraint(SpringLayout.WEST, nfeedL, 30, SpringLayout.WEST, configP);
 			configP.add(nfeedL);
 			String nfeedS[] = new String[2];
-			nfeedS[0] = "Off";
-			nfeedS[1] = "On";
+			nfeedS[0] = "No";
+			nfeedS[1] = "Yes";
 			JPanel nfeedP = getRBPanel(nfeedjbg, 2, 150, 30, nfeedjrb, nfeedS);
 			nfeedP.setPreferredSize(new Dimension(150,30));
-			slayout.putConstraint(SpringLayout.NORTH, nfeedP, 540,SpringLayout.NORTH, configP);
-			slayout.putConstraint(SpringLayout.WEST,nfeedP, 135,SpringLayout.WEST, configP);
+			slayout.putConstraint(SpringLayout.NORTH, nfeedP, 485, SpringLayout.NORTH, configP);
+			slayout.putConstraint(SpringLayout.WEST,nfeedP, 140, SpringLayout.WEST, configP);
 			configP.add(nfeedP);
 			nfeedjrb[0].addActionListener(ProcessSwitcher);
 			nfeedjrb[1].addActionListener(ProcessSwitcher);
 			nfeedjrb[0].setEnabled(false);
 			nfeedjrb[1].setEnabled(false);
 
-			JLabel avlnL= new JLabel ("Open N module");
-			avlnL.setPreferredSize(new Dimension(100, 25));
-			slayout.putConstraint(SpringLayout.NORTH, avlnL, 565,SpringLayout.NORTH, configP);
-			slayout.putConstraint(SpringLayout.WEST, avlnL, 30 ,SpringLayout.WEST, configP);
+			JLabel avlnL= new JLabel ("Inorg. N I/O Flag");
+			avlnL.setPreferredSize(new Dimension(120, 25));
+			slayout.putConstraint(SpringLayout.NORTH, avlnL, 510, SpringLayout.NORTH, configP);
+			slayout.putConstraint(SpringLayout.WEST, avlnL, 60, SpringLayout.WEST, configP);
 			configP.add(avlnL);
 			String avlnS[] = new String[2];
-			avlnS[0] = "Off";
-			avlnS[1] = "On";
+			avlnS[0] = "No";
+			avlnS[1] = "Yes";
 			JPanel avlnP = getRBPanel(avlnjbg, 2, 150, 30, avlnjrb, nfeedS);
 			avlnP.setPreferredSize(new Dimension(150,30));
-			slayout.putConstraint(SpringLayout.NORTH, avlnP, 565, SpringLayout.NORTH, configP);
-			slayout.putConstraint(SpringLayout.WEST,avlnP, 135,SpringLayout.WEST, configP);
+			slayout.putConstraint(SpringLayout.NORTH, avlnP, 510, SpringLayout.NORTH, configP);
+			slayout.putConstraint(SpringLayout.WEST,avlnP, 160, SpringLayout.WEST, configP);
 			configP.add(avlnP);
 			avlnjrb[0].addActionListener(ProcessSwitcher);
 			avlnjrb[1].addActionListener(ProcessSwitcher);
 			avlnjrb[0].setEnabled(false);
 			avlnjrb[1].setEnabled(false);
 
+			JLabel baselineL= new JLabel ("Org. N I/O Flag");
+			baselineL.setPreferredSize(new Dimension(120, 25));
+			slayout.putConstraint(SpringLayout.NORTH, baselineL, 535,SpringLayout.NORTH, configP);
+			slayout.putConstraint(SpringLayout.WEST, baselineL, 60 ,SpringLayout.WEST, configP);
+			configP.add(baselineL);
+			String baselineS[] = new String[2];
+			baselineS[0] = "No";
+			baselineS[1] = "Yes";
+			JPanel baselineP = getRBPanel(baselinejbg, 2, 150, 30, baselinejrb, nfeedS);
+			baselineP.setPreferredSize(new Dimension(150,30));
+			slayout.putConstraint(SpringLayout.NORTH, baselineP, 535, SpringLayout.NORTH, configP);
+			slayout.putConstraint(SpringLayout.WEST,baselineP, 160,SpringLayout.WEST, configP);
+			configP.add(baselineP);
+			baselinejrb[0].addActionListener(ProcessSwitcher);
+			baselinejrb[1].addActionListener(ProcessSwitcher);
+			baselinejrb[0].setEnabled(false);
+			baselinejrb[1].setEnabled(false);
+
+			//
 			JLabel dslmodL= new JLabel ("Dsl-module");
 			dslmodL.setPreferredSize(new Dimension(80, 25));
-			slayout.putConstraint(SpringLayout.NORTH, dslmodL, 595,SpringLayout.NORTH, configP);
+			slayout.putConstraint(SpringLayout.NORTH, dslmodL, 565,SpringLayout.NORTH, configP);
 			slayout.putConstraint(SpringLayout.WEST, dslmodL, 10 ,SpringLayout.WEST, configP);
 			configP.add(dslmodL);
 			String dslmodS[] = new String[2];
@@ -349,17 +374,55 @@ public class TemCalGUI{
 			dslmodS[1] = "On";
 			JPanel dslmodP = getRBPanel(dslmodjbg, 2, 150, 30, dslmodjrb, dslmodS);
 			dslmodP.setPreferredSize(new Dimension(150,30));
-			slayout.putConstraint(SpringLayout.NORTH, dslmodP, 595,SpringLayout.NORTH, configP);
-			slayout.putConstraint(SpringLayout.WEST, dslmodP, 80,SpringLayout.WEST, configP);
+			slayout.putConstraint(SpringLayout.NORTH, dslmodP, 565,SpringLayout.NORTH, configP);
+			slayout.putConstraint(SpringLayout.WEST, dslmodP, 85,SpringLayout.WEST, configP);
 			configP.add(dslmodP);
 			dslmodjrb[0].addActionListener(ProcessSwitcher);
 			dslmodjrb[1].addActionListener(ProcessSwitcher);
 			dslmodjrb[0].setEnabled(false);
 			dslmodjrb[1].setEnabled(false);
 
+			//
+			JLabel dvmmodL= new JLabel ("Dvm-module");
+			dvmmodL.setPreferredSize(new Dimension(90, 25));
+			slayout.putConstraint(SpringLayout.NORTH, dvmmodL, 595,SpringLayout.NORTH, configP);
+			slayout.putConstraint(SpringLayout.WEST, dvmmodL, 10 ,SpringLayout.WEST, configP);
+			configP.add(dvmmodL);
+			String dvmmodS[] = new String[2];
+			dvmmodS[0] = "Off";
+			dvmmodS[1] = "On";
+			JPanel dvmmodP = getRBPanel(dvmmodjbg, 2, 150, 30, dvmmodjrb, dvmmodS);
+			dvmmodP.setPreferredSize(new Dimension(150,30));
+			slayout.putConstraint(SpringLayout.NORTH, dvmmodP, 595,SpringLayout.NORTH, configP);
+			slayout.putConstraint(SpringLayout.WEST, dvmmodP, 85,SpringLayout.WEST, configP);
+			configP.add(dvmmodP);
+			dvmmodjrb[0].addActionListener(ProcessSwitcher);
+			dvmmodjrb[1].addActionListener(ProcessSwitcher);
+			dvmmodjrb[0].setEnabled(false);
+			dvmmodjrb[1].setEnabled(false);
+
+			JLabel updatelaiL= new JLabel ("LAI dynamics");
+			updatelaiL.setPreferredSize(new Dimension(120, 25));
+			slayout.putConstraint(SpringLayout.NORTH, updatelaiL, 620,SpringLayout.NORTH, configP);
+			slayout.putConstraint(SpringLayout.WEST, updatelaiL, 50 ,SpringLayout.WEST, configP);
+			configP.add(updatelaiL);
+			String updatelaiS[] = new String[2];
+			updatelaiS[0] = "No";
+			updatelaiS[1] = "Yes";
+			JPanel updatelaiP = getRBPanel(updatelaijbg, 2, 150, 30, updatelaijrb, updatelaiS);
+			updatelaiP.setPreferredSize(new Dimension(150,30));
+			slayout.putConstraint(SpringLayout.NORTH, updatelaiP, 620,SpringLayout.NORTH, configP);
+			slayout.putConstraint(SpringLayout.WEST, updatelaiP, 160,SpringLayout.WEST, configP);
+			configP.add(updatelaiP);
+			updatelaijrb[0].addActionListener(ProcessSwitcher);
+			updatelaijrb[1].addActionListener(ProcessSwitcher);
+			updatelaijrb[0].setEnabled(false);
+			updatelaijrb[1].setEnabled(false);
+
+			//
 			JLabel firemodL= new JLabel ("Fire-module");
 			firemodL.setPreferredSize(new Dimension(80, 25));
-			slayout.putConstraint(SpringLayout.NORTH, firemodL, 625,SpringLayout.NORTH, configP);
+			slayout.putConstraint(SpringLayout.NORTH, firemodL, 650,SpringLayout.NORTH, configP);
 			slayout.putConstraint(SpringLayout.WEST, firemodL, 10 ,SpringLayout.WEST, configP);
 			configP.add(firemodL);
 			String firemodS[] = new String[2];
@@ -367,8 +430,8 @@ public class TemCalGUI{
 			firemodS[1] = "On";
 			JPanel firemodP = getRBPanel(firemodjbg, 2, 150, 30, firemodjrb, firemodS);
 			firemodP.setPreferredSize(new Dimension(150,30));
-			slayout.putConstraint(SpringLayout.NORTH, firemodP, 625,SpringLayout.NORTH, configP);
-			slayout.putConstraint(SpringLayout.WEST, firemodP, 80,SpringLayout.WEST, configP);
+			slayout.putConstraint(SpringLayout.NORTH, firemodP, 650,SpringLayout.NORTH, configP);
+			slayout.putConstraint(SpringLayout.WEST, firemodP, 85,SpringLayout.WEST, configP);
 			configP.add(firemodP);
 			firemodjrb[0].addActionListener(ProcessSwitcher);
 			firemodjrb[1].addActionListener(ProcessSwitcher);
@@ -400,7 +463,7 @@ public class TemCalGUI{
 			slayout.putConstraint(SpringLayout.NORTH, selectInitparfileB, 35, SpringLayout.NORTH, datalogP);
 			slayout.putConstraint(SpringLayout.WEST,selectInitparfileB, 405, SpringLayout.WEST, datalogP);
 			datalogP.add(selectInitparfileB);
-		    selectInitparfileB.addActionListener(new CaliparSelector());
+		    selectInitparfileB.addActionListener(new InitCaliparSelector());
 
 			// 2) calibrated bgc targetted state variable file
 			JLabel calbgcL = new JLabel("Targetted BGC State/Flux Data:");
@@ -417,7 +480,7 @@ public class TemCalGUI{
 			slayout.putConstraint(SpringLayout.NORTH, selectCalibgcfileB, 95, SpringLayout.NORTH, datalogP);
 			slayout.putConstraint(SpringLayout.WEST,selectCalibgcfileB, 405,SpringLayout.WEST, datalogP);
 			datalogP.add(selectCalibgcfileB);
-		    selectCalibgcfileB.addActionListener(new CalibgcSelector());
+		    selectCalibgcfileB.addActionListener(new CalibgcTargetSelector());
 
 		    // 3) community type code
 		    JLabel cmtL = new JLabel("Community Code - 'CMT??' followed by space and //comments):");
@@ -506,7 +569,8 @@ public class TemCalGUI{
 			//
 	        String[] initstateName ={"VEGC-leaf","VEGC-stem","VEGC-root",
 	        	       "VEGN-leaf","VEGN-stem","VEGN-root","DEADC","DEADN",
-	        	       " ", "THICK-dmoss","THICK-fib", "THICK-hum", "SOMC-min","SOILN","AVLN"};
+	        	       " ", "THICK-dmoss","THICK-fib", "THICK-hum", 
+	        	       "C-dmoss","SOMC-fib","SOMC-hum","SOMC-min","SOILN","AVLN"};
 	        int rows3 = initstateName.length;
 	        int cols3 = ColumnName.length;
 	        String[][] initstateValue = new String[rows3][cols3];
@@ -602,6 +666,7 @@ public class TemCalGUI{
 				caliP.add(pickpftCB);
 				pickpftCB.setSelectedIndex(0);
 				pickpftCB.addActionListener(new pftSelector());
+				pickpftCB.setEnabled(false);
 
 			JPanel cmaxP = cmaxChanger.getPanel();
 				cmaxP.setPreferredSize(new Dimension(170, 50));
@@ -880,11 +945,14 @@ public class TemCalGUI{
 			 nfalllChanger.storeOldValue();
 			 nfallsChanger.storeOldValue();
 			 nfallrChanger.storeOldValue();
+			 kraChanger.storeOldValue();
 			 krblChanger.storeOldValue();
 			 krbsChanger.storeOldValue();
 			 krbrChanger.storeOldValue();
+			 frgChanger.storeOldValue();
 
 			 micbnupChanger.storeOldValue();
+			 kdcmosscChanger.storeOldValue();
 			 kdcrawcChanger.storeOldValue();
 			 kdcsomaChanger.storeOldValue();
 			 kdcsomprChanger.storeOldValue();
@@ -919,15 +987,23 @@ public class TemCalGUI{
 				bgcmodjrb[1].setEnabled(true);
 				nfeedjrb[0].setEnabled(true);
 				nfeedjrb[1].setEnabled(true);		
-				avlnjrb[0].setEnabled(false);
-				avlnjrb[1].setEnabled(false);
+				avlnjrb[0].setEnabled(true);
+				avlnjrb[1].setEnabled(true);
 				avlnjrb[0].doClick();   //set this as the default
+				baselinejrb[0].setEnabled(true);
+				baselinejrb[1].setEnabled(true);
+				baselinejrb[0].doClick();   //set this as the default
 				
 				dslmodjrb[0].setEnabled(true);
 				dslmodjrb[1].setEnabled(true);
 
 				firemodjrb[0].setEnabled(true);
 				firemodjrb[1].setEnabled(true);
+
+				dvmmodjrb[0].setEnabled(true);
+				dvmmodjrb[1].setEnabled(true);
+				updatelaijrb[0].setEnabled(true);
+				updatelaijrb[1].setEnabled(true);
 
 		        //set-up plot viewers
 		        var1plotter.reset();
@@ -942,22 +1018,22 @@ public class TemCalGUI{
 
 		    	//initializing TEM eqrunner
 		    	runnerinit();
-
+	            
 	        	getDefaultvarparFromTEM();
-
+	            
 		        //enable model run setup controls in the calibration Panel
 	            runmodeB.setEnabled(true);
 	            resetupB.setEnabled(true);
 	            setupB.setEnabled(true);
-	            
+
 	            // reset the pick-pft list and default index
 	            pickpftCB.setSelectedIndex(Caliber.ipft);
+	            pickpftCB.setEnabled(true);
 //		    	double[] vegcov = Caliber.eqrunner.runcht.cht.getCd().getM_veg().getVegcov();
 //		    	for (int ip=ConstCohort.NUM_PFT-1; ip>=0; ip++) {
 //		    		if (vegcov[ip]<=0.) pickpftCB.removeItemAt(ip);
 //		    	}
-
-
+	            
 			}
 		}
 	};
@@ -1072,7 +1148,7 @@ public class TemCalGUI{
 	    		Caliber.temcj.getSbCalPar();
 	    		Caliber.jscalpar = Caliber.temcj.getScalpar();
 
-	    		calparTB.setValueAt(Double.toString(Caliber.jscalpar.getMicbnup()), Configurer.I_MICBNUP, 1);
+				calparTB.setValueAt(Double.toString(Caliber.jscalpar.getMicbnup()), Configurer.I_MICBNUP, 1);
 	    		calparTB.setValueAt(Double.toString(Caliber.jscalpar.getKdcmoss()), Configurer.I_KDCMOSS, 1);
 	    		calparTB.setValueAt(Double.toString(Caliber.jscalpar.getKdcrawc()), Configurer.I_KDCRAWC, 1);
 	    		calparTB.setValueAt(Double.toString(Caliber.jscalpar.getKdcsoma()), Configurer.I_KDCSOMA, 1);
@@ -1101,13 +1177,13 @@ public class TemCalGUI{
 	    		stateTB.setValueAt(Double.toString(Caliber.temcj.getInitdmossthick()), Configurer.I_DMOSSTHICK, 1);
 	    		stateTB.setValueAt(Double.toString(Caliber.temcj.getInitfibthick()), Configurer.I_FIBTHICK, 1);
 	    		stateTB.setValueAt(Double.toString(Caliber.temcj.getInithumthick()), Configurer.I_HUMTHICK, 1);
+	    		stateTB.setValueAt(Double.toString(Caliber.temcj.getInitdmossc()), Configurer.I_DMOSSC, 1);
 	    		stateTB.setValueAt(Double.toString(Caliber.temcj.getInitshlwc()), Configurer.I_FIBSOILC, 1);
 	    		stateTB.setValueAt(Double.toString(Caliber.temcj.getInitdeepc()), Configurer.I_HUMSOILC, 1);
 	    		stateTB.setValueAt(Double.toString(Caliber.temcj.getInitminec()), Configurer.I_MINESOILC, 1);
 	    		stateTB.setValueAt(Double.toString(Caliber.temcj.getInitsoln()), Configurer.I_SOILN, 1);
 	    		stateTB.setValueAt(Double.toString(Caliber.temcj.getInitavln()), Configurer.I_AVLN, 1);
-	    		
-	    		
+	    			    		
 	        } catch (Exception e) {
 		    	System.err.println("reading Calpar from TEM failed! - "+e);
 	        }
@@ -1153,12 +1229,15 @@ public class TemCalGUI{
 
 			public void actionPerformed(ActionEvent arg0) {
 				 
-				// if 'changers' have parameters, pass them to Tab
-				getCalparFromChanger(Caliber.ipft);
 				
-				Caliber.ipft = pickpftCB.getSelectedIndex();
+				if(!pickpftCB.isEnabled()) { // if pft scroll control not enable yet, set 'Changers' values from 'Tab' 
+					assignCalparTabToChanger(Caliber.ipft);					
+				} else { // if 'changers' have parameters and PFT index changes, pass them to Tab and model
+					Caliber.ipft = pickpftCB.getSelectedIndex();
+					setTEMcalparsFromChanger();
+					getCalparFromChanger(Caliber.ipft);
 				
-				assignCalparToChanger(Caliber.ipft);
+				}
 				
 			}
 	}
@@ -1199,7 +1278,7 @@ public class TemCalGUI{
 	}
 
 	// read and set-up target state variables for calibration
-	public class CalibgcSelector implements ActionListener{
+	public class CalibgcTargetSelector implements ActionListener{
 
 			public void actionPerformed(ActionEvent arg0) {
 				//open file chooser
@@ -1356,7 +1435,7 @@ public class TemCalGUI{
 
 
 	// initial calibratable parameter file reading for setting-up
-	public class CaliparSelector implements ActionListener{
+	public class InitCaliparSelector implements ActionListener{
 
 			public void actionPerformed(ActionEvent arg0) {
 				//open file chooser
@@ -1395,13 +1474,13 @@ public class TemCalGUI{
 			        kdcsomprChanger.setEnabled(true);
 			        kdcsomcrChanger.setEnabled(true);
 
-			        assignCalparToChanger(Caliber.ipft); //
+			        assignCalparTabToChanger(Caliber.ipft); //
 
 			    	// ready to produce new set of parameters for the calibrated community
 			        paroutputB.setEnabled(true);
 
 			    	//parameter values reading from configurer Tabs
-			        setTEMparsFromConfig();
+			        setTEMparsFromConfigTab();
 
 				}
 			}
@@ -1428,7 +1507,7 @@ public class TemCalGUI{
 
 			    	String dummy="";
 			    	dummy = input.readLine(); // community type code may be included
-			    	cmtcodeTF.setText("CMT"+dummy.substring(0, 30));
+			    	cmtcodeTF.setText(dummy.substring(0, 30));
 			    	
 			    	dummy = input.readLine(); // PFT name code may be included
 			    	dummy = dummy.replaceAll("\\s+", ",");
@@ -1563,7 +1642,7 @@ public class TemCalGUI{
 		};
 
 		// pass the parameters from config-Tab in Control Pannel to changers in Calibration Pannel
-		private void assignCalparToChanger(int ipft){
+		private void assignCalparTabToChanger(int ipft){
 			
 			try {
 
@@ -1578,11 +1657,14 @@ public class TemCalGUI{
 				nfallsChanger.updateValue(Double.valueOf((String) calparTB.getValueAt(Configurer.I_NFALLS, ipft+1)), 0);
 				nfallrChanger.updateValue(Double.valueOf((String) calparTB.getValueAt(Configurer.I_NFALLR, ipft+1)), 0);
 
+				kraChanger.updateValue(Double.valueOf((String) calparTB.getValueAt(Configurer.I_KRA, ipft+1)), 0);
 				krblChanger.updateValue(Double.valueOf((String) calparTB.getValueAt(Configurer.I_KRBL, ipft+1)), 0);
 				krbsChanger.updateValue(Double.valueOf((String) calparTB.getValueAt(Configurer.I_KRBS, ipft+1)), 0);
 				krbrChanger.updateValue(Double.valueOf((String) calparTB.getValueAt(Configurer.I_KRBR, ipft+1)), 0);
+				frgChanger.updateValue(Double.valueOf((String) calparTB.getValueAt(Configurer.I_FRG, ipft+1)), 0);
 
 				micbnupChanger.updateValue(Double.valueOf((String) calparTB.getValueAt(Configurer.I_MICBNUP, 1)), 0);
+				kdcmosscChanger.updateValue(Double.valueOf((String) calparTB.getValueAt(Configurer.I_KDCMOSS, 1)), 0);
 				kdcrawcChanger.updateValue(Double.valueOf((String) calparTB.getValueAt(Configurer.I_KDCRAWC, 1)), 0);
 				kdcsomaChanger.updateValue(Double.valueOf((String) calparTB.getValueAt(Configurer.I_KDCSOMA, 1)), 0);
 				kdcsomprChanger.updateValue(Double.valueOf((String) calparTB.getValueAt(Configurer.I_KDCSOMPR, 1)), 0);
@@ -1595,7 +1677,7 @@ public class TemCalGUI{
 		}
 
 		//pass the parameters from config-Tab of Control Panel to TEM model
-		private void setTEMparsFromConfig(){
+		private void setTEMparsFromConfigTab(){
 	    	
 			double[] vegcov = Caliber.eqrunner.runcht.cht.getCd().getM_veg().getVegcov();
 			
@@ -1655,7 +1737,7 @@ public class TemCalGUI{
 		 };
 		 
 		// the initital state variables to TEM model
-		private void setTEMinitstateFromConfig(){
+		private void setTEMinitstateFromConfigTab(){
 
 			  // vegetation
 		      double dummy[] = new double[3]; 
@@ -1707,7 +1789,7 @@ public class TemCalGUI{
 			setupB.setEnabled(true);
 			resetupB.setEnabled(true);
 
-			if(runmodeB.getText().equals("NewCaliDriver")){
+			if(runmodeB.getText().equals("TestRunner")){
 				runmodeB.setText("Calibration");
 
 				PhyVariablePlotter.f.setVisible(true);
@@ -1733,9 +1815,9 @@ public class TemCalGUI{
 				
 
 			}else if(runmodeB.getText().equals("Calibration")){
-				runmodeB.setText("NewCaliDriver");
+				runmodeB.setText("TestRunner");
 
-				if (BioVariablePlotter.f.isVisible()) BioVariablePlotter.f.setVisible(false);
+				BioVariablePlotter.f.setVisible(true);
 				PhyVariablePlotter.f.setVisible(true);
 
 				envmodjrb[0].setEnabled(false);
@@ -1782,9 +1864,10 @@ public class TemCalGUI{
 				setupB.setEnabled(false);
 				exitB.setEnabled(false);
 
-				if (runmodeB.getText().equals("NewCaliDriver")) {
+				if (runmodeB.getText().equals("TestRunner")) {
+					var1plotter.reset();
 					var2plotter.reset();
-					Caliber.updatedriver();
+					Caliber.testrun();
 				} else if (runmodeB.getText().equals("Calibration")){
 					Caliber.start();
 				}
@@ -1813,8 +1896,9 @@ public class TemCalGUI{
 			Caliber.ipft = Integer.valueOf(pickpftCB.getSelectedItem().toString());	
 
 			setTEMoptionsFromConfig();
-			setTEMcalparsFromChanger();
-			setTEMinitstateFromConfig();
+			assignCalparTabToChanger(Caliber.ipft);
+			setTEMparsFromConfigTab();
+			setTEMinitstateFromConfigTab();
 		}
 
 	};
@@ -1845,18 +1929,26 @@ public class TemCalGUI{
 		boolean bgcmodule = false;
 		boolean dslmodule = false;
 		boolean firemodule= false;
+		boolean dvmmodule = false;
 		if(envmodjrb[1].isSelected()) envmodule=true;
 		if(bgcmodjrb[1].isSelected()) bgcmodule=true;
 		if(dslmodjrb[1].isSelected()) dslmodule=true;
+		if(dvmmodjrb[1].isSelected()) dvmmodule=true;
 		if(firemodjrb[1].isSelected()) firemodule=true;
 
 		//Turn Modules on/off
 		Caliber.eqrunner.runcht.cht.getMd().setEnvmodule(envmodule);
 		Caliber.eqrunner.runcht.cht.getMd().setBgcmodule(bgcmodule);
 		Caliber.eqrunner.runcht.cht.getMd().setDslmodule(dslmodule);
-
+		Caliber.eqrunner.runcht.cht.getMd().setDvmmodule(dvmmodule);
 		Caliber.eqrunner.runcht.cht.getMd().setDsbmodule(firemodule);
-		if (firemodule) Caliber.friderived = true;
+
+		// pregnostic LAI or dynamical LAI
+		boolean updatelai = false;
+		if (dvmmodule) {
+			if(updatelaijrb[1].isSelected()) updatelai = true;			
+		}
+		Caliber.eqrunner.runcht.cht.getMd().setUpdatelai(updatelai);
 
 		// N modules control
 		boolean nfeed   = false;
@@ -1865,10 +1957,14 @@ public class TemCalGUI{
 		if (bgcmodule) {
 			if(nfeedjrb[1].isSelected()) nfeed = true;
 			if(avlnjrb[1].isSelected())	avlnflg = true;
+			if(baselinejrb[1].isSelected())	baseline = true;
 		}
 		Caliber.eqrunner.runcht.cht.getMd().setBaseline(baseline);
 		Caliber.eqrunner.runcht.cht.getMd().setAvlnflg(avlnflg);
 		Caliber.eqrunner.runcht.cht.getMd().setNfeed(nfeed);
+
+		// fire module option
+		if (firemodule) Caliber.eqrunner.runcht.cht.getMd().setFriderived(firemodule);
 
 	};
 
@@ -1891,7 +1987,7 @@ public class TemCalGUI{
 		nfall[2]=nfallrChanger.getValue();
 		Caliber.jvcalpar.setCfall(nfall);
 
-		double kra = Double.valueOf((String)calparTB.getValueAt(Configurer.I_KRA, Caliber.ipft+1));
+		double kra = kraChanger.getValue();
 		Caliber.jvcalpar.setKra(kra);  // not calibrated
 		
 		double krb[] = new double[ConstCohort.NUM_PFT_PART];
@@ -1900,12 +1996,13 @@ public class TemCalGUI{
 		krb[2]=krbrChanger.getValue();
 		Caliber.jvcalpar.setKrb(krb);
 
-		double frg = Double.valueOf((String)calparTB.getValueAt(Configurer.I_FRG, Caliber.ipft+1));
-		Caliber.jvcalpar.setKra(frg);  // not calibrated
+		double frg = frgChanger.getValue();
+		Caliber.jvcalpar.setFrg(frg);  // not calibrated
 
 		//soil
 		Caliber.jscalpar.setMicbnup(krblChanger.getValue());
 
+		Caliber.jscalpar.setKdcmoss(kdcmosscChanger.getValue());
 		Caliber.jscalpar.setKdcrawc(kdcrawcChanger.getValue());
 		Caliber.jscalpar.setKdcsoma(kdcsomaChanger.getValue());
 		Caliber.jscalpar.setKdcsompr(kdcsomprChanger.getValue());
@@ -1925,8 +2022,8 @@ public class TemCalGUI{
 
 			int ipft = Caliber.ipft;
 			readInitparFromFile();
-			assignCalparToChanger(ipft);
-			setTEMparsFromConfig();
+			assignCalparTabToChanger(ipft);
+			setTEMparsFromConfigTab();
 
 			startpauseB.setEnabled(false);
 			setupB.setEnabled(true);

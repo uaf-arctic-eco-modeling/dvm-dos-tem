@@ -455,7 +455,7 @@ void CohortLookup::assignEnv4Ground(string &dircmt){
 	fctrcomm >> evapmin;  getline(fctrcomm,str);     //comments in the file
 	fctrcomm >> drainmax;  getline(fctrcomm,str);     //comments in the file
 
-  	fctrcomm >> rtdp4growpct; getline(fctrcomm,str);     //comments in the file
+  	fctrcomm >> rtdp4gdd; getline(fctrcomm,str);     //comments in the file
 
 	fctrcomm >> initsnwtem;  getline(fctrcomm,str);     //comments in the file
 
@@ -485,7 +485,7 @@ void CohortLookup::assignBgc4Ground(string &dircmt){
 	
 	string str;
 	string code;
-	int lines = 18;   // total lines of one block of community data/info, except for 2 header lines
+	int lines = 19;   // total lines of one block of community data/info, except for 2 header lines
 
 	getline(fctrcomm, str);     // community separation line ("//====" or something or empty line)
 	getline(fctrcomm, str);     // community code - 'CMTxx' (xx: two digits)
