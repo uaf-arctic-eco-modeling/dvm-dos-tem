@@ -5,8 +5,10 @@
  
 ParentLayer::ParentLayer(const double & thick){
  	tkey=I_ROCK;
+	stkey=I_NONE;
 
 	isRock = true;
+	solind = MISSING_I;
 
  	dz = thick;
  	updateProperty(); 

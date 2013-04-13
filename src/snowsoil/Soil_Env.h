@@ -3,6 +3,7 @@
 
 #include "Stefan.h"  
 #include "Richards.h"
+#include "TemperatureUpdator.h"
 
 #include "../data/CohortData.h"
 #include "../data/EnvData.h"
@@ -26,6 +27,7 @@ class Soil_Env{
 	
 		Richards richards;
 		Stefan stefan;
+		TemperatureUpdator tempupdator;
 
 		void setGround(Ground* grndp);
 		void setCohortData(CohortData* cdp);
@@ -56,9 +58,6 @@ class Soil_Env{
 		 void updateDailySoilThermal4Growth(Layer* fstsoill, const double &tsurface);
 		 void updateLayerStateAfterThermal(Layer* fstsoill, Layer *lstsoill, Layer* botlayer);
 
-         void combineFronts();
-         void getLayerFrozenfraction(Layer* toplayer);
-         void updateWaterAfterFront(Layer* toplayer);
 		 void retrieveDailyFronts();
 
 		 double getEvaporation(const double & dayl, const double &rad);

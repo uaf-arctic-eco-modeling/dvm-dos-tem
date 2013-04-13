@@ -14,7 +14,7 @@
 	                          +	3;              // labible N, C & N in dead veg
 	// number of layered soil BGC state variables
 	const int NUM_SOI_STATE = 6*MAX_SOI_LAY     // 4 soil C pools, orgn, and avln
-                              +1;               // wderis
+                              +4;               // wderis C and N, dmoss C and N
 
 	// number of state variables
 	const int MAXSTATE = NUM_VEG_STATE + NUM_SOI_STATE;

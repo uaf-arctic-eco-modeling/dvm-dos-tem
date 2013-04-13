@@ -53,7 +53,6 @@ void ChtOutputer::init(string & dirfile){
    	snwageV = ncfile->add_var("SNWAGE", ncDouble, timeD);
    	snwthickV = ncfile->add_var("SNWTHICK", ncDouble, timeD);
    	snwdenseV = ncfile->add_var("SNWDENSE", ncDouble, timeD);
-   	snwrhoV = ncfile->add_var("SNWRHO", ncDouble, timeD);
    	snwextramassV  = ncfile->add_var("SNWEXTRAMASS", ncDouble, timeD);   // 'snowextramass' refers to the snow mass which not enough for a a now layer (partially covered)
 
  	//soil dimension variables
@@ -105,9 +104,8 @@ void ChtOutputer::outputCohortDimVars_mly(CohortData *dimod, const int & tstepcn
    	//
    	snwthickV->put_rec(&dimod->m_snow.thick, tstepcnt);
    	snwdenseV->put_rec(&dimod->m_snow.dense, tstepcnt);
-   	snwrhoV->put_rec(&dimod->m_snow.rho[0], tstepcnt);
    	snwextramassV->put_rec(&dimod->m_snow.extramass, tstepcnt);
-   	snwageV->put_rec(&dimod->m_snow.age[0], tstepcnt);
+   	snwageV->put_rec(&dimod->m_snow.olds, tstepcnt);
 
    	//
    	soillayernumV->put_rec(&dimod->m_soil.numsl, tstepcnt);
@@ -157,9 +155,8 @@ void ChtOutputer::outputCohortDimVars_yly(CohortData *dimod, const int & tstepcn
    	//
    	snwthickV->put_rec(&dimod->y_snow.thick, tstepcnt);
    	snwdenseV->put_rec(&dimod->y_snow.dense, tstepcnt);
-   	snwrhoV->put_rec(&dimod->y_snow.rho[0], tstepcnt);
    	snwextramassV->put_rec(&dimod->y_snow.extramass, tstepcnt);
-   	snwageV->put_rec(&dimod->y_snow.age[0], tstepcnt);
+   	snwageV->put_rec(&dimod->y_snow.olds, tstepcnt);
 
    	//
    	soillayernumV->put_rec(&dimod->y_soil.numsl, tstepcnt);

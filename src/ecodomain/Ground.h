@@ -37,6 +37,8 @@ class Ground: public DoubleLinkedList {
       	Ground();
       	~Ground();
 
+      	bool debugging;
+
       	// A ground (snow-soil<moss-peat-mineral>-soilparent column has the following 5 types of horizons,
       	//  each of which has a number of layers defined below
       	Snow snow;
@@ -64,13 +66,14 @@ class Ground: public DoubleLinkedList {
 		Layer* lstminel;       // last mineral layer
 
 		// freezing/thawing fronts
-		double frontz[MAX_NUM_FNT];
-		int fronttype[MAX_NUM_FNT];
-		deque<double> frontsz;    // fronts in order from top to bottom: distance from ground soil surface
-		deque<int> frontstype; // fronts type in order as above: 1 = freezing front - front with upper frozen/lower unfrozen,
+		double frntz[MAX_NUM_FNT];
+		int frnttype[MAX_NUM_FNT];
+		deque<double> frontsz;    // fronts depth in order from top to bottom: distance from ground soil surface
+		deque<int> frontstype;    // fronts type in order as above: 1 = freezing front - front with upper frozen/lower unfrozen,
 		                          //                               -1 = thawing front - frotn with upper unfrozen/lower frozen.
 		                          // SO freezing/thawing fronts are alternatively in order,
 		                          // i.e., a freezing front must be followed by a thawign front, or vice versa
+
 		Layer* fstfntl;       /*! first snow/soil layer containing phase change front */
 		Layer* lstfntl;       /*! last snow/soil layer containing phase change front */
 
@@ -97,8 +100,8 @@ class Ground: public DoubleLinkedList {
 		bool divideSnowLayers();
 		bool combineSnowLayers();
 
-		void updateSnowLayerZ();
-		void updateSnowLayerProperties();
+		void updateSnowLayerPropertiesDaily();
+		void updateSnowHorizon();
 		void checkSnowLayer();
 
 		// soil layers
@@ -121,6 +124,9 @@ class Ground: public DoubleLinkedList {
 	    void retrieveSnowDimension(snwstate_dim * snowdim);
 		void retrieveSoilDimension(soistate_dim * soildim);   //This is required if anything changed in the dimension
 
+		//
+		void checkWaterValidity();
+
 	private :
 
 		bool rocklayercreated;
@@ -137,8 +143,9 @@ class Ground: public DoubleLinkedList {
 		void setFstLstDeepLayers();
 		void setFstLstMineLayers();
 		void updateLayerIndex();
-		void updateSoilLayerZ();
-	    void updateSoilHorizons();
+		void updateLayerZ();
+
+		void updateSoilHorizons();
 
 		void redivideMossLayers(const int &mosstype);
 		void redivideShlwLayers();
@@ -151,8 +158,11 @@ class Ground: public DoubleLinkedList {
 		void adjustFrontsAfterThickchange(const double & depth, const double & thickchange);
 		void getLayerFrozenstatusByFronts(Layer * soill);
 
-		void getOslCarbon5Thickness(Layer* sl, const double &plctop, const double &plcbot);
-	  	void getOslThickness5Carbon(Layer* sl, const double &plztop, const double &plzbot);
+		void getDmossCarbon5Thickness(SoilLayer* sl, const double &dmossdz);
+		void getDmossThickness5Carbon(SoilLayer* sl, const double &dmossc);
+
+		void getOslCarbon5Thickness(SoilLayer* sl, const double &plctop, const double &plcbot);
+	  	void getOslThickness5Carbon(SoilLayer* sl, const double &plztop, const double &plzbot);
 
 		void checkFrontsValidity();
 

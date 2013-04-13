@@ -28,7 +28,7 @@ class Snow_Env{
 	    void setEnvData(EnvData* edp);
 
 	    void initializeParameter();
-	    void initializeState();
+	    void initializeNewSnowState();
 	    void initializeState5restart(RestartData* resin);
 
 	    void updateDailyM(const double & tdrv);
@@ -42,7 +42,7 @@ class Snow_Env{
 
 	    Ground * ground;
 
-	    void updateSWE(Layer * frontl);
+	    void updateSnowEd(Layer * frontl);
 		double meltSnowLayersAfterT(Layer * frontl);
 
 	    void updateDailySurfFlux( Layer* frontl, const double & tdrv);

@@ -39,6 +39,7 @@ class CohortLookup{
 	    // soil
 	    double micbnup;  // parameter related to N immoblization by soil microbial
 
+	    double kdcmoss;    // calibrated dead moss C material respiration rate (at 0oC)
 	    double kdcrawc;    // calibrated soil raw C material respiration rate (at 0oC)
 	    double kdcsoma;    // calibrated soil active SOM respiration rate (at 0oC)
 	    double kdcsompr;   // calibrated soil physically-resistant SOM respiration rate (at 0oC)
@@ -69,9 +70,9 @@ class CohortLookup{
 
    // ground/soil dimensions
   	    // moss
-	  	double maxmossthick;
-	  	double initmossthick;
-	  	int initmosstype;
+	  	double maxdmossthick;
+	  	double initdmossthick;
+	  	int mosstype;
 	  	double coefmossa;//carbon vs thick
 	  	double coefmossb;//carbon vs thick
 
@@ -90,8 +91,8 @@ class CohortLookup{
 
 	  	int minetexture[MAX_MIN_LAY];
 
-	  	// root depth criteria for determining thawing-derived growth period
-	  	double rtdp4growpct;
+	  	// active root depth criteria for determining thawing/freezing-derived growing season and degree-day
+	  	double rtdp4gdd;
 
   //for canopy biometeorological processes
 
@@ -210,6 +211,7 @@ class CohortLookup{
 	    double initdeadc[NUM_PFT];
 	    double initdeadn[NUM_PFT];
   
+	    double initdmossc;
 	    double initshlwc;
 	    double initdeepc;
 	    double initminec;
