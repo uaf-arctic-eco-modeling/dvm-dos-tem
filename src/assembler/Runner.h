@@ -10,6 +10,10 @@
 
 #ifndef RUNNER_H_
 #define RUNNER_H_
+#include <string>
+#include <iostream>
+#include <fstream>
+#include <sstream>
 
 #include "RunRegion.h"
 #include "RunGrid.h"
@@ -18,7 +22,7 @@
 #include "../runmodule/Controller.h"
 #include "../runmodule/ModelData.h"
 
-#include <list>
+#include <vector>
 using namespace std;
 
 class Runner {
@@ -26,19 +30,45 @@ class Runner {
 		Runner();
 		~Runner();
 
-		list<int> runchtlist;
-		int chtid;
-		int error;
+		int chtid;    /* currently-running 'cohort' id */
+		int error;    /* error index */
 
-		void initInput(const string &controlfile, const string &runmode); // set pointer between classes
+		void initInput(const string &controlfile, const string &runmode); /* general initialization */
 		void initOutput();
 		void setupData();
+		void setupIDs();
 
-    	void run();
+		/* three settings for running TEM */
+    	void runmode1();  /* one site run-mode, used for stand-alone TEM for any purpose */
+    	void runmode2();  /* multi-site (regional) run-mode 1, i.e., time series */
+    	void runmode3();  /* multi-site (regional) run-mode 2, i.e., spatially */
+    	void runSpatially(const int icalyr, const int im);
 
+    	vector<int> runchtlist;  //a vector listing all cohort id
+ 	    vector<float> runchtlats;  //a vector of latitudes for all cohorts in order of 'runchtlist'
+ 	    vector<float> runchtlons;  //a vector of longitudes for all cohorts in order of 'runchtlist'
 
+    	/* all data record no. lists FOR all cohorts in 'runchtlist', IN EXACTLY SAME ORDER, for all !
+    	 * the 'record' no. (starting from 0) is the order in the netcdf files
+    	 * for all 'chort (cell)' in the 'runchtlist',
+    	 * so, the length of all these lists are same as that of 'runchtlist'
+    	 * will save time to search those real data ids if do the ordering in the first place
+    	 * */
 
-    private:
+    	/* from grided-data (geo-referenced only, or grid-level)*/
+    	vector<int> reclistgrid;
+    	vector<int> reclistdrain;
+    	vector<int> reclistsoil;
+    	vector<int> reclistgfire;
+
+    	/* from grided-/non-grided and time-series data (cohort-level)*/
+    	vector<int> reclistinit;
+    	vector<int> reclistclm;
+    	vector<int> reclistveg;
+    	vector<int> reclistfire;
+
+	private:
+
     	//TEM domains (hiarchy)
     	RunRegion runreg;
 		RunGrid rungrd;
@@ -48,19 +78,18 @@ class Runner {
     	Controller configin;
         
     	//data classes
-    	ModelData md;
+    	ModelData md;     /* model controls, options, switches and so on */
 
-    	EnvData  grded;   // all-grid level 'ed'
-    	BgcData  grdbd;
+    	EnvData  grded;   // grid-aggregated 'ed' (not yet done)
+    	BgcData  grdbd;   // grid-aggregared 'bd' (not yet done)
 
-    	EnvData  chted;   // all-cht level 'ed' (i.e. 'edall in 'cht')
+    	EnvData  chted;   // withing-grid cohort-level aggregated 'ed' (i.e. 'edall in 'cht')
     	BgcData  chtbd;
     	FirData  chtfd;
 
 		//util
 		Timer timer;
 
-		int setupIDs();
     	void createCohortList4Run();
 		void createOutvarList(string & txtfile);
 	

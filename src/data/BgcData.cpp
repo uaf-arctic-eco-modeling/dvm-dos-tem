@@ -8,7 +8,47 @@ BgcData::~BgcData(){
 	
 };
 
-void BgcData::init(){
+// re-initialize BgcData class explicitly
+void BgcData::clear(){
+	cd->clear();
+
+	//monthly
+	m_vegs = vegstate_bgc();
+	m_sois = soistate_bgc();
+	m_vegd = vegdiag_bgc();
+	m_soid = soidiag_bgc();
+	m_l2a  = lnd2atm_bgc();
+	m_a2v  = atm2veg_bgc();
+	m_v2a  = veg2atm_bgc();
+	m_v2soi = veg2soi_bgc();
+	m_soi2v = soi2veg_bgc();
+	m_v2v   = veg2veg_bgc();
+	m_soi2l = soi2lnd_bgc();
+	m_soi2a = soi2atm_bgc();
+	m_a2soi = atm2soi_bgc();
+	m_soi2soi = soi2soi_bgc();
+
+	//yearly
+	y_vegs = vegstate_bgc();
+	y_sois = soistate_bgc();
+	y_vegd = vegdiag_bgc();
+	y_soid = soidiag_bgc();
+	y_l2a  = lnd2atm_bgc();
+	y_a2v  = atm2veg_bgc();
+	y_v2a  = veg2atm_bgc();
+	y_v2soi = veg2soi_bgc();
+	y_soi2v = soi2veg_bgc();
+	y_v2v   = veg2veg_bgc();
+	y_soi2l = soi2lnd_bgc();
+	y_soi2a = soi2atm_bgc();
+	y_a2soi = atm2soi_bgc();
+	y_soi2soi = soi2soi_bgc();
+
+	for (int il=0; il<MAX_SOI_LAY; il++){
+		if (!prvltrfcnque[il].empty()) {
+			prvltrfcnque[il].clear();
+		};
+	}
 
 };
 
@@ -159,24 +199,32 @@ void BgcData::veg_endOfYear(){
 }
 
 void BgcData::soil_beginOfMonth(){
-
+/*
 	for(int il=0; il<MAX_SOI_LAY; il++){
 		m_sois.rawc[il] = 0.;
 		m_sois.soma[il] = 0.;
 		m_sois.sompr[il]= 0.;
 		m_sois.somcr[il]= 0.;
 
+		m_sois.orgn[il] = 0.;
+		m_sois.avln[il] = 0.;
+
 		m_soi2a.rhrawc[il] = 0.;
 	  	m_soi2a.rhsoma[il] = 0.;
 	  	m_soi2a.rhsoma[il] = 0.;
 	  	m_soi2a.rhsompr[il]= 0.;
 	  	m_soi2a.rhsomcr[il]= 0.;
+
 	}
+*/
 };
 
 void BgcData::soil_beginOfYear(){
 
- 	y_sois.wdebrisc=0.;
+ 	y_sois.wdebrisc= 0.;
+ 	y_sois.wdebrisn= 0.;
+ 	y_sois.dmossc  = 0.;
+ 	y_sois.dmossn  = 0.;
 
  	y_soid.shlwc   = 0.;
  	y_soid.deepc   = 0.;
@@ -237,7 +285,7 @@ void BgcData::soil_beginOfYear(){
 
 };
 
-void BgcData::soil_endOfMonth(const bool &baseline){
+void BgcData::soil_endOfMonth(){
  
 	// status variable (diagnostics)
  	m_soid.shlwc   = 0.;
@@ -291,12 +339,6 @@ void BgcData::soil_endOfMonth(const bool &baseline){
  			prvltrfcnque[il].pop_back();
  		}
 
- 		deque <double> ltrfcnque = prvltrfcnque[il];
- 		int numrec = ltrfcnque.size();
- 		prvltrfcn[il] = 0.;
- 		for (int i=0; i<numrec; i++){
- 		  prvltrfcn[il] += ltrfcnque[il]/numrec;
- 		}
  	}
 
  	//annually mean variables
@@ -316,7 +358,11 @@ void BgcData::soil_endOfMonth(const bool &baseline){
    		y_sois.orgn[il] += m_sois.orgn[il]/12.;
    		y_sois.avln[il] += m_sois.avln[il]/12.;
  	}
+   	y_sois.dmossc += m_sois.dmossc/12.;
+   	y_sois.dmossn += m_sois.dmossn/12.;
+
    	y_sois.wdebrisc += m_sois.wdebrisc/12.;
+   	y_sois.wdebrisn += m_sois.wdebrisn/12.;
 
    	y_soid.shlwc += m_soid.shlwc/12;
    	y_soid.deepc += m_soid.deepc/12;
@@ -353,7 +399,7 @@ void BgcData::soil_endOfMonth(const bool &baseline){
  	}
  	m_soi2a.rhtot = m_soi2a.rhrawcsum + m_soi2a.rhsomasum
  			    +m_soi2a.rhsomprsum + m_soi2a.rhsomcrsum
- 			    +m_soi2a.rhwdeb;
+ 			    +m_soi2a.rhwdeb + m_soi2a.rhmossc;
 
  	//cumulative annually
  	y_soi2a.rhwdeb    += m_soi2a.rhwdeb;
@@ -375,31 +421,10 @@ void BgcData::soil_endOfMonth(const bool &baseline){
 	y_soi2soi.nimmobsum += m_soi2soi.nimmobsum/12.;
 
     // connection to open-N cycle
- 	if (baseline){
- 		y_a2soi.orgninput += m_a2soi.orgninput;
- 		y_soi2l.orgnlost += m_soi2l.orgnlost;
- 		y_a2soi.avlninput += m_a2soi.avlninput;
- 		y_soi2l.avlnlost += m_soi2l.avlnlost;
- 	}
-
-};
-
-void BgcData::soil_endOfYear(const double & cnsoileven, const bool &baseline){
-
-   	//need to balance soil org. N, if 'baseline' switched on
-   	if (baseline) {
-   		double tsomcsum=y_soid.rawcsum+y_soid.somasum+y_soid.somprsum+y_soid.somcrsum;
-      	if ( tsomcsum/cnsoileven >= y_soid.orgnsum) {
-      		y_a2soi.orgninput = (tsomcsum/cnsoileven) - y_soid.orgnsum;
-      	} else {
-      		y_soi2l.orgnlost  = y_soid.orgnsum - (tsomcsum/cnsoileven);
-      	}
-
-      	y_soid.orgnsum = tsomcsum/cnsoileven;
-      	for (int il=0; il<cd->y_soil.numsl; il++) {
-      		y_sois.orgn[il] = y_soid.tsomc[il]/cnsoileven;
-      	}
-    }
+	y_a2soi.orgninput += m_a2soi.orgninput;
+	y_soi2l.orgnlost += m_soi2l.orgnlost;
+	y_a2soi.avlninput += m_a2soi.avlninput;
+	y_soi2l.avlnlost += m_soi2l.avlnlost;
 
 };
 

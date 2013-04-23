@@ -2,7 +2,7 @@
  */
  
 #include "Grid.h"
-// constructor 
+
 Grid::Grid(){
   
 }
@@ -15,13 +15,27 @@ Grid::~Grid(){
 // initialization
 int Grid::reinit(){
 
-    double ampl;
 	for (int id=0; id<365; id++){
-       	ampl = exp(7.42 +0.045 *gd.lat)/3600.;
-       	gd.alldaylengths[id] = ampl * (sin ((id -79) *0.01721)) +12.0;
+	   //  the following are the original algorithm, and modified as below by Yi (2013 Feb)
+       //  double ampl;
+       //  ampl = exp(7.42 +0.045 *gd.lat)/3600.;
+       //  gd.alldaylengths[id] = ampl * (sin ((id -79) *0.01721)) +12.0;
+
+    	double daylength = 0.0;
+    	//http://www.jgiesen.de/astro/solarday.htm
+        //http://www.gandraxa.com/length_of_day.xml
+        //make sure all arguments in sin, cos and tan are in unit of arc (not degree)
+    	double pi =3.14159;
+    	double m = 1- tan(gd.lat*pi/180.0)* tan(23.45*cos(id*pi/182.625)*pi/180.0);
+    	m = fmax(m, 0.);
+    	m = fmin(m, 2.);
+
+    	double b = acos(1-m)/pi;
+
+    	daylength = b*24;
+    	gd.alldaylengths[id] = daylength;
 	}
 
- 
     //check for the validity of grid level data
   	if(gd.fri<0|| gd.fri>2000){
   	 	gd.fri =2000;

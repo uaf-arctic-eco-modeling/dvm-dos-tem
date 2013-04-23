@@ -1,101 +1,145 @@
-/*!
- * Carefully checked and corrected by F.-M. Yuan
- * On Oct. 10, 2011
+/*! \file
  */
  
 #include "CrankNicholson.h"
 
 CrankNicholson::CrankNicholson(){
-	
-};
-  
+
+}
+
 CrankNicholson::~CrankNicholson(){
-	
-};
+	//
+}
 
-void CrankNicholson::geBackward(const int  &startind, const int & endind, double  t[], 
-		        double  cn[], double cap[], double  s[], double e[], double & dt,
-		        const double & endlayergflux) {
+void CrankNicholson::geBackward(const int  &startind, const int & endind, double  t[], double dx[], double  cn[], 
+	 			double cap[], double  s[], double e[], double & dt) {
 
-	double coni;
+	double condth;
+	double conuth;
 	double denm;
 	double r;
 	double rc;
 	double rhs;
 
-	//loop from last layer ('endind') to first layer ('startind'), NOTE: layer index starts from 1
+	//loop from last layer to first layer
 	int iu;
 	int id;
-	
-	double gflux = endlayergflux;   // heat flux at the bottom of ending layer (+ upward, - downward) as input
-	coni = cn[endind-1];
-	rc   = cap[endind-1]*0.5/dt;
-	denm = rc+coni;
-	s[endind] = coni/denm;
-	e[endind]= (rc*t[endind]+gflux)/denm;
+	double sil;
+	double eil;
 
-	for (int i=endind-1; i>startind+1; i--){
-		iu    = i - 1;
-		id    = i + 1;
+	for (int il = endind-1 ;il>=startind+1; il--){
+		iu =il-1;
+		id =il+1;
+		conuth = cn[iu];
+		condth = cn[il] ;
+		rc = (cap[il] + cap[iu]) / dt;
+		r = conuth + rc + condth;
+		denm = r - condth * s[id];
+		rhs = (rc - conuth - condth) * t[il] + conuth* t[iu] + condth * t[id];
 
-		rc = (cap[i] + cap[iu]) / dt;
-		r  = cn[iu] + rc + cn[id];
-		denm = r - cn[id] * s[id];
-		rhs = (rc - cn[iu] - cn[id]) * t[i]
-		      + cn[iu] * t[iu] + cn[id] * t[id];
+		sil = conuth / denm;
+		eil = (rhs + condth * e[id]) / denm;
 
-		s[i] = cn[iu] / denm;
-		e[i] = (rhs + cn[id] * e[id]) / denm;
+		s[il] = sil;
+		e[il] = eil;
 	 
 	}
 
-	rc = cap[startind+1] *0.5/ dt;
-	rhs = rc * t[startind+1] ; // +sflux + ht[dnode];
-	r = cn[startind] + rc + cn[startind+1];
-	denm = r -cn[startind] *s[startind];
+}
 
-	s[startind+1] = cn[startind+1]/denm;
-	e[startind+1] = (rhs + cn[startind] * e[startind])/ denm;
+void CrankNicholson::geForward(const int  &startind, const int & endind, double  t[], double dx[], double  cn[], 
+	 			double cap[], double  s[], double e[], double & dt) {
 
-};
+	double condth;
+	double conuth;
+	double denm;
 
-void CrankNicholson::cnForward(const int & startind, const int & endind ,
-		double tii[], double tit[], double s[], double e[]) {
+	double r;
+	double rc;
+	double rhs;
+
+	int im1;
+	int ip1;
+	for (int il =startind+1 ;il<=endind-1;il++){
+		im1 =il -1;
+		ip1 =il +1;
+		conuth = cn[im1];
+		condth = cn[il] ;
+		rc = (cap[il] + cap[im1]) / dt;
+		r = conuth + rc + condth;
+		denm = r - conuth * s[im1];
+		rhs = (rc - conuth - condth) * t[il] + conuth
+          * t[im1] + condth * t[ip1];
+
+		s[il] = condth / denm;
+		e[il] = (rhs + conuth * e[im1]) / denm;
+	
+	}
+
+}
+
+void CrankNicholson::cnForward(const int & startind, const int & endind ,double tii[], double tit[],
+		double s[], double e[]) {
 
 	tit[startind]= tii[startind];
-	for ( int il = startind+1; il <= endind; il++ ) {
+	for ( int il =startind+1; il <= endind-1; il++ ) {
   	
 		tit[il] = s[il] * tit[il-1] + e[il];
   
 	}
 
-};
+	tit[endind] = tii[endind];
+  
+}
 
-void CrankNicholson::tridiagonal(const int ind, const int numsl, 
-		double a[], double b[], double c[], double r[], double u[]){
+void CrankNicholson::cnBackward(const int & startind, const int & endind ,double tii[], double tit[],
+		double s[], double e[]) {
+	
+	tit[endind]= tii[endind];
+	for ( int il =endind-1; il >= startind+1; il--) {
+		tit[il] = s[il] * tit[il+1] + e[il];
+  
+	}
+
+	tit[endind]= tii[endind];
+  
+}
+
+void CrankNicholson::tridiagonal(const int ind, const int numsl, double a[], double b[], double c[], double r[], double u[]){
 	/* input: a, b, c
-	 * input: ind, numsl
+	 * input: ind, numsl: first layer index, and total number of layers
 	 * output: u
 	 */
-	
-	double gam[numsl-ind];
-	double tempg, tg;
+
+	double gam[numsl];
+	double tempg;
 	double bet = b[ind];
-	for(int il =ind; il<numsl; il++){
+	for(int il=ind; il<ind+numsl; il++){
 		if(il == ind){
 			u[il] = r[il]/bet;
+
 		}else{
+	   
 			tempg = c[il-1] /bet;
-			gam[il]= tempg;
-			bet = b[il] - a[il] *gam[il];
-			u[il] = (r[il] - a[il]*u[il-1])/bet;	
-		}	
+			gam[il-ind]= tempg;
+			bet = b[il] - a[il] *gam[il-ind];
+			u[il] = (r[il] - a[il]*u[il-1])/bet;
+		}
 	}
 	
-	for(int il=numsl-2; il>=ind;il--){
-	   tg = gam[il+1];
-	   u[il] = u[il] - gam[il+1] *u[il+1];	
+	for(int il=ind+numsl-1; il>ind; il--){
+		// the first layer (il==ind) is done above: basically to say liq. water not move upward from the first layer
+
+		double uil  = u[il];
+		double uild = u[il+1];
+		if (il==ind+numsl-1) uild = 0.;
+		double g = gam[il+1-ind];
+		if (il==ind+numsl-1) g = gam[il-ind];
+
+		//u[il] = u[il] - gam[il+1-ind]*u[il+1];
+		u[il] = uil - g*uild;
+
 	}
 	
-};
+}
 

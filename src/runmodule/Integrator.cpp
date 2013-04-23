@@ -54,7 +54,6 @@ Integrator::Integrator(){
     maxitmon = 100;
     syint = 1;
 
-/*
 	//vegetation C & N state variables
   	for(int i =0; i<NUM_PFT_PART; i++){     //Yuan: here is the reason that the "temconst.h" is needed
 		stringstream ipart;
@@ -103,7 +102,10 @@ Integrator::Integrator(){
 		strcpy(predstr_soi[I_L_SOMPR+il],(string("SOMPR") +str2).c_str() );   // soil physically-resistant som carbon
 		strcpy(predstr_soi[I_L_SOMCR+il],(string("SOMCR") +str2).c_str() );   // soil chemically-resistant som carbon
 	}
-  	strcpy(predstr_soi[I_WDEBRIS],"WDEBRIS" ); // wood debris
+  	strcpy(predstr_soi[I_WDEBRISC],"WDEBRISC"); // wood debris C
+  	strcpy(predstr_soi[I_WDEBRISN],"WDEBRISN"); // wood debris N
+  	strcpy(predstr_soi[I_DMOSSC],"DMOSSC"); // dead moss C
+  	strcpy(predstr_soi[I_DMOSSN],"DMOSSN"); // dead moss N
 
 	// soil C&N flux variables
 	for(int il =0; il<MAX_SOI_LAY; il++){     //Yuan: here is the reason that the "temconst.h" is needed
@@ -124,11 +126,12 @@ Integrator::Integrator(){
 
 	}
 	strcpy(predstr_soi[I_RH_WD],"RHWD" );   // woody debris respiration
+	strcpy(predstr_soi[I_RH_DMOSS],"RHDMOSS" );   // dead moss respiration
 
   	// Total Ecosystem N loss
 	strcpy(predstr_soi[I_AVLNLOSS],"AVLNLOSS" );   // total inorganic nitrogen loss
 	strcpy(predstr_soi[I_ORGNLOSS],"ORGNLOSS" );   // total organic nitrogen loss
-*/
+
 };
 
 Integrator::~Integrator(){
@@ -213,7 +216,10 @@ void Integrator::c2ystate_soi(float y[]){
         y[I_L_ORGN+il] = bd->m_sois.orgn[il];
         y[I_L_AVLN+il] = bd->m_sois.avln[il];
     }
-    y[I_WDEBRIS] = bd->m_sois.wdebrisc;
+    y[I_WDEBRISC] = bd->m_sois.wdebrisc;
+    y[I_WDEBRISN] = bd->m_sois.wdebrisn;
+    y[I_DMOSSC] = bd->m_sois.dmossc;
+    y[I_DMOSSN] = bd->m_sois.dmossn;
 
 };
 
@@ -224,7 +230,7 @@ int Integrator::adapt(float pstate[], const int & numeq){
   	float time = 0.0;
   	float dt = 1.0;
   	int mflag = 0;
-  	long nintmon = 0;
+  	int nintmon = 0;
   	float oldstate[numeq];
   	float  ptol =0.01;
 
@@ -275,7 +281,7 @@ int Integrator::adapt(float pstate[], const int & numeq){
 };
 
 bool Integrator::rkf45( const int& numeq, float pstate[], float& pdt) {
-  	bool negativepool =false;
+  	int negativepool = -1;
   	int i;
   	float ptdt = 0;
 
@@ -293,7 +299,7 @@ bool Integrator::rkf45( const int& numeq, float pstate[], float& pdt) {
   	step( numeq,rk45,f11,rk45,b1 );
   	step( numeq,dum4,f11,ydum,ptdt );
   	negativepool = checkPools();
-  	if(negativepool){
+  	if(negativepool>=0){
   	  	return false;	
   	}
   	
@@ -304,7 +310,7 @@ bool Integrator::rkf45( const int& numeq, float pstate[], float& pdt) {
   
   	step( numeq,dum4,f13,ydum,pdt );
  	negativepool = checkPools();
-  	if(negativepool){
+  	if(negativepool>=0){
   	  return false;	
   	}
   	
@@ -317,7 +323,7 @@ bool Integrator::rkf45( const int& numeq, float pstate[], float& pdt) {
   	
   	step( numeq,dum4,f14,ydum,pdt );
   	negativepool = checkPools();
-  	if(negativepool){
+  	if(negativepool>=0){
   	  return false;	
   	}
   	
@@ -330,7 +336,7 @@ bool Integrator::rkf45( const int& numeq, float pstate[], float& pdt) {
   	
   	step( numeq,dum4,f15,ydum,pdt );
   	negativepool = checkPools();
-  	if(negativepool){
+  	if(negativepool>=0){
   	  return false;	
   	}
   	
@@ -343,7 +349,7 @@ bool Integrator::rkf45( const int& numeq, float pstate[], float& pdt) {
   	
   	step( numeq,dum4,f16,ydum,pdt );
   	negativepool = checkPools();
-  	if(negativepool){
+  	if(negativepool>=0){
   	  return false;	
   	}
   	
@@ -392,7 +398,10 @@ void Integrator::y2cstate_soi(float y[]){
         bd->m_sois.avln[il] = y[I_L_AVLN+il];
     }
 
-	bd->m_sois.wdebrisc = y[I_WDEBRIS];
+	bd->m_sois.wdebrisc = y[I_WDEBRISC];
+	bd->m_sois.wdebrisn = y[I_WDEBRISN];
+	bd->m_sois.dmossc   = y[I_DMOSSC];
+	bd->m_sois.dmossn   = y[I_DMOSSN];
 
 };
 
@@ -431,7 +440,8 @@ void Integrator::y2cflux_soi(float y[]){
   	  	bd->m_soi2soi.nimmob[il]  = y[I_L_NIMMOB+il];
   	  	bd->m_soi2soi.netnmin[il] = y[I_L_NMIN+il];
   	}
-  	bd->m_soi2a.rhwdeb = y[I_RH_WD];
+  	bd->m_soi2a.rhwdeb   = y[I_RH_WD];
+  	bd->m_soi2a.rhmossc  = y[I_RH_DMOSS];
 
   	//
     bd->m_soi2l.avlnlost = y[I_AVLNLOSS];
@@ -508,7 +518,10 @@ void Integrator::y2tcstate_soi(float pstate[]){
         ssl->tmp_sois.avln[il] = pstate[I_L_AVLN+il];
 
      }
-     ssl->tmp_sois.wdebrisc= pstate[I_WDEBRIS];
+     ssl->tmp_sois.wdebrisc= pstate[I_WDEBRISC];
+     ssl->tmp_sois.wdebrisn= pstate[I_WDEBRISN];
+     ssl->tmp_sois.dmossc  = pstate[I_DMOSSC];
+     ssl->tmp_sois.dmossn  = pstate[I_DMOSSN];
 
 };
 
@@ -538,7 +551,10 @@ void Integrator::dc2ystate_soi(float pdstate[]){
 
     }
 
-	pdstate[I_WDEBRIS] = ssl->del_sois.wdebrisc;
+	pdstate[I_WDEBRISC] = ssl->del_sois.wdebrisc;
+	pdstate[I_WDEBRISN] = ssl->del_sois.wdebrisn;
+	pdstate[I_DMOSSC]   = ssl->del_sois.dmossc;
+	pdstate[I_DMOSSN]   = ssl->del_sois.dmossn;
 
 };
 
@@ -575,7 +591,8 @@ void Integrator::dc2yflux_soi(float pdstate[]){
 		pdstate[I_L_NMIN+il]     = ssl->del_soi2soi.netnmin[il];
 	 }
 
- 	 pdstate[I_RH_WD]  = ssl->del_soi2a.rhwdeb;
+ 	 pdstate[I_RH_WD]    = ssl->del_soi2a.rhwdeb;
+ 	 pdstate[I_RH_DMOSS] = ssl->del_soi2a.rhmossc;
 
 	 pdstate[I_ORGNLOSS] = ssl->del_soi2l.orgnlost;
      pdstate[I_AVLNLOSS] = ssl->del_soi2l.avlnlost;
@@ -592,28 +609,26 @@ void Integrator::step( const int& numeq, float pstate[],
 	
 };
 
-bool Integrator::checkPools(){
+int Integrator::checkPools(){
 
-	bool negativepool =false;
+	int negativepool = -1;
 
 	/////
    	if (vegbgc) {
    		for (int i=0; i<NUM_PFT_PART; i++) {
-   			if(ydum[I_VEGC+i]<0) return true;
+   			if(ydum[I_VEGC+i]<0) return I_VEGC+i;
 
    			if (veg->nfeed) {
-   				if(ydum[I_STRN+i]<0) return true;
+   				if(ydum[I_STRN+i]<0) return I_STRN+i;
    			}
    		}
 
-   		if(ydum[I_DEADC]<0){
-   			return true;
-   		}
+   		if(ydum[I_DEADC]<0)	return I_DEADC;
 
 		if (veg->nfeed) {
-			if(ydum[I_LABN]<0 || ydum[I_DEADN]<0) return true;
+			if(ydum[I_LABN]<0) return I_LABN;
+			if(ydum[I_DEADN]<0) return I_DEADN;
    		}
-
 
    	}
 
@@ -622,36 +637,49 @@ bool Integrator::checkPools(){
 
    		for (int il=0; il<numsl; il++){
    			if(ydum[I_L_RAWC+il]<0) {
-   				return true;
+   				return I_L_RAWC+il;
    			}
 
    			if(ydum[I_L_SOMA+il]<0) {
-   				return true;
+   				return I_L_SOMA+il;
    			}
 
    			if(ydum[I_L_SOMPR+il]<0) {
-   				return true;
+   				return I_L_SOMPR+il;
    			}
 
    			if(ydum[I_L_SOMCR+il]<0) {
-   				return true;
+   				return I_L_SOMCR+il;
    			}
 
    			if (ssl->nfeed) {
    				if(ydum[I_L_AVLN+il]<0) {
-   					return true;
+   					return I_L_AVLN+il;
    				}
 
    				if(ydum[I_L_ORGN+il]<0) {
-   					return true;
+   					return I_L_ORGN+il;
    				}
    			}
 
    		}
 
-   		if(ydum[I_WDEBRIS]<0) {
-			return true;
+   		if(ydum[I_WDEBRISC]<0.) {
+			return I_WDEBRISC;
 		}
+
+   		if(ydum[I_WDEBRISN]<0.) {
+			return I_WDEBRISN;
+		}
+
+   		if(ydum[I_DMOSSC]<0.) {
+			return I_DMOSSC;
+		}
+
+   		if(ydum[I_DMOSSN]<0.) {
+			return I_DMOSSN;
+		}
+
    	}
 
    	return negativepool;
@@ -767,11 +795,23 @@ int Integrator::boundcon( float ptstate[], float err[], float& ptol ) {
 
    		}
 
-   		same = err[I_WDEBRIS] - fabs( ptol * ptstate[I_WDEBRIS]);
-		if (same>zero) return test = soivarkey(I_WDEBRIS)+1;
+   		same = err[I_WDEBRISC] - fabs( ptol * ptstate[I_WDEBRISC]);
+		if (same>zero) return test = soivarkey(I_WDEBRISC)+1;
+
+   		same = err[I_WDEBRISN] - fabs( ptol * ptstate[I_WDEBRISN]);
+		if (same>zero) return test = soivarkey(I_WDEBRISN)+1;
+
+   		same = err[I_DMOSSC] - fabs( ptol * ptstate[I_DMOSSC]);
+		if (same>zero) return test = soivarkey(I_DMOSSN)+1;
+
+   		same = err[I_DMOSSN] - fabs( ptol * ptstate[I_DMOSSN]);
+		if (same>zero) return test = soivarkey(I_DMOSSN)+1;
 
 		same = err[I_RH_WD] - fabs( ptol * ptstate[I_RH_WD]);
 		if (same>zero) return test = soivarkey(I_RH_WD)+1;
+
+		same = err[I_RH_DMOSS] - fabs( ptol * ptstate[I_RH_DMOSS]);
+		if (same>zero) return test = soivarkey(I_RH_DMOSS)+1;
 
    		// soil N
    		if (ssl->nfeed) {
@@ -787,7 +827,9 @@ int Integrator::boundcon( float ptstate[], float err[], float& ptol ) {
    				if (same>zero) return test = soivarkey(I_L_NIMMOB)+1+il;
 
    				same = err[I_L_NMIN+il] - fabs( ptol * ptstate[I_L_NMIN+il]);
-   				if (same>zero) return test = soivarkey(I_L_NMIN)+1+il;
+   				if (same>zero) {
+   					return test = soivarkey(I_L_NMIN)+1+il;
+   				}
 
    			}
 		} // end of soil N module

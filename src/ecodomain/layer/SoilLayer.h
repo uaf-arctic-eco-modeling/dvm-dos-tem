@@ -9,7 +9,6 @@
 
 #include <math.h>
 #include <cmath>
-#include <vector>
 #include <memory>
 using namespace std;
 
@@ -29,7 +28,6 @@ class SoilLayer:public Layer{
 	    double getAlbedoNir();// get albedo of Nir radition
 
         void derivePhysicalProperty();
-    	void updateProperty4LayerChange();
 
         double getMatricPotential();
         double getHydraulicCond();

@@ -10,10 +10,9 @@
 #include <cstdio>
 #include <string>
 #include <cmath>
-
 using namespace std;
 
-#include "netcdfcpp.h"
+#include <netcdfcpp.h>
 
 //local header
 #include "../runmodule/ModelData.h"
@@ -21,45 +20,46 @@ using namespace std;
 #include "../inc/cohortconst.h"
 #include "../inc/layerconst.h"
 #include "../inc/timeconst.h"
-#include "../inc/ErrorCode.h"
+#include "../inc/errorcode.h"
 
 class CohortInputer{
 	public:
 		CohortInputer();
 		~CohortInputer();
 
-		int act_clmyr;
-		int act_vegset;
-		int act_fireset;
+		void setModelData(ModelData *mdp);
+		int init();
 
-		void init(string & dir);
+		int getChtDataids(int &chtid, int & inichtid, int & gridid,
+				int & clmid, int & vegid, int & fireid, const int &recno);
 
-		int getChtDataids(int & inichtid, int & grdid, int & clmid,int & vegid,
-				int & fireid, const int &chtid);
-
-		int getClmRec(const int &clmid);
-		int getVegRec(const int &vegid);
-		int getFireRec(const int &fireid);
+		int getInitchtId(int &initchtid, const int &recno);
+		int getClmId(int &clmid, const int &recno);
+		int getVegId(int &vegid, const int &recno);
+		int getFireId(int &fireid, const int &recno);
 
 		void getClimate(float tair[], float prec[], float nirr[], float vap[],
-				const int& yrno, const int & recid);
+				const int& yrno, const int & recno);
 
-		void getVegetation(int vsetyr[], int vtype[], double vfrac[], const int & recid);
+		void getVegetation(int vsetyr[], int vtype[], double vfrac[], const int & recno);
 
-		void getFire(int fyear[], int fseason[], int fsize[], const int &recid);
-		void getFireSeverity(int fseverity[], const int &recid);
+		void getFire(int fyear[], int fseason[], int fsize[], const int &recno);
+		void getFireSeverity(int fseverity[], const int &recno);
 
 	private:
 	 
+		 ModelData *md;
 		 string chtidfname;
+		 string chtinitfname;
 		 string clmfname;
 		 string vegfname;
 		 string firefname;
 
-		 void initChtidFile(string& dir);
-		 int initClmFile(string& dir);
-		 int initVegFile(string& dir);
-		 int initFireFile(string& dir);
+		 int initChtidFile();
+		 int initChtinitFile();
+		 int initClmFile();
+		 int initVegFile();
+		 int initFireFile();
 	
 };
 

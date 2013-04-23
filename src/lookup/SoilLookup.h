@@ -13,9 +13,9 @@
 
 /*! maximum number of soil texture*/
 	const int MAX_SOIL_TXTR = 12; //add gravel
-	const int MAX_SM =1000; /// the soil moisture is divided into 100
-	const int MAX_ST1 =1000;/// from 0 to -1, 0.001 interval
-	const int MAX_ST2 =500;/// from -1 to -50, 0.1 interval
+	const int MAX_SM =1000;       // the soil moisture is divided into 100
+	const int MAX_ST1 =1000;      // from 0 to -1, 0.001 interval
+	const int MAX_ST2 =500;       // from -1 to -50, 0.1 interval
 
 	class SoilLookup{
 		public:

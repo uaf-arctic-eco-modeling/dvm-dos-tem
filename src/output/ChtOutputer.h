@@ -4,9 +4,9 @@
 #ifndef CHTOUTPUTER_H_
 #define CHTOUTPUTER_H_
 #include <iostream>
-#include "netcdfcpp.h"
+#include <netcdfcpp.h>
 
-#include "../inc/ErrorCode.h"
+#include "../inc/errorcode.h"
 #include "../data/CohortData.h"
 
 using namespace std;
@@ -39,8 +39,6 @@ class ChtOutputer{
 		NcVar* chtidV;
 
 		NcVar* cmttypeV;
-		NcVar* numpftV;
-		NcVar* cmtfracV;
 
 		NcVar* vegageV;
 		NcVar* ifwoodyV;
@@ -57,7 +55,6 @@ class ChtOutputer{
 	   	//
 		NcVar* snwthickV;
 		NcVar* snwdenseV;
-		NcVar* snwrhoV;
 		NcVar* snwextramassV;
 		NcVar* snwageV;
 

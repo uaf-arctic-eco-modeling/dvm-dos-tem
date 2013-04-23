@@ -13,7 +13,7 @@ using namespace std;
 #include "../data/BgcData.h"
 #include "../data/RestartData.h"
 
-#include "../inc/ErrorCode.h"
+#include "../inc/errorcode.h"
 #include "../inc/timeconst.h"
 #include "../inc/parameters.h"
 
@@ -26,8 +26,15 @@ class WildFire{
 
     	int firstfireyr;
 
+    	int oneyear;
+     	int onemonth;
+     	int oneseverity;  //Yuan: fire severity category
+
+     	int oneseason;
+    	int onesize;
+
      	void setCohortData(CohortData* cdp);
-     	void setEnvData(EnvData* edp);
+     	void setAllEnvBgcData(EnvData* edp, BgcData* bdp);
      	void setBgcData(BgcData* bdp, const int &ip);
      	void setFirData(FirData* fdp);
     	void setCohortLookup(CohortLookup* chtlup);
@@ -37,16 +44,11 @@ class WildFire{
     	void initializeState5restart(RestartData *resin);
     	void prepareDrivingData();
     	
-		int getOccur(const int & yrind, const int & mind, const bool & fridrived);  	//Yuan: modified;
-		void burn(const int & yrind, const bool & fridrived);  	//Yuan: modified
+		int getOccur(const int & yrind, const bool & fridrived);  	//Yuan: modified;
+		void burn();  	//Yuan: modified
 
 	private:
-     	int drgtype;
-     
-     	int onesize;
-     	int oneseason;
-     	int oneseverity;  //Yuan: fire severity category
-     
+
      	firepar_bgc firpar;
 
      	double r_live_cn; //ratio of living veg. after burning
@@ -54,18 +56,19 @@ class WildFire{
      	double r_burn2ag_cn; //burned above-ground veg. after burning
 
 //Yuan: the following if using years will result in huge memory needs, if spin-up is long
-		int occur[MAX_FIR_OCRNUM];
-		int season[MAX_FIR_OCRNUM];
-		int month[MAX_FIR_OCRNUM];
-		int size[MAX_FIR_OCRNUM];
-		int severity[MAX_FIR_OCRNUM];
+		int fyear[MAX_FIR_OCRNUM];
+		int fseason[MAX_FIR_OCRNUM];
+		int fmonth[MAX_FIR_OCRNUM];
+		int fsize[MAX_FIR_OCRNUM];
+		int fseverity[MAX_FIR_OCRNUM];
 
      	CohortLookup * chtlu;
     	CohortData * cd;
 
     	FirData * fd;
-   	 	EnvData * ed;
+   	 	EnvData * edall;
    	 	BgcData * bd[NUM_PFT];
+   	 	BgcData * bdall;
 
     	void deriveFireSeverity();
     	double getBurnOrgSoilthick();

@@ -21,22 +21,23 @@
 			int cohortcount;
 
 	    	EnvDataDly envoddly[NUM_PFT][31];
+	    	EnvDataDly envoddlyall[31];
 
 	    	OutDataRegn * regnod;
 
 	    	RestartData * resod;
 
 	    	//
-	    	void setCurrentDimensionData(CohortData *cdp);
-	    	void setCurrentProcessData(const int &ip, EnvData *edp, BgcData *bdp);
-	    	void setCurrentFireData(FirData *fdp);
+	    	void setDimensionData(CohortData *cdp);
+	    	void setProcessData(const int &ip, EnvData *edp, BgcData *bdp);
+	    	void setFireData(FirData *fdp);
 
 	    	//
 	    	void setRegnOutData(OutDataRegn * regnodp);
 	    	void setRestartOutData(RestartData *resodp);
 
 	    	//
-	    	void assignSiteDlyOutputBuffer_Env(snwstate_dim d_snow, EnvData *ed, const int &ipft, const int &iday);
+	    	void assignSiteDlyOutputBuffer_Env(snwstate_dim d_snow, const int &ipft, const int &iday);
 
 	    	void updateRegnOutputBuffer(const int &im);
 
@@ -45,6 +46,8 @@
 	    private:
 	    	//
 	    	CohortData *cd;
+	    	EnvData *edall;
+	    	BgcData *bdall;
 	    	EnvData *ed[NUM_PFT];
 	    	BgcData *bd[NUM_PFT];
 	    	FirData *fd;

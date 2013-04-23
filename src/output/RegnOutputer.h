@@ -5,12 +5,12 @@
  * 
  */
 
-#include "netcdfcpp.h"
+#include <netcdfcpp.h>
 #include <iostream>
 #include <string>
 using namespace std;
 
-#include "../inc/ErrorCode.h"
+#include "../inc/errorcode.h"
 #include "../data/OutDataRegn.h"
 
 class RegnOutputer{

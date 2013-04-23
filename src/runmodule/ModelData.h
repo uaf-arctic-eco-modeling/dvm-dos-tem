@@ -31,10 +31,10 @@
 			bool friderived;  // option for switching Grid-level fire occurrence (upon FRI)
 
 			// the following 3 switches will control N modules in BGC
-	     	bool baseline;   //=true allowing ninput and nlost to be used for adjusting c/n of soil
 	     	bool nfeed;      //=true allowing N uptake limited by soil conditions, which then controls plant growth,
 	     	                 //   basically it's a switch for soil-plant N process modules
    		    bool avlnflg;    // inorganic N in/out module on (true) or not (false) - partial open N cycle
+	     	bool baseline;   //=true allowing ninput and nlost to be used for adjusting c/n of soil - partial open N cycle
 
 			// the following are from Controller.cpp (reading from '????control.txt')
     		bool runeq;
@@ -67,7 +67,24 @@
    			bool outRegn;
    			bool outSoilClm;
 
-    		//
+   	 		// the data record numbers of all input datasets
+   			// grided data (1D)
+   	 		int act_gridno;
+   	 		int act_drainno;
+   	 		int act_soilno;
+   	 		int act_gfireno;
+
+   	 		// chort-level data (2D or 3D)
+   	 		int act_chtno;
+   	 		int act_initchtno;
+   	 		int act_clmno;  // climate data in clmid-year-month(12) (3D)
+   	 		int act_clmyr;
+   	 		int act_vegno;  // vegetation community data in vegid-yearset (2D)
+   			int act_vegset;
+   	 		int act_fireno; // fire data in fireid-yearset (2D)
+   			int act_fireset;
+
+   			//
     		void checking4run();
 
  		private:

@@ -3,7 +3,7 @@
 	
 	const int MAX_SNW_LAY =6; //maximum number of Snow Layer
 	
-	const int MAX_MOS_LAY =2; // maximum number of moss Layer: 1st for living moss; 2nd for dead moss;
+	const int MAX_MOS_LAY =2; // maximum number of moss Layer involved in soil thermal/hydrological/bgc processes;
 	const int MAX_SLW_LAY =3; // maximum number of shallow organic Layer
 	const int MAX_DEP_LAY =3; // maximum number of deep organic Layer
 

@@ -21,13 +21,28 @@ ModelData::ModelData(){
 	numprocs = 1;
 
 	// module switches
-	dslmodule = false;
-	dvmmodule = false;
-
 	envmodule = false;
 	bgcmodule = false;
+	dslmodule = false;
 	dsbmodule = false;
  	friderived= false;
+	dvmmodule = false;
+
+	// the data record numbers of all input datasets
+	act_gridno = 0;
+    act_drainno= 0;
+	act_soilno = 0;
+	act_gfireno= 0;
+
+	act_chtno    = 0;
+	act_initchtno= 0;
+	act_clmno    = 0;
+	act_clmyr    = 0;
+	act_vegno    = 0;
+	act_vegset   = 0;
+	act_fireno   = 0;
+	act_fireset  = 0;
+
 
 };
 

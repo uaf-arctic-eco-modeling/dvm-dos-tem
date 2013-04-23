@@ -5,7 +5,7 @@
 #ifndef BGCDATA_H_
 #define BGCDATA_H_
 
-#include "../inc/ErrorCode.h"
+#include "../inc/errorcode.h"
 #include "../inc/diagnostics.h"
 #include "../inc/fluxes.h"
 #include "../inc/states.h"
@@ -18,13 +18,14 @@
 #include "GridData.h"
 #include "CohortData.h"
 
-#include <vector>
 #include <deque>
 
 class BgcData{
  	public:
   		BgcData();
   		~BgcData();	
+
+  		void clear();
 	
 		CohortData * cd;
 
@@ -60,11 +61,8 @@ class BgcData{
 		atm2soi_bgc y_a2soi;
 		soi2soi_bgc y_soi2soi;
 
-		double prvltrfcn[MAX_SOI_LAY];
 		deque <double> prvltrfcnque[MAX_SOI_LAY];
 
-		void init();
-    
     	void land_beginOfYear();
    		void land_endOfMonth();
 
@@ -75,8 +73,7 @@ class BgcData{
 
    		void soil_beginOfYear();
    		void soil_beginOfMonth();
-   		void soil_endOfMonth(const bool &baseline);
-   		void soil_endOfYear(const double &cnsoil, const bool &baseline);
+   		void soil_endOfMonth();
     
     private:
 

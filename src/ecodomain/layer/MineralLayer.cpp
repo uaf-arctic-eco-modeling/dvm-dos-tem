@@ -37,9 +37,8 @@ void MineralLayer::updateProperty5Lookup(SoilLookup * soillu){
    	albdryvis = soillu->albdryvis[stkey];
    	albdrynir = soillu->albdryvis[stkey];
    	    
-   	minliq = 0.05*DENLIQ*dz;
-   	maxliq = poro*DENLIQ*dz;
-   	maxice = poro*DENICE*dz - minliq;
+   	derivePhysicalProperty();
+
 };
 
 

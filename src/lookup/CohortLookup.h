@@ -18,7 +18,8 @@ class CohortLookup{
 		CohortLookup();
 		~CohortLookup();
 
-		string dircmtname;
+		string dir;
+		string cmtcode;
 
 		void init();
         void assignBgcCalpar(string & dirname);
@@ -38,6 +39,7 @@ class CohortLookup{
 	    // soil
 	    double micbnup;  // parameter related to N immoblization by soil microbial
 
+	    double kdcmoss;    // calibrated dead moss C material respiration rate (at 0oC)
 	    double kdcrawc;    // calibrated soil raw C material respiration rate (at 0oC)
 	    double kdcsoma;    // calibrated soil active SOM respiration rate (at 0oC)
 	    double kdcsompr;   // calibrated soil physically-resistant SOM respiration rate (at 0oC)
@@ -68,9 +70,9 @@ class CohortLookup{
 
    // ground/soil dimensions
   	    // moss
-	  	double maxmossthick;
-	  	double initmossthick;
-	  	int initmosstype;
+	  	double maxdmossthick;
+	  	double initdmossthick;
+	  	int mosstype;
 	  	double coefmossa;//carbon vs thick
 	  	double coefmossb;//carbon vs thick
 
@@ -89,8 +91,8 @@ class CohortLookup{
 
 	  	int minetexture[MAX_MIN_LAY];
 
-	  	// root depth criteria for determining thawing-derived growth period
-	  	double rtdp4growpct;
+	  	// active root depth criteria for determining thawing/freezing-derived growing season and degree-day
+	  	double rtdp4gdd;
 
   //for canopy biometeorological processes
 
@@ -165,7 +167,6 @@ class CohortLookup{
 
 	    // parameters for GPP/NPP allocations in tissues
 	    double cpart[NUM_PFT_PART][NUM_PFT];   //biomass C partioning fraction
-	    double npart[NUM_PFT_PART][NUM_PFT];   //biomass N partioning fraction
 
 	    // parameters for tissue C/N ratios at optimal states ('cneven')
 	    double initc2neven[NUM_PFT_PART][NUM_PFT];
@@ -210,6 +211,7 @@ class CohortLookup{
 	    double initdeadc[NUM_PFT];
 	    double initdeadn[NUM_PFT];
   
+	    double initdmossc;
 	    double initshlwc;
 	    double initdeepc;
 	    double initminec;
@@ -225,11 +227,6 @@ class CohortLookup{
 
 	    double r_retain_c;         // 0.1 calculated from Harden et al., 2003 (ATHarden42003a)
 	    double r_retain_n;         // 0.3 calculated from Harden et al., 2003 (ATHarden42003a)
-
-	    int fireyear[MAX_FIR_OCRNUM];
-	    int fireseason[MAX_FIR_OCRNUM];
-	    int firesize[MAX_FIR_OCRNUM];
-	    int fireseverity[MAX_FIR_OCRNUM];
 
   private:
 

@@ -6,7 +6,7 @@
  *  rather than cohort by cohort - Yuan
  */
 
-#include "../inc/ErrorCode.h"
+#include "../inc/errorcode.h"
 #include "../inc/timeconst.h"
 #include "../inc/cohortconst.h"
 
@@ -50,7 +50,7 @@ class OutDataRegn{
 	  	int status[12];
 		int year;
 		int month[12];
-   		int ysf;
+   		int yrsdist;
 
    		int outvarlist[78];
 

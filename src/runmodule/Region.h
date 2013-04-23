@@ -7,7 +7,7 @@ using namespace std;
 
 #include "../data/RegionData.h"
 
-#include "../inc/ErrorCode.h"
+#include "../inc/errorcode.h"
 
 class Region{
 	public :
@@ -17,7 +17,6 @@ class Region{
 		RegionData rd;
 	
 		void init();
-	
 		void getinitco2();
 		//void setRegionData(RegionData *rd);
 

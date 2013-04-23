@@ -1,7 +1,7 @@
 #ifndef COHORTDATA_H_
 #define COHORTDATA_H_
 
-#include "../inc/ErrorCode.h"
+#include "../inc/errorcode.h"
 #include "../inc/timeconst.h"
 #include "../inc/cohortconst.h"
 
@@ -18,26 +18,17 @@ class CohortData{
   	public:
   		CohortData();
   		~CohortData();
-  
-  		// real ID in the .nc data files
-  		int chtid;
-	 	int inichtid;
-	 	int grdid;
-	 	int clmid;
-	 	int vegid;
-	 	int fireid;
 
+  		void clear();
+  
+  		int chtid;
 	 	int year;
 	 	int month;
 	 	int day;
 
   		int cmttype;   // vegetation community type
-  		int numpft;    // numbers of PFTs in a vegetation community type
-  		double cmtfrac;   // fraction of vegetation community type in a grid
-  		int ysdist;       // yeas since last disturbance
+  		int yrsdist;    // years since last disturbance
 
-// 		bool hasdeciwoody;  //if exists deciduous woody PFT(s) within the vegetation community
-// 		bool hasconiwoody;  //if exists coniferous woody PFT(s) within the vegetation community
   		bool hasnonvascular;  //if exists non-vascular PFT(s) within the vegetation community
 
   		int act_vegset;
@@ -58,9 +49,13 @@ class CohortData{
 		float vapo[MAX_ATM_DRV_YR*12];
 
   	  	// community dimension
-  	    vegstate_dim d_veg;   //at monthly-interval - 'd' is for daily
+  	    vegstate_dim d_veg;   //at daily-interval   - 'd' is for daily
   	    vegstate_dim m_veg;   //at monthly-interval - 'm' is for monthly
   	    vegstate_dim y_veg;   //at yearly-interval  - 'y' is for yearly
+
+  	    vegdiag_dim d_vegd;   //at daily-interval   - 'd' is for monthly
+  	    vegdiag_dim m_vegd;   //at monthly-interval - 'm' is for monthly
+  	    vegdiag_dim y_vegd;   //at yearly-interval  - 'y' is for yearly
 
   	    snwstate_dim d_snow;   //at daily-interval   - 'd' is for daily
   	    snwstate_dim m_snow;   //at monthly-interval - 'm' is for monthly
@@ -70,14 +65,13 @@ class CohortData{
   	    soistate_dim m_soil;   //at monthly-interval - 'm' is for monthly
   	    soistate_dim y_soil;   //at yearly-interval  - 'y' is for yearly
 
-		deque <double> prvunnormleafmxque[NUM_PFT];     // deque to store 'unnormleafmx' of at-most previous 10 years
+  		deque <double> prveetmxque[NUM_PFT];   //the last 10 years eet/ppt for long-lasting effect of drought on GPP, through f(phenology)
+		deque <double> prvunnormleafmxque[NUM_PFT];      // deque to store 'unnormleafmx' of at-most previous 10 years
 		deque <double> prvgrowingttimeque[NUM_PFT];      // deque to store 'thermal time (degree-day)' of at-most previous 10 years
-		deque <double> toptque[NUM_PFT];     // a deque-array to store previous 10 year 'topt'
+		deque <double> toptque[NUM_PFT];                 // a deque-array to store previous 10 year 'topt'
 
         RegionData * rd;
 		GridData * gd;
-
-  	    void init();
 
   	    void beginOfYear();
   	    void beginOfMonth();

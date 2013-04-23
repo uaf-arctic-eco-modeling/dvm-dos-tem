@@ -35,8 +35,6 @@ void ChtOutputer::init(string & dirfile){
 
 	// veg dimension variables
    	cmttypeV  = ncfile->add_var("CMTTYPE", ncInt, timeD);
-   	numpftV   = ncfile->add_var("NUMPFT", ncInt, timeD);
-   	cmtfracV  = ncfile->add_var("CMTFRAC", ncDouble, timeD);
 
    	vegageV      = ncfile->add_var("VEGAGE", ncInt, timeD, pftD);
    	ifwoodyV     = ncfile->add_var("IFWOODY", ncInt, timeD, pftD);
@@ -55,7 +53,6 @@ void ChtOutputer::init(string & dirfile){
    	snwageV = ncfile->add_var("SNWAGE", ncDouble, timeD);
    	snwthickV = ncfile->add_var("SNWTHICK", ncDouble, timeD);
    	snwdenseV = ncfile->add_var("SNWDENSE", ncDouble, timeD);
-   	snwrhoV = ncfile->add_var("SNWRHO", ncDouble, timeD);
    	snwextramassV  = ncfile->add_var("SNWEXTRAMASS", ncDouble, timeD);   // 'snowextramass' refers to the snow mass which not enough for a a now layer (partially covered)
 
  	//soil dimension variables
@@ -90,8 +87,6 @@ void ChtOutputer::outputCohortDimVars_mly(CohortData *dimod, const int & tstepcn
 	monV->put_rec(&dimod->month, tstepcnt);
 
    	cmttypeV->put_rec(&dimod->cmttype, tstepcnt);
-   	numpftV->put_rec(&dimod->numpft, tstepcnt);
-   	cmtfracV->put_rec(&dimod->cmtfrac, tstepcnt);
 
    	vegageV->put_rec(&dimod->m_veg.vegage[0], tstepcnt);
    	ifwoodyV->put_rec(&dimod->m_veg.ifwoody[0], tstepcnt);
@@ -103,15 +98,14 @@ void ChtOutputer::outputCohortDimVars_mly(CohortData *dimod, const int & tstepcn
    	laiV->put_rec(&dimod->m_veg.lai[0], tstepcnt);
    	fpcV->put_rec(&dimod->m_veg.fpc[0], tstepcnt);
    	rtfracV->put_rec(&dimod->m_veg.frootfrac[0][0], tstepcnt);
-   	fleafV->put_rec(&dimod->m_veg.fleaf[0], tstepcnt);
-   	ffoliageV->put_rec(&dimod->m_veg.ffoliage[0], tstepcnt);
+   	fleafV->put_rec(&dimod->m_vegd.fleaf[0], tstepcnt);
+   	ffoliageV->put_rec(&dimod->m_vegd.ffoliage[0], tstepcnt);
 
    	//
    	snwthickV->put_rec(&dimod->m_snow.thick, tstepcnt);
    	snwdenseV->put_rec(&dimod->m_snow.dense, tstepcnt);
-   	snwrhoV->put_rec(&dimod->m_snow.rho[0], tstepcnt);
    	snwextramassV->put_rec(&dimod->m_snow.extramass, tstepcnt);
-   	snwageV->put_rec(&dimod->m_snow.age[0], tstepcnt);
+   	snwageV->put_rec(&dimod->m_snow.olds, tstepcnt);
 
    	//
    	soillayernumV->put_rec(&dimod->m_soil.numsl, tstepcnt);
@@ -144,8 +138,6 @@ void ChtOutputer::outputCohortDimVars_yly(CohortData *dimod, const int & tstepcn
 	monV->put_rec(&MISSING_I, tstepcnt);
 
    	cmttypeV->put_rec(&dimod->cmttype, tstepcnt);
-   	numpftV->put_rec(&dimod->numpft, tstepcnt);
-   	cmtfracV->put_rec(&dimod->cmtfrac, tstepcnt);
 
    	vegageV->put_rec(&dimod->y_veg.vegage[0], tstepcnt);
    	ifwoodyV->put_rec(&dimod->y_veg.ifwoody[0], tstepcnt);
@@ -157,15 +149,14 @@ void ChtOutputer::outputCohortDimVars_yly(CohortData *dimod, const int & tstepcn
    	laiV->put_rec(&dimod->y_veg.lai[0], tstepcnt);
    	fpcV->put_rec(&dimod->y_veg.fpc[0], tstepcnt);
    	rtfracV->put_rec(&dimod->y_veg.frootfrac[0][0], tstepcnt);
-   	fleafV->put_rec(&dimod->y_veg.fleaf[0], tstepcnt);
-   	ffoliageV->put_rec(&dimod->y_veg.ffoliage[0], tstepcnt);
+   	fleafV->put_rec(&dimod->y_vegd.fleaf[0], tstepcnt);
+   	ffoliageV->put_rec(&dimod->y_vegd.ffoliage[0], tstepcnt);
 
    	//
    	snwthickV->put_rec(&dimod->y_snow.thick, tstepcnt);
    	snwdenseV->put_rec(&dimod->y_snow.dense, tstepcnt);
-   	snwrhoV->put_rec(&dimod->y_snow.rho[0], tstepcnt);
    	snwextramassV->put_rec(&dimod->y_snow.extramass, tstepcnt);
-   	snwageV->put_rec(&dimod->y_snow.age[0], tstepcnt);
+   	snwageV->put_rec(&dimod->y_snow.olds, tstepcnt);
 
    	//
    	soillayernumV->put_rec(&dimod->y_soil.numsl, tstepcnt);

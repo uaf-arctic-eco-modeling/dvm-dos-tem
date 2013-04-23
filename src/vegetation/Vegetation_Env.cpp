@@ -21,7 +21,7 @@
 #include "Vegetation_Env.h"
 
 Vegetation_Env::Vegetation_Env(){
-	
+	ipft = MISSING_I;
 };
 
 Vegetation_Env::~Vegetation_Env(){
@@ -59,20 +59,6 @@ void Vegetation_Env::initializeState5restart(RestartData* resin){
 	ed->d_vegs.rwater = resin->vegwater[ipft];
 	ed->d_vegs.snow   = resin->vegsnow[ipft];
 	
- 	double eetmxa[10];
- 	int numyr = 0;
- 	ed->prveetmx = 0.;
-	for(int i=0; i<10; i++){
-		eetmxa[i]=resin->eetmxA[i][ipft];
-		if(eetmxa[i]>0){
-			ed->eetmxque.push_back(eetmxa[i]);
-
-			numyr+=1;
-			ed->prveetmx +=eetmxa[i];
-		}
-	}
-	if (numyr>0) ed->prveetmx /=numyr;
-
 };
 
 //solar radiation (unit: W/m2) on canopy and its energy balance
@@ -167,7 +153,7 @@ void Vegetation_Env::updateWaterBalance(const double & daylhr){
 		double rv_pet, rh_pet;
 		double vpdpa = vpd; //Pa
 	
-		if(ed->d_a2v.rinter>0){
+		if(ed->d_a2v.rinter>0.){
 		
 			rv = 1./gc_e_wv;
 			rh = 1./gc_sh;
@@ -179,7 +165,7 @@ void Vegetation_Env::updateWaterBalance(const double & daylhr){
 			double dayl1 = ed->d_a2v.rinter/et1;
 			
 			if(dayl1>daylsec){
-		  		if(daylsec>0){
+		  		if(daylsec>0.){
 		  			ed->d_v2a.tran = 0.;
 		  			ed->d_v2a.evap = et1 *daylsec;
 		  		} else{
@@ -197,7 +183,7 @@ void Vegetation_Env::updateWaterBalance(const double & daylhr){
 		
 			double dayl1_pet = ed->d_a2v.rinter/et1_pet;
 			if(dayl1_pet>daylsec){
-		  		if(daylsec>0){
+		  		if(daylsec>0.){
 		  			ed->d_v2a.tran_pet = 0.;
 		  			ed->d_v2a.evap_pet = ed->d_v2a.evap;
 		  		} else {
@@ -215,7 +201,7 @@ void Vegetation_Env::updateWaterBalance(const double & daylhr){
 	
 		} else { // no interception
 		  
-		  	ed->d_v2a.evap = 0;
+		  	ed->d_v2a.evap = 0.;
 		  	rv = 1.0/gl_t_wv;
 		  	rh =1.0/gl_sh;
 		  	double et3= getPenMonET(ta, vpdpa, daytimesw, rv, rh);
@@ -233,11 +219,22 @@ void Vegetation_Env::updateWaterBalance(const double & daylhr){
 		ed->d_vegd.cc = gc_e_wv;
 		ed->d_vegd.rc = 1./ed->d_vegd.cc;
 
-	 	ed->d_v2g.rdrip = ed->d_a2v.rinter - ed->d_v2a.evap;
-	 	ed->d_v2g.sdrip = ed->d_a2v.sinter - ed->d_v2a.sublim;
-	
-	 	ed->d_vegs.snow  += ed->d_a2v.sinter - ed->d_v2g.sdrip - ed->d_v2a.sublim;   // no water storage
-	 	ed->d_vegs.rwater+= ed->d_a2v.rinter - ed->d_v2g.rdrip - ed->d_v2a.evap;
+	 	ed->d_vegs.snow  += (ed->d_a2v.sinter - ed->d_v2a.sublim);
+	 	ed->d_vegs.rwater+= (ed->d_a2v.rinter - ed->d_v2a.evap);
+
+	 	ed->d_v2g.sdrip = 0.0;
+	 	double maxvegsnow = 0.10*envlai;   // that 0.10 LAI mm snow on vegetation is arbitrary - needs more mechanism to do this
+	 	if (ed->d_vegs.snow>maxvegsnow) {
+		 	ed->d_v2g.sdrip = ed->d_vegs.snow - maxvegsnow;
+	 	}
+	 	ed->d_vegs.snow -= ed->d_v2g.sdrip;
+
+	 	ed->d_v2g.rdrip = 0.0;
+	 	double maxvegrain = 0.05*envlai;   // that 0.05 LAI mm rain storage is arbitrary - needs more mechanism to do this
+	 	if (ed->d_vegs.rwater>maxvegrain) {
+		 	ed->d_v2g.rdrip = ed->d_vegs.rwater - maxvegrain;
+	 	}
+	 	ed->d_vegs.rwater -= ed->d_v2g.rdrip;
 	 
 	} else {   //envlai <=0, i.e., no vegetation?
 		ed->d_vegd.cc =0.;

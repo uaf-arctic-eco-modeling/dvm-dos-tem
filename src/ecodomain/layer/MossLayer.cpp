@@ -3,16 +3,15 @@
  */
 #include "MossLayer.h"
 
-
-
 MossLayer::MossLayer(const double &pdz, const int & newmosstype){
 	tkey=I_MOSS;
+	stkey=I_NONE;
 
 	isMoss    = true;
-	isMineral = false;
 	isOrganic = false;
     isFibric  = false;
     isHumic   = false;
+	isMineral = false;
 
     // dimension
     age = 0;
@@ -33,15 +32,17 @@ MossLayer::MossLayer(const double &pdz, const int & newmosstype){
    	
    	// hydraulic properties
    	if(mosstype ==1){
-   		hksat = 0.15; //mm/s
+   		hksat  = 0.15; //mm/s
    		psisat = -10; // mm
-	 
-   		bsw =1;
-   	}else if(mosstype ==2){
-   		hksat = 0.15; //mm/s
+   		bsw = 1;
+   	} else if(mosstype ==2){
+   		hksat  = 0.15; //mm/s
    		psisat = -120; // mm
-	
-   		bsw =1;
+		bsw = 1;
+   	} else {
+   		hksat = 0.15; //mm/s
+   		psisat = -50; // mm
+		bsw = 1;
    	}
    	
 	derivePhysicalProperty();

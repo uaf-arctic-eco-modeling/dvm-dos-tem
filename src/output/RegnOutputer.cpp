@@ -19,8 +19,8 @@ RegnOutputer::~RegnOutputer(){
 };
 
 void RegnOutputer::outputCohortMissing(const int & yrind, const int & chtcount){
-	regnod->year = MISSING_I;
-	regnod->ysf  = MISSING_I;
+	regnod->year    = MISSING_I;
+	regnod->yrsdist = MISSING_I;
   	for(int im=0; im<12; im++){
 
 		regnod->month[im]= MISSING_I;
@@ -518,7 +518,7 @@ void RegnOutputer::outputCohortVars(const int & yrind, const int & chtcount, con
    	statusV->put(&status, 1, 1);
 
    	ysfV->set_cur(chtcount, yrind);
-   	ysfV->put(&regnod->ysf, 1, 1);
+   	ysfV->put(&regnod->yrsdist, 1, 1);
 
    	yearV->set_cur(chtcount, yrind);
    	yearV->put(&regnod->year, 1, 1);

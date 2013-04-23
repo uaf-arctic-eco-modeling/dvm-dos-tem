@@ -4,12 +4,12 @@
 #ifndef ENVOUTPUTER_H_
 #define ENVOUTPUTER_H_
 #include <iostream>
-#include "netcdfcpp.h"
+#include <netcdfcpp.h>
 
 #include "../data/EnvData.h"
 #include "../data/EnvDataDly.h"
 
-#include "../inc/ErrorCode.h"
+#include "../inc/errorcode.h"
 #include "../inc/timeconst.h"
 #include "../inc/layerconst.h"
 
@@ -21,9 +21,9 @@ class EnvOutputer{
 		~EnvOutputer();
 				
 		void init(string & dirfile);
-		void outputCohortEnvVars_dly(EnvDataDly *envodly, const int&iy, const int&im, const int &id, const int &ipft, const int & tstepcnt);
-		void outputCohortEnvVars_mly(snwstate_dim *m_snow, EnvData * envod, const int&iy, const int&im, const int &ipft, const int & tstepcnt);
-		void outputCohortEnvVars_yly(snwstate_dim *y_snow, EnvData * envod, const int&iy, const int &ipft, const int & tstepcnt);
+		void outputCohortEnvVars_dly(const int &ipft, EnvDataDly *envodly, const int&iy, const int&im, const int &id, const int & tstepcnt);
+		void outputCohortEnvVars_mly(const int &ipft, snwstate_dim *m_snow, EnvData * envod, const int&iy, const int&im, const int & tstepcnt);
+		void outputCohortEnvVars_yly(const int &ipft, snwstate_dim *y_snow, EnvData * envod, const int &iy, const int & tstepcnt);
 
 		string ncfname;
 
