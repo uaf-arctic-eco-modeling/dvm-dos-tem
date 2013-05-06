@@ -59,13 +59,6 @@ If you are successful getting dvm-dos-tem to compile and run on a different syst
 it would be appreciated if you submit the appropriate setup commands so that other's
 don't have to spend time figuring out those details.
 
-Calibration Version
--------------------
-We need to get the calibration version added to this code base.
-Ideally we want the cal. version to livein a sub directory or the main folder.
-See DOS-TEM for an example. Also we want the source codes for the cal version to link to the C++ codes for the extrapolation versions so that there is no need to manually update the cal. version...
-
-
 Running
 ---------
 The program is partially controlled by a set of command line options. The `--help`
@@ -92,7 +85,7 @@ Developing
 -----------
 This project is maintained using Git (an open source distributed version control system) 
 and github (a web service that provides hosting for code projects and has tools and idioms
-for collaborative working on code-related projects.
+for collaborative working on code-related projects).
 
 This project is maintained using the "Fork and Pull" workflow. Following are several 
 common use-cases:
@@ -144,12 +137,12 @@ every user's home directory on most Linux like computers. The '.' in the file na
 the file "hidden"; use `ls -a` to see the file. If it is not present in your directory,
 you can create it. Add this to your `.bashrc` file:
 
-        \# function to find the current git branch
+        # function to find the current git branch
         function parse_git_branch {
             git branch --no-color 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/[\1] /'
         }
         
-        \# use parse_git_branch to add the git branch to your terminal prompt
+        # use parse_git_branch to add the git branch to your terminal prompt
         PS1=$PS1: $(parse_git_branch)
 
 **NOTE:** You have to remember to reload the `.bashrc` file, either by closing and
