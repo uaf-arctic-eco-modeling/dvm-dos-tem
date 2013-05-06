@@ -1,14 +1,26 @@
-README dvm-dos-tem EXTRAPOLATION VERSION
+README for dvm-dos-tem
 ===========================================
 The dvm-dos-tem is a process based bio-geo-chemical ecosystem model.
 
-More info...?
+There are two main parts that make up dvm-dos-tem: the "Calibration Version" and the 
+"Extrapolation Version". The Calibration Version is used to adjust parameters. The
+Extrapolation Version is used to make projections or other simulations.
+
+Both the Calibration Version and Extrapolation Version rely on the same underlying C++ 
+code, but each version "drives" the code differently. It might be helpful to think of 
+the Calibration and Extrapolation Versions as providing different interfaces to the 
+underlying calculator.
+
+The code for the Extrapolation Version is not separated from the underlying calculator - 
+all the code is within the `src/` directory. The Calibration Version (interface) is 
+written is Java. This code is contained within the `calibration/` directory. The 
+Calibration Version points to C++ code in the `src/` directory in order to compile.
 
 Downloading
 -------------
 There are several options for downloading or obtaining the model depending on your 
-particular usecase. Dvm-dos-tem is not distributed as a binary file, so you must compile 
-from source code. 
+particular usecase. Dvm-dos-tem is not distributed as a binary file, so to run the 
+program, you must compile from source code. 
 
 * If you anticipate contributing to the code, you should use github to create
 your own fork and then git to "clone" the code.
