@@ -217,9 +217,9 @@ void Runner::setupIDs(){
 
 			igrd = (unsigned int)(it-rungrd.grdids.begin());
 
-			runcht.chtdrainids.push_back(rungrd.drainids.at(igrd));
-			runcht.chtsoilids.push_back(rungrd.soilids.at(igrd));
-			runcht.chtgfireids.push_back(rungrd.gfireids.at(igrd));
+			runcht.chtdrainids.push_back(rungrd.grddrgids.at(igrd));
+			runcht.chtsoilids.push_back(rungrd.grdsoilids.at(igrd));
+			runcht.chtgfireids.push_back(rungrd.grdfireids.at(igrd));
 
 		}
 	}
