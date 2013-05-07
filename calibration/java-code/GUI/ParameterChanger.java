@@ -73,7 +73,7 @@ public class ParameterChanger{
 	}
 	
 	 
-	public ParameterChanger(String name,double pmi ,int increment, int order){
+	public ParameterChanger(String name, double pmi ,int order){
 		this.name = name;
 		this.pmi = pmi;		 
 		this.order = order;
