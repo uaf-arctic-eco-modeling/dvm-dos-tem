@@ -38,6 +38,8 @@ public class Configurer{
   	public boolean OGRAPH       = false;   //only if no file output
   	public boolean OBGRAPH      = false;   //showing bio. var. graphs only if no file output
   	public boolean OPGRAPH      = false;   //showing phy. var. graphs only if no file output
+  	
+  	public int chtidinput = -9999; // input chtid
 	
 	//
   	public static int I_CHTID=0;
