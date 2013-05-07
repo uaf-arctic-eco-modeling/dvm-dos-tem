@@ -1,6 +1,18 @@
 
 #include "CohortLookup.h"
 
+/** Parses a string, looking for a community code.
+ Reads the string, finds the first occurrence of the characters "CMT", and returns a
+ string consisting of CMT and the following two characters.
+ 
+ Returns something like "CMT01".
+*/
+string read_cmt_code(string s){
+	int pos = s.find("CMT");
+	return s.substr(pos, 5);
+}
+
+
 CohortLookup::CohortLookup(){
 	cmtcode = "CMT00";     // the default community code (5 alphnumerics)
 };
@@ -42,8 +54,8 @@ void CohortLookup::assignBgcCalpar(string & dircmt){
 
 	getline(fctrcomm, str);     // community separation line ("//====" or something or empty line)
 	getline(fctrcomm, str);     // community code - 'CMTxx' (xx: two digits)
-	pos=str.find("CMT");
-	code = str.substr(pos, 5);
+	code = read_cmt_code(str);
+
 	while (code.compare(cmtcode)!=0) {
 		for (int il=0; il<lines; il++) getline(fctrcomm, str);   //skip lines
 		if (fctrcomm.eof()) {
@@ -53,11 +65,10 @@ void CohortLookup::assignBgcCalpar(string & dircmt){
 
 		getline(fctrcomm, str);     // community separation line ("//====" or something or empty line)
 		getline(fctrcomm, str);     // community code - 'CMTxx' (xx: two digits)
-		pos=str.find("CMT");
-		code = str.substr(pos, 5);
+		code = read_cmt_code(str);
 	}
 
-	getline(fctrcomm, str);     //comments in the file
+	getline(fctrcomm, str);     // comment line (column headers)
 	for(int ip=0; ip<NUM_PFT; ip++)	fctrcomm >> cmax[ip];  getline(fctrcomm, str);
 	for(int ip=0; ip<NUM_PFT; ip++)	fctrcomm >> nmax[ip];  getline(fctrcomm, str);
 
@@ -106,8 +117,7 @@ void CohortLookup::assignVegDimension(string &dircmt){
 
 	getline(fctrpft, str);     // community separation line ("//====" or something or empty line)
 	getline(fctrpft, str);     // community code - 'CMTxx' (xx: two digits)
-	pos=str.find("CMT");
-	code = str.substr(pos, 5);
+	code = read_cmt_code(str);
 	while (code.compare(cmtcode)!=0) {
 		for (int il=0; il<lines; il++) getline(fctrpft, str);   //skip lines
 		if (fctrpft.eof()) {
@@ -117,8 +127,7 @@ void CohortLookup::assignVegDimension(string &dircmt){
 
 		getline(fctrpft, str);     // community separation line ("//====" or something or empty line)
 		getline(fctrpft, str);     // community code - 'CMTxx' (xx: two digits)
-		pos=str.find("CMT");
-		code = str.substr(pos, 5);
+		code = read_cmt_code(str);
 	}
 
 	getline(fctrpft,str);     //read comments
@@ -200,8 +209,7 @@ void CohortLookup::assignGroundDimension(string &dircmt){
 
 	getline(fctrcomm, str);     // community separation line ("//====" or something or empty line)
 	getline(fctrcomm, str);     // community code - 'CMTxx' (xx: two digits)
-	pos=str.find("CMT");
-	code = str.substr(pos, 5);
+	code = read_cmt_code(str);
 	while (code.compare(cmtcode)!=0) {
 		for (int il=0; il<lines; il++) getline(fctrcomm, str);   //skip lines
 		if (fctrcomm.eof()) {
@@ -211,8 +219,7 @@ void CohortLookup::assignGroundDimension(string &dircmt){
 
 		getline(fctrcomm, str);     // community separation line ("//====" or something or empty line)
 		getline(fctrcomm, str);     // community code - 'CMTxx' (xx: two digits)
-		pos=str.find("CMT");
-		code = str.substr(pos, 5);
+		code = read_cmt_code(str);
 	}
 
 	//snow
@@ -268,8 +275,7 @@ void CohortLookup::assignEnv4Canopy(string &dir){
 
 	getline(fctrpft, str);     // community separation line ("//====" or something or empty line)
 	getline(fctrpft, str);     // community code - 'CMTxx' (xx: two digits)
-	pos=str.find("CMT");
-	code = str.substr(pos, 5);
+	code = read_cmt_code(str);
 	while (code.compare(cmtcode)!=0) {
 		for (int il=0; il<lines; il++) getline(fctrpft, str);   //skip lines
 		if (fctrpft.eof()) {
@@ -279,8 +285,7 @@ void CohortLookup::assignEnv4Canopy(string &dir){
 
 		getline(fctrpft, str);     // community separation line ("//====" or something or empty line)
 		getline(fctrpft, str);     // community code - 'CMTxx' (xx: two digits)
-		pos=str.find("CMT");
-		code = str.substr(pos, 5);
+		code = read_cmt_code(str);
 	}
 
 	getline(fctrpft,str);     //PFT name/code comments in the file
@@ -338,8 +343,7 @@ void CohortLookup::assignBgc4Vegetation(string & dircmt){
 
 	getline(fctrpft, str);     // community separation line ("//====" or something or empty line)
 	getline(fctrpft, str);     // community code - 'CMTxx' (xx: two digits)
-	pos=str.find("CMT");
-	code = str.substr(pos, 5);
+	code = read_cmt_code(str);
 	while (code.compare(cmtcode)!=0) {
 		for (int il=0; il<lines; il++) getline(fctrpft, str);   //skip lines
 		if (fctrpft.eof()) {
@@ -349,8 +353,7 @@ void CohortLookup::assignBgc4Vegetation(string & dircmt){
 
 		getline(fctrpft, str);     // community separation line ("//====" or something or empty line)
 		getline(fctrpft, str);     // community code - 'CMTxx' (xx: two digits)
-		pos=str.find("CMT");
-		code = str.substr(pos, 5);
+		code = read_cmt_code(str);
 	}
 
 	getline(fctrpft,str);     //comments in the file
@@ -445,8 +448,7 @@ void CohortLookup::assignEnv4Ground(string &dircmt){
 
 	getline(fctrcomm, str);     // community separation line ("//====" or something or empty line)
 	getline(fctrcomm, str);     // community code - 'CMTxx' (xx: two digits)
-	pos=str.find("CMT");
-	code = str.substr(pos, 5);
+	code = read_cmt_code(str);
 	while (code.compare(cmtcode)!=0) {
 		for (int il=0; il<lines; il++) getline(fctrcomm, str);   //skip lines
 		if (fctrcomm.eof()) {
@@ -456,8 +458,7 @@ void CohortLookup::assignEnv4Ground(string &dircmt){
 
 		getline(fctrcomm, str);     // community separation line ("//====" or something or empty line)
 		getline(fctrcomm, str);     // community code - 'CMTxx' (xx: two digits)
-		pos=str.find("CMT");
-		code = str.substr(pos, 5);
+		code = read_cmt_code(str);
 	}
 
 	fctrcomm >> snwalbmax; getline(fctrcomm,str);     //comments in the file
@@ -501,8 +502,7 @@ void CohortLookup::assignBgc4Ground(string &dircmt){
 
 	getline(fctrcomm, str);     // community separation line ("//====" or something or empty line)
 	getline(fctrcomm, str);     // community code - 'CMTxx' (xx: two digits)
-	pos=str.find("CMT");
-	code = str.substr(pos, 5);
+	code = read_cmt_code(str);
 	while (code.compare(cmtcode)!=0) {
 		for (int il=0; il<lines; il++) getline(fctrcomm, str);   //skip lines
 		if (fctrcomm.eof()) {
@@ -512,8 +512,7 @@ void CohortLookup::assignBgc4Ground(string &dircmt){
 
 		getline(fctrcomm, str);     // community separation line ("//====" or something or empty line)
 		getline(fctrcomm, str);     // community code - 'CMTxx' (xx: two digits)
-		pos=str.find("CMT");
-		code = str.substr(pos, 5);
+		code = read_cmt_code(str);
 	}
 
 	fctrcomm >> rhq10; getline(fctrcomm,str);
@@ -563,8 +562,7 @@ void CohortLookup::assignFirePar(string &dircmt){
 
 	getline(fctrcomm, str);     // community separation line ("//====" or something or empty line)
 	getline(fctrcomm, str);     // community code - 'CMTxx' (xx: two digits)
-	pos=str.find("CMT");
-	code = str.substr(pos, 5);
+	code = read_cmt_code(str);
 	while (code.compare(cmtcode)!=0) {
 		for (int il=0; il<lines; il++) getline(fctrcomm, str);   //skip lines
 		if (fctrcomm.eof()) {
@@ -574,8 +572,7 @@ void CohortLookup::assignFirePar(string &dircmt){
 
 		getline(fctrcomm, str);     // community separation line ("//====" or something or empty line)
 		getline(fctrcomm, str);     // community code - 'CMTxx' (xx: two digits)
-		pos=str.find("CMT");
-		code = str.substr(pos, 5);
+		code = read_cmt_code(str);
 	}
 
 	getline(fctrcomm,str);     // PFT code/name comments in the file
