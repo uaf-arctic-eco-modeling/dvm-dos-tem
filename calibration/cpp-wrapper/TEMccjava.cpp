@@ -41,22 +41,12 @@ void TEMccjava::setInitVbState1pft(const int & ipft) {
 void TEMccjava::setInitSbState() {
 
          // get data from outside
-    	cht->chtlu.initdmossthick= initdmossthick;
-        cht->chtlu.initfibthick  = initfibthick;
-        cht->chtlu.inithumthick  = inithumthick;
-
         cht->chtlu.initdmossc= initdmossc;
         cht->chtlu.initshlwc = initshlwc;
         cht->chtlu.initdeepc = initdeepc;
         cht->chtlu.initminec = initminec;
         cht->chtlu.initavln  = initavln;
         cht->chtlu.initsoln  = initsoln;
-
-         // initialize dimension/structure for snow-soil
-        cht->ground.initDimension();   //read-in snow/soil structure from 'chtlu'
-
-         // set-up the snow-soil-soilparent structure
-        cht->ground.initLayerStructure(&cht->cd.d_snow, &cht->cd.m_soil);
 
          // initializing soil bgc state conditions
         cht->soilbgc.initializeState();
@@ -149,10 +139,12 @@ void TEMccjava::getInitVbState1pft(const int & ipft) {
 
 void TEMccjava::getInitSbState() {
 
-         // get data from outside
+         // get data from tem
+    	 initdmossthick = cht->chtlu.initdmossthick;
          initfibthick = cht->chtlu.initfibthick;
          inithumthick = cht->chtlu.inithumthick;
 
+         initdmossc= cht->chtlu.initdmossc;
          initshlwc = cht->chtlu.initshlwc;
          initdeepc = cht->chtlu.initdeepc;
          initminec = cht->chtlu.initminec;
