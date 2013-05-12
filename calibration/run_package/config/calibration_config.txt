@@ -1,0 +1,7 @@
+DVM-DOS-TEM-Test                                     /* TEM running case */
+config/                                              /* directory of initial states and parameter files (9 files - cmt_calveg.txt, cmt_calsoil.txt, cmt_dimvegetation.txt, cmt_dimground.txt, cmt_envcanopy.txt, cmt_envground.txt, cmt_bgcvegetation.txt, cmt_begsoil.txt, cmt_firepar.txt) */
+Test_DVMDOSTEM/output/                     /* directory of outputs */
+Test_DVMDOSTEM/dataregion/                 /* directory of regional-level inputs */
+Test_DVMDOSTEM/datagrid/                   /* directory of grided data inputs */
+Test_DVMDOSTEM/datacht/                    /* directory of cohort inputs */
+1                                                    /* cohort ID */

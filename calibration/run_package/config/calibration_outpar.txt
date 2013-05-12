@@ -1,0 +1,23 @@
+//===========================================================
+CMT01// Boreal Spruce forests - (max. 10 PFTs over 1 soil column) (BGC) plant calibrated parameters
+//Spruce     Salix       Decid.      E.green      Sedges       Forbs        Grasses      Lichens      Feather.     Misc.
+939.0        255.0                                                                                                                // cmax:
+3.1          2.5                                                                                                                  // nmax:
+0.018        0.083                                                                                                                // cfall(0): leave
+0.003        0.017                                                                                                                // cfall(1): stem
+0.013        0.023                                                                                                                // cfall(2): root
+0.014        0.028                                                                                                                // nfall(0): leave
+0.001        0.006                                                                                                                // nfall(1): stem
+0.011        0.008                                                                                                                // nfall(2): root
+-8.06e-05    -8.06e-05                                                                                                            // kra:    coeff(0) in maintenance resp.
+-3.50        -2.35                                                                                                                // krb(0): coeff(1) in maintenance resp.(leave) 
+-8.20        -4.65                                                                                                                // krb(1): coeff(1) in maintenance resp.(stem) 
+-10.2        -0.20                                                                                                                // krb(2): coeff(1) in maintenance resp.(root)
+0.20         0.20                                                                                                                 // frg: fraction of available NPP (GPP after rm) for growth resp. 
+// soil calibrated parameters
+2.65253         // micbnup: parameter for soil microbial immobialization of N
+0.0057042       // kdcmoss: dead moss C decompositin rates at reference condition
+0.0507042       // kdcrawc: raw-material (litter) C decompositin rates at reference condition
+0.0108046       // kdcsoma:
+0.0020805       // kdcsompr:
+0.0000108       // kdcsomcr:
