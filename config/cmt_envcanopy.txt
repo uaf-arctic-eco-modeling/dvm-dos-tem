@@ -1,0 +1,105 @@
+//===========================================================
+CMT00 // Default TEM Community - (max. 10 PFTs) (Biophysical) plant leaf characteristics and parameters
+//PFT0      PFT1        PFT2         PFT3         PFT4         PFT5         PFT6         PFT7         PFT8         PFT9             // names: comments                  
+0.10        0.10        0.10         0.10         0.10         0.10         0.10         0.10         0.10         0.10             // albvisnir: canopy albedo
+0.5         0.5         0.5          0.5          0.5          0.5          0.5          0.5          0.5          0.5              // er: light extinction coefficient
+0.041       0.041       0.041        0.041        0.041        0.041        0.041        0.041        0.041        0.041            // ircoef: rainfall interception 
+0.041       0.041       0.041        0.041        0.041        0.041        0.041        0.041        0.041        0.041            // iscoef: snow interception
+0.003       0.003       0.003        0.003        0.003        0.003        0.003        0.003        0.003        0.003            // glmax: max. canopy conductance (m/s)
+0.08        0.08        0.08         0.08         0.08         0.08         0.08         0.08         0.08         0.08             // gl_bl: boundary layer conductance
+0.00001     0.00001     0.00001      0.00001      0.00001      0.00001      0.00001      0.00001      0.00001      0.00001          // gl_c:  cuticular conductance
+930         930         930          930          930          930          930          930          930          930              // vpd_open:  vpd (pa) for leaf stomata fully openness
+4100        4100        4100         4100         4100         4100         4100         4100         4100         4100             // vpd_close: vpd (pa) for leaf stomata fully closure
+75          75          75           75           75           75           75           75           75           75               // ppfd50::
+0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegwater: initial intercepted rain water in canopy
+0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegsnow: initial intercepted snow water in canopy
+//===========================================================
+CMT01 // CMT1 TEM Community - (max. 10 PFTs) (Biophysical) plant leaf characteristics and parameters
+//PFT0      PFT1        PFT2         PFT3         PFT4         PFT5         PFT6         PFT7         PFT8         PFT9             // names: comments                  
+0.10        0.10        0.10         0.10         0.10         0.10         0.10         0.10         0.10         0.10             // albvisnir: canopy albedo
+0.5         0.5         0.5          0.5          0.5          0.5          0.5          0.5          0.5          0.5              // er: light extinction coefficient
+0.041       0.041       0.041        0.041        0.041        0.041        0.041        0.041        0.041        0.041            // ircoef: rainfall interception 
+0.041       0.041       0.041        0.041        0.041        0.041        0.041        0.041        0.041        0.041            // iscoef: snow interception
+0.003       0.003       0.003        0.003        0.003        0.003        0.003        0.003        0.003        0.003            // glmax: max. canopy conductance (m/s)
+0.08        0.08        0.08         0.08         0.08         0.08         0.08         0.08         0.08         0.08             // gl_bl: boundary layer conductance
+0.00001     0.00001     0.00001      0.00001      0.00001      0.00001      0.00001      0.00001      0.00001      0.00001          // gl_c:  cuticular conductance
+930         930         930          930          930          930          930          930          930          930              // vpd_open:  vpd (pa) for leaf stomata fully openness
+4100        4100        4100         4100         4100         4100         4100         4100         4100         4100             // vpd_close: vpd (pa) for leaf stomata fully closure
+75          75          75           75           75           75           75           75           75           75               // ppfd50::
+0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegwater: initial intercepted rain water in canopy
+0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegsnow: initial intercepted snow water in canopy
+//===========================================================
+CMT02 // CMT2 TEM Community - (max. 10 PFTs) (Biophysical) plant leaf characteristics and parameters
+//PFT0      PFT1        PFT2         PFT3         PFT4         PFT5         PFT6         PFT7         PFT8         PFT9             // names: comments                  
+0.10        0.10        0.10         0.10         0.10         0.10         0.10         0.10         0.10         0.10             // albvisnir: canopy albedo
+0.5         0.5         0.5          0.5          0.5          0.5          0.5          0.5          0.5          0.5              // er: light extinction coefficient
+0.041       0.041       0.041        0.041        0.041        0.041        0.041        0.041        0.041        0.041            // ircoef: rainfall interception 
+0.041       0.041       0.041        0.041        0.041        0.041        0.041        0.041        0.041        0.041            // iscoef: snow interception
+0.003       0.003       0.003        0.003        0.003        0.003        0.003        0.003        0.003        0.003            // glmax: max. canopy conductance (m/s)
+0.08        0.08        0.08         0.08         0.08         0.08         0.08         0.08         0.08         0.08             // gl_bl: boundary layer conductance
+0.00001     0.00001     0.00001      0.00001      0.00001      0.00001      0.00001      0.00001      0.00001      0.00001          // gl_c:  cuticular conductance
+930         930         930          930          930          930          930          930          930          930              // vpd_open:  vpd (pa) for leaf stomata fully openness
+4100        4100        4100         4100         4100         4100         4100         4100         4100         4100             // vpd_close: vpd (pa) for leaf stomata fully closure
+75          75          75           75           75           75           75           75           75           75               // ppfd50::
+0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegwater: initial intercepted rain water in canopy
+0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegsnow: initial intercepted snow water in canopy
+//===========================================================
+CMT03 // CMT3 TEM Community - (max. 10 PFTs) (Biophysical) plant leaf characteristics and parameters
+//PFT0      PFT1        PFT2         PFT3         PFT4         PFT5         PFT6         PFT7         PFT8         PFT9             // names: comments                  
+0.10        0.10        0.10         0.10         0.10         0.10         0.10         0.10         0.10         0.10             // albvisnir: canopy albedo
+0.5         0.5         0.5          0.5          0.5          0.5          0.5          0.5          0.5          0.5              // er: light extinction coefficient
+0.041       0.041       0.041        0.041        0.041        0.041        0.041        0.041        0.041        0.041            // ircoef: rainfall interception 
+0.041       0.041       0.041        0.041        0.041        0.041        0.041        0.041        0.041        0.041            // iscoef: snow interception
+0.003       0.003       0.003        0.003        0.003        0.003        0.003        0.003        0.003        0.003            // glmax: max. canopy conductance (m/s)
+0.08        0.08        0.08         0.08         0.08         0.08         0.08         0.08         0.08         0.08             // gl_bl: boundary layer conductance
+0.00001     0.00001     0.00001      0.00001      0.00001      0.00001      0.00001      0.00001      0.00001      0.00001          // gl_c:  cuticular conductance
+930         930         930          930          930          930          930          930          930          930              // vpd_open:  vpd (pa) for leaf stomata fully openness
+4100        4100        4100         4100         4100         4100         4100         4100         4100         4100             // vpd_close: vpd (pa) for leaf stomata fully closure
+75          75          75           75           75           75           75           75           75           75               // ppfd50::
+0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegwater: initial intercepted rain water in canopy
+0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegsnow: initial intercepted snow water in canopy
+//===========================================================
+CMT04 // CMT4 TEM Community - (max. 10 PFTs) (Biophysical) plant leaf characteristics and parameters
+//PFT0      PFT1        PFT2         PFT3         PFT4         PFT5         PFT6         PFT7         PFT8         PFT9             // names: comments                  
+0.10        0.10        0.10         0.10         0.10         0.10         0.10         0.10         0.10         0.10             // albvisnir: canopy albedo
+0.5         0.5         0.5          0.5          0.5          0.5          0.5          0.5          0.5          0.5              // er: light extinction coefficient
+0.041       0.041       0.041        0.041        0.041        0.041        0.041        0.041        0.041        0.041            // ircoef: rainfall interception 
+0.041       0.041       0.041        0.041        0.041        0.041        0.041        0.041        0.041        0.041            // iscoef: snow interception
+0.003       0.003       0.003        0.003        0.003        0.003        0.003        0.003        0.003        0.003            // glmax: max. canopy conductance (m/s)
+0.08        0.08        0.08         0.08         0.08         0.08         0.08         0.08         0.08         0.08             // gl_bl: boundary layer conductance
+0.00001     0.00001     0.00001      0.00001      0.00001      0.00001      0.00001      0.00001      0.00001      0.00001          // gl_c:  cuticular conductance
+930         930         930          930          930          930          930          930          930          930              // vpd_open:  vpd (pa) for leaf stomata fully openness
+4100        4100        4100         4100         4100         4100         4100         4100         4100         4100             // vpd_close: vpd (pa) for leaf stomata fully closure
+75          75          75           75           75           75           75           75           75           75               // ppfd50::
+0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegwater: initial intercepted rain water in canopy
+0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegsnow: initial intercepted snow water in canopy
+//===========================================================
+CMT05 // CMT5 TEM Community - (max. 10 PFTs) (Biophysical) plant leaf characteristics and parameters
+//PFT0      PFT1        PFT2         PFT3         PFT4         PFT5         PFT6         PFT7         PFT8         PFT9             // names: comments                  
+0.10        0.10        0.10         0.10         0.10         0.10         0.10         0.10         0.10         0.10             // albvisnir: canopy albedo
+0.5         0.5         0.5          0.5          0.5          0.5          0.5          0.5          0.5          0.5              // er: light extinction coefficient
+0.041       0.041       0.041        0.041        0.041        0.041        0.041        0.041        0.041        0.041            // ircoef: rainfall interception 
+0.041       0.041       0.041        0.041        0.041        0.041        0.041        0.041        0.041        0.041            // iscoef: snow interception
+0.003       0.003       0.003        0.003        0.003        0.003        0.003        0.003        0.003        0.003            // glmax: max. canopy conductance (m/s)
+0.08        0.08        0.08         0.08         0.08         0.08         0.08         0.08         0.08         0.08             // gl_bl: boundary layer conductance
+0.00001     0.00001     0.00001      0.00001      0.00001      0.00001      0.00001      0.00001      0.00001      0.00001          // gl_c:  cuticular conductance
+930         930         930          930          930          930          930          930          930          930              // vpd_open:  vpd (pa) for leaf stomata fully openness
+4100        4100        4100         4100         4100         4100         4100         4100         4100         4100             // vpd_close: vpd (pa) for leaf stomata fully closure
+75          75          75           75           75           75           75           75           75           75               // ppfd50::
+0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegwater: initial intercepted rain water in canopy
+0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegsnow: initial intercepted snow water in canopy
+//===========================================================
+CMT06 // CMT6 TEM Community - (max. 10 PFTs) (Biophysical) plant leaf characteristics and parameters
+//PFT0      PFT1        PFT2         PFT3         PFT4         PFT5         PFT6         PFT7         PFT8         PFT9             // names: comments                  
+0.10        0.10        0.10         0.10         0.10         0.10         0.10         0.10         0.10         0.10             // albvisnir: canopy albedo
+0.5         0.5         0.5          0.5          0.5          0.5          0.5          0.5          0.5          0.5              // er: light extinction coefficient
+0.041       0.041       0.041        0.041        0.041        0.041        0.041        0.041        0.041        0.041            // ircoef: rainfall interception 
+0.041       0.041       0.041        0.041        0.041        0.041        0.041        0.041        0.041        0.041            // iscoef: snow interception
+0.003       0.003       0.003        0.003        0.003        0.003        0.003        0.003        0.003        0.003            // glmax: max. canopy conductance (m/s)
+0.08        0.08        0.08         0.08         0.08         0.08         0.08         0.08         0.08         0.08             // gl_bl: boundary layer conductance
+0.00001     0.00001     0.00001      0.00001      0.00001      0.00001      0.00001      0.00001      0.00001      0.00001          // gl_c:  cuticular conductance
+930         930         930          930          930          930          930          930          930          930              // vpd_open:  vpd (pa) for leaf stomata fully openness
+4100        4100        4100         4100         4100         4100         4100         4100         4100         4100             // vpd_close: vpd (pa) for leaf stomata fully closure
+75          75          75           75           75           75           75           75           75           75               // ppfd50::
+0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegwater: initial intercepted rain water in canopy
+0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegsnow: initial intercepted snow water in canopy

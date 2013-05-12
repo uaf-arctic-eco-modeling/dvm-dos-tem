@@ -1,0 +1,301 @@
+//===========================================================
+CMT00 // Default TEM Community - (max. 10 PFTs) Plant structure/dimension
+//PFT0      PFT1        PFT2         PFT3         PFT4         PFT5         PFT6         PFT7         PFT8         PFT9         // names: comments                  
+1.00        1.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.           // vegfrac: vegetation coverage on land - 0 indicates that PFT does't exist
+1           1           1            1            0            0            0            0            0            0            // ifwoody: woody plants (1) or not (0)
+0           1           1            0            0            0            0            0            0            0            // ifdeciwoody: deciduous woodland (1) or not (0)
+1           1           1            1            0            0            1            0            0            0            // ifperenial: perenial (1) or not (0)
+0           0           0            0            0            0            0            3            2            0            // nonvascular type: vascular (0), sphagnum (1), feathermoss (2), lichen (3)
+0.0077      0.0077      0.0077       0.0077       0.0077       0.0077       0.0077       0.0077       0.0077       0.           // sla: specific leaf area (m2/gC)
+0.55        0.45        0.35         0.35         0.15         0.15         0.15         0.10         0.10         0.           // klai: extinction coeff for conversion from lai to fpc
+0.0         0.0         0.0          0.5          0.0          0.0          0.25         0.0          0.0          0.0          // minleaf: this and the following 4 parameters are for EET/PET controlled phenology - f(leaf)
+0.79640     0.79640     0.79640      0.79640      0.79640      0.79640      0.79640      0.79640      0.79640      0.79640      // aleaf
+0.46635     0.46635     0.46635      0.46635      0.46635      0.46635      0.46635      0.46635      0.46635      0.46635      // bleaf
+-0.02873    -0.02873   -0.02873     -0.02873     -0.02873     -0.02873     -0.02873     -0.02873     -0.02873     -0.02873      // cleaf
+1.6662      1.6662      1.6662       1.6662       1.6662       1.6662       1.6662       1.6662       1.6662       1.6662       // kfoliage: this and the following 1 parameters are for non-woody plant's f(foliage) 
+-0.01954   -0.000292    0.000563     0.001571     0.001571     0.001571     0.001571     0.001571     0.001571     0.001571     // cov
+15.206      15.206      15.206       15.206       15.206       15.206       15.206       15.206       15.206       15.206       // m1: this and the following 3 parameters are for woody plant's f(foliage)
+-0.3197     -0.3197     -0.3197     -0.3197      -0.3197       -0.3197      -0.3197      -0.3197      -0.3197      -0.3197      // m2
+0.0401     0.0401       0.0401       0.0401       0.0401       0.0401       0.0401       0.0401       0.0401       0.0401       // m3
+0.0001     0.0001       0.0001       0.0001       0.0001       0.0001       0.0001       0.0001       0.0001       0.0001       // m4
+26.34       30.0        30.0         35.0         45.0         65.0         25.0         0.0          0.0          0.00         // frprod[0]: fine root allocation percentage vertically in soils (every 10 cm)
+54.57       50.0        50.0         50.0         55.0         35.0         75.0         0.00         0.00         0.00         // frprod[1]: fine root allocation percentage vertically in soils (every 10 cm)
+13.48       15.0        15.0         15.0         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[2]: fine root allocation percentage vertically in soils (every 10 cm)
+2.64        5.00        5.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[3]: fine root allocation percentage vertically in soils (every 10 cm) 
+0.60        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[4]: fine root allocation percentage vertically in soils (every 10 cm)
+0.58        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[5]: fine root allocation percentage vertically in soils (every 10 cm) 
+1.79        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[6]: fine root allocation percentage vertically in soils (every 10 cm)
+0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[7]: fine root allocation percentage vertically in soils (every 10 cm)  
+0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[8]: fine root allocation percentage vertically in soils (every 10 cm) 
+0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[9]: fine root allocation percentage vertically in soils (every 10 cm)
+0.93        0.00        0.07         0.05         0.04         0.04         0.02         0.29         0.77         0.           // lai: initial LAI
+1.0         0.0         0.0          0.5          1.0          0.0          1.5          0.1          1.0          0            // envlai[0]: monthly LAI for a year, used for static input of LAI
+1.1         0.0         0.0          0.3          1.5          0.0          1.5          0.2          1.5          0            // envlai[1]: monthly LAI for a year, used for static input of LAI 
+1.2         0.0         0.0          0.5          2.0          0.5          1.5          0.3          0.0          0            // envlai[2]: monthly LAI for a year, used for static input of LAI 
+1.2         0.5         1.0          1.2          1.5          1.0          1.5          0.6          0.0          0            // envlai[3]: monthly LAI for a year, used for static input of LAI
+1.3         1.3         1.9          1.3          0.3          1.3          1.5          1.3          1.3          0            // envlai[4]: monthly LAI for a year, used for static input of LAI 
+1.9         1.9         2.5          1.9          0.0          1.9          1.5          1.9          1.9          0            // envlai[5]: monthly LAI for a year, used for static input of LAI  
+2.0         2.0         2.0          2.0          0.0          2.0          1.5          0.1          0.0          0            // envlai[6]: monthly LAI for a year, used for static input of LAI 
+2.0         2.0         2.0          2.0          0.0          2.0          1.5          0.2          0.0          0            // envlai[7]: monthly LAI for a year, used for static input of LAI
+1.5         0.5         1.5          1.5          0.0          1.5          1.5          0.5          1.5          0            // envlai[8]: monthly LAI for a year, used for static input of LAI  
+1.3         0.2         0.0          1.3          0.3          1.3          1.5          1.3          1.3          0            // envlai[9]: monthly LAI for a year, used for static input of LAI
+1.1         0.0         0.0          0.8          0.5          1.0          1.5          1.9          0.0          0            // envlai[10]: monthly LAI for a year, used for static input of LAI 
+1.0         0.0         0.0          0.7          0.8          0.5          1.5          2.1          1.1          0            // envlai[11]: monthly LAI for a year, used for static input of LAI
+//===========================================================
+CMT01 // CMT1 TEM Community - (max. 10 PFTs) Plant structure/dimension
+//PFT0      PFT1        PFT2         PFT3         PFT4         PFT5         PFT6         PFT7         PFT8         PFT9         // names: comments                  
+1.00        1.00        1.00         1.00         1.00         1.00         1.00         1.00         1.00         0.           // vegfrac: vegetation coverage on land - 0 indicates that PFT does't exist
+1           1           1            1            0            0            0            0            0            0            // ifwoody: woody plants (1) or not (0)
+0           1           1            0            0            0            0            0            0            0            // ifdeciwoody: deciduous woodland (1) or not (0)
+1           1           1            1            0            0            1            0            0            0            // ifperenial: perenial (1) or not (0)
+0           0           0            0            0            0            0            3            2            0            // nonvascular type: vascular (0), sphagnum (1), feathermoss (2), lichen (3)
+0.0077      0.0077      0.0077       0.0077       0.0077       0.0077       0.0077       0.0077       0.0077       0.           // sla: specific leaf area (m2/gC)
+0.55        0.45        0.35         0.35         0.15         0.15         0.15         0.10         0.10         0.           // klai: extinction coeff for conversion from lai to fpc
+0.0         0.0         0.0          0.5          0.0          0.0          0.25         0.0          0.0          0.0          // minleaf: this and the following 4 parameters are for EET/PET controlled phenology - f(leaf)
+0.79640     0.79640     0.79640      0.79640      0.79640      0.79640      0.79640      0.79640      0.79640      0.79640      // aleaf
+0.46635     0.46635     0.46635      0.46635      0.46635      0.46635      0.46635      0.46635      0.46635      0.46635      // bleaf
+-0.02873    -0.02873   -0.02873     -0.02873     -0.02873     -0.02873     -0.02873     -0.02873     -0.02873     -0.02873      // cleaf
+1.6662      1.6662      1.6662       1.6662       1.6662       1.6662       1.6662       1.6662       1.6662       1.6662       // kfoliage: this and the following 1 parameters are for non-woody plant's f(foliage) 
+-0.01954   -0.000292    0.000563     0.001571     0.001571     0.001571     0.001571     0.001571     0.001571     0.001571     // cov
+15.206      15.206      15.206       15.206       15.206       15.206       15.206       15.206       15.206       15.206       // m1: this and the following 3 parameters are for woody plant's f(foliage)
+-0.3197     -0.3197     -0.3197     -0.3197      -0.3197       -0.3197      -0.3197      -0.3197      -0.3197      -0.3197      // m2
+0.0401     0.0401       0.0401       0.0401       0.0401       0.0401       0.0401       0.0401       0.0401       0.0401       // m3
+0.0001     0.0001       0.0001       0.0001       0.0001       0.0001       0.0001       0.0001       0.0001       0.0001       // m4
+26.34       30.0        30.0         35.0         45.0         65.0         25.0         0.0          0.0          0.00         // frprod[0]: fine root allocation percentage vertically in soils (every 10 cm)
+54.57       50.0        50.0         50.0         55.0         35.0         75.0         0.00         0.00         0.00         // frprod[1]: fine root allocation percentage vertically in soils (every 10 cm)
+13.48       15.0        15.0         15.0         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[2]: fine root allocation percentage vertically in soils (every 10 cm)
+2.64        5.00        5.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[3]: fine root allocation percentage vertically in soils (every 10 cm) 
+0.60        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[4]: fine root allocation percentage vertically in soils (every 10 cm)
+0.58        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[5]: fine root allocation percentage vertically in soils (every 10 cm) 
+1.79        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[6]: fine root allocation percentage vertically in soils (every 10 cm)
+0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[7]: fine root allocation percentage vertically in soils (every 10 cm)  
+0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[8]: fine root allocation percentage vertically in soils (every 10 cm) 
+0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[9]: fine root allocation percentage vertically in soils (every 10 cm)
+0.93        0.00        0.07         0.05         0.04         0.04         0.02         0.29         0.77         0.           // lai: initial LAI
+1.0         0.0         0.0          0.5          1.0          0.0          1.5          0.1          1.0          0            // envlai[0]: monthly LAI for a year, used for static input of LAI
+1.1         0.0         0.0          0.3          1.5          0.0          1.5          0.2          1.5          0            // envlai[1]: monthly LAI for a year, used for static input of LAI 
+1.2         0.0         0.0          0.5          2.0          0.5          1.5          0.3          0.0          0            // envlai[2]: monthly LAI for a year, used for static input of LAI 
+1.2         0.5         1.0          1.2          1.5          1.0          1.5          0.6          0.0          0            // envlai[3]: monthly LAI for a year, used for static input of LAI
+1.3         1.3         1.9          1.3          0.3          1.3          1.5          1.3          1.3          0            // envlai[4]: monthly LAI for a year, used for static input of LAI 
+1.9         1.9         2.5          1.9          0.0          1.9          1.5          1.9          1.9          0            // envlai[5]: monthly LAI for a year, used for static input of LAI  
+2.0         2.0         2.0          2.0          0.0          2.0          1.5          0.1          0.0          0            // envlai[6]: monthly LAI for a year, used for static input of LAI 
+2.0         2.0         2.0          2.0          0.0          2.0          1.5          0.2          0.0          0            // envlai[7]: monthly LAI for a year, used for static input of LAI
+1.5         0.5         1.5          1.5          0.0          1.5          1.5          0.5          1.5          0            // envlai[8]: monthly LAI for a year, used for static input of LAI  
+1.3         0.2         0.0          1.3          0.3          1.3          1.5          1.3          1.3          0            // envlai[9]: monthly LAI for a year, used for static input of LAI
+1.1         0.0         0.0          0.8          0.5          1.0          1.5          1.9          0.0          0            // envlai[10]: monthly LAI for a year, used for static input of LAI 
+1.0         0.0         0.0          0.7          0.8          0.5          1.5          2.1          1.1          0            // envlai[11]: monthly LAI for a year, used for static input of LAI
+//===========================================================
+CMT02 // CMT2 TEM Community - (max. 10 PFTs) Plant structure/dimension
+//PFT0      PFT1        PFT2         PFT3         PFT4         PFT5         PFT6         PFT7         PFT8         PFT9         // names: comments                  
+1.00        1.00        1.00         1.00         1.00         1.00         1.00         1.00         1.00         0.           // vegfrac: vegetation coverage on land - 0 indicates that PFT does't exist
+1           1           1            1            0            0            0            0            0            0            // ifwoody: woody plants (1) or not (0)
+0           1           1            0            0            0            0            0            0            0            // ifdeciwoody: deciduous woodland (1) or not (0)
+1           1           1            1            0            0            1            0            0            0            // ifperenial: perenial (1) or not (0)
+0           0           0            0            0            0            0            3            2            0            // nonvascular type: vascular (0), sphagnum (1), feathermoss (2), lichen (3)
+0.0077      0.0077      0.0077       0.0077       0.0077       0.0077       0.0077       0.0077       0.0077       0.           // sla: specific leaf area (m2/gC)
+0.55        0.45        0.35         0.35         0.15         0.15         0.15         0.10         0.10         0.           // klai: extinction coeff for conversion from lai to fpc
+0.0         0.0         0.0          0.5          0.0          0.0          0.25         0.0          0.0          0.0          // minleaf: this and the following 4 parameters are for EET/PET controlled phenology - f(leaf)
+0.79640     0.79640     0.79640      0.79640      0.79640      0.79640      0.79640      0.79640      0.79640      0.79640      // aleaf
+0.46635     0.46635     0.46635      0.46635      0.46635      0.46635      0.46635      0.46635      0.46635      0.46635      // bleaf
+-0.02873    -0.02873   -0.02873     -0.02873     -0.02873     -0.02873     -0.02873     -0.02873     -0.02873     -0.02873      // cleaf
+1.6662      1.6662      1.6662       1.6662       1.6662       1.6662       1.6662       1.6662       1.6662       1.6662       // kfoliage: this and the following 1 parameters are for non-woody plant's f(foliage) 
+-0.01954   -0.000292    0.000563     0.001571     0.001571     0.001571     0.001571     0.001571     0.001571     0.001571     // cov
+15.206      15.206      15.206       15.206       15.206       15.206       15.206       15.206       15.206       15.206       // m1: this and the following 3 parameters are for woody plant's f(foliage)
+-0.3197     -0.3197     -0.3197     -0.3197      -0.3197       -0.3197      -0.3197      -0.3197      -0.3197      -0.3197      // m2
+0.0401     0.0401       0.0401       0.0401       0.0401       0.0401       0.0401       0.0401       0.0401       0.0401       // m3
+0.0001     0.0001       0.0001       0.0001       0.0001       0.0001       0.0001       0.0001       0.0001       0.0001       // m4
+26.34       30.0        30.0         35.0         45.0         65.0         25.0         0.0          0.0          0.00         // frprod[0]: fine root allocation percentage vertically in soils (every 10 cm)
+54.57       50.0        50.0         50.0         55.0         35.0         75.0         0.00         0.00         0.00         // frprod[1]: fine root allocation percentage vertically in soils (every 10 cm)
+13.48       15.0        15.0         15.0         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[2]: fine root allocation percentage vertically in soils (every 10 cm)
+2.64        5.00        5.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[3]: fine root allocation percentage vertically in soils (every 10 cm) 
+0.60        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[4]: fine root allocation percentage vertically in soils (every 10 cm)
+0.58        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[5]: fine root allocation percentage vertically in soils (every 10 cm) 
+1.79        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[6]: fine root allocation percentage vertically in soils (every 10 cm)
+0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[7]: fine root allocation percentage vertically in soils (every 10 cm)  
+0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[8]: fine root allocation percentage vertically in soils (every 10 cm) 
+0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[9]: fine root allocation percentage vertically in soils (every 10 cm)
+0.93        0.00        0.07         0.05         0.04         0.04         0.02         0.29         0.77         0.           // lai: initial LAI
+1.0         0.0         0.0          0.5          1.0          0.0          1.5          0.1          1.0          0            // envlai[0]: monthly LAI for a year, used for static input of LAI
+1.1         0.0         0.0          0.3          1.5          0.0          1.5          0.2          1.5          0            // envlai[1]: monthly LAI for a year, used for static input of LAI 
+1.2         0.0         0.0          0.5          2.0          0.5          1.5          0.3          0.0          0            // envlai[2]: monthly LAI for a year, used for static input of LAI 
+1.2         0.5         1.0          1.2          1.5          1.0          1.5          0.6          0.0          0            // envlai[3]: monthly LAI for a year, used for static input of LAI
+1.3         1.3         1.9          1.3          0.3          1.3          1.5          1.3          1.3          0            // envlai[4]: monthly LAI for a year, used for static input of LAI 
+1.9         1.9         2.5          1.9          0.0          1.9          1.5          1.9          1.9          0            // envlai[5]: monthly LAI for a year, used for static input of LAI  
+2.0         2.0         2.0          2.0          0.0          2.0          1.5          0.1          0.0          0            // envlai[6]: monthly LAI for a year, used for static input of LAI 
+2.0         2.0         2.0          2.0          0.0          2.0          1.5          0.2          0.0          0            // envlai[7]: monthly LAI for a year, used for static input of LAI
+1.5         0.5         1.5          1.5          0.0          1.5          1.5          0.5          1.5          0            // envlai[8]: monthly LAI for a year, used for static input of LAI  
+1.3         0.2         0.0          1.3          0.3          1.3          1.5          1.3          1.3          0            // envlai[9]: monthly LAI for a year, used for static input of LAI
+1.1         0.0         0.0          0.8          0.5          1.0          1.5          1.9          0.0          0            // envlai[10]: monthly LAI for a year, used for static input of LAI 
+1.0         0.0         0.0          0.7          0.8          0.5          1.5          2.1          1.1          0            // envlai[11]: monthly LAI for a year, used for static input of LAI
+//===========================================================
+CMT03 // CMT3 TEM Community - (max. 10 PFTs) Plant structure/dimension
+//PFT0      PFT1        PFT2         PFT3         PFT4         PFT5         PFT6         PFT7         PFT8         PFT9         // names: comments                  
+1.00        1.00        1.00         1.00         1.00         1.00         1.00         1.00         1.00         0.           // vegfrac: vegetation coverage on land - 0 indicates that PFT does't exist
+1           1           1            1            0            0            0            0            0            0            // ifwoody: woody plants (1) or not (0)
+0           1           1            0            0            0            0            0            0            0            // ifdeciwoody: deciduous woodland (1) or not (0)
+1           1           1            1            0            0            1            0            0            0            // ifperenial: perenial (1) or not (0)
+0           0           0            0            0            0            0            3            2            0            // nonvascular type: vascular (0), sphagnum (1), feathermoss (2), lichen (3)
+0.0077      0.0077      0.0077       0.0077       0.0077       0.0077       0.0077       0.0077       0.0077       0.           // sla: specific leaf area (m2/gC)
+0.55        0.45        0.35         0.35         0.15         0.15         0.15         0.10         0.10         0.           // klai: extinction coeff for conversion from lai to fpc
+0.0         0.0         0.0          0.5          0.0          0.0          0.25         0.0          0.0          0.0          // minleaf: this and the following 4 parameters are for EET/PET controlled phenology - f(leaf)
+0.79640     0.79640     0.79640      0.79640      0.79640      0.79640      0.79640      0.79640      0.79640      0.79640      // aleaf
+0.46635     0.46635     0.46635      0.46635      0.46635      0.46635      0.46635      0.46635      0.46635      0.46635      // bleaf
+-0.02873    -0.02873   -0.02873     -0.02873     -0.02873     -0.02873     -0.02873     -0.02873     -0.02873     -0.02873      // cleaf
+1.6662      1.6662      1.6662       1.6662       1.6662       1.6662       1.6662       1.6662       1.6662       1.6662       // kfoliage: this and the following 1 parameters are for non-woody plant's f(foliage) 
+-0.01954   -0.000292    0.000563     0.001571     0.001571     0.001571     0.001571     0.001571     0.001571     0.001571     // cov
+15.206      15.206      15.206       15.206       15.206       15.206       15.206       15.206       15.206       15.206       // m1: this and the following 3 parameters are for woody plant's f(foliage)
+-0.3197     -0.3197     -0.3197     -0.3197      -0.3197       -0.3197      -0.3197      -0.3197      -0.3197      -0.3197      // m2
+0.0401     0.0401       0.0401       0.0401       0.0401       0.0401       0.0401       0.0401       0.0401       0.0401       // m3
+0.0001     0.0001       0.0001       0.0001       0.0001       0.0001       0.0001       0.0001       0.0001       0.0001       // m4
+26.34       30.0        30.0         35.0         45.0         65.0         25.0         0.0          0.0          0.00         // frprod[0]: fine root allocation percentage vertically in soils (every 10 cm)
+54.57       50.0        50.0         50.0         55.0         35.0         75.0         0.00         0.00         0.00         // frprod[1]: fine root allocation percentage vertically in soils (every 10 cm)
+13.48       15.0        15.0         15.0         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[2]: fine root allocation percentage vertically in soils (every 10 cm)
+2.64        5.00        5.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[3]: fine root allocation percentage vertically in soils (every 10 cm) 
+0.60        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[4]: fine root allocation percentage vertically in soils (every 10 cm)
+0.58        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[5]: fine root allocation percentage vertically in soils (every 10 cm) 
+1.79        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[6]: fine root allocation percentage vertically in soils (every 10 cm)
+0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[7]: fine root allocation percentage vertically in soils (every 10 cm)  
+0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[8]: fine root allocation percentage vertically in soils (every 10 cm) 
+0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[9]: fine root allocation percentage vertically in soils (every 10 cm)
+0.93        0.00        0.07         0.05         0.04         0.04         0.02         0.29         0.77         0.           // lai: initial LAI
+1.0         0.0         0.0          0.5          1.0          0.0          1.5          0.1          1.0          0            // envlai[0]: monthly LAI for a year, used for static input of LAI
+1.1         0.0         0.0          0.3          1.5          0.0          1.5          0.2          1.5          0            // envlai[1]: monthly LAI for a year, used for static input of LAI 
+1.2         0.0         0.0          0.5          2.0          0.5          1.5          0.3          0.0          0            // envlai[2]: monthly LAI for a year, used for static input of LAI 
+1.2         0.5         1.0          1.2          1.5          1.0          1.5          0.6          0.0          0            // envlai[3]: monthly LAI for a year, used for static input of LAI
+1.3         1.3         1.9          1.3          0.3          1.3          1.5          1.3          1.3          0            // envlai[4]: monthly LAI for a year, used for static input of LAI 
+1.9         1.9         2.5          1.9          0.0          1.9          1.5          1.9          1.9          0            // envlai[5]: monthly LAI for a year, used for static input of LAI  
+2.0         2.0         2.0          2.0          0.0          2.0          1.5          0.1          0.0          0            // envlai[6]: monthly LAI for a year, used for static input of LAI 
+2.0         2.0         2.0          2.0          0.0          2.0          1.5          0.2          0.0          0            // envlai[7]: monthly LAI for a year, used for static input of LAI
+1.5         0.5         1.5          1.5          0.0          1.5          1.5          0.5          1.5          0            // envlai[8]: monthly LAI for a year, used for static input of LAI  
+1.3         0.2         0.0          1.3          0.3          1.3          1.5          1.3          1.3          0            // envlai[9]: monthly LAI for a year, used for static input of LAI
+1.1         0.0         0.0          0.8          0.5          1.0          1.5          1.9          0.0          0            // envlai[10]: monthly LAI for a year, used for static input of LAI 
+1.0         0.0         0.0          0.7          0.8          0.5          1.5          2.1          1.1          0            // envlai[11]: monthly LAI for a year, used for static input of LAI
+//===========================================================
+CMT04 // CMT4 TEM Community - (max. 10 PFTs) Plant structure/dimension
+//PFT0      PFT1        PFT2         PFT3         PFT4         PFT5         PFT6         PFT7         PFT8         PFT9         // names: comments                  
+1.00        1.00        1.00         1.00         1.00         1.00         1.00         1.00         1.00         0.           // vegfrac: vegetation coverage on land - 0 indicates that PFT does't exist
+1           1           1            1            0            0            0            0            0            0            // ifwoody: woody plants (1) or not (0)
+0           1           1            0            0            0            0            0            0            0            // ifdeciwoody: deciduous woodland (1) or not (0)
+1           1           1            1            0            0            1            0            0            0            // ifperenial: perenial (1) or not (0)
+0           0           0            0            0            0            0            3            2            0            // nonvascular type: vascular (0), sphagnum (1), feathermoss (2), lichen (3)
+0.0077      0.0077      0.0077       0.0077       0.0077       0.0077       0.0077       0.0077       0.0077       0.           // sla: specific leaf area (m2/gC)
+0.55        0.45        0.35         0.35         0.15         0.15         0.15         0.10         0.10         0.           // klai: extinction coeff for conversion from lai to fpc
+0.0         0.0         0.0          0.5          0.0          0.0          0.25         0.0          0.0          0.0          // minleaf: this and the following 4 parameters are for EET/PET controlled phenology - f(leaf)
+0.79640     0.79640     0.79640      0.79640      0.79640      0.79640      0.79640      0.79640      0.79640      0.79640      // aleaf
+0.46635     0.46635     0.46635      0.46635      0.46635      0.46635      0.46635      0.46635      0.46635      0.46635      // bleaf
+-0.02873    -0.02873   -0.02873     -0.02873     -0.02873     -0.02873     -0.02873     -0.02873     -0.02873     -0.02873      // cleaf
+1.6662      1.6662      1.6662       1.6662       1.6662       1.6662       1.6662       1.6662       1.6662       1.6662       // kfoliage: this and the following 1 parameters are for non-woody plant's f(foliage) 
+-0.01954   -0.000292    0.000563     0.001571     0.001571     0.001571     0.001571     0.001571     0.001571     0.001571     // cov
+15.206      15.206      15.206       15.206       15.206       15.206       15.206       15.206       15.206       15.206       // m1: this and the following 3 parameters are for woody plant's f(foliage)
+-0.3197     -0.3197     -0.3197     -0.3197      -0.3197       -0.3197      -0.3197      -0.3197      -0.3197      -0.3197      // m2
+0.0401     0.0401       0.0401       0.0401       0.0401       0.0401       0.0401       0.0401       0.0401       0.0401       // m3
+0.0001     0.0001       0.0001       0.0001       0.0001       0.0001       0.0001       0.0001       0.0001       0.0001       // m4
+26.34       30.0        30.0         35.0         45.0         65.0         25.0         0.0          0.0          0.00         // frprod[0]: fine root allocation percentage vertically in soils (every 10 cm)
+54.57       50.0        50.0         50.0         55.0         35.0         75.0         0.00         0.00         0.00         // frprod[1]: fine root allocation percentage vertically in soils (every 10 cm)
+13.48       15.0        15.0         15.0         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[2]: fine root allocation percentage vertically in soils (every 10 cm)
+2.64        5.00        5.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[3]: fine root allocation percentage vertically in soils (every 10 cm) 
+0.60        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[4]: fine root allocation percentage vertically in soils (every 10 cm)
+0.58        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[5]: fine root allocation percentage vertically in soils (every 10 cm) 
+1.79        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[6]: fine root allocation percentage vertically in soils (every 10 cm)
+0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[7]: fine root allocation percentage vertically in soils (every 10 cm)  
+0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[8]: fine root allocation percentage vertically in soils (every 10 cm) 
+0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[9]: fine root allocation percentage vertically in soils (every 10 cm)
+0.93        0.00        0.07         0.05         0.04         0.04         0.02         0.29         0.77         0.           // lai: initial LAI
+1.0         0.0         0.0          0.5          1.0          0.0          1.5          0.1          1.0          0            // envlai[0]: monthly LAI for a year, used for static input of LAI
+1.1         0.0         0.0          0.3          1.5          0.0          1.5          0.2          1.5          0            // envlai[1]: monthly LAI for a year, used for static input of LAI 
+1.2         0.0         0.0          0.5          2.0          0.5          1.5          0.3          0.0          0            // envlai[2]: monthly LAI for a year, used for static input of LAI 
+1.2         0.5         1.0          1.2          1.5          1.0          1.5          0.6          0.0          0            // envlai[3]: monthly LAI for a year, used for static input of LAI
+1.3         1.3         1.9          1.3          0.3          1.3          1.5          1.3          1.3          0            // envlai[4]: monthly LAI for a year, used for static input of LAI 
+1.9         1.9         2.5          1.9          0.0          1.9          1.5          1.9          1.9          0            // envlai[5]: monthly LAI for a year, used for static input of LAI  
+2.0         2.0         2.0          2.0          0.0          2.0          1.5          0.1          0.0          0            // envlai[6]: monthly LAI for a year, used for static input of LAI 
+2.0         2.0         2.0          2.0          0.0          2.0          1.5          0.2          0.0          0            // envlai[7]: monthly LAI for a year, used for static input of LAI
+1.5         0.5         1.5          1.5          0.0          1.5          1.5          0.5          1.5          0            // envlai[8]: monthly LAI for a year, used for static input of LAI  
+1.3         0.2         0.0          1.3          0.3          1.3          1.5          1.3          1.3          0            // envlai[9]: monthly LAI for a year, used for static input of LAI
+1.1         0.0         0.0          0.8          0.5          1.0          1.5          1.9          0.0          0            // envlai[10]: monthly LAI for a year, used for static input of LAI 
+1.0         0.0         0.0          0.7          0.8          0.5          1.5          2.1          1.1          0            // envlai[11]: monthly LAI for a year, used for static input of LAI
+//===========================================================
+CMT05 // CMT5 TEM Community - (max. 10 PFTs) Plant structure/dimension
+//PFT0      PFT1        PFT2         PFT3         PFT4         PFT5         PFT6         PFT7         PFT8         PFT9         // names: comments                  
+1.00        1.00        1.00         1.00         1.00         1.00         1.00         1.00         1.00         0.           // vegfrac: vegetation coverage on land - 0 indicates that PFT does't exist
+1           1           1            1            0            0            0            0            0            0            // ifwoody: woody plants (1) or not (0)
+0           1           1            0            0            0            0            0            0            0            // ifdeciwoody: deciduous woodland (1) or not (0)
+1           1           1            1            0            0            1            0            0            0            // ifperenial: perenial (1) or not (0)
+0           0           0            0            0            0            0            3            2            0            // nonvascular type: vascular (0), sphagnum (1), feathermoss (2), lichen (3)
+0.0077      0.0077      0.0077       0.0077       0.0077       0.0077       0.0077       0.0077       0.0077       0.           // sla: specific leaf area (m2/gC)
+0.55        0.45        0.35         0.35         0.15         0.15         0.15         0.10         0.10         0.           // klai: extinction coeff for conversion from lai to fpc
+0.0         0.0         0.0          0.5          0.0          0.0          0.25         0.0          0.0          0.0          // minleaf: this and the following 4 parameters are for EET/PET controlled phenology - f(leaf)
+0.79640     0.79640     0.79640      0.79640      0.79640      0.79640      0.79640      0.79640      0.79640      0.79640      // aleaf
+0.46635     0.46635     0.46635      0.46635      0.46635      0.46635      0.46635      0.46635      0.46635      0.46635      // bleaf
+-0.02873    -0.02873   -0.02873     -0.02873     -0.02873     -0.02873     -0.02873     -0.02873     -0.02873     -0.02873      // cleaf
+1.6662      1.6662      1.6662       1.6662       1.6662       1.6662       1.6662       1.6662       1.6662       1.6662       // kfoliage: this and the following 1 parameters are for non-woody plant's f(foliage) 
+-0.01954   -0.000292    0.000563     0.001571     0.001571     0.001571     0.001571     0.001571     0.001571     0.001571     // cov
+15.206      15.206      15.206       15.206       15.206       15.206       15.206       15.206       15.206       15.206       // m1: this and the following 3 parameters are for woody plant's f(foliage)
+-0.3197     -0.3197     -0.3197     -0.3197      -0.3197       -0.3197      -0.3197      -0.3197      -0.3197      -0.3197      // m2
+0.0401     0.0401       0.0401       0.0401       0.0401       0.0401       0.0401       0.0401       0.0401       0.0401       // m3
+0.0001     0.0001       0.0001       0.0001       0.0001       0.0001       0.0001       0.0001       0.0001       0.0001       // m4
+26.34       30.0        30.0         35.0         45.0         65.0         25.0         0.0          0.0          0.00         // frprod[0]: fine root allocation percentage vertically in soils (every 10 cm)
+54.57       50.0        50.0         50.0         55.0         35.0         75.0         0.00         0.00         0.00         // frprod[1]: fine root allocation percentage vertically in soils (every 10 cm)
+13.48       15.0        15.0         15.0         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[2]: fine root allocation percentage vertically in soils (every 10 cm)
+2.64        5.00        5.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[3]: fine root allocation percentage vertically in soils (every 10 cm) 
+0.60        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[4]: fine root allocation percentage vertically in soils (every 10 cm)
+0.58        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[5]: fine root allocation percentage vertically in soils (every 10 cm) 
+1.79        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[6]: fine root allocation percentage vertically in soils (every 10 cm)
+0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[7]: fine root allocation percentage vertically in soils (every 10 cm)  
+0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[8]: fine root allocation percentage vertically in soils (every 10 cm) 
+0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[9]: fine root allocation percentage vertically in soils (every 10 cm)
+0.93        0.00        0.07         0.05         0.04         0.04         0.02         0.29         0.77         0.           // lai: initial LAI
+1.0         0.0         0.0          0.5          1.0          0.0          1.5          0.1          1.0          0            // envlai[0]: monthly LAI for a year, used for static input of LAI
+1.1         0.0         0.0          0.3          1.5          0.0          1.5          0.2          1.5          0            // envlai[1]: monthly LAI for a year, used for static input of LAI 
+1.2         0.0         0.0          0.5          2.0          0.5          1.5          0.3          0.0          0            // envlai[2]: monthly LAI for a year, used for static input of LAI 
+1.2         0.5         1.0          1.2          1.5          1.0          1.5          0.6          0.0          0            // envlai[3]: monthly LAI for a year, used for static input of LAI
+1.3         1.3         1.9          1.3          0.3          1.3          1.5          1.3          1.3          0            // envlai[4]: monthly LAI for a year, used for static input of LAI 
+1.9         1.9         2.5          1.9          0.0          1.9          1.5          1.9          1.9          0            // envlai[5]: monthly LAI for a year, used for static input of LAI  
+2.0         2.0         2.0          2.0          0.0          2.0          1.5          0.1          0.0          0            // envlai[6]: monthly LAI for a year, used for static input of LAI 
+2.0         2.0         2.0          2.0          0.0          2.0          1.5          0.2          0.0          0            // envlai[7]: monthly LAI for a year, used for static input of LAI
+1.5         0.5         1.5          1.5          0.0          1.5          1.5          0.5          1.5          0            // envlai[8]: monthly LAI for a year, used for static input of LAI  
+1.3         0.2         0.0          1.3          0.3          1.3          1.5          1.3          1.3          0            // envlai[9]: monthly LAI for a year, used for static input of LAI
+1.1         0.0         0.0          0.8          0.5          1.0          1.5          1.9          0.0          0            // envlai[10]: monthly LAI for a year, used for static input of LAI 
+1.0         0.0         0.0          0.7          0.8          0.5          1.5          2.1          1.1          0            // envlai[11]: monthly LAI for a year, used for static input of LAI
+//===========================================================
+CMT06 // CMT6 TEM Community - (max. 10 PFTs) Plant structure/dimension
+//PFT0      PFT1        PFT2         PFT3         PFT4         PFT5         PFT6         PFT7         PFT8         PFT9         // names: comments                  
+1.00        1.00        1.00         1.00         1.00         1.00         1.00         1.00         1.00         0.           // vegfrac: vegetation coverage on land - 0 indicates that PFT does't exist
+1           1           1            1            0            0            0            0            0            0            // ifwoody: woody plants (1) or not (0)
+0           1           1            0            0            0            0            0            0            0            // ifdeciwoody: deciduous woodland (1) or not (0)
+1           1           1            1            0            0            1            0            0            0            // ifperenial: perenial (1) or not (0)
+0           0           0            0            0            0            0            3            2            0            // nonvascular type: vascular (0), sphagnum (1), feathermoss (2), lichen (3)
+0.0077      0.0077      0.0077       0.0077       0.0077       0.0077       0.0077       0.0077       0.0077       0.           // sla: specific leaf area (m2/gC)
+0.55        0.45        0.35         0.35         0.15         0.15         0.15         0.10         0.10         0.           // klai: extinction coeff for conversion from lai to fpc
+0.0         0.0         0.0          0.5          0.0          0.0          0.25         0.0          0.0          0.0          // minleaf: this and the following 4 parameters are for EET/PET controlled phenology - f(leaf)
+0.79640     0.79640     0.79640      0.79640      0.79640      0.79640      0.79640      0.79640      0.79640      0.79640      // aleaf
+0.46635     0.46635     0.46635      0.46635      0.46635      0.46635      0.46635      0.46635      0.46635      0.46635      // bleaf
+-0.02873    -0.02873   -0.02873     -0.02873     -0.02873     -0.02873     -0.02873     -0.02873     -0.02873     -0.02873      // cleaf
+1.6662      1.6662      1.6662       1.6662       1.6662       1.6662       1.6662       1.6662       1.6662       1.6662       // kfoliage: this and the following 1 parameters are for non-woody plant's f(foliage) 
+-0.01954   -0.000292    0.000563     0.001571     0.001571     0.001571     0.001571     0.001571     0.001571     0.001571     // cov
+15.206      15.206      15.206       15.206       15.206       15.206       15.206       15.206       15.206       15.206       // m1: this and the following 3 parameters are for woody plant's f(foliage)
+-0.3197     -0.3197     -0.3197     -0.3197      -0.3197       -0.3197      -0.3197      -0.3197      -0.3197      -0.3197      // m2
+0.0401     0.0401       0.0401       0.0401       0.0401       0.0401       0.0401       0.0401       0.0401       0.0401       // m3
+0.0001     0.0001       0.0001       0.0001       0.0001       0.0001       0.0001       0.0001       0.0001       0.0001       // m4
+26.34       30.0        30.0         35.0         45.0         65.0         25.0         0.0          0.0          0.00         // frprod[0]: fine root allocation percentage vertically in soils (every 10 cm)
+54.57       50.0        50.0         50.0         55.0         35.0         75.0         0.00         0.00         0.00         // frprod[1]: fine root allocation percentage vertically in soils (every 10 cm)
+13.48       15.0        15.0         15.0         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[2]: fine root allocation percentage vertically in soils (every 10 cm)
+2.64        5.00        5.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[3]: fine root allocation percentage vertically in soils (every 10 cm) 
+0.60        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[4]: fine root allocation percentage vertically in soils (every 10 cm)
+0.58        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[5]: fine root allocation percentage vertically in soils (every 10 cm) 
+1.79        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[6]: fine root allocation percentage vertically in soils (every 10 cm)
+0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[7]: fine root allocation percentage vertically in soils (every 10 cm)  
+0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[8]: fine root allocation percentage vertically in soils (every 10 cm) 
+0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[9]: fine root allocation percentage vertically in soils (every 10 cm)
+0.93        0.00        0.07         0.05         0.04         0.04         0.02         0.29         0.77         0.           // lai: initial LAI
+1.0         0.0         0.0          0.5          1.0          0.0          1.5          0.1          1.0          0            // envlai[0]: monthly LAI for a year, used for static input of LAI
+1.1         0.0         0.0          0.3          1.5          0.0          1.5          0.2          1.5          0            // envlai[1]: monthly LAI for a year, used for static input of LAI 
+1.2         0.0         0.0          0.5          2.0          0.5          1.5          0.3          0.0          0            // envlai[2]: monthly LAI for a year, used for static input of LAI 
+1.2         0.5         1.0          1.2          1.5          1.0          1.5          0.6          0.0          0            // envlai[3]: monthly LAI for a year, used for static input of LAI
+1.3         1.3         1.9          1.3          0.3          1.3          1.5          1.3          1.3          0            // envlai[4]: monthly LAI for a year, used for static input of LAI 
+1.9         1.9         2.5          1.9          0.0          1.9          1.5          1.9          1.9          0            // envlai[5]: monthly LAI for a year, used for static input of LAI  
+2.0         2.0         2.0          2.0          0.0          2.0          1.5          0.1          0.0          0            // envlai[6]: monthly LAI for a year, used for static input of LAI 
+2.0         2.0         2.0          2.0          0.0          2.0          1.5          0.2          0.0          0            // envlai[7]: monthly LAI for a year, used for static input of LAI
+1.5         0.5         1.5          1.5          0.0          1.5          1.5          0.5          1.5          0            // envlai[8]: monthly LAI for a year, used for static input of LAI  
+1.3         0.2         0.0          1.3          0.3          1.3          1.5          1.3          1.3          0            // envlai[9]: monthly LAI for a year, used for static input of LAI
+1.1         0.0         0.0          0.8          0.5          1.0          1.5          1.9          0.0          0            // envlai[10]: monthly LAI for a year, used for static input of LAI 
+1.0         0.0         0.0          0.7          0.8          0.5          1.5          2.1          1.1          0            // envlai[11]: monthly LAI for a year, used for static input of LAI
