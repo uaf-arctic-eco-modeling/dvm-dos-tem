@@ -682,7 +682,9 @@ double Vegetation_Bgc::getKr(const double & vegc, const int & ipart){
 	// kr is for calculating maintainance respiration
   	double kr  = 0.;
   	double kra = calpar.kra;
-  	double krb = calpar.krb[ipart];
+  	double krb = calpar.krb[ipart]*100.0;
+  	//multipler 100.0 is temporarily set, because 'vegc' here is for leaf, stem, root
+  	// basically it's much small relative to total, then the 'rm' seems too large
   
   	kr = exp((kra*vegc)+krb);	
   	return kr;
