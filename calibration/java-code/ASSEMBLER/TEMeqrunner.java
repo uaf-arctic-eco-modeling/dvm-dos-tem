@@ -199,11 +199,7 @@ public class TEMeqrunner implements Runnable{
 
 		while (!this.m_stop){	
 			System.out.println("TEM CALIBRATION RUN: year "+yrcnt);
-
-			//reset calibration parameters
-			temcj.setVbCalPar1pft(ipft, jvcalpar);
-			temcj.setSbCalPar(jscalpar);
-			
+		
 			int yrindex = eqrunner.runcht.cht.getTimer().getCurrentYearIndex();   //starting from 0
 			eqrunner.runcht.cht.getCd().setYear(eqrunner.runcht.cht.getTimer().getCalendarYear());
 

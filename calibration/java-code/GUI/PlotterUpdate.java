@@ -55,7 +55,6 @@ public class PlotterUpdate {
 		    y2 = Double.valueOf((String)targetTB.getValueAt(Configurer.I_NPPt, ipft+1));	// litterfall's target is NPP	 
 			var1plotter.ltrfalcTP.addPoint(x, y1, y2);
 			
-			
 			y1 = pftbd.getY_soi2v().getInnuptake();
 			var1plotter.innuptakeTP.addPoint(x, y1);
 			
@@ -121,6 +120,10 @@ public class PlotterUpdate {
 			var1plotter.vegnTP.addPoint(x, y1, y3);
 			
 			///////////// Soil States (all PFTs) ///////////////////////////
+			y1 = allbd.getY_sois().getDmossc();
+		    y2 = Double.valueOf((String)targetTB.getValueAt(Configurer.I_DMOSSCt, 1));	 
+			var1plotter.dmosscTP.addPoint(x, y1, y2);		
+
 			y1 = allbd.getY_soid().getShlwc();
 		    y2 = Double.valueOf((String)targetTB.getValueAt(Configurer.I_FIBSOILCt, 1));	 
 			y3 = y1;
@@ -208,7 +211,6 @@ public class PlotterUpdate {
 			y3 = allbd.getM_soi2soi().getNetnminsum();
 			y4 = allbd.getM_soi2soi().getNimmobsum();
 			var1plotter.m_snfluxTP.addPoint(x, y1, y2, y3, y4);
-
 						
 		}	
 	

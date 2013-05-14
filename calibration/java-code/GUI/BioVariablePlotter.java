@@ -35,6 +35,7 @@ public class BioVariablePlotter {
 	public PlotterMode2 vegcrTP;
 	public PlotterMode2 vegcTP;	
 	
+	public PlotterMode2 dmosscTP;
 	public PlotterMode2 fibsoilcTP;
 	public PlotterMode2 humsoilcTP;
 	public PlotterMode2 minesoilcTP;
@@ -308,6 +309,16 @@ public class BioVariablePlotter {
 
 		JTaskPane leftJTP = new JTaskPane();
 
+		dmosscTP = new PlotterMode2("model", "target", 1000);
+		JPanel dmosscPanel = dmosscTP.getPanel();
+		dmosscPanel.setPreferredSize(new Dimension(330, 125));
+		JTaskPaneGroup dmosscTG = new JTaskPaneGroup();
+		dmosscTG.setSpecial(false);
+		dmosscTG.setExpanded(true);
+		dmosscTG.setTitle("dead Moss C");
+		dmosscTG.add(dmosscPanel);
+		leftJTP.add(dmosscTG);
+
 		fibsoilcTP = new PlotterMode2("model", "target", 1000);
 		JPanel fibsoilcPanel = fibsoilcTP.getPanel();
 		fibsoilcPanel.setPreferredSize(new Dimension(330, 125));
@@ -537,6 +548,7 @@ public class BioVariablePlotter {
 		vegnrTP.reset();
 		vegnTP.reset();
 
+		dmosscTP.reset();
 		fibsoilcTP.reset();
 		humsoilcTP.reset();
 		minesoilcTP.reset();
