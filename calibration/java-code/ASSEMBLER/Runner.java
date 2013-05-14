@@ -80,105 +80,105 @@ public class Runner {
 		
 		// configuration 
 		if (runmode.compareToIgnoreCase("GUI")==0) {  //configuration by GUI input
-			this.md.setRunmode(this.jconfigin.runmode);
+			md.setRunmode(jconfigin.runmode);
  			
-			this.md.setCasename(this.jconfigin.casename);
- 		  	this.md.setConfigdir(this.jconfigin.configdir); 
- 			this.md.setRunchtfile(this.jconfigin.runchtfile);
- 			this.md.setOutputdir(this.jconfigin.outputdir); 
- 		  	this.md.setReginputdir(this.jconfigin.reginputdir);
- 		  	this.md.setGrdinputdir(this.jconfigin.grdinputdir);
- 		  	this.md.setChtinputdir(this.jconfigin.chtinputdir);
+			md.setCasename(jconfigin.casename);
+ 		  	md.setConfigdir(jconfigin.configdir); 
+ 			md.setRunchtfile(jconfigin.runchtfile);
+ 			md.setOutputdir(jconfigin.outputdir); 
+ 		  	md.setReginputdir(jconfigin.reginputdir);
+ 		  	md.setGrdinputdir(jconfigin.grdinputdir);
+ 		  	md.setChtinputdir(jconfigin.chtinputdir);
  		  
- 		  	this.md.setRunstages(this.jconfigin.runstages);
- 		  	this.md.setInitmodes(this.jconfigin.initmodes);
- 		  	this.md.setInitialfile(this.jconfigin.initialfile);
+ 		  	md.setRunstages(jconfigin.runstages);
+ 		  	md.setInitmodes(jconfigin.initmodes);
+ 		  	md.setInitialfile(jconfigin.initialfile);
 
- 		   	this.md.setChangeclimate(this.jconfigin.changeclimate);
- 			this.md.setChangeco2(this.jconfigin.changeco2);
- 			this.md.setUpdatelai(this.jconfigin.updatelai);
- 			this.md.setUseseverity(this.jconfigin.useseverity);
+ 		   	md.setChangeclimate(jconfigin.changeclimate);
+ 			md.setChangeco2(jconfigin.changeco2);
+ 			md.setUpdatelai(jconfigin.updatelai);
+ 			md.setUseseverity(jconfigin.useseverity);
 
- 			this.md.setOutstartyr(this.jconfigin.outstartyr);
+ 			md.setOutstartyr(jconfigin.outstartyr);
  			
- 			this.md.setOutSiteDay(this.jconfigin.outsiteday);
- 			this.md.setOutSiteMonth(this.jconfigin.outsitemonth);
- 			this.md.setOutSiteYear(this.jconfigin.outsiteyear);
- 			this.md.setOutRegn(this.jconfigin.outregn);			
+ 			md.setOutSiteDay(jconfigin.outsiteday);
+ 			md.setOutSiteMonth(jconfigin.outsitemonth);
+ 			md.setOutSiteYear(jconfigin.outsiteyear);
+ 			md.setOutRegn(jconfigin.outregn);			
 			
 		} else {  //configuration by control file
 
 			// Input and processing for reading configuration
-			this.configin.setControlfile(controlfile);
+			configin.setControlfile(controlfile);
 
 			//	
 			if (runmode.compareTo("siter")==0) {
- 				this.md.setRunmode(1);
+ 				md.setRunmode(1);
 			} else if (runmode.compareTo("regner1")==0) {
- 				this.md.setRunmode(2);                            //regional run - time-series
+ 				md.setRunmode(2);                            //regional run - time-series
 			} else if (runmode.compareTo("regner2")==0) {
- 				this.md.setRunmode(3);                            //regional run - spatially (NOT yet configured!)
+ 				md.setRunmode(3);                            //regional run - spatially (NOT yet configured!)
 			} else {
  				System.out.println("TEM run mode: "+runmode+" must be ONE of:");
  				System.out.println("'siter', 'regner1', or, 'regner2'");
  				System.exit(-1);
 			}
  		
-			this.configin.ctrl4run(this.md);   //read in model configure info from "config/controlfile_site.txt"
+			configin.ctrl4run(md);   //read in model configure info from "config/controlfile_site.txt"
  		 		
-			if (this.md.getRunmode()!=1) this.md.setConsoledebug(false);
+			if (md.getRunmode()!=1) md.setConsoledebug(false);
  		
 		} // end of configuration of model running
  		
  		// checking the input configuration information
-		this.md.checking4run();
+		md.checking4run();
 		
 		// timer initialization
-		this.timer.setModeldata(this.md);
+		timer.setModeldata(md);
 
 		//region-level input
- 		this.runreg.rinputer.init(this.md, this.md.getReginputdir());			     //checking data file
+ 		runreg.rinputer.init(md, md.getReginputdir());			     //checking data file
  		
  		//grid-level input
- 		this.rungrd.ginputer.init(this.md.getGrdinputdir());			        //checking data file and their dimensions
- 		this.md.setAct_gridno(this.rungrd.ginputer.act_gridno);
- 		this.md.setAct_soilno(this.rungrd.ginputer.act_soilno);
- 		this.md.setAct_drainno(this.rungrd.ginputer.act_drainno);
- 		this.md.setAct_gfireno(this.rungrd.ginputer.act_gfireno);
+ 		rungrd.ginputer.init(md.getGrdinputdir());			        //checking data file and their dimensions
+ 		md.setAct_gridno(rungrd.ginputer.act_gridno);
+ 		md.setAct_soilno(rungrd.ginputer.act_soilno);
+ 		md.setAct_drainno(rungrd.ginputer.act_drainno);
+ 		md.setAct_gfireno(rungrd.ginputer.act_gfireno);
 
  		//cohort-level input
- 		this.runcht.cinputer.init(this.md);                //checking data file and their dimensions
- 		this.md.setAct_chtno(this.runcht.cinputer.act_chtno);
- 		this.md.setAct_initchtno(this.runcht.cinputer.act_initchtno);
- 		this.md.setAct_clmno(this.runcht.cinputer.act_clmno);
- 		this.md.setAct_clmyr(this.runcht.cinputer.act_clmyr);
- 		this.md.setAct_vegno(this.runcht.cinputer.act_vegno);
- 		this.md.setAct_vegset(this.runcht.cinputer.act_vegset);
- 		this.md.setAct_fireno(this.runcht.cinputer.act_fireno);
- 		this.md.setAct_fireset(this.runcht.cinputer.act_fireset);
+ 		runcht.cinputer.init(md);                //checking data file and their dimensions
+ 		md.setAct_chtno(runcht.cinputer.act_chtno);
+ 		md.setAct_initchtno(runcht.cinputer.act_initchtno);
+ 		md.setAct_clmno(runcht.cinputer.act_clmno);
+ 		md.setAct_clmyr(runcht.cinputer.act_clmyr);
+ 		md.setAct_vegno(runcht.cinputer.act_vegno);
+ 		md.setAct_vegset(runcht.cinputer.act_vegset);
+ 		md.setAct_fireno(runcht.cinputer.act_fireno);
+ 		md.setAct_fireset(runcht.cinputer.act_fireset);
  		
- 		this.runchtlist.clear();
- 		if (this.md.getRunmode()==2 || this.md.getRunmode()==3) {
- 			String runchtlist = this.md.getRunchtfile();
- 			this.chtlister.init(runchtlist);   // the running cohort list, if multple-cohort run mode on
- 		} else if (this.md.getRunmode()==1) {
-	 		System.out.println("CHTID and INITCHTID is "+this.chtid+"for 'siter' runmode! \n");
-	 		System.out.println("Be sure they exist and are consistent in 'cohortid.nc'! \n");
- 	   		this.runchtlist.add(this.chtid);
+ 		runchtlist.clear();
+ 		if (md.getRunmode()==2 || md.getRunmode()==3) {
+ 			String runchtlist = md.getRunchtfile();
+ 			chtlister.init(runchtlist);   // the running cohort list, if multple-cohort run mode on
+ 		} else if (md.getRunmode()==1) {
+	 		System.out.println("CHTID and INITCHTID is "+chtid+" for 'siter' runmode! ");
+	 		System.out.println("Be sure they exist and are consistent in 'cohortid.nc'! ");
+ 	   		runchtlist.add(chtid);
  		}
 
  		//initial conditions
- 		if (this.md.getInitmode()==3){
- 		 	if(this.md.getRuneq()){
- 		 		System.out.println("cannot set initmode as restart for equlibrium run \n");
+ 		if (md.getInitmode()==3){
+ 		 	if(md.getRuneq()){
+ 		 		System.out.println("cannot set initmode as restart for equlibrium run ");
  		 		System.out.println("reset to 'lookup' \n");
- 		 		this.md.setInitmode(1);
+ 		 		md.setInitmode(1);
  		 	} else {
- 		 		this.runcht.resinputer.init(this.md.getInitialfile());
+ 		 		runcht.resinputer.init(md.getInitialfile());
  		 	}
- 		} else if (this.md.getInitmode()==2) {
+ 		} else if (md.getInitmode()==2) {
             // will add later
- 		} else if (this.md.getInitmode()==1) {
+ 		} else if (md.getInitmode()==1) {
 		 	System.out.println("initial conditions from default for each 'cmttype' \n");
  		}
  		 		 
@@ -187,60 +187,60 @@ public class Runner {
 	//output setting-up
 	public void initOutput() {
 
-		String stage = "-"+this.md.getRunstages();
+		String stage = "-"+md.getRunstages();
 
  		// 1)for general outputs
-		if (this.md.getRunmode()==1) {   //very detailed output for ONE cohort ONLY
+		if (md.getRunmode()==1) {   //very detailed output for ONE cohort ONLY
 
-			this.md.setOutRegn(false);
+			md.setOutRegn(false);
 
 	    	String dimfname ="";
 	    	String envfname ="";
 	    	String bgcfname ="";
 
-			if (this.md.getOutSiteDay()){
-				envfname = this.md.getOutputdir()+"cmtenv_dly"+stage+".nc";
+			if (md.getOutSiteDay()){
+				envfname = md.getOutputdir()+"cmtenv_dly"+stage+".nc";
 //				runcht.getEnvdlyouter().init(envfname);				// set netcdf files for output
 			}
 
-			if (this.md.getOutSiteMonth()){
-				dimfname = this.md.getOutputdir()+"cmtdim_mly"+stage+".nc";
+			if (md.getOutSiteMonth()){
+				dimfname = md.getOutputdir()+"cmtdim_mly"+stage+".nc";
 				//runcht.dimmlyouter.init(dimfname);				// set netcdf files for output
 
-				envfname = this.md.getOutputdir()+"cmtenv_mly"+stage+".nc";
+				envfname = md.getOutputdir()+"cmtenv_mly"+stage+".nc";
 				//runcht.envmlyouter.init(envfname);				// set netcdf files for output
 
-				bgcfname = this.md.getOutputdir()+"cmtbgc_mly"+stage+".nc";
+				bgcfname = md.getOutputdir()+"cmtbgc_mly"+stage+".nc";
 				//runcht.bgcmlyouter.init(bgcfname);				// set netcdf files for output
 			}
 
-			if (this.md.getOutSiteYear()){
-				dimfname = this.md.getOutputdir()+"cmtdim_yly"+stage+".nc";
+			if (md.getOutSiteYear()){
+				dimfname = md.getOutputdir()+"cmtdim_yly"+stage+".nc";
 				//runcht.dimylyouter.init(dimfname);				// set netcdf files for output
 
-				envfname = this.md.getOutputdir()+"cmtenv_yly"+stage+".nc";
+				envfname = md.getOutputdir()+"cmtenv_yly"+stage+".nc";
 				//runcht.envylyouter.init(envfname);				// set netcdf files for output
 
-				bgcfname = this.md.getOutputdir()+"cmtbgc_yly"+stage+".nc";
+				bgcfname = md.getOutputdir()+"cmtbgc_yly"+stage+".nc";
 				//runcht.bgcylyouter.init(bgcfname);				// set netcdf files for output
 			}
 
-	     } else if ((this.md.getRunmode()==2 || this.md.getRunmode()==3) && !this.md.getRuneq()){
+	     } else if ((md.getRunmode()==2 || md.getRunmode()==3) && !md.getRuneq()){
 			 // output options (swithes)
-			 this.md.setOutSiteYear(false);
-			 this.md.setOutSiteDay(false);
-			 this.md.setOutSiteMonth(false);
+			 md.setOutSiteYear(false);
+			 md.setOutSiteDay(false);
+			 md.setOutSiteMonth(false);
 
 
 	     } else {
-	    	 this.md.setOutRegn(false);
-			 this.md.setOutSiteYear(false);
-			 this.md.setOutSiteDay(false);
-			 this.md.setOutSiteMonth(false);
+	    	 md.setOutRegn(false);
+			 md.setOutSiteYear(false);
+			 md.setOutSiteDay(false);
+			 md.setOutSiteMonth(false);
 	     }
 
 		// 2) summarized output by a list of variables 
-		if (this.md.getOutRegn()) {
+		if (md.getOutRegn()) {
 		 
 			// varlist
 			String outlistfile = "config/outvarlist.txt";
@@ -252,13 +252,13 @@ public class Runner {
 		
 			// output years
 			int maxoutyrs = 0;
-			if (this.md.getRunsp()) {
+			if (md.getRunsp()) {
 				maxoutyrs += ConstTime.MAX_SP_YR;
 			}
-			if (this.md.getRuntr()) {
+			if (md.getRuntr()) {
 				maxoutyrs += ConstTime.MAX_TR_YR;
 			}
-			if (this.md.getRunsc()) {
+			if (md.getRunsc()) {
 				maxoutyrs += ConstTime.MAX_SC_YR;
 			}
 
@@ -276,20 +276,20 @@ public class Runner {
 	public void setupData(){
 
 		// input data connection
-		this.rungrd.grid.setRegionData(this.runreg.region.getRd());
+		rungrd.grid.setRegionData(runreg.region.getRd());
 		
- 		this.runcht.cht.setModelData(this.md);
- 		this.runcht.cht.setTime(this.timer);
- 		this.runcht.cht.setInputData(this.runreg.region.getRd(), this.rungrd.grid.getGd());
+ 		runcht.cht.setModelData(md);
+ 		runcht.cht.setTime(timer);
+ 		runcht.cht.setInputData(runreg.region.getRd(), rungrd.grid.getGd());
 
  		// process data connection
- 		this.runcht.cht.setProcessData(this.chted, this.chtbd, this.chtfd);  //
+ 		runcht.cht.setProcessData(chted, chtbd, chtfd);  //
 
  		// initializing pointers data connection used in 'runcht'
- 		this.runcht.init();
+ 		runcht.init();
 
  		//initializing pointers used in called modules in one 'cht'
- 		this.runcht.cht.initSubmodules();
+ 		runcht.cht.initSubmodules();
 
 	};
 
@@ -299,18 +299,18 @@ public class Runner {
 		try {
 			
 			// all grid data ids
-			this.error = this.rungrd.allgridids(this.md.getAct_gridno(), 
-			                          this.md.getAct_drainno(), 
-			                          this.md.getAct_soilno(),
-					                  this.md.getAct_gfireno());
-			if (this.error != 0) {
+			error = rungrd.allgridids(md.getAct_gridno(), 
+			                          md.getAct_drainno(), 
+			                          md.getAct_soilno(),
+					                  md.getAct_gfireno());
+			if (error != 0) {
 		  		System.out.println("problem in reading all grid-level data IDs in Runner::setupIDs \n");
 		  		System.exit(-1);
 			}
 
 			// all cohort data ids
-			this.error = this.runcht.allchtids();
-			if (this.error != 0) {
+			error = runcht.allchtids();
+			if (error != 0) {
 				System.out.println("problem in reading all cohort-level data IDs in Runner::setupIDs \n");
 		  		System.exit(-1);
 			}
@@ -434,8 +434,8 @@ public class Runner {
 	public int run_siter(){
 		try {
 			//read-in region-level data (Yuan: this is the portal for multiple region run, if needed in the future)
-			this.error = this.runreg.reinit(0);          //can be modified, if more than 1 record of data
-			if (this.error!=0){
+			error = runreg.reinit(0);          //can be modified, if more than 1 record of data
+			if (error!=0){
 				System.out.println("problem in reinitialize regional-module in Runner::run ()");
 				System.exit(-1);
 			}
@@ -490,8 +490,8 @@ public class Runner {
 	public int run_regner(){
 		try {
 			//read-in region-level data (Yuan: this is the portal for multiple region run, if needed in the future)
-			this.error = this.runreg.reinit(0);          //can be modified, if more than 1 record of data
-			if (this.error!=0){
+			error = runreg.reinit(0);          //can be modified, if more than 1 record of data
+			if (error!=0){
 				System.out.println("problem in reinitialize regional-module in Runner::run ()");
 				System.exit(-1);
 			}
@@ -585,7 +585,7 @@ public class Runner {
 	        		ovarsoption[ivar] = Integer.valueOf(dummypart[0]);
 	        		ivar++;
 	        	}
-	    		this.runcht.regnod.setOutvarlist(ovarsoption);
+	    		runcht.regnod.setOutvarlist(ovarsoption);
 	    		
 	        	
 	    	} catch (Exception e){

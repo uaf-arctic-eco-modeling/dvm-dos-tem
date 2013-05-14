@@ -23,6 +23,9 @@ import DATA.ConstCohort;
 
 import ASSEMBLER.Runner;
 import ASSEMBLER.TEMeqrunner;
+import TEMJNI.soipar_bgc;
+import TEMJNI.soipar_cal;
+import TEMJNI.vegpar_cal;
 
 public class TemCalGUI{
 	TEMeqrunner Caliber = new TEMeqrunner();
@@ -64,7 +67,7 @@ public class TemCalGUI{
 	JButton selectChtinputdirB = new JButton("Browse");
 	JTextField chtidinputTF    = new JTextField();
 
-	JButton updateConfigB = new JButton("Update Control File");
+	JButton updateControlB = new JButton("Update Control File");
 
 	// for model module switches
 	JRadioButton[] envmodjrb= new JRadioButton[2];
@@ -114,25 +117,25 @@ public class TemCalGUI{
     JButton exitB = new JButton("EXIT");
     JButton startpauseB = new JButton("Start");
 
-    ParameterChanger cmaxChanger = new ParameterChanger("CMAX",0.,0, 0);
-    ParameterChanger nmaxChanger = new ParameterChanger("NMAX",0., 0, 0);
-    ParameterChanger cfalllChanger = new ParameterChanger("CFALLleaf", 0.,0, 0);
-    ParameterChanger cfallsChanger = new ParameterChanger("CFALLstem", 0.,0, 0);
-    ParameterChanger cfallrChanger = new ParameterChanger("CFALLroot", 0.,0, 0);
-    ParameterChanger nfalllChanger = new ParameterChanger("NFALLleaf", 0.,0, 0);
-    ParameterChanger nfallsChanger = new ParameterChanger("NFALLstem", 0.,0, 0);
-    ParameterChanger nfallrChanger = new ParameterChanger("NFALLroot", 0.,0, 0);
-    ParameterChanger frgChanger = new ParameterChanger("FRG",0, 0, 0);
-    ParameterChanger kraChanger = new ParameterChanger("KRA",0, 0, 0);
-    ParameterChanger krblChanger = new ParameterChanger("KRBleaf",0, 0, 0);
-    ParameterChanger krbsChanger = new ParameterChanger("KRBstem",0, 0, 0);
-    ParameterChanger krbrChanger = new ParameterChanger("KRBroot",0, 0, 0);
-    ParameterChanger micbnupChanger = new ParameterChanger("MICBNUP",0.,0, 0);
-    ParameterChanger kdcmosscChanger = new ParameterChanger("KDCmoss", 0.,0, 0);
-    ParameterChanger kdcrawcChanger = new ParameterChanger("KDCrawc", 0.,0, 0);
-    ParameterChanger kdcsomaChanger = new ParameterChanger("KDCsoma", 0.,0, 0);
-    ParameterChanger kdcsomprChanger = new ParameterChanger("KDCsompr", 0.,0, 0);
-    ParameterChanger kdcsomcrChanger = new ParameterChanger("KDCsomcr", 0.,0, 0);
+    ParameterChanger cmaxChanger = new ParameterChanger("CMAX", 0., 1);
+    ParameterChanger nmaxChanger = new ParameterChanger("NMAX", 0., 0);
+    ParameterChanger cfalllChanger = new ParameterChanger("CFALLleaf", 0., -2);
+    ParameterChanger cfallsChanger = new ParameterChanger("CFALLstem", 0., -2);
+    ParameterChanger cfallrChanger = new ParameterChanger("CFALLroot", 0., -2);
+    ParameterChanger nfalllChanger = new ParameterChanger("NFALLleaf", 0., -2);
+    ParameterChanger nfallsChanger = new ParameterChanger("NFALLstem", 0., -3);
+    ParameterChanger nfallrChanger = new ParameterChanger("NFALLroot", 0., -3);
+    ParameterChanger frgChanger = new ParameterChanger("FRG", 0., -1);
+    ParameterChanger kraChanger = new ParameterChanger("KRA", 0., -5);
+    ParameterChanger krblChanger = new ParameterChanger("KRBleaf", 0., -2);
+    ParameterChanger krbsChanger = new ParameterChanger("KRBstem", 0., -2);
+    ParameterChanger krbrChanger = new ParameterChanger("KRBroot", 0., -2);
+    ParameterChanger micbnupChanger = new ParameterChanger("MICBNUP", 0., -1);
+    ParameterChanger kdcmosscChanger = new ParameterChanger("KDCmoss", 0., -2);
+    ParameterChanger kdcrawcChanger = new ParameterChanger("KDCrawc", 0., -2);
+    ParameterChanger kdcsomaChanger = new ParameterChanger("KDCsoma", 0., -3);
+    ParameterChanger kdcsomprChanger = new ParameterChanger("KDCsompr", 0., -4);
+    ParameterChanger kdcsomcrChanger = new ParameterChanger("KDCsomcr", 0., -5);
 
     JButton parresetB = new JButton("Reset to Init");
     JButton parrestoreB = new JButton("Reset to Prev");
@@ -153,7 +156,6 @@ public class TemCalGUI{
         	JPanel configP = new JPanel();
 			configP.setLayout(slayout);
 
-
 			// 1) control file browsing
 
 	        JLabel controlL = new JLabel(" ------------------- MODEL CONTROL FILE ------------------");
@@ -165,11 +167,13 @@ public class TemCalGUI{
 			slayout.putConstraint(SpringLayout.NORTH, controlfileTF, 30, SpringLayout.NORTH, configP);
 			slayout.putConstraint(SpringLayout.WEST,controlfileTF, 10, SpringLayout.WEST, configP);
 			configP.add(controlfileTF);
+			controlfileTF.setToolTipText("A simplified TEM control file, in which only the following is as input");
 			selectControlfileB.setPreferredSize(new Dimension(80, 30));
 			slayout.putConstraint(SpringLayout.NORTH, selectControlfileB, 30, SpringLayout.NORTH, configP);
 			slayout.putConstraint(SpringLayout.WEST,selectControlfileB, 405, SpringLayout.WEST, configP);
 			configP.add(selectControlfileB);
 		    selectControlfileB.addActionListener(new ControlSelector());
+			selectControlfileB.setToolTipText("Browse to choose the model control file ...");
 
 			// 2) run case name
 	        JLabel casenameL = new JLabel("Run Case Title");
@@ -181,6 +185,8 @@ public class TemCalGUI{
 			slayout.putConstraint(SpringLayout.NORTH, casenameTF, 85, SpringLayout.NORTH, configP);
 			slayout.putConstraint(SpringLayout.WEST,casenameTF, 20, SpringLayout.WEST, configP);
 			configP.add(casenameTF);
+			casenameTF.addActionListener(new configUpdater());
+			casenameTF.setToolTipText("editable if needed");
 
 			// 3) config directory
 
@@ -193,14 +199,17 @@ public class TemCalGUI{
 			slayout.putConstraint(SpringLayout.NORTH, configdirTF, 140, SpringLayout.NORTH, configP);
 			slayout.putConstraint(SpringLayout.WEST,configdirTF, 20, SpringLayout.WEST, configP);
 			configP.add(configdirTF);
+			configdirTF.addActionListener(new configUpdater());
+			configdirTF.setToolTipText("where all parameters and default initial conditions files to be looking for ");
 			selectConfigdirB.setPreferredSize(new Dimension(80, 30));
 			slayout.putConstraint(SpringLayout.NORTH, selectConfigdirB, 140, SpringLayout.NORTH, configP);
 			slayout.putConstraint(SpringLayout.WEST,selectConfigdirB, 405, SpringLayout.WEST, configP);
 			configP.add(selectConfigdirB);
+			selectConfigdirB.setEnabled(false);
 
 			// 4) regional input directory
 
-			JLabel reginputdirL = new JLabel("Regional Input Directory");
+			JLabel reginputdirL = new JLabel("Regional data Input Directory");
 			reginputdirL.setPreferredSize(new Dimension(400, 30));
 			slayout.putConstraint(SpringLayout.NORTH, reginputdirL, 170, SpringLayout.NORTH, configP);
 			slayout.putConstraint(SpringLayout.WEST,reginputdirL, 5, SpringLayout.WEST, configP);
@@ -209,14 +218,17 @@ public class TemCalGUI{
 			slayout.putConstraint(SpringLayout.NORTH, reginputdirTF, 195, SpringLayout.NORTH, configP);
 			slayout.putConstraint(SpringLayout.WEST,reginputdirTF, 20, SpringLayout.WEST, configP);
 			configP.add(reginputdirTF);
+			reginputdirTF.addActionListener(new configUpdater());
+			reginputdirTF.setToolTipText("Diretory to read regional-level data");
 			selectReginputdirB.setPreferredSize(new Dimension(80, 30));
 			slayout.putConstraint(SpringLayout.NORTH, selectReginputdirB, 195, SpringLayout.NORTH, configP);
 			slayout.putConstraint(SpringLayout.WEST,selectReginputdirB, 405, SpringLayout.WEST, configP);
 			configP.add(selectReginputdirB);
+			selectReginputdirB.setEnabled(false);
 
 			// 5) regional input directory
 
-	        JLabel grdinputdirL = new JLabel("Grided Input Directory");
+	        JLabel grdinputdirL = new JLabel("Grided data Input Directory");
 			grdinputdirL.setPreferredSize(new Dimension(400, 30));
 			slayout.putConstraint(SpringLayout.NORTH, grdinputdirL, 225, SpringLayout.NORTH, configP);
 			slayout.putConstraint(SpringLayout.WEST,grdinputdirL, 5, SpringLayout.WEST, configP);
@@ -225,10 +237,13 @@ public class TemCalGUI{
 			slayout.putConstraint(SpringLayout.NORTH, grdinputdirTF, 250, SpringLayout.NORTH, configP);
 			slayout.putConstraint(SpringLayout.WEST,grdinputdirTF, 20, SpringLayout.WEST, configP);
 			configP.add(grdinputdirTF);
+			grdinputdirTF.addActionListener(new configUpdater());
+			grdinputdirTF.setToolTipText("Diretory to read geo-referenced but static data (gridded data)");
 			selectGrdinputdirB.setPreferredSize(new Dimension(80, 30));
 			slayout.putConstraint(SpringLayout.NORTH, selectGrdinputdirB, 250, SpringLayout.NORTH, configP);
 			slayout.putConstraint(SpringLayout.WEST,selectGrdinputdirB, 405, SpringLayout.WEST, configP);
 			configP.add(selectGrdinputdirB);
+			selectGrdinputdirB.setEnabled(false);
 
 			// 6) cohort input directory
 
@@ -238,14 +253,17 @@ public class TemCalGUI{
 			slayout.putConstraint(SpringLayout.WEST,chtinputdirL, 5, SpringLayout.WEST, configP);
 			configP.add(chtinputdirL);
 			chtinputdirTF.setPreferredSize(new Dimension(380, 30));
+			chtinputdirTF.setToolTipText("Diretory to read geo-referenced and/or dynamical data");
 			slayout.putConstraint(SpringLayout.NORTH, chtinputdirTF, 305, SpringLayout.NORTH, configP);
 			slayout.putConstraint(SpringLayout.WEST,chtinputdirTF, 20, SpringLayout.WEST, configP);
 			configP.add(chtinputdirTF);
+			chtinputdirTF.addActionListener(new configUpdater());
 			selectChtinputdirB.setPreferredSize(new Dimension(80, 30));
 			slayout.putConstraint(SpringLayout.NORTH, selectChtinputdirB, 305, SpringLayout.NORTH, configP);
 			slayout.putConstraint(SpringLayout.WEST,selectChtinputdirB, 405, SpringLayout.WEST, configP);
 			configP.add(selectChtinputdirB);
-
+			selectChtinputdirB.setEnabled(false);
+			
 			// cohort id to be calibrated
 	        JLabel chtidinputL = new JLabel("Cohort ID");
 	        chtidinputL.setPreferredSize(new Dimension(400, 30));
@@ -253,18 +271,21 @@ public class TemCalGUI{
 			slayout.putConstraint(SpringLayout.WEST,chtidinputL, 5, SpringLayout.WEST, configP);
 			configP.add(chtidinputL);
 			chtidinputTF.setPreferredSize(new Dimension(300, 30));
+			chtidinputTF.setToolTipText("ID for the cohort to be calibrated/run)");
 			slayout.putConstraint(SpringLayout.NORTH, chtidinputTF, 335, SpringLayout.NORTH, configP);
 			slayout.putConstraint(SpringLayout.WEST,chtidinputTF, 100, SpringLayout.WEST, configP);
 			configP.add(chtidinputTF);
+			chtidinputTF.addActionListener(new configUpdater());
 			
 			//
-			// 7) update the config and file
-			updateConfigB.setPreferredSize(new Dimension(200, 30));
-			slayout.putConstraint(SpringLayout.NORTH, updateConfigB, 365, SpringLayout.NORTH, configP);
-			slayout.putConstraint(SpringLayout.WEST, updateConfigB, 100, SpringLayout.WEST, configP);
-			configP.add(updateConfigB);
-			updateConfigB.addActionListener(new configUpdater());
-			updateConfigB.setEnabled(false);
+			// 7) update the control file from configTab and thus model
+			updateControlB.setPreferredSize(new Dimension(200, 30));
+			slayout.putConstraint(SpringLayout.NORTH, updateControlB, 365, SpringLayout.NORTH, configP);
+			slayout.putConstraint(SpringLayout.WEST, updateControlB, 100, SpringLayout.WEST, configP);
+			configP.add(updateControlB);
+			updateControlB.addActionListener(new controlUpdater());
+			updateControlB.setToolTipText("If any of above modified, click this to re-setup GUI and model");
+			updateControlB.setEnabled(false);
 
 			// 8) module switches for TEM
 			JLabel label1= new JLabel ("----------------- MODEL MODULE SWITCHES ---------------");
@@ -290,6 +311,7 @@ public class TemCalGUI{
 			envmodjrb[1].addActionListener(ProcessSwitcher);
 			envmodjrb[0].setEnabled(false);
 			envmodjrb[1].setEnabled(false);
+			envmodP.setToolTipText("(Bio)physical (hydrological and thermal) module, default is ON");
 
 			JLabel bgcmodL= new JLabel ("Bgc-module");
 			bgcmodL.setPreferredSize(new Dimension(80, 25));
@@ -308,6 +330,7 @@ public class TemCalGUI{
 			bgcmodjrb[1].addActionListener(ProcessSwitcher);
 			bgcmodjrb[0].setEnabled(false);
 			bgcmodjrb[1].setEnabled(false);
+			bgcmodP.setToolTipText("Biogeochemical (C and/or N) module, default is OFF");
 
 			JLabel nfeedL= new JLabel ("C-N coupled");
 			nfeedL.setPreferredSize(new Dimension(100, 25));
@@ -326,6 +349,7 @@ public class TemCalGUI{
 			nfeedjrb[1].addActionListener(ProcessSwitcher);
 			nfeedjrb[0].setEnabled(false);
 			nfeedjrb[1].setEnabled(false);
+			nfeedP.setToolTipText("N cycle module to regulate C cycle (N feedback), default is OFF");
 
 			JLabel avlnL= new JLabel ("Inorg. N I/O Flag");
 			avlnL.setPreferredSize(new Dimension(120, 25));
@@ -344,6 +368,7 @@ public class TemCalGUI{
 			avlnjrb[1].addActionListener(ProcessSwitcher);
 			avlnjrb[0].setEnabled(false);
 			avlnjrb[1].setEnabled(false);
+			avlnP.setToolTipText("flag for setting mineral-N balance (I/O) method, default is by budget estimation");
 
 			JLabel baselineL= new JLabel ("Org. N I/O Flag");
 			baselineL.setPreferredSize(new Dimension(120, 25));
@@ -362,6 +387,7 @@ public class TemCalGUI{
 			baselinejrb[1].addActionListener(ProcessSwitcher);
 			baselinejrb[0].setEnabled(false);
 			baselinejrb[1].setEnabled(false);
+			baselineP.setToolTipText("(baseline)flag for setting soil organic-N balance method, default is by retaining static SOM C/N");
 
 			//
 			JLabel dslmodL= new JLabel ("Dsl-module");
@@ -381,6 +407,7 @@ public class TemCalGUI{
 			dslmodjrb[1].addActionListener(ProcessSwitcher);
 			dslmodjrb[0].setEnabled(false);
 			dslmodjrb[1].setEnabled(false);
+			dslmodP.setToolTipText("switch for dynamical organic soil layer module, otherwise static soil column is used");
 
 			//
 			JLabel dvmmodL= new JLabel ("Dvm-module");
@@ -400,6 +427,7 @@ public class TemCalGUI{
 			dvmmodjrb[1].addActionListener(ProcessSwitcher);
 			dvmmodjrb[0].setEnabled(false);
 			dvmmodjrb[1].setEnabled(false);
+			dvmmodP.setToolTipText("switch for dynamical vegetation module, default is OFF");
 
 			JLabel updatelaiL= new JLabel ("LAI dynamics");
 			updatelaiL.setPreferredSize(new Dimension(120, 25));
@@ -418,6 +446,9 @@ public class TemCalGUI{
 			updatelaijrb[1].addActionListener(ProcessSwitcher);
 			updatelaijrb[0].setEnabled(false);
 			updatelaijrb[1].setEnabled(false);
+			updatelaiP.setToolTipText("static or dynamical LAI");
+			updatelaijrb[0].setToolTipText("static LAI is set as monthly envlai[] input in 'cmt_dimvegetation.txt'!");
+			updatelaijrb[1].setToolTipText("LAI is changing with foliage C associated with vegetation BGC");		
 
 			//
 			JLabel firemodL= new JLabel ("Fire-module");
@@ -437,7 +468,7 @@ public class TemCalGUI{
 			firemodjrb[1].addActionListener(ProcessSwitcher);
 			firemodjrb[0].setEnabled(false);
 			firemodjrb[1].setEnabled(false);
-
+			firemodP.setToolTipText("switch for wild fire disturbance module");
 
         	// End of configurer Panel //////////////////////////////////////////////////////////////////////////////
 
@@ -458,6 +489,7 @@ public class TemCalGUI{
 			slayout.putConstraint(SpringLayout.NORTH, calparTF, 35, SpringLayout.NORTH, datalogP);
 			slayout.putConstraint(SpringLayout.WEST,calparTF, 20, SpringLayout.WEST, datalogP);
 			datalogP.add(calparTF);
+			calparTF.setToolTipText("file containing the initial estimation of BGC parameters to be calibrated");
 
 			selectInitparfileB.setPreferredSize(new Dimension(80, 30));
 			slayout.putConstraint(SpringLayout.NORTH, selectInitparfileB, 35, SpringLayout.NORTH, datalogP);
@@ -475,6 +507,7 @@ public class TemCalGUI{
 			slayout.putConstraint(SpringLayout.NORTH, calbgcTF, 95, SpringLayout.NORTH, datalogP);
 			slayout.putConstraint(SpringLayout.WEST,calbgcTF, 20, SpringLayout.WEST, datalogP);
 			datalogP.add(calbgcTF);
+			calbgcTF.setToolTipText("file containing the targetted veg/soil BGC variables for calibrating");
 
 			selectCalibgcfileB.setPreferredSize(new Dimension(80, 30));
 			slayout.putConstraint(SpringLayout.NORTH, selectCalibgcfileB, 95, SpringLayout.NORTH, datalogP);
@@ -611,6 +644,7 @@ public class TemCalGUI{
 			caliP.add(runmodeB);
 		    runmodeB.addActionListener(new RunMode());
 		    runmodeB.setEnabled(false);
+			runmodeB.setToolTipText("Calibration mode OR Testing mode, by flipping the button");
 
 			setupB.setPreferredSize(new Dimension(100, 35));
 			slayout.putConstraint(SpringLayout.NORTH, setupB, 40,SpringLayout.NORTH, caliP);
@@ -618,6 +652,7 @@ public class TemCalGUI{
 			caliP.add(setupB);
 		    setupB.addActionListener(new Setup());
 		    setupB.setEnabled(false);
+			setupB.setToolTipText("By clicking it, will update model switches and parameters only");
 
 			resetupB.setPreferredSize(new Dimension(120, 35));
 			slayout.putConstraint(SpringLayout.NORTH, resetupB, 40,SpringLayout.NORTH, caliP);
@@ -625,6 +660,7 @@ public class TemCalGUI{
 			caliP.add(resetupB);
 		    resetupB.addActionListener(new Resetup());
 		    resetupB.setEnabled(false);
+			resetupB.setToolTipText("By clicking it, will re-setup model from very begining");
 
 			startpauseB.setPreferredSize(new Dimension(70, 40));
 			slayout.putConstraint(SpringLayout.NORTH, startpauseB, 80,SpringLayout.NORTH, caliP);
@@ -632,6 +668,7 @@ public class TemCalGUI{
 			caliP.add(startpauseB);
 		    startpauseB.addActionListener(new StartPause());
 		    startpauseB.setEnabled(false);
+			startpauseB.setToolTipText("start model run or pause it - by default model will pause first five 100 yrs and then every 500 yrs");
 
 		    exitB.setPreferredSize(new Dimension(70, 40));
 			slayout.putConstraint(SpringLayout.NORTH, exitB, 80,SpringLayout.NORTH, caliP);
@@ -639,7 +676,7 @@ public class TemCalGUI{
 			caliP.add(exitB);
 		    exitB.addActionListener(new Exit());
 		    exitB.setEnabled(true);
-
+			exitB.setToolTipText("By clicking it, the GUI will turn off and quit!");
 
 			// 3) Input Box for the Parameters to be calibrated
 			JLabel label3= new JLabel ("------------- PARAMETERS for VEGETATION " +
@@ -667,6 +704,7 @@ public class TemCalGUI{
 				pickpftCB.setSelectedIndex(0);
 				pickpftCB.addActionListener(new pftSelector());
 				pickpftCB.setEnabled(false);
+				pickpftCB.setToolTipText("By scrolling and picking up the PFT index to calibrate it ");
 
 			JPanel cmaxP = cmaxChanger.getPanel();
 				cmaxP.setPreferredSize(new Dimension(170, 50));
@@ -842,6 +880,7 @@ public class TemCalGUI{
 				caliP.add(parresetB);
 			    parresetB.addActionListener(new ParameterResetter());
 			    parresetB.setEnabled(false);
+				parresetB.setToolTipText("By clicking it, parameters will be re-read from the initial calpar file");
 
 				parrestoreB.setPreferredSize(new Dimension(120, 30));
 				slayout.putConstraint(SpringLayout.NORTH, parrestoreB, 660,SpringLayout.NORTH, caliP);
@@ -849,6 +888,7 @@ public class TemCalGUI{
 				caliP.add(parrestoreB);
 			    parrestoreB.addActionListener(new ParameterRestorer());
 			    parrestoreB.setEnabled(false);
+				parrestoreB.setToolTipText("By clicking it, parameters on Changers will be restored to the prevously stored values");
 
 				paroutputB.setPreferredSize(new Dimension(120, 30));
 				slayout.putConstraint(SpringLayout.NORTH, paroutputB, 660,SpringLayout.NORTH, caliP);
@@ -856,6 +896,7 @@ public class TemCalGUI{
 				caliP.add(paroutputB);
 			    paroutputB.addActionListener(new ParameterOutputer());
 			    paroutputB.setEnabled(false);
+				paroutputB.setToolTipText("By clicking it, parameters will be saved into file: 'calibration_outpar.txt', which can be appended into 'cmt_calparbgc.txt' for application! ");
 
     // End of Calibrator Panel //////////////////////////////////////////////////////////////////////////////
 
@@ -911,9 +952,47 @@ public class TemCalGUI{
 	private ActionListener ProcessSwitcher = new ActionListener (){
 
 		public void actionPerformed(ActionEvent e) {
-			startpauseB.setEnabled(false);    //any selection will re-set model run
+			startpauseB.setEnabled(false);    //any selection will (re-)setup model run before run
 			resetupB.setEnabled(true);
-			setupB.setEnabled(false);
+			setupB.setEnabled(true);
+			
+			if (bgcmodjrb[0].isSelected()) {
+				nfeedjrb[0].setSelected(true);
+				nfeedjrb[1].setSelected(false);
+				nfeedjrb[0].setEnabled(false);
+				nfeedjrb[1].setEnabled(false);
+			} else if (bgcmodjrb[1].isSelected()) {
+				nfeedjrb[0].setEnabled(true);
+				nfeedjrb[1].setEnabled(true);
+			}
+
+			if (nfeedjrb[0].isSelected()) {
+				avlnjrb[0].setSelected(true);
+				avlnjrb[1].setSelected(false);
+				avlnjrb[0].setEnabled(false);
+				avlnjrb[1].setEnabled(false);
+
+				baselinejrb[0].setSelected(true);
+				baselinejrb[1].setSelected(false);
+				baselinejrb[0].setEnabled(false);
+				baselinejrb[1].setEnabled(false);
+			} else if (nfeedjrb[1].isSelected()) {
+				avlnjrb[0].setEnabled(true);
+				avlnjrb[1].setEnabled(true);
+				baselinejrb[0].setEnabled(true);
+				baselinejrb[1].setEnabled(true);
+			}
+			
+			if (dvmmodjrb[0].isSelected() || (!dvmmodjrb[1].isEnabled())) {
+				updatelaijrb[0].setSelected(true);
+				updatelaijrb[1].setSelected(false);
+				updatelaijrb[0].setEnabled(false);
+				updatelaijrb[1].setEnabled(false);
+			} else if (dvmmodjrb[1].isEnabled()){
+				updatelaijrb[0].setEnabled(true);
+				updatelaijrb[1].setEnabled(true);
+			}
+							
 		}
 
 	};
@@ -977,67 +1056,20 @@ public class TemCalGUI{
 	            config.controlfile = controlfileTF.getText();
 	            readconfig();
 
-	            //set-up the model options block of Calibration Panel
-
-				envmodjrb[0].setEnabled(true);
-				envmodjrb[1].setEnabled(true);
-				envmodjrb[1].doClick();
-
-				bgcmodjrb[0].setEnabled(true);
-				bgcmodjrb[1].setEnabled(true);
-				nfeedjrb[0].setEnabled(true);
-				nfeedjrb[1].setEnabled(true);		
-				avlnjrb[0].setEnabled(true);
-				avlnjrb[1].setEnabled(true);
-				avlnjrb[0].doClick();   //set this as the default
-				baselinejrb[0].setEnabled(true);
-				baselinejrb[1].setEnabled(true);
-				baselinejrb[0].doClick();   //set this as the default
-				
-				dslmodjrb[0].setEnabled(true);
-				dslmodjrb[1].setEnabled(true);
-
-				firemodjrb[0].setEnabled(true);
-				firemodjrb[1].setEnabled(true);
-
-				dvmmodjrb[0].setEnabled(true);
-				dvmmodjrb[1].setEnabled(true);
-				updatelaijrb[0].setEnabled(true);
-				updatelaijrb[1].setEnabled(true);
-
-		        //set-up plot viewers
-		        var1plotter.reset();
-	            var2plotter.reset();
-
-				PhyVariablePlotter.f.setVisible(true);     //by default, showing this plot
-				BioVariablePlotter.f.setVisible(true);      //by default, showing this plot
-
-		        //connecting plotters
-		        Caliber.plotting.setPlotter(var1plotter);
-		    	Caliber.plotting.setPlotter2(var2plotter);
-
+	            //
+	            enableGUI();
+	            
 		    	//initializing TEM eqrunner
 		    	runnerinit();
 	            
 	        	getDefaultvarparFromTEM();
 	            
-		        //enable model run setup controls in the calibration Panel
-	            runmodeB.setEnabled(true);
-	            resetupB.setEnabled(true);
-	            setupB.setEnabled(true);
+	            // set the pick-pft list and default index
+	            pickpftCB.setSelectedIndex(Caliber.ipft); // Caliber.ipft has already set 
 
-	            // reset the pick-pft list and default index
-	            pickpftCB.setSelectedIndex(Caliber.ipft);
-	            pickpftCB.setEnabled(true);
-//		    	double[] vegcov = Caliber.eqrunner.runcht.cht.getCd().getM_veg().getVegcov();
-//		    	for (int ip=ConstCohort.NUM_PFT-1; ip>=0; ip++) {
-//		    		if (vegcov[ip]<=0.) pickpftCB.removeItemAt(ip);
-//		    	}
-	            
 			}
 		}
 	};
-
 
 		private void readconfig() {
 		    String status ="";
@@ -1047,53 +1079,105 @@ public class TemCalGUI{
 			    if(!ctrlF.exists()){
 			    	JOptionPane.showMessageDialog(fcontrol, status+" not exist");
 			    } else {
-
+	
 			    	//reading data from file
 			    	BufferedReader input =  new BufferedReader(new FileReader(config.controlfile));
-
+	
 			    	String dummy="";
-
+	
 			    	dummy = input.readLine();
 			    	dummy = dummy.split(" /*", 2)[0];
 			    	config.casename = dummy.trim();
 			    	casenameTF.setText(config.casename);
-
+	
 			    	dummy = input.readLine();
 			    	dummy = dummy.split(" /*", 2)[0];
 			    	config.configdir = dummy.trim();
 			    	configdirTF.setText(config.configdir);
-
+	
 			    	dummy = input.readLine();
 			    	dummy = dummy.split(" /*", 2)[0];
 			    	config.outputdir = dummy.trim();
 			    	outputdirTF.setText(config.outputdir);
-
+	
 			    	dummy = input.readLine();
 			    	dummy = dummy.split(" /*", 2)[0];
 			    	config.reginputdir = dummy.trim();
 			    	reginputdirTF.setText(config.reginputdir);
-
+	
 			    	dummy = input.readLine();
 			    	dummy = dummy.split(" /*", 2)[0];
 			    	config.grdinputdir = dummy.trim();
 			    	grdinputdirTF.setText(config.grdinputdir);
-
+	
 			    	dummy = input.readLine();
 			    	dummy = dummy.split(" /*", 2)[0];
 			    	config.chtinputdir = dummy.trim();
 			    	chtinputdirTF.setText(config.chtinputdir);
-
+	
 			    	dummy = input.readLine();
 			    	dummy = dummy.split(" /*", 2)[0];
 			    	chtidinputTF.setText(dummy.trim());
-
+			    	config.chtidinput = Integer.valueOf((String)chtidinputTF.getText());
+			    	
+			    	input.close();
+	
 			    }
-
+	
 		    } catch (Exception e){
 		    	JOptionPane.showMessageDialog(fcontrol, status+" failed");
 		    }
+	
+		};
 
+		// enable GUI
+		private void enableGUI() {
+			try {
 
+	            //set-up the model options block of Calibration Panel
+
+				envmodjrb[0].setEnabled(true);
+				envmodjrb[1].setEnabled(true);
+				envmodjrb[1].doClick();
+
+				bgcmodjrb[0].setEnabled(true);
+				bgcmodjrb[1].setEnabled(true);
+				bgcmodjrb[0].doClick();   //set this as the default, and will set other N options
+								
+				dslmodjrb[0].setEnabled(true);
+				dslmodjrb[1].setEnabled(true);
+				dslmodjrb[0].doClick();   //set this as the default
+
+				firemodjrb[0].setEnabled(true);
+				firemodjrb[1].setEnabled(true);
+				firemodjrb[0].doClick();   //set this as the default
+
+				dvmmodjrb[0].setEnabled(false);  // always let DVM on
+				dvmmodjrb[1].setEnabled(true);
+				dvmmodjrb[1].doClick();   //set this as the default, and will set LAI option
+
+		        //set-up plot viewers
+		        var1plotter.reset();
+	            var2plotter.reset();
+
+				PhyVariablePlotter.f.setVisible(true);     //by default, showing this plot
+				BioVariablePlotter.f.setVisible(true);      //by default, showing this plot
+
+		        Caliber.plotting.setPlotter(var1plotter);
+		    	Caliber.plotting.setPlotter2(var2plotter);
+
+	            //model running control Tab
+		    	runmodeB.setEnabled(true);
+	            resetupB.setEnabled(true);
+	            setupB.setEnabled(true);
+
+	            startpauseB.setEnabled(true);
+	            
+	            //pickpftCB.setEnabled(true); // this will be enabled when it is selected
+	            
+		    } catch (Exception e){
+		    	JOptionPane.showMessageDialog(fcontrol, " model setup failed!");
+			}
 		};
 
 		private void runnerinit() {
@@ -1118,42 +1202,45 @@ public class TemCalGUI{
 	    	try {
 	    		//Calibratible parameters
 	    		double[] vegcov = Caliber.eqrunner.runcht.cht.getCd().getM_veg().getVegcov();
+				vegpar_cal dumvpar = new vegpar_cal();
+				soipar_cal dumspar = new soipar_cal();
+	    		
 	    		for (int ipft=0; ipft<ConstCohort.NUM_PFT; ipft++) {
 	    			
 	    			if (vegcov[ipft]>0.) {
 	    			
-	    				Caliber.temcj.getVbCalPar1pft(ipft);
-	    				Caliber.jvcalpar = Caliber.temcj.getVcalpar1pft();
+	    				Caliber.temcj.getVbCalPar1pft(ipft);   // pass TEM read-in pars to 'temcj' for passing below
+	    				dumvpar = Caliber.temcj.getVcalpar1pft();  // passing pars from 'temcj' to GUI
 
-	    				calparTB.setValueAt(Double.toString(Caliber.jvcalpar.getCmax()), Configurer.I_CMAX, ipft+1);
-	    				calparTB.setValueAt(Double.toString(Caliber.jvcalpar.getNmax()), Configurer.I_NMAX, ipft+1);
+	    				calparTB.setValueAt(Double.toString(dumvpar.getCmax()), Configurer.I_CMAX, ipft+1);
+	    				calparTB.setValueAt(Double.toString(dumvpar.getNmax()), Configurer.I_NMAX, ipft+1);
 
-	    				calparTB.setValueAt(Double.toString(Caliber.jvcalpar.getCfall()[0]), Configurer.I_CFALLL, ipft+1);
-	    				calparTB.setValueAt(Double.toString(Caliber.jvcalpar.getCfall()[1]), Configurer.I_CFALLS, ipft+1);
-	    				calparTB.setValueAt(Double.toString(Caliber.jvcalpar.getCfall()[2]), Configurer.I_CFALLR, ipft+1);
-	    				calparTB.setValueAt(Double.toString(Caliber.jvcalpar.getNfall()[0]), Configurer.I_NFALLL, ipft+1);
-	    				calparTB.setValueAt(Double.toString(Caliber.jvcalpar.getNfall()[1]), Configurer.I_NFALLS, ipft+1);
-	    				calparTB.setValueAt(Double.toString(Caliber.jvcalpar.getNfall()[2]), Configurer.I_NFALLR, ipft+1);
+	    				calparTB.setValueAt(Double.toString(dumvpar.getCfall()[0]), Configurer.I_CFALLL, ipft+1);
+	    				calparTB.setValueAt(Double.toString(dumvpar.getCfall()[1]), Configurer.I_CFALLS, ipft+1);
+	    				calparTB.setValueAt(Double.toString(dumvpar.getCfall()[2]), Configurer.I_CFALLR, ipft+1);
+	    				calparTB.setValueAt(Double.toString(dumvpar.getNfall()[0]), Configurer.I_NFALLL, ipft+1);
+	    				calparTB.setValueAt(Double.toString(dumvpar.getNfall()[1]), Configurer.I_NFALLS, ipft+1);
+	    				calparTB.setValueAt(Double.toString(dumvpar.getNfall()[2]), Configurer.I_NFALLR, ipft+1);
 
-	    				calparTB.setValueAt(Double.toString(Caliber.jvcalpar.getKra()), Configurer.I_KRA, ipft+1);
-	    				calparTB.setValueAt(Double.toString(Caliber.jvcalpar.getKrb()[0]), Configurer.I_KRBL, ipft+1);
-	    				calparTB.setValueAt(Double.toString(Caliber.jvcalpar.getKrb()[1]), Configurer.I_KRBS, ipft+1);
-	    				calparTB.setValueAt(Double.toString(Caliber.jvcalpar.getKrb()[2]), Configurer.I_KRBR, ipft+1);
-	    				calparTB.setValueAt(Double.toString(Caliber.jvcalpar.getFrg()), Configurer.I_FRG, ipft+1);
+	    				calparTB.setValueAt(Double.toString(dumvpar.getKra()), Configurer.I_KRA, ipft+1);
+	    				calparTB.setValueAt(Double.toString(dumvpar.getKrb()[0]), Configurer.I_KRBL, ipft+1);
+	    				calparTB.setValueAt(Double.toString(dumvpar.getKrb()[1]), Configurer.I_KRBS, ipft+1);
+	    				calparTB.setValueAt(Double.toString(dumvpar.getKrb()[2]), Configurer.I_KRBR, ipft+1);
+	    				calparTB.setValueAt(Double.toString(dumvpar.getFrg()), Configurer.I_FRG, ipft+1);
 	    			
 	    			}
 
 	    		}
 	    		
-	    		Caliber.temcj.getSbCalPar();
-	    		Caliber.jscalpar = Caliber.temcj.getScalpar();
+	    		Caliber.temcj.getSbCalPar();   // pass TEM read-in par to 'temcj' for passing below
+	    		dumspar = Caliber.temcj.getScalpar();  // passing pars from 'temcj' to GUI
 
-				calparTB.setValueAt(Double.toString(Caliber.jscalpar.getMicbnup()), Configurer.I_MICBNUP, 1);
-	    		calparTB.setValueAt(Double.toString(Caliber.jscalpar.getKdcmoss()), Configurer.I_KDCMOSS, 1);
-	    		calparTB.setValueAt(Double.toString(Caliber.jscalpar.getKdcrawc()), Configurer.I_KDCRAWC, 1);
-	    		calparTB.setValueAt(Double.toString(Caliber.jscalpar.getKdcsoma()), Configurer.I_KDCSOMA, 1);
-	    		calparTB.setValueAt(Double.toString(Caliber.jscalpar.getKdcsompr()), Configurer.I_KDCSOMPR, 1);
-	    		calparTB.setValueAt(Double.toString(Caliber.jscalpar.getKdcsomcr()), Configurer.I_KDCSOMCR, 1);
+				calparTB.setValueAt(Double.toString(dumspar.getMicbnup()), Configurer.I_MICBNUP, 1);
+	    		calparTB.setValueAt(Double.toString(dumspar.getKdcmoss()), Configurer.I_KDCMOSS, 1);
+	    		calparTB.setValueAt(Double.toString(dumspar.getKdcrawc()), Configurer.I_KDCRAWC, 1);
+	    		calparTB.setValueAt(Double.toString(dumspar.getKdcsoma()), Configurer.I_KDCSOMA, 1);
+	    		calparTB.setValueAt(Double.toString(dumspar.getKdcsompr()), Configurer.I_KDCSOMPR, 1);
+	    		calparTB.setValueAt(Double.toString(dumspar.getKdcsomcr()), Configurer.I_KDCSOMCR, 1);
 
 	    		// initial states
 	    		for (int ipft=0; ipft<ConstCohort.NUM_PFT; ipft++) {
@@ -1190,7 +1277,7 @@ public class TemCalGUI{
 
 	    };
 
-
+/////////////////////////////////////////////////////////////////////
 	    public class configUpdater implements ActionListener{
 
 			public void actionPerformed(ActionEvent arg0) {
@@ -1199,6 +1286,9 @@ public class TemCalGUI{
 
 				if (!configdirTF.getText().endsWith("/"))
 		            configdirTF.setText(configdirTF.getText()+"/");
+
+				if (!outputdirTF.getText().endsWith("/"))
+		            outputdirTF.setText(outputdirTF.getText()+"/");
 
 				if (!reginputdirTF.getText().endsWith("/"))
 		            reginputdirTF.setText(reginputdirTF.getText()+"/");
@@ -1209,41 +1299,182 @@ public class TemCalGUI{
 				if (!chtinputdirTF.getText().endsWith("/"))
 		            chtinputdirTF.setText(chtinputdirTF.getText()+"/");
 
+				String chtidtxt =(String)chtidinputTF.getText();
+				if (!chtidtxt.matches("^-?[0-9]+(\\.[0-9]+)?$")) {
+		            System.err.print("not a valid integer number");
+					chtidinputTF.setText(String.valueOf(config.chtidinput));
+				}
+				disableGUI();  // must disable GUI options for re-doing
+				updateControlB.setEnabled(true);
+					
+			}
+	    };
+	    
+			// disable GUI
+			private void disableGUI() {
+				try {
+	
+		            //the model options block of Calibration Panel
+					envmodjrb[0].setSelected(false);
+					envmodjrb[1].setSelected(true);
+					envmodjrb[0].setEnabled(false);
+					envmodjrb[1].setEnabled(false);
+	
+					bgcmodjrb[0].doClick();
+					bgcmodjrb[1].setSelected(false);
+					bgcmodjrb[0].setEnabled(false);
+					bgcmodjrb[1].setEnabled(false);
+					
+					dslmodjrb[0].setSelected(true);
+					dslmodjrb[1].setSelected(false);
+					dslmodjrb[0].setEnabled(false);
+					dslmodjrb[1].setEnabled(false);
+	
+					firemodjrb[0].setSelected(true);
+					firemodjrb[1].setSelected(false);
+					firemodjrb[0].setEnabled(false);
+					firemodjrb[1].setEnabled(false);
+	
+					dvmmodjrb[0].setSelected(false);
+					dvmmodjrb[1].setSelected(true);   //dvm always on
+					dvmmodjrb[0].setEnabled(false);
+					dvmmodjrb[1].setEnabled(false);
+
+					updatelaijrb[0].setSelected(true);
+					updatelaijrb[1].setSelected(false);
+					updatelaijrb[0].setEnabled(false);
+					updatelaijrb[1].setEnabled(false);
+
+			        //set-up plot viewers
+			        var1plotter.reset();
+		            var2plotter.reset();
+	
+		            //model running control Tab
+			    	runmodeB.setEnabled(false);
+		            resetupB.setEnabled(false);
+		            setupB.setEnabled(false);
+	
+		            startpauseB.setEnabled(false);
+		            
+		            pickpftCB.setEnabled(false);
+		            
+			    } catch (Exception e){
+			    	JOptionPane.showMessageDialog(fcontrol, " model setup failed!");
+				}
+			};
+
+		/////////////////////////////////////////////////////////////////////////
+	    public class controlUpdater implements ActionListener{
+
+			public void actionPerformed(ActionEvent e) {
+
 				// modify and update control file
 				try {
 					config.casename    = casenameTF.getText();
 					config.configdir   = configdirTF.getText();
+					config.outputdir   = outputdirTF.getText();
 					config.reginputdir = reginputdirTF.getText();
 					config.grdinputdir = grdinputdirTF.getText();
 					config.chtinputdir = chtinputdirTF.getText();
+					config.chtidinput  = Integer.valueOf((String)chtidinputTF.getText());
 
-				} catch (Exception e) {
+					ControlfileOutputer();
+					
+					// re-setup GUI and model initialization
+					enableGUI();
+					runnerinit();
+					getDefaultvarparFromTEM();
+					
+		            // reset the pick-pft list and default index
+		            pickpftCB.setSelectedIndex(Caliber.ipft);
+		            
+		            updateControlB.setEnabled(false);
+					
+				} catch (Exception ex) {
 					//
 				}
-
 
 			}
 	    };
 
+	    
+			private void ControlfileOutputer (){
+				
+				//re-write model control file, if modifying it in configTab
+				try {
+				      
+				    BufferedReader input =  new BufferedReader(new FileReader(config.controlfile));  // for getting comments
+				    
+			    	String dummy1 = input.readLine().split(" /*", 2)[1];             // Line 1 - "/*" is delimiter for comments
+			    	String dummy2 = input.readLine().split(" /*", 2)[1];             // Line 2 - "/*" is delimiter for comments
+			    	String dummy3 = input.readLine().split(" /*", 2)[1];             // Line 3 - "/*" is delimiter for comments
+			    	String dummy4 = input.readLine().split(" /*", 2)[1];             // Line 4 - "/*" is delimiter for comments
+			    	String dummy5 = input.readLine().split(" /*", 2)[1];             // Line 5 - "/*" is delimiter for comments
+			    	String dummy6 = input.readLine().split(" /*", 2)[1];             // Line 6 - "/*" is delimiter for comments
+			    	String dummy7 = input.readLine().split(" /*", 2)[1];             // Line 7 - "/*" is delimiter for comments
+				    input.close();
+
+				    ///////////////////////////
+					PrintStream output = new PrintStream(new FileOutputStream(config.controlfile));  // this is the output file
+
+			    	output.printf(casenameTF.getText());
+				    output.print(dummy1 + "\n");
+
+			    	output.printf(configdirTF.getText());
+				    output.print(dummy2 + "\n");
+
+			    	output.printf(outputdirTF.getText());
+				    output.print(dummy3 + "\n");
+
+				    output.printf(reginputdirTF.getText());
+				    output.print(dummy4 + "\n");
+
+			    	output.printf(grdinputdirTF.getText());
+				    output.print(dummy5 + "\n");
+				    
+			    	output.printf(chtinputdirTF.getText());
+				    output.print(dummy6 + "\n");
+
+			    	output.printf(chtidinputTF.getText());
+				    output.print(dummy7 + "\n");
+
+				    output.close();
+
+				 } catch (Exception e) {
+				    	JOptionPane.showMessageDialog(fcontrol, e.getMessage());
+				 }
+
+			};
+
+//////////////////////////////////////////////////////////////////////////////
 	public class pftSelector implements ActionListener{
 
 			public void actionPerformed(ActionEvent arg0) {
-				 
-				
-				if(!pickpftCB.isEnabled()) { // if pft scroll control not enable yet, set 'Changers' values from 'Tab' 
-					assignCalparTabToChanger(Caliber.ipft);					
-				} else { // if 'changers' have parameters and PFT index changes, pass them to Tab and model
-					Caliber.ipft = pickpftCB.getSelectedIndex();
-					setTEMcalparsFromChanger();
-					getCalparFromChanger(Caliber.ipft);
-				
+
+				// store the current par
+				int prepft = Caliber.ipft;
+				saveoldpar(); 
+				if (pickpftCB.isEnabled()) {					
+					getCalparFromChangerToTable(Caliber.ipft);  
+					//back-up current changer to table, here Caliber.ipft is the old one
+				} else { // if pft scroll control not enable yet 
+					pickpftCB.setEnabled(true);
 				}
 				
+				// new PFT
+				int newpft = pickpftCB.getSelectedIndex();
+				int err=assignCalparTableToChanger(newpft);					
+				if (err==0){
+					Caliber.ipft = newpft;
+					setTEMcalparsFromChanger();
+				} else {
+		            pickpftCB.setSelectedIndex(prepft); // set it back 
+				}
 			}
 	}
 
 	// pass the parameters to config-Tab in Control Pannel from changers in Calibration Pannel
-	private void getCalparFromChanger(int ipft){
+	private void getCalparFromChangerToTable(int ipft){
 		
 		try {
 
@@ -1450,7 +1681,7 @@ public class TemCalGUI{
 		            config.iniparfile = calparTF.getText();
 		            readInitparFromFile();
 		            
-		            config.outparfile = defaultdir+"calibration_calpar.txt";
+		            config.outparfile = defaultdir+"calibration_outpar.txt";
 
 		            //set-up the changer boxes in the Calibration Panel
 					cmaxChanger.setEnabled(true);
@@ -1467,20 +1698,25 @@ public class TemCalGUI{
 			        krblChanger.setEnabled(true);
 			        krbsChanger.setEnabled(true);
 			        krbrChanger.setEnabled(true);
+			        frgChanger.setEnabled(true);
 
 			        micbnupChanger.setEnabled(true);
+			        kdcmosscChanger.setEnabled(true);
 			        kdcrawcChanger.setEnabled(true);
 			        kdcsomaChanger.setEnabled(true);
 			        kdcsomprChanger.setEnabled(true);
 			        kdcsomcrChanger.setEnabled(true);
 
-			        assignCalparTabToChanger(Caliber.ipft); //
+			        
+			        assignCalparTableToChanger(Caliber.ipft); //
 
 			    	// ready to produce new set of parameters for the calibrated community
+			        parresetB.setEnabled(true);
+			        parrestoreB.setEnabled(true);
 			        paroutputB.setEnabled(true);
 
 			    	//parameter values reading from configurer Tabs
-			        setTEMparsFromConfigTab();
+			        setTEMparsFromTable();
 
 				}
 			}
@@ -1642,44 +1878,49 @@ public class TemCalGUI{
 		};
 
 		// pass the parameters from config-Tab in Control Pannel to changers in Calibration Pannel
-		private void assignCalparTabToChanger(int ipft){
+		private int assignCalparTableToChanger(int ipft){
 			
 			try {
 
-				cmaxChanger.updateValue(Double.valueOf((String) calparTB.getValueAt(Configurer.I_CMAX, ipft+1)), 0);
+				cmaxChanger.updateValue(Double.valueOf((String) calparTB.getValueAt(Configurer.I_CMAX, ipft+1)), 1);
 				nmaxChanger.updateValue(Double.valueOf((String) calparTB.getValueAt(Configurer.I_NMAX, ipft+1)), 0);
 
-				cfalllChanger.updateValue(Double.valueOf((String) calparTB.getValueAt(Configurer.I_CFALLL, ipft+1)), 0);
-				cfallsChanger.updateValue(Double.valueOf((String) calparTB.getValueAt(Configurer.I_CFALLS, ipft+1)), 0);
-				cfallrChanger.updateValue(Double.valueOf((String) calparTB.getValueAt(Configurer.I_CFALLR, ipft+1)), 0);
+				cfalllChanger.updateValue(Double.valueOf((String) calparTB.getValueAt(Configurer.I_CFALLL, ipft+1)), -2);
+				cfallsChanger.updateValue(Double.valueOf((String) calparTB.getValueAt(Configurer.I_CFALLS, ipft+1)), -2);
+				cfallrChanger.updateValue(Double.valueOf((String) calparTB.getValueAt(Configurer.I_CFALLR, ipft+1)), -2);
 
-				nfalllChanger.updateValue(Double.valueOf((String) calparTB.getValueAt(Configurer.I_NFALLL, ipft+1)), 0);
-				nfallsChanger.updateValue(Double.valueOf((String) calparTB.getValueAt(Configurer.I_NFALLS, ipft+1)), 0);
-				nfallrChanger.updateValue(Double.valueOf((String) calparTB.getValueAt(Configurer.I_NFALLR, ipft+1)), 0);
+				nfalllChanger.updateValue(Double.valueOf((String) calparTB.getValueAt(Configurer.I_NFALLL, ipft+1)), -2);
+				nfallsChanger.updateValue(Double.valueOf((String) calparTB.getValueAt(Configurer.I_NFALLS, ipft+1)), -2);
+				nfallrChanger.updateValue(Double.valueOf((String) calparTB.getValueAt(Configurer.I_NFALLR, ipft+1)), -2);
 
-				kraChanger.updateValue(Double.valueOf((String) calparTB.getValueAt(Configurer.I_KRA, ipft+1)), 0);
-				krblChanger.updateValue(Double.valueOf((String) calparTB.getValueAt(Configurer.I_KRBL, ipft+1)), 0);
-				krbsChanger.updateValue(Double.valueOf((String) calparTB.getValueAt(Configurer.I_KRBS, ipft+1)), 0);
-				krbrChanger.updateValue(Double.valueOf((String) calparTB.getValueAt(Configurer.I_KRBR, ipft+1)), 0);
-				frgChanger.updateValue(Double.valueOf((String) calparTB.getValueAt(Configurer.I_FRG, ipft+1)), 0);
+				kraChanger.updateValue(Double.valueOf((String) calparTB.getValueAt(Configurer.I_KRA, ipft+1)), -5);
+				krblChanger.updateValue(Double.valueOf((String) calparTB.getValueAt(Configurer.I_KRBL, ipft+1)), -1);
+				krbsChanger.updateValue(Double.valueOf((String) calparTB.getValueAt(Configurer.I_KRBS, ipft+1)), -1);
+				krbrChanger.updateValue(Double.valueOf((String) calparTB.getValueAt(Configurer.I_KRBR, ipft+1)), -1);
+				frgChanger.updateValue(Double.valueOf((String) calparTB.getValueAt(Configurer.I_FRG, ipft+1)), -2);
 
-				micbnupChanger.updateValue(Double.valueOf((String) calparTB.getValueAt(Configurer.I_MICBNUP, 1)), 0);
-				kdcmosscChanger.updateValue(Double.valueOf((String) calparTB.getValueAt(Configurer.I_KDCMOSS, 1)), 0);
-				kdcrawcChanger.updateValue(Double.valueOf((String) calparTB.getValueAt(Configurer.I_KDCRAWC, 1)), 0);
-				kdcsomaChanger.updateValue(Double.valueOf((String) calparTB.getValueAt(Configurer.I_KDCSOMA, 1)), 0);
-				kdcsomprChanger.updateValue(Double.valueOf((String) calparTB.getValueAt(Configurer.I_KDCSOMPR, 1)), 0);
-				kdcsomcrChanger.updateValue(Double.valueOf((String) calparTB.getValueAt(Configurer.I_KDCSOMCR, 1)), 0);
+				micbnupChanger.updateValue(Double.valueOf((String) calparTB.getValueAt(Configurer.I_MICBNUP, 1)), -2);
+				kdcmosscChanger.updateValue(Double.valueOf((String) calparTB.getValueAt(Configurer.I_KDCMOSS, 1)), -2);
+				kdcrawcChanger.updateValue(Double.valueOf((String) calparTB.getValueAt(Configurer.I_KDCRAWC, 1)), -2);
+				kdcsomaChanger.updateValue(Double.valueOf((String) calparTB.getValueAt(Configurer.I_KDCSOMA, 1)), -3);
+				kdcsomprChanger.updateValue(Double.valueOf((String) calparTB.getValueAt(Configurer.I_KDCSOMPR, 1)), -4);
+				kdcsomcrChanger.updateValue(Double.valueOf((String) calparTB.getValueAt(Configurer.I_KDCSOMCR, 1)), -5);
 
 			} catch (Exception e){
 		    	JOptionPane.showMessageDialog(fcontrol, " assigning Calibration parameters to Changer failed");
+		    	return -1;
 		    }
+			
+			return 0;
 
 		}
 
 		//pass the parameters from config-Tab of Control Panel to TEM model
-		private void setTEMparsFromConfigTab(){
+		private void setTEMparsFromTable(){
 	    	
 			double[] vegcov = Caliber.eqrunner.runcht.cht.getCd().getM_veg().getVegcov();
+			vegpar_cal dvcalpar = new vegpar_cal();
+			soipar_cal dscalpar = new soipar_cal();
 			
 			// veg. parameters needed for all PFTs
 			for (int ip=0; ip<ConstCohort.NUM_PFT; ip++) {
@@ -1688,89 +1929,54 @@ public class TemCalGUI{
 
 				if (vegcov[ip]>0.) {
 					parval=Double.valueOf((String) calparTB.getValueAt(Configurer.I_CMAX, ip+1));
-					Caliber.jvcalpar.setCmax(parval);
+					dvcalpar.setCmax(parval);
 					parval=Double.valueOf((String) calparTB.getValueAt(Configurer.I_NMAX, ip+1));
-					Caliber.jvcalpar.setNmax(parval);
+					dvcalpar.setNmax(parval);
 
 					parval2[0]=Double.valueOf((String) calparTB.getValueAt(Configurer.I_CFALLL, ip+1));
 					parval2[1]=Double.valueOf((String) calparTB.getValueAt(Configurer.I_CFALLS, ip+1));
 					parval2[2]=Double.valueOf((String) calparTB.getValueAt(Configurer.I_CFALLR, ip+1));
-					Caliber.jvcalpar.setCfall(parval2);
+					dvcalpar.setCfall(parval2);
 
 					parval2[0]=Double.valueOf((String) calparTB.getValueAt(Configurer.I_NFALLL, ip+1));
 					parval2[1]=Double.valueOf((String) calparTB.getValueAt(Configurer.I_NFALLS, ip+1));
 					parval2[2]=Double.valueOf((String) calparTB.getValueAt(Configurer.I_NFALLR, ip+1));
-					Caliber.jvcalpar.setNfall(parval2);
+					dvcalpar.setNfall(parval2);
 
 					parval=Double.valueOf((String) calparTB.getValueAt(Configurer.I_KRA, ip+1));
-					Caliber.jvcalpar.setKra(parval);
+					dvcalpar.setKra(parval);
 
 					parval2[0]=Double.valueOf((String) calparTB.getValueAt(Configurer.I_KRBL, ip+1));
 					parval2[1]=Double.valueOf((String) calparTB.getValueAt(Configurer.I_KRBS, ip+1));
 					parval2[2]=Double.valueOf((String) calparTB.getValueAt(Configurer.I_KRBR, ip+1));
-					Caliber.jvcalpar.setKrb(parval2);
+					dvcalpar.setKrb(parval2);
 
 					parval=Double.valueOf((String) calparTB.getValueAt(Configurer.I_FRG, ip+1));
-					Caliber.jvcalpar.setFrg(parval);
+					dvcalpar.setFrg(parval);
 
 					// pass the parameters PFT by PFT
-					Caliber.temcj.setVbCalPar1pft(ip, Caliber.jvcalpar);
+					Caliber.temcj.setVbCalPar1pft(ip, dvcalpar);
 				}
 			}
 
 			// soil parameters
 			double sparval = 0.;
 			sparval = Double.valueOf((String) calparTB.getValueAt(Configurer.I_MICBNUP, 1));
-			Caliber.jscalpar.setMicbnup(sparval);
+			dscalpar.setMicbnup(sparval);
 			sparval = Double.valueOf((String) calparTB.getValueAt(Configurer.I_KDCRAWC, 1));
-			Caliber.jscalpar.setKdcrawc(sparval);
+			dscalpar.setKdcrawc(sparval);
 			sparval = Double.valueOf((String) calparTB.getValueAt(Configurer.I_KDCSOMA, 1));
-			Caliber.jscalpar.setKdcsoma(sparval);
+			dscalpar.setKdcsoma(sparval);
 			sparval = Double.valueOf((String) calparTB.getValueAt(Configurer.I_KDCSOMPR, 1));
-			Caliber.jscalpar.setKdcsompr(sparval);
+			dscalpar.setKdcsompr(sparval);
 			sparval = Double.valueOf((String) calparTB.getValueAt(Configurer.I_KDCSOMCR, 1));
-			Caliber.jscalpar.setKdcsomcr(sparval);
+			dscalpar.setKdcsomcr(sparval);
 
 			// pass the parameters of soil BGC
-			Caliber.temcj.setSbCalPar(Caliber.jscalpar);
+			Caliber.temcj.setSbCalPar(dscalpar);
 
 		 };
 		 
-		// the initital state variables to TEM model
-		private void setTEMinitstateFromConfigTab(){
-
-			  // vegetation
-		      double dummy[] = new double[3]; 
-		      
-		      dummy[0]=Double.valueOf((String) stateTB.getValueAt(Configurer.I_VEGCL, Caliber.ipft+1));
-		      dummy[1]=Double.valueOf((String) stateTB.getValueAt(Configurer.I_VEGCS, Caliber.ipft+1));
-		      dummy[2]=Double.valueOf((String) stateTB.getValueAt(Configurer.I_VEGCR, Caliber.ipft+1));
-		      Caliber.temcj.setInitvegc(dummy);
-
-		      dummy[0]=Double.valueOf((String) stateTB.getValueAt(Configurer.I_VEGNL, Caliber.ipft+1));
-		      dummy[1]=Double.valueOf((String) stateTB.getValueAt(Configurer.I_VEGNS, Caliber.ipft+1));
-		      dummy[2]=Double.valueOf((String) stateTB.getValueAt(Configurer.I_VEGNR, Caliber.ipft+1));
-		      Caliber.temcj.setInitvegn(dummy);
-
-		      Caliber.temcj.setInitdeadc(Double.valueOf((String) stateTB.getValueAt(Configurer.I_DEADC, Caliber.ipft+1)));
-		      Caliber.temcj.setInitdeadc(Double.valueOf((String) stateTB.getValueAt(Configurer.I_DEADN, Caliber.ipft+1)));
-
-		      Caliber.temcj.setInitVbState1pft(Caliber.ipft);
-		      
-		      // Soil
-		      Caliber.temcj.setInitfibthick(Double.valueOf((String) stateTB.getValueAt(Configurer.I_FIBTHICK, 1)));
-		      Caliber.temcj.setInithumthick(Double.valueOf((String) stateTB.getValueAt(Configurer.I_HUMTHICK, 1)));
-		      
-		      Caliber.temcj.setInitshlwc(Double.valueOf((String) stateTB.getValueAt(Configurer.I_FIBSOILC, 1)));
-		      Caliber.temcj.setInitdeepc(Double.valueOf((String) stateTB.getValueAt(Configurer.I_HUMSOILC, 1)));
-		      Caliber.temcj.setInitminec(Double.valueOf((String) stateTB.getValueAt(Configurer.I_MINESOILC, 1)));
-		      Caliber.temcj.setInitsoln(Double.valueOf((String) stateTB.getValueAt(Configurer.I_SOILN, 1)));
-		      Caliber.temcj.setInitavln(Double.valueOf((String) stateTB.getValueAt(Configurer.I_AVLN, 1)));
-		      
-		      Caliber.temcj.setInitSbState();
-		};
-
-
 ///////////////////////////////////////////////////////////////////////////////////////////////
 //------ Operations on Calibration Tab of Control Panel --------------------------------------
 	public class Exit implements ActionListener{
@@ -1789,52 +1995,15 @@ public class TemCalGUI{
 			setupB.setEnabled(true);
 			resetupB.setEnabled(true);
 
+			PhyVariablePlotter.f.setVisible(true);
+			BioVariablePlotter.f.setVisible(true);
+
 			if(runmodeB.getText().equals("TestRunner")){
 				runmodeB.setText("Calibration");
-
-				PhyVariablePlotter.f.setVisible(true);
-				BioVariablePlotter.f.setVisible(true);
-
-				envmodjrb[0].setEnabled(true);
-				envmodjrb[1].setEnabled(true);
-
-				bgcmodjrb[0].setEnabled(true);
-				bgcmodjrb[1].setEnabled(true);
-				nfeedjrb[0].setEnabled(true);
-				nfeedjrb[1].setEnabled(true);
-				avlnjrb[0].setEnabled(false);
-				avlnjrb[1].setEnabled(false);
-				avlnjrb[0].doClick();  // set this as default
-				
-				dslmodjrb[0].setEnabled(true);
-				dslmodjrb[1].setEnabled(true);
-
-				firemodjrb[0].setEnabled(true);
-				firemodjrb[1].setEnabled(true);
-				
-				
+				enableGUI();
 
 			}else if(runmodeB.getText().equals("Calibration")){
 				runmodeB.setText("TestRunner");
-
-				BioVariablePlotter.f.setVisible(true);
-				PhyVariablePlotter.f.setVisible(true);
-
-				envmodjrb[0].setEnabled(false);
-				envmodjrb[1].setEnabled(false);
-
-				bgcmodjrb[0].setEnabled(false);
-				bgcmodjrb[1].setEnabled(false);
-				nfeedjrb[0].setEnabled(false);
-				nfeedjrb[1].setEnabled(false);
-				avlnjrb[0].setEnabled(false);
-				avlnjrb[1].setEnabled(false);
-				
-				dslmodjrb[0].setEnabled(false);
-				dslmodjrb[1].setEnabled(false);
-
-				firemodjrb[0].setEnabled(false);
-				firemodjrb[1].setEnabled(false);
 
 			}
 
@@ -1873,7 +2042,6 @@ public class TemCalGUI{
 				}
 			}
 
-
 		}
 
 	};
@@ -1891,19 +2059,56 @@ public class TemCalGUI{
 			var2plotter.reset();
 
 			Caliber.reset();
-			runnerinit();     //reset-up DOES update calirestart.nc
+			runnerinit();  
 
 			Caliber.ipft = Integer.valueOf(pickpftCB.getSelectedItem().toString());	
 
+			assignCalparTableToChanger(Caliber.ipft);
 			setTEMoptionsFromConfig();
-			assignCalparTabToChanger(Caliber.ipft);
-			setTEMparsFromConfigTab();
-			setTEMinitstateFromConfigTab();
+			setTEMparsFromTable();
+			setTEMinitstateFromTable();
 		}
 
 	};
 
-	// Model-run "Setup" - after modifying one or more model setting-up,
+	// the initital state variables to TEM model
+	private void setTEMinitstateFromTable(){
+
+		// vegetation
+		double[] vegcov = Caliber.eqrunner.runcht.cht.getCd().getM_veg().getVegcov();
+		for (int ip=0; ip<ConstCohort.NUM_PFT; ip++) {
+	      double dummy[] = new double[3]; 
+	      
+	      if (vegcov[ip]>0.) {
+	    	  dummy[0]=Double.valueOf((String) stateTB.getValueAt(Configurer.I_VEGCL, ip+1));
+	    	  dummy[1]=Double.valueOf((String) stateTB.getValueAt(Configurer.I_VEGCS, ip+1));
+	    	  dummy[2]=Double.valueOf((String) stateTB.getValueAt(Configurer.I_VEGCR, ip+1));
+	    	  Caliber.temcj.setInitvegc(dummy);
+
+	    	  dummy[0]=Double.valueOf((String) stateTB.getValueAt(Configurer.I_VEGNL, ip+1));
+	    	  dummy[1]=Double.valueOf((String) stateTB.getValueAt(Configurer.I_VEGNS, ip+1));
+	    	  dummy[2]=Double.valueOf((String) stateTB.getValueAt(Configurer.I_VEGNR, ip+1));
+	    	  Caliber.temcj.setInitvegn(dummy);
+
+	    	  Caliber.temcj.setInitdeadc(Double.valueOf((String) stateTB.getValueAt(Configurer.I_DEADC, ip+1)));
+	    	  Caliber.temcj.setInitdeadc(Double.valueOf((String) stateTB.getValueAt(Configurer.I_DEADN, ip+1)));
+
+	    	  Caliber.temcj.setInitVbState1pft(ip);
+	      }
+		}
+		
+	      // Soil	      
+	      Caliber.temcj.setInitdmossc(Double.valueOf((String) stateTB.getValueAt(Configurer.I_DMOSSC, 1)));
+	      Caliber.temcj.setInitshlwc(Double.valueOf((String) stateTB.getValueAt(Configurer.I_FIBSOILC, 1)));
+	      Caliber.temcj.setInitdeepc(Double.valueOf((String) stateTB.getValueAt(Configurer.I_HUMSOILC, 1)));
+	      Caliber.temcj.setInitminec(Double.valueOf((String) stateTB.getValueAt(Configurer.I_MINESOILC, 1)));
+	      Caliber.temcj.setInitsoln(Double.valueOf((String) stateTB.getValueAt(Configurer.I_SOILN, 1)));
+	      Caliber.temcj.setInitavln(Double.valueOf((String) stateTB.getValueAt(Configurer.I_AVLN, 1)));
+	      
+	      Caliber.temcj.setInitSbState();
+	};
+
+	// Model-run "update switches and changers' parameters" - after modifying any of changers,
 	// UPDATE the setting from the Changer Tab of control panel
 	public class Setup implements ActionListener{
 
@@ -1915,115 +2120,138 @@ public class TemCalGUI{
 			Caliber.ipft = Integer.valueOf(pickpftCB.getSelectedItem().toString());	
 			
 			setTEMoptionsFromConfig();
+			
+			saveoldpar();
 			setTEMcalparsFromChanger();
 
 		}
-
-	};
-
-	//update model process switches to tem, called by Class: Setup/Resetup
-	private void setTEMoptionsFromConfig(){
-
-		//
-		boolean envmodule = false;
-		boolean bgcmodule = false;
-		boolean dslmodule = false;
-		boolean firemodule= false;
-		boolean dvmmodule = false;
-		if(envmodjrb[1].isSelected()) envmodule=true;
-		if(bgcmodjrb[1].isSelected()) bgcmodule=true;
-		if(dslmodjrb[1].isSelected()) dslmodule=true;
-		if(dvmmodjrb[1].isSelected()) dvmmodule=true;
-		if(firemodjrb[1].isSelected()) firemodule=true;
-
-		//Turn Modules on/off
-		Caliber.eqrunner.runcht.cht.getMd().setEnvmodule(envmodule);
-		Caliber.eqrunner.runcht.cht.getMd().setBgcmodule(bgcmodule);
-		Caliber.eqrunner.runcht.cht.getMd().setDslmodule(dslmodule);
-		Caliber.eqrunner.runcht.cht.getMd().setDvmmodule(dvmmodule);
-		Caliber.eqrunner.runcht.cht.getMd().setDsbmodule(firemodule);
-
-		// pregnostic LAI or dynamical LAI
-		boolean updatelai = false;
-		if (dvmmodule) {
-			if(updatelaijrb[1].isSelected()) updatelai = true;			
-		}
-		Caliber.eqrunner.runcht.cht.getMd().setUpdatelai(updatelai);
-
-		// N modules control
-		boolean nfeed   = false;
-		boolean avlnflg = false;
-		boolean baseline= false;
-		if (bgcmodule) {
-			if(nfeedjrb[1].isSelected()) nfeed = true;
-			if(avlnjrb[1].isSelected())	avlnflg = true;
-			if(baselinejrb[1].isSelected())	baseline = true;
-		}
-		Caliber.eqrunner.runcht.cht.getMd().setBaseline(baseline);
-		Caliber.eqrunner.runcht.cht.getMd().setAvlnflg(avlnflg);
-		Caliber.eqrunner.runcht.cht.getMd().setNfeed(nfeed);
-
-		// fire module option
-		if (firemodule) Caliber.eqrunner.runcht.cht.getMd().setFriderived(firemodule);
-
-	};
-
-	//after clicking start, update the parameters to tem, called by Class: Setup/Resetup
-	private void setTEMcalparsFromChanger(){
-
-		//veg.
-		Caliber.jvcalpar.setCmax(cmaxChanger.getValue());
-		Caliber.jvcalpar.setNmax(nmaxChanger.getValue());
-
-		double cfall[] = new double[ConstCohort.NUM_PFT_PART];
-		cfall[0]=cfalllChanger.getValue();
-		cfall[1]=cfallsChanger.getValue();
-		cfall[2]=cfallrChanger.getValue();
-		Caliber.jvcalpar.setCfall(cfall);
-
-		double nfall[] = new double[ConstCohort.NUM_PFT_PART];
-		nfall[0]=nfalllChanger.getValue();
-		nfall[1]=nfallsChanger.getValue();
-		nfall[2]=nfallrChanger.getValue();
-		Caliber.jvcalpar.setCfall(nfall);
-
-		double kra = kraChanger.getValue();
-		Caliber.jvcalpar.setKra(kra);  // not calibrated
+	
+	};		
+	
+		private void saveoldpar() {
+				 cmaxChanger.storeOldValue();
+				 nmaxChanger.storeOldValue();
+				 cfalllChanger.storeOldValue();
+				 cfallsChanger.storeOldValue();
+				 cfallrChanger.storeOldValue();
+				 nfalllChanger.storeOldValue();
+				 nfallsChanger.storeOldValue();
+				 nfallrChanger.storeOldValue();
+				 krblChanger.storeOldValue();
+				 krbsChanger.storeOldValue();
+				 krbrChanger.storeOldValue();
+	
+				 micbnupChanger.storeOldValue();
+				 kdcmosscChanger.storeOldValue();
+				 kdcrawcChanger.storeOldValue();
+				 kdcsomaChanger.storeOldValue();
+				 kdcsomprChanger.storeOldValue();
+				 kdcsomcrChanger.storeOldValue();
 		
-		double krb[] = new double[ConstCohort.NUM_PFT_PART];
-		krb[0]=krblChanger.getValue();
-		krb[1]=krbsChanger.getValue();
-		krb[2]=krbrChanger.getValue();
-		Caliber.jvcalpar.setKrb(krb);
+		}
 
-		double frg = frgChanger.getValue();
-		Caliber.jvcalpar.setFrg(frg);  // not calibrated
+		//after clicking setup, update the parameters to tem, called by Class: Setup/Resetup
+		private void setTEMcalparsFromChanger(){
+	
+			//veg.
+			Caliber.jvcalpar.setCmax(cmaxChanger.getValue());
+			Caliber.jvcalpar.setNmax(nmaxChanger.getValue());
+	
+			double cfall[] = new double[ConstCohort.NUM_PFT_PART];
+			cfall[0]=cfalllChanger.getValue();
+			cfall[1]=cfallsChanger.getValue();
+			cfall[2]=cfallrChanger.getValue();
+			Caliber.jvcalpar.setCfall(cfall);
+	
+			double nfall[] = new double[ConstCohort.NUM_PFT_PART];
+			nfall[0]=nfalllChanger.getValue();
+			nfall[1]=nfallsChanger.getValue();
+			nfall[2]=nfallrChanger.getValue();
+			Caliber.jvcalpar.setCfall(nfall);
+	
+			double kra = kraChanger.getValue();
+			Caliber.jvcalpar.setKra(kra);
+			
+			double krb[] = new double[ConstCohort.NUM_PFT_PART];
+			krb[0]=krblChanger.getValue();
+			krb[1]=krbsChanger.getValue();
+			krb[2]=krbrChanger.getValue();
+			Caliber.jvcalpar.setKrb(krb);
+	
+			double frg = frgChanger.getValue();
+			Caliber.jvcalpar.setFrg(frg);
+	
+			//soil
+			Caliber.jscalpar.setMicbnup(krblChanger.getValue());
+	
+			Caliber.jscalpar.setKdcmoss(kdcmosscChanger.getValue());
+			Caliber.jscalpar.setKdcrawc(kdcrawcChanger.getValue());
+			Caliber.jscalpar.setKdcsoma(kdcsomaChanger.getValue());
+			Caliber.jscalpar.setKdcsompr(kdcsomprChanger.getValue());
+			Caliber.jscalpar.setKdcsomcr(kdcsomcrChanger.getValue());
+	
+			//pass the parameters to c++ holders
+			int ipft = Caliber.ipft;
+			Caliber.temcj.setVbCalPar1pft(ipft, Caliber.jvcalpar);
+			Caliber.temcj.setSbCalPar(Caliber.jscalpar);
+	
+		};
 
-		//soil
-		Caliber.jscalpar.setMicbnup(krblChanger.getValue());
-
-		Caliber.jscalpar.setKdcmoss(kdcmosscChanger.getValue());
-		Caliber.jscalpar.setKdcrawc(kdcrawcChanger.getValue());
-		Caliber.jscalpar.setKdcsoma(kdcsomaChanger.getValue());
-		Caliber.jscalpar.setKdcsompr(kdcsomprChanger.getValue());
-		Caliber.jscalpar.setKdcsomcr(kdcsomcrChanger.getValue());
-
-		//pass the parameters to c++ holders
-		int ipft = Caliber.ipft;
-		Caliber.temcj.setVbCalPar1pft(ipft, Caliber.jvcalpar);
-		Caliber.temcj.setSbCalPar(Caliber.jscalpar);
-
-	};
+		//update model process switches to tem, called by Class: Setup/Resetup
+		private void setTEMoptionsFromConfig(){
+	
+			//
+			boolean envmodule = false;
+			boolean bgcmodule = false;
+			boolean dslmodule = false;
+			boolean firemodule= false;
+			boolean dvmmodule = false;
+			if(envmodjrb[1].isSelected()) envmodule=true;
+			if(bgcmodjrb[1].isSelected()) bgcmodule=true;
+			if(dslmodjrb[1].isSelected()) dslmodule=true;
+			if(dvmmodjrb[1].isSelected()) dvmmodule=true;
+			if(firemodjrb[1].isSelected()) firemodule=true;
+	
+			//Turn Modules on/off
+			Caliber.eqrunner.runcht.cht.getMd().setEnvmodule(envmodule);
+			Caliber.eqrunner.runcht.cht.getMd().setBgcmodule(bgcmodule);
+			Caliber.eqrunner.runcht.cht.getMd().setDslmodule(dslmodule);
+			Caliber.eqrunner.runcht.cht.getMd().setDvmmodule(dvmmodule);
+			Caliber.eqrunner.runcht.cht.getMd().setDsbmodule(firemodule);
+	
+			// pregnostic LAI or dynamical LAI
+			boolean updatelai = false;
+			if (dvmmodule) {
+				if(updatelaijrb[1].isSelected()) updatelai = true;			
+			}
+			Caliber.eqrunner.runcht.cht.getMd().setUpdatelai(updatelai);
+	
+			// N modules control
+			boolean nfeed   = false;
+			boolean avlnflg = false;
+			boolean baseline= false;
+			if (bgcmodule) {
+				if(nfeedjrb[1].isSelected()) nfeed = true;
+				if(avlnjrb[1].isSelected())	avlnflg = true;
+				if(baselinejrb[1].isSelected())	baseline = true;
+			}
+			Caliber.eqrunner.runcht.cht.getMd().setBaseline(baseline);
+			Caliber.eqrunner.runcht.cht.getMd().setAvlnflg(avlnflg);
+			Caliber.eqrunner.runcht.cht.getMd().setNfeed(nfeed);
+	
+			// fire module option
+			if (firemodule) Caliber.eqrunner.runcht.cht.getMd().setFriderived(firemodule);
+	
+		};
 
 	//reset calibration parameters to the initial values (i.e., from config files)
 	public class ParameterResetter implements ActionListener{
 
 		public void actionPerformed(ActionEvent arg0) {
 
-			int ipft = Caliber.ipft;
 			readInitparFromFile();
-			assignCalparTabToChanger(ipft);
-			setTEMparsFromConfigTab();
+			assignCalparTableToChanger(Caliber.ipft);
+			setTEMparsFromTable();
 
 			startpauseB.setEnabled(false);
 			setupB.setEnabled(true);
@@ -2050,6 +2278,7 @@ public class TemCalGUI{
 			 krbrChanger.restore();
 
 			 micbnupChanger.restore();
+			 kdcmosscChanger.restore();
 			 kdcrawcChanger.restore();
 			 kdcsomaChanger.restore();
 			 kdcsomprChanger.restore();
@@ -2160,25 +2389,29 @@ public class TemCalGUI{
 			    output.print("//" + dummy + "\n");
 
 			    //
-			    dummy = input.readLine();  output.println(dummy);       // Line 16 - soil
+			    dummy = input.readLine();  output.println(dummy);       // Line 16 - soil calibrated parameter (comments)
 			    
 		    	dummy = input.readLine().split("//", 2)[1];             // Line 17 - "//" is delimiter for comments
 		    	output.printf("%-16s", calparTB.getValueAt(Configurer.I_MICBNUP, 1));
 			    output.print("//" + dummy + "\n");
 
-		    	dummy = input.readLine().split("//", 2)[1];             // Line 18 - "//" is delimiter for comments
-		    	output.printf("%-16s", calparTB.getValueAt(Configurer.I_KDCRAWC, 1));
+			    dummy = input.readLine().split("//", 2)[1];             // Line 18 - "//" is delimiter for comments
+		    	output.printf("%-16s", calparTB.getValueAt(Configurer.I_KDCMOSS, 1));
 			    output.print("//" + dummy + "\n");
 
 		    	dummy = input.readLine().split("//", 2)[1];             // Line 19 - "//" is delimiter for comments
-		    	output.printf("%-16s", calparTB.getValueAt(Configurer.I_KDCSOMA, 1));
+		    	output.printf("%-16s", calparTB.getValueAt(Configurer.I_KDCRAWC, 1));
 			    output.print("//" + dummy + "\n");
 
 		    	dummy = input.readLine().split("//", 2)[1];             // Line 20 - "//" is delimiter for comments
-		    	output.printf("%-16s", calparTB.getValueAt(Configurer.I_KDCSOMPR, 1));
+		    	output.printf("%-16s", calparTB.getValueAt(Configurer.I_KDCSOMA, 1));
 			    output.print("//" + dummy + "\n");
 
 		    	dummy = input.readLine().split("//", 2)[1];             // Line 21 - "//" is delimiter for comments
+		    	output.printf("%-16s", calparTB.getValueAt(Configurer.I_KDCSOMPR, 1));
+			    output.print("//" + dummy + "\n");
+
+		    	dummy = input.readLine().split("//", 2)[1];             // Line 22 - "//" is delimiter for comments
 		    	output.printf("%-16s", calparTB.getValueAt(Configurer.I_KDCSOMCR, 1));
 			    output.print("//" + dummy + "\n");
 

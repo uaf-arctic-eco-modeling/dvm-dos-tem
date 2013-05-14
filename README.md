@@ -1,14 +1,26 @@
-README dvm-dos-tem EXTRAPOLATION VERSION
+README for dvm-dos-tem
 ===========================================
 The dvm-dos-tem is a process based bio-geo-chemical ecosystem model.
 
-More info...?
+There are two main parts that make up dvm-dos-tem: the "Calibration Version" and the 
+"Extrapolation Version". The Calibration Version is used to adjust parameters. The
+Extrapolation Version is used to make projections or other simulations.
+
+Both the Calibration Version and Extrapolation Version rely on the same underlying C++ 
+code, but each version "drives" the code differently. It might be helpful to think of 
+the Calibration and Extrapolation Versions as providing different interfaces to the 
+underlying calculator.
+
+The code for the Extrapolation Version is not separated from the underlying calculator - 
+all the code is within the `src/` directory. The Calibration Version (interface) is 
+written is Java. This code is contained within the `calibration/` directory. The 
+Calibration Version points to C++ code in the `src/` directory in order to compile.
 
 Downloading
 -------------
 There are several options for downloading or obtaining the model depending on your 
-particular usecase. Dvm-dos-tem is not distributed as a binary file, so you must compile 
-from source code. 
+particular usecase. Dvm-dos-tem is not distributed as a binary file, so to run the 
+program, you must compile from source code. 
 
 * If you anticipate contributing to the code, you should use github to create
 your own fork and then git to "clone" the code.
@@ -73,7 +85,7 @@ Developing
 -----------
 This project is maintained using Git (an open source distributed version control system) 
 and github (a web service that provides hosting for code projects and has tools and idioms
-for collaborative working on code-related projects.
+for collaborative working on code-related projects).
 
 This project is maintained using the "Fork and Pull" workflow. Following are several 
 common use-cases:
@@ -125,12 +137,12 @@ every user's home directory on most Linux like computers. The '.' in the file na
 the file "hidden"; use `ls -a` to see the file. If it is not present in your directory,
 you can create it. Add this to your `.bashrc` file:
 
-        \# function to find the current git branch
+        # function to find the current git branch
         function parse_git_branch {
             git branch --no-color 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/[\1] /'
         }
         
-        \# use parse_git_branch to add the git branch to your terminal prompt
+        # use parse_git_branch to add the git branch to your terminal prompt
         PS1=$PS1: $(parse_git_branch)
 
 **NOTE:** You have to remember to reload the `.bashrc` file, either by closing and
