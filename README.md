@@ -27,6 +27,15 @@ your own fork and then git to "clone" the code.
 * How to: ...download version, keep up to date with sel version...
 * How to: ...download specific commit, no need to contribute or keep up to date...
 
+Requirements / Dependencies
+---------------------------
+The following tools/libraries are necessary in order to build and run dvm-dos-tem
+
+* Boost, including [Boost.Program_options](http://www.boost.org/doc/libs/1_53_0/doc/html/program_options.html)
+* NetCDF, v4.1.3 or less. [NetCDF/Unidata](http://www.unidata.ucar.edu/software/netcdf/)
+* Java Development Kit (JDK) v??
+
+
 Compiling / Building
 -----------------------
 This project requires a version of NetCDF and Boost's program options to be installed on 
