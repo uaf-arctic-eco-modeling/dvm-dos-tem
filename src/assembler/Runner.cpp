@@ -7,7 +7,7 @@ Runner::Runner(){
 };
 
 Runner::~Runner(){
-	
+
 };
 
 void Runner::initInput(const string &controlfile, const string &runmode){
@@ -227,7 +227,7 @@ void Runner::setupIDs(){
 	// 2) output the record no. for all data IDs, in the 'runchtlist'in so that read-data doesn't need to
 	// search each IDs in the .nc files during computation, which may cost a lot of computation time
 	unsigned int jcht;
-	int jdata;
+	unsigned int jdata;
 	vector<int>::iterator jt;
 
 	unsigned int jj;
@@ -235,11 +235,20 @@ void Runner::setupIDs(){
 		chtid = runchtlist.at(jj);
 
 		jt   = find(runcht.chtids.begin(), runcht.chtids.end(), chtid);
+		if (jcht>=runcht.chtids.size()) {
+			cout<<"Cohort: "<<chtid<<" is not in datacht/cohortid.nc";
+			exit(-1);
+		}
 		jcht = (unsigned int)(jt - runcht.chtids.begin());
 
 		// grid record no. (in 'grid.nc') for 'chtid' (needed for lat/lon)
 		jt    = find(rungrd.grdids.begin(), rungrd.grdids.end(), runcht.chtgridids.at(jcht));
 		jdata = (int)(jt - rungrd.grdids.begin());
+		if (jdata>=rungrd.grdids.size()) {
+			cout<<"GRIDID: "<<runcht.chtgridids.at(jcht)
+					<<"for Cohort: "<<chtid<<" is not in datagrid/grid.nc";
+			exit(-1);
+		}
 		reclistgrid.push_back(jdata);
 
 		float lat = -999.0f;
@@ -251,35 +260,75 @@ void Runner::setupIDs(){
 		// drainage-type record no. (in 'drainage.nc') for 'chtid'
 		jt    = find(rungrd.drainids.begin(), rungrd.drainids.end(), runcht.chtdrainids.at(jcht));
 		jdata = (int)(jt - rungrd.drainids.begin());
+		if (jdata>=rungrd.drainids.size()) {
+			cout<<"DRAINAGEID: "<<runcht.chtdrainids.at(jcht)
+					<<"for Cohort: "<<chtid<<" is not in datagrid/drainage.nc";
+			exit(-1);
+		}
 		reclistdrain.push_back(jdata);
+
 		// soil-texture record no. (in 'soiltexture.nc') for 'chtid'
 		jt    = find(rungrd.soilids.begin(), rungrd.soilids.end(), runcht.chtsoilids.at(jcht));
 		jdata = (int)(jt - rungrd.soilids.begin());
+		if (jdata>=rungrd.soilids.size()) {
+			cout<<"SOILID: "<<runcht.chtsoilids.at(jcht)
+					<<"for Cohort: "<<chtid<<" is not in datagrid/drainage.nc";
+			exit(-1);
+		}
 		reclistsoil.push_back(jdata);
+
 		// grid-fire-statistics ('gfire') record no. (in 'firestatistics.nc') for 'chtid'
 		jt    = find(rungrd.gfireids.begin(), rungrd.gfireids.end(), runcht.chtgfireids.at(jcht));
 		jdata = (int)(jt - rungrd.gfireids.begin());
+		if (jdata>=rungrd.gfireids.size()) {
+			cout<<"GFIREID: "<<runcht.chtfireids.at(jcht)
+					<<"for Cohort: "<<chtid<<" is not in datagrid/firestatistics.nc";
+			exit(-1);
+		}
 		reclistgfire.push_back(jdata);
 
 		// initial data record no. (in 'restart.nc' or 'sitein.nc', or '-1') for 'chtid'
 		if (!md.runeq) {
 			jt    = find(runcht.initids.begin(), runcht.initids.end(), runcht.chtinitids.at(jcht));
 			jdata = (int)(jt - runcht.initids.begin());
+			if (jdata>=runcht.initids.size()) {
+				cout<<"initial/restart CHTID: "<<runcht.chtinitids.at(jcht)
+						<<"for Cohort: "<<chtid<<" is not in "<<md.initialfile;
+				exit(-1);
+			}
 			reclistinit.push_back(jdata);
 		} else {
 			reclistinit.push_back(-1);
 		}
+
 		// climate data record no. (in 'climate.nc') for 'chtid'
 		jt    = find(runcht.clmids.begin(), runcht.clmids.end(), runcht.chtclmids.at(jcht));
 		jdata = (int)(jt - runcht.clmids.begin());
+		if (jdata>=runcht.chtclmids.size()) {
+			cout<<"CLMID: "<<runcht.chtclmids.at(jcht)
+					<<"for Cohort: "<<chtid<<" is not in datacht/climate.nc";
+			exit(-1);
+		}
 		reclistclm.push_back(jdata);
+
 		// vegetation community data record no. (in 'vegetation.nc') for 'chtid'
 		jt    = find(runcht.vegids.begin(), runcht.vegids.end(), runcht.chtvegids.at(jcht));
 		jdata = (int)(jt - runcht.vegids.begin());
+		if (jdata>=runcht.chtvegids.size()) {
+			cout<<"VEGID: "<<runcht.chtvegids.at(jcht)
+					<<"for Cohort: "<<chtid<<" is not in datacht/vegetation.nc";
+			exit(-1);
+		}
 		reclistveg.push_back(jdata);
+
 		// fire data record no. (in 'fire.nc') for 'chtid'
 		jt    = find(runcht.fireids.begin(), runcht.fireids.end(), runcht.chtfireids.at(jcht));
 		jdata = (int)(jt - runcht.fireids.begin());
+		if (jdata>=runcht.chtfireids.size()) {
+			cout<<"FIREID: "<<runcht.chtfireids.at(jcht)
+					<<"for Cohort: "<<chtid<<" is not in datacht/fire.nc";
+			exit(-1);
+		}
 		reclistfire.push_back(jdata);
 
 	}
@@ -343,7 +392,7 @@ void Runner::runmode2(){
   		cout <<"problem in reinitialize regional-module in Runner::run\n";
   		exit(-1);
 	}
-	
+
 	//loop through cohort in 'runchtlist'
 	unsigned int jj ;
 	for (jj=0; jj<runchtlist.size(); jj++){
@@ -376,7 +425,7 @@ void Runner::runmode2(){
 			cout <<"problem in reading grided data in Runner::runmode2\n";
 			exit(-1);
 		}
-			
+
 		//getting the cohort data for current cohort
 		error = runcht.readData();
 		if (error!=0){

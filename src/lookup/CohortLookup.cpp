@@ -4,7 +4,7 @@
 /** Parses a string, looking for a community code.
  Reads the string, finds the first occurrence of the characters "CMT", and returns a
  string consisting of CMT and the following two characters.
- 
+
  Returns something like "CMT01".
 */
 string read_cmt_code(string s){
@@ -34,7 +34,7 @@ void CohortLookup::init(){
 	assignBgc4Ground(dir);
 
 	assignFirePar(dir);
-  
+
 };
 
 void CohortLookup::assignBgcCalpar(string & dircmt){
@@ -65,6 +65,10 @@ void CohortLookup::assignBgcCalpar(string & dircmt){
 
 		getline(fctrcomm, str);     // community separation line ("//====" or something or empty line)
 		getline(fctrcomm, str);     // community code - 'CMTxx' (xx: two digits)
+		if (str.empty()) {  // blank line in end of file
+	  		cout << "Cannot find community type: " << cmtcode << " in file: " <<parfilecal << "  \n" ;
+	  		exit( -1 );
+		}
 		code = read_cmt_code(str);
 	}
 
@@ -127,6 +131,10 @@ void CohortLookup::assignVegDimension(string &dircmt){
 
 		getline(fctrpft, str);     // community separation line ("//====" or something or empty line)
 		getline(fctrpft, str);     // community code - 'CMTxx' (xx: two digits)
+		if (str.empty()) {  // blank line in end of file
+	  		cout << "Cannot find community type: " << cmtcode << " in file: " <<parfilecomm << "  \n" ;
+	  		exit( -1 );
+		}
 		code = read_cmt_code(str);
 	}
 
@@ -219,6 +227,10 @@ void CohortLookup::assignGroundDimension(string &dircmt){
 
 		getline(fctrcomm, str);     // community separation line ("//====" or something or empty line)
 		getline(fctrcomm, str);     // community code - 'CMTxx' (xx: two digits)
+		if (str.empty()) {  // blank line in end of file
+	  		cout << "Cannot find community type: " << cmtcode << " in file: " <<parfilecomm << "  \n" ;
+	  		exit( -1 );
+		}
 		code = read_cmt_code(str);
 	}
 
@@ -285,6 +297,10 @@ void CohortLookup::assignEnv4Canopy(string &dir){
 
 		getline(fctrpft, str);     // community separation line ("//====" or something or empty line)
 		getline(fctrpft, str);     // community code - 'CMTxx' (xx: two digits)
+		if (str.empty()) {  // blank line in end of file
+	  		cout << "Cannot find community type: " << cmtcode << " in file: " <<parfilecomm << "  \n" ;
+	  		exit( -1 );
+		}
 		code = read_cmt_code(str);
 	}
 
@@ -353,6 +369,10 @@ void CohortLookup::assignBgc4Vegetation(string & dircmt){
 
 		getline(fctrpft, str);     // community separation line ("//====" or something or empty line)
 		getline(fctrpft, str);     // community code - 'CMTxx' (xx: two digits)
+		if (str.empty()) {  // blank line in end of file
+	  		cout << "Cannot find community type: " << cmtcode << " in file: " <<parfilecomm << "  \n" ;
+	  		exit( -1 );
+		}
 		code = read_cmt_code(str);
 	}
 
@@ -458,6 +478,10 @@ void CohortLookup::assignEnv4Ground(string &dircmt){
 
 		getline(fctrcomm, str);     // community separation line ("//====" or something or empty line)
 		getline(fctrcomm, str);     // community code - 'CMTxx' (xx: two digits)
+		if (str.empty()) {  // blank line in end of file
+	  		cout << "Cannot find community type: " << cmtcode << " in file: " <<parfilecomm << "  \n" ;
+	  		exit( -1 );
+		}
 		code = read_cmt_code(str);
 	}
 
@@ -495,7 +519,7 @@ void CohortLookup::assignBgc4Ground(string &dircmt){
   		cout << "\nCannot open " << parfilecomm << "  \n" ;
    		exit( -1 );
 	}
-	
+
 	string str;
 	string code;
 	int lines = 19;   // total lines of one block of community data/info, except for 2 header lines
@@ -512,6 +536,10 @@ void CohortLookup::assignBgc4Ground(string &dircmt){
 
 		getline(fctrcomm, str);     // community separation line ("//====" or something or empty line)
 		getline(fctrcomm, str);     // community code - 'CMTxx' (xx: two digits)
+		if (str.empty()) {  // blank line in end of file
+	  		cout << "Cannot find community type: " << cmtcode << " in file: " <<parfilecomm << "  \n" ;
+	  		exit( -1 );
+		}
 		code = read_cmt_code(str);
 	}
 
@@ -542,7 +570,7 @@ void CohortLookup::assignBgc4Ground(string &dircmt){
 	fctrcomm >> initavln; getline(fctrcomm,str);
 
 	fctrcomm.close();
-	
+
 };
 
 void CohortLookup::assignFirePar(string &dircmt){
@@ -572,6 +600,10 @@ void CohortLookup::assignFirePar(string &dircmt){
 
 		getline(fctrcomm, str);     // community separation line ("//====" or something or empty line)
 		getline(fctrcomm, str);     // community code - 'CMTxx' (xx: two digits)
+		if (str.empty()) {  // blank line in end of file
+	  		cout << "Cannot find community type: " << cmtcode << " in file: " <<parfilecomm << "  \n" ;
+	  		exit( -1 );
+		}
 		code = read_cmt_code(str);
 	}
 
@@ -601,8 +633,3 @@ void CohortLookup::assignFirePar(string &dircmt){
 	fctrcomm.close();
 
 };
-
-
-
-
-
