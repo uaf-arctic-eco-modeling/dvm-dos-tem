@@ -399,11 +399,14 @@ void Runner::runmode2(){
 		chtid = runchtlist.at(jj);
 
 		// may need to clear up data containers for new cohort
+		chted = EnvData();
+		chtbd = BgcData();
+		chtfd = FirData();
+		rungrd.grid = Grid();
+		runcht.cht = Cohort();
 
- 		runcht.cht.setModelData(&md);
- 		runcht.cht.setTime(&timer);
- 		runcht.cht.setInputData(&runreg.region.rd, &rungrd.grid.gd);
- 		runcht.cht.setProcessData(&chted, &chtbd, &chtfd);  //
+		//reset data pointer connection
+		setupData();
 
 		//
 		runcht.cht.cd.chtid = chtid;

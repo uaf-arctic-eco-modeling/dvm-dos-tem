@@ -205,12 +205,14 @@ void Soil_Env::initializeState5restart(RestartData* resin){
 	double TSsoil[MAX_SOI_LAY];
 	double LIQsoil[MAX_SOI_LAY];
 	double ICEsoil[MAX_SOI_LAY];
+	int FROZENsoil[MAX_SOI_LAY];
 	double FROZENFRACsoil[MAX_SOI_LAY];
 
 	for (int i=0; i<MAX_SOI_LAY; i++){
 		TSsoil[i]=resin->TSsoil[i];
 		LIQsoil[i]=resin->LIQsoil[i];
 		ICEsoil[i]=resin->ICEsoil[i];
+		FROZENsoil[i]=resin->FROZENsoil[i];
 		FROZENFRACsoil[i]=resin->FROZENFRACsoil[i];
 	}
 
@@ -223,13 +225,7 @@ void Soil_Env::initializeState5restart(RestartData* resin){
 		  currl->liq = LIQsoil[slind];
 		  currl->ice = ICEsoil[slind];
 		  currl->frozenfrac = FROZENFRACsoil[slind];
-		  if (FROZENFRACsoil[slind]>=1.) {
-			  currl->frozen = 1;
-		  }	else if (FROZENFRACsoil[slind]<=0.) {
-			  currl->frozen = -1;
-		  }	else {
-			  currl->frozen = 0;
-		  }
+		  currl->frozen = FROZENsoil[slind];
 
 		}else{
 		  break;

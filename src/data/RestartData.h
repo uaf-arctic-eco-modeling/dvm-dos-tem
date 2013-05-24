@@ -72,6 +72,7 @@ class RestartData {
 	    double TSsoil[MAX_SOI_LAY]; 
 	    double LIQsoil[MAX_SOI_LAY]; 
 	    double ICEsoil[MAX_SOI_LAY];
+	    int FROZENsoil[MAX_SOI_LAY];
 	    double FROZENFRACsoil[MAX_SOI_LAY];
 	    int TEXTUREsoil[MAX_SOI_LAY];
 

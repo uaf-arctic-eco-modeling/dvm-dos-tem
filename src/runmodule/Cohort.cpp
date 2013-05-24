@@ -148,6 +148,11 @@ void Cohort::setProcessData(EnvData * alledp, BgcData * allbdp, FirData *fdp){
 //re-initializing for a new community of all PFTs sharing same atm/snow-soil domains within a grid
 void Cohort::initStatePar() {
 
+	//
+	if (md->initmode==3){
+		cd.yrsdist = resid.yrsdist;
+	}
+
  	// FOR VEGETATION
 	//vegetation dimension/structure
 	veg.initializeParameter();

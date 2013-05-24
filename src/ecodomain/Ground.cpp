@@ -202,17 +202,20 @@ void Ground::initLayerStructure5restart(snwstate_dim *snowdim, soistate_dim *soi
 	int soilage[MAX_SOI_LAY];
 	double dzsoil[MAX_SOI_LAY];
 	int soiltexture[MAX_SOI_LAY];
+	int frozen[MAX_SOI_LAY];
 	for (int i=0; i<MAX_SOI_LAY; i++){
 		soiltype[i]    = resin->TYPEsoil[i];
 		soilage[i]     = resin->AGEsoil[i];
 		dzsoil[i]      = resin->DZsoil[i];
 		soiltexture[i] = resin->TEXTUREsoil[i];
+		frozen[i]      = resin->FROZENsoil[i];
 	}
 
 	mineral.set5Soilprofile(soiltype, dzsoil, soiltexture, MAX_SOI_LAY);
 	for(int il =mineral.num-1; il>=0; il--){
 		MineralLayer* ml = new MineralLayer(mineral.dz[il], mineral.texture[il], &soillu);
 		ml->age = soilage[il];
+		ml->frozen = frozen[il];
 		insertFront(ml);
 	}
 
@@ -220,6 +223,7 @@ void Ground::initLayerStructure5restart(snwstate_dim *snowdim, soistate_dim *soi
 	for(int il = organic.deepnum-1; il>=0; il--){
 		OrganicLayer* pl = new OrganicLayer(organic.deepdz[il], 2);  //2 means deep organic
 		pl->age = soilage[il];
+		pl->frozen = frozen[il];
 		insertFront(pl);
 	}
 
@@ -227,6 +231,7 @@ void Ground::initLayerStructure5restart(snwstate_dim *snowdim, soistate_dim *soi
 	for(int il =organic.shlwnum-1; il>=0; il--){
 		OrganicLayer* pl = new OrganicLayer(organic.shlwdz[il], 1);//1 means shallow organic
 		pl->age = soilage[il];
+		pl->frozen = frozen[il];
 		insertFront(pl);
 	}
 
@@ -234,6 +239,7 @@ void Ground::initLayerStructure5restart(snwstate_dim *snowdim, soistate_dim *soi
   	for(int il = moss.num-1; il>=0; il--){
   		MossLayer* ml = new MossLayer(moss.dz[il], moss.type);
 		ml->age = soilage[il];
+		ml->frozen = frozen[il];
   		insertFront(ml);
   	}
 

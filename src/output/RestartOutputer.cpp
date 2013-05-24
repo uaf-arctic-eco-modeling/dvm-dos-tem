@@ -99,6 +99,7 @@ void RestartOutputer::init(string& outputdir,string& stage){
 	TSsoilV   =restartFile->add_var("TSsoil", ncDouble, chtD, soillayerD);
     LIQsoilV  =restartFile->add_var("LIQsoil", ncDouble, chtD, soillayerD);
     ICEsoilV  =restartFile->add_var("ICEsoil", ncDouble, chtD, soillayerD);
+    FROZENsoilV=restartFile->add_var("FROZENsoil", ncInt, chtD, soillayerD);
     FROZENFRACsoilV=restartFile->add_var("FROZENFRACsoil", ncDouble, chtD, soillayerD);
     TEXTUREsoilV   =restartFile->add_var("TEXTUREsoil", ncInt, chtD, soillayerD);
         
@@ -192,6 +193,7 @@ void RestartOutputer::outputVariables(const int & chtcount){
 	TSsoilV->put_rec(&resod->TSsoil[0], chtcount);
 	LIQsoilV->put_rec(&resod->LIQsoil[0], chtcount);
 	ICEsoilV->put_rec(&resod->ICEsoil[0], chtcount);
+	FROZENsoilV->put_rec(&resod->FROZENsoil[0], chtcount);
 	FROZENFRACsoilV->put_rec(&resod->FROZENFRACsoil[0], chtcount);
 	TEXTUREsoilV->put_rec(&resod->TEXTUREsoil[0], chtcount);
 

@@ -342,7 +342,8 @@ void EnvData::grnd_beginOfMonth(){
    	m_soid.hkminec= 0.;
 
    	for (int il=0; il<MAX_SOI_LAY; il++){
-		m_sois.frozenfrac[il]  = 0.;
+		m_sois.frozen[il]     = 0.;
+		m_sois.frozenfrac[il] = 0.;
 
    		m_sois.ts[il]      = 0.;
    		m_sois.liq[il]     = 0.;
@@ -473,7 +474,8 @@ void EnvData::grnd_endOfDay(const int & dinm, const int & doy){
 	// soils
 	int numsoi = cd->m_soil.numsl;
 	for(int il =0; il<numsoi; il++){
-		m_sois.frozenfrac[il] += d_sois.frozenfrac[il]/dinm;   //so, if some days frozen, some day not, its value shall be between -1 and 1.
+		m_sois.frozen[il] += d_sois.frozen[il]/dinm;   //so, if some days frozen, some day not, its value shall be between -1 and 1.
+		m_sois.frozenfrac[il] += d_sois.frozenfrac[il]/dinm;
 
 		m_sois.ts[il]  += d_sois.ts[il]/dinm;
 		m_sois.liq[il] += d_sois.liq[il]/dinm;
@@ -732,7 +734,8 @@ void EnvData::grnd_endOfMonth(){
 	// soils
 	int numsoi = cd->m_soil.numsl;
 	for(int il =0; il<numsoi; il++){
-		y_sois.frozenfrac[il] += m_sois.frozenfrac[il]/12;   //so, if some months frozen, some months not, its value shall be between -1 and 1.
+		y_sois.frozen[il] += m_sois.frozen[il]/12;   //so, if some months frozen, some months not, its value shall be between -1 and 1.
+		y_sois.frozenfrac[il] += m_sois.frozenfrac[il]/12;
 
 		y_sois.ts[il]  += m_sois.ts[il]/12.;
 		y_sois.liq[il] += m_sois.liq[il]/12.;

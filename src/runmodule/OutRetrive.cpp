@@ -684,6 +684,7 @@ void OutRetrive::updateRestartOutputBuffer(){
  			resod->TSsoil[il]    = edall->d_sois.ts[il];
  			resod->LIQsoil[il]   = edall->d_sois.liq[il];
  			resod->ICEsoil[il]   = edall->d_sois.ice[il];
+ 			resod->FROZENsoil[il]= edall->d_sois.frozen[il];
  			resod->FROZENFRACsoil[il]= edall->d_sois.frozenfrac[il];
 
  		}
