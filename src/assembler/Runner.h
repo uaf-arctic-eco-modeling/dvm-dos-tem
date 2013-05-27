@@ -23,6 +23,8 @@
 #include "../runmodule/ModelData.h"
 
 #include <vector>
+#include <deque>
+
 using namespace std;
 
 class Runner {
@@ -42,7 +44,7 @@ class Runner {
     	void runmode1();  /* one site run-mode, used for stand-alone TEM for any purpose */
     	void runmode2();  /* multi-site (regional) run-mode 1, i.e., time series */
     	void runmode3();  /* multi-site (regional) run-mode 2, i.e., spatially */
-    	void runSpatially(const int icalyr, const int im);
+    	int runSpatially(const int icalyr, const int im, const int jj);
 
     	vector<int> runchtlist;  //a vector listing all cohort id
  	    vector<float> runchtlats;  //a vector of latitudes for all cohorts in order of 'runchtlist'
@@ -86,6 +88,8 @@ class Runner {
     	EnvData  chted;   // withing-grid cohort-level aggregated 'ed' (i.e. 'edall in 'cht')
     	BgcData  chtbd;
     	FirData  chtfd;
+
+    	deque<RestartData> mlyres;
 
 		//util
 		Timer timer;

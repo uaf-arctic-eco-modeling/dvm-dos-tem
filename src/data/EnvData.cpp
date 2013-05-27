@@ -188,6 +188,7 @@ void EnvData::grnd_beginOfYear(){
    	y_soid.hkminec= 0.;
 
    	for (int il=0; il<MAX_SOI_LAY; il++){
+  		y_sois.frozen[il]      = 0.;
   		y_sois.frozenfrac[il]  = 0.;
 
    		y_sois.ts[il]      = 0.;
@@ -396,6 +397,7 @@ void EnvData::atm_endOfDay(const int & dinm){
 
    	m_atms.ta   += d_atms.ta/dinm;
    	m_atms.co2  += d_atms.co2/dinm;
+   	m_atms.dsr  = d_atms.dsr;
 
    	m_atmd.vp   += d_atmd.vp/dinm;
    	m_atmd.svp  += d_atmd.svp/dinm;
@@ -666,6 +668,7 @@ void EnvData::atm_endOfMonth(){
 
 	y_atms.ta  += m_atms.ta/12.;
     y_atms.co2 += m_atms.co2/12.;
+   	y_atms.dsr = d_atms.dsr;
 
     y_atmd.vp  += m_atmd.vp/12.;
    	y_atmd.svp += m_atmd.svp/12.;

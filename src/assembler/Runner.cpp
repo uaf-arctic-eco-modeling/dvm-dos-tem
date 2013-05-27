@@ -232,14 +232,14 @@ void Runner::setupIDs(){
 
 	unsigned int jj;
 	for (jj=0; jj<runchtlist.size(); jj++){
-		chtid = runchtlist.at(jj);
+		int ichtid = runchtlist.at(jj);
 
-		jt   = find(runcht.chtids.begin(), runcht.chtids.end(), chtid);
+		jt   = find(runcht.chtids.begin(), runcht.chtids.end(), ichtid);
+		jcht = (unsigned int)(jt - runcht.chtids.begin());
 		if (jcht>=runcht.chtids.size()) {
 			cout<<"Cohort: "<<chtid<<" is not in datacht/cohortid.nc";
 			exit(-1);
 		}
-		jcht = (unsigned int)(jt - runcht.chtids.begin());
 
 		// grid record no. (in 'grid.nc') for 'chtid' (needed for lat/lon)
 		jt    = find(rungrd.grdids.begin(), rungrd.grdids.end(), runcht.chtgridids.at(jcht));
@@ -500,22 +500,67 @@ void Runner::runmode3(){
 	}
 
 	//loop through time-step
+	int totcohort = (int)runchtlist.size();
+
 	for (int icalyr=runcht.yrstart; icalyr<=runcht.yrend; icalyr++){
-		for (int im=0; im<12; im++) {
-			runSpatially(icalyr, im);
-		}
+
+		int ifover = 0;
+    	for (int im=0; im<12; im++) {
+    		runcht.cohortcount = 0;
+    		for (int jj=0; jj<totcohort; jj++){
+    			ifover = runSpatially(icalyr, im, jj);
+    		}
+
+    		//
+    			/*	// restart data is saved into memory
+
+    			// The following is to save monthly-generated 'restart' file FOR
+    			// using to initialize the next time-steps for all cohorts
+    			// 1) need to close monthly I/O 'restart' files
+    			if (runcht.resouter.restartFile!=NULL) {
+    				runcht.resouter.restartFile->close();
+    				delete runcht.resouter.restartFile;
+    			}
+    			if (runcht.resinputer.restartFile!=NULL) {
+    				runcht.resinputer.restartFile->close();
+    				delete runcht.resinputer.restartFile;
+    			}
+
+    			// 2) copy the output 'restart' to the monthly 'restart'
+    			// after the first timestep, 'restart' as the initial conditions
+    			// So essentially every cohort has to be restarting from the previous time-step
+    			string mlyrestartfile = md.outputdir+"/restart-mly.nc";
+
+    			ifstream src((char*)runcht.resouter.restartfname.c_str(), ios::binary);
+    			ofstream dst((char*)mlyrestartfile.c_str(), ios::binary);
+    			dst<<src.rdbuf();
+    			src.close();
+    			dst.close();
+
+    			// 3) have to re-initialize I/O files for next timestep
+    			runcht.resinputer.init(mlyrestartfile);
+    			string stage="-"+md.runstages;
+    			runcht.resouter.init(md.outputdir, stage);
+    		//*/
+
+    		// no matter what initmode set in control file, must be 'restart' after the first time-step
+    		md.initmode=4;   // this will set 'initmode' as 'restart', but from 'mlyres' rather than from restart file (initmode=3).
+
+    		// ticking timer once
+			timer.advanceOneMonth();
+
+    	} // end of monthly loop
+
+    	// if get signal to break 'icalyr' loop (i.e., not reach to 'runcht.yrend'
+    	if (ifover==1) break;
+
+    	cout <<"TEM runs @" << md.runstages <<" - year "<<icalyr<<" is done! \n";
+
 	}
 };
 
-void Runner::runSpatially(const int icalyr, const int im) {
+int Runner::runSpatially(const int icalyr, const int im, const int jj) {
 
-	// after the first timestep, 'restart' as the initial conditions
-	// So essentially every cohort has to be restarting from the previous time-step
-	if (!(icalyr==runcht.yrstart && im==0))	md.initmode=3;
-
-	runcht.cohortcount = 0;
-	unsigned int jj ;
-	for (jj=0; jj<runchtlist.size(); jj++){
 		chtid = runchtlist.at(jj);
 
 		// may need to clear up data containers for new cohort
@@ -556,15 +601,6 @@ void Runner::runSpatially(const int icalyr, const int im) {
 			exit(-1);
 		}
 
-		if (md.runeq && icalyr > 20*runcht.cht.gd->fri-2){  //20 FRI-2
-			if (jj<runchtlist.size()) {  // if not the last cohort
-				continue;    // when at 'eq' runstage, max. run year for a cohort is 20*FRI-2;
-					                 // here stop and go to the next cohort
-			} else {   // if the last cohort
-				break;       // break the cohort loop
-			}
-		}
-
 		// getting the cohort data for the current cohort
 		error = runcht.readData();
 		if (error!=0){
@@ -572,8 +608,33 @@ void Runner::runSpatially(const int icalyr, const int im) {
 			exit(-1);
 		}
 
-		// getting the restart data for the current cohort
-		error = runcht.reinit();
+		// a special case: for 'eq', ending year might be less than 'runcht.yrend'
+		// this can only be done here (i.e., after reading data)
+		int yrending = runcht.yrend;
+		if (md.runeq) {
+			int nfri = round(runcht.yrend/runcht.cht.gd->fri);
+			nfri = min(max(nfri, 20),5); // 5 ~ 20 FRI
+			yrending= nfri*runcht.cht.gd->fri-2;  //n*FRI-2: ending at 2 years prior to fire year
+			if (icalyr>yrending) {
+				if (jj==(int)runchtlist.size()-1) {
+					return 1;      // this will break the 'icalyr' loop in runmode3()
+				} else {
+					if (md.initmode>3){
+						mlyres.push_back(mlyres.at(0));
+						mlyres.pop_front();       // these two will move the skipped cohort 'restart' to the back of 'deque'
+					}
+					return 0;      // this will skip the following statements and jump to next cohort (if not the last one)
+				}
+			}
+		}
+
+		// getting the initial data and drivers (climate and fire) for the current cohort
+		if (md.initmode>3){
+			runcht.cht.resid = mlyres.at(0);
+			mlyres.pop_front();       // this will always keep the first member in the deque for the next cohort
+		}
+		error = runcht.reinit(); // here, if 'initmode=3', reads 'restart' from 'md.initfile';
+		                         //       if 'initmode>3', takes 'restart' from above
 		if (error!=0){
 			cout <<"problem in re-initialzing cohort in Runner::runmode3\n";
 			exit(-1);
@@ -581,6 +642,15 @@ void Runner::runSpatially(const int icalyr, const int im) {
 
 		// run one timestep (monthly)
 		runcht.run_monthly();
+
+		// save the new 'restart' in the back of deque, which will move forward
+		mlyres.push_back(runcht.resod);
+		if (mlyres.size()>runchtlist.size()) mlyres.pop_front(); // this is not needed, if everything does well. So here just in case
+
+		//'restart.nc' always output at the ending time-step (which was adjusted above for 'eq')
+		if (icalyr==yrending && im==11){
+			runcht.resouter.outputVariables(jj);
+		}
 
 		if(md.consoledebug){
 			cout <<"TEM " << md.runstages
@@ -592,35 +662,7 @@ void Runner::runSpatially(const int icalyr, const int im) {
 
 		runcht.cohortcount++;
 
-	} // end of cohort counter loop
-
-	// The following is to save monthly-generated 'restart' file FOR
-	// using to initialize the next time-steps for all cohorts
-	// 1) need to close monthly I/O 'restart' files
-	if (runcht.resouter.restartFile!=NULL) {
-		runcht.resouter.restartFile->close();
-		delete runcht.resouter.restartFile;
-	}
-	if (runcht.resinputer.restartFile!=NULL) {
-		runcht.resinputer.restartFile->close();
-		delete runcht.resinputer.restartFile;
-	}
-
-	// 2) copy the output 'restart' to the input 'restart'
-	ifstream src((char*)runcht.resouter.restartfname.c_str(), ios::binary);
-	ofstream dst((char*)md.initialfile.c_str(), ios::binary);
-	dst<<src.rdbuf();
-	src.close();
-	dst.close();
-
-	// 3) have to re-initialize I/O files for next timestep
-	runcht.resinputer.init(md.initialfile);
-	string stage="-"+md.runstages;
-	runcht.resouter.init(md.outputdir, stage);
-
-	// ticking timer once
-	timer.advanceOneMonth();
-
+		return 0;
 };
 
 void Runner::createCohortList4Run(){

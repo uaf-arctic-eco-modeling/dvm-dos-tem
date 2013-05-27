@@ -278,7 +278,7 @@ void Snow_Env::initializeState5restart(RestartData* resin){
 	}
 
 	//
-	ground->checkWaterValidity();
+	//ground->checkWaterValidity();
 
 };
 
