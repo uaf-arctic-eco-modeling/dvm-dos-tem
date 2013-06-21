@@ -24,9 +24,25 @@
   </target>
 
   <target name="setup_linux" if="is_linux">
+    <!-- 
+      06-20-2013 
+      Obviously the path here to java only works for the sun (oracle?) version of java.
+      Fedora / Redhat / CentOS defualt to using OpenJDK, and the sun version is not 
+      available with yum. It is possible to install both side by side using the directions
+      here: http://www.if-not-true-then-false.com/2010/install-sun-oracle-java-jdk-jre-7-on-fedora-centos-red-hat-rhel/
+      At this time I am not sure if dvm-dos-tem calibration version requires one or the 
+      other java distributions, but on a fresh Fedora install, it does not seem to compile
+      right out of the box...
+      
+    -->
     <echo message="Setting Linux (aeshna) specific build settings..." />
     <property name="CFLAGS" value="-fpic -shared" />
     <property name="JAVADIR" value="/usr/lib/jvm/java-1.6.0-sun-1.6.0.30" />
+    <!-- 
+      A suitable temporarly solution to java problem might be to add platform specific 
+      lines here and leave them commented out. The default should be arranged to work on 
+      aeshna (as is now).
+    -->
     <property name="CORESHAREDLIBNAME" value="libtemcore.so" />
     <property name="INCLUDES" value="-I${JAVADIR}/include -I${JAVADIR}/include/linux" />
   </target>
