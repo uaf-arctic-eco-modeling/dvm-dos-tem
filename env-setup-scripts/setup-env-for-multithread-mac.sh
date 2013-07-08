@@ -15,6 +15,13 @@
 # better to modify this script if more Mac specific settings are found...
 
 F=Makefile
+
+normal_flags="CFLAGS=-c -Wall -ansi -O2 -g -fPIC"
+debug_flags="CFLAGS=-c -Wall -ansi -g -fPIC"
+
+cat $F | sed 's:'"$normal_flags"':'"$debug_flags"':' > $F.new
+mv $F.new $F
+
 normal_lib_line="LIBS=-lnetcdf_c++ -lnetcdf -lboost_system -lboost_filesystem -lboost_program_options"
 mt_mac_lib_line="LIBS=-lnetcdf_c++ -lnetcdf -lboost_system-mt -lboost_filesystem-mt -lboost_program_options-mt"
 
