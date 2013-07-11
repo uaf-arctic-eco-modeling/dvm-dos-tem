@@ -5,6 +5,20 @@
 These notes concern the calibration version. The extrapolation version is in the 
 directory above this one.
 
+## Dependency Notes 
+Compiling and running this software requires the following software be installed on your 
+machine:
+* ant
+* java (so far only tested with Sun Java, v1.6.0.xx)
+* javac (java compiler)
+* jar (tool for creating java jar files
+(All this stuff is usually included with the "JDKs" (Java Development Kits)
+
+* g++ compiler
+* SWIG
+* ?? more??
+ 
+
 The calibration version (Java code that wraps C++ providing a GUI and various I/O
 routines) is in this `calibration/` subdirectory of the main project. The calibration 
 code uses the same C++ files for its core calculations as the extrapolation version. 
