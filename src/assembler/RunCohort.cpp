@@ -50,7 +50,7 @@ int RunCohort::allchtids(){
 	}
 
 	// from 'restart.nc' or 'sitein.nc'
-	if (!md->runeq) { // 'runeq' stage doesn't require initial file
+	if (md->initmode>1) { // 'runeq' stage doesn't require initial file
 		for (int i=0; i<md->act_initchtno; i++) {
 			error = cinputer.getInitchtId(id, i);
 			if (error!=0) return error;

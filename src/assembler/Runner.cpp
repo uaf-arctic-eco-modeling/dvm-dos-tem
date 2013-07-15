@@ -224,7 +224,7 @@ void Runner::setupIDs(){
 		}
 	}
 
-	// 2) output the record no. for all data IDs, in the 'runchtlist'in so that read-data doesn't need to
+	// 2) output the record no. for all data IDs, in the 'runchtlist.nc' so that read-data doesn't need to
 	// search each IDs in the .nc files during computation, which may cost a lot of computation time
 	unsigned int jcht;
 	unsigned int jdata;
@@ -237,7 +237,7 @@ void Runner::setupIDs(){
 		jt   = find(runcht.chtids.begin(), runcht.chtids.end(), ichtid);
 		jcht = (unsigned int)(jt - runcht.chtids.begin());
 		if (jcht>=runcht.chtids.size()) {
-			cout<<"Cohort: "<<chtid<<" is not in datacht/cohortid.nc";
+			cout<<"Cohort: "<<ichtid<<" is not in datacht/cohortid.nc";
 			exit(-1);
 		}
 
@@ -246,7 +246,7 @@ void Runner::setupIDs(){
 		jdata = (int)(jt - rungrd.grdids.begin());
 		if (jdata>=rungrd.grdids.size()) {
 			cout<<"GRIDID: "<<runcht.chtgridids.at(jcht)
-					<<"for Cohort: "<<chtid<<" is not in datagrid/grid.nc";
+					<<"for Cohort: "<<ichtid<<" is not in datagrid/grid.nc";
 			exit(-1);
 		}
 		reclistgrid.push_back(jdata);
@@ -262,7 +262,7 @@ void Runner::setupIDs(){
 		jdata = (int)(jt - rungrd.drainids.begin());
 		if (jdata>=rungrd.drainids.size()) {
 			cout<<"DRAINAGEID: "<<runcht.chtdrainids.at(jcht)
-					<<"for Cohort: "<<chtid<<" is not in datagrid/drainage.nc";
+					<<" for Cohort: "<<ichtid<<" is not in datagrid/drainage.nc";
 			exit(-1);
 		}
 		reclistdrain.push_back(jdata);
@@ -272,7 +272,7 @@ void Runner::setupIDs(){
 		jdata = (int)(jt - rungrd.soilids.begin());
 		if (jdata>=rungrd.soilids.size()) {
 			cout<<"SOILID: "<<runcht.chtsoilids.at(jcht)
-					<<"for Cohort: "<<chtid<<" is not in datagrid/drainage.nc";
+					<<" for Cohort: "<<ichtid<<" is not in datagrid/drainage.nc";
 			exit(-1);
 		}
 		reclistsoil.push_back(jdata);
@@ -282,18 +282,18 @@ void Runner::setupIDs(){
 		jdata = (int)(jt - rungrd.gfireids.begin());
 		if (jdata>=rungrd.gfireids.size()) {
 			cout<<"GFIREID: "<<runcht.chtfireids.at(jcht)
-					<<"for Cohort: "<<chtid<<" is not in datagrid/firestatistics.nc";
+					<<" for Cohort: "<<ichtid<<" is not in datagrid/firestatistics.nc";
 			exit(-1);
 		}
 		reclistgfire.push_back(jdata);
 
 		// initial data record no. (in 'restart.nc' or 'sitein.nc', or '-1') for 'chtid'
-		if (!md.runeq) {
+		if (md.initmode>1) {
 			jt    = find(runcht.initids.begin(), runcht.initids.end(), runcht.chtinitids.at(jcht));
 			jdata = (int)(jt - runcht.initids.begin());
 			if (jdata>=runcht.initids.size()) {
 				cout<<"initial/restart CHTID: "<<runcht.chtinitids.at(jcht)
-						<<"for Cohort: "<<chtid<<" is not in "<<md.initialfile;
+						<<" for Cohort: "<<ichtid<<" is not in "<<md.initialfile;
 				exit(-1);
 			}
 			reclistinit.push_back(jdata);
@@ -304,9 +304,9 @@ void Runner::setupIDs(){
 		// climate data record no. (in 'climate.nc') for 'chtid'
 		jt    = find(runcht.clmids.begin(), runcht.clmids.end(), runcht.chtclmids.at(jcht));
 		jdata = (int)(jt - runcht.clmids.begin());
-		if (jdata>=runcht.chtclmids.size()) {
+		if (jdata>=runcht.clmids.size()) {
 			cout<<"CLMID: "<<runcht.chtclmids.at(jcht)
-					<<"for Cohort: "<<chtid<<" is not in datacht/climate.nc";
+					<<" for Cohort: "<<ichtid<<" is not in datacht/climate.nc";
 			exit(-1);
 		}
 		reclistclm.push_back(jdata);
@@ -314,9 +314,9 @@ void Runner::setupIDs(){
 		// vegetation community data record no. (in 'vegetation.nc') for 'chtid'
 		jt    = find(runcht.vegids.begin(), runcht.vegids.end(), runcht.chtvegids.at(jcht));
 		jdata = (int)(jt - runcht.vegids.begin());
-		if (jdata>=runcht.chtvegids.size()) {
+		if (jdata>=runcht.vegids.size()) {
 			cout<<"VEGID: "<<runcht.chtvegids.at(jcht)
-					<<"for Cohort: "<<chtid<<" is not in datacht/vegetation.nc";
+					<<" for Cohort: "<<ichtid<<" is not in datacht/vegetation.nc";
 			exit(-1);
 		}
 		reclistveg.push_back(jdata);
@@ -324,9 +324,9 @@ void Runner::setupIDs(){
 		// fire data record no. (in 'fire.nc') for 'chtid'
 		jt    = find(runcht.fireids.begin(), runcht.fireids.end(), runcht.chtfireids.at(jcht));
 		jdata = (int)(jt - runcht.fireids.begin());
-		if (jdata>=runcht.chtfireids.size()) {
+		if (jdata>=runcht.fireids.size()) {
 			cout<<"FIREID: "<<runcht.chtfireids.at(jcht)
-					<<"for Cohort: "<<chtid<<" is not in datacht/fire.nc";
+					<<" for Cohort: "<<ichtid<<" is not in datacht/fire.nc";
 			exit(-1);
 		}
 		reclistfire.push_back(jdata);
@@ -464,29 +464,29 @@ void Runner::runmode3(){
 	timer.reset();
 
     // options for different run-stages:
-	// NOTE: the following setting will not allow run two or more stages continuesly
+	// NOTE: the following setting will not allow run two or more stages continueslly
 	if(md.runeq){
-		timer.stageyrind   = 0;
-		runcht.yrstart = 0;
-		runcht.yrend   = MAX_EQ_YR;
-		md.friderived  = true;
+		timer.stageyrind = 0;
+		runcht.yrstart   = 0;
+		runcht.yrend     = MAX_EQ_YR;
+		md.friderived    = true;
 	}
 	if(md.runsp){
 		timer.stageyrind = 0;
-		timer.eqend = true;
-	    runcht.used_atmyr = fmin(MAX_ATM_NOM_YR, md.act_clmyr);
-	    runcht.yrstart = timer.spbegyr;
-	    runcht.yrend   = timer.spendyr;
-	    md.friderived= false;
+		timer.eqend      = true;
+	    runcht.used_atmyr= fmin(MAX_ATM_NOM_YR, md.act_clmyr);
+	    runcht.yrstart   = timer.spbegyr;
+	    runcht.yrend     = timer.spendyr;
+	    md.friderived    = false;
 	}
 	if(md.runtr){
 		timer.stageyrind = 0;
-		timer.eqend = true;
-		timer.spend = true;
-		runcht.used_atmyr = md.act_clmyr;
-		runcht.yrstart = timer.trbegyr;
-		runcht.yrend   = timer.trendyr;
-	    md.friderived= false;
+		timer.eqend      = true;
+		timer.spend      = true;
+		runcht.used_atmyr= md.act_clmyr;
+		runcht.yrstart   = timer.trbegyr;
+		runcht.yrend     = timer.trendyr;
+	    md.friderived    = false;
 	}
 	if(md.runsc){
 		timer.stageyrind = 0;
@@ -578,7 +578,7 @@ int Runner::runSpatially(const int icalyr, const int im, const int jj) {
 		runcht.cht.cd.year  = icalyr;
 		runcht.cht.cd.month = im+1;
 
-		// assgning the record no. for all needed data IDs
+		// assigning the record no. for all needed data IDs
 		rungrd.gridrecno  = reclistgrid.at(jj);
 		rungrd.drainrecno = reclistdrain.at(jj);
 		rungrd.soilrecno  = reclistsoil.at(jj);

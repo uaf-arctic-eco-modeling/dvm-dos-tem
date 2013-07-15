@@ -78,6 +78,8 @@
    	 		int act_chtno;
    	 		int act_initchtno;
    	 		int act_clmno;  // climate data in clmid-year-month(12) (3D)
+   	 		int act_clmyr_beg;
+   	 		int act_clmyr_end;
    	 		int act_clmyr;
    	 		int act_vegno;  // vegetation community data in vegid-yearset (2D)
    			int act_vegset;

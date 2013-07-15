@@ -128,7 +128,7 @@ void Soil_Bgc::prepareIntegration(const bool &mdnfeedback, const bool &mdavlnflg
 
     	 // soil liq. water controlling factor for soil N minralization/immobilization and root N extraction
     	 for (int i=0; i<cd->m_soil.numsl; i++) {
-    		 bd->m_soid.knmoist[i] = getKnsoilmoist(ed->m_soid.sws[i]); //lwc[i]);
+    		 bd->m_soid.knmoist[i] = getKnsoilmoist(ed->m_soid.sws[i]);
     	 }
 
     	 //prepare total liq water and available N in soil zones above drainage depth
@@ -403,12 +403,13 @@ void Soil_Bgc::initMslayerCarbon(double & minec){
 
  	Layer* currl = ground->fstminel;
 	
+ 	double totsomc = 0.0;
 	while(currl!=NULL){
  	  	if(currl->isSoil){
 
  			dbm += currl->dz;
-			cumcarbon = ca/cb*(exp(cb*dbm*100) -1) *10000 + 0.0025 *dbm*100*10000;
-			if(cumcarbon-prevcumcarbon>1.0 && dbm<=1.0){   // somc will not exist more than 1 m intially
+			cumcarbon = ca/cb*(exp(cb*dbm*100)-1.0)*10000 + 0.0025*dbm*100*10000;
+			if(cumcarbon-prevcumcarbon>0.01 && dbm<=2.0){   // somc will not exist more than 2 m intially
 				currl->rawc  = bgcpar.eqrawc * (cumcarbon -prevcumcarbon);
 				currl->soma  = bgcpar.eqsoma * (cumcarbon -prevcumcarbon);
 				currl->sompr = bgcpar.eqsompr * (cumcarbon -prevcumcarbon);
@@ -421,6 +422,8 @@ void Soil_Bgc::initMslayerCarbon(double & minec){
 			}
 
 			prevcumcarbon = cumcarbon;
+
+			totsomc += currl->rawc+currl->soma+currl->sompr+currl->somcr;
  	  		
  	  	}else{
  	  	  	break;	
@@ -431,7 +434,8 @@ void Soil_Bgc::initMslayerCarbon(double & minec){
 	//Above calculation will give all soil mineral layer C content UPON two parameters,
 	//      the following will adjust that by actual initial MINEC amount as an input
 
-	double adjfactor = minec/cumcarbon;
+	double adjfactor = 1.0;
+	if (totsomc>0.) adjfactor=minec/totsomc;
 	currl = ground->fstminel;
 	while(currl!=NULL){
  	  	if(currl->isSoil){
@@ -468,6 +472,8 @@ void Soil_Bgc::deltac(){
 		if(tmp_sois.rawc[il]>0.){
 			del_soi2a.rhrawc[il] = (krawc * tmp_sois.rawc[il]
 			                      * bd->m_soid.rhmoist[il] * bd->m_soid.rhq10[il]);
+		} else {
+			del_soi2a.rhrawc[il] = 0.;
 		}
 		
 		if(tmp_sois.soma[il]>0){

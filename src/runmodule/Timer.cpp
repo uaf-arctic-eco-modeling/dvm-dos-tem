@@ -44,6 +44,17 @@ void Timer::reset(){
   	scend = false;
 
   	outyrind = 0;
+
+	spendyr = md->act_clmyr_beg-1;
+	trbegyr = md->act_clmyr_beg;
+	trendyr = md->act_clmyr_end;
+	scbegyr = md->act_clmyr_beg;
+	scendyr = md->act_clmyr_end;
+
+	spnumyr = spendyr-spbegyr+1;
+	trnumyr = trendyr-trbegyr+1;
+	scnumyr = scendyr-scbegyr+1;
+
 };
  
 
