@@ -108,6 +108,7 @@ void RestartData::reinitValue(){
 		TSsoil[il]   = MISSING_D;
 		LIQsoil[il]  = MISSING_D;
 		ICEsoil[il]  = MISSING_D;
+		FROZENsoil[il]= MISSING_I;
 		FROZENFRACsoil[il]= MISSING_D;
 		TEXTUREsoil[il]   = MISSING_I;
 	}

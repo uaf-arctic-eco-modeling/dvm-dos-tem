@@ -102,6 +102,7 @@ void RestartInputer::init(string & dirfile){
 	TSsoilV   =restartFile->get_var("TSsoil");
     LIQsoilV  =restartFile->get_var("LIQsoil");
     ICEsoilV  =restartFile->get_var("ICEsoil");
+    FROZENsoilV=restartFile->get_var("FROZENsoil");
     FROZENFRACsoilV=restartFile->get_var("FROZENFRACsoil");
     TEXTUREsoilV   =restartFile->get_var("TEXTUREsoil");
 
@@ -523,6 +524,14 @@ void RestartInputer::getRestartData(RestartData *resid, const int &cid){
 	varbool = ICEsoilV->get(&resid->ICEsoil[0], 1, MAX_SOI_LAY);
 	if(!varbool){
 		string msg = "problem in reading 'ICEsoil' in RestartInputer";
+ 		cout<<msg+"\n";
+ 		exit(-1);
+	}
+
+	FROZENsoilV->set_cur(cid, 0);
+	varbool = FROZENsoilV->get(&resid->FROZENsoil[0], 1, MAX_SOI_LAY);
+	if(!varbool){
+		string msg = "problem in reading 'FROZENsoil' in RestartInputer";
  		cout<<msg+"\n";
  		exit(-1);
 	}

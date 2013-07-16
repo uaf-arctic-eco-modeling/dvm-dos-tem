@@ -7,7 +7,7 @@ DATA/test_06_cohorts/datagrid/                       /* directory of grided data
 DATA/test_06_cohorts/datacht/                        /* directory of cohort inputs
 eq                                                          /* run stage (must be "eq","sp","tr","sc", "eqsp", "sptr", "eqsptr", or "all")
 restart                                                     /* initial mode (must be "default", "restart", or,"sitein")
-DATA/test_06_cohorts/output/restart-mly.nc            /* restart/site-specific input file (if "restart"/"sitein" as in previous line)
+DATA/test_06_cohorts/output/restart-eq.nc            /* restart/site-specific input file (if "restart"/"sitein" as in previous line)
 1                                                           /* using dynamical climate data (1) or not (-1) or default (0: upon to stage)
 1                                                           /* using varied co2  (1) or not (-1) or default (0: upon to stage)
 1                                                           /* using dynamical LAI from veg. C in model (1), or otherwise from input (0) 

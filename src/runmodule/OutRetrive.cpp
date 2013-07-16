@@ -604,57 +604,60 @@ void OutRetrive::updateRestartOutputBuffer(){
  		resod->yrsdist   = cd->yrsdist;
 
  	    for (int ip=0; ip<NUM_PFT; ip++) {
- 	    	resod->ifwoody[ip]    = cd->m_veg.ifwoody[ip];
- 	    	resod->ifdeciwoody[ip]= cd->m_veg.ifdeciwoody[ip];
- 	    	resod->ifperenial[ip] = cd->m_veg.ifperenial[ip];
- 	    	resod->nonvascular[ip]= cd->m_veg.nonvascular[ip];
+ 	    	if (cd->m_veg.vegcov[ip]>0.) {
+				resod->ifwoody[ip]    = cd->m_veg.ifwoody[ip];
+				resod->ifdeciwoody[ip]= cd->m_veg.ifdeciwoody[ip];
+				resod->ifperenial[ip] = cd->m_veg.ifperenial[ip];
+				resod->nonvascular[ip]= cd->m_veg.nonvascular[ip];
 
- 	    	resod->vegage[ip] = cd->m_veg.vegage[ip];
- 	    	resod->vegcov[ip] = cd->m_veg.vegcov[ip];
- 	    	resod->lai[ip]    = cd->m_veg.lai[ip];
- 	    	for (int i=0; i<MAX_ROT_LAY; i++) {
- 	    		resod->rootfrac[i][ip] = cd->m_veg.frootfrac[i][ip];
- 	    	}
+				resod->vegage[ip] = cd->m_veg.vegage[ip];
+				resod->vegcov[ip] = cd->m_veg.vegcov[ip];
+				resod->lai[ip]    = cd->m_veg.lai[ip];
+				for (int i=0; i<MAX_ROT_LAY; i++) {
+					resod->rootfrac[i][ip] = cd->m_veg.frootfrac[i][ip];
+				}
 
- 	    	resod->vegwater[ip] = ed[ip]->m_vegs.rwater;             //canopy water - 'vegs_env'
- 	    	resod->vegsnow[ip]  = ed[ip]->m_vegs.snow;              //canopy snow  - 'vegs_env'
+				resod->vegwater[ip] = ed[ip]->m_vegs.rwater;             //canopy water - 'vegs_env'
+				resod->vegsnow[ip]  = ed[ip]->m_vegs.snow;              //canopy snow  - 'vegs_env'
 
- 	    	for (int i=0; i<NUM_PFT_PART; i++) {
- 	    		resod->vegc[i][ip] = bd[ip]->m_vegs.c[i];   // - 'vegs_bgc'
- 	    		resod->strn[i][ip] = bd[ip]->m_vegs.strn[i];
- 	    	}
- 	    	resod->labn[ip]      = bd[ip]->m_vegs.labn;
- 	    	resod->deadc[ip]     = bd[ip]->m_vegs.deadc;
- 	    	resod->deadn[ip]     = bd[ip]->m_vegs.deadn;
+				for (int i=0; i<NUM_PFT_PART; i++) {
+					resod->vegc[i][ip] = bd[ip]->m_vegs.c[i];   // - 'vegs_bgc'
+					resod->strn[i][ip] = bd[ip]->m_vegs.strn[i];
+				}
+				resod->labn[ip]      = bd[ip]->m_vegs.labn;
+				resod->deadc[ip]     = bd[ip]->m_vegs.deadc;
+				resod->deadn[ip]     = bd[ip]->m_vegs.deadn;
 
- 	    	resod->eetmx[ip]        = cd->m_vegd.eetmx[ip];
- 	    	resod->topt[ip]         = cd->m_vegd.topt[ip];
- 	    	resod->unnormleafmx[ip] = cd->m_vegd.unnormleafmx[ip];
- 	    	resod->growingttime[ip] = cd->m_vegd.growingttime[ip];
- 	    	resod->foliagemx[ip]    = cd->m_vegd.foliagemx[ip];        // this is for f(foliage) in GPP to be sure f(foliage) not going down
+				resod->eetmx[ip]        = cd->m_vegd.eetmx[ip];
+				resod->topt[ip]         = cd->m_vegd.topt[ip];
+				resod->unnormleafmx[ip] = cd->m_vegd.unnormleafmx[ip];
+				resod->growingttime[ip] = cd->m_vegd.growingttime[ip];
+				resod->foliagemx[ip]    = cd->m_vegd.foliagemx[ip];        // this is for f(foliage) in GPP to be sure f(foliage) not going down
 
- 	    	deque<double> tmpdeque1 = cd->toptque[ip];
- 	    	int recnum = tmpdeque1.size();
- 	    	for (int i=0; i<recnum; i++) {
- 	    		resod->toptA[i][ip] = tmpdeque1[i];
- 	    	}
- 	    	deque<double> tmpdeque2 = cd->prvunnormleafmxque[ip];
- 	    	recnum = tmpdeque2.size();
- 	    	for (int i=0; i<recnum; i++) {
- 	    		resod->unnormleafmxA[i][ip] = tmpdeque2[i];
- 	    	}
-  	    	deque<double> tmpdeque3 = cd->prvgrowingttimeque[ip];
- 	    	recnum = tmpdeque3.size();
- 	    	for (int i=0; i<recnum; i++) {
- 	    		resod->growingttimeA[i][ip]= tmpdeque3[i];
- 	    	}
- 	    	deque<double> tmpdeque4 = cd->prveetmxque[ip];
- 	    	recnum = tmpdeque4.size();
- 	    	for (int i=0; i<recnum; i++) {
- 	    		resod->eetmxA[i][ip]= tmpdeque4[i];
- 	    	}
+				deque<double> tmpdeque1 = cd->toptque[ip];
+				int recnum = tmpdeque1.size();
+				for (int i=0; i<recnum; i++) {
+					resod->toptA[i][ip] = tmpdeque1[i];
+				}
+				deque<double> tmpdeque2 = cd->prvunnormleafmxque[ip];
+				recnum = tmpdeque2.size();
+				for (int i=0; i<recnum; i++) {
+					resod->unnormleafmxA[i][ip] = tmpdeque2[i];
+				}
+				deque<double> tmpdeque3 = cd->prvgrowingttimeque[ip];
+				recnum = tmpdeque3.size();
+				for (int i=0; i<recnum; i++) {
+					resod->growingttimeA[i][ip]= tmpdeque3[i];
+				}
+				deque<double> tmpdeque4 = cd->prveetmxque[ip];
+				recnum = tmpdeque4.size();
+				for (int i=0; i<recnum; i++) {
+					resod->eetmxA[i][ip]= tmpdeque4[i];
+				}
 
-	    }
+ 	    	} // end of 'if vegcov>0'
+
+	    } // end of 'for ip loop'
 
  	    // snow - 'restart' from the last point, so be the daily for 'cd' and 'ed', but monthly for 'bd'
  	    resod->numsnwl = cd->d_snow.numsnwl;
@@ -684,6 +687,7 @@ void OutRetrive::updateRestartOutputBuffer(){
  			resod->TSsoil[il]    = edall->d_sois.ts[il];
  			resod->LIQsoil[il]   = edall->d_sois.liq[il];
  			resod->ICEsoil[il]   = edall->d_sois.ice[il];
+ 			resod->FROZENsoil[il]= edall->d_sois.frozen[il];
  			resod->FROZENFRACsoil[il]= edall->d_sois.frozenfrac[il];
 
  		}

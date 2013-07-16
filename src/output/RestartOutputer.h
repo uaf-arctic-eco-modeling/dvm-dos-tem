@@ -114,6 +114,7 @@ class RestartOutputer {
 	    NcVar* TSsoilV;
 	    NcVar* LIQsoilV;
 	    NcVar* ICEsoilV;
+	    NcVar* FROZENsoilV;
 	    NcVar* FROZENFRACsoilV;
 	    NcVar* TEXTUREsoilV;
 

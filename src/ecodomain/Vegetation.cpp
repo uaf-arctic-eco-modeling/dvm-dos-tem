@@ -394,7 +394,7 @@ double Vegetation::getFfoliage(const int &ipft, const bool & ifwoody, const bool
   	return ffoliage;
 };
 
-// plant max. LAI function derived from biomass C
+// plant max. LAI function
 double Vegetation::getYearlyMaxLAI(const int &ipft){
 
 	double laimax = 0.;
@@ -403,6 +403,7 @@ double Vegetation::getYearlyMaxLAI(const int &ipft){
 		double covlai = chtlu->envlai[im][ipft]*cd->m_veg.vegcov[ipft];
 		if (laimax<=covlai) laimax = covlai;
 	}
+	laimax *= cd->m_vegd.ffoliage[ipft];
 
   	return laimax;
 };
