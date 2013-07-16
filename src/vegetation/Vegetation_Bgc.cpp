@@ -265,13 +265,13 @@ void Vegetation_Bgc::delta(){
 	double innppall = fmax(0., ingppall-rm)/(1.0+calpar.frg);  // if C assimilation available, first goes to maintaince respiration
 
 	// NPP allocation to leaf estimated first
-  	double nppl = dleafc/(1.0+calpar.frg);
+  	double nppl = dleafc;
   	del_a2v.innpp[I_leaf] = fmin(nppl, innppall);    // leaf has the second priority for C assimilation
   	del_v2a.rg[I_leaf] = calpar.frg * del_a2v.innpp[I_leaf];
   	double npprgl = del_a2v.innpp[I_leaf]+del_v2a.rg[I_leaf];
 
   	// the rest goes to stem/root, assuming equal priority
-  	innppall = fmax(0., ingppall-rm-npprgl)/(1.0+calpar.frg);
+  	double innpprest = fmax(0., ingppall-rm-npprgl)/(1.0+calpar.frg);
   	double cpartrest = 0.;
 	for (int i=I_leaf+1; i<NUM_PFT_PART; i++){
 		cpartrest +=bgcpar.cpart[i];
@@ -280,8 +280,8 @@ void Vegetation_Bgc::delta(){
 	for (int i=I_leaf+1; i<NUM_PFT_PART; i++){
 		del_a2v.innpp[i] = 0.;
 		del_v2a.rg[i]    = 0.;
-		if (cpartrest>0. && innppall>0.) {
-			del_a2v.innpp[i] = innppall *bgcpar.cpart[i]/cpartrest;
+		if (cpartrest>0. && innpprest>0.) {
+			del_a2v.innpp[i] = innpprest *bgcpar.cpart[i]/cpartrest;
 			del_v2a.rg[i]    = calpar.frg * del_a2v.innpp[i];
 		}
 	}
@@ -319,7 +319,13 @@ void Vegetation_Bgc::deltanfeed(){
 			                                                       // they absorb N mainly from wet-deposition, and could from substrate (soil) through co-existed plants, or from biofixation
 		}
 	  	if (del_soi2v.innuptake < 0.0) del_soi2v.innuptake = 0.0;
-	  	double avln = bd->m_soid.avlnsum;   // NOTE: 'avln' already updated in 'Soil_bgc' with N i/o and mineralization (? - need careful checking here???)
+
+	  	double avln = 0.;
+	  	for(int il =0; il<cd->m_soil.numsl; il++){
+			if (cd->m_soil.frootfrac[il][ipft]> 0.) {
+				avln+= bd->m_sois.avln[il];
+			}
+	    }
 	  	if (del_soi2v.innuptake > 0.95*avln) del_soi2v.innuptake = 0.95*avln;
 
 		// N litterfall and accompanying resorbtion

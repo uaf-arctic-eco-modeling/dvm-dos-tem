@@ -205,12 +205,14 @@ void Soil_Env::initializeState5restart(RestartData* resin){
 	double TSsoil[MAX_SOI_LAY];
 	double LIQsoil[MAX_SOI_LAY];
 	double ICEsoil[MAX_SOI_LAY];
+	int FROZENsoil[MAX_SOI_LAY];
 	double FROZENFRACsoil[MAX_SOI_LAY];
 
 	for (int i=0; i<MAX_SOI_LAY; i++){
 		TSsoil[i]=resin->TSsoil[i];
 		LIQsoil[i]=resin->LIQsoil[i];
 		ICEsoil[i]=resin->ICEsoil[i];
+		FROZENsoil[i]=resin->FROZENsoil[i];
 		FROZENFRACsoil[i]=resin->FROZENFRACsoil[i];
 	}
 
@@ -223,13 +225,7 @@ void Soil_Env::initializeState5restart(RestartData* resin){
 		  currl->liq = LIQsoil[slind];
 		  currl->ice = ICEsoil[slind];
 		  currl->frozenfrac = FROZENFRACsoil[slind];
-		  if (FROZENFRACsoil[slind]>=1.) {
-			  currl->frozen = 1;
-		  }	else if (FROZENFRACsoil[slind]<=0.) {
-			  currl->frozen = -1;
-		  }	else {
-			  currl->frozen = 0;
-		  }
+		  currl->frozen = FROZENsoil[slind];
 
 		}else{
 		  break;
@@ -771,6 +767,8 @@ void Soil_Env::retrieveDailyTM(Layer* toplayer, Layer *lstsoill){
 	    ed->d_snwd.tcond[i] = MISSING_D;
 	}
 	for(int il =0; il<MAX_SOI_LAY; il++){
+		ed->d_sois.frozen[il]     = MISSING_I;
+		ed->d_sois.frozenfrac[il] = MISSING_D;
 		ed->d_sois.ts[il]  = MISSING_D;
 		ed->d_sois.liq[il] = MISSING_D;
 		ed->d_sois.ice[il] = MISSING_D;
@@ -783,6 +781,13 @@ void Soil_Env::retrieveDailyTM(Layer* toplayer, Layer *lstsoill){
 
 		ed->d_soid.tcond[il] = MISSING_D;
 		ed->d_soid.hcond[il] = MISSING_D;
+	}
+	for (int i=0; i<MAX_ROC_LAY ; i++){
+	    ed->d_sois.trock[i]  = MISSING_D;
+	}
+	for (int i=0; i<MAX_NUM_FNT ; i++){
+	    ed->d_sois.frontstype[i]  = MISSING_I;
+	    ed->d_sois.frontsz[i]     = MISSING_D;
 	}
 
 	//
@@ -798,9 +803,12 @@ void Soil_Env::retrieveDailyTM(Layer* toplayer, Layer *lstsoill){
 	double snwdep  = 0.;
 	double snwtave = 0.;
 
+	int rockind = 0;
+
 	while(curr2!=NULL){
 	  if(curr2->isSoil){
 	  	
+		  ed->d_sois.frozen[soilind] = curr2->frozen;
 		  ed->d_sois.frozenfrac[soilind] = curr2->frozenfrac;
 		  ed->d_sois.ts[soilind]  = curr2->tem;
 		  ed->d_sois.liq[soilind] = curr2->liq;
@@ -814,11 +822,7 @@ void Soil_Env::retrieveDailyTM(Layer* toplayer, Layer *lstsoill){
 	  	  ed->d_soid.aws[soilind]= curr2->getVolLiq()/(curr2->poro-curr2->getVolIce());
 
 	  	  ed->d_soid.tcond[soilind] = curr2->tcond;
-//	  	  if ((isnan(curr2->hcond)) || (curr2->frozen==1)) {
-//	  		  ed->d_soid.hcond[soilind] = 0.;
-//	  	  } else {
-		  	  ed->d_soid.hcond[soilind] = curr2->hcond;
-//	  	  }
+	  	  ed->d_soid.hcond[soilind] = curr2->hcond;
 
 	  	  // some cumulative variables for whole soil column
 	  	  soldep   += curr2->dz;
@@ -840,10 +844,15 @@ void Soil_Env::retrieveDailyTM(Layer* toplayer, Layer *lstsoill){
 
 		  snwind++;
 
+	  } else if (curr2->isRock) {
+
+		  ed->d_sois.trock[rockind] = curr2->tem;
+		  ed->d_soid.tbotrock = curr2->tem;
+		  rockind++;
 	  }
 
 	  curr2 = curr2->nextl;
-	  if (curr2->indl>lstsoill->indl) break;
+	  //if (curr2->indl>) break;
 
 	}	
 	

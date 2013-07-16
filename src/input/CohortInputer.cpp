@@ -16,7 +16,7 @@ int CohortInputer::init(){
 
 	int error = 0;
   	error = initChtidFile();
-
+  	error = initChtinitFile();
   	error = initClmFile();
     error = initVegFile();
 	error = initFireFile();
@@ -95,13 +95,25 @@ int CohortInputer::initClmFile(){
  	}
  	md->act_clmno = clmD->size();  //actual atm data record number
 
- 	NcDim* yrD = clmncFile.get_dim("YEAR");
- 	if(!yrD->is_valid()){
- 		string msg = "YEAR Dimension is not valid in 'climate.nc' !";
- 		cout<<msg+"\n";
- 		exit(-1);
+ 	NcVar* clmyrV = clmncFile.get_var("YEAR");
+ 	if(clmyrV==NULL){
+ 	   string msg = "Cannot get YEAR in 'climate.nc' file! ";
+		cout<<msg+"\n";
+		return -1;
+ 	} else {
+ 		int yrno = 0;
+ 		int yr = -1;
+ 		clmyrV->set_cur(yrno);
+ 		clmyrV->get(&yr, 1);
+ 		md->act_clmyr_beg = yr;
+
+ 		yrno = clmyrV->num_vals()-1;
+ 		clmyrV->set_cur(yrno);
+ 		clmyrV->get(&yr, 1);
+ 		md->act_clmyr_end = yr;
+
+ 		md->act_clmyr = yr - md->act_clmyr_beg + 1;  //actual atm data years
  	}
- 	md->act_clmyr = yrD->size();  //actual atm data years
 
  	NcDim* monD = clmncFile.get_dim("MONTH");
  	if(!monD->is_valid()){

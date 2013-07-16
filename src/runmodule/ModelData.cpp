@@ -37,6 +37,8 @@ ModelData::ModelData(){
 	act_chtno    = 0;
 	act_initchtno= 0;
 	act_clmno    = 0;
+	act_clmyr_beg= 0;
+	act_clmyr_end= 0;
 	act_clmyr    = 0;
 	act_vegno    = 0;
 	act_vegset   = 0;
