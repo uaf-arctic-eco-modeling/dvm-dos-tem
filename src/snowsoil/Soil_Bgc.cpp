@@ -128,7 +128,7 @@ void Soil_Bgc::prepareIntegration(const bool &mdnfeedback, const bool &mdavlnflg
 
     	 // soil liq. water controlling factor for soil N minralization/immobilization and root N extraction
     	 for (int i=0; i<cd->m_soil.numsl; i++) {
-    		 bd->m_soid.knmoist[i] = getKnsoilmoist(ed->m_soid.sws[i]);
+    		 bd->m_soid.knmoist[i] = getKnsoilmoist(ed->m_soid.sws[i]); //lwc[i]);
     	 }
 
     	 //prepare total liq water and available N in soil zones above drainage depth
@@ -403,12 +403,12 @@ void Soil_Bgc::initMslayerCarbon(double & minec){
 
  	Layer* currl = ground->fstminel;
 	
- 	double totsomc = 0.0;
+ 	double totsomc = 0.;
 	while(currl!=NULL){
  	  	if(currl->isSoil){
 
  			dbm += currl->dz;
-			cumcarbon = ca/cb*(exp(cb*dbm*100)-1.0)*10000 + 0.0025*dbm*100*10000;
+			cumcarbon = ca/cb*(exp(cb*dbm*100)-1)*10000 + 0.0025*dbm*100*10000;
 			if(cumcarbon-prevcumcarbon>0.01 && dbm<=2.0){   // somc will not exist more than 2 m intially
 				currl->rawc  = bgcpar.eqrawc * (cumcarbon -prevcumcarbon);
 				currl->soma  = bgcpar.eqsoma * (cumcarbon -prevcumcarbon);
@@ -420,10 +420,9 @@ void Soil_Bgc::initMslayerCarbon(double & minec){
 				currl->sompr = 0.0;
 				currl->somcr = 0.0;
 			}
+			totsomc += currl->rawc+currl->soma+currl->sompr+currl->sompr;
 
 			prevcumcarbon = cumcarbon;
-
-			totsomc += currl->rawc+currl->soma+currl->sompr+currl->somcr;
  	  		
  	  	}else{
  	  	  	break;	
@@ -434,7 +433,7 @@ void Soil_Bgc::initMslayerCarbon(double & minec){
 	//Above calculation will give all soil mineral layer C content UPON two parameters,
 	//      the following will adjust that by actual initial MINEC amount as an input
 
-	double adjfactor = 1.0;
+	double adjfactor = 1.;
 	if (totsomc>0.) adjfactor=minec/totsomc;
 	currl = ground->fstminel;
 	while(currl!=NULL){
@@ -866,10 +865,10 @@ double Soil_Bgc::getRhmoist(const double &vsm, const double &moistmin,
 	                        const double &moistmax, const double &moistopt){
 
   	double rhmoist;
- 	//set moistlim always 1
+
     rhmoist = (vsm - moistmin) * (vsm - moistmax);
     rhmoist /= rhmoist - (vsm-moistopt)*(vsm-moistopt);
-  	if ( rhmoist < 0.0 ) { rhmoist = 0.0; }
+  	if ( rhmoist < 0.05 ) { rhmoist = 0.05; }
 
 	return rhmoist;
 };
@@ -886,12 +885,13 @@ double Soil_Bgc::getNimmob(const double & soilh2o, const double & soilorgc,
 
 	 double nimmob     = 0.0;
      double tempnimmob = 0.0;
-     double tempkn2    = kn2;
-	 //what if put && availn>0 here
-	 if(soilorgc>0.0 && soilorgn>0.0 && soilh2o>0 ){
+
+	 if(soilorgc>0.0 && soilorgn>0.0 && soilh2o>0. && availn>0.0){
 	 	nimmob = (availn * ksoil) / soilh2o;
 	 	tempnimmob = nimmob;
-        nimmob /= (tempkn2 + nimmob); 
+        nimmob /= (kn2 + tempnimmob);
+
+        if (nimmob>0.99*availn) {nimmob=0.99*availn;}
 	 }
 
 	 return nimmob;
@@ -906,10 +906,13 @@ double Soil_Bgc::getNetmin(const double & nimmob, const double & soilorgc,
   	if ( soilorgc > 0.0 && soilorgn > 0.0 ) {
     	nmin   = ((soilorgn / soilorgc) - (nup * nimmob * decay)) * rh;
      
-    	if ( nmin >= 0.0 ){
-    	 	nmin *= (soilorgn/soilorgc) * tcnsoil;
+    	if ( nmin > 0.0 ){
+    	 	nmin *= ((soilorgn/soilorgc) * tcnsoil);
+    	 	if (nmin>0.99*soilorgn) {
+    	 		nmin=0.99*soilorgn;
+    	 	}
      	} else {
-    	 	nmin *= (soilorgc/soilorgn) / tcnsoil; 
+    	 	nmin *= ((soilorgc/soilorgn) / tcnsoil);
      	}
   	} 
   
