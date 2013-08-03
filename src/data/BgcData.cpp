@@ -403,22 +403,23 @@ void BgcData::soil_endOfMonth(){
 
  	//cumulative annually
  	y_soi2a.rhwdeb    += m_soi2a.rhwdeb;
+	y_soi2a.rhmossc   += m_soi2a.rhmossc;
  	y_soi2a.rhrawcsum += m_soi2a.rhrawcsum;
  	y_soi2a.rhsomasum += m_soi2a.rhsomasum;
  	y_soi2a.rhsomprsum+= m_soi2a.rhsomprsum;
  	y_soi2a.rhsomcrsum+= m_soi2a.rhsomcrsum;
  	y_soi2a.rhtot     += m_soi2a.rhtot;
  	for (int il =0; il<MAX_SOI_LAY; il++){
-   		y_soi2a.rhrawc[il] += m_soi2a.rhrawc[il]/12.;
-   		y_soi2a.rhsoma[il] += m_soi2a.rhsoma[il]/12.;
-   		y_soi2a.rhsompr[il]+= m_soi2a.rhsompr[il]/12.;
-   		y_soi2a.rhsomcr[il]+= m_soi2a.rhsomcr[il]/12.;
+   		y_soi2a.rhrawc[il] += m_soi2a.rhrawc[il];
+   		y_soi2a.rhsoma[il] += m_soi2a.rhsoma[il];
+   		y_soi2a.rhsompr[il]+= m_soi2a.rhsompr[il];
+   		y_soi2a.rhsomcr[il]+= m_soi2a.rhsomcr[il];
 
-   	 	y_soi2soi.netnmin[il]+= m_soi2soi.netnmin[il]/12.;
-   	 	y_soi2soi.nimmob[il] += m_soi2soi.nimmob[il]/12.;
+   	 	y_soi2soi.netnmin[il]+= m_soi2soi.netnmin[il];
+   	 	y_soi2soi.nimmob[il] += m_soi2soi.nimmob[il];
  	}
-	y_soi2soi.netnminsum+= m_soi2soi.netnminsum/12.;
-	y_soi2soi.nimmobsum += m_soi2soi.nimmobsum/12.;
+	y_soi2soi.netnminsum+= m_soi2soi.netnminsum;
+	y_soi2soi.nimmobsum += m_soi2soi.nimmobsum;
 
     // connection to open-N cycle
 	y_a2soi.orgninput += m_a2soi.orgninput;
@@ -427,8 +428,3 @@ void BgcData::soil_endOfMonth(){
 	y_soi2l.avlnlost += m_soi2l.avlnlost;
 
 };
-
-
-
-
-

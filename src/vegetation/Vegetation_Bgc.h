@@ -62,6 +62,7 @@
 			double dleafc;                    // C requirement of foliage growth at current timestep
 		    double d2wdebrisc;
 		    double d2wdebrisn;
+			double totrzavln;     			  // root zone avaliable N content for N uptake
 
   			CohortLookup * chtlu;
 
