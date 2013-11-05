@@ -422,6 +422,8 @@ pulled into the SEL repository's `devel` branch.
 
 > NOTE: might be good to add some details about git, remotes, origin, and upstream...
 
+> TODO: Determine how to manage development and master branches on individual forks.
+
 > TODO: add remote "upstream" to point toward github/ua-snap/dvm-dos-tem?
 
 > TODO: add some history about why sel's code is stored at github/ua-snap account...
