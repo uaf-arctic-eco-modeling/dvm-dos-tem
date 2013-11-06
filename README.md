@@ -202,6 +202,7 @@ you can create it. Add this to your `.bashrc` file:
         PS1=$PS1: $(parse_git_branch)
 
 **NOTE:** This does not work on Fedora.  TODO: find out how to do display the current branch in terminal program in Fedora.
+**NOTE:** Marks laptop also found Fedora 17 not to work, HELP!!!!!!
 
 **NOTE:** You have to remember to reload the `.bashrc` file, either by closing and
 re-opening your terminal window, or typing:
