@@ -201,6 +201,9 @@ you can create it. Add this to your `.bashrc` file:
         # use parse_git_branch to add the git branch to your terminal prompt
         PS1=$PS1: $(parse_git_branch)
 
+**NOTE:** This does not work on Fedora.  TODO: find out how to do display the current branch in terminal program in Fedora.
+**NOTE:** Marks laptop also found Fedora 17 not to work, HELP!!!!!!
+
 **NOTE:** You have to remember to reload the `.bashrc` file, either by closing and
 re-opening your terminal window, or typing:
 
@@ -419,6 +422,8 @@ We would like our modification to be based off the `devel` branch, and eventuall
 pulled into the SEL repository's `devel` branch.
 
 > NOTE: might be good to add some details about git, remotes, origin, and upstream...
+
+> TODO: Determine how to manage development and master branches on individual forks.
 
 > TODO: add remote "upstream" to point toward github/ua-snap/dvm-dos-tem?
 
