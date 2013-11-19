@@ -41,7 +41,7 @@
     <echo message="Setting Linux (aeshna) specific build settings..." />
     <property name="CFLAGS" value="-fpic -shared" />
 
-    <property name="JAVADIR" value="/usr/lib/jvm/java-1.6.0-sun-1.6.0.30" /> <!-- aeshna -->
+    <property name="JAVADIR" value="/usr/lib/jvm/java-1.7.0-openjdk.x86_64" /> <!-- aeshna -->
     <!-- additional platform specific paths... --> <!-- e.g. clean fedora install -->
 
     <property name="CORESHAREDLIBNAME" value="libtemcore.so" />
