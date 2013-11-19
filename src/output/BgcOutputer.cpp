@@ -109,7 +109,7 @@ void BgcOutputer::init(string & dirfile){
 
    	nepV = ncfileenv->add_var("NEP", ncDouble, timeD);
 
-   	grsnminV = ncfileenv->add_var("GRSNMIN", ncDouble, timeD);
+   	//grsnminV = ncfileenv->add_var("GRSNMIN", ncDouble, timeD);
    	netnminV = ncfileenv->add_var("NETNMIN", ncDouble, timeD);
 
 	orgcinputV = ncfileenv->add_var("ORGCINPUT", ncDouble, timeD);
@@ -170,6 +170,8 @@ void BgcOutputer::outputCohortBgcVars_mly(const int &ipft, BgcData *bd, FirData 
    		soilltrfcnV->put_rec(&bd->m_soid.ltrfcn[0], tstepcnt);
 
    		nepV->put_rec(&bd->m_l2a.nep, tstepcnt);
+
+		netnminV-> put_rec(&bd->m_soi2soi.netnminsum,tstepcnt);
 
    		orgcinputV->put_rec(&bd->m_a2soi.orgcinput, tstepcnt);
    		orgninputV->put_rec(&bd->m_a2soi.orgninput, tstepcnt);
@@ -367,6 +369,8 @@ void BgcOutputer::outputCohortBgcVars_yly(const int &ipft, BgcData *bgcod, FirDa
    		soilltrfcnV->put_rec(&bgcod->y_soid.ltrfcn[0], tstepcnt);
 
    		nepV->put_rec(&bgcod->y_l2a.nep, tstepcnt);
+
+		netnminV-> put_rec(&bgcod->y_soi2soi.netnminsum,tstepcnt);
 
    		// land
    		orgcinputV->put_rec(&bgcod->y_a2soi.orgcinput, tstepcnt);
