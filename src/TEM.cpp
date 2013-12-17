@@ -31,6 +31,10 @@
 #include <ctime>
 #include <cstdlib>
 #include <exception>
+
+#include <boost/log/trivial.hpp>
+
+
 using namespace std;
 
 #include "assembler/Runner.h"
@@ -39,7 +43,8 @@ using namespace std;
 ArgHandler* args = new ArgHandler();
 
 int main(int argc, char* argv[]){
-	args->parse(argc, argv);
+	BOOST_LOG_TRIVIAL(trace) << "The application is starting...";
+  args->parse(argc, argv);
 	if (args->getHelp()){
 		args->showHelp();
 		return 0;

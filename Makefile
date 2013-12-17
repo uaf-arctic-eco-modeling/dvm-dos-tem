@@ -1,8 +1,9 @@
 # Basic dvm-dos-tem Makefile 
 
 CC=g++
-CFLAGS=-c -Wall -ansi -O2 -g -fPIC
-LIBS=-lnetcdf_c++ -lnetcdf -lboost_system -lboost_filesystem -lboost_program_options
+CFLAGS=-c -Wall -ansi -O2 -g -fPIC -DBOOST_ALL_DYN_LINK
+LIBS=-lnetcdf_c++ -lnetcdf -lboost_system -lboost_filesystem \
+-lboost_program_options -lboost_log
 LIBDIR=$(SITE_SPECIFIC_LIBS)
 INCLUDES=$(SITE_SPECIFIC_INCLUDES)
 SOURCES= 	src/TEM.o \

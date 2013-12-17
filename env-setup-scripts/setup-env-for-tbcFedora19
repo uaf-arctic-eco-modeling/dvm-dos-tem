@@ -1,0 +1,18 @@
+#!/bin/bash
+
+# Set environment variables for working with dvm-dos-tem on tobey's fedora install.
+# I was unable to get a system install of Boost Log to work on Fedora 19. I think
+# This is a temproary problem, and can be solved with a local rpm build and then 
+# install with yum, but for now, this work...
+# 
+# This script sets a couple environment variables to make that happen.
+# You can either source this script each time you logon, before compiling and 
+# running, or you can add a line to your .bashrc or .bash_profile that will 
+# source this script each time you logon to the machine.
+
+# For compiling and linking
+export SITE_SPECIFIC_INCLUDES="-I/home/tbc/usr/local/include"
+export SITE_SPECIFIC_LIBS="-L/home/tbc/usr/local/lib"
+
+# For locating the boost libs at run time
+export LD_LIBRARY_PATH="/home/tbc/usr/local/lib:$LD_LIBRARY_PATH"
