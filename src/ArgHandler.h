@@ -10,7 +10,8 @@ using namespace std;
 class ArgHandler {
 	boost::program_options::options_description desc;
 	boost::program_options::variables_map varmap;
-	string loglevel;
+  string caliblog;	
+  string loglevel;
   string mode;
 	string ctrlfile;
 	string chtid;
@@ -25,6 +26,7 @@ public:
 	void verify();
 	void showHelp();
 	
+  string getCalibLog();
   string getLogLevel();
 	string getMode();
 	string getCtrlfile();
