@@ -1,5 +1,8 @@
 
+#include <boost/log/trivial.hpp>
+
 #include "Runner.h"
+
 
 Runner::Runner(){
 	chtid = -1;
@@ -12,9 +15,9 @@ Runner::~Runner(){
 
 void Runner::initInput(const string &controlfile, const string &runmode){
 
-		cout <<"Starting initialization ...\n";
-		cout <<"control file: "+controlfile+"\n";
-		cout <<"TEM run mode: "+runmode+"\n";
+    BOOST_LOG_TRIVIAL(info) << "Starting initialization...";
+    BOOST_LOG_TRIVIAL(info) << "Control file: " << controlfile;
+    BOOST_LOG_TRIVIAL(info) << "Run mode: " << runmode;
 
 		//Input and processing for reading parameters and passing them to controller
  		configin.controlfile=controlfile;
