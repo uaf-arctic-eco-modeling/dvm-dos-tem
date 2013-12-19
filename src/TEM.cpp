@@ -31,12 +31,12 @@
 #include <ctime>
 #include <cstdlib>
 #include <exception>
+#include <map>
+
 #include <boost/log/core.hpp>
 #include <boost/log/trivial.hpp>
 #include <boost/log/expressions.hpp>
-#include <boost/assign.hpp>
-#include <typeinfo>
-#include <map>
+
 #include "assembler/Runner.h"
 #include "ArgHandler.h"
 
@@ -77,6 +77,11 @@ void init_trivial_logging(std::string lglevel){
   */
 }
 
+void init_calibration_logging(std::string cal_logging) {
+  
+
+}
+
 ArgHandler* args = new ArgHandler();
 
 int main(int argc, char* argv[]){
@@ -92,6 +97,7 @@ int main(int argc, char* argv[]){
   BOOST_LOG_TRIVIAL(trace) << "Setting up the logging level filter...";
 
   init_trivial_logging(args->getLogLevel());
+  init_calibration_logging(args->getCalibLog());
 
 	setvbuf(stdout, NULL, _IONBF, 0);
 	setvbuf(stderr, NULL, _IONBF, 0);
