@@ -6,6 +6,7 @@ ArgHandler::ArgHandler() {
 }
 void ArgHandler::parse(int argc, char** argv) {
 	desc.add_options()
+    ("loglevel,l", boost::program_options::value<string>(&loglevel)->default_value("trace"), "the level above which all log messages will be printed. Here are the choices: trace, debug, info, warning, error, fatal.")
 		("mode,m", boost::program_options::value<string>(&mode)->default_value("siterun"),"change mode between siterun and regnrun")
 		("control-file,f", boost::program_options::value<string>(&ctrlfile)->default_value("config/controlfile_site.txt"), "choose a control file to use")
 		("cohort-id,c", boost::program_options::value<string>(&chtid)->default_value("1"), "choose a specific cohort to run")
@@ -46,6 +47,9 @@ void ArgHandler::verify() {
 	std::cout << "Could/should do some option verification here...?\n";
 }
 
+string ArgHandler::getLogLevel(){
+	return loglevel;
+}
 string ArgHandler::getMode(){
 	return mode;
 }
