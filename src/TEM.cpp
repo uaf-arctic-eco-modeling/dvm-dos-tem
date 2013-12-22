@@ -32,31 +32,25 @@
 #include <cstdlib>
 #include <exception>
 #include <map>
+#include <iomanip>
 
-
-//#include <boost/log/expressions.hpp>
-//#include <boost/log/sources/severity_logger.hpp>
-#include <boost/log/sources/record_ostream.hpp>
-#include <boost/log/utility/formatting_ostream.hpp>
-//#include <boost/log/utility/manipulators/to_log.hpp>
-#include <boost/log/utility/setup/console.hpp>
-//#include <boost/log/utility/setup/common_attributes.hpp>
-
-
+#include <boost/date_time/posix_time/ptime.hpp>
 
 #include <boost/log/core.hpp>
 #include <boost/log/trivial.hpp>
-#include <boost/log/expressions.hpp>
-#include <boost/log/attributes.hpp>
-//#include <boost/move/utility.hpp>
+#include <boost/log/sources/record_ostream.hpp>
 #include <boost/log/sources/logger.hpp>
-//#include <boost/log/sources/record_ostream.hpp>
 #include <boost/log/sources/global_logger_storage.hpp>
-//#include <boost/log/utility/setup/file.hpp>
-#include <boost/log/utility/setup/common_attributes.hpp>
-
 #include <boost/log/sources/severity_feature.hpp>
 #include <boost/log/sources/severity_logger.hpp>
+#include <boost/log/sources/severity_channel_logger.hpp>
+#include <boost/log/expressions.hpp>
+#include <boost/log/attributes.hpp>
+#include <boost/log/support/date_time.hpp>
+#include <boost/log/utility/setup/common_attributes.hpp>
+#include <boost/log/utility/formatting_ostream.hpp>
+#include <boost/log/utility/setup/console.hpp>
+
 
 #include "assembler/Runner.h"
 #include "ArgHandler.h"
@@ -67,6 +61,7 @@ namespace src = boost::log::sources;
 namespace attrs = boost::log::attributes;
 namespace keywords = boost::log::keywords;
 namespace expr = boost::log::expressions;
+namespace sinks = boost::log::sinks;
 
 enum general_severity_level {
   debug,
@@ -76,17 +71,17 @@ enum general_severity_level {
   error,
   fatal
 };
+
 // The operator is used for regular stream formatting
-std::ostream& operator<< (std::ostream& strm, general_severity_level level)
-{
-    static const char* strings[] =
-    {
-        "debug",
-        "info",
-        "note",
-        "warn",
-        "error",
-        "fatal"
+// i.e. printing the flag instead of the enum value..
+std::ostream& operator<< (std::ostream& strm, general_severity_level level) {
+    static const char* strings[] = { 
+      "debug",
+      "info",
+      "note",
+      "warn",
+      "error",
+      "fatal"
     };
 
     if (static_cast< std::size_t >(level) < sizeof(strings) / sizeof(*strings))
@@ -97,80 +92,75 @@ std::ostream& operator<< (std::ostream& strm, general_severity_level level)
     return strm;
 }
 
+BOOST_LOG_ATTRIBUTE_KEYWORD(severity, "Severity", general_severity_level)
+BOOST_LOG_ATTRIBUTE_KEYWORD(channel, "Channel", std::string)
+BOOST_LOG_ATTRIBUTE_KEYWORD(timestamp, "TimeStamp", boost::posix_time::ptime)
 
+typedef src::severity_channel_logger< 
+    general_severity_level, 
+    std::string 
+  > sev_chnl_logger_t;
 
-enum calibration_severity_level {
-  daily,
-  monthly,
-  yearly
-};
-BOOST_LOG_INLINE_GLOBAL_LOGGER_DEFAULT(general_logger, src::severity_logger< general_severity_level >) //{
-  //src::severity_logger< > glg;
-  //glg.add_attribute();
-  //return glg;
-//}
-BOOST_LOG_INLINE_GLOBAL_LOGGER_DEFAULT(calibration_logger, src::severity_logger< >)
-
-void init_general_logging(std::string lglevel) {
-  logging::add_console_log
-  (
-     std::clog,
-     // This makes the sink to write log records that look like this:
-     // 1: <NORM> A normal severity message
-     // 2: <ERRR> An error severity message
-     keywords::format =
-     (
-         expr::stream
-             //<< expr::attr< unsigned int >("LineID")
-             << ": <" << expr::attr< general_severity_level >("Severity")
-             << "> " << expr::smessage
-     )
-  );
-
-
-  // Setup the a GLOBAL general logger
-  src::severity_logger< general_severity_level > glg = general_logger::get();
-  //logging::add_common_attributes();  
-  BOOST_LOG_SEV(glg, debug) << "This would be a general logger, debug level...";
-  BOOST_LOG_SEV(glg, info) << "This would be a general logger, info level...";
-  BOOST_LOG_SEV(glg, note) << "This would be a general logger, note level...";
-  BOOST_LOG_SEV(glg, warn) << "This would be a general logger, warn level...";
+BOOST_LOG_INLINE_GLOBAL_LOGGER_INIT(g_lg, sev_chnl_logger_t) {
+  // Specify the channel name on construction...
+  return sev_chnl_logger_t(keywords::channel = "GENER");
+}
+BOOST_LOG_INLINE_GLOBAL_LOGGER_INIT(c_lg, sev_chnl_logger_t) {
+  // Specify the channel name on construction...
+  return sev_chnl_logger_t(keywords::channel = "CALIB");
 }
 
-void init_calibration_logging(std::string cal_logging) {
-  src::severity_logger< >& clg = calibration_logger::get();  
-  BOOST_LOG_SEV(clg, daily) << "This would be a calibration logger, daily level...";
-  BOOST_LOG_SEV(clg, monthly) << "This would be a calibraiton logger, monthly level...";
+void init_console_log_filters(std::string gen_settings, std::string cal_settings){
+  logging::core::get()->set_filter(
+    severity >= warn || (expr::has_attr(channel) && channel == "CALIB")
+  );
+}
+
+void init_console_log_sink(){
+
+  logging::add_common_attributes();
+
+  logging::add_console_log (
+    std::clog,
+    keywords::format = (
+      expr::stream
+        // works, just don't need timestamp right now...        
+        //<< expr::format_date_time< boost::posix_time::ptime >("TimeStamp", "%Y-%m-%d %H:%M:%S ")
+        << "(" << channel << ") "
+        << "[" << severity << "] " << expr::smessage
+    )
+  );
+  
+  // MAYBE USEFUL?
+  //<< std::setw(3) << std::setfill(' ')
 }
 
 ArgHandler* args = new ArgHandler();
 
 int main(int argc, char* argv[]){
-	//BOOST_LOG_TRIVIAL(trace) << "Starting dvm-dos-tem...";
-  //BOOST_LOG_TRIVIAL(trace) << "Parsing command line args...";
   args->parse(argc, argv);
 	if (args->getHelp()){
 		args->showHelp();
 		return 0;
 	}
 
-  //BOOST_LOG_TRIVIAL(trace) << "Done parsing command line args...";
-  //BOOST_LOG_TRIVIAL(trace) << "Setting up the logging level filter...";
+  init_console_log_sink();
+  init_console_log_filters(args->getLogLevel(), args->getCalibLog());
 
-  init_general_logging(args->getLogLevel());
-  init_calibration_logging(args->getCalibLog());
+  BOOST_LOG_SEV(g_lg::get(), debug) << "A debug message to the general logger...";
+  BOOST_LOG_SEV(g_lg::get(), info) << "info, general"; 
+  BOOST_LOG_SEV(g_lg::get(), note) << "note, general"; 
+  BOOST_LOG_SEV(g_lg::get(), warn) << "warn, genearl"; 
+  BOOST_LOG_SEV(g_lg::get(), error) << "error, general"; 
+  BOOST_LOG_SEV(g_lg::get(), fatal) << "fatal, general"; 
 
-  // Setup the a GLOBAL general logger
-  src::severity_logger< general_severity_level > glg = general_logger::get();
-  //logging::add_common_attributes();  
-  BOOST_LOG_SEV(glg, debug) << "This would be a general logger, debug level...";
-  BOOST_LOG_SEV(glg, info) << "This would be a general logger, info level...";
+  BOOST_LOG_SEV(c_lg::get(), debug) << "debug, calib"; 
+  BOOST_LOG_SEV(c_lg::get(), info) << "info, calib"; 
+  BOOST_LOG_SEV(c_lg::get(), note) << "note, calib"; 
+  BOOST_LOG_SEV(c_lg::get(), warn) << "warn, calib"; 
+  BOOST_LOG_SEV(c_lg::get(), error) << "error, calib"; 
+  BOOST_LOG_SEV(c_lg::get(), fatal) << "fatal, calib"; 
 
-
-
-  //BOOST_LOG_SEV(glg, trace) << "This would be a general logger, trace level...";
-  //BOOST_LOG_SEV(clg, daily) << "This would be a calibration logger daily level...";
-  //BOOST_LOG_SEV(clg, monthly) << "This would be a calibration logger, monthly level...";
 
 	setvbuf(stdout, NULL, _IONBF, 0);
 	setvbuf(stderr, NULL, _IONBF, 0);
@@ -179,8 +169,8 @@ int main(int argc, char* argv[]){
 		time_t stime;
 		time_t etime;
 		stime=time(0);
-    //BOOST_LOG_TRIVIAL(info) << "Running dvm-dos-tem in siterun mode. Start @ " 
-    //                        << ctime(&stime);
+    BOOST_LOG_SEV(g_lg::get(), info) << "Running dvm-dos-tem in siterun mode. Start @ " 
+                            << ctime(&stime);
 
 		string controlfile = args->getCtrlfile();
 		string chtid = args->getChtid();
@@ -197,6 +187,7 @@ int main(int argc, char* argv[]){
 
  		siter.setupIDs();
 
+    //BOOST_LOG_SEV(clg, daily) << "Much  be a calibration logger daily level...";
  		siter.runmode1();
  
  		etime=time(0);
