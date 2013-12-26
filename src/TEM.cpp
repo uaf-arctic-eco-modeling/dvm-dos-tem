@@ -52,62 +52,15 @@
 #include <boost/log/utility/setup/console.hpp>
 
 
-#include "assembler/Runner.h"
 #include "ArgHandler.h"
+#include "TEMLogger.h"
+#include "assembler/Runner.h"
 
-using namespace std;
-namespace logging = boost::log;
-namespace src = boost::log::sources;
-namespace attrs = boost::log::attributes;
-namespace keywords = boost::log::keywords;
-namespace expr = boost::log::expressions;
-namespace sinks = boost::log::sinks;
-
-enum general_severity_level {
-  debug,
-  info,
-  note,
-  warn,
-  error,
-  fatal
-};
-
-// The operator is used for regular stream formatting
-// i.e. printing the flag instead of the enum value..
-std::ostream& operator<< (std::ostream& strm, general_severity_level level) {
-    static const char* strings[] = { 
-      "debug",
-      "info",
-      "note",
-      "warn",
-      "error",
-      "fatal"
-    };
-
-    if (static_cast< std::size_t >(level) < sizeof(strings) / sizeof(*strings))
-        strm << strings[level];
-    else
-        strm << static_cast< int >(level);
-
-    return strm;
+BOOST_LOG_INLINE_GLOBAL_LOGGER_INIT(my_general_logger, severity_channel_logger_t) {
+  return severity_channel_logger_t(keywords::channel = "GENER");
 }
-
-BOOST_LOG_ATTRIBUTE_KEYWORD(severity, "Severity", general_severity_level)
-BOOST_LOG_ATTRIBUTE_KEYWORD(channel, "Channel", std::string)
-BOOST_LOG_ATTRIBUTE_KEYWORD(timestamp, "TimeStamp", boost::posix_time::ptime)
-
-typedef src::severity_channel_logger< 
-    general_severity_level, 
-    std::string 
-  > sev_chnl_logger_t;
-
-BOOST_LOG_INLINE_GLOBAL_LOGGER_INIT(g_lg, sev_chnl_logger_t) {
-  // Specify the channel name on construction...
-  return sev_chnl_logger_t(keywords::channel = "GENER");
-}
-BOOST_LOG_INLINE_GLOBAL_LOGGER_INIT(c_lg, sev_chnl_logger_t) {
-  // Specify the channel name on construction...
-  return sev_chnl_logger_t(keywords::channel = "CALIB");
+BOOST_LOG_INLINE_GLOBAL_LOGGER_INIT(my_cal_logger, severity_channel_logger_t) {
+  return severity_channel_logger_t(keywords::channel = "CALIB");
 }
 
 void init_console_log_filters(std::string gen_settings, std::string cal_settings){
@@ -143,23 +96,40 @@ int main(int argc, char* argv[]){
 		args->showHelp();
 		return 0;
 	}
+  
+  HELPME();
+  //init_logging_TBC();
+  severity_channel_logger_t& glg = my_general_logger::get();
+  severity_channel_logger_t& clg = my_cal_logger::get();
 
+//  if (args->getLogging()){
+//    include_turn_on_and_setup_all_logging();
+//  }
+
+//  if (args->getLogLevel()) {
+//    set_global_log_level();
+//  }
+
+//  if (args->getCalLogging()) {
+//    set_filters_for_calibration_logging();    
+//  }
+  
   init_console_log_sink();
   init_console_log_filters(args->getLogLevel(), args->getCalibLog());
+  
+  BOOST_LOG_SEV(glg, debug) << "A debug message to the general logger...";
+  BOOST_LOG_SEV(glg, info) << "info, general"; 
+  BOOST_LOG_SEV(glg, note) << "note, general"; 
+  BOOST_LOG_SEV(glg, warn) << "warn, genearl"; 
+  BOOST_LOG_SEV(glg, rterror) << "error, general"; 
+  BOOST_LOG_SEV(glg, fatal) << "fatal, general"; 
 
-  BOOST_LOG_SEV(g_lg::get(), debug) << "A debug message to the general logger...";
-  BOOST_LOG_SEV(g_lg::get(), info) << "info, general"; 
-  BOOST_LOG_SEV(g_lg::get(), note) << "note, general"; 
-  BOOST_LOG_SEV(g_lg::get(), warn) << "warn, genearl"; 
-  BOOST_LOG_SEV(g_lg::get(), error) << "error, general"; 
-  BOOST_LOG_SEV(g_lg::get(), fatal) << "fatal, general"; 
-
-  BOOST_LOG_SEV(c_lg::get(), debug) << "debug, calib"; 
-  BOOST_LOG_SEV(c_lg::get(), info) << "info, calib"; 
-  BOOST_LOG_SEV(c_lg::get(), note) << "note, calib"; 
-  BOOST_LOG_SEV(c_lg::get(), warn) << "warn, calib"; 
-  BOOST_LOG_SEV(c_lg::get(), error) << "error, calib"; 
-  BOOST_LOG_SEV(c_lg::get(), fatal) << "fatal, calib"; 
+  BOOST_LOG_SEV(clg, debug) << "debug, calib"; 
+  BOOST_LOG_SEV(clg, info) << "info, calib"; 
+  BOOST_LOG_SEV(clg, note) << "note, calib";
+  BOOST_LOG_SEV(clg, warn) << "warn, calib"; 
+  BOOST_LOG_SEV(clg, rterror) << "error, calib"; 
+  BOOST_LOG_SEV(clg, fatal) << "fatal, calib"; 
 
 
 	setvbuf(stdout, NULL, _IONBF, 0);
@@ -169,7 +139,7 @@ int main(int argc, char* argv[]){
 		time_t stime;
 		time_t etime;
 		stime=time(0);
-    BOOST_LOG_SEV(g_lg::get(), info) << "Running dvm-dos-tem in siterun mode. Start @ " 
+    BOOST_LOG_SEV(glg, info) << "Running dvm-dos-tem in siterun mode. Start @ " 
                             << ctime(&stime);
 
 		string controlfile = args->getCtrlfile();

@@ -1,23 +1,38 @@
+#include <string>
 
-#include <boost/log/trivial.hpp>
-
+#include "../TEMLogger.h"
 #include "Runner.h"
+
+BOOST_LOG_INLINE_GLOBAL_LOGGER_INIT(my_general_logger, severity_channel_logger_t) {
+  return severity_channel_logger_t(keywords::channel = "GENER");
+}
+BOOST_LOG_INLINE_GLOBAL_LOGGER_INIT(my_cal_logger, severity_channel_logger_t) {
+  return severity_channel_logger_t(keywords::channel = "CALIB");
+}
+
 
 
 Runner::Runner(){
 	chtid = -1;
 	error = 0;
+  severity_channel_logger_t& glg = my_general_logger::get();
+//  severity_channel_logger_t& clg = my_cal_logger::get();
+  BOOST_LOG_SEV(glg, debug) << "Constructiong a Runner...";
+  BOOST_LOG_SEV(glg, info) << "info, generalFROM RUNNER!!"; 
+  BOOST_LOG_SEV(glg, note) << "note, generalFROM RUNNER!!"; 
+  BOOST_LOG_SEV(glg, warn) << "warn, genearlFROM RUNNER!!";
+  BOOST_LOG_SEV(glg, rterror) << "error, general"; 
+  BOOST_LOG_SEV(glg, fatal) << "fatal, general, FROM RUNNER!!";
 };
 
 Runner::~Runner(){
-
 };
 
 void Runner::initInput(const string &controlfile, const string &runmode){
 
-    BOOST_LOG_TRIVIAL(info) << "Starting initialization...";
-    BOOST_LOG_TRIVIAL(info) << "Control file: " << controlfile;
-    BOOST_LOG_TRIVIAL(info) << "Run mode: " << runmode;
+    //BOOST_LOG_TRIVIAL(info) << "Starting initialization...";
+    //BOOST_LOG_TRIVIAL(info) << "Control file: " << controlfile;
+    //BOOST_LOG_TRIVIAL(info) << "Run mode: " << runmode;
 
 		//Input and processing for reading parameters and passing them to controller
  		configin.controlfile=controlfile;
