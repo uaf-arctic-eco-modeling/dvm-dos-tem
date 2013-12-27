@@ -29,11 +29,7 @@ Runner::~Runner(){
 };
 
 void Runner::initInput(const string &controlfile, const string &runmode){
-
-    //BOOST_LOG_TRIVIAL(info) << "Starting initialization...";
-    //BOOST_LOG_TRIVIAL(info) << "Control file: " << controlfile;
-    //BOOST_LOG_TRIVIAL(info) << "Run mode: " << runmode;
-
+    severity_channel_logger_t& glg = my_general_logger::get();
 		//Input and processing for reading parameters and passing them to controller
  		configin.controlfile=controlfile;
 
@@ -45,8 +41,9 @@ void Runner::initInput(const string &controlfile, const string &runmode){
  		} else if (runmode.compare("regner2")==0) {
  			md.runmode = 3;                            //regional run - spatially
  		} else {
- 			cout <<"TEM run mode: "+runmode+" must be ONE of:\n";
- 			cout <<"'siter', 'regner1', or, 'regner2'\n";
+      BOOST_LOG_SEV(glg, fatal) << "Fatal error: runmode: " << runmode 
+                                << ". TEM runmode must be one of "
+                                << "siter, regner1, or regner2. "; 
  			exit(-1);
  		}
 

@@ -32,25 +32,6 @@
 #include <cstdlib>
 #include <exception>
 #include <map>
-#include <iomanip>
-
-#include <boost/date_time/posix_time/ptime.hpp>
-
-#include <boost/log/core.hpp>
-#include <boost/log/trivial.hpp>
-#include <boost/log/sources/record_ostream.hpp>
-#include <boost/log/sources/logger.hpp>
-#include <boost/log/sources/global_logger_storage.hpp>
-#include <boost/log/sources/severity_feature.hpp>
-#include <boost/log/sources/severity_logger.hpp>
-#include <boost/log/sources/severity_channel_logger.hpp>
-#include <boost/log/expressions.hpp>
-#include <boost/log/attributes.hpp>
-#include <boost/log/support/date_time.hpp>
-#include <boost/log/utility/setup/common_attributes.hpp>
-#include <boost/log/utility/formatting_ostream.hpp>
-#include <boost/log/utility/setup/console.hpp>
-
 
 #include "ArgHandler.h"
 #include "TEMLogger.h"
@@ -63,31 +44,6 @@ BOOST_LOG_INLINE_GLOBAL_LOGGER_INIT(my_cal_logger, severity_channel_logger_t) {
   return severity_channel_logger_t(keywords::channel = "CALIB");
 }
 
-void init_console_log_filters(std::string gen_settings, std::string cal_settings){
-  logging::core::get()->set_filter(
-    severity >= warn || (expr::has_attr(channel) && channel == "CALIB")
-  );
-}
-
-void init_console_log_sink(){
-
-  logging::add_common_attributes();
-
-  logging::add_console_log (
-    std::clog,
-    keywords::format = (
-      expr::stream
-        // works, just don't need timestamp right now...        
-        //<< expr::format_date_time< boost::posix_time::ptime >("TimeStamp", "%Y-%m-%d %H:%M:%S ")
-        << "(" << channel << ") "
-        << "[" << severity << "] " << expr::smessage
-    )
-  );
-  
-  // MAYBE USEFUL?
-  //<< std::setw(3) << std::setfill(' ')
-}
-
 ArgHandler* args = new ArgHandler();
 
 int main(int argc, char* argv[]){
@@ -97,11 +53,6 @@ int main(int argc, char* argv[]){
 		return 0;
 	}
   
-  HELPME();
-  //init_logging_TBC();
-  severity_channel_logger_t& glg = my_general_logger::get();
-  severity_channel_logger_t& clg = my_cal_logger::get();
-
 //  if (args->getLogging()){
 //    include_turn_on_and_setup_all_logging();
 //  }
@@ -114,23 +65,13 @@ int main(int argc, char* argv[]){
 //    set_filters_for_calibration_logging();    
 //  }
   
-  init_console_log_sink();
-  init_console_log_filters(args->getLogLevel(), args->getCalibLog());
-  
-  BOOST_LOG_SEV(glg, debug) << "A debug message to the general logger...";
-  BOOST_LOG_SEV(glg, info) << "info, general"; 
-  BOOST_LOG_SEV(glg, note) << "note, general"; 
-  BOOST_LOG_SEV(glg, warn) << "warn, genearl"; 
-  BOOST_LOG_SEV(glg, rterror) << "error, general"; 
-  BOOST_LOG_SEV(glg, fatal) << "fatal, general"; 
+  setup_console_log_sink();
+  setup_console_log_filters(args->getLogLevel(), args->getCalibLog());
+  test_log_and_filter_settings();  
 
-  BOOST_LOG_SEV(clg, debug) << "debug, calib"; 
-  BOOST_LOG_SEV(clg, info) << "info, calib"; 
-  BOOST_LOG_SEV(clg, note) << "note, calib";
-  BOOST_LOG_SEV(clg, warn) << "warn, calib"; 
-  BOOST_LOG_SEV(clg, rterror) << "error, calib"; 
-  BOOST_LOG_SEV(clg, fatal) << "fatal, calib"; 
-
+  // get handles for each of global loggers...
+  severity_channel_logger_t& glg = my_general_logger::get();
+  severity_channel_logger_t& clg = my_cal_logger::get();
 
 	setvbuf(stdout, NULL, _IONBF, 0);
 	setvbuf(stderr, NULL, _IONBF, 0);
@@ -140,7 +81,7 @@ int main(int argc, char* argv[]){
 		time_t etime;
 		stime=time(0);
     BOOST_LOG_SEV(glg, info) << "Running dvm-dos-tem in siterun mode. Start @ " 
-                            << ctime(&stime);
+                             << ctime(&stime);
 
 		string controlfile = args->getCtrlfile();
 		string chtid = args->getChtid();
@@ -157,15 +98,10 @@ int main(int argc, char* argv[]){
 
  		siter.setupIDs();
 
-    //BOOST_LOG_SEV(clg, daily) << "Much  be a calibration logger daily level...";
  		siter.runmode1();
  
  		etime=time(0);
 
-    //BOOST_LOG_TRIVIAL(info) << "Done running dvm-dos-tem in siterun mode. Finish @ " 
-    //                       << ctime(&etime);
-    //BOOST_LOG_TRIVIAL(info) << "Total time (secs): " << difftime(etime, stime);
-    
   } else if (args->getMode() == "regnrun") {
 
 		time_t stime;

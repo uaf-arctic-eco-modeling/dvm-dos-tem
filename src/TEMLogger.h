@@ -37,12 +37,7 @@ namespace sinks = boost::log::sinks;
 
 
 enum general_severity_level {
-  debug,
-  info,
-  note,
-  warn,
-  rterror,
-  fatal
+  debug, info, note, warn, rterror, fatal
 };
 
 // The operator is used for regular stream formatting
@@ -58,19 +53,14 @@ typedef src::severity_channel_logger< general_severity_level,
 
 // get a handle for the global "general logger" object...
 BOOST_LOG_INLINE_GLOBAL_LOGGER_DEFAULT(stubb_logger, severity_channel_logger_t)
-
 BOOST_LOG_INLINE_GLOBAL_LOGGER_DEFAULT(stubb_cal_logger, severity_channel_logger_t)
-void HELPME();
+
+void test_log_and_filter_settings();
+void setup_console_log_sink();
+void setup_console_log_filters(std::string gen_settings, std::string cal_settings);
+
+
+
 #endif /* _TEMLOGGER_H_ */
-
-
-
-
-
-
-
-
-
-
 
 
