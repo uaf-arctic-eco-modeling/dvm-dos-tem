@@ -16,13 +16,7 @@ Runner::Runner(){
 	chtid = -1;
 	error = 0;
   severity_channel_logger_t& glg = my_general_logger::get();
-//  severity_channel_logger_t& clg = my_cal_logger::get();
   BOOST_LOG_SEV(glg, debug) << "Constructiong a Runner...";
-  BOOST_LOG_SEV(glg, info) << "info, generalFROM RUNNER!!"; 
-  BOOST_LOG_SEV(glg, note) << "note, generalFROM RUNNER!!"; 
-  BOOST_LOG_SEV(glg, warn) << "warn, genearlFROM RUNNER!!";
-  BOOST_LOG_SEV(glg, rterror) << "error, general"; 
-  BOOST_LOG_SEV(glg, fatal) << "fatal, general, FROM RUNNER!!";
 };
 
 Runner::~Runner(){
@@ -30,18 +24,18 @@ Runner::~Runner(){
 
 void Runner::initInput(const string &controlfile, const string &runmode){
     severity_channel_logger_t& glg = my_general_logger::get();
-		//Input and processing for reading parameters and passing them to controller
+		
+    //Input and processing for reading parameters and passing them to controller
  		configin.controlfile=controlfile;
 
- 		//
  		if (runmode.compare("siter")==0) {
- 		  	md.runmode = 1;
+ 		  md.runmode = 1;
  		} else if (runmode.compare("regner1")==0) {
  			md.runmode = 2;                            //regional run - time-series
  		} else if (runmode.compare("regner2")==0) {
  			md.runmode = 3;                            //regional run - spatially
  		} else {
-      BOOST_LOG_SEV(glg, fatal) << "Fatal error: runmode: " << runmode 
+      BOOST_LOG_SEV(glg, fatal) << "runmode: " << runmode 
                                 << ". TEM runmode must be one of "
                                 << "siter, regner1, or regner2. "; 
  			exit(-1);
@@ -72,16 +66,16 @@ void Runner::initInput(const string &controlfile, const string &runmode){
  		if (md.runmode==2 || md.runmode==3) {
  			createCohortList4Run();   // the running cohort list, if multple-cohort run mode on
  		} else if (md.runmode==1) {
-	 		cout <<"CHTID and INITCHTID is "<<chtid  <<" for 'siter' runmode! \n";
-	 		cout <<"Be sure they exist and are consistent in 'cohortid.nc'! \n";
+      BOOST_LOG_SEV(glg, warn) << "CHTID and INITCHTID are " << chtid;
+      BOOST_LOG_SEV(glg, warn) << "Be sure they exist and are consistent in 'cohortid.nc'";
 	 		runchtlist.push_back(chtid);
  		}
 
  		//initial conditions
  		if (md.initmode==3){
  		 	if(md.runeq){
- 		 		cout <<"cannot set initmode as 'restart' for equlibrium run-stage \n";
- 		 		cout <<"reset to 'default'\n";
+ 		 		BOOST_LOG_SEV(glg, warn) << "Cannot set initmode to 'restart' for equlibrium run-stage";
+        BOOST_LOG_SEV(glg, warn) << "Reset initmode to 'default'...";
  		 		md.initmode=1;
  		 	} else {
  		 		runcht.resinputer.init(md.initialfile);
@@ -352,7 +346,8 @@ void Runner::setupIDs(){
 
 // one-site runmode
 void Runner::runmode1(){
-
+  severity_channel_logger_t& glg = my_general_logger::get();
+ 
 	//read-in region-level data (Yuan: this is the portal for multiple region run, if needed in the future)
 	error = runreg.reinit(0);          //can be modified, if more than 1 record of data
 	if (error!=0){
@@ -393,18 +388,18 @@ void Runner::runmode1(){
 		cout <<"problem in re-initializing cohort in Runner::runmode1\n";
 		exit(-1);
 	}
-
-	cout<<"cohort: "<<chtid<<" - running! \n";
+  BOOST_LOG_SEV(glg, info) << "cohort: " << chtid << " - running!";
 	runcht.run_cohortly();
 
 };
 
 void Runner::runmode2(){
-
+  severity_channel_logger_t& glg = my_general_logger::get();
+ 
 	//read-in region-level data (Yuan: this is the portal for multiple region run, if needed in the future)
 	error = runreg.reinit(0);          //can be modified, if more than 1 record of data
 	if (error!=0){
-  		cout <<"problem in reinitialize regional-module in Runner::run\n";
+  		BOOST_LOG_SEV(glg, fatal) << "Problem reinitializing regional module in Runner::run";
   		exit(-1);
 	}
 
@@ -453,7 +448,7 @@ void Runner::runmode2(){
 
 		error = runcht.reinit();
 		if (error!=0) {
-			cout<<"problem in re-initializing cohort in Runner::runmode2\n";
+			BOOST_LOG_SEV(glg, fatal) << "problem re-initializing cohort in Runner::runmode2";
 			exit(-3);
 		}
 

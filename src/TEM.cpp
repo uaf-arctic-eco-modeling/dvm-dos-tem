@@ -108,7 +108,8 @@ int main(int argc, char* argv[]){
 		time_t stime;
 		time_t etime;
 		stime=time(0);
-		cout <<"run TEM regionally - start @"<<ctime(&stime)<<"\n";
+		BOOST_LOG_SEV(glg, info) << "Running dvm-dos-tem in regional mode. Start @ "
+                             << ctime(&stime);
 
 		string controlfile = args->getCtrlfile();
 		string runmode = args->getRegrunmode();
@@ -124,21 +125,20 @@ int main(int argc, char* argv[]){
 		regner.setupIDs();
 
  		if (runmode.compare("regner1")==0) {
- 			regner.runmode2();
+      BOOST_LOG_SEV(glg, debug) << "Running in regner1...(runmode2)";
+      regner.runmode2();
  		} else if (runmode.compare("regner2")==0){
+      BOOST_LOG_SEV(glg, debug) << "Running in regner2...(runmode3)";
  			regner.runmode3();
 		} else {
-
-			// Should move this to the ArgHandler class.
-			cout <<"run-mode for TEM regional run must be: \n";
-			cout <<" EITHER 'regner1' OR 'regner2' \n";
+      BOOST_LOG_SEV(glg, fatal) << "Invalid runmode...quitting.";
 			exit(-1);
 		}
 
-		etime=time(0);
-		cout <<"run TEM regionally - done @"<<ctime(&etime)<<"\n";
-		cout <<"total seconds: "<<difftime(etime, stime)<<"\n";
-
+		etime = time(0);
+    BOOST_LOG_SEV(glg, info) << "Done running dvm-dos-tem regionally " 
+                             << "(" << ctime(&etime) << ").";
+    BOOST_LOG_SEV(glg, info) << "total seconds: " << difftime(etime, stime);
 	}
 	
 	return 0;
