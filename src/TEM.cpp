@@ -52,6 +52,7 @@ int main(int argc, char* argv[]){
 		args->showHelp();
 		return 0;
 	}
+  args->verify();
   
 //  if (args->getLogging()){
 //    include_turn_on_and_setup_all_logging();
@@ -67,7 +68,7 @@ int main(int argc, char* argv[]){
   
   setup_console_log_sink();
   setup_console_log_filters(args->getLogLevel(), args->getCalibLog());
-  test_log_and_filter_settings();  
+  //test_log_and_filter_settings();  
 
   // get handles for each of global loggers...
   severity_channel_logger_t& glg = my_general_logger::get();

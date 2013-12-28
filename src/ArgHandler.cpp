@@ -1,6 +1,5 @@
 #include "ArgHandler.h"
 
-
 ArgHandler::ArgHandler() {
 	// handle defaults in the parse(..) and verify(..) functions
 }
@@ -39,13 +38,19 @@ void ArgHandler::parse(int argc, char** argv) {
 	if (varmap.count("debug")) {
 		debug = true;
 	}
-
-	verify();
-
 }
 
 void ArgHandler::verify() {
-	std::cout << "Could/should do some option verification here...?\n";
+  // The regional "run mode"...loop order??
+  if (mode.compare("regnrun") == 0) {
+  if ( (regrunmode.compare("regner1") == 0) || 
+       (regrunmode.compare("regner2") == 0) ) {
+    // pass, all ok
+  } else {
+    std::cout << "Invalid option (regrunmode). Quitting.\n";
+    exit(-1);
+  }
+}  
 }
 
 string ArgHandler::getCalibLog(){
