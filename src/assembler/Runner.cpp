@@ -84,7 +84,7 @@ void Runner::initInput(const string &controlfile, const string &runmode){
             // will add later
  		} else if (md.initmode==1) {
  			// initial condition from 'chtlup'
-	 		cout <<"initial conditions from default for each 'cmttype' \n";
+      BOOST_LOG_SEV(glg, info) << "Using initial conditions from default for each 'cmttype'";
  		}
 
  		// pass the 'md' switches/controls/options to two major running modules 'rungrd' and 'runcht'
@@ -200,14 +200,14 @@ void Runner::setupIDs(){
 	// all grid data ids
 	error = rungrd.allgridids();
 	if (error != 0) {
-  		cout <<"problem in reading all grid-level data IDs in Runner::setupIDs \n";
+      BOOST_LOG_SEV(glg, fatal) << "Problem reading grid-level data IDs in Runner::setupIDs";
   		exit(-1);
 	}
 
 	// all cohort data ids
 	error = runcht.allchtids();
 	if (error != 0) {
-  		cout <<"problem in reading all cohort-level data IDs in Runner::setupIDs \n";
+      BOOST_LOG_SEV(glg, fatal) << "Problem reading cohort-level data IDs in Runner::setupIDs";
   		exit(-1);
 	}
 
@@ -245,7 +245,7 @@ void Runner::setupIDs(){
 		jt   = find(runcht.chtids.begin(), runcht.chtids.end(), ichtid);
 		jcht = (unsigned int)(jt - runcht.chtids.begin());
 		if (jcht>=runcht.chtids.size()) {
-			cout<<"Cohort: "<<ichtid<<" is not in datacht/cohortid.nc";
+      BOOST_LOG_SEV(glg, fatal) << "Cohort: "<<ichtid<<" is not in datacht/cohortid.nc";
 			exit(-1);
 		}
 
@@ -253,9 +253,10 @@ void Runner::setupIDs(){
 		jt    = find(rungrd.grdids.begin(), rungrd.grdids.end(), runcht.chtgridids.at(jcht));
 		jdata = (int)(jt - rungrd.grdids.begin());
 		if (jdata>=rungrd.grdids.size()) {
-			cout<<"GRIDID: "<<runcht.chtgridids.at(jcht)
-					<<"for Cohort: "<<ichtid<<" is not in datagrid/grid.nc";
-			exit(-1);
+			BOOST_LOG_SEV(glg, fatal) << "GridID: " << runcht.chtgridids.at(jcht)
+					                      << "for Cohort: " << ichtid
+                                << " is not in datagrid/grid.nc";
+      exit(-1);
 		}
 		reclistgrid.push_back(jdata);
 
@@ -350,7 +351,7 @@ void Runner::runmode1(){
 	//read-in region-level data (Yuan: this is the portal for multiple region run, if needed in the future)
 	error = runreg.reinit(0);          //can be modified, if more than 1 record of data
 	if (error!=0){
-  		cout <<"problem in reinitialize regional-module in Runner::run\n";
+      BOOST_LOG_SEV(glg, fatal) << "problem in reinitialize regional-module in Runner::run";
   		exit(-1);
 	}
 
