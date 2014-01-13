@@ -43,7 +43,8 @@ void set_log_severity_level(std::string lvl) {
   // severity >= debug || (expr::has_attr(channel) && channel == "CALIB")
 }
 
-void setup_console_log_sink(){
+
+void setup_console_log_sink(/* Could add some params for diff formats? */){
 
   logging::add_common_attributes();
 

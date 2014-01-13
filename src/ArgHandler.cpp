@@ -5,7 +5,7 @@ ArgHandler::ArgHandler() {
 }
 void ArgHandler::parse(int argc, char** argv) {
 	desc.add_options()
-    ("caliblog", boost::program_options::value<string>(&caliblog)->default_value("off"),"(NOT IMPLEMENTED) whether or not the calibration module is on...? list of strings for modules to calibrate?")
+    ("calibrationmode", boost::program_options::value<string>(&calibrationmode)->default_value("off"),"(NOT IMPLEMENTED) whether or not the calibration module is on...? list of strings for modules to calibrate?")
     ("loglevel,l", boost::program_options::value<string>(&loglevel)->default_value("trace"), "the level above which all log messages will be printed. Here are the choices: trace, debug, info, warning, error, fatal.")
 		("mode,m", boost::program_options::value<string>(&mode)->default_value("siterun"),"change mode between siterun and regnrun")
 		("control-file,f", boost::program_options::value<string>(&ctrlfile)->default_value("config/controlfile_site.txt"), "choose a control file to use")
@@ -53,8 +53,8 @@ void ArgHandler::verify() {
 }  
 }
 
-string ArgHandler::getCalibLog(){
-  return caliblog;
+string ArgHandler::getCalibrationMode(){
+  return calibrationmode;
 }
 string ArgHandler::getLogLevel(){
 	return loglevel;

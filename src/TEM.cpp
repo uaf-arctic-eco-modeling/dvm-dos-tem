@@ -33,6 +33,10 @@
 #include <exception>
 #include <map>
 
+#include <boost/signals2.hpp>
+#include <boost/asio/signal_set.hpp>
+#include <boost/thread.hpp>
+
 #include "ArgHandler.h"
 #include "TEMLogger.h"
 #include "assembler/Runner.h"
@@ -44,7 +48,44 @@ BOOST_LOG_INLINE_GLOBAL_LOGGER_INIT(my_cal_logger, severity_channel_logger_t) {
   return severity_channel_logger_t(keywords::channel = "CALIB");
 }
 
+void handler(const boost::system::error_code& error, int signal_number) {
+  if (!error) {
+    cout << "Caught a signal!!\n";
+    exit(-1);
+  }
+}
+
+void tbc_runner(){
+  std::cout << "jUST STARTING THE WORKER...\n";  
+  boost::posix_time::seconds workTime(10);
+  boost::this_thread::sleep(workTime);
+  std::cout << "WORKER DONE SLEEPING!! thread done, moving on.....\n";
+}
+
+void stop_calibration(const boost::system::error_code& error,
+    int signal_number){
+  std::cout << "Now what? I caught a sigint: " << signal_number << std::endl;
+  std::cout << "SLEEPING!...\n";  
+  boost::posix_time::seconds workTime(10);
+  boost::this_thread::sleep(workTime);
+}
+
+void calibration_worker_thread(/*ArgHandler* const args ? */){
+  // get handles for each of global loggers...
+  severity_channel_logger_t& glg = my_general_logger::get();
+  severity_channel_logger_t& clg = my_cal_logger::get();
+
+  BOOST_LOG_SEV(glg, info) << "Starting Calibration Worker Thread.";
+  BOOST_LOG_SEV(glg, info) << "This should start the model in x,y,z mode and crunch numbers....";
+  BOOST_LOG_SEV(glg, info) << "To simulate that, I am sleeping for 10 seconds...";
+  boost::posix_time::seconds workTime(10);
+  boost::this_thread::sleep(workTime);
+  BOOST_LOG_SEV(glg, info)  << "Done working. This thread is finished.";
+}
+
+
 ArgHandler* args = new ArgHandler();
+
 
 int main(int argc, char* argv[]){
   args->parse(argc, argv);
@@ -53,94 +94,117 @@ int main(int argc, char* argv[]){
 		return 0;
 	}
   args->verify();
-  
-//  if (args->getLogging()){
-//    include_turn_on_and_setup_all_logging();
-//  }
 
-//  if (args->getLogLevel()) {
-//    set_global_log_level();
-//  }
+  std::cout << "Setting up Logging...\n";
 
-//  if (args->getCalLogging()) {
-//    set_filters_for_calibration_logging();    
-//  }
-  
   setup_console_log_sink();
+
   set_log_severity_level(args->getLogLevel());  
-  //test_log_and_filter_settings();  
 
   // get handles for each of global loggers...
   severity_channel_logger_t& glg = my_general_logger::get();
   severity_channel_logger_t& clg = my_cal_logger::get();
 
-	setvbuf(stdout, NULL, _IONBF, 0);
-	setvbuf(stderr, NULL, _IONBF, 0);
 
-	if (args->getMode() == "siterun") {
-		time_t stime;
-		time_t etime;
-		stime=time(0);
-    BOOST_LOG_SEV(glg, info) << "Running dvm-dos-tem in siterun mode. Start @ " 
-                             << ctime(&stime);
+  if (args->getCalibrationMode() == "on") {
+    BOOST_LOG_SEV(glg, info) << "Running in Calibration Mode";
+    BOOST_LOG_SEV(glg, info) << "Making an io_service.";
+    boost::asio::io_service io_service;
+    
 
-		string controlfile = args->getCtrlfile();
-		string chtid = args->getChtid();
+    BOOST_LOG_SEV(glg, info) << "Defining a signal set that the io_service will listen for.";
+    boost::asio::signal_set signals(io_service, SIGINT, SIGTERM);
+    
+    // ??? stops service ???.
+    //  signals.async_wait(boost::bind(
+    //      &boost::asio::io_service::stop, &io_service));
+    
+    BOOST_LOG_SEV(glg, info) << "Define a callback that will run when the service "
+                     << "delivers one of the defined signals.";
+    signals.async_wait(&stop_calibration);
 
-		Runner siter;
+    // this is going to go off and sleep for 10 secs...
+    BOOST_LOG_SEV(glg, info) << "Start a worker thread to run tem.";
+    boost::thread workerThread(&calibration_worker_thread); // need to figure out how to pass args to this..
 
-		siter.chtid = atoi(chtid.c_str());
+    BOOST_LOG_SEV(glg, info) << "Run the io_service in the main thread, waiting "
+                             << "asynchronously for a signal to be captured/handled...";
 
-		siter.initInput(controlfile, "siter");
+    io_service.run();
+    BOOST_LOG_SEV(glg, info) << "Exited from io_service.run().";
 
-		siter.initOutput();
+    //workerThread.join();
 
- 		siter.setupData();
 
- 		siter.setupIDs();
+  } else {
+    BOOST_LOG_SEV(glg, info) << "Running in extrapolation mode.";
+    setvbuf(stdout, NULL, _IONBF, 0);
+    setvbuf(stderr, NULL, _IONBF, 0);
 
- 		siter.runmode1();
- 
- 		etime=time(0);
+    if (args->getMode() == "siterun") {
+      time_t stime;
+      time_t etime;
+      stime=time(0);
+      BOOST_LOG_SEV(glg, info) << "Running dvm-dos-tem in siterun mode. Start @ " 
+                               << ctime(&stime);
 
-  } else if (args->getMode() == "regnrun") {
+      string controlfile = args->getCtrlfile();
+      string chtid = args->getChtid();
 
-		time_t stime;
-		time_t etime;
-		stime=time(0);
-		BOOST_LOG_SEV(glg, info) << "Running dvm-dos-tem in regional mode. Start @ "
-                             << ctime(&stime);
+      Runner siter;
 
-		string controlfile = args->getCtrlfile();
-		string runmode = args->getRegrunmode();
+      siter.chtid = atoi(chtid.c_str());
 
-		Runner regner;
+      siter.initInput(controlfile, "siter");
 
-		regner.initInput(controlfile, runmode);
+      siter.initOutput();
 
-		regner.initOutput();
+      siter.setupData();
 
-		regner.setupData();
+      siter.setupIDs();
 
-		regner.setupIDs();
+      siter.runmode1();
+   
+      etime=time(0);
 
- 		if (runmode.compare("regner1")==0) {
-      BOOST_LOG_SEV(glg, debug) << "Running in regner1...(runmode2)";
-      regner.runmode2();
- 		} else if (runmode.compare("regner2")==0){
-      BOOST_LOG_SEV(glg, debug) << "Running in regner2...(runmode3)";
- 			regner.runmode3();
-		} else {
-      BOOST_LOG_SEV(glg, fatal) << "Invalid runmode...quitting.";
-			exit(-1);
-		}
+    } else if (args->getMode() == "regnrun") {
 
-		etime = time(0);
-    BOOST_LOG_SEV(glg, info) << "Done running dvm-dos-tem regionally " 
-                             << "(" << ctime(&etime) << ").";
-    BOOST_LOG_SEV(glg, info) << "total seconds: " << difftime(etime, stime);
-	}
-	
-	return 0;
+      time_t stime;
+      time_t etime;
+      stime=time(0);
+      BOOST_LOG_SEV(glg, info) << "Running dvm-dos-tem in regional mode. Start @ "
+                               << ctime(&stime);
 
+      string controlfile = args->getCtrlfile();
+      string runmode = args->getRegrunmode();
+
+      Runner regner;
+
+      regner.initInput(controlfile, runmode);
+
+      regner.initOutput();
+
+      regner.setupData();
+
+      regner.setupIDs();
+
+      if (runmode.compare("regner1")==0) {
+        BOOST_LOG_SEV(glg, debug) << "Running in regner1...(runmode2)";
+        regner.runmode2();
+      } else if (runmode.compare("regner2")==0){
+        BOOST_LOG_SEV(glg, debug) << "Running in regner2...(runmode3)";
+        regner.runmode3();
+      } else {
+        BOOST_LOG_SEV(glg, fatal) << "Invalid runmode...quitting.";
+        exit(-1);
+      }
+
+      etime = time(0);
+      BOOST_LOG_SEV(glg, info) << "Done running dvm-dos-tem regionally " 
+                               << "(" << ctime(&etime) << ").";
+      BOOST_LOG_SEV(glg, info) << "total seconds: " << difftime(etime, stime);
+    }
+    
+    return 0;
+  }
 };
