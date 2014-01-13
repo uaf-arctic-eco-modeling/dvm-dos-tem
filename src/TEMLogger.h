@@ -35,9 +35,8 @@ namespace keywords = boost::log::keywords;
 namespace expr = boost::log::expressions;
 namespace sinks = boost::log::sinks;
 
-
 enum general_severity_level {
-  debug, info, note, warn, rterror, fatal
+  debug, info, note, warn, err, fatal
 };
 
 // The operator is used for regular stream formatting

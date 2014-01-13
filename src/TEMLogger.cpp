@@ -9,7 +9,7 @@ BOOST_LOG_INLINE_GLOBAL_LOGGER_INIT(my_cal_logger, severity_channel_logger_t) {
 
 std::ostream& operator<< (std::ostream& strm, general_severity_level level) {
     static const char* strings[] = { 
-      "debug", "info", "note", "warn", "rterror", "fatal"
+      "debug", "info", "note", "warn", "err", "fatal"
     };
 
     if (static_cast< std::size_t >(level) < sizeof(strings) / sizeof(*strings))
@@ -19,6 +19,7 @@ std::ostream& operator<< (std::ostream& strm, general_severity_level level) {
 
     return strm;
 }
+
 
 void setup_console_log_filters(std::string gen_settings, std::string cal_settings){
 
@@ -59,14 +60,14 @@ void test_log_and_filter_settings() {
   BOOST_LOG_SEV(glg, info) << "General Log; info message..."; 
   BOOST_LOG_SEV(glg, note) << "General Log; note message..."; 
   BOOST_LOG_SEV(glg, warn) << "General Log; warn message..."; 
-  BOOST_LOG_SEV(glg, rterror) << "General Log; rterror message..."; 
+  BOOST_LOG_SEV(glg, err) << "General Log; err message..."; 
   BOOST_LOG_SEV(glg, fatal) << "General Log; fatal message..."; 
 
   BOOST_LOG_SEV(clg, debug) << "Calibration Log; debug message..."; 
   BOOST_LOG_SEV(clg, info) << "Calibration Log; info message..."; 
   BOOST_LOG_SEV(clg, note) << "Calibration Log; note message...";
   BOOST_LOG_SEV(clg, warn) << "Calibration Log; warn message..."; 
-  BOOST_LOG_SEV(clg, rterror) << "Calibration Log; rterror message..."; 
+  BOOST_LOG_SEV(clg, err) << "Calibration Log; err message..."; 
   BOOST_LOG_SEV(clg, fatal) << "Calibration Log; fatal message..."; 
 }
 
