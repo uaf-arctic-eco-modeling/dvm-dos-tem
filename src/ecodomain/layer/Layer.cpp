@@ -1,9 +1,18 @@
 /*! \file
  * 
  */
- #include "Layer.h"
- 
- Layer::Layer(){
+#include "Layer.h"
+
+BOOST_LOG_INLINE_GLOBAL_LOGGER_INIT(my_general_logger, severity_channel_logger_t) {
+  return severity_channel_logger_t(keywords::channel = "GENER");
+}
+BOOST_LOG_INLINE_GLOBAL_LOGGER_INIT(my_cal_logger, severity_channel_logger_t) {
+  return severity_channel_logger_t(keywords::channel = "CALIB");
+}
+
+ Layer::Layer():
+    glg(my_general_logger::get()){
+  BOOST_LOG_SEV(glg, info) << "A message from Layer ctor - testing global logger def...";
 	nextl= NULL;
  	prevl= NULL;
  	
