@@ -21,6 +21,7 @@
 
 #include "../runmodule/Controller.h"
 #include "../runmodule/ModelData.h"
+#include "../TEMLogger.h"
 
 #include <vector>
 #include <deque>
@@ -70,7 +71,7 @@ class Runner {
     	vector<int> reclistfire;
 
 	private:
-
+    severity_channel_logger_t& glg;
     	//TEM domains (hiarchy)
     	RunRegion runreg;
 		RunGrid rungrd;

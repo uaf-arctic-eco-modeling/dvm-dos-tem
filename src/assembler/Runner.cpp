@@ -1,7 +1,8 @@
 #include <string>
 
-#include "../TEMLogger.h"
+
 #include "Runner.h"
+
 
 BOOST_LOG_INLINE_GLOBAL_LOGGER_INIT(my_general_logger, severity_channel_logger_t) {
   return severity_channel_logger_t(keywords::channel = "GENER");
@@ -11,11 +12,10 @@ BOOST_LOG_INLINE_GLOBAL_LOGGER_INIT(my_cal_logger, severity_channel_logger_t) {
 }
 
 
-
-Runner::Runner(){
+Runner::Runner():
+    glg(my_general_logger::get()){
 	chtid = -1;
 	error = 0;
-  severity_channel_logger_t& glg = my_general_logger::get();
   BOOST_LOG_SEV(glg, debug) << "Constructiong a Runner...";
 };
 
@@ -23,8 +23,7 @@ Runner::~Runner(){
 };
 
 void Runner::initInput(const string &controlfile, const string &runmode){
-    severity_channel_logger_t& glg = my_general_logger::get();
-		
+
     //Input and processing for reading parameters and passing them to controller
  		configin.controlfile=controlfile;
 
@@ -346,7 +345,7 @@ void Runner::setupIDs(){
 
 // one-site runmode
 void Runner::runmode1(){
-  severity_channel_logger_t& glg = my_general_logger::get();
+
  
 	//read-in region-level data (Yuan: this is the portal for multiple region run, if needed in the future)
 	error = runreg.reinit(0);          //can be modified, if more than 1 record of data
@@ -394,7 +393,7 @@ void Runner::runmode1(){
 };
 
 void Runner::runmode2(){
-  severity_channel_logger_t& glg = my_general_logger::get();
+
  
 	//read-in region-level data (Yuan: this is the portal for multiple region run, if needed in the future)
 	error = runreg.reinit(0);          //can be modified, if more than 1 record of data
