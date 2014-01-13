@@ -35,9 +35,26 @@ namespace keywords = boost::log::keywords;
 namespace expr = boost::log::expressions;
 namespace sinks = boost::log::sinks;
 
+
 enum general_severity_level {
   debug, info, note, warn, err, fatal
 };
+
+/** A little helper to class to convert from string to enum integer value */
+template <typename T>
+class EnumParser {
+    std::map <std::string, T> enumMap;
+public:
+    EnumParser(){};
+
+    T parseEnum(const std::string &value) { 
+        typename std::map<std::string, T>::const_iterator iValue = enumMap.find(value);
+        if (iValue == enumMap.end())
+            throw std::runtime_error("");
+        return iValue->second;
+    }
+};
+
 
 // The operator is used for regular stream formatting
 // i.e. printing the flag instead of the enum value..
@@ -55,6 +72,7 @@ BOOST_LOG_INLINE_GLOBAL_LOGGER_DEFAULT(stubb_logger, severity_channel_logger_t)
 BOOST_LOG_INLINE_GLOBAL_LOGGER_DEFAULT(stubb_cal_logger, severity_channel_logger_t)
 
 void test_log_and_filter_settings();
+void set_log_severity_level(std::string lvl);
 void setup_console_log_sink();
 void setup_console_log_filters(std::string gen_settings, std::string cal_settings);
 

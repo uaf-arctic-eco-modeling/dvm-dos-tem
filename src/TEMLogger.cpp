@@ -7,6 +7,17 @@ BOOST_LOG_INLINE_GLOBAL_LOGGER_INIT(my_cal_logger, severity_channel_logger_t) {
   return severity_channel_logger_t(keywords::channel = "CALIB");
 }
 
+
+template<>
+EnumParser< general_severity_level >::EnumParser() {
+    enumMap["debug"] = debug;
+    enumMap["info"] = info;
+    enumMap["note"] = note;
+    enumMap["warn"] = warn;
+    enumMap["err"] = err;
+    enumMap["fatal"] = fatal;
+}
+
 std::ostream& operator<< (std::ostream& strm, general_severity_level level) {
     static const char* strings[] = { 
       "debug", "info", "note", "warn", "err", "fatal"
@@ -20,6 +31,13 @@ std::ostream& operator<< (std::ostream& strm, general_severity_level level) {
     return strm;
 }
 
+/** Use the Enum parser to find the level, and set up the logging filter. */
+void set_log_severity_level(std::string lvl) {
+  EnumParser<general_severity_level> parser;
+  logging::core::get()->set_filter(
+    severity >= parser.parseEnum(lvl)
+  );
+}
 
 void setup_console_log_filters(std::string gen_settings, std::string cal_settings){
 
