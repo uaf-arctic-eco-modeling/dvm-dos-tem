@@ -35,12 +35,15 @@ namespace keywords = boost::log::keywords;
 namespace expr = boost::log::expressions;
 namespace sinks = boost::log::sinks;
 
-
+/** Define the "severity Levels for Boost::Log's severity logger. */
 enum general_severity_level {
   debug, info, note, warn, err, fatal
 };
 
-/** A little helper to class to convert from string to enum integer value */
+/** A little helper to class to convert from string to enum integer value 
+*   Inspiration lifted from here:
+*   http://stackoverflow.com/questions/726664/string-to-enum-in-c
+*/
 template <typename T>
 class EnumParser {
     std::map <std::string, T> enumMap;
