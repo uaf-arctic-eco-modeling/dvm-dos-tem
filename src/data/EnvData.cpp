@@ -1,7 +1,19 @@
 #include "EnvData.h"
 
-EnvData::EnvData(){
+BOOST_LOG_INLINE_GLOBAL_LOGGER_INIT(my_general_logger, severity_channel_logger_t) {
+  return severity_channel_logger_t(keywords::channel = "GENER");
+}
+BOOST_LOG_INLINE_GLOBAL_LOGGER_INIT(my_cal_logger, severity_channel_logger_t) {
+  return severity_channel_logger_t(keywords::channel = "CALIB");
+}
 
+/** Initialize static members. */
+severity_channel_logger_t& EnvData::glg = my_general_logger::get();
+severity_channel_logger_t& EnvData::clg = my_cal_logger::get();
+
+
+
+EnvData::EnvData(){
 };
 
 EnvData::~EnvData(){
@@ -698,7 +710,7 @@ void EnvData::atm_endOfMonth(){
 };
 
 void EnvData::veg_endOfMonth(const int & currmind){
-
+  BOOST_LOG_SEV(clg, info) << "In EnvData::veg_endOfMonth()...";
 	y_vegs.rwater  += m_vegs.rwater/12.;     // canopy-contained rainfall water
 	y_vegs.snow    += m_vegs.snow/12.;
 
