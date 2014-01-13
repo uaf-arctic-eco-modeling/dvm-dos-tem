@@ -67,7 +67,6 @@ int main(int argc, char* argv[]){
 //  }
   
   setup_console_log_sink();
-  //setup_console_log_filters(args->getLogLevel(), args->getCalibLog());
   set_log_severity_level(args->getLogLevel());  
   //test_log_and_filter_settings();  
 

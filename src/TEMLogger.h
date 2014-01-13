@@ -74,7 +74,7 @@ BOOST_LOG_INLINE_GLOBAL_LOGGER_DEFAULT(stubb_cal_logger, severity_channel_logger
 void test_log_and_filter_settings();
 void set_log_severity_level(std::string lvl);
 void setup_console_log_sink();
-void setup_console_log_filters(std::string gen_settings, std::string cal_settings);
+
 
 
 
