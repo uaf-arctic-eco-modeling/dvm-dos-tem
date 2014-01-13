@@ -16,3 +16,7 @@ export SITE_SPECIFIC_LIBS="-L/home/tbc/usr/local/lib"
 
 # For locating the boost libs at run time
 export LD_LIBRARY_PATH="/home/tbc/usr/local/lib:$LD_LIBRARY_PATH"
+
+echo "Remember to downgrade netcdf!!"
+echo "From home directory, do $ sudo yum downgrade rpmbuild/RPMS/x86_64/netcdf-4.1.3-2.fc19.x86_64.rpm rpmbuild/RPMS/x86_64/netcdf-devel-4.1.3-2.fc19.x86_64.rpm"
+
