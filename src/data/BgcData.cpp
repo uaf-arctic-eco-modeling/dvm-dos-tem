@@ -1,12 +1,19 @@
 #include "BgcData.h"
 
-BgcData::BgcData(){
+BOOST_LOG_INLINE_GLOBAL_LOGGER_INIT(my_general_logger, severity_channel_logger_t) {
+  return severity_channel_logger_t(keywords::channel = "GENER");
+}
+BOOST_LOG_INLINE_GLOBAL_LOGGER_INIT(my_cal_logger, severity_channel_logger_t) {
+  return severity_channel_logger_t(keywords::channel = "CALIB");
+}
 
-};
+severity_channel_logger_t& BgcData::glg = my_general_logger::get();
+severity_channel_logger_t& BgcData::clg = my_cal_logger::get();
 
-BgcData::~BgcData(){
-	
-};
+
+BgcData::BgcData(){};
+
+BgcData::~BgcData(){};
 
 // re-initialize BgcData class explicitly
 void BgcData::clear(){
@@ -67,7 +74,7 @@ void BgcData::veg_beginOfMonth(){
 };
 
 void BgcData::veg_endOfMonth(){
-
+  BOOST_LOG_SEV(glg, debug) << "End of month function for veg..(BGC data).";
 	// average yearly status variables
  	for (int i=0; i<NUM_PFT_PART; i++){
  		y_vegs.c[i] += m_vegs.c[i]/12.;
@@ -79,7 +86,7 @@ void BgcData::veg_endOfMonth(){
  	y_vegs.nall   += m_vegs.nall/12.;
  	y_vegs.deadc  += m_vegs.deadc/12.;
  	y_vegs.deadn  += m_vegs.deadn/12.;
-
+  BOOST_LOG_SEV(clg, debug) << "y_vegs.call: " << y_vegs.call;
 	// average yearly diagnostic variables
  	y_vegd.fca     += m_vegd.fca/12;
  	y_vegd.fna     += m_vegd.fna/12;
