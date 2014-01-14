@@ -14,11 +14,21 @@
  *
  *
  */
-
 #include "Cohort.h"
 
-Cohort::Cohort(){
+BOOST_LOG_INLINE_GLOBAL_LOGGER_INIT(my_general_logger, severity_channel_logger_t) {
+  return severity_channel_logger_t(keywords::channel = "GENER");
+}
+BOOST_LOG_INLINE_GLOBAL_LOGGER_INIT(my_cal_logger, severity_channel_logger_t) {
+  return severity_channel_logger_t(keywords::channel = "CALIB");
+}
 
+severity_channel_logger_t& Cohort::glg = my_general_logger::get();
+severity_channel_logger_t& Cohort::clg = my_cal_logger::get();
+
+
+Cohort::Cohort(){
+  BOOST_LOG_SEV(glg, info) << "Cohort constructor; instantiating a cohort object.";
 };
 
 Cohort::~Cohort(){
@@ -309,9 +319,15 @@ void Cohort::prepareDayDrivingData(const int & yrindx, const int & usedatmyr){
 };
 
 void Cohort::updateMonthly(const int & yrcnt, const int & currmind, const int & dinmcurr){
-
+  
+  BOOST_LOG_SEV(glg, debug) << "Cohort::updateMonthly. Year: " 
+                            << yrcnt << " Month: " << currmind << " dinmcurr: " 
+                            << dinmcurr;
 	//
-	if(currmind==0) cd.beginOfYear();
+	if(currmind==0) { 
+    BOOST_LOG_SEV(glg, debug) << "First month of the year...";
+    cd.beginOfYear();
+  }
 	cd.beginOfMonth();
 
   	// first, update the water/thermal process to get (bio)physical conditions
@@ -335,7 +351,11 @@ void Cohort::updateMonthly(const int & yrcnt, const int & currmind, const int & 
    	}
 
 	cd.endOfMonth();
-	if(currmind==11) cd.endOfYear();
+  
+	if(currmind==11) {
+    BOOST_LOG_SEV(glg, debug) << "Last month of the year...";
+    cd.endOfYear();
+  }
 
 	////////////////////////////
 	// output all data for multple cohorts
