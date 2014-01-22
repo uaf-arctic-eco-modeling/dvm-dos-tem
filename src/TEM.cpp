@@ -57,18 +57,6 @@ boost::condition_variable cond;
 bool pause_calibration = false;
 boost::mutex mtex1;
 
-//void calibration_ui_worker_thread() {
-//  severity_channel_logger_t& clg = my_cal_logger::get();
-//  BOOST_LOG_SEV(clg, info) << "Starting Calibration UI Worker Thread.";
-//  std::string input;
-//  if (std::getline(std::cin, input)) {
-//      std::cerr << "input [" << input.size() << "] '" << input << "'\n";
-//  } else {
-//      std::cerr << "getline() was unable to read a string from std::cin\n";
-//  }
-
-//}
-
 /** The signal handler that will pause the calibration on CTRL-C */
 void stop_calibration(const boost::system::error_code& error,
                       /*int signal_number,*/
@@ -80,58 +68,6 @@ void stop_calibration(const boost::system::error_code& error,
   pause_calibration = true;
   BOOST_LOG_SEV(clg, info) << "call the notify function for the condition variable...";
   cond.notify_one();
-  
-  //BOOST_LOG_SEV(clg, info) << "?? Remap signal handler so that next ctrl-C quits.";
-
-  //BOOST_LOG_SEV(clg, info) << "Pausing calibration while user modified values...";
-
-    // stop the service
-    // reset the service
-    // add a restart handler to the serivce
-    // run the service.
-
-
-//  std::string input;
-//  //while (input != "c" || input != "r") {
-//  if (std::getline(std::cin, input)) {
-//      std::cerr << "input [" << input.size() << "] '" << input << "'\n";
-//  } else {
-//      std::cerr << "getline() was unable to read a string from std::cin\n";
-//  }
-  //}
-//  switch (input) {
-//    case "c": // continue
-//    case "r": // reload values
-//    default: // ?? not sure how to get here w/ loop 
-//  }
-
-
-
-
-//  BOOST_LOG_SEV(clg, info) << "Making another io_service used to quit completely.";
-//  boost::asio::io_service io_service_quitter;
-
-//  BOOST_LOG_SEV(clg, info) << "Defining a signal set that the io_service will listen for.";
-//  boost::asio::signal_set signals(io_service_quitter, SIGINT, SIGTERM);
-//    
-//  BOOST_LOG_SEV(clg, info) << "Define a callback that will run when the service "
-//                           << "delivers one of the defined signals.";
-//  signals.async_wait(boost::bind(
-//      &boost::asio::io_service::stop, &io_service_quitter));
-
-//  BOOST_LOG_SEV(clg, info) << "start interactive input session?";
-
-
-//  // this is going to go off and sleep for 10 secs...
-//  BOOST_LOG_SEV(clg, info) << "Start a worker handle the user input.";
-//  boost::thread workerThread(&calibration_ui_worker_thread); // need to figure out how to pass args to this..
-
-//  BOOST_LOG_SEV(clg, info) << "Run the io_service_quitter in the calibratioin "
-//                           << "worker thread, waiting asynchronously for a "
-//                           << "signal to be captured/handled...";
-
-//  io_service_quitter.run();
-
 }
 
 /** A seperate thread to run the model. */
@@ -157,13 +93,6 @@ void calibration_worker_thread( boost::shared_ptr< boost::asio::io_service > io_
       boost::unique_lock<boost::mutex> lock(mtex1);
       while(!pause_calibration){
         cond.wait(lock);      
-//      boost::system::error_code ec;
-//      
-//      int number_handlers_run;
-//      number_handlers_run = io_service->poll_one(ec);
-//      BOOST_LOG_SEV(clg, info) << number_handlers_run << " handlers were run. Error code: " << ec;
-
-      
 
         for(int m = 0; m < 12; ++m) {
           int sleeptime = 1;
@@ -239,11 +168,6 @@ int main(int argc, char* argv[]){
     BOOST_LOG_SEV(glg, info) << "Exited from io_service.run()... "
                              << "all handlers have been run and there is no more work.";
 
-    //BOOST_LOG_SEV(glg, info) << "Now join the workerThread to make sure it is finished, before exiting.";
-    //workerThread.join();
-
-    //BOOST_LOG_SEV(glg, info) << "Now join the workerThread to make sure it is finished, before exiting.";
-    //io_service->stop()
 
 
   } else {
