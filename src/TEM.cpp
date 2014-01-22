@@ -33,11 +33,8 @@
 #include <exception>
 #include <map>
 
-#include <boost/signals2.hpp>
 #include <boost/asio/signal_set.hpp>
 #include <boost/thread.hpp>
-#include <boost/thread/condition_variable.hpp>
-#include <boost/thread/mutex.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/bind.hpp>
 #include <boost/asio.hpp>
@@ -53,21 +50,24 @@ BOOST_LOG_INLINE_GLOBAL_LOGGER_INIT(my_general_logger, severity_channel_logger_t
 BOOST_LOG_INLINE_GLOBAL_LOGGER_INIT(my_cal_logger, severity_channel_logger_t) {
   return severity_channel_logger_t(keywords::channel = "CALIB");
 }
-boost::condition_variable cond;
-bool pause_calibration = false;
-boost::mutex mtex1;
 
 /** The signal handler that will pause the calibration on CTRL-C */
 void stop_calibration(const boost::system::error_code& error,
                       /*int signal_number,*/
-                      boost::shared_ptr< boost::asio::io_service > io_service){
+                      boost::shared_ptr< boost::asio::io_service > io_service,
+                      int signal_number){
   severity_channel_logger_t& clg = my_cal_logger::get();
-  BOOST_LOG_SEV(clg, info) << "Caught signal number: " ;//<< signal_number;
-  BOOST_LOG_SEV(clg, info) << "Lock the mutex and set condition variable to true...";
-  boost::lock_guard<boost::mutex> lock(mtex1);
-  pause_calibration = true;
-  BOOST_LOG_SEV(clg, info) << "call the notify function for the condition variable...";
-  cond.notify_one();
+  BOOST_LOG_SEV(clg, info) << "Caught signal number: "; //<< signal_number;
+  BOOST_LOG_SEV(clg, info) << "Need to add another 'work' (async wait) thing to "
+                           << "the ioservice, now that it has completed the work once...";
+
+  boost::asio::signal_set signals(*io_service, SIGINT, SIGTERM);
+  signals.async_wait( boost::bind(stop_calibration, 
+                                  boost::asio::placeholders::error, io_service) ); // need to pass the io_service here...
+
+  BOOST_LOG_SEV(clg, info) << "Hit any key to continue.";
+  std::cin.get();
+
 }
 
 /** A seperate thread to run the model. */
@@ -87,22 +87,25 @@ void calibration_worker_thread( boost::shared_ptr< boost::asio::io_service > io_
   for(int cohort = 0; cohort < 1; cohort++){
     for(int yr = 0; yr < 100; ++yr){
 
-      BOOST_LOG_SEV(clg, info) << "Ask central io service if there has been a signal?";
-      BOOST_LOG_SEV(clg, info) << "If so, post a collect_userin handler to the service";
+      BOOST_LOG_SEV(clg, info) << "Poll the io_service to see if we should process a signal...";
       
-      boost::unique_lock<boost::mutex> lock(mtex1);
-      while(!pause_calibration){
-        cond.wait(lock);      
+      int handlers_run = 0;
+      boost::system::error_code ec;
+      handlers_run = io_service->poll_one(ec);
+      BOOST_LOG_SEV(clg, info) << "Handlers run: " << handlers_run << "     Error Code: " << ec;
+      
+      BOOST_LOG_SEV(clg, info) << "Reset the io_service...";
+      io_service->reset();
+      
 
-        for(int m = 0; m < 12; ++m) {
-          int sleeptime = 1;
-          BOOST_LOG_SEV(clg, info) << "(cht, yr, m):" << "(" << cohort <<", "<< yr <<", "<< m << ") "
-                                   << "Thinking for " << sleeptime << " seconds...";
-          boost::posix_time::seconds workTime(sleeptime);
-          boost::this_thread::sleep(workTime);
+      for(int m = 0; m < 12; ++m) {
+        int sleeptime = 1;
+        BOOST_LOG_SEV(clg, info) << "(cht, yr, m):" << "(" << cohort <<", "<< yr <<", "<< m << ") "
+                                 << "Thinking for " << sleeptime << " seconds...";
+        boost::posix_time::seconds workTime(sleeptime);
+        boost::this_thread::sleep(workTime);
   
-        } // end month loop
-      } // end while !pause loop
+      } // end month loop
     } // end yr loop
   } // end cht loop
   
@@ -156,18 +159,16 @@ int main(int argc, char* argv[]){
                              << "choose what to do based on user input.";
     
     signals.async_wait( boost::bind(stop_calibration, 
-                                    boost::asio::placeholders::error, io_service) ); // need to pass the io_service here...
+                                    boost::asio::placeholders::error, 
+                                    io_service) );
 
     BOOST_LOG_SEV(glg, info) << "Start a worker thread to run tem, passing in the pointer to the io_service.";
     boost::thread workerThread( boost::bind(calibration_worker_thread, io_service) );
 
-    BOOST_LOG_SEV(glg, info) << "Run the io_service event loop in the main thread, waiting "
-                             << "for a signal to be captured/handled...";
-    io_service->run();
-
-    BOOST_LOG_SEV(glg, info) << "Exited from io_service.run()... "
-                             << "all handlers have been run and there is no more work.";
-
+    BOOST_LOG_SEV(glg, info) << "Main thread now waiting for worker to join before returning...";
+    workerThread.join();
+    BOOST_LOG_SEV(glg, info) << "Worker thread had finished (joined) main thread. Calibration done. Quitting.";
+    
 
 
   } else {
