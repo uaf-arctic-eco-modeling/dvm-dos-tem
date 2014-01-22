@@ -99,10 +99,10 @@ void calibration_worker_thread( boost::shared_ptr< boost::asio::io_service > io_
       
 
       for(int m = 0; m < 12; ++m) {
-        int sleeptime = 1;
+        int sleeptime = 300;
         BOOST_LOG_SEV(clg, info) << "(cht, yr, m):" << "(" << cohort <<", "<< yr <<", "<< m << ") "
-                                 << "Thinking for " << sleeptime << " seconds...";
-        boost::posix_time::seconds workTime(sleeptime);
+                                 << "Thinking for " << sleeptime << " milliseconds...";
+        boost::posix_time::milliseconds workTime(sleeptime);
         boost::this_thread::sleep(workTime);
   
       } // end month loop
