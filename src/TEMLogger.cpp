@@ -47,6 +47,9 @@ void set_log_severity_level(std::string lvl) {
 void setup_console_log_sink(/* Could add some params for diff formats? */){
 
   logging::add_common_attributes();
+  logging::core::get()->add_global_attribute(
+      "ThreadID", boost::log::attributes::current_thread_id()
+  ); 
 
   logging::add_console_log (
     std::clog,
@@ -55,7 +58,11 @@ void setup_console_log_sink(/* Could add some params for diff formats? */){
         // works, just don't need timestamp right now...        
         //<< expr::format_date_time< boost::posix_time::ptime >("TimeStamp", "%Y-%m-%d %H:%M:%S ")
         << "(" << channel << ") "
-        << "[" << severity << "] " << expr::smessage
+        << "[" << severity << "] " 
+        // for info on formatting thread id
+        // http://sourceforge.net/p/boost-log/discussion/710021/thread/e90226f5/
+        << expr::attr< attrs::current_thread_id::value_type >("ThreadID") << "  "
+        << expr::smessage
     )
   );
   

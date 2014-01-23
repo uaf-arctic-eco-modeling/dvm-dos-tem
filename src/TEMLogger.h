@@ -23,6 +23,7 @@
 #include <boost/log/sources/severity_channel_logger.hpp>
 #include <boost/log/expressions.hpp>
 #include <boost/log/attributes.hpp>
+#include <boost/log/attributes/current_thread_id.hpp>
 #include <boost/log/support/date_time.hpp>
 #include <boost/log/utility/setup/common_attributes.hpp>
 #include <boost/log/utility/formatting_ostream.hpp>
