@@ -58,45 +58,15 @@ void quit_handler(const boost::system::error_code&,
 void pause_handler(const boost::system::error_code&,
                       boost::shared_ptr< boost::asio::io_service >);
 
-void calibration_user_input_thread( boost::shared_ptr< boost::asio::io_service >);
-void calibration_worker_thread( boost::shared_ptr< boost::asio::io_service > );
+void calibration_worker( boost::shared_ptr< boost::asio::io_service > );
 
-void remapsigs(boost::shared_ptr< boost::asio::io_service >, char);
-bool valid_calibration_user_response(std::string ui);
 
 
 // DEFINE FREE FUNCTIIONS...
-void remapsigs(boost::shared_ptr< boost::asio::io_service > io_service, char mode){
-  severity_channel_logger_t& clg = my_cal_logger::get();
-  BOOST_LOG_SEV(clg, debug) << "  Define a signal set...";  
-  boost::asio::signal_set signals(*io_service, SIGINT, SIGTERM);
-
-//   BOOST_LOG_SEV(clg, debug) << "  Stop the io_service.";  
-//   io_service->stop();
- 
-//   BOOST_LOG_SEV(clg, debug) << "  Reset io_service.";  
-//   io_service->reset();
-  
-  
-  
-  if (mode == 'q') {
-    BOOST_LOG_SEV(clg, debug) << "  Set async wait on signals to QUIT handler.";
-    signals.async_wait(
-        boost::bind(quit_handler, boost::asio::placeholders::error, io_service) );
-  } else if (mode == 'p') {
-    BOOST_LOG_SEV(clg, debug) <<   "  Set async wait on signals to PAUSE handler.";
-    signals.async_wait(
-        boost::bind(pause_handler, boost::asio::placeholders::error, io_service) );
-  }
-
-}
-
-
-
 void quit_handler(const boost::system::error_code& error,
                   boost::shared_ptr< boost::asio::io_service > io_service ){
   severity_channel_logger_t& clg = my_cal_logger::get();
-  BOOST_LOG_SEV(clg, info) << "Got a message to quit.";
+  BOOST_LOG_SEV(clg, info) << "Running the quit signal handler...";
   BOOST_LOG_SEV(clg, info) << "Stopping the io_service.";
   io_service->stop();
 
@@ -104,107 +74,63 @@ void quit_handler(const boost::system::error_code& error,
   exit(-1);
 }
 
-
-bool valid_calibration_user_response(std::string ui) {
-
-  if ( ui.length() > 1 ) {
-    return false;
-  }
-  if ( ui[0] == 'c' ) {
-    return true;
-  }
-  if ( ui[0] == 'r' ) {
-    return true;
-  } else {
-    return false;
-  }
-}
-
-
-/** The signal handler that will pause the calibration on CTRL-C */
+/** The signal handler that will pause the calibration */
 void pause_handler( const boost::system::error_code& error,
                     boost::shared_ptr< boost::asio::io_service > io_service ){
 
   severity_channel_logger_t& clg = my_cal_logger::get();
-  BOOST_LOG_SEV(clg, debug) << "Caught signal!"; //number: " << signal_number;
-  BOOST_LOG_SEV(clg, debug) << "Running pause handler."; //number: " << signal_number;
-
-
-  // Blocking call to collect user input
-  std::string ui;
-  do {
-    BOOST_LOG_SEV(clg, debug) << "Enter 'c' for continue, 'r' for reload:";
-    std::getline(std::cin, ui);
-  } while (!valid_calibration_user_response(ui));
-
-  BOOST_LOG_SEV(clg, debug) << "Got some good UI!";
-
-  //BOOST_LOG_SEV(clg, debug) << "Set signals to quit";
-  //remapsigs(io_service, 'q');
-
-  //BOOST_LOG_SEV(clg, debug) << "Spawn a thread to collect user input...";
-  //boost::thread userInputThread( boost::bind(calibration_user_input_thread, io_service) );
+  BOOST_LOG_SEV(clg, info) << "Caught signal!"; 
+  BOOST_LOG_SEV(clg, info) << "Running pause handler."; ;
 
   
-  //BOOST_LOG_SEV(clg, debug) << "Setup a blocking run in the workerThread, waiting "
-  //                         << "for a quit signal to be caught while the ui thread is getting user input...";
-  //io_service->run();
-
-  //BOOST_LOG_SEV(clg, debug) << "worker thread now waiting for user input thread to join before returning...";
-  //userInputThread.join();
-  //BOOST_LOG_SEV(clg, debug) << "The ui thread is joined, so we haven't quit and we have collected the user input..."; 
-
-  BOOST_LOG_SEV(clg, debug) << "Remap signals to pause.";
-  remapsigs(io_service, 'p');
-   
-}
-
-void calibration_user_input_thread( boost::shared_ptr< boost::asio::io_service > io_service ) {
-
-  severity_channel_logger_t& clg = my_cal_logger::get();
-  BOOST_LOG_SEV(clg, info) << "Hit 'Enter' to continue.";
+  BOOST_LOG_SEV(clg, info) << "Run blocking cin.get()"; 
   std::cin.get();
+//   std::string ui;
+//   std::getline(std::cin, ui);
+//   BOOST_LOG_SEV(clg, info) << "You entered: " << ui;
 
-  BOOST_LOG_SEV(clg, info) << "I got some user input!";
+  BOOST_LOG_SEV(clg, info) << "  Stop the service.";
+  io_service->stop();
+
+  BOOST_LOG_SEV(clg, info) << "  Reset the service.";
+  io_service->reset();
   
-  BOOST_LOG_SEV(clg, info) << "Reset signal handling to pause";
-  remapsigs(io_service, 'p');
+  BOOST_LOG_SEV(clg, info) << "  Define a signal set...";  
+  boost::asio::signal_set signals(*io_service, SIGINT, SIGTERM);
 
-  //BOOST_LOG_SEV(clg, info) << "I got some user input";
+  BOOST_LOG_SEV(clg, info) <<   "  Set another async wait on signals to PAUSE handler.";
+  signals.async_wait(
+      boost::bind(pause_handler, boost::asio::placeholders::error, io_service) );
 
+  
+
+  BOOST_LOG_SEV(clg, info) << "Done in Handler...";
+
+  /* print menu, collect input
+   * while input != 'q'
+   *   execute input request
+   */
+  
 }
 
-
-/** A seperate thread to run the model. */
-void calibration_worker_thread( boost::shared_ptr< boost::asio::io_service > io_service
-                                /*ArgHandler* const args ? */){
+/** A seperate function to run the model. */
+void calibration_worker( boost::shared_ptr< boost::asio::io_service > io_service ) {
 
   // get handles for each of global loggers
   severity_channel_logger_t& clg = my_cal_logger::get();
 
-  BOOST_LOG_SEV(clg, info) << "Starting Calibration Worker Thread.";
-  BOOST_LOG_SEV(clg, info) << "This should start the model in some mode, depending "
-                           << "on command line args and and crunch numbers....";
-  BOOST_LOG_SEV(clg, info) << "To simulate that I will loop over "
-                           << "cohorts, years, months with brief pause in each.";
+  BOOST_LOG_SEV(clg, info) << "Start loop over cohorts, years, months.";
 
 
   for(int cohort = 0; cohort < 1; cohort++){
     for(int yr = 0; yr < 100; ++yr){
 
-      BOOST_LOG_SEV(clg, info) << "poll the io_service, ";
-
       int handlers_run = 0;
       boost::system::error_code ec;
+
+      BOOST_LOG_SEV(clg, info) << "poll one handler from the io_service...";
       handlers_run = io_service->poll_one(ec);
-      BOOST_LOG_SEV(clg, info) << "Handlers run: " << handlers_run << "     Error Code: " << ec;
-
-      BOOST_LOG_SEV(clg, info) << "STOP the io_service...";
-      io_service->stop();
-
-      BOOST_LOG_SEV(clg, info) << "RESET the io_service...";
-      io_service->reset();
-
+      
       for(int m = 0; m < 12; ++m) {
         int sleeptime = 300;
         BOOST_LOG_SEV(clg, info) << "(cht, yr, m):" << "(" << cohort <<", "<< yr <<", "<< m << ") "
@@ -216,7 +142,7 @@ void calibration_worker_thread( boost::shared_ptr< boost::asio::io_service > io_
     } // end yr loop
   } // end cht loop
 
-  BOOST_LOG_SEV(clg, info)  << "Done working. This worker thread is finished.";
+  BOOST_LOG_SEV(clg, info)  << "Done working. This simulation loops have exited.";
 }
 
 
@@ -256,21 +182,14 @@ int main(int argc, char* argv[]){
       new boost::asio::io_service::work( *io_service )
     );
     
-    
-    BOOST_LOG_SEV(clg, info) << "Set signal handling to pause...";
-    remapsigs(io_service, 'p');
+    BOOST_LOG_SEV(clg, debug) << "  Define a signal set...";  
+    boost::asio::signal_set signals(*io_service, SIGINT, SIGTERM);
 
-    BOOST_LOG_SEV(glg, info) << "Start a worker thread to run tem, passing in the pointer to the io_service.";
-    boost::thread workerThread( boost::bind(calibration_worker_thread, io_service) );
+    BOOST_LOG_SEV(clg, debug) <<   "  Set async wait on signals to PAUSE handler.";
+    signals.async_wait(
+        boost::bind(pause_handler, boost::asio::placeholders::error, io_service) );
 
-    BOOST_LOG_SEV(glg, info) << "Run the io_service in the main thread...";
-    io_service->run();
-
-    BOOST_LOG_SEV(glg, info) << "Main thread now waiting for worker to join before returning...";
-    workerThread.join();
-    BOOST_LOG_SEV(glg, info) << "Worker thread had finished (joined) main thread. Calibration done. Quitting.";
-    
-
+    calibration_worker(io_service);
 
   } else {
     BOOST_LOG_SEV(glg, info) << "Running in extrapolation mode.";
