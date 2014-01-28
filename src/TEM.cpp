@@ -89,38 +89,29 @@ void pause_handler( const boost::system::error_code& error,
 //   std::getline(std::cin, ui);
 //   BOOST_LOG_SEV(clg, info) << "You entered: " << ui;
 
-  BOOST_LOG_SEV(clg, info) << "  Stop the service.";
-  io_service->stop();
-
-  BOOST_LOG_SEV(clg, info) << "  Reset the service.";
-  io_service->reset();
-  
-  BOOST_LOG_SEV(clg, info) << "  Define a signal set...";  
-  boost::asio::signal_set signals(*io_service, SIGINT, SIGTERM);
-
-  BOOST_LOG_SEV(clg, info) <<   "  Set another async wait on signals to PAUSE handler.";
-  signals.async_wait(
-      boost::bind(pause_handler, boost::asio::placeholders::error, io_service) );
-
-  
-
   BOOST_LOG_SEV(clg, info) << "Done in Handler...";
-
-  /* print menu, collect input
-   * while input != 'q'
-   *   execute input request
-   */
-  
 }
 
 /** A seperate function to run the model. */
-void calibration_worker( boost::shared_ptr< boost::asio::io_service > io_service ) {
+void calibration_worker( ) {
 
   // get handles for each of global loggers
   severity_channel_logger_t& clg = my_cal_logger::get();
 
   BOOST_LOG_SEV(clg, info) << "Start loop over cohorts, years, months.";
 
+  
+  BOOST_LOG_SEV(clg, info) << "Make shared pointers to an io_service";
+  boost::shared_ptr< boost::asio::io_service > io_service(
+    new boost::asio::io_service    
+  );
+
+  BOOST_LOG_SEV(clg, debug) << "Define a signal set...";  
+  boost::asio::signal_set signals(*io_service, SIGINT, SIGTERM);
+
+  BOOST_LOG_SEV(clg, debug) <<   "Set async wait on signals to PAUSE handler.";
+  signals.async_wait(
+    boost::bind(pause_handler, boost::asio::placeholders::error, io_service) );
 
   for(int cohort = 0; cohort < 1; cohort++){
     for(int yr = 0; yr < 100; ++yr){
@@ -128,8 +119,21 @@ void calibration_worker( boost::shared_ptr< boost::asio::io_service > io_service
       int handlers_run = 0;
       boost::system::error_code ec;
 
-      BOOST_LOG_SEV(clg, info) << "poll one handler from the io_service...";
-      handlers_run = io_service->poll_one(ec);
+      BOOST_LOG_SEV(clg, info) << "poll the io_service...";
+      handlers_run = io_service->poll(ec);
+      BOOST_LOG_SEV(clg, info) << handlers_run << "handlers run.";
+
+      if (handlers_run > 0) {
+
+        BOOST_LOG_SEV(clg, debug) <<   "Reset the io_service object.";
+        io_service->reset();
+
+        BOOST_LOG_SEV(clg, debug) <<   "Set async wait on signals to PAUSE handler.";
+        signals.async_wait(
+          boost::bind(pause_handler, boost::asio::placeholders::error, io_service) );
+
+      }
+      
       
       for(int m = 0; m < 12; ++m) {
         int sleeptime = 300;
@@ -172,24 +176,7 @@ int main(int argc, char* argv[]){
   if (args->getCalibrationMode() == "on") {
     BOOST_LOG_SEV(glg, info) << "Running in Calibration Mode";
 
-    BOOST_LOG_SEV(glg, info) << "Make shared pointers to an io_service";
-    boost::shared_ptr< boost::asio::io_service > io_service(
-      new boost::asio::io_service    
-    );
-
-    BOOST_LOG_SEV(glg, info) << "Add some work to the service so it won't die.";
-    boost::shared_ptr< boost::asio::io_service::work > work(
-      new boost::asio::io_service::work( *io_service )
-    );
-    
-    BOOST_LOG_SEV(clg, debug) << "  Define a signal set...";  
-    boost::asio::signal_set signals(*io_service, SIGINT, SIGTERM);
-
-    BOOST_LOG_SEV(clg, debug) <<   "  Set async wait on signals to PAUSE handler.";
-    signals.async_wait(
-        boost::bind(pause_handler, boost::asio::placeholders::error, io_service) );
-
-    calibration_worker(io_service);
+    calibration_worker();
 
   } else {
     BOOST_LOG_SEV(glg, info) << "Running in extrapolation mode.";
