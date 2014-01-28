@@ -82,7 +82,7 @@ void pause_handler( const boost::system::error_code& error,
   severity_channel_logger_t& clg = my_cal_logger::get();
   BOOST_LOG_SEV(clg, info) << "Caught signal!"; 
   BOOST_LOG_SEV(clg, info) << "Running pause handler."; ;
-
+  
   std::string continueCommand = "c";
   std::string reloadCommand = "r";
   std::string quitCommand = "q";
@@ -91,8 +91,6 @@ void pause_handler( const boost::system::error_code& error,
   validCommands.insert(continueCommand);
   validCommands.insert(reloadCommand);
   validCommands.insert(quitCommand);
-
-
 
   std::string fullMenu = "\n"
                          "--------- Calibration Controller -------------\n"
@@ -106,20 +104,14 @@ void pause_handler( const boost::system::error_code& error,
   std::string ui = "";
   
   while (!(validCommands.count(ui))) {
-    std::cout << "What now?> ";
+    std::cout << "What do you want to do now?> ";
     std::getline(std::cin, ui);
+    std::cin.clear();
   }
   
   BOOST_LOG_SEV(clg, info) << "Got some good user input: " << ui; 
+  BOOST_LOG_SEV(clg, info) << "Now should call the appropriate function...";
   
-    
-
-//   BOOST_LOG_SEV(clg, info) << "Run blocking cin.get()"; 
-//   std::cin.get();
-//   std::string ui;
-//   std::getline(std::cin, ui);
-//   BOOST_LOG_SEV(clg, info) << "You entered: " << ui;
-
   BOOST_LOG_SEV(clg, info) << "Done in Handler...";
 }
 
