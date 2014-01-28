@@ -32,6 +32,7 @@
 #include <cstdlib>
 #include <exception>
 #include <map>
+#include <set>
 
 #include <boost/asio/signal_set.hpp>
 #include <boost/thread.hpp>
@@ -82,9 +83,39 @@ void pause_handler( const boost::system::error_code& error,
   BOOST_LOG_SEV(clg, info) << "Caught signal!"; 
   BOOST_LOG_SEV(clg, info) << "Running pause handler."; ;
 
+  std::string continueCommand = "c";
+  std::string reloadCommand = "r";
+  std::string quitCommand = "q";
+
+  std::set<std::string> validCommands;
+  validCommands.insert(continueCommand);
+  validCommands.insert(reloadCommand);
+  validCommands.insert(quitCommand);
+
+
+
+  std::string fullMenu = "\n"
+                         "--------- Calibration Controller -------------\n"
+                         "Enter one of the following options:\n"
+                         "q - quit\n"
+                         "c - continue simulation\n"
+                         "r - reload config files\n";
   
-  BOOST_LOG_SEV(clg, info) << "Run blocking cin.get()"; 
-  std::cin.get();
+  BOOST_LOG_SEV(clg, info) << fullMenu ; 
+  
+  std::string ui = "";
+  
+  while (!(validCommands.count(ui))) {
+    std::cout << "What now?> ";
+    std::getline(std::cin, ui);
+  }
+  
+  BOOST_LOG_SEV(clg, info) << "Got some good user input: " << ui; 
+  
+    
+
+//   BOOST_LOG_SEV(clg, info) << "Run blocking cin.get()"; 
+//   std::cin.get();
 //   std::string ui;
 //   std::getline(std::cin, ui);
 //   BOOST_LOG_SEV(clg, info) << "You entered: " << ui;
@@ -121,7 +152,7 @@ void calibration_worker( ) {
 
       BOOST_LOG_SEV(clg, info) << "poll the io_service...";
       handlers_run = io_service->poll(ec);
-      BOOST_LOG_SEV(clg, info) << handlers_run << "handlers run.";
+      BOOST_LOG_SEV(clg, info) << handlers_run << " handlers run.";
 
       if (handlers_run > 0) {
 
