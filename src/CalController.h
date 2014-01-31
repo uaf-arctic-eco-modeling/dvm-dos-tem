@@ -7,11 +7,9 @@
 #include <boost/assign/list_of.hpp> // for map_list_of()
 
 #include "TEMLogger.h"
-#include "assembler/Runner.h"
 
 class CalController {
 public:
-  Runner runner;
   
   CalController() { 
       commands = boost::assign::map_list_of<std::string, std::string>

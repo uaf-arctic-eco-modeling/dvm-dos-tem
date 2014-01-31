@@ -14,6 +14,8 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <vector>
+#include <deque>
 
 #include "RunRegion.h"
 #include "RunGrid.h"
@@ -22,9 +24,7 @@
 #include "../runmodule/Controller.h"
 #include "../runmodule/ModelData.h"
 #include "../TEMLogger.h"
-
-#include <vector>
-#include <deque>
+#include "../CalController.h"
 
 using namespace std;
 
@@ -69,8 +69,12 @@ class Runner {
     	vector<int> reclistclm;
     	vector<int> reclistveg;
     	vector<int> reclistfire;
+    void setCalibrationMode(bool new_setting);
+    bool getCalibrationMode();
 
 	private:
+    bool calibrationMode;
+
     severity_channel_logger_t& glg;
     	//TEM domains (hiarchy)
     	RunRegion runreg;
@@ -95,8 +99,8 @@ class Runner {
 		//util
 		Timer timer;
 
-    	void createCohortList4Run();
+    void createCohortList4Run();
 		void createOutvarList(string & txtfile);
-	
+
 };
 #endif /*RUNNER_H_*/

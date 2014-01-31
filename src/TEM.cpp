@@ -196,80 +196,77 @@ int main(int argc, char* argv[]){
   severity_channel_logger_t& clg = my_cal_logger::get();
 
 
-  if (args->getCalibrationMode() == "on") {
-    BOOST_LOG_SEV(glg, info) << "Running in Calibration Mode";
-
-    calibration_worker();
-
-  } else {
-    BOOST_LOG_SEV(glg, info) << "Running in extrapolation mode.";
     setvbuf(stdout, NULL, _IONBF, 0);
     setvbuf(stderr, NULL, _IONBF, 0);
 
-    if (args->getMode() == "siterun") {
-      time_t stime;
-      time_t etime;
-      stime=time(0);
-      BOOST_LOG_SEV(glg, info) << "Running dvm-dos-tem in siterun mode. Start @ " 
-                               << ctime(&stime);
+  if (args->getMode() == "siterun") {
+    time_t stime;
+    time_t etime;
+    stime=time(0);
+    BOOST_LOG_SEV(glg, info) << "Running dvm-dos-tem in siterun mode. Start @ " 
+                              << ctime(&stime);
 
-      string controlfile = args->getCtrlfile();
-      string chtid = args->getChtid();
+    string controlfile = args->getCtrlfile();
+    string chtid = args->getChtid();
 
-      Runner siter;
-
-      siter.chtid = atoi(chtid.c_str());
-
-      siter.initInput(controlfile, "siter");
-
-      siter.initOutput();
-
-      siter.setupData();
-
-      siter.setupIDs();
-
-      siter.runmode1();
-   
-      etime=time(0);
-
-    } else if (args->getMode() == "regnrun") {
-
-      time_t stime;
-      time_t etime;
-      stime=time(0);
-      BOOST_LOG_SEV(glg, info) << "Running dvm-dos-tem in regional mode. Start @ "
-                               << ctime(&stime);
-
-      string controlfile = args->getCtrlfile();
-      string runmode = args->getRegrunmode();
-
-      Runner regner;
-
-      regner.initInput(controlfile, runmode);
-
-      regner.initOutput();
-
-      regner.setupData();
-
-      regner.setupIDs();
-
-      if (runmode.compare("regner1")==0) {
-        BOOST_LOG_SEV(glg, debug) << "Running in regner1...(runmode2)";
-        regner.runmode2();
-      } else if (runmode.compare("regner2")==0){
-        BOOST_LOG_SEV(glg, debug) << "Running in regner2...(runmode3)";
-        regner.runmode3();
-      } else {
-        BOOST_LOG_SEV(glg, fatal) << "Invalid runmode...quitting.";
-        exit(-1);
-      }
-
-      etime = time(0);
-      BOOST_LOG_SEV(glg, info) << "Done running dvm-dos-tem regionally " 
-                               << "(" << ctime(&etime) << ").";
-      BOOST_LOG_SEV(glg, info) << "total seconds: " << difftime(etime, stime);
+    Runner siter;
+    if (args->getCalibrationMode() == "on") {
+      BOOST_LOG_SEV(glg, info) << "Turning Calibration Mode on in Runner (siter).";
+      siter.setCalibrationMode(true);
+    } else {
+      BOOST_LOG_SEV(glg, info) << "Running in extrapolation mode.";
     }
-    
-    return 0;
+
+    siter.chtid = atoi(chtid.c_str());
+
+    siter.initInput(controlfile, "siter");
+
+    siter.initOutput();
+
+    siter.setupData();
+
+    siter.setupIDs();
+
+    siter.runmode1();
+  
+    etime=time(0);
+
+  } else if (args->getMode() == "regnrun") {
+
+    time_t stime;
+    time_t etime;
+    stime=time(0);
+    BOOST_LOG_SEV(glg, info) << "Running dvm-dos-tem in regional mode. Start @ "
+                              << ctime(&stime);
+
+    string controlfile = args->getCtrlfile();
+    string runmode = args->getRegrunmode();
+
+    Runner regner;
+
+    regner.initInput(controlfile, runmode);
+
+    regner.initOutput();
+
+    regner.setupData();
+
+    regner.setupIDs();
+
+    if (runmode.compare("regner1")==0) {
+      BOOST_LOG_SEV(glg, debug) << "Running in regner1...(runmode2)";
+      regner.runmode2();
+    } else if (runmode.compare("regner2")==0){
+      BOOST_LOG_SEV(glg, debug) << "Running in regner2...(runmode3)";
+      regner.runmode3();
+    } else {
+      BOOST_LOG_SEV(glg, fatal) << "Invalid runmode...quitting.";
+      exit(-1);
+    }
+
+    etime = time(0);
+    BOOST_LOG_SEV(glg, info) << "Done running dvm-dos-tem regionally " 
+                              << "(" << ctime(&etime) << ").";
+    BOOST_LOG_SEV(glg, info) << "total seconds: " << difftime(etime, stime);
   }
+  return 0;
 };

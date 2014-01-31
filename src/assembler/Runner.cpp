@@ -12,8 +12,7 @@ BOOST_LOG_INLINE_GLOBAL_LOGGER_INIT(my_cal_logger, severity_channel_logger_t) {
 }
 
 
-Runner::Runner():
-    glg(my_general_logger::get()){
+Runner::Runner(): calibrationMode(false), glg(my_general_logger::get()) {
 	chtid = -1;
 	error = 0;
   BOOST_LOG_SEV(glg, debug) << "Constructiong a Runner...";
@@ -21,6 +20,15 @@ Runner::Runner():
 
 Runner::~Runner(){
 };
+
+
+void Runner::setCalibrationMode(bool new_setting) {
+  this->calibrationMode = new_setting;
+}
+bool Runner::getCalibrationMode() {
+  return this->calibrationMode;
+}
+
 
 void Runner::initInput(const string &controlfile, const string &runmode){
 
@@ -392,6 +400,11 @@ void Runner::runmode1(){
 	runcht.run_cohortly();
 
 };
+
+void setCalibrationOn() {
+  
+  
+}
 
 void Runner::runmode2(){
 
