@@ -31,6 +31,7 @@ void CalController::showCalibrationControlMenu() {
     m += citer->first;
     m += " - ";
     m += citer->second;
+    m += "\n";
   }
 
   BOOST_LOG_SEV(clg, info) << m;
