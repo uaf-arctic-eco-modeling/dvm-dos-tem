@@ -23,6 +23,8 @@ using namespace std;
 
 #include "../runmodule/Cohort.h"
 
+#include "../CalController.h"
+
 class RunCohort {
 	public:
 	 	RunCohort();
@@ -97,7 +99,7 @@ class RunCohort {
 		void run_monthly();
 
 	private :
- 	  		 	 
+ 	  CalController calcontroller;
 		ModelData *md;
 
 		int dstepcnt;   //day timesteps since starting output

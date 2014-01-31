@@ -359,7 +359,7 @@ void Runner::runmode1(){
 	//read-in region-level data (Yuan: this is the portal for multiple region run, if needed in the future)
 	error = runreg.reinit(0);          //can be modified, if more than 1 record of data
 	if (error!=0){
-      BOOST_LOG_SEV(glg, fatal) << "problem in reinitialize regional-module in Runner::run";
+      BOOST_LOG_SEV(glg, fatal) << "problem in reinitialize regional-module in Runner::runmode1()";
   		exit(-1);
 	}
 
