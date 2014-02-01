@@ -53,129 +53,10 @@ BOOST_LOG_INLINE_GLOBAL_LOGGER_INIT(my_cal_logger, severity_channel_logger_t) {
 }
 
 // forward declaration of various free fucntions...
-void quit_handler(const boost::system::error_code&,
-                  boost::shared_ptr< boost::asio::io_service >);
-
-void pause_handler(const boost::system::error_code&,
-                      boost::shared_ptr< boost::asio::io_service >);
-
-void calibration_worker( boost::shared_ptr< boost::asio::io_service > );
-
-
 
 // DEFINE FREE FUNCTIIONS...
-void quit_handler(const boost::system::error_code& error,
-                  boost::shared_ptr< boost::asio::io_service > io_service ){
-  severity_channel_logger_t& clg = my_cal_logger::get();
-  BOOST_LOG_SEV(clg, info) << "Running the quit signal handler...";
-  BOOST_LOG_SEV(clg, info) << "Stopping the io_service.";
-  io_service->stop();
-
-  BOOST_LOG_SEV(clg, debug) << "Quitting. Exit with -1.";
-  exit(-1);
-}
-
-/** The signal handler that will pause the calibration */
-void pause_handler( const boost::system::error_code& error,
-                    boost::shared_ptr< boost::asio::io_service > io_service ){
-
-  severity_channel_logger_t& clg = my_cal_logger::get();
-  BOOST_LOG_SEV(clg, info) << "Caught signal!"; 
-  BOOST_LOG_SEV(clg, info) << "Running pause handler."; ;
-  
-  std::string continueCommand = "c";
-  std::string reloadCommand = "r";
-  std::string quitCommand = "q";
-
-  std::set<std::string> validCommands;
-  validCommands.insert(continueCommand);
-  validCommands.insert(reloadCommand);
-  validCommands.insert(quitCommand);
-
-  std::string fullMenu = "\n"
-                         "--------- Calibration Controller -------------\n"
-                         "Enter one of the following options:\n"
-                         "q - quit\n"
-                         "c - continue simulation\n"
-                         "r - reload config files\n";
-  
-  BOOST_LOG_SEV(clg, info) << fullMenu ; 
-  
-  std::string ui = "";
-  
-  while (!(validCommands.count(ui))) {
-    std::cout << "What do you want to do now?> ";
-    std::getline(std::cin, ui);
-    std::cin.clear();
-  }
-  
-  BOOST_LOG_SEV(clg, info) << "Got some good user input: " << ui; 
-  BOOST_LOG_SEV(clg, info) << "Now should call the appropriate function...";
-  
-  BOOST_LOG_SEV(clg, info) << "Done in Handler...";
-}
-
-/** A seperate function to run the model. */
-void calibration_worker( ) {
-
-  // get handles for each of global loggers
-  severity_channel_logger_t& clg = my_cal_logger::get();
-
-  BOOST_LOG_SEV(clg, info) << "Start loop over cohorts, years, months.";
-
-  
-  BOOST_LOG_SEV(clg, info) << "Make shared pointers to an io_service";
-  boost::shared_ptr< boost::asio::io_service > io_service(
-    new boost::asio::io_service    
-  );
-
-  BOOST_LOG_SEV(clg, debug) << "Define a signal set...";  
-  boost::asio::signal_set signals(*io_service, SIGINT, SIGTERM);
-
-  BOOST_LOG_SEV(clg, debug) <<   "Set async wait on signals to PAUSE handler.";
-  signals.async_wait(
-    boost::bind(pause_handler, boost::asio::placeholders::error, io_service) );
-
-  for(int cohort = 0; cohort < 1; cohort++){
-    for(int yr = 0; yr < 100; ++yr){
-
-      int handlers_run = 0;
-      boost::system::error_code ec;
-
-      BOOST_LOG_SEV(clg, info) << "poll the io_service...";
-      handlers_run = io_service->poll(ec);
-      BOOST_LOG_SEV(clg, info) << handlers_run << " handlers run.";
-
-      if (handlers_run > 0) {
-
-        BOOST_LOG_SEV(clg, debug) <<   "Reset the io_service object.";
-        io_service->reset();
-
-        BOOST_LOG_SEV(clg, debug) <<   "Set async wait on signals to PAUSE handler.";
-        signals.async_wait(
-          boost::bind(pause_handler, boost::asio::placeholders::error, io_service) );
-
-      }
-      
-      
-      for(int m = 0; m < 12; ++m) {
-        int sleeptime = 300;
-        BOOST_LOG_SEV(clg, info) << "(cht, yr, m):" << "(" << cohort <<", "<< yr <<", "<< m << ") "
-                                 << "Thinking for " << sleeptime << " milliseconds...";
-        boost::posix_time::milliseconds workTime(sleeptime);
-        boost::this_thread::sleep(workTime);
-
-      } // end month loop
-    } // end yr loop
-  } // end cht loop
-
-  BOOST_LOG_SEV(clg, info)  << "Done working. This simulation loops have exited.";
-}
-
 
 ArgHandler* args = new ArgHandler();
-
-
 
 int main(int argc, char* argv[]){
   args->parse(argc, argv);
@@ -191,27 +72,27 @@ int main(int argc, char* argv[]){
 
   set_log_severity_level(args->getLogLevel());  
 
-  // get handles for each of global loggers...
+  // get handles for each of the global loggers...
   severity_channel_logger_t& glg = my_general_logger::get();
   severity_channel_logger_t& clg = my_cal_logger::get();
 
 
-    setvbuf(stdout, NULL, _IONBF, 0);
-    setvbuf(stderr, NULL, _IONBF, 0);
+  setvbuf(stdout, NULL, _IONBF, 0);
+  setvbuf(stderr, NULL, _IONBF, 0);
 
   if (args->getMode() == "siterun") {
     time_t stime;
     time_t etime;
     stime=time(0);
     BOOST_LOG_SEV(glg, info) << "Running dvm-dos-tem in siterun mode. Start @ " 
-                              << ctime(&stime);
+                             << ctime(&stime);
 
     string controlfile = args->getCtrlfile();
     string chtid = args->getChtid();
 
     Runner siter;
     if (args->getCalibrationMode() == "on") {
-      BOOST_LOG_SEV(glg, info) << "Turning Calibration Mode on in Runner (siter).";
+      BOOST_LOG_SEV(glg, info) << "Turning CalibrationMode on in Runner (siter).";
       siter.setCalibrationMode(true);
     } else {
       BOOST_LOG_SEV(glg, info) << "Running in extrapolation mode.";

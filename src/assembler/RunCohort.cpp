@@ -7,6 +7,7 @@
 */
 
 #include "RunCohort.h"
+#include "../CalController.h"
 
 RunCohort::RunCohort(){
 
@@ -319,9 +320,17 @@ void RunCohort::runEnvmodule(){
 // run one cohort in time series
 void RunCohort::run_timeseries(){
 
-	for (int icalyr=yrstart; icalyr<=yrend; icalyr++){
-
-		 int yrindex = cht.timer->getCurrentYearIndex();   //starting from 0
+  bool calibrationMode = true;  
+  boost::shared_ptr<CalController> calcontroller_ptr;
+  if (calibrationMode) {
+    calcontroller_ptr.reset( new CalController() );
+  }
+  
+	for (int icalyr=yrstart; icalyr<=yrend; icalyr++) {
+    if (calcontroller_ptr) {
+      calcontroller_ptr->check_for_signals();
+    }
+     int yrindex = cht.timer->getCurrentYearIndex();   //starting from 0
 		 cht.cd.year = cht.timer->getCalendarYear();
 
 		 cht.prepareDayDrivingData(yrindex, used_atmyr);
@@ -411,9 +420,9 @@ void RunCohort::run_timeseries(){
   	   		//cht.equiled = cht.testEquilibrium();
   	   		//if(cht.equiled )break;
   	   	}
-	}
+	} // end year loop
 
-};
+}
 
 // run one cohort at one time-step (monthly)
 void RunCohort::run_monthly(){
