@@ -8,6 +8,7 @@
 
 #include "CalController.h"
 #include "TEMLogger.h"
+#include "runmodule/Cohort.h"
 
 BOOST_LOG_INLINE_GLOBAL_LOGGER_INIT(my_cal_logger, severity_channel_logger_t) {
   return severity_channel_logger_t(keywords::channel = "CALIB");
@@ -15,9 +16,10 @@ BOOST_LOG_INLINE_GLOBAL_LOGGER_INIT(my_cal_logger, severity_channel_logger_t) {
 severity_channel_logger_t& CalController::clg = my_cal_logger::get();
 
 
-CalController::CalController():
+CalController::CalController(boost::shared_ptr< Cohort > cht_ptr):
     io_service(new boost::asio::io_service),
-    pause_sigs(*io_service, SIGINT, SIGTERM)
+    pause_sigs(*io_service, SIGINT, SIGTERM),
+    cht_ptr(cht_ptr)
 {
   // can't seem to use initializaiton list; ambiguous overload error...
   commands = boost::assign::map_list_of<std::string, std::string>
@@ -29,12 +31,15 @@ CalController::CalController():
   pause_sigs.async_wait( boost::bind(&CalController::pause_handler, this, 
                                      boost::asio::placeholders::error,
                                      boost::asio::placeholders::signal_number));
+  if (!this->cht_ptr) {
+    BOOST_LOG_SEV(clg, err) << "Something is wrong and the Cohort pointer is null!";
+  }
   BOOST_LOG_SEV(clg, debug) << "Done contructing a CalController.";
 }
 
 void CalController::pause_handler( const boost::system::error_code& error, int signal_number) {
   BOOST_LOG_SEV(clg, debug) << "In the CalController pause_handler";
-  BOOST_LOG_SEV(clg, debug) << "Signal Number: " << signal_number << "Error: " << error;
+  BOOST_LOG_SEV(clg, debug) << "Signal Number: " << signal_number << " Error(s): " << error;
 
   showCalibrationControlMenu();
 

@@ -12,11 +12,12 @@
 
 
 #include "TEMLogger.h"
+#include "runmodule/Cohort.h"
 
 class CalController {
 public:
   
-  CalController();
+  CalController(boost::shared_ptr< Cohort > cht_ptr);
   
   std::string getUserCommand();
   void showCalibrationControlMenu();
@@ -28,6 +29,8 @@ private:
   boost::shared_ptr< boost::asio::io_service > io_service;
   boost::asio::signal_set pause_sigs;
 
+  boost::shared_ptr< Cohort > cht_ptr;
+  
   std::map<std::string, std::string> commands;
 
   void pause_handler( const boost::system::error_code& error, int signal_number);

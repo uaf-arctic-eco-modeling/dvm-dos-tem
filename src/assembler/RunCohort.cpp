@@ -323,7 +323,8 @@ void RunCohort::run_timeseries(){
   bool calibrationMode = true;  
   boost::shared_ptr<CalController> calcontroller_ptr;
   if (calibrationMode) {
-    calcontroller_ptr.reset( new CalController() );
+    boost::shared_ptr< Cohort > cohort_pointer = boost::make_shared< Cohort >(this->cht);
+    calcontroller_ptr.reset( new CalController(cohort_pointer) );
   }
   
 	for (int icalyr=yrstart; icalyr<=yrend; icalyr++) {
