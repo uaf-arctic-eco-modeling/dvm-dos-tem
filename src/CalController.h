@@ -17,7 +17,7 @@
 class CalController {
 public:
   
-  CalController(boost::shared_ptr< Cohort > cht_ptr);
+  CalController(Cohort* cht_p);
   
   std::string getUserCommand();
   void showCalibrationControlMenu();
@@ -29,7 +29,7 @@ private:
   boost::shared_ptr< boost::asio::io_service > io_service;
   boost::asio::signal_set pause_sigs;
 
-  boost::shared_ptr< Cohort > cht_ptr;
+  Cohort* cohort_ptr;
   
   std::map<std::string, std::string> commands;
 
