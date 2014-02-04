@@ -21,8 +21,9 @@ class CohortLookup{
 		string dir;
 		string cmtcode;
 
-		void init();
-        void assignBgcCalpar(string & dirname);
+    std::string dump_calparbgc();
+    void init();
+    void assignBgcCalpar(string & dirname);
 
 	//calibration related
 	    //vegetation

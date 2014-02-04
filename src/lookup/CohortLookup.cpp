@@ -1,3 +1,8 @@
+#include <iomanip>
+
+#include <sstream>
+#include <string>
+
 
 #include "CohortLookup.h"
 
@@ -35,7 +40,39 @@ void CohortLookup::init(){
 
 	assignFirePar(dir);
 
-};
+}
+
+/** Prints data from this-> fields mimics format of cmt_calparbgc.txt file, 
+ * but only for one cmt type which ever one this->cmtcode refers to..*/
+std::string CohortLookup::dump_calparbgc() {
+    std::stringstream s("");
+    s << "CMT code: " << this->cmtcode << "\n";
+    
+    for (int i = 0 ; i < NUM_PFT; ++i) {
+      std::stringstream p;//("PFT");
+      p << "PFT" << i;
+      s << std::setw(12) << std::setfill(' ') << p.str();
+    }
+    s << "\n";
+    for (int i = 0 ; i < NUM_PFT; ++i) {
+      s << std::setw(12) << std::setfill(' ') << this->cmax[i];
+    }
+    s << "    cmax\n";
+    for (int i = 0 ; i < NUM_PFT; ++i) {
+      s << std::setw(12) << std::setfill(' ') << this->nmax[i];
+    }
+    s << "    nmax\n";
+    for (int i = 0 ; i < NUM_PFT; ++i) {
+      s << std::setw(12) << std::setfill(' ') << this->cfall[0][i];
+    }
+    s << "    cfall[0]\n";
+    for (int i = 0 ; i < NUM_PFT; ++i) {
+      s << std::setw(12) << std::setfill(' ') << this->cfall[1][i];
+    }
+    s << "    cfall[1]\n";
+    
+    return s.str();
+}
 
 void CohortLookup::assignBgcCalpar(string & dircmt){
 
