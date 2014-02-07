@@ -43,20 +43,20 @@ void CalController::pause_handler( const boost::system::error_code& error, int s
 
   BOOST_LOG_SEV(clg, debug) << "BEFORE PARAMS: \n" << cohort_ptr->chtlu.dump_calparbgc();
   
-  showCalibrationControlMenu();
+  show_cal_control_menu();
 
   std::string cmd = "";
-  cmd = getUserCommand();
+  cmd = get_user_command();
 
   if (cmd.compare("r") == 0) {
     BOOST_LOG_SEV(clg, debug) << "We are going to reload all the parameter files...";
     cohort_ptr->chtlu.init();
     BOOST_LOG_SEV(clg, debug) << "AFTER MODIFYING/RELOADING PARAMS:\n" << cohort_ptr->chtlu.dump_calparbgc();
 
-    showCalibrationControlMenu();
+    show_cal_control_menu();
     std::string cmd = "";
     while (cmd != "c") {
-      cmd = getUserCommand();
+      cmd = get_user_command();
     }
   }
   
@@ -85,7 +85,7 @@ void CalController::check_for_signals() {
 }
 
 
-std::string CalController::getUserCommand() {
+std::string CalController::get_user_command() {
   std::string ui = "";
   while( !(commands.count(ui)) ) {
     std::cout << "What now?> ";
@@ -94,7 +94,7 @@ std::string CalController::getUserCommand() {
   }
   return ui;
 }
-void CalController::showCalibrationControlMenu() {
+void CalController::show_cal_control_menu() {
 
   std::string m = "Entering calibration controller....\n"
                   "\n"
