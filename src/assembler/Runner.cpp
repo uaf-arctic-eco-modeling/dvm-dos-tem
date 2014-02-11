@@ -23,6 +23,8 @@ Runner::~Runner(){
 
 
 void Runner::setCalibrationMode(bool new_setting) {
+  BOOST_LOG_SEV(glg, debug) << "Turning runner instance's calibrationMode to " 
+                            << new_setting;
   this->calibrationMode = new_setting;
 }
 bool Runner::getCalibrationMode() {

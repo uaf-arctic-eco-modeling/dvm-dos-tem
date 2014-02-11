@@ -317,16 +317,29 @@ void RunCohort::runEnvmodule(){
 
 };
 
-// run one cohort in time series
+/** Run one cohort thru time series.
+ * 
+ * i.e.: 
+ * for each year
+ *     for each month
+ */ 
 void RunCohort::run_timeseries(){
-
+  
+  // Need to connect this to the Runner::calibrationMode field
+  // so that it can be controlled by command line switch...
   bool calibrationMode = true;  
+  
+  // Ends up as a null pointer if calibratiionMode is off.
   boost::shared_ptr<CalController> calcontroller_ptr;
   if (calibrationMode) {
     calcontroller_ptr.reset( new CalController(&this->cht) );
   }
   
 	for (int icalyr=yrstart; icalyr<=yrend; icalyr++) {
+
+    // See if a signal has arrived (possibly from user
+    // hitting Ctrl-C) and if so, stop the simulation
+    // and drop into the calibration "shell".
     if (calcontroller_ptr) {
       calcontroller_ptr->check_for_signals();
     }
