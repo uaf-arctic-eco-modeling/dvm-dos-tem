@@ -43,7 +43,8 @@ void CohortLookup::init(){
 }
 
 /** Prints data from this-> fields mimics format of cmt_calparbgc.txt file, 
- * but only for one cmt type which ever one this->cmtcode refers to..*/
+ * but only for one cmt type which ever one this->cmtcode refers to..
+ * NOT FINISHED! - only does the first few variables. */
 std::string CohortLookup::dump_calparbgc() {
     std::stringstream s("");
     s << "CMT code: " << this->cmtcode << "\n";
