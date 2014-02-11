@@ -36,7 +36,7 @@ namespace keywords = boost::log::keywords;
 namespace expr = boost::log::expressions;
 namespace sinks = boost::log::sinks;
 
-/** Define the "severity Levels for Boost::Log's severity logger. */
+/** Define the "severity levels" for Boost::Log's severity logger. */
 enum general_severity_level {
   debug, info, note, warn, err, fatal
 };
@@ -78,7 +78,6 @@ BOOST_LOG_INLINE_GLOBAL_LOGGER_DEFAULT(stubb_cal_logger, severity_channel_logger
 void test_log_and_filter_settings();
 void set_log_severity_level(std::string lvl);
 void setup_console_log_sink();
-void set_log_severity_level(std::string lvl);
 void setup_console_log_filters(std::string gen_settings, std::string cal_settings);
 
 void second_filter();
