@@ -28,7 +28,10 @@ CalController::CalController(Cohort* cht_p):
   ( "c", CalCommand("continue simulation", boost::bind(&CalController::continue_simulation, this)) )
   ( "r", CalCommand("reload cmt files", boost::bind(&CalController::reload_cmt_files, this)) )
   ( "h", CalCommand("show short menu", boost::bind(&CalController::show_short_menu, this)) )
-  ( "help", CalCommand("show full menu", boost::bind(&CalController::show_full_menu, this)) );
+  ( "help", CalCommand("show full menu", boost::bind(&CalController::show_full_menu, this)) )
+  ( "env on", CalCommand("turn env module ON", boost::bind(&CalController::env_ON, this)) )
+  ( "env off", CalCommand("turn env module OFF", boost::bind(&CalController::env_OFF, this)) )
+  ;
   
   
   BOOST_LOG_SEV(clg, debug) << "Set async wait on signals to PAUSE handler.";
@@ -45,7 +48,7 @@ CalController::CalController(Cohort* cht_p):
  * 
  * It is possible to exit this loop with either a quit or continue command.
  */
-void CalController::control_loop(){
+void CalController::control_loop() {
 
   show_short_menu();
 
@@ -116,29 +119,44 @@ std::string CalController::get_user_command() {
 
 
 
-void CalController::continue_simulation(){
+void CalController::continue_simulation() {
   BOOST_LOG_SEV(clg, info) << "Executing continue_simulation callback...";
   // not quite sure how to do this one?
 }
-void CalController::reload_cmt_files(){
+void CalController::reload_cmt_files() {
   BOOST_LOG_SEV(clg, info) << "Executing reload_cmt_files callback...";
   BOOST_LOG_SEV(clg, info) << "Tickling the cohort pointer to reload config/parameter files...";
   cohort_ptr->chtlu.init();
   BOOST_LOG_SEV(clg, info) << "Done reloading config/parameter files.";
   
 }
-void CalController::quit(){
+void CalController::quit() {
   BOOST_LOG_SEV(clg, info) << "Executing the quit callback...";
   BOOST_LOG_SEV(clg, info) << "Quitting via CalController."; 
   exit(-1);
 }
 
-// void CalController::env_ON(){
-//   this->cohort_ptr->md->envmodule = true;
-// }
-// void CalController::env_OFF(){
-//   this->cohort_ptr->md->envmodule = false;
-// }
+// dvmmodule
+// bgcmodule
+// envmodule
+// bool dslmodule;  
+
+// bool dsbmodule;  
+// bool friderived; 
+
+// bool nfeed;    
+// bool avlnflg;
+// bool baseline; 
+
+
+void CalController::env_ON() {
+  BOOST_LOG_SEV(clg, info) << "CalController is turing env module ON via cohort pointer...";
+  this->cohort_ptr->md->envmodule = true;
+}
+void CalController::env_OFF(){
+  BOOST_LOG_SEV(clg, info) << "CalController is turing env module OFF via cohort pointer...";
+  this->cohort_ptr->md->envmodule = false;
+}
 
 
 void CalController::show_short_menu() {
@@ -170,15 +188,4 @@ void CalController::show_full_menu() {
   
 }
 
-// dvmmodule
-// bgcmodule
-// envmodule
-// bool dslmodule;  
-
-// bool dsbmodule;  
-// bool friderived; 
-
-// bool nfeed;    
-// bool avlnflg;
-// bool baseline; 
 

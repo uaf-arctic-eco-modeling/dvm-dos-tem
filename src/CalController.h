@@ -52,7 +52,8 @@ private:
   void show_full_menu();
   void show_short_menu();
 
-  
+  void env_ON();
+  void env_OFF();
 };
 
 #endif /* _CALCONTROLLER_H_ */
