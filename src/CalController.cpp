@@ -154,11 +154,11 @@ void CalController::quit() {
 
 void CalController::env_ON() {
   BOOST_LOG_SEV(clg, info) << "CalController is turing env module ON via cohort pointer...";
-  this->cohort_ptr->md->envmodule = true;
+  this->cohort_ptr->md->set_envmodule(true);
 }
 void CalController::env_OFF() {
   BOOST_LOG_SEV(clg, info) << "CalController is turing env module OFF via cohort pointer...";
-  this->cohort_ptr->md->envmodule = false;
+  this->cohort_ptr->md->set_envmodule(false);
 }
 
 void CalController::print_calparbgc() {
