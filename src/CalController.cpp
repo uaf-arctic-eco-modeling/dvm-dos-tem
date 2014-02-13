@@ -31,6 +31,9 @@ CalController::CalController(Cohort* cht_p):
   ( "help", CalCommand("show full menu", boost::bind(&CalController::show_full_menu, this)) )
   ( "env on", CalCommand("turn env module ON", boost::bind(&CalController::env_ON, this)) )
   ( "env off", CalCommand("turn env module OFF", boost::bind(&CalController::env_OFF, this)) )
+  ( "print calparbgc", 
+    CalCommand("prints out the calparbgc parameters ",
+               boost::bind(&CalController::print_calparbgc, this)) )
   ;
   
   
@@ -153,20 +156,27 @@ void CalController::env_ON() {
   BOOST_LOG_SEV(clg, info) << "CalController is turing env module ON via cohort pointer...";
   this->cohort_ptr->md->envmodule = true;
 }
-void CalController::env_OFF(){
+void CalController::env_OFF() {
   BOOST_LOG_SEV(clg, info) << "CalController is turing env module OFF via cohort pointer...";
   this->cohort_ptr->md->envmodule = false;
+}
+
+void CalController::print_calparbgc() {
+  BOOST_LOG_SEV(clg, info) << "Printing the 'calparbgc' parameters stored in the CohortLookup pointer...";
+  std::string r = this->cohort_ptr->chtlu.calparbgc2str();
+  BOOST_LOG_SEV(clg, info) << "\n" << r;
+  
 }
 
 
 void CalController::show_short_menu() {
    BOOST_LOG_SEV(clg, debug) << "Showing short menu...";
    std::string m = "";
-   m += "q - "; m += this->cmd_map["q"].desc; m += "\n";
-   m += "c - "; m += this->cmd_map["c"].desc; m += "\n";
-   m += "r - "; m += this->cmd_map["r"].desc; m += "\n";
-   m += "h - "; m += this->cmd_map["h"].desc; m += "\n";
-   m += "help - "; m += this->cmd_map["help"].desc; m += "\n";
+   m += "  q - "; m += this->cmd_map["q"].desc; m += "\n";
+   m += "  c - "; m += this->cmd_map["c"].desc; m += "\n";
+   m += "  r - "; m += this->cmd_map["r"].desc; m += "\n";
+   m += "  h - "; m += this->cmd_map["h"].desc; m += "\n";
+   m += "  help - "; m += this->cmd_map["help"].desc; m += "\n";
    std::cout << m;
 }
 
@@ -178,6 +188,7 @@ void CalController::show_full_menu() {
 
   std::map<std::string, CalCommand>::const_iterator citer;
   for(citer = cmd_map.begin(); citer != cmd_map.end(); ++citer) {
+     m += "    "; 
      m += citer->first; 
      m += " - ";
      m += citer->second.desc;

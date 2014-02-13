@@ -43,9 +43,9 @@ void CohortLookup::init(){
 }
 
 /** Prints data from this-> fields mimics format of cmt_calparbgc.txt file, 
- * but only for one cmt type which ever one this->cmtcode refers to..
- * NOT FINISHED! - only does the first few variables. */
-std::string CohortLookup::dump_calparbgc() {
+ * but only for one cmt type which ever one "this->cmtcode" refers to..
+ */
+std::string CohortLookup::calparbgc2str() {
     std::stringstream s("");
     s << "CMT code: " << this->cmtcode << "\n";
     
@@ -55,23 +55,78 @@ std::string CohortLookup::dump_calparbgc() {
       s << std::setw(12) << std::setfill(' ') << p.str();
     }
     s << "\n";
+    
     for (int i = 0 ; i < NUM_PFT; ++i) {
       s << std::setw(12) << std::setfill(' ') << this->cmax[i];
     }
     s << "    cmax\n";
+    
     for (int i = 0 ; i < NUM_PFT; ++i) {
       s << std::setw(12) << std::setfill(' ') << this->nmax[i];
     }
     s << "    nmax\n";
+    
     for (int i = 0 ; i < NUM_PFT; ++i) {
       s << std::setw(12) << std::setfill(' ') << this->cfall[0][i];
     }
-    s << "    cfall[0]\n";
+    s << "    cfall[0] leaf\n";
+    
     for (int i = 0 ; i < NUM_PFT; ++i) {
       s << std::setw(12) << std::setfill(' ') << this->cfall[1][i];
     }
-    s << "    cfall[1]\n";
+    s << "    cfall[1] stem\n";
     
+    for (int i = 0 ; i < NUM_PFT; ++i) {
+      s << std::setw(12) << std::setfill(' ') << this->cfall[2][i];
+    }
+    s << "    cfall[2] root\n";
+    
+    for (int i = 0 ; i < NUM_PFT; ++i) {
+      s << std::setw(12) << std::setfill(' ') << this->nfall[0][i];
+    }
+    s << "    nfall[0] leaf\n";
+    
+    for (int i = 0 ; i < NUM_PFT; ++i) {
+      s << std::setw(12) << std::setfill(' ') << this->nfall[1][i];
+    }
+    s << "    nfall[1] stem\n";
+    
+    for (int i = 0 ; i < NUM_PFT; ++i) {
+      s << std::setw(12) << std::setfill(' ') << this->nfall[2][i];
+    }
+    s << "    nfall[2] root\n";
+
+    for (int i = 0 ; i < NUM_PFT; ++i) {
+      s << std::setw(12) << std::setfill(' ') << this->kra[i];
+    }
+    s << "    kra (coeff in maintenance resp.)\n";
+
+    for (int i = 0 ; i < NUM_PFT; ++i) {
+      s << std::setw(12) << std::setfill(' ') << this->krb[0][i];
+    }
+    s << "    krb[0] (coeff in maintenance resp., leaf)\n";
+
+    for (int i = 0 ; i < NUM_PFT; ++i) {
+      s << std::setw(12) << std::setfill(' ') << this->krb[1][i];
+    }
+    s << "    krb[1] (coeff in maintenance resp., leaf)\n";
+
+    for (int i = 0 ; i < NUM_PFT; ++i) {
+      s << std::setw(12) << std::setfill(' ') << this->krb[2][i];
+    }
+    s << "    krb[2] (coeff in maintenance resp., leaf)\n";
+
+    for (int i = 0 ; i < NUM_PFT; ++i) {
+      s << std::setw(12) << std::setfill(' ') << this->frg[i];
+    }
+    s << "    kra[2] (fraction of available NPP (GPP after rm))\n";
+    s << "// soil calibrated parameters\n";
+    s << this->micbnup << " // micbnup: parameter for soil microbial immobialization of N\n";
+    s << this->kdcmoss << " // kdcmoss: dead moss C decompositin rates at reference condition\n";
+    s << this->kdcrawc << " // kdcrawc: raw-material (litter) C decompositin rates at reference condition\n";
+    s << this->kdcsoma << " // kdcsoma:\n";
+    s << this->kdcsompr << " // kdcsompr:\n";
+    s << this->kdcsomcr << "// kdcsomcr:\n";
     return s.str();
 }
 

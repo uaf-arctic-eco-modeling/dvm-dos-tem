@@ -21,7 +21,7 @@ class CohortLookup{
 		string dir;
 		string cmtcode;
 
-    std::string dump_calparbgc();
+    std::string calparbgc2str();
     void init();
     void assignBgcCalpar(string & dirname);
 

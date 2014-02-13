@@ -54,6 +54,8 @@ private:
 
   void env_ON();
   void env_OFF();
+  
+  void print_calparbgc();
 };
 
 #endif /* _CALCONTROLLER_H_ */
