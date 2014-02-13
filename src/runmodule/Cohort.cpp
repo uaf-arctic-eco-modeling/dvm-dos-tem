@@ -325,45 +325,46 @@ void Cohort::updateMonthly(const int & yrcnt, const int & currmind, const int & 
                             << dinmcurr;
 	//
 	if(currmind==0) { 
-    BOOST_LOG_SEV(glg, debug) << "First month of the year...";
     cd.beginOfYear();
   }
-	cd.beginOfMonth();
 
-  	// first, update the water/thermal process to get (bio)physical conditions
- 	if(md->envmodule){
-  		updateMonthly_Env(currmind, dinmcurr);
-  	}
+  BOOST_LOG_SEV(glg, debug) << "Clean up before a month starts.";
+  cd.beginOfMonth();
 
- 	// secondly, update the current dimension/structure of veg-snow/soil column (domain)
-   	updateMonthly_DIMveg(currmind, md->dvmmodule);
+ 	if(md->get_envmodule()) {
+    BOOST_LOG_SEV(glg, debug) << "Run the environmental module - updates water/thermal processes to get (bio)physical conditions.";
+    updateMonthly_Env(currmind, dinmcurr);
+	}
 
-   	updateMonthly_DIMgrd(currmind, md->dslmodule);
+  BOOST_LOG_SEV(glg, debug) << "Update the current dimension/structure of veg-snow/soil column (domain).";
+  updateMonthly_DIMveg(currmind, md->dvmmodule);
+  updateMonthly_DIMgrd(currmind, md->dslmodule);
 
-   	//thirdly, update the BGC process to get the C/N states and fluxes
-  	if(md->bgcmodule){
-  		updateMonthly_Bgc(currmind);
-  	}
+  if(md->bgcmodule) {
+    BOOST_LOG_SEV(glg, debug) << "Run the BGC processes to get the C/N fluxes.";
+    updateMonthly_Bgc(currmind);
+  }
 
-  	// fourthly, run the disturbance module
-   	if(md->dsbmodule){
-   	   	updateMonthly_Fir(yrcnt, currmind);
-   	}
+  if(md->dsbmodule) {
+    BOOST_LOG_SEV(glg, debug) << "Run the disturbance model.";
+    updateMonthly_Fir(yrcnt, currmind);
+  }
 
+  BOOST_LOG_SEV(glg, debug) << "Clean up at the end of the month";
 	cd.endOfMonth();
   
-	if(currmind==11) {
-    BOOST_LOG_SEV(glg, debug) << "Last month of the year...";
+	if(currmind == 11) {
+    BOOST_LOG_SEV(glg, debug) << "Clean up at end of year.";
     cd.endOfYear();
   }
 
-	////////////////////////////
-	// output all data for multple cohorts
 	if (md->outRegn) {
+    BOOST_LOG_SEV(glg, debug) << "Output all data for multiple cohorts.";
 		outbuffer.updateRegnOutputBuffer(currmind);
 	}
 
 	// always output the restart data (monthly)
+  BOOST_LOG_SEV(glg, debug) << "Output monthly restart data.";
 	outbuffer.updateRestartOutputBuffer();
 
 };
