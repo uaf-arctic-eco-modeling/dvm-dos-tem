@@ -14,7 +14,7 @@
 
     		ModelData();
     		~ModelData();
-
+    std::string describe_module_settings();
     		int myid;            // these two are for parallel model run (NOT USED)
     		int numprocs;
 

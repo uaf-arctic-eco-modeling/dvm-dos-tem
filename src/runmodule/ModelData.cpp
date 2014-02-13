@@ -16,6 +16,15 @@ bool onoffstr2bool(const std::string &s) {
   }
 }
 
+/** something like this:
+ *       somestr: 0
+ */
+std::string table_row(int w, std::string d, bool v) {
+  std::stringstream s;
+  s << std::setw(w) << std::setfill(' ') << d << ": " << v << "\n"; 
+  return s.str();
+}
+
 
 ModelData::ModelData(){
   	consoledebug = true;
@@ -157,5 +166,19 @@ void ModelData::set_envmodule(const bool v) {
   this->envmodule = v;
 }
 
+std::string ModelData::describe_module_settings(){
+  std::stringstream s;
+  s << table_row(15, "envmodule", this->get_envmodule());
+  s << table_row(15, "bgcmodule", this->bgcmodule);
+  s << table_row(15, "dvmmodule", this->dvmmodule);
+
+  s << table_row(15, "dslmodule", this->dslmodule);
+  s << table_row(15, "dsbmodule", this->dsbmodule);
+
+  s << table_row(15, "friderived", this->friderived);
+  s << table_row(15, "nfeed", this->nfeed);
+  s << table_row(15, "avlnflg", this->avlnflg);
+  return s.str();  
+}
 
 

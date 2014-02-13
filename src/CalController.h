@@ -19,7 +19,7 @@ typedef struct CalCommand {
   std::string desc;
   boost::function<void ()> executor;
   
-  CalCommand(){} // somehow I need this to compile?
+  CalCommand(){} // won't compile w/o this declared - not sure why
   CalCommand( std::string adesc, boost::function<void ()> aexecutor ) :
       desc(adesc), executor(aexecutor) {}
   
@@ -56,6 +56,7 @@ private:
   void env_OFF();
   
   void print_calparbgc();
+  void print_modules_settings();
 };
 
 #endif /* _CALCONTROLLER_H_ */

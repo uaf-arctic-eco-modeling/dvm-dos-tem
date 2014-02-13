@@ -34,6 +34,9 @@ CalController::CalController(Cohort* cht_p):
   ( "print calparbgc", 
     CalCommand("prints out the calparbgc parameters ",
                boost::bind(&CalController::print_calparbgc, this)) )
+  ( "print module settings", 
+    CalCommand("print module settings (on/off)",
+               boost::bind(&CalController::print_modules_settings, this)) )
   ;
   
   
@@ -142,14 +145,14 @@ void CalController::quit() {
 // dvmmodule
 // bgcmodule
 // envmodule
-// bool dslmodule;  
+// dslmodule;  
 
-// bool dsbmodule;  
-// bool friderived; 
+// dsbmodule;  
+// friderived; 
 
-// bool nfeed;    
-// bool avlnflg;
-// bool baseline; 
+// nfeed;    
+// avlnflg;
+// baseline; 
 
 
 void CalController::env_ON() {
@@ -165,10 +168,13 @@ void CalController::print_calparbgc() {
   BOOST_LOG_SEV(clg, info) << "Printing the 'calparbgc' parameters stored in the CohortLookup pointer...";
   std::string r = this->cohort_ptr->chtlu.calparbgc2str();
   BOOST_LOG_SEV(clg, info) << "\n" << r;
-  
 }
 
-
+void CalController::print_modules_settings() {
+  BOOST_LOG_SEV(clg, info) << "Showing module settings from cohort pointer's "
+                           << "ModelData.\n" 
+                           << this->cohort_ptr->md->describe_module_settings();
+}
 void CalController::show_short_menu() {
    BOOST_LOG_SEV(clg, debug) << "Showing short menu...";
    std::string m = "";
