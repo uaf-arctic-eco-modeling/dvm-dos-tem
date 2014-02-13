@@ -1,5 +1,22 @@
 #include "ModelData.h"
 
+BOOST_LOG_INLINE_GLOBAL_LOGGER_INIT(my_general_logger, severity_channel_logger_t) {
+  return severity_channel_logger_t(keywords::channel = "GENER");
+}
+severity_channel_logger_t& ModelData::glg = my_general_logger::get();
+
+/** throws exception if s is no "on" or "off" */
+bool onoffstr2bool(const std::string &s) {
+  if (s.compare("on") == 0) {
+    return true;
+  } else if (s.compare("off") == 0) {
+    return false;
+  } else {
+    throw "Invalid string! Must be 'on' or 'off'.";
+  }
+}
+
+
 ModelData::ModelData(){
   	consoledebug = true;
   	runmode = 1;
@@ -127,4 +144,18 @@ void ModelData::checking4run(){
  	}
 
 };
+
+bool ModelData::get_envmodule() {
+  return this->envmodule; 
+}
+void ModelData::set_envmodule(const std::string &s) {
+  BOOST_LOG_SEV(glg, info) << "Setting envmodule to " << s;
+  this->envmodule = onoffstr2bool(s);
+}
+void ModelData::set_envmodule(const bool v) {
+  BOOST_LOG_SEV(glg, info) << "Setting envmodule to " << v;
+  this->envmodule = v;
+}
+
+
 

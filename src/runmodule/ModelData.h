@@ -5,6 +5,7 @@
 	#include <fstream>
 	#include <sstream>
     #include <cstdlib>
+#include "../TEMLogger.h"
 
 	using namespace std;
 
@@ -21,7 +22,6 @@
     		bool consoledebug;   // more info will display when running
 
     		// the following 5 switches will allow modules on/off -
-    		bool envmodule;   //(Bio)physical module on/off
 			bool bgcmodule;   //BGC module on/off
 
 			bool dvmmodule;   //dynamic vegetation module on/off
@@ -89,7 +89,13 @@
    			//
     		void checking4run();
 
- 		private:
+    bool get_envmodule();
+    void set_envmodule(const std::string &s);
+    void set_envmodule(const bool v);
+
+  private:
+      bool envmodule;   //(Bio)physical module on/off
+      static severity_channel_logger_t& glg;
 
 	};
 
