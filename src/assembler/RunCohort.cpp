@@ -92,7 +92,7 @@ void RunCohort::init(){
 	md->baseline= 1;
 
 	// switches of modules
-	md->envmodule = true;
+	md->set_envmodule(true);
     md->bgcmodule = true;
     md->dsbmodule = true;
     md->dslmodule = true;
@@ -221,7 +221,7 @@ void RunCohort::run_cohortly(){
 
 			//
 			cht.timer->reset();
-			md->envmodule = true;
+			md->set_envmodule(true);
 		    md->bgcmodule = true;
 		    md->dsbmodule = true;
 		    md->dslmodule = true;
@@ -302,7 +302,7 @@ void RunCohort::run_cohortly(){
 void RunCohort::runEnvmodule(){
 	//run model with "ENV module" only
 
-	 md->envmodule = true;
+	 md->set_envmodule(true);
      md->bgcmodule = false;
      md->dsbmodule = false;
      md->dslmodule = false;

@@ -7,6 +7,9 @@ void ArgHandler::parse(int argc, char** argv) {
 	desc.add_options()
     ("calibrationmode", boost::program_options::value<string>(&calibrationmode)->default_value("off"),"(NOT IMPLEMENTED) whether or not the calibration module is on...? list of strings for modules to calibrate?")
     ("loglevel,l", boost::program_options::value<string>(&loglevel)->default_value("trace"), "the level above which all log messages will be printed. Here are the choices: trace, debug, info, warning, error, fatal.")
+    ("env", boost::program_options::value<string>(&env)->default_value("on"),
+     "Turn the environmental module on or off."
+    )
 		("mode,m", boost::program_options::value<string>(&mode)->default_value("siterun"),"change mode between siterun and regnrun")
 		("control-file,f", boost::program_options::value<string>(&ctrlfile)->default_value("config/controlfile_site.txt"), "choose a control file to use")
 		("cohort-id,c", boost::program_options::value<string>(&chtid)->default_value("1"), "choose a specific cohort to run")
@@ -19,6 +22,10 @@ void ArgHandler::parse(int argc, char** argv) {
 	boost::program_options::store(boost::program_options::parse_command_line(argc, argv, desc), varmap);
 	boost::program_options::notify(varmap);
 
+  if (varmap.count("env")) {
+    env = varmap["env"].as<string>();
+  }
+  
 	if (varmap.count("cohort-id")) {
 		chtid = varmap["cohort-id"].as<string>();
 	}
@@ -53,6 +60,9 @@ void ArgHandler::verify() {
 }  
 }
 
+string ArgHandler::getEnv() const {
+  return env;
+}
 string ArgHandler::getCalibrationMode(){
   return calibrationmode;
 }

@@ -91,6 +91,10 @@ int main(int argc, char* argv[]){
     string chtid = args->getChtid();
 
     Runner siter;
+
+    args->getEnv(),
+    siter.modeldata_module_settings_from_args(*args);
+    
     if (args->getCalibrationMode() == "on") {
       BOOST_LOG_SEV(glg, info) << "Turning CalibrationMode on in Runner (siter).";
       siter.setCalibrationMode(true);
