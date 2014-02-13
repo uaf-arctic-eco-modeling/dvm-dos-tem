@@ -24,6 +24,8 @@
 #include "../runmodule/Controller.h"
 #include "../runmodule/ModelData.h"
 #include "../TEMLogger.h"
+#include "../ArgHandler.h"
+
 
 using namespace std;
 
@@ -70,6 +72,7 @@ class Runner {
     	vector<int> reclistfire;
     void setCalibrationMode(bool new_setting);
     bool getCalibrationMode();
+    void modeldata_module_settings_from_args(const ArgHandler &args);
 
 	private:
     bool calibrationMode;

@@ -3,7 +3,6 @@
 
 #include "Runner.h"
 
-
 BOOST_LOG_INLINE_GLOBAL_LOGGER_INIT(my_general_logger, severity_channel_logger_t) {
   return severity_channel_logger_t(keywords::channel = "GENER");
 }
@@ -22,6 +21,10 @@ Runner::~Runner(){
 };
 
 
+void Runner::modeldata_module_settings_from_args(const ArgHandler &args) {
+  this->md.set_envmodule(args.getEnv()); 
+  
+}
 void Runner::setCalibrationMode(bool new_setting) {
   BOOST_LOG_SEV(glg, debug) << "Turning runner instance's calibrationMode to " 
                             << new_setting;
