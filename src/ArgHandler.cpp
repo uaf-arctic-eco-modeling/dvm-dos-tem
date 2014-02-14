@@ -5,11 +5,24 @@ ArgHandler::ArgHandler() {
 }
 void ArgHandler::parse(int argc, char** argv) {
 	desc.add_options()
-//     ("dvm", boost::program_options::value<string>(&dvm)->default_value("on"),
-//      "Turn the dynamic vegetation module on or off."
-//     )
+ 
+    /*
+    --dsl on
+    --dsb on
+    --friderived on
+
+    --nfeed on
+    --avlnflg on
+    --baseline on
+    */
     ("env", boost::program_options::value<string>(&env)->default_value("on"),
      "Turn the environmental module on or off."
+    )
+    ("bgc", boost::program_options::value<string>(&bgc)->default_value("on"),
+     "Turn the biogeochemical module on or off."
+    )
+    ("dvm", boost::program_options::value<string>(&dvm)->default_value("on"),
+     "Turn the dynamic vegetation module on or off."
     )
     ("calibrationmode", boost::program_options::value<string>(&calibrationmode)->default_value("off"),
      "(NOT IMPLEMENTED) whether or not the calibration module is on...? "
@@ -33,6 +46,12 @@ void ArgHandler::parse(int argc, char** argv) {
 
   if (varmap.count("env")) {
     env = varmap["env"].as<string>();
+  }
+  if (varmap.count("bgc")) {
+    bgc = varmap["bgc"].as<string>();
+  }
+  if (varmap.count("dvm")) {
+    dvm = varmap["dvm"].as<string>();
   }
   
 	if (varmap.count("cohort-id")) {
@@ -71,6 +90,12 @@ void ArgHandler::verify() {
 
 string ArgHandler::getEnv() const {
   return env;
+}
+string ArgHandler::getBgc() const {
+  return bgc;
+}
+string ArgHandler::getDvm() const {
+  return dvm;
 }
 string ArgHandler::getCalibrationMode(){
   return calibrationmode;

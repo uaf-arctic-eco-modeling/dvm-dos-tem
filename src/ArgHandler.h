@@ -17,8 +17,12 @@ class ArgHandler {
 	string ctrlfile;
 	string chtid;
 	string regrunmode;
+
   string env;
-	bool help;
+  string bgc;
+  string dvm;
+
+  bool help;
 	bool version;
 	bool debug;
 
@@ -29,6 +33,9 @@ public:
 	void showHelp();
 	
   string getEnv() const;
+  string getBgc() const;
+  string getDvm() const;
+
   string getCalibrationMode();
   string getLogLevel();
 	string getMode();
