@@ -56,12 +56,12 @@ ModelData::ModelData(){
 	numprocs = 1;
 
 	// module switches
-	envmodule = false;
-	bgcmodule = false;
-	dslmodule = false;
-	dsbmodule = false;
- 	friderived= false;
-	dvmmodule = false;
+	set_envmodule(false);
+	set_bgcmodule(false);
+  set_dvmmodule(false);
+	set_dslmodule(false);
+	set_dsbmodule(false);
+ 	set_friderived(false);
 
 	// the data record numbers of all input datasets
 	act_gridno = 0;
