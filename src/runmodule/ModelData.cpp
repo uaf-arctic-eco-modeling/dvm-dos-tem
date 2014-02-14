@@ -5,7 +5,10 @@ BOOST_LOG_INLINE_GLOBAL_LOGGER_INIT(my_general_logger, severity_channel_logger_t
 }
 severity_channel_logger_t& ModelData::glg = my_general_logger::get();
 
-/** throws exception if s is no "on" or "off" */
+/** Returns true for 'on' and false for 'off'.
+ * Throws exception if s is not "on" or "off".
+ * might want to inherit from std exception or do something else?
+ */
 bool onoffstr2bool(const std::string &s) {
   if (s.compare("on") == 0) {
     return true;
@@ -16,8 +19,14 @@ bool onoffstr2bool(const std::string &s) {
   }
 }
 
-/** something like this:
+/** Returns a string with first colum r justified and 
+ * of with 'w'. Can be used to build tables likle this:
+ * 
  *       somestr: 0
+ *       somestr: 0
+ *       somestr: 0
+ * 
+ *  with a newline, for use in a table.     
  */
 std::string table_row(int w, std::string d, bool v) {
   std::stringstream s;

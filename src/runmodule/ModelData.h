@@ -21,7 +21,6 @@
     		int runmode;  //1: site; 2: region - time-series; 3: region - spatially
     		bool consoledebug;   // more info will display when running
 
-    		// the following 5 switches will allow modules on/off -
 
 			// the following 3 switches will control N modules in BGC
 	     	bool nfeed;      //=true allowing N uptake limited by soil conditions, which then controls plant growth,
