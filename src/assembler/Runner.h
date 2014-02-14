@@ -70,8 +70,8 @@ class Runner {
     	vector<int> reclistclm;
     	vector<int> reclistveg;
     	vector<int> reclistfire;
-    void setCalibrationMode(bool new_setting);
-    bool getCalibrationMode();
+    void set_calibrationMode(bool new_setting);
+    bool get_calibrationMode();
     void modeldata_module_settings_from_args(const ArgHandler &args);
 
 	private:

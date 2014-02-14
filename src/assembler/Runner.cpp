@@ -26,12 +26,12 @@ void Runner::modeldata_module_settings_from_args(const ArgHandler &args) {
   this->md.set_bgcmodule(args.getBgc());
   this->md.set_dvmmodule(args.getDvm());
 }
-void Runner::setCalibrationMode(bool new_setting) {
+void Runner::set_calibrationMode(bool new_setting) {
   BOOST_LOG_SEV(glg, debug) << "Turning runner instance's calibrationMode to " 
                             << new_setting;
   this->calibrationMode = new_setting;
 }
-bool Runner::getCalibrationMode() {
+bool Runner::get_calibrationMode() {
   return this->calibrationMode;
 }
 
@@ -407,10 +407,6 @@ void Runner::runmode1(){
 
 };
 
-void setCalibrationOn() {
-  
-  
-}
 
 void Runner::runmode2(){
 

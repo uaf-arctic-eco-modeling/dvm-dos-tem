@@ -96,7 +96,7 @@ int main(int argc, char* argv[]){
     
     if (args->getCalibrationMode() == "on") {
       BOOST_LOG_SEV(glg, info) << "Turning CalibrationMode on in Runner (siter).";
-      siter.setCalibrationMode(true);
+      siter.set_calibrationMode(true);
     } else {
       BOOST_LOG_SEV(glg, info) << "Running in extrapolation mode.";
     }
