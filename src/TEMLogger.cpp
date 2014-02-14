@@ -61,7 +61,7 @@ void setup_console_log_sink(/* Could add some params for diff formats? */){
         << "[" << severity << "] " 
         // for info on formatting thread id
         // http://sourceforge.net/p/boost-log/discussion/710021/thread/e90226f5/
-        << expr::attr< attrs::current_thread_id::value_type >("ThreadID") << "  "
+        //<< expr::attr< attrs::current_thread_id::value_type >("ThreadID") << "  "
         << expr::smessage
     )
   );
