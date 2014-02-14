@@ -7,23 +7,24 @@ void ArgHandler::parse(int argc, char** argv) {
 	desc.add_options()
  
     /*
-    --dsl on
-    --dsb on
-    --friderived on
-
-    --nfeed on
-    --avlnflg on
-    --baseline on
+    --env [ on | off ]
+    --bgc [ on | off ]
+    --dvm [ on | off ]
+    --dsl [ on | off ]
+    --dsb [ on | off ]
+    --friderived  [ on | off ]
     */
-    ("env", boost::program_options::value<string>(&env)->default_value("on"),
-     "Turn the environmental module on or off."
-    )
-    ("bgc", boost::program_options::value<string>(&bgc)->default_value("on"),
-     "Turn the biogeochemical module on or off."
-    )
-    ("dvm", boost::program_options::value<string>(&dvm)->default_value("on"),
-     "Turn the dynamic vegetation module on or off."
-    )
+    // NOT IMPLEMENTED YET - need to sort out some issues
+    // ("env", boost::program_options::value<string>(&env)->default_value("on"),
+    //   "Turn the environmental module on or off."
+    // )
+    // ("bgc", boost::program_options::value<string>(&bgc)->default_value("on"),
+    //   "Turn the biogeochemical module on or off."
+    // )
+    // ("dvm", boost::program_options::value<string>(&dvm)->default_value("on"),
+    //   "Turn the dynamic vegetation module on or off."
+    // )
+    
     ("calibrationmode", boost::program_options::value<string>(&calibrationmode)->default_value("off"),
      "(NOT IMPLEMENTED) whether or not the calibration module is on...? "
      "list of strings for modules to calibrate?"
