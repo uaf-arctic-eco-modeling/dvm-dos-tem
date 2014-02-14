@@ -9,6 +9,11 @@
 #include "RunCohort.h"
 #include "../CalController.h"
 
+BOOST_LOG_INLINE_GLOBAL_LOGGER_INIT(my_general_logger, severity_channel_logger_t) {
+  return severity_channel_logger_t(keywords::channel = "GENER");
+}
+severity_channel_logger_t& RunCohort::glg = my_general_logger::get();
+
 RunCohort::RunCohort(){
 
     dstepcnt = 0;
@@ -85,18 +90,19 @@ int RunCohort::allchtids(){
 
 // general initialization
 void RunCohort::init(){
+  BOOST_LOG_SEV(glg, info) << "In RunCohort::init(), setting a bunch of modules on/off";
 
 	// switches of N cycles
     md->nfeed   = 1;
     md->avlnflg = 0;
 	md->baseline= 1;
 
-	// switches of modules
-	md->envmodule = true;
-    md->bgcmodule = true;
-    md->dsbmodule = true;
-    md->dslmodule = true;
-    md->dvmmodule = true;
+	  // switches of modules
+	  md->set_envmodule(true);
+    md->set_bgcmodule(true);
+    md->set_dsbmodule(true);
+    md->set_dslmodule(true);
+    md->set_dvmmodule(true);
 
 	// output (buffer) data connection
 	 if (md->outRegn) {
@@ -142,7 +148,7 @@ int RunCohort::readData(){
 	 cht.chtlu.init();   //put the parameter files in 'config/' with same directory of model
 
 	//reading the fire occurence data from '.nc', if not FRI derived
-  	if (!md->friderived && !md->runeq){
+  	if (!md->get_friderived() && !md->runeq){
   		cht.cd.act_fireset = md->act_fireset;
   		cinputer.getFire(cht.cd.fireyear, cht.cd.fireseason, cht.cd.firesize, firerecno);
   		if (md->useseverity) {
@@ -221,14 +227,15 @@ void RunCohort::run_cohortly(){
 
 			//
 			cht.timer->reset();
-			md->envmodule = true;
-		    md->bgcmodule = true;
-		    md->dsbmodule = true;
-		    md->dslmodule = true;
-		    md->dvmmodule = true;
-
-			md->friderived = true;
-			cht.timer->stageyrind = 0;
+			BOOST_LOG_SEV(glg, info) << "In run_cohortly, setting all modules to on...";
+      md->set_envmodule(true);
+      md->set_bgcmodule(true);
+      md->set_dsbmodule(true);
+      md->set_dslmodule(true);
+      md->set_dvmmodule(true);
+      md->set_friderived(true);
+			
+      cht.timer->stageyrind = 0;
 
 			cht.cd.yrsdist = 0;
 
@@ -255,7 +262,7 @@ void RunCohort::run_cohortly(){
 		    yrstart = cht.timer->spbegyr;
 		    yrend   = cht.timer->spendyr;
 
-		    md->friderived= false;
+		    md->set_friderived(false);
 
 		    run_timeseries();
 
@@ -271,7 +278,7 @@ void RunCohort::run_cohortly(){
 		    yrstart = cht.timer->trbegyr;
 		    yrend   = cht.timer->trendyr;
 
-		    md->friderived= false;
+		    md->set_friderived(false);
 
 		    run_timeseries();
 
@@ -288,7 +295,7 @@ void RunCohort::run_cohortly(){
 		    yrstart = cht.timer->scbegyr;
 		    yrend   = cht.timer->scendyr;
 
-		    md->friderived= false;
+		    md->set_friderived(false);
 
 		    run_timeseries();
 
@@ -300,13 +307,15 @@ void RunCohort::run_cohortly(){
 }; 
 
 void RunCohort::runEnvmodule(){
-	//run model with "ENV module" only
+  BOOST_LOG_SEV(glg, info) << "In RunCohort::runEnvmodule, setting only envmodule on.";
 
-	 md->envmodule = true;
-     md->bgcmodule = false;
-     md->dsbmodule = false;
-     md->dslmodule = false;
-     md->dvmmodule = false;
+  //run model with "ENV module" only
+
+	 md->set_envmodule(true);
+     md->set_bgcmodule(false);
+     md->set_dsbmodule(false);
+     md->set_dslmodule(false);
+     md->set_dvmmodule(false);
 
      cht.cd.yrsdist = 1000;
 

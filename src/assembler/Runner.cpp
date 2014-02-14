@@ -3,7 +3,6 @@
 
 #include "Runner.h"
 
-
 BOOST_LOG_INLINE_GLOBAL_LOGGER_INIT(my_general_logger, severity_channel_logger_t) {
   return severity_channel_logger_t(keywords::channel = "GENER");
 }
@@ -22,12 +21,17 @@ Runner::~Runner(){
 };
 
 
-void Runner::setCalibrationMode(bool new_setting) {
+void Runner::modeldata_module_settings_from_args(const ArgHandler &args) {
+  this->md.set_envmodule(args.getEnv());
+  this->md.set_bgcmodule(args.getBgc());
+  this->md.set_dvmmodule(args.getDvm());
+}
+void Runner::set_calibrationMode(bool new_setting) {
   BOOST_LOG_SEV(glg, debug) << "Turning runner instance's calibrationMode to " 
                             << new_setting;
   this->calibrationMode = new_setting;
 }
-bool Runner::getCalibrationMode() {
+bool Runner::get_calibrationMode() {
   return this->calibrationMode;
 }
 
@@ -403,10 +407,6 @@ void Runner::runmode1(){
 
 };
 
-void setCalibrationOn() {
-  
-  
-}
 
 void Runner::runmode2(){
 
@@ -494,7 +494,7 @@ void Runner::runmode3(){
 		timer.stageyrind = 0;
 		runcht.yrstart   = 0;
 		runcht.yrend     = MAX_EQ_YR;
-		md.friderived    = true;
+		md.set_friderived(true);
 	}
 	if(md.runsp){
 		timer.stageyrind = 0;
@@ -502,7 +502,7 @@ void Runner::runmode3(){
 	    runcht.used_atmyr= fmin(MAX_ATM_NOM_YR, md.act_clmyr);
 	    runcht.yrstart   = timer.spbegyr;
 	    runcht.yrend     = timer.spendyr;
-	    md.friderived    = false;
+	    md.set_friderived(false);
 	}
 	if(md.runtr){
 		timer.stageyrind = 0;
@@ -511,7 +511,7 @@ void Runner::runmode3(){
 		runcht.used_atmyr= md.act_clmyr;
 		runcht.yrstart   = timer.trbegyr;
 		runcht.yrend     = timer.trendyr;
-	    md.friderived    = false;
+    md.set_friderived(false);
 	}
 	if(md.runsc){
 		timer.stageyrind = 0;
@@ -521,7 +521,7 @@ void Runner::runmode3(){
 		runcht.used_atmyr = md.act_clmyr;
 		runcht.yrstart = timer.scbegyr;
 		runcht.yrend   = timer.scendyr;
-	    md.friderived= false;
+	  md.set_friderived(false);
 	}
 
 	//loop through time-step
