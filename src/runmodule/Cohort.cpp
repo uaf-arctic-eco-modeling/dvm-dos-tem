@@ -337,10 +337,10 @@ void Cohort::updateMonthly(const int & yrcnt, const int & currmind, const int & 
 	}
 
   BOOST_LOG_SEV(glg, debug) << "Update the current dimension/structure of veg-snow/soil column (domain).";
-  updateMonthly_DIMveg(currmind, md->dvmmodule);
+  updateMonthly_DIMveg(currmind, md->get_dvmmodule());
   updateMonthly_DIMgrd(currmind, md->dslmodule);
 
-  if(md->bgcmodule) {
+  if(md->get_bgcmodule()) {
     BOOST_LOG_SEV(glg, debug) << "Run the BGC processes to get the C/N fluxes.";
     updateMonthly_Bgc(currmind);
   }

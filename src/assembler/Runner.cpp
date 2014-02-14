@@ -22,8 +22,9 @@ Runner::~Runner(){
 
 
 void Runner::modeldata_module_settings_from_args(const ArgHandler &args) {
-  this->md.set_envmodule(args.getEnv()); 
-  
+  this->md.set_envmodule(args.getEnv());
+  this->md.set_bgcmodule(args.getBgc());
+  this->md.set_dvmmodule(args.getDvm());
 }
 void Runner::setCalibrationMode(bool new_setting) {
   BOOST_LOG_SEV(glg, debug) << "Turning runner instance's calibrationMode to " 

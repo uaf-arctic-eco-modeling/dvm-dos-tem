@@ -9,6 +9,11 @@
 #include "RunCohort.h"
 #include "../CalController.h"
 
+BOOST_LOG_INLINE_GLOBAL_LOGGER_INIT(my_general_logger, severity_channel_logger_t) {
+  return severity_channel_logger_t(keywords::channel = "GENER");
+}
+severity_channel_logger_t& RunCohort::glg = my_general_logger::get();
+
 RunCohort::RunCohort(){
 
     dstepcnt = 0;
@@ -85,18 +90,19 @@ int RunCohort::allchtids(){
 
 // general initialization
 void RunCohort::init(){
+  BOOST_LOG_SEV(glg, info) << "In RunCohort::init(), setting a bunch of modules on/off";
 
 	// switches of N cycles
     md->nfeed   = 1;
     md->avlnflg = 0;
 	md->baseline= 1;
 
-	// switches of modules
-	md->set_envmodule(true);
-    md->bgcmodule = true;
+	  // switches of modules
+	  md->set_envmodule(true);
+    md->set_bgcmodule(true);
     md->dsbmodule = true;
     md->dslmodule = true;
-    md->dvmmodule = true;
+    md->set_dvmmodule(true);
 
 	// output (buffer) data connection
 	 if (md->outRegn) {
@@ -221,11 +227,12 @@ void RunCohort::run_cohortly(){
 
 			//
 			cht.timer->reset();
-			md->set_envmodule(true);
-		    md->bgcmodule = true;
+			BOOST_LOG_SEV(glg, info) << "In run_cohortly, setting all modules to on...";
+      md->set_envmodule(true);
+		    md->set_bgcmodule(true);
 		    md->dsbmodule = true;
 		    md->dslmodule = true;
-		    md->dvmmodule = true;
+		    md->set_dvmmodule(true);
 
 			md->friderived = true;
 			cht.timer->stageyrind = 0;
@@ -300,13 +307,15 @@ void RunCohort::run_cohortly(){
 }; 
 
 void RunCohort::runEnvmodule(){
-	//run model with "ENV module" only
+  BOOST_LOG_SEV(glg, info) << "In RunCohort::runEnvmodule, setting only envmodule on.";
+
+  //run model with "ENV module" only
 
 	 md->set_envmodule(true);
-     md->bgcmodule = false;
+     md->set_bgcmodule(false);
      md->dsbmodule = false;
      md->dslmodule = false;
-     md->dvmmodule = false;
+     md->set_dvmmodule(false);
 
      cht.cd.yrsdist = 1000;
 

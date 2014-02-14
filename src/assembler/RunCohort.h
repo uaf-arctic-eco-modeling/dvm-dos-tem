@@ -11,6 +11,7 @@
 using namespace std;
 
 //local headers
+#include "../TEMLogger.h"
 #include "../input/CohortInputer.h"
 #include "../input/RestartInputer.h"
 //#include "../input/SiteInputer.h"
@@ -97,6 +98,8 @@ class RunCohort {
 		void run_monthly();
 
 	private :
+    static severity_channel_logger_t& glg;
+    
 		ModelData *md;
 
 		int dstepcnt;   //day timesteps since starting output

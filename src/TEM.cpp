@@ -92,7 +92,6 @@ int main(int argc, char* argv[]){
 
     Runner siter;
 
-    args->getEnv(),
     siter.modeldata_module_settings_from_args(*args);
     
     if (args->getCalibrationMode() == "on") {
