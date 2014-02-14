@@ -100,8 +100,8 @@ void RunCohort::init(){
 	  // switches of modules
 	  md->set_envmodule(true);
     md->set_bgcmodule(true);
-    md->dsbmodule = true;
-    md->dslmodule = true;
+    md->set_dsbmodule(true);
+    md->set_dslmodule(true);
     md->set_dvmmodule(true);
 
 	// output (buffer) data connection
@@ -148,7 +148,7 @@ int RunCohort::readData(){
 	 cht.chtlu.init();   //put the parameter files in 'config/' with same directory of model
 
 	//reading the fire occurence data from '.nc', if not FRI derived
-  	if (!md->friderived && !md->runeq){
+  	if (!md->get_friderived() && !md->runeq){
   		cht.cd.act_fireset = md->act_fireset;
   		cinputer.getFire(cht.cd.fireyear, cht.cd.fireseason, cht.cd.firesize, firerecno);
   		if (md->useseverity) {
@@ -229,13 +229,13 @@ void RunCohort::run_cohortly(){
 			cht.timer->reset();
 			BOOST_LOG_SEV(glg, info) << "In run_cohortly, setting all modules to on...";
       md->set_envmodule(true);
-		    md->set_bgcmodule(true);
-		    md->dsbmodule = true;
-		    md->dslmodule = true;
-		    md->set_dvmmodule(true);
-
-			md->friderived = true;
-			cht.timer->stageyrind = 0;
+      md->set_bgcmodule(true);
+      md->set_dsbmodule(true);
+      md->set_dslmodule(true);
+      md->set_dvmmodule(true);
+      md->set_friderived(true);
+			
+      cht.timer->stageyrind = 0;
 
 			cht.cd.yrsdist = 0;
 
@@ -262,7 +262,7 @@ void RunCohort::run_cohortly(){
 		    yrstart = cht.timer->spbegyr;
 		    yrend   = cht.timer->spendyr;
 
-		    md->friderived= false;
+		    md->set_friderived(false);
 
 		    run_timeseries();
 
@@ -278,7 +278,7 @@ void RunCohort::run_cohortly(){
 		    yrstart = cht.timer->trbegyr;
 		    yrend   = cht.timer->trendyr;
 
-		    md->friderived= false;
+		    md->set_friderived(false);
 
 		    run_timeseries();
 
@@ -295,7 +295,7 @@ void RunCohort::run_cohortly(){
 		    yrstart = cht.timer->scbegyr;
 		    yrend   = cht.timer->scendyr;
 
-		    md->friderived= false;
+		    md->set_friderived(false);
 
 		    run_timeseries();
 
@@ -313,8 +313,8 @@ void RunCohort::runEnvmodule(){
 
 	 md->set_envmodule(true);
      md->set_bgcmodule(false);
-     md->dsbmodule = false;
-     md->dslmodule = false;
+     md->set_dsbmodule(false);
+     md->set_dslmodule(false);
      md->set_dvmmodule(false);
 
      cht.cd.yrsdist = 1000;

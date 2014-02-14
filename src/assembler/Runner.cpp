@@ -494,7 +494,7 @@ void Runner::runmode3(){
 		timer.stageyrind = 0;
 		runcht.yrstart   = 0;
 		runcht.yrend     = MAX_EQ_YR;
-		md.friderived    = true;
+		md.set_friderived(true);
 	}
 	if(md.runsp){
 		timer.stageyrind = 0;
@@ -502,7 +502,7 @@ void Runner::runmode3(){
 	    runcht.used_atmyr= fmin(MAX_ATM_NOM_YR, md.act_clmyr);
 	    runcht.yrstart   = timer.spbegyr;
 	    runcht.yrend     = timer.spendyr;
-	    md.friderived    = false;
+	    md.set_friderived(false);
 	}
 	if(md.runtr){
 		timer.stageyrind = 0;
@@ -511,7 +511,7 @@ void Runner::runmode3(){
 		runcht.used_atmyr= md.act_clmyr;
 		runcht.yrstart   = timer.trbegyr;
 		runcht.yrend     = timer.trendyr;
-	    md.friderived    = false;
+    md.set_friderived(false);
 	}
 	if(md.runsc){
 		timer.stageyrind = 0;
@@ -521,7 +521,7 @@ void Runner::runmode3(){
 		runcht.used_atmyr = md.act_clmyr;
 		runcht.yrstart = timer.scbegyr;
 		runcht.yrend   = timer.scendyr;
-	    md.friderived= false;
+	  md.set_friderived(false);
 	}
 
 	//loop through time-step

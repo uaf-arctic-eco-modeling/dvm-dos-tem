@@ -22,10 +22,6 @@
     		bool consoledebug;   // more info will display when running
 
     		// the following 5 switches will allow modules on/off -
-			bool dslmodule;   //dynamic soil layer module on/off
-
-			bool dsbmodule;   //disturbance module on/off
-			bool friderived;  // option for switching Grid-level fire occurrence (upon FRI)
 
 			// the following 3 switches will control N modules in BGC
 	     	bool nfeed;      //=true allowing N uptake limited by soil conditions, which then controls plant growth,
@@ -98,12 +94,27 @@
     void set_dvmmodule(const std::string &s);
     void set_dvmmodule(const bool v);
 
+    bool get_dslmodule();
+    void set_dslmodule(const std::string &s);
+    void set_dslmodule(const bool v);
+    
+    bool get_dsbmodule();
+    void set_dsbmodule(const std::string &s);
+    void set_dsbmodule(const bool v);
+
+    bool get_friderived();
+    void set_friderived(const std::string &s);
+    void set_friderived(const bool v);
+    
   private:
       bool envmodule;   // (Bio)physical module on/off
       bool bgcmodule;   // BGC module on/off
       bool dvmmodule;   // dynamic vegetation module on/off
 
-      
+      bool dslmodule;   // dynamic soil layer module on/off
+      bool dsbmodule;   // disturbance module on/off
+      bool friderived;  // option for switching Grid-level fire occurrence (upon FRI)
+
       static severity_channel_logger_t& glg;
 
 	};

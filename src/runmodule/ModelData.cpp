@@ -190,9 +190,41 @@ void ModelData::set_dvmmodule(const bool v) {
   this->dvmmodule = v;
 }
 
+bool ModelData::get_dslmodule() {
+  return this->dslmodule; 
+}
+void ModelData::set_dslmodule(const std::string &s) {
+  BOOST_LOG_SEV(glg, info) << "Setting dslmodule to " << s;
+  this->dslmodule = onoffstr2bool(s);
+}
+void ModelData::set_dslmodule(const bool v) {
+  BOOST_LOG_SEV(glg, info) << "Setting dslmodule to " << v;
+  this->dslmodule = v;
+}
 
+bool ModelData::get_dsbmodule() {
+  return this->dsbmodule; 
+}
+void ModelData::set_dsbmodule(const std::string &s) {
+  BOOST_LOG_SEV(glg, info) << "Setting dsbmodule to " << s;
+  this->dsbmodule = onoffstr2bool(s);
+}
+void ModelData::set_dsbmodule(const bool v) {
+  BOOST_LOG_SEV(glg, info) << "Setting dsbmodule to " << v;
+  this->dsbmodule = v;
+}
 
-
+bool ModelData::get_friderived() {
+  return this->friderived; 
+}
+void ModelData::set_friderived(const std::string &s) {
+  BOOST_LOG_SEV(glg, info) << "Setting friderived to " << s;
+  this->friderived = onoffstr2bool(s);
+}
+void ModelData::set_friderived(const bool v) {
+  BOOST_LOG_SEV(glg, info) << "Setting friderived to " << v;
+  this->friderived = v;
+}
 
 
 std::string ModelData::describe_module_settings(){

@@ -276,7 +276,7 @@ void Cohort::prepareAllDrivingData(){
     atm.prepareMonthDrivingData();
 
     //fire driving data (if input) for all years
-    if (!md->friderived && !md->runeq) {
+    if (!md->get_friderived() && !md->runeq) {
         fire.prepareDrivingData();
     }
 };
@@ -338,14 +338,14 @@ void Cohort::updateMonthly(const int & yrcnt, const int & currmind, const int & 
 
   BOOST_LOG_SEV(glg, debug) << "Update the current dimension/structure of veg-snow/soil column (domain).";
   updateMonthly_DIMveg(currmind, md->get_dvmmodule());
-  updateMonthly_DIMgrd(currmind, md->dslmodule);
+  updateMonthly_DIMgrd(currmind, md->get_dslmodule());
 
   if(md->get_bgcmodule()) {
     BOOST_LOG_SEV(glg, debug) << "Run the BGC processes to get the C/N fluxes.";
     updateMonthly_Bgc(currmind);
   }
 
-  if(md->dsbmodule) {
+  if(md->get_dsbmodule()) {
     BOOST_LOG_SEV(glg, debug) << "Run the disturbance model.";
     updateMonthly_Fir(yrcnt, currmind);
   }
@@ -607,7 +607,7 @@ void Cohort::updateMonthly_Fir(const int & yrind, const int & currmind){
 	if(currmind ==0){
 		fd->beginOfYear();
 
-		fire.getOccur(yrind, md->friderived);
+		fire.getOccur(yrind, md->get_friderived());
 	}
 
    	if (yrind==fire.oneyear && currmind==fire.onemonth){
