@@ -36,7 +36,7 @@ void ArgHandler::parse(int argc, char** argv) {
 		("control-file,f", boost::program_options::value<string>(&ctrlfile)->default_value("config/controlfile_site.txt"), "choose a control file to use")
 		("cohort-id,c", boost::program_options::value<string>(&chtid)->default_value("1"), "choose a specific cohort to run")
 		("space-time-config,s", boost::program_options::value<string>(), "choose spatial or temporal running mode")
-		("help,h", "produces helps message")
+		("help,h", "produces helps message, then quits")
 		("version,v", "(NOT IMPLEMENTED)show the version information")
 		("debug,d", "(NOT IMPLEMENTED) enable debug mode")
 	;
@@ -77,15 +77,16 @@ void ArgHandler::parse(int argc, char** argv) {
 
 void ArgHandler::verify() {
   // The regional "run mode"...loop order??
+  std::cout << "Verification reuimentary - needs more programming help!\n";
   if (mode.compare("regnrun") == 0) {
-  if ( (regrunmode.compare("regner1") == 0) || 
-       (regrunmode.compare("regner2") == 0) ) {
-    // pass, all ok
-  } else {
-    std::cout << "Invalid option (regrunmode). Quitting.\n";
-    exit(-1);
-  }
-}  
+    if ( (regrunmode.compare("regner1") == 0) || 
+        (regrunmode.compare("regner2") == 0) ) {
+      // pass, all ok
+    } else {
+      std::cout << "Invalid option (regrunmode). Quitting.\n";
+      exit(-1);
+    }
+  }  
 }
 
 string ArgHandler::getEnv() const {
