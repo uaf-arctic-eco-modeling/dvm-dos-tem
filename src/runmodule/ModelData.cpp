@@ -166,6 +166,35 @@ void ModelData::set_envmodule(const bool v) {
   this->envmodule = v;
 }
 
+bool ModelData::get_bgcmodule() {
+  return this->bgcmodule; 
+}
+void ModelData::set_bgcmodule(const std::string &s) {
+  BOOST_LOG_SEV(glg, info) << "Setting bgcmodule to " << s;
+  this->bgcmodule = onoffstr2bool(s);
+}
+void ModelData::set_bgcmodule(const bool v) {
+  BOOST_LOG_SEV(glg, info) << "Setting bgcmodule to " << v;
+  this->bgcmodule = v;
+}
+
+bool ModelData::get_dvmmodule() {
+  return this->dvmmodule; 
+}
+void ModelData::set_dvmmodule(const std::string &s) {
+  BOOST_LOG_SEV(glg, info) << "Setting dvmmodule to " << s;
+  this->dvmmodule = onoffstr2bool(s);
+}
+void ModelData::set_dvmmodule(const bool v) {
+  BOOST_LOG_SEV(glg, info) << "Setting dvmmodule to " << v;
+  this->dvmmodule = v;
+}
+
+
+
+
+
+
 std::string ModelData::describe_module_settings(){
   std::stringstream s;
   s << table_row(15, "envmodule", this->get_envmodule());

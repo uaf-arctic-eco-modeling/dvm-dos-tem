@@ -22,9 +22,6 @@
     		bool consoledebug;   // more info will display when running
 
     		// the following 5 switches will allow modules on/off -
-			bool bgcmodule;   //BGC module on/off
-
-			bool dvmmodule;   //dynamic vegetation module on/off
 			bool dslmodule;   //dynamic soil layer module on/off
 
 			bool dsbmodule;   //disturbance module on/off
@@ -93,8 +90,20 @@
     void set_envmodule(const std::string &s);
     void set_envmodule(const bool v);
 
+    bool get_bgcmodule();
+    void set_bgcmodule(const std::string &s);
+    void set_bgcmodule(const bool v);
+
+    bool get_dvmmodule();
+    void set_dvmmodule(const std::string &s);
+    void set_dvmmodule(const bool v);
+
   private:
-      bool envmodule;   //(Bio)physical module on/off
+      bool envmodule;   // (Bio)physical module on/off
+      bool bgcmodule;   // BGC module on/off
+      bool dvmmodule;   // dynamic vegetation module on/off
+
+      
       static severity_channel_logger_t& glg;
 
 	};
