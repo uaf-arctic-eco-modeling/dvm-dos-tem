@@ -1,3 +1,5 @@
+#include <exception>
+
 #include "ModelData.h"
 
 BOOST_LOG_INLINE_GLOBAL_LOGGER_INIT(my_general_logger, severity_channel_logger_t) {
@@ -15,7 +17,7 @@ bool onoffstr2bool(const std::string &s) {
   } else if (s.compare("off") == 0) {
     return false;
   } else {
-    throw "Invalid string! Must be 'on' or 'off'.";
+    throw std::runtime_error("Invalid string! Must be 'on' or 'off'.");
   }
 }
 
