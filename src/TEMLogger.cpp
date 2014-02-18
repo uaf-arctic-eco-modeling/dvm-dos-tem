@@ -37,13 +37,50 @@ void set_log_severity_level(std::string lvl) {
   EnumParser<general_severity_level> parser;
   logging::core::get()->set_filter(
     severity >= parser.parseEnum(lvl)
+    
   );
 
   // example of more complicated filter:
   // severity >= debug || (expr::has_attr(channel) && channel == "CALIB")
 }
 
+/** This will be the "calibration data log".
+ * It spits data to standard ouput so it can be piped to 
+ * plotting scripts.
+ * 
+ */
+void setup_calibration_log_sink(){
 
+  logging::add_common_attributes();
+  
+  logging::add_console_log (
+    std::cout,
+    (expr::has_attr(channel) && channel == "CALIB"),
+    keywords::format = (
+      expr::stream
+        << "(" << channel << ") "
+        << "[" << severity << "] {HMMM} "
+      //"WTF!?>> %Message%"
+    )
+  );
+
+  
+}
+/** This will be the "application log".
+ * Writes to standard error. 
+ *
+ * For info on cout, std::out, std::err, std::clog etc:  
+ * http://stackoverflow.com/questions/2404221/the-question-regarding-cerr-cout-and-clog
+ * from an answer part way down:
+ *
+ * > So, cout writes to standard output, and is buffered. Use this 
+ * > for normal output. cerr writes to the standard error stream, and is 
+ * > unbuffered. Use this for error messages. clog writes to the standard 
+ * > error stream, but is buffered. This is useful for execution logging,
+ * > as it doesn't interfere with standard output, but is efficient (at the 
+ * > cost that the end of the log is likely to be lost if the program crashes).
+ * 
+*/
 void setup_console_log_sink(/* Could add some params for diff formats? */){
 
   logging::add_common_attributes();
@@ -53,18 +90,20 @@ void setup_console_log_sink(/* Could add some params for diff formats? */){
 
   logging::add_console_log (
     std::clog,
+    (expr::has_attr(channel) && channel == "GENER"),
     keywords::format = (
       expr::stream
-        // works, just don't need timestamp right now...        
         //<< expr::format_date_time< boost::posix_time::ptime >("TimeStamp", "%Y-%m-%d %H:%M:%S ")
         << "(" << channel << ") "
         << "[" << severity << "] " 
-        // for info on formatting thread id
-        // http://sourceforge.net/p/boost-log/discussion/710021/thread/e90226f5/
         //<< expr::attr< attrs::current_thread_id::value_type >("ThreadID") << "  "
         << expr::smessage
     )
   );
+
+
+  // for info on formatting thread id
+  // http://sourceforge.net/p/boost-log/discussion/710021/thread/e90226f5/
   
   // MAYBE USEFUL?
   //<< std::setw(3) << std::setfill(' ')
@@ -79,19 +118,19 @@ void test_log_and_filter_settings() {
   severity_channel_logger_t& clg = my_cal_logger::get();
 
   // print messages of each level to each global logger...
-  BOOST_LOG_SEV(glg, debug) << "General Log; debug message...";
-  BOOST_LOG_SEV(glg, info) << "General Log; info message..."; 
-  BOOST_LOG_SEV(glg, note) << "General Log; note message..."; 
-  BOOST_LOG_SEV(glg, warn) << "General Log; warn message..."; 
-  BOOST_LOG_SEV(glg, err) << "General Log; err message..."; 
-  BOOST_LOG_SEV(glg, fatal) << "General Log; fatal message..."; 
+  BOOST_LOG_SEV(glg, debug) << "General log, debug message. A very detailed message, possibly with some internal variable data.";
+  BOOST_LOG_SEV(glg, info) << "General log, info message. A detailed operating message."; 
+  BOOST_LOG_SEV(glg, note) << "General log, note message. A general operating message."; 
+  BOOST_LOG_SEV(glg, warn) << "General Log, warn message. Something is amiss, but results should be ok."; 
+  BOOST_LOG_SEV(glg, err) << "General log, error message. The program may keep running, but results should be suspect."; 
+  BOOST_LOG_SEV(glg, fatal) << "General log, fatal error message. The program cannot continue and will exit non zero."; 
 
-  BOOST_LOG_SEV(clg, debug) << "Calibration Log; debug message..."; 
-  BOOST_LOG_SEV(clg, info) << "Calibration Log; info message..."; 
-  BOOST_LOG_SEV(clg, note) << "Calibration Log; note message...";
-  BOOST_LOG_SEV(clg, warn) << "Calibration Log; warn message..."; 
-  BOOST_LOG_SEV(clg, err) << "Calibration Log; err message..."; 
-  BOOST_LOG_SEV(clg, fatal) << "Calibration Log; fatal message..."; 
+  BOOST_LOG_SEV(clg, debug) << "Calibration log, debug message. Boring details."; 
+  BOOST_LOG_SEV(clg, info) << "Calibration log, info message. Data for scripts."; 
+  BOOST_LOG_SEV(clg, note) << "Calibration log, note message. General operating messages.";
+  BOOST_LOG_SEV(clg, warn) << "Calibration log, warn message."; 
+  BOOST_LOG_SEV(clg, err) << "Calibration log, err message."; 
+  BOOST_LOG_SEV(clg, fatal) << "Calibration log, fatal message."; 
 }
 
 
