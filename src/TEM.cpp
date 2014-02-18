@@ -84,7 +84,7 @@ int main(int argc, char* argv[]){
     time_t stime;
     time_t etime;
     stime=time(0);
-    BOOST_LOG_SEV(glg, info) << "Running dvm-dos-tem in siterun mode. Start @ " 
+    BOOST_LOG_SEV(glg, note) << "Running dvm-dos-tem in siterun mode. Start @ " 
                              << ctime(&stime);
 
     string controlfile = args->getCtrlfile();
@@ -98,10 +98,11 @@ int main(int argc, char* argv[]){
     //siter.modeldata_module_settings_from_args(*args);
     
     if (args->getCalibrationMode() == "on") {
-      BOOST_LOG_SEV(glg, info) << "Turning CalibrationMode on in Runner (siter).";
+      BOOST_LOG_SEV(glg, note) << "Turning CalibrationMode on in Runner (siter).";
+      setup_calibration_log_sink();
       siter.set_calibrationMode(true);
     } else {
-      BOOST_LOG_SEV(glg, info) << "Running in extrapolation mode.";
+      BOOST_LOG_SEV(glg, note) << "Running in extrapolation mode.";
     }
 
     siter.chtid = atoi(chtid.c_str());
@@ -123,7 +124,7 @@ int main(int argc, char* argv[]){
     time_t stime;
     time_t etime;
     stime=time(0);
-    BOOST_LOG_SEV(glg, info) << "Running dvm-dos-tem in regional mode. Start @ "
+    BOOST_LOG_SEV(glg, note) << "Running dvm-dos-tem in regional mode. Start @ "
                               << ctime(&stime);
 
     string controlfile = args->getCtrlfile();
@@ -140,10 +141,10 @@ int main(int argc, char* argv[]){
     regner.setupIDs();
 
     if (runmode.compare("regner1")==0) {
-      BOOST_LOG_SEV(glg, debug) << "Running in regner1...(runmode2)";
+      BOOST_LOG_SEV(glg, note) << "Running in regner1...(runmode2)";
       regner.runmode2();
     } else if (runmode.compare("regner2")==0){
-      BOOST_LOG_SEV(glg, debug) << "Running in regner2...(runmode3)";
+      BOOST_LOG_SEV(glg, note) << "Running in regner2...(runmode3)";
       regner.runmode3();
     } else {
       BOOST_LOG_SEV(glg, fatal) << "Invalid runmode...quitting.";
@@ -151,9 +152,9 @@ int main(int argc, char* argv[]){
     }
 
     etime = time(0);
-    BOOST_LOG_SEV(glg, info) << "Done running dvm-dos-tem regionally " 
+    BOOST_LOG_SEV(glg, note) << "Done running dvm-dos-tem regionally " 
                               << "(" << ctime(&etime) << ").";
-    BOOST_LOG_SEV(glg, info) << "total seconds: " << difftime(etime, stime);
+    BOOST_LOG_SEV(glg, note) << "total seconds: " << difftime(etime, stime);
   }
   return 0;
 };

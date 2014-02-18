@@ -126,57 +126,44 @@ std::string CalController::get_user_command() {
 
 
 void CalController::continue_simulation() {
-  BOOST_LOG_SEV(clg, info) << "Executing continue_simulation callback...";
+  BOOST_LOG_SEV(clg, note) << "Executing continue_simulation callback...";
   // not quite sure how to do this one?
 }
 void CalController::reload_cmt_files() {
-  BOOST_LOG_SEV(clg, info) << "Executing reload_cmt_files callback...";
-  BOOST_LOG_SEV(clg, info) << "Tickling the cohort pointer to reload config/parameter files...";
+  BOOST_LOG_SEV(clg, note) << "Executing reload_cmt_files callback...";
+  BOOST_LOG_SEV(clg, debug) << "Tickling the cohort pointer to reload config/parameter files...";
   cohort_ptr->chtlu.init();
-  BOOST_LOG_SEV(clg, info) << "Done reloading config/parameter files.";
+  BOOST_LOG_SEV(clg, note) << "Done reloading config/parameter files.";
   
 }
 void CalController::quit() {
-  BOOST_LOG_SEV(clg, info) << "Executing the quit callback...";
-  BOOST_LOG_SEV(clg, info) << "Quitting via CalController."; 
+  BOOST_LOG_SEV(clg, note) << "Executing the quit callback...";
+  BOOST_LOG_SEV(clg, note) << "Quitting via CalController."; 
   exit(-1);
 }
 
-// dvmmodule
-// bgcmodule
-// envmodule
-// dslmodule;  
-
-// dsbmodule;  
-// friderived; 
-
-// nfeed;    
-// avlnflg;
-// baseline; 
-
-
 void CalController::env_ON() {
-  BOOST_LOG_SEV(clg, info) << "CalController is turing env module ON via cohort pointer...";
+  BOOST_LOG_SEV(clg, note) << "CalController is turing env module ON via cohort pointer...";
   this->cohort_ptr->md->set_envmodule(true);
 }
 void CalController::env_OFF() {
-  BOOST_LOG_SEV(clg, info) << "CalController is turing env module OFF via cohort pointer...";
+  BOOST_LOG_SEV(clg, note) << "CalController is turing env module OFF via cohort pointer...";
   this->cohort_ptr->md->set_envmodule(false);
 }
 
 void CalController::print_calparbgc() {
-  BOOST_LOG_SEV(clg, info) << "Printing the 'calparbgc' parameters stored in the CohortLookup pointer...";
+  BOOST_LOG_SEV(clg, note) << "Printing the 'calparbgc' parameters stored in the CohortLookup pointer...";
   std::string r = this->cohort_ptr->chtlu.calparbgc2str();
-  BOOST_LOG_SEV(clg, info) << "\n" << r;
+  BOOST_LOG_SEV(clg, note) << "\n" << r;
 }
 
 void CalController::print_modules_settings() {
-  BOOST_LOG_SEV(clg, info) << "Showing module settings from cohort pointer's "
+  BOOST_LOG_SEV(clg, note) << "Showing module settings from cohort pointer's "
                            << "ModelData.\n" 
                            << this->cohort_ptr->md->describe_module_settings();
 }
 void CalController::show_short_menu() {
-   BOOST_LOG_SEV(clg, debug) << "Showing short menu...";
+   BOOST_LOG_SEV(clg, note) << "Showing short menu...";
    std::string m = "";
    m += "  q - "; m += this->cmd_map["q"].desc; m += "\n";
    m += "  c - "; m += this->cmd_map["c"].desc; m += "\n";
@@ -188,7 +175,7 @@ void CalController::show_short_menu() {
 
 void CalController::show_full_menu() {
 
-  BOOST_LOG_SEV(clg, debug) << "Showing full menu...";
+  BOOST_LOG_SEV(clg, note) << "Showing full menu...";
 
   std::string m = "--  Full Calibration Controller Menu --\n";
 
