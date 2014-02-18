@@ -92,7 +92,10 @@ int main(int argc, char* argv[]){
 
     Runner siter;
 
-    siter.modeldata_module_settings_from_args(*args);
+    // Not working yet. Need to figure out if it is even possible to
+    // control modules from the command line? and if so how this should working
+    // in all the different run stages.
+    //siter.modeldata_module_settings_from_args(*args);
     
     if (args->getCalibrationMode() == "on") {
       BOOST_LOG_SEV(glg, info) << "Turning CalibrationMode on in Runner (siter).";
