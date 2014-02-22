@@ -29,6 +29,10 @@
 #include <boost/log/utility/formatting_ostream.hpp>
 #include <boost/log/utility/setup/console.hpp>
 #include <boost/log/utility/setup/file.hpp>
+#include <boost/utility/empty_deleter.hpp>
+#include <boost/log/sinks/unlocked_frontend.hpp>
+#include <boost/log/sinks/text_file_backend.hpp>
+
 
 namespace logging = boost::log;
 namespace src = boost::log::sources;

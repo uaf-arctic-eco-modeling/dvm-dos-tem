@@ -47,42 +47,76 @@ std::ostream& operator<< (std::ostream& strm, general_severity_level level) {
 
 
 void setup_logging(std::string lvl, std::string calMode) {
+
+  boost::shared_ptr< logging::core > core = logging::core::get();
+
+  //
+  // CALIBRATION LOGGER
+  //
   
-  logging::add_console_log(
-    std::clog,
-    ( expr::has_attr(channel) && (channel == "GENER") ),
-    keywords::format = (
-      expr::stream
-        //<< expr::format_date_time< boost::posix_time::ptime >("TimeStamp", "%Y-%m-%d %H:%M:%S ")
-        << "(" << channel << ") "
-        << "[" << severity << "] " 
-        //<< expr::attr< attrs::current_thread_id::value_type >("ThreadID") << "  "
-        << expr::smessage
-    )
+  // backend: everything else related to a sink (writing to a file in this case)
+  boost::shared_ptr< sinks::text_file_backend > cal_backend = 
+      boost::make_shared< sinks::text_file_backend >(
+        keywords::file_name = "CAL_LOG_%5N.log"
+      );
+  
+  // add a stream to the backend
+  //cal_backend->add_stream( boost::shared_ptr< std::ostream >(new std::ofstream("cal.log")));
+  
+  // frontend: tasks common to all sinks - filtering, sync model, formatting
+  typedef sinks::synchronous_sink< sinks::text_file_backend > log_sink_type;
+  boost::shared_ptr< log_sink_type > cal_sink(new log_sink_type(cal_backend));
+  
+  // filtering
+  //cal_sink->set_filter(expr::has_attr(channel) && channel == "CALIB");
+
+  // formatting
+  cal_sink->set_formatter (
+    expr::stream
+      << "(" << channel << ") " 
+      << "[" << severity << "] REALLY? ONLY FILE FOR THIS>>> " 
+      << expr::smessage
+  );
+  
+  logging::core::get()->add_sink(cal_sink);
+
+  //
+  // NOW THE GENERAL LOGGER
+  // 
+  
+  // backend
+  boost::shared_ptr< sinks::text_ostream_backend > gen_backend = boost::make_shared< sinks::text_ostream_backend >();
+  
+  // add stream to sink (We have to provide an empty deleter to avoid destroying the global stream object)
+  gen_backend->add_stream(boost::shared_ptr< std::ostream >(&std::cout, boost::empty_deleter()));
+ 
+  // frontend to the sink
+  typedef sinks::synchronous_sink< sinks::text_ostream_backend > lst;
+  boost::shared_ptr< lst > gen_sink = boost::make_shared< lst >();
+
+  //gen_sink->set_filter(expr::has_attr(channel) && channel == "GENER");
+
+  // formatting
+  gen_sink->set_formatter (
+    expr::stream
+      << "(" << channel << ") " 
+      << "[" << severity << "] " << "WHERE ARE MY GEENERAL MSGS GOING??? " 
+      << expr::smessage
   );
 
-  logging::add_file_log(
-    "cal.log",
-    ( expr::has_attr(channel) && (channel == "CALIB") ),
-    keywords::format = ( // format Specifies a formatter to install into the sink.
-      expr::stream 
-        << "(" << channel << ") " 
-        << "[" << severity << "] " 
-        << expr::smessage
-    )
-  );
   
+  core->add_sink(gen_sink);
+  
+  
+  if ( calMode.compare("off") == 0 ) {
+    core->remove_sink(cal_sink);
+  }
+
   EnumParser<general_severity_level> parser;
   logging::core::get()->set_filter(
     ( severity >= parser.parseEnum(lvl) )
   );
 
-  if ( calMode.compare("off") == 0 ) {
-    logging::core::get()->set_filter(
-      ( expr::has_attr(channel) && (channel != "CALIB") )
-    );
-  }
-  
 }
 
 /** This will be the "application log".
