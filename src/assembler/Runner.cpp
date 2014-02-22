@@ -29,6 +29,7 @@ void Runner::modeldata_module_settings_from_args(const ArgHandler &args) {
 void Runner::set_calibrationMode(bool new_setting) {
   BOOST_LOG_SEV(glg, debug) << "Turning runner instance's calibrationMode to " 
                             << new_setting;
+  this->runcht.set_calMode(new_setting);  // RunCohort's calibration status shadows Runner!                           
   this->calibrationMode = new_setting;
 }
 bool Runner::get_calibrationMode() {

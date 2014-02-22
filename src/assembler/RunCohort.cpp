@@ -27,6 +27,14 @@ RunCohort::~RunCohort(){
 
 }
 
+bool RunCohort::get_calMode() {
+  return this->calMode;
+}
+void RunCohort::set_calMode(bool new_value) {
+  this->calMode = new_value;
+}
+
+
 void RunCohort::setModelData(ModelData * mdp){
   	md = mdp;
 }
@@ -334,18 +342,13 @@ void RunCohort::runEnvmodule(){
  */ 
 void RunCohort::run_timeseries(){
   
-  // Need to connect this to the Runner::calibrationMode field
-  // so that it can be controlled by command line switch...
-  bool calibrationMode = true;  
-  
   // Ends up as a null pointer if calibratiionMode is off.
   boost::shared_ptr<CalController> calcontroller_ptr;
-  if (calibrationMode) {
+  if ( this->get_calMode() ) {
     calcontroller_ptr.reset( new CalController(&this->cht) );
   }
   
 	for (int icalyr=yrstart; icalyr<=yrend; icalyr++) {
-
     // See if a signal has arrived (possibly from user
     // hitting Ctrl-C) and if so, stop the simulation
     // and drop into the calibration "shell".
@@ -424,7 +427,6 @@ void RunCohort::run_timeseries(){
 	    	   }
 
 	       } // end of site calling output modules
-
 	    }
 
 		if (md->outRegn && outputyrind >=0){

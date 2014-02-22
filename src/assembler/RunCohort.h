@@ -96,9 +96,15 @@ class RunCohort {
      	void run_cohortly();
 
 		void run_monthly();
+    bool get_calMode();
+    void set_calMode(bool new_value);
 
 	private :
+    // Loggers
     static severity_channel_logger_t& glg;
+    static severity_channel_logger_t& clg;
+    
+    bool calMode;
     
 		ModelData *md;
 
