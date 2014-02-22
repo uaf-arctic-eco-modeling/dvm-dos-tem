@@ -35,6 +35,7 @@ public:
 
 private:
   static severity_channel_logger_t& clg;
+  static severity_channel_logger_t& glg;
 
   boost::shared_ptr< boost::asio::io_service > io_service;
   boost::asio::signal_set pause_sigs;
