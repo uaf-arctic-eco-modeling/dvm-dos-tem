@@ -49,7 +49,52 @@ std::ostream& operator<< (std::ostream& strm, general_severity_level level) {
 void setup_logging(std::string lvl, std::string calMode) {
 
   boost::shared_ptr< logging::core > core = logging::core::get();
+  
+//   boost::shared_ptr<
+//       sinks::synchronous_sink< sinks::text_ostream_backend > 
+//   > cal_file_log_sink;
+  
+  logging::add_file_log(
+    "ZZZ_%0N.log",
+    ( expr::has_attr(channel) && (channel == "CALIB") ),
+    keywords::format = ( // format Specifies a formatter to install into the sink.
+      expr::stream 
+        << "(" << channel << ") " 
+        << "[" << severity << "] " 
+        << expr::smessage
+    )
+  );
 
+
+//   boost::shared_ptr<
+//       sinks::synchronous_sink< sinks::text_ostream_backend > 
+//   > gen_console_log_sink;
+
+  logging::add_console_log(
+    std::clog,
+    ( expr::has_attr(channel) && (channel == "GENER") ),
+    keywords::format = (
+      expr::stream
+        << expr::format_date_time< boost::posix_time::ptime >("TimeStamp", "%Y-%m-%d %H:%M:%S ")
+        << "(" << channel << ") "
+        << "[" << severity << "] " 
+        << expr::smessage
+    )
+  );
+
+  if ( calMode.compare("off") == 0 ) {
+    std::cout << "Do something??\n";
+    //core->remove_sink(cal_file_log_sink);
+  }
+
+  EnumParser<general_severity_level> parser;
+  logging::core::get()->set_filter(
+    ( severity >= parser.parseEnum(lvl) )
+  );
+
+
+  /*
+  
   //
   // CALIBRATION LOGGER
   //
@@ -106,17 +151,8 @@ void setup_logging(std::string lvl, std::string calMode) {
 
   
   core->add_sink(gen_sink);
+  */  
   
-  
-  if ( calMode.compare("off") == 0 ) {
-    core->remove_sink(cal_sink);
-  }
-
-  EnumParser<general_severity_level> parser;
-  logging::core::get()->set_filter(
-    ( severity >= parser.parseEnum(lvl) )
-  );
-
 }
 
 /** This will be the "application log".
