@@ -28,6 +28,7 @@
 #include <boost/log/utility/setup/common_attributes.hpp>
 #include <boost/log/utility/formatting_ostream.hpp>
 #include <boost/log/utility/setup/console.hpp>
+#include <boost/log/utility/setup/file.hpp>
 
 namespace logging = boost::log;
 namespace src = boost::log::sources;
@@ -75,13 +76,12 @@ typedef src::severity_channel_logger< general_severity_level,
 BOOST_LOG_INLINE_GLOBAL_LOGGER_DEFAULT(stubb_logger, severity_channel_logger_t)
 BOOST_LOG_INLINE_GLOBAL_LOGGER_DEFAULT(stubb_cal_logger, severity_channel_logger_t)
 
-void test_log_and_filter_settings();
-void set_log_severity_level(std::string lvl);
-void setup_calibration_log_sink();
-void setup_console_log_sink();
-void setup_console_log_filters(std::string gen_settings, std::string cal_settings);
+void setup_logging(std::string lvl, std::string calMode);
 
-void second_filter();
+//void setup_calibration_log_sink();
+//void setup_general_console_log_sink();
+
+void test_log_and_filter_settings();
 
 
 #endif /* _TEMLOGGER_H_ */

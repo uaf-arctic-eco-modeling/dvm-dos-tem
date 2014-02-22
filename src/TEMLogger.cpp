@@ -33,39 +33,58 @@ std::ostream& operator<< (std::ostream& strm, general_severity_level level) {
 }
 
 /** Use the Enum parser to find the level, and set up the logging filter. */
-void set_log_severity_level(std::string lvl) {
-  EnumParser<general_severity_level> parser;
-  logging::core::get()->set_filter(
-    severity >= parser.parseEnum(lvl)
-    
-  );
+// void set_log_severity_level(std::string lvl) {
+//   EnumParser<general_severity_level> parser;
+//   logging::core::get()->set_filter(
+//     severity >= parser.parseEnum(lvl)
+//     
+//   );
+// 
+//   // example of more complicated filter:
+//   // severity >= debug || (expr::has_attr(channel) && channel == "CALIB")
+// }
 
-  // example of more complicated filter:
-  // severity >= debug || (expr::has_attr(channel) && channel == "CALIB")
-}
 
-/** This will be the "calibration data log".
- * It spits data to standard ouput so it can be piped to 
- * plotting scripts.
- * 
- */
-void setup_calibration_log_sink(){
 
-  logging::add_common_attributes();
+void setup_logging(std::string lvl, std::string calMode) {
   
-  logging::add_console_log (
-    std::cout,
-    (expr::has_attr(channel) && channel == "CALIB"),
+  logging::add_console_log(
+    std::clog,
+    ( expr::has_attr(channel) && (channel == "GENER") ),
     keywords::format = (
       expr::stream
+        //<< expr::format_date_time< boost::posix_time::ptime >("TimeStamp", "%Y-%m-%d %H:%M:%S ")
         << "(" << channel << ") "
-        << "[" << severity << "] {HMMM} "
-      //"WTF!?>> %Message%"
+        << "[" << severity << "] " 
+        //<< expr::attr< attrs::current_thread_id::value_type >("ThreadID") << "  "
+        << expr::smessage
     )
   );
 
+  logging::add_file_log(
+    "cal.log",
+    ( expr::has_attr(channel) && (channel == "CALIB") ),
+    keywords::format = ( // format Specifies a formatter to install into the sink.
+      expr::stream 
+        << "(" << channel << ") " 
+        << "[" << severity << "] " 
+        << expr::smessage
+    )
+  );
+  
+  EnumParser<general_severity_level> parser;
+  logging::core::get()->set_filter(
+    ( severity >= parser.parseEnum(lvl) )
+  );
+
+  if ( calMode.compare("off") == 0 ) {
+    logging::core::get()->set_filter(
+      ( expr::has_attr(channel) && (channel != "CALIB") )
+    );
+  }
   
 }
+
 /** This will be the "application log".
  * Writes to standard error. 
  *
@@ -81,12 +100,14 @@ void setup_calibration_log_sink(){
  * > cost that the end of the log is likely to be lost if the program crashes).
  * 
 */
-void setup_console_log_sink(/* Could add some params for diff formats? */){
+/*
+void setup_general_console_log_sink() {
 
   logging::add_common_attributes();
-  logging::core::get()->add_global_attribute(
-      "ThreadID", boost::log::attributes::current_thread_id()
-  ); 
+
+  //logging::core::get()->add_global_attribute(
+  //    "ThreadID", boost::log::attributes::current_thread_id()
+  //); 
 
   logging::add_console_log (
     std::clog,
@@ -108,7 +129,7 @@ void setup_console_log_sink(/* Could add some params for diff formats? */){
   // MAYBE USEFUL?
   //<< std::setw(3) << std::setfill(' ')
 }
-
+*/
 
 /** Print a message for each type of log and level...*/
 void test_log_and_filter_settings() {
