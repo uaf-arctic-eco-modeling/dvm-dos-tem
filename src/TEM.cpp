@@ -45,17 +45,6 @@
 #include "TEMLogger.h"
 #include "assembler/Runner.h"
 
-BOOST_LOG_INLINE_GLOBAL_LOGGER_INIT(my_general_logger, severity_channel_logger_t) {
-  return severity_channel_logger_t(keywords::channel = "GENER");
-}
-BOOST_LOG_INLINE_GLOBAL_LOGGER_INIT(my_cal_logger, severity_channel_logger_t) {
-  return severity_channel_logger_t(keywords::channel = "CALIB");
-}
-
-// forward declaration of various free fucntions...
-
-// DEFINE FREE FUNCTIIONS...
-
 ArgHandler* args = new ArgHandler();
 
 int main(int argc, char* argv[]){
@@ -68,11 +57,7 @@ int main(int argc, char* argv[]){
 
   std::cout << "Setting up logging...\n";
 
-  setup_logging(args->getLogLevel(), args->getCalibrationMode());
-  
-  // get short handles for each of the global loggers...
-  severity_channel_logger_t& glg = my_general_logger::get();
-  severity_channel_logger_t& clg = my_cal_logger::get();
+  setup_logging(args->getLogLevel());
 
   setvbuf(stdout, NULL, _IONBF, 0);
   setvbuf(stderr, NULL, _IONBF, 0);

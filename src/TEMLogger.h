@@ -42,14 +42,14 @@ namespace expr = boost::log::expressions;
 namespace sinks = boost::log::sinks;
 
 /** Define the "severity levels" for Boost::Log's severity logger. */
-enum general_severity_level {
+enum severity_level {
   debug, info, note, warn, err, fatal
 };
 
-/** A small helper to class to convert from string to enum integer value 
-*   Inspiration lifted from here:
-*   http://stackoverflow.com/questions/726664/string-to-enum-in-c
-*/
+/** Convert from string to enum integer value.
+ *
+ * Inspired by: http://stackoverflow.com/questions/726664/string-to-enum-in-c
+ */
 template <typename T>
 class EnumParser {
     std::map <std::string, T> enumMap;
@@ -59,31 +59,24 @@ public:
     T parseEnum(const std::string &value) { 
         typename std::map<std::string, T>::const_iterator iValue = enumMap.find(value);
         if (iValue == enumMap.end())
-            throw std::runtime_error("");
+            throw std::runtime_error("Value not found in enum!");
         return iValue->second;
     }
+    
 };
 
 
-// The operator is used for regular stream formatting
-// i.e. printing the flag instead of the enum value..
-std::ostream& operator<< (std::ostream& strm, general_severity_level level);
+BOOST_LOG_GLOBAL_LOGGER(my_logger, src::severity_logger< severity_level >);
 
-BOOST_LOG_ATTRIBUTE_KEYWORD(severity, "Severity", general_severity_level)
-BOOST_LOG_ATTRIBUTE_KEYWORD(channel, "Channel", std::string)
-BOOST_LOG_ATTRIBUTE_KEYWORD(timestamp, "TimeStamp", boost::posix_time::ptime)
+src::severity_logger< severity_level >& glg = my_logger::get();
 
-typedef src::severity_channel_logger< general_severity_level, 
-                                      std::string > severity_channel_logger_t;
+BOOST_LOG_ATTRIBUTE_KEYWORD(severity, "Severity", severity_level)
 
-// get a handle for the global "general logger" object...
-BOOST_LOG_INLINE_GLOBAL_LOGGER_DEFAULT(stubb_logger, severity_channel_logger_t)
-BOOST_LOG_INLINE_GLOBAL_LOGGER_DEFAULT(stubb_cal_logger, severity_channel_logger_t)
+/** Send string representing an enum value to stream 
+ */
+std::ostream& operator<< (std::ostream& strm, severity_level lvl);
 
-void setup_logging(std::string lvl, std::string calMode);
-
-//void setup_calibration_log_sink();
-//void setup_general_console_log_sink();
+void setup_logging(std::string lvl);
 
 void test_log_and_filter_settings();
 

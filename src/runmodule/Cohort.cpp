@@ -14,17 +14,10 @@
  *
  *
  */
+
+#include "../TEMLogger.h"
 #include "Cohort.h"
 
-BOOST_LOG_INLINE_GLOBAL_LOGGER_INIT(my_general_logger, severity_channel_logger_t) {
-  return severity_channel_logger_t(keywords::channel = "GENER");
-}
-BOOST_LOG_INLINE_GLOBAL_LOGGER_INIT(my_cal_logger, severity_channel_logger_t) {
-  return severity_channel_logger_t(keywords::channel = "CALIB");
-}
-
-severity_channel_logger_t& Cohort::glg = my_general_logger::get();
-severity_channel_logger_t& Cohort::clg = my_cal_logger::get();
 
 
 Cohort::Cohort(){

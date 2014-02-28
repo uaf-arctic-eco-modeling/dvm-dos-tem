@@ -1,17 +1,10 @@
 #include <string>
 
+#include "../TEMLogger.h"
 
 #include "Runner.h"
 
-BOOST_LOG_INLINE_GLOBAL_LOGGER_INIT(my_general_logger, severity_channel_logger_t) {
-  return severity_channel_logger_t(keywords::channel = "GENER");
-}
-BOOST_LOG_INLINE_GLOBAL_LOGGER_INIT(my_cal_logger, severity_channel_logger_t) {
-  return severity_channel_logger_t(keywords::channel = "CALIB");
-}
-
-
-Runner::Runner(): calibrationMode(false), glg(my_general_logger::get()) {
+Runner::Runner(): calibrationMode(false) {
 	chtid = -1;
 	error = 0;
   BOOST_LOG_SEV(glg, debug) << "Constructiong a Runner...";

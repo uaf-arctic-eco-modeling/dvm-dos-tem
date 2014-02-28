@@ -2,10 +2,7 @@
 
 #include "ModelData.h"
 
-BOOST_LOG_INLINE_GLOBAL_LOGGER_INIT(my_general_logger, severity_channel_logger_t) {
-  return severity_channel_logger_t(keywords::channel = "GENER");
-}
-severity_channel_logger_t& ModelData::glg = my_general_logger::get();
+#include "../TEMLogger.h"
 
 /** Returns true for 'on' and false for 'off'.
  * Throws exception if s is not "on" or "off".

@@ -1,7 +1,6 @@
 #ifndef COHORT_H_
 	#define COHORT_H_
 
-  #include "../TEMLogger.h"
 	#include "../ecodomain/Ground.h"
 	#include "../ecodomain/Vegetation.h"
 
@@ -98,8 +97,6 @@
  		    void updateMonthly(const int & yrcnt, const int & currmind, const int & dinmcurr);
 
 	private:
-    static severity_channel_logger_t& glg;
-    static severity_channel_logger_t& clg;
 
             Integrator vegintegrator[NUM_PFT];
             Integrator solintegrator;
