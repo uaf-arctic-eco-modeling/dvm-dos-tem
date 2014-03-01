@@ -5,6 +5,7 @@
 
 #include "../../TEMLogger.h"
 
+extern src::severity_logger< severity_level > glg;
 
  Layer::Layer() {
   BOOST_LOG_SEV(glg, debug) << "Creating a layer object...";

@@ -18,7 +18,7 @@
 #include "../TEMLogger.h"
 #include "Cohort.h"
 
-
+extern src::severity_logger< severity_level > glg;
 
 Cohort::Cohort(){
   BOOST_LOG_SEV(glg, info) << "Cohort constructor; instantiating a cohort object.";

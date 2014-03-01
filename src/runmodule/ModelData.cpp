@@ -4,6 +4,8 @@
 
 #include "../TEMLogger.h"
 
+extern src::severity_logger< severity_level > glg;
+
 /** Returns true for 'on' and false for 'off'.
  * Throws exception if s is not "on" or "off".
  * might want to inherit from std exception or do something else?

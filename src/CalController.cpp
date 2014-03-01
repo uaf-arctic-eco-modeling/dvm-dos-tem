@@ -10,6 +10,9 @@
 #include "TEMLogger.h"
 #include "runmodule/Cohort.h"
 
+extern src::severity_logger< severity_level > glg;
+
+
 /** Constructor. You gotta pass a pointer to a Cohort in order to 
  * make a valid CalController!
  */

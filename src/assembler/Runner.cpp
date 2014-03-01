@@ -4,6 +4,8 @@
 
 #include "Runner.h"
 
+extern src::severity_logger< severity_level > glg;
+
 Runner::Runner(): calibrationMode(false) {
 	chtid = -1;
 	error = 0;

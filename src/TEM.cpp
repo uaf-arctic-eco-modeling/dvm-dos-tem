@@ -45,9 +45,12 @@
 #include "TEMLogger.h"
 #include "assembler/Runner.h"
 
+
 ArgHandler* args = new ArgHandler();
 
 int main(int argc, char* argv[]){
+extern src::severity_logger< severity_level > glg;
+
   args->parse(argc, argv);
 	if (args->getHelp()){
 		args->showHelp();
