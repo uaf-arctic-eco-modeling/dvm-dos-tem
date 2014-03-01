@@ -38,15 +38,15 @@ std::ostream& operator<< (std::ostream& strm, severity_level level) {
 
 void setup_logging(std::string lvl) {
 
-//   logging::add_console_log(
-//     std::clog,
-//     keywords::format = (
-//       expr::stream
-//         //<< expr::format_date_time< boost::posix_time::ptime >("TimeStamp", "%Y-%m-%d %H:%M:%S ")
-//         << "[" << severity << "] " 
-//         << expr::smessage
-//     )
-//   );
+  logging::add_console_log(
+    std::clog,
+    keywords::format = (
+      expr::stream
+        //<< expr::format_date_time< boost::posix_time::ptime >("TimeStamp", "%Y-%m-%d %H:%M:%S ")
+        << "[" << severity << "] " 
+        << expr::smessage
+    )
+  );
 
   // set the severity level...
   EnumParser<severity_level> parser;
