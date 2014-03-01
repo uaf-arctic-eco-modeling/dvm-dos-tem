@@ -1,7 +1,6 @@
 #ifndef ENVDATA_H_
 #define ENVDATA_H_
 
-#include "../TEMLogger.h"
 #include "../inc/diagnostics.h"
 #include "../inc/fluxes.h"
 #include "../inc/states.h"
@@ -117,8 +116,6 @@ class EnvData{
 	void grnd_endOfMonth();
 
   private:
-    static severity_channel_logger_t& glg;
-    static severity_channel_logger_t& clg;
 };
 
 #endif /*ENVDATA_H_*/

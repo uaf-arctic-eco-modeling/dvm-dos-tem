@@ -11,7 +11,6 @@
 using namespace std;
 
 //local headers
-#include "../TEMLogger.h"
 #include "../input/CohortInputer.h"
 #include "../input/RestartInputer.h"
 //#include "../input/SiteInputer.h"
@@ -100,9 +99,6 @@ class RunCohort {
     void set_calMode(bool new_value);
 
 	private :
-    // Loggers
-    static severity_channel_logger_t& glg;
-    static severity_channel_logger_t& clg;
     
     bool calMode;
     

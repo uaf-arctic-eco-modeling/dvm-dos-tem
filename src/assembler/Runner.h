@@ -23,7 +23,6 @@
 
 #include "../runmodule/Controller.h"
 #include "../runmodule/ModelData.h"
-#include "../TEMLogger.h"
 #include "../ArgHandler.h"
 
 
@@ -77,7 +76,6 @@ class Runner {
 	private:
     bool calibrationMode;
 
-    severity_channel_logger_t& glg;
     	//TEM domains (hiarchy)
     	RunRegion runreg;
 		RunGrid rungrd;

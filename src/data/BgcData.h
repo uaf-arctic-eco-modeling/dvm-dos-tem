@@ -17,7 +17,6 @@
 #include "RegionData.h"
 #include "GridData.h"
 #include "CohortData.h"
-#include "../TEMLogger.h"
 #include <deque>
 
 class BgcData{
@@ -76,8 +75,6 @@ class BgcData{
    		void soil_endOfMonth();
     
     private:
-      static severity_channel_logger_t& glg;
-      static severity_channel_logger_t& clg;
 
 
 };

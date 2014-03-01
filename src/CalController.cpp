@@ -10,10 +10,8 @@
 #include "TEMLogger.h"
 #include "runmodule/Cohort.h"
 
-BOOST_LOG_INLINE_GLOBAL_LOGGER_INIT(my_general_logger, severity_channel_logger_t) {
-  return severity_channel_logger_t(keywords::channel = "GENER");
-}
-severity_channel_logger_t& CalController::glg = my_general_logger::get();
+extern src::severity_logger< severity_level > glg;
+
 
 /** Constructor. You gotta pass a pointer to a Cohort in order to 
  * make a valid CalController!

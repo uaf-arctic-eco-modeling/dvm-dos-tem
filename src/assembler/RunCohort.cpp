@@ -9,15 +9,8 @@
 #include "RunCohort.h"
 #include "../CalController.h"
 
-BOOST_LOG_INLINE_GLOBAL_LOGGER_INIT(my_general_logger, severity_channel_logger_t) {
-  return severity_channel_logger_t(keywords::channel = "GENER");
-}
-severity_channel_logger_t& RunCohort::glg = my_general_logger::get();
-
-BOOST_LOG_INLINE_GLOBAL_LOGGER_INIT(my_cal_logger, severity_channel_logger_t) {
-  return severity_channel_logger_t(keywords::channel = "CALIB");
-}
-severity_channel_logger_t& RunCohort::clg = my_general_logger::get();
+#include "../TEMLogger.h"
+extern src::severity_logger< severity_level > glg;
 
 
 RunCohort::RunCohort(){
@@ -356,7 +349,7 @@ void RunCohort::run_timeseries(){
   
 	for (int icalyr=yrstart; icalyr<=yrend; icalyr++) {
     
-    BOOST_LOG_SEV(clg, info) << "Some end of year data for plotting...";
+    BOOST_LOG_SEV(glg, info) << "Some end of year data for plotting...";
     
     // See if a signal has arrived (possibly from user
     // hitting Ctrl-C) and if so, stop the simulation
@@ -371,7 +364,7 @@ void RunCohort::run_timeseries(){
 
 		 int outputyrind = cht.timer->getOutputYearIndex();
     for (int im=0; im<12;im++){
-       BOOST_LOG_SEV(clg, info) << "Some beginning of month data for plotting...";
+       BOOST_LOG_SEV(glg, info) << "Some beginning of month data for plotting...";
 
 		   int currmind=  im;
 		   cht.cd.month = im+1;
@@ -437,7 +430,7 @@ void RunCohort::run_timeseries(){
 	    	   }
 
 	       } // end of site calling output modules
-         BOOST_LOG_SEV(clg, info) << "Some end of month data for plotting...";
+         BOOST_LOG_SEV(glg, info) << "Some end of month data for plotting...";
 	    }
 
 	    
@@ -459,7 +452,7 @@ void RunCohort::run_timeseries(){
   	   		//cht.equiled = cht.testEquilibrium();
   	   		//if(cht.equiled )break;
   	   	}
-  	   	BOOST_LOG_SEV(clg, info) << "Some end of year data for plotting...";
+  	   	BOOST_LOG_SEV(glg, info) << "Some end of year data for plotting...";
 	} // end year loop
 
 }
