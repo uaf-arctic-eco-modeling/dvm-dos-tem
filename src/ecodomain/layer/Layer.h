@@ -15,11 +15,9 @@ using namespace std;
 #include "../../inc/errorcode.h"
 #include "../../inc/physicalconst.h"
 #include "../../inc/layerconst.h"
-#include "../../TEMLogger.h"
 
 class Layer {
   private:
-    severity_channel_logger_t& glg;
 
   public:
 		Layer();

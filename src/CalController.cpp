@@ -10,10 +10,8 @@
 #include "TEMLogger.h"
 #include "runmodule/Cohort.h"
 
-BOOST_LOG_INLINE_GLOBAL_LOGGER_INIT(my_cal_logger, severity_channel_logger_t) {
-  return severity_channel_logger_t(keywords::channel = "CALIB");
-}
-severity_channel_logger_t& CalController::clg = my_cal_logger::get();
+extern src::severity_logger< severity_level > glg;
+
 
 /** Constructor. You gotta pass a pointer to a Cohort in order to 
  * make a valid CalController!
@@ -40,14 +38,14 @@ CalController::CalController(Cohort* cht_p):
   ;
   
   
-  BOOST_LOG_SEV(clg, debug) << "Set async wait on signals to PAUSE handler.";
+  BOOST_LOG_SEV(glg, debug) << "Set async wait on signals to PAUSE handler.";
   pause_sigs.async_wait( boost::bind(&CalController::pause_handler, this, 
                                      boost::asio::placeholders::error,
                                      boost::asio::placeholders::signal_number));
   if (!this->cohort_ptr) {
-    BOOST_LOG_SEV(clg, err) << "Something is wrong and the Cohort pointer is null!";
+    BOOST_LOG_SEV(glg, err) << "Something is wrong and the Cohort pointer is null!";
   }
-  BOOST_LOG_SEV(clg, debug) << "Done contructing a CalController.";
+  BOOST_LOG_SEV(glg, debug) << "Done contructing a CalController.";
 }  
   
 /** Keep getting commands and executing commands from the user. 
@@ -79,13 +77,13 @@ void CalController::control_loop() {
  * signal is recieved, so it is really run when a recieved signal is processed.
  */
 void CalController::pause_handler( const boost::system::error_code& error, int signal_number) {
-  BOOST_LOG_SEV(clg, debug) << "In the CalController pause_handler";
-  BOOST_LOG_SEV(clg, debug) << "Caught signal number: " << signal_number << " Error(s): " << error;
+  BOOST_LOG_SEV(glg, debug) << "In the CalController pause_handler";
+  BOOST_LOG_SEV(glg, debug) << "Caught signal number: " << signal_number << " Error(s): " << error;
 
   //BOOST_LOG_SEV(clg, debug) << "BEFORE PARAMS: \n" << cohort_ptr->chtlu.dump_calparbgc();
 
   control_loop();
-  BOOST_LOG_SEV(clg, debug) << "Done in pause handler...";
+  BOOST_LOG_SEV(glg, debug) << "Done in pause handler...";
 
 }
 
@@ -94,16 +92,16 @@ void CalController::check_for_signals() {
   int handlers_run = 0;
   boost::system::error_code ec;
 
-  BOOST_LOG_SEV(clg, debug) << "Poll the io_service...";
+  BOOST_LOG_SEV(glg, debug) << "Poll the io_service...";
   handlers_run = io_service->poll(ec);
-  BOOST_LOG_SEV(clg, debug) << "Handlers run: " << handlers_run;
+  BOOST_LOG_SEV(glg, debug) << "Handlers run: " << handlers_run;
 
   if (handlers_run > 0) {
 
-    BOOST_LOG_SEV(clg, debug) << "Reset the io_service object.";
+    BOOST_LOG_SEV(glg, debug) << "Reset the io_service object.";
     io_service->reset();
 
-    BOOST_LOG_SEV(clg, debug) << "Set async wait on signals to PAUSE handler.";
+    BOOST_LOG_SEV(glg, debug) << "Set async wait on signals to PAUSE handler.";
     pause_sigs.async_wait( boost::bind(&CalController::pause_handler, this, 
                                        boost::asio::placeholders::error,
                                        boost::asio::placeholders::signal_number));
@@ -126,44 +124,44 @@ std::string CalController::get_user_command() {
 
 
 void CalController::continue_simulation() {
-  BOOST_LOG_SEV(clg, note) << "Executing continue_simulation callback...";
+  BOOST_LOG_SEV(glg, note) << "Executing continue_simulation callback...";
   // not quite sure how to do this one?
 }
 void CalController::reload_cmt_files() {
-  BOOST_LOG_SEV(clg, note) << "Executing reload_cmt_files callback...";
-  BOOST_LOG_SEV(clg, debug) << "Tickling the cohort pointer to reload config/parameter files...";
+  BOOST_LOG_SEV(glg, note) << "Executing reload_cmt_files callback...";
+  BOOST_LOG_SEV(glg, debug) << "Tickling the cohort pointer to reload config/parameter files...";
   cohort_ptr->chtlu.init();
-  BOOST_LOG_SEV(clg, note) << "Done reloading config/parameter files.";
+  BOOST_LOG_SEV(glg, note) << "Done reloading config/parameter files.";
   
 }
 void CalController::quit() {
-  BOOST_LOG_SEV(clg, note) << "Executing the quit callback...";
-  BOOST_LOG_SEV(clg, note) << "Quitting via CalController."; 
+  BOOST_LOG_SEV(glg, note) << "Executing the quit callback...";
+  BOOST_LOG_SEV(glg, note) << "Quitting via CalController."; 
   exit(-1);
 }
 
 void CalController::env_ON() {
-  BOOST_LOG_SEV(clg, note) << "CalController is turing env module ON via cohort pointer...";
+  BOOST_LOG_SEV(glg, note) << "CalController is turing env module ON via cohort pointer...";
   this->cohort_ptr->md->set_envmodule(true);
 }
 void CalController::env_OFF() {
-  BOOST_LOG_SEV(clg, note) << "CalController is turing env module OFF via cohort pointer...";
+  BOOST_LOG_SEV(glg, note) << "CalController is turing env module OFF via cohort pointer...";
   this->cohort_ptr->md->set_envmodule(false);
 }
 
 void CalController::print_calparbgc() {
-  BOOST_LOG_SEV(clg, note) << "Printing the 'calparbgc' parameters stored in the CohortLookup pointer...";
+  BOOST_LOG_SEV(glg, note) << "Printing the 'calparbgc' parameters stored in the CohortLookup pointer...";
   std::string r = this->cohort_ptr->chtlu.calparbgc2str();
-  BOOST_LOG_SEV(clg, note) << "\n" << r;
+  BOOST_LOG_SEV(glg, note) << "\n" << r;
 }
 
 void CalController::print_modules_settings() {
-  BOOST_LOG_SEV(clg, note) << "Showing module settings from cohort pointer's "
+  BOOST_LOG_SEV(glg, note) << "Showing module settings from cohort pointer's "
                            << "ModelData.\n" 
                            << this->cohort_ptr->md->describe_module_settings();
 }
 void CalController::show_short_menu() {
-   BOOST_LOG_SEV(clg, note) << "Showing short menu...";
+   BOOST_LOG_SEV(glg, note) << "Showing short menu...";
    std::string m = "";
    m += "  q - "; m += this->cmd_map["q"].desc; m += "\n";
    m += "  c - "; m += this->cmd_map["c"].desc; m += "\n";
@@ -175,7 +173,7 @@ void CalController::show_short_menu() {
 
 void CalController::show_full_menu() {
 
-  BOOST_LOG_SEV(clg, note) << "Showing full menu...";
+  BOOST_LOG_SEV(glg, note) << "Showing full menu...";
 
   std::string m = "--  Full Calibration Controller Menu --\n";
 

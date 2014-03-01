@@ -3,16 +3,12 @@
  */
 #include "Layer.h"
 
-BOOST_LOG_INLINE_GLOBAL_LOGGER_INIT(my_general_logger, severity_channel_logger_t) {
-  return severity_channel_logger_t(keywords::channel = "GENER");
-}
-BOOST_LOG_INLINE_GLOBAL_LOGGER_INIT(my_cal_logger, severity_channel_logger_t) {
-  return severity_channel_logger_t(keywords::channel = "CALIB");
-}
+#include "../../TEMLogger.h"
 
- Layer::Layer():
-    glg(my_general_logger::get()){
-  BOOST_LOG_SEV(glg, debug) << "A message from Layer ctor - testing global logger def...";
+extern src::severity_logger< severity_level > glg;
+
+ Layer::Layer() {
+  BOOST_LOG_SEV(glg, debug) << "Creating a layer object...";
 	nextl= NULL;
  	prevl= NULL;
  	

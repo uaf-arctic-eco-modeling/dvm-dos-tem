@@ -9,10 +9,9 @@
 #include "RunCohort.h"
 #include "../CalController.h"
 
-BOOST_LOG_INLINE_GLOBAL_LOGGER_INIT(my_general_logger, severity_channel_logger_t) {
-  return severity_channel_logger_t(keywords::channel = "GENER");
-}
-severity_channel_logger_t& RunCohort::glg = my_general_logger::get();
+#include "../TEMLogger.h"
+extern src::severity_logger< severity_level > glg;
+
 
 RunCohort::RunCohort(){
 
@@ -26,6 +25,14 @@ RunCohort::RunCohort(){
 RunCohort::~RunCohort(){
 
 }
+
+bool RunCohort::get_calMode() {
+  return this->calMode;
+}
+void RunCohort::set_calMode(bool new_value) {
+  this->calMode = new_value;
+}
+
 
 void RunCohort::setModelData(ModelData * mdp){
   	md = mdp;
@@ -334,18 +341,16 @@ void RunCohort::runEnvmodule(){
  */ 
 void RunCohort::run_timeseries(){
   
-  // Need to connect this to the Runner::calibrationMode field
-  // so that it can be controlled by command line switch...
-  bool calibrationMode = true;  
-  
   // Ends up as a null pointer if calibratiionMode is off.
   boost::shared_ptr<CalController> calcontroller_ptr;
-  if (calibrationMode) {
+  if ( this->get_calMode() ) {
     calcontroller_ptr.reset( new CalController(&this->cht) );
   }
   
 	for (int icalyr=yrstart; icalyr<=yrend; icalyr++) {
-
+    
+    BOOST_LOG_SEV(glg, info) << "Some end of year data for plotting...";
+    
     // See if a signal has arrived (possibly from user
     // hitting Ctrl-C) and if so, stop the simulation
     // and drop into the calibration "shell".
@@ -358,7 +363,8 @@ void RunCohort::run_timeseries(){
 		 cht.prepareDayDrivingData(yrindex, used_atmyr);
 
 		 int outputyrind = cht.timer->getOutputYearIndex();
-		 for (int im=0; im<12;im++){
+    for (int im=0; im<12;im++){
+       BOOST_LOG_SEV(glg, info) << "Some beginning of month data for plotting...";
 
 		   int currmind=  im;
 		   cht.cd.month = im+1;
@@ -424,9 +430,13 @@ void RunCohort::run_timeseries(){
 	    	   }
 
 	       } // end of site calling output modules
-
+         BOOST_LOG_SEV(glg, info) << "Some end of month data for plotting...";
 	    }
 
+	    
+	    
+	    
+  
 		if (md->outRegn && outputyrind >=0){
 			regnouter.outputCohortVars(outputyrind, cohortcount, 0);  // "0" implies good data
 		}
@@ -442,6 +452,7 @@ void RunCohort::run_timeseries(){
   	   		//cht.equiled = cht.testEquilibrium();
   	   		//if(cht.equiled )break;
   	   	}
+  	   	BOOST_LOG_SEV(glg, info) << "Some end of year data for plotting...";
 	} // end year loop
 
 }

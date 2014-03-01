@@ -5,7 +5,6 @@
 	#include <fstream>
 	#include <sstream>
     #include <cstdlib>
-    #include "../TEMLogger.h"
 
 	using namespace std;
 
@@ -113,8 +112,6 @@
       bool dslmodule;   // dynamic soil layer module on/off
       bool dsbmodule;   // disturbance module on/off
       bool friderived;  // option for switching Grid-level fire occurrence (upon FRI)
-
-      static severity_channel_logger_t& glg;
 
 	};
 

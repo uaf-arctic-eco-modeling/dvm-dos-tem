@@ -11,8 +11,6 @@
 #include <boost/asio/signal_set.hpp>
 #include <boost/shared_ptr.hpp>
 
-
-#include "TEMLogger.h"
 #include "runmodule/Cohort.h"
 
 typedef struct CalCommand {
@@ -34,8 +32,6 @@ public:
   void check_for_signals();
 
 private:
-  static severity_channel_logger_t& clg;
-
   boost::shared_ptr< boost::asio::io_service > io_service;
   boost::asio::signal_set pause_sigs;
 

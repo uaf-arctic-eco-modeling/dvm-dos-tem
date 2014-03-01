@@ -45,20 +45,12 @@
 #include "TEMLogger.h"
 #include "assembler/Runner.h"
 
-BOOST_LOG_INLINE_GLOBAL_LOGGER_INIT(my_general_logger, severity_channel_logger_t) {
-  return severity_channel_logger_t(keywords::channel = "GENER");
-}
-BOOST_LOG_INLINE_GLOBAL_LOGGER_INIT(my_cal_logger, severity_channel_logger_t) {
-  return severity_channel_logger_t(keywords::channel = "CALIB");
-}
-
-// forward declaration of various free fucntions...
-
-// DEFINE FREE FUNCTIIONS...
 
 ArgHandler* args = new ArgHandler();
 
 int main(int argc, char* argv[]){
+extern src::severity_logger< severity_level > glg;
+
   args->parse(argc, argv);
 	if (args->getHelp()){
 		args->showHelp();
@@ -66,16 +58,9 @@ int main(int argc, char* argv[]){
 	}
   args->verify();
 
-  std::cout << "Setting up Logging...\n";
+  std::cout << "Setting up logging...\n";
 
-  setup_console_log_sink();
-
-  set_log_severity_level(args->getLogLevel());  
-
-  // get handles for each of the global loggers...
-  severity_channel_logger_t& glg = my_general_logger::get();
-  severity_channel_logger_t& clg = my_cal_logger::get();
-
+  setup_logging(args->getLogLevel());
 
   setvbuf(stdout, NULL, _IONBF, 0);
   setvbuf(stderr, NULL, _IONBF, 0);
@@ -99,7 +84,7 @@ int main(int argc, char* argv[]){
     
     if (args->getCalibrationMode() == "on") {
       BOOST_LOG_SEV(glg, note) << "Turning CalibrationMode on in Runner (siter).";
-      setup_calibration_log_sink();
+      //setup_calibration_log_sink();
       siter.set_calibrationMode(true);
     } else {
       BOOST_LOG_SEV(glg, note) << "Running in extrapolation mode.";
