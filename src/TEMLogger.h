@@ -3,36 +3,19 @@
 
 #include <string>
 #include <iostream>
-#include <fstream>
 #include <sstream>
-#include <ctime>
 #include <cstdlib>
 #include <exception>
 #include <map>
 #include <iomanip>
 
-#include <boost/date_time/posix_time/ptime.hpp>
-
 #include <boost/log/core.hpp>
 #include <boost/log/trivial.hpp>
-#include <boost/log/sources/record_ostream.hpp>
-#include <boost/log/sources/logger.hpp>
 #include <boost/log/sources/global_logger_storage.hpp>
 #include <boost/log/sources/severity_feature.hpp>
 #include <boost/log/sources/severity_logger.hpp>
-#include <boost/log/sources/severity_channel_logger.hpp>
 #include <boost/log/expressions.hpp>
-#include <boost/log/attributes.hpp>
-#include <boost/log/attributes/current_thread_id.hpp>
-#include <boost/log/support/date_time.hpp>
-#include <boost/log/utility/setup/common_attributes.hpp>
-#include <boost/log/utility/formatting_ostream.hpp>
 #include <boost/log/utility/setup/console.hpp>
-#include <boost/log/utility/setup/file.hpp>
-#include <boost/utility/empty_deleter.hpp>
-#include <boost/log/sinks/unlocked_frontend.hpp>
-#include <boost/log/sinks/text_file_backend.hpp>
-
 
 namespace logging = boost::log;
 namespace src = boost::log::sources;
