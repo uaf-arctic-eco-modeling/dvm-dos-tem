@@ -5,7 +5,7 @@
  * 		Note: the output modules are put here, so can be flexible for outputs
  * 
 */
-
+#include <json/writer.h>
 #include "RunCohort.h"
 #include "../CalController.h"
 
@@ -431,7 +431,42 @@ void RunCohort::run_timeseries(){
 
 	       } // end of site calling output modules
          BOOST_LOG_SEV(glg, info) << "Some end of month data for plotting...";
-	    }
+	    
+	    
+	      Json::Value data;
+
+        srand (time(NULL));
+
+        std::ofstream out_stream;
+
+        data["Year"] = icalyr;
+        data["Month"] = im;
+   
+        //Monthly Thermal information 
+        data["TempAir"] = rand()%100*1.0;
+        data["TempOrganicLayer"] = rand()%100*1.0;
+        data["TempMineralLayer"] = rand()%100*1.0;
+        data["PAR"] = rand()%100*1.0;
+        data["ActiveLayerDepth"] = rand()%100*1.0;
+
+        //Monthly Hydrodynamic information
+        data["Precipitation"] = rand()%100*1.0;
+        data["WaterTable"] = rand()%100*1.0;
+        data["VWCOrganicLayer"] = (rand()%100*1.0)+50; // <- make distinct from other trace
+        data["VWCMineralLayer"] = rand()%100*1.0;
+        data["Evapotranspiration"] = rand()%100*1.0;
+
+        std::stringstream filename;
+        filename.fill('0');
+        filename << "/tmp/cal-dvmdostem/" << std::setw(4) << icalyr << "_" << std::setw(2) << im << ".json";
+
+        out_stream.open(filename.str().c_str(), std::ofstream::out);
+
+        out_stream << data << std::endl;
+
+        out_stream.close();
+
+	    } // end of month loop
 
 	    
 	    
