@@ -30,6 +30,7 @@ public:
   std::string get_user_command();
   void show_cal_control_menu();
   void check_for_signals();
+  void pause();
 
 private:
   boost::shared_ptr< boost::asio::io_service > io_service;

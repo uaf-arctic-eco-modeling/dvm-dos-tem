@@ -223,6 +223,13 @@ int RunCohort::reinit(){
 // run one cohort for a period of time
 void RunCohort::run_cohortly(){
 
+  // Ends up as a null pointer if calibratiionMode is off.
+  boost::shared_ptr<CalController> calcontroller_ptr;
+  if ( this->get_calMode() ) {
+    calcontroller_ptr.reset( new CalController(&this->cht) );
+  }
+
+
 	    //
 	    cht.timer->reset();
 
@@ -230,8 +237,8 @@ void RunCohort::run_cohortly(){
 		if(cht.md->runeq){
 
 			// a quick pre-run to get reasonably-well 'env' conditions, which may be good for 'eq' run
-			runEnvmodule();
-
+			runEnvmodule(calcontroller_ptr);
+            calcontroller_ptr->pause();
 			//
 			cht.timer->reset();
 			BOOST_LOG_SEV(glg, info) << "In run_cohortly, setting all modules to on...";
@@ -256,7 +263,7 @@ void RunCohort::run_cohortly(){
 		    	yrend = MAX_EQ_YR;
 		    }
 
-		    run_timeseries();
+		    run_timeseries(calcontroller_ptr);
 
 		}
 
@@ -271,7 +278,7 @@ void RunCohort::run_cohortly(){
 
 		    md->set_friderived(false);
 
-		    run_timeseries();
+		    run_timeseries(calcontroller_ptr);
 
 		}
 		
@@ -287,7 +294,7 @@ void RunCohort::run_cohortly(){
 
 		    md->set_friderived(false);
 
-		    run_timeseries();
+		    run_timeseries(calcontroller_ptr);
 
 		}
 
@@ -304,7 +311,7 @@ void RunCohort::run_cohortly(){
 
 		    md->set_friderived(false);
 
-		    run_timeseries();
+		    run_timeseries(calcontroller_ptr);
 
 		}
 
@@ -313,7 +320,7 @@ void RunCohort::run_cohortly(){
 	
 }; 
 
-void RunCohort::runEnvmodule(){
+void RunCohort::runEnvmodule(boost::shared_ptr<CalController> calcontroller_ptr){
   BOOST_LOG_SEV(glg, info) << "In RunCohort::runEnvmodule, setting only envmodule on.";
 
   //run model with "ENV module" only
@@ -329,7 +336,8 @@ void RunCohort::runEnvmodule(){
      yrstart = 0;
      yrend   = 100;
 
-     run_timeseries();
+     run_timeseries(calcontroller_ptr);
+  BOOST_LOG_SEV(glg, info) << "Done running env module for 100 year 'warm up'.";
 
 };
 
@@ -339,14 +347,10 @@ void RunCohort::runEnvmodule(){
  * for each year
  *     for each month
  */ 
-void RunCohort::run_timeseries(){
+void RunCohort::run_timeseries(boost::shared_ptr<CalController> calcontroller_ptr){
   
-  // Ends up as a null pointer if calibratiionMode is off.
-  boost::shared_ptr<CalController> calcontroller_ptr;
-  if ( this->get_calMode() ) {
-    calcontroller_ptr.reset( new CalController(&this->cht) );
-  }
-  
+  srand (time(NULL));
+
 	for (int icalyr=yrstart; icalyr<=yrend; icalyr++) {
     
     BOOST_LOG_SEV(glg, info) << "Some end of year data for plotting...";
