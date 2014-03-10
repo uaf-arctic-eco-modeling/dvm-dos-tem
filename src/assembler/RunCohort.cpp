@@ -353,7 +353,7 @@ void RunCohort::run_timeseries(boost::shared_ptr<CalController> calcontroller_pt
 
 	for (int icalyr=yrstart; icalyr<=yrend; icalyr++) {
     
-    BOOST_LOG_SEV(glg, info) << "Some end of year data for plotting...";
+    BOOST_LOG_SEV(glg, debug) << "Some begin of year data for plotting...";
     
     // See if a signal has arrived (possibly from user
     // hitting Ctrl-C) and if so, stop the simulation
@@ -368,7 +368,7 @@ void RunCohort::run_timeseries(boost::shared_ptr<CalController> calcontroller_pt
 
 		 int outputyrind = cht.timer->getOutputYearIndex();
     for (int im=0; im<12;im++){
-       BOOST_LOG_SEV(glg, info) << "Some beginning of month data for plotting...";
+       BOOST_LOG_SEV(glg, debug) << "Some beginning of month data for plotting...";
 
 		   int currmind=  im;
 		   cht.cd.month = im+1;
@@ -434,7 +434,7 @@ void RunCohort::run_timeseries(boost::shared_ptr<CalController> calcontroller_pt
 	    	   }
 
 	       } // end of site calling output modules
-         BOOST_LOG_SEV(glg, info) << "Some end of month data for plotting...";
+         BOOST_LOG_SEV(glg, debug) << "Some end of month data for plotting...";
 	    
 	    
 	      Json::Value data;
@@ -491,7 +491,7 @@ void RunCohort::run_timeseries(boost::shared_ptr<CalController> calcontroller_pt
   	   		//cht.equiled = cht.testEquilibrium();
   	   		//if(cht.equiled )break;
   	   	}
-  	   	BOOST_LOG_SEV(glg, info) << "Some end of year data for plotting...";
+  	   	BOOST_LOG_SEV(glg, debug) << "Some end of year data for plotting...";
 	} // end year loop
 
 }
