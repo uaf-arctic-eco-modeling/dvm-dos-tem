@@ -238,7 +238,9 @@ void RunCohort::run_cohortly(){
 
 			// a quick pre-run to get reasonably-well 'env' conditions, which may be good for 'eq' run
 			runEnvmodule(calcontroller_ptr);
-            calcontroller_ptr->pause();
+            if (calcontroller_ptr) {
+              calcontroller_ptr->pause();
+            }
 			//
 			cht.timer->reset();
 			BOOST_LOG_SEV(glg, info) << "In run_cohortly, setting all modules to on...";
