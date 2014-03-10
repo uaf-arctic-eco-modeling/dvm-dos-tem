@@ -87,6 +87,12 @@ void CalController::pause_handler( const boost::system::error_code& error, int s
 
 }
 
+/** Pause; runs the control loop that does a blocking wait for user input. Effectively pauses the simulaiton... */
+void CalController::pause( ) {
+  BOOST_LOG_SEV(glg, debug) << "Posting to the io_service.";
+  this->io_service->post( boost::bind(&CalController::control_loop, this) );
+}
+
 /** Check the io_service object for signals that may have arrived. */
 void CalController::check_for_signals() {
   int handlers_run = 0;
