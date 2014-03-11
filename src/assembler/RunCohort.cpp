@@ -459,7 +459,7 @@ void RunCohort::run_timeseries(boost::shared_ptr<CalController> calcontroller_pt
         data["WaterTable"]         = rand()%100*1.0;
         data["VWCOrganicLayer"]    = (rand()%100*1.0) + 50; // <- make distinct from other trace
         data["VWCMineralLayer"]    = rand()%100*1.0;
-        data["Evapotranspiration"] = rand()%100*1.0*im;
+        data["Evapotranspiration"] = rand()%100*1.0;
 
         std::stringstream filename;
         filename.fill('0');
