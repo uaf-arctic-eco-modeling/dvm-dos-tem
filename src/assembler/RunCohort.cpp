@@ -336,10 +336,10 @@ void RunCohort::runEnvmodule(boost::shared_ptr<CalController> calcontroller_ptr)
      cht.cd.yrsdist = 1000;
 
      yrstart = 0;
-     yrend   = 100;
+     yrend   = 100; // This actually results in running 101 years...
 
      run_timeseries(calcontroller_ptr);
-  BOOST_LOG_SEV(glg, info) << "Done running env module for 100 year 'warm up'.";
+     BOOST_LOG_SEV(glg, info) << "Done running env module for 101 year 'warm up'.";
 
 };
 
