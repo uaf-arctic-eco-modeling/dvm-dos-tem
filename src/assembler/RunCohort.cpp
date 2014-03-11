@@ -441,7 +441,6 @@ void RunCohort::run_timeseries(boost::shared_ptr<CalController> calcontroller_pt
 	    
 	      Json::Value data;
 
-        srand (time(NULL));
 
         std::ofstream out_stream;
 
@@ -449,18 +448,18 @@ void RunCohort::run_timeseries(boost::shared_ptr<CalController> calcontroller_pt
         data["Month"] = im;
    
         //Monthly Thermal information 
-        data["TempAir"] = rand()%100*1.0;
-        data["TempOrganicLayer"] = rand()%100*1.0;
-        data["TempMineralLayer"] = rand()%100*1.0;
-        data["PAR"] = rand()%100*1.0;
-        data["ActiveLayerDepth"] = rand()%100*1.0;
+        data["TempAir"]            = rand()%100*1.0;
+        data["TempOrganicLayer"]   = (rand()%100*1.0) + 50;
+        data["TempMineralLayer"]   = rand()%100*1.0;
+        data["PAR"]                = (rand()%100*1.0) + 25;
+        data["ActiveLayerDepth"]   = rand()%100*1.0;
 
         //Monthly Hydrodynamic information
-        data["Precipitation"] = rand()%100*1.0;
-        data["WaterTable"] = rand()%100*1.0;
-        data["VWCOrganicLayer"] = (rand()%100*1.0)+50; // <- make distinct from other trace
-        data["VWCMineralLayer"] = rand()%100*1.0;
-        data["Evapotranspiration"] = rand()%100*1.0;
+        data["Precipitation"]      = rand()%100*1.0;
+        data["WaterTable"]         = rand()%100*1.0;
+        data["VWCOrganicLayer"]    = (rand()%100*1.0) + 50; // <- make distinct from other trace
+        data["VWCMineralLayer"]    = rand()%100*1.0;
+        data["Evapotranspiration"] = rand()%100*1.0*im;
 
         std::stringstream filename;
         filename.fill('0');
