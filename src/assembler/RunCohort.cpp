@@ -447,19 +447,62 @@ void RunCohort::run_timeseries(boost::shared_ptr<CalController> calcontroller_pt
         data["Year"] = icalyr;
         data["Month"] = im;
    
-        //Monthly Thermal information 
-        data["TempAir"]            = rand()%100*1.0;
-        data["TempOrganicLayer"]   = (rand()%100*1.0) + 50;
-        data["TempMineralLayer"]   = rand()%100*1.0;
-        data["PAR"]                = (rand()%100*1.0) + 25;
-        data["ActiveLayerDepth"]   = rand()%100*1.0;
+        /* Environmental variables */   
+        /* Monthly Thermal information */
+        data["TempAir"] = cht.ed->m_atms.ta;
+        //cht.ed->m_sois.ts[MAX_SOI_LAY], but no pre-summed values, so...
+        data["TempOrganicLayer"] = -1;
+        data["TempMineralLayer"] = -1;
+        data["ActiveLayerDepth"] = cht.ed->m_soid.ald;
 
-        //Monthly Hydrodynamic information
-        data["Precipitation"]      = rand()%100*1.0;
-        data["WaterTable"]         = rand()%100*1.0;
-        data["VWCOrganicLayer"]    = (rand()%100*1.0) + 50; // <- make distinct from other trace
-        data["VWCMineralLayer"]    = rand()%100*1.0;
-        data["Evapotranspiration"] = rand()%100*1.0;
+        /* Monthly Hydrodynamic information */
+        //data["Precipitation"] = rand()%100*1.0;
+        data["Snowfall"] = cht.ed->m_a2l.snfl;
+        data["Rainfall"] = cht.ed->m_a2l.rnfl;
+        data["WaterTable"] = cht.ed->m_sois.watertab;
+        //m_soid.vwc[] has approx 23 values - I assume these are summed in the following.
+        data["VWCOrganicLayer"] = cht.ed->m_soid.vwcshlw + cht.ed->m_soid.vwcdeep;
+        data["VWCMineralLayer"] = cht.ed->m_soid.vwcminea 
+                                  + cht.ed->m_soid.vwcmineb 
+                                  + cht.ed->m_soid.vwcminec;
+        //land should include both vegetation and ground.
+        data["Evapotranspiration"] = cht.ed->m_l2a.eet;
+
+        /* PFT dependent variables */
+        for(int pft=0;pft<NUM_PFT;pft++){
+            char pft_chars[5];
+            sprintf(pft_chars, "%d", pft);
+            std::string pft_str = std::string(pft_chars);
+            //c++0x equivalent: std::string pftvalue = std::to_string(pft);
+            data["PFT" + pft_str]["VegCarbon"]["Leaf"] = cht.bd[pft].m_vegs.c[I_leaf];
+            data["PFT" + pft_str]["VegCarbon"]["Stem"] = cht.bd[pft].m_vegs.c[I_stem];
+            data["PFT" + pft_str]["VegCarbon"]["Root"] = cht.bd[pft].m_vegs.c[I_root];
+            data["PFT" + pft_str]["VegStructuralNitrogen"]["Leaf"] = cht.bd[pft].m_vegs.strn[I_leaf];
+            data["PFT" + pft_str]["VegStructuralNitrogen"]["Stem"] = cht.bd[pft].m_vegs.strn[I_stem];
+            data["PFT" + pft_str]["VegStructuralNitrogen"]["Root"] = cht.bd[pft].m_vegs.strn[I_root];
+            data["PFT" + pft_str]["GPPAll"] = cht.bd[pft].m_a2v.gppall;
+            data["PFT" + pft_str]["NPPAll"] = cht.bd[pft].m_a2v.nppall;
+            data["PFT" + pft_str]["GPPAllIgnoringNitrogen"] = cht.bd[pft].m_a2v.ingppall;
+            data["PFT" + pft_str]["NPPAllIgnoringNitrogen"] = cht.bd[pft].m_a2v.innppall;
+            data["PFT" + pft_str]["LitterfallCarbonAll"] = cht.bd[pft].m_v2soi.ltrfalcall;
+            data["PFT" + pft_str]["LitterfallNitrogenAll"] = cht.bd[pft].m_v2soi.ltrfalnall;
+            data["PFT" + pft_str]["PARDown"] = cht.ed[pft].m_a2v.pardown;
+            data["PFT" + pft_str]["PARAbsorb"] = cht.ed[pft].m_a2v.parabsorb;
+        }
+
+        /* Not PFT dependent */
+        data["NitrogenUptakeAll"] = cht.bd->m_soi2v.snuptakeall;
+        data["AvailableNitrogenSum"] = cht.bd->m_soid.avlnsum;
+        data["OrganicNitrogenSum"] = cht.bd->m_soid.orgnsum;
+        data["CarbonShallow"] = cht.bd->m_soid.shlwc;
+        data["CarbonDeep"] = cht.bd->m_soid.deepc;
+        data["CarbonMineralSum"] = cht.bd->m_soid.mineac
+                                   + cht.bd->m_soid.minebc
+                                   + cht.bd->m_soid.minecc;
+
+        /* Unknown PFT dependence */
+        data["MossdeathCarbon"] = cht.bdall->m_v2soi.mossdeathc;
+        data["MossdeathNitrogen"] = cht.bdall->m_v2soi.mossdeathn;
 
         std::stringstream filename;
         filename.fill('0');
