@@ -34,6 +34,7 @@
 #include <map>
 #include <set>
 
+#include <boost/filesystem.hpp>
 #include <boost/asio/signal_set.hpp>
 #include <boost/thread.hpp>
 #include <boost/shared_ptr.hpp>
@@ -84,8 +85,17 @@ extern src::severity_logger< severity_level > glg;
     
     if (args->getCalibrationMode() == "on") {
       BOOST_LOG_SEV(glg, note) << "Turning CalibrationMode on in Runner (siter).";
-      //setup_calibration_log_sink();
       siter.set_calibrationMode(true);
+
+      boost::filesystem::path tmp_json_folder("/tmp/cal-dvmdostem/");
+      if( !(boost::filesystem::exists(tmp_json_folder)) ) {
+        BOOST_LOG_SEV(glg, info) << "Creating folder: " << tmp_json_folder;
+        boost::filesystem::create_directory(tmp_json_folder);
+      } else {
+        BOOST_LOG_SEV(glg, info) << "Calibraiton json folder ("
+                                 << tmp_json_folder << ") already exists.";
+      }
+
     } else {
       BOOST_LOG_SEV(glg, note) << "Running in extrapolation mode.";
     }
