@@ -30,8 +30,8 @@ public:
   std::string get_user_command();
   void show_cal_control_menu();
   void check_for_signals();
-  void pause();
-  void post_warmup_pause();//forces pause after env-only run to allow viewing/deletion of json files
+  void async_pause(); // pauses, but thru the io_service, so may not be immediate.
+  void pause();       // forces pause immediately
 
 private:
   boost::shared_ptr< boost::asio::io_service > io_service;

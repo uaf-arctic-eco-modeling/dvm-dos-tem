@@ -87,15 +87,27 @@ void CalController::pause_handler( const boost::system::error_code& error, int s
 
 }
 
-/** Pause; runs the control loop that does a blocking wait for user input. Effectively pauses the simulation... */
-void CalController::pause( ) {
+/** Pause, but asynchronously?
+ *
+ *  Posts a message to the io_service (which is asynchronously waiting).
+ *  When the message is processed, the control loop is run, and the control loop
+ *  blocks waiting for user input, so the simulaiton is stopped while the 
+ *  control loop is blocking.
+ *
+ *  So it seems that the simulation may not pause immediately, but only once
+ *  the io_service gets around to processing this posted message.
+ *  Not sure how useful this actually is, but we'll leave it around for now.
+ */
+void CalController::async_pause( ) {
   BOOST_LOG_SEV(glg, debug) << "Posting to the io_service.";
   this->io_service->post( boost::bind(&CalController::control_loop, this) );
 }
 
-/** Post Warmup; Forcibly pauses the simulation to wait for user input and delete json files.
- * */
-void CalController::post_warmup_pause( ){
+/** Forcibly pauses the simulation.
+  * Runs the control loop, which blocks, waiting for user input.
+  */
+void CalController::pause( ) {
+  BOOST_LOG_SEV(glg, info) << "Starting control loop to pause simulation.";
   control_loop();
 }
 
