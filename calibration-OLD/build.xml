@@ -9,7 +9,6 @@
     <os name="Linux" />
   </condition>
 
-  <property name="CXX" value="g++" /> 
   <property name="APPNAME" value="dvm-dos-tem-calibrator.jar" />
   <property name="BUILDDIR" value="build" />
 
@@ -17,7 +16,8 @@
   <!-- define the operating system specific targets -->
   <target name="setup_mac" if="is_mac">
     <echo message="Setting Mac specific build settings..." />
-    <property name="CFLAGS" value="-dynamiclib -fPIC -shared" />
+    <property name="CXX" value="g++-4.8" />
+    <property name="CFLAGS" value="-dynamiclib -fPIC -ansi -shared -DBOOST_ALL_DYN_LINK -fpermissive -Werror" />
     <property name="JAVADIR" value="/System/Library/Frameworks/JavaVM.framework/Versions/A/Headers" />
     <property name="CORESHAREDLIBNAME" value="libtemcore.dylib" />
     <property name="INCLUDES" value="-I${JAVADIR}" />
@@ -39,6 +39,7 @@
       work on aeshna (as is now).
     -->
     <echo message="Setting Linux (aeshna) specific build settings..." />
+    <property name="CXX" value="g++" /> 
     <property name="CFLAGS" value="-fpic -shared" />
 
     <property name="JAVADIR" value="/usr/lib/jvm/java-1.6.0-sun-1.6.0.30" /> <!-- aeshna -->
@@ -88,6 +89,8 @@
                 -o ../lib/${CORESHAREDLIBNAME}
                 ../cpp-wrapper/TEMrun_wrap.cxx 
                 ../cpp-wrapper/TEMccjava.cpp
+                ../../src/TEMLogger.cpp
+                ../../src/CalController.cpp
                 ../../src/atmosphere/Atmosphere.cpp
                 ../../src/atmosphere/AtmosUtil.cpp
                 ../../src/data/BgcData.cpp
