@@ -237,11 +237,16 @@ void RunCohort::run_cohortly(){
 	    //
 		if(cht.md->runeq){
 
-			// a quick pre-run to get reasonably-well 'env' conditions, which may be good for 'eq' run
+			BOOST_LOG_SEV(glg, info) << "Starting a quick pre-run to get "
+                                     << "reasonably-good 'env' conditions, "
+                                     << "which may then be good for 'eq' run...";
+
 			runEnvmodule(calcontroller_ptr);
+
             if (calcontroller_ptr) {
-              //remove files from the env-only run
+              BOOST_LOG_SEV(glg, info) << "Pausing. Please check that the 'pre-run' data looks good.";
               calcontroller_ptr->pause();
+              BOOST_LOG_SEV(glg, info) << "Clearing out json files from pre-run...";
               boost::filesystem::path json_tmp_dir("/tmp/cal-dvmdostem");
               boost::filesystem::remove_all(json_tmp_dir);
               boost::filesystem::create_directory(json_tmp_dir);

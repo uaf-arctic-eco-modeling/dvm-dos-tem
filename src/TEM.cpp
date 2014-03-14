@@ -92,8 +92,11 @@ extern src::severity_logger< severity_level > glg;
         BOOST_LOG_SEV(glg, info) << "Creating folder: " << tmp_json_folder;
         boost::filesystem::create_directory(tmp_json_folder);
       } else {
-        BOOST_LOG_SEV(glg, info) << "Calibraiton json folder ("
-                                 << tmp_json_folder << ") already exists.";
+        BOOST_LOG_SEV(glg, info) << "Calibraiton json folder already exists. ("
+                                 << tmp_json_folder << ")";
+        BOOST_LOG_SEV(glg, info) << "Deleting any exisiting calibration json data.";
+        boost::filesystem::remove_all(tmp_json_folder);
+        boost::filesystem::create_directory(tmp_json_folder);
       }
 
     } else {
