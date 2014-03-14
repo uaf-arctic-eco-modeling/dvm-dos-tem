@@ -87,10 +87,16 @@ void CalController::pause_handler( const boost::system::error_code& error, int s
 
 }
 
-/** Pause; runs the control loop that does a blocking wait for user input. Effectively pauses the simulaiton... */
+/** Pause; runs the control loop that does a blocking wait for user input. Effectively pauses the simulation... */
 void CalController::pause( ) {
   BOOST_LOG_SEV(glg, debug) << "Posting to the io_service.";
   this->io_service->post( boost::bind(&CalController::control_loop, this) );
+}
+
+/** Post Warmup; Forcibly pauses the simulation to wait for user input and delete json files.
+ * */
+void CalController::post_warmup_pause( ){
+  control_loop();
 }
 
 /** Check the io_service object for signals that may have arrived. */

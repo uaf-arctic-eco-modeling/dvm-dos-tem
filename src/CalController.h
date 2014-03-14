@@ -31,6 +31,7 @@ public:
   void show_cal_control_menu();
   void check_for_signals();
   void pause();
+  void post_warmup_pause();//forces pause after env-only run to allow viewing/deletion of json files
 
 private:
   boost::shared_ptr< boost::asio::io_service > io_service;

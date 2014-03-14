@@ -6,6 +6,7 @@
  * 
 */
 #include <json/writer.h>
+#include <boost/filesystem.hpp>
 #include "RunCohort.h"
 #include "../CalController.h"
 
@@ -239,7 +240,11 @@ void RunCohort::run_cohortly(){
 			// a quick pre-run to get reasonably-well 'env' conditions, which may be good for 'eq' run
 			runEnvmodule(calcontroller_ptr);
             if (calcontroller_ptr) {
-              calcontroller_ptr->pause();
+              calcontroller_ptr->post_warmup_pause();
+              //remove files from the env-only run
+              boost::filesystem::path json_tmp_dir("/tmp/cal-dvmdostem");
+              boost::filesystem::remove_all(json_tmp_dir);
+              boost::filesystem::create_directory(json_tmp_dir);
             }
 			//
 			cht.timer->reset();
