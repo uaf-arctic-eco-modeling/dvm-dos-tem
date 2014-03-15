@@ -6,10 +6,15 @@ import json
 import logging
 
 
+import matplotlib
+matplotlib.use('TkAgg')  # this is the only one that seems to work on Mac OSX
+                         # with animation...
+
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mplticker
 import matplotlib.animation as animation
+
 
 
 #from matplotlib.cbook import CallbackRegistry
@@ -21,8 +26,10 @@ import pdb
 
 # The 'glob' that gets used to build a list of all json files.
 TMPDIR = '/tmp/cal-dvmdostem/*.json'
-FORMAT = '%(levelname)-8s %(message)s'
-logging.basicConfig(level=logging.DEBUG, format=FORMAT)
+
+# some logging stuff
+LOG_FORMAT = '%(levelname)-8s %(message)s'
+logging.basicConfig(level=logging.DEBUG, format=LOG_FORMAT)
 
 class CMF(object):
   ''' CMF - Calibration Monthly Figure.
@@ -50,14 +57,13 @@ class CMF(object):
     
   def setup_traces(self):
     '''Set all trace data to empty; assigns artist to subplot.'''
-    logging.debug("Setting up traces...")
+    logging.info("Setting up traces...")
     empty_container = np.nan * np.empty(self.timerange)
     for trace in self.traces:
+      logging.info("  data/tag: %s  -->  plot number %i" % (trace['jsontag'], trace['pnum']))
       trace['data'] = empty_container.copy()
       trace['artist'] = self.axes[trace['pnum']].plot( [],[], label=trace['jsontag'] )
       
-
-
 
   def set_trace_artist_data(self):
     logging.debug("For each trace, setting the artist data to whatever is in the trace's data container.")
@@ -65,54 +71,59 @@ class CMF(object):
       a = trace['artist'][0]  # <-- not sure why this is a list?
       a.set_data( np.arange(1, self.timerange + 1), trace['data'] )
 
-  def update(self, frame):
-    '''Update the plots based on data in the /tmp/ directory...'''
-    logging.info("Animation Frame %7i" % frame)
+
+  def manage_plot_size(self, json_file_list):
+    logging.debug("Current number of json files: %7i" % len(json_file_list))
     
-    artists2update = []
-    
-    currentjsonfiles = glob.glob(TMPDIR)
-    logging.debug("Current number of json files: %7i" % len(currentjsonfiles))
-    
-    if len(currentjsonfiles) == 0:
-      logging.warn("No Json files! Setting first and last indices to 0. Plots will be empty.")
+    if len(json_file_list) == 0:
+      logging.warn("No Json files! Setting first and last indices to 0.")
       fjfi = 0
       ljfi = 0      
     
-    elif len(currentjsonfiles) > 0:
+    elif len(json_file_list) > 0:
       fjfi = YYYY_MM2idx(  # "First Json File Index"
-          os.path.splitext( os.path.basename(currentjsonfiles[0]) )[0]
+          os.path.splitext( os.path.basename(json_file_list[0]) )[0]
       )
       ljfi = YYYY_MM2idx(  # "Last Json File Index"
-          os.path.splitext( os.path.basename(currentjsonfiles[-1]) )[0]
+          os.path.splitext( os.path.basename(json_file_list[-1]) )[0]
       )
-      logging.debug("First json file: %s (idx %i)" % (currentjsonfiles[0], fjfi) )
-      logging.debug("Last json file:  %s (idx %i)" % (currentjsonfiles[-1], ljfi) )
+      logging.debug("First json file: %s (idx %i)" % (json_file_list[0], fjfi) )
+      logging.debug("Last json file:  %s (idx %i)" % (json_file_list[-1], ljfi) )
     
-    assert fjfi == 0, "The first json file should be 0000_00.json"
-    assert ljfi == (len(currentjsonfiles) - 1), "There must be missing json files!"
+    else:
+      logging.warn("Not sure how you got here? Something must be wrong.")
+    
+    assert fjfi == 0, "The first json file must be 0000_00.json"
+    assert ljfi == (len(json_file_list) - 1), "There must be missing json files!"
+    
     logging.debug("Current plot timerange: %7i" % self.timerange)
-
     if ljfi >= self.timerange:
       logging.debug("Should expand containers: More json files than current timerange.")
-      artists2update += self.resize( percent=0.25 ) # increase by 25% 
-                       #self.resize( size=200 )     # fixed sixe
-    
-    if ljfi < (0.5 * self.timerange):
+      self.resize( percent=0.25 )
+      if not self.timerange >= ljfi:
+        logging.debug("Hmm looks like we didn't make the containers big enough.")
+                        
+    elif ljfi < (0.5 * self.timerange):
       logging.debug("Should shrink containers: Json files exist for less than half of the timerange.")
       if self.timerange < 12:
-        artists2update += self.resize( size=12 )  # don't resize to < 12 months
+        self.resize( size=12 )  # don't resize to < 12 months
       else:
-        artists2update += self.resize( size=self.timerange )
-      
-    logging.debug("Length of artists2update: %i Artists: %s" % \
-        (len(artists2update), artists2update) )
+        self.resize( size=self.timerange )
+    else:
+      pass
 
+
+
+
+  def update(self, frame):
+    '''Update the plots based on data in the /tmp/cal-dvmdostem directory...'''
+    logging.info("Frame %7i" % frame)
+    
+    currentjsonfiles = glob.glob(TMPDIR)
+    self.manage_plot_size(currentjsonfiles)
     # http://stackoverflow.com/questions/10368371/matplotlib-animated-plot-wont-update-labels-on-axis-using-blit
-    if not self.timerange >= ljfi:
-      logging.debug("Hmm looks like we didn't make the containers big enough.")
-
-    return []
+    #print [trace['artist'][0] for trace in self.traces]
+    return [trace['artist'][0] for trace in self.traces]
     
   
   def setup_plot(self):
@@ -121,10 +132,10 @@ class CMF(object):
     # load all existing data?
     
     # return list of trace artists to animate
-    return [trace['artist'] for trace in self.traces]
+    return [trace['artist'][0] for trace in self.traces]
     
   def resize(self, **kwargs):
-    logging.debug("Resizing plots (containers, artists, axes, etc)") 
+    logging.debug("Resizing plots.") 
     if ('size' in kwargs) and ('percent' in kwargs):
       raise ValueError("Can't pass size and percent to resize function!")
     if 'size' in kwargs:
@@ -144,14 +155,10 @@ class CMF(object):
         logging.debug("Expanding. New size is greater than old size.")
         new_trace[0:len(trace['data']) ] = trace['data']
       else:
-        logging.debug("Contracting. New size is less than old sixe.") 
+        logging.debug("Contracting. New size is less than old size.") 
         new_trace[:] = trace['data'][0:len(new_trace)]
       trace['data'] = new_trace
       
-
-    # set artists data to trace data?
-    self.set_trace_artist_data()
-
     for ax in self.axes:
       ax.set_xlim(1, self.timerange + 1)
     
@@ -159,9 +166,9 @@ class CMF(object):
     
     for ax in self.axes:
       ax.grid()
-    
-    #self.set_all_axis_limits_and_tickers()
-    return []
+      
+    logging.info("Force re-drawing the whole plot since we modified the axes etc.")
+    plt.draw()
 
   def set_xax_ticks(self):
     # valid increments for tick marks in years
