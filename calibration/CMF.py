@@ -38,7 +38,8 @@ class CMF(object):
   a dynamically updating "calibration plot" for dvm-dos-tem.
   '''
   
-  def __init__(self, traceslist, timerange=120, sprows=4, spcols=1):
+  def __init__(self, traceslist, timerange=120, sprows=4, spcols=1,
+               figtitle="Empty plot..."):
     logging.debug("Initializing figure for timerange: %i (months)" % timerange)
     logging.debug("Plot rows: %i cols: %i" %(sprows, spcols))
     self.timerange = timerange
@@ -46,7 +47,7 @@ class CMF(object):
     self.spcols = spcols
 
     self.fig, self.axes = plt.subplots(sprows, spcols ,sharex='all')
-    self.fig.suptitle('%i empty plots...' % (sprows*spcols))
+    self.fig.suptitle(figtitle)
 
     self.traces = traceslist
 
@@ -74,45 +75,52 @@ class CMF(object):
 
   def manage_plot_size(self, json_file_list):
     logging.debug("Current number of json files: %7i" % len(json_file_list))
+    try:
+      # should probably have some try/catch stuff here to make sure we
+      # pick up the right file listing...just skip if not
     
-    if len(json_file_list) == 0:
-      logging.warn("No Json files! Setting first and last indices to 0.")
-      fjfi = 0
-      ljfi = 0      
+      if len(json_file_list) == 0:
+        logging.warn("No Json files! Setting first and last indices to 0.")
+        fjfi = 0
+        ljfi = 0      
     
-    elif len(json_file_list) > 0:
-      fjfi = YYYY_MM2idx(  # "First Json File Index"
-          os.path.splitext( os.path.basename(json_file_list[0]) )[0]
-      )
-      ljfi = YYYY_MM2idx(  # "Last Json File Index"
-          os.path.splitext( os.path.basename(json_file_list[-1]) )[0]
-      )
-      logging.debug("First json file: %s (idx %i)" % (json_file_list[0], fjfi) )
-      logging.debug("Last json file:  %s (idx %i)" % (json_file_list[-1], ljfi) )
+      elif len(json_file_list) > 0:
+        fjfi = YYYY_MM2idx(  # "First Json File Index"
+            os.path.splitext( os.path.basename(json_file_list[0]) )[0]
+        )
+        ljfi = YYYY_MM2idx(  # "Last Json File Index"
+            os.path.splitext( os.path.basename(json_file_list[-1]) )[0]
+        )
+        logging.debug("First json file: %s (idx %i)" % (json_file_list[0], fjfi) )
+        logging.debug("Last json file:  %s (idx %i)" % (json_file_list[-1], ljfi) )
     
-    else:
-      logging.warn("Not sure how you got here? Something must be wrong.")
-    
-    assert fjfi == 0, "The first json file must be 0000_00.json"
-    assert ljfi == (len(json_file_list) - 1), "There must be missing json files!"
-    
-    logging.debug("Current plot timerange: %7i" % self.timerange)
-    if ljfi >= self.timerange:
-      logging.debug("Should expand containers: More json files than current timerange.")
-      self.resize( percent=0.25 )
-      if not self.timerange >= ljfi:
-        logging.debug("Hmm looks like we didn't make the containers big enough.")
-                        
-    elif ljfi < (0.5 * self.timerange):
-      logging.debug("Should shrink containers: Json files exist for less than half of the timerange.")
-      if self.timerange < 12:
-        self.resize( size=12 )  # don't resize to < 12 months
       else:
-        self.resize( size=self.timerange )
-    else:
-      pass
-
-
+        logging.warn("Not sure how you got here? Something must be wrong.")
+    
+      assert fjfi == 0, "The first json file must be 0000_00.json"
+      assert ljfi == (len(json_file_list) - 1), "There must be missing json files!"
+    
+      logging.debug("Current plot timerange: %7i" % self.timerange)
+      if ljfi >= self.timerange:
+        logging.debug("Should expand containers: More json files than current timerange.")
+        if ljfi >= (self.timerange + self.timerange*0.25):
+          self.resize( size=ljfi + 1 ) # <-- Careful!
+        else:
+          self.resize( percent=0.25 )
+        
+        if not self.timerange >= ljfi:
+          logging.debug("Hmm looks like we didn't make the containers big enough.")
+                     
+      elif ljfi < (0.5 * self.timerange):
+        logging.debug("Should shrink containers: Json files exist for less than half of the timerange.")
+        if self.timerange < 12:
+          self.resize( size=12 )  # don't resize to < 12 months
+        else:
+          self.resize( size=ljfi )
+      else:
+        pass
+    except AssertionError as ae:
+      logging.warn(ae)
 
 
   def update(self, frame):
@@ -121,8 +129,21 @@ class CMF(object):
     
     currentjsonfiles = glob.glob(TMPDIR)
     self.manage_plot_size(currentjsonfiles)
+    
+    for file in currentjsonfiles:
+      idx = YYYY_MM2idx( os.path.splitext(os.path.basename(file))[0] )
+
+      for trace in self.traces:
+        if ( np.isnan(trace['data'][idx]) ):
+          with open(file) as f:
+            new_data = json.load(f)
+          #logging.debug(new_data)
+          trace['data'][idx] = new_data[ trace['jsontag'] ]
+    
     # http://stackoverflow.com/questions/10368371/matplotlib-animated-plot-wont-update-labels-on-axis-using-blit
-    #print [trace['artist'][0] for trace in self.traces]
+    for trace in self.traces:
+      a = trace['artist'][0]
+      a.set_data( np.arange(1, self.timerange+1), trace['data'])
     return [trace['artist'][0] for trace in self.traces]
     
   
@@ -159,11 +180,14 @@ class CMF(object):
         new_trace[:] = trace['data'][0:len(new_trace)]
       trace['data'] = new_trace
       
+    logging.info("Setting x lim for all axes")
     for ax in self.axes:
       ax.set_xlim(1, self.timerange + 1)
     
+    logging.info("Setting the xaxis ticks")
     self.set_xax_ticks()
-    
+
+    logging.info("Turning grid on")
     for ax in self.axes:
       ax.grid()
       
@@ -222,6 +246,6 @@ if __name__ == '__main__':
     { 'jsontag': 'WaterTable', 'pnum': 1, },
   ]
 
-  cmf = CMF(traces)
+  cmf = CMF(traces, sprows=2, figtitle="Monthly Hydro Plot")
   cmf.show()      
       
