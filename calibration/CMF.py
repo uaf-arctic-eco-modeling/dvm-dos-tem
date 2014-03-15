@@ -116,7 +116,7 @@ class CMF(object):
         if self.timerange < 12:
           self.resize( size=12 )  # don't resize to < 12 months
         else:
-          self.resize( size=ljfi )
+          self.resize( size=max(ljfi, 120) )
       else:
         pass
     except AssertionError as ae:
