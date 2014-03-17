@@ -134,12 +134,16 @@ class CMF(object):
       idx = YYYY_MM2idx( os.path.splitext(os.path.basename(file))[0] )
 
       for trace in self.traces:
-        if ( np.isnan(trace['data'][idx]) ):
-          with open(file) as f:
-            new_data = json.load(f)
-          #logging.debug(new_data)
-          trace['data'][idx] = new_data[ trace['jsontag'] ]
-    
+        try:
+          if ( np.isnan(trace['data'][idx]) ):
+            with open(file) as f:
+              new_data = json.load(f)
+            #logging.debug(new_data)
+            trace['data'][idx] = new_data[ trace['jsontag'] ]
+        except IndexError as e:
+          logging.error("Something is wrong - index out of bounds!!")
+          logging.error("length trace data container: %i" % len(trace['data']) )
+          logging.error("idx: %i" % idx)
     # http://stackoverflow.com/questions/10368371/matplotlib-animated-plot-wont-update-labels-on-axis-using-blit
     for trace in self.traces:
       a = trace['artist'][0]
@@ -151,7 +155,8 @@ class CMF(object):
     '''Initial drawing of the plot'''
     logging.info("Drawing plot background and loading all existing data..??.")
     # load all existing data?
-    
+    for ax in self.axes:
+      ax.set_ylim(0,200)
     # return list of trace artists to animate
     return [trace['artist'][0] for trace in self.traces]
     
@@ -241,6 +246,7 @@ def on_xlim_changed(ax):
 if __name__ == '__main__':
 
   traces = [
+    # pnum: which sub plot to be on, 0 based  
     { 'jsontag': 'Rainfall', 'pnum': 0, },
     { 'jsontag': 'Snowfall', 'pnum': 0, },
     { 'jsontag': 'WaterTable', 'pnum': 1, },
