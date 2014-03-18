@@ -127,7 +127,7 @@ class CMF(object):
     '''Update the plots based on data in the /tmp/cal-dvmdostem directory...'''
     logging.info("Frame %7i" % frame)
     
-    currentjsonfiles = glob.glob( '%s/*.json'%TMPDIR )
+    currentjsonfiles = sorted(glob.glob( '%s/*.json'%TMPDIR ))
     self.manage_plot_size(currentjsonfiles)
     
     for file in currentjsonfiles:
