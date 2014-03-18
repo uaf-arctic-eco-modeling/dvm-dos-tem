@@ -24,8 +24,8 @@ from IPython import embed
 
 import pdb
 
-# The 'glob' that gets used to build a list of all json files.
-TMPDIR = '/tmp/cal-dvmdostem/*.json'
+# The directory to look for json files.
+TMPDIR = '/tmp/cal-dvmdostem'
 
 # some logging stuff
 LOG_FORMAT = '%(levelname)-8s %(message)s'
@@ -127,7 +127,7 @@ class CMF(object):
     '''Update the plots based on data in the /tmp/cal-dvmdostem directory...'''
     logging.info("Frame %7i" % frame)
     
-    currentjsonfiles = glob.glob(TMPDIR)
+    currentjsonfiles = glob.glob( '%s/*.json'%TMPDIR )
     self.manage_plot_size(currentjsonfiles)
     
     for file in currentjsonfiles:
