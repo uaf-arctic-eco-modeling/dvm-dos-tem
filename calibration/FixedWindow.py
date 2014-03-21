@@ -1,10 +1,17 @@
 #!/usr/bin/env python
 
 import os
+import sys
 import glob
 import json
 import logging
 import time
+
+if (sys.platform == 'darwin') and (os.name == 'posix'):
+  # this is the only one that seems to work on Mac OSX with animation...
+  import matplotlib
+  matplotlib.use('TkAgg')
+
 
 import numpy as np
 import matplotlib.pyplot as plt
