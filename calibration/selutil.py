@@ -10,7 +10,6 @@ logging = logging.getLogger(__name__)
 
 def jfname2idx(jfname):
   '''Convert 'YYYY_MM*' str to index, e.g.: '0000_00.json' -> 0'''
-  logging.info("In the library func...")
   assert type(jfname) == str, "jfname (json file name) must be a string"
   year = int(jfname[0:4])
   month = int(jfname[5:7])
