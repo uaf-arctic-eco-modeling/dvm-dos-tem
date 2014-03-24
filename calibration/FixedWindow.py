@@ -9,6 +9,7 @@ import time
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
+from matplotlib.font_manager import FontProperties
 
 import selutil
 
@@ -32,14 +33,26 @@ class FixedWindow(object):
     self.viewport = viewport
 
     #figure and subplots
-    self.fig, self.axes = plt.subplots(sprows, spcols, sharex='all')
+    self.fig, self.axes = plt.subplots(sprows, spcols, sharex='col')
     self.fig.suptitle(figtitle)
+
 
     self.traces = traceslist
     self.setup_traces()
+#    for row in np.arange(0,3):
+#      plt.setp([a.set_xlabel('') for a in self.axes[row, :]], visible=False)
 
-    for ax in self.axes:
-      ax.legend()
+    #Prevents label/tick/plot overlapping
+#    self.fig.set_size_inches(9., 7., Forward=True)
+#    self.fig.set_dpi(90)
+    plt.tight_layout()
+    plt.subplots_adjust(bottom=0.09)
+
+    F = plt.gcf()
+    DPI = F.get_dpi()
+    DefaultSize = F.get_size_inches()
+    print "DPI: ", DPI
+    print "Default size: ", DefaultSize
 
     self.ani = animation.FuncAnimation(self.fig, self.update, interval=100,
                                        init_func=self.setup_plot, blit=True)
@@ -50,9 +63,7 @@ class FixedWindow(object):
     logging.info("Frame %7i" %frame)
 
     #wait until there are files?
-    #ok, this is ugly - need to fabricate a do-while somehow...
     while True:
-#      print "no files"
       time.sleep(.1)#seconds
       jsonfiles = sorted(glob.glob(TMPDIR + "/*.json"))
       if len(jsonfiles) > 0:
@@ -88,11 +99,14 @@ class FixedWindow(object):
 
   def setup_plot(self):
     '''Initial drawing of plot. Limits & labels set.'''
-    for ax in self.axes:
-      ax.set_ylim(0, 200)
-      ax.set_xlim(1, self.viewport)
-      ax.set_xlabel('Months') #ylabel is per trace
-      ax.legend()
+    fontP = FontProperties()
+    fontP.set_size('x-small')
+    for row in self.axes:
+      for ax in row:
+        ax.set_ylim(-30, 100)
+        ax.set_xlim(1, self.viewport)
+        ax.set_xlabel('Months') #ylabel is per trace
+        ax.legend(prop = fontP)
     return [trace['artist'][0] for trace in self.traces]
 
 
@@ -102,15 +116,16 @@ class FixedWindow(object):
     for trace in self.traces:
       logging.info("  data/tag: %s  -->  plot number %i" % (trace['jsontag'], trace['pnum']))
       trace['data'] = empty_container.copy()
-      trace['artist'] = self.axes[trace['pnum']].plot([],[], label=trace['jsontag'])
+      xindex = trace['pnum']/self.spcols
+      yindex = trace['pnum']%self.spcols
+      trace['artist'] = self.axes[xindex,yindex].plot([],[], label=trace['jsontag'])
       #This will overwrite if the traces have different units. Possible?
-      self.axes[trace['pnum']].set_ylabel(trace['unit'])
+      self.axes[xindex,yindex].set_ylabel(trace['unit'])
 
 
   def show(self):
     logging.info("Beginning render")
     plt.show()
-  
 
 
 if __name__ == '__main__':
@@ -120,15 +135,21 @@ if __name__ == '__main__':
     { 'jsontag': 'Rainfall', 'pnum': 0, 'unit': 'mm', },
     { 'jsontag': 'Snowfall', 'pnum': 0, 'unit': 'mm', },
     { 'jsontag': 'WaterTable', 'pnum': 1, 'unit': 'unit', },
+    { 'jsontag': 'VWCOrganicLayer', 'pnum': 2, 'unit': 'unit', },
+    { 'jsontag': 'VWCMineralLayer', 'pnum': 2, 'unit': 'unit', },
+    { 'jsontag': 'Evapotranspiration', 'pnum' : 3, 'unit': 'unit', },
+    { 'jsontag': 'ActiveLayerDepth', 'pnum': 4, 'unit': 'unit', },
+    { 'jsontag': 'TempAir', 'pnum': 5, 'unit': 'unit', },
+    { 'jsontag': 'TempOrganicLayer', 'pnum': 5, 'unit': 'unit', },
+    { 'jsontag': 'TempMineralLayer', 'pnum': 6, 'unit': 'unit', },
+    { 'jsontag': 'Year', 'pnum': 7, 'unit': 'unit', },
+    #{ 'jsontag': '', 'pnum': , 'unit': 'unit', },
   ]
 
   logging.warn("Starting main app...")
 
-  data_check = FixedWindow(traces, sprows=2, figtitle="Stuff")
+  data_check = FixedWindow(traces, sprows=4, spcols=2, figtitle="Hydro/Thermal")
   data_check.show()
-  
-  #testing that the module importing works...
-  selutil.jfname2idx('0000_00.json')
   
   logging.info("Done with main app...")
 
