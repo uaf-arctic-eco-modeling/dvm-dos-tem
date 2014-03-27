@@ -162,9 +162,13 @@ class ExpandingWindow(object):
       logging.info("Now look at each file and for each trace, load the right data into the temporary data container.")
       for file in files:
         idx = selutil.jfname2idx( os.path.basename(file) )
+        try:
+          with open(file) as f:
+            fdata = json.load(f)
+        except IOError as e:
+          logging.error("Problem opening file: %s" % file)
+          logging.error(e)
 
-        with open(file) as f:
-          fdata = json.load(f)
 
         for trace in self.traces:
           trace['tmpdata'][idx] = fdata[trace['jsontag']]
@@ -219,7 +223,7 @@ if __name__ == '__main__':
   ewp = ExpandingWindow(traces)
   
   
-  ewp.trace_data_from_tmp_dir()
+  ewp.sync_trace_data_with_tmp_dir()
   
   
   ewp.show(dynamic=True)
