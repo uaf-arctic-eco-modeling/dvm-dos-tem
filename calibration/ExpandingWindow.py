@@ -87,18 +87,23 @@ class ExpandingWindow(object):
     for ax in self.axes:
       ax.legend()
 
+    self.pretty_ticks()
+
+
+
+  def pretty_ticks(self):
     logging.info("Try to setup tick marks so they only fall on easy-to-comprehend month/year intervals...")
     acceptable_tic_locs_yrs = (1,5,10,20,30,40,50,75,100,200,300,400,500,750,1000,2000,3000,4000)
     acceptable_tic_locs_months = [yrs * 12 for yrs in acceptable_tic_locs_yrs ]
     num_visible_ticks = 7
     ideal_months_per_tick = (self.axes[0].get_xbound()[1] - self.axes[0].get_xbound()[0]) / num_visible_ticks
     locater_base = min(acceptable_tic_locs_months, key=lambda v: abs(v-ideal_months_per_tick))
-    
+
     logging.debug("x axis bounds: %i -> %i" % ( self.axes[0].get_xbound()[0], self.axes[0].get_xbound()[1] ) )
     logging.debug("ideal # of months per tick mark: %i" % ideal_months_per_tick )
     logging.debug("chosen # of months per tick mark: %i" % locater_base )
-  
-  
+
+
     loc = mplticker.MultipleLocator(base=locater_base)
 
     for ax in self.axes:
