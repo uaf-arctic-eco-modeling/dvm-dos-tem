@@ -121,7 +121,8 @@ class ExpandingWindow(object):
   def update_plot(self, frame):
     logging.info("Frame %8s" % frame)
     
-    #logging.info("Returning a list of artistss to get re-drawn.")
+    self.sync_trace_data_with_tmp_dir() 
+    #logging.info("Returning a list of artists to get re-drawn.")
     return [trace['artists'][0] for trace in self.traces]
 
   def show(self, dynamic=True):
@@ -135,15 +136,15 @@ class ExpandingWindow(object):
     plt.show()
 
 
-  def trace_data_from_tmp_dir(self):
+  def sync_trace_data_with_tmp_dir(self):
     files = sorted( glob.glob('%s/*.json' % TMPDIR) )
     logging.info("%i json files in %s" % (len(files), TMPDIR) )
     if len(files) == 0:
       logging.debug("No files present...Nothing to do.")
     else:
       logging.info("Find the first and last indices of the existing files")
-      fidx = selutil.jfname2idx( os.path.basename(files[0]) )
-      lidx = selutil.jfname2idx( os.path.basename(files[-1]) )
+      fidx = selutil.jfname2idx( os.path.basename(files[0]) )  # "First index"
+      lidx = selutil.jfname2idx( os.path.basename(files[-1]) ) # "Last index"
 
       logging.info("Make an xrange that can encompass all the files.")
       x = np.arange(lidx-fidx+1) # <- Careful! Assume fidx=0 lidx=11 (one year)
