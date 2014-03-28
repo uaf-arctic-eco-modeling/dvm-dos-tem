@@ -87,18 +87,23 @@ class ExpandingWindow(object):
     for ax in self.axes:
       ax.legend()
 
+    self.pretty_ticks()
+
+
+
+  def pretty_ticks(self):
     logging.info("Try to setup tick marks so they only fall on easy-to-comprehend month/year intervals...")
     acceptable_tic_locs_yrs = (1,5,10,20,30,40,50,75,100,200,300,400,500,750,1000,2000,3000,4000)
     acceptable_tic_locs_months = [yrs * 12 for yrs in acceptable_tic_locs_yrs ]
     num_visible_ticks = 7
     ideal_months_per_tick = (self.axes[0].get_xbound()[1] - self.axes[0].get_xbound()[0]) / num_visible_ticks
     locater_base = min(acceptable_tic_locs_months, key=lambda v: abs(v-ideal_months_per_tick))
-    
+
     logging.debug("x axis bounds: %i -> %i" % ( self.axes[0].get_xbound()[0], self.axes[0].get_xbound()[1] ) )
     logging.debug("ideal # of months per tick mark: %i" % ideal_months_per_tick )
     logging.debug("chosen # of months per tick mark: %i" % locater_base )
-  
-  
+
+
     loc = mplticker.MultipleLocator(base=locater_base)
 
     for ax in self.axes:
@@ -116,7 +121,8 @@ class ExpandingWindow(object):
   def update_plot(self, frame):
     logging.info("Frame %8s" % frame)
     
-    #logging.info("Returning a list of artistss to get re-drawn.")
+    self.sync_trace_data_with_tmp_dir() 
+    #logging.info("Returning a list of artists to get re-drawn.")
     return [trace['artists'][0] for trace in self.traces]
 
   def show(self, dynamic=True):
@@ -130,15 +136,15 @@ class ExpandingWindow(object):
     plt.show()
 
 
-  def trace_data_from_tmp_dir(self):
+  def sync_trace_data_with_tmp_dir(self):
     files = sorted( glob.glob('%s/*.json' % TMPDIR) )
     logging.info("%i json files in %s" % (len(files), TMPDIR) )
     if len(files) == 0:
       logging.debug("No files present...Nothing to do.")
     else:
       logging.info("Find the first and last indices of the existing files")
-      fidx = selutil.jfname2idx( os.path.basename(files[0]) )
-      lidx = selutil.jfname2idx( os.path.basename(files[-1]) )
+      fidx = selutil.jfname2idx( os.path.basename(files[0]) )  # "First index"
+      lidx = selutil.jfname2idx( os.path.basename(files[-1]) ) # "Last index"
 
       logging.info("Make an xrange that can encompass all the files.")
       x = np.arange(lidx-fidx+1) # <- Careful! Assume fidx=0 lidx=11 (one year)
@@ -156,9 +162,13 @@ class ExpandingWindow(object):
       logging.info("Now look at each file and for each trace, load the right data into the temporary data container.")
       for file in files:
         idx = selutil.jfname2idx( os.path.basename(file) )
+        try:
+          with open(file) as f:
+            fdata = json.load(f)
+        except IOError as e:
+          logging.error("Problem opening file: %s" % file)
+          logging.error(e)
 
-        with open(file) as f:
-          fdata = json.load(f)
 
         for trace in self.traces:
           trace['tmpdata'][idx] = fdata[trace['jsontag']]
@@ -213,7 +223,7 @@ if __name__ == '__main__':
   ewp = ExpandingWindow(traces)
   
   
-  ewp.trace_data_from_tmp_dir()
+  ewp.sync_trace_data_with_tmp_dir()
   
   
   ewp.show(dynamic=True)
