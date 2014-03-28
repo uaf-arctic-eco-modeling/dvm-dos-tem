@@ -39,7 +39,8 @@ class FixedWindow(object):
     self.spcols = spcols
     self.viewport = viewport
 
-    self.fig = plt.figure(figsize=(10,8))
+    #self.fig = plt.figure(figsize=(10,8))
+    self.fig = plt.figure(figsize=(8*1.3,6*1.3))
     for row in np.arange(1,self.sprows+1):
       for col in np.arange(1,self.spcols+1):
         #rows, columns, which plot
@@ -49,16 +50,12 @@ class FixedWindow(object):
     #figure and subplots
     #self.fig, self.axes = plt.subplots(sprows, spcols, sharex='col')
     self.fig.suptitle(figtitle)
-#    self.fig.set_size_inches(8*1.4,6*1.4)
-#    self.fig.set_dpi(90)
-#    self.fig.figure(num=1,figsize=(11,8))
 
     self.traces = traceslist
     self.setup_traces()
     #plt.setp([a.set_xlabel('') for a in self.axes[1:-self.spcols]], visible=False)
 
     #Prevents label/tick/plot overlapping
-#    plt.tight_layout()
 #    plt.subplots_adjust(bottom=0.09)
     #left, bottom, right, top, wspace, hspace
     plt.subplots_adjust(0.06,0.08,0.98,0.94,0.16,0.20)
@@ -132,8 +129,10 @@ class FixedWindow(object):
       ax.legend(prop = fontP, ncol=2,\
                 bbox_to_anchor=(0.5,1.15), loc='upper center')
       box = ax.get_position()
-    for ax in self.axes[-self.spcols:-1]:
+    for ax in self.axes[-self.spcols:]:
       ax.set_xlabel('Months')#ylabel is per trace
+    for ax in self.axes[0:-2]:
+      ax.set_xticklabels('',visible=False)
     #legend(self.axes[0,1],"testing", loc=(0.85,0.65), prop=fontP)
     return [trace['artist'][0] for trace in self.traces]
 

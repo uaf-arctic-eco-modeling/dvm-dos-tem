@@ -466,7 +466,6 @@ void RunCohort::run_timeseries(boost::shared_ptr<CalController> calcontroller_pt
             data["ActiveLayerDepth"] = cht.ed->m_soid.ald;
 
             /* Monthly Hydrodynamic information */
-            //data["Precipitation"] = rand()%100*1.0;
             data["Snowfall"] = cht.ed->m_a2l.snfl;
             data["Rainfall"] = cht.ed->m_a2l.rnfl;
             data["WaterTable"] = cht.ed->m_sois.watertab;
@@ -548,6 +547,41 @@ void RunCohort::run_timeseries(boost::shared_ptr<CalController> calcontroller_pt
   	   		//if(cht.equiled )break;
   	   	}
   	   	BOOST_LOG_SEV(glg, debug) << "Some end of year data for plotting...";
+
+            if(this->get_calMode()){    
+                Json::Value data;
+
+                std::ofstream out_stream;
+
+                data["Year"] = icalyr;
+                data["Snowfall"] = cht.ed->y_a2l.snfl;
+                data["Rainfall"] = cht.ed->y_a2l.rnfl;
+                data["WaterTable"] = cht.ed->y_sois.watertab;
+
+                for(int pft=0;pft<1;pft++){//NUM_PFT
+	                char pft_chars[5];
+	                sprintf(pft_chars, "%d", pft);
+	                std::string pft_str = std::string(pft_chars);
+	                //c++0x equivalent: std::string pftvalue = std::to_string(pft);
+	                data["PFT" + pft_str]["VegCarbon"]["Leaf"] = cht.bd[pft].y_vegs.c[I_leaf];
+	                data["PFT" + pft_str]["VegCarbon"]["Stem"] = cht.bd[pft].y_vegs.c[I_stem];
+	                data["PFT" + pft_str]["VegCarbon"]["Root"] = cht.bd[pft].y_vegs.c[I_root];
+	                data["PFT" + pft_str]["GPPAll"] = cht.bd[pft].y_a2v.gppall;
+	                data["PFT" + pft_str]["NPPAll"] = cht.bd[pft].y_a2v.nppall;
+	                data["PFT" + pft_str]["PARDown"] = cht.ed[pft].y_a2v.pardown;
+	                data["PFT" + pft_str]["PARAbsorb"] = cht.ed[pft].y_a2v.parabsorb;
+            }
+
+                std::stringstream filename;
+                filename.fill('0');
+                filename << "/tmp/year-cal-dvmdostem/" << std::setw(4) << icalyr << ".json";
+
+                out_stream.open(filename.str().c_str(), std::ofstream::out);
+
+                out_stream << data << std::endl;
+
+                out_stream.close();
+            }
 	} // end year loop
 
 }
