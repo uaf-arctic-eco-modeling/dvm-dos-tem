@@ -58,7 +58,7 @@ class FixedWindow(object):
     #Prevents label/tick/plot overlapping
 #    plt.subplots_adjust(bottom=0.09)
     #left, bottom, right, top, wspace, hspace
-    plt.subplots_adjust(0.06,0.08,0.98,0.94,0.16,0.20)
+    plt.subplots_adjust(0.06,0.08,0.98,0.94,0.18,0.20)
 
     F = plt.gcf()
     DPI = F.get_dpi()
@@ -88,33 +88,69 @@ class FixedWindow(object):
     selutil.assert_zero_start(jsonfiles)
     idx = 0
 
+############################################
+    #x is supposed to be the length of json file list
+    fidx = selutil.jfname2idx(os.path.splitext(os.path.basename(jsonfiles[0]))[0])
+    lidx = selutil.jfname2idx(os.path.splitext(os.path.basename(jsonfiles[-1]))[0])
+    x = np.arange(max(self.viewport,lidx-fidx+1))
+    x = x+1
+    tmpdata = np.empty(len(x))*np.nan
+    for trace in self.traces:
+      trace['tmpdata'] = tmpdata.copy()
     for file in jsonfiles:
       idx = selutil.jfname2idx(os.path.splitext(os.path.basename(file))[0])
+      with open(file) as f:
+        fdata = json.load(f)
       for trace in self.traces:
-        try:
-          if(np.isnan(trace['data'][idx])):
-            with open(file) as f:
-              try:
-                new_data = json.load(f)
-              except ValueError as ex:
-                pass
-                #embed()#rar
-            trace['data'][idx] = new_data[trace['jsontag']]
-        except IndexError as e:
-          logging.error("Index out of bounds")
-          logging.error("Length of data container: %i"%len(trace['data']))
-          logging.error("Index: %i"%idx)
-
+        trace['tmpdata'][idx] = fdata[trace['jsontag']]
+    for ax in self.axes:
+      for line in ax.lines:
+        for trace in self.traces:
+          if line.get_label() == trace['jsontag']:
+            line.set_data(x, trace['tmpdata'])
+          else:
+            pass
     for trace in self.traces:
-      a = trace['artist'][0]
-      artistlength = min(idx, self.viewport)
-      #Allow for there to be fewer data points than the width of the viewport
-      a.set_data(np.arange(1, artistlength+1),
-                 trace['data'][max(0,idx-self.viewport):idx])
+      del trace['tmpdata']
+
     for ax in self.axes:
       ax.relim()
-      ax.autoscale()
-      ymin, ymax = ax.yaxis.get_view_interval()
+      ax.autoscale(axis='y')
+      #ax.xaxis.set_view_interval(max(0,lidx-self.viewport),max(lidx,self.viewport))
+      ax.set_xlim(max(0,lidx-self.viewport),max(lidx,self.viewport))
+      limits = ax.get_xlim()
+      print limits
+      #embed()
+
+####################################################
+
+#    for file in jsonfiles:
+#      idx = selutil.jfname2idx(os.path.splitext(os.path.basename(file))[0])
+#      for trace in self.traces:
+#        try:
+#          if(np.isnan(trace['data'][idx])):
+#            with open(file) as f:
+#              try:
+#                new_data = json.load(f)
+#              except ValueError as ex:
+#                pass
+                #embed()#rar
+#            trace['data'][idx] = new_data[trace['jsontag']]
+#        except IndexError as e:
+#          logging.error("Index out of bounds")
+#          logging.error("Length of data container: %i"%len(trace['data']))
+#          logging.error("Index: %i"%idx)
+
+#    for trace in self.traces:
+#      a = trace['artist'][0]
+#      artistlength = min(idx, self.viewport)
+      #Allow for there to be fewer data points than the width of the viewport
+#      a.set_data(np.arange(1, artistlength+1),
+#                 trace['data'][max(0,idx-self.viewport):idx])
+#    for ax in self.axes:
+#      ax.relim()
+#      ax.autoscale()
+#      ymin, ymax = ax.yaxis.get_view_interval()
       #ax.set_ylim(ymin, ymax)
       #ax.autoscale_view(True,True,True)
     return [trace['artist'][0] for trace in self.traces]
@@ -162,9 +198,9 @@ if __name__ == '__main__':
     { 'jsontag': 'Rainfall', 'pnum': 0, 'unit': 'mm', },
     { 'jsontag': 'Snowfall', 'pnum': 0, 'unit': 'mm', },
     { 'jsontag': 'WaterTable', 'pnum': 1, 'unit': 'm', },
-    { 'jsontag': 'VWCOrganicLayer', 'pnum': 2, 'unit': 'unit', },#kg/m2?
+    { 'jsontag': 'VWCOrganicLayer', 'pnum': 2, 'unit': 'unit', },
     { 'jsontag': 'VWCMineralLayer', 'pnum': 2, 'unit': 'unit', },
-    { 'jsontag': 'Evapotranspiration', 'pnum' : 3, 'unit': 'unit', },
+    { 'jsontag': 'Evapotranspiration', 'pnum' : 3, 'unit': 'unit', 'ylims': [0,70]},
     { 'jsontag': 'ActiveLayerDepth', 'pnum': 4, 'unit': 'm', },
     { 'jsontag': 'TempAir', 'pnum': 5, 'unit': 'degrees C', },
     { 'jsontag': 'TempOrganicLayer', 'pnum': 5, 'unit': 'degrees C', },
