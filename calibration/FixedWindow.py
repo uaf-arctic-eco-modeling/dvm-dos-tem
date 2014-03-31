@@ -77,6 +77,9 @@ class FixedWindow(object):
     '''Update plots from all json files in /tmp/cal-dvmdostem/'''
     logging.info("Frame %7i" %frame)
 
+    #if frame < 4:#rar TODO: this is stupid. fix it.
+    #  plt.draw()
+
     #wait until there are files?
     while True:
       time.sleep(.1)#seconds
@@ -121,7 +124,7 @@ class FixedWindow(object):
     #   #embed()
 
 ####################################################
-
+    redraw_needed = False;
     for file in jsonfiles:
       idx = selutil.jfname2idx(os.path.splitext(os.path.basename(file))[0])
       for trace in self.traces:
@@ -147,10 +150,18 @@ class FixedWindow(object):
                  trace['data'][max(0,idx-self.viewport):idx])
     for ax in self.axes:
       ax.relim()
+      ymin_pre, ymax_pre = ax.yaxis.get_view_interval()
       ax.autoscale(axis='y')
-      ymin, ymax = ax.yaxis.get_view_interval()
+      ylims_post = ax.yaxis.get_view_interval()
+      print "y limits after: " + str(ylims_post[0]) + ", " + str(ylims_post[1])
+      if (ymin_pre!=ylims_post[0] or ymax_pre!=ylims_post[1]):
+      	print "y limits changed. Redrawing"
+        redraw_needed = True
       #ax.set_ylim(ymin, ymax)
       #ax.autoscale_view(True,True,True)
+    if redraw_needed:
+    	plt.draw()
+      
     return [trace['artist'][0] for trace in self.traces]
 
   def setup_plot(self):
@@ -196,14 +207,15 @@ if __name__ == '__main__':
     { 'jsontag': 'Rainfall', 'pnum': 0, 'unit': 'mm', },
     { 'jsontag': 'Snowfall', 'pnum': 0, 'unit': 'mm', },
     { 'jsontag': 'WaterTable', 'pnum': 1, 'unit': 'm', },
-    { 'jsontag': 'VWCOrganicLayer', 'pnum': 2, 'unit': 'unit', },
-    { 'jsontag': 'VWCMineralLayer', 'pnum': 2, 'unit': 'unit', },
-    { 'jsontag': 'Evapotranspiration', 'pnum' : 3, 'unit': 'unit', 'ylims': [0,70]},
+    { 'jsontag': 'VWCOrganicLayer', 'pnum': 2, 'unit': '%', },
+    { 'jsontag': 'VWCMineralLayer', 'pnum': 2, 'unit': '%', },
+    { 'jsontag': 'Evapotranspiration', 'pnum' : 3, 'unit': 'mm/time unit', },
     { 'jsontag': 'ActiveLayerDepth', 'pnum': 4, 'unit': 'm', },
     { 'jsontag': 'TempAir', 'pnum': 5, 'unit': 'degrees C', },
     { 'jsontag': 'TempOrganicLayer', 'pnum': 5, 'unit': 'degrees C', },
     { 'jsontag': 'TempMineralLayer', 'pnum': 6, 'unit': 'degrees C', },
-    { 'jsontag': 'Year', 'pnum': 7, 'unit': 'W/m2', },#placeholder for PAR
+    { 'jsontag': 'PARDownSum', 'pnum': 7, 'unit': 'W/m2', },
+    { 'jsontag': 'PARAbsorbSum', 'pnum': 7, 'unit': 'W/m2', },
     #{ 'jsontag': '', 'pnum': , 'unit': 'unit', },
   ]
 

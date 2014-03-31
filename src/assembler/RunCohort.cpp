@@ -485,6 +485,8 @@ void RunCohort::run_timeseries(boost::shared_ptr<CalController> calcontroller_pt
             data["Evapotranspiration"] = cht.ed->m_l2a.eet;
 
             /* PFT dependent variables */
+            double parDownSum = 0;
+            double parAbsorbSum = 0;
             for(int pft=0;pft<NUM_PFT;pft++){
                 char pft_chars[5];
                 sprintf(pft_chars, "%d", pft);
@@ -503,8 +505,12 @@ void RunCohort::run_timeseries(boost::shared_ptr<CalController> calcontroller_pt
                 data["PFT" + pft_str]["LitterfallCarbonAll"] = cht.bd[pft].m_v2soi.ltrfalcall;
                 data["PFT" + pft_str]["LitterfallNitrogenAll"] = cht.bd[pft].m_v2soi.ltrfalnall;
                 data["PFT" + pft_str]["PARDown"] = cht.ed[pft].m_a2v.pardown;
+                parDownSum+=cht.ed[pft].m_a2v.pardown;
                 data["PFT" + pft_str]["PARAbsorb"] = cht.ed[pft].m_a2v.parabsorb;
+                parAbsorbSum+=cht.ed[pft].m_a2v.parabsorb;
             }
+            data["PARAbsorbSum"] = parAbsorbSum;
+            data["PARDownSum"] = parDownSum;
 
             /* Not PFT dependent */
             data["NitrogenUptakeAll"] = cht.bd->m_soi2v.snuptakeall;
