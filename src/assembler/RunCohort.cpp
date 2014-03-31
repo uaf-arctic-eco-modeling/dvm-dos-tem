@@ -247,9 +247,16 @@ void RunCohort::run_cohortly(){
               BOOST_LOG_SEV(glg, info) << "Pausing. Please check that the 'pre-run' data looks good.";
               calcontroller_ptr->pause();
               BOOST_LOG_SEV(glg, info) << "Clearing out json files from pre-run...";
+
               boost::filesystem::path json_tmp_dir("/tmp/cal-dvmdostem");
               boost::filesystem::remove_all(json_tmp_dir);
               boost::filesystem::create_directory(json_tmp_dir);
+
+              boost::filesystem::path yr_json_tmp_dir("/tmp/year-cal-dvmdostem");
+              boost::filesystem::remove_all(yr_json_tmp_dir);
+              boost::filesystem::create_directory(yr_json_tmp_dir);
+
+
             }
 			//
 			cht.timer->reset();
