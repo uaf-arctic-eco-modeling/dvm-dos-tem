@@ -77,9 +77,6 @@ class FixedWindow(object):
     '''Update plots from all json files in /tmp/cal-dvmdostem/'''
     logging.info("Frame %7i" %frame)
 
-    #if frame < 4:#rar TODO: this is stupid. fix it.
-    #  plt.draw()
-
     #wait until there are files?
     while True:
       time.sleep(.1)#seconds
@@ -153,13 +150,12 @@ class FixedWindow(object):
       ymin_pre, ymax_pre = ax.yaxis.get_view_interval()
       ax.autoscale(axis='y')
       ylims_post = ax.yaxis.get_view_interval()
-      print "y limits after: " + str(ylims_post[0]) + ", " + str(ylims_post[1])
       if (ymin_pre!=ylims_post[0] or ymax_pre!=ylims_post[1]):
-      	print "y limits changed. Redrawing"
         redraw_needed = True
       #ax.set_ylim(ymin, ymax)
       #ax.autoscale_view(True,True,True)
     if redraw_needed:
+    	print "redrawing"
     	plt.draw()
       
     return [trace['artist'][0] for trace in self.traces]
