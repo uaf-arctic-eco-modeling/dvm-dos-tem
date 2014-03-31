@@ -39,7 +39,6 @@ class FixedWindow(object):
     self.spcols = spcols
     self.viewport = viewport
 
-    #self.fig = plt.figure(figsize=(10,8))
     self.fig = plt.figure(figsize=(8*1.3,6*1.3))
     for row in np.arange(1,self.sprows+1):
       for col in np.arange(1,self.spcols+1):
@@ -90,67 +89,66 @@ class FixedWindow(object):
 
 ############################################
     #x is supposed to be the length of json file list
-    fidx = selutil.jfname2idx(os.path.splitext(os.path.basename(jsonfiles[0]))[0])
-    lidx = selutil.jfname2idx(os.path.splitext(os.path.basename(jsonfiles[-1]))[0])
-    x = np.arange(max(self.viewport,lidx-fidx+1))
-    x = x+1
-    tmpdata = np.empty(len(x))*np.nan
-    for trace in self.traces:
-      trace['tmpdata'] = tmpdata.copy()
-    for file in jsonfiles:
-      idx = selutil.jfname2idx(os.path.splitext(os.path.basename(file))[0])
-      with open(file) as f:
-        fdata = json.load(f)
-      for trace in self.traces:
-        trace['tmpdata'][idx] = fdata[trace['jsontag']]
-    for ax in self.axes:
-      for line in ax.lines:
-        for trace in self.traces:
-          if line.get_label() == trace['jsontag']:
-            line.set_data(x, trace['tmpdata'])
-          else:
-            pass
-    for trace in self.traces:
-      del trace['tmpdata']
+    # fidx = selutil.jfname2idx(os.path.splitext(os.path.basename(jsonfiles[0]))[0])
+    # lidx = selutil.jfname2idx(os.path.splitext(os.path.basename(jsonfiles[-1]))[0])
+    # x = np.arange(max(self.viewport,lidx-fidx+1))
+    # x = x+1
+    # tmpdata = np.empty(len(x))*np.nan
+    # for trace in self.traces:
+    #   trace['tmpdata'] = tmpdata.copy()
+    # for file in jsonfiles:
+    #   idx = selutil.jfname2idx(os.path.splitext(os.path.basename(file))[0])
+    #   with open(file) as f:
+    #     fdata = json.load(f)
+    #   for trace in self.traces:
+    #     trace['tmpdata'][idx] = fdata[trace['jsontag']]
+    # for ax in self.axes:
+    #   for line in ax.lines:
+    #     for trace in self.traces:
+    #       if line.get_label() == trace['jsontag']:
+    #         line.set_data(x, trace['tmpdata'])
+    #       else:
+    #         pass
+    # for trace in self.traces:
+    #   del trace['tmpdata']
 
-    for ax in self.axes:
-      ax.relim()
-      ax.autoscale(axis='y')
-      #ax.xaxis.set_view_interval(max(0,lidx-self.viewport),max(lidx,self.viewport))
-      ax.set_xlim(max(0,lidx-self.viewport),max(lidx,self.viewport))
-      limits = ax.get_xlim()
-      print limits
-      #embed()
+    # for ax in self.axes:
+    #   ax.relim()
+    #   ax.autoscale(axis='y')
+    #   ax.set_xlim(max(0,lidx-self.viewport),max(lidx,self.viewport))
+    #   limits = ax.get_xlim()
+    #   print limits
+    #   #embed()
 
 ####################################################
 
-#    for file in jsonfiles:
-#      idx = selutil.jfname2idx(os.path.splitext(os.path.basename(file))[0])
-#      for trace in self.traces:
-#        try:
-#          if(np.isnan(trace['data'][idx])):
-#            with open(file) as f:
-#              try:
-#                new_data = json.load(f)
-#              except ValueError as ex:
-#                pass
+    for file in jsonfiles:
+      idx = selutil.jfname2idx(os.path.splitext(os.path.basename(file))[0])
+      for trace in self.traces:
+        try:
+          if(np.isnan(trace['data'][idx])):
+            with open(file) as f:
+              try:
+                new_data = json.load(f)
+              except ValueError as ex:
+                pass
                 #embed()#rar
-#            trace['data'][idx] = new_data[trace['jsontag']]
-#        except IndexError as e:
-#          logging.error("Index out of bounds")
-#          logging.error("Length of data container: %i"%len(trace['data']))
-#          logging.error("Index: %i"%idx)
-
-#    for trace in self.traces:
-#      a = trace['artist'][0]
-#      artistlength = min(idx, self.viewport)
+            trace['data'][idx] = new_data[trace['jsontag']]
+        except IndexError as e:
+          logging.error("Index out of bounds")
+          logging.error("Length of data container: %i"%len(trace['data']))
+          logging.error("Index: %i"%idx)
+   
+    for trace in self.traces:
+      a = trace['artist'][0]
+      artistlength = min(idx, self.viewport)
       #Allow for there to be fewer data points than the width of the viewport
-#      a.set_data(np.arange(1, artistlength+1),
-#                 trace['data'][max(0,idx-self.viewport):idx])
-#    for ax in self.axes:
-#      ax.relim()
-#      ax.autoscale()
-#      ymin, ymax = ax.yaxis.get_view_interval()
+      a.set_data(np.arange(1, artistlength+1),
+                 trace['data'][max(0,idx-self.viewport):idx])
+    for ax in self.axes:
+      ax.relim()
+      ax.autoscale(axis='y')
+      ymin, ymax = ax.yaxis.get_view_interval()
       #ax.set_ylim(ymin, ymax)
       #ax.autoscale_view(True,True,True)
     return [trace['artist'][0] for trace in self.traces]
@@ -210,6 +208,9 @@ if __name__ == '__main__':
   ]
 
   logging.warn("Starting main app...")
+
+  selutil.check_dir("/tmp/year-cal-dvmdostem")
+  selutil.check_dir("/tmp/cal-dvmdostem")
 
   data_check = FixedWindow(traces, sprows=4, spcols=2, figtitle="Hydro/Thermal")
   data_check.show()

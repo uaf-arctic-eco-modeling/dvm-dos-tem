@@ -1,12 +1,17 @@
 #!/usr/bin/env python
 
 
-# A bunch of utility fucntions for dvm-dos-tem calibration plotting
+# A bunch of utility functions for dvm-dos-tem calibration plotting
 
 import logging
 import os
 
 logging = logging.getLogger(__name__)
+
+def check_dir(directory):
+  '''Check for the existence of a directory. If it does not exist, create it.'''
+  if not os.path.isdir(directory):
+    os.mkdir(directory)
 
 def jfname2idx(jfname):
   '''Convert 'YYYY_MM*' str to index, e.g.: '0000_00.json' -> 0'''
