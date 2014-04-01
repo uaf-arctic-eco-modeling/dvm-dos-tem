@@ -44,13 +44,17 @@ class ExpandingWindow(object):
 
     self.fig, self.axes = plt.subplots(rows, cols, sharex='all')
     self.fig.suptitle(figtitle)
+    
+    plt.xlabel("Years")
+  
   
     x = np.arange(0)
     y = x.copy() * np.nan
   
+    logging.info("Setting up empty x,y data for every trace...")
     for trace in self.traces:
       ax = self.axes[ trace['axesnum'] ]
-      trace['artists'] = ax.plot(x, y, label=trace['jsontag'], animated=True)
+      trace['artists'] = ax.plot(x, y, label=trace['jsontag'])
     
     logging.info("Relimiting and autoscaling...")
     for ax in self.axes:
@@ -59,24 +63,18 @@ class ExpandingWindow(object):
       ax.grid()
       ax.legend()
     
+    logging.info("Loading em up!")
+    self.loademupskis()
+    
     logging.info("Done creating an expanding window plot object...")
 
   def init(self):
     logging.info("Init function for animation")
-    
+    #self.loademupskis()
     return [trace['artists'][0] for trace in self.traces]
 
-  def update(self, frame):
-    logging.info("Frame %7i" % frame)
-    
-    axvlm = []
-    
-    logging.info("----------before update-------------------")
-    for ax in self.axes:
-      logging.info(ax.viewLim)
-      axvlm.append(ax.viewLim)
-    logging.info("------------------------------------------")
-    
+  def loademupskis(self):
+    logging.info("LAOD 'EM UP-SKIIS!")
     
     files = sorted( glob.glob('%s/*.json' % YRTMPDIR) )
     logging.info("%i json files in %s" % (len(files), YRTMPDIR) )
@@ -124,29 +122,22 @@ class ExpandingWindow(object):
         else:
           pass # wrong line...
   
-    #self.pretty_ticks()
-  
     # clean up temproary storage
     for trace in self.traces:
-     del trace['tmpy']
-    
+      del trace['tmpy']
+    logging.info("Relimit axes, autoscale axes. Turn on grid and legend.")
     for ax in self.axes:
       ax.relim()
       ax.autoscale()
-    
-    logging.info("----------after update-------------------")
-    for i, ax in enumerate(self.axes):
-      logging.info("axes %i: %s" % (i, axvlm[i]))
-      logging.info("axes %i: %s" % (i, ax.viewLim))
+      ax.grid()
+      ax.legend()
 
-      if axvlm[i] != ax.viewLim:
-        logging.info("Need to re-draw!!")
-        ax.relim()
-        ax.autoscale()
-        plt.draw()
-    logging.info("------------------------------------------")
-
+  def update(self, frame):
+    logging.info("Frame %7i" % frame)
     
+    #self.describe_existing_axes_and_lines(detail=1)
+    #self.loademupskis()
+
     return [trace['artists'][0] for trace in self.traces]
 
   def pretty_ticks(self):
@@ -169,9 +160,6 @@ class ExpandingWindow(object):
       ax.grid()
 
 
-
-
-
   def show(self, dynamic=True):
     logging.info("Displaying plot with dynamic=%s" % dynamic)
 
@@ -180,16 +168,24 @@ class ExpandingWindow(object):
       self.ani = animation.FuncAnimation(self.fig, self.update, interval=100,
                                        init_func=self.init, blit=True)
   
+    #embed()
     plt.show()
 
       
 
-  def describe_existing_axes_and_lines(self):
+  def describe_existing_axes_and_lines(self, detail=0):
     logging.debug("-- Axes and Lines Report ------------------------")
     for i, ax in enumerate(self.axes):
       logging.debug("  axes%i: %s" % (i, ax) )
       for j, line in enumerate(ax.lines):
         logging.debug("    line%i: %s" % (j, line) )
+        if detail >= 1:
+          x = line.get_xdata()
+          if len(x) > 0:
+            logging.debug("      x data (len %s): [%s..%s]" % (len(x), x[0], x[-1] ))
+          y = line.get_ydata()
+          if len(y) > 0:
+            logging.debug("      y data(len %s): [%s..%s]" % (len(y), y[0], y[-1] ))
     logging.debug("-------------------------------------------------")
 
 if __name__ == '__main__':
