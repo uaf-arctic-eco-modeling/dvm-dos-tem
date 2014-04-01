@@ -134,7 +134,7 @@ class ExpandingWindow(object):
       del trace['tmpy']
 
 
-    # ----- RElIMIT and SCALE
+    # ----- RELIMIT and SCALE
     self.relim_autoscale_draw()
     self.grid_and_legend()
     self.report_view_and_data_lims()
@@ -192,7 +192,7 @@ class ExpandingWindow(object):
     logging.debug("Turn on grid and legend.")
     for ax in self.axes:
       ax.grid(True) # <-- w/o parameter, this toggles!!
-      ax.legend(prop={'size':10})
+      ax.legend(prop={'size':10.0})
 
 
   def show(self, dynamic=True):
@@ -238,8 +238,18 @@ if __name__ == '__main__':
 
     { 'jsontag': 'WaterTable', 'axesnum': 3, },
 
-    { 'jsontag': 'MossdeathCarbon', 'axesnum': 4, },
-    { 'jsontag': 'MossdeathNitrogen', 'axesnum': 4, },
+    { 'jsontag': 'LitterfallCarbonAll', 'axesnum': 4, 'pft': 'PFT0', },
+    { 'jsontag': 'LitterfallNitrogenAll', 'axesnum': 4, 'pft': 'PFT0', },
+
+
+
+# gotta figure out how to handle nan. maybe set to null on encoder side?
+#    { 'jsontag': 'CarbonShallow', 'axesnum': 4, },
+#    { 'jsontag': 'CarbonDeep', 'axesnum': 4, },
+#    { 'jsontag': 'CarbonMineralSum', 'axesnum': 4, },
+
+#    { 'jsontag': 'MossdeathCarbon', 'axesnum': 4, },
+#    { 'jsontag': 'MossdeathNitrogen', 'axesnum': 4, },
   ]
   
   logging.info("Starting main app...")
