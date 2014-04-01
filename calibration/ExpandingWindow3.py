@@ -70,11 +70,21 @@ class ExpandingWindow(object):
 
   def init(self):
     logging.info("Init function for animation")
+
     #self.loademupskis()
     return [trace['artists'][0] for trace in self.traces]
 
+
+  def report_view_lims(self):
+    for i, ax in enumerate(self.axes):
+      (x0,y0),(x1,y1) = ax.viewLim.get_points()
+      logging.info("Axes %i X: %s - %s Y: %s - %s" % (i, x0,x1, y0,y1) )
+
+
   def loademupskis(self):
-    logging.info("LAOD 'EM UP-SKIIS!")
+    logging.info("LOAD 'EM UPSKIS!")
+    
+    self.report_view_lims()
     
     files = sorted( glob.glob('%s/*.json' % YRTMPDIR) )
     logging.info("%i json files in %s" % (len(files), YRTMPDIR) )
@@ -125,20 +135,34 @@ class ExpandingWindow(object):
     # clean up temproary storage
     for trace in self.traces:
       del trace['tmpy']
-    logging.info("Relimit axes, autoscale axes. Turn on grid and legend.")
-    for ax in self.axes:
-      ax.relim()
-      ax.autoscale()
-      ax.grid()
-      ax.legend()
+
+    self.report_view_lims()
+    self.relim_and_autoscale()
+    self.grid_and_legend()
+    self.report_view_lims()
+    logging.info("Done loading 'em upskis.")
 
   def update(self, frame):
     logging.info("Frame %7i" % frame)
-    
-    #self.describe_existing_axes_and_lines(detail=1)
-    #self.loademupskis()
+
+    self.loademupskis()
 
     return [trace['artists'][0] for trace in self.traces]
+
+
+  def relim_and_autoscale(self):
+    logging.info("Relimit axes, autoscale axes.")
+    for ax in self.axes:
+      ax.relim()
+      ax.autoscale()
+    plt.draw()
+
+  def grid_and_legend(self):
+    logging.info("Turn on grid and legend.")
+    for ax in self.axes:
+      ax.grid(True) # <-- w/o parameter, this toggles
+      ax.legend()
+
 
   def pretty_ticks(self):
     logging.info("Try to setup tick marks so they only fall on easy-to-comprehend month/year intervals...")
@@ -165,7 +189,7 @@ class ExpandingWindow(object):
 
     if dynamic:
       logging.info("Setup animation.")
-      self.ani = animation.FuncAnimation(self.fig, self.update, interval=100,
+      self.ani = animation.FuncAnimation(self.fig, self.update, interval=10000,
                                        init_func=self.init, blit=True)
   
     #embed()
