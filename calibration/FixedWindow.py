@@ -55,9 +55,10 @@ class FixedWindow(object):
     #plt.setp([a.set_xlabel('') for a in self.axes[1:-self.spcols]], visible=False)
 
     #Prevents label/tick/plot overlapping
-#    plt.subplots_adjust(bottom=0.09)
     #left, bottom, right, top, wspace, hspace
-    plt.subplots_adjust(0.06,0.08,0.98,0.94,0.18,0.20)
+    #plt.subplots_adjust(0.06,0.08,0.98,0.94,0.18,0.20)
+    #.09 left should allow units to show even if tick labels are -x.xx
+    plt.subplots_adjust(0.09,0.08,0.98,0.94,0.18,0.20)
 
     F = plt.gcf()
     DPI = F.get_dpi()
@@ -121,7 +122,7 @@ class FixedWindow(object):
     #   #embed()
 
 ####################################################
-    redraw_needed = False;
+    redraw_needed = False;#Used to determine if y-axis limits have changed.
     for file in jsonfiles:
       idx = selutil.jfname2idx(os.path.splitext(os.path.basename(file))[0])
       for trace in self.traces:
@@ -145,6 +146,7 @@ class FixedWindow(object):
       #Allow for there to be fewer data points than the width of the viewport
       a.set_data(np.arange(1, artistlength+1),
                  trace['data'][max(0,idx-self.viewport):idx])
+
     for ax in self.axes:
       ax.relim()
       ymin_pre, ymax_pre = ax.yaxis.get_view_interval()
@@ -152,13 +154,13 @@ class FixedWindow(object):
       ylims_post = ax.yaxis.get_view_interval()
       if (ymin_pre!=ylims_post[0] or ymax_pre!=ylims_post[1]):
         redraw_needed = True
-      #ax.set_ylim(ymin, ymax)
-      #ax.autoscale_view(True,True,True)
+
     if redraw_needed:
     	print "redrawing"
     	plt.draw()
       
     return [trace['artist'][0] for trace in self.traces]
+
 
   def setup_plot(self):
     '''Initial drawing of plot. Limits & labels set.'''
@@ -187,7 +189,7 @@ class FixedWindow(object):
       xindex = trace['pnum']/self.spcols
       yindex = trace['pnum']%self.spcols
       trace['artist'] = self.axes[trace['pnum']].plot([],[], label=trace['jsontag'])
-      #This will overwrite if the traces have different units. Possible?
+      #This will overwrite if the traces have different units. Is that possible?
       self.axes[trace['pnum']].set_ylabel(trace['unit'])
 
 
