@@ -160,7 +160,7 @@ class ExpandingWindow(object):
   def grid_and_legend(self):
     logging.info("Turn on grid and legend.")
     for ax in self.axes:
-      ax.grid(True) # <-- w/o parameter, this toggles
+      ax.grid(True) # <-- w/o parameter, this toggles!!
       ax.legend()
 
 
@@ -181,7 +181,7 @@ class ExpandingWindow(object):
 
     for ax in self.axes:
       ax.xaxis.set_major_locator(loc)
-      ax.grid()
+      ax.grid(True)
 
 
   def show(self, dynamic=True):
@@ -189,7 +189,7 @@ class ExpandingWindow(object):
 
     if dynamic:
       logging.info("Setup animation.")
-      self.ani = animation.FuncAnimation(self.fig, self.update, interval=10000,
+      self.ani = animation.FuncAnimation(self.fig, self.update, interval=1000,
                                        init_func=self.init, blit=True)
   
     #embed()
