@@ -174,6 +174,9 @@ class ExpandingWindow(object):
     if event.key == 'ctrl+r':
       logging.info("RELOAD / RESET VIEW. Load all data, relimit, and autoscale.")
       self.load_data2plot(relim=True, autoscale=True)
+    if event.key == 'ctrl+q':
+      logging.info("QUIT")
+      plt.close()
 
   def relim_autoscale_draw(self):
     '''Relimit the axes, autoscale the axes, and try to force a re-draw.'''
