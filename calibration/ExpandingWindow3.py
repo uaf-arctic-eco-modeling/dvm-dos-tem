@@ -60,7 +60,7 @@ class ExpandingWindow(object):
     self.relim_autoscale_draw()
     self.grid_and_legend()
     
-    self.loademupskis(relim=True, autoscale=True)
+    self.load_data2plot(relim=True, autoscale=True)
   
     logging.info("Done creating an expanding window plot object...")
 
@@ -70,10 +70,10 @@ class ExpandingWindow(object):
 
     return [trace['artists'][0] for trace in self.traces]
 
-  def loademupskis(self, relim, autoscale):
+  def load_data2plot(self, relim, autoscale):
     log = logging.getLogger('dataloader')
 
-    log.info("LOAD 'EM UPSKIS!")
+    log.info("Load data to plot. Relimit data?: %s  Autoscale?: %s", relim, autoscale)
     
     files = sorted( glob.glob('%s/*.json' % YRTMPDIR) )
     log.info("%i json files in %s" % (len(files), YRTMPDIR) )
@@ -137,7 +137,7 @@ class ExpandingWindow(object):
       log.info("Force draw after autoscale")
       plt.draw()
 
-    log.info("Done loading 'em upskis.")
+    log.info("Finished loading data.")
 
   def update(self, frame):
     '''The animation updating function. Loads new data, but only upates view
@@ -162,17 +162,18 @@ class ExpandingWindow(object):
     if vx0 > dx0 or vx1 < dx1 or vy0 > dy0 or vy1 < dy1:
       logging.info("View limits are inside data limits. User must be zoomed in!")
       logging.info("Upate artists, recompute data limits, but don't touch the view.")
-      self.loademupskis(relim=True, autoscale=False)
+      self.load_data2plot(relim=True, autoscale=False)
       return []  # nothing to re-draw when zoomed in.
     else:
       logging.info("Data limits are inside view limits. Load data and redraw.")
-      self.loademupskis(relim=True, autoscale=True)
+      self.load_data2plot(relim=True, autoscale=True)
       return [trace['artists'][0] for trace in self.traces]
 
   def key_press_event(self, event):
     logging.debug("You pressed: %s. Cursor at x: %s y: %s" % (event.key, event.xdata, event.ydata))
     if event.key == 'ctrl+r':
-      self.loademupskis(relim=True, autoscale=True)
+      logging.info("RELOAD / RESET VIEW. Load all data, relimit, and autoscale.")
+      self.load_data2plot(relim=True, autoscale=True)
 
   def relim_autoscale_draw(self):
     '''Relimit the axes, autoscale the axes, and try to force a re-draw.'''
