@@ -23,13 +23,41 @@ import selutil
 from IPython import embed
 import pdb
 
-# The directory to look for json files.
+# The directories to look in for json files.
 TMPDIR = '/tmp/cal-dvmdostem'
 YRTMPDIR = '/tmp/year-cal-dvmdostem'
 
 # some logging stuff
 LOG_FORMAT = '%(levelname)-7s %(name)-8s %(message)s'
 logging.basicConfig(level=logging.DEBUG, format=LOG_FORMAT)
+
+#
+# Disable some buttons on the default toobar that freeze the program.
+# There might be a better way to do this. Inspired from here:
+# http://matplotlib.1069221.n5.nabble.com/Overriding-Save-button-on-Toolbar-td40864.html
+#
+# More info here:
+# http://stackoverflow.com/questions/14896580/matplotlib-hooking-in-to-home-back-forward-button-events
+#
+
+from matplotlib.backend_bases import NavigationToolbar2
+
+def home_overload(self, *args, **kwargs):
+  logging.info("HOME button pressed. DISABLED; doing nothing.")
+  return 'break'
+
+def back_overload(self, *args, **kwargs):
+  logging.info("BACK button pressed. DISABLED; doing nothing.")
+  return 'break'
+
+def forward_overload(self, *args, **kwargs):
+  logging.info("FORWARD button pressed. DISABLED; doing nothing.")
+  return 'break'
+
+
+NavigationToolbar2.home = home_overload
+NavigationToolbar2.back = back_overload
+NavigationToolbar2.forward = forward_overload
 
 
 class ExpandingWindow(object):
