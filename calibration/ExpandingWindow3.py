@@ -46,6 +46,8 @@ class ExpandingWindow(object):
     self.fig, self.axes = plt.subplots(rows, cols, sharex='all')
     self.fig.suptitle(figtitle)
     
+    self.fig.canvas.mpl_connect('key_press_event', self.key_press_event)
+
     plt.xlabel("Years")
     
     x = np.arange(0)
@@ -58,20 +60,24 @@ class ExpandingWindow(object):
     self.relim_autoscale_draw()
     self.grid_and_legend()
     
-    self.loademupskis()
+    self.loademupskis(relim=True, autoscale=True)
   
     logging.info("Done creating an expanding window plot object...")
+
 
   def init(self):
     logging.info("Init function for animation")
 
     return [trace['artists'][0] for trace in self.traces]
 
-
+  def key_press_event(self, event):
+    print('you pressed', event.key, event.xdata, event.ydata)
+    if event.key == 'ctrl+r':
+      self.loademupskis(relim=True, autoscale=True)
 
 
   def report_view_and_data_lims(self):
-    logging.info("{0:-^56s}".format("Report Data and View Limits"))
+    logging.info("{0:>10s} {1:>10s} {2:>10s} {3:>10s} {4:>10s}".format('---','d0', 'd1', 'v0', 'v1'))
     for i, ax in enumerate(self.axes):
       (dx0,dy0),(dx1,dy1) = ax.dataLim.get_points()
       (vx0,vy0),(vx1,vy1) = ax.viewLim.get_points()
@@ -80,7 +86,7 @@ class ExpandingWindow(object):
 
 
 
-  def loademupskis(self):
+  def loademupskis(self, relim, autoscale):
     logging.info("LOAD 'EM UPSKIS!")
     
     files = sorted( glob.glob('%s/*.json' % YRTMPDIR) )
@@ -135,8 +141,18 @@ class ExpandingWindow(object):
 
 
     # ----- RELIMIT and SCALE
-    self.relim_autoscale_draw()
-    self.grid_and_legend()
+    if relim:
+      logging.info("Recomputing data limits based on artist data")
+      for ax in self.axes:
+        ax.relim()
+    if autoscale:
+      for ax in self.axes:
+        ax.autoscale(enable=True, axis='both', tight=False)
+      logging.info("Force draw after autoscale")
+      plt.draw()
+
+    #self.grid_and_legend()
+
     self.report_view_and_data_lims()
   
     logging.info("Done loading 'em upskis.")
@@ -152,41 +168,84 @@ class ExpandingWindow(object):
       (dx0,dy0),(dx1,dy1) = ax.dataLim.get_points()
       (vx0,vy0),(vx1,vy1) = ax.viewLim.get_points()
     
-
     files = sorted( glob.glob('%s/*.json' % YRTMPDIR) )
     logging.info("%i json files in %s" % (len(files), YRTMPDIR) )
-    
-    if int( os.path.basename(files[-1])[0:4] ) > dx1:
-      pass
-      # the largest year file will not fit in the data container...
-      # must resize, then try again
-        
-    else:
-      pass
-      # start at the last file and put it in the
-    
-
-    # create an x range big enough for every possible file...
-    if len(files) == 0:
-      x = np.arange(0)
-    else:
-      end = int( os.path.basename(files[-1])[0:4] )
-      x = np.arange(0, end + 1 , 1) # <-- make range inclusive!
 
     self.report_view_and_data_lims()
-    
-    self.loademupskis()
 
-    return [trace['artists'][0] for trace in self.traces]
+    if vx0 > dx0 or vx1 < dx1 or vy0 > dy0 or vy1 < dy1:
+      logging.warn("ALERT: The user must be zoomed in...")
+      logging.info("Update the artists, and recompute the data limits, but don't touch the view")
+      self.loademupskis(relim=True, autoscale=False)
+      logging.info("Return empty artist list. Don't re-draw anything while zoomed in.")
+      return []
+      
+    else:
+    
+      self.loademupskis(relim=True, autoscale=True)
+      logging.info("Return all the trace artists to redraw")
+      return [trace['artists'][0] for trace in self.traces]
+
+
+
+
+      # need to update data, but don't re-scale!
+
+#    if len(files) == 0:
+#      logging.info("No files. Clear the lines and set them to some min size.")
+#      for ax in self.axes:
+#        for line in axes.lines:
+#          line.set_data(np.arange(0,100), np.empty(100)*np.nan)
+#      self.relim_autoscale_draw()
+#      self.grid_and_legend()
+#      return [trace['artists'][0] for trace in self.traces]
+  
+  
+    
+#    if int( os.path.basename(files[-1])[0:4] ) > dx1:
+#      logging.info("The largest year won't fit in the data extents...")
+#      self.loademupskis()
+    
+#    else:
+#      logging.info("The largest year WILL fit in the data extents...")
+#      logging.info("Read every file and load into the right trace's data container")
+#      for file in files:
+#        # try reading the file
+#        try:
+#          with open(file) as f:
+#            fdata = json.load(f)
+#
+#          idx = int(os.path.basename(file)[0:4])
+#
+#          for trace in self.traces:
+#            for ax in self.axes:
+#              for line in ax.lines:
+#                if line.get_label() == trace['jsontag']:
+#                  x, y = line.get_data()
+#                  if 'pft' in trace.keys():
+#                    pftdata = fdata[trace['pft']]
+#                    y[idx] = pftdata[trace['jsontag']]
+#                  else:
+#                    ydata = fdata[trace['jsontag']]
+#
+#
+#        except IOError as e:
+#          logging.error(e)
+        
+  
+      
 
 
   def relim_autoscale_draw(self):
     logging.debug("Relimit axes, autoscale axes.")
     for ax in self.axes:
       ax.relim()
-      ax.autoscale()
+      ax.autoscale(enable=True, axis='both', tight=False)
     logging.info("Redraw plot")
-    plt.draw()
+    try:
+      plt.draw()
+    except Exception as e:
+      logging.error(e)
 
   def grid_and_legend(self):
     logging.debug("Turn on grid and legend.")
