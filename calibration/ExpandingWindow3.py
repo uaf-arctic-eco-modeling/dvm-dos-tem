@@ -187,55 +187,6 @@ class ExpandingWindow(object):
       return [trace['artists'][0] for trace in self.traces]
 
 
-
-
-      # need to update data, but don't re-scale!
-
-#    if len(files) == 0:
-#      logging.info("No files. Clear the lines and set them to some min size.")
-#      for ax in self.axes:
-#        for line in axes.lines:
-#          line.set_data(np.arange(0,100), np.empty(100)*np.nan)
-#      self.relim_autoscale_draw()
-#      self.grid_and_legend()
-#      return [trace['artists'][0] for trace in self.traces]
-  
-  
-    
-#    if int( os.path.basename(files[-1])[0:4] ) > dx1:
-#      logging.info("The largest year won't fit in the data extents...")
-#      self.loademupskis()
-    
-#    else:
-#      logging.info("The largest year WILL fit in the data extents...")
-#      logging.info("Read every file and load into the right trace's data container")
-#      for file in files:
-#        # try reading the file
-#        try:
-#          with open(file) as f:
-#            fdata = json.load(f)
-#
-#          idx = int(os.path.basename(file)[0:4])
-#
-#          for trace in self.traces:
-#            for ax in self.axes:
-#              for line in ax.lines:
-#                if line.get_label() == trace['jsontag']:
-#                  x, y = line.get_data()
-#                  if 'pft' in trace.keys():
-#                    pftdata = fdata[trace['pft']]
-#                    y[idx] = pftdata[trace['jsontag']]
-#                  else:
-#                    ydata = fdata[trace['jsontag']]
-#
-#
-#        except IOError as e:
-#          logging.error(e)
-        
-  
-      
-
-
   def relim_autoscale_draw(self):
     logging.debug("Relimit axes, autoscale axes.")
     for ax in self.axes:
