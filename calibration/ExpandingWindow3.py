@@ -70,21 +70,6 @@ class ExpandingWindow(object):
 
     return [trace['artists'][0] for trace in self.traces]
 
-  def key_press_event(self, event):
-    print('you pressed', event.key, event.xdata, event.ydata)
-    if event.key == 'ctrl+r':
-      self.loademupskis(relim=True, autoscale=True)
-
-  def report_view_and_data_lims(self):
-    logging.debug("{0:>10s} {1:>10s} {2:>10s} {3:>10s} {4:>10s}".format('---','d0', 'd1', 'v0', 'v1'))
-    for i, ax in enumerate(self.axes):
-      (dx0,dy0),(dx1,dy1) = ax.dataLim.get_points()
-      (vx0,vy0),(vx1,vy1) = ax.viewLim.get_points()
-      logging.debug("{0:>10s} {1:>10.3f} {2:>10.3f} {3:>10.3f} {4:>10.3f}".format('Axes%i X:'%i, dx0,dx1, vx0,vx1))
-      logging.debug("{0:>10s} {1:>10.3f} {2:>10.3f} {3:>10.3f} {4:>10.3f}".format('Axes%i Y:'%i, dy0,dy1, vy0, vy1))
-
-
-
   def loademupskis(self, relim, autoscale):
     logging.info("LOAD 'EM UPSKIS!")
     
@@ -150,43 +135,45 @@ class ExpandingWindow(object):
       logging.info("Force draw after autoscale")
       plt.draw()
 
-    #self.grid_and_legend()
-
-    #self.report_view_and_data_lims()
-  
     logging.info("Done loading 'em upskis.")
 
-
-
-
   def update(self, frame):
-    logging.info("Frame %7i" % frame)
+    '''The animation updating function. Loads new data, but only upates view
+    if the user is "zoomed out" (data limits are w/in view limits).
     
-    # get current data and view limits
-    for i, ax in enumerate(self.axes):
-      (dx0,dy0),(dx1,dy1) = ax.dataLim.get_points()
-      (vx0,vy0),(vx1,vy1) = ax.viewLim.get_points()
+    Returns a list of artists to re-draw.
+    '''
+    logging.info("Animation Frame %7i" % frame)
     
+    logging.debug("Listing json files in %s" % YRTMPDIR)
     files = sorted( glob.glob('%s/*.json' % YRTMPDIR) )
     logging.info("%i json files in %s" % (len(files), YRTMPDIR) )
 
     #self.report_view_and_data_lims()
 
+    logging.debug("Collecting data/view limits.")
+    for i, ax in enumerate(self.axes):
+      (dx0,dy0),(dx1,dy1) = ax.dataLim.get_points()
+      (vx0,vy0),(vx1,vy1) = ax.viewLim.get_points()
+
+    logging.debug("Checking data and view limits.")
     if vx0 > dx0 or vx1 < dx1 or vy0 > dy0 or vy1 < dy1:
-      logging.warn("ALERT: The user must be zoomed in...")
-      logging.info("Update the artists, and recompute the data limits, but don't touch the view")
+      logging.info("View limits are inside data limits. User must be zoomed in!")
+      logging.info("Upate artists, recompute data limits, but don't touch the view.")
       self.loademupskis(relim=True, autoscale=False)
-      logging.info("Return empty artist list. Don't re-draw anything while zoomed in.")
-      return []
-      
+      return []  # nothing to re-draw when zoomed in.
     else:
-    
+      logging.info("Data limits are inside view limits. Load data and redraw.")
       self.loademupskis(relim=True, autoscale=True)
-      logging.info("Return all the trace artists to redraw")
       return [trace['artists'][0] for trace in self.traces]
 
+  def key_press_event(self, event):
+    logging.debug("You pressed: %s. Cursor at x: %s y: %s" % (event.key, event.xdata, event.ydata))
+    if event.key == 'ctrl+r':
+      self.loademupskis(relim=True, autoscale=True)
 
   def relim_autoscale_draw(self):
+    '''Relimit the axes, autoscale the axes, and try to force a re-draw.'''
     logging.debug("Relimit axes, autoscale axes.")
     for ax in self.axes:
       ax.relim()
@@ -198,13 +185,14 @@ class ExpandingWindow(object):
       logging.error(e)
 
   def grid_and_legend(self):
+    '''Turn on the grid and legend.'''
     logging.debug("Turn on grid and legend.")
     for ax in self.axes:
       ax.grid(True) # <-- w/o parameter, this toggles!!
       ax.legend(prop={'size':10.0})
 
-
   def show(self, dynamic=True):
+    '''Show the figure. If dynamic=True, then setup an animation.'''
     logging.info("Displaying plot, dynamic=%s" % dynamic)
 
     if dynamic:
@@ -214,9 +202,17 @@ class ExpandingWindow(object):
   
     plt.show()
 
-      
+  def report_view_and_data_lims(self):
+    '''Print a log report showing data and view limits.'''
+    logging.debug("{0:>10s} {1:>10s} {2:>10s} {3:>10s} {4:>10s}".format('---','d0', 'd1', 'v0', 'v1'))
+    for i, ax in enumerate(self.axes):
+      (dx0,dy0),(dx1,dy1) = ax.dataLim.get_points()
+      (vx0,vy0),(vx1,vy1) = ax.viewLim.get_points()
+      logging.debug("{0:>10s} {1:>10.3f} {2:>10.3f} {3:>10.3f} {4:>10.3f}".format('Axes%i X:'%i, dx0,dx1, vx0,vx1))
+      logging.debug("{0:>10s} {1:>10.3f} {2:>10.3f} {3:>10.3f} {4:>10.3f}".format('Axes%i Y:'%i, dy0,dy1, vy0, vy1))
 
   def describe_existing_axes_and_lines(self, detail=0):
+    '''Print a log report describing all the axes and lines in the figure.'''
     logging.debug("-- Axes and Lines Report ------------------------")
     for i, ax in enumerate(self.axes):
       logging.debug("  axes%i: %s" % (i, ax) )
