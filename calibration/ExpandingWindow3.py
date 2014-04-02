@@ -71,10 +71,12 @@ class ExpandingWindow(object):
     return [trace['artists'][0] for trace in self.traces]
 
   def loademupskis(self, relim, autoscale):
-    logging.info("LOAD 'EM UPSKIS!")
+    log = logging.getLogger('dataloader')
+
+    log.info("LOAD 'EM UPSKIS!")
     
     files = sorted( glob.glob('%s/*.json' % YRTMPDIR) )
-    logging.info("%i json files in %s" % (len(files), YRTMPDIR) )
+    log.info("%i json files in %s" % (len(files), YRTMPDIR) )
 
     # create an x range big enough for every possible file...
     if len(files) == 0:
@@ -88,7 +90,7 @@ class ExpandingWindow(object):
       trace['tmpy'] = x.copy() * np.nan
     
     # ----- READ EVERY FILE --------
-    logging.info("Read every file and load into trace['tmpy'] container")
+    log.info("Read every file and load into trace['tmpy'] container")
     for file in files:
       # try reading the file
       try:
@@ -109,7 +111,7 @@ class ExpandingWindow(object):
 
       
     # ----- UPDATE EVERY TRACE --------
-    logging.info("Load tmp data for every trace to trace's line")
+    log.info("Load tmp data for every trace to trace's line")
     for trace in self.traces:
       # find the line with the right label
       for line in self.axes[trace['axesnum']].lines:
@@ -126,16 +128,16 @@ class ExpandingWindow(object):
 
     # ----- RELIMIT and SCALE
     if relim:
-      logging.info("Recomputing data limits based on artist data")
+      log.info("Recomputing data limits based on artist data")
       for ax in self.axes:
         ax.relim()
     if autoscale:
       for ax in self.axes:
         ax.autoscale(enable=True, axis='both', tight=False)
-      logging.info("Force draw after autoscale")
+      log.info("Force draw after autoscale")
       plt.draw()
 
-    logging.info("Done loading 'em upskis.")
+    log.info("Done loading 'em upskis.")
 
   def update(self, frame):
     '''The animation updating function. Loads new data, but only upates view
