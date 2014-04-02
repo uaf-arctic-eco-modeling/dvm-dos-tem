@@ -75,14 +75,13 @@ class ExpandingWindow(object):
     if event.key == 'ctrl+r':
       self.loademupskis(relim=True, autoscale=True)
 
-
   def report_view_and_data_lims(self):
-    logging.info("{0:>10s} {1:>10s} {2:>10s} {3:>10s} {4:>10s}".format('---','d0', 'd1', 'v0', 'v1'))
+    logging.debug("{0:>10s} {1:>10s} {2:>10s} {3:>10s} {4:>10s}".format('---','d0', 'd1', 'v0', 'v1'))
     for i, ax in enumerate(self.axes):
       (dx0,dy0),(dx1,dy1) = ax.dataLim.get_points()
       (vx0,vy0),(vx1,vy1) = ax.viewLim.get_points()
-      logging.info("{0:>10s} {1:>10.3f} {2:>10.3f} {3:>10.3f} {4:>10.3f}".format('Axes%i X:'%i, dx0,dx1, vx0,vx1))
-      logging.info("{0:>10s} {1:>10.3f} {2:>10.3f} {3:>10.3f} {4:>10.3f}".format('Axes%i Y:'%i, dy0,dy1, vy0, vy1))
+      logging.debug("{0:>10s} {1:>10.3f} {2:>10.3f} {3:>10.3f} {4:>10.3f}".format('Axes%i X:'%i, dx0,dx1, vx0,vx1))
+      logging.debug("{0:>10s} {1:>10.3f} {2:>10.3f} {3:>10.3f} {4:>10.3f}".format('Axes%i Y:'%i, dy0,dy1, vy0, vy1))
 
 
 
@@ -153,7 +152,7 @@ class ExpandingWindow(object):
 
     #self.grid_and_legend()
 
-    self.report_view_and_data_lims()
+    #self.report_view_and_data_lims()
   
     logging.info("Done loading 'em upskis.")
 
@@ -171,7 +170,7 @@ class ExpandingWindow(object):
     files = sorted( glob.glob('%s/*.json' % YRTMPDIR) )
     logging.info("%i json files in %s" % (len(files), YRTMPDIR) )
 
-    self.report_view_and_data_lims()
+    #self.report_view_and_data_lims()
 
     if vx0 > dx0 or vx1 < dx1 or vy0 > dy0 or vy1 < dy1:
       logging.warn("ALERT: The user must be zoomed in...")
