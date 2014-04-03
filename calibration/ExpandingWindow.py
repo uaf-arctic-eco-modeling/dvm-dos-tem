@@ -6,6 +6,8 @@ import sys
 import glob
 import json
 import logging
+import argparse
+import textwrap
 
 
 if (sys.platform == 'darwin') and (os.name == 'posix'):
@@ -20,16 +22,9 @@ import matplotlib.animation as animation
 
 import selutil
 
-from IPython import embed
-import pdb
-
 # The directories to look in for json files.
 TMPDIR = '/tmp/cal-dvmdostem'
 YRTMPDIR = '/tmp/year-cal-dvmdostem'
-
-# some logging stuff
-LOG_FORMAT = '%(levelname)-7s %(name)-8s %(message)s'
-logging.basicConfig(level=logging.DEBUG, format=LOG_FORMAT)
 
 #
 # Disable some buttons on the default toobar that freeze the program.
@@ -39,7 +34,8 @@ logging.basicConfig(level=logging.DEBUG, format=LOG_FORMAT)
 # More info here:
 # http://stackoverflow.com/questions/14896580/matplotlib-hooking-in-to-home-back-forward-button-events
 #
-
+# This does not seem to work flawlessly.
+#
 from matplotlib.backend_bases import NavigationToolbar2
 
 def home_overload(self, *args, **kwargs):
@@ -53,7 +49,6 @@ def back_overload(self, *args, **kwargs):
 def forward_overload(self, *args, **kwargs):
   logging.info("FORWARD button pressed. DISABLED; doing nothing.")
   return 'break'
-
 
 NavigationToolbar2.home = home_overload
 NavigationToolbar2.back = back_overload
@@ -261,44 +256,125 @@ class ExpandingWindow(object):
             logging.debug("      y data(len %s): [%s..%s]" % (len(y), y[0], y[-1] ))
     logging.debug("-------------------------------------------------")
 
+
+
 if __name__ == '__main__':
 
-  logging.info("Setting up plot properties dictionary...")
-  traces = [
-    # axesnum: which sub plot to be on, 0 based
-    { 'jsontag': 'GPPAll', 'axesnum': 0, 'pft': 'PFT0', },
-    { 'jsontag': 'NPPAll', 'axesnum': 0, 'pft': 'PFT0', },
-
-    { 'jsontag': 'GPPAllIgnoringNitrogen', 'axesnum': 1, 'pft': 'PFT0', },
-    { 'jsontag': 'NPPAllIgnoringNitrogen', 'axesnum': 1, 'pft': 'PFT0', },
-
-    { 'jsontag': 'PARAbsorb', 'axesnum': 2, 'pft': 'PFT0', },
-    { 'jsontag': 'PARDown', 'axesnum': 2, 'pft': 'PFT0', },
-
-    { 'jsontag': 'WaterTable', 'axesnum': 3, },
-
-    { 'jsontag': 'LitterfallCarbonAll', 'axesnum': 4, 'pft': 'PFT0', },
-    { 'jsontag': 'LitterfallNitrogenAll', 'axesnum': 4, 'pft': 'PFT0', },
-
-
-
-# gotta figure out how to handle nan. maybe set to null on encoder side?
-#    { 'jsontag': 'CarbonShallow', 'axesnum': 4, },
-#    { 'jsontag': 'CarbonDeep', 'axesnum': 4, },
-#    { 'jsontag': 'CarbonMineralSum', 'axesnum': 4, },
-
-#    { 'jsontag': 'MossdeathCarbon', 'axesnum': 4, },
-#    { 'jsontag': 'MossdeathNitrogen', 'axesnum': 4, },
-  ]
+  from configured_suites import configured_suites
   
-  logging.info("Starting main app...")
- 
-  ewp = ExpandingWindow(traces, rows=5, cols=1)
+  logger = logging.getLogger(__name__)
+  
+  parser = argparse.ArgumentParser(
+
+    formatter_class=argparse.RawDescriptionHelpFormatter,
+      
+      description=textwrap.dedent('''\
+        Dynamically updating yearly data plots.
+        '''),
+        
+      epilog=textwrap.dedent('''\
+        Program tries to read json files from 
+            
+            %s
+        
+        and plot the resulting data. The plots expand as more
+        more json files are discovered. The plot will be
+        displayed in an "interactive" window provided by which-
+        ever matplotlib backend you are using. 
+
+        The different "suites" of plots refer to differnt
+        assebelages of variables that you would like plotted.
+        For now suites are configured by hand at the top of this 
+        file.
+
+        I expereienced some problems with the interactive window
+        provided by matplotloib. Especially with the Home, Back,
+        and Forward buttons. They have been disabled in the code.
+        If you run the program with a high enough log level you 
+        should be able to find messages to this extent whenever
+        the buttons are clicked. Unfortunately the work around at
+        this time is to kill the plotting program (Ctrl-C in the 
+        controlling terminal window that started it) and start  the
+        program over. It can be helpful to pause DVMDOSTEM while
+        you are doing this.
+
+        When using the program, if you change the zoom, or pan, 
+        the plot will stop updating, even as more json data becomes
+        available. To resume the updating, use "Ctrl-r" (on the 
+        plot window, not the controlling terminal).
+        
+            Keyboard Shortcuts
+            ------------------
+            ctrl + r    reset view, resume auto-expand
+            ctrl + q    quit
+
+        The link below lists more keyboard shortcuts that allow 
+        for handy things like turning the grid on and off and 
+        switching between log and linear axes:
+    
+            http://matplotlib.org/1.3.1/users/navigation_toolbar.html
+
+    
+    
+        I am sure we forgot to mention something?
+        ''' % YRTMPDIR)
+      )
+
+  parser.add_argument('-l', '--loglevel', default="warning",
+      help="What logging level to use. (debug, info, warning, error, critical")
+    
+  parser.add_argument('--pft', default=0, type=int,
+      choices=[0,1,2,3,4,5,6,7,8,9],
+      help="Which pft to display")
+  
+  parser.add_argument('--suite', choices=['standard', 's2'], required=True,
+      help="Which suite of variables/plot configurations to show.")
+  
+  parser.add_argument('--list', action='store_true',
+      help="print out configured suites")
+  
+  print "Parsing command line arguments..."
+  args = parser.parse_args()
+  #print args
+
+  if args.list:
+    print "# Listing all configured suites"
+    for key, value in configured_suites.iteritems():
+      if 'desc' in value.keys():
+        print " {0:<12s} {1:<s}".format(key, value['desc'])
+      else:
+        print " {0:<12s} ??".format(key)
+    sys.exit()
+
+  loglevel = args.loglevel
+  suite = configured_suites[args.suite]
+  pft = args.pft
+  
+  print "Setting up logging..."
+  LOG_FORMAT = '%(levelname)-7s %(name)-8s %(message)s'
+  numeric_level = getattr(logging, loglevel.upper(), None)
+  if not isinstance(numeric_level, int):
+      raise ValueError('Invalid log level: %s' % loglevel)
+  
+  logging.basicConfig(level=numeric_level, format=LOG_FORMAT)
+
+  logger.info("Set the right pft in the suite's traces list..")
+  for trace in suite['traces']:
+    if 'pft' in trace.keys():
+      trace['pft'] = 'PFT%i' % pft
+
+  logger.info("Starting main app...")
+
+  ewp = ExpandingWindow(
+                        suite['traces'],
+                        rows=suite['rows'],
+                        cols=suite['cols'],
+                        figtitle="Some %s graphs..." % (args.suite)
+                       )
 
   ewp.show(dynamic=True)
   
-  logging.info("Done with main app...")
-
+  logger.info("Done with main app...")
 
 
 
