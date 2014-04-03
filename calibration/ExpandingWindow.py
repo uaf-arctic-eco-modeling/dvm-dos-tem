@@ -73,13 +73,45 @@ class ExpandingWindow(object):
 
     plt.xlabel("Years")
     
+    
     x = np.arange(0)
     y = x.copy() * np.nan
   
-    logging.info("Setting up empty x,y data for every trace...")
+    logging.debug("Setting up empty x,y data for every trace...")
     for trace in self.traces:
       ax = self.axes[ trace['axesnum'] ]
       trace['artists'] = ax.plot(x, y, label=trace['jsontag'])
+
+    font = {'family' : 'sans-serif',
+            'color'  : 'black',
+            'weight' : 'bold',
+            'size'   : 24,
+            'alpha'  : 0.1,
+            }
+
+    logging.debug("Add 'PFT x test to each plot that is a pft variable.")
+    for trace in self.traces:
+      if 'pft' in trace.keys():
+        ax = self.axes[trace['axesnum']]
+        ax.text(
+                  0.5, 0.5,
+                  "%s" % trace['pft'],
+                  fontdict=font,
+                  horizontalalignment='center',
+                  #verticalalignment='center',
+                  transform=ax.transAxes,
+                  #bbox=dict(facecolor='red', alpha=0.2)
+                )
+
+    logging.debug("Label the y axes with units if available")
+    for i, ax in enumerate(self.axes):
+      for trace in self.traces:
+        if trace['axesnum'] == i:
+          if 'units' in trace.keys():
+            ax.set_ylabel("%s" % trace['units'])
+          else:
+            logging.debug("No units are set in this trace!!")
+
     self.relim_autoscale_draw()
     self.grid_and_legend()
     
