@@ -11,13 +11,13 @@
 # Sample suite with comments:
 #  'standard' : {
 #    'desc': "some help text about this suite",  # Notes
-#    'rows': 5,        # rows of subplots to create
+#    'rows': 1,        # rows of subplots to create
 #    'cols': 1,        # columns of subplots to create NOTE: must be 1
 #    'traces': [
 #      {
 #        'jsontag': 'GPPAll',  # what is the variabel name in json file
 #        'axesnum': 0,         # which subplot axes to draw on
-#        'units': 'gC/m^-2',   # label for y axis?
+#        'units': 'gC/m^2',   # label for y axis?
 #        'pft': '',            # empty tag indicating this is a pft variable
 #                              # omit for non-pft variables
 #      },
@@ -30,17 +30,17 @@ configured_suites = {
     'rows': 5,
     'cols': 1,
     'traces': [
-      { 'jsontag': 'GPPAll', 'axesnum': 0, 'units': 'gC/m^-2', 'pft': '', },
-      { 'jsontag': 'NPPAll', 'axesnum': 0, 'units': 'gC/m^-2', 'pft': '', },
+      { 'jsontag': 'GPPAll', 'axesnum': 0, 'units': 'gC/m^2', 'pft': '', },
+      { 'jsontag': 'NPPAll', 'axesnum': 0, 'units': 'gC/m^2', 'pft': '', },
 
-      { 'jsontag': 'GPPAllIgnoringNitrogen', 'units': 'gC/m^-2', 'axesnum': 1, 'pft': '', },
-      { 'jsontag': 'NPPAllIgnoringNitrogen', 'units': 'gC/m^-2', 'axesnum': 1, 'pft': '', },
+      { 'jsontag': 'GPPAllIgnoringNitrogen', 'units': 'gC/m^2', 'axesnum': 1, 'pft': '', },
+      { 'jsontag': 'NPPAllIgnoringNitrogen', 'units': 'gC/m^2', 'axesnum': 1, 'pft': '', },
 
       { 'jsontag': 'PARAbsorb', 'axesnum': 2, 'units': 'percent', 'pft': '', },
       { 'jsontag': 'PARDown', 'axesnum': 2, 'units': 'percent', 'pft': '', },
 
-      { 'jsontag': 'LitterfallCarbonAll', 'axesnum': 3, 'units': 'gC/m^-2', 'pft': '', },
-      { 'jsontag': 'LitterfallNitrogenAll', 'axesnum': 3, 'units': 'gC/m^-2', 'pft': '', },
+      { 'jsontag': 'LitterfallCarbonAll', 'axesnum': 3, 'units': 'gC/m^2', 'pft': '', },
+      { 'jsontag': 'LitterfallNitrogenAll', 'axesnum': 3, 'units': 'gC/m^2', 'pft': '', },
 
       { 'jsontag': 'WaterTable', 'axesnum': 4, 'units': 'percent', },
     ]
