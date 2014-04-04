@@ -175,14 +175,15 @@ void CalController::env_OFF() {
 
 void CalController::print_calparbgc() {
   BOOST_LOG_SEV(glg, note) << "Printing the 'calparbgc' parameters stored in the CohortLookup pointer...";
-  std::string r = this->cohort_ptr->chtlu.calparbgc2str();
-  BOOST_LOG_SEV(glg, note) << "\n" << r;
+  std::string a_string = this->cohort_ptr->chtlu.calparbgc2str();
+  std::cout << a_string;
 }
 
 void CalController::print_modules_settings() {
   BOOST_LOG_SEV(glg, note) << "Showing module settings from cohort pointer's "
-                           << "ModelData.\n" 
-                           << this->cohort_ptr->md->describe_module_settings();
+                           << "ModelData.\n";
+  std::string s = this->cohort_ptr->md->describe_module_settings();
+  std::cout << s;
 }
 void CalController::show_short_menu() {
    BOOST_LOG_SEV(glg, note) << "Showing short menu...";
