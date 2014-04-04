@@ -29,7 +29,7 @@ void ArgHandler::parse(int argc, char** argv) {
      "(NOT IMPLEMENTED) whether or not the calibration module is on...? "
      "list of strings for modules to calibrate?"
     )
-    ("loglevel,l", boost::program_options::value<string>(&loglevel)->default_value("trace"), 
+    ("loglevel,l", boost::program_options::value<string>(&loglevel)->default_value("fatal"), 
      "the level above which all log messages will be printed. Here are the "
      "choices: trace, debug, info, warning, error, fatal."
     )
