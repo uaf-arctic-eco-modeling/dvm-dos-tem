@@ -1,20 +1,18 @@
 diff --git a/Makefile b/Makefile
-index 8dd97b6..f90f98b 100644
+index 707038a..5b6ede8 100644
 --- a/Makefile
 +++ b/Makefile
-@@ -1,10 +1,10 @@
+@@ -1,9 +1,9 @@
  # Basic dvm-dos-tem Makefile 
  
 -CC=g++
 -CFLAGS=-c -Werror -ansi -g -fPIC -DBOOST_ALL_DYN_LINK
--LIBS=-lnetcdf_c++ -lnetcdf -lpthread -lboost_system -lboost_filesystem \
---lboost_program_options -lboost_date_time -lboost_chrono -lboost_thread \
---lboost_log_setup -lboost_log -lboost_signals -ljson
+-LIBS=-lnetcdf_c++ -lnetcdf -lboost_system -lboost_filesystem \
+--lboost_program_options -lboost_thread -lboost_log -ljson
 +CC=g++-4.8
 +CFLAGS=-c -fpermissive -Werror -ansi -g -fPIC -DBOOST_ALL_DYN_LINK
-+LIBS=-lnetcdf_c++ -lnetcdf -lpthread -lboost_system-mt -lboost_filesystem-mt \
-+-lboost_program_options-mt -lboost_date_time-mt -lboost_chrono-mt -lboost_thread-mt \
-+-lboost_log_setup-mt -lboost_log-mt -lboost_signals-mt -ljson
++LIBS=-lnetcdf_c++ -lnetcdf -lboost_system-mt -lboost_filesystem-mt \
++-lboost_program_options-mt -lboost_thread-mt -lboost_log-mt -ljson
  LIBDIR=$(SITE_SPECIFIC_LIBS)
  INCLUDES=$(SITE_SPECIFIC_INCLUDES)
  SOURCES= 	src/TEM.o \
