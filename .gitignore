@@ -16,3 +16,5 @@ DVMDOSTEM
 *.project
 Debug/*
 
+# compiled python files
+*.pyc
