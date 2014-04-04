@@ -34,7 +34,7 @@ YRTMPDIR = '/tmp/year-cal-dvmdostem'
 # More info here:
 # http://stackoverflow.com/questions/14896580/matplotlib-hooking-in-to-home-back-forward-button-events
 #
-# This does not seem to work flawlessly.
+# This does not seem to work flawlessly - I am still getting freeze-ups!!
 #
 from matplotlib.backend_bases import NavigationToolbar2
 
@@ -359,7 +359,8 @@ if __name__ == '__main__':
       choices=[0,1,2,3,4,5,6,7,8,9],
       help="Which pft to display")
   
-  parser.add_argument('--suite', choices=['standard', 's2'], required=True,
+  parser.add_argument('--suite', default='standard',
+      choices=['standard', 's2'], 
       help="Which suite of variables/plot configurations to show.")
   
   parser.add_argument('--list', action='store_true',
@@ -370,12 +371,12 @@ if __name__ == '__main__':
   #print args
 
   if args.list:
-    print "# Listing all configured suites"
+    # Print all the known suites to the console with descriptions and then quit.
     for key, value in configured_suites.iteritems():
       if 'desc' in value.keys():
-        print " {0:<12s} {1:<s}".format(key, value['desc'])
+        print "{0:<12s} {1:<s}".format(key, value['desc'])
       else:
-        print " {0:<12s} ??".format(key)
+        print "{0:<12s} ?? no desc. text found...".format(key)
     sys.exit()
 
   loglevel = args.loglevel
