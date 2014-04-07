@@ -1,12 +1,11 @@
+#include "../TEMLogger.h"
+
 #include "BgcData.h"
+extern src::severity_logger< severity_level > glg;
 
-BgcData::BgcData(){
+BgcData::BgcData(){};
 
-};
-
-BgcData::~BgcData(){
-	
-};
+BgcData::~BgcData(){};
 
 // re-initialize BgcData class explicitly
 void BgcData::clear(){
@@ -67,7 +66,7 @@ void BgcData::veg_beginOfMonth(){
 };
 
 void BgcData::veg_endOfMonth(){
-
+  BOOST_LOG_SEV(glg, debug) << "End of month function for veg..(BGC data).";
 	// average yearly status variables
  	for (int i=0; i<NUM_PFT_PART; i++){
  		y_vegs.c[i] += m_vegs.c[i]/12.;
@@ -79,7 +78,7 @@ void BgcData::veg_endOfMonth(){
  	y_vegs.nall   += m_vegs.nall/12.;
  	y_vegs.deadc  += m_vegs.deadc/12.;
  	y_vegs.deadn  += m_vegs.deadn/12.;
-
+  BOOST_LOG_SEV(glg, debug) << "y_vegs.call: " << y_vegs.call;
 	// average yearly diagnostic variables
  	y_vegd.fca     += m_vegd.fca/12;
  	y_vegd.fna     += m_vegd.fna/12;

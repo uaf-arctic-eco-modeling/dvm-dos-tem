@@ -1,4 +1,40 @@
+#include <exception>
+
 #include "ModelData.h"
+
+#include "../TEMLogger.h"
+
+extern src::severity_logger< severity_level > glg;
+
+/** Returns true for 'on' and false for 'off'.
+ * Throws exception if s is not "on" or "off".
+ * might want to inherit from std exception or do something else?
+ */
+bool onoffstr2bool(const std::string &s) {
+  if (s.compare("on") == 0) {
+    return true;
+  } else if (s.compare("off") == 0) {
+    return false;
+  } else {
+    throw std::runtime_error("Invalid string! Must be 'on' or 'off'.");
+  }
+}
+
+/** Returns a string with first colum r justified and 
+ * of with 'w'. Can be used to build tables likle this:
+ * 
+ *       somestr: 0
+ *       somestr: 0
+ *       somestr: 0
+ * 
+ *  with a newline, for use in a table.     
+ */
+std::string table_row(int w, std::string d, bool v) {
+  std::stringstream s;
+  s << std::setw(w) << std::setfill(' ') << d << ": " << v << "\n"; 
+  return s.str();
+}
+
 
 ModelData::ModelData(){
   	consoledebug = true;
@@ -21,12 +57,12 @@ ModelData::ModelData(){
 	numprocs = 1;
 
 	// module switches
-	envmodule = false;
-	bgcmodule = false;
-	dslmodule = false;
-	dsbmodule = false;
- 	friderived= false;
-	dvmmodule = false;
+	set_envmodule(false);
+	set_bgcmodule(false);
+  set_dvmmodule(false);
+	set_dslmodule(false);
+	set_dsbmodule(false);
+ 	set_friderived(false);
 
 	// the data record numbers of all input datasets
 	act_gridno = 0;
@@ -127,4 +163,93 @@ void ModelData::checking4run(){
  	}
 
 };
+
+bool ModelData::get_envmodule() {
+  return this->envmodule; 
+}
+void ModelData::set_envmodule(const std::string &s) {
+  BOOST_LOG_SEV(glg, info) << "Setting envmodule to " << s;
+  this->envmodule = onoffstr2bool(s);
+}
+void ModelData::set_envmodule(const bool v) {
+  BOOST_LOG_SEV(glg, info) << "Setting envmodule to " << v;
+  this->envmodule = v;
+}
+
+bool ModelData::get_bgcmodule() {
+  return this->bgcmodule; 
+}
+void ModelData::set_bgcmodule(const std::string &s) {
+  BOOST_LOG_SEV(glg, info) << "Setting bgcmodule to " << s;
+  this->bgcmodule = onoffstr2bool(s);
+}
+void ModelData::set_bgcmodule(const bool v) {
+  BOOST_LOG_SEV(glg, info) << "Setting bgcmodule to " << v;
+  this->bgcmodule = v;
+}
+
+bool ModelData::get_dvmmodule() {
+  return this->dvmmodule; 
+}
+void ModelData::set_dvmmodule(const std::string &s) {
+  BOOST_LOG_SEV(glg, info) << "Setting dvmmodule to " << s;
+  this->dvmmodule = onoffstr2bool(s);
+}
+void ModelData::set_dvmmodule(const bool v) {
+  BOOST_LOG_SEV(glg, info) << "Setting dvmmodule to " << v;
+  this->dvmmodule = v;
+}
+
+bool ModelData::get_dslmodule() {
+  return this->dslmodule; 
+}
+void ModelData::set_dslmodule(const std::string &s) {
+  BOOST_LOG_SEV(glg, info) << "Setting dslmodule to " << s;
+  this->dslmodule = onoffstr2bool(s);
+}
+void ModelData::set_dslmodule(const bool v) {
+  BOOST_LOG_SEV(glg, info) << "Setting dslmodule to " << v;
+  this->dslmodule = v;
+}
+
+bool ModelData::get_dsbmodule() {
+  return this->dsbmodule; 
+}
+void ModelData::set_dsbmodule(const std::string &s) {
+  BOOST_LOG_SEV(glg, info) << "Setting dsbmodule to " << s;
+  this->dsbmodule = onoffstr2bool(s);
+}
+void ModelData::set_dsbmodule(const bool v) {
+  BOOST_LOG_SEV(glg, info) << "Setting dsbmodule to " << v;
+  this->dsbmodule = v;
+}
+
+bool ModelData::get_friderived() {
+  return this->friderived; 
+}
+void ModelData::set_friderived(const std::string &s) {
+  BOOST_LOG_SEV(glg, info) << "Setting friderived to " << s;
+  this->friderived = onoffstr2bool(s);
+}
+void ModelData::set_friderived(const bool v) {
+  BOOST_LOG_SEV(glg, info) << "Setting friderived to " << v;
+  this->friderived = v;
+}
+
+
+std::string ModelData::describe_module_settings(){
+  std::stringstream s;
+  s << table_row(15, "envmodule", this->get_envmodule());
+  s << table_row(15, "bgcmodule", this->bgcmodule);
+  s << table_row(15, "dvmmodule", this->dvmmodule);
+
+  s << table_row(15, "dslmodule", this->dslmodule);
+  s << table_row(15, "dsbmodule", this->dsbmodule);
+
+  s << table_row(15, "friderived", this->friderived);
+  s << table_row(15, "nfeed", this->nfeed);
+  s << table_row(15, "avlnflg", this->avlnflg);
+  return s.str();  
+}
+
 

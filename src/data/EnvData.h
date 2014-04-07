@@ -116,7 +116,6 @@ class EnvData{
 	void grnd_endOfMonth();
 
   private:
-	
 };
 
 #endif /*ENVDATA_H_*/

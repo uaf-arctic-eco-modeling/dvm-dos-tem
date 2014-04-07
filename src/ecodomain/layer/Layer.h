@@ -5,7 +5,7 @@
 #ifndef LAYER_H_
 #define LAYER_H_
 
-#include<string>
+#include <string>
 #include <iostream>
 #include <sstream>
 #include <cmath>
@@ -17,7 +17,9 @@ using namespace std;
 #include "../../inc/layerconst.h"
 
 class Layer {
-	public:
+  private:
+
+  public:
 		Layer();
 		virtual ~Layer();
 		enum TYPEKEY {I_SNOW, I_MOSS, I_FIB, I_HUM, I_MINE, I_ROCK, I_UNKNOWN};
@@ -110,8 +112,6 @@ class Layer {
 		virtual double getFrzVolHeatCapa()=0;   // get frozen layer specific heat capcity
 		virtual double getUnfVolHeatCapa()=0;   // get unfrozen layer specific heat capacity
 		virtual double getMixVolHeatCapa()=0;   //Yuan
-
-	private:
 	
 };
 #endif //LAYER_H_
