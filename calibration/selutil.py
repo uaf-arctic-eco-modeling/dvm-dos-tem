@@ -21,6 +21,12 @@ def jfname2idx(jfname):
   assert (month >= 0) and (month <= 11), "Month must be a number, 0-11"
   return (year * 12) + month
 
+def idx2jfname(idx):
+  '''Convert index to 'YYYY_MM*' str, e.g.: 0 -> '0000_00.json' '''
+  #assert type(idx) == int, "idx must be an integer"
+  year = str(idx/12)
+  month = str(idx%12)
+  return '{:0>4}'.format(year) + '_' + '{:0>2}'.format(month) + '.json'
 
 def assert_zero_start(file_list, log=True):
   '''Returns True if first element in file list is a string starting 
