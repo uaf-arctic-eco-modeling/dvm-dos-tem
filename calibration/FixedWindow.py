@@ -227,21 +227,30 @@ class FixedWindow(object):
 
 if __name__ == '__main__':
 
-  parser = argparse.ArgumentParser()
+  def positive_int(year):
+    year = int(year)
+    if year < 0:
+      raise argparse.ArgumentTypeError("startyear must be positive.")
+    return year
 
-  parser.add_argument('--startyear', default=0, type=int,\
+  parser = argparse.ArgumentParser()
+  group = parser.add_mutually_exclusive_group()
+
+  group.add_argument('--startyear', default=0, type=positive_int,\
                       help="Which year to start display at.")
 
-  parser.add_argument('--end', action='store_true',\
+  group.add_argument('--end', action='store_true',\
                       help="Display the last 100 years.")
 
   args = parser.parse_args()
 
+  #Set default.
   startidx = 0
 
   if args.startyear:
-    startfile = '{:0>4}'.format(args.startyear) + '_00.json'
-    startidx = selutil.jfname2idx(startfile)
+    #startfile = '{:0>4}'.format(args.startyear) + '_00.json'
+    #startidx = selutil.jfname2idx(startfile)
+    startidx = args.startyear*12
 
   if args.end:
     jsonfiles = sorted(glob.glob(TMPDIR + "/*.json"))
@@ -265,7 +274,6 @@ if __name__ == '__main__':
     { 'jsontag': 'TempMineralLayer', 'pnum': 6, 'unit': 'degrees C', },
     { 'jsontag': 'PARDownSum', 'pnum': 7, 'unit': 'W/m2', },
     { 'jsontag': 'PARAbsorbSum', 'pnum': 7, 'unit': 'W/m2', },
-    #{ 'jsontag': '', 'pnum': , 'unit': 'unit', },
   ]
 
   logging.warn("Starting main app...")
