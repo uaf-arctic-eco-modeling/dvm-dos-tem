@@ -8,6 +8,7 @@ import logging
 import time
 import math
 import argparse
+import signal #for graceful exit
 
 if (sys.platform == 'darwin') and (os.name == 'posix'):
   # this is the only one that seems to work on Mac OSX with animation...
@@ -94,7 +95,7 @@ class FixedWindow(object):
             try:
               while not os.path.isfile(file):
                 time.sleep(.1)
-              print file
+              #print file
               with open(file) as f:
                 try:
                   new_data = json.load(f)
@@ -160,7 +161,6 @@ class FixedWindow(object):
     #         logging.error("Index: %i"%idx)
     #         embed()
    
-    print "setting artist data"
     for trace in self.traces:
       a = trace['artist'][0]
       artistlength = min(i, self.viewport)
@@ -171,7 +171,7 @@ class FixedWindow(object):
       except RuntimeError as e:
         print "x and y are different lengths"
         embed()
-    print "axes scaling"
+
     for ax in self.axes:
       ax.relim()
       ymin_pre, ymax_pre = ax.yaxis.get_view_interval()
@@ -180,11 +180,9 @@ class FixedWindow(object):
       if (ymin_pre!=ylims_post[0] or ymax_pre!=ylims_post[1]):
         redraw_needed = True
 
-    print "redraw test"
     if redraw_needed:
       plt.draw()
     
-    print "returning"
     return [trace['artist'][0] for trace in self.traces]
 
 
@@ -225,7 +223,13 @@ class FixedWindow(object):
     plt.show()
 
 
+def exit_gracefully(signum, frame):
+  sys.exit(1)
+
 if __name__ == '__main__':
+
+  original_sigint = signal.getsignal(signal.SIGINT)
+  signal.signal(signal.SIGINT, exit_gracefully)
 
   def positive_int(year):
     year = int(year)
