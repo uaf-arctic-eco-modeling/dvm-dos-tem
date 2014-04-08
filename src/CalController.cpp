@@ -29,7 +29,9 @@ CalController::CalController(Cohort* cht_p):
   ( "help", CalCommand("show full menu", boost::bind(&CalController::show_full_menu, this)) )
   ( "env on", CalCommand("turn env module ON", boost::bind(&CalController::env_ON, this)) )
   ( "env off", CalCommand("turn env module OFF", boost::bind(&CalController::env_OFF, this)) )
-  ( "print calparbgc", 
+  ( "bgc on", CalCommand("turn bgc module ON", boost::bind(&CalController::bgc_ON, this)) )
+  ( "bgc off", CalCommand("turn bgc module OFF", boost::bind(&CalController::bgc_OFF, this)) )
+  ( "print calparbgc",
     CalCommand("prints out the calparbgc parameters ",
                boost::bind(&CalController::print_calparbgc, this)) )
   ( "print module settings", 
@@ -171,6 +173,14 @@ void CalController::env_ON() {
 void CalController::env_OFF() {
   BOOST_LOG_SEV(glg, note) << "CalController is turing env module OFF via cohort pointer...";
   this->cohort_ptr->md->set_envmodule(false);
+}
+void CalController::bgc_ON() {
+  BOOST_LOG_SEV(glg, note) << "CalController is turing bgc module ON via cohort pointer...";
+  this->cohort_ptr->md->set_bgcmodule(true);
+}
+void CalController::bgc_OFF() {
+  BOOST_LOG_SEV(glg, note) << "CalController is turing bgc module OFF via cohort pointer...";
+  this->cohort_ptr->md->set_bgcmodule(false);
 }
 
 void CalController::print_calparbgc() {

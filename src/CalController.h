@@ -52,7 +52,9 @@ private:
 
   void env_ON();
   void env_OFF();
-  
+  void bgc_ON();
+  void bgc_OFF();
+
   void print_calparbgc();
   void print_modules_settings();
 };
