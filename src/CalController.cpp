@@ -31,6 +31,12 @@ CalController::CalController(Cohort* cht_p):
   ( "env off", CalCommand("turn env module OFF", boost::bind(&CalController::env_OFF, this)) )
   ( "bgc on", CalCommand("turn bgc module ON", boost::bind(&CalController::bgc_ON, this)) )
   ( "bgc off", CalCommand("turn bgc module OFF", boost::bind(&CalController::bgc_OFF, this)) )
+  ( "dsb on", CalCommand("turn dsb module ON", boost::bind(&CalController::dsb_ON, this)) )
+  ( "dsb off", CalCommand("turn dsb module OFF", boost::bind(&CalController::dsb_OFF, this)) )
+  ( "dsl on", CalCommand("turn dsl module ON", boost::bind(&CalController::dsl_ON, this)) )
+  ( "dsl off", CalCommand("turn dsl module OFF", boost::bind(&CalController::dsl_OFF, this)) )
+  ( "dvm on", CalCommand("turn dvm module ON", boost::bind(&CalController::dvm_ON, this)) )
+  ( "dvm off", CalCommand("turn dvm module OFF", boost::bind(&CalController::dvm_OFF, this)) )
   ( "print calparbgc",
     CalCommand("prints out the calparbgc parameters ",
                boost::bind(&CalController::print_calparbgc, this)) )
@@ -174,6 +180,7 @@ void CalController::env_OFF() {
   BOOST_LOG_SEV(glg, note) << "CalController is turing env module OFF via cohort pointer...";
   this->cohort_ptr->md->set_envmodule(false);
 }
+
 void CalController::bgc_ON() {
   BOOST_LOG_SEV(glg, note) << "CalController is turing bgc module ON via cohort pointer...";
   this->cohort_ptr->md->set_bgcmodule(true);
@@ -181,6 +188,33 @@ void CalController::bgc_ON() {
 void CalController::bgc_OFF() {
   BOOST_LOG_SEV(glg, note) << "CalController is turing bgc module OFF via cohort pointer...";
   this->cohort_ptr->md->set_bgcmodule(false);
+}
+
+void CalController::dsb_ON() {
+  BOOST_LOG_SEV(glg, note) << "CalController is turing dsb module ON via cohort pointer...";
+  this->cohort_ptr->md->set_dsbmodule(true);
+}
+void CalController::dsb_OFF() {
+  BOOST_LOG_SEV(glg, note) << "CalController is turing dsb module OFF via cohort pointer...";
+  this->cohort_ptr->md->set_dsbmodule(false);
+}
+
+void CalController::dsl_ON() {
+  BOOST_LOG_SEV(glg, note) << "CalController is turing dsl module ON via cohort pointer...";
+  this->cohort_ptr->md->set_dslmodule(true);
+}
+void CalController::dsl_OFF() {
+  BOOST_LOG_SEV(glg, note) << "CalController is turing dsl module OFF via cohort pointer...";
+  this->cohort_ptr->md->set_dslmodule(false);
+}
+
+void CalController::dvm_ON() {
+  BOOST_LOG_SEV(glg, note) << "CalController is turing dvm module ON via cohort pointer...";
+  this->cohort_ptr->md->set_dvmmodule(true);
+}
+void CalController::dvm_OFF() {
+  BOOST_LOG_SEV(glg, note) << "CalController is turing dvm module OFF via cohort pointer...";
+  this->cohort_ptr->md->set_dvmmodule(false);
 }
 
 void CalController::print_calparbgc() {

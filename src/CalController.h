@@ -54,6 +54,12 @@ private:
   void env_OFF();
   void bgc_ON();
   void bgc_OFF();
+  void dsb_ON();
+  void dsb_OFF();
+  void dsl_ON();
+  void dsl_OFF();
+  void dvm_ON();
+  void dvm_OFF();
 
   void print_calparbgc();
   void print_modules_settings();
