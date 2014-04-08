@@ -360,7 +360,7 @@ if __name__ == '__main__':
       help="Which pft to display")
   
   parser.add_argument('--suite', default='standard',
-      choices=['standard', 's2'], 
+      choices=[k for k in configured_suites.keys()],
       help="Which suite of variables/plot configurations to show.")
   
   parser.add_argument('--list', action='store_true',
