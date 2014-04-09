@@ -24,7 +24,10 @@ CalController::CalController(Cohort* cht_p):
   cmd_map = boost::assign::map_list_of
   ( "q", CalCommand("quit the calibrator", boost::bind(&CalController::quit, this)) )
   ( "c", CalCommand("continue simulation", boost::bind(&CalController::continue_simulation, this)) )
-  ( "r", CalCommand("reload cmt files", boost::bind(&CalController::reload_cmt_files, this)) )
+  ( "r", CalCommand("reload calparbgc file", boost::bind(&CalController::reload_calparbgc_file, this)) )
+  ( "reload all",
+    CalCommand("reload all cmt files",
+               boost::bind(&CalController::reload_all_cmt_files, this)) )
   ( "h", CalCommand("show short menu", boost::bind(&CalController::show_short_menu, this)) )
   ( "help", CalCommand("show full menu", boost::bind(&CalController::show_full_menu, this)) )
   ( "env on", CalCommand("turn env module ON", boost::bind(&CalController::env_ON, this)) )
@@ -158,14 +161,25 @@ std::string CalController::get_user_command() {
 void CalController::continue_simulation() {
   BOOST_LOG_SEV(glg, note) << "Executing continue_simulation callback...";
   // not quite sure how to do this one?
+  // seems like nothing needs to happen here...
 }
-void CalController::reload_cmt_files() {
+
+void CalController::reload_all_cmt_files() {
   BOOST_LOG_SEV(glg, note) << "Executing reload_cmt_files callback...";
-  BOOST_LOG_SEV(glg, debug) << "Tickling the cohort pointer to reload config/parameter files...";
-  cohort_ptr->chtlu.init();
+  BOOST_LOG_SEV(glg, debug) << "Use cohort pointer to reload all cmt files...";
+  this->cohort_ptr->chtlu.init();
   BOOST_LOG_SEV(glg, note) << "Done reloading config/parameter files.";
+}
+
+void CalController::reload_calparbgc_file() {
+  BOOST_LOG_SEV(glg, note) << "Executing reload_calparbgc_file callback...";
+  BOOST_LOG_SEV(glg, debug) << "Use cohort pointer's cohort lookup object to 'assignBgcCalpar'...";
+  std::string config_dir = this->cohort_ptr->chtlu.dir;
+  this->cohort_ptr->chtlu.assignBgcCalpar(config_dir);
+  BOOST_LOG_SEV(glg, note) << "Done reloading calparbgc file.";
   
 }
+
 void CalController::quit() {
   BOOST_LOG_SEV(glg, note) << "Executing the quit callback...";
   BOOST_LOG_SEV(glg, note) << "Quitting via CalController."; 
