@@ -168,17 +168,23 @@ class FixedWindow(object):
       try:
         a.set_data(np.arange(1, artistlength+1),
                  trace['data'][max(0,i-self.viewport):i])
+        #print str(i-self.viewport) + "    " + str(i)
       except RuntimeError as e:
         print "x and y are different lengths"
         embed()
 
     for ax in self.axes:
       ax.relim()
+      #y-axis
       ymin_pre, ymax_pre = ax.yaxis.get_view_interval()
       ax.autoscale(axis='y')
       ylims_post = ax.yaxis.get_view_interval()
       if (ymin_pre!=ylims_post[0] or ymax_pre!=ylims_post[1]):
         redraw_needed = True
+      #x-axis
+      xmin_pre, xmax_pre = ax.xaxis.get_view_interval()
+      #print str(xmin_pre) + "  " + str(xmax_pre)
+      ax.set_xlim()
 
     if redraw_needed:
       plt.draw()
@@ -191,7 +197,7 @@ class FixedWindow(object):
     fontP = FontProperties()
     fontP.set_size('x-small')
     for ax in self.axes:
-      ax.set_xlim(1, self.viewport) #rar TODO not sure what to do here
+      ax.set_xlim(0, self.viewport) #rar TODO not sure what to do here
       ax.legend(prop = fontP, ncol=2,\
                 bbox_to_anchor=(0.5,1.15), loc='upper center')
       box = ax.get_position()
@@ -244,7 +250,7 @@ if __name__ == '__main__':
                       help="Which year to start display at.")
 
   group.add_argument('--end', action='store_true',\
-                      help="Display the last 100 years.")
+                      help="Display the last 100 years. (Static)")
 
   args = parser.parse_args()
 
