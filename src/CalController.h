@@ -45,7 +45,8 @@ private:
   void control_loop();
 
   void quit();
-  void reload_cmt_files();
+  void reload_all_cmt_files();
+  void reload_calparbgc_file();
   void continue_simulation();
   void show_full_menu();
   void show_short_menu();
