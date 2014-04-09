@@ -3,8 +3,11 @@
 #include <sstream>
 #include <string>
 
+#include "../TEMLogger.h"
 
 #include "CohortLookup.h"
+
+extern src::severity_logger< severity_level > glg;
 
 /** Parses a string, looking for a community code.
  Reads the string, finds the first occurrence of the characters "CMT", and returns a
@@ -27,6 +30,7 @@ CohortLookup::~CohortLookup(){
 };
 
 void CohortLookup::init(){
+  BOOST_LOG_SEV(glg, info) << "Cohort Lookup init function. Assigning all values from various config/* files...";
 	assignBgcCalpar(dir);
 
 	assignVegDimension(dir);
@@ -131,8 +135,8 @@ std::string CohortLookup::calparbgc2str() {
 }
 
 void CohortLookup::assignBgcCalpar(string & dircmt){
-
 	string parfilecal = dircmt+"cmt_calparbgc.txt";
+  BOOST_LOG_SEV(glg, note) << "Assigning parameters from " << parfilecal;
 	ifstream fctrcomm;
 	fctrcomm.open(parfilecal.c_str(),ios::in );
 	bool isOpen = fctrcomm.is_open();
@@ -200,6 +204,8 @@ void CohortLookup::assignBgcCalpar(string & dircmt){
 void CohortLookup::assignVegDimension(string &dircmt){
 
 	string parfilecomm = dircmt+"cmt_dimvegetation.txt";
+  BOOST_LOG_SEV(glg, note) << "Assigning parameters from " << parfilecomm;
+
 	ifstream fctrpft;
 	fctrpft.open(parfilecomm.c_str(),ios::in );
 	bool isOpen = fctrpft.is_open();
@@ -295,6 +301,7 @@ void CohortLookup::assignVegDimension(string &dircmt){
 void CohortLookup::assignGroundDimension(string &dircmt){
 
 	string parfilecomm = dircmt+"cmt_dimground.txt";
+  BOOST_LOG_SEV(glg, note) << "Assigning parameters from " << parfilecomm;
 
 	ifstream fctrcomm;
 	fctrcomm.open(parfilecomm.c_str(),ios::in );
@@ -366,6 +373,8 @@ void CohortLookup::assignGroundDimension(string &dircmt){
 void CohortLookup::assignEnv4Canopy(string &dir){
 
 	string parfilecomm = dir+"cmt_envcanopy.txt";
+  BOOST_LOG_SEV(glg, note) << "Assigning parameters from " << parfilecomm;
+
 	ifstream fctrpft;
 	fctrpft.open(parfilecomm.c_str(),ios::in );
 	bool isOpen = fctrpft.is_open();
@@ -438,6 +447,8 @@ void CohortLookup::assignEnv4Canopy(string &dir){
 void CohortLookup::assignBgc4Vegetation(string & dircmt){
 
 	string parfilecomm = dircmt+"cmt_bgcvegetation.txt";
+  BOOST_LOG_SEV(glg, note) << "Assigning parameters from " << parfilecomm;
+
 	ifstream fctrpft;
 	fctrpft.open(parfilecomm.c_str(),ios::in );
 	bool isOpen = fctrpft.is_open();
@@ -546,6 +557,7 @@ void CohortLookup::assignBgc4Vegetation(string & dircmt){
 void CohortLookup::assignEnv4Ground(string &dircmt){
 
 	string parfilecomm = dircmt+"cmt_envground.txt";
+  BOOST_LOG_SEV(glg, note) << "Assigning parameters from " << parfilecomm;
 
 	ifstream fctrcomm;
 	fctrcomm.open(parfilecomm.c_str(),ios::in );
@@ -604,6 +616,7 @@ void CohortLookup::assignEnv4Ground(string &dircmt){
 
 void CohortLookup::assignBgc4Ground(string &dircmt){
 	string parfilecomm = dircmt+"cmt_bgcsoil.txt";
+  BOOST_LOG_SEV(glg, note) << "Assigning parameters from " << parfilecomm;
 
 	ifstream fctrcomm;
 	fctrcomm.open(parfilecomm.c_str(),ios::in );
@@ -669,6 +682,8 @@ void CohortLookup::assignBgc4Ground(string &dircmt){
 void CohortLookup::assignFirePar(string &dircmt){
 
 	string parfilecomm = dircmt+"cmt_firepar.txt";
+  BOOST_LOG_SEV(glg, note) << "Assigning parameters from " << parfilecomm;
+
 	ifstream fctrcomm;
 	fctrcomm.open(parfilecomm.c_str(),ios::in );
 	bool isOpen = fctrcomm.is_open();
