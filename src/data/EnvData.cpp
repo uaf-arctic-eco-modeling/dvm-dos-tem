@@ -701,7 +701,7 @@ void EnvData::atm_endOfMonth(){
 };
 
 void EnvData::veg_endOfMonth(const int & currmind){
-  BOOST_LOG_SEV(glg, debug) << "End of month bookeeping for vegetation?";
+  //BOOST_LOG_SEV(glg, debug) << "End of month bookeeping for vegetation?";
 	y_vegs.rwater  += m_vegs.rwater/12.;     // canopy-contained rainfall water
 	y_vegs.snow    += m_vegs.snow/12.;
 

@@ -31,7 +31,7 @@ void ArgHandler::parse(int argc, char** argv) {
     )
     ("loglevel,l", boost::program_options::value<string>(&loglevel)->default_value("fatal"), 
      "the level above which all log messages will be printed. Here are the "
-     "choices: trace, debug, info, warning, error, fatal."
+     "choices: debug, info, note warn, err, fatal."
     )
 		("mode,m", boost::program_options::value<string>(&mode)->default_value("siterun"),"change mode between siterun and regnrun")
 		("control-file,f", boost::program_options::value<string>(&ctrlfile)->default_value("config/controlfile_site.txt"), "choose a control file to use")
