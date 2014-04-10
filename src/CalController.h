@@ -62,6 +62,9 @@ private:
   void dvm_ON();
   void dvm_OFF();
 
+  void nfeed_ON();
+  void nfeed_OFF();
+
   void print_calparbgc();
   void print_modules_settings();
 };

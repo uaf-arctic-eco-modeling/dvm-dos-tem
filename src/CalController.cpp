@@ -40,6 +40,8 @@ CalController::CalController(Cohort* cht_p):
   ( "dsl off", CalCommand("turn dsl module OFF", boost::bind(&CalController::dsl_OFF, this)) )
   ( "dvm on", CalCommand("turn dvm module ON", boost::bind(&CalController::dvm_ON, this)) )
   ( "dvm off", CalCommand("turn dvm module OFF", boost::bind(&CalController::dvm_OFF, this)) )
+  ( "nfeed on", CalCommand("turn nitrogen feedback ON", boost::bind(&CalController::nfeed_ON, this)) )
+  ( "nfeed off", CalCommand("turn nitrogen feedback OFF", boost::bind(&CalController::nfeed_OFF, this)) )
   ( "print calparbgc",
     CalCommand("prints out the calparbgc parameters ",
                boost::bind(&CalController::print_calparbgc, this)) )
@@ -230,6 +232,19 @@ void CalController::dvm_OFF() {
   BOOST_LOG_SEV(glg, note) << "CalController is turing dvm module OFF via cohort pointer...";
   this->cohort_ptr->md->set_dvmmodule(false);
 }
+
+
+void CalController::nfeed_ON() {
+  BOOST_LOG_SEV(glg, note) << "CalController is turing nitrogen feedback ON via cohort pointer...";
+  this->cohort_ptr->md->set_nfeed(true);
+}
+void CalController::nfeed_OFF() {
+  BOOST_LOG_SEV(glg, note) << "CalController is turing nitrogen feedback OFF via cohort pointer...";
+  this->cohort_ptr->md->set_nfeed(false);
+}
+
+
+
 
 void CalController::print_calparbgc() {
   BOOST_LOG_SEV(glg, note) << "Printing the 'calparbgc' parameters stored in the CohortLookup pointer...";
