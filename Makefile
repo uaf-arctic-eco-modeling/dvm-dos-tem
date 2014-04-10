@@ -10,6 +10,7 @@ SOURCES= 	src/TEM.o \
 		src/TEMLogger.o \
 		src/CalController.o \
 		src/ArgHandler.o \
+		src/TEMUtilityFunctions.o \
 		src/assembler/RunCohort.o \
 		src/assembler/RunGrid.o \
 		src/assembler/Runner.o \
@@ -74,6 +75,7 @@ SOURCES= 	src/TEM.o \
 OBJECTS =	ArgHandler.o \
 		TEMLogger.o \
 		CalController.o \
+		TEMUtilityFunctions.o \
 		RunCohort.o \
 		RunGrid.o \
 		Runner.o \
