@@ -511,6 +511,8 @@ void RunCohort::run_timeseries(boost::shared_ptr<CalController> calcontroller_pt
             }
             data["PARAbsorbSum"] = parAbsorbSum;
             data["PARDownSum"] = parDownSum;
+            data["GPPSum"] = cht.bdall->m_a2v.gppall;
+            data["NPPSum"] = cht.bdall->m_a2v.nppall;
 
             /* Not PFT dependent */
             data["NitrogenUptakeAll"] = cht.bd->m_soi2v.snuptakeall;
