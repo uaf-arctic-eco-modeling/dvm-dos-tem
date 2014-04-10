@@ -34,8 +34,9 @@ LOG_FORMAT = '%(levelname)-7s %(name)-8s %(message)s'
 logging.basicConfig(level=logging.DEBUG, format=LOG_FORMAT)
 
 class FixedWindow(object):
-  def __init__(self, traceslist, startidx=0, timerange=1212, viewport=240, sprows=1,
-               spcols=1, figtitle="Placeholder Title"): 
+  def __init__(self, traceslist, startidx=0, timerange=1212, viewport=240,\
+               sprows=1, spcols=1, figtitle="Placeholder Title",\
+               suptitle="Placeholder suptitle"): 
     #initialize limits
     self.timerange = timerange
     self.sprows = sprows
@@ -45,6 +46,7 @@ class FixedWindow(object):
 
     self.fig = plt.figure(figsize=(8*1.3,6*1.3))
     self.fig.canvas.set_window_title(figtitle)
+    self.fig.suptitle(suptitle)
 
     #Initialize plots
     for row in np.arange(1,self.sprows+1):
@@ -60,7 +62,6 @@ class FixedWindow(object):
 
     #figure and subplots
     #self.fig, self.axes = plt.subplots(sprows, spcols, sharex='col')
-    #self.fig.suptitle(figtitle)
 
     self.traces = traceslist
     self.setup_traces()
@@ -202,9 +203,10 @@ class FixedWindow(object):
                 bbox_to_anchor=(0.5,1.15), loc='upper center')
       box = ax.get_position()
     for ax in self.axes[-self.spcols:]:
-      ax.set_xlabel('Months')#ylabel is per trace
+      ax.set_xlabel('Years')#ylabel is per trace
     #For neatness and visibility
-    for ax in self.axes[0:-self.spcols]:
+    #for ax in self.axes[0:-self.spcols]:
+    for ax in self.axes:
       ax.set_xticklabels('',visible=False)
     return [trace['artist'][0] for trace in self.traces]
 
@@ -260,8 +262,6 @@ if __name__ == '__main__':
   startidx = 0
 
   if args.startyear:
-    #startfile = '{:0>4}'.format(args.startyear) + '_00.json'
-    #startidx = selutil.jfname2idx(startfile)
     startidx = args.startyear*12
 
   if args.end:
@@ -299,9 +299,12 @@ if __name__ == '__main__':
   selutil.check_dir("/tmp/cal-dvmdostem")
 
   print "start index: %i"%startidx
+  startyear = str(startidx/12)
+  endyear = str(startidx/12+100)
 
   data_check = FixedWindow(traces, startidx=startidx, sprows=4, spcols=2,\
-                           figtitle="Monthly Hydro and Thermo Plots")
+                           figtitle="Monthly Hydro and Thermo Plots",\
+                           suptitle="Years " + startyear + " to " + endyear)
   data_check.show()
   
   logging.info("Done with main app...")
