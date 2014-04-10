@@ -20,10 +20,7 @@
     		int runmode;  //1: site; 2: region - time-series; 3: region - spatially
     		bool consoledebug;   // more info will display when running
 
-
 			// the following 3 switches will control N modules in BGC
-	     	bool nfeed;      //=true allowing N uptake limited by soil conditions, which then controls plant growth,
-	     	                 //   basically it's a switch for soil-plant N process modules
    		    bool avlnflg;    // inorganic N in/out module on (true) or not (false) - partial open N cycle
 	     	bool baseline;   //=true allowing ninput and nlost to be used for adjusting c/n of soil - partial open N cycle
 
@@ -103,8 +100,15 @@
     bool get_friderived();
     void set_friderived(const std::string &s);
     void set_friderived(const bool v);
-    
+
+    bool get_nfeed();
+    void set_nfeed(const std::string &s);
+    void set_nfeed(const bool v);
+
   private:
+      bool nfeed; // when true, allows N uptake to be limited by soil conditions
+                  // which then controls plant growth. Basically its a switch
+                  // for soil-plant N process module.
       bool envmodule;   // (Bio)physical module on/off
       bool bgcmodule;   // BGC module on/off
       bool dvmmodule;   // dynamic vegetation module on/off

@@ -236,6 +236,17 @@ void ModelData::set_friderived(const bool v) {
   this->friderived = v;
 }
 
+bool ModelData::get_nfeed() {
+  return this->nfeed;
+}
+void ModelData::set_nfeed(const std::string &s) {
+  BOOST_LOG_SEV(glg, info) << "Setting ModelData.nfeed to " << s;
+  this->nfeed = onoffstr2bool(s);
+}
+void ModelData::set_nfeed(const bool v) {
+  BOOST_LOG_SEV(glg, info) << "Setting ModelData.nfeed to " << v;
+  this->nfeed = v;
+}
 
 std::string ModelData::describe_module_settings(){
   std::stringstream s;
@@ -247,7 +258,7 @@ std::string ModelData::describe_module_settings(){
   s << table_row(15, "dsbmodule", this->get_dsbmodule());
 
   s << table_row(15, "friderived", this->friderived);
-  s << table_row(15, "nfeed", this->nfeed);
+  s << table_row(15, "nfeed", this->get_nfeed());
   s << table_row(15, "avlnflg", this->avlnflg);
   return s.str();  
 }

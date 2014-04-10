@@ -562,7 +562,7 @@ void Cohort::updateMonthly_Bgc(const int & currmind){
 	for (int ip=0; ip<NUM_PFT; ip++){
     	if (cd.m_veg.vegcov[ip]>0.){
 
-    		vegbgc[ip].prepareIntegration(md->nfeed);
+    		vegbgc[ip].prepareIntegration(md->get_nfeed());
 		 	vegintegrator[ip].updateMonthlyVbgc();
     		vegbgc[ip].afterIntegration();
 
@@ -582,7 +582,7 @@ void Cohort::updateMonthly_Bgc(const int & currmind){
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 	// soil BGC module calling
-	soilbgc.prepareIntegration(md->nfeed, md->avlnflg, md->baseline);
+	soilbgc.prepareIntegration(md->get_nfeed(), md->avlnflg, md->baseline);
 	solintegrator.updateMonthlySbgc(MAX_SOI_LAY);
     soilbgc.afterIntegration();
 
