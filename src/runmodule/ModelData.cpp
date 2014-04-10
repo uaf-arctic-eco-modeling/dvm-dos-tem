@@ -240,11 +240,11 @@ void ModelData::set_friderived(const bool v) {
 std::string ModelData::describe_module_settings(){
   std::stringstream s;
   s << table_row(15, "envmodule", this->get_envmodule());
-  s << table_row(15, "bgcmodule", this->bgcmodule);
-  s << table_row(15, "dvmmodule", this->dvmmodule);
+  s << table_row(15, "bgcmodule", this->get_bgcmodule());
+  s << table_row(15, "dvmmodule", this->get_dvmmodule());
 
-  s << table_row(15, "dslmodule", this->dslmodule);
-  s << table_row(15, "dsbmodule", this->dsbmodule);
+  s << table_row(15, "dslmodule", this->get_dslmodule());
+  s << table_row(15, "dsbmodule", this->get_dsbmodule());
 
   s << table_row(15, "friderived", this->friderived);
   s << table_row(15, "nfeed", this->nfeed);
