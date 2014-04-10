@@ -618,14 +618,14 @@ int Integrator::checkPools(){
    		for (int i=0; i<NUM_PFT_PART; i++) {
    			if(ydum[I_VEGC+i]<0) return I_VEGC+i;
 
-   			if (veg->nfeed) {
+   			if (veg->get_nfeed()) {
    				if(ydum[I_STRN+i]<0) return I_STRN+i;
    			}
    		}
 
    		if(ydum[I_DEADC]<0)	return I_DEADC;
 
-		if (veg->nfeed) {
+		if (veg->get_nfeed()) {
 			if(ydum[I_LABN]<0) return I_LABN;
 			if(ydum[I_DEADN]<0) return I_DEADN;
    		}
@@ -728,7 +728,7 @@ int Integrator::boundcon( float ptstate[], float err[], float& ptol ) {
    		if (same>zero) return test = vegvarkey(I_DEADC)+1;
 
    		//Veg N
-   		if (veg->nfeed) {
+   		if (veg->get_nfeed()) {
    			for (int i=0; i<NUM_PFT_PART; i++) {
    				same = err[I_STRN+i] - fabs( ptol * ptstate[I_STRN+i]);
    				if (same>zero) return test = vegvarkey(I_STRN)+1+i;
