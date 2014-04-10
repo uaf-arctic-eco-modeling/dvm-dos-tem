@@ -4,21 +4,10 @@
 
 #include "../TEMLogger.h"
 
+#include "../TEMUtilityFunctions.h"
+
 extern src::severity_logger< severity_level > glg;
 
-/** Returns true for 'on' and false for 'off'.
- * Throws exception if s is not "on" or "off".
- * might want to inherit from std exception or do something else?
- */
-bool onoffstr2bool(const std::string &s) {
-  if (s.compare("on") == 0) {
-    return true;
-  } else if (s.compare("off") == 0) {
-    return false;
-  } else {
-    throw std::runtime_error("Invalid string! Must be 'on' or 'off'.");
-  }
-}
 
 /** Returns a string with first colum r justified and 
  * of with 'w'. Can be used to build tables likle this:
@@ -169,7 +158,7 @@ bool ModelData::get_envmodule() {
 }
 void ModelData::set_envmodule(const std::string &s) {
   BOOST_LOG_SEV(glg, info) << "Setting envmodule to " << s;
-  this->envmodule = onoffstr2bool(s);
+  this->envmodule = temutil::onoffstr2bool(s);
 }
 void ModelData::set_envmodule(const bool v) {
   BOOST_LOG_SEV(glg, info) << "Setting envmodule to " << v;
@@ -181,7 +170,7 @@ bool ModelData::get_bgcmodule() {
 }
 void ModelData::set_bgcmodule(const std::string &s) {
   BOOST_LOG_SEV(glg, info) << "Setting bgcmodule to " << s;
-  this->bgcmodule = onoffstr2bool(s);
+  this->bgcmodule = temutil::onoffstr2bool(s);
 }
 void ModelData::set_bgcmodule(const bool v) {
   BOOST_LOG_SEV(glg, info) << "Setting bgcmodule to " << v;
@@ -193,7 +182,7 @@ bool ModelData::get_dvmmodule() {
 }
 void ModelData::set_dvmmodule(const std::string &s) {
   BOOST_LOG_SEV(glg, info) << "Setting dvmmodule to " << s;
-  this->dvmmodule = onoffstr2bool(s);
+  this->dvmmodule = temutil::onoffstr2bool(s);
 }
 void ModelData::set_dvmmodule(const bool v) {
   BOOST_LOG_SEV(glg, info) << "Setting dvmmodule to " << v;
@@ -205,7 +194,7 @@ bool ModelData::get_dslmodule() {
 }
 void ModelData::set_dslmodule(const std::string &s) {
   BOOST_LOG_SEV(glg, info) << "Setting dslmodule to " << s;
-  this->dslmodule = onoffstr2bool(s);
+  this->dslmodule = temutil::onoffstr2bool(s);
 }
 void ModelData::set_dslmodule(const bool v) {
   BOOST_LOG_SEV(glg, info) << "Setting dslmodule to " << v;
@@ -217,7 +206,7 @@ bool ModelData::get_dsbmodule() {
 }
 void ModelData::set_dsbmodule(const std::string &s) {
   BOOST_LOG_SEV(glg, info) << "Setting dsbmodule to " << s;
-  this->dsbmodule = onoffstr2bool(s);
+  this->dsbmodule = temutil::onoffstr2bool(s);
 }
 void ModelData::set_dsbmodule(const bool v) {
   BOOST_LOG_SEV(glg, info) << "Setting dsbmodule to " << v;
@@ -229,7 +218,7 @@ bool ModelData::get_friderived() {
 }
 void ModelData::set_friderived(const std::string &s) {
   BOOST_LOG_SEV(glg, info) << "Setting friderived to " << s;
-  this->friderived = onoffstr2bool(s);
+  this->friderived = temutil::onoffstr2bool(s);
 }
 void ModelData::set_friderived(const bool v) {
   BOOST_LOG_SEV(glg, info) << "Setting friderived to " << v;
@@ -241,7 +230,7 @@ bool ModelData::get_nfeed() {
 }
 void ModelData::set_nfeed(const std::string &s) {
   BOOST_LOG_SEV(glg, info) << "Setting ModelData.nfeed to " << s;
-  this->nfeed = onoffstr2bool(s);
+  this->nfeed = temutil::onoffstr2bool(s);
 }
 void ModelData::set_nfeed(const bool v) {
   BOOST_LOG_SEV(glg, info) << "Setting ModelData.nfeed to " << v;

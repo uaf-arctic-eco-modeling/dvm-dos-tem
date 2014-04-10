@@ -21,25 +21,11 @@
  */
 
 #include "../TEMLogger.h"
+#include "../TEMUtilityFunctions.h"
 
 #include "Vegetation_Bgc.h"
 
 extern src::severity_logger< severity_level > glg;
-
-/** Returns true for 'on' and false for 'off'.
- * Throws exception if s is not "on" or "off".
- * might want to inherit from std exception or do something else?
- */
-bool onoffstr2bool(const std::string &s) {
-  if (s.compare("on") == 0) {
-    return true;
-  } else if (s.compare("off") == 0) {
-    return false;
-  } else {
-    throw std::runtime_error("Invalid string! Must be 'on' or 'off'.");
-  }
-}
-
 
 Vegetation_Bgc::Vegetation_Bgc(){
 	bgcpar.dc2n = 0.000519;
@@ -852,7 +838,7 @@ bool Vegetation_Bgc::get_nfeed() {
 }
 void Vegetation_Bgc::set_nfeed(const std::string &value) {
   BOOST_LOG_SEV(glg, info) << "Setting Vegetation_Bgc.nfeed to " << value;
-  this->nfeed = onoffstr2bool(value);
+  this->nfeed = temutil::onoffstr2bool(value);
 }
 void Vegetation_Bgc::set_nfeed(const bool value) {
   BOOST_LOG_SEV(glg, info) << "Setting Vegetation_Bgc.nfeed to " << value;
