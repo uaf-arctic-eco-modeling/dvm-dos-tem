@@ -652,7 +652,7 @@ int Integrator::checkPools(){
    				return I_L_SOMCR+il;
    			}
 
-   			if (ssl->nfeed) {
+   			if (ssl->get_nfeed()) {
    				if(ydum[I_L_AVLN+il]<0) {
    					return I_L_AVLN+il;
    				}
@@ -814,7 +814,7 @@ int Integrator::boundcon( float ptstate[], float err[], float& ptol ) {
 		if (same>zero) return test = soivarkey(I_RH_DMOSS)+1;
 
    		// soil N
-   		if (ssl->nfeed) {
+   		if (ssl->get_nfeed()) {
    			for(int il =0; il<numsl; il++){
    				same = err[I_L_ORGN+il] - fabs(ptol * ptstate[I_L_ORGN+il]);
    				if (same>zero) return test = soivarkey(I_L_ORGN)+1+il;
