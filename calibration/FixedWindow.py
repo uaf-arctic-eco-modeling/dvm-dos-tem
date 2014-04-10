@@ -213,8 +213,7 @@ class FixedWindow(object):
     logging.info("Setting up traces")
     empty_container = np.nan * np.empty(self.timerange)
     for trace in self.traces:
-      logging.info("  data/tag: %s  -->  plot number %i"\
-                   % (trace['jsontag'], trace['pnum']))
+      logging.info("  data/tag: %s  -->  plot number %i"%(trace['jsontag'], trace['pnum']))
       trace['data'] = empty_container.copy()
       #xindex = trace['pnum']/self.spcols
       #yindex = trace['pnum']%self.spcols
@@ -252,6 +251,9 @@ if __name__ == '__main__':
   group.add_argument('--end', action='store_true',\
                       help="Display the last 100 years. (Static)")
 
+  parser.add_argument('--data', action='store_true',\
+                      help="For now, trigger display of NPP/GPP.")
+
   args = parser.parse_args()
 
   #Set default.
@@ -285,6 +287,10 @@ if __name__ == '__main__':
     { 'jsontag': 'PARDownSum', 'pnum': 7, 'unit': 'W/m2', },
     { 'jsontag': 'PARAbsorbSum', 'pnum': 7, 'unit': 'W/m2', },
   ]
+
+  if args.data:
+    traces.append({'jsontag': 'GPPSum', 'pnum': 6, 'unit': 'unit'})
+    traces.append({'jsontag': 'NPPSum', 'pnum': 6, 'unit': 'unit'})
 
   logging.warn("Starting main app...")
 
