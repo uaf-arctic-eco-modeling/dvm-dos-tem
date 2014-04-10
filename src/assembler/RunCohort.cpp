@@ -101,7 +101,7 @@ void RunCohort::init(){
   BOOST_LOG_SEV(glg, info) << "In RunCohort::init(), setting a bunch of modules on/off";
 
 	// switches of N cycles
-    md->nfeed   = 1;
+    md->set_nfeed(true);
     md->avlnflg = 0;
 	md->baseline= 1;
 

@@ -23,7 +23,6 @@
    			~Vegetation_Bgc();
   	
   			int ipft;
-    		bool nfeed;
 
  			vegpar_cal calpar;
 			vegpar_bgc bgcpar;
@@ -55,7 +54,16 @@
 			void setEnvData(EnvData* edp);
    			void setBgcData(BgcData* bdp);
 
+      bool get_nfeed();
+      void set_nfeed(bool);
+      void set_nfeed(const std::string &value);
+
   		private:
+
+  		  bool nfeed; // NOTE: It seems like this us probably supposed to shadow
+                    // ModelData.nfeed. Not sure if this should be strictly
+                    // enforced somehow?
+
 
 			double fracnuptake[MAX_SOI_LAY];  //fraction of N extraction in each soil layer for current PFT
 			double fltrfall;                  //season fraction of max. monthly litterfalling fraction
