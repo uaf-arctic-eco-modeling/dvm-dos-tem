@@ -237,6 +237,19 @@ void ModelData::set_nfeed(const bool v) {
   this->nfeed = v;
 }
 
+bool ModelData::get_avlnflg() {
+  return this->avlnflg;
+}
+void ModelData::set_avlnflg(const std::string &s) {
+  BOOST_LOG_SEV(glg, info) << "Setting ModelData.avlnflg to " << s;
+  this->avlnflg = temutil::onoffstr2bool(s);
+}
+void ModelData::set_avlnflg(const bool v) {
+  BOOST_LOG_SEV(glg, info) << "Setting ModelData.avlnflg to " << v;
+  this->avlnflg = v;
+}
+
+
 std::string ModelData::describe_module_settings(){
   std::stringstream s;
   s << table_row(15, "envmodule", this->get_envmodule());
@@ -248,7 +261,7 @@ std::string ModelData::describe_module_settings(){
 
   s << table_row(15, "friderived", this->friderived);
   s << table_row(15, "nfeed", this->get_nfeed());
-  s << table_row(15, "avlnflg", this->avlnflg);
+  s << table_row(15, "avlnflg", this->get_avlnflg());
   return s.str();  
 }
 

@@ -21,7 +21,6 @@
     		bool consoledebug;   // more info will display when running
 
 			// the following 3 switches will control N modules in BGC
-   		    bool avlnflg;    // inorganic N in/out module on (true) or not (false) - partial open N cycle
 	     	bool baseline;   //=true allowing ninput and nlost to be used for adjusting c/n of soil - partial open N cycle
 
 			// the following are from Controller.cpp (reading from '????control.txt')
@@ -105,11 +104,19 @@
     void set_nfeed(const std::string &s);
     void set_nfeed(const bool v);
 
+    bool get_avlnflg();
+    void set_avlnflg(const std::string &s);
+    void set_avlnflg(const bool v);
+
   private:
+
+      bool avlnflg; // inorganic N in/out module - partial open N cycle
+
       bool nfeed; // when true, allows N uptake to be limited by soil conditions
                   // which then controls plant growth. Basically its a switch
                   // for soil-plant N process module.
-      bool envmodule;   // (Bio)physical module on/off
+
+      bool envmodule;   // (Bio?)physical module on/off
       bool bgcmodule;   // BGC module on/off
       bool dvmmodule;   // dynamic vegetation module on/off
 

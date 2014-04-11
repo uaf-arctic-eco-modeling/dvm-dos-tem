@@ -102,7 +102,7 @@ void RunCohort::init(){
 
 	// switches of N cycles
     md->set_nfeed(true);
-    md->avlnflg = 0;
+    md->set_avlnflg(false);
 	md->baseline= 1;
 
 	  // switches of modules
