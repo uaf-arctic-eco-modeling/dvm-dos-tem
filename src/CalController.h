@@ -65,6 +65,9 @@ private:
   void nfeed_ON();
   void nfeed_OFF();
 
+  void avlnflg_ON();
+  void avlnflg_OFF();
+
   void print_calparbgc();
   void print_modules_settings();
 };
