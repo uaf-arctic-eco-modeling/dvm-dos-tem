@@ -60,4 +60,18 @@ configured_suites = {
       { 'jsontag': 'MossdeathNitrogen', 'axesnum': 1, },
     ]
   },
+  's3': {
+    'desc': "Trying some pft compartment plots",
+    'rows': 2,
+    'cols': 1,
+    'traces': [
+      { 'jsontag': 'VegCarbon', 'axesnum': 0, 'pft': '', 'pftpart': 'Leaf'},
+      { 'jsontag': 'VegCarbon', 'axesnum': 0, 'pft': '', 'pftpart': 'Stem'},
+      { 'jsontag': 'VegCarbon', 'axesnum': 0, 'pft': '', 'pftpart': 'Root'},
+
+      { 'jsontag': 'VegStructuralNitrogen', 'axesnum': 1, 'pft': '', 'pftpart': 'Leaf'},
+      { 'jsontag': 'VegStructuralNitrogen', 'axesnum': 1, 'pft': '', 'pftpart': 'Stem'},
+      { 'jsontag': 'VegStructuralNitrogen', 'axesnum': 1, 'pft': '', 'pftpart': 'Root'},
+    ]
+  },
 }

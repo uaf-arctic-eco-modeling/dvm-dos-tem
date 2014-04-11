@@ -80,7 +80,11 @@ class ExpandingWindow(object):
     logging.debug("Setting up empty x,y data for every trace...")
     for trace in self.traces:
       ax = self.axes[ trace['axesnum'] ]
-      trace['artists'] = ax.plot(x, y, label=trace['jsontag'])
+      if 'pftpart' in trace.keys():
+        lbl = '%s %s' % (trace['jsontag'], trace['pftpart'])
+        trace['artists'] = ax.plot(x,y,label=lbl)
+      else:
+        trace['artists'] = ax.plot(x, y, label=trace['jsontag'])
 
     font = {'family' : 'sans-serif',
             'color'  : 'black',
@@ -160,7 +164,10 @@ class ExpandingWindow(object):
         # set the trace's tmpy[idx] to file's data
         if 'pft' in trace.keys():
           pftdata = fdata[trace['pft']]
-          trace['tmpy'][idx] = pftdata[trace['jsontag']]
+          if 'pftpart' in trace.keys():
+            trace['tmpy'][idx] = pftdata[trace['jsontag']][trace['pftpart']]
+          else:
+            trace['tmpy'][idx] = pftdata[trace['jsontag']]
         else:
           trace['tmpy'][idx] = fdata[trace['jsontag']]
 
@@ -172,6 +179,8 @@ class ExpandingWindow(object):
       for line in self.axes[trace['axesnum']].lines:
         # set the line's data to x, and the trace's tmp data
         if line.get_label() == trace['jsontag']:
+          line.set_data(x, trace['tmpy'])
+        elif line.get_label() == ('%s %s' % (trace['jsontag'], trace['pftpart'])):
           line.set_data(x, trace['tmpy'])
         else:
           pass # wrong line...
