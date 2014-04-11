@@ -88,7 +88,7 @@ void Soil_Bgc::assignCarbonLayer2BdMonthly(){
 void Soil_Bgc::prepareIntegration(const bool &mdnfeedback, const bool &mdavlnflg, const bool &mdbaseline){
 
 	 this->set_nfeed(mdnfeedback);
-	 avlnflg = mdavlnflg;
+	 this->set_avlnflg(mdavlnflg);
 	 baseline= mdbaseline;
      
 	 // moss death rate if any (from Vegetation_bgc.cpp)
@@ -572,7 +572,7 @@ void Soil_Bgc::deltan(){
 			totnextract += bd->m_soi2v.nextract[il];
 		}
 
-		if (avlnflg == 1){ // open-N (inorganic) swithed on - note here ONLY 'lost' considered, while 'input' shall be from outside if any
+		if (this->avlnflg == 1){ // open-N (inorganic) swithed on - note here ONLY 'lost' considered, while 'input' shall be from outside if any
 
 			del_soi2l.avlnlost = 0.;  // N leaching out with drainage water
 			if(totdzliq>0){
@@ -1013,3 +1013,14 @@ void Soil_Bgc::set_nfeed(int value) {
 int Soil_Bgc::get_nfeed() {
   return this->nfeed;
 }
+
+void Soil_Bgc::set_avlnflg(int value) {
+  BOOST_LOG_SEV(glg, info) << "Setting Soil_Bgc.avlnflg to " << value;
+  this->avlnflg = value;
+}
+
+int Soil_Bgc::get_avlnflg() {
+  return this->avlnflg;
+}
+
+

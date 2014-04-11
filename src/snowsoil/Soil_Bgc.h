@@ -25,7 +25,6 @@ class Soil_Bgc{
   	Soil_Bgc();
  	~Soil_Bgc();	
 	
-  	int avlnflg;   // open-N cycle switch; otherwise, N budget method used to balance the N I/O from the ecosystem
   	int baseline;  // open-N cycle switch; otherwise, N budget method used to balance the N I/O from the ecosystem
 
   	soistate_bgc tmp_sois;   // the previous soistate_bgc
@@ -66,12 +65,19 @@ class Soil_Bgc{
     int get_nfeed();
     void set_nfeed(int);
 
+    int get_avlnflg();
+    void set_avlnflg(int);
+
   private:
 
     int nfeed;  // soil-plant-air N module switch
                 // NOTE: seems like this is supposed to shadow the
                 // ModelData.nfeed member. Not sure if this should be
                 // strictly enforced somehow?
+
+  	int avlnflg;   // open-N cycle switch; otherwise, N budget method used to
+                   // balance the N I/O from the ecosystem
+
 
 
   	double d2wdebrisc;
