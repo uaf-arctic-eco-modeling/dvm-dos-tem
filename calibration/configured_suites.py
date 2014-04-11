@@ -12,14 +12,16 @@
 #  'standard' : {
 #    'desc': "some help text about this suite",  # Notes
 #    'rows': 1,        # rows of subplots to create
-#    'cols': 1,        # columns of subplots to create NOTE: must be 1
+#    'cols': 1,        # columns of subplots to create NOTE: must be 1 for now!!
 #    'traces': [
 #      {
-#        'jsontag': 'GPPAll',  # what is the variabel name in json file
-#        'axesnum': 0,         # which subplot axes to draw on
-#        'units': 'gC/m^2',   # label for y axis?
-#        'pft': '',            # empty tag indicating this is a pft variable
-#                              # omit for non-pft variables
+#        'jsontag': 'GPPAll',  # The variable name in json file
+#        'axesnum': 0,         # Which subplot axes to draw on
+#        'units': 'gC/m^2',    # Label for y axis?
+#        'pft': '',            # Empty tag indicating this is a pft variable
+#                              # Omit for non-pft variables!
+#
+#        'pftpart': 'Leaf'     # Leaf, Stem, or Root. Only if 'pft' key is present!
 #      },
 #    ]
 #  }
