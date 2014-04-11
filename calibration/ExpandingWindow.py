@@ -180,8 +180,9 @@ class ExpandingWindow(object):
         # set the line's data to x, and the trace's tmp data
         if line.get_label() == trace['jsontag']:
           line.set_data(x, trace['tmpy'])
-        elif line.get_label() == ('%s %s' % (trace['jsontag'], trace['pftpart'])):
-          line.set_data(x, trace['tmpy'])
+        elif 'pftpart' in trace.keys():
+          if line.get_label() == ('%s %s' % (trace['jsontag'], trace['pftpart'])):
+            line.set_data(x, trace['tmpy'])
         else:
           pass # wrong line...
   
