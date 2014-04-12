@@ -44,6 +44,8 @@ CalController::CalController(Cohort* cht_p):
   ( "nfeed off", CalCommand("turn nitrogen feedback OFF", boost::bind(&CalController::nfeed_OFF, this)) )
   ( "avln on", CalCommand("turn available nitrogen ON", boost::bind(&CalController::avlnflg_ON, this)) )
   ( "avln off", CalCommand("turn available nitrogen OFF", boost::bind(&CalController::avlnflg_OFF, this)) )
+  ( "baseline on", CalCommand("turn baseline ON", boost::bind(&CalController::baseline_ON, this)) )
+  ( "baseline off", CalCommand("turn baseline OFF", boost::bind(&CalController::baseline_OFF, this)) )
 
   ( "print calparbgc",
     CalCommand("prints out the calparbgc parameters ",
@@ -254,6 +256,16 @@ void CalController::avlnflg_OFF() {
   BOOST_LOG_SEV(glg, note) << "CalController is turing available nitrogen OFF via cohort pointer...";
   this->cohort_ptr->md->set_avlnflg(false);
 }
+
+void CalController::baseline_ON() {
+  BOOST_LOG_SEV(glg, note) << "CalController is turing baseline ON via cohort pointer...";
+  this->cohort_ptr->md->set_baseline(true);
+}
+void CalController::baseline_OFF() {
+  BOOST_LOG_SEV(glg, note) << "CalController is turing baseline OFF via cohort pointer...";
+  this->cohort_ptr->md->set_baseline(false);
+}
+
 
 
 

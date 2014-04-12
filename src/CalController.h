@@ -68,6 +68,9 @@ private:
   void avlnflg_ON();
   void avlnflg_OFF();
 
+  void baseline_ON();
+  void baseline_OFF();
+
   void print_calparbgc();
   void print_modules_settings();
 };
