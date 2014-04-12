@@ -582,7 +582,7 @@ void Cohort::updateMonthly_Bgc(const int & currmind){
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 	// soil BGC module calling
-	soilbgc.prepareIntegration(md->get_nfeed(), md->get_avlnflg(), md->baseline);
+	soilbgc.prepareIntegration(md->get_nfeed(), md->get_avlnflg(), md->get_baseline());
 	solintegrator.updateMonthlySbgc(MAX_SOI_LAY);
     soilbgc.afterIntegration();
 

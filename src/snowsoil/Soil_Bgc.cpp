@@ -89,7 +89,7 @@ void Soil_Bgc::prepareIntegration(const bool &mdnfeedback, const bool &mdavlnflg
 
 	 this->set_nfeed(mdnfeedback);
 	 this->set_avlnflg(mdavlnflg);
-	 baseline= mdbaseline;
+	 this->set_baseline(mdbaseline);
      
 	 // moss death rate if any (from Vegetation_bgc.cpp)
 	 mossdeathc    = bd->m_v2soi.mossdeathc;
@@ -604,7 +604,7 @@ void Soil_Bgc::deltan(){
                                  +totnetnmin;
 		}
 
-		if (!baseline) {
+		if ( !this->baseline ) {
 
 			del_soi2l.orgnlost = 0.; //DON lost - not yet done and this is the portal for future development
 
@@ -1021,6 +1021,15 @@ void Soil_Bgc::set_avlnflg(int value) {
 
 int Soil_Bgc::get_avlnflg() {
   return this->avlnflg;
+}
+
+void Soil_Bgc::set_baseline(int value) {
+  BOOST_LOG_SEV(glg, info) << "Setting Soil_Bgc.baseline to " << value;
+  this->baseline = value;
+}
+
+int Soil_Bgc::get_baseline() {
+  return this->baseline;
 }
 
 

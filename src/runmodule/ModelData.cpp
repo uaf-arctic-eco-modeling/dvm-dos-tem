@@ -249,6 +249,19 @@ void ModelData::set_avlnflg(const bool v) {
   this->avlnflg = v;
 }
 
+bool ModelData::get_baseline() {
+  return this->baseline;
+}
+void ModelData::set_baseline(const std::string &s) {
+  BOOST_LOG_SEV(glg, info) << "Setting ModelData.baseline to " << s;
+  this->baseline = temutil::onoffstr2bool(s);
+}
+void ModelData::set_baseline(const bool v) {
+  BOOST_LOG_SEV(glg, info) << "Setting ModelData.baseline to " << v;
+  this->baseline = v;
+}
+
+
 
 std::string ModelData::describe_module_settings(){
   std::stringstream s;
