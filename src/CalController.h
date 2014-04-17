@@ -13,6 +13,10 @@
 
 #include "runmodule/Cohort.h"
 
+//For readline
+#include <readline/readline.h>
+#include <readline/history.h>
+
 typedef struct CalCommand {
   std::string desc;
   boost::function<void ()> executor;
@@ -50,6 +54,8 @@ private:
   void continue_simulation();
   void show_full_menu();
   void show_short_menu();
+  //static to allow passing as a function pointer
+  static void cb_linehandler(char*);
 
   void env_ON();
   void env_OFF();

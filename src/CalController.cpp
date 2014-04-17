@@ -10,7 +10,10 @@
 #include "TEMLogger.h"
 #include "runmodule/Cohort.h"
 
+#include <iostream>
+
 extern src::severity_logger< severity_level > glg;
+//void cb_linehandler(char*);
 
 
 /** Constructor. You gotta pass a pointer to a Cohort in order to 
@@ -66,6 +69,30 @@ CalController::CalController(Cohort* cht_p):
   BOOST_LOG_SEV(glg, debug) << "Done contructing a CalController.";
 }  
   
+/** Record history of user commands.
+ *
+ * Not a member function due to complexities of member access.
+ * Is friend instead.
+ */
+void CalController::cb_linehandler(char* c_line){
+  std::string line = std::string(c_line);
+
+  if(*c_line){
+      std::cout<<"adding "<<c_line<<" to history\n";
+      add_history(c_line);
+  }
+
+  if(strcmp(c_line,"c")==0){// || line.compare("exit")){
+    std::cout<<"c or exit\n";
+    //cmd_map[line].executor();
+    rl_callback_handler_remove();
+  }
+  else{
+    //this->cmd_map[line].executor();
+  }
+
+}
+
 /** Keep getting commands and executing commands from the user. 
  * 
  * It is possible to exit this loop with either a quit or continue command.
@@ -74,20 +101,44 @@ void CalController::control_loop() {
 
   show_short_menu();
 
-  while (true) {
+  bool running = true;
 
-    std::string user_input = "";
+  //Vars for readline
+  char* prompt = (char*)"rline>";
+  fd_set fds;
 
-    user_input = get_user_command();
+  //rl_vcpfunc_t* test = &CalController::cb_linehandler;
 
-    if (user_input.compare("c") == 0) {
-      // do nothing and break the loop to let the simulation continue 
-      break;
+  rl_callback_handler_install(prompt, (rl_vcpfunc_t*)&CalController::cb_linehandler);
+
+  while (running) {
+
+    FD_ZERO(&fds);
+    FD_SET(fileno(rl_instream), &fds);
+
+    //r=select
+    //etc
+
+    if(FD_ISSET(fileno(rl_instream), &fds)){
+      rl_callback_read_char();
     }
 
+    //std::string user_input = "";
+
+    //user_input = get_user_command();
+
+    //if (user_input.compare("c") == 0) {
+      // do nothing and break the loop to let the simulation continue 
+    //  break;
+    //}
+    //if(!running){
+    //  break;
+    //}
+
     // Otherwise, do one of the commands.
-    this->cmd_map[user_input].executor();
+    //this->cmd_map[user_input].executor();
   }
+
 }
 
 /** The call back that is run when a registered signal is recieved and processed.
