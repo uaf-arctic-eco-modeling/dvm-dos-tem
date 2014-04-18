@@ -72,24 +72,20 @@ CalController::CalController(Cohort* cht_p):
 /** Record history of user commands.
  *
  * Not a member function due to complexities of member access.
- * Is friend instead.
+ * Temporarily uses global variable to pass results to control_loop
  */
-void CalController::cb_linehandler(char* c_line){
-  std::string line = std::string(c_line);
-
+std::string pass_line = "";
+void cb_linehandler(char* c_line){
+  std::cout<<"begin linehandler\n";
   if(*c_line){
-      std::cout<<"adding "<<c_line<<" to history\n";
-      add_history(c_line);
+    std::cout<<"adding \'"<<c_line<<"\' to history\n";
+    add_history(c_line);
+    pass_line = std::string(c_line);
   }
 
-  if(strcmp(c_line,"c")==0){// || line.compare("exit")){
+  /*if(strcmp(c_line,"c")==0){// || line.compare("exit")){
     std::cout<<"c or exit\n";
-    //cmd_map[line].executor();
-    rl_callback_handler_remove();
-  }
-  else{
-    //this->cmd_map[line].executor();
-  }
+  }*/
 
 }
 
@@ -106,37 +102,43 @@ void CalController::control_loop() {
   //Vars for readline
   char* prompt = (char*)"rline>";
   fd_set fds;
+  int r;
 
-  //rl_vcpfunc_t* test = &CalController::cb_linehandler;
+  rl_callback_handler_install(prompt, cb_linehandler);
 
-  rl_callback_handler_install(prompt, (rl_vcpfunc_t*)&CalController::cb_linehandler);
-
-  while (running) {
+  while (true) {
 
     FD_ZERO(&fds);
     FD_SET(fileno(rl_instream), &fds);
 
-    //r=select
-    //etc
+    /*r = select (FD_SETSIZE, &fds, NULL, NULL, NULL);
+      if (r < 0){
+        //perror ("rltest: select");
+        rl_callback_handler_remove ();
+        break;
+      }*/
 
     if(FD_ISSET(fileno(rl_instream), &fds)){
       rl_callback_read_char();
     }
+    //if there's something in the string
+      if(pass_line.compare("")!=0){
+        //if continue
+        if(pass_line.compare("c")==0){
+          break;
+        }
+        else{
+          //if the string exists in the map
+          if(this->cmd_map.count(pass_line)) {
+           this->cmd_map[pass_line].executor();
+           std::cout<<"called command\n";
+          }
+        }
+      }
 
-    //std::string user_input = "";
+    std::cout<<"clearing pass_line\n";
+    pass_line="";
 
-    //user_input = get_user_command();
-
-    //if (user_input.compare("c") == 0) {
-      // do nothing and break the loop to let the simulation continue 
-    //  break;
-    //}
-    //if(!running){
-    //  break;
-    //}
-
-    // Otherwise, do one of the commands.
-    //this->cmd_map[user_input].executor();
   }
 
 }
