@@ -31,7 +31,6 @@ class CalController {
 public:
   
   CalController(Cohort* cht_p);
-  std::string get_user_command();
   void show_cal_control_menu();
   void check_for_signals();
   void async_pause(); // pauses, but thru the io_service, so may not be immediate.

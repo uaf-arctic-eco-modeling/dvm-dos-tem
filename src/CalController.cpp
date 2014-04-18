@@ -13,7 +13,6 @@
 #include <iostream>
 
 extern src::severity_logger< severity_level > glg;
-//void cb_linehandler(char*);
 
 
 /** Constructor. You gotta pass a pointer to a Cohort in order to 
@@ -69,25 +68,6 @@ CalController::CalController(Cohort* cht_p):
   BOOST_LOG_SEV(glg, debug) << "Done contructing a CalController.";
 }  
   
-/** Record history of user commands.
- *
- * Not a member function due to complexities of member access.
- * Temporarily uses global variable to pass results to control_loop
- */
-std::string pass_line = "";
-void cb_linehandler(char* c_line){
-  std::cout<<"begin linehandler\n";
-  if(*c_line){
-    std::cout<<"adding \'"<<c_line<<"\' to history\n";
-    add_history(c_line);
-    pass_line = std::string(c_line);
-  }
-
-  /*if(strcmp(c_line,"c")==0){// || line.compare("exit")){
-    std::cout<<"c or exit\n";
-  }*/
-
-}
 
 /** Keep getting commands and executing commands from the user. 
  * 
@@ -97,48 +77,31 @@ void CalController::control_loop() {
 
   show_short_menu();
 
-  bool running = true;
-
-  //Vars for readline
-  char* prompt = (char*)"rline>";
-  fd_set fds;
-  int r;
-
-  rl_callback_handler_install(prompt, cb_linehandler);
-
+  char * line_read = (char*)NULL;
   while (true) {
 
-    FD_ZERO(&fds);
-    FD_SET(fileno(rl_instream), &fds);
-
-    /*r = select (FD_SETSIZE, &fds, NULL, NULL, NULL);
-      if (r < 0){
-        //perror ("rltest: select");
-        rl_callback_handler_remove ();
-        break;
-      }*/
-
-    if(FD_ISSET(fileno(rl_instream), &fds)){
-      rl_callback_read_char();
+    if(line_read != (char *)NULL){
+      free (line_read);
+      line_read = (char *)NULL;
     }
-    //if there's something in the string
-      if(pass_line.compare("")!=0){
-        //if continue
-        if(pass_line.compare("c")==0){
-          break;
-        }
-        else{
-          //if the string exists in the map
-          if(this->cmd_map.count(pass_line)) {
-           this->cmd_map[pass_line].executor();
-           std::cout<<"called command\n";
-          }
-        }
+
+    /* Get a line from the user. */
+    line_read = readline ("Enter command>");
+
+    /* If the line has any text in it, save it on the history. */
+    if(line_read && *line_read){
+      add_history (line_read);
+      std::string line = std::string(line_read);
+
+      if(strcmp(line_read,"c")==0){
+        free(line_read);
+        break;
       }
-
-    std::cout<<"clearing pass_line\n";
-    pass_line="";
-
+      else if(this->cmd_map.count(line)){
+        
+        this->cmd_map[line].executor();
+      }
+    }
   }
 
 }
@@ -202,20 +165,6 @@ void CalController::check_for_signals() {
                                        boost::asio::placeholders::signal_number));
   }
 }
-
-/** Get a string from the user until it matches one in the cmd_map 
- */
-std::string CalController::get_user_command() {
-  std::string ui = "";
-  while( !(this->cmd_map.count(ui)) ) {
-    std::cout << "What now?> ";
-    std::getline(std::cin, ui);
-    std::cin.clear();
-  }
-  return ui;
-}
-
-
 
 
 void CalController::continue_simulation() {
