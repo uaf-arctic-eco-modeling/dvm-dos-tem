@@ -10,6 +10,8 @@
 #include "TEMLogger.h"
 #include "runmodule/Cohort.h"
 
+#include <iostream>
+
 extern src::severity_logger< severity_level > glg;
 
 
@@ -66,6 +68,7 @@ CalController::CalController(Cohort* cht_p):
   BOOST_LOG_SEV(glg, debug) << "Done contructing a CalController.";
 }  
   
+
 /** Keep getting commands and executing commands from the user. 
  * 
  * It is possible to exit this loop with either a quit or continue command.
@@ -74,20 +77,33 @@ void CalController::control_loop() {
 
   show_short_menu();
 
+  char * line_read = (char*)NULL;
   while (true) {
 
-    std::string user_input = "";
-
-    user_input = get_user_command();
-
-    if (user_input.compare("c") == 0) {
-      // do nothing and break the loop to let the simulation continue 
-      break;
+    if(line_read != (char *)NULL){
+      free (line_read);
+      line_read = (char *)NULL;
     }
 
-    // Otherwise, do one of the commands.
-    this->cmd_map[user_input].executor();
+    /* Get a line from the user. */
+    line_read = readline ("Enter command>");
+
+    /* If the line has any text in it, save it on the history. */
+    if(line_read && *line_read){
+      add_history (line_read);
+      std::string line = std::string(line_read);
+
+      if(strcmp(line_read,"c")==0){
+        free(line_read);
+        break;
+      }
+      else if(this->cmd_map.count(line)){
+        
+        this->cmd_map[line].executor();
+      }
+    }
   }
+
 }
 
 /** The call back that is run when a registered signal is recieved and processed.
@@ -149,20 +165,6 @@ void CalController::check_for_signals() {
                                        boost::asio::placeholders::signal_number));
   }
 }
-
-/** Get a string from the user until it matches one in the cmd_map 
- */
-std::string CalController::get_user_command() {
-  std::string ui = "";
-  while( !(this->cmd_map.count(ui)) ) {
-    std::cout << "What now?> ";
-    std::getline(std::cin, ui);
-    std::cin.clear();
-  }
-  return ui;
-}
-
-
 
 
 void CalController::continue_simulation() {
