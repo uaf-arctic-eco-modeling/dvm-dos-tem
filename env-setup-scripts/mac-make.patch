@@ -8,11 +8,11 @@ index 707038a..5b6ede8 100644
 -CC=g++
 -CFLAGS=-c -Werror -ansi -g -fPIC -DBOOST_ALL_DYN_LINK
 -LIBS=-lnetcdf_c++ -lnetcdf -lboost_system -lboost_filesystem \
---lboost_program_options -lboost_thread -lboost_log -ljson
+--lboost_program_options -lboost_thread -lboost_log -ljson -lreadline
 +CC=g++-4.8
 +CFLAGS=-c -fpermissive -Werror -ansi -g -fPIC -DBOOST_ALL_DYN_LINK
 +LIBS=-lnetcdf_c++ -lnetcdf -lboost_system-mt -lboost_filesystem-mt \
-+-lboost_program_options-mt -lboost_thread-mt -lboost_log-mt -ljson
++-lboost_program_options-mt -lboost_thread-mt -lboost_log-mt -ljson -lreadline
  LIBDIR=$(SITE_SPECIFIC_LIBS)
  INCLUDES=$(SITE_SPECIFIC_INCLUDES)
  SOURCES= 	src/TEM.o \

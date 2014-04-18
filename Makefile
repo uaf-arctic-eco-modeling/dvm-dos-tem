@@ -3,7 +3,7 @@
 CC=g++
 CFLAGS=-c -Werror -ansi -g -fPIC -DBOOST_ALL_DYN_LINK
 LIBS=-lnetcdf_c++ -lnetcdf -lboost_system -lboost_filesystem \
--lboost_program_options -lboost_thread -lboost_log -ljson
+-lboost_program_options -lboost_thread -lboost_log -ljson -lreadline
 LIBDIR=$(SITE_SPECIFIC_LIBS)
 INCLUDES=$(SITE_SPECIFIC_INCLUDES)
 SOURCES= 	src/TEM.o \
