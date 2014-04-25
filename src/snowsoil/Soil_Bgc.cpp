@@ -20,7 +20,11 @@
  *
  */
 
+#include "../TEMLogger.h"
+
 #include "Soil_Bgc.h"
+
+extern src::severity_logger< severity_level > glg;
 
 Soil_Bgc::Soil_Bgc(){
 
@@ -83,9 +87,9 @@ void Soil_Bgc::assignCarbonLayer2BdMonthly(){
 
 void Soil_Bgc::prepareIntegration(const bool &mdnfeedback, const bool &mdavlnflg, const bool &mdbaseline){
 
-	 nfeed   = mdnfeedback;
-	 avlnflg = mdavlnflg;
-	 baseline= mdbaseline;
+	 this->set_nfeed(mdnfeedback);
+	 this->set_avlnflg(mdavlnflg);
+	 this->set_baseline(mdbaseline);
      
 	 // moss death rate if any (from Vegetation_bgc.cpp)
 	 mossdeathc    = bd->m_v2soi.mossdeathc;
@@ -120,7 +124,7 @@ void Soil_Bgc::prepareIntegration(const bool &mdnfeedback, const bool &mdavlnflg
      //SOM decompositin Kd will updated based on previous 12 month accumulative littering C/N
      updateKdyrly4all();
 
-     if (nfeed==1) {
+     if (this->nfeed == 1) {
     	 // vegetation root N extraction
     	 for (int i=0; i<cd->m_soil.numsl; i++) {
     		 rtnextract[i] = bd->m_soi2v.nextract[i];
@@ -161,7 +165,7 @@ void Soil_Bgc::prepareIntegration(const bool &mdnfeedback, const bool &mdavlnflg
 
      // dead standing C due to fire will put into ground debris
      d2wdebrisc = bd->m_v2soi.d2wdebrisc;
-     if (nfeed==1) d2wdebrisn = bd->m_v2soi.d2wdebrisn;
+     if (this->nfeed == 1) d2wdebrisn = bd->m_v2soi.d2wdebrisn;
 
 };
 
@@ -535,7 +539,7 @@ void Soil_Bgc::deltac(){
 // soil N budget
 void Soil_Bgc::deltan(){
 
-	if (nfeed == 1){ // soil-plant N cycle switched on
+	if (this->nfeed == 1){ // soil-plant N cycle switched on
 
 		//total N immobilization and net mineralization
 		totnetnmin = 0.;
@@ -568,7 +572,7 @@ void Soil_Bgc::deltan(){
 			totnextract += bd->m_soi2v.nextract[il];
 		}
 
-		if (avlnflg == 1){ // open-N (inorganic) swithed on - note here ONLY 'lost' considered, while 'input' shall be from outside if any
+		if (this->avlnflg == 1){ // open-N (inorganic) swithed on - note here ONLY 'lost' considered, while 'input' shall be from outside if any
 
 			del_soi2l.avlnlost = 0.;  // N leaching out with drainage water
 			if(totdzliq>0){
@@ -600,7 +604,7 @@ void Soil_Bgc::deltan(){
                                  +totnetnmin;
 		}
 
-		if (!baseline) {
+		if ( !this->baseline ) {
 
 			del_soi2l.orgnlost = 0.; //DON lost - not yet done and this is the portal for future development
 
@@ -704,7 +708,7 @@ void Soil_Bgc::deltastate(){
  	   			del_sois.somcr[il]*= (1.0-s2dfraction);
  	   		}
 
- 	   		if (nfeed==1){  // move orgn with SOMC as well
+ 	   		if (this->nfeed == 1) {  // move orgn with SOMC as well
  	   			double totsomc = tmp_sois.rawc[il]+tmp_sois.soma[il]+tmp_sois.sompr[il]+tmp_sois.somcr[il];
  	   			if (totsomc>(s2dcarbon1+s2dcarbon2)) {
  	   				del_orgn [il] = - (s2dcarbon1+s2dcarbon2)/totsomc*tmp_sois.orgn[il]; //assuming C/N same for all SOM components
@@ -719,7 +723,7 @@ void Soil_Bgc::deltastate(){
  	   			del_sois.sompr[il]+=s2dcarbon1;      // let the humified SOM C staying in the last fibrous layer,
  	   			del_sois.somcr[il]+=s2dcarbon2;      // which later on, if greater than a min. value, will form a new humic layer
 
- 	   			if (nfeed == 1) del_orgn[il] += s2dorgn;
+ 	   			if (this->nfeed == 1) del_orgn[il] += s2dorgn;
  	   		}
 
 	   	} else if (cd->m_soil.type[il]==2 && dlleft>0) {
@@ -731,7 +735,7 @@ void Soil_Bgc::deltastate(){
   	   		del_sois.sompr[il]+=dcaddfrac*s2dcarbon1;
  	   		del_sois.somcr[il]+=dcaddfrac*s2dcarbon2;
 
- 	   		if (nfeed==1) {
+ 	   		if (this->nfeed == 1) {
  	   			del_orgn[il]+=s2dorgn;
  	   		}
 
@@ -753,7 +757,7 @@ void Soil_Bgc::deltastate(){
  				del_sois.sompr[il] -= del_soi2a.rhsompr[il]*mobiletoco2;
  				del_sois.somcr[il] -= del_soi2a.rhsomcr[il]*mobiletoco2;
 
- 	 	   		if (nfeed==1){
+ 	 	   		if (this->nfeed == 1){
  	 	   			double totsomc = tmp_sois.rawc[il]+tmp_sois.soma[il]+tmp_sois.sompr[il]+tmp_sois.somcr[il];
  	 	   			if (totsomc>totmobile) {
  	 	   				del_orgn [il] = - totmobile/totsomc*tmp_sois.orgn[il]; //assuming C/N same for all SOM components
@@ -782,7 +786,7 @@ void Soil_Bgc::deltastate(){
  	   			del_sois.somcr[il]+= dcaddfrac*d2mcarbon*fsomcr;
  	   		}
 
- 	   		if (nfeed==1) {
+ 	   		if (this->nfeed == 1) {
  	   			del_orgn[il]=d2morgn *dcaddfrac;
  	   		}
 
@@ -792,7 +796,7 @@ void Soil_Bgc::deltastate(){
  	}
 
   	/////////////// Nitrogen pools in soil ///////////////////////////////////
-  	if(nfeed==1){
+  	if (this->nfeed == 1) {
   	   	for(int il =0; il<cd->m_soil.numsl; il++){
 
   	   		// organic N pools
@@ -858,7 +862,7 @@ void Soil_Bgc::deltastate(){
   	   		del_sois.wdebrisn = d2wdebrisn;
   	   		del_sois.wdebrisn -=del_soi2a.rhwdeb*tmp_sois.wdebrisn/tmp_sois.wdebrisc;
   	   	}
-  	} // end of 'if nfeed==1'
+  	} // end of 'if (this->nfeed == 1)'
 
 };
 
@@ -926,7 +930,7 @@ void Soil_Bgc::updateKdyrly4all(){
 
 	for(int il=0; il<cd->m_soil.numsl; il++){
 		// adjust SOM component respiration rate (kdc) due to literfall C/N ratio changing
-		if (nfeed==1) {
+		if (this->nfeed == 1) {
 				double ltrfalcn = 0.;
 		 		deque <double> ltrfcnque = bd->prvltrfcnque[il];
 		 		int numrec = ltrfcnque.size();
@@ -1000,3 +1004,32 @@ void Soil_Bgc::setBgcData(BgcData* bdp){
 void Soil_Bgc::setFirData(FirData* fdp){
   	 fd = fdp;
 };
+
+void Soil_Bgc::set_nfeed(int value) {
+  BOOST_LOG_SEV(glg, info) << "Setting Soil_Bgc.nfeed to " << value;
+  this->nfeed = value;
+}
+
+int Soil_Bgc::get_nfeed() {
+  return this->nfeed;
+}
+
+void Soil_Bgc::set_avlnflg(int value) {
+  BOOST_LOG_SEV(glg, info) << "Setting Soil_Bgc.avlnflg to " << value;
+  this->avlnflg = value;
+}
+
+int Soil_Bgc::get_avlnflg() {
+  return this->avlnflg;
+}
+
+void Soil_Bgc::set_baseline(int value) {
+  BOOST_LOG_SEV(glg, info) << "Setting Soil_Bgc.baseline to " << value;
+  this->baseline = value;
+}
+
+int Soil_Bgc::get_baseline() {
+  return this->baseline;
+}
+
+

@@ -31,88 +31,141 @@
 #include <ctime>
 #include <cstdlib>
 #include <exception>
-using namespace std;
+#include <map>
+#include <set>
 
-#include "assembler/Runner.h"
+#include <boost/filesystem.hpp>
+#include <boost/asio/signal_set.hpp>
+#include <boost/thread.hpp>
+#include <boost/shared_ptr.hpp>
+#include <boost/bind.hpp>
+#include <boost/asio.hpp>
+
+
 #include "ArgHandler.h"
+#include "TEMLogger.h"
+#include "assembler/Runner.h"
+
 
 ArgHandler* args = new ArgHandler();
 
 int main(int argc, char* argv[]){
-	args->parse(argc, argv);
+extern src::severity_logger< severity_level > glg;
+
+  args->parse(argc, argv);
 	if (args->getHelp()){
 		args->showHelp();
 		return 0;
 	}
-	
-	setvbuf(stdout, NULL, _IONBF, 0);
-	setvbuf(stderr, NULL, _IONBF, 0);
+  args->verify();
 
-	if (args->getMode() == "siterun") {
-		time_t stime;
-		time_t etime;
-		stime=time(0);
-		cout<<"run TEM stand-alone - start @"<<ctime(&stime)<<"\n";
+  std::cout << "Setting up logging...\n";
 
-		string controlfile = args->getCtrlfile();
-		string chtid = args->getChtid();
+  setup_logging(args->getLogLevel());
 
-		Runner siter;
+  setvbuf(stdout, NULL, _IONBF, 0);
+  setvbuf(stderr, NULL, _IONBF, 0);
 
-		siter.chtid = atoi(chtid.c_str());
+  if (args->getMode() == "siterun") {
+    time_t stime;
+    time_t etime;
+    stime=time(0);
+    BOOST_LOG_SEV(glg, note) << "Running dvm-dos-tem in siterun mode. Start @ " 
+                             << ctime(&stime);
 
-		siter.initInput(controlfile, "siter");
+    string controlfile = args->getCtrlfile();
+    string chtid = args->getChtid();
 
-		siter.initOutput();
+    Runner siter;
 
- 		siter.setupData();
+    // Not working yet. Need to figure out if it is even possible to
+    // control modules from the command line? and if so how this should working
+    // in all the different run stages.
+    //siter.modeldata_module_settings_from_args(*args);
+    
+    if (args->getCalibrationMode() == "on") {
+      BOOST_LOG_SEV(glg, note) << "Turning CalibrationMode on in Runner (siter).";
+      siter.set_calibrationMode(true);
 
- 		siter.setupIDs();
+      boost::filesystem::path tmp_json_folder("/tmp/cal-dvmdostem/");
+      boost::filesystem::path tmp_json_folder_yly("/tmp/year-cal-dvmdostem");
 
- 		siter.runmode1();
- 
- 		etime=time(0);
-		cout <<"run TEM stand-alone - done @"<<ctime(&etime)<<"\n";
-		cout <<"total seconds: "<<difftime(etime, stime)<<"\n";
+      if( !(boost::filesystem::exists(tmp_json_folder_yly)) ) {
+        BOOST_LOG_SEV(glg, info) << "Creating folder: " << tmp_json_folder_yly;
+        boost::filesystem::create_directory(tmp_json_folder_yly);
+      } else {
+        BOOST_LOG_SEV(glg, info) << "Calibraiton json yearly folder already exists. ("
+                                 << tmp_json_folder << ")";
+        BOOST_LOG_SEV(glg, info) << "Deleting any exisiting calibration yearly json data.";
+        boost::filesystem::remove_all(tmp_json_folder_yly);
+        boost::filesystem::create_directory(tmp_json_folder_yly);
+      }
 
-	} else if (args->getMode() == "regnrun") {
+      if( !(boost::filesystem::exists(tmp_json_folder)) ) {
+        BOOST_LOG_SEV(glg, info) << "Creating folder: " << tmp_json_folder;
+        boost::filesystem::create_directory(tmp_json_folder);
+      } else {
+        BOOST_LOG_SEV(glg, info) << "Calibraiton json folder already exists. ("
+                                 << tmp_json_folder << ")";
+        BOOST_LOG_SEV(glg, info) << "Deleting any exisiting calibration json data.";
+        boost::filesystem::remove_all(tmp_json_folder);
+        boost::filesystem::create_directory(tmp_json_folder);
+      }
 
-		time_t stime;
-		time_t etime;
-		stime=time(0);
-		cout <<"run TEM regionally - start @"<<ctime(&stime)<<"\n";
+    } else {
+      BOOST_LOG_SEV(glg, note) << "Running in extrapolation mode.";
+    }
 
-		string controlfile = args->getCtrlfile();
-		string runmode = args->getRegrunmode();
+    siter.chtid = atoi(chtid.c_str());
 
-		Runner regner;
+    siter.initInput(controlfile, "siter");
 
-		regner.initInput(controlfile, runmode);
+    siter.initOutput();
 
-		regner.initOutput();
+    siter.setupData();
 
-		regner.setupData();
+    siter.setupIDs();
 
-		regner.setupIDs();
+    siter.runmode1();
+  
+    etime=time(0);
 
- 		if (runmode.compare("regner1")==0) {
- 			regner.runmode2();
- 		} else if (runmode.compare("regner2")==0){
- 			regner.runmode3();
-		} else {
+  } else if (args->getMode() == "regnrun") {
 
-			// Should move this to the ArgHandler class.
-			cout <<"run-mode for TEM regional run must be: \n";
-			cout <<" EITHER 'regner1' OR 'regner2' \n";
-			exit(-1);
-		}
+    time_t stime;
+    time_t etime;
+    stime=time(0);
+    BOOST_LOG_SEV(glg, note) << "Running dvm-dos-tem in regional mode. Start @ "
+                              << ctime(&stime);
 
-		etime=time(0);
-		cout <<"run TEM regionally - done @"<<ctime(&etime)<<"\n";
-		cout <<"total seconds: "<<difftime(etime, stime)<<"\n";
+    string controlfile = args->getCtrlfile();
+    string runmode = args->getRegrunmode();
 
-	}
-	
-	return 0;
+    Runner regner;
 
+    regner.initInput(controlfile, runmode);
+
+    regner.initOutput();
+
+    regner.setupData();
+
+    regner.setupIDs();
+
+    if (runmode.compare("regner1")==0) {
+      BOOST_LOG_SEV(glg, note) << "Running in regner1...(runmode2)";
+      regner.runmode2();
+    } else if (runmode.compare("regner2")==0){
+      BOOST_LOG_SEV(glg, note) << "Running in regner2...(runmode3)";
+      regner.runmode3();
+    } else {
+      BOOST_LOG_SEV(glg, fatal) << "Invalid runmode...quitting.";
+      exit(-1);
+    }
+
+    etime = time(0);
+    BOOST_LOG_SEV(glg, note) << "Done running dvm-dos-tem regionally " 
+                              << "(" << ctime(&etime) << ").";
+    BOOST_LOG_SEV(glg, note) << "total seconds: " << difftime(etime, stime);
+  }
+  return 0;
 };
