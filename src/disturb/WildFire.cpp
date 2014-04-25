@@ -140,7 +140,8 @@ int WildFire::getOccur(const int &yrind, const bool & friderived){
     		int fsindx = oneseason-1;         // 'season' category starting from 1
     		for (int i=0; i<3; i++) firemonths.push_back(morder[fsindx*3+i]);
     		random_shuffle(firemonths.begin(),firemonths.end());  //randomly pick-up a month for fire occurence
-    		int firetime= firemonths[1];
+    		//int firetime= firemonths[1];
+    		int firetime= 6;//Temporarily static, to guarantee deterministic results
     		firemonths.clear();
     		onemonth = firetime;
 

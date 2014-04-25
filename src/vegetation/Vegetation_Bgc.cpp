@@ -20,7 +20,12 @@
  *
  */
 
+#include "../TEMLogger.h"
+#include "../TEMUtilityFunctions.h"
+
 #include "Vegetation_Bgc.h"
+
+extern src::severity_logger< severity_level > glg;
 
 Vegetation_Bgc::Vegetation_Bgc(){
 	bgcpar.dc2n = 0.000519;
@@ -136,7 +141,7 @@ void Vegetation_Bgc::initializeState5restart(RestartData *resin){
 void Vegetation_Bgc::prepareIntegration(const bool &nfeedback){
 
 	//option of N module
-	nfeed = nfeedback;
+	this->set_nfeed(nfeedback);
 
 	//canopy conductance for GPP
 	double pet = ed->m_l2a.pet;    //
@@ -827,3 +832,16 @@ void Vegetation_Bgc::setEnvData(EnvData* edp){
 void Vegetation_Bgc::setBgcData(BgcData* bdp){
   	 bd =bdp;
 }
+
+bool Vegetation_Bgc::get_nfeed() {
+  return this->nfeed;
+}
+void Vegetation_Bgc::set_nfeed(const std::string &value) {
+  BOOST_LOG_SEV(glg, info) << "Setting Vegetation_Bgc.nfeed to " << value;
+  this->nfeed = temutil::onoffstr2bool(value);
+}
+void Vegetation_Bgc::set_nfeed(const bool value) {
+  BOOST_LOG_SEV(glg, info) << "Setting Vegetation_Bgc.nfeed to " << value;
+  this->nfeed = value;
+}
+

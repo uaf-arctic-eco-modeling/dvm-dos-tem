@@ -25,10 +25,6 @@ class Soil_Bgc{
   	Soil_Bgc();
  	~Soil_Bgc();	
 	
-  	int nfeed;     // soil-plant-air N module switch
-  	int avlnflg;   // open-N cycle switch; otherwise, N budget method used to balance the N I/O from the ecosystem
-  	int baseline;  // open-N cycle switch; otherwise, N budget method used to balance the N I/O from the ecosystem
-
   	soistate_bgc tmp_sois;   // the previous soistate_bgc
   	soistate_bgc del_sois;   // the change of soistate_bgc
 
@@ -63,9 +59,32 @@ class Soil_Bgc{
 
   	void prepareIntegration(const bool &mdnfeedback, const bool &mdavlnflg, const bool &mdbaseline);
   	void afterIntegration();
-  
+
+    int get_nfeed();
+    void set_nfeed(int);
+
+    int get_avlnflg();
+    void set_avlnflg(int);
+
+    int get_baseline();
+    void set_baseline(int);
+
   private:
-  
+
+    // NOTE: seems like these 3 variables are supposed to shadow the
+    // corresponding ModelData members. Not sure if this should be
+    // strictly enforced somehow?
+
+    int nfeed;  // soil-plant-air N module switch
+
+  	int avlnflg;   // open-N cycle switch; otherwise, N budget method used to
+                   // balance the N I/O from the ecosystem
+
+    int baseline;  // open-N cycle switch; otherwise, N budget method used to
+                   // balance the N I/O from the ecosystem
+
+
+
   	double d2wdebrisc;
   	double d2wdebrisn;
   	double mossdeathc;

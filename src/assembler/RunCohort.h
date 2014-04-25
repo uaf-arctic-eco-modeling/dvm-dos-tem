@@ -11,6 +11,7 @@
 using namespace std;
 
 //local headers
+#include "../CalController.h"
 #include "../input/CohortInputer.h"
 #include "../input/RestartInputer.h"
 //#include "../input/SiteInputer.h"
@@ -95,17 +96,21 @@ class RunCohort {
      	void run_cohortly();
 
 		void run_monthly();
+    bool get_calMode();
+    void set_calMode(bool new_value);
 
 	private :
- 	  		 	 
+    
+    bool calMode;
+    
 		ModelData *md;
 
 		int dstepcnt;   //day timesteps since starting output
 	    int mstepcnt;   //month timesteps since starting output
 	    int ystepcnt;   //year timesteps since starting output
 
-		void runEnvmodule();
- 		void run_timeseries();
+		void runEnvmodule(boost::shared_ptr<CalController> calcontroller_ptr);
+ 		void run_timeseries(boost::shared_ptr<CalController> calcontroller_ptr);
 
 };
 #endif /*RUNCOHORT_H_*/

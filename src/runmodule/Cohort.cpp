@@ -15,10 +15,13 @@
  *
  */
 
+#include "../TEMLogger.h"
 #include "Cohort.h"
 
-Cohort::Cohort(){
+extern src::severity_logger< severity_level > glg;
 
+Cohort::Cohort(){
+  BOOST_LOG_SEV(glg, info) << "Cohort constructor; instantiating a cohort object.";
 };
 
 Cohort::~Cohort(){
@@ -266,7 +269,7 @@ void Cohort::prepareAllDrivingData(){
     atm.prepareMonthDrivingData();
 
     //fire driving data (if input) for all years
-    if (!md->friderived && !md->runeq) {
+    if (!md->get_friderived() && !md->runeq) {
         fire.prepareDrivingData();
     }
 };
@@ -309,41 +312,52 @@ void Cohort::prepareDayDrivingData(const int & yrindx, const int & usedatmyr){
 };
 
 void Cohort::updateMonthly(const int & yrcnt, const int & currmind, const int & dinmcurr){
-
+  
+  BOOST_LOG_SEV(glg, debug) << "Cohort::updateMonthly. Year: " 
+                            << yrcnt << " Month: " << currmind << " dinmcurr: " 
+                            << dinmcurr;
 	//
-	if(currmind==0) cd.beginOfYear();
-	cd.beginOfMonth();
+	if(currmind==0) { 
+    cd.beginOfYear();
+  }
 
-  	// first, update the water/thermal process to get (bio)physical conditions
- 	if(md->envmodule){
-  		updateMonthly_Env(currmind, dinmcurr);
-  	}
+  BOOST_LOG_SEV(glg, debug) << "Clean up before a month starts.";
+  cd.beginOfMonth();
 
- 	// secondly, update the current dimension/structure of veg-snow/soil column (domain)
-   	updateMonthly_DIMveg(currmind, md->dvmmodule);
+ 	if(md->get_envmodule()) {
+    BOOST_LOG_SEV(glg, debug) << "Run the environmental module - updates water/thermal processes to get (bio)physical conditions.";
+    updateMonthly_Env(currmind, dinmcurr);
+	}
 
-   	updateMonthly_DIMgrd(currmind, md->dslmodule);
+  BOOST_LOG_SEV(glg, debug) << "Update the current dimension/structure of veg-snow/soil column (domain).";
+  updateMonthly_DIMveg(currmind, md->get_dvmmodule());
+  updateMonthly_DIMgrd(currmind, md->get_dslmodule());
 
-   	//thirdly, update the BGC process to get the C/N states and fluxes
-  	if(md->bgcmodule){
-  		updateMonthly_Bgc(currmind);
-  	}
+  if(md->get_bgcmodule()) {
+    BOOST_LOG_SEV(glg, debug) << "Run the BGC processes to get the C/N fluxes.";
+    updateMonthly_Bgc(currmind);
+  }
 
-  	// fourthly, run the disturbance module
-   	if(md->dsbmodule){
-   	   	updateMonthly_Fir(yrcnt, currmind);
-   	}
+  if(md->get_dsbmodule()) {
+    BOOST_LOG_SEV(glg, debug) << "Run the disturbance model.";
+    updateMonthly_Fir(yrcnt, currmind);
+  }
 
+  BOOST_LOG_SEV(glg, debug) << "Clean up at the end of the month";
 	cd.endOfMonth();
-	if(currmind==11) cd.endOfYear();
+  
+	if(currmind == 11) {
+    BOOST_LOG_SEV(glg, debug) << "Clean up at end of year.";
+    cd.endOfYear();
+  }
 
-	////////////////////////////
-	// output all data for multple cohorts
 	if (md->outRegn) {
+    BOOST_LOG_SEV(glg, debug) << "Output all data for multiple cohorts.";
 		outbuffer.updateRegnOutputBuffer(currmind);
 	}
 
 	// always output the restart data (monthly)
+  BOOST_LOG_SEV(glg, debug) << "Output monthly restart data.";
 	outbuffer.updateRestartOutputBuffer();
 
 };
@@ -548,7 +562,7 @@ void Cohort::updateMonthly_Bgc(const int & currmind){
 	for (int ip=0; ip<NUM_PFT; ip++){
     	if (cd.m_veg.vegcov[ip]>0.){
 
-    		vegbgc[ip].prepareIntegration(md->nfeed);
+    		vegbgc[ip].prepareIntegration(md->get_nfeed());
 		 	vegintegrator[ip].updateMonthlyVbgc();
     		vegbgc[ip].afterIntegration();
 
@@ -568,7 +582,7 @@ void Cohort::updateMonthly_Bgc(const int & currmind){
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 	// soil BGC module calling
-	soilbgc.prepareIntegration(md->nfeed, md->avlnflg, md->baseline);
+	soilbgc.prepareIntegration(md->get_nfeed(), md->get_avlnflg(), md->get_baseline());
 	solintegrator.updateMonthlySbgc(MAX_SOI_LAY);
     soilbgc.afterIntegration();
 
@@ -586,7 +600,7 @@ void Cohort::updateMonthly_Fir(const int & yrind, const int & currmind){
 	if(currmind ==0){
 		fd->beginOfYear();
 
-		fire.getOccur(yrind, md->friderived);
+		fire.getOccur(yrind, md->get_friderived());
 	}
 
    	if (yrind==fire.oneyear && currmind==fire.onemonth){

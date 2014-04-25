@@ -17,7 +17,6 @@
 #include "RegionData.h"
 #include "GridData.h"
 #include "CohortData.h"
-
 #include <deque>
 
 class BgcData{
@@ -76,6 +75,7 @@ class BgcData{
    		void soil_endOfMonth();
     
     private:
+
 
 };
 

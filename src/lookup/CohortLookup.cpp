@@ -1,5 +1,13 @@
+#include <iomanip>
+
+#include <sstream>
+#include <string>
+
+#include "../TEMLogger.h"
 
 #include "CohortLookup.h"
+
+extern src::severity_logger< severity_level > glg;
 
 /** Parses a string, looking for a community code.
  Reads the string, finds the first occurrence of the characters "CMT", and returns a
@@ -22,6 +30,7 @@ CohortLookup::~CohortLookup(){
 };
 
 void CohortLookup::init(){
+  BOOST_LOG_SEV(glg, info) << "Cohort Lookup init function. Assigning all values from various config/* files...";
 	assignBgcCalpar(dir);
 
 	assignVegDimension(dir);
@@ -35,11 +44,99 @@ void CohortLookup::init(){
 
 	assignFirePar(dir);
 
-};
+}
+
+/** Prints data from this-> fields mimics format of cmt_calparbgc.txt file, 
+ * but only for one cmt type which ever one "this->cmtcode" refers to..
+ */
+std::string CohortLookup::calparbgc2str() {
+    std::stringstream s("");
+    s << "CMT code: " << this->cmtcode << "\n";
+    
+    for (int i = 0 ; i < NUM_PFT; ++i) {
+      std::stringstream p;//("PFT");
+      p << "PFT" << i;
+      s << std::setw(12) << std::setfill(' ') << p.str();
+    }
+    s << "\n";
+    
+    for (int i = 0 ; i < NUM_PFT; ++i) {
+      s << std::setw(12) << std::setfill(' ') << this->cmax[i];
+    }
+    s << "    cmax\n";
+    
+    for (int i = 0 ; i < NUM_PFT; ++i) {
+      s << std::setw(12) << std::setfill(' ') << this->nmax[i];
+    }
+    s << "    nmax\n";
+    
+    for (int i = 0 ; i < NUM_PFT; ++i) {
+      s << std::setw(12) << std::setfill(' ') << this->cfall[0][i];
+    }
+    s << "    cfall[0] leaf\n";
+    
+    for (int i = 0 ; i < NUM_PFT; ++i) {
+      s << std::setw(12) << std::setfill(' ') << this->cfall[1][i];
+    }
+    s << "    cfall[1] stem\n";
+    
+    for (int i = 0 ; i < NUM_PFT; ++i) {
+      s << std::setw(12) << std::setfill(' ') << this->cfall[2][i];
+    }
+    s << "    cfall[2] root\n";
+    
+    for (int i = 0 ; i < NUM_PFT; ++i) {
+      s << std::setw(12) << std::setfill(' ') << this->nfall[0][i];
+    }
+    s << "    nfall[0] leaf\n";
+    
+    for (int i = 0 ; i < NUM_PFT; ++i) {
+      s << std::setw(12) << std::setfill(' ') << this->nfall[1][i];
+    }
+    s << "    nfall[1] stem\n";
+    
+    for (int i = 0 ; i < NUM_PFT; ++i) {
+      s << std::setw(12) << std::setfill(' ') << this->nfall[2][i];
+    }
+    s << "    nfall[2] root\n";
+
+    for (int i = 0 ; i < NUM_PFT; ++i) {
+      s << std::setw(12) << std::setfill(' ') << this->kra[i];
+    }
+    s << "    kra (coeff in maintenance resp.)\n";
+
+    for (int i = 0 ; i < NUM_PFT; ++i) {
+      s << std::setw(12) << std::setfill(' ') << this->krb[0][i];
+    }
+    s << "    krb[0] (coeff in maintenance resp., leaf)\n";
+
+    for (int i = 0 ; i < NUM_PFT; ++i) {
+      s << std::setw(12) << std::setfill(' ') << this->krb[1][i];
+    }
+    s << "    krb[1] (coeff in maintenance resp., leaf)\n";
+
+    for (int i = 0 ; i < NUM_PFT; ++i) {
+      s << std::setw(12) << std::setfill(' ') << this->krb[2][i];
+    }
+    s << "    krb[2] (coeff in maintenance resp., leaf)\n";
+
+    for (int i = 0 ; i < NUM_PFT; ++i) {
+      s << std::setw(12) << std::setfill(' ') << this->frg[i];
+    }
+    s << "    kra[2] (fraction of available NPP (GPP after rm))\n";
+    s << "// soil calibrated parameters\n";
+    s << this->micbnup << " // micbnup: parameter for soil microbial immobialization of N\n";
+    s << this->kdcmoss << " // kdcmoss: dead moss C decompositin rates at reference condition\n";
+    s << this->kdcrawc << " // kdcrawc: raw-material (litter) C decompositin rates at reference condition\n";
+    s << this->kdcsoma << " // kdcsoma:\n";
+    s << this->kdcsompr << " // kdcsompr:\n";
+    s << this->kdcsomcr << "// kdcsomcr:\n";
+    return s.str();
+}
 
 void CohortLookup::assignBgcCalpar(string & dircmt){
-
 	string parfilecal = dircmt+"cmt_calparbgc.txt";
+  BOOST_LOG_SEV(glg, note) << "Assigning parameters from " << parfilecal;
 	ifstream fctrcomm;
 	fctrcomm.open(parfilecal.c_str(),ios::in );
 	bool isOpen = fctrcomm.is_open();
@@ -107,6 +204,8 @@ void CohortLookup::assignBgcCalpar(string & dircmt){
 void CohortLookup::assignVegDimension(string &dircmt){
 
 	string parfilecomm = dircmt+"cmt_dimvegetation.txt";
+  BOOST_LOG_SEV(glg, note) << "Assigning parameters from " << parfilecomm;
+
 	ifstream fctrpft;
 	fctrpft.open(parfilecomm.c_str(),ios::in );
 	bool isOpen = fctrpft.is_open();
@@ -202,6 +301,7 @@ void CohortLookup::assignVegDimension(string &dircmt){
 void CohortLookup::assignGroundDimension(string &dircmt){
 
 	string parfilecomm = dircmt+"cmt_dimground.txt";
+  BOOST_LOG_SEV(glg, note) << "Assigning parameters from " << parfilecomm;
 
 	ifstream fctrcomm;
 	fctrcomm.open(parfilecomm.c_str(),ios::in );
@@ -273,6 +373,8 @@ void CohortLookup::assignGroundDimension(string &dircmt){
 void CohortLookup::assignEnv4Canopy(string &dir){
 
 	string parfilecomm = dir+"cmt_envcanopy.txt";
+  BOOST_LOG_SEV(glg, note) << "Assigning parameters from " << parfilecomm;
+
 	ifstream fctrpft;
 	fctrpft.open(parfilecomm.c_str(),ios::in );
 	bool isOpen = fctrpft.is_open();
@@ -345,6 +447,8 @@ void CohortLookup::assignEnv4Canopy(string &dir){
 void CohortLookup::assignBgc4Vegetation(string & dircmt){
 
 	string parfilecomm = dircmt+"cmt_bgcvegetation.txt";
+  BOOST_LOG_SEV(glg, note) << "Assigning parameters from " << parfilecomm;
+
 	ifstream fctrpft;
 	fctrpft.open(parfilecomm.c_str(),ios::in );
 	bool isOpen = fctrpft.is_open();
@@ -453,6 +557,7 @@ void CohortLookup::assignBgc4Vegetation(string & dircmt){
 void CohortLookup::assignEnv4Ground(string &dircmt){
 
 	string parfilecomm = dircmt+"cmt_envground.txt";
+  BOOST_LOG_SEV(glg, note) << "Assigning parameters from " << parfilecomm;
 
 	ifstream fctrcomm;
 	fctrcomm.open(parfilecomm.c_str(),ios::in );
@@ -511,6 +616,7 @@ void CohortLookup::assignEnv4Ground(string &dircmt){
 
 void CohortLookup::assignBgc4Ground(string &dircmt){
 	string parfilecomm = dircmt+"cmt_bgcsoil.txt";
+  BOOST_LOG_SEV(glg, note) << "Assigning parameters from " << parfilecomm;
 
 	ifstream fctrcomm;
 	fctrcomm.open(parfilecomm.c_str(),ios::in );
@@ -576,6 +682,8 @@ void CohortLookup::assignBgc4Ground(string &dircmt){
 void CohortLookup::assignFirePar(string &dircmt){
 
 	string parfilecomm = dircmt+"cmt_firepar.txt";
+  BOOST_LOG_SEV(glg, note) << "Assigning parameters from " << parfilecomm;
+
 	ifstream fctrcomm;
 	fctrcomm.open(parfilecomm.c_str(),ios::in );
 	bool isOpen = fctrcomm.is_open();

@@ -1,34 +1,52 @@
+#include <string>
+
+#include "../TEMLogger.h"
 
 #include "Runner.h"
 
-Runner::Runner(){
+extern src::severity_logger< severity_level > glg;
+
+Runner::Runner(): calibrationMode(false) {
 	chtid = -1;
 	error = 0;
+  BOOST_LOG_SEV(glg, debug) << "Constructiong a Runner...";
 };
 
 Runner::~Runner(){
-
 };
+
+
+void Runner::modeldata_module_settings_from_args(const ArgHandler &args) {
+  this->md.set_envmodule(args.getEnv());
+  this->md.set_bgcmodule(args.getBgc());
+  this->md.set_dvmmodule(args.getDvm());
+}
+void Runner::set_calibrationMode(bool new_setting) {
+  BOOST_LOG_SEV(glg, debug) << "Turning runner instance's calibrationMode to " 
+                            << new_setting;
+  this->runcht.set_calMode(new_setting);  // RunCohort's calibration status shadows Runner!                           
+  this->calibrationMode = new_setting;
+}
+bool Runner::get_calibrationMode() {
+  return this->calibrationMode;
+}
+
 
 void Runner::initInput(const string &controlfile, const string &runmode){
 
-		cout <<"Starting initialization ...\n";
-		cout <<"control file: "+controlfile+"\n";
-		cout <<"TEM run mode: "+runmode+"\n";
-
-		//Input and processing for reading parameters and passing them to controller
+    //Input and processing for reading parameters and passing them to controller
  		configin.controlfile=controlfile;
 
- 		//
  		if (runmode.compare("siter")==0) {
- 		  	md.runmode = 1;
+ 		  md.runmode = 1;
  		} else if (runmode.compare("regner1")==0) {
  			md.runmode = 2;                            //regional run - time-series
  		} else if (runmode.compare("regner2")==0) {
  			md.runmode = 3;                            //regional run - spatially
  		} else {
- 			cout <<"TEM run mode: "+runmode+" must be ONE of:\n";
- 			cout <<"'siter', 'regner1', or, 'regner2'\n";
+      BOOST_LOG_SEV(glg, fatal) << "runmode: " << runmode 
+                                << ". TEM runmode must be one of "
+                                << "siter, regner1, or regner2. "; 
  			exit(-1);
  		}
 
@@ -57,16 +75,16 @@ void Runner::initInput(const string &controlfile, const string &runmode){
  		if (md.runmode==2 || md.runmode==3) {
  			createCohortList4Run();   // the running cohort list, if multple-cohort run mode on
  		} else if (md.runmode==1) {
-	 		cout <<"CHTID and INITCHTID is "<<chtid  <<" for 'siter' runmode! \n";
-	 		cout <<"Be sure they exist and are consistent in 'cohortid.nc'! \n";
+      BOOST_LOG_SEV(glg, warn) << "CHTID and INITCHTID are " << chtid;
+      BOOST_LOG_SEV(glg, warn) << "Be sure they exist and are consistent in 'cohortid.nc'";
 	 		runchtlist.push_back(chtid);
  		}
 
  		//initial conditions
  		if (md.initmode==3){
  		 	if(md.runeq){
- 		 		cout <<"cannot set initmode as 'restart' for equlibrium run-stage \n";
- 		 		cout <<"reset to 'default'\n";
+ 		 		BOOST_LOG_SEV(glg, warn) << "Cannot set initmode to 'restart' for equlibrium run-stage";
+        BOOST_LOG_SEV(glg, warn) << "Reset initmode to 'default'...";
  		 		md.initmode=1;
  		 	} else {
  		 		runcht.resinputer.init(md.initialfile);
@@ -76,7 +94,7 @@ void Runner::initInput(const string &controlfile, const string &runmode){
             // will add later
  		} else if (md.initmode==1) {
  			// initial condition from 'chtlup'
-	 		cout <<"initial conditions from default for each 'cmttype' \n";
+      BOOST_LOG_SEV(glg, info) << "Using initial conditions from default for each 'cmttype'";
  		}
 
  		// pass the 'md' switches/controls/options to two major running modules 'rungrd' and 'runcht'
@@ -192,14 +210,14 @@ void Runner::setupIDs(){
 	// all grid data ids
 	error = rungrd.allgridids();
 	if (error != 0) {
-  		cout <<"problem in reading all grid-level data IDs in Runner::setupIDs \n";
+      BOOST_LOG_SEV(glg, fatal) << "Problem reading grid-level data IDs in Runner::setupIDs";
   		exit(-1);
 	}
 
 	// all cohort data ids
 	error = runcht.allchtids();
 	if (error != 0) {
-  		cout <<"problem in reading all cohort-level data IDs in Runner::setupIDs \n";
+      BOOST_LOG_SEV(glg, fatal) << "Problem reading cohort-level data IDs in Runner::setupIDs";
   		exit(-1);
 	}
 
@@ -237,7 +255,7 @@ void Runner::setupIDs(){
 		jt   = find(runcht.chtids.begin(), runcht.chtids.end(), ichtid);
 		jcht = (unsigned int)(jt - runcht.chtids.begin());
 		if (jcht>=runcht.chtids.size()) {
-			cout<<"Cohort: "<<ichtid<<" is not in datacht/cohortid.nc";
+      BOOST_LOG_SEV(glg, fatal) << "Cohort: "<<ichtid<<" is not in datacht/cohortid.nc";
 			exit(-1);
 		}
 
@@ -245,9 +263,10 @@ void Runner::setupIDs(){
 		jt    = find(rungrd.grdids.begin(), rungrd.grdids.end(), runcht.chtgridids.at(jcht));
 		jdata = (int)(jt - rungrd.grdids.begin());
 		if (jdata>=rungrd.grdids.size()) {
-			cout<<"GRIDID: "<<runcht.chtgridids.at(jcht)
-					<<"for Cohort: "<<ichtid<<" is not in datagrid/grid.nc";
-			exit(-1);
+			BOOST_LOG_SEV(glg, fatal) << "GridID: " << runcht.chtgridids.at(jcht)
+					                      << "for Cohort: " << ichtid
+                                << " is not in datagrid/grid.nc";
+      exit(-1);
 		}
 		reclistgrid.push_back(jdata);
 
@@ -338,10 +357,11 @@ void Runner::setupIDs(){
 // one-site runmode
 void Runner::runmode1(){
 
+ 
 	//read-in region-level data (Yuan: this is the portal for multiple region run, if needed in the future)
 	error = runreg.reinit(0);          //can be modified, if more than 1 record of data
 	if (error!=0){
-  		cout <<"problem in reinitialize regional-module in Runner::run\n";
+      BOOST_LOG_SEV(glg, fatal) << "problem in reinitialize regional-module in Runner::runmode1()";
   		exit(-1);
 	}
 
@@ -378,18 +398,19 @@ void Runner::runmode1(){
 		cout <<"problem in re-initializing cohort in Runner::runmode1\n";
 		exit(-1);
 	}
-
-	cout<<"cohort: "<<chtid<<" - running! \n";
+  BOOST_LOG_SEV(glg, info) << "cohort: " << chtid << " - running!";
 	runcht.run_cohortly();
 
 };
 
+
 void Runner::runmode2(){
 
+ 
 	//read-in region-level data (Yuan: this is the portal for multiple region run, if needed in the future)
 	error = runreg.reinit(0);          //can be modified, if more than 1 record of data
 	if (error!=0){
-  		cout <<"problem in reinitialize regional-module in Runner::run\n";
+  		BOOST_LOG_SEV(glg, fatal) << "Problem reinitializing regional module in Runner::run";
   		exit(-1);
 	}
 
@@ -438,7 +459,7 @@ void Runner::runmode2(){
 
 		error = runcht.reinit();
 		if (error!=0) {
-			cout<<"problem in re-initializing cohort in Runner::runmode2\n";
+			BOOST_LOG_SEV(glg, fatal) << "problem re-initializing cohort in Runner::runmode2";
 			exit(-3);
 		}
 
@@ -469,7 +490,7 @@ void Runner::runmode3(){
 		timer.stageyrind = 0;
 		runcht.yrstart   = 0;
 		runcht.yrend     = MAX_EQ_YR;
-		md.friderived    = true;
+		md.set_friderived(true);
 	}
 	if(md.runsp){
 		timer.stageyrind = 0;
@@ -477,7 +498,7 @@ void Runner::runmode3(){
 	    runcht.used_atmyr= fmin(MAX_ATM_NOM_YR, md.act_clmyr);
 	    runcht.yrstart   = timer.spbegyr;
 	    runcht.yrend     = timer.spendyr;
-	    md.friderived    = false;
+	    md.set_friderived(false);
 	}
 	if(md.runtr){
 		timer.stageyrind = 0;
@@ -486,7 +507,7 @@ void Runner::runmode3(){
 		runcht.used_atmyr= md.act_clmyr;
 		runcht.yrstart   = timer.trbegyr;
 		runcht.yrend     = timer.trendyr;
-	    md.friderived    = false;
+    md.set_friderived(false);
 	}
 	if(md.runsc){
 		timer.stageyrind = 0;
@@ -496,7 +517,7 @@ void Runner::runmode3(){
 		runcht.used_atmyr = md.act_clmyr;
 		runcht.yrstart = timer.scbegyr;
 		runcht.yrend   = timer.scendyr;
-	    md.friderived= false;
+	  md.set_friderived(false);
 	}
 
 	//loop through time-step
