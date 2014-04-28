@@ -14,73 +14,104 @@
 
 extern src::severity_logger< severity_level > glg;
 
-
-/** Constructor. You gotta pass a pointer to a Cohort in order to 
+/** Constructor. You gotta pass a pointer to a Cohort in order to
  * make a valid CalController!
  */
 CalController::CalController(Cohort* cht_p):
-    io_service(new boost::asio::io_service),
-    pause_sigs(*io_service, SIGINT, SIGTERM),
-    cohort_ptr(cht_p)
-{
+  io_service(new boost::asio::io_service),
+  pause_sigs(*io_service, SIGINT, SIGTERM),
+  cohort_ptr(cht_p) {
   cmd_map = boost::assign::map_list_of
-  ( "q", CalCommand("quit the calibrator", boost::bind(&CalController::quit, this)) )
-  ( "c", CalCommand("continue simulation", boost::bind(&CalController::continue_simulation, this)) )
-  ( "r", CalCommand("reload calparbgc file", boost::bind(&CalController::reload_calparbgc_file, this)) )
-  ( "reload all",
-    CalCommand("reload all cmt files",
-               boost::bind(&CalController::reload_all_cmt_files, this)) )
-  ( "h", CalCommand("show short menu", boost::bind(&CalController::show_short_menu, this)) )
-  ( "help", CalCommand("show full menu", boost::bind(&CalController::show_full_menu, this)) )
-  ( "env on", CalCommand("turn env module ON", boost::bind(&CalController::env_ON, this)) )
-  ( "env off", CalCommand("turn env module OFF", boost::bind(&CalController::env_OFF, this)) )
-  ( "bgc on", CalCommand("turn bgc module ON", boost::bind(&CalController::bgc_ON, this)) )
-  ( "bgc off", CalCommand("turn bgc module OFF", boost::bind(&CalController::bgc_OFF, this)) )
-  ( "dsb on", CalCommand("turn dsb module ON", boost::bind(&CalController::dsb_ON, this)) )
-  ( "dsb off", CalCommand("turn dsb module OFF", boost::bind(&CalController::dsb_OFF, this)) )
-  ( "dsl on", CalCommand("turn dsl module ON", boost::bind(&CalController::dsl_ON, this)) )
-  ( "dsl off", CalCommand("turn dsl module OFF", boost::bind(&CalController::dsl_OFF, this)) )
-  ( "dvm on", CalCommand("turn dvm module ON", boost::bind(&CalController::dvm_ON, this)) )
-  ( "dvm off", CalCommand("turn dvm module OFF", boost::bind(&CalController::dvm_OFF, this)) )
-  ( "nfeed on", CalCommand("turn nitrogen feedback ON", boost::bind(&CalController::nfeed_ON, this)) )
-  ( "nfeed off", CalCommand("turn nitrogen feedback OFF", boost::bind(&CalController::nfeed_OFF, this)) )
-  ( "avln on", CalCommand("turn available nitrogen ON", boost::bind(&CalController::avlnflg_ON, this)) )
-  ( "avln off", CalCommand("turn available nitrogen OFF", boost::bind(&CalController::avlnflg_OFF, this)) )
-  ( "baseline on", CalCommand("turn baseline ON", boost::bind(&CalController::baseline_ON, this)) )
-  ( "baseline off", CalCommand("turn baseline OFF", boost::bind(&CalController::baseline_OFF, this)) )
-
-  ( "print calparbgc",
-    CalCommand("prints out the calparbgc parameters ",
-               boost::bind(&CalController::print_calparbgc, this)) )
-  ( "print module settings", 
-    CalCommand("print module settings (on/off)",
-               boost::bind(&CalController::print_modules_settings, this)) )
-  ;
-  
-  
+            ("q", CalCommand("quit the calibrator",
+                             boost::bind(&CalController::quit, this)) )
+            ("c",
+              CalCommand("continue simulation",
+                          boost::bind(&CalController::continue_simulation,
+                                      this)) )
+            ("r",
+              CalCommand("reload calparbgc file",
+                          boost::bind(&CalController::reload_calparbgc_file,
+                                      this)) )
+            ("reload all",
+              CalCommand("reload all cmt files",
+                          boost::bind(&CalController::reload_all_cmt_files,
+                                      this)) )
+            ("h",
+              CalCommand("show short menu",
+                          boost::bind(&CalController::show_short_menu, this)) )
+            ("help",
+              CalCommand("show full menu",
+                          boost::bind(&CalController::show_full_menu, this)) )
+            ("env on", CalCommand("turn env module ON",
+                                  boost::bind(&CalController::env_ON, this)) )
+            ("env off", CalCommand("turn env module OFF",
+                                   boost::bind(&CalController::env_OFF, this)) )
+            ("bgc on", CalCommand("turn bgc module ON",
+                                  boost::bind(&CalController::bgc_ON, this)) )
+            ("bgc off", CalCommand("turn bgc module OFF",
+                                   boost::bind(&CalController::bgc_OFF, this)) )
+            ("dsb on", CalCommand("turn dsb module ON",
+                                   boost::bind(&CalController::dsb_ON, this)) )
+            ("dsb off",
+              CalCommand("turn dsb module OFF",
+                          boost::bind(&CalController::dsb_OFF, this)) )
+            ("dsl on", CalCommand("turn dsl module ON",
+                                  boost::bind(&CalController::dsl_ON, this)) )
+            ("dsl off", CalCommand("turn dsl module OFF",
+                                   boost::bind(&CalController::dsl_OFF, this)) )
+            ("dvm on", CalCommand("turn dvm module ON",
+                                   boost::bind(&CalController::dvm_ON, this)) )
+            ("dvm off", CalCommand("turn dvm module OFF",
+                                   boost::bind(&CalController::dvm_OFF, this)) )
+            ("nfeed on",
+              CalCommand("turn nitrogen feedback ON",
+                          boost::bind(&CalController::nfeed_ON, this)) )
+            ("nfeed off",
+              CalCommand("turn nitrogen feedback OFF",
+                          boost::bind(&CalController::nfeed_OFF, this)) )
+            ("avln on",
+              CalCommand("turn available nitrogen ON",
+                          boost::bind(&CalController::avlnflg_ON, this)) )
+            ("avln off",
+              CalCommand("turn available nitrogen OFF",
+                          boost::bind(&CalController::avlnflg_OFF, this)) )
+            ("baseline on",
+              CalCommand("turn baseline ON",
+                          boost::bind(&CalController::baseline_ON, this)) )
+            ("baseline off",
+              CalCommand("turn baseline OFF",
+                          boost::bind(&CalController::baseline_OFF, this)) )
+            ("print calparbgc",
+              CalCommand("prints out the calparbgc parameters ",
+                         boost::bind(&CalController::print_calparbgc, this)) )
+            ("print module settings",
+              CalCommand("print module settings (on/off)",
+                         boost::bind(&CalController::print_modules_settings,
+                                     this)) )
+            ;
   BOOST_LOG_SEV(glg, debug) << "Set async wait on signals to PAUSE handler.";
-  pause_sigs.async_wait( boost::bind(&CalController::pause_handler, this, 
+  pause_sigs.async_wait( boost::bind(&CalController::pause_handler, this,
                                      boost::asio::placeholders::error,
                                      boost::asio::placeholders::signal_number));
+
   if (!this->cohort_ptr) {
     BOOST_LOG_SEV(glg, err) << "Something is wrong and the Cohort pointer is null!";
   }
-  BOOST_LOG_SEV(glg, debug) << "Done contructing a CalController.";
-}  
-  
 
-/** Keep getting commands and executing commands from the user. 
- * 
+  BOOST_LOG_SEV(glg, debug) << "Done constructing a CalController.";
+}
+
+
+/** Keep getting commands and executing commands from the user.
+ *
  * It is possible to exit this loop with either a quit or continue command.
  */
 void CalController::control_loop() {
-
   show_short_menu();
-
   char * line_read = (char*)NULL;
-  while (true) {
 
-    if(line_read != (char *)NULL){
+  while (true) {
+    if(line_read != (char *)NULL) {
       free (line_read);
       line_read = (char *)NULL;
     }
@@ -89,43 +120,38 @@ void CalController::control_loop() {
     line_read = readline ("Enter command> ");
 
     /* If the line has any text in it, save it on the history. */
-    if(line_read && *line_read){
+    if(line_read && *line_read) {
       add_history (line_read);
       std::string line = std::string(line_read);
 
-      if(strcmp(line_read,"c")==0){
+      if(strcmp(line_read,"c")==0) {
         free(line_read);
         break;
-      }
-      else if(this->cmd_map.count(line)){
-        
+      } else if(this->cmd_map.count(line)) {
         this->cmd_map[line].executor();
       }
     }
   }
-
 }
 
 /** The call back that is run when a registered signal is recieved and processed.
- * Technically, because of the async_wait, the may be run some time after the 
+ * Technically, because of the async_wait, the may be run some time after the
  * signal is recieved, so it is really run when a recieved signal is processed.
  */
-void CalController::pause_handler( const boost::system::error_code& error, int signal_number) {
+void CalController::pause_handler(const boost::system::error_code& error,
+                                  int signal_number) {
   BOOST_LOG_SEV(glg, debug) << "In the CalController pause_handler";
   BOOST_LOG_SEV(glg, debug) << "Caught signal number: " << signal_number << " Error(s): " << error;
-
   //BOOST_LOG_SEV(clg, debug) << "BEFORE PARAMS: \n" << cohort_ptr->chtlu.dump_calparbgc();
-
   control_loop();
   BOOST_LOG_SEV(glg, debug) << "Done in pause handler...";
-
 }
 
 /** Pause, but asynchronously?
  *
  *  Posts a message to the io_service (which is asynchronously waiting).
  *  When the message is processed, the control loop is run, and the control loop
- *  blocks waiting for user input, so the simulaiton is stopped while the 
+ *  blocks waiting for user input, so the simulaiton is stopped while the
  *  control loop is blocking.
  *
  *  So it seems that the simulation may not pause immediately, but only once
@@ -149,20 +175,17 @@ void CalController::pause( ) {
 void CalController::check_for_signals() {
   int handlers_run = 0;
   boost::system::error_code ec;
-
   BOOST_LOG_SEV(glg, debug) << "Poll the io_service...";
   handlers_run = io_service->poll(ec);
   BOOST_LOG_SEV(glg, debug) << "Handlers run: " << handlers_run;
 
   if (handlers_run > 0) {
-
     BOOST_LOG_SEV(glg, debug) << "Reset the io_service object.";
     io_service->reset();
-
     BOOST_LOG_SEV(glg, debug) << "Set async wait on signals to PAUSE handler.";
-    pause_sigs.async_wait( boost::bind(&CalController::pause_handler, this, 
-                                       boost::asio::placeholders::error,
-                                       boost::asio::placeholders::signal_number));
+    pause_sigs.async_wait(boost::bind(&CalController::pause_handler, this,
+                                      boost::asio::placeholders::error,
+                                      boost::asio::placeholders::signal_number));
   }
 }
 
@@ -186,12 +209,11 @@ void CalController::reload_calparbgc_file() {
   std::string config_dir = this->cohort_ptr->chtlu.dir;
   this->cohort_ptr->chtlu.assignBgcCalpar(config_dir);
   BOOST_LOG_SEV(glg, note) << "Done reloading calparbgc file.";
-  
 }
 
 void CalController::quit() {
   BOOST_LOG_SEV(glg, note) << "Executing the quit callback...";
-  BOOST_LOG_SEV(glg, note) << "Quitting via CalController."; 
+  BOOST_LOG_SEV(glg, note) << "Quitting via CalController.";
   exit(-1);
 }
 
@@ -199,6 +221,7 @@ void CalController::env_ON() {
   BOOST_LOG_SEV(glg, note) << "CalController is turing env module ON via cohort pointer...";
   this->cohort_ptr->md->set_envmodule(true);
 }
+
 void CalController::env_OFF() {
   BOOST_LOG_SEV(glg, note) << "CalController is turing env module OFF via cohort pointer...";
   this->cohort_ptr->md->set_envmodule(false);
@@ -208,6 +231,7 @@ void CalController::bgc_ON() {
   BOOST_LOG_SEV(glg, note) << "CalController is turing bgc module ON via cohort pointer...";
   this->cohort_ptr->md->set_bgcmodule(true);
 }
+
 void CalController::bgc_OFF() {
   BOOST_LOG_SEV(glg, note) << "CalController is turing bgc module OFF via cohort pointer...";
   this->cohort_ptr->md->set_bgcmodule(false);
@@ -217,6 +241,7 @@ void CalController::dsb_ON() {
   BOOST_LOG_SEV(glg, note) << "CalController is turing dsb module ON via cohort pointer...";
   this->cohort_ptr->md->set_dsbmodule(true);
 }
+
 void CalController::dsb_OFF() {
   BOOST_LOG_SEV(glg, note) << "CalController is turing dsb module OFF via cohort pointer...";
   this->cohort_ptr->md->set_dsbmodule(false);
@@ -226,6 +251,7 @@ void CalController::dsl_ON() {
   BOOST_LOG_SEV(glg, note) << "CalController is turing dsl module ON via cohort pointer...";
   this->cohort_ptr->md->set_dslmodule(true);
 }
+
 void CalController::dsl_OFF() {
   BOOST_LOG_SEV(glg, note) << "CalController is turing dsl module OFF via cohort pointer...";
   this->cohort_ptr->md->set_dslmodule(false);
@@ -235,16 +261,17 @@ void CalController::dvm_ON() {
   BOOST_LOG_SEV(glg, note) << "CalController is turing dvm module ON via cohort pointer...";
   this->cohort_ptr->md->set_dvmmodule(true);
 }
+
 void CalController::dvm_OFF() {
   BOOST_LOG_SEV(glg, note) << "CalController is turing dvm module OFF via cohort pointer...";
   this->cohort_ptr->md->set_dvmmodule(false);
 }
 
-
 void CalController::nfeed_ON() {
   BOOST_LOG_SEV(glg, note) << "CalController is turing nitrogen feedback ON via cohort pointer...";
   this->cohort_ptr->md->set_nfeed(true);
 }
+
 void CalController::nfeed_OFF() {
   BOOST_LOG_SEV(glg, note) << "CalController is turing nitrogen feedback OFF via cohort pointer...";
   this->cohort_ptr->md->set_nfeed(false);
@@ -263,13 +290,11 @@ void CalController::baseline_ON() {
   BOOST_LOG_SEV(glg, note) << "CalController is turing baseline ON via cohort pointer...";
   this->cohort_ptr->md->set_baseline(true);
 }
+
 void CalController::baseline_OFF() {
   BOOST_LOG_SEV(glg, note) << "CalController is turing baseline OFF via cohort pointer...";
   this->cohort_ptr->md->set_baseline(false);
 }
-
-
-
 
 void CalController::print_calparbgc() {
   BOOST_LOG_SEV(glg, note) << "Printing the 'calparbgc' parameters stored in the CohortLookup pointer...";
@@ -283,34 +308,43 @@ void CalController::print_modules_settings() {
   std::string s = this->cohort_ptr->md->describe_module_settings();
   std::cout << s;
 }
+
 void CalController::show_short_menu() {
-   BOOST_LOG_SEV(glg, note) << "Showing short menu...";
-   std::string m = "";
-   m += "  q - "; m += this->cmd_map["q"].desc; m += "\n";
-   m += "  c - "; m += this->cmd_map["c"].desc; m += "\n";
-   m += "  r - "; m += this->cmd_map["r"].desc; m += "\n";
-   m += "  h - "; m += this->cmd_map["h"].desc; m += "\n";
-   m += "  help - "; m += this->cmd_map["help"].desc; m += "\n";
-   std::cout << m;
+  BOOST_LOG_SEV(glg, note) << "Showing short menu...";
+  std::string m = "";
+  m += "  q - ";
+  m += this->cmd_map["q"].desc;
+  m += "\n";
+  m += "  c - ";
+  m += this->cmd_map["c"].desc;
+  m += "\n";
+  m += "  r - ";
+  m += this->cmd_map["r"].desc;
+  m += "\n";
+  m += "  h - ";
+  m += this->cmd_map["h"].desc;
+  m += "\n";
+  m += "  help - ";
+  m += this->cmd_map["help"].desc;
+  m += "\n";
+  std::cout << m;
 }
 
 void CalController::show_full_menu() {
-
   BOOST_LOG_SEV(glg, note) << "Showing full menu...";
-
   std::string m = "--  Full Calibration Controller Menu --\n";
-
   std::map<std::string, CalCommand>::const_iterator citer;
+
   for(citer = cmd_map.begin(); citer != cmd_map.end(); ++citer) {
-     m += "    "; 
-     m += citer->first; 
-     m += " - ";
-     m += citer->second.desc;
-     m += "\n";
+    m += "    ";
+    m += citer->first;
+    m += " - ";
+    m += citer->second.desc;
+    m += "\n";
   }
+
   m += "---------------------------------------\n";
   std::cout << m;
-  
 }
 
 

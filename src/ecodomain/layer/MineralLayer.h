@@ -1,5 +1,5 @@
 /*! \file
- * 
+ *
  */
 #ifndef MINERALLAYER_H_
 #define MINERALLAYER_H_
@@ -9,16 +9,18 @@
 #include <cmath>
 using namespace std;
 
-class MineralLayer: public SoilLayer{
-	public:
+class MineralLayer: public SoilLayer {
+public:
 
-		MineralLayer(const double & pdz, int sttype , SoilLookup * soillup);
+  MineralLayer(const double & pdz, int sttype , SoilLookup * soillup);
 
-		double getDryThermCond(const double & bulkden);
-		double getDryThermCond(const double & tcsolid, const double & bulkden, const double & partden);
+  double getDryThermCond(const double & bulkden);
+  double getDryThermCond(const double & tcsolid,
+                         const double & bulkden,
+                         const double & partden);
 
-	private:
-		void  updateProperty5Lookup(SoilLookup * soillu);
+private:
+  void  updateProperty5Lookup(SoilLookup * soillu);
 
 };
 #endif /*MINERALLAYER_H_*/

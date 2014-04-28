@@ -9,16 +9,16 @@ using namespace std;
 
 #include "../inc/errorcode.h"
 
-class Region{
-	public :
-		Region();
-		~Region();
-	
-		RegionData rd;
-	
-		void init();
-		void getinitco2();
-		//void setRegionData(RegionData *rd);
+class Region {
+public :
+  Region();
+  ~Region();
+
+  RegionData rd;
+
+  void init();
+  void getinitco2();
+  //void setRegionData(RegionData *rd);
 
 };
 #endif /*REGION_H_*/

@@ -11,74 +11,74 @@
 
 using namespace std;
 
-class ChtOutputer{
-	public:
-		ChtOutputer();
-		~ChtOutputer();
-				
-		void init(string & dirfile);
-		void outputCohortDimVars_mly(CohortData *cdp, const int & recordcnt);
-		void outputCohortDimVars_yly(CohortData *cdp, const int & recordcnt);
+class ChtOutputer {
+public:
+  ChtOutputer();
+  ~ChtOutputer();
 
- 		void reinit();
+  void init(string & dirfile);
+  void outputCohortDimVars_mly(CohortData *cdp, const int & recordcnt);
+  void outputCohortDimVars_yly(CohortData *cdp, const int & recordcnt);
 
-		string ncfname;
+  void reinit();
 
-	private :
+  string ncfname;
 
-		NcFile * ncfile;
+private :
 
-		NcDim * timeD;
-		NcDim * pftD;
-		NcDim * snwlayerD;
-		NcDim * soilayerD;
-		NcDim * rotlayerD;
+  NcFile * ncfile;
 
-		NcVar* yearV;
-		NcVar* monV;
-		NcVar* chtidV;
+  NcDim * timeD;
+  NcDim * pftD;
+  NcDim * snwlayerD;
+  NcDim * soilayerD;
+  NcDim * rotlayerD;
 
-		NcVar* cmttypeV;
+  NcVar* yearV;
+  NcVar* monV;
+  NcVar* chtidV;
 
-		NcVar* vegageV;
-		NcVar* ifwoodyV;
-		NcVar* ifdeciwoodyV;
-		NcVar* ifperenialV;
-		NcVar* nonvascularV;
-		NcVar* vegcovV;
-	   	NcVar* laiV;
-	   	NcVar* fpcV;
-	   	NcVar* rtfracV;
-	   	NcVar* fleafV;
-	   	NcVar* ffoliageV;
+  NcVar* cmttypeV;
 
-	   	//
-		NcVar* snwthickV;
-		NcVar* snwdenseV;
-		NcVar* snwextramassV;
-		NcVar* snwageV;
+  NcVar* vegageV;
+  NcVar* ifwoodyV;
+  NcVar* ifdeciwoodyV;
+  NcVar* ifperenialV;
+  NcVar* nonvascularV;
+  NcVar* vegcovV;
+  NcVar* laiV;
+  NcVar* fpcV;
+  NcVar* rtfracV;
+  NcVar* fleafV;
+  NcVar* ffoliageV;
 
-		//
-		NcVar* soillayernumV;
-		NcVar* soilmossnumV;
-		NcVar* soilshlwnumV;
-		NcVar* soildeepnumV;
-		NcVar* soilminenumV;
+  //
+  NcVar* snwthickV;
+  NcVar* snwdenseV;
+  NcVar* snwextramassV;
+  NcVar* snwageV;
 
-		NcVar* soilthickV;
-		NcVar* mossthickV;
-		NcVar* shlwthickV;
-		NcVar* deepthickV;
-		NcVar* mineathickV;
-		NcVar* minebthickV;
-		NcVar* minecthickV;
+  //
+  NcVar* soillayernumV;
+  NcVar* soilmossnumV;
+  NcVar* soilshlwnumV;
+  NcVar* soildeepnumV;
+  NcVar* soilminenumV;
 
-		NcVar* soilzV;
-		NcVar* soildzV;
-		NcVar* soiltypeV;
-		NcVar* soilporoV;
-		NcVar* soilrtfracV;
-		NcVar* soiltextureV;
+  NcVar* soilthickV;
+  NcVar* mossthickV;
+  NcVar* shlwthickV;
+  NcVar* deepthickV;
+  NcVar* mineathickV;
+  NcVar* minebthickV;
+  NcVar* minecthickV;
+
+  NcVar* soilzV;
+  NcVar* soildzV;
+  NcVar* soiltypeV;
+  NcVar* soilporoV;
+  NcVar* soilrtfracV;
+  NcVar* soiltextureV;
 
 };
 

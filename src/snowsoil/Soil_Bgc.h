@@ -20,119 +20,121 @@
 
 using namespace std;
 
-class Soil_Bgc{
-  public:
-  	Soil_Bgc();
- 	~Soil_Bgc();	
-	
-  	soistate_bgc tmp_sois;   // the previous soistate_bgc
-  	soistate_bgc del_sois;   // the change of soistate_bgc
+class Soil_Bgc {
+public:
+  Soil_Bgc();
+  ~Soil_Bgc();
 
-  	soi2soi_bgc del_soi2soi;
-  	soi2atm_bgc del_soi2a;
-  	soi2lnd_bgc del_soi2l;
+  soistate_bgc tmp_sois;   // the previous soistate_bgc
+  soistate_bgc del_sois;   // the change of soistate_bgc
 
-  	atm2soi_bgc del_a2soi;
+  soi2soi_bgc del_soi2soi;
+  soi2atm_bgc del_soi2a;
+  soi2lnd_bgc del_soi2l;
 
-  	soipar_bgc bgcpar;
-  	soipar_cal calpar;
+  atm2soi_bgc del_a2soi;
 
-  	void setCohortData(CohortData* cdp);
- 	void setEnvData(EnvData* edp);
-  	void setBgcData(BgcData* bdp);
-  	void setFirData(FirData* fdp);
-  	void setCohortLookup(CohortLookup* chtlup);
+  soipar_bgc bgcpar;
+  soipar_cal calpar;
 
-  	void setGround(Ground * ground);
+  void setCohortData(CohortData* cdp);
+  void setEnvData(EnvData* edp);
+  void setBgcData(BgcData* bdp);
+  void setFirData(FirData* fdp);
+  void setCohortLookup(CohortLookup* chtlup);
 
-  	void initializeParameter();
-  
-  	void initializeState();
-  	void initializeState5restart(RestartData * resdata);
+  void setGround(Ground * ground);
 
-  	void assignCarbonBd2LayerMonthly();
-  	void assignCarbonLayer2BdMonthly();
+  void initializeParameter();
 
-  	void deltac();
-  	void deltan();
-  	void deltastate();
+  void initializeState();
+  void initializeState5restart(RestartData * resdata);
 
-  	void prepareIntegration(const bool &mdnfeedback, const bool &mdavlnflg, const bool &mdbaseline);
-  	void afterIntegration();
+  void assignCarbonBd2LayerMonthly();
+  void assignCarbonLayer2BdMonthly();
 
-    int get_nfeed();
-    void set_nfeed(int);
+  void deltac();
+  void deltan();
+  void deltastate();
 
-    int get_avlnflg();
-    void set_avlnflg(int);
+  void prepareIntegration(const bool &mdnfeedback, const bool &mdavlnflg,
+                          const bool &mdbaseline);
+  void afterIntegration();
 
-    int get_baseline();
-    void set_baseline(int);
+  int get_nfeed();
+  void set_nfeed(int);
 
-  private:
+  int get_avlnflg();
+  void set_avlnflg(int);
 
-    // NOTE: seems like these 3 variables are supposed to shadow the
-    // corresponding ModelData members. Not sure if this should be
-    // strictly enforced somehow?
+  int get_baseline();
+  void set_baseline(int);
 
-    int nfeed;  // soil-plant-air N module switch
+private:
 
-  	int avlnflg;   // open-N cycle switch; otherwise, N budget method used to
-                   // balance the N I/O from the ecosystem
+  // NOTE: seems like these 3 variables are supposed to shadow the
+  // corresponding ModelData members. Not sure if this should be
+  // strictly enforced somehow?
 
-    int baseline;  // open-N cycle switch; otherwise, N budget method used to
-                   // balance the N I/O from the ecosystem
+  int nfeed;  // soil-plant-air N module switch
 
+  int avlnflg; // open-N cycle switch; otherwise, N budget method used to
+               // balance the N I/O from the ecosystem
 
+  int baseline;  // open-N cycle switch; otherwise, N budget method used to
+                 // balance the N I/O from the ecosystem
 
-  	double d2wdebrisc;
-  	double d2wdebrisn;
-  	double mossdeathc;
-  	double mossdeathn;
-  	double ltrflc[MAX_SOI_LAY];     //litterfall C into each soil layer
-  	double ltrfln[MAX_SOI_LAY];     //litterfall N into each soil layer
+  double d2wdebrisc;
+  double d2wdebrisn;
+  double mossdeathc;
+  double mossdeathn;
+  double ltrflc[MAX_SOI_LAY];     //litterfall C into each soil layer
+  double ltrfln[MAX_SOI_LAY];     //litterfall N into each soil layer
 
-  	double rtnextract[MAX_SOI_LAY];  // root N extraction from each soil layer
+  double rtnextract[MAX_SOI_LAY];  // root N extraction from each soil layer
 
-  	double kdshlw;
- 	double kddeep;
-   	double decay;
-  	double nup;
+  double kdshlw;
+  double kddeep;
+  double decay;
+  double nup;
 
-	double totdzliq;     // total drainage zone liq water
-	double totdzavln;    // total drainage zone avln
+  double totdzliq;     // total drainage zone liq water
+  double totdzavln;    // total drainage zone avln
 
-	double totnetnmin;   // total net N mineralization
-	double totnextract;  // total root N extract (uptake) from soil
+  double totnetnmin;   // total net N mineralization
+  double totnextract;  // total root N extract (uptake) from soil
 
-	CohortData * cd;
-  	EnvData * ed;
-  	BgcData * bd;
-  	FirData * fd;
+  CohortData * cd;
+  EnvData * ed;
+  BgcData * bd;
+  FirData * fd;
 
-  	CohortLookup * chtlu;
-  	Ground * ground;
+  CohortLookup * chtlu;
+  Ground * ground;
 
-  	void initSoilCarbon(double & initshlwc,	double & initdeepc, double & initminec);
-  	void initOslayerCarbon(double & shlwc, double & deepc);
-	void initMslayerCarbon(double & minec);
-  
-  	double getRhmoist(const double &vsm, const double & moistmin,
-	                  const double & moistmax, const double & moistopt);
-  	double getRhq10(const double & tsoil);
+  void initSoilCarbon(double & initshlwc, double & initdeepc,
+                      double & initminec);
+  void initOslayerCarbon(double & shlwc, double & deepc);
+  void initMslayerCarbon(double & minec);
 
- 	double getNimmob(const double & soilh2o, const double & soilorgc, const double & soilorgn,
-					 const double & availn, const double & ksoil, const double kn2);
-					 
-  	double getNetmin(const double & nimmob, const double & soilorgc, const double & soilorgn,
-					 const double & rh, const double & tcnsoil,
-					  const double & decay, const double & nup );
+  double getRhmoist(const double &vsm, const double & moistmin,
+                    const double & moistmax, const double & moistopt);
+  double getRhq10(const double & tsoil);
 
-  	double getKnsoilmoist(const double & vsm);   //
+  double getNimmob(const double & soilh2o, const double & soilorgc,
+                   const double & soilorgn, const double & availn,
+                   const double & ksoil, const double kn2);
 
-  	void updateKdyrly4all();
+  double getNetmin(const double & nimmob, const double & soilorgc,
+                   const double & soilorgn,
+                   const double & rh, const double & tcnsoil,
+                   const double & decay, const double & nup );
 
-  	double getKdyrly(double& yrltrcn, const double lcclnc, const double & kdc);
-					  					 
+  double getKnsoilmoist(const double & vsm);   //
+
+  void updateKdyrly4all();
+
+  double getKdyrly(double& yrltrcn, const double lcclnc, const double & kdc);
+
 };
 #endif /*SOIL_BGC_H_*/

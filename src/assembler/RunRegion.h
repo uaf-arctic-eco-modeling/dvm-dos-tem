@@ -1,8 +1,8 @@
 /*
  * This class is used to run processes at region-level
- *  
+ *
  */
- 
+
 #ifndef RUNREGION_H_
 #define RUNREGION_H_
 
@@ -12,17 +12,17 @@
 #include "../runmodule/Region.h"
 
 class RunRegion {
-	public:
-	 	RunRegion();
-	 	~RunRegion();
+public:
+  RunRegion();
+  ~RunRegion();
 
-	    int reinit(const int &recid);
-	 	
-	 	RegionInputer rinputer;
- 		Region region;
+  int reinit(const int &recid);
 
-	private :
- 	  		 	 
- 		
+  RegionInputer rinputer;
+  Region region;
+
+private :
+
+
 };
 #endif /*RUNREGION_H_*/
