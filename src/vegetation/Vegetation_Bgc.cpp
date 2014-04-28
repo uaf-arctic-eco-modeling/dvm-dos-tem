@@ -42,6 +42,7 @@ Vegetation_Bgc::~Vegetation_Bgc(){
 //Yuan: the parameterization and initialization is done for one PFT
 //set the bgc parameters from inputs
 void Vegetation_Bgc::initializeParameter(){
+  BOOST_LOG_SEV(glg, info) << "Initializing parameters in Vegetation_Bgc from chtlu (CohortLookup) values.";
 	
   	bgcpar.kc      = chtlu->kc[ipft];
   	bgcpar.ki      = chtlu->ki[ipft];

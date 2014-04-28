@@ -186,7 +186,16 @@ void CalController::reload_calparbgc_file() {
   std::string config_dir = this->cohort_ptr->chtlu.dir;
   this->cohort_ptr->chtlu.assignBgcCalpar(config_dir);
   BOOST_LOG_SEV(glg, note) << "Done reloading calparbgc file.";
-  
+
+  BOOST_LOG_SEV(glg, note) << "Next, make sure the veg parameters propogate?";
+  for (int i = 0; i < NUM_PFT; ++i) {
+    BOOST_LOG_SEV(glg, note) << "Assign the cohort's vegbgc params to those held in the chtlu object...";
+    this->cohort_ptr->vegbgc[i].initializeParameter();
+  }
+  BOOST_LOG_SEV(glg, note) << "Finally, make sure the soil parameters propogate?";
+  this->cohort_ptr->soilbgc.initializeParameter();
+
+
 }
 
 void CalController::quit() {
