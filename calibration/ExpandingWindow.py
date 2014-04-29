@@ -260,7 +260,7 @@ class ExpandingWindow(object):
     logging.debug("Turn on grid and legend.")
     for ax in self.axes:
       ax.grid(True) # <-- w/o parameter, this toggles!!
-      ax.legend(prop={'size':10.0})
+      ax.legend(prop={'size':10.0}, loc='upper left')
 
   def show(self, dynamic=True):
     '''Show the figure. If dynamic=True, then setup an animation.'''
