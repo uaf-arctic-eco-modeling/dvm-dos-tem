@@ -239,7 +239,7 @@ void Soil_Bgc::initializeState5restart(RestartData* resin){
 };
 
 void Soil_Bgc::initializeParameter(){
-
+  BOOST_LOG_SEV(glg, note) << "Initializing parameters in Soil_Bgc from chtlu (CohortLookup) values.";
 	calpar.micbnup  = chtlu->micbnup;
 	calpar.kdcmoss  = chtlu->kdcmoss;
   	calpar.kdcrawc  = chtlu->kdcrawc;
