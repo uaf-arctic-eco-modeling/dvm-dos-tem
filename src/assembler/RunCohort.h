@@ -1,8 +1,8 @@
 /*
  * This class is used to run a cohort: from input to output
- *  
+ *
  */
- 
+
 #ifndef RUNCOHORT_H_
 #define RUNCOHORT_H_
 
@@ -25,92 +25,93 @@ using namespace std;
 #include "../runmodule/Cohort.h"
 
 class RunCohort {
-	public:
-	 	RunCohort();
-	 	~RunCohort();
+public:
+  RunCohort();
+  ~RunCohort();
 
-		/* all cohort data id lists
-		 * ids are labeling the datasets, which exist in 5 *.nc files
-	 	 * and, the order (index, staring from 0) in these lists are actually record no. in the *.nc files
-	 	 */
-		vector<int> chtids;   // 'cohortid.nc'
-		vector<int> chtinitids;
-		vector<int> chtgridids;
-		vector<int> chtclmids;
-		vector<int> chtvegids;
-		vector<int> chtfireids;
+  /* all cohort data id lists
+   * ids are labeling the datasets, which exist in 5 *.nc files
+   * and, the order (index, staring from 0) in these lists are actually
+   * record no. in the *.nc files
+   */
+  vector<int> chtids; // 'cohortid.nc'
+  vector<int> chtinitids;
+  vector<int> chtgridids;
+  vector<int> chtclmids;
+  vector<int> chtvegids;
+  vector<int> chtfireids;
 
-		vector<int> chtdrainids;  // from 'grid.nc' to 'cohortid.nc', related by 'GRIDID'
-		vector<int> chtsoilids;
-		vector<int> chtgfireids;
+  vector<int> chtdrainids;//from 'grid.nc' to 'cohortid.nc', related by 'GRIDID'
+  vector<int> chtsoilids;
+  vector<int> chtgfireids;
 
-		vector<int> initids;  // 'restart.nc' or 'sitein.nc'
-		vector<int> clmids;   // 'climate.nc'
-		vector<int> vegids;   // 'vegetation.nc'
-		vector<int> fireids;  // 'fire.nc'
+  vector<int> initids; // 'restart.nc' or 'sitein.nc'
+  vector<int> clmids;   // 'climate.nc'
+  vector<int> vegids;   // 'vegetation.nc'
+  vector<int> fireids;  // 'fire.nc'
 
-		/* the following is FOR one cohort only (current cohort)
-		 *
-		 */
-	 	int cohortcount;
-	 	int initrecno;
-	 	int clmrecno;
-	 	int vegrecno;
-	 	int firerecno;
+  /* the following is FOR one cohort only (current cohort)
+   *
+   */
+  int cohortcount;
+  int initrecno;
+  int clmrecno;
+  int vegrecno;
+  int firerecno;
 
-	 	int used_atmyr;
-	    int yrstart;
-	    int yrend;
+  int used_atmyr;
+  int yrstart;
+  int yrend;
 
- 		Cohort cht;
+  Cohort cht;
 
- 		// Output data (extracted from model's data structure)
-    	OutDataRegn regnod;
-    	RestartData resod;
+  // Output data (extracted from model's data structure)
+  OutDataRegn regnod;
+  RestartData resod;
 
-    	//I/O operators
-  		CohortInputer cinputer;
- 		RestartInputer resinputer;
- 		//SiteInputer *sinputer;
+  //I/O operators
+  CohortInputer cinputer;
+  RestartInputer resinputer;
+  //SiteInputer *sinputer;
 
- 		ChtOutputer dimmlyouter;
- 		ChtOutputer dimylyouter;
+  ChtOutputer dimmlyouter;
+  ChtOutputer dimylyouter;
 
- 		EnvOutputer envdlyouter;
- 		EnvOutputer envmlyouter;
- 		EnvOutputer envylyouter;
- 		
- 		BgcOutputer bgcmlyouter;
- 		BgcOutputer bgcylyouter;
+  EnvOutputer envdlyouter;
+  EnvOutputer envmlyouter;
+  EnvOutputer envylyouter;
 
- 		RegnOutputer regnouter;
-        RestartOutputer resouter;
+  BgcOutputer bgcmlyouter;
+  BgcOutputer bgcylyouter;
 
- 		void setModelData(ModelData * mdp);
- 		int allchtids();
+  RegnOutputer regnouter;
+  RestartOutputer resouter;
 
- 		void init();
-	    int readData();
-	    int reinit();
+  void setModelData(ModelData * mdp);
+  int allchtids();
 
-     	void run_cohortly();
+  void init();
+  int readData();
+  int reinit();
 
-		void run_monthly();
-    bool get_calMode();
-    void set_calMode(bool new_value);
+  void run_cohortly();
 
-	private :
-    
-    bool calMode;
-    
-		ModelData *md;
+  void run_monthly();
+  bool get_calMode();
+  void set_calMode(bool new_value);
 
-		int dstepcnt;   //day timesteps since starting output
-	    int mstepcnt;   //month timesteps since starting output
-	    int ystepcnt;   //year timesteps since starting output
+private :
 
-		void runEnvmodule(boost::shared_ptr<CalController> calcontroller_ptr);
- 		void run_timeseries(boost::shared_ptr<CalController> calcontroller_ptr);
+  bool calMode;
+
+  ModelData *md;
+
+  int dstepcnt;   //day timesteps since starting output
+  int mstepcnt;   //month timesteps since starting output
+  int ystepcnt;   //year timesteps since starting output
+
+  void runEnvmodule(boost::shared_ptr<CalController> calcontroller_ptr);
+  void run_timeseries(boost::shared_ptr<CalController> calcontroller_ptr);
 
 };
 #endif /*RUNCOHORT_H_*/

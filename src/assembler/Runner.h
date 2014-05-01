@@ -25,82 +25,89 @@
 #include "../runmodule/ModelData.h"
 #include "../ArgHandler.h"
 
-
 using namespace std;
 
 class Runner {
-	public:
-		Runner();
-		~Runner();
+public:
+  Runner();
+  ~Runner();
 
-		int chtid;    /* currently-running 'cohort' id */
-		int error;    /* error index */
+  int chtid;    /* currently-running 'cohort' id */
+  int error;    /* error index */
 
-		void initInput(const string &controlfile, const string &runmode); /* general initialization */
-		void initOutput();
-		void setupData();
-		void setupIDs();
+  /* general initialization */
+  void initInput(const string &controlfile, const string &runmode);
 
-		/* three settings for running TEM */
-    	void runmode1();  /* one site run-mode, used for stand-alone TEM for any purpose */
-    	void runmode2();  /* multi-site (regional) run-mode 1, i.e., time series */
-    	void runmode3();  /* multi-site (regional) run-mode 2, i.e., spatially */
-    	int runSpatially(const int icalyr, const int im, const int jj);
+  void initOutput();
+  void setupData();
+  void setupIDs();
 
-    	vector<int> runchtlist;  //a vector listing all cohort id
- 	    vector<float> runchtlats;  //a vector of latitudes for all cohorts in order of 'runchtlist'
- 	    vector<float> runchtlons;  //a vector of longitudes for all cohorts in order of 'runchtlist'
+  /* three settings for running TEM */
+  void runmode1();  /* one site run-mode, used for stand-alone TEM
+                         for any purpose */
+  void runmode2();  /* multi-site (regional) run-mode 1, i.e., time series */
+  void runmode3();  /* multi-site (regional) run-mode 2, i.e., spatially */
+  int runSpatially(const int icalyr, const int im, const int jj);
 
-    	/* all data record no. lists FOR all cohorts in 'runchtlist', IN EXACTLY SAME ORDER, for all !
-    	 * the 'record' no. (starting from 0) is the order in the netcdf files
-    	 * for all 'chort (cell)' in the 'runchtlist',
-    	 * so, the length of all these lists are same as that of 'runchtlist'
-    	 * will save time to search those real data ids if do the ordering in the first place
-    	 * */
+  vector<int> runchtlist;  //a vector listing all cohort id
+  vector<float> runchtlats;  //a vector of latitudes for all cohorts in
+                             //  order of 'runchtlist'
+  vector<float> runchtlons;  //a vector of longitudes for all cohorts in
+                             //  order of 'runchtlist'
 
-    	/* from grided-data (geo-referenced only, or grid-level)*/
-    	vector<int> reclistgrid;
-    	vector<int> reclistdrain;
-    	vector<int> reclistsoil;
-    	vector<int> reclistgfire;
+  /* all data record no. lists FOR all cohorts in 'runchtlist',
+   *   IN EXACTLY SAME ORDER, for all !
+   * the 'record' no. (starting from 0) is the order in the netcdf files
+   * for all 'chort (cell)' in the 'runchtlist',
+   * so, the length of all these lists are same as that of 'runchtlist'
+   * will save time to search those real data ids if do the ordering in
+   *   the first place
+   * */
 
-    	/* from grided-/non-grided and time-series data (cohort-level)*/
-    	vector<int> reclistinit;
-    	vector<int> reclistclm;
-    	vector<int> reclistveg;
-    	vector<int> reclistfire;
-    void set_calibrationMode(bool new_setting);
-    bool get_calibrationMode();
-    void modeldata_module_settings_from_args(const ArgHandler &args);
+  /* from grided-data (geo-referenced only, or grid-level)*/
+  vector<int> reclistgrid;
+  vector<int> reclistdrain;
+  vector<int> reclistsoil;
+  vector<int> reclistgfire;
 
-	private:
-    bool calibrationMode;
+  /* from grided-/non-grided and time-series data (cohort-level)*/
+  vector<int> reclistinit;
+  vector<int> reclistclm;
+  vector<int> reclistveg;
+  vector<int> reclistfire;
+  void set_calibrationMode(bool new_setting);
+  bool get_calibrationMode();
+  void modeldata_module_settings_from_args(const ArgHandler &args);
 
-    	//TEM domains (hiarchy)
-    	RunRegion runreg;
-		RunGrid rungrd;
-    	RunCohort runcht;
+private:
+  bool calibrationMode;
 
-    	//Inptuer
-    	Controller configin;
-        
-    	//data classes
-    	ModelData md;     /* model controls, options, switches and so on */
+  //TEM domains (hiarchy)
+  RunRegion runreg;
+  RunGrid rungrd;
+  RunCohort runcht;
 
-    	EnvData  grded;   // grid-aggregated 'ed' (not yet done)
-    	BgcData  grdbd;   // grid-aggregared 'bd' (not yet done)
+  //Inputer
+  Controller configin;
 
-    	EnvData  chted;   // withing-grid cohort-level aggregated 'ed' (i.e. 'edall in 'cht')
-    	BgcData  chtbd;
-    	FirData  chtfd;
+  //data classes
+  ModelData md;     /* model controls, options, switches and so on */
 
-    	deque<RestartData> mlyres;
+  EnvData  grded;   // grid-aggregated 'ed' (not yet done)
+  BgcData  grdbd;   // grid-aggregared 'bd' (not yet done)
 
-		//util
-		Timer timer;
+  EnvData  chted;   // withing-grid cohort-level aggregated 'ed'
+                    //   (i.e. 'edall in 'cht')
+  BgcData  chtbd;
+  FirData  chtfd;
 
-    void createCohortList4Run();
-		void createOutvarList(string & txtfile);
+  deque<RestartData> mlyres;
+
+  //util
+  Timer timer;
+
+  void createCohortList4Run();
+  void createOutvarList(string & txtfile);
 
 };
 #endif /*RUNNER_H_*/

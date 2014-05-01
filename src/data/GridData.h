@@ -8,28 +8,27 @@
 #include <list>
 using namespace std;
 
-class GridData{
-  public:
-  	GridData();
-  	~GridData();
+class GridData {
+public:
+  GridData();
+  ~GridData();
 
-  	void clear();
-  
-  	/* data for ONE grid (current) */
-  	float lat;
-    float lon;
-    float alldaylengths[365]; 
+  void clear();
 
-	int drgtype;
+  /* data for ONE grid (current) */
+  float lat;
+  float lon;
+  float alldaylengths[365];
 
-    int topsoil;
-    int botsoil;
+  int drgtype;
 
-    int fri;
-	double pfsize[NUM_FSIZE];
-	double pfseason[NUM_FSEASON];
+  int topsoil;
+  int botsoil;
+
+  int fri;
+  double pfsize[NUM_FSIZE];
+  double pfseason[NUM_FSEASON];
 
 };
-
 
 #endif /*GRIDDATA_H_*/

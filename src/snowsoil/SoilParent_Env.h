@@ -6,21 +6,21 @@
 
 #include "../ecodomain/Ground.h"
 
-class SoilParent_Env{
-	public:
-		SoilParent_Env();
+class SoilParent_Env {
+public:
+  SoilParent_Env();
 
-		void initializeState();
-		void initializeState5restart(RestartData* resin);
+  void initializeState();
+  void initializeState5restart(RestartData* resin);
 
-		void retrieveDailyTM(Layer* lstsoill);
-	
-		void  setEnvData(EnvData* ed);
-		void  setGround(Ground* ground);
+  void retrieveDailyTM(Layer* lstsoill);
 
-	private:
-		Ground *ground;
-		EnvData *ed;
+  void  setEnvData(EnvData* ed);
+  void  setGround(Ground* ground);
+
+private:
+  Ground *ground;
+  EnvData *ed;
 
 };
 

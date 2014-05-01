@@ -19,60 +19,61 @@ using namespace std;
 
 #include "../lookup/CohortLookup.h"
 
-class WildFire{
-	public:
-		WildFire();
-		~WildFire();
+class WildFire {
+public:
+  WildFire();
+  ~WildFire();
 
-    	int firstfireyr;
+  int firstfireyr;
 
-    	int oneyear;
-     	int onemonth;
-     	int oneseverity;  //Yuan: fire severity category
+  int oneyear;
+  int onemonth;
+  int oneseverity;  //Yuan: fire severity category
 
-     	int oneseason;
-    	int onesize;
+  int oneseason;
+  int onesize;
 
-     	void setCohortData(CohortData* cdp);
-     	void setAllEnvBgcData(EnvData* edp, BgcData* bdp);
-     	void setBgcData(BgcData* bdp, const int &ip);
-     	void setFirData(FirData* fdp);
-    	void setCohortLookup(CohortLookup* chtlup);
-    
-    	void initializeParameter();
-    	void initializeState(); 
-    	void initializeState5restart(RestartData *resin);
-    	void prepareDrivingData();
-    	
-		int getOccur(const int & yrind, const bool & fridrived);  	//Yuan: modified;
-		void burn();  	//Yuan: modified
+  void setCohortData(CohortData* cdp);
+  void setAllEnvBgcData(EnvData* edp, BgcData* bdp);
+  void setBgcData(BgcData* bdp, const int &ip);
+  void setFirData(FirData* fdp);
+  void setCohortLookup(CohortLookup* chtlup);
 
-	private:
+  void initializeParameter();
+  void initializeState();
+  void initializeState5restart(RestartData *resin);
+  void prepareDrivingData();
 
-     	firepar_bgc firpar;
+  int getOccur(const int & yrind, const bool & fridrived); //Yuan: modified;
+  void burn(); //Yuan: modified
 
-     	double r_live_cn; //ratio of living veg. after burning
-     	double r_dead2ag_cn; //ratio of dead veg. after burning
-     	double r_burn2ag_cn; //burned above-ground veg. after burning
+private:
 
-//Yuan: the following if using years will result in huge memory needs, if spin-up is long
-		int fyear[MAX_FIR_OCRNUM];
-		int fseason[MAX_FIR_OCRNUM];
-		int fmonth[MAX_FIR_OCRNUM];
-		int fsize[MAX_FIR_OCRNUM];
-		int fseverity[MAX_FIR_OCRNUM];
+  firepar_bgc firpar;
 
-     	CohortLookup * chtlu;
-    	CohortData * cd;
+  double r_live_cn; //ratio of living veg. after burning
+  double r_dead2ag_cn; //ratio of dead veg. after burning
+  double r_burn2ag_cn; //burned above-ground veg. after burning
 
-    	FirData * fd;
-   	 	EnvData * edall;
-   	 	BgcData * bd[NUM_PFT];
-   	 	BgcData * bdall;
+//Yuan: the following if using years will result in huge
+//        memory needs, if spin-up is long
+  int fyear[MAX_FIR_OCRNUM];
+  int fseason[MAX_FIR_OCRNUM];
+  int fmonth[MAX_FIR_OCRNUM];
+  int fsize[MAX_FIR_OCRNUM];
+  int fseverity[MAX_FIR_OCRNUM];
 
-    	void deriveFireSeverity();
-    	double getBurnOrgSoilthick();
-    	void getBurnAbgVegetation(const int &ip);
+  CohortLookup * chtlu;
+  CohortData * cd;
+
+  FirData * fd;
+  EnvData * edall;
+  BgcData * bd[NUM_PFT];
+  BgcData * bdall;
+
+  void deriveFireSeverity();
+  double getBurnOrgSoilthick();
+  void getBurnAbgVegetation(const int &ip);
 
 };
 

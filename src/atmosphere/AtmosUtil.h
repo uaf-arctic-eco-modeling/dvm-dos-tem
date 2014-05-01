@@ -13,22 +13,22 @@ using namespace std;
 
 #include "../util/Interpolator.h"
 
+class AtmosUtil {
 
-class AtmosUtil{
-	
-	public:
-	AtmosUtil();
-	~AtmosUtil();
-	
-	
-	void updateDailyDriver(float tad[],const float prevta, const float curta, const float nextta, const int & dinmprev, 
-		const int & dinmcurr, const int & dinmnext);
-		
-	void updateDailyPrec(float precd[], const int & dinmcurr , const float & mta, const float & mprec);
-	
-	private:
-	Interpolator itp;
-	double RAININTE[32], RAINDUR[32];
-	
+public:
+  AtmosUtil();
+  ~AtmosUtil();
+
+  void updateDailyDriver(float tad[],const float prevta, const float curta,
+                         const float nextta, const int & dinmprev,
+                         const int & dinmcurr, const int & dinmnext);
+
+  void updateDailyPrec(float precd[], const int & dinmcurr,
+                       const float & mta, const float & mprec);
+
+private:
+  Interpolator itp;
+  double RAININTE[32], RAINDUR[32];
+
 };
 #endif /*ATMOSUTIL_H_*/

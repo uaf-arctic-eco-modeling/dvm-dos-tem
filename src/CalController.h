@@ -20,16 +20,16 @@
 typedef struct CalCommand {
   std::string desc;
   boost::function<void ()> executor;
-  
-  CalCommand(){} // won't compile w/o this declared - not sure why
+
+  CalCommand() {} // won't compile w/o this declared - not sure why
   CalCommand( std::string adesc, boost::function<void ()> aexecutor ) :
-      desc(adesc), executor(aexecutor) {}
-  
+    desc(adesc), executor(aexecutor) {}
+
 } CalCommand;
 
 class CalController {
 public:
-  
+
   CalController(Cohort* cht_p);
   void show_cal_control_menu();
   void check_for_signals();
@@ -41,10 +41,11 @@ private:
   boost::asio::signal_set pause_sigs;
 
   Cohort* cohort_ptr;
-  
-  std::map<std::string, CalCommand> cmd_map; 
 
-  void pause_handler( const boost::system::error_code& error, int signal_number);
+  std::map<std::string, CalCommand> cmd_map;
+
+  void pause_handler(const boost::system::error_code& error,
+                     int signal_number);
   void control_loop();
 
   void quit();
