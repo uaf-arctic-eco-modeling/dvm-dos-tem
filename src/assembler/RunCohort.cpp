@@ -489,6 +489,7 @@ void RunCohort::run_timeseries(boost::shared_ptr<CalController> calcontroller_pt
           parDownSum+=cht.ed[pft].m_a2v.pardown;
           data["PFT" + pft_str]["PARAbsorb"] = cht.ed[pft].m_a2v.parabsorb;
           parAbsorbSum+=cht.ed[pft].m_a2v.parabsorb;
+          data["PFT" + pft_str]["NitrogenUptake"] = cht.bd[pft].m_soi2v.snuptakeall;
         }
 
         data["PARAbsorbSum"] = parAbsorbSum;
@@ -574,6 +575,7 @@ void RunCohort::run_timeseries(boost::shared_ptr<CalController> calcontroller_pt
         data["PFT" + pft_str]["LitterfallNitrogenAll"] = cht.bd[pft].y_v2soi.ltrfalnall;
         data["PFT" + pft_str]["PARDown"] = cht.ed[pft].y_a2v.pardown;
         data["PFT" + pft_str]["PARAbsorb"] = cht.ed[pft].y_a2v.parabsorb;
+        data["PFT" + pft_str]["NitrogenUptake"] = cht.bd[pft].y_soi2v.snuptakeall;
       }
 
       std::stringstream filename;
