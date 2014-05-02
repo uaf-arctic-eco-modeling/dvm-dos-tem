@@ -47,6 +47,30 @@ configured_suites = {
       { 'jsontag': 'WaterTable', 'axesnum': 4, 'units': 'percent', },
     ]
   },
+  'vegetation':{
+    'desc': "The standard targetted vegetation outputs",
+    'rows': 5,
+    'cols': 1,
+    'traces': [
+      { 'jsontag': 'GPPAllIgnoringNitrogen', 'units': 'gC/m^2', 'axesnum': 0, 'pft': '', },
+      { 'jsontag': 'NPPAllIgnoringNitrogen', 'units': 'gC/m^2', 'axesnum': 0, 'pft': '', },
+
+      { 'jsontag': 'GPPAll', 'axesnum': 1, 'units': 'gC/m^2', 'pft': '', },
+      { 'jsontag': 'NPPAll', 'axesnum': 1, 'units': 'gC/m^2', 'pft': '', },
+
+      { 'jsontag': 'VegCarbon', 'axesnum': 2, 'pft': '', 'pftpart': 'Leaf'},
+      { 'jsontag': 'VegCarbon', 'axesnum': 2, 'pft': '', 'pftpart': 'Stem'},
+      { 'jsontag': 'VegCarbon', 'axesnum': 2, 'pft': '', 'pftpart': 'Root'},
+      { 'jsontag': 'LitterfallCarbonAll', 'axesnum': 2, 'units': 'gC/m^2', 'pft': '', },
+
+      { 'jsontag': 'VegStructuralNitrogen', 'axesnum': 3, 'pft': '', 'pftpart': 'Leaf'},
+      { 'jsontag': 'VegStructuralNitrogen', 'axesnum': 3, 'pft': '', 'pftpart': 'Stem'},
+      { 'jsontag': 'VegStructuralNitrogen', 'axesnum': 3, 'pft': '', 'pftpart': 'Root'},
+
+      { 'jsontag': 'LitterfallNitrogenAll', 'axesnum': 4, 'units': 'gC/m^2', 'pft': '', },
+      { 'jsontag': 'NitrogenUptake', 'axesnum': 4, 'units': 'gC/m^2', 'pft': '', },
+    ]
+  },
   's2': {
     'desc': "A set of carbon soil variables.",
     'rows': 2,
