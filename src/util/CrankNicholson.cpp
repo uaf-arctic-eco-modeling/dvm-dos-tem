@@ -25,18 +25,26 @@ void CrankNicholson::geBackward(const int &startind, const int & endind,
   int id;
   double sil;
   double eil;
+  //invert values to replace division with multiplication for speed
+  //rar 20140503
+  double dt_inv = 1 / dt;
+  double denm_inv;
 
   for (int il = endind-1 ; il>=startind+1; il--) {
     iu =il-1;
     id =il+1;
     conuth = cn[iu];
     condth = cn[il] ;
-    rc = (cap[il] + cap[iu]) / dt;
+    rc = (cap[il] + cap[iu]) * dt_inv;
+    //rc = (cap[il] + cap[iu]) / dt;
     r = conuth + rc + condth;
     denm = r - condth * s[id];
+    denm_inv = 1 / denm;
     rhs = (rc - conuth - condth) * t[il] + conuth* t[iu] + condth * t[id];
-    sil = conuth / denm;
-    eil = (rhs + condth * e[id]) / denm;
+    //sil = conuth / denm;
+    sil = conuth * denm_inv;
+    //eil = (rhs + condth * e[id]) / denm;
+    eil = (rhs + condth * e[id]) * denm_inv;
     s[il] = sil;
     e[il] = eil;
   }
@@ -54,19 +62,27 @@ void CrankNicholson::geForward(const int  &startind, const int & endind,
   double rhs;
   int im1;
   int ip1;
+  //invert values to replace division with multiplication for speed
+  //rar 20140503
+  double dt_inv = 1 / dt;
+  double denm_inv;
 
   for (int il =startind+1 ; il<=endind-1; il++) {
-    im1 =il -1;
-    ip1 =il +1;
+    im1 =il - 1;
+    ip1 =il + 1;
     conuth = cn[im1];
     condth = cn[il] ;
-    rc = (cap[il] + cap[im1]) / dt;
+    rc = (cap[il] + cap[im1]) * dt_inv;
+    //rc = (cap[il] + cap[im1]) / dt;
     r = conuth + rc + condth;
     denm = r - conuth * s[im1];
+    denm_inv = 1 / denm;
     rhs = (rc - conuth - condth) * t[il] + conuth
           * t[im1] + condth * t[ip1];
-    s[il] = condth / denm;
-    e[il] = (rhs + conuth * e[im1]) / denm;
+    //s[il] = condth / denm;
+    s[il] = condth * denm_inv;
+    //e[il] = (rhs + conuth * e[im1]) / denm;
+    e[il] = (rhs + conuth * e[im1]) * denm_inv;
   }
 }
 
@@ -104,15 +120,22 @@ void CrankNicholson::tridiagonal(const int ind, const int numsl, double a[],
   double gam[numsl];
   double tempg;
   double bet = b[ind];
+  //invert values to replace division with multiplication for speed
+  //rar 20140503
+  double bet_inv = 1 / bet;
 
   for(int il=ind; il<ind+numsl; il++) {
     if(il == ind) {
-      u[il] = r[il]/bet;
+      u[il] = r[il] * bet_inv;
+      //u[il] = r[il] / bet;
     } else {
-      tempg = c[il-1] /bet;
+      tempg = c[il-1] * bet_inv;
+      //tempg = c[il-1] / bet;
       gam[il-ind]= tempg;
-      bet = b[il] - a[il] *gam[il-ind];
-      u[il] = (r[il] - a[il]*u[il-1])/bet;
+      bet = b[il] - a[il] *gam[il-ind];//bet is changed here, so at next line,
+      bet_inv = 1 / bet;
+      //u[il] = (r[il] - a[il]*u[il-1]) / bet;//bet_inv is no longer valid
+      u[il] = (r[il] - a[il]*u[il-1]) * bet_inv;//bet_inv is no longer valid
     }
   }
 
