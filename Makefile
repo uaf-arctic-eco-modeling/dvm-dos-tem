@@ -1,5 +1,14 @@
 # Basic dvm-dos-tem Makefile 
 
+USEMPI = true
+
+ifeq ($(USEMPI),true)
+  MPIINCLUDES = $(shell mpic++ -showme:compile)
+  MPICFLAGS = -DWITHMPI
+  MPILFLAGS = $(shell mpic++ -showme:link)
+else
+  # do nothing..
+endif
 CC=g++
 CFLAGS=-c -Werror -ansi -g -fPIC -DBOOST_ALL_DYN_LINK
 LIBS=-lnetcdf_c++ -lnetcdf -lboost_system -lboost_filesystem \
@@ -46,6 +55,8 @@ SOURCES= 	src/TEM.o \
 		src/output/EnvOutputer.o \
 		src/output/RegnOutputer.o \
 		src/output/RestartOutputer.o \
+		src/parallel-code/Master.o \
+		src/parallel-code/Slave.o \
 		src/runmodule/Cohort.o \
 		src/runmodule/Controller.o \
 		src/runmodule/Grid.o \
@@ -63,6 +74,7 @@ SOURCES= 	src/TEM.o \
 		src/snowsoil/TemperatureUpdator.o \
 		src/util/CrankNicholson.o \
 		src/util/Interpolator.o \
+		src/util/tbc-debug-util.o \
 		src/vegetation/Vegetation_Bgc.o \
 		src/vegetation/Vegetation_Env.o \
 		src/ecodomain/layer/Layer.o \
@@ -111,6 +123,8 @@ OBJECTS =	ArgHandler.o \
 		EnvOutputer.o \
 		RegnOutputer.o \
 		RestartOutputer.o \
+		Master.o \
+		Slave.o \
 		Cohort.o \
 		Controller.o \
 		Grid.o \
@@ -127,6 +141,7 @@ OBJECTS =	ArgHandler.o \
 		Stefan.o \
 		CrankNicholson.o \
 		Interpolator.o \
+		tbc-debug-util.o \
 		Vegetation_Bgc.o \
 		Vegetation_Env.o \
 		Layer.o \
@@ -141,13 +156,13 @@ TEMOBJ=	TEM.o
 
 
 dvm: $(SOURCES) $(TEMOBJ)
-	$(CC) -o DVMDOSTEM $(INCLUDES) $(OBJECTS) $(TEMOBJ) $(LIBDIR) $(LIBS)
+	$(CC) -o DVMDOSTEM $(INCLUDES) $(OBJECTS) $(TEMOBJ) $(LIBDIR) $(LIBS) $(MPILFLAGS)
 
 lib: $(SOURCES) 
-	$(CC) -o libTEM.so -shared $(INCLUDES) $(OBJECTS) $(LIBDIR) $(LIBS)
+	$(CC) -o libTEM.so -shared $(INCLUDES) $(OBJECTS) $(LIBDIR) $(LIBS) $(MPILFLAGS)
 
 .cpp.o:  
-	$(CC) $(CFLAGS) $(INCLUDES) $<
+	$(CC) $(CFLAGS) $(MPICFLAGS) $(INCLUDES) $(MPIINCLUDES) $<
 
 clean:
 	rm -f $(OBJECTS) DVMDOSTEM TEM.o libTEM.so* *~

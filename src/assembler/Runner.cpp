@@ -1,8 +1,17 @@
 #include <string>
 
-#include "../TEMLogger.h"
+#include <algorithm>
+#include <mpi.h>
 
 #include "Runner.h"
+
+
+
+#include "../TEMLogger.h"
+#include "../parallel-code/Master.h"
+#include "../parallel-code/Slave.h"
+#include "../inc/tbc_mpi_constants.h"
+#include "../util/tbc-debug-util.h"
 
 extern src::severity_logger< severity_level > glg;
 
@@ -473,7 +482,7 @@ void Runner::runmode2() {
   }
 };
 
-void Runner::runmode3() {
+void Runner::runmode3(int processors, int rank) {
   //read-in region-level data
   //  (Yuan: this is the portal for multiple region run,
   //    if needed in the future)
@@ -525,11 +534,72 @@ void Runner::runmode3() {
     runcht.yrstart = timer.scbegyr;
     runcht.yrend   = timer.scendyr;
     md.set_friderived(false);
-  }
-
+  } 
+   
   //loop through time-step
   int totcohort = (int)runchtlist.size();
 
+#ifdef WITHMPI
+  if (rank == 0) {
+    Master m = Master(rank, processors);
+
+    m.dispense_cohorts_to_slaves(runchtlist);
+    
+    m.get_restartdata_and_progress_from_slaves(totcohort);
+    
+    /*
+    std::vector<int> completed_cohorts;
+    do {
+      m.listen_for_progress_update();
+      
+      RestartData rd = m.listen_for_restart_data(); // should heap allocate a RestartData and return a pointer to it?
+      if (rd != NULL) { // we have some data from a completed cohort!!
+        write_restart_data_to_file(rd);
+        completed_cohorts.push_back(rd.chtid)
+      }
+    } while (completed_cohorts.size() < runchtlist.size())
+    */
+      
+  } else {
+    Slave s = Slave(rank);
+    s.recv_cohort_list_from_master();
+    s.pp_cohort_list();
+    
+    for (int icalyr=runcht.yrstart; icalyr<=runcht.yrend; icalyr++) {
+      int ifover = 0;
+      for (int im = 0; im < 12; ++im) {
+        runcht.cohortcount = 0;
+        for (std::vector<int>::const_iterator cit = s.cohort_list.begin(); cit != s.cohort_list.end(); ++cit) {
+          int cohort = *cit;
+          
+          /* this is bass-ackwards because the slave's cohort_list stores the 
+           cohort id, but later functions require the *index* of the cohort in
+           the main runchtlist...so we have to look up the index based on the 
+           value... */
+          std::vector<int>::iterator it = find(runchtlist.begin(), runchtlist.end(), cohort);
+          int cohort_idx = (it - runchtlist.begin()); // convert iterator to index...
+          //std::cout << "Hi from slave " << rank << ". Working on " << icalyr << ", " << im << ", " << cohort << "\n";
+          ifover = runSpatially(icalyr, im, cohort_idx);
+          s.send_progress_update_to_master(icalyr, im, cohort);
+        }
+        md.initmode=4;
+        timer.advanceOneMonth();
+      }
+      if (ifover==1) break;
+      cout <<"TEM @"<< md.runstages <<" stage done with year "<<icalyr<<" for cohorts "<< s.cl_to_string() <<" (rank " << rank << ")\n";
+    }
+
+    std::cout << "This slave is done with all its cohorts, all years; time to send the RestartData objects to Master.\n";
+    for (std::deque<RestartData>::iterator rdit = this->mlyres.begin(); rdit != this->mlyres.end(); ++rdit) {
+      RestartData r = *rdit;
+      s.send_restartdata_to_master(r);
+    }
+
+    //PAUSE_to_attach_gdb();
+  }
+
+#else
+  // Just proceed serially...
   for (int icalyr=runcht.yrstart; icalyr<=runcht.yrend; icalyr++) {
     int ifover = 0;
 
@@ -586,7 +656,11 @@ void Runner::runmode3() {
     }
 
     cout <<"TEM runs @" << md.runstages <<" - year "<<icalyr<<" is done! \n";
-  }
+  } // end of yearly loop...
+
+#endif /* WITHMPI */
+  
+  
 };
 
 int Runner::runSpatially(const int icalyr, const int im, const int jj) {
@@ -685,6 +759,42 @@ int Runner::runSpatially(const int icalyr, const int im, const int jj) {
   if (mlyres.size()>runchtlist.size()) {
     mlyres.pop_front(); // this is not needed, if everything does well.
                         //   So here just in case
+  }
+
+  // TODO: will need to extend this to detect end of sp, tr, and sc
+  if ((im == 11) && (timer.eqend || icalyr == timer.maxeqrunyrs) ) {
+    #ifdef WITHMPI
+
+      //int fake_buf;
+      //fake_buf = 454;
+
+      // send a message to master with the fake data...
+      // this would actually end up being the restart data for
+      // this cohort...might have to mess with passing custom types or strucs
+      //cout << "Sending restart data to master! Done with last m of last yr for this cohort!\n";
+      //MPI_Send(&fake_buf,                /* message buffer */
+      //        1,                        /* one data item */
+      //         MPI_INT,                  /* data item is an integer */
+      //         0,                        /* to the master */
+      //         PTEM_RESTARTDATA_TAG,     /* user chosen message tag */
+      //         MPI_COMM_WORLD);          /* default communicator */
+      
+      // then noting should have to happen here? master will take care of writing
+      // the restart data out to a file...
+      
+      //cout << "This process is done! The Send call to master completed, and "
+      //     << "now this process can just quit?\n";
+      //MPI::Barrier(MPI_COMM_WORLD);
+      //cout << " THis is after the barrier, so all these should come in seq...\n";
+
+    #else
+      cout << "In Serial Mode.\n"
+           << "\n"
+           << "We are at the end of the eq run and need to write this cohort's "
+           << "restart data (from the deque) to the restart file for the next "
+           << "stage...\n";
+      runcht.resouter.outputVariables(jj);
+    #endif
   }
 
   //'restart.nc' always output at the ending time-step

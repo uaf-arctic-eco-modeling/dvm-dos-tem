@@ -5,7 +5,7 @@ ArgHandler::ArgHandler() {
 }
 void ArgHandler::parse(int argc, char** argv) {
 	desc.add_options()
- 
+
     /*
     --env [ on | off ]
     --bgc [ on | off ]
@@ -33,7 +33,7 @@ void ArgHandler::parse(int argc, char** argv) {
      "the level above which all log messages will be printed. Here are the "
      "choices: debug, info, note warn, err, fatal."
     )
-		("mode,m", boost::program_options::value<string>(&mode)->default_value("siterun"),"change mode between siterun and regnrun")
+		("mode,m", boost::program_options::value<string>(&mode)->default_value("siterun"),"change mode between siterun, regnrun, or parallel")
 		("control-file,f", boost::program_options::value<string>(&ctrlfile)->default_value("config/controlfile_site.txt"), "choose a control file to use")
 		("cohort-id,c", boost::program_options::value<string>(&chtid)->default_value("1"), "choose a specific cohort to run")
 		("space-time-config,s", boost::program_options::value<string>(), "choose spatial or temporal running mode")

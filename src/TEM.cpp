@@ -3,20 +3,21 @@
  *  main program for running DVM-DOS-TEM
  *  
  *  It runs at 3 run-mods:
- *      (1) site-specific
- *      (2) regional - time series
+ *    (1) site-specific
+ *    (2) regional - time series
  * 		(3) regional - spatially (not yet available)
  * 
- * Authors: Shuhua Yi - the original codes
- * 		    Fengming Yuan - re-designing and re-coding for (1) easily code managing;
- *                                        (2) java interface developing for calibration;
- *                                        (3) stand-alone application of TEM (java-c++)
- *                                        (4) inputs/outputs using netcdf format, have to be modified
- *                                        to fix memory-leaks
- *                                        (5) fix the snow/soil thermal/hydraulic algorithms
- *                                        (6) DVM coupled
- * 			Tobey Carman - modifications and maintenance
- *            1) update application entry point with boost command line arg. handling.
+ * Authors: 
+ *    Shuhua Yi - the original codes
+ * 		Fengming Yuan - re-designing and re-coding for 
+ *       (1) easily code managing;
+ *       (2) java interface developing for calibration;
+ *       (3) stand-alone application of TEM (java-c++)
+ *       (4) inputs/outputs using netcdf format, have to be modified to fix memory-leaks
+ *       (5) fix the snow/soil thermal/hydraulic algorithms
+ *       (6) DVM coupled
+ * 		Tobey Carman - modifications and maintenance
+ *       (1) update application entry point with boost command line arg. handling.
  *
  * Affilation: Spatial Ecology Lab, University of Alaska Fairbanks 
  *
@@ -30,6 +31,7 @@
 #include <sstream>
 #include <ctime>
 #include <cstdlib>
+#include <cstddef> // for offsetof()
 #include <exception>
 #include <map>
 #include <set>
@@ -41,11 +43,14 @@
 #include <boost/bind.hpp>
 #include <boost/asio.hpp>
 
+#include <mpi.h>
 
 #include "ArgHandler.h"
 #include "TEMLogger.h"
 #include "assembler/Runner.h"
 
+#include "data/RestartData.h" // for defining MPI typemap...
+#include "inc/tbc_mpi_constants.h"
 
 ArgHandler* args = new ArgHandler();
 
@@ -129,6 +134,9 @@ extern src::severity_logger< severity_level > glg;
     siter.runmode1();
   
     etime=time(0);
+    BOOST_LOG_SEV(glg, info) << "Done running TEM stand-alone mode @" 
+                             << ctime(&etime);
+    BOOST_LOG_SEV(glg, info) << "Total Seconds: " << difftime(etime, stime);                              
 
   } else if (args->getMode() == "regnrun") {
 
@@ -156,9 +164,34 @@ extern src::severity_logger< severity_level > glg;
       regner.runmode2();
     } else if (runmode.compare("regner2")==0){
       BOOST_LOG_SEV(glg, note) << "Running in regner2...(runmode3)";
-      regner.runmode3();
+      int rank;
+      int processors;
+      #ifdef WITHMPI
+        MPI_Init(&argc, &argv); // requires default args...empty?
+      
+        MPI_Comm_size(MPI_COMM_WORLD, &processors);
+        MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+        cout << "You are processor " << rank << " of " << processors << " available on this system.\n";
+
+        if (processors < 2) {
+          MPI_Finalize();
+          cout << "This is a master/slave program and requires more than one "
+          << "processor to run when compiled with the WITHMPI flag.\n"
+          << "EXITING...\n";
+          exit(-1);
+        }
+      
+        // do the real work...
+        regner.runmode3(processors, rank);
+      
+        std::cout << "MADE it back from runmode3(..), parallel mode...\n";
+        MPI_Finalize();
+      #else
+        regner.runmode3(processors, rank);
+      #endif
     } else {
       BOOST_LOG_SEV(glg, fatal) << "Invalid runmode...quitting.";
+      BOOST_LOG_SEV(glg, fatal) << "EITHER 'regner1', or 'regner2'!";
       exit(-1);
     }
 

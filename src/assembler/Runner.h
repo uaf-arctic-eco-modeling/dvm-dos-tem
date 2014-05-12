@@ -17,6 +17,8 @@
 #include <vector>
 #include <deque>
 
+#include <mpi.h>
+
 #include "RunRegion.h"
 #include "RunGrid.h"
 #include "RunCohort.h"
@@ -46,7 +48,8 @@ public:
   void runmode1();  /* one site run-mode, used for stand-alone TEM
                          for any purpose */
   void runmode2();  /* multi-site (regional) run-mode 1, i.e., time series */
-  void runmode3();  /* multi-site (regional) run-mode 2, i.e., spatially */
+  void runmode3(int processors, int rank);  /* multi-site (regional) 
+                                                 run-mode 2, i.e., spatially */
   int runSpatially(const int icalyr, const int im, const int jj);
 
   vector<int> runchtlist;  //a vector listing all cohort id

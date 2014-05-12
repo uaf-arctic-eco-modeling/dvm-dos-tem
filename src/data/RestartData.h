@@ -1,6 +1,8 @@
 #ifndef RESTARTDATA_H_
 #define RESTARTDATA_H_
 
+#include <mpi.h> // for "exporting" an MPI derived type...
+
 #include "../inc/errorcode.h"
 #include "../inc/cohortconst.h"
 #include "../inc/layerconst.h"
@@ -9,6 +11,9 @@ class RestartData {
 public :
   RestartData();
   ~RestartData();
+
+  MPI_Datatype register_mpi_datatype();
+
   void reinitValue();
 
   int chtid;
@@ -101,6 +106,7 @@ public :
   //previous 12-month litterfall (root death) input C/N ratios in each
   //  soil layer for adjusting 'kd'
   double prvltrfcnA[12][MAX_SOI_LAY];
+
 
 };
 
