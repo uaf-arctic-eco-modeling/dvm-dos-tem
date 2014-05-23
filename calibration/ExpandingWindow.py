@@ -349,7 +349,8 @@ if __name__ == '__main__':
     formatter_class=argparse.RawDescriptionHelpFormatter,
       
       description=textwrap.dedent('''\
-        Dynamically updating yearly data plots.
+        Dynamically updating yearly data plots that show data from 
+        dvm-dos-tem when it is running with --calibrationmode=on
         '''),
         
       epilog=textwrap.dedent('''\
@@ -357,15 +358,23 @@ if __name__ == '__main__':
             
             %s
         
-        and plot the resulting data. The plots expand as more
+        and plot the resulting data. The plots expand as more and
         more json files are discovered. The plot will be
         displayed in an "interactive" window provided by which-
         ever matplotlib backend you are using. 
 
         The different "suites" of plots refer to differnt
-        assebelages of variables that you would like plotted.
-        For now suites are configured by hand at the top of this 
-        file.
+        assembelages of variables that you would like plotted.
+        There is a seperate config file for "suites" of plots.
+
+        There are also command line options for showing target
+        value lines on the plots. If you specify that target
+        value lines should be shown (by name or number), the 
+        program will 1) search thru the calibration_targets.py file
+        that is provided in this directory for the appropriate
+        values, and 2) if the suite you specify contains variables
+        that have associated targets, then there will be dashed line
+        on the plot showing the target value.
 
         I expereienced some problems with the interactive window
         provided by matplotloib. Especially with the Home, Back,
@@ -394,8 +403,6 @@ if __name__ == '__main__':
     
             http://matplotlib.org/1.3.1/users/navigation_toolbar.html
 
-    
-    
         I am sure we forgot to mention something?
         ''' % YRTMPDIR)
       )
