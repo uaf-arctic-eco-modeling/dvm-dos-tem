@@ -463,7 +463,7 @@ if __name__ == '__main__':
   if args.tar_cmtname:
     logging.info("displaying target values for '%s' community" % args.tar_cmtname)
     caltargets = calibration_targets.calibration_targets[args.tar_cmtname]
-  elif args.tar_cmtnum:
+  elif args.tar_cmtnum or args.tar_cmtnum == 0:
     logging.info("displaying target values for community number %s" % args.tar_cmtnum)
     for cmtname, data in calibration_targets.calibration_targets.iteritems():
       if data['cmtnumber'] == args.tar_cmtnum:
