@@ -301,6 +301,15 @@ class ExpandingWindow(object):
     if event.key == 'ctrl+q':
       logging.info("QUIT")
       plt.close()
+    if event.key == 'ctrl+p':
+      n = 100
+      files = sorted( glob.glob('%s/*.json' % YRTMPDIR) )
+      if n < len(files):
+        logging.warning( "Deleting first %s json files from %s..." % (n, YRTMPDIR) )
+        for f in files[0:n]:
+          os.remove(f)
+      else:
+        logging.warning("Fewer than %s json files present - don't do anything." % n)
 
   def relim_autoscale_draw(self):
     '''Relimit the axes, autoscale the axes, and try to force a re-draw.'''
@@ -418,6 +427,9 @@ if __name__ == '__main__':
             ------------------
             ctrl + r    reset view, resume auto-expand
             ctrl + q    quit
+            ctrl + p    purge json files - deletes first 100 json
+                        files if more than 100 json files exist in
+                        the /tmp directorty
 
         The link below lists more keyboard shortcuts that allow 
         for handy things like turning the grid on and off and 
