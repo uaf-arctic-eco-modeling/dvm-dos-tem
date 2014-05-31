@@ -85,6 +85,7 @@ class ExpandingWindow(object):
 
     logging.debug("Ctor for Expanding Window plot...")
 
+    self.window_size_yrs = None
 
     self.traces = traceslist
 
@@ -188,12 +189,19 @@ class ExpandingWindow(object):
 
     return [trace['artists'][0] for trace in self.traces]
 
+
   def load_data2plot(self, relim, autoscale):
     log = logging.getLogger('dataloader')
 
     log.info("Load data to plot. Relimit data?: %s  Autoscale?: %s", relim, autoscale)
     
     files = sorted( glob.glob('%s/*.json' % YRTMPDIR) )
+    log_file_stats(files)
+
+    if self.window_size_yrs:
+      log.info("Reducing files list to last %i files..." % self.window_size_yrs)
+      files = files[-self.window_size_yrs:]
+
     log_file_stats(files)
 
     # create an x range big enough for every possible file...
@@ -310,6 +318,21 @@ class ExpandingWindow(object):
           os.remove(f)
       else:
         logging.warning("Fewer than %s json files present - don't do anything." % n)
+    if event.key == 'ctrl+j':
+      # could add while true here to force user to
+      # enter some kind of valid input?
+      try:
+        ws = int(raw_input("Window Size (years)?: "))
+        self.window_size_yrs = ws
+        logging.info("Changed to 'fixed window' (window size: %s)" % ws)
+      except ValueError as e:
+        logging.warning("Invalid Entry! (%s)" % e)
+    if event.key == 'ctrl+J':
+      logging.info("Changed to 'expanding window' mode.")
+      self.window_size_yrs = None
+
+
+
 
   def relim_autoscale_draw(self):
     '''Relimit the axes, autoscale the axes, and try to force a re-draw.'''
@@ -430,6 +453,9 @@ if __name__ == '__main__':
             ctrl + p    purge json files - deletes first 100 json
                         files if more than 100 json files exist in
                         the /tmp directorty
+            ctrl + j    change to fixed window plot - prompts for
+                        desired window size
+            ctrl + J    reset to expanding window plot
 
         The link below lists more keyboard shortcuts that allow 
         for handy things like turning the grid on and off and 
