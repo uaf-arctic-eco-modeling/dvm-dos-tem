@@ -55,6 +55,27 @@ NavigationToolbar2.back = back_overload
 NavigationToolbar2.forward = forward_overload
 
 
+def log_file_stats(file_list):
+  '''convenience function to write some info about files to the logs'''
+
+  logging.info( "%i json files in %s" % (len(file_list), YRTMPDIR) )
+
+  if len(file_list) > 0:
+    ffy = int(os.path.basename(file_list[0])[0:4])
+    lfy = int(os.path.basename(file_list[-1])[0:4])
+    logging.debug( "First file: %s (year %s)" % (file_list[0], ffy) )
+    logging.debug( "Last file: %s (year %s)" % (file_list[-1], lfy) )
+
+    if lfy > 0:
+      pc = 100 * len(file_list) / len(np.arange(ffy, lfy))
+      logging.debug( "%s percent of range covered by existing files" % (pc) )
+    else:
+      logging.debug("Too few files to calculate % coverage.")
+
+  else:
+    logging.warning("No json files! Length of file list: %s." % len(file_list))
+
+
 class ExpandingWindow(object):
   '''An set of expanding window plots that all share the x axis.
   '''
@@ -63,6 +84,7 @@ class ExpandingWindow(object):
       rows=2, cols=1, targets={}):
 
     logging.debug("Ctor for Expanding Window plot...")
+
 
     self.traces = traceslist
 
@@ -172,7 +194,7 @@ class ExpandingWindow(object):
     log.info("Load data to plot. Relimit data?: %s  Autoscale?: %s", relim, autoscale)
     
     files = sorted( glob.glob('%s/*.json' % YRTMPDIR) )
-    log.info("%i json files in %s" % (len(files), YRTMPDIR) )
+    log_file_stats(files)
 
     # create an x range big enough for every possible file...
     if len(files) == 0:
