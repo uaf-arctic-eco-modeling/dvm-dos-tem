@@ -20,6 +20,8 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as mplticker
 import matplotlib.animation as animation
 
+import matplotlib.widgets
+
 import selutil
 
 # The directories to look in for json files.
@@ -80,6 +82,14 @@ class ExpandingWindow(object):
   '''A set of expanding window plots that all share the x axis.
   '''
 
+  def pftchooser_func(self, label):
+    n = int(label[-1])
+    self.set_pft_number(n)
+    self.clear_bg_pft_txt()
+    self.set_bg_pft_txt()
+    logging.info("Updated the pft number to %i" % n)
+
+
   def __init__(self, traceslist, figtitle="Expanding Window Plot",
       rows=2, cols=1, targets={}):
 
@@ -93,6 +103,12 @@ class ExpandingWindow(object):
     self.fig.suptitle(figtitle)
     
     self.fig.canvas.mpl_connect('key_press_event', self.key_press_event)
+
+    logging.debug("Setting up a radio button pft chooser...")
+    #                           l    b    w     h
+    self.pftradioax = plt.axes([0.9, 0.1, 0.15, 0.5 ], axisbg='lightgoldenrodyellow')
+    self.pftradio = matplotlib.widgets.RadioButtons(self.pftradioax, ['PFT%i'%(i) for i in range(0,10)], active=0)
+    self.pftradio.on_clicked(self.pftchooser_func)
 
     plt.xlabel("Years")
 
