@@ -476,17 +476,24 @@ if __name__ == '__main__':
             Keyboard Shortcuts
             ------------------
             ctrl + r    reset view, resume auto-expand
+
             ctrl + q    quit
+
             ctrl + p    purge json files - deletes first 100 json
                         files if more than 100 json files exist in
                         the /tmp directorty
+
             ctrl + j    change to fixed window plot - prompts for
-                        desired window size
+                        desired window size in controlling terminal
             ctrl + J    reset to expanding window plot
 
-        The link below lists more keyboard shortcuts that allow 
-        for handy things like turning the grid on and off and 
-        switching between log and linear axes:
+            alt + p     change the pft being plotted - prompts for 
+                        desired window size in controlling terminal
+
+
+        The link below lists more keyboard shortcuts (provided by 
+        matplotlib) that allow for handy things like turning the grid 
+        on and off and switching between log and linear axes:
     
             http://matplotlib.org/1.3.1/users/navigation_toolbar.html
 
