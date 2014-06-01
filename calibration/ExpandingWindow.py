@@ -77,7 +77,7 @@ def log_file_stats(file_list):
 
 
 class ExpandingWindow(object):
-  '''An set of expanding window plots that all share the x axis.
+  '''A set of expanding window plots that all share the x axis.
   '''
 
   def __init__(self, traceslist, figtitle="Expanding Window Plot",
@@ -145,27 +145,8 @@ class ExpandingWindow(object):
         logging.debug("Plotting a hz line")
         ax.axhline(target, color=tc, linestyle='--')
 
-
-    font = {'family' : 'sans-serif',
-            'color'  : 'black',
-            'weight' : 'bold',
-            'size'   : 24,
-            'alpha'  : 0.1,
-            }
-
-    logging.debug("Add 'PFT x test to each plot that is a pft variable.")
-    for trace in self.traces:
-      if 'pft' in trace.keys():
-        ax = self.axes[trace['axesnum']]
-        ax.text(
-                  0.5, 0.5,
-                  "%s" % trace['pft'],
-                  fontdict=font,
-                  horizontalalignment='center',
-                  #verticalalignment='center',
-                  transform=ax.transAxes,
-                  #bbox=dict(facecolor='red', alpha=0.2)
-                )
+    logging.debug("Set the backgrond pft text for for pft specific variables..")
+    self.set_bg_pft_txt()
 
     logging.debug("Label the y axes with units if available")
     for i, ax in enumerate(self.axes):
@@ -331,7 +312,53 @@ class ExpandingWindow(object):
       logging.info("Changed to 'expanding window' mode.")
       self.window_size_yrs = None
 
+    if event.key == 'alt+p':
+      try:
+        n = int(raw_input("PFT NUMBER?> "))
+        self.set_pft_number(n)
+        self.clear_bg_pft_txt()
+        self.set_bg_pft_txt()
+        logging.info("Updated the pft number to %i" % n)
+      except ValueError as e:
+        logging.warning("Invalid Entry! (%s)" % e)
 
+
+
+  def clear_bg_pft_txt(self):
+    logging.info("Clearing all the background 'PFTx' texts")
+    for ax in self.axes:
+      ax.texts = []
+
+
+  def set_pft_number(self, pftnumber):
+    logger.info("Set the pft number in any trace that has the 'pft' as a key")
+    for trace in self.traces:
+      if 'pft' in trace.keys():
+        trace['pft'] = 'PFT%i' % pftnumber
+
+
+  def set_bg_pft_txt(self):
+    logging.info("Set the background 'PFTx' text for axes that are plotting pft specific variables.")
+
+    font = {'family' : 'sans-serif',
+            'color'  : 'black',
+            'weight' : 'bold',
+            'size'   : 24,
+            'alpha'  : 0.1,
+            }
+
+    for trace in self.traces:
+      if 'pft' in trace.keys():
+        ax = self.axes[trace['axesnum']]
+        ax.text(
+                  0.5, 0.5,
+                  "%s" % trace['pft'],
+                  fontdict=font,
+                  horizontalalignment='center',
+                  #verticalalignment='center',
+                  transform=ax.transAxes,
+                  #bbox=dict(facecolor='red', alpha=0.2)
+                )
 
 
   def relim_autoscale_draw(self):
