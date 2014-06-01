@@ -82,14 +82,6 @@ class ExpandingWindow(object):
   '''A set of expanding window plots that all share the x axis.
   '''
 
-  def pftchooser_func(self, label):
-    n = int(label[-1])
-    self.set_pft_number(n)
-    self.clear_bg_pft_txt()
-    self.set_bg_pft_txt()
-    logging.info("Updated the pft number to %i" % n)
-
-
   def __init__(self, traceslist, figtitle="Expanding Window Plot",
       rows=2, cols=1, targets={}):
 
@@ -106,11 +98,15 @@ class ExpandingWindow(object):
 
     logging.debug("Setting up a radio button pft chooser...")
     #                           l    b    w     h
-    self.pftradioax = plt.axes([0.9, 0.1, 0.15, 0.5 ], axisbg='lightgoldenrodyellow')
-    self.pftradio = matplotlib.widgets.RadioButtons(self.pftradioax, ['PFT%i'%(i) for i in range(0,10)], active=0)
+    self.pftradioax = plt.axes([0.9, 0.25, 0.1, 0.65 ], axisbg='lightgoldenrodyellow')
+    self.pftradio = matplotlib.widgets.RadioButtons( self.pftradioax,
+                                                     ['PFT%i'%(i) for i in range(0,10)],
+                                                     active=int(self.get_currentpft()[-1])
+                                                     )
     self.pftradio.on_clicked(self.pftchooser_func)
 
-    plt.xlabel("Years")
+    # Set the x label for the last (lowest) subplot
+    self.axes[-1].set_xlabel("Years")
 
     x = np.arange(0)
     y = x.copy() * np.nan
@@ -298,6 +294,14 @@ class ExpandingWindow(object):
       self.load_data2plot(relim=True, autoscale=True)
       return [trace['artists'][0] for trace in self.traces]
 
+  def pftchooser_func(self, label):
+    '''A callback for the radio button that changes which pft is being plotted.'''
+    n = int(label[-1])
+    self.set_pft_number(n)
+    self.clear_bg_pft_txt()
+    self.set_bg_pft_txt()
+    logging.info("Updated the pft number to %i" % n)
+
   def key_press_event(self, event):
     logging.debug("You pressed: %s. Cursor at x: %s y: %s" % (event.key, event.xdata, event.ydata))
     if event.key == 'ctrl+r':
@@ -376,6 +380,12 @@ class ExpandingWindow(object):
                   #bbox=dict(facecolor='red', alpha=0.2)
                 )
 
+  def get_currentpft(self):
+    '''return the current pft. currently assumes that all traces have the same pft'''
+    pft = None
+    for trace in self.traces:
+      if 'pft' in trace.keys():
+        return trace['pft']
 
   def relim_autoscale_draw(self):
     '''Relimit the axes, autoscale the axes, and try to force a re-draw.'''
