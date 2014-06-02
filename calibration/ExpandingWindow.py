@@ -20,6 +20,8 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as mplticker
 import matplotlib.animation as animation
 
+import matplotlib.widgets
+
 import selutil
 
 # The directories to look in for json files.
@@ -55,14 +57,37 @@ NavigationToolbar2.back = back_overload
 NavigationToolbar2.forward = forward_overload
 
 
+def log_file_stats(file_list):
+  '''convenience function to write some info about files to the logs'''
+
+  logging.info( "%i json files in %s" % (len(file_list), YRTMPDIR) )
+
+  if len(file_list) > 0:
+    ffy = int(os.path.basename(file_list[0])[0:4])
+    lfy = int(os.path.basename(file_list[-1])[0:4])
+    logging.debug( "First file: %s (year %s)" % (file_list[0], ffy) )
+    logging.debug( "Last file: %s (year %s)" % (file_list[-1], lfy) )
+
+    if lfy > 0:
+      pc = 100 * len(file_list) / len(np.arange(ffy, lfy))
+      logging.debug( "%s percent of range covered by existing files" % (pc) )
+    else:
+      logging.debug("Too few files to calculate % coverage.")
+
+  else:
+    logging.warning("No json files! Length of file list: %s." % len(file_list))
+
+
 class ExpandingWindow(object):
-  '''An set of expanding window plots that all share the x axis.
+  '''A set of expanding window plots that all share the x axis.
   '''
 
   def __init__(self, traceslist, figtitle="Expanding Window Plot",
       rows=2, cols=1, targets={}):
 
     logging.debug("Ctor for Expanding Window plot...")
+
+    self.window_size_yrs = None
 
     self.traces = traceslist
 
@@ -71,7 +96,17 @@ class ExpandingWindow(object):
     
     self.fig.canvas.mpl_connect('key_press_event', self.key_press_event)
 
-    plt.xlabel("Years")
+    logging.debug("Setting up a radio button pft chooser...")
+    #                           l    b    w     h
+    self.pftradioax = plt.axes([0.9, 0.25, 0.1, 0.65 ], axisbg='lightgoldenrodyellow')
+    self.pftradio = matplotlib.widgets.RadioButtons( self.pftradioax,
+                                                     ['PFT%i'%(i) for i in range(0,10)],
+                                                     active=int(self.get_currentpft()[-1])
+                                                     )
+    self.pftradio.on_clicked(self.pftchooser_func)
+
+    # Set the x label for the last (lowest) subplot
+    self.axes[-1].set_xlabel("Years")
 
     x = np.arange(0)
     y = x.copy() * np.nan
@@ -122,27 +157,8 @@ class ExpandingWindow(object):
         logging.debug("Plotting a hz line")
         ax.axhline(target, color=tc, linestyle='--')
 
-
-    font = {'family' : 'sans-serif',
-            'color'  : 'black',
-            'weight' : 'bold',
-            'size'   : 24,
-            'alpha'  : 0.1,
-            }
-
-    logging.debug("Add 'PFT x test to each plot that is a pft variable.")
-    for trace in self.traces:
-      if 'pft' in trace.keys():
-        ax = self.axes[trace['axesnum']]
-        ax.text(
-                  0.5, 0.5,
-                  "%s" % trace['pft'],
-                  fontdict=font,
-                  horizontalalignment='center',
-                  #verticalalignment='center',
-                  transform=ax.transAxes,
-                  #bbox=dict(facecolor='red', alpha=0.2)
-                )
+    logging.debug("Set the backgrond pft text for for pft specific variables..")
+    self.set_bg_pft_txt()
 
     logging.debug("Label the y axes with units if available")
     for i, ax in enumerate(self.axes):
@@ -166,13 +182,20 @@ class ExpandingWindow(object):
 
     return [trace['artists'][0] for trace in self.traces]
 
+
   def load_data2plot(self, relim, autoscale):
     log = logging.getLogger('dataloader')
 
     log.info("Load data to plot. Relimit data?: %s  Autoscale?: %s", relim, autoscale)
     
     files = sorted( glob.glob('%s/*.json' % YRTMPDIR) )
-    log.info("%i json files in %s" % (len(files), YRTMPDIR) )
+    log_file_stats(files)
+
+    if self.window_size_yrs:
+      log.info("Reducing files list to last %i files..." % self.window_size_yrs)
+      files = files[-self.window_size_yrs:]
+
+    log_file_stats(files)
 
     # create an x range big enough for every possible file...
     if len(files) == 0:
@@ -271,6 +294,14 @@ class ExpandingWindow(object):
       self.load_data2plot(relim=True, autoscale=True)
       return [trace['artists'][0] for trace in self.traces]
 
+  def pftchooser_func(self, label):
+    '''A callback for the radio button that changes which pft is being plotted.'''
+    n = int(label[-1])
+    self.set_pft_number(n)
+    self.clear_bg_pft_txt()
+    self.set_bg_pft_txt()
+    logging.info("Updated the pft number to %i" % n)
+
   def key_press_event(self, event):
     logging.debug("You pressed: %s. Cursor at x: %s y: %s" % (event.key, event.xdata, event.ydata))
     if event.key == 'ctrl+r':
@@ -279,6 +310,82 @@ class ExpandingWindow(object):
     if event.key == 'ctrl+q':
       logging.info("QUIT")
       plt.close()
+    if event.key == 'ctrl+p':
+      n = 100
+      files = sorted( glob.glob('%s/*.json' % YRTMPDIR) )
+      if n < len(files):
+        logging.warning( "Deleting first %s json files from %s..." % (n, YRTMPDIR) )
+        for f in files[0:n]:
+          os.remove(f)
+      else:
+        logging.warning("Fewer than %s json files present - don't do anything." % n)
+    if event.key == 'ctrl+j':
+      # could add while true here to force user to
+      # enter some kind of valid input?
+      try:
+        ws = int(raw_input("Window Size (years)?: "))
+        self.window_size_yrs = ws
+        logging.info("Changed to 'fixed window' (window size: %s)" % ws)
+      except ValueError as e:
+        logging.warning("Invalid Entry! (%s)" % e)
+    if event.key == 'ctrl+J':
+      logging.info("Changed to 'expanding window' mode.")
+      self.window_size_yrs = None
+
+    if event.key == 'alt+p':
+      try:
+        n = int(raw_input("PFT NUMBER?> "))
+        self.set_pft_number(n)
+        self.clear_bg_pft_txt()
+        self.set_bg_pft_txt()
+        logging.info("Updated the pft number to %i" % n)
+      except ValueError as e:
+        logging.warning("Invalid Entry! (%s)" % e)
+
+
+
+  def clear_bg_pft_txt(self):
+    logging.info("Clearing all the background 'PFTx' texts")
+    for ax in self.axes:
+      ax.texts = []
+
+
+  def set_pft_number(self, pftnumber):
+    logger.info("Set the pft number in any trace that has the 'pft' as a key")
+    for trace in self.traces:
+      if 'pft' in trace.keys():
+        trace['pft'] = 'PFT%i' % pftnumber
+
+
+  def set_bg_pft_txt(self):
+    logging.info("Set the background 'PFTx' text for axes that are plotting pft specific variables.")
+
+    font = {'family' : 'sans-serif',
+            'color'  : 'black',
+            'weight' : 'bold',
+            'size'   : 24,
+            'alpha'  : 0.1,
+            }
+
+    for trace in self.traces:
+      if 'pft' in trace.keys():
+        ax = self.axes[trace['axesnum']]
+        ax.text(
+                  0.5, 0.5,
+                  "%s" % trace['pft'],
+                  fontdict=font,
+                  horizontalalignment='center',
+                  #verticalalignment='center',
+                  transform=ax.transAxes,
+                  #bbox=dict(facecolor='red', alpha=0.2)
+                )
+
+  def get_currentpft(self):
+    '''return the current pft. currently assumes that all traces have the same pft'''
+    pft = None
+    for trace in self.traces:
+      if 'pft' in trace.keys():
+        return trace['pft']
 
   def relim_autoscale_draw(self):
     '''Relimit the axes, autoscale the axes, and try to force a re-draw.'''
@@ -395,11 +502,24 @@ if __name__ == '__main__':
             Keyboard Shortcuts
             ------------------
             ctrl + r    reset view, resume auto-expand
+
             ctrl + q    quit
 
-        The link below lists more keyboard shortcuts that allow 
-        for handy things like turning the grid on and off and 
-        switching between log and linear axes:
+            ctrl + p    purge json files - deletes first 100 json
+                        files if more than 100 json files exist in
+                        the /tmp directorty
+
+            ctrl + j    change to fixed window plot - prompts for
+                        desired window size in controlling terminal
+            ctrl + J    reset to expanding window plot
+
+            alt + p     change the pft being plotted - prompts for 
+                        desired window size in controlling terminal
+
+
+        The link below lists more keyboard shortcuts (provided by 
+        matplotlib) that allow for handy things like turning the grid 
+        on and off and switching between log and linear axes:
     
             http://matplotlib.org/1.3.1/users/navigation_toolbar.html
 
