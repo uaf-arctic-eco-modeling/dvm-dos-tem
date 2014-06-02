@@ -96,14 +96,22 @@ class ExpandingWindow(object):
     
     self.fig.canvas.mpl_connect('key_press_event', self.key_press_event)
 
-    logging.debug("Setting up a radio button pft chooser...")
-    #                           l    b    w     h
-    self.pftradioax = plt.axes([0.9, 0.25, 0.1, 0.65 ], axisbg='lightgoldenrodyellow')
-    self.pftradio = matplotlib.widgets.RadioButtons( self.pftradioax,
-                                                     ['PFT%i'%(i) for i in range(0,10)],
-                                                     active=int(self.get_currentpft()[-1])
-                                                     )
-    self.pftradio.on_clicked(self.pftchooser_func)
+    # build a list of the pft specific traces
+    pfttraces = []
+    for trace in self.traces:
+      if 'pft' in trace.keys():
+        pfttraces.append(trace['jsontag'])
+
+    if len(pfttraces) > 0:
+      logging.debug("Setting up a radio button pft chooser...")
+      # left, bottom, width, height 
+      self.pftradioax = plt.axes([0.9, 0.25, 0.1, 0.65 ], axisbg='lightgoldenrodyellow')
+      self.pftradio = matplotlib.widgets.RadioButtons(
+          self.pftradioax,
+          ['PFT%i'%(i) for i in range(0,10)],
+          active=int(self.get_currentpft()[-1])
+      )
+      self.pftradio.on_clicked(self.pftchanger)
 
     # Set the x label for the last (lowest) subplot
     self.axes[-1].set_xlabel("Years")
@@ -294,8 +302,8 @@ class ExpandingWindow(object):
       self.load_data2plot(relim=True, autoscale=True)
       return [trace['artists'][0] for trace in self.traces]
 
-  def pftchooser_func(self, label):
-    '''A callback for the radio button that changes which pft is being plotted.'''
+  def pftchanger(self, label):
+    '''Changes which pft is being plotted.'''
     n = int(label[-1])
     self.set_pft_number(n)
     self.clear_bg_pft_txt()
