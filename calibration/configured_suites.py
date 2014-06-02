@@ -4,7 +4,7 @@
 #
 ##########################################################################
 
-# A suite is an assembelage of variables to plot in one or more sub-plots
+# A suite is an assemblage of variables to plot in one or more sub-plots
 # along with some configuration and meta-data about the variables (i.e.
 # which variables to group in which sub-plots and what units/labels to use.
 
@@ -27,27 +27,46 @@
 #  }
 
 configured_suites = {
-  'standard': {
+  'Environment': {
     'desc': "The basic carbon plot blah blah, some pft vars",
     'rows': 5,
     'cols': 1,
     'traces': [
-      { 'jsontag': 'GPPAll', 'axesnum': 0, 'units': 'gC/m^2', 'pft': '', },
-      { 'jsontag': 'NPPAll', 'axesnum': 0, 'units': 'gC/m^2', 'pft': '', },
+      { 'jsontag': 'TempOrganicLayer', 'axesnum': 0, },
+      { 'jsontag': 'TempMineralLayer', 'axesnum': 0, },
+      { 'jsontag': 'TempAir', 'axesnum': 0, },
 
-      { 'jsontag': 'GPPAllIgnoringNitrogen', 'units': 'gC/m^2', 'axesnum': 1, 'pft': '', },
-      { 'jsontag': 'NPPAllIgnoringNitrogen', 'units': 'gC/m^2', 'axesnum': 1, 'pft': '', },
+      { 'jsontag': 'Snowfall', 'axesnum': 1, },
+      { 'jsontag': 'Rainfall', 'axesnum': 1, },
+      { 'jsontag': 'Evapotranspiration', 'axesnum': 1, },
 
-      { 'jsontag': 'PARAbsorb', 'axesnum': 2, 'units': 'percent', 'pft': '', },
-      { 'jsontag': 'PARDown', 'axesnum': 2, 'units': 'percent', 'pft': '', },
+      { 'jsontag': 'WaterTable', 'axesnum': 2, },
+      { 'jsontag': 'ActiveLayerDepth', 'axesnum': 2, },
 
-      { 'jsontag': 'LitterfallCarbonAll', 'axesnum': 3, 'units': 'gC/m^2', 'pft': '', },
-      { 'jsontag': 'LitterfallNitrogenAll', 'axesnum': 3, 'units': 'gC/m^2', 'pft': '', },
+      { 'jsontag': 'VWCOrganicLayer', 'axesnum': 3, },
+      { 'jsontag': 'VWCMineralLayer', 'axesnum': 3, },
 
-      { 'jsontag': 'WaterTable', 'axesnum': 4, 'units': 'percent', },
+      { 'jsontag': 'PARAbsorb', 'axesnum': 4, },
+      { 'jsontag': 'PARDown', 'axesnum': 4, },
     ]
   },
-  'vegetation':{
+  'Soil': {
+    'desc': "A set of carbon soil variables.",
+    'rows': 3,
+    'cols': 1,
+    'traces': [
+      { 'jsontag': 'CarbonShallow', 'axesnum': 0, },
+      { 'jsontag': 'CarbonDeep', 'axesnum': 0, },
+      { 'jsontag': 'CarbonMineralSum', 'axesnum': 0, },
+      { 'jsontag': 'MossdeathCarbon', 'axesnum': 0, },
+
+      { 'jsontag': 'OrganicNitrogenSum', 'axesnum':1, },
+
+      { 'jsontag': 'AvailableNitrogenSum', 'axesnum':2, },
+      { 'jsontag': 'NitrogenUptakeAll', 'axesnum':2, },
+    ]
+  },
+  'Vegetation':{
     'desc': "The standard targetted vegetation outputs",
     'rows': 5,
     'cols': 1,
@@ -68,36 +87,7 @@ configured_suites = {
       { 'jsontag': 'VegStructuralNitrogen', 'axesnum': 3, 'pft': '', 'pftpart': 'Root'},
 
       { 'jsontag': 'LitterfallNitrogenAll', 'axesnum': 4, 'units': 'gC/m^2', 'pft': '', },
-      { 'jsontag': 'NitrogenUptake', 'axesnum': 4, 'units': 'gC/m^2', 'pft': '', },
-    ]
-  },
-  's2': {
-    'desc': "A set of carbon soil variables.",
-    'rows': 2,
-    'cols': 1,
-    'traces': [
-      # BROKEN: in envmodule only warm up period!
-      # gotta figure out how to handle C++ > json > numpy nan issue.
-      # maybe set to null on encoder side?
-      { 'jsontag': 'CarbonShallow', 'axesnum': 0, },
-      { 'jsontag': 'CarbonDeep', 'axesnum': 0, },
-      { 'jsontag': 'CarbonMineralSum', 'axesnum': 0, },
-      { 'jsontag': 'MossdeathCarbon', 'axesnum': 1, },
-      { 'jsontag': 'MossdeathNitrogen', 'axesnum': 1, },
-    ]
-  },
-  's3': {
-    'desc': "Trying some pft compartment plots",
-    'rows': 2,
-    'cols': 1,
-    'traces': [
-      { 'jsontag': 'VegCarbon', 'axesnum': 0, 'pft': '', 'pftpart': 'Leaf'},
-      { 'jsontag': 'VegCarbon', 'axesnum': 0, 'pft': '', 'pftpart': 'Stem'},
-      { 'jsontag': 'VegCarbon', 'axesnum': 0, 'pft': '', 'pftpart': 'Root'},
-
-      { 'jsontag': 'VegStructuralNitrogen', 'axesnum': 1, 'pft': '', 'pftpart': 'Leaf'},
-      { 'jsontag': 'VegStructuralNitrogen', 'axesnum': 1, 'pft': '', 'pftpart': 'Stem'},
-      { 'jsontag': 'VegStructuralNitrogen', 'axesnum': 1, 'pft': '', 'pftpart': 'Root'},
-    ]
+      { 'jsontag': 'NitrogenUptake', 'axesnum': 4, 'units': 'gC/m^2', 'pft': '', }
+    ] 
   },
 }
