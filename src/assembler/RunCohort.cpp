@@ -115,14 +115,14 @@ void RunCohort::init() {
   BOOST_LOG_SEV(glg, info) << "In RunCohort::init(), setting a bunch of modules on/off";
   // switches of N cycles
   md->set_nfeed(true);
-  md->set_avlnflg(false);
+  md->set_avlnflg(true);
   md->set_baseline(true);
   // switches of modules
   md->set_envmodule(true);
   md->set_bgcmodule(true);
-  md->set_dsbmodule(true);
-  md->set_dslmodule(true);
-  md->set_dvmmodule(true);
+  md->set_dsbmodule(false);
+  md->set_dslmodule(false);
+  md->set_dvmmodule(false);
 
   // output (buffer) data connection
   if (md->outRegn) {
@@ -269,10 +269,10 @@ void RunCohort::run_cohortly() {
     BOOST_LOG_SEV(glg, info) << "In run_cohortly, setting all modules to on...";
     md->set_envmodule(true);
     md->set_bgcmodule(true);
-    md->set_dsbmodule(true);
-    md->set_dslmodule(true);
-    md->set_dvmmodule(true);
-    md->set_friderived(true);
+    md->set_dsbmodule(false);
+    md->set_dslmodule(false);
+    md->set_dvmmodule(false);
+    md->set_friderived(false);
     cht.timer->stageyrind = 0;
     cht.cd.yrsdist = 0;
     yrstart = 0;
