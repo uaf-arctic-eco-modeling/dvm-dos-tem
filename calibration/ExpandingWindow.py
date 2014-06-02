@@ -103,7 +103,7 @@ class ExpandingWindow(object):
                                                      ['PFT%i'%(i) for i in range(0,10)],
                                                      active=int(self.get_currentpft()[-1])
                                                      )
-    self.pftradio.on_clicked(self.pftchooser_func)
+    self.pftradio.on_clicked(self.pftchanger)
 
     # Set the x label for the last (lowest) subplot
     self.axes[-1].set_xlabel("Years")
@@ -294,8 +294,8 @@ class ExpandingWindow(object):
       self.load_data2plot(relim=True, autoscale=True)
       return [trace['artists'][0] for trace in self.traces]
 
-  def pftchooser_func(self, label):
-    '''A callback for the radio button that changes which pft is being plotted.'''
+  def pftchanger(self, label):
+    '''Changes which pft is being plotted.'''
     n = int(label[-1])
     self.set_pft_number(n)
     self.clear_bg_pft_txt()
