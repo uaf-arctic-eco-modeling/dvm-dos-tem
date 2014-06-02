@@ -120,9 +120,9 @@ void RunCohort::init() {
   // switches of modules
   md->set_envmodule(true);
   md->set_bgcmodule(true);
-  md->set_dsbmodule(false);
-  md->set_dslmodule(false);
-  md->set_dvmmodule(false);
+  md->set_dsbmodule(true);
+  md->set_dslmodule(true);
+  md->set_dvmmodule(true);
 
   // output (buffer) data connection
   if (md->outRegn) {
@@ -269,6 +269,9 @@ void RunCohort::run_cohortly() {
     BOOST_LOG_SEV(glg, info) << "In run_cohortly, setting all modules to on...";
     md->set_envmodule(true);
     md->set_bgcmodule(true);
+    md->set_nfeed(false);
+    md->set_avlnflg(false);
+    md->set_baseline(false);
     md->set_dsbmodule(false);
     md->set_dslmodule(false);
     md->set_dvmmodule(false);
