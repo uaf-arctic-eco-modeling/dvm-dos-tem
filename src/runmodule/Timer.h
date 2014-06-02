@@ -11,52 +11,52 @@
 #include "../inc/cohortconst.h"
 #include "../inc/errorcode.h"
 
-class Timer{
-	public:
-		Timer();
-		~Timer();
+class Timer {
+public:
+  Timer();
+  ~Timer();
 
-		ModelData *md;
+  ModelData *md;
 
-	 	int yearind;
-		int monind;
-		int stageyrind;
-		int outyrind;
+  int yearind;
+  int monind;
+  int stageyrind;
+  int outyrind;
 
-		bool eqend;
-		bool spend;
-		bool trend;
-		bool scend;
+  bool eqend;
+  bool spend;
+  bool trend;
+  bool scend;
 
-		int maxeqrunyrs;		/*! number of eq-run years*/
+  int maxeqrunyrs;    /*! number of eq-run years*/
 
-		int spbegyr;		/*! beginning year of spinup*/
-		int spendyr;		/*! end year of spin up*/
-		int spnumyr;      /*! number of spin years*/
+  int spbegyr;    /*! beginning year of spinup*/
+  int spendyr;    /*! end year of spin up*/
+  int spnumyr;      /*! number of spin years*/
 
-		int trbegyr;
-		int trendyr;
-		int trnumyr;
-				
-		int scbegyr;		/*! beginning year of scenrio simulation*/
-		int scendyr;		/*! end year of scenrio simulation*/
-		int scnumyr;		/*! number of scenrio simulation year*/
+  int trbegyr;
+  int trendyr;
+  int trnumyr;
 
-		void setModeldata(ModelData *mdp);
-		void reset();
+  int scbegyr;    /*! beginning year of scenrio simulation*/
+  int scendyr;    /*! end year of scenrio simulation*/
+  int scnumyr;    /*! number of scenrio simulation year*/
 
-		int getOutputYearIndex();
-	    int getCalendarYear();
+  void setModeldata(ModelData *mdp);
+  void reset();
 
-	    int getDOYIndex(const int &mon, const int &id);
-		int getDaysInMonth(int & mon);
-		int getCurrentMonthIndex();
-		int getNextMonthIndex();
-		int getCurrentYearIndex();
+  int getOutputYearIndex();
+  int getCalendarYear();
 
-		void advanceOneMonth();
-	
-	private:
+  int getDOYIndex(const int &mon, const int &id);
+  int getDaysInMonth(int & mon);
+  int getCurrentMonthIndex();
+  int getNextMonthIndex();
+  int getCurrentYearIndex();
+
+  void advanceOneMonth();
+
+private:
 
 };
 

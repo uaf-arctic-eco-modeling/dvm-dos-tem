@@ -4,7 +4,7 @@
  * \file
  */
 
- 
+
 #include <iostream>
 #include <fstream>
 #include <cstdio>
@@ -17,26 +17,26 @@ using namespace std;
 #include "../data/RegionData.h"
 #include "../runmodule/ModelData.h"
 
-class RegionInputer{
-	public:
-		RegionInputer();
-		~RegionInputer();
+class RegionInputer {
+public:
+  RegionInputer();
+  ~RegionInputer();
 
-		string co2filename;
+  string co2filename;
 
-		int act_co2yr;
+  int act_co2yr;
 
-		void init();
+  void init();
 
-    // regional-level data
-		int initCO2file(string & dir);
-		void getCO2(RegionData * rd);
-	
-		void setModelData(ModelData* mdp);
-	
-	private:
-		ModelData* md;
-	
+  // regional-level data
+  int initCO2file(string & dir);
+  void getCO2(RegionData * rd);
+
+  void setModelData(ModelData* mdp);
+
+private:
+  ModelData* md;
+
 };
 
 #endif /*REGIONINPUTER_H_*/

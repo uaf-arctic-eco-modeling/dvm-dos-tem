@@ -1,12 +1,16 @@
 # Basic dvm-dos-tem Makefile 
 
 CC=g++
-CFLAGS=-c -Wall -ansi -O2 -g -fPIC
-LIBS=-lnetcdf_c++ -lnetcdf -lboost_system -lboost_filesystem -lboost_program_options
+CFLAGS=-c -Werror -ansi -g -fPIC -DBOOST_ALL_DYN_LINK
+LIBS=-lnetcdf_c++ -lnetcdf -lboost_system -lboost_filesystem \
+-lboost_program_options -lboost_thread -lboost_log -ljson -lreadline
 LIBDIR=$(SITE_SPECIFIC_LIBS)
 INCLUDES=$(SITE_SPECIFIC_INCLUDES)
 SOURCES= 	src/TEM.o \
+		src/TEMLogger.o \
+		src/CalController.o \
 		src/ArgHandler.o \
+		src/TEMUtilityFunctions.o \
 		src/assembler/RunCohort.o \
 		src/assembler/RunGrid.o \
 		src/assembler/Runner.o \
@@ -69,6 +73,9 @@ SOURCES= 	src/TEM.o \
 		src/ecodomain/layer/SnowLayer.o \
 		src/ecodomain/layer/SoilLayer.o
 OBJECTS =	ArgHandler.o \
+		TEMLogger.o \
+		CalController.o \
+		TEMUtilityFunctions.o \
 		RunCohort.o \
 		RunGrid.o \
 		Runner.o \
