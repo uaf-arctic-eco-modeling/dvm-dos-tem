@@ -170,7 +170,7 @@ if(USEMPI):
 
   compiler_flags = compiler_flags + ' -m64 -DWITHMPI'
 
-  compiler = '/usr/lib64/openmpi/bin/mpic++'
+  #compiler = '/usr/lib64/openmpi/bin/mpic++'
   #g++ -I/usr/include/openmpi-x86_64 -pthread -m64 -L/usr/lib64/openmpi/lib -lmpi_cxx -lmpi
 
 
