@@ -152,6 +152,13 @@ elif platform_name == 'Darwin': #tobey
     else:
       platform_libs.append(lib);
 
+  # fix json library name
+  platform_libs[:] = [lib for lib in platform_libs if not lib == 'jsoncpp']
+  platform_libs.append('json')
+
+  # no profiler at this time
+  platform_libs[:] = [lib for lib in platform_libs if not lib == 'profiler']
+
 
 if comp_name == 'aeshna': #aeshna... check name
     platform_include_path.append('/home/tobey/usr/local/include')
