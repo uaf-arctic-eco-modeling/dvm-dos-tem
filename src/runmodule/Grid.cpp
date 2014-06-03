@@ -33,14 +33,14 @@ int Grid::reinit() {
   }
 
   //check for the validity of grid level data
-  if(gd.fri<0|| gd.fri>2000) {
-    gd.fri =2000;
+  if(gd.fri<0|| gd.fri>10000) {
+    gd.fri =10000;
   }
 
   //testing
-  gd.fri = 60;
-  gd.pfseason[1] = 0.80;
-  gd.pfsize[1] = 0.80;
+  //gd.fri = 60;
+  //gd.pfseason[1] = 0.80;
+  //gd.pfsize[1] = 0.80;
 
   if(gd.topsoil <0 || gd.botsoil <0) {
     return -2;
