@@ -539,7 +539,7 @@ if __name__ == '__main__':
       choices=[0,1,2,3,4,5,6,7,8,9],
       help="Which pft to display")
   
-  parser.add_argument('--suite', default='standard',
+  parser.add_argument('--suite', default='Vegetation',
       choices=[k for k in configured_suites.keys()],
       help="Which suite of variables/plot configurations to show.")
 
