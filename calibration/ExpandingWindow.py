@@ -92,6 +92,8 @@ class ExpandingWindow(object):
 
     self.traces = traceslist
 
+    self.targets = targets
+
     self.fig = plt.figure()
     self.fig.suptitle(figtitle)
 
@@ -144,42 +146,7 @@ class ExpandingWindow(object):
       else:
         trace['artists'] = ax.plot(x, y, label=trace['jsontag'])
 
-    logging.debug("Plotting the target lines for calibrated parameters...")
-    for trace in self.traces:
-
-      if trace['jsontag'] in targets:
-        logging.debug("Found a target for %s" % trace['jsontag'])
-        ax = self.axes[ trace['axesnum'] ]
-
-        # Get a handle to the appropriate line on the plot
-        # and get the color of the line.
-        if 'pftpart' in trace.keys():
-          lbl = '%s %s' % (trace['jsontag'], trace['pftpart'])
-        else:
-          lbl = trace['jsontag']
-        for line in ax.lines:
-          if line.get_label() == lbl:
-            tc = line.get_color()
-          else:
-            pass # nothing to do; wrong line
-
-        # find correct target value...
-        target = targets[ trace['jsontag'] ]
-
-        if isinstance(target, dict):
-          # must be a partition variable, gotta look up which partition
-          pftnum = int(trace['pft'][-1]) # <- BRITTLE!
-          target = target[ trace['pftpart'] ][pftnum]
-        elif isinstance(target, list):
-          # must be a plain 'ol pft variable
-          pftnum = int(trace['pft'][-1])  # <- BRITTLE!
-          target = target[pftnum]
-        else:
-          pass # must be a plain 'ol target value; non-pft or pft part.
-
-        # plot a hz line for the target
-        logging.debug("Plotting a hz line")
-        ax.axhline(target, color=tc, linestyle='--')
+    self.plot_target_lines()
 
     logging.debug("Set the backgrond pft text for for pft specific variables..")
     self.set_bg_pft_txt()
@@ -320,11 +287,13 @@ class ExpandingWindow(object):
 
   def pftchanger(self, label):
     '''Changes which pft is being plotted.'''
+    self.clear_target_lines() # gotta do this to get rid of target lines
     n = int(label[-1])
     self.set_pft_number(n)
     self.clear_bg_pft_txt()
     self.set_bg_pft_txt()
     logging.info("Updated the pft number to %i" % n)
+    self.plot_target_lines()
 
   def key_press_event(self, event):
     logging.debug("You pressed: %s. Cursor at x: %s y: %s" % (event.key, event.xdata, event.ydata))
@@ -367,19 +336,61 @@ class ExpandingWindow(object):
         logging.warning("Invalid Entry! (%s)" % e)
 
 
+  def plot_target_lines(self):
+    logging.debug("Plotting the target lines for calibrated parameters...")
+
+    for trace in self.traces:
+
+      if trace['jsontag'] in self.targets:
+        logging.debug("Found a target for %s" % trace['jsontag'])
+        ax = self.axes[ trace['axesnum'] ]
+
+        # Get a handle to the appropriate line on the plot
+        # and get the color of the line.
+        if 'pftpart' in trace.keys():
+          lbl = '%s %s' % (trace['jsontag'], trace['pftpart'])
+        else:
+          lbl = trace['jsontag']
+        for line in ax.lines:
+          if line.get_label() == lbl:
+            tc = line.get_color()
+          else:
+            pass # nothing to do; wrong line
+
+        # find correct target value...
+        target = self.targets[ trace['jsontag'] ]
+
+        if isinstance(target, dict):
+          # must be a partition variable, gotta look up which partition
+          pftnum = int(trace['pft'][-1]) # <- BRITTLE!
+          target = target[ trace['pftpart'] ][pftnum]
+        elif isinstance(target, list):
+          # must be a plain 'ol pft variable
+          pftnum = int(trace['pft'][-1])  # <- BRITTLE!
+          target = target[pftnum]
+        else:
+          pass # must be a plain 'ol target value; non-pft or pft part.
+
+        # plot a hz line for the target
+        logging.debug("Plotting a hz line")
+        ax.axhline(target, color=tc, linestyle='--') # can't use label= or
+                                                     # each will show in legend
+
+  def clear_target_lines(self):
+    logging.info("Clearing all plot lines...")
+    for ax in self.axes:
+      ax.lines[:] = [l for l in ax.lines if not (l.get_linestyle() == '--')]
 
   def clear_bg_pft_txt(self):
     logging.info("Clearing all the background 'PFTx' texts")
     for ax in self.axes:
       ax.texts = []
 
-
   def set_pft_number(self, pftnumber):
     logger.info("Set the pft number in any trace that has the 'pft' as a key")
     for trace in self.traces:
       if 'pft' in trace.keys():
         trace['pft'] = 'PFT%i' % pftnumber
-
 
   def set_bg_pft_txt(self):
     logging.info("Set the background 'PFTx' text for axes that are plotting pft specific variables.")
