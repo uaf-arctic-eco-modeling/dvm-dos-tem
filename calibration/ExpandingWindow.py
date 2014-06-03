@@ -19,6 +19,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mplticker
 import matplotlib.animation as animation
+import matplotlib.gridspec as gridspec
 
 import matplotlib.widgets
 
@@ -91,10 +92,8 @@ class ExpandingWindow(object):
 
     self.traces = traceslist
 
-    self.fig, self.axes = plt.subplots(rows, cols, sharex='all')
+    self.fig = plt.figure()
     self.fig.suptitle(figtitle)
-    
-    self.fig.canvas.mpl_connect('key_press_event', self.key_press_event)
 
     # build a list of the pft specific traces
     pfttraces = []
@@ -103,18 +102,35 @@ class ExpandingWindow(object):
         pfttraces.append(trace['jsontag'])
 
     if len(pfttraces) > 0:
+      gs = gridspec.GridSpec(rows, cols+1, width_ratios=[8,1])
       logging.debug("Setting up a radio button pft chooser...")
-      # left, bottom, width, height 
-      self.pftradioax = plt.axes([0.9, 0.25, 0.1, 0.65 ], axisbg='lightgoldenrodyellow')
+      self.pftradioax = plt.subplot(gs[0:, -1]) # all rows, last column
       self.pftradio = matplotlib.widgets.RadioButtons(
           self.pftradioax,
           ['PFT%i'%(i) for i in range(0,10)],
           active=int(self.get_currentpft()[-1])
       )
       self.pftradio.on_clicked(self.pftchanger)
+    else:
+      gs = gridspec.GridSpec(rows, cols)
 
-    # Set the x label for the last (lowest) subplot
+    # Make the first axes, then all others, sharing x on the first axes.
+    self.axes = [ plt.subplot(gs[0,0]) ]
+    for r in range(1, rows):
+      self.axes.append(plt.subplot(gs[r, 0], sharex=self.axes[0]))
+
+    # Turn off all tick labels on x axis
+    for r in range(rows):
+      plt.setp(self.axes[r].get_xticklabels(), visible=False)
+
+    # Set the x label and ticks for the last (lowest) subplot
     self.axes[-1].set_xlabel("Years")
+    plt.setp(self.axes[-1].get_xticklabels(), visible=True)
+                                  # L     B     W     H
+    gs.tight_layout(self.fig, rect=[0.10, 0.00, 0.90, 0.95])
+
+    self.fig.canvas.mpl_connect('key_press_event', self.key_press_event)
+
 
     x = np.arange(0)
     y = x.copy() * np.nan
