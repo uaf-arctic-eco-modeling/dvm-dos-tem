@@ -129,7 +129,7 @@ class ExpandingWindow(object):
     self.axes[-1].set_xlabel("Years")
     plt.setp(self.axes[-1].get_xticklabels(), visible=True)
                                   # L     B     W     H
-    gs.tight_layout(self.fig, rect=[0.10, 0.00, 0.90, 0.95])
+    gs.tight_layout(self.fig, rect=[0.05, 0.00, 1.00, 0.95])
 
     self.fig.canvas.mpl_connect('key_press_event', self.key_press_event)
 
