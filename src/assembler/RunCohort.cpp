@@ -252,6 +252,7 @@ void RunCohort::run_cohortly() {
                              << "which may then be good for 'eq' run...";
     runEnvmodule(calcontroller_ptr);
 
+    //in calibration eq mode starting with on env and bgc on
     if (calcontroller_ptr) {
       BOOST_LOG_SEV(glg, info) << "Pausing. Please check that the 'pre-run' data looks good.";
       calcontroller_ptr->pause();
@@ -262,20 +263,31 @@ void RunCohort::run_cohortly() {
       boost::filesystem::path yr_json_tmp_dir("/tmp/year-cal-dvmdostem");
       boost::filesystem::remove_all(yr_json_tmp_dir);
       boost::filesystem::create_directory(yr_json_tmp_dir);
+      cht.timer->reset();
+      BOOST_LOG_SEV(glg, info) << "In run_cohortly, setting all modules to on...";
+      md->set_envmodule(true);
+      md->set_bgcmodule(true);
+      md->set_nfeed(false);
+      md->set_avlnflg(false);
+      md->set_baseline(false);
+      md->set_dsbmodule(false);
+      md->set_dslmodule(false);
+      md->set_dvmmodule(false);
+      md->set_friderived(false);
+    } else {
+      //in equilibrium running mode, all switches on
+      cht.timer->reset();
+      BOOST_LOG_SEV(glg, info) << "In run_cohortly, setting all modules to on...";
+      md->set_envmodule(true);
+      md->set_bgcmodule(true);
+      md->set_nfeed(true);
+      md->set_avlnflg(true);
+      md->set_baseline(true);
+      md->set_dsbmodule(true);
+      md->set_dslmodule(true);
+      md->set_dvmmodule(true);
+      md->set_friderived(true);
     }
-
-    //
-    cht.timer->reset();
-    BOOST_LOG_SEV(glg, info) << "In run_cohortly, setting all modules to on...";
-    md->set_envmodule(true);
-    md->set_bgcmodule(true);
-    md->set_nfeed(false);
-    md->set_avlnflg(false);
-    md->set_baseline(false);
-    md->set_dsbmodule(false);
-    md->set_dslmodule(false);
-    md->set_dvmmodule(false);
-    md->set_friderived(false);
     cht.timer->stageyrind = 0;
     cht.cd.yrsdist = 0;
     yrstart = 0;
