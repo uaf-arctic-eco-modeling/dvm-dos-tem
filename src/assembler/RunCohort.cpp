@@ -252,7 +252,7 @@ void RunCohort::run_cohortly() {
                              << "which may then be good for 'eq' run...";
     runEnvmodule(calcontroller_ptr);
 
-    //in calibration eq mode starting with on env and bgc on
+    // In calibration mode, equlibrium stage starting with only env and bgc switches on!
     if (calcontroller_ptr) {
       BOOST_LOG_SEV(glg, info) << "Pausing. Please check that the 'pre-run' data looks good.";
       calcontroller_ptr->pause();
@@ -264,7 +264,8 @@ void RunCohort::run_cohortly() {
       boost::filesystem::remove_all(yr_json_tmp_dir);
       boost::filesystem::create_directory(yr_json_tmp_dir);
       cht.timer->reset();
-      BOOST_LOG_SEV(glg, info) << "In run_cohortly, setting all modules to on...";
+      BOOST_LOG_SEV(glg, info) << "Equlibrium stage, run_cohortly. CALIBRATION MODE!";
+      BOOST_LOG_SEV(glg, info) << "Turning OFF all switches except for env and bgc.";
       md->set_envmodule(true);
       md->set_bgcmodule(true);
       md->set_nfeed(false);
@@ -275,9 +276,10 @@ void RunCohort::run_cohortly() {
       md->set_dvmmodule(false);
       md->set_friderived(false);
     } else {
-      //in equilibrium running mode, all switches on
+      // In equilibrium stage, turning all switches on
       cht.timer->reset();
-      BOOST_LOG_SEV(glg, info) << "In run_cohortly, setting all modules to on...";
+      BOOST_LOG_SEV(glg, info) << "Eqlibrium stage, run_cohortly.";
+      BOOST_LOG_SEV(glg, info) << "Turning ON all switches!";
       md->set_envmodule(true);
       md->set_bgcmodule(true);
       md->set_nfeed(true);
