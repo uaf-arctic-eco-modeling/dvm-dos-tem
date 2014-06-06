@@ -37,10 +37,11 @@ int Grid::reinit() {
     gd.fri =2000;
   }
 
+  //testing or manual firestatistics setting
   // 06-05-14 
-  // If grid fire related parameters are not
-  // set here, then they are read and set from your 
-  // input netCDF files (grid.nc and firestatistics.nc?)
+  // If grid fire related parameters are
+  // set here, then they ARE NOT set from your 
+  // input file firestatistics.nc in datagrd
   //gd.fri = 60;
   //gd.pfseason[1] = 0.80;
   //gd.pfsize[1] = 0.80;
