@@ -33,8 +33,8 @@ int Grid::reinit() {
   }
 
   //check for the validity of grid level data
-  if(gd.fri<0|| gd.fri>10000) {
-    gd.fri =10000;
+  if(gd.fri<0|| gd.fri>2000) {
+    gd.fri =2000;
   }
 
   //testing
