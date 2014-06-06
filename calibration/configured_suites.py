@@ -28,26 +28,27 @@
 
 configured_suites = {
   'Environment': {
-    'desc': "The basic carbon plot blah blah, some pft vars",
+    'desc': "Environmental variables plot (precip, temps, light, water)",
     'rows': 5,
     'cols': 1,
     'traces': [
-      { 'jsontag': 'TempOrganicLayer', 'axesnum': 0, },
-      { 'jsontag': 'TempMineralLayer', 'axesnum': 0, },
-      { 'jsontag': 'TempAir', 'axesnum': 0, },
+      # Commented Variables are not yet available in yearly json files
+      #{ 'jsontag': 'TempOrganicLayer', 'axesnum': 0, },
+      #{ 'jsontag': 'TempMineralLayer', 'axesnum': 0, },
+      #{ 'jsontag': 'TempAir', 'axesnum': 0, },
 
       { 'jsontag': 'Snowfall', 'axesnum': 1, },
       { 'jsontag': 'Rainfall', 'axesnum': 1, },
-      { 'jsontag': 'Evapotranspiration', 'axesnum': 1, },
+      #{ 'jsontag': 'Evapotranspiration', 'axesnum': 1, },
 
       { 'jsontag': 'WaterTable', 'axesnum': 2, },
-      { 'jsontag': 'ActiveLayerDepth', 'axesnum': 2, },
+      #{ 'jsontag': 'ActiveLayerDepth', 'axesnum': 2, },
 
-      { 'jsontag': 'VWCOrganicLayer', 'axesnum': 3, },
-      { 'jsontag': 'VWCMineralLayer', 'axesnum': 3, },
+      #{ 'jsontag': 'VWCOrganicLayer', 'axesnum': 3, },
+      #{ 'jsontag': 'VWCMineralLayer', 'axesnum': 3, },
 
-      { 'jsontag': 'PARAbsorb', 'axesnum': 4, },
-      { 'jsontag': 'PARDown', 'axesnum': 4, },
+      #{ 'jsontag': 'PARAbsorb', 'axesnum': 4, },
+      #{ 'jsontag': 'PARDown', 'axesnum': 4, },
     ]
   },
   'Soil': {
