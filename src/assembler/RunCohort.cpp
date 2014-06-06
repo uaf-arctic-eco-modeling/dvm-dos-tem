@@ -264,7 +264,7 @@ void RunCohort::run_cohortly() {
       boost::filesystem::remove_all(yr_json_tmp_dir);
       boost::filesystem::create_directory(yr_json_tmp_dir);
       cht.timer->reset();
-      BOOST_LOG_SEV(glg, info) << "Equlibrium stage, run_cohortly. CALIBRATION MODE!";
+      BOOST_LOG_SEV(glg, info) << "Equilibrium stage, run_cohortly. CALIBRATION MODE!";
       BOOST_LOG_SEV(glg, info) << "Turning OFF all switches except for env and bgc.";
       md->set_envmodule(true);
       md->set_bgcmodule(true);
@@ -278,7 +278,7 @@ void RunCohort::run_cohortly() {
     } else {
       // In equilibrium stage, turning all switches on
       cht.timer->reset();
-      BOOST_LOG_SEV(glg, info) << "Eqlibrium stage, run_cohortly.";
+      BOOST_LOG_SEV(glg, info) << "Equilibrium stage, run_cohortly.";
       BOOST_LOG_SEV(glg, info) << "Turning ON all switches!";
       md->set_envmodule(true);
       md->set_bgcmodule(true);
