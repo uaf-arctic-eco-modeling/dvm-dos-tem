@@ -131,7 +131,7 @@ extern src::severity_logger< severity_level > glg;
 
     siter.setupIDs();
 
-    siter.runmode1();
+    siter.single_site();
   
     etime=time(0);
     BOOST_LOG_SEV(glg, info) << "Done running TEM stand-alone mode @" 

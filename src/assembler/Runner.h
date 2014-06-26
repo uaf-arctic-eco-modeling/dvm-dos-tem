@@ -45,7 +45,7 @@ public:
   void setupIDs();
 
   /* three settings for running TEM */
-  void runmode1();  /* one site run-mode, used for stand-alone TEM
+  void single_site();  /* one site run-mode, used for stand-alone TEM
                          for any purpose */
   void runmode2();  /* multi-site (regional) run-mode 1, i.e., time series */
   void runmode3(int processors, int rank);  /* multi-site (regional) 

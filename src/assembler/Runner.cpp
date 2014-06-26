@@ -367,15 +367,16 @@ void Runner::setupIDs() {
   }
 };
 
-// one-site runmode
-void Runner::runmode1() {
+/** Single site runmode.
+*/
+void Runner::single_site() {
   //read-in region-level data
   //  (Yuan: this is the portal for multiple region run,
   //     if needed in the future)
   error = runreg.reinit(0); //can be modified, if more than 1 record of data
 
   if (error!=0) {
-    BOOST_LOG_SEV(glg, fatal) << "problem in reinitialize regional-module in Runner::runmode1()";
+    BOOST_LOG_SEV(glg, fatal) << "Problem reinitializing regional-module in Runner::single_site(...)";
     exit(-1);
   }
 
@@ -394,7 +395,7 @@ void Runner::runmode1() {
   error = rungrd.readData();
 
   if (error!=0) {
-    cout <<"problem in reading grided data in Runner::runmode1\n";
+    BOOST_LOG_SEV(glg, fatal) << "Problem reading grided data in Runner::single_site(...)";
     exit(-1);
   }
 
@@ -402,14 +403,14 @@ void Runner::runmode1() {
   error = runcht.readData();
 
   if (error!=0) {
-    cout <<"problem in reading cohort data in Runner::runmode1\n";
+    BOOST_LOG_SEV(glg, fatal) << "Problem reading cohort data in Runner::single_site(...)";
     exit(-1);
   }
 
   error = runcht.reinit();
 
   if (error!=0) {
-    cout <<"problem in re-initializing cohort in Runner::runmode1\n";
+    BOOST_LOG_SEV(glg, fatal) << "Problem re-initializing cohort in Runner::single_site(...)";
     exit(-1);
   }
 
