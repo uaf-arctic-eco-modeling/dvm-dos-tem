@@ -163,7 +163,7 @@ extern src::severity_logger< severity_level > glg;
       BOOST_LOG_SEV(glg, note) << "Running in regner1: regional_space_major(...)";
       regner.regional_space_major();
     } else if (runmode.compare("regner2")==0){
-      BOOST_LOG_SEV(glg, note) << "Running in regner2...(runmode3)";
+      BOOST_LOG_SEV(glg, note) << "Running in regner2: regional_time_major(...)";
       int rank;
       int processors;
       #ifdef WITHMPI
@@ -182,12 +182,12 @@ extern src::severity_logger< severity_level > glg;
         }
       
         // do the real work...
-        regner.runmode3(processors, rank);
+        regner.regional_time_major(processors, rank);
       
-        std::cout << "MADE it back from runmode3(..), parallel mode...\n";
+        std::cout << "MADE it back from regional_time_major(...), parallel mode...\n";
         MPI_Finalize();
       #else
-        regner.runmode3(processors, rank);
+        regner.regional_time_major(processors, rank);
       #endif
     } else {
       BOOST_LOG_SEV(glg, fatal) << "Invalid runmode...quitting.";

@@ -483,14 +483,14 @@ void Runner::regional_space_major() {
   }
 };
 
-void Runner::runmode3(int processors, int rank) {
+void Runner::regional_time_major(int processors, int rank) {
   //read-in region-level data
   //  (Yuan: this is the portal for multiple region run,
   //    if needed in the future)
   error = runreg.reinit(0); //can be modified, if more than 1 record of data
 
   if (error!=0) {
-    cout <<"problem in reinitialize regional-module in Runner::runmode3\n";
+    BOOST_LOG_SEV(glg, fatal) << "problem in reinitialize regional-module in Runner::regional_time_major(...)";
     exit(-1);
   }
 
@@ -698,7 +698,7 @@ int Runner::runSpatially(const int icalyr, const int im, const int jj) {
   error = rungrd.readData();
 
   if (error!=0) {
-    cout <<"problem in reading grided data in Runner::runmode3\n";
+    BOOST_LOG_SEV(glg, fatal) << "Problem reading grided data in Runner::regional_time_major(...)";
     exit(-1);
   }
 
@@ -706,7 +706,7 @@ int Runner::runSpatially(const int icalyr, const int im, const int jj) {
   error = runcht.readData();
 
   if (error!=0) {
-    cout <<"problem in reading cohort data in Runner::runmode3\n";
+    BOOST_LOG_SEV(glg, fatal) << "Problem reading cohort data in Runner::regional_time_major(...)";
     exit(-1);
   }
 
@@ -721,7 +721,7 @@ int Runner::runSpatially(const int icalyr, const int im, const int jj) {
 
     if (icalyr>yrending) {
       if (jj==(int)runchtlist.size()-1) {
-        return 1; // this will break the 'icalyr' loop in runmode3()
+        return 1; // this will break the 'icalyr' loop in regional_time_major()
       } else {
         if (md.initmode>3) {
           mlyres.push_back(mlyres.at(0));
@@ -748,7 +748,7 @@ int Runner::runSpatially(const int icalyr, const int im, const int jj) {
 
   //if 'initmode>3', takes 'restart' from above
   if (error!=0) {
-    cout <<"problem in re-initialzing cohort in Runner::runmode3\n";
+    BOOST_LOG_SEV(glg, fatal) << "Problem re-initialzing cohort in Runner::regional_time_major(...)";
     exit(-1);
   }
 

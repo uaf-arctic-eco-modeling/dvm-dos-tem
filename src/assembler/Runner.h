@@ -48,8 +48,7 @@ public:
   void single_site();  /* one site run-mode, used for stand-alone TEM
                          for any purpose */
   void regional_space_major();  /* multi-site (regional) with cohorts (spatial steps) as outer loop */
-  void runmode3(int processors, int rank);  /* multi-site (regional) 
-                                                 run-mode 2, i.e., spatially */
+  void regional_time_major(int processors, int rank);  /* multi-site (regional) run-mode, time steps as outer loop(s) */
   int runSpatially(const int icalyr, const int im, const int jj);
 
   vector<int> runchtlist;  //a vector listing all cohort id
