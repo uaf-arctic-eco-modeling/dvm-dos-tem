@@ -13,6 +13,9 @@
 #include "../data/RestartData.h"
 #include "../inc/tbc_mpi_constants.h"
 
+#include "../TEMLogger.h"
+
+extern src::severity_logger< severity_level > glg;
 
 Slave::Slave(){}
 Slave::Slave(int rank): rank(rank) {}
@@ -53,14 +56,14 @@ void Slave::recv_cohort_list_from_master(){
            MPI_ANY_TAG,
            MPI_COMM_WORLD,
            &status);
-  
-  std::cout << "I am a slave (rank " << rank << ") and just recieved my list of cohorts to run: ";
+
+  std::stringstream ss;
+  ss << "I am a slave (rank " << this->rank << ") and just recieved my list of cohorts to run: ";
   for (int i = 0 ; i < number_of_ints_to_recieve; ++i) {
-    std::cout << cohorts[i] << ", ";
+    ss << cohorts[i] << ", ";
     cohort_list.push_back(cohorts[i]);
   }
-  std::cout << std::endl;
-  //std::cout << "HERE?????\n";
+  BOOST_LOG_SEV(glg, note) << ss.str();
 }
 
 
@@ -68,11 +71,11 @@ void Slave::send_restartdata_to_master(RestartData rd){
   MPI_Datatype MPI_t_RestartData;
   MPI_t_RestartData = rd.register_mpi_datatype();
 
-  std::cout << "SHOULD BE SENDING RESTART DATA TO MASTER?\n";// send rd
+  BOOST_LOG_SEV(glg, info) << "SHOULD BE SENDING RESTART DATA TO MASTER?"; // send rd
   // send a message to the master saying we are done...
   //int my_restart_data = 12345;
   MPI_Send(&rd, 1, MPI_t_RestartData, 0, PTEM_RESTARTDATA_TAG, MPI_COMM_WORLD);
-  printf("Message has been sent to master \n");
+  BOOST_LOG_SEV(glg, info) << "Message (with custom restart data type) has been sent to master!";
   
   MPI_Type_free(&MPI_t_RestartData); // not sure if this is the best place to
   // call this...seems easy to forget to
