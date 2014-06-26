@@ -171,7 +171,7 @@ extern src::severity_logger< severity_level > glg;
       
         MPI_Comm_size(MPI_COMM_WORLD, &processors);
         MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-        cout << "You are processor " << rank << " of " << processors << " available on this system.\n";
+        BOOST_LOG_SEV(glg, note) << "This is processor " << rank << " of " << processors << " available on this system.";
 
         if (processors < 2) {
           MPI_Finalize();
