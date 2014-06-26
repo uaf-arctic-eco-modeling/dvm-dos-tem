@@ -52,21 +52,24 @@ void Master::dispense_cohorts_to_slaves(const std::vector<int> &cohort_list){
     }
     work_alloc_table[rank_to_run_on].push_back(*cit);
   }
- 
-  
-  // pretty print the work allocation table
-  std::cout << "Work Allocation Table\n";
-  std::cout << "----------------------\n";
+
+  // Not really sure if this is the best way to handle this; ends up making
+  // a multi-line log statement, which may be annoying?
+  std::stringstream ss;
+  ss << "Work Allocation Table\n";
+  ss << "----------------------\n";
   for (std::vector<std::vector<int> >::iterator rit = work_alloc_table.begin(); rit != work_alloc_table.end(); ++rit) {
     int ridx = rit - work_alloc_table.begin(); // convert iterator to index
-    std::cout << "Rank " << ridx << " will run " << work_alloc_table[ridx].size() << " cohorts (";
+    ss << "Rank " << ridx << " will run " << work_alloc_table[ridx].size() << " cohorts (";
     for (std::vector<int>::iterator cit = work_alloc_table[ridx].begin(); cit != work_alloc_table[ridx].end(); ++cit) {
       int cidx = cit - work_alloc_table[ridx].begin(); // convert iterator to index
-      std::cout << work_alloc_table[ridx][cidx] << ", ";
+      ss << work_alloc_table[ridx][cidx] << ", ";
     }
-    std::cout << ")"<< std::endl;
+    ss << ")\n";
   }
-  
+
+  BOOST_LOG_SEV(glg, note) << "Showing the work allocation...\n" << ss.str();
+
   // Send cohort list to each processor.
   for (std::vector<std::vector<int> >::iterator rit = work_alloc_table.begin(); rit != work_alloc_table.end(); ++rit) {
     int ridx = rit - work_alloc_table.begin(); // convert iterator to index
@@ -74,7 +77,7 @@ void Master::dispense_cohorts_to_slaves(const std::vector<int> &cohort_list){
     std::vector<int> chtlist = *rit;
     
     if (chtlist.size() > 0) {
-      std::cout << "Sending cohort list to processor " << ridx << "...\n";
+      BOOST_LOG_SEV(glg, note) << "Sending cohort list to processor " << ridx << "...";
       MPI_Send(&chtlist[0], chtlist.size(), MPI_INT, ridx, PTEM_MSG_TAG, MPI_COMM_WORLD);
     }
   }
@@ -163,7 +166,9 @@ void Master::get_restartdata_and_progress_from_slaves(int total_num_cohorts){
         switch (incoming_req_statuses[i].MPI_TAG) {
             
           case PTEM_RESTARTDATA_TAG: {
-            std::cout << "DONE. Rank " << incoming_req_statuses[i].MPI_SOURCE << " has sent some RestartData! Need to extract it? write to a file?\n";
+            BOOST_LOG_SEV(glg, note) << "DONE. Rank "
+                                     << incoming_req_statuses[i].MPI_SOURCE
+                                     << " has sent some RestartData! Need to extract it? write to a file???";
             //PAUSE_to_attach_gdb();
             
             // make a real RestartData object from the incoming data buffer
@@ -179,31 +184,6 @@ void Master::get_restartdata_and_progress_from_slaves(int total_num_cohorts){
 //            RestartOutputer ro;
 //            ro.init(outdir, stage);
 //            ro.outputVariables(rd.chtid);
-            
-            
-            
-            
-
-//
-//            
-//            // Write out data...
-//            NcError err(NcError::verbose_nonfatal);
-//            chtidV->put_rec(recv_rd.chtid, chtcount);
-//            errcodeV->put_rec(8677768, chtcount);
-//            
-//            //atm
-//            dsrV->put_rec(&resod->dsr, chtcount);
-//            firea2sorgnV->put_rec(&resod->firea2sorgn, chtcount);
-//            
-//            //veg
-//            ysfV->put_rec(&resod->yrsdist, chtcount);
-//            
-//            ifwoodyV->put_rec(&resod->ifwoody[0], chtcount);
-//            ifdeciwoodyV->put_rec(&resod->ifdeciwoody[0], chtcount);
-//            ifperenialV->put_rec(&resod->ifperenial[0], chtcount);
-//            nonvascularV->put_rec(&resod->nonvascular[0], chtcount);
-//            vegageV->put_rec(&resod->vegage[0], chtcount);
-//            
             
             
             cht_count += 1;
@@ -238,8 +218,8 @@ void Master::get_restartdata_and_progress_from_slaves(int total_num_cohorts){
             break;
           }
           default: {
-            std::cout << "Unknown message tag?\n";
-            std::cout << "Possible Error (MPI_Status.MPI_ERROR): " << incoming_req_statuses[i].MPI_ERROR << "\n";
+            BOOST_LOG_SEV(glg, warn) << "Unknown MPI message tag??";
+            BOOST_LOG_SEV(glg, warn) << "Possible Error (MPI_Status.MPI_ERROR): " << incoming_req_statuses[i].MPI_ERROR;
             break;
           }
         }
@@ -259,7 +239,7 @@ void Master::get_restartdata_and_progress_from_slaves(int total_num_cohorts){
     write_cohort_record_to_restartnc_file(rf, cur_rd, rec);
     rec++;
   }
-  std::cout << "Just put " << rec << " records in the restart netcdf file.\n";
+  BOOST_LOG_SEV(glg, debug) << "Just wrote " << rec << " records in the restart netcdf file...";
   rf.close();
 
   MPI_Type_free(&MPI_t_RestartData); // not sure if this is the best place to
