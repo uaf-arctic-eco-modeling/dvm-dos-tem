@@ -160,8 +160,8 @@ extern src::severity_logger< severity_level > glg;
     regner.setupIDs();
 
     if (runmode.compare("regner1")==0) {
-      BOOST_LOG_SEV(glg, note) << "Running in regner1...(runmode2)";
-      regner.runmode2();
+      BOOST_LOG_SEV(glg, note) << "Running in regner1: regional_space_major(...)";
+      regner.regional_space_major();
     } else if (runmode.compare("regner2")==0){
       BOOST_LOG_SEV(glg, note) << "Running in regner2...(runmode3)";
       int rank;

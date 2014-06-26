@@ -419,7 +419,7 @@ void Runner::single_site() {
 };
 
 
-void Runner::runmode2() {
+void Runner::regional_space_major() {
   //read-in region-level data
   //  (Yuan: this is the portal for multiple region run,
   //    if needed in the future)
@@ -458,7 +458,7 @@ void Runner::runmode2() {
     error = rungrd.readData();
 
     if (error!=0) {
-      cout <<"problem in reading grided data in Runner::runmode2\n";
+      BOOST_LOG_SEV(glg, fatal) << "Problem reading grided data in Runner::regional_space_major(...)";
       exit(-1);
     }
 
@@ -466,14 +466,14 @@ void Runner::runmode2() {
     error = runcht.readData();
 
     if (error!=0) {
-      cout <<"problem in reading cohort data in Runner::runmode2\n";
+      BOOST_LOG_SEV(glg, fatal) << "Problem reading cohort data in Runner::regional_space_major(...)";
       exit(-1);
     }
 
     error = runcht.reinit();
 
     if (error!=0) {
-      BOOST_LOG_SEV(glg, fatal) << "problem re-initializing cohort in Runner::runmode2";
+      BOOST_LOG_SEV(glg, fatal) << "Problem re-initializing cohort in Runner::regional_space_major(...)";
       exit(-3);
     }
 

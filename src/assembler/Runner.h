@@ -47,7 +47,7 @@ public:
   /* three settings for running TEM */
   void single_site();  /* one site run-mode, used for stand-alone TEM
                          for any purpose */
-  void runmode2();  /* multi-site (regional) run-mode 1, i.e., time series */
+  void regional_space_major();  /* multi-site (regional) with cohorts (spatial steps) as outer loop */
   void runmode3(int processors, int rank);  /* multi-site (regional) 
                                                  run-mode 2, i.e., spatially */
   int runSpatially(const int icalyr, const int im, const int jj);
