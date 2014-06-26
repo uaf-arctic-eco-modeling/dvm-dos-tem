@@ -19,6 +19,11 @@
 #include "../util/tbc-debug-util.h"
 #include "../output/RestartOutputer.h"
 
+#include "../TEMLogger.h"
+
+extern src::severity_logger< severity_level > glg;
+
+
 /** Comparision functions for ordering RestartDatas. Called by std::sort(..).
  Probably should make this a member of RestartData.
  */
@@ -213,7 +218,13 @@ void Master::get_restartdata_and_progress_from_slaves(int total_num_cohorts){
             break;
           }
           case PTEM_MSG_TAG: {
-            std::cout << "MESSAGE from rank " << incoming_req_statuses[i].MPI_SOURCE << ". Message: " << incoming_genmsg_buffer[0] << ", "<< incoming_genmsg_buffer[1] << ", " << incoming_genmsg_buffer[2] << std::endl; // << msg;
+            BOOST_LOG_SEV(glg, info) << "MESSAGE from rank "
+                                     << incoming_req_statuses[i].MPI_SOURCE
+                                     << ". Message: "
+                                     << incoming_genmsg_buffer[0] << ", "
+                                     << incoming_genmsg_buffer[1] << ", "
+                                     << incoming_genmsg_buffer[2];
+
             /* non blocking listen for general messages */
             MPI_Irecv(&incoming_genmsg_buffer,  // where to put the shit
                       3,                         // how much of it; (yr, month, cht)
