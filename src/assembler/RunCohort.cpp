@@ -250,7 +250,7 @@ void RunCohort::run_cohortly() {
     BOOST_LOG_SEV(glg, info) << "Starting a quick pre-run to get "
                              << "reasonably-good 'env' conditions, "
                              << "which may then be good for 'eq' run...";
-    runEnvmodule(calcontroller_ptr);
+    env_only_warmup(calcontroller_ptr);
 
     if (calcontroller_ptr) {
       BOOST_LOG_SEV(glg, info) << "Pausing. Please check that the 'pre-run' data looks good.";
@@ -326,8 +326,9 @@ void RunCohort::run_cohortly() {
   resouter.outputVariables(cohortcount);
 };
 
-void RunCohort::runEnvmodule(boost::shared_ptr<CalController> calcontroller_ptr) {
-  BOOST_LOG_SEV(glg, info) << "In RunCohort::runEnvmodule, setting only envmodule on.";
+void RunCohort::env_only_warmup(boost::shared_ptr<CalController> calcontroller_ptr) {
+  BOOST_LOG_SEV(glg, info) << "In RunCohort::env_only_warmup(...)."
+                           << "Turn off all modules except env and run for 101 years.";
   //run model with "ENV module" only
   md->set_envmodule(true);
   md->set_bgcmodule(false);
@@ -338,7 +339,7 @@ void RunCohort::runEnvmodule(boost::shared_ptr<CalController> calcontroller_ptr)
   yrstart = 0;
   yrend   = 100; // This actually results in running 101 years...
   run_timeseries(calcontroller_ptr);
-  BOOST_LOG_SEV(glg, info) << "Done running env module for 101 year 'warm up'.";
+  BOOST_LOG_SEV(glg, info) << "Completed 101 year env module only 'warm up' run.";
 };
 
 

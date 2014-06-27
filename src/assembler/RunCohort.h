@@ -110,7 +110,7 @@ private :
   int mstepcnt;   //month timesteps since starting output
   int ystepcnt;   //year timesteps since starting output
 
-  void runEnvmodule(boost::shared_ptr<CalController> calcontroller_ptr);
+  void env_only_warmup(boost::shared_ptr<CalController> calcontroller_ptr);
   void run_timeseries(boost::shared_ptr<CalController> calcontroller_ptr);
 
 };
