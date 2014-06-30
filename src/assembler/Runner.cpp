@@ -804,12 +804,10 @@ int Runner::runSpatially(const int icalyr, const int im, const int jj) {
     runcht.resouter.outputVariables(jj);
   }
 
-  if(md.consoledebug) {
-    cout <<"TEM " << md.runstages
-         <<" run: year "<<icalyr
-         <<" month "<<im
-         <<" @cohort "<<runcht.cht.cd.chtid<<"\n";
-  }
+  BOOST_LOG_SEV(glg, note) << "TEM " << md.runstages << " run,"
+                           << " year: " << icalyr
+                           << " month: " << im
+                           << " cohort: "<< runcht.cht.cd.chtid;
 
   runcht.cohortcount++;
   return 0;
