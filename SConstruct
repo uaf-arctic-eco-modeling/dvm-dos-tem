@@ -144,7 +144,7 @@ elif platform_name == 'Darwin': #tobey
   platform_library_path = ['/usr/local/lib',
                            '/usr/local/Cellar/jsoncpp/0.5.0/lib']
 
-  compiler_flags = '-c -Werror -fpermissive -ansi -g -fPIC -DBOOST_ALL_DYN_LINK'
+  compiler_flags = '-Werror -fpermissive -ansi -g -fPIC -DBOOST_ALL_DYN_LINK'
 
   for lib in libs:
     if lib.startswith('boost'):
