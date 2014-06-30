@@ -92,30 +92,8 @@ extern src::severity_logger< severity_level > glg;
       BOOST_LOG_SEV(glg, note) << "Turning CalibrationMode on in Runner (siter).";
       siter.set_calibrationMode(true);
 
-      boost::filesystem::path tmp_json_folder("/tmp/cal-dvmdostem/");
-      boost::filesystem::path tmp_json_folder_yly("/tmp/year-cal-dvmdostem");
-
-      if( !(boost::filesystem::exists(tmp_json_folder_yly)) ) {
-        BOOST_LOG_SEV(glg, info) << "Creating folder: " << tmp_json_folder_yly;
-        boost::filesystem::create_directory(tmp_json_folder_yly);
-      } else {
-        BOOST_LOG_SEV(glg, info) << "Calibraiton json yearly folder already exists. ("
-                                 << tmp_json_folder << ")";
-        BOOST_LOG_SEV(glg, info) << "Deleting any exisiting calibration yearly json data.";
-        boost::filesystem::remove_all(tmp_json_folder_yly);
-        boost::filesystem::create_directory(tmp_json_folder_yly);
-      }
-
-      if( !(boost::filesystem::exists(tmp_json_folder)) ) {
-        BOOST_LOG_SEV(glg, info) << "Creating folder: " << tmp_json_folder;
-        boost::filesystem::create_directory(tmp_json_folder);
-      } else {
-        BOOST_LOG_SEV(glg, info) << "Calibraiton json folder already exists. ("
-                                 << tmp_json_folder << ")";
-        BOOST_LOG_SEV(glg, info) << "Deleting any exisiting calibration json data.";
-        boost::filesystem::remove_all(tmp_json_folder);
-        boost::filesystem::create_directory(tmp_json_folder);
-      }
+      BOOST_LOG_SEV(glg, note) << "Clearing / creating folders for storing json files.";
+      CalController::clear_and_create_json_storage();
 
     } else {
       BOOST_LOG_SEV(glg, note) << "Running in extrapolation mode.";
