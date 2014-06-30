@@ -1,7 +1,6 @@
 #include "Stefan.h"
 
 Stefan::Stefan() {
-  debugging = false;
 };
 
 Stefan::~Stefan() {

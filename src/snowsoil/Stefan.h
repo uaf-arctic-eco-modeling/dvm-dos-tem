@@ -18,7 +18,6 @@ public:
   Stefan();
   ~Stefan();
 
-  bool debugging;
   int itsumall;
 
   void setGround(Ground* grndp);

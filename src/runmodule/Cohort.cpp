@@ -32,7 +32,6 @@ void Cohort::initSubmodules() {
   // for controlling of error messaging in some subroutines
   ground.debugging = md->consoledebug;
   soilenv.tempupdator.debugging = md->consoledebug;
-  soilenv.stefan.debugging      = md->consoledebug;
   //atmosphere module pointers
   atm.setCohortData(&cd);
   atm.setEnvData(edall);
