@@ -29,8 +29,7 @@ Cohort::~Cohort() {
 
 // initialization of pointers used in modules called here
 void Cohort::initSubmodules() {
-  // for controlling of error messaging in some subroutines
-  ground.debugging = md->consoledebug;
+
   //atmosphere module pointers
   atm.setCohortData(&cd);
   atm.setEnvData(edall);
