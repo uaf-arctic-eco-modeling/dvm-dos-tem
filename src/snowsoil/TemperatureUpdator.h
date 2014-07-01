@@ -27,8 +27,6 @@ public:
   TemperatureUpdator();
   ~TemperatureUpdator();
 
-  bool debugging;
-
   int itsumall;
 
   //update temperatures for valid layers
