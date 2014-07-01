@@ -217,7 +217,8 @@ void Richards::prepareSoilNodes(Layer* currsoill, const double & draindepth) {
         effliq[ind] = fmax(0.0, currl->liq*drdzadj-effminliq[ind]);
 
         if (effliq[ind]<0. || effminliq[ind]<0. || effmaxliq[ind]<0.) {
-          BOOST_LOG_SEV(glg, warn) << "Richards::prepareSoilNodes(..) Effective liquid is less than zero!";
+          BOOST_LOG_SEV(glg, warn) << "Richards::prepareSoilNodes(..) "
+                                   << "Effective liquid is less than zero!";
         }
 
         psisat[ind] = currl->psisat;
@@ -423,7 +424,8 @@ int Richards::updateOneIteration(const double &fbaseflow) {
 
         if (amx[ind] != amx[ind] || bmx[ind] != bmx[ind] ||
             cmx[ind] != cmx[ind] || rmx[ind] != rmx[ind]) {
-          BOOST_LOG_SEV(glg, warn) << "NOT SURE WHAT IS BEING CHECKED HERE??";
+          BOOST_LOG_SEV(glg, warn) << "amx, cmx, bmx, or rmx at index "
+                                   << ind << " is NaN!";
         }
       }
     }
