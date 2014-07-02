@@ -237,7 +237,7 @@ void Cohort::initStatePar() {
 
 void Cohort::prepareAllDrivingData() {
   // climate monthly data for all atm years
-  atm.prepareMonthDrivingData();
+  atm.prep_drivingdata_onecht_all_yrsmonths();
 
   //fire driving data (if input) for all years
   if (!md->get_friderived() && !md->runeq) {

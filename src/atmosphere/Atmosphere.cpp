@@ -15,9 +15,13 @@ Atmosphere::Atmosphere() {
 Atmosphere::~Atmosphere() {
 };
 
-// calculating daily 'atm' data for all driving years - called in
-//   'RunCohort::reinit()'
-void Atmosphere::prepareMonthDrivingData() {
+/** Calculate monthly driving data.
+*
+* Calculate data and fill out 2D arrays for all years and months for a
+* single cohort.
+*/
+void Atmosphere::prep_drivingdata_onecht_all_yrsmonths() {
+
   float lat = cd->gd->lat;
 
   //ta degC, prec mm/mon, nirr w/m2, vap mbar,
