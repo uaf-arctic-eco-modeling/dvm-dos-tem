@@ -100,6 +100,9 @@ public:
   bool get_calMode();
   void set_calMode(bool new_value);
 
+  void output_caljson_yearly(int year);
+  void output_caljson_monthly(int year, int month);
+
 private :
 
   bool calMode;
