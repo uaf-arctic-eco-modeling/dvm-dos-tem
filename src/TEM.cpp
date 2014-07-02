@@ -149,20 +149,23 @@ extern src::severity_logger< severity_level > glg;
       
         MPI_Comm_size(MPI_COMM_WORLD, &processors);
         MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-        BOOST_LOG_SEV(glg, note) << "This is processor " << rank << " of " << processors << " available on this system.";
+        BOOST_LOG_SEV(glg, note) << "This is processor " << rank << " of "
+                                 << processors << " available on this system.";
 
         if (processors < 2) {
           MPI_Finalize();
-          cout << "This is a master/slave program and requires more than one "
-          << "processor to run when compiled with the WITHMPI flag.\n"
-          << "EXITING...\n";
+          BOOST_LOG_SEV(glg, fatal) << "This is a master/slave program and "
+                                    << "requires more than one processor to "
+                                    << "run when compiled with the WITHMPI "
+                                    << "flag. Quitting.";
           exit(-1);
         }
       
         // do the real work...
         regner.regional_time_major(processors, rank);
       
-        std::cout << "MADE it back from regional_time_major(...), parallel mode...\n";
+        BOOST_LOG_SEV(glg, note) << "Done with regional_time_major(...), "
+                                 << "(parallel (MPI) mode). Cleanup MPI...";
         MPI_Finalize();
       #else
         regner.regional_time_major(processors, rank);

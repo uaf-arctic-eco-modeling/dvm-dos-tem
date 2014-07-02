@@ -435,6 +435,8 @@ void Runner::regional_space_major() {
 
   for (jj=0; jj<runchtlist.size(); jj++) {
     chtid = runchtlist.at(jj);
+
+    BOOST_LOG_SEV(glg, note) << "Instantiate various data containers for new cohort...";
     // may need to clear up data containers for new cohort
     chted = EnvData();
     chtbd = BgcData();
@@ -573,7 +575,7 @@ void Runner::regional_time_major(int processors, int rank) {
         for (std::vector<int>::const_iterator cit = s.cohort_list.begin(); cit != s.cohort_list.end(); ++cit) {
           int cohort = *cit;
           
-          /* this is bass-ackwards because the slave's cohort_list stores the 
+          /* this is convoluted because the slave's cohort_list stores the 
            cohort id, but later functions require the *index* of the cohort in
            the main runchtlist...so we have to look up the index based on the 
            value... */
