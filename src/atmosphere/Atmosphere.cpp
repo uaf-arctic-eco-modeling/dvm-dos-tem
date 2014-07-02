@@ -24,47 +24,51 @@ void Atmosphere::prep_drivingdata_onecht_all_yrsmonths() {
 
   float lat = cd->gd->lat;
 
-  //ta degC, prec mm/mon, nirr w/m2, vap mbar,
-  for(int iy =0; iy<cd->act_atm_drv_yr; iy++) {
-    for (int im=0; im<12; im++) {
+  // Set various climate variables
+  // All years, and months for one cohort
+  for(int iy = 0; iy < cd->act_atm_drv_yr; iy++) {
+    for (int im = 0; im < 12; im++) {
       int iyim =iy*12+im;
-      tair[iy][im] = cd->tair[iyim];
-      prec[iy][im] = cd->prec[iyim];
-      nirr[iy][im] = cd->nirr[iyim];
+      tair[iy][im] = cd->tair[iyim];       // degC
+      prec[iy][im] = cd->prec[iyim];       // mm/month
+      nirr[iy][im] = cd->nirr[iyim];       // w/m^2
       vapo[iy][im] = cd->vapo[iyim]*=100.; // convert from mbar to pa
     }
   }
 
-  for(int iy =0; iy<cd->act_atm_drv_yr; iy++) {
-    for (int im=0; im<12; im++) {
+  // Set snow and rain member variables based on temp and precip.
+  // All years and months for a single cohort
+  for(int iy = 0; iy < cd->act_atm_drv_yr; iy++) {
+    for (int im = 0; im < 12; im++) {
       //distinguish prec as snow or rainfall
       precsplt(tair[iy][im], prec[iy][im], snow[iy][im],rain[iy][im]);
     }
   }
 
-  // prepare other variables
-  for(int iy=0; iy<cd->act_atm_drv_yr; iy++) {
-    yrsumday=0; //Yi: may 17, 2010
-
-    for(int im=0; im<12; im++) {
-      girr[iy][im]= getGIRR(lat, DINM[im]);
+  // Find GIRR, 'cloudiness', and photosystnetically active radiation
+  // Find for all years and months for one cohort
+  for(int iy = 0; iy < cd->act_atm_drv_yr; iy++) {
+    yrsumday = 0; //Yi: may 17, 2010
+    for(int im = 0; im < 12; im++) {
+      girr[iy][im] = getGIRR(lat, DINM[im]);
       cld[iy][im] = getCLDS(girr[iy][im], nirr[iy][im]);
       par[iy][im] = getPAR(cld[iy][im],  nirr[iy][im] );
     }
   }
 
-  // for normalized (mean) climate data
-  for(int im =0; im<12; im++) {
-    yrsumday=0; //Yi: may 17, 2010
-    eq_tair[im]=0.;
-    eq_prec[im]=0.;
-    eq_rain[im]=0.;
-    eq_snow[im]=0.;
-    eq_nirr[im]=0.;
-    eq_vapo[im]=0.;
+  // Find average monthly values. Used first MAX_ATM_NOM_YR years of climate
+  // data to create averages
+  for(int im = 0; im < 12; im++) {
+    yrsumday = 0; //Yi: may 17, 2010
+    eq_tair[im] = 0.0;
+    eq_prec[im] = 0.0;
+    eq_rain[im] = 0.0;
+    eq_snow[im] = 0.0;
+    eq_nirr[im] = 0.0;
+    eq_vapo[im] = 0.0;
     int max_yr = fmin(MAX_ATM_NOM_YR, cd->act_atm_drv_yr);
 
-    for(int iy=0; iy<max_yr; iy++) { //Yuan: average over the first 30 yrs atm data
+    for(int iy = 0; iy < max_yr; iy++) { //Yuan: average over the first 30 yrs atm data
       eq_tair[im] += tair[iy][im]/max_yr;
       eq_prec[im] += prec[iy][im]/max_yr;
       eq_rain[im] += rain[iy][im]/max_yr;
