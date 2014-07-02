@@ -96,7 +96,7 @@ public:
 
   void choose_run_stage_settings();
 
-  void run_monthly();
+  void advance_one_month();
   bool get_calMode();
   void set_calMode(bool new_value);
 

@@ -755,7 +755,7 @@ int Runner::runSpatially(const int icalyr, const int im, const int jj) {
   }
 
   // run one timestep (monthly)
-  runcht.run_monthly();
+  runcht.advance_one_month();
   // save the new 'restart' in the back of deque, which will move forward
   mlyres.push_back(runcht.resod);
 

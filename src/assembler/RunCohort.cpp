@@ -596,7 +596,7 @@ void RunCohort::output_caljson_monthly(int year, int month) {
 }
 
 // run one cohort at one time-step (monthly)
-void RunCohort::run_monthly() {
+void RunCohort::advance_one_month() {
   // timing
   int yrindex = cht.timer->getCurrentYearIndex();     // starting from 0
   cht.cd.year = cht.timer->getCalendarYear();
