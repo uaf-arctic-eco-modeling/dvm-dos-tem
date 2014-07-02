@@ -233,8 +233,8 @@ int RunCohort::reinit() {
 };
 
 // run one cohort for a period of time
-void RunCohort::run_cohortly() {
-  // Ends up as a null pointer if calibratiionMode is off.
+void RunCohort::choose_run_stage_settings() {
+  // Ends up as a null pointer if calibrationMode is off.
   boost::shared_ptr<CalController> calcontroller_ptr;
 
   if ( this->get_calMode() ) {
@@ -259,7 +259,7 @@ void RunCohort::run_cohortly() {
 
     //
     cht.timer->reset();
-    BOOST_LOG_SEV(glg, info) << "In run_cohortly, setting all modules to on...";
+    BOOST_LOG_SEV(glg, info) << "In Run::Cohort::choose_run_stage_settings(..), setting all modules to on...";
     md->set_envmodule(true);
     md->set_bgcmodule(true);
     md->set_dsbmodule(true);

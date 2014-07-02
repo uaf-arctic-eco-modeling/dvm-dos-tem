@@ -94,7 +94,7 @@ public:
   int readData();
   int reinit();
 
-  void run_cohortly();
+  void choose_run_stage_settings();
 
   void run_monthly();
   bool get_calMode();

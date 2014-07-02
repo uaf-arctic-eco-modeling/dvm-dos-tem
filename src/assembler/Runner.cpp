@@ -414,8 +414,8 @@ void Runner::single_site() {
     exit(-1);
   }
 
-  BOOST_LOG_SEV(glg, info) << "cohort: " << chtid << " - running!";
-  runcht.run_cohortly();
+  BOOST_LOG_SEV(glg, info) << "cohort: " << chtid << " - choosing stage settings...!";
+  runcht.choose_run_stage_settings();
 };
 
 
@@ -477,8 +477,8 @@ void Runner::regional_space_major() {
       exit(-3);
     }
 
-    cout<<"cohort: "<<chtid<<" - running! \n";
-    runcht.run_cohortly();
+    BOOST_LOG_SEV(glg, info) << "cohort: " << chtid << " - choosing stage settings...!";
+    runcht.choose_run_stage_settings();
     runcht.cohortcount++;
   }
 };
