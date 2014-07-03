@@ -543,13 +543,17 @@ void Runner::regional_time_major(int processors, int rank) {
   int totcohort = (int)runchtlist.size();
 
 #ifdef WITHMPI
-  if (rank == 0) {
+  if (1 == processors) {
+    BOOST_LOG_SEV(glg, err) << "Not currently able to run in this mode on a "
+                            << "computer with a single processor. Quitting.";
+    exit(-1);
+  } else if (rank == 0) {
     Master m = Master(rank, processors);
 
     m.dispense_cohorts_to_slaves(runchtlist);
     
     m.get_restartdata_and_progress_from_slaves(totcohort);
-    
+
     /*
     std::vector<int> completed_cohorts;
     do {
