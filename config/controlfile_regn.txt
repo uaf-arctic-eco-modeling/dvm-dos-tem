@@ -6,7 +6,7 @@
   },
 
   "data_directories": {
-    "run_cohort_list": "DATA/test_06_cohorts/datacht/runchtlist.nc",
+    "run_cohort_list": "DATA/test_06_cohorts/runchtlist.nc",
     "output_data_dir": "DATA/test_06_cohorts/output/",
     "region_data_dir": "DATA/test_06_cohorts/dataregion/",
     "grid_data_dir":   "DATA/test_06_cohorts/datagrid/",
@@ -20,9 +20,9 @@
   },
 
   "model_settings": {
-    "dynamic_climate": 0,  // using dynamical climate data (1) or not (-1) or default (0: upon to stage)
-    "varied_co2": 0,       // using varied co2  (1) or not (-1) or default (0: upon to stage)
-    "dynamic_lai": 1,               // using dynamical LAI from veg. C in model (1), or otherwise from input (0) 
+    "dynamic_climate": 0,  // 1 or -1 or default (0: upon to stage)
+    "varied_co2": 0,       // 1 or -1  or default (0: upon to stage)
+    "dynamic_lai": 1,               // from veg. C in model (1), or otherwise from input (0) 
     "fire_severity_as_input": 0,    // using fire severity as input (1), or otherwise derived from fire size/fire season/
     "output_starting_year": -9999  // '-9999' for starting model running after 'eq'
   },
