@@ -58,15 +58,16 @@ int main(int argc, char* argv[]){
 extern src::severity_logger< severity_level > glg;
 
   args->parse(argc, argv);
-	if (args->getHelp()){
-		args->showHelp();
+	if (args->get_help()){
+		args->show_help();
 		return 0;
 	}
+  std::cout << "Checking command line arguments...\n";
   args->verify();
 
   std::cout << "Setting up logging...\n";
 
-  setup_logging(args->getLogLevel());
+  setup_logging(args->get_log_level());
 
   setvbuf(stdout, NULL, _IONBF, 0);
   setvbuf(stderr, NULL, _IONBF, 0);
@@ -78,9 +79,6 @@ extern src::severity_logger< severity_level > glg;
     BOOST_LOG_SEV(glg, note) << "Running dvm-dos-tem in siterun mode. Start @ " 
                              << ctime(&stime);
 
-    string controlfile = args->getCtrlfile();
-    string chtid = args->getChtid();
-
     Runner siter;
 
     // Not working yet. Need to figure out if it is even possible to
@@ -88,7 +86,7 @@ extern src::severity_logger< severity_level > glg;
     // in all the different run stages.
     //siter.modeldata_module_settings_from_args(*args);
     
-    if (args->getCalibrationMode() == "on") {
+    if (args->get_cal_mode()) {
       BOOST_LOG_SEV(glg, note) << "Turning CalibrationMode on in Runner (siter).";
       siter.set_calibrationMode(true);
 
@@ -99,9 +97,9 @@ extern src::severity_logger< severity_level > glg;
       BOOST_LOG_SEV(glg, note) << "Running in extrapolation mode.";
     }
 
-    siter.chtid = atoi(chtid.c_str());
+    siter.chtid = args->get_cohort_id();
 
-    siter.initInput(controlfile, "siter");
+    siter.initInput(args->get_ctrl_file(), args->get_loop_order());
 
     siter.initOutput();
 
@@ -124,12 +122,9 @@ extern src::severity_logger< severity_level > glg;
     BOOST_LOG_SEV(glg, note) << "Running dvm-dos-tem in regional mode. Start @ "
                               << ctime(&stime);
 
-    string controlfile = args->getCtrlfile();
-    string runmode = args->getRegrunmode();
-
     Runner regner;
 
-    regner.initInput(controlfile, runmode);
+    regner.initInput(args->get_ctrl_file(), args->get_loop_order());
 
     regner.initOutput();
 
@@ -137,11 +132,11 @@ extern src::severity_logger< severity_level > glg;
 
     regner.setupIDs();
 
-    if (runmode.compare("regner1")==0) {
-      BOOST_LOG_SEV(glg, note) << "Running in regner1: regional_space_major(...)";
+    if (args->get_loop_order().compare("space-major") == 0) {
+      BOOST_LOG_SEV(glg, note) << "Running SPACE-MAJOR order: for each cohort, for each year";
       regner.regional_space_major();
-    } else if (runmode.compare("regner2")==0){
-      BOOST_LOG_SEV(glg, note) << "Running in regner2: regional_time_major(...)";
+    } else if (args->get_loop_order().compare("time-major") == 0){
+      BOOST_LOG_SEV(glg, note) << "Running TIME-MAJOR: for each year, for each cohort";
       int rank;
       int processors;
       #ifdef WITHMPI
@@ -172,8 +167,8 @@ extern src::severity_logger< severity_level > glg;
         regner.regional_time_major(processors, rank);
       #endif
     } else {
-      BOOST_LOG_SEV(glg, fatal) << "Invalid runmode...quitting.";
-      BOOST_LOG_SEV(glg, fatal) << "EITHER 'regner1', or 'regner2'!";
+      BOOST_LOG_SEV(glg, fatal) << "Invalid loop-order! Must be " 
+                                << "'space-major', or 'time-major'. Quitting...";
       exit(-1);
     }
 
