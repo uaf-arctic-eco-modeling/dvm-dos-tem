@@ -138,11 +138,9 @@ if platform_name == 'Linux': #rar, tobey VM, Colin, Vijay, Helene VM(?)
 
 elif platform_name == 'Darwin': #tobey
   #need specific mpi include path. Should automate at some point...
-  platform_include_path = ['/usr/local/include',
-                           '/usr/local/Cellar/jsoncpp/0.5.0/include']
+  platform_include_path = ['/usr/local/include']
 
-  platform_library_path = ['/usr/local/lib',
-                           '/usr/local/Cellar/jsoncpp/0.5.0/lib']
+  platform_library_path = ['/usr/local/lib']
 
   compiler_flags = '-Werror -fpermissive -ansi -g -fPIC -DBOOST_ALL_DYN_LINK'
 
