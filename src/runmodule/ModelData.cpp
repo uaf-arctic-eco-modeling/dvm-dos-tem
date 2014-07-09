@@ -26,7 +26,6 @@ std::string table_row(int w, std::string d, bool v) {
 
 
 ModelData::ModelData() {
-  consoledebug = true;
   runmode = "single";
   runeq = false;
   runsp = false;

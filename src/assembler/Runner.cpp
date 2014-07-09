@@ -84,11 +84,6 @@ void Runner::initInput(const string &controlfile, const string &loop_order) {
     }
   }
 
-//  // Can get rid of this?
-//  if (md.runmode!=1) {
-//    md.consoledebug=false;
-//  }
-
   BOOST_LOG_SEV(glg, debug) << "Done reading in the config file. twiddling some settings...";
   md.checking4run();
   // timer initialization
