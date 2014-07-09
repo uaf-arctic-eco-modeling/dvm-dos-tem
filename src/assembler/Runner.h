@@ -23,7 +23,6 @@
 #include "RunGrid.h"
 #include "RunCohort.h"
 
-#include "../runmodule/Controller.h"
 #include "../runmodule/ModelData.h"
 #include "../ArgHandler.h"
 

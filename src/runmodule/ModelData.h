@@ -20,7 +20,6 @@ public:
   string runmode;    // 'single' or 'multi' site
   string loop_order; // time-major or space-major
 
-  // the following are from Controller.cpp (reading from '????control.txt')
   bool runeq;
   bool runsp;
   bool runtr;

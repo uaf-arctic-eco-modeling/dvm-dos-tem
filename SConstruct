@@ -88,7 +88,6 @@ src_files = Split("""src/TEM.cpp
                      src/output/RegnOutputer.cpp
                      src/output/RestartOutputer.cpp
                      src/runmodule/Cohort.cpp
-                     src/runmodule/Controller.cpp
                      src/runmodule/Grid.cpp
                      src/runmodule/Integrator.cpp
                      src/runmodule/ModelData.cpp

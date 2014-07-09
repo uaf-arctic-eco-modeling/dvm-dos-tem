@@ -59,7 +59,6 @@ bool Runner::get_calibrationMode() {
 }
 
 void Runner::initInput(const string &controlfile, const string &loop_order) {
-  // Input and processing for reading parameters and passing them to controller
 
   // Read controlfile. Sets a bunch of data in the ModelData pointer
   // For this context, we need to make sure the md.runmode is set.
