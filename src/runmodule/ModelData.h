@@ -17,7 +17,8 @@ public:
   int myid; // these two are for parallel model run (NOT USED)
   int numprocs;
 
-  int runmode; //1: site; 2: region - time-series; 3: region - spatially
+  string runmode;    // 'single' or 'multi' site
+  string loop_order; // time-major or space-major
   bool consoledebug; // more info will display when running
 
   // the following are from Controller.cpp (reading from '????control.txt')

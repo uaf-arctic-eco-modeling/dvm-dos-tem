@@ -176,7 +176,7 @@ void Cohort::initStatePar() {
 
     // reset the soil texture data from grid-level soil.nc, rather than 'chtlu',
     // Note that the mineral layer structure is already defined above
-    if (md->runmode==2 || md->runmode==3) { //region-TEM runmode
+    if (md->runmode.compare("multi") == 0) {
       float z=0;
 
       for (int i=0; i<ground.mineral.num; i++) {

@@ -1,11 +1,12 @@
 #include <string>
-
+#include <fstream>
+#include <cerrno>
 #include <algorithm>
+
+#include <json/reader.h>
 #include <mpi.h>
 
 #include "Runner.h"
-
-
 
 #include "../TEMLogger.h"
 #include "../parallel-code/Master.h"
@@ -14,6 +15,22 @@
 #include "../util/tbc-debug-util.h"
 
 extern src::severity_logger< severity_level > glg;
+
+std::string get_file_contents(const char *filename)
+{
+  std::ifstream in(filename, std::ios::in | std::ios::binary);
+  if (in)
+  {
+    std::string contents;
+    in.seekg(0, std::ios::end);
+    contents.resize(in.tellg());
+    in.seekg(0, std::ios::beg);
+    in.read(&contents[0], contents.size());
+    in.close();
+    return(contents);
+  }
+  throw(errno);
+}
 
 Runner::Runner(): calibrationMode(false) {
   chtid = -1;
@@ -25,9 +42,9 @@ Runner::~Runner() {
 };
 
 void Runner::modeldata_module_settings_from_args(const ArgHandler &args) {
-  this->md.set_envmodule(args.getEnv());
-  this->md.set_bgcmodule(args.getBgc());
-  this->md.set_dvmmodule(args.getDvm());
+//  this->md.set_envmodule(args.getEnv());
+//  this->md.set_bgcmodule(args.getBgc());
+//  this->md.set_dvmmodule(args.getDvm());
 }
 
 void Runner::set_calibrationMode(bool new_setting) {
@@ -41,30 +58,38 @@ bool Runner::get_calibrationMode() {
   return this->calibrationMode;
 }
 
+void Runner::initInput(const string &controlfile, const string &loop_order) {
+  // Input and processing for reading parameters and passing them to controller
 
-void Runner::initInput(const string &controlfile, const string &runmode) {
-  //Input and processing for reading parameters and passing them to controller
-  configin.controlfile=controlfile;
+  // Read controlfile. Sets a bunch of data in the ModelData pointer
+  // For this context, we need to make sure the md.runmode is set.
 
-  if (runmode.compare("siter")==0) {
-    md.runmode = 1;
-  } else if (runmode.compare("regner1")==0) {
-    md.runmode = 2;                            //regional run - time-series
-  } else if (runmode.compare("regner2")==0) {
-    md.runmode = 3;                            //regional run - spatially
-  } else {
-    BOOST_LOG_SEV(glg, fatal) << "runmode: " << runmode
-                              << ". TEM runmode must be one of "
-                              << "siter, regner1, or regner2. ";
-    exit(-1);
+  this->parse_control_file(controlfile);
+
+  BOOST_LOG_SEV(glg, debug) << "Done with the parse_control_file(..) function..";
+
+  if (md.runmode.compare("single") == 0) {
+    BOOST_LOG_SEV(glg, debug) << "In single site mode...no loop orders to set? Nothing to do?";
+  } else if (md.runmode.compare("multi") == 0) {
+    BOOST_LOG_SEV(glg, debug) << "In multi-site mode, gotta set the loop order!";
+    if (loop_order.compare("time-major") == 0) {
+      md.loop_order = "time-major";
+    } else if (loop_order.compare("space-major") == 0){
+      md.loop_order = "space-major";
+    } else {
+      BOOST_LOG_SEV(glg, fatal) << "Invalid runmode and loop-order combo: "
+                                << runmode << ", " << loop_order << ". "
+                                << "(controls time vs space major and single vs multi site runs)";
+      exit(-1);
+    }
   }
 
-  //
-  if (md.runmode!=1) {
-    md.consoledebug=false;
-  }
+//  // Can get rid of this?
+//  if (md.runmode!=1) {
+//    md.consoledebug=false;
+//  }
 
-  configin.ctrl4run(&md); //read in model configure info from "config/controlfile_site.txt"
+  BOOST_LOG_SEV(glg, debug) << "Done reading in the config file. twiddling some settings...";
   md.checking4run();
   // timer initialization
   timer.setModeldata(&md);
@@ -79,12 +104,17 @@ void Runner::initInput(const string &controlfile, const string &runmode) {
   error = runcht.cinputer.init(); //checking data file
   runchtlist.clear();
 
-  if (md.runmode==2 || md.runmode==3) {
+  if (md.runmode.compare("multi") == 0) {
+    BOOST_LOG_SEV(glg, info) << "Multi-site running mode! Creating the cohort list...";
     createCohortList4Run(); // the running cohort list, if multple-cohort run mode on
-  } else if (md.runmode==1) {
-    BOOST_LOG_SEV(glg, warn) << "CHTID and INITCHTID are " << chtid;
-    BOOST_LOG_SEV(glg, warn) << "Be sure they exist and are consistent in 'cohortid.nc'";
+  } else if (md.runmode.compare("single") == 0) {
+    BOOST_LOG_SEV(glg, warn) << "Single-site running mode! CHTID and INITCHTID "
+                             << "are " << chtid << ". Be sure they exist and "
+                             << "are consistent in 'cohortid.nc'!";
     runchtlist.push_back(chtid);
+  } else {
+    BOOST_LOG_SEV(glg, fatal) << "INVALID ModelData.runmode!: " << md.runmode;
+    exit(-1);
   }
 
   //initial conditions
@@ -113,7 +143,7 @@ void Runner::initOutput() {
   string stage = "-"+md.runstages;
 
   // 1)for general outputs
-  if (md.runmode==1) {   //very detailed output for ONE cohort ONLY
+  if (md.runmode.compare("single") == 0) {   //very detailed output for ONE cohort ONLY
     string dimfname ="";
     string envfname ="";
     string bgcfname ="";
@@ -140,7 +170,7 @@ void Runner::initOutput() {
       bgcfname = md.outputdir+"cmtbgc_yly"+stage+".nc";
       runcht.bgcylyouter.init(bgcfname); // set netcdf files for output
     }
-  } else if ((md.runmode==2 || md.runmode==3) && (!md.runeq)) {
+  } else if (md.runmode.compare("multi") && (!md.runeq)) {
     // output options (switches)
     md.outRegn      = true;
     md.outSiteYear  = false;
@@ -896,4 +926,58 @@ void Runner::createOutvarList(string & txtfile) {
 
   fctr.close();
 };
+
+void Runner::parse_control_file(const string &config_doc) {
+
+  BOOST_LOG_SEV(glg, debug) << "Read the control file ('" << config_doc << "') into a string...";
+
+  std::string jsondata = get_file_contents(config_doc.c_str());
+
+  BOOST_LOG_SEV(glg, debug) << "DONE reading control file into string.";
+  //BOOST_LOG_SEV(glg, debug) << jsondata;
+
+  BOOST_LOG_SEV(glg, debug) << "Creating Json Value and Reader objects...";
+  Json::Value root;   // will contain the root value after parsing
+  Json::Reader reader;
+
+  BOOST_LOG_SEV(glg, debug) << "Trying to parse the json data string...";
+  bool parsingSuccessful = reader.parse( jsondata, root );
+  BOOST_LOG_SEV(glg, debug) << "Was parsing successful?: " << parsingSuccessful;
+
+  if ( !parsingSuccessful ) {
+      BOOST_LOG_SEV(glg, fatal) << "Failed to parse configuration file: '"
+                                << config_doc << "'! "
+                                << reader.getFormatedErrorMessages();
+      exit(-1);
+  }
+
+  BOOST_LOG_SEV(glg, debug) << "Grab data from json and assign to ModelData members..";
+  md.casename = root["general"]["run_name"].asString();
+  md.configdir = root["general"]["config_dir"].asString();
+  md.runmode = root["general"]["runmode"].asString();
+
+  md.runchtfile = root["data_directories"]["run_cohort_list"].asString();
+  md.outputdir = root["data_directories"]["output_data_dir"].asString();
+  md.reginputdir = root["data_directories"]["region_data_dir"].asString();
+  md.grdinputdir = root["data_directories"]["grid_data_dir"].asString();
+  md.chtinputdir = root["data_directories"]["cohort_data_dir"].asString();
+
+  md.runstages = root["stage_settings"]["run_stage"].asString();
+  md.initmodes = root["stage_settings"]["restart_mode"].asString();
+  md.initialfile = root["stage_settings"]["restart_file"].asString();
+
+  md.changeclimate = root["model_settings"]["dynamic_climate"].asInt();
+  md.changeco2 = root["model_settings"]["varied_co2"].asInt();
+  md.updatelai = root["model_settings"]["dynamic_lai"].asInt();
+  md.useseverity = root["model_settings"]["fire_severity_as_input"].asInt();
+  md.outstartyr = root["model_settings"]["output_starting_year"].asInt();
+
+  md.outSiteDay = root["output_switches"]["daily_output"].asInt();
+  md.outSiteMonth = root["output_switches"]["monthly_output"].asInt();
+  md.outSiteYear = root["output_switches"]["yearly_output"].asInt();
+  md.outRegn = root["output_switches"]["summarized_output"].asInt();
+  md.outSiteDay = root["output_switches"]["soil_climate_output"].asInt();
+  BOOST_LOG_SEV(glg, debug) << "DONE assigning ModeData members from json.";
+
+}
 

@@ -40,6 +40,8 @@ public:
   /* general initialization */
   void initInput(const string &controlfile, const string &runmode);
 
+  void parse_control_file(const string &controlfile);
+
   void initOutput();
   void setupData();
   void setupIDs();
@@ -84,13 +86,13 @@ public:
 private:
   bool calibrationMode;
 
+  std::string runmode;
+  std::string loop_order;
+
   //TEM domains (hiarchy)
   RunRegion runreg;
   RunGrid rungrd;
   RunCohort runcht;
-
-  //Inputer
-  Controller configin;
 
   //data classes
   ModelData md;     /* model controls, options, switches and so on */
