@@ -136,9 +136,8 @@ if platform_name == 'Linux': #rar, tobey VM, Colin, Vijay, Helene VM(?)
 
 
 elif platform_name == 'Darwin': #tobey
-  #need specific mpi include path. Should automate at some point...
-  platform_include_path = ['/usr/local/include']
 
+  platform_include_path = ['/usr/local/include']
   platform_library_path = ['/usr/local/lib']
 
   compiler_flags = '-Werror -fpermissive -ansi -g -fPIC -DBOOST_ALL_DYN_LINK'
@@ -149,9 +148,12 @@ elif platform_name == 'Darwin': #tobey
     else:
       platform_libs.append(lib);
 
-  # fix json library name
+  # statically link jsoncpp
+  # apparently the shared library version of jsoncpp has some bugs.
+  # See the note at the top of the SConstruct file:
+  # https://github.com/jacobsa/jsoncpp/blob/master/SConstruct
   platform_libs[:] = [lib for lib in platform_libs if not lib == 'jsoncpp']
-  platform_libs.append('json')
+  platform_libs.append(File('/usr/local/lib/libjson.a'))
 
   # no profiler at this time
   platform_libs[:] = [lib for lib in platform_libs if not lib == 'profiler']
