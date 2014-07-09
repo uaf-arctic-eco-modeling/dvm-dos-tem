@@ -38,9 +38,6 @@ public:
 
   /* general initialization */
   void initInput(const string &controlfile, const string &runmode);
-
-  void parse_control_file(const string &controlfile);
-
   void initOutput();
   void setupData();
   void setupIDs();

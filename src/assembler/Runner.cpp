@@ -1,9 +1,6 @@
 #include <string>
-#include <fstream>
-#include <cerrno>
 #include <algorithm>
 
-#include <json/reader.h>
 #include <mpi.h>
 
 #include "Runner.h"
@@ -15,22 +12,6 @@
 #include "../util/tbc-debug-util.h"
 
 extern src::severity_logger< severity_level > glg;
-
-std::string get_file_contents(const char *filename)
-{
-  std::ifstream in(filename, std::ios::in | std::ios::binary);
-  if (in)
-  {
-    std::string contents;
-    in.seekg(0, std::ios::end);
-    contents.resize(in.tellg());
-    in.seekg(0, std::ios::beg);
-    in.read(&contents[0], contents.size());
-    in.close();
-    return(contents);
-  }
-  throw(errno);
-}
 
 Runner::Runner(): calibrationMode(false) {
   chtid = -1;
@@ -61,9 +42,7 @@ bool Runner::get_calibrationMode() {
 void Runner::initInput(const string &controlfile, const string &loop_order) {
 
   // Read controlfile. Sets a bunch of data in the ModelData pointer
-  // For this context, we need to make sure the md.runmode is set.
-
-  this->parse_control_file(controlfile);
+  md.updateFromControlFile(controlfile);
 
   BOOST_LOG_SEV(glg, debug) << "Done with the parse_control_file(..) function..";
 
@@ -920,58 +899,4 @@ void Runner::createOutvarList(string & txtfile) {
 
   fctr.close();
 };
-
-void Runner::parse_control_file(const string &config_doc) {
-
-  BOOST_LOG_SEV(glg, debug) << "Read the control file ('" << config_doc << "') into a string...";
-
-  std::string jsondata = get_file_contents(config_doc.c_str());
-
-  BOOST_LOG_SEV(glg, debug) << "DONE reading control file into string.";
-  //BOOST_LOG_SEV(glg, debug) << jsondata;
-
-  BOOST_LOG_SEV(glg, debug) << "Creating Json Value and Reader objects...";
-  Json::Value root;   // will contain the root value after parsing
-  Json::Reader reader;
-
-  BOOST_LOG_SEV(glg, debug) << "Trying to parse the json data string...";
-  bool parsingSuccessful = reader.parse( jsondata, root );
-  BOOST_LOG_SEV(glg, debug) << "Was parsing successful?: " << parsingSuccessful;
-
-  if ( !parsingSuccessful ) {
-      BOOST_LOG_SEV(glg, fatal) << "Failed to parse configuration file: '"
-                                << config_doc << "'! "
-                                << reader.getFormatedErrorMessages();
-      exit(-1);
-  }
-
-  BOOST_LOG_SEV(glg, debug) << "Grab data from json and assign to ModelData members..";
-  md.casename = root["general"]["run_name"].asString();
-  md.configdir = root["general"]["config_dir"].asString();
-  md.runmode = root["general"]["runmode"].asString();
-
-  md.runchtfile = root["data_directories"]["run_cohort_list"].asString();
-  md.outputdir = root["data_directories"]["output_data_dir"].asString();
-  md.reginputdir = root["data_directories"]["region_data_dir"].asString();
-  md.grdinputdir = root["data_directories"]["grid_data_dir"].asString();
-  md.chtinputdir = root["data_directories"]["cohort_data_dir"].asString();
-
-  md.runstages = root["stage_settings"]["run_stage"].asString();
-  md.initmodes = root["stage_settings"]["restart_mode"].asString();
-  md.initialfile = root["stage_settings"]["restart_file"].asString();
-
-  md.changeclimate = root["model_settings"]["dynamic_climate"].asInt();
-  md.changeco2 = root["model_settings"]["varied_co2"].asInt();
-  md.updatelai = root["model_settings"]["dynamic_lai"].asInt();
-  md.useseverity = root["model_settings"]["fire_severity_as_input"].asInt();
-  md.outstartyr = root["model_settings"]["output_starting_year"].asInt();
-
-  md.outSiteDay = root["output_switches"]["daily_output"].asInt();
-  md.outSiteMonth = root["output_switches"]["monthly_output"].asInt();
-  md.outSiteYear = root["output_switches"]["yearly_output"].asInt();
-  md.outRegn = root["output_switches"]["summarized_output"].asInt();
-  md.outSiteDay = root["output_switches"]["soil_climate_output"].asInt();
-  BOOST_LOG_SEV(glg, debug) << "DONE assigning ModeData members from json.";
-
-}
 

@@ -70,6 +70,9 @@ public:
   int act_fireno; // fire data in fireid-yearset (2D)
   int act_fireset;
 
+
+  void updateFromControlFile(const std::string& cf);
+
   //
   void checking4run();
 
