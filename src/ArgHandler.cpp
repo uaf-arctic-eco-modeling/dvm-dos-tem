@@ -5,125 +5,75 @@ ArgHandler::ArgHandler() {
 }
 void ArgHandler::parse(int argc, char** argv) {
 	desc.add_options()
+    ("mode,m", boost::program_options::value<std::string>(&mode),
+    "siterun or regnrun"
+    )
 
-    /*
-    --env [ on | off ]
-    --bgc [ on | off ]
-    --dvm [ on | off ]
-    --dsl [ on | off ]
-    --dsb [ on | off ]
-    --friderived  [ on | off ]
-    */
-    // NOT IMPLEMENTED YET - need to sort out some issues
-    // ("env", boost::program_options::value<string>(&env)->default_value("on"),
-    //   "Turn the environmental module on or off."
-    // )
-    // ("bgc", boost::program_options::value<string>(&bgc)->default_value("on"),
-    //   "Turn the biogeochemical module on or off."
-    // )
-    // ("dvm", boost::program_options::value<string>(&dvm)->default_value("on"),
-    //   "Turn the dynamic vegetation module on or off."
-    // )
-    
-    ("calibrationmode", boost::program_options::value<string>(&calibrationmode)->default_value("off"),
-     "(NOT IMPLEMENTED) whether or not the calibration module is on...? "
-     "list of strings for modules to calibrate?"
+    ("cal-mode,c", boost::program_options::bool_switch(&cal_mode),
+     "Switch for calibration mode. When this flag is preset, the program will "
+     "be forced to run a single site and with --loop-order=space-major. The "
+     "program will generate yearly and monthly '.json' files in your /tmp "
+     " directory that are intended to be read by other programs or scripts.")
+
+    ("loop-order,o",
+     boost::program_options::value<std::string>(&loop_order)
+       ->default_value("space-major"),
+     "Which control loop is on the outside: 'space-major' or 'time-major'. For "
+     "example 'space-major' means 'for each cohort, for each year'.")
+
+    ("ctrl-file,f",
+     boost::program_options::value<std::string>(&ctrl_file)
+       ->default_value("config/controlfile_site.txt"),
+     "choose a control file to use")
+
+    ("log-level,l",
+     boost::program_options::value<std::string>(&log_level)
+       ->default_value("warn"),
+     "Control the verbositiy of the console log statements. Choose one of "
+     "the following: debug, info, note, warn, err, fatal."
     )
-    ("loglevel,l", boost::program_options::value<string>(&loglevel)->default_value("fatal"), 
-     "the level above which all log messages will be printed. Here are the "
-     "choices: debug, info, note warn, err, fatal."
-    )
-		("mode,m", boost::program_options::value<string>(&mode)->default_value("siterun"),"change mode between siterun, regnrun, or parallel")
-		("control-file,f", boost::program_options::value<string>(&ctrlfile)->default_value("config/controlfile_site.txt"), "choose a control file to use")
-		("cohort-id,c", boost::program_options::value<string>(&chtid)->default_value("1"), "choose a specific cohort to run")
-		("space-time-config,s", boost::program_options::value<string>(), "choose spatial or temporal running mode")
-		("help,h", "produces helps message, then quits")
-		("version,v", "(NOT IMPLEMENTED)show the version information")
-		("debug,d", "(NOT IMPLEMENTED) enable debug mode")
+
+    ("cohort-id,n",
+     boost::program_options::value<int>(&cohort_id)
+       ->default_value(1),
+     "choose a specific cohort to run. TODO: must be a number?? must be in runchtlist.nc?? implies single-site?? Allows slicing? or other specification of more than one cohort?")
+
+    ("help,h",
+     boost::program_options::bool_switch(&help),
+     "produces helps message, then quits")
+
+//    ("foo,f",
+//     po::value<std::std::string>()
+//       ->implicit_value("")
+//       ->zero_tokens()
+//       ->notifier(&got_foo),
+//     "foo description")
+
 	;
 
-	boost::program_options::store(boost::program_options::parse_command_line(argc, argv, desc), varmap);
+	boost::program_options::store(
+      boost::program_options::parse_command_line(argc, argv, desc), varmap);
+
 	boost::program_options::notify(varmap);
 
-  if (varmap.count("env")) {
-    env = varmap["env"].as<string>();
-  }
-  if (varmap.count("bgc")) {
-    bgc = varmap["bgc"].as<string>();
-  }
-  if (varmap.count("dvm")) {
-    dvm = varmap["dvm"].as<string>();
-  }
-  
-	if (varmap.count("cohort-id")) {
-		chtid = varmap["cohort-id"].as<string>();
-	}
-	
-	if (varmap.count("space-time-config")) {
-		regrunmode = varmap["space-time-config"].as<string>();
-	}
-
-	if (varmap.count("help")) {
-		help = true;
-	}
-
-	if (varmap.count("version")) {
-		version = true;
-	}
-
-	if (varmap.count("debug")) {
-		debug = true;
-	}
 }
 
 void ArgHandler::verify() {
   // The regional "run mode"...loop order??
   std::cout << "Verification reuimentary - needs more programming help!\n";
-  if (mode.compare("regnrun") == 0) {
-    if ( (regrunmode.compare("regner1") == 0) || 
-        (regrunmode.compare("regner2") == 0) ) {
+  if (mode.compare("cal-mode") == 0) {
+    if ( true ) {
       // pass, all ok
     } else {
-      std::cout << "Invalid option (regrunmode). Quitting.\n";
+      std::cout << "Invalid option. Quitting.\n";
       exit(-1);
     }
   }  
 }
 
-string ArgHandler::getEnv() const {
-  return env;
-}
-string ArgHandler::getBgc() const {
-  return bgc;
-}
-string ArgHandler::getDvm() const {
-  return dvm;
-}
-string ArgHandler::getCalibrationMode(){
-  return calibrationmode;
-}
-string ArgHandler::getLogLevel(){
-	return loglevel;
-}
-string ArgHandler::getMode(){
-	return mode;
-}
 
-string ArgHandler::getCtrlfile(){
-	return ctrlfile;
-}
-
-string ArgHandler::getChtid(){
-	return chtid;
-}
-
-string ArgHandler::getRegrunmode(){
-	return regrunmode;
-}
-
-void ArgHandler::showHelp(){
-/**
- * Print out command help
+/** Print out command help.
  */
+void ArgHandler::show_help(){
 	std::cout << desc << std::endl;
 }
