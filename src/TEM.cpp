@@ -43,10 +43,13 @@
 #include <boost/bind.hpp>
 #include <boost/asio.hpp>
 
+#include <json/value.h>
+
 #include <mpi.h>
 
 #include "ArgHandler.h"
 #include "TEMLogger.h"
+#include "TEMUtilityFunctions.h"
 #include "assembler/Runner.h"
 
 #include "data/RestartData.h" // for defining MPI typemap...
@@ -69,10 +72,14 @@ extern src::severity_logger< severity_level > glg;
 
   setup_logging(args->get_log_level());
 
+  BOOST_LOG_SEV(glg, note) << "Reading controlfile to determine if this is a site or regional run...";
+  Json::Value controldata = temutil::parse_control_file(args->get_ctrl_file());
+  
+
   setvbuf(stdout, NULL, _IONBF, 0);
   setvbuf(stderr, NULL, _IONBF, 0);
 
-  if (args->getMode() == "siterun") {
+  if (controldata["general"]["runmode"].asString() == "single") {
     time_t stime;
     time_t etime;
     stime=time(0);
@@ -114,7 +121,7 @@ extern src::severity_logger< severity_level > glg;
                              << ctime(&etime);
     BOOST_LOG_SEV(glg, info) << "Total Seconds: " << difftime(etime, stime);                              
 
-  } else if (args->getMode() == "regnrun") {
+  } else if (controldata["general"]["runmode"].asString() == "multi") {
 
     time_t stime;
     time_t etime;
@@ -176,6 +183,8 @@ extern src::severity_logger< severity_level > glg;
     BOOST_LOG_SEV(glg, note) << "Done running dvm-dos-tem regionally " 
                               << "(" << ctime(&etime) << ").";
     BOOST_LOG_SEV(glg, note) << "total seconds: " << difftime(etime, stime);
+  } else {
+    BOOST_LOG_SEV(glg, err) << "Unrecognized mode from control file? Quitting.";
   }
   return 0;
 };

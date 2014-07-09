@@ -5,9 +5,6 @@ ArgHandler::ArgHandler() {
 }
 void ArgHandler::parse(int argc, char** argv) {
 	desc.add_options()
-    ("mode,m", boost::program_options::value<std::string>(&mode),
-    "siterun or regnrun"
-    )
 
     ("cal-mode,c", boost::program_options::bool_switch(&cal_mode),
      "Switch for calibration mode. When this flag is preset, the program will "

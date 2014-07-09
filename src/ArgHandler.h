@@ -33,8 +33,6 @@ public:
 	inline const std::string get_ctrl_file(){return ctrl_file;};
 	inline const int get_cohort_id(){return cohort_id;};
 
-  inline const std::string getMode(){return mode;};
-
   inline const std::string get_log_level(){return log_level;};
 	inline const bool get_help(){return help;};
 };
