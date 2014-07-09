@@ -83,19 +83,19 @@ extern src::severity_logger< severity_level > glg;
     time_t stime;
     time_t etime;
     stime=time(0);
-    BOOST_LOG_SEV(glg, note) << "Running dvm-dos-tem in siterun mode. Start @ " 
+    BOOST_LOG_SEV(glg, note) << "Running dvm-dos-tem in single site mode. Start @ " 
                              << ctime(&stime);
 
-    Runner siter;
+    Runner runner;
 
     // Not working yet. Need to figure out if it is even possible to
     // control modules from the command line? and if so how this should working
     // in all the different run stages.
-    //siter.modeldata_module_settings_from_args(*args);
+    //runner.modeldata_module_settings_from_args(*args);
     
     if (args->get_cal_mode()) {
-      BOOST_LOG_SEV(glg, note) << "Turning CalibrationMode on in Runner (siter).";
-      siter.set_calibrationMode(true);
+      BOOST_LOG_SEV(glg, note) << "Turning CalibrationMode on in Runner (runner).";
+      runner.set_calibrationMode(true);
 
       BOOST_LOG_SEV(glg, note) << "Clearing / creating folders for storing json files.";
       CalController::clear_and_create_json_storage();
@@ -104,17 +104,17 @@ extern src::severity_logger< severity_level > glg;
       BOOST_LOG_SEV(glg, note) << "Running in extrapolation mode.";
     }
 
-    siter.chtid = args->get_cohort_id();
+    runner.chtid = args->get_cohort_id();
 
-    siter.initInput(args->get_ctrl_file(), args->get_loop_order());
+    runner.initInput(args->get_ctrl_file(), args->get_loop_order());
 
-    siter.initOutput();
+    runner.initOutput();
 
-    siter.setupData();
+    runner.setupData();
 
-    siter.setupIDs();
+    runner.setupIDs();
 
-    siter.single_site();
+    runner.single_site();
   
     etime=time(0);
     BOOST_LOG_SEV(glg, info) << "Done running TEM stand-alone mode @" 
@@ -129,19 +129,19 @@ extern src::severity_logger< severity_level > glg;
     BOOST_LOG_SEV(glg, note) << "Running dvm-dos-tem in regional mode. Start @ "
                               << ctime(&stime);
 
-    Runner regner;
+    Runner runner;
 
-    regner.initInput(args->get_ctrl_file(), args->get_loop_order());
+    runner.initInput(args->get_ctrl_file(), args->get_loop_order());
 
-    regner.initOutput();
+    runner.initOutput();
 
-    regner.setupData();
+    runner.setupData();
 
-    regner.setupIDs();
+    runner.setupIDs();
 
     if (args->get_loop_order().compare("space-major") == 0) {
       BOOST_LOG_SEV(glg, note) << "Running SPACE-MAJOR order: for each cohort, for each year";
-      regner.regional_space_major();
+      runner.regional_space_major();
     } else if (args->get_loop_order().compare("time-major") == 0){
       BOOST_LOG_SEV(glg, note) << "Running TIME-MAJOR: for each year, for each cohort";
       int rank;
@@ -155,7 +155,7 @@ extern src::severity_logger< severity_level > glg;
                                  << processors << " available on this system.";
         if (processors > 2) {
           // do the real work...
-          regner.regional_time_major(processors, rank);
+          runner.regional_time_major(processors, rank);
 
           BOOST_LOG_SEV(glg, note) << "Done with regional_time_major(...), "
                                    << "(parallel (MPI) mode). Cleanup MPI...";
@@ -167,11 +167,11 @@ extern src::severity_logger< severity_level > glg;
                                    << "the MPI environment and defaulting to "
                                    << "serial operation.";
           MPI_Finalize();
-          regner.regional_time_major(processors, rank);
+          runner.regional_time_major(processors, rank);
 
         }
       #else
-        regner.regional_time_major(processors, rank);
+        runner.regional_time_major(processors, rank);
       #endif
     } else {
       BOOST_LOG_SEV(glg, fatal) << "Invalid loop-order! Must be " 
