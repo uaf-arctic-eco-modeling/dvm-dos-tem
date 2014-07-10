@@ -15,6 +15,9 @@
 #include "tbc-debug-util.h"
 
 #ifdef WITHMPI
+// For now, not using any of these funcitons w/o MPI, so have
+// included all of them in the #ifdef to make compiling easier.
+
 void tbc_mpi_pp_error(int err) {
   switch (err) {
     case MPI_SUCCESS: {
@@ -35,7 +38,6 @@ void tbc_mpi_pp_error(int err) {
     }
   }
 }
-#endif
 
 void PAUSE_to_attach_gdb(int myrank, int stop_in_rank) {
   /* Debugging help from here:
@@ -83,3 +85,5 @@ void PAUSE_to_attach_gdb() {
     sleep(5);
   }
 }
+
+#endif
