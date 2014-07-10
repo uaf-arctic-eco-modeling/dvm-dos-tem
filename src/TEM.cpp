@@ -79,20 +79,26 @@ extern src::severity_logger< severity_level > glg;
   setvbuf(stdout, NULL, _IONBF, 0);
   setvbuf(stderr, NULL, _IONBF, 0);
 
+
+  time_t stime;
+  time_t etime;
+  stime=time(0);
+
+  BOOST_LOG_SEV(glg, note) << "Start dvmdostem @ " << ctime(&stime);
+
+  Runner runner;
+
   if (controldata["general"]["runmode"].asString() == "single") {
-    time_t stime;
-    time_t etime;
-    stime=time(0);
-    BOOST_LOG_SEV(glg, note) << "Running dvm-dos-tem in single site mode. Start @ " 
-                             << ctime(&stime);
+    runner.chtid = args->get_cohort_id();
+  }
 
-    Runner runner;
+  runner.initInput(args->get_ctrl_file(), args->get_loop_order());
+  runner.initOutput();
+  runner.setupData();
+  runner.setupIDs();
 
-    // Not working yet. Need to figure out if it is even possible to
-    // control modules from the command line? and if so how this should working
-    // in all the different run stages.
-    //runner.modeldata_module_settings_from_args(*args);
-    
+  if (controldata["general"]["runmode"].asString() == "single") {
+
     if (args->get_cal_mode()) {
       BOOST_LOG_SEV(glg, note) << "Turning CalibrationMode on in Runner (runner).";
       runner.set_calibrationMode(true);
@@ -104,40 +110,9 @@ extern src::severity_logger< severity_level > glg;
       BOOST_LOG_SEV(glg, note) << "Running in extrapolation mode.";
     }
 
-    runner.chtid = args->get_cohort_id();
-
-    runner.initInput(args->get_ctrl_file(), args->get_loop_order());
-
-    runner.initOutput();
-
-    runner.setupData();
-
-    runner.setupIDs();
-
     runner.single_site();
-  
-    etime=time(0);
-    BOOST_LOG_SEV(glg, info) << "Done running TEM stand-alone mode @" 
-                             << ctime(&etime);
-    BOOST_LOG_SEV(glg, info) << "Total Seconds: " << difftime(etime, stime);                              
 
   } else if (controldata["general"]["runmode"].asString() == "multi") {
-
-    time_t stime;
-    time_t etime;
-    stime=time(0);
-    BOOST_LOG_SEV(glg, note) << "Running dvm-dos-tem in regional mode. Start @ "
-                              << ctime(&stime);
-
-    Runner runner;
-
-    runner.initInput(args->get_ctrl_file(), args->get_loop_order());
-
-    runner.initOutput();
-
-    runner.setupData();
-
-    runner.setupIDs();
 
     if (args->get_loop_order().compare("space-major") == 0) {
       BOOST_LOG_SEV(glg, note) << "Running SPACE-MAJOR order: for each cohort, for each year";
@@ -178,13 +153,12 @@ extern src::severity_logger< severity_level > glg;
                                 << "'space-major', or 'time-major'. Quitting...";
       exit(-1);
     }
-
-    etime = time(0);
-    BOOST_LOG_SEV(glg, note) << "Done running dvm-dos-tem regionally " 
-                              << "(" << ctime(&etime) << ").";
-    BOOST_LOG_SEV(glg, note) << "total seconds: " << difftime(etime, stime);
   } else {
     BOOST_LOG_SEV(glg, err) << "Unrecognized mode from control file? Quitting.";
   }
+
+  etime=time(0);
+  BOOST_LOG_SEV(glg, info) << "Done with dvmdostem @" << ctime(&etime);
+  BOOST_LOG_SEV(glg, info) << "Total Seconds: " << difftime(etime, stime);
   return 0;
 };
