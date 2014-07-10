@@ -1,5 +1,7 @@
 #include "Richards.h"
 
+#include "../TEMLogger.h"
+extern src::severity_logger< severity_level > glg;
 
 Richards::Richards() {
   TSTEPMIN = 1.e-5;      //
@@ -7,7 +9,6 @@ Richards::Richards() {
   TSTEPORG = 0.1;
   LIQTOLE = 0.05;  // tolearance is in fraction of 'maxliq' in a layer
   mindzlay = 0.005;
-  debugging = false;
 };
 
 Richards::~Richards() {
@@ -216,9 +217,8 @@ void Richards::prepareSoilNodes(Layer* currsoill, const double & draindepth) {
         effliq[ind] = fmax(0.0, currl->liq*drdzadj-effminliq[ind]);
 
         if (effliq[ind]<0. || effminliq[ind]<0. || effmaxliq[ind]<0.) {
-          if (debugging) {
-            cout<<"effective liq is less than 0!";
-          }
+          BOOST_LOG_SEV(glg, warn) << "Richards::prepareSoilNodes(..) "
+                                   << "Effective liquid is less than zero!";
         }
 
         psisat[ind] = currl->psisat;
@@ -357,18 +357,13 @@ int Richards::updateOneIteration(const double &fbaseflow) {
       }
     }
 
-    //
     if (hk[indx]>=numeric_limits<double>::infinity()
         || dhkdw[indx]>=numeric_limits<double>::infinity()) {
-      if (debugging) {
-        cout<<"hk is out of bound!";
-      }
+      BOOST_LOG_SEV(glg, warn) << "'hk' or 'dhkdw' is out of bounds!";
     }
 
-    if (volliq>1. || volliq2>1.0) {
-      if (debugging) {
-        cout<<"vwc is out of bound!";
-      }
+    if (volliq>1.0 || volliq2>1.0) {
+      BOOST_LOG_SEV(glg, warn) << "vwc is out of bounds! (volliq or volliq2 > 1.0)";
     }
 
     //
@@ -382,9 +377,7 @@ int Richards::updateOneIteration(const double &fbaseflow) {
     //
     if (smp[indx]>=numeric_limits<double>::infinity()
         || dsmpdw[indx]>=numeric_limits<double>::infinity()) {
-      if (debugging) {
-        cout<<"smp is out of bound!";
-      }
+      BOOST_LOG_SEV(glg, warn) << "smp[<<"<<indx<<"] or dsmpdw["<<indx<<"] is infinity!";
     }
   }
 
@@ -429,11 +422,10 @@ int Richards::updateOneIteration(const double &fbaseflow) {
         bmx[ind] = dzmm[ind] /dt - dqidw1 + dqodw1;
         cmx[ind] = dqodw2;
 
-        if (debugging) {
-          if (amx[ind] != amx[ind] || bmx[ind] != bmx[ind]
-              || cmx[ind] != cmx[ind] || rmx[ind] != rmx[ind]) {
-            cout<<"checking here!";
-          }
+        if (amx[ind] != amx[ind] || bmx[ind] != bmx[ind] ||
+            cmx[ind] != cmx[ind] || rmx[ind] != rmx[ind]) {
+          BOOST_LOG_SEV(glg, warn) << "amx, cmx, bmx, or rmx at index "
+                                   << ind << " is NaN!";
         }
       }
     }
@@ -464,15 +456,12 @@ int Richards::updateOneIteration(const double &fbaseflow) {
   for(int il=indx0al; il<indx0al+numal; il++) {
     liqit[il] = liqii[il] + dzmm[il] * dwat[il];
 
-    if (debugging) {
-      if(liqit[il]!=liqit[il]) {
-        string msg = "water is nan ";
-        cout << msg + " - in Richardss::updateOneIteration\n";
-      }
+    if(liqit[il]!=liqit[il]) {
+      BOOST_LOG_SEV(glg, warn) << "Richards::updateOneIteration(..), water is NaN!";
+    }
 
-      if (liqit[il]>=numeric_limits<double>::infinity()) {
-        cout<<"checking!";
-      }
+    if (liqit[il]>=numeric_limits<double>::infinity()) {
+      BOOST_LOG_SEV(glg, warn) << "liqit["<<il<<"] is greater than infinity.";
     }
   }
 

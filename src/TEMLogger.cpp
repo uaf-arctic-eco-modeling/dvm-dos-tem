@@ -1,14 +1,16 @@
 #include "TEMLogger.h"
 
-
-BOOST_LOG_GLOBAL_LOGGER_INIT(my_logger, src::severity_logger)
-{
-    src::severity_logger< severity_level > lg;
-    //lg.add_attribute("StopWatch", boost::make_shared< attrs::timer >());
-    return lg;
-}
+// Can't remember what this was for? Does not seem to be needed. 6/25/2014
+//BOOST_LOG_GLOBAL_LOGGER_INIT(my_logger, src::severity_logger)
+//{
+//    src::severity_logger< severity_level > lg;
+//    //lg.add_attribute("StopWatch", boost::make_shared< attrs::timer >());
+//    return lg;
+//}
 
 src::severity_logger< severity_level > glg;
+
+BOOST_LOG_ATTRIBUTE_KEYWORD(pid, "ProcessID", attrs::current_process_id::value_type)
 
 /** Initialize the enum parser map from strings to the enum levels.*/
 template<>
@@ -38,12 +40,16 @@ std::ostream& operator<< (std::ostream& strm, severity_level level) {
 
 void setup_logging(std::string lvl) {
 
+  logging::core::get()->add_global_attribute(
+    "ProcessID", attrs::current_process_id()
+  );
+
   logging::add_console_log(
     std::clog,
     keywords::format = (
       expr::stream
         //<< expr::format_date_time< boost::posix_time::ptime >("TimeStamp", "%Y-%m-%d %H:%M:%S ")
-        << "[" << severity << "] " 
+        << "("<< pid << ") [" << severity << "] "
         << expr::smessage
     )
   );

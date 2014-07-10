@@ -1,9 +1,9 @@
 #include <exception>
+#include <json/value.h>
 
 #include "ModelData.h"
 
 #include "../TEMLogger.h"
-
 #include "../TEMUtilityFunctions.h"
 
 extern src::severity_logger< severity_level > glg;
@@ -26,8 +26,7 @@ std::string table_row(int w, std::string d, bool v) {
 
 
 ModelData::ModelData() {
-  consoledebug = true;
-  runmode = 1;
+  runmode = "single";
   runeq = false;
   runsp = false;
   runtr = false;
@@ -65,6 +64,41 @@ ModelData::ModelData() {
 };
 
 ModelData::~ModelData() {
+}
+
+void ModelData::updateFromControlFile(const std::string& cf) {
+
+  BOOST_LOG_SEV(glg, debug) << "Read control file '" << cf << "' into Json::Value data structure...";
+  Json::Value controldata = temutil::parse_control_file(cf);
+
+  BOOST_LOG_SEV(glg, debug) << "Assign to ModelData members from Json::Value data structure...";
+  this->casename = controldata["general"]["run_name"].asString();
+  this->configdir = controldata["general"]["config_dir"].asString();
+  this->runmode = controldata["general"]["runmode"].asString();
+
+  this->runchtfile = controldata["data_directories"]["run_cohort_list"].asString();
+  this->outputdir = controldata["data_directories"]["output_data_dir"].asString();
+  this->reginputdir = controldata["data_directories"]["region_data_dir"].asString();
+  this->grdinputdir = controldata["data_directories"]["grid_data_dir"].asString();
+  this->chtinputdir = controldata["data_directories"]["cohort_data_dir"].asString();
+
+  this->runstages = controldata["stage_settings"]["run_stage"].asString();
+  this->initmodes = controldata["stage_settings"]["restart_mode"].asString();
+  this->initialfile = controldata["stage_settings"]["restart_file"].asString();
+
+  this->changeclimate = controldata["model_settings"]["dynamic_climate"].asInt();
+  this->changeco2 = controldata["model_settings"]["varied_co2"].asInt();
+  this->updatelai = controldata["model_settings"]["dynamic_lai"].asInt();
+  this->useseverity = controldata["model_settings"]["fire_severity_as_input"].asInt();
+  this->outstartyr = controldata["model_settings"]["output_starting_year"].asInt();
+
+  this->outSiteDay = controldata["output_switches"]["daily_output"].asInt();
+  this->outSiteMonth = controldata["output_switches"]["monthly_output"].asInt();
+  this->outSiteYear = controldata["output_switches"]["yearly_output"].asInt();
+  this->outRegn = controldata["output_switches"]["summarized_output"].asInt();
+  this->outSiteDay = controldata["output_switches"]["soil_climate_output"].asInt();
+  BOOST_LOG_SEV(glg, debug) << "DONE assigning ModeData members from json.";
+
 }
 
 void ModelData::checking4run() {

@@ -35,6 +35,7 @@ public:
   void check_for_signals();
   void async_pause(); // pauses, but thru the io_service, so may not be immediate.
   void pause();       // forces pause immediately
+  static void clear_and_create_json_storage(); // cleans /tmp directory
 
 private:
   boost::shared_ptr< boost::asio::io_service > io_service;

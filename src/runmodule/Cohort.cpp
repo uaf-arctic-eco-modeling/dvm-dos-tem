@@ -29,11 +29,7 @@ Cohort::~Cohort() {
 
 // initialization of pointers used in modules called here
 void Cohort::initSubmodules() {
-  // for controlling of error messaging in some subroutines
-  ground.debugging = md->consoledebug;
-  soilenv.tempupdator.debugging = md->consoledebug;
-  soilenv.stefan.debugging      = md->consoledebug;
-  soilenv.richards.debugging    = md->consoledebug;
+
   //atmosphere module pointers
   atm.setCohortData(&cd);
   atm.setEnvData(edall);
@@ -180,7 +176,7 @@ void Cohort::initStatePar() {
 
     // reset the soil texture data from grid-level soil.nc, rather than 'chtlu',
     // Note that the mineral layer structure is already defined above
-    if (md->runmode==2 || md->runmode==3) { //region-TEM runmode
+    if (md->runmode.compare("multi") == 0) {
       float z=0;
 
       for (int i=0; i<ground.mineral.num; i++) {
@@ -241,7 +237,7 @@ void Cohort::initStatePar() {
 
 void Cohort::prepareAllDrivingData() {
   // climate monthly data for all atm years
-  atm.prepareMonthDrivingData();
+  atm.prep_drivingdata_onecht_all_yrsmonths();
 
   //fire driving data (if input) for all years
   if (!md->get_friderived() && !md->runeq) {

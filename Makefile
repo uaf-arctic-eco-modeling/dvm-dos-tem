@@ -4,6 +4,17 @@ CC=g++
 CFLAGS=-c -Werror -ansi -g -fPIC -DBOOST_ALL_DYN_LINK
 LIBS=-lnetcdf_c++ -lnetcdf -lboost_system -lboost_filesystem \
 -lboost_program_options -lboost_thread -lboost_log -ljson -lreadline
+USEMPI = true
+
+ifeq ($(USEMPI),true)
+  MPIINCLUDES = $(shell mpic++ -showme:compile)
+  MPICFLAGS = -DWITHMPI
+  MPILFLAGS = $(shell mpic++ -showme:link)
+else
+  # do nothing..
+endif
+
+APPNAME=dvmdostem
 LIBDIR=$(SITE_SPECIFIC_LIBS)
 INCLUDES=$(SITE_SPECIFIC_INCLUDES)
 SOURCES= 	src/TEM.o \
@@ -47,7 +58,6 @@ SOURCES= 	src/TEM.o \
 		src/output/RegnOutputer.o \
 		src/output/RestartOutputer.o \
 		src/runmodule/Cohort.o \
-		src/runmodule/Controller.o \
 		src/runmodule/Grid.o \
 		src/runmodule/Integrator.o \
 		src/runmodule/ModelData.o \
@@ -63,6 +73,7 @@ SOURCES= 	src/TEM.o \
 		src/snowsoil/TemperatureUpdator.o \
 		src/util/CrankNicholson.o \
 		src/util/Interpolator.o \
+		src/util/tbc-debug-util.o \
 		src/vegetation/Vegetation_Bgc.o \
 		src/vegetation/Vegetation_Env.o \
 		src/ecodomain/layer/Layer.o \
@@ -72,6 +83,11 @@ SOURCES= 	src/TEM.o \
 		src/ecodomain/layer/ParentLayer.o \
 		src/ecodomain/layer/SnowLayer.o \
 		src/ecodomain/layer/SoilLayer.o
+ifeq ($(USEMPI),true)
+SOURCES += src/parallel-code/Master.o \
+		src/parallel-code/Slave.o
+endif
+
 OBJECTS =	ArgHandler.o \
 		TEMLogger.o \
 		CalController.o \
@@ -112,7 +128,6 @@ OBJECTS =	ArgHandler.o \
 		RegnOutputer.o \
 		RestartOutputer.o \
 		Cohort.o \
-		Controller.o \
 		Grid.o \
 		Integrator.o \
 		ModelData.o \
@@ -127,6 +142,7 @@ OBJECTS =	ArgHandler.o \
 		Stefan.o \
 		CrankNicholson.o \
 		Interpolator.o \
+		tbc-debug-util.o \
 		Vegetation_Bgc.o \
 		Vegetation_Env.o \
 		Layer.o \
@@ -136,18 +152,24 @@ OBJECTS =	ArgHandler.o \
 		ParentLayer.o \
 		SnowLayer.o \
 		SoilLayer.o \
-		TemperatureUpdator.o 
+		TemperatureUpdator.o
+ifeq ($(USEMPI),true)
+OBJECTS += Master.o \
+		Slave.o
+endif
+
+
 TEMOBJ=	TEM.o
 
 
 dvm: $(SOURCES) $(TEMOBJ)
-	$(CC) -o DVMDOSTEM $(INCLUDES) $(OBJECTS) $(TEMOBJ) $(LIBDIR) $(LIBS)
+	$(CC) -o $(APPNAME) $(INCLUDES) $(OBJECTS) $(TEMOBJ) $(LIBDIR) $(LIBS) $(MPILFLAGS)
 
 lib: $(SOURCES) 
-	$(CC) -o libTEM.so -shared $(INCLUDES) $(OBJECTS) $(LIBDIR) $(LIBS)
+	$(CC) -o libTEM.so -shared $(INCLUDES) $(OBJECTS) $(LIBDIR) $(LIBS) $(MPILFLAGS)
 
 .cpp.o:  
-	$(CC) $(CFLAGS) $(INCLUDES) $<
+	$(CC) $(CFLAGS) $(MPICFLAGS) $(INCLUDES) $(MPIINCLUDES) $<
 
 clean:
-	rm -f $(OBJECTS) DVMDOSTEM TEM.o libTEM.so* *~
+	rm -f $(OBJECTS) $(APPNAME) TEM.o libTEM.so* *~

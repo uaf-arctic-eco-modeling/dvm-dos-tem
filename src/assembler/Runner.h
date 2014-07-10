@@ -17,11 +17,14 @@
 #include <vector>
 #include <deque>
 
+#ifdef WITHMPI
+#include <mpi.h>
+#endif
+
 #include "RunRegion.h"
 #include "RunGrid.h"
 #include "RunCohort.h"
 
-#include "../runmodule/Controller.h"
 #include "../runmodule/ModelData.h"
 #include "../ArgHandler.h"
 
@@ -37,16 +40,15 @@ public:
 
   /* general initialization */
   void initInput(const string &controlfile, const string &runmode);
-
   void initOutput();
   void setupData();
   void setupIDs();
 
   /* three settings for running TEM */
-  void runmode1();  /* one site run-mode, used for stand-alone TEM
+  void single_site();  /* one site run-mode, used for stand-alone TEM
                          for any purpose */
-  void runmode2();  /* multi-site (regional) run-mode 1, i.e., time series */
-  void runmode3();  /* multi-site (regional) run-mode 2, i.e., spatially */
+  void regional_space_major();  /* multi-site (regional) with cohorts (spatial steps) as outer loop */
+  void regional_time_major(int processors, int rank);  /* multi-site (regional) run-mode, time steps as outer loop(s) */
   int runSpatially(const int icalyr, const int im, const int jj);
 
   vector<int> runchtlist;  //a vector listing all cohort id
@@ -82,13 +84,13 @@ public:
 private:
   bool calibrationMode;
 
+  std::string runmode;
+  std::string loop_order;
+
   //TEM domains (hiarchy)
   RunRegion runreg;
   RunGrid rungrd;
   RunCohort runcht;
-
-  //Inputer
-  Controller configin;
 
   //data classes
   ModelData md;     /* model controls, options, switches and so on */

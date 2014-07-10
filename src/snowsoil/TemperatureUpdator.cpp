@@ -7,13 +7,15 @@
 
 #include "TemperatureUpdator.h"
 
+#include "../TEMLogger.h"
+extern src::severity_logger< severity_level > glg;
+
 TemperatureUpdator::TemperatureUpdator() {
   TSTEPMAX = 1;
   TSTEPMIN = 1.0e-5;
   TSTEPORG = 0.5;
   ttole = 0.01;
   mindzlay = 0.01;
-  debugging = false; //switch for error message print out
   zerodegc = 0.001; //a constant to represent temperature near zero in degree C
 }
 
@@ -137,19 +139,17 @@ void TemperatureUpdator::processColumnNofront(Layer* fstvalidl, Layer *backl, co
 
   // post-iteration
   //check whether is nan
-  if (debugging) {
-    for (int il = startind; il <= endind; il++) {
-      if ((tld[il])!=(tld[il])) {
-        string msg = "TemperatureUpdator::procesColumnNofront - tld is nan";
-        cout << msg << "\n";
-      }
+  for (int il = startind; il <= endind; il++) {
+    if ((tld[il])!=(tld[il])) {
+      BOOST_LOG_SEV(glg, warn) << "TemperatureUpdator::procesColumnNofront - "
+                               << "tld["<< il <<"] is nan!";
+    }
 
-      if (tld[ind]==MISSING_D) {
-        string msg = "checking!";
-        cout<<msg<<"\n";
-      }
+    if (tld[ind]==MISSING_D) {
+      BOOST_LOG_SEV(glg, warn) << "tld["<< il <<"] is MISSING_D (" << MISSING_D<<")!";
     }
   }
+
 
   // pass the data to double-linked structure
   ind = startind+1; //0 is a virtual layer for top boundary condition,
@@ -279,17 +279,14 @@ void TemperatureUpdator::processAboveFronts(Layer* fstvalidl, Layer*fstfntl,
   }
 
   // checking
-  if (debugging) {
-    for (int il = startind; il <= endind; il++) {
-      if (tld[il]!=tld[il]) {
-        string msg = "TemperatureUpdator::processAboveFronts - tld is nan";
-        cout << msg << "\n";
-      }
+  for (int il = startind; il <= endind; il++) {
+    if (tld[il]!=tld[il]) {
+      BOOST_LOG_SEV(glg, warn) << "TemperatureUpdator::processAboveFronts - "
+                               << "tld["<< il <<"] is nan!";
+    }
 
-      if (tld[il]==MISSING_D) {
-        string msg = "checking!";
-        cout<<msg<<"\n";
-      }
+    if (tld[il]==MISSING_D) {
+      BOOST_LOG_SEV(glg, warn) << "tld["<< il <<"] is MISSING_D (" << MISSING_D<<")!";
     }
   }
 }
@@ -487,18 +484,13 @@ void TemperatureUpdator::processBetweenFronts(Layer*fstfntl, Layer*lstfntl,
     currl->tem = tld[ind];
   }
 
-  // checking
-  if (debugging) {
-    for (int il = startind; il <= endind; il++) {
-      if (tld[il]!=tld[il]) {
-        string msg = "TemperatureUpdator::processBetweenFronts - tld is nan";
-        cout << msg << "\n";
-      }
-
-      if (tld[il]==MISSING_D) {
-        string msg = "checking!";
-        cout<<msg<<"\n";
-      }
+  for (int il = startind; il <= endind; il++) {
+    if (tld[il]!=tld[il]) {
+      BOOST_LOG_SEV(glg, warn) << "TemperatureUpdator::procesBetweenFronts - "
+                               << "tld["<< il <<"] is nan!";
+    }
+    if (tld[il]==MISSING_D) {
+      BOOST_LOG_SEV(glg, warn) << "tld["<< il <<"] is MISSING_D (" << MISSING_D<<")!";
     }
   }
 }
@@ -636,19 +628,16 @@ void TemperatureUpdator::processBelowFronts(Layer* backl, Layer*lstfntl,
   }
 
   // checking
-  if (debugging) {
-    for (int il = startind; il <= endind; il++) {
-      if (tld[il]!=tld[il]) {
-        string msg = "TemperatureUpdator::processBelowFronts - tld is nan";
-        cout << msg << "\n";
-      }
-
-      if (tld[il]==MISSING_D) {
-        string msg = "checking missing tld!";
-        cout<<msg<<"\n";
-      }
+  for (int il = startind; il <= endind; il++) {
+    if (tld[il]!=tld[il]) {
+      BOOST_LOG_SEV(glg, warn) << "TemperatureUpdator::procesBelowFronts - "
+                               << "tld["<< il <<"] is nan!";
+    }
+    if (tld[il]==MISSING_D) {
+      BOOST_LOG_SEV(glg, warn) << "tld["<< il <<"] is MISSING_D (" << MISSING_D<<")!";
     }
   }
+
 }
 
 void TemperatureUpdator::iterate(const int &startind, const int &endind) {

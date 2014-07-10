@@ -94,11 +94,14 @@ public:
   int readData();
   int reinit();
 
-  void run_cohortly();
+  void choose_run_stage_settings();
 
-  void run_monthly();
+  void advance_one_month();
   bool get_calMode();
   void set_calMode(bool new_value);
+
+  void output_caljson_yearly(int year);
+  void output_caljson_monthly(int year, int month);
 
 private :
 
@@ -110,7 +113,7 @@ private :
   int mstepcnt;   //month timesteps since starting output
   int ystepcnt;   //year timesteps since starting output
 
-  void runEnvmodule(boost::shared_ptr<CalController> calcontroller_ptr);
+  void env_only_warmup(boost::shared_ptr<CalController> calcontroller_ptr);
   void run_timeseries(boost::shared_ptr<CalController> calcontroller_ptr);
 
 };

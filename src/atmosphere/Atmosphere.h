@@ -18,7 +18,7 @@ public:
 
   void updateDailyAtm(const int & mid, const int & dayid);
 
-  void prepareMonthDrivingData();
+  void prep_drivingdata_onecht_all_yrsmonths();
   void prepareDayDrivingData(const int & mid, const int & usedatmyr,
                              const bool & changeclm, const bool &changeco2);
 

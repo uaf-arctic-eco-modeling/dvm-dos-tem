@@ -6,45 +6,34 @@
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
 
-using namespace std;
 
 class ArgHandler {
 	boost::program_options::options_description desc;
 	boost::program_options::variables_map varmap;
-  string calibrationmode;	
-  string loglevel;
-  string mode;
-	string ctrlfile;
-	string chtid;
-	string regrunmode;
 
-  string env;
-  string bgc;
-  string dvm;
+  bool cal_mode;
+  std::string loop_order;
+	std::string ctrl_file;
+	int cohort_id;
 
+  std::string mode;
+
+  std::string log_level;
   bool help;
-	bool version;
-	bool debug;
+
 
 public:
 	ArgHandler();
 	void parse(int argc, char** argv);
 	void verify();
-	void showHelp();
+	void show_help();
 	
-  string getEnv() const;
-  string getBgc() const;
-  string getDvm() const;
+  inline const bool get_cal_mode(){return cal_mode;};
+  inline const std::string get_loop_order(){return loop_order;};
+	inline const std::string get_ctrl_file(){return ctrl_file;};
+	inline const int get_cohort_id(){return cohort_id;};
 
-  string getCalibrationMode();
-  string getLogLevel();
-	string getMode();
-	string getCtrlfile();
-	string getChtid();
-	string getRegrunmode(); // spatial or temporal mode switch w/in regnrun mode
-	
-	inline const bool getDebug(){return debug;};
-	inline const bool getHelp(){return help;};
-	inline const bool getVersion(){return version;};
+  inline const std::string get_log_level(){return log_level;};
+	inline const bool get_help(){return help;};
 };
 #endif /* _ARGHANDLER_H */

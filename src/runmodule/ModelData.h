@@ -17,10 +17,9 @@ public:
   int myid; // these two are for parallel model run (NOT USED)
   int numprocs;
 
-  int runmode; //1: site; 2: region - time-series; 3: region - spatially
-  bool consoledebug; // more info will display when running
+  string runmode;    // 'single' or 'multi' site
+  string loop_order; // time-major or space-major
 
-  // the following are from Controller.cpp (reading from '????control.txt')
   bool runeq;
   bool runsp;
   bool runtr;
@@ -70,6 +69,9 @@ public:
   int act_vegset;
   int act_fireno; // fire data in fireid-yearset (2D)
   int act_fireset;
+
+
+  void updateFromControlFile(const std::string& cf);
 
   //
   void checking4run();

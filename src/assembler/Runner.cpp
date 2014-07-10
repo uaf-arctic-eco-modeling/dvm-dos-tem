@@ -1,8 +1,16 @@
 #include <string>
+#include <algorithm>
 
-#include "../TEMLogger.h"
+#ifdef WITHMPI
+#include <mpi.h>
+#include "../parallel-code/Master.h"
+#include "../parallel-code/Slave.h"
+#include "../inc/tbc_mpi_constants.h"
+#endif
 
 #include "Runner.h"
+#include "../TEMLogger.h"
+#include "../util/tbc-debug-util.h"
 
 extern src::severity_logger< severity_level > glg;
 
@@ -16,9 +24,9 @@ Runner::~Runner() {
 };
 
 void Runner::modeldata_module_settings_from_args(const ArgHandler &args) {
-  this->md.set_envmodule(args.getEnv());
-  this->md.set_bgcmodule(args.getBgc());
-  this->md.set_dvmmodule(args.getDvm());
+//  this->md.set_envmodule(args.getEnv());
+//  this->md.set_bgcmodule(args.getBgc());
+//  this->md.set_dvmmodule(args.getDvm());
 }
 
 void Runner::set_calibrationMode(bool new_setting) {
@@ -32,30 +40,30 @@ bool Runner::get_calibrationMode() {
   return this->calibrationMode;
 }
 
+void Runner::initInput(const string &controlfile, const string &loop_order) {
 
-void Runner::initInput(const string &controlfile, const string &runmode) {
-  //Input and processing for reading parameters and passing them to controller
-  configin.controlfile=controlfile;
+  // Read controlfile. Sets a bunch of data in the ModelData pointer
+  md.updateFromControlFile(controlfile);
 
-  if (runmode.compare("siter")==0) {
-    md.runmode = 1;
-  } else if (runmode.compare("regner1")==0) {
-    md.runmode = 2;                            //regional run - time-series
-  } else if (runmode.compare("regner2")==0) {
-    md.runmode = 3;                            //regional run - spatially
-  } else {
-    BOOST_LOG_SEV(glg, fatal) << "runmode: " << runmode
-                              << ". TEM runmode must be one of "
-                              << "siter, regner1, or regner2. ";
-    exit(-1);
+  BOOST_LOG_SEV(glg, debug) << "Done with the parse_control_file(..) function..";
+
+  if (md.runmode.compare("single") == 0) {
+    BOOST_LOG_SEV(glg, debug) << "In single site mode...no loop orders to set? Nothing to do?";
+  } else if (md.runmode.compare("multi") == 0) {
+    BOOST_LOG_SEV(glg, debug) << "In multi-site mode, gotta set the loop order!";
+    if (loop_order.compare("time-major") == 0) {
+      md.loop_order = "time-major";
+    } else if (loop_order.compare("space-major") == 0){
+      md.loop_order = "space-major";
+    } else {
+      BOOST_LOG_SEV(glg, fatal) << "Invalid runmode and loop-order combo: "
+                                << runmode << ", " << loop_order << ". "
+                                << "(controls time vs space major and single vs multi site runs)";
+      exit(-1);
+    }
   }
 
-  //
-  if (md.runmode!=1) {
-    md.consoledebug=false;
-  }
-
-  configin.ctrl4run(&md); //read in model configure info from "config/controlfile_site.txt"
+  BOOST_LOG_SEV(glg, debug) << "Done reading in the config file. twiddling some settings...";
   md.checking4run();
   // timer initialization
   timer.setModeldata(&md);
@@ -70,12 +78,17 @@ void Runner::initInput(const string &controlfile, const string &runmode) {
   error = runcht.cinputer.init(); //checking data file
   runchtlist.clear();
 
-  if (md.runmode==2 || md.runmode==3) {
+  if (md.runmode.compare("multi") == 0) {
+    BOOST_LOG_SEV(glg, info) << "Multi-site running mode! Creating the cohort list...";
     createCohortList4Run(); // the running cohort list, if multple-cohort run mode on
-  } else if (md.runmode==1) {
-    BOOST_LOG_SEV(glg, warn) << "CHTID and INITCHTID are " << chtid;
-    BOOST_LOG_SEV(glg, warn) << "Be sure they exist and are consistent in 'cohortid.nc'";
+  } else if (md.runmode.compare("single") == 0) {
+    BOOST_LOG_SEV(glg, warn) << "Single-site running mode! CHTID and INITCHTID "
+                             << "are " << chtid << ". Be sure they exist and "
+                             << "are consistent in 'cohortid.nc'!";
     runchtlist.push_back(chtid);
+  } else {
+    BOOST_LOG_SEV(glg, fatal) << "INVALID ModelData.runmode!: " << md.runmode;
+    exit(-1);
   }
 
   //initial conditions
@@ -104,7 +117,7 @@ void Runner::initOutput() {
   string stage = "-"+md.runstages;
 
   // 1)for general outputs
-  if (md.runmode==1) {   //very detailed output for ONE cohort ONLY
+  if (md.runmode.compare("single") == 0) {   //very detailed output for ONE cohort ONLY
     string dimfname ="";
     string envfname ="";
     string bgcfname ="";
@@ -131,7 +144,7 @@ void Runner::initOutput() {
       bgcfname = md.outputdir+"cmtbgc_yly"+stage+".nc";
       runcht.bgcylyouter.init(bgcfname); // set netcdf files for output
     }
-  } else if ((md.runmode==2 || md.runmode==3) && (!md.runeq)) {
+  } else if (md.runmode.compare("multi") && (!md.runeq)) {
     // output options (switches)
     md.outRegn      = true;
     md.outSiteYear  = false;
@@ -358,15 +371,16 @@ void Runner::setupIDs() {
   }
 };
 
-// one-site runmode
-void Runner::runmode1() {
+/** Single site runmode.
+*/
+void Runner::single_site() {
   //read-in region-level data
   //  (Yuan: this is the portal for multiple region run,
   //     if needed in the future)
   error = runreg.reinit(0); //can be modified, if more than 1 record of data
 
   if (error!=0) {
-    BOOST_LOG_SEV(glg, fatal) << "problem in reinitialize regional-module in Runner::runmode1()";
+    BOOST_LOG_SEV(glg, fatal) << "Problem reinitializing regional-module in Runner::single_site(...)";
     exit(-1);
   }
 
@@ -385,7 +399,7 @@ void Runner::runmode1() {
   error = rungrd.readData();
 
   if (error!=0) {
-    cout <<"problem in reading grided data in Runner::runmode1\n";
+    BOOST_LOG_SEV(glg, fatal) << "Problem reading grided data in Runner::single_site(...)";
     exit(-1);
   }
 
@@ -393,23 +407,23 @@ void Runner::runmode1() {
   error = runcht.readData();
 
   if (error!=0) {
-    cout <<"problem in reading cohort data in Runner::runmode1\n";
+    BOOST_LOG_SEV(glg, fatal) << "Problem reading cohort data in Runner::single_site(...)";
     exit(-1);
   }
 
   error = runcht.reinit();
 
   if (error!=0) {
-    cout <<"problem in re-initializing cohort in Runner::runmode1\n";
+    BOOST_LOG_SEV(glg, fatal) << "Problem re-initializing cohort in Runner::single_site(...)";
     exit(-1);
   }
 
-  BOOST_LOG_SEV(glg, info) << "cohort: " << chtid << " - running!";
-  runcht.run_cohortly();
+  BOOST_LOG_SEV(glg, info) << "cohort: " << chtid << " - choosing stage settings...!";
+  runcht.choose_run_stage_settings();
 };
 
 
-void Runner::runmode2() {
+void Runner::regional_space_major() {
   //read-in region-level data
   //  (Yuan: this is the portal for multiple region run,
   //    if needed in the future)
@@ -425,6 +439,8 @@ void Runner::runmode2() {
 
   for (jj=0; jj<runchtlist.size(); jj++) {
     chtid = runchtlist.at(jj);
+
+    BOOST_LOG_SEV(glg, note) << "Instantiate various data containers for new cohort...";
     // may need to clear up data containers for new cohort
     chted = EnvData();
     chtbd = BgcData();
@@ -448,7 +464,7 @@ void Runner::runmode2() {
     error = rungrd.readData();
 
     if (error!=0) {
-      cout <<"problem in reading grided data in Runner::runmode2\n";
+      BOOST_LOG_SEV(glg, fatal) << "Problem reading grided data in Runner::regional_space_major(...)";
       exit(-1);
     }
 
@@ -456,31 +472,31 @@ void Runner::runmode2() {
     error = runcht.readData();
 
     if (error!=0) {
-      cout <<"problem in reading cohort data in Runner::runmode2\n";
+      BOOST_LOG_SEV(glg, fatal) << "Problem reading cohort data in Runner::regional_space_major(...)";
       exit(-1);
     }
 
     error = runcht.reinit();
 
     if (error!=0) {
-      BOOST_LOG_SEV(glg, fatal) << "problem re-initializing cohort in Runner::runmode2";
+      BOOST_LOG_SEV(glg, fatal) << "Problem re-initializing cohort in Runner::regional_space_major(...)";
       exit(-3);
     }
 
-    cout<<"cohort: "<<chtid<<" - running! \n";
-    runcht.run_cohortly();
+    BOOST_LOG_SEV(glg, info) << "cohort: " << chtid << " - choosing stage settings...!";
+    runcht.choose_run_stage_settings();
     runcht.cohortcount++;
   }
 };
 
-void Runner::runmode3() {
+void Runner::regional_time_major(int processors, int rank) {
   //read-in region-level data
   //  (Yuan: this is the portal for multiple region run,
   //    if needed in the future)
   error = runreg.reinit(0); //can be modified, if more than 1 record of data
 
   if (error!=0) {
-    cout <<"problem in reinitialize regional-module in Runner::runmode3\n";
+    BOOST_LOG_SEV(glg, fatal) << "problem in reinitialize regional-module in Runner::regional_time_major(...)";
     exit(-1);
   }
 
@@ -525,11 +541,76 @@ void Runner::runmode3() {
     runcht.yrstart = timer.scbegyr;
     runcht.yrend   = timer.scendyr;
     md.set_friderived(false);
-  }
-
+  } 
+   
   //loop through time-step
   int totcohort = (int)runchtlist.size();
 
+#ifdef WITHMPI
+  if (1 == processors) {
+    BOOST_LOG_SEV(glg, err) << "Not currently able to run in this mode on a "
+                            << "computer with a single processor. Quitting.";
+    exit(-1);
+  } else if (rank == 0) {
+    Master m = Master(rank, processors);
+
+    m.dispense_cohorts_to_slaves(runchtlist);
+    
+    m.get_restartdata_and_progress_from_slaves(totcohort);
+
+    /*
+    std::vector<int> completed_cohorts;
+    do {
+      m.listen_for_progress_update();
+      
+      RestartData rd = m.listen_for_restart_data(); // should heap allocate a RestartData and return a pointer to it?
+      if (rd != NULL) { // we have some data from a completed cohort!!
+        write_restart_data_to_file(rd);
+        completed_cohorts.push_back(rd.chtid)
+      }
+    } while (completed_cohorts.size() < runchtlist.size())
+    */
+      
+  } else {
+    Slave s = Slave(rank);
+    s.recv_cohort_list_from_master();
+    s.pp_cohort_list();
+    
+    for (int icalyr=runcht.yrstart; icalyr<=runcht.yrend; icalyr++) {
+      int ifover = 0;
+      for (int im = 0; im < 12; ++im) {
+        runcht.cohortcount = 0;
+        for (std::vector<int>::const_iterator cit = s.cohort_list.begin(); cit != s.cohort_list.end(); ++cit) {
+          int cohort = *cit;
+          
+          /* this is convoluted because the slave's cohort_list stores the 
+           cohort id, but later functions require the *index* of the cohort in
+           the main runchtlist...so we have to look up the index based on the 
+           value... */
+          std::vector<int>::iterator it = find(runchtlist.begin(), runchtlist.end(), cohort);
+          int cohort_idx = (it - runchtlist.begin()); // convert iterator to index...
+          //std::cout << "Hi from slave " << rank << ". Working on " << icalyr << ", " << im << ", " << cohort << "\n";
+          ifover = runSpatially(icalyr, im, cohort_idx);
+          s.send_progress_update_to_master(icalyr, im, cohort);
+        }
+        md.initmode=4;
+        timer.advanceOneMonth();
+      }
+      if (ifover==1) break;
+      cout <<"TEM @"<< md.runstages <<" stage done with year "<<icalyr<<" for cohorts "<< s.cl_to_string() <<" (rank " << rank << ")\n";
+    }
+
+    std::cout << "This slave is done with all its cohorts, all years; time to send the RestartData objects to Master.\n";
+    for (std::deque<RestartData>::iterator rdit = this->mlyres.begin(); rdit != this->mlyres.end(); ++rdit) {
+      RestartData r = *rdit;
+      s.send_restartdata_to_master(r);
+    }
+
+    //PAUSE_to_attach_gdb();
+  }
+
+#else
+  // Just proceed serially...
   for (int icalyr=runcht.yrstart; icalyr<=runcht.yrend; icalyr++) {
     int ifover = 0;
 
@@ -586,7 +667,11 @@ void Runner::runmode3() {
     }
 
     cout <<"TEM runs @" << md.runstages <<" - year "<<icalyr<<" is done! \n";
-  }
+  } // end of yearly loop...
+
+#endif /* WITHMPI */
+  
+  
 };
 
 int Runner::runSpatially(const int icalyr, const int im, const int jj) {
@@ -623,7 +708,7 @@ int Runner::runSpatially(const int icalyr, const int im, const int jj) {
   error = rungrd.readData();
 
   if (error!=0) {
-    cout <<"problem in reading grided data in Runner::runmode3\n";
+    BOOST_LOG_SEV(glg, fatal) << "Problem reading grided data in Runner::regional_time_major(...)";
     exit(-1);
   }
 
@@ -631,7 +716,7 @@ int Runner::runSpatially(const int icalyr, const int im, const int jj) {
   error = runcht.readData();
 
   if (error!=0) {
-    cout <<"problem in reading cohort data in Runner::runmode3\n";
+    BOOST_LOG_SEV(glg, fatal) << "Problem reading cohort data in Runner::regional_time_major(...)";
     exit(-1);
   }
 
@@ -646,7 +731,7 @@ int Runner::runSpatially(const int icalyr, const int im, const int jj) {
 
     if (icalyr>yrending) {
       if (jj==(int)runchtlist.size()-1) {
-        return 1; // this will break the 'icalyr' loop in runmode3()
+        return 1; // this will break the 'icalyr' loop in regional_time_major()
       } else {
         if (md.initmode>3) {
           mlyres.push_back(mlyres.at(0));
@@ -673,12 +758,12 @@ int Runner::runSpatially(const int icalyr, const int im, const int jj) {
 
   //if 'initmode>3', takes 'restart' from above
   if (error!=0) {
-    cout <<"problem in re-initialzing cohort in Runner::runmode3\n";
+    BOOST_LOG_SEV(glg, fatal) << "Problem re-initialzing cohort in Runner::regional_time_major(...)";
     exit(-1);
   }
 
   // run one timestep (monthly)
-  runcht.run_monthly();
+  runcht.advance_one_month();
   // save the new 'restart' in the back of deque, which will move forward
   mlyres.push_back(runcht.resod);
 
@@ -687,18 +772,52 @@ int Runner::runSpatially(const int icalyr, const int im, const int jj) {
                         //   So here just in case
   }
 
+  // TODO: will need to extend this to detect end of sp, tr, and sc
+  if ((im == 11) && (timer.eqend || icalyr == timer.maxeqrunyrs) ) {
+    #ifdef WITHMPI
+
+      //int fake_buf;
+      //fake_buf = 454;
+
+      // send a message to master with the fake data...
+      // this would actually end up being the restart data for
+      // this cohort...might have to mess with passing custom types or strucs
+      //cout << "Sending restart data to master! Done with last m of last yr for this cohort!\n";
+      //MPI_Send(&fake_buf,                /* message buffer */
+      //        1,                        /* one data item */
+      //         MPI_INT,                  /* data item is an integer */
+      //         0,                        /* to the master */
+      //         PTEM_RESTARTDATA_TAG,     /* user chosen message tag */
+      //         MPI_COMM_WORLD);          /* default communicator */
+      
+      // then noting should have to happen here? master will take care of writing
+      // the restart data out to a file...
+      
+      //cout << "This process is done! The Send call to master completed, and "
+      //     << "now this process can just quit?\n";
+      //MPI::Barrier(MPI_COMM_WORLD);
+      //cout << " THis is after the barrier, so all these should come in seq...\n";
+
+    #else
+      cout << "In Serial Mode.\n"
+           << "\n"
+           << "We are at the end of the eq run and need to write this cohort's "
+           << "restart data (from the deque) to the restart file for the next "
+           << "stage...\n";
+      runcht.resouter.outputVariables(jj);
+    #endif
+  }
+
   //'restart.nc' always output at the ending time-step
   //  (which was adjusted above for 'eq')
   if (icalyr==yrending && im==11) {
     runcht.resouter.outputVariables(jj);
   }
 
-  if(md.consoledebug) {
-    cout <<"TEM " << md.runstages
-         <<" run: year "<<icalyr
-         <<" month "<<im
-         <<" @cohort "<<runcht.cht.cd.chtid<<"\n";
-  }
+  BOOST_LOG_SEV(glg, note) << "TEM " << md.runstages << " run,"
+                           << " year: " << icalyr
+                           << " month: " << im
+                           << " cohort: "<< runcht.cht.cd.chtid;
 
   runcht.cohortcount++;
   return 0;

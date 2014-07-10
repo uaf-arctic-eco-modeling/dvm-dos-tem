@@ -17,6 +17,9 @@
 #include <boost/log/expressions.hpp>
 #include <boost/log/utility/setup/console.hpp>
 
+#include <boost/log/attributes/current_process_id.hpp>
+
+
 namespace logging = boost::log;
 namespace src = boost::log::sources;
 namespace attrs = boost::log::attributes;
