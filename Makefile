@@ -57,8 +57,6 @@ SOURCES= 	src/TEM.o \
 		src/output/EnvOutputer.o \
 		src/output/RegnOutputer.o \
 		src/output/RestartOutputer.o \
-		src/parallel-code/Master.o \
-		src/parallel-code/Slave.o \
 		src/runmodule/Cohort.o \
 		src/runmodule/Grid.o \
 		src/runmodule/Integrator.o \
@@ -85,6 +83,11 @@ SOURCES= 	src/TEM.o \
 		src/ecodomain/layer/ParentLayer.o \
 		src/ecodomain/layer/SnowLayer.o \
 		src/ecodomain/layer/SoilLayer.o
+ifeq ($(USEMPI),true)
+SOURCES += src/parallel-code/Master.o \
+		src/parallel-code/Slave.o
+endif
+
 OBJECTS =	ArgHandler.o \
 		TEMLogger.o \
 		CalController.o \
@@ -124,8 +127,6 @@ OBJECTS =	ArgHandler.o \
 		EnvOutputer.o \
 		RegnOutputer.o \
 		RestartOutputer.o \
-		Master.o \
-		Slave.o \
 		Cohort.o \
 		Grid.o \
 		Integrator.o \
@@ -151,7 +152,13 @@ OBJECTS =	ArgHandler.o \
 		ParentLayer.o \
 		SnowLayer.o \
 		SoilLayer.o \
-		TemperatureUpdator.o 
+		TemperatureUpdator.o
+ifeq ($(USEMPI),true)
+OBJECTS += Master.o \
+		Slave.o
+endif
+
+
 TEMOBJ=	TEM.o
 
 
