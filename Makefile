@@ -9,6 +9,8 @@ ifeq ($(USEMPI),true)
 else
   # do nothing..
 endif
+
+APPNAME=dvmdostem
 CC=g++
 CFLAGS=-c -Werror -ansi -g -fPIC -DBOOST_ALL_DYN_LINK
 LIBS=-lnetcdf_c++ -lnetcdf -lboost_system -lboost_filesystem \
@@ -55,10 +57,7 @@ SOURCES= 	src/TEM.o \
 		src/output/EnvOutputer.o \
 		src/output/RegnOutputer.o \
 		src/output/RestartOutputer.o \
-		src/parallel-code/Master.o \
-		src/parallel-code/Slave.o \
 		src/runmodule/Cohort.o \
-		src/runmodule/Controller.o \
 		src/runmodule/Grid.o \
 		src/runmodule/Integrator.o \
 		src/runmodule/ModelData.o \
@@ -84,6 +83,11 @@ SOURCES= 	src/TEM.o \
 		src/ecodomain/layer/ParentLayer.o \
 		src/ecodomain/layer/SnowLayer.o \
 		src/ecodomain/layer/SoilLayer.o
+ifeq ($(USEMPI),true)
+SOURCES += src/parallel-code/Master.o \
+		src/parallel-code/Slave.o
+endif
+
 OBJECTS =	ArgHandler.o \
 		TEMLogger.o \
 		CalController.o \
@@ -123,10 +127,7 @@ OBJECTS =	ArgHandler.o \
 		EnvOutputer.o \
 		RegnOutputer.o \
 		RestartOutputer.o \
-		Master.o \
-		Slave.o \
 		Cohort.o \
-		Controller.o \
 		Grid.o \
 		Integrator.o \
 		ModelData.o \
@@ -151,12 +152,18 @@ OBJECTS =	ArgHandler.o \
 		ParentLayer.o \
 		SnowLayer.o \
 		SoilLayer.o \
-		TemperatureUpdator.o 
+		TemperatureUpdator.o
+ifeq ($(USEMPI),true)
+OBJECTS += Master.o \
+		Slave.o
+endif
+
+
 TEMOBJ=	TEM.o
 
 
 dvm: $(SOURCES) $(TEMOBJ)
-	$(CC) -o DVMDOSTEM $(INCLUDES) $(OBJECTS) $(TEMOBJ) $(LIBDIR) $(LIBS) $(MPILFLAGS)
+	$(CC) -o $(APPNAME) $(INCLUDES) $(OBJECTS) $(TEMOBJ) $(LIBDIR) $(LIBS) $(MPILFLAGS)
 
 lib: $(SOURCES) 
 	$(CC) -o libTEM.so -shared $(INCLUDES) $(OBJECTS) $(LIBDIR) $(LIBS) $(MPILFLAGS)
@@ -165,4 +172,4 @@ lib: $(SOURCES)
 	$(CC) $(CFLAGS) $(MPICFLAGS) $(INCLUDES) $(MPIINCLUDES) $<
 
 clean:
-	rm -f $(OBJECTS) DVMDOSTEM TEM.o libTEM.so* *~
+	rm -f $(OBJECTS) $(APPNAME) TEM.o libTEM.so* *~

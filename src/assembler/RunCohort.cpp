@@ -6,7 +6,6 @@
  *
 */
 #include <json/writer.h>
-#include <boost/filesystem.hpp>
 #include "RunCohort.h"
 #include "../CalController.h"
 
@@ -234,8 +233,8 @@ int RunCohort::reinit() {
 };
 
 // run one cohort for a period of time
-void RunCohort::run_cohortly() {
-  // Ends up as a null pointer if calibratiionMode is off.
+void RunCohort::choose_run_stage_settings() {
+  // Ends up as a null pointer if calibrationMode is off.
   boost::shared_ptr<CalController> calcontroller_ptr;
 
   if ( this->get_calMode() ) {
@@ -250,23 +249,17 @@ void RunCohort::run_cohortly() {
     BOOST_LOG_SEV(glg, info) << "Starting a quick pre-run to get "
                              << "reasonably-good 'env' conditions, "
                              << "which may then be good for 'eq' run...";
-    runEnvmodule(calcontroller_ptr);
+    env_only_warmup(calcontroller_ptr);
 
     if (calcontroller_ptr) {
       BOOST_LOG_SEV(glg, info) << "Pausing. Please check that the 'pre-run' data looks good.";
       calcontroller_ptr->pause();
-      BOOST_LOG_SEV(glg, info) << "Clearing out json files from pre-run...";
-      boost::filesystem::path json_tmp_dir("/tmp/cal-dvmdostem");
-      boost::filesystem::remove_all(json_tmp_dir);
-      boost::filesystem::create_directory(json_tmp_dir);
-      boost::filesystem::path yr_json_tmp_dir("/tmp/year-cal-dvmdostem");
-      boost::filesystem::remove_all(yr_json_tmp_dir);
-      boost::filesystem::create_directory(yr_json_tmp_dir);
+      calcontroller_ptr->clear_and_create_json_storage();
     }
 
     //
     cht.timer->reset();
-    BOOST_LOG_SEV(glg, info) << "In run_cohortly, setting all modules to on...";
+    BOOST_LOG_SEV(glg, info) << "In Run::Cohort::choose_run_stage_settings(..), setting all modules to on...";
     md->set_envmodule(true);
     md->set_bgcmodule(true);
     md->set_dsbmodule(true);
@@ -326,8 +319,9 @@ void RunCohort::run_cohortly() {
   resouter.outputVariables(cohortcount);
 };
 
-void RunCohort::runEnvmodule(boost::shared_ptr<CalController> calcontroller_ptr) {
-  BOOST_LOG_SEV(glg, info) << "In RunCohort::runEnvmodule, setting only envmodule on.";
+void RunCohort::env_only_warmup(boost::shared_ptr<CalController> calcontroller_ptr) {
+  BOOST_LOG_SEV(glg, info) << "In RunCohort::env_only_warmup(...)."
+                           << "Turn off all modules except env and run for 101 years.";
   //run model with "ENV module" only
   md->set_envmodule(true);
   md->set_bgcmodule(false);
@@ -338,7 +332,7 @@ void RunCohort::runEnvmodule(boost::shared_ptr<CalController> calcontroller_ptr)
   yrstart = 0;
   yrend   = 100; // This actually results in running 101 years...
   run_timeseries(calcontroller_ptr);
-  BOOST_LOG_SEV(glg, info) << "Done running env module for 101 year 'warm up'.";
+  BOOST_LOG_SEV(glg, info) << "Completed 101 year env module only 'warm up' run.";
 };
 
 
@@ -367,11 +361,13 @@ void RunCohort::run_timeseries(boost::shared_ptr<CalController> calcontroller_pt
     int outputyrind = cht.timer->getOutputYearIndex();
 
     for (int im=0; im<12; im++) {
-      BOOST_LOG_SEV(glg, debug) << "Some beginning of month data for plotting...";
+
       int currmind=  im;
       cht.cd.month = im+1;
       int dinmcurr = cht.timer->getDaysInMonth(im);;
+
       cht.updateMonthly(yrindex, currmind, dinmcurr);
+
       cht.timer->advanceOneMonth();
 
       // site output module calling
@@ -438,95 +434,19 @@ void RunCohort::run_timeseries(boost::shared_ptr<CalController> calcontroller_pt
         }
       } // end of site calling output modules
 
-      BOOST_LOG_SEV(glg, debug) << "Some end of month data for plotting...";
-
       if(this->get_calMode()) {
-        Json::Value data;
-        std::ofstream out_stream;
-        data["Year"] = icalyr;
-        data["Month"] = im;
-        /* Environmental variables */
-        /* Monthly Thermal information */
-        data["TempAir"] = cht.ed->m_atms.ta;
-        //cht.ed->m_sois.ts[MAX_SOI_LAY], but no pre-summed values, so...
-        data["TempOrganicLayer"] = -1;
-        data["TempMineralLayer"] = -1;
-        data["ActiveLayerDepth"] = cht.ed->m_soid.ald;
-        /* Monthly Hydrodynamic information */
-        data["Snowfall"] = cht.ed->m_a2l.snfl;
-        data["Rainfall"] = cht.ed->m_a2l.rnfl;
-        data["WaterTable"] = cht.ed->m_sois.watertab;
-        //m_soid.vwc[] has approx 23 values
-        //  I assume these are summed in the following.
-        data["VWCOrganicLayer"] = cht.ed->m_soid.vwcshlw
-                                  + cht.ed->m_soid.vwcdeep;
-        data["VWCMineralLayer"] = cht.ed->m_soid.vwcminea
-                                  + cht.ed->m_soid.vwcmineb
-                                  + cht.ed->m_soid.vwcminec;
-        //land should include both vegetation and ground.
-        data["Evapotranspiration"] = cht.ed->m_l2a.eet;
-        /* PFT dependent variables */
-        double parDownSum = 0;
-        double parAbsorbSum = 0;
-
-        for(int pft=0; pft<NUM_PFT; pft++) {
-          char pft_chars[5];
-          sprintf(pft_chars, "%d", pft);
-          std::string pft_str = std::string(pft_chars);
-          //c++0x equivalent: std::string pftvalue = std::to_string(pft);
-          data["PFT" + pft_str]["VegCarbon"]["Leaf"] = cht.bd[pft].m_vegs.c[I_leaf];
-          data["PFT" + pft_str]["VegCarbon"]["Stem"] = cht.bd[pft].m_vegs.c[I_stem];
-          data["PFT" + pft_str]["VegCarbon"]["Root"] = cht.bd[pft].m_vegs.c[I_root];
-          data["PFT" + pft_str]["VegStructuralNitrogen"]["Leaf"] = cht.bd[pft].m_vegs.strn[I_leaf];
-          data["PFT" + pft_str]["VegStructuralNitrogen"]["Stem"] = cht.bd[pft].m_vegs.strn[I_stem];
-          data["PFT" + pft_str]["VegStructuralNitrogen"]["Root"] = cht.bd[pft].m_vegs.strn[I_root];
-          data["PFT" + pft_str]["GPPAll"] = cht.bd[pft].m_a2v.gppall;
-          data["PFT" + pft_str]["NPPAll"] = cht.bd[pft].m_a2v.nppall;
-          data["PFT" + pft_str]["GPPAllIgnoringNitrogen"] = cht.bd[pft].m_a2v.ingppall;
-          data["PFT" + pft_str]["NPPAllIgnoringNitrogen"] = cht.bd[pft].m_a2v.innppall;
-          data["PFT" + pft_str]["LitterfallCarbonAll"] = cht.bd[pft].m_v2soi.ltrfalcall;
-          data["PFT" + pft_str]["LitterfallNitrogenAll"] = cht.bd[pft].m_v2soi.ltrfalnall;
-          data["PFT" + pft_str]["PARDown"] = cht.ed[pft].m_a2v.pardown;
-          parDownSum+=cht.ed[pft].m_a2v.pardown;
-          data["PFT" + pft_str]["PARAbsorb"] = cht.ed[pft].m_a2v.parabsorb;
-          parAbsorbSum+=cht.ed[pft].m_a2v.parabsorb;
-          data["PFT" + pft_str]["NitrogenUptake"] = cht.bd[pft].m_soi2v.snuptakeall;
-        }
-
-        data["PARAbsorbSum"] = parAbsorbSum;
-        data["PARDownSum"] = parDownSum;
-        data["GPPSum"] = cht.bdall->m_a2v.gppall;
-        data["NPPSum"] = cht.bdall->m_a2v.nppall;
-        /* Not PFT dependent */
-        data["NitrogenUptakeAll"] = cht.bd->m_soi2v.snuptakeall;
-        data["AvailableNitrogenSum"] = cht.bd->m_soid.avlnsum;
-        data["OrganicNitrogenSum"] = cht.bd->m_soid.orgnsum;
-        data["CarbonShallow"] = cht.bd->m_soid.shlwc;
-        data["CarbonDeep"] = cht.bd->m_soid.deepc;
-        data["CarbonMineralSum"] = cht.bd->m_soid.mineac
-                                   + cht.bd->m_soid.minebc
-                                   + cht.bd->m_soid.minecc;
-        /* Unknown PFT dependence */
-        data["MossdeathCarbon"] = cht.bdall->m_v2soi.mossdeathc;
-        data["MossdeathNitrogen"] = cht.bdall->m_v2soi.mossdeathn;
-        std::stringstream filename;
-        filename.fill('0');
-        filename << "/tmp/cal-dvmdostem/" << std::setw(4) << icalyr << "_"
-                 << std::setw(2) << im << ".json";
-        out_stream.open(filename.str().c_str(), std::ofstream::out);
-        out_stream << data << std::endl;
-        out_stream.close();
+        BOOST_LOG_SEV(glg, debug) << "Send monthly calibration data to json files...";
+        this->output_caljson_monthly(icalyr, im);
       }
+
     } // end of month loop
 
     if (md->outRegn && outputyrind >=0) {
       regnouter.outputCohortVars(outputyrind, cohortcount, 0);  // "0" implies good data
     }
 
-    if(cht.md->consoledebug) {
-      cout <<"TEM " << cht.md->runstages <<" run: year "
-           <<icalyr<<" @cohort "<<cohortcount+1<<"\n";
-    }
+    BOOST_LOG_SEV(glg, note) << "TEM " << cht.md->runstages << " run: year "
+                             << icalyr << " @cohort " << cohortcount + 1;
 
     // if EQ run,option for simulation break
     if (cht.md->runeq) {
@@ -534,63 +454,149 @@ void RunCohort::run_timeseries(boost::shared_ptr<CalController> calcontroller_pt
       //if(cht.equiled )break;
     }
 
-    BOOST_LOG_SEV(glg, debug) << "Some end of year data for plotting...";
-
     if(this->get_calMode()) {
-      Json::Value data;
-      std::ofstream out_stream;
-      /* Not PFT dependent */
-      data["Year"] = icalyr;
-      data["Snowfall"] = cht.edall->y_a2l.snfl;
-      data["Rainfall"] = cht.edall->y_a2l.rnfl;
-      data["WaterTable"] = cht.edall->y_sois.watertab;
-      data["NitrogenUptakeAll"] = cht.bdall->y_soi2v.snuptakeall;
-      data["AvailableNitrogenSum"] = cht.bdall->y_soid.avlnsum;
-      data["OrganicNitrogenSum"] = cht.bdall->y_soid.orgnsum;
-      data["CarbonShallow"] = cht.bdall->y_soid.shlwc;
-      data["CarbonDeep"] = cht.bdall->y_soid.deepc;
-      data["CarbonMineralSum"] = cht.bdall->y_soid.mineac
-                                 + cht.bdall->y_soid.minebc
-                                 + cht.bdall->y_soid.minecc;
-      data["MossdeathCarbon"] = cht.bdall->y_v2soi.mossdeathc;
-      data["MossdeathNitrogen"] = cht.bdall->y_v2soi.mossdeathn;
-
-      for(int pft=0; pft<NUM_PFT; pft++) { //NUM_PFT
-        char pft_chars[5];
-        sprintf(pft_chars, "%d", pft);
-        std::string pft_str = std::string(pft_chars);
-        //c++0x equivalent: std::string pftvalue = std::to_string(pft);
-        data["PFT" + pft_str]["VegCarbon"]["Leaf"] = cht.bd[pft].y_vegs.c[I_leaf];
-        data["PFT" + pft_str]["VegCarbon"]["Stem"] = cht.bd[pft].y_vegs.c[I_stem];
-        data["PFT" + pft_str]["VegCarbon"]["Root"] = cht.bd[pft].y_vegs.c[I_root];
-        data["PFT" + pft_str]["VegStructuralNitrogen"]["Leaf"] = cht.bd[pft].y_vegs.strn[I_leaf];
-        data["PFT" + pft_str]["VegStructuralNitrogen"]["Stem"] = cht.bd[pft].y_vegs.strn[I_stem];
-        data["PFT" + pft_str]["VegStructuralNitrogen"]["Root"] = cht.bd[pft].y_vegs.strn[I_root];
-        data["PFT" + pft_str]["GPPAll"] = cht.bd[pft].y_a2v.gppall;
-        data["PFT" + pft_str]["NPPAll"] = cht.bd[pft].y_a2v.nppall;
-        data["PFT" + pft_str]["GPPAllIgnoringNitrogen"] = cht.bd[pft].y_a2v.ingppall;
-        data["PFT" + pft_str]["NPPAllIgnoringNitrogen"] = cht.bd[pft].y_a2v.innppall;
-        data["PFT" + pft_str]["PARDown"] = cht.ed[pft].y_a2v.pardown;
-        data["PFT" + pft_str]["PARAbsorb"] = cht.ed[pft].y_a2v.parabsorb;
-        data["PFT" + pft_str]["LitterfallCarbonAll"] = cht.bd[pft].y_v2soi.ltrfalcall;
-        data["PFT" + pft_str]["LitterfallNitrogenAll"] = cht.bd[pft].y_v2soi.ltrfalnall;
-        data["PFT" + pft_str]["PARDown"] = cht.ed[pft].y_a2v.pardown;
-        data["PFT" + pft_str]["PARAbsorb"] = cht.ed[pft].y_a2v.parabsorb;
-        data["PFT" + pft_str]["NitrogenUptake"] = cht.bd[pft].y_soi2v.snuptakeall;
-      }
-
-      std::stringstream filename;
-      filename.fill('0');
-      filename << "/tmp/year-cal-dvmdostem/" << std::setw(4) << icalyr << ".json";
-      out_stream.open(filename.str().c_str(), std::ofstream::out);
-      out_stream << data << std::endl;
-      out_stream.close();
+      BOOST_LOG_SEV(glg, debug) << "Send yearly calibration data to json files...";
+      this->output_caljson_yearly(icalyr);
     }
+
   } // end year loop
 }
 
+void RunCohort::output_caljson_yearly(int year) {
+  Json::Value data;
+  std::ofstream out_stream;
+  /* Not PFT dependent */
+  data["Year"] = year;
+  data["Snowfall"] = cht.edall->y_a2l.snfl;
+  data["Rainfall"] = cht.edall->y_a2l.rnfl;
+  data["WaterTable"] = cht.edall->y_sois.watertab;
+  data["NitrogenUptakeAll"] = cht.bdall->y_soi2v.snuptakeall;
+  data["AvailableNitrogenSum"] = cht.bdall->y_soid.avlnsum;
+  data["OrganicNitrogenSum"] = cht.bdall->y_soid.orgnsum;
+  data["CarbonShallow"] = cht.bdall->y_soid.shlwc;
+  data["CarbonDeep"] = cht.bdall->y_soid.deepc;
+  data["CarbonMineralSum"] = cht.bdall->y_soid.mineac
+                             + cht.bdall->y_soid.minebc
+                             + cht.bdall->y_soid.minecc;
+  data["MossdeathCarbon"] = cht.bdall->y_v2soi.mossdeathc;
+  data["MossdeathNitrogen"] = cht.bdall->y_v2soi.mossdeathn;
+
+  for(int pft=0; pft<NUM_PFT; pft++) { //NUM_PFT
+    char pft_chars[5];
+    sprintf(pft_chars, "%d", pft);
+    std::string pft_str = std::string(pft_chars);
+    //c++0x equivalent: std::string pftvalue = std::to_string(pft);
+    data["PFT" + pft_str]["VegCarbon"]["Leaf"] = cht.bd[pft].y_vegs.c[I_leaf];
+    data["PFT" + pft_str]["VegCarbon"]["Stem"] = cht.bd[pft].y_vegs.c[I_stem];
+    data["PFT" + pft_str]["VegCarbon"]["Root"] = cht.bd[pft].y_vegs.c[I_root];
+    data["PFT" + pft_str]["VegStructuralNitrogen"]["Leaf"] = cht.bd[pft].y_vegs.strn[I_leaf];
+    data["PFT" + pft_str]["VegStructuralNitrogen"]["Stem"] = cht.bd[pft].y_vegs.strn[I_stem];
+    data["PFT" + pft_str]["VegStructuralNitrogen"]["Root"] = cht.bd[pft].y_vegs.strn[I_root];
+    data["PFT" + pft_str]["GPPAll"] = cht.bd[pft].y_a2v.gppall;
+    data["PFT" + pft_str]["NPPAll"] = cht.bd[pft].y_a2v.nppall;
+    data["PFT" + pft_str]["GPPAllIgnoringNitrogen"] = cht.bd[pft].y_a2v.ingppall;
+    data["PFT" + pft_str]["NPPAllIgnoringNitrogen"] = cht.bd[pft].y_a2v.innppall;
+    data["PFT" + pft_str]["PARDown"] = cht.ed[pft].y_a2v.pardown;
+    data["PFT" + pft_str]["PARAbsorb"] = cht.ed[pft].y_a2v.parabsorb;
+    data["PFT" + pft_str]["LitterfallCarbonAll"] = cht.bd[pft].y_v2soi.ltrfalcall;
+    data["PFT" + pft_str]["LitterfallNitrogenAll"] = cht.bd[pft].y_v2soi.ltrfalnall;
+    data["PFT" + pft_str]["PARDown"] = cht.ed[pft].y_a2v.pardown;
+    data["PFT" + pft_str]["PARAbsorb"] = cht.ed[pft].y_a2v.parabsorb;
+    data["PFT" + pft_str]["NitrogenUptake"] = cht.bd[pft].y_soi2v.snuptakeall;
+  }
+
+  std::stringstream filename;
+  filename.fill('0');
+  filename << "/tmp/year-cal-dvmdostem/" << std::setw(4) << year << ".json";
+  out_stream.open(filename.str().c_str(), std::ofstream::out);
+  out_stream << data << std::endl;
+  out_stream.close();
+
+}
+
+void RunCohort::output_caljson_monthly(int year, int month) {
+
+  Json::Value data;
+  std::ofstream out_stream;
+  data["Year"] = year;
+  data["Month"] = month;
+  /* Environmental variables */
+  /* Monthly Thermal information */
+  data["TempAir"] = cht.ed->m_atms.ta;
+  //cht.ed->m_sois.ts[MAX_SOI_LAY], but no pre-summed values, so...
+  data["TempOrganicLayer"] = -1;
+  data["TempMineralLayer"] = -1;
+  data["ActiveLayerDepth"] = cht.ed->m_soid.ald;
+  /* Monthly Hydrodynamic information */
+  data["Snowfall"] = cht.ed->m_a2l.snfl;
+  data["Rainfall"] = cht.ed->m_a2l.rnfl;
+  data["WaterTable"] = cht.ed->m_sois.watertab;
+  //m_soid.vwc[] has approx 23 values
+  //  I assume these are summed in the following.
+  data["VWCOrganicLayer"] = cht.ed->m_soid.vwcshlw
+                            + cht.ed->m_soid.vwcdeep;
+  data["VWCMineralLayer"] = cht.ed->m_soid.vwcminea
+                            + cht.ed->m_soid.vwcmineb
+                            + cht.ed->m_soid.vwcminec;
+  //land should include both vegetation and ground.
+  data["Evapotranspiration"] = cht.ed->m_l2a.eet;
+  /* PFT dependent variables */
+  double parDownSum = 0;
+  double parAbsorbSum = 0;
+
+  for(int pft=0; pft<NUM_PFT; pft++) {
+    char pft_chars[5];
+    sprintf(pft_chars, "%d", pft);
+    std::string pft_str = std::string(pft_chars);
+    //c++0x equivalent: std::string pftvalue = std::to_string(pft);
+    data["PFT" + pft_str]["VegCarbon"]["Leaf"] = cht.bd[pft].m_vegs.c[I_leaf];
+    data["PFT" + pft_str]["VegCarbon"]["Stem"] = cht.bd[pft].m_vegs.c[I_stem];
+    data["PFT" + pft_str]["VegCarbon"]["Root"] = cht.bd[pft].m_vegs.c[I_root];
+    data["PFT" + pft_str]["VegStructuralNitrogen"]["Leaf"] = cht.bd[pft].m_vegs.strn[I_leaf];
+    data["PFT" + pft_str]["VegStructuralNitrogen"]["Stem"] = cht.bd[pft].m_vegs.strn[I_stem];
+    data["PFT" + pft_str]["VegStructuralNitrogen"]["Root"] = cht.bd[pft].m_vegs.strn[I_root];
+    data["PFT" + pft_str]["GPPAll"] = cht.bd[pft].m_a2v.gppall;
+    data["PFT" + pft_str]["NPPAll"] = cht.bd[pft].m_a2v.nppall;
+    data["PFT" + pft_str]["GPPAllIgnoringNitrogen"] = cht.bd[pft].m_a2v.ingppall;
+    data["PFT" + pft_str]["NPPAllIgnoringNitrogen"] = cht.bd[pft].m_a2v.innppall;
+    data["PFT" + pft_str]["LitterfallCarbonAll"] = cht.bd[pft].m_v2soi.ltrfalcall;
+    data["PFT" + pft_str]["LitterfallNitrogenAll"] = cht.bd[pft].m_v2soi.ltrfalnall;
+    data["PFT" + pft_str]["PARDown"] = cht.ed[pft].m_a2v.pardown;
+    parDownSum+=cht.ed[pft].m_a2v.pardown;
+    data["PFT" + pft_str]["PARAbsorb"] = cht.ed[pft].m_a2v.parabsorb;
+    parAbsorbSum+=cht.ed[pft].m_a2v.parabsorb;
+    data["PFT" + pft_str]["NitrogenUptake"] = cht.bd[pft].m_soi2v.snuptakeall;
+  }
+
+  data["PARAbsorbSum"] = parAbsorbSum;
+  data["PARDownSum"] = parDownSum;
+  data["GPPSum"] = cht.bdall->m_a2v.gppall;
+  data["NPPSum"] = cht.bdall->m_a2v.nppall;
+  /* Not PFT dependent */
+  data["NitrogenUptakeAll"] = cht.bd->m_soi2v.snuptakeall;
+  data["AvailableNitrogenSum"] = cht.bd->m_soid.avlnsum;
+  data["OrganicNitrogenSum"] = cht.bd->m_soid.orgnsum;
+  data["CarbonShallow"] = cht.bd->m_soid.shlwc;
+  data["CarbonDeep"] = cht.bd->m_soid.deepc;
+  data["CarbonMineralSum"] = cht.bd->m_soid.mineac
+                             + cht.bd->m_soid.minebc
+                             + cht.bd->m_soid.minecc;
+  /* Unknown PFT dependence */
+  data["MossdeathCarbon"] = cht.bdall->m_v2soi.mossdeathc;
+  data["MossdeathNitrogen"] = cht.bdall->m_v2soi.mossdeathn;
+  std::stringstream filename;
+  filename.fill('0');
+  filename << "/tmp/cal-dvmdostem/" << std::setw(4) << year << "_"
+           << std::setw(2) << month << ".json";
+  out_stream.open(filename.str().c_str(), std::ofstream::out);
+  out_stream << data << std::endl;
+  out_stream.close();
+
+
+}
+
 // run one cohort at one time-step (monthly)
-void RunCohort::run_monthly() {
+void RunCohort::advance_one_month() {
   // timing
   int yrindex = cht.timer->getCurrentYearIndex();     // starting from 0
   cht.cd.year = cht.timer->getCalendarYear();

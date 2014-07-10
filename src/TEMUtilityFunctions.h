@@ -10,10 +10,15 @@
 #define TEMUtilityFunctions_H
 
 #include <string>
+#include <json/value.h>
 
 namespace temutil {
 
   bool onoffstr2bool(const std::string &s);
+
+  std::string file2string(const char *filename);
+
+  Json::Value parse_control_file(const std::string &filepath);
 
 }
 

@@ -19,6 +19,9 @@
 
 #include "Ground.h"
 
+#include "../TEMLogger.h"
+extern src::severity_logger< severity_level > glg;
+
 Ground::Ground() {
   fstsoill = NULL;
   lstsoill = NULL;
@@ -33,7 +36,6 @@ Ground::Ground() {
   fstfntl  = NULL;
   lstfntl  = NULL;
   rocklayercreated=false;
-  debugging = true;  // display error message or not
 };
 
 Ground::~Ground() {
@@ -1889,6 +1891,7 @@ void Ground::getOslCarbon5Thickness(SoilLayer* sl, const double &plztop,
 
 //check the validity of fronts in soil column
 void Ground::checkFrontsValidity() {
+  
   // checking if the 'front' may be out of the top soil layer
   while (frontsz.size()>0 && frontsz[0]<=fstsoill->z) {
     frontsz.pop_front();
@@ -1901,120 +1904,120 @@ void Ground::checkFrontsValidity() {
     frontstype.pop_back();    // this will update the 'deque'
   }
 
-  if (debugging) {
-    int frntnum = frontsz.size();
+  int frntnum = frontsz.size();
 
-    for(int i=0; i<MAX_NUM_FNT; i++) {
-      if (i<frntnum) {
-        frntz[i] = frontsz[i];
-        frnttype[i] = frontstype[i];
+  for(int i=0; i<MAX_NUM_FNT; i++) {
+    if (i<frntnum) {
+      frntz[i] = frontsz[i];
+      frnttype[i] = frontstype[i];
 
-        if (i>0) {
-          if (frnttype[i]==frnttype[i-1]) {
-            string msg = "adjacent fronts should be different";
-            cout<< msg <<" in Ground::checkFrontsValidity! \n";
-          }
+      if (i>0) {
+        if (frnttype[i]==frnttype[i-1]) {
+          BOOST_LOG_SEV(glg, warn) << "Adjacent fronts should be different! "
+                                   << "Ground::checkFrontsValidity(..)";
         }
-      } else {
-        frntz[i] = MISSING_D;
-        frnttype[i] = MISSING_I;
+      }
+    } else {
+      frntz[i] = MISSING_D;
+      frnttype[i] = MISSING_I;
+    }
+  }
+
+  int fntind = 0;
+  Layer*currl=fstsoill;
+
+  while (currl!=NULL && fntind<frntnum) {
+    if(currl->isSoil) {
+      while (frontsz[fntind] > currl->z &&
+             frontsz[fntind] <= (currl->z + currl->dz)) {
+
+        if (currl->frozen != 0) {
+          BOOST_LOG_SEV(glg, err) << "Soil layer " << currl->indl
+                                   << " with front shall have 0 for its frozen "
+                                   << "state! Ground::checkFronts(..)";
+        }
+
+        fntind++;
+
+        if (fntind>=frntnum) {
+          break;
+        }
       }
     }
 
-    int fntind = 0;
-    Layer*currl=fstsoill;
+    currl=currl->nextl;
+  }
+}
 
-    while (currl!=NULL && fntind<frntnum) {
-      if(currl->isSoil) {
-        while (frontsz[fntind]>currl->z &&
-               frontsz[fntind]<=currl->z+currl->dz) {
-          if (currl->frozen!=0) {
-            string msg = "soil layer with front shall be have 0 for its frozen state";
-            cout << msg + ":: in Soil Layer "<<currl->indl<< "\n";
-          }
-
-          fntind++;
-
-          if (fntind>=frntnum) {
-            break;
-          }
-        }
-      }
-
-      currl=currl->nextl;
-    }
-  } // end of 'checking'
-};
-
-//check the validity of water contents in soil column
+/** Check the validity of water contents in soil column. */
 void Ground::checkWaterValidity() {
-  if (debugging) {
-    Layer*currl=toplayer;
+  BOOST_LOG_SEV(glg, debug) << "Checking water validity...";
 
-    while (currl!=NULL) {
-      if (fabs(currl->ice)<1.e-9) {
-        currl->ice = 0.;
+  Layer* currl = toplayer;
+
+  while (currl != NULL) {
+    if (fabs(currl->ice) < 1.e-9) {
+      currl->ice = 0.0;
+    }
+
+    if (fabs(currl->liq) < 1.e-9) {
+      currl->liq = 0.0;
+    }
+
+    if (currl->ice < 0.0 || currl->liq < 0.0) {
+      BOOST_LOG_SEV(glg, err) << "Layer " << currl->indl
+                              << " shall NOT have negative ice or liq water!";
+    }
+
+    if (currl->frozen == 1) {
+      if (currl->liq > 0.0) {
+        BOOST_LOG_SEV(glg, err) << "Layer " << currl->indl
+                                << " is frozen and shall NOT have liquid water!";
       }
 
-      if (fabs(currl->liq)<1.e-9) {
-        currl->liq = 0.;
-      }
-
-      if (currl->ice<0. || currl->liq<0.) {
-        string msg = "layer shall NOT have negative ice/liq water";
-        cout << msg + ":: in Layer "<<currl->indl<< "\n";
-      }
-
-      if (currl->frozen==1) {
-        if (currl->liq>0.) {
-          string msg = "frozen layer shall NOT have liquid water";
-          cout << msg + ":: in Layer "<<currl->indl<< "\n";
-        }
-
-        if ((currl->ice-currl->maxice)>1.0e-3) {//it may be from some
-                                                //  mathmatical round up, so
-                                                //  '1.e-3' used as a critrial'
-          string msg = "frozen layer shall NOT have too much ice water";
-          cout << msg + ":: in Layer "<<currl->indl<< "\n";
-        }
-      }
-
-      if (currl->frozen==-1) {
-        if (currl->ice>0.) {
-          string msg = "unfrozen layer shall NOT have ice";
-          cout << msg + ":: in Layer "<<currl->indl<< "\n";
-        }
-
-        if ((currl->liq-currl->maxliq)>1.e-6 && currl->isSoil) {
-          string msg = "unfrozen soil layer shall NOT have too much liquid water";
-          cout << msg + ":: in Layer "<<currl->indl<< "\n";
-        }
-      }
-
-      if (currl->frozen==0 && currl->isSoil) {
-        double maxwat = fmax(0., currl->maxliq-currl->getVolIce()*currl->dz*DENLIQ); //adjust max. liq by ice occupied space
-
-        if ((currl->liq-maxwat)>1.e-6) {
-          string msg = "partially unfrozen soil layer shall NOT have too much liquid water";
-          cout << msg + ":: in Soil Layer "<<currl->indl<< "\n";
-        }
-
-        maxwat = currl->maxice-currl->getVolLiq()*currl->dz*DENICE; //adjust max. ice by liq occupied space
-
-        if ((currl->ice-maxwat)>1.e-6) {
-          string msg = "partially frozen soil layer shall NOT have too much ice water";
-          cout << msg + ":: in Layer "<<currl->indl<< "\n";
-        }
-      }
-
-      currl=currl->nextl;
-
-      if(currl->isRock) {
-        break;
+      // maybe from some mathematical round up? so '1.0e-3 is used as critical
+      if ((currl->ice-currl->maxice) > 1.0e-3) {
+        BOOST_LOG_SEV(glg, err) << "Layer " << currl->indl
+                                << " is frozen and shall NOT have too much ice water!";
       }
     }
-  } // end of 'checking'
-};
+
+    if (currl->frozen == -1) {
+      if (currl->ice > 0.0) {
+        BOOST_LOG_SEV(glg, err) << "Layer " << currl->indl
+                                << " is NOT frozen and shall NOT have ice!";
+      }
+
+      if ((currl->liq-currl->maxliq)>1.e-6 && currl->isSoil) {
+        BOOST_LOG_SEV(glg, err) << "Layer " << currl->indl
+                                << " is NOT frozen and shall NOT have too much liquid water!";
+      }
+    }
+
+    if (currl->frozen == 0 && currl->isSoil) {
+      // adjust max. liq by ice occupied space
+      double maxwat = fmax(0.0, currl->maxliq-currl->getVolIce()*currl->dz*DENLIQ);
+
+      if ((currl->liq-maxwat) > 1.e-6) {
+        BOOST_LOG_SEV(glg, err) << "Layer " << currl->indl << " (soil) "
+                                << "is partially unfrozen and shall NOT have too much liquid water!";
+      }
+
+      // adjust max. ice by liq occupied space
+      maxwat = currl->maxice-currl->getVolLiq()*currl->dz*DENICE;
+      if ((currl->ice-maxwat) > 1.e-6) {
+        BOOST_LOG_SEV(glg, err) << "Layer " << currl->indl << " (soil) "
+                                << "is partially frozen and shall NOT have too much ice water!";
+      }
+    }
+
+    currl = currl->nextl;
+
+    if(currl->isRock) {
+      break;
+    }
+  }
+}
 
 void Ground::cleanSnowSoilLayers() {
   Layer* currl = toplayer;

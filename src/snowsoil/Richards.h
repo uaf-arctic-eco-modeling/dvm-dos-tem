@@ -20,7 +20,6 @@ public :
   Richards();
   ~Richards();
 
-  bool debugging;
   int itsum;
 
   int indx0sl; // first soil layer index applied for Richards Equation
