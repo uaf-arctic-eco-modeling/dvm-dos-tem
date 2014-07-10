@@ -8,9 +8,13 @@
 
 #include <iostream>
 #include <unistd.h> // for hostname stuff...
+#ifdef WITHMPI
 #include <mpi.h>
+#endif
+
 #include "tbc-debug-util.h"
 
+#ifdef WITHMPI
 void tbc_mpi_pp_error(int err) {
   switch (err) {
     case MPI_SUCCESS: {
@@ -31,7 +35,8 @@ void tbc_mpi_pp_error(int err) {
     }
   }
 }
- 
+#endif
+
 void PAUSE_to_attach_gdb(int myrank, int stop_in_rank) {
   /* Debugging help from here:
    http://www.open-mpi.org/faq/?category=debugging

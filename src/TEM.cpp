@@ -45,15 +45,18 @@
 
 #include <json/value.h>
 
+#ifdef WITHMPI
 #include <mpi.h>
+#include "data/RestartData.h" // for defining MPI typemap...
+#include "inc/tbc_mpi_constants.h"
+#endif
+
 
 #include "ArgHandler.h"
 #include "TEMLogger.h"
 #include "TEMUtilityFunctions.h"
 #include "assembler/Runner.h"
 
-#include "data/RestartData.h" // for defining MPI typemap...
-#include "inc/tbc_mpi_constants.h"
 
 ArgHandler* args = new ArgHandler();
 

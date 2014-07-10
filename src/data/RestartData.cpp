@@ -18,7 +18,9 @@
  *
  */
 
+#ifdef WITHMPI
 #include <mpi.h>
+#endif
 
 #include "RestartData.h"
 
@@ -29,6 +31,7 @@ RestartData::RestartData() {
 RestartData::~RestartData() {
 };
 
+#ifdef WITHMPI
 MPI_Datatype RestartData::register_mpi_datatype() {
   
   // create types for all the dimensions in the RestartData object...
@@ -263,6 +266,7 @@ MPI_Datatype RestartData::register_mpi_datatype() {
   return CUSTMPI_t_RestartData;
 
 }
+#endif
 
 void RestartData::reinitValue() {
   //

@@ -11,6 +11,7 @@
 
 #include <iostream>
 #include <vector>
+#include <netcdfcpp.h>
 
 #include "../data/RestartData.h"
 

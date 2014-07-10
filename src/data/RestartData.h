@@ -1,7 +1,9 @@
 #ifndef RESTARTDATA_H_
 #define RESTARTDATA_H_
 
+#ifdef WITHMPI
 #include <mpi.h> // for "exporting" an MPI derived type...
+#endif
 
 #include "../inc/errorcode.h"
 #include "../inc/cohortconst.h"
@@ -12,7 +14,9 @@ public :
   RestartData();
   ~RestartData();
 
+  #ifdef WITHMPI
   MPI_Datatype register_mpi_datatype();
+  #endif
 
   void reinitValue();
 
