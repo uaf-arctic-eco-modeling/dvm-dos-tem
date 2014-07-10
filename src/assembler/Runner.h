@@ -17,7 +17,9 @@
 #include <vector>
 #include <deque>
 
+#ifdef WITHMPI
 #include <mpi.h>
+#endif
 
 #include "RunRegion.h"
 #include "RunGrid.h"

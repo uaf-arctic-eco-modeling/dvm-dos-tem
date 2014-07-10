@@ -1,14 +1,15 @@
 #include <string>
 #include <algorithm>
 
+#ifdef WITHMPI
 #include <mpi.h>
-
-#include "Runner.h"
-
-#include "../TEMLogger.h"
 #include "../parallel-code/Master.h"
 #include "../parallel-code/Slave.h"
 #include "../inc/tbc_mpi_constants.h"
+#endif
+
+#include "Runner.h"
+#include "../TEMLogger.h"
 #include "../util/tbc-debug-util.h"
 
 extern src::severity_logger< severity_level > glg;
