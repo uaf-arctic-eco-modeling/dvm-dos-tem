@@ -1,16 +1,39 @@
-DVM-DOS-TEM-Test-06-cohorts                                            /* TEM running case */
-config/                                                     /* directory of initial states and parameter files (9 files - cmt_calveg.txt, cmt_calsoil.txt, cmt_dimvegetation.txt, cmt_dimground.txt, cmt_envcanopy.txt, cmt_envground.txt, cmt_bgcvegetation.txt, cmt_begsoil.txt, cmt_firepar.txt)
-DATA/test_06_cohorts/runchtlist.nc                   /* cohort list to be run
-DATA/test_06_cohorts/output/                         /* directory of outputs
-DATA/test_06_cohorts/dataregion/                     /* directory of regional-level inputs
-DATA/test_06_cohorts/datagrid/                       /* directory of grided data inputs
-DATA/test_06_cohorts/datacht/                        /* directory of cohort inputs
-eq                                                          /* run stage (must be "eq","sp","tr","sc", "eqsp", "sptr", "eqsptr", or "all")
-restart                                                     /* initial mode (must be "default", "restart", or,"sitein")
-DATA/test_06_cohorts/output/restart-eq.nc            /* restart/site-specific input file (if "restart"/"sitein" as in previous line)
-1                                                           /* using dynamical climate data (1) or not (-1) or default (0: upon to stage)
-1                                                           /* using varied co2  (1) or not (-1) or default (0: upon to stage)
-1                                                           /* using dynamical LAI from veg. C in model (1), or otherwise from input (0) 
-0                                                           /* using fire severity as input (1), or otherwise derived from fire size/fire season/drainage type (0)
--9999                                                       /* output starting calendar year ('-9999' for starting model running after 'eq') 
+{
+  "general": {
+    "run_name": "multi site test case",
+    "config_dir": "config/",
+    "runmode": "multi"   // "single" or "multi"
+  },
 
+  "data_directories": {
+    "run_cohort_list": "DATA/test_06_cohorts/runchtlist.nc",
+    "output_data_dir": "DATA/test_06_cohorts/output/",
+    "region_data_dir": "DATA/test_06_cohorts/dataregion/",
+    "grid_data_dir":   "DATA/test_06_cohorts/datagrid/",
+    "cohort_data_dir": "DATA/test_06_cohorts/datacht/"
+  },
+
+  "stage_settings": {
+    "run_stage": "eq",          // Must be "eq","sp","tr","sc", or "all"
+    "restart_mode": "restart",
+    "restart_file": "DATA/test_06_cohorts/output/restart-eq.nc"
+  },
+
+  "model_settings": {
+    "dynamic_climate": 0,  // 1 or -1 or default (0: upon to stage)
+    "varied_co2": 0,       // 1 or -1  or default (0: upon to stage)
+    "dynamic_lai": 1,               // from veg. C in model (1), or otherwise from input (0) 
+    "fire_severity_as_input": 0,    // using fire severity as input (1), or otherwise derived from fire size/fire season/
+    "output_starting_year": -9999  // '-9999' for starting model running after 'eq'
+  },
+
+  // Not sure if these are appropriately checked in mult mode from this file
+  // previously the model set them internally it using a regional control file
+  "output_switches": {
+    "daily_output": 0,
+    "monthly_output": 0,
+    "yearly_output": 1,
+    "summarized_output": 0,
+    "soil_climate_output": 0
+  }
+}

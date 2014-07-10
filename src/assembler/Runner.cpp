@@ -1,11 +1,9 @@
 #include <string>
-
 #include <algorithm>
+
 #include <mpi.h>
 
 #include "Runner.h"
-
-
 
 #include "../TEMLogger.h"
 #include "../parallel-code/Master.h"
@@ -25,9 +23,9 @@ Runner::~Runner() {
 };
 
 void Runner::modeldata_module_settings_from_args(const ArgHandler &args) {
-  this->md.set_envmodule(args.getEnv());
-  this->md.set_bgcmodule(args.getBgc());
-  this->md.set_dvmmodule(args.getDvm());
+//  this->md.set_envmodule(args.getEnv());
+//  this->md.set_bgcmodule(args.getBgc());
+//  this->md.set_dvmmodule(args.getDvm());
 }
 
 void Runner::set_calibrationMode(bool new_setting) {
@@ -41,30 +39,30 @@ bool Runner::get_calibrationMode() {
   return this->calibrationMode;
 }
 
+void Runner::initInput(const string &controlfile, const string &loop_order) {
 
-void Runner::initInput(const string &controlfile, const string &runmode) {
-  //Input and processing for reading parameters and passing them to controller
-  configin.controlfile=controlfile;
+  // Read controlfile. Sets a bunch of data in the ModelData pointer
+  md.updateFromControlFile(controlfile);
 
-  if (runmode.compare("siter")==0) {
-    md.runmode = 1;
-  } else if (runmode.compare("regner1")==0) {
-    md.runmode = 2;                            //regional run - time-series
-  } else if (runmode.compare("regner2")==0) {
-    md.runmode = 3;                            //regional run - spatially
-  } else {
-    BOOST_LOG_SEV(glg, fatal) << "runmode: " << runmode
-                              << ". TEM runmode must be one of "
-                              << "siter, regner1, or regner2. ";
-    exit(-1);
+  BOOST_LOG_SEV(glg, debug) << "Done with the parse_control_file(..) function..";
+
+  if (md.runmode.compare("single") == 0) {
+    BOOST_LOG_SEV(glg, debug) << "In single site mode...no loop orders to set? Nothing to do?";
+  } else if (md.runmode.compare("multi") == 0) {
+    BOOST_LOG_SEV(glg, debug) << "In multi-site mode, gotta set the loop order!";
+    if (loop_order.compare("time-major") == 0) {
+      md.loop_order = "time-major";
+    } else if (loop_order.compare("space-major") == 0){
+      md.loop_order = "space-major";
+    } else {
+      BOOST_LOG_SEV(glg, fatal) << "Invalid runmode and loop-order combo: "
+                                << runmode << ", " << loop_order << ". "
+                                << "(controls time vs space major and single vs multi site runs)";
+      exit(-1);
+    }
   }
 
-  //
-  if (md.runmode!=1) {
-    md.consoledebug=false;
-  }
-
-  configin.ctrl4run(&md); //read in model configure info from "config/controlfile_site.txt"
+  BOOST_LOG_SEV(glg, debug) << "Done reading in the config file. twiddling some settings...";
   md.checking4run();
   // timer initialization
   timer.setModeldata(&md);
@@ -79,12 +77,17 @@ void Runner::initInput(const string &controlfile, const string &runmode) {
   error = runcht.cinputer.init(); //checking data file
   runchtlist.clear();
 
-  if (md.runmode==2 || md.runmode==3) {
+  if (md.runmode.compare("multi") == 0) {
+    BOOST_LOG_SEV(glg, info) << "Multi-site running mode! Creating the cohort list...";
     createCohortList4Run(); // the running cohort list, if multple-cohort run mode on
-  } else if (md.runmode==1) {
-    BOOST_LOG_SEV(glg, warn) << "CHTID and INITCHTID are " << chtid;
-    BOOST_LOG_SEV(glg, warn) << "Be sure they exist and are consistent in 'cohortid.nc'";
+  } else if (md.runmode.compare("single") == 0) {
+    BOOST_LOG_SEV(glg, warn) << "Single-site running mode! CHTID and INITCHTID "
+                             << "are " << chtid << ". Be sure they exist and "
+                             << "are consistent in 'cohortid.nc'!";
     runchtlist.push_back(chtid);
+  } else {
+    BOOST_LOG_SEV(glg, fatal) << "INVALID ModelData.runmode!: " << md.runmode;
+    exit(-1);
   }
 
   //initial conditions
@@ -113,7 +116,7 @@ void Runner::initOutput() {
   string stage = "-"+md.runstages;
 
   // 1)for general outputs
-  if (md.runmode==1) {   //very detailed output for ONE cohort ONLY
+  if (md.runmode.compare("single") == 0) {   //very detailed output for ONE cohort ONLY
     string dimfname ="";
     string envfname ="";
     string bgcfname ="";
@@ -140,7 +143,7 @@ void Runner::initOutput() {
       bgcfname = md.outputdir+"cmtbgc_yly"+stage+".nc";
       runcht.bgcylyouter.init(bgcfname); // set netcdf files for output
     }
-  } else if ((md.runmode==2 || md.runmode==3) && (!md.runeq)) {
+  } else if (md.runmode.compare("multi") && (!md.runeq)) {
     // output options (switches)
     md.outRegn      = true;
     md.outSiteYear  = false;
