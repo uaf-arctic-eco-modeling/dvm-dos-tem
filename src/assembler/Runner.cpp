@@ -144,13 +144,15 @@ void Runner::initOutput() {
       bgcfname = md.outputdir+"cmtbgc_yly"+stage+".nc";
       runcht.bgcylyouter.init(bgcfname); // set netcdf files for output
     }
-  } else if (md.runmode.compare("multi") && (!md.runeq)) {
+  } else if ( (md.runmode.compare("multi") == 0) && (!md.runeq) ) {
+    BOOST_LOG_SEV(glg, note) << "Outputting regional data! We are in multisite mode and NOT eq stage!";
     // output options (switches)
     md.outRegn      = true;
     md.outSiteYear  = false;
     md.outSiteDay   = false;
     md.outSiteMonth = false;
   } else {
+    BOOST_LOG_SEV(glg, err) << "What mode is this?? How did we get here??";
     md.outRegn=false;
     md.outSiteYear=false;
     md.outSiteDay=false;
@@ -158,6 +160,7 @@ void Runner::initOutput() {
   }
 
   // 2) summarized output by a list of variables
+  BOOST_LOG_SEV(glg, note) << "Output regional stuff (md.outRegn)?: " << md.outRegn;
   if (md.outRegn) {
     // varlist
     string outlistfile = "config/outvarlist.txt";
