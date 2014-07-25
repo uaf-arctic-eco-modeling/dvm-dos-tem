@@ -33,7 +33,7 @@
     "daily_output": 0,
     "monthly_output": 0,
     "yearly_output": 1,
-    "summarized_output": 0,
+    "summarized_output": 1,
     "soil_climate_output": 0
   }
 }
