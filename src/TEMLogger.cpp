@@ -1,10 +1,16 @@
+#include <boost/log/expressions/formatters/named_scope.hpp>
+
 #include "TEMLogger.h"
 
-
+// Create the global logger object
 src::severity_logger< severity_level > glg;
 
+
+// Add a bunch of attributes to it
 BOOST_LOG_ATTRIBUTE_KEYWORD(severity, "Severity", severity_level)
 BOOST_LOG_ATTRIBUTE_KEYWORD(pid, "ProcessID", attrs::current_process_id::value_type)
+BOOST_LOG_ATTRIBUTE_KEYWORD(named_scope, "Scope", attrs::named_scope::value_type)
+
 
 /** Initialize the enum parser map from strings to the enum levels.*/
 template<>
@@ -37,13 +43,18 @@ void setup_logging(std::string lvl) {
   logging::core::get()->add_global_attribute(
     "ProcessID", attrs::current_process_id()
   );
+  logging::core::get()->add_global_attribute(
+    "Scope", attrs::named_scope()
+  );
 
   logging::add_console_log(
     std::clog,
     keywords::format = (
       expr::stream
         //<< expr::format_date_time< boost::posix_time::ptime >("TimeStamp", "%Y-%m-%d %H:%M:%S ")
-        << "("<< pid << ") [" << severity << "] "
+        << "("<< pid << ") "
+        << "[" << severity << "] "
+        << "[" << named_scope << "] "
         << expr::smessage
     )
   );

@@ -18,6 +18,7 @@
 #include <boost/log/utility/setup/console.hpp>
 
 #include <boost/log/attributes/current_process_id.hpp>
+#include <boost/log/attributes/scoped_attribute.hpp>
 
 
 namespace logging = boost::log;
