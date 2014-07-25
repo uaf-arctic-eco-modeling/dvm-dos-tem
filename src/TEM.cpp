@@ -68,16 +68,15 @@ extern src::severity_logger< severity_level > glg;
 		args->show_help();
 		return 0;
 	}
-  std::cout << "Checking command line arguments...\n";
-  args->verify();
 
   std::cout << "Setting up logging...\n";
-
   setup_logging(args->get_log_level());
 
-  BOOST_LOG_SEV(glg, note) << "Reading controlfile to determine if this is a site or regional run...";
+  BOOST_LOG_SEV(glg, note) << "Checking command line arguments...";
+  args->verify();
+
+  BOOST_LOG_SEV(glg, note) << "Reading controlfile into main(..) scope...";
   Json::Value controldata = temutil::parse_control_file(args->get_ctrl_file());
-  
 
   setvbuf(stdout, NULL, _IONBF, 0);
   setvbuf(stderr, NULL, _IONBF, 0);

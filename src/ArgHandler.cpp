@@ -1,4 +1,11 @@
+#include <json/reader.h>
+
 #include "ArgHandler.h"
+
+#include "TEMLogger.h"
+#include "TEMUtilityFunctions.h"
+
+extern src::severity_logger< severity_level > glg;
 
 ArgHandler::ArgHandler() {
 	// handle defaults in the parse(..) and verify(..) functions
@@ -55,17 +62,29 @@ void ArgHandler::parse(int argc, char** argv) {
 
 }
 
+/** Exit with non-zero value if there are any problems / conflicts with 
+* command line args.
+*/
 void ArgHandler::verify() {
-  // The regional "run mode"...loop order??
-  std::cout << "Verification reuimentary - needs more programming help!\n";
-  if (mode.compare("cal-mode") == 0) {
-    if ( true ) {
-      // pass, all ok
-    } else {
-      std::cout << "Invalid option. Quitting.\n";
-      exit(-1);
-    }
-  }  
+
+  Json::Value controldata = temutil::parse_control_file(this->get_ctrl_file());
+
+  std::string m = controldata["general"]["runmode"].asString();
+  if ( (m == "multi") && this->get_cal_mode() ) {
+    BOOST_LOG_SEV(glg, fatal) << "Can't use --cal-mode with a multi-site run. "
+                              << "Please specify a different (single site) "
+                              << "control file.";
+    exit(-1);
+  }
+  if ( (m == "single") && (this->get_loop_order() == "time-major") ) {
+    BOOST_LOG_SEV(glg, fatal) << "Can't use --loop-order=time-major for a "
+                              << "single site run. Change loop order or "
+                              << "specify a different control file.";
+    exit(-1);
+  }
+
+
+  BOOST_LOG_SEV(glg, note) << "Command line arguments all OK.";
 }
 
 
