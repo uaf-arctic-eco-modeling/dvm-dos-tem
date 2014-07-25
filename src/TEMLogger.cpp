@@ -1,15 +1,9 @@
 #include "TEMLogger.h"
 
-// Can't remember what this was for? Does not seem to be needed. 6/25/2014
-//BOOST_LOG_GLOBAL_LOGGER_INIT(my_logger, src::severity_logger)
-//{
-//    src::severity_logger< severity_level > lg;
-//    //lg.add_attribute("StopWatch", boost::make_shared< attrs::timer >());
-//    return lg;
-//}
 
 src::severity_logger< severity_level > glg;
 
+BOOST_LOG_ATTRIBUTE_KEYWORD(severity, "Severity", severity_level)
 BOOST_LOG_ATTRIBUTE_KEYWORD(pid, "ProcessID", attrs::current_process_id::value_type)
 
 /** Initialize the enum parser map from strings to the enum levels.*/
