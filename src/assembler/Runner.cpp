@@ -187,6 +187,7 @@ void Runner::initOutput() {
 
 //set up data connection and data pointer initialization
 void Runner::setupData() {
+  BOOST_LOG_SEV(glg, note) << " Some message while setting up the data...";
   // input data connection
   rungrd.grid.setRegionData(&runreg.region.rd);
   runcht.cht.setModelData(&md);
@@ -201,6 +202,7 @@ void Runner::setupData() {
 };
 
 void Runner::setupIDs() {
+  BOOST_LOG_NAMED_SCOPE("setup");
   // all grid data ids
   error = rungrd.allgridids();
 
@@ -374,6 +376,7 @@ void Runner::setupIDs() {
 /** Single site runmode.
 */
 void Runner::single_site() {
+  BOOST_LOG_NAMED_SCOPE("single site");
   //read-in region-level data
   //  (Yuan: this is the portal for multiple region run,
   //     if needed in the future)
@@ -424,6 +427,7 @@ void Runner::single_site() {
 
 
 void Runner::regional_space_major() {
+  BOOST_LOG_NAMED_SCOPE("regional sm");
   //read-in region-level data
   //  (Yuan: this is the portal for multiple region run,
   //    if needed in the future)
@@ -490,6 +494,7 @@ void Runner::regional_space_major() {
 };
 
 void Runner::regional_time_major(int processors, int rank) {
+  BOOST_LOG_NAMED_SCOPE("regional tm");
   //read-in region-level data
   //  (Yuan: this is the portal for multiple region run,
   //    if needed in the future)
