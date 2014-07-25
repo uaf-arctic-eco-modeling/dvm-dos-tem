@@ -94,7 +94,7 @@ class ExpandingWindow(object):
 
     self.targets = targets
 
-    self.fig = plt.figure()
+    self.fig = plt.figure(figsize=(6*1.3,8*1.3))
     self.fig.suptitle(figtitle)
 
     # build a list of the pft specific traces
