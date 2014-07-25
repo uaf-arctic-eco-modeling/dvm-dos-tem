@@ -18,6 +18,7 @@
 #include <boost/log/utility/setup/console.hpp>
 
 #include <boost/log/attributes/current_process_id.hpp>
+#include <boost/log/attributes/scoped_attribute.hpp>
 
 
 namespace logging = boost::log;
@@ -53,8 +54,6 @@ public:
 
 
 BOOST_LOG_GLOBAL_LOGGER(my_logger, src::severity_logger< severity_level >);
-
-BOOST_LOG_ATTRIBUTE_KEYWORD(severity, "Severity", severity_level)
 
 /** Send string representing an enum value to stream 
  */

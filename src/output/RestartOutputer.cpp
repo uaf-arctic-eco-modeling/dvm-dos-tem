@@ -1,5 +1,8 @@
 #include "RestartOutputer.h"
 
+#include "../TEMLogger.h"
+extern src::severity_logger< severity_level > glg;
+
 /*! constructor */
 RestartOutputer::RestartOutputer() {
 };
@@ -14,7 +17,8 @@ RestartOutputer::~RestartOutputer() {
 void RestartOutputer::init(string& outputdir,string& stage) {
   NcError err(NcError::verbose_nonfatal);
   restartfname = outputdir+"restart"+stage+".nc";
-  restartFile=new NcFile(restartfname.c_str(), NcFile::Replace);
+  restartFile = new NcFile(restartfname.c_str(), NcFile::Replace);
+
   //dimension definition
   chtD = restartFile->add_dim("CHTID");
   pftD     = restartFile->add_dim("PFT", NUM_PFT);
@@ -106,6 +110,8 @@ void RestartOutputer::init(string& outputdir,string& stage) {
 }
 
 void RestartOutputer::outputVariables(const int & chtcount) {
+  BOOST_LOG_NAMED_SCOPE("restart outputter");
+  BOOST_LOG_SEV(glg, info) << "Writing output variables...";
   NcError err(NcError::verbose_nonfatal);
   chtidV->put_rec(&resod->chtid, chtcount);
   int errcode=errorChecking();
