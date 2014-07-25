@@ -54,11 +54,18 @@ void setup_logging(std::string lvl) {
     )
   );
 
-  // set the severity level...
-  EnumParser<severity_level> parser;
-  logging::core::get()->set_filter(
-    ( severity >= parser.parseEnum(lvl) )
-  );
+  try {
+    // set the severity level...
+    EnumParser<severity_level> parser;
+    logging::core::get()->set_filter(
+      ( severity >= parser.parseEnum(lvl) )
+    );
+  } catch (std::runtime_error& e) {
+    std::cout << e.what() << std::endl;
+    std::cout << "'" << lvl << "' is an invalid --log-level! Must be one of "
+              << "[debug, info, note, warn, err, fatal]\n";
+    exit(-1);
+  }
 
 }
 
