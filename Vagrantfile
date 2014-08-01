@@ -79,7 +79,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
 
   #
-  # BONUS STUFF - everything should still be functional w/o these!
+  # Bonus - should have basic functionality w/o these packages and settings
   #
 
   config.vm.provision "shell", inline: "yum install -y gitk git-gui"
