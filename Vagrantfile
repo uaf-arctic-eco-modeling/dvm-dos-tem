@@ -1,24 +1,31 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
+# Run by the program Vagrant to handle the creation and management of a 
+# made-to-order virtual machine. In our case, the machine we are ordering 
+# will be setup to run dvm-dos-tem.
+
+puts "Running with Vagrant v#{Vagrant::VERSION}"
 
 # Check to see if there's an SSH agent running with keys.
 `ssh-add -l`
 
 if not $?.success?
-  puts 'Your SSH does not currently contain any keys (or is stopped.)'
-  puts 'Please start it and add your GitHub SSH key to continue.'
+  "Your SSH Agent does not currently contain any keys (or is stopped.) "\
+  "Please start the agent and add your GitHub SSH key to to the agent. "
+  "Vagrant will setup you virtual machine so that the ssh keys on your "
+  "host machine are forwarded for use within the virtual machine guest. "
+  "This will allow you to seamlessly access private git repos from within "
+  "the virtual machine guest. If you setup keys on your host with default "
+  "settings you mabe be able to simply type: $ ssh-add ~/.ssh/id_rsa"
   exit 1
 end
 
-if Vagrant::VERSION < "1.5.1"
-  puts 'This Vagrant environment requires Vagrant 1.5.1 or higher.'
-  exit 1
-end
+puts "Checking that keys work for github..."
+puts `ssh -T git@github.com -o StrictHostKeyChecking=no`
 
-# Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
-VAGRANTFILE_API_VERSION = "2"
 
+VAGRANTFILE_API_VERSION = "2" # <--don't change unless you know what you're doing!
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   config.vm.box = "chef/fedora-20"
@@ -27,14 +34,16 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # (calibration mode, visualiation scripts, etc)
   config.ssh.forward_x11 = true  
 
-  # For authenticating when cloning private repos: 
-  #  - host must have ssh keys to github and be using ssh-agent.
-  #    (check 'ssh-add -l')
-  # Can test with:
-  #config.vm.provision :shell, :inline => 'ssh -T git@github.com -o StrictHostKeyChecking=no'
+  # For authenticating when cloning private repos, host must have ssh keys for 
+  # github and be using ssh-agent (so the keys can be forwarded to the guest). 
+  # Try 'ssh-add -l' on the host to see what keys the agent knows about.
   config.ssh.forward_agent = true
 
-  # Fundamental stuff needed to compile dvm-dos-tem
+  #
+  # System provisioning
+  #
+
+  # Primary packages needed to compile and run dvm-dos-tem
   # NOTE: You've gotta install openmpi *after* NetCDF! This keeps NetCDF from
   # getting setup with some pesky #defines that cause errors when trying to
   # compile files that include <mpi.h>.
@@ -42,37 +51,39 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.provision "shell", inline: "yum install -y git gcc-c++ jsoncpp-devel readline-devel netcdf-devel netcdf-cxx-devel boost-devel"
   config.vm.provision "shell", inline: "yum install -y openmpi-devel"
 
-  # Seems to help x11 forwarding
+  # this seems to help x11 forwarding
   config.vm.provision "shell", inline: "yum install -y xauth"
 
-  # Plotting
+  # packages used for plotting
   config.vm.provision "shell", inline: "yum install -y python-matplotlib python-matplotlib-wx netcdf4-python python-ipython"
 
-  # Spatial Ecology Lab's code
-  config.vm.provision "shell", privileged: false, path: "vagrant/provision-sel-software.sh"
-  #config.vm.provision "shell", privileged: false, inline: "git clone git@github.com:ua-snap/dvm-dos-tem.git"
-  #config.vm.provision "shell", privileged: false, inline: "git clone git@github.com:ua-snap/ddtv.git"
+  #
+  # User provisioning
+  #
 
+  # grab our own packages
+  config.vm.provision "shell", privileged: false, path: "vagrant/provision-sel-software.sh"
+  
+  # copy the base bashrc file from the shared folder on the host (the folder 
+  # is mounted at /vagrant on the guest)
   config.vm.provision "shell", privileged: false, inline: "cp /vagrant/vagrant/bashrc-fedora ~/.bashrc"
-  #config.vm.provision "shell", privileged: false, inline: 'su -c "cp /vagrant/vagrant/bashrc-fedora ~/.bashrc" vagrant'
 
 
   #
   # BONUS STUFF - everything should still be functional w/o these!
   #
+
   config.vm.provision "shell", inline: "yum install -y gitk git-gui"
 
-  # man page conflicts between vim and vim-minimal, removing vim-minimal
-  # takes sudo with it, crippling later attempts at inline provisioning...
+  # The man page conflicts between vim and vim-minimal. Removing vim-minimal
+  # takes sudo with it, crippling later attempts at inline provisioning. So we
+  # make sure to reinstall sudo.
   config.vm.provision "shell", inline: 'su -c "yum remove -y vim-minimal && yum install -y vim && yum install -y sudo"' 
   config.vm.provision "shell", privileged: false, inline: "cp /vagrant/vagrant/vimrc-general ~/.vimrc"
 
+  # Share an additional folder to the guest VM. 
+  # config.vm.synced_folder "<host path>", "<mount path on guest>"
 
-  # Share an additional folder to the guest VM. The first argument is
-  # the path on the host to the actual folder. The second argument is
-  # the path on the guest to mount the folder. And the optional third
-  # argument is a set of non-required options.
-  # config.vm.synced_folder "../data", "/vagrant_data"
 
   # Provider-specific configuration so you can fine-tune various
   # backing providers for Vagrant. These expose provider-specific options.
