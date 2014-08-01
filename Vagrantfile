@@ -30,6 +30,14 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   config.vm.box = "chef/fedora-20"
   
+  mem = 756
+  cores = 4
+  puts "Rolling your guest VM with #{cores} processors and #{mem}MB of RAM..."
+  config.vm.provider "virtualbox" do |vb|
+    vb.customize ["modifyvm", :id, "--memory", mem, "--cpus", cores, "--ioapic", "on"]
+  end
+
+
   # Necessary for viewing interactive plots
   # (calibration mode, visualiation scripts, etc)
   config.ssh.forward_x11 = true  
@@ -44,6 +52,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   #
 
   # Primary packages needed to compile and run dvm-dos-tem
+
   # NOTE: You've gotta install openmpi *after* NetCDF! This keeps NetCDF from
   # getting setup with some pesky #defines that cause errors when trying to
   # compile files that include <mpi.h>.
@@ -83,21 +92,5 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   # Share an additional folder to the guest VM. 
   # config.vm.synced_folder "<host path>", "<mount path on guest>"
-
-
-  # Provider-specific configuration so you can fine-tune various
-  # backing providers for Vagrant. These expose provider-specific options.
-  # Example for VirtualBox:
-  #
-  # config.vm.provider "virtualbox" do |vb|
-  #   # Don't boot with headless mode
-  #   vb.gui = true
-  #
-  #   # Use VBoxManage to customize the VM. For example to change memory:
-  #   vb.customize ["modifyvm", :id, "--memory", "1024"]
-  # end
-  #
-  # View the documentation for the provider you're using for more
-  # information on available options.
 
 end
