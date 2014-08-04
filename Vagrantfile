@@ -8,15 +8,16 @@
 puts "Running with Vagrant v#{Vagrant::VERSION}"
 
 # Check to see if there's an SSH agent running with keys.
+puts "Checking if ssh-agent has identities..."
 `ssh-add -l`
 
 if not $?.success?
-  "Your SSH Agent does not currently contain any keys (or is stopped.) "\
-  "Please start the agent and add your GitHub SSH key to to the agent. "
-  "Vagrant will setup you virtual machine so that the ssh keys on your "
-  "host machine are forwarded for use within the virtual machine guest. "
-  "This will allow you to seamlessly access private git repos from within "
-  "the virtual machine guest. If you setup keys on your host with default "
+  puts "Your SSH Agent does not currently contain any keys (or is stopped.) "\
+  "Please start the agent and add your GitHub SSH key to to the agent. "\
+  "Vagrant will setup you virtual machine so that the ssh keys on your "\
+  "host machine are forwarded for use within the virtual machine guest. "\
+  "This will allow you to seamlessly access private git repos from within "\
+  "the virtual machine guest. If you setup keys on your host with default "\
   "settings you mabe be able to simply type: $ ssh-add ~/.ssh/id_rsa"
   exit 1
 end
