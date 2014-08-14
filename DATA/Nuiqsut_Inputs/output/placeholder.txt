@@ -1,0 +1,2 @@
+Nothing. Simply here so git will keep the DATA/output/ directory around. 
+Without this directory, the program crashes with a cryptic seg fault.
