@@ -29,7 +29,7 @@ cd ..
 
 if [ ! -d /home/vagrant/ddtv ]
 then
-  git clone git@github.com:tobeycarman/dvm-dos-tem.git /home/vagrant/ddtv
+  git clone git@github.com:tobeycarman/ddtv.git /home/vagrant/ddtv
 fi
 cd ddtv
 git remote rename origin upstream
