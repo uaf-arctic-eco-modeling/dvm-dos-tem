@@ -25,6 +25,20 @@ end
 puts "Checking that keys work for github..."
 puts `ssh -T git@github.com -o StrictHostKeyChecking=no`
 
+$add_github_to_known_hosts = <<SCRIPT
+
+if [[ ! -f ~/.ssh/known_hosts ]]; then
+  mkdir -p ~/.ssh
+  touch ~/.ssh/known_hosts
+fi
+
+echo "Appending github's key to ~/.ssh/known_hosts..."
+ssh-keyscan github.com >> ~/.ssh/known_hosts
+chmod 600 ~/.ssh/known_hosts
+
+SCRIPT
+
+
 
 VAGRANTFILE_API_VERSION = "2" # <--don't change unless you know what you're doing!
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
@@ -71,6 +85,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # User provisioning
   #
 
+  config.vm.provision "shell", privileged: false, inline: $add_github_to_known_hosts
+
   # grab our own packages
   config.vm.provision "shell", privileged: false, path: "vagrant/provision-sel-software.sh"
   
@@ -80,7 +96,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
 
   #
-  # Bonus - should have basic functionality w/o these packages and settings
+  # Bonus - basic functionality should exist w/o these packages and settings
   #
 
   config.vm.provision "shell", inline: "yum install -y gitk git-gui"
@@ -89,6 +105,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # takes sudo with it, crippling later attempts at inline provisioning. So we
   # make sure to reinstall sudo.
   config.vm.provision "shell", inline: 'su -c "yum remove -y vim-minimal && yum install -y vim && yum install -y sudo"' 
+
   config.vm.provision "shell", privileged: false, inline: "cp /vagrant/vagrant/vimrc-general ~/.vimrc"
 
   # Share an additional folder to the guest VM. 
