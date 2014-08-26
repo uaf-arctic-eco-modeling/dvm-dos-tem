@@ -8,4 +8,5 @@ set ignorecase         " ignore case while searching
 set number             " put numbers on side
 set expandtab          " insert tabs instead of spaces
 set tabstop=2          " use 2 spaces
-set shiftwidth=2       " ??
+set shiftwidth=2       " how many columns to move with reindent operators (>>, <<)
+
