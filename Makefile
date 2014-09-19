@@ -159,17 +159,17 @@ OBJECTS += Master.o \
 endif
 
 
-TEMOBJ=	TEM.o
+TEMOBJ = obj/TEM.o
 
 
 dvm: $(SOURCES) $(TEMOBJ)
-	$(CC) -o $(APPNAME) $(INCLUDES) $(OBJECTS) $(TEMOBJ) $(LIBDIR) $(LIBS) $(MPILFLAGS)
+	$(CC) -o $(APPNAME) $(INCLUDES) $(addprefix obj/, $(OBJECTS)) $(TEMOBJ) $(LIBDIR) $(LIBS) $(MPILFLAGS)
 
 lib: $(SOURCES) 
-	$(CC) -o libTEM.so -shared $(INCLUDES) $(OBJECTS) $(LIBDIR) $(LIBS) $(MPILFLAGS)
+	$(CC) -o libTEM.so -shared $(INCLUDES) $(addprefix obj/, $(OBJECTS)) $(LIBDIR) $(LIBS) $(MPILFLAGS)
 
-.cpp.o:  
-	$(CC) $(CFLAGS) $(MPICFLAGS) $(INCLUDES) $(MPIINCLUDES) $<
+.cpp.o:
+	$(CC) $(CFLAGS) $(MPICFLAGS) $(INCLUDES) $(MPIINCLUDES) $< -o obj/$(notdir $@)
 
 clean:
 	rm -f $(OBJECTS) $(APPNAME) TEM.o libTEM.so* *~
