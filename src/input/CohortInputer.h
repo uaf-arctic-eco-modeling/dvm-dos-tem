@@ -38,9 +38,6 @@ public:
   int getVegId(int &vegid, const int &recno);
   int getFireId(int &fireid, const int &recno);
 
-  void getClimate(float tair[], float prec[], float nirr[], float vap[],
-                  const int& yrno, const int & recno);
-
   void getVegetation(int vsetyr[], int vtype[],
                      double vfrac[], const int & recno);
 

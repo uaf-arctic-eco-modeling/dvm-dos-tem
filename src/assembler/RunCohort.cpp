@@ -138,8 +138,10 @@ void RunCohort::init() {
 int RunCohort::readData() {
   //reading the climate data
   cht.cd.act_atm_drv_yr = md->act_clmyr;
-  cinputer.getClimate(cht.cd.tair, cht.cd.prec, cht.cd.nirr, cht.cd.vapo,
-                      cht.cd.act_atm_drv_yr, clmrecno);
+
+  // Read climate data from the netcdf file into data arrays...
+  cht.load_climate_from_file(cht.cd.act_atm_drv_yr, clmrecno);
+
   //reading the vegetation community type data from 'vegetation.nc'
   cht.cd.act_vegset = md->act_vegset;
   cinputer.getVegetation(cht.cd.vegyear, cht.cd.vegtype, cht.cd.vegfrac,

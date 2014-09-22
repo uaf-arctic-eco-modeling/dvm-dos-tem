@@ -84,6 +84,8 @@ public :
   CohortData cd;
   RestartData resid;    //for input
 
+  void load_climate_from_file(int years, int record);
+
   void initSubmodules();
   void setTime(Timer * timerp);
 
