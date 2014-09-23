@@ -142,10 +142,12 @@ int RunCohort::readData() {
   // Read climate data from the netcdf file into data arrays...
   cht.load_climate_from_file(cht.cd.act_atm_drv_yr, clmrecno);
 
-  //reading the vegetation community type data from 'vegetation.nc'
+  // ??
   cht.cd.act_vegset = md->act_vegset;
-  cinputer.getVegetation(cht.cd.vegyear, cht.cd.vegtype, cht.cd.vegfrac,
-                         vegrecno);
+  
+  // Read vegetation community type data from netcdf file into data arrays...
+  cht.load_vegdata_from_file(vegrecno);
+
   //INDEX of veg. community codes, must be one of in those parameter files under 'config/'
   cht.cd.cmttype = cht.cd.vegtype[0];  //default, i.e., the first set of data
 

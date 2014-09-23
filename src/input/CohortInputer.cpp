@@ -319,43 +319,6 @@ int CohortInputer::getFireId(int &fireid, const int &recno) {
   return 0;
 };
 
-// read-in vegetation data for ONE record only
-void CohortInputer::getVegetation(int vsetyr[], int vtype[], double vfrac[],
-                                  const int &recid) {
-  NcError err(NcError::silent_nonfatal);
-  NcFile vegFile(vegfname.c_str(), NcFile::ReadOnly);
-  NcVar* vegsetyrV = vegFile.get_var("VEGSETYR");
-
-  if(vegsetyrV==NULL) {
-    string msg = "Cannot get vegetation fraction VEGSETYR in 'vegetation.nc'! ";
-    cout<<msg+"\n";
-    exit(-1);
-  }
-
-  NcVar* vegtypeV = vegFile.get_var("VEGTYPE");
-
-  if(vegtypeV==NULL) {
-    string msg = "Cannot get vegetation type VEGTYPE in 'vegetation.nc'! ";
-    cout<<msg+"\n";
-    exit(-1);
-  }
-
-  NcVar* vegfracV = vegFile.get_var("VEGFRAC");
-
-  if(vegfracV==NULL) {
-    string msg = "Cannot get vegetation type VEGTYPE in 'vegetation.nc'! ";
-    cout<<msg+"\n";
-    exit(-1);
-  }
-
-  vegsetyrV->set_cur(recid);
-  vegsetyrV->get(&vsetyr[0], md->act_vegset, 1);
-  vegtypeV->set_cur(recid);
-  vegtypeV->get(&vtype[0], md->act_vegset, 1);
-  vegfracV->set_cur(recid);
-  vegfracV->get(&vfrac[0], md->act_vegset, 1);
-};
-
 // read-in fire data, except for 'severity', for ONE record only
 void CohortInputer::getFire(int fyear[], int fseason[], int fsize[],
                             const int & recid) {

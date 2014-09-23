@@ -1,4 +1,4 @@
-/*
+  /*
  *  Cohort.cpp
  *
  * Purpose: call TEM core processes at community (cohort)-level within a common grid
@@ -15,41 +15,17 @@
  *
  */
 
-#include <netcdfcpp.h>
 #include <string>
 #include <map>
+
+#include <netcdfcpp.h>
+
+#include <boost/assign/list_of.hpp> // for 'list_of()'
 
 #include "../TEMLogger.h"
 #include "Cohort.h"
 
 extern src::severity_logger< severity_level > glg;
-
-/** Returns a mapping from string names to NcVar pointers.
-
- The pointers can then be used to read from (or write to) the associated
- NetCDF file.
-*/
-std::map<std::string, NcVar*> map_strs2ncvarptr(std::vector<string> varlist,
-                                                NcFile f) {
-  std::map<std::string, NcVar*> ncvar_lookup;
-
-  BOOST_LOG_SEV(glg, info) << "Reading variables from netcdf file...";
-  std::vector<std::string>::iterator it;
-  for (it = varlist.begin(); it != varlist.end(); ++it) {
-
-    ncvar_lookup[*it] = f.get_var( (*it).c_str() );
-
-    if (ncvar_lookup[*it] == NULL) {
-      BOOST_LOG_SEV(glg, fatal) << "Problem reading " << *it
-                                << " variable from NetCdf file!";
-                                // would be nice to write file name in message?
-      exit(-1);
-    }
-  }
-
-  return ncvar_lookup;
-}
-
 
 Cohort::Cohort() {
   BOOST_LOG_SEV(glg, info) << "Cohort constructor; instantiating a cohort object.";
@@ -57,62 +33,6 @@ Cohort::Cohort() {
 
 Cohort::~Cohort() {
 };
-
-/** Read the climate data for one cohort, several years from a (netcdf) file.
-
-Reads data for a single cohort for one or more years. Reads from a netcdf file
-and modifies the data in the CohortData's climate data arrays.
-*/
-void Cohort::load_climate_from_file(int years, int record) {
-
-  std::string climate_file_name = md->chtinputdir+"climate.nc";
-
-  BOOST_LOG_SEV(glg, info) << "Opening file '" << climate_file_name << "'";
-
-  NcError err(NcError::silent_nonfatal);
-  NcFile climate_file(climate_file_name.c_str(), NcFile::ReadOnly);
-
-  std::string a[] = { "TAIR", "NIRR", "VAPO", "PREC" };
-  std::vector<std::string> climate_vars(a, a + sizeof(a)/sizeof(a[0]));
-
-  BOOST_LOG_SEV(glg, info) << "Reading climate variables from climate netcdf file...";
-  std::map<std::string, NcVar*> ncvar_lookup = map_strs2ncvarptr(climate_vars, climate_file);
-
-  BOOST_LOG_SEV(glg, info) << "Writing into CohortData's climate arrays from netcdf variables...";
-  std::map<std::string, NcVar*>::iterator mit;
-  for (mit = ncvar_lookup.begin(); mit != ncvar_lookup.end(); ++mit) {
-    BOOST_LOG_SEV(glg, debug) << "writing " << mit->first << "data...";
-
-    // set the pointer to the correct "corner" in the netcdf file/dataset
-    // records are cohorts, so the 0th year and 0th month for a given cohort
-    NcVar* v = mit->second;
-    v->set_cur(record, 0, 0);
-
-    // actually grab the data and write it to the CohortData's arrays...
-    NcBool status_ok = false;
-    if (mit->first.compare("TAIR")) {
-      status_ok = v->get(&cd.tair[0], 1, years, 12);
-    }
-    if (mit->first.compare("NIRR")) {
-      status_ok = v->get(&cd.nirr[0], 1, years, 12);
-    }
-    if (mit->first.compare("PREC")) {
-      status_ok = v->get(&cd.prec[0], 1, years, 12);
-    }
-    if (mit->first.compare("VAPO")) {
-      status_ok = v->get(&cd.vapo[0], 1, years, 12);
-    }
-
-    if (!status_ok) {
-      BOOST_LOG_SEV(glg, fatal) << "Problem getting data for" << mit->first
-                                << "in Cohort::load_climate_from_file(..)";
-      exit(-1);
-    }
-  }
-}
-
-
-
 
 // initialization of pointers used in modules called here
 void Cohort::initSubmodules() {
@@ -1197,3 +1117,110 @@ void Cohort::getBd4allveg_monthly() {
   }
 }
 
+/** Read the vegetation data for one ?? from a netcdf file.
+ 
+ Reads data for a single record and sets the data in the CohortData's arrays.
+ */
+void Cohort::load_vegdata_from_file(int record) {
+  
+  std::string vegdata_file_name = md->chtinputdir+"vegetation.nc";
+  
+  BOOST_LOG_SEV(glg, info) << "Opening file '" << vegdata_file_name << "'";
+  
+  NcError err(NcError::silent_nonfatal);
+  NcFile vegdata_file(vegdata_file_name.c_str(), NcFile::ReadOnly);
+  
+  std::vector<std::string> vegdata_variables = boost::assign::list_of("VEGSETYR")("VEGTYPE")("VEGFRAC");
+  
+  std::vector<std::string>::iterator it;
+  for (it = vegdata_variables.begin(); it != vegdata_variables.end(); ++it) {
+    
+    NcVar* v = vegdata_file.get_var( (*it).c_str() );
+    
+    if ( v == NULL ) {
+      BOOST_LOG_SEV(glg, fatal) << "Problem reading " << *it << " from " << vegdata_file_name;
+      exit(-1);
+    }
+    
+    // set the pointer to the correct "corner" in the netcdf file/dataset
+    // records are cohorts??
+    v->set_cur(record);
+    
+    // actually grab the data and write it to the CohortData's arrays...
+    NcBool ok = false;
+    if (*it == "VEGSETYR") {
+      ok = v->get(&cd.vegyear[0], md->act_vegset, 1);
+    }
+    if (*it == "VEGTYPE") {
+      ok = v->get(&cd.vegtype[0], md->act_vegset, 1);
+    }
+    if (*it == "VEGFRAC") {
+      ok = v->get(&cd.vegfrac[0], md->act_vegset, 1);
+    }
+    
+    if (!ok) {
+      BOOST_LOG_SEV(glg, fatal) << "Problem writing data for " << *it
+      << " in Cohort::load_vegdata_from_file(..)";
+      exit(-1);
+    }
+    
+  }
+  vegdata_file.close();
+}
+
+/** Read the climate data for one cohort, several years from a (netcdf) file.
+ 
+ Reads data for a single cohort for one or more years. Reads from a netcdf file
+ and modifies the data in the CohortData's climate data arrays.
+ */
+void Cohort::load_climate_from_file(int years, int record) {
+  
+  std::string climate_file_name = md->chtinputdir+"climate.nc";
+  
+  BOOST_LOG_SEV(glg, info) << "Opening file '" << climate_file_name << "'";
+  
+  NcError err(NcError::silent_nonfatal);
+  NcFile climate_file(climate_file_name.c_str(), NcFile::ReadOnly);
+  
+  std::vector<std::string> climate_vars = boost::assign::list_of("TAIR")("NIRR")("VAPO")("PREC");
+  
+  std::vector<std::string>::iterator it;
+  for (it = climate_vars.begin(); it != climate_vars.end(); ++it) {
+    
+    NcVar* v = climate_file.get_var( (*it).c_str() );
+    if (v == NULL) {
+      BOOST_LOG_SEV(glg, fatal) << "Problem reading netcdf file! "
+      << "Variable: " << *it << " File: " << climate_file_name;
+      exit(-1);
+    }
+    
+    // set the pointer to the correct "corner" in the netcdf file/dataset
+    // records are cohorts, so the 0th year and 0th month for a given cohort
+    v->set_cur(record, 0, 0);
+    
+    NcBool ok = false;
+    
+    if (*it == "TAIR") {
+      ok = v->get(&cd.tair[0], 1, years, 12);
+    }
+    if (*it == "NIRR") {
+      ok = v->get(&cd.nirr[0], 1, years, 12);
+    }
+    if (*it == "PREC") {
+      ok = v->get(&cd.prec[0], 1, years, 12);
+    }
+    if (*it == "VAPO") {
+      ok = v->get(&cd.vapo[0], 1, years, 12);
+    }
+    
+    if (!ok) {
+      BOOST_LOG_SEV(glg, fatal) << "Problem reading data for " << *it
+      << " in Cohort::load_climate_from_file(..)";
+      exit(-1);
+    }
+    
+  }
+  
+  climate_file.close();
+  
+}
