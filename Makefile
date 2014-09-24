@@ -14,6 +14,11 @@ else
   # do nothing..
 endif
 
+# Create a build directory for .o object files.
+# Crude because this gets run everytime the Makefile
+# is parsed. But it works.
+$(shell mkdir -p obj)
+
 APPNAME=dvmdostem
 LIBDIR=$(SITE_SPECIFIC_LIBS)
 INCLUDES=$(SITE_SPECIFIC_INCLUDES)
@@ -158,9 +163,7 @@ OBJECTS += Master.o \
 		Slave.o
 endif
 
-
 TEMOBJ = obj/TEM.o
-
 
 dvm: $(SOURCES) $(TEMOBJ)
 	$(CC) -o $(APPNAME) $(INCLUDES) $(addprefix obj/, $(OBJECTS)) $(TEMOBJ) $(LIBDIR) $(LIBS) $(MPILFLAGS)
@@ -172,4 +175,4 @@ lib: $(SOURCES)
 	$(CC) $(CFLAGS) $(MPICFLAGS) $(INCLUDES) $(MPIINCLUDES) $< -o obj/$(notdir $@)
 
 clean:
-	rm -f $(OBJECTS) $(APPNAME) TEM.o libTEM.so* *~
+	rm -f $(OBJECTS) $(APPNAME) TEM.o libTEM.so* *~ obj/*
