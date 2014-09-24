@@ -176,3 +176,4 @@ lib: $(SOURCES)
 
 clean:
 	rm -f $(OBJECTS) $(APPNAME) TEM.o libTEM.so* *~ obj/*
+

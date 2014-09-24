@@ -319,63 +319,6 @@ int CohortInputer::getFireId(int &fireid, const int &recno) {
   return 0;
 };
 
-// read-in fire data, except for 'severity', for ONE record only
-void CohortInputer::getFire(int fyear[], int fseason[], int fsize[],
-                            const int & recid) {
-  NcError err(NcError::silent_nonfatal);
-  NcFile fireFile(firefname.c_str(), NcFile::ReadOnly);
-  NcVar* yearV = fireFile.get_var("YEAR");
-
-  if(yearV==NULL) {
-    string msg = "Cannot get fire YEAR in 'fire.nc'! ";
-    cout<<msg+"\n";
-    exit(-1);
-  }
-
-  yearV->set_cur(recid);
-  NcBool nb1 = yearV->get(&fyear[0], 1, md->act_fireset);
-
-  if(!nb1) {
-    string msg = "problem in reading fire year data";
-    cout<<msg+"\n";
-    exit(-1);
-  }
-
-  NcVar* seasonV = fireFile.get_var("SEASON");
-
-  if(seasonV==NULL) {
-    string msg = "Cannot get fire SEASON in 'fire.nc'! ";
-    cout<<msg+"\n";
-    exit(-1);
-  }
-
-  seasonV->set_cur(recid);
-  NcBool nb2 = seasonV->get(&fseason[0], 1, md->act_fireset);
-
-  if(!nb2) {
-    string msg = "problem in reading fire season data";
-    cout<<msg+"\n";
-    exit(-1);
-  }
-
-  NcVar* sizeV = fireFile.get_var("SIZE");
-
-  if(sizeV==NULL) {
-    string msg = "Cannot get fire SIZE in 'fire.nc'! ";
-    cout<<msg+"\n";
-    exit(-1);
-  }
-
-  sizeV->set_cur(recid);
-  NcBool nb3 = sizeV->get(&fsize[0], 1, md->act_fireset);
-
-  if(!nb3) {
-    string msg = "problem in reading fire size data";
-    cout<<msg+"\n";
-    exit(-1);
-  }
-};
-
 // read-in fire 'severity', for ONE record only
 void CohortInputer::getFireSeverity(int fseverity[], const int & recid) {
   NcError err(NcError::silent_nonfatal);

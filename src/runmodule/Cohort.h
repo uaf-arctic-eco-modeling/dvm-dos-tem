@@ -86,7 +86,8 @@ public :
 
   void load_climate_from_file(int years, int record);
   void load_vegdata_from_file(int record);
-
+  void load_fire_info_from_file(int record);
+  
   void initSubmodules();
   void setTime(Timer * timerp);
 

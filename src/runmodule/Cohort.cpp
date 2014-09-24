@@ -1224,3 +1224,50 @@ void Cohort::load_climate_from_file(int years, int record) {
   climate_file.close();
   
 }
+
+void Cohort::load_fire_info_from_file(int record) {
+  
+  std::string fire_file_name = md->chtinputdir+"fire.nc";
+  
+  BOOST_LOG_SEV(glg, info) << "Opening file '" << fire_file_name << "'";
+  
+  NcError err(NcError::silent_nonfatal);
+  NcFile fire_file(fire_file_name.c_str(), NcFile::ReadOnly);
+  
+  std::vector<std::string> fire_vars = boost::assign::list_of("YEAR")("SEASON")("SIZE");
+
+  std::vector<std::string>::iterator it;
+  for (it = fire_vars.begin(); it != fire_vars.end(); ++it) {
+    
+    NcVar* v = fire_file.get_var( (*it).c_str() );
+    if (v == NULL) {
+      BOOST_LOG_SEV(glg, fatal) << "Problem reading netcdf file! "
+                                << "Variable: " << *it << " File: "
+                                << fire_file_name;
+      exit(-1);
+    }
+
+    // set the pointer to the correct "corner" in the netcdf file/dataset
+    // records are cohorts, so the 0th year and 0th month for a given cohort
+    v->set_cur(record);
+    
+    NcBool ok = false;
+    
+    if (*it == "YEAR") {
+      ok = v->get(&cd.fireyear[0], 1, md->act_fireset);
+    }
+    if (*it == "SEASON") {
+      ok = v->get(&cd.fireseason[0], 1, md->act_fireset);
+    }
+    if (*it == "SEASON") {
+      ok = v->get(&cd.firesize[0], 1, md->act_fireset);
+    }
+
+    if (!ok) {
+      BOOST_LOG_SEV(glg, fatal) << "Problem reading data for " << *it
+                                << " in Cohort::load_climate_from_file(..)";
+      exit(-1);
+    }
+  }
+  fire_file.close();
+}

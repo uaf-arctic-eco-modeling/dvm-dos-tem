@@ -38,7 +38,6 @@ public:
   int getVegId(int &vegid, const int &recno);
   int getFireId(int &fireid, const int &recno);
 
-  void getFire(int fyear[], int fseason[], int fsize[], const int &recno);
   void getFireSeverity(int fseverity[], const int &recno);
 
 private:

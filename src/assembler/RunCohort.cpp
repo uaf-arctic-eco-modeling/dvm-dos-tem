@@ -174,8 +174,7 @@ int RunCohort::readData() {
   //reading the fire occurence data from '.nc', if not FRI derived
   if (!md->get_friderived() && !md->runeq) {
     cht.cd.act_fireset = md->act_fireset;
-    cinputer.getFire(cht.cd.fireyear, cht.cd.fireseason, cht.cd.firesize,
-                     firerecno);
+    cht.load_fire_info_from_file(firerecno);
 
     if (md->useseverity) {
       cinputer.getFireSeverity(cht.cd.fireseverity, firerecno);
