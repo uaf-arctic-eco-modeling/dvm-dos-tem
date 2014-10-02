@@ -1259,13 +1259,13 @@ void Cohort::load_fire_info_from_file(int record) {
     if (*it == "SEASON") {
       ok = v->get(&cd.fireseason[0], 1, md->act_fireset);
     }
-    if (*it == "SEASON") {
+    if (*it == "SIZE") {
       ok = v->get(&cd.firesize[0], 1, md->act_fireset);
     }
 
     if (!ok) {
       BOOST_LOG_SEV(glg, fatal) << "Problem reading data for " << *it
-                                << " in Cohort::load_climate_from_file(..)";
+                                << " in Cohort::load_fire_info_from_file(..)";
       exit(-1);
     }
   }
