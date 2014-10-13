@@ -1271,3 +1271,28 @@ void Cohort::load_fire_info_from_file(int record) {
   }
   fire_file.close();
 }
+
+/** Reads a cohortid.nc file and sets the "actual" number of cohorts to be run.
+*/
+int Cohort::set_chtids_from_file() {
+  std::string chtid_file_name = md->chtinputdir +"cohortid.nc";
+
+  NcError err(NcError::silent_nonfatal);
+  NcFile chtid_file(chtid_file_name.c_str(), NcFile::ReadOnly);
+  
+  if ( !chtid_file.is_valid() ) {
+    BOOST_LOG_SEV(glg, fatal) << "Problem reading cohort id file (" << chtid_file_name << ")!";
+    exit(-1);
+  }
+
+  NcDim* chtD = chtid_file.get_dim("CHTID");
+  if ( !chtD->is_valid() ) {
+    BOOST_LOG_SEV(glg, fatal) << "Problem reading the CHTID dimension from " << chtid_file_name;
+    exit(-1);
+  }
+  
+  BOOST_LOG_SEV(glg, info) << "Setting the 'actual' cohorts to be run (in ModelData)...";
+  md->act_chtno = chtD->size();
+  return 0;
+}
+
