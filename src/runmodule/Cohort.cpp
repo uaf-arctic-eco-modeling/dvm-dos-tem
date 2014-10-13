@@ -1389,4 +1389,22 @@ int Cohort::set_veg_from_file() {
 }
 
 
+/** Reads a fire.nc file and sets the ModelData's notion of ???
+*/
+int Cohort::set_fire_from_file(){
+
+  NcFile fire_file = temutil::open_ncfile(md->chtinputdir + "fire.nc");
+  
+  NcDim* fireD = temutil::get_ncdim(fire_file, "FIREID");
+  
+  md->act_fireno = fireD->size();  //actual fire data record number
+
+  NcDim* fireyrD = temutil::get_ncdim(fire_file, "FIRESET");
+
+  md->act_fireset=fireyrD->size();  //actual fire year-set number
+
+  return 0;
+}
+
+
 
