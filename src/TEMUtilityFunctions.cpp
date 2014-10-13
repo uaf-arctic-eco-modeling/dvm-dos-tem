@@ -11,6 +11,8 @@
 #include <fstream>
 #include <cerrno>
 
+#include <netcdfcpp.h>
+
 #include <json/reader.h>
 #include <json/value.h>
 
@@ -78,6 +80,46 @@ namespace temutil {
 
     return root;
   }
-  
 
+  /** Opens a netcdf file for reading, returns NcFile object.
+  * 
+  * NetCDF library error mode in set to silent (no printing to std::out), and
+  * non-fatal. 
+  * If the file open fails, it logs a message and exits the program with a
+  * non-zero exit code.
+  */
+  NcFile open_ncfile(std::string filename) {
+    
+    NcError err(NcError::silent_nonfatal);
+
+    BOOST_LOG_SEV(glg, info) << "Opening NetCDF file: " << filename;
+    NcFile file(filename.c_str(), NcFile::ReadOnly);
+    
+    if( !file.is_valid() ) {
+      BOOST_LOG_SEV(glg, fatal) << "Problem opening/reading " << filename;
+      exit(-1);
+    }
+
+    return file;
+
+  }
+
+  /** Given an NcFile object and dimension name, reutrns a pointer to the NcDim.
+  * 
+  * If the dimension-read is not valid, then an error message is logged and 
+  * the program exits with a non-zero status.
+  */
+  NcDim* get_ncdim(NcFile file, std::string dimname) {
+  
+    NcDim* dim = file.get_dim(dimname.c_str());
+    
+    if ( !dim->is_valid() ) {
+      BOOST_LOG_SEV(glg, fatal) << "Problem with '" << dimname << "' out of NetCDF file.";
+      exit(-1);
+    }
+
+    return dim;
+
+  }
+  
 }

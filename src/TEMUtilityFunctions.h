@@ -10,6 +10,7 @@
 #define TEMUtilityFunctions_H
 
 #include <string>
+#include <netcdfcpp.h>
 #include <json/value.h>
 
 namespace temutil {
@@ -19,6 +20,11 @@ namespace temutil {
   std::string file2string(const char *filename);
 
   Json::Value parse_control_file(const std::string &filepath);
+  
+  NcFile open_ncfile(std::string filename);
+
+  NcDim* get_ncdim(NcFile file, std::string dimname);
+
 
 }
 
