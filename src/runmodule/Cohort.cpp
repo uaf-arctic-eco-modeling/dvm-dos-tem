@@ -1370,5 +1370,23 @@ int Cohort::set_climate_from_file() {
   return 0;
 }
 
+/** Reads a vegetation.nc file and set the ModelData's notion 
+* of "actual vegetation set", and the "actual veg number".
+*/
+int Cohort::set_veg_from_file() {
+
+  NcFile veg_file = temutil::open_ncfile(md->chtinputdir+"vegetation.nc");
+
+  NcDim* vegD = temutil::get_ncdim(veg_file, "VEGID");
+
+  md->act_vegno = vegD->size(); // actual veg data record number?
+
+  NcDim* vegsetD = temutil::get_ncdim(veg_file, "VEGSET");
+
+  md->act_vegset = vegsetD->size();  //actual vegetation data sets
+
+  return 0;
+}
+
 
 
