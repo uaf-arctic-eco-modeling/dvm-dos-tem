@@ -1296,3 +1296,35 @@ int Cohort::set_chtids_from_file() {
   return 0;
 }
 
+/** Reads an "initial file" and sets the "actual" initial cohort number to run.
+*/
+int Cohort::set_initial_cohort_from_file() {
+  if ( !md->runeq ) {
+    
+    NcError err(NcError::silent_nonfatal);
+    NcFile cohort_initial_file(md->initialfile.c_str(), NcFile::ReadOnly);
+
+    if( !cohort_initial_file.is_valid() ) {
+      BOOST_LOG_SEV(glg, fatal) << "Problem reading initial cohort file (" << md->initialfile.c_str() << ")";
+      return -1;
+    }
+
+    NcDim* chtD = cohort_initial_file.get_dim("CHTID");
+
+    if( !chtD->is_valid() ) {
+      BOOST_LOG_SEV(glg, fatal) << "Problem reading CHTID dimension from " << md->initialfile.c_str() << ")";
+      return -1;
+    }
+    
+    BOOST_LOG_SEV(glg, info) << "Set the actual initial cohort number???";
+    md->act_initchtno = chtD->size();
+  
+  } else {
+    BOOST_LOG_SEV(glg, err) << "Not running 'eq' stage; can't read/set inital file?";
+    return -1;
+  }
+  
+  return 0;
+  
+}
+
