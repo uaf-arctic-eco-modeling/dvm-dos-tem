@@ -23,6 +23,8 @@
 #include <boost/assign/list_of.hpp> // for 'list_of()'
 
 #include "../TEMLogger.h"
+#include "../TEMUtilityFunctions.h"
+
 #include "Cohort.h"
 
 extern src::severity_logger< severity_level > glg;
@@ -1327,4 +1329,46 @@ int Cohort::set_initial_cohort_from_file() {
   return 0;
   
 }
+
+/** Reads a climate.nc file and sets the "actual" climate begin and end years.
+*/
+int Cohort::set_climate_from_file() {
+
+  NcFile climate_file = temutil::open_ncfile(md->chtinputdir+"climate.nc");
+
+  NcDim* clmD = temutil::get_ncdim(climate_file, "CLMID");
+  NcDim* monD = temutil::get_ncdim(climate_file, "MONTH");
+  
+  md->act_clmno = clmD->size(); // number of actual atm data records..?
+  
+  NcVar* clmyrV = climate_file.get_var("YEAR");
+
+  
+  if (clmyrV == NULL) {
+    BOOST_LOG_SEV(glg, err) << "Problem reading YEAR variable in climate.nc file!";
+    return -1;
+  } else {
+  
+    int yrno = 0;
+    int yr = -1;
+    
+    BOOST_LOG_SEV(glg, info) << "Set ModelData's climate begining year to the "
+                             << "first year found in the climate.nc file ??";
+    clmyrV->set_cur(yrno);
+    clmyrV->get(&yr, 1);
+
+    md->act_clmyr_beg = yr;
+
+    yrno = clmyrV->num_vals()-1;
+    clmyrV->set_cur(yrno);
+    clmyrV->get(&yr, 1);
+
+    md->act_clmyr_end = yr;
+    md->act_clmyr = yr - md->act_clmyr_beg + 1;  //actual atm data years
+
+  }
+  return 0;
+}
+
+
 
