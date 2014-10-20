@@ -83,16 +83,15 @@ namespace temutil {
 
   /** Opens a netcdf file for reading, returns NcFile object.
   * 
-  * NetCDF library error mode in set to silent (no printing to std::out), and
-  * non-fatal. 
-  * If the file open fails, it logs a message and exits the program with a
-  * non-zero exit code.
+  * NetCDF library error mode is set to silent (no printing to std::out), and
+  * non-fatal. If the file open fails, it logs a message and exits the program
+  * with a non-zero exit code.
   */
   NcFile open_ncfile(std::string filename) {
     
-    NcError err(NcError::silent_nonfatal);
-
     BOOST_LOG_SEV(glg, info) << "Opening NetCDF file: " << filename;
+
+    NcError err(NcError::silent_nonfatal);
     NcFile file(filename.c_str(), NcFile::ReadOnly);
     
     if( !file.is_valid() ) {
@@ -111,10 +110,12 @@ namespace temutil {
   */
   NcDim* get_ncdim(const NcFile& file, std::string dimname) {
   
+    BOOST_LOG_SEV(glg, debug) << "Looking for dimension '" << dimname << "' in NetCDF file...";
     NcDim* dim = file.get_dim(dimname.c_str());
     
+    BOOST_LOG_SEV(glg, debug) << "'" << dimname <<"' is valid?: " << dim->is_valid();
     if ( !dim->is_valid() ) {
-      BOOST_LOG_SEV(glg, fatal) << "Problem with '" << dimname << "' out of NetCDF file.";
+      BOOST_LOG_SEV(glg, fatal) << "Problem with '" << dimname << "' in NetCDF file.";
       exit(-1);
     }
 
