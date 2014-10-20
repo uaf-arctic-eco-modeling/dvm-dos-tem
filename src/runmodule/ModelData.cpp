@@ -66,6 +66,141 @@ ModelData::ModelData() {
 ModelData::~ModelData() {
 }
 
+
+/** Reads a cohortid.nc file and sets the "actual" number of cohorts to be run.
+ */
+int ModelData::set_chtids_from_file() {
+  std::string chtid_file_name = this->chtinputdir +"cohortid.nc";
+  
+  
+  NcError err(NcError::silent_nonfatal);
+  NcFile chtid_file(chtid_file_name.c_str(), NcFile::ReadOnly);
+  
+  if ( !chtid_file.is_valid() ) {
+    BOOST_LOG_SEV(glg, fatal) << "Problem reading cohort id file (" << chtid_file_name << ")!";
+    exit(-1);
+  }
+  
+  NcDim* chtD = chtid_file.get_dim("CHTID");
+  if ( !chtD->is_valid() ) {
+    BOOST_LOG_SEV(glg, fatal) << "Problem reading the CHTID dimension from " << chtid_file_name;
+    exit(-1);
+  }
+  
+  BOOST_LOG_SEV(glg, info) << "Setting the 'actual' cohorts to be run (in ModelData)...";
+  this->act_chtno = chtD->size();
+  return 0;
+}
+
+/** Reads an "initial file" and sets the "actual" initial cohort number to run.
+ */
+int ModelData::set_initial_cohort_from_file() {
+  if ( !this->runeq ) {
+    
+    NcError err(NcError::silent_nonfatal);
+    NcFile cohort_initial_file(this->initialfile.c_str(), NcFile::ReadOnly);
+    
+    if( !cohort_initial_file.is_valid() ) {
+      BOOST_LOG_SEV(glg, fatal) << "Problem reading initial cohort file (" << this->initialfile.c_str() << ")";
+      return -1;
+    }
+    
+    NcDim* chtD = cohort_initial_file.get_dim("CHTID");
+    
+    if( !chtD->is_valid() ) {
+      BOOST_LOG_SEV(glg, fatal) << "Problem reading CHTID dimension from " << this->initialfile.c_str() << ")";
+      return -1;
+    }
+    
+    BOOST_LOG_SEV(glg, info) << "Set the actual initial cohort number???";
+    this->act_initchtno = chtD->size();
+    
+  } else {
+    BOOST_LOG_SEV(glg, err) << "Not running 'eq' stage; can't read/set inital file?";
+    return -1;
+  }
+  
+  return 0;
+  
+}
+
+/** Reads a climate.nc file and sets the "actual" climate begin and end years.
+ */
+int ModelData::set_climate_from_file() {
+  
+  BOOST_LOG_SEV(glg, debug) << "Some new stuff?";
+  NcFile climate_file = temutil::open_ncfile(this->chtinputdir+"climate.nc");
+  
+  NcDim* monD = temutil::get_ncdim(climate_file, "MONTH");
+  
+  NcDim* clmD = temutil::get_ncdim(climate_file, "CLMID");
+  
+  this->act_clmno = clmD->size(); // number of actual atm data records..?
+  
+  NcVar* clmyrV = climate_file.get_var("YEAR");
+  
+  if (clmyrV == NULL) {
+    BOOST_LOG_SEV(glg, err) << "Problem reading YEAR variable in climate.nc file!";
+    return -1;
+  } else {
+    
+    int yrno = 0;
+    int yr = -1;
+    
+    BOOST_LOG_SEV(glg, info) << "Set ModelData's climate begining year to the "
+    << "first year found in the climate.nc file ??";
+    clmyrV->set_cur(yrno);
+    clmyrV->get(&yr, 1);
+    
+    this->act_clmyr_beg = yr;
+    
+    yrno = clmyrV->num_vals()-1;
+    clmyrV->set_cur(yrno);
+    clmyrV->get(&yr, 1);
+    
+    this->act_clmyr_end = yr;
+    this->act_clmyr = yr - this->act_clmyr_beg + 1;  //actual atm data years
+    
+  }
+  return 0;
+}
+
+/** Reads a vegetation.nc file and set the ModelData's notion
+ * of "actual vegetation set", and the "actual veg number".
+ */
+int ModelData::set_veg_from_file() {
+  
+  NcFile veg_file = temutil::open_ncfile(this->chtinputdir+"vegetation.nc");
+  
+  NcDim* vegD = temutil::get_ncdim(veg_file, "VEGID");
+  
+  this->act_vegno = vegD->size(); // actual veg data record number?
+  
+  NcDim* vegsetD = temutil::get_ncdim(veg_file, "VEGSET");
+  
+  this->act_vegset = vegsetD->size();  //actual vegetation data sets
+  
+  return 0;
+}
+
+/** Reads a fire.nc file and sets the ModelData's notion of ???
+ */
+int ModelData::set_fire_from_file(){
+  
+  NcFile fire_file = temutil::open_ncfile(this->chtinputdir + "fire.nc");
+  
+  NcDim* fireD = temutil::get_ncdim(fire_file, "FIREID");
+  
+  this->act_fireno = fireD->size();  //actual fire data record number
+  
+  NcDim* fireyrD = temutil::get_ncdim(fire_file, "FIRESET");
+  
+  this->act_fireset=fireyrD->size();  //actual fire year-set number
+  
+  return 0;
+}
+
+
 void ModelData::updateFromControlFile(const std::string& cf) {
 
   BOOST_LOG_SEV(glg, debug) << "Read control file '" << cf << "' into Json::Value data structure...";

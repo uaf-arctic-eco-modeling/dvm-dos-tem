@@ -84,13 +84,6 @@ public :
   CohortData cd;
   RestartData resid;    //for input
 
-  int set_chtids_from_file();
-  int set_initial_cohort_from_file();
-  int set_climate_from_file();
-  int set_veg_from_file();
-  int set_fire_from_file();
-
-
   void load_climate_from_file(int years, int record);
   void load_vegdata_from_file(int record);
   void load_fire_info_from_file(int record);
