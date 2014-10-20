@@ -1181,8 +1181,7 @@ void Cohort::load_climate_from_file(int years, int record) {
   
   BOOST_LOG_SEV(glg, info) << "Opening file '" << climate_file_name << "'";
   
-  NcError err(NcError::silent_nonfatal);
-  NcFile climate_file(climate_file_name.c_str(), NcFile::ReadOnly);
+  NcFile climate_file = temutil::open_ncfile(climate_file_name);
   
   std::vector<std::string> climate_vars = boost::assign::list_of("TAIR")("NIRR")("VAPO")("PREC");
   
