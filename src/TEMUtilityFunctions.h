@@ -23,7 +23,7 @@ namespace temutil {
   
   NcFile open_ncfile(std::string filename);
 
-  NcDim* get_ncdim(NcFile file, std::string dimname);
+  NcDim* get_ncdim(const NcFile& file, std::string dimname);
 
 
 }

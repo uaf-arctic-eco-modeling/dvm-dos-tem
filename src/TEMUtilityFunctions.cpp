@@ -109,7 +109,7 @@ namespace temutil {
   * If the dimension-read is not valid, then an error message is logged and 
   * the program exits with a non-zero status.
   */
-  NcDim* get_ncdim(NcFile file, std::string dimname) {
+  NcDim* get_ncdim(const NcFile& file, std::string dimname) {
   
     NcDim* dim = file.get_dim(dimname.c_str());
     
