@@ -70,25 +70,14 @@ ModelData::~ModelData() {
 /** Reads a cohortid.nc file and sets the "actual" number of cohorts to be run.
  */
 int ModelData::set_chtids_from_file() {
-  std::string chtid_file_name = this->chtinputdir +"cohortid.nc";
-  
-  
-  NcError err(NcError::silent_nonfatal);
-  NcFile chtid_file(chtid_file_name.c_str(), NcFile::ReadOnly);
-  
-  if ( !chtid_file.is_valid() ) {
-    BOOST_LOG_SEV(glg, fatal) << "Problem reading cohort id file (" << chtid_file_name << ")!";
-    exit(-1);
-  }
-  
-  NcDim* chtD = chtid_file.get_dim("CHTID");
-  if ( !chtD->is_valid() ) {
-    BOOST_LOG_SEV(glg, fatal) << "Problem reading the CHTID dimension from " << chtid_file_name;
-    exit(-1);
-  }
-  
+
+  NcFile chtid_file = temutil::open_ncfile(this->chtinputdir + "cohortid.nc");
+
+  NcDim* chtD = temutil::get_ncdim(chtid_file, "CHTID");
+
   BOOST_LOG_SEV(glg, info) << "Setting the 'actual' cohorts to be run (in ModelData)...";
   this->act_chtno = chtD->size();
+
   return 0;
 }
 
@@ -97,20 +86,9 @@ int ModelData::set_chtids_from_file() {
 int ModelData::set_initial_cohort_from_file() {
   if ( !this->runeq ) {
     
-    NcError err(NcError::silent_nonfatal);
-    NcFile cohort_initial_file(this->initialfile.c_str(), NcFile::ReadOnly);
+    NcFile cohort_initial_file = temutil::open_ncfile(this->initialfile);
     
-    if( !cohort_initial_file.is_valid() ) {
-      BOOST_LOG_SEV(glg, fatal) << "Problem reading initial cohort file (" << this->initialfile.c_str() << ")";
-      return -1;
-    }
-    
-    NcDim* chtD = cohort_initial_file.get_dim("CHTID");
-    
-    if( !chtD->is_valid() ) {
-      BOOST_LOG_SEV(glg, fatal) << "Problem reading CHTID dimension from " << this->initialfile.c_str() << ")";
-      return -1;
-    }
+    NcDim* chtD = temutil::get_ncdim(cohort_initial_file, "CHTID");
     
     BOOST_LOG_SEV(glg, info) << "Set the actual initial cohort number???";
     this->act_initchtno = chtD->size();
@@ -130,7 +108,9 @@ int ModelData::set_climate_from_file() {
   
   BOOST_LOG_SEV(glg, debug) << "Some new stuff?";
   NcFile climate_file = temutil::open_ncfile(this->chtinputdir+"climate.nc");
-  
+
+  // not really used - but the get_ncdim function will fail an exit if the
+  // dimension doesn't exist, or there is a problem accessing it...
   NcDim* monD = temutil::get_ncdim(climate_file, "MONTH");
   
   NcDim* clmD = temutil::get_ncdim(climate_file, "CLMID");
