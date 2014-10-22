@@ -12,7 +12,6 @@ using namespace std;
 
 //local headers
 #include "../CalController.h"
-#include "../input/CohortInputer.h"
 #include "../input/RestartInputer.h"
 //#include "../input/SiteInputer.h"
 
@@ -76,7 +75,6 @@ public:
   RestartData resod;
 
   //I/O operators
-  CohortInputer cinputer;
   RestartInputer resinputer;
   //SiteInputer *sinputer;
 

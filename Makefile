@@ -51,7 +51,6 @@ SOURCES= 	src/TEM.o \
 		src/ecodomain/horizon/Snow.o \
 		src/ecodomain/horizon/SoilParent.o \
 		src/ecodomain/Vegetation.o \
-		src/input/CohortInputer.o \
 		src/input/GridInputer.o \
 		src/input/RegionInputer.o \
 		src/input/RestartInputer.o \
@@ -121,7 +120,6 @@ OBJECTS =	ArgHandler.o \
 		Snow.o \
 		SoilParent.o \
 		Vegetation.o \
-		CohortInputer.o \
 		GridInputer.o \
 		RegionInputer.o \
 		RestartInputer.o \
