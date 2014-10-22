@@ -1226,6 +1226,47 @@ void Cohort::load_climate_from_file(int years, int record) {
   
 }
 
+void Cohort::load_fire_severity_from_file(int record) {
+
+  NcFile fire_file = temutil::open_ncfile(md->chtinputdir+"fire.nc");
+
+  NcVar* v = temutil::get_ncvar(fire_file, "SEVERITY");
+  v->set_cur(record);
+  NcBool ok = v->get(&this->cd.fireseverity[0], 1, md->act_fireset);
+
+  if (!ok) {
+    BOOST_LOG_SEV(glg, fatal) << "Problem reading/setting fire severity!";
+    exit(-1);
+  }
+  /*
+   // THis one gets dealty with elsewhere!! See
+   // RunCohort::readData(..);
+   // read-in fire 'severity', for ONE record only
+   void CohortInputer::getFireSeverity(int fseverity[], const int & recid) {
+   NcError err(NcError::silent_nonfatal);
+   NcFile fireFile(firefname.c_str(), NcFile::ReadOnly);
+   NcVar* fsevV = fireFile.get_var("SEVERITY");
+   
+   if(fsevV==NULL) {
+   string msg = "Cannot get fire SEVERITY in 'fire.nc'! ";
+   cout<<msg+"\n";
+   exit(-1);
+   }
+   
+   fsevV->set_cur(recid);
+   NcBool nb = fsevV->get(&fseverity[0], 1, md->act_fireset);
+   
+   if(!nb) {
+   string msg = "problem in reading fire SEVERITY in 'fire.nc'! ";
+   cout<<msg+"\n";
+   exit(-1);
+   }
+   };
+   */
+
+
+}
+
 void Cohort::load_fire_info_from_file(int record) {
   
   std::string fire_file_name = md->chtinputdir+"fire.nc";
