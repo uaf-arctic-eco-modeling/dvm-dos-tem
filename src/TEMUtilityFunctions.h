@@ -25,6 +25,8 @@ namespace temutil {
 
   NcDim* get_ncdim(const NcFile& file, std::string dimname);
 
+  NcVar* get_ncvar(const NcFile& file, std::string varname);
+
 
 }
 

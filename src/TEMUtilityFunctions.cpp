@@ -122,5 +122,20 @@ namespace temutil {
     return dim;
 
   }
+
+  /** Given an NcFile object and a variable name, returns a pointer to the NcVar.
+  *
+  * If getting the variable fails, then an error message is logged, and the
+  * the program exits with a non-zero status.
+  */
+  NcVar* get_ncvar(const NcFile& file, std::string varname) {
+    BOOST_LOG_SEV(glg, debug) << "Looking for variable '" << varname << "' in NetCDF file...";
+    NcVar* var = file.get_var(varname.c_str());
+    if (var == NULL) {
+      BOOST_LOG_SEV(glg, fatal) << "Problem with '" << varname << "' variable in NetCDF file!";
+      exit(-1);
+    }
+    return var;
+  }
   
 }
