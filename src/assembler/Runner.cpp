@@ -9,6 +9,7 @@
 #endif
 
 #include "Runner.h"
+#include "../TEMUtilityFunctions.h"
 #include "../TEMLogger.h"
 #include "../util/tbc-debug-util.h"
 
@@ -837,34 +838,14 @@ int Runner::runSpatially(const int icalyr, const int im, const int jj) {
 };
 
 void Runner::createCohortList4Run() {
-  // read in a list of cohorts to run
-  //netcdf error
-  NcError err(NcError::silent_nonfatal);
-  //open file and check if valid
-  string filename = md.runchtfile;
-  NcFile runFile(filename.c_str(), NcFile::ReadOnly);
 
-  if(!runFile.is_valid()) {
-    string msg = filename+" is not valid";
-    cout<<msg+"\n";
-    exit(-1);
-  }
+  BOOST_LOG_SEV(glg, info) << "Creating the cohort list for run...";
 
-  NcDim* chtD = runFile.get_dim("CHTID");
+  NcFile runFile = temutil::open_ncfile(md.runchtfile);
 
-  if(!chtD->is_valid()) {
-    string msg="CHT Dimension is not valid in createCohortList4Run";
-    cout<<msg+"\n";
-    exit(-1);
-  }
+  NcDim* chtD = temutil::get_ncdim(runFile, "CHTID");
 
-  NcVar* chtV = runFile.get_var("CHTID");
-
-  if(chtV==NULL) {
-    string msg="Cannot get CHTID in createCohortList4Run";
-    cout<<msg+"\n";
-    exit(-1);
-  }
+  NcVar* chtV = temutil::get_ncvar(runFile, "CHTID");
 
   int numcht = chtD->size();
   int chtid  = -1;
