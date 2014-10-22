@@ -28,7 +28,13 @@ class RunCohort {
 public:
   RunCohort();
   ~RunCohort();
-
+ 
+  int setup_cohort_ids(int cohort_idx);
+  int setup_initcohort_ids(int cohort_idx);
+  int setup_clm_ids(int cohort_idx);
+  int setup_veg_ids(int cohort_idx);
+  int setup_fire_ids(int cohort_idx);
+  
   /* all cohort data id lists
    * ids are labeling the datasets, which exist in 5 *.nc files
    * and, the order (index, staring from 0) in these lists are actually
