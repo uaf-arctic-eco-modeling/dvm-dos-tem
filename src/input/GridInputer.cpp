@@ -1,5 +1,7 @@
 #include "GridInputer.h"
 
+#include "../TEMUtilityFunctions.h"
+
 GridInputer::GridInputer() {
 };
 
@@ -22,281 +24,148 @@ int GridInputer::init() {
 }
 
 int GridInputer::initGrid(string& dir) {
-  //netcdf error
-  NcError err(NcError::silent_nonfatal);
-  gridfname = dir +"grid.nc";
-  NcFile gridFile(gridfname.c_str(), NcFile::ReadOnly);
 
-  if(!gridFile.is_valid()) {
-    string msg = gridfname+" is not valid";
-    cout<<msg+"\n";
-    exit(-1);
-  }
+  this->gridfname = dir + "grid.nc";
 
-  NcDim* grdD = gridFile.get_dim("GRIDID");
+  NcFile grid_file = temutil::open_ncfile( this->gridfname );
 
-  if(!grdD->is_valid()) {
-    string msg = "GRIDID Dimension is not valid in 'grid.nc'! ";
-    cout<<msg+"\n";
-    exit(-1);
-  }
+  NcDim* grdD = temutil::get_ncdim(grid_file, "GRIDID");
 
-  int act_gridno = grdD->size();  //actual grid number
-  return act_gridno;
+  return grdD->size(); //actual grid number
 }
 
 int GridInputer::initSoilTexture(string& dir) {
-  //netcdf error
-  NcError err(NcError::silent_nonfatal);
-  soilfname = dir +"soiltexture.nc";
-  NcFile soilFile(soilfname.c_str(), NcFile::ReadOnly);
 
-  if(!soilFile.is_valid()) {
-    string msg = soilfname+" is not valid";
-    cout<<msg+"\n";
-    exit(-1);
-  }
+  this->soilfname = dir + "soiltexture.nc";
 
-  NcDim* soilD = soilFile.get_dim("SOILID");
+  NcFile soil_file = temutil::open_ncfile( this->soilfname );
 
-  if(!soilD->is_valid()) {
-    string msg ="SOILID Dimension is not valid in 'soiltexture.nc'!";
-    cout<<msg+"\n";
-    exit(-1);
-  }
-
-  int act_soilidno = soilD->size();  //actual soil dataset number
-  return act_soilidno;
+  NcDim* soilD = temutil::get_ncdim(soil_file, "SOILID");
+  
+  return soilD->size(); //actual soil dataset number
 }
 
 int GridInputer::initDrainType(string& dir) {
-  drainfname = dir +"drainage.nc";
-  NcError err(NcError::silent_nonfatal);
-  NcFile drainFile(drainfname.c_str(), NcFile::ReadOnly);
 
-  if(!drainFile.is_valid()) {
-    string msg = drainfname+" is not valid";
-    cout<<msg+"\n";
-    exit(-1);
-  }
+  this->drainfname = dir + "drainage.nc";
 
-  NcDim* drainD = drainFile.get_dim("DRAINAGEID");
+  NcFile drainage_file = temutil::open_ncfile( this->drainfname );
+  
+  NcDim* drainD = temutil::get_ncdim(drainage_file, "DRAINAGEID");
+  
+  return drainD->size(); //actual drainage type datset number
 
-  if(!drainD->is_valid()) {
-    string msg = "DRAINAGEID Dimension is not valid in 'drainage.nc'! ";
-    cout<<msg+"\n";
-    exit(-1);
-  }
-
-  int act_drainno = drainD->size();  //actual drainage type datset number
-  return act_drainno;
 }
 
 int GridInputer::initFireStatistics(string & dir) {
-  //netcdf error
-  NcError err(NcError::silent_nonfatal);
-  gfirefname = dir+"firestatistics.nc";
-  NcFile fireFile(gfirefname.c_str(), NcFile::ReadOnly);
 
-  if(!fireFile.is_valid()) {
-    string msg = gfirefname+" is not valid";
-    cout<<msg+"\n";
-    exit(-1);
-  }
+  this->gfirefname = dir + "firestatistics.nc";
 
-  NcDim* gfireD = fireFile.get_dim("GFIREID");
+  NcFile fire_file = temutil::open_ncfile( this->gfirefname );
 
-  if(!gfireD->is_valid()) {
-    string msg="GFIREID Dimension is not valid in grid 'firestatistics.nc' ! ";
-    cout<<msg+"\n";
-    exit(-1);
-  }
+  NcDim* gfireD = temutil::get_ncdim(fire_file, "GFIREID");
 
-  NcDim* gfsizeD = fireFile.get_dim("GFSIZENO");
+  NcDim* gfsizeD = temutil::get_ncdim(fire_file, "GFSIZENO");
 
-  if(!gfsizeD->is_valid()) {
-    string msg="GFSIZE Dimension is not valid in grid 'firestatistics.nc' ! ";
-    cout<<msg+"\n";
-    exit(-1);
-  }
-
-  NcDim* gfseasonD = fireFile.get_dim("GFSEASONNO");
-
-  if(!gfseasonD->is_valid()) {
-    string msg="GFSEASONNO Dimension is not valid in grid 'firestatistics.nc' ! ";
-    cout<<msg+"\n";
-    exit(-1);
-  }
-
-  int act_gfireno = gfireD->size();  //actual grid fire dataset number
-  return act_gfireno;
+  NcDim* gfseasonD = temutil::get_ncdim(fire_file, "GFSEASONNO");
+  
+  return gfireD->size();  //actual grid fire dataset number
 }
 
 //recno - the order (from ZERO) in the .nc file, ids - the real
 //  ids in the *.nc files
 int GridInputer::getGridids(int & grdid, int &grddrgid, int &grdsoilid,
                             int &grdfireid, const int & recno) {
-  //netcdf error
-  NcError err(NcError::silent_nonfatal);
-  NcFile gridFile(gridfname.c_str(), NcFile::ReadOnly);
-  NcVar* grdidV = gridFile.get_var("GRIDID");
-
-  if(grdidV==NULL) {
-    string msg="Cannot get GRIDID in 'grid.nc'! ";
-    cout<<msg+"\n";
-    return -1;
-  }
-
-  grdidV->set_cur(recno);
-  grdidV->get(&grdid, 1);
-  NcVar* drgidV = gridFile.get_var("DRAINAGEID");
-
-  if(drgidV==NULL) {
-    string msg="Cannot get DRAINAGEID in 'grid.nc'! ";
-    cout<<msg+"\n";
-    return -1;
-  }
-
+  
+  NcFile grid_file = temutil::open_ncfile(gridfname);
+  
+  NcVar* grididV = temutil::get_ncvar(grid_file, "GRIDID");
+  grididV->set_cur(recno);
+  grididV->get(&grdid, 1);
+  
+  NcVar* drgidV = temutil::get_ncvar(grid_file, "DRAINAGEID");
   drgidV->set_cur(recno);
   drgidV->get(&grddrgid, 1);
-  NcVar* soilidV = gridFile.get_var("SOILID");
 
-  if(soilidV==NULL) {
-    string msg="Cannot get SOILID in 'grid.nc'! ";
-    cout<<msg+"\n";
-    return -1;
-  }
-
+  NcVar* soilidV = temutil::get_ncvar(grid_file, "SOILID");
   soilidV->set_cur(recno);
   soilidV->get(&grdsoilid, 1);
-  NcVar* gfireidV = gridFile.get_var("GFIREID");
 
-  if(gfireidV==NULL) {
-    string msg="Cannot get GFIREID in 'grid.nc'! ";
-    cout<<msg+"\n";
-    return -1;
-  }
-
+  NcVar* gfireidV = temutil::get_ncvar(grid_file, "GFIREID");
   gfireidV->set_cur(recno);
   gfireidV->get(&grdfireid, 1);
+
   return 0;
 }
 
 int GridInputer::getDrainId(int & drainid, const int & recno) {
-  //netcdf error
-  NcError err(NcError::silent_nonfatal);
-  NcFile drainFile(drainfname.c_str(), NcFile::ReadOnly);
-  NcVar* drainidV = drainFile.get_var("DRAINAGEID");
 
-  if(drainidV==NULL) {
-    string msg="Cannot get DRAINAGEID in 'drainage.nc'! ";
-    cout<<msg+"\n";
-    return -1;
-  }
+  NcFile drainage_file = temutil::open_ncfile(drainfname);
 
+  NcVar* drainidV = temutil::get_ncvar(drainage_file, "DRAINAGEID");
   drainidV->set_cur(recno);
   drainidV->get(&drainid, 1);
+
   return 0;
 }
 
 int GridInputer::getSoilId(int & soilid, const int & recno) {
-  //netcdf error
-  NcError err(NcError::silent_nonfatal);
-  NcFile soilFile(soilfname.c_str(), NcFile::ReadOnly);
-  NcVar* soilidV = soilFile.get_var("SOILID");
 
-  if(soilidV==NULL) {
-    string msg="Cannot get SOILID in 'soiltexture.nc'! ";
-    cout<<msg+"\n";
-    return -1;
-  }
+  NcFile soil_file = temutil::open_ncfile(soilfname);
 
+  NcVar* soilidV = temutil::get_ncvar(soil_file, "SOILID");
   soilidV->set_cur(recno);
   soilidV->get(&soilid, 1);
+
   return 0;
 }
 
 int GridInputer::getGfireId(int &gfireid, const int & recno) {
-  //netcdf error
-  NcError err(NcError::silent_nonfatal);
-  NcFile gfireFile(gfirefname.c_str(), NcFile::ReadOnly);
-  NcVar* gfireidV = gfireFile.get_var("GFIREID");
 
-  if(gfireidV==NULL) {
-    string msg="Cannot get GFIREID in 'firestatistics.nc'! ";
-    cout<<msg+"\n";
-    return -1;
-  }
+  NcFile grid_fire_file = temutil::open_ncfile(gfirefname);
 
+  NcVar* gfireidV = temutil::get_ncvar(grid_fire_file, "GFIREID");
   gfireidV->set_cur(recno);
   gfireidV->get(&gfireid, 1);
+
   return 0;
 }
 
 //recid - the order (from ZERO) in the .nc file, gridid - the grid
 //  id user-defined in the dataset
 void GridInputer::getLatlon(float & lat, float & lon, const int & recid ) {
-  NcError err(NcError::silent_nonfatal);
-  NcFile gridFile(gridfname.c_str(), NcFile::ReadOnly);
-  NcVar* latV = gridFile.get_var("LAT");
+  
+  NcFile grid_file = temutil::open_ncfile(gridfname);
 
-  if(latV==NULL) {
-    string msg="Cannot get LAT in 'grid.nc'! ";
-    cout<<msg+"\n";
-    exit(-1);
-  }
-
+  NcVar* latV = temutil::get_ncvar(grid_file, "LAT");
   latV->set_cur(recid);
   latV->get(&lat, 1);
-  NcVar* lonV = gridFile.get_var("LON");
 
-  if(lonV==NULL) {
-    string msg="Cannot get LON in 'grid.nc' ! ";
-    cout<<msg+"\n";
-    exit(-1);
-  }
-
+  NcVar* lonV = temutil::get_ncvar(grid_file, "LON");
   lonV->set_cur(recid);
   lonV->get(&lon, 1);
 }
 
 void GridInputer::getDrainType(int & dtype, const int & recid) {
-  NcError err(NcError::silent_nonfatal);
-  NcFile drainageFile(drainfname.c_str(), NcFile::ReadOnly);
-  NcVar* drainV = drainageFile.get_var("DRAINAGETYPE");
 
-  if(drainV==NULL) {
-    string msg="Cannot get DRAINAGETYPE in 'drainage.nc' ! ";
-    cout<<msg+"\n";
-    exit(-1);
-  }
+  NcFile drainage_file = temutil::open_ncfile(drainfname);
 
+  NcVar* drainV = temutil::get_ncvar(drainage_file, "DRAINAGETYPE");
   drainV->set_cur(recid);
   drainV->get(&dtype, 1);
-};
+
+}
 
 void GridInputer::getSoilTexture(int & topsoil, int & botsoil,
                                  const int & recid ) {
-  NcError err(NcError::silent_nonfatal);
-  NcFile soilFile(soilfname.c_str(), NcFile::ReadOnly);
-  NcVar* topsoilV = soilFile.get_var("TOPSOIL");
 
-  if(topsoilV==NULL) {
-    string msg="Cannot get TOPSOIL in 'soiltexture.nc' ! ";
-    cout<<msg+"\n";
-    exit(-1);
-  }
+  NcFile soil_file = temutil::open_ncfile(soilfname);
 
+  NcVar* topsoilV = temutil::get_ncvar(soil_file, "TOPSOIL");
   topsoilV->set_cur(recid);
   topsoilV->get(&topsoil, 1);
-  NcVar* botsoilV = soilFile.get_var("BOTSOIL");
 
-  if(botsoilV==NULL) {
-    string msg="Cannot get BOTSOIL in 'soiltexture.nc' ! ";
-    cout<<msg+"\n";
-    exit(-1);
-  }
-
+  NcVar* botsoilV = temutil::get_ncvar(soil_file, "BOTSOIL");
   botsoilV->set_cur(recid);
   botsoilV->get(&botsoil, 1);
 }
@@ -309,38 +178,25 @@ void GridInputer::getGfire(int &fri, double pfseason[],
                      //                       2 - late; 3 - post-fireseason
   int fsizeno   = 5; //fire-size year class no.: 0 - small; 1 - intermediate;
                      //           2 - large; 3 - very large; 4 - ultra-large
-  NcError err(NcError::silent_nonfatal);
-  NcFile fireFile(gfirefname.c_str(), NcFile::ReadOnly);
-  NcVar* friV = fireFile.get_var("FRI");
+  
+  // Have to set the error to non-fatal, or things break here in
+  // single site run while trying to deal with PFSEASON...
+  NcError err(NcError::verbose_nonfatal);
 
-  if(friV==NULL) {
-    string msg="Cannot get FRI in 'firestatistics.nc'! ";
-    cout<<msg+"\n";
-    exit(-1);
-  }
+  NcFile fire_file = temutil::open_ncfile(this->gfirefname);
 
+  NcVar* friV = temutil::get_ncvar(fire_file, "FRI");
   friV->set_cur(recid);
   friV->get(&fri, 1);
-  NcVar* fseasonV = fireFile.get_var("PFSEASON");
 
-  if(fseasonV==NULL) {
-    string msg="Cannot get PFSEASON 'firestatistics.nc'! ";
-    cout<<msg+"\n";
-    exit(-1);
-  }
-
+  NcVar* fseasonV = temutil::get_ncvar(fire_file, "PFSEASON");
   fseasonV->set_cur(recid);
   fseasonV->get(&pfseason[0], fseasonno);
-  NcVar* pfsizeV = fireFile.get_var("PFSIZE");
 
-  if(pfsizeV==NULL) {
-    string msg="Cannot get PFSIZE in 'firestatistics.nc'! ";
-    cout<<msg+"\n";
-    exit(-1);
-  }
-
+  NcVar* pfsizeV = temutil::get_ncvar(fire_file, "PFSIZE");
   pfsizeV->set_cur(recid);
   pfsizeV->get(&pfsize[0], fsizeno);
+
 };
 
 void GridInputer::setModelData(ModelData* mdp) {
