@@ -72,65 +72,6 @@ int GridInputer::initFireStatistics(string & dir) {
   return gfireD->size();  //actual grid fire dataset number
 }
 
-//recno - the order (from ZERO) in the .nc file, ids - the real
-//  ids in the *.nc files
-int GridInputer::getGridids(int & grdid, int &grddrgid, int &grdsoilid,
-                            int &grdfireid, const int & recno) {
-  
-  NcFile grid_file = temutil::open_ncfile(gridfname);
-  
-  NcVar* grididV = temutil::get_ncvar(grid_file, "GRIDID");
-  grididV->set_cur(recno);
-  grididV->get(&grdid, 1);
-  
-  NcVar* drgidV = temutil::get_ncvar(grid_file, "DRAINAGEID");
-  drgidV->set_cur(recno);
-  drgidV->get(&grddrgid, 1);
-
-  NcVar* soilidV = temutil::get_ncvar(grid_file, "SOILID");
-  soilidV->set_cur(recno);
-  soilidV->get(&grdsoilid, 1);
-
-  NcVar* gfireidV = temutil::get_ncvar(grid_file, "GFIREID");
-  gfireidV->set_cur(recno);
-  gfireidV->get(&grdfireid, 1);
-
-  return 0;
-}
-
-int GridInputer::getDrainId(int & drainid, const int & recno) {
-
-  NcFile drainage_file = temutil::open_ncfile(drainfname);
-
-  NcVar* drainidV = temutil::get_ncvar(drainage_file, "DRAINAGEID");
-  drainidV->set_cur(recno);
-  drainidV->get(&drainid, 1);
-
-  return 0;
-}
-
-int GridInputer::getSoilId(int & soilid, const int & recno) {
-
-  NcFile soil_file = temutil::open_ncfile(soilfname);
-
-  NcVar* soilidV = temutil::get_ncvar(soil_file, "SOILID");
-  soilidV->set_cur(recno);
-  soilidV->get(&soilid, 1);
-
-  return 0;
-}
-
-int GridInputer::getGfireId(int &gfireid, const int & recno) {
-
-  NcFile grid_fire_file = temutil::open_ncfile(gfirefname);
-
-  NcVar* gfireidV = temutil::get_ncvar(grid_fire_file, "GFIREID");
-  gfireidV->set_cur(recno);
-  gfireidV->get(&gfireid, 1);
-
-  return 0;
-}
-
 //recid - the order (from ZERO) in the .nc file, gridid - the grid
 //  id user-defined in the dataset
 void GridInputer::getLatlon(float & lat, float & lon, const int & recid ) {

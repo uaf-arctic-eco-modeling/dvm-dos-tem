@@ -32,13 +32,6 @@ public:
   void setModelData(ModelData* mdp);
   int init();
 
-  // grid data ids
-  int getGridids(int &grdid, int &grddrgid, int &grdsoilid,
-                 int &grdfireid, const int & recno);
-  int getDrainId(int &drainid, const int & recno);
-  int getSoilId(int &soilid, const int & recno);
-  int getGfireId(int &gfireid, const int & recno);
-
   // grid data
   void getLatlon(float & lat, float & lon, const int & recno);
   void getDrainType(int & drgtype, const int & recno);
