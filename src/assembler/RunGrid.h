@@ -18,6 +18,8 @@ public:
   RunGrid();
   ~RunGrid();
 
+  void setup_gridids_from_files(int recno);
+
   /* all grid data id lists
    * ids are labeling the datasets, which exist in .nc files
    * and, the order (index) in these lists are actually record no.
