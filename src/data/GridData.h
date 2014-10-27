@@ -36,6 +36,9 @@ public:
 
   void read_location_from_file(std::string filename, int record);
   void drainage_type_from_file(std::string filename, int rec);
+  void soil_texture_from_file(std::string filename, int recid);
+  void g_fire_from_file(std::string filename, int recid);
+
 
 
 };

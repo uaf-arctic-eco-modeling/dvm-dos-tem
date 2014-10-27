@@ -129,14 +129,15 @@ int RunGrid::readData() {
     return -3;
   }
 
-  ginputer.getSoilTexture(grid.gd.topsoil, grid.gd.botsoil, soilrecno);
+  grid.gd.soil_texture_from_file(md->grdinputdir + "soiltexture.nc", soilrecno);
 
   //reading the grided 'fire' data
   if (gfirerecno<0) {
     return -4;
   }
 
-  ginputer.getGfire(grid.gd.fri, grid.gd.pfseason, grid.gd.pfsize, gfirerecno);
+  grid.gd.g_fire_from_file(md->grdinputdir + "fire.nc", gfirerecno);
+
   //
   grid.reinit();          //checking grid data
   return 0;
