@@ -10,9 +10,8 @@
 #include <vector>
 using namespace std;
 
-#include "../input/GridInputer.h"
 #include "../runmodule/Grid.h"
-
+#include "../runmodule/ModelData.h"
 class RunGrid {
 public:
   RunGrid();
@@ -44,7 +43,6 @@ public:
 
   //
   Grid grid;
-  GridInputer ginputer;
 
   void setModelData(ModelData * mdp);
 

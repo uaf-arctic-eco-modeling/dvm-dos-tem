@@ -73,8 +73,6 @@ void Runner::initInput(const string &controlfile, const string &loop_order) {
   runreg.rinputer.init(); //checking data file
 
   //grid-level input
-  rungrd.ginputer.setModelData(&md); //for getting the directory infos from ModelData
-  error = rungrd.ginputer.init(); //checking data file
   md.setup_griddata_from_files();
 
   BOOST_LOG_SEV(glg, warn) << "Taking care of cohort-level inputs...??";
