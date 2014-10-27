@@ -35,6 +35,7 @@ public:
   double pfseason[NUM_FSEASON];
 
   void read_location_from_file(std::string filename, int record);
+  void drainage_type_from_file(std::string filename, int rec);
 
 
 };

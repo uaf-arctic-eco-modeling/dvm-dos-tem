@@ -41,3 +41,16 @@ void GridData::read_location_from_file(std::string filename, int recid) {
   lonV->get(&this->lon, 1);
 
 }
+
+/** Given a file name, and "drainage record number", sets drainage member from file.
+*/
+void GridData::drainage_type_from_file(std::string filename, int rec) {
+
+  NcFile drainage_file = temutil::open_ncfile(filename);
+
+  NcVar* v = temutil::get_ncvar(drainage_file, "DRAINAGETYPE");
+  v->set_cur(rec);
+  v->get(&this->drgtype, 1);
+
+}
+

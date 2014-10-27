@@ -123,7 +123,7 @@ int RunGrid::readData() {
     return -2;
   }
 
-  ginputer.getDrainType(grid.gd.drgtype, drainrecno);
+  grid.gd.drainage_type_from_file(md->grdinputdir + "drainage.nc", drainrecno);
 
   //reading the grided 'soil texture' data
   if (soilrecno<0) {
