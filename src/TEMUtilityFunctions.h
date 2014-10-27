@@ -28,6 +28,8 @@ namespace temutil {
   NcVar* get_ncvar(const NcFile& file, std::string varname);
 
 
+  std::pair<float, float> get_location(std::string gridfilename, int grid_id);
+
 }
 
 #endif /* TEMUtilityFunctions_H */

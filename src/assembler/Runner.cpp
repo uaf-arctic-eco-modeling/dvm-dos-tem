@@ -284,11 +284,13 @@ void Runner::setupIDs() {
     }
 
     reclistgrid.push_back(jdata);
-    float lat = -999.0f;
-    float lon = -999.0f;
-    rungrd.ginputer.getLatlon(lat, lon, jdata);
-    runchtlats.push_back(lat);
-    runchtlons.push_back(lon);
+
+    // jdata?? hopefully it is the "record" or "record id" in the NC file...
+    std::pair<float, float> latlon = temutil::get_location(md.grdinputdir + "grid.nc", jdata);
+    runchtlats.push_back(latlon.first);
+    runchtlons.push_back(latlon.second);
+
+
     // drainage-type record no. (in 'drainage.nc') for 'chtid'
     jt = find(rungrd.drainids.begin(), rungrd.drainids.end(),
               runcht.chtdrainids.at(jcht));
