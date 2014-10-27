@@ -20,8 +20,9 @@ void GridData::clear() {
   fri = MISSING_I;
   fill_n(pfsize, NUM_FSIZE, MISSING_D);
   fill_n(pfseason, NUM_FSEASON, MISSING_D);
-};
-/* Give a file name a "grid record id", set members lat, lon from NetCDF file.
+}
+
+/* Given a file name and "grid record id", sets members lat, lon from file.
  *
  * Note: recid - the order (from ZERO) in the .nc file,
  *       v.s.
