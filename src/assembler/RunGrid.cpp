@@ -116,7 +116,6 @@ int RunGrid::readData() {
   }
 
   this->grid.gd.read_location_from_file(md->grdinputdir + "grid.nc", gridrecno);
-  //ginputer.getLatlon(grid.gd.lat, grid.gd.lon, gridrecno);
 
   //reading the grided 'drainage type' data
   if (drainrecno<0) {

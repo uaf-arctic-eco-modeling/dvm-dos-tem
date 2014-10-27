@@ -72,16 +72,6 @@ int GridInputer::initFireStatistics(string & dir) {
   return gfireD->size();  //actual grid fire dataset number
 }
 
-void GridInputer::getDrainType(int & dtype, const int & recid) {
-
-  NcFile drainage_file = temutil::open_ncfile(drainfname);
-
-  NcVar* drainV = temutil::get_ncvar(drainage_file, "DRAINAGETYPE");
-  drainV->set_cur(recid);
-  drainV->get(&dtype, 1);
-
-}
-
 void GridInputer::getSoilTexture(int & topsoil, int & botsoil,
                                  const int & recid ) {
 

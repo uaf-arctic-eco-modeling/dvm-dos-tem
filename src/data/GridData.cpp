@@ -42,7 +42,8 @@ void GridData::read_location_from_file(std::string filename, int recid) {
 
 }
 
-/** Given a file name, and "drainage record number", sets drainage member from file.
+/** Given a file name, and "drainage record number", sets drainage member 
+* from file.
 */
 void GridData::drainage_type_from_file(std::string filename, int rec) {
 
