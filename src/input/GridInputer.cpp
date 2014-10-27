@@ -72,21 +72,6 @@ int GridInputer::initFireStatistics(string & dir) {
   return gfireD->size();  //actual grid fire dataset number
 }
 
-//recid - the order (from ZERO) in the .nc file, gridid - the grid
-//  id user-defined in the dataset
-void GridInputer::getLatlon(float & lat, float & lon, const int & recid ) {
-  
-  NcFile grid_file = temutil::open_ncfile(gridfname);
-
-  NcVar* latV = temutil::get_ncvar(grid_file, "LAT");
-  latV->set_cur(recid);
-  latV->get(&lat, 1);
-
-  NcVar* lonV = temutil::get_ncvar(grid_file, "LON");
-  lonV->set_cur(recid);
-  lonV->get(&lon, 1);
-}
-
 void GridInputer::getDrainType(int & dtype, const int & recid) {
 
   NcFile drainage_file = temutil::open_ncfile(drainfname);

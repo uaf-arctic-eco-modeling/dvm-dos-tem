@@ -33,7 +33,6 @@ public:
   int init();
 
   // grid data
-  void getLatlon(float & lat, float & lon, const int & recno);
   void getDrainType(int & drgtype, const int & recno);
   void getSoilTexture(int & topsoil, int & botsoil, const int & recno);
   void getGfire(int &fri, double pfseason[], double pfsize[],const int & recno);
