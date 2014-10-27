@@ -136,7 +136,7 @@ int RunGrid::readData() {
     return -4;
   }
 
-  grid.gd.g_fire_from_file(md->grdinputdir + "fire.nc", gfirerecno);
+  grid.gd.g_fire_from_file(md->grdinputdir + "firestatistics.nc", gfirerecno);
 
   //
   grid.reinit();          //checking grid data
