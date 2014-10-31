@@ -69,19 +69,9 @@ void Runner::initInput(const string &controlfile, const string &loop_order) {
   // timer initialization
   timer.setModeldata(&md);
 
-  // these are likely redundant?? they replace the various rinputer calls below
+  // these are likely redundant??
   md.setup_act_co2yr_from_file();
   regionaldata.set_act_co2yr_from_file(md.reginputdir + "co2.nc");
-  
-
-
-  //region-level input
-  runreg.rinputer.setModelData(&md); //for getting the directory infos from ModelData
-
-  //// need to set the rinputer.act_co2yr to the size of the co2file's YEAR dimension
-  runreg.rinputer.init(); //checking data file
-
-
 
   //grid-level input
   md.setup_griddata_from_files();
@@ -414,15 +404,6 @@ void Runner::setupIDs() {
 */
 void Runner::single_site() {
   BOOST_LOG_NAMED_SCOPE("single site");
-  //read-in region-level data
-  //  (Yuan: this is the portal for multiple region run,
-  //     if needed in the future)
-  error = runreg.reinit(0); //can be modified, if more than 1 record of data
-
-  if (error!=0) {
-    BOOST_LOG_SEV(glg, fatal) << "Problem reinitializing regional-module in Runner::single_site(...)";
-    exit(-1);
-  }
 
   this->initialize_regional_data(this->md.reginputdir + "co2.nc");
 
@@ -467,15 +448,6 @@ void Runner::single_site() {
 
 void Runner::regional_space_major() {
   BOOST_LOG_NAMED_SCOPE("regional sm");
-  //read-in region-level data
-  //  (Yuan: this is the portal for multiple region run,
-  //    if needed in the future)
-  error = runreg.reinit(0); //can be modified, if more than 1 record of data
-
-  if (error!=0) {
-    BOOST_LOG_SEV(glg, fatal) << "Problem reinitializing regional module in Runner::run";
-    exit(-1);
-  }
 
   this->initialize_regional_data(this->md.reginputdir + "co2.nc");
 
@@ -536,18 +508,8 @@ void Runner::regional_space_major() {
 
 void Runner::regional_time_major(int processors, int rank) {
   BOOST_LOG_NAMED_SCOPE("regional tm");
-  //read-in region-level data
-  //  (Yuan: this is the portal for multiple region run,
-  //    if needed in the future)
-  error = runreg.reinit(0); //can be modified, if more than 1 record of data
-
-  if (error!=0) {
-    BOOST_LOG_SEV(glg, fatal) << "problem in reinitialize regional-module in Runner::regional_time_major(...)";
-    exit(-1);
-  }
 
   this->initialize_regional_data(this->md.reginputdir + "co2.nc");
-
 
   //
   timer.reset();

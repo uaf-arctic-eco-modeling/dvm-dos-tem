@@ -21,7 +21,7 @@
 #include <mpi.h>
 #endif
 
-#include "RunRegion.h"
+#include "../data/RegionData.h"
 #include "RunGrid.h"
 #include "RunCohort.h"
 
@@ -93,7 +93,6 @@ private:
   RegionData regionaldata;
 
   //TEM domains (hiarchy)
-  RunRegion runreg;
   RunGrid rungrd;
   RunCohort runcht;
 
