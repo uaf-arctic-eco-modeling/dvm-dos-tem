@@ -38,6 +38,8 @@ public:
   int chtid;    /* currently-running 'cohort' id */
   int error;    /* error index */
 
+  void initialize_regional_data(std::string filename);
+
   /* general initialization */
   void initInput(const string &controlfile, const string &runmode);
   void initOutput();
@@ -86,6 +88,9 @@ private:
 
   std::string runmode;
   std::string loop_order;
+
+  // Regional Data (applies to entire grid, but can be timeseries?)
+  RegionData regionaldata;
 
   //TEM domains (hiarchy)
   RunRegion runreg;

@@ -68,9 +68,20 @@ void Runner::initInput(const string &controlfile, const string &loop_order) {
   md.checking4run();
   // timer initialization
   timer.setModeldata(&md);
+
+  // these are likely redundant?? they replace the various rinputer calls below
+  md.setup_act_co2yr_from_file();
+  regionaldata.set_act_co2yr_from_file(md.reginputdir + "co2.nc");
+  
+
+
   //region-level input
   runreg.rinputer.setModelData(&md); //for getting the directory infos from ModelData
+
+  //// need to set the rinputer.act_co2yr to the size of the co2file's YEAR dimension
   runreg.rinputer.init(); //checking data file
+
+
 
   //grid-level input
   md.setup_griddata_from_files();
@@ -194,14 +205,29 @@ void Runner::initOutput() {
   runcht.resouter.init(md.outputdir, stage); //define netcdf file for restart output
 };
 
+void Runner::initialize_regional_data(std::string filename) {
+  BOOST_LOG_SEV(glg, note) << "Initializing this Runner's RegionData structure.";
+
+  // set the RegionData's notion of "actual co2years"??
+  this->regionaldata.set_act_co2yr_from_file(filename);
+
+  // make RegionData load data from a file into its arrays...
+  this->regionaldata.setup_co2_and_yr_from_file(filename);
+  
+  // empty (Region::Region())
+  
+  // Tell RegionData what its own first co2 value is??
+  this->regionaldata.initco2 = this->regionaldata.co2[0];
+
+}
 //set up data connection and data pointer initialization
 void Runner::setupData() {
   BOOST_LOG_SEV(glg, note) << " Some message while setting up the data...";
   // input data connection
-  rungrd.grid.setRegionData(&runreg.region.rd);
+  rungrd.grid.setRegionData(&this->regionaldata);
   runcht.cht.setModelData(&md);
   runcht.cht.setTime(&timer);
-  runcht.cht.setInputData(&runreg.region.rd, &rungrd.grid.gd);
+  runcht.cht.setInputData(&this->regionaldata, &rungrd.grid.gd);
   // process data connection
   runcht.cht.setProcessData(&chted, &chtbd, &chtfd);  //
   // initializing pointers data connection and TEM module switches
@@ -398,6 +424,8 @@ void Runner::single_site() {
     exit(-1);
   }
 
+  this->initialize_regional_data(this->md.reginputdir + "co2.nc");
+
   runcht.cht.cd.chtid = chtid;
   // assgning the record no. for all needed data IDs to run 'chtid'
   // for 'siter', all record no. are in the first position of the lists
@@ -448,6 +476,8 @@ void Runner::regional_space_major() {
     BOOST_LOG_SEV(glg, fatal) << "Problem reinitializing regional module in Runner::run";
     exit(-1);
   }
+
+  this->initialize_regional_data(this->md.reginputdir + "co2.nc");
 
   //loop through cohort in 'runchtlist'
   unsigned int jj ;
@@ -515,6 +545,9 @@ void Runner::regional_time_major(int processors, int rank) {
     BOOST_LOG_SEV(glg, fatal) << "problem in reinitialize regional-module in Runner::regional_time_major(...)";
     exit(-1);
   }
+
+  this->initialize_regional_data(this->md.reginputdir + "co2.nc");
+
 
   //
   timer.reset();

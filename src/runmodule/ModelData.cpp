@@ -66,6 +66,17 @@ ModelData::ModelData() {
 ModelData::~ModelData() {
 }
 
+/** Reads a co2.nc file and sets the "actual"?? number of co2 years to run?
+*/
+void ModelData::setup_act_co2yr_from_file() {
+  NcFile f = temutil::open_ncfile(this->reginputdir + "co2.nc");
+  
+  NcDim* d = temutil::get_ncdim(f, "YEAR");
+  
+  BOOST_LOG_SEV(glg, info) << "Setting the 'actual' co2 years to be run (in ModelData)...";
+  this->act_co2yr = d->size();
+}
+
 
 /** Reads a cohortid.nc file and sets the "actual" number of cohorts to be run.
  */
