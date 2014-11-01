@@ -180,6 +180,29 @@ int ModelData::set_fire_from_file(){
   return 0;
 }
 
+/** Set up ModelData's notion of "grid data"?? from the grid files.
+*/
+void ModelData::setup_griddata_from_files() {
+  
+  NcFile grid_file = temutil::open_ncfile( this->grdinputdir + "grid.nc");
+  NcDim* grdD = temutil::get_ncdim(grid_file, "GRIDID");
+  this->act_gridno = grdD->size();
+  
+  NcFile drainage_file = temutil::open_ncfile( this->grdinputdir + "drainage.nc" );
+  NcDim* drainD = temutil::get_ncdim(drainage_file, "DRAINAGEID");
+  this->act_drainno = drainD->size(); //actual drainage type datset number
+  
+  NcFile soil_file = temutil::open_ncfile( this->grdinputdir + "soiltexture.nc" );
+  NcDim* soilD = temutil::get_ncdim(soil_file, "SOILID");
+  this->act_soilno = soilD->size(); //actual soil dataset number
+  
+  NcFile fire_file = temutil::open_ncfile( this->grdinputdir + "firestatistics.nc" );
+  NcDim* gfireD = temutil::get_ncdim(fire_file, "GFIREID");
+  NcDim* gfsizeD = temutil::get_ncdim(fire_file, "GFSIZENO");
+  NcDim* gfseasonD = temutil::get_ncdim(fire_file, "GFSEASONNO");
+  this->act_gfireno = gfireD->size();  //actual grid fire dataset number
+
+}
 
 void ModelData::updateFromControlFile(const std::string& cf) {
 

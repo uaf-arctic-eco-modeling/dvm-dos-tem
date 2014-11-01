@@ -9,6 +9,7 @@
 #endif
 
 #include "Runner.h"
+#include "../TEMUtilityFunctions.h"
 #include "../TEMLogger.h"
 #include "../util/tbc-debug-util.h"
 
@@ -70,9 +71,9 @@ void Runner::initInput(const string &controlfile, const string &loop_order) {
   //region-level input
   runreg.rinputer.setModelData(&md); //for getting the directory infos from ModelData
   runreg.rinputer.init(); //checking data file
+
   //grid-level input
-  rungrd.ginputer.setModelData(&md); //for getting the directory infos from ModelData
-  error = rungrd.ginputer.init(); //checking data file
+  md.setup_griddata_from_files();
 
   BOOST_LOG_SEV(glg, warn) << "Taking care of cohort-level inputs...??";
   md.set_chtids_from_file();
@@ -281,11 +282,13 @@ void Runner::setupIDs() {
     }
 
     reclistgrid.push_back(jdata);
-    float lat = -999.0f;
-    float lon = -999.0f;
-    rungrd.ginputer.getLatlon(lat, lon, jdata);
-    runchtlats.push_back(lat);
-    runchtlons.push_back(lon);
+
+    // jdata?? hopefully it is the "record" or "record id" in the NC file...
+    std::pair<float, float> latlon = temutil::get_location(md.grdinputdir + "grid.nc", jdata);
+    runchtlats.push_back(latlon.first);
+    runchtlons.push_back(latlon.second);
+
+
     // drainage-type record no. (in 'drainage.nc') for 'chtid'
     jt = find(rungrd.drainids.begin(), rungrd.drainids.end(),
               runcht.chtdrainids.at(jcht));
@@ -837,34 +840,14 @@ int Runner::runSpatially(const int icalyr, const int im, const int jj) {
 };
 
 void Runner::createCohortList4Run() {
-  // read in a list of cohorts to run
-  //netcdf error
-  NcError err(NcError::silent_nonfatal);
-  //open file and check if valid
-  string filename = md.runchtfile;
-  NcFile runFile(filename.c_str(), NcFile::ReadOnly);
 
-  if(!runFile.is_valid()) {
-    string msg = filename+" is not valid";
-    cout<<msg+"\n";
-    exit(-1);
-  }
+  BOOST_LOG_SEV(glg, info) << "Creating the cohort list for run...";
 
-  NcDim* chtD = runFile.get_dim("CHTID");
+  NcFile runFile = temutil::open_ncfile(md.runchtfile);
 
-  if(!chtD->is_valid()) {
-    string msg="CHT Dimension is not valid in createCohortList4Run";
-    cout<<msg+"\n";
-    exit(-1);
-  }
+  NcDim* chtD = temutil::get_ncdim(runFile, "CHTID");
 
-  NcVar* chtV = runFile.get_var("CHTID");
-
-  if(chtV==NULL) {
-    string msg="Cannot get CHTID in createCohortList4Run";
-    cout<<msg+"\n";
-    exit(-1);
-  }
+  NcVar* chtV = temutil::get_ncvar(runFile, "CHTID");
 
   int numcht = chtD->size();
   int chtid  = -1;

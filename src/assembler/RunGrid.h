@@ -10,13 +10,14 @@
 #include <vector>
 using namespace std;
 
-#include "../input/GridInputer.h"
 #include "../runmodule/Grid.h"
-
+#include "../runmodule/ModelData.h"
 class RunGrid {
 public:
   RunGrid();
   ~RunGrid();
+
+  void setup_gridids_from_files(int recno);
 
   /* all grid data id lists
    * ids are labeling the datasets, which exist in .nc files
@@ -42,7 +43,6 @@ public:
 
   //
   Grid grid;
-  GridInputer ginputer;
 
   void setModelData(ModelData * mdp);
 

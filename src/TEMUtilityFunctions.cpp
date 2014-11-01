@@ -137,5 +137,30 @@ namespace temutil {
     }
     return var;
   }
+
+
+  /** Look up a lat-lon pair in a NetCDF file given a rec_id.
+  *
+  * Note: rec_id - the order (from ZERO) in the .nc file,
+  *       gridid - the grid id user-defined in the dataset
+  */
+  std::pair<float, float> get_location(std::string gridfilename, int rec_id) {
+
+    float lat;
+    float lon;
+
+    NcFile grid_file = temutil::open_ncfile(gridfilename);
+
+    NcVar* latV = temutil::get_ncvar(grid_file, "LAT");
+    latV->set_cur(rec_id);
+    latV->get(&lat, 1);
+
+    NcVar* lonV = temutil::get_ncvar(grid_file, "LON");
+    lonV->set_cur(rec_id);
+    lonV->get(&lon, 1);
+
+    return std::pair<float, float> (lat, lon);
+
+  }
   
 }
