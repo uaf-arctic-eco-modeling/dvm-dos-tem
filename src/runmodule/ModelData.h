@@ -14,6 +14,13 @@ public:
   ModelData();
   ~ModelData();
   std::string describe_module_settings();
+  
+  int set_chtids_from_file();
+  int set_initial_cohort_from_file();
+  int set_climate_from_file();
+  int set_veg_from_file();
+  int set_fire_from_file();
+
   int myid; // these two are for parallel model run (NOT USED)
   int numprocs;
 

@@ -73,9 +73,14 @@ void Runner::initInput(const string &controlfile, const string &loop_order) {
   //grid-level input
   rungrd.ginputer.setModelData(&md); //for getting the directory infos from ModelData
   error = rungrd.ginputer.init(); //checking data file
-  //cohort-level input
-  runcht.cinputer.setModelData(&md); //for getting the directory infos from ModelData
-  error = runcht.cinputer.init(); //checking data file
+
+  BOOST_LOG_SEV(glg, warn) << "Taking care of cohort-level inputs...??";
+  md.set_chtids_from_file();
+  md.set_initial_cohort_from_file();
+  md.set_climate_from_file();
+  md.set_veg_from_file();
+  md.set_fire_from_file();
+
   runchtlist.clear();
 
   if (md.runmode.compare("multi") == 0) {
