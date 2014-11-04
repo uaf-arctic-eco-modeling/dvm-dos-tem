@@ -9,6 +9,7 @@
 #endif
 
 #include "Runner.h"
+#include "../TEMUtilityFunctions.h"
 #include "../TEMLogger.h"
 #include "../util/tbc-debug-util.h"
 
@@ -67,15 +68,21 @@ void Runner::initInput(const string &controlfile, const string &loop_order) {
   md.checking4run();
   // timer initialization
   timer.setModeldata(&md);
-  //region-level input
-  runreg.rinputer.setModelData(&md); //for getting the directory infos from ModelData
-  runreg.rinputer.init(); //checking data file
+
+  // these are likely redundant??
+  md.setup_act_co2yr_from_file();
+  regionaldata.set_act_co2yr_from_file(md.reginputdir + "co2.nc");
+
   //grid-level input
-  rungrd.ginputer.setModelData(&md); //for getting the directory infos from ModelData
-  error = rungrd.ginputer.init(); //checking data file
-  //cohort-level input
-  runcht.cinputer.setModelData(&md); //for getting the directory infos from ModelData
-  error = runcht.cinputer.init(); //checking data file
+  md.setup_griddata_from_files();
+
+  BOOST_LOG_SEV(glg, warn) << "Taking care of cohort-level inputs...??";
+  md.set_chtids_from_file();
+  md.set_initial_cohort_from_file();
+  md.set_climate_from_file();
+  md.set_veg_from_file();
+  md.set_fire_from_file();
+
   runchtlist.clear();
 
   if (md.runmode.compare("multi") == 0) {
@@ -188,14 +195,29 @@ void Runner::initOutput() {
   runcht.resouter.init(md.outputdir, stage); //define netcdf file for restart output
 };
 
+void Runner::initialize_regional_data(std::string filename) {
+  BOOST_LOG_SEV(glg, note) << "Initializing this Runner's RegionData structure.";
+
+  // set the RegionData's notion of "actual co2years"??
+  this->regionaldata.set_act_co2yr_from_file(filename);
+
+  // make RegionData load data from a file into its arrays...
+  this->regionaldata.setup_co2_and_yr_from_file(filename);
+  
+  // empty (Region::Region())
+  
+  // Tell RegionData what its own first co2 value is??
+  this->regionaldata.initco2 = this->regionaldata.co2[0];
+
+}
 //set up data connection and data pointer initialization
 void Runner::setupData() {
   BOOST_LOG_SEV(glg, note) << " Some message while setting up the data...";
   // input data connection
-  rungrd.grid.setRegionData(&runreg.region.rd);
+  rungrd.grid.setRegionData(&this->regionaldata);
   runcht.cht.setModelData(&md);
   runcht.cht.setTime(&timer);
-  runcht.cht.setInputData(&runreg.region.rd, &rungrd.grid.gd);
+  runcht.cht.setInputData(&this->regionaldata, &rungrd.grid.gd);
   // process data connection
   runcht.cht.setProcessData(&chted, &chtbd, &chtfd);  //
   // initializing pointers data connection and TEM module switches
@@ -276,11 +298,13 @@ void Runner::setupIDs() {
     }
 
     reclistgrid.push_back(jdata);
-    float lat = -999.0f;
-    float lon = -999.0f;
-    rungrd.ginputer.getLatlon(lat, lon, jdata);
-    runchtlats.push_back(lat);
-    runchtlons.push_back(lon);
+
+    // jdata?? hopefully it is the "record" or "record id" in the NC file...
+    std::pair<float, float> latlon = temutil::get_location(md.grdinputdir + "grid.nc", jdata);
+    runchtlats.push_back(latlon.first);
+    runchtlons.push_back(latlon.second);
+
+
     // drainage-type record no. (in 'drainage.nc') for 'chtid'
     jt = find(rungrd.drainids.begin(), rungrd.drainids.end(),
               runcht.chtdrainids.at(jcht));
@@ -380,15 +404,8 @@ void Runner::setupIDs() {
 */
 void Runner::single_site() {
   BOOST_LOG_NAMED_SCOPE("single site");
-  //read-in region-level data
-  //  (Yuan: this is the portal for multiple region run,
-  //     if needed in the future)
-  error = runreg.reinit(0); //can be modified, if more than 1 record of data
 
-  if (error!=0) {
-    BOOST_LOG_SEV(glg, fatal) << "Problem reinitializing regional-module in Runner::single_site(...)";
-    exit(-1);
-  }
+  this->initialize_regional_data(this->md.reginputdir + "co2.nc");
 
   runcht.cht.cd.chtid = chtid;
   // assgning the record no. for all needed data IDs to run 'chtid'
@@ -431,15 +448,8 @@ void Runner::single_site() {
 
 void Runner::regional_space_major() {
   BOOST_LOG_NAMED_SCOPE("regional sm");
-  //read-in region-level data
-  //  (Yuan: this is the portal for multiple region run,
-  //    if needed in the future)
-  error = runreg.reinit(0); //can be modified, if more than 1 record of data
 
-  if (error!=0) {
-    BOOST_LOG_SEV(glg, fatal) << "Problem reinitializing regional module in Runner::run";
-    exit(-1);
-  }
+  this->initialize_regional_data(this->md.reginputdir + "co2.nc");
 
   //loop through cohort in 'runchtlist'
   unsigned int jj ;
@@ -498,15 +508,8 @@ void Runner::regional_space_major() {
 
 void Runner::regional_time_major(int processors, int rank) {
   BOOST_LOG_NAMED_SCOPE("regional tm");
-  //read-in region-level data
-  //  (Yuan: this is the portal for multiple region run,
-  //    if needed in the future)
-  error = runreg.reinit(0); //can be modified, if more than 1 record of data
 
-  if (error!=0) {
-    BOOST_LOG_SEV(glg, fatal) << "problem in reinitialize regional-module in Runner::regional_time_major(...)";
-    exit(-1);
-  }
+  this->initialize_regional_data(this->md.reginputdir + "co2.nc");
 
   //
   timer.reset();
@@ -832,34 +835,14 @@ int Runner::runSpatially(const int icalyr, const int im, const int jj) {
 };
 
 void Runner::createCohortList4Run() {
-  // read in a list of cohorts to run
-  //netcdf error
-  NcError err(NcError::silent_nonfatal);
-  //open file and check if valid
-  string filename = md.runchtfile;
-  NcFile runFile(filename.c_str(), NcFile::ReadOnly);
 
-  if(!runFile.is_valid()) {
-    string msg = filename+" is not valid";
-    cout<<msg+"\n";
-    exit(-1);
-  }
+  BOOST_LOG_SEV(glg, info) << "Creating the cohort list for run...";
 
-  NcDim* chtD = runFile.get_dim("CHTID");
+  NcFile runFile = temutil::open_ncfile(md.runchtfile);
 
-  if(!chtD->is_valid()) {
-    string msg="CHT Dimension is not valid in createCohortList4Run";
-    cout<<msg+"\n";
-    exit(-1);
-  }
+  NcDim* chtD = temutil::get_ncdim(runFile, "CHTID");
 
-  NcVar* chtV = runFile.get_var("CHTID");
-
-  if(chtV==NULL) {
-    string msg="Cannot get CHTID in createCohortList4Run";
-    cout<<msg+"\n";
-    exit(-1);
-  }
+  NcVar* chtV = temutil::get_ncvar(runFile, "CHTID");
 
   int numcht = chtD->size();
   int chtid  = -1;

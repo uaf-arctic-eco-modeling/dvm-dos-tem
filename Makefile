@@ -30,7 +30,6 @@ SOURCES= 	src/TEM.o \
 		src/assembler/RunCohort.o \
 		src/assembler/RunGrid.o \
 		src/assembler/Runner.o \
-		src/assembler/RunRegion.o \
 		src/atmosphere/Atmosphere.o \
 		src/atmosphere/AtmosUtil.o \
 		src/data/BgcData.o \
@@ -51,9 +50,6 @@ SOURCES= 	src/TEM.o \
 		src/ecodomain/horizon/Snow.o \
 		src/ecodomain/horizon/SoilParent.o \
 		src/ecodomain/Vegetation.o \
-		src/input/CohortInputer.o \
-		src/input/GridInputer.o \
-		src/input/RegionInputer.o \
 		src/input/RestartInputer.o \
 		src/lookup/CohortLookup.o \
 		src/lookup/SoilLookup.o \
@@ -67,7 +63,6 @@ SOURCES= 	src/TEM.o \
 		src/runmodule/Integrator.o \
 		src/runmodule/ModelData.o \
 		src/runmodule/OutRetrive.o \
-		src/runmodule/Region.o \
 		src/runmodule/Timer.o \
 		src/snowsoil/Richards.o \
 		src/snowsoil/Snow_Env.o \
@@ -100,7 +95,6 @@ OBJECTS =	ArgHandler.o \
 		RunCohort.o \
 		RunGrid.o \
 		Runner.o \
-		RunRegion.o \
 		Atmosphere.o \
 		AtmosUtil.o \
 		BgcData.o \
@@ -121,9 +115,6 @@ OBJECTS =	ArgHandler.o \
 		Snow.o \
 		SoilParent.o \
 		Vegetation.o \
-		CohortInputer.o \
-		GridInputer.o \
-		RegionInputer.o \
 		RestartInputer.o \
 		CohortLookup.o \
 		SoilLookup.o \
@@ -137,7 +128,6 @@ OBJECTS =	ArgHandler.o \
 		Integrator.o \
 		ModelData.o \
 		OutRetrive.o \
-		Region.o \
 		Timer.o \
 		Richards.o \
 		Snow_Env.o \
@@ -176,3 +166,4 @@ lib: $(SOURCES)
 
 clean:
 	rm -f $(OBJECTS) $(APPNAME) TEM.o libTEM.so* *~ obj/*
+

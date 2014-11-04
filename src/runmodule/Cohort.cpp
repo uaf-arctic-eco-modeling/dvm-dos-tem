@@ -1,4 +1,4 @@
-/*
+  /*
  *  Cohort.cpp
  *
  * Purpose: call TEM core processes at community (cohort)-level within a common grid
@@ -15,7 +15,16 @@
  *
  */
 
+#include <string>
+#include <map>
+
+#include <netcdfcpp.h>
+
+#include <boost/assign/list_of.hpp> // for 'list_of()'
+
 #include "../TEMLogger.h"
+#include "../TEMUtilityFunctions.h"
+
 #include "Cohort.h"
 
 extern src::severity_logger< severity_level > glg;
@@ -1109,4 +1118,202 @@ void Cohort::getBd4allveg_monthly() {
     }
   }
 }
+
+/** Read the vegetation data for one ?? from a netcdf file.
+ 
+ Reads data for a single record and sets the data in the CohortData's arrays.
+ */
+void Cohort::load_vegdata_from_file(int record) {
+  
+  std::string vegdata_file_name = md->chtinputdir+"vegetation.nc";
+  
+  BOOST_LOG_SEV(glg, info) << "Opening file '" << vegdata_file_name << "'";
+  
+  NcError err(NcError::silent_nonfatal);
+  NcFile vegdata_file(vegdata_file_name.c_str(), NcFile::ReadOnly);
+  
+  std::vector<std::string> vegdata_variables = boost::assign::list_of("VEGSETYR")("VEGTYPE")("VEGFRAC");
+  
+  std::vector<std::string>::iterator it;
+  for (it = vegdata_variables.begin(); it != vegdata_variables.end(); ++it) {
+    
+    NcVar* v = vegdata_file.get_var( (*it).c_str() );
+    
+    if ( v == NULL ) {
+      BOOST_LOG_SEV(glg, fatal) << "Problem reading " << *it << " from " << vegdata_file_name;
+      exit(-1);
+    }
+    
+    // set the pointer to the correct "corner" in the netcdf file/dataset
+    // records are cohorts??
+    v->set_cur(record);
+    
+    // actually grab the data and write it to the CohortData's arrays...
+    NcBool ok = false;
+    if (*it == "VEGSETYR") {
+      ok = v->get(&cd.vegyear[0], md->act_vegset, 1);
+    }
+    if (*it == "VEGTYPE") {
+      ok = v->get(&cd.vegtype[0], md->act_vegset, 1);
+    }
+    if (*it == "VEGFRAC") {
+      ok = v->get(&cd.vegfrac[0], md->act_vegset, 1);
+    }
+    
+    if (!ok) {
+      BOOST_LOG_SEV(glg, fatal) << "Problem writing data for " << *it
+      << " in Cohort::load_vegdata_from_file(..)";
+      exit(-1);
+    }
+    
+  }
+  vegdata_file.close();
+}
+
+/** Read the climate data for one cohort, several years from a (netcdf) file.
+ 
+ Reads data for a single cohort for one or more years. Reads from a netcdf file
+ and modifies the data in the CohortData's climate data arrays.
+ */
+void Cohort::load_climate_from_file(int years, int record) {
+  
+  std::string climate_file_name = md->chtinputdir+"climate.nc";
+  
+  BOOST_LOG_SEV(glg, info) << "Opening file '" << climate_file_name << "'";
+  
+  NcFile climate_file = temutil::open_ncfile(climate_file_name);
+  
+  std::vector<std::string> climate_vars = boost::assign::list_of("TAIR")("NIRR")("VAPO")("PREC");
+  
+  std::vector<std::string>::iterator it;
+  for (it = climate_vars.begin(); it != climate_vars.end(); ++it) {
+    
+    NcVar* v = climate_file.get_var( (*it).c_str() );
+    if (v == NULL) {
+      BOOST_LOG_SEV(glg, fatal) << "Problem reading netcdf file! "
+      << "Variable: " << *it << " File: " << climate_file_name;
+      exit(-1);
+    }
+    
+    // set the pointer to the correct "corner" in the netcdf file/dataset
+    // records are cohorts, so the 0th year and 0th month for a given cohort
+    v->set_cur(record, 0, 0);
+    
+    NcBool ok = false;
+    
+    if (*it == "TAIR") {
+      ok = v->get(&cd.tair[0], 1, years, 12);
+    }
+    if (*it == "NIRR") {
+      ok = v->get(&cd.nirr[0], 1, years, 12);
+    }
+    if (*it == "PREC") {
+      ok = v->get(&cd.prec[0], 1, years, 12);
+    }
+    if (*it == "VAPO") {
+      ok = v->get(&cd.vapo[0], 1, years, 12);
+    }
+    
+    if (!ok) {
+      BOOST_LOG_SEV(glg, fatal) << "Problem reading data for " << *it
+      << " in Cohort::load_climate_from_file(..)";
+      exit(-1);
+    }
+    
+  }
+  
+  climate_file.close();
+  
+}
+
+void Cohort::load_fire_severity_from_file(int record) {
+
+  NcFile fire_file = temutil::open_ncfile(md->chtinputdir+"fire.nc");
+
+  NcVar* v = temutil::get_ncvar(fire_file, "SEVERITY");
+  v->set_cur(record);
+  NcBool ok = v->get(&this->cd.fireseverity[0], 1, md->act_fireset);
+
+  if (!ok) {
+    BOOST_LOG_SEV(glg, fatal) << "Problem reading/setting fire severity!";
+    exit(-1);
+  }
+  /*
+   // THis one gets dealty with elsewhere!! See
+   // RunCohort::readData(..);
+   // read-in fire 'severity', for ONE record only
+   void CohortInputer::getFireSeverity(int fseverity[], const int & recid) {
+   NcError err(NcError::silent_nonfatal);
+   NcFile fireFile(firefname.c_str(), NcFile::ReadOnly);
+   NcVar* fsevV = fireFile.get_var("SEVERITY");
+   
+   if(fsevV==NULL) {
+   string msg = "Cannot get fire SEVERITY in 'fire.nc'! ";
+   cout<<msg+"\n";
+   exit(-1);
+   }
+   
+   fsevV->set_cur(recid);
+   NcBool nb = fsevV->get(&fseverity[0], 1, md->act_fireset);
+   
+   if(!nb) {
+   string msg = "problem in reading fire SEVERITY in 'fire.nc'! ";
+   cout<<msg+"\n";
+   exit(-1);
+   }
+   };
+   */
+
+
+}
+
+void Cohort::load_fire_info_from_file(int record) {
+  
+  std::string fire_file_name = md->chtinputdir+"fire.nc";
+  
+  BOOST_LOG_SEV(glg, info) << "Opening file '" << fire_file_name << "'";
+  
+  NcError err(NcError::silent_nonfatal);
+  NcFile fire_file(fire_file_name.c_str(), NcFile::ReadOnly);
+  
+  std::vector<std::string> fire_vars = boost::assign::list_of("YEAR")("SEASON")("SIZE");
+
+  std::vector<std::string>::iterator it;
+  for (it = fire_vars.begin(); it != fire_vars.end(); ++it) {
+    
+    NcVar* v = fire_file.get_var( (*it).c_str() );
+    if (v == NULL) {
+      BOOST_LOG_SEV(glg, fatal) << "Problem reading netcdf file! "
+                                << "Variable: " << *it << " File: "
+                                << fire_file_name;
+      exit(-1);
+    }
+
+    // set the pointer to the correct "corner" in the netcdf file/dataset
+    // records are cohorts, so the 0th year and 0th month for a given cohort
+    v->set_cur(record);
+    
+    NcBool ok = false;
+    
+    if (*it == "YEAR") {
+      ok = v->get(&cd.fireyear[0], 1, md->act_fireset);
+    }
+    if (*it == "SEASON") {
+      ok = v->get(&cd.fireseason[0], 1, md->act_fireset);
+    }
+    if (*it == "SIZE") {
+      ok = v->get(&cd.firesize[0], 1, md->act_fireset);
+    }
+
+    if (!ok) {
+      BOOST_LOG_SEV(glg, fatal) << "Problem reading data for " << *it
+                                << " in Cohort::load_fire_info_from_file(..)";
+      exit(-1);
+    }
+  }
+  fire_file.close();
+}
+
+
+
 
