@@ -14,6 +14,17 @@ public:
   ModelData();
   ~ModelData();
   std::string describe_module_settings();
+
+  void setup_act_co2yr_from_file();
+
+  void setup_griddata_from_files();
+
+  int set_chtids_from_file();
+  int set_initial_cohort_from_file();
+  int set_climate_from_file();
+  int set_veg_from_file();
+  int set_fire_from_file();
+
   int myid; // these two are for parallel model run (NOT USED)
   int numprocs;
 
@@ -51,6 +62,9 @@ public:
   bool outRegn;
   bool outSoilClm;
 
+  // the regional data?
+  int act_co2yr;
+  
   // the data record numbers of all input datasets
   // grided data (1D)
   int act_gridno;

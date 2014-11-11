@@ -6,9 +6,11 @@
  *
 */
 #include <json/writer.h>
+
 #include "RunCohort.h"
 #include "../CalController.h"
 
+#include "../TEMUtilityFunctions.h"
 #include "../TEMLogger.h"
 extern src::severity_logger< severity_level > glg;
 
@@ -34,6 +36,82 @@ void RunCohort::setModelData(ModelData * mdp) {
   md = mdp;
 }
 
+int RunCohort::setup_cohort_ids(int cohort_idx) {
+
+  NcFile chtid_file = temutil::open_ncfile(md->chtinputdir+"cohortid.nc");
+
+  NcVar* v = NULL;
+
+  this->chtids.push_back(MISSING_I);
+  v = temutil::get_ncvar(chtid_file, "CHTID");
+  v->set_cur(cohort_idx);
+  v->get(&this->chtids.back(), 1);
+
+  this->chtinitids.push_back(MISSING_I);
+  v = temutil::get_ncvar(chtid_file, "INITCHTID");
+  v->set_cur(cohort_idx);
+  v->get(&this->chtinitids.back(), 1);
+
+  this->chtgridids.push_back(MISSING_I);
+  v = temutil::get_ncvar(chtid_file, "GRIDID");
+  v->set_cur(cohort_idx);
+  v->get(&chtgridids.back(), 1);
+
+  this->chtclmids.push_back(MISSING_I);
+  v = temutil::get_ncvar(chtid_file, "CLMID");
+  v->set_cur(cohort_idx);
+  v->get(&this->chtclmids.back(), 1);
+
+  this->chtfireids.push_back(MISSING_I);
+  v = temutil::get_ncvar(chtid_file, "FIREID");
+  v->set_cur(cohort_idx);
+  v->get(&this->chtfireids.back(), 1);
+
+  this->chtvegids.push_back(MISSING_I);
+  v = temutil::get_ncvar(chtid_file, "VEGID");
+  v->set_cur(cohort_idx);
+  v->get(&this->chtvegids.back(), 1);
+  
+  return 0;
+}
+
+int RunCohort::setup_initcohort_ids(int cohort_idx) {
+
+  NcFile cohort_init_file = temutil::open_ncfile(md->initialfile);
+  NcVar* v = temutil::get_ncvar(cohort_init_file, "CHTID");
+  this->initids.push_back(MISSING_I);
+  v->set_cur(cohort_idx);
+  v->get(&this->initids.back(), 1);
+  return 0;
+}
+
+int RunCohort::setup_clm_ids(int cohort_idx) {
+  NcFile clm_id_file = temutil::open_ncfile(md->chtinputdir+"climate.nc");
+  NcVar* v = temutil::get_ncvar(clm_id_file, "CLMID");
+  this->clmids.push_back(MISSING_I);
+  v->set_cur(cohort_idx);
+  v->get(&this->clmids.back(),1);
+  return 0;
+}
+
+int RunCohort::setup_veg_ids(int cohort_idx){
+  NcFile veg_id_file = temutil::open_ncfile(md->chtinputdir+"vegetation.nc");
+  NcVar* v = temutil::get_ncvar(veg_id_file, "VEGID");
+  this->vegids.push_back(MISSING_I);
+  v->set_cur(cohort_idx);
+  v->get(&this->vegids.back(), 1);
+  return 0;
+}
+
+int RunCohort::setup_fire_ids(int cohort_idx) {
+  NcFile fire_id_file = temutil::open_ncfile(md->chtinputdir+"fire.nc");
+  NcVar* v = temutil::get_ncvar(fire_id_file, "FIREID");
+  this->fireids.push_back(MISSING_I);
+  v->set_cur(cohort_idx);
+  v->get(&this->fireids.back(), 1);
+  return 0;
+}
+
 //reading cohort-level all data ids
 int RunCohort::allchtids() {
   int error = 0;
@@ -44,66 +122,31 @@ int RunCohort::allchtids() {
   int id4 = MISSING_I;
   int id5 = MISSING_I;
 
-  // from 'cohortid.nc'
-  for (int i=0; i<md->act_chtno; i++) {
-    error = cinputer.getChtDataids(id, id1, id2, id3, id4, id5, i);
 
-    if (error!=0) {
-      return error;
-    }
-
-    chtids.push_back(id);
-    chtinitids.push_back(id1);
-    chtgridids.push_back(id2);
-    chtclmids.push_back(id3);
-    chtvegids.push_back(id4);
-    chtfireids.push_back(id5);
+  for (int i = 0; i < md->act_chtno; ++i) {
+    this->setup_cohort_ids(i);
   }
 
   // from 'restart.nc' or 'sitein.nc'
   if (md->initmode>1) { // 'runeq' stage doesn't require initial file
-    for (int i=0; i<md->act_initchtno; i++) {
-      error = cinputer.getInitchtId(id, i);
-
-      if (error!=0) {
-        return error;
-      }
-
-      initids.push_back(id);
+    for (int i = 0; i < md->act_chtno; ++i) {
+      this->setup_initcohort_ids(i);
     }
   }
 
-  // from 'climate.nc'
   for (int i=0; i<md->act_clmno; i++) {
-    error = cinputer.getClmId(id, i);
-
-    if (error!=0) {
-      return error;
-    }
-
-    clmids.push_back(id);
+    // from 'climate.nc'
+    this->setup_clm_ids(i);
   }
 
   // from 'vegetation.nc'
   for (int i=0; i<md->act_vegno; i++) {
-    error = cinputer.getVegId(id, i);
-
-    if (error!=0) {
-      return error;
-    }
-
-    vegids.push_back(id);
+    this->setup_veg_ids(i);
   }
 
   // from 'fire.nc'
   for (int i=0; i<md->act_fireno; i++) {
-    error = cinputer.getFireId(id, i);
-
-    if (error!=0) {
-      return error;
-    }
-
-    fireids.push_back(id);
+    this->setup_fire_ids(i);
   }
 
   return error;
@@ -138,12 +181,16 @@ void RunCohort::init() {
 int RunCohort::readData() {
   //reading the climate data
   cht.cd.act_atm_drv_yr = md->act_clmyr;
-  cinputer.getClimate(cht.cd.tair, cht.cd.prec, cht.cd.nirr, cht.cd.vapo,
-                      cht.cd.act_atm_drv_yr, clmrecno);
-  //reading the vegetation community type data from 'vegetation.nc'
+
+  // Read climate data from the netcdf file into data arrays...
+  cht.load_climate_from_file(cht.cd.act_atm_drv_yr, clmrecno);
+
+  // ??
   cht.cd.act_vegset = md->act_vegset;
-  cinputer.getVegetation(cht.cd.vegyear, cht.cd.vegtype, cht.cd.vegfrac,
-                         vegrecno);
+  
+  // Read vegetation community type data from netcdf file into data arrays...
+  cht.load_vegdata_from_file(vegrecno);
+
   //INDEX of veg. community codes, must be one of in those parameter files under 'config/'
   cht.cd.cmttype = cht.cd.vegtype[0];  //default, i.e., the first set of data
 
@@ -169,12 +216,12 @@ int RunCohort::readData() {
 
   //reading the fire occurence data from '.nc', if not FRI derived
   if (!md->get_friderived() && !md->runeq) {
+
     cht.cd.act_fireset = md->act_fireset;
-    cinputer.getFire(cht.cd.fireyear, cht.cd.fireseason, cht.cd.firesize,
-                     firerecno);
+    cht.load_fire_info_from_file(firerecno);
 
     if (md->useseverity) {
-      cinputer.getFireSeverity(cht.cd.fireseverity, firerecno);
+      cht.load_fire_severity_from_file(firerecno);
     }
   }
 

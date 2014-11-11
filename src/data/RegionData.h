@@ -1,6 +1,6 @@
 #ifndef REGIONDATA_H_
 #define REGIONDATA_H_
-
+#include <string>
 #include "../inc/timeconst.h"
 
 class RegionData {
@@ -14,6 +14,8 @@ public:
 
   double initco2;
 
+  void set_act_co2yr_from_file(std::string filename);
+  void setup_co2_and_yr_from_file(std::string filename);
 };
 
 #endif /*REGIONDATA_H_*/

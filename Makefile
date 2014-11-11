@@ -2,8 +2,13 @@
 
 CC=g++
 CFLAGS=-c -Werror -ansi -g -fPIC -DBOOST_ALL_DYN_LINK
+<<<<<<< HEAD
 LIBS=-lnetcdf_c++ -lnetcdf -lpthread -lboost_system -lboost_filesystem \
 -lboost_program_options -lboost_thread -lboost_log -ljsoncpp -lreadline
+=======
+LIBS=-lnetcdf_c++ -lnetcdf -lboost_system -lboost_filesystem \
+-lboost_program_options -lboost_thread -lboost_log -ljsoncpp -lpthread -lreadline
+>>>>>>> f671bbf1693c77367f2499a51bae352dbd751ec8
 USEMPI = false
 
 ifeq ($(USEMPI),true)
@@ -13,6 +18,11 @@ ifeq ($(USEMPI),true)
 else
   # do nothing..
 endif
+
+# Create a build directory for .o object files.
+# Crude because this gets run everytime the Makefile
+# is parsed. But it works.
+$(shell mkdir -p obj)
 
 APPNAME=dvmdostem
 LIBDIR=$(SITE_SPECIFIC_LIBS)
@@ -25,7 +35,6 @@ SOURCES= 	src/TEM.o \
 		src/assembler/RunCohort.o \
 		src/assembler/RunGrid.o \
 		src/assembler/Runner.o \
-		src/assembler/RunRegion.o \
 		src/atmosphere/Atmosphere.o \
 		src/atmosphere/AtmosUtil.o \
 		src/data/BgcData.o \
@@ -46,9 +55,6 @@ SOURCES= 	src/TEM.o \
 		src/ecodomain/horizon/Snow.o \
 		src/ecodomain/horizon/SoilParent.o \
 		src/ecodomain/Vegetation.o \
-		src/input/CohortInputer.o \
-		src/input/GridInputer.o \
-		src/input/RegionInputer.o \
 		src/input/RestartInputer.o \
 		src/lookup/CohortLookup.o \
 		src/lookup/SoilLookup.o \
@@ -62,7 +68,6 @@ SOURCES= 	src/TEM.o \
 		src/runmodule/Integrator.o \
 		src/runmodule/ModelData.o \
 		src/runmodule/OutRetrive.o \
-		src/runmodule/Region.o \
 		src/runmodule/Timer.o \
 		src/snowsoil/Richards.o \
 		src/snowsoil/Snow_Env.o \
@@ -95,7 +100,6 @@ OBJECTS =	ArgHandler.o \
 		RunCohort.o \
 		RunGrid.o \
 		Runner.o \
-		RunRegion.o \
 		Atmosphere.o \
 		AtmosUtil.o \
 		BgcData.o \
@@ -116,9 +120,6 @@ OBJECTS =	ArgHandler.o \
 		Snow.o \
 		SoilParent.o \
 		Vegetation.o \
-		CohortInputer.o \
-		GridInputer.o \
-		RegionInputer.o \
 		RestartInputer.o \
 		CohortLookup.o \
 		SoilLookup.o \
@@ -132,7 +133,6 @@ OBJECTS =	ArgHandler.o \
 		Integrator.o \
 		ModelData.o \
 		OutRetrive.o \
-		Region.o \
 		Timer.o \
 		Richards.o \
 		Snow_Env.o \
@@ -158,18 +158,17 @@ OBJECTS += Master.o \
 		Slave.o
 endif
 
-
-TEMOBJ=	TEM.o
-
+TEMOBJ = obj/TEM.o
 
 dvm: $(SOURCES) $(TEMOBJ)
-	$(CC) -o $(APPNAME) $(INCLUDES) $(OBJECTS) $(TEMOBJ) $(LIBDIR) $(LIBS) $(MPILFLAGS)
+	$(CC) -o $(APPNAME) $(INCLUDES) $(addprefix obj/, $(OBJECTS)) $(TEMOBJ) $(LIBDIR) $(LIBS) $(MPILFLAGS)
 
 lib: $(SOURCES) 
-	$(CC) -o libTEM.so -shared $(INCLUDES) $(OBJECTS) $(LIBDIR) $(LIBS) $(MPILFLAGS)
+	$(CC) -o libTEM.so -shared $(INCLUDES) $(addprefix obj/, $(OBJECTS)) $(LIBDIR) $(LIBS) $(MPILFLAGS)
 
-.cpp.o:  
-	$(CC) $(CFLAGS) $(MPICFLAGS) $(INCLUDES) $(MPIINCLUDES) $<
+.cpp.o:
+	$(CC) $(CFLAGS) $(MPICFLAGS) $(INCLUDES) $(MPIINCLUDES) $< -o obj/$(notdir $@)
 
 clean:
-	rm -f $(OBJECTS) $(APPNAME) TEM.o libTEM.so* *~
+	rm -f $(OBJECTS) $(APPNAME) TEM.o libTEM.so* *~ obj/*
+

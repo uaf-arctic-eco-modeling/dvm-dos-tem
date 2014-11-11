@@ -7,6 +7,7 @@
 */
 
 #include "RunGrid.h"
+#include "../TEMUtilityFunctions.h"
 
 RunGrid::RunGrid() {
   // grided data record ids in .nc files
@@ -23,55 +24,84 @@ void RunGrid::setModelData(ModelData * mdp) {
   md= mdp;
 };
 
-//reading grid-level all data ids
+/** Setups up the grid ids from various input files.
+*
+*  Note: recno - the order (from ZERO) in the .nc file, ids - the real
+*        ids in the *.nc files
+*/
+void RunGrid::setup_gridids_from_files(int recno) {
+
+  this->grdids.push_back(MISSING_I);
+  this->grddrgids.push_back(MISSING_I);
+  this->grdsoilids.push_back(MISSING_I);
+  this->grdfireids.push_back(MISSING_I);
+
+  NcFile grid_file = temutil::open_ncfile(md->grdinputdir+"grid.nc");
+
+  NcVar* grididV = temutil::get_ncvar(grid_file, "GRIDID");
+  grididV->set_cur(recno);
+  grididV->get(&this->grdids.back(), 1);
+
+  NcVar* drgidV = temutil::get_ncvar(grid_file, "DRAINAGEID");
+  drgidV->set_cur(recno);
+  drgidV->get(&this->grddrgids.back(), 1);
+
+  NcVar* soilidV = temutil::get_ncvar(grid_file, "SOILID");
+  soilidV->set_cur(recno);
+  soilidV->get(&this->grdsoilids.back(), 1);
+
+  NcVar* gfireidV = temutil::get_ncvar(grid_file, "GFIREID");
+  gfireidV->set_cur(recno);
+  gfireidV->get(&this->grdfireids.back(), 1);
+  
+}
+
+/** Reading all grid-level data ids.
+*/
 int RunGrid::allgridids() {
   int error = 0;
-  int id = MISSING_I;
-  int id1 = MISSING_I;
-  int id2 = MISSING_I;
-  int id3 = MISSING_I;
 
-  for (int i=0; i<md->act_gridno; i++) {
-    error = ginputer.getGridids(id, id1, id2, id3, i);
+  /* NOTE: Should probbaly add some kind of error checking. Right now, the 
+   * error stack-variable is doing nothing.
+   */
 
-    if (error!=0) {
-      return error;
-    }
-
-    grdids.push_back(id);
-    grddrgids.push_back(id1);
-    grdsoilids.push_back(id2);
-    grdfireids.push_back(id3);
+  for (int rec_num = 0; rec_num < md->act_gridno; ++rec_num) {
+    this->setup_gridids_from_files(rec_num);
   }
 
-  for (int i=0; i<md->act_drainno; i++) {
-    error = ginputer.getDrainId(id, i);
+  for (int i = 0; i < md->act_drainno; ++i) {
 
-    if (error!=0) {
-      return error;
-    }
+    this->drainids.push_back(MISSING_I);
 
-    drainids.push_back(id);
+    NcFile f = temutil::open_ncfile(md->grdinputdir+"drainage.nc");
+
+    NcVar* v = temutil::get_ncvar(f, "DRAINAGEID");
+    v->set_cur(i);
+    v->get(&this->drainids.back(), 1);
+
   }
 
-  for (int i=0; i<md->act_soilno; i++) {
-    error = ginputer.getSoilId(id, i);
+  for (int i = 0; i < md->act_soilno; ++i) {
 
-    if (error!=0) {
-      return error;
-    }
+    this->soilids.push_back(MISSING_I);
 
-    soilids.push_back(id);
+    NcFile f = temutil::open_ncfile(md->grdinputdir+"soiltexture.nc");
+
+    NcVar* v = temutil::get_ncvar(f, "SOILID");
+    v->set_cur(i);
+    v->get(&this->soilids.back(), 1);
+
   }
 
-  for (int i=0; i<md->act_gfireno; i++) {
-    error = ginputer.getGfireId(id, i);
+  for (int i = 0; i < md->act_gfireno; ++i) {
 
-    if (error!=0) {
-      return error;
-    }
+    this->gfireids.push_back(MISSING_I);
 
-    gfireids.push_back(id);
+    NcFile f = temutil::open_ncfile(md->grdinputdir+"firestatistics.nc");
+
+    NcVar* v = temutil::get_ncvar(f, "GFIREID");
+    v->set_cur(i);
+    v->get(&this->gfireids.back(), 1);
   }
 
   return error;
@@ -85,28 +115,29 @@ int RunGrid::readData() {
     return -1;
   }
 
-  ginputer.getLatlon(grid.gd.lat, grid.gd.lon, gridrecno);
+  this->grid.gd.read_location_from_file(md->grdinputdir + "grid.nc", gridrecno);
 
   //reading the grided 'drainage type' data
   if (drainrecno<0) {
     return -2;
   }
 
-  ginputer.getDrainType(grid.gd.drgtype, drainrecno);
+  grid.gd.drainage_type_from_file(md->grdinputdir + "drainage.nc", drainrecno);
 
   //reading the grided 'soil texture' data
   if (soilrecno<0) {
     return -3;
   }
 
-  ginputer.getSoilTexture(grid.gd.topsoil, grid.gd.botsoil, soilrecno);
+  grid.gd.soil_texture_from_file(md->grdinputdir + "soiltexture.nc", soilrecno);
 
   //reading the grided 'fire' data
   if (gfirerecno<0) {
     return -4;
   }
 
-  ginputer.getGfire(grid.gd.fri, grid.gd.pfseason, grid.gd.pfsize, gfirerecno);
+  grid.gd.g_fire_from_file(md->grdinputdir + "firestatistics.nc", gfirerecno);
+
   //
   grid.reinit();          //checking grid data
   return 0;
