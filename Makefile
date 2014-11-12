@@ -2,13 +2,10 @@
 
 CC=g++
 CFLAGS=-c -Werror -ansi -g -fPIC -DBOOST_ALL_DYN_LINK
-<<<<<<< HEAD
-LIBS=-lnetcdf_c++ -lnetcdf -lpthread -lboost_system -lboost_filesystem \
--lboost_program_options -lboost_thread -lboost_log -ljsoncpp -lreadline
-=======
+
 LIBS=-lnetcdf_c++ -lnetcdf -lboost_system -lboost_filesystem \
 -lboost_program_options -lboost_thread -lboost_log -ljsoncpp -lpthread -lreadline
->>>>>>> f671bbf1693c77367f2499a51bae352dbd751ec8
+
 USEMPI = false
 
 ifeq ($(USEMPI),true)
