@@ -350,8 +350,8 @@ double Vegetation::getUnnormleaf(const int& ipft, double &prveetmx,
                +(vegdimpar.bleaf[ipft] * prvunleaf)
                +vegdimpar.cleaf[ipft];
 
-  if (unnormleaf < (0.1 * vegdimpar.minleaf[ipft])) {
-    unnormleaf = 0.1 * vegdimpar.minleaf[ipft];
+  if (unnormleaf < (0.5 * vegdimpar.minleaf[ipft])) {
+    unnormleaf = 0.5 * vegdimpar.minleaf[ipft];
   }
 
   return unnormleaf;
