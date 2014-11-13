@@ -2,38 +2,45 @@ README for dvm-dos-tem
 ===========================================
 The dvm-dos-tem is a process based bio-geo-chemical ecosystem model.
 
-There are two main parts that make up dvm-dos-tem: the "Calibration Version" and the
-"Extrapolation Version". The Calibration Version is used to adjust parameters. The
-Extrapolation Version is used to make projections or other simulations.
+There are two ways in which you might interact with dvmdostem: 
+performaing an _extrapolation_, or performing a _calibration_. 
 
-Both the Calibration Version and Extrapolation Version rely on the same underlying C++
-code, but each version "drives" the code differently. It might be helpful to think of
-the Calibration and Extrapolation Versions as providing different interfaces to the
-underlying calculator.
+When performing a calibration, you will evaluate the simulation as it is 
+running. You will also likely be pausing the simulation to adjusting parameters 
+and settings. Calibrations are performed for a single spatial location (a single 
+cohort or grid cell).
 
-The code for the Extrapolation Version is not separated from the underlying calculator
-all the code is within the `src/` directory. The Calibration Version (interface) is
-written is Java. This code is contained within the `calibration/` directory. The
-Calibration Version points to C++ code in the `src/` directory in order to compile.
+When performing an extrapolation the program progresses to completion,
+typically over one or more spatial locations (multiple cohorts, or grid cells). 
+The outputs are analyzed only once the simulation has completed for all
+time-steps and spatial locations.
 
 Requirements and Dependencies
 -----------------------------------------------------------------------------------------
-The following tools/libraries are necessary in order to build and run dvm-dos-tem
+The following tools/libraries are necessary in order to compile and run dvm-dos-tem
 
 * Boost, including [Boost.Program_options](http://www.boost.org/doc/libs/1_53_0/doc/html/program_options.html)
-* NetCDF, v4.1.3 or less. [NetCDF/Unidata](http://www.unidata.ucar.edu/software/netcdf/)
-* Java Development Kit (JDK) v??
+* NetCDF, C++ Interface, [NetCDF/Unidata](http://www.unidata.ucar.edu/software/netcdf/)
+* Jsoncpp []()
 
 Downloading 
 -----------------------------------------------------------
-There are several options for downloading or obtaining the model depending on your
-particular usecase. Dvm-dos-tem is not distributed as a binary file, so to run the
-program, you must compile from source code. 
+We (the Spatial Ecology Lab) are maintaining the main fork of dvm-dos-tem on 
+Github: [https://github.com/ua-snap/dvm-dos-tem](https://github.com/ua-snap/dvm-dos-tem)
 
-* If you anticipate contributing to the code, you should use github to create
-your own fork and then git to "clone" the code.
-* How to: ...download version, keep up to date with sel version...
-* How to: ...download specific commit, no need to contribute or keep up to date...
+> The dvm-dos-tem program is not distributed as a binary file, 
+so to run the program, you must download the source code and compile it 
+yourself. 
+
+ * The `master` branch will always contain the latest production version of the
+model. 
+ * The `devel` branch will contain recent developments to the code. We try to 
+ maintain a stable `devel` branch: the code merged into `devel` should always compile 
+ and run, and typically has been reviewed by or discussed with several people in 
+ the lab.
+ 
+We are using Github's Pull Requests to manage contributins to the code.
+
 
 Compiling / Building
 -----------------------------------------------------------------------------
