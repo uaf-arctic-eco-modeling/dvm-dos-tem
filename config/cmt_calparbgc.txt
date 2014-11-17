@@ -93,8 +93,8 @@ CMT03 // Boreal Deciduous Forest ###THESE ARE JUNK VALUES!!!###- (max. 10 PFTs o
 //===========================================================
 CMT04 // Shrub Tundra - (max. 10 PFTs over 1 soil column) (BGC) plant calibrated parameters
 //Salix      Betula       Decid.       E.green      Sedges       Forbs        Grasses      Lichens      Feather      Misc1.       // names: comments                  
-255.0        625.0        83.0         23.9         45.0         66.8         27.8         38.8         86.1         0.0          // cmax:
-2.5          8.5          0.81         0.19         0.23         0.76         0.29         0.02         0.1          0.0          // nmax:
+1255.0       1625.0       83.0         23.9         45.0         66.8         27.8         38.8         86.1         0.0          // cmax:
+8.5          8.5          8.81         8.19         8.23         8.76         8.29         0.02         0.1          0.0          // nmax:
 0.083        0.083        0.083        0.118        0.083        0.083        0.083        0.037        0.018        0.0          // cfall(0): leave
 0.020        0.016        0.012        0.008        0.0          0.0          0.0          0.0          0.0          0.0          // cfall(1): stem
 0.027        0.020        0.068        0.084        0.083        0.083        0.083        0.0          0.0          0.0          // cfall(2): root
@@ -116,25 +116,25 @@ CMT04 // Shrub Tundra - (max. 10 PFTs over 1 soil column) (BGC) plant calibrated
 //===========================================================
 CMT05 // Tussock Tundra - (max. 10 PFTs) Plant calibrated parameters
 //Betula     Decid.      E.green     Sedges       Forbs        Lichens      Feather.     Sphag.       Misc1.      Misc2.      // names: comments
-40.50        246.40      39.7        128.6        35.4         42.10        29.70        26.3         0.0          0.0        // cmax:
+400.50      1560.40     190.7       680.6        180.4        210.10       145.70       130.3         0.0          0.0        // cmax:
 1.20         1.550       0.72        4.01         0.97         0.120        0.410        0.32         0.0          0.0        // nmax:
-0.003        0.083       0.058       0.083        0.083        0.01         0.018        0.007        0.0          0.0        // cfall(0): leave
-0.007        0.021       0.014       0.0          0.0          0.0          0.0          0.0          0.0          0.0        // cfall(1): stem
-0.001        0.069       0.079       0.083        0.083        0.0          0.0          0.0          0.0          0.0        // cfall(2): root
-0.002        0.028       0.042       0.042        0.042        0.001        0.012        0.003        0.0          0.0        // nfall(0): leave
-0.003        0.008       0.008       0.0          0.0          0.0          0.0          0.0          0.0          0.0        // nfall(1): stem
-0.0018       0.002       0.007       0.042        0.042        0.0          0.000        0.0          0.0          0.0        // nfall(2): root
+0.03         0.083       0.058       0.083        0.083        0.01         0.018        0.007        0.0          0.0        // cfall(0): leave
+0.01         0.021       0.014       0.0          0.0          0.0          0.0          0.0          0.0          0.0        // cfall(1): stem
+0.01         0.006       0.079       0.05        0.083        0.0          0.0          0.0          0.0          0.0        // cfall(2): root
+0.02         0.028       0.042       0.042        0.042        0.001        0.012        0.003        0.0          0.0        // nfall(0): leave
+0.03         0.008        0.008       0.0          0.0          0.0          0.0          0.0          0.0          0.0        // nfall(1): stem
+0.018        0.002        0.007       0.03        0.042        0.0          0.000        0.0          0.0          0.0        // nfall(2): root
 -8.06e-05   -8.06e-05   -8.06e-05   -8.06e-05    -8.06e-05    -8.06e-05    -8.06e-05    -8.06e-05     0.0          0.0        // kra:    coeff(0) in maintenance resp.
 -3.49       -2.49       -2.20       -6.30        -3.18        -4.40        -3.90        -4.9          0.0          0.0        // krb(0): coeff(1) in maintenance resp.(leave) 
 -4.31       -3.93       -4.80        0.0          0.0          0.0          0.0          0.0          0.0          0.0        // krb(1): coeff(1) in maintenance resp.(stem) 
--0.05       -0.06       -0.05       -1.60        -0.1          0.0          0.0          0.0          0.0          0.0        // krb(2): coeff(1) in maintenance resp.(root)
+-0.05       -0.06       -0.05       -0.60        -0.1          0.0          0.0          0.0          0.0          0.0        // krb(2): coeff(1) in maintenance resp.(root)
 0.20         0.20        0.20        0.20         0.20         0.20         0.20         0.20         0.0          0.0        // frg: fraction of available NPP (GPP after rm) for growth resp. 
 // soil calibrated parameters
 1.1420          // micbnup: parameter for soil microbial immobialization of N
-0.0507042       // kdcrawc: raw-material (litter) C decompositin rates at reference condition
-0.0108046       // kdcsoma:
-0.0020805       // kdcsompr:
-0.0000108       // kdcsomcr:
+1.07042       // kdcrawc: raw-material (litter) C decompositin rates at reference condition
+0.508046       // kdcsoma:
+0.120805       // kdcsompr:
+0.0108       // kdcsomcr:
 //===========================================================
 CMT06 // Wet Sedge Tundra - (max. 10 PFTs over 1 soil column) (BGC) plant calibrated parameters
 //Decid.     Sedges       Grasses      Forbs        Lichens      Feather      Sphag.       PFT7       PFT8         PFT9         // names: comments                  

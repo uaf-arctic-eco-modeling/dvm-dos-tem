@@ -688,7 +688,8 @@ double  Vegetation_Bgc::getGPP(const double &co2, const double & par,
   //par : photosynthetically active radiation in J/(m2s)
   double fpar = par/(bgcpar.ki +par);
   double gpp = calpar.cmax * foliage * ci / (bgcpar.kc + ci);
-  gpp *= leaf * fpar;
+  //gpp *= leaf * fpar;
+  gpp *= fpar;
   gpp *= ftemp;
   gpp *= thawpcnt;
 
@@ -734,7 +735,7 @@ double Vegetation_Bgc::getGV(const double & eet,const double & pet ) {
   if(gv>1) {
     gv =1;
   }
-
+  //gv=1;
   return gv;
 };
 
@@ -853,7 +854,7 @@ double Vegetation_Bgc::getNuptake(const double & foliage, const double & raq10,
     // root factor: root fraction of current PFT over all PFTs
     nuptake *= totfrootfrac;
     // plant phenological factor
-    nuptake *= foliage;
+    //nuptake *= foliage;
     // air temperature factor
     nuptake *= raq10;
   } else {
