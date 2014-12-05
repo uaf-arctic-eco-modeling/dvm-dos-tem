@@ -599,16 +599,16 @@ void Cohort::updateMonthly_Fir(const int & yrind, const int & currmind) {
     for (int ip=0; ip<NUM_PFT; ip++) {
       if (cd.m_veg.vegcov[ip]>0.) {
         for (int i=0; i<NUM_PFT_PART; i++) {
-          bdall->m_vegs.c[i]    += bd[ip].m_vegs.c[i] * cd.m_veg.vegcov[ip];
-          bdall->m_vegs.strn[i] += bd[ip].m_vegs.strn[i] * cd.m_veg.vegcov[ip];
+          bdall->m_vegs.c[i]    += bd[ip].m_vegs.c[i];
+          bdall->m_vegs.strn[i] += bd[ip].m_vegs.strn[i];
         }
 
-        bdall->m_vegs.labn    += bd[ip].m_vegs.labn * cd.m_veg.vegcov[ip];
-        bdall->m_vegs.call    += bd[ip].m_vegs.call * cd.m_veg.vegcov[ip];
-        bdall->m_vegs.strnall += bd[ip].m_vegs.strnall * cd.m_veg.vegcov[ip];
-        bdall->m_vegs.nall    += bd[ip].m_vegs.nall * cd.m_veg.vegcov[ip];
-        bdall->m_vegs.deadc   += bd[ip].m_vegs.deadc * cd.m_veg.vegcov[ip];
-        bdall->m_vegs.deadn   += bd[ip].m_vegs.deadn * cd.m_veg.vegcov[ip];
+        bdall->m_vegs.labn    += bd[ip].m_vegs.labn;
+        bdall->m_vegs.call    += bd[ip].m_vegs.call;
+        bdall->m_vegs.strnall += bd[ip].m_vegs.strnall;
+        bdall->m_vegs.nall    += bd[ip].m_vegs.nall;
+        bdall->m_vegs.deadc   += bd[ip].m_vegs.deadc;
+        bdall->m_vegs.deadn   += bd[ip].m_vegs.deadn;
       }
     }
 
@@ -858,8 +858,7 @@ void Cohort::getSoilTransfactor4all_daily() {
 
     for (int ip=0; ip<NUM_PFT; ip++) {
       if (cd.d_veg.vegcov[ip]>0.) {
-        edall->d_soid.fbtran[il] += ed[ip].d_soid.fbtran[il]
-                                    * cd.d_veg.vegcov[ip];
+        edall->d_soid.fbtran[il] += ed[ip].d_soid.fbtran[il];
       }
     }
   }
@@ -896,32 +895,32 @@ void Cohort::getEd4allveg_daily() {
 
   for (int ip=0; ip<NUM_PFT; ip++) {
     if (cd.d_veg.vegcov[ip]>0.) {
-      edall->d_vegs.rwater  += ed[ip].d_vegs.rwater * cd.d_veg.vegcov[ip];
-      edall->d_vegs.snow    += ed[ip].d_vegs.snow * cd.d_veg.vegcov[ip];
-      edall->d_vegd.rc      += ed[ip].d_vegd.rc * cd.d_veg.vegcov[ip];
-      edall->d_vegd.cc      += ed[ip].d_vegd.cc * cd.d_veg.vegcov[ip];
-      edall->d_vegd.btran   += ed[ip].d_vegd.btran * cd.d_veg.vegcov[ip];
-      edall->d_vegd.m_ppfd  += ed[ip].d_vegd.m_ppfd * cd.d_veg.vegcov[ip];
-      edall->d_vegd.m_vpd   += ed[ip].d_vegd.m_vpd * cd.d_veg.vegcov[ip];
-      edall->d_a2v.rnfl     += ed[ip].d_a2v.rnfl * cd.d_veg.vegcov[ip];
-      edall->d_a2v.rinter   += ed[ip].d_a2v.rinter * cd.d_veg.vegcov[ip];
-      edall->d_a2v.snfl     += ed[ip].d_a2v.snfl * cd.d_veg.vegcov[ip];
-      edall->d_a2v.sinter   += ed[ip].d_a2v.sinter * cd.d_veg.vegcov[ip];
-      edall->d_a2v.swdown   += ed[ip].d_a2v.swdown * cd.d_veg.vegcov[ip];
-      edall->d_a2v.swinter  += ed[ip].d_a2v.swinter * cd.d_veg.vegcov[ip];
-      edall->d_a2v.pardown  += ed[ip].d_a2v.pardown * cd.d_veg.vegcov[ip];
-      edall->d_a2v.parabsorb+= ed[ip].d_a2v.parabsorb * cd.d_veg.vegcov[ip];
-      edall->d_v2a.swrefl   += ed[ip].d_v2a.swrefl * cd.d_veg.vegcov[ip];
-      edall->d_v2a.evap     += ed[ip].d_v2a.evap * cd.d_veg.vegcov[ip];
-      edall->d_v2a.tran     += ed[ip].d_v2a.tran * cd.d_veg.vegcov[ip];
-      edall->d_v2a.evap_pet += ed[ip].d_v2a.evap_pet * cd.d_veg.vegcov[ip];
-      edall->d_v2a.tran_pet += ed[ip].d_v2a.tran_pet * cd.d_veg.vegcov[ip];
-      edall->d_v2a.sublim   += ed[ip].d_v2a.sublim * cd.d_veg.vegcov[ip];
-      edall->d_v2g.swthfl   += ed[ip].d_v2g.swthfl * cd.d_veg.vegcov[ip];
-      edall->d_v2g.rdrip    += ed[ip].d_v2g.rdrip * cd.d_veg.vegcov[ip];
-      edall->d_v2g.rthfl    += ed[ip].d_v2g.rthfl * cd.d_veg.vegcov[ip];
-      edall->d_v2g.sdrip    += ed[ip].d_v2g.sdrip * cd.d_veg.vegcov[ip];
-      edall->d_v2g.sthfl    += ed[ip].d_v2g.sthfl * cd.d_veg.vegcov[ip];
+      edall->d_vegs.rwater  += ed[ip].d_vegs.rwater;
+      edall->d_vegs.snow    += ed[ip].d_vegs.snow;
+      edall->d_vegd.rc      += ed[ip].d_vegd.rc;
+      edall->d_vegd.cc      += ed[ip].d_vegd.cc;
+      edall->d_vegd.btran   += ed[ip].d_vegd.btran;
+      edall->d_vegd.m_ppfd  += ed[ip].d_vegd.m_ppfd;
+      edall->d_vegd.m_vpd   += ed[ip].d_vegd.m_vpd;
+      edall->d_a2v.rnfl     += ed[ip].d_a2v.rnfl;
+      edall->d_a2v.rinter   += ed[ip].d_a2v.rinter;
+      edall->d_a2v.snfl     += ed[ip].d_a2v.snfl;
+      edall->d_a2v.sinter   += ed[ip].d_a2v.sinter;
+      edall->d_a2v.swdown   += ed[ip].d_a2v.swdown;
+      edall->d_a2v.swinter  += ed[ip].d_a2v.swinter;
+      edall->d_a2v.pardown  += ed[ip].d_a2v.pardown;
+      edall->d_a2v.parabsorb+= ed[ip].d_a2v.parabsorb;
+      edall->d_v2a.swrefl   += ed[ip].d_v2a.swrefl;
+      edall->d_v2a.evap     += ed[ip].d_v2a.evap;
+      edall->d_v2a.tran     += ed[ip].d_v2a.tran;
+      edall->d_v2a.evap_pet += ed[ip].d_v2a.evap_pet;
+      edall->d_v2a.tran_pet += ed[ip].d_v2a.tran_pet;
+      edall->d_v2a.sublim   += ed[ip].d_v2a.sublim;
+      edall->d_v2g.swthfl   += ed[ip].d_v2g.swthfl;
+      edall->d_v2g.rdrip    += ed[ip].d_v2g.rdrip;
+      edall->d_v2g.rthfl    += ed[ip].d_v2g.rthfl;
+      edall->d_v2g.sdrip    += ed[ip].d_v2g.sdrip;
+      edall->d_v2g.sthfl    += ed[ip].d_v2g.sthfl;
     }
   }
 }
@@ -1023,73 +1022,62 @@ void Cohort::getBd4allveg_monthly() {
 
   for (int ip=0; ip<NUM_PFT; ip++) {
     if (cd.m_veg.vegcov[ip]>0.) {
-      bdall->m_v2soi.d2wdebrisc += bd[ip].m_v2soi.d2wdebrisc
-                                   * cd.m_veg.vegcov[ip];
-      bdall->m_v2soi.d2wdebrisn += bd[ip].m_v2soi.d2wdebrisn
-                                   * cd.m_veg.vegcov[ip];
+      bdall->m_v2soi.d2wdebrisc += bd[ip].m_v2soi.d2wdebrisc;
+      bdall->m_v2soi.d2wdebrisn += bd[ip].m_v2soi.d2wdebrisn;
 
       for (int i=0; i<NUM_PFT_PART; i++) {
-        bdall->m_vegs.c[i]    += bd[ip].m_vegs.c[i] * cd.m_veg.vegcov[ip];
-        bdall->m_vegs.strn[i] += bd[ip].m_vegs.strn[i] * cd.m_veg.vegcov[ip];
-        bdall->m_a2v.ingpp[i] += bd[ip].m_a2v.ingpp[i] * cd.m_veg.vegcov[ip];
-        bdall->m_a2v.innpp[i] += bd[ip].m_a2v.innpp[i] * cd.m_veg.vegcov[ip];
-        bdall->m_a2v.gpp[i]   += bd[ip].m_a2v.gpp[i] * cd.m_veg.vegcov[ip];
-        bdall->m_a2v.npp[i]   += bd[ip].m_a2v.npp[i] * cd.m_veg.vegcov[ip];
-        bdall->m_v2a.rg[i]    += bd[ip].m_v2a.rg[i] * cd.m_veg.vegcov[ip];
-        bdall->m_v2a.rm[i]    += bd[ip].m_v2a.rm[i] * cd.m_veg.vegcov[ip];
-        bdall->m_v2v.nmobil[i] += bd[ip].m_v2v.nmobil[i] * cd.m_veg.vegcov[ip];
-        bdall->m_v2v.nresorb[i]+= bd[ip].m_v2v.nresorb[i] * cd.m_veg.vegcov[ip];
+        bdall->m_vegs.c[i]    += bd[ip].m_vegs.c[i];
+        bdall->m_vegs.strn[i] += bd[ip].m_vegs.strn[i];
+        bdall->m_a2v.ingpp[i] += bd[ip].m_a2v.ingpp[i];
+        bdall->m_a2v.innpp[i] += bd[ip].m_a2v.innpp[i];
+        bdall->m_a2v.gpp[i]   += bd[ip].m_a2v.gpp[i];
+        bdall->m_a2v.npp[i]   += bd[ip].m_a2v.npp[i];
+        bdall->m_v2a.rg[i]    += bd[ip].m_v2a.rg[i];
+        bdall->m_v2a.rm[i]    += bd[ip].m_v2a.rm[i];
+        bdall->m_v2v.nmobil[i] += bd[ip].m_v2v.nmobil[i];
+        bdall->m_v2v.nresorb[i]+= bd[ip].m_v2v.nresorb[i];
 
         if (cd.m_veg.nonvascular[ip]==0) {
-          bdall->m_v2soi.ltrfalc[i] += bd[ip].m_v2soi.ltrfalc[i]
-                                       * cd.m_veg.vegcov[ip];
-          bdall->m_v2soi.ltrfaln[i] += bd[ip].m_v2soi.ltrfaln[i]
-                                       * cd.m_veg.vegcov[ip];
+          bdall->m_v2soi.ltrfalc[i] += bd[ip].m_v2soi.ltrfalc[i];
+          bdall->m_v2soi.ltrfaln[i] += bd[ip].m_v2soi.ltrfaln[i];
         }
 
-        bdall->m_soi2v.snuptake[i] += bd[ip].m_soi2v.snuptake[i]
-                                      * cd.m_veg.vegcov[ip];
+        bdall->m_soi2v.snuptake[i] += bd[ip].m_soi2v.snuptake[i];
       }
 
-      bdall->m_vegs.labn    += bd[ip].m_vegs.labn * cd.m_veg.vegcov[ip];
-      bdall->m_vegs.call    += bd[ip].m_vegs.call * cd.m_veg.vegcov[ip];
-      bdall->m_vegs.strnall += bd[ip].m_vegs.strnall * cd.m_veg.vegcov[ip];
-      bdall->m_vegs.nall    += bd[ip].m_vegs.nall * cd.m_veg.vegcov[ip];
-      bdall->m_a2v.ingppall += bd[ip].m_a2v.ingppall * cd.m_veg.vegcov[ip];
-      bdall->m_a2v.innppall += bd[ip].m_a2v.innppall * cd.m_veg.vegcov[ip];
-      bdall->m_a2v.gppall   += bd[ip].m_a2v.gppall * cd.m_veg.vegcov[ip];
-      bdall->m_a2v.nppall   += bd[ip].m_a2v.nppall * cd.m_veg.vegcov[ip];
-      bdall->m_v2a.rgall    += bd[ip].m_v2a.rgall * cd.m_veg.vegcov[ip];
-      bdall->m_v2a.rmall    += bd[ip].m_v2a.rmall * cd.m_veg.vegcov[ip];
+      bdall->m_vegs.labn    += bd[ip].m_vegs.labn;
+      bdall->m_vegs.call    += bd[ip].m_vegs.call;
+      bdall->m_vegs.strnall += bd[ip].m_vegs.strnall;
+      bdall->m_vegs.nall    += bd[ip].m_vegs.nall;
+      bdall->m_a2v.ingppall += bd[ip].m_a2v.ingppall;
+      bdall->m_a2v.innppall += bd[ip].m_a2v.innppall;
+      bdall->m_a2v.gppall   += bd[ip].m_a2v.gppall;
+      bdall->m_a2v.nppall   += bd[ip].m_a2v.nppall;
+      bdall->m_v2a.rgall    += bd[ip].m_v2a.rgall;
+      bdall->m_v2a.rmall    += bd[ip].m_v2a.rmall;
 
       if (cd.m_veg.nonvascular[ip]==0) {
-        bdall->m_v2soi.ltrfalcall += bd[ip].m_v2soi.ltrfalcall
-                                     * cd.m_veg.vegcov[ip];
-        bdall->m_v2soi.ltrfalnall += bd[ip].m_v2soi.ltrfalnall
-                                     * cd.m_veg.vegcov[ip];
+        bdall->m_v2soi.ltrfalcall += bd[ip].m_v2soi.ltrfalcall;
+        bdall->m_v2soi.ltrfalnall += bd[ip].m_v2soi.ltrfalnall;
       }
 
       if (cd.m_veg.nonvascular[ip]>0) {
         //NOTE: non-vascular plants' litterfalling
         //  (mortality) is for death moss layer C
-        bdall->m_v2soi.mossdeathc += bd[ip].m_v2soi.mossdeathc
-                                     * cd.m_veg.vegcov[ip];
-        bdall->m_v2soi.mossdeathn += bd[ip].m_v2soi.mossdeathn
-                                     * cd.m_veg.vegcov[ip];
+        bdall->m_v2soi.mossdeathc += bd[ip].m_v2soi.mossdeathc;
+        bdall->m_v2soi.mossdeathn += bd[ip].m_v2soi.mossdeathn;
       }
 
-      bdall->m_v2v.nmobilall += bd[ip].m_v2v.nmobilall * cd.m_veg.vegcov[ip];
-      bdall->m_v2v.nresorball += bd[ip].m_v2v.nresorball * cd.m_veg.vegcov[ip];
-      bdall->m_soi2v.innuptake+= bd[ip].m_soi2v.innuptake * cd.m_veg.vegcov[ip];
+      bdall->m_v2v.nmobilall += bd[ip].m_v2v.nmobilall;
+      bdall->m_v2v.nresorball += bd[ip].m_v2v.nresorball;
+      bdall->m_soi2v.innuptake+= bd[ip].m_soi2v.innuptake;
 
       for (int il=0; il<cd.m_soil.numsl; il++) {
-        bdall->m_soi2v.nextract[il] += bd[ip].m_soi2v.nextract[il]
-                                       * cd.m_veg.vegcov[ip];
+        bdall->m_soi2v.nextract[il] += bd[ip].m_soi2v.nextract[il];
       }
 
-      bdall->m_soi2v.lnuptake += bd[ip].m_soi2v.lnuptake * cd.m_veg.vegcov[ip];
-      bdall->m_soi2v.snuptakeall += bd[ip].m_soi2v.snuptakeall
-                                    * cd.m_veg.vegcov[ip];
+      bdall->m_soi2v.lnuptake += bd[ip].m_soi2v.lnuptake;
+      bdall->m_soi2v.snuptakeall += bd[ip].m_soi2v.snuptakeall;
     } // end of 'vegcov[ip]>0'
   }
 

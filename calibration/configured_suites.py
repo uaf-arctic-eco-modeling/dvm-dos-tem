@@ -105,7 +105,7 @@ configured_suites = {
       { 'jsontag': 'VegCarbon', 'axesnum': 2, 'units': 'gC/m^2', 'pft': '', 'pftpart': 'Leaf'},
       { 'jsontag': 'VegCarbon', 'axesnum': 2, 'units': 'gC/m^2', 'pft': '', 'pftpart': 'Stem'},
       { 'jsontag': 'VegCarbon', 'axesnum': 2, 'units': 'gC/m^2', 'pft': '', 'pftpart': 'Root'},
-      { 'jsontag': 'LitterfallCarbonAll', 'axesnum': 2, 'units': 'gC/m^2', 'pft': '', },
+      #{ 'jsontag': 'LitterfallCarbonAll', 'axesnum': 2, 'units': 'gC/m^2', 'pft': '', },
 
       { 'jsontag': 'VegStructuralNitrogen', 'axesnum': 3, 'units': 'gN/m^2', 'pft': '', 'pftpart': 'Leaf'},
       { 'jsontag': 'VegStructuralNitrogen', 'axesnum': 3, 'units': 'gN/m^2', 'pft': '', 'pftpart': 'Stem'},
