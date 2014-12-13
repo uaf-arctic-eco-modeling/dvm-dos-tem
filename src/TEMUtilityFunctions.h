@@ -30,6 +30,10 @@ namespace temutil {
 
   std::pair<float, float> get_location(std::string gridfilename, int grid_id);
 
+  void handle_error(int status);
+  
+  void nc(int status);
+
 }
 
 #endif /* TEMUtilityFunctions_H */

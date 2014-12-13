@@ -532,12 +532,93 @@ void RunCohort::run_timeseries(boost::shared_ptr<CalController> calcontroller_pt
 
       int currmind=  im;
       cht.cd.month = im+1;
-      int dinmcurr = cht.timer->getDaysInMonth(im);;
+      int dinmcurr = cht.timer->getDaysInMonth(im);
 
       cht.updateMonthly(yrindex, currmind, dinmcurr);
 
       cht.timer->advanceOneMonth();
 
+
+      //  ///////////////////////////////////////////////
+      //   NEW OUTPUT STUFF
+      //  ///////////////////////////////////////////////
+      //
+      //  /*
+      //  Concerns
+      //   - need to open a fresh file at begining of run and define vars/dims
+      //     if an appropriate one doesn;t exist
+      //   - problem assigning start and count arrays
+      //   - need to figure out whre to grab the right data
+      //   - may need mapped arrays to efficiently assign some values that are 
+      //     laid out very differently in memory than we want them in the file?
+      //   - need to figure out what to do with the Y,X dimensions
+      //  */
+
+      BOOST_LOG_SEV(glg, note) << "Starting NEW OUTPUT WRITE PROCESS";
+
+      // get a file handle
+      int ncid;
+      temutil::nc( nc_open("general-outputs-monthly.nc", NC_WRITE, &ncid) );
+
+      // get dimension ids (nc_inq_dimid family)
+      int unlimitedD;  // unlimited dimension
+      int timeD;
+      int pftD;
+      int xD;
+      int yD;
+
+      temutil::nc( nc_inq_unlimdim(ncid, &unlimitedD) );
+
+      temutil::nc( nc_inq_dimid(ncid, "time", &timeD) );
+      
+      temutil::nc( nc_inq_dimid(ncid, "pft", &pftD) );
+      
+      temutil::nc( nc_inq_dimid(ncid, "y", &yD) );
+
+      temutil::nc( nc_inq_dimid(ncid, "x", &xD) );
+
+
+      // Check file validity
+      if (unlimitedD != timeD) {
+        BOOST_LOG_SEV(glg, err) << "Problem! The record dimension is not the same as the time dimension!";
+      }
+
+      // get variable IDs (nc_inq_varid family)
+      int org_shlw_thicknessV;
+      int veg_fractionV;
+      int vegcV;
+
+      temutil::nc( nc_inq_varid(ncid, "org_shlw_thickness", &org_shlw_thicknessV) );
+      temutil::nc( nc_inq_varid(ncid, "veg_fraction", &veg_fractionV) );
+      temutil::nc( nc_inq_varid(ncid, "vegc", &vegcV) );
+
+      std::cout << "Where are we?:  " <<  yrindex*12 + im << "\n";
+      /* 4-D variables */
+      //nc_put needs: (fileid, varid, start[], count[], datarray)
+      static size_t corner[4];         // corner of dataset to start in
+      corner[0] = yrindex*12 + im;         // this timestep
+      corner[1] = 0; // do nothing!
+      corner[2] = this->cht.cd.chtid;   // junk!: set x,y both to chtid
+      corner[3] = this->cht.cd.chtid;
+
+      static size_t count[] = {1, NUM_PFT, 1, 1}; // number or records along each dim
+
+      std::cout << "Corner/count arrays: \n";
+      for (int i=0; i < 4; ++i) {
+        std::cout << "corner["<<i<<"]: " << corner[i] << "  count["<<i<<"]: " << count[i] << std::endl;
+      }
+
+      double tempdata[NUM_PFT];
+      for (int i=0; i < NUM_PFT; ++i) {
+        tempdata[i] = this->cht.bd[i].m_vegs.call;
+      }
+
+      temutil::nc( nc_put_vara_double(ncid, vegcV, corner, count, tempdata) );
+      temutil::nc( nc_put_vara_double(ncid, veg_fractionV, corner, count, this->cht.cd.m_veg.vegcov) );
+
+      temutil::nc( nc_close(ncid) );
+
+      
       // site output module calling
       if (outputyrind >=0) {
         if (md->outSiteDay) {
@@ -834,6 +915,3 @@ void RunCohort::advance_one_month() {
     regnouter.outputCohortVars(outputyrind, cohortcount, 0);  // "0" implies good data
   }
 };
-
-
-////////////////////////////////////////////////////////////////////////

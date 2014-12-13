@@ -163,4 +163,18 @@ namespace temutil {
 
   }
   
+  /** Handles NetCDF errors by printing message and exiting. */
+  void handle_error(int status) {
+    if (status != NC_NOERR) {
+      fprintf(stderr, "%s\n", nc_strerror(status));
+      BOOST_LOG_SEV(glg, fatal) << nc_strerror(status);
+      exit(-1);
+    }
+  }
+  
+  /** Two letter alias for handle_error() */
+  void nc(int status) {
+    handle_error(status);
+  }
+  
 }

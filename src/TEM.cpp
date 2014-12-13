@@ -57,6 +57,12 @@
 #include "TEMUtilityFunctions.h"
 #include "assembler/Runner.h"
 
+#include <netcdf.h>
+
+/** work in progress function to generate a netcdf file that can follow 
+* CF conventions 
+*/
+void create_new_output();
 
 ArgHandler* args = new ArgHandler();
 
@@ -81,6 +87,10 @@ extern src::severity_logger< severity_level > glg;
   setvbuf(stdout, NULL, _IONBF, 0);
   setvbuf(stderr, NULL, _IONBF, 0);
 
+  // Create empty output files now so that later, as the program
+  // proceeds, there is somewhere to append output data...
+  BOOST_LOG_SEV(glg, note) << "Creating a fresh 'n clean NEW output file...";
+  create_new_output();
 
   time_t stime;
   time_t etime;
@@ -163,4 +173,67 @@ extern src::severity_logger< severity_level > glg;
   BOOST_LOG_SEV(glg, info) << "Done with dvmdostem @" << ctime(&etime);
   BOOST_LOG_SEV(glg, info) << "Total Seconds: " << difftime(etime, stime);
   return 0;
-};
+}
+
+void create_new_output() {
+
+  int status;
+  int ncid;
+
+  std::cout << "Creating dataset...\n";
+  temutil::nc( nc_create("general-outputs-monthly.nc", NC_CLOBBER, &ncid) );
+
+  int timeD;    // unlimited dimension
+  int pftD;
+  int xD;
+  int yD;
+
+  /* Create Dimensions */
+  std::cout << "Adding dimensions...\n";
+  temutil::nc( nc_def_dim(ncid, "time", NC_UNLIMITED, &timeD) );
+  temutil::nc( nc_def_dim(ncid, "pft", NUM_PFT, &pftD) );
+  temutil::nc( nc_def_dim(ncid, "y", 10, &yD) );
+  temutil::nc( nc_def_dim(ncid, "x", 10, &xD) );
+
+  /* Create Coordinate Variables?? */
+
+  /* Create Data Variables */
+
+  // 4D vars
+  std::cout << "Adding 4D variables...\n";
+  int vartypeA_dimids[4];
+  vartypeA_dimids[0] = timeD;
+  vartypeA_dimids[1] = pftD;
+  vartypeA_dimids[2] = yD;
+  vartypeA_dimids[3] = xD;
+
+  int vegcV;
+  int veg_fractionV;
+  temutil::nc( nc_def_var(ncid, "vegc", NC_DOUBLE, 4, vartypeA_dimids,  &vegcV) );
+  temutil::nc( nc_def_var(ncid, "veg_fraction", NC_DOUBLE, 4, vartypeA_dimids, &veg_fractionV) );
+
+  // 3D vars
+  std::cout << "Adding 3D variables...\n";
+  int vartypeB_dimids[3];
+  vartypeB_dimids[0] = timeD;
+  vartypeB_dimids[1] = yD;
+  vartypeB_dimids[2] = xD;
+
+  int org_shlw_thicknessV;
+  temutil::nc( nc_def_var(ncid, "org_shlw_thickness", NC_DOUBLE, 3, vartypeB_dimids, &org_shlw_thicknessV) );
+  
+  /* Create Attributes? */
+  
+
+  /* End Define Mode (not scrictly necessary for netcdf 4) */
+  std::cout << "Leaving 'define mode'...\n";
+  temutil::nc( nc_enddef(ncid) );
+
+  /* Load coordinate variables?? */
+
+  /* Close file. */
+  std::cout << "Closing new file...\n";
+  temutil::nc( nc_close(ncid) );
+
+}
+
