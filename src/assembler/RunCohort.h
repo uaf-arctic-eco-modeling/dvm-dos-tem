@@ -119,6 +119,8 @@ private :
 
   void env_only_warmup(boost::shared_ptr<CalController> calcontroller_ptr);
   void run_timeseries(boost::shared_ptr<CalController> calcontroller_ptr);
+  void write_monthly_outputs(int year_idx, int month_idx);
+
 
 };
 #endif /*RUNCOHORT_H_*/
