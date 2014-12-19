@@ -883,10 +883,12 @@ void RunCohort::write_monthly_outputs(int year_idx, int month_idx) {
   int org_shlw_thicknessV;
   int veg_fractionV;
   int vegcV;
+  int growstartV;
 
   temutil::nc( nc_inq_varid(ncid, "org_shlw_thickness", &org_shlw_thicknessV) );
   temutil::nc( nc_inq_varid(ncid, "veg_fraction", &veg_fractionV) );
   temutil::nc( nc_inq_varid(ncid, "vegc", &vegcV) );
+  temutil::nc( nc_inq_varid(ncid, "growstart", &growstartV) );
 
   /* 4-D variables (time, pft, y, x) */
   // nc_put needs: (fileid, varid, start[], count[], datarray)
@@ -916,6 +918,13 @@ void RunCohort::write_monthly_outputs(int year_idx, int month_idx) {
 
   temutil::nc( nc_put_vara_double(ncid, vegcV, corner, count, tempdata) );
   temutil::nc( nc_put_vara_double(ncid, veg_fractionV, corner, count, this->cht.cd.m_veg.vegcov) );
+
+  double tempdata2[NUM_PFT];
+  for (int i=0; i < NUM_PFT; ++i) {
+    tempdata2[i] = this->cht.ed[i].m_soid.rtdpgrowstart;
+  }
+  temutil::nc( nc_put_vara_double(ncid, growstartV, corner, count, tempdata2) );
+
 
   //  GROWSTART   - (1) growing starting day
   //  GROWEND     - (2) growing ending day

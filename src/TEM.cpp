@@ -209,8 +209,10 @@ void create_new_output() {
 
   int vegcV;
   int veg_fractionV;
+  int growstartV;
   temutil::nc( nc_def_var(ncid, "vegc", NC_DOUBLE, 4, vartypeA_dimids,  &vegcV) );
   temutil::nc( nc_def_var(ncid, "veg_fraction", NC_DOUBLE, 4, vartypeA_dimids, &veg_fractionV) );
+  temutil::nc( nc_def_var(ncid, "growstart", NC_DOUBLE, 4, vartypeA_dimids, &growstartV) );
 
   // 3D vars
   std::cout << "Adding 3D variables...\n";
