@@ -66,8 +66,9 @@ void create_new_output();
 
 ArgHandler* args = new ArgHandler();
 
-int main(int argc, char* argv[]){
 extern src::severity_logger< severity_level > glg;
+
+int main(int argc, char* argv[]){
 
   args->parse(argc, argv);
 	if (args->get_help()){
