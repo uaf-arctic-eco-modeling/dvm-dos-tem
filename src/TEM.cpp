@@ -59,8 +59,18 @@
 
 #include <netcdf.h>
 
+/** Quick 'n dirty pretty printer for vector of things
+*/
+template <typename TYPE>
+void ppv(const std::vector<TYPE> &v){
+  typename std::vector<TYPE>::const_iterator it;
+  for (it = v.begin(); it != v.end(); ++it) {
+    std::cout << *it << " ";
+  }
+  std::cout << "\n";
+}
+
 // draft pretty-printers...
-void ppv(const std::vector<int> &v);
 void pp_2dvec(const std::vector<std::vector<int> > & vv);
 
 // draft - generate a netcdf file that can follow CF conventions
@@ -316,15 +326,6 @@ std::vector< std::vector<int> > read_run_mask(const std::string &filename) {
 
 }
 
-/** Quick 'n dirty pretty printer for vector of ints 
-*/
-void ppv(const std::vector<int> &v){
-  std::vector<int>::const_iterator it;
-  for (it = v.begin(); it != v.end(); ++it) {
-    std::cout << *it << " ";
-  }
-  std::cout << "\n";
-}
 
 /** rough draft for reading new-style co2 data
 */
