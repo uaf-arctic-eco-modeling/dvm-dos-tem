@@ -59,10 +59,19 @@
 
 #include <netcdf.h>
 
-/** work in progress function to generate a netcdf file that can follow 
-* CF conventions 
-*/
+// draft pretty-printers...
+void ppv(const std::vector<int> &v);
+void pp_2dvec(const std::vector<std::vector<int> > & vv);
+
+// draft - generate a netcdf file that can follow CF conventions
 void create_new_output();
+
+// draft - reading new-style co2 file
+std::vector<float> read_new_co2_file(const std::string &filename);
+
+// draft - reading in a 2D run mask...
+std::vector< std::vector<int> > read_run_mask(const std::string &filename);
+
 
 ArgHandler* args = new ArgHandler();
 
@@ -98,6 +107,62 @@ int main(int argc, char* argv[]){
   stime=time(0);
 
   BOOST_LOG_SEV(glg, note) << "Start dvmdostem @ " << ctime(&stime);
+
+  // Read in C02 - read all data (years) even though some stages/configurations
+  //               may use only the first year
+  std::vector<float> co2_vec = read_new_co2_file("scripts/new-co2-dataset.nc");
+
+  // Open the (spatial) run mask
+  std::vector< std::vector<int> > run_mask = read_run_mask("scripts/run-mask.nc");
+
+  if (args->get_loop_order() == "space-major") {
+    
+    BOOST_LOG_SEV(glg, debug) << "NEW STYLE: Gonna run space-major over a 2D run mask...";
+    // y == row == lat
+    // x == col == lon
+
+    typedef std::vector<int> vec;
+    typedef std::vector<vec> vec2D;
+
+    vec2D::const_iterator row;
+    vec::const_iterator col;
+    for (row = run_mask.begin(); row != run_mask.end() ; ++row) {
+      for (col = row->begin(); col != row->end(); ++col) {
+        int rowidx = row - run_mask.begin();
+        int colidx = col - row->begin();
+        
+//        if (1 == *col) {
+//          BOOST_LOG_SEV(glg, debug) << "Need to run cell (" << rowidx << ", " << colidx << ")";
+//          // Read in Climate - one location, all years
+//        
+//          // Read in Vegetation - one location
+//          // Read in Drainage - one location
+//          // Read in Fire - one location
+//          
+//          // for each year
+//            // updateMonthly(...)
+//
+//        } else {
+//          BOOST_LOG_SEV(glg, debug) << "Skipping cell (" << rowidx << ", " << colidx << ")";
+//        }
+      }
+    }
+    
+  } else if(args->get_loop_order() == "time-major") {
+    
+    // for each year
+
+      // Read in Climate - all locations, one year/timestep
+
+      // Read in Vegetation - all locations
+      // Read in Drainage - all locations
+      // Read in Fire - all locations
+    
+      // for each cohort
+        // updateMonthly(...)
+
+  }
+  exit(0);
 
   Runner runner;
 
@@ -174,14 +239,129 @@ int main(int argc, char* argv[]){
   BOOST_LOG_SEV(glg, info) << "Done with dvmdostem @" << ctime(&etime);
   BOOST_LOG_SEV(glg, info) << "Total Seconds: " << difftime(etime, stime);
   return 0;
+} /* End main() */
+
+
+/** Pretty print a 2D vector of ints */
+void pp_2dvec(const std::vector<std::vector<int> > & vv) {
+
+  typedef std::vector<int> vec;
+  typedef std::vector<vec> vec2D;
+
+  for (vec2D::const_iterator row = vv.begin(); row != vv.end(); ++row) {
+    for (vec::const_iterator col = row->begin(); col != row->end(); ++col) {
+      std::cout << *col << " ";
+    }
+    std::cout << std::endl;
+  }
 }
 
+/** rough draft for reading a run-mask (2D vector of ints)
+*/
+std::vector< std::vector<int> > read_run_mask(const std::string &filename) {
+  int ncid;
+  
+  BOOST_LOG_SEV(glg, debug) << "Opening dataset...";
+  temutil::nc( nc_open(filename.c_str(), NC_NOWRITE, &ncid) );
+  
+  BOOST_LOG_SEV(glg, debug) << "Find out how much data there is...";
+  int yD, xD;
+  size_t yD_len, xD_len;
+
+  temutil::nc( nc_inq_dimid(ncid, "Y", &yD) );
+  temutil::nc( nc_inq_dimlen(ncid, yD, &yD_len) );
+
+  temutil::nc( nc_inq_dimid(ncid, "X", &xD) );
+  temutil::nc( nc_inq_dimlen(ncid, xD, &xD_len) );
+
+  BOOST_LOG_SEV(glg, debug) << "Allocate a 2D run-mask vector (y,x). Size: (" << yD_len << ", " << xD_len << ")";
+  std::vector< std::vector<int> > run_mask(yD_len, std::vector<int>(xD_len));
+  
+  BOOST_LOG_SEV(glg, debug) << "Read the run flag data from the file into the 2D vector...";
+  int runV;
+  temutil::nc( nc_inq_varid(ncid, "run", &runV) );
+
+  BOOST_LOG_SEV(glg, debug) << "Grab one row at a time";
+  BOOST_LOG_SEV(glg, debug) << "(need contiguous memory, and vector<vector> are not contiguous)";
+
+  std::vector< std::vector<int> >::iterator row;
+  for (row = run_mask.begin();  row != run_mask.end(); ++row) {
+
+    int rowidx = row - run_mask.begin();
+
+    // specify start indices for each dimension (y, x)
+    size_t start[2];
+    start[0] = rowidx;    // Y
+    start[1] = 0;         // X
+
+    // specify counts for each dimension
+    size_t count[2];
+    count[0] = 1;         // one row
+    count[1] = xD_len;    // all data
+    
+    std::vector<int> rowdata(xD_len);
+
+    temutil::nc( nc_get_vara_int(ncid, runV, start, count, &rowdata[0] ) );
+  
+    run_mask[rowidx] = rowdata;
+    
+  }
+  
+  temutil::nc( nc_close(ncid) );
+
+  //pp_2dvec(run_mask);
+
+  BOOST_LOG_SEV(glg, debug) << "Return the vector...";
+  return run_mask;
+
+}
+
+/** Quick 'n dirty pretty printer for vector of ints 
+*/
+void ppv(const std::vector<int> &v){
+  std::vector<int>::const_iterator it;
+  for (it = v.begin(); it != v.end(); ++it) {
+    std::cout << *it << " ";
+  }
+  std::cout << "\n";
+}
+
+/** rough draft for reading new-style co2 data
+*/
+std::vector<float> read_new_co2_file(const std::string &filename) {
+
+  int ncid;
+  
+  BOOST_LOG_SEV(glg, debug) << "Opening dataset...";
+  temutil::nc( nc_open(filename.c_str(), NC_NOWRITE, &ncid) );
+  
+  BOOST_LOG_SEV(glg, debug) << "Find out how much data there is...";
+  int yearD;
+  size_t yearD_len;
+  temutil::nc( nc_inq_dimid(ncid, "year", &yearD) );
+  temutil::nc( nc_inq_dimlen(ncid, yearD, &yearD_len) );
+
+  BOOST_LOG_SEV(glg, debug) << "Allocate vector big enough for " << yearD_len << " years of co2 data...";
+  std::vector<float> co2data(yearD_len);
+
+  BOOST_LOG_SEV(glg, debug) << "Read the co2 data from the file into the vector...";
+  int co2V;
+  temutil::nc( nc_inq_varid(ncid, "co2", &co2V) );
+  temutil::nc( nc_get_var(ncid, co2V, &co2data[0]) );
+  
+  temutil::nc( nc_close(ncid) );
+
+  BOOST_LOG_SEV(glg, debug) << "Return the vector...";
+  return co2data;
+}
+
+/** rough draft for new output files
+*/
 void create_new_output() {
 
-  int status;
   int ncid;
 
-  std::cout << "Creating dataset...\n";
+  BOOST_LOG_SEV(glg, debug) << "Creating dataset...";
   temutil::nc( nc_create("general-outputs-monthly.nc", NC_CLOBBER, &ncid) );
 
   int timeD;    // unlimited dimension
@@ -190,7 +370,7 @@ void create_new_output() {
   int yD;
 
   /* Create Dimensions */
-  std::cout << "Adding dimensions...\n";
+  BOOST_LOG_SEV(glg, debug) << "Adding dimensions...";
   temutil::nc( nc_def_dim(ncid, "time", NC_UNLIMITED, &timeD) );
   temutil::nc( nc_def_dim(ncid, "pft", NUM_PFT, &pftD) );
   temutil::nc( nc_def_dim(ncid, "y", 10, &yD) );
@@ -201,7 +381,7 @@ void create_new_output() {
   /* Create Data Variables */
 
   // 4D vars
-  std::cout << "Adding 4D variables...\n";
+  BOOST_LOG_SEV(glg, debug) << "Adding 4D variables...";
   int vartypeA_dimids[4];
   vartypeA_dimids[0] = timeD;
   vartypeA_dimids[1] = pftD;
@@ -216,7 +396,7 @@ void create_new_output() {
   temutil::nc( nc_def_var(ncid, "growstart", NC_DOUBLE, 4, vartypeA_dimids, &growstartV) );
 
   // 3D vars
-  std::cout << "Adding 3D variables...\n";
+  BOOST_LOG_SEV(glg, debug) << "Adding 3D variables...";
   int vartypeB_dimids[3];
   vartypeB_dimids[0] = timeD;
   vartypeB_dimids[1] = yD;
@@ -229,13 +409,13 @@ void create_new_output() {
   
 
   /* End Define Mode (not scrictly necessary for netcdf 4) */
-  std::cout << "Leaving 'define mode'...\n";
+  BOOST_LOG_SEV(glg, debug) << "Leaving 'define mode'...";
   temutil::nc( nc_enddef(ncid) );
 
   /* Load coordinate variables?? */
 
   /* Close file. */
-  std::cout << "Closing new file...\n";
+  BOOST_LOG_SEV(glg, debug) << "Closing new file...";
   temutil::nc( nc_close(ncid) );
 
 }
