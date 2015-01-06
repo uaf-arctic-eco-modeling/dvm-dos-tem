@@ -87,6 +87,10 @@ std::vector<float> get_climate_var_timeseries(const std::string &filename,
                                               const std::string &var,
                                               int y, int x);
 
+// draft - reading in vegetation for a single location
+int get_veg_class(const std::string &filename, int y, int x);
+
+
 
 ArgHandler* args = new ArgHandler();
 
@@ -133,8 +137,11 @@ int main(int argc, char* argv[]){
   if (args->get_loop_order() == "space-major") {
     
     BOOST_LOG_SEV(glg, debug) << "NEW STYLE: Going to run space-major over a 2D area covered by run mask...";
+
     // y == row == lat
     // x == col == lon
+
+    /** Loop over a 2D grid of 'cells' (cohorts?), run each cell for some number of years. */
 
     typedef std::vector<int> vec;
     typedef std::vector<vec> vec2D;
@@ -155,11 +162,14 @@ int main(int argc, char* argv[]){
           //std::vector<double> nirr;
           //std::vector<double> prec;
 
-          BOOST_LOG_SEV(glg, debug) << "Done importing climate...";
-
           // Read in Vegetation - one location
+          int veg_class = get_veg_class("scripts/new-veg-dataset.nc", rowidx, colidx);
+
           // Read in Drainage - one location
           // Read in Fire - one location
+
+          // Determine year settings? list? based on stage
+          // Or base on the amount of the inputdataset?
 
           // for each year
             // updateMonthly(...)
@@ -278,6 +288,38 @@ void pp_2dvec(const std::vector<std::vector<int> > & vv) {
   }
 }
 
+/** rough draft for reading a single location, veg classification
+*/
+int get_veg_class(const std::string &filename, int y, int x) {
+
+  BOOST_LOG_SEV(glg, debug) << "Opening dataset: " << filename;
+  int ncid;
+  temutil::nc( nc_open(filename.c_str(), NC_NOWRITE, &ncid ) );
+
+  int xD, yD;
+  
+  //size_t yD_len, xD_len;
+
+  temutil::nc( nc_inq_dimid(ncid, "Y", &yD) );
+  //temutil::nc( nc_inq_dimlen(ncid, yD, &yD_len) );
+
+  temutil::nc( nc_inq_dimid(ncid, "X", &xD) );
+  //temutil::nc( nc_inq_dimlen(ncid, xD, &xD_len) );
+  
+  int veg_classificationV;
+  temutil::nc( nc_inq_varid(ncid, "veg_class", &veg_classificationV) );
+
+  size_t start[2];
+  start[0] = y;
+  start[1] = x;
+
+  int veg_class_value;
+  temutil::nc( nc_get_var1_int(ncid, veg_classificationV, start, &veg_class_value)  );
+
+  return veg_class_value;
+}
+
+
 /** rough draft for reading a timeseries for a single location from a 
  *  new-style climate file
 */
@@ -285,7 +327,7 @@ std::vector<float> get_climate_var_timeseries(const std::string &filename,
                                               const std::string &var,
                                               int y, int x) {
 
-  BOOST_LOG_SEV(glg, debug) << "Opening dataset...";
+  BOOST_LOG_SEV(glg, debug) << "Opening dataset:" << filename;
   int ncid;
   temutil::nc( nc_open(filename.c_str(), NC_NOWRITE, &ncid) );
 
