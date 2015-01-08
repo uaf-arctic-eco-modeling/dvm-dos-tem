@@ -1158,6 +1158,55 @@ void Cohort::load_vegdata_from_file(int record) {
   vegdata_file.close();
 }
 
+
+//void Cohort::NEW_load_climate_from_file() {
+//  BOOST_LOG_SEV(glg, debug) << "New style climate data reading funciton.";
+//  
+//  temutil::nc( nc_open() );
+//  temutil::nc(  );
+//  temutil::nc(  );
+//  temutil::nc(  );
+//  temutil::nc(  );
+//  
+//}
+
+void Cohort::NEW_load_climate_from_file(int y, int x) {
+
+  std::string clm_dataset = "scripts/new-climate-dataset.nc";
+
+  BOOST_LOG_SEV(glg, info) << "Loading climate from file: " << clm_dataset;
+  BOOST_LOG_SEV(glg, info) << "Loading climate for (y, x) point: (" << x<<","<<y <<"), all timesteps.";
+
+  std::vector<float> temps =
+      temutil::get_climate_var_timeseries(clm_dataset, "tair", y, x );
+  
+  std::vector<float> vapos =
+      temutil::get_climate_var_timeseries(clm_dataset, "vapor_press", y, x);
+  
+  std::vector<float> precips =
+      temutil::get_climate_var_timeseries(clm_dataset, "precip", y, x);
+
+  std::vector<float> nirrs =
+      temutil::get_climate_var_timeseries(clm_dataset, "nirr", y, x);
+
+
+  BOOST_LOG_SEV(glg, info) << "Assign climate timeseries to actual internal datastructures...";
+
+  // Report on sizes...
+  BOOST_LOG_SEV(glg, info) << "sizes (tair, vapor_press, precip, nirr): ("
+                           << temps.size() /*<< ", " << vapos.size() << ", "
+                           << precips.size() << ", " << nirrs.size() << ")"*/;
+
+  BOOST_LOG_SEV(glg, debug) << "Size of CohortData (cd) arrays appears to be " << MAX_ATM_DRV_YR*12;
+
+  std::copy(temps.begin(), temps.end(), cd.tair);
+  std::copy(vapos.begin(), vapos.end(), cd.vapo);
+  std::copy(precips.begin(), precips.end(), cd.prec);
+  std::copy(nirrs.begin(), nirrs.end(), cd.nirr);
+
+}
+
+
 /** Read the climate data for one cohort, several years from a (netcdf) file.
  
  Reads data for a single cohort for one or more years. Reads from a netcdf file
