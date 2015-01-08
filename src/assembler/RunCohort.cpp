@@ -177,13 +177,18 @@ void RunCohort::init() {
   resouter.setRestartOutData(&resod);
 }
 
+
 //read-in one-timestep data for a cohort
 int RunCohort::readData() {
-  //reading the climate data
-  cht.cd.act_atm_drv_yr = md->act_clmyr;
 
-  // Read climate data from the netcdf file into data arrays...
-  cht.load_climate_from_file(cht.cd.act_atm_drv_yr, clmrecno);
+  cht.NEW_load_climate_from_file(0,0);
+  BOOST_LOG_SEV(glg, debug) << "Made it here??? OMG!";
+
+//reading the climate data
+//  cht.cd.act_atm_drv_yr = md->act_clmyr;
+//
+//  // Read climate data from the netcdf file into data arrays...
+//  cht.load_climate_from_file(cht.cd.act_atm_drv_yr, clmrecno);
 
   // ??
   cht.cd.act_vegset = md->act_vegset;
