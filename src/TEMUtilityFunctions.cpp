@@ -177,4 +177,56 @@ namespace temutil {
     handle_error(status);
   }
   
+  
+  /** rough draft for reading a timeseries for a single location from a 
+  *   new-style climate file
+  */
+  std::vector<float> get_climate_var_timeseries(const std::string &filename,
+                                                const std::string &var,
+                                                int y, int x) {
+
+    BOOST_LOG_SEV(glg, debug) << "Opening dataset: " << filename;
+    BOOST_LOG_SEV(glg, debug) << "Getting variable: " << var;
+
+    int ncid;
+    temutil::nc( nc_open(filename.c_str(), NC_NOWRITE, &ncid) );
+
+    int timeD, yD, xD;
+    
+    size_t timeD_len, yD_len, xD_len;
+
+    temutil::nc( nc_inq_dimid(ncid, "Y", &yD) );
+    temutil::nc( nc_inq_dimlen(ncid, yD, &yD_len) );
+
+    temutil::nc( nc_inq_dimid(ncid, "X", &xD) );
+    temutil::nc( nc_inq_dimlen(ncid, xD, &xD_len) );
+
+    temutil::nc( nc_inq_dimid(ncid, "time", &timeD) );
+    temutil::nc( nc_inq_dimlen(ncid, timeD, &timeD_len) );
+    
+    int climate_var;
+    temutil::nc( nc_inq_varid(ncid, var.c_str(), &climate_var) );
+
+    BOOST_LOG_SEV(glg, debug) << "Allocate a vector with enough space for the whole timeseries (" << timeD_len << " timesteps)";
+    std::vector<float> climate_data(timeD_len);
+    
+    // specify start indices for each dimension (y, x)
+    size_t start[3];
+    start[0] = 0;     // from begining of time
+    start[1] = y;     // specified location
+    start[2] = x;     // specified location
+
+    // specify counts for each dimension
+    size_t count[3];
+    count[0] = timeD_len;     // all time
+    count[1] = 1;             // one location
+    count[2] = 1;             // one location
+
+    BOOST_LOG_SEV(glg, debug) << "Grab the data from the netCDF file...";
+    temutil::nc( nc_get_vara_float(ncid, climate_var, start, count, &climate_data[0]) );
+
+    return climate_data;
+    
+  }
+
 }

@@ -33,6 +33,11 @@ namespace temutil {
   void handle_error(int status);
   
   void nc(int status);
+  
+  // draft - reading one location, all timesteps climate variable
+  std::vector<float> get_climate_var_timeseries(const std::string &filename,
+                                              const std::string &var,
+                                              int y, int x);
 
 }
 
