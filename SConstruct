@@ -48,7 +48,6 @@ src_files = Split("""src/TEM.cpp
                      src/assembler/RunCohort.cpp
                      src/assembler/RunGrid.cpp
                      src/assembler/Runner.cpp
-                     src/assembler/RunRegion.cpp
                      src/atmosphere/Atmosphere.cpp
                      src/atmosphere/AtmosUtil.cpp
                      src/data/BgcData.cpp
@@ -76,8 +75,6 @@ src_files = Split("""src/TEM.cpp
                      src/ecodomain/layer/ParentLayer.cpp
                      src/ecodomain/layer/SnowLayer.cpp
                      src/ecodomain/layer/SoilLayer.cpp
-                     src/input/CohortInputer.cpp
-                     src/input/RegionInputer.cpp
                      src/input/RestartInputer.cpp
                      src/lookup/CohortLookup.cpp
                      src/lookup/SoilLookup.cpp
@@ -91,7 +88,6 @@ src_files = Split("""src/TEM.cpp
                      src/runmodule/Integrator.cpp
                      src/runmodule/ModelData.cpp
                      src/runmodule/OutRetrive.cpp
-                     src/runmodule/Region.cpp
                      src/runmodule/Timer.cpp
                      src/snowsoil/Richards.cpp
                      src/snowsoil/Snow_Env.cpp
@@ -151,8 +147,8 @@ elif platform_name == 'Darwin': #tobey
   # apparently the shared library version of jsoncpp has some bugs.
   # See the note at the top of the SConstruct file:
   # https://github.com/jacobsa/jsoncpp/blob/master/SConstruct
-  platform_libs[:] = [lib for lib in platform_libs if not lib == 'jsoncpp']
-  platform_libs.append(File('/usr/local/lib/libjson.a'))
+  #platform_libs[:] = [lib for lib in platform_libs if not lib == 'jsoncpp']
+  #platform_libs.append(File('/usr/local/lib/libjson.a'))
 
   # no profiler at this time
   platform_libs[:] = [lib for lib in platform_libs if not lib == 'profiler']
