@@ -1159,16 +1159,21 @@ void Cohort::load_vegdata_from_file(int record) {
 }
 
 
-//void Cohort::NEW_load_climate_from_file() {
-//  BOOST_LOG_SEV(glg, debug) << "New style climate data reading funciton.";
-//  
-//  temutil::nc( nc_open() );
-//  temutil::nc(  );
-//  temutil::nc(  );
-//  temutil::nc(  );
-//  temutil::nc(  );
-//  
-//}
+void Cohort::NEW_load_veg_class_from_file(int y, int x) {
+  BOOST_LOG_SEV(glg, debug) << "New-style veg data reading function.";
+
+  std::string veg_dataset = "scripts/new-veg-dataset.nc";
+
+  BOOST_LOG_SEV(glg, info) << "Loading vegetation from file: " << veg_dataset;
+  BOOST_LOG_SEV(glg, info) << "Loading vegetation for (y, x) point: (" << x <<","<< y <<").";
+
+  cd.vegtype[0] = temutil::get_veg_class(veg_dataset, y, x);
+  
+  // Not sure exactly how these are used yet...
+  cd.vegyear[0] = -9999.0;
+  cd.vegfrac[0] = 1.0;
+
+}
 
 void Cohort::NEW_load_climate_from_file(int y, int x) {
 
@@ -1194,8 +1199,8 @@ void Cohort::NEW_load_climate_from_file(int y, int x) {
 
   // Report on sizes...
   BOOST_LOG_SEV(glg, info) << "sizes (tair, vapor_press, precip, nirr): ("
-                           << temps.size() /*<< ", " << vapos.size() << ", "
-                           << precips.size() << ", " << nirrs.size() << ")"*/;
+                           << temps.size() << ", " << vapos.size() << ", "
+                           << precips.size() << ", " << nirrs.size() << ")";
 
   BOOST_LOG_SEV(glg, debug) << "Size of CohortData (cd) arrays appears to be " << MAX_ATM_DRV_YR*12;
 
