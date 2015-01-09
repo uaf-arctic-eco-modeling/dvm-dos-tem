@@ -208,8 +208,16 @@ int RunCohort::readData() {
   // Seems like maybe this can implement some kind of vegetation succession?
   // Almost like the vegyear is a vector of years that make "thresholds" that
   // allow the veg type to change at certain years? Not sure if it is ever
-  // actually used.
-  
+  // actually used. It seems like the cht.cd.cmttype is intended to be "the"
+  // community type, which is selected from the cht.cd.vegtype[] vector.
+  //
+  // Maybe interperted like this???:
+  //         vegtype   vegfrac      vegyear
+  //  [0]      0          1.0         100    # up till year 100, 100% of this cohort is veg community 0
+  //  [1]      5          1.0         150    # up till year 150, 100% of this cohort is veg cmt 5
+  //  [1]      7          0.8         750    # up till year 750, 80% of this cohort is veg cmt 7
+ 
+ 
   //INDEX of veg. community codes, must be one of in those parameter files under 'config/'
   cht.cd.cmttype = cht.cd.vegtype[0];  //default, i.e., the first set of data
 
