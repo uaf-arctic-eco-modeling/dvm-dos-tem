@@ -130,12 +130,12 @@ CMT05 // Tussock Tundra - (max. 10 PFTs) Plant calibrated parameters
 -1.75       -1.56       -1.05       -2.1         -2.1          0.0          0.0          0.0          0.0          0.0        // krb(2): coeff(1) in maintenance resp.(root)
 0.20         0.20        0.20        0.30         0.20         0.10         0.20         0.20         0.0          0.0        // frg: fraction of available NPP (GPP after rm) for growth resp. 
 // soil calibrated parameters
-2.65         // micbnup: parameter for soil microbial immobialization of N
-0.006        // kdcmoss:
+2.65          // micbnup: parameter for soil microbial immobialization of N
+0.006         // kdcmoss:
 0.08055       // kdcrawc: raw-material (litter) C decompositin rates at reference condition
-0.01012      // kdcsoma:
+0.01012       // kdcsoma:
 0.0024146     // kdcsompr:
-0.00001   // kdcsomcr:
+0.00001       // kdcsomcr:
 //===========================================================
 CMT06 // Wet Sedge Tundra - (max. 10 PFTs over 1 soil column) (BGC) plant calibrated parameters
 //Decid.     Sedges       Grasses      Forbs        Lichens      Feather      Sphag.       PFT7       PFT8         PFT9         // names: comments                  

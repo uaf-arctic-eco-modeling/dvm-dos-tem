@@ -178,27 +178,40 @@ void RunCohort::init() {
 }
 
 
-//read-in one-timestep data for a cohort
+/** Make the Cohort read data from files and load its internal data structures.
+*  - One timestep?
+*  - Many timesteps?
+*/
 int RunCohort::readData() {
 
+  // !!!!!!!!!!!!!!!!!!!!!!!!!!!
+  // ! NEED TO FIX y, x values!!
+  // !!!!!!!!!!!!!!!!!!!!!!!!!!!
+
   cht.NEW_load_climate_from_file(0,0);
-  BOOST_LOG_SEV(glg, debug) << "Made it here??? OMG!";
+  //reading the climate data
+  //  cht.cd.act_atm_drv_yr = md->act_clmyr;
+  //
+  //  // Read climate data from the netcdf file into data arrays...
+  //  cht.load_climate_from_file(cht.cd.act_atm_drv_yr, clmrecno);
 
-//reading the climate data
-//  cht.cd.act_atm_drv_yr = md->act_clmyr;
-//
-//  // Read climate data from the netcdf file into data arrays...
-//  cht.load_climate_from_file(cht.cd.act_atm_drv_yr, clmrecno);
-
-  // ??
-  cht.cd.act_vegset = md->act_vegset;
+  cht.NEW_load_veg_class_from_file(0,0);
+  //  // ??
+  //  cht.cd.act_vegset = md->act_vegset;
+  //  
+  //  // Read vegetation community type data from netcdf file into data arrays...
+  //  cht.load_vegdata_from_file(vegrecno);
   
-  // Read vegetation community type data from netcdf file into data arrays...
-  cht.load_vegdata_from_file(vegrecno);
 
+  // Seems like maybe this can implement some kind of vegetation succession?
+  // Almost like the vegyear is a vector of years that make "thresholds" that
+  // allow the veg type to change at certain years? Not sure if it is ever
+  // actually used.
+  
   //INDEX of veg. community codes, must be one of in those parameter files under 'config/'
   cht.cd.cmttype = cht.cd.vegtype[0];  //default, i.e., the first set of data
 
+  // skips over this part - act_vegset is not being set anymore!
   for (int i=1; i<md->act_vegset; i++) {
     if (cht.cd.year>=cht.cd.vegyear[i]) {
       cht.cd.cmttype = cht.cd.vegtype[i];
