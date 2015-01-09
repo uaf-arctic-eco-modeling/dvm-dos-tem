@@ -187,7 +187,8 @@ int RunCohort::readData() {
   // !!!!!!!!!!!!!!!!!!!!!!!!!!!
   // ! NEED TO FIX y, x values!!
   // !!!!!!!!!!!!!!!!!!!!!!!!!!!
-  int y, x = 0;
+  int y = 0;
+  int x = 0;
 
   cht.NEW_load_climate_from_file(y,x);
   //reading the climate data
