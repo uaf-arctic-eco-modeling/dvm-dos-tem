@@ -15,6 +15,8 @@
 
 namespace temutil {
 
+  std::string cmtnum2str(int cmtnumber);
+
   bool onoffstr2bool(const std::string &s);
 
   std::string file2string(const char *filename);

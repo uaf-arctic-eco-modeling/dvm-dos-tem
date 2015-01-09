@@ -10,6 +10,7 @@
 #include <stdexcept>
 #include <fstream>
 #include <cerrno>
+#include <sstream>
 
 #include <netcdfcpp.h>
 
@@ -22,6 +23,27 @@
 extern src::severity_logger< severity_level > glg;
 
 namespace temutil {
+
+  /** Takes an integer number and returns a string like "CMT01".
+  * Inserts leading zeros if needed. Works if 0 <= cmtnumber <= 99.
+  */
+  std::string cmtnum2str(int cmtnumber) {
+
+    // get string representation of number
+    std::stringstream cmtnumber_ss;
+    cmtnumber_ss << cmtnumber;
+
+    // take care of leading zero...
+    std::string prefix = "";
+    if (cmtnumber < 10) {
+      prefix =  "CMT0";
+    } else {
+      prefix = "CMT";
+    }
+
+    return prefix + cmtnumber_ss.str();
+  }
+
 
   /** Returns true for 'on' and false for 'off'.
    * Throws exception if s is not "on" or "off".
@@ -260,6 +282,6 @@ namespace temutil {
     return veg_class_value;
   }
 
-  
+
 
 }

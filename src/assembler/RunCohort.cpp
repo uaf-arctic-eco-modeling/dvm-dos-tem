@@ -187,15 +187,16 @@ int RunCohort::readData() {
   // !!!!!!!!!!!!!!!!!!!!!!!!!!!
   // ! NEED TO FIX y, x values!!
   // !!!!!!!!!!!!!!!!!!!!!!!!!!!
+  int y, x = 0;
 
-  cht.NEW_load_climate_from_file(0,0);
+  cht.NEW_load_climate_from_file(y,x);
   //reading the climate data
   //  cht.cd.act_atm_drv_yr = md->act_clmyr;
   //
   //  // Read climate data from the netcdf file into data arrays...
   //  cht.load_climate_from_file(cht.cd.act_atm_drv_yr, clmrecno);
 
-  cht.NEW_load_veg_class_from_file(0,0);
+  cht.NEW_load_veg_class_from_file(y,x);
   //  // ??
   //  cht.cd.act_vegset = md->act_vegset;
   //  
@@ -211,26 +212,24 @@ int RunCohort::readData() {
   //INDEX of veg. community codes, must be one of in those parameter files under 'config/'
   cht.cd.cmttype = cht.cd.vegtype[0];  //default, i.e., the first set of data
 
-  // skips over this part - act_vegset is not being set anymore!
-  for (int i=1; i<md->act_vegset; i++) {
-    if (cht.cd.year>=cht.cd.vegyear[i]) {
-      cht.cd.cmttype = cht.cd.vegtype[i];
-    }
-  }
+  // With new-style input reading, this part skips
+  // because - act_vegset is not being set anymore!
+  //  for (int i=1; i<md->act_vegset; i++) {
+  //    if (cht.cd.year>=cht.cd.vegyear[i]) {
+  //      cht.cd.cmttype = cht.cd.vegtype[i];
+  //    }
+  //  }
 
-  // read-in parameters AND initial conditions for the above 'cmttype'
+  // Set the configureation directory...
   string configdir = "config/";
   cht.chtlu.dir = configdir;
-  stringstream ss;
-  ss<<cht.cd.cmttype;
-
-  if (cht.cd.cmttype<10) {
-    cht.chtlu.cmtcode = "CMT0"+ss.str();
-  } else {
-    cht.chtlu.cmtcode = "CMT"+ss.str();
-  }
-
-  cht.chtlu.init();   //put the parameter files in 'config/' with same directory of model
+  
+  // Sets the cohort lookup community string i.e. "CMT02"
+  cht.chtlu.cmtcode = temutil::cmtnum2str(cht.cd.cmttype);
+  
+  // This part uses the deduced cmt type from above and reads in the
+  // appropriate cmt data from the config/ files...
+  cht.chtlu.init();
 
   //reading the fire occurence data from '.nc', if not FRI derived
   if (!md->get_friderived() && !md->runeq) {
