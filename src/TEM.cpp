@@ -188,7 +188,7 @@ int main(int argc, char* argv[]){
         // updateMonthly(...)
 
   }
-  exit(0);
+
 
   Runner runner;
 
