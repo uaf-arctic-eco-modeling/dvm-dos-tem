@@ -228,5 +228,38 @@ namespace temutil {
     return climate_data;
     
   }
+  
+  /** rough draft for reading a single location, veg classification
+  */
+  int get_veg_class(const std::string &filename, int y, int x) {
+
+    BOOST_LOG_SEV(glg, debug) << "Opening dataset: " << filename;
+    int ncid;
+    temutil::nc( nc_open(filename.c_str(), NC_NOWRITE, &ncid ) );
+
+    int xD, yD;
+    
+    //size_t yD_len, xD_len;
+
+    temutil::nc( nc_inq_dimid(ncid, "Y", &yD) );
+    //temutil::nc( nc_inq_dimlen(ncid, yD, &yD_len) );
+
+    temutil::nc( nc_inq_dimid(ncid, "X", &xD) );
+    //temutil::nc( nc_inq_dimlen(ncid, xD, &xD_len) );
+    
+    int veg_classificationV;
+    temutil::nc( nc_inq_varid(ncid, "veg_class", &veg_classificationV) );
+
+    size_t start[2];
+    start[0] = y;
+    start[1] = x;
+
+    int veg_class_value;
+    temutil::nc( nc_get_var1_int(ncid, veg_classificationV, start, &veg_class_value)  );
+
+    return veg_class_value;
+  }
+
+  
 
 }

@@ -38,6 +38,10 @@ namespace temutil {
   std::vector<float> get_climate_var_timeseries(const std::string &filename,
                                               const std::string &var,
                                               int y, int x);
+  
+  // draft - reading in vegetation for a single location
+  int get_veg_class(const std::string &filename, int y, int x);
+
 
 }
 

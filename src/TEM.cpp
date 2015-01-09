@@ -82,8 +82,6 @@ std::vector<float> read_new_co2_file(const std::string &filename);
 // draft - reading in a 2D run mask...
 std::vector< std::vector<int> > read_run_mask(const std::string &filename);
 
-// draft - reading in vegetation for a single location
-int get_veg_class(const std::string &filename, int y, int x);
 
 
 
@@ -159,7 +157,7 @@ int main(int argc, char* argv[]){
           //std::vector<double> prec;
 
           // Read in Vegetation - one location
-          int veg_class = get_veg_class("scripts/new-veg-dataset.nc", rowidx, colidx);
+          int veg_class = temutil::get_veg_class("scripts/new-veg-dataset.nc", rowidx, colidx);
 
           // Read in Drainage - one location
           // Read in Fire - one location
@@ -283,39 +281,6 @@ void pp_2dvec(const std::vector<std::vector<int> > & vv) {
     std::cout << std::endl;
   }
 }
-
-/** rough draft for reading a single location, veg classification
-*/
-int get_veg_class(const std::string &filename, int y, int x) {
-
-  BOOST_LOG_SEV(glg, debug) << "Opening dataset: " << filename;
-  int ncid;
-  temutil::nc( nc_open(filename.c_str(), NC_NOWRITE, &ncid ) );
-
-  int xD, yD;
-  
-  //size_t yD_len, xD_len;
-
-  temutil::nc( nc_inq_dimid(ncid, "Y", &yD) );
-  //temutil::nc( nc_inq_dimlen(ncid, yD, &yD_len) );
-
-  temutil::nc( nc_inq_dimid(ncid, "X", &xD) );
-  //temutil::nc( nc_inq_dimlen(ncid, xD, &xD_len) );
-  
-  int veg_classificationV;
-  temutil::nc( nc_inq_varid(ncid, "veg_class", &veg_classificationV) );
-
-  size_t start[2];
-  start[0] = y;
-  start[1] = x;
-
-  int veg_class_value;
-  temutil::nc( nc_get_var1_int(ncid, veg_classificationV, start, &veg_class_value)  );
-
-  return veg_class_value;
-}
-
-
 
 /** rough draft for reading a run-mask (2D vector of ints)
 */
