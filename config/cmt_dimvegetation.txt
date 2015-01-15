@@ -260,10 +260,10 @@
 // CMT06 // Wet Sedge Tundra - (max. 10 PFTs over 1 soil column) Plant structure/dimension
 //Decid.    Sedges      Grasses      Forbs        Lichens      Feather      Sphag.       PFT7         PFT8         PFT9         // names: comments                  
 1.00        1.00        1.00         1.00         1.00         1.00         1.00         0.00         0.00         0.00         // vegfrac: vegetation coverage on land - 0 indicates that PFT does't exist
-1           1           1            1            0            0            0            0.00         0.00         0.00         // ifwoody: woody plants (1) or not (0)
-1           1           1            0            0            0            0            0.00         0.00         0.00         // ifdeciwoody: deciduous woodland (1) or not (0)
-1           1           1            1            1            1            1            0.00         0.00         0.00         // ifperenial: perenial (1) or not (0)
-0           0           0            0            0            0            0            0.00         0.00         0.00         // nonvascular type: vascular (0), sphagnum (1), feathermoss (2), lichen (3)
+1           1           1            1            0            0            0            0            0            0            // ifwoody: woody plants (1) or not (0)
+0           1           1            0            0            0            0            0            0            0            // ifdeciwoody: deciduous woodland (1) or not (0)
+1           1           1            1            0            0            1            0            0            0            // ifperenial: perenial (1) or not (0)
+0           0           0            0            0            0            0            0            0            0            // nonvascular type: vascular (0), sphagnum (1), feathermoss (2), lichen (3)
 0.0072      0.0072      0.0072       0.3546       0.0072       0.0072       0.0072       0.00         0.00         0.00         // sla: specific leaf area (m2/gC)
 0.255       2.2         0.1133       0.0537       0.1584       0.1133       0.1133       0.00         0.00         0.00         // klai: extinction coeff for conversion from lai to fpc
 0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.00         0.00         0.00         // minleaf: this and the following 4 parameters are for EET/PET controlled phenology - f(leaf)
