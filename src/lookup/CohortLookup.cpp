@@ -3,6 +3,10 @@
 #include <sstream>
 #include <string>
 
+#include <fstream>
+#include <vector> 
+#include <list>
+
 #include "../TEMLogger.h"
 
 #include "CohortLookup.h"
@@ -19,6 +23,110 @@ string read_cmt_code(string s) {
   int pos = s.find("CMT");
   return s.substr(pos, 5);
 }
+
+/** Parses a string, looking for a community code, returns an integer.
+*/
+int cmtcode2num(std::string s) {
+  int pos = s.find("CMT");
+  
+  return std::atoi( s.substr(pos+3, 2).c_str() );
+}
+
+/** Takes an integer number and returns a string like "CMT01".
+* Inserts leading zeros if needed. Works if 0 <= cmtnumber <= 99.
+*/
+std::string cmtnum2str(int cmtnumber) {
+
+  // get string representation of number
+  std::stringstream cmtnumber_ss;
+  cmtnumber_ss << cmtnumber;
+
+  // take care of leading zero...
+  std::string prefix = "";
+  if (cmtnumber < 10) {
+    prefix =  "CMT0";
+  } else {
+    prefix = "CMT";
+  }
+
+  return prefix + cmtnumber_ss.str();
+}
+
+
+/** Reads a file, returning a contiguous section of lines surrounded by "CMT".
+* Each line from the file is an element in the vector. 
+*/  
+std::vector<std::string> get_cmt_data_block(std::string filename, int cmtnum) {
+
+  BOOST_LOG_SEV(glg, note) << "Opening file: " << filename << std::endl;
+  std::ifstream par_file(filename.c_str(), std::ifstream::in);
+
+  if ( !par_file.is_open() ) {
+    BOOST_LOG_SEV(glg, fatal) << "Problem opening " << filename << "!";
+    exit(-1);
+  }
+
+  std::string cmtstr = cmtnum2str(cmtnum);
+
+  // create a place to store lines making up the community data "block"
+  std::vector<std::string> cmt_block_vector; 
+  BOOST_LOG_SEV(glg, note) << "Searching file for community: " << cmtstr;
+  for (std::string line; std::getline(par_file, line); ) {
+  	int pos = line.find(cmtstr);
+  	if ( pos != std::string::npos ) {
+
+  	  // add the 'header line' to the data block
+  	  cmt_block_vector.push_back(line);			
+
+	  for (std::string block_line; std::getline(par_file, block_line); ) {
+
+	    int block_line_pos = block_line.find("CMT");
+	    if ( block_line_pos != std::string::npos ) {
+	      //std::cout << "Whoops - line contains 'CMT'. Must be first line of next community data block; breaking loop.\n";
+	      break;
+	    } else {
+	      //std::cout << "Add line to cmt_block_vector: " << block_line << std::endl;
+	      cmt_block_vector.push_back(block_line);
+	    }
+	  }
+
+  	}
+  }
+  return cmt_block_vector;
+}
+
+/** Takes a cmt data "block" and strips any comments. */
+std::list<std::string> strip_comments(std::vector<std::string> idb) {
+  std::list<std::string> l;
+
+  for (std::vector<std::string>::iterator it = idb.begin(); it != idb.end(); ++it ) {
+
+    std::string line = *it;
+
+    // // strip comment and everthing after
+    // size_t pos = line.find("//");
+    // line = line.substr(0, pos);
+
+    // Split into data and comment (everything after '//')
+    size_t pos = line.find("//");
+    std::string data = line.substr(0, pos);
+    std::string comment = "";
+    if (pos != std::string::npos) {
+      comment = line.substr(pos+2, std::string::npos);
+    }
+    //std::cout << "Data: " << data << " Comment: " << comment << std::endl;
+
+    if (data.size() == 0) {
+      // pass
+    } else {
+      l.push_back(line);
+    }
+
+  }
+
+  return l;
+}
+
 
 CohortLookup::CohortLookup() {
   cmtcode = "CMT00"; // the default community code (5 alphnumerics)
