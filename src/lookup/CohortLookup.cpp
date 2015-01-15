@@ -395,98 +395,56 @@ void CohortLookup::assignVegDimension(string &dircmt) {
 }
 
 void CohortLookup::assignGroundDimension(string &dircmt) {
-  string parfilecomm = dircmt+"cmt_dimground.txt";
-  BOOST_LOG_SEV(glg, note) << "Assigning parameters from " << parfilecomm;
-  ifstream fctrcomm;
-  fctrcomm.open(parfilecomm.c_str(),ios::in );
-  bool isOpen = fctrcomm.is_open();
+  string parameter_file = dircmt+"cmt_dimground.txt";
+  BOOST_LOG_SEV(glg, note) << "Assigning parameters from " << parameter_file;
 
-  if ( !isOpen ) {
-    cout << "\nCannot open " << parfilecomm << "  \n" ;
-    exit( -1 );
+  std::vector<std::string> v(get_cmt_data_block(parameter_file, cmtcode2num(cmtcode)));
+
+  std::list<std::string> l(strip_comments(v));
+
+  if (l.size() < 17) {
+    BOOST_LOG_SEV(glg, err) << "ERROR!: There are not enough lines of data to "
+                            << "adequately define this community: "
+                            << cmtcode;
+    exit(-1);
   }
 
-  string str;
-  string code;
-  int lines = 20; //total lines of one block of community data/info,
-                  //  except for 2 header lines
-  getline(fctrcomm, str); //community separation line ("//====" or
-                          //  something or empty line)
-  getline(fctrcomm, str); // community code - 'CMTxx' (xx: two digits)
-  code = read_cmt_code(str);
+  pfll2data(l, snwdenmax );
+  pfll2data(l, snwdennew);
+  pfll2data(l, initsnwthick);
+  pfll2data(l, initsnwdense);
 
-  while (code.compare(cmtcode)!=0) {
-    for (int il=0; il<lines; il++) {
-      getline(fctrcomm, str);  //skip lines
-    }
+  pfll2data(l, maxdmossthick);
+  pfll2data(l, initdmossthick);
+  pfll2data(l, mosstype);
+  pfll2data(l, coefmossa);
+  pfll2data(l, coefmossb);
 
-    if (fctrcomm.eof()) {
-      cout << "Cannot find community type: " << cmtcode
-           << " in file: " <<parfilecomm << "  \n" ;
-      exit( -1 );
-    }
+  pfll2data(l, initfibthick );
+  pfll2data(l, inithumthick);
+  pfll2data(l, coefshlwa);
+  pfll2data(l, coefshlwb);
+  pfll2data(l, coefdeepa);
+  pfll2data(l, coefdeepb);
+  pfll2data(l, coefminea);
+  pfll2data(l, coefmineb);
 
-    getline(fctrcomm, str); //community separation line ("//====" or
-                            //  something or empty line)
-    getline(fctrcomm, str); // community code - 'CMTxx' (xx: two digits)
+  
+  // ?????????? NOT sure what this was doing before.
+  //
+  // Currently there are not parameters for mineral texture in the
+  // config/cmt_dimground.txt file. I think with the previous method of parsing/
+  // reading the file, it would silently fail.
+  //
+  // But with the new mechanism of parsing, if there is no more data in the line
+  // list, then you get an error trying to create a string in pfll2data()
+  // fucntion. So I have commented it out for now...
+  //
+  //for (int ily=0; ily<MAX_MIN_LAY; ily++) {
+  //  pfll2data(l, minetexture[ily]);
+  //}
 
-    if (str.empty()) {  // blank line in end of file
-      cout << "Cannot find community type: " << cmtcode
-           << " in file: " <<parfilecomm << "  \n" ;
-      exit( -1 );
-    }
-
-    code = read_cmt_code(str);
-  }
-
-  //snow
-  getline(fctrcomm,str);     //comments in the file
-  fctrcomm >> snwdenmax;
-  getline(fctrcomm,str);     //comments in the file
-  fctrcomm >> snwdennew;
-  getline(fctrcomm,str);     //comments in the file
-  fctrcomm >> initsnwthick;
-  getline(fctrcomm,str);     //comments in the file
-  fctrcomm >> initsnwdense;
-  getline(fctrcomm,str);     //comments in the file
-  //moss
-  getline(fctrcomm,str);     //comments in the file
-  fctrcomm >> maxdmossthick;
-  getline(fctrcomm,str);   //comments in the file
-  fctrcomm >> initdmossthick;
-  getline(fctrcomm,str);  //comments in the file
-  fctrcomm >> mosstype;
-  getline(fctrcomm,str);        //comments in the file
-  fctrcomm >> coefmossa;
-  getline(fctrcomm,str);       //comments in the file
-  fctrcomm >> coefmossb;
-  getline(fctrcomm,str);       //comments in the file
-  //soil
-  getline(fctrcomm,str);     //comments in the file
-  fctrcomm >> initfibthick;
-  getline(fctrcomm,str);        //comments in the file
-  fctrcomm >> inithumthick;
-  getline(fctrcomm,str);        //comments in the file
-  fctrcomm >> coefshlwa;
-  getline(fctrcomm,str);       //comments in the file
-  fctrcomm >> coefshlwb;
-  getline(fctrcomm,str);       //comments in the file
-  fctrcomm >> coefdeepa;
-  getline(fctrcomm,str);       //comments in the file
-  fctrcomm >> coefdeepb;
-  getline(fctrcomm,str);       //comments in the file
-  fctrcomm >> coefminea;
-  getline(fctrcomm,str);       //comments in the file
-  fctrcomm >> coefmineb;
-  getline(fctrcomm,str);       //comments in the file
-
-  for (int ily=0; ily<MAX_MIN_LAY; ily++) {
-    fctrcomm >> minetexture[ily];
-    getline(fctrcomm,str);     //comments in the file
-  }
-
-  fctrcomm.close();
-};
+}
 
 void CohortLookup::assignEnv4Canopy(string &dir) {
   string parfilecomm = dir+"cmt_envcanopy.txt";
