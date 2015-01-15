@@ -447,126 +447,35 @@ void CohortLookup::assignGroundDimension(string &dircmt) {
 }
 
 void CohortLookup::assignEnv4Canopy(string &dir) {
-  string parfilecomm = dir+"cmt_envcanopy.txt";
-  BOOST_LOG_SEV(glg, note) << "Assigning parameters from " << parfilecomm;
-  ifstream fctrpft;
-  fctrpft.open(parfilecomm.c_str(),ios::in );
-  bool isOpen = fctrpft.is_open();
 
-  if ( !isOpen ) {
-    cout << "\nCannot open " << parfilecomm << "  \n" ;
-    exit( -1 );
+  string parameter_file = dir + "cmt_envcanopy.txt";
+  BOOST_LOG_SEV(glg, note) << "Assigning parameters from " << parameter_file;
+ 
+  std::vector<std::string> v(get_cmt_data_block(parameter_file, cmtcode2num(cmtcode)));
+
+  std::list<std::string> l(strip_comments(v));
+
+  if (l.size() != 12) {
+    BOOST_LOG_SEV(glg, err) << "ERROR!: There are not enough lines of data to "
+                          << "adequately define this community: "
+                          << cmtcode;
+    exit(-1);
   }
-
-  string str;
-  string code;
-  int lines = 13; //total lines of one block of community data/info,
-                  //  except for 2 header lines
-  getline(fctrpft, str); //community separation line ("//====" or
-                         //  something or empty line)
-  getline(fctrpft, str); // community code - 'CMTxx' (xx: two digits)
-  code = read_cmt_code(str);
-
-  while (code.compare(cmtcode)!=0) {
-    for (int il=0; il<lines; il++) {
-      getline(fctrpft, str);  //skip lines
-    }
-
-    if (fctrpft.eof()) {
-      cout << "Cannot find community type: " << cmtcode
-           << " in file: " <<parfilecomm << "  \n" ;
-      exit( -1 );
-    }
-
-    getline(fctrpft, str); //community separation line ("//====" or
-                           //  something or empty line)
-    getline(fctrpft, str); // community code - 'CMTxx' (xx: two digits)
-
-    if (str.empty()) {  // blank line in end of file
-      cout << "Cannot find community type: " << cmtcode
-           << " in file: " <<parfilecomm << "  \n" ;
-      exit( -1 );
-    }
-
-    code = read_cmt_code(str);
-  }
-
-  getline(fctrpft,str);     //PFT name/code comments in the file
-
-  for(int ip=0; ip<NUM_PFT; ip++) {
-    fctrpft >> albvisnir[ip];
-  }
-
-  getline(fctrpft,str);
-
-  for(int ip=0; ip<NUM_PFT; ip++) {
-    fctrpft >> er[ip];
-  }
-
-  getline(fctrpft,str);
-
-  for(int ip=0; ip<NUM_PFT; ip++) {
-    fctrpft >> ircoef[ip];
-  }
-
-  getline(fctrpft,str);
-
-  for(int ip=0; ip<NUM_PFT; ip++) {
-    fctrpft >> iscoef[ip];
-  }
-
-  getline(fctrpft,str);
-
-  for(int ip=0; ip<NUM_PFT; ip++) {
-    fctrpft >> glmax[ip];
-  }
-
-  getline(fctrpft,str);
-
-  for(int ip=0; ip<NUM_PFT; ip++) {
-    fctrpft >> gl_bl[ip];
-  }
-
-  getline(fctrpft,str);
-
-  for(int ip=0; ip<NUM_PFT; ip++) {
-    fctrpft >> gl_c[ip];
-  }
-
-  getline(fctrpft,str);
-
-  for(int ip=0; ip<NUM_PFT; ip++) {
-    fctrpft >> vpd_open[ip];
-  }
-
-  getline(fctrpft,str);
-
-  for(int ip=0; ip<NUM_PFT; ip++) {
-    fctrpft >> vpd_close[ip];
-  }
-
-  getline(fctrpft,str);
-
-  for(int ip=0; ip<NUM_PFT; ip++) {
-    fctrpft >> ppfd50[ip];
-  }
-
-  getline(fctrpft,str);
-
-  // initial values
-  for(int ip=0; ip<NUM_PFT; ip++) {
-    fctrpft >> initvegwater[ip];
-  }
-
-  getline(fctrpft,str);
-
-  for(int ip=0; ip<NUM_PFT; ip++) {
-    fctrpft >> initvegsnow[ip];
-  }
-
-  getline(fctrpft,str);
-  fctrpft.close();
-};
+  
+  pfll2data_pft(l, albvisnir);
+  pfll2data_pft(l, er);
+  pfll2data_pft(l, ircoef);
+  pfll2data_pft(l, iscoef);
+  pfll2data_pft(l, glmax);
+  pfll2data_pft(l, gl_bl);
+  pfll2data_pft(l, gl_c);
+  pfll2data_pft(l, vpd_open);
+  pfll2data_pft(l, vpd_close);
+  pfll2data_pft(l, ppfd50);
+  pfll2data_pft(l, initvegwater);
+  pfll2data_pft(l, initvegsnow);
+  
+}
 
 // vegetation C/N parameters
 void CohortLookup::assignBgc4Vegetation(string & dircmt) {
