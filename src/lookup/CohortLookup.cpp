@@ -349,178 +349,50 @@ void CohortLookup::assignBgcCalpar(string & dircmt) {
 
 
 void CohortLookup::assignVegDimension(string &dircmt) {
-  string parfilecomm = dircmt+"cmt_dimvegetation.txt";
-  BOOST_LOG_SEV(glg, note) << "Assigning parameters from " << parfilecomm;
-  ifstream fctrpft;
-  fctrpft.open(parfilecomm.c_str(),ios::in );
-  bool isOpen = fctrpft.is_open();
+  string parfilecal = dircmt+"cmt_dimvegetation.txt";
 
-  if ( !isOpen ) {
-    cout << "\nCannot open " << parfilecomm << "  \n" ;
-    exit( -1 );
+  BOOST_LOG_SEV(glg, note) << "Assigning parameters from " << parfilecal;
+
+  std::vector<std::string> v(get_cmt_data_block(parfilecal, cmtcode2num(cmtcode)));
+
+  std::list<std::string> l(strip_comments(v));
+
+  if (l.size() < 40) {
+    BOOST_LOG_SEV(glg, err) << "ERROR!: There are not enough lines of data to "
+                            << "adequately define this community: "
+                            << cmtcode;
+    exit(-1);
   }
 
-  string str;
-  string code;
-  int lines = 41; //total lines of one block of community data/info,
-                  //  except for 2 header lines
-  getline(fctrpft, str); //community separation line ("//====" or
-                         //  something or empty line)
-  getline(fctrpft, str); // community code - 'CMTxx' (xx: two digits)
-  code = read_cmt_code(str);
+  pfll2data_pft(l, vegcov);
+  pfll2data_pft(l, ifwoody);
+  pfll2data_pft(l, ifdeciwoody);
+  pfll2data_pft(l, ifperenial);
+  pfll2data_pft(l, nonvascular);
+  pfll2data_pft(l, sla);
+  pfll2data_pft(l, klai);
+  pfll2data_pft(l, minleaf);
+  pfll2data_pft(l, aleaf);
+  pfll2data_pft(l, bleaf);
+  pfll2data_pft(l, cleaf);
+  pfll2data_pft(l, kfoliage);
+  pfll2data_pft(l, cov);
+  pfll2data_pft(l, m1);
+  pfll2data_pft(l, m2);
+  pfll2data_pft(l, m3);
+  pfll2data_pft(l, m4);
 
-  while (code.compare(cmtcode)!=0) {
-    for (int il=0; il<lines; il++) {
-      getline(fctrpft, str);  //skip lines
-    }
-
-    if (fctrpft.eof()) {
-      cout << "Cannot find community type: " << cmtcode
-           << " in file: " <<parfilecomm << "  \n" ;
-      exit( -1 );
-    }
-
-    getline(fctrpft, str); //community separation line ("//====" or
-                           //  something or empty line)
-    getline(fctrpft, str); // community code - 'CMTxx' (xx: two digits)
-
-    if (str.empty()) {  // blank line in end of file
-      cout << "Cannot find community type: " << cmtcode
-           << " in file: " <<parfilecomm << "  \n" ;
-      exit( -1 );
-    }
-
-    code = read_cmt_code(str);
+  for (int i = 0; i < MAX_ROT_LAY; i++) {
+    pfll2data_pft(l, frootfrac[i]);
   }
 
-  getline(fctrpft,str);     //read comments
+  pfll2data_pft(l, lai);
 
-  for(int ip=0; ip<NUM_PFT; ip++) {
-    fctrpft >> vegcov[ip];
+  for (int im = 0; im < MINY; im++) {
+    pfll2data_pft( l, envlai[im]);
   }
 
-  getline(fctrpft,str);     // read comments
-
-  for(int ip=0; ip<NUM_PFT; ip++) {
-    fctrpft >> ifwoody[ip];
-  }
-
-  getline(fctrpft,str);     // read comments
-
-  for(int ip=0; ip<NUM_PFT; ip++) {
-    fctrpft >> ifdeciwoody[ip];
-  }
-
-  getline(fctrpft,str);     // read comments
-
-  for(int ip=0; ip<NUM_PFT; ip++) {
-    fctrpft >> ifperenial[ip];
-  }
-
-  getline(fctrpft,str);     // read comments
-
-  for(int ip=0; ip<NUM_PFT; ip++) {
-    fctrpft >> nonvascular[ip];
-  }
-
-  getline(fctrpft,str);     // read comments
-
-  for(int ip=0; ip<NUM_PFT; ip++) {
-    fctrpft >> sla[ip];
-  }
-
-  getline(fctrpft,str);     // read comments
-
-  for(int ip=0; ip<NUM_PFT; ip++) {
-    fctrpft >> klai[ip];
-  }
-
-  getline(fctrpft,str);     // read comments
-
-  for(int ip=0; ip<NUM_PFT; ip++) {
-    fctrpft >> minleaf[ip];
-  }
-
-  getline(fctrpft,str);
-
-  for(int ip=0; ip<NUM_PFT; ip++) {
-    fctrpft >> aleaf[ip];
-  }
-
-  getline(fctrpft,str);
-
-  for(int ip=0; ip<NUM_PFT; ip++) {
-    fctrpft >> bleaf[ip];
-  }
-
-  getline(fctrpft,str);
-
-  for(int ip=0; ip<NUM_PFT; ip++) {
-    fctrpft >> cleaf[ip];
-  }
-
-  getline(fctrpft,str);
-
-  for(int ip=0; ip<NUM_PFT; ip++) {
-    fctrpft >> kfoliage[ip];
-  }
-
-  getline(fctrpft,str);
-
-  for(int ip=0; ip<NUM_PFT; ip++) {
-    fctrpft >> cov[ip];
-  }
-
-  getline(fctrpft,str);
-
-  for(int ip=0; ip<NUM_PFT; ip++) {
-    fctrpft >> m1[ip];
-  }
-
-  getline(fctrpft,str);
-
-  for(int ip=0; ip<NUM_PFT; ip++) {
-    fctrpft >> m2[ip];
-  }
-
-  getline(fctrpft,str);
-
-  for(int ip=0; ip<NUM_PFT; ip++) {
-    fctrpft >> m3[ip];
-  }
-
-  getline(fctrpft,str);
-
-  for(int ip=0; ip<NUM_PFT; ip++) {
-    fctrpft >> m4[ip];
-  }
-
-  getline(fctrpft,str);
-
-  for (int il =0; il<MAX_ROT_LAY; il++) {
-    for(int ip=0; ip<NUM_PFT; ip++) {
-      fctrpft >> frootfrac[il][ip];
-    }
-
-    getline(fctrpft,str);     //comments in the file
-  }
-
-  for(int ip=0; ip<NUM_PFT; ip++) {
-    fctrpft >> lai[ip];
-  }
-
-  getline(fctrpft,str);     // read comments
-
-  for (int im =0; im<MINY; im++) {
-    for(int ip=0; ip<NUM_PFT; ip++) {
-      fctrpft >> envlai[im][ip];
-    }
-
-    getline(fctrpft,str);     //comments in the file
-  }
-
-  fctrpft.close();
-};
+}
 
 void CohortLookup::assignGroundDimension(string &dircmt) {
   string parfilecomm = dircmt+"cmt_dimground.txt";
