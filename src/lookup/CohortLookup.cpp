@@ -128,6 +128,61 @@ std::list<std::string> strip_comments(std::vector<std::string> idb) {
 }
 
 
+/* NOTES:
+ - not sure these need to be templates? to work with doubles, ints, or floats?
+   right now I think all data is doubles.
+
+ - seems like there should be a way to detect if it is a pft variable or not
+   and thereby combine these two functions?
+   read from string to tokenize into vectort, then if vector.size > 1, assume
+   it is a pft - try and read data into appropriate spot?
+   
+ - need to some kind of check/safety to not overwrite the end of data??
+ 
+ - Might eventually be useful to re-factor this again (so that the various
+   codes for handling communities's parameter data can be compiled into a 
+   stand-along command line utility..?
+*/
+
+
+/** Pop the front of a "line-list" and store at the location of "data".
+ * For setting internal data from dvmdostem parameter files.
+*/
+template<typename T>
+void pfll2data(std::list<std::string> &l, T &data) {
+
+  std::stringstream s(l.front());
+
+  if ( !(s >> data) ) {
+    BOOST_LOG_SEV(glg, err) << "ERROR! Problem converting parameter in this line to numeric value: " << l.front() << std::endl;
+    data = -999999.0;
+  }
+
+  l.pop_front();
+}
+
+/** Pop the front of line-list and store at data. For multi pft 
+ *  (multi-column) parameters 
+ * For setting internal data from dvmdostem parameter files.
+ *
+*/
+template<typename T>
+void pfll2data_pft(std::list<std::string> &l, T *data) {
+
+  std::stringstream s(l.front());
+ 
+  for(int i = 0; i < NUM_PFT; i++) {
+
+    if ( !(s >> data[i]) ) {
+      BOOST_LOG_SEV(glg, err) << "ERROR! Problem converting parameter in column "<<i<<"of this line to numeric value: " << l.front() << std::endl;
+      data[i] = -99999.0;
+    }
+  }
+ 
+  l.pop_front();
+
+}
+
 CohortLookup::CohortLookup() {
   cmtcode = "CMT00"; // the default community code (5 alphnumerics)
 };
@@ -249,146 +304,49 @@ std::string CohortLookup::calparbgc2str() {
   return s.str();
 }
 
+
+/** Set calibrated BCG parameters based on values in file. */
 void CohortLookup::assignBgcCalpar(string & dircmt) {
+
   string parfilecal = dircmt+"cmt_calparbgc.txt";
+
   BOOST_LOG_SEV(glg, note) << "Assigning parameters from " << parfilecal;
-  ifstream fctrcomm;
-  fctrcomm.open(parfilecal.c_str(),ios::in );
-  bool isOpen = fctrcomm.is_open();
 
-  if ( !isOpen ) {
-    cout << "\nCannot open " << parfilecal << "  \n" ;
-    exit( -1 );
+  std::vector<std::string> v(get_cmt_data_block(parfilecal, cmtcode2num(cmtcode)));
+
+  std::list<std::string> l(strip_comments(v));
+
+  if (l.size() < 19) {
+    BOOST_LOG_SEV(glg, err) << "ERROR!: There are not enough lines of data to "
+                            << "adequately define this community: "
+                            << cmtcode;
+    exit(-1);
   }
 
-  string str;
-  string code;
-  int lines = 21; //total lines of one block of community data/info,
-                  //  except for 2 header lines
-  getline(fctrcomm, str); //community separation line ("//====" or something
-                          //  or empty line)
-  getline(fctrcomm, str); // community code - 'CMTxx' (xx: two digits)
-  code = read_cmt_code(str);
+  // pop item from front of line list, store at address pointed to by 'data'
+  pfll2data_pft(l, cmax);
+  pfll2data_pft(l, nmax);
+  pfll2data_pft(l, cfall[I_leaf]);
+  pfll2data_pft(l, cfall[I_stem]);
+  pfll2data_pft(l, cfall[I_root]);
+  pfll2data_pft(l, nfall[I_leaf]);
+  pfll2data_pft(l, nfall[I_stem]);
+  pfll2data_pft(l, nfall[I_root]);
+  pfll2data_pft(l, kra);
+  pfll2data_pft(l, krb[I_leaf]);
+  pfll2data_pft(l, krb[I_stem]);
+  pfll2data_pft(l, krb[I_root]);
+  pfll2data_pft(l, frg);
 
-  while (code.compare(cmtcode)!=0) {
-    for (int il=0; il<lines; il++) {
-      getline(fctrcomm, str);  //skip lines
-    }
+  pfll2data(l, micbnup);
+  pfll2data(l, kdcmoss);
+  pfll2data(l, kdcrawc);
+  pfll2data(l, kdcsoma);
+  pfll2data(l, kdcsompr);
+  pfll2data(l, kdcsomcr);
 
-    if (fctrcomm.eof()) {
-      cout << "Cannot find community type: " << cmtcode
-           << " in file: " <<parfilecal << "  \n" ;
-      exit( -1 );
-    }
+}
 
-    getline(fctrcomm, str); //community separation line ("//====" or something
-                            //  or empty line)
-    getline(fctrcomm, str); // community code - 'CMTxx' (xx: two digits)
-
-    if (str.empty()) {  // blank line in end of file
-      cout << "Cannot find community type: " << cmtcode
-           << " in file: " <<parfilecal << "  \n" ;
-      exit( -1 );
-    }
-
-    code = read_cmt_code(str);
-  }
-
-  getline(fctrcomm, str); // comment line (column headers)
-
-  for(int ip=0; ip<NUM_PFT; ip++) {
-    fctrcomm >> cmax[ip];
-  }
-
-  getline(fctrcomm, str);
-
-  for(int ip=0; ip<NUM_PFT; ip++) {
-    fctrcomm >> nmax[ip];
-  }
-
-  getline(fctrcomm, str);
-
-  for(int ip=0; ip<NUM_PFT; ip++) {
-    fctrcomm >> cfall[I_leaf][ip];
-  }
-
-  getline(fctrcomm, str);
-
-  for(int ip=0; ip<NUM_PFT; ip++) {
-    fctrcomm >> cfall[I_stem][ip];
-  }
-
-  getline(fctrcomm, str);
-
-  for(int ip=0; ip<NUM_PFT; ip++) {
-    fctrcomm >> cfall[I_root][ip];
-  }
-
-  getline(fctrcomm, str);
-
-  for(int ip=0; ip<NUM_PFT; ip++) {
-    fctrcomm >> nfall[I_leaf][ip];
-  }
-
-  getline(fctrcomm, str);
-
-  for(int ip=0; ip<NUM_PFT; ip++) {
-    fctrcomm >> nfall[I_stem][ip];
-  }
-
-  getline(fctrcomm, str);
-
-  for(int ip=0; ip<NUM_PFT; ip++) {
-    fctrcomm >> nfall[I_root][ip];
-  }
-
-  getline(fctrcomm, str);
-
-  for(int ip=0; ip<NUM_PFT; ip++) {
-    fctrcomm >> kra[ip];
-  }
-
-  getline(fctrcomm, str);
-
-  for(int ip=0; ip<NUM_PFT; ip++) {
-    fctrcomm >> krb[I_leaf][ip];
-  }
-
-  getline(fctrcomm, str);
-
-  for(int ip=0; ip<NUM_PFT; ip++) {
-    fctrcomm >> krb[I_stem][ip];
-  }
-
-  getline(fctrcomm, str);
-
-  for(int ip=0; ip<NUM_PFT; ip++) {
-    fctrcomm >> krb[I_root][ip];
-  }
-
-  getline(fctrcomm, str);
-
-  for(int ip=0; ip<NUM_PFT; ip++) {
-    fctrcomm >> frg[ip];
-  }
-
-  getline(fctrcomm, str);
-  // soil bgc Calibrated parameters
-  getline(fctrcomm, str);     //comments in the file
-  fctrcomm >> micbnup;
-  getline(fctrcomm, str);
-  fctrcomm >> kdcmoss;
-  getline(fctrcomm, str);
-  fctrcomm >> kdcrawc;
-  getline(fctrcomm, str);
-  fctrcomm >> kdcsoma;
-  getline(fctrcomm, str);
-  fctrcomm >> kdcsompr;
-  getline(fctrcomm, str);
-  fctrcomm >> kdcsomcr;
-  getline(fctrcomm, str);
-  fctrcomm.close();
-};
 
 void CohortLookup::assignVegDimension(string &dircmt) {
   string parfilecomm = dircmt+"cmt_dimvegetation.txt";
