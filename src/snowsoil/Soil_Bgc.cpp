@@ -907,7 +907,7 @@ double Soil_Bgc::getNimmob(const double & soilh2o, const double & soilorgc,
   double tempkn2    = kn2;
 
   //what if put && availn>0 here
-  if(soilorgc>0.0 && soilorgn>0.0 && soilh2o>0 ) {
+  if(soilorgc>0.0 && soilorgn>0.0 && soilh2o>0 && availn>0) {
     nimmob = (availn * ksoil) / soilh2o;
     tempnimmob = nimmob;
     nimmob /= (tempkn2 + nimmob);

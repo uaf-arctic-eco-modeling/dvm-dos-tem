@@ -313,7 +313,7 @@ void Vegetation_Bgc::delta() {
   // total available C for allocation
   //if C assimilation available, first goes to maintenance respiration
   double innppall = fmax(0., ingppall-rm)/(1.0+calpar.frg);
-  // NPP allocation to leaf estimated first
+  /*// NPP allocation to leaf estimated first
   double nppl = dleafc;
   //leaf has the second priority for C assimilation
   del_a2v.innpp[I_leaf] = fmin(nppl, innppall);
@@ -329,12 +329,16 @@ void Vegetation_Bgc::delta() {
 
   for (int i=I_leaf+1; i<NUM_PFT_PART; i++) {
     del_a2v.innpp[i] = 0.;
-    del_v2a.rg[i]    = 0.;
-
-    if (cpartrest>0. && innpprest>0.) {
-      del_a2v.innpp[i] = innpprest * bgcpar.cpart[i]/cpartrest;
+    del_v2a.rg[i]    = 0.;*/
+  double cpartrest = 0.;
+  for (int i=I_leaf; i<NUM_PFT_PART; i++) {
+    cpartrest +=bgcpar.cpart[i];
+  }
+  for (int i=I_leaf; i<NUM_PFT_PART; i++) {
+    //if (cpartrest>0. && innppall>0.) {
+      del_a2v.innpp[i] = innppall * bgcpar.cpart[i]/cpartrest;
       del_v2a.rg[i]    = calpar.frg * del_a2v.innpp[i];
-    }
+    //}
   }
 
   // summary of INGPP
@@ -378,7 +382,7 @@ void Vegetation_Bgc::deltanfeed() {
 
     for(int il =0; il<cd->m_soil.numsl; il++) {
       if (cd->m_soil.frootfrac[il][ipft]> 0.) {
-        avln+= bd->m_sois.avln[il];
+        avln += bd->m_sois.avln[il];
       }
     }
 
@@ -834,13 +838,13 @@ double Vegetation_Bgc::getNuptake(const double & foliage, const double & raq10,
   double totrzavln   = 0.;     // root zone avaliable N concent for N uptake
   double totfrootfrac= 0.;     // pft's fraction of roots of all PFTs
 
-  for(int il =0; il<cd->m_soil.numsl; il++) {
+  for(int il =0; il < cd->m_soil.numsl; il++) {
     if (cd->m_soil.frootfrac[il][ipft]> 0.) {
-      totrz +=cd->m_soil.dz[il];
+      totrz += cd->m_soil.dz[il];
       meanrzksoil += bd->m_soid.knmoist[il]*cd->m_soil.dz[il];  //NOTE: 'bd->m_soid.knmoist' is updated in Soil_bgc.cpp
       totrzliq += ed->m_sois.liq[il];
-      totrzavln+= bd->m_sois.avln[il];
-      totfrootfrac +=cd->m_soil.frootfrac[il][ipft];
+      totrzavln += bd->m_sois.avln[il];
+      totfrootfrac += cd->m_soil.frootfrac[il][ipft];
     }
   }
 
@@ -856,7 +860,7 @@ double Vegetation_Bgc::getNuptake(const double & foliage, const double & raq10,
     // root factor: root fraction of current PFT over all PFTs
     nuptake *= totfrootfrac;
     // plant phenological factor
-    //nuptake *= foliage;
+    nuptake *= foliage;
     // air temperature factor
     nuptake *= raq10;
   } else {

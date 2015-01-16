@@ -290,7 +290,6 @@ void BgcData::soil_endOfMonth() {
       if (mlind>MINEZONE[1] && mlind<=MINEZONE[2]) {
         m_soid.minecc += m_soid.tsomc[il];
       }
-
       mlind ++;
     }
 
@@ -299,7 +298,9 @@ void BgcData::soil_endOfMonth() {
     m_soid.somprsum+= m_sois.sompr[il];
     m_soid.somcrsum+= m_sois.somcr[il];
     m_soid.orgnsum += m_sois.orgn[il];
-    m_soid.avlnsum += m_sois.avln[il];
+    //if(il < 6){
+      m_soid.avlnsum += m_sois.avln[il];
+    //}
   }
 
   // previous monthly accumulating variables
@@ -371,16 +372,16 @@ void BgcData::soil_endOfMonth() {
   y_soi2a.rhtot     += m_soi2a.rhtot;
 
   for (int il =0; il<MAX_SOI_LAY; il++) {
-    y_soi2a.rhrawc[il] += m_soi2a.rhrawc[il]/12.;
-    y_soi2a.rhsoma[il] += m_soi2a.rhsoma[il]/12.;
-    y_soi2a.rhsompr[il]+= m_soi2a.rhsompr[il]/12.;
-    y_soi2a.rhsomcr[il]+= m_soi2a.rhsomcr[il]/12.;
-    y_soi2soi.netnmin[il]+= m_soi2soi.netnmin[il]/12.;
-    y_soi2soi.nimmob[il] += m_soi2soi.nimmob[il]/12.;
+    y_soi2a.rhrawc[il] += m_soi2a.rhrawc[il];
+    y_soi2a.rhsoma[il] += m_soi2a.rhsoma[il];
+    y_soi2a.rhsompr[il]+= m_soi2a.rhsompr[il];
+    y_soi2a.rhsomcr[il]+= m_soi2a.rhsomcr[il];
+    y_soi2soi.netnmin[il]+= m_soi2soi.netnmin[il];
+    y_soi2soi.nimmob[il] += m_soi2soi.nimmob[il];
   }
 
-  y_soi2soi.netnminsum+= m_soi2soi.netnminsum/12.;
-  y_soi2soi.nimmobsum += m_soi2soi.nimmobsum/12.;
+  y_soi2soi.netnminsum+= m_soi2soi.netnminsum;
+  y_soi2soi.nimmobsum += m_soi2soi.nimmobsum;
   // connection to open-N cycle
   y_a2soi.orgninput += m_a2soi.orgninput;
   y_soi2l.orgnlost += m_soi2l.orgnlost;
