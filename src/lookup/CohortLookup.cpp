@@ -199,14 +199,20 @@ std::list<std::string> parse_parameter_file(
   // strip the comments and turn it into a list
   std::list<std::string> datalist(strip_comments(v));
 
+  // handy for debugging...
+  //std::list<std::string>::iterator it = datalist.begin();
+  //for (it; it != datalist.end(); ++it) {
+  //  std::cout << "list item: " << *it << std::endl;
+  //}
+
   // check the size
   if (datalist.size() != linesofdata) {
     BOOST_LOG_SEV(glg, err) << "Expected " << linesofdata << ". "
-                            << "Only found " << datalist.size() << ". "
+                            << "Found " << datalist.size() << ". "
                             << "(" << fname << ", community " << cmtnumber << ")";
     exit(-1);
   }
-
+  
   return datalist;
 }
 
