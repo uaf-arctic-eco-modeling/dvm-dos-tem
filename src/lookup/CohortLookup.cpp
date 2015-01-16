@@ -97,6 +97,7 @@ std::vector<std::string> get_cmt_data_block(std::string filename, int cmtnum) {
 
 /** Takes a cmt data "block" and strips any comments. */
 std::list<std::string> strip_comments(std::vector<std::string> idb) {
+  
   std::list<std::string> l;
 
   for (std::vector<std::string>::iterator it = idb.begin(); it != idb.end(); ++it ) {
@@ -530,78 +531,33 @@ void CohortLookup::assignBgc4Vegetation(string & dircmt) {
 
 }
 
+/** Assign environemntal parameters for the ground based on config file */
 void CohortLookup::assignEnv4Ground(string &dircmt) {
-  string parfilecomm = dircmt+"cmt_envground.txt";
-  BOOST_LOG_SEV(glg, note) << "Assigning parameters from " << parfilecomm;
-  ifstream fctrcomm;
-  fctrcomm.open(parfilecomm.c_str(),ios::in );
-  bool isOpen = fctrcomm.is_open();
 
-  if ( !isOpen ) {
-    cout << "\nCannot open " << parfilecomm << "  \n" ;
-    exit( -1 );
+  // get a list of data for the cmt number
+  std::list<std::string> datalist = parse_parameter_file(
+      dircmt + "cmt_envground.txt", cmtcode2num(this->cmtcode), 27
+  );
+
+  // pop each line off the front of the list
+  // and assign to the right data member.
+  pfll2data(datalist, snwalbmax);
+  pfll2data(datalist, snwalbmin);
+  pfll2data(datalist, psimax);
+  pfll2data(datalist, evapmin);
+  pfll2data(datalist, drainmax);
+  pfll2data(datalist, rtdp4gdd);
+  pfll2data(datalist, initsnwtem);
+
+  for (int i = 0; i < 10; i++) {
+    pfll2data(datalist, initts[i]);
   }
 
-  string str;
-  string code;
-  int lines = 27; //total lines of one block of community data/info,
-                  //  except for 2 header lines
-  getline(fctrcomm, str); //community separation line ("//====" or
-                          //  something or empty line)
-  getline(fctrcomm, str); // community code - 'CMTxx' (xx: two digits)
-  code = read_cmt_code(str);
-
-  while (code.compare(cmtcode)!=0) {
-    for (int il=0; il<lines; il++) {
-      getline(fctrcomm, str);  //skip lines
-    }
-
-    if (fctrcomm.eof()) {
-      cout << "Cannot find community type: " << cmtcode
-           << " in file: " <<parfilecomm << "  \n" ;
-      exit( -1 );
-    }
-
-    getline(fctrcomm, str); //community separation line ("//====" or
-                            //  something or empty line)
-    getline(fctrcomm, str); //community code - 'CMTxx' (xx: two digits)
-
-    if (str.empty()) {  // blank line in end of file
-      cout << "Cannot find community type: " << cmtcode
-           << " in file: " <<parfilecomm << "  \n" ;
-      exit( -1 );
-    }
-
-    code = read_cmt_code(str);
+  for (int i = 0; i < 10; i++) {
+    pfll2data(datalist, initvwc[i]);
   }
 
-  fctrcomm >> snwalbmax;
-  getline(fctrcomm,str);     //comments in the file
-  fctrcomm >> snwalbmin;
-  getline(fctrcomm,str);     //comments in the file
-  fctrcomm >> psimax;
-  getline(fctrcomm,str);     //comments in the file
-  fctrcomm >> evapmin;
-  getline(fctrcomm,str);     //comments in the file
-  fctrcomm >> drainmax;
-  getline(fctrcomm,str);     //comments in the file
-  fctrcomm >> rtdp4gdd;
-  getline(fctrcomm,str);     //comments in the file
-  fctrcomm >> initsnwtem;
-  getline(fctrcomm,str);     //comments in the file
-
-  for (int il=0; il<10; il++) {
-    fctrcomm >> initts[il];
-    getline(fctrcomm,str);     //comments in the file
-  }
-
-  for (int il=0; il<10; il++) {
-    fctrcomm >> initvwc[il];
-    getline(fctrcomm,str);     //comments in the file
-  }
-
-  fctrcomm.close();
-};
+}
 
 void CohortLookup::assignBgc4Ground(string &dircmt) {
   string parfilecomm = dircmt+"cmt_bgcsoil.txt";
