@@ -58,7 +58,7 @@ std::string cmtnum2str(int cmtnumber) {
 */  
 std::vector<std::string> get_cmt_data_block(std::string filename, int cmtnum) {
 
-  BOOST_LOG_SEV(glg, note) << "Opening file: " << filename << std::endl;
+  BOOST_LOG_SEV(glg, note) << "Opening file: " << filename;
   std::ifstream par_file(filename.c_str(), std::ifstream::in);
 
   if ( !par_file.is_open() ) {
@@ -154,7 +154,7 @@ void pfll2data(std::list<std::string> &l, T &data) {
   std::stringstream s(l.front());
 
   if ( !(s >> data) ) {
-    BOOST_LOG_SEV(glg, err) << "ERROR! Problem converting parameter in this line to numeric value: " << l.front() << std::endl;
+    BOOST_LOG_SEV(glg, err) << "ERROR! Problem converting parameter in this line to numeric value: " << l.front();
     data = -999999.0;
   }
 
@@ -174,7 +174,7 @@ void pfll2data_pft(std::list<std::string> &l, T *data) {
   for(int i = 0; i < NUM_PFT; i++) {
 
     if ( !(s >> data[i]) ) {
-      BOOST_LOG_SEV(glg, err) << "ERROR! Problem converting parameter in column "<<i<<"of this line to numeric value: " << l.front() << std::endl;
+      BOOST_LOG_SEV(glg, err) << "ERROR! Problem converting parameter in column "<<i<<"of this line to numeric value: " << l.front();
       data[i] = -99999.0;
     }
   }
