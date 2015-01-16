@@ -183,6 +183,34 @@ void pfll2data_pft(std::list<std::string> &l, T *data) {
 
 }
 
+/** Given a file name, a community number and a number for expected lines of 
+ * data, returns a list of strings with just that data, after stripping 
+ * comments.
+ */
+std::list<std::string> parse_parameter_file(
+    const std::string& fname, int cmtnumber, int linesofdata) {
+  
+  BOOST_LOG_SEV(glg, note) << "Parsing '"<< fname << "', "
+                           << "for community number: " << cmtnumber;
+
+  // get a vector of strings for that cmt "block". includes comments.
+  std::vector<std::string> v(get_cmt_data_block(fname, cmtnumber));
+  
+  // strip the comments and turn it into a list
+  std::list<std::string> datalist(strip_comments(v));
+
+  // check the size
+  if (datalist.size() != linesofdata) {
+    BOOST_LOG_SEV(glg, err) << "Expected " << linesofdata << ". "
+                            << "Only found " << datalist.size() << ". "
+                            << "(" << fname << ", community " << cmtnumber << ")";
+    exit(-1);
+  }
+
+  return datalist;
+}
+
+
 CohortLookup::CohortLookup() {
   cmtcode = "CMT00"; // the default community code (5 alphnumerics)
 };
@@ -308,22 +336,13 @@ std::string CohortLookup::calparbgc2str() {
 /** Set calibrated BCG parameters based on values in file. */
 void CohortLookup::assignBgcCalpar(string & dircmt) {
 
-  string parfilecal = dircmt+"cmt_calparbgc.txt";
+  // get a list of data for the cmt number
+  std::list<std::string> l = parse_parameter_file(
+      dircmt + "cmt_calparbgc.txt", cmtcode2num(this->cmtcode), 19
+  );
 
-  BOOST_LOG_SEV(glg, note) << "Assigning parameters from " << parfilecal;
-
-  std::vector<std::string> v(get_cmt_data_block(parfilecal, cmtcode2num(cmtcode)));
-
-  std::list<std::string> l(strip_comments(v));
-
-  if (l.size() < 19) {
-    BOOST_LOG_SEV(glg, err) << "ERROR!: There are not enough lines of data to "
-                            << "adequately define this community: "
-                            << cmtcode;
-    exit(-1);
-  }
-
-  // pop item from front of line list, store at address pointed to by 'data'
+  // pop each line off the front of the list
+  // and assign to the right data member.
   pfll2data_pft(l, cmax);
   pfll2data_pft(l, nmax);
   pfll2data_pft(l, cfall[I_leaf]);
@@ -347,23 +366,16 @@ void CohortLookup::assignBgcCalpar(string & dircmt) {
 
 }
 
-
+/** Assign "veg dimension?" from parameter file. */
 void CohortLookup::assignVegDimension(string &dircmt) {
-  string parfilecal = dircmt+"cmt_dimvegetation.txt";
 
-  BOOST_LOG_SEV(glg, note) << "Assigning parameters from " << parfilecal;
+  // get a list of data for the cmt number
+  std::list<std::string> l = parse_parameter_file(
+      dircmt + "cmt_dimvegetation.txt", cmtcode2num(this->cmtcode), 40
+  );
 
-  std::vector<std::string> v(get_cmt_data_block(parfilecal, cmtcode2num(cmtcode)));
-
-  std::list<std::string> l(strip_comments(v));
-
-  if (l.size() < 40) {
-    BOOST_LOG_SEV(glg, err) << "ERROR!: There are not enough lines of data to "
-                            << "adequately define this community: "
-                            << cmtcode;
-    exit(-1);
-  }
-
+  // pop each line off the front of the list
+  // and assign to the right data member.
   pfll2data_pft(l, vegcov);
   pfll2data_pft(l, ifwoody);
   pfll2data_pft(l, ifdeciwoody);
@@ -394,21 +406,16 @@ void CohortLookup::assignVegDimension(string &dircmt) {
 
 }
 
+/** Assigns "ground dimension?" parameters from file */
 void CohortLookup::assignGroundDimension(string &dircmt) {
-  string parameter_file = dircmt+"cmt_dimground.txt";
-  BOOST_LOG_SEV(glg, note) << "Assigning parameters from " << parameter_file;
 
-  std::vector<std::string> v(get_cmt_data_block(parameter_file, cmtcode2num(cmtcode)));
+  // get a list of data for the cmt number
+  std::list<std::string> l = parse_parameter_file(
+      dircmt + "cmt_dimground.txt", cmtcode2num(this->cmtcode), 17
+  );
 
-  std::list<std::string> l(strip_comments(v));
-
-  if (l.size() < 17) {
-    BOOST_LOG_SEV(glg, err) << "ERROR!: There are not enough lines of data to "
-                            << "adequately define this community: "
-                            << cmtcode;
-    exit(-1);
-  }
-
+  // pop each line off the front of the list
+  // and assign to the right data member.
   pfll2data(l, snwdenmax );
   pfll2data(l, snwdennew);
   pfll2data(l, initsnwthick);
@@ -429,7 +436,6 @@ void CohortLookup::assignGroundDimension(string &dircmt) {
   pfll2data(l, coefminea);
   pfll2data(l, coefmineb);
 
-  
   // ?????????? NOT sure what this was doing before.
   //
   // Currently there are not parameters for mineral texture in the
@@ -446,22 +452,16 @@ void CohortLookup::assignGroundDimension(string &dircmt) {
 
 }
 
+/** Assigns "environmental canony?" data from config file */
 void CohortLookup::assignEnv4Canopy(string &dir) {
 
-  string parameter_file = dir + "cmt_envcanopy.txt";
-  BOOST_LOG_SEV(glg, note) << "Assigning parameters from " << parameter_file;
- 
-  std::vector<std::string> v(get_cmt_data_block(parameter_file, cmtcode2num(cmtcode)));
+  // get a list of data for the cmt number
+  std::list<std::string> l = parse_parameter_file(
+      dir + "cmt_envcanopy.txt", cmtcode2num(this->cmtcode), 12
+  );
 
-  std::list<std::string> l(strip_comments(v));
-
-  if (l.size() != 12) {
-    BOOST_LOG_SEV(glg, err) << "ERROR!: There are not enough lines of data to "
-                          << "adequately define this community: "
-                          << cmtcode;
-    exit(-1);
-  }
-  
+  // pop each line off the front of the list
+  // and assign to the right data member.
   pfll2data_pft(l, albvisnir);
   pfll2data_pft(l, er);
   pfll2data_pft(l, ircoef);
@@ -477,23 +477,17 @@ void CohortLookup::assignEnv4Canopy(string &dir) {
   
 }
 
-/** Assigns vegetation C/N parameters from config file 
+/** Assigns vegetation C/N parameters from config file
 */
 void CohortLookup::assignBgc4Vegetation(string & dircmt) {
-  string parfile = dircmt + "cmt_bgcvegetation.txt";
-  BOOST_LOG_SEV(glg, note) << "Assigning parameters from " << parfile;
+  
+  // get a list of data for the cmt number
+  std::list<std::string> l = parse_parameter_file(
+      dircmt + "cmt_bgcvegetation.txt", cmtcode2num(this->cmtcode), 33
+  );
 
-  std::vector<std::string> v(get_cmt_data_block(parfile, cmtcode2num(cmtcode)));
-
-  std::list<std::string> l(strip_comments(v));
-
-  if (l.size() != 33) {
-    BOOST_LOG_SEV(glg, err) << "ERROR!: There are not enough lines of data to "
-                            << "adequately define this community: "
-                            << cmtcode;
-    exit(-1);
-  }
-
+  // pop each line off the front of the list
+  // and assign to the right data member.
   pfll2data_pft(l, kc);
   pfll2data_pft(l, ki);
   pfll2data_pft(l, tmin);
