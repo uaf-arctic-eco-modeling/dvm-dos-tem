@@ -590,82 +590,29 @@ void CohortLookup::assignBgc4Ground(string &dircmt) {
 
 }
 
+/** Assign the fire parameters from a file */
 void CohortLookup::assignFirePar(string &dircmt) {
-  string parfilecomm = dircmt+"cmt_firepar.txt";
-  BOOST_LOG_SEV(glg, note) << "Assigning parameters from " << parfilecomm;
-  ifstream fctrcomm;
-  fctrcomm.open(parfilecomm.c_str(),ios::in );
-  bool isOpen = fctrcomm.is_open();
 
-  if ( !isOpen ) {
-    cout << "\nCannot open " << parfilecomm << "  \n" ;
-    exit( -1 );
-  }
+  // get a list of data for the cmt number
+  std::list<std::string> datalist = parse_parameter_file(
+      dircmt + "cmt_firepar.txt", cmtcode2num(this->cmtcode), 18
+  );
 
-  string str;
-  string code;
-  int lines = 21; //total lines of one block of community data/info,
-                  //  except for 2 header lines
-  getline(fctrcomm, str); //community separation line ("//====" or
-                          //  something or empty line)
-  getline(fctrcomm, str); // community code - 'CMTxx' (xx: two digits)
-  code = read_cmt_code(str);
-
-  while (code.compare(cmtcode)!=0) {
-    for (int il=0; il<lines; il++) {
-      getline(fctrcomm, str);  //skip lines
-    }
-
-    if (fctrcomm.eof()) {
-      cout << "Cannot find community type: " << cmtcode
-           << " in file: " <<parfilecomm << "  \n" ;
-      exit( -1 );
-    }
-
-    getline(fctrcomm, str); //community separation line ("//====" or
-                            //  something or empty line)
-    getline(fctrcomm, str); // community code - 'CMTxx' (xx: two digits)
-
-    if (str.empty()) {  // blank line in end of file
-      cout << "Cannot find community type: " << cmtcode
-           << " in file: " <<parfilecomm << "  \n" ;
-      exit( -1 );
-    }
-
-    code = read_cmt_code(str);
-  }
-
-  getline(fctrcomm,str);     // PFT code/name comments in the file
-
-  for(int i=0; i<NUM_FSEVR; i++) {
-    for(int ip=0; ip<NUM_PFT; ip++) {
-      fctrcomm >> fvcombust[i][ip];
-    }
-
-    getline(fctrcomm,str);
+  // pop each line off the front of the list
+  // and assign to the right data member.
+  for(int i = 0; i < NUM_FSEVR; i++) {
+    pfll2data_pft( datalist, fvcombust[i]);
   }
 
   for(int i=0; i<NUM_FSEVR; i++) {
-    for(int ip=0; ip<NUM_PFT; ip++) {
-      fctrcomm >> fvslash[i][ip];
-    }
-
-    getline(fctrcomm,str);
+    pfll2data_pft( datalist, fvslash[i]);
   }
 
-  getline(fctrcomm,str);     //comments in the file
-
-  for(int i=0; i<NUM_FSEVR; i++) {
-    fctrcomm >> foslburn[i];
-    getline(fctrcomm,str);
+  for(int i = 0; i < NUM_FSEVR; i++) {
+    pfll2data( datalist, foslburn[i]);
   }
 
-  getline(fctrcomm,str);     //comments in the file
-  fctrcomm >> vsmburn;
-  getline(fctrcomm,str);
-  fctrcomm >> r_retain_c;
-  getline(fctrcomm,str);
-  fctrcomm >> r_retain_n;
-  getline(fctrcomm,str);
-  fctrcomm.close();
+  pfll2data(datalist, vsmburn);
+  pfll2data(datalist, r_retain_c);
+  pfll2data(datalist, r_retain_n);
 };
