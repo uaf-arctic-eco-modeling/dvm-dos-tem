@@ -1,23 +1,23 @@
 library(ncdf4)
 
 # ---!!! Indicate the path to the TEM output folder !!!---
-setwd('/home/colin_tucker/dvm-dos-tem/DATA/test_single_site/output')
+setwd('/home/colin_tucker/dvm-dos-tem/DATA/Toolik_Inputs/output')
 # ---!!! Indicate the type of data you want to extract !!!---
 
 #what run mode (eq, tr, sp ,sc)? If several modes, separate with a comma. If all, type 'all'.
 run <- c('eq')
 #what time step (daily, monthly, yearly)? if several time steps, separate with a comma. If all, type 'all'.
-timestep <- c('monthly')
+timestep <- c('yearly')
 #what variable? If several variables, separate with a comma.
 ##variable  <- c('NUPTAKEL','NUPTAKESALL','NUPTAKES','NMOBILALL','NMOBIL','NMOBILALL','NRESOBALL',
 #               'NRESORB','VEGNSUM','RH','NMITKSOIL','NETNMIN','AVLNINPUT',
 #               'AVLNLOST','ORGNLOST','LTRFALNALL','AVLNSUM','NEP','NPPALL','INNPPALL','LTRFALCALL','VEGCSUM',
 #               'GPPALL','INGPPALL','SOMCSHLW','SOMCDEEP','SOMCMINEA','SOMCMINEB','SOMCMINEC','RHMOIST',
 #               'RHQ10','SOILLTRFCN','LAI','SNOWFALL','ALD','EETTOTAL','PETTOTAL','TAIR','RAINFALL','SOILTAVE','SOILVWC','RZTHAWPCT')
-variable <- VEGCSUM
+variable <- 'VEGCSUM'
 #Create a folder to store the output text files: 1 file per variable
-dir <- 'Txt' 
-dir.create(paste(getwd(),'/',dir,sep=''), recursive=TRUE)
+#dir <- 'Txt' 
+#dir.create(paste(getwd(),'/',dir,sep=''), recursive=TRUE)
 
 
 # Identifying the output file containing the variable under interest

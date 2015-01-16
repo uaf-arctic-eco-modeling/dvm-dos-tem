@@ -138,6 +138,8 @@ configured_suites = {
       { 'jsontag': 'VegStructuralNitrogen', 'axesnum': 1, 'units': 'gN/m^2', 'pft': '', 'pftpart': 'Stem'},
       { 'jsontag': 'VegStructuralNitrogen', 'axesnum': 1, 'units': 'gN/m^2', 'pft': '', 'pftpart': 'Root'},
 
+      { 'jsontag': 'VegLabileNitrogen', 'axesnum': 2, 'units': 'gN/m^2', 'pft': '', },
+
       { 'jsontag': 'LitterfallNitrogenAll', 'axesnum': 2, 'units': 'gN/m^2', 'pft': '', },
 
       { 'jsontag': 'LitterfallNitrogen', 'axesnum': 3, 'units': 'gN/m^2', 'pft': '', 'pftpart': 'Leaf'},
@@ -149,6 +151,10 @@ configured_suites = {
       { 'jsontag': 'AvailableNitrogenSum', 'axesnum':5, 'units': 'gN/m^2', },
 
       { 'jsontag': 'NitrogenUptake', 'axesnum': 6, 'units': 'gN/m^2', 'pft': '', },
+
+      #{ 'jsontag': 'MossdeathNitrogen', 'axesnum': 7, 'units': 'gN/m^2', },
+      { 'jsontag': 'AvlNInput', 'axesnum': 7, 'units': 'gN/m^2', },
+      { 'jsontag': 'AvlNLost', 'axesnum': 7, 'units': 'gN/m^2', },
 
     ] 
   },

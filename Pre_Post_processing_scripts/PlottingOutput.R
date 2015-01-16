@@ -1,9 +1,9 @@
 ##working directory
-setwd("/home/colin_tucker/dvm-dos-tem/DATA/test_single_site/output/Txt")
+setwd("/home/colin_tucker/dvm-dos-tem/DATA/Toolik_Inputs/output/Txt")
 ##ENTER MODEL VERSION == subdirectory to output to
-version<-"calmodeon_cal-eq-defaults"
+version<-"first tussock tundra simulation_EQ"
 ##main directory to output to
-main.dir<-("/home/colin_tucker/dvm-dos-tem/DATA/test_single_site/output")
+main.dir<-("/home/colin_tucker/dvm-dos-tem/DATA/Toolik_Inputs/output")
 dir.create(file.path(main.dir, version))
 ##TEST N CYCLE
 pdf(file.path(main.dir,version,"Ncycle.pdf"))
@@ -44,8 +44,11 @@ npp<-read.csv('./bgc_yly_NPPALL_eq.csv')
 plot(npp[102:2081,2],npp[102:2081,4], type="l", xlab="", ylab="", main="NetPrimProd")
 gpp<-read.csv('./bgc_yly_GPPALL_eq.csv')
 plot(gpp[102:2081,2],gpp[102:2081,4], type="l", xlab="", ylab="", main="GrsPrimProd")
+par(mfrow=c(3,3))
 vcs<-read.csv('./bgc_yly_VEGCSUM_eq.csv')
-plot(vcs[102:2081,2],vcs[102:2081,4], type="l", xlab="", ylab="", main="VegCsum")
+for(i in 4:11){
+plot(vcs[102:2081,2],vcs[102:2081,i], type="l", xlab="", ylab="", main="VegCsum")
+}
 ltrC<-read.csv('./bgc_yly_LTRFALCALL_eq.csv')
 plot(ltrC[102:2081,2],ltrC[102:2081,4], type="l", xlab="", ylab="", main="LtrfalCall")
 somcs<-read.csv('./bgc_yly_SOMCSHLW_eq.csv')

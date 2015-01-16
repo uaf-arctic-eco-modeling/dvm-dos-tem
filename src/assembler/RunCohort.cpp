@@ -314,11 +314,11 @@ void RunCohort::choose_run_stage_settings() {
       md->set_envmodule(true);
       md->set_bgcmodule(true);
       md->set_nfeed(false);
-      md->set_avlnflg(false);
-      md->set_baseline(false);
+      md->set_avlnflg(true);
+      md->set_baseline(true);
       md->set_dsbmodule(false);
-      md->set_dslmodule(false);
-      md->set_dvmmodule(false);
+      md->set_dslmodule(true);
+      md->set_dvmmodule(true);
       md->set_friderived(false);
     } else {
       // In equilibrium stage, turning all switches on
@@ -395,6 +395,9 @@ void RunCohort::env_only_warmup(boost::shared_ptr<CalController> calcontroller_p
   //run model with "ENV module" only
   md->set_envmodule(true);
   md->set_bgcmodule(false);
+  md->set_nfeed(false);
+  md->set_avlnflg(false);
+  md->set_baseline(false);
   md->set_dsbmodule(false);
   md->set_dslmodule(false);
   md->set_dvmmodule(false);
@@ -554,7 +557,7 @@ void RunCohort::output_caljson_yearly(int year) {
   data["NetNImmob"] = cht.bdall->y_soi2soi.nimmobsum;
   data["OrgNInput"] = cht.bdall->y_a2soi.orgninput;
   data["AvlNInput"] = cht.bdall->y_a2soi.avlninput;
-
+  data["AvlNLost"] = cht.bdall->y_soi2l.avlnlost;
 
   for(int pft=0; pft<NUM_PFT; pft++) { //NUM_PFT
     char pft_chars[5];
@@ -567,6 +570,7 @@ void RunCohort::output_caljson_yearly(int year) {
     data["PFT" + pft_str]["VegStructuralNitrogen"]["Leaf"] = cht.bd[pft].y_vegs.strn[I_leaf];
     data["PFT" + pft_str]["VegStructuralNitrogen"]["Stem"] = cht.bd[pft].y_vegs.strn[I_stem];
     data["PFT" + pft_str]["VegStructuralNitrogen"]["Root"] = cht.bd[pft].y_vegs.strn[I_root];
+    data["PFT" + pft_str]["VegLabileNitrogen"] = cht.bd[pft].y_vegs.labn;
     data["PFT" + pft_str]["GPPAll"] = cht.bd[pft].y_a2v.gppall;
     data["PFT" + pft_str]["NPPAll"] = cht.bd[pft].y_a2v.nppall;
     data["PFT" + pft_str]["GPPAllIgnoringNitrogen"] = cht.bd[pft].y_a2v.ingppall;
