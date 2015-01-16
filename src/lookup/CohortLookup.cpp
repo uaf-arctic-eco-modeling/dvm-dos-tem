@@ -559,92 +559,36 @@ void CohortLookup::assignEnv4Ground(string &dircmt) {
 
 }
 
+/** Assign ground related bgc parameters from file...*/
 void CohortLookup::assignBgc4Ground(string &dircmt) {
-  string parfilecomm = dircmt+"cmt_bgcsoil.txt";
-  BOOST_LOG_SEV(glg, note) << "Assigning parameters from " << parfilecomm;
-  ifstream fctrcomm;
-  fctrcomm.open(parfilecomm.c_str(),ios::in );
-  bool isOpen = fctrcomm.is_open();
+  
+  // get a list of data for the cmt number
+  std::list<std::string> datalist = parse_parameter_file(
+      dircmt + "cmt_bgcsoil.txt", cmtcode2num(this->cmtcode), 19
+  );
 
-  if ( !isOpen ) {
-    cout << "\nCannot open " << parfilecomm << "  \n" ;
-    exit( -1 );
-  }
+  // pop each line off the front of the list
+  // and assign to the right data member.
+  pfll2data(datalist, rhq10);
+  pfll2data(datalist, moistmin);
+  pfll2data(datalist, moistopt);
+  pfll2data(datalist, moistmax);
+  pfll2data(datalist, lcclnc);
+  pfll2data(datalist, fsoma);
+  pfll2data(datalist, fsompr);
+  pfll2data(datalist, fsomcr);
+  pfll2data(datalist, som2co2);
+  pfll2data(datalist, kn2);
+  pfll2data(datalist, nmincnsoil);
+  pfll2data(datalist, propftos);
+  pfll2data(datalist, fnloss);
+  pfll2data(datalist, initdmossc);
+  pfll2data(datalist, initshlwc);
+  pfll2data(datalist, initdeepc);
+  pfll2data(datalist, initminec);
+  pfll2data(datalist, initavln);
 
-  string str;
-  string code;
-  int lines = 19; //total lines of one block of community data/info,
-                  //  except for 2 header lines
-  getline(fctrcomm, str); //community separation line ("//====" or
-                          //  something or empty line)
-  getline(fctrcomm, str); //community code - 'CMTxx' (xx: two digits)
-  code = read_cmt_code(str);
-
-  while (code.compare(cmtcode)!=0) {
-    for (int il=0; il<lines; il++) {
-      getline(fctrcomm, str);  //skip lines
-    }
-
-    if (fctrcomm.eof()) {
-      cout << "Cannot find community type: " << cmtcode
-           << " in file: " <<parfilecomm << "  \n" ;
-      exit( -1 );
-    }
-
-    getline(fctrcomm, str); //community separation line ("//====" or
-                            //  something or empty line)
-    getline(fctrcomm, str); //community code - 'CMTxx' (xx: two digits)
-
-    if (str.empty()) {  // blank line in end of file
-      cout << "Cannot find community type: " << cmtcode
-           << " in file: " <<parfilecomm << "  \n" ;
-      exit( -1 );
-    }
-
-    code = read_cmt_code(str);
-  }
-
-  fctrcomm >> rhq10;
-  getline(fctrcomm,str);
-  fctrcomm >> moistmin;
-  getline(fctrcomm,str);
-  fctrcomm >> moistopt;
-  getline(fctrcomm,str);
-  fctrcomm >> moistmax;
-  getline(fctrcomm,str);
-  fctrcomm >> lcclnc;
-  getline(fctrcomm,str);
-  fctrcomm >> fsoma;
-  getline(fctrcomm,str);
-  fctrcomm >> fsompr;
-  getline(fctrcomm,str);
-  fctrcomm >> fsomcr;
-  getline(fctrcomm,str);
-  fctrcomm >> som2co2;
-  getline(fctrcomm,str);
-  fctrcomm >> kn2;
-  getline(fctrcomm,str);
-  fctrcomm >> nmincnsoil;
-  getline(fctrcomm,str);
-  fctrcomm >> propftos;
-  getline(fctrcomm,str);
-  fctrcomm >> fnloss;
-  getline(fctrcomm,str);
-  //
-  fctrcomm >> initdmossc;
-  getline(fctrcomm,str);
-  fctrcomm >> initshlwc;
-  getline(fctrcomm,str);
-  fctrcomm >> initdeepc;
-  getline(fctrcomm,str);
-  fctrcomm >> initminec;
-  getline(fctrcomm,str);
-  fctrcomm >> initsoln;
-  getline(fctrcomm,str);
-  fctrcomm >> initavln;
-  getline(fctrcomm,str);
-  fctrcomm.close();
-};
+}
 
 void CohortLookup::assignFirePar(string &dircmt) {
   string parfilecomm = dircmt+"cmt_firepar.txt";
