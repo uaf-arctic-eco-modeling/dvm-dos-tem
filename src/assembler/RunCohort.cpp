@@ -507,10 +507,10 @@ void RunCohort::run_timeseries(boost::shared_ptr<CalController> calcontroller_pt
         }
       } // end of site calling output modules
 
-      if(this->get_calMode()) {
+      /*if(this->get_calMode()) {
         BOOST_LOG_SEV(glg, debug) << "Send monthly calibration data to json files...";
         this->output_caljson_monthly(icalyr, im);
-      }
+      }*/
 
     } // end of month loop
 
@@ -589,7 +589,7 @@ void RunCohort::output_caljson_yearly(int year) {
 
   std::stringstream filename;
   filename.fill('0');
-  filename << "/tmp/year-cal-dvmdostem/" << std::setw(4) << year << ".json";
+  filename << "/tmp/year-cal-dvmdostem/" << std::setw(5) << year << ".json";
   out_stream.open(filename.str().c_str(), std::ofstream::out);
   out_stream << data << std::endl;
   out_stream.close();
@@ -668,7 +668,7 @@ void RunCohort::output_caljson_monthly(int year, int month) {
   data["MossdeathNitrogen"] = cht.bdall->m_v2soi.mossdeathn;
   std::stringstream filename;
   filename.fill('0');
-  filename << "/tmp/cal-dvmdostem/" << std::setw(4) << year << "_"
+  filename << "/tmp/cal-dvmdostem/" << std::setw(5) << year << "_"
            << std::setw(2) << month << ".json";
   out_stream.open(filename.str().c_str(), std::ofstream::out);
   out_stream << data << std::endl;

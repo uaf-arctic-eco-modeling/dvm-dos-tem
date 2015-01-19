@@ -192,7 +192,7 @@ class ExpandingWindow(object):
     if len(files) == 0:
       x = np.arange(0)
     else:
-      end = int( os.path.basename(files[-1])[0:4] )
+      end = int( os.path.basename(files[-1])[0:5] )
       x = np.arange(0, end + 1 , 1) # <-- make range inclusive!
     
     # for each trace, create a tmp y container the same size as x
@@ -209,7 +209,7 @@ class ExpandingWindow(object):
       except IOError as e:
         logging.error(e)
       
-      idx = int(os.path.basename(file)[0:4])
+      idx = int(os.path.basename(file)[0:5])
 
       for trace in self.traces:
         # set the trace's tmpy[idx] to file's data
@@ -304,7 +304,7 @@ class ExpandingWindow(object):
       logging.info("QUIT")
       plt.close()
     if event.key == 'ctrl+p':
-      n = 100
+      n = 1000
       files = sorted( glob.glob('%s/*.json' % YRTMPDIR) )
       if n < len(files):
         logging.warning( "Deleting first %s json files from %s..." % (n, YRTMPDIR) )
