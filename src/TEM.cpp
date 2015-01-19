@@ -162,8 +162,8 @@ int main(int argc, char* argv[]){
           // Read in Drainage - one location
           // Read in Fire - one location
 
-          // Determine year settings? list? based on stage
-          // Or base on the amount of the inputdataset?
+          // Determine year settings? list of years to run based on stage?
+          // Or simply base off of the amount of the inputdataset?
 
           // for each year
             // updateMonthly(...)

@@ -120,7 +120,7 @@ int ModelData::set_climate_from_file() {
   BOOST_LOG_SEV(glg, debug) << "Some new stuff?";
   NcFile climate_file = temutil::open_ncfile(this->chtinputdir+"climate.nc");
 
-  // not really used - but the get_ncdim function will fail an exit if the
+  // not really used - but the get_ncdim function will fail and exit if the
   // dimension doesn't exist, or there is a problem accessing it...
   NcDim* monD = temutil::get_ncdim(climate_file, "MONTH");
   

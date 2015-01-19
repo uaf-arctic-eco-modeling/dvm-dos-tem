@@ -1165,15 +1165,17 @@ void Cohort::NEW_load_veg_class_from_file(int y, int x) {
   std::string veg_dataset = "scripts/new-veg-dataset.nc";
 
   BOOST_LOG_SEV(glg, info) << "Loading vegetation from file: " << veg_dataset;
-  BOOST_LOG_SEV(glg, info) << "Loading vegetation for (y, x) point: (" << x <<","<< y <<").";
+  BOOST_LOG_SEV(glg, info) << "Loading vegetation for (y, x) point: (" << y <<","<< x <<").";
 
   cd.vegtype[0] = temutil::get_veg_class(veg_dataset, y, x);
   
   // Not sure exactly how these are used yet...
+  // setting to to dummy values...
   cd.vegyear[0] = -9999.0;
   cd.vegfrac[0] = 1.0;
 
 }
+
 
 void Cohort::NEW_load_climate_from_file(int y, int x) {
 
@@ -1281,7 +1283,7 @@ void Cohort::load_fire_severity_from_file(int record) {
     exit(-1);
   }
   /*
-   // THis one gets dealty with elsewhere!! See
+   // THis one gets dealt with elsewhere!! See
    // RunCohort::readData(..);
    // read-in fire 'severity', for ONE record only
    void CohortInputer::getFireSeverity(int fseverity[], const int & recid) {
