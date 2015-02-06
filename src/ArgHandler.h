@@ -15,6 +15,7 @@ class ArgHandler {
   std::string loop_order;
 	std::string ctrl_file;
 	int cohort_id;
+  bool new_style;
 
   std::string mode;
 
@@ -32,6 +33,8 @@ public:
   inline const std::string get_loop_order(){return loop_order;};
 	inline const std::string get_ctrl_file(){return ctrl_file;};
 	inline const int get_cohort_id(){return cohort_id;};
+	inline const int get_new_style(){return new_style;};
+  
 
   inline const std::string get_log_level(){return log_level;};
 	inline const bool get_help(){return help;};

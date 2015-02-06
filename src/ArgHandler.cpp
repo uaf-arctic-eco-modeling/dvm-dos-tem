@@ -34,13 +34,20 @@ void ArgHandler::parse(int argc, char** argv) {
      boost::program_options::value<std::string>(&log_level)
        ->default_value("warn"),
      "Control the verbositiy of the console log statements. Choose one of "
-     "the following: debug, info, note, warn, err, fatal."
-    )
+     "the following: debug, info, note, warn, err, fatal.")
 
     ("cohort-id,n",
      boost::program_options::value<int>(&cohort_id)
        ->default_value(1),
      "choose a specific cohort to run. TODO: must be a number?? must be in runchtlist.nc?? implies single-site?? Allows slicing? or other specification of more than one cohort?")
+    // Is this made obsolete by the idea of a run-mask??
+    // If you want a different cohoert, just supply a differnet mask?
+    //"Zero based index, starting from upper left corner of run-mask, rows "
+    //"first. I.e. if the run mask is 
+  
+    ("new-style,",
+     boost::program_options::bool_switch(&new_style),
+     "Run the model under the new control and I/O structure.")
 
     ("help,h",
      boost::program_options::bool_switch(&help),

@@ -106,14 +106,23 @@ int main(int argc, char* argv[]){
   BOOST_LOG_SEV(glg, note) << "Reading controlfile into main(..) scope...";
   Json::Value controldata = temutil::parse_control_file(args->get_ctrl_file());
 
+  BOOST_LOG_SEV(glg, note) << "Creating a ModelData object based on settings in the control file";
+  ModelData modeldata(controldata);
+  
+  // Modify the ModelData object based on cmd line args?
+  // Maybe look into boost program obtions config file and property tree?
+
+  // Turn off buffering...
   setvbuf(stdout, NULL, _IONBF, 0);
   setvbuf(stderr, NULL, _IONBF, 0);
 
   // Create empty output files now so that later, as the program
   // proceeds, there is somewhere to append output data...
+  // ??? Maybe the type/shape of outputs to create can or shoudl depend on
+  //     some of the settings in the ModelData object?
   BOOST_LOG_SEV(glg, note) << "Creating a fresh 'n clean NEW output file...";
   create_new_output();
-
+  
   time_t stime;
   time_t etime;
   stime=time(0);
@@ -124,72 +133,87 @@ int main(int argc, char* argv[]){
   //               may use only the first year
   std::vector<float> co2_vec = read_new_co2_file("scripts/new-co2-dataset.nc");
 
-  // Open the (spatial) run mask
-  std::vector< std::vector<int> > run_mask = read_run_mask("scripts/run-mask.nc");
 
-  if (args->get_loop_order() == "space-major") {
-    
+  if (args->get_new_style()) {
+
     BOOST_LOG_SEV(glg, debug) << "NEW STYLE: Going to run space-major over a 2D area covered by run mask...";
 
-    // y == row == lat
-    // x == col == lon
+    // Open the run mask (spatial mask)
+    std::vector< std::vector<int> > run_mask = read_run_mask("scripts/run-mask.nc");
 
-    /** Loop over a 2D grid of 'cells' (cohorts?), run each cell for some number of years. */
+    if (args->get_loop_order() == "space-major") {
 
-    typedef std::vector<int> vec;
-    typedef std::vector<vec> vec2D;
+      // y == row == lat
+      // x == col == lon
 
-    vec2D::const_iterator row;
-    vec::const_iterator col;
-    for (row = run_mask.begin(); row != run_mask.end() ; ++row) {
-      for (col = row->begin(); col != row->end(); ++col) {
-        int rowidx = row - run_mask.begin();
-        int colidx = col - row->begin();
-        
-        if (1 == *col) {
-          BOOST_LOG_SEV(glg, debug) << "Running cell (" << rowidx << ", " << colidx << ")";
+      /* Loop over a 2D grid of 'cells' (cohorts?),
+         run each cell for some number of years. 
+         
+         Processing starts in the lower left corner.
+         Should really look into replacing this loop with 
+         something like python's map(...) function...
+       
+        Look into std::transform. */
 
-          // Read in Climate - one location, all years
-          std::vector<float> tair = temutil::get_climate_var_timeseries(
-              "scripts/new-climate-dataset.nc", "tair", rowidx, colidx);
-          //std::vector<double> vapo;
-          //std::vector<double> nirr;
-          //std::vector<double> prec;
+      typedef std::vector<int> vec;
+      typedef std::vector<vec> vec2D;
 
-          // Read in Vegetation - one location
-          int veg_class = temutil::get_veg_class("scripts/new-veg-dataset.nc", rowidx, colidx);
+      vec2D::const_iterator row;
+      vec::const_iterator col;
+      for (row = run_mask.begin(); row != run_mask.end() ; ++row) {
+        for (col = row->begin(); col != row->end(); ++col) {
+          
+          bool mask_value = *col;
+          
+          int rowidx = row - run_mask.begin();
+          int colidx = col - row->begin();
+          
+          if (true == mask_value) {
+            BOOST_LOG_SEV(glg, debug) << "Running cell (" << rowidx << ", " << colidx << ")";
 
-          // Read in Drainage - one location
-          // Read in Fire - one location
+            Runner runner( modeldata, rowidx, colidx); //, tair, vapo, nirr, prec,
+            //               veg_class, drainage_class, fire );
 
-          // Determine year settings? list of years to run based on stage?
-          // Or simply base off of the amount of the inputdataset?
 
-          // for each year
-            // updateMonthly(...)
+            runner.cohort.NEW_load_climate_from_file(rowidx, colidx);
+            runner.cohort.NEW_load_veg_class_from_file(rowidx, colidx);
 
-        } else {
-          BOOST_LOG_SEV(glg, debug) << "Skipping cell (" << rowidx << ", " << colidx << ")";
+            // should have Runner which should have Cohort with some climate data in it?
+            cout << "Somewhere to stop 0...\n";
+            cout << "Somewhere to stop 1...\n";
+            
+            // Determine year settings? list of years to run based on stage?
+            // Or simply base off of the amount of the inputdataset?
+
+            // for each year
+                // runner.updateMonthly(...)
+
+          } else {
+            BOOST_LOG_SEV(glg, debug) << "Skipping cell (" << rowidx << ", " << colidx << ")";
+          }
         }
       }
+    
+      
+    } else if(args->get_loop_order() == "time-major") {
+      
+      // for each year
+
+        // Read in Climate - all locations, one year/timestep
+
+        // Read in Vegetation - all locations
+        // Read in Drainage - all locations
+        // Read in Fire - all locations
+      
+        // for each cohort
+          // updateMonthly(...)
+
     }
-    
-  } else if(args->get_loop_order() == "time-major") {
-    
-    // for each year
 
-      // Read in Climate - all locations, one year/timestep
-
-      // Read in Vegetation - all locations
-      // Read in Drainage - all locations
-      // Read in Fire - all locations
-    
-      // for each cohort
-        // updateMonthly(...)
-
+    BOOST_LOG_SEV(glg, note) << "DONE WITH NEW STYLE run (" << args->get_loop_order() << ")";
+    exit(-1);
   }
-
-
+  
   Runner runner;
 
   if (controldata["general"]["runmode"].asString() == "single") {

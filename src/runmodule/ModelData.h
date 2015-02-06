@@ -5,11 +5,14 @@
 #include <fstream>
 #include <sstream>
 #include <cstdlib>
+#include <json/value.h>
 
 using namespace std;
 
 class ModelData {
 public:
+
+  ModelData(Json::Value controldata);
 
   ModelData();
   ~ModelData();

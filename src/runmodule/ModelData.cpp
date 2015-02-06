@@ -24,6 +24,48 @@ std::string table_row(int w, std::string d, bool v) {
   return s.str();
 }
 
+ModelData::ModelData(Json::Value controldata){
+
+  runmode = controldata["general"]["runmode"].asString();  // may become obsolete
+  
+  std::string stgstr(controldata["stage_settings"]["run_stage"].asString());
+  runeq = (stgstr.find("eq") != std::string::npos) ? true : false;
+  runsp = (stgstr.find("sp") != std::string::npos) ? true : false;
+  runtr = (stgstr.find("tr") != std::string::npos) ? true : false;
+  runsc = (stgstr.find("sc") != std::string::npos) ? true : false;
+
+  initmode = controldata["stage_settings"]["restart"].asInt();  // may become obsolete
+  
+  changeclimate = controldata["model_settings"]["dynamic_climate"].asInt();
+  changeco2 = controldata["model_settings"]["varied_co2"].asInt();
+  updatelai = controldata["model_settings"]["dynamic_lai"].asInt();
+  useseverity = controldata["model_settings"]["fire_severity_as_input"].asInt();
+
+  // should mostly become obsolete
+  /*
+  configdir = controldata["general"]["config_dir"].asString();
+
+  runchtfile = controldata["data_directories"]["run_cohort_list"].asString();
+  outputdir = controldata["data_directories"]["output_data_dir"].asString();
+  reginputdir = controldata["data_directories"]["region_data_dir"].asString();
+  grdinputdir = controldata["data_directories"]["grid_data_dir"].asString();
+  chtinputdir = controldata["data_directories"]["cohort_data_dir"].asString();
+
+  runstages = controldata["stage_settings"]["run_stage"].asString();
+  initmodes = controldata["stage_settings"]["restart_mode"].asString();
+  initialfile = controldata["stage_settings"]["restart_file"].asString();
+
+  outstartyr = controldata["model_settings"]["output_starting_year"].asInt();
+
+  outSiteDay = controldata["output_switches"]["daily_output"].asInt();
+  outSiteMonth = controldata["output_switches"]["monthly_output"].asInt();
+  outSiteYear = controldata["output_switches"]["yearly_output"].asInt();
+  outRegn = controldata["output_switches"]["summarized_output"].asInt();
+  outSiteDay = controldata["output_switches"]["soil_climate_output"].asInt();
+  */
+  
+}
+
 
 ModelData::ModelData() {
   runmode = "single";

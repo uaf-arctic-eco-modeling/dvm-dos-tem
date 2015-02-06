@@ -38,7 +38,11 @@
 class Cohort {
 public :
   Cohort();
+  Cohort(int y, int x);
   ~Cohort();
+  
+  int y;
+  int x;
 
   // model running status
   int errorid;

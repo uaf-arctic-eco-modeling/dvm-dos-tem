@@ -32,6 +32,9 @@ extern src::severity_logger< severity_level > glg;
 Cohort::Cohort() {
   BOOST_LOG_SEV(glg, info) << "Cohort constructor; instantiating a cohort object.";
 };
+Cohort::Cohort(int y, int x):y(y),x(x) {
+  BOOST_LOG_SEV(glg, info) << "Cohort constructor NEW STYLE!";
+};
 
 Cohort::~Cohort() {
 };
@@ -1176,7 +1179,7 @@ void Cohort::NEW_load_veg_class_from_file(int y, int x) {
 
 }
 
-
+// in new, new scheme, there won't be a need to pass in y, and x
 void Cohort::NEW_load_climate_from_file(int y, int x) {
 
   std::string clm_dataset = "scripts/new-climate-dataset.nc";

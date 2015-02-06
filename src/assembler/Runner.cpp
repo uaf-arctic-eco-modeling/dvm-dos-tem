@@ -9,6 +9,7 @@
 #endif
 
 #include "Runner.h"
+#include "../runmodule/Cohort.h"
 #include "../TEMUtilityFunctions.h"
 #include "../TEMLogger.h"
 #include "../util/tbc-debug-util.h"
@@ -20,6 +21,17 @@ Runner::Runner(): calibrationMode(false) {
   error = 0;
   BOOST_LOG_SEV(glg, debug) << "Constructiong a Runner...";
 };
+
+
+Runner::Runner(ModelData mdldata, int y, int x):
+    calibrationMode(false), y(y), x(x) {
+
+  BOOST_LOG_SEV(glg, note) << "Constructiong a Runner, new style, with ctor injected ModelData";
+  this->md = mdldata;
+  this->cohort = Cohort(y, x); // explicitly constructed cohort...
+
+}
+
 
 Runner::~Runner() {
 };

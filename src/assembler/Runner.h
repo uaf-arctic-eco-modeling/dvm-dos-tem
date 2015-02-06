@@ -24,6 +24,7 @@
 #include "../data/RegionData.h"
 #include "RunGrid.h"
 #include "RunCohort.h"
+#include "../runmodule/Cohort.h"
 
 #include "../runmodule/ModelData.h"
 #include "../ArgHandler.h"
@@ -32,8 +33,14 @@ using namespace std;
 
 class Runner {
 public:
+  Runner(ModelData md, int y, int x);
   Runner();
   ~Runner();
+
+  int y;
+  int x;
+  
+  Cohort cohort;
 
   int chtid;    /* currently-running 'cohort' id */
   int error;    /* error index */
