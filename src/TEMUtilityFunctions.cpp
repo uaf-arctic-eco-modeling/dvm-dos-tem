@@ -283,5 +283,142 @@ namespace temutil {
   }
 
 
+  /** Parses a string, looking for a community code.
+   Reads the string, finds the first occurrence of the characters "CMT", and
+   returns a string consisting of CMT and the following two characters.
+
+   Returns something like "CMT01".
+  */
+  std::string read_cmt_code(std::string s) {
+    int pos = s.find("CMT");
+    return s.substr(pos, 5);
+  }
+
+  /** Parses a string, looking for a community code, returns an integer.
+  */
+  int cmtcode2num(std::string s) {
+    int pos = s.find("CMT");
+    
+    return std::atoi( s.substr(pos+3, 2).c_str() );
+  }
+
+  /** Reads a file, returning a contiguous section of lines surrounded by "CMT".
+  * Each line from the file is an element in the vector. 
+  */  
+  std::vector<std::string> get_cmt_data_block(std::string filename, int cmtnum) {
+
+    BOOST_LOG_SEV(glg, note) << "Opening file: " << filename;
+    std::ifstream par_file(filename.c_str(), std::ifstream::in);
+
+    if ( !par_file.is_open() ) {
+      BOOST_LOG_SEV(glg, fatal) << "Problem opening " << filename << "!";
+      exit(-1);
+    }
+
+    std::string cmtstr = cmtnum2str(cmtnum);
+
+    // create a place to store lines making up the community data "block"
+    std::vector<std::string> cmt_block_vector; 
+    BOOST_LOG_SEV(glg, note) << "Searching file for community: " << cmtstr;
+    for (std::string line; std::getline(par_file, line); ) {
+      int pos = line.find(cmtstr);
+      if ( pos != std::string::npos ) {
+
+        // add the 'header line' to the data block
+        cmt_block_vector.push_back(line);			
+
+      for (std::string block_line; std::getline(par_file, block_line); ) {
+
+        int block_line_pos = block_line.find("CMT");
+        if ( block_line_pos != std::string::npos ) {
+          //std::cout << "Whoops - line contains 'CMT'. Must be first line of next community data block; breaking loop.\n";
+          break;
+        } else {
+          //std::cout << "Add line to cmt_block_vector: " << block_line << std::endl;
+          cmt_block_vector.push_back(block_line);
+        }
+      }
+
+      }
+    }
+    return cmt_block_vector;
+  }
+
+  /** Takes a cmt data "block" and strips any comments. */
+  std::list<std::string> strip_comments(std::vector<std::string> idb) {
+    
+    std::list<std::string> l;
+
+    for (std::vector<std::string>::iterator it = idb.begin(); it != idb.end(); ++it ) {
+
+      std::string line = *it;
+
+      // // strip comment and everthing after
+      // size_t pos = line.find("//");
+      // line = line.substr(0, pos);
+
+      // Split into data and comment (everything after '//')
+      size_t pos = line.find("//");
+      std::string data = line.substr(0, pos);
+      std::string comment = "";
+      if (pos != std::string::npos) {
+        comment = line.substr(pos+2, std::string::npos);
+      }
+      //std::cout << "Data: " << data << " Comment: " << comment << std::endl;
+
+      if (data.size() == 0) {
+        // pass
+      } else {
+        l.push_back(line);
+      }
+
+    }
+
+    return l;
+  }
+
+
+  /** Given a file name, a community number and a number for expected lines of
+   * data, returns a list of strings with just that data, after stripping 
+   * comments.
+   */
+  std::list<std::string> parse_parameter_file(
+      const std::string& fname, int cmtnumber, int linesofdata) {
+    
+    BOOST_LOG_SEV(glg, note) << "Parsing '"<< fname << "', "
+                             << "for community number: " << cmtnumber;
+
+    // get a vector of strings for that cmt "block". includes comments.
+    std::vector<std::string> v(get_cmt_data_block(fname, cmtnumber));
+    
+    // strip the comments and turn it into a list
+    std::list<std::string> datalist(strip_comments(v));
+
+    // handy for debugging...
+    //std::list<std::string>::iterator it = datalist.begin();
+    //for (it; it != datalist.end(); ++it) {
+    //  std::cout << "list item: " << *it << std::endl;
+    //}
+
+    // check the size
+    if (datalist.size() != linesofdata) {
+      BOOST_LOG_SEV(glg, err) << "Expected " << linesofdata << ". "
+                              << "Found " << datalist.size() << ". "
+                              << "(" << fname << ", community " << cmtnumber << ")";
+      exit(-1);
+    }
+    
+    return datalist;
+  }
+
+
+  // Explicit instatiation of different template types...??
+  // Not sure if this is necessary ??
+  template void pfll2data(std::list<std::string> &l, double &data);
+  template void pfll2data(std::list<std::string> &l, float &data);
+  
+  template void pfll2data_pft(std::list<std::string> &l, double *data);
+  template void pfll2data_pft(std::list<std::string> &l, float *data);
+
 
 }

@@ -9,214 +9,11 @@
 
 #include "../TEMLogger.h"
 
+#include "../TEMUtilityFunctions.h"
+
 #include "CohortLookup.h"
 
 extern src::severity_logger< severity_level > glg;
-
-/** Parses a string, looking for a community code.
- Reads the string, finds the first occurrence of the characters "CMT", and
- returns a string consisting of CMT and the following two characters.
-
- Returns something like "CMT01".
-*/
-string read_cmt_code(string s) {
-  int pos = s.find("CMT");
-  return s.substr(pos, 5);
-}
-
-/** Parses a string, looking for a community code, returns an integer.
-*/
-int cmtcode2num(std::string s) {
-  int pos = s.find("CMT");
-  
-  return std::atoi( s.substr(pos+3, 2).c_str() );
-}
-
-/** Takes an integer number and returns a string like "CMT01".
-* Inserts leading zeros if needed. Works if 0 <= cmtnumber <= 99.
-*/
-std::string cmtnum2str(int cmtnumber) {
-
-  // get string representation of number
-  std::stringstream cmtnumber_ss;
-  cmtnumber_ss << cmtnumber;
-
-  // take care of leading zero...
-  std::string prefix = "";
-  if (cmtnumber < 10) {
-    prefix =  "CMT0";
-  } else {
-    prefix = "CMT";
-  }
-
-  return prefix + cmtnumber_ss.str();
-}
-
-
-/** Reads a file, returning a contiguous section of lines surrounded by "CMT".
-* Each line from the file is an element in the vector. 
-*/  
-std::vector<std::string> get_cmt_data_block(std::string filename, int cmtnum) {
-
-  BOOST_LOG_SEV(glg, note) << "Opening file: " << filename;
-  std::ifstream par_file(filename.c_str(), std::ifstream::in);
-
-  if ( !par_file.is_open() ) {
-    BOOST_LOG_SEV(glg, fatal) << "Problem opening " << filename << "!";
-    exit(-1);
-  }
-
-  std::string cmtstr = cmtnum2str(cmtnum);
-
-  // create a place to store lines making up the community data "block"
-  std::vector<std::string> cmt_block_vector; 
-  BOOST_LOG_SEV(glg, note) << "Searching file for community: " << cmtstr;
-  for (std::string line; std::getline(par_file, line); ) {
-  	int pos = line.find(cmtstr);
-  	if ( pos != std::string::npos ) {
-
-  	  // add the 'header line' to the data block
-  	  cmt_block_vector.push_back(line);			
-
-	  for (std::string block_line; std::getline(par_file, block_line); ) {
-
-	    int block_line_pos = block_line.find("CMT");
-	    if ( block_line_pos != std::string::npos ) {
-	      //std::cout << "Whoops - line contains 'CMT'. Must be first line of next community data block; breaking loop.\n";
-	      break;
-	    } else {
-	      //std::cout << "Add line to cmt_block_vector: " << block_line << std::endl;
-	      cmt_block_vector.push_back(block_line);
-	    }
-	  }
-
-  	}
-  }
-  return cmt_block_vector;
-}
-
-/** Takes a cmt data "block" and strips any comments. */
-std::list<std::string> strip_comments(std::vector<std::string> idb) {
-  
-  std::list<std::string> l;
-
-  for (std::vector<std::string>::iterator it = idb.begin(); it != idb.end(); ++it ) {
-
-    std::string line = *it;
-
-    // // strip comment and everthing after
-    // size_t pos = line.find("//");
-    // line = line.substr(0, pos);
-
-    // Split into data and comment (everything after '//')
-    size_t pos = line.find("//");
-    std::string data = line.substr(0, pos);
-    std::string comment = "";
-    if (pos != std::string::npos) {
-      comment = line.substr(pos+2, std::string::npos);
-    }
-    //std::cout << "Data: " << data << " Comment: " << comment << std::endl;
-
-    if (data.size() == 0) {
-      // pass
-    } else {
-      l.push_back(line);
-    }
-
-  }
-
-  return l;
-}
-
-
-/* NOTES:
- - not sure these need to be templates? to work with doubles, ints, or floats?
-   right now I think all data is doubles.
-
- - seems like there should be a way to detect if it is a pft variable or not
-   and thereby combine these two functions?
-   read from string to tokenize into vectort, then if vector.size > 1, assume
-   it is a pft - try and read data into appropriate spot?
-   
- - need to some kind of check/safety to not overwrite the end of data??
- 
- - Might eventually be useful to re-factor this again (so that the various
-   codes for handling communities's parameter data can be compiled into a 
-   stand-along command line utility..?
-*/
-
-
-/** Pop the front of a "line-list" and store at the location of "data".
- * For setting internal data from dvmdostem parameter files.
-*/
-template<typename T>
-void pfll2data(std::list<std::string> &l, T &data) {
-
-  std::stringstream s(l.front());
-
-  if ( !(s >> data) ) {
-    BOOST_LOG_SEV(glg, err) << "ERROR! Problem converting parameter in this line to numeric value: " << l.front();
-    data = -999999.0;
-  }
-
-  l.pop_front();
-}
-
-/** Pop the front of line-list and store at data. For multi pft 
- *  (multi-column) parameters 
- * For setting internal data from dvmdostem parameter files.
- *
-*/
-template<typename T>
-void pfll2data_pft(std::list<std::string> &l, T *data) {
-
-  std::stringstream s(l.front());
- 
-  for(int i = 0; i < NUM_PFT; i++) {
-
-    if ( !(s >> data[i]) ) {
-      BOOST_LOG_SEV(glg, err) << "ERROR! Problem converting parameter in column "<<i<<"of this line to numeric value: " << l.front();
-      data[i] = -99999.0;
-    }
-  }
- 
-  l.pop_front();
-
-}
-
-/** Given a file name, a community number and a number for expected lines of 
- * data, returns a list of strings with just that data, after stripping 
- * comments.
- */
-std::list<std::string> parse_parameter_file(
-    const std::string& fname, int cmtnumber, int linesofdata) {
-  
-  BOOST_LOG_SEV(glg, note) << "Parsing '"<< fname << "', "
-                           << "for community number: " << cmtnumber;
-
-  // get a vector of strings for that cmt "block". includes comments.
-  std::vector<std::string> v(get_cmt_data_block(fname, cmtnumber));
-  
-  // strip the comments and turn it into a list
-  std::list<std::string> datalist(strip_comments(v));
-
-  // handy for debugging...
-  //std::list<std::string>::iterator it = datalist.begin();
-  //for (it; it != datalist.end(); ++it) {
-  //  std::cout << "list item: " << *it << std::endl;
-  //}
-
-  // check the size
-  if (datalist.size() != linesofdata) {
-    BOOST_LOG_SEV(glg, err) << "Expected " << linesofdata << ". "
-                            << "Found " << datalist.size() << ". "
-                            << "(" << fname << ", community " << cmtnumber << ")";
-    exit(-1);
-  }
-  
-  return datalist;
-}
-
 
 CohortLookup::CohortLookup() {
   cmtcode = "CMT00"; // the default community code (5 alphnumerics)
@@ -344,32 +141,32 @@ std::string CohortLookup::calparbgc2str() {
 void CohortLookup::assignBgcCalpar(string & dircmt) {
 
   // get a list of data for the cmt number
-  std::list<std::string> l = parse_parameter_file(
-      dircmt + "cmt_calparbgc.txt", cmtcode2num(this->cmtcode), 19
+  std::list<std::string> l = temutil::parse_parameter_file(
+      dircmt + "cmt_calparbgc.txt", temutil::cmtcode2num(this->cmtcode), 19
   );
 
   // pop each line off the front of the list
   // and assign to the right data member.
-  pfll2data_pft(l, cmax);
-  pfll2data_pft(l, nmax);
-  pfll2data_pft(l, cfall[I_leaf]);
-  pfll2data_pft(l, cfall[I_stem]);
-  pfll2data_pft(l, cfall[I_root]);
-  pfll2data_pft(l, nfall[I_leaf]);
-  pfll2data_pft(l, nfall[I_stem]);
-  pfll2data_pft(l, nfall[I_root]);
-  pfll2data_pft(l, kra);
-  pfll2data_pft(l, krb[I_leaf]);
-  pfll2data_pft(l, krb[I_stem]);
-  pfll2data_pft(l, krb[I_root]);
-  pfll2data_pft(l, frg);
+  temutil::pfll2data_pft(l, cmax);
+  temutil::pfll2data_pft(l, nmax);
+  temutil::pfll2data_pft(l, cfall[I_leaf]);
+  temutil::pfll2data_pft(l, cfall[I_stem]);
+  temutil::pfll2data_pft(l, cfall[I_root]);
+  temutil::pfll2data_pft(l, nfall[I_leaf]);
+  temutil::pfll2data_pft(l, nfall[I_stem]);
+  temutil::pfll2data_pft(l, nfall[I_root]);
+  temutil::pfll2data_pft(l, kra);
+  temutil::pfll2data_pft(l, krb[I_leaf]);
+  temutil::pfll2data_pft(l, krb[I_stem]);
+  temutil::pfll2data_pft(l, krb[I_root]);
+  temutil::pfll2data_pft(l, frg);
 
-  pfll2data(l, micbnup);
-  pfll2data(l, kdcmoss);
-  pfll2data(l, kdcrawc);
-  pfll2data(l, kdcsoma);
-  pfll2data(l, kdcsompr);
-  pfll2data(l, kdcsomcr);
+  temutil::pfll2data(l, micbnup);
+  temutil::pfll2data(l, kdcmoss);
+  temutil::pfll2data(l, kdcrawc);
+  temutil::pfll2data(l, kdcsoma);
+  temutil::pfll2data(l, kdcsompr);
+  temutil::pfll2data(l, kdcsomcr);
 
 }
 
@@ -377,38 +174,38 @@ void CohortLookup::assignBgcCalpar(string & dircmt) {
 void CohortLookup::assignVegDimension(string &dircmt) {
 
   // get a list of data for the cmt number
-  std::list<std::string> l = parse_parameter_file(
-      dircmt + "cmt_dimvegetation.txt", cmtcode2num(this->cmtcode), 40
+  std::list<std::string> l = temutil::parse_parameter_file(
+      dircmt + "cmt_dimvegetation.txt", temutil::cmtcode2num(this->cmtcode), 40
   );
 
   // pop each line off the front of the list
   // and assign to the right data member.
-  pfll2data_pft(l, vegcov);
-  pfll2data_pft(l, ifwoody);
-  pfll2data_pft(l, ifdeciwoody);
-  pfll2data_pft(l, ifperenial);
-  pfll2data_pft(l, nonvascular);
-  pfll2data_pft(l, sla);
-  pfll2data_pft(l, klai);
-  pfll2data_pft(l, minleaf);
-  pfll2data_pft(l, aleaf);
-  pfll2data_pft(l, bleaf);
-  pfll2data_pft(l, cleaf);
-  pfll2data_pft(l, kfoliage);
-  pfll2data_pft(l, cov);
-  pfll2data_pft(l, m1);
-  pfll2data_pft(l, m2);
-  pfll2data_pft(l, m3);
-  pfll2data_pft(l, m4);
+  temutil::pfll2data_pft(l, vegcov);
+  temutil::pfll2data_pft(l, ifwoody);
+  temutil::pfll2data_pft(l, ifdeciwoody);
+  temutil::pfll2data_pft(l, ifperenial);
+  temutil::pfll2data_pft(l, nonvascular);
+  temutil::pfll2data_pft(l, sla);
+  temutil::pfll2data_pft(l, klai);
+  temutil::pfll2data_pft(l, minleaf);
+  temutil::pfll2data_pft(l, aleaf);
+  temutil::pfll2data_pft(l, bleaf);
+  temutil::pfll2data_pft(l, cleaf);
+  temutil::pfll2data_pft(l, kfoliage);
+  temutil::pfll2data_pft(l, cov);
+  temutil::pfll2data_pft(l, m1);
+  temutil::pfll2data_pft(l, m2);
+  temutil::pfll2data_pft(l, m3);
+  temutil::pfll2data_pft(l, m4);
 
   for (int i = 0; i < MAX_ROT_LAY; i++) {
-    pfll2data_pft(l, frootfrac[i]);
+    temutil::pfll2data_pft(l, frootfrac[i]);
   }
 
-  pfll2data_pft(l, lai);
+  temutil::pfll2data_pft(l, lai);
 
   for (int im = 0; im < MINY; im++) {
-    pfll2data_pft( l, envlai[im]);
+    temutil::pfll2data_pft( l, envlai[im]);
   }
 
 }
@@ -417,31 +214,31 @@ void CohortLookup::assignVegDimension(string &dircmt) {
 void CohortLookup::assignGroundDimension(string &dircmt) {
 
   // get a list of data for the cmt number
-  std::list<std::string> l = parse_parameter_file(
-      dircmt + "cmt_dimground.txt", cmtcode2num(this->cmtcode), 17
+  std::list<std::string> l = temutil::parse_parameter_file(
+      dircmt + "cmt_dimground.txt", temutil::cmtcode2num(this->cmtcode), 17
   );
 
   // pop each line off the front of the list
   // and assign to the right data member.
-  pfll2data(l, snwdenmax );
-  pfll2data(l, snwdennew);
-  pfll2data(l, initsnwthick);
-  pfll2data(l, initsnwdense);
+  temutil::pfll2data(l, snwdenmax );
+  temutil::pfll2data(l, snwdennew);
+  temutil::pfll2data(l, initsnwthick);
+  temutil::pfll2data(l, initsnwdense);
 
-  pfll2data(l, maxdmossthick);
-  pfll2data(l, initdmossthick);
-  pfll2data(l, mosstype);
-  pfll2data(l, coefmossa);
-  pfll2data(l, coefmossb);
+  temutil::pfll2data(l, maxdmossthick);
+  temutil::pfll2data(l, initdmossthick);
+  temutil::pfll2data(l, mosstype);
+  temutil::pfll2data(l, coefmossa);
+  temutil::pfll2data(l, coefmossb);
 
-  pfll2data(l, initfibthick );
-  pfll2data(l, inithumthick);
-  pfll2data(l, coefshlwa);
-  pfll2data(l, coefshlwb);
-  pfll2data(l, coefdeepa);
-  pfll2data(l, coefdeepb);
-  pfll2data(l, coefminea);
-  pfll2data(l, coefmineb);
+  temutil::pfll2data(l, initfibthick );
+  temutil::pfll2data(l, inithumthick);
+  temutil::pfll2data(l, coefshlwa);
+  temutil:: pfll2data(l, coefshlwb);
+  temutil::pfll2data(l, coefdeepa);
+  temutil::pfll2data(l, coefdeepb);
+  temutil::pfll2data(l, coefminea);
+  temutil::pfll2data(l, coefmineb);
 
   // ?????????? NOT sure what this was doing before.
   //
@@ -463,24 +260,24 @@ void CohortLookup::assignGroundDimension(string &dircmt) {
 void CohortLookup::assignEnv4Canopy(string &dir) {
 
   // get a list of data for the cmt number
-  std::list<std::string> l = parse_parameter_file(
-      dir + "cmt_envcanopy.txt", cmtcode2num(this->cmtcode), 12
+  std::list<std::string> l = temutil::parse_parameter_file(
+      dir + "cmt_envcanopy.txt", temutil::cmtcode2num(this->cmtcode), 12
   );
 
   // pop each line off the front of the list
   // and assign to the right data member.
-  pfll2data_pft(l, albvisnir);
-  pfll2data_pft(l, er);
-  pfll2data_pft(l, ircoef);
-  pfll2data_pft(l, iscoef);
-  pfll2data_pft(l, glmax);
-  pfll2data_pft(l, gl_bl);
-  pfll2data_pft(l, gl_c);
-  pfll2data_pft(l, vpd_open);
-  pfll2data_pft(l, vpd_close);
-  pfll2data_pft(l, ppfd50);
-  pfll2data_pft(l, initvegwater);
-  pfll2data_pft(l, initvegsnow);
+  temutil::pfll2data_pft(l, albvisnir);
+  temutil::pfll2data_pft(l, er);
+  temutil::pfll2data_pft(l, ircoef);
+  temutil::pfll2data_pft(l, iscoef);
+  temutil::pfll2data_pft(l, glmax);
+  temutil::pfll2data_pft(l, gl_bl);
+  temutil::pfll2data_pft(l, gl_c);
+  temutil::pfll2data_pft(l, vpd_open);
+  temutil::pfll2data_pft(l, vpd_close);
+  temutil::pfll2data_pft(l, ppfd50);
+  temutil::pfll2data_pft(l, initvegwater);
+  temutil::pfll2data_pft(l, initvegsnow);
   
 }
 
@@ -489,45 +286,45 @@ void CohortLookup::assignEnv4Canopy(string &dir) {
 void CohortLookup::assignBgc4Vegetation(string & dircmt) {
   
   // get a list of data for the cmt number
-  std::list<std::string> l = parse_parameter_file(
-      dircmt + "cmt_bgcvegetation.txt", cmtcode2num(this->cmtcode), 33
+  std::list<std::string> l = temutil::parse_parameter_file(
+      dircmt + "cmt_bgcvegetation.txt", temutil::cmtcode2num(this->cmtcode), 33
   );
 
   // pop each line off the front of the list
   // and assign to the right data member.
-  pfll2data_pft(l, kc);
-  pfll2data_pft(l, ki);
-  pfll2data_pft(l, tmin);
-  pfll2data_pft(l, toptmin);
-  pfll2data_pft(l, toptmax);
-  pfll2data_pft(l, tmax);
-  pfll2data_pft(l, raq10a0);
-  pfll2data_pft(l, raq10a1);
-  pfll2data_pft(l, raq10a2);
-  pfll2data_pft(l, raq10a3);
-  pfll2data_pft(l, knuptake);
-  pfll2data_pft(l, cpart[I_leaf]);
-  pfll2data_pft(l, cpart[I_stem]);
-  pfll2data_pft(l, cpart[I_root]);
-  pfll2data_pft(l, initc2neven[I_leaf]);
-  pfll2data_pft(l, initc2neven[I_stem]);
-  pfll2data_pft(l, initc2neven[I_root]);
-  pfll2data_pft(l, c2nb[I_leaf]);
-  pfll2data_pft(l, c2nb[I_stem]);
-  pfll2data_pft(l, c2nb[I_root]);
-  pfll2data_pft(l, c2nmin[I_leaf]);
-  pfll2data_pft(l, c2nmin[I_stem]);
-  pfll2data_pft(l, c2nmin[I_root]);
-  pfll2data_pft(l, c2na);
-  pfll2data_pft(l, labncon);
-  pfll2data_pft(l, initvegc[I_leaf]);
-  pfll2data_pft(l, initvegc[I_stem]);
-  pfll2data_pft(l, initvegc[I_root]);
-  pfll2data_pft(l, initvegn[I_leaf]);
-  pfll2data_pft(l, initvegn[I_stem]);
-  pfll2data_pft(l, initvegn[I_root]);
-  pfll2data_pft(l, initdeadc);
-  pfll2data_pft(l, initdeadn);
+  temutil::pfll2data_pft(l, kc);
+  temutil::pfll2data_pft(l, ki);
+  temutil::pfll2data_pft(l, tmin);
+  temutil::pfll2data_pft(l, toptmin);
+  temutil::pfll2data_pft(l, toptmax);
+  temutil::pfll2data_pft(l, tmax);
+  temutil::pfll2data_pft(l, raq10a0);
+  temutil::pfll2data_pft(l, raq10a1);
+  temutil::pfll2data_pft(l, raq10a2);
+  temutil::pfll2data_pft(l, raq10a3);
+  temutil::pfll2data_pft(l, knuptake);
+  temutil::pfll2data_pft(l, cpart[I_leaf]);
+  temutil::pfll2data_pft(l, cpart[I_stem]);
+  temutil::pfll2data_pft(l, cpart[I_root]);
+  temutil::pfll2data_pft(l, initc2neven[I_leaf]);
+  temutil::pfll2data_pft(l, initc2neven[I_stem]);
+  temutil::pfll2data_pft(l, initc2neven[I_root]);
+  temutil::pfll2data_pft(l, c2nb[I_leaf]);
+  temutil::pfll2data_pft(l, c2nb[I_stem]);
+  temutil::pfll2data_pft(l, c2nb[I_root]);
+  temutil::pfll2data_pft(l, c2nmin[I_leaf]);
+  temutil::pfll2data_pft(l, c2nmin[I_stem]);
+  temutil::pfll2data_pft(l, c2nmin[I_root]);
+  temutil::pfll2data_pft(l, c2na);
+  temutil::pfll2data_pft(l, labncon);
+  temutil::pfll2data_pft(l, initvegc[I_leaf]);
+  temutil::pfll2data_pft(l, initvegc[I_stem]);
+  temutil::pfll2data_pft(l, initvegc[I_root]);
+  temutil::pfll2data_pft(l, initvegn[I_leaf]);
+  temutil::pfll2data_pft(l, initvegn[I_stem]);
+  temutil::pfll2data_pft(l, initvegn[I_root]);
+  temutil::pfll2data_pft(l, initdeadc);
+  temutil::pfll2data_pft(l, initdeadn);
 
 }
 
@@ -535,26 +332,26 @@ void CohortLookup::assignBgc4Vegetation(string & dircmt) {
 void CohortLookup::assignEnv4Ground(string &dircmt) {
 
   // get a list of data for the cmt number
-  std::list<std::string> datalist = parse_parameter_file(
-      dircmt + "cmt_envground.txt", cmtcode2num(this->cmtcode), 27
+  std::list<std::string> datalist = temutil::parse_parameter_file(
+      dircmt + "cmt_envground.txt", temutil::cmtcode2num(this->cmtcode), 27
   );
 
   // pop each line off the front of the list
   // and assign to the right data member.
-  pfll2data(datalist, snwalbmax);
-  pfll2data(datalist, snwalbmin);
-  pfll2data(datalist, psimax);
-  pfll2data(datalist, evapmin);
-  pfll2data(datalist, drainmax);
-  pfll2data(datalist, rtdp4gdd);
-  pfll2data(datalist, initsnwtem);
+  temutil::pfll2data(datalist, snwalbmax);
+  temutil::pfll2data(datalist, snwalbmin);
+  temutil::pfll2data(datalist, psimax);
+  temutil::pfll2data(datalist, evapmin);
+  temutil::pfll2data(datalist, drainmax);
+  temutil::pfll2data(datalist, rtdp4gdd);
+  temutil::pfll2data(datalist, initsnwtem);
 
   for (int i = 0; i < 10; i++) {
-    pfll2data(datalist, initts[i]);
+    temutil::pfll2data(datalist, initts[i]);
   }
 
   for (int i = 0; i < 10; i++) {
-    pfll2data(datalist, initvwc[i]);
+    temutil::pfll2data(datalist, initvwc[i]);
   }
 
 }
@@ -563,30 +360,30 @@ void CohortLookup::assignEnv4Ground(string &dircmt) {
 void CohortLookup::assignBgc4Ground(string &dircmt) {
   
   // get a list of data for the cmt number
-  std::list<std::string> datalist = parse_parameter_file(
-      dircmt + "cmt_bgcsoil.txt", cmtcode2num(this->cmtcode), 19
+  std::list<std::string> datalist = temutil::parse_parameter_file(
+      dircmt + "cmt_bgcsoil.txt", temutil::cmtcode2num(this->cmtcode), 19
   );
 
   // pop each line off the front of the list
   // and assign to the right data member.
-  pfll2data(datalist, rhq10);
-  pfll2data(datalist, moistmin);
-  pfll2data(datalist, moistopt);
-  pfll2data(datalist, moistmax);
-  pfll2data(datalist, lcclnc);
-  pfll2data(datalist, fsoma);
-  pfll2data(datalist, fsompr);
-  pfll2data(datalist, fsomcr);
-  pfll2data(datalist, som2co2);
-  pfll2data(datalist, kn2);
-  pfll2data(datalist, nmincnsoil);
-  pfll2data(datalist, propftos);
-  pfll2data(datalist, fnloss);
-  pfll2data(datalist, initdmossc);
-  pfll2data(datalist, initshlwc);
-  pfll2data(datalist, initdeepc);
-  pfll2data(datalist, initminec);
-  pfll2data(datalist, initavln);
+  temutil::pfll2data(datalist, rhq10);
+  temutil::pfll2data(datalist, moistmin);
+  temutil::pfll2data(datalist, moistopt);
+  temutil::pfll2data(datalist, moistmax);
+  temutil::pfll2data(datalist, lcclnc);
+  temutil::pfll2data(datalist, fsoma);
+  temutil::pfll2data(datalist, fsompr);
+  temutil::pfll2data(datalist, fsomcr);
+  temutil::pfll2data(datalist, som2co2);
+  temutil::pfll2data(datalist, kn2);
+  temutil::pfll2data(datalist, nmincnsoil);
+  temutil::pfll2data(datalist, propftos);
+  temutil::pfll2data(datalist, fnloss);
+  temutil::pfll2data(datalist, initdmossc);
+  temutil::pfll2data(datalist, initshlwc);
+  temutil::pfll2data(datalist, initdeepc);
+  temutil::pfll2data(datalist, initminec);
+  temutil::pfll2data(datalist, initavln);
 
 }
 
@@ -594,25 +391,25 @@ void CohortLookup::assignBgc4Ground(string &dircmt) {
 void CohortLookup::assignFirePar(string &dircmt) {
 
   // get a list of data for the cmt number
-  std::list<std::string> datalist = parse_parameter_file(
-      dircmt + "cmt_firepar.txt", cmtcode2num(this->cmtcode), 18
+  std::list<std::string> datalist = temutil::parse_parameter_file(
+      dircmt + "cmt_firepar.txt", temutil::cmtcode2num(this->cmtcode), 18
   );
 
   // pop each line off the front of the list
   // and assign to the right data member.
   for(int i = 0; i < NUM_FSEVR; i++) {
-    pfll2data_pft( datalist, fvcombust[i]);
+    temutil::pfll2data_pft( datalist, fvcombust[i]);
   }
 
   for(int i=0; i<NUM_FSEVR; i++) {
-    pfll2data_pft( datalist, fvslash[i]);
+    temutil::pfll2data_pft( datalist, fvslash[i]);
   }
 
   for(int i = 0; i < NUM_FSEVR; i++) {
-    pfll2data( datalist, foslburn[i]);
+    temutil::pfll2data( datalist, foslburn[i]);
   }
 
-  pfll2data(datalist, vsmburn);
-  pfll2data(datalist, r_retain_c);
-  pfll2data(datalist, r_retain_n);
+  temutil::pfll2data(datalist, vsmburn);
+  temutil::pfll2data(datalist, r_retain_c);
+  temutil::pfll2data(datalist, r_retain_n);
 };
