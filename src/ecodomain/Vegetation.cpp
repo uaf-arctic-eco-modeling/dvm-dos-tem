@@ -18,17 +18,81 @@
 
 #include "Vegetation.h"
 
+#include "../TEMUtilityFunctions.h"
+
+#include "../TEMLogger.h"
+extern src::severity_logger< severity_level > glg;
+
 Vegetation::Vegetation() {
-};
+
+
+}
+
+/** New style constructor. Building the right thing.
+
+   Since we have the modelData (for config directory/file) and the cmtnumber
+   we can lookup the appropriate values from the configuration file.
+ */
+Vegetation::Vegetation(int cmtnum, const ModelData* mdp) {
+
+
+  // This seems horribly brittle now as it really depends on the order and
+  // presence of the lines in the parameter file...
+
+  BOOST_LOG_SEV(glg, note) << "Vegetation constructor. Community type: " << cmtnum;
+
+  BOOST_LOG_SEV(glg, note) << "Setting Vegetation internal values from file: "
+                           << "config/" << "cmt_dimvegetation.txt";
+
+  // get a list of data for the cmt number
+  std::list<std::string> l = temutil::parse_parameter_file(
+      mdp->configdir + "cmt_dimvegetation.txt", cmtnum, 40
+  );
+
+  // pop each line off the front of the list
+  // and assign to the right data member.
+  temutil::pfll2data_pft(l, vegdimpar.cov);
+  l.pop_front(); // ifwoody
+  l.pop_front(); // ifdeciwoody
+  l.pop_front(); // ifperenial
+  l.pop_front(); // nonvascular
+  temutil::pfll2data_pft(l, vegdimpar.sla);
+  temutil::pfll2data_pft(l, vegdimpar.klai);
+  temutil::pfll2data_pft(l, vegdimpar.minleaf);
+  temutil::pfll2data_pft(l, vegdimpar.aleaf);
+  temutil::pfll2data_pft(l, vegdimpar.bleaf);
+  temutil::pfll2data_pft(l, vegdimpar.cleaf);
+  temutil::pfll2data_pft(l, vegdimpar.kfoliage);
+  l.front();
+  temutil::pfll2data_pft(l, vegdimpar.cov);
+  temutil::pfll2data_pft(l, vegdimpar.m1);
+  temutil::pfll2data_pft(l, vegdimpar.m2);
+  temutil::pfll2data_pft(l, vegdimpar.m3);
+  temutil::pfll2data_pft(l, vegdimpar.m4);
+
+//  for (int i = 0; i < MAX_ROT_LAY; i++) {
+//    temutil::pfll2data_pft(l, vegdimpar.frootfrac[i]);
+//  }
+//
+//  temutil::pfll2data_pft(l, vegdimpar.lai);
+//
+//  for (int im = 0; im < MINY; im++) {
+//    temutil::pfll2data_pft( l, vegdimpar.envlai[im]);
+//  }
+}
 
 Vegetation::~Vegetation() {
-};
+}
 
-// set the bgc parameters from inputs stored in 'chtlu' - reuseable
-// Note: here will remove those PFT with no greater than zero 'fpc'
-//       and initialize the total actual pft number
-
+/**
+ Set the bgc parameters from inputs stored in 'chtlu' - reuseable
+ Note: here will remove those PFT with no greater than zero 'fpc'
+       and initialize the total actual pft number
+*/
 void Vegetation::initializeParameter() {
+
+  // This should probably be in the Ctor for a Vegetation object.
+  
   int ipft = 0;
 
   for (int ip=0; ip<NUM_PFT; ip++) {

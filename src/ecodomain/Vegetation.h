@@ -7,6 +7,8 @@
 #include "../data/CohortData.h"
 #include "../data/RestartData.h"
 
+#include "../runmodule/ModelData.h"
+
 #include "../inc/errorcode.h"
 #include "../inc/parameters.h"
 
@@ -15,6 +17,10 @@
 class Vegetation {
 public:
   Vegetation();
+  
+  /** */
+  Vegetation(int cmtnum, const ModelData* mdp);
+
   ~Vegetation();
 
   vegpar_dim vegdimpar;
