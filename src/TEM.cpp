@@ -191,6 +191,13 @@ int main(int argc, char* argv[]){
             // for each year
                 // runner.updateMonthly(...)
 
+            for (int iy = 0; iy < 10; ++iy) {
+              for (int im = 0; im < 12; ++im) {
+                int dinmcurr = runner.cohort.timer->getDaysInMonth(im);
+                runner.cohort.updateMonthly(iy, im, dinmcurr);
+              }
+            }
+
           } else {
             BOOST_LOG_SEV(glg, debug) << "Skipping cell (" << rowidx << ", " << colidx << ")";
           }
