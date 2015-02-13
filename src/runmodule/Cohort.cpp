@@ -31,10 +31,73 @@ extern src::severity_logger< severity_level > glg;
 
 Cohort::Cohort() {
   BOOST_LOG_SEV(glg, info) << "Cohort constructor; instantiating a cohort object.";
-};
-Cohort::Cohort(int y, int x):y(y),x(x) {
+}
+
+Cohort::Cohort(int y, int x, ModelData* modeldatapointer):
+    y(y), x(x), md(modeldatapointer) {
+
   BOOST_LOG_SEV(glg, info) << "Cohort constructor NEW STYLE!";
-};
+  
+  BOOST_LOG_SEV(glg, info) << "Make a CohortData...";
+  this->cd = CohortData(); // empty? / uninitialized? / undefined? values...
+  
+  cd.cmttype = temutil::get_veg_class("scripts/new-veg-dataset.nc", y, x);
+
+  BOOST_LOG_SEV(glg, info) << "Next, we build a CohortLookup object, properly configured with config directory and community type.";
+  this->chtlu = CohortLookup( "config/", temutil::cmtnum2str(cd.cmttype) );
+  
+  
+  this->veg = Vegetation(this->cd.cmttype, modeldatapointer);
+  this->soilbgc = Soil_Bgc();
+
+  // hack...
+  //CohortData* cpd = &(this->cd);
+  this->veg.setCohortData( &(this->cd) );
+
+  this->initSubmodules();
+  
+  this.soilbgc.
+  
+/*
+  //  ??  Timer * timer;
+
+  // domain
+  Atmosphere atm;
+  Ground ground;
+
+  // processes
+  Vegetation_Env vegenv[NUM_PFT];
+  Snow_Env snowenv;
+  Soil_Env soilenv;
+  SoilParent_Env solprntenv;
+
+  Vegetation_Bgc vegbgc[NUM_PFT];
+
+  WildFire fire;
+
+  // output
+  //OutRetrive outbuffer;
+
+  // data
+  EnvData ed[NUM_PFT];
+  BgcData bd[NUM_PFT];
+  EnvData * edall;
+  BgcData * bdall;
+
+  //FirData * fd;   // this for all PFTs and their soil
+
+  //ModelData * md;
+  //RegionData * rd;
+  //GridData * gd;
+
+  RestartData resid;    //for input
+
+  Integrator vegintegrator[NUM_PFT];
+  Integrator solintegrator;
+
+*/
+
+}
 
 Cohort::~Cohort() {
 };
