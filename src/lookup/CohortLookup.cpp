@@ -19,8 +19,23 @@ CohortLookup::CohortLookup() {
   cmtcode = "CMT00"; // the default community code (5 alphnumerics)
 };
 
-CohortLookup::~CohortLookup() {
+/** New constructor...*/
+CohortLookup::CohortLookup(std::string directory, std::string code) :
+    dir(directory), cmtcode(code)  {
+
+  BOOST_LOG_SEV(glg, info) << "Building a CohortLookup: set directory, community type, then read config/* files and set data members.";
+  assignBgcCalpar(this->dir);
+  assignVegDimension(this->dir);
+  assignGroundDimension(this->dir);
+  assignEnv4Canopy(this->dir);
+  assignBgc4Vegetation(this->dir);
+  assignEnv4Ground(this->dir);
+  assignBgc4Ground(this->dir);
+  assignFirePar(this->dir);
+
 };
+
+CohortLookup::~CohortLookup(){}
 
 void CohortLookup::init() {
   BOOST_LOG_SEV(glg, info) << "Cohort Lookup init function. Assigning all values from various config/* files...";
@@ -138,7 +153,7 @@ std::string CohortLookup::calparbgc2str() {
 
 
 /** Set calibrated BCG parameters based on values in file. */
-void CohortLookup::assignBgcCalpar(string & dircmt) {
+void CohortLookup::assignBgcCalpar(std::string & dircmt) {
 
   // get a list of data for the cmt number
   std::list<std::string> l = temutil::parse_parameter_file(
