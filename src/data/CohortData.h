@@ -8,6 +8,8 @@
 #include "../inc/states.h"
 #include "../inc/diagnostics.h"
 
+#include "../runmodule/ModelData.h"
+
 #include "RegionData.h"
 #include "GridData.h"
 
@@ -17,6 +19,9 @@ using namespace std;
 class CohortData {
 public:
   CohortData();
+  CohortData(int year, int month, int day,
+      const ModelData* modeldatapointer);
+
   ~CohortData();
 
   void clear();

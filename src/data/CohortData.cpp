@@ -1,7 +1,24 @@
 #include "CohortData.h"
 
+#include "../TEMUtilityFunctions.h"
+
+#include "../TEMLogger.h"
+
+
+extern src::severity_logger< severity_level > glg;
+
+/** Make a valid CohortData object. 
+*   All members are set to "Uninitialized" unless we know
+*   enough to otherwise set them?
+*/
 CohortData::CohortData() {
-};
+}
+
+CohortData::CohortData(int year, int month, int day, const ModelData* modeldatapointer) {
+  BOOST_LOG_SEV(glg, note) << "Creating a CohortData for (year, month, day): "
+                           << year << ", " << month << ", " << day;
+}
+
 
 CohortData::~CohortData() {
 };
