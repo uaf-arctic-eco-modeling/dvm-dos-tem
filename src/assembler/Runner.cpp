@@ -28,7 +28,7 @@ Runner::Runner(ModelData mdldata, int y, int x):
 
   BOOST_LOG_SEV(glg, note) << "Constructiong a Runner, new style, with ctor injected ModelData";
   this->md = mdldata;
-  this->cohort = Cohort(y, x); // explicitly constructed cohort...
+  this->cohort = Cohort(y, x, &mdldata); // explicitly constructed cohort...
 
 }
 
