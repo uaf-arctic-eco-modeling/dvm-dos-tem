@@ -28,8 +28,24 @@
 
 extern src::severity_logger< severity_level > glg;
 
-Soil_Bgc::Soil_Bgc() {
+/** New constructor. Build it complete! Build it right! */
+Soil_Bgc::Soil_Bgc(): nfeed(false), avlnflg(false), baseline(false),
+                      d2wdebrisc(UIN_D), d2wdebrisn(UIN_D),
+                      mossdeathc(UIN_D), mossdeathn(UIN_D), kdshlw(UIN_D),
+                      kddeep(UIN_D), decay(UIN_D), nup(UIN_D), totdzliq(UIN_D),
+                      totdzavln(UIN_D), totnetnmin(UIN_D), totnextract(UIN_D) {
+
+  // all structs are value initialized to -77777
+  
+  for (int i = 0; i < MAX_SOI_LAY; ++i) {
+    ltrflc[i] = UIN_D;
+    ltrfln[i] = UIN_D;
+    rtnextract[i] = UIN_D;
+  }
+
 };
+
+
 
 Soil_Bgc::~Soil_Bgc() {
 };
