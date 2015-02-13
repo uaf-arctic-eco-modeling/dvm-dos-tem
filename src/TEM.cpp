@@ -175,13 +175,16 @@ int main(int argc, char* argv[]){
             //               veg_class, drainage_class, fire );
 
 
+            // should we need to call all these cohort setup functions?
+            // Or assume that when a Runner is created, for a spatial
+            // location, the Cohort is smart enough to correctly "load"
+            // itself with all the right stuff...?
             runner.cohort.NEW_load_climate_from_file(rowidx, colidx);
             runner.cohort.NEW_load_veg_class_from_file(rowidx, colidx);
 
             // should have Runner which should have Cohort with some climate data in it?
             cout << "Somewhere to stop 0...\n";
-            cout << "Somewhere to stop 1...\n";
-            
+
             // Determine year settings? list of years to run based on stage?
             // Or simply base off of the amount of the inputdataset?
 

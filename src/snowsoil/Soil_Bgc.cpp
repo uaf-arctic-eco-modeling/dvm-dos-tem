@@ -10,9 +10,9 @@
  *
  * Important:
  *   (1) Parameters are read from 'CohortLookup.cpp', and set
- *       to 'bgcpar' (struct:: soipar_bgc)
+ *       to 'bgcpar' (struct::soipar_bgc)
  *   (2) Calibrated Parameters are also read from 'CohortLookup.cpp'
- *       initially, and set to 'calpar' (strut:: soipar_cal)
+ *       initially, and set to 'calpar' (struct::soipar_cal)
  *
  *   (3) The calculation is for ONE community with multple PFT.
  *

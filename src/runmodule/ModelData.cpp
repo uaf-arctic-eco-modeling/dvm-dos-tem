@@ -41,10 +41,9 @@ ModelData::ModelData(Json::Value controldata){
   updatelai = controldata["model_settings"]["dynamic_lai"].asInt();
   useseverity = controldata["model_settings"]["fire_severity_as_input"].asInt();
 
-  // should mostly become obsolete
-  /*
+  // should mostly become obsolete ...
+  
   configdir = controldata["general"]["config_dir"].asString();
-
   runchtfile = controldata["data_directories"]["run_cohort_list"].asString();
   outputdir = controldata["data_directories"]["output_data_dir"].asString();
   reginputdir = controldata["data_directories"]["region_data_dir"].asString();
@@ -62,7 +61,7 @@ ModelData::ModelData(Json::Value controldata){
   outSiteYear = controldata["output_switches"]["yearly_output"].asInt();
   outRegn = controldata["output_switches"]["summarized_output"].asInt();
   outSiteDay = controldata["output_switches"]["soil_climate_output"].asInt();
-  */
+  
   
 }
 

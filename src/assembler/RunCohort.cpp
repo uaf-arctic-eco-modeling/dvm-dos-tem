@@ -186,6 +186,7 @@ int RunCohort::readData() {
 
   // !!!!!!!!!!!!!!!!!!!!!!!!!!!
   // ! NEED TO FIX y, x values!!
+  // ! Right now it is just reading the upper left corner...
   // !!!!!!!!!!!!!!!!!!!!!!!!!!!
   int y = 0;
   int x = 0;

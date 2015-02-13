@@ -9,7 +9,7 @@
  *
  * Important:
  *   (1) Parameters are read from 'CohortLookup.cpp', and set to
- *       'vegdimpar' (struct:: vegpar_dim)
+ *       'vegdimpar' (struct::vegpar_dim)
  *   (2) Here, all functions are on ALL pfts for ONE community. In this way,
  *       some complicated PFT interaction and dynamics/structure changing
  *       may be put here in the future.
