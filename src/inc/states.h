@@ -5,6 +5,7 @@
 #ifndef STATES_H_
 #define STATES_H_
 
+#include "errorcode.h"
 #include "cohortconst.h"
 #include "layerconst.h"
 
@@ -148,6 +149,18 @@ struct soistate_bgc {
 
   double orgn[MAX_SOI_LAY];   // soil total N content kg/m2
   double avln[MAX_SOI_LAY];   // soil available N content kg/m2
+  
+  soistate_bgc(): wdebrisc(UIN_D),wdebrisn(UIN_D),dmossc(UIN_D),dmossn(UIN_D) {
+    for (int i=0; i < MAX_SOI_LAY; ++i) {
+      rawc[i] = UIN_D;
+      soma[i] = UIN_D;
+      sompr[i] = UIN_D;
+      somcr[i] = UIN_D;
+      orgn[i] = UIN_D;
+      avln[i] = UIN_D;
+    }
+  }
+  
 };
 
 #endif /*STATES_H_*/

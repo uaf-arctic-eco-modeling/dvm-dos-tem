@@ -5,6 +5,7 @@
 
 #include "cohortconst.h"
 #include "layerconst.h"
+#include "errorcode.h"
 
 struct vegpar_cal {
 
@@ -41,6 +42,23 @@ struct vegpar_dim {
   double m2[NUM_PFT];
   double m3[NUM_PFT];
   double m4[NUM_PFT];
+  
+  vegpar_dim(){
+    for (int i = 0; i < NUM_PFT; ++i) {
+      sla[i] = UIN_D;
+      klai[i] = UIN_D;
+      minleaf[i] = UIN_D;
+      aleaf[i] = UIN_D;
+      bleaf[i] = UIN_D;
+      cleaf[i] = UIN_D;
+      kfoliage[i] = UIN_D;
+      cov[i] = UIN_D;
+      m1[i] = UIN_D;
+      m2[i] = UIN_D;
+      m3[i] = UIN_D;
+      m4[i] = UIN_D;
+    }
+  }
 
 };
 
@@ -182,6 +200,20 @@ struct soipar_bgc {
   double kdsoma[MAX_SOI_LAY];
   double kdsompr[MAX_SOI_LAY];
   double kdsomcr[MAX_SOI_LAY];
+
+  soipar_bgc(): kn2(UIN_D), moistmin(UIN_D), moistmax(UIN_D), moistopt(UIN_D),
+                rhq10(UIN_D), propftos(UIN_D), nmincnsoil(UIN_D), fnloss(UIN_D),
+                fsoma(UIN_D), fsompr(UIN_D), fsomcr(UIN_D), som2co2(UIN_D),
+                eqrawc(UIN_D), eqsoma(UIN_D), eqsompr(UIN_D), eqsomcr(UIN_D),
+                kdmoss(UIN_D), lcclnc(UIN_D) {
+                
+    for (int i = 0; i < MAX_SOI_LAY; ++i) {
+      kdrawc[i] = UIN_D;
+      kdsoma[i] = UIN_D;
+      kdsompr[i] = UIN_D;
+      kdsomcr[i] = UIN_D;
+    }
+  }
 
 };
 
