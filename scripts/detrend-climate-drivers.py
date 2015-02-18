@@ -1,7 +1,11 @@
 #!/usr/bin/env python
 
+# Tobey Carman
+# Feb 2015
+# Spatial Ecology Lab, UAF
+
 # Example usage:
-# ./detrend-climate-data.py jan "../snap-data/tas_mean_C_iem_cccma_cgcm3_1_sresa1b_2001_2100/"
+# ./detrend-climate-data.py jan 10 "../snap-data/tas_mean_C_iem_cccma_cgcm3_1_sresa1b_2001_2100/"
 
 import argparse
 import glob
