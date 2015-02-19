@@ -86,7 +86,7 @@ def main(args):
   print "Listing and sorting all files for a month from the input directory..."
   monthfiles = sorted(glob.glob("%s/*_%02d_*.tif" % (args.infiledir, args.month)))
   
-  TMP_MONTHLISTFILE = 'month-file-list.txt'
+  TMP_MONTHLISTFILE = 'month-%02d-file-list.txt' % args.month
   VRTFILE = 'month-%02d.vrt' % args.month
   
   # Write the list to a file...
