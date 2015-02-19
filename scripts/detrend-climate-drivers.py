@@ -21,6 +21,7 @@ import scipy.signal
 
 
 def guess_from_filename(f):
+  '''Tokenizes a SNAP file name, returns fields chosen from input filename'''
 
   f = os.path.basename(f)
   f_extension = os.path.splitext(f)[1]
@@ -78,39 +79,45 @@ def print_memory_report():
 
 def main(args):
 
-  '''
-  tas_mean_C_iem_cccma_cgcm3_1_sresa1b_2001_2100/tas_mean_C_iem_cccma_cgcm3_1_sresa1b_01_2001.tif
-  '''
+  ''' ??? Need to write this....'''
 
   # Make a list with paths to all the right files.
   # In this case, one month, all years.
+  print "Listing and sorting all files for a month from the input directory..."
   monthfiles = sorted(glob.glob("%s/*_%02d_*.tif" % (args.infiledir, args.month)))
   
   TMP_MONTHLISTFILE = 'month-file-list.txt'
   VRTFILE = 'month-%02d.vrt' % args.month
-
+  
   # Write the list to a file...
   with open(TMP_MONTHLISTFILE, 'w') as f:
     for i in monthfiles:
       f.write(i)
       f.write("\n")
 
-  # Then call gdalbuildvrt with the list file...
+  # Call gdalbuildvrt with the list file...
+  print "Build a .vrt file with a band for each timestep in the %s file..." % TMP_MONTHLISTFILE
   rc = subprocess.call([
-    'gdalbuildvrt',
-    '-separate',
-    '-b', '1',
-    '-input_file_list', TMP_MONTHLISTFILE,
-    VRTFILE
-  ])
+      'gdalbuildvrt',
+      '-separate',
+      '-b', '1',
+      '-input_file_list', TMP_MONTHLISTFILE,
+      VRTFILE
+    ], stderr=subprocess.STDOUT)
 
+  print "Return code from subprocess:", rc
   if rc != 0:
-    print "Warning: gdalbuildvrt did not exit cleanly..."
+    print "Warning! There was an error in calling gdalbuildvrt!"
+    if rc == -6:
+      print "We think it may be safe to continue..."
+    else:
+      print "Not sure what is going on. Stopping."
+      exit()  
 
-  # cleanup the file with months listed
+  print "Cleaning up temporary month list file..."
   os.remove(TMP_MONTHLISTFILE)
 
-  # Open and read the vrt
+  print "Opening %s file..." % VRTFILE
   monthdatafile = rasterio.open(VRTFILE)
 
   # NOTE: should we check for enough memory?? 
@@ -121,6 +128,7 @@ def main(args):
   # Also, when not debugging, we want to read all the bands
   # (by not passing any arguments to the read() function. BUT 
   # this can result in a whole lot of memory usage!
+  print "Reading the vrt file into memory..."
   data = monthdatafile.read() #<-- empty to read all bands 
 
   # Make sure the mask is set 
@@ -129,6 +137,7 @@ def main(args):
   #       over all the masked points too. But the mask
   #       is key for displaying the data and having the auto-
   #       scaling work correctly...
+  print "Masking extreme data..."
   data = np.ma.masked_outside(data, -100, 100, copy=False)
   print "Masked entries [after maskoutside]:           ", np.count_nonzero(data.mask)
   print 
@@ -139,20 +148,21 @@ def main(args):
   # when operating on the fill values which are usually very
   # large or very small. These large or small numbers get squared
   # in the detrending fuction and we end up with overflow errors. 
+  print "Detrend along time axis..."
   detrended_data = scipy.signal.detrend(data, axis=0)
-  # print "Masked entries [after detrend]:               ", np.count_nonzero(detrended_data.mask)
-  # print
 
   # Now make sure to add the offset back into the data
+  print "Add offset to data..."
   detrended_data[:,:,:] += (data[0,:,:] - detrended_data[0,:,:])
-  # print "Masked entries [after offset]: ", np.count_nonzero(detrended_data.mask)
-  # print
 
+  print "Mask extreme values..."
+  print "(apparently previous mask not respected by scipy.signal.detrend and the '+=' operator)"
   detrended_data = np.ma.masked_outside(detrended_data, -100, 100)
   print "Masked entries [after maskoutside]     ",         np.count_nonzero(detrended_data.mask)
   print 
 
   # Apply the most aggressive mask to every timeslice.
+  print "Apply the the 'any mask' from along time axis to each timestep/image..."
   for i, img in enumerate(data[:]):
       detrended_data.mask[i,:,:] = detrended_data.mask.any(0)
 
@@ -165,6 +175,7 @@ def main(args):
   # looks like 
 
   # Write out the data to a new series of .tif files
+  print "Write data back out to new files..."
   with rasterio.drivers(CPL_DEBUG=True):
     
     # Copy the metadata from the input vrt file
@@ -201,6 +212,9 @@ def main(args):
   print "Done writing timesteps to files."
   print_memory_report()
 
+
+
+
 def merge_tifs_to_single_timeseries_netcdf(dir): # path to directory of files...?
   pass
   # use the first file in the list to create a empty nc file (time, lon, lat)
@@ -227,7 +241,7 @@ if __name__ == '__main__':
   )
 
   args = parser.parse_args()
-  print args
+  #print args
 
   main(args)
 
