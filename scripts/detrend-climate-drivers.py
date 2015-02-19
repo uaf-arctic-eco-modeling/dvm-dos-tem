@@ -11,7 +11,8 @@ import argparse
 import textwrap   
 import glob
 import os
-import resource    # for checking available memory
+import resource    # for checking available memory?
+import psutil
 import subprocess  # for calling various GDAL command line tools 
 
 import rasterio
@@ -70,6 +71,10 @@ def setup_output_directory(orig_file_list):
   # pr_total_mm_iem_cccma_cgcm3_1_sresa1b_2001_2100.zip
   # tas_mean_C_iem_mpi_echam5_sresa1b_2001_2100.zip
 
+def print_memory_report():
+  print "Currently Available Memory (GB) ", psutil.virtual_memory().available/1024.0/1024.0/1024.0
+  print "Peak memory usage by this program(GB):", resource.getrusage(resource.RUSAGE_SELF).ru_maxrss/1024.0/1024.0/1024.0
+
 
 def main(args):
 
@@ -109,7 +114,7 @@ def main(args):
   monthdatafile = rasterio.open(VRTFILE)
 
   # NOTE: should we check for enough memory?? 
-  print "Memory available:", resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+  print_memory_report()
 
   # NOTE: one based indexing...sees to be a rasterio thing?
   # or gdalvrt numbers bands starting at 1? Not sure....
@@ -193,6 +198,8 @@ def main(args):
       with rasterio.open( os.path.join(outputdir, newfname), 'w', **kwargs) as dst:
         dst.write_band(1, timestep.astype(rasterio.float32))
 
+  print "Done writing timesteps to files."
+  print_memory_report()
 
 def merge_tifs_to_single_timeseries_netcdf(dir): # path to directory of files...?
   pass
