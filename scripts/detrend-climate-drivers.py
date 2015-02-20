@@ -19,6 +19,14 @@ import rasterio
 import numpy as np
 import scipy.signal
 
+def print_mask_report(data):
+  '''Print some info about a masked array'''
+  shape = data.shape
+  sz = data.size
+  mv = np.count_nonzero(data.mask)
+  pcnt = 100.0 * mv/sz
+  print "Shape: %s Total size: %s Masked values: %s. Percent Masked: %0.7f" % (str(shape), sz, mv, pcnt)
+
 
 def guess_from_filename(f):
   '''Tokenizes a SNAP file name, returns fields chosen from input filename'''
@@ -140,8 +148,7 @@ def main(args):
   #       scaling work correctly...
   print "Masking extreme data..."
   data = np.ma.masked_outside(data, -100, 100, copy=False)
-  print "Masked entries [after maskoutside]:           ", np.count_nonzero(data.mask)
-  print 
+  print_mask_report(data)
 
   # Detrend for each pixel over the time axis.
   # For some reason, the detrend function seems to operate on
@@ -159,16 +166,14 @@ def main(args):
   print "Mask extreme values..."
   print "(apparently previous mask not respected by scipy.signal.detrend and the '+=' operator)"
   detrended_data = np.ma.masked_outside(detrended_data, -100, 100)
-  print "Masked entries [after maskoutside]     ",         np.count_nonzero(detrended_data.mask)
-  print 
+  print_mask_report(detrended_data)
 
   # Apply the most aggressive mask to every timeslice.
   print "Apply the the 'any mask' from along time axis to each timestep/image..."
   for i, img in enumerate(data[:]):
       detrended_data.mask[i,:,:] = detrended_data.mask.any(0)
 
-  print "Masked entries [after aggressive mask]  ",        np.count_nonzero(detrended_data.mask)
-  print 
+  print_mask_report(detrended_data)
 
   # NOTE: Really, here I should be writing out a netcdf file as 
   # that would prevent having to run thru gdal_translate later
