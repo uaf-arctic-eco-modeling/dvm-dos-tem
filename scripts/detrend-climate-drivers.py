@@ -189,7 +189,11 @@ def main(args):
       driver='netCDF'      # we want .tifs, not .vrts
     )
 
-    outputdir = "detrended_data"
+    # guess some things about the data from the naming of the first
+    # input file...
+    (bname, variable, metric, scenario, month, year) = guess_from_filename(monthfiles[0])
+
+    outputdir = os.path.join(args.outfiledir, "detrended_data", bname)
 
     # Make sure there is a location for outputs
     if not os.path.exists(outputdir):
@@ -201,11 +205,9 @@ def main(args):
       print "removing %s" % f
       os.remove(f)
 
-    (bname, variable, metric, scenario, month, year) = guess_from_filename(monthfiles[0])
-
-    # Write each timestep out to its own file...
+    print "Write each timestep out to its own file in %s" % outputdir
     for i, timestep in enumerate(detrended_data[:]):
-
+      # tag each file name with the timestep info (month and year)
       newfname = bname + ("_%02d_%04d.nc" % (args.month, int(year)+i)) 
       with rasterio.open( os.path.join(outputdir, newfname), 'w', **kwargs) as dst:
         dst.write_band(1, timestep.astype(rasterio.float32))
@@ -239,6 +241,10 @@ if __name__ == '__main__':
 
   parser.add_argument('infiledir', 
     help="path to directory of input files"
+  )
+
+  parser.add_argument('outfiledir', 
+    help="path to a directory for the output tree (which will be stored in a directory 'detrended/)"
   )
 
   args = parser.parse_args()
