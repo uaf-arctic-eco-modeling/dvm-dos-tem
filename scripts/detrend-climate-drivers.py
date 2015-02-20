@@ -81,7 +81,7 @@ def main(args):
 
   ''' ??? Need to write this....'''
 
-  # Make a list with paths to all the right files.
+  # Make a list with paths to all the correct input files.
   # In this case, one month, all years.
   print "Listing and sorting all files for a month from the input directory..."
   monthfiles = sorted(glob.glob("%s/*_%02d_*.tif" % (args.infiledir, args.month)))
@@ -117,13 +117,14 @@ def main(args):
   print "Cleaning up temporary month list file..."
   os.remove(TMP_MONTHLISTFILE)
 
-  print "Opening %s file..." % VRTFILE
-  monthdatafile = rasterio.open(VRTFILE)
-
   # NOTE: should we check for enough memory?? 
   print_memory_report()
 
-  # NOTE: one based indexing...sees to be a rasterio thing?
+  print "Opening %s file..." % VRTFILE
+  monthdatafile = rasterio.open(VRTFILE)
+  print "File has %s bands." % (monthdatafile.count)
+
+  # NOTE: one based indexing...seems to be a rasterio thing?
   # or gdalvrt numbers bands starting at 1? Not sure....
   # Also, when not debugging, we want to read all the bands
   # (by not passing any arguments to the read() function. BUT 
@@ -175,7 +176,7 @@ def main(args):
   # looks like 
 
   # Write out the data to a new series of .tif files
-  print "Write data back out to new files..."
+  print "Setup for file writing..."
   with rasterio.drivers(CPL_DEBUG=True):
     
     # Copy the metadata from the input vrt file
@@ -184,7 +185,7 @@ def main(args):
     # Change a few things about the metadata...
     kwargs.update(
       count=1,            # only one band
-      compress='',     # not sure if this is actually helping?
+      #compress='',     # not sure if this is actually helping?
       driver='netCDF'      # we want .tifs, not .vrts
     )
 
@@ -194,8 +195,8 @@ def main(args):
     if not os.path.exists(outputdir):
       os.makedirs(outputdir)
 
-    # Clean up any existing output files for this month...
     existing_file_list = sorted(glob.glob("%s/*_%02d_*.nc" % (outputdir, args.month)))
+    print "Clean up %i existing output files for this month..." % len(existing_file_list)
     for f in existing_file_list:
       print "removing %s" % f
       os.remove(f)
