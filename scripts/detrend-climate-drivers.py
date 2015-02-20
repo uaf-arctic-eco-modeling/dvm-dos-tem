@@ -138,7 +138,17 @@ def main(args):
   # (by not passing any arguments to the read() function. BUT 
   # this can result in a whole lot of memory usage!
   print "Reading the vrt file into memory..."
-  data = monthdatafile.read() #<-- empty to read all bands 
+  if args.ss != None:
+    ss = [int(v) for v in args.ss.split(':')]
+    # should really verify/validate this elsewhere..
+    if len(ss) != 2:
+      print "Error with --ss argument!: %s" % args.ss
+      exit(-1)
+    print "Reading bands (start, stop): %s" % (str(ss))
+    data = monthdatafile.read(range(ss[0],ss[1]))
+  else:
+    print "Reading all bands...."
+    data = monthdatafile.read() #<-- empty to read all bands 
 
   # Make sure the mask is set 
   # NOTE: actually not even important for detrending, only
@@ -239,6 +249,9 @@ if __name__ == '__main__':
     have dimensions (time, y, x), while the tifs are 2D raster images
     files, with a single "band" for the variable).
   '''))
+
+  parser.add_argument('--ss', 
+    help="A 'start:stop' string used to generate a range of bands to read. 1 based!")
 
   parser.add_argument('month', choices=range(1,13), type=int, 
     help="Which month to process"
