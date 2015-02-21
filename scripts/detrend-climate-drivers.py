@@ -4,8 +4,36 @@
 # Feb 2015
 # Spatial Ecology Lab, UAF
 
-# Example usage:
-# ./detrend-climate-data.py jan 10 "../snap-data/tas_mean_C_iem_cccma_cgcm3_1_sresa1b_2001_2100/"
+'''
+RUNNING ON ATLAS LIKE SO:
+
+    tcarman2@atlas ~ $ sbatch --array 7-12 --exclusive -p main test-driver.sh
+
+Here is test-driver.sh:
+
+    tcarman2@atlas ~ $ cat test-driver.sh 
+    #!/bin/bash
+
+    # partition - grouping of nodes
+    # job - allocation of resources assigned to user for specific time 
+    #       AND
+    # job step(s) - sets of (possibly parallel) tasks w/in a job
+
+    #SBATCH -o detrend_%a.txt
+    #SBATCH -e detrend_%a.txt
+
+
+    echo "sajid: $SLURM_ARRAY_JOB_ID satid: $SLURM_ARRAY_TASK_ID"
+
+    MONTH="$SLURM_ARRAY_TASK_ID"
+    INDIR="/big_scratch/tem/snap_aiem_research_data/tas_mean_C_iem_cccma_cgcm3_1_sresa1b"
+    OUTDIR="/big_scratch/tem/snap_aiem_research_data"
+
+    # This is a job step...
+    #  -u    unbuffered output from stdout, stderr
+    #  -l    tag lines in stdout and err with step id? can't be used with -u
+    srun -u --nodes=1 python dvm-dos-tem/scripts/detrend-climate-drivers.py "$MONTH" "$INDIR" "$OUTDIR"
+'''
 
 import argparse
 import textwrap   
@@ -193,7 +221,12 @@ def main(args):
   # Write out the data to a new series of .tif files
   print "Setup for file writing..."
   with rasterio.drivers(CPL_DEBUG=True):
-    
+
+    # See here for driver info
+    # http://www.gdal.org/frmt_netcdf.html
+    # Maybe we can set more options??
+    # https://github.com/mapbox/rasterio/blob/master/docs/options.rst
+
     # Copy the metadata from the input vrt file
     kwargs = monthdatafile.meta
 
@@ -203,6 +236,9 @@ def main(args):
       #compress='',     # not sure if this is actually helping?
       driver='netCDF'      # we want .tifs, not .vrts
     )
+
+
+
 
     # guess some things about the data from the naming of the first
     # input file...
@@ -269,6 +305,7 @@ if __name__ == '__main__':
   #print args
 
   main(args)
+
 
 
 
