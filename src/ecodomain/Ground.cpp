@@ -1034,7 +1034,7 @@ COMBINEBEGIN:
     } else {
       nextsl = dynamic_cast<SoilLayer*>(fstminel);
     }
-
+    
     double rawcmin = soildimpar.coefshlwa
                      * pow(MINSLWTHICK*100., soildimpar.coefshlwb*1.)*10000.;
                      //Note: in Yi et al.(2009) - C in gC/cm2, depth in cm
@@ -1366,11 +1366,13 @@ double Ground::adjustSoilAfterburn() {
   while(currl!=NULL) {
     if(currl->isSnow) {
       removeLayer(currl);
-      currl = toplayer; //then the new toplayer is currl->next
-                        //  (otherwise, bug here)
     } else {
       break;
     }
+    //Tucker Feb 2015: moved this statement from if(currl->isSnow){}
+    //for consistency with DOSTEM ground.cpp line 1641.
+    currl = toplayer; //then the new toplayer is currl->next
+                      //  (otherwise, bug here)
   }
 
   // remove all moss/organic layers, if C is zero, after fire
@@ -1405,24 +1407,24 @@ double Ground::adjustSoilAfterburn() {
   //        horizons removal above, so need resort the double-linked structure
   resortGroundLayers();
   updateSoilHorizons();
-  //The left fibrous organic layer(s) after fire should all be turned
-  //  into humified organic layer
-  currl = toplayer;
-
-  while (currl!=NULL) {
-    if(currl->isFibric) {
-      OrganicLayer * pl = dynamic_cast<OrganicLayer*>(currl);
-      pl->humify(); //here only update 'physical' properties, but not states
-                    //  (will do below when adjusting 'dz'
-      pl->somcr += pl->rawc; //assuming all 'raw material' converted into
-                             //  'chemically-resistant' SOM
-      pl->rawc = 0.;
-    } else if (currl->isHumic || currl->isMineral || currl->isRock) {
-      break;
-    }
-
-    currl = currl->nextl;
-  }
+  //  //The left fibrous organic layer(s) after fire should all be turned
+  //  //  into humified organic layer
+  //  currl = toplayer;
+  //
+  //  while (currl!=NULL) {
+  //    if(currl->isFibric) {
+  //      OrganicLayer * pl = dynamic_cast<OrganicLayer*>(currl);
+  //      pl->humify(); //here only update 'physical' properties, but not states
+  //                    //  (will do below when adjusting 'dz'
+  //      pl->somcr += pl->rawc; //assuming all 'raw material' converted into
+  //                             //  'chemically-resistant' SOM
+  //      pl->rawc = 0.;
+  //    } else if (currl->isHumic || currl->isMineral || currl->isRock) {
+  //      break;
+  //    }
+  //
+  //    currl = currl->nextl;
+  //  }
 
   //re-do thickness of deep organic layers, because of changing of its
   //  original type from fibrous or partially burned
@@ -1754,8 +1756,7 @@ void Ground::getDmossThickness5Carbon(SoilLayer* sl, const double &dmossc) {
 
   if(sl->isMoss) {
     osdznew = pow((dmossc/10000.)/soildimpar.coefmossa,
-                  1./soildimpar.coefmossb)
-              / 100.;
+                  1./soildimpar.coefmossb) / 100.;
                   //Note: in Yi et al.(2009) - C in gC/cm2, depth in cm
   } else {
     return;
