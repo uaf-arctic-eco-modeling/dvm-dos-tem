@@ -1407,24 +1407,25 @@ double Ground::adjustSoilAfterburn() {
   //        horizons removal above, so need resort the double-linked structure
   resortGroundLayers();
   updateSoilHorizons();
-  //  //The left fibrous organic layer(s) after fire should all be turned
-  //  //  into humified organic layer
-  //  currl = toplayer;
-  //
-  //  while (currl!=NULL) {
-  //    if(currl->isFibric) {
-  //      OrganicLayer * pl = dynamic_cast<OrganicLayer*>(currl);
-  //      pl->humify(); //here only update 'physical' properties, but not states
-  //                    //  (will do below when adjusting 'dz'
-  //      pl->somcr += pl->rawc; //assuming all 'raw material' converted into
-  //                             //  'chemically-resistant' SOM
-  //      pl->rawc = 0.;
-  //    } else if (currl->isHumic || currl->isMineral || currl->isRock) {
-  //      break;
-  //    }
-  //
-  //    currl = currl->nextl;
-  //  }
+
+  //The left fibrous organic layer(s) after fire should all be turned
+  //  into humified organic layer
+  currl = toplayer;
+
+  while (currl!=NULL) {
+    if(currl->isFibric) {
+      OrganicLayer * pl = dynamic_cast<OrganicLayer*>(currl);
+      pl->humify(); //here only update 'physical' properties, but not states
+                    //  (will do below when adjusting 'dz'
+      pl->somcr += pl->rawc; //assuming all 'raw material' converted into
+                             //  'chemically-resistant' SOM
+      pl->rawc = 0.;
+    } else if (currl->isHumic || currl->isMineral || currl->isRock) {
+      break;
+    }
+
+    currl = currl->nextl;
+  }
 
   //re-do thickness of deep organic layers, because of changing of its
   //  original type from fibrous or partially burned
