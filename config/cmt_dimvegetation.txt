@@ -175,7 +175,7 @@ CMT04 // Shrub Tundra - (max. 10 PFTs over 1 soil column) Plant structure/dimens
 //Salix     Betula      Decid.       E.green      Sedges       Forbs        Grasses      Lichens      Feather      Misc1.       // names: comments                  
 1.00        1.00        1.00         1.00         1.00         1.00         1.00         1.00         1.00         0.           // vegfrac: vegetation coverage on land - 0 indicates that PFT does't exist
 1           1           1            1            0            0            0            0            0            0            // ifwoody: woody plants (1) or not (0)
-1           1           1            0            0            0            0            0            0            0            // ifdeciwoody: deciduous woodland (1) or not (0)
+0           0           0            0            0            0            0            0            0            0            // ifdeciwoody: deciduous woodland (1) or not (0)
 1           1           1            1            1            1            1            1            1            0            // ifperenial: perenial (1) or not (0)
 0           0           0            0            0            0            0            3            2            0            // nonvascular type: vascular (0), sphagnum (1), feathermoss (2), lichen (3)
 0.012       0.014       0.014        0.0056       0.006        0.01         0.005        0.006        0.020        0.           // sla: specific leaf area (m2/gC)
@@ -190,11 +190,11 @@ CMT04 // Shrub Tundra - (max. 10 PFTs over 1 soil column) Plant structure/dimens
 -0.3197     -0.3197     -0.3197     -0.3197      -0.3197      -0.3197      -0.3197      -0.3197      -0.3197      -0.3197       // m2
 0.0401      0.0401      0.0401       0.0401       0.0401       0.0401       0.0401       0.0401       0.0401       0.0401       // m3
 0.0001      0.0001      0.0001       0.0001       0.0001       0.0001       0.0001       0.0001       0.0001       0.0001       // m4
-26.34       30.0        30.0         35.0         45.0         65.0         25.0         0.0          0.0          0.00         // frprod[0]: fine root allocation percentage vertically in soils (every 10 cm)
-54.57       50.0        50.0         50.0         55.0         35.0         75.0         0.00         0.00         0.00         // frprod[1]: fine root allocation percentage vertically in soils (every 10 cm)
-13.48       15.0        15.0         15.0         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[2]: fine root allocation percentage vertically in soils (every 10 cm)
-2.64        5.00        5.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[3]: fine root allocation percentage vertically in soils (every 10 cm) 
-0.60        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[4]: fine root allocation percentage vertically in soils (every 10 cm)
+30.0        30.0        30.0         35.0         30.0         65.0         25.0         100.0        100.0          0.00         // frprod[0]: fine root allocation percentage vertically in soils (every 10 cm)
+50.0        50.0        50.0         50.0         30.0         35.0         75.0         0.00         0.00         0.00         // frprod[1]: fine root allocation percentage vertically in soils (every 10 cm)
+15.0        15.0        15.0         15.0         20.0         0.00         0.00         0.00         0.00         0.00         // frprod[2]: fine root allocation percentage vertically in soils (every 10 cm)
+5.00        5.00        5.00         0.00         20.0         0.00         0.00         0.00         0.00         0.00         // frprod[3]: fine root allocation percentage vertically in soils (every 10 cm) 
+0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[4]: fine root allocation percentage vertically in soils (every 10 cm)
 0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[5]: fine root allocation percentage vertically in soils (every 10 cm) 
 0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[6]: fine root allocation percentage vertically in soils (every 10 cm)
 0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[7]: fine root allocation percentage vertically in soils (every 10 cm)  
@@ -233,7 +233,7 @@ CMT05 // Tussock Tundra - (max. 10 PFTs) (BGC) Plant structure/dimension
 -0.3197    -0.3197     -0.3197      -0.3197      -0.3197      -0.3197      -0.3197      -0.3197       0.0          0.0          // m2
 0.0401      0.0401      0.0401       0.0401       0.0401       0.0401       0.0401       0.0401       0.0          0.0          // m3
 0.0001      0.0001      0.0001       0.0001       0.0001       0.0001       0.0001       0.0001       0.0          0.0          // m4
-0.2000      0.2000      0.2000       0.2000       0.2000       0.00         0.00         0.00         0.00         0.00         // frprod[0]:
+0.2000      0.2000      0.2000       0.2000       0.2000       1.00         1.00         1.00         0.00         0.00         // frprod[0]:
 0.2000      0.2000      0.2000       0.2000       0.2000       0.00         0.00         0.00         0.00         0.00        // frprod[1]:
 0.2000      0.2000      0.2000       0.2000       0.2000       0.00         0.00         0.00         0.00         0.00        // frprod[2]:
 0.2000      0.2000      0.2000       0.2000       0.2000       0.00         0.00         0.00         0.00         0.00        // frprod[3]:   
