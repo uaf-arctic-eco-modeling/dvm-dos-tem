@@ -191,13 +191,20 @@ void Soil_Bgc::initializeState() {
   bd->m_sois.dmossc   = dmossc;
   //initial N based on input total and SOM C profile
   double sumtotc = shlwc+deepc+minec;
+  //initial available N based only on organic SOM C total
+  double sumorgc = shlwc+minec;
 
   for (int il=0; il<MAX_SOI_LAY; il++ ) {
     double totc = bd->m_sois.rawc[il]+bd->m_sois.soma[il]
                   +bd->m_sois.sompr[il]+bd->m_sois.somcr[il];
-
     if (totc > 0. && sumtotc > 0.) {
-      bd->m_sois.avln [il] = chtlu->initavln*totc/sumtotc;
+    //available N should only be calculated where roots are actively 
+    //turning over (ie, root zone)
+      if(bd->m_v2soi.rtlfalfrac[il] > 0.){
+        bd->m_sois.avln [il] = chtlu->initavln*totc/sumtotc;
+      } else {
+        bd->m_sois.avln [il] = 0.;
+      }
       bd->m_sois.orgn [il] = chtlu->initsoln*totc/sumtotc;
     } else {
       bd->m_sois.avln [il] = 0.;
@@ -860,9 +867,12 @@ void Soil_Bgc::deltastate() {
           }
         }
       }
-
-      del_sois.avln[il] = ninput + del_soi2soi.netnmin[il]
-                          - ndrain - rtnextract[il];
+      if(bd->m_v2soi.rtlfalfrac[il] > 0.){
+        del_sois.avln[il] = ninput + del_soi2soi.netnmin[il]
+                            - ndrain - rtnextract[il];
+      } else {
+        del_sois.avln[il] = 0;
+      }
     } // end of soil layer loop
 
     // dead moss layers
