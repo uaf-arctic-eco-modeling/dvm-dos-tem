@@ -1407,7 +1407,7 @@ double Ground::adjustSoilAfterburn() {
   //        horizons removal above, so need resort the double-linked structure
   resortGroundLayers();
   updateSoilHorizons();
-  /*//The left fibrous organic layer(s) after fire should all be turned
+  //The left fibrous organic layer(s) after fire should all be turned
   //  into humified organic layer
   currl = toplayer;
 
@@ -1424,7 +1424,7 @@ double Ground::adjustSoilAfterburn() {
     }
 
     currl = currl->nextl;
-  }*/
+  }
 
   //re-do thickness of deep organic layers, because of changing of its
   //  original type from fibrous or partially burned
