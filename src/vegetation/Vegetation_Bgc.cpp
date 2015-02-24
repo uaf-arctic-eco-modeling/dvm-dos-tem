@@ -1,3 +1,13 @@
+/*baseline on does not result in N loss.... This might be a useful way to deal with nonvascular N input,
+alternately it might be indicate a problem in the nitrogen cycle.
+
+A fix to this problem is proposed, ie, offfpen ncycle..., so right now, the minimum change will be best....*
+
+TEM6 does this, but dealing with nfixation, emissions, etc, is upcoming
+
+Continue deal with this as a closed N cycle, give nonvascular plants priority in N uptake over soil./
+
+
 /*
  * Vegetation_Bgc.cpp
  *
@@ -205,6 +215,11 @@ void Vegetation_Bgc::prepareIntegration(const bool &nfeedback) {
     prvttime = (bgcpar.tmin+bgcpar.tmax)/2.;
   }
 
+  /*TUCKER FEB 2015: some of the logic behind the functional type and temporal 
+    adjustment of litterfall appears to be faulty. For now, simplifying model
+    so that litterfall == cfall * vegc, for annual plants, cfall for all 
+    components = 0.083 (= 1 per year), for deciduous plants, cfall for leaves
+    = 0.083. These values are set in cmt_calparbgc.txt. No values should exceed 0.083.
   for (int i=0; i<NUM_PFT_PART; i++) {
     //assuming 'calpar.cfall' is the max. monthly fraction,
     //  we need to modify them for specific PFT types
@@ -223,6 +238,7 @@ void Vegetation_Bgc::prepareIntegration(const bool &nfeedback) {
     }
   }
 
+
   //assuming 'calpar.cfall' is the max. monthly fraction,
   //  and allowing the following seasonal variation
   fltrfall = 1.; // non-growing season, max. litterfall assumed
@@ -230,6 +246,7 @@ void Vegetation_Bgc::prepareIntegration(const bool &nfeedback) {
   if (cd->m_vegd.growingttime[ipft]>0. && prvttime>0.) {
     fltrfall = fmin(1., cd->m_vegd.growingttime[ipft]/prvttime);
   }
+  */
 
   // dead standing C falling
   if(cd->yrsdist<9.) {
@@ -313,7 +330,7 @@ void Vegetation_Bgc::delta() {
   // total available C for allocation
   //if C assimilation available, first goes to maintenance respiration
   double innppall = fmax(0., ingppall-rm)/(1.0+calpar.frg);
-  /*// NPP allocation to leaf estimated first
+  // NPP allocation to leaf estimated first
   double nppl = dleafc;
   //leaf has the second priority for C assimilation
   del_a2v.innpp[I_leaf] = fmin(nppl, innppall);
@@ -329,16 +346,16 @@ void Vegetation_Bgc::delta() {
 
   for (int i=I_leaf+1; i<NUM_PFT_PART; i++) {
     del_a2v.innpp[i] = 0.;
-    del_v2a.rg[i]    = 0.;*/
-  double cpartrest = 0.;
+    del_v2a.rg[i]    = 0.;
+  /*double cpartrest = 0.;
   for (int i=I_leaf; i<NUM_PFT_PART; i++) {
     cpartrest +=bgcpar.cpart[i];
-  }
-  for (int i=I_leaf; i<NUM_PFT_PART; i++) {
-    //if (cpartrest>0. && innppall>0.) {
+  }*/
+  //for (int i=I_leaf; i<NUM_PFT_PART; i++) {
+    if (cpartrest>0. && innppall>0.) {
       del_a2v.innpp[i] = innppall * bgcpar.cpart[i]/cpartrest;
       del_v2a.rg[i]    = calpar.frg * del_a2v.innpp[i];
-    //}
+    }
   }
 
   // summary of INGPP
@@ -351,7 +368,8 @@ void Vegetation_Bgc::delta() {
   // litter-falling
   for (int i=0; i<NUM_PFT_PART; i++) {
     if (calpar.cfall[i]>0.) {
-      del_v2soi.ltrfalc[i] = fmax(0., fltrfall*calpar.cfall[i] * tmp_vegs.c[i]);
+      //del_v2soi.ltrfalc[i] = fmax(0., fltrfall*calpar.cfall[i] * tmp_vegs.c[i]);
+      del_v2soi.ltrfalc[i] = fmax(0., calpar.cfall[i] * tmp_vegs.c[i]);
     } else {
       del_v2soi.ltrfalc[i] = 0.;
     }
@@ -395,8 +413,9 @@ void Vegetation_Bgc::deltanfeed() {
       if (calpar.nfall[i]>0.) {
         //assuming 'calpar.nfall' is the max. monthly fraction,
         //  and allowing the following seasonal variation
-        del_v2soi.ltrfaln[i] = fmax(0., fltrfall*calpar.nfall[i]
-                                        * tmp_vegs.strn[i]);
+        //del_v2soi.ltrfaln[i] = fmax(0., fltrfall*calpar.nfall[i]
+        //                                * tmp_vegs.strn[i]);
+        del_v2soi.ltrfaln[i] = fmax(0., calpar.nfall[i]*tmp_vegs.strn[i]);
       } else {
         del_v2soi.ltrfaln[i] = 0.;
       }
