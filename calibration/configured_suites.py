@@ -32,39 +32,58 @@ configured_suites = {
     'rows': 5,
     'cols': 1,
     'traces': [
-      # Commented Variables are not yet available in yearly json files
-      #{ 'jsontag': 'TempOrganicLayer', 'axesnum': 0, },
-      #{ 'jsontag': 'TempMineralLayer', 'axesnum': 0, },
-      #{ 'jsontag': 'TempAir', 'axesnum': 0, },
+      { 'jsontag': 'TShlw', 'axesnum': 0, },
+      { 'jsontag': 'TDeep', 'axesnum': 0, },
+      { 'jsontag': 'TMineA', 'axesnum': 0, },
+      { 'jsontag': 'TMineB', 'axesnum': 0, },
+      { 'jsontag': 'TMineC', 'axesnum': 0},
+      { 'jsontag': 'TAir', 'axesnum': 0, },
 
       { 'jsontag': 'Snowfall', 'axesnum': 1, },
       { 'jsontag': 'Rainfall', 'axesnum': 1, },
-      #{ 'jsontag': 'Evapotranspiration', 'axesnum': 1, },
+      { 'jsontag': 'EET', 'axesnum': 1, },
+      { 'jsontag': 'PET', 'axesnum': 1, },
+      { 'jsontag': 'VPD', 'axesnum': 1, },
 
       { 'jsontag': 'WaterTable', 'axesnum': 2, },
-      #{ 'jsontag': 'ActiveLayerDepth', 'axesnum': 2, },
+      { 'jsontag': 'ActiveLayerDepth', 'axesnum': 2, },
 
-      #{ 'jsontag': 'VWCOrganicLayer', 'axesnum': 3, },
-      #{ 'jsontag': 'VWCMineralLayer', 'axesnum': 3, },
+      { 'jsontag': 'VWCShlw', 'axesnum': 3, },
+      { 'jsontag': 'VWCDeep', 'axesnum': 3, },
+      { 'jsontag': 'VWCMineA', 'axesnum': 3, },
+      { 'jsontag': 'VWCMineB', 'axesnum': 3, },
+      { 'jsontag': 'VWCMineC', 'axesnum': 3, },
 
-      #{ 'jsontag': 'PARAbsorb', 'axesnum': 4, },
-      #{ 'jsontag': 'PARDown', 'axesnum': 4, },
+      { 'jsontag': 'PARAbsorb', 'axesnum': 4, },
+      { 'jsontag': 'PAR', 'axesnum': 4, },
     ]
   },
   'Soil': {
     'desc': "A set of carbon soil variables.",
-    'rows': 3,
+    'rows': 6,
     'cols': 1,
     'traces': [
-      { 'jsontag': 'CarbonShallow', 'axesnum': 0, },
-      { 'jsontag': 'CarbonDeep', 'axesnum': 0, },
-      { 'jsontag': 'CarbonMineralSum', 'axesnum': 0, },
-      { 'jsontag': 'MossdeathCarbon', 'axesnum': 0, },
+      { 'jsontag': 'LitterfallNitrogenPFT', 'axesnum': 0, 'units': 'gN/m^2', 'pft': '', },
+      { 'jsontag': 'TotNitrogenUptake', 'axesnum': 0, 'units': 'gN/m^2', 'pft': '', },
 
-      { 'jsontag': 'OrganicNitrogenSum', 'axesnum':1, },
+      { 'jsontag': 'CarbonShallow', 'axesnum': 1, 'units': 'gC/m^2', },
+      { 'jsontag': 'CarbonDeep', 'axesnum': 1, 'units': 'gC/m^2', },
+      { 'jsontag': 'MossdeathCarbon', 'axesnum': 1, 'units': 'gC/m^2', },
 
-      { 'jsontag': 'AvailableNitrogenSum', 'axesnum':2, },
-      { 'jsontag': 'NitrogenUptakeAll', 'axesnum':2, },
+      { 'jsontag': 'CarbonMineralSum', 'axesnum': 2, 'units': 'gC/m^2', },
+
+      { 'jsontag': 'OrganicNitrogenSum', 'axesnum':3, 'units': 'gN/m^2', },
+
+      { 'jsontag': 'AvailableNitrogenSum', 'axesnum':4, 'units': 'gN/m^2', },
+      { 'jsontag': 'MossdeathNitrogen', 'axesnum': 4, 'units': 'gN/m^2', },
+      { 'jsontag': 'StNitrogenUptakeAll', 'axesnum': 4, 'units': 'gN/m^2', },
+      { 'jsontag': 'InNitrogenUptakeAll', 'axesnum': 4, 'units': 'gN/m^2', },
+
+      { 'jsontag': 'RH', 'axesnum': 5, 'units': 'gC/m^2',},
+      { 'jsontag': 'RHraw', 'axesnum': 5, 'units': 'gC/m^2',},
+      { 'jsontag': 'RHsoma', 'axesnum': 5, 'units': 'gC/m^2',},
+      { 'jsontag': 'RHsomcr', 'axesnum': 5, 'units': 'gC/m^2',},
+      { 'jsontag': 'RHsompr', 'axesnum': 5, 'units': 'gC/m^2',}, 
     ]
   },
   'Vegetation':{
@@ -87,60 +106,65 @@ configured_suites = {
       { 'jsontag': 'VegStructuralNitrogen', 'axesnum': 3, 'pft': '', 'pftpart': 'Stem'},
       { 'jsontag': 'VegStructuralNitrogen', 'axesnum': 3, 'pft': '', 'pftpart': 'Root'},
 
-      { 'jsontag': 'LitterfallNitrogenAll', 'axesnum': 4, 'units': 'gC/m^2', 'pft': '', },
-      { 'jsontag': 'NitrogenUptake', 'axesnum': 4, 'units': 'gC/m^2', 'pft': '', }
+      { 'jsontag': 'LitterfallNitrogenPFT', 'axesnum': 4, 'units': 'gC/m^2', 'pft': '', },
+      { 'jsontag': 'TotNitrogenUptake', 'axesnum': 4, 'units': 'gC/m^2', 'pft': '', }
     ] 
   },
   'VegSoil':{
-    'desc': "The standard targetted vegetation outputs",
+    'desc': "The standard targetted vegetation and soil outputs",
     'rows': 8,
     'cols': 1,
     'traces': [
       { 'jsontag': 'GPPAllIgnoringNitrogen', 'units': 'gC/m^2', 'axesnum': 0, 'pft': '', },
       { 'jsontag': 'NPPAllIgnoringNitrogen', 'units': 'gC/m^2', 'axesnum': 0, 'pft': '', },
 
-      { 'jsontag': 'GPPAll', 'axesnum': 1, 'units': 'gC/m^2', 'pft': '', },
-      { 'jsontag': 'NPPAll', 'axesnum': 1, 'units': 'gC/m^2', 'pft': '', },
+      { 'jsontag': 'GPPAll', 'axesnum': 0, 'units': 'gC/m^2', 'pft': '', },
+      { 'jsontag': 'NPPAll', 'axesnum': 0, 'units': 'gC/m^2', 'pft': '', },
 
-      { 'jsontag': 'VegCarbon', 'axesnum': 2, 'units': 'gC/m^2', 'pft': '', 'pftpart': 'Leaf'},
-      { 'jsontag': 'VegCarbon', 'axesnum': 2, 'units': 'gC/m^2', 'pft': '', 'pftpart': 'Stem'},
-      { 'jsontag': 'VegCarbon', 'axesnum': 2, 'units': 'gC/m^2', 'pft': '', 'pftpart': 'Root'},
-      #{ 'jsontag': 'LitterfallCarbonAll', 'axesnum': 2, 'units': 'gC/m^2', 'pft': '', },
+      { 'jsontag': 'VegCarbon', 'axesnum': 1, 'units': 'gC/m^2', 'pft': '', 'pftpart': 'Leaf'},
+      { 'jsontag': 'VegCarbon', 'axesnum': 1, 'units': 'gC/m^2', 'pft': '', 'pftpart': 'Stem'},
+      { 'jsontag': 'VegCarbon', 'axesnum': 1, 'units': 'gC/m^2', 'pft': '', 'pftpart': 'Root'},
+      { 'jsontag': 'LitterfallCarbonAll', 'axesnum': 1, 'units': 'gC/m^2', 'pft': '', },
 
-      { 'jsontag': 'VegStructuralNitrogen', 'axesnum': 3, 'units': 'gN/m^2', 'pft': '', 'pftpart': 'Leaf'},
-      { 'jsontag': 'VegStructuralNitrogen', 'axesnum': 3, 'units': 'gN/m^2', 'pft': '', 'pftpart': 'Stem'},
-      { 'jsontag': 'VegStructuralNitrogen', 'axesnum': 3, 'units': 'gN/m^2', 'pft': '', 'pftpart': 'Root'},
+      { 'jsontag': 'VegStructuralNitrogen', 'axesnum': 2, 'units': 'gN/m^2', 'pft': '', 'pftpart': 'Leaf'},
+      { 'jsontag': 'VegStructuralNitrogen', 'axesnum': 2, 'units': 'gN/m^2', 'pft': '', 'pftpart': 'Stem'},
+      { 'jsontag': 'VegStructuralNitrogen', 'axesnum': 2, 'units': 'gN/m^2', 'pft': '', 'pftpart': 'Root'},
 
-      { 'jsontag': 'LitterfallNitrogenAll', 'axesnum': 4, 'units': 'gN/m^2', 'pft': '', },
-      { 'jsontag': 'NitrogenUptake', 'axesnum': 4, 'units': 'gN/m^2', 'pft': '', },
+      { 'jsontag': 'LitterfallNitrogenPFT', 'axesnum': 3, 'units': 'gN/m^2', 'pft': '', },
+      { 'jsontag': 'TotNitrogenUptake', 'axesnum': 3, 'units': 'gN/m^2', 'pft': '', },
 
-      { 'jsontag': 'CarbonShallow', 'axesnum': 5, 'units': 'gC/m^2', },
-      { 'jsontag': 'CarbonDeep', 'axesnum': 5, 'units': 'gC/m^2', },
+      { 'jsontag': 'CarbonShallow', 'axesnum': 4, 'units': 'gC/m^2', },
+      { 'jsontag': 'CarbonDeep', 'axesnum': 4, 'units': 'gC/m^2', },
+      { 'jsontag': 'MossdeathCarbon', 'axesnum': 4, 'units': 'gC/m^2', },
+
       { 'jsontag': 'CarbonMineralSum', 'axesnum': 5, 'units': 'gC/m^2', },
-      { 'jsontag': 'MossdeathCarbon', 'axesnum': 5, 'units': 'gC/m^2', },
 
       { 'jsontag': 'OrganicNitrogenSum', 'axesnum':6, 'units': 'gN/m^2', },
 
       { 'jsontag': 'AvailableNitrogenSum', 'axesnum':7, 'units': 'gN/m^2', },
-      { 'jsontag': 'NitrogenUptakeAll', 'axesnum':7, 'units': 'gN/m^2', },
+      { 'jsontag': 'MossdeathNitrogen', 'axesnum': 7, 'units': 'gN/m^2', },
+      { 'jsontag': 'StNitrogenUptakeAll', 'axesnum': 7, 'units': 'gN/m^2', },
+      { 'jsontag': 'InNitrogenUptakeAll', 'axesnum': 7, 'units': 'gN/m^2', },
     ] 
   },
   'NCycle':{
     'desc': "Viewing annual N cycle outputs",
-    'rows': 8,
+    'rows': 7,
     'cols': 1,
     'traces': [
       { 'jsontag': 'NetNMin', 'axesnum':0, 'units': 'gN/m^2', },
       { 'jsontag': 'NetNImmob', 'axesnum':0, 'units': 'gN/m^2', },
-      { 'jsontag': 'NitrogenUptakeAll', 'axesnum':0, 'units': 'gN/m^2', },
+
 
       { 'jsontag': 'VegStructuralNitrogen', 'axesnum': 1, 'units': 'gN/m^2', 'pft': '', 'pftpart': 'Leaf'},
       { 'jsontag': 'VegStructuralNitrogen', 'axesnum': 1, 'units': 'gN/m^2', 'pft': '', 'pftpart': 'Stem'},
       { 'jsontag': 'VegStructuralNitrogen', 'axesnum': 1, 'units': 'gN/m^2', 'pft': '', 'pftpart': 'Root'},
+      { 'jsontag': 'VegLabileNitrogen', 'axesnum': 1, 'units': 'gN/m^2', 'pft': '', },
 
-      { 'jsontag': 'VegLabileNitrogen', 'axesnum': 2, 'units': 'gN/m^2', 'pft': '', },
-
-      { 'jsontag': 'LitterfallNitrogenAll', 'axesnum': 2, 'units': 'gN/m^2', 'pft': '', },
+      { 'jsontag': 'LitterfallNitrogenPFT', 'axesnum': 2, 'units': 'gN/m^2', 'pft': '', },
+      { 'jsontag': 'TotNitrogenUptake', 'axesnum': 2, 'units': 'gN/m^2', 'pft':'', },
+      { 'jsontag': 'StNitrogenUptake', 'axesnum': 2, 'units': 'gN/m^2', 'pft': '', },
+      { 'jsontag': 'LuxNitrogenUptake', 'axesnum': 2, 'units': 'gN/m^2', 'pft': '', },
 
       { 'jsontag': 'LitterfallNitrogen', 'axesnum': 3, 'units': 'gN/m^2', 'pft': '', 'pftpart': 'Leaf'},
       { 'jsontag': 'LitterfallNitrogen', 'axesnum': 3, 'units': 'gN/m^2', 'pft': '', 'pftpart': 'Stem'},
@@ -149,12 +173,33 @@ configured_suites = {
       { 'jsontag': 'OrganicNitrogenSum', 'axesnum':4, 'units': 'gN/m^2', },
 
       { 'jsontag': 'AvailableNitrogenSum', 'axesnum':5, 'units': 'gN/m^2', },
+      { 'jsontag': 'StNitrogenUptakeAll', 'axesnum': 5, 'units': 'gN/m^2', },
+      { 'jsontag': 'InNitrogenUptakeAll', 'axesnum': 5, 'units': 'gN/m^2', },
 
-      { 'jsontag': 'NitrogenUptake', 'axesnum': 6, 'units': 'gN/m^2', 'pft': '', },
+      { 'jsontag': 'MossdeathNitrogen', 'axesnum': 6, 'units': 'gN/m^2', },
+      { 'jsontag': 'AvlNInput', 'axesnum': 6, 'units': 'gN/m^2', },
+      { 'jsontag': 'AvlNLost', 'axesnum': 6, 'units': 'gN/m^2', },
 
-      #{ 'jsontag': 'MossdeathNitrogen', 'axesnum': 7, 'units': 'gN/m^2', },
-      { 'jsontag': 'AvlNInput', 'axesnum': 7, 'units': 'gN/m^2', },
-      { 'jsontag': 'AvlNLost', 'axesnum': 7, 'units': 'gN/m^2', },
+    ] 
+  },
+  'Fire':{
+    'desc': "Visualizing fire disturbance of soil and vegetation",
+    'rows': 5,
+    'cols': 1,
+    'traces': [
+      { 'jsontag': 'Burnthick', 'units': 'cm', 'axesnum': 0, },
+   
+      { 'jsontag': 'BurnVeg2AirC', 'axesnum': 1, 'units': 'gC/m^2',},
+      { 'jsontag': 'BurnVeg2SoiAbvVegC', 'axesnum': 1, 'units': 'gC/m^2',},
+      { 'jsontag': 'BurnVeg2SoiBlwVegC', 'axesnum': 1, 'units': 'gC/m^2',},
+
+      { 'jsontag': 'BurnVeg2AirN', 'axesnum': 2, 'units': 'gN/m^2',},
+      { 'jsontag': 'BurnVeg2SoiAbvVegN', 'axesnum': 2, 'units': 'gN/m^2',},
+      { 'jsontag': 'BurnVeg2SoiBlwVegN', 'axesnum': 2, 'units': 'gN/m^2',},
+      
+      { 'jsontag': 'BurnSoi2AirC', 'axesnum': 3, 'units': 'gC/m^2',},
+
+      { 'jsontag': 'BurnSoi2AirN', 'axesnum': 4, 'units': 'gC/m^2',},      
 
     ] 
   },
