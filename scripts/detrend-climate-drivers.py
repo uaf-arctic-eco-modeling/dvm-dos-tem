@@ -287,7 +287,9 @@ if __name__ == '__main__':
   '''))
 
   parser.add_argument('--ss', 
-    help="A 'start:stop' string used to generate a range of bands to read. 1 based!")
+    help=textwrap.dedent('''A 'start:stop' string used to generate a range of 
+      bands to read. 1 based! Bands in this case are timesteps, so years, because
+      the list of files should be about 100 (years) long for a single month.'''))
 
   parser.add_argument('month', choices=range(1,13), type=int, 
     help="Which month to process"
@@ -298,7 +300,7 @@ if __name__ == '__main__':
   )
 
   parser.add_argument('outfiledir', 
-    help="path to a directory for the output tree (which will be stored in a directory 'detrended/)"
+    help="path to a directory for the output tree (which will be stored in a directory 'detrended_data/')"
   )
 
   args = parser.parse_args()
