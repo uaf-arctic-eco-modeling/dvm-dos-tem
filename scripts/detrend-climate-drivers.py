@@ -220,7 +220,7 @@ def main(args):
 
   # Write out the data to a new series of .tif files
   print "Setup for file writing..."
-  with rasterio.drivers(CPL_DEBUG=True):
+  with rasterio.drivers(CPL_DEBUG=True, WIRTE_BOTTOM_UP=True):
 
     # See here for driver info
     # http://www.gdal.org/frmt_netcdf.html
