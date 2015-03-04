@@ -550,6 +550,11 @@ void RunCohort::output_caljson_yearly(int year) {
                              + cht.bdall->y_soid.minecc;
   data["MossdeathCarbon"] = cht.bdall->y_v2soi.mossdeathc;
   data["MossdeathNitrogen"] = cht.bdall->y_v2soi.mossdeathn;
+  data["NetNMin"] = cht.bdall->y_soi2soi.netnminsum;
+  data["NetNImmob"] = cht.bdall->y_soi2soi.nimmobsum;
+  data["OrgNInput"] = cht.bdall->y_a2soi.orgninput;
+  data["AvlNInput"] = cht.bdall->y_a2soi.avlninput;
+
 
   for(int pft=0; pft<NUM_PFT; pft++) { //NUM_PFT
     char pft_chars[5];
@@ -570,6 +575,9 @@ void RunCohort::output_caljson_yearly(int year) {
     data["PFT" + pft_str]["PARAbsorb"] = cht.ed[pft].y_a2v.parabsorb;
     data["PFT" + pft_str]["LitterfallCarbonAll"] = cht.bd[pft].y_v2soi.ltrfalcall;
     data["PFT" + pft_str]["LitterfallNitrogenAll"] = cht.bd[pft].y_v2soi.ltrfalnall;
+    data["PFT" + pft_str]["LitterfallNitrogen"]["Leaf"] = cht.bd[pft].y_v2soi.ltrfaln[I_leaf];
+    data["PFT" + pft_str]["LitterfallNitrogen"]["Stem"] = cht.bd[pft].y_v2soi.ltrfaln[I_stem];
+    data["PFT" + pft_str]["LitterfallNitrogen"]["Root"] = cht.bd[pft].y_v2soi.ltrfaln[I_root];
     data["PFT" + pft_str]["PARDown"] = cht.ed[pft].y_a2v.pardown;
     data["PFT" + pft_str]["PARAbsorb"] = cht.ed[pft].y_a2v.parabsorb;
     data["PFT" + pft_str]["NitrogenUptake"] = cht.bd[pft].y_soi2v.snuptakeall;

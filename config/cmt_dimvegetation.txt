@@ -175,10 +175,10 @@ CMT04 // Shrub Tundra - (max. 10 PFTs over 1 soil column) Plant structure/dimens
 //Salix     Betula      Decid.       E.green      Sedges       Forbs        Grasses      Lichens      Feather      Misc1.       // names: comments                  
 1.00        1.00        1.00         1.00         1.00         1.00         1.00         1.00         1.00         0.           // vegfrac: vegetation coverage on land - 0 indicates that PFT does't exist
 1           1           1            1            0            0            0            0            0            0            // ifwoody: woody plants (1) or not (0)
-0           1           1            0            0            0            0            0            0            0            // ifdeciwoody: deciduous woodland (1) or not (0)
+1           1           1            0            0            0            0            0            0            0            // ifdeciwoody: deciduous woodland (1) or not (0)
 1           1           1            1            0            0            1            0            0            0            // ifperenial: perenial (1) or not (0)
 0           0           0            0            0            0            0            3            2            0            // nonvascular type: vascular (0), sphagnum (1), feathermoss (2), lichen (3)
-0.0320      0.1254      0.0126       0.1047       0.3546       0.1422       0.2270       0.0171       0.0072       0.           // sla: specific leaf area (m2/gC)
+0.012       0.014       0.014        0.0056       0.006        0.01         0.005        0.006        0.020        0.           // sla: specific leaf area (m2/gC)
 0.255       0.250       0.4564       0.1133       0.0537       0.158        0.149        0.25         0.25         0.           // klai: extinction coeff for conversion from lai to fpc
 0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          // minleaf: this and the following 4 parameters are for EET/PET controlled phenology - f(leaf)
 0.42893     0.42893     0.79640      0.79640      0.79640      0.79640      0.79640      0.79640      0.79640      0.79640      // aleaf
@@ -218,7 +218,7 @@ CMT05 // Tussock Tundra - (max. 10 PFTs) (BGC) Plant structure/dimension
 //Betula    Decid.      E.green      Sedges       Forbs        Lichens      Feather.     Sphag.       Misc1.       Misc2.       // names: comments                  
 1.00        1.00        1.00         1.00         1.00         1.00         1.00         1.00         0.           0.           // vegfrac: vegetation coverage on land - 0 indicates that PFT does't exist
 1           1           1            0            0            0            0            0            0            0            // ifwoody: woody plants (1) or not (0)
-0           1           0            0            0            0            0            0            0            0            // ifdeciwoody: deciduous woodland (1) or not (0)
+0           0           0            0            0            0            0            0            0            0            // ifdeciwoody: deciduous woodland (1) or not (0)
 1           1           1            0            0            0            1            0            0            0            // ifperenial: perenial (1) or not (0)
 0           0           0            0            0            3            2            1            0            0            // nonvascular type: vascular (0), sphagnum (1), feathermoss (2), lichen (3)
 0.1387      0.0155      0.1047       0.0959       0.1422       0.0072       0.0072       0.0072       0.           0.           // sla: specific leaf area (m2/gC)

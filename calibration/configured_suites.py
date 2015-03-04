@@ -125,4 +125,31 @@ configured_suites = {
       { 'jsontag': 'NitrogenUptakeAll', 'axesnum':7, 'units': 'gN/m^2', },
     ] 
   },
+  'NCycle':{
+    'desc': "Viewing annual N cycle outputs",
+    'rows': 8,
+    'cols': 1,
+    'traces': [
+      { 'jsontag': 'NetNMin', 'axesnum':0, 'units': 'gN/m^2', },
+      { 'jsontag': 'NetNImmob', 'axesnum':0, 'units': 'gN/m^2', },
+      { 'jsontag': 'NitrogenUptakeAll', 'axesnum':0, 'units': 'gN/m^2', },
+
+      { 'jsontag': 'VegStructuralNitrogen', 'axesnum': 1, 'units': 'gN/m^2', 'pft': '', 'pftpart': 'Leaf'},
+      { 'jsontag': 'VegStructuralNitrogen', 'axesnum': 1, 'units': 'gN/m^2', 'pft': '', 'pftpart': 'Stem'},
+      { 'jsontag': 'VegStructuralNitrogen', 'axesnum': 1, 'units': 'gN/m^2', 'pft': '', 'pftpart': 'Root'},
+
+      { 'jsontag': 'LitterfallNitrogenAll', 'axesnum': 2, 'units': 'gN/m^2', 'pft': '', },
+
+      { 'jsontag': 'LitterfallNitrogen', 'axesnum': 3, 'units': 'gN/m^2', 'pft': '', 'pftpart': 'Leaf'},
+      { 'jsontag': 'LitterfallNitrogen', 'axesnum': 3, 'units': 'gN/m^2', 'pft': '', 'pftpart': 'Stem'},
+      { 'jsontag': 'LitterfallNitrogen', 'axesnum': 3, 'units': 'gN/m^2', 'pft': '', 'pftpart': 'Root'},
+
+      { 'jsontag': 'OrganicNitrogenSum', 'axesnum':4, 'units': 'gN/m^2', },
+
+      { 'jsontag': 'AvailableNitrogenSum', 'axesnum':5, 'units': 'gN/m^2', },
+
+      { 'jsontag': 'NitrogenUptake', 'axesnum': 6, 'units': 'gN/m^2', 'pft': '', },
+
+    ] 
+  },
 }
