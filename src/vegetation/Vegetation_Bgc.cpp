@@ -332,7 +332,7 @@ void Vegetation_Bgc::delta() {
     del_v2a.rg[i]    = 0.;
 
     if (cpartrest>0. && innpprest>0.) {
-      del_a2v.innpp[i] = innpprest *bgcpar.cpart[i]/cpartrest;
+      del_a2v.innpp[i] = innpprest * bgcpar.cpart[i]/cpartrest;
       del_v2a.rg[i]    = calpar.frg * del_a2v.innpp[i];
     }
   }
@@ -680,16 +680,18 @@ void Vegetation_Bgc::afterIntegration() {
 /////////////////////////////////////////
 
 //Note that - fpc not adjusted here
-double  Vegetation_Bgc::getGPP(const double &co2, const double & par,
-                               const double &leaf, const double & foliage,
-                               const double &ftemp, const double & gv) {
+double  Vegetation_Bgc::getGPP(const double &co2, const double &par,
+                               const double &leaf, const double &foliage,
+                               const double &ftemp, const double &gv) {
   double ci  = co2 * gv;
   double thawpcnt = ed->m_soid.rtdpthawpct;
   //par : photosynthetically active radiation in J/(m2s)
-  double fpar = par/(bgcpar.ki +par);
+  double fpar = par/(bgcpar.ki + par);
   double gpp = calpar.cmax * foliage * ci / (bgcpar.kc + ci);
+  //double gpp = calpar.cmax * ci / (bgcpar.kc + ci);
   //gpp *= leaf * fpar;
   gpp *= fpar;
+  //gpp *= leaf;
   gpp *= ftemp;
   gpp *= thawpcnt;
 

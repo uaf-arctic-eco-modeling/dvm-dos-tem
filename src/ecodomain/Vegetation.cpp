@@ -383,22 +383,22 @@ double Vegetation::getFfoliage(const int &ipft, const bool & ifwoody,
                                const bool &ifperenial, const double &vegc) {
   double ffoliage =0;
 
-  if(!ifwoody) {
+  //if(!ifwoody) {
     if (!ifperenial) {
       ffoliage = 1.0; //annual: yearly max. not controlled by current plant
                       //  C biomass (because it dies every year)
     } else {
       ffoliage = 1.0/(1.0 + vegdimpar.kfoliage[ipft] * exp(vegdimpar.cov[ipft]* vegc));
     }
-  } else {
-    //from Zhuang et al., 2003
-    double m1 = vegdimpar.m1[ipft];
-    double m2 = vegdimpar.m2[ipft];
-    double m3 = vegdimpar.m3[ipft];
-    double m4 = vegdimpar.m4[ipft];
-    double fcv = m3*vegc /(1+m4*vegc);
-    ffoliage =  1./(1+m1*exp(m2*sqrt(fcv)));
-  }
+  //  } else {
+  //    //from Zhuang et al., 2003
+  //    double m1 = vegdimpar.m1[ipft];
+  //    double m2 = vegdimpar.m2[ipft];
+  //    double m3 = vegdimpar.m3[ipft];
+  //    double m4 = vegdimpar.m4[ipft];
+  //    double fcv = m3*vegc /(1+m4*vegc);
+  //    ffoliage =  1./(1+m1*exp(m2*sqrt(fcv)));
+  //  }
 
   //it is assumed that foliage will not go down during a growth cycle
   if(ffoliage>cd->m_vegd.foliagemx[ipft]) {
@@ -416,8 +416,8 @@ double Vegetation::getYearlyMaxLAI(const int &ipft) {
 
   for (int im=0; im<12; im++) {//taking the max. of input 'envlai[12]'
                                //  adjusted by 'vegcov'
-    double covlai = chtlu->envlai[im][ipft]*cd->m_veg.vegcov[ipft];
-
+//    double covlai = chtlu->envlai[im][ipft]*cd->m_veg.vegcov[ipft];
+      double covlai = chtlu->envlai[im][ipft];
     if (laimax<=covlai) {
       laimax = covlai;
     }
