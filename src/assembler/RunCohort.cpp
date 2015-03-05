@@ -158,7 +158,7 @@ void RunCohort::init() {
   // switches of N cycles
   md->set_nfeed(true);
   md->set_avlnflg(true);
-  md->set_baseline(true);
+  md->set_baseline(false);
   // switches of modules
   md->set_envmodule(true);
   md->set_bgcmodule(true);
@@ -310,16 +310,16 @@ void RunCohort::choose_run_stage_settings() {
 
       cht.timer->reset();
       BOOST_LOG_SEV(glg, info) << "Equilibrium stage. CALIBRATION MODE!";
-      BOOST_LOG_SEV(glg, info) << "All switches OFF except for env and bgc.";
+      BOOST_LOG_SEV(glg, info) << "";
       md->set_envmodule(true);
       md->set_bgcmodule(true);
       md->set_nfeed(false);
-      md->set_avlnflg(false);
-      md->set_baseline(false);
+      md->set_avlnflg(true);
+      md->set_baseline(true);
       md->set_dsbmodule(false);
       md->set_dslmodule(false);
-      md->set_dvmmodule(false);
-      md->set_friderived(false);
+      md->set_dvmmodule(true);
+      md->set_friderived(true);
     } else {
       // In equilibrium stage, turning all switches on
       cht.timer->reset();
@@ -330,8 +330,8 @@ void RunCohort::choose_run_stage_settings() {
       md->set_nfeed(true);
       md->set_avlnflg(true);
       md->set_baseline(true);
-      md->set_dsbmodule(true);
-      md->set_dslmodule(true);
+      md->set_dsbmodule(false);
+      md->set_dslmodule(false);
       md->set_dvmmodule(true);
       md->set_friderived(true);
     }
@@ -358,8 +358,43 @@ void RunCohort::choose_run_stage_settings() {
     used_atmyr = fmin(MAX_ATM_NOM_YR, cht.cd.act_atm_drv_yr);
     yrstart = cht.timer->spbegyr;
     yrend   = cht.timer->spendyr;
-    md->set_friderived(false);
+    //md->set_friderived(false);
     run_timeseries(calcontroller_ptr);
+    if (calcontroller_ptr) {
+      BOOST_LOG_SEV(glg, info) << "Pausing. Please check that the 'pre-run' "
+                               << "data looks good.";
+      
+      calcontroller_ptr->pause();
+
+      calcontroller_ptr->clear_and_create_json_storage();
+
+      cht.timer->reset();
+      BOOST_LOG_SEV(glg, info) << "Spinup stage. CALIBRATION MODE!";
+      BOOST_LOG_SEV(glg, info) << "";
+      md->set_envmodule(true);
+      md->set_bgcmodule(true);
+      md->set_nfeed(true);
+      md->set_avlnflg(true);
+      md->set_baseline(true);
+      md->set_dsbmodule(false);
+      md->set_dslmodule(true);
+      md->set_dvmmodule(true);
+      md->set_friderived(false);
+    } else {
+      // In spinup stage, turning all switches on
+      cht.timer->reset();
+      BOOST_LOG_SEV(glg, info) << "Spinup stage.";
+      BOOST_LOG_SEV(glg, info) << "Turning ON all switches!";
+      md->set_envmodule(true);
+      md->set_bgcmodule(true);
+      md->set_nfeed(true);
+      md->set_avlnflg(true);
+      md->set_baseline(true);
+      md->set_dsbmodule(false);
+      md->set_dslmodule(true);
+      md->set_dvmmodule(true);
+      md->set_friderived(false);
+    }
   }
 
   if(cht.md->runtr) {
@@ -369,8 +404,38 @@ void RunCohort::choose_run_stage_settings() {
     used_atmyr = cht.cd.act_atm_drv_yr;
     yrstart = cht.timer->trbegyr;
     yrend   = cht.timer->trendyr;
-    md->set_friderived(false);
     run_timeseries(calcontroller_ptr);
+    if (calcontroller_ptr) {
+      BOOST_LOG_SEV(glg, info) << "Pausing. Please check that the 'pre-run' "
+                               << "data looks good.";
+      
+      calcontroller_ptr->pause();
+
+      calcontroller_ptr->clear_and_create_json_storage();
+      BOOST_LOG_SEV(glg, info) << "Transient stage. CALIBRATION MODE!";
+      BOOST_LOG_SEV(glg, info) << "";
+      md->set_envmodule(true);
+      md->set_bgcmodule(true);
+      md->set_nfeed(true);
+      md->set_avlnflg(true);
+      md->set_baseline(false);
+      md->set_dsbmodule(false);
+      md->set_dslmodule(true);
+      md->set_dvmmodule(true);
+      md->set_friderived(false);
+    } else {
+      BOOST_LOG_SEV(glg, info) << "Transient stage.";
+      BOOST_LOG_SEV(glg, info) << "Turning ON all switches except baseline!";
+      md->set_envmodule(true);
+      md->set_bgcmodule(true);
+      md->set_nfeed(true);
+      md->set_avlnflg(true);
+      md->set_baseline(false);
+      md->set_dsbmodule(false);
+      md->set_dslmodule(true);
+      md->set_dvmmodule(true);
+      md->set_friderived(false);
+    }
   }
 
   if(cht.md->runsc) {
@@ -381,8 +446,38 @@ void RunCohort::choose_run_stage_settings() {
     used_atmyr = cht.cd.act_atm_drv_yr;
     yrstart = cht.timer->scbegyr;
     yrend   = cht.timer->scendyr;
-    md->set_friderived(false);
     run_timeseries(calcontroller_ptr);
+    if (calcontroller_ptr) {
+      BOOST_LOG_SEV(glg, info) << "Pausing. Please check that the 'pre-run' "
+                               << "data looks good.";
+      
+      calcontroller_ptr->pause();
+
+      calcontroller_ptr->clear_and_create_json_storage();
+      BOOST_LOG_SEV(glg, info) << "Scenario stage. CALIBRATION MODE!";
+      BOOST_LOG_SEV(glg, info) << "";
+      md->set_envmodule(true);
+      md->set_bgcmodule(true);
+      md->set_nfeed(true);
+      md->set_avlnflg(true);
+      md->set_baseline(false);
+      md->set_dsbmodule(false);
+      md->set_dslmodule(true);
+      md->set_dvmmodule(true);
+      md->set_friderived(false);
+    } else {
+      BOOST_LOG_SEV(glg, info) << "Scenario stage.";
+      BOOST_LOG_SEV(glg, info) << "Turning ON all switches except baseline!";
+      md->set_envmodule(true);
+      md->set_bgcmodule(true);
+      md->set_nfeed(true);
+      md->set_avlnflg(true);
+      md->set_baseline(false);
+      md->set_dsbmodule(false);
+      md->set_dslmodule(true);
+      md->set_dvmmodule(true);
+      md->set_friderived(false);
+    }
   }
 
   //'restart.nc' always output at the end of run-time
@@ -395,6 +490,9 @@ void RunCohort::env_only_warmup(boost::shared_ptr<CalController> calcontroller_p
   //run model with "ENV module" only
   md->set_envmodule(true);
   md->set_bgcmodule(false);
+  md->set_nfeed(false);
+  md->set_avlnflg(false);
+  md->set_baseline(false);
   md->set_dsbmodule(false);
   md->set_dslmodule(false);
   md->set_dvmmodule(false);
@@ -504,10 +602,10 @@ void RunCohort::run_timeseries(boost::shared_ptr<CalController> calcontroller_pt
         }
       } // end of site calling output modules
 
-      if(this->get_calMode()) {
+      /*if(this->get_calMode()) {
         BOOST_LOG_SEV(glg, debug) << "Send monthly calibration data to json files...";
         this->output_caljson_monthly(icalyr, im);
-      }
+      }*/
 
     } // end of month loop
 
@@ -537,10 +635,31 @@ void RunCohort::output_caljson_yearly(int year) {
   std::ofstream out_stream;
   /* Not PFT dependent */
   data["Year"] = year;
+  data["TAir"] = cht.edall->y_atms.ta;
   data["Snowfall"] = cht.edall->y_a2l.snfl;
   data["Rainfall"] = cht.edall->y_a2l.rnfl;
   data["WaterTable"] = cht.edall->y_sois.watertab;
-  data["NitrogenUptakeAll"] = cht.bdall->y_soi2v.snuptakeall;
+  data["ActiveLayerDepth"]= cht.edall-> y_soid.ald;
+  data["CO2"] = cht.edall->y_atms.co2;
+  data["VPD"] = cht.edall->y_atmd.vpd;
+  data["EET"] = cht.edall->y_l2a.eet;
+  data["PET"] = cht.edall->y_l2a.pet;
+  data["PAR"] = cht.edall->y_a2l.par;
+  data["PARAbsorb"] = cht.edall->y_a2v.parabsorb;
+
+  data["VWCShlw"] = cht.edall->y_soid.vwcshlw;
+  data["VWCDeep"] = cht.edall->y_soid.vwcdeep;
+  data["VWCMineA"] = cht.edall->y_soid.vwcminea;
+  data["VWCMineB"] = cht.edall->y_soid.vwcmineb;
+  data["VWCMineC"] = cht.edall->y_soid.vwcminec;
+  data["TShlw"] = cht.edall->y_soid.tshlw;
+  data["TDeep"] = cht.edall->y_soid.tdeep;
+  data["TMineA"] = cht.edall->y_soid.tminea;
+  data["TMineB"] = cht.edall->y_soid.tmineb;
+  data["TMineC"] = cht.edall->y_soid.tminec;
+
+  data["StNitrogenUptakeAll"] = cht.bdall->y_soi2v.snuptakeall;
+  data["InNitrogenUptakeAll"] = cht.bdall->y_soi2v.innuptake;
   data["AvailableNitrogenSum"] = cht.bdall->y_soid.avlnsum;
   data["OrganicNitrogenSum"] = cht.bdall->y_soid.orgnsum;
   data["CarbonShallow"] = cht.bdall->y_soid.shlwc;
@@ -548,8 +667,29 @@ void RunCohort::output_caljson_yearly(int year) {
   data["CarbonMineralSum"] = cht.bdall->y_soid.mineac
                              + cht.bdall->y_soid.minebc
                              + cht.bdall->y_soid.minecc;
-  data["MossdeathCarbon"] = cht.bdall->y_v2soi.mossdeathc;
-  data["MossdeathNitrogen"] = cht.bdall->y_v2soi.mossdeathn;
+  data["MossdeathCarbon"] = cht.bdall->y_sois.dmossc;
+  data["MossdeathNitrogen"] = cht.bdall->y_sois.dmossn;
+  data["NetNMin"] = cht.bdall->y_soi2soi.netnminsum;
+  data["NetNImmob"] = cht.bdall->y_soi2soi.nimmobsum;
+  data["OrgNInput"] = cht.bdall->y_a2soi.orgninput;
+  data["AvlNInput"] = cht.bdall->y_a2soi.avlninput;
+  data["AvlNLost"] = cht.bdall->y_soi2l.avlnlost;
+  data["RHraw"] = cht.bdall->y_soi2a.rhrawcsum;
+  data["RHsoma"] = cht.bdall->y_soi2a.rhsomasum;
+  data["RHsompr"] = cht.bdall->y_soi2a.rhsomprsum;
+  data["RHsomcr"] = cht.bdall->y_soi2a.rhsomcrsum;
+  data["RH"] = cht.bdall->y_soi2a.rhtot;
+  
+  data["Burnthick"] = cht.fd->fire_soid.burnthick;
+  data["BurnVeg2AirC"] = cht.fd->fire_v2a.orgc;
+  data["BurnVeg2AirN"] = cht.fd->fire_v2a.orgn;
+  data["BurnVeg2SoiAbvVegC"] = cht.fd->fire_v2soi.abvc;
+  data["BurnVeg2SoiBlwVegC"] = cht.fd->fire_v2soi.blwc;
+  data["BurnVeg2SoiAbvVegN"] = cht.fd->fire_v2soi.abvn;
+  data["BurnVeg2SoiBlwVegN"] = cht.fd->fire_v2soi.blwn;
+  data["BurnSoi2AirC"] = cht.fd->fire_soi2a.orgc;
+  data["BurnSoi2AirN"] = cht.fd->fire_soi2a.orgn;
+
 
   for(int pft=0; pft<NUM_PFT; pft++) { //NUM_PFT
     char pft_chars[5];
@@ -562,6 +702,7 @@ void RunCohort::output_caljson_yearly(int year) {
     data["PFT" + pft_str]["VegStructuralNitrogen"]["Leaf"] = cht.bd[pft].y_vegs.strn[I_leaf];
     data["PFT" + pft_str]["VegStructuralNitrogen"]["Stem"] = cht.bd[pft].y_vegs.strn[I_stem];
     data["PFT" + pft_str]["VegStructuralNitrogen"]["Root"] = cht.bd[pft].y_vegs.strn[I_root];
+    data["PFT" + pft_str]["VegLabileNitrogen"] = cht.bd[pft].y_vegs.labn;
     data["PFT" + pft_str]["GPPAll"] = cht.bd[pft].y_a2v.gppall;
     data["PFT" + pft_str]["NPPAll"] = cht.bd[pft].y_a2v.nppall;
     data["PFT" + pft_str]["GPPAllIgnoringNitrogen"] = cht.bd[pft].y_a2v.ingppall;
@@ -569,15 +710,21 @@ void RunCohort::output_caljson_yearly(int year) {
     data["PFT" + pft_str]["PARDown"] = cht.ed[pft].y_a2v.pardown;
     data["PFT" + pft_str]["PARAbsorb"] = cht.ed[pft].y_a2v.parabsorb;
     data["PFT" + pft_str]["LitterfallCarbonAll"] = cht.bd[pft].y_v2soi.ltrfalcall;
-    data["PFT" + pft_str]["LitterfallNitrogenAll"] = cht.bd[pft].y_v2soi.ltrfalnall;
+    data["PFT" + pft_str]["LitterfallNitrogenPFT"] = cht.bd[pft].y_v2soi.ltrfalnall;
+    data["PFT" + pft_str]["LitterfallNitrogen"]["Leaf"] = cht.bd[pft].y_v2soi.ltrfaln[I_leaf];
+    data["PFT" + pft_str]["LitterfallNitrogen"]["Stem"] = cht.bd[pft].y_v2soi.ltrfaln[I_stem];
+    data["PFT" + pft_str]["LitterfallNitrogen"]["Root"] = cht.bd[pft].y_v2soi.ltrfaln[I_root];
     data["PFT" + pft_str]["PARDown"] = cht.ed[pft].y_a2v.pardown;
     data["PFT" + pft_str]["PARAbsorb"] = cht.ed[pft].y_a2v.parabsorb;
-    data["PFT" + pft_str]["NitrogenUptake"] = cht.bd[pft].y_soi2v.snuptakeall;
+    data["PFT" + pft_str]["StNitrogenUptake"] = cht.bd[pft].y_soi2v.snuptakeall;
+    data["PFT" + pft_str]["InNitrogenUptake"] = cht.bd[pft].y_soi2v.innuptake;
+    data["PFT" + pft_str]["LuxNitrogenUptake"] = cht.bd[pft].y_soi2v.lnuptake;
+    data["PFT" + pft_str]["TotNitrogenUptake"] = cht.bd[pft].y_soi2v.snuptakeall + cht.bd[pft].y_soi2v.lnuptake;
   }
 
   std::stringstream filename;
   filename.fill('0');
-  filename << "/tmp/year-cal-dvmdostem/" << std::setw(4) << year << ".json";
+  filename << "/tmp/year-cal-dvmdostem/" << std::setw(5) << year << ".json";
   out_stream.open(filename.str().c_str(), std::ofstream::out);
   out_stream << data << std::endl;
   out_stream.close();
@@ -656,7 +803,7 @@ void RunCohort::output_caljson_monthly(int year, int month) {
   data["MossdeathNitrogen"] = cht.bdall->m_v2soi.mossdeathn;
   std::stringstream filename;
   filename.fill('0');
-  filename << "/tmp/cal-dvmdostem/" << std::setw(4) << year << "_"
+  filename << "/tmp/cal-dvmdostem/" << std::setw(5) << year << "_"
            << std::setw(2) << month << ".json";
   out_stream.open(filename.str().c_str(), std::ofstream::out);
   out_stream << data << std::endl;

@@ -1,3 +1,13 @@
+/*baseline on does not result in N loss.... This might be a useful way to deal with nonvascular N input,
+alternately it might be indicate a problem in the nitrogen cycle.
+
+A fix to this problem is proposed, ie, offfpen ncycle..., so right now, the minimum change will be best....*
+
+TEM6 does this, but dealing with nfixation, emissions, etc, is upcoming
+
+Continue deal with this as a closed N cycle, give nonvascular plants priority in N uptake over soil./
+
+
 /*
  * Vegetation_Bgc.cpp
  *
@@ -205,6 +215,11 @@ void Vegetation_Bgc::prepareIntegration(const bool &nfeedback) {
     prvttime = (bgcpar.tmin+bgcpar.tmax)/2.;
   }
 
+  /*TUCKER FEB 2015: some of the logic behind the functional type and temporal 
+    adjustment of litterfall appears to be faulty. For now, simplifying model
+    so that litterfall == cfall * vegc, for annual plants, cfall for all 
+    components = 0.083 (= 1 per year), for deciduous plants, cfall for leaves
+    = 0.083. These values are set in cmt_calparbgc.txt. No values should exceed 0.083.
   for (int i=0; i<NUM_PFT_PART; i++) {
     //assuming 'calpar.cfall' is the max. monthly fraction,
     //  we need to modify them for specific PFT types
@@ -223,6 +238,7 @@ void Vegetation_Bgc::prepareIntegration(const bool &nfeedback) {
     }
   }
 
+
   //assuming 'calpar.cfall' is the max. monthly fraction,
   //  and allowing the following seasonal variation
   fltrfall = 1.; // non-growing season, max. litterfall assumed
@@ -230,6 +246,7 @@ void Vegetation_Bgc::prepareIntegration(const bool &nfeedback) {
   if (cd->m_vegd.growingttime[ipft]>0. && prvttime>0.) {
     fltrfall = fmin(1., cd->m_vegd.growingttime[ipft]/prvttime);
   }
+  */
 
   // dead standing C falling
   if(cd->yrsdist<9.) {
@@ -330,9 +347,13 @@ void Vegetation_Bgc::delta() {
   for (int i=I_leaf+1; i<NUM_PFT_PART; i++) {
     del_a2v.innpp[i] = 0.;
     del_v2a.rg[i]    = 0.;
-
-    if (cpartrest>0. && innpprest>0.) {
-      del_a2v.innpp[i] = innpprest *bgcpar.cpart[i]/cpartrest;
+  /*double cpartrest = 0.;
+  for (int i=I_leaf; i<NUM_PFT_PART; i++) {
+    cpartrest +=bgcpar.cpart[i];
+  }*/
+  //for (int i=I_leaf; i<NUM_PFT_PART; i++) {
+    if (cpartrest>0. && innppall>0.) {
+      del_a2v.innpp[i] = innppall * bgcpar.cpart[i]/cpartrest;
       del_v2a.rg[i]    = calpar.frg * del_a2v.innpp[i];
     }
   }
@@ -347,7 +368,8 @@ void Vegetation_Bgc::delta() {
   // litter-falling
   for (int i=0; i<NUM_PFT_PART; i++) {
     if (calpar.cfall[i]>0.) {
-      del_v2soi.ltrfalc[i] = fmax(0., fltrfall*calpar.cfall[i] * tmp_vegs.c[i]);
+      //del_v2soi.ltrfalc[i] = fmax(0., fltrfall*calpar.cfall[i] * tmp_vegs.c[i]);
+      del_v2soi.ltrfalc[i] = fmax(0., calpar.cfall[i] * tmp_vegs.c[i]);
     } else {
       del_v2soi.ltrfalc[i] = 0.;
     }
@@ -378,7 +400,7 @@ void Vegetation_Bgc::deltanfeed() {
 
     for(int il =0; il<cd->m_soil.numsl; il++) {
       if (cd->m_soil.frootfrac[il][ipft]> 0.) {
-        avln+= bd->m_sois.avln[il];
+        avln += bd->m_sois.avln[il];
       }
     }
 
@@ -391,8 +413,9 @@ void Vegetation_Bgc::deltanfeed() {
       if (calpar.nfall[i]>0.) {
         //assuming 'calpar.nfall' is the max. monthly fraction,
         //  and allowing the following seasonal variation
-        del_v2soi.ltrfaln[i] = fmax(0., fltrfall*calpar.nfall[i]
-                                        * tmp_vegs.strn[i]);
+        //del_v2soi.ltrfaln[i] = fmax(0., fltrfall*calpar.nfall[i]
+        //                                * tmp_vegs.strn[i]);
+        del_v2soi.ltrfaln[i] = fmax(0., calpar.nfall[i]*tmp_vegs.strn[i]);
       } else {
         del_v2soi.ltrfaln[i] = 0.;
       }
@@ -500,8 +523,9 @@ void Vegetation_Bgc::deltanfeed() {
       }
 
       double inprodcn = nppall / nsupply;
-      tempnuptake *= (inprodcn * (inprodcn - 2*nppall/fmax(1.e-8, nrequireall)));  //Yuan: from E.E. 2009 paper, seems not correct
-
+      double tempnuptakeFactor = 0;
+      tempnuptakeFactor = inprodcn * (inprodcn - 2*nppall/fmax(1.e-8, nrequireall));  //Tucker: corrected from E.E. 2009 paper and tem-dvm code
+      tempnuptake *= tempnuptakeFactor / (tempnuptakeFactor - pow(nppall/nrequireall, 2.0));
       if (tempnuptake< 0.0 ) {
         tempnuptake = 0.0;
       }
@@ -679,15 +703,18 @@ void Vegetation_Bgc::afterIntegration() {
 /////////////////////////////////////////
 
 //Note that - fpc not adjusted here
-double  Vegetation_Bgc::getGPP(const double &co2, const double & par,
-                               const double &leaf, const double & foliage,
-                               const double &ftemp, const double & gv) {
+double  Vegetation_Bgc::getGPP(const double &co2, const double &par,
+                               const double &leaf, const double &foliage,
+                               const double &ftemp, const double &gv) {
   double ci  = co2 * gv;
   double thawpcnt = ed->m_soid.rtdpthawpct;
   //par : photosynthetically active radiation in J/(m2s)
-  double fpar = par/(bgcpar.ki +par);
+  double fpar = par/(bgcpar.ki + par);
   double gpp = calpar.cmax * foliage * ci / (bgcpar.kc + ci);
-  gpp *= leaf * fpar;
+  //double gpp = calpar.cmax * ci / (bgcpar.kc + ci);
+  //gpp *= leaf * fpar;
+  gpp *= fpar;
+  //gpp *= leaf;
   gpp *= ftemp;
   gpp *= thawpcnt;
 
@@ -733,7 +760,7 @@ double Vegetation_Bgc::getGV(const double & eet,const double & pet ) {
   if(gv>1) {
     gv =1;
   }
-
+  //gv=1;
   return gv;
 };
 
@@ -830,13 +857,13 @@ double Vegetation_Bgc::getNuptake(const double & foliage, const double & raq10,
   double totrzavln   = 0.;     // root zone avaliable N concent for N uptake
   double totfrootfrac= 0.;     // pft's fraction of roots of all PFTs
 
-  for(int il =0; il<cd->m_soil.numsl; il++) {
+  for(int il =0; il < cd->m_soil.numsl; il++) {
     if (cd->m_soil.frootfrac[il][ipft]> 0.) {
-      totrz +=cd->m_soil.dz[il];
+      totrz += cd->m_soil.dz[il];
       meanrzksoil += bd->m_soid.knmoist[il]*cd->m_soil.dz[il];  //NOTE: 'bd->m_soid.knmoist' is updated in Soil_bgc.cpp
       totrzliq += ed->m_sois.liq[il];
-      totrzavln+= bd->m_sois.avln[il];
-      totfrootfrac +=cd->m_soil.frootfrac[il][ipft];
+      totrzavln += bd->m_sois.avln[il];
+      totfrootfrac += cd->m_soil.frootfrac[il][ipft];
     }
   }
 
