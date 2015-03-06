@@ -42,6 +42,7 @@ import os
 import resource    # for checking available memory?
 import psutil
 import subprocess  # for calling various GDAL command line tools 
+import netCDF4
 
 import rasterio
 import numpy as np
@@ -213,55 +214,79 @@ def main(args):
 
   print_mask_report(detrended_data)
 
-  # NOTE: Really, here I should be writing out a netcdf file as 
-  # that would prevent having to run thru gdal_translate later
-  # to convert the tif to netcdf...
-  # looks like 
-
-  # Write out the data to a new series of .tif files
+  # Write out the data to a new series of .tif or .nc files
   print "Setup for file writing..."
-  with rasterio.drivers(CPL_DEBUG=True, WIRTE_BOTTOM_UP=True):
 
-    # See here for driver info
-    # http://www.gdal.org/frmt_netcdf.html
-    # Maybe we can set more options??
-    # https://github.com/mapbox/rasterio/blob/master/docs/options.rst
+  # guess some things about the data from the naming of the first
+  # input file...
+  (bname, variable, metric, scenario, month, year) = guess_from_filename(monthfiles[0])
 
-    # Copy the metadata from the input vrt file
-    kwargs = monthdatafile.meta
+  # Make sure there is a location for outputs
+  outputdir = os.path.join(args.outfiledir, "detrended_data", bname)
+  if not os.path.exists(outputdir):
+    os.makedirs(outputdir)
 
-    # Change a few things about the metadata...
-    kwargs.update(
-      count=1,            # only one band
-      #compress='',     # not sure if this is actually helping?
-      driver='netCDF'      # we want .tifs, not .vrts
-    )
-
-
+  # Clean up any files that exist in the output directory (only for the month we are working on)
+  existing_file_list = sorted(glob.glob("%s/*_%02d_*.nc" % (outputdir, args.month)))
+  print "Clean up %i existing output files for this month..." % len(existing_file_list)
+  for f in existing_file_list:
+    print "removing %s" % f
+    os.remove(f)
 
 
-    # guess some things about the data from the naming of the first
-    # input file...
-    (bname, variable, metric, scenario, month, year) = guess_from_filename(monthfiles[0])
 
-    outputdir = os.path.join(args.outfiledir, "detrended_data", bname)
+  print "Write each timestep out to its own file in %s" % outputdir
+  for i, timestep in enumerate(detrended_data[:]):
+    # tag each file name with the timestep info (month and year)
+    newfname = bname + ("_%02d_%04d.nc" % (args.month, int(year)+i)) 
+    with netCDF4.Dataset(os.path.join(outputdir, newfname), mode='w', format='NETCDF4') as ncfile:
+  
+      sizey=1850
+      sizex=2560
 
-    # Make sure there is a location for outputs
-    if not os.path.exists(outputdir):
-      os.makedirs(outputdir)
+      # Dimensions for the file.
+      Y = ncfile.createDimension('y', sizey)
+      X = ncfile.createDimension('x', sizex)
 
-    existing_file_list = sorted(glob.glob("%s/*_%02d_*.nc" % (outputdir, args.month)))
-    print "Clean up %i existing output files for this month..." % len(existing_file_list)
-    for f in existing_file_list:
-      print "removing %s" % f
-      os.remove(f)
+      # Coordinate Variables
+      Y = ncfile.createVariable('y', np.int, ('y',))
+      X = ncfile.createVariable('x', np.int, ('x',))
+      Y[:] = np.arange(0, sizey)
+      X[:] = np.arange(0, sizex)
+      
+      # Create data variables
+      band1 = ncfile.createVariable('Band1', np.float32, ('y', 'x',))
+      band1[:] = timestep[::-1,::] # <---!! REVERSE the y axis !!
 
-    print "Write each timestep out to its own file in %s" % outputdir
-    for i, timestep in enumerate(detrended_data[:]):
-      # tag each file name with the timestep info (month and year)
-      newfname = bname + ("_%02d_%04d.nc" % (args.month, int(year)+i)) 
-      with rasterio.open( os.path.join(outputdir, newfname), 'w', **kwargs) as dst:
-        dst.write_band(1, timestep.astype(rasterio.float32))
+
+  # ## USING RASTERIO TO WRITE OUTPUT FILES...
+  # with rasterio.drivers(CPL_DEBUG=True, WIRTE_BOTTOM_UP=True):
+  #   # NOTE: Tried using rasterio's gdal driver to directly write netcdf. 
+  #   #        works w/o errors, but some percentage of the files come out 
+  #   #        upside down...even trying to pass the WRITE_BOTTOMUP=[YES/NO] 
+  #   #        flag in the driver context handler...
+
+  #   # See here for driver info
+  #   # http://www.gdal.org/frmt_netcdf.html
+  #   # Maybe we can set more options??
+  #   # https://github.com/mapbox/rasterio/blob/master/docs/options.rst
+
+  #   # Copy the metadata from the input vrt file
+  #   kwargs = monthdatafile.meta
+
+  #   # Change a few things about the metadata...
+  #   kwargs.update(
+  #     count=1,            # only one band
+  #     #compress='',     # not sure if this is actually helping?
+  #     driver='netCDF'      # we want .tifs, not .vrts
+  #   )
+
+  #   print "Write each timestep out to its own file in %s" % outputdir
+  #   for i, timestep in enumerate(detrended_data[:]):
+  #     # tag each file name with the timestep info (month and year)
+  #     newfname = bname + ("_%02d_%04d.nc" % (args.month, int(year)+i)) 
+  #     with rasterio.open( os.path.join(outputdir, newfname), 'w', **kwargs) as dst:
+  #       dst.write_band(1, timestep.astype(rasterio.float32))
 
   print "Done writing timesteps to files."
   print_memory_report()
