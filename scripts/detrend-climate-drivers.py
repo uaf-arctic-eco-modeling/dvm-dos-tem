@@ -21,12 +21,14 @@ def cat_array_driver_script():
   text = textwrap.dedent('''
         #!/bin/bash
 
-        # Sample driver script for running the detredning routine on atlas.
-        #
+        # Sample driver script for running detrend-climate-drivers.py on atlas under SLURM.
         # 
-        # CAN BE RUN ON ATLAS LIKE SO:
-        #
-        #     tcarman2@atlas ~ $ sbatch --array 7-12 --exclusive -p main test-driver.sh
+        #  - Will read and write data on /big_scratch!
+        #  - Arranged to be run from your home directory.
+        #  - Assumes certain directory layout in order to call the correct script(s).
+        #  
+        #  E.g.:
+        #     tcarman2@atlas ~ $ sbatch --array 7-12 --exclusive -p main example-array-driver.sh
 
         # partition - grouping of nodes
         # job - allocation of resources assigned to user for specific time 
