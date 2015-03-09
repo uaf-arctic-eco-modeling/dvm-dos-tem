@@ -4,37 +4,6 @@
 # Feb 2015
 # Spatial Ecology Lab, UAF
 
-'''
-RUNNING ON ATLAS LIKE SO:
-
-    tcarman2@atlas ~ $ sbatch --array 7-12 --exclusive -p main test-driver.sh
-
-Here is test-driver.sh:
-
-    tcarman2@atlas ~ $ cat test-driver.sh 
-    #!/bin/bash
-
-    # partition - grouping of nodes
-    # job - allocation of resources assigned to user for specific time 
-    #       AND
-    # job step(s) - sets of (possibly parallel) tasks w/in a job
-
-    #SBATCH -o detrend_%a.txt
-    #SBATCH -e detrend_%a.txt
-
-
-    echo "sajid: $SLURM_ARRAY_JOB_ID satid: $SLURM_ARRAY_TASK_ID"
-
-    MONTH="$SLURM_ARRAY_TASK_ID"
-    INDIR="/big_scratch/tem/snap_aiem_research_data/tas_mean_C_iem_cccma_cgcm3_1_sresa1b"
-    OUTDIR="/big_scratch/tem/snap_aiem_research_data"
-
-    # This is a job step...
-    #  -u    unbuffered output from stdout, stderr
-    #  -l    tag lines in stdout and err with step id? can't be used with -u
-    srun -u --nodes=1 python dvm-dos-tem/scripts/detrend-climate-drivers.py "$MONTH" "$INDIR" "$OUTDIR"
-'''
-
 import argparse
 import textwrap   
 import glob
@@ -47,6 +16,38 @@ import netCDF4
 import rasterio
 import numpy as np
 import scipy.signal
+
+def cat_array_driver_script():
+  text = textwrap.dedent('''
+        #!/bin/bash
+
+        # Sample driver script for running the detredning routine on atlas.
+        #
+        # 
+        # CAN BE RUN ON ATLAS LIKE SO:
+        #
+        #     tcarman2@atlas ~ $ sbatch --array 7-12 --exclusive -p main test-driver.sh
+
+        # partition - grouping of nodes
+        # job - allocation of resources assigned to user for specific time 
+        #       AND
+        # job step(s) - sets of (possibly parallel) tasks w/in a job
+
+        #SBATCH -o detrend_%a.txt
+        #SBATCH -e detrend_%a.txt
+
+        echo "Slurm array job id: $SLURM_ARRAY_JOB_ID Slurm array task id: $SLURM_ARRAY_TASK_ID"
+
+        MONTH="$SLURM_ARRAY_TASK_ID"
+        INDIR="/big_scratch/tem/snap_aiem_research_data/tas_mean_C_iem_cccma_cgcm3_1_sresa1b"
+        OUTDIR="/big_scratch/tem/snap_aiem_research_data"
+
+        # This is a job step...
+        #  -u    unbuffered output from stdout, stderr
+        #  -l    tag lines in stdout and err with step id? can't be used with -u
+        srun -u --nodes=1 python dvm-dos-tem/scripts/detrend-climate-drivers.py "$MONTH" "$INDIR" "$OUTDIR"
+    ''')
+  print text
 
 def print_mask_report(data):
   '''Print some info about a masked array'''
@@ -328,8 +329,17 @@ if __name__ == '__main__':
     help="path to a directory for the output tree (which will be stored in a directory 'detrended_data/')"
   )
 
+
+  parser.add_argument('--cat-array-driver', action='store_true',
+    help=textwrap.dedent('''Print a sample driver script to standard out.'''))
+
+
   args = parser.parse_args()
   #print args
+
+  if args.cat_array_driver:
+    cat_array_driver_script()
+    exit()
 
   main(args)
 
