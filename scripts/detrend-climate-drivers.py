@@ -317,7 +317,7 @@ if __name__ == '__main__':
       bands to read. 1 based! Bands in this case are timesteps, so years, because
       the list of files should be about 100 (years) long for a single month.'''))
 
-  parser.add_argument('month', choices=range(1,13), type=int, 
+  parser.add_argument('month', choices=range(1,13), type=int, metavar='month',
     help="Which month to process"
   )
 
