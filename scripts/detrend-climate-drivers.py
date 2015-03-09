@@ -18,17 +18,19 @@ import numpy as np
 import scipy.signal
 
 def cat_array_driver_script():
-  text = textwrap.dedent('''
+  text = textwrap.dedent('''\
         #!/bin/bash
 
         # Sample driver script for running detrend-climate-drivers.py on atlas under SLURM.
         # 
         #  - Will read and write data on /big_scratch!
-        #  - Arranged to be run from your home directory.
         #  - Assumes certain directory layout in order to call the correct script(s).
         #  
-        #  E.g.:
+        #  Run months 7 thru 12
         #     tcarman2@atlas ~ $ sbatch --array 7-12 --exclusive -p main example-array-driver.sh
+        #
+        #  Run month 7, specify node to run on (in case a certain node is not working)
+        #     tcarman2@atlas ~ $ sbatch --nodelist atlas03 --array 7 --exclusive -p main example-array-driver.sh
 
         # partition - grouping of nodes
         # job - allocation of resources assigned to user for specific time 
@@ -113,6 +115,7 @@ def setup_output_directory(orig_file_list):
   # tas_mean_C_iem_mpi_echam5_sresa1b_2001_2100.zip
 
 def print_memory_report():
+  # NOTE: Not sure if the percentage calculation is correct!
   print "Currently Available Memory (GB) ", psutil.virtual_memory().available/1024.0/1024.0/1024.0
   print "Peak memory usage by this program(GB):", resource.getrusage(resource.RUSAGE_SELF).ru_maxrss/1024.0/1024.0/1024.0
 
@@ -140,7 +143,7 @@ def main(args):
   rc = subprocess.call([
       'gdalbuildvrt',
       '-separate',
-      '-b', '1',
+      '-b', '1', # GDAL on atlas doesn't use this option - comment out!
       '-input_file_list', TMP_MONTHLISTFILE,
       VRTFILE
     ], stderr=subprocess.STDOUT)
