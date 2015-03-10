@@ -46,14 +46,15 @@ Cohort::Cohort(int y, int x, ModelData* modeldatapointer):
   BOOST_LOG_SEV(glg, info) << "Next, we build a CohortLookup object, properly configured with config directory and community type.";
   this->chtlu = CohortLookup( "config/", temutil::cmtnum2str(cd.cmttype) );
   
-  
+  BOOST_LOG_SEV(glg, info) << "Create the vegetation object...";
   this->veg = Vegetation(this->cd.cmttype, modeldatapointer);
   this->soilbgc = Soil_Bgc();
 
   // hack...
-  //CohortData* cpd = &(this->cd);
+  //CohortData* cdp = &(this->cd);
   this->veg.setCohortData( &(this->cd) );
 
+  // this seems to set a lot of pointers...
   this->initSubmodules();
   
   this->atm = Atmosphere(); // not done yet... looks tricky..
