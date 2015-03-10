@@ -78,6 +78,8 @@ private:
   CohortData * cd;
   EnvData * ed;
 
+
+  // Seem to be simple calculators; i.e. could be stand alone utility functions?
   float getAirDensity(float const & ta);
   float getVPD (const float & svp, const float vp);
   float getAbsHumDeficit(const float & svp, const float &vp, const float & ta);

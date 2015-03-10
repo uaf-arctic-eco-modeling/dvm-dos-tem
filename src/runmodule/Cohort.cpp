@@ -56,7 +56,7 @@ Cohort::Cohort(int y, int x, ModelData* modeldatapointer):
 
   this->initSubmodules();
   
-  this.soilbgc.
+  this->atm = Atmosphere(); // not done yet... looks tricky..
   
 /*
   //  ??  Timer * timer;

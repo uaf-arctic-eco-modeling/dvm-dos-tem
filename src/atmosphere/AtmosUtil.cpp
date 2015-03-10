@@ -1,11 +1,20 @@
+#include "../inc/errorcode.h"
 #include "AtmosUtil.h"
 
+
 AtmosUtil::AtmosUtil() {
-};
+
+  // nothing to instantiate here; itp should really not be a class....
+  //  Interpolator itp;
+  for (int i = 0 ; i < 32; ++i) {
+    RAINDUR[i] = UIN_D;
+    RAININTE[i] = UIN_D;
+  }
+}
 
 
 AtmosUtil::~AtmosUtil() {
-};
+}
 
 
 void AtmosUtil::updateDailyPrec(float precd[], const int & dinmcurr ,

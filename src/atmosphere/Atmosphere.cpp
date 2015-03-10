@@ -1,16 +1,70 @@
-/*! \file
+/** Atmosphere class.
  *
  */
 #include "Atmosphere.h"
 
-Atmosphere::Atmosphere() {
+Atmosphere::Atmosphere(): wetdays(10.0), co2(UIN_F), yrsumday(UIN_F) {
+  
+  // ...old comment... not sure how/if it now pertains...
   // if in the mode of spinup or spintransient
   // initialize with spinup condition for prev
   // here atmin is NULL , cause a runtime error which is hard to find
-  wetdays = 10.; // cru has wetdays output from 1901 to 2002, but not
+  //wetdays = 10.; // cru has wetdays output from 1901 to 2002, but not
                  //   for scenario run
   // temperarily assume wetdays = 10;
-};
+
+  // monthly variables...
+  for (int iy = 0; iy < MAX_ATM_DRV_YR; ++iy) {
+    for (int im = 0; im < 12; ++im) {
+      tair[iy][im] = UIN_F;
+      prec[iy][im] = UIN_F;
+      nirr[iy][im] = UIN_F;
+      vapo[iy][im] = UIN_F;
+
+      cld[iy][im] = UIN_F;
+      snow[iy][im] = UIN_F;
+      rain[iy][im] = UIN_F;
+      par[iy][im] = UIN_F;
+      ppfd[iy][im] = UIN_F;
+      girr[iy][im] = UIN_F;
+    }
+  }
+
+  // daily variables
+  for (int im = 0; im < 12; ++im) {
+    for (int id = 0; id < 31; ++id) {
+      ta_d[im][id] = UIN_F;
+      rain_d[im][id] = UIN_F;
+      snow_d[im][id] = UIN_F;
+      vap_d[im][id] = UIN_F;
+      par_d[im][id] = UIN_F;
+      nirr_d[im][id] = UIN_F;
+      rhoa_d[im][id] = UIN_F;
+      svp_d[im][id] = UIN_F;
+      dersvp_d[im][id] = UIN_F;
+      abshd_d[im][id] = UIN_F;
+      vpd_d[im][id] = UIN_F;
+    }
+  }
+
+  // for Equilibrium run, using the first 30 yrs-averaged
+  for (int im = 0; im < 12; ++im) {
+    eq_tair[im] = UIN_F;
+    eq_prec[im] = UIN_F;
+    eq_cld[im] = UIN_F;
+    eq_vapo[im] = UIN_F;
+    eq_rain[im] = UIN_F;
+    eq_snow[im] = UIN_F;
+    eq_par[im] = UIN_F;
+    eq_ppfd[im] = UIN_F;
+    eq_nirr[im] = UIN_F;
+    eq_girr[im] = UIN_F;
+  }
+
+  this->autil = AtmosUtil();
+  this->cd = NULL;
+  this->ed = NULL;
+}
 
 Atmosphere::~Atmosphere() {
 };
