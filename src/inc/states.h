@@ -112,6 +112,28 @@ struct soistate_dim {
   int texture[MAX_SOI_LAY];  // 0 ~ 11, see the SoilLookup.cpp
   double frootfrac[MAX_SOI_LAY][NUM_PFT]; //fine root vertical distribution
 
+  soistate_dim():numsl(UIN_I),mossnum(UIN_I),shlwnum(UIN_I),deepnum(UIN_I),
+      minenum(UIN_I), mosstype(UIN_I), totthick(UIN_D), mossthick(UIN_D),
+      shlwthick(UIN_D), deepthick(UIN_D), mineathick(UIN_D), minebthick(UIN_D),
+      minecthick(UIN_D) {
+
+    for (int i = 0; i < MAX_SOI_LAY; ++i) {
+      z[i] = UIN_D;
+      dz[i] = UIN_D;
+      por[i] = UIN_D;
+      age[i] = UIN_I;
+      type[i] = UIN_I;
+      texture[i] = UIN_I;
+
+    }
+
+    for (int i = 0; i < MAX_SOI_LAY; ++i) {
+      for (int pft = 0; pft < NUM_PFT; ++pft) {
+        frootfrac[i][pft] = UIN_D;
+      }
+    }
+
+  }
 };
 
 struct soistate_env {
@@ -132,7 +154,27 @@ struct soistate_env {
 
   double watertab;       // water table depth below ground surface (m)
   double draindepth;     // drainage depth below ground surface (m)
+  
+  soistate_env():watertab(UIN_D), draindepth(UIN_D) {
 
+    for (int i = 0; i < MAX_SOI_LAY; ++i) {
+      frozen[i] = UIN_D;
+      frozenfrac[i] = UIN_D;
+      ts[i] = UIN_D;
+      liq[i] = UIN_D;
+      ice[i] = UIN_D;
+    }
+
+    for (int i = 0; i < MAX_ROC_LAY; ++i) {
+      trock[i] = UIN_D;
+    }
+
+    for (int i = 0; i < MAX_NUM_FNT; ++i) {
+      frontstype[i] = UIN_I;
+      frontsz[i] = UIN_D;
+    }
+
+  }
 };
 
 struct soistate_bgc {
