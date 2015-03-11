@@ -6,6 +6,7 @@
 #ifndef DIAGNOSTICS_H_
 #define DIAGNOSTICS_H_
 
+#include "errorcode.h"
 #include "cohortconst.h"
 #include "layerconst.h"
 
@@ -14,6 +15,7 @@ struct atmdiag_env {
   double vpd; // vapor pressure deficit (Pa)
   double vp; // vapor pressure (Pa)
   double svp; // saturated vapor pressure (Pa)
+  atmdiag_env(): vpd(UIN_D), vp(UIN_D), svp(UIN_D) {}
 };
 
 struct vegdiag_dim {
@@ -35,6 +37,19 @@ struct vegdiag_dim {
                             //  on vegetation C (stand age related)
   double foliagemx[NUM_PFT]; //this is for 'ffoliage' not growing backward
 
+  vegdiag_dim(): fpcsum(UIN_D) {
+    for (int i = 0; i < NUM_PFT; ++i) {
+      growingttime[i] = UIN_D;
+      maxleafc[i] = UIN_D;
+      fleaf[i] = UIN_D;
+      unnormleaf[i] = UIN_D;
+      eetmx[i] = UIN_D;
+      unnormleafmx[i] = UIN_D;
+      topt[i] = UIN_D;
+      ffoliage[i] = UIN_D;
+      foliagemx[i] = UIN_D;
+    }
+  }
 };
 
 struct vegdiag_env {
@@ -45,6 +60,9 @@ struct vegdiag_env {
 
   double m_ppfd;     //
   double m_vpd;
+
+  vegdiag_env(): btran(UIN_D), rc(UIN_D), cc(UIN_D), m_ppfd(UIN_D), m_vpd(UIN_D)
+  {}
 
 };
 
@@ -58,6 +76,12 @@ struct vegdiag_bgc {
                            //  and vegetation carbon  pool
   double fna; // effect of nitrogen availability on gpp
   double fca; // effect of carbon availability on nuptake
+
+  vegdiag_bgc(): raq10(UIN_D), ftemp(UIN_D), gv(UIN_D), fna(UIN_D), fca(UIN_D) {
+    for (int i = 0; i < NUM_PFT_PART; ++i) {
+      kr[i] = UIN_D;
+    }
+  }
 };
 
 struct snwdiag_env {
@@ -66,6 +90,12 @@ struct snwdiag_env {
   double tcond[MAX_SNW_LAY];
 
   double fcmelt;         /*! melting factor */
+
+  snwdiag_env(): snowfreeFst(UIN_D), snowfreeLst(UIN_D), fcmelt(UIN_D) {
+    for (int i = 0; i < MAX_SNW_LAY; ++i) {
+      tcond[i] = UIN_D;
+    }
+  }
 
 };
 
@@ -107,7 +137,7 @@ struct soidiag_env {
                               //  in each soil layer (total 1.0)
 
 
-///// variables of summarized over soil horizons
+  // variables of summarized over soil horizons
   double tsave;    // all soil profile
   double tshlw;
   double tdeep;
@@ -135,7 +165,31 @@ struct soidiag_env {
   double hkmineb;
   double hkminec;
 
+  soidiag_env():
 
+      permafrost(UIN_I), unfrzcolumn(UIN_D), alc(UIN_D), ald(UIN_D),
+      rtdpts(UIN_D), rtdpthawpct(UIN_D), rtdpgdd(UIN_D), rtdpgrowstart(UIN_I),
+      rtdpgrowend(UIN_I), nfactor(UIN_D),
+
+      tsave(UIN_D), tshlw(UIN_D), tdeep(UIN_D), tminea(UIN_D), tmineb(UIN_D),
+      tminec(UIN_D), tbotrock(UIN_D), tcshlw(UIN_D), tcdeep(UIN_D),
+      tcminea(UIN_D), tcmineb(UIN_D), tcminec(UIN_D), frasat(UIN_D),
+      liqsum(UIN_D), icesum(UIN_D), vwcshlw(UIN_D), vwcdeep(UIN_D),
+      vwcminea(UIN_D), vwcmineb(UIN_D), vwcminec(UIN_D), hkshlw(UIN_D),
+      hkdeep(UIN_D), hkminea(UIN_D), hkmineb(UIN_D), hkminec(UIN_D) {
+
+    for (int i = 0; i < MAX_SOI_LAY; ++i) {
+      vwc[i] = UIN_D;
+      iwc[i] = UIN_D;
+      lwc[i] = UIN_D;
+      sws[i] = UIN_D;
+      aws[i] = UIN_D;
+      minliq[i] = UIN_D;
+      tcond[i] = UIN_D;
+      hcond[i] = UIN_D;
+      fbtran[i] = UIN_D;
+    }
+  }
 };
 
 struct soidiag_bgc {
@@ -165,10 +219,24 @@ struct soidiag_bgc {
   double orgnsum;
   double avlnsum;
 
+  soidiag_bgc(): shlwc(UIN_D), deepc(UIN_D), mineac(UIN_D), minebc(UIN_D),
+      minecc(UIN_D), rawcsum(UIN_D), somasum(UIN_D), somprsum(UIN_D),
+      somcrsum(UIN_D), orgnsum(UIN_D), avlnsum(UIN_D) {
+
+    for (int i = 0; i < MAX_SOI_LAY; ++i) {
+      knmoist[i] = UIN_D;
+      rhmoist[i] = UIN_D;
+      rhq10[i] = UIN_D;
+      ltrfcn[i] = UIN_D;
+      tsomc[i] = UIN_D;
+    }
+  }
+
 };
 
 struct soidiag_fir {
   double burnthick;
+  soidiag_fir(): burnthick(UIN_D) {}
 };
 
 #endif /*DIAGNOSTICS_H_*/
