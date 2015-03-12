@@ -1,11 +1,18 @@
-/*baseline on does not result in N loss.... This might be a useful way to deal with nonvascular N input,
-alternately it might be indicate a problem in the nitrogen cycle.
+/*
+Notes from C. Tucker, Feb 2015
 
-A fix to this problem is proposed, ie, offfpen ncycle..., so right now, the minimum change will be best....*
+baseline on does not result in N loss.... This might be a useful way to deal
+with nonvascular N input, alternately it might be indicate a problem in the
+nitrogen cycle.
+
+A fix to this problem is proposed, ie, offfpen ncycle..., so right now, the
+minimum change will be best....
 
 TEM6 does this, but dealing with nfixation, emissions, etc, is upcoming
 
-Continue deal with this as a closed N cycle, give nonvascular plants priority in N uptake over soil./
+Continue to deal with this as a closed N cycle, give nonvascular plants priority
+in N uptake over soil.
+*/
 
 
 /*
