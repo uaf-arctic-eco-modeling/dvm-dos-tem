@@ -50,14 +50,21 @@ Cohort::Cohort(int y, int x, ModelData* modeldatapointer):
   this->veg = Vegetation(this->cd.cmttype, modeldatapointer);
   this->soilbgc = Soil_Bgc();
 
+  BOOST_LOG_SEV(glg, debug) << "Setup the atmosphere...";
+  this->atm = Atmosphere(); // Mostly finished ctor??
+    
+  this->soilenv = Soil_Env();
+  
+  // this seems to set a lot of pointers...
+  // THis might need to be the last step in creating a cohort...
+  // after all the other components are ready...
+  this->initSubmodules();
+  
+  // using initSubmodules should obviate the need for this:
   // hack...
   //CohortData* cdp = &(this->cd);
   this->veg.setCohortData( &(this->cd) );
 
-  // this seems to set a lot of pointers...
-  this->initSubmodules();
-  
-  this->atm = Atmosphere(); // not done yet... looks tricky..
   
 /*
   //  ??  Timer * timer;
@@ -397,17 +404,19 @@ void Cohort::updateMonthly(const int & yrcnt, const int & currmind,
 
   if(currmind == 11) {
     BOOST_LOG_SEV(glg, debug) << "Clean up at end of year.";
+
     cd.endOfYear();
   }
 
-  if (md->outRegn) {
-    BOOST_LOG_SEV(glg, debug) << "Output all data for multiple cohorts.";
-    outbuffer.updateRegnOutputBuffer(currmind);
-  }
-
-  // always output the restart data (monthly)
-  BOOST_LOG_SEV(glg, debug) << "Output monthly restart data.";
-  outbuffer.updateRestartOutputBuffer();
+  BOOST_LOG_SEV(glg, debug) << "TODO: ouput some data!";
+//  if (md->outRegn) {
+//    BOOST_LOG_SEV(glg, debug) << "Output all data for multiple cohorts.";
+//    outbuffer.updateRegnOutputBuffer(currmind);
+//  }
+//
+//  // always output the restart data (monthly)
+//  BOOST_LOG_SEV(glg, debug) << "Output monthly restart data.";
+//  outbuffer.updateRestartOutputBuffer();
 };
 
 /////////////////////////////////////////////////////////////////////////////////

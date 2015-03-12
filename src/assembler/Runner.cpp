@@ -19,16 +19,25 @@ extern src::severity_logger< severity_level > glg;
 Runner::Runner(): calibrationMode(false) {
   chtid = -1;
   error = 0;
-  BOOST_LOG_SEV(glg, debug) << "Constructiong a Runner...";
+  BOOST_LOG_SEV(glg, debug) << "Constructing a Runner...";
 };
 
 
 Runner::Runner(ModelData mdldata, int y, int x):
     calibrationMode(false), y(y), x(x) {
 
-  BOOST_LOG_SEV(glg, note) << "Constructiong a Runner, new style, with ctor injected ModelData";
+  BOOST_LOG_SEV(glg, note) << "Constructing a Runner, new style, with ctor injected ModelData, and for explicit (y,x) position w/in the input data region.";
   this->md = mdldata;
   this->cohort = Cohort(y, x, &mdldata); // explicitly constructed cohort...
+
+  // within-grid cohort-level aggregated 'ed' (i.e. 'edall in 'cht')
+  BOOST_LOG_SEV(glg, debug) << "Create some empty containers for 'cohort-level aggregations of 'ed', (i.e. 'edall in 'cohort')";
+  this->chted = EnvData();
+  this->chtbd = BgcData();
+  this->chtfd = FirData();
+  
+  this->cohort.setProcessData(&this->chted, &this->chtbd, &this->chtfd);
+
 
 }
 
