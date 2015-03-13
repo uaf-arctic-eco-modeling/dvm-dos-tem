@@ -527,7 +527,7 @@ void Soil_Env::updateDailySM() {
   double baseflow = 1.; //fraction of bottom drainage (free) into water system:
                         //  0 - 1 upon drainage condition
 
-  if(cd->gd->drgtype==1) { //0: well-drained; 1: poorly-drained
+  if(cd->drainage_type == 1) { //0: well-drained; 1: poorly-drained
     baseflow = 0.;
   }
 

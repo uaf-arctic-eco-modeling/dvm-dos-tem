@@ -33,6 +33,8 @@ public:
 
   int cmttype; // vegetation community type
   int yrsdist; // years since last disturbance
+  
+  int drainage_type;
 
   bool hasnonvascular; //if exists non-vascular PFT(s) within the vegetation community
 

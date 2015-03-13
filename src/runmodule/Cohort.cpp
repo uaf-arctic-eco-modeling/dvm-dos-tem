@@ -41,7 +41,8 @@ Cohort::Cohort(int y, int x, ModelData* modeldatapointer):
   BOOST_LOG_SEV(glg, info) << "Make a CohortData...";
   this->cd = CohortData(); // empty? / uninitialized? / undefined? values...
   
-  cd.cmttype = temutil::get_veg_class("scripts/new-veg-dataset.nc", y, x);
+  this->cd.cmttype = temutil::get_veg_class("scripts/new-veg-dataset.nc", y, x);
+  this->cd.drainage_type = temutil::get_drainage_class("scripts/new-drainage-dataset.nc", y, x);
 
   BOOST_LOG_SEV(glg, info) << "Next, we build a CohortLookup object, properly configured with config directory and community type.";
   this->chtlu = CohortLookup( "config/", temutil::cmtnum2str(cd.cmttype) );
@@ -52,6 +53,7 @@ Cohort::Cohort(int y, int x, ModelData* modeldatapointer):
 
   BOOST_LOG_SEV(glg, debug) << "Setup the atmosphere...";
   this->atm = Atmosphere(); // Mostly finished ctor??
+
     
   this->soilenv = Soil_Env();
   
@@ -377,6 +379,13 @@ void Cohort::updateMonthly(const int & yrcnt, const int & currmind,
     cd.beginOfYear();
   }
 
+  // hard coding module on/off here for testing...
+  md->set_envmodule(true);
+  md->set_dvmmodule(true);
+  md->set_dslmodule(true);
+  md->set_bgcmodule(true);
+  md->set_dsbmodule(true);
+  
   BOOST_LOG_SEV(glg, debug) << "Clean up before a month starts.";
   cd.beginOfMonth();
 

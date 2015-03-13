@@ -49,6 +49,7 @@ namespace temutil {
   
   // draft - reading in vegetation for a single location
   int get_veg_class(const std::string &filename, int y, int x);
+  int get_drainage_class(const std::string &filename, int y, int x);
   
   std::string read_cmt_code(std::string s);
   int cmtcode2num(std::string s);

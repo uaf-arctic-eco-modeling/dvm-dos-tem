@@ -177,7 +177,7 @@ int WildFire::getOccur(const int &yrind, const bool & friderived) {
         if(fd->useseverity) {
           oneseverity = fseverity[i];
 
-          if(cd->gd->drgtype==1) { //if poorly-drained condition
+          if(cd->drainage_type == 1) { //if poorly-drained condition
             oneseverity = 1;
           }
 
@@ -436,7 +436,7 @@ void WildFire::burn() {
 void WildFire::deriveFireSeverity() {
   oneseverity = 0;
 
-  if(cd->gd->drgtype==0) {
+  if(cd->drainage_type==0) {
     if(oneseason==1 ||oneseason==2 || oneseason==4) {
       //Yuan:  (fireseason: 1, 2(early), 3(late), 4)
       if(onesize==1) { //Yuan: (firesize: 0, 1, 2, 3, 4)
@@ -449,7 +449,7 @@ void WildFire::deriveFireSeverity() {
     } else if (oneseason==3) { //late season fire
       oneseverity = 4;
     }
-  } else if(cd->gd->drgtype==1) {
+  } else if(cd->drainage_type==1) {
     oneseverity = 1;
   }
 };

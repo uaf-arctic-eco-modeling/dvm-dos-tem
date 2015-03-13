@@ -26,7 +26,7 @@
 extern src::severity_logger< severity_level > glg;
 
 namespace temutil {
-
+  
   /** Return the day of year based on month and day,  zero based. */
   int day_of_year(int month, int day) {
     return DOYINDFST[month]+ day;
@@ -311,6 +311,32 @@ namespace temutil {
     temutil::nc( nc_get_var1_int(ncid, veg_classificationV, start, &veg_class_value)  );
 
     return veg_class_value;
+  }
+
+  /** Looks up a pixel's drainage class from a netcdf file */
+  int get_drainage_class(const std::string& filename, int y, int x) {
+
+    BOOST_LOG_SEV(glg, debug) << "Opening dataset: " << filename;
+
+    int ncid;
+    temutil::nc( nc_open(filename.c_str(), NC_NOWRITE, &ncid ) );
+
+    int xD, yD;
+
+    temutil::nc( nc_inq_dimid(ncid, "Y", &yD) );
+    temutil::nc( nc_inq_dimid(ncid, "X", &xD) );
+
+    int drainage_classV;
+    temutil::nc( nc_inq_varid(ncid, "drainage_class", &drainage_classV) );
+
+    size_t start[2];
+    start[0] = y;
+    start[1] = x;
+
+    int drainage_class_value;
+    temutil::nc( nc_get_var1_int(ncid, drainage_classV, start, &drainage_class_value)  );
+
+    return drainage_class_value;
   }
 
 

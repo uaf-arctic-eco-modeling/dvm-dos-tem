@@ -10,6 +10,9 @@ extern src::severity_logger< severity_level > glg;
 /** Make a valid CohortData object. 
 *   All members are set to "Uninitialized" unless we know
 *   enough to otherwise set them?
+*  
+* How is this this different from the clear() member??
+*
 */
 CohortData::CohortData() {
 }
@@ -31,6 +34,7 @@ void CohortData::clear() {
   day   = MISSING_I;
   cmttype = MISSING_I;
   yrsdist = MISSING_I;
+  drainage_type = MISSING_I;
   hasnonvascular = false;
   act_vegset  = MISSING_I;
   fill_n(vegyear, MAX_VEG_SET, MISSING_I);
