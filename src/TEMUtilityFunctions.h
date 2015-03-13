@@ -17,6 +17,10 @@
 
 namespace temutil {
 
+  int day_of_year(int month, int day);
+
+  float length_of_day(float lat, int doy);
+
   std::string cmtnum2str(int cmtnumber);
 
   bool onoffstr2bool(const std::string &s);

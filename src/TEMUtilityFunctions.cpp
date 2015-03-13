@@ -17,12 +17,43 @@
 #include <json/reader.h>
 #include <json/value.h>
 
+#include "inc/physicalconst.h" // for PI
+#include "inc/timeconst.h" // for mapping from first day of month -> day of year
+
 #include "TEMLogger.h"
 #include "TEMUtilityFunctions.h"
 
 extern src::severity_logger< severity_level > glg;
 
 namespace temutil {
+
+  /** Return the day of year based on month and day,  zero based. */
+  int day_of_year(int month, int day) {
+    return DOYINDFST[month]+ day;
+  }
+
+  /** Length of day as a function of latitude (degrees) and day of year.
+  */
+  float length_of_day(float lat, int doy) {
+    // OLD COMMENTS - should update.
+    // the following are the original algorithm, and
+    //  modified as below by Yi (2013 Feb):
+    //  double ampl;
+    //  ampl = exp(7.42 +0.045 *gd.lat)/3600.;
+    //  gd.alldaylengths[id] = ampl * (sin ((id -79) *0.01721)) +12.0;
+    // make sure all arguments in sin, cos and tan are
+    //  in unit of arc (not degree)
+    //http://www.jgiesen.de/astro/solarday.htm
+    //http://www.gandraxa.com/length_of_day.xml
+
+    double m = 1 - tan(lat*PI/180.0) * tan(23.45 * cos(doy*PI/182.625) * PI/180.0);
+    m = fmax(m, 0.0);
+    m = fmin(m, 2.0);
+    double b = acos(1-m)/PI;
+    double daylength = b * 24;
+
+    return daylength;
+  }
 
   /** Takes an integer number and returns a string like "CMT01".
   * Inserts leading zeros if needed. Works if 0 <= cmtnumber <= 99.
