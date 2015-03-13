@@ -482,10 +482,19 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
   // (iii) daily light/water processes at plant canopy
   double tdrv, daylength;
 
-  for(int id =0; id<dinmcurr; id++) {
-    cd.day = id+1;
-    int doy =timer->getDOYIndex(currmind, id);
-    daylength = gd->alldaylengths[doy];
+  for(int id = 0; id < dinmcurr; id++) {
+
+    cd.day = id + 1; // apparently cd uses one based indexing...?
+
+    float lat = 0.0; // FIX ME!!
+
+    int doy = temutil::day_of_year(currmind, id);
+    daylength = temutil::length_of_day(lat, doy);
+
+    //int doy =timer->getDOYIndex(currmind, id);
+    //daylength = gd->alldaylengths[doy];
+
+
     //get the daily atm drivers and the data is in 'edall'
     atm.updateDailyAtm(currmind, id);
     //Initialize some daily variables for 'ground'
