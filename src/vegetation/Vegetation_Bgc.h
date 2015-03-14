@@ -46,7 +46,9 @@ public:
   void deltastate();
   void afterIntegration();
 
-  void adapt();
+  //void adapt();
+  void adapt_c2n_ratio_with_co2(const double & yreet, const double & yrpet,
+      const double & initco2, const double & currentco2);
 
   void setCohortLookup(CohortLookup* chtlup);
 

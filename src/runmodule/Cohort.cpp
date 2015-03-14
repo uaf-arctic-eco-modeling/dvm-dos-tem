@@ -379,16 +379,8 @@ void Cohort::updateMonthly(const int & yrcnt, const int & currmind,
     cd.beginOfYear();
   }
 
-  // hard coding module on/off here for testing...
-  md->set_envmodule(true);
-  md->set_dvmmodule(true);
-  md->set_dslmodule(true);
-  md->set_bgcmodule(true);
-  md->set_dsbmodule(true);
-  
   BOOST_LOG_SEV(glg, debug) << "Clean up before a month starts.";
   cd.beginOfMonth();
-
   if(md->get_envmodule()) {
     BOOST_LOG_SEV(glg, debug) << "Run the environmental module - updates water/thermal processes to get (bio)physical conditions.";
     updateMonthly_Env(currmind, dinmcurr);
@@ -649,7 +641,8 @@ void Cohort::updateMonthly_Bgc(const int & currmind) {
       bd[ip].veg_endOfMonth(); // yearly data accumulation
 
       if(currmind==11) {
-        vegbgc[ip].adapt(); // this will evolve C/N ratio with CO2
+        vegbgc[ip].adapt_c2n_ratio_with_co2(ed->y_l2a.eet, ed->y_l2a.pet, 0.0, ed->y_atms.co2);
+        //const double & yreet, const double & yrpet, const double & initco2, const double & currentco2
         bd[ip].veg_endOfYear();
       }
     }
