@@ -169,6 +169,8 @@ int main(int argc, char* argv[]){
           int colidx = col - row->begin();
           
           if (true == mask_value) {
+
+
             BOOST_LOG_SEV(glg, debug) << "Running cell (" << rowidx << ", " << colidx << ")";
 
             Runner runner( modeldata, rowidx, colidx);
@@ -183,6 +185,14 @@ int main(int argc, char* argv[]){
             runner.cohort.initSubmodules();
             runner.cohort.initStatePar();
 
+            // hard coding module on/off here for testing...
+            runner.cohort.md->set_envmodule(true);
+            runner.cohort.md->set_dvmmodule(true);
+            runner.cohort.md->set_dslmodule(true);
+            runner.cohort.md->set_bgcmodule(true);
+            runner.cohort.md->set_dsbmodule(true);
+            
+            
             // Ends up as a null pointer if calibrationMode is off.
             boost::shared_ptr<CalController> calcontroller_ptr;
 
@@ -190,48 +200,68 @@ int main(int argc, char* argv[]){
               calcontroller_ptr.reset( new CalController(&runner.cohort) );
             }
 
-            if(runner.cohort.md->runeq) {
 
-              BOOST_LOG_SEV(glg, info) << "Starting a quick pre-run to get "
-                                       << "reasonably-good 'env' conditions, "
-                                       << "which may then be good for 'eq' run...";
-              //env_only_warmup(calcontroller_ptr);
+            BOOST_LOG_SEV(glg, info) << "Starting a quick pre-run to get "
+                                     << "reasonably-good 'env' conditions, "
+                                     << "which may then be good for 'eq' run...";
+            //env_only_warmup(calcontroller_ptr);
 
-              // In calibration mode, equlibrium stage starting with only env and bgc
-              // switches on!
-              if (calcontroller_ptr) {
-                BOOST_LOG_SEV(glg, info) << "Pausing. Please check that the 'pre-run' "
-                                         << "data looks good.";
+            if (calcontroller_ptr) {
+              BOOST_LOG_SEV(glg, info) << "Pausing. Please check that the 'pre-run' "
+                                       << "data looks good.";
 
-                calcontroller_ptr->pause();
+              calcontroller_ptr->pause();
 
-                calcontroller_ptr->clear_and_create_json_storage();
+              calcontroller_ptr->clear_and_create_json_storage();
 
-                //runner.cohort.timer->reset();
-                BOOST_LOG_SEV(glg, info) << "Equilibrium stage. CALIBRATION MODE! Adjusting module settings...";
-                runner.cohort.md->set_envmodule(true);
-                runner.cohort.md->set_bgcmodule(true);
-                runner.cohort.md->set_nfeed(false);
-                runner.cohort.md->set_avlnflg(true);
-                runner.cohort.md->set_baseline(true);
-                runner.cohort.md->set_dsbmodule(false);
-                runner.cohort.md->set_dslmodule(false);
-                runner.cohort.md->set_dvmmodule(true);
-                runner.cohort.md->set_friderived(true);
-              } else {
+              //runner.cohort.timer->reset();
+              BOOST_LOG_SEV(glg, info) << "Equilibrium stage. CALIBRATION MODE! Adjusting module settings...";
+              runner.cohort.md->set_envmodule(true);
+              runner.cohort.md->set_bgcmodule(true);
+              runner.cohort.md->set_nfeed(false);
+              runner.cohort.md->set_avlnflg(true);
+              runner.cohort.md->set_baseline(true);
+              runner.cohort.md->set_dsbmodule(false);
+              runner.cohort.md->set_dslmodule(false);
+              runner.cohort.md->set_dvmmodule(true);
+              runner.cohort.md->set_friderived(true);
+            } else {
                 BOOST_LOG_SEV(glg, warn) << "NOT IN Calibration mode?? nothing to do??";
-              }
             }
             // Determine year settings? list of years to run based on stage?
             // Or simply base off of the amount of the inputdataset?
 
             /** TIMESTEP LOOPS */
             for (int iy = 0; iy < 10; ++iy) {
+
               for (int im = 0; im < 12; ++im) {
+
+
+                // See if a signal has arrived (possibly from user
+                // hitting Ctrl-C) and if so, stop the simulation
+                // and drop into the calibration "shell".
+                if (calcontroller_ptr) {
+                  calcontroller_ptr->check_for_signals();
+                }
+
                 int dinmcurr = runner.cohort.timer->getDaysInMonth(im);
                 runner.cohort.updateMonthly(iy, im, dinmcurr);
+
+                //if(this->get_calMode()) {
+                //  BOOST_LOG_SEV(glg, debug) << "Send monthly calibration data to json files...";
+                //  runner.output_caljson_monthly(icalyr, im);
+                //}
+
+              } /* end month loop */
+
+              BOOST_LOG_SEV(glg, note) << "Completed year " << iy << " for cohort/cell (row,col): (" << rowidx << "," << colidx << ")";
+
+              if(args->get_cal_mode()) { // check args->get_cal_mode() or calcontroller_ptr? ??
+                BOOST_LOG_SEV(glg, debug) << "Send yearly calibration data to json files...";
+                runner.output_caljson_yearly(iy);
               }
-            }
+
+            } /* end year loop */
 
           } else {
             BOOST_LOG_SEV(glg, debug) << "Skipping cell (" << rowidx << ", " << colidx << ")";

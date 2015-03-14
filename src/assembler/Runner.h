@@ -89,6 +89,8 @@ public:
   void set_calibrationMode(bool new_setting);
   bool get_calibrationMode();
   void modeldata_module_settings_from_args(const ArgHandler &args);
+  void output_caljson_yearly(int year);
+
 
 private:
   bool calibrationMode;
