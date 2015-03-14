@@ -183,12 +183,49 @@ int main(int argc, char* argv[]){
             runner.cohort.initSubmodules();
             runner.cohort.initStatePar();
 
+            // Ends up as a null pointer if calibrationMode is off.
+            boost::shared_ptr<CalController> calcontroller_ptr;
+
+            if ( args->get_cal_mode() ) {
+              calcontroller_ptr.reset( new CalController(&runner.cohort) );
+            }
+
+            if(runner.cohort.md->runeq) {
+
+              BOOST_LOG_SEV(glg, info) << "Starting a quick pre-run to get "
+                                       << "reasonably-good 'env' conditions, "
+                                       << "which may then be good for 'eq' run...";
+              //env_only_warmup(calcontroller_ptr);
+
+              // In calibration mode, equlibrium stage starting with only env and bgc
+              // switches on!
+              if (calcontroller_ptr) {
+                BOOST_LOG_SEV(glg, info) << "Pausing. Please check that the 'pre-run' "
+                                         << "data looks good.";
+
+                calcontroller_ptr->pause();
+
+                calcontroller_ptr->clear_and_create_json_storage();
+
+                //runner.cohort.timer->reset();
+                BOOST_LOG_SEV(glg, info) << "Equilibrium stage. CALIBRATION MODE! Adjusting module settings...";
+                runner.cohort.md->set_envmodule(true);
+                runner.cohort.md->set_bgcmodule(true);
+                runner.cohort.md->set_nfeed(false);
+                runner.cohort.md->set_avlnflg(true);
+                runner.cohort.md->set_baseline(true);
+                runner.cohort.md->set_dsbmodule(false);
+                runner.cohort.md->set_dslmodule(false);
+                runner.cohort.md->set_dvmmodule(true);
+                runner.cohort.md->set_friderived(true);
+              } else {
+                BOOST_LOG_SEV(glg, warn) << "NOT IN Calibration mode?? nothing to do??";
+              }
+            }
             // Determine year settings? list of years to run based on stage?
             // Or simply base off of the amount of the inputdataset?
 
-            // for each year
-                // runner.updateMonthly(...)
-
+            /** TIMESTEP LOOPS */
             for (int iy = 0; iy < 10; ++iy) {
               for (int im = 0; im < 12; ++im) {
                 int dinmcurr = runner.cohort.timer->getDaysInMonth(im);
