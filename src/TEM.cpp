@@ -125,7 +125,7 @@ int main(int argc, char* argv[]){
   
   time_t stime;
   time_t etime;
-  stime=time(0);
+  stime = time(0);
 
   BOOST_LOG_SEV(glg, note) << "Start dvmdostem @ " << ctime(&stime);
 
