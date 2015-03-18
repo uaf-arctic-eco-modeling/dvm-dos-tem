@@ -282,6 +282,29 @@ namespace temutil {
     
   }
   
+  /** rough draft for reading a fri for a single location */
+  int get_fri(const std::string, &filename, int y, int x) {
+    BOOST_LOG_SEV(glg, debug) << "Opening dataset: " << filename;
+    int ncid;
+    temutil::nc( nc_open(filename.c_str(), NC_NOWRITE, &ncid ) );
+
+    int yD, xD;
+    temutil::nc( nc_inq_dimid(ncid, "Y", &yD) );
+    temutil::nc( nc_inq_dimid(ncid, "X", &xD) );
+
+    int friV;
+    temutil::nc ( nc_inq_varid(ncid, "fri", &friV));
+
+    size_t start[2];
+    start[0] = y;
+    start[1] = x;
+
+    int fri_value;
+    temutil::nc( nc_get_var1_int(ncid, friV, start, &fri_value)  );
+
+    return fri_value;
+
+  }
   /** rough draft for reading a single location, veg classification
   */
   int get_veg_class(const std::string &filename, int y, int x) {

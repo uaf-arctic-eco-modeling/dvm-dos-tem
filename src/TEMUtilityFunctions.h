@@ -51,6 +51,8 @@ namespace temutil {
   int get_veg_class(const std::string &filename, int y, int x);
   int get_drainage_class(const std::string &filename, int y, int x);
   
+  // draft - reading in fire information for a single location
+  int get_fri(const std::string, &filename, int y, int x);
   std::string read_cmt_code(std::string s);
   int cmtcode2num(std::string s);
   std::string cmtnum2str(int cmtnumber);
