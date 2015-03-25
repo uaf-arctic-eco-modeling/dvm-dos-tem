@@ -308,14 +308,30 @@ def merge_tifs_to_single_timeseries_netcdf(dir): # path to directory of files...
 
 if __name__ == '__main__':
 	
-  parser = argparse.ArgumentParser(description=textwrap.dedent('''
-    De-trend climate data. Takes an input file directory selects 
+  parser = argparse.ArgumentParser(
+    formatter_class=argparse.RawDescriptionHelpFormatter,
+    description=textwrap.dedent('''
+    De-trend climate data. Takes an input file directory, selects
     a single month's files for all years. Removes trend along time
-    axis, and writes a new set of netcdf files in the same "shape",
-    (but with slightly different nomenclature: the netcdf file will
-    have dimensions (time, y, x), while the tifs are 2D raster images
-    files, with a single "band" for the variable).
-  '''))
+    axis, and writes a new set of netcdf files in the same "shape":
+
+        $ ncdump -h tas_mean_C_iem_ccma_cgcm3_1_sresa1b_2009.nc
+        netcdf tas_mean_C_iem_cccma_cgcm3_1_sresa1b_01_2089 {
+        dimensions:
+        	y = 1850 ;
+        	x = 2560 ;
+        variables:
+        	int64 y(y) ;
+        	int64 x(x) ;
+        	float Band1(y, x) ;
+        }
+
+    While the nomenclature is slightly different, the concept is the same:
+    The netcdf file will have dimensions (y, x), with a single variable,
+    "Band1" that is in terms of (y, x). The tifs are 2D raster image
+    files, with a single "band" for the variable.
+    ''')
+  )
 
   parser.add_argument('--ss', 
     help=textwrap.dedent('''A 'start:stop' string used to generate a range of 
