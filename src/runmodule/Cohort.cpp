@@ -129,7 +129,6 @@ void Cohort::initSubmodules() {
     veg.setBgcData(i, &bd[i]);
     vegenv[i].setCohortLookup(&chtlu);
     vegenv[i].setEnvData(&ed[i]);
-    vegenv[i].setCohortData(&cd);
     vegenv[i].setFirData(fd);
     vegbgc[i].setCohortLookup(&chtlu);
     vegbgc[i].setCohortData(&cd);
@@ -523,8 +522,8 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
         }
 
         // calculate vegetation light/water dynamics at daily timestep
-        vegenv[ip].updateRadiation();
-        vegenv[ip].updateWaterBalance(daylength);  //daylength in hours
+        vegenv[ip].updateRadiation(cd.m_veg.lai[ip], cd.m_veg.fpc[ip]);
+        vegenv[ip].updateWaterBalance(daylength, cd.m_veg.lai[ip], cd.m_veg.fpc[ip]);
       }
     }
 

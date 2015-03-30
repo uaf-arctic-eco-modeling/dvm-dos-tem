@@ -24,7 +24,6 @@ public:
   vegpar_env envpar;
 
   void setCohortLookup(CohortLookup * chtlup);
-  void setCohortData(CohortData* cdp);
   void setEnvData(EnvData* edatap);
   void setFirData(FirData* fdp);
 
@@ -37,7 +36,6 @@ public:
 
 private:
 
-  CohortData * cd;
   EnvData * ed;
   FirData * fd;
   CohortLookup * chtlu;

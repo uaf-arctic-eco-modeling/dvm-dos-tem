@@ -17,9 +17,9 @@
  *       must be set ONE important index:
  *          pfttype
  *
- *   (4) FOUR (4) data pointers must be initialized by calling
+ *   (4) THREE (3) data pointers must be initialized by calling
  *       corresponding 'set...' methods
- *          chtlu, cd, ed, fd
+ *          chtlu, ed, fd
  *
  */
 
@@ -380,10 +380,6 @@ double Vegetation_Env::getSnowInterception(const double & snow,
 
 void Vegetation_Env::setCohortLookup(CohortLookup * chtlup) {
   chtlu = chtlup;
-};
-
-void Vegetation_Env::setCohortData(CohortData* cdp) {
-  cd = cdp;
 };
 
 void Vegetation_Env::setEnvData(EnvData* edatap) {
