@@ -282,6 +282,35 @@ namespace temutil {
     
   }
   
+  /** rough draft - look up lon/lat in nc file from y,x coordinates. 
+      Assumes that the file has some coordinate dimensions...
+  */
+  std::pair<float, float> get_lonlat(const std::string& filename, int y, int x) {
+    BOOST_LOG_SEV(glg, debug) << "Opening dataset: " << filename;
+    int ncid;
+    temutil::nc( nc_open(filename.c_str(), NC_NOWRITE, &ncid ) );
+
+    int yD, xD;
+    temutil::nc( nc_inq_dimid(ncid, "Y", &yD) );
+    temutil::nc( nc_inq_dimid(ncid, "X", &xD) );
+
+    int lonV;
+    int latV;
+    temutil::nc( nc_inq_varid(ncid, "lon", &lonV) );
+    temutil::nc( nc_inq_varid(ncid, "lat", &latV) );
+
+    size_t start[2];
+    start[0] = y;
+    start[1] = x;
+
+    float lon_value;
+    float lat_value;
+    temutil::nc( nc_get_var1_float(ncid, lonV, start, &lon_value));
+    temutil::nc( nc_get_var1_float(ncid, latV, start, &lat_value));
+
+    return std::pair<float, float>(lon_value, lat_value);
+  }
+
   /** rough draft for reading a fri for a single location */
   int get_fri(const std::string, &filename, int y, int x) {
     BOOST_LOG_SEV(glg, debug) << "Opening dataset: " << filename;

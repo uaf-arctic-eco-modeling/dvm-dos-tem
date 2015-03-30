@@ -38,6 +38,11 @@ Cohort::Cohort(int y, int x, ModelData* modeldatapointer):
 
   BOOST_LOG_SEV(glg, info) << "Cohort constructor NEW STYLE!";
   
+  BOOST_LOG_SEV(glg, info) << "Looking up and setting lon/lat for cohort...";
+  std::pair<float, float> lonlat = temutil::get_lonlat("scripts/new-climate-dataset.nc", y, x);
+  this->lon = lonlat.first;
+  this->lat = lonlat.second;
+
   BOOST_LOG_SEV(glg, info) << "Make a CohortData...";
   this->cd = CohortData(); // empty? / uninitialized? / undefined? values...
   
@@ -470,6 +475,7 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
   edall->atm_beginOfMonth();
   edall->veg_beginOfMonth();
   edall->grnd_beginOfMonth();
+
   // (iii) daily light/water processes at plant canopy
   double tdrv, daylength;
 
@@ -477,14 +483,8 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
 
     cd.day = id + 1; // apparently cd uses one based indexing...?
 
-    float lat = 0.0; // FIX ME!!
-
     int doy = temutil::day_of_year(currmind, id);
-    daylength = temutil::length_of_day(lat, doy);
-
-    //int doy =timer->getDOYIndex(currmind, id);
-    //daylength = gd->alldaylengths[doy];
-
+    daylength = temutil::length_of_day(this->lat, doy);
 
     //get the daily atm drivers and the data is in 'edall'
     atm.updateDailyAtm(currmind, id);

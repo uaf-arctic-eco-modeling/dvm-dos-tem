@@ -44,6 +44,9 @@ public :
   int y;
   int x;
 
+  float lon;
+  float lat;
+
   // model running status
   int errorid;
   bool failed;    // when an exception is caught, set failed to be true
@@ -107,6 +110,7 @@ public :
 
   void NEW_load_climate_from_file(int y, int x);
   void NEW_load_veg_class_from_file(int y, int x);
+  void NEW_load_fire_from_file(int y, int x);
 
   void load_climate_from_file(int years, int record);
   void load_vegdata_from_file(int record);
