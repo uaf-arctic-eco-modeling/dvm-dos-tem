@@ -58,47 +58,46 @@ void Vegetation_Env::initializeState5restart(RestartData* resin) {
 };
 
 //solar radiation (unit: W/m2) on canopy and its energy balance
-void Vegetation_Env::updateRadiation() {
-  //lai/fpc from 'cd'
-  double envlai = cd->m_veg.lai[ipft];
-  double fpc = cd->m_veg.fpc[ipft];
-  //some constants
-  double EPAR = 4.55; //an average energy for PAR photon (umol/J)
+void Vegetation_Env::updateRadiation(double leaf_area_index, double foliar_projected_cover) {
+
+  double EPAR = 4.55; // average energy for PAR photon (umol/J)
+  
   // solar radiation and its energy balance
-  ed->d_v2a.swrefl = (ed->d_a2l.nirr*fpc) *envpar.albvisnir; //unit W/m2 (FPC adjusted)
-  ed->d_a2v.swdown = (ed->d_a2l.nirr*fpc) - ed->d_v2a.swrefl;
-  ed->d_v2g.swthfl  = ed->d_a2v.swdown * exp(-envpar.er * envlai);
+  ed->d_v2a.swrefl = (ed->d_a2l.nirr * foliar_projected_cover) * envpar.albvisnir; //unit W/m2 (FPC adjusted)
+  ed->d_a2v.swdown = (ed->d_a2l.nirr * foliar_projected_cover) - ed->d_v2a.swrefl;
+  ed->d_v2g.swthfl  = ed->d_a2v.swdown * exp(-envpar.er * leaf_area_index);
   ed->d_a2v.swinter = ed->d_a2v.swdown - ed->d_v2g.swthfl;
+  
   // PAR and its absorption by canopy
-  double par = ed->d_a2l.par*fpc;   // fpc adjusted here
-  ed->d_a2v.pardown    = par*(1.0 - envpar.albvisnir);
+  double par = ed->d_a2l.par * foliar_projected_cover;   // fpc adjusted here
+  ed->d_a2v.pardown    = par * (1.0 - envpar.albvisnir);
+  
   // absorbed PAR: W/m2
-  ed->d_a2v.parabsorb  = ed->d_a2v.pardown*(1.0-exp(-envpar.er * envlai));
+  ed->d_a2v.parabsorb  = ed->d_a2v.pardown * (1.0 - exp(-envpar.er * leaf_area_index));
+  
   double ppfd50  = envpar.ppfd50 ;//mumol/m2s, ppfd for 0.5 stomatal closure
-  ed->d_vegd.m_ppfd = ed->d_a2v.pardown*EPAR/(ed->d_a2v.pardown*EPAR + ppfd50);
-};
+  ed->d_vegd.m_ppfd = ed->d_a2v.pardown * EPAR / (ed->d_a2v.pardown * EPAR + ppfd50);
+}
 
 //VEGETATION DAILY WATER BALANCE CALCULATION
-void Vegetation_Env::updateWaterBalance(const double & daylhr) {
-  //lai/fpc from 'cd'
-  double envlai = cd->m_veg.lai[ipft];
-  double fpc = cd->m_veg.fpc[ipft];
-  //
-  double daylsec = daylhr* 3600.;// from hour to sec
-  double EPAR = 4.55 ;           //an average energy for PAR photon (umol/J)
+void Vegetation_Env::updateWaterBalance(const double & daylhr, double leaf_area_index, double foliar_projected_cover) {
+
+  double daylsec = daylhr * 3600.0; // from hour to sec
+  double EPAR = 4.55 ;              //an average energy for PAR photon (umol/J)
+
   // variables calculated in 'atmosphere.cpp'
   double vpd  = ed->d_atmd.vpd;
   double ta   = ed->d_atms.ta;
   double snfl = ed->d_a2l.snfl;  // this is the total atm to land
   double rnfl = ed->d_a2l.rnfl;
-  ed->d_a2v.snfl = snfl*fpc;   //note: FPC adjusted here
-  ed->d_a2v.rnfl = rnfl*fpc;
-  double downpar = ed->d_a2v.pardown;   //note: already FPC adjusted
+  ed->d_a2v.snfl = snfl * foliar_projected_cover;   //note: foliar_projected_cover adjusted here
+  ed->d_a2v.rnfl = rnfl * foliar_projected_cover;
+  double downpar = ed->d_a2v.pardown;             //note: already foliar_projected_cover adjusted
 
-  if(envlai >0) {
+  if(leaf_area_index >0) {
     //precipitation interception and throughfall
-    ed->d_a2v.rinter = getRainInterception(ed->d_a2v.rnfl, envlai);
-    ed->d_a2v.sinter = getSnowInterception(ed->d_a2v.snfl, envlai);
+    ed->d_a2v.rinter = getRainInterception(ed->d_a2v.rnfl, leaf_area_index);
+    ed->d_a2v.sinter = getSnowInterception(ed->d_a2v.snfl, leaf_area_index);
     ed->d_v2g.rthfl = ed->d_a2v.rnfl- ed->d_a2v.rinter;
     ed->d_v2g.sthfl = ed->d_a2v.snfl -ed->d_a2v.sinter;
     //evaportranspiration
@@ -120,13 +119,13 @@ void Vegetation_Env::updateWaterBalance(const double & daylhr) {
     double gl_t_wv = (gl_bl *gl_st)/(gl_bl+gl_st+gl_c);
     double gl_sh = gl_bl;
     double gl_e_wv = gl_bl;
-    double gc_e_wv = gl_e_wv * envlai;
-    double gc_sh =gl_sh * envlai;
+    double gc_e_wv = gl_e_wv * leaf_area_index;
+    double gc_sh =gl_sh * leaf_area_index;
     double gl_t_wv_pet = (gl_bl *envpar.glmax)/(gl_bl+envpar.glmax+gl_c);
     double gl_sh_pet = gl_bl;
     double gl_e_wv_pet = gl_bl;
-    double gc_e_wv_pet = gl_e_wv_pet * envlai;
-    double gc_sh_pet =gl_sh_pet * envlai;
+    double gc_e_wv_pet = gl_e_wv_pet * leaf_area_index;
+    double gc_sh_pet =gl_sh_pet * leaf_area_index;
     double sw =ed->d_a2v.swinter;
     double daytimesw = sw;
     double rainsw = sw;
@@ -191,13 +190,13 @@ void Vegetation_Env::updateWaterBalance(const double & daylhr) {
       ed->d_v2a.tran_pet = et3_pet * daylsec;
     }
 
-    ed->d_v2a.sublim = getCanopySubl(ed->d_a2v.swdown,ed->d_a2v.sinter, envlai);
+    ed->d_v2a.sublim = getCanopySubl(ed->d_a2v.swdown,ed->d_a2v.sinter, leaf_area_index);
     ed->d_vegd.cc = gc_e_wv;
     ed->d_vegd.rc = 1./ed->d_vegd.cc;
     ed->d_vegs.snow  += (ed->d_a2v.sinter - ed->d_v2a.sublim);
     ed->d_vegs.rwater+= (ed->d_a2v.rinter - ed->d_v2a.evap);
     ed->d_v2g.sdrip = 0.0;
-    double maxvegsnow = 0.10*envlai; //that 0.10 LAI mm snow on vegetation is
+    double maxvegsnow = 0.10*leaf_area_index; //that 0.10 LAI mm snow on vegetation is
                                      //arbitrary - needs more mechanism
                                      //to do this
 
@@ -207,7 +206,7 @@ void Vegetation_Env::updateWaterBalance(const double & daylhr) {
 
     ed->d_vegs.snow -= ed->d_v2g.sdrip;
     ed->d_v2g.rdrip = 0.0;
-    double maxvegrain = 0.05*envlai; //that 0.05 LAI mm rain storage is
+    double maxvegrain = 0.05*leaf_area_index; //that 0.05 LAI mm rain storage is
                                      //arbitrary - needs more mechanism
                                      //to do this
 
@@ -216,7 +215,7 @@ void Vegetation_Env::updateWaterBalance(const double & daylhr) {
     }
 
     ed->d_vegs.rwater -= ed->d_v2g.rdrip;
-  } else {   //envlai <=0, i.e., no vegetation?
+  } else {   //leaf_area_index <=0, i.e., no vegetation?
     ed->d_vegd.cc =0.;
     ed->d_vegd.rc =0.;
     ed->d_a2v.rinter =0.;

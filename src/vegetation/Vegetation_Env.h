@@ -32,8 +32,8 @@ public:
   void initializeState();
   void initializeState5restart(RestartData* resin);
 
-  void updateRadiation();
-  void updateWaterBalance(const double & daylhr);
+  void updateRadiation(double leaf_area_index, double foliar_projected_cover);
+  void updateWaterBalance(const double &daylhr, double leaf_area_index, double foliar_projected_cover);
 
 private:
 
