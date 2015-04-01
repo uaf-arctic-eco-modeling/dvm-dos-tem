@@ -64,8 +64,8 @@ def log_file_stats(file_list):
   logging.info( "%i json files in %s" % (len(file_list), YRTMPDIR) )
 
   if len(file_list) > 0:
-    ffy = int(os.path.basename(file_list[0])[0:4])
-    lfy = int(os.path.basename(file_list[-1])[0:4])
+    ffy = int(os.path.basename(file_list[0])[0:5])
+    lfy = int(os.path.basename(file_list[-1])[0:5])
     logging.debug( "First file: %s (year %s)" % (file_list[0], ffy) )
     logging.debug( "Last file: %s (year %s)" % (file_list[-1], lfy) )
 
@@ -206,7 +206,7 @@ class ExpandingWindow(object):
       try:
         with open(file) as f:
           fdata = json.load(f)
-      except IOError as e:
+      except (IOError, ValueError) as e:
         logging.error(e)
       
       idx = int(os.path.basename(file)[0:5])
