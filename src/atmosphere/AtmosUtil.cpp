@@ -5,11 +5,16 @@
 AtmosUtil::AtmosUtil() {
 
   // nothing to instantiate here; itp should really not be a class....
+  // or rather there is no need for AtmosUtil to have an instance of the
+  // Interpolator as a data member if Interpolator makes its interpolate function
+  // public and static.
   //  Interpolator itp;
+
   for (int i = 0 ; i < 32; ++i) {
     RAINDUR[i] = UIN_D;
     RAININTE[i] = UIN_D;
   }
+
 }
 
 

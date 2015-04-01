@@ -118,8 +118,8 @@ int main(int argc, char* argv[]){
 
   // Create empty output files now so that later, as the program
   // proceeds, there is somewhere to append output data...
-  // ??? Maybe the type/shape of outputs to create can or shoudl depend on
-  //     some of the settings in the ModelData object?
+  // ??? Maybe the type/shape of outputs that we create can, or should, depend on
+  // ??? some of the settings in the ModelData object?
   BOOST_LOG_SEV(glg, note) << "Creating a fresh 'n clean NEW output file...";
   create_new_output();
   
@@ -132,7 +132,22 @@ int main(int argc, char* argv[]){
   // Read in C02 - read all data (years) even though some stages/configurations
   //               may use only the first year
   std::vector<float> co2_vec = read_new_co2_file("scripts/new-co2-dataset.nc");
+  
+  // NOTE: Are there any conttraints on the length of the co2 vector??
+  
+  /* Can read the input data and parameters to choose a few things:
+  
+   - Stage
+    eq
+    sp
+    tr
+    sc
 
+   - Cal mode
+    - available in all stages?
+   - outputs to setup
+   
+  */
 
   if (args->get_new_style()) {
 
@@ -143,18 +158,22 @@ int main(int argc, char* argv[]){
 
     if (args->get_loop_order() == "space-major") {
 
-      // y == row == lat
-      // x == col == lon
+      // y <==> row <==> lat
+      // x <==> col <==> lon
 
-      /* Loop over a 2D grid of 'cells' (cohorts?),
+      /* 
+         Loop over a 2D grid of 'cells' (cohorts?),
          run each cell for some number of years. 
          
-         Processing starts in the lower left corner.
+         Processing starts in the lower left corner (0,0).
          Should really look into replacing this loop with 
          something like python's map(...) function...
+          --> Could this allow us to use a map reduce strategy??
        
-        Look into std::transform. */
+         Look into std::transform. 
+      */
 
+      // Use a few type definitions to save some typing.
       typedef std::vector<int> vec;
       typedef std::vector<vec> vec2D;
 
@@ -173,7 +192,7 @@ int main(int argc, char* argv[]){
 
             BOOST_LOG_SEV(glg, debug) << "Running cell (" << rowidx << ", " << colidx << ")";
 
-            Runner runner( modeldata, rowidx, colidx);
+            Runner runner(modeldata, rowidx, colidx);
 
             // should we need to call all these cohort setup functions?
             // Or assume that when a Runner is created, for a spatial
@@ -207,7 +226,8 @@ int main(int argc, char* argv[]){
             //env_only_warmup(calcontroller_ptr);
 
             if (calcontroller_ptr) {
-              BOOST_LOG_SEV(glg, info) << "Pausing. Please check that the 'pre-run' "
+              BOOST_LOG_SEV(glg, info) << "CALIBRATION MODE. Pausing. "
+                                       << "Please check that the 'warm up' "
                                        << "data looks good.";
 
               calcontroller_ptr->pause();
