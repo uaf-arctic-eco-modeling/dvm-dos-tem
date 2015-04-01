@@ -53,6 +53,9 @@ public:
   void setupData();
   void setupIDs();
 
+  void quick_env_only_warmup_run(int year_start, int year_end, boost::shared_ptr<CalController> calcontroller_ptr);
+  void run_years(int year_start, int year_end, boost::shared_ptr<CalController> cal_ctrl_ptr);
+
   /* three settings for running TEM */
   void single_site();  /* one site run-mode, used for stand-alone TEM
                          for any purpose */

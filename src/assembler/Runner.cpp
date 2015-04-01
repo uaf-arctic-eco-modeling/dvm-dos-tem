@@ -426,6 +426,67 @@ void Runner::setupIDs() {
   }
 };
 
+/** rough draft - run some env-only warmup years...*/
+void Runner::quick_env_only_warmup_run(int year_start, int year_end, boost::shared_ptr<CalController> calcontroller_ptr) {
+  BOOST_LOG_SEV(glg, info) << "Starting a quick pre-run to get "
+                           << "reasonably-good 'env' conditions, "
+                           << "which may then be good for 'eq' run...";
+
+  BOOST_LOG_SEV(glg, info) << "Turn off all modules except 'env'.";
+  this->md.set_envmodule(true);
+  this->md.set_bgcmodule(false);
+  this->md.set_nfeed(false);
+  this->md.set_avlnflg(false);
+  this->md.set_baseline(false);
+  this->md.set_dsbmodule(false);
+  this->md.set_dslmodule(false);
+  this->md.set_dvmmodule(false);
+
+  BOOST_LOG_SEV(glg, info) << "Set years since disturbance (1000)";
+  this->cohort.cd.yrsdist = 1000;
+
+  BOOST_LOG_SEV(glg, info) << "Run years " << year_start << " to " << year_end;
+  this->run_years(year_start, year_end, calcontroller_ptr);
+
+  BOOST_LOG_SEV(glg, info) << "Completed env module only 'warm up' run.";
+}
+
+void Runner::run_years(int start_year, int end_year, boost::shared_ptr<CalController> cal_ctrl_ptr) {
+  /** TIMESTEP LOOPS */
+  for (int iy = start_year; iy < end_year; ++iy) {
+
+    for (int im = 0; im < 12; ++im) {
+
+      // See if a signal has arrived (possibly from user
+      // hitting Ctrl-C) and if so, stop the simulation
+      // and drop into the calibration "shell".
+      if (cal_ctrl_ptr) {
+        cal_ctrl_ptr->check_for_signals();
+      }
+
+      int dinmcurr = this->cohort.timer->getDaysInMonth(im);
+      this->cohort.updateMonthly(iy, im, dinmcurr);
+
+      // Maybe we are not really using this? Restults in a whole
+      // boat load of files generated....
+      //if(this->get_calMode()) {
+      //  BOOST_LOG_SEV(glg, debug) << "Send monthly calibration data to json files...";
+      //  this->output_caljson_monthly(icalyr, im);
+      //}
+
+    } /* end month loop */
+
+    BOOST_LOG_SEV(glg, note) << "Completed year " << iy << " for cohort/cell (row,col): (" << this->y << "," << this->x << ")";
+
+    if(cal_ctrl_ptr) { // check args->get_cal_mode() or calcontroller_ptr? ??
+      BOOST_LOG_SEV(glg, debug) << "Send yearly calibration data to json files...";
+      this->output_caljson_yearly(iy);
+    }
+
+  } /* end year loop */
+}
+
+
 /** Single site runmode.
 */
 void Runner::single_site() {
