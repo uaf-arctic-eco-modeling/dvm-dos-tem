@@ -455,6 +455,9 @@ void Runner::run_years(int start_year, int end_year, boost::shared_ptr<CalContro
   /** TIMESTEP LOOPS */
   for (int iy = start_year; iy < end_year; ++iy) {
 
+    /* Interpolate all the monthly values...? */
+    cohort.prepareDayDrivingData(iy, 0);
+
     for (int im = 0; im < 12; ++im) {
 
       // See if a signal has arrived (possibly from user

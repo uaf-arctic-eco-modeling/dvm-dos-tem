@@ -348,7 +348,7 @@ void Cohort::prepareDayDrivingData(const int & yrindx, const int & usedatmyr) {
   }
 
   // preparing ONE year daily driving data
-  if (timer->eqend) {
+  if (true/*timer->eqend*/) {
     //run the model after eq stage, climate and co2
     //  driver controlled by setting in control file.
     if (md->changeclimate == 1) {
@@ -486,6 +486,19 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
     int doy = temutil::day_of_year(currmind, id);
     daylength = temutil::length_of_day(this->lat, doy);
 
+    /* We are in a Cohort here.
+       We use our Atmosphere obj to update our EnvData objects's daily
+       climate arrays.
+
+       Atmosphere carries daily data for a whole year in arrays shaped [12][31]
+
+       EnvData carries single values for temp, co2, prec, rainfall, snowfall,
+       nirr, par, and vapor pressure.
+
+       ISSUE: At this point, Atmosphere must have already setup its daily
+              structures.
+
+    */
     //get the daily atm drivers and the data is in 'edall'
     atm.updateDailyAtm(currmind, id);
     //Initialize some daily variables for 'ground'

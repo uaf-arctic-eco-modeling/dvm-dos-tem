@@ -291,7 +291,9 @@ void Atmosphere::prepareDayDrivingData(const int & yrcount,
       co2  = cd->rd->co2[MAX_CO2_DRV_YR-1]; //this reuse the last CO2 data
     }
   } else {
-    co2  = cd->rd->initco2;
+    co2  = 296.31005; // FIX THIS!!!!!
+    // Should be the first item in the co2 vector that is in scope in main().
+    // Not sure how to best get access here....
   }
 };
 
