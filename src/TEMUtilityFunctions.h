@@ -47,7 +47,7 @@ namespace temutil {
                                               const std::string &var,
                                               int y, int x);
   
-  std::pair<float,float> get_lonlat(const std::string& filename, int y, int x);
+  std::pair<float,float> get_latlon(const std::string& filename, int y, int x);
 
   // draft - reading in vegetation for a single location
   int get_veg_class(const std::string &filename, int y, int x);

@@ -38,10 +38,10 @@ Cohort::Cohort(int y, int x, ModelData* modeldatapointer):
 
   BOOST_LOG_SEV(glg, info) << "Cohort constructor NEW STYLE!";
   
-  BOOST_LOG_SEV(glg, info) << "Looking up and setting lon/lat for cohort...";
-  std::pair<float, float> lonlat = temutil::get_lonlat("scripts/new-climate-dataset.nc", y, x);
-  this->lon = lonlat.first;
-  this->lat = lonlat.second;
+  BOOST_LOG_SEV(glg, info) << "Looking up and setting lat/lon for cohort...";
+  std::pair<float, float> latlon = temutil::get_latlon("scripts/new-climate-dataset.nc", y, x);
+  this->lat = latlon.first;
+  this->lon = latlon.second;
 
   BOOST_LOG_SEV(glg, info) << "Make a CohortData...";
   this->cd = CohortData(); // empty? / uninitialized? / undefined? values...
