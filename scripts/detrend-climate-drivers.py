@@ -192,7 +192,7 @@ def main(args):
   #       is key for displaying the data and having the auto-
   #       scaling work correctly...
   print "Masking extreme data..."
-  data = np.ma.masked_outside(data, -100, 100, copy=False)
+  data = np.ma.masked_outside(data, -100000, 100000, copy=False)
   print_mask_report(data)
 
   # Detrend for each pixel over the time axis.
@@ -210,7 +210,7 @@ def main(args):
 
   print "Mask extreme values..."
   print "(apparently previous mask not respected by scipy.signal.detrend and the '+=' operator)"
-  detrended_data = np.ma.masked_outside(detrended_data, -100, 100)
+  detrended_data = np.ma.masked_outside(detrended_data, -100000, 100000)
   print_mask_report(detrended_data)
 
   # Apply the most aggressive mask to every timeslice.
