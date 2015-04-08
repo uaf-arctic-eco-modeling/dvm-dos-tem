@@ -292,15 +292,24 @@ void BgcData::soil_endOfMonth() {
       }
       mlind ++;
     }
-
-    m_soid.rawcsum += m_sois.rawc[il];
-    m_soid.somasum += m_sois.soma[il];
-    m_soid.somprsum+= m_sois.sompr[il];
-    m_soid.somcrsum+= m_sois.somcr[il];
-    m_soid.orgnsum += m_sois.orgn[il];
-    //if(il < 6){
+    if(m_sois.rawc[il]>=0){
+      m_soid.rawcsum += m_sois.rawc[il];
+    }
+    if(m_sois.soma[il]>=0){
+      m_soid.somasum += m_sois.soma[il];
+    }
+    if(m_sois.sompr[il]>=0){
+      m_soid.somprsum+= m_sois.sompr[il];
+    }
+    if(m_sois.somcr[il]>=0){
+      m_soid.somcrsum+= m_sois.somcr[il];
+    }
+    if(m_sois.orgn[il]>=0){
+      m_soid.orgnsum += m_sois.orgn[il];
+    }
+    if(m_sois.avln[il]>=0){
       m_soid.avlnsum += m_sois.avln[il];
-    //}
+    }
   }
 
   // previous monthly accumulating variables
