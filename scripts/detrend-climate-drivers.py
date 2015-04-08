@@ -23,9 +23,15 @@ def cat_array_driver_script():
 
         # Sample driver script for running detrend-climate-drivers.py on atlas under SLURM.
         # 
+        #  NOTES:
+        #  =======================
         #  - Will read and write data on /big_scratch!
         #  - Assumes certain directory layout in order to call the correct script(s).
-        #  
+        #  - Change the INDIR, OUTDIR, and the path to the script in the final srun call
+        #    to suit your needs.
+        #
+        #  EXAMPLES:
+        #  ========================
         #  Run months 7 thru 12
         #     tcarman2@atlas ~ $ sbatch --array 7-12 --exclusive -p main example-array-driver.sh
         #
@@ -268,10 +274,12 @@ def main(args):
   # USING RASTERIO TO WRITE OUTPUT FILES...
   with rasterio.drivers(CPL_DEBUG=True , WRITE_BOTTOMUP=False):
     # NOTE: Tried using rasterio's gdal driver to directly write netcdf. 
-    #        works w/o errors, but some percentage of the files come out 
-    #        upside down...even trying to pass the WRITE_BOTTOMUP=[YES/NO] 
-    #        flag in the driver context handler...
- 
+    #       works w/o errors, but some percentage of the files come out 
+    #       upside down...even trying to pass the WRITE_BOTTOMUP=[YES/NO] 
+    #       flag in the driver context handler...
+    # 4/8/2015: Working in embedded IPython interperter, I can't seem to see how 
+    #           the WRITE_BOTTOMUP is being used. Seems to be ignored...
+
     # See here for driver info
     # http://www.gdal.org/frmt_netcdf.html
     # Maybe we can set more options??
@@ -329,6 +337,10 @@ if __name__ == '__main__':
     The netcdf file will have dimensions (y, x), with a single variable,
     "Band1" that is in terms of (y, x). The tifs are 2D raster image
     files, with a single "band" for the variable.
+
+    Also provided is an example driver script that can be used to run this 
+    de-trending routine on altas under SLURM. Use the --cat-array-driver
+    flag to output the example driver script to starnard out.
     ''')
   )
 
@@ -351,7 +363,7 @@ if __name__ == '__main__':
 
 
   parser.add_argument('--cat-array-driver', action='store_true',
-    help=textwrap.dedent('''Print a sample driver script to standard out.'''))
+    help=textwrap.dedent('''Print a sample driver script for use with SLURM to standard out.'''))
 
 
   args = parser.parse_args()
