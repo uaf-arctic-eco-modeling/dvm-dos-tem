@@ -243,7 +243,9 @@ struct soipar_bgc {
   soipar_bgc(): kn2(UIN_D), moistmin(UIN_D), moistmax(UIN_D), moistopt(UIN_D),
                 rhq10(UIN_D), propftos(UIN_D), nmincnsoil(UIN_D), fnloss(UIN_D),
                 fsoma(UIN_D), fsompr(UIN_D), fsomcr(UIN_D), som2co2(UIN_D),
-                eqrawc(UIN_D), eqsoma(UIN_D), eqsompr(UIN_D), eqsomcr(UIN_D),
+                eqrawcF(UIN_D), eqsomaF(UIN_D), eqsomprF(UIN_D), eqsomcrF(UIN_D),
+                eqrawcH(UIN_D), eqsomaH(UIN_D), eqsomprH(UIN_D), eqsomcrH(UIN_D),
+                eqrawcM(UIN_D), eqsomaM(UIN_D), eqsomprM(UIN_D), eqsomcrM(UIN_D),
                 kdmoss(UIN_D), lcclnc(UIN_D) {
                 
     for (int i = 0; i < MAX_SOI_LAY; ++i) {

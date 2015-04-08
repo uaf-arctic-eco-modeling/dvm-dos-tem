@@ -230,13 +230,39 @@ void Soil_Bgc::initializeState() {
 };
 
 void Soil_Bgc::set_state_from_restartdata(const RestartData & rdata) {
+  
   for (int il =0; il<MAX_SOI_LAY; il++) {
-    bd->m_sois.rawc[il] = rdata.rawc[il];
-    bd->m_sois.soma[il] = rdata.soma[il];
-    bd->m_sois.sompr[il]= rdata.sompr[il];
-    bd->m_sois.somcr[il]= rdata.somcr[il];
-    bd->m_sois.orgn[il] = rdata.orgn[il];
-    bd->m_sois.avln[il] = rdata.avln[il];
+    
+    if(rdata.rawc[il]>=0){
+		  bd->m_sois.rawc[il] = rdata.rawc[il];
+    } else { 
+		  bd->m_sois.rawc[il] = 0;
+    }
+    if(rdata.soma[il]>=0){    
+		  bd->m_sois.soma[il] = rdata.soma[il];
+    } else { 
+		  bd->m_sois.soma[il] = 0;
+    }
+    if(rdata.sompr[il]>=0){
+		  bd->m_sois.sompr[il]= rdata.sompr[il];
+    } else { 
+		  bd->m_sois.sompr[il] = 0;
+    }
+    if(rdata.somcr[il]>=0){
+		  bd->m_sois.somcr[il]= rdata.somcr[il];
+    } else { 
+		  bd->m_sois.somcr[il] = 0;
+    }
+    if(rdata.orgn[il]>=0){
+		  bd->m_sois.orgn[il] = rdata.orgn[il];
+    } else { 
+		  bd->m_sois.orgn[il] = 0;
+    }
+    if(rdata.avln[il]>=0){
+		  bd->m_sois.avln[il] = rdata.avln[il];
+    } else { 
+		  bd->m_sois.avln[il] = 0;
+    }
 
     for(int i=0; i<10; i++) {
       bd->prvltrfcnque[il].clear();
