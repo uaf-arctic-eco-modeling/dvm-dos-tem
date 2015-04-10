@@ -247,63 +247,64 @@ def main(args):
     os.remove(f)
 
 
+  # USING PYTHON'S netCDF4 package to write out the output files.
+  print "Write each timestep out to its own file in %s" % outputdir
+  for i, timestep in enumerate(detrended_data[:]):
+    # tag each file name with the timestep info (month and year)
+    newfname = bname + ("_%02d_%04d.nc" % (args.month, int(year)+i))
+    with netCDF4.Dataset(os.path.join(outputdir, newfname), mode='w', format='NETCDF4') as ncfile:
+
+      sizey=1850
+      sizex=2560
+
+      # Dimensions for the file.
+      Y = ncfile.createDimension('y', sizey)
+      X = ncfile.createDimension('x', sizex)
+
+      # Coordinate Variables
+      Y = ncfile.createVariable('y', np.int, ('y',))
+      X = ncfile.createVariable('x', np.int, ('x',))
+      Y[:] = np.arange(0, sizey)
+      X[:] = np.arange(0, sizex)
+
+      # Create data variables
+      band1 = ncfile.createVariable('Band1', np.float32, ('y', 'x',))
+      band1[:] = timestep[::-1,::] # <---!! REVERSE the y axis !!
+
+  # USING RASTERIO TO WRITE OUTPUT FILES
+  # with rasterio.drivers(CPL_DEBUG=True , WRITE_BOTTOMUP=False):
+  #   # NOTE: Tried using rasterio's gdal driver to directly write netcdf.
+  #   #       works w/o errors, but some percentage of the files come out
+  #   #       upside down...even trying to pass the WRITE_BOTTOMUP=[YES/NO]
+  #   #       flag in the driver context handler...
+  #   # 4/8/2015: Working in embedded IPython interperter, I can't seem to see how
+  #   #           the WRITE_BOTTOMUP is being used. Seems to be ignored...
+
+  #   # See here for driver info
+  #   # http://www.gdal.org/frmt_netcdf.html
+  #   # Maybe we can set more options??
+  #   # https://github.com/mapbox/rasterio/blob/master/docs/options.rst
+  #   #from IPython import embed; embed()
+  #   # Copy the metadata from the input vrt file
+  #   kwargs = monthdatafile.meta
+
+  #   # Change a few things about the metadata...
+  #   kwargs.update(
+  #     count=1,            # only one band
+  #     #compress='',     # not sure if this is actually helping?
+  #     driver='GTiff'      # we want .tifs, not .vrts
+  #   )
 
   #   print "Write each timestep out to its own file in %s" % outputdir
   #   for i, timestep in enumerate(detrended_data[:]):
   #     # tag each file name with the timestep info (month and year)
-  #     newfname = bname + ("_%02d_%04d.nc" % (args.month, int(year)+i)) 
-  #     with netCDF4.Dataset(os.path.join(outputdir, newfname), mode='w', format='NETCDF4') as ncfile:
-  #   
-  #       sizey=1850
-  #       sizex=2560
-  # 
-  #       # Dimensions for the file.
-  #       Y = ncfile.createDimension('y', sizey)
-  #       X = ncfile.createDimension('x', sizex)
-  # 
-  #       # Coordinate Variables
-  #       Y = ncfile.createVariable('y', np.int, ('y',))
-  #       X = ncfile.createVariable('x', np.int, ('x',))
-  #       Y[:] = np.arange(0, sizey)
-  #       X[:] = np.arange(0, sizex)
-  #       
-  #       # Create data variables
-  #       band1 = ncfile.createVariable('Band1', np.float32, ('y', 'x',))
-  #       band1[:] = timestep[::-1,::] # <---!! REVERSE the y axis !!
-  
+  #     newfname = bname + ("_%02d_%04d.nc" % (args.month, int(year)+i))
+  #     with rasterio.open( os.path.join(outputdir, newfname), 'w', **kwargs) as dst:
+  #       dst.write_band(1, timestep.astype(rasterio.float32))
 
-  # USING RASTERIO TO WRITE OUTPUT FILES...
-  with rasterio.drivers(CPL_DEBUG=True , WRITE_BOTTOMUP=False):
-    # NOTE: Tried using rasterio's gdal driver to directly write netcdf. 
-    #       works w/o errors, but some percentage of the files come out 
-    #       upside down...even trying to pass the WRITE_BOTTOMUP=[YES/NO] 
-    #       flag in the driver context handler...
-    # 4/8/2015: Working in embedded IPython interperter, I can't seem to see how 
-    #           the WRITE_BOTTOMUP is being used. Seems to be ignored...
 
-    # See here for driver info
-    # http://www.gdal.org/frmt_netcdf.html
-    # Maybe we can set more options??
-    # https://github.com/mapbox/rasterio/blob/master/docs/options.rst
- 
-    # Copy the metadata from the input vrt file
-    kwargs = monthdatafile.meta
- 
-    # Change a few things about the metadata...
-    kwargs.update(
-      count=1,            # only one band
-      #compress='',     # not sure if this is actually helping?
-      driver='netCDF'      # we want .tifs, not .vrts
-    )
- 
-    print "Write each timestep out to its own file in %s" % outputdir
-    for i, timestep in enumerate(detrended_data[:]):
-      # tag each file name with the timestep info (month and year)
-      newfname = bname + ("_%02d_%04d.nc" % (args.month, int(year)+i)) 
-      with rasterio.open( os.path.join(outputdir, newfname), 'w', **kwargs) as dst:
-        dst.write_band(1, timestep.astype(rasterio.float32))
-    print "Done writing timesteps to files."
-    print_memory_report()
+  print "Done writing timesteps to files."
+  print_memory_report()
 
 
 
