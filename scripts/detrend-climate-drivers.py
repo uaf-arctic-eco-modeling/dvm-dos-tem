@@ -122,6 +122,7 @@ def setup_output_directory(orig_file_list):
 
 def print_memory_report():
   # NOTE: Not sure if the percentage calculation is correct!
+  #       It seems to work on my OSX computer, but gives funky results on Atlas.
   print "Currently Available Memory (GB) ", psutil.virtual_memory().available/1024.0/1024.0/1024.0
   print "Peak memory usage by this program(GB):", resource.getrusage(resource.RUSAGE_SELF).ru_maxrss/1024.0/1024.0/1024.0
 
