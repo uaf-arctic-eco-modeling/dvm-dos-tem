@@ -74,9 +74,9 @@ Atmosphere::~Atmosphere() {
 * Calculate data and fill out 2D arrays for all years and months for a
 * single cohort.
 */
-void Atmosphere::prep_drivingdata_onecht_all_yrsmonths() {
+void Atmosphere::prep_drivingdata_onecht_all_yrsmonths(float lat) {
 
-  float lat = cd->gd->lat;
+  //float lat = cd->gd->lat;
 
   // Set various climate variables
   // All years, and months for one cohort
