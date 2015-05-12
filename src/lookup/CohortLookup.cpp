@@ -235,7 +235,7 @@ void CohortLookup::assignGroundDimension(string &dircmt) {
 
   // pop each line off the front of the list
   // and assign to the right data member.
-  temutil::pfll2data(l, snwdenmax );
+  temutil::pfll2data(l, snwdenmax);
   temutil::pfll2data(l, snwdennew);
   temutil::pfll2data(l, initsnwthick);
   temutil::pfll2data(l, initsnwdense);
@@ -246,10 +246,10 @@ void CohortLookup::assignGroundDimension(string &dircmt) {
   temutil::pfll2data(l, coefmossa);
   temutil::pfll2data(l, coefmossb);
 
-  temutil::pfll2data(l, initfibthick );
+  temutil::pfll2data(l, initfibthick);
   temutil::pfll2data(l, inithumthick);
   temutil::pfll2data(l, coefshlwa);
-  temutil:: pfll2data(l, coefshlwb);
+  temutil::pfll2data(l, coefshlwb);
   temutil::pfll2data(l, coefdeepa);
   temutil::pfll2data(l, coefdeepb);
   temutil::pfll2data(l, coefminea);

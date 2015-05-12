@@ -266,12 +266,12 @@ void Cohort::initStatePar() {
     // reset the soil texture data from grid-level soil.nc, rather than 'chtlu',
     // Note that the mineral layer structure is already defined above
     if (md->runmode.compare("multi") == 0) {
-      float z=0;
+      float z = 0;
 
-      for (int i=0; i<ground.mineral.num; i++) {
-        z+=ground.mineral.dz[i];
+      for (int i = 0; i < ground.mineral.num; i++) {
+        z += ground.mineral.dz[i];
 
-        if (z<=0.30) {   //assuming the grid top-soil texture is for top 30 cm
+        if (z <= 0.30) {   //assuming the grid top-soil texture is for top 30 cm
           ground.mineral.texture[i] = gd->topsoil;
         } else {
           ground.mineral.texture[i] = gd->botsoil;
@@ -281,7 +281,7 @@ void Cohort::initStatePar() {
 
     //then if we have sitein.nc, as specified. In this way, if sitein.nc may
     //  not provide all data, then model will still be able to use the default.
-    if(md->initmode ==2) { //from sitein.nc specified as md->initialfile
+    if(md->initmode == 2) { //from sitein.nc specified as md->initialfile
 //        setSiteStates(&sitein);
     }
 
@@ -434,7 +434,7 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
 //  1) ed calling is done for each PFTs within the module
 //  2) Env-module calling is done for one PFT, so needs loop for vegetation-relevant processes
   // (i) the n factor for soil temperature calculation from Tair
-  edall->d_soid.nfactor =1;
+  edall->d_soid.nfactor = 1;
   // Yuan: the following has temporarily commentted out - a lot of trouble
   /*  if(currmind>=5 && currmind<=9){  //for warm season: Yuan: this will make a BIG jump of soil temperature at 5/9
       if(cd.ifdeciwoody){      //deciduous woody community type
@@ -1308,7 +1308,7 @@ void Cohort::NEW_load_climate_from_file(int y, int x) {
   std::string clm_dataset = "scripts/new-climate-dataset.nc";
 
   BOOST_LOG_SEV(glg, info) << "Loading climate from file: " << clm_dataset;
-  BOOST_LOG_SEV(glg, info) << "Loading climate for (y, x) point: (" << x<<","<<y <<"), all timesteps.";
+  BOOST_LOG_SEV(glg, info) << "Loading climate for (y, x) point: ("<< x <<","<< y <<"), all timesteps.";
 
   std::vector<float> temps =
       temutil::get_climate_var_timeseries(clm_dataset, "tair", y, x );

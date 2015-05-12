@@ -452,12 +452,13 @@ void Runner::quick_env_only_warmup_run(int year_start, int year_end, boost::shar
 }
 
 void Runner::run_years(int start_year, int end_year, boost::shared_ptr<CalController> cal_ctrl_ptr) {
-  /** TIMESTEP LOOPS */
+  /** YEAR TIMESTEP LOOP */
   for (int iy = start_year; iy < end_year; ++iy) {
 
     /* Interpolate all the monthly values...? */
     cohort.prepareDayDrivingData(iy, 0);
 
+    /** MONTH TIMESTEP LOOP */
     for (int im = 0; im < 12; ++im) {
 
       // See if a signal has arrived (possibly from user
