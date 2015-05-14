@@ -198,7 +198,9 @@ int main(int argc, char* argv[]){
             // Or assume that when a Runner is created, for a spatial
             // location, the Cohort is smart enough to correctly "load"
             // itself with all the right stuff...?
+            // Reads a new style climate file and sets arrays in cohort.cd
             runner.cohort.NEW_load_climate_from_file(rowidx, colidx);
+            runner.cohort.prepareAllDrivingData(); // <-- This is not a final solution here!!!
             runner.cohort.NEW_load_veg_class_from_file(rowidx, colidx);
 
             runner.cohort.initSubmodules();
