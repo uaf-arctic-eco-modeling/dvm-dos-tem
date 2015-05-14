@@ -175,7 +175,7 @@ void Soil_Bgc::prepareIntegration(const bool &mdnfeedback,
       }
     }
 
-    if(cd->yrsdist < cd->gd->fri) {
+    if(cd->yrsdist < cd->fri) {
       bd->m_a2soi.orgninput = fd->fire_a2soi.orgn/12.;
     }
   }

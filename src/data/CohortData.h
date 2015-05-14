@@ -43,6 +43,8 @@ public:
   int vegtype[MAX_VEG_SET];
   double vegfrac[MAX_VEG_SET];
 
+
+  int fri;
   int act_fireset;
   int fireyear[MAX_FIR_OCRNUM];
   int fireseason[MAX_FIR_OCRNUM];

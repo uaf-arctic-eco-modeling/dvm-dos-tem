@@ -1274,9 +1274,9 @@ void Cohort::NEW_load_fire_from_file(int y, int x) {
   std::string fire_dataset = "scripts/new-fire-dataset.nc";
   
   BOOST_LOG_SEV(glg, info) << "Loading fire from file: " << fire_dataset;
-  BOOST_LOG_SEV(glg, info) << "Loading fire for (y, x) point: (" << y <<","<< x <<").";
+  BOOST_LOG_SEV(glg, info) << "Loading fire for (y, x) point: ("<< y <<","<< x <<").";
 
-  //this->cd.fri = temutil::get_fri(fire_dataset, y, x);
+  this->cd.fri = temutil::get_fri(fire_dataset, y, x);
   
 //  this->cd->fire_years = temutil::get_fire_years(fire_dataset, y, x);
 //  

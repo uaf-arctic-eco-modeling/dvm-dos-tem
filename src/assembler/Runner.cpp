@@ -827,9 +827,9 @@ int Runner::runSpatially(const int icalyr, const int im, const int jj) {
   int yrending = runcht.yrend;
 
   if (md.runeq) {
-    int nfri = round(runcht.yrend/runcht.cht.gd->fri);
+    int nfri = round(runcht.yrend/runcht.cht.cd.fri);
     nfri = min(max(nfri, 20),5); // 5 ~ 20 FRI
-    yrending= nfri*runcht.cht.gd->fri-2;  //n*FRI-2: ending at 2 years prior to fire year
+    yrending= nfri*runcht.cht.cd.fri-2;  //n*FRI-2: ending at 2 years prior to fire year
 
     if (icalyr>yrending) {
       if (jj==(int)runchtlist.size()-1) {

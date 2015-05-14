@@ -201,6 +201,7 @@ int main(int argc, char* argv[]){
             // Reads a new style climate file and sets arrays in cohort.cd
             runner.cohort.NEW_load_climate_from_file(rowidx, colidx);
             runner.cohort.prepareAllDrivingData(); // <-- This is not a final solution here!!!
+            runner.cohort.NEW_load_fire_from_file(rowidx, colidx);
             runner.cohort.NEW_load_veg_class_from_file(rowidx, colidx);
 
             runner.cohort.initSubmodules();

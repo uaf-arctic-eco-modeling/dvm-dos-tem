@@ -112,7 +112,7 @@ int WildFire::getOccur(const int &yrind, const bool & friderived) {
   oneseverity= MISSING_I;
 
   if(friderived) {
-    if(yrind%cd->gd->fri==0 && yrind>0) {
+    if( (yrind % cd->fri) == 0 && yrind > 0) {
       //fire size, dervied from input probability of grid fire sizes
       //*
       double pdf = 0.;
@@ -404,7 +404,7 @@ void WildFire::burn() {
   // which is depositing into soil evenly in one FRI
   //- this will let the system -N balanced in a long-term, if NO
   //  open-N cycle included
-  fd->fire_a2soi.orgn = (fd->fire_soi2a.orgn+ fd->fire_v2a.orgn)/cd->gd->fri;
+  fd->fire_a2soi.orgn = (fd->fire_soi2a.orgn + fd->fire_v2a.orgn) / cd->fri;
 
   //put the retained C/N into the first unburned soil layer's
   //  chemically-resistant SOMC pool

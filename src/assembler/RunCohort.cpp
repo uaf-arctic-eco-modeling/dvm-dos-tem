@@ -367,11 +367,11 @@ void RunCohort::choose_run_stage_settings() {
     cht.cd.yrsdist = 0;
     yrstart = 0;
 
-    if (cht.gd->fri>0) {
-      int nfri = fmax(MIN_EQ_YR/cht.gd->fri, 20);
+    if (cht.cd.fri > 0) {
+      int nfri = fmax(MIN_EQ_YR/cht.cd.fri, 20);
       //20 FRI and within range of min. and max. MAX_EQ_YEAR
-      nfri = fmin(nfri, MAX_EQ_YR/cht.gd->fri);
-      yrend= nfri*cht.gd->fri-1;// ending just prior to the fire occurrency year
+      nfri = fmin(nfri, MAX_EQ_YR/cht.cd.fri);
+      yrend= nfri*cht.cd.fri-1;// ending just prior to the fire occurrency year
     } else {
       yrend = MAX_EQ_YR;
     }
