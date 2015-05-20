@@ -6,6 +6,9 @@
 #include <boost/bind.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/tokenizer.hpp>
+#include <boost/lexical_cast.hpp>
+
 
 #include "CalController.h"
 #include "TEMLogger.h"
@@ -13,15 +16,26 @@
 
 #include <iostream>
 
+
 extern src::severity_logger< severity_level > glg;
 
-/** Constructor. You gotta pass a pointer to a Cohort in order to
- * make a valid CalController!
+/** An object that can control parts of a simulation thru a Cohort pointer.
+ 
+ A CalController needs a pointer to a Cohort, as well as a Json::Value that
+ describes a set of pre-set actions to take when running in calibration mode.
+ 
+ These actions could be simply a set of setup-steps after interactive control
+ is given back to the user or, using the 'quit_at'
+ 
+ You must pass a pointer to a Cohort in order to
+ * make a valid CalController! Th
  */
-CalController::CalController(Cohort* cht_p):
+CalController::CalController(Cohort* cht_p, bool itractv, Json::Value config_obj):
   io_service(new boost::asio::io_service),
   pause_sigs(*io_service, SIGINT, SIGTERM),
-  cohort_ptr(cht_p) {
+  run_configuration(config_obj),
+  cohort_ptr(cht_p),
+  interactive(itractv) {
   cmd_map = boost::assign::map_list_of
             ("q", CalCommand("quit the calibrator",
                              boost::bind(&CalController::quit, this)) )
@@ -43,14 +57,7 @@ CalController::CalController(Cohort* cht_p):
             ("help",
               CalCommand("show full menu",
                           boost::bind(&CalController::show_full_menu, this)) )
-            ("env on", CalCommand("turn env module ON",
-                                  boost::bind(&CalController::env_ON, this)) )
-            ("env off", CalCommand("turn env module OFF",
-                                   boost::bind(&CalController::env_OFF, this)) )
-            ("bgc on", CalCommand("turn bgc module ON",
-                                  boost::bind(&CalController::bgc_ON, this)) )
-            ("bgc off", CalCommand("turn bgc module OFF",
-                                   boost::bind(&CalController::bgc_OFF, this)) )
+
             ("dsb on", CalCommand("turn dsb module ON",
                                    boost::bind(&CalController::dsb_ON, this)) )
             ("dsb off",
@@ -87,9 +94,28 @@ CalController::CalController(Cohort* cht_p):
                          boost::bind(&CalController::print_calparbgc, this)) )
             ("print module settings",
               CalCommand("print module settings (on/off)",
-                         boost::bind(&CalController::print_modules_settings,
-                                     this)) )
+                         boost::bind(&CalController::print_modules_settings, this)) )
+            ("quitat",
+              CalCommand("quits and exits at simulation year specified",
+                         boost::bind(&CalController::quit_at, this, _1)) )
+            ("pauseat",
+              CalCommand("pauses at simulation year specified",
+                         boost::bind(&CalController::pause_at, this, _1)) )
+
+            ("env",
+              CalCommand("changes env module state...",
+                         boost::bind(&CalController::env_cmd, this, _1)) )
+            ("bgc",
+              CalCommand("changes bgc module state...",
+                         boost::bind(&CalController::bgc_cmd, this, _1)) )
+            ("avln",
+              CalCommand("changes available Nitrogen setting...",
+                         boost::bind(&CalController::avln_cmd, this, _1)) )
+
             ;
+
+  
+
   BOOST_LOG_SEV(glg, debug) << "Set async wait on signals to PAUSE handler.";
   pause_sigs.async_wait( boost::bind(&CalController::pause_handler, this,
                                      boost::asio::placeholders::error,
@@ -102,6 +128,31 @@ CalController::CalController(Cohort* cht_p):
   BOOST_LOG_SEV(glg, debug) << "Done constructing a CalController.";
 }
 
+void CalController::quit_at(const std::string& s) {
+  int year;
+  try {
+    year = boost::lexical_cast<int>(s);
+    this->run_configuration["quitat"] = year;
+    BOOST_LOG_SEV(glg, info) << "Setting the quitat year in CalController's run_configuration to " << year;
+  } catch( const boost::bad_lexical_cast & ) {
+    BOOST_LOG_SEV(glg, warn) << "Unable to convert '"<< s <<"' to valid integer for a quit-at year.";
+  }
+}
+
+void CalController::pause_at(const std::string& s) {
+  int year;
+  try {
+    year = boost::lexical_cast<int>(s);
+    this->run_configuration["pauseat"] = year;
+    BOOST_LOG_SEV(glg, info) << "Setting the pauseat year in CalController's run_configuration to " << year;
+  } catch( const boost::bad_lexical_cast & ) {
+    BOOST_LOG_SEV(glg, warn) << "Unable to convert '"<< s <<"' to valid integer for a pause-at year.";
+  }
+}
+
+void CalController::auto_run(int simulation_year) {
+  std::cout << "year: " << simulation_year << ". FUCK YEAH! auto-running!! \n";
+}
 
 /** Keep getting commands and executing commands from the user.
  *
@@ -125,15 +176,76 @@ void CalController::control_loop() {
       add_history (line_read);
       std::string line = std::string(line_read);
 
+      // Pick up the continue
       if(strcmp(line_read,"c")==0) {
         free(line_read);
         break;
-      } else if(this->cmd_map.count(line)) {
-        this->cmd_map[line].executor();
       }
+
+      // Otherwise, pickup any (old?), multi-word commands
+      if(this->cmd_map.count(line)) {
+        BOOST_LOG_SEV(glg, warn) << "OLD handlers being called NEW way...! Double check that things are working.";
+        this->cmd_map[line].executor("");
+      }
+
+      // NOTE:
+      // Things get double called if both the old-style multi-word command
+      // and associated functions are declared as well as the new-style
+      // parameterized command is declared.
+
+      // Parse string of commands and parameters, calling appropriate function.
+      boost::tokenizer<> tokens(line);
+      for (boost::tokenizer<>::iterator tkn_it=tokens.begin(); tkn_it!=tokens.end(); ++tkn_it) {
+        std::string tkn = *tkn_it;
+
+        if (this->cmd_map.count(tkn)) {
+        
+          std::cout << "Found token '"<<tkn<<"' in the cmd_map.\n";
+
+          // store the command, and bump the iterator forward
+          std::string cmd = tkn;
+          std::vector<std::string> params;//(4, "");
+          ++tkn_it;
+          
+          std::cout << "Looking for any additional command parameters...\n";
+          if (tkn_it != tokens.end()) {
+          
+            // Accumulate any parameters for the command. Continue scanning for
+            // parameters until either the end of the input string is reached.
+            for (boost::tokenizer<>::iterator param_it = tkn_it; param_it != tokens.end(); ++param_it) {
+              params.push_back(*param_it);
+            }
+          }
+
+          // All of our executors take one string argument, so if there is
+          // nothing specified on the command line, then add an empty string
+          // to the parameter vector...
+          if (params.size() == 0) {
+            params.push_back("");
+          }
+          
+          // Now we have a command string and a vector of parameters (strings)
+          // Only need one command at the moment, so the vector is overkill, but
+          // it means we can take more complicated stuff in the future.
+          BOOST_LOG_SEV(glg, info) << "Command token: '"<< cmd <<"'. Parameters: ";
+          for (std::vector<std::string>::iterator it=params.begin(); it!=params.end(); ++it) {
+            std::cout << "  [i]: " << *it << std::endl;
+          }
+
+          this->cmd_map[cmd].executor(params.at(0));
+          
+          if (tkn_it == tokens.end()) {
+            break;
+          }
+
+        }
+        
+      }
+
     }
   }
 }
+
 
 /** The call back that is run when a registered signal is recieved and processed.
  * Technically, because of the async_wait, the may be run some time after the
@@ -256,24 +368,39 @@ void CalController::quit() {
   exit(-1);
 }
 
-void CalController::env_ON() {
-  BOOST_LOG_SEV(glg, note) << "CalController is turing env module ON via cohort pointer...";
-  this->cohort_ptr->md->set_envmodule(true);
+void CalController::env_cmd(const std::string& s) {
+  try {
+    this->cohort_ptr->md->set_envmodule(temutil::onoffstr2bool(s));
+
+    BOOST_LOG_SEV(glg, note) << "CalController turned env module to "
+                             << s <<" via cohort pointer...";
+
+  } catch (const std::runtime_error& e) {
+    BOOST_LOG_SEV(glg, warn) << e.what();
+  }
 }
 
-void CalController::env_OFF() {
-  BOOST_LOG_SEV(glg, note) << "CalController is turing env module OFF via cohort pointer...";
-  this->cohort_ptr->md->set_envmodule(false);
-}
+void CalController::bgc_cmd(const std::string& s) {
+  try {
+    this->cohort_ptr->md->set_bgcmodule(temutil::onoffstr2bool(s));
 
-void CalController::bgc_ON() {
-  BOOST_LOG_SEV(glg, note) << "CalController is turing bgc module ON via cohort pointer...";
-  this->cohort_ptr->md->set_bgcmodule(true);
-}
+    BOOST_LOG_SEV(glg, note) << "CalController turned bgc module to "
+                             << s <<" via cohort pointer...";
 
-void CalController::bgc_OFF() {
-  BOOST_LOG_SEV(glg, note) << "CalController is turing bgc module OFF via cohort pointer...";
-  this->cohort_ptr->md->set_bgcmodule(false);
+  } catch (const std::runtime_error& e) {
+    BOOST_LOG_SEV(glg, warn) << e.what();
+  }
+}
+void CalController::avln_cmd(const std::string& s) {
+  try {
+    this->cohort_ptr->md->set_avlnflg(temutil::onoffstr2bool(s));
+
+    BOOST_LOG_SEV(glg, note) << "CalController turned available Nitrogen flag to "
+                             << s <<" via cohort pointer...";
+
+  } catch (const std::runtime_error& e) {
+    BOOST_LOG_SEV(glg, warn) << e.what();
+  }
 }
 
 void CalController::dsb_ON() {
@@ -369,6 +496,20 @@ void CalController::show_short_menu() {
   std::cout << m;
 }
 
+/** Returns whether or not interactive control is being used.
+
+  When interactive is true, the program will wait for interupt signal
+  (SIGINT) and use the CalController::control_loop() function to get commands 
+  from the stdin (the user or possibly a file if one is redirected to stdin). 
+  
+  When interactive is false, the program will instead use the run_configuration
+  member to carry out a specific set of calibration tasks - basically turning 
+  modules on and off at specified years.
+*/
+bool CalController::get_interactive(){
+  return this->interactive;
+}
+
 void CalController::show_full_menu() {
   BOOST_LOG_SEV(glg, note) << "Showing full menu...";
   std::string m = "--  Full Calibration Controller Menu --\n";
@@ -387,3 +528,6 @@ void CalController::show_full_menu() {
 }
 
 
+          // For example this string should
+          // call the first command (print) with 4 parameters, and the second
+          // command with 2 parameters: "print p1 p2 p3 p4 dsl on 100"

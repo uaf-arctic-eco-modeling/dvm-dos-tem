@@ -285,7 +285,7 @@ void RunCohort::choose_run_stage_settings() {
   boost::shared_ptr<CalController> calcontroller_ptr;
 
   if ( this->get_calMode() ) {
-    calcontroller_ptr.reset( new CalController(&this->cht) );
+    calcontroller_ptr.reset( new CalController(&this->cht, true, Json::Value()) );
   }
 
   //
@@ -516,11 +516,19 @@ void RunCohort::run_timeseries(boost::shared_ptr<CalController> calcontroller_pt
   for (int icalyr=yrstart; icalyr<=yrend; icalyr++) {
     BOOST_LOG_SEV(glg, debug) << "Some begin of year data for plotting...";
 
-    // See if a signal has arrived (possibly from user
-    // hitting Ctrl-C) and if so, stop the simulation
-    // and drop into the calibration "shell".
     if (calcontroller_ptr) {
-      calcontroller_ptr->check_for_signals();
+    
+      //calcontroller_ptr->exercise_control();
+      
+      if (calcontroller_ptr->get_interactive()){
+        // See if a signal has arrived (possibly from user
+        // hitting Ctrl-C) and if so, stop the simulation
+        // and drop into the calibration "shell".
+        calcontroller_ptr->check_for_signals();
+      } else {
+        
+        calcontroller_ptr->auto_run(icalyr);
+      }
     }
 
     int yrindex = cht.timer->getCurrentYearIndex();   //starting from 0

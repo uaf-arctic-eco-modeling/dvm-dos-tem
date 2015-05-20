@@ -11,31 +11,51 @@
 #include <boost/asio/signal_set.hpp>
 #include <boost/shared_ptr.hpp>
 
+#include <json/value.h>
+
 #include "runmodule/Cohort.h"
 
 //For readline
 #include <readline/readline.h>
 #include <readline/history.h>
 
-typedef struct CalCommand {
+//template<typename R, typename P1, typename P2>
+//struct Executor {
+//  boost::function<R (P1,P1) >
+//}
+
+class CalCommand {
+public:
+
   std::string desc;
-  boost::function<void ()> executor;
-
+  
+  //typedef boost::function<void(int, int, int)> Executor3;
+  
+  typedef boost::function< void(const std::string&) > Executor1Str;
+  
+  Executor1Str executor;
+  
   CalCommand() {} // won't compile w/o this declared - not sure why
-  CalCommand( std::string adesc, boost::function<void ()> aexecutor ) :
-    desc(adesc), executor(aexecutor) {}
-
-} CalCommand;
+  CalCommand( std::string adesc, Executor1Str an_executor ) :
+    desc(adesc), executor(an_executor) {}
+  
+};
 
 class CalController {
 public:
 
-  CalController(Cohort* cht_p);
+  CalController(Cohort* cht_p, bool interactive, Json::Value config_obj);
+  
+  bool get_interactive();
+  void auto_run(int simulation_year);
+  
   void show_cal_control_menu();
   void check_for_signals();
   void async_pause(); // pauses, but thru the io_service, so may not be immediate.
   void pause();       // forces pause immediately
   static void clear_and_create_json_storage(); // cleans /tmp directory
+  
+  void execute(boost::function<void()> selected_function);
 
 private:
   boost::shared_ptr< boost::asio::io_service > io_service;
@@ -44,10 +64,17 @@ private:
   Cohort* cohort_ptr;
 
   std::map<std::string, CalCommand> cmd_map;
+  
+  bool interactive;
+  Json::Value run_configuration;
 
   void pause_handler(const boost::system::error_code& error,
                      int signal_number);
   void control_loop();
+
+
+  void quit_at(const std::string& exit_year);
+  void pause_at(const std::string& pause_year);
 
   void quit();
   void reload_all_cmt_files();
@@ -56,10 +83,11 @@ private:
   void show_full_menu();
   void show_short_menu();
 
-  void env_ON();
-  void env_OFF();
-  void bgc_ON();
-  void bgc_OFF();
+  void env_cmd(const std::string& s);
+  void bgc_cmd(const std::string& s);
+  void avln_cmd(const std::string& s);
+
+
   void dsb_ON();
   void dsb_OFF();
   void dsl_ON();
@@ -79,6 +107,41 @@ private:
   void print_calparbgc();
   void print_modules_settings();
 };
+
+
+
+//class Command {
+//public:
+//  virtual ~Command();
+//  virtual void Execute() = 0;
+//protected:
+//  Command();
+//};
+//
+//class AvlnCommand : public Command {
+//public:
+//  AvlnCommand(CalController*);
+//  virtual void Execute();
+//protected:
+//  virtual bool AskUser();
+//private:
+//  CalController  _calcontroller;
+//  bool _response;
+//};
+//
+//AvlnCommand::AvlnCommand (CalController* cc) {
+//  _calcontroller = cc;
+//}
+//void AvlnCommand::Execute() {
+//  bool resp = AskUser();
+//  if (resp) {
+//    _calcontroller.avlnflg_ON();
+//  } else {
+//    _calcontroller.avlnflg_OFF();
+//  }
+//
+//}
+
 
 #endif /* _CALCONTROLLER_H_ */
 

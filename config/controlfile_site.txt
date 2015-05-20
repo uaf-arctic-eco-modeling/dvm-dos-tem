@@ -19,6 +19,14 @@
     "restart_file": "DATA/Toolik_Inputs/output/restart-eq.nc"
   },
 
+  // Ignored in extrapolation mode...
+  "calibration_autorun_settings": {
+    "quit_at": 1500,
+    "env_only_warmup": true,
+    "500": ["dsl on", "nfeed on", "avln on"],
+    "999": ["dsb on"]
+  },
+
   "model_settings": {
     "dynamic_climate": 0,
     "varied_co2": 0,
