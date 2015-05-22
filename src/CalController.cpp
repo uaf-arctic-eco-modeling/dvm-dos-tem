@@ -224,13 +224,12 @@ void CalController::control_loop() {
             params.push_back("");
           }
           
-          // Now we have a command string and a vector of parameters (strings)
-          // Only need one command at the moment, so the vector is overkill, but
-          // it means we can take more complicated stuff in the future.
-          BOOST_LOG_SEV(glg, info) << "Command token: '"<< cmd <<"'. Parameters: ";
-          for (std::vector<std::string>::iterator it=params.begin(); it!=params.end(); ++it) {
-            std::cout << "  [i]: " << *it << std::endl;
-          }
+          BOOST_LOG_SEV(glg, info) << "Command token: '" << cmd
+                                   << "'. Parameters: ["
+                                   << temutil::vec2csv(params) << "]";
+
+          BOOST_LOG_SEV(glg, info) << "NOTE: only using 1 parameter at the "
+                                   << "moment. Other params are ignored.";
 
           this->cmd_map[cmd].executor(params.at(0));
           
