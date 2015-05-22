@@ -44,10 +44,10 @@ public:
 class CalController {
 public:
 
-  CalController(Cohort* cht_p, bool interactive, Json::Value config_obj);
+  CalController(Cohort* cht_p, Json::Value config_obj);
   
-  bool get_interactive();
   void auto_run(int simulation_year);
+  void run_config(int simulation_year);
   
   void show_cal_control_menu();
   void check_for_signals();
@@ -65,13 +65,13 @@ private:
 
   std::map<std::string, CalCommand> cmd_map;
   
-  bool interactive;
   Json::Value run_configuration;
 
   void pause_handler(const boost::system::error_code& error,
                      int signal_number);
   void control_loop();
 
+  void operate_on_directive_str(const std::string& line);
 
   void quit_at(const std::string& exit_year);
   void pause_at(const std::string& pause_year);

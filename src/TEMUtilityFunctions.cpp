@@ -37,6 +37,7 @@ namespace temutil {
     }
   }
 
+
   /** Read a file into a string. Return the string. 
   * Throws exceptions if there is an error reading the file. Poached from:
   * http://insanecoding.blogspot.com/2011/11/how-to-read-in-file-in-c.html

@@ -5,7 +5,9 @@
  *    Note: the output modules are put here, so can be flexible for outputs
  *
 */
+#include <boost/filesystem.hpp>
 #include <json/writer.h>
+#include <json/value.h>
 
 #include "RunCohort.h"
 #include "../CalController.h"
@@ -22,6 +24,32 @@ RunCohort::RunCohort() {
 }
 
 RunCohort::~RunCohort() {
+}
+
+/** Trys to load a calibration directives file, returns empty object if it fails
+
+  The directives file, if present, should take this form:
+  {
+    // Ignored in extrapolation mode...
+    "calibration_autorun_settings": {
+      //"quitat": 1100,
+      "488": ["dsl on", "nfeed on", "dsb on"]
+      "1000": ["dsb on"]
+    }
+  }
+*/
+Json::Value RunCohort::load_cal_directives_from_file(){
+  std::string filename = "config/calibration_directives.txt";
+
+  Json::Value v;
+
+  if ( !(boost::filesystem::exists(filename)) ) {
+    BOOST_LOG_SEV(glg, note) << "Calibraiton directives file '"<< filename <<"' does not exist. Returning empty Json::Value.";
+  } else {
+    v = temutil::parse_control_file(filename);
+  }
+
+  return v["calibraiton_autorun_settings"];
 }
 
 bool RunCohort::get_calMode() {
@@ -285,7 +313,8 @@ void RunCohort::choose_run_stage_settings() {
   boost::shared_ptr<CalController> calcontroller_ptr;
 
   if ( this->get_calMode() ) {
-    calcontroller_ptr.reset( new CalController(&this->cht, true, Json::Value()) );
+    Json::Value v = load_cal_directives_from_file();
+    calcontroller_ptr.reset( new CalController(&this->cht, v["calibration_autorun_settings"]));
   }
 
   //
@@ -514,21 +543,16 @@ void RunCohort::run_timeseries(boost::shared_ptr<CalController> calcontroller_pt
   srand (time(NULL));
 
   for (int icalyr=yrstart; icalyr<=yrend; icalyr++) {
-    BOOST_LOG_SEV(glg, debug) << "Some begin of year data for plotting...";
+    BOOST_LOG_SEV(glg, debug) << "Beginning of year loop - nothing has happened yet.";
 
     if (calcontroller_ptr) {
     
-      //calcontroller_ptr->exercise_control();
+      // run directives in config file
+      calcontroller_ptr->run_config(icalyr);
       
-      if (calcontroller_ptr->get_interactive()){
-        // See if a signal has arrived (possibly from user
-        // hitting Ctrl-C) and if so, stop the simulation
-        // and drop into the calibration "shell".
-        calcontroller_ptr->check_for_signals();
-      } else {
-        
-        calcontroller_ptr->auto_run(icalyr);
-      }
+      // check for signals (in case the user wants to pause)
+      calcontroller_ptr->check_for_signals();
+
     }
 
     int yrindex = cht.timer->getCurrentYearIndex();   //starting from 0

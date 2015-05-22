@@ -1,3 +1,4 @@
+#include <iostream>
 #include <string>
 #include <map>
 
@@ -9,12 +10,9 @@
 #include <boost/tokenizer.hpp>
 #include <boost/lexical_cast.hpp>
 
-
 #include "CalController.h"
 #include "TEMLogger.h"
 #include "runmodule/Cohort.h"
-
-#include <iostream>
 
 
 extern src::severity_logger< severity_level > glg;
@@ -23,19 +21,15 @@ extern src::severity_logger< severity_level > glg;
  
  A CalController needs a pointer to a Cohort, as well as a Json::Value that
  describes a set of pre-set actions to take when running in calibration mode.
- 
- These actions could be simply a set of setup-steps after interactive control
- is given back to the user or, using the 'quit_at'
- 
- You must pass a pointer to a Cohort in order to
- * make a valid CalController! Th
+ The Json::Value may be empty.
+
+ You must pass a pointer to a Cohort in order to make a valid CalController!
  */
-CalController::CalController(Cohort* cht_p, bool itractv, Json::Value config_obj):
+CalController::CalController(Cohort* cht_p, Json::Value config_obj):
   io_service(new boost::asio::io_service),
   pause_sigs(*io_service, SIGINT, SIGTERM),
   run_configuration(config_obj),
-  cohort_ptr(cht_p),
-  interactive(itractv) {
+  cohort_ptr(cht_p) {
   cmd_map = boost::assign::map_list_of
             ("q", CalCommand("quit the calibrator",
                              boost::bind(&CalController::quit, this)) )
@@ -150,6 +144,38 @@ void CalController::pause_at(const std::string& s) {
   }
 }
 
+void CalController::run_config(int year) {
+
+  for (Json::Value::iterator it = run_configuration.begin(); it != run_configuration.end(); ++it) {
+    Json::Value key = it.key();
+    Json::Value val = *it;
+
+    if ("quitat" == key.asString()) {
+      if (year == val.asInt()) {
+        BOOST_LOG_SEV(glg, note) << "QUITTING because "<< year <<" set in CalController's run_configuration data structure.";
+        exit(0);
+      }
+    }
+    if ("pauseat" == key.asString()) {
+      if (year == val.asInt()){
+        BOOST_LOG_SEV(glg, note) << "PAUSING because year is equal to year in CalController's run configuration data structure.";
+        this->control_loop();
+      }
+    }
+
+    if (boost::lexical_cast<string>(year) == key.asString()) {
+      BOOST_LOG_SEV(glg, info) << "ITERATE over the directives in the value...(which is an array of string commands)";
+
+      for( Json::ValueIterator itr = val.begin(); itr != val.end(); itr++ ) {
+        string directive  =  (*itr).asString();
+
+        operate_on_directive_str(directive);
+
+      }
+    }
+  }
+}
+
 void CalController::auto_run(int simulation_year) {
   std::cout << "year: " << simulation_year << ". FUCK YEAH! auto-running!! \n";
 }
@@ -182,70 +208,78 @@ void CalController::control_loop() {
         break;
       }
 
-      // Otherwise, pickup any (old?), multi-word commands
-      if(this->cmd_map.count(line)) {
-        BOOST_LOG_SEV(glg, warn) << "Calling non-parameterized command.";
-        this->cmd_map[line].executor("");
-      }
-
-      // NOTE:
-      // Things get double called if both the old-style multi-word command
-      // and associated functions are declared as well as the new-style
-      // parameterized command is declared.
-
-      // Parse string of commands and parameters, calling appropriate function.
-      boost::tokenizer<> tokens(line);
-      for (boost::tokenizer<>::iterator tkn_it=tokens.begin(); tkn_it!=tokens.end(); ++tkn_it) {
-        std::string tkn = *tkn_it;
-
-        if (this->cmd_map.count(tkn)) {
-        
-          std::cout << "Found token '"<<tkn<<"' in the cmd_map.\n";
-
-          // store the command, and bump the iterator forward
-          std::string cmd = tkn;
-          std::vector<std::string> params;//(4, "");
-          ++tkn_it;
-          
-          std::cout << "Looking for any additional command parameters...\n";
-          if (tkn_it != tokens.end()) {
-          
-            // Accumulate any parameters for the command. Continue scanning for
-            // parameters until either the end of the input string is reached.
-            for (boost::tokenizer<>::iterator param_it = tkn_it; param_it != tokens.end(); ++param_it) {
-              params.push_back(*param_it);
-            }
-          }
-
-          // Although some of the bound executors don't take any arguments,
-          // we must provide enough arguments to match the signature in
-          // the CalCommand structure. Use an empty string if the user
-          // didn't provide anything.
-          if (params.size() == 0) {
-            params.push_back("");
-          }
-          
-          BOOST_LOG_SEV(glg, info) << "Command token: '" << cmd
-                                   << "'. Parameters: ["
-                                   << temutil::vec2csv(params) << "]";
-
-          BOOST_LOG_SEV(glg, info) << "NOTE: only using 1 parameter at the "
-                                   << "moment. Other params are ignored.";
-
-          this->cmd_map[cmd].executor(params.at(0));
-          
-          if (tkn_it == tokens.end()) {
-            break;
-          }
-
-        }
-        
-      }
+      this->operate_on_directive_str(line);
 
     }
   }
 }
 
+
+
+/** ?? */
+void CalController::operate_on_directive_str(const std::string& line) {
+
+  // Otherwise, pickup any (old?), multi-word commands
+  if(this->cmd_map.count(line)) {
+    BOOST_LOG_SEV(glg, warn) << "Calling non-parameterized command.";
+    this->cmd_map[line].executor("");
+  }
+
+  // NOTE:
+  // Things get double called if both the old-style multi-word command
+  // and associated functions are declared as well as the new-style
+  // parameterized command is declared.
+
+  // Parse string of commands and parameters, calling appropriate function.
+  boost::tokenizer<> tokens(line);
+  for (boost::tokenizer<>::iterator tkn_it=tokens.begin(); tkn_it!=tokens.end(); ++tkn_it) {
+    std::string tkn = *tkn_it;
+
+    if (this->cmd_map.count(tkn)) {
+
+      BOOST_LOG_SEV(glg, debug) << "Found token '"<<tkn<<"' in the cmd_map.\n";
+
+      // store the command, and bump the iterator forward
+      std::string cmd = tkn;
+      std::vector<std::string> params;//(4, "");
+      ++tkn_it;
+
+      BOOST_LOG_SEV(glg, debug) << "Looking for any additional command parameters...\n";
+      if (tkn_it != tokens.end()) {
+
+        // Accumulate any parameters for the command. Continue scanning for
+        // parameters until either the end of the input string is reached.
+        for (boost::tokenizer<>::iterator param_it = tkn_it; param_it != tokens.end(); ++param_it) {
+          params.push_back(*param_it);
+        }
+      }
+
+      // Although some of the bound executors don't take any arguments,
+      // we must provide enough arguments to match the signature in
+      // the CalCommand structure. Use an empty string if the user
+      // didn't provide anything.
+      if (params.size() == 0) {
+        params.push_back("");
+      }
+
+      BOOST_LOG_SEV(glg, note) << "Command token: '" << cmd
+                               << "'. Parameters: ["
+                               << temutil::vec2csv(params) << "]";
+
+      BOOST_LOG_SEV(glg, info) << "NOTE: only using 1 parameter at the "
+                               << "moment. Other params are ignored.";
+
+      this->cmd_map[cmd].executor(params.at(0));
+
+      if (tkn_it == tokens.end()) {
+        break;
+      }
+
+    } /* end token in map */
+
+  } /* end token loop */
+
+}
 
 /** The call back that is run when a registered signal is recieved and processed.
  * Technically, because of the async_wait, the may be run some time after the
@@ -494,20 +528,6 @@ void CalController::show_short_menu() {
   m += this->cmd_map["help"].desc;
   m += "\n";
   std::cout << m;
-}
-
-/** Returns whether or not interactive control is being used.
-
-  When interactive is true, the program will wait for interupt signal
-  (SIGINT) and use the CalController::control_loop() function to get commands 
-  from the stdin (the user or possibly a file if one is redirected to stdin). 
-  
-  When interactive is false, the program will instead use the run_configuration
-  member to carry out a specific set of calibration tasks - basically turning 
-  modules on and off at specified years.
-*/
-bool CalController::get_interactive(){
-  return this->interactive;
 }
 
 void CalController::show_full_menu() {

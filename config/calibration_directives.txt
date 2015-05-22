@@ -1,0 +1,9 @@
+{
+  // Ignored in extrapolation mode...
+  "calibration_autorun_settings": {
+    //"quitat": 1100,
+    //"pauseat": ,
+    //"488": ["dsl on", "nfeed on", "dsb on"]
+    //"1000": ["dsb on"]
+  }
+ }
