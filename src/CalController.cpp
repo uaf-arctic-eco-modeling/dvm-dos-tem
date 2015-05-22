@@ -184,7 +184,7 @@ void CalController::control_loop() {
 
       // Otherwise, pickup any (old?), multi-word commands
       if(this->cmd_map.count(line)) {
-        BOOST_LOG_SEV(glg, warn) << "OLD handlers being called NEW way...! Double check that things are working.";
+        BOOST_LOG_SEV(glg, warn) << "Calling non-parameterized command.";
         this->cmd_map[line].executor("");
       }
 
@@ -217,9 +217,10 @@ void CalController::control_loop() {
             }
           }
 
-          // All of our executors take one string argument, so if there is
-          // nothing specified on the command line, then add an empty string
-          // to the parameter vector...
+          // Although some of the bound executors don't take any arguments,
+          // we must provide enough arguments to match the signature in
+          // the CalCommand structure. Use an empty string if the user
+          // didn't provide anything.
           if (params.size() == 0) {
             params.push_back("");
           }
