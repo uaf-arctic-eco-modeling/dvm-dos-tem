@@ -8,9 +8,9 @@ import json
 import logging
 import argparse
 import textwrap
-import tarfile
-import shutil
-import signal # for a graceful exit
+import tarfile   # for reading from tar.gz files
+import shutil    # for cleaning up a /tmp directory
+import signal    # for a graceful exit
 
 if (sys.platform == 'darwin') and (os.name == 'posix'):
   # this is the only one that seems to work on Mac OSX with animation...
@@ -29,7 +29,7 @@ import selutil
 
 # The directories to look in for json files.
 DEFAULT_YEARLY_JSON_LOCATION = '/tmp/year-cal-dvmdostem'
-
+DEFAULT_EXTRACTED_ARCHIVE_LOCATION = '/tmp/extracted-calibration-archive'
 #
 # Disable some buttons on the default toobar that freeze the program.
 # There might be a better way to do this. Inspired from here:
@@ -60,7 +60,7 @@ NavigationToolbar2.forward = forward_overload
 
 def exit_gracefully(signum, frame):
   '''A function for quitting w/o leaving a stacktrace on the users console.'''
-  logging.info("Captured signal='%s', frame='%s'. Quitting - gracefully." % (signum, frame))
+  logging.info("Caught signal='%s', frame='%s'. Quitting - gracefully." % (signum, frame))
   sys.exit(1)
 
 
@@ -68,7 +68,8 @@ def exit_gracefully(signum, frame):
 class InputHelper(object):
 
   def __init__(self, path=DEFAULT_YEARLY_JSON_LOCATION):
-    logging.debug("Making an input helper object...")
+
+    logging.debug("Making an InputHelper object...")
 
     if os.path.isdir(path):
       # Assume path is a directory full of .json files
@@ -76,30 +77,33 @@ class InputHelper(object):
 
     elif os.path.isfile(path):
       # Assume path is a .tar.gz (or other compression) with .json files in it
-      extracted_archive = "/tmp/calibration-archive"
 
-      if (os.path.isdir(extracted_archive) or os.path.isfile(extracted_archive)):
-        logging.info("Cleaning up the temporary archive extration location ('%s')..." % extracted_archive)
-        shutil.rmtree(extracted_archive)
+      logging.info("Extracting archive to '%s'..." %
+          DEFAULT_EXTRACTED_ARCHIVE_LOCATION)
 
-      logging.info("Extracting archive to '%s'..." % extracted_archive)
+      if ( os.path.isdir(DEFAULT_EXTRACTED_ARCHIVE_LOCATION) or
+          os.path.isfile(DEFAULT_EXTRACTED_ARCHIVE_LOCATION) ):
+
+        logging.info("Cleaning up the temporary archive location ('%s')..." %
+            DEFAULT_EXTRACTED_ARCHIVE_LOCATION)
+        shutil.rmtree(DEFAULT_EXTRACTED_ARCHIVE_LOCATION)
+
       tf = tarfile.open(path)
       for member in tf.getmembers():
         if member.isreg(): # skip if TarInfo is not a file
           member.name = os.path.basename(member.name)
-          tf.extract(member, extracted_archive)
+          tf.extract(member, DEFAULT_EXTRACTED_ARCHIVE_LOCATION)
 
       # finally, set path to the new, "extracted archive" directory
-      self._path = extracted_archive
+      self._path = DEFAULT_EXTRACTED_ARCHIVE_LOCATION
 
   def files(self):
     '''Returns a list of files, either in a directory or .tar.gz archive'''
-    logging.info("Looking for json files in '%s' ..." % self._path)
     logging.debug("Returning a sorted list of files paths from %s that match a '*.json' pattern glob." % self._path)
-    files = sorted( glob.glob('%s/*.json' % self._path) )
-    return files
+    return sorted( glob.glob('%s/*.json' % self._path) )
 
   def path(self):
+    '''Useful for client programs wanting to show where files are coming from'''
     return self._path
 
 
