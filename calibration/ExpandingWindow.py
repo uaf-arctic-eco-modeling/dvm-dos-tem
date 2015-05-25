@@ -66,9 +66,9 @@ def exit_gracefully(signum, frame):
 
 
 class InputHelper(object):
-
+  '''A class to help abstract some of the details of opening .json files
+  '''
   def __init__(self, path=DEFAULT_YEARLY_JSON_LOCATION):
-
     logging.debug("Making an InputHelper object...")
 
     if os.path.isdir(path):
@@ -572,19 +572,24 @@ if __name__ == '__main__':
     formatter_class=argparse.RawDescriptionHelpFormatter,
       
       description=textwrap.dedent('''\
-        Dynamically updating yearly data plots that show data from 
-        dvm-dos-tem when it is running with --calibrationmode=on
+        A viewer for dvmdostem calibration. Can create and or display
+        (1) Dynamically updating plots from data written out by
+        dvmdostem when it is running with --cal-mode=on.
+        (2) Static plots created as dvmdostem is running or from an 
+        archived calibration run.
         '''),
         
       epilog=textwrap.dedent('''\
-        Program tries to read json files from 
+        By default, the program tries to read json files from
             
             %s
         
-        and plot the resulting data. The plots expand as more and
-        more json files are discovered. The plot will be
-        displayed in an "interactive" window provided by which-
-        ever matplotlib backend you are using. 
+        and plot the resulting data. 
+
+        When plotting dynamically the plot will expand to fit data that
+        it finds in the directory or archive. Unless using the 
+        '--no-show' flag, the plot will be displayed in an "interactive" 
+        window provided by which-ever matplotlib backend you are using.
 
         The different "suites" of plots refer to differnt
         assembelages of variables that you would like plotted.
@@ -656,13 +661,22 @@ if __name__ == '__main__':
 
 
   group = parser.add_mutually_exclusive_group()
-  group.add_argument('--tar-cmtname', default=None,
-      choices=[cmtname for cmtname in calibration_targets.calibration_targets.keys()],
-      help="The name of the community type that should be used to display target values lines.")
 
+  group.add_argument('--tar-cmtname', default=None,
+      choices=calibration_targets.cmtnames(),
+      metavar='',
+      help=textwrap.dedent('''\
+          "The name of the community type that should be used to display 
+          target values lines.''')
+  )
   group.add_argument('--tar-cmtnum', default=None, type=int,
-      choices=[cmt['cmtnumber'] for k, cmt in calibration_targets.calibration_targets.iteritems()],
-      help="The number of the community type that should be used to display target values lines.")
+      choices=calibration_targets.cmtnumbers(),
+      metavar='',
+      help=textwrap.dedent('''\
+          The number of the community type that should be used to display
+          target values lines. Allowed values are: %s''' %
+          calibration_targets.caltargets2prettystring3())
+  )
 
   parser.add_argument('--list-caltargets', action='store_true',
       help="print out a list of known calibration target communities")
