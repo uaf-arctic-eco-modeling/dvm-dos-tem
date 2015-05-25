@@ -760,7 +760,7 @@ if __name__ == '__main__':
   if args.from_archive:
     input_helper = InputHelper(path=args.from_archive)
   else:
-    input_helper = InputHelper(path="/tmp/year-cal-dvmdostem")
+    input_helper = InputHelper(path=DEFAULT_YEARLY_JSON_LOCATION)
 
   logging.info("Build the plot object...")
   ewp = ExpandingWindow(
