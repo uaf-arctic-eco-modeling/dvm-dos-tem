@@ -10,7 +10,7 @@ import argparse
 import textwrap
 import tarfile
 import shutil
-
+import signal # for a graceful exit
 
 if (sys.platform == 'darwin') and (os.name == 'posix'):
   # this is the only one that seems to work on Mac OSX with animation...
@@ -58,6 +58,10 @@ NavigationToolbar2.home = home_overload
 NavigationToolbar2.back = back_overload
 NavigationToolbar2.forward = forward_overload
 
+def exit_gracefully(signum, frame):
+  '''A function for quitting w/o leaving a stacktrace on the users console.'''
+  logging.info("Captured signal='%s', frame='%s'. Quitting - gracefully." % (signum, frame))
+  sys.exit(1)
 
 
 
@@ -387,6 +391,10 @@ class ExpandingWindow(object):
       except ValueError as e:
         logging.warning("Invalid Entry! (%s)" % e)
 
+    if event.key == 'ctrl+c':
+      logging.debug("Captured Ctrl-C. Quit nicely.")
+      exit_gracefully(event.key, None) # <-- need to pass something for frame ??
+
 
   def plot_target_lines(self):
     logging.debug("Plotting the target lines for calibrated parameters...")
@@ -548,6 +556,11 @@ if __name__ == '__main__':
   from configured_suites import configured_suites
   import calibration_targets
   
+  # Callback for SIGINT. Allows exit w/o printing stacktrace to users screen
+  original_sigint = signal.getsignal(signal.SIGINT)
+  signal.signal(signal.SIGINT, exit_gracefully)
+
+
   logger = logging.getLogger(__name__)
   
   parser = argparse.ArgumentParser(
