@@ -8,6 +8,8 @@ import json
 import logging
 import argparse
 import textwrap
+import tarfile
+import shutil
 
 
 if (sys.platform == 'darwin') and (os.name == 'posix'):
@@ -58,41 +60,84 @@ NavigationToolbar2.back = back_overload
 NavigationToolbar2.forward = forward_overload
 
 
-def log_file_stats(file_list):
-  '''convenience function to write some info about files to the logs'''
+class InputHelper(object):
 
-  logging.info( "%i json files in %s" % (len(file_list), YRTMPDIR) )
+  def __init__(self, path="/tmp/year-cal-dvmdostem"):
+    logging.debug("Making an input helper object...")
+    self.path = path
 
-  if len(file_list) > 0:
-    ffy = int(os.path.basename(file_list[0])[0:4])
-    lfy = int(os.path.basename(file_list[-1])[0:4])
-    logging.debug( "First file: %s (year %s)" % (file_list[0], ffy) )
-    logging.debug( "Last file: %s (year %s)" % (file_list[-1], lfy) )
+  def files(self):
+    '''Returns a list of files, either in a directory or .tar.gz archive'''
 
-    if lfy > 0:
-      pc = 100 * len(file_list) / len(np.arange(ffy, lfy))
-      logging.debug( "%s percent of range covered by existing files" % (pc) )
+    logging.info("Looking for json files in '%s' ..." % self.path)
+
+    files = []
+
+    # the normal case - just the normal location where dvmdostem writes files...
+    if os.path.isdir(self.path):
+      logging.debug("Returning a sorted list of files paths from %s that match a '*.json' pattern glob." % self.path)
+      files = sorted( glob.glob('%s/*.json' % self.path) )
+
+    # the archive case - extract into a different director in /tmp
+    elif os.path.isfile(self.path):
+      tmparchivelocation = "/tmp/calibration-archive"
+
+      if (os.path.isdir(tmparchivelocation) or os.path.isfile(tmparchivelocation)):
+        logging.info("Cleaning up the temporary archive extration location ('%s')..." % tmparchivelocation)
+        shutil.rmtree(tmparchivelocation)
+
+      logging.info("Extracting archive to '%s'..." % tmparchivelocation)
+      tf = tarfile.open(self.path)
+      for member in tf.getmembers():
+        if member.isreg(): # skip if TarInfo is not a file
+          member.name = os.path.basename(member.name)
+          tf.extract(member, tmparchivelocation)
+
+      logging.debug("Returning a sorted list of files paths from %s that match a '*.json' pattern glob." % self.path)
+      files = sorted( glob.glob('%s/*.json' % tmparchivelocation) )
+
+    return files
+
+
+  def report(self, file_list):
+    '''convenience function to write some info about files to the logs'''
+
+    logging.info( "%i json files in %s" % (len(file_list), self.path) )
+
+    if len(file_list) > 0:
+      ffy = int(os.path.basename(file_list[0])[0:5])
+      lfy = int(os.path.basename(file_list[-1])[0:5])
+      logging.debug( "First file: %s (year %s)" % (file_list[0], ffy) )
+      logging.debug( "Last file: %s (year %s)" % (file_list[-1], lfy) )
+
+      if lfy > 0:
+        pc = 100 * len(file_list) / len(np.arange(ffy, lfy))
+        logging.debug( "%s percent of range covered by existing files" % (pc) )
+      else:
+        logging.debug("Too few files to calculate % coverage.")
+
     else:
-      logging.debug("Too few files to calculate % coverage.")
-
-  else:
-    logging.warning("No json files! Length of file list: %s." % len(file_list))
+      logging.warning("No json files! Length of file list: %s." % len(file_list))
 
 
 class ExpandingWindow(object):
   '''A set of expanding window plots that all share the x axis.
   '''
 
-  def __init__(self, traceslist, figtitle="Expanding Window Plot",
-      rows=2, cols=1, targets={}):
+  def __init__(self, input_helper, traceslist, figtitle="Expanding Window Plot",
+      rows=2, cols=1, targets={}, no_show=False):
 
     logging.debug("Ctor for Expanding Window plot...")
+
+    self.input_helper = input_helper
 
     self.window_size_yrs = None
 
     self.traces = traceslist
 
     self.targets = targets
+
+    self.no_show = no_show
 
     self.fig = plt.figure(figsize=(6*1.3,8*1.3))
     self.fig.suptitle(figtitle)
@@ -103,16 +148,17 @@ class ExpandingWindow(object):
       if 'pft' in trace.keys():
         pfttraces.append(trace['jsontag'])
 
-    if len(pfttraces) > 0:
+    if ( (len(pfttraces) > 0) and (not no_show) ):
       gs = gridspec.GridSpec(rows, cols+1, width_ratios=[8,1])
-      logging.debug("Setting up a radio button pft chooser...")
-      self.pftradioax = plt.subplot(gs[0:, -1]) # all rows, last column
-      self.pftradio = matplotlib.widgets.RadioButtons(
-          self.pftradioax,
-          ['PFT%i'%(i) for i in range(0,10)],
-          active=int(self.get_currentpft()[-1])
-      )
-      self.pftradio.on_clicked(self.pftchanger)
+      if (not no_show):
+        logging.debug("Setting up a radio button pft chooser...")
+        self.pftradioax = plt.subplot(gs[0:, -1]) # all rows, last column
+        self.pftradio = matplotlib.widgets.RadioButtons(
+            self.pftradioax,
+            ['PFT%i'%(i) for i in range(0,10)],
+            active=int(self.get_currentpft()[-1])
+        )
+        self.pftradio.on_clicked(self.pftchanger)
     else:
       gs = gridspec.GridSpec(rows, cols)
 
@@ -179,14 +225,15 @@ class ExpandingWindow(object):
 
     log.info("Load data to plot. Relimit data?: %s  Autoscale?: %s", relim, autoscale)
     
-    files = sorted( glob.glob('%s/*.json' % YRTMPDIR) )
-    log_file_stats(files)
+    # gets a sorted list of json files...
+    files = input_helper.files()
+    self.input_helper.report(files)
 
     if self.window_size_yrs:
       log.info("Reducing files list to last %i files..." % self.window_size_yrs)
       files = files[-self.window_size_yrs:]
 
-    log_file_stats(files)
+    self.input_helper.report(files)
 
     # create an x range big enough for every possible file...
     if len(files) == 0:
@@ -263,9 +310,8 @@ class ExpandingWindow(object):
     '''
     logging.info("Animation Frame %7i" % frame)
     
-    logging.debug("Listing json files in %s" % YRTMPDIR)
-    files = sorted( glob.glob('%s/*.json' % YRTMPDIR) )
-    logging.info("%i json files in %s" % (len(files), YRTMPDIR) )
+    files = self.input_helper.files()
+    self.input_helper.report(files)
 
     #self.report_view_and_data_lims()
 
@@ -439,18 +485,30 @@ class ExpandingWindow(object):
     logging.debug("Turn on grid and legend.")
     for ax in self.axes:
       ax.grid(True) # <-- w/o parameter, this toggles!!
-      ax.legend(prop={'size':10.0}, loc='upper left')
+      ax.legend(prop={'size':8.0}, loc='upper left')
 
-  def show(self, dynamic=True):
+  def show(self, save_name="", dynamic=True):
     '''Show the figure. If dynamic=True, then setup an animation.'''
-    logging.info("Displaying plot, dynamic=%s" % dynamic)
+
+    logging.info("Displaying plot: dynamic=%s, no_show=%s, save_name=%s" % (dynamic, self.no_show, save_name))
+    if (dynamic and self.no_show):
+      logging.warn("no_show=%s implies static. Generating static file only." % (self.no_show))
 
     if dynamic:
       logging.info("Setup animation.")
       self.ani = animation.FuncAnimation(self.fig, self.update, interval=100,
                                        init_func=self.init, blit=True)
-  
-    plt.show()
+
+    if save_name != "":
+      # the saved file will represent a snapshot of the state of the json
+      # directory at the time the animation was started
+      full_name = save_name + ".pdf"
+      logging.info("Saving plot to '%s'" % (full_name))
+      plt.savefig(full_name) # pdf may be smaller than png?
+
+    if not self.no_show:
+      plt.show()
+
 
   def report_view_and_data_lims(self):
     '''Print a log report showing data and view limits.'''
@@ -590,11 +648,25 @@ if __name__ == '__main__':
   parser.add_argument('-l', '--loglevel', default="warning",
       help="What logging level to use. (debug, info, warning, error, critical")
 
+  parser.add_argument('--static', action='store_true',
+      help="Don't animate the output. The plots will *NOT* automatically update!")
+
+  parser.add_argument('--save-name', default="",
+      help="A file name prefix to use for saving plots.")
+
+  parser.add_argument('--no-show', action='store_true',
+      help=textwrap.dedent('''Don't show the plots in the interactive viewer.
+          Implies '--static'. Useful for scripts, or automatically saving output
+          images.'''))
+
+  parser.add_argument('--from-archive', default=False,
+      help=textwrap.dedent('''Generate plots from an archive of json files, 
+          instead of the normal /tmp directory.'''))
 
 
   print "Parsing command line arguments..."
   args = parser.parse_args()
-  #print args
+  print args
 
   if args.list_suites:
     # Print all the known suites to the console with descriptions and then quit.
@@ -637,8 +709,6 @@ if __name__ == '__main__':
     logging.info("Not displaying target data")
     caltargets = {}
 
-
-
   logger.info("Set the right pft in the suite's traces list..")
   for trace in suite['traces']:
     if 'pft' in trace.keys():
@@ -646,16 +716,29 @@ if __name__ == '__main__':
 
   logger.info("Starting main app...")
 
+  logging.info("Dynamic=%s Static=%s No-show=%s Save-name='%s'" %
+      (not args.static, args.static, args.no_show, args.save_name))
+
+  logging.info("Setting up the input data source...")
+  if args.from_archive:
+    input_helper = InputHelper(path=args.from_archive)
+  else:
+    input_helper = InputHelper(path="/tmp/year-cal-dvmdostem")
+
+  logging.info("Build the plot object...")
   ewp = ExpandingWindow(
+                        input_helper,
                         suite['traces'],
                         rows=suite['rows'],
                         cols=suite['cols'],
                         targets=caltargets,
-                        figtitle="Some %s graphs..." % (args.suite)
+                        figtitle="%s" % (args.suite),
+                        no_show=args.no_show,
                        )
 
-  ewp.show(dynamic=True)
-  
+  logging.info("Show the plot object...")
+  ewp.show(dynamic=(not args.static), save_name=args.save_name)
+
   logger.info("Done with main app...")
 
 
