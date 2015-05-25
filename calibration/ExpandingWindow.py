@@ -28,8 +28,7 @@ import matplotlib.widgets
 import selutil
 
 # The directories to look in for json files.
-TMPDIR = '/tmp/cal-dvmdostem'
-YRTMPDIR = '/tmp/year-cal-dvmdostem'
+DEFAULT_YEARLY_JSON_LOCATION = '/tmp/year-cal-dvmdostem'
 
 #
 # Disable some buttons on the default toobar that freeze the program.
@@ -60,49 +59,50 @@ NavigationToolbar2.back = back_overload
 NavigationToolbar2.forward = forward_overload
 
 
+
+
 class InputHelper(object):
 
-  def __init__(self, path="/tmp/year-cal-dvmdostem"):
+  def __init__(self, path=DEFAULT_YEARLY_JSON_LOCATION):
     logging.debug("Making an input helper object...")
-    self.path = path
 
-  def files(self):
-    '''Returns a list of files, either in a directory or .tar.gz archive'''
+    if os.path.isdir(path):
+      # Assume path is a directory full of .json files
+      self._path = path
 
-    logging.info("Looking for json files in '%s' ..." % self.path)
+    elif os.path.isfile(path):
+      # Assume path is a .tar.gz (or other compression) with .json files in it
+      extracted_archive = "/tmp/calibration-archive"
 
-    files = []
+      if (os.path.isdir(extracted_archive) or os.path.isfile(extracted_archive)):
+        logging.info("Cleaning up the temporary archive extration location ('%s')..." % extracted_archive)
+        shutil.rmtree(extracted_archive)
 
-    # the normal case - just the normal location where dvmdostem writes files...
-    if os.path.isdir(self.path):
-      logging.debug("Returning a sorted list of files paths from %s that match a '*.json' pattern glob." % self.path)
-      files = sorted( glob.glob('%s/*.json' % self.path) )
-
-    # the archive case - extract into a different director in /tmp
-    elif os.path.isfile(self.path):
-      tmparchivelocation = "/tmp/calibration-archive"
-
-      if (os.path.isdir(tmparchivelocation) or os.path.isfile(tmparchivelocation)):
-        logging.info("Cleaning up the temporary archive extration location ('%s')..." % tmparchivelocation)
-        shutil.rmtree(tmparchivelocation)
-
-      logging.info("Extracting archive to '%s'..." % tmparchivelocation)
-      tf = tarfile.open(self.path)
+      logging.info("Extracting archive to '%s'..." % extracted_archive)
+      tf = tarfile.open(path)
       for member in tf.getmembers():
         if member.isreg(): # skip if TarInfo is not a file
           member.name = os.path.basename(member.name)
-          tf.extract(member, tmparchivelocation)
+          tf.extract(member, extracted_archive)
 
-      logging.debug("Returning a sorted list of files paths from %s that match a '*.json' pattern glob." % self.path)
-      files = sorted( glob.glob('%s/*.json' % tmparchivelocation) )
+      # finally, set path to the new, "extracted archive" directory
+      self._path = extracted_archive
 
+  def files(self):
+    '''Returns a list of files, either in a directory or .tar.gz archive'''
+    logging.info("Looking for json files in '%s' ..." % self._path)
+    logging.debug("Returning a sorted list of files paths from %s that match a '*.json' pattern glob." % self._path)
+    files = sorted( glob.glob('%s/*.json' % self._path) )
     return files
 
+  def path(self):
+    return self._path
 
-  def report(self, file_list):
+
+  def coverage_report(self, file_list):
     '''convenience function to write some info about files to the logs'''
 
-    logging.info( "%i json files in %s" % (len(file_list), self.path) )
+    logging.info( "%i json files in %s" % (len(file_list), self._path) )
 
     if len(file_list) > 0:
       ffy = int(os.path.basename(file_list[0])[0:5])
@@ -227,13 +227,13 @@ class ExpandingWindow(object):
     
     # gets a sorted list of json files...
     files = input_helper.files()
-    self.input_helper.report(files)
+    self.input_helper.coverage_report(files)
 
     if self.window_size_yrs:
       log.info("Reducing files list to last %i files..." % self.window_size_yrs)
       files = files[-self.window_size_yrs:]
 
-    self.input_helper.report(files)
+    self.input_helper.coverage_report(files)
 
     # create an x range big enough for every possible file...
     if len(files) == 0:
@@ -311,7 +311,7 @@ class ExpandingWindow(object):
     logging.info("Animation Frame %7i" % frame)
     
     files = self.input_helper.files()
-    self.input_helper.report(files)
+    self.input_helper.coverage_report(files)
 
     #self.report_view_and_data_lims()
 
@@ -343,21 +343,26 @@ class ExpandingWindow(object):
 
   def key_press_event(self, event):
     logging.debug("You pressed: %s. Cursor at x: %s y: %s" % (event.key, event.xdata, event.ydata))
+
     if event.key == 'ctrl+r':
       logging.info("RELOAD / RESET VIEW. Load all data, relimit, and autoscale.")
       self.load_data2plot(relim=True, autoscale=True)
+
     if event.key == 'ctrl+q':
       logging.info("QUIT")
       plt.close()
+
     if event.key == 'ctrl+p':
       n = 1000
-      files = sorted( glob.glob('%s/*.json' % YRTMPDIR) )
+      files = self.input_helper.files()
       if n < len(files):
-        logging.warning( "Deleting first %s json files from %s..." % (n, YRTMPDIR) )
+        logging.warning("Deleting first %s json files from '%s'!" %
+            (n, self.input_helper.path()))
         for f in files[0:n]:
           os.remove(f)
       else:
         logging.warning("Fewer than %s json files present - don't do anything." % n)
+
     if event.key == 'ctrl+j':
       # could add while true here to force user to
       # enter some kind of valid input?
@@ -367,6 +372,7 @@ class ExpandingWindow(object):
         logging.info("Changed to 'fixed window' (window size: %s)" % ws)
       except ValueError as e:
         logging.warning("Invalid Entry! (%s)" % e)
+
     if event.key == 'ctrl+J':
       logging.info("Changed to 'expanding window' mode.")
       self.window_size_yrs = None
@@ -617,7 +623,7 @@ if __name__ == '__main__':
             http://matplotlib.org/1.3.1/users/navigation_toolbar.html
 
         I am sure we forgot to mention something?
-        ''' % YRTMPDIR)
+        ''' % DEFAULT_YEARLY_JSON_LOCATION)
       )
 
   parser.add_argument('--pft', default=0, type=int,
