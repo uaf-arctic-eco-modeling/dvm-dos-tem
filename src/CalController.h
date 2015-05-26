@@ -45,7 +45,7 @@ public:
 class CalController {
 public:
 
-  CalController(Cohort* cht_p, Json::Value config_obj);
+  CalController(Cohort* cht_p);
   
   void auto_run(int simulation_year);
   void run_config(int simulation_year);
@@ -56,8 +56,6 @@ public:
   void pause();       // forces pause immediately
   static void clear_and_create_json_storage(); // cleans /tmp directory
   
-  void execute(boost::function<void()> selected_function);
-
 private:
   boost::shared_ptr< boost::asio::io_service > io_service;
   boost::asio::signal_set pause_sigs;
@@ -73,6 +71,8 @@ private:
   void control_loop();
 
   void operate_on_directive_str(const std::string& line);
+
+  Json::Value load_directives_from_file(const std::string& f);
 
   void quit_at(const std::string& exit_year);
   void pause_at(const std::string& pause_year);

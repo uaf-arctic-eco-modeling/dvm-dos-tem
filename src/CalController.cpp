@@ -18,17 +18,15 @@
 extern src::severity_logger< severity_level > glg;
 
 /** An object that can control parts of a simulation thru a Cohort pointer.
- 
- A CalController needs a pointer to a Cohort, as well as a Json::Value that
- describes a set of pre-set actions to take when running in calibration mode.
- The Json::Value may be empty.
 
  You must pass a pointer to a Cohort in order to make a valid CalController!
- */
-CalController::CalController(Cohort* cht_p, Json::Value config_obj):
+
+ The CalibrationController will try to load a set of configurations from
+ a txt file in the config/ director.
+*/
+CalController::CalController(Cohort* cht_p):
   io_service(new boost::asio::io_service),
   pause_sigs(*io_service, SIGINT, SIGTERM),
-  run_configuration(config_obj),
   cohort_ptr(cht_p) {
   cmd_map = boost::assign::map_list_of
             ("q", CalCommand("quit the calibrator",
@@ -94,16 +92,15 @@ CalController::CalController(Cohort* cht_p, Json::Value config_obj):
             ("baseline",
               CalCommand("changes baseline setting",
                           boost::bind(&CalController::baseline_cmd, this, _1)) )
-
-
             ;
-
-  
 
   BOOST_LOG_SEV(glg, debug) << "Set async wait on signals to PAUSE handler.";
   pause_sigs.async_wait( boost::bind(&CalController::pause_handler, this,
                                      boost::asio::placeholders::error,
                                      boost::asio::placeholders::signal_number));
+
+  this->run_configuration =
+      this->load_directives_from_file("config/calibration_directives.txt");
 
   if (!this->cohort_ptr) {
     BOOST_LOG_SEV(glg, err) << "Something is wrong and the Cohort pointer is null!";
@@ -111,6 +108,40 @@ CalController::CalController(Cohort* cht_p, Json::Value config_obj):
 
   BOOST_LOG_SEV(glg, debug) << "Done constructing a CalController.";
 }
+
+
+/** Trys to load a calibration directives file, returns empty object if it fails.
+
+  The directives file, if present, should take this form (json, with comments):
+  {
+    "calibration_autorun_settings": {
+      "quitat": 1100,
+      "488": ["dsl on", "nfeed on", "dsb on"]
+      "1000": ["dsb on"]
+    }
+  }
+*/
+Json::Value CalController::load_directives_from_file(
+    const std::string& filename) {
+
+  Json::Value v;
+
+  if ( !(boost::filesystem::exists(filename)) ) {
+    BOOST_LOG_SEV(glg, warn) << "Calibraiton directives file '"
+                             << filename <<"' does not exist. "
+                             << "Returning empty Json::Value.";
+  } else {
+
+    BOOST_LOG_SEV(glg, note) << "Parse file '"<< filename
+                             << "' for calibration directives.";
+    v = temutil::parse_control_file(filename);
+  }
+
+  BOOST_LOG_SEV(glg, debug) << v.toStyledString();
+
+  return v["calibration_autorun_settings"];
+}
+
 
 void CalController::print_directive_settings() {
   std::cout << "Calibration Directives" << std::endl;

@@ -105,7 +105,6 @@ public:
   void advance_one_month();
   bool get_calMode();
   void set_calMode(bool new_value);
-  Json::Value load_cal_directives_from_file();
 
   void output_caljson_yearly(int year);
   void output_caljson_monthly(int year, int month);

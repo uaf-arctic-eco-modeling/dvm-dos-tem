@@ -26,35 +26,6 @@ RunCohort::RunCohort() {
 RunCohort::~RunCohort() {
 }
 
-/** Trys to load a calibration directives file, returns empty object if it fails.
-
-  The directives file, if present, should take this form (json, with comments):
-  {
-    "calibration_autorun_settings": {
-      "quitat": 1100,
-      "488": ["dsl on", "nfeed on", "dsb on"]
-      "1000": ["dsb on"]
-    }
-  }
-*/
-Json::Value RunCohort::load_cal_directives_from_file(){
-  BOOST_LOG_SEV(glg, note) << "Loading data from calibration directives file..";
-
-  std::string filename = "config/calibration_directives.txt";
-
-  Json::Value v;
-
-  if ( !(boost::filesystem::exists(filename)) ) {
-    BOOST_LOG_SEV(glg, warn) << "Calibraiton directives file '"<< filename <<"' does not exist. Returning empty Json::Value.";
-  } else {
-
-    BOOST_LOG_SEV(glg, note) << "Parse file '"<< filename <<"' for calibration directives.";
-    v = temutil::parse_control_file(filename);
-  }
-  //std::cout << v.toStyledString()<< std::endl;
-  return v["calibration_autorun_settings"];
-}
-
 bool RunCohort::get_calMode() {
   return this->calMode;
 }
@@ -316,11 +287,7 @@ void RunCohort::choose_run_stage_settings() {
   boost::shared_ptr<CalController> calcontroller_ptr;
 
   if ( this->get_calMode() ) {
-    Json::Value v = load_cal_directives_from_file();
-    BOOST_LOG_SEV(glg, info) << "Calibration Directives: \n"
-                             << v.toStyledString();
-
-    calcontroller_ptr.reset( new CalController(&this->cht, v));
+    calcontroller_ptr.reset( new CalController(&this->cht));
   }
 
   //
