@@ -142,56 +142,73 @@ Json::Value CalController::load_directives_from_file(
   return v["calibration_autorun_settings"];
 }
 
-
+/** Print the run_configuration data structure to std out. */
 void CalController::print_directive_settings() {
   std::cout << "Calibration Directives" << std::endl;
   std::cout << "----------------------" << std::endl;
   std::cout << this->run_configuration.toStyledString() << std::endl;
 }
 
+/** Set the year to quit in the run_configuration data structure */
 void CalController::quit_at(const std::string& s) {
   int year;
   try {
     year = boost::lexical_cast<int>(s);
     this->run_configuration["quitat"] = year;
-    BOOST_LOG_SEV(glg, info) << "Setting the quitat year in CalController's run_configuration to " << year;
-  } catch( const boost::bad_lexical_cast & ) {
-    BOOST_LOG_SEV(glg, warn) << "Unable to convert '"<< s <<"' to valid integer for a quit-at year.";
+    BOOST_LOG_SEV(glg, info) << "Setting the quitat year in CalController's "
+                             << "run_configuration to " << year;
+
+   } catch( const boost::bad_lexical_cast & ) {
+    BOOST_LOG_SEV(glg, warn) << "Unable to convert '"<< s <<"' to valid "
+                             << "integer for a quit-at year.";
   }
 }
 
+/** Set the year to pause in the run_configuration data structure */
 void CalController::pause_at(const std::string& s) {
   int year;
   try {
     year = boost::lexical_cast<int>(s);
     this->run_configuration["pauseat"] = year;
-    BOOST_LOG_SEV(glg, info) << "Setting the pauseat year in CalController's run_configuration to " << year;
+    BOOST_LOG_SEV(glg, info) << "Set the pauseat year in CalController's "
+                             << "run_configuration to " << year;
+
   } catch( const boost::bad_lexical_cast & ) {
-    BOOST_LOG_SEV(glg, warn) << "Unable to convert '"<< s <<"' to valid integer for a pause-at year.";
+    BOOST_LOG_SEV(glg, warn) << "Unable to convert '"<< s <<"' to valid "
+                             << "integer for a pauseat year.";
   }
 }
 
+/** Look thru the run_configuration data structure and run any commands that
+    are found by calling operate_on_directive_str(..).
+*/
 void CalController::run_config(int year) {
 
-  for (Json::Value::iterator it = run_configuration.begin(); it != run_configuration.end(); ++it) {
+  typedef Json::Value::iterator JVIt;
+  for (JVIt it = run_configuration.begin(); it != run_configuration.end(); ++it) {
     Json::Value key = it.key();
     Json::Value val = *it;
 
     if ("quitat" == key.asString()) {
       if (year == val.asInt()) {
-        BOOST_LOG_SEV(glg, note) << "QUITTING because "<< year <<" set in CalController's run_configuration data structure.";
+        BOOST_LOG_SEV(glg, note) << "QUITTING because "<< year <<" set in "
+                                 << "CalController's run_configuration data "
+                                 << "structure.";
         exit(0);
       }
     }
     if ("pauseat" == key.asString()) {
       if (year == val.asInt()){
-        BOOST_LOG_SEV(glg, note) << "PAUSING because year is equal to year in CalController's run configuration data structure.";
+        BOOST_LOG_SEV(glg, note) << "PAUSING because year is equal to year in "
+                                 << "CalController's run configuration data "
+                                 << "structure.";
         this->control_loop();
       }
     }
 
     if (boost::lexical_cast<string>(year) == key.asString()) {
-      BOOST_LOG_SEV(glg, info) << "ITERATE over the directives in the value...(which is an array of string commands)";
+      BOOST_LOG_SEV(glg, info) << "ITERATE over the directives in the value... "
+                               << "(which is an array of string commands)";
 
       for( Json::ValueIterator itr = val.begin(); itr != val.end(); itr++ ) {
         string directive  =  (*itr).asString();
@@ -243,7 +260,12 @@ void CalController::control_loop() {
 
 
 
-/** ?? */
+/** Parse a string and carry out an operation if a valid operation is found.
+
+    For example a string like this: "dsb on" would match one of the 
+    (parameterized) commands that is setup in the constructor, so the 
+    appropriate boost::bind function is called.
+*/
 void CalController::operate_on_directive_str(const std::string& line) {
 
   // Match non-paramererized command (maybe multiple words)
@@ -312,7 +334,8 @@ void CalController::operate_on_directive_str(const std::string& line) {
 void CalController::pause_handler(const boost::system::error_code& error,
                                   int signal_number) {
   BOOST_LOG_SEV(glg, debug) << "In the CalController pause_handler";
-  BOOST_LOG_SEV(glg, debug) << "Caught signal number: " << signal_number << " Error(s): " << error;
+  BOOST_LOG_SEV(glg, debug) << "Caught signal number: " << signal_number
+                            << " Error(s): " << error;
   control_loop();
   BOOST_LOG_SEV(glg, debug) << "Done in pause handler...";
 }
@@ -427,7 +450,8 @@ void CalController::quit() {
 
 
 void CalController::print_calparbgc() {
-  BOOST_LOG_SEV(glg, note) << "Printing the 'calparbgc' parameters stored in the CohortLookup pointer...";
+  BOOST_LOG_SEV(glg, note) << "Printing the 'calparbgc' parameters stored in "
+                           << "the CohortLookup pointer...";
   std::string a_string = this->cohort_ptr->chtlu.calparbgc2str();
   std::cout << a_string;
 }

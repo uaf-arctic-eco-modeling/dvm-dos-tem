@@ -20,17 +20,10 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 
-//template<typename R, typename P1, typename P2>
-//struct Executor {
-//  boost::function<R (P1,P1) >
-//}
-
 class CalCommand {
 public:
 
   std::string desc;
-  
-  //typedef boost::function<void(int, int, int)> Executor3;
   
   typedef boost::function< void(const std::string&) > Executor1Str;
   
@@ -102,41 +95,6 @@ private:
   void baseline_cmd(const std::string& s);
 
 };
-
-
-
-//class Command {
-//public:
-//  virtual ~Command();
-//  virtual void Execute() = 0;
-//protected:
-//  Command();
-//};
-//
-//class AvlnCommand : public Command {
-//public:
-//  AvlnCommand(CalController*);
-//  virtual void Execute();
-//protected:
-//  virtual bool AskUser();
-//private:
-//  CalController  _calcontroller;
-//  bool _response;
-//};
-//
-//AvlnCommand::AvlnCommand (CalController* cc) {
-//  _calcontroller = cc;
-//}
-//void AvlnCommand::Execute() {
-//  bool resp = AskUser();
-//  if (resp) {
-//    _calcontroller.avlnflg_ON();
-//  } else {
-//    _calcontroller.avlnflg_OFF();
-//  }
-//
-//}
-
 
 #endif /* _CALCONTROLLER_H_ */
 
