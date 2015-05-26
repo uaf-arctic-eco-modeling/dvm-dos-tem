@@ -52,43 +52,17 @@ CalController::CalController(Cohort* cht_p, Json::Value config_obj):
               CalCommand("show full menu",
                           boost::bind(&CalController::show_full_menu, this)) )
 
-            ("dsb on", CalCommand("turn dsb module ON",
-                                   boost::bind(&CalController::dsb_ON, this)) )
-            ("dsb off",
-              CalCommand("turn dsb module OFF",
-                          boost::bind(&CalController::dsb_OFF, this)) )
-            ("dsl on", CalCommand("turn dsl module ON",
-                                  boost::bind(&CalController::dsl_ON, this)) )
-            ("dsl off", CalCommand("turn dsl module OFF",
-                                   boost::bind(&CalController::dsl_OFF, this)) )
-            ("dvm on", CalCommand("turn dvm module ON",
-                                   boost::bind(&CalController::dvm_ON, this)) )
-            ("dvm off", CalCommand("turn dvm module OFF",
-                                   boost::bind(&CalController::dvm_OFF, this)) )
-            ("nfeed on",
-              CalCommand("turn nitrogen feedback ON",
-                          boost::bind(&CalController::nfeed_ON, this)) )
-            ("nfeed off",
-              CalCommand("turn nitrogen feedback OFF",
-                          boost::bind(&CalController::nfeed_OFF, this)) )
-            ("avln on",
-              CalCommand("turn available nitrogen ON",
-                          boost::bind(&CalController::avlnflg_ON, this)) )
-            ("avln off",
-              CalCommand("turn available nitrogen OFF",
-                          boost::bind(&CalController::avlnflg_OFF, this)) )
-            ("baseline on",
-              CalCommand("turn baseline ON",
-                          boost::bind(&CalController::baseline_ON, this)) )
-            ("baseline off",
-              CalCommand("turn baseline OFF",
-                          boost::bind(&CalController::baseline_OFF, this)) )
             ("print calparbgc",
               CalCommand("prints out the calparbgc parameters ",
                          boost::bind(&CalController::print_calparbgc, this)) )
             ("print module settings",
               CalCommand("print module settings (on/off)",
                          boost::bind(&CalController::print_modules_settings, this)) )
+
+            ("print directives",
+              CalCommand("show data from the run_configuration data structure",
+                         boost::bind(&CalController::print_directive_settings, this)) )
+
             ("quitat",
               CalCommand("quits and exits at simulation year specified",
                          boost::bind(&CalController::quit_at, this, _1)) )
@@ -97,14 +71,30 @@ CalController::CalController(Cohort* cht_p, Json::Value config_obj):
                          boost::bind(&CalController::pause_at, this, _1)) )
 
             ("env",
-              CalCommand("changes env module state...",
+              CalCommand("changes env module state",
                          boost::bind(&CalController::env_cmd, this, _1)) )
             ("bgc",
-              CalCommand("changes bgc module state...",
+              CalCommand("changes bgc module state",
                          boost::bind(&CalController::bgc_cmd, this, _1)) )
             ("avln",
-              CalCommand("changes available Nitrogen setting...",
+              CalCommand("changes available Nitrogen setting",
                          boost::bind(&CalController::avln_cmd, this, _1)) )
+            ("dsb",
+              CalCommand("changes dsb module state",
+                         boost::bind(&CalController::dsb_cmd, this, _1)) )
+            ("dsl",
+              CalCommand("changes dsl module state",
+                         boost::bind(&CalController::dsl_cmd, this, _1)) )
+            ("dvm",
+              CalCommand("changes dvm module state",
+                         boost::bind(&CalController::dvm_cmd, this, _1)) )
+            ("nfeed",
+              CalCommand("changes nitrogen feedback setting",
+                          boost::bind(&CalController::nfeed_cmd, this, _1)) )
+            ("baseline",
+              CalCommand("changes baseline setting",
+                          boost::bind(&CalController::baseline_cmd, this, _1)) )
+
 
             ;
 
@@ -120,6 +110,12 @@ CalController::CalController(Cohort* cht_p, Json::Value config_obj):
   }
 
   BOOST_LOG_SEV(glg, debug) << "Done constructing a CalController.";
+}
+
+void CalController::print_directive_settings() {
+  std::cout << "Calibration Directives" << std::endl;
+  std::cout << "----------------------" << std::endl;
+  std::cout << this->run_configuration.toStyledString() << std::endl;
 }
 
 void CalController::quit_at(const std::string& s) {
@@ -177,7 +173,7 @@ void CalController::run_config(int year) {
 }
 
 void CalController::auto_run(int simulation_year) {
-  std::cout << "year: " << simulation_year << ". FUCK YEAH! auto-running!! \n";
+  std::cout << "year: " << simulation_year << ". YEAH! auto-running!! \n";
 }
 
 /** Keep getting commands and executing commands from the user.
@@ -219,66 +215,63 @@ void CalController::control_loop() {
 /** ?? */
 void CalController::operate_on_directive_str(const std::string& line) {
 
-  // Otherwise, pickup any (old?), multi-word commands
-  if(this->cmd_map.count(line)) {
-    BOOST_LOG_SEV(glg, warn) << "Calling non-parameterized command.";
-    this->cmd_map[line].executor("");
-  }
+  // Match non-paramererized command (maybe multiple words)
+  if (this->cmd_map.count(line)) {
+    BOOST_LOG_SEV(glg, info) << "Calling non-parameterized command.";
+    this->cmd_map[line].executor(""); // send empty string to executor...
 
-  // NOTE:
-  // Things get double called if both the old-style multi-word command
-  // and associated functions are declared as well as the new-style
-  // parameterized command is declared.
+  // See if we can find a match of command token and parameters
+  } else {
 
-  // Parse string of commands and parameters, calling appropriate function.
-  boost::tokenizer<> tokens(line);
-  for (boost::tokenizer<>::iterator tkn_it=tokens.begin(); tkn_it!=tokens.end(); ++tkn_it) {
-    std::string tkn = *tkn_it;
+    // Parse string of commands and parameters, calling appropriate function.
+    boost::tokenizer<> tokens(line);
+    typedef boost::tokenizer<>::iterator BstTknIt;
+    for (BstTknIt tkn_it=tokens.begin(); tkn_it!=tokens.end(); ++tkn_it) {
+      std::string tkn = *tkn_it;
 
-    if (this->cmd_map.count(tkn)) {
+      if (this->cmd_map.count(tkn)) {
 
-      BOOST_LOG_SEV(glg, debug) << "Found token '"<<tkn<<"' in the cmd_map.\n";
+        BOOST_LOG_SEV(glg, debug) << "Found token '"<<tkn<<"' in the cmd_map.";
 
-      // store the command, and bump the iterator forward
-      std::string cmd = tkn;
-      std::vector<std::string> params;//(4, "");
-      ++tkn_it;
+        // store the command, and bump the iterator forward
+        std::string cmd = tkn;
+        std::vector<std::string> params;
+        ++tkn_it;
 
-      BOOST_LOG_SEV(glg, debug) << "Looking for any additional command parameters...\n";
-      if (tkn_it != tokens.end()) {
+        BOOST_LOG_SEV(glg, debug) << "Looking for any additional command parameters...";
+        if (tkn_it != tokens.end()) {
 
-        // Accumulate any parameters for the command. Continue scanning for
-        // parameters until either the end of the input string is reached.
-        for (boost::tokenizer<>::iterator param_it = tkn_it; param_it != tokens.end(); ++param_it) {
-          params.push_back(*param_it);
+          // Accumulate any parameters for the command. Continue scanning for
+          // parameters until the end of the input string is reached.
+          for (BstTknIt param_it = tkn_it; param_it != tokens.end(); ++param_it) {
+            params.push_back(*param_it);
+          }
         }
-      }
 
-      // Although some of the bound executors don't take any arguments,
-      // we must provide enough arguments to match the signature in
-      // the CalCommand structure. Use an empty string if the user
-      // didn't provide anything.
-      if (params.size() == 0) {
-        params.push_back("");
-      }
+        // Although some of the bound executors don't take any arguments,
+        // we must provide enough arguments to match the signature in
+        // the CalCommand structure. Use an empty string if the user
+        // didn't provide anything.
+        if (params.size() == 0) {
+          params.push_back("");
+        }
 
-      BOOST_LOG_SEV(glg, note) << "Command token: '" << cmd
-                               << "'. Parameters: ["
-                               << temutil::vec2csv(params) << "]";
+        BOOST_LOG_SEV(glg, note) << "Command token: '" << cmd
+                                 << "'. Parameters: ["
+                                 << temutil::vec2csv(params) << "]";
 
-      BOOST_LOG_SEV(glg, info) << "NOTE: only using 1 parameter at the "
-                               << "moment. Other params are ignored.";
+        BOOST_LOG_SEV(glg, info) << "NOTE: Only using 1st parameter. Others are"
+                                 << "ignored for the time being.";
 
-      this->cmd_map[cmd].executor(params.at(0));
+        this->cmd_map[cmd].executor(params.at(0));
 
-      if (tkn_it == tokens.end()) {
-        break;
-      }
+        if (tkn_it == tokens.end()) {
+          break;
+        }
 
-    } /* end token in map */
-
-  } /* end token loop */
-
+      } /* end token in map */
+    } /* end token loop */
+  } /* end else: match full-line */
 }
 
 /** The call back that is run when a registered signal is recieved and processed.
@@ -289,7 +282,6 @@ void CalController::pause_handler(const boost::system::error_code& error,
                                   int signal_number) {
   BOOST_LOG_SEV(glg, debug) << "In the CalController pause_handler";
   BOOST_LOG_SEV(glg, debug) << "Caught signal number: " << signal_number << " Error(s): " << error;
-  //BOOST_LOG_SEV(clg, debug) << "BEFORE PARAMS: \n" << cohort_ptr->chtlu.dump_calparbgc();
   control_loop();
   BOOST_LOG_SEV(glg, debug) << "Done in pause handler...";
 }
@@ -402,99 +394,6 @@ void CalController::quit() {
   exit(-1);
 }
 
-void CalController::env_cmd(const std::string& s) {
-  try {
-    this->cohort_ptr->md->set_envmodule(temutil::onoffstr2bool(s));
-
-    BOOST_LOG_SEV(glg, note) << "CalController turned env module to "
-                             << s <<" via cohort pointer...";
-
-  } catch (const std::runtime_error& e) {
-    BOOST_LOG_SEV(glg, warn) << e.what();
-  }
-}
-
-void CalController::bgc_cmd(const std::string& s) {
-  try {
-    this->cohort_ptr->md->set_bgcmodule(temutil::onoffstr2bool(s));
-
-    BOOST_LOG_SEV(glg, note) << "CalController turned bgc module to "
-                             << s <<" via cohort pointer...";
-
-  } catch (const std::runtime_error& e) {
-    BOOST_LOG_SEV(glg, warn) << e.what();
-  }
-}
-void CalController::avln_cmd(const std::string& s) {
-  try {
-    this->cohort_ptr->md->set_avlnflg(temutil::onoffstr2bool(s));
-
-    BOOST_LOG_SEV(glg, note) << "CalController turned available Nitrogen flag to "
-                             << s <<" via cohort pointer...";
-
-  } catch (const std::runtime_error& e) {
-    BOOST_LOG_SEV(glg, warn) << e.what();
-  }
-}
-
-void CalController::dsb_ON() {
-  BOOST_LOG_SEV(glg, note) << "CalController is turing dsb module ON via cohort pointer...";
-  this->cohort_ptr->md->set_dsbmodule(true);
-}
-
-void CalController::dsb_OFF() {
-  BOOST_LOG_SEV(glg, note) << "CalController is turing dsb module OFF via cohort pointer...";
-  this->cohort_ptr->md->set_dsbmodule(false);
-}
-
-void CalController::dsl_ON() {
-  BOOST_LOG_SEV(glg, note) << "CalController is turing dsl module ON via cohort pointer...";
-  this->cohort_ptr->md->set_dslmodule(true);
-}
-
-void CalController::dsl_OFF() {
-  BOOST_LOG_SEV(glg, note) << "CalController is turing dsl module OFF via cohort pointer...";
-  this->cohort_ptr->md->set_dslmodule(false);
-}
-
-void CalController::dvm_ON() {
-  BOOST_LOG_SEV(glg, note) << "CalController is turing dvm module ON via cohort pointer...";
-  this->cohort_ptr->md->set_dvmmodule(true);
-}
-
-void CalController::dvm_OFF() {
-  BOOST_LOG_SEV(glg, note) << "CalController is turing dvm module OFF via cohort pointer...";
-  this->cohort_ptr->md->set_dvmmodule(false);
-}
-
-void CalController::nfeed_ON() {
-  BOOST_LOG_SEV(glg, note) << "CalController is turing nitrogen feedback ON via cohort pointer...";
-  this->cohort_ptr->md->set_nfeed(true);
-}
-
-void CalController::nfeed_OFF() {
-  BOOST_LOG_SEV(glg, note) << "CalController is turing nitrogen feedback OFF via cohort pointer...";
-  this->cohort_ptr->md->set_nfeed(false);
-}
-
-void CalController::avlnflg_ON() {
-  BOOST_LOG_SEV(glg, note) << "CalController is turing available nitrogen ON via cohort pointer...";
-  this->cohort_ptr->md->set_avlnflg(true);
-}
-void CalController::avlnflg_OFF() {
-  BOOST_LOG_SEV(glg, note) << "CalController is turing available nitrogen OFF via cohort pointer...";
-  this->cohort_ptr->md->set_avlnflg(false);
-}
-
-void CalController::baseline_ON() {
-  BOOST_LOG_SEV(glg, note) << "CalController is turing baseline ON via cohort pointer...";
-  this->cohort_ptr->md->set_baseline(true);
-}
-
-void CalController::baseline_OFF() {
-  BOOST_LOG_SEV(glg, note) << "CalController is turing baseline OFF via cohort pointer...";
-  this->cohort_ptr->md->set_baseline(false);
-}
 
 void CalController::print_calparbgc() {
   BOOST_LOG_SEV(glg, note) << "Printing the 'calparbgc' parameters stored in the CohortLookup pointer...";
@@ -547,7 +446,59 @@ void CalController::show_full_menu() {
   std::cout << m;
 }
 
+/** Define a wrapper so that all commands can reuse the try/catch and logging.
 
-          // For example this string should
-          // call the first command (print) with 4 parameters, and the second
-          // command with 2 parameters: "print p1 p2 p3 p4 dsl on 100"
+  Parameters are a "pointer to a member function", the module name (for the 
+  log message), and the new setting string.
+
+  Inspired from my (tbc) stack overflow question:
+  http://stackoverflow.com/questions/30447878
+
+*/
+void CalController::cmd_wrapper(void (ModelData::*fn)(bool),
+    const std::string& name, const std::string& s) {
+
+  try {
+
+    (this->cohort_ptr->md->*fn)(temutil::onoffstr2bool(s));
+
+    BOOST_LOG_SEV(glg, note) << "CalController->cohort_ptr turned " << name
+                             << " module/flag " << s;
+
+  } catch (const std::runtime_error& e) {
+    BOOST_LOG_SEV(glg, warn) << e.what();
+  }
+
+}
+
+void CalController::env_cmd(const std::string& s) {
+  cmd_wrapper(&ModelData::set_envmodule, "env", s);
+}
+
+void CalController::bgc_cmd(const std::string& s) {
+  cmd_wrapper(&ModelData::set_bgcmodule, "bgc", s);
+}
+
+void CalController::avln_cmd(const std::string& s) {
+  cmd_wrapper(&ModelData::set_avlnflg, "avln", s);
+}
+
+void CalController::dsb_cmd(const std::string& s) {
+  cmd_wrapper(&ModelData::set_dsbmodule, "dsb", s);
+}
+
+void CalController::dsl_cmd(const std::string& s) {
+  cmd_wrapper(&ModelData::set_dslmodule, "dsl", s);
+}
+
+void CalController::dvm_cmd(const std::string& s) {
+  cmd_wrapper(&ModelData::set_dvmmodule, "dvm", s);
+}
+
+void CalController::nfeed_cmd(const std::string& s) {
+  cmd_wrapper(&ModelData::set_nfeed, "nfeed", s);
+}
+
+void CalController::baseline_cmd(const std::string& s) {
+  cmd_wrapper(&ModelData::set_baseline, "baseline", s);
+}

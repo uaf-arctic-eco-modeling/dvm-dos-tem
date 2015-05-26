@@ -14,6 +14,7 @@
 #include <json/value.h>
 
 #include "runmodule/Cohort.h"
+#include "runmodule/ModelData.h"
 
 //For readline
 #include <readline/readline.h>
@@ -83,29 +84,23 @@ private:
   void show_full_menu();
   void show_short_menu();
 
+  void print_directive_settings();
+  void print_calparbgc();
+  void print_modules_settings();
+
+  void cmd_wrapper(void (ModelData::*fn)(bool), const std::string& mn, const std::string& s);
+
   void env_cmd(const std::string& s);
   void bgc_cmd(const std::string& s);
   void avln_cmd(const std::string& s);
+  void dsb_cmd(const std::string& s);
 
 
-  void dsb_ON();
-  void dsb_OFF();
-  void dsl_ON();
-  void dsl_OFF();
-  void dvm_ON();
-  void dvm_OFF();
+  void dsl_cmd(const std::string& s);
+  void dvm_cmd(const std::string& s);
+  void nfeed_cmd(const std::string& s);
+  void baseline_cmd(const std::string& s);
 
-  void nfeed_ON();
-  void nfeed_OFF();
-
-  void avlnflg_ON();
-  void avlnflg_OFF();
-
-  void baseline_ON();
-  void baseline_OFF();
-
-  void print_calparbgc();
-  void print_modules_settings();
 };
 
 
