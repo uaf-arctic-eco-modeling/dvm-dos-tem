@@ -30,6 +30,17 @@ namespace temutil {
 
   std::pair<float, float> get_location(std::string gridfilename, int grid_id);
 
+  template<typename T>
+  std::string vec2csv(const std::vector<T> vec) {
+    std::string s;
+    for (typename std::vector<T>::const_iterator it = vec.begin(); it != vec.end(); ++it) {
+      s += *it;
+      s += ", ";
+    }
+    s.erase(s.size()-2);
+    return s;
+  }
+
 }
 
 #endif /* TEMUtilityFunctions_H */

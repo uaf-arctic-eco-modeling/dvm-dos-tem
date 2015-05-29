@@ -1,0 +1,6 @@
+{
+  "calibration_autorun_settings": {
+    "quitat": 1500,
+    "534": ["dsl on", "nfeed on", "dsb on"]
+  }
+}
