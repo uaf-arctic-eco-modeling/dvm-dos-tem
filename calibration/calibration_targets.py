@@ -256,6 +256,29 @@ def caltargets2prettystring():
   s = s[0:-1] # trim the last new line
   return s
 
+def caltargets2prettystring2():
+  '''returns sorted (by number) formatted string with '# - name' per line'''
+  l = [
+      '%s - %s' % (data['cmtnumber'], k)
+      for k, data in
+        calibration_targets.iteritems()
+  ]
+
+  sl = sorted(l)
+  return '\n'.join(sl)
+
+def caltargets2prettystring3():
+  '''returns a space separated list of (#)name pairs, sorted by number'''
+  l = [
+      '(%s)%s' % (data['cmtnumber'], k)
+      for k, data in
+        calibration_targets.iteritems()
+  ]
+
+  sl = sorted(l)
+  return ' '.join(sl)
+
+
 def toxl():
   ''' A total hack attempt at writing out an excel workbook from the values
   that are hardcoded above in the calibraiton_targets dict. Actually kinda 

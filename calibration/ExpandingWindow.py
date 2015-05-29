@@ -8,7 +8,9 @@ import json
 import logging
 import argparse
 import textwrap
-
+import tarfile   # for reading from tar.gz files
+import shutil    # for cleaning up a /tmp directory
+import signal    # for a graceful exit
 
 if (sys.platform == 'darwin') and (os.name == 'posix'):
   # this is the only one that seems to work on Mac OSX with animation...
@@ -26,9 +28,8 @@ import matplotlib.widgets
 import selutil
 
 # The directories to look in for json files.
-TMPDIR = '/tmp/cal-dvmdostem'
-YRTMPDIR = '/tmp/year-cal-dvmdostem'
-
+DEFAULT_YEARLY_JSON_LOCATION = '/tmp/year-cal-dvmdostem'
+DEFAULT_EXTRACTED_ARCHIVE_LOCATION = '/tmp/extracted-calibration-archive'
 #
 # Disable some buttons on the default toobar that freeze the program.
 # There might be a better way to do this. Inspired from here:
@@ -57,42 +58,94 @@ NavigationToolbar2.home = home_overload
 NavigationToolbar2.back = back_overload
 NavigationToolbar2.forward = forward_overload
 
+def exit_gracefully(signum, frame):
+  '''A function for quitting w/o leaving a stacktrace on the users console.'''
+  logging.info("Caught signal='%s', frame='%s'. Quitting - gracefully." % (signum, frame))
+  sys.exit(1)
 
-def log_file_stats(file_list):
-  '''convenience function to write some info about files to the logs'''
 
-  logging.info( "%i json files in %s" % (len(file_list), YRTMPDIR) )
 
-  if len(file_list) > 0:
-    ffy = int(os.path.basename(file_list[0])[0:4])
-    lfy = int(os.path.basename(file_list[-1])[0:4])
-    logging.debug( "First file: %s (year %s)" % (file_list[0], ffy) )
-    logging.debug( "Last file: %s (year %s)" % (file_list[-1], lfy) )
+class InputHelper(object):
+  '''A class to help abstract some of the details of opening .json files
+  '''
+  def __init__(self, path=DEFAULT_YEARLY_JSON_LOCATION):
+    logging.debug("Making an InputHelper object...")
 
-    if lfy > 0:
-      pc = 100 * len(file_list) / len(np.arange(ffy, lfy))
-      logging.debug( "%s percent of range covered by existing files" % (pc) )
+    if os.path.isdir(path):
+      # Assume path is a directory full of .json files
+      self._path = path
+
+    elif os.path.isfile(path):
+      # Assume path is a .tar.gz (or other compression) with .json files in it
+
+      logging.info("Extracting archive to '%s'..." %
+          DEFAULT_EXTRACTED_ARCHIVE_LOCATION)
+
+      if ( os.path.isdir(DEFAULT_EXTRACTED_ARCHIVE_LOCATION) or
+          os.path.isfile(DEFAULT_EXTRACTED_ARCHIVE_LOCATION) ):
+
+        logging.info("Cleaning up the temporary archive location ('%s')..." %
+            DEFAULT_EXTRACTED_ARCHIVE_LOCATION)
+        shutil.rmtree(DEFAULT_EXTRACTED_ARCHIVE_LOCATION)
+
+      tf = tarfile.open(path)
+      for member in tf.getmembers():
+        if member.isreg(): # skip if TarInfo is not a file
+          member.name = os.path.basename(member.name)
+          tf.extract(member, DEFAULT_EXTRACTED_ARCHIVE_LOCATION)
+
+      # finally, set path to the new, "extracted archive" directory
+      self._path = DEFAULT_EXTRACTED_ARCHIVE_LOCATION
+
+  def files(self):
+    '''Returns a list of files, either in a directory or .tar.gz archive'''
+    logging.debug("Returning a sorted list of files paths from %s that match a '*.json' pattern glob." % self._path)
+    return sorted( glob.glob('%s/*.json' % self._path) )
+
+  def path(self):
+    '''Useful for client programs wanting to show where files are coming from'''
+    return self._path
+
+
+  def coverage_report(self, file_list):
+    '''convenience function to write some info about files to the logs'''
+
+    logging.info( "%i json files in %s" % (len(file_list), self._path) )
+
+    if len(file_list) > 0:
+      ffy = int(os.path.basename(file_list[0])[0:5])
+      lfy = int(os.path.basename(file_list[-1])[0:5])
+      logging.debug( "First file: %s (year %s)" % (file_list[0], ffy) )
+      logging.debug( "Last file: %s (year %s)" % (file_list[-1], lfy) )
+
+      if lfy > 0:
+        pc = 100 * len(file_list) / len(np.arange(ffy, lfy))
+        logging.debug( "%s percent of range covered by existing files" % (pc) )
+      else:
+        logging.debug("Too few files to calculate % coverage.")
+
     else:
-      logging.debug("Too few files to calculate % coverage.")
-
-  else:
-    logging.warning("No json files! Length of file list: %s." % len(file_list))
+      logging.warning("No json files! Length of file list: %s." % len(file_list))
 
 
 class ExpandingWindow(object):
   '''A set of expanding window plots that all share the x axis.
   '''
 
-  def __init__(self, traceslist, figtitle="Expanding Window Plot",
-      rows=2, cols=1, targets={}):
+  def __init__(self, input_helper, traceslist, figtitle="Expanding Window Plot",
+      rows=2, cols=1, targets={}, no_show=False):
 
     logging.debug("Ctor for Expanding Window plot...")
+
+    self.input_helper = input_helper
 
     self.window_size_yrs = None
 
     self.traces = traceslist
 
     self.targets = targets
+
+    self.no_show = no_show
 
     self.fig = plt.figure(figsize=(6*1.3,8*1.3))
     self.fig.suptitle(figtitle)
@@ -103,16 +156,17 @@ class ExpandingWindow(object):
       if 'pft' in trace.keys():
         pfttraces.append(trace['jsontag'])
 
-    if len(pfttraces) > 0:
+    if ( (len(pfttraces) > 0) and (not no_show) ):
       gs = gridspec.GridSpec(rows, cols+1, width_ratios=[8,1])
-      logging.debug("Setting up a radio button pft chooser...")
-      self.pftradioax = plt.subplot(gs[0:, -1]) # all rows, last column
-      self.pftradio = matplotlib.widgets.RadioButtons(
-          self.pftradioax,
-          ['PFT%i'%(i) for i in range(0,10)],
-          active=int(self.get_currentpft()[-1])
-      )
-      self.pftradio.on_clicked(self.pftchanger)
+      if (not no_show):
+        logging.debug("Setting up a radio button pft chooser...")
+        self.pftradioax = plt.subplot(gs[0:, -1]) # all rows, last column
+        self.pftradio = matplotlib.widgets.RadioButtons(
+            self.pftradioax,
+            ['PFT%i'%(i) for i in range(0,10)],
+            active=int(self.get_currentpft()[-1])
+        )
+        self.pftradio.on_clicked(self.pftchanger)
     else:
       gs = gridspec.GridSpec(rows, cols)
 
@@ -179,14 +233,15 @@ class ExpandingWindow(object):
 
     log.info("Load data to plot. Relimit data?: %s  Autoscale?: %s", relim, autoscale)
     
-    files = sorted( glob.glob('%s/*.json' % YRTMPDIR) )
-    log_file_stats(files)
+    # gets a sorted list of json files...
+    files = input_helper.files()
+    self.input_helper.coverage_report(files)
 
     if self.window_size_yrs:
       log.info("Reducing files list to last %i files..." % self.window_size_yrs)
       files = files[-self.window_size_yrs:]
 
-    log_file_stats(files)
+    self.input_helper.coverage_report(files)
 
     # create an x range big enough for every possible file...
     if len(files) == 0:
@@ -263,9 +318,8 @@ class ExpandingWindow(object):
     '''
     logging.info("Animation Frame %7i" % frame)
     
-    logging.debug("Listing json files in %s" % YRTMPDIR)
-    files = sorted( glob.glob('%s/*.json' % YRTMPDIR) )
-    logging.info("%i json files in %s" % (len(files), YRTMPDIR) )
+    files = self.input_helper.files()
+    self.input_helper.coverage_report(files)
 
     #self.report_view_and_data_lims()
 
@@ -297,21 +351,26 @@ class ExpandingWindow(object):
 
   def key_press_event(self, event):
     logging.debug("You pressed: %s. Cursor at x: %s y: %s" % (event.key, event.xdata, event.ydata))
+
     if event.key == 'ctrl+r':
       logging.info("RELOAD / RESET VIEW. Load all data, relimit, and autoscale.")
       self.load_data2plot(relim=True, autoscale=True)
+
     if event.key == 'ctrl+q':
       logging.info("QUIT")
       plt.close()
+
     if event.key == 'ctrl+p':
       n = 1000
-      files = sorted( glob.glob('%s/*.json' % YRTMPDIR) )
+      files = self.input_helper.files()
       if n < len(files):
-        logging.warning( "Deleting first %s json files from %s..." % (n, YRTMPDIR) )
+        logging.warning("Deleting first %s json files from '%s'!" %
+            (n, self.input_helper.path()))
         for f in files[0:n]:
           os.remove(f)
       else:
         logging.warning("Fewer than %s json files present - don't do anything." % n)
+
     if event.key == 'ctrl+j':
       # could add while true here to force user to
       # enter some kind of valid input?
@@ -321,6 +380,7 @@ class ExpandingWindow(object):
         logging.info("Changed to 'fixed window' (window size: %s)" % ws)
       except ValueError as e:
         logging.warning("Invalid Entry! (%s)" % e)
+
     if event.key == 'ctrl+J':
       logging.info("Changed to 'expanding window' mode.")
       self.window_size_yrs = None
@@ -334,6 +394,10 @@ class ExpandingWindow(object):
         logging.info("Updated the pft number to %i" % n)
       except ValueError as e:
         logging.warning("Invalid Entry! (%s)" % e)
+
+    if event.key == 'ctrl+c':
+      logging.debug("Captured Ctrl-C. Quit nicely.")
+      exit_gracefully(event.key, None) # <-- need to pass something for frame ??
 
 
   def plot_target_lines(self):
@@ -439,18 +503,30 @@ class ExpandingWindow(object):
     logging.debug("Turn on grid and legend.")
     for ax in self.axes:
       ax.grid(True) # <-- w/o parameter, this toggles!!
-      ax.legend(prop={'size':10.0}, loc='upper left')
+      ax.legend(prop={'size':8.0}, loc='upper left')
 
-  def show(self, dynamic=True):
+  def show(self, save_name="", dynamic=True):
     '''Show the figure. If dynamic=True, then setup an animation.'''
-    logging.info("Displaying plot, dynamic=%s" % dynamic)
+
+    logging.info("Displaying plot: dynamic=%s, no_show=%s, save_name=%s" % (dynamic, self.no_show, save_name))
+    if (dynamic and self.no_show):
+      logging.warn("no_show=%s implies static. Generating static file only." % (self.no_show))
 
     if dynamic:
       logging.info("Setup animation.")
       self.ani = animation.FuncAnimation(self.fig, self.update, interval=100,
                                        init_func=self.init, blit=True)
-  
-    plt.show()
+
+    if save_name != "":
+      # the saved file will represent a snapshot of the state of the json
+      # directory at the time the animation was started
+      full_name = save_name + ".pdf"
+      logging.info("Saving plot to '%s'" % (full_name))
+      plt.savefig(full_name) # pdf may be smaller than png?
+
+    if not self.no_show:
+      plt.show()
+
 
   def report_view_and_data_lims(self):
     '''Print a log report showing data and view limits.'''
@@ -484,6 +560,11 @@ if __name__ == '__main__':
   from configured_suites import configured_suites
   import calibration_targets
   
+  # Callback for SIGINT. Allows exit w/o printing stacktrace to users screen
+  original_sigint = signal.getsignal(signal.SIGINT)
+  signal.signal(signal.SIGINT, exit_gracefully)
+
+
   logger = logging.getLogger(__name__)
   
   parser = argparse.ArgumentParser(
@@ -491,19 +572,24 @@ if __name__ == '__main__':
     formatter_class=argparse.RawDescriptionHelpFormatter,
       
       description=textwrap.dedent('''\
-        Dynamically updating yearly data plots that show data from 
-        dvm-dos-tem when it is running with --calibrationmode=on
+        A viewer for dvmdostem calibration. Can create and or display
+        (1) Dynamically updating plots from data written out by
+        dvmdostem when it is running with --cal-mode=on.
+        (2) Static plots created as dvmdostem is running or from an 
+        archived calibration run.
         '''),
         
       epilog=textwrap.dedent('''\
-        Program tries to read json files from 
+        By default, the program tries to read json files from
             
             %s
         
-        and plot the resulting data. The plots expand as more and
-        more json files are discovered. The plot will be
-        displayed in an "interactive" window provided by which-
-        ever matplotlib backend you are using. 
+        and plot the resulting data. 
+
+        When plotting dynamically the plot will expand to fit data that
+        it finds in the directory or archive. Unless using the 
+        '--no-show' flag, the plot will be displayed in an "interactive" 
+        window provided by which-ever matplotlib backend you are using.
 
         The different "suites" of plots refer to differnt
         assembelages of variables that you would like plotted.
@@ -559,7 +645,7 @@ if __name__ == '__main__':
             http://matplotlib.org/1.3.1/users/navigation_toolbar.html
 
         I am sure we forgot to mention something?
-        ''' % YRTMPDIR)
+        ''' % DEFAULT_YEARLY_JSON_LOCATION)
       )
 
   parser.add_argument('--pft', default=0, type=int,
@@ -575,13 +661,22 @@ if __name__ == '__main__':
 
 
   group = parser.add_mutually_exclusive_group()
-  group.add_argument('--tar-cmtname', default=None,
-      choices=[cmtname for cmtname in calibration_targets.calibration_targets.keys()],
-      help="The name of the community type that should be used to display target values lines.")
 
+  group.add_argument('--tar-cmtname', default=None,
+      choices=calibration_targets.cmtnames(),
+      metavar='',
+      help=textwrap.dedent('''\
+          "The name of the community type that should be used to display 
+          target values lines.''')
+  )
   group.add_argument('--tar-cmtnum', default=None, type=int,
-      choices=[cmt['cmtnumber'] for k, cmt in calibration_targets.calibration_targets.iteritems()],
-      help="The number of the community type that should be used to display target values lines.")
+      choices=calibration_targets.cmtnumbers(),
+      metavar='',
+      help=textwrap.dedent('''\
+          The number of the community type that should be used to display
+          target values lines. Allowed values are: %s''' %
+          calibration_targets.caltargets2prettystring3())
+  )
 
   parser.add_argument('--list-caltargets', action='store_true',
       help="print out a list of known calibration target communities")
@@ -590,11 +685,25 @@ if __name__ == '__main__':
   parser.add_argument('-l', '--loglevel', default="warning",
       help="What logging level to use. (debug, info, warning, error, critical")
 
+  parser.add_argument('--static', action='store_true',
+      help="Don't animate the output. The plots will *NOT* automatically update!")
+
+  parser.add_argument('--save-name', default="",
+      help="A file name prefix to use for saving plots.")
+
+  parser.add_argument('--no-show', action='store_true',
+      help=textwrap.dedent('''Don't show the plots in the interactive viewer.
+          Implies '--static'. Useful for scripts, or automatically saving output
+          images.'''))
+
+  parser.add_argument('--from-archive', default=False,
+      help=textwrap.dedent('''Generate plots from an archive of json files, 
+          instead of the normal /tmp directory.'''))
 
 
   print "Parsing command line arguments..."
   args = parser.parse_args()
-  #print args
+  print args
 
   if args.list_suites:
     # Print all the known suites to the console with descriptions and then quit.
@@ -637,8 +746,6 @@ if __name__ == '__main__':
     logging.info("Not displaying target data")
     caltargets = {}
 
-
-
   logger.info("Set the right pft in the suite's traces list..")
   for trace in suite['traces']:
     if 'pft' in trace.keys():
@@ -646,16 +753,29 @@ if __name__ == '__main__':
 
   logger.info("Starting main app...")
 
+  logging.info("Dynamic=%s Static=%s No-show=%s Save-name='%s'" %
+      (not args.static, args.static, args.no_show, args.save_name))
+
+  logging.info("Setting up the input data source...")
+  if args.from_archive:
+    input_helper = InputHelper(path=args.from_archive)
+  else:
+    input_helper = InputHelper(path=DEFAULT_YEARLY_JSON_LOCATION)
+
+  logging.info("Build the plot object...")
   ewp = ExpandingWindow(
+                        input_helper,
                         suite['traces'],
                         rows=suite['rows'],
                         cols=suite['cols'],
                         targets=caltargets,
-                        figtitle="Some %s graphs..." % (args.suite)
+                        figtitle="%s" % (args.suite),
+                        no_show=args.no_show,
                        )
 
-  ewp.show(dynamic=True)
-  
+  logging.info("Show the plot object...")
+  ewp.show(dynamic=(not args.static), save_name=args.save_name)
+
   logger.info("Done with main app...")
 
 
