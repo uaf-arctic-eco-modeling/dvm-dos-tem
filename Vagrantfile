@@ -75,11 +75,22 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.provision "shell", inline: "yum install -y git gcc-c++ jsoncpp-devel readline-devel netcdf-devel netcdf-cxx-devel boost-devel"
   config.vm.provision "shell", inline: "yum install -y openmpi-devel"
 
+  # Need this to fix the "H5Pset_dxpl_mpio" error that otherwise comes when
+  # running IPython and importing netCDF4
+  config.vm.provision "shell", inline: "yum install -y hdf5-openmpi-devel"
+
   # this seems to help x11 forwarding
   config.vm.provision "shell", inline: "yum install -y xauth"
 
   # packages used for plotting
   config.vm.provision "shell", inline: "yum install -y python-matplotlib python-matplotlib-wx netcdf4-python python-ipython"
+
+  # For processing/preparing the "new style" inputs
+  config.vm.provision "shell", inline: "yum install -y gdal gdal-devel"
+
+  # For compiling with Scons
+  config.vm.provision "shell", inline: "yum install -y scons"
+
 
   #
   # User provisioning
@@ -100,6 +111,18 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   #
 
   config.vm.provision "shell", inline: "yum install -y gitk git-gui"
+
+  # For graphical debugging
+  # Note: If gdb is not installed, then QT Creator will complain about "Unable
+  #       to create a debugger engine of the type 'no engine'"
+  #       Also it may be necessary to install xterm. For some reason Colin and
+  #       Tobey's VMs (from this Vagrantfile) had xterm and gdb and Ruth's did
+  #       not...Strange?
+  config.vm.provision "shell", inline: "yum install -y gdb xterm qt-creator"
+
+  # For viewing IPython notebooks, and viewing Netcdf I/O files.
+  config.vm.provision "shell", inline: "yum install -y ncview nco firefox"
+
 
   # The man page conflicts between vim and vim-minimal. Removing vim-minimal
   # takes sudo with it, crippling later attempts at inline provisioning. So we
