@@ -261,21 +261,22 @@ class ExpandingWindow(object):
       try:
         with open(file) as f:
           fdata = json.load(f)
-      except IOError as e:
-        logging.error(e)
-      
-      idx = int(os.path.basename(file)[0:5])
 
-      for trace in self.traces:
-        # set the trace's tmpy[idx] to file's data
-        if 'pft' in trace.keys():
-          pftdata = fdata[trace['pft']]
-          if 'pftpart' in trace.keys():
-            trace['tmpy'][idx] = pftdata[trace['jsontag']][trace['pftpart']]
+        idx = int(os.path.basename(file)[0:5])
+
+        for trace in self.traces:
+          # set the trace's tmpy[idx] to file's data
+          if 'pft' in trace.keys():
+            pftdata = fdata[trace['pft']]
+            if 'pftpart' in trace.keys():
+              trace['tmpy'][idx] = pftdata[trace['jsontag']][trace['pftpart']]
+            else:
+              trace['tmpy'][idx] = pftdata[trace['jsontag']]
           else:
-            trace['tmpy'][idx] = pftdata[trace['jsontag']]
-        else:
-          trace['tmpy'][idx] = fdata[trace['jsontag']]
+            trace['tmpy'][idx] = fdata[trace['jsontag']]
+
+      except (IOError, ValueError) as e:
+        logging.error(e)
 
       
     # ----- UPDATE EVERY TRACE --------
