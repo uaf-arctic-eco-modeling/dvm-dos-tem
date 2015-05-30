@@ -92,10 +92,15 @@ void GridData::g_fire_from_file(std::string filename, int recid) {
   
   NcVar* fseasonV = temutil::get_ncvar(fire_file, "PFSEASON");
   fseasonV->set_cur(recid);
-  fseasonV->get(&this->pfseason[0], fseasonno);
+  fseasonV->get(&this->pfseason[0], 1, 4); // <-- TRICKY!
+  // Takes:
+  //   - a pointer (to location for storing the data),
+  //   - the number of values to get along the GFIREID dimension
+  //   - the number of values to get along the GFSEASONNO dimension
+
   
   NcVar* pfsizeV = temutil::get_ncvar(fire_file, "PFSIZE");
   pfsizeV->set_cur(recid);
-  pfsizeV->get(&this->pfsize[0], fsizeno);
+  pfsizeV->get(&this->pfsize[0], 1, 5);
   
 }
