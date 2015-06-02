@@ -276,7 +276,7 @@ class ExpandingWindow(object):
             trace['tmpy'][idx] = fdata[trace['jsontag']]
 
       except (IOError, ValueError) as e:
-        logging.error(e)
+        logging.error("Problem: '%s' reading file '%s'" % (e, file))
 
       
     # ----- UPDATE EVERY TRACE --------
