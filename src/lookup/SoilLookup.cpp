@@ -1,4 +1,11 @@
+#include <float.h>
+
+
 #include "SoilLookup.h"
+#include "../TEMLogger.h"
+
+extern src::severity_logger< severity_level > glg;
+
 
 //constructor
 SoilLookup::SoilLookup() {
@@ -12,20 +19,43 @@ SoilLookup::~SoilLookup() {
 };
 
 void SoilLookup::deriveParam5TextureEnv() {
-  for(int it=0; it<MAX_SOIL_TXTR; it++) {
+  /* 05/03/2015 This routine was causing an "Arithmetic Exception",
+    due to overflow. */
+
+  for(int it = 0; it < MAX_SOIL_TXTR; it++) {
     double sw;
     double bb = b[it];
 
-    for(int ism =0; ism<MAX_SM; ism++) {
-      sw = ism * 1./MAX_SM;
+    for(int ism = 0; ism < MAX_SM; ism++) {
+      sw = ism * 1.0/MAX_SM;
 
-      if(ism==0) {
-        psi[it][ism] = -1.e+12;
+      /*
+      Check for (and handle) overflow. When -bb and sw are small enough
+      then the result of pow(...) will overflow, and psi[it][ism] ends
+      up '-inf'. To guard against that we make sure it is in range for floats,
+      and if not, then we simply set the psi[it][ism] value to +/-FLT_MAX.
+      */
+
+      double tmp = Psisat[it] * pow(sw, -bb );
+
+      if (tmp <= FLT_MAX && tmp >= -FLT_MAX) {
+          psi[it][ism] = tmp; // in range for a float
       } else {
-        psi[it][ism] = Psisat[it] * pow(sw, -bb );
+
+          float boundary_value = FLT_MAX;
+
+          if (tmp < 0) { boundary_value = -boundary_value; }
+          if (tmp > 0) { boundary_value =  boundary_value; }
+
+          BOOST_LOG_SEV(glg, warn) << "'" << tmp << "' will overflow a float "
+                                   << "when cast to psi["<<it<<"]["<<ism<<"] "
+                                   << "Setting value to: " << boundary_value;
+
+          psi[it][ism] = boundary_value;
+
       }
 
-      hk[it][ism] = Ksat[it] * pow(sw, 2*bb +2.);
+      hk[it][ism] = Ksat[it] * pow(sw, 2*bb + 2.0);
     }
   }// end of loop
 }
