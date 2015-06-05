@@ -29,30 +29,38 @@ void SoilLookup::deriveParam5TextureEnv() {
     for(int ism = 0; ism < MAX_SM; ism++) {
       sw = ism * 1.0/MAX_SM;
 
-      /*
-      Check for (and handle) overflow. When -bb and sw are small enough
-      then the result of pow(...) will overflow, and psi[it][ism] ends
-      up '-inf'. To guard against that we make sure it is in range for floats,
-      and if not, then we simply set the psi[it][ism] value to +/-FLT_MAX.
-      */
+      if (0 == ism) {
 
-      double tmp = Psisat[it] * pow(sw, -bb );
+        // guaranteed to overflow, no matter datatype, so just set the value.
+        psi[it][ism] = -FLT_MAX;
 
-      if (tmp <= FLT_MAX && tmp >= -FLT_MAX) {
-          psi[it][ism] = tmp; // in range for a float
       } else {
 
-          float boundary_value = FLT_MAX;
+        /*
+        Check for (and handle) overflow. When -bb and sw are small enough
+        then the result of pow(...) will overflow, and psi[it][ism] ends
+        up '-inf'. To guard against that we make sure it is in range for floats,
+        and if not, then we simply set the psi[it][ism] value to +/-FLT_MAX.
+        */
 
-          if (tmp < 0) { boundary_value = -boundary_value; }
-          if (tmp > 0) { boundary_value =  boundary_value; }
+        double tmp = Psisat[it] * pow(sw, -bb );
 
-          BOOST_LOG_SEV(glg, warn) << "'" << tmp << "' will overflow a float "
-                                   << "when cast to psi["<<it<<"]["<<ism<<"] "
-                                   << "Setting value to: " << boundary_value;
+        if (tmp <= FLT_MAX && tmp >= -FLT_MAX) {
+            psi[it][ism] = tmp; // in range for a float
+        } else {
 
-          psi[it][ism] = boundary_value;
+            float boundary_value = FLT_MAX;
 
+            if (tmp < 0) { boundary_value = -boundary_value; }
+            if (tmp > 0) { boundary_value =  boundary_value; }
+
+            BOOST_LOG_SEV(glg, warn) << "'" << tmp << "' will overflow a float "
+                                     << "when cast to psi["<<it<<"]["<<ism<<"] "
+                                     << "Setting value to: " << boundary_value;
+
+            psi[it][ism] = boundary_value;
+
+        }
       }
 
       hk[it][ism] = Ksat[it] * pow(sw, 2*bb + 2.0);
