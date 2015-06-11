@@ -275,10 +275,27 @@ void Soil_Bgc::initializeParameter() {
   //  0.48 tC of RAWC, 0.28tC of SOMA, 11.3tC of SOMPR, and 12.2 tC of SOMCR,
   //  i.e. total 24.26 tC, so we have the following
   // but normally these can be estimated from Ks calibrated
-  bgcpar.eqrawc  = 0.02;
-  bgcpar.eqsoma  = 0.01;
-  bgcpar.eqsompr = 0.47;
-  bgcpar.eqsomcr = 0.50;
+  // TUCKER MAR 2015: the C fraction partitioning seems very different from
+  //DOSTEM. I separated bgcpar.eq___ into three groups. F is for fibric, H 
+  //is for humic, M in for mineral. The eqrawc,soma, sompr, somcr values
+  //now match those values for each group in dostem. Note that there is no
+  //cr in the fibric or humic layer, and no pr in the mineral layer. 
+  //this is equivalent to saying that from the dvmdostem rawc,soma,sompr,somcr
+  //are the same as fib,hum,min,slow in dostem. This is not exactly correct, 
+  //because they are conceptually different, but the model implementation is 
+  //the same.  
+  bgcpar.eqrawcF  = 0.91;
+  bgcpar.eqsomaF  = 0.089;
+  bgcpar.eqsomprF = 0.001;
+  bgcpar.eqsomcrF = 0.00;
+  bgcpar.eqrawcH  = 0.091;
+  bgcpar.eqsomaH  = 0.89;
+  bgcpar.eqsomprH = 0.019;
+  bgcpar.eqsomcrH = 0.00;
+  bgcpar.eqrawcM  = 0.091;
+  bgcpar.eqsomaM  = 0.89;
+  bgcpar.eqsomprM = 0.00;
+  bgcpar.eqsomcrM = 0.019;
   bgcpar.lcclnc     = chtlu->lcclnc;
   bgcpar.nmincnsoil = chtlu->nmincnsoil;
   bgcpar.kn2 = chtlu->kn2;
@@ -351,10 +368,17 @@ void Soil_Bgc::initOslayerCarbon(double & shlwc, double & deepc) {
 
       if(cumcarbonbot-cumcarbontop>0.) {
         if (currl->isOrganic) {  // dead moss layers are not regarded as soil organic layers
-          currl->rawc  = bgcpar.eqrawc * (cumcarbonbot - cumcarbontop); //note: those eq-fractions of SOM pools must be estimated before
-          currl->soma  = bgcpar.eqsoma * (cumcarbonbot - cumcarbontop);
-          currl->sompr = bgcpar.eqsompr * (cumcarbonbot - cumcarbontop);
-          currl->somcr = bgcpar.eqsomcr * (cumcarbonbot - cumcarbontop);
+          if(currl->isFibric){
+            currl->rawc  = bgcpar.eqrawcF * (cumcarbonbot - cumcarbontop); //note: those eq-fractions of SOM pools must be estimated before
+            currl->soma  = bgcpar.eqsomaF * (cumcarbonbot - cumcarbontop);
+            currl->sompr = bgcpar.eqsomprF * (cumcarbonbot - cumcarbontop);
+            currl->somcr = bgcpar.eqsomcrF * (cumcarbonbot - cumcarbontop);
+          } else {
+            currl->rawc  = bgcpar.eqrawcH * (cumcarbonbot - cumcarbontop); //note: those eq-fractions of SOM pools must be estimated before
+            currl->soma  = bgcpar.eqsomaH * (cumcarbonbot - cumcarbontop);
+            currl->sompr = bgcpar.eqsomprH * (cumcarbonbot - cumcarbontop);
+            currl->somcr = bgcpar.eqsomcrH * (cumcarbonbot - cumcarbontop);            
+          }
         } else {
           currl->rawc  = 0.;
           currl->soma  = 0.;
@@ -420,10 +444,10 @@ void Soil_Bgc::initMslayerCarbon(double & minec) {
       cumcarbon = ca/cb*(exp(cb*dbm*100)-1.0)*10000 + 0.0025*dbm*100*10000;
 
       if(cumcarbon-prevcumcarbon>0.01 && dbm<=2.0) {  // somc will not exist more than 2 m intially
-        currl->rawc  = bgcpar.eqrawc * (cumcarbon -prevcumcarbon);
-        currl->soma  = bgcpar.eqsoma * (cumcarbon -prevcumcarbon);
-        currl->sompr = bgcpar.eqsompr * (cumcarbon -prevcumcarbon);
-        currl->somcr = bgcpar.eqsomcr * (cumcarbon -prevcumcarbon);
+        currl->rawc  = bgcpar.eqrawcM * (cumcarbon -prevcumcarbon);
+        currl->soma  = bgcpar.eqsomaM * (cumcarbon -prevcumcarbon);
+        currl->sompr = bgcpar.eqsomprM * (cumcarbon -prevcumcarbon);
+        currl->somcr = bgcpar.eqsomcrM * (cumcarbon -prevcumcarbon);
       } else {
         currl->rawc  = 0.0;    //
         currl->soma  = 0.0;

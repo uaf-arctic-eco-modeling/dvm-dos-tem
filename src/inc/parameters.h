@@ -217,10 +217,18 @@ struct soipar_bgc {
   //Yuan: fraction of soil organic components at steady state
   //(final when equilibrium). Used for initializing C pools and can be
   //estimated from soilpar_cal: k values
-  double eqrawc;    // raw material C
-  double eqsoma;    // active SOM
-  double eqsompr;   // physically-resistant SOM
-  double eqsomcr;   // chemically-resistant SOM
+  double eqrawcF;    // raw material C
+  double eqsomaF;    // active SOM
+  double eqsomprF;   // physically-resistant SOM
+  double eqsomcrF;   // chemically-resistant SOM
+  double eqrawcH;    // raw material C
+  double eqsomaH;    // active SOM
+  double eqsomprH;   // physically-resistant SOM
+  double eqsomcrH;   // chemically-resistant SOM
+  double eqrawcM;    // raw material C
+  double eqsomaM;    // active SOM
+  double eqsomprM;   // physically-resistant SOM
+  double eqsomcrM;   // chemically-resistant SOM
 
   // dead moss material decomposition rate
   double kdmoss;
