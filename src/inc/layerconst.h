@@ -30,8 +30,8 @@ const int MAX_ROT_LAY =10; //maximum number of fine root layers
 const double ROOTTHICK[MAX_ROT_LAY] = {0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1};
 
 //minimum thickness (meter) for forming a shallow organic layer
-const double MINSLWTHICK = 0.01;
+const double MINSLWTHICK = 0.02;
 //minimum thickness (meter) for forming a deep organic layer
-const double MINDEPTHICK = 0.01;
+const double MINDEPTHICK = 0.02;
 
 #endif /*LAYERCONST_H_*/
