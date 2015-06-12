@@ -458,15 +458,20 @@ void Runner::run_years(int start_year, int end_year, boost::shared_ptr<CalContro
     /* Interpolate all the monthly values...? */
     cohort.prepareDayDrivingData(iy, 0);
 
-    /** MONTH TIMESTEP LOOP */
-    for (int im = 0; im < 12; ++im) {
+    if (cal_ctrl_ptr) { // should be null unless we are in "calibration mode"
+
+      // Run any pre-configured directives
+      cal_ctrl_ptr->run_config(iy);
 
       // See if a signal has arrived (possibly from user
       // hitting Ctrl-C) and if so, stop the simulation
       // and drop into the calibration "shell".
-      if (cal_ctrl_ptr) {
-        cal_ctrl_ptr->check_for_signals();
-      }
+      cal_ctrl_ptr->check_for_signals();
+
+    }
+
+    /** MONTH TIMESTEP LOOP */
+    for (int im = 0; im < 12; ++im) {
 
       int dinmcurr = this->cohort.timer->getDaysInMonth(im);
       this->cohort.updateMonthly(iy, im, dinmcurr);
