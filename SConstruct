@@ -9,7 +9,6 @@ import distutils.spawn
 USEMPI = True 
 
 libs = Split("""jsoncpp
-                profiler
                 readline
                 netcdf_c++
                 netcdf
@@ -147,8 +146,8 @@ elif platform_name == 'Darwin': #tobey
   # apparently the shared library version of jsoncpp has some bugs.
   # See the note at the top of the SConstruct file:
   # https://github.com/jacobsa/jsoncpp/blob/master/SConstruct
-  #platform_libs[:] = [lib for lib in platform_libs if not lib == 'jsoncpp']
-  #platform_libs.append(File('/usr/local/lib/libjson.a'))
+  platform_libs[:] = [lib for lib in platform_libs if not lib == 'jsoncpp']
+  platform_libs.append(File('/usr/local/lib/libjsoncpp.a'))
 
   # no profiler at this time
   platform_libs[:] = [lib for lib in platform_libs if not lib == 'profiler']

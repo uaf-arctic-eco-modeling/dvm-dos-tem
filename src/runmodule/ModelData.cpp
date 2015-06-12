@@ -1,6 +1,6 @@
 #include <exception>
 #include <json/value.h>
-
+#include <boost/filesystem.hpp>
 #include "ModelData.h"
 
 #include "../TEMLogger.h"
@@ -336,9 +336,16 @@ void ModelData::checking4run() {
   }
 
   //model run I/O directory checking
-  if (outputdir == "") {
-    cout <<"directory for output was not recognized  \n";
-    exit(-1);
+  if (!(boost::filesystem::exists(outputdir))) {
+    BOOST_LOG_SEV(glg, note) << "'" << outputdir << "' not recognized. Attempting to create...";
+    
+    boost::system::error_code returnedError;
+    boost::filesystem::create_directories( outputdir, returnedError );
+
+    if ( returnedError ) {
+      BOOST_LOG_SEV(glg, fatal) << "There was some problem trying to create '" << outputdir << "'";
+      exit(-1);
+    }
   }
 
   if (reginputdir == "") {

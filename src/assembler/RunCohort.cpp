@@ -5,7 +5,9 @@
  *    Note: the output modules are put here, so can be flexible for outputs
  *
 */
+#include <boost/filesystem.hpp>
 #include <json/writer.h>
+#include <json/value.h>
 
 #include "RunCohort.h"
 #include "../CalController.h"
@@ -312,7 +314,7 @@ void RunCohort::choose_run_stage_settings() {
   boost::shared_ptr<CalController> calcontroller_ptr;
 
   if ( this->get_calMode() ) {
-    calcontroller_ptr.reset( new CalController(&this->cht) );
+    calcontroller_ptr.reset( new CalController(&this->cht));
   }
 
   //
@@ -541,13 +543,16 @@ void RunCohort::run_timeseries(boost::shared_ptr<CalController> calcontroller_pt
   srand (time(NULL));
 
   for (int icalyr=yrstart; icalyr<=yrend; icalyr++) {
-    BOOST_LOG_SEV(glg, debug) << "Some begin of year data for plotting...";
+    BOOST_LOG_SEV(glg, debug) << "Beginning of year loop - nothing has happened yet.";
 
-    // See if a signal has arrived (possibly from user
-    // hitting Ctrl-C) and if so, stop the simulation
-    // and drop into the calibration "shell".
     if (calcontroller_ptr) {
+    
+      // run directives in config file
+      calcontroller_ptr->run_config(icalyr);
+      
+      // check for signals (in case the user wants to pause)
       calcontroller_ptr->check_for_signals();
+
     }
 
     int yrindex = cht.timer->getCurrentYearIndex();   //starting from 0
