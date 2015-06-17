@@ -44,6 +44,7 @@ src_files = Split("""src/TEM.cpp
                      src/CalController.cpp
                      src/TEMLogger.cpp 
                      src/ArgHandler.cpp
+                     src/Climate.cpp
                      src/assembler/RunCohort.cpp
                      src/assembler/RunGrid.cpp
                      src/assembler/Runner.cpp

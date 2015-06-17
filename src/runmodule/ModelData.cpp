@@ -26,6 +26,7 @@ std::string table_row(int w, std::string d, bool v) {
 
 ModelData::ModelData(Json::Value controldata){
 
+  BOOST_LOG_SEV(glg, debug) << "Creating a ModelData. New style constructor with injected controldata...";
   runmode = controldata["general"]["runmode"].asString();  // may become obsolete
   
   std::string stgstr(controldata["stage_settings"]["run_stage"].asString());

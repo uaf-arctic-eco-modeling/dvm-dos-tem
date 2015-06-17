@@ -21,14 +21,14 @@ extern src::severity_logger< severity_level > glg;
 Runner::Runner(): calibrationMode(false) {
   chtid = -1;
   error = 0;
-  BOOST_LOG_SEV(glg, debug) << "Constructing a Runner...";
+  BOOST_LOG_SEV(glg, debug) << "RUNNER mostly empty default ctor.";
 };
 
 
 Runner::Runner(ModelData mdldata, int y, int x):
     calibrationMode(false), y(y), x(x) {
 
-  BOOST_LOG_SEV(glg, note) << "Constructing a Runner, new style, with ctor-"
+  BOOST_LOG_SEV(glg, note) << "RUNNER Constructing a Runner, new style, with ctor-"
                            << "injected ModelData, and for explicit (y,x) "
                            << "position w/in the input data region.";
   this->md = mdldata;

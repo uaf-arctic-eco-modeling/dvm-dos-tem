@@ -1,6 +1,8 @@
 #ifndef COHORT_H_
 #define COHORT_H_
 
+#include "../climate.h"
+
 #include "../ecodomain/Ground.h"
 #include "../ecodomain/Vegetation.h"
 
@@ -78,6 +80,9 @@ public :
   Atmosphere atm;
   Vegetation veg;
   Ground ground;
+  
+  // new domain
+  Climate climate;
 
   // processes
   Vegetation_Env vegenv[NUM_PFT];

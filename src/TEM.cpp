@@ -189,10 +189,30 @@ int main(int argc, char* argv[]){
           
           if (true == mask_value) {
 
-
             BOOST_LOG_SEV(glg, debug) << "Running cell (" << rowidx << ", " << colidx << ")";
 
             Runner runner(modeldata, rowidx, colidx);
+///** Env module only "pre-run".
+//  - create the climate from the average of the first X years
+//    of the driving climate data. 
+//    SIZE: 12 months,  1 year
+//  - turn off everything but env module
+//  - set yrs since dsb
+//  - run_years( 0 <= iy <= X )
+//  - ignore the calibration directives
+//
+//  * what should the plots look like? static/constant env
+//    variables I think, nothing else? except there is some
+//    thing cacluated in the water balance module...
+//*/
+
+            
+            // hmm need to setup the cd* in cohort.atm properly before calling
+            // the climate loading function. But if I put this call here, then it
+            // must do some other stuff, as PET and EET come out NaN in the json files
+            //runner.cohort.initSubmodules();
+            
+            runner.cohort.atm.setCohortData(&runner.cohort.cd);
 
             // should we need to call all these cohort setup functions?
             // Or assume that when a Runner is created, for a spatial
@@ -221,6 +241,38 @@ int main(int argc, char* argv[]){
               calcontroller_ptr->clear_and_create_json_storage();
 
             }
+            
+            
+            // NOTE: Could have an option to set some time constants based on
+            //       some sizes/dimensions of the input driving data...
+
+            /**
+            
+
+             
+              eq
+                - create the climate from the average of the first X years
+                  of the driving climate data. 
+                  SIZE: 12 months,  1 year
+                - set to default module settings to: ??
+                - run_years( 0 <= iy < MAX_EQ_YEAR )
+                - act on calibration directives
+                -
+             
+              sp
+                - create the climate from the first X years of the driving
+                  climate dataset. 
+                  SIZE: 12 months,  X years
+                - set to default module settings: ??
+                - run_years( SP_BEG <= iy <= SP_END )
+                
+              tr
+                - create climate by loading the driving climate data (historic)
+                  SIZE: 12 months, length of driving dataset? OR number from inc/timeconst.h
+                - set to default module settings: ??
+                - run_years( TR_BEG <= iy <= TR_END )
+                
+            */
 
             if (modeldata.runeq) {
               runner.quick_env_only_warmup_run(0, 100, calcontroller_ptr);

@@ -17,6 +17,7 @@
 extern src::severity_logger< severity_level > glg;
 
 RunCohort::RunCohort() {
+  BOOST_LOG_SEV(glg, debug) << "RUN COHORT, mostly empty default ctor";
   dstepcnt = 0;
   mstepcnt = 0;
   ystepcnt = 0;

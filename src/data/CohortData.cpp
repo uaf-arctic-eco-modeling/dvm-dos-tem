@@ -15,6 +15,9 @@ extern src::severity_logger< severity_level > glg;
 *
 */
 CohortData::CohortData() {
+ 
+  BOOST_LOG_SEV(glg, note) << "COHORT DATA, empty, default ctor...";
+
 }
 
 CohortData::CohortData(int year, int month, int day, const ModelData* modeldatapointer) {
@@ -24,6 +27,7 @@ CohortData::CohortData(int year, int month, int day, const ModelData* modeldatap
 
 
 CohortData::~CohortData() {
+  BOOST_LOG_SEV(glg, debug) << "Destroying a CohortData!";
 };
 
 // initialize CohortData class explicitly

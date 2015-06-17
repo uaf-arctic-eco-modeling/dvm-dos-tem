@@ -58,7 +58,11 @@ Cohort::Cohort(int y, int x, ModelData* modeldatapointer):
 
   BOOST_LOG_SEV(glg, debug) << "Setup the atmosphere...";
   this->atm = Atmosphere(); // Mostly finished ctor??
+  // might need to set the cd* and the ed* ???
 
+  BOOST_LOG_SEV(glg, debug) << "Setup the NEW STYLE atmosphere...";
+  this->climate = Climate("scripts/new-climate-dataset.nc", y, x);
+  //this->climate.buildout_avgX_data(30);
     
   this->soilenv = Soil_Env();
   
@@ -1331,6 +1335,9 @@ void Cohort::NEW_load_climate_from_file(int y, int x) {
                            << precips.size() << ", " << nirrs.size() << ")";
 
   BOOST_LOG_SEV(glg, debug) << "Size of CohortData (cd) arrays appears to be " << MAX_ATM_DRV_YR*12;
+
+  BOOST_LOG_SEV(glg, debug) << "SETTING cd.act_atm_drv_yr = " << temps.size();
+  this->cd.act_atm_drv_yr = temps.size();
 
   std::copy(temps.begin(), temps.end(), cd.tair);
   std::copy(vapos.begin(), vapos.end(), cd.vapo);

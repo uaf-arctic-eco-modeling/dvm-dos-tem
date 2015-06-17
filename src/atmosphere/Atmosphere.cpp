@@ -3,8 +3,12 @@
  */
 #include "Atmosphere.h"
 
+#include "../TEMLogger.h"
+
+extern src::severity_logger< severity_level > glg;
+
 Atmosphere::Atmosphere(): wetdays(10.0), co2(UIN_F), yrsumday(UIN_F) {
-  
+  BOOST_LOG_SEV(glg, debug) << "ATMOSPHERE not really empty default ctor...";
   // ...old comment... not sure how/if it now pertains...
   // if in the mode of spinup or spintransient
   // initialize with spinup condition for prev
@@ -67,6 +71,7 @@ Atmosphere::Atmosphere(): wetdays(10.0), co2(UIN_F), yrsumday(UIN_F) {
 }
 
 Atmosphere::~Atmosphere() {
+  BOOST_LOG_SEV(glg, debug) << "Destroying an Atmosphere...";
 };
 
 /** Calculate monthly driving data.
