@@ -15,6 +15,10 @@ public:
 
   void load_from_file(const std::string& fname, int y, int x);
   
+  std::vector<float> year(const std::vector<float>& v, int iy);
+  std::vector<float> month(const std::vector<float>& v, int im);
+//  std::vector<float> daily(const std::vector<float>& v, iy);
+  
   std::vector<float> tair_y(int iy);
   std::vector<float> tair_m(int iy);
   std::vector<float> tair_d(int iy);
@@ -38,9 +42,11 @@ public:
 //  climate.get_month(tair, im);
 //  climate.get_year(tair, iy);
   
+  std::vector<float> vec_tair;
 private:
 
   // base data - should be loaded from .nc file
+
   float tair[MAX_ATM_DRV_YR * 12];
   float prec[MAX_ATM_DRV_YR * 12];
   float nirr[MAX_ATM_DRV_YR * 12];

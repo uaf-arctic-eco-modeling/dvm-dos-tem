@@ -1,6 +1,8 @@
 #include <numeric> // for accumulate
 #include <vector>
 
+#include <assert.h> // for assert? need C++ library?
+
 #include "Climate.h"
 
 #include "TEMUtilityFunctions.h"
@@ -27,6 +29,33 @@ Climate::Climate(const std::string& fname, int y, int x) {
 //  }
 //  return data;
 //}
+
+/** Return vector, length 12, with one year of climate data */
+std::vector<float> Climate::year(const std::vector<float>& v, int iy) {
+
+  float available_years = v.size() / 12.0;
+  int even_years = v.size() % 12;
+  assert(iy < available_years && "Year index will be out of range!");
+  assert(even_years == 0 && "Climate variable size not even multiple of 12");
+  
+  return std::vector<float>(v.begin()+iy, v.begin()+iy+12);
+
+}
+
+std::vector<float> Climate::month(const std::vector<float>& v, int im) {
+//  float available_years = v.size() / 12.0;
+//  int even_years = v.size() % 12;
+//  assert(iy < available_years && "Year index will be out of range!");
+//  assert(even_years == 0 && "Climate variable size not even multiple of 12");
+//
+//  return std::vector<float>();
+//  
+//  return std::vector<float>(v.begin()+iy, v.begin()+iy+12);
+  
+}
+
+
+
 
 std::vector<float> Climate::tair_y(int iy) {
   std::vector<float> data;
@@ -78,8 +107,7 @@ void Climate::load_from_file(const std::string& fname, int y, int x) {
   BOOST_LOG_SEV(glg, info) << "Loading climate from file: " << fname;
   BOOST_LOG_SEV(glg, info) << "Loading climate for (y, x) point: ("<< x <<","<< y <<"), all timesteps.";
 
-  std::vector<float> temps =
-      temutil::get_climate_var_timeseries(fname, "tair", y, x);
+  vec_tair = temutil::get_climate_var_timeseries(fname, "tair", y, x);
   
   std::vector<float> vapos =
       temutil::get_climate_var_timeseries(fname, "vapor_press", y, x);
@@ -95,12 +123,12 @@ void Climate::load_from_file(const std::string& fname, int y, int x) {
 
   // Report on sizes...
   BOOST_LOG_SEV(glg, info) << "  -->sizes (tair, vapor_press, precip, nirr): ("
-                           << temps.size() << ", " << vapos.size() << ", "
+                           << vec_tair.size() << ", " << vapos.size() << ", "
                            << precips.size() << ", " << nirrs.size() << ")";
   BOOST_LOG_SEV(glg, info) << "  -->sizes of climate::tair, nirr, prec, "
                            << "vapo appears to be: " << MAX_ATM_DRV_YR * 12;
 
-  std::copy(temps.begin(), temps.end(), this->tair);
+  std::copy(vec_tair.begin(), vec_tair.end(), this->tair);
   std::copy(vapos.begin(), vapos.end(), this->vapo);
   std::copy(precips.begin(), precips.end(), this->prec);
   std::copy(nirrs.begin(), nirrs.end(), this->nirr);

@@ -13,6 +13,9 @@
 #include <list>
 #include <netcdfcpp.h>
 #include <json/value.h>
+
+#include <boost/lexical_cast.hpp>
+
 #include "inc/cohortconst.h" // needed for NUM_PFT
 
 namespace temutil {
@@ -130,10 +133,10 @@ namespace temutil {
   }
   
   template<typename T>
-  std::string vec2csv(const std::vector<T> vec) {
+  std::string vec2csv(const std::vector<T>& vec) {
     std::string s;
     for (typename std::vector<T>::const_iterator it = vec.begin(); it != vec.end(); ++it) {
-      s += *it;
+      s += boost::lexical_cast<std::string>(*it);
       s += ", ";
     }
     s.erase(s.size()-2);
