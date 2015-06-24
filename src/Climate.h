@@ -2,10 +2,7 @@
 #define _CLIMATE_H_
 
 #include <string>
-#include "inc/timeconst.h"
-
-
-
+#include <vector>
 
 class Climate {
 public:
@@ -13,15 +10,39 @@ public:
   Climate();
   Climate(const std::string& fname, int y, int x);
 
+  // driving variables
+  std::vector<float> tair;
+  std::vector<float> prec;
+  std::vector<float> nirr;
+  std::vector<float> vapo;
+
+  // calculated driving variables
+  std::vector<float> rain;
+  std::vector<float> snow;
+  std::vector<float> girr;
+  std::vector<float> cld;
+  std::vector<float> par;
+
+  // simplified climate, averaged over some number of years
+  std::vector<float> avgX_tair;
+  std::vector<float> avgX_prec;
+  std::vector<float> avgX_nirr;
+  std::vector<float> avgX_vapo;
+
+private:
   void load_from_file(const std::string& fname, int y, int x);
+  void split_precip();
   
-  std::vector<float> year(const std::vector<float>& v, int iy);
-  std::vector<float> month(const std::vector<float>& v, int im);
-//  std::vector<float> daily(const std::vector<float>& v, iy);
+  std::vector<float> avg_over(const std::vector<float> & var, const int window);
+
   
-  std::vector<float> tair_y(int iy);
-  std::vector<float> tair_m(int iy);
-  std::vector<float> tair_d(int iy);
+//  std::vector<float> year(const std::vector<float>& v, int iy);
+//  std::vector<float> month(const std::vector<float>& v, int im);
+////  std::vector<float> daily(const std::vector<float>& v, iy);
+//
+//  std::vector<float> tair_y(int iy);
+//  std::vector<float> tair_m(int iy);
+//  std::vector<float> tair_d(int iy);
 
 //  float YM_tair(int iy, int im);
 //
@@ -42,35 +63,34 @@ public:
 //  climate.get_month(tair, im);
 //  climate.get_year(tair, iy);
   
-  std::vector<float> vec_tair;
 private:
 
   // base data - should be loaded from .nc file
 
-  float tair[MAX_ATM_DRV_YR * 12];
-  float prec[MAX_ATM_DRV_YR * 12];
-  float nirr[MAX_ATM_DRV_YR * 12];
-  float vapo[MAX_ATM_DRV_YR * 12];
+//  float tair[MAX_ATM_DRV_YR * 12];
+//  float prec[MAX_ATM_DRV_YR * 12];
+//  float nirr[MAX_ATM_DRV_YR * 12];
+//  float vapo[MAX_ATM_DRV_YR * 12];
 
   // a simplified climate, created from the base data
   // by using buildout_avgX_data(..)
-  float avgX_tair[12];
-  float avgX_prec[12];
-  float avgX_nirr[12];
-  float avgX_vapo[12];
+//  float avgX_tair[12];
+//  float avgX_prec[12];
+//  float avgX_nirr[12];
+//  float avgX_vapo[12];
   
   // Other values that are calculated from the base data
-  float cld [MAX_ATM_DRV_YR * 12];
-  float snow[MAX_ATM_DRV_YR * 12];
-  float rain[MAX_ATM_DRV_YR * 12];
-  float par [MAX_ATM_DRV_YR * 12];
-  float ppfd[MAX_ATM_DRV_YR * 12];
-  float girr[MAX_ATM_DRV_YR * 12];
+//  float cld [MAX_ATM_DRV_YR * 12];
+//  float snow[MAX_ATM_DRV_YR * 12];
+//  float rain[MAX_ATM_DRV_YR * 12];
+//  float par [MAX_ATM_DRV_YR * 12];
+//  float ppfd[MAX_ATM_DRV_YR * 12];
+//  float girr[MAX_ATM_DRV_YR * 12];
 
-  void buildout_avgX_data(int averageOver);
-  void buildout_daily_data();
-  void buildout_derived_data();
-
+//  void buildout_avgX_data(int averageOver);
+//  void buildout_daily_data();
+//  void buildout_derived_data();
+//
 };
 
 #endif /* _CLIMATE_H_ */

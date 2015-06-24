@@ -191,6 +191,9 @@ int main(int argc, char* argv[]){
 
             BOOST_LOG_SEV(glg, debug) << "Running cell (" << rowidx << ", " << colidx << ")";
 
+
+            BOOST_LOG_SEV(glg, debug) << "Setup the NEW STYLE CLIMATE OBJECT ...";
+            Climate climate("scripts/new-climate-dataset.nc", rowidx, colidx);
             Runner runner(modeldata, rowidx, colidx);
 ///** Env module only "pre-run".
 //  - create the climate from the average of the first X years

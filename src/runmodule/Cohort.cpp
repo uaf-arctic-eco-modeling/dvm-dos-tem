@@ -60,12 +60,12 @@ Cohort::Cohort(int y, int x, ModelData* modeldatapointer):
   this->atm = Atmosphere(); // Mostly finished ctor??
   // might need to set the cd* and the ed* ???
 
-  BOOST_LOG_SEV(glg, debug) << "Setup the NEW STYLE atmosphere...";
-  this->climate = Climate("scripts/new-climate-dataset.nc", y, x);
-  //this->climate.buildout_avgX_data(30);
-  std::vector<float> v = this->climate.year(climate.vec_tair,0);
-  std::string s = temutil::vec2csv(v);
-  BOOST_LOG_SEV(glg, debug) << s;
+//  BOOST_LOG_SEV(glg, debug) << "Setup the NEW STYLE atmosphere...";
+//  this->climate = Climate("scripts/new-climate-dataset.nc", y, x);
+//  //this->climate.buildout_avgX_data(30);
+//  std::vector<float> v = this->climate.year(climate.vec_tair,0);
+//  std::string s = temutil::vec2csv(v);
+//  BOOST_LOG_SEV(glg, debug) << s;
     
   this->soilenv = Soil_Env();
   
