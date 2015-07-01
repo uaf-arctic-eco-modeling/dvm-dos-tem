@@ -117,12 +117,12 @@ float calculate_girr(const float lat, const int im) {
 
 
 Climate::Climate() {
-  BOOST_LOG_SEV(glg, note) << "--> ATMOSPHERE 2 <-- empty ctor";
+  BOOST_LOG_SEV(glg, note) << "--> CLIMATE --> empty ctor";
 }
 
 
 Climate::Climate(const std::string& fname, int y, int x) {
-  BOOST_LOG_SEV(glg, note) << "--> ATMOSPHERE 2 <-- BETTER CTOR";
+  BOOST_LOG_SEV(glg, note) << "--> CLIMATE --> BETTER CTOR";
   this->load_from_file(fname, y, x);
 }
 
@@ -130,7 +130,8 @@ Climate::Climate(const std::string& fname, int y, int x) {
 void Climate::load_from_file(const std::string& fname, int y, int x) {
 
   BOOST_LOG_SEV(glg, info) << "Loading climate from file: " << fname;
-  BOOST_LOG_SEV(glg, info) << "Loading climate for (y, x) point: ("<< y <<","<< x <<"), all timesteps.";
+  BOOST_LOG_SEV(glg, info) << "Loading climate for (y, x) point: "
+                           << "(" << y <<","<< x <<"), all timesteps.";
 
 
   BOOST_LOG_SEV(glg, info) << "Read in the base climate data timeseries ...";
@@ -169,10 +170,10 @@ void Climate::load_from_file(const std::string& fname, int y, int x) {
     rain[i] = rs.first;
     snow[i] = rs.second;
   }
-  BOOST_LOG_SEV(glg, debug) << "tair = [" << temutil::vec2csv(tair) <<"]";
-  BOOST_LOG_SEV(glg, debug) << "prec = [" << temutil::vec2csv(prec) <<"]";
-  BOOST_LOG_SEV(glg, debug) << "rain = [" << temutil::vec2csv(rain) <<"]";
-  BOOST_LOG_SEV(glg, debug) << "snow = [" << temutil::vec2csv(snow) <<"]";
+  BOOST_LOG_SEV(glg, debug) << "tair = [" << temutil::vec2csv(tair) << "]";
+  BOOST_LOG_SEV(glg, debug) << "prec = [" << temutil::vec2csv(prec) << "]";
+  BOOST_LOG_SEV(glg, debug) << "rain = [" << temutil::vec2csv(rain) << "]";
+  BOOST_LOG_SEV(glg, debug) << "snow = [" << temutil::vec2csv(snow) << "]";
 
   // find girr as a function of month and latitude
   std::pair<float, float> latlon = temutil::get_latlon("scripts/new-climate-dataset.nc", y, x);
@@ -188,13 +189,13 @@ void Climate::load_from_file(const std::string& fname, int y, int x) {
     int midx = i % 12;
     cld[i] = calculate_clouds(girr[midx], nirr[i]);
   }
-  BOOST_LOG_SEV(glg, debug) << "cld = [" << temutil::vec2csv(cld) <<"]";
+  BOOST_LOG_SEV(glg, debug) << "cld = [" << temutil::vec2csv(cld) << "]";
 
   // find par based on cloudiness and nirr
   for (int i = 0; i < cld.size(); ++i) {
     par[i] = calculate_par(cld[i], nirr[i]);
   }
-  BOOST_LOG_SEV(glg, debug) << "par = [" << temutil::vec2csv(par) <<"]";
+  BOOST_LOG_SEV(glg, debug) << "par = [" << temutil::vec2csv(par) << "]";
 
   // create the simplified climate by averaging the first X years of data
   avgX_tair = avg_over(tair, 10);
@@ -202,13 +203,17 @@ void Climate::load_from_file(const std::string& fname, int y, int x) {
   avgX_nirr = avg_over(nirr, 10);
   avgX_vapo = avg_over(vapo, 10);
 
+  // Do we need simplifie 'avgX_' values for par, and cld??
+
   // Finally, need to create the daily dataset(s) by interpolating the monthly
+  // --> actually looking like these should not be calculated upon construciton.
+  //     instead, they shoudl get calculated each year...
 
 }
 
 std::vector<float> Climate::avg_over(const std::vector<float> & var, const int window) {
 
-  assert(var.size() % 12 == 0 && "The data vector is the wrong size! var.size() shoudld be an even multiple of 12.");
+  assert(var.size() % 12 == 0 && "The data vector is the wrong size! var.size() should be an even multiple of 12.");
   assert(var.size() >= 12*window && "The data vector is too short to average over the window!");
 
   // make space for the result - one number for each month
@@ -226,8 +231,8 @@ std::vector<float> Climate::avg_over(const std::vector<float> & var, const int w
     // average the data for the month
     float sum = std::accumulate(mdata.begin(), mdata.end(), 0.0);
 
-    // put the value in the resutl vector for this month
-    result[im] = sum / window;
+    // put the value in the result vector for this month
+    result[im] = sum / window; // ?? should window be a float??
 
     //BOOST_LOG_SEV(glg, debug) << "result = [" << temutil::vec2csv(result) << "]";
 
@@ -239,75 +244,5 @@ std::vector<float> Climate::avg_over(const std::vector<float> & var, const int w
 
 }
 
-/** Return vector, length 12, with one year of climate data */
-//std::vector<float> Climate::year(const std::vector<float>& v, int iy) {
-//
-//  float available_years = v.size() / 12.0;
-//  int even_years = v.size() % 12;
-//  assert(iy < available_years && "Year index will be out of range!");
-//  assert(even_years == 0 && "Climate variable size not even multiple of 12");
-//  
-//  return std::vector<float>(v.begin()+iy, v.begin()+iy+12);
-//
-//}
-
-//std::vector<float> Climate::month(const std::vector<float>& v, int im) {
-////  float available_years = v.size() / 12.0;
-////  int even_years = v.size() % 12;
-////  assert(iy < available_years && "Year index will be out of range!");
-////  assert(even_years == 0 && "Climate variable size not even multiple of 12");
-////
-////  return std::vector<float>();
-////  
-////  return std::vector<float>(v.begin()+iy, v.begin()+iy+12);
-//  
-//}
-
-
-
-
-//std::vector<float> Climate::tair_y(int iy) {
-//  std::vector<float> data;
-//  for (int im = 0; im < 12; ++im) {
-//    data.push_back(this->tair[12*iy + im]);
-//  }
-//  return data;
-//}
-//std::vector<float> Climate::tair_m(int im) {
-//  std::vector<float> data;
-//  return data;
-//}
-//
-//std::vector<float> Climate::tair_d(int iy);
-
-//void Climate::buildout_avgX_data(int averaging_window) {
-//  
-//  // tair is a list of all consecutive months, I need every 12th one
-//  // so
-//
-//
-//// worked
-////  for (int im = 0; im < 12; ++im) {
-////
-////    std::vector<float> vals;
-////
-////    for (int iy = 0; iy < averaging_window; ++iy) {
-////      vals.push_back(this->YM_tair(iy, im));
-////    }
-////
-////    float sum = std::accumulate(vals.begin(), vals.end(), 0);
-////    
-////    BOOST_LOG_SEV(glg, debug) << im << " SHIT YEAH, SUM: " << sum;
-////    BOOST_LOG_SEV(glg, debug) << im << " SHIT YEAH, MEAN: " << sum/vals.size();
-////    this->avgX_tair[im] = sum/vals.size();
-////
-////  }
-//  
-////  float avgX_tair[12];
-////  float avgX_prec[12];
-////  float avgX_nirr[12];
-////  float avgX_vapo[12];
-//  
-//}
 
 
