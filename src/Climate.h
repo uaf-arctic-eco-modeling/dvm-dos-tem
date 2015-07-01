@@ -29,68 +29,33 @@ public:
   std::vector<float> avgX_nirr;
   std::vector<float> avgX_vapo;
 
-private:
-  void load_from_file(const std::string& fname, int y, int x);
-  void split_precip();
+  std::vector<float> tair_d;
+  std::vector<float> prec_d;
+  std::vector<float> nirr_d;
+  std::vector<float> vapo_d;
+  std::vector<float> rain_d;
+  std::vector<float> snow_d;
+  std::vector<float> girr_d;
+  std::vector<float> cld_d;
+  std::vector<float> par_d;
+
+  std::vector<float> rhoa_d;
+  std::vector<float> svp_d;
+  std::vector<float> vpd_d;
+  std::vector<float> dersvp_d;
+  std::vector<float> abshd_d;
   
+
+private:
+
+  void load_from_file(const std::string& fname, int y, int x);
+
+  void split_precip();
+
   std::vector<float> avg_over(const std::vector<float> & var, const int window);
 
-  
-//  std::vector<float> year(const std::vector<float>& v, int iy);
-//  std::vector<float> month(const std::vector<float>& v, int im);
-////  std::vector<float> daily(const std::vector<float>& v, iy);
-//
-//  std::vector<float> tair_y(int iy);
-//  std::vector<float> tair_m(int iy);
-//  std::vector<float> tair_d(int iy);
+  std::vector<float> interpolate_daily(const std::vector<float> & var);
 
-//  float YM_tair(int iy, int im);
-//
-//
-//  // a years worth of data, all months
-//  // [0,1,2,3,4,5,6,7,8,9,10,11]
-//  std::vector<float> get_month(int year);
-//  
-//  // a single month, along the year axis...
-//  // [0,1,2,3,4,....n Years]
-//  std::vector<float> get_month(int month);
-//
-//
-//  climate.tair_y(iy);
-//  climate.tair_m(im);
-//  climate.tair_d(id);
-//
-//  climate.get_month(tair, im);
-//  climate.get_year(tair, iy);
-  
-private:
-
-  // base data - should be loaded from .nc file
-
-//  float tair[MAX_ATM_DRV_YR * 12];
-//  float prec[MAX_ATM_DRV_YR * 12];
-//  float nirr[MAX_ATM_DRV_YR * 12];
-//  float vapo[MAX_ATM_DRV_YR * 12];
-
-  // a simplified climate, created from the base data
-  // by using buildout_avgX_data(..)
-//  float avgX_tair[12];
-//  float avgX_prec[12];
-//  float avgX_nirr[12];
-//  float avgX_vapo[12];
-  
-  // Other values that are calculated from the base data
-//  float cld [MAX_ATM_DRV_YR * 12];
-//  float snow[MAX_ATM_DRV_YR * 12];
-//  float rain[MAX_ATM_DRV_YR * 12];
-//  float par [MAX_ATM_DRV_YR * 12];
-//  float ppfd[MAX_ATM_DRV_YR * 12];
-//  float girr[MAX_ATM_DRV_YR * 12];
-
-//  void buildout_avgX_data(int averageOver);
-//  void buildout_daily_data();
-//  void buildout_derived_data();
-//
 };
 
 #endif /* _CLIMATE_H_ */
