@@ -45,6 +45,7 @@ public:
   std::vector<float> dersvp_d;
   std::vector<float> abshd_d;
   
+  void preapre_daily_driving_data(int iy, const std::string& stage);
 
 private:
 
@@ -55,6 +56,8 @@ private:
   std::vector<float> avg_over(const std::vector<float> & var, const int window);
 
   std::vector<float> interpolate_daily(const std::vector<float> & var);
+
+
 
 };
 

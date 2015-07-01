@@ -44,6 +44,9 @@ Runner::Runner(ModelData mdldata, int y, int x):
   // Now give the cohort pointers to these containers.
   this->cohort.setProcessData(&this->chted, &this->chtbd, &this->chtfd);
 
+  BOOST_LOG_SEV(glg, debug) << "Setup the NEW STYLE CLIMATE OBJECT ...";
+  this->climate = Climate("scripts/new-climate-dataset.nc", y, x);
+
 }
 
 
@@ -446,17 +449,23 @@ void Runner::quick_env_only_warmup_run(int year_start, int year_end, boost::shar
   this->cohort.cd.yrsdist = 1000;
 
   BOOST_LOG_SEV(glg, info) << "Run years " << year_start << " to " << year_end;
-  this->run_years(year_start, year_end, calcontroller_ptr);
+  this->run_years(year_start, year_end, "", calcontroller_ptr);
 
   BOOST_LOG_SEV(glg, info) << "Completed env module only 'warm up' run.";
 }
 
-void Runner::run_years(int start_year, int end_year, boost::shared_ptr<CalController> cal_ctrl_ptr) {
+
+
+void Runner::run_years(int start_year, int end_year, const std::string& stage,
+    boost::shared_ptr<CalController> cal_ctrl_ptr) {
+
   /** YEAR TIMESTEP LOOP */
   for (int iy = start_year; iy < end_year; ++iy) {
 
     /* Interpolate all the monthly values...? */
-    cohort.prepareDayDrivingData(iy, 0);
+    //cohort.prepareDayDrivingData(iy, 0);
+    this->climate.preapre_daily_driving_data(iy, stage);
+
 
     if (cal_ctrl_ptr) { // should be null unless we are in "calibration mode"
 

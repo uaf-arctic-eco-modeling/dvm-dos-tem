@@ -52,6 +52,7 @@
 #endif
 
 
+#include "inc/timeconst.h"
 #include "ArgHandler.h"
 #include "TEMLogger.h"
 #include "TEMUtilityFunctions.h"
@@ -191,10 +192,50 @@ int main(int argc, char* argv[]){
 
             BOOST_LOG_SEV(glg, debug) << "Running cell (" << rowidx << ", " << colidx << ")";
 
-
-            BOOST_LOG_SEV(glg, debug) << "Setup the NEW STYLE CLIMATE OBJECT ...";
-            Climate climate("scripts/new-climate-dataset.nc", rowidx, colidx);
+            BOOST_LOG_SEV(glg, debug) << "Setup the NEW STYLE RUNNER OBJECT ...";
             Runner runner(modeldata, rowidx, colidx);
+
+            // Ends up as a null pointer if calibrationMode is off.
+            boost::shared_ptr<CalController> calcontroller_ptr;
+            if ( args->get_cal_mode() ) {
+              calcontroller_ptr.reset( new CalController(&runner.cohort) );
+              calcontroller_ptr->clear_and_create_json_storage();
+
+            }
+
+            if (modeldata.runeq) {
+
+              runner.cohort.md->set_envmodule(true);
+              runner.cohort.md->set_bgcmodule(false);
+              runner.cohort.md->set_nfeed(false);
+              runner.cohort.md->set_avlnflg(false);
+              runner.cohort.md->set_baseline(false);
+              runner.cohort.md->set_dsbmodule(false);
+              runner.cohort.md->set_dslmodule(false);
+              runner.cohort.md->set_dvmmodule(false);
+
+//              changing climate?: NO - use avgX values
+//              changing CO2?:     NO - use static value
+
+              runner.run_years(0, 100, "pre-run", calcontroller_ptr);
+
+              runner.cohort.md->set_envmodule(true);
+              runner.cohort.md->set_dvmmodule(true);
+              runner.cohort.md->set_dslmodule(true);
+              runner.cohort.md->set_bgcmodule(true);
+              runner.cohort.md->set_dsbmodule(true);
+              // baseline? avln? friderived? nfeed?
+
+//              changing climate?: NO - use avgX values
+//              changing CO2?:     NO - use static value
+
+              runner.run_years(0, MAX_EQ_YR, "eq-run", calcontroller_ptr);
+
+
+            }
+            if (modeldata.runsp) {
+
+            }
 ///** Env module only "pre-run".
 //  - create the climate from the average of the first X years
 //    of the driving climate data. 
@@ -236,15 +277,6 @@ int main(int argc, char* argv[]){
             runner.cohort.md->set_dslmodule(true);
             runner.cohort.md->set_bgcmodule(true);
             runner.cohort.md->set_dsbmodule(false);
-            
-            // Ends up as a null pointer if calibrationMode is off.
-            boost::shared_ptr<CalController> calcontroller_ptr;
-            if ( args->get_cal_mode() ) {
-              calcontroller_ptr.reset( new CalController(&runner.cohort) );
-              calcontroller_ptr->clear_and_create_json_storage();
-
-            }
-            
             
             // NOTE: Could have an option to set some time constants based on
             //       some sizes/dimensions of the input driving data...
@@ -307,7 +339,7 @@ int main(int argc, char* argv[]){
             // Or simply base off of the amount of the inputdataset?
             //??
             //timesettings_from_stage();
-            runner.run_years(0, 1000, calcontroller_ptr);
+            runner.run_years(0, 1000, "", calcontroller_ptr);
 
           } else {
             BOOST_LOG_SEV(glg, debug) << "Skipping cell (" << rowidx << ", " << colidx << ")";

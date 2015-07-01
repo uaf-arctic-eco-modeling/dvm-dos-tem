@@ -244,5 +244,7 @@ std::vector<float> Climate::avg_over(const std::vector<float> & var, const int w
 
 }
 
+void Climate::preapre_daily_driving_data(int iy, const std::string& stage) {
 
+}
 
