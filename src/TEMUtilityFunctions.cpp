@@ -27,9 +27,9 @@ extern src::severity_logger< severity_level > glg;
 
 namespace temutil {
   
-  /** Return the day of year based on month and day,  zero based. */
+  /** Return the day of year based on month and day, everything is zero based. */
   int day_of_year(int month, int day) {
-    return DOYINDFST[month]+ day;
+    return DOYINDFST[month] + day;
   }
 
   /** Length of day as a function of latitude (degrees) and day of year.

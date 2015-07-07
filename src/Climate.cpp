@@ -292,9 +292,6 @@ std::vector<float> Climate::monthly2daily(const std::vector<float>& mly_vals) {
   std::vector<float> rel_days;
   rel_days.assign( arr, arr + sizeof(arr) / sizeof(arr[0]) );
 
-  std::cout << mly_vals.size() << std::endl;
-  std::cout << rel_days.size() << std::endl;
-
   assert(mly_vals.size() == 14 && "Monthly values must be size 14 (D J F M A M J J A S O N D J");
   assert(rel_days.size() == 14 && "Relative days vector must be size 14: D J F M A M J J A S O N D J");
 
