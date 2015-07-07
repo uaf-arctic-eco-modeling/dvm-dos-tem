@@ -282,6 +282,41 @@ namespace temutil {
     return climate_data;
     
   }
+
+  /** rough draft for reading a timeseries of co2 data from a new-style co2 file.
+  */
+  std::vector<float> get_co2_timeseries(const std::string &filename) {
+
+    BOOST_LOG_SEV(glg, debug) << "Opening dataset: " << filename;
+
+    int ncid;
+    temutil::nc( nc_open(filename.c_str(), NC_NOWRITE, &ncid) );
+
+    int yearD;
+    size_t yearD_len;
+
+    temutil::nc( nc_inq_dimid(ncid, "year", &yearD) );
+    temutil::nc( nc_inq_dimlen(ncid, yearD, &yearD_len) );
+
+    int co2_var;
+    temutil::nc( nc_inq_varid(ncid, "co2", &co2_var) );
+
+    BOOST_LOG_SEV(glg, debug) << "Allocate a vector with enough space for the whole timeseries (" << yearD_len << " timesteps)";
+    std::vector<float> co2_data(yearD_len);
+
+    size_t start[1];
+    start[0] = 0;         // from beginning of time
+
+    size_t count[1];
+    count[0] = yearD_len; // all time
+
+    BOOST_LOG_SEV(glg, debug) << "Grab the data from the netCDF file...";
+    temutil::nc( nc_get_vara_float(ncid, co2_var, start, count, &co2_data[0]) );
+
+    return co2_data;
+  }
+
+
   
   /** rough draft - look up lon/lat in nc file from y,x coordinates. 
       Assumes that the file has some coordinate dimensions...

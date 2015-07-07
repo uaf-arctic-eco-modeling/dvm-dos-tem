@@ -11,6 +11,7 @@ public:
   Climate(const std::string& fname, int y, int x);
 
   // driving variables
+  std::vector<float> co2;
   std::vector<float> tair;
   std::vector<float> prec;
   std::vector<float> nirr;
@@ -30,6 +31,11 @@ public:
   std::vector<float> avgX_vapo;
 
   // Daily containers
+
+  // this is not really a daily value, but for scope/access
+  // reasons it is easier to treat it as such. Every day of the year has the same co2 value...
+  float co2_d;
+
   //  ->> should be interpolated from the monthly containers
   std::vector<float> tair_d;
   std::vector<float> prec_d;

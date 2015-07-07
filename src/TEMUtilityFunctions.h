@@ -102,6 +102,9 @@ namespace temutil {
                                               const std::string &var,
                                               int y, int x);
   
+  // draft - reads all timesteps co2 data
+  std::vector<float> get_co2_timeseries(const std::string &filename);
+
   std::pair<float,float> get_latlon(const std::string& filename, int y, int x);
 
   // draft - reading in vegetation for a single location

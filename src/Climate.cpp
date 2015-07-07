@@ -168,6 +168,7 @@ void Climate::load_from_file(const std::string& fname, int y, int x) {
   BOOST_LOG_SEV(glg, info) << "Loading climate for (y, x) point: "
                            << "(" << y <<","<< x <<"), all timesteps.";
 
+  co2 = temutil::get_co2_timeseries("scripts/new-co2-dataset.nc");
 
   BOOST_LOG_SEV(glg, info) << "Read in the base climate data timeseries ...";
 
@@ -341,6 +342,8 @@ std::vector<float> Climate::eq_range(const std::vector<float>& data) {
 }
 
 void Climate::preapre_daily_driving_data(int iy, const std::string& stage) {
+
+  co2_d = co2.at(iy); // effectively the same value each day of the year
 
   if ( (stage.compare("pre-run") == 0) || (stage.compare("eq") == 0 ) ) {
 
