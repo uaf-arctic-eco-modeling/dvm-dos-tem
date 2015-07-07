@@ -203,6 +203,10 @@ int main(int argc, char* argv[]){
 
             }
 
+            runner.cohort.initSubmodules();
+            runner.cohort.initStatePar();
+
+
             if (modeldata.runeq) {
 
               runner.cohort.md->set_envmodule(true);
