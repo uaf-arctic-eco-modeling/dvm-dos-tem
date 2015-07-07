@@ -60,6 +60,9 @@ Cohort::Cohort(int y, int x, ModelData* modeldatapointer):
   this->atm = Atmosphere(); // Mostly finished ctor??
   // might need to set the cd* and the ed* ???
 
+  BOOST_LOG_SEV(glg, debug) << "Setup the NEW STYLE CLIMATE OBJECT ...";
+  this->climate = Climate("scripts/new-climate-dataset.nc", y, x);
+
 //  BOOST_LOG_SEV(glg, debug) << "Setup the NEW STYLE atmosphere...";
 //  this->climate = Climate("scripts/new-climate-dataset.nc", y, x);
 //  //this->climate.buildout_avgX_data(30);

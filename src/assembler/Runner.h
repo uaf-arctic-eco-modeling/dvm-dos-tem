@@ -104,7 +104,6 @@ private:
   // Regional Data (applies to entire grid, but can be timeseries?)
   RegionData regionaldata;
 
-  Climate climate;
 
   //TEM domains (hiarchy)
   RunGrid rungrd;

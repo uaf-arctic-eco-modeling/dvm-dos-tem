@@ -44,9 +44,6 @@ Runner::Runner(ModelData mdldata, int y, int x):
   // Now give the cohort pointers to these containers.
   this->cohort.setProcessData(&this->chted, &this->chtbd, &this->chtfd);
 
-  BOOST_LOG_SEV(glg, debug) << "Setup the NEW STYLE CLIMATE OBJECT ...";
-  this->climate = Climate("scripts/new-climate-dataset.nc", y, x);
-
 }
 
 
@@ -464,7 +461,7 @@ void Runner::run_years(int start_year, int end_year, const std::string& stage,
 
     /* Interpolate all the monthly values...? */
     //cohort.prepareDayDrivingData(iy, 0);
-    this->climate.preapre_daily_driving_data(iy, stage);
+    this->cohort.climate.preapre_daily_driving_data(iy, stage);
 
 
     if (cal_ctrl_ptr) { // should be null unless we are in "calibration mode"
