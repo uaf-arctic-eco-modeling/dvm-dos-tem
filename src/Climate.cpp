@@ -17,6 +17,41 @@ extern src::severity_logger< severity_level > glg;
 // Should really put these in temutil and then write some test
 // routines that exercise the funcitons over a wide range of values
 
+/** Find "Vapor Pressure Density"??? as a funciton of svp and vp ?? 
+*/
+float calculate_vpd (const float svp, const float vp) {
+  float vpd = svp - vp;
+
+  if (vpd < 0) {
+    vpd = 0;
+  }
+
+  return vpd; // unit Pa
+}
+
+/** Find saturated vapor pressure as a function of temperature.
+
+Guide to Meteorological Instruments and Methods of Observation (CIMO Guide)
+  %      (WMO, 2008), for saturation vapor pressure
+  %      (1) ew = 6.112 e(17.62 t/(243.12 + t))                [2]
+  %      with t in [deg C] and ew in [hPa, mbar]
+
+  %      (2) ei = 6.112 e(22.46 t/(272.62 + t))                [14]
+  %      with t in [deg C] and ei in [hPa]
+*/
+float calculate_saturated_vapor_pressure(const float tair) {
+
+  float svp; // saturated vapor pressure (Pa)
+
+  if( tair > 0 ) {
+    svp = 6.112 * exp(17.63 * tair / (243.12 + tair) ) * 100.0;
+  } else {
+    svp = 6.112 * exp(17.27 * tair / (272.62 + tair) ) * 100.0;
+  }
+
+  return svp;
+}
+
 /** Cloudiness as a function of girr and nirr */
 float calculate_clouds(const float girr, const float nirr) {
   float clouds;
@@ -326,9 +361,23 @@ void Climate::preapre_daily_driving_data(int iy, const std::string& stage) {
     snow_d = monthly2daily(eq_range(snow));
     par_d = monthly2daily(eq_range(par));
 
+    svp_d.resize(tair_d.size());
+    std::transform (tair_d.begin(), tair_d.end(), svp_d.begin(), calculate_saturated_vapor_pressure );
+
+    vpd_d.resize(tair_d.size());
+    std::transform( svp_d.begin(), svp_d.end(), vapo_d.begin(), vpd_d.begin(), calculate_vpd );
+
+    // never used???
+    //rhoa_d
+    //dersvp_d
+    //abshd_d
 
     BOOST_LOG_SEV(glg, debug) << "tair_d.size() = " << tair_d.size();
     BOOST_LOG_SEV(glg, debug) << "tair_d = [" << temutil::vec2csv(tair_d) << "]";
+    BOOST_LOG_SEV(glg, debug) << "svp_d.size() = " << svp_d.size();
+    BOOST_LOG_SEV(glg, debug) << "svp_d = [" << temutil::vec2csv(svp_d) << "]";
+    BOOST_LOG_SEV(glg, debug) << "vpd_d.size() = " << vpd_d.size();
+    BOOST_LOG_SEV(glg, debug) << "vpd_d = [" << temutil::vec2csv(vpd_d) << "]";
 
   }
 }
