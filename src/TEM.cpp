@@ -223,6 +223,17 @@ int main(int argc, char* argv[]){
 
               runner.run_years(0, 100, "pre-run", calcontroller_ptr);
 
+              if (calcontroller_ptr) {
+                BOOST_LOG_SEV(glg, info) << "CALIBRATION MODE. Pausing. "
+                                         << "Please check that the 'warm up' "
+                                         << "data looks good.";
+
+                calcontroller_ptr->pause();
+
+                calcontroller_ptr->clear_and_create_json_storage();
+              }
+
+
               runner.cohort.md->set_envmodule(true);
               runner.cohort.md->set_dvmmodule(true);
               runner.cohort.md->set_dslmodule(true);
