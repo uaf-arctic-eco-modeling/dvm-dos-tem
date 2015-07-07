@@ -509,8 +509,11 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
               structures.
 
     */
+
     //get the daily atm drivers and the data is in 'edall'
-    atm.updateDailyAtm(currmind, id);
+    //atm.updateDailyAtm(currmind, id);
+    this->edall->update_from_climate(climate, currmind, id);
+
     //Initialize some daily variables for 'ground'
     cd.beginOfDay();
     edall->grnd_beginOfDay();

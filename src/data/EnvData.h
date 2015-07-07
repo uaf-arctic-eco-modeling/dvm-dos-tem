@@ -11,6 +11,7 @@
 #include "../inc/physicalconst.h"
 #include "../inc/cohortconst.h"
 
+#include "../Climate.h"
 #include "RegionData.h"
 #include "GridData.h"
 #include "CohortData.h"
@@ -115,6 +116,8 @@ public:
   void atm_endOfMonth();
   void veg_endOfMonth(const int & currmind);
   void grnd_endOfMonth();
+
+  void update_from_climate(const Climate& clm, const int mid, const int dayid);
 
 private:
 };
