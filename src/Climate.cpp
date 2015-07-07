@@ -244,7 +244,92 @@ std::vector<float> Climate::avg_over(const std::vector<float> & var, const int w
 
 }
 
+// Interpolate from monthly values to daily. Does NOT account for leap years!
+std::vector<float> Climate::monthly2daily(const std::vector<float>& mly_vals) {
+
+  // setup a container for the daily data
+  std::vector<float> daily_container;
+
+  // set up the "month midpoint to relative days" vector
+  static const float arr[] = { -15.5, 15.5, 45.0, 74.5, 105.0,
+                                135.5, 166, 196.5, 227.5, 258, 288.5,
+                                319, 349.5, 380.5 };
+  std::vector<float> rel_days;
+  rel_days.assign( arr, arr + sizeof(arr) / sizeof(arr[0]) );
+
+  std::cout << mly_vals.size() << std::endl;
+  std::cout << rel_days.size() << std::endl;
+
+  assert(mly_vals.size() == 14 && "Monthly values must be size 14 (D J F M A M J J A S O N D J");
+  assert(rel_days.size() == 14 && "Relative days vector must be size 14: D J F M A M J J A S O N D J");
+
+  for (std::vector<float>::iterator it = rel_days.begin()+1; it != rel_days.end(); ++it) {
+    int idx = it - rel_days.begin();
+
+    // find our range to work over
+    float x0 = *(it-1);
+    float x1 = *it;
+
+    std::vector<float> psd = temutil::resample(
+        std::make_pair( x0, mly_vals.at(idx-1) ),   // first point on line
+        std::make_pair( x1, mly_vals.at(idx) ),   // secodn point on line
+        int(floor(x0)),     // begining of interval to interpolate
+        int(floor(x1)),     // end of iterval to interpolate
+        1                   // step size
+    );
+
+    // Add this month's interpolated values to the back of the
+    // temporary storage...
+    daily_container.insert(daily_container.end(), psd.begin(), psd.end());
+  }
+
+  // TODO: Probably need to fix this? mostly works, but returns a container
+  // that has 366 elements, even on non-leap years. Also when plotting, there
+  // appears to be a slight discontinutiy in the interpolation from month to month
+  std::vector<float> cal_yr_daily(daily_container.begin()+16, daily_container.end()-14);
+
+  return cal_yr_daily;
+}
+
+// rough draft method to get "prev" Dec, this year, and "next" Dec that are
+// needed for monthly2daily interpolation...
+std::vector<float> Climate::eq_range(const std::vector<float>& data) {
+  std::vector<float> foo;
+
+  // recycle Dec as the "previous" Dec
+  foo.push_back(data.at(11));
+
+  // get Jan - Dec values
+  foo.insert(foo.end(), data.begin(), data.begin()+12);
+
+  // use this Jan as "next" Jan
+  foo.push_back(data.at(0));
+
+  return foo;
+}
+
 void Climate::preapre_daily_driving_data(int iy, const std::string& stage) {
 
+  if ( (stage.compare("pre-run") == 0) || (stage.compare("eq") == 0 ) ) {
+
+    // Create the daily data by interpolating the avgX data. So each year
+    // the numbers will be identical...
+    // SO...if iy != 0, then this could be a no-op maybe?? ..assumes that
+    // at some point iy was zero and the values were appropriately calculated
+    // once...
+
+    tair_d = monthly2daily(eq_range(tair));
+    vapo_d = monthly2daily(eq_range(vapo));
+    nirr_d = monthly2daily(eq_range(nirr));
+
+    rain_d = monthly2daily(eq_range(rain));
+    snow_d = monthly2daily(eq_range(snow));
+    par_d = monthly2daily(eq_range(par));
+
+
+    BOOST_LOG_SEV(glg, debug) << "tair_d.size() = " << tair_d.size();
+    BOOST_LOG_SEV(glg, debug) << "tair_d = [" << temutil::vec2csv(tair_d) << "]";
+
+  }
 }
 

@@ -20,6 +20,58 @@
 
 namespace temutil {
 
+
+
+
+  template <typename T>
+  T point_on_line(T m, T x, T b) {
+    return (m*x)+b;
+  }
+
+
+
+
+  template <typename T>
+  std::pair<T, T> line(std::pair<T,T> point1,
+      std::pair<T, T> point2) {
+
+    std::pair<T, T> mb;
+    T m;
+    T b;
+    m = (point2.second - point1.second) / (point2.first - point1.first);
+    b = point2.second - (m * point2.first);
+    mb.first = m;
+    mb.second = b;
+    return mb; 
+  }
+
+
+
+
+  template <typename T>
+  std::vector<T> resample(
+      std::pair<T, T> p1,
+      std::pair<T, T> p2,
+      int begin, int end, int step) {
+
+//    static_assert( std::is_same<float, T>::value ||
+//                   std::is_same<double, Y>::value,
+//                   "unsupported type for template argument T!" );
+
+    std::pair<T, T> mb;
+    mb = temutil::line(p1, p2);
+    //std::cout << "(" << p1.first << ", "<< p1.second <<")"<< std::endl;
+    //std::cout << "(" << p2.first << ", "<< p2.second <<")"<< std::endl;
+    std::vector<T> y;
+    for (int x_val = begin; x_val < end; x_val += step) {
+      //std::cout << mb.first <<" "<< x_val <<" "<< mb.second << std::endl;
+      y.push_back(temutil::point_on_line(mb.first, T(x_val), mb.second));
+    }
+    return y;
+  }
+
+
+
   int day_of_year(int month, int day);
 
   float length_of_day(float lat, int doy);

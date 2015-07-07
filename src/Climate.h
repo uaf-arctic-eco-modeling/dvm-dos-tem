@@ -29,6 +29,8 @@ public:
   std::vector<float> avgX_nirr;
   std::vector<float> avgX_vapo;
 
+  // Daily containers
+  //  ->> should be interpolated from the monthly containers
   std::vector<float> tair_d;
   std::vector<float> prec_d;
   std::vector<float> nirr_d;
@@ -39,12 +41,16 @@ public:
   std::vector<float> cld_d;
   std::vector<float> par_d;
 
+  // More daily containers, but unlike the others, these are not
+  // ever stored at the monthly level.
   std::vector<float> rhoa_d;
   std::vector<float> svp_d;
   std::vector<float> vpd_d;
   std::vector<float> dersvp_d;
   std::vector<float> abshd_d;
   
+  std::vector<float> monthly2daily(const std::vector<float>& mly_vals);
+
   void preapre_daily_driving_data(int iy, const std::string& stage);
 
 private:
@@ -56,6 +62,8 @@ private:
   std::vector<float> avg_over(const std::vector<float> & var, const int window);
 
   std::vector<float> interpolate_daily(const std::vector<float> & var);
+
+  std::vector<float> eq_range(const std::vector<float>& data);
 
 
 
