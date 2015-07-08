@@ -6,8 +6,6 @@
 #include "../ecodomain/Ground.h"
 #include "../ecodomain/Vegetation.h"
 
-#include "../atmosphere/Atmosphere.h"
-
 #include "../vegetation/Vegetation_Env.h"
 #include "../vegetation/Vegetation_Bgc.h"
 
@@ -33,7 +31,6 @@
 #include "Integrator.h"
 
 // headers for run
-#include "Timer.h"
 #include "ModelData.h"
 #include "OutRetrive.h"
 
@@ -70,14 +67,10 @@ public :
   double pfsize[NUM_FSIZE];
   double pfseason[NUM_FSEASON];
   
-  //
-  Timer * timer;
-
   //inputs
   CohortLookup chtlu;
 
   // domain
-  Atmosphere atm;
   Vegetation veg;
   Ground ground;
   
@@ -123,7 +116,6 @@ public :
   void load_fire_severity_from_file(int record);
   
   void initSubmodules();
-  void setTime(Timer * timerp);
 
   void setModelData(ModelData* md);
   void setInputData(RegionData * rd, GridData * gd);

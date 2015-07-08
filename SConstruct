@@ -45,19 +45,12 @@ src_files = Split("""src/TEM.cpp
                      src/TEMLogger.cpp 
                      src/ArgHandler.cpp
                      src/Climate.cpp
-                     src/assembler/RunCohort.cpp
-                     src/assembler/RunGrid.cpp
                      src/assembler/Runner.cpp
-                     src/atmosphere/Atmosphere.cpp
-                     src/atmosphere/AtmosUtil.cpp
                      src/data/BgcData.cpp
                      src/data/CohortData.cpp
                      src/data/EnvData.cpp
                      src/data/EnvDataDly.cpp
                      src/data/FirData.cpp
-                     src/data/GridData.cpp
-                     src/data/OutDataRegn.cpp
-                     src/data/RegionData.cpp
                      src/data/RestartData.cpp
                      src/disturb/WildFire.cpp
                      src/ecodomain/DoubleLinkedList.cpp
@@ -84,11 +77,9 @@ src_files = Split("""src/TEM.cpp
                      src/output/RegnOutputer.cpp
                      src/output/RestartOutputer.cpp
                      src/runmodule/Cohort.cpp
-                     src/runmodule/Grid.cpp
                      src/runmodule/Integrator.cpp
                      src/runmodule/ModelData.cpp
                      src/runmodule/OutRetrive.cpp
-                     src/runmodule/Timer.cpp
                      src/snowsoil/Richards.cpp
                      src/snowsoil/Snow_Env.cpp
                      src/snowsoil/Soil_Bgc.cpp
@@ -97,7 +88,6 @@ src_files = Split("""src/TEM.cpp
                      src/snowsoil/Stefan.cpp
                      src/snowsoil/TemperatureUpdator.cpp
                      src/util/CrankNicholson.cpp
-                     src/util/Interpolator.cpp
                      src/util/tbc-debug-util.cpp
                      src/vegetation/Vegetation_Bgc.cpp
                      src/vegetation/Vegetation_Env.cpp""");

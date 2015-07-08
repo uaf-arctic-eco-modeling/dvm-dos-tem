@@ -56,8 +56,6 @@ Cohort::Cohort(int y, int x, ModelData* modeldatapointer):
   this->veg = Vegetation(this->cd.cmttype, modeldatapointer);
   this->soilbgc = Soil_Bgc();
 
-  BOOST_LOG_SEV(glg, debug) << "Setup the atmosphere...";
-  this->atm = Atmosphere(); // Mostly finished ctor??
   // might need to set the cd* and the ed* ???
 
   BOOST_LOG_SEV(glg, debug) << "Setup the NEW STYLE CLIMATE OBJECT ...";
@@ -131,8 +129,6 @@ Cohort::~Cohort() {
 void Cohort::initSubmodules() {
 
   //atmosphere module pointers
-  atm.setCohortData(&cd);
-  atm.setEnvData(edall);
   // ecosystem domain
   veg.setCohortData(&cd);
   veg.setCohortLookup(&chtlu);
@@ -200,10 +196,6 @@ void Cohort::initSubmodules() {
 
 //The following 'set...' functions allow initialized data pointers
 //  outside be used here
-void Cohort::setTime(Timer * timerp) {
-  timer = timerp;
-};
-
 void Cohort::setModelData(ModelData* mdp) {
   md = mdp;
 };
@@ -336,7 +328,6 @@ void Cohort::initStatePar() {
 
 void Cohort::prepareAllDrivingData() {
   // climate monthly data for all atm years
-  atm.prep_drivingdata_onecht_all_yrsmonths(this->lat);
 
   //fire driving data (if input) for all years
   if (!md->get_friderived() && !md->runeq) {
@@ -373,11 +364,9 @@ void Cohort::prepareDayDrivingData(const int & yrindx, const int & usedatmyr) {
       changeco2 = false;
     }
 
-    atm.prepareDayDrivingData(yrindx, usedatmyr, changeclm, changeco2);
   } else {
     //run the model at eq stage, climate and co2
     //  driver not controlled by setting in control file.
-    atm.prepareDayDrivingData(yrindx, usedatmyr, false, false);
   }
 };
 

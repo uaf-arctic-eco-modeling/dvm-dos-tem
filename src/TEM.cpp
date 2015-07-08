@@ -130,11 +130,12 @@ int main(int argc, char* argv[]){
 
   BOOST_LOG_SEV(glg, note) << "Start dvmdostem @ " << ctime(&stime);
 
+  // whoops, re-implemented this in Climate...
   // Read in C02 - read all data (years) even though some stages/configurations
   //               may use only the first year
   std::vector<float> co2_vec = read_new_co2_file("scripts/new-co2-dataset.nc");
   
-  // NOTE: Are there any conttraints on the length of the co2 vector??
+  // NOTE: Are there any constraints on the length of the co2 vector??
   
   /* Can read the input data and parameters to choose a few things:
   
@@ -209,6 +210,20 @@ int main(int argc, char* argv[]){
 
             if (modeldata.runeq) {
 
+              ///** Env module only "pre-run".
+              //  - create the climate from the average of the first X years
+              //    of the driving climate data. 
+              //    SIZE: 12 months,  1 year
+              //  - turn off everything but env module
+              //  - set yrs since dsb
+              //  - run_years( 0 <= iy <= X )
+              //  - ignore the calibration directives
+              //
+              //  * what should the plots look like? static/constant env
+              //    variables I think, nothing else? except there is some
+              //    thing cacluated in the water balance module...
+              //*/
+
               runner.cohort.md->set_envmodule(true);
               runner.cohort.md->set_bgcmodule(false);
               runner.cohort.md->set_nfeed(false);
@@ -224,15 +239,14 @@ int main(int argc, char* argv[]){
               runner.run_years(0, 100, "pre-run", calcontroller_ptr);
 
               if (calcontroller_ptr) {
-                BOOST_LOG_SEV(glg, info) << "CALIBRATION MODE. Pausing. "
-                                         << "Please check that the 'warm up' "
-                                         << "data looks good.";
+                BOOST_LOG_SEV(glg, info)
+                    << "CALIBRATION MODE. Pausing. Please check that the "
+                    << "'warm up' data looks good.";
 
                 calcontroller_ptr->pause();
 
                 calcontroller_ptr->clear_and_create_json_storage();
               }
-
 
               runner.cohort.md->set_envmodule(true);
               runner.cohort.md->set_dvmmodule(true);
@@ -241,8 +255,8 @@ int main(int argc, char* argv[]){
               runner.cohort.md->set_dsbmodule(true);
               // baseline? avln? friderived? nfeed?
 
-//              changing climate?: NO - use avgX values
-//              changing CO2?:     NO - use static value
+              //  changing climate?: NO - use avgX values
+              //  changing CO2?:     NO - use static value
 
               runner.run_years(0, MAX_EQ_YR, "eq-run", calcontroller_ptr);
 
@@ -251,48 +265,7 @@ int main(int argc, char* argv[]){
             if (modeldata.runsp) {
 
             }
-///** Env module only "pre-run".
-//  - create the climate from the average of the first X years
-//    of the driving climate data. 
-//    SIZE: 12 months,  1 year
-//  - turn off everything but env module
-//  - set yrs since dsb
-//  - run_years( 0 <= iy <= X )
-//  - ignore the calibration directives
-//
-//  * what should the plots look like? static/constant env
-//    variables I think, nothing else? except there is some
-//    thing cacluated in the water balance module...
-//*/
 
-            
-            // hmm need to setup the cd* in cohort.atm properly before calling
-            // the climate loading function. But if I put this call here, then it
-            // must do some other stuff, as PET and EET come out NaN in the json files
-            //runner.cohort.initSubmodules();
-            
-            runner.cohort.atm.setCohortData(&runner.cohort.cd);
-
-            // should we need to call all these cohort setup functions?
-            // Or assume that when a Runner is created, for a spatial
-            // location, the Cohort is smart enough to correctly "load"
-            // itself with all the right stuff...?
-            // Reads a new style climate file and sets arrays in cohort.cd
-            runner.cohort.NEW_load_climate_from_file(rowidx, colidx);
-            runner.cohort.prepareAllDrivingData(); // <-- This is not a final solution here!!!
-            runner.cohort.NEW_load_fire_from_file(rowidx, colidx);
-            runner.cohort.NEW_load_veg_class_from_file(rowidx, colidx);
-
-            runner.cohort.initSubmodules();
-            runner.cohort.initStatePar();
-
-            // hard coding module on/off here for testing...
-            runner.cohort.md->set_envmodule(true);
-            runner.cohort.md->set_dvmmodule(true);
-            runner.cohort.md->set_dslmodule(true);
-            runner.cohort.md->set_bgcmodule(true);
-            runner.cohort.md->set_dsbmodule(false);
-            
             // NOTE: Could have an option to set some time constants based on
             //       some sizes/dimensions of the input driving data...
 
@@ -324,38 +297,6 @@ int main(int argc, char* argv[]){
                 
             */
 
-            if (modeldata.runeq) {
-              runner.quick_env_only_warmup_run(0, 100, calcontroller_ptr);
-            }
-
-            if (calcontroller_ptr) {
-              BOOST_LOG_SEV(glg, info) << "CALIBRATION MODE. Pausing. "
-                                       << "Please check that the 'warm up' "
-                                       << "data looks good.";
-
-              calcontroller_ptr->pause();
-
-              calcontroller_ptr->clear_and_create_json_storage();
-
-              BOOST_LOG_SEV(glg, info) << "Set default calibration module settings...";
-              runner.cohort.md->set_envmodule(true);
-              runner.cohort.md->set_bgcmodule(true);
-              runner.cohort.md->set_nfeed(false);
-              runner.cohort.md->set_avlnflg(true);
-              runner.cohort.md->set_baseline(true);
-              runner.cohort.md->set_dsbmodule(false);
-              runner.cohort.md->set_dslmodule(false);
-              runner.cohort.md->set_dvmmodule(true);
-              runner.cohort.md->set_friderived(true);
-            } else {
-                BOOST_LOG_SEV(glg, warn) << "EXTRAPOLATION MODE. Anything special to do?";
-            }
-            // Determine year settings? list of years to run based on stage?
-            // Or simply base off of the amount of the inputdataset?
-            //??
-            //timesettings_from_stage();
-            runner.run_years(0, 1000, "", calcontroller_ptr);
-
           } else {
             BOOST_LOG_SEV(glg, debug) << "Skipping cell (" << rowidx << ", " << colidx << ")";
           }
@@ -364,7 +305,7 @@ int main(int argc, char* argv[]){
     
       
     } else if(args->get_loop_order() == "time-major") {
-      
+      BOOST_LOG_SEV(glg, warn) << "DO NOTHING. NOT IMPLEMENTED YET.";
       // for each year
 
         // Read in Climate - all locations, one year/timestep
@@ -382,76 +323,76 @@ int main(int argc, char* argv[]){
     exit(-1);
   }
   
-  Runner runner;
-
-  if (controldata["general"]["runmode"].asString() == "single") {
-    runner.chtid = args->get_cohort_id();
-  }
-
-  runner.initInput(args->get_ctrl_file(), args->get_loop_order());
-  runner.initOutput();
-  runner.setupData();
-  runner.setupIDs();
-
-  if (controldata["general"]["runmode"].asString() == "single") {
-
-    if (args->get_cal_mode()) {
-      BOOST_LOG_SEV(glg, note) << "Turning CalibrationMode on in Runner (runner).";
-      runner.set_calibrationMode(true);
-
-      BOOST_LOG_SEV(glg, note) << "Clearing / creating folders for storing json files.";
-      CalController::clear_and_create_json_storage();
-
-    } else {
-      BOOST_LOG_SEV(glg, note) << "Running in extrapolation mode.";
-    }
-
-    runner.single_site();
-
-  } else if (controldata["general"]["runmode"].asString() == "multi") {
-
-    if (args->get_loop_order().compare("space-major") == 0) {
-      BOOST_LOG_SEV(glg, note) << "Running SPACE-MAJOR order: for each cohort, for each year";
-      runner.regional_space_major();
-    } else if (args->get_loop_order().compare("time-major") == 0){
-      BOOST_LOG_SEV(glg, note) << "Running TIME-MAJOR: for each year, for each cohort";
-      int rank;
-      int processors;
-      #ifdef WITHMPI
-        MPI_Init(&argc, &argv); // requires default args...empty?
-      
-        MPI_Comm_size(MPI_COMM_WORLD, &processors);
-        MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-        BOOST_LOG_SEV(glg, note) << "This is processor " << rank << " of "
-                                 << processors << " available on this system.";
-        if (processors > 2) {
-          // do the real work...
-          runner.regional_time_major(processors, rank);
-
-          BOOST_LOG_SEV(glg, note) << "Done with regional_time_major(...), "
-                                   << "(parallel (MPI) mode). Cleanup MPI...";
-          MPI_Finalize();
-
-        } else {
-          BOOST_LOG_SEV(glg, warn) << "Not enough processors on this system "
-                                   << "to run in parallel. Closing / finalizing "
-                                   << "the MPI environment and defaulting to "
-                                   << "serial operation.";
-          MPI_Finalize();
-          runner.regional_time_major(processors, rank);
-
-        }
-      #else
-        runner.regional_time_major(processors, rank);
-      #endif
-    } else {
-      BOOST_LOG_SEV(glg, fatal) << "Invalid loop-order! Must be " 
-                                << "'space-major', or 'time-major'. Quitting...";
-      exit(-1);
-    }
-  } else {
-    BOOST_LOG_SEV(glg, err) << "Unrecognized mode from control file? Quitting.";
-  }
+//  Runner runner;
+//
+//  if (controldata["general"]["runmode"].asString() == "single") {
+//    runner.chtid = args->get_cohort_id();
+//  }
+//
+//  runner.initInput(args->get_ctrl_file(), args->get_loop_order());
+//  runner.initOutput();
+//  runner.setupData();
+//  runner.setupIDs();
+//
+//  if (controldata["general"]["runmode"].asString() == "single") {
+//
+//    if (args->get_cal_mode()) {
+//      BOOST_LOG_SEV(glg, note) << "Turning CalibrationMode on in Runner (runner).";
+//      runner.set_calibrationMode(true);
+//
+//      BOOST_LOG_SEV(glg, note) << "Clearing / creating folders for storing json files.";
+//      CalController::clear_and_create_json_storage();
+//
+//    } else {
+//      BOOST_LOG_SEV(glg, note) << "Running in extrapolation mode.";
+//    }
+//
+//    runner.single_site();
+//
+//  } else if (controldata["general"]["runmode"].asString() == "multi") {
+//
+//    if (args->get_loop_order().compare("space-major") == 0) {
+//      BOOST_LOG_SEV(glg, note) << "Running SPACE-MAJOR order: for each cohort, for each year";
+//      runner.regional_space_major();
+//    } else if (args->get_loop_order().compare("time-major") == 0){
+//      BOOST_LOG_SEV(glg, note) << "Running TIME-MAJOR: for each year, for each cohort";
+//      int rank;
+//      int processors;
+//      #ifdef WITHMPI
+//        MPI_Init(&argc, &argv); // requires default args...empty?
+//      
+//        MPI_Comm_size(MPI_COMM_WORLD, &processors);
+//        MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+//        BOOST_LOG_SEV(glg, note) << "This is processor " << rank << " of "
+//                                 << processors << " available on this system.";
+//        if (processors > 2) {
+//          // do the real work...
+//          runner.regional_time_major(processors, rank);
+//
+//          BOOST_LOG_SEV(glg, note) << "Done with regional_time_major(...), "
+//                                   << "(parallel (MPI) mode). Cleanup MPI...";
+//          MPI_Finalize();
+//
+//        } else {
+//          BOOST_LOG_SEV(glg, warn) << "Not enough processors on this system "
+//                                   << "to run in parallel. Closing / finalizing "
+//                                   << "the MPI environment and defaulting to "
+//                                   << "serial operation.";
+//          MPI_Finalize();
+//          runner.regional_time_major(processors, rank);
+//
+//        }
+//      #else
+//        runner.regional_time_major(processors, rank);
+//      #endif
+//    } else {
+//      BOOST_LOG_SEV(glg, fatal) << "Invalid loop-order! Must be " 
+//                                << "'space-major', or 'time-major'. Quitting...";
+//      exit(-1);
+//    }
+//  } else {
+//    BOOST_LOG_SEV(glg, err) << "Unrecognized mode from control file? Quitting.";
+//  }
 
   etime=time(0);
   BOOST_LOG_SEV(glg, info) << "Done with dvmdostem @" << ctime(&etime);
