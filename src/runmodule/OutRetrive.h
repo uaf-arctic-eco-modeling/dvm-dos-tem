@@ -1,7 +1,6 @@
 #ifndef OUTRETRIVE_H_
 #define OUTRETRIVE_H_
 
-#include "Timer.h"
 #include "ModelData.h"
 
 #include "../data/EnvData.h"
