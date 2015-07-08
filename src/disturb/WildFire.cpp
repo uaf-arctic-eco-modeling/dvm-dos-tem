@@ -145,6 +145,7 @@ void WildFire::burn(const int severity) {
   assert ((severity >= 0) && (severity < 5) && "Invalid fire severity!");
   
   BOOST_LOG_SEV(glg, note) << "HELP!! - WILD FIRE!! RUN FOR YOUR LIFE!";
+
   fd->burn();
 
   // for soil part and root burning
