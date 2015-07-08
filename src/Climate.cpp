@@ -324,7 +324,7 @@ std::vector<float> Climate::monthly2daily(const std::vector<float>& mly_vals) {
   return cal_yr_daily;
 }
 
-// rough draft method to get "prev" Dec, this year, and "next" Dec that are
+// rough draft method to get "prev" Dec, this year, and "next" Jan that are
 // needed for monthly2daily interpolation...
 std::vector<float> Climate::eq_range(const std::vector<float>& data) {
   std::vector<float> foo;
@@ -341,7 +341,7 @@ std::vector<float> Climate::eq_range(const std::vector<float>& data) {
   return foo;
 }
 
-void Climate::preapre_daily_driving_data(int iy, const std::string& stage) {
+void Climate::prepare_daily_driving_data(int iy, const std::string& stage) {
 
   co2_d = co2.at(iy); // effectively the same value each day of the year
 
@@ -362,7 +362,7 @@ void Climate::preapre_daily_driving_data(int iy, const std::string& stage) {
     par_d = monthly2daily(eq_range(par));
 
     svp_d.resize(tair_d.size());
-    std::transform (tair_d.begin(), tair_d.end(), svp_d.begin(), calculate_saturated_vapor_pressure );
+    std::transform( tair_d.begin(), tair_d.end(), svp_d.begin(), calculate_saturated_vapor_pressure );
 
     vpd_d.resize(tair_d.size());
     std::transform( svp_d.begin(), svp_d.end(), vapo_d.begin(), vpd_d.begin(), calculate_vpd );

@@ -461,7 +461,7 @@ void Runner::run_years(int start_year, int end_year, const std::string& stage,
 
     /* Interpolate all the monthly values...? */
     //cohort.prepareDayDrivingData(iy, 0);
-    this->cohort.climate.preapre_daily_driving_data(iy, stage);
+    this->cohort.climate.prepare_daily_driving_data(iy, stage);
 
 
     if (cal_ctrl_ptr) { // should be null unless we are in "calibration mode"
