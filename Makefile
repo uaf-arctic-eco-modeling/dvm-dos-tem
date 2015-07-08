@@ -35,7 +35,6 @@ SOURCES= 	src/TEM.o \
 		src/data/EnvData.o \
 		src/data/EnvDataDly.o \
 		src/data/FirData.o \
-		src/data/GridData.o \
 		src/data/RestartData.o \
 		src/disturb/WildFire.o \
 		src/ecodomain/DoubleLinkedList.o \

@@ -23,6 +23,10 @@
 
 #include "WildFire.h"
 
+#include "../TEMLogger.h"
+
+extern src::severity_logger< severity_level > glg;
+
 WildFire::WildFire() {
 };
 
@@ -113,45 +117,55 @@ int WildFire::getOccur(const int &yrind, const bool & friderived) {
 
   if(friderived) {
     if( (yrind % cd->fri) == 0 && yrind > 0) {
-      //fire size, dervied from input probability of grid fire sizes
-      //*
-      double pdf = 0.;
 
-      for (int i=0; i<NUM_FSIZE; i++) {
-        if (cd->gd->pfsize[i]>=pdf) {
-          pdf=cd->gd->pfsize[i];
-          onesize = i; //find the size index with the most frequent fire size
-                       //  (need further modification using a
-                       //   randomness generator)
-        }
-      }
+      BOOST_LOG_SEV(glg, err) << "NOT IMPLEMENTED YET! Fire...";
 
-      //*/
-      //fire season, dervied from input probability of grid fire seasons
-      //fire season's month index order (0~11):
-      vector<int> firemonths;
-      //*
-      double pf = 0.;
+//      //fire size, dervied from input probability of grid fire sizes
+//      //*
+//      double pdf = 0.;
+//
+//      for (int i=0; i<NUM_FSIZE; i++) {
+//        if (cd->gd->pfsize[i]>=pdf) {
+//          pdf=cd->gd->pfsize[i];
+//          onesize = i; //find the size index with the most frequent fire size
+//                       //  (need further modification using a
+//                       //   randomness generator)
+//        }
+//      }
+//
+//      //*/
+//      //fire season, dervied from input probability of grid fire seasons
+//      //fire season's month index order (0~11):
+//      vector<int> firemonths;
+//      //*
+//      double pf = 0.;
+//
+//      for (int i=0; i<NUM_FSEASON; i++) {
+//        if (cd->gd->pfseason[i]>=pf) {
+//          pf=cd->gd->pfseason[i];
+//          oneseason = i+1; //find the season index with the most frequent
+//                           //  fire occurrence (need further modification
+//                           //  using a randomness generator)
+//        }
+//      }
+//
+//      //*/
+//      // get the fire month based on 'season'
+//      //Yuan: season: 1(pre-fireseason), 2(early fire), 3(late fire), and 4
+//      //  (post-fireseason), with 3 months in the order
+//      int morder[12] = {1,2,3, 4,5,6, 7,8,9, 10,11,0};
+//      int fsindx = oneseason-1; // 'season' category starting from 1
+//
+//      for (int i=0; i<3; i++) {
+//        firemonths.push_back(morder[fsindx*3+i]);
+//      }
 
-      for (int i=0; i<NUM_FSEASON; i++) {
-        if (cd->gd->pfseason[i]>=pf) {
-          pf=cd->gd->pfseason[i];
-          oneseason = i+1; //find the season index with the most frequent
-                           //  fire occurrence (need further modification
-                           //  using a randomness generator)
-        }
-      }
-
-      //*/
-      // get the fire month based on 'season'
-      //Yuan: season: 1(pre-fireseason), 2(early fire), 3(late fire), and 4
-      //  (post-fireseason), with 3 months in the order
-      int morder[12] = {1,2,3, 4,5,6, 7,8,9, 10,11,0};
-      int fsindx = oneseason-1; // 'season' category starting from 1
-
-      for (int i=0; i<3; i++) {
-        firemonths.push_back(morder[fsindx*3+i]);
-      }
+      std::vector<int> firemonths;
+      firemonths.push_back(4);
+      firemonths.push_back(5);
+      firemonths.push_back(6);
+      firemonths.push_back(7);
+      BOOST_LOG_SEV(glg, warn) << "TEMPORARILY HARDCODED FIRE SEASON!";
 
       //randomly pick-up a month for fire occurence
       random_shuffle(firemonths.begin(),firemonths.end());

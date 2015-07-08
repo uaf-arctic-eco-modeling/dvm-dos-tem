@@ -1,6 +1,8 @@
 #ifndef COHORTDATA_H_
 #define COHORTDATA_H_
 
+#include <deque>
+
 #include "../inc/errorcode.h"
 #include "../inc/timeconst.h"
 #include "../inc/cohortconst.h"
@@ -10,10 +12,6 @@
 
 #include "../runmodule/ModelData.h"
 
-#include "RegionData.h"
-#include "GridData.h"
-
-#include <deque>
 using namespace std;
 
 class CohortData {
@@ -83,9 +81,6 @@ public:
   deque <double> prvgrowingttimeque[NUM_PFT];
   // a deque-array to store previous 10 year 'topt'
   deque <double> toptque[NUM_PFT];
-
-  RegionData * rd;
-  GridData * gd;
 
   void beginOfYear();
   void beginOfMonth();

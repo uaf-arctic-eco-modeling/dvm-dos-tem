@@ -16,8 +16,6 @@
 
 #include "../disturb/WildFire.h"
 
-#include "../data/RegionData.h"
-#include "../data/GridData.h"
 #include "../data/CohortData.h"
 
 #include "../data/EnvData.h"
@@ -100,8 +98,6 @@ public :
   FirData * fd;   // this for all PFTs and their soil
 
   ModelData * md;
-  RegionData * rd;
-  GridData * gd;
 
   CohortData cd;
   RestartData resid;    //for input
@@ -118,7 +114,6 @@ public :
   void initSubmodules();
 
   void setModelData(ModelData* md);
-  void setInputData(RegionData * rd, GridData * gd);
   void setProcessData(EnvData * alledp, BgcData * allbdp, FirData *fdp);
 
   void initStatePar();

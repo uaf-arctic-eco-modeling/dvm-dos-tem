@@ -1,6 +1,8 @@
 #ifndef ENVDATA_H_
 #define ENVDATA_H_
 
+#include <deque>
+
 #include "../inc/diagnostics.h"
 #include "../inc/fluxes.h"
 #include "../inc/states.h"
@@ -12,11 +14,8 @@
 #include "../inc/cohortconst.h"
 
 #include "../Climate.h"
-#include "RegionData.h"
-#include "GridData.h"
 #include "CohortData.h"
 
-#include <deque>
 using namespace std;
 
 class EnvData {

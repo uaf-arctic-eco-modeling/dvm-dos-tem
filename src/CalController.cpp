@@ -13,7 +13,7 @@
 #include "CalController.h"
 #include "TEMLogger.h"
 #include "runmodule/Cohort.h"
-
+#include "TEMUtilityFunctions.h"
 
 extern src::severity_logger< severity_level > glg;
 

@@ -200,13 +200,6 @@ void Cohort::setModelData(ModelData* mdp) {
   md = mdp;
 };
 
-void Cohort::setInputData(RegionData * rdp, GridData * gdp) {
-  rd = rdp;
-  gd = gdp;
-  cd.rd = rd;
-  cd.gd = gd;
-};
-
 void Cohort::setProcessData(EnvData * alledp, BgcData * allbdp, FirData *fdp) {
   edall = alledp;
   bdall = allbdp;
@@ -274,9 +267,11 @@ void Cohort::initStatePar() {
         z += ground.mineral.dz[i];
 
         if (z <= 0.30) {   //assuming the grid top-soil texture is for top 30 cm
-          ground.mineral.texture[i] = gd->topsoil;
+          BOOST_LOG_SEV(glg, err) << "NOT IMPLEMENTED YET!!! Setting mineral texture...";
+          //ground.mineral.texture[i] = gd->topsoil;
         } else {
-          ground.mineral.texture[i] = gd->botsoil;
+          BOOST_LOG_SEV(glg, err) << "NOT IMPLEMENTED YET!!! Setting mineral texture...";
+          //ground.mineral.texture[i] = gd->botsoil;
         }
       }
     }
