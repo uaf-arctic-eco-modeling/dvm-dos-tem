@@ -128,13 +128,13 @@ calibration_targets = {
       'Root':                    [    0.08,    0.56,    0.04,    0.01,     0.12,    0.17,     0.07,      0.0,       0.0,     0.0 ], # vegnr     (gN/m2)
     },
     'MossDeathC':              178.00,    #  dmossc
-    'CarbonShallow':          4957.00,    #  shlwc
-    'CarbonDeep':             4531.00,    #  deepc
-    'CarbonMineralSum':     131321.00,    #  minec
-    'OrganicNitrogenSum':     5896.00,    #  soln
-    'AvailableNitrogenSum':      3.93,    #  avln
+    'CarbonShallow':          6607.00,    #  shlwc
+    'CarbonDeep':            10529.00,    #  deepc
+    'CarbonMineralSum':      26758.00,    #  minec
+    'OrganicNitrogenSum':     8444.00,    #  soln
+    'AvailableNitrogenSum':      1.71,    #  avln
   },
-  ## WARNING: Please consider these values carefully before using them. Tucker, 12Feb15.
+  ## WARNING: JUNK, PLACEHOLDER VALUES! USE AT YOUR OWN RISK!
   "tussock tundra": {
     'cmtnumber': 5,
                                  #    pft0     pft1      pft2      pft3     pft4     pft5     pft6     pft7     pft8    pft9   
@@ -153,12 +153,12 @@ calibration_targets = {
       'Stem':                    [   0.020,   0.207,    0.210,    0.000,   0.000,    0.00,    0.00,    0.00,    0.00,   0.00 ], # vegnw     (gN/m2)
       'Root':                    [   0.021,   0.216,    0.188,    0.796,   0.193,    0.00,    0.00,    0.00,    0.00,   0.00 ], # vegnr     (gN/m2)
     },
-    'MossDeathC':              1078.00,    #  dmossc
-    'CarbonShallow':           6607.00,    #  shlwc
-    'CarbonDeep':             10529.00,    #  deepc
-    'CarbonMineralSum':      276758.00,    #  minec
-    'OrganicNitrogenSum':      8444.00,    #  soln
-    'AvailableNitrogenSum':       1.71,    #  avln
+    'MossDeathC':               178.00,    #  dmossc
+    'CarbonShallow':          10612.00,    #  shlwc
+    'CarbonDeep':             20712.00,    #  deepc
+    'CarbonMineralSum':       24112.00,    #  minec
+    'OrganicNitrogenSum':      2220.00,    #  soln
+    'AvailableNitrogenSum':       1.76,    #  avln
   },
   ## WARNING: JUNK, PLACEHOLDER VALUES! USE AT YOUR OWN RISK!
   "wet sedge tundra": {

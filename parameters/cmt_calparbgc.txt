@@ -132,10 +132,10 @@
 // soil calibrated parameters
 6.65         // micbnup: parameter for soil microbial immobialization of N
 0.009        // kdcmoss:
-0.0019       // kdcrawc: raw-material (litter) C decompositin rates at reference condition
-0.0004       // kdcsoma:
-0.00003      // kdcsompr:
-0.000003     // kdcsomcr:
+0.012       // kdcrawc: raw-material (litter) C decompositin rates at reference condition
+0.006       // kdcsoma:
+0.0003      // kdcsompr:
+0.00003     // kdcsomcr:
 //===========================================================
 // CMT06 // Wet Sedge Tundra - (max. 10 PFTs over 1 soil column) (BGC) plant calibrated parameters
 //Decid.     Sedges       Grasses      Forbs        Lichens      Feather      Sphag.       PFT7       PFT8         PFT9         // names: comments                  
