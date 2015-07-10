@@ -8,7 +8,7 @@
 extern src::severity_logger< severity_level > glg;
 
 Layer::Layer() {
-  BOOST_LOG_SEV(glg, debug) << "Creating a layer object...";
+  BOOST_LOG_SEV(glg, debug) << "Creating a (generic) layer object...";
   nextl= NULL;
   prevl= NULL;
   isSnow = false;
