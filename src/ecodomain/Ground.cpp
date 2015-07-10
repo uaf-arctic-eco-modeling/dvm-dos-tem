@@ -17,6 +17,9 @@
  *
  */
 
+#include <iomanip>
+#include <string>
+#include <sstream>
 #include "Ground.h"
 #include "../TEMLogger.h"
 extern src::severity_logger< severity_level > glg;
@@ -40,6 +43,56 @@ Ground::Ground() {
 Ground::~Ground() {
   cleanAllLayers();
 }
+
+/** A multi-line report describing Ground's layers...
+  all layers found between
+*/
+std::string Ground::layer_report_string() {
+
+  std::stringstream report;
+  report << "==== LAYER REPORT ====\n";
+
+  Layer* current_layer = this->toplayer;
+
+  if (current_layer == NULL) {
+    report << " (No Layers - nothing to report...)";
+  }
+  
+  // iterate the layer pointers
+  int idx = 0;
+  while (current_layer != NULL) {
+    // do stuff with current_layer
+    std::stringstream ls;
+    ls << "[" << std::right << setw(3) << idx << "] "
+       << "dz:"  << std::right << setw(8) << current_layer->dz << " "
+
+       << "z:" << std::right << setw(8) << current_layer->z << " "
+
+       << "tem:" << std::right << setw(8) << current_layer->tem << " "
+       << "rawc:" << std::right << setw(8) << current_layer->rawc << " "
+
+       << "T/ST KEY:" << std::right << setw(2) << current_layer->tkey << "/" << current_layer->stkey << " "
+
+       << "isSnow:" << std::right << setw(2) << current_layer->isSnow << " "
+       << "isSoil:" << std::right << setw(2) << current_layer->isSoil<< " "
+       << "isRock:" << std::right << setw(2) << current_layer->isRock << " "
+       << "isMoss:" << std::right << setw(2) << current_layer->isMoss << " "
+       << "isMineral:" << std::right << setw(2) << current_layer->isMineral << " "
+       << "isOrganic:" << std::right << setw(2) << current_layer->isOrganic << " "
+       << "isFibric:" << std::right << setw(2) << current_layer->isFibric << " "
+       << "isHumic:" << std::right << setw(2) << current_layer->isHumic << " "
+
+       << std::endl;
+
+    report << ls.str();
+
+    // increment the current layer pointer
+    ++idx;
+    current_layer = current_layer->nextl;
+  }
+  return report.str();
+}
+
 
 //
 void Ground::initParameter() {

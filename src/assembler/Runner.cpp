@@ -48,11 +48,15 @@ void Runner::run_years(int start_year, int end_year, const std::string& stage,
 
   /** YEAR TIMESTEP LOOP */
   for (int iy = start_year; iy < end_year; ++iy) {
+    BOOST_LOG_SEV(glg, warn) << "(Begining of year loop) " << cohort.ground.layer_report_string();
 
     /* Interpolate all the monthly values...? */
     //cohort.prepareDayDrivingData(iy, 0);
     this->cohort.climate.prepare_daily_driving_data(iy, stage);
 
+    // looking like I need to call cohort.initStatePar() here...
+    this->cohort.initStatePar();
+    BOOST_LOG_SEV(glg, warn) << "(Right after initStatePar) " << cohort.ground.layer_report_string();
 
     if (cal_ctrl_ptr) { // should be null unless we are in "calibration mode"
 
@@ -80,12 +84,14 @@ void Runner::run_years(int start_year, int end_year, const std::string& stage,
 
     } /* end month loop */
 
-    BOOST_LOG_SEV(glg, note) << "Completed year " << iy << " for cohort/cell (row,col): (" << this->y << "," << this->x << ")";
+    //BOOST_LOG_SEV(glg, warn) << "(END OF YEAR) " << cohort.ground.layer_report_string();
 
     if(cal_ctrl_ptr) { // check args->get_cal_mode() or calcontroller_ptr? ??
       BOOST_LOG_SEV(glg, debug) << "Send yearly calibration data to json files...";
       this->output_caljson_yearly(iy);
     }
+
+    BOOST_LOG_SEV(glg, note) << "Completed year " << iy << " for cohort/cell (row,col): (" << this->y << "," << this->x << ")";
 
   } /* end year loop */
 }
