@@ -15,10 +15,6 @@ from osgeo import gdal
 #for now, keep to a rectangular requirement?
 #Maintain CF and COARDS standards
 
-
-#read from TIF?
-#output in netCDF
-
 #Select y,x or lat,lon bounding box coordinates for use
 
 
@@ -172,13 +168,15 @@ if __name__ == '__main__':
         '''),
   )
 
-  parser.add_argument('--dim', default=1, type=int,
+  parser.add_argument('--dim', default=10, type=int,
                       help="Width and height of square selection")
+
+  parser.add_argument('--dir', default="/vagrant/",
+                      help="Directory containing input TIFs")
 
   print "Parsing command line arguments";
   args = parser.parse_args()
   print args
-
 
 #Pick bounding box coordinates to use with gdal_translate for subsetting the AIEM domain data files from SNAP. Current files from SNAP are Alaska Albers, 1km pixel size
 
@@ -208,8 +206,8 @@ if __name__ == '__main__':
 #    -co GDAL_NETCDF_BOTTOMUP=YES -srcwin 915 292 10 10 \
 #    temporary_with_lonlat.nc temp_subset_with_lonlat.nc
 
-  x_dim = 10;
-  y_dim = 10;
+  x_dim = args.dim;
+  y_dim = args.dim;
 
   make_fire_dataset("sc-new-fire-dataset.nc", sizey=y_dim, sizex=x_dim);
 
@@ -260,11 +258,61 @@ if __name__ == '__main__':
     new_climatedataset.variables['nirr'][:] = junkB
     new_climatedataset.variables['vapor_press'][:] = junkC
 
-  new_climatedataset.close()
 ####
 
 ####
-  #
+  #Populate input file with data from TIFs
+  with netCDF4.Dataset('new-climate-dataset.nc', mode='a') as new_climatedataset:
+
+    for yridx, year in enumerate(range(2010, 2010+YEARS)):
+      for midx, month in enumerate(range (1,13)): # Note 1 based month!
+        print year, month
+        # TRANSLATE TO NETCDF
+        # The curly braces are needed to run the shell command from w/in
+        # ipython and have the variable exansion with year and month
+        # work out alright
+        print "Converting tif --> netcdf..."
+        print('gdal_translate -of netCDF /vagrant/tas_mean_C_iem_cccma_cgcm3_1_sresa1b_2001_2100/tas_mean_C_iem_cccma_cgcm3_1_sresa1b_' + str(month) + '_' + str(year) + '.tif sc-temporary_tair.nc')
+        #call('gdal_translate -of netCDF /vagrant/tas_mean_C_iem_cccma_cgcm3_1_sresa1b_2001_2100/tas_mean_C_iem_cccma_cgcm3_1_sresa1b_' + str(month) + '_' + str(year) + '.tif sc-temporary_tair.nc')
+        call("gdal_translate -of netCDF /vagrant/tas_mean_C_iem_cccma_cgcm3_1_sresa1b_2001_2100/tas_mean_C_iem_cccma_cgcm3_1_sresa1b_01_2010.tif sc-temporary_tair.nc")
+        #gdal_translate -of netCDF {"/vagrant/tas_mean_C_iem_cccma_cgcm3_1_sresa1b_2001_2100/tas_mean_C_iem_cccma_cgcm3_1_sresa1b_%02d_%04d.tif" % (month, year)} temporary_tair.nc
+
+        #gdal_translate -of netCDF {"/vagrant/rsds_mean_MJ-m2-d1_iem_cccma_cgcm3_1_sresa1b_2001_2100/rsds_mean_MJ-m2-d1_iem_cccma_cgcm3_1_sresa1b_%02d_%04d.tif" % (month, year)} temporary_rsds.nc
+
+        #gdal_translate -of netCDF {"/vagrant/pr_total_mm_iem_cccma_cgcm3_1_sresa1b_2001_2100/pr_total_mm_iem_cccma_cgcm3_1_sresa1b_%02d_%04d.tif" % (month, year)} temporary_pr.nc
+
+        #gdal_translate -of netCDF {"/vagrant/vap_mean_hPa_iem_cccma_cgcm3_1_sresa1b_2001_2100/vap_mean_hPa_iem_cccma_cgcm3_1_sresa1b_%02d_%04d.tif" % (month, year)} temporary_vapo.nc
+
+
+        print "Subsetting...."
+        call('gdal_translate -of netCDF -srcwin 915 292 10 10 temporary_tair.nc sc-temporary_tair2.nc');
+        #gdal_translate -of netCDF -srcwin 915 292 10 10 temporary_rsds.nc temporary_rsds2.nc
+        #gdal_translate -of netCDF -srcwin 915 292 10 10 temporary_pr.nc temporary_pr2.nc
+        #gdal_translate -of netCDF -srcwin 915 292 10 10 temporary_vapo.nc temporary_vapo2.nc
+
+        print "Writing subset's data to new files..."
+        with netCDF4.Dataset('temporary_tair2.nc', mode='r') as t2:
+          # Grab the lat and lon from the temporary file
+          tair = new_climatedataset.variables['tair']
+          tair[yridx*12+midx] = t2.variables['Band1'][:]
+
+        with netCDF4.Dataset('temporary_rsds2.nc', mode='r') as t2:
+          # Grab the lat and lon from the temporary file
+          nirr = new_climatedataset.variables['nirr']
+          nirr[yridx*12+midx] = t2.variables['Band1'][:]
+                
+        with netCDF4.Dataset('temporary_pr2.nc', mode='r') as t2:
+          # Grab the lat and lon from the temporary file
+          prec = new_climatedataset.variables['precip']
+          prec[yridx*12+midx] = t2.variables['Band1'][:]
+
+        with netCDF4.Dataset('temporary_vapo2.nc', mode='r') as t2:
+          # Grab the lat and lon from the temporary file
+          vapo = new_climatedataset.variables['vapor_press']
+          vapo[yridx*12+midx] = t2.variables['Band1'][:]
+                
+  print "Done appending. Closing the new file"
+####
 
 #end Main
 
