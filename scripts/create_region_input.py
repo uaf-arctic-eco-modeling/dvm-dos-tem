@@ -262,7 +262,7 @@ if __name__ == '__main__':
 
 ####
   #Populate input file with data from TIFs
-  with netCDF4.Dataset('new-climate-dataset.nc', mode='a') as new_climatedataset:
+  with netCDF4.Dataset('sc-new-climate-dataset.nc', mode='a') as new_climatedataset:
 
     for yridx, year in enumerate(range(2010, 2010+YEARS)):
       for midx, month in enumerate(range (1,13)): # Note 1 based month!
@@ -272,41 +272,59 @@ if __name__ == '__main__':
         # ipython and have the variable exansion with year and month
         # work out alright
         print "Converting tif --> netcdf..."
-        print('gdal_translate -of netCDF /vagrant/tas_mean_C_iem_cccma_cgcm3_1_sresa1b_2001_2100/tas_mean_C_iem_cccma_cgcm3_1_sresa1b_' + str(month) + '_' + str(year) + '.tif sc-temporary_tair.nc')
-        #call('gdal_translate -of netCDF /vagrant/tas_mean_C_iem_cccma_cgcm3_1_sresa1b_2001_2100/tas_mean_C_iem_cccma_cgcm3_1_sresa1b_' + str(month) + '_' + str(year) + '.tif sc-temporary_tair.nc')
-        call("gdal_translate -of netCDF /vagrant/tas_mean_C_iem_cccma_cgcm3_1_sresa1b_2001_2100/tas_mean_C_iem_cccma_cgcm3_1_sresa1b_01_2010.tif sc-temporary_tair.nc")
-        #gdal_translate -of netCDF {"/vagrant/tas_mean_C_iem_cccma_cgcm3_1_sresa1b_2001_2100/tas_mean_C_iem_cccma_cgcm3_1_sresa1b_%02d_%04d.tif" % (month, year)} temporary_tair.nc
+        call(['gdal_translate', '-of', 'netCDF',
+              '/vagrant/tas_mean_C_iem_cccma_cgcm3_1_sresa1b_2001_2100/tas_mean_C_iem_cccma_cgcm3_1_sresa1b_%02d_%04d.tif'%(month,year),
+              'sc-temporary_tair.nc'])
 
-        #gdal_translate -of netCDF {"/vagrant/rsds_mean_MJ-m2-d1_iem_cccma_cgcm3_1_sresa1b_2001_2100/rsds_mean_MJ-m2-d1_iem_cccma_cgcm3_1_sresa1b_%02d_%04d.tif" % (month, year)} temporary_rsds.nc
 
-        #gdal_translate -of netCDF {"/vagrant/pr_total_mm_iem_cccma_cgcm3_1_sresa1b_2001_2100/pr_total_mm_iem_cccma_cgcm3_1_sresa1b_%02d_%04d.tif" % (month, year)} temporary_pr.nc
+        call(['gdal_translate', '-of', 'netCDF',
+              '/vagrant/rsds_mean_MJ-m2-d1_iem_cccma_cgcm3_1_sresa1b_2001_2100/rsds_mean_MJ-m2-d1_iem_cccma_cgcm3_1_sresa1b_%02d_%04d.tif'%(month, year),
+              'sc-temporary_rsds.nc'])
 
-        #gdal_translate -of netCDF {"/vagrant/vap_mean_hPa_iem_cccma_cgcm3_1_sresa1b_2001_2100/vap_mean_hPa_iem_cccma_cgcm3_1_sresa1b_%02d_%04d.tif" % (month, year)} temporary_vapo.nc
+        call(['gdal_translate', '-of', 'netCDF',
+              '/vagrant/pr_total_mm_iem_cccma_cgcm3_1_sresa1b_2001_2100/pr_total_mm_iem_cccma_cgcm3_1_sresa1b_%02d_%04d.tif'%(month, year),
+              'sc-temporary_pr.nc'])
+
+        call(['gdal_translate', '-of', 'netCDF',
+              '/vagrant/vap_mean_hPa_iem_cccma_cgcm3_1_sresa1b_2001_2100/vap_mean_hPa_iem_cccma_cgcm3_1_sresa1b_%02d_%04d.tif'%(month, year),
+              'sc-temporary_vapo.nc'])
 
 
         print "Subsetting...."
-        call('gdal_translate -of netCDF -srcwin 915 292 10 10 temporary_tair.nc sc-temporary_tair2.nc');
-        #gdal_translate -of netCDF -srcwin 915 292 10 10 temporary_rsds.nc temporary_rsds2.nc
-        #gdal_translate -of netCDF -srcwin 915 292 10 10 temporary_pr.nc temporary_pr2.nc
-        #gdal_translate -of netCDF -srcwin 915 292 10 10 temporary_vapo.nc temporary_vapo2.nc
+        call(['gdal_translate', '-of', 'netCDF', '-srcwin',
+              '915', '292', '10', '10',
+              'sc-temporary_tair.nc', 'sc-temporary_tair2.nc']);
+
+        call(['gdal_translate', '-of', 'netCDF', '-srcwin',
+              '915', '292', '10', '10',
+              'sc-temporary_rsds.nc', 'sc-temporary_rsds2.nc']);
+
+        call(['gdal_translate', '-of', 'netCDF', '-srcwin',
+              '915', '292', '10', '10',
+              'sc-temporary_pr.nc', 'sc-temporary_pr2.nc']);
+
+        call(['gdal_translate', '-of', 'netCDF', '-srcwin',
+              '915', '292', '10', '10',
+              'sc-temporary_vapo.nc', 'sc-temporary_vapo2.nc']);
+
 
         print "Writing subset's data to new files..."
-        with netCDF4.Dataset('temporary_tair2.nc', mode='r') as t2:
+        with netCDF4.Dataset('sc-temporary_tair2.nc', mode='r') as t2:
           # Grab the lat and lon from the temporary file
           tair = new_climatedataset.variables['tair']
           tair[yridx*12+midx] = t2.variables['Band1'][:]
 
-        with netCDF4.Dataset('temporary_rsds2.nc', mode='r') as t2:
+        with netCDF4.Dataset('sc-temporary_rsds2.nc', mode='r') as t2:
           # Grab the lat and lon from the temporary file
           nirr = new_climatedataset.variables['nirr']
           nirr[yridx*12+midx] = t2.variables['Band1'][:]
                 
-        with netCDF4.Dataset('temporary_pr2.nc', mode='r') as t2:
+        with netCDF4.Dataset('sc-temporary_pr2.nc', mode='r') as t2:
           # Grab the lat and lon from the temporary file
           prec = new_climatedataset.variables['precip']
           prec[yridx*12+midx] = t2.variables['Band1'][:]
 
-        with netCDF4.Dataset('temporary_vapo2.nc', mode='r') as t2:
+        with netCDF4.Dataset('sc-temporary_vapo2.nc', mode='r') as t2:
           # Grab the lat and lon from the temporary file
           vapo = new_climatedataset.variables['vapor_press']
           vapo[yridx*12+midx] = t2.variables['Band1'][:]
