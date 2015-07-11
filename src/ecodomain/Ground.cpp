@@ -24,6 +24,16 @@
 #include "../TEMLogger.h"
 extern src::severity_logger< severity_level > glg;
 
+std::string soildesc2tag(const bool val, std::string tag) {
+  if (val) {
+    std::stringstream ss;
+    ss << std::setw(10) << std::right << tag;
+    return ss.str();
+  } else {
+    return "";
+  }
+}
+
 Ground::Ground() {
   fstsoill = NULL;
   lstsoill = NULL;
@@ -64,23 +74,23 @@ std::string Ground::layer_report_string() {
     // do stuff with current_layer
     std::stringstream ls;
     ls << "[" << std::right << setw(3) << idx << "] "
-       << "dz:"  << std::right << setw(8) << current_layer->dz << " "
+       << "dz:" << std::right << setw(10) << std::setprecision(8) << current_layer->dz << " "
 
-       << "z:" << std::right << setw(8) << current_layer->z << " "
+       << "z:" << std::right << setw(10) << std::setprecision(8) << current_layer->z << " "
 
-       << "tem:" << std::right << setw(8) << current_layer->tem << " "
-       << "rawc:" << std::right << setw(8) << current_layer->rawc << " "
+       << "tem:" << std::right << setw(8) << std::setprecision(6) << current_layer->tem << " "
+       << "rawc:" << std::right << setw(8) << std::setprecision(6) << current_layer->rawc << " "
 
        << "T/ST KEY:" << std::right << setw(2) << current_layer->tkey << "/" << current_layer->stkey << " "
 
-       << "isSnow:" << std::right << setw(2) << current_layer->isSnow << " "
-       << "isSoil:" << std::right << setw(2) << current_layer->isSoil<< " "
-       << "isRock:" << std::right << setw(2) << current_layer->isRock << " "
-       << "isMoss:" << std::right << setw(2) << current_layer->isMoss << " "
-       << "isMineral:" << std::right << setw(2) << current_layer->isMineral << " "
-       << "isOrganic:" << std::right << setw(2) << current_layer->isOrganic << " "
-       << "isFibric:" << std::right << setw(2) << current_layer->isFibric << " "
-       << "isHumic:" << std::right << setw(2) << current_layer->isHumic << " "
+       << soildesc2tag(current_layer->isSnow, "snow")
+       << soildesc2tag(current_layer->isSoil, "soil")
+       << soildesc2tag(current_layer->isRock, "rock")
+       << soildesc2tag(current_layer->isMoss, "moss")
+       << soildesc2tag(current_layer->isMineral, "mineral")
+       << soildesc2tag(current_layer->isOrganic, "organic")
+       << soildesc2tag(current_layer->isFibric, "fibric")
+       << soildesc2tag(current_layer->isHumic, "humic")
 
        << std::endl;
 
