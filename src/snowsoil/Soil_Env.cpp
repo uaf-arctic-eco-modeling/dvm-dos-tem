@@ -621,31 +621,31 @@ double Soil_Env::getEvaporation(const double & dayl, const double &rad) {
 // saturation of upper
 double Soil_Env::getWaterTable(Layer* lstsoill) {
   Layer* currl = lstsoill;
-  double wtd=0;
+  double wtd = 0.0;
   double s, dz, por;
   double thetai, thetal;
-  bool bottomsat = true;   //Yuan: initialize the bottom layer as saturated
-  double sums=0.;
-  double ztot=0.;
+  bool bottomsat = true;   // Yuan: initialize the bottom layer as saturated
+  double sums = 0.0;
+  double ztot = 0.0;
 
-  while (currl!=NULL) {
+  while (currl != NULL) {
     if(!currl->isRock) {
       dz = currl->dz;
-      ztot +=dz;
+      ztot += dz;
       por = currl->poro;
       thetai = currl->getVolIce();
       thetai = fmin(por, thetai);
       thetal = currl->getVolLiq();
-      thetal = fmin(por-thetai, thetal);
-      s= thetal/(por-thetai);
+      thetal = fmin( por - thetai, thetal );
+      s = thetal / (por - thetai);
 
       if (bottomsat) {    //if bottom-layer saturated
-        if (s>0.999) {   //
+        if (s > 0.999) {   //
           sums = ztot;
         } else {
           bottomsat = false;
-          sums+=(fmax(0., s-0.6))/(1.0-0.6)*dz;
-          //if over 0.6 saturation, let the lower porition be part of
+          sums += fmax(0.0, s-0.6) / (1.0-0.6)*dz;
+          // if over 0.6 saturation, let the lower portion be part of
           // below water table. this is arbitrary, but useful if the
           // deeper layer is thick (1 or 2 m)
         }
@@ -656,12 +656,12 @@ double Soil_Env::getWaterTable(Layer* lstsoill) {
       }
     }
 
-    currl=currl->prevl;
+    currl = currl->prevl;
   }
 
   wtd = ztot - sums;  //the water table is measured from ground surface
   return wtd;
-};
+}
 
 //
 double Soil_Env::getRunoff(Layer* toplayer, Layer* drainl,
