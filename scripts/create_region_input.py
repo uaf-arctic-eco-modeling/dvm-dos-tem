@@ -154,7 +154,6 @@ def create_empty_climate_nc_file(filename, sizey=10, sizex=10):
 
 
 
-
 if __name__ == '__main__':
 
   parser = argparse.ArgumentParser(
@@ -181,25 +180,14 @@ if __name__ == '__main__':
 #Pick bounding box coordinates to use with gdal_translate for subsetting the AIEM domain data files from SNAP. Current files from SNAP are Alaska Albers, 1km pixel size
 
 #Specifying the "creation option" means that special variables will be written to the new netcdf file mapping row/column coordinates to lat/lon
-
-#  "../../snap-data/tas_mean_C_iem_cccma_cgcm3_1_sresa1b_2001_2100/tas_mean_C_iem_cccma_cgcm3_1_sresa1b_01_2001.tif"
-
-#The following has the complete path.
-#  call(["gdal_translate", " -of netCDF", " -co \"WRITE_LONLAT=YES\"", \
-#        "../../snap-data/tas_mean_C_iem_cccma_cgcm3_1_sresa1b_2001_2100/tas_mean_C_iem_cccma_cgcm3_1_sresa1b_01_2001.tif", \
-#        "sc_temporary_with_lonlat.nc"]);
-
-#  call(["gdal_translate", " -of netCDF", " -co \"WRITE_LONLAT=YES\"", \
-#        "tas_mean_C_iem_cccma_cgcm3_1_sresa1b_01_2001.tif", \
-#        "sc_temporary_with_lonlat.nc"]);
+#  call(['gdal_translate', '-of', 'netCDF', '-co', '\"WRITE_LONLAT=YES\"',
+#        'tas_mean_C_iem_cccma_cgcm3_1_sresa1b_01_2001.tif',
+#        'sc_temporary_with_lonlat.nc']);
 
 
-#  src_data = gdal.open("tas_mean_C_iem_cccma_cgcm3_1_sresa1b_01_2001.tif")
-#  driver = gdal.GetDriverByName("netCDF")
-#  dst_data = driver.CreateCopy("sc_temp.nc", src_data, 0)
-
-#  call("gdal_translate -of netCDF -co \"WRITE_LONLAT=YES\" ../../snap-data/tas_mean_C_iem_cccma_cgcm3_1_sresa1b_2001_2100/tas_mean_C_iem_cccma_cgcm3_1_sresa1b_01_2001.tif sc_temporary_with_lonlat.nc");
-
+#        call(['gdal_translate', '-of', 'netCDF', '-srcwin',
+#              '915', '292', '10', '10',
+#              'sc-temporary_tair.nc', 'sc-temporary_tair2.nc']);
 
 
 #  gdal_translate -of netCDF -co "WRITE_LONLAT=YES" \
@@ -241,7 +229,7 @@ if __name__ == '__main__':
 ####
 
 ####
-  #Populate new data file with data (for now, random)
+#  #Populate new data file with data (for now, random)
   with netCDF4.Dataset("sc-new-climate-dataset.nc", mode='a') as new_climatedataset:
     YEARS = 10
     TIMESTEPS = YEARS*12
