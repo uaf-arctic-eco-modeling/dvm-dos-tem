@@ -72,6 +72,9 @@ namespace temutil {
 
 
 
+
+  double NON_ZERO(const double val, const int sign);
+
   int day_of_year(int month, int day);
 
   float length_of_day(float lat, int doy);

@@ -126,25 +126,25 @@ void Soil_Env::initializeState() {
 
     while(currl!=NULL) {
       if(currl->isSoil) {
-        double ts  = ed->d_atms.ta;
         double psifc = -2.e6;  // filed capacity of -2MPsi
         psifc /=currl->psisat;
         double vwc = pow(abs(psifc), -1.0/currl->bsw);
-        currl->tem = ts;
 
-        if (currl->tem>0.) {
+        currl->tem = ed->d_atms.ta; // <== PROBLEM: what if ed->d_atms.ta is not set yet !??
+
+        if (currl->tem > 0.0) { // Above freezing
           currl->liq = fmax(currl->minliq,
                             fmax(currl->maxliq, vwc*currl->dz*DENLIQ));
-          currl->ice = 0.;
+          currl->ice = 0.0;
           currl->frozen = -1;
-        } else {
-          currl->ice = fmax(0., fmax(currl->maxice, vwc*currl->dz*DENICE));
-          currl->liq = 0.;
+        } else {                // Below freezing
+          currl->ice = fmax(0.0, fmax(currl->maxice, vwc*currl->dz*DENICE));
+          currl->liq = 0.0;
           currl->frozen = 1;
         }
 
-        currl->age =0;
-        currl->rho =0;    //soil layer's actual density NOT used in model
+        currl->age = 0;
+        currl->rho = 0;    //soil layer's actual density NOT used in model
       } else if (currl->isRock) {
         currl->tem = currl->prevl->tem;
         currl->liq = currl->prevl->liq;
@@ -637,8 +637,13 @@ double Soil_Env::getWaterTable(Layer* lstsoill) {
       thetai = fmin(por, thetai);
       thetal = currl->getVolLiq();
       thetal = fmin( por - thetai, thetal );
-      s = thetal / (por - thetai);
-
+      if (por-thetai < 0.00000000001) {
+        s = thetal /  0.00000000001;
+      } else {
+      s = thetal / (por - thetai); // FIX THIS: potential divide by zero error
+                                   // Does not seem to propogate NaN via the
+                                   // return value?
+      }
       if (bottomsat) {    //if bottom-layer saturated
         if (s > 0.999) {   //
           sums = ztot;
@@ -802,8 +807,12 @@ void Soil_Env::retrieveDailyTM(Layer* toplayer, Layer *lstsoill) {
       ed->d_soid.iwc[soilind]= curr2->getVolIce();
       ed->d_soid.lwc[soilind]= curr2->getVolLiq();
       ed->d_soid.sws[soilind]= curr2->getVolLiq()/curr2->poro;
-      ed->d_soid.aws[soilind]= curr2->getVolLiq()
-                               / (curr2->poro-curr2->getVolIce());
+      if (curr2->poro-curr2->getVolIce() < 0.00000000000001) {
+        ed->d_soid.aws[soilind]          = 0.00000000000001;
+      } else {
+        ed->d_soid.aws[soilind]= curr2->getVolLiq()
+                                 / (curr2->poro-curr2->getVolIce());  // FIX THIS: divide by zero when poro == getVolIce()!
+      }
       ed->d_soid.tcond[soilind] = curr2->tcond;
       ed->d_soid.hcond[soilind] = curr2->hcond;
       // some cumulative variables for whole soil column

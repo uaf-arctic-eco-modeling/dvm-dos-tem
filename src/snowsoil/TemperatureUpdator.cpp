@@ -8,7 +8,10 @@
 #include "TemperatureUpdator.h"
 
 #include "../TEMLogger.h"
+#include "../TEMUtilityFunctions.h"
+
 extern src::severity_logger< severity_level > glg;
+
 
 TemperatureUpdator::TemperatureUpdator() {
   TSTEPMAX = 1;
@@ -110,7 +113,10 @@ void TemperatureUpdator::processColumnNofront(Layer* fstvalidl, Layer *backl, co
   while (currl != NULL) {
     ind++;
     dx[ind] = currl->dz;
-    t[ind] = currl->tem;
+    dx[ind] = temutil::NON_ZERO(dx[ind], 1);
+    
+    //std::cout << "Layer["<< ind <<"] currl->tem is " << currl->tem << std::endl;;
+    t[ind] = currl->tem; // THIS IS A PROBLEM IF LAYER has not been intialized!
 
     if (currl->isSnow) {
       type[ind] = 1;
@@ -199,6 +205,8 @@ void TemperatureUpdator::processAboveFronts(Layer* fstvalidl, Layer*fstfntl,
 
     ind++;
     dx[ind] = currl->dz;
+    dx[ind] = temutil::NON_ZERO(dx[ind], 1);
+
     t[ind] = currl->tem;
 
     if (currl->isSnow) {
@@ -226,7 +234,8 @@ void TemperatureUpdator::processAboveFronts(Layer* fstvalidl, Layer*fstfntl,
   if (dx[ind] < mindzlay) {
     dx[ind] = mindzlay;
   }
-
+  dx[ind] = temutil::NON_ZERO(dx[ind], 1);
+  
   if (frnttype == 1) {
     tca[ind] = fstfntl->getFrzThermCond();
     hcap = fstfntl->getFrzVolHeatCapa();
@@ -347,6 +356,7 @@ void TemperatureUpdator::processBetweenFronts(Layer*fstfntl, Layer*lstfntl,
   if (dx[ind] < mindzlay) {
     dx[ind] = mindzlay;
   }
+  dx[ind] = temutil::NON_ZERO(dx[ind], 1);
 
   if (frnttype1 == 1) {
     tca[ind] = fstfntl->getUnfThermCond(); //freezing front's bottom
@@ -372,6 +382,7 @@ void TemperatureUpdator::processBetweenFronts(Layer*fstfntl, Layer*lstfntl,
     ind++;
     t[ind] = currl->tem;
     dx[ind] = currl->dz;
+    dx[ind] = temutil::NON_ZERO(dx[ind], 1);
     tca[ind] = currl->getThermalConductivity();
     hcap = currl->getHeatCapacity();
     pce = abs(currl->pce_f - currl->pce_t);
@@ -391,6 +402,7 @@ void TemperatureUpdator::processBetweenFronts(Layer*fstfntl, Layer*lstfntl,
   if (dx[ind] < mindzlay) {
     dx[ind] = mindzlay;
   }
+  dx[ind] = temutil::NON_ZERO(dx[ind], 1);
 
   if (frnttype2 == 1) {
     tca[ind] = lstfntl->getFrzThermCond(); //freezing front's above is 'Frozen'
@@ -541,10 +553,12 @@ void TemperatureUpdator::processBelowFronts(Layer* backl, Layer*lstfntl,
   }
 
   dx[ind] = lstfntl->dz*frntdz;
-
   if (dx[ind] < mindzlay) {
     dx[ind] = mindzlay;
   }
+  dx[ind] = temutil::NON_ZERO(dx[ind], 1);
+
+
 
   if (frnttype == 1) {
     tca[ind] = lstfntl->getUnfThermCond();
@@ -565,6 +579,8 @@ void TemperatureUpdator::processBelowFronts(Layer* backl, Layer*lstfntl,
     ind++;
     t[ind] = currl->tem;
     dx[ind] = currl->dz;
+    dx[ind] = temutil::NON_ZERO(dx[ind], 1);
+
     tca[ind] = currl->getThermalConductivity();
     hcap = currl->getHeatCapacity();
     pce = abs(currl->pce_f - currl->pce_t);

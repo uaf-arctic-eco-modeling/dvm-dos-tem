@@ -27,6 +27,26 @@ extern src::severity_logger< severity_level > glg;
 
 namespace temutil {
   
+
+  /** Maybe useful for preventing divide by zero errors?
+      - probably not very effecient for production runs, but maybe helpful for 
+        debugging
+      - sign parameter lets you force the result to a given sign
+  */
+  double NON_ZERO(const double val, const int sign) {
+    assert((sign == 1 || sign == -1) && "Invalid parameter for sign. Must be 1, or -1");
+
+    if (val != 0) {
+      return val; // nothing to do, value is already non-zero.
+    }
+
+    // otherwise, return some arbitrary very small number
+    double vsm = 0.0000000000000001 * sign;
+    BOOST_LOG_SEV(glg, debug) << "NON_ZERO: setting to a very small number: " << vsm;
+    return vsm;
+
+  }
+
   /** Return the day of year based on month and day, everything is zero based. */
   int day_of_year(int month, int day) {
     return DOYINDFST[month] + day;
