@@ -64,6 +64,7 @@ Layer::Layer() {
 };
 
 Layer::~Layer() {
+  BOOST_LOG_SEV(glg, debug) << "Deleting a (generic) layer object...";
 };
 
 void Layer::advanceOneDay() {

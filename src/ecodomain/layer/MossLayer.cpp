@@ -48,4 +48,8 @@ MossLayer::MossLayer(const double &pdz, const int & newmosstype) {
   derivePhysicalProperty();
   // biogeochemical properties
   cfrac = 39.8; // %  O'Donnel et al. (GCB, 2011)
-};
+}
+
+MossLayer::~MossLayer(){
+  BOOST_LOG_SEV(glg, debug) << "--> --> Deleting a MossLayer object...";
+}

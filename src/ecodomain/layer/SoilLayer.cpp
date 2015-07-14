@@ -12,6 +12,7 @@ SoilLayer::SoilLayer() {
 };
 
 SoilLayer::~SoilLayer() {
+  BOOST_LOG_SEV(glg, debug) << "--> Deleting a SoilLayer object...";
 };
 
 double SoilLayer::getFrzVolHeatCapa() {

@@ -23,6 +23,7 @@ SnowLayer::SnowLayer() {
 };
 
 SnowLayer::~SnowLayer() {
+  BOOST_LOG_SEV(glg, debug) << "--> Deleting a Snow Layer object...";
 };
 
 void SnowLayer::clone(SnowLayer* sl) {

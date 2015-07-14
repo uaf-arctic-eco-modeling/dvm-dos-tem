@@ -19,6 +19,9 @@ MineralLayer::MineralLayer(const double & pdz, int sttype,
   isHumic  = false;
   updateProperty5Lookup(soillup);
 };
+MineralLayer::~MineralLayer() {
+  BOOST_LOG_SEV(glg, debug) << "--> --> Deleting a MineraLayer object...";
+}
 
 void MineralLayer::updateProperty5Lookup(SoilLookup * soillu) {
   poro    = soillu->poro[stkey];

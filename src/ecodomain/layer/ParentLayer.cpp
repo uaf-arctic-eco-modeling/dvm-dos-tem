@@ -17,6 +17,7 @@ ParentLayer::ParentLayer(const double & thick) {
 };
 
 ParentLayer::~ParentLayer() {
+  BOOST_LOG_SEV(glg, debug) << "--> Deleting a ParentLayer object...";
 };
 
 void ParentLayer::updateProperty() {
