@@ -193,6 +193,9 @@ int main(int argc, char* argv[]){
 
             BOOST_LOG_SEV(glg, debug) << "Running cell (" << rowidx << ", " << colidx << ")";
 
+            // IMPROVE THIS!
+            modeldata.initmode = 1;
+
             BOOST_LOG_SEV(glg, debug) << "Setup the NEW STYLE RUNNER OBJECT ...";
             Runner runner(modeldata, rowidx, colidx);
 
@@ -205,6 +208,8 @@ int main(int argc, char* argv[]){
             }
             BOOST_LOG_SEV(glg, warn) << runner.cohort.ground.layer_report_string();
             //runner.cohort.reinitialize(md->initsource);
+
+            runner.cohort.climate.prepare_daily_driving_data(0, "eq");
 
             runner.cohort.initSubmodules();
             runner.cohort.initStatePar();

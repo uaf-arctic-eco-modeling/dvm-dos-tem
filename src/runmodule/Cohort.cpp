@@ -59,6 +59,10 @@ Cohort::Cohort(int y, int x, ModelData* modeldatapointer):
   // might need to set the cd* and the ed* ???
 
   BOOST_LOG_SEV(glg, debug) << "Setup the NEW STYLE CLIMATE OBJECT ...";
+  // FIX: Historic? Projected?? how to handle both??
+  // Maybe:
+  //this->hist_climate = Climate(modeldatapointer->hist_climate, y, x);
+  //this->proj_climate = Climate(modeldatapointer->proj_climate, y, x);
   this->climate = Climate("scripts/new-climate-dataset.nc", y, x);
 
 //  BOOST_LOG_SEV(glg, debug) << "Setup the NEW STYLE atmosphere...";
@@ -216,6 +220,14 @@ void Cohort::setProcessData(EnvData * alledp, BgcData * allbdp, FirData *fdp) {
 //re-initializing for a new community of all PFTs sharing same
 //  atm/snow-soil domains within a grid
 void Cohort::initStatePar() {
+
+  // 7/10/2015 EXPERIMENT. Seems to help with soil temperature, but TDeep still comes out nan
+  edall->update_from_climate(this->climate, 0, 0);
+  for (int ipft = 0; ipft < NUM_PFT; ++ipft) {
+    this->ed[ipft].update_from_climate(this->climate, 0, 0);
+  }
+
+
   //
   if (md->initmode>=3) {
     cd.yrsdist = resid.yrsdist;
@@ -223,10 +235,10 @@ void Cohort::initStatePar() {
 
   // FOR VEGETATION
   //vegetation dimension/structure
-  veg.initializeParameter();
+  veg.initializeParameter(); // set values from chtlu...
 
   if(md->initmode<3) {     // from 'chtlu' or 'sitein'
-    veg.initializeState();
+    veg.initializeState(); // <==== mostly set values from chtlu...
   } else {     // initmode  >=3: restart
     veg.initializeState5restart(&resid);
   }
@@ -250,13 +262,14 @@ void Cohort::initStatePar() {
 
   // initialize dimension/structure for snow-soil
   // first read in the default initial parameter for snow/soil
-  ground.initParameter();
+  ground.initParameter(); // doesn't seem to touch any Layers...
+
   snowenv.initializeParameter();
   soilenv.initializeParameter();
   soilbgc.initializeParameter();
 
   if(md->initmode < 3) {   //lookup or sitein
-    ground.initDimension();   //read-in snow/soil structure from 'chtlu'
+    ground.initDimension();   //read-in snow/soil structure from 'chtlu', does not appear to touch Layer objects...?
 
     // reset the soil texture data from grid-level soil.nc, rather than 'chtlu',
     // Note that the mineral layer structure is already defined above
@@ -446,7 +459,7 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
 
   // (ii)Initialize the yearly/monthly accumulators, which are accumulating at the end of month/day in 'ed'
   for (int ip=0; ip<NUM_PFT; ip++) {
-    if (cd.d_veg.vegcov[ip]>0.) {
+    if (cd.d_veg.vegcov[ip] > 0.0) { // PROBLEM: looks like cd.d_veg.vegcov is not initialized yet??? (-77777)
       if(currmind==0) {
         ed[ip].atm_beginOfYear();
         ed[ip].veg_beginOfYear();
@@ -460,7 +473,7 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
   }
 
   //
-  if(currmind==0) {
+  if(currmind==0) { // zero all (most?) of the EnvData.y_atms values...
     edall->atm_beginOfYear();
     edall->veg_beginOfYear();
     edall->grnd_beginOfYear();
@@ -505,8 +518,8 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
     assignAtmEd2pfts_daily();
 
     for (int ip=0; ip<NUM_PFT; ip++) {
-      if (cd.d_veg.vegcov[ip]>0.) {
-        if (cd.d_veg.nonvascular<=0) {   // for vascular plants
+      if (cd.d_veg.vegcov[ip] > 0.0) {
+        if (cd.d_veg.nonvascular <= 0) {   // for vascular plants
           // get the soil moisture controling factor on plant transpiration
           double frootfr[MAX_SOI_LAY];
 
