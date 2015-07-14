@@ -297,15 +297,27 @@ void Cohort::initStatePar() {
 
     // set-up the snow-soil-soilparent structure
     //snow updated daily, while soil dimension at monthly
+    BOOST_LOG_SEV(glg, warn) << "RIGHT BEFORE Ground initLayerStructure()" << ground.layer_report_string();
     ground.initLayerStructure(&cd.d_snow, &cd.m_soil);
+    BOOST_LOG_SEV(glg, warn) << "RIGHT AFTER Ground initLayerStructure()" << ground.layer_report_string();
+
     cd.d_soil = cd.m_soil;
+
     //initializing snow/soil/soilparent env state
     //  conditions after layerStructure done
     snowenv.initializeNewSnowState(); //Note: ONE initial snow layer as new snow
+    BOOST_LOG_SEV(glg, warn) << "RIGHT AFTER snowenv.initNewSnowState()" << ground.layer_report_string();
+
     soilenv.initializeState();
+    BOOST_LOG_SEV(glg, warn) << "RIGHT AFTER soilenv.initializeState()" << ground.layer_report_string();
+
     solprntenv.initializeState();
+    BOOST_LOG_SEV(glg, warn) << "RIGHT AFTER solprntenv.initializeState()" << ground.layer_report_string();
+
     // initializing soil bgc state conditions
     soilbgc.initializeState();
+    BOOST_LOG_SEV(glg, warn) << "RIGHT AFTER Ground soilbgc.initializeState()" << ground.layer_report_string();
+
   } else {    // initmode>=3: restart
     // set-up the snow-soil structure from restart data
     //snow updated daily, while soil dimension at monthly
@@ -393,8 +405,15 @@ void Cohort::updateMonthly(const int & yrcnt, const int & currmind,
   BOOST_LOG_SEV(glg, debug) << "Clean up before a month starts.";
   cd.beginOfMonth();
   if(md->get_envmodule()) {
+  
+    BOOST_LOG_SEV(glg, warn) << "RIGHT BEFORE updateMonthlyEnv()" << ground.layer_report_string();
+
+  
     BOOST_LOG_SEV(glg, debug) << "Run the environmental module - updates water/thermal processes to get (bio)physical conditions.";
     updateMonthly_Env(currmind, dinmcurr);
+    
+    BOOST_LOG_SEV(glg, warn) << "RIGHT AFTER updateMonthlyEnv() yr:"<<yrcnt<<" m:"<<currmind<<" "<< ground.layer_report_string();
+
   }
 
   BOOST_LOG_SEV(glg, debug) << "Update the current dimension/structure of veg-snow/soil column (domain).";
