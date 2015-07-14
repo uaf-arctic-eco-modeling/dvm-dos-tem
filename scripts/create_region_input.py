@@ -170,8 +170,14 @@ if __name__ == '__main__':
   parser.add_argument('--dim', default=10, type=int,
                       help="Width and height of square selection")
 
-  parser.add_argument('--directory', default="../../snap-data",
+  parser.add_argument('--tifs', default="../../snap-data",
                       help="Directory containing input TIFs")
+
+  parser.add_argument('--outdir', default=".",
+                      help="Directory for netCDF output files")
+
+  parser.add_argument('--loc', default="Toolik",
+                      help="Location of data set (for dir naming)")
 
   print "Parsing command line arguments";
   args = parser.parse_args()
@@ -197,28 +203,32 @@ if __name__ == '__main__':
   x_dim = args.dim;
   y_dim = args.dim;
 
-  tif_dir = args.directory;
+  tif_dir = args.tifs;
 
-  make_fire_dataset("script-new-fire-dataset.nc", sizey=y_dim, sizex=x_dim);
+  out_dir = args.outdir + '/' + args.loc + '_' + str(x_dim) + 'x' + str(y_dim);
+  call(['mkdir', out_dir]);
 
-  make_veg_classification("script-new-veg-dataset.nc", sizey=y_dim, sizex=x_dim);
 
-  make_drainage_classification("script-new-drainage-dataset.nc", sizey=y_dim, sizex=x_dim);
+  make_fire_dataset(out_dir + "/script-new-fire-dataset.nc", sizey=y_dim, sizex=x_dim);
 
-  make_run_mask("script-run-mask.nc", sizey=y_dim, sizex=x_dim);
+  make_veg_classification(out_dir + "/script-new-veg-dataset.nc", sizey=y_dim, sizex=x_dim);
+
+  make_drainage_classification(out_dir + "/script-new-drainage-dataset.nc", sizey=y_dim, sizex=x_dim);
+
+  make_run_mask(out_dir + "/script-run-mask.nc", sizey=y_dim, sizex=x_dim);
 
   #Copy CO2 data to a new file that follows proper standards/formatting
-  copy_co2_to_new_style("script-new-co2-dataset.nc");
+  copy_co2_to_new_style(out_dir + "/script-new-co2-dataset.nc");
 
   #Create empty file to copy data into
-  create_empty_climate_nc_file("script-new-climate-dataset.nc", sizey=y_dim, sizex=x_dim);
+  create_empty_climate_nc_file(out_dir + "/script-projected-climate-dataset.nc", sizey=y_dim, sizex=x_dim);
 
 ####
   #Open the 'temporary' dataset
   temp_subset_with_lonlat = netCDF4.Dataset("temp_subset_with_lonlat.nc", mode='r')
 
   #Open the new file for appending
-  new_climatedataset = netCDF4.Dataset("script-new-climate-dataset.nc", mode='a');
+  new_climatedataset = netCDF4.Dataset(out_dir + "/script-projected-climate-dataset.nc", mode='a');
 
   #Insert lat/lon from temp file into the new file
   lat = new_climatedataset.variables['lat']
@@ -232,7 +242,7 @@ if __name__ == '__main__':
 
 ####
 #  #Populate new data file with data (for now, random)
-  with netCDF4.Dataset("script-new-climate-dataset.nc", mode='a') as new_climatedataset:
+  with netCDF4.Dataset(out_dir + "/script-projected-climate-dataset.nc", mode='a') as new_climatedataset:
     YEARS = 10
     TIMESTEPS = YEARS*12
 
@@ -252,7 +262,7 @@ if __name__ == '__main__':
 
 ####
   #Populate input file with data from TIFs
-  with netCDF4.Dataset('script-new-climate-dataset.nc', mode='a') as new_climatedataset:
+  with netCDF4.Dataset(out_dir + '/script-projected-climate-dataset.nc', mode='a') as new_climatedataset:
 
     for yridx, year in enumerate(range(2010, 2010+YEARS)):
       for midx, month in enumerate(range (1,13)): # Note 1 based month!
