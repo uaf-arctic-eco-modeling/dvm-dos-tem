@@ -412,7 +412,7 @@ void Cohort::updateMonthly(const int & yrcnt, const int & currmind,
     BOOST_LOG_SEV(glg, debug) << "Run the environmental module - updates water/thermal processes to get (bio)physical conditions.";
     updateMonthly_Env(currmind, dinmcurr);
     
-    BOOST_LOG_SEV(glg, warn) << "RIGHT AFTER updateMonthlyEnv() yr:"<<yrcnt<<" m:"<<currmind<<" "<< ground.layer_report_string();
+    BOOST_LOG_SEV(glg, debug) << "RIGHT AFTER updateMonthlyEnv() yr:"<<yrcnt<<" m:"<<currmind<<" "<< ground.layer_report_string();
 
   }
 
