@@ -51,12 +51,7 @@ void Runner::run_years(int start_year, int end_year, const std::string& stage,
     BOOST_LOG_SEV(glg, debug) << "(Begining of year loop) " << cohort.ground.layer_report_string();
 
     /* Interpolate all the monthly values...? */
-    //cohort.prepareDayDrivingData(iy, 0);
     this->cohort.climate.prepare_daily_driving_data(iy, stage);
-
-    // looking like I need to call cohort.initStatePar() here...
-    //this->cohort.initStatePar();
-    //BOOST_LOG_SEV(glg, warn) << "(Right after initStatePar) " << cohort.ground.layer_report_string();
 
     if (cal_ctrl_ptr) { // should be null unless we are in "calibration mode"
 

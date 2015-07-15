@@ -102,15 +102,12 @@ public :
   CohortData cd;
   RestartData resid;    //for input
 
-  void NEW_load_climate_from_file(int y, int x);
-  void NEW_load_veg_class_from_file(int y, int x);
-  void NEW_load_fire_from_file(int y, int x);
-
-  void load_climate_from_file(int years, int record);
-  void load_vegdata_from_file(int record);
-  void load_fire_info_from_file(int record);
-  void load_fire_severity_from_file(int record);
   
+
+//  void NEW_load_climate_from_file(int y, int x);
+//  void NEW_load_veg_class_from_file(int y, int x);
+//  void NEW_load_fire_from_file(int y, int x);
+
   void initSubmodules();
 
   void setModelData(ModelData* md);

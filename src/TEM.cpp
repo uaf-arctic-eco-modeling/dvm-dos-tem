@@ -130,13 +130,6 @@ int main(int argc, char* argv[]){
 
   BOOST_LOG_SEV(glg, note) << "Start dvmdostem @ " << ctime(&stime);
 
-  // whoops, re-implemented this in Climate...
-  // Read in C02 - read all data (years) even though some stages/configurations
-  //               may use only the first year
-  std::vector<float> co2_vec = read_new_co2_file("scripts/new-co2-dataset.nc");
-  
-  // NOTE: Are there any constraints on the length of the co2 vector??
-  
   /* Can read the input data and parameters to choose a few things:
   
    - Stage
@@ -209,6 +202,7 @@ int main(int argc, char* argv[]){
             BOOST_LOG_SEV(glg, debug) << runner.cohort.ground.layer_report_string();
             //runner.cohort.reinitialize(md->initsource);
 
+            // seg fault w/o preparing climate...
             runner.cohort.climate.prepare_daily_driving_data(0, "eq");
 
             runner.cohort.initSubmodules();
