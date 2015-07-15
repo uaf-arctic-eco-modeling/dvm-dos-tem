@@ -36,15 +36,6 @@ void ArgHandler::parse(int argc, char** argv) {
      "Control the verbositiy of the console log statements. Choose one of "
      "the following: debug, info, note, warn, err, fatal.")
 
-    ("cohort-id,n",
-     boost::program_options::value<int>(&cohort_id)
-       ->default_value(1),
-     "choose a specific cohort to run. TODO: must be a number?? must be in runchtlist.nc?? implies single-site?? Allows slicing? or other specification of more than one cohort?")
-    // Is this made obsolete by the idea of a run-mask??
-    // If you want a different cohoert, just supply a differnet mask?
-    //"Zero based index, starting from upper left corner of run-mask, rows "
-    //"first. I.e. if the run mask is 
-  
     ("help,h",
      boost::program_options::bool_switch(&help),
      "produces helps message, then quits")
@@ -72,22 +63,7 @@ void ArgHandler::verify() {
 
   Json::Value controldata = temutil::parse_control_file(this->get_ctrl_file());
 
-  std::string m = controldata["general"]["runmode"].asString();
-  if ( (m == "multi") && this->get_cal_mode() ) {
-    BOOST_LOG_SEV(glg, fatal) << "Can't use --cal-mode with a multi-site run. "
-                              << "Please specify a different (single site) "
-                              << "control file.";
-    exit(-1);
-  }
-  if ( (m == "single") && (this->get_loop_order() == "time-major") ) {
-    BOOST_LOG_SEV(glg, fatal) << "Can't use --loop-order=time-major for a "
-                              << "single site run. Change loop order or "
-                              << "specify a different control file.";
-    exit(-1);
-  }
-
-
-  BOOST_LOG_SEV(glg, note) << "Command line arguments all OK.";
+  BOOST_LOG_SEV(glg, warn) << "Argument validation/verification NOT IMPLEMENTED YET!";
 }
 
 

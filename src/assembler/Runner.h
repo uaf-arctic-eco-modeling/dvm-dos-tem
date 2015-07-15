@@ -52,7 +52,6 @@ public:
 private:
   bool calibrationMode;
 
-  std::string runmode;
   std::string loop_order;
 
   //data classes
