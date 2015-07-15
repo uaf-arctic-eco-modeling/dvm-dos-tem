@@ -171,7 +171,7 @@ if __name__ == '__main__':
                       help="Width and height of square selection")
 
   parser.add_argument('--tifs', default="../../snap-data",
-                      help="Directory containing input TIFs")
+                      help="Directory containing input TIF directories")
 
   parser.add_argument('--outdir', default=".",
                       help="Directory for netCDF output files")
@@ -183,22 +183,6 @@ if __name__ == '__main__':
   args = parser.parse_args()
   print args
 
-#Pick bounding box coordinates to use with gdal_translate for subsetting the AIEM domain data files from SNAP. Current files from SNAP are Alaska Albers, 1km pixel size
-
-#Specifying the "creation option" means that special variables will be written to the new netcdf file mapping row/column coordinates to lat/lon
-#  call(['gdal_translate', '-of', 'netCDF', '-co', '\"WRITE_LONLAT=YES\"',
-#        'tas_mean_C_iem_cccma_cgcm3_1_sresa1b_01_2001.tif',
-#        'sc_temporary_with_lonlat.nc']);
-
-
-#        call(['gdal_translate', '-of', 'netCDF', '-srcwin',
-#              '915', '292', '10', '10',
-#              'sc-temporary_tair.nc', 'sc-temporary_tair2.nc']);
-
-
-#  gdal_translate -of netCDF -co "WRITE_LONLAT=YES" \
-#    -co GDAL_NETCDF_BOTTOMUP=YES -srcwin 915 292 10 10 \
-#    temporary_with_lonlat.nc temp_subset_with_lonlat.nc
 
   x_dim = args.dim;
   y_dim = args.dim;
@@ -206,6 +190,30 @@ if __name__ == '__main__':
   tif_dir = args.tifs;
 
   out_dir = args.outdir + '/' + args.loc + '_' + str(x_dim) + 'x' + str(y_dim);
+
+#Pick bounding box coordinates to use with gdal_translate for subsetting the AIEM domain data files from SNAP. Current files from SNAP are Alaska Albers, 1km pixel size
+
+#Specifying the "creation option" means that special variables will be written to the new netcdf file mapping row/column coordinates to lat/lon
+
+#The following two calls must still be done manually
+
+  lonlat_settings = '\"WRITE_LONLAT=YES\"'
+  print lonlat_settings
+ 
+#  call(['gdal_translate', '-of', 'netCDF', '-co', lonlat_settings,
+#        tif_dir + '/tas_mean_C_iem_cccma_cgcm3_1_sresa1b_2001_2100/tas_mean_C_iem_cccma_cgcm3_1_sresa1b_01_2001.tif',
+#        'sc_temporary_with_lonlat.nc']);
+
+#  call(['gdal_translate', '-of', 'netCDF', '-co', '\"WRITE_LONLAT=YES\"',
+#        'tas_mean_C_iem_cccma_cgcm3_1_sresa1b_01_2001.tif',
+#        'sc_temporary_with_lonlat.nc']);
+
+#  gdal_translate -of netCDF -co "WRITE_LONLAT=YES" \
+#    -co GDAL_NETCDF_BOTTOMUP=YES -srcwin 915 292 10 10 \
+#    temporary_with_lonlat.nc temp_subset_with_lonlat.nc
+
+
+
   call(['mkdir', out_dir]);
 
 
@@ -241,30 +249,11 @@ if __name__ == '__main__':
 ####
 
 ####
-#  #Populate new data file with data (for now, random)
-  with netCDF4.Dataset(out_dir + "/script-projected-climate-dataset.nc", mode='a') as new_climatedataset:
-    YEARS = 10
-    TIMESTEPS = YEARS*12
-
-    #Write random junk data to the climate file
-    sx = new_climatedataset.variables['X'].size
-    sy = new_climatedataset.variables['Y'].size
-
-    junkA = np.random.uniform(low=0.0, high=10, size=(TIMESTEPS*sy*sx)).reshape(TIMESTEPS, sy, sx)
-    junkB = np.random.uniform(low=0.0, high=1300, size=(TIMESTEPS*sy*sx)).reshape(TIMESTEPS, sy, sx)
-    junkC = np.random.uniform(low=0.0, high=20, size=(TIMESTEPS*sy*sx)).reshape(TIMESTEPS, sy, sx)
-
-    new_climatedataset.variables['precip'][:] = junkA
-    new_climatedataset.variables['nirr'][:] = junkB
-    new_climatedataset.variables['vapor_press'][:] = junkC
-
-####
-
-####
+  YEARS=99
   #Populate input file with data from TIFs
   with netCDF4.Dataset(out_dir + '/script-projected-climate-dataset.nc', mode='a') as new_climatedataset:
 
-    for yridx, year in enumerate(range(2010, 2010+YEARS)):
+    for yridx, year in enumerate(range(2001, 2001+YEARS)):
       for midx, month in enumerate(range (1,13)): # Note 1 based month!
         print year, month
         # TRANSLATE TO NETCDF
