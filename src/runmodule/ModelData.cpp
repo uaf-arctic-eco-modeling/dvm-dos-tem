@@ -36,6 +36,7 @@ ModelData::ModelData(Json::Value controldata){
   runsc = (stgstr.find("sc") != std::string::npos) ? true : false;
 
   initmode = controldata["stage_settings"]["restart"].asInt();  // may become obsolete
+  parameter_dir = controldata["IO"]["parameter_dir"].asString();
   
   changeclimate = controldata["model_settings"]["dynamic_climate"].asInt();
   changeco2 = controldata["model_settings"]["varied_co2"].asInt();

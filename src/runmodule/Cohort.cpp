@@ -50,7 +50,7 @@ Cohort::Cohort(int y, int x, ModelData* modeldatapointer):
   this->cd.drainage_type = temutil::get_drainage_class("scripts/new-drainage-dataset.nc", y, x);
 
   BOOST_LOG_SEV(glg, info) << "Next, we build a CohortLookup object, properly configured with config directory and community type.";
-  this->chtlu = CohortLookup( "config/", temutil::cmtnum2str(cd.cmttype) );
+  this->chtlu = CohortLookup( modeldatapointer->parameter_dir, temutil::cmtnum2str(cd.cmttype) );
   
   BOOST_LOG_SEV(glg, info) << "Create the vegetation object...";
   this->veg = Vegetation(this->cd.cmttype, modeldatapointer);
@@ -273,21 +273,21 @@ void Cohort::initStatePar() {
 
     // reset the soil texture data from grid-level soil.nc, rather than 'chtlu',
     // Note that the mineral layer structure is already defined above
-    if (md->runmode.compare("multi") == 0) {
-      float z = 0;
-
-      for (int i = 0; i < ground.mineral.num; i++) {
-        z += ground.mineral.dz[i];
-
-        if (z <= 0.30) {   //assuming the grid top-soil texture is for top 30 cm
-          BOOST_LOG_SEV(glg, err) << "NOT IMPLEMENTED YET!!! Setting mineral texture...";
-          //ground.mineral.texture[i] = gd->topsoil;
-        } else {
-          BOOST_LOG_SEV(glg, err) << "NOT IMPLEMENTED YET!!! Setting mineral texture...";
-          //ground.mineral.texture[i] = gd->botsoil;
-        }
-      }
-    }
+//    if (md->runmode.compare("multi") == 0) {
+//      float z = 0;
+//
+//      for (int i = 0; i < ground.mineral.num; i++) {
+//        z += ground.mineral.dz[i];
+//
+//        if (z <= 0.30) {   //assuming the grid top-soil texture is for top 30 cm
+//          BOOST_LOG_SEV(glg, err) << "NOT IMPLEMENTED YET!!! Setting mineral texture...";
+//          //ground.mineral.texture[i] = gd->topsoil;
+//        } else {
+//          BOOST_LOG_SEV(glg, err) << "NOT IMPLEMENTED YET!!! Setting mineral texture...";
+//          //ground.mineral.texture[i] = gd->botsoil;
+//        }
+//      }
+//    }
 
     //then if we have sitein.nc, as specified. In this way, if sitein.nc may
     //  not provide all data, then model will still be able to use the default.

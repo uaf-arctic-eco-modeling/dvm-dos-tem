@@ -40,6 +40,7 @@ public:
   bool runsc;
   int initmode;
 
+  string parameter_dir;
   string casename;
   string configdir;
   string runchtfile;       //must be *.nc format file

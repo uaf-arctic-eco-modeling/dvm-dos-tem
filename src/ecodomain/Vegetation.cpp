@@ -42,11 +42,11 @@ Vegetation::Vegetation(int cmtnum, const ModelData* mdp) {
   BOOST_LOG_SEV(glg, note) << "Vegetation constructor. Community type: " << cmtnum;
 
   BOOST_LOG_SEV(glg, note) << "Setting Vegetation internal values from file: "
-                           << "config/" << "cmt_dimvegetation.txt";
+                           << mdp->parameter_dir << "cmt_dimvegetation.txt";
 
   // get a list of data for the cmt number
   std::list<std::string> l = temutil::parse_parameter_file(
-      mdp->configdir + "cmt_dimvegetation.txt", cmtnum, 40
+      mdp->parameter_dir + "cmt_dimvegetation.txt", cmtnum, 40
   );
 
   // pop each line off the front of the list

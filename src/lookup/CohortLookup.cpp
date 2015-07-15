@@ -23,7 +23,9 @@ CohortLookup::CohortLookup() {
 CohortLookup::CohortLookup(std::string directory, std::string code) :
     dir(directory), cmtcode(code)  {
 
-  BOOST_LOG_SEV(glg, info) << "Building a CohortLookup: set directory, community type, then read config/* files and set data members.";
+  BOOST_LOG_SEV(glg, info) << "Building a CohortLookup: set directory, "
+                           << "community type, then read " << dir << "/* files "
+                           << "and set data members.";
   assignBgcCalpar(this->dir);
   assignVegDimension(this->dir);
   assignGroundDimension(this->dir);

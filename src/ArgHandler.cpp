@@ -27,7 +27,7 @@ void ArgHandler::parse(int argc, char** argv) {
 
     ("ctrl-file,f",
      boost::program_options::value<std::string>(&ctrl_file)
-       ->default_value("config/controlfile_site.txt"),
+       ->default_value("config/config.js"),
      "choose a control file to use")
 
     ("log-level,l",
