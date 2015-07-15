@@ -45,10 +45,6 @@ void ArgHandler::parse(int argc, char** argv) {
     //"Zero based index, starting from upper left corner of run-mask, rows "
     //"first. I.e. if the run mask is 
   
-    ("new-style,",
-     boost::program_options::bool_switch(&new_style),
-     "Run the model under the new control and I/O structure.")
-
     ("help,h",
      boost::program_options::bool_switch(&help),
      "produces helps message, then quits")

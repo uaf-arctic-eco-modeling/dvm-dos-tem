@@ -131,7 +131,7 @@ int main(int argc, char* argv[]){
   BOOST_LOG_SEV(glg, note) << "Start dvmdostem @ " << ctime(&stime);
 
   /* Can read the input data and parameters to choose a few things:
-  
+
    - Stage
     eq
     sp
@@ -141,194 +141,192 @@ int main(int argc, char* argv[]){
    - Cal mode
     - available in all stages?
    - outputs to setup
-   
+
   */
 
-  if (args->get_new_style()) {
+  BOOST_LOG_SEV(glg, debug) << "NEW STYLE: Going to run space-major over a 2D area covered by run mask...";
 
-    BOOST_LOG_SEV(glg, debug) << "NEW STYLE: Going to run space-major over a 2D area covered by run mask...";
+  // Open the run mask (spatial mask)
+  std::vector< std::vector<int> > run_mask = read_run_mask("scripts/run-mask.nc");
 
-    // Open the run mask (spatial mask)
-    std::vector< std::vector<int> > run_mask = read_run_mask("scripts/run-mask.nc");
+  if (args->get_loop_order() == "space-major") {
 
-    if (args->get_loop_order() == "space-major") {
+    // y <==> row <==> lat
+    // x <==> col <==> lon
 
-      // y <==> row <==> lat
-      // x <==> col <==> lon
-
-      /* 
-         Loop over a 2D grid of 'cells' (cohorts?),
-         run each cell for some number of years. 
-         
-         Processing starts in the lower left corner (0,0).
-         Should really look into replacing this loop with 
-         something like python's map(...) function...
-          --> Could this allow us to use a map reduce strategy??
+    /* 
+       Loop over a 2D grid of 'cells' (cohorts?),
+       run each cell for some number of years. 
        
-         Look into std::transform. 
-      */
+       Processing starts in the lower left corner (0,0).
+       Should really look into replacing this loop with 
+       something like python's map(...) function...
+        --> Could this allow us to use a map reduce strategy??
+     
+       Look into std::transform. 
+    */
 
-      // Use a few type definitions to save some typing.
-      typedef std::vector<int> vec;
-      typedef std::vector<vec> vec2D;
+    // Use a few type definitions to save some typing.
+    typedef std::vector<int> vec;
+    typedef std::vector<vec> vec2D;
 
-      vec2D::const_iterator row;
-      vec::const_iterator col;
-      for (row = run_mask.begin(); row != run_mask.end() ; ++row) {
-        for (col = row->begin(); col != row->end(); ++col) {
-          
-          bool mask_value = *col;
-          
-          int rowidx = row - run_mask.begin();
-          int colidx = col - row->begin();
-          
-          if (true == mask_value) {
+    vec2D::const_iterator row;
+    vec::const_iterator col;
+    for (row = run_mask.begin(); row != run_mask.end() ; ++row) {
+      for (col = row->begin(); col != row->end(); ++col) {
 
-            BOOST_LOG_SEV(glg, debug) << "Running cell (" << rowidx << ", " << colidx << ")";
+        bool mask_value = *col;
 
-            // IMPROVE THIS!
-            modeldata.initmode = 1;
+        int rowidx = row - run_mask.begin();
+        int colidx = col - row->begin();
 
-            BOOST_LOG_SEV(glg, debug) << "Setup the NEW STYLE RUNNER OBJECT ...";
-            Runner runner(modeldata, rowidx, colidx);
+        if (true == mask_value) {
 
-            // Ends up as a null pointer if calibrationMode is off.
-            boost::shared_ptr<CalController> calcontroller_ptr;
-            if ( args->get_cal_mode() ) {
-              calcontroller_ptr.reset( new CalController(&runner.cohort) );
-              calcontroller_ptr->clear_and_create_json_storage();
+          BOOST_LOG_SEV(glg, debug) << "Running cell (" << rowidx << ", " << colidx << ")";
 
-            }
-            BOOST_LOG_SEV(glg, debug) << runner.cohort.ground.layer_report_string();
-            //runner.cohort.reinitialize(md->initsource);
+          // IMPROVE THIS!
+          modeldata.initmode = 1;
 
-            // seg fault w/o preparing climate...
-            runner.cohort.climate.prepare_daily_driving_data(0, "eq");
+          BOOST_LOG_SEV(glg, debug) << "Setup the NEW STYLE RUNNER OBJECT ...";
+          Runner runner(modeldata, rowidx, colidx);
 
-            runner.cohort.initSubmodules();
-            runner.cohort.initStatePar();
+          // Ends up as a null pointer if calibrationMode is off.
+          boost::shared_ptr<CalController> calcontroller_ptr;
+          if ( args->get_cal_mode() ) {
+            calcontroller_ptr.reset( new CalController(&runner.cohort) );
+            calcontroller_ptr->clear_and_create_json_storage();
 
-            BOOST_LOG_SEV(glg, debug) << "right after initSubmodules() and initStatePar()" << runner.cohort.ground.layer_report_string();
+          }
+          BOOST_LOG_SEV(glg, debug) << runner.cohort.ground.layer_report_string();
+          //runner.cohort.reinitialize(md->initsource);
+
+          // seg fault w/o preparing climate...
+          runner.cohort.climate.prepare_daily_driving_data(0, "eq");
+
+          runner.cohort.initSubmodules();
+          runner.cohort.initStatePar();
+
+          BOOST_LOG_SEV(glg, debug) << "right after initSubmodules() and initStatePar()" << runner.cohort.ground.layer_report_string();
 
 
-            if (modeldata.runeq) {
+          if (modeldata.runeq) {
 
-              ///** Env module only "pre-run".
-              //  - create the climate from the average of the first X years
-              //    of the driving climate data. 
-              //    SIZE: 12 months,  1 year
-              //  - turn off everything but env module
-              //  - set yrs since dsb
-              //  - run_years( 0 <= iy <= X )
-              //  - ignore the calibration directives
-              //
-              //  * what should the plots look like? static/constant env
-              //    variables I think, nothing else? except there is some
-              //    thing cacluated in the water balance module...
-              //*/
+            ///** Env module only "pre-run".
+            //  - create the climate from the average of the first X years
+            //    of the driving climate data. 
+            //    SIZE: 12 months,  1 year
+            //  - turn off everything but env module
+            //  - set yrs since dsb
+            //  - run_years( 0 <= iy <= X )
+            //  - ignore the calibration directives
+            //
+            //  * what should the plots look like? static/constant env
+            //    variables I think, nothing else? except there is some
+            //    thing cacluated in the water balance module...
+            //*/
 
-              runner.cohort.md->set_envmodule(true);
-              runner.cohort.md->set_bgcmodule(false);
-              runner.cohort.md->set_nfeed(false);
-              runner.cohort.md->set_avlnflg(false);
-              runner.cohort.md->set_baseline(false);
-              runner.cohort.md->set_dsbmodule(false);
-              runner.cohort.md->set_dslmodule(false);
-              runner.cohort.md->set_dvmmodule(false);
+            runner.cohort.md->set_envmodule(true);
+            runner.cohort.md->set_bgcmodule(false);
+            runner.cohort.md->set_nfeed(false);
+            runner.cohort.md->set_avlnflg(false);
+            runner.cohort.md->set_baseline(false);
+            runner.cohort.md->set_dsbmodule(false);
+            runner.cohort.md->set_dslmodule(false);
+            runner.cohort.md->set_dvmmodule(false);
 
 //              changing climate?: NO - use avgX values
 //              changing CO2?:     NO - use static value
 
-              BOOST_LOG_SEV(glg, debug) << runner.cohort.ground.layer_report_string();
+            BOOST_LOG_SEV(glg, debug) << runner.cohort.ground.layer_report_string();
 
-              runner.run_years(0, 100, "pre-run", calcontroller_ptr);
+            runner.run_years(0, 100, "pre-run", calcontroller_ptr);
 
-              BOOST_LOG_SEV(glg, debug) << runner.cohort.ground.layer_report_string();
+            BOOST_LOG_SEV(glg, debug) << runner.cohort.ground.layer_report_string();
 
-              if (calcontroller_ptr) {
-                BOOST_LOG_SEV(glg, info)
-                    << "CALIBRATION MODE. Pausing. Please check that the "
-                    << "'warm up' data looks good.";
+            if (calcontroller_ptr) {
+              BOOST_LOG_SEV(glg, info)
+                  << "CALIBRATION MODE. Pausing. Please check that the "
+                  << "'warm up' data looks good.";
 
-                calcontroller_ptr->pause();
+              calcontroller_ptr->pause();
 
-                calcontroller_ptr->clear_and_create_json_storage();
-              }
-
-              runner.cohort.md->set_envmodule(true);
-              runner.cohort.md->set_dvmmodule(true);
-              runner.cohort.md->set_dslmodule(true);
-              runner.cohort.md->set_bgcmodule(true);
-              runner.cohort.md->set_dsbmodule(true);
-              // baseline? avln? friderived? nfeed?
-
-              //  changing climate?: NO - use avgX values
-              //  changing CO2?:     NO - use static value
-
-              runner.run_years(0, MAX_EQ_YR, "eq-run", calcontroller_ptr);
-
-
-            }
-            if (modeldata.runsp) {
-
+              calcontroller_ptr->clear_and_create_json_storage();
             }
 
-            // NOTE: Could have an option to set some time constants based on
-            //       some sizes/dimensions of the input driving data...
+            runner.cohort.md->set_envmodule(true);
+            runner.cohort.md->set_dvmmodule(true);
+            runner.cohort.md->set_dslmodule(true);
+            runner.cohort.md->set_bgcmodule(true);
+            runner.cohort.md->set_dsbmodule(true);
+            // baseline? avln? friderived? nfeed?
 
-            /**
-            
+            //  changing climate?: NO - use avgX values
+            //  changing CO2?:     NO - use static value
 
-             
-              eq
-                - create the climate from the average of the first X years
-                  of the driving climate data. 
-                  SIZE: 12 months,  1 year
-                - set to default module settings to: ??
-                - run_years( 0 <= iy < MAX_EQ_YEAR )
-                - act on calibration directives
-                -
-             
-              sp
-                - create the climate from the first X years of the driving
-                  climate dataset. 
-                  SIZE: 12 months,  X years
-                - set to default module settings: ??
-                - run_years( SP_BEG <= iy <= SP_END )
-                
-              tr
-                - create climate by loading the driving climate data (historic)
-                  SIZE: 12 months, length of driving dataset? OR number from inc/timeconst.h
-                - set to default module settings: ??
-                - run_years( TR_BEG <= iy <= TR_END )
-                
-            */
+            runner.run_years(0, MAX_EQ_YR, "eq-run", calcontroller_ptr);
 
-          } else {
-            BOOST_LOG_SEV(glg, debug) << "Skipping cell (" << rowidx << ", " << colidx << ")";
+
           }
+          if (modeldata.runsp) {
+
+          }
+
+          // NOTE: Could have an option to set some time constants based on
+          //       some sizes/dimensions of the input driving data...
+
+          /**
+          
+
+           
+            eq
+              - create the climate from the average of the first X years
+                of the driving climate data. 
+                SIZE: 12 months,  1 year
+              - set to default module settings to: ??
+              - run_years( 0 <= iy < MAX_EQ_YEAR )
+              - act on calibration directives
+              -
+           
+            sp
+              - create the climate from the first X years of the driving
+                climate dataset. 
+                SIZE: 12 months,  X years
+              - set to default module settings: ??
+              - run_years( SP_BEG <= iy <= SP_END )
+              
+            tr
+              - create climate by loading the driving climate data (historic)
+                SIZE: 12 months, length of driving dataset? OR number from inc/timeconst.h
+              - set to default module settings: ??
+              - run_years( TR_BEG <= iy <= TR_END )
+              
+          */
+
+        } else {
+          BOOST_LOG_SEV(glg, debug) << "Skipping cell (" << rowidx << ", " << colidx << ")";
         }
       }
-    
-      
-    } else if(args->get_loop_order() == "time-major") {
-      BOOST_LOG_SEV(glg, warn) << "DO NOTHING. NOT IMPLEMENTED YET.";
-      // for each year
-
-        // Read in Climate - all locations, one year/timestep
-
-        // Read in Vegetation - all locations
-        // Read in Drainage - all locations
-        // Read in Fire - all locations
-      
-        // for each cohort
-          // updateMonthly(...)
-
     }
+  
+    
+  } else if(args->get_loop_order() == "time-major") {
+    BOOST_LOG_SEV(glg, warn) << "DO NOTHING. NOT IMPLEMENTED YET.";
+    // for each year
 
-    BOOST_LOG_SEV(glg, note) << "DONE WITH NEW STYLE run (" << args->get_loop_order() << ")";
-    exit(-1);
+      // Read in Climate - all locations, one year/timestep
+
+      // Read in Vegetation - all locations
+      // Read in Drainage - all locations
+      // Read in Fire - all locations
+    
+      // for each cohort
+        // updateMonthly(...)
+
   }
+
+  BOOST_LOG_SEV(glg, note) << "DONE WITH NEW STYLE run (" << args->get_loop_order() << ")";
+  exit(-1);
+  
   
 //  Runner runner;
 //
