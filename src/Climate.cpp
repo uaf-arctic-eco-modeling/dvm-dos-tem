@@ -168,7 +168,9 @@ void Climate::load_from_file(const std::string& fname, int y, int x) {
   BOOST_LOG_SEV(glg, info) << "Loading climate for (y, x) point: "
                            << "(" << y <<","<< x <<"), all timesteps.";
 
-  co2 = temutil::get_co2_timeseries("scripts/new-co2-dataset.nc");
+  // FIX THIS! Not sure how to best handle the co2, or get access to the
+  // ModelData.input field...
+  co2 = temutil::get_co2_timeseries("DATA/Toolik_10x10/co2.nc");
 
   BOOST_LOG_SEV(glg, info) << "Read in the base climate data timeseries ...";
 
@@ -212,7 +214,7 @@ void Climate::load_from_file(const std::string& fname, int y, int x) {
   BOOST_LOG_SEV(glg, debug) << "snow = [" << temutil::vec2csv(snow) << "]";
 
   // find girr as a function of month and latitude
-  std::pair<float, float> latlon = temutil::get_latlon("scripts/new-climate-dataset.nc", y, x);
+  std::pair<float, float> latlon = temutil::get_latlon(fname, y, x);
   for (int im = 0; im < 12; ++im) {
     float g = calculate_girr(latlon.first, im);
     girr[im] = g;

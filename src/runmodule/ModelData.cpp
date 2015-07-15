@@ -38,6 +38,8 @@ ModelData::ModelData(Json::Value controldata){
 
   initmode = controldata["stage_settings"]["restart"].asInt();  // may become obsolete
   parameter_dir = controldata["IO"]["parameter_dir"].asString();
+  input = controldata["IO"]["input"].asString();
+  
   changeclimate = controldata["model_settings"]["dynamic_climate"].asInt();
   changeco2 = controldata["model_settings"]["varied_co2"].asInt();
   updatelai = controldata["model_settings"]["dynamic_lai"].asInt();

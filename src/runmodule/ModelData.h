@@ -27,7 +27,8 @@ public:
   int initmode;
 
   string parameter_dir;
-
+  string input;
+  
   int changeclimate; // 0: default (up to run stage); 1: dynamical; -1: static
   int changeco2; // 0: default (up to run stage); 1: dynamical; -1: static
   bool updatelai; // dynamical LAI in model or static LAI (from 'chtlu')

@@ -147,7 +147,7 @@ int main(int argc, char* argv[]){
   BOOST_LOG_SEV(glg, debug) << "NEW STYLE: Going to run space-major over a 2D area covered by run mask...";
 
   // Open the run mask (spatial mask)
-  std::vector< std::vector<int> > run_mask = read_run_mask("scripts/run-mask.nc");
+  std::vector< std::vector<int> > run_mask = read_run_mask(modeldata.input + "run-mask.nc");
 
   if (args->get_loop_order() == "space-major") {
 
@@ -351,7 +351,7 @@ void pp_2dvec(const std::vector<std::vector<int> > & vv) {
 std::vector< std::vector<int> > read_run_mask(const std::string &filename) {
   int ncid;
   
-  BOOST_LOG_SEV(glg, debug) << "Opening dataset...";
+  BOOST_LOG_SEV(glg, debug) << "Opening dataset: " << filename;
   temutil::nc( nc_open(filename.c_str(), NC_NOWRITE, &ncid) );
   
   BOOST_LOG_SEV(glg, debug) << "Find out how much data there is...";
@@ -413,7 +413,7 @@ std::vector<float> read_new_co2_file(const std::string &filename) {
 
   int ncid;
   
-  BOOST_LOG_SEV(glg, debug) << "Opening dataset...";
+  BOOST_LOG_SEV(glg, debug) << "Opening dataset: " << filename;
   temutil::nc( nc_open(filename.c_str(), NC_NOWRITE, &ncid) );
   
   BOOST_LOG_SEV(glg, debug) << "Find out how much data there is...";

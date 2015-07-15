@@ -5,8 +5,8 @@
 
   "IO": {
     "parameter_dir": "parameters/",
-    "input":    "DATA/sample/Toolik_10x10/",
-    "output":   "DATA/sample/Toolik_10x10/output"
+    "input":    "DATA/Toolik_10x10/",
+    "output":   "DATA/Toolik_10x10/output"
   },
 
   "stage_settings": {

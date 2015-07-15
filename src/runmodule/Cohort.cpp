@@ -39,15 +39,15 @@ Cohort::Cohort(int y, int x, ModelData* modeldatapointer):
   BOOST_LOG_SEV(glg, info) << "Cohort constructor NEW STYLE!";
   
   BOOST_LOG_SEV(glg, info) << "Looking up and setting lat/lon for cohort...";
-  std::pair<float, float> latlon = temutil::get_latlon("scripts/new-climate-dataset.nc", y, x);
+  std::pair<float, float> latlon = temutil::get_latlon(modeldatapointer->input+"proj_climate.nc", y, x);
   this->lat = latlon.first;
   this->lon = latlon.second;
 
   BOOST_LOG_SEV(glg, info) << "Make a CohortData...";
   this->cd = CohortData(); // empty? / uninitialized? / undefined? values...
   
-  this->cd.cmttype = temutil::get_veg_class("scripts/new-veg-dataset.nc", y, x);
-  this->cd.drainage_type = temutil::get_drainage_class("scripts/new-drainage-dataset.nc", y, x);
+  this->cd.cmttype = temutil::get_veg_class(modeldatapointer->input+"vegetation.nc", y, x);
+  this->cd.drainage_type = temutil::get_drainage_class(modeldatapointer->input+"drainage.nc", y, x);
 
   BOOST_LOG_SEV(glg, info) << "Next, we build a CohortLookup object, properly configured with config directory and community type.";
   this->chtlu = CohortLookup( modeldatapointer->parameter_dir, temutil::cmtnum2str(cd.cmttype) );
@@ -63,15 +63,8 @@ Cohort::Cohort(int y, int x, ModelData* modeldatapointer):
   // Maybe:
   //this->hist_climate = Climate(modeldatapointer->hist_climate, y, x);
   //this->proj_climate = Climate(modeldatapointer->proj_climate, y, x);
-  this->climate = Climate("scripts/new-climate-dataset.nc", y, x);
+  this->climate = Climate(modeldatapointer->input+"proj_climate.nc", y, x);
 
-//  BOOST_LOG_SEV(glg, debug) << "Setup the NEW STYLE atmosphere...";
-//  this->climate = Climate("scripts/new-climate-dataset.nc", y, x);
-//  //this->climate.buildout_avgX_data(30);
-//  std::vector<float> v = this->climate.year(climate.vec_tair,0);
-//  std::string s = temutil::vec2csv(v);
-//  BOOST_LOG_SEV(glg, debug) << s;
-    
   this->soilenv = Soil_Env();
   
   // this seems to set a lot of pointers...
