@@ -48,7 +48,7 @@ void Runner::run_years(int start_year, int end_year, const std::string& stage,
 
   /** YEAR TIMESTEP LOOP */
   for (int iy = start_year; iy < end_year; ++iy) {
-    BOOST_LOG_SEV(glg, warn) << "(Begining of year loop) " << cohort.ground.layer_report_string();
+    BOOST_LOG_SEV(glg, debug) << "(Begining of year loop) " << cohort.ground.layer_report_string();
 
     /* Interpolate all the monthly values...? */
     //cohort.prepareDayDrivingData(iy, 0);
@@ -84,7 +84,7 @@ void Runner::run_years(int start_year, int end_year, const std::string& stage,
 
     } /* end month loop */
 
-    //BOOST_LOG_SEV(glg, warn) << "(END OF YEAR) " << cohort.ground.layer_report_string();
+    //BOOST_LOG_SEV(glg, debug) << "(END OF YEAR) " << cohort.ground.layer_report_string();
 
     if(cal_ctrl_ptr) { // check args->get_cal_mode() or calcontroller_ptr? ??
       BOOST_LOG_SEV(glg, debug) << "Send yearly calibration data to json files...";

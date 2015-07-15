@@ -206,14 +206,15 @@ int main(int argc, char* argv[]){
               calcontroller_ptr->clear_and_create_json_storage();
 
             }
-            BOOST_LOG_SEV(glg, warn) << runner.cohort.ground.layer_report_string();
+            BOOST_LOG_SEV(glg, debug) << runner.cohort.ground.layer_report_string();
             //runner.cohort.reinitialize(md->initsource);
 
             runner.cohort.climate.prepare_daily_driving_data(0, "eq");
 
             runner.cohort.initSubmodules();
             runner.cohort.initStatePar();
-            BOOST_LOG_SEV(glg, warn) << runner.cohort.ground.layer_report_string();
+
+            BOOST_LOG_SEV(glg, debug) << "right after initSubmodules() and initStatePar()" << runner.cohort.ground.layer_report_string();
 
 
             if (modeldata.runeq) {
@@ -244,10 +245,11 @@ int main(int argc, char* argv[]){
 //              changing climate?: NO - use avgX values
 //              changing CO2?:     NO - use static value
 
-              BOOST_LOG_SEV(glg, err) << runner.cohort.ground.layer_report_string();
+              BOOST_LOG_SEV(glg, debug) << runner.cohort.ground.layer_report_string();
 
               runner.run_years(0, 100, "pre-run", calcontroller_ptr);
-              BOOST_LOG_SEV(glg, err) << runner.cohort.ground.layer_report_string();
+
+              BOOST_LOG_SEV(glg, debug) << runner.cohort.ground.layer_report_string();
 
               if (calcontroller_ptr) {
                 BOOST_LOG_SEV(glg, info)
