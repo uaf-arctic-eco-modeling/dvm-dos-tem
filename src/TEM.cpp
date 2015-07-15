@@ -325,82 +325,8 @@ int main(int argc, char* argv[]){
   }
 
   BOOST_LOG_SEV(glg, note) << "DONE WITH NEW STYLE run (" << args->get_loop_order() << ")";
-  exit(-1);
-  
-  
-//  Runner runner;
-//
-//  if (controldata["general"]["runmode"].asString() == "single") {
-//    runner.chtid = args->get_cohort_id();
-//  }
-//
-//  runner.initInput(args->get_ctrl_file(), args->get_loop_order());
-//  runner.initOutput();
-//  runner.setupData();
-//  runner.setupIDs();
-//
-//  if (controldata["general"]["runmode"].asString() == "single") {
-//
-//    if (args->get_cal_mode()) {
-//      BOOST_LOG_SEV(glg, note) << "Turning CalibrationMode on in Runner (runner).";
-//      runner.set_calibrationMode(true);
-//
-//      BOOST_LOG_SEV(glg, note) << "Clearing / creating folders for storing json files.";
-//      CalController::clear_and_create_json_storage();
-//
-//    } else {
-//      BOOST_LOG_SEV(glg, note) << "Running in extrapolation mode.";
-//    }
-//
-//    runner.single_site();
-//
-//  } else if (controldata["general"]["runmode"].asString() == "multi") {
-//
-//    if (args->get_loop_order().compare("space-major") == 0) {
-//      BOOST_LOG_SEV(glg, note) << "Running SPACE-MAJOR order: for each cohort, for each year";
-//      runner.regional_space_major();
-//    } else if (args->get_loop_order().compare("time-major") == 0){
-//      BOOST_LOG_SEV(glg, note) << "Running TIME-MAJOR: for each year, for each cohort";
-//      int rank;
-//      int processors;
-//      #ifdef WITHMPI
-//        MPI_Init(&argc, &argv); // requires default args...empty?
-//      
-//        MPI_Comm_size(MPI_COMM_WORLD, &processors);
-//        MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-//        BOOST_LOG_SEV(glg, note) << "This is processor " << rank << " of "
-//                                 << processors << " available on this system.";
-//        if (processors > 2) {
-//          // do the real work...
-//          runner.regional_time_major(processors, rank);
-//
-//          BOOST_LOG_SEV(glg, note) << "Done with regional_time_major(...), "
-//                                   << "(parallel (MPI) mode). Cleanup MPI...";
-//          MPI_Finalize();
-//
-//        } else {
-//          BOOST_LOG_SEV(glg, warn) << "Not enough processors on this system "
-//                                   << "to run in parallel. Closing / finalizing "
-//                                   << "the MPI environment and defaulting to "
-//                                   << "serial operation.";
-//          MPI_Finalize();
-//          runner.regional_time_major(processors, rank);
-//
-//        }
-//      #else
-//        runner.regional_time_major(processors, rank);
-//      #endif
-//    } else {
-//      BOOST_LOG_SEV(glg, fatal) << "Invalid loop-order! Must be " 
-//                                << "'space-major', or 'time-major'. Quitting...";
-//      exit(-1);
-//    }
-//  } else {
-//    BOOST_LOG_SEV(glg, err) << "Unrecognized mode from control file? Quitting.";
-//  }
 
-  etime=time(0);
-  BOOST_LOG_SEV(glg, info) << "Done with dvmdostem @" << ctime(&etime);
+  etime = time(0);
   BOOST_LOG_SEV(glg, info) << "Total Seconds: " << difftime(etime, stime);
   return 0;
 } /* End main() */
