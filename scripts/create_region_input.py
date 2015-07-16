@@ -25,21 +25,28 @@ from osgeo import gdal
 
 
 #(0,0) pixel is hardcoded to the exact values from Toolik for testing.
+
+
 def make_fire_dataset(fname, sizey=10, sizex=10):
+  '''Generate a file representing fire information'''
+
+  print "Creating a fire classification file, %s by %s pixels." % (sizey, sizex)
   ncfile = netCDF4.Dataset(fname, mode='w', format='NETCDF4')
 
   Y = ncfile.createDimension('Y', sizey)
   X = ncfile.createDimension('X', sizex)
-
   fri = ncfile.createVariable('fri', np.int, ('Y','X',))
-  fri[:] = np.random.uniform(low=1, high=7, size=(10, 10))
-  fri[0,0] = 1000
-    
   fire_year_vector = ncfile.createVLType(np.int, 'fire_year_vector')
   fire_years = ncfile.createVariable('fire_years', fire_year_vector, ('Y','X'))
-
   fire_sizes = ncfile.createVariable('fire_sizes', fire_year_vector, ('Y','X'))
 
+  print " --> NOTE: Filling FRI with random data!"
+  fri[:] = np.random.uniform(low=1, high=7, size=(10, 10))
+
+  print " --> NOTE: Setting FRI for pixel 0,0 to 1000!"
+  fri[0,0] = 1000
+
+  print " --> NOTE: Filling the fire_year and fire_sizes with random data!"
   yr_data = np.empty(sizey * sizex, object)
   sz_data = np.empty(sizey * sizex, object)
   for n in range(sizey * sizex):
@@ -50,55 +57,69 @@ def make_fire_dataset(fname, sizey=10, sizex=10):
   yr_data = np.reshape(yr_data,(sizey,sizex))
   sz_data = np.reshape(sz_data,(sizey,sizex))
 
-  print yr_data[0,0], "-->", sz_data[0,0] 
-  print yr_data[0,1], "-->", sz_data[0,1]
-  print yr_data[9,9], "-->", sz_data[9,9]
+  print " --> NOTE: Check on a few pixels?"
+  print "  (0,0)", yr_data[0,0], "-->", sz_data[0,0]
+  print "  (0,1)", yr_data[0,1], "-->", sz_data[0,1]
+  print "  (9,9)", yr_data[9,9], "-->", sz_data[9,9]
     
   fire_years[:] = yr_data
   fire_sizes[:] = sz_data
 
   ncfile.close()   
 
-#end make_fire_dataset
 
 def make_veg_classification(fname, sizey=10, sizex=10):
+  '''Generate a file representing veg classification.'''
+
+  print "Creating a vegetation classification file, %s by %s pixels." % (sizey, sizex)
   ncfile = netCDF4.Dataset(fname, mode='w', format='NETCDF4')
 
   Y = ncfile.createDimension('Y', sizey)
   X = ncfile.createDimension('X', sizex)
-
   veg_class = ncfile.createVariable('veg_class', np.int, ('Y', 'X',))
+
+  print " --> NOTE: Filling with random data!"
   veg_class[:] = np.random.uniform(low=1, high=7, size=(10,10))
+
+  print " --> NOTE: Setting pixel 0,0 to 4"
   veg_class[0,0] = 4
     
   ncfile.close()
 
-#end make_veg_classification
 
 def make_drainage_classification(fname, sizey=10, sizex=10):
+  '''Generate a file representing drainage classification.'''
+  print "Creating a drainage classification file, %s by %s pixels." % (sizey, sizex)
   ncfile = netCDF4.Dataset(fname, mode='w', format='NETCDF4')
 
   Y = ncfile.createDimension('Y', sizey)
   X = ncfile.createDimension('X', sizex)
-
   drainage_class = ncfile.createVariable('drainage_class', np.int, ('Y', 'X',))
+
+  print " --> NOTE: Filling with random data!"
   drainage_class[:] = np.random.uniform(low=1, high=7, size=(10,10))
+
+  print " --> NOTE: Setting 0,0 pixel to zero!"
   drainage_class[0,0] = 0
+
   ncfile.close()
-#end make_drainage_classification
 
 
 def make_run_mask(filename, sizey=10, sizex=10):
+  '''Generate a file representing the run mask'''
+
+  print "Creating a run_mask file, %s by %s pixels." % (sizey, sizex)
   ncfile = netCDF4.Dataset(filename, mode='w', format='NETCDF4')
+
   Y = ncfile.createDimension('Y', sizey)
   X = ncfile.createDimension('X', sizex)
-
   run = ncfile.createVariable('run', np.int, ('Y', 'X',))
+
+  print " --> NOTE: Turning off all pixels except 0,0."
   run[:] = np.zeros((10,10))
   run[0,0] = 1
     
   ncfile.close()
-#end make_run_mask
 
 
 def copy_co2_to_new_style(filename):
@@ -120,11 +141,12 @@ def copy_co2_to_new_style(filename):
     
   old_ncfile.close()
   new_ncfile.close()
-#end copy_co2_to_new_style
+
 
 def create_empty_climate_nc_file(filename, sizey=10, sizex=10):
     '''Creates an empty climate file for dvmdostem; y,x grid, time unlimited.'''
     
+    print "Creating an empty climate file..."
     ncfile = netCDF4.Dataset(filename, mode="w", format='NETCDF4')
     
     # Dimensions for the file.
@@ -150,7 +172,6 @@ def create_empty_climate_nc_file(filename, sizey=10, sizex=10):
     vapor_press = ncfile.createVariable('vapor_press', np.float32, ('time', 'Y', 'X',))
     
     ncfile.close()
-#end create_empty_climate_nc_file
 
 
 
@@ -262,20 +283,20 @@ if __name__ == '__main__':
         # work out alright
         print "Converting tif --> netcdf..."
         call(['gdal_translate', '-of', 'netCDF',
-              tif_dir + '/tas_mean_C_iem_cccma_cgcm3_1_sresa1b_2001_2100/tas_mean_C_iem_cccma_cgcm3_1_sresa1b_%02d_%04d.tif'%(month,year),
+              tif_dir + '/tas_mean_C_iem_cccma_cgcm3_1_sresa1b_2001_2100/tas_mean_C_iem_cccma_cgcm3_1_sresa1b_%02d_%04d.tif' % (month,year),
               'script-temporary_tair.nc'])
 
 
         call(['gdal_translate', '-of', 'netCDF',
-              tif_dir + '/rsds_mean_MJ-m2-d1_iem_cccma_cgcm3_1_sresa1b_2001_2100/rsds_mean_MJ-m2-d1_iem_cccma_cgcm3_1_sresa1b_%02d_%04d.tif'%(month, year),
+              tif_dir + '/rsds_mean_MJ-m2-d1_iem_cccma_cgcm3_1_sresa1b_2001_2100/rsds_mean_MJ-m2-d1_iem_cccma_cgcm3_1_sresa1b_%02d_%04d.tif' % (month, year),
               'script-temporary_rsds.nc'])
 
         call(['gdal_translate', '-of', 'netCDF',
-              tif_dir + '/pr_total_mm_iem_cccma_cgcm3_1_sresa1b_2001_2100/pr_total_mm_iem_cccma_cgcm3_1_sresa1b_%02d_%04d.tif'%(month, year),
+              tif_dir + '/pr_total_mm_iem_cccma_cgcm3_1_sresa1b_2001_2100/pr_total_mm_iem_cccma_cgcm3_1_sresa1b_%02d_%04d.tif' % (month, year),
               'script-temporary_pr.nc'])
 
         call(['gdal_translate', '-of', 'netCDF',
-              tif_dir + '/vap_mean_hPa_iem_cccma_cgcm3_1_sresa1b_2001_2100/vap_mean_hPa_iem_cccma_cgcm3_1_sresa1b_%02d_%04d.tif'%(month, year),
+              tif_dir + '/vap_mean_hPa_iem_cccma_cgcm3_1_sresa1b_2001_2100/vap_mean_hPa_iem_cccma_cgcm3_1_sresa1b_%02d_%04d.tif' % (month, year),
               'script-temporary_vapo.nc'])
 
 
