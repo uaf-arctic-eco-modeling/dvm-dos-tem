@@ -5,6 +5,7 @@ from subprocess import call
 
 import argparse
 import textwrap
+import os
 
 import netCDF4
 import numpy as np
@@ -210,7 +211,10 @@ if __name__ == '__main__':
 
   tif_dir = args.tifs;
 
-  out_dir = args.outdir + '/' + args.loc + '_' + str(x_dim) + 'x' + str(y_dim);
+  # Like this: somedirectory/somelocation_NxM
+  out_dir = os.path.join(args.outdir, "%s_%sx%s" % (args.loc, x_dim, y_dim))
+  print "Will be (over)writing files to: ", out_dir
+
 
 #Pick bounding box coordinates to use with gdal_translate for subsetting the AIEM domain data files from SNAP. Current files from SNAP are Alaska Albers, 1km pixel size
 
@@ -238,13 +242,13 @@ if __name__ == '__main__':
   call(['mkdir', out_dir]);
 
 
-  make_fire_dataset(out_dir + "/script-new-fire-dataset.nc", sizey=y_dim, sizex=x_dim);
+  make_fire_dataset(os.path.join(out_dir, "script-new-fire-dataset.nc"), sizey=y_dim, sizex=x_dim);
 
-  make_veg_classification(out_dir + "/script-new-veg-dataset.nc", sizey=y_dim, sizex=x_dim);
+  make_veg_classification(os.path.join(out_dir, "script-new-veg-dataset.nc"), sizey=y_dim, sizex=x_dim);
 
-  make_drainage_classification(out_dir + "/script-new-drainage-dataset.nc", sizey=y_dim, sizex=x_dim);
+  make_drainage_classification(os.path.join(out_dir, "script-new-drainage-dataset.nc"), sizey=y_dim, sizex=x_dim);
 
-  make_run_mask(out_dir + "/script-run-mask.nc", sizey=y_dim, sizex=x_dim);
+  make_run_mask(os.path.join(out_dir, "script-run-mask.nc"), sizey=y_dim, sizex=x_dim);
 
   #Copy CO2 data to a new file that follows proper standards/formatting
   copy_co2_to_new_style(out_dir + "/script-new-co2-dataset.nc");
