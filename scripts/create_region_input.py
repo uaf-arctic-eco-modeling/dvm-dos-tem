@@ -268,26 +268,26 @@ if __name__ == '__main__':
     os.makedirs(out_dir)
 
 
-  make_fire_dataset(os.path.join(out_dir, "script-new-fire-dataset.nc"), sizey=y_dim, sizex=x_dim);
+  make_fire_dataset(os.path.join(out_dir, "script-new-fire-dataset.nc"), sizey=y_dim, sizex=x_dim)
 
-  make_veg_classification(os.path.join(out_dir, "script-new-veg-dataset.nc"), sizey=y_dim, sizex=x_dim);
+  make_veg_classification(os.path.join(out_dir, "script-new-veg-dataset.nc"), sizey=y_dim, sizex=x_dim)
 
-  make_drainage_classification(os.path.join(out_dir, "script-new-drainage-dataset.nc"), sizey=y_dim, sizex=x_dim);
+  make_drainage_classification(os.path.join(out_dir, "script-new-drainage-dataset.nc"), sizey=y_dim, sizex=x_dim)
 
-  make_run_mask(os.path.join(out_dir, "script-run-mask.nc"), sizey=y_dim, sizex=x_dim);
+  make_run_mask(os.path.join(out_dir, "script-run-mask.nc"), sizey=y_dim, sizex=x_dim)
 
   #Copy CO2 data to a new file that follows proper standards/formatting
   copy_co2_to_new_style(out_dir + "/script-new-co2-dataset.nc");
 
   #Create empty file to copy data into
-  create_empty_climate_nc_file(out_dir + "/script-projected-climate-dataset.nc", sizey=y_dim, sizex=x_dim);
+  create_empty_climate_nc_file(out_dir + "/script-projected-climate-dataset.nc", sizey=y_dim, sizex=x_dim)
 
 ####
   #Open the 'temporary' dataset
   temp_subset_with_lonlat = netCDF4.Dataset("temp_subset_with_lonlat.nc", mode='r')
 
   #Open the new file for appending
-  new_climatedataset = netCDF4.Dataset(out_dir + "/script-projected-climate-dataset.nc", mode='a');
+  new_climatedataset = netCDF4.Dataset(out_dir + "/script-projected-climate-dataset.nc", mode='a')
 
   #Insert lat/lon from temp file into the new file
   lat = new_climatedataset.variables['lat']
@@ -333,19 +333,19 @@ if __name__ == '__main__':
         print "Subsetting...."
         call(['gdal_translate', '-of', 'netCDF', '-srcwin',
               '915', '292', '10', '10',
-              'script-temporary_tair.nc', 'script-temporary_tair2.nc']);
+              'script-temporary_tair.nc', 'script-temporary_tair2.nc'])
 
         call(['gdal_translate', '-of', 'netCDF', '-srcwin',
               '915', '292', '10', '10',
-              'script-temporary_rsds.nc', 'script-temporary_rsds2.nc']);
+              'script-temporary_rsds.nc', 'script-temporary_rsds2.nc'])
 
         call(['gdal_translate', '-of', 'netCDF', '-srcwin',
               '915', '292', '10', '10',
-              'script-temporary_pr.nc', 'script-temporary_pr2.nc']);
+              'script-temporary_pr.nc', 'script-temporary_pr2.nc'])
 
         call(['gdal_translate', '-of', 'netCDF', '-srcwin',
               '915', '292', '10', '10',
-              'script-temporary_vapo.nc', 'script-temporary_vapo2.nc']);
+              'script-temporary_vapo.nc', 'script-temporary_vapo2.nc'])
 
 
         print "Writing subset's data to new files..."
