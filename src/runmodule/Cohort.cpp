@@ -39,15 +39,15 @@ Cohort::Cohort(int y, int x, ModelData* modeldatapointer):
   BOOST_LOG_SEV(glg, info) << "Cohort constructor NEW STYLE!";
   
   BOOST_LOG_SEV(glg, info) << "Looking up and setting lat/lon for cohort...";
-  std::pair<float, float> latlon = temutil::get_latlon(modeldatapointer->input+"proj_climate.nc", y, x);
+  std::pair<float, float> latlon = temutil::get_latlon(modeldatapointer->hist_climate_file, y, x);
   this->lat = latlon.first;
   this->lon = latlon.second;
 
   BOOST_LOG_SEV(glg, info) << "Make a CohortData...";
   this->cd = CohortData(); // empty? / uninitialized? / undefined? values...
   
-  this->cd.cmttype = temutil::get_veg_class(modeldatapointer->input+"vegetation.nc", y, x);
-  this->cd.drainage_type = temutil::get_drainage_class(modeldatapointer->input+"drainage.nc", y, x);
+  this->cd.cmttype = temutil::get_veg_class(modeldatapointer->veg_class_file, y, x);
+  this->cd.drainage_type = temutil::get_drainage_class(modeldatapointer->drainage_file, y, x);
 
   BOOST_LOG_SEV(glg, info) << "Next, we build a CohortLookup object, properly configured with config directory and community type.";
   this->chtlu = CohortLookup( modeldatapointer->parameter_dir, temutil::cmtnum2str(cd.cmttype) );
@@ -63,7 +63,7 @@ Cohort::Cohort(int y, int x, ModelData* modeldatapointer):
   // Maybe:
   //this->hist_climate = Climate(modeldatapointer->hist_climate, y, x);
   //this->proj_climate = Climate(modeldatapointer->proj_climate, y, x);
-  this->climate = Climate(modeldatapointer->input+"proj_climate.nc", y, x);
+  this->climate = Climate(modeldatapointer->hist_climate_file, y, x);
 
   this->soilenv = Soil_Env();
   

@@ -27,8 +27,15 @@ public:
   int initmode;
 
   string parameter_dir;
-  string input;
-  
+  string hist_climate_file;
+  string proj_climate_file;
+  string veg_class_file;
+  string fire_file;
+  string drainage_file;
+  string co2_file;
+  string runmask_file;
+  string output_dir;
+
   int changeclimate; // 0: default (up to run stage); 1: dynamical; -1: static
   int changeco2; // 0: default (up to run stage); 1: dynamical; -1: static
   bool updatelai; // dynamical LAI in model or static LAI (from 'chtlu')

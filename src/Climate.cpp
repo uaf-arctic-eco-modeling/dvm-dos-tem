@@ -169,7 +169,7 @@ void Climate::load_from_file(const std::string& fname, int y, int x) {
                            << "(" << y <<","<< x <<"), all timesteps.";
 
   // FIX THIS! Not sure how to best handle the co2, or get access to the
-  // ModelData.input field...
+  // ModelData field...              modeldatapointer->co2_file
   co2 = temutil::get_co2_timeseries("DATA/Toolik_10x10/co2.nc");
 
   BOOST_LOG_SEV(glg, info) << "Read in the base climate data timeseries ...";
@@ -201,7 +201,7 @@ void Climate::load_from_file(const std::string& fname, int y, int x) {
   par = std::vector<float>(prec.size(), 0);
   cld = std::vector<float>(prec.size(), 0);
 
-  // fill out rain an snow variables based on temp and precip values
+  // fill out rain and snow variables based on temp and precip values
   // Look into boost::zip_iterator
   for (int i = 0; i < tair.size(); ++i) {
     std::pair<float, float> rs = willmot_split(tair[i], prec[i]);

@@ -147,7 +147,7 @@ int main(int argc, char* argv[]){
   BOOST_LOG_SEV(glg, debug) << "NEW STYLE: Going to run space-major over a 2D area covered by run mask...";
 
   // Open the run mask (spatial mask)
-  std::vector< std::vector<int> > run_mask = read_run_mask(modeldata.input + "run-mask.nc");
+  std::vector< std::vector<int> > run_mask = read_run_mask(modeldata.runmask_file);
 
   if (args->get_loop_order() == "space-major") {
 

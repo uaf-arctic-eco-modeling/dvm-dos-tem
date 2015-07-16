@@ -37,13 +37,21 @@ ModelData::ModelData(Json::Value controldata){
   runsc = (stgstr.find("sc") != std::string::npos) ? true : false;
 
   initmode = controldata["stage_settings"]["restart"].asInt();  // may become obsolete
-  parameter_dir = controldata["IO"]["parameter_dir"].asString();
-  input = controldata["IO"]["input"].asString();
+  parameter_dir     = controldata["IO"]["parameter_dir"].asString();
+  hist_climate_file = controldata["IO"]["hist_climate_file"].asString();
+  proj_climate_file = controldata["IO"]["proj_climate_file"].asString();
+  veg_class_file    = controldata["IO"]["veg_class_file"].asString();
+  fire_file         = controldata["IO"]["fire_file"].asString();
+  drainage_file     = controldata["IO"]["drainage_file"].asString();
+  co2_file          = controldata["IO"]["co2_file"].asString();
+  runmask_file      = controldata["IO"]["runmask_file"].asString();
+  output_dir        = controldata["IO"]["output_dir"].asString();
+
   
   changeclimate = controldata["model_settings"]["dynamic_climate"].asInt();
-  changeco2 = controldata["model_settings"]["varied_co2"].asInt();
-  updatelai = controldata["model_settings"]["dynamic_lai"].asInt();
-  useseverity = controldata["model_settings"]["fire_severity_as_input"].asInt();
+  changeco2     = controldata["model_settings"]["varied_co2"].asInt();
+  updatelai     = controldata["model_settings"]["dynamic_lai"].asInt();
+  useseverity   = controldata["model_settings"]["fire_severity_as_input"].asInt();
 
 }
 

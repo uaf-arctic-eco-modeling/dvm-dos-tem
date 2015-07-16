@@ -4,15 +4,21 @@
   },
 
   "IO": {
-    "parameter_dir": "parameters/",
-    "input":    "DATA/Toolik_10x10/",
-    "output":   "DATA/Toolik_10x10/output"
+    "parameter_dir":      "parameters/",
+    "hist_climate_file":  "DATA/Toolik_10x10/hist-climate.nc",
+    "proj_climate_file":  "DATA/Toolik_10x10/proj-climate.nc",
+    "veg_class_file":     "DATA/Toolik_10x10/vegetation.nc",
+    "fire_file":          "DATA/Toolik_10x10/fire.nc",
+    "drainage_file":      "DATA/Toolik_10x10/drainage.nc",
+    "co2_file":           "DATA/Toolik_10x10/co2.nc",
+    "runmask_file":       "DATA/Toolik_10x10/run-mask.nc",
+    "output":             "DATA/Toolik_10x10/output"
   },
 
   "stage_settings": {
     "run_stage": "eq",           // eq, sp, tr, sc, or some cobmo there-of
     "restart_mode": "restart",   // other options??
-    "restart_file": "DATA/sample/Toolik_10x10/" // location for restart-XX.nc file
+    "restartfile_dir": "DATA/Toolik_10x10/" // location for restart-XX.nc file
   }
 
 //  "model_settings": {
