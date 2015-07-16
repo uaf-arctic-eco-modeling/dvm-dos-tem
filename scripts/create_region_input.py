@@ -144,34 +144,34 @@ def copy_co2_to_new_style(filename):
 
 
 def create_empty_climate_nc_file(filename, sizey=10, sizex=10):
-    '''Creates an empty climate file for dvmdostem; y,x grid, time unlimited.'''
-    
-    print "Creating an empty climate file..."
-    ncfile = netCDF4.Dataset(filename, mode="w", format='NETCDF4')
-    
-    # Dimensions for the file.
-    time_dim = ncfile.createDimension('time', None) # append along time axis
-    Y = ncfile.createDimension('Y', sizey)
-    X = ncfile.createDimension('X', sizex)
+  '''Creates an empty climate file for dvmdostem; y,x grid, time unlimited.'''
 
-    # Coordinate Variables
-    Y = ncfile.createVariable('Y', np.int, ('Y',))
-    X = ncfile.createVariable('X', np.int, ('X',))
-    Y[:] = np.arange(0, sizey)
-    X[:] = np.arange(0, sizex)
-    
-    # 'Spatial Refefence' variables (?)
-    lat = ncfile.createVariable('lat', np.float32, ('Y', 'X',))
-    lon = ncfile.createVariable('lon', np.float32, ('Y', 'X',))
-    
-    # Create data variables
-    #co2 = ncfile.createVariable('co2', np.float32, ('time')) # actually year
-    temp_air = ncfile.createVariable('tair', np.float32, ('time', 'Y', 'X',))
-    precip = ncfile.createVariable('precip', np.float32, ('time', 'Y', 'X',))
-    nirr = ncfile.createVariable('nirr', np.float32, ('time', 'Y', 'X',))
-    vapor_press = ncfile.createVariable('vapor_press', np.float32, ('time', 'Y', 'X',))
-    
-    ncfile.close()
+  print "Creating an empty climate file..."
+  ncfile = netCDF4.Dataset(filename, mode="w", format='NETCDF4')
+
+  # Dimensions for the file.
+  time_dim = ncfile.createDimension('time', None) # append along time axis
+  Y = ncfile.createDimension('Y', sizey)
+  X = ncfile.createDimension('X', sizex)
+
+  # Coordinate Variables
+  Y = ncfile.createVariable('Y', np.int, ('Y',))
+  X = ncfile.createVariable('X', np.int, ('X',))
+  Y[:] = np.arange(0, sizey)
+  X[:] = np.arange(0, sizex)
+
+  # 'Spatial Refefence' variables (?)
+  lat = ncfile.createVariable('lat', np.float32, ('Y', 'X',))
+  lon = ncfile.createVariable('lon', np.float32, ('Y', 'X',))
+
+  # Create data variables
+  #co2 = ncfile.createVariable('co2', np.float32, ('time')) # actually year
+  temp_air = ncfile.createVariable('tair', np.float32, ('time', 'Y', 'X',))
+  precip = ncfile.createVariable('precip', np.float32, ('time', 'Y', 'X',))
+  nirr = ncfile.createVariable('nirr', np.float32, ('time', 'Y', 'X',))
+  vapor_press = ncfile.createVariable('vapor_press', np.float32, ('time', 'Y', 'X',))
+
+  ncfile.close()
 
 
 
