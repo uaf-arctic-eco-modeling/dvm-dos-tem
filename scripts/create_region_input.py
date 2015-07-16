@@ -226,9 +226,12 @@ if __name__ == '__main__':
   parser.add_argument('--loc', default="Toolik",
                       help="Location of data set (for dir naming)")
 
+  parser.add_argument('--years', default=10,
+                      help="The number of years of the climate data to process.")
+
   print "Parsing command line arguments";
   args = parser.parse_args()
-  print args
+  print "args: ", args
 
 
   x_dim = args.dim;
@@ -296,11 +299,10 @@ if __name__ == '__main__':
 ####
 
 ####
-  YEARS=99
   #Populate input file with data from TIFs
   with netCDF4.Dataset(out_dir + '/script-projected-climate-dataset.nc', mode='a') as new_climatedataset:
 
-    for yridx, year in enumerate(range(2001, 2001+YEARS)):
+    for yridx, year in enumerate(range(2001, 2001+args.years)):
       for midx, month in enumerate(range (1,13)): # Note 1 based month!
         print year, month
         # TRANSLATE TO NETCDF
