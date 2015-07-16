@@ -264,7 +264,8 @@ if __name__ == '__main__':
 
 
 
-  call(['mkdir', out_dir]);
+  if not os.path.exists(out_dir):
+    os.makedirs(out_dir)
 
 
   make_fire_dataset(os.path.join(out_dir, "script-new-fire-dataset.nc"), sizey=y_dim, sizex=x_dim);
