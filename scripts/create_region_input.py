@@ -252,22 +252,6 @@ if __name__ == '__main__':
 
 #The following two calls must still be done manually
 
-  lonlat_settings = '\"WRITE_LONLAT=YES\"'
-  print lonlat_settings
- 
-#  call(['gdal_translate', '-of', 'netCDF', '-co', lonlat_settings,
-#        tif_dir + '/tas_mean_C_iem_cccma_cgcm3_1_sresa1b_2001_2100/tas_mean_C_iem_cccma_cgcm3_1_sresa1b_01_2001.tif',
-#        'sc_temporary_with_lonlat.nc']);
-
-#  call(['gdal_translate', '-of', 'netCDF', '-co', '\"WRITE_LONLAT=YES\"',
-#        'tas_mean_C_iem_cccma_cgcm3_1_sresa1b_01_2001.tif',
-#        'sc_temporary_with_lonlat.nc']);
-
-#  gdal_translate -of netCDF -co "WRITE_LONLAT=YES" \
-#    -co GDAL_NETCDF_BOTTOMUP=YES -srcwin 915 292 10 10 \
-#    temporary_with_lonlat.nc temp_subset_with_lonlat.nc
-
-
   make_fire_dataset(os.path.join(out_dir, "script-new-fire-dataset.nc"), sizey=y_dim, sizex=x_dim)
 
   make_veg_classification(os.path.join(out_dir, "script-new-veg-dataset.nc"), sizey=y_dim, sizex=x_dim)
@@ -281,11 +265,22 @@ if __name__ == '__main__':
   #Create empty file to copy data into
   create_empty_climate_nc_file(out_dir + "/script-projected-climate-dataset.nc", sizey=y_dim, sizex=x_dim)
 
-####
-  #Open the 'temporary' dataset
-  temp_subset_with_lonlat = netCDF4.Dataset("temp_subset_with_lonlat.nc", mode='r')
+  tmpfile = '/tmp/temporary-file-with-spatial-info.nc'
+  smaller_tmpfile = '/tmp/smaller-temporary-file-with-spatial-info.nc'
+  print "Creating a temporary file with LAT and LON variables: ", tmpfile
+  call([
+      'gdal_translate', '-of', 'netCDF', '-co', "WRITE_LONLAT=YES",
+      tif_dir + '/tas_mean_C_iem_cccma_cgcm3_1_sresa1b_2001_2100/tas_mean_C_iem_cccma_cgcm3_1_sresa1b_01_2001.tif',
+      tmpfile
+    ])
+  print "Finished creating temporary file with spatial info."
 
-  #Open the new file for appending
+  print "Make a subset of the temporary file with LAT and LON variables: ", smaller_tmpfile
+  call(['gdal_translate', '-of', 'netCDF', '-co', "WRITE_LONLAT=YES", '-srcwin',
+      '915', '292', str(x_dim), str(y_dim),
+      tmpfile, smaller_tmpfile
+    ])
+  print "Finished creating the temporary subset...(cropping to our domain)"
   new_climatedataset = netCDF4.Dataset(out_dir + "/script-projected-climate-dataset.nc", mode='a')
 
   #Insert lat/lon from temp file into the new file
