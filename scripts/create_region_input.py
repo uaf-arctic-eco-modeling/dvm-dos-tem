@@ -123,7 +123,7 @@ def make_run_mask(filename, sizey=10, sizex=10):
   ncfile.close()
 
 
-def copy_co2_to_new_style(filename):
+def make_co2_file(filename):
   '''Generates a co2 file for dvmdostem from the old sample data'''
 
   print "Creating a co2 file..."
@@ -276,8 +276,7 @@ if __name__ == '__main__':
 
   make_run_mask(os.path.join(out_dir, "script-run-mask.nc"), sizey=y_dim, sizex=x_dim)
 
-  #Copy CO2 data to a new file that follows proper standards/formatting
-  copy_co2_to_new_style(out_dir + "/script-new-co2-dataset.nc");
+  make_co2_file(os.path.join(out_dir, "script-new-co2-dataset.nc"))
 
   #Create empty file to copy data into
   create_empty_climate_nc_file(out_dir + "/script-projected-climate-dataset.nc", sizey=y_dim, sizex=x_dim)
