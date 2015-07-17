@@ -281,19 +281,24 @@ if __name__ == '__main__':
       tmpfile, smaller_tmpfile
     ])
   print "Finished creating the temporary subset...(cropping to our domain)"
+
+  print "Copy the LAT/LON variables from the temporary file into our new dataset..."
+  # Open the 'temporary' dataset
+  temp_subset_with_lonlat = netCDF4.Dataset(smaller_tmpfile, mode='r')
+
+  # Open the new file for appending
   new_climatedataset = netCDF4.Dataset(out_dir + "/script-projected-climate-dataset.nc", mode='a')
 
-  #Insert lat/lon from temp file into the new file
+  # Insert lat/lon from temp file into the new file
   lat = new_climatedataset.variables['lat']
   lon = new_climatedataset.variables['lon']
-  lat[:] = temp_subset_with_lonlat.variables['lat'][:]
-  lon[:] = temp_subset_with_lonlat.variables['lon'][:]
+  lat[:] = temp_subset_with_lonlat.variables['lat']
+  lon[:] = temp_subset_with_lonlat.variables['lon']
 
   new_climatedataset.close()
   temp_subset_with_lonlat.close()
-####
+  print "Done copying LON/LAT."
 
-####
   #Populate input file with data from TIFs
   with netCDF4.Dataset(out_dir + '/script-projected-climate-dataset.nc', mode='a') as new_climatedataset:
 
