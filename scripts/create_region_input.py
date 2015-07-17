@@ -42,7 +42,7 @@ def make_fire_dataset(fname, sizey=10, sizex=10):
   fire_sizes = ncfile.createVariable('fire_sizes', fire_year_vector, ('Y','X'))
 
   print " --> NOTE: Filling FRI with random data!"
-  fri[:] = np.random.uniform(low=1, high=7, size=(10, 10))
+  fri[:] = np.random.uniform(low=1, high=7, size=(sizey, sizex))
 
   print " --> NOTE: Setting FRI for pixel 0,0 to 1000!"
   fri[0,0] = 1000
@@ -60,9 +60,9 @@ def make_fire_dataset(fname, sizey=10, sizex=10):
 
   print " --> NOTE: Check on a few pixels?"
   print "  (0,0)", yr_data[0,0], "-->", sz_data[0,0]
-  print "  (0,1)", yr_data[0,1], "-->", sz_data[0,1]
-  print "  (9,9)", yr_data[9,9], "-->", sz_data[9,9]
-    
+#  print "  (0,1)", yr_data[0,1], "-->", sz_data[0,1]
+#  print "  (9,9)", yr_data[9,9], "-->", sz_data[9,9]
+
   fire_years[:] = yr_data
   fire_sizes[:] = sz_data
 
@@ -80,7 +80,7 @@ def make_veg_classification(fname, sizey=10, sizex=10):
   veg_class = ncfile.createVariable('veg_class', np.int, ('Y', 'X',))
 
   print " --> NOTE: Filling with random data!"
-  veg_class[:] = np.random.uniform(low=1, high=7, size=(10,10))
+  veg_class[:] = np.random.uniform(low=1, high=7, size=(sizey,sizex))
 
   print " --> NOTE: Setting pixel 0,0 to 4"
   veg_class[0,0] = 4
@@ -98,7 +98,7 @@ def make_drainage_classification(fname, sizey=10, sizex=10):
   drainage_class = ncfile.createVariable('drainage_class', np.int, ('Y', 'X',))
 
   print " --> NOTE: Filling with random data!"
-  drainage_class[:] = np.random.uniform(low=1, high=7, size=(10,10))
+  drainage_class[:] = np.random.uniform(low=1, high=7, size=(sizey, sizex))
 
   print " --> NOTE: Setting 0,0 pixel to zero!"
   drainage_class[0,0] = 0
@@ -117,7 +117,7 @@ def make_run_mask(filename, sizey=10, sizex=10):
   run = ncfile.createVariable('run', np.int, ('Y', 'X',))
 
   print " --> NOTE: Turning off all pixels except 0,0."
-  run[:] = np.zeros((10,10))
+  run[:] = np.zeros((sizey, sizex))
   run[0,0] = 1
     
   ncfile.close()
@@ -226,13 +226,28 @@ if __name__ == '__main__':
   parser.add_argument('--loc', default="Toolik",
                       help="Location of data set (for dir naming)")
 
-  parser.add_argument('--years', default=10,
+  parser.add_argument('--years', default=10, type=int,
                       help="The number of years of the climate data to process.")
+
+  parser.add_argument('--xoff', default=915,
+                      help="source window offset for x axis")
+  parser.add_argument('--yoff', default=292,
+                      help="source window offset for y axis")
+
+  parser.add_argument('--xsize', default=2, type=int,
+                      help="source window x size")
+  parser.add_argument('--ysize', default=2, type=int,
+                      help="source window y size")
 
   print "Parsing command line arguments";
   args = parser.parse_args()
   print "args: ", args
 
+
+  xo = args.xoff
+  yo = args.yoff
+  xs = args.xsize
+  ys = args.ysize
 
   x_dim = args.dim;
   y_dim = args.dim;
@@ -242,7 +257,7 @@ if __name__ == '__main__':
 
 
   # Like this: somedirectory/somelocation_NxM
-  out_dir = os.path.join(args.outdir, "%s_%sx%s" % (args.loc, x_dim, y_dim))
+  out_dir = os.path.join(args.outdir, "%s_%sx%s" % (args.loc, ys, xs))
   print "Will be (over)writing files to:    ", out_dir
   if not os.path.exists(out_dir):
     os.makedirs(out_dir)
@@ -254,18 +269,18 @@ if __name__ == '__main__':
 
 #The following two calls must still be done manually
 
-  make_fire_dataset(os.path.join(out_dir, "script-new-fire-dataset.nc"), sizey=y_dim, sizex=x_dim)
+  make_fire_dataset(os.path.join(out_dir, "script-new-fire-dataset.nc"), sizey=ys, sizex=xs)
 
-  make_veg_classification(os.path.join(out_dir, "script-new-veg-dataset.nc"), sizey=y_dim, sizex=x_dim)
+  make_veg_classification(os.path.join(out_dir, "script-new-veg-dataset.nc"), sizey=ys, sizex=xs)
 
-  make_drainage_classification(os.path.join(out_dir, "script-new-drainage-dataset.nc"), sizey=y_dim, sizex=x_dim)
+  make_drainage_classification(os.path.join(out_dir, "script-new-drainage-dataset.nc"), sizey=ys, sizex=xs)
 
-  make_run_mask(os.path.join(out_dir, "script-run-mask.nc"), sizey=y_dim, sizex=x_dim)
+  make_run_mask(os.path.join(out_dir, "script-run-mask.nc"), sizey=ys, sizex=xs)
 
   make_co2_file(os.path.join(out_dir, "script-new-co2-dataset.nc"))
 
   #Create empty file to copy data into
-  create_empty_climate_nc_file(out_dir + "/script-projected-climate-dataset.nc", sizey=y_dim, sizex=x_dim)
+  create_empty_climate_nc_file(out_dir + "/script-projected-climate-dataset.nc", sizey=ys, sizex=xs)
 
   tmpfile = '/tmp/temporary-file-with-spatial-info.nc'
   smaller_tmpfile = '/tmp/smaller-temporary-file-with-spatial-info.nc'
@@ -279,7 +294,7 @@ if __name__ == '__main__':
 
   print "Make a subset of the temporary file with LAT and LON variables: ", smaller_tmpfile
   call(['gdal_translate', '-of', 'netCDF', '-co', "WRITE_LONLAT=YES", '-srcwin',
-      '915', '292', str(x_dim), str(y_dim),
+      str(xo), str(yo), str(xs), str(ys),
       tmpfile, smaller_tmpfile
     ])
   print "Finished creating the temporary subset...(cropping to our domain)"
@@ -328,22 +343,21 @@ if __name__ == '__main__':
               tif_dir + '/vap_mean_hPa_iem_cccma_cgcm3_1_sresa1b_2001_2100/vap_mean_hPa_iem_cccma_cgcm3_1_sresa1b_%02d_%04d.tif' % (month, year),
               'script-temporary_vapo.nc'])
 
-
         print "Subsetting...."
         call(['gdal_translate', '-of', 'netCDF', '-srcwin',
-              '915', '292', '10', '10',
+              str(xo), str(yo), str(xs), str(ys),
               'script-temporary_tair.nc', 'script-temporary_tair2.nc'])
 
         call(['gdal_translate', '-of', 'netCDF', '-srcwin',
-              '915', '292', '10', '10',
+              str(xo), str(yo), str(xs), str(ys),
               'script-temporary_rsds.nc', 'script-temporary_rsds2.nc'])
 
         call(['gdal_translate', '-of', 'netCDF', '-srcwin',
-              '915', '292', '10', '10',
+              str(xo), str(yo), str(xs), str(ys),
               'script-temporary_pr.nc', 'script-temporary_pr2.nc'])
 
         call(['gdal_translate', '-of', 'netCDF', '-srcwin',
-              '915', '292', '10', '10',
+              str(xo), str(yo), str(xs), str(ys),
               'script-temporary_vapo.nc', 'script-temporary_vapo2.nc'])
 
 
