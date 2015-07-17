@@ -262,13 +262,7 @@ if __name__ == '__main__':
   if not os.path.exists(out_dir):
     os.makedirs(out_dir)
 
-
-#Pick bounding box coordinates to use with gdal_translate for subsetting the AIEM domain data files from SNAP. Current files from SNAP are Alaska Albers, 1km pixel size
-
-#Specifying the "creation option" means that special variables will be written to the new netcdf file mapping row/column coordinates to lat/lon
-
-#The following two calls must still be done manually
-
+  # generate some new files...
   make_fire_dataset(os.path.join(out_dir, "script-new-fire-dataset.nc"), sizey=ys, sizex=xs)
 
   make_veg_classification(os.path.join(out_dir, "script-new-veg-dataset.nc"), sizey=ys, sizex=xs)
@@ -280,7 +274,7 @@ if __name__ == '__main__':
   make_co2_file(os.path.join(out_dir, "script-new-co2-dataset.nc"))
 
   #Create empty file to copy data into
-  create_empty_climate_nc_file(out_dir + "/script-projected-climate-dataset.nc", sizey=ys, sizex=xs)
+  create_empty_climate_nc_file(os.path.join(out_dir, "script-projected-climate-dataset.nc"), sizey=ys, sizex=xs)
 
   tmpfile = '/tmp/temporary-file-with-spatial-info.nc'
   smaller_tmpfile = '/tmp/smaller-temporary-file-with-spatial-info.nc'
@@ -304,7 +298,7 @@ if __name__ == '__main__':
   temp_subset_with_lonlat = netCDF4.Dataset(smaller_tmpfile, mode='r')
 
   # Open the new file for appending
-  new_climatedataset = netCDF4.Dataset(out_dir + "/script-projected-climate-dataset.nc", mode='a')
+  new_climatedataset = netCDF4.Dataset(os.path.join(out_dir, "script-projected-climate-dataset.nc"), mode='a')
 
   # Insert lat/lon from temp file into the new file
   lat = new_climatedataset.variables['lat']
@@ -317,7 +311,7 @@ if __name__ == '__main__':
   print "Done copying LON/LAT."
 
   #Populate input file with data from TIFs
-  with netCDF4.Dataset(out_dir + '/script-projected-climate-dataset.nc', mode='a') as new_climatedataset:
+  with netCDF4.Dataset(os.path.join(out_dir, 'script-projected-climate-dataset.nc'), mode='a') as new_climatedataset:
 
     for yridx, year in enumerate(range(2001, 2001+args.years)):
       for midx, month in enumerate(range(1,13)): # Note 1 based month!
