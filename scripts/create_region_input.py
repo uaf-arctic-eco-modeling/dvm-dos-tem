@@ -238,10 +238,12 @@ if __name__ == '__main__':
   y_dim = args.dim;
 
   tif_dir = args.tifs;
+  print "Will be looking for files in:      ", tif_dir
+
 
   # Like this: somedirectory/somelocation_NxM
   out_dir = os.path.join(args.outdir, "%s_%sx%s" % (args.loc, x_dim, y_dim))
-  print "Will be (over)writing files to: ", out_dir
+  print "Will be (over)writing files to:    ", out_dir
   if not os.path.exists(out_dir):
     os.makedirs(out_dir)
 
@@ -304,11 +306,10 @@ if __name__ == '__main__':
 
     for yridx, year in enumerate(range(2001, 2001+args.years)):
       for midx, month in enumerate(range (1,13)): # Note 1 based month!
+
         print year, month
+
         # TRANSLATE TO NETCDF
-        # The curly braces are needed to run the shell command from w/in
-        # ipython and have the variable exansion with year and month
-        # work out alright
         print "Converting tif --> netcdf..."
         call(['gdal_translate', '-of', 'netCDF',
               tif_dir + '/tas_mean_C_iem_cccma_cgcm3_1_sresa1b_2001_2100/tas_mean_C_iem_cccma_cgcm3_1_sresa1b_%02d_%04d.tif' % (month,year),
