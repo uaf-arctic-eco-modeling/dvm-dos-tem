@@ -305,7 +305,7 @@ if __name__ == '__main__':
   with netCDF4.Dataset(out_dir + '/script-projected-climate-dataset.nc', mode='a') as new_climatedataset:
 
     for yridx, year in enumerate(range(2001, 2001+args.years)):
-      for midx, month in enumerate(range (1,13)): # Note 1 based month!
+      for midx, month in enumerate(range(1,13)): # Note 1 based month!
 
         print year, month
 
@@ -349,29 +349,24 @@ if __name__ == '__main__':
 
         print "Writing subset's data to new files..."
         with netCDF4.Dataset('script-temporary_tair2.nc', mode='r') as t2:
-          # Grab the lat and lon from the temporary file
           tair = new_climatedataset.variables['tair']
           tair[yridx*12+midx] = t2.variables['Band1'][:]
 
         with netCDF4.Dataset('script-temporary_rsds2.nc', mode='r') as t2:
-          # Grab the lat and lon from the temporary file
           nirr = new_climatedataset.variables['nirr']
           nirr[yridx*12+midx] = t2.variables['Band1'][:]
                 
         with netCDF4.Dataset('script-temporary_pr2.nc', mode='r') as t2:
-          # Grab the lat and lon from the temporary file
           prec = new_climatedataset.variables['precip']
           prec[yridx*12+midx] = t2.variables['Band1'][:]
 
         with netCDF4.Dataset('script-temporary_vapo2.nc', mode='r') as t2:
-          # Grab the lat and lon from the temporary file
           vapo = new_climatedataset.variables['vapor_press']
           vapo[yridx*12+midx] = t2.variables['Band1'][:]
-                
-  print "Done appending. Closing the new file"
-####
 
-#end Main
+        print "Done appending. Closing the new file"
+
+    print "Done with year loop."
 
 
 
