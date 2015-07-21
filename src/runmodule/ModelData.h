@@ -35,6 +35,7 @@ public:
   string co2_file;
   string runmask_file;
   string output_dir;
+  bool output_monthly;
 
   int changeclimate; // 0: default (up to run stage); 1: dynamical; -1: static
   int changeco2; // 0: default (up to run stage); 1: dynamical; -1: static

@@ -46,6 +46,7 @@ ModelData::ModelData(Json::Value controldata){
   co2_file          = controldata["IO"]["co2_file"].asString();
   runmask_file      = controldata["IO"]["runmask_file"].asString();
   output_dir        = controldata["IO"]["output_dir"].asString();
+  output_monthly    = controldata["IO"]["output_monthly"].asInt();
 
   
   changeclimate = controldata["model_settings"]["dynamic_climate"].asInt();

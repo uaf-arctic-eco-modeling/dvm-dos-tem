@@ -74,7 +74,7 @@ void Runner::run_years(int start_year, int end_year, const std::string& stage,
       // Monthly output control needs to be determined by a parameter
       // or from the control file. It should default to false given
       // the number of files it produces.
-      if(cal_ctrl_ptr) {
+      if(cal_ctrl_ptr && md.output_monthly) {
         BOOST_LOG_SEV(glg, debug) << "Write monthly calibration data to json files...";
         this->output_caljson_monthly(iy, im);
       }
