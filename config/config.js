@@ -12,7 +12,7 @@
     "drainage_file":      "DATA/Toolik_10x10/drainage.nc",
     "co2_file":           "DATA/Toolik_10x10/co2.nc",
     "runmask_file":       "DATA/Toolik_10x10/run-mask.nc",
-    "output":             "DATA/Toolik_10x10/output"
+    "output":             "DATA/Toolik_10x10/output",
     "output_monthly":     0
   },
 
