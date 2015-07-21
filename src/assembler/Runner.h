@@ -31,7 +31,7 @@ using namespace std;
 
 class Runner {
 public:
-  Runner(ModelData md, int y, int x);
+  Runner(ModelData md, bool cal_mode, int y, int x);
   Runner();
   ~Runner();
 
@@ -40,11 +40,13 @@ public:
   
   Cohort cohort;
 
+  // Should end up as a null pointer if calibrationMode is off.
+  boost::shared_ptr<CalController> calcontroller_ptr;
   int chtid;    /* currently-running 'cohort' id */
   int error;    /* error index */
 
-  void run_years(int year_start, int year_end, const std::string& stage, boost::shared_ptr<CalController> cal_ctrl_ptr);
 
+  void run_years(int year_start, int year_end, const std::string& stage);
   void modeldata_module_settings_from_args(const ArgHandler &args);
   void output_caljson_yearly(int year);
   void output_caljson_monthly(int year, int month);

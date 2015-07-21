@@ -175,15 +175,8 @@ int main(int argc, char* argv[]){
 
           // Maybe 'cal_mode' should be part of the ModelData config object ??
           BOOST_LOG_SEV(glg, debug) << "Setup the NEW STYLE RUNNER OBJECT ...";
-          Runner runner(modeldata, rowidx, colidx);
+          Runner runner(modeldata, args->get_cal_mode(), rowidx, colidx);
 
-          // Ends up as a null pointer if calibrationMode is off.
-          boost::shared_ptr<CalController> calcontroller_ptr;
-          if ( args->get_cal_mode() ) {
-            calcontroller_ptr.reset( new CalController(&runner.cohort) );
-            calcontroller_ptr->clear_and_create_json_storage();
-
-          }
           BOOST_LOG_SEV(glg, debug) << runner.cohort.ground.layer_report_string();
           //runner.cohort.reinitialize(md->initsource);
 
@@ -225,19 +218,19 @@ int main(int argc, char* argv[]){
             BOOST_LOG_SEV(glg, debug) << "Ground, right before 'pre-run'. "
                                       << runner.cohort.ground.layer_report_string();
 
-            runner.run_years(0, 100, "pre-run", calcontroller_ptr);
+            runner.run_years(0, 100, "pre-run");
 
             BOOST_LOG_SEV(glg, debug) << "Ground, right after 'pre-run'"
                                       << runner.cohort.ground.layer_report_string();
 
-            if (calcontroller_ptr) {
+            if (runner.calcontroller_ptr) {
               BOOST_LOG_SEV(glg, info)
                   << "CALIBRATION MODE. Pausing. Please check that the "
                   << "'warm up' data looks good.";
 
-              calcontroller_ptr->pause();
+              runner.calcontroller_ptr->pause();
 
-              calcontroller_ptr->clear_and_create_json_storage();
+              runner.calcontroller_ptr->clear_and_create_json_storage();
             }
 
             runner.cohort.md->set_envmodule(true);
@@ -250,7 +243,7 @@ int main(int argc, char* argv[]){
             //  changing climate?: NO - use avgX values
             //  changing CO2?:     NO - use static value
 
-            runner.run_years(0, MAX_EQ_YR, "eq-run", calcontroller_ptr);
+            runner.run_years(0, MAX_EQ_YR, "eq-run");
 
             // write out restart-eq.nc ???
 

@@ -18,7 +18,7 @@
 
 extern src::severity_logger< severity_level > glg;
 
-Runner::Runner(ModelData mdldata, int y, int x):
+Runner::Runner(ModelData mdldata, bool cal_mode, int y, int x):
     calibrationMode(false), y(y), x(x) {
 
   BOOST_LOG_SEV(glg, note) << "RUNNER Constructing a Runner, new style, with ctor-"
@@ -27,6 +27,11 @@ Runner::Runner(ModelData mdldata, int y, int x):
   this->md = mdldata;
   this->cohort = Cohort(y, x, &mdldata); // explicitly constructed cohort...
 
+  BOOST_LOG_SEV(glg, info) << "Calibration mode?: " << cal_mode;
+  if ( cal_mode ) {
+    this->calcontroller_ptr.reset( new CalController(&this->cohort) );
+    this->calcontroller_ptr->clear_and_create_json_storage();
+  } // else null??
   // within-grid cohort-level aggregated 'ed' (i.e. 'edall in 'cht')
   BOOST_LOG_SEV(glg, debug) << "Create some empty containers for 'cohort-level "
                             << "aggregations of 'ed', (i.e. 'edall in 'cohort')";
@@ -43,8 +48,7 @@ Runner::Runner(ModelData mdldata, int y, int x):
 Runner::~Runner() {
 };
 
-void Runner::run_years(int start_year, int end_year, const std::string& stage,
-    boost::shared_ptr<CalController> cal_ctrl_ptr) {
+void Runner::run_years(int start_year, int end_year, const std::string& stage) {
 
   /** YEAR TIMESTEP LOOP */
   for (int iy = start_year; iy < end_year; ++iy) {
@@ -53,15 +57,15 @@ void Runner::run_years(int start_year, int end_year, const std::string& stage,
     /* Interpolate all the monthly values...? */
     this->cohort.climate.prepare_daily_driving_data(iy, stage);
 
-    if (cal_ctrl_ptr) { // should be null unless we are in "calibration mode"
+    if (this->calcontroller_ptr) { // should be null unless we are in "calibration mode"
 
       // Run any pre-configured directives
-      cal_ctrl_ptr->run_config(iy);
+      this->calcontroller_ptr->run_config(iy);
 
       // See if a signal has arrived (possibly from user
       // hitting Ctrl-C) and if so, stop the simulation
       // and drop into the calibration "shell".
-      cal_ctrl_ptr->check_for_signals();
+      this->calcontroller_ptr->check_for_signals();
 
     }
 
@@ -74,7 +78,7 @@ void Runner::run_years(int start_year, int end_year, const std::string& stage,
       // Monthly output control needs to be determined by a parameter
       // or from the control file. It should default to false given
       // the number of files it produces.
-      if(cal_ctrl_ptr && md.output_monthly) {
+      if(this->calcontroller_ptr && md.output_monthly) {
         BOOST_LOG_SEV(glg, debug) << "Write monthly calibration data to json files...";
         this->output_caljson_monthly(iy, im);
       }
@@ -83,7 +87,7 @@ void Runner::run_years(int start_year, int end_year, const std::string& stage,
 
     //BOOST_LOG_SEV(glg, debug) << "(END OF YEAR) " << cohort.ground.layer_report_string();
 
-    if(cal_ctrl_ptr) { // check args->get_cal_mode() or calcontroller_ptr? ??
+    if(this->calcontroller_ptr) { // check args->get_cal_mode() or calcontroller_ptr? ??
       BOOST_LOG_SEV(glg, debug) << "Send yearly calibration data to json files...";
       this->output_caljson_yearly(iy);
     }
