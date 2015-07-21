@@ -5,6 +5,8 @@
 #ifndef FLUXES_H_
 #define FLUXES_H_
 
+#include <limits>
+
 #include "cohortconst.h"
 #include "layerconst.h"
 #include "errorcode.h"
@@ -91,7 +93,7 @@ struct veg2atm_env {
   //energy
   double swrefl; // W/m2: reflected solar radiation
 
-  veg2atm_env() : tran(UIN_D), evap(UIN_D), tran_pet(UIN_D), evap_pet(UIN_D),
+  veg2atm_env() : tran(UIN_D), evap(UIN_D), tran_pet(UIN_D), evap_pet(std::numeric_limits<double>::signaling_NaN()),
                   sublim(UIN_D), swrefl(UIN_D) {}
   
 };
@@ -218,7 +220,7 @@ struct soi2atm_env {
   double evap;
   double evap_pet;
   double swrefl;
-  soi2atm_env(): evap(UIN_D), evap_pet(UIN_D), swrefl(UIN_D) {}
+  soi2atm_env(): evap(UIN_D), evap_pet(std::numeric_limits<double>::signaling_NaN()), swrefl(UIN_D) {}
 };
 
 struct soi2atm_bgc {
