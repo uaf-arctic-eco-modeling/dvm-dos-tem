@@ -277,15 +277,15 @@ if __name__ == '__main__':
     { 'jsontag': 'Rainfall', 'pnum': 0, 'unit': 'mm', },
     { 'jsontag': 'Snowfall', 'pnum': 0, 'unit': 'mm', },
     { 'jsontag': 'WaterTable', 'pnum': 1, 'unit': 'm', },
-    { 'jsontag': 'VWCOrganicLayer', 'pnum': 2, 'unit': '%', },
-    { 'jsontag': 'VWCMineralLayer', 'pnum': 2, 'unit': '%', },
-    { 'jsontag': 'Evapotranspiration', 'pnum' : 3, 'unit': 'mm/time unit', },
+    { 'jsontag': 'VWCDeep', 'pnum': 2, 'unit': '%', },
+    { 'jsontag': 'VWCShlw', 'pnum': 2, 'unit': '%', },
+    { 'jsontag': 'EET', 'pnum' : 3, 'unit': 'mm/time unit', },
     { 'jsontag': 'ActiveLayerDepth', 'pnum': 4, 'unit': 'm', },
-    { 'jsontag': 'TempAir', 'pnum': 5, 'unit': 'degrees C', },
-    { 'jsontag': 'TempOrganicLayer', 'pnum': 5, 'unit': 'degrees C', },
-    { 'jsontag': 'TempMineralLayer', 'pnum': 6, 'unit': 'degrees C', },
-    { 'jsontag': 'PARDownSum', 'pnum': 7, 'unit': 'W/m2', },
-    { 'jsontag': 'PARAbsorbSum', 'pnum': 7, 'unit': 'W/m2', },
+    { 'jsontag': 'TAir', 'pnum': 5, 'unit': 'degrees C', },
+    { 'jsontag': 'TShlw', 'pnum': 5, 'unit': 'degrees C', },
+    { 'jsontag': 'TDeep', 'pnum': 6, 'unit': 'degrees C', },
+#    { 'jsontag': 'PARDownSum', 'pnum': 7, 'unit': 'W/m2', },
+#    { 'jsontag': 'PARAbsorbSum', 'pnum': 7, 'unit': 'W/m2', },
   ]
 
   if args.data:
