@@ -763,6 +763,7 @@ void EnvData::update_from_climate(const Climate& clm, const int midx, const int 
   this->d_atmd.svp = clm.svp_d[doy_idx];
   this->d_atmd.vpd = clm.vpd_d[doy_idx];
 
+  // Adjust days-since-rain
   if(this->d_a2l.prec > 0.0) {
     this->d_atms.dsr = 0;
   } else {

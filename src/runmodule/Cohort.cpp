@@ -49,7 +49,7 @@ Cohort::Cohort(int y, int x, ModelData* modeldatapointer):
   this->cd.cmttype = temutil::get_veg_class(modeldatapointer->veg_class_file, y, x);
   this->cd.drainage_type = temutil::get_drainage_class(modeldatapointer->drainage_file, y, x);
 
-  BOOST_LOG_SEV(glg, info) << "Next, we build a CohortLookup object, properly configured with config directory and community type.";
+  BOOST_LOG_SEV(glg, info) << "Next, we build a CohortLookup object, properly configured with parameter directory and community type.";
   this->chtlu = CohortLookup( modeldatapointer->parameter_dir, temutil::cmtnum2str(cd.cmttype) );
   
   BOOST_LOG_SEV(glg, info) << "Create the vegetation object...";

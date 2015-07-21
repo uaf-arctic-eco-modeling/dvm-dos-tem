@@ -130,20 +130,6 @@ int main(int argc, char* argv[]){
 
   BOOST_LOG_SEV(glg, note) << "Start dvmdostem @ " << ctime(&stime);
 
-  /* Can read the input data and parameters to choose a few things:
-
-   - Stage
-    eq
-    sp
-    tr
-    sc
-
-   - Cal mode
-    - available in all stages?
-   - outputs to setup
-
-  */
-
   BOOST_LOG_SEV(glg, debug) << "NEW STYLE: Going to run space-major over a 2D area covered by run mask...";
 
   // Open the run mask (spatial mask)
@@ -187,6 +173,7 @@ int main(int argc, char* argv[]){
           // IMPROVE THIS!
           modeldata.initmode = 1;
 
+          // Maybe 'cal_mode' should be part of the ModelData config object ??
           BOOST_LOG_SEV(glg, debug) << "Setup the NEW STYLE RUNNER OBJECT ...";
           Runner runner(modeldata, rowidx, colidx);
 
@@ -200,7 +187,8 @@ int main(int argc, char* argv[]){
           BOOST_LOG_SEV(glg, debug) << runner.cohort.ground.layer_report_string();
           //runner.cohort.reinitialize(md->initsource);
 
-          // seg fault w/o preparing climate...
+          // seg fault w/o preparing climate...so prepare year zero...
+          // this is also called inside run_years(...)
           runner.cohort.climate.prepare_daily_driving_data(0, "eq");
 
           runner.cohort.initSubmodules();
@@ -220,11 +208,8 @@ int main(int argc, char* argv[]){
             //  - run_years( 0 <= iy <= X )
             //  - ignore the calibration directives
             //
-            //  * what should the plots look like? static/constant env
-            //    variables I think, nothing else? except there is some
-            //    thing cacluated in the water balance module...
-            //*/
 
+            // turn off everything but env
             runner.cohort.md->set_envmodule(true);
             runner.cohort.md->set_bgcmodule(false);
             runner.cohort.md->set_nfeed(false);
@@ -234,14 +219,16 @@ int main(int argc, char* argv[]){
             runner.cohort.md->set_dslmodule(false);
             runner.cohort.md->set_dvmmodule(false);
 
-//              changing climate?: NO - use avgX values
-//              changing CO2?:     NO - use static value
+            // changing climate?: NO - use avgX values
+            // changing CO2?:     NO - use static value
 
-            BOOST_LOG_SEV(glg, debug) << runner.cohort.ground.layer_report_string();
+            BOOST_LOG_SEV(glg, debug) << "Ground, right before 'pre-run'. "
+                                      << runner.cohort.ground.layer_report_string();
 
             runner.run_years(0, 100, "pre-run", calcontroller_ptr);
 
-            BOOST_LOG_SEV(glg, debug) << runner.cohort.ground.layer_report_string();
+            BOOST_LOG_SEV(glg, debug) << "Ground, right after 'pre-run'"
+                                      << runner.cohort.ground.layer_report_string();
 
             if (calcontroller_ptr) {
               BOOST_LOG_SEV(glg, info)
@@ -265,10 +252,14 @@ int main(int argc, char* argv[]){
 
             runner.run_years(0, MAX_EQ_YR, "eq-run", calcontroller_ptr);
 
+            // write out restart-eq.nc ???
 
           }
           if (modeldata.runsp) {
 
+            // look for and read-in restart-eq.nc ??
+
+            // write out restart-sp.nc ???
           }
 
           // NOTE: Could have an option to set some time constants based on
