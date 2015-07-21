@@ -471,7 +471,9 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
 
   // (ii)Initialize the yearly/monthly accumulators, which are accumulating at the end of month/day in 'ed'
   for (int ip=0; ip<NUM_PFT; ip++) {
-    if (cd.d_veg.vegcov[ip] > 0.0) { // PROBLEM: looks like cd.d_veg.vegcov is not initialized yet??? (-77777)
+    // PROBLEM: looks like cd.d_veg.vegcov is not initialized yet??? (-77777).
+    // Looks like the m_veg.vegcov is...so we will use it instead...
+    if (cd.m_veg.vegcov[ip] > 0.0) {
       if(currmind==0) {
         ed[ip].atm_beginOfYear();
         ed[ip].veg_beginOfYear();
