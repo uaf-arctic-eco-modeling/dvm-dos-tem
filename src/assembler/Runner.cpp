@@ -70,12 +70,14 @@ void Runner::run_years(int start_year, int end_year, const std::string& stage,
 
       this->cohort.updateMonthly(iy, im, DINM[im]);
 
-      // Maybe we are not really using this? Restults in a whole
-      // boat load of files generated....
-      //if(this->get_calMode()) {
-      //  BOOST_LOG_SEV(glg, debug) << "Send monthly calibration data to json files...";
-      //  this->output_caljson_monthly(icalyr, im);
-      //}
+
+      // Monthly output control needs to be determined by a parameter
+      // or from the control file. It should default to false given
+      // the number of files it produces.
+      if(cal_ctrl_ptr) {
+        BOOST_LOG_SEV(glg, debug) << "Write monthly calibration data to json files...";
+        this->output_caljson_monthly(iy, im);
+      }
 
     } /* end month loop */
 
@@ -90,6 +92,89 @@ void Runner::run_years(int start_year, int end_year, const std::string& stage,
 
   } /* end year loop */
 }
+
+void Runner::output_caljson_monthly(int year, int month){
+  Json::Value data;
+  std::ofstream out_stream;
+
+  /* Not PFT dependent */
+  data["Year"] = year;
+  data["Month"] = month;
+  data["TAir"] = cohort.ed->m_atms.ta;
+  data["Snowfall"] = cohort.ed->m_a2l.snfl;
+  data["Rainfall"] = cohort.ed->m_a2l.rnfl;
+  data["WaterTable"] = cohort.ed->m_sois.watertab;
+  data["ActiveLayerDepth"] = cohort.ed->m_soid.ald;
+  data["CO2"] = cohort.ed->m_atms.co2;
+  data["VPD"] = cohort.ed->m_atmd.vpd;
+  data["EET"] = cohort.ed->m_l2a.eet;
+  //PAR?
+  //PARAbsorb
+
+  data["VWCShlw"] = cohort.ed->m_soid.vwcshlw; 
+  data["VWCDeep"] = cohort.ed->m_soid.vwcdeep;
+  data["VWCMineA"] = cohort.ed->m_soid.vwcminea;
+  data["VWCMineB"] = cohort.ed->m_soid.vwcmineb;
+  data["VWCMineC"] = cohort.ed->m_soid.vwcminec;
+  data["TShlw"] = cohort.ed->m_soid.tshlw;
+  data["TDeep"] = cohort.ed->m_soid.tdeep;
+  data["TMineA"] = cohort.ed->m_soid.tminea;
+  data["TMineB"] = cohort.ed->m_soid.tmineb;
+  data["TMineC"] = cohort.ed->m_soid.tminec;
+
+  data["StNitrogenUptakeAll"] = cohort.bd->m_soi2v.snuptakeall;
+  data["AvailableNitrogenSum"] = cohort.bd->m_soid.avlnsum;
+  data["OrganicNitrogenSum"] = cohort.bd->m_soid.orgnsum;
+  data["CarbonShallow"] = cohort.bd->m_soid.shlwc;
+  data["CarbonDeep"] = cohort.bd->m_soid.deepc;
+  data["CarbonMineralSum"] = cohort.bd->m_soid.mineac
+                             + cohort.bd->m_soid.minebc
+                             + cohort.bd->m_soid.minecc;
+  data["MossdeathCarbon"] = cohort.bdall->m_v2soi.mossdeathc;
+  data["MossdeathNitrogen"] = cohort.bdall->m_v2soi.mossdeathn;
+
+  /* PFT dependent variables */
+  double parDownSum = 0;
+  double parAbsorbSum = 0;
+
+  for(int pft=0; pft<NUM_PFT; pft++) {
+    char pft_chars[5];
+    sprintf(pft_chars, "%d", pft);
+    std::string pft_str = std::string(pft_chars);
+    //c++0x equivalent: std::string pftvalue = std::to_string(pft);
+    data["PFT" + pft_str]["VegCarbon"]["Leaf"] = cohort.bd[pft].m_vegs.c[I_leaf];
+    data["PFT" + pft_str]["VegCarbon"]["Stem"] = cohort.bd[pft].m_vegs.c[I_stem];
+    data["PFT" + pft_str]["VegCarbon"]["Root"] = cohort.bd[pft].m_vegs.c[I_root];
+    data["PFT" + pft_str]["VegStructuralNitrogen"]["Leaf"] = cohort.bd[pft].m_vegs.strn[I_leaf];
+    data["PFT" + pft_str]["VegStructuralNitrogen"]["Stem"] = cohort.bd[pft].m_vegs.strn[I_stem];
+    data["PFT" + pft_str]["VegStructuralNitrogen"]["Root"] = cohort.bd[pft].m_vegs.strn[I_root];
+    data["PFT" + pft_str]["GPPAll"] = cohort.bd[pft].m_a2v.gppall;
+    data["PFT" + pft_str]["NPPAll"] = cohort.bd[pft].m_a2v.nppall;
+    data["PFT" + pft_str]["GPPAllIgnoringNitrogen"] = cohort.bd[pft].m_a2v.ingppall;
+    data["PFT" + pft_str]["NPPAllIgnoringNitrogen"] = cohort.bd[pft].m_a2v.innppall;
+    data["PFT" + pft_str]["LitterfallCarbonAll"] = cohort.bd[pft].m_v2soi.ltrfalcall;
+    data["PFT" + pft_str]["LitterfallNitrogenAll"] = cohort.bd[pft].m_v2soi.ltrfalnall;
+    data["PFT" + pft_str]["PARDown"] = cohort.ed[pft].m_a2v.pardown;
+    parDownSum+=cohort.ed[pft].m_a2v.pardown;
+    data["PFT" + pft_str]["PARAbsorb"] = cohort.ed[pft].m_a2v.parabsorb;
+    parAbsorbSum+=cohort.ed[pft].m_a2v.parabsorb;
+    data["PFT" + pft_str]["StNitrogenUptake"] = cohort.bd[pft].m_soi2v.snuptakeall;
+  }
+
+  data["PARAbsorbSum"] = parAbsorbSum;
+  data["PARDownSum"] = parDownSum;
+  data["GPPSum"] = cohort.bdall->m_a2v.gppall;
+  data["NPPSum"] = cohort.bdall->m_a2v.nppall;
+
+  std::stringstream filename;
+  filename.fill('0');
+  filename << "/tmp/cal-dvmdostem/" << std::setw(4) << year << "_"
+           << std::setw(2) << month << ".json";
+  out_stream.open(filename.str().c_str(), std::ofstream::out);
+  out_stream << data << std::endl;
+  out_stream.close();
+}
+
 
 void Runner::output_caljson_yearly(int year) {
   Json::Value data;
