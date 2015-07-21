@@ -527,6 +527,10 @@ class ExpandingWindow(object):
     '''Turn on the grid and legend.'''
     logging.debug("Turn on grid and legend.")
     for ax in self.axes:
+      if self.input_helper.monthly():
+        loc = mplticker.MultipleLocator(base=12)
+        ax.xaxis.set_major_locator(loc)
+
       ax.grid(True) # <-- w/o parameter, this toggles!!
       ax.legend(prop={'size':8.0}, loc='upper left')
 
