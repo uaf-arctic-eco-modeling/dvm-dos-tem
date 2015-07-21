@@ -98,6 +98,7 @@ void Runner::output_caljson_monthly(int year, int month){
   std::ofstream out_stream;
 
   /* Not PFT dependent */
+  // FIX: should the non-pft dependant stuff be coming from edall??
   data["Year"] = year;
   data["Month"] = month;
   data["TAir"] = cohort.ed->m_atms.ta;
@@ -108,6 +109,9 @@ void Runner::output_caljson_monthly(int year, int month){
   data["CO2"] = cohort.ed->m_atms.co2;
   data["VPD"] = cohort.ed->m_atmd.vpd;
   data["EET"] = cohort.ed->m_l2a.eet;
+  data["PET"] = cohort.ed->m_l2a.pet;
+  data["PAR"] = cohort.edall->m_a2v.pardown;            // <-- from edall
+  data["PARAbsorb"] = cohort.edall->m_a2v.parabsorb;    // <-- from edall
   //PAR?
   //PARAbsorb
 
@@ -168,8 +172,15 @@ void Runner::output_caljson_monthly(int year, int month){
 
   std::stringstream filename;
   filename.fill('0');
-  filename << "/tmp/cal-dvmdostem/" << std::setw(4) << year << "_"
-           << std::setw(2) << month << ".json";
+
+  // this format file name works with FixedWindow plotting script 'YYYY_MM.json'
+  //filename << "/tmp/cal-dvmdostem/" << std::setw(4) << year << "_"
+  //         << std::setw(2) << month << ".json";
+
+  // (in progress) works with ExpandingWindow plotting scritp '0000000.json'
+  filename << "/tmp/cal-dvmdostem/" << std::setw(7) << (12 * year) + month
+           << ".json";
+
   out_stream.open(filename.str().c_str(), std::ofstream::out);
   out_stream << data << std::endl;
   out_stream.close();

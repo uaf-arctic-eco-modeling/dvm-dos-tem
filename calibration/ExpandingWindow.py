@@ -29,6 +29,7 @@ import selutil
 
 # The directories to look in for json files.
 DEFAULT_YEARLY_JSON_LOCATION = '/tmp/year-cal-dvmdostem'
+DEFAULT_MONTHLY_JSON_LOCATION = '/tmp/cal-dvmdostem'
 DEFAULT_EXTRACTED_ARCHIVE_LOCATION = '/tmp/extracted-calibration-archive'
 #
 # Disable some buttons on the default toobar that freeze the program.
@@ -67,8 +68,10 @@ def exit_gracefully(signum, frame):
 class InputHelper(object):
   '''A class to help abstract some of the details of opening .json files
   '''
-  def __init__(self, path=DEFAULT_YEARLY_JSON_LOCATION):
+  def __init__(self, path=DEFAULT_YEARLY_JSON_LOCATION, monthly=False):
     logging.debug("Making an InputHelper object...")
+
+    self._monthly = monthly
 
     if os.path.isdir(path):
       # Assume path is a directory full of .json files
@@ -96,6 +99,7 @@ class InputHelper(object):
       # finally, set path to the new, "extracted archive" directory
       self._path = DEFAULT_EXTRACTED_ARCHIVE_LOCATION
 
+
   def files(self):
     '''Returns a list of files, either in a directory or .tar.gz archive'''
     logging.debug("Returning a sorted list of files paths from %s that match a '*.json' pattern glob." % self._path)
@@ -105,6 +109,9 @@ class InputHelper(object):
     '''Useful for client programs wanting to show where files are coming from'''
     return self._path
 
+  def monthly(self):
+    return self._monthly
+
 
   def coverage_report(self, file_list):
     '''convenience function to write some info about files to the logs'''
@@ -112,10 +119,20 @@ class InputHelper(object):
     logging.info( "%i json files in %s" % (len(file_list), self._path) )
 
     if len(file_list) > 0:
-      ffy = int(os.path.basename(file_list[0])[0:5])
-      lfy = int(os.path.basename(file_list[-1])[0:5])
-      logging.debug( "First file: %s (year %s)" % (file_list[0], ffy) )
-      logging.debug( "Last file: %s (year %s)" % (file_list[-1], lfy) )
+
+      if self._monthly:
+        ffy = int( os.path.splitext(os.path.basename(file_list[0]))[0] ) / 12
+        lfy = int( os.path.splitext(os.path.basename(file_list[-1]))[0] ) / 12
+        ffm = int( os.path.splitext(os.path.basename(file_list[0]))[0] ) % 12
+        lfm = int( os.path.splitext(os.path.basename(file_list[-1]))[0] ) % 12
+      else:
+        ffy = int(os.path.basename(file_list[0])[0:5])
+        lfy = int(os.path.basename(file_list[-1])[0:5])
+        ffm = '--'
+        lfm = '--'
+
+      logging.debug( "First file: %s (year %s, month %s)" % (file_list[0], ffy, ffm) )
+      logging.debug( "Last file: %s (year %s, month %s)" % (file_list[-1], lfy, lfm) )
 
       if lfy > 0:
         pc = 100 * len(file_list) / len(np.arange(ffy, lfy))
@@ -179,7 +196,11 @@ class ExpandingWindow(object):
       plt.setp(self.axes[r].get_xticklabels(), visible=False)
 
     # Set the x label and ticks for the last (lowest) subplot
-    self.axes[-1].set_xlabel("Years")
+    if self.input_helper.monthly():
+      self.axes[-1].set_xlabel("Month")
+    else:
+      self.axes[-1].set_xlabel("Years")
+
     plt.setp(self.axes[-1].get_xticklabels(), visible=True)
                                   # L     B     W     H
     gs.tight_layout(self.fig, rect=[0.05, 0.00, 1.00, 0.95])
@@ -233,12 +254,16 @@ class ExpandingWindow(object):
     log.info("Load data to plot. Relimit data?: %s  Autoscale?: %s", relim, autoscale)
     
     # gets a sorted list of json files...
-    files = input_helper.files()
+    files = self.input_helper.files()
     self.input_helper.coverage_report(files)
 
-    if self.window_size_yrs:
-      log.info("Reducing files list to last %i files..." % self.window_size_yrs)
-      files = files[-self.window_size_yrs:]
+    if self.window_size_yrs:  # seems broken TKinter Exception about 'can't enter readline'
+      if self.input_helper.monthly():
+        log.info("Reducing files list to last %i files..." % self.window_size_yrs*12)
+        files = files[-self.window_size_yrs*12]
+      else:
+        log.info("Reducing files list to last %i files..." % self.window_size_yrs)
+        files = files[-self.window_size_yrs:]
 
     self.input_helper.coverage_report(files)
 
@@ -246,7 +271,7 @@ class ExpandingWindow(object):
     if len(files) == 0:
       x = np.arange(0)
     else:
-      end = int( os.path.basename(files[-1])[0:5] )
+      end = int( os.path.splitext( os.path.basename(files[-1]) )[0] )
       x = np.arange(0, end + 1 , 1) # <-- make range inclusive!
     
     # for each trace, create a tmp y container the same size as x
@@ -261,7 +286,7 @@ class ExpandingWindow(object):
         with open(file) as f:
           fdata = json.load(f)
 
-        idx = int(os.path.basename(file)[0:5])
+        idx = int(os.path.splitext( os.path.basename(file) )[0])
 
         for trace in self.traces:
           # set the trace's tmpy[idx] to file's data
@@ -321,7 +346,7 @@ class ExpandingWindow(object):
     files = self.input_helper.files()
     self.input_helper.coverage_report(files)
 
-    #self.report_view_and_data_lims()
+    self.report_view_and_data_lims()
 
     logging.debug("Collecting data/view limits.")
     for i, ax in enumerate(self.axes):
@@ -700,6 +725,10 @@ if __name__ == '__main__':
       help=textwrap.dedent('''Generate plots from an archive of json files, 
           instead of the normal /tmp directory.'''))
 
+  parser.add_argument('--monthly', action='store_true', #default='/tmp/cal-dvmdostem',
+      help=textwrap.dedent('''Read and disply monthly json files instead of 
+          yearly. NOTE: may be slow!!'''))
+
 
   print "Parsing command line arguments..."
   args = parser.parse_args()
@@ -758,9 +787,12 @@ if __name__ == '__main__':
 
   logging.info("Setting up the input data source...")
   if args.from_archive:
-    input_helper = InputHelper(path=args.from_archive)
+    input_helper = InputHelper(path=args.from_archive, monthly=args.monthly)
   else:
-    input_helper = InputHelper(path=DEFAULT_YEARLY_JSON_LOCATION)
+    if args.monthly:
+      input_helper = InputHelper(path=DEFAULT_MONTHLY_JSON_LOCATION, monthly=args.monthly)
+    else:
+      input_helper = InputHelper(path=DEFAULT_YEARLY_JSON_LOCATION, monthly=args.monthly)
 
   logging.info("Build the plot object...")
   ewp = ExpandingWindow(
