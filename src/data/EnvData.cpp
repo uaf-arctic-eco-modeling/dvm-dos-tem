@@ -333,6 +333,7 @@ void EnvData::grnd_beginOfMonth() {
 void EnvData::grnd_beginOfDay() {
   // need to set some diagnostic variables to zero
   d_snw2soi.melt =0.;
+  d_soi2a.evap_pet = 0.0;
 };
 
 /////////////////////////////////////////////////////////////////////////
