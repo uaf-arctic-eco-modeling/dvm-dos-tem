@@ -1,5 +1,9 @@
 # Basic dvm-dos-tem Makefile 
 
+# Add compiler flag for enabling floating point exceptions:
+# -DBSD_FPE for BSD (OSX)
+# -DGNU_FPE for various Linux
+
 CC=g++
 CFLAGS=-c -Werror -ansi -g -fPIC -DBOOST_ALL_DYN_LINK
 LIBS=-lnetcdf_c++ -lnetcdf -lboost_system -lboost_filesystem \

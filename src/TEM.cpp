@@ -51,6 +51,16 @@
 #include "inc/tbc_mpi_constants.h"
 #endif
 
+// For managing the floating point environment
+#ifdef BSD_FPE
+  #include <xmmintrin.h> // BSD (OSX)
+#endif
+
+#ifdef GNU_FPE
+  #include <fenv.h> // GNU Linux
+#endif
+
+
 
 #include "inc/timeconst.h"
 #include "ArgHandler.h"
@@ -83,7 +93,30 @@ std::vector<float> read_new_co2_file(const std::string &filename);
 // draft - reading in a 2D run mask...
 std::vector< std::vector<int> > read_run_mask(const std::string &filename);
 
+/** Enables a 'floating point exception' mask that will make the program crash
+ *  when a floating point number is generated (and or operated upon).
+ *
+ * Some more info
+ * http://www.johndcook.com/blog/ieee_exceptions_in_cpp/
+ * http://stackoverflow.com/questions/247053/enabling-floating-point-interrupts-on-mac-os-x-intel
+ *
+ * It might be helpful to add a singal handler at some point that could report
+ * on what/where the exception is generated?
+*/
+void enable_floating_point_exceptions() {
+  std::cout << "Enabling floating point exceptions mask!";
 
+  // BSD (OSX)
+  #ifdef BSD_FPE
+    _MM_SET_EXCEPTION_MASK(_MM_GET_EXCEPTION_MASK() & ~_MM_MASK_INVALID);
+  #endif
+
+// GNU Linux
+  #ifdef GNU_FPE
+    feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW);
+  #endif
+
+}
 
 
 ArgHandler* args = new ArgHandler();
@@ -103,6 +136,9 @@ int main(int argc, char* argv[]){
 
   BOOST_LOG_SEV(glg, note) << "Checking command line arguments...";
   args->verify();
+
+  BOOST_LOG_SEV(glg, note) << "Turn floating point exceptions on?: " << args->get_fpe();
+  if (args->get_fpe()) { enable_floating_point_exceptions(); }
 
   BOOST_LOG_SEV(glg, note) << "Reading controlfile into main(..) scope...";
   Json::Value controldata = temutil::parse_control_file(args->get_ctrl_file());

@@ -116,8 +116,8 @@ if platform_name == 'Linux': #rar, tobey VM, Colin, Vijay, Helene VM(?)
 
   platform_library_path = ['/usr/lib64', '~/usr/local/lib']
 
-  compiler_flags = '-Werror -ansi -g -fPIC -DBOOST_ALL_DYN_LINK';
-  platform_libs = libs;
+  compiler_flags = '-Werror -ansi -g -fPIC -DBOOST_ALL_DYN_LINK -DGNU_FPE'
+  platform_libs = libs
 
 
 elif platform_name == 'Darwin': #tobey
@@ -125,7 +125,7 @@ elif platform_name == 'Darwin': #tobey
   platform_include_path = ['/usr/local/include']
   platform_library_path = ['/usr/local/lib']
 
-  compiler_flags = '-Werror -fpermissive -ansi -g -fPIC -DBOOST_ALL_DYN_LINK'
+  compiler_flags = '-Werror -fpermissive -ansi -g -fPIC -DBOOST_ALL_DYN_LINK -DBSD_FPE'
 
   for lib in libs:
     if lib.startswith('boost'):

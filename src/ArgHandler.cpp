@@ -36,6 +36,10 @@ void ArgHandler::parse(int argc, char** argv) {
      "Control the verbositiy of the console log statements. Choose one of "
      "the following: debug, info, note, warn, err, fatal.")
 
+    ("fpe,x", boost::program_options::bool_switch(&floating_point_exp),
+     "Switch for enabling floating point exceptions. If present, the program "
+     "will crash when NaN or Inf are generated.")
+
     ("help,h",
      boost::program_options::bool_switch(&help),
      "produces helps message, then quits")
