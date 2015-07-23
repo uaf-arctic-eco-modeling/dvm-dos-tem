@@ -165,6 +165,8 @@ if(USEMPI):
   #g++ -I/usr/include/openmpi-x86_64 -pthread -m64 -L/usr/lib64/openmpi/lib -lmpi_cxx -lmpi
 
 
+#VariantDir('scons_obj','src', duplicate=0)
+
 #Object compilation
 object_list = Object(src_files, CXX=compiler, CPPPATH=platform_include_path,
                      CPPFLAGS=compiler_flags);

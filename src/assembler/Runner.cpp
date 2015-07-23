@@ -131,6 +131,7 @@ void Runner::output_caljson_monthly(int year, int month){
   data["TMineC"] = cohort.ed->m_soid.tminec;
 
   data["StNitrogenUptakeAll"] = cohort.bd->m_soi2v.snuptakeall;
+  data["InNitrogenUptakeAll"] = cohort.bd->m_soi2v.innuptake;
   data["AvailableNitrogenSum"] = cohort.bd->m_soid.avlnsum;
   data["OrganicNitrogenSum"] = cohort.bd->m_soid.orgnsum;
   data["CarbonShallow"] = cohort.bd->m_soid.shlwc;
@@ -140,6 +141,26 @@ void Runner::output_caljson_monthly(int year, int month){
                              + cohort.bd->m_soid.minecc;
   data["MossdeathCarbon"] = cohort.bdall->m_v2soi.mossdeathc;
   data["MossdeathNitrogen"] = cohort.bdall->m_v2soi.mossdeathn;
+  data["NetNMin"] = cohort.bdall->m_soi2soi.netnminsum;
+  data["NetNImmob"] = cohort.bdall->m_soi2soi.nimmobsum;
+  data["OrgNInput"] = cohort.bdall->m_a2soi.orgninput;
+  data["AvlNInput"] = cohort.bdall->m_a2soi.avlninput;
+  data["AvlNLost"] = cohort.bdall->m_soi2l.avlnlost;
+  data["RHraw"] = cohort.bdall->m_soi2a.rhrawcsum;
+  data["RHsoma"] = cohort.bdall->m_soi2a.rhsomasum;
+  data["RHsompr"] = cohort.bdall->m_soi2a.rhsomprsum;
+  data["RHsomcr"] = cohort.bdall->m_soi2a.rhsomcrsum;
+  data["RH"] = cohort.bdall->m_soi2a.rhtot;
+
+  data["Burnthick"] = cohort.fd->fire_soid.burnthick;
+  data["BurnVeg2AirC"] = cohort.fd->fire_v2a.orgc;
+  data["BurnVeg2AirN"] = cohort.fd->fire_v2a.orgn;
+  data["BurnVeg2SoiAbvVegC"] = cohort.fd->fire_v2soi.abvc;
+  data["BurnVeg2SoiBlwVegC"] = cohort.fd->fire_v2soi.blwc;
+  data["BurnVeg2SoiAbvVegN"] = cohort.fd->fire_v2soi.abvn;
+  data["BurnVeg2SoiBlwVegN"] = cohort.fd->fire_v2soi.blwn;
+  data["BurnSoi2AirC"] = cohort.fd->fire_soi2a.orgc;
+  data["BurnSoi2AirN"] = cohort.fd->fire_soi2a.orgn;
 
   /* PFT dependent variables */
   double parDownSum = 0;
@@ -156,17 +177,24 @@ void Runner::output_caljson_monthly(int year, int month){
     data["PFT" + pft_str]["VegStructuralNitrogen"]["Leaf"] = cohort.bd[pft].m_vegs.strn[I_leaf];
     data["PFT" + pft_str]["VegStructuralNitrogen"]["Stem"] = cohort.bd[pft].m_vegs.strn[I_stem];
     data["PFT" + pft_str]["VegStructuralNitrogen"]["Root"] = cohort.bd[pft].m_vegs.strn[I_root];
+    data["PFT" + pft_str]["VegLabileNitrogen"] = cohort.bd[pft].m_vegs.labn;
     data["PFT" + pft_str]["GPPAll"] = cohort.bd[pft].m_a2v.gppall;
     data["PFT" + pft_str]["NPPAll"] = cohort.bd[pft].m_a2v.nppall;
     data["PFT" + pft_str]["GPPAllIgnoringNitrogen"] = cohort.bd[pft].m_a2v.ingppall;
     data["PFT" + pft_str]["NPPAllIgnoringNitrogen"] = cohort.bd[pft].m_a2v.innppall;
     data["PFT" + pft_str]["LitterfallCarbonAll"] = cohort.bd[pft].m_v2soi.ltrfalcall;
-    data["PFT" + pft_str]["LitterfallNitrogenAll"] = cohort.bd[pft].m_v2soi.ltrfalnall;
+    data["PFT" + pft_str]["LitterfallNitrogenPFT"] = cohort.bd[pft].m_v2soi.ltrfalnall;
+    data["PFT" + pft_str]["LitterfallNitrogen"]["Leaf"] = cohort.bd[pft].m_v2soi.ltrfaln[I_leaf];
+    data["PFT" + pft_str]["LitterfallNitrogen"]["Stem"] = cohort.bd[pft].m_v2soi.ltrfaln[I_stem];
+    data["PFT" + pft_str]["LitterfallNitrogen"]["Root"] = cohort.bd[pft].m_v2soi.ltrfaln[I_root];
     data["PFT" + pft_str]["PARDown"] = cohort.ed[pft].m_a2v.pardown;
     parDownSum+=cohort.ed[pft].m_a2v.pardown;
     data["PFT" + pft_str]["PARAbsorb"] = cohort.ed[pft].m_a2v.parabsorb;
     parAbsorbSum+=cohort.ed[pft].m_a2v.parabsorb;
     data["PFT" + pft_str]["StNitrogenUptake"] = cohort.bd[pft].m_soi2v.snuptakeall;
+    data["PFT" + pft_str]["InNitrogenUptake"] = cohort.bd[pft].m_soi2v.innuptake;
+    data["PFT" + pft_str]["LuxNitrogenUptake"] = cohort.bd[pft].m_soi2v.lnuptake;
+    data["PFT" + pft_str]["TotNitrogenUptake"] = cohort.bd[pft].m_soi2v.snuptakeall + cohort.bd[pft].m_soi2v.lnuptake;
   }
 
   data["PARAbsorbSum"] = parAbsorbSum;
