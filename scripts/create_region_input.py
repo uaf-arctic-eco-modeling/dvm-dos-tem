@@ -170,6 +170,35 @@ def make_co2_file(filename):
   new_ncfile.close()
 
 
+def create_empty_restart_template(filename, sizex=10, sizey=10):
+  '''Creates an empty restart file that can be used as a template?'''
+  print "Creating an empty restart file..."
+  ncfile = netCDF4.Dataset(filename, mode='w', format='NETCDF4')
+
+  # Dimensions for the file.
+  Y = ncfile.createDimension('Y', sizey)
+  X = ncfile.createDimension('X', sizex)
+
+  pft       = ncfile.createDimension('pft', 10)
+  pftpart   = ncfile.createDimension('pftpart', 3)
+  snowlayer = ncfile.createDimension('snowlayer', 6)
+  rootlayer = ncfile.createDimension('rootlayer', 10)
+  soillayer = ncfile.createDimension('soillayer', 23)
+  rocklayer = ncfile.createDimension('rocklayer', 5)
+
+  # Create variables...
+  dsr = ncfile.createVariable('dsr', np.int, ('Y', 'X'))
+  firea2sorgn = ncfile.createVariable('firea2sorgn', np.double, ('Y', 'X'))
+
+  yrsdist = ncfile.createVariable('yrsdist', np.int, ('Y', 'X'))
+  ifwoody = ncfile.createVariable('ifwoody', np.int, ('Y', 'X', 'pft'))
+  ifdeciwoody = ncfile.createVariable('ifdeciwoody', np.int, ('Y', 'X', 'pft'))
+  ifperenial = ncfile.createVariable('ifperenial', np.int, ('Y', 'X', 'pft'))
+  nonvascular = ncfile.createVariable('nonvascular', np.int, ('Y', 'X', 'pft'))
+  vegage = ncfile.createVariable('vegage', np.int, ('Y', 'X', 'pft'))
+  vegcov = ncfile.createVariable('vegcov', np.double, ('Y', 'X', 'pft'))
+  lai = ncfile.createVariable('lai', np.double, ('Y', 'X', 'pft'))
+  rootfrac = ncfile.createVariable('rootfrac', np.double, ('Y', 'X', 'rootlayer', 'pft'))
 def create_empty_climate_nc_file(filename, sizey=10, sizex=10):
   '''Creates an empty climate file for dvmdostem; y,x grid, time unlimited.'''
 
