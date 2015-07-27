@@ -19,7 +19,7 @@ libs = Split("""jsoncpp
                 boost_filesystem
                 boost_program_options
                 boost_thread
-                boost_log""");
+                boost_log""")
 
 local_include_paths = Split("""./src
                                ./src/assembler
@@ -36,7 +36,7 @@ local_include_paths = Split("""./src
                                ./src/runmodule
                                ./src/snowsoil
                                ./src/util
-                               ./src/vegetation""");
+                               ./src/vegetation""")
 
                                                             
 src_files = Split("""src/TEM.cpp
@@ -90,16 +90,16 @@ src_files = Split("""src/TEM.cpp
                      src/util/CrankNicholson.cpp
                      src/util/tbc-debug-util.cpp
                      src/vegetation/Vegetation_Bgc.cpp
-                     src/vegetation/Vegetation_Env.cpp""");
+                     src/vegetation/Vegetation_Env.cpp""")
 
 
-platform_name = platform.system();
-release = platform.release();
-comp_name = platform.node();
-uname = platform.uname();
+platform_name = platform.system()
+release = platform.release()
+comp_name = platform.node()
+uname = platform.uname()
 
-platform_libs = [];
-platform_include_path = [];
+platform_libs = []
+platform_include_path = []
 platform_library_path = []
 
 #compiler = 'g++'
@@ -131,7 +131,7 @@ elif platform_name == 'Darwin': #tobey
     if lib.startswith('boost'):
       platform_libs.append(lib + '-mt')
     else:
-      platform_libs.append(lib);
+      platform_libs.append(lib)
 
   # statically link jsoncpp
   # apparently the shared library version of jsoncpp has some bugs.
@@ -169,11 +169,11 @@ if(USEMPI):
 
 #Object compilation
 object_list = Object(src_files, CXX=compiler, CPPPATH=platform_include_path,
-                     CPPFLAGS=compiler_flags);
+                     CPPFLAGS=compiler_flags)
 
 #remove paths from the object file names - unused for now
 #object_file_list = [os.path.basename(str(object)) for object in object_list]
 
 Program('dvmdostem', object_list, CXX=compiler, CPPPATH=local_include_paths,
-        LIBS=platform_libs, LIBPATH=platform_library_path);
-#Library();
+        LIBS=platform_libs, LIBPATH=platform_library_path)
+#Library()

@@ -104,7 +104,7 @@ std::vector< std::vector<int> > read_run_mask(const std::string &filename);
  * on what/where the exception is generated?
 */
 void enable_floating_point_exceptions() {
-  std::cout << "Enabling floating point exceptions mask!";
+  std::cout << "Enabling floating point exceptions mask!" << std::endl;
 
   // BSD (OSX)
   #ifdef BSD_FPE
