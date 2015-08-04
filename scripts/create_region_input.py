@@ -172,33 +172,70 @@ def make_co2_file(filename):
 
 def create_empty_restart_template(filename, sizex=10, sizey=10):
   '''Creates an empty restart file that can be used as a template?'''
-  print "Creating an empty restart file..."
+  print "Creating an empty restart file: ", filename
   ncfile = netCDF4.Dataset(filename, mode='w', format='NETCDF4')
 
   # Dimensions for the file.
   Y = ncfile.createDimension('Y', sizey)
   X = ncfile.createDimension('X', sizex)
 
-  pft       = ncfile.createDimension('pft', 10)
-  pftpart   = ncfile.createDimension('pftpart', 3)
-  snowlayer = ncfile.createDimension('snowlayer', 6)
-  rootlayer = ncfile.createDimension('rootlayer', 10)
-  soillayer = ncfile.createDimension('soillayer', 23)
-  rocklayer = ncfile.createDimension('rocklayer', 5)
+  pft        = ncfile.createDimension('pft', 10)
+  pftpart    = ncfile.createDimension('pftpart', 3)
+  snowlayer  = ncfile.createDimension('snowlayer', 6)
+  rootlayer  = ncfile.createDimension('rootlayer', 10)
+  soillayer  = ncfile.createDimension('soillayer', 23)
+  rocklayer  = ncfile.createDimension('rocklayer', 5)
+  fronts     = ncfile.createDimension('fronts', 10)
+  prevten    = ncfile.createDimension('prevten', 10)
+  prevtwelve = ncfile.createDimension('prevtwelve', 12)
 
   # Create variables...
-  dsr = ncfile.createVariable('dsr', np.int, ('Y', 'X'))
-  firea2sorgn = ncfile.createVariable('firea2sorgn', np.double, ('Y', 'X'))
+  for v in ['dsr', 'numsnwl', 'numsl', 'rtfrozendays', 'rtunfrozendays', 'yrsdist']:
+    ncfile.createVariable(v, np.int, ('Y', 'X'))
 
-  yrsdist = ncfile.createVariable('yrsdist', np.int, ('Y', 'X'))
-  ifwoody = ncfile.createVariable('ifwoody', np.int, ('Y', 'X', 'pft'))
-  ifdeciwoody = ncfile.createVariable('ifdeciwoody', np.int, ('Y', 'X', 'pft'))
-  ifperenial = ncfile.createVariable('ifperenial', np.int, ('Y', 'X', 'pft'))
-  nonvascular = ncfile.createVariable('nonvascular', np.int, ('Y', 'X', 'pft'))
-  vegage = ncfile.createVariable('vegage', np.int, ('Y', 'X', 'pft'))
-  vegcov = ncfile.createVariable('vegcov', np.double, ('Y', 'X', 'pft'))
-  lai = ncfile.createVariable('lai', np.double, ('Y', 'X', 'pft'))
-  rootfrac = ncfile.createVariable('rootfrac', np.double, ('Y', 'X', 'rootlayer', 'pft'))
+  for v in ['firea2sorgn', 'snwextramass', 'monthsfrozen', 'watertab', 'wdebrisc', 'wdebrisn', 'dmossc', 'dmossn']:
+    ncfile.createVariable(v, np.double, ('Y', 'X'))
+
+  for v in ['ifwoody', 'ifdeciwoody', 'ifperenial', 'nonvascular', 'vegage']:
+    ncfile.createVariable(v, np.int, ('Y','X','pft'))
+
+  for v in ['vegcov', 'lai', 'vegwater', 'vegsnow', 'labn', 'deadc', 'deadn', 'topt', 'eetmx', 'unnormleafmx', 'growingttime', 'foliagemx']:
+    ncfile.createVariable(v, np.double, ('Y','X','pft'))
+
+  for v in ['vegc', 'strn']:
+    ncfile.createVariable(v, np.double, ('Y','X','pftpart', 'pft'))
+
+  for v in ['TEXTUREsoil', 'FROZENsoil', 'TYPEsoil', 'AGEsoil',]:
+    ncfile.createVariable(v, np.int, ('Y','X','soillayer'))
+
+  for v in ['TSsoil', 'DZsoil', 'LIQsoil', 'ICEsoil', 'FROZENFRACsoil', 'rawc', 'soma', 'sompr', 'somcr', 'orgn', 'avln']:
+    ncfile.createVariable(v, np.double, ('Y','X','soillayer'))
+
+  for v in ['TSsnow', 'DZsnow', 'LIQsnow', 'RHOsnow', 'ICEsnow', 'AGEsnow']:
+    ncfile.createVariable(v, np.double, ('Y','X','soillayer'))
+
+  for v in ['TSrock', 'DZrock']:
+    ncfile.createVariable(v, np.double, ('Y','X', 'rocklayer'))
+
+
+  ncfile.createVariable('frontFT', np.int, ('Y','X', 'fronts'))
+  ncfile.createVariable('frontZ', np.double, ('Y','X', 'fronts'))
+
+  ncfile.createVariable('rootfrac', np.double, ('Y','X','rootlayer','pft'))
+
+  for v in ['toptA','eetmxA','unnormleafmxA','growingttimeA']:
+    ncfile.createVariable(v, np.double, ('Y','X','prevten','pft'))
+
+  for v in ['prvltrfcnA']:
+    ncfile.createVariable(v, np.double, ('Y','X','prevtwelve','pft'))
+
+
+  ncfile.close()
+
+
+
+
+
 def create_empty_climate_nc_file(filename, sizey=10, sizex=10):
   '''Creates an empty climate file for dvmdostem; y,x grid, time unlimited.'''
 
@@ -392,12 +429,24 @@ if __name__ == '__main__':
     formatter_class = argparse.RawDescriptionHelpFormatter,
 
       description=textwrap.dedent('''\
-        Script for creating input data sets for dvmdostem.
+        Creates a set of files for dvm-dos-tem.
+
+        <OUTDIR>/<TAG>_<YSIZE>x<XSIZE>/fire.nc
+                                  ... /vegetation.nc
+                                  ... /drainage.nc
+                                  ... /historic-climate.nc
+                                  ... /projected-climate.nc
+                                  ..../co2.nc
+
+        <OUTDIR>/<TAG>_<YSIZE>x<XSIZE>/output/restart-eq.nc
+
         '''),
 
-      epilog=textwrap.dedent('''\
-        '''),
+      epilog=textwrap.dedent(''''''),
   )
+  
+  parser.add_argument('--crtf-only', action="store_true",
+                      help="Only create the restart template file.")
 
   parser.add_argument('--tifs', default="../../snap-data",
                       help="Directory containing input TIF directories.")
@@ -446,6 +495,16 @@ if __name__ == '__main__':
   print "Will be (over)writing files to:    ", out_dir
   if not os.path.exists(out_dir):
     os.makedirs(out_dir)
+
+  # All we are doing is creating a restart template file, then quitting.
+  if args.crtf_only:
+    if not os.path.exists( os.path.join(out_dir, "output") ):
+      os.mkdir(os.path.join(out_dir, "output"))
+
+    # TODO: handle more than just eq stage!
+    create_empty_restart_template(os.path.join(out_dir, "output/restart-eq.nc"), sizey=ys, sizex=xs)
+    exit()
+
 
   which_files = args.which
 
