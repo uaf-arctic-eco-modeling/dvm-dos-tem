@@ -432,6 +432,8 @@ void Cohort::updateMonthly(const int & yrcnt, const int & currmind,
     cd.endOfYear();
   }
 
+  BOOST_LOG_SEV(glg, debug) << "Synchronize the RestartData object with the model's state...";
+  this->sync_state_to_restartdata();
   BOOST_LOG_SEV(glg, debug) << "TODO: ouput some data!";
 //  if (md->outRegn) {
 //    BOOST_LOG_SEV(glg, debug) << "Output all data for multiple cohorts.";
@@ -1229,6 +1231,158 @@ void Cohort::getBd4allveg_monthly() {
     }
   }
 }
+
+/** Syncronizes Cohort's RestartData object with other fields of Cohort and
+* CohortData.
+*/
+void Cohort::sync_state_to_restartdata() {
+  BOOST_LOG_SEV(glg, note) << "Updating this Cohort's restartdata member with "
+                           << "values from the model's state (various fields of "
+                           << " Cohort and CohortData).";
+
+  // clear the restartdata object
+  restartdata.reinitValue();
+  
+  restartdata.chtid = cd.chtid;  // deprecate?
+
+  // atm
+  restartdata.dsr                = edall->d_atms.dsr;
+  restartdata.firea2sorgn        = fd->fire_a2soi.orgn; // to re-deposit fire-emitted N in one FRI
+
+  // vegegetation
+  restartdata.yrsdist     = cd.yrsdist;
+
+  for (int ip = 0; ip < NUM_PFT; ip++) {
+    if (cd.m_veg.vegcov[ip] > 0.0) {
+      restartdata.ifwoody[ip]    = cd.m_veg.ifwoody[ip];
+      restartdata.ifdeciwoody[ip]= cd.m_veg.ifdeciwoody[ip];
+      restartdata.ifperenial[ip] = cd.m_veg.ifperenial[ip];
+      restartdata.nonvascular[ip]= cd.m_veg.nonvascular[ip];
+      restartdata.vegage[ip]     = cd.m_veg.vegage[ip];
+      restartdata.vegcov[ip]     = cd.m_veg.vegcov[ip];
+      restartdata.lai[ip]        = cd.m_veg.lai[ip];
+
+      for (int i = 0; i < MAX_ROT_LAY; i++) {
+        restartdata.rootfrac[i][ip] = cd.m_veg.frootfrac[i][ip];
+      }
+
+      restartdata.vegwater[ip] = ed[ip].m_vegs.rwater; //canopy water - 'vegs_env'
+      restartdata.vegsnow[ip]  = ed[ip].m_vegs.snow;   //canopy snow  - 'vegs_env'
+
+      for (int i = 0; i < NUM_PFT_PART; i++) {
+        restartdata.vegc[i][ip] = bd[ip].m_vegs.c[i];  // - 'vegs_bgc'
+        restartdata.strn[i][ip] = bd[ip].m_vegs.strn[i];
+      }
+
+      restartdata.labn[ip]         = bd[ip].m_vegs.labn;
+      restartdata.deadc[ip]        = bd[ip].m_vegs.deadc;
+      restartdata.deadn[ip]        = bd[ip].m_vegs.deadn;
+      restartdata.eetmx[ip]        = cd.m_vegd.eetmx[ip];
+      restartdata.topt[ip]         = cd.m_vegd.topt[ip];
+      restartdata.unnormleafmx[ip] = cd.m_vegd.unnormleafmx[ip];
+      restartdata.growingttime[ip] = cd.m_vegd.growingttime[ip];
+
+      // this is for f(foliage) in GPP to be sure f(foliage) not going down
+      restartdata.foliagemx[ip] = cd.m_vegd.foliagemx[ip];
+
+      deque<double> tmpdeque1 = cd.toptque[ip];
+      int recnum = tmpdeque1.size();
+
+      for (int i=0; i<recnum; i++) {
+        restartdata.toptA[i][ip] = tmpdeque1[i];
+      }
+
+      deque<double> tmpdeque2 = cd.prvunnormleafmxque[ip];
+      recnum = tmpdeque2.size();
+
+      for (int i=0; i<recnum; i++) {
+        restartdata.unnormleafmxA[i][ip] = tmpdeque2[i];
+      }
+
+      deque<double> tmpdeque3 = cd.prvgrowingttimeque[ip];
+      recnum = tmpdeque3.size();
+
+      for (int i=0; i<recnum; i++) {
+        restartdata.growingttimeA[i][ip]= tmpdeque3[i];
+      }
+
+      deque<double> tmpdeque4 = cd.prveetmxque[ip];
+      recnum = tmpdeque4.size();
+
+      for (int i=0; i<recnum; i++) {
+        restartdata.eetmxA[i][ip]= tmpdeque4[i];
+      }
+    } // end of 'if vegcov>0'
+  } // end of 'for ip loop'
+
+  // snow - 'restart' from the last point, so be the daily for
+  //  'cd' and 'ed', but monthly for 'bd'
+  restartdata.numsnwl = cd.d_snow.numsnwl;
+  restartdata.snwextramass = cd.d_snow.extramass;
+
+  for(int il =0; il<cd.d_snow.numsnwl; il++) {
+    restartdata.DZsnow[il]  = cd.d_snow.dz[il];
+    restartdata.AGEsnow[il] = cd.d_snow.age[il];
+    restartdata.RHOsnow[il] = cd.d_snow.rho[il];
+
+    // NOTE: for all PFT, ground 'ed' is same, BE sure that is done
+    restartdata.TSsnow[il]  = edall->d_snws.tsnw[il];
+
+    restartdata.LIQsnow[il] = edall->d_snws.snwliq[il];
+    restartdata.ICEsnow[il] = edall->d_snws.snwice[il];
+  }
+
+  // ground-soil
+  restartdata.numsl  = cd.d_soil.numsl;     // actual number of soil layers
+  restartdata.monthsfrozen   = edall->monthsfrozen;
+  restartdata.rtfrozendays   = edall->rtfrozendays;
+  restartdata.rtunfrozendays = edall->rtunfrozendays;
+  restartdata.watertab   = edall->d_sois.watertab;
+
+  for(int il =0; il<cd.d_soil.numsl; il++) {
+    restartdata.DZsoil[il]   = cd.d_soil.dz[il];
+    restartdata.AGEsoil[il]  = cd.d_soil.age[il];
+    restartdata.TYPEsoil[il] = cd.d_soil.type[il];
+    restartdata.TEXTUREsoil[il]= cd.d_soil.texture[il];
+    restartdata.TSsoil[il]    = edall->d_sois.ts[il];
+    restartdata.LIQsoil[il]   = edall->d_sois.liq[il];
+    restartdata.ICEsoil[il]   = edall->d_sois.ice[il];
+    restartdata.FROZENsoil[il]= edall->d_sois.frozen[il];
+    restartdata.FROZENFRACsoil[il]= edall->d_sois.frozenfrac[il];
+  }
+
+  for(int il =0; il<MAX_ROC_LAY; il++) {
+    restartdata.TSrock[il] = edall->d_sois.trock[il];
+    restartdata.DZrock[il] = ROCKTHICK[il];
+  }
+
+  for(int il =0; il<MAX_NUM_FNT; il++) {
+    restartdata.frontZ[il]  = edall->d_sois.frontsz[il];
+    restartdata.frontFT[il] = edall->d_sois.frontstype[il];
+  }
+
+  //
+  restartdata.wdebrisc = bdall->m_sois.wdebrisc;
+  restartdata.wdebrisn = bdall->m_sois.wdebrisn;
+  restartdata.dmossc = bdall->m_sois.dmossc;
+  restartdata.dmossn = bdall->m_sois.dmossn;
+
+  for(int il =0; il<cd.m_soil.numsl; il++) {
+    restartdata.rawc[il]  = bdall->m_sois.rawc[il];
+    restartdata.soma[il]  = bdall->m_sois.soma[il];
+    restartdata.sompr[il] = bdall->m_sois.sompr[il];
+    restartdata.somcr[il] = bdall->m_sois.somcr[il];
+    restartdata.orgn[il] = bdall->m_sois.orgn[il];
+    restartdata.avln[il] = bdall->m_sois.avln[il];
+    deque<double> tmpdeque = bdall->prvltrfcnque[il];
+    int recnum = tmpdeque.size();
+
+    for (int i=0; i<recnum; i++) {
+      restartdata.prvltrfcnA[i][il]= tmpdeque[i];
+    }
+  }
+}
+
 
 
 

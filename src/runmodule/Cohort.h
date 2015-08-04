@@ -118,6 +118,9 @@ public :
   void prepareDayDrivingData(const int & yrcnt, const int &usedatmyr);
   void updateMonthly(const int & yrcnt, const int & currmind,
                      const int & dinmcurr);
+  
+  void sync_state_to_restartdata();
+
 
 private:
 
