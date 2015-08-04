@@ -88,6 +88,10 @@ namespace temutil {
 
   Json::Value parse_control_file(const std::string &filepath);
   
+  std::string report_on_netcdf_file(const std::string& fname, const std::string& varname);
+
+  std::string report_yx_pixel_dims2str(const std::string& fname);
+
   NcFile open_ncfile(std::string filename);
 
   NcDim* get_ncdim(const NcFile& file, std::string dimname);

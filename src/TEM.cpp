@@ -281,7 +281,11 @@ int main(int argc, char* argv[]){
 
             runner.run_years(0, MAX_EQ_YR, "eq-run");
 
+            std::string restart_fname = "DATA/test/Toolik_10x10/output/restart-eq.nc";
+
             // write out restart-eq.nc ???
+            runner.cohort.restartdata.append_to_ncfile(restart_fname, rowidx, colidx); /* cohort id/key ???*/
+
 
           }
           if (modeldata.runsp) {

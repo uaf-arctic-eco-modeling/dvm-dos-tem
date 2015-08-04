@@ -101,7 +101,7 @@ public :
 
   CohortData cd;
   RestartData resid;    //for input
-
+  RestartData restartdata;
   
 
 //  void NEW_load_climate_from_file(int y, int x);
