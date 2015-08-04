@@ -405,8 +405,8 @@ if __name__ == '__main__':
   parser.add_argument('--outdir', default=".",
                       help="Directory for netCDF output files.")
 
-  parser.add_argument('--loc', default="Toolik",
-                      help="Location of data set (for dir naming)")
+  parser.add_argument('--tag', default="Toolik",
+                      help="A name for the dataset, used to name output directory.")
 
   parser.add_argument('--years', default=10, type=int,
                       help="The number of years of the climate data to process.")
@@ -441,9 +441,8 @@ if __name__ == '__main__':
   tif_dir = args.tifs;
   print "Will be looking for files in:      ", tif_dir
 
-
-  # Like this: somedirectory/somelocation_NxM
-  out_dir = os.path.join(args.outdir, "%s_%sx%s" % (args.loc, ys, xs))
+  # Like this: somedirectory/sometag_NxM
+  out_dir = os.path.join(args.outdir, "%s_%sx%s" % (args.tag, ys, xs))
   print "Will be (over)writing files to:    ", out_dir
   if not os.path.exists(out_dir):
     os.makedirs(out_dir)
