@@ -399,14 +399,11 @@ if __name__ == '__main__':
         '''),
   )
 
-  parser.add_argument('--dim', default=10, type=int,
-                      help="Width and height of square selection")
-
   parser.add_argument('--tifs', default="../../snap-data",
-                      help="Directory containing input TIF directories")
+                      help="Directory containing input TIF directories.")
 
   parser.add_argument('--outdir', default=".",
-                      help="Directory for netCDF output files")
+                      help="Directory for netCDF output files.")
 
   parser.add_argument('--loc', default="Toolik",
                       help="Location of data set (for dir naming)")
@@ -440,9 +437,6 @@ if __name__ == '__main__':
   yo = args.yoff
   xs = args.xsize
   ys = args.ysize
-
-  x_dim = args.dim;
-  y_dim = args.dim;
 
   tif_dir = args.tifs;
   print "Will be looking for files in:      ", tif_dir
