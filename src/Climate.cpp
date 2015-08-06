@@ -442,8 +442,10 @@ void Climate::load_from_file(const std::string& fname, int y, int x) {
   avgX_prec = avg_over(prec, 10);
   avgX_nirr = avg_over(nirr, 10);
   avgX_vapo = avg_over(vapo, 10);
-
-  // Do we need simplifie 'avgX_' values for par, and cld??
+  
+  // Do we need simplified 'avgX_' values for par, and cld??
+  // ===> YES: the derived variables should prpbably be based off the avgX
+  //      containers...
 
   // Finally, need to create the daily dataset(s) by interpolating the monthly
   // --> actually looking like these should not be calculated upon construciton.
@@ -557,9 +559,9 @@ void Climate::prepare_daily_driving_data(int iy, const std::string& stage) {
     // at some point iy was zero and the values were appropriately calculated
     // once...
 
-    tair_d = monthly2daily(eq_range(tair));
-    vapo_d = monthly2daily(eq_range(vapo));
-    nirr_d = monthly2daily(eq_range(nirr));
+    tair_d = monthly2daily(eq_range(avgX_tair));
+    vapo_d = monthly2daily(eq_range(avgX_vapo));
+    nirr_d = monthly2daily(eq_range(avgX_nirr));
 
     rain_d = monthly2daily(eq_range(rain));
     snow_d = monthly2daily(eq_range(snow));
