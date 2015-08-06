@@ -395,8 +395,17 @@ void TemperatureUpdator::processBetweenFronts(Layer*fstfntl, Layer*lstfntl,
   // the upper portion of 'lstfntl'
   ind++;
   int numfnt = ground->frontstype.size();
-  double frntdz2 = ground->frontsz[numfnt-1] - lstfntl->z;   //the upper portion of the last front
-  int frnttype2 = ground->frontstype[numfnt-1];
+  double frntdz2;
+  int frnttype2;
+  if (numfnt > 0 ) {
+    frntdz2 = ground->frontsz[numfnt-1] - lstfntl->z;   //the upper portion of the last front
+    frnttype2 = ground->frontstype[numfnt-1];
+  } else {
+    BOOST_LOG_SEV(glg, warn) << "Ground object has no fronts! Setting locals frntdz2 -> 0, fnrttype2 -> 0...";
+    frntdz2 = 0;
+    frnttype2 = 0;
+  }
+
   dx[ind] = frntdz2;
 
   if (dx[ind] < mindzlay) {
@@ -435,7 +444,6 @@ void TemperatureUpdator::processBetweenFronts(Layer*fstfntl, Layer*lstfntl,
   } else {
     t[ind] = lstfntl->nextl->tem;
   }
-
   endind = ind;
   s[ind] = 0.;
   e[ind] = t[ind];
@@ -513,8 +521,16 @@ void TemperatureUpdator::processBelowFronts(Layer* backl, Layer*lstfntl,
   int startind, endind;
   // pre-iteration
   int numfnt = ground->frontsz.size();
-  double frntdz = (lstfntl->z+lstfntl->dz) - ground->frontsz[numfnt-1];
-  int frnttype = ground->frontstype[numfnt-1];
+  double frntdz;
+  int frnttype;
+  if (numfnt > 0 ) {
+    frntdz = (lstfntl->z+lstfntl->dz) - ground->frontsz[numfnt-1];
+    frnttype = ground->frontstype[numfnt-1];
+  } else {
+    BOOST_LOG_SEV(glg, warn) << "Ground object has no fronts! Setting locals frntdz -> 0, fnrttype -> 0...";
+    frntdz = 0;
+    frnttype = 0;
+  }
   double hcap = 0.;
   double pce = 0.;
   pce = abs(lstfntl->pce_f-lstfntl->pce_t);
@@ -617,13 +633,18 @@ void TemperatureUpdator::processBelowFronts(Layer* backl, Layer*lstfntl,
     //  cautious when input 'adjfntl'
     int frntnum = ground->frontstype.size();
 
-    if (ground->frontstype[frntnum-1]==1) { //freezing front: upper portion is frozen
-      currl->tem *= currl->frozenfrac;
-      currl->tem += tld[ind]*(1.-currl->frozenfrac); //frozen/unfrozen fraction weighted for the 'lstfntl'
-    } else if (ground->frontstype[frntnum-1]==-1) {
-      currl->tem *= (1.0-currl->frozenfrac);
-      currl->tem += tld[ind]*currl->frozenfrac;  //frozen/unfrozen fraction weighted for the 'lstfntl'
+    if (frntnum > 0) {
+      if (ground->frontstype[frntnum-1]==1) { //freezing front: upper portion is frozen
+        currl->tem *= currl->frozenfrac;
+        currl->tem += tld[ind]*(1.-currl->frozenfrac); //frozen/unfrozen fraction weighted for the 'lstfntl'
+      } else if (ground->frontstype[frntnum-1]==-1) {
+        currl->tem *= (1.0-currl->frozenfrac);
+        currl->tem += tld[ind]*currl->frozenfrac;  //frozen/unfrozen fraction weighted for the 'lstfntl'
+      }
+    } else {
+      BOOST_LOG_SEV(glg, warn) << "Nothing to do! !(ground->frontstype.size() > 0) so no fronts to handle...";
     }
+
   } else {
     currl->tem = tld[ind];
   }
