@@ -548,10 +548,17 @@ void Climate::prepare_daily_driving_data(int iy, const std::string& stage) {
     // at some point iy was zero and the values were appropriately calculated
     // once...
 
+    // straight up interpolated....
     tair_d = monthly2daily(eq_range(avgX_tair));
     vapo_d = monthly2daily(eq_range(avgX_vapo));
     nirr_d = monthly2daily(eq_range(avgX_nirr));
 
+    // Not totally sure if this is right to interpolate these??
+    par_d = monthly2daily(eq_range(par));
+    girr_d = monthly2daily(eq_range(girr));
+
+
+    // much more complicated than straight interpolation...
     prec_d.clear();
     for (int i=0; i < 12; ++i) {
       std::vector<float> v = calculate_daily_prec(i, avgX_tair.at(i), avgX_prec.at(i));
@@ -559,7 +566,7 @@ void Climate::prepare_daily_driving_data(int iy, const std::string& stage) {
       prec_d.insert( prec_d.end(), v.begin(), v.end() );
     }
 
-    // fill out rain and snow variables based on temp and precip values
+    // derive rain and snow from precip...
     // Look into boost::zip_iterator
     rain_d.clear();
     snow_d.clear();
@@ -569,38 +576,41 @@ void Climate::prepare_daily_driving_data(int iy, const std::string& stage) {
       snow_d.push_back(rs.second);
     }
 
-    par_d = monthly2daily(eq_range(par));
-
     svp_d.resize(tair_d.size());
     std::transform( tair_d.begin(), tair_d.end(), svp_d.begin(), calculate_saturated_vapor_pressure );
 
     vpd_d.resize(tair_d.size());
     std::transform( svp_d.begin(), svp_d.end(), vapo_d.begin(), vpd_d.begin(), calculate_vpd );
 
-    // never used???
-    //rhoa_d
-    //dersvp_d
-    //abshd_d
+    cld_d.resize(tair_d.size());
+    std::transform( cld_d.begin(), cld_d.end(), girr_d.begin(), nirr_d.begin(), calculate_clouds );
+
+    // THESE MAY NEVER BE USED??
+    // rhoa_d;
+    // dersvp_d;
+    // abshd_d;
+
+    BOOST_LOG_SEV(glg, debug) << "tair_d = [" << temutil::vec2csv(tair_d) << "]";
+    BOOST_LOG_SEV(glg, debug) << "nirr_d = [" << temutil::vec2csv(vpd_d) << "]";
+    BOOST_LOG_SEV(glg, debug) << "vapo_d = [" << temutil::vec2csv(vapo_d) << "]";
+    BOOST_LOG_SEV(glg, debug) << "prec_d = [" << temutil::vec2csv(prec_d) << "]";
+    BOOST_LOG_SEV(glg, debug) << "rain_d = [" << temutil::vec2csv(rain_d) << "]";
+    BOOST_LOG_SEV(glg, debug) << "snow_d = [" << temutil::vec2csv(snow_d) << "]";
+    BOOST_LOG_SEV(glg, debug) << "svp_d = [" << temutil::vec2csv(svp_d) << "]";
+    BOOST_LOG_SEV(glg, debug) << "vpd_d = [" << temutil::vec2csv(vpd_d) << "]";
+    BOOST_LOG_SEV(glg, debug) << "girr_d = [" << temutil::vec2csv(girr_d) << "]";
+    BOOST_LOG_SEV(glg, debug) << "cld_d = [" << temutil::vec2csv(cld_d) << "]";
+    BOOST_LOG_SEV(glg, debug) << "par_d = [" << temutil::vec2csv(par_d) << "]";
 
     BOOST_LOG_SEV(glg, debug) << "tair_d.size() = " << tair_d.size();
-    BOOST_LOG_SEV(glg, debug) << "tair_d = [" << temutil::vec2csv(tair_d) << "]";
-    BOOST_LOG_SEV(glg, debug) << "svp_d.size() = " << svp_d.size();
-    BOOST_LOG_SEV(glg, debug) << "svp_d = [" << temutil::vec2csv(svp_d) << "]";
-    BOOST_LOG_SEV(glg, debug) << "vpd_d.size() = " << vpd_d.size();
-    BOOST_LOG_SEV(glg, debug) << "vpd_d = [" << temutil::vec2csv(vpd_d) << "]";
-
-    BOOST_LOG_SEV(glg, debug) << "avgX_prec.size() = " << avgX_prec.size();
-    BOOST_LOG_SEV(glg, debug) << "avgX_prec = [" << temutil::vec2csv(avgX_prec) << "]";
-
     BOOST_LOG_SEV(glg, debug) << "prec_d.size() = " << prec_d.size();
-    BOOST_LOG_SEV(glg, debug) << "prec_d = [" << temutil::vec2csv(prec_d) << "]";
-
     BOOST_LOG_SEV(glg, debug) << "rain_d.size() = " << rain_d.size();
-    BOOST_LOG_SEV(glg, debug) << "rain_d = [" << temutil::vec2csv(rain_d) << "]";
-
     BOOST_LOG_SEV(glg, debug) << "snow_d.size() = " << snow_d.size();
-    BOOST_LOG_SEV(glg, debug) << "snow_d = [" << temutil::vec2csv(snow_d) << "]";
+    BOOST_LOG_SEV(glg, debug) << "vpd_d.size() = " << vpd_d.size();
+    BOOST_LOG_SEV(glg, debug) << "svp_d.size() = " << svp_d.size();
 
+    BOOST_LOG_SEV(glg, debug) << "avgX_prec = [" << temutil::vec2csv(avgX_prec) << "]";
+    BOOST_LOG_SEV(glg, debug) << "avgX_prec.size() = " << avgX_prec.size();
   }
 }
 
