@@ -397,23 +397,12 @@ void Climate::load_from_file(const std::string& fname, int y, int x) {
   }
 
   // make some space for the derived variables
-  rain = std::vector<float>(prec.size(), 0);
-  snow = std::vector<float>(prec.size(), 0);
   girr = std::vector<float>(12, 0); // <-- !! wow, no need for year dimesion??
   par = std::vector<float>(prec.size(), 0);
   cld = std::vector<float>(prec.size(), 0);
 
-  // fill out rain and snow variables based on temp and precip values
-  // Look into boost::zip_iterator
-  for (int i = 0; i < tair.size(); ++i) {
-    std::pair<float, float> rs = willmot_split(tair[i], prec[i]);
-    rain[i] = rs.first;
-    snow[i] = rs.second;
-  }
   BOOST_LOG_SEV(glg, debug) << "tair = [" << temutil::vec2csv(tair) << "]";
   BOOST_LOG_SEV(glg, debug) << "prec = [" << temutil::vec2csv(prec) << "]";
-  BOOST_LOG_SEV(glg, debug) << "rain = [" << temutil::vec2csv(rain) << "]";
-  BOOST_LOG_SEV(glg, debug) << "snow = [" << temutil::vec2csv(snow) << "]";
 
   // find girr as a function of month and latitude
   std::pair<float, float> latlon = temutil::get_latlon(fname, y, x);
@@ -563,8 +552,23 @@ void Climate::prepare_daily_driving_data(int iy, const std::string& stage) {
     vapo_d = monthly2daily(eq_range(avgX_vapo));
     nirr_d = monthly2daily(eq_range(avgX_nirr));
 
-    rain_d = monthly2daily(eq_range(rain));
-    snow_d = monthly2daily(eq_range(snow));
+    prec_d.clear();
+    for (int i=0; i < 12; ++i) {
+      std::vector<float> v = calculate_daily_prec(i, avgX_tair.at(i), avgX_prec.at(i));
+
+      prec_d.insert( prec_d.end(), v.begin(), v.end() );
+    }
+
+    // fill out rain and snow variables based on temp and precip values
+    // Look into boost::zip_iterator
+    rain_d.clear();
+    snow_d.clear();
+    for (int i = 0; i < prec_d.size(); ++i) {
+      std::pair<float, float> rs = willmot_split(tair_d[i], prec_d[i]);
+      rain_d.push_back(rs.first);
+      snow_d.push_back(rs.second);
+    }
+
     par_d = monthly2daily(eq_range(par));
 
     svp_d.resize(tair_d.size());
@@ -584,6 +588,18 @@ void Climate::prepare_daily_driving_data(int iy, const std::string& stage) {
     BOOST_LOG_SEV(glg, debug) << "svp_d = [" << temutil::vec2csv(svp_d) << "]";
     BOOST_LOG_SEV(glg, debug) << "vpd_d.size() = " << vpd_d.size();
     BOOST_LOG_SEV(glg, debug) << "vpd_d = [" << temutil::vec2csv(vpd_d) << "]";
+
+    BOOST_LOG_SEV(glg, debug) << "avgX_prec.size() = " << avgX_prec.size();
+    BOOST_LOG_SEV(glg, debug) << "avgX_prec = [" << temutil::vec2csv(avgX_prec) << "]";
+
+    BOOST_LOG_SEV(glg, debug) << "prec_d.size() = " << prec_d.size();
+    BOOST_LOG_SEV(glg, debug) << "prec_d = [" << temutil::vec2csv(prec_d) << "]";
+
+    BOOST_LOG_SEV(glg, debug) << "rain_d.size() = " << rain_d.size();
+    BOOST_LOG_SEV(glg, debug) << "rain_d = [" << temutil::vec2csv(rain_d) << "]";
+
+    BOOST_LOG_SEV(glg, debug) << "snow_d.size() = " << snow_d.size();
+    BOOST_LOG_SEV(glg, debug) << "snow_d = [" << temutil::vec2csv(snow_d) << "]";
 
   }
 }
