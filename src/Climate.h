@@ -18,8 +18,6 @@ public:
   std::vector<float> vapo;
 
   // calculated driving variables
-  std::vector<float> rain;
-  std::vector<float> snow;
   std::vector<float> girr;
   std::vector<float> cld;
   std::vector<float> par;
