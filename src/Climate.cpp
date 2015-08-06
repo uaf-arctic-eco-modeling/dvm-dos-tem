@@ -488,8 +488,8 @@ std::vector<float> Climate::monthly2daily(const std::vector<float>& mly_vals) {
   std::vector<float> rel_days;
   rel_days.assign( arr, arr + sizeof(arr) / sizeof(arr[0]) );
 
-  assert(mly_vals.size() == 14 && "Monthly values must be size 14 (D J F M A M J J A S O N D J");
-  assert(rel_days.size() == 14 && "Relative days vector must be size 14: D J F M A M J J A S O N D J");
+  assert(mly_vals.size() == 14 && "Monthly values must be size 14 (D J F M A M J J A S O N D J)");
+  assert(rel_days.size() == 14 && "Relative days vector must be size 14: (D J F M A M J J A S O N D J)");
 
   for (std::vector<float>::iterator it = rel_days.begin()+1; it != rel_days.end(); ++it) {
     int idx = it - rel_days.begin();
@@ -500,7 +500,7 @@ std::vector<float> Climate::monthly2daily(const std::vector<float>& mly_vals) {
 
     std::vector<float> psd = temutil::resample(
         std::make_pair( x0, mly_vals.at(idx-1) ),   // first point on line
-        std::make_pair( x1, mly_vals.at(idx) ),   // secodn point on line
+        std::make_pair( x1, mly_vals.at(idx) ),                // second point on line
         int(floor(x0)),     // begining of interval to interpolate
         int(floor(x1)),     // end of iterval to interpolate
         1                   // step size
