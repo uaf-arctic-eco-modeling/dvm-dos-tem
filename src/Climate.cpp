@@ -591,7 +591,7 @@ void Climate::prepare_daily_driving_data(int iy, const std::string& stage) {
     // abshd_d;
 
     BOOST_LOG_SEV(glg, debug) << "tair_d = [" << temutil::vec2csv(tair_d) << "]";
-    BOOST_LOG_SEV(glg, debug) << "nirr_d = [" << temutil::vec2csv(vpd_d) << "]";
+    BOOST_LOG_SEV(glg, debug) << "nirr_d = [" << temutil::vec2csv(nirr_d) << "]";
     BOOST_LOG_SEV(glg, debug) << "vapo_d = [" << temutil::vec2csv(vapo_d) << "]";
     BOOST_LOG_SEV(glg, debug) << "prec_d = [" << temutil::vec2csv(prec_d) << "]";
     BOOST_LOG_SEV(glg, debug) << "rain_d = [" << temutil::vec2csv(rain_d) << "]";
