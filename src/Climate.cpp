@@ -583,7 +583,7 @@ void Climate::prepare_daily_driving_data(int iy, const std::string& stage) {
     std::transform( svp_d.begin(), svp_d.end(), vapo_d.begin(), vpd_d.begin(), calculate_vpd );
 
     cld_d.resize(tair_d.size());
-    std::transform( cld_d.begin(), cld_d.end(), girr_d.begin(), nirr_d.begin(), calculate_clouds );
+    std::transform( girr_d.begin(), girr_d.end(), nirr_d.begin(), cld_d.begin(), calculate_clouds );
 
     // THESE MAY NEVER BE USED??
     // rhoa_d;
