@@ -150,6 +150,208 @@ float calculate_girr(const float lat, const int im) {
   return gross;
 }
 
+std::vector<float> calculate_daily_prec(const int midx, const float mta, const float mprec) {
+                                  
+  // input are monthly precipitation, monthly temperature
+  // output are daily precpitation
+  // this function is based on the code provided Qianlai on Feb. 19, 2007
+  
+  float RT, RS, R ;
+  RT=1.778;
+  RS=0.635;
+  R=0.5;
+  float TEMP, PREC, DURT, DURS;
+  PREC = mprec/10.0/2.54; //comvert mm to cm, then to in.
+  DURT=RT/R;
+  DURS=RS/R;
+  float B=1.0, T=0.0, S=1.0, RB, DURB;
+
+  float RAINDUR[DINM[midx]];
+  float RAININTE[DINM[midx]];
+  for(int id = 0; id < DINM[midx]; id++) {
+    RAININTE[id] =0.;
+    RAINDUR[id] = 0.;
+  }
+
+  TEMP = mta;
+  
+  //  Case 1, TEMP<0.
+  if (TEMP <= 0.0) {
+    if (PREC <= 1.0) {
+      B=1.0;
+      T=0.0;
+      S=1.0;
+    } else {
+      B=1.0;
+      T=1.0;
+      S=1.0;
+    }
+  }
+  //   Case 2, PREC<1.0 inch.
+  else if (PREC <= 1.0) {
+    B=1.0;
+    T=0.0;
+    S=1.0;
+  }
+  //   Case 3, 1.0<PREC<2.5 inches.
+  else if ((2.5 >= PREC) && (PREC > 1.0)) {
+    B=1.0;
+    T=1.0;
+    S=1.0;
+  }
+  //   Case 4, 2.5<PREC<4.0 inches.
+  else if ((4.0 >= PREC) && (PREC > 2.5)) {
+    B=1.0;
+    S=4.0;
+
+    if (PREC < 3.7) {
+      T=1.0;
+    } else {
+      T=2.0;
+    }
+  }
+  //   Case 5, 4.0<PREC<5.0 inches.
+  else if ((5.0 >= PREC) && (PREC > 4.0)) {
+    B=1.0;
+    S=4.0;
+
+    if (PREC < 4.43) {
+      T=1.0;
+    } else {
+      T=2.0;
+    }
+  }
+  //   Case 6, 5.0<PREC<7.0 inches.
+  else if ((7.0 >= PREC) && (PREC > 5.0)) {
+    B=2.0;
+    S=4.0;
+
+    if (PREC < 5.65) {
+      T=1.0;
+    } else {
+      T=2.0;
+    }
+  }
+  //   Case 7, 7.0<PREC<9.0 inches.
+  else if ((9.0 >= PREC) && (PREC > 7.0)) {
+    B=2.0;
+    S=6.0;
+
+    if (PREC < 8.21) {
+      T=3.0;
+    } else {
+      T=4.0;
+    }
+  }
+  //   Case 8, 9.0<PREC<11.0 inches.
+  else if ((11.0 >= PREC) && (PREC > 9.0)) {
+    B=3.0;
+    S=6.0;
+
+    if (PREC < 10.0) {
+      T=4.0;
+    } else {
+      T=5.0;
+    }
+  }
+  //   Case 9, PREC>11.0 inches.
+  else if (PREC > 11.0) {
+    B=4.0;
+    S=7.0;
+
+    if (PREC < 13.0) {
+      T=4.0;
+    } else {
+      T=5.0;
+    }
+  }
+  
+  RB = ( PREC*2.54 - RS*S - RT*T ) / B;   // Yuan
+  DURB = RB / R;    // Yuan
+
+  if (DURB <= 0.01) {
+    DURB = 0.01;  // !added //changed from zero to 0.01 by shuhua
+  }
+
+  PREC = PREC * 2.54 * 10.0;  // convert back to cm, and then to mm
+  float BB, TT;
+  int KTT, KDD, KTD, KKTD;
+  int NN, DT;
+  DT = DINM[midx];
+  KTT = (int)(B+T);
+  KTD = DT / KTT;
+  KDD = DT - KTT * KTD;
+  BB = B;
+  TT = T;
+  NN = 0;
+  
+  for (int JJ=1; JJ<=KTT; JJ++) {
+    if (BB > 0.0) {
+      BB = BB - 1.0;
+
+      for (int L=1; L<=KTD; L++) {
+        NN = NN+1;
+        RAININTE[NN] = 0.0;
+        RAINDUR[NN] = 0.0;
+
+        if (L == KTD) {
+          RAININTE[NN] = 5.0; // unit with mm /hr
+          RAINDUR[NN] = DURB;
+        }
+      }
+    }
+
+    if (TT > 0.0) {
+      TT = TT - 1.0;
+
+      if (JJ == 1) {
+        KKTD = KTD+KDD;
+      } else {
+        KKTD = KTD;
+      }
+
+      for (int L=1; L <= KKTD; L++) {
+        NN = NN+1;
+        RAININTE[NN] = 0.0;
+        RAINDUR[NN] = 0.0;
+
+        if (L == KKTD) {
+          RAININTE[NN] = 5.0; //unit mm/hr
+          RAINDUR[NN] = DURT;
+        }
+      }
+    }
+  }  // end of for J
+  
+  // in winter season, DURT was always zero, so put the precipitation
+  //   on the day with RAININTE>0;
+  int numprec = 0;
+  double tothour = 0.;
+
+  for (int id = 0; id < DINM[midx]; id++) {
+    if (RAINDUR[id+1] > 0) {
+      numprec++;
+      tothour += RAINDUR[id+1];
+    }
+  }
+  
+  float sumprec = 0.;
+
+
+  std::vector<float> precip_daily (DINM[midx], 0);
+  if(numprec > 0) {
+    double rainrate = mprec / tothour;
+
+    for (int id = 0; id < DINM[midx]; id++) {
+      precip_daily[id] = RAINDUR[id+1] * rainrate;
+      sumprec += precip_daily[id];
+    }
+  }
+  
+  return precip_daily;
+}
+
+
 
 Climate::Climate() {
   BOOST_LOG_SEV(glg, note) << "--> CLIMATE --> empty ctor";
@@ -195,23 +397,12 @@ void Climate::load_from_file(const std::string& fname, int y, int x) {
   }
 
   // make some space for the derived variables
-  rain = std::vector<float>(prec.size(), 0);
-  snow = std::vector<float>(prec.size(), 0);
   girr = std::vector<float>(12, 0); // <-- !! wow, no need for year dimesion??
   par = std::vector<float>(prec.size(), 0);
   cld = std::vector<float>(prec.size(), 0);
 
-  // fill out rain and snow variables based on temp and precip values
-  // Look into boost::zip_iterator
-  for (int i = 0; i < tair.size(); ++i) {
-    std::pair<float, float> rs = willmot_split(tair[i], prec[i]);
-    rain[i] = rs.first;
-    snow[i] = rs.second;
-  }
   BOOST_LOG_SEV(glg, debug) << "tair = [" << temutil::vec2csv(tair) << "]";
   BOOST_LOG_SEV(glg, debug) << "prec = [" << temutil::vec2csv(prec) << "]";
-  BOOST_LOG_SEV(glg, debug) << "rain = [" << temutil::vec2csv(rain) << "]";
-  BOOST_LOG_SEV(glg, debug) << "snow = [" << temutil::vec2csv(snow) << "]";
 
   // find girr as a function of month and latitude
   std::pair<float, float> latlon = temutil::get_latlon(fname, y, x);
@@ -240,8 +431,10 @@ void Climate::load_from_file(const std::string& fname, int y, int x) {
   avgX_prec = avg_over(prec, 10);
   avgX_nirr = avg_over(nirr, 10);
   avgX_vapo = avg_over(vapo, 10);
-
-  // Do we need simplifie 'avgX_' values for par, and cld??
+  
+  // Do we need simplified 'avgX_' values for par, and cld??
+  // ===> YES: the derived variables should prpbably be based off the avgX
+  //      containers...
 
   // Finally, need to create the daily dataset(s) by interpolating the monthly
   // --> actually looking like these should not be calculated upon construciton.
@@ -295,8 +488,8 @@ std::vector<float> Climate::monthly2daily(const std::vector<float>& mly_vals) {
   std::vector<float> rel_days;
   rel_days.assign( arr, arr + sizeof(arr) / sizeof(arr[0]) );
 
-  assert(mly_vals.size() == 14 && "Monthly values must be size 14 (D J F M A M J J A S O N D J");
-  assert(rel_days.size() == 14 && "Relative days vector must be size 14: D J F M A M J J A S O N D J");
+  assert(mly_vals.size() == 14 && "Monthly values must be size 14 (D J F M A M J J A S O N D J)");
+  assert(rel_days.size() == 14 && "Relative days vector must be size 14: (D J F M A M J J A S O N D J)");
 
   for (std::vector<float>::iterator it = rel_days.begin()+1; it != rel_days.end(); ++it) {
     int idx = it - rel_days.begin();
@@ -307,7 +500,7 @@ std::vector<float> Climate::monthly2daily(const std::vector<float>& mly_vals) {
 
     std::vector<float> psd = temutil::resample(
         std::make_pair( x0, mly_vals.at(idx-1) ),   // first point on line
-        std::make_pair( x1, mly_vals.at(idx) ),   // secodn point on line
+        std::make_pair( x1, mly_vals.at(idx) ),                // second point on line
         int(floor(x0)),     // begining of interval to interpolate
         int(floor(x1)),     // end of iterval to interpolate
         1                   // step size
@@ -355,13 +548,33 @@ void Climate::prepare_daily_driving_data(int iy, const std::string& stage) {
     // at some point iy was zero and the values were appropriately calculated
     // once...
 
-    tair_d = monthly2daily(eq_range(tair));
-    vapo_d = monthly2daily(eq_range(vapo));
-    nirr_d = monthly2daily(eq_range(nirr));
+    // straight up interpolated....
+    tair_d = monthly2daily(eq_range(avgX_tair));
+    vapo_d = monthly2daily(eq_range(avgX_vapo));
+    nirr_d = monthly2daily(eq_range(avgX_nirr));
 
-    rain_d = monthly2daily(eq_range(rain));
-    snow_d = monthly2daily(eq_range(snow));
+    // Not totally sure if this is right to interpolate these??
     par_d = monthly2daily(eq_range(par));
+    girr_d = monthly2daily(eq_range(girr));
+
+
+    // much more complicated than straight interpolation...
+    prec_d.clear();
+    for (int i=0; i < 12; ++i) {
+      std::vector<float> v = calculate_daily_prec(i, avgX_tair.at(i), avgX_prec.at(i));
+
+      prec_d.insert( prec_d.end(), v.begin(), v.end() );
+    }
+
+    // derive rain and snow from precip...
+    // Look into boost::zip_iterator
+    rain_d.clear();
+    snow_d.clear();
+    for (int i = 0; i < prec_d.size(); ++i) {
+      std::pair<float, float> rs = willmot_split(tair_d[i], prec_d[i]);
+      rain_d.push_back(rs.first);
+      snow_d.push_back(rs.second);
+    }
 
     svp_d.resize(tair_d.size());
     std::transform( tair_d.begin(), tair_d.end(), svp_d.begin(), calculate_saturated_vapor_pressure );
@@ -369,18 +582,35 @@ void Climate::prepare_daily_driving_data(int iy, const std::string& stage) {
     vpd_d.resize(tair_d.size());
     std::transform( svp_d.begin(), svp_d.end(), vapo_d.begin(), vpd_d.begin(), calculate_vpd );
 
-    // never used???
-    //rhoa_d
-    //dersvp_d
-    //abshd_d
+    cld_d.resize(tair_d.size());
+    std::transform( girr_d.begin(), girr_d.end(), nirr_d.begin(), cld_d.begin(), calculate_clouds );
+
+    // THESE MAY NEVER BE USED??
+    // rhoa_d;
+    // dersvp_d;
+    // abshd_d;
+
+    BOOST_LOG_SEV(glg, debug) << "tair_d = [" << temutil::vec2csv(tair_d) << "]";
+    BOOST_LOG_SEV(glg, debug) << "nirr_d = [" << temutil::vec2csv(nirr_d) << "]";
+    BOOST_LOG_SEV(glg, debug) << "vapo_d = [" << temutil::vec2csv(vapo_d) << "]";
+    BOOST_LOG_SEV(glg, debug) << "prec_d = [" << temutil::vec2csv(prec_d) << "]";
+    BOOST_LOG_SEV(glg, debug) << "rain_d = [" << temutil::vec2csv(rain_d) << "]";
+    BOOST_LOG_SEV(glg, debug) << "snow_d = [" << temutil::vec2csv(snow_d) << "]";
+    BOOST_LOG_SEV(glg, debug) << "svp_d = [" << temutil::vec2csv(svp_d) << "]";
+    BOOST_LOG_SEV(glg, debug) << "vpd_d = [" << temutil::vec2csv(vpd_d) << "]";
+    BOOST_LOG_SEV(glg, debug) << "girr_d = [" << temutil::vec2csv(girr_d) << "]";
+    BOOST_LOG_SEV(glg, debug) << "cld_d = [" << temutil::vec2csv(cld_d) << "]";
+    BOOST_LOG_SEV(glg, debug) << "par_d = [" << temutil::vec2csv(par_d) << "]";
 
     BOOST_LOG_SEV(glg, debug) << "tair_d.size() = " << tair_d.size();
-    BOOST_LOG_SEV(glg, debug) << "tair_d = [" << temutil::vec2csv(tair_d) << "]";
-    BOOST_LOG_SEV(glg, debug) << "svp_d.size() = " << svp_d.size();
-    BOOST_LOG_SEV(glg, debug) << "svp_d = [" << temutil::vec2csv(svp_d) << "]";
+    BOOST_LOG_SEV(glg, debug) << "prec_d.size() = " << prec_d.size();
+    BOOST_LOG_SEV(glg, debug) << "rain_d.size() = " << rain_d.size();
+    BOOST_LOG_SEV(glg, debug) << "snow_d.size() = " << snow_d.size();
     BOOST_LOG_SEV(glg, debug) << "vpd_d.size() = " << vpd_d.size();
-    BOOST_LOG_SEV(glg, debug) << "vpd_d = [" << temutil::vec2csv(vpd_d) << "]";
+    BOOST_LOG_SEV(glg, debug) << "svp_d.size() = " << svp_d.size();
 
+    BOOST_LOG_SEV(glg, debug) << "avgX_prec = [" << temutil::vec2csv(avgX_prec) << "]";
+    BOOST_LOG_SEV(glg, debug) << "avgX_prec.size() = " << avgX_prec.size();
   }
 }
 
