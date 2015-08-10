@@ -39,18 +39,19 @@ days = np.arange(0, 365)
 
 # RADIATION
 ax1 = plt.subplot(gs[0:6])
-ax1.plot(girr_d, label="girr", linewidth=1.0)
-ax1.plot(nirr_d, label="nirr", linewidth=1.0)
+ax1.plot(girr_d, label="girr_d", linewidth=1.0)
+ax1.plot(nirr_d, label="nirr_d", linewidth=1.0)
 ax1.plot(par_d, label='par_d', linewidth=1.0)
 ax1.legend(fontsize='small')
-ax1.set_ylabel("Radiation")
+ax1.set_ylabel("W/m^2")
 
 # CLOUDS
 ax1a = plt.subplot(gs[6:7], sharex=ax1)
 ax1a.plot(cld_d, label="%clds", linewidth=0.0, alpha=.5,)
-pc = ax1a.fill_between(np.arange(0,len(cld_d)), cld_d, 0, alpha=1.0, color='gray')
-ax1a.set_ylabel("%clds", rotation=0, labelpad=15)
-ax1a.tick_params(labelleft='off')
+pc = ax1a.fill_between(np.arange(0,len(cld_d)), cld_d, 0, alpha=1.0, color='black')
+ax1a.yaxis.set_major_locator(matplotlib.ticker.MaxNLocator(2, prune=None))
+ax1a.set_ylabel("%cld")
+ax1a.tick_params(labelsize='x-small')
 
 # PRECIP
 #  - not ideal, the bars are very skinny and it is hard to read
@@ -59,15 +60,20 @@ ax2 = plt.subplot(gs[7:12], sharex=ax1)
 pbars = ax2.bar(days, prec_d, width=0.5, bottom=0, linewidth=0.0, color='black', alpha=.5, label="total precip")
 rbars = ax2.bar(days+0.5, rain_d, width=0.5, bottom=0, linewidth=0.0, color='green', alpha=1, label="rain")
 sbars = ax2.bar(days+0.5, snow_d, width=0.5, bottom=rain_d, linewidth=0.0, color='blue', alpha=1, label="snow")
-ax2.set_ylabel("Precip (mm)")
+ax2.set_ylabel("mm")
 ax2.legend(fontsize='small')
 
 # VAPO, TAIR
 ax3 = plt.subplot(gs[12:17], sharex=ax1)
-ax3.plot(vapo_d, label='vapo_d')
 ax3.plot(tair_d, label='tair_d')
-ax3.legend(fontsize='small')
-ax3.set_ylabel("?????")
+ax3.legend(fontsize='small', loc='upper left')
+ax3.set_ylabel("deg C")
+
+ax3a = ax3.twinx() #plt.subplot(gs[12:17], sharex=ax1)
+ax3a.plot(vapo_d, label='vapo_d', color='green')
+ax3a.legend(fontsize='small', loc='upper right')
+ax3a.set_ylabel("????")
+
 
 # VPD, SVP
 ax4 = plt.subplot(gs[17:21], sharex=ax1)
@@ -78,7 +84,7 @@ ax4.set_ylabel("?????")
 
 # set ticks to be on month boundaries
 for a in [ax1, ax1a, ax2, ax3, ax4]:
-	a.xaxis.set_major_locator(matplotlib.ticker.FixedLocator([0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365]))
+	a.xaxis.set_major_locator(matplotlib.ticker.FixedLocator([31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365]))
 
 # adjust tick colors
 for a in [ax1, ax1a, ax2, ax3, ax4]:
@@ -90,8 +96,8 @@ for a in [ax1, ax1a, ax2, ax3, ax4]:
 ax4.tick_params(axis='x', labelbottom=True)
 ax4.set_xlabel("Day of Year")
 
-# control number of ticks on y axis
-for a in [ax1, ax1a, ax2, ax3, ax4]:
+# control number of ticks on y axis, but not the cloud plot
+for a in [ax1, ax2, ax3, ax3a, ax4]:
 	a.yaxis.set_major_locator(matplotlib.ticker.MaxNLocator(5, prune='both'))
 
 # grid
