@@ -2,6 +2,7 @@
 
 
 from subprocess import call
+from subprocess import check_call
 
 import argparse
 import textwrap
@@ -287,19 +288,19 @@ def main(xo, yo, xs, ys, x_dim, y_dim, tif_dir, out_dir, files=[]):
                 'script-temporary_vapo.nc'])
 
           print "Subsetting...."
-          call(['gdal_translate', '-of', 'netCDF', '-srcwin',
+          check_call(['gdal_translate', '-of', 'netCDF', '-srcwin',
                 str(xo), str(yo), str(xs), str(ys),
                 'script-temporary_tair.nc', 'script-temporary_tair2.nc'])
 
-          call(['gdal_translate', '-of', 'netCDF', '-srcwin',
+          check_call(['gdal_translate', '-of', 'netCDF', '-srcwin',
                 str(xo), str(yo), str(xs), str(ys),
                 'script-temporary_rsds.nc', 'script-temporary_rsds2.nc'])
 
-          call(['gdal_translate', '-of', 'netCDF', '-srcwin',
+          check_call(['gdal_translate', '-of', 'netCDF', '-srcwin',
                 str(xo), str(yo), str(xs), str(ys),
                 'script-temporary_pr.nc', 'script-temporary_pr2.nc'])
 
-          call(['gdal_translate', '-of', 'netCDF', '-srcwin',
+          check_call(['gdal_translate', '-of', 'netCDF', '-srcwin',
                 str(xo), str(yo), str(xs), str(ys),
                 'script-temporary_vapo.nc', 'script-temporary_vapo2.nc'])
 
