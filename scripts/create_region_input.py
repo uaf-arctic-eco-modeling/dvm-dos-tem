@@ -335,7 +335,7 @@ if __name__ == '__main__':
     formatter_class = argparse.RawDescriptionHelpFormatter,
 
       description=textwrap.dedent('''\
-        stuff
+        Script for creating input data sets for dvmdostem.
         '''),
 
       epilog=textwrap.dedent('''\
