@@ -200,6 +200,134 @@ def create_empty_climate_nc_file(filename, sizey=10, sizex=10):
   ncfile.close()
 
 
+def main(xo, yo, xs, ys, x_dim, y_dim, tif_dir, out_dir, files=[]):
+
+  if 'fire' in files:
+    # generate some new files...
+    make_fire_dataset(os.path.join(out_dir, "script-new-fire-dataset.nc"), sizey=ys, sizex=xs)
+
+  if 'veg' in files:
+    make_veg_classification(os.path.join(out_dir, "script-new-veg-dataset.nc"), sizey=ys, sizex=xs)
+
+  if 'drain' in files:
+    make_drainage_classification(os.path.join(out_dir, "script-new-drainage-dataset.nc"), sizey=ys, sizex=xs)
+
+  if 'run_mask' in files:
+    make_run_mask(os.path.join(out_dir, "script-run-mask.nc"), sizey=ys, sizex=xs)
+
+  if 'co2' in files:
+    make_co2_file(os.path.join(out_dir, "script-new-co2-dataset.nc"))
+
+  if 'hist_climate' in files:
+    print "WARNING!!!!! NOT IMPLEMENTED YET!"
+
+  if 'proj_climate' in files:
+    #Create empty file to copy data into
+    create_empty_climate_nc_file(os.path.join(out_dir, "script-projected-climate-dataset.nc"), sizey=ys, sizex=xs)
+
+    tmpfile = '/tmp/temporary-file-with-spatial-info.nc'
+    smaller_tmpfile = '/tmp/smaller-temporary-file-with-spatial-info.nc'
+    print "Creating a temporary file with LAT and LON variables: ", tmpfile
+    call([
+        'gdal_translate', '-of', 'netCDF', '-co', "WRITE_LONLAT=YES",
+        tif_dir + '/tas_mean_C_iem_cccma_cgcm3_1_sresa1b_2001_2100/tas_mean_C_iem_cccma_cgcm3_1_sresa1b_01_2001.tif',
+        tmpfile
+      ])
+    print "Finished creating temporary file with spatial info."
+
+    print "Make a subset of the temporary file with LAT and LON variables: ", smaller_tmpfile
+    call(['gdal_translate', '-of', 'netCDF', '-co', "WRITE_LONLAT=YES", '-srcwin',
+        str(xo), str(yo), str(xs), str(ys),
+        tmpfile, smaller_tmpfile
+      ])
+    print "Finished creating the temporary subset...(cropping to our domain)"
+
+    print "Copy the LAT/LON variables from the temporary file into our new dataset..."
+    # Open the 'temporary' dataset
+    temp_subset_with_lonlat = netCDF4.Dataset(smaller_tmpfile, mode='r')
+
+    # Open the new file for appending
+    new_climatedataset = netCDF4.Dataset(os.path.join(out_dir, "script-projected-climate-dataset.nc"), mode='a')
+
+    # Insert lat/lon from temp file into the new file
+    lat = new_climatedataset.variables['lat']
+    lon = new_climatedataset.variables['lon']
+    lat[:] = temp_subset_with_lonlat.variables['lat']
+    lon[:] = temp_subset_with_lonlat.variables['lon']
+
+    new_climatedataset.close()
+    temp_subset_with_lonlat.close()
+    print "Done copying LON/LAT."
+
+    #Populate input file with data from TIFs
+    with netCDF4.Dataset(os.path.join(out_dir, 'script-projected-climate-dataset.nc'), mode='a') as new_climatedataset:
+
+      for yridx, year in enumerate(range(2001, 2001+args.years)):
+        for midx, month in enumerate(range(1,13)): # Note 1 based month!
+
+          print year, month
+
+          # TRANSLATE TO NETCDF
+          print "Converting tif --> netcdf..."
+          call(['gdal_translate', '-of', 'netCDF',
+                tif_dir + '/tas_mean_C_iem_cccma_cgcm3_1_sresa1b_2001_2100/tas_mean_C_iem_cccma_cgcm3_1_sresa1b_%02d_%04d.tif' % (month,year),
+                'script-temporary_tair.nc'])
+
+
+          call(['gdal_translate', '-of', 'netCDF',
+                tif_dir + '/rsds_mean_MJ-m2-d1_iem_cccma_cgcm3_1_sresa1b_2001_2100/rsds_mean_MJ-m2-d1_iem_cccma_cgcm3_1_sresa1b_%02d_%04d.tif' % (month, year),
+                'script-temporary_rsds.nc'])
+
+          call(['gdal_translate', '-of', 'netCDF',
+                tif_dir + '/pr_total_mm_iem_cccma_cgcm3_1_sresa1b_2001_2100/pr_total_mm_iem_cccma_cgcm3_1_sresa1b_%02d_%04d.tif' % (month, year),
+                'script-temporary_pr.nc'])
+
+          call(['gdal_translate', '-of', 'netCDF',
+                tif_dir + '/vap_mean_hPa_iem_cccma_cgcm3_1_sresa1b_2001_2100/vap_mean_hPa_iem_cccma_cgcm3_1_sresa1b_%02d_%04d.tif' % (month, year),
+                'script-temporary_vapo.nc'])
+
+          print "Subsetting...."
+          call(['gdal_translate', '-of', 'netCDF', '-srcwin',
+                str(xo), str(yo), str(xs), str(ys),
+                'script-temporary_tair.nc', 'script-temporary_tair2.nc'])
+
+          call(['gdal_translate', '-of', 'netCDF', '-srcwin',
+                str(xo), str(yo), str(xs), str(ys),
+                'script-temporary_rsds.nc', 'script-temporary_rsds2.nc'])
+
+          call(['gdal_translate', '-of', 'netCDF', '-srcwin',
+                str(xo), str(yo), str(xs), str(ys),
+                'script-temporary_pr.nc', 'script-temporary_pr2.nc'])
+
+          call(['gdal_translate', '-of', 'netCDF', '-srcwin',
+                str(xo), str(yo), str(xs), str(ys),
+                'script-temporary_vapo.nc', 'script-temporary_vapo2.nc'])
+
+
+          print "Writing subset's data to new files..."
+          with netCDF4.Dataset('script-temporary_tair2.nc', mode='r') as t2:
+            tair = new_climatedataset.variables['tair']
+            tair[yridx*12+midx] = t2.variables['Band1'][:]
+
+          with netCDF4.Dataset('script-temporary_rsds2.nc', mode='r') as t2:
+            nirr = new_climatedataset.variables['nirr']
+            nirr[yridx*12+midx] = t2.variables['Band1'][:]
+
+          with netCDF4.Dataset('script-temporary_pr2.nc', mode='r') as t2:
+            prec = new_climatedataset.variables['precip']
+            prec[yridx*12+midx] = t2.variables['Band1'][:]
+
+          with netCDF4.Dataset('script-temporary_vapo2.nc', mode='r') as t2:
+            vapo = new_climatedataset.variables['vapor_press']
+            vapo[yridx*12+midx] = t2.variables['Band1'][:]
+
+          print "Done appending. Closing the new file"
+
+      print "Done with year loop."
+
+  print "DONE"
+
+
 
 if __name__ == '__main__':
 
@@ -239,6 +367,9 @@ if __name__ == '__main__':
   parser.add_argument('--ysize', default=2, type=int,
                       help="source window y size")
 
+  parser.add_argument('--which', default=['all'],
+                      help="which files to create", choices=['all', 'veg', 'fire', 'drain', 'run_mask', 'co2', 'hist_climate', 'proj_climate'])
+
   print "Parsing command line arguments";
   args = parser.parse_args()
   print "args: ", args
@@ -262,121 +393,10 @@ if __name__ == '__main__':
   if not os.path.exists(out_dir):
     os.makedirs(out_dir)
 
-  # generate some new files...
-  make_fire_dataset(os.path.join(out_dir, "script-new-fire-dataset.nc"), sizey=ys, sizex=xs)
+  which_files = args.which
 
-  make_veg_classification(os.path.join(out_dir, "script-new-veg-dataset.nc"), sizey=ys, sizex=xs)
+  if 'all' in which_files:
+    print "Will generate ALL input files."
+    which_files = ['veg', 'fire', 'drain', 'run_mask', 'co2', 'hist_climate', 'proj_climate']
 
-  make_drainage_classification(os.path.join(out_dir, "script-new-drainage-dataset.nc"), sizey=ys, sizex=xs)
-
-  make_run_mask(os.path.join(out_dir, "script-run-mask.nc"), sizey=ys, sizex=xs)
-
-  make_co2_file(os.path.join(out_dir, "script-new-co2-dataset.nc"))
-
-  #Create empty file to copy data into
-  create_empty_climate_nc_file(os.path.join(out_dir, "script-projected-climate-dataset.nc"), sizey=ys, sizex=xs)
-
-  tmpfile = '/tmp/temporary-file-with-spatial-info.nc'
-  smaller_tmpfile = '/tmp/smaller-temporary-file-with-spatial-info.nc'
-  print "Creating a temporary file with LAT and LON variables: ", tmpfile
-  call([
-      'gdal_translate', '-of', 'netCDF', '-co', "WRITE_LONLAT=YES",
-      tif_dir + '/tas_mean_C_iem_cccma_cgcm3_1_sresa1b_2001_2100/tas_mean_C_iem_cccma_cgcm3_1_sresa1b_01_2001.tif',
-      tmpfile
-    ])
-  print "Finished creating temporary file with spatial info."
-
-  print "Make a subset of the temporary file with LAT and LON variables: ", smaller_tmpfile
-  call(['gdal_translate', '-of', 'netCDF', '-co', "WRITE_LONLAT=YES", '-srcwin',
-      str(xo), str(yo), str(xs), str(ys),
-      tmpfile, smaller_tmpfile
-    ])
-  print "Finished creating the temporary subset...(cropping to our domain)"
-
-  print "Copy the LAT/LON variables from the temporary file into our new dataset..."
-  # Open the 'temporary' dataset
-  temp_subset_with_lonlat = netCDF4.Dataset(smaller_tmpfile, mode='r')
-
-  # Open the new file for appending
-  new_climatedataset = netCDF4.Dataset(os.path.join(out_dir, "script-projected-climate-dataset.nc"), mode='a')
-
-  # Insert lat/lon from temp file into the new file
-  lat = new_climatedataset.variables['lat']
-  lon = new_climatedataset.variables['lon']
-  lat[:] = temp_subset_with_lonlat.variables['lat']
-  lon[:] = temp_subset_with_lonlat.variables['lon']
-
-  new_climatedataset.close()
-  temp_subset_with_lonlat.close()
-  print "Done copying LON/LAT."
-
-  #Populate input file with data from TIFs
-  with netCDF4.Dataset(os.path.join(out_dir, 'script-projected-climate-dataset.nc'), mode='a') as new_climatedataset:
-
-    for yridx, year in enumerate(range(2001, 2001+args.years)):
-      for midx, month in enumerate(range(1,13)): # Note 1 based month!
-
-        print year, month
-
-        # TRANSLATE TO NETCDF
-        print "Converting tif --> netcdf..."
-        call(['gdal_translate', '-of', 'netCDF',
-              tif_dir + '/tas_mean_C_iem_cccma_cgcm3_1_sresa1b_2001_2100/tas_mean_C_iem_cccma_cgcm3_1_sresa1b_%02d_%04d.tif' % (month,year),
-              'script-temporary_tair.nc'])
-
-
-        call(['gdal_translate', '-of', 'netCDF',
-              tif_dir + '/rsds_mean_MJ-m2-d1_iem_cccma_cgcm3_1_sresa1b_2001_2100/rsds_mean_MJ-m2-d1_iem_cccma_cgcm3_1_sresa1b_%02d_%04d.tif' % (month, year),
-              'script-temporary_rsds.nc'])
-
-        call(['gdal_translate', '-of', 'netCDF',
-              tif_dir + '/pr_total_mm_iem_cccma_cgcm3_1_sresa1b_2001_2100/pr_total_mm_iem_cccma_cgcm3_1_sresa1b_%02d_%04d.tif' % (month, year),
-              'script-temporary_pr.nc'])
-
-        call(['gdal_translate', '-of', 'netCDF',
-              tif_dir + '/vap_mean_hPa_iem_cccma_cgcm3_1_sresa1b_2001_2100/vap_mean_hPa_iem_cccma_cgcm3_1_sresa1b_%02d_%04d.tif' % (month, year),
-              'script-temporary_vapo.nc'])
-
-        print "Subsetting...."
-        call(['gdal_translate', '-of', 'netCDF', '-srcwin',
-              str(xo), str(yo), str(xs), str(ys),
-              'script-temporary_tair.nc', 'script-temporary_tair2.nc'])
-
-        call(['gdal_translate', '-of', 'netCDF', '-srcwin',
-              str(xo), str(yo), str(xs), str(ys),
-              'script-temporary_rsds.nc', 'script-temporary_rsds2.nc'])
-
-        call(['gdal_translate', '-of', 'netCDF', '-srcwin',
-              str(xo), str(yo), str(xs), str(ys),
-              'script-temporary_pr.nc', 'script-temporary_pr2.nc'])
-
-        call(['gdal_translate', '-of', 'netCDF', '-srcwin',
-              str(xo), str(yo), str(xs), str(ys),
-              'script-temporary_vapo.nc', 'script-temporary_vapo2.nc'])
-
-
-        print "Writing subset's data to new files..."
-        with netCDF4.Dataset('script-temporary_tair2.nc', mode='r') as t2:
-          tair = new_climatedataset.variables['tair']
-          tair[yridx*12+midx] = t2.variables['Band1'][:]
-
-        with netCDF4.Dataset('script-temporary_rsds2.nc', mode='r') as t2:
-          nirr = new_climatedataset.variables['nirr']
-          nirr[yridx*12+midx] = t2.variables['Band1'][:]
-                
-        with netCDF4.Dataset('script-temporary_pr2.nc', mode='r') as t2:
-          prec = new_climatedataset.variables['precip']
-          prec[yridx*12+midx] = t2.variables['Band1'][:]
-
-        with netCDF4.Dataset('script-temporary_vapo2.nc', mode='r') as t2:
-          vapo = new_climatedataset.variables['vapor_press']
-          vapo[yridx*12+midx] = t2.variables['Band1'][:]
-
-        print "Done appending. Closing the new file"
-
-    print "Done with year loop."
-
-
-
-
-
+  main(xo, yo, xs, ys, x_dim, y_dim, tif_dir, out_dir, files=which_files)
