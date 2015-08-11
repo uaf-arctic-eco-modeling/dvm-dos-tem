@@ -201,10 +201,10 @@ def create_empty_climate_nc_file(filename, sizey=10, sizex=10):
   ncfile.close()
 
 
-def fill_climate_file(xo, yo, xs, ys, x_dim, y_dim, out_dir, of_name, sp_ref_file, in_tair_base, in_prec_base, in_rsds_base, in_vapo_base):
+def fill_climate_file(start_yr, yrs, xo, yo, xs, ys, x_dim, y_dim, out_dir, of_name, sp_ref_file, in_tair_base, in_prec_base, in_rsds_base, in_vapo_base):
   # TRANSLATE TO NETCDF
   #Create empty file to copy data into
-  create_empty_climate_nc_file(os.path.join(out_dir, "projected-climate-dataset.nc"), sizey=ys, sizex=xs)
+  create_empty_climate_nc_file(os.path.join(out_dir, of_name), sizey=ys, sizex=xs)
 
   tmpfile = '/tmp/temporary-file-with-spatial-info.nc'
   smaller_tmpfile = '/tmp/smaller-temporary-file-with-spatial-info.nc'
@@ -245,7 +245,8 @@ def fill_climate_file(xo, yo, xs, ys, x_dim, y_dim, out_dir, of_name, sp_ref_fil
   #Populate input file with data from TIFs
   with netCDF4.Dataset(os.path.join(out_dir, of_name), mode='a') as new_climatedataset:
 
-    for yridx, year in enumerate(range(2001, 2001+args.years)):
+    for yridx, year in enumerate( range(start_yr, start_yr + yrs)) : ## ??? How is args in scope here???
+
       for midx, month in enumerate(range(1,13)): # Note 1 based month!
 
         print year, month
@@ -313,7 +314,7 @@ def fill_climate_file(xo, yo, xs, ys, x_dim, y_dim, out_dir, of_name, sp_ref_fil
     print "Done with year loop."
 
 
-def main(xo, yo, xs, ys, x_dim, y_dim, tif_dir, out_dir, files=[]):
+def main(start_year, years, xo, yo, xs, ys, x_dim, y_dim, tif_dir, out_dir, files=[]):
 
   if 'fire' in files:
     # generate some new files...
@@ -333,13 +334,13 @@ def main(xo, yo, xs, ys, x_dim, y_dim, tif_dir, out_dir, files=[]):
 
   if 'hist_climate' in files:
     of_name = "historic-climate-dataset.nc"
-    sp_ref_file  = tif_dir + "/tas_mean_C_iem_cru_TS31_1901_2009/tas_mean_C_iem_cru_TS31_%02d_%04d.tif" % (1, 2001)
+    sp_ref_file  = tif_dir + "/tas_mean_C_iem_cru_TS31_1901_2009/tas_mean_C_iem_cru_TS31_%02d_%04d.tif" % (1, 1901)
     in_tair_base = tif_dir + "/tas_mean_C_iem_cru_TS31_1901_2009/tas_mean_C_iem_cru_TS31"
     in_prec_base = tif_dir + "/pr_total_mm_iem_cru_TS31_1901_2009/pr_total_mm_iem_cru_TS31"
     in_rsds_base = tif_dir + "/rsds_mean_MJ-m2-d1_iem_cru_TS31_1901_2009/rsds_mean_MJ-m2-d1_iem_cru_TS31"
     in_vapo_base = tif_dir + "/vap_mean_hPa_iem_cru_TS31_1901_2009/vap_mean_hPa_iem_cru_TS31"
 
-    fill_climate_file(xo, yo, xs, ys, x_dim, y_dim, out_dir, of_name, sp_ref_file, in_tair_base, in_prec_base, in_rsds_base, in_vapo_base)
+    fill_climate_file(1901+start_year, years, xo, yo, xs, ys, x_dim, y_dim, out_dir, of_name, sp_ref_file, in_tair_base, in_prec_base, in_rsds_base, in_vapo_base)
 
 
   if 'proj_climate' in files:
@@ -350,7 +351,7 @@ def main(xo, yo, xs, ys, x_dim, y_dim, tif_dir, out_dir, files=[]):
     in_rsds_base = tif_dir + "/rsds_mean_MJ-m2-d1_iem_cccma_cgcm3_1_sresa1b_2001_2100/rsds_mean_MJ-m2-d1_iem_cccma_cgcm3_1_sresa1b"
     in_vapo_base = tif_dir + "/vap_mean_hPa_iem_cccma_cgcm3_1_sresa1b_2001_2100/vap_mean_hPa_iem_cccma_cgcm3_1_sresa1b"
 
-    fill_climate_file(xo, yo, xs, ys, x_dim, y_dim, out_dir, of_name, sp_ref_file, in_tair_base, in_prec_base, in_rsds_base, in_vapo_base)
+    fill_climate_file(2001+start_year, years, xo, yo, xs, ys, x_dim, y_dim, out_dir, of_name, sp_ref_file, in_tair_base, in_prec_base, in_rsds_base, in_vapo_base)
 
   print "DONE"
 
@@ -383,6 +384,8 @@ if __name__ == '__main__':
 
   parser.add_argument('--years', default=10, type=int,
                       help="The number of years of the climate data to process.")
+  parser.add_argument('--start-year', default=0, type=int,
+                      help="An offset to use for making a climate dataset that doesn't start at the beginning of the historic (1901) or projected (2001) datasets.")
 
   parser.add_argument('--xoff', default=915,
                       help="source window offset for x axis")
@@ -401,7 +404,9 @@ if __name__ == '__main__':
   args = parser.parse_args()
   print "args: ", args
 
-
+  years = args.years
+  start_year = args.start_year
+  
   xo = args.xoff
   yo = args.yoff
   xs = args.xsize
@@ -426,4 +431,4 @@ if __name__ == '__main__':
     print "Will generate ALL input files."
     which_files = ['veg', 'fire', 'drain', 'run_mask', 'co2', 'hist_climate', 'proj_climate']
 
-  main(xo, yo, xs, ys, x_dim, y_dim, tif_dir, out_dir, files=which_files)
+  main(start_year, years, xo, yo, xs, ys, x_dim, y_dim, tif_dir, out_dir, files=which_files)
