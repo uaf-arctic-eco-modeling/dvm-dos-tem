@@ -332,8 +332,14 @@ def main(xo, yo, xs, ys, x_dim, y_dim, tif_dir, out_dir, files=[]):
     make_co2_file(os.path.join(out_dir, "script-new-co2-dataset.nc"))
 
   if 'hist_climate' in files:
-    print "WARNING!!!!! NOT IMPLEMENTED YET!"
+    of_name = "historic-climate-dataset.nc"
+    sp_ref_file  = tif_dir + "/tas_mean_C_iem_cru_TS31_1901_2009/tas_mean_C_iem_cru_TS31_%02d_%04d.tif" % (1, 2001)
+    in_tair_base = tif_dir + "/tas_mean_C_iem_cru_TS31_1901_2009/tas_mean_C_iem_cru_TS31"
+    in_prec_base = tif_dir + "/pr_total_mm_iem_cru_TS31_1901_2009/pr_total_mm_iem_cru_TS31"
+    in_rsds_base = tif_dir + "/rsds_mean_MJ-m2-d1_iem_cru_TS31_1901_2009/rsds_mean_MJ-m2-d1_iem_cru_TS31"
+    in_vapo_base = tif_dir + "/vap_mean_hPa_iem_cru_TS31_1901_2009/vap_mean_hPa_iem_cru_TS31"
 
+    fill_climate_file(xo, yo, xs, ys, x_dim, y_dim, out_dir, of_name, sp_ref_file, in_tair_base, in_prec_base, in_rsds_base, in_vapo_base)
 
 
   if 'proj_climate' in files:
