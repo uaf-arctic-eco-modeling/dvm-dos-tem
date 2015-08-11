@@ -27,6 +27,18 @@ extern src::severity_logger< severity_level > glg;
 
 namespace temutil {
   
+  /** Sets a negative number to 0.0.
+  Can be used with std::for_each to make sure the contents of a
+  container does not contain positive numbers.
+  */
+  void force_negative2zero(float& i) {
+    if (i < 0) {
+      i = 0.0;
+    } else {
+      // do nothing...
+    }
+  }
+
 
   /** Maybe useful for preventing divide by zero errors?
       - probably not very effecient for production runs, but maybe helpful for 

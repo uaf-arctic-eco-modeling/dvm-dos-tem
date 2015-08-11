@@ -72,6 +72,7 @@ namespace temutil {
 
 
 
+  void force_negative2zero(float& i);
 
   double NON_ZERO(const double val, const int sign);
 

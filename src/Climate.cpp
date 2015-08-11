@@ -54,6 +54,9 @@ float calculate_saturated_vapor_pressure(const float tair) {
 
 /** Cloudiness as a function of girr and nirr */
 float calculate_clouds(const float girr, const float nirr) {
+  assert (nirr >= 0.0 && "Invalid nirr in Climate::calculate_clouds(..)!");
+  assert (girr >= 0.0 && "Invalid girr in Climate::calculate_clouds(..)!");
+
   float clouds;
 
   if ( nirr >= (0.76 * girr) ) {
@@ -557,6 +560,9 @@ void Climate::prepare_daily_driving_data(int iy, const std::string& stage) {
     par_d = monthly2daily(eq_range(par));
     girr_d = monthly2daily(eq_range(girr));
 
+    BOOST_LOG_SEV(glg, info) << "Forcing negative values to zero in girr and nirr daily containers...";
+    std::for_each(nirr_d.begin(), nirr_d.end(), temutil::force_negative2zero);
+    std::for_each(girr_d.begin(), girr_d.end(), temutil::force_negative2zero);
 
     // much more complicated than straight interpolation...
     prec_d.clear();
@@ -603,11 +609,16 @@ void Climate::prepare_daily_driving_data(int iy, const std::string& stage) {
     BOOST_LOG_SEV(glg, debug) << "par_d = [" << temutil::vec2csv(par_d) << "]";
 
     BOOST_LOG_SEV(glg, debug) << "tair_d.size() = " << tair_d.size();
+    BOOST_LOG_SEV(glg, debug) << "nirr_d.size() = " << nirr_d.size();
+    BOOST_LOG_SEV(glg, debug) << "vapo_d.size() = " << vapo_d.size();
     BOOST_LOG_SEV(glg, debug) << "prec_d.size() = " << prec_d.size();
     BOOST_LOG_SEV(glg, debug) << "rain_d.size() = " << rain_d.size();
     BOOST_LOG_SEV(glg, debug) << "snow_d.size() = " << snow_d.size();
     BOOST_LOG_SEV(glg, debug) << "vpd_d.size() = " << vpd_d.size();
     BOOST_LOG_SEV(glg, debug) << "svp_d.size() = " << svp_d.size();
+    BOOST_LOG_SEV(glg, debug) << "girr_d.size() = " << girr_d.size();
+    BOOST_LOG_SEV(glg, debug) << "cld_d.size() = " << cld_d.size();
+    BOOST_LOG_SEV(glg, debug) << "par_d.size() = " << par_d.size();
 
     BOOST_LOG_SEV(glg, debug) << "avgX_prec = [" << temutil::vec2csv(avgX_prec) << "]";
     BOOST_LOG_SEV(glg, debug) << "avgX_prec.size() = " << avgX_prec.size();
