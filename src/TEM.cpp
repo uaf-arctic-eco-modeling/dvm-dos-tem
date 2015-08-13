@@ -243,56 +243,60 @@ int main(int argc, char* argv[]){
             //  - run_years( 0 <= iy <= X )
             //  - ignore the calibration directives
             //
+            {
+              BOOST_LOG_NAMED_SCOPE("PRE-RUN");
+              // turn off everything but env
+              runner.cohort.md->set_envmodule(true);
+              runner.cohort.md->set_bgcmodule(false);
+              runner.cohort.md->set_nfeed(false);
+              runner.cohort.md->set_avlnflg(false);
+              runner.cohort.md->set_baseline(false);
+              runner.cohort.md->set_dsbmodule(false);
+              runner.cohort.md->set_dslmodule(false);
+              runner.cohort.md->set_dvmmodule(false);
 
-            // turn off everything but env
-            runner.cohort.md->set_envmodule(true);
-            runner.cohort.md->set_bgcmodule(false);
-            runner.cohort.md->set_nfeed(false);
-            runner.cohort.md->set_avlnflg(false);
-            runner.cohort.md->set_baseline(false);
-            runner.cohort.md->set_dsbmodule(false);
-            runner.cohort.md->set_dslmodule(false);
-            runner.cohort.md->set_dvmmodule(false);
+              // changing climate?: NO - use avgX values
+              // changing CO2?:     NO - use static value
 
-            // changing climate?: NO - use avgX values
-            // changing CO2?:     NO - use static value
+              BOOST_LOG_SEV(glg, debug) << "Ground, right before 'pre-run'. "
+                                        << runner.cohort.ground.layer_report_string();
 
-            BOOST_LOG_SEV(glg, debug) << "Ground, right before 'pre-run'. "
-                                      << runner.cohort.ground.layer_report_string();
+              runner.run_years(0, 100, "pre-run");
 
-            runner.run_years(0, 100, "pre-run");
+              BOOST_LOG_SEV(glg, debug) << "Ground, right after 'pre-run'"
+                                        << runner.cohort.ground.layer_report_string();
 
-            BOOST_LOG_SEV(glg, debug) << "Ground, right after 'pre-run'"
-                                      << runner.cohort.ground.layer_report_string();
+              if (runner.calcontroller_ptr) {
+                BOOST_LOG_SEV(glg, info)
+                    << "CALIBRATION MODE. Pausing. Please check that the "
+                    << "'warm up' data looks good.";
 
-            if (runner.calcontroller_ptr) {
-              BOOST_LOG_SEV(glg, info)
-                  << "CALIBRATION MODE. Pausing. Please check that the "
-                  << "'warm up' data looks good.";
+                runner.calcontroller_ptr->pause();
 
-              runner.calcontroller_ptr->pause();
-
-              runner.calcontroller_ptr->clear_and_create_json_storage();
+                runner.calcontroller_ptr->clear_and_create_json_storage();
+              }
             }
 
-            runner.cohort.md->set_envmodule(true);
-            runner.cohort.md->set_dvmmodule(true);
-            runner.cohort.md->set_dslmodule(true);
-            runner.cohort.md->set_bgcmodule(true);
-            runner.cohort.md->set_dsbmodule(true);
-            // baseline? avln? friderived? nfeed?
+            {
+              BOOST_LOG_NAMED_SCOPE("EQ");
 
-            //  changing climate?: NO - use avgX values
-            //  changing CO2?:     NO - use static value
+              runner.cohort.md->set_envmodule(true);
+              runner.cohort.md->set_dvmmodule(true);
+              runner.cohort.md->set_dslmodule(true);
+              runner.cohort.md->set_bgcmodule(true);
+              runner.cohort.md->set_dsbmodule(true);
+              // baseline? avln? friderived? nfeed?
 
-            runner.run_years(0, modeldata.max_eq_yrs, "eq-run");
+              //  changing climate?: NO - use avgX values
+              //  changing CO2?:     NO - use static value
 
-            std::string restart_fname = "DATA/test/Toolik_10x10/output/restart-eq.nc";
+              runner.run_years(0, modeldata.max_eq_yrs, "eq-run");
 
-            // write out restart-eq.nc ???
-            runner.cohort.restartdata.append_to_ncfile(restart_fname, rowidx, colidx); /* cohort id/key ???*/
+              std::string restart_fname = "DATA/test/Toolik_10x10/output/restart-eq.nc";
 
-
+              // write out restart-eq.nc ???
+              runner.cohort.restartdata.append_to_ncfile(restart_fname, rowidx, colidx); /* cohort id/key ???*/
+            }
           }
           if (modeldata.runsp) {
 

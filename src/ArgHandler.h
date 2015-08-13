@@ -17,6 +17,7 @@ class ArgHandler {
 	boost::program_options::options_description desc;
 	boost::program_options::variables_map varmap;
 
+  int pre_run_yrs;
   int max_eq;
 
   bool cal_mode;
@@ -35,8 +36,8 @@ public:
 	void verify();
 	void show_help();
 
-
-  inline int get_max_eq() const   {return max_eq;};
+  inline int get_pre_run_yrs() const {return pre_run_yrs;};
+  inline int get_max_eq() const {return max_eq;};
   inline const bool get_fpe(){return floating_point_exp;};
 	
   inline const bool get_cal_mode(){return cal_mode;};
