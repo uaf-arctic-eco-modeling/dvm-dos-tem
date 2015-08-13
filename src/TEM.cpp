@@ -261,7 +261,7 @@ int main(int argc, char* argv[]){
               BOOST_LOG_SEV(glg, debug) << "Ground, right before 'pre-run'. "
                                         << runner.cohort.ground.layer_report_string();
 
-              runner.run_years(0, 100, "pre-run");
+              runner.run_years(0, modeldata.pre_run_yrs, "pre-run");
 
               BOOST_LOG_SEV(glg, debug) << "Ground, right after 'pre-run'"
                                         << runner.cohort.ground.layer_report_string();
