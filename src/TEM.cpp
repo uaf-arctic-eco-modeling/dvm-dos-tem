@@ -145,6 +145,9 @@ int main(int argc, char* argv[]){
 
   BOOST_LOG_SEV(glg, note) << "Creating a ModelData object based on settings in the control file";
   ModelData modeldata(controldata);
+
+  modeldata.update(args);
+
   /*  
       Someday it may be worth the time/effort to make better use of
       boots::program_options here to manage the arguments from config file
@@ -282,7 +285,7 @@ int main(int argc, char* argv[]){
             //  changing climate?: NO - use avgX values
             //  changing CO2?:     NO - use static value
 
-            runner.run_years(0, MAX_EQ_YR, "eq-run");
+            runner.run_years(0, modeldata.max_eq_yrs, "eq-run");
 
             std::string restart_fname = "DATA/test/Toolik_10x10/output/restart-eq.nc";
 

@@ -19,6 +19,10 @@ void ArgHandler::parse(int argc, char** argv) {
      "program will generate yearly and monthly '.json' files in your /tmp "
      " directory that are intended to be read by other programs or scripts.")
 
+    ("max-eq,m", boost::program_options::value<int>(&max_eq)
+       ->default_value(1000),
+     "The maximum number of years to run in equlibrium stage.")
+
     ("loop-order,o",
      boost::program_options::value<std::string>(&loop_order)
        ->default_value("space-major"),

@@ -7,6 +7,8 @@
 #include <cstdlib>
 #include <json/value.h>
 
+#include "../ArgHandler.h"
+
 using namespace std;
 
 class ModelData {
@@ -16,6 +18,8 @@ public:
 
   ModelData();
   ~ModelData();
+
+  void update(ArgHandler const * arghandler);
   std::string describe_module_settings();
 
   string loop_order; // time-major or space-major
@@ -25,6 +29,8 @@ public:
   bool runtr;
   bool runsc;
   int initmode;
+
+  int max_eq_yrs;
 
   string parameter_dir;
   string hist_climate_file;

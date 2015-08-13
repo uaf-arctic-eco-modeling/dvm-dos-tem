@@ -57,6 +57,14 @@ ModelData::ModelData(Json::Value controldata){
 }
 
 
+void ModelData::update(ArgHandler const * arghandler) {
+  BOOST_LOG_SEV(glg, debug) << "Updating ModelData from an ArgHandler...";
+
+  this->max_eq_yrs = arghandler->get_max_eq();
+
+}
+
+
 ModelData::ModelData() {
   runeq = false;
   runsp = false;
