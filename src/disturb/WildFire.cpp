@@ -59,52 +59,53 @@ void WildFire::initializeState5restart(RestartData *resin) {
   fd->fire_a2soi.orgn=resin->firea2sorgn;
 };
 
-//Yuan: modifying the following method, return the first fire year, if any
-void WildFire::prepareDrivingData() {
-  //initialize with -1
-  for(int in =0; in<MAX_FIR_OCRNUM; in++) {
-    fyear[in]        = -1;
-    fseason[in]      = -1;
-    fmonth[in]       = -1;
-    fseverity[in]    = -1;
-    fsize[in]        = -1;
-  }
-
-  //fire season's month index order (0~11):
-  //Yuan: season: 1, 2(early fire), 3(late fire), and 4 with 3 months
-  //  in the order
-  int morder[12] = {1,2,3, 4,5,6, 7,8,9, 10,11,0};
-  vector<int> firemonths;
-  int calyr =0;
-  firstfireyr = END_SC_YR; // the latest possible year to have a fire
-
-  //from fire.nc
-  for(int in =0; in<MAX_FIR_OCRNUM; in++) {
-    calyr = cd->fireyear[in];
-
-    if(calyr != MISSING_I) { //Yuan: fire year may be BC, But '-9999'
-                             //  reserved for none
-      if (firstfireyr>=calyr) {
-        firstfireyr=calyr;
-      }
-
-      fyear[in] = calyr;
-      fseason[in] = cd->fireseason[in];
-      fsize[in] = cd->firesize[in];
-      fseverity[in] = cd->fireseverity[in];
-      int fsindx=fseason[in]-1; //note: season category index starting from 1
-
-      for (int i=0; i<3; i++) {
-        firemonths.push_back(morder[fsindx*3+i]);
-      }
-
-      // randomize the vector of months
-      random_shuffle(firemonths.begin(),firemonths.end());
-      fmonth[in]=firemonths[1]; // pick-up the middle month in the vector
-      firemonths.clear();
-    }
-  }
-};
+////Yuan: modifying the following method, return the first fire year, if any
+//// FIX THIS: as of 8/13/2015, this is never called...
+//void WildFire::prepareDrivingData() {
+//  //initialize with -1
+//  for(int in =0; in<MAX_FIR_OCRNUM; in++) {
+//    fyear[in]        = -1;
+//    fseason[in]      = -1;
+//    fmonth[in]       = -1;
+//    fseverity[in]    = -1;
+//    fsize[in]        = -1;
+//  }
+//
+//  //fire season's month index order (0~11):
+//  //Yuan: season: 1, 2(early fire), 3(late fire), and 4 with 3 months
+//  //  in the order
+//  int morder[12] = {1,2,3, 4,5,6, 7,8,9, 10,11,0};
+//  vector<int> firemonths;
+//  int calyr =0;
+//  firstfireyr = END_SC_YR; // the latest possible year to have a fire
+//
+//  //from fire.nc
+//  for(int in =0; in<MAX_FIR_OCRNUM; in++) {
+//    calyr = cd->fireyear[in];
+//
+//    if(calyr != MISSING_I) { //Yuan: fire year may be BC, But '-9999'
+//                             //  reserved for none
+//      if (firstfireyr>=calyr) {
+//        firstfireyr=calyr;
+//      }
+//
+//      fyear[in] = calyr;
+//      fseason[in] = cd->fireseason[in];
+//      fsize[in] = cd->firesize[in];
+//      fseverity[in] = cd->fireseverity[in];
+//      int fsindx=fseason[in]-1; //note: season category index starting from 1
+//
+//      for (int i=0; i<3; i++) {
+//        firemonths.push_back(morder[fsindx*3+i]);
+//      }
+//
+//      // randomize the vector of months
+//      random_shuffle(firemonths.begin(),firemonths.end());
+//      fmonth[in]=firemonths[1]; // pick-up the middle month in the vector
+//      firemonths.clear();
+//    }
+//  }
+//};
 
 //Yuan: the fire occurrence month (and data) is input (cohort-level info),
 //  or FRI derived (grid-level info)

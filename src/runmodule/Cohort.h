@@ -114,7 +114,7 @@ public :
   void setProcessData(EnvData * alledp, BgcData * allbdp, FirData *fdp);
 
   void initStatePar();
-  void prepareAllDrivingData();
+//  void prepareAllDrivingData();
   void prepareDayDrivingData(const int & yrcnt, const int &usedatmyr);
   void updateMonthly(const int & yrcnt, const int & currmind,
                      const int & dinmcurr);

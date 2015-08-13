@@ -341,14 +341,16 @@ void Cohort::initStatePar() {
 
 };
 
-void Cohort::prepareAllDrivingData() {
-  // climate monthly data for all atm years
-
-  //fire driving data (if input) for all years
-  if (!md->get_friderived() && !md->runeq) {
-    fire.prepareDrivingData();
-  }
-};
+//void Cohort::prepareAllDrivingData() {
+//
+//  // FIX: as of 8/13/2015, this function is never being called...
+//  // climate monthly data for all atm years
+//
+//  //fire driving data (if input) for all years
+//  if (!md->get_friderived() && !md->runeq) {
+//    fire.prepareDrivingData();
+//  }
+//};
 
 // climate daily data for one year
 void Cohort::prepareDayDrivingData(const int & yrindx, const int & usedatmyr) {

@@ -42,7 +42,7 @@ public:
   void initializeParameter();
   void initializeState();
   void initializeState5restart(RestartData *resin);
-  void prepareDrivingData();
+//  void prepareDrivingData();
 
   int getOccur(const int & yrind, const bool & fridrived); //Yuan: modified;
   void burn(); //Yuan: modified
