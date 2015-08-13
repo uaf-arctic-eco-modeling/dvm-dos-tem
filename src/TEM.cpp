@@ -111,7 +111,7 @@ void enable_floating_point_exceptions() {
     _MM_SET_EXCEPTION_MASK(_MM_GET_EXCEPTION_MASK() & ~_MM_MASK_INVALID);
   #endif
 
-// GNU Linux
+  // GNU Linux
   #ifdef GNU_FPE
     feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW);
   #endif
@@ -135,7 +135,7 @@ int main(int argc, char* argv[]){
   setup_logging(args->get_log_level());
 
   BOOST_LOG_SEV(glg, note) << "Checking command line arguments...";
-  args->verify();
+  args->verify(); // stub - doesn't really do anything yet
 
   BOOST_LOG_SEV(glg, note) << "Turn floating point exceptions on?: " << args->get_fpe();
   if (args->get_fpe()) { enable_floating_point_exceptions(); }
@@ -145,9 +145,12 @@ int main(int argc, char* argv[]){
 
   BOOST_LOG_SEV(glg, note) << "Creating a ModelData object based on settings in the control file";
   ModelData modeldata(controldata);
+  /*  
+      Someday it may be worth the time/effort to make better use of
+      boots::program_options here to manage the arguments from config file
+      and the command line.
+  */
   
-  // Modify the ModelData object based on cmd line args?
-  // Maybe look into boost program obtions config file and property tree?
 
   // Turn off buffering...
   setvbuf(stdout, NULL, _IONBF, 0);

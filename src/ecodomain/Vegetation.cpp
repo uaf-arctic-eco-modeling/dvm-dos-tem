@@ -49,6 +49,9 @@ Vegetation::Vegetation(int cmtnum, const ModelData* mdp) {
       mdp->parameter_dir + "cmt_dimvegetation.txt", cmtnum, 40
   );
 
+
+  // FIX THIS?? Why are some parameters not being set?? (ifwoody, etc..)
+
   // pop each line off the front of the list
   // and assign to the right data member.
   temutil::pfll2data_pft(l, vegdimpar.cov);

@@ -261,6 +261,8 @@ void Cohort::initStatePar() {
   if(md->initmode < 3) {   //lookup or sitein
     ground.initDimension();   //read-in snow/soil structure from 'chtlu', does not appear to touch Layer objects...?
 
+
+  // FIX THIS!
     // reset the soil texture data from grid-level soil.nc, rather than 'chtlu',
     // Note that the mineral layer structure is already defined above
 //    if (md->runmode.compare("multi") == 0) {

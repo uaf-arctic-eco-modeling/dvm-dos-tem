@@ -33,6 +33,7 @@ WildFire::WildFire() {
 WildFire::~WildFire() {
 };
 
+// Looks like this is just used when setting up a Cohort...
 void WildFire::initializeParameter() {
   for (int i=0; i<NUM_FSEVR; i++) {
     for (int ip=0; ip<NUM_PFT; ip++) {
@@ -53,6 +54,7 @@ void WildFire::initializeState() {
   fd->fire_a2soi.orgn = 0.0;
 };
 
+// Looks like this is just used when setting up a Cohort from a Restart file...
 void WildFire::initializeState5restart(RestartData *resin) {
   fd->fire_a2soi.orgn=resin->firea2sorgn;
 };
@@ -107,6 +109,7 @@ void WildFire::prepareDrivingData() {
 //Yuan: the fire occurrence month (and data) is input (cohort-level info),
 //  or FRI derived (grid-level info)
 //Yuan: almost rewriting the code, called in the begining of a year
+// TBC: this seems to only be called from the updateMonthly_Fir(....) function...
 int WildFire::getOccur(const int &yrind, const bool & friderived) {
   int error = 0;
   oneyear    = MISSING_I;
