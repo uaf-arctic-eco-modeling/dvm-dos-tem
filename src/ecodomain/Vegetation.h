@@ -30,6 +30,7 @@ public:
   void initializeParameter();
   void initializeState();
   void initializeState5restart(RestartData *resin);
+  void sync_restartdata_to_state(const RestartData & rd);
 
   void updateLai(const int & currmind);
   void updateFpc();
