@@ -108,12 +108,12 @@ public :
 //  void NEW_load_veg_class_from_file(int y, int x);
 //  void NEW_load_fire_from_file(int y, int x);
 
-  void initSubmodules();
+  void initialize_internal_pointers();
 
   void setModelData(ModelData* md);
   void setProcessData(EnvData * alledp, BgcData * allbdp, FirData *fdp);
 
-  void initStatePar();
+  void initialize_state_parameters();
 //  void prepareAllDrivingData();
   void prepareDayDrivingData(const int & yrcnt, const int &usedatmyr);
   void updateMonthly(const int & yrcnt, const int & currmind,

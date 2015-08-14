@@ -70,9 +70,9 @@ Cohort::Cohort(int y, int x, ModelData* modeldatapointer):
   // this seems to set a lot of pointers...
   // THis might need to be the last step in creating a cohort...
   // after all the other components are ready...
-  this->initSubmodules();
+  this->initialize_internal_pointers();
   
-  // using initSubmodules should obviate the need for this:
+  // using initialize_internal_pointers() should obviate the need for this:
   // hack...
   //CohortData* cdp = &(this->cd);
   this->veg.setCohortData( &(this->cd) );
@@ -121,7 +121,7 @@ Cohort::~Cohort() {
 };
 
 // initialization of pointers used in modules called here
-void Cohort::initSubmodules() {
+void Cohort::initialize_internal_pointers() {
 
   // ecosystem domain
   veg.setCohortData(&cd);
@@ -209,7 +209,7 @@ void Cohort::setProcessData(EnvData * alledp, BgcData * allbdp, FirData *fdp) {
 
 //re-initializing for a new community of all PFTs sharing same
 //  atm/snow-soil domains within a grid
-void Cohort::initStatePar() {
+void Cohort::initialize_state_parameters() {
 
   // 7/10/2015 EXPERIMENT. Seems to help with soil temperature, but TDeep still comes out nan
   edall->update_from_climate(this->climate, 0, 0);

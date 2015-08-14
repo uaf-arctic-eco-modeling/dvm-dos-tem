@@ -226,10 +226,10 @@ int main(int argc, char* argv[]){
           // this is also called inside run_years(...)
           runner.cohort.climate.prepare_daily_driving_data(0, "eq");
 
-          runner.cohort.initSubmodules();
-          runner.cohort.initStatePar();
+          runner.cohort.initialize_internal_pointers(); // sets up lots of pointers to various things
+          runner.cohort.initialize_state_parameters();  // sets data based on cohortlookup or restart file
 
-          BOOST_LOG_SEV(glg, debug) << "right after initSubmodules() and initStatePar()" << runner.cohort.ground.layer_report_string();
+          BOOST_LOG_SEV(glg, debug) << "right after initialize_internal_pointers() and initialize_state_parameters()" << runner.cohort.ground.layer_report_string();
 
 
           if (modeldata.runeq) {
