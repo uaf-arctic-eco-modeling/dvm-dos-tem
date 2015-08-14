@@ -96,29 +96,25 @@ void Vegetation::initializeParameter() {
 
   // This should probably be in the Ctor for a Vegetation object.
   
-  int ipft = 0;
-
   for (int ip=0; ip<NUM_PFT; ip++) {
-    if (chtlu->vegcov[ipft] > 0.) {//this will remove those PFTs with 0 ground
-                                   //  coverage. So be cautious the index
-                                   //  consistent with 'state' variables
-      vegdimpar.sla[ipft] = chtlu->sla[ip];
-      vegdimpar.klai[ipft] = chtlu->klai[ip];
-      vegdimpar.minleaf[ipft] = chtlu->minleaf[ip];
-      vegdimpar.aleaf[ipft] = chtlu->aleaf[ip];
-      vegdimpar.bleaf[ipft] = chtlu->bleaf[ip];
-      vegdimpar.cleaf[ipft] = chtlu->cleaf[ip];
-      vegdimpar.kfoliage[ipft] = chtlu->kfoliage[ip];
-      vegdimpar.cov[ipft] = chtlu->cov[ip];
-      vegdimpar.m1[ipft] = chtlu->m1[ip];
-      vegdimpar.m2[ipft] = chtlu->m2[ip];
-      vegdimpar.m3[ipft] = chtlu->m3[ip];
-      vegdimpar.m4[ipft] = chtlu->m4[ip];
+    // This will remove those PFTs with 0 ground coverage. So be cautious
+    // the index consistent with 'state' variables!!
+    if (chtlu->vegcov[ip] > 0.0) {
+      vegdimpar.sla[ip] = chtlu->sla[ip];
+      vegdimpar.klai[ip] = chtlu->klai[ip];
+      vegdimpar.minleaf[ip] = chtlu->minleaf[ip];
+      vegdimpar.aleaf[ip] = chtlu->aleaf[ip];
+      vegdimpar.bleaf[ip] = chtlu->bleaf[ip];
+      vegdimpar.cleaf[ip] = chtlu->cleaf[ip];
+      vegdimpar.kfoliage[ip] = chtlu->kfoliage[ip];
+      vegdimpar.cov[ip] = chtlu->cov[ip];
+      vegdimpar.m1[ip] = chtlu->m1[ip];
+      vegdimpar.m2[ip] = chtlu->m2[ip];
+      vegdimpar.m3[ip] = chtlu->m3[ip];
+      vegdimpar.m4[ip] = chtlu->m4[ip];
     }
-
-    ipft++;
   }
-};
+}
 
 // set the initial states from inputs
 void Vegetation::initializeState() {
