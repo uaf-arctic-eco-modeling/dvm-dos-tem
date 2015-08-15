@@ -55,7 +55,7 @@ void WildFire::initializeState() {
 };
 
 // Looks like this is just used when setting up a Cohort from a Restart file...
-void WildFire::initializeState5restart(RestartData *resin) {
+void WildFire::sync_state_to_restartdata(RestartData *resin) {
   fd->fire_a2soi.orgn=resin->firea2sorgn;
 };
 

@@ -38,7 +38,7 @@ public:
 
   void initializeParameter();
   void initializeState();
-  void initializeState5restart(RestartData* resin);
+  void sync_state_to_restartdata(RestartData* resin);
 
   void updateDailyGroundT(const double & tdrv, const double & dayl);
   void updateDailySM();

@@ -25,7 +25,7 @@ void SoilParent_Env::initializeState() {
   }
 };
 
-void SoilParent_Env::initializeState5restart(RestartData * resin) {
+void SoilParent_Env::sync_state_to_restartdata(RestartData * resin) {
   double TSrock[MAX_ROC_LAY];
 
   for (int i=0; i<MAX_ROC_LAY; i++) {

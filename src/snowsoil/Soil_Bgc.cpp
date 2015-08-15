@@ -229,7 +229,7 @@ void Soil_Bgc::initializeState() {
   }
 };
 
-void Soil_Bgc::initializeState5restart(RestartData* resin) {
+void Soil_Bgc::sync_state_to_restartdata(RestartData* resin) {
   for (int il =0; il<MAX_SOI_LAY; il++) {
     bd->m_sois.rawc[il] = resin->rawc[il];
     bd->m_sois.soma[il] = resin->soma[il];

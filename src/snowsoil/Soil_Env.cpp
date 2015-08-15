@@ -199,7 +199,7 @@ void Soil_Env::initializeState() {
   ground->checkWaterValidity();
 };
 
-void Soil_Env::initializeState5restart(RestartData* resin) {
+void Soil_Env::sync_state_to_restartdata(RestartData* resin) {
   double TSsoil[MAX_SOI_LAY];
   double LIQsoil[MAX_SOI_LAY];
   double ICEsoil[MAX_SOI_LAY];

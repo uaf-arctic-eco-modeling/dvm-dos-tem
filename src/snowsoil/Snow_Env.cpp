@@ -248,7 +248,7 @@ void Snow_Env::initializeNewSnowState() {
   }
 };
 
-void Snow_Env::initializeState5restart(RestartData* resin) {
+void Snow_Env::sync_state_to_restartdata(RestartData* resin) {
   //set the parameters
   double TSsnow[MAX_SNW_LAY];
   double ICEsnow[MAX_SNW_LAY];
