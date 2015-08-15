@@ -11,7 +11,7 @@ public:
   SoilParent_Env();
 
   void initializeState();
-  void sync_state_to_restartdata(RestartData* resin);
+  void sync_state_to_restartdata(const RestartData & rdata);
 
   void retrieveDailyTM(Layer* lstsoill);
 

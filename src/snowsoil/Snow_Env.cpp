@@ -248,19 +248,19 @@ void Snow_Env::initializeNewSnowState() {
   }
 };
 
-void Snow_Env::sync_state_to_restartdata(RestartData* resin) {
+void Snow_Env::sync_state_to_restartdata(const RestartData & rdata) {
   //set the parameters
   double TSsnow[MAX_SNW_LAY];
   double ICEsnow[MAX_SNW_LAY];
 
   for (int i=0; i<MAX_SNW_LAY; i++) {
-    TSsnow[i] =resin->TSsnow[i];
-    ICEsnow[i]=resin->ICEsnow[i];
+    TSsnow[i] = rdata.TSsnow[i];
+    ICEsnow[i] = rdata.ICEsnow[i];
   }
 
   Layer* currl = ground->toplayer;
-  int snind =-1;
-  ed->d_snws.swesum=0;
+  int snind = -1;
+  ed->d_snws.swesum = 0;
 
   while(currl!=NULL) {
     if(currl->isSnow) {

@@ -199,7 +199,7 @@ void Soil_Env::initializeState() {
   ground->checkWaterValidity();
 };
 
-void Soil_Env::sync_state_to_restartdata(RestartData* resin) {
+void Soil_Env::sync_state_to_restartdata(const RestartData & rdata) {
   double TSsoil[MAX_SOI_LAY];
   double LIQsoil[MAX_SOI_LAY];
   double ICEsoil[MAX_SOI_LAY];
@@ -207,11 +207,11 @@ void Soil_Env::sync_state_to_restartdata(RestartData* resin) {
   double FROZENFRACsoil[MAX_SOI_LAY];
 
   for (int i=0; i<MAX_SOI_LAY; i++) {
-    TSsoil[i]=resin->TSsoil[i];
-    LIQsoil[i]=resin->LIQsoil[i];
-    ICEsoil[i]=resin->ICEsoil[i];
-    FROZENsoil[i]=resin->FROZENsoil[i];
-    FROZENFRACsoil[i]=resin->FROZENFRACsoil[i];
+    TSsoil[i = rdata.TSsoil[i];
+    LIQsoil[i] = rdata.LIQsoil[i];
+    ICEsoil[i] = rdata.ICEsoil[i];
+    FROZENsoil[i] = rdata.FROZENsoil[i];
+    FROZENFRACsoil[i] = rdata.FROZENFRACsoil[i];
   }
 
   Layer* currl = ground->fstsoill;
@@ -233,11 +233,11 @@ void Soil_Env::sync_state_to_restartdata(RestartData* resin) {
   }
 
   //
-  ed->d_atms.dsr     = resin->dsr;
-  ed->monthsfrozen   = resin->monthsfrozen;
-  ed->rtfrozendays   = resin->rtfrozendays;
-  ed->rtunfrozendays = resin->rtunfrozendays;
-  ed->d_soid.rtdpgdd = resin->growingttime[0];
+  ed->d_atms.dsr     = rdata.dsr;
+  ed->monthsfrozen   = rdata.monthsfrozen;
+  ed->rtfrozendays   = rdata.rtfrozendays;
+  ed->rtunfrozendays = rdata.rtunfrozendays;
+  ed->d_soid.rtdpgdd = rdata.growingttime[0];
 };
 
 // Ground (snow-soil) thermal process

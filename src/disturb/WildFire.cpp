@@ -55,9 +55,9 @@ void WildFire::initializeState() {
 };
 
 // Looks like this is just used when setting up a Cohort from a Restart file...
-void WildFire::sync_state_to_restartdata(RestartData *resin) {
-  fd->fire_a2soi.orgn=resin->firea2sorgn;
-};
+void WildFire::sync_state_to_restartdata(const RestartData & rdata) {
+  fd->fire_a2soi.orgn = rdata.firea2sorgn;
+}
 
 ////Yuan: modifying the following method, return the first fire year, if any
 //// FIX THIS: as of 8/13/2015, this is never called...

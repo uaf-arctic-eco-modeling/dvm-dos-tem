@@ -237,9 +237,9 @@ void Ground::initSnowSoilLayers() {
   }
 };
 
-void Ground::initLayerStructure5restart(snwstate_dim *snowdim,
-                                        soistate_dim *soildim,
-                                        RestartData * resin) {
+void Ground::sync_state_to_restart(snwstate_dim *snowdim,
+                                   soistate_dim *soildim,
+                                   const RestartData & rdata) {
   //needs to clean up old 'ground'
   cleanAllLayers();
   //
@@ -247,7 +247,7 @@ void Ground::initLayerStructure5restart(snwstate_dim *snowdim,
   soilparent.thick = 0.;
 
   for (int i=0; i<MAX_ROC_LAY; i++) {
-    soilparent.dz[i] = resin->DZrock[i];
+    soilparent.dz[i] = rdata.DZrock[i];
     soilparent.type[i] = MISSING_I;    // not used now
     soilparent.num += 1;
     soilparent.thick += soilparent.dz[i];
@@ -267,11 +267,11 @@ void Ground::initLayerStructure5restart(snwstate_dim *snowdim,
   int frozen[MAX_SOI_LAY];
 
   for (int i=0; i<MAX_SOI_LAY; i++) {
-    soiltype[i]    = resin->TYPEsoil[i];
-    soilage[i]     = resin->AGEsoil[i];
-    dzsoil[i]      = resin->DZsoil[i];
-    soiltexture[i] = resin->TEXTUREsoil[i];
-    frozen[i]      = resin->FROZENsoil[i];
+    soiltype[i]    = rdata.TYPEsoil[i];
+    soilage[i]     = rdata.AGEsoil[i];
+    dzsoil[i]      = rdata.DZsoil[i];
+    soiltexture[i] = rdata.TEXTUREsoil[i];
+    frozen[i]      = rdata.FROZENsoil[i];
   }
 
   mineral.set5Soilprofile(soiltype, dzsoil, soiltexture, MAX_SOI_LAY);
@@ -318,16 +318,16 @@ void Ground::initLayerStructure5restart(snwstate_dim *snowdim,
   snow.thick = 0.;
 
   for(int il =MAX_SNW_LAY-1; il>=0; il--) {
-    if(resin->DZsnow[il]>0) {
+    if(rdata.DZsnow[il]>0) {
       SnowLayer* snwl = new SnowLayer();
-      snwl->dz = resin->DZsnow[il];
-      snwl->age= resin->AGEsnow[il];
-      snwl->rho= resin->RHOsnow[il];
+      snwl->dz = rdata.DZsnow[il];
+      snwl->age = rdata.AGEsnow[il];
+      snwl->rho = rdata.RHOsnow[il];
       insertFront(snwl);
       snow.coverage = 1.;
-      snow.dz[il] = resin->DZsnow[il];
+      snow.dz[il] = rdata.DZsnow[il];
       snow.numl++;
-      snow.thick += resin->DZsnow[il];
+      snow.thick += rdata.DZsnow[il];
     } else {
       snow.dz[il] = MISSING_D;
     }
@@ -340,8 +340,8 @@ void Ground::initLayerStructure5restart(snwstate_dim *snowdim,
   double frontZ[MAX_NUM_FNT];
 
   for (int i=0; i<MAX_NUM_FNT; i++) {
-    frontZ[i]=resin->frontZ[i];
-    frontFT[i]=resin->frontFT[i];
+    frontZ[i] = rdata.frontZ[i];
+    frontFT[i] = rdata.frontFT[i];
   }
 
   for(int ifnt = 0; ifnt<MAX_NUM_FNT; ifnt++) {

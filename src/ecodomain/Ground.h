@@ -97,9 +97,8 @@ public :
   void initParameter();
   void initDimension();
   void initLayerStructure(snwstate_dim * snowdim, soistate_dim * soildim);
-  void initLayerStructure5restart(snwstate_dim * snowdim,
-                                  soistate_dim * soildim, RestartData * resin);
-
+  void sync_state_to_restart(snwstate_dim *snowdim, soistate_dim *soildim,
+                             const RestartData & rdata);
   void resortGroundLayers();
 
   // snow layers
