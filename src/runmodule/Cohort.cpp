@@ -217,21 +217,8 @@ void Cohort::initialize_state_parameters() {
     this->ed[ipft].update_from_climate(this->climate, 0, 0);
   }
 
-
-  //
-  if (md->initmode>=3) {
-    cd.yrsdist = resid.yrsdist;
-  }
-
-  // FOR VEGETATION
-  //vegetation dimension/structure
-  veg.initializeParameter(); // set values from chtlu...
-
-  if(md->initmode<3) {     // from 'chtlu' or 'sitein'
-    veg.initializeState(); // <==== mostly set values from chtlu...
-  } else {     // initmode  >=3: restart
-    veg.initializeState5restart(&resid);
-  }
+  veg.initializeState();      // <==== mostly set values from chtlu...
+  veg.initializeParameter();  // <==== mostly set values from chtlu...
 
   // pft needs to be initialized individually for 'envmodule' and 'bgcmodule'
   for (int ip=0; ip<NUM_PFT; ip++) {
@@ -241,13 +228,8 @@ void Cohort::initialize_state_parameters() {
     vegenv[ip].initializeParameter();
     vegbgc[ip].initializeParameter();
 
-    if(md->initmode<3) {
-      vegbgc[ip].initializeState();
-      vegenv[ip].initializeState();
-    } else {
-      vegbgc[ip].initializeState5restart(&resid);
-      vegenv[ip].initializeState5restart(&resid);
-    }
+    vegbgc[ip].initializeState();
+    vegenv[ip].initializeState();
   }
 
   // initialize dimension/structure for snow-soil
@@ -258,88 +240,58 @@ void Cohort::initialize_state_parameters() {
   soilenv.initializeParameter();
   soilbgc.initializeParameter();
 
-  if(md->initmode < 3) {   //lookup or sitein
-    ground.initDimension();   //read-in snow/soil structure from 'chtlu', does not appear to touch Layer objects...?
-
+  ground.initDimension();   //read-in snow/soil structure from 'chtlu', does not appear to touch Layer objects...?
 
   // FIX THIS!
-    // reset the soil texture data from grid-level soil.nc, rather than 'chtlu',
-    // Note that the mineral layer structure is already defined above
-//    if (md->runmode.compare("multi") == 0) {
-//      float z = 0;
-//
-//      for (int i = 0; i < ground.mineral.num; i++) {
-//        z += ground.mineral.dz[i];
-//
-//        if (z <= 0.30) {   //assuming the grid top-soil texture is for top 30 cm
-//          BOOST_LOG_SEV(glg, err) << "NOT IMPLEMENTED YET!!! Setting mineral texture...";
-//          //ground.mineral.texture[i] = gd->topsoil;
-//        } else {
-//          BOOST_LOG_SEV(glg, err) << "NOT IMPLEMENTED YET!!! Setting mineral texture...";
-//          //ground.mineral.texture[i] = gd->botsoil;
-//        }
-//      }
-//    }
+  // reset the soil texture data from grid-level soil.nc, rather than 'chtlu',
+  // Note that the mineral layer structure is already defined above
+  //if (md->runmode.compare("multi") == 0) {
+  //  float z = 0;
+  //
+  //  for (int i = 0; i < ground.mineral.num; i++) {
+  //    z += ground.mineral.dz[i];
+  //
+  //    if (z <= 0.30) {   //assuming the grid top-soil texture is for top 30 cm
+  //      BOOST_LOG_SEV(glg, err) << "NOT IMPLEMENTED YET!!! Setting mineral texture...";
+  //      //ground.mineral.texture[i] = gd->topsoil;
+  //    } else {
+  //      BOOST_LOG_SEV(glg, err) << "NOT IMPLEMENTED YET!!! Setting mineral texture...";
+  //      //ground.mineral.texture[i] = gd->botsoil;
+  //    }
+  //  }
+  //}
 
-    //then if we have sitein.nc, as specified. In this way, if sitein.nc may
-    //  not provide all data, then model will still be able to use the default.
-    if(md->initmode == 2) { //from sitein.nc specified as md->initialfile
-//        setSiteStates(&sitein);
-    }
 
-    // set-up the snow-soil-soilparent structure
-    //snow updated daily, while soil dimension at monthly
-    BOOST_LOG_SEV(glg, debug) << "RIGHT BEFORE Ground initLayerStructure()" << ground.layer_report_string();
-    ground.initLayerStructure(&cd.d_snow, &cd.m_soil);
-    BOOST_LOG_SEV(glg, debug) << "RIGHT AFTER Ground initLayerStructure()" << ground.layer_report_string();
+  // set-up the snow-soil-soilparent structure
+  //snow updated daily, while soil dimension at monthly
+  ground.initLayerStructure(&cd.d_snow, &cd.m_soil);
 
-    cd.d_soil = cd.m_soil;
+  cd.d_soil = cd.m_soil;
 
-    //initializing snow/soil/soilparent env state
-    //  conditions after layerStructure done
-    snowenv.initializeNewSnowState(); //Note: ONE initial snow layer as new snow
-    BOOST_LOG_SEV(glg, debug) << "RIGHT AFTER snowenv.initNewSnowState()" << ground.layer_report_string();
+  //initializing snow/soil/soilparent env state
+  //  conditions after layerStructure done
+  snowenv.initializeNewSnowState(); //Note: ONE initial snow layer as new snow
 
-    soilenv.initializeState();
-    BOOST_LOG_SEV(glg, debug) << "RIGHT AFTER soilenv.initializeState()" << ground.layer_report_string();
+  soilenv.initializeState();
 
-    solprntenv.initializeState();
-    BOOST_LOG_SEV(glg, debug) << "RIGHT AFTER solprntenv.initializeState()" << ground.layer_report_string();
+  solprntenv.initializeState();
 
-    // initializing soil bgc state conditions
-    soilbgc.initializeState();
-    BOOST_LOG_SEV(glg, debug) << "RIGHT AFTER Ground soilbgc.initializeState()" << ground.layer_report_string();
-
-  } else {    // initmode>=3: restart
-    // set-up the snow-soil structure from restart data
-    //snow updated daily, while soil dimension at monthly
-    ground.initLayerStructure5restart(&cd.d_snow, &cd.m_soil, &resid);
-    cd.d_soil = cd.m_soil;
-    // initializing snow/soil env state conditions from restart data
-    snowenv.initializeState5restart(&resid);
-    soilenv.initializeState5restart(&resid);
-    solprntenv.initializeState5restart(&resid);
-    // initializing soil bgc state conditions from restart data
-    soilbgc.initializeState5restart(&resid);
-  }
+  // initializing soil bgc state conditions
+  soilbgc.initializeState();
 
   //integrating the individual 'bd' initial conditions into
   //  'bdall' initial conditions, if veg involved
   getBd4allveg_monthly();
+
   // fire processes
   fd->init();
 
-  if(md->initmode<3) {
-    fire.initializeState();
-  } else {
-    fire.initializeState5restart(&resid);
-  }
+  fire.initializeState();
 
   fire.initializeParameter();
   
   BOOST_LOG_SEV(glg, debug) << "Done with Cohort::initStatepar()!  " << ground.layer_report_string();
-
-};
+}
 
 //void Cohort::prepareAllDrivingData() {
 //
@@ -1236,8 +1188,11 @@ void Cohort::getBd4allveg_monthly() {
   }
 }
 
-/** Syncronizes Cohort's RestartData object with other fields of Cohort and
-* CohortData.
+
+/** Syncronizes Cohort's RestartData object with fields of Cohort and
+* CohortData. The RestartData object should have methods for serializing
+* or otherwise packaging the data for archiving or communication with another
+* process.
 */
 void Cohort::sync_state_to_restartdata() {
   BOOST_LOG_SEV(glg, note) << "Updating this Cohort's restartdata member with "
