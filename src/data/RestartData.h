@@ -27,6 +27,12 @@ public :
   void read_px_vars(const std::string& fname, const int rowidx, const int colidx);
   void read_px_pft_vars(const std::string& fname, const int rowidx, const int colidx);
   void read_px_pftpart_pft_vars(const std::string& fname, const int rowidx, const int colidx);
+  void read_px_snow_vars(const std::string& fname, const int rowidx, const int colidx);
+  void read_px_root_pft_vars(const std::string& fname, const int rowidx, const int colidx);
+  void read_px_soil_vars(const std::string& fname, const int rowidx, const int colidx);
+  void read_px_rock_vars(const std::string& fname, const int rowidx, const int colidx);
+  void read_px_front_vars(const std::string& fname, const int rowidx, const int colidx);
+  void read_px_prev_pft_vars(const std::string& fname, const int rowidx, const int colidx);
 
   void write_px_vars(const std::string& fname, const int rowidx, const int colidx);
   void write_px_pft_vars(const std::string& fname, const int rowidx, const int colidx);

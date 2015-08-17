@@ -597,6 +597,214 @@ void RestartData::read_px_pftpart_pft_vars(const std::string& fname, const int r
 
 }
 
+/**  Reads arrays for variables with dimensions (Y, X, snowlayer) */
+void RestartData::read_px_snow_vars(const std::string& fname, const int rowidx, const int colidx) {
+
+  int ncid;
+  temutil::nc( nc_open(fname.c_str(), NC_NOWRITE, &ncid) );
+
+  // Check dimension presence? length? size?
+
+  int cv; // a reusable variable handle
+
+  size_t start[3];
+  start[0] = rowidx;
+  start[1] = colidx;
+  start[2] = 0;
+
+  size_t count[3];
+  count[0] = 1;
+  count[1] = 1;
+  count[2] = MAX_SNW_LAY;
+
+  temutil::nc( nc_inq_varid(ncid, "TSsnow", &cv) );
+  temutil::nc( nc_get_vara_double(ncid, cv, start, count, &TSsnow[0]) );
+
+  temutil::nc( nc_inq_varid(ncid, "DZsnow", &cv) );
+  temutil::nc( nc_get_vara_double(ncid, cv, start, count, &DZsnow[0]) );
+  temutil::nc( nc_inq_varid(ncid, "LIQsnow", &cv) );
+  temutil::nc( nc_get_vara_double(ncid, cv, start, count, &LIQsnow[0]) );
+  temutil::nc( nc_inq_varid(ncid, "RHOsnow", &cv) );
+  temutil::nc( nc_get_vara_double(ncid, cv, start, count, &RHOsnow[0]) );
+  temutil::nc( nc_inq_varid(ncid, "ICEsnow", &cv) );
+  temutil::nc( nc_get_vara_double(ncid, cv, start, count, &ICEsnow[0]) );
+  temutil::nc( nc_inq_varid(ncid, "AGEsnow", &cv) );
+  temutil::nc( nc_get_vara_double(ncid, cv, start, count, &AGEsnow[0]) );
+
+  temutil::nc( nc_close(ncid) );
+}
+
+/**  Reads arrays for variables with dimensions (Y, X, rootlayer, pft) */
+void RestartData::read_px_root_pft_vars(const std::string& fname, const int rowidx, const int colidx) {
+  int ncid;
+  temutil::nc( nc_open(fname.c_str(), NC_NOWRITE, &ncid) );
+
+  int cv; // a reusable variable handle
+
+  size_t start[4];
+  start[0] = rowidx;
+  start[1] = colidx;
+  start[2] = 0;
+  start[3] = 0;
+
+  size_t count[4];
+  count[0] = 1;
+  count[1] = 1;
+  count[2] = MAX_ROT_LAY;
+  count[3] = NUM_PFT;
+
+  temutil::nc( nc_inq_varid(ncid, "rootfrac", &cv) );
+  temutil::nc( nc_get_vara_double(ncid, cv, start, count, &rootfrac[0][0]) );
+
+  temutil::nc( nc_close(ncid) );
+
+}
+
+/**  Reads arrays for variables with dimensions (Y, X, soillayer) */
+void RestartData::read_px_soil_vars(const std::string& fname, const int rowidx, const int colidx) {
+
+  int ncid;
+  temutil::nc( nc_open(fname.c_str(), NC_NOWRITE, &ncid) );
+
+  int cv; // a reusable variable handle
+
+  size_t start[3];
+  start[0] = rowidx;
+  start[1] = colidx;
+  start[2] = 0;
+
+  size_t count[3];
+  count[0] = 1;
+  count[1] = 1;
+  count[2] = MAX_SOI_LAY;
+
+  temutil::nc( nc_inq_varid(ncid, "TYPEsoil", &cv) );
+  temutil::nc( nc_get_vara_int(ncid, cv, start, count, &TYPEsoil[0]) );
+  temutil::nc( nc_inq_varid(ncid, "AGEsoil", &cv) );
+  temutil::nc( nc_get_vara_int(ncid, cv, start, count, &AGEsoil[0]) );
+  temutil::nc( nc_inq_varid(ncid, "FROZENsoil", &cv) );
+  temutil::nc( nc_get_vara_int(ncid, cv, start, count, &FROZENsoil[0]) );
+  temutil::nc( nc_inq_varid(ncid, "TEXTUREsoil", &cv) );
+  temutil::nc( nc_get_vara_int(ncid, cv, start, count, &TEXTUREsoil[0]) );
+
+  temutil::nc( nc_inq_varid(ncid, "DZsoil", &cv) );
+  temutil::nc( nc_get_vara_double(ncid, cv, start, count, &DZsoil[0]) );
+  temutil::nc( nc_inq_varid(ncid, "TSsoil", &cv) );
+  temutil::nc( nc_get_vara_double(ncid, cv, start, count, &TSsoil[0]) );
+  temutil::nc( nc_inq_varid(ncid, "LIQsoil", &cv) );
+  temutil::nc( nc_get_vara_double(ncid, cv, start, count, &LIQsoil[0]) );
+  temutil::nc( nc_inq_varid(ncid, "FROZENFRACsoil", &cv) );
+  temutil::nc( nc_get_vara_double(ncid, cv, start, count, &FROZENFRACsoil[0]) );
+  temutil::nc( nc_inq_varid(ncid, "rawc", &cv) );
+  temutil::nc( nc_get_vara_double(ncid, cv, start, count, &rawc[0]) );
+  temutil::nc( nc_inq_varid(ncid, "soma", &cv) );
+  temutil::nc( nc_get_vara_double(ncid, cv, start, count, &soma[0]) );
+  temutil::nc( nc_inq_varid(ncid, "sompr", &cv) );
+  temutil::nc( nc_get_vara_double(ncid, cv, start, count, &sompr[0]) );
+  temutil::nc( nc_inq_varid(ncid, "somcr", &cv) );
+  temutil::nc( nc_get_vara_double(ncid, cv, start, count, &somcr[0]) );
+  temutil::nc( nc_inq_varid(ncid, "orgn", &cv) );
+  temutil::nc( nc_get_vara_double(ncid, cv, start, count, &orgn[0]) );
+  temutil::nc( nc_inq_varid(ncid, "avln", &cv) );
+  temutil::nc( nc_get_vara_double(ncid, cv, start, count, &avln[0]) );
+
+  temutil::nc( nc_close(ncid) );
+}
+
+/**  Reads arrays of values for variables that have dimensions (Y, X, rocklayer). */
+void RestartData::read_px_rock_vars(const std::string& fname, const int rowidx, const int colidx) {
+
+  int ncid;
+  temutil::nc( nc_open(fname.c_str(), NC_NOWRITE, &ncid) );
+
+  // Check dimension presence? length? size?
+
+  int cv; // a reusable variable handle
+
+  size_t start[3];
+  start[0] = rowidx;
+  start[1] = colidx;
+  start[2] = 0;
+
+  size_t count[3];
+  count[0] = 1;
+  count[1] = 1;
+  count[2] = MAX_ROC_LAY;
+
+  temutil::nc( nc_inq_varid(ncid, "TSrock", &cv) );
+  temutil::nc( nc_get_vara_double(ncid, cv, start, count, &TSrock[0]) );
+  temutil::nc( nc_inq_varid(ncid, "DZrock", &cv) );
+  temutil::nc( nc_get_vara_double(ncid, cv, start, count, &DZrock[0]) );
+
+  temutil::nc( nc_close(ncid) );
+
+}
+
+/**  Reads arrays of values for variables that have dimensions (Y, X, fronts). */
+void RestartData::read_px_front_vars(const std::string& fname, const int rowidx, const int colidx) {
+
+  int ncid;
+  temutil::nc( nc_open(fname.c_str(), NC_NOWRITE, &ncid) );
+
+  int cv; // a reusable variable handle
+
+  size_t start[3];
+  start[0] = rowidx;
+  start[1] = colidx;
+  start[2] = 0;
+
+  size_t count[3];
+  count[0] = 1;
+  count[1] = 1;
+  count[2] = MAX_NUM_FNT;
+
+  temutil::nc( nc_inq_varid(ncid, "frontFT", &cv) );
+  temutil::nc( nc_get_vara_int(ncid, cv, start, count, &frontFT[0]) );
+
+  temutil::nc( nc_inq_varid(ncid, "frontZ", &cv) );
+  temutil::nc( nc_get_vara_double(ncid, cv, start, count, &frontZ[0]) );
+
+  temutil::nc( nc_close(ncid) );
+
+}
+
+/**  Reads arrays for variables with dimensions (Y, X, prev<XX>, pft).
+* Used for variables that need the previous 10 or 12 values.
+*/
+void RestartData::read_px_prev_pft_vars(const std::string& fname, const int rowidx, const int colidx) {
+  int ncid;
+  temutil::nc( nc_open(fname.c_str(), NC_NOWRITE, &ncid) );
+
+  int cv; // a reusable variable handle
+
+  size_t start[4];
+  start[0] = rowidx;
+  start[1] = colidx;
+  start[2] = 0;
+  start[3] = 0;
+
+  size_t count[4];
+  count[0] = 1;
+  count[1] = 1;
+  count[2] = 10;        // <-- previous 10 years?...
+  count[3] = NUM_PFT;
+
+  temutil::nc( nc_inq_varid(ncid, "toptA", &cv) );
+  temutil::nc( nc_get_vara_double(ncid, cv, start, count, &toptA[0][0]) );
+  temutil::nc( nc_inq_varid(ncid, "eetmxA", &cv) );
+  temutil::nc( nc_get_vara_double(ncid, cv, start, count, &eetmxA[0][0]) );
+  temutil::nc( nc_inq_varid(ncid, "growingttimeA", &cv) );
+  temutil::nc( nc_get_vara_double(ncid, cv, start, count, &growingttimeA[0][0]) );
+  temutil::nc( nc_inq_varid(ncid, "unnormleafmxA", &cv) );
+  temutil::nc( nc_get_vara_double(ncid, cv, start, count, &unnormleafmxA[0][0]) );
+
+  count[2] = 12;           // <-- previous 12 months?...
+  temutil::nc( nc_inq_varid(ncid, "prvltrfcnA", &cv) );
+  temutil::nc( nc_get_vara_double(ncid, cv, start, count, &prvltrfcnA[0][0]) );
+
+  temutil::nc( nc_close(ncid) );
+
+}
 
 /** Writes single values for variables have dimensions (Y, X).*/
 void RestartData::write_px_vars(const std::string& fname, const int rowidx, const int colidx) {
