@@ -227,8 +227,7 @@ int main(int argc, char* argv[]){
           runner.cohort.climate.prepare_daily_driving_data(0, "eq");
 
           runner.cohort.initialize_internal_pointers(); // sets up lots of pointers to various things
-          runner.cohort.initialize_state_parameters();  // sets data based on cohortlookup or restart file
-
+          runner.cohort.initialize_state_parameters();  // sets data based on values in cohortlookup
           BOOST_LOG_SEV(glg, debug) << "right after initialize_internal_pointers() and initialize_state_parameters()" << runner.cohort.ground.layer_report_string();
 
 

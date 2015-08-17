@@ -248,7 +248,7 @@ void Snow_Env::initializeNewSnowState() {
   }
 };
 
-void Snow_Env::sync_state_to_restartdata(const RestartData & rdata) {
+void Snow_Env::set_state_from_restartdata(const RestartData & rdata) {
   //set the parameters
   double TSsnow[MAX_SNW_LAY];
   double ICEsnow[MAX_SNW_LAY];

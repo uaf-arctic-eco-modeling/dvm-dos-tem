@@ -389,7 +389,7 @@ void Cohort::updateMonthly(const int & yrcnt, const int & currmind,
   }
 
   BOOST_LOG_SEV(glg, debug) << "Synchronize the RestartData object with the model's state...";
-  this->sync_state_to_restartdata();
+  this->set_restartdata_from_state();
   BOOST_LOG_SEV(glg, debug) << "TODO: ouput some data!";
 //  if (md->outRegn) {
 //    BOOST_LOG_SEV(glg, debug) << "Output all data for multiple cohorts.";
@@ -1189,12 +1189,26 @@ void Cohort::getBd4allveg_monthly() {
 }
 
 
-/** Syncronizes Cohort's RestartData object with fields of Cohort and
+/** Syncronizes Cohort and CohortData's internal fields from the RestartData
+ * object...Maybe Cohort should not own the RestartData object?
+*/
+void Cohort::set_state_from_restartdata() {
+  BOOST_LOG_SEV(glg, note) << "Updating this Cohort and CohortData object with "
+                           << "values from the RestartData object...";
+
+  veg.set_state_from_restartdata(this->restartdata);
+  solprntenv.set_state_from_restartdata(this->restartdata);
+  // add more here....
+
+}
+
+
+/** Syncronizes Cohort's RestartData object from fields of Cohort and
 * CohortData. The RestartData object should have methods for serializing
 * or otherwise packaging the data for archiving or communication with another
 * process.
 */
-void Cohort::sync_state_to_restartdata() {
+void Cohort::set_restartdata_from_state() {
   BOOST_LOG_SEV(glg, note) << "Updating this Cohort's restartdata member with "
                            << "values from the model's state (various fields of "
                            << " Cohort and CohortData).";

@@ -30,7 +30,7 @@ public:
   void initializeParameter();
   void initializeState();
 
-  void sync_restartdata_to_state(const RestartData & rd);
+  void set_state_from_restartdata(const RestartData & rd);
 
   void updateLai(const int & currmind);
   void updateFpc();

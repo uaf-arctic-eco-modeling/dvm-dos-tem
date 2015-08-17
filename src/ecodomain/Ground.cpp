@@ -237,7 +237,7 @@ void Ground::initSnowSoilLayers() {
   }
 };
 
-void Ground::sync_state_to_restart(snwstate_dim *snowdim,
+void Ground::set_state_from_restartdata(snwstate_dim *snowdim,
                                    soistate_dim *soildim,
                                    const RestartData & rdata) {
   //needs to clean up old 'ground'

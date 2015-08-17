@@ -199,7 +199,7 @@ void Soil_Env::initializeState() {
   ground->checkWaterValidity();
 };
 
-void Soil_Env::sync_state_to_restartdata(const RestartData & rdata) {
+void Soil_Env::set_state_from_restartdata(const RestartData & rdata) {
   double TSsoil[MAX_SOI_LAY];
   double LIQsoil[MAX_SOI_LAY];
   double ICEsoil[MAX_SOI_LAY];
@@ -207,7 +207,7 @@ void Soil_Env::sync_state_to_restartdata(const RestartData & rdata) {
   double FROZENFRACsoil[MAX_SOI_LAY];
 
   for (int i=0; i<MAX_SOI_LAY; i++) {
-    TSsoil[i = rdata.TSsoil[i];
+    TSsoil[i] = rdata.TSsoil[i];
     LIQsoil[i] = rdata.LIQsoil[i];
     ICEsoil[i] = rdata.ICEsoil[i];
     FROZENsoil[i] = rdata.FROZENsoil[i];

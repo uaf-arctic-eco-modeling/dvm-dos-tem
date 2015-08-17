@@ -41,7 +41,7 @@ public:
 
   void initializeParameter();
   void initializeState();
-  void sync_state_to_restartdata(const RestartData & rdata);
+  void set_state_from_restartdata(const RestartData & rdata);
 //  void prepareDrivingData();
 
   int getOccur(const int & yrind, const bool & fridrived); //Yuan: modified;

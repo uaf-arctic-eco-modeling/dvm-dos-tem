@@ -38,7 +38,7 @@ public:
 
   void initializeParameter();
   void initializeState();
-  void sync_state_to_restartdata(const RestartData & rdata);
+  void set_state_from_restartdata(const RestartData & rdata);
 
   void prepareIntegration(const bool &nfeedback);
   void delta();

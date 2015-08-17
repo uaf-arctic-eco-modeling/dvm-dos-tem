@@ -157,7 +157,7 @@ void Vegetation::initializeState() {
 };
 
 //set the initial states from restart inputs:
-void Vegetation::sync_restartdata_to_state(const RestartData & rd) {
+void Vegetation::set_state_from_restartdata(const RestartData & rd) {
   for (int ip=0; ip<NUM_PFT; ip++) {
     cd->m_veg.vegage[ip]      = rd.vegage[ip];
     cd->m_veg.vegcov[ip]      = rd.vegcov[ip];

@@ -1,6 +1,8 @@
 #ifndef RESTARTDATA_H_
 #define RESTARTDATA_H_
 
+#include <string>
+
 #ifdef WITHMPI
 #include <mpi.h> // for "exporting" an MPI derived type...
 #endif
@@ -19,7 +21,10 @@ public :
   #endif
 
   void reinitValue();
-  void append_to_ncfile(const std::string& fname, int rowidx, int colidx);
+  void append_to_ncfile(const std::string& fname, const int rowidx, const int colidx);
+  void update_from_ncfile(const std::string& fname, const int rowidx, const int colidx);
+
+  void read_px_vars(const std::string& fname, const int colidx, const int rowidx);
 
   void write_px_vars(const std::string& fname, int colidx, int rowidx);
   void write_px_pft_vars(const std::string& fname, int colidx, int rowidx);

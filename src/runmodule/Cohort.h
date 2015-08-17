@@ -119,7 +119,8 @@ public :
   void updateMonthly(const int & yrcnt, const int & currmind,
                      const int & dinmcurr);
   
-  void sync_state_to_restartdata();
+  void set_state_from_restartdata();
+  void set_restartdata_from_state();
 
 
 private:

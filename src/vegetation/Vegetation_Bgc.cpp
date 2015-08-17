@@ -142,7 +142,7 @@ void Vegetation_Bgc::initializeState() {
 };
 
 //set the initial states from restart inputs
-void Vegetation_Bgc::sync_state_to_restartdata(const RestartData & rdata) {
+void Vegetation_Bgc::set_state_from_restartdata(const RestartData & rdata) {
   for (int i=0; i<NUM_PFT_PART; i++) {
     bd->m_vegs.c[i]    = rdata.vegc[i][ipft];
     bd->m_vegs.strn[i] = rdata.strn[i][ipft];

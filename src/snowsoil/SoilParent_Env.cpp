@@ -25,7 +25,7 @@ void SoilParent_Env::initializeState() {
   }
 };
 
-void SoilParent_Env::sync_state_to_restartdata(const RestartData & rdata) {
+void SoilParent_Env::set_state_from_restartdata(const RestartData & rdata) {
   double TSrock[MAX_ROC_LAY];
 
   for (int i=0; i<MAX_ROC_LAY; i++) {

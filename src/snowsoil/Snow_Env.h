@@ -29,7 +29,7 @@ public:
 
   void initializeParameter();
   void initializeNewSnowState();
-  void sync_state_to_restartdata(const RestartData & rdata);
+  void set_state_from_restartdata(const RestartData & rdata);
 
   void updateDailyM(const double & tdrv);
   void checkSnowLayersT(Layer* frontl);
