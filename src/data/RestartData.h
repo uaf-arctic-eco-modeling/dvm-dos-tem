@@ -24,17 +24,19 @@ public :
   void append_to_ncfile(const std::string& fname, const int rowidx, const int colidx);
   void update_from_ncfile(const std::string& fname, const int rowidx, const int colidx);
 
-  void read_px_vars(const std::string& fname, const int colidx, const int rowidx);
+  void read_px_vars(const std::string& fname, const int rowidx, const int colidx);
+  void read_px_pft_vars(const std::string& fname, const int rowidx, const int colidx);
+  void read_px_pftpart_pft_vars(const std::string& fname, const int rowidx, const int colidx);
 
-  void write_px_vars(const std::string& fname, int colidx, int rowidx);
-  void write_px_pft_vars(const std::string& fname, int colidx, int rowidx);
-  void write_px_pftpart_pft_vars(const std::string& fname, int colidx, int rowidx);
-  void write_px_snow_vars(const std::string& fname, int colidx, int rowidx);
-  void write_px_root_pft_vars(const std::string& fname, int colidx, int rowidx);
-  void write_px_soil_vars(const std::string& fname, int colidx, int rowidx);
-  void write_px_rock_vars(const std::string& fname, int colidx, int rowidx);
-  void write_px_front_vars(const std::string& fname, int colidx, int rowidx);
-  void write_px_prev_pft_vars(const std::string& fname, int colidx, int rowidx);
+  void write_px_vars(const std::string& fname, const int rowidx, const int colidx);
+  void write_px_pft_vars(const std::string& fname, const int rowidx, const int colidx);
+  void write_px_pftpart_pft_vars(const std::string& fname, const int rowidx, const int colidx);
+  void write_px_snow_vars(const std::string& fname, const int rowidx, const int colidx);
+  void write_px_root_pft_vars(const std::string& fname, const int rowidx, const int colidx);
+  void write_px_soil_vars(const std::string& fname, const int rowidx, const int colidx);
+  void write_px_rock_vars(const std::string& fname, const int rowidx, const int colidx);
+  void write_px_front_vars(const std::string& fname, const int rowidx, const int colidx);
+  void write_px_prev_pft_vars(const std::string& fname, const int rowidx, const int colidx);
 
   int chtid;
 

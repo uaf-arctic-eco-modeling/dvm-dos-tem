@@ -393,23 +393,23 @@ void RestartData::update_from_ncfile(const std::string& fname, const int rowidx,
   BOOST_LOG_SEV(glg, debug) << "Opening dataset: " << fname << " to READ value into RestartData for pixel (y, x): (" << rowidx << "," << colidx << ")";
   BOOST_LOG_SEV(glg, debug) << temutil::report_yx_pixel_dims2str(fname);
 
-  read_px_vars(fname, colidx, rowidx);
+  read_px_vars(fname, rowidx, colidx);
 
-//  read_px_pft_vars(fname, colidx, rowidx);
+  read_px_pft_vars(fname, rowidx, colidx);
+
+  read_px_pftpart_pft_vars(fname, rowidx, colidx);
+
+//  read_px_snow_vars(fname, rowidx, colidx);
 //
-//  read_px_pftpart_pft_vars(fname, colidx, rowidx);
+//  read_px_root_pft_vars(fname, rowidx, colidx);
 //
-//  read_px_snow_vars(fname, colidx, rowidx);
+//  read_px_soil_vars(fname, rowidx, colidx);
 //
-//  read_px_root_pft_vars(fname, colidx, rowidx);
+//  read_px_rock_vars(fname, rowidx, colidx);
 //
-//  read_px_soil_vars(fname, colidx, rowidx);
+//  read_px_front_vars(fname, rowidx, colidx);
 //
-//  read_px_rock_vars(fname, colidx, rowidx);
-//
-//  read_px_front_vars(fname, colidx, rowidx);
-//
-//  read_px_prev_pft_vars(fname, colidx, rowidx);
+//  read_px_prev_pft_vars(fname, rowidx, colidx);
 
   BOOST_LOG_SEV(glg, debug) << "Done reading data from file into RestartData.";
 }
@@ -424,23 +424,23 @@ void RestartData::append_to_ncfile(const std::string& fname, const int rowidx, c
   BOOST_LOG_SEV(glg, debug) << temutil::report_yx_pixel_dims2str(fname);
   BOOST_LOG_SEV(glg, debug) << temutil::report_on_netcdf_file(fname, "dsr");
 
-  write_px_vars(fname, colidx, rowidx);
+  write_px_vars(fname, rowidx, colidx);
 
-  write_px_pft_vars(fname, colidx, rowidx);
+  write_px_pft_vars(fname, rowidx, colidx);
 
-  write_px_pftpart_pft_vars(fname, colidx, rowidx);
+  write_px_pftpart_pft_vars(fname, rowidx, colidx);
 
-  write_px_snow_vars(fname, colidx, rowidx);
+  write_px_snow_vars(fname, rowidx, colidx);
 
-  write_px_root_pft_vars(fname, colidx, rowidx);
+  write_px_root_pft_vars(fname, rowidx, colidx);
 
-  write_px_soil_vars(fname, colidx, rowidx);
+  write_px_soil_vars(fname, rowidx, colidx);
 
-  write_px_rock_vars(fname, colidx, rowidx);
+  write_px_rock_vars(fname, rowidx, colidx);
 
-  write_px_front_vars(fname, colidx, rowidx);
+  write_px_front_vars(fname, rowidx, colidx);
 
-  write_px_prev_pft_vars(fname, colidx, rowidx);
+  write_px_prev_pft_vars(fname, rowidx, colidx);
 
   BOOST_LOG_SEV(glg, debug) << "Done writing RestartData.";
 
@@ -449,7 +449,7 @@ void RestartData::append_to_ncfile(const std::string& fname, const int rowidx, c
 
 
 /** Read single values for variables have dimensions (Y, X).*/
-void RestartData::read_px_vars(const std::string& fname, const int colidx, const int rowidx) {
+void RestartData::read_px_vars(const std::string& fname, const int rowidx, const int colidx) {
   
   int ncid;
   temutil::nc( nc_open(fname.c_str(), NC_NOWRITE, &ncid) );
@@ -509,15 +509,97 @@ void RestartData::read_px_vars(const std::string& fname, const int colidx, const
   //temutil::nc( nc_get_vara_int(ncid, cv, start, count, &dsr) );   // write an array
 }
 
+/** Reads arrays of values for variables that have dimensions (Y, X, pft). */
+void RestartData::read_px_pft_vars(const std::string& fname, const int rowidx, const int colidx) {
 
+  int ncid;
+  temutil::nc( nc_open(fname.c_str(), NC_NOWRITE, &ncid) );
 
+  // Check dimension presence? length? size?
 
+  int cv; // a reusable variable handle
+  
+  size_t start[3];
+  start[0] = rowidx;
+  start[1] = colidx;
+  start[2] = 0;
 
+  size_t count[3];
+  count[0] = 1;
+  count[1] = 1;
+  count[2] = NUM_PFT;
+  
+  temutil::nc( nc_inq_varid(ncid, "ifwoody", &cv) );
+  temutil::nc( nc_get_vara_int(ncid, cv, start, count, &ifwoody[0]) );
+  temutil::nc( nc_inq_varid(ncid, "ifdeciwoody", &cv) );
+  temutil::nc( nc_get_vara_int(ncid, cv, start, count, &ifdeciwoody[0]) );
+  temutil::nc( nc_inq_varid(ncid, "ifperenial", &cv) );
+  temutil::nc( nc_get_vara_int(ncid, cv, start, count, &ifperenial[0]) );
+  temutil::nc( nc_inq_varid(ncid, "nonvascular", &cv) );
+  temutil::nc( nc_get_vara_int(ncid, cv, start, count, &nonvascular[0]) );
+  temutil::nc( nc_inq_varid(ncid, "vegage", &cv) );
+  temutil::nc( nc_get_vara_int(ncid, cv, start, count, &vegage[0]) );
+  
+  temutil::nc( nc_inq_varid(ncid, "lai", &cv) );
+  temutil::nc( nc_get_vara_double(ncid, cv, start, count, &lai[0]) );
+  temutil::nc( nc_inq_varid(ncid, "vegwater", &cv) );
+  temutil::nc( nc_get_vara_double(ncid, cv, start, count, &vegwater[0]) );
+  temutil::nc( nc_inq_varid(ncid, "vegsnow", &cv) );
+  temutil::nc( nc_get_vara_double(ncid, cv, start, count, &vegsnow[0]) );
+  temutil::nc( nc_inq_varid(ncid, "labn", &cv) );
+  temutil::nc( nc_get_vara_double(ncid, cv, start, count, &labn[0]) );
+  temutil::nc( nc_inq_varid(ncid, "deadc", &cv) );
+  temutil::nc( nc_get_vara_double(ncid, cv, start, count, &deadc[0]) );
+  temutil::nc( nc_inq_varid(ncid, "deadn", &cv) );
+  temutil::nc( nc_get_vara_double(ncid, cv, start, count, &deadn[0]) );
+  temutil::nc( nc_inq_varid(ncid, "topt", &cv) );
+  temutil::nc( nc_get_vara_double(ncid, cv, start, count, &topt[0]) );
+  temutil::nc( nc_inq_varid(ncid, "eetmx", &cv) );
+  temutil::nc( nc_get_vara_double(ncid, cv, start, count, &eetmx[0]) );
+  temutil::nc( nc_inq_varid(ncid, "unnormleafmx", &cv) );
+  temutil::nc( nc_get_vara_double(ncid, cv, start, count, &unnormleafmx[0]) );
+  temutil::nc( nc_inq_varid(ncid, "growingttime", &cv) );
+  temutil::nc( nc_get_vara_double(ncid, cv, start, count, &growingttime[0]) );
+  temutil::nc( nc_inq_varid(ncid, "foliagemx", &cv) );
+  temutil::nc( nc_get_vara_double(ncid, cv, start, count, &foliagemx[0]) );
 
+  temutil::nc( nc_close(ncid) );
+
+}
+
+/** Read arrays for variables that have dimensions (Y, X, pftpart, pft). */
+void RestartData::read_px_pftpart_pft_vars(const std::string& fname, const int rowidx, const int colidx) {
+
+  int ncid;
+  temutil::nc( nc_open(fname.c_str(), NC_NOWRITE, &ncid) );
+
+  int cv; // a reusable variable handle
+  
+  size_t start[4];
+  start[0] = rowidx;
+  start[1] = colidx;
+  start[2] = 0;
+  start[3] = 0;
+
+  size_t count[4];
+  count[0] = 1;
+  count[1] = 1;
+  count[2] = NUM_PFT_PART;
+  count[3] = NUM_PFT;
+  
+  temutil::nc( nc_inq_varid(ncid, "vegc", &cv) );
+  temutil::nc( nc_get_vara_double(ncid, cv, start, count, &vegc[0][0]) );
+  
+  temutil::nc( nc_inq_varid(ncid, "strn", &cv) );
+  temutil::nc( nc_get_vara_double(ncid, cv, start, count, &strn[0][0]) );
+  
+  temutil::nc( nc_close(ncid) );
+
+}
 
 
 /** Writes single values for variables have dimensions (Y, X).*/
-void RestartData::write_px_vars(const std::string& fname, int colidx, int rowidx) {
+void RestartData::write_px_vars(const std::string& fname, const int rowidx, const int colidx) {
   
   int ncid;
   temutil::nc( nc_open(fname.c_str(), NC_WRITE, &ncid) );
@@ -578,7 +660,7 @@ void RestartData::write_px_vars(const std::string& fname, int colidx, int rowidx
 }
 
 /** Writes arrays of values for variables that have dimensions (Y, X, pft). */
-void RestartData::write_px_pft_vars(const std::string& fname, int colidx, int rowidx) {
+void RestartData::write_px_pft_vars(const std::string& fname, const int rowidx, const int colidx) {
 
   int ncid;
   temutil::nc( nc_open(fname.c_str(), NC_WRITE, &ncid) );
@@ -636,7 +718,7 @@ void RestartData::write_px_pft_vars(const std::string& fname, int colidx, int ro
 }
 
 /** Writes arrays for variables that have dimensions (Y, X, pftpart, pft). */
-void RestartData::write_px_pftpart_pft_vars(const std::string& fname, int colidx, int rowidx) {
+void RestartData::write_px_pftpart_pft_vars(const std::string& fname, const int rowidx, const int colidx) {
 
   int ncid;
   temutil::nc( nc_open(fname.c_str(), NC_WRITE, &ncid) );
@@ -666,7 +748,7 @@ void RestartData::write_px_pftpart_pft_vars(const std::string& fname, int colidx
 }
 
 /** Writes arrays for variables with dimensions (Y, X, snowlayer) */
-void RestartData::write_px_snow_vars(const std::string& fname, int colidx, int rowidx) {
+void RestartData::write_px_snow_vars(const std::string& fname, const int rowidx, const int colidx) {
 
   int ncid;
   temutil::nc( nc_open(fname.c_str(), NC_WRITE, &ncid) );
@@ -703,7 +785,7 @@ void RestartData::write_px_snow_vars(const std::string& fname, int colidx, int r
 }
 
 /** Writes arrays for variables with dimensions (Y, X, rootlayer, pft) */
-void RestartData::write_px_root_pft_vars(const std::string& fname, int colidx, int rowidx) {
+void RestartData::write_px_root_pft_vars(const std::string& fname, const int rowidx, const int colidx) {
   int ncid;
   temutil::nc( nc_open(fname.c_str(), NC_WRITE, &ncid) );
 
@@ -729,7 +811,7 @@ void RestartData::write_px_root_pft_vars(const std::string& fname, int colidx, i
 }
 
 /** Writes arrays for variables with dimensions (Y, X, soillayer) */
-void RestartData::write_px_soil_vars(const std::string& fname, int colidx, int rowidx) {
+void RestartData::write_px_soil_vars(const std::string& fname, const int rowidx, const int colidx) {
 
   int ncid;
   temutil::nc( nc_open(fname.c_str(), NC_WRITE, &ncid) );
@@ -780,7 +862,7 @@ void RestartData::write_px_soil_vars(const std::string& fname, int colidx, int r
 }
 
 /** Writes arrays of values for variables that have dimensions (Y, X, rocklayer). */
-void RestartData::write_px_rock_vars(const std::string& fname, int colidx, int rowidx) {
+void RestartData::write_px_rock_vars(const std::string& fname, const int rowidx, const int colidx) {
 
   int ncid;
   temutil::nc( nc_open(fname.c_str(), NC_WRITE, &ncid) );
@@ -809,7 +891,7 @@ void RestartData::write_px_rock_vars(const std::string& fname, int colidx, int r
 }
 
 /** Writes arrays of values for variables that have dimensions (Y, X, fronts). */
-void RestartData::write_px_front_vars(const std::string& fname, int colidx, int rowidx) {
+void RestartData::write_px_front_vars(const std::string& fname, const int rowidx, const int colidx) {
 
   int ncid;
   temutil::nc( nc_open(fname.c_str(), NC_WRITE, &ncid) );
@@ -836,12 +918,10 @@ void RestartData::write_px_front_vars(const std::string& fname, int colidx, int 
 
 }
 
-
-
-/** Writes arrays for variables with dimensions (Y, X, prev<XX>, pft). 
+/** Writes arrays for variables with dimensions (Y, X, prev<XX>, pft).
 * Used for variables that need the previous 10 or 12 values.
 */
-void RestartData::write_px_prev_pft_vars(const std::string& fname, int colidx, int rowidx) {
+void RestartData::write_px_prev_pft_vars(const std::string& fname, const int rowidx, const int colidx) {
   int ncid;
   temutil::nc( nc_open(fname.c_str(), NC_WRITE, &ncid) );
 
