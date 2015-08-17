@@ -212,8 +212,7 @@ int main(int argc, char* argv[]){
 
           BOOST_LOG_SEV(glg, debug) << "Running cell (" << rowidx << ", " << colidx << ")";
 
-          // IMPROVE THIS!
-          modeldata.initmode = 1;
+          //modeldata.initmode = 1; // OBSOLETE?
 
           // Maybe 'cal_mode' should be part of the ModelData config object ??
           BOOST_LOG_SEV(glg, debug) << "Setup the NEW STYLE RUNNER OBJECT ...";
@@ -229,6 +228,18 @@ int main(int argc, char* argv[]){
           runner.cohort.initialize_internal_pointers(); // sets up lots of pointers to various things
           runner.cohort.initialize_state_parameters();  // sets data based on values in cohortlookup
           BOOST_LOG_SEV(glg, debug) << "right after initialize_internal_pointers() and initialize_state_parameters()" << runner.cohort.ground.layer_report_string();
+
+
+          if (boost::filesystem::exists("DATA/Toolik_10x10_30yrs/output/restart-eq.nc")) {
+            BOOST_LOG_SEV(glg, debug) << "WOW, gonna use the restart file!!!";
+            // update the cohort's restart data object
+            runner.cohort.restartdata.update_from_ncfile("DATA/Toolik_10x10_30yrs/output/restart-eq.nc", rowidx, colidx);
+
+            // copy values from the (updated) restart data to cohort and cd
+            // this should overwrite some things that were previously just set
+            // in initialize_state_parameters(...)
+            runner.cohort.set_state_from_restartdata();
+          }
 
 
           if (modeldata.runeq) {
