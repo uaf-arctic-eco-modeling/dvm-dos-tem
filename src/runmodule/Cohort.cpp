@@ -1198,6 +1198,18 @@ void Cohort::set_state_from_restartdata() {
 
   veg.set_state_from_restartdata(this->restartdata);
   solprntenv.set_state_from_restartdata(this->restartdata);
+  fire.set_state_from_restartdata(this->restartdata);
+  snowenv.set_state_from_restartdata(this->restartdata);
+  soilenv.set_state_from_restartdata(this->restartdata);
+  soilbgc.set_state_from_restartdata(this->restartdata);
+
+  // FIX: vegbgc and vegenv are arrays...need to call this for each element in
+  //      array????
+  //  vegbgc.set_state_from_restartdata(this->restartdata);
+  //  vegenv.set_state_from_restartdata(this->restartdata);
+
+  //  FIX: how to handle ground?? and snwstate_dim?? Looks like it is
+  //  used for both m_snow and d_snow and y_snow??? which to update???
   // add more here....
 
 }
