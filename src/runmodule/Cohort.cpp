@@ -63,7 +63,8 @@ Cohort::Cohort(int y, int x, ModelData* modeldatapointer):
   // Maybe:
   //this->hist_climate = Climate(modeldatapointer->hist_climate, y, x);
   //this->proj_climate = Climate(modeldatapointer->proj_climate, y, x);
-  this->climate = Climate(modeldatapointer->hist_climate_file, y, x);
+  this->climate = Climate(modeldatapointer->hist_climate_file, modeldatapointer->co2_file, y, x);
+
 
   this->soilenv = Soil_Env();
   

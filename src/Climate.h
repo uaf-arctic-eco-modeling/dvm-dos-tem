@@ -8,7 +8,7 @@ class Climate {
 public:
 
   Climate();
-  Climate(const std::string& fname, int y, int x);
+  Climate(const std::string& fname, const std::string& co2fname, int y, int x);
 
   // driving variables
   std::vector<float> co2;

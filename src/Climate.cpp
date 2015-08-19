@@ -361,21 +361,19 @@ Climate::Climate() {
 }
 
 
-Climate::Climate(const std::string& fname, int y, int x) {
+Climate::Climate(const std::string& fname, const std::string& co2fname, int y, int x) {
   BOOST_LOG_SEV(glg, note) << "--> CLIMATE --> BETTER CTOR";
   this->load_from_file(fname, y, x);
-}
 
+  // co2 is not spatially explicit
+  this->co2 = temutil::get_co2_timeseries(co2fname);
+}
 
 void Climate::load_from_file(const std::string& fname, int y, int x) {
 
   BOOST_LOG_SEV(glg, info) << "Loading climate from file: " << fname;
   BOOST_LOG_SEV(glg, info) << "Loading climate for (y, x) point: "
                            << "(" << y <<","<< x <<"), all timesteps.";
-
-  // FIX THIS! Not sure how to best handle the co2, or get access to the
-  // ModelData field...              modeldatapointer->co2_file
-  co2 = temutil::get_co2_timeseries("DATA/Toolik_10x10/co2.nc");
 
   BOOST_LOG_SEV(glg, info) << "Read in the base climate data timeseries ...";
 
@@ -541,9 +539,11 @@ std::vector<float> Climate::eq_range(const std::vector<float>& data) {
 
 void Climate::prepare_daily_driving_data(int iy, const std::string& stage) {
 
-  co2_d = co2.at(iy); // effectively the same value each day of the year
-
   if ( (stage.compare("pre-run") == 0) || (stage.compare("eq") == 0 ) ) {
+
+    // effectively the same value each day of the year
+    // also in pre-run, and eq stages, use constant co2 value for all years.
+    co2_d = co2.at(0);
 
     // Create the daily data by interpolating the avgX data. So each year
     // the numbers will be identical...
