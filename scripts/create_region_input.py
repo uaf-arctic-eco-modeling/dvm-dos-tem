@@ -3,6 +3,7 @@
 
 from subprocess import call
 from subprocess import check_call
+import subprocess
 
 import argparse
 import textwrap
@@ -69,24 +70,40 @@ def make_fire_dataset(fname, sizey=10, sizex=10):
 
   ncfile.close()   
 
+def create_veg_template_file(fname, sizey=10, sizex=10, rand=None):
+  print "Creating a vegetation classification file, %s by %s pixels. Fill with random data?: %s" % (sizey, sizex, rand)
 
-def make_veg_classification(fname, sizey=10, sizex=10):
-  '''Generate a file representing veg classification.'''
-
-  print "Creating a vegetation classification file, %s by %s pixels." % (sizey, sizex)
   ncfile = netCDF4.Dataset(fname, mode='w', format='NETCDF4')
 
   Y = ncfile.createDimension('Y', sizey)
   X = ncfile.createDimension('X', sizex)
   veg_class = ncfile.createVariable('veg_class', np.int, ('Y', 'X',))
 
-  print " --> NOTE: Filling with random data!"
-  veg_class[:] = np.random.uniform(low=1, high=7, size=(sizey,sizex))
+  if (rand):
+    print " --> NOTE: Filling with random data!"
+    veg_class[:] = np.random.uniform(low=1, high=7, size=(sizey,sizex))
 
-  print " --> NOTE: Setting pixel 0,0 to 4"
-  veg_class[0,0] = 4
-    
   ncfile.close()
+
+def fill_veg_file(if_name, xo, yo, xs, ys, out_dir, of_name):
+  '''Read subset of data from .tif into netcdf file for dvmdostem. '''
+
+  # Create place for data
+  create_veg_template_file(of_name, sizey=ys, sizex=xs, rand=None)
+
+  # Translate and subset to temporary location
+  temporary = os.path.join('/tmp', of_name)
+
+  if not os.path.exists( os.path.dirname(temporary) ):
+    os.makedirs(os.path.dirname(temporary))
+
+  subprocess.call(['gdal_translate', '-of', 'netcdf', '-srcwin', str(xo), str(yo), str(xs), str(ys), if_name, temporary])
+
+  # Copy from temporary location to into the placeholde file we just created
+  with netCDF4.Dataset(temporary) as t1, netCDF4.Dataset(of_name, mode='a') as new_vegdataset:
+    veg_class = new_vegdataset.variables['veg_class']
+    veg_class[:] = t1.variables['Band1'][:]
+
 
 
 def make_drainage_classification(fname, sizey=10, sizex=10):
@@ -387,7 +404,8 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir, files=[]):
     make_fire_dataset(os.path.join(out_dir, "script-new-fire-dataset.nc"), sizey=ys, sizex=xs)
 
   if 'veg' in files:
-    make_veg_classification(os.path.join(out_dir, "script-new-veg-dataset.nc"), sizey=ys, sizex=xs)
+    of_name = os.path.join(out_dir, "veg.nc")
+    fill_veg_file(tif_dir + "iem_ancillary_data/Landcover/LandCover_iem_TEM_2005.tif", xo, yo, xs, ys, out_dir, of_name)
 
   if 'drain' in files:
     make_drainage_classification(os.path.join(out_dir, "script-new-drainage-dataset.nc"), sizey=ys, sizex=xs)
