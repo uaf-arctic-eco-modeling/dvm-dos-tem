@@ -267,7 +267,7 @@ def create_empty_climate_nc_file(filename, sizey=10, sizex=10):
   ncfile.close()
 
 
-def fill_climate_file(start_yr, yrs, xo, yo, xs, ys, x_dim, y_dim, out_dir, of_name, sp_ref_file, in_tair_base, in_prec_base, in_rsds_base, in_vapo_base):
+def fill_climate_file(start_yr, yrs, xo, yo, xs, ys, out_dir, of_name, sp_ref_file, in_tair_base, in_prec_base, in_rsds_base, in_vapo_base):
   # TRANSLATE TO NETCDF
   #Create empty file to copy data into
   create_empty_climate_nc_file(os.path.join(out_dir, of_name), sizey=ys, sizex=xs)
@@ -380,7 +380,7 @@ def fill_climate_file(start_yr, yrs, xo, yo, xs, ys, x_dim, y_dim, out_dir, of_n
     print "Done with year loop."
 
 
-def main(start_year, years, xo, yo, xs, ys, x_dim, y_dim, tif_dir, out_dir, files=[]):
+def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir, files=[]):
 
   if 'fire' in files:
     # generate some new files...
@@ -406,7 +406,7 @@ def main(start_year, years, xo, yo, xs, ys, x_dim, y_dim, tif_dir, out_dir, file
     in_rsds_base = tif_dir + "/rsds_mean_MJ-m2-d1_iem_cru_TS31_1901_2009/rsds_mean_MJ-m2-d1_iem_cru_TS31"
     in_vapo_base = tif_dir + "/vap_mean_hPa_iem_cru_TS31_1901_2009/vap_mean_hPa_iem_cru_TS31"
 
-    fill_climate_file(1901+start_year, years, xo, yo, xs, ys, x_dim, y_dim, out_dir, of_name, sp_ref_file, in_tair_base, in_prec_base, in_rsds_base, in_vapo_base)
+    fill_climate_file(1901+start_year, years, xo, yo, xs, ys, out_dir, of_name, sp_ref_file, in_tair_base, in_prec_base, in_rsds_base, in_vapo_base)
 
 
   if 'proj_climate' in files:
@@ -417,7 +417,7 @@ def main(start_year, years, xo, yo, xs, ys, x_dim, y_dim, tif_dir, out_dir, file
     in_rsds_base = tif_dir + "/rsds_mean_MJ-m2-d1_iem_cccma_cgcm3_1_sresa1b_2001_2100/rsds_mean_MJ-m2-d1_iem_cccma_cgcm3_1_sresa1b"
     in_vapo_base = tif_dir + "/vap_mean_hPa_iem_cccma_cgcm3_1_sresa1b_2001_2100/vap_mean_hPa_iem_cccma_cgcm3_1_sresa1b"
 
-    fill_climate_file(2001+start_year, years, xo, yo, xs, ys, x_dim, y_dim, out_dir, of_name, sp_ref_file, in_tair_base, in_prec_base, in_rsds_base, in_vapo_base)
+    fill_climate_file(2001+start_year, years, xo, yo, xs, ys, out_dir, of_name, sp_ref_file, in_tair_base, in_prec_base, in_rsds_base, in_vapo_base)
 
   print "DONE"
 
@@ -512,4 +512,4 @@ if __name__ == '__main__':
     print "Will generate ALL input files."
     which_files = ['veg', 'fire', 'drain', 'run_mask', 'co2', 'hist_climate', 'proj_climate']
 
-  main(start_year, years, xo, yo, xs, ys, x_dim, y_dim, tif_dir, out_dir, files=which_files)
+  main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir, files=which_files)
