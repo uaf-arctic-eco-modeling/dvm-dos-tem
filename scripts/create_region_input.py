@@ -440,6 +440,9 @@ if __name__ == '__main__':
 
         <OUTDIR>/<TAG>_<YSIZE>x<XSIZE>/output/restart-eq.nc
 
+        Assumes a certain layout for the source files. At this point, the 
+        source files are generally .tifs that have been created for the IEM
+        project.
         '''),
 
       epilog=textwrap.dedent(''''''),
@@ -451,29 +454,29 @@ if __name__ == '__main__':
   parser.add_argument('--tifs', default="../../snap-data",
                       help="Directory containing input TIF directories.")
 
-  parser.add_argument('--outdir', default=".",
-                      help="Directory for netCDF output files.")
+  parser.add_argument('--outdir', default="some-dvmdostem-inputs",
+                      help="Directory for netCDF output files. (default: %(default)s)")
 
   parser.add_argument('--tag', default="Toolik",
-                      help="A name for the dataset, used to name output directory.")
+                      help="A name for the dataset, used to name output directory. (default: %(default)s)")
 
   parser.add_argument('--years', default=10, type=int,
-                      help="The number of years of the climate data to process.")
+                      help="The number of years of the climate data to process. (default: %(default)s)")
   parser.add_argument('--start-year', default=0, type=int,
                       help="An offset to use for making a climate dataset that doesn't start at the beginning of the historic (1901) or projected (2001) datasets.")
 
   parser.add_argument('--xoff', default=915,
-                      help="source window offset for x axis")
+                      help="source window offset for x axis (default: %(default)s)")
   parser.add_argument('--yoff', default=292,
-                      help="source window offset for y axis")
+                      help="source window offset for y axis (default: %(default)s)")
 
-  parser.add_argument('--xsize', default=2, type=int,
-                      help="source window x size")
-  parser.add_argument('--ysize', default=2, type=int,
-                      help="source window y size")
+  parser.add_argument('--xsize', default=5, type=int,
+                      help="source window x size (default: %(default)s)")
+  parser.add_argument('--ysize', default=5, type=int,
+                      help="source window y size (default: %(default)s)")
 
   parser.add_argument('--which', default=['all'],
-                      help="which files to create", choices=['all', 'veg', 'fire', 'drain', 'run_mask', 'co2', 'hist_climate', 'proj_climate'])
+                      help="which files to create (default: %(default)s)", choices=['all', 'veg', 'fire', 'drain', 'run_mask', 'co2', 'hist_climate', 'proj_climate'])
 
   print "Parsing command line arguments";
   args = parser.parse_args()
@@ -501,7 +504,7 @@ if __name__ == '__main__':
     if not os.path.exists( os.path.join(out_dir, "output") ):
       os.mkdir(os.path.join(out_dir, "output"))
 
-    # TODO: handle more than just eq stage!
+    # FIX/TODO: handle more than just eq stage!
     create_empty_restart_template(os.path.join(out_dir, "output/restart-eq.nc"), sizey=ys, sizex=xs)
     exit()
 
