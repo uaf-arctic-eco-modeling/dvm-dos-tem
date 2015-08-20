@@ -49,7 +49,6 @@ SOURCES= 	src/TEM.o \
 		src/ecodomain/horizon/Snow.o \
 		src/ecodomain/horizon/SoilParent.o \
 		src/ecodomain/Vegetation.o \
-		src/input/RestartInputer.o \
 		src/lookup/CohortLookup.o \
 		src/lookup/SoilLookup.o \
 		src/output/BgcOutputer.o \
@@ -105,7 +104,6 @@ OBJECTS =	ArgHandler.o \
 		Snow.o \
 		SoilParent.o \
 		Vegetation.o \
-		RestartInputer.o \
 		CohortLookup.o \
 		SoilLookup.o \
 		BgcOutputer.o \
