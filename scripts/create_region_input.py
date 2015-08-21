@@ -30,10 +30,9 @@ from osgeo import gdal
 #(0,0) pixel is hardcoded to the exact values from Toolik for testing.
 
 
-def make_fire_dataset(fname, sizey=10, sizex=10):
-  '''Generate a file representing fire information'''
+def create_template_fire_file(fname, sizey=10, sizex=10, rand=None):
+  print "Creating a fire file, %s by %s pixels. Fill with random data?: %s" % (sizey, sizex, rand)
 
-  print "Creating a fire classification file, %s by %s pixels." % (sizey, sizex)
   ncfile = netCDF4.Dataset(fname, mode='w', format='NETCDF4')
 
   Y = ncfile.createDimension('Y', sizey)
@@ -43,32 +42,41 @@ def make_fire_dataset(fname, sizey=10, sizex=10):
   fire_years = ncfile.createVariable('fire_years', fire_year_vector, ('Y','X'))
   fire_sizes = ncfile.createVariable('fire_sizes', fire_year_vector, ('Y','X'))
 
-  print " --> NOTE: Filling FRI with random data!"
-  fri[:] = np.random.uniform(low=1, high=7, size=(sizey, sizex))
+  if (rand):
+    print " --> NOTE: Filling FRI with random data!"
+    fri[:] = np.random.uniform(low=1, high=7, size=(sizey, sizex))
 
-  print " --> NOTE: Setting FRI for pixel 0,0 to 1000!"
-  fri[0,0] = 1000
+    print " --> NOTE: Setting FRI for pixel 0,0 to 1000!"
+    fri[0,0] = 1000
 
-  print " --> NOTE: Filling the fire_year and fire_sizes with random data!"
-  yr_data = np.empty(sizey * sizex, object)
-  sz_data = np.empty(sizey * sizex, object)
-  for n in range(sizey * sizex):
-    yr_data[n] = np.array(sorted(np.random.randint(1900, 2006, np.random.randint(0,10,1))), dtype=np.int)
-    sz_data[n] = np.random.randint(0,100,len(yr_data[n]))
-    #numpy.arange(random.randint(1,10),dtype='int32')+1
-    
-  yr_data = np.reshape(yr_data,(sizey,sizex))
-  sz_data = np.reshape(sz_data,(sizey,sizex))
+    print " --> NOTE: Filling the fire_year and fire_sizes with random data!"
+    yr_data = np.empty(sizey * sizex, object)
+    sz_data = np.empty(sizey * sizex, object)
+    for n in range(sizey * sizex):
+      yr_data[n] = np.array(sorted(np.random.randint(1900, 2006, np.random.randint(0,10,1))), dtype=np.int)
+      sz_data[n] = np.random.randint(0,100,len(yr_data[n]))
+      #numpy.arange(random.randint(1,10),dtype='int32')+1
 
-  print " --> NOTE: Check on a few pixels?"
-  print "  (0,0)", yr_data[0,0], "-->", sz_data[0,0]
-#  print "  (0,1)", yr_data[0,1], "-->", sz_data[0,1]
-#  print "  (9,9)", yr_data[9,9], "-->", sz_data[9,9]
+    yr_data = np.reshape(yr_data,(sizey,sizex))
+    sz_data = np.reshape(sz_data,(sizey,sizex))
 
-  fire_years[:] = yr_data
-  fire_sizes[:] = sz_data
+    print " --> NOTE: Check on a few pixels?"
+    print "  (0,0)", yr_data[0,0], "-->", sz_data[0,0]
+    #print "  (0,1)", yr_data[0,1], "-->", sz_data[0,1]
+    #print "  (9,9)", yr_data[9,9], "-->", sz_data[9,9]
 
-  ncfile.close()   
+    fire_years[:] = yr_data
+    fire_sizes[:] = sz_data
+
+  ncfile.close()
+
+
+
+def fill_fire_file(if_name, xo, yo, xs, ys, out_dir, of_name):
+
+  create_template_fire_file(of_name, sizey=10, sizex=10, rand=None)
+
+  print "Not sure what to fill with yet...."
 
 def create_veg_template_file(fname, sizey=10, sizex=10, rand=None):
   print "Creating a vegetation classification file, %s by %s pixels. Fill with random data?: %s" % (sizey, sizex, rand)
@@ -401,7 +409,8 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir, files=[]):
 
   if 'fire' in files:
     # generate some new files...
-    make_fire_dataset(os.path.join(out_dir, "script-new-fire-dataset.nc"), sizey=ys, sizex=xs)
+    of_name = os.path.join(out_dir, "fire.nc")
+    fill_fire_file(tif_dir + "iem_ancillary_data/Fire/", xo, yo, xs, ys, out_dir, of_name)
 
   if 'veg' in files:
     of_name = os.path.join(out_dir, "veg.nc")
