@@ -29,91 +29,6 @@ from osgeo import gdal
 
 #(0,0) pixel is hardcoded to the exact values from Toolik for testing.
 
-
-def create_template_fire_file(fname, sizey=10, sizex=10, rand=None):
-  print "Creating a fire file, %s by %s pixels. Fill with random data?: %s" % (sizey, sizex, rand)
-
-  ncfile = netCDF4.Dataset(fname, mode='w', format='NETCDF4')
-
-  Y = ncfile.createDimension('Y', sizey)
-  X = ncfile.createDimension('X', sizex)
-  fri = ncfile.createVariable('fri', np.int, ('Y','X',))
-  fire_year_vector = ncfile.createVLType(np.int, 'fire_year_vector')
-  fire_years = ncfile.createVariable('fire_years', fire_year_vector, ('Y','X'))
-  fire_sizes = ncfile.createVariable('fire_sizes', fire_year_vector, ('Y','X'))
-
-  if (rand):
-    print " --> NOTE: Filling FRI with random data!"
-    fri[:] = np.random.uniform(low=1, high=7, size=(sizey, sizex))
-
-    print " --> NOTE: Setting FRI for pixel 0,0 to 1000!"
-    fri[0,0] = 1000
-
-    print " --> NOTE: Filling the fire_year and fire_sizes with random data!"
-    yr_data = np.empty(sizey * sizex, object)
-    sz_data = np.empty(sizey * sizex, object)
-    for n in range(sizey * sizex):
-      yr_data[n] = np.array(sorted(np.random.randint(1900, 2006, np.random.randint(0,10,1))), dtype=np.int)
-      sz_data[n] = np.random.randint(0,100,len(yr_data[n]))
-      #numpy.arange(random.randint(1,10),dtype='int32')+1
-
-    yr_data = np.reshape(yr_data,(sizey,sizex))
-    sz_data = np.reshape(sz_data,(sizey,sizex))
-
-    print " --> NOTE: Check on a few pixels?"
-    print "  (0,0)", yr_data[0,0], "-->", sz_data[0,0]
-    #print "  (0,1)", yr_data[0,1], "-->", sz_data[0,1]
-    #print "  (9,9)", yr_data[9,9], "-->", sz_data[9,9]
-
-    fire_years[:] = yr_data
-    fire_sizes[:] = sz_data
-
-  ncfile.close()
-
-
-
-def fill_fire_file(if_name, xo, yo, xs, ys, out_dir, of_name):
-
-  create_template_fire_file(of_name, sizey=10, sizex=10, rand=None)
-
-  print "Not sure what to fill with yet...."
-
-def create_veg_template_file(fname, sizey=10, sizex=10, rand=None):
-  print "Creating a vegetation classification file, %s by %s pixels. Fill with random data?: %s" % (sizey, sizex, rand)
-
-  ncfile = netCDF4.Dataset(fname, mode='w', format='NETCDF4')
-
-  Y = ncfile.createDimension('Y', sizey)
-  X = ncfile.createDimension('X', sizex)
-  veg_class = ncfile.createVariable('veg_class', np.int, ('Y', 'X',))
-
-  if (rand):
-    print " --> NOTE: Filling with random data!"
-    veg_class[:] = np.random.uniform(low=1, high=7, size=(sizey,sizex))
-
-  ncfile.close()
-
-def fill_veg_file(if_name, xo, yo, xs, ys, out_dir, of_name):
-  '''Read subset of data from .tif into netcdf file for dvmdostem. '''
-
-  # Create place for data
-  create_veg_template_file(of_name, sizey=ys, sizex=xs, rand=None)
-
-  # Translate and subset to temporary location
-  temporary = os.path.join('/tmp', of_name)
-
-  if not os.path.exists( os.path.dirname(temporary) ):
-    os.makedirs(os.path.dirname(temporary))
-
-  subprocess.call(['gdal_translate', '-of', 'netcdf', '-srcwin', str(xo), str(yo), str(xs), str(ys), if_name, temporary])
-
-  # Copy from temporary location to into the placeholde file we just created
-  with netCDF4.Dataset(temporary) as t1, netCDF4.Dataset(of_name, mode='a') as new_vegdataset:
-    veg_class = new_vegdataset.variables['veg_class']
-    veg_class[:] = t1.variables['Band1'][:]
-
-
-
 def make_drainage_classification(fname, sizey=10, sizex=10):
   '''Generate a file representing drainage classification.'''
   print "Creating a drainage classification file, %s by %s pixels." % (sizey, sizex)
@@ -195,7 +110,7 @@ def make_co2_file(filename):
   new_ncfile.close()
 
 
-def create_empty_restart_template(filename, sizex=10, sizey=10):
+def create_template_restart_nc_file(filename, sizex=10, sizey=10):
   '''Creates an empty restart file that can be used as a template?'''
   print "Creating an empty restart file: ", filename
   ncfile = netCDF4.Dataset(filename, mode='w', format='NETCDF4')
@@ -257,11 +172,7 @@ def create_empty_restart_template(filename, sizex=10, sizey=10):
 
   ncfile.close()
 
-
-
-
-
-def create_empty_climate_nc_file(filename, sizey=10, sizex=10):
+def create_template_climate_nc_file(filename, sizey=10, sizex=10):
   '''Creates an empty climate file for dvmdostem; y,x grid, time unlimited.'''
 
   print "Creating an empty climate file..."
@@ -291,11 +202,85 @@ def create_empty_climate_nc_file(filename, sizey=10, sizex=10):
 
   ncfile.close()
 
+def create_template_fire_file(fname, sizey=10, sizex=10, rand=None):
+  print "Creating a fire file, %s by %s pixels. Fill with random data?: %s" % (sizey, sizex, rand)
+
+  ncfile = netCDF4.Dataset(fname, mode='w', format='NETCDF4')
+
+  Y = ncfile.createDimension('Y', sizey)
+  X = ncfile.createDimension('X', sizex)
+  fri = ncfile.createVariable('fri', np.int, ('Y','X',))
+  fire_year_vector = ncfile.createVLType(np.int, 'fire_year_vector')
+  fire_years = ncfile.createVariable('fire_years', fire_year_vector, ('Y','X'))
+  fire_sizes = ncfile.createVariable('fire_sizes', fire_year_vector, ('Y','X'))
+
+  if (rand):
+    print " --> NOTE: Filling FRI with random data!"
+    fri[:] = np.random.uniform(low=1, high=7, size=(sizey, sizex))
+
+    print " --> NOTE: Setting FRI for pixel 0,0 to 1000!"
+    fri[0,0] = 1000
+
+    print " --> NOTE: Filling the fire_year and fire_sizes with random data!"
+    yr_data = np.empty(sizey * sizex, object)
+    sz_data = np.empty(sizey * sizex, object)
+    for n in range(sizey * sizex):
+      yr_data[n] = np.array(sorted(np.random.randint(1900, 2006, np.random.randint(0,10,1))), dtype=np.int)
+      sz_data[n] = np.random.randint(0,100,len(yr_data[n]))
+      #numpy.arange(random.randint(1,10),dtype='int32')+1
+
+    yr_data = np.reshape(yr_data,(sizey,sizex))
+    sz_data = np.reshape(sz_data,(sizey,sizex))
+
+    print " --> NOTE: Check on a few pixels?"
+    print "  (0,0)", yr_data[0,0], "-->", sz_data[0,0]
+    #print "  (0,1)", yr_data[0,1], "-->", sz_data[0,1]
+    #print "  (9,9)", yr_data[9,9], "-->", sz_data[9,9]
+
+    fire_years[:] = yr_data
+    fire_sizes[:] = sz_data
+
+  ncfile.close()
+
+def create_template_veg_nc_file(fname, sizey=10, sizex=10, rand=None):
+  print "Creating a vegetation classification file, %s by %s pixels. Fill with random data?: %s" % (sizey, sizex, rand)
+
+  ncfile = netCDF4.Dataset(fname, mode='w', format='NETCDF4')
+
+  Y = ncfile.createDimension('Y', sizey)
+  X = ncfile.createDimension('X', sizex)
+  veg_class = ncfile.createVariable('veg_class', np.int, ('Y', 'X',))
+
+  if (rand):
+    print " --> NOTE: Filling with random data!"
+    veg_class[:] = np.random.uniform(low=1, high=7, size=(sizey,sizex))
+
+  ncfile.close()
+
+
+def fill_veg_file(if_name, xo, yo, xs, ys, out_dir, of_name):
+  '''Read subset of data from .tif into netcdf file for dvmdostem. '''
+
+  # Create place for data
+  create_template_veg_nc_file(of_name, sizey=ys, sizex=xs, rand=None)
+
+  # Translate and subset to temporary location
+  temporary = os.path.join('/tmp', of_name)
+
+  if not os.path.exists( os.path.dirname(temporary) ):
+    os.makedirs(os.path.dirname(temporary))
+
+  subprocess.call(['gdal_translate', '-of', 'netcdf', '-srcwin', str(xo), str(yo), str(xs), str(ys), if_name, temporary])
+
+  # Copy from temporary location to into the placeholde file we just created
+  with netCDF4.Dataset(temporary) as t1, netCDF4.Dataset(of_name, mode='a') as new_vegdataset:
+    veg_class = new_vegdataset.variables['veg_class']
+    veg_class[:] = t1.variables['Band1'][:]
 
 def fill_climate_file(start_yr, yrs, xo, yo, xs, ys, out_dir, of_name, sp_ref_file, in_tair_base, in_prec_base, in_rsds_base, in_vapo_base):
   # TRANSLATE TO NETCDF
   #Create empty file to copy data into
-  create_empty_climate_nc_file(os.path.join(out_dir, of_name), sizey=ys, sizex=xs)
+  create_template_climate_nc_file(os.path.join(out_dir, of_name), sizey=ys, sizex=xs)
 
   tmpfile = '/tmp/temporary-file-with-spatial-info.nc'
   smaller_tmpfile = '/tmp/smaller-temporary-file-with-spatial-info.nc'
@@ -403,6 +388,12 @@ def fill_climate_file(start_yr, yrs, xo, yo, xs, ys, out_dir, of_name, sp_ref_fi
         print "Done appending. Closing the new file"
 
     print "Done with year loop."
+
+def fill_fire_file(if_name, xo, yo, xs, ys, out_dir, of_name):
+
+  create_template_fire_file(of_name, sizey=10, sizex=10, rand=None)
+
+  print "Not sure what to fill with yet...."
 
 
 def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir, files=[]):
@@ -532,7 +523,7 @@ if __name__ == '__main__':
       os.mkdir(os.path.join(out_dir, "output"))
 
     # FIX/TODO: handle more than just eq stage!
-    create_empty_restart_template(os.path.join(out_dir, "output/restart-eq.nc"), sizey=ys, sizex=xs)
+    create_template_restart_nc_file(os.path.join(out_dir, "output/restart-eq.nc"), sizey=ys, sizex=xs)
     exit()
 
 
