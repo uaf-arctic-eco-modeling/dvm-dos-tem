@@ -217,18 +217,10 @@ struct soipar_bgc {
   //Yuan: fraction of soil organic components at steady state
   //(final when equilibrium). Used for initializing C pools and can be
   //estimated from soilpar_cal: k values
-  double eqrawcF;    // raw material C
-  double eqsomaF;    // active SOM
-  double eqsomprF;   // physically-resistant SOM
-  double eqsomcrF;   // chemically-resistant SOM
-  double eqrawcH;    // raw material C
-  double eqsomaH;    // active SOM
-  double eqsomprH;   // physically-resistant SOM
-  double eqsomcrH;   // chemically-resistant SOM
-  double eqrawcM;    // raw material C
-  double eqsomaM;    // active SOM
-  double eqsomprM;   // physically-resistant SOM
-  double eqsomcrM;   // chemically-resistant SOM
+  double eqrawc;    // raw material C
+  double eqsoma;    // active SOM
+  double eqsompr;   // physically-resistant SOM
+  double eqsomcr;   // chemically-resistant SOM
 
   // dead moss material decomposition rate
   double kdmoss;
@@ -243,9 +235,7 @@ struct soipar_bgc {
   soipar_bgc(): kn2(UIN_D), moistmin(UIN_D), moistmax(UIN_D), moistopt(UIN_D),
                 rhq10(UIN_D), propftos(UIN_D), nmincnsoil(UIN_D), fnloss(UIN_D),
                 fsoma(UIN_D), fsompr(UIN_D), fsomcr(UIN_D), som2co2(UIN_D),
-                eqrawcF(UIN_D), eqsomaF(UIN_D), eqsomprF(UIN_D), eqsomcrF(UIN_D),
-                eqrawcH(UIN_D), eqsomaH(UIN_D), eqsomprH(UIN_D), eqsomcrH(UIN_D),
-                eqrawcM(UIN_D), eqsomaM(UIN_D), eqsomprM(UIN_D), eqsomcrM(UIN_D),
+                eqrawc(UIN_D), eqsoma(UIN_D), eqsompr(UIN_D), eqsomcr(UIN_D),
                 kdmoss(UIN_D), lcclnc(UIN_D) {
                 
     for (int i = 0; i < MAX_SOI_LAY; ++i) {
