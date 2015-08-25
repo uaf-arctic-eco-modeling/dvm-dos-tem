@@ -119,9 +119,9 @@
 0.2               // propftos:
 0.0               // fnloss:  fraction N leaching (0 - 1) when drainage occurs
 0.0               // initdmossc:
-10612.5             // initshlwc:
-20712.5              // initdeepc:
-24112.5              // initminec:
+10000            // initshlwc:
+20000              // initdeepc:
+24000              // initminec:
 2220.2               // initsoln:
 1.71              // initavln:
 //===========================================================

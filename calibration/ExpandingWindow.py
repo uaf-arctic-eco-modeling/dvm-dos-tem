@@ -386,8 +386,9 @@ class ExpandingWindow(object):
       plt.close()
 
     if event.key == 'ctrl+p':
-      n = 1000
+      n = 100
       files = self.input_helper.files()
+
       if n < len(files):
         logging.warning("Deleting first %s json files from '%s'!" %
             (n, self.input_helper.path()))
