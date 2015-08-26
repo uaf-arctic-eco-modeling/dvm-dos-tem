@@ -303,10 +303,11 @@ void RunCohort::choose_run_stage_settings() {
     // In calibration mode, equlibrium stage starting with only env and bgc
     // switches on!
     if (calcontroller_ptr) {
-      BOOST_LOG_SEV(glg, info) << "Pausing. Please check that the 'pre-run' "
-                               << "data looks good.";
-      
-      calcontroller_ptr->pause();
+      if ( calcontroller_ptr->post_warmup_pause() ){
+        BOOST_LOG_SEV(glg, info) << "Pausing. Please check that the 'pre-run' "
+                                 << "data looks good.";
+        calcontroller_ptr->pause();
+      }
 
       calcontroller_ptr->clear_and_create_json_storage();
 
