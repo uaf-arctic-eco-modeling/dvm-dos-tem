@@ -159,8 +159,8 @@ namespace temutil {
     BOOST_LOG_SEV(glg, debug) << "Parsing successful?: " << parsingSuccessful;
 
     if ( !parsingSuccessful ) {
-        BOOST_LOG_SEV(glg, fatal) << "Failed to parse configuration file! "
-                                  << reader.getFormatedErrorMessages();
+        BOOST_LOG_SEV(glg, fatal) << "Failed to parse configuration file: " << filepath;
+        BOOST_LOG_SEV(glg, fatal) << reader.getFormatedErrorMessages();
         exit(-1);
     }
 
