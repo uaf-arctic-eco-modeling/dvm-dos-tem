@@ -229,19 +229,6 @@ int main(int argc, char* argv[]){
           runner.cohort.initialize_state_parameters();  // sets data based on values in cohortlookup
           BOOST_LOG_SEV(glg, debug) << "right after initialize_internal_pointers() and initialize_state_parameters()" << runner.cohort.ground.layer_report_string();
 
-
-          if (boost::filesystem::exists("DATA/Toolik_10x10_30yrs/output/restart-eq.nc")) {
-            BOOST_LOG_SEV(glg, debug) << "WOW, gonna use the restart file!!!";
-            // update the cohort's restart data object
-            runner.cohort.restartdata.update_from_ncfile("DATA/Toolik_10x10_30yrs/output/restart-eq.nc", rowidx, colidx);
-
-            // copy values from the (updated) restart data to cohort and cd
-            // this should overwrite some things that were previously just set
-            // in initialize_state_parameters(...)
-            runner.cohort.set_state_from_restartdata();
-          }
-
-
           if (modeldata.runeq) {
 
             ///** Env module only "pre-run".
@@ -309,10 +296,25 @@ int main(int argc, char* argv[]){
             }
           }
           if (modeldata.runsp) {
+            {
+              BOOST_LOG_NAMED_SCOPE("SP");
 
-            // look for and read-in restart-eq.nc ??
+              // look for and read-in restart-eq.nc ??
+              if (boost::filesystem::exists("DATA/Toolik_10x10_30yrs/output/restart-eq.nc")) {
+                BOOST_LOG_SEV(glg, debug) << "WOW, gonna use the restart file!!!";
+                // update the cohort's restart data object
+                runner.cohort.restartdata.update_from_ncfile("DATA/Toolik_10x10_30yrs/output/restart-eq.nc", rowidx, colidx);
 
-            // write out restart-sp.nc ???
+                // copy values from the (updated) restart data to cohort and cd
+                // this should overwrite some things that were previously just set
+                // in initialize_state_parameters(...)
+                runner.cohort.set_state_from_restartdata();
+              }
+
+
+
+              // write out restart-sp.nc ???
+            }
           }
 
           // NOTE: Could have an option to set some time constants based on
