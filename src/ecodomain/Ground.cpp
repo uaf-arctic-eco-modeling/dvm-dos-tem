@@ -1111,7 +1111,7 @@ void Ground::redivideShlwLayers() {
   organic.shlwchanged = false;
 
   ////////// IF there exists 'shlw' layer(s) ////////////////
-  if(fstshlwl!=NULL) {
+  if(fstshlwl != NULL) {
     Layer* currl;
     SoilLayer* upsl ;
     SoilLayer* lwsl;
@@ -1167,7 +1167,7 @@ COMBINEBEGIN:
   } else {
     SoilLayer *nextsl;
 
-    if (fstdeepl !=NULL) {
+    if (fstdeepl != NULL) {
       nextsl = dynamic_cast<SoilLayer*>(fstdeepl);
     } else {
       nextsl = dynamic_cast<SoilLayer*>(fstminel);
@@ -1177,7 +1177,8 @@ COMBINEBEGIN:
                      * pow(MINSLWTHICK*100., soildimpar.coefshlwb*1.)*10000.;
                      //Note: in Yi et al.(2009) - C in gC/cm2, depth in cm
 
-    if (nextsl->rawc>=rawcmin) {
+    // FIX: Problem if nextsl is still NULL
+    if (nextsl->rawc >= rawcmin) {
       organic.shlwchanged =true;
       organic.ShlwThickScheme(MINSLWTHICK);
       OrganicLayer* plnew = new OrganicLayer(organic.shlwdz[0], 1);
