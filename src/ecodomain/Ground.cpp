@@ -34,6 +34,24 @@ std::string soildesc2tag(const bool val, std::string tag) {
   }
 }
 
+/** Returns string '<-' if curl points to the same place as ql
+*
+* Helper for generating the layer report to visually show which layers are
+* "first soil", "last soil", "first moss", "last moss", etc.
+*/
+std::string layer2pointertag(const Layer * curl, const Layer * ql) {
+  std::stringstream ss;
+  ss << std::setw(2) << std::left;
+  if (!ql) {
+    ss << " x"; // question layer not set!
+  } else if (curl == ql) {
+    ss << "<-"; // current layer is equal to the question layer
+  } else {
+    ss << "";
+  }
+  return ss.str();
+}
+
 Ground::Ground() {
   fstsoill = NULL;
   lstsoill = NULL;
@@ -55,7 +73,35 @@ Ground::~Ground() {
 }
 
 /** A multi-line report describing Ground's layers...
-  all layers found between
+
+  The first several columns hold are indices and scalar values.
+
+  The next set of columns is for visualizing where the "first" and 
+  "last" pointers are for soil, fronts, moss, etc.
+  \li \c '<-' in the left half of a column is for the "first" pointer
+  \li \c '<-' in the right half of a column is for the "last" pointer
+  \li \c ' x' indicated the pointer/member is not set.
+
+  The final set of columns contains the "description" tags for each layer.
+
+  EXAMPLE:
+  \code{.unparsed}
+  ==== LAYER REPORT ====
+  [ix]           dz            z        tem       rawc SOIL|MOSS|SHLW|DEEP|MINE|FRNT|
+  [ 0]   0.27243192   0.87462375   -23.8335      -9999     |    |    |    | x x| x x|      snow
+  [ 1]    0.1865254   0.60219183   -23.7633      -9999     |    |    |    | x x| x x|      snow
+  [ 2]   0.41566642   0.41566642   -22.1242      -9999     |    |    |    | x x| x x|      snow
+  [ 3]        0.005            0   -17.8305          0 <-  |<-<-|    |    | x x| x x|      soil      moss
+  [ 4]         0.02        0.005   -17.7989    11.1549     |    |<-  |    | x x| x x|      soil   organic    fibric
+  [ 5]         0.04        0.025   -17.6679    38.4028     |    |    |    | x x| x x|      soil   organic    fibric
+  [ 6]         0.04        0.065   -17.3991    49.5823     |    |  <-|    | x x| x x|      soil   organic    fibric
+  [ 7]          0.1        0.105   -17.1882      90.62   <-|    |    |<-<-| x x| x x|      soil   organic     humic
+  [ 8]            2        0.205    -11.086      -9999     |    |    |    | x x| x x|      rock
+  [ 9]            4        2.205   -5.77912      -9999     |    |    |    | x x| x x|      rock
+  [10]            8        6.205   -3.94041      -9999     |    |    |    | x x| x x|      rock
+  [11]           16       14.205   -2.21761      -9999     |    |    |    | x x| x x|      rock
+  [12]           20       30.205   -1.13197      -9999     |    |    |    | x x| x x|      rock
+  \endcode
 */
 std::string Ground::layer_report_string() {
 
@@ -65,23 +111,52 @@ std::string Ground::layer_report_string() {
   Layer* current_layer = this->toplayer;
 
   if (current_layer == NULL) {
-    report << " (No Layers - nothing to report...)";
+    report << " (No Layers - nothing to report...)" << std::endl;
   }
   
-  // iterate the layer pointers
+  // build the header for the table
+  report << "[" << std::right << setw(2) << "ix" << "] "
+         << std::right << setw(12) << std::setprecision(3) << "dz" << " "
+         << std::right << setw(12) << std::setprecision(3) << "z" << " "
+         << std::right << setw(12) << std::setprecision(3) << "tem" << " "
+         << std::right << setw(12) << std::setprecision(3) << "rawc" << " "
+
+         << "SOIL" << "|"
+         << "MOSS" << "|"
+         << "SHLW" << "|"
+         << "DEEP" << "|"
+         << "MINE" << "|"
+         << "FRNT" << "|"
+
+         << std::endl;
+
+  // iterate the layer pointers, filling the table with data.
   int idx = 0;
   while (current_layer != NULL) {
     // do stuff with current_layer
     std::stringstream ls;
-    ls << "[" << std::right << setw(3) << idx << "] "
-       << "dz:" << std::right << setw(10) << std::setprecision(8) << current_layer->dz << " "
+    ls << "[" << std::right << setw(2) << idx << "] "
+       << std::fixed
+       << std::right << setw(12) << std::setprecision(3) << current_layer->dz << " "
+       << std::right << setw(12) << std::setprecision(3) << current_layer->z << " "
+       << std::right << setw(12) << std::setprecision(3) << current_layer->tem << " "
+       << std::right << setw(12) << std::setprecision(3) << current_layer->rawc << " "
+       //<< std::right << setw(16) << std::setprecision(16) << current_layer << " "
+       << layer2pointertag(current_layer, fstsoill) << ""
+       << layer2pointertag(current_layer, lstsoill) << "|"
+       << layer2pointertag(current_layer, fstmossl) << ""
+       << layer2pointertag(current_layer, lstmossl) << "|"
+       << layer2pointertag(current_layer, fstshlwl) << ""
+       << layer2pointertag(current_layer, lstshlwl) << "|"
+       << layer2pointertag(current_layer, fstdeepl) << ""
+       << layer2pointertag(current_layer, lstdeepl) << "|"
+       << layer2pointertag(current_layer, fstminel) << ""
+       << layer2pointertag(current_layer, lstminel) << "|"
+       << layer2pointertag(current_layer, fstfntl) << ""
+       << layer2pointertag(current_layer, lstfntl) << "|"
 
-       << "z:" << std::right << setw(10) << std::setprecision(8) << current_layer->z << " "
-
-       << "tem:" << std::right << setw(8) << std::setprecision(6) << current_layer->tem << " "
-       << "rawc:" << std::right << setw(8) << std::setprecision(6) << current_layer->rawc << " "
-
-       << "T/ST KEY:" << std::right << setw(2) << current_layer->tkey << "/" << current_layer->stkey << " "
+       // this T/ST KEY business seems to be dupliacate info as the "soil description tag"
+       //<< "T/ST KEY:" << std::right << setw(2) << current_layer->tkey << "/" << current_layer->stkey << " "
 
        << soildesc2tag(current_layer->isSnow, "snow")
        << soildesc2tag(current_layer->isSoil, "soil")
