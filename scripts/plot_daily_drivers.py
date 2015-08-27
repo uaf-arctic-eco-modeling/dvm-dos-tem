@@ -105,7 +105,7 @@ for a in [ax1, ax2, ax3, ax1a, ax4]:
   a.grid(True, axis='x', which='both')
 
 # turn off 'chart junk'
-for a in [ax1, ax1a, ax2, ax3, ax4]:
+for a in [ax1, ax1a, ax2, ax3, ax3a, ax4]:
 	a.spines['top'].set_visible(False)
 	a.spines['right'].set_visible(False)
 	a.spines['bottom'].set_visible(False)
