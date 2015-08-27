@@ -124,6 +124,9 @@ Cohort::~Cohort() {
 // initialization of pointers used in modules called here
 void Cohort::initialize_internal_pointers() {
 
+  // FIX: what if edall, bdall and fd are all NULL at this point!!!
+  //      ?? This may not be a problem...they seem to get re-pointed later...
+
   // ecosystem domain
   veg.setCohortData(&cd);
   veg.setCohortLookup(&chtlu);

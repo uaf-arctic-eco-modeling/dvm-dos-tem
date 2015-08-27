@@ -110,6 +110,7 @@ void WildFire::set_state_from_restartdata(const RestartData & rdata) {
 //Yuan: the fire occurrence month (and data) is input (cohort-level info),
 //  or FRI derived (grid-level info)
 //Yuan: almost rewriting the code, called in the begining of a year
+// FIX THIS! not really implemented yet, so nothing happens here...
 // TBC: this seems to only be called from the updateMonthly_Fir(....) function...
 int WildFire::getOccur(const int &yrind, const bool & friderived) {
   int error = 0;

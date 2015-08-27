@@ -26,12 +26,16 @@ public:
 
   int firstfireyr;
 
+  ////////
+  // MAYBE get rid of all these???
   int oneyear;
   int onemonth;
   int oneseverity;  //Yuan: fire severity category
 
   int oneseason;
   int onesize;
+  //////////////
+
 
   void setCohortData(CohortData* cdp);
   void setAllEnvBgcData(EnvData* edp, BgcData* bdp);

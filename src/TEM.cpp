@@ -282,7 +282,8 @@ int main(int argc, char* argv[]){
               runner.cohort.md->set_dslmodule(true);
               runner.cohort.md->set_bgcmodule(true);
               runner.cohort.md->set_dsbmodule(true);
-              // baseline? avln? friderived? nfeed?
+
+              // FIX: what about baseline? avln? friderived? nfeed?
 
               //  changing climate?: NO - use avgX values
               //  changing CO2?:     NO - use static value

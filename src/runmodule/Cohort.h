@@ -100,7 +100,6 @@ public :
   ModelData * md;
 
   CohortData cd;
-  RestartData resid;    //for input
   RestartData restartdata;
   
 

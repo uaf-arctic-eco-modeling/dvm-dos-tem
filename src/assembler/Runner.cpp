@@ -72,6 +72,8 @@ void Runner::run_years(int start_year, int end_year, const std::string& stage) {
     /** MONTH TIMESTEP LOOP */
     for (int im = 0; im < 12; ++im) {
 
+      BOOST_LOG_SEV(glg, debug) << "(Begining of month loop) " << cohort.ground.layer_report_string();
+
       this->cohort.updateMonthly(iy, im, DINM[im]);
 
 
