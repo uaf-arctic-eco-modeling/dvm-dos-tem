@@ -5,22 +5,23 @@
 
   "IO": {
     "parameter_dir":      "parameters/",
-    "hist_climate_file":  "DATA/Toolik_10x10/hist-climate.nc",
-    "proj_climate_file":  "DATA/Toolik_10x10/proj-climate.nc",
-    "veg_class_file":     "DATA/Toolik_10x10/vegetation.nc",
-    "fire_file":          "DATA/Toolik_10x10/fire.nc",
-    "drainage_file":      "DATA/Toolik_10x10/drainage.nc",
-    "co2_file":           "DATA/Toolik_10x10/co2.nc",
-    "runmask_file":       "DATA/Toolik_10x10/run-mask.nc",
-    "output":             "DATA/Toolik_10x10/output",
-    "output_monthly":     0
+    "hist_climate_file":  "DATA/Toolik_10x10_30yrs/historic-climate-dataset.nc",
+    "proj_climate_file":  "DATA/Toolik_10x10_30yrs/projected-climate-dataset.nc",
+    "veg_class_file":     "DATA/Toolik_10x10_30yrs/veg.nc",
+    "fire_file":          "DATA/Toolik_10x10_30yrs/script-new-fire-dataset.nc",
+    "drainage_file":      "DATA/Toolik_10x10_30yrs/script-new-drainage-dataset.nc",
+    "co2_file":           "DATA/Toolik_10x10_30yrs/script-new-co2-dataset.nc",
+    "runmask_file":       "DATA/Toolik_10x10_30yrs/script-run-mask.nc",
+
     "output_dir":         "DATA/Toolik_10x10_30yrs/output/",
+
+    "output_monthly":     1
   },
 
   "stage_settings": {
     "run_stage": "eq",           // eq, sp, tr, sc, or some cobmo there-of
-    "restart_mode": "restart",   // other options??
-    "restartfile_dir": "DATA/Toolik_10x10/" // location for restart-XX.nc file
+    "restart_mode": "restart"   // other options??
+    //"restartfile_dir": "DATA/Toolik_10x10_30yrs/" // location for restart-XX.nc file
   }
 
 //  "model_settings": {
