@@ -9,7 +9,7 @@
     "proj_climate_file":  "DATA/Toolik_10x10_30yrs/projected-climate-dataset.nc",
     "veg_class_file":     "DATA/Toolik_10x10_30yrs/veg.nc",
     "fire_file":          "DATA/Toolik_10x10_30yrs/script-new-fire-dataset.nc",
-    "drainage_file":      "DATA/Toolik_10x10_30yrs/script-new-drainage-dataset.nc",
+    "drainage_file":      "DATA/Toolik_10x10_30yrs/drainage-classification.nc",
     "co2_file":           "DATA/Toolik_10x10_30yrs/script-new-co2-dataset.nc",
     "runmask_file":       "DATA/Toolik_10x10_30yrs/script-run-mask.nc",
 

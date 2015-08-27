@@ -29,24 +29,6 @@ from osgeo import gdal
 
 #(0,0) pixel is hardcoded to the exact values from Toolik for testing.
 
-def make_drainage_classification(fname, sizey=10, sizex=10):
-  '''Generate a file representing drainage classification.'''
-  print "Creating a drainage classification file, %s by %s pixels." % (sizey, sizex)
-  ncfile = netCDF4.Dataset(fname, mode='w', format='NETCDF4')
-
-  Y = ncfile.createDimension('Y', sizey)
-  X = ncfile.createDimension('X', sizex)
-  drainage_class = ncfile.createVariable('drainage_class', np.int, ('Y', 'X',))
-
-  print " --> NOTE: Filling with random data!"
-  drainage_class[:] = np.random.uniform(low=1, high=7, size=(sizey, sizex))
-
-  print " --> NOTE: Setting 0,0 pixel to zero!"
-  drainage_class[0,0] = 0
-
-  ncfile.close()
-
-
 def make_run_mask(filename, sizey=10, sizex=10):
   '''Generate a file representing the run mask'''
 
@@ -108,6 +90,25 @@ def make_co2_file(filename):
     2008, 2009 ]
 
   new_ncfile.close()
+
+
+def create_template_drainage_class_file(fname, sizey=10, sizex=10, rand=None):
+  '''Generate a file representing drainage classification.'''
+  print "Creating a drainage classification file, %s by %s pixels. (%s)" % (sizey, sizex, os.path.basename(fname))
+  ncfile = netCDF4.Dataset(fname, mode='w', format='NETCDF4')
+
+  Y = ncfile.createDimension('Y', sizey)
+  X = ncfile.createDimension('X', sizex)
+  drainage_class = ncfile.createVariable('drainage_class', np.int, ('Y', 'X',))
+
+  if rand:
+    print " --> NOTE: Filling with random data!"
+    drainage_class[:] = np.random.randint(low=0, high=2, size=(sizey, sizex))
+
+    print " --> NOTE: Setting 0,0 pixel to 1! (poorly drained?)"
+    drainage_class[0,0] = 1
+
+  ncfile.close()
 
 
 def create_template_restart_nc_file(filename, sizex=10, sizey=10):
@@ -408,7 +409,7 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir, files=[]):
     fill_veg_file(tif_dir + "iem_ancillary_data/Landcover/LandCover_iem_TEM_2005.tif", xo, yo, xs, ys, out_dir, of_name)
 
   if 'drain' in files:
-    make_drainage_classification(os.path.join(out_dir, "script-new-drainage-dataset.nc"), sizey=ys, sizex=xs)
+    create_template_drainage_class_file(os.path.join(out_dir, "drainage-classification.nc"), sizey=ys, sizex=xs, rand=True)
 
   if 'run_mask' in files:
     make_run_mask(os.path.join(out_dir, "script-run-mask.nc"), sizey=ys, sizex=xs)
