@@ -337,52 +337,52 @@ def fill_climate_file(start_yr, yrs, xo, yo, xs, ys, out_dir, of_name, sp_ref_fi
         print "Converting tif --> netcdf..."
         check_call(['gdal_translate', '-of', 'netCDF',
               in_tair,
-              'script-temporary_tair.nc'])
+              '/tmp/script-temporary_tair.nc'])
 
         check_call(['gdal_translate', '-of', 'netCDF',
               in_rsds,
-              'script-temporary_rsds.nc'])
+              '/tmp/script-temporary_rsds.nc'])
 
         check_call(['gdal_translate', '-of', 'netCDF',
               in_prec,
-              'script-temporary_pr.nc'])
+              '/tmp/script-temporary_pr.nc'])
 
         check_call(['gdal_translate', '-of', 'netCDF',
               in_vapo,
-              'script-temporary_vapo.nc'])
+              '/tmp/script-temporary_vapo.nc'])
 
         print "Subsetting...."
         check_call(['gdal_translate', '-of', 'netCDF', '-srcwin',
               str(xo), str(yo), str(xs), str(ys),
-              'script-temporary_tair.nc', 'script-temporary_tair2.nc'])
+              '/tmp/script-temporary_tair.nc', '/tmp/script-temporary_tair2.nc'])
 
         check_call(['gdal_translate', '-of', 'netCDF', '-srcwin',
               str(xo), str(yo), str(xs), str(ys),
-              'script-temporary_rsds.nc', 'script-temporary_rsds2.nc'])
+              '/tmp/script-temporary_rsds.nc', '/tmp/script-temporary_rsds2.nc'])
 
         check_call(['gdal_translate', '-of', 'netCDF', '-srcwin',
               str(xo), str(yo), str(xs), str(ys),
-              'script-temporary_pr.nc', 'script-temporary_pr2.nc'])
+              '/tmp/script-temporary_pr.nc', '/tmp/script-temporary_pr2.nc'])
 
         check_call(['gdal_translate', '-of', 'netCDF', '-srcwin',
               str(xo), str(yo), str(xs), str(ys),
-              'script-temporary_vapo.nc', 'script-temporary_vapo2.nc'])
+              '/tmp/script-temporary_vapo.nc', '/tmp/script-temporary_vapo2.nc'])
 
 
         print "Writing subset's data to new files..."
-        with netCDF4.Dataset('script-temporary_tair2.nc', mode='r') as t2:
+        with netCDF4.Dataset('/tmp/script-temporary_tair2.nc', mode='r') as t2:
           tair = new_climatedataset.variables['tair']
           tair[yridx*12+midx] = t2.variables['Band1'][:]
 
-        with netCDF4.Dataset('script-temporary_rsds2.nc', mode='r') as t2:
+        with netCDF4.Dataset('/tmp/script-temporary_rsds2.nc', mode='r') as t2:
           nirr = new_climatedataset.variables['nirr']
           nirr[yridx*12+midx] = t2.variables['Band1'][:]
 
-        with netCDF4.Dataset('script-temporary_pr2.nc', mode='r') as t2:
+        with netCDF4.Dataset('/tmp/script-temporary_pr2.nc', mode='r') as t2:
           prec = new_climatedataset.variables['precip']
           prec[yridx*12+midx] = t2.variables['Band1'][:]
 
-        with netCDF4.Dataset('script-temporary_vapo2.nc', mode='r') as t2:
+        with netCDF4.Dataset('/tmp/script-temporary_vapo2.nc', mode='r') as t2:
           vapo = new_climatedataset.variables['vapor_press']
           vapo[yridx*12+midx] = t2.variables['Band1'][:]
 
