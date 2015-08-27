@@ -358,6 +358,8 @@ void Cohort::updateMonthly(const int & yrcnt, const int & currmind,
   
     BOOST_LOG_SEV(glg, debug) << "RIGHT BEFORE updateMonthlyEnv()" << ground.layer_report_string();
 
+
+    // FIX: definitely a problem in here that is Making soil temperatures get ridiculously low -19 billion
   
     BOOST_LOG_SEV(glg, debug) << "Run the environmental module - updates water/thermal processes to get (bio)physical conditions.";
     updateMonthly_Env(currmind, dinmcurr);

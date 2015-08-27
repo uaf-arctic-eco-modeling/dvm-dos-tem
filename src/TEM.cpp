@@ -299,6 +299,7 @@ int main(int argc, char* argv[]){
             {
               BOOST_LOG_NAMED_SCOPE("SP");
 
+              // FIX: if restart file has -9999, then soil temps can end up impossibly low
               // look for and read-in restart-eq.nc ??
               if (boost::filesystem::exists("DATA/Toolik_10x10_30yrs/output/restart-eq.nc")) {
                 BOOST_LOG_SEV(glg, debug) << "WOW, gonna use the restart file!!!";
