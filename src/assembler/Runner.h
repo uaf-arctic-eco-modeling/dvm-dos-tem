@@ -50,7 +50,7 @@ public:
   void modeldata_module_settings_from_args(const ArgHandler &args);
   void output_caljson_yearly(int year);
   void output_caljson_monthly(int year, int month);
-
+  void output_debug_daily_drivers(int iy);
 
 private:
   bool calibrationMode;
