@@ -66,8 +66,8 @@ public :
   */
 
   // old? can I deprecate these??
-  double pfsize[NUM_FSIZE];
-  double pfseason[NUM_FSEASON];
+  //double pfsize[NUM_FSIZE];
+  //double pfseason[NUM_FSEASON];
   
   //inputs
   CohortLookup chtlu;
@@ -117,14 +117,13 @@ public :
   void setProcessData(EnvData * alledp, BgcData * allbdp, FirData *fdp);
 
   void initialize_state_parameters();
-//  void prepareAllDrivingData();
-  void prepareDayDrivingData(const int & yrcnt, const int &usedatmyr);
+  //void prepareAllDrivingData();
+  //void prepareDayDrivingData(const int & yrcnt, const int &usedatmyr);
   void updateMonthly(const int & yrcnt, const int & currmind,
                      const int & dinmcurr);
   
   void set_state_from_restartdata();
   void set_restartdata_from_state();
-  bool is_time_to_burn(const int yrind, const int currmind, const std::string& stage);
 
 
 private:
@@ -141,7 +140,7 @@ private:
   void updateMonthly_Dsb(const int & yrcnt, const int & currmind);
 
   // Fire is a type of disturbance?
-  void updateMonthly_Fir(const int & yrcnt, const int & currmind);
+  void updateMonthly_Fir(const int & year, const int & midx);
 
   // update root distribution
   void getSoilFineRootFrac_Monthly();

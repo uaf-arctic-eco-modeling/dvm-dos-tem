@@ -46,9 +46,10 @@ public:
   void initializeParameter();
   void initializeState();
   void set_state_from_restartdata(const RestartData & rdata);
-//  void prepareDrivingData();
 
-  int getOccur(const int & yrind, const bool & fridrived); //Yuan: modified;
+  bool should_ignite(const int yr, const int midx, const std::string& stage);
+  int derive_fire_severity(const int drainage, const int season, const int size);
+
   void burn(); //Yuan: modified
 
 private:
@@ -59,8 +60,8 @@ private:
   double r_dead2ag_cn; //ratio of dead veg. after burning
   double r_burn2ag_cn; //burned above-ground veg. after burning
 
-//Yuan: the following if using years will result in huge
-//        memory needs, if spin-up is long
+  //Yuan: the following if using years will result in huge
+  //        memory needs, if spin-up is long
   int fyear[MAX_FIR_OCRNUM];
   int fseason[MAX_FIR_OCRNUM];
   int fmonth[MAX_FIR_OCRNUM];
@@ -75,10 +76,13 @@ private:
   BgcData * bd[NUM_PFT];
   BgcData * bdall;
 
-  void deriveFireSeverity();
   double getBurnOrgSoilthick();
   void getBurnAbgVegetation(const int &ip);
 
+  // Unused...
+  //void prepareDrivingData();
+  //int getOccur(const int & yrind, const bool & fridrived); //Yuan: modified;
+  //void deriveFireSeverity();
 };
 
 #endif /*WILDFIRE_H_*/

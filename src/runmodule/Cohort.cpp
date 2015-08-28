@@ -309,39 +309,40 @@ void Cohort::initialize_state_parameters() {
 //};
 
 // climate daily data for one year
-void Cohort::prepareDayDrivingData(const int & yrindx, const int & usedatmyr) {
-  //default climate/co2 setting
-  bool changeclm = true;
-  bool changeco2 = true;
-
-  if (md->runeq) {
-    changeclm = false;
-    changeco2 = false;
-  } else if (md->runsp) {
-    changeco2 = false;
-  }
-
-  // preparing ONE year daily driving data
-  if (true/*timer->eqend*/) {
-    //run the model after eq stage, climate and co2
-    //  driver controlled by setting in control file.
-    if (md->changeclimate == 1) {
-      changeclm = true;
-    } else if (md->changeclimate == -1) {
-      changeclm = false;
-    }
-
-    if (md->changeco2 == 1) {
-      changeco2 = true;
-    } else if (md->changeco2 == -1) {
-      changeco2 = false;
-    }
-
-  } else {
-    //run the model at eq stage, climate and co2
-    //  driver not controlled by setting in control file.
-  }
-};
+// 08-27-2015 UNUSED
+//void Cohort::prepareDayDrivingData(const int & yrindx, const int & usedatmyr) {
+//  //default climate/co2 setting
+//  bool changeclm = true;
+//  bool changeco2 = true;
+//
+//  if (md->runeq) {
+//    changeclm = false;
+//    changeco2 = false;
+//  } else if (md->runsp) {
+//    changeco2 = false;
+//  }
+//
+//  // preparing ONE year daily driving data
+//  if (true/*timer->eqend*/) {
+//    //run the model after eq stage, climate and co2
+//    //  driver controlled by setting in control file.
+//    if (md->changeclimate == 1) {
+//      changeclm = true;
+//    } else if (md->changeclimate == -1) {
+//      changeclm = false;
+//    }
+//
+//    if (md->changeco2 == 1) {
+//      changeco2 = true;
+//    } else if (md->changeco2 == -1) {
+//      changeco2 = false;
+//    }
+//
+//  } else {
+//    //run the model at eq stage, climate and co2
+//    //  driver not controlled by setting in control file.
+//  }
+//};
 
 void Cohort::updateMonthly(const int & yrcnt, const int & currmind,
                            const int & dinmcurr) {
@@ -671,87 +672,73 @@ void Cohort::updateMonthly_Bgc(const int & currmind) {
   assignSoilBd2pfts_monthly();
 };
 
-bool Cohort::is_time_to_burn(const int yr, const int midx, const std::string& stage) {
-  BOOST_LOG_SEV(glg, debug) << "Evaluting burn status for year: " << yr << " month: " << midx << " stage: " << stage;
-  bool gonna_burn = false;
-
-  if ( stage.compare("pre-run") == 0 || stage.compare("eq-run") == 0 || stage.compare("sp-run") == 0 ) {
-    BOOST_LOG_SEV(glg, debug) << "DETERMINE FIRE BY FRI";
-    if (yr % cd.fri == 0) {
-      if ( (5 <= midx) && (9 >= midx) ) { // check month
-        gonna_burn = true;
-      }
-      BOOST_LOG_SEV(glg, debug) << "Right year, wrong month for fire, as determined by FRI.";
-
-    }
-    
-  } else if ( stage.compare("tr-run") == 0 || stage.compare("sc-run") == 0 ) {
-    BOOST_LOG_SEV(glg, debug) << "DETERMINE FIRE BY EXPLICIT YEAR";
-    BOOST_LOG_SEV(glg, warn) << "NOT IMPLEMENTED YET!";
-    // FIX: Implement.
-  }
-  
-  BOOST_LOG_SEV(glg, debug) << "Is it time for a fire? " << gonna_burn;
-  return gonna_burn;
-}
-
 void Cohort::updateMonthly_Dsb(const int & yrind, const int & currmind) {
   BOOST_LOG_NAMED_SCOPE("dsb");
-  if (this->is_time_to_burn(yrind, currmind, "eq-run")) {
-    updateMonthly_Fir(yrind, currmind);
-  }
+
+  updateMonthly_Fir(yrind, currmind);
+
+  //updateMonthly_Flood(...)
 }
 
 /** Fire Disturbance module. */
-void Cohort::updateMonthly_Fir(const int & yrind, const int & currmind) {
+void Cohort::updateMonthly_Fir(const int & year, const int & midx) {
   BOOST_LOG_NAMED_SCOPE("fire")
-  
-//  if(currmind == 0) {
-//    fd->beginOfYear();
-//    fire.getOccur(yrind, md->get_friderived());
-//  }
 
-//  if (yrind==fire.oneyear && currmind==fire.onemonth) {
-  //fire, C burning for each PFT, and C/N pools updated
-  //  through 'bd', but not soil structure
-  //soil root fraction also updated through 'cd'
-  fire.burn();
-
-  // summarize burned veg C/N of individual 'bd' for each PFT above
-  for (int ip=0; ip<NUM_PFT; ip++) {
-    if (cd.m_veg.vegcov[ip]>0.) {
-      for (int i=0; i<NUM_PFT_PART; i++) {
-        bdall->m_vegs.c[i]    += bd[ip].m_vegs.c[i];
-        bdall->m_vegs.strn[i] += bd[ip].m_vegs.strn[i];
-      }
-
-      bdall->m_vegs.labn    += bd[ip].m_vegs.labn;
-      bdall->m_vegs.call    += bd[ip].m_vegs.call;
-      bdall->m_vegs.strnall += bd[ip].m_vegs.strnall;
-      bdall->m_vegs.nall    += bd[ip].m_vegs.nall;
-      bdall->m_vegs.deadc   += bd[ip].m_vegs.deadc;
-      bdall->m_vegs.deadn   += bd[ip].m_vegs.deadn;
-    }
+  // FIX ?? not sure this may no longer be necessary??
+  if (midx == 0) {
+    fd->beginOfYear();
   }
 
-  //assign the updated soil C/N pools during firing
-  //  to double-linked layer matrix in 'ground'
-  soilbgc.assignCarbonBd2LayerMonthly();
-  //then, adjusting soil structure after fire burning
-  //  (Don't do this prior to the previous calling)
-  ground.adjustSoilAfterburn();
-  // and finally save the data back to 'bdall'
-  soilbgc.assignCarbonLayer2BdMonthly();
-  // update all other pft's 'bd'
-  assignSoilBd2pfts_monthly();
-  // update 'cd'
-  cd.yrsdist = 0.;
-  ground.retrieveSnowDimension(&cd.d_snow);
-  ground.retrieveSoilDimension(&cd.m_soil);
-  cd.d_soil = cd.m_soil;
-  cd.y_soil = cd.m_soil;
-  getSoilFineRootFrac_Monthly();
+  // see if it is an appropriate time to burn
+  if ( fire.should_ignite(year, midx, "eq-run") ) {
 
+    BOOST_LOG_SEV(glg, debug) << "Derive fire severity...";
+    fire.derive_fire_severity(cd.drainage_type, 3, /* FIX THIS --> */ 1);
+
+    // fire, update C/N pools for each pft through 'bd', but not soil structure
+    // soil root fraction also updated through 'cd'
+    BOOST_LOG_SEV(glg, debug) << "BURN!";
+    fire.burn();
+
+    BOOST_LOG_SEV(glg, debug) << "Collect burned veg C/N from individual pfts into bdall...";
+    for (int ip=0; ip<NUM_PFT; ip++) {
+      if (cd.m_veg.vegcov[ip]>0.) {
+        for (int i=0; i<NUM_PFT_PART; i++) {
+          bdall->m_vegs.c[i]    += bd[ip].m_vegs.c[i];
+          bdall->m_vegs.strn[i] += bd[ip].m_vegs.strn[i];
+        }
+        bdall->m_vegs.labn    += bd[ip].m_vegs.labn;
+        bdall->m_vegs.call    += bd[ip].m_vegs.call;
+        bdall->m_vegs.strnall += bd[ip].m_vegs.strnall;
+        bdall->m_vegs.nall    += bd[ip].m_vegs.nall;
+        bdall->m_vegs.deadc   += bd[ip].m_vegs.deadc;
+        bdall->m_vegs.deadn   += bd[ip].m_vegs.deadn;
+      }
+    }
+
+    BOOST_LOG_SEV(glg, debug) << "Post-burn, assign the updated C/N pools to double linked layer matrix in ground...";
+    soilbgc.assignCarbonBd2LayerMonthly();
+
+    BOOST_LOG_SEV(glg, debug) << "Post-burn, adjust soil structure...";
+    ground.adjustSoilAfterburn(); // must call after soilbgc.assignCarbonBd2LayerMonthly()
+
+    BOOST_LOG_SEV(glg, debug) << "Post-burn, save the data back to 'bdall'...";
+    soilbgc.assignCarbonLayer2BdMonthly();
+
+    BOOST_LOG_SEV(glg, debug) << "Post-burn, update all other pft's 'bd'...";
+    assignSoilBd2pfts_monthly();
+
+    BOOST_LOG_SEV(glg, debug) << "Post-burn, update cd, ground, fine root fraction...";
+    cd.yrsdist = 0.;
+    ground.retrieveSnowDimension(&cd.d_snow);
+    ground.retrieveSoilDimension(&cd.m_soil);
+    cd.d_soil = cd.m_soil;
+    cd.y_soil = cd.m_soil;
+    getSoilFineRootFrac_Monthly();
+
+  } else {
+    BOOST_LOG_SEV(glg, debug) << "Not time for a fire. Nothing to do.";
+  }
 }
 
 /** Dynamic Vegetation Module function. */
