@@ -105,12 +105,6 @@ Cohort::Cohort(int y, int x, ModelData* modeldatapointer):
 
   //FirData * fd;   // this for all PFTs and their soil
 
-  //ModelData * md;
-  //RegionData * rd;
-  //GridData * gd;
-
-  RestartData resid;    //for input
-
   Integrator vegintegrator[NUM_PFT];
   Integrator solintegrator;
 
