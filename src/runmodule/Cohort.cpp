@@ -65,6 +65,12 @@ Cohort::Cohort(int y, int x, ModelData* modeldatapointer):
   //this->proj_climate = Climate(modeldatapointer->proj_climate, y, x);
   this->climate = Climate(modeldatapointer->hist_climate_file, modeldatapointer->co2_file, y, x);
 
+  BOOST_LOG_SEV(glg, debug) << "Setup the fire information...";
+  this->cd.fri = temutil::get_fri(modeldatapointer->fire_file, y, x);
+
+  // FIX: Load fire years, sizes...
+  //this->fire_years /* = ?? */;
+  //this->fire_sizes /* = ?? */;
 
   this->soilenv = Soil_Env();
   
@@ -662,61 +668,85 @@ void Cohort::updateMonthly_Bgc(const int & currmind) {
   assignSoilBd2pfts_monthly();
 };
 
+bool Cohort::is_time_to_burn(const int yr, const int midx, const std::string& stage) {
+  BOOST_LOG_SEV(glg, debug) << "Evaluting burn status for year: " << yr << " month: " << midx << " stage: " << stage;
+  bool gonna_burn = false;
+
+  if ( stage.compare("pre-run") == 0 || stage.compare("eq-run") == 0 || stage.compare("sp-run") == 0 ) {
+    BOOST_LOG_SEV(glg, debug) << "DETERMINE FIRE BY FRI";
+    if (yr % cd.fri == 0) {
+      if ( (5 <= midx) && (9 >= midx) ) { // check month
+        gonna_burn = true;
+      }
+      BOOST_LOG_SEV(glg, debug) << "Right year, wrong month for fire, as determined by FRI.";
+
+    }
+    
+  } else if ( stage.compare("tr-run") == 0 || stage.compare("sc-run") == 0 ) {
+    BOOST_LOG_SEV(glg, debug) << "DETERMINE FIRE BY EXPLICIT YEAR";
+    BOOST_LOG_SEV(glg, warn) << "NOT IMPLEMENTED YET!";
+    // FIX: Implement.
+  }
+  
+  BOOST_LOG_SEV(glg, debug) << "Is it time for a fire? " << gonna_burn;
+  return gonna_burn;
+}
+
 void Cohort::updateMonthly_Dsb(const int & yrind, const int & currmind) {
-  if (true/* fire type disturbance??*/) {
-    //updateMonthly_Fir(yrind, currmind);
+  if (this->is_time_to_burn(yrind, currmind, "eq-run")) {
+    updateMonthly_Fir(yrind, currmind);
   }
 }
 
-//fire disturbance module calling
-/////////////////////////////////////////////////////////////////////////////////
+/** Fire Disturbance module. */
 void Cohort::updateMonthly_Fir(const int & yrind, const int & currmind) {
-  if(currmind ==0) {
-    fd->beginOfYear();
-    fire.getOccur(yrind, md->get_friderived());
-  }
+  
+//  if(currmind == 0) {
+//    fd->beginOfYear();
+//    fire.getOccur(yrind, md->get_friderived());
+//  }
 
-  if (yrind==fire.oneyear && currmind==fire.onemonth) {
-    //fire, C burning for each PFT, and C/N pools updated
-    //  through 'bd', but not soil structure
-    //soil root fraction also updated through 'cd'
-    fire.burn();
+//  if (yrind==fire.oneyear && currmind==fire.onemonth) {
+  //fire, C burning for each PFT, and C/N pools updated
+  //  through 'bd', but not soil structure
+  //soil root fraction also updated through 'cd'
+  fire.burn();
 
-    // summarize burned veg C/N of individual 'bd' for each PFT above
-    for (int ip=0; ip<NUM_PFT; ip++) {
-      if (cd.m_veg.vegcov[ip]>0.) {
-        for (int i=0; i<NUM_PFT_PART; i++) {
-          bdall->m_vegs.c[i]    += bd[ip].m_vegs.c[i];
-          bdall->m_vegs.strn[i] += bd[ip].m_vegs.strn[i];
-        }
-
-        bdall->m_vegs.labn    += bd[ip].m_vegs.labn;
-        bdall->m_vegs.call    += bd[ip].m_vegs.call;
-        bdall->m_vegs.strnall += bd[ip].m_vegs.strnall;
-        bdall->m_vegs.nall    += bd[ip].m_vegs.nall;
-        bdall->m_vegs.deadc   += bd[ip].m_vegs.deadc;
-        bdall->m_vegs.deadn   += bd[ip].m_vegs.deadn;
+  // summarize burned veg C/N of individual 'bd' for each PFT above
+  for (int ip=0; ip<NUM_PFT; ip++) {
+    if (cd.m_veg.vegcov[ip]>0.) {
+      for (int i=0; i<NUM_PFT_PART; i++) {
+        bdall->m_vegs.c[i]    += bd[ip].m_vegs.c[i];
+        bdall->m_vegs.strn[i] += bd[ip].m_vegs.strn[i];
       }
-    }
 
-    //assign the updated soil C/N pools during firing
-    //  to double-linked layer matrix in 'ground'
-    soilbgc.assignCarbonBd2LayerMonthly();
-    //then, adjusting soil structure after fire burning
-    //  (Don't do this prior to the previous calling)
-    ground.adjustSoilAfterburn();
-    // and finally save the data back to 'bdall'
-    soilbgc.assignCarbonLayer2BdMonthly();
-    // update all other pft's 'bd'
-    assignSoilBd2pfts_monthly();
-    // update 'cd'
-    cd.yrsdist = 0.;
-    ground.retrieveSnowDimension(&cd.d_snow);
-    ground.retrieveSoilDimension(&cd.m_soil);
-    cd.d_soil = cd.m_soil;
-    cd.y_soil = cd.m_soil;
-    getSoilFineRootFrac_Monthly();
+      bdall->m_vegs.labn    += bd[ip].m_vegs.labn;
+      bdall->m_vegs.call    += bd[ip].m_vegs.call;
+      bdall->m_vegs.strnall += bd[ip].m_vegs.strnall;
+      bdall->m_vegs.nall    += bd[ip].m_vegs.nall;
+      bdall->m_vegs.deadc   += bd[ip].m_vegs.deadc;
+      bdall->m_vegs.deadn   += bd[ip].m_vegs.deadn;
+    }
   }
+
+  //assign the updated soil C/N pools during firing
+  //  to double-linked layer matrix in 'ground'
+  soilbgc.assignCarbonBd2LayerMonthly();
+  //then, adjusting soil structure after fire burning
+  //  (Don't do this prior to the previous calling)
+  ground.adjustSoilAfterburn();
+  // and finally save the data back to 'bdall'
+  soilbgc.assignCarbonLayer2BdMonthly();
+  // update all other pft's 'bd'
+  assignSoilBd2pfts_monthly();
+  // update 'cd'
+  cd.yrsdist = 0.;
+  ground.retrieveSnowDimension(&cd.d_snow);
+  ground.retrieveSoilDimension(&cd.m_soil);
+  cd.d_soil = cd.m_soil;
+  cd.y_soil = cd.m_soil;
+  getSoilFineRootFrac_Monthly();
+//  }
 };
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -1377,22 +1407,6 @@ void Cohort::set_restartdata_from_state() {
 
 
 
-//void Cohort::NEW_load_fire_from_file(int y, int x) {
-//  BOOST_LOG_SEV(glg, debug) << "New-style fire data reading function...";
-//  
-//        //    // 1) for eq and sp we need a fire recurrance interval
-//        //  // varies with space and *NOT* time
-//        //  // generated by some statictical munging of the SNAP Fire History tif files
-//        //  // will result in a single band tiff
-//        //  int fri;
-//        //
-//        //  // 2) for tr and sc FRI is based on ALF outputs or historical records
-//        //  // (for AK from 1952) year_of_burn - explicit replacement for FRI in tr and
-//        //  // sc (maybe from ALF)
-//        //  std::vector<int> fire_years;
-//        //  std::vector<int> fire_sizes;
-//  std::string fire_dataset = "scripts/new-fire-dataset.nc";
-//  
 //  BOOST_LOG_SEV(glg, info) << "Loading fire from file: " << fire_dataset;
 //  BOOST_LOG_SEV(glg, info) << "Loading fire for (y, x) point: ("<< y <<","<< x <<").";
 //

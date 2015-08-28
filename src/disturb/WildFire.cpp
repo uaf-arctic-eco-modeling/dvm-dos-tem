@@ -214,9 +214,10 @@ int WildFire::getOccur(const int &yrind, const bool & friderived) {
 
 //Burning vegetation and soil organic C
 void WildFire::burn() {
+  BOOST_LOG_SEV(glg, note) << "HELP - WILD FIRE!! RUN FOR YOUR LIFE!";
   fd->burn();
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// for soil part and root burning
+
+  // for soil part and root burning
   //NOTE: here we operates on soil portion of 'bdall', later will copy that
   //  to other PFTs if any
   double burndepth = getBurnOrgSoilthick();
@@ -321,7 +322,7 @@ void WildFire::burn() {
   double vola_soln = (burnedsoln+wdebrisn) * (1.0- firpar.r_retain_n);
   double reta_solc = burnedsolc * firpar.r_retain_c;   //together with veg.-burned N return, This will be put into soil later
   double reta_soln = burnedsoln * firpar.r_retain_n;   //together with veg.-burned N return, This will be put into soil later
-//////////////////////VEG burning and mortality ///////////////////////////////////////////////////////////////
+  //////////////////////VEG burning and mortality ///////////////////////////////////////////////////////////////
   double comb_vegc = 0.;  //summed for all PFTs
   double comb_vegn = 0.;
   double comb_deadc = 0.;
@@ -409,7 +410,7 @@ void WildFire::burn() {
 
   double reta_vegc = (comb_vegc+comb_deadc) * firpar.r_retain_c;
   double reta_vegn = (comb_vegn+comb_deadn) * firpar.r_retain_n;
-/////////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////////
   // save the fire emission and return data into 'fd'
   fd->fire_v2a.orgc =  comb_vegc - reta_vegc;
   fd->fire_v2a.orgn =  comb_vegn - reta_vegn;
