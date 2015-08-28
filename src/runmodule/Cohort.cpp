@@ -413,9 +413,11 @@ void Cohort::updateMonthly(const int & yrcnt, const int & currmind,
 //Environment Module Calling at monthly time-step, but involving daily time-step loop
 /////////////////////////////////////////////////////////
 void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
-//Yuan: note that the Veg-Env module calling is for a few PFTs within ONE cohort
-//  1) ed calling is done for each PFTs within the module
-//  2) Env-module calling is done for one PFT, so needs loop for vegetation-relevant processes
+  BOOST_LOG_NAMED_SCOPE("env")
+  //Yuan: note that the Veg-Env module calling is for a few PFTs within ONE cohort
+  //  1) ed calling is done for each PFTs within the module
+  //  2) Env-module calling is done for one PFT, so needs loop for vegetation-relevant processes
+
   // (i) the n factor for soil temperature calculation from Tair
   edall->d_soid.nfactor = 1;
   // Yuan: the following has temporarily commentted out - a lot of trouble
@@ -611,12 +613,13 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
       }
     }
   } // end of day loop in a month
-};
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 // Biogeochemical Module Calling at monthly timestep
 ///////////////////////////////////////////////////////////////////////////////////////////
 void Cohort::updateMonthly_Bgc(const int & currmind) {
+  BOOST_LOG_NAMED_SCOPE("bgc");
   //
   if(currmind==0) {
     for (int ip=0; ip<NUM_PFT; ip++) {
@@ -693,6 +696,7 @@ bool Cohort::is_time_to_burn(const int yr, const int midx, const std::string& st
 }
 
 void Cohort::updateMonthly_Dsb(const int & yrind, const int & currmind) {
+  BOOST_LOG_NAMED_SCOPE("dsb");
   if (this->is_time_to_burn(yrind, currmind, "eq-run")) {
     updateMonthly_Fir(yrind, currmind);
   }
@@ -700,6 +704,7 @@ void Cohort::updateMonthly_Dsb(const int & yrind, const int & currmind) {
 
 /** Fire Disturbance module. */
 void Cohort::updateMonthly_Fir(const int & yrind, const int & currmind) {
+  BOOST_LOG_NAMED_SCOPE("fire")
   
 //  if(currmind == 0) {
 //    fd->beginOfYear();
@@ -753,6 +758,8 @@ void Cohort::updateMonthly_Fir(const int & yrind, const int & currmind) {
 //   Dynamical Vegetation Module (DVM) calling
 ////////////////////////////////////////////////////////////////////////////////
 void Cohort::updateMonthly_DIMveg(const int & currmind, const bool & dvmmodule) {
+  BOOST_LOG_NAMED_SCOPE("DIMveg");
+  BOOST_LOG_SEV(glg, debug) << "A sample log message in DVM ...";
   //switch for using LAI read-in (false) or dynamically with vegC
   // the read-in LAI is through the 'chtlu->envlai[12]', i.e., a 12 monthly-LAI
   if (dvmmodule) {
@@ -788,6 +795,8 @@ void Cohort::updateMonthly_DIMveg(const int & currmind, const bool & dvmmodule) 
 //   Dynamical Soil Layer Module (DSL)
 ////////////////////////////////////////////////////////////////////////////////
 void Cohort::updateMonthly_DIMgrd(const int & currmind, const bool & dslmodule) {
+  BOOST_LOG_NAMED_SCOPE("DIMgrd");
+  BOOST_LOG_SEV(glg, debug) << "A sample log message in DSL module";
   // re-call the 'bdall' soil C contents and assign them to the double-linked layer matrix
   soilbgc.assignCarbonBd2LayerMonthly();
 
