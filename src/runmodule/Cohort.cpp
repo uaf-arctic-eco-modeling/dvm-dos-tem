@@ -376,7 +376,7 @@ void Cohort::updateMonthly(const int & yrcnt, const int & currmind,
 
   if(md->get_dsbmodule()) {
     BOOST_LOG_SEV(glg, debug) << "Run the disturbance model.";
-    updateMonthly_Fir(yrcnt, currmind);
+    updateMonthly_Dsb(yrcnt, currmind);
   }
 
   BOOST_LOG_SEV(glg, debug) << "Clean up at the end of the month";
@@ -661,6 +661,12 @@ void Cohort::updateMonthly_Bgc(const int & currmind) {
   //sharing the 'ground' portion in 'bdall' with each pft 'bd'
   assignSoilBd2pfts_monthly();
 };
+
+void Cohort::updateMonthly_Dsb(const int & yrind, const int & currmind) {
+  if (true/* fire type disturbance??*/) {
+    //updateMonthly_Fir(yrind, currmind);
+  }
+}
 
 //fire disturbance module calling
 /////////////////////////////////////////////////////////////////////////////////

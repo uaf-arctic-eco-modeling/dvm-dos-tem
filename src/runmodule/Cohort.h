@@ -133,6 +133,9 @@ private:
 
   void updateMonthly_Env(const int & currmind, const int & dinmcurr);
   void updateMonthly_Bgc(const int & currmind);
+  void updateMonthly_Dsb(const int & yrcnt, const int & currmind);
+
+  // Fire is a type of disturbance?
   void updateMonthly_Fir(const int & yrcnt, const int & currmind);
 
   // update root distribution
