@@ -205,6 +205,7 @@ def create_template_climate_nc_file(filename, sizey=10, sizex=10):
 
 def create_template_fire_file(fname, sizey=10, sizex=10, rand=None):
   print "Creating a fire file, %s by %s pixels. Fill with random data?: %s" % (sizey, sizex, rand)
+  print "Opening/Creating file: ", fname
 
   ncfile = netCDF4.Dataset(fname, mode='w', format='NETCDF4')
 
@@ -220,7 +221,7 @@ def create_template_fire_file(fname, sizey=10, sizex=10, rand=None):
     fri[:] = np.random.uniform(low=1, high=7, size=(sizey, sizex))
 
     print " --> NOTE: Setting FRI for pixel 0,0 to 1000!"
-    fri[0,0] = 1000
+    fri[0,0] = 5
 
     print " --> NOTE: Filling the fire_year and fire_sizes with random data!"
     yr_data = np.empty(sizey * sizex, object)
@@ -233,8 +234,8 @@ def create_template_fire_file(fname, sizey=10, sizex=10, rand=None):
     yr_data = np.reshape(yr_data,(sizey,sizex))
     sz_data = np.reshape(sz_data,(sizey,sizex))
 
-    print " --> NOTE: Check on a few pixels?"
-    print "  (0,0)", yr_data[0,0], "-->", sz_data[0,0]
+    #print " --> NOTE: Check on a few pixels?"
+    #print "  (0,0)", yr_data[0,0], "-->", sz_data[0,0]
     #print "  (0,1)", yr_data[0,1], "-->", sz_data[0,1]
     #print "  (9,9)", yr_data[9,9], "-->", sz_data[9,9]
 
@@ -392,7 +393,7 @@ def fill_climate_file(start_yr, yrs, xo, yo, xs, ys, out_dir, of_name, sp_ref_fi
 
 def fill_fire_file(if_name, xo, yo, xs, ys, out_dir, of_name):
 
-  create_template_fire_file(of_name, sizey=10, sizex=10, rand=None)
+  create_template_fire_file(of_name, sizey=ys, sizex=xs, rand=True)
 
   print "Not sure what to fill with yet...."
 
