@@ -751,12 +751,10 @@ void Cohort::updateMonthly_Fir(const int & yrind, const int & currmind) {
   cd.d_soil = cd.m_soil;
   cd.y_soil = cd.m_soil;
   getSoilFineRootFrac_Monthly();
-//  }
-};
 
-/////////////////////////////////////////////////////////////////////////////////
-//   Dynamical Vegetation Module (DVM) calling
-////////////////////////////////////////////////////////////////////////////////
+}
+
+/** Dynamic Vegetation Module function. */
 void Cohort::updateMonthly_DIMveg(const int & currmind, const bool & dvmmodule) {
   BOOST_LOG_NAMED_SCOPE("DIMveg");
   BOOST_LOG_SEV(glg, debug) << "A sample log message in DVM ...";
@@ -791,9 +789,7 @@ void Cohort::updateMonthly_DIMveg(const int & currmind, const bool & dvmmodule) 
   veg.updateFrootfrac();
 };
 
-/////////////////////////////////////////////////////////////////////////////////
-//   Dynamical Soil Layer Module (DSL)
-////////////////////////////////////////////////////////////////////////////////
+/** Dynamic Soil Layer Module Fucntion. */
 void Cohort::updateMonthly_DIMgrd(const int & currmind, const bool & dslmodule) {
   BOOST_LOG_NAMED_SCOPE("DIMgrd");
   BOOST_LOG_SEV(glg, debug) << "A sample log message in DSL module";
