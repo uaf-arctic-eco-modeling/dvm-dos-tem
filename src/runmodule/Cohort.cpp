@@ -1396,34 +1396,3 @@ void Cohort::set_restartdata_from_state() {
   }
 }
 
-
-
-
-//  BOOST_LOG_SEV(glg, info) << "Loading fire from file: " << fire_dataset;
-//  BOOST_LOG_SEV(glg, info) << "Loading fire for (y, x) point: ("<< y <<","<< x <<").";
-//
-//  this->cd.fri = temutil::get_fri(fire_dataset, y, x);
-//  
-////  this->cd->fire_years = temutil::get_fire_years(fire_dataset, y, x);
-////  
-////  this->cd->fire_sizes = temutil::get_fire_sizes(fire_dataset, y, x);
-//  
-//}
-//
-//
-//void Cohort::NEW_load_veg_class_from_file(int y, int x) {
-//  BOOST_LOG_SEV(glg, debug) << "New-style veg data reading function.";
-//
-//  std::string veg_dataset = "scripts/new-veg-dataset.nc";
-//
-//  BOOST_LOG_SEV(glg, info) << "Loading vegetation from file: " << veg_dataset;
-//  BOOST_LOG_SEV(glg, info) << "Loading vegetation for (y, x) point: (" << y <<","<< x <<").";
-//
-//  cd.vegtype[0] = temutil::get_veg_class(veg_dataset, y, x);
-//  
-//  // Not sure exactly how these are used yet...
-//  // setting to to dummy values...
-//  cd.vegyear[0] = -9999.0;
-//  cd.vegfrac[0] = 1.0;
-//
-//}
