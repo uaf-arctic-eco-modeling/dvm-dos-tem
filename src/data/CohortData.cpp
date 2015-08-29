@@ -1,9 +1,33 @@
 #include "CohortData.h"
 
+#include "../TEMUtilityFunctions.h"
+
+#include "../TEMLogger.h"
+
+
+extern src::severity_logger< severity_level > glg;
+
+/** Make a valid CohortData object. 
+*   All members are set to "Uninitialized" unless we know
+*   enough to otherwise set them?
+*  
+* How is this this different from the clear() member??
+*
+*/
 CohortData::CohortData() {
-};
+ 
+  BOOST_LOG_SEV(glg, note) << "COHORT DATA, empty, default ctor...";
+
+}
+
+CohortData::CohortData(int year, int month, int day, const ModelData* modeldatapointer) {
+  BOOST_LOG_SEV(glg, note) << "Creating a CohortData for (year, month, day): "
+                           << year << ", " << month << ", " << day;
+}
+
 
 CohortData::~CohortData() {
+  BOOST_LOG_SEV(glg, debug) << "Destroying a CohortData!";
 };
 
 // initialize CohortData class explicitly
@@ -14,6 +38,7 @@ void CohortData::clear() {
   day   = MISSING_I;
   cmttype = MISSING_I;
   yrsdist = MISSING_I;
+  drainage_type = MISSING_I;
   hasnonvascular = false;
   act_vegset  = MISSING_I;
   fill_n(vegyear, MAX_VEG_SET, MISSING_I);

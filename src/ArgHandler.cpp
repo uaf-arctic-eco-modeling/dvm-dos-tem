@@ -19,6 +19,14 @@ void ArgHandler::parse(int argc, char** argv) {
      "program will generate yearly and monthly '.json' files in your /tmp "
      " directory that are intended to be read by other programs or scripts.")
 
+    ("pre-run-yrs,pr", boost::program_options::value<int>(&pre_run_yrs)
+       ->default_value(10),
+     "The maximum number of years to run in equlibrium stage.")
+
+    ("max-eq,m", boost::program_options::value<int>(&max_eq)
+       ->default_value(1000),
+     "The maximum number of years to run in equlibrium stage.")
+
     ("loop-order,o",
      boost::program_options::value<std::string>(&loop_order)
        ->default_value("space-major"),
@@ -27,20 +35,18 @@ void ArgHandler::parse(int argc, char** argv) {
 
     ("ctrl-file,f",
      boost::program_options::value<std::string>(&ctrl_file)
-       ->default_value("config/controlfile_site.txt"),
+       ->default_value("config/config.js"),
      "choose a control file to use")
 
     ("log-level,l",
      boost::program_options::value<std::string>(&log_level)
        ->default_value("warn"),
      "Control the verbositiy of the console log statements. Choose one of "
-     "the following: debug, info, note, warn, err, fatal."
-    )
+     "the following: debug, info, note, warn, err, fatal.")
 
-    ("cohort-id,n",
-     boost::program_options::value<int>(&cohort_id)
-       ->default_value(1),
-     "choose a specific cohort to run. TODO: must be a number?? must be in runchtlist.nc?? implies single-site?? Allows slicing? or other specification of more than one cohort?")
+    ("fpe,x", boost::program_options::bool_switch(&floating_point_exp),
+     "Switch for enabling floating point exceptions. If present, the program "
+     "will crash when NaN or Inf are generated.")
 
     ("help,h",
      boost::program_options::bool_switch(&help),
@@ -69,22 +75,7 @@ void ArgHandler::verify() {
 
   Json::Value controldata = temutil::parse_control_file(this->get_ctrl_file());
 
-  std::string m = controldata["general"]["runmode"].asString();
-  if ( (m == "multi") && this->get_cal_mode() ) {
-    BOOST_LOG_SEV(glg, fatal) << "Can't use --cal-mode with a multi-site run. "
-                              << "Please specify a different (single site) "
-                              << "control file.";
-    exit(-1);
-  }
-  if ( (m == "single") && (this->get_loop_order() == "time-major") ) {
-    BOOST_LOG_SEV(glg, fatal) << "Can't use --loop-order=time-major for a "
-                              << "single site run. Change loop order or "
-                              << "specify a different control file.";
-    exit(-1);
-  }
-
-
-  BOOST_LOG_SEV(glg, note) << "Command line arguments all OK.";
+  BOOST_LOG_SEV(glg, warn) << "Argument validation/verification NOT IMPLEMENTED YET!";
 }
 
 

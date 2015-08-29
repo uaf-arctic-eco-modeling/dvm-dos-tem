@@ -4,11 +4,10 @@
 #include "Layer.h"
 
 #include "../../TEMLogger.h"
-
 extern src::severity_logger< severity_level > glg;
 
 Layer::Layer() {
-  BOOST_LOG_SEV(glg, debug) << "Creating a layer object...";
+  BOOST_LOG_SEV(glg, debug) << "Creating a (generic) layer object...";
   nextl= NULL;
   prevl= NULL;
   isSnow = false;
@@ -64,6 +63,7 @@ Layer::Layer() {
 };
 
 Layer::~Layer() {
+  BOOST_LOG_SEV(glg, debug) << "Deleting a (generic) layer object...";
 };
 
 void Layer::advanceOneDay() {
@@ -129,19 +129,34 @@ double Layer::getEffVolWater() {
 };
 
 double Layer::getVolIce() {
-  double vice = ice/DENICE/dz;
-  vice = fmin((double)vice, (double)poro);
-  return vice;
+  if (dz != 0) {
+    double vice = ice/DENICE/dz; // FIX THIS: divide by zero error when there is no thickness!
+    vice = fmin((double)vice, (double)poro);
+    return vice;
+  } else {
+    return 0;
+  }
 };
 
 double Layer::getVolLiq() {
-  double vliq = liq/DENLIQ/dz;
-  vliq = fmin((double)vliq,(double)poro);
-  return vliq;
+  if (dz != 0) {
+    double vliq = liq/DENLIQ/dz; // FIX THIS: divide by zero error when there is no thickness!
+    vliq = fmin((double)vliq,(double)poro);
+    return vliq;
+  } else {
+    return 0;
+  }
+
+
+
 };
 
 double Layer::getEffVolLiq() {
-  double evliq = (liq-minliq)/DENLIQ/dz;
-  evliq = fmin((double)evliq,(double)poro);
-  return evliq;
+  if (dz != 0) {
+    double evliq = (liq-minliq)/DENLIQ/dz; // FIX THIS: divide by zero error when there is no thickness!
+    evliq = fmin((double)evliq,(double)poro);
+    return evliq;
+  } else {
+    return 0;
+  }
 };

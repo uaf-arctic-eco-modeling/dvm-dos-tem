@@ -3,11 +3,16 @@
  */
 #include "SoilLayer.h"
 
+#include "../../TEMLogger.h"
+extern src::severity_logger< severity_level > glg;
+
 SoilLayer::SoilLayer() {
+  BOOST_LOG_SEV(glg, debug) << "==> Creating a SoilLayer object...";
   isSoil = true;
 };
 
 SoilLayer::~SoilLayer() {
+  BOOST_LOG_SEV(glg, debug) << "--> Deleting a SoilLayer object...";
 };
 
 double SoilLayer::getFrzVolHeatCapa() {

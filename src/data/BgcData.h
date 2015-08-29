@@ -5,19 +5,17 @@
 #ifndef BGCDATA_H_
 #define BGCDATA_H_
 
+#include <deque>
+#include <iostream>
+#include <math.h>
+
 #include "../inc/errorcode.h"
 #include "../inc/diagnostics.h"
 #include "../inc/fluxes.h"
 #include "../inc/states.h"
 
-#include <iostream>
-#include <math.h>
-
 #include "EnvData.h"
-#include "RegionData.h"
-#include "GridData.h"
 #include "CohortData.h"
-#include <deque>
 
 class BgcData {
 public:

@@ -13,7 +13,7 @@ class OrganicLayer: public SoilLayer {
 public:
 
   OrganicLayer(const double & pdz, const int & type);
-
+  ~OrganicLayer();
   void humify();
 
 };

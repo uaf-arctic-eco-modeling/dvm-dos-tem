@@ -1,6 +1,8 @@
 #ifndef ENVDATA_H_
 #define ENVDATA_H_
 
+#include <deque>
+
 #include "../inc/diagnostics.h"
 #include "../inc/fluxes.h"
 #include "../inc/states.h"
@@ -11,11 +13,9 @@
 #include "../inc/physicalconst.h"
 #include "../inc/cohortconst.h"
 
-#include "RegionData.h"
-#include "GridData.h"
+#include "../Climate.h"
 #include "CohortData.h"
 
-#include <deque>
 using namespace std;
 
 class EnvData {
@@ -115,6 +115,8 @@ public:
   void atm_endOfMonth();
   void veg_endOfMonth(const int & currmind);
   void grnd_endOfMonth();
+
+  void update_from_climate(const Climate& clm, const int mid, const int dayid);
 
 private:
 };

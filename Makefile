@@ -1,5 +1,9 @@
 # Basic dvm-dos-tem Makefile 
 
+# Add compiler flag for enabling floating point exceptions:
+# -DBSD_FPE for BSD (OSX)
+# -DGNU_FPE for various Linux
+
 CC=g++
 CFLAGS=-c -Werror -ansi -g -fPIC -DBOOST_ALL_DYN_LINK
 LIBS=-lnetcdf_c++ -lnetcdf -lboost_system -lboost_filesystem \
@@ -28,19 +32,13 @@ SOURCES= 	src/TEM.o \
 		src/CalController.o \
 		src/ArgHandler.o \
 		src/TEMUtilityFunctions.o \
-		src/assembler/RunCohort.o \
-		src/assembler/RunGrid.o \
+		src/Climate.o \
 		src/assembler/Runner.o \
-		src/atmosphere/Atmosphere.o \
-		src/atmosphere/AtmosUtil.o \
 		src/data/BgcData.o \
 		src/data/CohortData.o \
 		src/data/EnvData.o \
 		src/data/EnvDataDly.o \
 		src/data/FirData.o \
-		src/data/GridData.o \
-		src/data/OutDataRegn.o \
-		src/data/RegionData.o \
 		src/data/RestartData.o \
 		src/disturb/WildFire.o \
 		src/ecodomain/DoubleLinkedList.o \
@@ -51,7 +49,6 @@ SOURCES= 	src/TEM.o \
 		src/ecodomain/horizon/Snow.o \
 		src/ecodomain/horizon/SoilParent.o \
 		src/ecodomain/Vegetation.o \
-		src/input/RestartInputer.o \
 		src/lookup/CohortLookup.o \
 		src/lookup/SoilLookup.o \
 		src/output/BgcOutputer.o \
@@ -60,11 +57,9 @@ SOURCES= 	src/TEM.o \
 		src/output/RegnOutputer.o \
 		src/output/RestartOutputer.o \
 		src/runmodule/Cohort.o \
-		src/runmodule/Grid.o \
 		src/runmodule/Integrator.o \
 		src/runmodule/ModelData.o \
 		src/runmodule/OutRetrive.o \
-		src/runmodule/Timer.o \
 		src/snowsoil/Richards.o \
 		src/snowsoil/Snow_Env.o \
 		src/snowsoil/Soil_Bgc.o \
@@ -73,7 +68,6 @@ SOURCES= 	src/TEM.o \
 		src/snowsoil/Stefan.o \
 		src/snowsoil/TemperatureUpdator.o \
 		src/util/CrankNicholson.o \
-		src/util/Interpolator.o \
 		src/util/tbc-debug-util.o \
 		src/vegetation/Vegetation_Bgc.o \
 		src/vegetation/Vegetation_Env.o \
@@ -93,19 +87,13 @@ OBJECTS =	ArgHandler.o \
 		TEMLogger.o \
 		CalController.o \
 		TEMUtilityFunctions.o \
-		RunCohort.o \
-		RunGrid.o \
+		Climate.o \
 		Runner.o \
-		Atmosphere.o \
-		AtmosUtil.o \
 		BgcData.o \
 		CohortData.o \
 		EnvData.o \
 		EnvDataDly.o \
 		FirData.o \
-		GridData.o \
-		OutDataRegn.o \
-		RegionData.o \
 		RestartData.o \
 		WildFire.o \
 		DoubleLinkedList.o \
@@ -116,7 +104,6 @@ OBJECTS =	ArgHandler.o \
 		Snow.o \
 		SoilParent.o \
 		Vegetation.o \
-		RestartInputer.o \
 		CohortLookup.o \
 		SoilLookup.o \
 		BgcOutputer.o \
@@ -125,11 +112,9 @@ OBJECTS =	ArgHandler.o \
 		RegnOutputer.o \
 		RestartOutputer.o \
 		Cohort.o \
-		Grid.o \
 		Integrator.o \
 		ModelData.o \
 		OutRetrive.o \
-		Timer.o \
 		Richards.o \
 		Snow_Env.o \
 		Soil_Bgc.o \
@@ -137,7 +122,6 @@ OBJECTS =	ArgHandler.o \
 		SoilParent_Env.o \
 		Stefan.o \
 		CrankNicholson.o \
-		Interpolator.o \
 		tbc-debug-util.o \
 		Vegetation_Bgc.o \
 		Vegetation_Env.o \

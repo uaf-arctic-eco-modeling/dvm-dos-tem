@@ -126,25 +126,25 @@ void Soil_Env::initializeState() {
 
     while(currl!=NULL) {
       if(currl->isSoil) {
-        double ts  = ed->d_atms.ta;
         double psifc = -2.e6;  // filed capacity of -2MPsi
         psifc /=currl->psisat;
         double vwc = pow(abs(psifc), -1.0/currl->bsw);
-        currl->tem = ts;
 
-        if (currl->tem>0.) {
+        currl->tem = ed->d_atms.ta; // <== PROBLEM: what if ed->d_atms.ta is not set yet !??
+
+        if (currl->tem > 0.0) { // Above freezing
           currl->liq = fmax(currl->minliq,
                             fmax(currl->maxliq, vwc*currl->dz*DENLIQ));
-          currl->ice = 0.;
+          currl->ice = 0.0;
           currl->frozen = -1;
-        } else {
-          currl->ice = fmax(0., fmax(currl->maxice, vwc*currl->dz*DENICE));
-          currl->liq = 0.;
+        } else {                // Below freezing
+          currl->ice = fmax(0.0, fmax(currl->maxice, vwc*currl->dz*DENICE));
+          currl->liq = 0.0;
           currl->frozen = 1;
         }
 
-        currl->age =0;
-        currl->rho =0;    //soil layer's actual density NOT used in model
+        currl->age = 0;
+        currl->rho = 0;    //soil layer's actual density NOT used in model
       } else if (currl->isRock) {
         currl->tem = currl->prevl->tem;
         currl->liq = currl->prevl->liq;
@@ -199,7 +199,7 @@ void Soil_Env::initializeState() {
   ground->checkWaterValidity();
 };
 
-void Soil_Env::initializeState5restart(RestartData* resin) {
+void Soil_Env::set_state_from_restartdata(const RestartData & rdata) {
   double TSsoil[MAX_SOI_LAY];
   double LIQsoil[MAX_SOI_LAY];
   double ICEsoil[MAX_SOI_LAY];
@@ -207,11 +207,11 @@ void Soil_Env::initializeState5restart(RestartData* resin) {
   double FROZENFRACsoil[MAX_SOI_LAY];
 
   for (int i=0; i<MAX_SOI_LAY; i++) {
-    TSsoil[i]=resin->TSsoil[i];
-    LIQsoil[i]=resin->LIQsoil[i];
-    ICEsoil[i]=resin->ICEsoil[i];
-    FROZENsoil[i]=resin->FROZENsoil[i];
-    FROZENFRACsoil[i]=resin->FROZENFRACsoil[i];
+    TSsoil[i] = rdata.TSsoil[i];
+    LIQsoil[i] = rdata.LIQsoil[i];
+    ICEsoil[i] = rdata.ICEsoil[i];
+    FROZENsoil[i] = rdata.FROZENsoil[i];
+    FROZENFRACsoil[i] = rdata.FROZENFRACsoil[i];
   }
 
   Layer* currl = ground->fstsoill;
@@ -233,11 +233,11 @@ void Soil_Env::initializeState5restart(RestartData* resin) {
   }
 
   //
-  ed->d_atms.dsr     = resin->dsr;
-  ed->monthsfrozen   = resin->monthsfrozen;
-  ed->rtfrozendays   = resin->rtfrozendays;
-  ed->rtunfrozendays = resin->rtunfrozendays;
-  ed->d_soid.rtdpgdd = resin->growingttime[0];
+  ed->d_atms.dsr     = rdata.dsr;
+  ed->monthsfrozen   = rdata.monthsfrozen;
+  ed->rtfrozendays   = rdata.rtfrozendays;
+  ed->rtunfrozendays = rdata.rtunfrozendays;
+  ed->d_soid.rtdpgdd = rdata.growingttime[0];
 };
 
 // Ground (snow-soil) thermal process
@@ -527,7 +527,7 @@ void Soil_Env::updateDailySM() {
   double baseflow = 1.; //fraction of bottom drainage (free) into water system:
                         //  0 - 1 upon drainage condition
 
-  if(cd->gd->drgtype==1) { //0: well-drained; 1: poorly-drained
+  if(cd->drainage_type == 1) { //0: well-drained; 1: poorly-drained
     baseflow = 0.;
   }
 
@@ -621,31 +621,36 @@ double Soil_Env::getEvaporation(const double & dayl, const double &rad) {
 // saturation of upper
 double Soil_Env::getWaterTable(Layer* lstsoill) {
   Layer* currl = lstsoill;
-  double wtd=0;
+  double wtd = 0.0;
   double s, dz, por;
   double thetai, thetal;
-  bool bottomsat = true;   //Yuan: initialize the bottom layer as saturated
-  double sums=0.;
-  double ztot=0.;
+  bool bottomsat = true;   // Yuan: initialize the bottom layer as saturated
+  double sums = 0.0;
+  double ztot = 0.0;
 
-  while (currl!=NULL) {
+  while (currl != NULL) {
     if(!currl->isRock) {
       dz = currl->dz;
-      ztot +=dz;
+      ztot += dz;
       por = currl->poro;
       thetai = currl->getVolIce();
       thetai = fmin(por, thetai);
       thetal = currl->getVolLiq();
-      thetal = fmin(por-thetai, thetal);
-      s= thetal/(por-thetai);
-
+      thetal = fmin( por - thetai, thetal );
+      if (por-thetai < 0.00000000001) {
+        s = thetal /  0.00000000001;
+      } else {
+      s = thetal / (por - thetai); // FIX THIS: potential divide by zero error
+                                   // Does not seem to propogate NaN via the
+                                   // return value?
+      }
       if (bottomsat) {    //if bottom-layer saturated
-        if (s>0.999) {   //
+        if (s > 0.999) {   //
           sums = ztot;
         } else {
           bottomsat = false;
-          sums+=(fmax(0., s-0.6))/(1.0-0.6)*dz;
-          //if over 0.6 saturation, let the lower porition be part of
+          sums += fmax(0.0, s-0.6) / (1.0-0.6)*dz;
+          // if over 0.6 saturation, let the lower portion be part of
           // below water table. this is arbitrary, but useful if the
           // deeper layer is thick (1 or 2 m)
         }
@@ -656,12 +661,12 @@ double Soil_Env::getWaterTable(Layer* lstsoill) {
       }
     }
 
-    currl=currl->prevl;
+    currl = currl->prevl;
   }
 
   wtd = ztot - sums;  //the water table is measured from ground surface
   return wtd;
-};
+}
 
 //
 double Soil_Env::getRunoff(Layer* toplayer, Layer* drainl,
@@ -802,8 +807,12 @@ void Soil_Env::retrieveDailyTM(Layer* toplayer, Layer *lstsoill) {
       ed->d_soid.iwc[soilind]= curr2->getVolIce();
       ed->d_soid.lwc[soilind]= curr2->getVolLiq();
       ed->d_soid.sws[soilind]= curr2->getVolLiq()/curr2->poro;
-      ed->d_soid.aws[soilind]= curr2->getVolLiq()
-                               / (curr2->poro-curr2->getVolIce());
+      if (curr2->poro-curr2->getVolIce() < 0.00000000000001) {
+        ed->d_soid.aws[soilind]          = 0.00000000000001;
+      } else {
+        ed->d_soid.aws[soilind]= curr2->getVolLiq()
+                                 / (curr2->poro-curr2->getVolIce());  // FIX THIS: divide by zero when poro == getVolIce()!
+      }
       ed->d_soid.tcond[soilind] = curr2->tcond;
       ed->d_soid.hcond[soilind] = curr2->hcond;
       // some cumulative variables for whole soil column

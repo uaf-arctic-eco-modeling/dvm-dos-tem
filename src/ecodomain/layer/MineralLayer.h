@@ -13,7 +13,7 @@ class MineralLayer: public SoilLayer {
 public:
 
   MineralLayer(const double & pdz, int sttype , SoilLookup * soillup);
-
+  ~MineralLayer();
   double getDryThermCond(const double & bulkden);
   double getDryThermCond(const double & tcsolid,
                          const double & bulkden,

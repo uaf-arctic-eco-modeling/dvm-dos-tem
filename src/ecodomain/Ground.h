@@ -37,6 +37,8 @@ public :
   Ground();
   ~Ground();
 
+  std::string layer_report_string();
+
   // A ground (snow-soil<moss-peat-mineral>-soilparent column has the following
   //   5 types of horizons, each of which has a number of layers defined below
   Snow snow;
@@ -95,9 +97,8 @@ public :
   void initParameter();
   void initDimension();
   void initLayerStructure(snwstate_dim * snowdim, soistate_dim * soildim);
-  void initLayerStructure5restart(snwstate_dim * snowdim,
-                                  soistate_dim * soildim, RestartData * resin);
-
+  void set_state_from_restartdata(snwstate_dim *snowdim, soistate_dim *soildim,
+                             const RestartData & rdata);
   void resortGroundLayers();
 
   // snow layers

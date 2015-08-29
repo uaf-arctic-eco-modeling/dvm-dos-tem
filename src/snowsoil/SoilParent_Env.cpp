@@ -25,11 +25,11 @@ void SoilParent_Env::initializeState() {
   }
 };
 
-void SoilParent_Env::initializeState5restart(RestartData * resin) {
+void SoilParent_Env::set_state_from_restartdata(const RestartData & rdata) {
   double TSrock[MAX_ROC_LAY];
 
   for (int i=0; i<MAX_ROC_LAY; i++) {
-    TSrock[i]=resin->TSrock[i];
+    TSrock[i] = rdata.TSrock[i];
   }
 
   Layer* currl = ground->lstminel;

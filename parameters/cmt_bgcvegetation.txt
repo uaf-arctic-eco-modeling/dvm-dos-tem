@@ -1,5 +1,5 @@
 //===========================================================
-CMT00 // Bare/Open Water/Snow and Ice?  ##JUNK VALUES!!!### - (max. 10 PFTs) (BGC) Plant physiological parameters and default initial conditions
+// CMT00 // Bare/Open Water/Snow and Ice?  ##JUNK VALUES!!!### - (max. 10 PFTs) (BGC) Plant physiological parameters and default initial conditions
 //PFT0       PFT1         PFT2         PFT3         PFT4         PFT5         PFT6         PFT7         PFT8         PFT9         // names: comments                  
 400.0        400.0        400.0        400.0        400.0        400.0        400.0        400.0        400.0        400.0        // kc:
 75           75           75           75           75           75           75           75           75           75           // ki:
@@ -35,7 +35,7 @@ CMT00 // Bare/Open Water/Snow and Ice?  ##JUNK VALUES!!!### - (max. 10 PFTs) (BG
 0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          // initdeadc:
 0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          // initdeadn:
 //===========================================================
-CMT01 // Black Spruce Forest ###JUNK VALUES!!!###- (max. 10 PFTs) (BGC) Plant physiological parameters and default initial conditions
+// CMT01 // Black Spruce Forest ###JUNK VALUES!!!###- (max. 10 PFTs) (BGC) Plant physiological parameters and default initial conditions
 //PFT0       PFT1         PFT2         PFT3         PFT4         PFT5         PFT6         PFT7         PFT8         PFT9         // names: comments                  
 400.0        400.0        400.0        400.0        400.0        400.0        400.0        400.0        400.0        400.0        // kc:
 75           75           75           75           75           75           75           75           75           75           // ki:
@@ -71,7 +71,7 @@ CMT01 // Black Spruce Forest ###JUNK VALUES!!!###- (max. 10 PFTs) (BGC) Plant ph
 0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          // initdeadc:
 0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          // initdeadn:
 //===========================================================
-CMT02 // White Spruce Forest ###JUNK VALUES!!!### - (max. 10 PFTs) (BGC) Plant physiological parameters and default initial conditions
+// CMT02 // White Spruce Forest ###JUNK VALUES!!!### - (max. 10 PFTs) (BGC) Plant physiological parameters and default initial conditions
 //PFT0       PFT1         PFT2         PFT3         PFT4         PFT5         PFT6         PFT7         PFT8         PFT9         // names: comments                  
 400.0        400.0        400.0        400.0        400.0        400.0        400.0        400.0        400.0        400.0        // kc:
 75           75           75           75           75           75           75           75           75           75           // ki:
@@ -107,7 +107,7 @@ CMT02 // White Spruce Forest ###JUNK VALUES!!!### - (max. 10 PFTs) (BGC) Plant p
 0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          // initdeadc:
 0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          // initdeadn:
 //===========================================================
-CMT03 // Boreal Deciduous Forest ###JUNK VALUES!!!### - (max. 10 PFTs) (BGC) Plant physiological parameters and default initial conditions
+// CMT03 // Boreal Deciduous Forest ###JUNK VALUES!!!### - (max. 10 PFTs) (BGC) Plant physiological parameters and default initial conditions
 //PFT0       PFT1         PFT2         PFT3         PFT4         PFT5         PFT6         PFT7         PFT8         PFT9         // names: comments                  
 400.0        400.0        400.0        400.0        400.0        400.0        400.0        400.0        400.0        400.0        // kc:
 75           75           75           75           75           75           75           75           75           75           // ki:
@@ -143,7 +143,7 @@ CMT03 // Boreal Deciduous Forest ###JUNK VALUES!!!### - (max. 10 PFTs) (BGC) Pla
 0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          // initdeadc:
 0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          // initdeadn:
 //===========================================================
-CMT04 // Shrub Tundra - (max. 10 PFTs over 1 soil column) (BGC) Plant physiological parameters and default initial conditions
+// CMT04 // Shrub Tundra - (max. 10 PFTs over 1 soil column) (BGC) Plant physiological parameters and default initial conditions
 //Salix      Betula       Decid.       E.green      Sedges       Forbs        Grasses      Lichens      Feather      Misc1.       // names: comments                  
 400.0        400.0        400.0        400.0        400.0        400.0        400.0        400.0        400.0        0.0          // kc:
 75           75           75           75           75           75           75           75           75           0.0          // ki:
@@ -179,7 +179,7 @@ CMT04 // Shrub Tundra - (max. 10 PFTs over 1 soil column) (BGC) Plant physiologi
 0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          // initdeadc:
 0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          // initdeadn:
 //==========================================================
-CMT05 // Tussock Tundra - (max. 10 PFTs) Plant physiological parameters and default initial conditions
+// CMT05 // Tussock Tundra - (max. 10 PFTs) Plant physiological parameters and default initial conditions
 //Betula     Decid.       E.green      Sedges       Forbs        Lichens      Feather.     Sphag.       Misc1.       Misc2.       // names: comments                  
 400.0        400.0        400.0        400.0        400.0        400.0        400.0        400.0        0.0          0.0          // kc:
 75           75           75           75           75           75           75           75           0.0          0.0          // ki:
@@ -215,7 +215,7 @@ CMT05 // Tussock Tundra - (max. 10 PFTs) Plant physiological parameters and defa
 0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          // initdeadc:
 0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          // initdeadn:
 //===========================================================
-CMT06 // Wet Sedge Tundra - (max. 10 PFTs over 1 soil column) Plant physiological parameters and default initial conditions
+// CMT06 // Wet Sedge Tundra - (max. 10 PFTs over 1 soil column) Plant physiological parameters and default initial conditions
 //Decid.     Sedges       Grasses      Forbs        Lichens      Feather      Sphag.       PFT7         PFT8         PFT9         // names: comments                  
 400.0        400.0        400.0        400.0        400.0        400.0        400.0        0.0          0.0          0.0          // kc:
 75           75           75           75           75           75           75           0.0          0.0          0.0          // ki:
@@ -251,7 +251,7 @@ CMT06 // Wet Sedge Tundra - (max. 10 PFTs over 1 soil column) Plant physiologica
 0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          // initdeadc:
 0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          // initdeadn:
 //===========================================================
-CMT07 // Heath Tundra - (max. 10 PFTs over 1 soil column) (BGC) Plant physiological parameters and default initial conditions
+// CMT07 // Heath Tundra - (max. 10 PFTs over 1 soil column) (BGC) Plant physiological parameters and default initial conditions
 //Decid.     E.green      Forbs        Lichens      Grasses      Moss       Misc2.       PFT7         PFT8         PFT9           // names: comments                  
 400.0        400.0        400.0        400.0        400.0        400.0      0.0          0.0          0.0          0.0            // kc:
 75           75           75           75           75           75         0.0          0.0          0.0          0.0            // ki:

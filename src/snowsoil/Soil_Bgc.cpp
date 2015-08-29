@@ -10,9 +10,9 @@
  *
  * Important:
  *   (1) Parameters are read from 'CohortLookup.cpp', and set
- *       to 'bgcpar' (struct:: soipar_bgc)
+ *       to 'bgcpar' (struct::soipar_bgc)
  *   (2) Calibrated Parameters are also read from 'CohortLookup.cpp'
- *       initially, and set to 'calpar' (strut:: soipar_cal)
+ *       initially, and set to 'calpar' (struct::soipar_cal)
  *
  *   (3) The calculation is for ONE community with multple PFT.
  *
@@ -28,8 +28,24 @@
 
 extern src::severity_logger< severity_level > glg;
 
-Soil_Bgc::Soil_Bgc() {
+/** New constructor. Build it complete! Build it right! */
+Soil_Bgc::Soil_Bgc(): nfeed(false), avlnflg(false), baseline(false),
+                      d2wdebrisc(UIN_D), d2wdebrisn(UIN_D),
+                      mossdeathc(UIN_D), mossdeathn(UIN_D), kdshlw(UIN_D),
+                      kddeep(UIN_D), decay(UIN_D), nup(UIN_D), totdzliq(UIN_D),
+                      totdzavln(UIN_D), totnetnmin(UIN_D), totnextract(UIN_D) {
+
+  // all structs are value initialized to -77777
+  
+  for (int i = 0; i < MAX_SOI_LAY; ++i) {
+    ltrflc[i] = UIN_D;
+    ltrfln[i] = UIN_D;
+    rtnextract[i] = UIN_D;
+  }
+
 };
+
+
 
 Soil_Bgc::~Soil_Bgc() {
 };
@@ -159,7 +175,7 @@ void Soil_Bgc::prepareIntegration(const bool &mdnfeedback,
       }
     }
 
-    if(cd->yrsdist<cd->gd->fri) {
+    if(cd->yrsdist < cd->fri) {
       bd->m_a2soi.orgninput = fd->fire_a2soi.orgn/12.;
     }
   }
@@ -213,18 +229,18 @@ void Soil_Bgc::initializeState() {
   }
 };
 
-void Soil_Bgc::initializeState5restart(RestartData* resin) {
+void Soil_Bgc::set_state_from_restartdata(const RestartData & rdata) {
   for (int il =0; il<MAX_SOI_LAY; il++) {
-    bd->m_sois.rawc[il] = resin->rawc[il];
-    bd->m_sois.soma[il] = resin->soma[il];
-    bd->m_sois.sompr[il]= resin->sompr[il];
-    bd->m_sois.somcr[il]= resin->somcr[il];
-    bd->m_sois.orgn[il] = resin->orgn[il];
-    bd->m_sois.avln[il] = resin->avln[il];
+    bd->m_sois.rawc[il] = rdata.rawc[il];
+    bd->m_sois.soma[il] = rdata.soma[il];
+    bd->m_sois.sompr[il]= rdata.sompr[il];
+    bd->m_sois.somcr[il]= rdata.somcr[il];
+    bd->m_sois.orgn[il] = rdata.orgn[il];
+    bd->m_sois.avln[il] = rdata.avln[il];
 
     for(int i=0; i<10; i++) {
       bd->prvltrfcnque[il].clear();
-      double tmpcn = resin->prvltrfcnA[i][il];
+      double tmpcn = rdata.prvltrfcnA[i][il];
 
       if(tmpcn!=MISSING_D) {
         bd->prvltrfcnque[il].push_back(tmpcn);
@@ -232,9 +248,9 @@ void Soil_Bgc::initializeState5restart(RestartData* resin) {
     }
   }
 
-  bd->m_sois.wdebrisc= resin->wdebrisc;
-  bd->m_sois.wdebrisn= resin->wdebrisn;
-  bd->m_sois.dmossc  = resin->dmossc;
+  bd->m_sois.wdebrisc = rdata.wdebrisc;
+  bd->m_sois.wdebrisn = rdata.wdebrisn;
+  bd->m_sois.dmossc   = rdata.dmossc;
   assignCarbonBd2LayerMonthly();
 };
 

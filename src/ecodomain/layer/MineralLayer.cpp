@@ -3,8 +3,12 @@
  */
 #include "MineralLayer.h"
 
+#include "../../TEMLogger.h"
+extern src::severity_logger< severity_level > glg;
+
 MineralLayer::MineralLayer(const double & pdz, int sttype,
                            SoilLookup * soillup) {
+  BOOST_LOG_SEV(glg, debug) << "==> ==> Creating a MineralLayer...";
   tkey  = I_MINE;
   stkey = STKEY(sttype);
   dz    = pdz;
@@ -15,6 +19,9 @@ MineralLayer::MineralLayer(const double & pdz, int sttype,
   isHumic  = false;
   updateProperty5Lookup(soillup);
 };
+MineralLayer::~MineralLayer() {
+  BOOST_LOG_SEV(glg, debug) << "--> --> Deleting a MineraLayer object...";
+}
 
 void MineralLayer::updateProperty5Lookup(SoilLookup * soillu) {
   poro    = soillu->poro[stkey];

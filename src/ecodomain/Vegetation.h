@@ -7,6 +7,8 @@
 #include "../data/CohortData.h"
 #include "../data/RestartData.h"
 
+#include "../runmodule/ModelData.h"
+
 #include "../inc/errorcode.h"
 #include "../inc/parameters.h"
 
@@ -15,6 +17,10 @@
 class Vegetation {
 public:
   Vegetation();
+  
+  /** */
+  Vegetation(int cmtnum, const ModelData* mdp);
+
   ~Vegetation();
 
   vegpar_dim vegdimpar;
@@ -23,7 +29,8 @@ public:
 
   void initializeParameter();
   void initializeState();
-  void initializeState5restart(RestartData *resin);
+
+  void set_state_from_restartdata(const RestartData & rd);
 
   void updateLai(const int & currmind);
   void updateFpc();
