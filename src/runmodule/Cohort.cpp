@@ -63,16 +63,17 @@ Cohort::Cohort(int y, int x, ModelData* modeldatapointer):
   // Maybe:
   //this->hist_climate = Climate(modeldatapointer->hist_climate, y, x);
   //this->proj_climate = Climate(modeldatapointer->proj_climate, y, x);
-  this->climate = Climate(modeldatapointer->hist_climate_file, y, x);
+  this->climate = Climate(modeldatapointer->hist_climate_file, modeldatapointer->co2_file, y, x);
+
 
   this->soilenv = Soil_Env();
   
   // this seems to set a lot of pointers...
   // THis might need to be the last step in creating a cohort...
   // after all the other components are ready...
-  this->initSubmodules();
+  this->initialize_internal_pointers();
   
-  // using initSubmodules should obviate the need for this:
+  // using initialize_internal_pointers() should obviate the need for this:
   // hack...
   //CohortData* cdp = &(this->cd);
   this->veg.setCohortData( &(this->cd) );
@@ -121,7 +122,10 @@ Cohort::~Cohort() {
 };
 
 // initialization of pointers used in modules called here
-void Cohort::initSubmodules() {
+void Cohort::initialize_internal_pointers() {
+
+  // FIX: what if edall, bdall and fd are all NULL at this point!!!
+  //      ?? This may not be a problem...they seem to get re-pointed later...
 
   // ecosystem domain
   veg.setCohortData(&cd);
@@ -209,7 +213,7 @@ void Cohort::setProcessData(EnvData * alledp, BgcData * allbdp, FirData *fdp) {
 
 //re-initializing for a new community of all PFTs sharing same
 //  atm/snow-soil domains within a grid
-void Cohort::initStatePar() {
+void Cohort::initialize_state_parameters() {
 
   // 7/10/2015 EXPERIMENT. Seems to help with soil temperature, but TDeep still comes out nan
   edall->update_from_climate(this->climate, 0, 0);
@@ -217,21 +221,8 @@ void Cohort::initStatePar() {
     this->ed[ipft].update_from_climate(this->climate, 0, 0);
   }
 
-
-  //
-  if (md->initmode>=3) {
-    cd.yrsdist = resid.yrsdist;
-  }
-
-  // FOR VEGETATION
-  //vegetation dimension/structure
-  veg.initializeParameter(); // set values from chtlu...
-
-  if(md->initmode<3) {     // from 'chtlu' or 'sitein'
-    veg.initializeState(); // <==== mostly set values from chtlu...
-  } else {     // initmode  >=3: restart
-    veg.initializeState5restart(&resid);
-  }
+  veg.initializeState();      // <==== mostly set values from chtlu...
+  veg.initializeParameter();  // <==== mostly set values from chtlu...
 
   // pft needs to be initialized individually for 'envmodule' and 'bgcmodule'
   for (int ip=0; ip<NUM_PFT; ip++) {
@@ -241,13 +232,8 @@ void Cohort::initStatePar() {
     vegenv[ip].initializeParameter();
     vegbgc[ip].initializeParameter();
 
-    if(md->initmode<3) {
-      vegbgc[ip].initializeState();
-      vegenv[ip].initializeState();
-    } else {
-      vegbgc[ip].initializeState5restart(&resid);
-      vegenv[ip].initializeState5restart(&resid);
-    }
+    vegbgc[ip].initializeState();
+    vegenv[ip].initializeState();
   }
 
   // initialize dimension/structure for snow-soil
@@ -258,95 +244,69 @@ void Cohort::initStatePar() {
   soilenv.initializeParameter();
   soilbgc.initializeParameter();
 
-  if(md->initmode < 3) {   //lookup or sitein
-    ground.initDimension();   //read-in snow/soil structure from 'chtlu', does not appear to touch Layer objects...?
+  ground.initDimension();   //read-in snow/soil structure from 'chtlu', does not appear to touch Layer objects...?
 
-    // reset the soil texture data from grid-level soil.nc, rather than 'chtlu',
-    // Note that the mineral layer structure is already defined above
-//    if (md->runmode.compare("multi") == 0) {
-//      float z = 0;
-//
-//      for (int i = 0; i < ground.mineral.num; i++) {
-//        z += ground.mineral.dz[i];
-//
-//        if (z <= 0.30) {   //assuming the grid top-soil texture is for top 30 cm
-//          BOOST_LOG_SEV(glg, err) << "NOT IMPLEMENTED YET!!! Setting mineral texture...";
-//          //ground.mineral.texture[i] = gd->topsoil;
-//        } else {
-//          BOOST_LOG_SEV(glg, err) << "NOT IMPLEMENTED YET!!! Setting mineral texture...";
-//          //ground.mineral.texture[i] = gd->botsoil;
-//        }
-//      }
-//    }
+  // FIX THIS!
+  // reset the soil texture data from grid-level soil.nc, rather than 'chtlu',
+  // Note that the mineral layer structure is already defined above
+  //if (md->runmode.compare("multi") == 0) {
+  //  float z = 0;
+  //
+  //  for (int i = 0; i < ground.mineral.num; i++) {
+  //    z += ground.mineral.dz[i];
+  //
+  //    if (z <= 0.30) {   //assuming the grid top-soil texture is for top 30 cm
+  //      BOOST_LOG_SEV(glg, err) << "NOT IMPLEMENTED YET!!! Setting mineral texture...";
+  //      //ground.mineral.texture[i] = gd->topsoil;
+  //    } else {
+  //      BOOST_LOG_SEV(glg, err) << "NOT IMPLEMENTED YET!!! Setting mineral texture...";
+  //      //ground.mineral.texture[i] = gd->botsoil;
+  //    }
+  //  }
+  //}
 
-    //then if we have sitein.nc, as specified. In this way, if sitein.nc may
-    //  not provide all data, then model will still be able to use the default.
-    if(md->initmode == 2) { //from sitein.nc specified as md->initialfile
-//        setSiteStates(&sitein);
-    }
 
-    // set-up the snow-soil-soilparent structure
-    //snow updated daily, while soil dimension at monthly
-    BOOST_LOG_SEV(glg, debug) << "RIGHT BEFORE Ground initLayerStructure()" << ground.layer_report_string();
-    ground.initLayerStructure(&cd.d_snow, &cd.m_soil);
-    BOOST_LOG_SEV(glg, debug) << "RIGHT AFTER Ground initLayerStructure()" << ground.layer_report_string();
+  // set-up the snow-soil-soilparent structure
+  //snow updated daily, while soil dimension at monthly
+  ground.initLayerStructure(&cd.d_snow, &cd.m_soil);
 
-    cd.d_soil = cd.m_soil;
+  cd.d_soil = cd.m_soil;
 
-    //initializing snow/soil/soilparent env state
-    //  conditions after layerStructure done
-    snowenv.initializeNewSnowState(); //Note: ONE initial snow layer as new snow
-    BOOST_LOG_SEV(glg, debug) << "RIGHT AFTER snowenv.initNewSnowState()" << ground.layer_report_string();
+  //initializing snow/soil/soilparent env state
+  //  conditions after layerStructure done
+  snowenv.initializeNewSnowState(); //Note: ONE initial snow layer as new snow
 
-    soilenv.initializeState();
-    BOOST_LOG_SEV(glg, debug) << "RIGHT AFTER soilenv.initializeState()" << ground.layer_report_string();
+  soilenv.initializeState();
 
-    solprntenv.initializeState();
-    BOOST_LOG_SEV(glg, debug) << "RIGHT AFTER solprntenv.initializeState()" << ground.layer_report_string();
+  solprntenv.initializeState();
 
-    // initializing soil bgc state conditions
-    soilbgc.initializeState();
-    BOOST_LOG_SEV(glg, debug) << "RIGHT AFTER Ground soilbgc.initializeState()" << ground.layer_report_string();
-
-  } else {    // initmode>=3: restart
-    // set-up the snow-soil structure from restart data
-    //snow updated daily, while soil dimension at monthly
-    ground.initLayerStructure5restart(&cd.d_snow, &cd.m_soil, &resid);
-    cd.d_soil = cd.m_soil;
-    // initializing snow/soil env state conditions from restart data
-    snowenv.initializeState5restart(&resid);
-    soilenv.initializeState5restart(&resid);
-    solprntenv.initializeState5restart(&resid);
-    // initializing soil bgc state conditions from restart data
-    soilbgc.initializeState5restart(&resid);
-  }
+  // initializing soil bgc state conditions
+  soilbgc.initializeState();
 
   //integrating the individual 'bd' initial conditions into
   //  'bdall' initial conditions, if veg involved
   getBd4allveg_monthly();
+
   // fire processes
   fd->init();
 
-  if(md->initmode<3) {
-    fire.initializeState();
-  } else {
-    fire.initializeState5restart(&resid);
-  }
+  fire.initializeState();
 
   fire.initializeParameter();
   
   BOOST_LOG_SEV(glg, debug) << "Done with Cohort::initStatepar()!  " << ground.layer_report_string();
+}
 
-};
-
-void Cohort::prepareAllDrivingData() {
-  // climate monthly data for all atm years
-
-  //fire driving data (if input) for all years
-  if (!md->get_friderived() && !md->runeq) {
-    fire.prepareDrivingData();
-  }
-};
+//void Cohort::prepareAllDrivingData() {
+//
+//  // FIX: as of 8/13/2015, this function is never being called...
+//  // climate monthly data for all atm years
+//
+//  //fire driving data (if input) for all years
+//  if (!md->get_friderived() && !md->runeq) {
+//    fire.prepareDrivingData();
+//  }
+//};
 
 // climate daily data for one year
 void Cohort::prepareDayDrivingData(const int & yrindx, const int & usedatmyr) {
@@ -401,6 +361,8 @@ void Cohort::updateMonthly(const int & yrcnt, const int & currmind,
   
     BOOST_LOG_SEV(glg, debug) << "RIGHT BEFORE updateMonthlyEnv()" << ground.layer_report_string();
 
+
+    // FIX: definitely a problem in here that is Making soil temperatures get ridiculously low -19 billion
   
     BOOST_LOG_SEV(glg, debug) << "Run the environmental module - updates water/thermal processes to get (bio)physical conditions.";
     updateMonthly_Env(currmind, dinmcurr);
@@ -432,6 +394,8 @@ void Cohort::updateMonthly(const int & yrcnt, const int & currmind,
     cd.endOfYear();
   }
 
+  BOOST_LOG_SEV(glg, debug) << "Synchronize the RestartData object with the model's state...";
+  this->set_restartdata_from_state();
   BOOST_LOG_SEV(glg, debug) << "TODO: ouput some data!";
 //  if (md->outRegn) {
 //    BOOST_LOG_SEV(glg, debug) << "Output all data for multiple cohorts.";
@@ -1229,6 +1193,187 @@ void Cohort::getBd4allveg_monthly() {
     }
   }
 }
+
+
+/** Syncronizes Cohort and CohortData's internal fields from the RestartData
+ * object...Maybe Cohort should not own the RestartData object?
+*/
+void Cohort::set_state_from_restartdata() {
+  BOOST_LOG_SEV(glg, note) << "Updating this Cohort and CohortData object with "
+                           << "values from the RestartData object...";
+
+  veg.set_state_from_restartdata(this->restartdata);
+  solprntenv.set_state_from_restartdata(this->restartdata);
+  fire.set_state_from_restartdata(this->restartdata);
+  snowenv.set_state_from_restartdata(this->restartdata);
+  soilenv.set_state_from_restartdata(this->restartdata);
+  soilbgc.set_state_from_restartdata(this->restartdata);
+
+  // FIX: vegbgc and vegenv are arrays...need to call this for each element in
+  //      array????
+  //  vegbgc.set_state_from_restartdata(this->restartdata);
+  //  vegenv.set_state_from_restartdata(this->restartdata);
+
+  //  FIX: how to handle ground?? and snwstate_dim?? Looks like it is
+  //  used for both m_snow and d_snow and y_snow??? which to update???
+  // add more here....
+
+}
+
+
+/** Syncronizes Cohort's RestartData object from fields of Cohort and
+* CohortData. The RestartData object should have methods for serializing
+* or otherwise packaging the data for archiving or communication with another
+* process.
+*/
+void Cohort::set_restartdata_from_state() {
+  BOOST_LOG_SEV(glg, note) << "Updating this Cohort's restartdata member with "
+                           << "values from the model's state (various fields of "
+                           << " Cohort and CohortData).";
+
+  // clear the restartdata object
+  restartdata.reinitValue();
+  
+  restartdata.chtid = cd.chtid;  // deprecate?
+
+  // atm
+  restartdata.dsr                = edall->d_atms.dsr;
+  restartdata.firea2sorgn        = fd->fire_a2soi.orgn; // to re-deposit fire-emitted N in one FRI
+
+  // vegegetation
+  restartdata.yrsdist     = cd.yrsdist;
+
+  for (int ip = 0; ip < NUM_PFT; ip++) {
+    if (cd.m_veg.vegcov[ip] > 0.0) {
+      restartdata.ifwoody[ip]    = cd.m_veg.ifwoody[ip];
+      restartdata.ifdeciwoody[ip]= cd.m_veg.ifdeciwoody[ip];
+      restartdata.ifperenial[ip] = cd.m_veg.ifperenial[ip];
+      restartdata.nonvascular[ip]= cd.m_veg.nonvascular[ip];
+      restartdata.vegage[ip]     = cd.m_veg.vegage[ip];
+      restartdata.vegcov[ip]     = cd.m_veg.vegcov[ip];
+      restartdata.lai[ip]        = cd.m_veg.lai[ip];
+
+      for (int i = 0; i < MAX_ROT_LAY; i++) {
+        restartdata.rootfrac[i][ip] = cd.m_veg.frootfrac[i][ip];
+      }
+
+      restartdata.vegwater[ip] = ed[ip].m_vegs.rwater; //canopy water - 'vegs_env'
+      restartdata.vegsnow[ip]  = ed[ip].m_vegs.snow;   //canopy snow  - 'vegs_env'
+
+      for (int i = 0; i < NUM_PFT_PART; i++) {
+        restartdata.vegc[i][ip] = bd[ip].m_vegs.c[i];  // - 'vegs_bgc'
+        restartdata.strn[i][ip] = bd[ip].m_vegs.strn[i];
+      }
+
+      restartdata.labn[ip]         = bd[ip].m_vegs.labn;
+      restartdata.deadc[ip]        = bd[ip].m_vegs.deadc;
+      restartdata.deadn[ip]        = bd[ip].m_vegs.deadn;
+      restartdata.eetmx[ip]        = cd.m_vegd.eetmx[ip];
+      restartdata.topt[ip]         = cd.m_vegd.topt[ip];
+      restartdata.unnormleafmx[ip] = cd.m_vegd.unnormleafmx[ip];
+      restartdata.growingttime[ip] = cd.m_vegd.growingttime[ip];
+
+      // this is for f(foliage) in GPP to be sure f(foliage) not going down
+      restartdata.foliagemx[ip] = cd.m_vegd.foliagemx[ip];
+
+      deque<double> tmpdeque1 = cd.toptque[ip];
+      int recnum = tmpdeque1.size();
+
+      for (int i=0; i<recnum; i++) {
+        restartdata.toptA[i][ip] = tmpdeque1[i];
+      }
+
+      deque<double> tmpdeque2 = cd.prvunnormleafmxque[ip];
+      recnum = tmpdeque2.size();
+
+      for (int i=0; i<recnum; i++) {
+        restartdata.unnormleafmxA[i][ip] = tmpdeque2[i];
+      }
+
+      deque<double> tmpdeque3 = cd.prvgrowingttimeque[ip];
+      recnum = tmpdeque3.size();
+
+      for (int i=0; i<recnum; i++) {
+        restartdata.growingttimeA[i][ip]= tmpdeque3[i];
+      }
+
+      deque<double> tmpdeque4 = cd.prveetmxque[ip];
+      recnum = tmpdeque4.size();
+
+      for (int i=0; i<recnum; i++) {
+        restartdata.eetmxA[i][ip]= tmpdeque4[i];
+      }
+    } // end of 'if vegcov>0'
+  } // end of 'for ip loop'
+
+  // snow - 'restart' from the last point, so be the daily for
+  //  'cd' and 'ed', but monthly for 'bd'
+  restartdata.numsnwl = cd.d_snow.numsnwl;
+  restartdata.snwextramass = cd.d_snow.extramass;
+
+  for(int il =0; il<cd.d_snow.numsnwl; il++) {
+    restartdata.DZsnow[il]  = cd.d_snow.dz[il];
+    restartdata.AGEsnow[il] = cd.d_snow.age[il];
+    restartdata.RHOsnow[il] = cd.d_snow.rho[il];
+
+    // NOTE: for all PFT, ground 'ed' is same, BE sure that is done
+    restartdata.TSsnow[il]  = edall->d_snws.tsnw[il];
+
+    restartdata.LIQsnow[il] = edall->d_snws.snwliq[il];
+    restartdata.ICEsnow[il] = edall->d_snws.snwice[il];
+  }
+
+  // ground-soil
+  restartdata.numsl  = cd.d_soil.numsl;     // actual number of soil layers
+  restartdata.monthsfrozen   = edall->monthsfrozen;
+  restartdata.rtfrozendays   = edall->rtfrozendays;
+  restartdata.rtunfrozendays = edall->rtunfrozendays;
+  restartdata.watertab   = edall->d_sois.watertab;
+
+  for(int il =0; il<cd.d_soil.numsl; il++) {
+    restartdata.DZsoil[il]   = cd.d_soil.dz[il];
+    restartdata.AGEsoil[il]  = cd.d_soil.age[il];
+    restartdata.TYPEsoil[il] = cd.d_soil.type[il];
+    restartdata.TEXTUREsoil[il]= cd.d_soil.texture[il];
+    restartdata.TSsoil[il]    = edall->d_sois.ts[il];
+    restartdata.LIQsoil[il]   = edall->d_sois.liq[il];
+    restartdata.ICEsoil[il]   = edall->d_sois.ice[il];
+    restartdata.FROZENsoil[il]= edall->d_sois.frozen[il];
+    restartdata.FROZENFRACsoil[il]= edall->d_sois.frozenfrac[il];
+  }
+
+  for(int il =0; il<MAX_ROC_LAY; il++) {
+    restartdata.TSrock[il] = edall->d_sois.trock[il];
+    restartdata.DZrock[il] = ROCKTHICK[il];
+  }
+
+  for(int il =0; il<MAX_NUM_FNT; il++) {
+    restartdata.frontZ[il]  = edall->d_sois.frontsz[il];
+    restartdata.frontFT[il] = edall->d_sois.frontstype[il];
+  }
+
+  //
+  restartdata.wdebrisc = bdall->m_sois.wdebrisc;
+  restartdata.wdebrisn = bdall->m_sois.wdebrisn;
+  restartdata.dmossc = bdall->m_sois.dmossc;
+  restartdata.dmossn = bdall->m_sois.dmossn;
+
+  for(int il =0; il<cd.m_soil.numsl; il++) {
+    restartdata.rawc[il]  = bdall->m_sois.rawc[il];
+    restartdata.soma[il]  = bdall->m_sois.soma[il];
+    restartdata.sompr[il] = bdall->m_sois.sompr[il];
+    restartdata.somcr[il] = bdall->m_sois.somcr[il];
+    restartdata.orgn[il] = bdall->m_sois.orgn[il];
+    restartdata.avln[il] = bdall->m_sois.avln[il];
+    deque<double> tmpdeque = bdall->prvltrfcnque[il];
+    int recnum = tmpdeque.size();
+
+    for (int i=0; i<recnum; i++) {
+      restartdata.prvltrfcnA[i][il]= tmpdeque[i];
+    }
+  }
+}
+
 
 
 

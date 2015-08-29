@@ -50,12 +50,26 @@ Runner::~Runner() {
 
 void Runner::run_years(int start_year, int end_year, const std::string& stage) {
 
+  // Experiment - place for daily debugging output...
+  boost::filesystem::path folder("/tmp/debug-dvmdostem/");
+
+  if( !(boost::filesystem::exists(folder)) ) {
+    BOOST_LOG_SEV(glg, info) << "Creating folder: " << folder;
+    boost::filesystem::create_directory(folder);
+  } else {
+    BOOST_LOG_SEV(glg, info) << "'" << folder << "'" << "already exists; delete and recreate!";
+    boost::filesystem::remove_all(folder);
+    boost::filesystem::create_directory(folder);
+  }
+
   /** YEAR TIMESTEP LOOP */
   for (int iy = start_year; iy < end_year; ++iy) {
     BOOST_LOG_SEV(glg, debug) << "(Begining of year loop) " << cohort.ground.layer_report_string();
 
     /* Interpolate all the monthly values...? */
     this->cohort.climate.prepare_daily_driving_data(iy, stage);
+
+    this->output_debug_daily_drivers(iy);
 
     if (this->calcontroller_ptr) { // should be null unless we are in "calibration mode"
 
@@ -71,6 +85,8 @@ void Runner::run_years(int start_year, int end_year, const std::string& stage) {
 
     /** MONTH TIMESTEP LOOP */
     for (int im = 0; im < 12; ++im) {
+
+      BOOST_LOG_SEV(glg, debug) << "(Begining of month loop) " << cohort.ground.layer_report_string();
 
       this->cohort.updateMonthly(iy, im, DINM[im]);
 
@@ -320,4 +336,27 @@ void Runner::output_caljson_yearly(int year) {
 
 }
 
+void Runner::output_debug_daily_drivers(int iy) {
+
+  std::stringstream filename;
+  filename.fill('0');
+  filename << "/tmp/debug-dvmdostem/year_" << std::setw(5) << iy << "_daily_drivers.text";
+
+  std::ofstream out_stream;
+  out_stream.open(filename.str().c_str(), std::ofstream::out);
+
+  out_stream << "tair_d = [" << temutil::vec2csv(cohort.climate.tair_d) << "]" << std::endl;
+  out_stream << "nirr_d = [" << temutil::vec2csv(cohort.climate.nirr_d) << "]" << std::endl;
+  out_stream << "vapo_d = [" << temutil::vec2csv(cohort.climate.vapo_d) << "]" << std::endl;
+  out_stream << "prec_d = [" << temutil::vec2csv(cohort.climate.prec_d) << "]" << std::endl;
+  out_stream << "rain_d = [" << temutil::vec2csv(cohort.climate.rain_d) << "]" << std::endl;
+  out_stream << "snow_d = [" << temutil::vec2csv(cohort.climate.snow_d) << "]" << std::endl;
+  out_stream << "svp_d = [" << temutil::vec2csv(cohort.climate.svp_d) << "]" << std::endl;
+  out_stream << "vpd_d = [" << temutil::vec2csv(cohort.climate.vpd_d) << "]" << std::endl;
+  out_stream << "girr_d = [" << temutil::vec2csv(cohort.climate.girr_d) << "]" << std::endl;
+  out_stream << "cld_d = [" << temutil::vec2csv(cohort.climate.cld_d) << "]" << std::endl;
+  out_stream << "par_d = [" << temutil::vec2csv(cohort.climate.par_d) << "]" << std::endl;
+
+  out_stream.close();
+}
 

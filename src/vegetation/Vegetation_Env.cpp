@@ -52,9 +52,9 @@ void Vegetation_Env::initializeState() {
   ed->d_vegs.snow   = chtlu->initvegsnow[ipft];
 };
 
-void Vegetation_Env::initializeState5restart(RestartData* resin) {
-  ed->d_vegs.rwater = resin->vegwater[ipft];
-  ed->d_vegs.snow   = resin->vegsnow[ipft];
+void Vegetation_Env::set_state_from_restartdata(const RestartData & rdata) {
+  ed->d_vegs.rwater = rdata.vegwater[ipft];
+  ed->d_vegs.snow   = rdata.vegsnow[ipft];
 };
 
 //solar radiation (unit: W/m2) on canopy and its energy balance

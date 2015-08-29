@@ -29,7 +29,7 @@ public:
 
   void initializeParameter();
   void initializeState();
-  void initializeState5restart(RestartData* resin);
+  void set_state_from_restartdata(const RestartData & rdata);
 
   void updateRadiation(double leaf_area_index, double foliar_projected_cover);
   void updateWaterBalance(const double &daylhr, double leaf_area_index, double foliar_projected_cover);

@@ -159,13 +159,77 @@ namespace temutil {
     BOOST_LOG_SEV(glg, debug) << "Parsing successful?: " << parsingSuccessful;
 
     if ( !parsingSuccessful ) {
-        BOOST_LOG_SEV(glg, fatal) << "Failed to parse configuration file! "
-                                  << reader.getFormatedErrorMessages();
+        BOOST_LOG_SEV(glg, fatal) << "Failed to parse configuration file: " << filepath;
+        BOOST_LOG_SEV(glg, fatal) << reader.getFormatedErrorMessages();
         exit(-1);
     }
 
     return root;
   }
+
+
+
+  /** Opens a netcdf file and collects a bunch of info into a string for printing.
+  */
+  std::string report_on_netcdf_file(const std::string& fname, const std::string& varname) {
+
+    std::stringstream ss;
+
+    int ncid;
+    temutil::nc( nc_open(fname.c_str(), NC_NOWRITE, &ncid) );
+
+    // lookup variable by name
+    int vid;
+    temutil::nc( nc_inq_varid(ncid, varname.c_str(), &vid) );
+
+    // stuff to report
+    nc_type v_type;                      /* variable type */
+    int v_ndims;                         /* number of dims */
+    int v_dimids[NC_MAX_VAR_DIMS];       /* dimension IDs */
+    int v_natts;                         /* number of attributes */
+
+    temutil::nc( nc_inq_var (ncid, vid, 0 /*NC_MAX_NAME*/, &v_type,
+                             &v_ndims, v_dimids, &v_natts ) );
+
+    temutil::nc( nc_close(ncid) );
+
+    ss << "varname: " << varname.c_str()
+       << " id: " << vid
+       << " type: " << v_type      // crude - prints number
+       << " ndims: " << v_ndims
+       << " dimids: " << v_dimids  // crude - prints address
+       << " natts: " << v_natts;
+
+    return ss.str();
+
+  }
+
+  /** Opens a netcdf file, assumed to be setup for dvmdostem, and reports y,x
+  * dimension lengths.
+  */
+  std::string report_yx_pixel_dims2str(const std::string& fname) {
+
+    std::stringstream ss;
+
+    int ncid;
+    temutil::nc( nc_open(fname.c_str(), NC_NOWRITE, &ncid) );
+
+    int xD, yD;
+    size_t xD_len, yD_len;
+
+    temutil::nc( nc_inq_dimid(ncid, "X", &xD) );
+    temutil::nc( nc_inq_dimlen(ncid, xD, &xD_len) );
+
+    temutil::nc( nc_inq_dimid(ncid, "Y", &yD) );
+    temutil::nc( nc_inq_dimlen(ncid, yD, &yD_len) );
+
+    temutil::nc( nc_close(ncid) );
+
+    ss << "Y len: " << yD_len << " X len: " << xD_len << " (" << fname << ")";
+
+    return ss.str();
+  }
+
 
   /** Opens a netcdf file for reading, returns NcFile object.
   * 

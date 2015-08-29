@@ -3,6 +3,7 @@
 
 from subprocess import call
 from subprocess import check_call
+import subprocess
 
 import argparse
 import textwrap
@@ -27,85 +28,6 @@ from osgeo import gdal
 
 
 #(0,0) pixel is hardcoded to the exact values from Toolik for testing.
-
-
-def make_fire_dataset(fname, sizey=10, sizex=10):
-  '''Generate a file representing fire information'''
-
-  print "Creating a fire classification file, %s by %s pixels." % (sizey, sizex)
-  ncfile = netCDF4.Dataset(fname, mode='w', format='NETCDF4')
-
-  Y = ncfile.createDimension('Y', sizey)
-  X = ncfile.createDimension('X', sizex)
-  fri = ncfile.createVariable('fri', np.int, ('Y','X',))
-  fire_year_vector = ncfile.createVLType(np.int, 'fire_year_vector')
-  fire_years = ncfile.createVariable('fire_years', fire_year_vector, ('Y','X'))
-  fire_sizes = ncfile.createVariable('fire_sizes', fire_year_vector, ('Y','X'))
-
-  print " --> NOTE: Filling FRI with random data!"
-  fri[:] = np.random.uniform(low=1, high=7, size=(sizey, sizex))
-
-  print " --> NOTE: Setting FRI for pixel 0,0 to 1000!"
-  fri[0,0] = 1000
-
-  print " --> NOTE: Filling the fire_year and fire_sizes with random data!"
-  yr_data = np.empty(sizey * sizex, object)
-  sz_data = np.empty(sizey * sizex, object)
-  for n in range(sizey * sizex):
-    yr_data[n] = np.array(sorted(np.random.randint(1900, 2006, np.random.randint(0,10,1))), dtype=np.int)
-    sz_data[n] = np.random.randint(0,100,len(yr_data[n]))
-    #numpy.arange(random.randint(1,10),dtype='int32')+1
-    
-  yr_data = np.reshape(yr_data,(sizey,sizex))
-  sz_data = np.reshape(sz_data,(sizey,sizex))
-
-  print " --> NOTE: Check on a few pixels?"
-  print "  (0,0)", yr_data[0,0], "-->", sz_data[0,0]
-#  print "  (0,1)", yr_data[0,1], "-->", sz_data[0,1]
-#  print "  (9,9)", yr_data[9,9], "-->", sz_data[9,9]
-
-  fire_years[:] = yr_data
-  fire_sizes[:] = sz_data
-
-  ncfile.close()   
-
-
-def make_veg_classification(fname, sizey=10, sizex=10):
-  '''Generate a file representing veg classification.'''
-
-  print "Creating a vegetation classification file, %s by %s pixels." % (sizey, sizex)
-  ncfile = netCDF4.Dataset(fname, mode='w', format='NETCDF4')
-
-  Y = ncfile.createDimension('Y', sizey)
-  X = ncfile.createDimension('X', sizex)
-  veg_class = ncfile.createVariable('veg_class', np.int, ('Y', 'X',))
-
-  print " --> NOTE: Filling with random data!"
-  veg_class[:] = np.random.uniform(low=1, high=7, size=(sizey,sizex))
-
-  print " --> NOTE: Setting pixel 0,0 to 4"
-  veg_class[0,0] = 4
-    
-  ncfile.close()
-
-
-def make_drainage_classification(fname, sizey=10, sizex=10):
-  '''Generate a file representing drainage classification.'''
-  print "Creating a drainage classification file, %s by %s pixels." % (sizey, sizex)
-  ncfile = netCDF4.Dataset(fname, mode='w', format='NETCDF4')
-
-  Y = ncfile.createDimension('Y', sizey)
-  X = ncfile.createDimension('X', sizex)
-  drainage_class = ncfile.createVariable('drainage_class', np.int, ('Y', 'X',))
-
-  print " --> NOTE: Filling with random data!"
-  drainage_class[:] = np.random.uniform(low=1, high=7, size=(sizey, sizex))
-
-  print " --> NOTE: Setting 0,0 pixel to zero!"
-  drainage_class[0,0] = 0
-
-  ncfile.close()
-
 
 def make_run_mask(filename, sizey=10, sizex=10):
   '''Generate a file representing the run mask'''
@@ -170,7 +92,88 @@ def make_co2_file(filename):
   new_ncfile.close()
 
 
-def create_empty_climate_nc_file(filename, sizey=10, sizex=10):
+def create_template_drainage_class_file(fname, sizey=10, sizex=10, rand=None):
+  '''Generate a file representing drainage classification.'''
+  print "Creating a drainage classification file, %s by %s pixels. (%s)" % (sizey, sizex, os.path.basename(fname))
+  ncfile = netCDF4.Dataset(fname, mode='w', format='NETCDF4')
+
+  Y = ncfile.createDimension('Y', sizey)
+  X = ncfile.createDimension('X', sizex)
+  drainage_class = ncfile.createVariable('drainage_class', np.int, ('Y', 'X',))
+
+  if rand:
+    print " --> NOTE: Filling with random data!"
+    drainage_class[:] = np.random.randint(low=0, high=2, size=(sizey, sizex))
+
+    print " --> NOTE: Setting 0,0 pixel to 1! (poorly drained?)"
+    drainage_class[0,0] = 1
+
+  ncfile.close()
+
+
+def create_template_restart_nc_file(filename, sizex=10, sizey=10):
+  '''Creates an empty restart file that can be used as a template?'''
+  print "Creating an empty restart file: ", filename
+  ncfile = netCDF4.Dataset(filename, mode='w', format='NETCDF4')
+
+  # Dimensions for the file.
+  Y = ncfile.createDimension('Y', sizey)
+  X = ncfile.createDimension('X', sizex)
+
+  pft        = ncfile.createDimension('pft', 10)
+  pftpart    = ncfile.createDimension('pftpart', 3)
+  snowlayer  = ncfile.createDimension('snowlayer', 6)
+  rootlayer  = ncfile.createDimension('rootlayer', 10)
+  soillayer  = ncfile.createDimension('soillayer', 23)
+  rocklayer  = ncfile.createDimension('rocklayer', 5)
+  fronts     = ncfile.createDimension('fronts', 10)
+  prevten    = ncfile.createDimension('prevten', 10)
+  prevtwelve = ncfile.createDimension('prevtwelve', 12)
+
+  # Create variables...
+  for v in ['dsr', 'numsnwl', 'numsl', 'rtfrozendays', 'rtunfrozendays', 'yrsdist']:
+    ncfile.createVariable(v, np.int, ('Y', 'X'))
+
+  for v in ['firea2sorgn', 'snwextramass', 'monthsfrozen', 'watertab', 'wdebrisc', 'wdebrisn', 'dmossc', 'dmossn']:
+    ncfile.createVariable(v, np.double, ('Y', 'X'))
+
+  for v in ['ifwoody', 'ifdeciwoody', 'ifperenial', 'nonvascular', 'vegage']:
+    ncfile.createVariable(v, np.int, ('Y','X','pft'))
+
+  for v in ['vegcov', 'lai', 'vegwater', 'vegsnow', 'labn', 'deadc', 'deadn', 'topt', 'eetmx', 'unnormleafmx', 'growingttime', 'foliagemx']:
+    ncfile.createVariable(v, np.double, ('Y','X','pft'))
+
+  for v in ['vegc', 'strn']:
+    ncfile.createVariable(v, np.double, ('Y','X','pftpart', 'pft'))
+
+  for v in ['TEXTUREsoil', 'FROZENsoil', 'TYPEsoil', 'AGEsoil',]:
+    ncfile.createVariable(v, np.int, ('Y','X','soillayer'))
+
+  for v in ['TSsoil', 'DZsoil', 'LIQsoil', 'ICEsoil', 'FROZENFRACsoil', 'rawc', 'soma', 'sompr', 'somcr', 'orgn', 'avln']:
+    ncfile.createVariable(v, np.double, ('Y','X','soillayer'))
+
+  for v in ['TSsnow', 'DZsnow', 'LIQsnow', 'RHOsnow', 'ICEsnow', 'AGEsnow']:
+    ncfile.createVariable(v, np.double, ('Y','X','soillayer'))
+
+  for v in ['TSrock', 'DZrock']:
+    ncfile.createVariable(v, np.double, ('Y','X', 'rocklayer'))
+
+
+  ncfile.createVariable('frontFT', np.int, ('Y','X', 'fronts'))
+  ncfile.createVariable('frontZ', np.double, ('Y','X', 'fronts'))
+
+  ncfile.createVariable('rootfrac', np.double, ('Y','X','rootlayer','pft'))
+
+  for v in ['toptA','eetmxA','unnormleafmxA','growingttimeA']:
+    ncfile.createVariable(v, np.double, ('Y','X','prevten','pft'))
+
+  for v in ['prvltrfcnA']:
+    ncfile.createVariable(v, np.double, ('Y','X','prevtwelve','pft'))
+
+
+  ncfile.close()
+
+def create_template_climate_nc_file(filename, sizey=10, sizex=10):
   '''Creates an empty climate file for dvmdostem; y,x grid, time unlimited.'''
 
   print "Creating an empty climate file..."
@@ -200,11 +203,85 @@ def create_empty_climate_nc_file(filename, sizey=10, sizex=10):
 
   ncfile.close()
 
+def create_template_fire_file(fname, sizey=10, sizex=10, rand=None):
+  print "Creating a fire file, %s by %s pixels. Fill with random data?: %s" % (sizey, sizex, rand)
 
-def fill_climate_file(start_yr, yrs, xo, yo, xs, ys, x_dim, y_dim, out_dir, of_name, sp_ref_file, in_tair_base, in_prec_base, in_rsds_base, in_vapo_base):
+  ncfile = netCDF4.Dataset(fname, mode='w', format='NETCDF4')
+
+  Y = ncfile.createDimension('Y', sizey)
+  X = ncfile.createDimension('X', sizex)
+  fri = ncfile.createVariable('fri', np.int, ('Y','X',))
+  fire_year_vector = ncfile.createVLType(np.int, 'fire_year_vector')
+  fire_years = ncfile.createVariable('fire_years', fire_year_vector, ('Y','X'))
+  fire_sizes = ncfile.createVariable('fire_sizes', fire_year_vector, ('Y','X'))
+
+  if (rand):
+    print " --> NOTE: Filling FRI with random data!"
+    fri[:] = np.random.uniform(low=1, high=7, size=(sizey, sizex))
+
+    print " --> NOTE: Setting FRI for pixel 0,0 to 1000!"
+    fri[0,0] = 1000
+
+    print " --> NOTE: Filling the fire_year and fire_sizes with random data!"
+    yr_data = np.empty(sizey * sizex, object)
+    sz_data = np.empty(sizey * sizex, object)
+    for n in range(sizey * sizex):
+      yr_data[n] = np.array(sorted(np.random.randint(1900, 2006, np.random.randint(0,10,1))), dtype=np.int)
+      sz_data[n] = np.random.randint(0,100,len(yr_data[n]))
+      #numpy.arange(random.randint(1,10),dtype='int32')+1
+
+    yr_data = np.reshape(yr_data,(sizey,sizex))
+    sz_data = np.reshape(sz_data,(sizey,sizex))
+
+    print " --> NOTE: Check on a few pixels?"
+    print "  (0,0)", yr_data[0,0], "-->", sz_data[0,0]
+    #print "  (0,1)", yr_data[0,1], "-->", sz_data[0,1]
+    #print "  (9,9)", yr_data[9,9], "-->", sz_data[9,9]
+
+    fire_years[:] = yr_data
+    fire_sizes[:] = sz_data
+
+  ncfile.close()
+
+def create_template_veg_nc_file(fname, sizey=10, sizex=10, rand=None):
+  print "Creating a vegetation classification file, %s by %s pixels. Fill with random data?: %s" % (sizey, sizex, rand)
+
+  ncfile = netCDF4.Dataset(fname, mode='w', format='NETCDF4')
+
+  Y = ncfile.createDimension('Y', sizey)
+  X = ncfile.createDimension('X', sizex)
+  veg_class = ncfile.createVariable('veg_class', np.int, ('Y', 'X',))
+
+  if (rand):
+    print " --> NOTE: Filling with random data!"
+    veg_class[:] = np.random.uniform(low=1, high=7, size=(sizey,sizex))
+
+  ncfile.close()
+
+
+def fill_veg_file(if_name, xo, yo, xs, ys, out_dir, of_name):
+  '''Read subset of data from .tif into netcdf file for dvmdostem. '''
+
+  # Create place for data
+  create_template_veg_nc_file(of_name, sizey=ys, sizex=xs, rand=None)
+
+  # Translate and subset to temporary location
+  temporary = os.path.join('/tmp', of_name)
+
+  if not os.path.exists( os.path.dirname(temporary) ):
+    os.makedirs(os.path.dirname(temporary))
+
+  subprocess.call(['gdal_translate', '-of', 'netcdf', '-srcwin', str(xo), str(yo), str(xs), str(ys), if_name, temporary])
+
+  # Copy from temporary location to into the placeholde file we just created
+  with netCDF4.Dataset(temporary) as t1, netCDF4.Dataset(of_name, mode='a') as new_vegdataset:
+    veg_class = new_vegdataset.variables['veg_class']
+    veg_class[:] = t1.variables['Band1'][:]
+
+def fill_climate_file(start_yr, yrs, xo, yo, xs, ys, out_dir, of_name, sp_ref_file, in_tair_base, in_prec_base, in_rsds_base, in_vapo_base):
   # TRANSLATE TO NETCDF
   #Create empty file to copy data into
-  create_empty_climate_nc_file(os.path.join(out_dir, of_name), sizey=ys, sizex=xs)
+  create_template_climate_nc_file(os.path.join(out_dir, of_name), sizey=ys, sizex=xs)
 
   tmpfile = '/tmp/temporary-file-with-spatial-info.nc'
   smaller_tmpfile = '/tmp/smaller-temporary-file-with-spatial-info.nc'
@@ -260,52 +337,52 @@ def fill_climate_file(start_yr, yrs, xo, yo, xs, ys, x_dim, y_dim, out_dir, of_n
         print "Converting tif --> netcdf..."
         check_call(['gdal_translate', '-of', 'netCDF',
               in_tair,
-              'script-temporary_tair.nc'])
+              '/tmp/script-temporary_tair.nc'])
 
         check_call(['gdal_translate', '-of', 'netCDF',
               in_rsds,
-              'script-temporary_rsds.nc'])
+              '/tmp/script-temporary_rsds.nc'])
 
         check_call(['gdal_translate', '-of', 'netCDF',
               in_prec,
-              'script-temporary_pr.nc'])
+              '/tmp/script-temporary_pr.nc'])
 
         check_call(['gdal_translate', '-of', 'netCDF',
               in_vapo,
-              'script-temporary_vapo.nc'])
+              '/tmp/script-temporary_vapo.nc'])
 
         print "Subsetting...."
         check_call(['gdal_translate', '-of', 'netCDF', '-srcwin',
               str(xo), str(yo), str(xs), str(ys),
-              'script-temporary_tair.nc', 'script-temporary_tair2.nc'])
+              '/tmp/script-temporary_tair.nc', '/tmp/script-temporary_tair2.nc'])
 
         check_call(['gdal_translate', '-of', 'netCDF', '-srcwin',
               str(xo), str(yo), str(xs), str(ys),
-              'script-temporary_rsds.nc', 'script-temporary_rsds2.nc'])
+              '/tmp/script-temporary_rsds.nc', '/tmp/script-temporary_rsds2.nc'])
 
         check_call(['gdal_translate', '-of', 'netCDF', '-srcwin',
               str(xo), str(yo), str(xs), str(ys),
-              'script-temporary_pr.nc', 'script-temporary_pr2.nc'])
+              '/tmp/script-temporary_pr.nc', '/tmp/script-temporary_pr2.nc'])
 
         check_call(['gdal_translate', '-of', 'netCDF', '-srcwin',
               str(xo), str(yo), str(xs), str(ys),
-              'script-temporary_vapo.nc', 'script-temporary_vapo2.nc'])
+              '/tmp/script-temporary_vapo.nc', '/tmp/script-temporary_vapo2.nc'])
 
 
         print "Writing subset's data to new files..."
-        with netCDF4.Dataset('script-temporary_tair2.nc', mode='r') as t2:
+        with netCDF4.Dataset('/tmp/script-temporary_tair2.nc', mode='r') as t2:
           tair = new_climatedataset.variables['tair']
           tair[yridx*12+midx] = t2.variables['Band1'][:]
 
-        with netCDF4.Dataset('script-temporary_rsds2.nc', mode='r') as t2:
+        with netCDF4.Dataset('/tmp/script-temporary_rsds2.nc', mode='r') as t2:
           nirr = new_climatedataset.variables['nirr']
           nirr[yridx*12+midx] = t2.variables['Band1'][:]
 
-        with netCDF4.Dataset('script-temporary_pr2.nc', mode='r') as t2:
+        with netCDF4.Dataset('/tmp/script-temporary_pr2.nc', mode='r') as t2:
           prec = new_climatedataset.variables['precip']
           prec[yridx*12+midx] = t2.variables['Band1'][:]
 
-        with netCDF4.Dataset('script-temporary_vapo2.nc', mode='r') as t2:
+        with netCDF4.Dataset('/tmp/script-temporary_vapo2.nc', mode='r') as t2:
           vapo = new_climatedataset.variables['vapor_press']
           vapo[yridx*12+midx] = t2.variables['Band1'][:]
 
@@ -313,18 +390,26 @@ def fill_climate_file(start_yr, yrs, xo, yo, xs, ys, x_dim, y_dim, out_dir, of_n
 
     print "Done with year loop."
 
+def fill_fire_file(if_name, xo, yo, xs, ys, out_dir, of_name):
 
-def main(start_year, years, xo, yo, xs, ys, x_dim, y_dim, tif_dir, out_dir, files=[]):
+  create_template_fire_file(of_name, sizey=10, sizex=10, rand=None)
+
+  print "Not sure what to fill with yet...."
+
+
+def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir, files=[]):
 
   if 'fire' in files:
     # generate some new files...
-    make_fire_dataset(os.path.join(out_dir, "script-new-fire-dataset.nc"), sizey=ys, sizex=xs)
+    of_name = os.path.join(out_dir, "fire.nc")
+    fill_fire_file(tif_dir + "iem_ancillary_data/Fire/", xo, yo, xs, ys, out_dir, of_name)
 
   if 'veg' in files:
-    make_veg_classification(os.path.join(out_dir, "script-new-veg-dataset.nc"), sizey=ys, sizex=xs)
+    of_name = os.path.join(out_dir, "veg.nc")
+    fill_veg_file(tif_dir + "iem_ancillary_data/Landcover/LandCover_iem_TEM_2005.tif", xo, yo, xs, ys, out_dir, of_name)
 
   if 'drain' in files:
-    make_drainage_classification(os.path.join(out_dir, "script-new-drainage-dataset.nc"), sizey=ys, sizex=xs)
+    create_template_drainage_class_file(os.path.join(out_dir, "drainage-classification.nc"), sizey=ys, sizex=xs, rand=True)
 
   if 'run_mask' in files:
     make_run_mask(os.path.join(out_dir, "script-run-mask.nc"), sizey=ys, sizex=xs)
@@ -340,7 +425,7 @@ def main(start_year, years, xo, yo, xs, ys, x_dim, y_dim, tif_dir, out_dir, file
     in_rsds_base = tif_dir + "/rsds_mean_MJ-m2-d1_iem_cru_TS31_1901_2009/rsds_mean_MJ-m2-d1_iem_cru_TS31"
     in_vapo_base = tif_dir + "/vap_mean_hPa_iem_cru_TS31_1901_2009/vap_mean_hPa_iem_cru_TS31"
 
-    fill_climate_file(1901+start_year, years, xo, yo, xs, ys, x_dim, y_dim, out_dir, of_name, sp_ref_file, in_tair_base, in_prec_base, in_rsds_base, in_vapo_base)
+    fill_climate_file(1901+start_year, years, xo, yo, xs, ys, out_dir, of_name, sp_ref_file, in_tair_base, in_prec_base, in_rsds_base, in_vapo_base)
 
 
   if 'proj_climate' in files:
@@ -351,7 +436,7 @@ def main(start_year, years, xo, yo, xs, ys, x_dim, y_dim, tif_dir, out_dir, file
     in_rsds_base = tif_dir + "/rsds_mean_MJ-m2-d1_iem_cccma_cgcm3_1_sresa1b_2001_2100/rsds_mean_MJ-m2-d1_iem_cccma_cgcm3_1_sresa1b"
     in_vapo_base = tif_dir + "/vap_mean_hPa_iem_cccma_cgcm3_1_sresa1b_2001_2100/vap_mean_hPa_iem_cccma_cgcm3_1_sresa1b"
 
-    fill_climate_file(2001+start_year, years, xo, yo, xs, ys, x_dim, y_dim, out_dir, of_name, sp_ref_file, in_tair_base, in_prec_base, in_rsds_base, in_vapo_base)
+    fill_climate_file(2001+start_year, years, xo, yo, xs, ys, out_dir, of_name, sp_ref_file, in_tair_base, in_prec_base, in_rsds_base, in_vapo_base)
 
   print "DONE"
 
@@ -363,42 +448,54 @@ if __name__ == '__main__':
     formatter_class = argparse.RawDescriptionHelpFormatter,
 
       description=textwrap.dedent('''\
-        Script for creating input data sets for dvmdostem.
+        Creates a set of files for dvm-dos-tem.
+
+        <OUTDIR>/<TAG>_<YSIZE>x<XSIZE>/fire.nc
+                                  ... /vegetation.nc
+                                  ... /drainage.nc
+                                  ... /historic-climate.nc
+                                  ... /projected-climate.nc
+                                  ..../co2.nc
+
+        <OUTDIR>/<TAG>_<YSIZE>x<XSIZE>/output/restart-eq.nc
+
+        Assumes a certain layout for the source files. At this point, the 
+        source files are generally .tifs that have been created for the IEM
+        project.
         '''),
 
-      epilog=textwrap.dedent('''\
-        '''),
+      epilog=textwrap.dedent(''''''),
   )
-
-  parser.add_argument('--dim', default=10, type=int,
-                      help="Width and height of square selection")
+  
+  parser.add_argument('--crtf-only', action="store_true",
+                      help="Only create the restart template file.")
 
   parser.add_argument('--tifs', default="../../snap-data",
-                      help="Directory containing input TIF directories")
+                      help="Directory containing input TIF directories.")
 
-  parser.add_argument('--outdir', default=".",
-                      help="Directory for netCDF output files")
+  parser.add_argument('--outdir', default="some-dvmdostem-inputs",
+                      help="Directory for netCDF output files. (default: %(default)s)")
 
-  parser.add_argument('--loc', default="Toolik",
-                      help="Location of data set (for dir naming)")
+  parser.add_argument('--tag', default="Toolik",
+                      help="A name for the dataset, used to name output directory. (default: %(default)s)")
 
   parser.add_argument('--years', default=10, type=int,
-                      help="The number of years of the climate data to process.")
+                      help="The number of years of the climate data to process. (default: %(default)s)")
   parser.add_argument('--start-year', default=0, type=int,
                       help="An offset to use for making a climate dataset that doesn't start at the beginning of the historic (1901) or projected (2001) datasets.")
 
   parser.add_argument('--xoff', default=915,
-                      help="source window offset for x axis")
+                      help="source window offset for x axis (default: %(default)s)")
   parser.add_argument('--yoff', default=292,
-                      help="source window offset for y axis")
+                      help="source window offset for y axis (default: %(default)s)")
 
-  parser.add_argument('--xsize', default=2, type=int,
-                      help="source window x size")
-  parser.add_argument('--ysize', default=2, type=int,
-                      help="source window y size")
+  parser.add_argument('--xsize', default=5, type=int,
+                      help="source window x size (default: %(default)s)")
+  parser.add_argument('--ysize', default=5, type=int,
+                      help="source window y size (default: %(default)s)")
 
   parser.add_argument('--which', default=['all'],
-                      help="which files to create", choices=['all', 'veg', 'fire', 'drain', 'run_mask', 'co2', 'hist_climate', 'proj_climate'])
+                      help="which files to create (default: %(default)s)", choices=['all', 'veg', 'fire', 'drain', 'run_mask', 'co2', 'hist_climate', 'proj_climate'])
 
   print "Parsing command line arguments";
   args = parser.parse_args()
@@ -412,18 +509,24 @@ if __name__ == '__main__':
   xs = args.xsize
   ys = args.ysize
 
-  x_dim = args.dim;
-  y_dim = args.dim;
-
   tif_dir = args.tifs;
   print "Will be looking for files in:      ", tif_dir
 
-
-  # Like this: somedirectory/somelocation_NxM
-  out_dir = os.path.join(args.outdir, "%s_%sx%s" % (args.loc, ys, xs))
+  # Like this: somedirectory/sometag_NxM
+  out_dir = os.path.join(args.outdir, "%s_%sx%s" % (args.tag, ys, xs))
   print "Will be (over)writing files to:    ", out_dir
   if not os.path.exists(out_dir):
     os.makedirs(out_dir)
+
+  # All we are doing is creating a restart template file, then quitting.
+  if args.crtf_only:
+    if not os.path.exists( os.path.join(out_dir, "output") ):
+      os.mkdir(os.path.join(out_dir, "output"))
+
+    # FIX/TODO: handle more than just eq stage!
+    create_template_restart_nc_file(os.path.join(out_dir, "output/restart-eq.nc"), sizey=ys, sizex=xs)
+    exit()
+
 
   which_files = args.which
 
@@ -431,4 +534,4 @@ if __name__ == '__main__':
     print "Will generate ALL input files."
     which_files = ['veg', 'fire', 'drain', 'run_mask', 'co2', 'hist_climate', 'proj_climate']
 
-  main(start_year, years, xo, yo, xs, ys, x_dim, y_dim, tif_dir, out_dir, files=which_files)
+  main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir, files=which_files)

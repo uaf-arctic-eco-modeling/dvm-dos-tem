@@ -111,7 +111,7 @@ void enable_floating_point_exceptions() {
     _MM_SET_EXCEPTION_MASK(_MM_GET_EXCEPTION_MASK() & ~_MM_MASK_INVALID);
   #endif
 
-// GNU Linux
+  // GNU Linux
   #ifdef GNU_FPE
     feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW);
   #endif
@@ -135,7 +135,7 @@ int main(int argc, char* argv[]){
   setup_logging(args->get_log_level());
 
   BOOST_LOG_SEV(glg, note) << "Checking command line arguments...";
-  args->verify();
+  args->verify(); // stub - doesn't really do anything yet
 
   BOOST_LOG_SEV(glg, note) << "Turn floating point exceptions on?: " << args->get_fpe();
   if (args->get_fpe()) { enable_floating_point_exceptions(); }
@@ -145,9 +145,15 @@ int main(int argc, char* argv[]){
 
   BOOST_LOG_SEV(glg, note) << "Creating a ModelData object based on settings in the control file";
   ModelData modeldata(controldata);
+
+  modeldata.update(args);
+
+  /*  
+      Someday it may be worth the time/effort to make better use of
+      boots::program_options here to manage the arguments from config file
+      and the command line.
+  */
   
-  // Modify the ModelData object based on cmd line args?
-  // Maybe look into boost program obtions config file and property tree?
 
   // Turn off buffering...
   setvbuf(stdout, NULL, _IONBF, 0);
@@ -206,8 +212,7 @@ int main(int argc, char* argv[]){
 
           BOOST_LOG_SEV(glg, debug) << "Running cell (" << rowidx << ", " << colidx << ")";
 
-          // IMPROVE THIS!
-          modeldata.initmode = 1;
+          //modeldata.initmode = 1; // OBSOLETE?
 
           // Maybe 'cal_mode' should be part of the ModelData config object ??
           BOOST_LOG_SEV(glg, debug) << "Setup the NEW STYLE RUNNER OBJECT ...";
@@ -220,11 +225,9 @@ int main(int argc, char* argv[]){
           // this is also called inside run_years(...)
           runner.cohort.climate.prepare_daily_driving_data(0, "eq");
 
-          runner.cohort.initSubmodules();
-          runner.cohort.initStatePar();
-
-          BOOST_LOG_SEV(glg, debug) << "right after initSubmodules() and initStatePar()" << runner.cohort.ground.layer_report_string();
-
+          runner.cohort.initialize_internal_pointers(); // sets up lots of pointers to various things
+          runner.cohort.initialize_state_parameters();  // sets data based on values in cohortlookup
+          BOOST_LOG_SEV(glg, debug) << "right after initialize_internal_pointers() and initialize_state_parameters()" << runner.cohort.ground.layer_report_string();
 
           if (modeldata.runeq) {
 
@@ -237,58 +240,83 @@ int main(int argc, char* argv[]){
             //  - run_years( 0 <= iy <= X )
             //  - ignore the calibration directives
             //
+            {
+              BOOST_LOG_NAMED_SCOPE("PRE-RUN");
+              // turn off everything but env
+              runner.cohort.md->set_envmodule(true);
+              runner.cohort.md->set_bgcmodule(false);
+              runner.cohort.md->set_nfeed(false);
+              runner.cohort.md->set_avlnflg(false);
+              runner.cohort.md->set_baseline(false);
+              runner.cohort.md->set_dsbmodule(false);
+              runner.cohort.md->set_dslmodule(false);
+              runner.cohort.md->set_dvmmodule(false);
 
-            // turn off everything but env
-            runner.cohort.md->set_envmodule(true);
-            runner.cohort.md->set_bgcmodule(false);
-            runner.cohort.md->set_nfeed(false);
-            runner.cohort.md->set_avlnflg(false);
-            runner.cohort.md->set_baseline(false);
-            runner.cohort.md->set_dsbmodule(false);
-            runner.cohort.md->set_dslmodule(false);
-            runner.cohort.md->set_dvmmodule(false);
+              // changing climate?: NO - use avgX values
+              // changing CO2?:     NO - use static value
 
-            // changing climate?: NO - use avgX values
-            // changing CO2?:     NO - use static value
+              BOOST_LOG_SEV(glg, debug) << "Ground, right before 'pre-run'. "
+                                        << runner.cohort.ground.layer_report_string();
 
-            BOOST_LOG_SEV(glg, debug) << "Ground, right before 'pre-run'. "
-                                      << runner.cohort.ground.layer_report_string();
+              runner.run_years(0, modeldata.pre_run_yrs, "pre-run");
 
-            runner.run_years(0, 100, "pre-run");
+              BOOST_LOG_SEV(glg, debug) << "Ground, right after 'pre-run'"
+                                        << runner.cohort.ground.layer_report_string();
 
-            BOOST_LOG_SEV(glg, debug) << "Ground, right after 'pre-run'"
-                                      << runner.cohort.ground.layer_report_string();
+              if (runner.calcontroller_ptr) {
+                BOOST_LOG_SEV(glg, info)
+                    << "CALIBRATION MODE. Pausing. Please check that the "
+                    << "'warm up' data looks good.";
 
-            if (runner.calcontroller_ptr) {
-              BOOST_LOG_SEV(glg, info)
-                  << "CALIBRATION MODE. Pausing. Please check that the "
-                  << "'warm up' data looks good.";
+                runner.calcontroller_ptr->pause();
 
-              runner.calcontroller_ptr->pause();
-
-              runner.calcontroller_ptr->clear_and_create_json_storage();
+                runner.calcontroller_ptr->clear_and_create_json_storage();
+              }
             }
 
-            runner.cohort.md->set_envmodule(true);
-            runner.cohort.md->set_dvmmodule(true);
-            runner.cohort.md->set_dslmodule(true);
-            runner.cohort.md->set_bgcmodule(true);
-            runner.cohort.md->set_dsbmodule(true);
-            // baseline? avln? friderived? nfeed?
+            {
+              BOOST_LOG_NAMED_SCOPE("EQ");
 
-            //  changing climate?: NO - use avgX values
-            //  changing CO2?:     NO - use static value
+              runner.cohort.md->set_envmodule(true);
+              runner.cohort.md->set_dvmmodule(true);
+              runner.cohort.md->set_dslmodule(true);
+              runner.cohort.md->set_bgcmodule(true);
+              runner.cohort.md->set_dsbmodule(true);
 
-            runner.run_years(0, MAX_EQ_YR, "eq-run");
+              // FIX: what about baseline? avln? friderived? nfeed?
 
-            // write out restart-eq.nc ???
+              //  changing climate?: NO - use avgX values
+              //  changing CO2?:     NO - use static value
 
+              runner.run_years(0, modeldata.max_eq_yrs, "eq-run");
+
+              std::string restart_fname = modeldata.output_dir + "restart-eq.nc";
+
+              // write out restart-eq.nc ???
+              runner.cohort.restartdata.append_to_ncfile(restart_fname, rowidx, colidx); /* cohort id/key ???*/
+            }
           }
           if (modeldata.runsp) {
+            {
+              BOOST_LOG_NAMED_SCOPE("SP");
 
-            // look for and read-in restart-eq.nc ??
+              // FIX: if restart file has -9999, then soil temps can end up impossibly low
+              // look for and read-in restart-eq.nc ??
+              if (boost::filesystem::exists("DATA/Toolik_10x10_30yrs/output/restart-eq.nc")) {
+                BOOST_LOG_SEV(glg, debug) << "WOW, gonna use the restart file!!!";
+                // update the cohort's restart data object
+                runner.cohort.restartdata.update_from_ncfile("DATA/Toolik_10x10_30yrs/output/restart-eq.nc", rowidx, colidx);
 
-            // write out restart-sp.nc ???
+                // copy values from the (updated) restart data to cohort and cd
+                // this should overwrite some things that were previously just set
+                // in initialize_state_parameters(...)
+                runner.cohort.set_state_from_restartdata();
+              }
+
+
+
+              // write out restart-sp.nc ???
+            }
           }
 
           // NOTE: Could have an option to set some time constants based on

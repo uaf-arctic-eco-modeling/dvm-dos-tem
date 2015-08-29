@@ -229,18 +229,18 @@ void Soil_Bgc::initializeState() {
   }
 };
 
-void Soil_Bgc::initializeState5restart(RestartData* resin) {
+void Soil_Bgc::set_state_from_restartdata(const RestartData & rdata) {
   for (int il =0; il<MAX_SOI_LAY; il++) {
-    bd->m_sois.rawc[il] = resin->rawc[il];
-    bd->m_sois.soma[il] = resin->soma[il];
-    bd->m_sois.sompr[il]= resin->sompr[il];
-    bd->m_sois.somcr[il]= resin->somcr[il];
-    bd->m_sois.orgn[il] = resin->orgn[il];
-    bd->m_sois.avln[il] = resin->avln[il];
+    bd->m_sois.rawc[il] = rdata.rawc[il];
+    bd->m_sois.soma[il] = rdata.soma[il];
+    bd->m_sois.sompr[il]= rdata.sompr[il];
+    bd->m_sois.somcr[il]= rdata.somcr[il];
+    bd->m_sois.orgn[il] = rdata.orgn[il];
+    bd->m_sois.avln[il] = rdata.avln[il];
 
     for(int i=0; i<10; i++) {
       bd->prvltrfcnque[il].clear();
-      double tmpcn = resin->prvltrfcnA[i][il];
+      double tmpcn = rdata.prvltrfcnA[i][il];
 
       if(tmpcn!=MISSING_D) {
         bd->prvltrfcnque[il].push_back(tmpcn);
@@ -248,9 +248,9 @@ void Soil_Bgc::initializeState5restart(RestartData* resin) {
     }
   }
 
-  bd->m_sois.wdebrisc= resin->wdebrisc;
-  bd->m_sois.wdebrisn= resin->wdebrisn;
-  bd->m_sois.dmossc  = resin->dmossc;
+  bd->m_sois.wdebrisc = rdata.wdebrisc;
+  bd->m_sois.wdebrisn = rdata.wdebrisn;
+  bd->m_sois.dmossc   = rdata.dmossc;
   assignCarbonBd2LayerMonthly();
 };
 

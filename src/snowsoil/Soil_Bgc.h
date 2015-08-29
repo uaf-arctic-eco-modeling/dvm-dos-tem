@@ -48,7 +48,7 @@ public:
   void initializeParameter();
 
   void initializeState();
-  void initializeState5restart(RestartData * resdata);
+  void set_state_from_restartdata(const RestartData & resdata);
 
   void assignCarbonBd2LayerMonthly();
   void assignCarbonLayer2BdMonthly();

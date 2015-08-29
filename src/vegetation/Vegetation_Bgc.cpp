@@ -142,15 +142,15 @@ void Vegetation_Bgc::initializeState() {
 };
 
 //set the initial states from restart inputs
-void Vegetation_Bgc::initializeState5restart(RestartData *resin) {
+void Vegetation_Bgc::set_state_from_restartdata(const RestartData & rdata) {
   for (int i=0; i<NUM_PFT_PART; i++) {
-    bd->m_vegs.c[i]    = resin->vegc[i][ipft];
-    bd->m_vegs.strn[i] = resin->strn[i][ipft];
+    bd->m_vegs.c[i]    = rdata.vegc[i][ipft];
+    bd->m_vegs.strn[i] = rdata.strn[i][ipft];
   }
 
-  bd->m_vegs.labn = resin->labn[ipft];
-  bd->m_vegs.deadc = resin->deadc[ipft];
-  bd->m_vegs.deadn = resin->deadn[ipft];
+  bd->m_vegs.labn = rdata.labn[ipft];
+  bd->m_vegs.deadc = rdata.deadc[ipft];
+  bd->m_vegs.deadn = rdata.deadn[ipft];
   //
   bd->m_vegs.call    = 0.;
   bd->m_vegs.strnall = 0.;

@@ -26,12 +26,16 @@ public:
 
   int firstfireyr;
 
+  ////////
+  // MAYBE get rid of all these???
   int oneyear;
   int onemonth;
   int oneseverity;  //Yuan: fire severity category
 
   int oneseason;
   int onesize;
+  //////////////
+
 
   void setCohortData(CohortData* cdp);
   void setAllEnvBgcData(EnvData* edp, BgcData* bdp);
@@ -41,8 +45,8 @@ public:
 
   void initializeParameter();
   void initializeState();
-  void initializeState5restart(RestartData *resin);
-  void prepareDrivingData();
+  void set_state_from_restartdata(const RestartData & rdata);
+//  void prepareDrivingData();
 
   int getOccur(const int & yrind, const bool & fridrived); //Yuan: modified;
   void burn(); //Yuan: modified

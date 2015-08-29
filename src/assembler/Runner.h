@@ -50,7 +50,7 @@ public:
   void modeldata_module_settings_from_args(const ArgHandler &args);
   void output_caljson_yearly(int year);
   void output_caljson_monthly(int year, int month);
-
+  void output_debug_daily_drivers(int iy);
 
 private:
   bool calibrationMode;
@@ -60,8 +60,9 @@ private:
   //data classes
   ModelData md;     /* model controls, options, switches and so on */
 
-  EnvData  grded;   // grid-aggregated 'ed' (not yet done)
-  BgcData  grdbd;   // grid-aggregared 'bd' (not yet done)
+  // Unused?? as of 8/19/2015
+  //EnvData  grded;   // grid-aggregated 'ed' (not yet done)
+  //BgcData  grdbd;   // grid-aggregared 'bd' (not yet done)
 
   EnvData  chted;   // withing-grid cohort-level aggregated 'ed'
                     //   (i.e. 'edall in 'cht')

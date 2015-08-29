@@ -49,6 +49,9 @@ Vegetation::Vegetation(int cmtnum, const ModelData* mdp) {
       mdp->parameter_dir + "cmt_dimvegetation.txt", cmtnum, 40
   );
 
+
+  // FIX THIS?? Why are some parameters not being set?? (ifwoody, etc..)
+
   // pop each line off the front of the list
   // and assign to the right data member.
   temutil::pfll2data_pft(l, vegdimpar.cov);
@@ -93,29 +96,25 @@ void Vegetation::initializeParameter() {
 
   // This should probably be in the Ctor for a Vegetation object.
   
-  int ipft = 0;
-
   for (int ip=0; ip<NUM_PFT; ip++) {
-    if (chtlu->vegcov[ipft] > 0.) {//this will remove those PFTs with 0 ground
-                                   //  coverage. So be cautious the index
-                                   //  consistent with 'state' variables
-      vegdimpar.sla[ipft] = chtlu->sla[ip];
-      vegdimpar.klai[ipft] = chtlu->klai[ip];
-      vegdimpar.minleaf[ipft] = chtlu->minleaf[ip];
-      vegdimpar.aleaf[ipft] = chtlu->aleaf[ip];
-      vegdimpar.bleaf[ipft] = chtlu->bleaf[ip];
-      vegdimpar.cleaf[ipft] = chtlu->cleaf[ip];
-      vegdimpar.kfoliage[ipft] = chtlu->kfoliage[ip];
-      vegdimpar.cov[ipft] = chtlu->cov[ip];
-      vegdimpar.m1[ipft] = chtlu->m1[ip];
-      vegdimpar.m2[ipft] = chtlu->m2[ip];
-      vegdimpar.m3[ipft] = chtlu->m3[ip];
-      vegdimpar.m4[ipft] = chtlu->m4[ip];
+    // This will remove those PFTs with 0 ground coverage. So be cautious
+    // the index consistent with 'state' variables!!
+    if (chtlu->vegcov[ip] > 0.0) {
+      vegdimpar.sla[ip] = chtlu->sla[ip];
+      vegdimpar.klai[ip] = chtlu->klai[ip];
+      vegdimpar.minleaf[ip] = chtlu->minleaf[ip];
+      vegdimpar.aleaf[ip] = chtlu->aleaf[ip];
+      vegdimpar.bleaf[ip] = chtlu->bleaf[ip];
+      vegdimpar.cleaf[ip] = chtlu->cleaf[ip];
+      vegdimpar.kfoliage[ip] = chtlu->kfoliage[ip];
+      vegdimpar.cov[ip] = chtlu->cov[ip];
+      vegdimpar.m1[ip] = chtlu->m1[ip];
+      vegdimpar.m2[ip] = chtlu->m2[ip];
+      vegdimpar.m3[ip] = chtlu->m3[ip];
+      vegdimpar.m4[ip] = chtlu->m4[ip];
     }
-
-    ipft++;
   }
-};
+}
 
 // set the initial states from inputs
 void Vegetation::initializeState() {
@@ -158,30 +157,30 @@ void Vegetation::initializeState() {
 };
 
 //set the initial states from restart inputs:
-void Vegetation::initializeState5restart(RestartData *resin) {
+void Vegetation::set_state_from_restartdata(const RestartData & rd) {
   for (int ip=0; ip<NUM_PFT; ip++) {
-    cd->m_veg.vegage[ip]      = resin->vegage[ip];
-    cd->m_veg.vegcov[ip]      = resin->vegcov[ip];
-    cd->m_veg.ifwoody[ip]     = resin->ifwoody[ip];
-    cd->m_veg.ifdeciwoody[ip] = resin->ifdeciwoody[ip];
-    cd->m_veg.ifperenial[ip]  = resin->ifperenial[ip];
-    cd->m_veg.nonvascular[ip] = resin->nonvascular[ip];
-    cd->m_veg.lai[ip]         = resin->lai[ip];
+    cd->m_veg.vegage[ip]      = rd.vegage[ip];
+    cd->m_veg.vegcov[ip]      = rd.vegcov[ip];
+    cd->m_veg.ifwoody[ip]     = rd.ifwoody[ip];
+    cd->m_veg.ifdeciwoody[ip] = rd.ifdeciwoody[ip];
+    cd->m_veg.ifperenial[ip]  = rd.ifperenial[ip];
+    cd->m_veg.nonvascular[ip] = rd.nonvascular[ip];
+    cd->m_veg.lai[ip]         = rd.lai[ip];
 
     for (int il=0; il<MAX_ROT_LAY; il++) {
-      cd->m_veg.frootfrac[il][ip] = resin->rootfrac[il][ip];
+      cd->m_veg.frootfrac[il][ip] = rd.rootfrac[il][ip];
     }
 
-    cd->m_vegd.eetmx[ip]        = resin->eetmx[ip];
-    cd->m_vegd.unnormleafmx[ip] = resin->unnormleafmx[ip];
-    cd->m_vegd.growingttime[ip] = resin->growingttime[ip];
-    cd->m_vegd.topt[ip]         = resin->topt[ip];
-    cd->m_vegd.foliagemx[ip]    = resin->foliagemx[ip];
+    cd->m_vegd.eetmx[ip]        = rd.eetmx[ip];
+    cd->m_vegd.unnormleafmx[ip] = rd.unnormleafmx[ip];
+    cd->m_vegd.growingttime[ip] = rd.growingttime[ip];
+    cd->m_vegd.topt[ip]         = rd.topt[ip];
+    cd->m_vegd.foliagemx[ip]    = rd.foliagemx[ip];
     cd->prveetmxque[ip].clear();
 
     for(int i=0; i<10; i++) {
-      double eetmxa = resin->eetmxA[i][ip];//note: older value is in the
-                                           //        lower position in the deque
+      double eetmxa = rd.eetmxA[i][ip];
+      // note: older value is in the lower position in the deque
 
       if(eetmxa!=MISSING_D) {
         cd->prveetmxque[ip].push_back(eetmxa);
@@ -191,9 +190,8 @@ void Vegetation::initializeState5restart(RestartData *resin) {
     cd->prvunnormleafmxque[ip].clear();
 
     for(int i=0; i<10; i++) {
-      double unleafmxa = resin->unnormleafmxA[i][ip];//note: older value is in
-                                                     //  the lower position in
-                                                     //  the deque
+      double unleafmxa = rd.unnormleafmxA[i][ip];
+      // note: older value is in the lower position in the deque
 
       if(unleafmxa!=MISSING_D) {
         cd->prvunnormleafmxque[ip].push_back(unleafmxa);
@@ -203,8 +201,8 @@ void Vegetation::initializeState5restart(RestartData *resin) {
     cd->prvgrowingttimeque[ip].clear();
 
     for(int i=0; i<10; i++) {
-      double growingttimea = resin->growingttimeA[i][ip];//note: older value is,
-                                                         //  lower in the deque
+      double growingttimea = rd.growingttimeA[i][ip];
+      //note: older value is lower in the deque
 
       if(growingttimea!=MISSING_D) {
         cd->prvgrowingttimeque[ip].push_back(growingttimea);
@@ -214,8 +212,8 @@ void Vegetation::initializeState5restart(RestartData *resin) {
     cd->toptque[ip].clear();
 
     for(int i=0; i<10; i++) {
-      double topta = resin->toptA[i][ip];//note: older value is, lower
-                                         //        in the deque
+      double topta = rd.toptA[i][ip];
+      //note: older value is, lower in the deque
 
       if(topta!=MISSING_D) {
         cd->toptque[ip].push_back(topta);

@@ -100,24 +100,27 @@ public :
   ModelData * md;
 
   CohortData cd;
-  RestartData resid;    //for input
-
+  RestartData restartdata;
   
 
 //  void NEW_load_climate_from_file(int y, int x);
 //  void NEW_load_veg_class_from_file(int y, int x);
 //  void NEW_load_fire_from_file(int y, int x);
 
-  void initSubmodules();
+  void initialize_internal_pointers();
 
   void setModelData(ModelData* md);
   void setProcessData(EnvData * alledp, BgcData * allbdp, FirData *fdp);
 
-  void initStatePar();
-  void prepareAllDrivingData();
+  void initialize_state_parameters();
+//  void prepareAllDrivingData();
   void prepareDayDrivingData(const int & yrcnt, const int &usedatmyr);
   void updateMonthly(const int & yrcnt, const int & currmind,
                      const int & dinmcurr);
+  
+  void set_state_from_restartdata();
+  void set_restartdata_from_state();
+
 
 private:
 
