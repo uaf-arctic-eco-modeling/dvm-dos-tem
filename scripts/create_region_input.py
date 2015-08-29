@@ -213,34 +213,52 @@ def create_template_fire_file(fname, sizey=10, sizex=10, rand=None):
   X = ncfile.createDimension('X', sizex)
   fri = ncfile.createVariable('fri', np.int, ('Y','X',))
   fire_year_vector = ncfile.createVLType(np.int, 'fire_year_vector')
+  fire_year_vector_F = ncfile.createVLType(np.float, 'fire_year_vector_F')
+
   fire_years = ncfile.createVariable('fire_years', fire_year_vector, ('Y','X'))
-  fire_sizes = ncfile.createVariable('fire_sizes', fire_year_vector, ('Y','X'))
+  fire_sizes = ncfile.createVariable('fire_sizes', fire_year_vector_F, ('Y','X')) # is this just area in km^2 ??
+  fire_month = ncfile.createVariable('fire_month', fire_year_vector, ('Y','X'))
 
   if (rand):
     print " --> NOTE: Filling FRI with random data!"
     fri[:] = np.random.uniform(low=1, high=7, size=(sizey, sizex))
 
-    print " --> NOTE: Setting FRI for pixel 0,0 to 1000!"
     fri[0,0] = 5
+    print " --> NOTE: Set FRI for pixel 0,0 to: ", fri[0,0]
 
     print " --> NOTE: Filling the fire_year and fire_sizes with random data!"
     yr_data = np.empty(sizey * sizex, object)
     sz_data = np.empty(sizey * sizex, object)
+    mn_data = np.empty(sizey * sizex, object)
     for n in range(sizey * sizex):
       yr_data[n] = np.array(sorted(np.random.randint(1900, 2006, np.random.randint(0,10,1))), dtype=np.int)
-      sz_data[n] = np.random.randint(0,100,len(yr_data[n]))
-      #numpy.arange(random.randint(1,10),dtype='int32')+1
+
+      #sz_data[n] = np.random.randint(0,100,len(yr_data[n]))  # just some random data
+      sz_data[n] = np.zeros(len(yr_data[n])) + (0.007*1.7e6)  # 7% of the area of Alaska?
+
+      mn_data[n] = np.zeros(len(yr_data[n]), np.int) + 6              # july
 
     yr_data = np.reshape(yr_data,(sizey,sizex))
     sz_data = np.reshape(sz_data,(sizey,sizex))
-
-    #print " --> NOTE: Check on a few pixels?"
-    #print "  (0,0)", yr_data[0,0], "-->", sz_data[0,0]
-    #print "  (0,1)", yr_data[0,1], "-->", sz_data[0,1]
-    #print "  (9,9)", yr_data[9,9], "-->", sz_data[9,9]
+    mn_data = np.reshape(mn_data,(sizey,sizex))
 
     fire_years[:] = yr_data
     fire_sizes[:] = sz_data
+    fire_month[:] = mn_data
+
+    def quick_report(y,x):
+      assert len(fire_years[y,x]) == len(fire_sizes[y,x])
+      assert len(fire_years[y,x]) == len(fire_month[y,x])
+      print "  pixel(row,col): (%s,%s)" % (y,x)
+      print "             fri: ", fri[y,x]
+      print "           years: ", fire_years[y,x]
+      print "           sizes: ", fire_sizes[y,x]
+      print "          months: ", fire_month[y,x]
+
+    quick_report(0,0)
+    quick_report(1,2)
+    quick_report(0,2)
+    quick_report(2,1)
 
   ncfile.close()
 
@@ -395,7 +413,9 @@ def fill_fire_file(if_name, xo, yo, xs, ys, out_dir, of_name):
 
   create_template_fire_file(of_name, sizey=ys, sizex=xs, rand=True)
 
-  print "Not sure what to fill with yet...."
+  print "FILLING FIRE FILE WITH 'REAL' DATA IS NOT IMPLEMENTED YET!"
+
+
 
 
 def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir, files=[]):
