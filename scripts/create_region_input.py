@@ -390,6 +390,13 @@ def fill_climate_file(start_yr, yrs, xo, yo, xs, ys, out_dir, of_name, sp_ref_fi
 
     print "Done with year loop."
 
+  print "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+  print "%% NOTE! Converting rsds (nirr) from MJ/m^2/day to W/m^2!"
+  print "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+  with netCDF4.Dataset(os.path.join(out_dir, of_name), mode='a') as new_climatedataset:
+    nirr = new_climatedataset.variables['nirr']
+    nirr[:] = (1000000 / (60*60*24)) * nirr[:]
+
 def fill_fire_file(if_name, xo, yo, xs, ys, out_dir, of_name):
 
   create_template_fire_file(of_name, sizey=10, sizex=10, rand=None)
