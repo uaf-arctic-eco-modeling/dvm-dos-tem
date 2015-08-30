@@ -690,7 +690,7 @@ void Cohort::updateMonthly_Fir(const int & year, const int & midx) {
   }
 
   // see if it is an appropriate time to burn
-  if ( fire.should_ignite(year, midx, "eq-run") ) {
+  if ( fire.should_ignite(year, midx, "eq-run" /* <<-- FIX THIS! what about other stages...? */) ) {
 
     BOOST_LOG_SEV(glg, debug) << "Derive fire severity...";
     fire.derive_fire_severity(cd.drainage_type, 3, /* FIX THIS --> */ 1);

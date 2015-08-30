@@ -487,6 +487,7 @@ namespace temutil {
   /** rough draft for reading a single location's, list of 'fire years' 
     (explicit replacement for FRI) */
   std::vector<int> get_fire_years(const std::string &filename, int y, int x) {
+  // FIX: implement this!
 /*
     BOOST_LOG_SEV(glg, debug) << "Opening dataset: " << filename;
     int ncid;
@@ -537,7 +538,7 @@ namespace temutil {
       Does this imply that the fire_years must be sorted?
   */
   std::vector<int> get_fire_sizes(const std::string &filename, int y, int x){
-  
+    // FIX: implement this!
   }
 
   /** rough draft for reading a single location, veg classification
