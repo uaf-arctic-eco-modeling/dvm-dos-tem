@@ -333,7 +333,7 @@ namespace temutil {
   */
   std::vector<float> get_climate_var_timeseries(const std::string &filename,
                                                 const std::string &var,
-                                                int y, int x) {
+                                                const int y, const int x) {
 
     BOOST_LOG_SEV(glg, debug) << "Opening dataset: " << filename;
     BOOST_LOG_SEV(glg, debug) << "Getting variable: " << var;

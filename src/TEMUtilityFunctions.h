@@ -107,8 +107,8 @@ namespace temutil {
   
   // draft - reading one location, all timesteps climate variable
   std::vector<float> get_climate_var_timeseries(const std::string &filename,
-                                              const std::string &var,
-                                              int y, int x);
+                                                const std::string &var,
+                                                const int y, const int x);
   
   // draft - reads all timesteps co2 data
   std::vector<float> get_co2_timeseries(const std::string &filename);
