@@ -68,6 +68,15 @@ Cohort::Cohort(int y, int x, ModelData* modeldatapointer):
   BOOST_LOG_SEV(glg, debug) << "Setup the fire information...";
   this->cd.fri = temutil::get_fri(modeldatapointer->fire_file, y, x);
 
+  this->fire = WildFire(modeldatapointer->fire_file, y, x);
+
+//  what if fire_years is a mask, and the other vectors parallel it
+//  
+// years =  [1  0  1  0  0  0  0  0  0  0  0  0  1  ]
+// sizes =  [14 0  64 0  0  0  0  0  0  0  0  0  30 ]
+// month =  [6  0  6  0  0  0  0  0  0  0  0  0  7  ]
+//
+
   // FIX: Load fire years, sizes...
   //this->fire_years /* = ?? */;
   //this->fire_sizes /* = ?? */;
@@ -98,7 +107,7 @@ Cohort::Cohort(int y, int x, ModelData* modeldatapointer):
 
   Vegetation_Bgc vegbgc[NUM_PFT];
 
-  WildFire fire;
+
 
   // output
   //OutRetrive outbuffer;

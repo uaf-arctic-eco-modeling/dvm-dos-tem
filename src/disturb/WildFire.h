@@ -22,6 +22,8 @@ using namespace std;
 class WildFire {
 public:
   WildFire();
+  WildFire(const std::string& fname, const int y, const int x);
+  
   ~WildFire();
 
   int firstfireyr;
@@ -53,6 +55,10 @@ public:
   void burn(); //Yuan: modified
 
 private:
+
+  std::vector<int> fire_years;
+  std::vector<int> fire_month;
+  std::vector<float> fire_sizes; // km^2?
 
   firepar_bgc firpar;
 
