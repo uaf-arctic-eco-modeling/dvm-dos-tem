@@ -36,6 +36,8 @@ WildFire::WildFire(const std::string& fname, const int y, const int x){
   BOOST_LOG_SEV(glg, warn) << "HELL YEAH, NEW FIRE CTOR, PARAMETERIZED!!";
   BOOST_LOG_SEV(glg, warn) << "%%%%% NOT IMPLEMENTED YET!! %%%%%%%%%%%%%";
 
+  fri = temutil::get_fri(fname, y, x);
+
   // need templates or more overloads or something so that we can
   // read the std::vector<int> 
   //fire_years = temutil::get_timeseries(fname, "fire_years", y, x);
@@ -139,14 +141,16 @@ bool WildFire::should_ignite(const int yr, const int midx, const std::string& st
 }
 
 /** Burning vegetation and soil organic C */
-void WildFire::burn() {
+void WildFire::burn(const int severity) {
+  assert ((severity >= 0) && (severity < 5) && "Invalid fire severity!");
+  
   BOOST_LOG_SEV(glg, note) << "HELP!! - WILD FIRE!! RUN FOR YOUR LIFE!";
   fd->burn();
 
   // for soil part and root burning
   //NOTE: here we operates on soil portion of 'bdall', later will copy that
   //  to other PFTs if any
-  double burndepth = getBurnOrgSoilthick();
+  double burndepth = getBurnOrgSoilthick(severity);
   double totbotdepth = 0.0;
   double burnedsolc = 0.0;
   double burnedsoln = 0.0;
@@ -260,7 +264,8 @@ void WildFire::burn() {
     if (cd->m_veg.vegcov[ip] > 0.0) {
 
       // vegetation burning/dead/living fraction for above-ground
-      getBurnAbgVegetation(ip);
+      getBurnAbgVegetation(ip, severity);
+
 
       //root death ratio: must be called after both above-ground and
       //  below-ground burning
@@ -402,34 +407,36 @@ void WildFire::burn() {
 //};
 
 // above ground burning ONLY, based on fire severity indirectly or directly
-void WildFire::getBurnAbgVegetation(const int &ip) {
+void WildFire::getBurnAbgVegetation(const int &ip, const int severity) {
+  assert ((severity >= 0 && severity <5) && "Invalid fire severity!!");
+  
   //Yuan: the severity categories are from ALFRESCO:
   // 0 - no burning; 1 - low; 2 - moderate; 3 - high + low surface;
   // 4 - high + high surface
   // so, 1, 2, and 3/4 correspond to original TEM's low, moderate, and high.
-  if (oneseverity==0) {
+  if (severity==0) {
     r_burn2ag_cn = firpar.fvcomb[0][ip];
     r_dead2ag_cn = firpar.fvdead[0][ip];
-  } else if (oneseverity==1) {
+  } else if (severity==1) {
     r_burn2ag_cn = firpar.fvcomb[1][ip];
     r_dead2ag_cn = firpar.fvdead[1][ip];
-  } else if (oneseverity==2) {
+  } else if (severity==2) {
     r_burn2ag_cn = firpar.fvcomb[2][ip];
     r_dead2ag_cn = firpar.fvdead[2][ip];
-  } else if (oneseverity==3) {
+  } else if (severity==3) {
     r_burn2ag_cn = firpar.fvcomb[3][ip];
     r_dead2ag_cn = firpar.fvdead[3][ip];
-  } else if (oneseverity==4) {
+  } else if (severity==4) {
     r_burn2ag_cn = firpar.fvcomb[4][ip];
     r_dead2ag_cn = firpar.fvdead[4][ip];
   }
 
   r_live_cn = 1.-r_burn2ag_cn-r_dead2ag_cn;
-};
+}
 
 //fire severity based organic soil burn thickness, and
 //  adjustment based on soil water condition
-double WildFire::getBurnOrgSoilthick() {
+double WildFire::getBurnOrgSoilthick(const int severity) {
   double bthick=0;
   //////////////////////////////////
   ///Rule 1: only organic layer can be burned (Site Related)
@@ -443,15 +450,15 @@ double WildFire::getBurnOrgSoilthick() {
   //4 - high + high surface
   //so, 1, 2, and 3/4 correspond to TEM's low, moderate, and
   //  high. But needs further field data supports
-  if (oneseverity<=0) { // no burning
+  if (severity<=0) { // no burning
     bthick = 0.;
-  } else if (oneseverity==1) {   //low
+  } else if (severity==1) {   //low
     bthick = firpar.foslburn[1] * totorgthick;
-  } else if (oneseverity==2) {   //moderate
+  } else if (severity==2) {   //moderate
     bthick = firpar.foslburn[2] * totorgthick;
-  } else if (oneseverity==3) {
+  } else if (severity==3) {
     bthick = firpar.foslburn[3] * totorgthick;
-  } else if (oneseverity==4) {    //high
+  } else if (severity==4) {    //high
     bthick = firpar.foslburn[4] * totorgthick;
   }
 

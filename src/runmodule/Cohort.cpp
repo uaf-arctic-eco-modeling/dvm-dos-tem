@@ -66,20 +66,17 @@ Cohort::Cohort(int y, int x, ModelData* modeldatapointer):
   this->climate = Climate(modeldatapointer->hist_climate_file, modeldatapointer->co2_file, y, x);
 
   BOOST_LOG_SEV(glg, debug) << "Setup the fire information...";
-  this->cd.fri = temutil::get_fri(modeldatapointer->fire_file, y, x);
-
+  // FIX: same thing with fire - may need historic and projected...
   this->fire = WildFire(modeldatapointer->fire_file, y, x);
 
-//  what if fire_years is a mask, and the other vectors parallel it
-//  
-// years =  [1  0  1  0  0  0  0  0  0  0  0  0  1  ]
-// sizes =  [14 0  64 0  0  0  0  0  0  0  0  0  30 ]
-// month =  [6  0  6  0  0  0  0  0  0  0  0  0  7  ]
-//
+  this->cd.fri = this->fire.fri;
 
-  // FIX: Load fire years, sizes...
-  //this->fire_years /* = ?? */;
-  //this->fire_sizes /* = ?? */;
+  //  what if fire_years is a mask, and the other vectors parallel it
+  //  
+  // years =  [1  0  1  0  0  0  0  0  0  0  0  0  1  ]
+  // sizes =  [14 0  64 0  0  0  0  0  0  0  0  0  30 ]
+  // month =  [6  0  6  0  0  0  0  0  0  0  0  0  7  ]
+  //
 
   this->soilenv = Soil_Env();
   
@@ -702,12 +699,12 @@ void Cohort::updateMonthly_Fir(const int & year, const int & midx) {
   if ( fire.should_ignite(year, midx, "eq-run" /* <<-- FIX THIS! what about other stages...? */) ) {
 
     BOOST_LOG_SEV(glg, debug) << "Derive fire severity...";
-    fire.derive_fire_severity(cd.drainage_type, 3, /* FIX THIS --> */ 1);
+    int fire_severity = fire.derive_fire_severity(cd.drainage_type, 3, /* FIX THIS --> */ 1);
 
     // fire, update C/N pools for each pft through 'bd', but not soil structure
     // soil root fraction also updated through 'cd'
     BOOST_LOG_SEV(glg, debug) << "BURN!";
-    fire.burn();
+    fire.burn(fire_severity);
 
     BOOST_LOG_SEV(glg, debug) << "Collect burned veg C/N from individual pfts into bdall...";
     for (int ip=0; ip<NUM_PFT; ip++) {
