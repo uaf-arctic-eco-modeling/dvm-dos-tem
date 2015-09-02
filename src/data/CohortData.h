@@ -36,20 +36,12 @@ public:
 
   bool hasnonvascular; //if exists non-vascular PFT(s) within the vegetation community
 
-  int act_vegset;
   int vegyear[MAX_VEG_SET];
   int vegtype[MAX_VEG_SET];
   double vegfrac[MAX_VEG_SET];
 
-
   int fri;
-  int act_fireset;
-  int fireyear[MAX_FIR_OCRNUM];
-  int fireseason[MAX_FIR_OCRNUM];
-  int firesize[MAX_FIR_OCRNUM];
-  int fireseverity[MAX_FIR_OCRNUM];
 
-  int act_atm_drv_yr;
   float tair[MAX_ATM_DRV_YR*12];
   float prec[MAX_ATM_DRV_YR*12];
   float nirr[MAX_ATM_DRV_YR*12];
