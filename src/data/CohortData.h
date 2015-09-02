@@ -42,11 +42,6 @@ public:
 
   int fri;
 
-  float tair[MAX_ATM_DRV_YR*12];
-  float prec[MAX_ATM_DRV_YR*12];
-  float nirr[MAX_ATM_DRV_YR*12];
-  float vapo[MAX_ATM_DRV_YR*12];
-
   // community dimension
   vegstate_dim d_veg;   //at daily-interval   - 'd' is for daily
   vegstate_dim m_veg;   //at monthly-interval - 'm' is for monthly
