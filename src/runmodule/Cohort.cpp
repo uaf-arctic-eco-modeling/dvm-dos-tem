@@ -475,27 +475,21 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
 
   for(int id = 0; id < dinmcurr; id++) {
 
-    cd.day = id + 1; // apparently cd uses one based indexing...?
-
     int doy = temutil::day_of_year(currmind, id);
     daylength = temutil::length_of_day(this->lat, doy);
 
-    /* We are in a Cohort here.
-       We use our Atmosphere obj to update our EnvData objects's daily
+    /* Daily processes for a Cohort, Environmental module...
+       Have to use our Climate object to update our EnvData objects's daily
        climate arrays.
 
-       Atmosphere carries daily data for a whole year in arrays shaped [12][31]
+       Climate carries daily data for a whole year in 1D vectors
 
        EnvData carries single values for temp, co2, prec, rainfall, snowfall,
        nirr, par, and vapor pressure.
 
-       ISSUE: At this point, Atmosphere must have already setup its daily
-              structures.
+       NOTE: Climate must have already setup its daily structures!
 
     */
-
-    //get the daily atm drivers and the data is in 'edall'
-    //atm.updateDailyAtm(currmind, id);
     this->edall->update_from_climate(climate, currmind, id);
 
     //Initialize some daily variables for 'ground'

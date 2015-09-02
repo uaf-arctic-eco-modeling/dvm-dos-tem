@@ -25,9 +25,8 @@ public:
   void clear();
 
   int chtid;
-  int year;
-  int month;
-  int day;
+  int year;     // only used for output (old format)
+  int month;    // only used for output (old format)
 
   int cmttype; // vegetation community type
   int yrsdist; // years since last disturbance

@@ -35,7 +35,6 @@ void CohortData::clear() {
   chtid = MISSING_I;
   year  = MISSING_I;
   month = MISSING_I;
-  day   = MISSING_I;
   cmttype = MISSING_I;
   yrsdist = MISSING_I;
   drainage_type = MISSING_I;
