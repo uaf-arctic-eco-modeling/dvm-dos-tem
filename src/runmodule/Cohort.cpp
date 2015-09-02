@@ -65,6 +65,18 @@ Cohort::Cohort(int y, int x, ModelData* modeldatapointer):
   //this->proj_climate = Climate(modeldatapointer->proj_climate, y, x);
   this->climate = Climate(modeldatapointer->hist_climate_file, modeldatapointer->co2_file, y, x);
 
+  BOOST_LOG_SEV(glg, debug) << "Setup the fire information...";
+  // FIX: same thing with fire - may need historic and projected...
+  this->fire = WildFire(modeldatapointer->fire_file, y, x);
+
+  this->cd.fri = this->fire.fri;
+
+  //  what if fire_years is a mask, and the other vectors parallel it
+  //  
+  // years =  [1  0  1  0  0  0  0  0  0  0  0  0  1  ]
+  // sizes =  [14 0  64 0  0  0  0  0  0  0  0  0  30 ]
+  // month =  [6  0  6  0  0  0  0  0  0  0  0  0  7  ]
+  //
 
   this->soilenv = Soil_Env();
   
@@ -92,7 +104,7 @@ Cohort::Cohort(int y, int x, ModelData* modeldatapointer):
 
   Vegetation_Bgc vegbgc[NUM_PFT];
 
-  WildFire fire;
+
 
   // output
   //OutRetrive outbuffer;
@@ -104,12 +116,6 @@ Cohort::Cohort(int y, int x, ModelData* modeldatapointer):
   BgcData * bdall;
 
   //FirData * fd;   // this for all PFTs and their soil
-
-  //ModelData * md;
-  //RegionData * rd;
-  //GridData * gd;
-
-  RestartData resid;    //for input
 
   Integrator vegintegrator[NUM_PFT];
   Integrator solintegrator;
@@ -309,39 +315,40 @@ void Cohort::initialize_state_parameters() {
 //};
 
 // climate daily data for one year
-void Cohort::prepareDayDrivingData(const int & yrindx, const int & usedatmyr) {
-  //default climate/co2 setting
-  bool changeclm = true;
-  bool changeco2 = true;
-
-  if (md->runeq) {
-    changeclm = false;
-    changeco2 = false;
-  } else if (md->runsp) {
-    changeco2 = false;
-  }
-
-  // preparing ONE year daily driving data
-  if (true/*timer->eqend*/) {
-    //run the model after eq stage, climate and co2
-    //  driver controlled by setting in control file.
-    if (md->changeclimate == 1) {
-      changeclm = true;
-    } else if (md->changeclimate == -1) {
-      changeclm = false;
-    }
-
-    if (md->changeco2 == 1) {
-      changeco2 = true;
-    } else if (md->changeco2 == -1) {
-      changeco2 = false;
-    }
-
-  } else {
-    //run the model at eq stage, climate and co2
-    //  driver not controlled by setting in control file.
-  }
-};
+// 08-27-2015 UNUSED
+//void Cohort::prepareDayDrivingData(const int & yrindx, const int & usedatmyr) {
+//  //default climate/co2 setting
+//  bool changeclm = true;
+//  bool changeco2 = true;
+//
+//  if (md->runeq) {
+//    changeclm = false;
+//    changeco2 = false;
+//  } else if (md->runsp) {
+//    changeco2 = false;
+//  }
+//
+//  // preparing ONE year daily driving data
+//  if (true/*timer->eqend*/) {
+//    //run the model after eq stage, climate and co2
+//    //  driver controlled by setting in control file.
+//    if (md->changeclimate == 1) {
+//      changeclm = true;
+//    } else if (md->changeclimate == -1) {
+//      changeclm = false;
+//    }
+//
+//    if (md->changeco2 == 1) {
+//      changeco2 = true;
+//    } else if (md->changeco2 == -1) {
+//      changeco2 = false;
+//    }
+//
+//  } else {
+//    //run the model at eq stage, climate and co2
+//    //  driver not controlled by setting in control file.
+//  }
+//};
 
 void Cohort::updateMonthly(const int & yrcnt, const int & currmind,
                            const int & dinmcurr) {
@@ -382,7 +389,7 @@ void Cohort::updateMonthly(const int & yrcnt, const int & currmind,
 
   if(md->get_dsbmodule()) {
     BOOST_LOG_SEV(glg, debug) << "Run the disturbance model.";
-    updateMonthly_Fir(yrcnt, currmind);
+    updateMonthly_Dsb(yrcnt, currmind);
   }
 
   BOOST_LOG_SEV(glg, debug) << "Clean up at the end of the month";
@@ -413,9 +420,11 @@ void Cohort::updateMonthly(const int & yrcnt, const int & currmind,
 //Environment Module Calling at monthly time-step, but involving daily time-step loop
 /////////////////////////////////////////////////////////
 void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
-//Yuan: note that the Veg-Env module calling is for a few PFTs within ONE cohort
-//  1) ed calling is done for each PFTs within the module
-//  2) Env-module calling is done for one PFT, so needs loop for vegetation-relevant processes
+  BOOST_LOG_NAMED_SCOPE("env")
+  //Yuan: note that the Veg-Env module calling is for a few PFTs within ONE cohort
+  //  1) ed calling is done for each PFTs within the module
+  //  2) Env-module calling is done for one PFT, so needs loop for vegetation-relevant processes
+
   // (i) the n factor for soil temperature calculation from Tair
   edall->d_soid.nfactor = 1;
   // Yuan: the following has temporarily commentted out - a lot of trouble
@@ -466,27 +475,21 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
 
   for(int id = 0; id < dinmcurr; id++) {
 
-    cd.day = id + 1; // apparently cd uses one based indexing...?
-
     int doy = temutil::day_of_year(currmind, id);
     daylength = temutil::length_of_day(this->lat, doy);
 
-    /* We are in a Cohort here.
-       We use our Atmosphere obj to update our EnvData objects's daily
+    /* Daily processes for a Cohort, Environmental module...
+       Have to use our Climate object to update our EnvData objects's daily
        climate arrays.
 
-       Atmosphere carries daily data for a whole year in arrays shaped [12][31]
+       Climate carries daily data for a whole year in 1D vectors
 
        EnvData carries single values for temp, co2, prec, rainfall, snowfall,
        nirr, par, and vapor pressure.
 
-       ISSUE: At this point, Atmosphere must have already setup its daily
-              structures.
+       NOTE: Climate must have already setup its daily structures!
 
     */
-
-    //get the daily atm drivers and the data is in 'edall'
-    //atm.updateDailyAtm(currmind, id);
     this->edall->update_from_climate(climate, currmind, id);
 
     //Initialize some daily variables for 'ground'
@@ -611,12 +614,13 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
       }
     }
   } // end of day loop in a month
-};
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 // Biogeochemical Module Calling at monthly timestep
 ///////////////////////////////////////////////////////////////////////////////////////////
 void Cohort::updateMonthly_Bgc(const int & currmind) {
+  BOOST_LOG_NAMED_SCOPE("bgc");
   //
   if(currmind==0) {
     for (int ip=0; ip<NUM_PFT; ip++) {
@@ -668,28 +672,41 @@ void Cohort::updateMonthly_Bgc(const int & currmind) {
   assignSoilBd2pfts_monthly();
 };
 
-//fire disturbance module calling
-/////////////////////////////////////////////////////////////////////////////////
-void Cohort::updateMonthly_Fir(const int & yrind, const int & currmind) {
-  if(currmind ==0) {
+void Cohort::updateMonthly_Dsb(const int & yrind, const int & currmind) {
+  BOOST_LOG_NAMED_SCOPE("dsb");
+
+  updateMonthly_Fir(yrind, currmind);
+
+  //updateMonthly_Flood(...)
+}
+
+/** Fire Disturbance module. */
+void Cohort::updateMonthly_Fir(const int & year, const int & midx) {
+  BOOST_LOG_NAMED_SCOPE("fire")
+
+  // FIX ?? not sure this may no longer be necessary??
+  if (midx == 0) {
     fd->beginOfYear();
-    fire.getOccur(yrind, md->get_friderived());
   }
 
-  if (yrind==fire.oneyear && currmind==fire.onemonth) {
-    //fire, C burning for each PFT, and C/N pools updated
-    //  through 'bd', but not soil structure
-    //soil root fraction also updated through 'cd'
-    fire.burn();
+  // see if it is an appropriate time to burn
+  if ( fire.should_ignite(year, midx, "eq-run" /* <<-- FIX THIS! what about other stages...? */) ) {
 
-    // summarize burned veg C/N of individual 'bd' for each PFT above
+    BOOST_LOG_SEV(glg, debug) << "Derive fire severity...";
+    int fire_severity = fire.derive_fire_severity(cd.drainage_type, 3, /* FIX THIS --> */ 1);
+
+    // fire, update C/N pools for each pft through 'bd', but not soil structure
+    // soil root fraction also updated through 'cd'
+    BOOST_LOG_SEV(glg, debug) << "BURN!";
+    fire.burn(fire_severity);
+
+    BOOST_LOG_SEV(glg, debug) << "Collect burned veg C/N from individual pfts into bdall...";
     for (int ip=0; ip<NUM_PFT; ip++) {
       if (cd.m_veg.vegcov[ip]>0.) {
         for (int i=0; i<NUM_PFT_PART; i++) {
           bdall->m_vegs.c[i]    += bd[ip].m_vegs.c[i];
           bdall->m_vegs.strn[i] += bd[ip].m_vegs.strn[i];
         }
-
         bdall->m_vegs.labn    += bd[ip].m_vegs.labn;
         bdall->m_vegs.call    += bd[ip].m_vegs.call;
         bdall->m_vegs.strnall += bd[ip].m_vegs.strnall;
@@ -699,30 +716,35 @@ void Cohort::updateMonthly_Fir(const int & yrind, const int & currmind) {
       }
     }
 
-    //assign the updated soil C/N pools during firing
-    //  to double-linked layer matrix in 'ground'
+    BOOST_LOG_SEV(glg, debug) << "Post-burn, assign the updated C/N pools to double linked layer matrix in ground...";
     soilbgc.assignCarbonBd2LayerMonthly();
-    //then, adjusting soil structure after fire burning
-    //  (Don't do this prior to the previous calling)
-    ground.adjustSoilAfterburn();
-    // and finally save the data back to 'bdall'
+
+    BOOST_LOG_SEV(glg, debug) << "Post-burn, adjust soil structure...";
+    ground.adjustSoilAfterburn(); // must call after soilbgc.assignCarbonBd2LayerMonthly()
+
+    BOOST_LOG_SEV(glg, debug) << "Post-burn, save the data back to 'bdall'...";
     soilbgc.assignCarbonLayer2BdMonthly();
-    // update all other pft's 'bd'
+
+    BOOST_LOG_SEV(glg, debug) << "Post-burn, update all other pft's 'bd'...";
     assignSoilBd2pfts_monthly();
-    // update 'cd'
+
+    BOOST_LOG_SEV(glg, debug) << "Post-burn, update cd, ground, fine root fraction...";
     cd.yrsdist = 0.;
     ground.retrieveSnowDimension(&cd.d_snow);
     ground.retrieveSoilDimension(&cd.m_soil);
     cd.d_soil = cd.m_soil;
     cd.y_soil = cd.m_soil;
     getSoilFineRootFrac_Monthly();
-  }
-};
 
-/////////////////////////////////////////////////////////////////////////////////
-//   Dynamical Vegetation Module (DVM) calling
-////////////////////////////////////////////////////////////////////////////////
+  } else {
+    BOOST_LOG_SEV(glg, debug) << "Not time for a fire. Nothing to do.";
+  }
+}
+
+/** Dynamic Vegetation Module function. */
 void Cohort::updateMonthly_DIMveg(const int & currmind, const bool & dvmmodule) {
+  BOOST_LOG_NAMED_SCOPE("DIMveg");
+  BOOST_LOG_SEV(glg, debug) << "A sample log message in DVM ...";
   //switch for using LAI read-in (false) or dynamically with vegC
   // the read-in LAI is through the 'chtlu->envlai[12]', i.e., a 12 monthly-LAI
   if (dvmmodule) {
@@ -754,10 +776,10 @@ void Cohort::updateMonthly_DIMveg(const int & currmind, const bool & dvmmodule) 
   veg.updateFrootfrac();
 };
 
-/////////////////////////////////////////////////////////////////////////////////
-//   Dynamical Soil Layer Module (DSL)
-////////////////////////////////////////////////////////////////////////////////
+/** Dynamic Soil Layer Module Fucntion. */
 void Cohort::updateMonthly_DIMgrd(const int & currmind, const bool & dslmodule) {
+  BOOST_LOG_NAMED_SCOPE("DIMgrd");
+  BOOST_LOG_SEV(glg, debug) << "A sample log message in DSL module";
   // re-call the 'bdall' soil C contents and assign them to the double-linked layer matrix
   soilbgc.assignCarbonBd2LayerMonthly();
 
@@ -1374,50 +1396,3 @@ void Cohort::set_restartdata_from_state() {
   }
 }
 
-
-
-
-//void Cohort::NEW_load_fire_from_file(int y, int x) {
-//  BOOST_LOG_SEV(glg, debug) << "New-style fire data reading function...";
-//  
-//        //    // 1) for eq and sp we need a fire recurrance interval
-//        //  // varies with space and *NOT* time
-//        //  // generated by some statictical munging of the SNAP Fire History tif files
-//        //  // will result in a single band tiff
-//        //  int fri;
-//        //
-//        //  // 2) for tr and sc FRI is based on ALF outputs or historical records
-//        //  // (for AK from 1952) year_of_burn - explicit replacement for FRI in tr and
-//        //  // sc (maybe from ALF)
-//        //  std::vector<int> fire_years;
-//        //  std::vector<int> fire_sizes;
-//  std::string fire_dataset = "scripts/new-fire-dataset.nc";
-//  
-//  BOOST_LOG_SEV(glg, info) << "Loading fire from file: " << fire_dataset;
-//  BOOST_LOG_SEV(glg, info) << "Loading fire for (y, x) point: ("<< y <<","<< x <<").";
-//
-//  this->cd.fri = temutil::get_fri(fire_dataset, y, x);
-//  
-////  this->cd->fire_years = temutil::get_fire_years(fire_dataset, y, x);
-////  
-////  this->cd->fire_sizes = temutil::get_fire_sizes(fire_dataset, y, x);
-//  
-//}
-//
-//
-//void Cohort::NEW_load_veg_class_from_file(int y, int x) {
-//  BOOST_LOG_SEV(glg, debug) << "New-style veg data reading function.";
-//
-//  std::string veg_dataset = "scripts/new-veg-dataset.nc";
-//
-//  BOOST_LOG_SEV(glg, info) << "Loading vegetation from file: " << veg_dataset;
-//  BOOST_LOG_SEV(glg, info) << "Loading vegetation for (y, x) point: (" << y <<","<< x <<").";
-//
-//  cd.vegtype[0] = temutil::get_veg_class(veg_dataset, y, x);
-//  
-//  // Not sure exactly how these are used yet...
-//  // setting to to dummy values...
-//  cd.vegyear[0] = -9999.0;
-//  cd.vegfrac[0] = 1.0;
-//
-//}

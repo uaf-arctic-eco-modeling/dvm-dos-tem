@@ -329,11 +329,11 @@ namespace temutil {
   
   
   /** rough draft for reading a timeseries for a single location from a 
-  *   new-style climate file
+  *   new-style input file
   */
-  std::vector<float> get_climate_var_timeseries(const std::string &filename,
-                                                const std::string &var,
-                                                int y, int x) {
+  std::vector<float> get_timeseries(const std::string &filename,
+                                    const std::string &var,
+                                    const int y, const int x) {
 
     BOOST_LOG_SEV(glg, debug) << "Opening dataset: " << filename;
     BOOST_LOG_SEV(glg, debug) << "Getting variable: " << var;
@@ -347,63 +347,54 @@ namespace temutil {
     temutil::nc( nc_inq_dimid(ncid, "time", &timeD) );
     temutil::nc( nc_inq_dimlen(ncid, timeD, &timeD_len) );
 
-    int climate_var;
-    temutil::nc( nc_inq_varid(ncid, var.c_str(), &climate_var) );
+    int timeseries_var;
+    temutil::nc( nc_inq_varid(ncid, var.c_str(), &timeseries_var) );
 
     BOOST_LOG_SEV(glg, debug) << "Allocate a vector with enough space for the whole timeseries (" << timeD_len << " timesteps)";
-    std::vector<float> climate_data(timeD_len);
+    std::vector<float> data(timeD_len);
 
-    if (!(y == -99999 && x == -99999)) {
-      BOOST_LOG_SEV(glg, note) << "Getting value for pixel(y,x): ("<< y <<","<< x <<").";
-      int yD, xD;
-      size_t yD_len, xD_len;
+    BOOST_LOG_SEV(glg, note) << "Getting value for pixel(y,x): ("<< y <<","<< x <<").";
+    int yD, xD;
+    size_t yD_len, xD_len;
 
-      temutil::nc( nc_inq_dimid(ncid, "Y", &yD) );
-      temutil::nc( nc_inq_dimlen(ncid, yD, &yD_len) );
+    temutil::nc( nc_inq_dimid(ncid, "Y", &yD) );
+    temutil::nc( nc_inq_dimlen(ncid, yD, &yD_len) );
 
-      temutil::nc( nc_inq_dimid(ncid, "X", &xD) );
-      temutil::nc( nc_inq_dimlen(ncid, xD, &xD_len) );
+    temutil::nc( nc_inq_dimid(ncid, "X", &xD) );
+    temutil::nc( nc_inq_dimlen(ncid, xD, &xD_len) );
 
-      // specify start indices for each dimension (y, x)
-      size_t start[3];
-      start[0] = 0;     // from begining of time
-      start[1] = y;     // specified location
-      start[2] = x;     // specified location
+    // specify start indices for each dimension (y, x)
+    size_t start[3];
+    start[0] = 0;     // from begining of time
+    start[1] = y;     // specified location
+    start[2] = x;     // specified location
 
-      // specify counts for each dimension
-      size_t count[3];
-      count[0] = timeD_len;     // all time
-      count[1] = 1;             // one location
-      count[2] = 1;             // one location
+    // specify counts for each dimension
+    size_t count[3];
+    count[0] = timeD_len;     // all time
+    count[1] = 1;             // one location
+    count[2] = 1;             // one location
 
-      BOOST_LOG_SEV(glg, debug) << "Grab the data from the netCDF file...";
-      temutil::nc( nc_get_vara_float(ncid, climate_var, start, count, &climate_data[0]) );
+    BOOST_LOG_SEV(glg, debug) << "Grab the data from the netCDF file...";
+    temutil::nc( nc_get_vara_float(ncid, timeseries_var, start, count, &data[0]) );
 
-    } else {
-      BOOST_LOG_SEV(glg, note) << "Getting non-spatially explcit timeseries.";
-
-      size_t start[1];
-      start[0] = 0;         // from beginning of time
-
-      size_t count[1];
-      count[0] = timeD_len; // all time
-
-      BOOST_LOG_SEV(glg, debug) << "Grab the data from the netCDF file...";
-      temutil::nc( nc_get_vara_float(ncid, climate_var, start, count, &climate_data[0]) );
-    }
-
-    return climate_data;
+    return data;
     
   }
 
   /** rough draft for reading a timeseries of co2 data from a new-style co2 file.
   */
-  std::vector<float> get_co2_timeseries(const std::string &filename) {
+  std::vector<float> get_timeseries(const std::string &filename,
+                                    const std::string& var) {
 
     BOOST_LOG_SEV(glg, debug) << "Opening dataset: " << filename;
+    BOOST_LOG_SEV(glg, debug) << "Getting variable: " << var;
 
     int ncid;
     temutil::nc( nc_open(filename.c_str(), NC_NOWRITE, &ncid) );
+
+    int timeseries_var;
+    temutil::nc( nc_inq_varid(ncid, var.c_str(), &timeseries_var) );
 
     int yearD;
     size_t yearD_len;
@@ -411,11 +402,8 @@ namespace temutil {
     temutil::nc( nc_inq_dimid(ncid, "year", &yearD) );
     temutil::nc( nc_inq_dimlen(ncid, yearD, &yearD_len) );
 
-    int co2_var;
-    temutil::nc( nc_inq_varid(ncid, "co2", &co2_var) );
-
     BOOST_LOG_SEV(glg, debug) << "Allocate a vector with enough space for the whole timeseries (" << yearD_len << " timesteps)";
-    std::vector<float> co2_data(yearD_len);
+    std::vector<float> data(yearD_len);
 
     size_t start[1];
     start[0] = 0;         // from beginning of time
@@ -424,9 +412,9 @@ namespace temutil {
     count[0] = yearD_len; // all time
 
     BOOST_LOG_SEV(glg, debug) << "Grab the data from the netCDF file...";
-    temutil::nc( nc_get_vara_float(ncid, co2_var, start, count, &co2_data[0]) );
+    temutil::nc( nc_get_vara_float(ncid, timeseries_var, start, count, &data[0]) );
 
-    return co2_data;
+    return data;
   }
 
 
@@ -487,6 +475,7 @@ namespace temutil {
   /** rough draft for reading a single location's, list of 'fire years' 
     (explicit replacement for FRI) */
   std::vector<int> get_fire_years(const std::string &filename, int y, int x) {
+  // FIX: implement this!
 /*
     BOOST_LOG_SEV(glg, debug) << "Opening dataset: " << filename;
     int ncid;
@@ -537,7 +526,7 @@ namespace temutil {
       Does this imply that the fire_years must be sorted?
   */
   std::vector<int> get_fire_sizes(const std::string &filename, int y, int x){
-  
+    // FIX: implement this!
   }
 
   /** rough draft for reading a single location, veg classification

@@ -217,6 +217,8 @@ int main(int argc, char* argv[]){
           // Maybe 'cal_mode' should be part of the ModelData config object ??
           BOOST_LOG_SEV(glg, debug) << "Setup the NEW STYLE RUNNER OBJECT ...";
           Runner runner(modeldata, args->get_cal_mode(), rowidx, colidx);
+          // A 'new style' runner should come with a properly instantiated
+          // Cohort object...
 
           BOOST_LOG_SEV(glg, debug) << runner.cohort.ground.layer_report_string();
           //runner.cohort.reinitialize(md->initsource);
@@ -230,18 +232,17 @@ int main(int argc, char* argv[]){
           BOOST_LOG_SEV(glg, debug) << "right after initialize_internal_pointers() and initialize_state_parameters()" << runner.cohort.ground.layer_report_string();
 
           if (modeldata.runeq) {
-
-            ///** Env module only "pre-run".
-            //  - create the climate from the average of the first X years
-            //    of the driving climate data. 
-            //    SIZE: 12 months,  1 year
-            //  - turn off everything but env module
-            //  - set yrs since dsb
-            //  - run_years( 0 <= iy <= X )
-            //  - ignore the calibration directives
-            //
             {
               BOOST_LOG_NAMED_SCOPE("PRE-RUN");
+              /** Env-only "pre-run" stage.
+                   - should use only the env module
+                   - number of years to run can be controlled on cmd line
+                   - use fixed climate that is averaged over first X years
+                   - use static (fixed) co2 value (first element of co2 file)
+                   - FIX: need to set yrs since dsb ?
+                   - FIX: should ignore calibration directives?
+              */
+
               // turn off everything but env
               runner.cohort.md->set_envmodule(true);
               runner.cohort.md->set_bgcmodule(false);
@@ -252,13 +253,10 @@ int main(int argc, char* argv[]){
               runner.cohort.md->set_dslmodule(false);
               runner.cohort.md->set_dvmmodule(false);
 
-              // changing climate?: NO - use avgX values
-              // changing CO2?:     NO - use static value
-
               BOOST_LOG_SEV(glg, debug) << "Ground, right before 'pre-run'. "
                                         << runner.cohort.ground.layer_report_string();
 
-              runner.run_years(0, modeldata.pre_run_yrs, "pre-run");
+              runner.run_years(0, modeldata.pre_run_yrs, "pre-run"); // climate is prepared w/in here.
 
               BOOST_LOG_SEV(glg, debug) << "Ground, right after 'pre-run'"
                                         << runner.cohort.ground.layer_report_string();
