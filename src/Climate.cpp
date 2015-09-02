@@ -103,7 +103,18 @@ std::pair<float, float> willmot_split(const float t, const float p) {
   return std::make_pair(r,s);
 }
 
-/** GIRR as a function of latitude and month. */
+/** GIRR (W/m^2) as a function of latitude and month.
+*
+*  More information and formulas can be found here:
+*  http://www.fao.org/docrep/X0490E/x0490e07.htm
+*  (section "Extraterrestrial radiation for daily periods")
+* 
+*  And a table of expected values here:
+*  http://www.fao.org/docrep/X0490E/x0490e0j.htm#annex%202.%20meteorological%20tables
+* 
+*  NOTE: To convert from MJ/m^2/day to W/m^2:
+*        multiply by (1,000,000)/(60*60*24) or ~11.57
+*/
 float calculate_girr(const float lat, const int im) {
   const float pi = 3.141592654;                // Greek "pi" TODO: fix this to use constant from math library?
   const float sp = 1368.0 * 3600.0 / 41860.0;  // solar constant
@@ -149,7 +160,7 @@ float calculate_girr(const float lat, const int im) {
   }
 
   gross /= (float)DINM[im];
-  gross *= 0.484; // convert from cal/cm2day to W/m2
+  gross *= 0.484; // convert from cal/cm2day to W/m^2
   return gross;
 }
 
@@ -560,6 +571,8 @@ void Climate::prepare_daily_driving_data(int iy, const std::string& stage) {
     par_d = monthly2daily(eq_range(par));
     girr_d = monthly2daily(eq_range(girr));
 
+    // The interpolation is slightly broken, so it 'overshoots' when the slope
+    // is negative, and can result in negative values.
     BOOST_LOG_SEV(glg, info) << "Forcing negative values to zero in girr and nirr daily containers...";
     std::for_each(nirr_d.begin(), nirr_d.end(), temutil::force_negative2zero);
     std::for_each(girr_d.begin(), girr_d.end(), temutil::force_negative2zero);
