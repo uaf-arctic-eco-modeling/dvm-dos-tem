@@ -118,43 +118,42 @@ void Runner::output_caljson_monthly(int year, int month){
   std::ofstream out_stream;
 
   /* Not PFT dependent */
-  // FIX: should the non-pft dependant stuff be coming from edall??
   data["Year"] = year;
   data["Month"] = month;
-  data["TAir"] = cohort.ed->m_atms.ta;
-  data["Snowfall"] = cohort.ed->m_a2l.snfl;
-  data["Rainfall"] = cohort.ed->m_a2l.rnfl;
-  data["WaterTable"] = cohort.ed->m_sois.watertab;
-  data["ActiveLayerDepth"] = cohort.ed->m_soid.ald;
-  data["CO2"] = cohort.ed->m_atms.co2;
-  data["VPD"] = cohort.ed->m_atmd.vpd;
-  data["EET"] = cohort.ed->m_l2a.eet;
-  data["PET"] = cohort.ed->m_l2a.pet;
+  data["TAir"] = cohort.edall->m_atms.ta;
+  data["Snowfall"] = cohort.edall->m_a2l.snfl;
+  data["Rainfall"] = cohort.edall->m_a2l.rnfl;
+  data["WaterTable"] = cohort.edall->m_sois.watertab;
+  data["ActiveLayerDepth"] = cohort.edall->m_soid.ald;
+  data["CO2"] = cohort.edall->m_atms.co2;
+  data["VPD"] = cohort.edall->m_atmd.vpd;
+  data["EET"] = cohort.edall->m_l2a.eet;
+  data["PET"] = cohort.edall->m_l2a.pet;
   data["PAR"] = cohort.edall->m_a2v.pardown;            // <-- from edall
   data["PARAbsorb"] = cohort.edall->m_a2v.parabsorb;    // <-- from edall
   //PAR?
   //PARAbsorb
 
-  data["VWCShlw"] = cohort.ed->m_soid.vwcshlw; 
-  data["VWCDeep"] = cohort.ed->m_soid.vwcdeep;
-  data["VWCMineA"] = cohort.ed->m_soid.vwcminea;
-  data["VWCMineB"] = cohort.ed->m_soid.vwcmineb;
-  data["VWCMineC"] = cohort.ed->m_soid.vwcminec;
-  data["TShlw"] = cohort.ed->m_soid.tshlw;
-  data["TDeep"] = cohort.ed->m_soid.tdeep;
-  data["TMineA"] = cohort.ed->m_soid.tminea;
-  data["TMineB"] = cohort.ed->m_soid.tmineb;
-  data["TMineC"] = cohort.ed->m_soid.tminec;
+  data["VWCShlw"] = cohort.edall->m_soid.vwcshlw;
+  data["VWCDeep"] = cohort.edall->m_soid.vwcdeep;
+  data["VWCMineA"] = cohort.edall->m_soid.vwcminea;
+  data["VWCMineB"] = cohort.edall->m_soid.vwcmineb;
+  data["VWCMineC"] = cohort.edall->m_soid.vwcminec;
+  data["TShlw"] = cohort.edall->m_soid.tshlw;
+  data["TDeep"] = cohort.edall->m_soid.tdeep;
+  data["TMineA"] = cohort.edall->m_soid.tminea;
+  data["TMineB"] = cohort.edall->m_soid.tmineb;
+  data["TMineC"] = cohort.edall->m_soid.tminec;
 
-  data["StNitrogenUptakeAll"] = cohort.bd->m_soi2v.snuptakeall;
-  data["InNitrogenUptakeAll"] = cohort.bd->m_soi2v.innuptake;
-  data["AvailableNitrogenSum"] = cohort.bd->m_soid.avlnsum;
-  data["OrganicNitrogenSum"] = cohort.bd->m_soid.orgnsum;
-  data["CarbonShallow"] = cohort.bd->m_soid.shlwc;
-  data["CarbonDeep"] = cohort.bd->m_soid.deepc;
-  data["CarbonMineralSum"] = cohort.bd->m_soid.mineac
-                             + cohort.bd->m_soid.minebc
-                             + cohort.bd->m_soid.minecc;
+  data["StNitrogenUptakeAll"] = cohort.bdall->m_soi2v.snuptakeall;
+  data["InNitrogenUptakeAll"] = cohort.bdall->m_soi2v.innuptake;
+  data["AvailableNitrogenSum"] = cohort.bdall->m_soid.avlnsum;
+  data["OrganicNitrogenSum"] = cohort.bdall->m_soid.orgnsum;
+  data["CarbonShallow"] = cohort.bdall->m_soid.shlwc;
+  data["CarbonDeep"] = cohort.bdall->m_soid.deepc;
+  data["CarbonMineralSum"] = cohort.bdall->m_soid.mineac
+                             + cohort.bdall->m_soid.minebc
+                             + cohort.bdall->m_soid.minecc;
   data["MossdeathCarbon"] = cohort.bdall->m_v2soi.mossdeathc;
   data["MossdeathNitrogen"] = cohort.bdall->m_v2soi.mossdeathn;
   data["NetNMin"] = cohort.bdall->m_soi2soi.netnminsum;
