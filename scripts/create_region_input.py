@@ -92,21 +92,14 @@ def make_co2_file(filename):
   new_ncfile.close()
 
 
-def create_template_drainage_class_file(fname, sizey=10, sizex=10, rand=None):
-  '''Generate a file representing drainage classification.'''
-  print "Creating a drainage classification file, %s by %s pixels. (%s)" % (sizey, sizex, os.path.basename(fname))
+def create_template_drainage_file(fname, sizey=10, sizex=10):
+  '''Generate a template file for drainage classification.'''
+  print "Creating an empty drainage classification file, %s by %s pixels. (%s)" % (sizey, sizex, os.path.basename(fname))
   ncfile = netCDF4.Dataset(fname, mode='w', format='NETCDF4')
 
   Y = ncfile.createDimension('Y', sizey)
   X = ncfile.createDimension('X', sizex)
   drainage_class = ncfile.createVariable('drainage_class', np.int, ('Y', 'X',))
-
-  if rand:
-    print " --> NOTE: Filling with random data!"
-    drainage_class[:] = np.random.randint(low=0, high=2, size=(sizey, sizex))
-
-    print " --> NOTE: Setting 0,0 pixel to 1! (poorly drained?)"
-    drainage_class[0,0] = 1
 
   ncfile.close()
 
@@ -293,11 +286,13 @@ def create_template_veg_nc_file(fname, sizey=10, sizex=10, rand=None):
 def fill_veg_file(if_name, xo, yo, xs, ys, out_dir, of_name):
   '''Read subset of data from .tif into netcdf file for dvmdostem. '''
 
+  of_stripped = os.path.basename(of_name);
+
   # Create place for data
   create_template_veg_nc_file(of_name, sizey=ys, sizex=xs, rand=None)
 
   # Translate and subset to temporary location
-  temporary = os.path.join('/tmp', of_name)
+  temporary = os.path.join('/tmp', of_stripped)
 
   if not os.path.exists( os.path.dirname(temporary) ):
     os.makedirs(os.path.dirname(temporary))
@@ -428,6 +423,38 @@ def fill_climate_file(start_yr, yrs, xo, yo, xs, ys, out_dir, of_name, sp_ref_fi
     nirr = new_climatedataset.variables['nirr']
     nirr[:] = (1000000 / (60*60*24)) * nirr[:]
 
+
+def fill_drainage_file(if_name, xo, yo, xs, ys, out_dir, of_name, rand=True):
+  create_template_drainage_file(of_name, sizey=ys, sizex=xs)
+
+  with netCDF4.Dataset(of_name, mode='a') as drainage_class:
+
+    '''Fill drainage template file'''
+    if rand:
+      print " --> NOTE: Filling with random data!"
+      drain = drainage_class.variables['drainage_class']
+      drain[:] = np.random.randint(low=0, high=2, size=(ys, xs))
+
+      #Hard-coding a Toolik value to try and stabilize plots
+      print " --> NOTE: Setting 0,0 pixel to 1! (poorly drained?)"
+      drain[0,0] = 1
+
+    else:
+      print "Filling with real data"
+
+      print "Subsetting TIF to netCDF..."
+      check_call(['gdal_translate', '-of', 'netCDF', '-srcwin',
+                  str(xo), str(yo), str(xs), str(ys),
+                  if_name,
+                  '/tmp/script-temp_drainage_subset.nc'])
+
+
+      print "Writing subset data to new file"
+      with netCDF4.Dataset('/tmp/script-temp_drainage_subset.nc', mode='r') as temp_drainage:
+        drain = drainage_class.variables['drainage_class']
+        drain[:] = temp_drainage.variables['Band1'][:]
+
+
 def fill_fire_file(if_name, xo, yo, xs, ys, out_dir, of_name):
   create_template_fire_file(of_name, sizey=ys, sizex=xs, rand=True)
 
@@ -477,7 +504,8 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir, files=[]):
     fill_veg_file(tif_dir + "iem_ancillary_data/Landcover/LandCover_iem_TEM_2005.tif", xo, yo, xs, ys, out_dir, of_name)
 
   if 'drain' in files:
-    create_template_drainage_class_file(os.path.join(out_dir, "drainage-classification.nc"), sizey=ys, sizex=xs, rand=True)
+    of_name = os.path.join(out_dir, "drainage.nc")
+    fill_drainage_file(tif_dir + "iem_ancillary_data/tem_soil_data/Lowland_1km.tif", xo, yo, xs, ys, out_dir, of_name)
 
   if 'run_mask' in files:
     make_run_mask(os.path.join(out_dir, "script-run-mask.nc"), sizey=ys, sizex=xs)
