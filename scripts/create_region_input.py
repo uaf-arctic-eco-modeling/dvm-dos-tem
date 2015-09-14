@@ -424,7 +424,7 @@ def fill_climate_file(start_yr, yrs, xo, yo, xs, ys, out_dir, of_name, sp_ref_fi
     nirr[:] = (1000000 / (60*60*24)) * nirr[:]
 
 
-def fill_drainage_file(if_name, xo, yo, xs, ys, out_dir, of_name, rand=True):
+def fill_drainage_file(if_name, xo, yo, xs, ys, out_dir, of_name, rand=False):
   create_template_drainage_file(of_name, sizey=ys, sizex=xs)
 
   with netCDF4.Dataset(of_name, mode='a') as drainage_class:
@@ -448,11 +448,16 @@ def fill_drainage_file(if_name, xo, yo, xs, ys, out_dir, of_name, rand=True):
                   if_name,
                   '/tmp/script-temp_drainage_subset.nc'])
 
-
-      print "Writing subset data to new file"
       with netCDF4.Dataset('/tmp/script-temp_drainage_subset.nc', mode='r') as temp_drainage:
         drain = drainage_class.variables['drainage_class']
-        drain[:] = temp_drainage.variables['Band1'][:]
+
+        print "Thresholding: set data <= 200 to 0; set data > 200 to 1."
+        data = temp_drainage.variables['Band1'][:]
+        data[data <= 200] = 0
+        data[data > 200] = 1
+
+        print "Writing subset data to new file"
+        drain[:] = data
 
 
 def fill_fire_file(if_name, xo, yo, xs, ys, out_dir, of_name):
@@ -505,7 +510,7 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir, files=[]):
 
   if 'drain' in files:
     of_name = os.path.join(out_dir, "drainage.nc")
-    fill_drainage_file(tif_dir + "iem_ancillary_data/tem_soil_data/Lowland_1km.tif", xo, yo, xs, ys, out_dir, of_name)
+    fill_drainage_file(tif_dir + "iem_ancillary_data/soil_and_drainage/Lowland_1km.tif", xo, yo, xs, ys, out_dir, of_name)
 
   if 'run_mask' in files:
     make_run_mask(os.path.join(out_dir, "script-run-mask.nc"), sizey=ys, sizex=xs)
