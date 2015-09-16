@@ -79,7 +79,7 @@ ModelData::ModelData() {
   set_dvmmodule(false);
   set_dslmodule(false);
   set_dsbmodule(false);
-  set_friderived(false);
+  set_friderived(false); //FIX! obsolete??
 }
 
 
@@ -144,7 +144,7 @@ void ModelData::set_dsbmodule(const bool v) {
 }
 
 bool ModelData::get_friderived() {
-  return this->friderived;
+  return this->friderived; // FIX! Obsolete??
 }
 void ModelData::set_friderived(const std::string &s) {
   BOOST_LOG_SEV(glg, info) << "Setting friderived to " << s;
