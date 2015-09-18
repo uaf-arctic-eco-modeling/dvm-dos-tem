@@ -6,13 +6,15 @@ import os
 import platform
 import distutils.spawn
 
-USEMPI = False 
+USEMPI = True
 
 libs = Split("""jsoncpp
                 readline
                 netcdf_c++
                 netcdf
                 pthread
+                mpi_cxx
+                mpi
                 boost_system
                 boost_filesystem
                 boost_program_options
