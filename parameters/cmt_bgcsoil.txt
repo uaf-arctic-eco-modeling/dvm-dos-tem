@@ -97,12 +97,12 @@
 29.73             // nmincnsoil:
 0.2               // propftos:
 0.0               // fnloss:  fraction N leaching (0 - 1) when drainage occurs
-1000               // initdmossc:
-4957              // initshlwc:
-4531              // initdeepc:
-131321              // initminec:
-5896               // initsoln:
-3.93              // initavln:
+0.0               // initdmossc:
+1783              // initshlwc:
+5021              // initdeepc:
+9000              // initminec:
+363               // initsoln:
+0.76              // initavln:
 //===========================================================
 // CMT05 // Tussock Tundra  - soil microbial activity (BGC) parameters and default initial conditions
 2.0               // rhq10:
@@ -118,11 +118,11 @@
 29.73             // nmincnsoil:
 0.2               // propftos:
 0.0               // fnloss:  fraction N leaching (0 - 1) when drainage occurs
-1000.0               // initdmossc:
-6607.5             // initshlwc:
-10529.5              // initdeepc:
-276758.5              // initminec:
-8444.2               // initsoln:
+0.0               // initdmossc:
+10000            // initshlwc:
+20000              // initdeepc:
+24000              // initminec:
+2220.2               // initsoln:
 1.71              // initavln:
 //===========================================================
 // CMT06 // CMT6 TEM Community  - soil microbial activity (BGC) parameters and default initial conditions
@@ -140,8 +140,8 @@
 0.2               // propftos:
 0.0               // fnloss:  fraction N leaching (0 - 1) when drainage occurs
 0.0               // initdmossc:
-17830              // initshlwc:
-50210              // initdeepc:
-90000              // initminec:
-3630               // initsoln:
+1783              // initshlwc:
+5021              // initdeepc:
+9000              // initminec:
+363               // initsoln:
 0.76              // initavln:

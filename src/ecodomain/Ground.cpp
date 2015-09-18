@@ -1091,6 +1091,8 @@ void  Ground::redivideMossLayers(const int &mosstype) {
     ml->soma = 0.;
     ml->sompr= 0.;
     ml->somcr= 0.;
+    ml->orgn = 0.;
+    ml->avln = 0.;
     resortGroundLayers();
     updateSoilHorizons();
   }  // one-layer moss currently assumed, so no need to do redivision
@@ -1202,6 +1204,8 @@ COMBINEBEGIN:
       plnew->soma  = 0.;
       plnew->sompr = 0.;
       plnew->somcr = 0.;
+      plnew->orgn  = 0.;
+      plnew->avln  = 0.;
       plnew->derivePhysicalProperty();
       insertBefore(plnew, nextsl);
       // adjust properties for the following layer
@@ -1318,6 +1322,8 @@ COMBINEBEGIN:
       plnew->soma  = 0.5*lfibl->soma;
       plnew->sompr = lfibl->sompr;
       plnew->somcr = lfibl->somcr;
+      plnew->orgn  = lfibl->orgn;
+      plnew->avln  = lfibl->avln;
       plnew->derivePhysicalProperty();
       insertAfter(plnew, lfibl);
       // adjust properties for the above fibrous layer
@@ -1327,6 +1333,8 @@ COMBINEBEGIN:
       lfibl->soma *=0.5;
       lfibl->sompr = 0.;
       lfibl->somcr = 0.;
+      lfibl->orgn  = 0.;
+      lfibl->avln  = 0.;
       lfibl->derivePhysicalProperty();
       updateSoilHorizons();
     }
@@ -1426,6 +1434,8 @@ void Ground::splitOneSoilLayer(SoilLayer*usl, SoilLayer* lsl,
   lsl->soma =usl->soma;
   lsl->sompr=usl->sompr;
   lsl->somcr=usl->somcr;
+  lsl->orgn =usl->orgn;
+  lsl->avln =usl->avln;
 
   if (usl->isOrganic) {
     double pldtop = updeptop + usl->dz;   //usl->dz has been updated above
@@ -1436,6 +1446,8 @@ void Ground::splitOneSoilLayer(SoilLayer*usl, SoilLayer* lsl,
     lsl->soma  *= lslfrac;
     lsl->sompr *= lslfrac;
     lsl->somcr *= lslfrac;
+    lsl->orgn  *= lslfrac;
+    lsl->avln  *= lslfrac;
   }
 
   // then update C for new 'usl'
@@ -1443,6 +1455,8 @@ void Ground::splitOneSoilLayer(SoilLayer*usl, SoilLayer* lsl,
   usl->soma -= lsl->soma;
   usl->sompr-= lsl->sompr;
   usl->somcr-= lsl->somcr;
+  usl->orgn -= lsl->orgn;
+  usl->avln -= lsl->avln;
 };
 
 // Note: here properties updated when do combining two double-linked layers
@@ -1464,6 +1478,8 @@ void Ground::combineTwoSoilLayersU2L(SoilLayer* usl, SoilLayer* lsl) {
   lsl->soma +=usl->soma;
   lsl->sompr+=usl->sompr;
   lsl->somcr+=usl->somcr;
+  lsl->orgn +=usl->orgn;
+  lsl->avln +=usl->avln;
   // after combination, needs to update 'lsl'- 'frozen' status based on
   //   'fronts' if given
   getLayerFrozenstatusByFronts(lsl);
@@ -1485,6 +1501,8 @@ void Ground::combineTwoSoilLayersL2U(SoilLayer* lsl, SoilLayer* usl) {
   usl->soma +=lsl->soma;
   usl->sompr+=lsl->sompr;
   usl->somcr+=lsl->somcr;
+  usl->orgn +=lsl->orgn;
+  usl->avln =+lsl->avln;
   // after combination, needs to update 'usl'- 'frozen' status based on
   //   'fronts' if given
   getLayerFrozenstatusByFronts(usl);

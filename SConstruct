@@ -6,7 +6,7 @@ import os
 import platform
 import distutils.spawn
 
-USEMPI = True 
+USEMPI = True
 
 libs = Split("""jsoncpp
                 readline

@@ -230,13 +230,39 @@ void Soil_Bgc::initializeState() {
 };
 
 void Soil_Bgc::set_state_from_restartdata(const RestartData & rdata) {
+  
   for (int il =0; il<MAX_SOI_LAY; il++) {
-    bd->m_sois.rawc[il] = rdata.rawc[il];
-    bd->m_sois.soma[il] = rdata.soma[il];
-    bd->m_sois.sompr[il]= rdata.sompr[il];
-    bd->m_sois.somcr[il]= rdata.somcr[il];
-    bd->m_sois.orgn[il] = rdata.orgn[il];
-    bd->m_sois.avln[il] = rdata.avln[il];
+    
+    if(rdata.rawc[il]>=0){
+		  bd->m_sois.rawc[il] = rdata.rawc[il];
+    } else { 
+		  bd->m_sois.rawc[il] = 0;
+    }
+    if(rdata.soma[il]>=0){    
+		  bd->m_sois.soma[il] = rdata.soma[il];
+    } else { 
+		  bd->m_sois.soma[il] = 0;
+    }
+    if(rdata.sompr[il]>=0){
+		  bd->m_sois.sompr[il]= rdata.sompr[il];
+    } else { 
+		  bd->m_sois.sompr[il] = 0;
+    }
+    if(rdata.somcr[il]>=0){
+		  bd->m_sois.somcr[il]= rdata.somcr[il];
+    } else { 
+		  bd->m_sois.somcr[il] = 0;
+    }
+    if(rdata.orgn[il]>=0){
+		  bd->m_sois.orgn[il] = rdata.orgn[il];
+    } else { 
+		  bd->m_sois.orgn[il] = 0;
+    }
+    if(rdata.avln[il]>=0){
+		  bd->m_sois.avln[il] = rdata.avln[il];
+    } else { 
+		  bd->m_sois.avln[il] = 0;
+    }
 
     for(int i=0; i<10; i++) {
       bd->prvltrfcnque[il].clear();
@@ -275,10 +301,10 @@ void Soil_Bgc::initializeParameter() {
   //  0.48 tC of RAWC, 0.28tC of SOMA, 11.3tC of SOMPR, and 12.2 tC of SOMCR,
   //  i.e. total 24.26 tC, so we have the following
   // but normally these can be estimated from Ks calibrated
-  bgcpar.eqrawc  = 0.02;
-  bgcpar.eqsoma  = 0.01;
-  bgcpar.eqsompr = 0.47;
-  bgcpar.eqsomcr = 0.50;
+  bgcpar.eqrawc = 0.48/(0.48+0.28+11.3+12.2);
+  bgcpar.eqsoma  = 0.28/(0.48+0.28+11.3+12.2);
+  bgcpar.eqsompr = 11.3/(0.48+0.28+11.3+12.2);
+  bgcpar.eqsomcr = 12.2/(0.48+0.28+11.3+12.2);
   bgcpar.lcclnc     = chtlu->lcclnc;
   bgcpar.nmincnsoil = chtlu->nmincnsoil;
   bgcpar.kn2 = chtlu->kn2;
@@ -351,10 +377,17 @@ void Soil_Bgc::initOslayerCarbon(double & shlwc, double & deepc) {
 
       if(cumcarbonbot-cumcarbontop>0.) {
         if (currl->isOrganic) {  // dead moss layers are not regarded as soil organic layers
-          currl->rawc  = bgcpar.eqrawc * (cumcarbonbot - cumcarbontop); //note: those eq-fractions of SOM pools must be estimated before
-          currl->soma  = bgcpar.eqsoma * (cumcarbonbot - cumcarbontop);
-          currl->sompr = bgcpar.eqsompr * (cumcarbonbot - cumcarbontop);
-          currl->somcr = bgcpar.eqsomcr * (cumcarbonbot - cumcarbontop);
+          if(currl->isFibric){
+            currl->rawc  = bgcpar.eqrawc * (cumcarbonbot - cumcarbontop); //note: those eq-fractions of SOM pools must be estimated before
+            currl->soma  = bgcpar.eqsoma * (cumcarbonbot - cumcarbontop);
+            currl->sompr = bgcpar.eqsompr * (cumcarbonbot - cumcarbontop);
+            currl->somcr = bgcpar.eqsomcr * (cumcarbonbot - cumcarbontop);
+          } else {
+            currl->rawc  = bgcpar.eqrawc * (cumcarbonbot - cumcarbontop); //note: those eq-fractions of SOM pools must be estimated before
+            currl->soma  = bgcpar.eqsoma * (cumcarbonbot - cumcarbontop);
+            currl->sompr = bgcpar.eqsompr * (cumcarbonbot - cumcarbontop);
+            currl->somcr = bgcpar.eqsomcr * (cumcarbonbot - cumcarbontop);            
+          }
         } else {
           currl->rawc  = 0.;
           currl->soma  = 0.;
