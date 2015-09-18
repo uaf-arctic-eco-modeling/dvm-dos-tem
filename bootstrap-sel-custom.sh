@@ -26,7 +26,9 @@ echo "Appending github's key to ~/.ssh/known_hosts..."
 ssh-keyscan github.com >> "$HOME"/.ssh/known_hosts
 chmod 600 "$HOME"/.ssh/known_hosts
 
-# grab our own packages
+#
+# Clone our software repos...
+#
 if [ ! -d "$HOME"/dvm-dos-tem ]
 then
   git clone git@github.com:ua-snap/dvm-dos-tem.git "$HOME"/dvm-dos-tem
@@ -47,8 +49,11 @@ git checkout master
 git pull --ff-only upstream master:master
 cd ..
 
-# This is annoying but indentation doesn't really work with HEREDOCs
-# setup the bashrc file
+#
+# setup various preference files (dotfiles)
+#
+
+# BASH preferences...
 echo "Setting up bashrc preferences file...."
 cat <<EOF > "$HOME"/.bashrc
 # .bashrc
@@ -74,7 +79,7 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib64/openmpi/lib
 
 EOF
 
-# setup some vim settings.
+# VIM preferences...
 cat <<EOF >> "$HOME"/.vimrc
 syntax on              " this is needed to see syntax
 set ls=2               " allways show status line
@@ -90,8 +95,13 @@ set shiftwidth=2       " how many columns to move with reindent operators (>>, <
 
 EOF
 
-# Can we setup some general git congigurations??
-# user, email, editor, color, etc??
+# GIT prefs..?
+#  - email, editor, color etc??
+
+# Matplotlib prefs...?
+#   - might be able to source a file from a gist online?
+#   e.g. https://gist.github.com/huyng/816622
+
 
 
 echo "DONE setting up a dvm-dos-tem environment. You should be ready to go!"
