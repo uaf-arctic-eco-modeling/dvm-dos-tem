@@ -278,11 +278,14 @@ int main(int argc, char* argv[]){
 
               runner.cohort.md->set_envmodule(true);
               runner.cohort.md->set_dvmmodule(true);
-              runner.cohort.md->set_dslmodule(true);
               runner.cohort.md->set_bgcmodule(true);
               runner.cohort.md->set_dsbmodule(true);
 
-              // FIX: what about baseline? avln? friderived? nfeed?
+              runner.cohort.md->set_dslmodule(false);
+              runner.cohort.md->set_nfeed(false);
+ 
+              // FIX: what about baseline? avln? friderived?
+              // FIX: same behavior in calibration and extrapolation modes???
 
               //  changing climate?: NO - use avgX values
               //  changing CO2?:     NO - use static value
