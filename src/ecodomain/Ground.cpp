@@ -17,9 +17,40 @@
  *
  */
 
+#include <iomanip>
+#include <string>
+#include <sstream>
 #include "Ground.h"
 #include "../TEMLogger.h"
 extern src::severity_logger< severity_level > glg;
+
+std::string soildesc2tag(const bool val, std::string tag) {
+  if (val) {
+    std::stringstream ss;
+    ss << std::setw(10) << std::right << tag;
+    return ss.str();
+  } else {
+    return "";
+  }
+}
+
+/** Returns string '<-' if curl points to the same place as ql
+*
+* Helper for generating the layer report to visually show which layers are
+* "first soil", "last soil", "first moss", "last moss", etc.
+*/
+std::string layer2pointertag(const Layer * curl, const Layer * ql) {
+  std::stringstream ss;
+  ss << std::setw(2) << std::left;
+  if (!ql) {
+    ss << " x"; // question layer not set!
+  } else if (curl == ql) {
+    ss << "<-"; // current layer is equal to the question layer
+  } else {
+    ss << "";
+  }
+  return ss.str();
+}
 
 Ground::Ground() {
   fstsoill = NULL;
@@ -40,6 +71,113 @@ Ground::Ground() {
 Ground::~Ground() {
   cleanAllLayers();
 }
+
+/** A multi-line report describing Ground's layers...
+
+  The first several columns hold are indices and scalar values.
+
+  The next set of columns is for visualizing where the "first" and 
+  "last" pointers are for soil, fronts, moss, etc.
+  \li \c '<-' in the left half of a column is for the "first" pointer
+  \li \c '<-' in the right half of a column is for the "last" pointer
+  \li \c ' x' indicated the pointer/member is not set.
+
+  The final set of columns contains the "description" tags for each layer.
+
+  EXAMPLE:
+  \code{.unparsed}
+  ==== LAYER REPORT ====
+  [ix]           dz            z        tem       rawc SOIL|MOSS|SHLW|DEEP|MINE|FRNT|
+  [ 0]   0.27243192   0.87462375   -23.8335      -9999     |    |    |    | x x| x x|      snow
+  [ 1]    0.1865254   0.60219183   -23.7633      -9999     |    |    |    | x x| x x|      snow
+  [ 2]   0.41566642   0.41566642   -22.1242      -9999     |    |    |    | x x| x x|      snow
+  [ 3]        0.005            0   -17.8305          0 <-  |<-<-|    |    | x x| x x|      soil      moss
+  [ 4]         0.02        0.005   -17.7989    11.1549     |    |<-  |    | x x| x x|      soil   organic    fibric
+  [ 5]         0.04        0.025   -17.6679    38.4028     |    |    |    | x x| x x|      soil   organic    fibric
+  [ 6]         0.04        0.065   -17.3991    49.5823     |    |  <-|    | x x| x x|      soil   organic    fibric
+  [ 7]          0.1        0.105   -17.1882      90.62   <-|    |    |<-<-| x x| x x|      soil   organic     humic
+  [ 8]            2        0.205    -11.086      -9999     |    |    |    | x x| x x|      rock
+  [ 9]            4        2.205   -5.77912      -9999     |    |    |    | x x| x x|      rock
+  [10]            8        6.205   -3.94041      -9999     |    |    |    | x x| x x|      rock
+  [11]           16       14.205   -2.21761      -9999     |    |    |    | x x| x x|      rock
+  [12]           20       30.205   -1.13197      -9999     |    |    |    | x x| x x|      rock
+  \endcode
+*/
+std::string Ground::layer_report_string() {
+
+  std::stringstream report;
+  report << "==== LAYER REPORT ====\n";
+
+  Layer* current_layer = this->toplayer;
+
+  if (current_layer == NULL) {
+    report << " (No Layers - nothing to report...)" << std::endl;
+  }
+  
+  // build the header for the table
+  report << "[" << std::right << setw(2) << "ix" << "] "
+         << std::right << setw(12) << std::setprecision(3) << "dz" << " "
+         << std::right << setw(12) << std::setprecision(3) << "z" << " "
+         << std::right << setw(12) << std::setprecision(3) << "tem" << " "
+         << std::right << setw(12) << std::setprecision(3) << "rawc" << " "
+
+         << "SOIL" << "|"
+         << "MOSS" << "|"
+         << "SHLW" << "|"
+         << "DEEP" << "|"
+         << "MINE" << "|"
+         << "FRNT" << "|"
+
+         << std::endl;
+
+  // iterate the layer pointers, filling the table with data.
+  int idx = 0;
+  while (current_layer != NULL) {
+    // do stuff with current_layer
+    std::stringstream ls;
+    ls << "[" << std::right << setw(2) << idx << "] "
+       << std::fixed
+       << std::right << setw(12) << std::setprecision(3) << current_layer->dz << " "
+       << std::right << setw(12) << std::setprecision(3) << current_layer->z << " "
+       << std::right << setw(12) << std::setprecision(3) << current_layer->tem << " "
+       << std::right << setw(12) << std::setprecision(3) << current_layer->rawc << " "
+       //<< std::right << setw(16) << std::setprecision(16) << current_layer << " "
+       << layer2pointertag(current_layer, fstsoill) << ""
+       << layer2pointertag(current_layer, lstsoill) << "|"
+       << layer2pointertag(current_layer, fstmossl) << ""
+       << layer2pointertag(current_layer, lstmossl) << "|"
+       << layer2pointertag(current_layer, fstshlwl) << ""
+       << layer2pointertag(current_layer, lstshlwl) << "|"
+       << layer2pointertag(current_layer, fstdeepl) << ""
+       << layer2pointertag(current_layer, lstdeepl) << "|"
+       << layer2pointertag(current_layer, fstminel) << ""
+       << layer2pointertag(current_layer, lstminel) << "|"
+       << layer2pointertag(current_layer, fstfntl) << ""
+       << layer2pointertag(current_layer, lstfntl) << "|"
+
+       // this T/ST KEY business seems to be dupliacate info as the "soil description tag"
+       //<< "T/ST KEY:" << std::right << setw(2) << current_layer->tkey << "/" << current_layer->stkey << " "
+
+       << soildesc2tag(current_layer->isSnow, "snow")
+       << soildesc2tag(current_layer->isSoil, "soil")
+       << soildesc2tag(current_layer->isRock, "rock")
+       << soildesc2tag(current_layer->isMoss, "moss")
+       << soildesc2tag(current_layer->isMineral, "mineral")
+       << soildesc2tag(current_layer->isOrganic, "organic")
+       << soildesc2tag(current_layer->isFibric, "fibric")
+       << soildesc2tag(current_layer->isHumic, "humic")
+
+       << std::endl;
+
+    report << ls.str();
+
+    // increment the current layer pointer
+    ++idx;
+    current_layer = current_layer->nextl;
+  }
+  return report.str();
+}
+
 
 //
 void Ground::initParameter() {
@@ -174,9 +312,9 @@ void Ground::initSnowSoilLayers() {
   }
 };
 
-void Ground::initLayerStructure5restart(snwstate_dim *snowdim,
-                                        soistate_dim *soildim,
-                                        RestartData * resin) {
+void Ground::set_state_from_restartdata(snwstate_dim *snowdim,
+                                   soistate_dim *soildim,
+                                   const RestartData & rdata) {
   //needs to clean up old 'ground'
   cleanAllLayers();
   //
@@ -184,7 +322,7 @@ void Ground::initLayerStructure5restart(snwstate_dim *snowdim,
   soilparent.thick = 0.;
 
   for (int i=0; i<MAX_ROC_LAY; i++) {
-    soilparent.dz[i] = resin->DZrock[i];
+    soilparent.dz[i] = rdata.DZrock[i];
     soilparent.type[i] = MISSING_I;    // not used now
     soilparent.num += 1;
     soilparent.thick += soilparent.dz[i];
@@ -204,11 +342,11 @@ void Ground::initLayerStructure5restart(snwstate_dim *snowdim,
   int frozen[MAX_SOI_LAY];
 
   for (int i=0; i<MAX_SOI_LAY; i++) {
-    soiltype[i]    = resin->TYPEsoil[i];
-    soilage[i]     = resin->AGEsoil[i];
-    dzsoil[i]      = resin->DZsoil[i];
-    soiltexture[i] = resin->TEXTUREsoil[i];
-    frozen[i]      = resin->FROZENsoil[i];
+    soiltype[i]    = rdata.TYPEsoil[i];
+    soilage[i]     = rdata.AGEsoil[i];
+    dzsoil[i]      = rdata.DZsoil[i];
+    soiltexture[i] = rdata.TEXTUREsoil[i];
+    frozen[i]      = rdata.FROZENsoil[i];
   }
 
   mineral.set5Soilprofile(soiltype, dzsoil, soiltexture, MAX_SOI_LAY);
@@ -255,16 +393,16 @@ void Ground::initLayerStructure5restart(snwstate_dim *snowdim,
   snow.thick = 0.;
 
   for(int il =MAX_SNW_LAY-1; il>=0; il--) {
-    if(resin->DZsnow[il]>0) {
+    if(rdata.DZsnow[il]>0) {
       SnowLayer* snwl = new SnowLayer();
-      snwl->dz = resin->DZsnow[il];
-      snwl->age= resin->AGEsnow[il];
-      snwl->rho= resin->RHOsnow[il];
+      snwl->dz = rdata.DZsnow[il];
+      snwl->age = rdata.AGEsnow[il];
+      snwl->rho = rdata.RHOsnow[il];
       insertFront(snwl);
       snow.coverage = 1.;
-      snow.dz[il] = resin->DZsnow[il];
+      snow.dz[il] = rdata.DZsnow[il];
       snow.numl++;
-      snow.thick += resin->DZsnow[il];
+      snow.thick += rdata.DZsnow[il];
     } else {
       snow.dz[il] = MISSING_D;
     }
@@ -277,8 +415,8 @@ void Ground::initLayerStructure5restart(snwstate_dim *snowdim,
   double frontZ[MAX_NUM_FNT];
 
   for (int i=0; i<MAX_NUM_FNT; i++) {
-    frontZ[i]=resin->frontZ[i];
-    frontFT[i]=resin->frontFT[i];
+    frontZ[i] = rdata.frontZ[i];
+    frontFT[i] = rdata.frontFT[i];
   }
 
   for(int ifnt = 0; ifnt<MAX_NUM_FNT; ifnt++) {
@@ -953,6 +1091,8 @@ void  Ground::redivideMossLayers(const int &mosstype) {
     ml->soma = 0.;
     ml->sompr= 0.;
     ml->somcr= 0.;
+    ml->orgn = 0.;
+    ml->avln = 0.;
     resortGroundLayers();
     updateSoilHorizons();
   }  // one-layer moss currently assumed, so no need to do redivision
@@ -973,7 +1113,7 @@ void Ground::redivideShlwLayers() {
   organic.shlwchanged = false;
 
   ////////// IF there exists 'shlw' layer(s) ////////////////
-  if(fstshlwl!=NULL) {
+  if(fstshlwl != NULL) {
     Layer* currl;
     SoilLayer* upsl ;
     SoilLayer* lwsl;
@@ -1029,7 +1169,7 @@ COMBINEBEGIN:
   } else {
     SoilLayer *nextsl;
 
-    if (fstdeepl !=NULL) {
+    if (fstdeepl != NULL) {
       nextsl = dynamic_cast<SoilLayer*>(fstdeepl);
     } else {
       nextsl = dynamic_cast<SoilLayer*>(fstminel);
@@ -1039,7 +1179,8 @@ COMBINEBEGIN:
                      * pow(MINSLWTHICK*100., soildimpar.coefshlwb*1.)*10000.;
                      //Note: in Yi et al.(2009) - C in gC/cm2, depth in cm
 
-    if (nextsl->rawc>=rawcmin) {
+    // FIX: Problem if nextsl is still NULL
+    if (nextsl->rawc >= rawcmin) {
       organic.shlwchanged =true;
       organic.ShlwThickScheme(MINSLWTHICK);
       OrganicLayer* plnew = new OrganicLayer(organic.shlwdz[0], 1);
@@ -1063,6 +1204,8 @@ COMBINEBEGIN:
       plnew->soma  = 0.;
       plnew->sompr = 0.;
       plnew->somcr = 0.;
+      plnew->orgn  = 0.;
+      plnew->avln  = 0.;
       plnew->derivePhysicalProperty();
       insertBefore(plnew, nextsl);
       // adjust properties for the following layer
@@ -1179,6 +1322,8 @@ COMBINEBEGIN:
       plnew->soma  = 0.5*lfibl->soma;
       plnew->sompr = lfibl->sompr;
       plnew->somcr = lfibl->somcr;
+      plnew->orgn  = lfibl->orgn;
+      plnew->avln  = lfibl->avln;
       plnew->derivePhysicalProperty();
       insertAfter(plnew, lfibl);
       // adjust properties for the above fibrous layer
@@ -1188,6 +1333,8 @@ COMBINEBEGIN:
       lfibl->soma *=0.5;
       lfibl->sompr = 0.;
       lfibl->somcr = 0.;
+      lfibl->orgn  = 0.;
+      lfibl->avln  = 0.;
       lfibl->derivePhysicalProperty();
       updateSoilHorizons();
     }
@@ -1287,6 +1434,8 @@ void Ground::splitOneSoilLayer(SoilLayer*usl, SoilLayer* lsl,
   lsl->soma =usl->soma;
   lsl->sompr=usl->sompr;
   lsl->somcr=usl->somcr;
+  lsl->orgn =usl->orgn;
+  lsl->avln =usl->avln;
 
   if (usl->isOrganic) {
     double pldtop = updeptop + usl->dz;   //usl->dz has been updated above
@@ -1297,6 +1446,8 @@ void Ground::splitOneSoilLayer(SoilLayer*usl, SoilLayer* lsl,
     lsl->soma  *= lslfrac;
     lsl->sompr *= lslfrac;
     lsl->somcr *= lslfrac;
+    lsl->orgn  *= lslfrac;
+    lsl->avln  *= lslfrac;
   }
 
   // then update C for new 'usl'
@@ -1304,6 +1455,8 @@ void Ground::splitOneSoilLayer(SoilLayer*usl, SoilLayer* lsl,
   usl->soma -= lsl->soma;
   usl->sompr-= lsl->sompr;
   usl->somcr-= lsl->somcr;
+  usl->orgn -= lsl->orgn;
+  usl->avln -= lsl->avln;
 };
 
 // Note: here properties updated when do combining two double-linked layers
@@ -1325,6 +1478,8 @@ void Ground::combineTwoSoilLayersU2L(SoilLayer* usl, SoilLayer* lsl) {
   lsl->soma +=usl->soma;
   lsl->sompr+=usl->sompr;
   lsl->somcr+=usl->somcr;
+  lsl->orgn +=usl->orgn;
+  lsl->avln +=usl->avln;
   // after combination, needs to update 'lsl'- 'frozen' status based on
   //   'fronts' if given
   getLayerFrozenstatusByFronts(lsl);
@@ -1346,6 +1501,8 @@ void Ground::combineTwoSoilLayersL2U(SoilLayer* lsl, SoilLayer* usl) {
   usl->soma +=lsl->soma;
   usl->sompr+=lsl->sompr;
   usl->somcr+=lsl->somcr;
+  usl->orgn +=lsl->orgn;
+  usl->avln =+lsl->avln;
   // after combination, needs to update 'usl'- 'frozen' status based on
   //   'fronts' if given
   getLayerFrozenstatusByFronts(usl);
@@ -1952,7 +2109,6 @@ void Ground::checkFrontsValidity() {
 
 /** Check the validity of water contents in soil column. */
 void Ground::checkWaterValidity() {
-  BOOST_LOG_NAMED_SCOPE("h20 check");
   BOOST_LOG_SEV(glg, debug) << "Checking water validity...";
 
   Layer* currl = toplayer;

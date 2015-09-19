@@ -5,6 +5,7 @@
 
 #include "cohortconst.h"
 #include "layerconst.h"
+#include "errorcode.h"
 
 struct vegpar_cal {
 
@@ -18,6 +19,13 @@ struct vegpar_cal {
   double krb[NUM_PFT_PART]; // parameter for maintenance resp. (rm)
   double frg;// fraction of available NPP (GPP after rm) for growth respiration
 
+  vegpar_cal(): cmax(UIN_D), nmax(UIN_D), kra(UIN_D), frg(UIN_D) {
+    for (int i = 0; i < NUM_PFT_PART; ++i) {
+      cfall[i] = UIN_D;
+      nfall[i] = UIN_D;
+      krb[i] = UIN_D;
+    }
+  }
 };
 
 // dimension parameters for vegetation
@@ -41,6 +49,23 @@ struct vegpar_dim {
   double m2[NUM_PFT];
   double m3[NUM_PFT];
   double m4[NUM_PFT];
+  
+  vegpar_dim() {
+    for (int i = 0; i < NUM_PFT; ++i) {
+      sla[i] = UIN_D;
+      klai[i] = UIN_D;
+      minleaf[i] = UIN_D;
+      aleaf[i] = UIN_D;
+      bleaf[i] = UIN_D;
+      cleaf[i] = UIN_D;
+      kfoliage[i] = UIN_D;
+      cov[i] = UIN_D;
+      m1[i] = UIN_D;
+      m2[i] = UIN_D;
+      m3[i] = UIN_D;
+      m4[i] = UIN_D;
+    }
+  }
 
 };
 
@@ -58,6 +83,11 @@ struct vegpar_env {
   double vpd_open;  // vpd for starting of stomata open
   double vpd_close; // vpd for complete conductance reduction (stomata closure)
   double ppfd50;    // ppfd for half stomata closure
+
+  vegpar_env():
+      albvisnir(UIN_D), er(UIN_D), ircoef(UIN_D), iscoef(UIN_D),
+      glmax(UIN_D), gl_bl(UIN_D), gl_c(UIN_D), vpd_open(UIN_D),
+      vpd_close(UIN_D), ppfd50(UIN_D) {}
 
 };
 
@@ -92,6 +122,17 @@ struct vegpar_bgc {
   double toptmax;
 
   double knuptake;  // constant for N uptake equation
+  
+  vegpar_bgc(): c2na(UIN_D),  dc2n(UIN_D), labncon(UIN_D), raq10a0(UIN_D),
+      raq10a1(UIN_D), raq10a2(UIN_D), raq10a3(UIN_D), kc(UIN_D), ki(UIN_D),
+      tmin(UIN_D), tmax(UIN_D), toptmin(UIN_D), toptmax(UIN_D), knuptake(UIN_D){
+    for (int i = 0; i < NUM_PFT_PART; ++i) {
+      cpart[i] = UIN_D;
+      c2neven[i] = UIN_D;
+      c2nb[i] = UIN_D;
+      c2nmin[i] = UIN_D;
+    }
+  }
 
 };
 
@@ -108,7 +149,8 @@ struct soipar_cal {
                    //respiration rate (at 0oC)
   double kdcsomcr; // calibrated soil chemically-resistant SOM
                    // respiration rate (at 0oC)
-
+  soipar_cal(): micbnup(UIN_D), kdcmoss(UIN_D), kdcrawc(UIN_D), kdcsoma(UIN_D),
+      kdcsompr(UIN_D), kdcsomcr(UIN_D) {}
 };
 
 struct soipar_dim {
@@ -130,6 +172,11 @@ struct soipar_dim {
 
   double coefminea;//carbon density vs ham
   double coefmineb;//carbon density vs ham
+  
+  soipar_dim(): maxmossthick(UIN_D), minmossthick(UIN_D), coefmossa(UIN_D),
+      coefmossb(UIN_D), minshlwthick(UIN_D), coefshlwa(UIN_D), coefshlwb(UIN_D),
+      mindeepthick(UIN_D), coefdeepa(UIN_D), coefdeepb(UIN_D), coefminea(UIN_D),
+      coefmineb(UIN_D) {}
 
 };
 
@@ -142,6 +189,8 @@ struct soipar_env {
   double evapmin;
 
   double drainmax;
+  
+  soipar_env():rtdp4gdd(UIN_D), psimax(UIN_D), evapmin(UIN_D), drainmax(UIN_D){}
 
 };
 
@@ -183,16 +232,32 @@ struct soipar_bgc {
   double kdsompr[MAX_SOI_LAY];
   double kdsomcr[MAX_SOI_LAY];
 
+  soipar_bgc(): kn2(UIN_D), moistmin(UIN_D), moistmax(UIN_D), moistopt(UIN_D),
+                rhq10(UIN_D), propftos(UIN_D), nmincnsoil(UIN_D), fnloss(UIN_D),
+                fsoma(UIN_D), fsompr(UIN_D), fsomcr(UIN_D), som2co2(UIN_D),
+                eqrawc(UIN_D), eqsoma(UIN_D), eqsompr(UIN_D), eqsomcr(UIN_D),
+                kdmoss(UIN_D), lcclnc(UIN_D) {
+                
+    for (int i = 0; i < MAX_SOI_LAY; ++i) {
+      kdrawc[i] = UIN_D;
+      kdsoma[i] = UIN_D;
+      kdsompr[i] = UIN_D;
+      kdsomcr[i] = UIN_D;
+    }
+  }
+
 };
 
 struct snwpar_dim {
   double newden;
   double denmax;
+  snwpar_dim(): newden(UIN_D), denmax(UIN_D) {}
 };
 
 struct snwpar_env {
   double albmax;
   double albmin;
+  snwpar_env(): albmax(UIN_D), albmin(UIN_D) {}
 };
 
 struct firepar_bgc {
@@ -207,6 +272,18 @@ struct firepar_bgc {
 
   double r_retain_c;     //ratio of fire emitted C return
   double r_retain_n;     //ratio of fire emitted N return
+  
+  firepar_bgc(): vsmburn(UIN_D), r_retain_c(UIN_D), r_retain_n(UIN_D) {
+    for (int i = 0; i < NUM_FSEVR; ++i) {
+      foslburn[i] = UIN_D;
+    }
+    for (int i = 0; i < NUM_FSEVR; ++i) {
+      for (int pft = 0; pft < NUM_PFT; ++pft) {
+        fvcomb[i][pft] = UIN_D;
+        fvdead[i][pft] = UIN_D;
+      }
+    }
+  }
 };
 
 #endif /*PARAMETERS_H_*/

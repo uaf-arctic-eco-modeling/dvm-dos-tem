@@ -1,6 +1,8 @@
 #ifndef RESTARTDATA_H_
 #define RESTARTDATA_H_
 
+#include <string>
+
 #ifdef WITHMPI
 #include <mpi.h> // for "exporting" an MPI derived type...
 #endif
@@ -19,6 +21,28 @@ public :
   #endif
 
   void reinitValue();
+  void append_to_ncfile(const std::string& fname, const int rowidx, const int colidx);
+  void update_from_ncfile(const std::string& fname, const int rowidx, const int colidx);
+
+  void read_px_vars(const std::string& fname, const int rowidx, const int colidx);
+  void read_px_pft_vars(const std::string& fname, const int rowidx, const int colidx);
+  void read_px_pftpart_pft_vars(const std::string& fname, const int rowidx, const int colidx);
+  void read_px_snow_vars(const std::string& fname, const int rowidx, const int colidx);
+  void read_px_root_pft_vars(const std::string& fname, const int rowidx, const int colidx);
+  void read_px_soil_vars(const std::string& fname, const int rowidx, const int colidx);
+  void read_px_rock_vars(const std::string& fname, const int rowidx, const int colidx);
+  void read_px_front_vars(const std::string& fname, const int rowidx, const int colidx);
+  void read_px_prev_pft_vars(const std::string& fname, const int rowidx, const int colidx);
+
+  void write_px_vars(const std::string& fname, const int rowidx, const int colidx);
+  void write_px_pft_vars(const std::string& fname, const int rowidx, const int colidx);
+  void write_px_pftpart_pft_vars(const std::string& fname, const int rowidx, const int colidx);
+  void write_px_snow_vars(const std::string& fname, const int rowidx, const int colidx);
+  void write_px_root_pft_vars(const std::string& fname, const int rowidx, const int colidx);
+  void write_px_soil_vars(const std::string& fname, const int rowidx, const int colidx);
+  void write_px_rock_vars(const std::string& fname, const int rowidx, const int colidx);
+  void write_px_front_vars(const std::string& fname, const int rowidx, const int colidx);
+  void write_px_prev_pft_vars(const std::string& fname, const int rowidx, const int colidx);
 
   int chtid;
 

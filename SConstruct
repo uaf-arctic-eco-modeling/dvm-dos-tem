@@ -6,7 +6,7 @@ import os
 import platform
 import distutils.spawn
 
-USEMPI = True 
+USEMPI = True
 
 libs = Split("""jsoncpp
                 readline
@@ -19,7 +19,7 @@ libs = Split("""jsoncpp
                 boost_filesystem
                 boost_program_options
                 boost_thread
-                boost_log""");
+                boost_log""")
 
 local_include_paths = Split("""./src
                                ./src/assembler
@@ -36,7 +36,7 @@ local_include_paths = Split("""./src
                                ./src/runmodule
                                ./src/snowsoil
                                ./src/util
-                               ./src/vegetation""");
+                               ./src/vegetation""")
 
                                                             
 src_files = Split("""src/TEM.cpp
@@ -44,19 +44,13 @@ src_files = Split("""src/TEM.cpp
                      src/CalController.cpp
                      src/TEMLogger.cpp 
                      src/ArgHandler.cpp
-                     src/assembler/RunCohort.cpp
-                     src/assembler/RunGrid.cpp
+                     src/Climate.cpp
                      src/assembler/Runner.cpp
-                     src/atmosphere/Atmosphere.cpp
-                     src/atmosphere/AtmosUtil.cpp
                      src/data/BgcData.cpp
                      src/data/CohortData.cpp
                      src/data/EnvData.cpp
                      src/data/EnvDataDly.cpp
                      src/data/FirData.cpp
-                     src/data/GridData.cpp
-                     src/data/OutDataRegn.cpp
-                     src/data/RegionData.cpp
                      src/data/RestartData.cpp
                      src/disturb/WildFire.cpp
                      src/ecodomain/DoubleLinkedList.cpp
@@ -74,7 +68,6 @@ src_files = Split("""src/TEM.cpp
                      src/ecodomain/layer/ParentLayer.cpp
                      src/ecodomain/layer/SnowLayer.cpp
                      src/ecodomain/layer/SoilLayer.cpp
-                     src/input/RestartInputer.cpp
                      src/lookup/CohortLookup.cpp
                      src/lookup/SoilLookup.cpp
                      src/output/BgcOutputer.cpp
@@ -83,11 +76,9 @@ src_files = Split("""src/TEM.cpp
                      src/output/RegnOutputer.cpp
                      src/output/RestartOutputer.cpp
                      src/runmodule/Cohort.cpp
-                     src/runmodule/Grid.cpp
                      src/runmodule/Integrator.cpp
                      src/runmodule/ModelData.cpp
                      src/runmodule/OutRetrive.cpp
-                     src/runmodule/Timer.cpp
                      src/snowsoil/Richards.cpp
                      src/snowsoil/Snow_Env.cpp
                      src/snowsoil/Soil_Bgc.cpp
@@ -96,19 +87,18 @@ src_files = Split("""src/TEM.cpp
                      src/snowsoil/Stefan.cpp
                      src/snowsoil/TemperatureUpdator.cpp
                      src/util/CrankNicholson.cpp
-                     src/util/Interpolator.cpp
                      src/util/tbc-debug-util.cpp
                      src/vegetation/Vegetation_Bgc.cpp
-                     src/vegetation/Vegetation_Env.cpp""");
+                     src/vegetation/Vegetation_Env.cpp""")
 
 
-platform_name = platform.system();
-release = platform.release();
-comp_name = platform.node();
-uname = platform.uname();
+platform_name = platform.system()
+release = platform.release()
+comp_name = platform.node()
+uname = platform.uname()
 
-platform_libs = [];
-platform_include_path = [];
+platform_libs = []
+platform_include_path = []
 platform_library_path = []
 
 #compiler = 'g++'
@@ -125,8 +115,8 @@ if platform_name == 'Linux': #rar, tobey VM, Colin, Vijay, Helene VM(?)
 
   platform_library_path = ['/usr/lib64', '~/usr/local/lib']
 
-  compiler_flags = '-Werror -ansi -g -fPIC -DBOOST_ALL_DYN_LINK';
-  platform_libs = libs;
+  compiler_flags = '-Werror -ansi -g -fPIC -DBOOST_ALL_DYN_LINK -DGNU_FPE'
+  platform_libs = libs
 
 
 elif platform_name == 'Darwin': #tobey
@@ -134,13 +124,13 @@ elif platform_name == 'Darwin': #tobey
   platform_include_path = ['/usr/local/include']
   platform_library_path = ['/usr/local/lib']
 
-  compiler_flags = '-Werror -fpermissive -ansi -g -fPIC -DBOOST_ALL_DYN_LINK'
+  compiler_flags = '-Werror -fpermissive -ansi -g -fPIC -DBOOST_ALL_DYN_LINK -DBSD_FPE'
 
   for lib in libs:
     if lib.startswith('boost'):
       platform_libs.append(lib + '-mt')
     else:
-      platform_libs.append(lib);
+      platform_libs.append(lib)
 
   # statically link jsoncpp
   # apparently the shared library version of jsoncpp has some bugs.
@@ -174,13 +164,15 @@ if(USEMPI):
   #g++ -I/usr/include/openmpi-x86_64 -pthread -m64 -L/usr/lib64/openmpi/lib -lmpi_cxx -lmpi
 
 
+#VariantDir('scons_obj','src', duplicate=0)
+
 #Object compilation
 object_list = Object(src_files, CXX=compiler, CPPPATH=platform_include_path,
-                     CPPFLAGS=compiler_flags);
+                     CPPFLAGS=compiler_flags)
 
 #remove paths from the object file names - unused for now
 #object_file_list = [os.path.basename(str(object)) for object in object_list]
 
 Program('dvmdostem', object_list, CXX=compiler, CPPPATH=local_include_paths,
-        LIBS=platform_libs, LIBPATH=platform_library_path);
-#Library();
+        LIBS=platform_libs, LIBPATH=platform_library_path)
+#Library()

@@ -3,7 +3,11 @@
  */
 #include "OrganicLayer.h"
 
+#include "../../TEMLogger.h"
+extern src::severity_logger< severity_level > glg;
+
 OrganicLayer::OrganicLayer(const double & pdz, const int & type) {
+  BOOST_LOG_SEV(glg, debug) << "==> ==> Creating an OrganicLayer object...";
   stkey=I_NONE;
   isMoss    = false;
   isMineral = false;
@@ -46,6 +50,10 @@ OrganicLayer::OrganicLayer(const double & pdz, const int & type) {
 
   derivePhysicalProperty();
 };
+
+OrganicLayer::~OrganicLayer(){
+  BOOST_LOG_SEV(glg, debug) << "--> --> Deleting an OrganicLayer object...";
+}
 
 void OrganicLayer::humify() {
   tkey=I_HUM;

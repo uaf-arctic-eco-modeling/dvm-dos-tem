@@ -17,6 +17,17 @@ const int MISSING_I    = -9999;    //missing value (INT) used in the code
 const float MISSING_F  = -9999.f;  //missing value (FLOAT) used in the code
 const double MISSING_D = -9999.;   //missing value (DOUBLE) used in the code
 
+// Idea here is that everything should be explicitly set to the appropriate
+// "uninitialized" value by constructors. This way we have easily recognizeable
+// value so it is readily apparent if the data structure has been touched
+// later in the program.
+//
+// Hopefully as the constructors get smarter we will need
+// to use these values less frequently.
+const int UIN_I = -99999;
+const float UIN_F = -88888.0;
+const double UIN_D = -77777.0;
+
 #ifndef NULL
 #define NULL   ((void *) 0)
 #endif

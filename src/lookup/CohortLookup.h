@@ -16,6 +16,8 @@ using namespace std;
 class CohortLookup {
 public:
   CohortLookup();
+  CohortLookup(std::string directory, std::string code);
+
   ~CohortLookup();
 
   string dir;

@@ -3,7 +3,11 @@
  */
 #include "MossLayer.h"
 
+#include "../../TEMLogger.h"
+extern src::severity_logger< severity_level > glg;
+
 MossLayer::MossLayer(const double &pdz, const int & newmosstype) {
+  BOOST_LOG_SEV(glg, debug) << "==> ==> Creating a MossLayer...";
   tkey=I_MOSS;
   stkey=I_NONE;
   isMoss    = true;
@@ -44,4 +48,8 @@ MossLayer::MossLayer(const double &pdz, const int & newmosstype) {
   derivePhysicalProperty();
   // biogeochemical properties
   cfrac = 39.8; // %  O'Donnel et al. (GCB, 2011)
-};
+}
+
+MossLayer::~MossLayer(){
+  BOOST_LOG_SEV(glg, debug) << "--> --> Deleting a MossLayer object...";
+}

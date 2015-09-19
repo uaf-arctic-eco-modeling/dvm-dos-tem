@@ -3,7 +3,11 @@
  */
 #include "SnowLayer.h"
 
+#include "../../TEMLogger.h"
+extern src::severity_logger< severity_level > glg;
+
 SnowLayer::SnowLayer() {
+  BOOST_LOG_SEV(glg, debug) << "==> Creating a SnowLayer layer object...";
   tkey = I_SNOW;
   stkey= I_NONE;
   isSnow = true;
@@ -19,6 +23,7 @@ SnowLayer::SnowLayer() {
 };
 
 SnowLayer::~SnowLayer() {
+  BOOST_LOG_SEV(glg, debug) << "--> Deleting a Snow Layer object...";
 };
 
 void SnowLayer::clone(SnowLayer* sl) {
@@ -92,18 +97,34 @@ double SnowLayer::getThermCond5Jordan() {
   return tc;
 }
 
+// FIX THIS: THESE 3 functions see to be identical???
 double SnowLayer::getFrzVolHeatCapa() {
-  double vhc = SHCICE * ice/dz;
-  return vhc;
+  if (dz != 0) {
+    // FIX THIS: divide by zero error when there is no thickness!
+    double vhc = SHCICE * ice/dz;
+    return vhc;
+  } else {
+    return 0;
+  }
 };
 
 double SnowLayer::getUnfVolHeatCapa() {
-  double vhc = SHCICE * ice/dz;
-  return vhc;
+  if (dz != 0) {
+    // FIX THIS: divide by zero error when there is no thickness!
+    double vhc = SHCICE * ice/dz;
+    return vhc;
+  } else {
+    return 0;
+  }
 };
 
 double SnowLayer::getMixVolHeatCapa() {
-  double vhc = SHCICE * ice/dz;
-  return vhc;
+  if (dz != 0) {
+    // FIX THIS: divide by zero error when there is no thickness!
+    double vhc = SHCICE * ice/dz;
+    return vhc;
+  } else {
+    return 0;
+  }
 };
 

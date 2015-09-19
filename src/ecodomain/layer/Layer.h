@@ -96,6 +96,9 @@ public:
   double sompr;
   double somcr;
 
+  double orgn;
+  double avln;
+
   // misc.
   double cfrac; //fraction of carbon, relative to total SOM weight (mass) - not used but should be useful in future
 

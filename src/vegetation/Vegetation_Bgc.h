@@ -38,7 +38,7 @@ public:
 
   void initializeParameter();
   void initializeState();
-  void initializeState5restart(RestartData *resin);
+  void set_state_from_restartdata(const RestartData & rdata);
 
   void prepareIntegration(const bool &nfeedback);
   void delta();
@@ -46,7 +46,9 @@ public:
   void deltastate();
   void afterIntegration();
 
-  void adapt();
+  //void adapt();
+  void adapt_c2n_ratio_with_co2(const double & yreet, const double & yrpet,
+      const double & initco2, const double & currentco2);
 
   void setCohortLookup(CohortLookup* chtlup);
 

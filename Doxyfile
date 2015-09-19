@@ -737,6 +737,8 @@ GENERATE_TREEVIEW      = YES
 
 TREEVIEW_WIDTH         = 250
 
+HTML_COLORSTYLE_HUE    = 0
+
 #---------------------------------------------------------------------------
 # configuration options related to the LaTeX output
 #---------------------------------------------------------------------------
@@ -1249,4 +1251,4 @@ DOT_CLEANUP            = YES
 # The SEARCHENGINE tag specifies whether or not a search engine should be 
 # used. If set to NO the values of all tags below this one will be ignored.
 
-SEARCHENGINE           = NO
+SEARCHENGINE           = YES

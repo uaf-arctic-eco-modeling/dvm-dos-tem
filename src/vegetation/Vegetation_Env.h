@@ -24,20 +24,18 @@ public:
   vegpar_env envpar;
 
   void setCohortLookup(CohortLookup * chtlup);
-  void setCohortData(CohortData* cdp);
   void setEnvData(EnvData* edatap);
   void setFirData(FirData* fdp);
 
   void initializeParameter();
   void initializeState();
-  void initializeState5restart(RestartData* resin);
+  void set_state_from_restartdata(const RestartData & rdata);
 
-  void updateRadiation();
-  void updateWaterBalance(const double & daylhr);
+  void updateRadiation(double leaf_area_index, double foliar_projected_cover);
+  void updateWaterBalance(const double &daylhr, double leaf_area_index, double foliar_projected_cover);
 
 private:
 
-  CohortData * cd;
   EnvData * ed;
   FirData * fd;
   CohortLookup * chtlu;

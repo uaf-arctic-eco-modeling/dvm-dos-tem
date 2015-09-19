@@ -142,7 +142,6 @@ configured_suites = {
       { 'jsontag': 'OrganicNitrogenSum', 'axesnum':6, 'units': 'gN/m^2', },
 
       { 'jsontag': 'AvailableNitrogenSum', 'axesnum':7, 'units': 'gN/m^2', },
-      { 'jsontag': 'MossdeathNitrogen', 'axesnum': 7, 'units': 'gN/m^2', },
       { 'jsontag': 'StNitrogenUptakeAll', 'axesnum': 7, 'units': 'gN/m^2', },
       { 'jsontag': 'InNitrogenUptakeAll', 'axesnum': 7, 'units': 'gN/m^2', },
     ] 

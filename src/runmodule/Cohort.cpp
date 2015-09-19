@@ -31,17 +31,108 @@ extern src::severity_logger< severity_level > glg;
 
 Cohort::Cohort() {
   BOOST_LOG_SEV(glg, info) << "Cohort constructor; instantiating a cohort object.";
-};
+}
+
+Cohort::Cohort(int y, int x, ModelData* modeldatapointer):
+    y(y), x(x), md(modeldatapointer) {
+
+  BOOST_LOG_SEV(glg, info) << "Cohort constructor NEW STYLE!";
+  
+  BOOST_LOG_SEV(glg, info) << "Looking up and setting lat/lon for cohort...";
+  std::pair<float, float> latlon = temutil::get_latlon(modeldatapointer->hist_climate_file, y, x);
+  this->lat = latlon.first;
+  this->lon = latlon.second;
+
+  BOOST_LOG_SEV(glg, info) << "Make a CohortData...";
+  this->cd = CohortData(); // empty? / uninitialized? / undefined? values...
+  
+  this->cd.cmttype = temutil::get_veg_class(modeldatapointer->veg_class_file, y, x);
+  this->cd.drainage_type = temutil::get_drainage_class(modeldatapointer->drainage_file, y, x);
+
+  BOOST_LOG_SEV(glg, info) << "Next, we build a CohortLookup object, properly configured with parameter directory and community type.";
+  this->chtlu = CohortLookup( modeldatapointer->parameter_dir, temutil::cmtnum2str(cd.cmttype) );
+  
+  BOOST_LOG_SEV(glg, info) << "Create the vegetation object...";
+  this->veg = Vegetation(this->cd.cmttype, modeldatapointer);
+  this->soilbgc = Soil_Bgc();
+
+  // might need to set the cd* and the ed* ???
+
+  BOOST_LOG_SEV(glg, debug) << "Setup the NEW STYLE CLIMATE OBJECT ...";
+  // FIX: Historic? Projected?? how to handle both??
+  // Maybe:
+  //this->hist_climate = Climate(modeldatapointer->hist_climate, y, x);
+  //this->proj_climate = Climate(modeldatapointer->proj_climate, y, x);
+  this->climate = Climate(modeldatapointer->hist_climate_file, modeldatapointer->co2_file, y, x);
+
+  BOOST_LOG_SEV(glg, debug) << "Setup the fire information...";
+  // FIX: same thing with fire - may need historic and projected...
+  this->fire = WildFire(modeldatapointer->fire_file, y, x);
+
+  this->cd.fri = this->fire.fri;
+
+  //  what if fire_years is a mask, and the other vectors parallel it
+  //  
+  // years =  [1  0  1  0  0  0  0  0  0  0  0  0  1  ]
+  // sizes =  [14 0  64 0  0  0  0  0  0  0  0  0  30 ]
+  // month =  [6  0  6  0  0  0  0  0  0  0  0  0  7  ]
+  //
+
+  this->soilenv = Soil_Env();
+  
+  // this seems to set a lot of pointers...
+  // THis might need to be the last step in creating a cohort...
+  // after all the other components are ready...
+  this->initialize_internal_pointers();
+  
+  // using initialize_internal_pointers() should obviate the need for this:
+  // hack...
+  //CohortData* cdp = &(this->cd);
+  this->veg.setCohortData( &(this->cd) );
+
+  
+/*
+
+  // domain
+  Ground ground;
+
+  // processes
+  Vegetation_Env vegenv[NUM_PFT];
+  Snow_Env snowenv;
+  Soil_Env soilenv;
+  SoilParent_Env solprntenv;
+
+  Vegetation_Bgc vegbgc[NUM_PFT];
+
+
+
+  // output
+  //OutRetrive outbuffer;
+
+  // data
+  EnvData ed[NUM_PFT];
+  BgcData bd[NUM_PFT];
+  EnvData * edall;
+  BgcData * bdall;
+
+  //FirData * fd;   // this for all PFTs and their soil
+
+  Integrator vegintegrator[NUM_PFT];
+  Integrator solintegrator;
+
+*/
+
+}
 
 Cohort::~Cohort() {
 };
 
 // initialization of pointers used in modules called here
-void Cohort::initSubmodules() {
+void Cohort::initialize_internal_pointers() {
 
-  //atmosphere module pointers
-  atm.setCohortData(&cd);
-  atm.setEnvData(edall);
+  // FIX: what if edall, bdall and fd are all NULL at this point!!!
+  //      ?? This may not be a problem...they seem to get re-pointed later...
+
   // ecosystem domain
   veg.setCohortData(&cd);
   veg.setCohortLookup(&chtlu);
@@ -53,7 +144,6 @@ void Cohort::initSubmodules() {
     veg.setBgcData(i, &bd[i]);
     vegenv[i].setCohortLookup(&chtlu);
     vegenv[i].setEnvData(&ed[i]);
-    vegenv[i].setCohortData(&cd);
     vegenv[i].setFirData(fd);
     vegbgc[i].setCohortLookup(&chtlu);
     vegbgc[i].setCohortData(&cd);
@@ -110,19 +200,8 @@ void Cohort::initSubmodules() {
 
 //The following 'set...' functions allow initialized data pointers
 //  outside be used here
-void Cohort::setTime(Timer * timerp) {
-  timer = timerp;
-};
-
 void Cohort::setModelData(ModelData* mdp) {
   md = mdp;
-};
-
-void Cohort::setInputData(RegionData * rdp, GridData * gdp) {
-  rd = rdp;
-  gd = gdp;
-  cd.rd = rd;
-  cd.gd = gd;
 };
 
 void Cohort::setProcessData(EnvData * alledp, BgcData * allbdp, FirData *fdp) {
@@ -140,21 +219,16 @@ void Cohort::setProcessData(EnvData * alledp, BgcData * allbdp, FirData *fdp) {
 
 //re-initializing for a new community of all PFTs sharing same
 //  atm/snow-soil domains within a grid
-void Cohort::initStatePar() {
-  //
-  if (md->initmode>=3) {
-    cd.yrsdist = resid.yrsdist;
+void Cohort::initialize_state_parameters() {
+
+  // 7/10/2015 EXPERIMENT. Seems to help with soil temperature, but TDeep still comes out nan
+  edall->update_from_climate(this->climate, 0, 0);
+  for (int ipft = 0; ipft < NUM_PFT; ++ipft) {
+    this->ed[ipft].update_from_climate(this->climate, 0, 0);
   }
 
-  // FOR VEGETATION
-  //vegetation dimension/structure
-  veg.initializeParameter();
-
-  if(md->initmode<3) {     // from 'chtlu' or 'sitein'
-    veg.initializeState();
-  } else {     // initmode  >=3: restart
-    veg.initializeState5restart(&resid);
-  }
+  veg.initializeState();      // <==== mostly set values from chtlu...
+  veg.initializeParameter();  // <==== mostly set values from chtlu...
 
   // pft needs to be initialized individually for 'envmodule' and 'bgcmodule'
   for (int ip=0; ip<NUM_PFT; ip++) {
@@ -164,132 +238,117 @@ void Cohort::initStatePar() {
     vegenv[ip].initializeParameter();
     vegbgc[ip].initializeParameter();
 
-    if(md->initmode<3) {
-      vegbgc[ip].initializeState();
-      vegenv[ip].initializeState();
-    } else {
-      vegbgc[ip].initializeState5restart(&resid);
-      vegenv[ip].initializeState5restart(&resid);
-    }
+    vegbgc[ip].initializeState();
+    vegenv[ip].initializeState();
   }
 
   // initialize dimension/structure for snow-soil
   // first read in the default initial parameter for snow/soil
-  ground.initParameter();
+  ground.initParameter(); // doesn't seem to touch any Layers...
+
   snowenv.initializeParameter();
   soilenv.initializeParameter();
   soilbgc.initializeParameter();
 
-  if(md->initmode < 3) {   //lookup or sitein
-    ground.initDimension();   //read-in snow/soil structure from 'chtlu'
+  ground.initDimension();   //read-in snow/soil structure from 'chtlu', does not appear to touch Layer objects...?
 
-    // reset the soil texture data from grid-level soil.nc, rather than 'chtlu',
-    // Note that the mineral layer structure is already defined above
-    if (md->runmode.compare("multi") == 0) {
-      float z=0;
+  // FIX THIS!
+  // reset the soil texture data from grid-level soil.nc, rather than 'chtlu',
+  // Note that the mineral layer structure is already defined above
+  //if (md->runmode.compare("multi") == 0) {
+  //  float z = 0;
+  //
+  //  for (int i = 0; i < ground.mineral.num; i++) {
+  //    z += ground.mineral.dz[i];
+  //
+  //    if (z <= 0.30) {   //assuming the grid top-soil texture is for top 30 cm
+  //      BOOST_LOG_SEV(glg, err) << "NOT IMPLEMENTED YET!!! Setting mineral texture...";
+  //      //ground.mineral.texture[i] = gd->topsoil;
+  //    } else {
+  //      BOOST_LOG_SEV(glg, err) << "NOT IMPLEMENTED YET!!! Setting mineral texture...";
+  //      //ground.mineral.texture[i] = gd->botsoil;
+  //    }
+  //  }
+  //}
 
-      for (int i=0; i<ground.mineral.num; i++) {
-        z+=ground.mineral.dz[i];
 
-        if (z<=0.30) {   //assuming the grid top-soil texture is for top 30 cm
-          ground.mineral.texture[i] = gd->topsoil;
-        } else {
-          ground.mineral.texture[i] = gd->botsoil;
-        }
-      }
-    }
+  // set-up the snow-soil-soilparent structure
+  //snow updated daily, while soil dimension at monthly
+  ground.initLayerStructure(&cd.d_snow, &cd.m_soil);
 
-    //then if we have sitein.nc, as specified. In this way, if sitein.nc may
-    //  not provide all data, then model will still be able to use the default.
-    if(md->initmode ==2) { //from sitein.nc specified as md->initialfile
-//        setSiteStates(&sitein);
-    }
+  cd.d_soil = cd.m_soil;
 
-    // set-up the snow-soil-soilparent structure
-    //snow updated daily, while soil dimension at monthly
-    ground.initLayerStructure(&cd.d_snow, &cd.m_soil);
-    cd.d_soil = cd.m_soil;
-    //initializing snow/soil/soilparent env state
-    //  conditions after layerStructure done
-    snowenv.initializeNewSnowState(); //Note: ONE initial snow layer as new snow
-    soilenv.initializeState();
-    solprntenv.initializeState();
-    // initializing soil bgc state conditions
-    soilbgc.initializeState();
-  } else {    // initmode>=3: restart
-    // set-up the snow-soil structure from restart data
-    //snow updated daily, while soil dimension at monthly
-    ground.initLayerStructure5restart(&cd.d_snow, &cd.m_soil, &resid);
-    cd.d_soil = cd.m_soil;
-    // initializing snow/soil env state conditions from restart data
-    snowenv.initializeState5restart(&resid);
-    soilenv.initializeState5restart(&resid);
-    solprntenv.initializeState5restart(&resid);
-    // initializing soil bgc state conditions from restart data
-    soilbgc.initializeState5restart(&resid);
-  }
+  //initializing snow/soil/soilparent env state
+  //  conditions after layerStructure done
+  snowenv.initializeNewSnowState(); //Note: ONE initial snow layer as new snow
+
+  soilenv.initializeState();
+
+  solprntenv.initializeState();
+
+  // initializing soil bgc state conditions
+  soilbgc.initializeState();
 
   //integrating the individual 'bd' initial conditions into
   //  'bdall' initial conditions, if veg involved
   getBd4allveg_monthly();
+
   // fire processes
   fd->init();
 
-  if(md->initmode<3) {
-    fire.initializeState();
-  } else {
-    fire.initializeState5restart(&resid);
-  }
+  fire.initializeState();
 
   fire.initializeParameter();
-};
+  
+  BOOST_LOG_SEV(glg, debug) << "Done with Cohort::initStatepar()!  " << ground.layer_report_string();
+}
 
-void Cohort::prepareAllDrivingData() {
-  // climate monthly data for all atm years
-  atm.prep_drivingdata_onecht_all_yrsmonths();
-
-  //fire driving data (if input) for all years
-  if (!md->get_friderived() && !md->runeq) {
-    fire.prepareDrivingData();
-  }
-};
+//void Cohort::prepareAllDrivingData() {
+//
+//  // FIX: as of 8/13/2015, this function is never being called...
+//  // climate monthly data for all atm years
+//
+//  //fire driving data (if input) for all years
+//  if (!md->get_friderived() && !md->runeq) {
+//    fire.prepareDrivingData();
+//  }
+//};
 
 // climate daily data for one year
-void Cohort::prepareDayDrivingData(const int & yrindx, const int & usedatmyr) {
-  //default climate/co2 setting
-  bool changeclm = true;
-  bool changeco2 = true;
-
-  if (md->runeq) {
-    changeclm = false;
-    changeco2 = false;
-  } else if (md->runsp) {
-    changeco2 = false;
-  }
-
-  // preparing ONE year daily driving data
-  if (timer->eqend) {
-    //run the model after eq stage, climate and co2
-    //  driver controlled by setting in control file.
-    if (md->changeclimate == 1) {
-      changeclm = true;
-    } else if (md->changeclimate == -1) {
-      changeclm = false;
-    }
-
-    if (md->changeco2 == 1) {
-      changeco2 = true;
-    } else if (md->changeco2 == -1) {
-      changeco2 = false;
-    }
-
-    atm.prepareDayDrivingData(yrindx, usedatmyr, changeclm, changeco2);
-  } else {
-    //run the model at eq stage, climate and co2
-    //  driver not controlled by setting in control file.
-    atm.prepareDayDrivingData(yrindx, usedatmyr, false, false);
-  }
-};
+// 08-27-2015 UNUSED
+//void Cohort::prepareDayDrivingData(const int & yrindx, const int & usedatmyr) {
+//  //default climate/co2 setting
+//  bool changeclm = true;
+//  bool changeco2 = true;
+//
+//  if (md->runeq) {
+//    changeclm = false;
+//    changeco2 = false;
+//  } else if (md->runsp) {
+//    changeco2 = false;
+//  }
+//
+//  // preparing ONE year daily driving data
+//  if (true/*timer->eqend*/) {
+//    //run the model after eq stage, climate and co2
+//    //  driver controlled by setting in control file.
+//    if (md->changeclimate == 1) {
+//      changeclm = true;
+//    } else if (md->changeclimate == -1) {
+//      changeclm = false;
+//    }
+//
+//    if (md->changeco2 == 1) {
+//      changeco2 = true;
+//    } else if (md->changeco2 == -1) {
+//      changeco2 = false;
+//    }
+//
+//  } else {
+//    //run the model at eq stage, climate and co2
+//    //  driver not controlled by setting in control file.
+//  }
+//};
 
 void Cohort::updateMonthly(const int & yrcnt, const int & currmind,
                            const int & dinmcurr) {
@@ -305,10 +364,18 @@ void Cohort::updateMonthly(const int & yrcnt, const int & currmind,
 
   BOOST_LOG_SEV(glg, debug) << "Clean up before a month starts.";
   cd.beginOfMonth();
-
   if(md->get_envmodule()) {
+  
+    BOOST_LOG_SEV(glg, debug) << "RIGHT BEFORE updateMonthlyEnv()" << ground.layer_report_string();
+
+
+    // FIX: definitely a problem in here that is Making soil temperatures get ridiculously low -19 billion
+  
     BOOST_LOG_SEV(glg, debug) << "Run the environmental module - updates water/thermal processes to get (bio)physical conditions.";
     updateMonthly_Env(currmind, dinmcurr);
+    
+    BOOST_LOG_SEV(glg, debug) << "RIGHT AFTER updateMonthlyEnv() yr:"<<yrcnt<<" m:"<<currmind<<" "<< ground.layer_report_string();
+
   }
 
   BOOST_LOG_SEV(glg, debug) << "Update the current dimension/structure of veg-snow/soil column (domain).";
@@ -322,7 +389,7 @@ void Cohort::updateMonthly(const int & yrcnt, const int & currmind,
 
   if(md->get_dsbmodule()) {
     BOOST_LOG_SEV(glg, debug) << "Run the disturbance model.";
-    updateMonthly_Fir(yrcnt, currmind);
+    updateMonthly_Dsb(yrcnt, currmind);
   }
 
   BOOST_LOG_SEV(glg, debug) << "Clean up at the end of the month";
@@ -330,17 +397,21 @@ void Cohort::updateMonthly(const int & yrcnt, const int & currmind,
 
   if(currmind == 11) {
     BOOST_LOG_SEV(glg, debug) << "Clean up at end of year.";
+
     cd.endOfYear();
   }
 
-  if (md->outRegn) {
-    BOOST_LOG_SEV(glg, debug) << "Output all data for multiple cohorts.";
-    outbuffer.updateRegnOutputBuffer(currmind);
-  }
-
-  // always output the restart data (monthly)
-  BOOST_LOG_SEV(glg, debug) << "Output monthly restart data.";
-  outbuffer.updateRestartOutputBuffer();
+  BOOST_LOG_SEV(glg, debug) << "Synchronize the RestartData object with the model's state...";
+  this->set_restartdata_from_state();
+  BOOST_LOG_SEV(glg, debug) << "TODO: ouput some data!";
+//  if (md->outRegn) {
+//    BOOST_LOG_SEV(glg, debug) << "Output all data for multiple cohorts.";
+//    outbuffer.updateRegnOutputBuffer(currmind);
+//  }
+//
+//  // always output the restart data (monthly)
+//  BOOST_LOG_SEV(glg, debug) << "Output monthly restart data.";
+//  outbuffer.updateRestartOutputBuffer();
 };
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -349,11 +420,13 @@ void Cohort::updateMonthly(const int & yrcnt, const int & currmind,
 //Environment Module Calling at monthly time-step, but involving daily time-step loop
 /////////////////////////////////////////////////////////
 void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
-//Yuan: note that the Veg-Env module calling is for a few PFTs within ONE cohort
-//  1) ed calling is done for each PFTs within the module
-//  2) Env-module calling is done for one PFT, so needs loop for vegetation-relevant processes
+  BOOST_LOG_NAMED_SCOPE("env")
+  //Yuan: note that the Veg-Env module calling is for a few PFTs within ONE cohort
+  //  1) ed calling is done for each PFTs within the module
+  //  2) Env-module calling is done for one PFT, so needs loop for vegetation-relevant processes
+
   // (i) the n factor for soil temperature calculation from Tair
-  edall->d_soid.nfactor =1;
+  edall->d_soid.nfactor = 1;
   // Yuan: the following has temporarily commentted out - a lot of trouble
   /*  if(currmind>=5 && currmind<=9){  //for warm season: Yuan: this will make a BIG jump of soil temperature at 5/9
       if(cd.ifdeciwoody){      //deciduous woody community type
@@ -371,7 +444,9 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
 
   // (ii)Initialize the yearly/monthly accumulators, which are accumulating at the end of month/day in 'ed'
   for (int ip=0; ip<NUM_PFT; ip++) {
-    if (cd.d_veg.vegcov[ip]>0.) {
+    // PROBLEM: looks like cd.d_veg.vegcov is not initialized yet??? (-77777).
+    // Looks like the m_veg.vegcov is...so we will use it instead...
+    if (cd.m_veg.vegcov[ip] > 0.0) {
       if(currmind==0) {
         ed[ip].atm_beginOfYear();
         ed[ip].veg_beginOfYear();
@@ -385,7 +460,7 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
   }
 
   //
-  if(currmind==0) {
+  if(currmind==0) { // zero all (most?) of the EnvData.y_atms values...
     edall->atm_beginOfYear();
     edall->veg_beginOfYear();
     edall->grnd_beginOfYear();
@@ -394,15 +469,29 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
   edall->atm_beginOfMonth();
   edall->veg_beginOfMonth();
   edall->grnd_beginOfMonth();
+
   // (iii) daily light/water processes at plant canopy
   double tdrv, daylength;
 
-  for(int id =0; id<dinmcurr; id++) {
-    cd.day = id+1;
-    int doy =timer->getDOYIndex(currmind, id);
-    daylength = gd->alldaylengths[doy];
-    //get the daily atm drivers and the data is in 'edall'
-    atm.updateDailyAtm(currmind, id);
+  for(int id = 0; id < dinmcurr; id++) {
+
+    int doy = temutil::day_of_year(currmind, id);
+    daylength = temutil::length_of_day(this->lat, doy);
+
+    /* Daily processes for a Cohort, Environmental module...
+       Have to use our Climate object to update our EnvData objects's daily
+       climate arrays.
+
+       Climate carries daily data for a whole year in 1D vectors
+
+       EnvData carries single values for temp, co2, prec, rainfall, snowfall,
+       nirr, par, and vapor pressure.
+
+       NOTE: Climate must have already setup its daily structures!
+
+    */
+    this->edall->update_from_climate(climate, currmind, id);
+
     //Initialize some daily variables for 'ground'
     cd.beginOfDay();
     edall->grnd_beginOfDay();
@@ -410,8 +499,8 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
     assignAtmEd2pfts_daily();
 
     for (int ip=0; ip<NUM_PFT; ip++) {
-      if (cd.d_veg.vegcov[ip]>0.) {
-        if (cd.d_veg.nonvascular<=0) {   // for vascular plants
+      if (cd.d_veg.vegcov[ip] > 0.0) {
+        if (cd.d_veg.nonvascular <= 0) {   // for vascular plants
           // get the soil moisture controling factor on plant transpiration
           double frootfr[MAX_SOI_LAY];
 
@@ -437,8 +526,8 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
         }
 
         // calculate vegetation light/water dynamics at daily timestep
-        vegenv[ip].updateRadiation();
-        vegenv[ip].updateWaterBalance(daylength);  //daylength in hours
+        vegenv[ip].updateRadiation(cd.m_veg.lai[ip], cd.m_veg.fpc[ip]);
+        vegenv[ip].updateWaterBalance(daylength, cd.m_veg.lai[ip], cd.m_veg.fpc[ip]);
       }
     }
 
@@ -525,12 +614,13 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
       }
     }
   } // end of day loop in a month
-};
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 // Biogeochemical Module Calling at monthly timestep
 ///////////////////////////////////////////////////////////////////////////////////////////
 void Cohort::updateMonthly_Bgc(const int & currmind) {
+  BOOST_LOG_NAMED_SCOPE("bgc");
   //
   if(currmind==0) {
     for (int ip=0; ip<NUM_PFT; ip++) {
@@ -555,7 +645,8 @@ void Cohort::updateMonthly_Bgc(const int & currmind) {
       bd[ip].veg_endOfMonth(); // yearly data accumulation
 
       if(currmind==11) {
-        vegbgc[ip].adapt(); // this will evolve C/N ratio with CO2
+        vegbgc[ip].adapt_c2n_ratio_with_co2(ed->y_l2a.eet, ed->y_l2a.pet, 0.0, ed->y_atms.co2);
+        //const double & yreet, const double & yrpet, const double & initco2, const double & currentco2
         bd[ip].veg_endOfYear();
       }
     }
@@ -581,28 +672,41 @@ void Cohort::updateMonthly_Bgc(const int & currmind) {
   assignSoilBd2pfts_monthly();
 };
 
-//fire disturbance module calling
-/////////////////////////////////////////////////////////////////////////////////
-void Cohort::updateMonthly_Fir(const int & yrind, const int & currmind) {
-  if(currmind ==0) {
+void Cohort::updateMonthly_Dsb(const int & yrind, const int & currmind) {
+  BOOST_LOG_NAMED_SCOPE("dsb");
+
+  updateMonthly_Fir(yrind, currmind);
+
+  //updateMonthly_Flood(...)
+}
+
+/** Fire Disturbance module. */
+void Cohort::updateMonthly_Fir(const int & year, const int & midx) {
+  BOOST_LOG_NAMED_SCOPE("fire")
+
+  // FIX ?? not sure this may no longer be necessary??
+  if (midx == 0) {
     fd->beginOfYear();
-    fire.getOccur(yrind, md->get_friderived());
   }
 
-  if (yrind==fire.oneyear && currmind==fire.onemonth) {
-    //fire, C burning for each PFT, and C/N pools updated
-    //  through 'bd', but not soil structure
-    //soil root fraction also updated through 'cd'
-    fire.burn();
+  // see if it is an appropriate time to burn
+  if ( fire.should_ignite(year, midx, "eq-run" /* <<-- FIX THIS! what about other stages...? */) ) {
 
-    // summarize burned veg C/N of individual 'bd' for each PFT above
+    BOOST_LOG_SEV(glg, debug) << "Derive fire severity...";
+    int fire_severity = fire.derive_fire_severity(cd.drainage_type, 3, /* FIX THIS --> */ 1);
+
+    // fire, update C/N pools for each pft through 'bd', but not soil structure
+    // soil root fraction also updated through 'cd'
+    BOOST_LOG_SEV(glg, debug) << "BURN!";
+    fire.burn(fire_severity);
+
+    BOOST_LOG_SEV(glg, debug) << "Collect burned veg C/N from individual pfts into bdall...";
     for (int ip=0; ip<NUM_PFT; ip++) {
       if (cd.m_veg.vegcov[ip]>0.) {
         for (int i=0; i<NUM_PFT_PART; i++) {
           bdall->m_vegs.c[i]    += bd[ip].m_vegs.c[i];
           bdall->m_vegs.strn[i] += bd[ip].m_vegs.strn[i];
         }
-
         bdall->m_vegs.labn    += bd[ip].m_vegs.labn;
         bdall->m_vegs.call    += bd[ip].m_vegs.call;
         bdall->m_vegs.strnall += bd[ip].m_vegs.strnall;
@@ -612,30 +716,35 @@ void Cohort::updateMonthly_Fir(const int & yrind, const int & currmind) {
       }
     }
 
-    //assign the updated soil C/N pools during firing
-    //  to double-linked layer matrix in 'ground'
+    BOOST_LOG_SEV(glg, debug) << "Post-burn, assign the updated C/N pools to double linked layer matrix in ground...";
     soilbgc.assignCarbonBd2LayerMonthly();
-    //then, adjusting soil structure after fire burning
-    //  (Don't do this prior to the previous calling)
-    ground.adjustSoilAfterburn();
-    // and finally save the data back to 'bdall'
+
+    BOOST_LOG_SEV(glg, debug) << "Post-burn, adjust soil structure...";
+    ground.adjustSoilAfterburn(); // must call after soilbgc.assignCarbonBd2LayerMonthly()
+
+    BOOST_LOG_SEV(glg, debug) << "Post-burn, save the data back to 'bdall'...";
     soilbgc.assignCarbonLayer2BdMonthly();
-    // update all other pft's 'bd'
+
+    BOOST_LOG_SEV(glg, debug) << "Post-burn, update all other pft's 'bd'...";
     assignSoilBd2pfts_monthly();
-    // update 'cd'
+
+    BOOST_LOG_SEV(glg, debug) << "Post-burn, update cd, ground, fine root fraction...";
     cd.yrsdist = 0.;
     ground.retrieveSnowDimension(&cd.d_snow);
     ground.retrieveSoilDimension(&cd.m_soil);
     cd.d_soil = cd.m_soil;
     cd.y_soil = cd.m_soil;
     getSoilFineRootFrac_Monthly();
-  }
-};
 
-/////////////////////////////////////////////////////////////////////////////////
-//   Dynamical Vegetation Module (DVM) calling
-////////////////////////////////////////////////////////////////////////////////
+  } else {
+    BOOST_LOG_SEV(glg, debug) << "Not time for a fire. Nothing to do.";
+  }
+}
+
+/** Dynamic Vegetation Module function. */
 void Cohort::updateMonthly_DIMveg(const int & currmind, const bool & dvmmodule) {
+  BOOST_LOG_NAMED_SCOPE("DIMveg");
+  BOOST_LOG_SEV(glg, debug) << "A sample log message in DVM ...";
   //switch for using LAI read-in (false) or dynamically with vegC
   // the read-in LAI is through the 'chtlu->envlai[12]', i.e., a 12 monthly-LAI
   if (dvmmodule) {
@@ -667,10 +776,10 @@ void Cohort::updateMonthly_DIMveg(const int & currmind, const bool & dvmmodule) 
   veg.updateFrootfrac();
 };
 
-/////////////////////////////////////////////////////////////////////////////////
-//   Dynamical Soil Layer Module (DSL)
-////////////////////////////////////////////////////////////////////////////////
+/** Dynamic Soil Layer Module Fucntion. */
 void Cohort::updateMonthly_DIMgrd(const int & currmind, const bool & dslmodule) {
+  BOOST_LOG_NAMED_SCOPE("DIMgrd");
+  BOOST_LOG_SEV(glg, debug) << "A sample log message in DSL module";
   // re-call the 'bdall' soil C contents and assign them to the double-linked layer matrix
   soilbgc.assignCarbonBd2LayerMonthly();
 
@@ -1107,201 +1216,183 @@ void Cohort::getBd4allveg_monthly() {
   }
 }
 
-/** Read the vegetation data for one ?? from a netcdf file.
- 
- Reads data for a single record and sets the data in the CohortData's arrays.
- */
-void Cohort::load_vegdata_from_file(int record) {
-  
-  std::string vegdata_file_name = md->chtinputdir+"vegetation.nc";
-  
-  BOOST_LOG_SEV(glg, info) << "Opening file '" << vegdata_file_name << "'";
-  
-  NcError err(NcError::silent_nonfatal);
-  NcFile vegdata_file(vegdata_file_name.c_str(), NcFile::ReadOnly);
-  
-  std::vector<std::string> vegdata_variables = boost::assign::list_of("VEGSETYR")("VEGTYPE")("VEGFRAC");
-  
-  std::vector<std::string>::iterator it;
-  for (it = vegdata_variables.begin(); it != vegdata_variables.end(); ++it) {
-    
-    NcVar* v = vegdata_file.get_var( (*it).c_str() );
-    
-    if ( v == NULL ) {
-      BOOST_LOG_SEV(glg, fatal) << "Problem reading " << *it << " from " << vegdata_file_name;
-      exit(-1);
-    }
-    
-    // set the pointer to the correct "corner" in the netcdf file/dataset
-    // records are cohorts??
-    v->set_cur(record);
-    
-    // actually grab the data and write it to the CohortData's arrays...
-    NcBool ok = false;
-    if (*it == "VEGSETYR") {
-      ok = v->get(&cd.vegyear[0], md->act_vegset, 1);
-    }
-    if (*it == "VEGTYPE") {
-      ok = v->get(&cd.vegtype[0], md->act_vegset, 1);
-    }
-    if (*it == "VEGFRAC") {
-      ok = v->get(&cd.vegfrac[0], md->act_vegset, 1);
-    }
-    
-    if (!ok) {
-      BOOST_LOG_SEV(glg, fatal) << "Problem writing data for " << *it
-      << " in Cohort::load_vegdata_from_file(..)";
-      exit(-1);
-    }
-    
-  }
-  vegdata_file.close();
-}
 
-/** Read the climate data for one cohort, several years from a (netcdf) file.
- 
- Reads data for a single cohort for one or more years. Reads from a netcdf file
- and modifies the data in the CohortData's climate data arrays.
- */
-void Cohort::load_climate_from_file(int years, int record) {
-  
-  std::string climate_file_name = md->chtinputdir+"climate.nc";
-  
-  BOOST_LOG_SEV(glg, info) << "Opening file '" << climate_file_name << "'";
-  
-  NcFile climate_file = temutil::open_ncfile(climate_file_name);
-  
-  std::vector<std::string> climate_vars = boost::assign::list_of("TAIR")("NIRR")("VAPO")("PREC");
-  
-  std::vector<std::string>::iterator it;
-  for (it = climate_vars.begin(); it != climate_vars.end(); ++it) {
-    
-    NcVar* v = climate_file.get_var( (*it).c_str() );
-    if (v == NULL) {
-      BOOST_LOG_SEV(glg, fatal) << "Problem reading netcdf file! "
-      << "Variable: " << *it << " File: " << climate_file_name;
-      exit(-1);
-    }
-    
-    // set the pointer to the correct "corner" in the netcdf file/dataset
-    // records are cohorts, so the 0th year and 0th month for a given cohort
-    v->set_cur(record, 0, 0);
-    
-    NcBool ok = false;
-    
-    if (*it == "TAIR") {
-      ok = v->get(&cd.tair[0], 1, years, 12);
-    }
-    if (*it == "NIRR") {
-      ok = v->get(&cd.nirr[0], 1, years, 12);
-    }
-    if (*it == "PREC") {
-      ok = v->get(&cd.prec[0], 1, years, 12);
-    }
-    if (*it == "VAPO") {
-      ok = v->get(&cd.vapo[0], 1, years, 12);
-    }
-    
-    if (!ok) {
-      BOOST_LOG_SEV(glg, fatal) << "Problem reading data for " << *it
-      << " in Cohort::load_climate_from_file(..)";
-      exit(-1);
-    }
-    
-  }
-  
-  climate_file.close();
-  
-}
+/** Syncronizes Cohort and CohortData's internal fields from the RestartData
+ * object...Maybe Cohort should not own the RestartData object?
+*/
+void Cohort::set_state_from_restartdata() {
+  BOOST_LOG_SEV(glg, note) << "Updating this Cohort and CohortData object with "
+                           << "values from the RestartData object...";
 
-void Cohort::load_fire_severity_from_file(int record) {
+  veg.set_state_from_restartdata(this->restartdata);
+  solprntenv.set_state_from_restartdata(this->restartdata);
+  fire.set_state_from_restartdata(this->restartdata);
+  snowenv.set_state_from_restartdata(this->restartdata);
+  soilenv.set_state_from_restartdata(this->restartdata);
+  soilbgc.set_state_from_restartdata(this->restartdata);
 
-  NcFile fire_file = temutil::open_ncfile(md->chtinputdir+"fire.nc");
+  // FIX: vegbgc and vegenv are arrays...need to call this for each element in
+  //      array????
+  //  vegbgc.set_state_from_restartdata(this->restartdata);
+  //  vegenv.set_state_from_restartdata(this->restartdata);
 
-  NcVar* v = temutil::get_ncvar(fire_file, "SEVERITY");
-  v->set_cur(record);
-  NcBool ok = v->get(&this->cd.fireseverity[0], 1, md->act_fireset);
-
-  if (!ok) {
-    BOOST_LOG_SEV(glg, fatal) << "Problem reading/setting fire severity!";
-    exit(-1);
-  }
-  /*
-   // THis one gets dealty with elsewhere!! See
-   // RunCohort::readData(..);
-   // read-in fire 'severity', for ONE record only
-   void CohortInputer::getFireSeverity(int fseverity[], const int & recid) {
-   NcError err(NcError::silent_nonfatal);
-   NcFile fireFile(firefname.c_str(), NcFile::ReadOnly);
-   NcVar* fsevV = fireFile.get_var("SEVERITY");
-   
-   if(fsevV==NULL) {
-   string msg = "Cannot get fire SEVERITY in 'fire.nc'! ";
-   cout<<msg+"\n";
-   exit(-1);
-   }
-   
-   fsevV->set_cur(recid);
-   NcBool nb = fsevV->get(&fseverity[0], 1, md->act_fireset);
-   
-   if(!nb) {
-   string msg = "problem in reading fire SEVERITY in 'fire.nc'! ";
-   cout<<msg+"\n";
-   exit(-1);
-   }
-   };
-   */
-
+  //  FIX: how to handle ground?? and snwstate_dim?? Looks like it is
+  //  used for both m_snow and d_snow and y_snow??? which to update???
+  // add more here....
 
 }
 
-void Cohort::load_fire_info_from_file(int record) {
-  
-  std::string fire_file_name = md->chtinputdir+"fire.nc";
-  
-  BOOST_LOG_SEV(glg, info) << "Opening file '" << fire_file_name << "'";
-  
-  NcError err(NcError::silent_nonfatal);
-  NcFile fire_file(fire_file_name.c_str(), NcFile::ReadOnly);
-  
-  std::vector<std::string> fire_vars = boost::assign::list_of("YEAR")("SEASON")("SIZE");
 
-  std::vector<std::string>::iterator it;
-  for (it = fire_vars.begin(); it != fire_vars.end(); ++it) {
-    
-    NcVar* v = fire_file.get_var( (*it).c_str() );
-    if (v == NULL) {
-      BOOST_LOG_SEV(glg, fatal) << "Problem reading netcdf file! "
-                                << "Variable: " << *it << " File: "
-                                << fire_file_name;
-      exit(-1);
-    }
+/** Syncronizes Cohort's RestartData object from fields of Cohort and
+* CohortData. The RestartData object should have methods for serializing
+* or otherwise packaging the data for archiving or communication with another
+* process.
+*/
+void Cohort::set_restartdata_from_state() {
+  BOOST_LOG_SEV(glg, note) << "Updating this Cohort's restartdata member with "
+                           << "values from the model's state (various fields of "
+                           << " Cohort and CohortData).";
 
-    // set the pointer to the correct "corner" in the netcdf file/dataset
-    // records are cohorts, so the 0th year and 0th month for a given cohort
-    v->set_cur(record);
-    
-    NcBool ok = false;
-    
-    if (*it == "YEAR") {
-      ok = v->get(&cd.fireyear[0], 1, md->act_fireset);
-    }
-    if (*it == "SEASON") {
-      ok = v->get(&cd.fireseason[0], 1, md->act_fireset);
-    }
-    if (*it == "SIZE") {
-      ok = v->get(&cd.firesize[0], 1, md->act_fireset);
-    }
+  // clear the restartdata object
+  restartdata.reinitValue();
+  
+  restartdata.chtid = cd.chtid;  // deprecate?
 
-    if (!ok) {
-      BOOST_LOG_SEV(glg, fatal) << "Problem reading data for " << *it
-                                << " in Cohort::load_fire_info_from_file(..)";
-      exit(-1);
+  // atm
+  restartdata.dsr                = edall->d_atms.dsr;
+  restartdata.firea2sorgn        = fd->fire_a2soi.orgn; // to re-deposit fire-emitted N in one FRI
+
+  // vegegetation
+  restartdata.yrsdist     = cd.yrsdist;
+
+  for (int ip = 0; ip < NUM_PFT; ip++) {
+    if (cd.m_veg.vegcov[ip] > 0.0) {
+      restartdata.ifwoody[ip]    = cd.m_veg.ifwoody[ip];
+      restartdata.ifdeciwoody[ip]= cd.m_veg.ifdeciwoody[ip];
+      restartdata.ifperenial[ip] = cd.m_veg.ifperenial[ip];
+      restartdata.nonvascular[ip]= cd.m_veg.nonvascular[ip];
+      restartdata.vegage[ip]     = cd.m_veg.vegage[ip];
+      restartdata.vegcov[ip]     = cd.m_veg.vegcov[ip];
+      restartdata.lai[ip]        = cd.m_veg.lai[ip];
+
+      for (int i = 0; i < MAX_ROT_LAY; i++) {
+        restartdata.rootfrac[i][ip] = cd.m_veg.frootfrac[i][ip];
+      }
+
+      restartdata.vegwater[ip] = ed[ip].m_vegs.rwater; //canopy water - 'vegs_env'
+      restartdata.vegsnow[ip]  = ed[ip].m_vegs.snow;   //canopy snow  - 'vegs_env'
+
+      for (int i = 0; i < NUM_PFT_PART; i++) {
+        restartdata.vegc[i][ip] = bd[ip].m_vegs.c[i];  // - 'vegs_bgc'
+        restartdata.strn[i][ip] = bd[ip].m_vegs.strn[i];
+      }
+
+      restartdata.labn[ip]         = bd[ip].m_vegs.labn;
+      restartdata.deadc[ip]        = bd[ip].m_vegs.deadc;
+      restartdata.deadn[ip]        = bd[ip].m_vegs.deadn;
+      restartdata.eetmx[ip]        = cd.m_vegd.eetmx[ip];
+      restartdata.topt[ip]         = cd.m_vegd.topt[ip];
+      restartdata.unnormleafmx[ip] = cd.m_vegd.unnormleafmx[ip];
+      restartdata.growingttime[ip] = cd.m_vegd.growingttime[ip];
+
+      // this is for f(foliage) in GPP to be sure f(foliage) not going down
+      restartdata.foliagemx[ip] = cd.m_vegd.foliagemx[ip];
+
+      deque<double> tmpdeque1 = cd.toptque[ip];
+      int recnum = tmpdeque1.size();
+
+      for (int i=0; i<recnum; i++) {
+        restartdata.toptA[i][ip] = tmpdeque1[i];
+      }
+
+      deque<double> tmpdeque2 = cd.prvunnormleafmxque[ip];
+      recnum = tmpdeque2.size();
+
+      for (int i=0; i<recnum; i++) {
+        restartdata.unnormleafmxA[i][ip] = tmpdeque2[i];
+      }
+
+      deque<double> tmpdeque3 = cd.prvgrowingttimeque[ip];
+      recnum = tmpdeque3.size();
+
+      for (int i=0; i<recnum; i++) {
+        restartdata.growingttimeA[i][ip]= tmpdeque3[i];
+      }
+
+      deque<double> tmpdeque4 = cd.prveetmxque[ip];
+      recnum = tmpdeque4.size();
+
+      for (int i=0; i<recnum; i++) {
+        restartdata.eetmxA[i][ip]= tmpdeque4[i];
+      }
+    } // end of 'if vegcov>0'
+  } // end of 'for ip loop'
+
+  // snow - 'restart' from the last point, so be the daily for
+  //  'cd' and 'ed', but monthly for 'bd'
+  restartdata.numsnwl = cd.d_snow.numsnwl;
+  restartdata.snwextramass = cd.d_snow.extramass;
+
+  for(int il =0; il<cd.d_snow.numsnwl; il++) {
+    restartdata.DZsnow[il]  = cd.d_snow.dz[il];
+    restartdata.AGEsnow[il] = cd.d_snow.age[il];
+    restartdata.RHOsnow[il] = cd.d_snow.rho[il];
+
+    // NOTE: for all PFT, ground 'ed' is same, BE sure that is done
+    restartdata.TSsnow[il]  = edall->d_snws.tsnw[il];
+
+    restartdata.LIQsnow[il] = edall->d_snws.snwliq[il];
+    restartdata.ICEsnow[il] = edall->d_snws.snwice[il];
+  }
+
+  // ground-soil
+  restartdata.numsl  = cd.d_soil.numsl;     // actual number of soil layers
+  restartdata.monthsfrozen   = edall->monthsfrozen;
+  restartdata.rtfrozendays   = edall->rtfrozendays;
+  restartdata.rtunfrozendays = edall->rtunfrozendays;
+  restartdata.watertab   = edall->d_sois.watertab;
+
+  for(int il =0; il<cd.d_soil.numsl; il++) {
+    restartdata.DZsoil[il]   = cd.d_soil.dz[il];
+    restartdata.AGEsoil[il]  = cd.d_soil.age[il];
+    restartdata.TYPEsoil[il] = cd.d_soil.type[il];
+    restartdata.TEXTUREsoil[il]= cd.d_soil.texture[il];
+    restartdata.TSsoil[il]    = edall->d_sois.ts[il];
+    restartdata.LIQsoil[il]   = edall->d_sois.liq[il];
+    restartdata.ICEsoil[il]   = edall->d_sois.ice[il];
+    restartdata.FROZENsoil[il]= edall->d_sois.frozen[il];
+    restartdata.FROZENFRACsoil[il]= edall->d_sois.frozenfrac[il];
+  }
+
+  for(int il =0; il<MAX_ROC_LAY; il++) {
+    restartdata.TSrock[il] = edall->d_sois.trock[il];
+    restartdata.DZrock[il] = ROCKTHICK[il];
+  }
+
+  for(int il =0; il<MAX_NUM_FNT; il++) {
+    restartdata.frontZ[il]  = edall->d_sois.frontsz[il];
+    restartdata.frontFT[il] = edall->d_sois.frontstype[il];
+  }
+
+  //
+  restartdata.wdebrisc = bdall->m_sois.wdebrisc;
+  restartdata.wdebrisn = bdall->m_sois.wdebrisn;
+  restartdata.dmossc = bdall->m_sois.dmossc;
+  restartdata.dmossn = bdall->m_sois.dmossn;
+
+  for(int il =0; il<cd.m_soil.numsl; il++) {
+    restartdata.rawc[il]  = bdall->m_sois.rawc[il];
+    restartdata.soma[il]  = bdall->m_sois.soma[il];
+    restartdata.sompr[il] = bdall->m_sois.sompr[il];
+    restartdata.somcr[il] = bdall->m_sois.somcr[il];
+    restartdata.orgn[il] = bdall->m_sois.orgn[il];
+    restartdata.avln[il] = bdall->m_sois.avln[il];
+    deque<double> tmpdeque = bdall->prvltrfcnque[il];
+    int recnum = tmpdeque.size();
+
+    for (int i=0; i<recnum; i++) {
+      restartdata.prvltrfcnA[i][il]= tmpdeque[i];
     }
   }
-  fire_file.close();
 }
-
-
-
 

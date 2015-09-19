@@ -409,10 +409,10 @@ void Integrator::y2cstate_veg(float y[]) {
 
 void Integrator::y2cstate_soi(float y[]) {
   for(int il=0; il<numsl; il++) {
-    bd->m_sois.rawc[il] = y[I_L_RAWC +il];
-    bd->m_sois.soma[il] = y[I_L_SOMA +il];
-    bd->m_sois.sompr[il]= y[I_L_SOMPR +il];
-    bd->m_sois.somcr[il]= y[I_L_SOMCR +il];
+    bd->m_sois.rawc[il] = y[I_L_RAWC+il];
+    bd->m_sois.soma[il] = y[I_L_SOMA+il];
+    bd->m_sois.sompr[il]= y[I_L_SOMPR+il];
+    bd->m_sois.somcr[il]= y[I_L_SOMCR+il];
 
     if(y[I_L_AVLN+il]<0) { //add by shuhua Dec 8 2007
       y[I_L_ORGN+il]+=y[I_L_AVLN+il] -0.001;
@@ -450,10 +450,10 @@ void Integrator::y2cflux_veg(float y[]) {
 
 void Integrator::y2cflux_soi(float y[]) {
   for(int il =0; il<numsl; il++) {
-    bd->m_soi2a.rhrawc[il]    = y[I_L_RH_RAW +il];
-    bd->m_soi2a.rhsoma[il]    = y[I_L_RH_SOMA +il];
-    bd->m_soi2a.rhsompr[il]   = y[I_L_RH_SOMPR +il];
-    bd->m_soi2a.rhsomcr[il]   = y[I_L_RH_SOMCR +il];
+    bd->m_soi2a.rhrawc[il]    = y[I_L_RH_RAW+il];
+    bd->m_soi2a.rhsoma[il]    = y[I_L_RH_SOMA+il];
+    bd->m_soi2a.rhsompr[il]   = y[I_L_RH_SOMPR+il];
+    bd->m_soi2a.rhsomcr[il]   = y[I_L_RH_SOMCR+il];
     bd->m_soi2soi.nimmob[il]  = y[I_L_NIMMOB+il];
     bd->m_soi2soi.netnmin[il] = y[I_L_NMIN+il];
   }
@@ -577,8 +577,8 @@ void Integrator::dc2yflux_veg(float pdstate[]) {
 
 void Integrator::dc2yflux_soi(float pdstate[]) {
   for (int il =0; il<numsl; il++) {
-    pdstate[I_L_RH_RAW +il]  = ssl->del_soi2a.rhrawc[il];
-    pdstate[I_L_RH_SOMA +il] = ssl->del_soi2a.rhsoma[il];
+    pdstate[I_L_RH_RAW+il]  = ssl->del_soi2a.rhrawc[il];
+    pdstate[I_L_RH_SOMA+il] = ssl->del_soi2a.rhsoma[il];
     pdstate[I_L_RH_SOMPR+il] = ssl->del_soi2a.rhsompr[il];
     pdstate[I_L_RH_SOMCR+il] = ssl->del_soi2a.rhsomcr[il];
     pdstate[I_L_NIMMOB+il]   = ssl->del_soi2soi.nimmob[il];
@@ -813,13 +813,13 @@ int Integrator::boundcon( float ptstate[], float err[], float& ptol ) {
       same = err[I_L_RAWC+il] - fabs( ptol * ptstate[I_L_RAWC+il]);
 
       if (same>zero) {
-        return test = soivarkey( I_L_RAWC)+1 +il;
+        return test = soivarkey( I_L_RAWC)+1+il;
       }
 
       same = err[I_L_SOMA+il] - fabs( ptol * ptstate[I_L_SOMA+il]);
 
       if (same>zero) {
-        return test = soivarkey(I_L_SOMA)+1 +il;
+        return test = soivarkey(I_L_SOMA)+1+il;
       }
 
       same = err[I_L_SOMPR+il] - fabs( ptol * ptstate[I_L_SOMPR+il]);

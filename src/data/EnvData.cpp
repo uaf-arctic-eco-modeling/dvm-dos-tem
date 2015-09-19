@@ -1,5 +1,6 @@
 #include "EnvData.h"
 
+#include "../TEMUtilityFunctions.h"
 #include "../TEMLogger.h"
 
 extern src::severity_logger< severity_level > glg;
@@ -332,6 +333,7 @@ void EnvData::grnd_beginOfMonth() {
 void EnvData::grnd_beginOfDay() {
   // need to set some diagnostic variables to zero
   d_snw2soi.melt =0.;
+  d_soi2a.evap_pet = 0.0;
 };
 
 /////////////////////////////////////////////////////////////////////////
@@ -746,5 +748,28 @@ void EnvData::grnd_endOfMonth() {
   y_soi2l.qinfl  += m_soi2l.qinfl;
   y_soi2l.qdrain += m_soi2l.qdrain;
 };
+
+void EnvData::update_from_climate(const Climate& clm, const int midx, const int didx) {
+
+  int doy_idx = temutil::day_of_year(midx, didx);
+
+  this->d_atms.co2 = clm.co2_d;
+  this->d_atms.ta  = clm.tair_d[doy_idx];
+  this->d_a2l.rnfl = clm.rain_d[doy_idx];
+  this->d_a2l.snfl = clm.snow_d[doy_idx];
+  this->d_a2l.prec = clm.rain_d[doy_idx] + clm.snow_d[doy_idx];
+  this->d_a2l.par  = clm.par_d[doy_idx];
+  this->d_a2l.nirr = clm.nirr_d[doy_idx];
+  this->d_atmd.vp  = clm.vapo_d[doy_idx];
+  this->d_atmd.svp = clm.svp_d[doy_idx];
+  this->d_atmd.vpd = clm.vpd_d[doy_idx];
+
+  // Adjust days-since-rain
+  if(this->d_a2l.prec > 0.0) {
+    this->d_atms.dsr = 0;
+  } else {
+    this->d_atms.dsr++;
+  }
+}
 
 

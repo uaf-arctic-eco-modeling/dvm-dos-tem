@@ -1,10 +1,10 @@
 #ifndef COHORT_H_
 #define COHORT_H_
 
+#include "../Climate.h"
+
 #include "../ecodomain/Ground.h"
 #include "../ecodomain/Vegetation.h"
-
-#include "../atmosphere/Atmosphere.h"
 
 #include "../vegetation/Vegetation_Env.h"
 #include "../vegetation/Vegetation_Bgc.h"
@@ -16,8 +16,6 @@
 
 #include "../disturb/WildFire.h"
 
-#include "../data/RegionData.h"
-#include "../data/GridData.h"
 #include "../data/CohortData.h"
 
 #include "../data/EnvData.h"
@@ -31,29 +29,44 @@
 #include "Integrator.h"
 
 // headers for run
-#include "Timer.h"
 #include "ModelData.h"
 #include "OutRetrive.h"
 
 class Cohort {
 public :
   Cohort();
+  Cohort(int y, int x, ModelData* modeldatapointer);
   ~Cohort();
+  
+  int y;
+  int x;
+
+  float lon;
+  float lat;
 
   // model running status
   int errorid;
   bool failed;    // when an exception is caught, set failed to be true
 
-  //
-  Timer * timer;
+  /*
+    Note: FRI is a member of CohortData because it is checked in
+    Soil_Bgc::prepareintegration(...), and at that point there is no access to
+    the members/fields of a Cohort...
+  */
 
+  // old? can I deprecate these??
+  //double pfsize[NUM_FSIZE];
+  //double pfseason[NUM_FSEASON];
+  
   //inputs
   CohortLookup chtlu;
 
   // domain
-  Atmosphere atm;
   Vegetation veg;
   Ground ground;
+  
+  // new domain
+  Climate climate;
 
   // processes
   Vegetation_Env vegenv[NUM_PFT];
@@ -78,29 +91,29 @@ public :
   FirData * fd;   // this for all PFTs and their soil
 
   ModelData * md;
-  RegionData * rd;
-  GridData * gd;
 
   CohortData cd;
-  RestartData resid;    //for input
-
-  void load_climate_from_file(int years, int record);
-  void load_vegdata_from_file(int record);
-  void load_fire_info_from_file(int record);
-  void load_fire_severity_from_file(int record);
+  RestartData restartdata;
   
-  void initSubmodules();
-  void setTime(Timer * timerp);
+
+//  void NEW_load_climate_from_file(int y, int x);
+//  void NEW_load_veg_class_from_file(int y, int x);
+//  void NEW_load_fire_from_file(int y, int x);
+
+  void initialize_internal_pointers();
 
   void setModelData(ModelData* md);
-  void setInputData(RegionData * rd, GridData * gd);
   void setProcessData(EnvData * alledp, BgcData * allbdp, FirData *fdp);
 
-  void initStatePar();
-  void prepareAllDrivingData();
-  void prepareDayDrivingData(const int & yrcnt, const int &usedatmyr);
+  void initialize_state_parameters();
+  //void prepareAllDrivingData();
+  //void prepareDayDrivingData(const int & yrcnt, const int &usedatmyr);
   void updateMonthly(const int & yrcnt, const int & currmind,
                      const int & dinmcurr);
+  
+  void set_state_from_restartdata();
+  void set_restartdata_from_state();
+
 
 private:
 
@@ -113,7 +126,10 @@ private:
 
   void updateMonthly_Env(const int & currmind, const int & dinmcurr);
   void updateMonthly_Bgc(const int & currmind);
-  void updateMonthly_Fir(const int & yrcnt, const int & currmind);
+  void updateMonthly_Dsb(const int & yrcnt, const int & currmind);
+
+  // Fire is a type of disturbance?
+  void updateMonthly_Fir(const int & year, const int & midx);
 
   // update root distribution
   void getSoilFineRootFrac_Monthly();

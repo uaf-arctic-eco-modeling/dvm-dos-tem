@@ -142,15 +142,15 @@ void Vegetation_Bgc::initializeState() {
 };
 
 //set the initial states from restart inputs
-void Vegetation_Bgc::initializeState5restart(RestartData *resin) {
+void Vegetation_Bgc::set_state_from_restartdata(const RestartData & rdata) {
   for (int i=0; i<NUM_PFT_PART; i++) {
-    bd->m_vegs.c[i]    = resin->vegc[i][ipft];
-    bd->m_vegs.strn[i] = resin->strn[i][ipft];
+    bd->m_vegs.c[i]    = rdata.vegc[i][ipft];
+    bd->m_vegs.strn[i] = rdata.strn[i][ipft];
   }
 
-  bd->m_vegs.labn = resin->labn[ipft];
-  bd->m_vegs.deadc = resin->deadc[ipft];
-  bd->m_vegs.deadn = resin->deadn[ipft];
+  bd->m_vegs.labn = rdata.labn[ipft];
+  bd->m_vegs.deadc = rdata.deadc[ipft];
+  bd->m_vegs.deadn = rdata.deadn[ipft];
   //
   bd->m_vegs.call    = 0.;
   bd->m_vegs.strnall = 0.;
@@ -826,12 +826,28 @@ double Vegetation_Bgc::getRaq10(const double & tair) {
   return raq10;
 };
 
-// Plant new production C/N ratios (bgcpar.cneven) adjusting at end of a year
-void Vegetation_Bgc::adapt() {
-  // Determine vegetation C/N parameter as a function
-  // of vegetation type, annual PET, annual EET,
-  // CO2 concentration
-  updateCNeven(ed->y_l2a.eet, ed->y_l2a.pet, cd->rd->initco2, ed->y_atms.co2);
+/** Plant new production C/N ratios (bgcpar.cneven) adjusting at end of a year.
+ Determine vegetation C/N parameter as a function of vegetation type, annual 
+ PET, annual EET, CO2 concentration.
+*/
+void Vegetation_Bgc::adapt_c2n_ratio_with_co2(
+    const double & yreet, const double & yrpet, const double & initco2,
+    const double & currentco2 ) {
+
+  for (int i=0; i<NUM_PFT_PART; i++) {
+    if (yrpet > 0.0) {
+      bgcpar.c2neven[i] = bgcpar.c2nb[i] + bgcpar.c2na*(yreet/yrpet);
+    } else {
+      bgcpar.c2neven[i] = bgcpar.c2nb[i];
+    }
+
+    if (bgcpar.c2neven[i] < bgcpar.c2nmin[i]) {
+      bgcpar.c2neven[i] = bgcpar.c2nmin[i];
+    }
+
+    double adjc2n = 1.0 + (bgcpar.dc2n * (currentco2 - initco2));
+    bgcpar.c2neven[i] *= adjc2n;
+  }
 }
 
 //

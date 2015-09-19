@@ -1,6 +1,8 @@
 #ifndef COHORTDATA_H_
 #define COHORTDATA_H_
 
+#include <deque>
+
 #include "../inc/errorcode.h"
 #include "../inc/timeconst.h"
 #include "../inc/cohortconst.h"
@@ -8,45 +10,36 @@
 #include "../inc/states.h"
 #include "../inc/diagnostics.h"
 
-#include "RegionData.h"
-#include "GridData.h"
+#include "../runmodule/ModelData.h"
 
-#include <deque>
 using namespace std;
 
 class CohortData {
 public:
   CohortData();
+  CohortData(int year, int month, int day,
+      const ModelData* modeldatapointer);
+
   ~CohortData();
 
   void clear();
 
   int chtid;
-  int year;
-  int month;
-  int day;
+  int year;     // only used for output (old format)
+  int month;    // only used for output (old format)
 
   int cmttype; // vegetation community type
   int yrsdist; // years since last disturbance
+  
+  int drainage_type;
 
   bool hasnonvascular; //if exists non-vascular PFT(s) within the vegetation community
 
-  int act_vegset;
   int vegyear[MAX_VEG_SET];
   int vegtype[MAX_VEG_SET];
   double vegfrac[MAX_VEG_SET];
 
-  int act_fireset;
-  int fireyear[MAX_FIR_OCRNUM];
-  int fireseason[MAX_FIR_OCRNUM];
-  int firesize[MAX_FIR_OCRNUM];
-  int fireseverity[MAX_FIR_OCRNUM];
-
-  int act_atm_drv_yr;
-  float tair[MAX_ATM_DRV_YR*12];
-  float prec[MAX_ATM_DRV_YR*12];
-  float nirr[MAX_ATM_DRV_YR*12];
-  float vapo[MAX_ATM_DRV_YR*12];
+  int fri;
 
   // community dimension
   vegstate_dim d_veg;   //at daily-interval   - 'd' is for daily
@@ -74,9 +67,6 @@ public:
   deque <double> prvgrowingttimeque[NUM_PFT];
   // a deque-array to store previous 10 year 'topt'
   deque <double> toptque[NUM_PFT];
-
-  RegionData * rd;
-  GridData * gd;
 
   void beginOfYear();
   void beginOfMonth();

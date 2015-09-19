@@ -1,7 +1,7 @@
 {
   "calibration_autorun_settings": {
     "quitat": 1500,
-    "534": ["dsl on", "nfeed on", "dsb on"],
-    "pwup": false // "post warm up pause", boolean
+    "530": ["dsl on", "nfeed on", "dsb on"],
+    "pwup": true // "post warm up pause", [true | false], boolean
   }
 }
