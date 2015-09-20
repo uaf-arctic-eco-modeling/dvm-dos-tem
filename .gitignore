@@ -1,6 +1,8 @@
 # this ignores all the "restart" files that are generated at run-time
 DATA/*/output/*.nc
 
+calibration-plots/*
+
 # ingore the build directory and compiled binaries
 obj/*
 dvmdostem
@@ -26,3 +28,6 @@ Debug/*
 
 # compiled python files
 *.pyc
+
+# complied object files...
+*.o
