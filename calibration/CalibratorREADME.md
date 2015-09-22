@@ -141,24 +141,44 @@ then saving a descriptively named copy at key steps in the calibration process.
 
 ### Example: Calibrating shrub tundra with no disturbance.
 
-1. Open several terminals, 1 for each pft, 1 for soil, 1 for running the model. Also open cmt_calparbgc.txt
+1. Open several terminals, 1 for each pft, 1 for soil, 1 for running the model. 
+Also open cmt_calparbgc.txt
 
-2. Start the python plotting script for each pft and soil in separate terminals.  Use ./Expandingwindow.py --help for menu.
+<img width=500px alt="a diagram" src="images/step1.png" />
+
+2. Start the python plotting script for each pft and soil in separate terminals. 
+Use `./Expandingwindow.py --help` for menu.
+
+<img width=500px alt="a diagram" src="images/step2a.png" />
+
+<img width=500px alt="a diagram" src="images/Step2b.png" />
 
 3. Start the model. Remember to use `-–cal-mode`
 
-4. Press ‘c’ to continue.
+    ~~~
+    (devel)$ ./dvmdostem --cal-mode --log-level note -p 100 -m 10000 
+    ~~~
+    
+4. Pause the mode with `CTRL+c`; Press ‘c’ to continue at the `Enter command>` 
+prompt.
 
-5. It is good at this point to press crtl+C (pause) right away to check the all the settings are correct. 
+5. It is good at this point to press crtl+C (pause) right away to check the all 
+the settings are correct. 
   - `print module settings` will show which modules are on or off.
   - `print calparbgc` will show the current values of the calibrated parameters.
   - `help` will explain everything.
 
-6. Calibrate Cmax and Krb as described elsewhere.  This can be done coarsely at first for all pfts. 
+
+<img width=500px alt="a diagram" src="images/step3a.png" />
+
+6. Calibrate Cmax and Krb as described elsewhere.  This can be done coarsely at 
+first for all pfts. 
   - To calibrate, pause the model using `crtl+c`
   - edit the parameters in cmt_calparbgc.txt, save the file
   - press `r` (reload) in the model terminal
   - press `c` (continue) in the model terminal
+
+<img width=500px alt="a diagram" src="images/step3b.png" />
 
 7. Turn dvm on, calibrate cmax and krb more precisely.
 8. Increase Nuptake higher than you expect it to be.
@@ -166,6 +186,23 @@ then saving a descriptively named copy at key steps in the calibration process.
 10. Calibrate N cycle.
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-------------------------
 
 # MORE OLD NOTES
 
