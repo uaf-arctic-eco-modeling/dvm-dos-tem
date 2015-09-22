@@ -28,9 +28,8 @@ Downloading
 We (the Spatial Ecology Lab) are maintaining the main fork of dvm-dos-tem on 
 Github: [https://github.com/ua-snap/dvm-dos-tem](https://github.com/ua-snap/dvm-dos-tem)
 
-> The dvm-dos-tem program is not distributed as a binary file, 
-so to run the program, you must download the source code and compile it 
-yourself. 
+The dvm-dos-tem program is not distributed as a binary file, so to run the 
+program, you must download the source code and compile it yourself. 
 
  * The `master` branch will always contain the latest production version of the
 model. 
@@ -44,6 +43,23 @@ We are using Github's Pull Requests to manage contributins to the code.
 
 Compiling / Building
 -----------------------------------------------------------------------------
+You have two options for compling the source code:
+
+ * make (and Makefile)
+ * scons (and SConstruct file)
+ 
+Make is a old, widely availabe, powerful program with a somewhat arcane syntax. 
+The Makefile is not setup for partial-compilation, so editing a single file 
+requires and re-making the project will result in re-compiling every single
+file.
+
+Scons is a build program that is written in Python, and designed to be a easier
+to use than make. The scons and the SConstruct file are smart enough to do
+partial builds, so that some changes result in much faster builds.
+
+Both programs can take a flag specifying parallel builds and the number of 
+processors to use. e.g.: `-j4`.
+
 This project requires a version of NetCDF and Boost's program options to be installed on
 your path. Assuming both of those exist, this should work to compile:
 
@@ -51,18 +67,20 @@ your path. Assuming both of those exist, this should work to compile:
 
 or 
 
-    $ make dvm
+    $ scons
+
+### Notes on build environments
     
 There are some helpful scripts provided in the `env-setup-scripts/` folder that will set
-a few environment variables for you for specific systems. For instance on aeshna, the
+a few environment variables for you for specific systems. For instance on atlas, the
 correct version of NetCDF is not provided as a system package, but the user tobey has
 made it available so that you don't have to compile it yourself. You must set an
 environment variable so that when you compile and run it will look in tobey's directory
 for the NetCDF library files.
 
 You can either remember to run the setup commands/script each time you logon to the
-computer where are you are interacting with the model or add a line to your ~/.bashrc
-or ~/.bash_profile that "sources" the setup script. This makes sure the setup commands
+computer where are you are interacting with the model or add a line to your `~/.bashrc`
+or `~/.bash_profile` that "sources" the setup script. This makes sure the setup commands
 are run each time you log on. 
 E.g.
 
@@ -76,24 +94,49 @@ don't have to spend time figuring out those details.
 
 Running 
 ---------------------------------------------
-The program is partially controlled by a set of command line options. The `--help`
-provides some info and shows the defaults:
 
-    $ ./DVMDOSTEM --help
-      -m [ --mode ] arg (=siterun)          change mode between siterun and regnrun
-      -f [ --control-file ] arg (=config/controlfile_site.txt)
+Running `dvmdostem` (operating the model) requires 3 types of "input" information:
+
+1. Driving data (input data)
+2. Parameter values
+3. Configuration options 
+
+Sample driving data is provided in the `DATA/` directory, sample parameters are 
+provided in the `parameters/` directory, and sample configuraiton options are 
+provided in the `config/` directory. More configuration options are available
+via options supplied on the command line when starting the program. The `--help`
+flag provides some info and shows the defaults:
+
+    $ ./dvmdostem --help
+      -c [ --cal-mode ]                     Switch for calibration mode. When this 
+                                            flag is preset, the program will be 
+                                            forced to run a single site and with 
+                                            --loop-order=space-major. The program 
+                                            will generate yearly and monthly 
+                                            '.json' files in your /tmp  directory 
+                                            that are intended to be read by other 
+                                            programs or scripts.
+      -p [ --pre-run-yrs ] arg (=10)        The maximum number of years to run in 
+                                            equlibrium stage.
+      -m [ --max-eq ] arg (=1000)           The maximum number of years to run in 
+                                            equlibrium stage.
+      -o [ --loop-order ] arg (=space-major)
+                                            Which control loop is on the outside: 
+                                            'space-major' or 'time-major'. For 
+                                            example 'space-major' means 'for each 
+                                            cohort, for each year'.
+      -f [ --ctrl-file ] arg (=config/config.js)
                                             choose a control file to use
-      -c [ --cohort-id ] arg (=1)           choose a specific cohort to run
-      -s [ --space-time-config ] arg        choose spatial or temporal running mode
-      -h [ --help ]                         produces helps message
-      -v [ --version ]                      show the version information
-      -d [ --debug ]                        enable debug mode
+      -l [ --log-level ] arg (=warn)        Control the verbositiy of the console 
+                                            log statements. Choose one of the 
+                                            following: debug, info, note, warn, 
+                                            err, fatal.
+      -x [ --fpe ]                          Switch for enabling floating point 
+                                            exceptions. If present, the program 
+                                            will crash when NaN or Inf are 
+                                            generated.
+      -h [ --help ]                         produces helps message, then quits
 
-The DATA/ directory of this project contains some sample data for single site runs and
-some multi-site runs (multiple grid cells or cohorts). To use the default values, simply
-run the program like this:
-
-    $ ./DVMDOSTEM
 
 Documentation
 -----------------------------------------------------------------
