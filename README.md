@@ -58,10 +58,13 @@ to use than make. The scons and the SConstruct file are smart enough to do
 partial builds, so that some changes result in much faster builds.
 
 Both programs can take a flag specifying parallel builds and the number of 
-processors to use. e.g.: `-j4`.
+processors to use (e.g.: `-j4`) for parallel builds.
 
-This project requires a version of NetCDF and Boost's program options to be installed on
-your path. Assuming both of those exist, this should work to compile:
+This project requires a number of libraries are installed and available on your 
+path. For a complete list, see the install commands in `bootstrap-system.sh`
+
+If you have all the requsite libraries installed and available on your path, 
+then either of these commands should work:
 
     $ make
 
@@ -154,17 +157,8 @@ This project is maintained using Git (an open source distributed version control
 and Github (a web service that provides hosting for code projects and has tools and idioms
 for collaborative working on code-related projects).
 
-This project is maintained using the "Fork and Pull" workflow. Following are several
-common use-cases:
-
-* To simply download and use a certain version of the software, no special tools or
-programs are necessary.
- * Simply navigate to the project's "Code" view on github, select the branch or tag of the
-code to get and use the download link.
-
-* If you plan to make changes to the source code that should be incorporated into the
-Spatial Ecology Lab's main repository, then you will need the program Git on your
-computer. More information is available in the Turorial.
+This project is maintained using the "Fork and Pull" workflow. For more 
+on git, forking, pulling, etc, see the wiki.
 
 ### Branching Model
 
@@ -181,6 +175,15 @@ is happy with the `devel` branch, it is merged into `master`, creating the next 
 of dvm-dos-tem. This stable `master` branch is an integration point for other projects,
 such as the Alaska Integrated Ecosystem Model project.
 
+### Coding Style
+
+> TODO: add coding style info...why important, standards, makes diffs easier to read etc.
+
+* line width max 80 chars
+* use spaces instead of tabs
+* documentation: doxygen style comments
+* commit messages...
+* line endings...
 
 
 ### Workflow
@@ -195,69 +198,7 @@ changes back to _your_ fork. If you would like the changes you made to be incorp
 into the shared project (github.com/ua-snap/dvm-dos-tem.git), then issue a "pull request"
 from your github account. This process is described in detail in the Tutorial
 
-### Coding Style
 
-> TODO: add coding style info...why important, standards, makes diffs easier to read etc.
-
-* line width max 80 chars
-* use spaces instead of tabs
-* documentation: doxygen style comments
-* commit messages...
-* line endings...
-
-### More Info about Git
-Git is, at heart, a command line tool, but there are numerous graphic front-ends (GUIs)
-available for Mac, Windows and Linux. If you are using SEL's aeshna cluster, Git is
-already installed along with two helpful graphical tools, gitk and git-gui. There are
-Git plugins for many other software development tools as well (e.g. Eclipse). Using the
-graphical tools may be easier if you have a basic familiarity with using Git from the
-command line.
-
-Here are two resources for getting and installing git on your computer:
-
-* Github, how to setup Git <https://help.github.com/articles/set-up-git>
-* Git Book, installing git <http://git-scm.com/book/en/Getting-Started-Installing-Git>
-
-In general, the Git Book <http://git-scm.com/book/en/> is a good reference.
-
-Then you will need to follow the ideas described here to be able to keep your code
-up-to-date and to be able to contribute changes: <https://help.github.com/articles/fork-a-repo>.
-
-After installing git on your computer and downloading the source code, here are a number
-of settings, configurations, and "tweaks" that may be helpful for working with Git and
-github.
-
-* Maybe start with this (Git Book again): <http://git-scm.com/book/en/Customizing-Git-Git-Configuration>.
-    
-    The settings concerning pager, external editors, and color are particularly useful.
-
-* Install and use gitk and git-gui (These come default with most installations of Git).
-    
-    * Gitk is a history viewer
-    * Git Gui allows you to add changes and commit them to the repository.
-
-* It is helpful if the prompt in your terminal program displays which branch you currently
-have checked out when you enter a directory with a git repository. To do this, you add a
-function to your `.bashrc` file. The `.bashrc` file is a setting file that is present in
-every user's home directory on most Linux like computers. The '.' in the file name makes
-the file "hidden"; use `ls -a` to see the file. If it is not present in your directory,
-you can create it. Add this to your `.bashrc` file:
-
-        # function to find the current git branch
-        function parse_git_branch {
-            git branch --no-color 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/[\1] /'
-        }
-        
-        # use parse_git_branch to add the git branch to your terminal prompt
-        PS1=$PS1: $(parse_git_branch)
-
-**NOTE:** This does not work on Fedora.  TODO: find out how to do display the current branch in terminal program in Fedora.
-**NOTE:** Marks laptop also found Fedora 17 not to work, HELP!!!!!!
-
-**NOTE:** You have to remember to reload the `.bashrc` file, either by closing and
-re-opening your terminal window, or typing:
-
-    $ source ~/.bashrc
 
 Tutorial on contributing 
 ===============================================
