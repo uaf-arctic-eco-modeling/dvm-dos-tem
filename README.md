@@ -21,7 +21,7 @@ The following tools/libraries are necessary in order to compile and run dvm-dos-
 
 * Boost, including [Boost.Program_options](http://www.boost.org/doc/libs/1_53_0/doc/html/program_options.html)
 * NetCDF, C++ Interface, [NetCDF/Unidata](http://www.unidata.ucar.edu/software/netcdf/)
-* Jsoncpp []()
+* Jsoncpp [https://github.com/open-source-parsers/jsoncpp](https://github.com/open-source-parsers/jsoncpp)
 
 Downloading 
 -----------------------------------------------------------
