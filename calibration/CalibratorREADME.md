@@ -147,7 +147,7 @@ Also open cmt_calparbgc.txt
 <img width=500px alt="a diagram" src="images/step1.png" />
 
 2. Start the python plotting script for each pft and soil in separate terminals. 
-Use `./Expandingwindow.py --help` for menu.
+Use `./calibration-viewer.py --help` for menu.
 
 <img width=500px alt="a diagram" src="images/step2a.png" />
 
