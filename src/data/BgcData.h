@@ -65,12 +65,12 @@ public:
 
   void veg_beginOfYear();
   void veg_beginOfMonth();
-  void veg_endOfMonth();
+  void veg_endOfMonth(const int currmind);
   void veg_endOfYear();
 
   void soil_beginOfYear();
   void soil_beginOfMonth();
-  void soil_endOfMonth();
+  void soil_endOfMonth(const int currmind);
 
 private:
 

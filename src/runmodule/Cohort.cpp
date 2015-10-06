@@ -642,7 +642,7 @@ void Cohort::updateMonthly_Bgc(const int & currmind) {
       vegbgc[ip].prepareIntegration(md->get_nfeed());
       vegintegrator[ip].updateMonthlyVbgc();
       vegbgc[ip].afterIntegration();
-      bd[ip].veg_endOfMonth(); // yearly data accumulation
+      bd[ip].veg_endOfMonth(currmind); // yearly data accumulation
 
       if(currmind==11) {
         vegbgc[ip].adapt_c2n_ratio_with_co2(ed->y_l2a.eet, ed->y_l2a.pet, 0.0, ed->y_atms.co2);
@@ -653,7 +653,7 @@ void Cohort::updateMonthly_Bgc(const int & currmind) {
   }
 
   getBd4allveg_monthly(); // integrating the monthly pfts' 'bd' to allveg 'bdall'
-  bdall->veg_endOfMonth(); // yearly data accumulation
+  bdall->veg_endOfMonth(currmind); // yearly data accumulation
 
   if(currmind==11) {
     bdall->veg_endOfYear();
@@ -665,7 +665,7 @@ void Cohort::updateMonthly_Bgc(const int & currmind) {
                              md->get_baseline());
   solintegrator.updateMonthlySbgc(MAX_SOI_LAY);
   soilbgc.afterIntegration();
-  bdall->soil_endOfMonth();   // yearly data accumulation
+  bdall->soil_endOfMonth(currmind);   // yearly data accumulation
   bdall->land_endOfMonth();
 
   //sharing the 'ground' portion in 'bdall' with each pft 'bd'
