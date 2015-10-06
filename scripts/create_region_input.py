@@ -505,7 +505,7 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir, files=[]):
     fill_fire_file(tif_dir + "iem_ancillary_data/Fire/", xo, yo, xs, ys, out_dir, of_name)
 
   if 'veg' in files:
-    of_name = os.path.join(out_dir, "veg.nc")
+    of_name = os.path.join(out_dir, "vegetation.nc")
     fill_veg_file(tif_dir + "iem_ancillary_data/Landcover/LandCover_iem_TEM_2005.tif", xo, yo, xs, ys, out_dir, of_name)
 
   if 'drain' in files:
@@ -513,13 +513,13 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir, files=[]):
     fill_drainage_file(tif_dir + "iem_ancillary_data/soil_and_drainage/Lowland_1km.tif", xo, yo, xs, ys, out_dir, of_name)
 
   if 'run_mask' in files:
-    make_run_mask(os.path.join(out_dir, "script-run-mask.nc"), sizey=ys, sizex=xs)
+    make_run_mask(os.path.join(out_dir, "run-mask.nc"), sizey=ys, sizex=xs)
 
   if 'co2' in files:
-    make_co2_file(os.path.join(out_dir, "script-new-co2-dataset.nc"))
+    make_co2_file(os.path.join(out_dir, "co2.nc"))
 
   if 'hist_climate' in files:
-    of_name = "historic-climate-dataset.nc"
+    of_name = "historic-climate.nc"
     sp_ref_file  = tif_dir + "/tas_mean_C_iem_cru_TS31_1901_2009/tas_mean_C_iem_cru_TS31_%02d_%04d.tif" % (1, 1901)
     in_tair_base = tif_dir + "/tas_mean_C_iem_cru_TS31_1901_2009/tas_mean_C_iem_cru_TS31"
     in_prec_base = tif_dir + "/pr_total_mm_iem_cru_TS31_1901_2009/pr_total_mm_iem_cru_TS31"
@@ -530,7 +530,7 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir, files=[]):
 
 
   if 'proj_climate' in files:
-    of_name = "projected-climate-dataset.nc"
+    of_name = "projected-climate.nc"
     sp_ref_file  = tif_dir + "/tas_mean_C_iem_cccma_cgcm3_1_sresa1b_2001_2100/tas_mean_C_iem_cccma_cgcm3_1_sresa1b_%02d_%04d.tif" % (1, 2001)
     in_tair_base = tif_dir + "/tas_mean_C_iem_cccma_cgcm3_1_sresa1b_2001_2100/tas_mean_C_iem_cccma_cgcm3_1_sresa1b"
     in_prec_base = tif_dir + "/pr_total_mm_iem_cccma_cgcm3_1_sresa1b_2001_2100/pr_total_mm_iem_cccma_cgcm3_1_sresa1b"
@@ -541,14 +541,14 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir, files=[]):
 
 
   if 'hist_fire' in files:
-    of_name = "historic-fire-dataset.nc"
+    of_name = "historic-fire.nc"
     in_fire_base = tif_dir + "/iem_ancillary_data/Fire/"
 
     print "Filling with RANDOM DATA!!"
     fill_fire_file2(1900, years, xo, yo, xs,ys, out_dir, of_name, rand=True)
 
   if 'proj_fire' in files:
-    of_name = "projected-fire-dataset.nc"
+    of_name = "projected-fire.nc"
     in_fire_base = tif_dir + "/iem_ancillary_data/Fire/"
 
     print "Filling with RANDOM DATA!!"
@@ -575,7 +575,9 @@ if __name__ == '__main__':
                                   ... /drainage.nc
                                   ... /historic-climate.nc
                                   ... /projected-climate.nc
-                                  ..../co2.nc
+                                  ... /co2.nc
+                                  ... /historic-fire.nc
+                                  ... /run-mask.nc
 
         <OUTDIR>/<TAG>_<YSIZE>x<XSIZE>/output/restart-eq.nc
 

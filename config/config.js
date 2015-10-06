@@ -5,13 +5,13 @@
 
   "IO": {
     "parameter_dir":      "parameters/",
-    "hist_climate_file":  "DATA/Toolik_10x10_30yrs/historic-climate-dataset.nc",
-    "proj_climate_file":  "DATA/Toolik_10x10_30yrs/projected-climate-dataset.nc",
-    "veg_class_file":     "DATA/Toolik_10x10_30yrs/veg.nc",
-    "fire_file":          "DATA/Toolik_10x10_30yrs/historic-fire-dataset.nc",
+    "hist_climate_file":  "DATA/Toolik_10x10_30yrs/historic-climate.nc",
+    "proj_climate_file":  "DATA/Toolik_10x10_30yrs/projected-climate.nc",
+    "veg_class_file":     "DATA/Toolik_10x10_30yrs/vegetation.nc",
+    "fire_file":          "DATA/Toolik_10x10_30yrs/historic-fire.nc",
     "drainage_file":      "DATA/Toolik_10x10_30yrs/drainage.nc",
-    "co2_file":           "DATA/Toolik_10x10_30yrs/script-new-co2-dataset.nc",
-    "runmask_file":       "DATA/Toolik_10x10_30yrs/script-run-mask.nc",
+    "co2_file":           "DATA/Toolik_10x10_30yrs/co2.nc",
+    "runmask_file":       "DATA/Toolik_10x10_30yrs/run-mask.nc",
 
     "output_dir":         "DATA/Toolik_10x10_30yrs/output/",
 
@@ -19,7 +19,7 @@
   },
 
   "stage_settings": {
-    "run_stage": "eq",           // eq, sp, tr, sc, or some cobmo there-of
+    "run_stage": "eq",           // eq, sp, tr, sc, or some combo there-of
     "restart_mode": "restart"   // other options??
     //"restartfile_dir": "DATA/Toolik_10x10_30yrs/" // location for restart-XX.nc file
   }
