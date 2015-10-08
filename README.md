@@ -119,8 +119,7 @@ flag provides some info and shows the defaults:
                                             '.json' files in your /tmp  directory 
                                             that are intended to be read by other 
                                             programs or scripts.
-      -p [ --pre-run-yrs ] arg (=10)        The maximum number of years to run in 
-                                            equlibrium stage.
+      -p [ --pre-run-yrs ] arg (=10)        The number of 'pre-run' years.
       -m [ --max-eq ] arg (=1000)           The maximum number of years to run in 
                                             equlibrium stage.
       -o [ --loop-order ] arg (=space-major)

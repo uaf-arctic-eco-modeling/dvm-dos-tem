@@ -21,7 +21,7 @@ void ArgHandler::parse(int argc, char** argv) {
 
     ("pre-run-yrs,pr", boost::program_options::value<int>(&pre_run_yrs)
        ->default_value(10),
-     "The maximum number of years to run in equlibrium stage.")
+     "The number of 'pre-run' years.")
 
     ("max-eq,m", boost::program_options::value<int>(&max_eq)
        ->default_value(1000),
