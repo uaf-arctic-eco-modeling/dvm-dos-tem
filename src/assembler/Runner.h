@@ -25,7 +25,7 @@
 #include "../runmodule/Cohort.h"
 #include "../runmodule/ModelData.h"
 #include "../CalController.h"
-#include "../ArgHandler.h"
+#include "../../include/ArgHandler.h"
 
 using namespace std;
 

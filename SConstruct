@@ -22,6 +22,7 @@ libs = Split("""jsoncpp
                 boost_log""")
 
 local_include_paths = Split("""./src
+                               ./include
                                ./src/assembler
                                ./src/atmosphere
                                ./src/data

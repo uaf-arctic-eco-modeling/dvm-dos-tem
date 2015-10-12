@@ -1,6 +1,6 @@
 #include <json/reader.h>
 
-#include "ArgHandler.h"
+#include "../include/ArgHandler.h"
 
 #include "TEMLogger.h"
 #include "TEMUtilityFunctions.h"
