@@ -1,7 +1,7 @@
 #ifndef COHORT_H_
 #define COHORT_H_
 
-#include "../Climate.h"
+#include "../../include/Climate.h"
 
 #include "../ecodomain/Ground.h"
 #include "../ecodomain/Vegetation.h"
