@@ -9,8 +9,8 @@
 
 
 #Build
-echo "Building with Scons parallel"
-scons -j4
+echo "Building with Scons"
+scons
 scons -c
 
 #Add:
