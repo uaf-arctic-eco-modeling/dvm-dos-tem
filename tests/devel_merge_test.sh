@@ -34,6 +34,7 @@ doxygen -u
 if [ ! -d docs/dvm-dos-tem ]; then
   mkdir -p docs/dvm-dos-tem
 fi
+doxygen Doxyfile
 
 
 #Run
