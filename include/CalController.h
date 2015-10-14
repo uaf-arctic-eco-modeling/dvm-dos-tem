@@ -13,8 +13,8 @@
 
 #include <json/value.h>
 
-#include "runmodule/Cohort.h"
-#include "runmodule/ModelData.h"
+#include "../src/runmodule/Cohort.h"
+#include "../src/runmodule/ModelData.h"
 
 //For readline
 #include <readline/readline.h>

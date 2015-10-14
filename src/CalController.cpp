@@ -10,7 +10,7 @@
 #include <boost/tokenizer.hpp>
 #include <boost/lexical_cast.hpp>
 
-#include "CalController.h"
+#include "../include/CalController.h"
 #include "TEMLogger.h"
 #include "runmodule/Cohort.h"
 #include "TEMUtilityFunctions.h"
