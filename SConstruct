@@ -23,7 +23,6 @@ libs = Split("""jsoncpp
 
 local_include_paths = Split("""./src
                                ./include
-                               ./src/assembler
                                ./src/atmosphere
                                ./src/data
                                ./src/disturb
@@ -46,7 +45,7 @@ src_files = Split("""src/TEM.cpp
                      src/TEMLogger.cpp 
                      src/ArgHandler.cpp
                      src/Climate.cpp
-                     src/assembler/Runner.cpp
+                     src/Runner.cpp
                      src/data/BgcData.cpp
                      src/data/CohortData.cpp
                      src/data/EnvData.cpp

@@ -5,16 +5,16 @@
 
 #ifdef WITHMPI
 #include <mpi.h>
-#include "../parallel-code/Master.h"
-#include "../parallel-code/Slave.h"
-#include "../inc/tbc_mpi_constants.h"
+#include "parallel-code/Master.h"
+#include "parallel-code/Slave.h"
+#include "inc/tbc_mpi_constants.h"
 #endif
 
-#include "Runner.h"
-#include "../runmodule/Cohort.h"
-#include "../TEMUtilityFunctions.h"
-#include "../TEMLogger.h"
-#include "../util/tbc-debug-util.h"
+#include "../include/Runner.h"
+#include "runmodule/Cohort.h"
+#include "TEMUtilityFunctions.h"
+#include "TEMLogger.h"
+#include "util/tbc-debug-util.h"
 
 extern src::severity_logger< severity_level > glg;
 

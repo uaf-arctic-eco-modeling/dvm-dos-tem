@@ -33,7 +33,7 @@ SOURCES= 	src/TEM.o \
 		src/ArgHandler.o \
 		src/TEMUtilityFunctions.o \
 		src/Climate.o \
-		src/assembler/Runner.o \
+		src/Runner.o \
 		src/data/BgcData.o \
 		src/data/CohortData.o \
 		src/data/EnvData.o \
