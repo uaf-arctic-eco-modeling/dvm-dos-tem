@@ -45,15 +45,15 @@ doxygen Doxyfile
 
 
 #Plot
-./calibration/calibration-viewer.py \
-             --suite Environment --pft 0 \
-             --save-name auto-post-process/environment \
-             --no-show
+#./calibration/calibration-viewer.py \
+#             --suite Environment --pft 0 \
+#             --save-name auto-post-process/environment \
+#             --no-show
 
-./calibration/calibration-viewer.py \
-             --suite VegSoil --pft 0 \
-             --save-name auto-post-process/vegsoil \
-             --no-show
+#./calibration/calibration-viewer.py \
+#             --suite VegSoil --pft 0 \
+#             --save-name auto-post-process/vegsoil \
+#             --no-show
 
 
 
