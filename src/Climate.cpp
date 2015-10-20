@@ -4,7 +4,7 @@
 
 #include <assert.h> // for assert? need C++ library?
 
-#include "Climate.h"
+#include "../include/Climate.h"
 
 #include "inc/errorcode.h"
 #include "inc/timeconst.h"

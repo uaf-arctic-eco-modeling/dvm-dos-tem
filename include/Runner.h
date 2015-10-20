@@ -22,10 +22,10 @@
 #endif
 
 
-#include "../runmodule/Cohort.h"
-#include "../runmodule/ModelData.h"
-#include "../CalController.h"
-#include "../ArgHandler.h"
+#include "../src/runmodule/Cohort.h"
+#include "../src/runmodule/ModelData.h"
+#include "CalController.h"
+#include "ArgHandler.h"
 
 using namespace std;
 

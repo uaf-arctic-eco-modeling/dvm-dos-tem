@@ -13,7 +13,7 @@
 #include "../inc/physicalconst.h"
 #include "../inc/cohortconst.h"
 
-#include "../Climate.h"
+#include "../../include/Climate.h"
 #include "CohortData.h"
 
 using namespace std;
