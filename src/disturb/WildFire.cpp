@@ -522,6 +522,14 @@ double burn_organic_soil(const int aob, const int dob /* slope, aspect, soil tem
 //  adjustment based on soil water condition
 double WildFire::getBurnOrgSoilthick(const int severity) {
   BOOST_LOG_SEV(glg, info) << "Find the amount of organic soil that is burned as a function of fire severity.";
+  assert((0 <= severity && severity < 5) && "Invalid fire severity: ");
+
+  //  For now, severity class is based on ALFRESCO:
+  //  0 - no burning
+  //  1 - low
+  //  2 - moderate
+  //  3 - high + low surface
+  //  4 = high + high surface
 
   double bthick=0;
   //////////////////////////////////
@@ -532,11 +540,6 @@ double WildFire::getBurnOrgSoilthick(const int severity) {
                        + cd->m_soil.deepthick ;
 
   //Yuan: the severity categories are from ALFRESCO:
-  //0 - no burning; 1 - low; 2 - moderate; 3 - high + low surface;
-  //4 - high + high surface
-  //so, 1, 2, and 3/4 correspond to TEM's low, moderate, and
-  //  high. But needs further field data supports
-  // TBC: foslburn == "fraction organic soil layer burned"
   if (severity<=0) { // no burning
     bthick = 0.;
   } else if (severity==1) {   //low
@@ -572,7 +575,10 @@ double WildFire::getBurnOrgSoilthick(const int severity) {
     bthick = cd->m_soil.mossthick;   //burn all moss layers
   }
 
+  BOOST_LOG_SEV(glg, debug) << "Setting the burn thickness in FirData...";
   fd->fire_soid.burnthick = bthick;
+
+  BOOST_LOG_SEV(glg, info) << "Final Calculated Organic Burn Thickness: " << bthick;
   return bthick;
 };
 
