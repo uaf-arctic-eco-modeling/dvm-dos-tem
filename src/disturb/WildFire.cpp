@@ -153,11 +153,10 @@ bool WildFire::should_ignite(const int yr, const int midx, const std::string& st
     BOOST_LOG_SEV(glg, debug) << "Determine fire by FRI.";
 
     if ( (yr % this->fri) == 0 && yr > 0 ) {
-
       if (midx == temutil::doy2month(this->fri_day_of_burn)) {
-        ignite = true; // yeah! correct year and month for fire!
+        ignite = true;
       }
-      // do nothing; correct year, wrong month.
+      // do nothing: correct year, wrong month.
     }
 
   } else if ( stage.compare("tr-run") == 0 || stage.compare("sc-run") == 0 ) {
@@ -168,6 +167,7 @@ bool WildFire::should_ignite(const int yr, const int midx, const std::string& st
       if ( temutil::doy2month(this->day_of_burn[yr]) == midx ) {
         ignite = true;
       }
+      // do nothing: correct year, wrong month
     }
   } else {
     BOOST_LOG_SEV(glg, err) << "Unknown stage! (" << stage << ")";
@@ -513,8 +513,8 @@ void WildFire::getBurnAbgVegetation(const int &ip, const int severity) {
 /** Returns the fraction of the organic soil layer to burn based on a variety of
     factors.
 */
-double burn_organic_soil(const int aob, const int dob /* slope, aspect, soil temp, etc */) {
-  
+double burn_organic_soil(const int aob, const int dob /* slope, aspect, soil temp, etc? */) {
+  // ??
 }
 
 

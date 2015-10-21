@@ -19,9 +19,11 @@
 #include "../lookup/CohortLookup.h"
 
 using namespace std;
+
 class WildFire {
 public:
   WildFire();
+
   WildFire(const std::string& fname, const int y, const int x);
   
   ~WildFire();
