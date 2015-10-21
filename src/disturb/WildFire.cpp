@@ -212,6 +212,15 @@ void WildFire::burn() {
 
   // NOTE: Here we operates on soil portion of 'bdall', later will copy that
   // to other PFTs if any
+
+  if (bdall->m_sois.dmossc > 0.0) {
+    BOOST_LOG_SEV(glg, debug) << "Burning all dead moss biomass. (Move C and N from bdall soil pool to 'burned' pool)";
+    burnedsolc += bdall->m_sois.dmossc;
+    burnedsoln += bdall->m_sois.dmossn;
+    bdall->m_sois.dmossc = 0.0;
+    bdall->m_sois.dmossn = 0.0;
+  }
+
   BOOST_LOG_SEV(glg, debug) << "Handle burning the soil (loop over all soil layers)...";
   for (int il = 0; il < cd->m_soil.numsl; il++) {
 
@@ -223,13 +232,7 @@ void WildFire::burn() {
 
     if(cd->m_soil.type[il] <= 2) {
 
-      if (bdall->m_sois.dmossc > 0.0) {
-        BOOST_LOG_SEV(glg, debug) << "Burning all dead moss biomass. (Move C and N from bdall soil pool to 'burned' pool)";
-        burnedsolc += bdall->m_sois.dmossc;
-        burnedsoln += bdall->m_sois.dmossn;
-        bdall->m_sois.dmossc = 0.0;
-        bdall->m_sois.dmossn = 0.0;
-      }
+
 
       totbotdepth += cd->m_soil.dz[il];
 
