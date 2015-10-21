@@ -184,6 +184,7 @@ void WildFire::burn() {
   BOOST_LOG_SEV(glg, note) << "HELP!! - WILD FIRE!! RUN FOR YOUR LIFE!";
 
   int severity = 1;
+  BOOST_LOG_SEV(glg, warn) << "Work in progress: fire severity is hardcoded!";
   //int fire_severity = fire.derive_fire_severity(cd.drainage_type, 3, /* FIX THIS --> */ 1);
   //BOOST_LOG_SEV(glg, debug) << "Derived fire severity: " << fire_severity;
   assert ((severity >= 0) && (severity < 5) && "Invalid fire severity!");
@@ -197,6 +198,8 @@ void WildFire::burn() {
   // FIX: there isn't really a reason for getBurnOrgSoilthick to return a value
   // as it has already set the "burn thickness" value in FirData...
   double burndepth = getBurnOrgSoilthick(severity);
+  BOOST_LOG_SEV(glg, debug) << fd->report_to_string("After WildFire::getBurnOrgSoilthick(..)");
+
   BOOST_LOG_SEV(glg, note) << "Setup some temporarty pools for tracking various burn related attributes (depths, C, N)";
   double totbotdepth = 0.0;
   double burnedsolc = 0.0;
@@ -209,15 +212,19 @@ void WildFire::burn() {
 
   // NOTE: Here we operates on soil portion of 'bdall', later will copy that
   // to other PFTs if any
-  BOOST_LOG_SEV(glg, note) << "Handle burning the soil (loop over all soil layers)...";
+  BOOST_LOG_SEV(glg, debug) << "Handle burning the soil (loop over all soil layers)...";
   for (int il = 0; il < cd->m_soil.numsl; il++) {
 
-    // dead moss is 0, shlw peat is 1 and deep org is 2
+    BOOST_LOG_SEV(glg, debug) << "== Layer Info == "
+                              << "   type:" << cd->m_soil.type[il] // 0:moss 1:shlwpeat 2:deeppeat 3:mineral
+                              << "   dz:" << cd->m_soil.dz[il]
+                              << "   top:" << cd->m_soil.z[il]
+                              << "   bottom:"<< cd->m_soil.z[il] + cd->m_soil.dz[il];
+
     if(cd->m_soil.type[il] <= 2) {
-      BOOST_LOG_SEV(glg, note) << "Layer type: " << cd->m_soil.type[il] << ". (deadmoss: 0, shwl peat: 1, deep org: 2)";
 
       if (bdall->m_sois.dmossc > 0.0) {
-        BOOST_LOG_SEV(glg, note) << "Burn all dead moss biomass. (Move C and N from bdall soil pool to 'burned' pool)";
+        BOOST_LOG_SEV(glg, debug) << "Burning all dead moss biomass. (Move C and N from bdall soil pool to 'burned' pool)";
         burnedsolc += bdall->m_sois.dmossc;
         burnedsoln += bdall->m_sois.dmossn;
         bdall->m_sois.dmossc = 0.0;
@@ -232,7 +239,7 @@ void WildFire::burn() {
       double ilsoln =  bdall->m_sois.orgn[il] + bdall->m_sois.avln[il];
 
       if(totbotdepth <= burndepth) { //remove all the orgc/n in this layer
-        BOOST_LOG_SEV(glg, note) << "Haven't reached burndepth (" << burndepth << ") yet. Remove all org C and N in this layer";
+        BOOST_LOG_SEV(glg, debug) << "Haven't reached burndepth (" << burndepth << ") yet. Remove all org C and N in this layer";
         burnedsolc += ilsolc;
         burnedsoln += ilsoln;
         bdall->m_sois.rawc[il] = 0.0;
@@ -249,7 +256,7 @@ void WildFire::burn() {
           }
         }
       } else {
-        BOOST_LOG_SEV(glg, note) << "The bottom of this layer (il: " << il << ") is past the 'burndepth'. Find the remaining C and N as a fraction of layer thickness";
+        BOOST_LOG_SEV(glg, debug) << "The bottom of this layer (il: " << il << ") is past the 'burndepth'. Find the remaining C and N as a fraction of layer thickness";
         double partleft = totbotdepth - burndepth;
 
         // Calculate the remaining C, N
