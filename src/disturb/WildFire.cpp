@@ -518,11 +518,19 @@ double burn_organic_soil(const int aob, const int dob /* slope, aspect, soil tem
 }
 
 
-//fire severity-based organic soil burn thickness, and
-//  adjustment based on soil water condition
+/** Find the thickness of organic soil to burn.
+* Use severity (lookup? or derive?) and soil moisture prpoperties
+* (volumetric soil moisture).
+* Three rules:
+*   1. only organic layer can be burned
+*   2. can't exceed a pixel specified 'max burn thickness'
+*   3. should not burn into "wet" organic soil layers
+*/
 double WildFire::getBurnOrgSoilthick(const int severity) {
   BOOST_LOG_SEV(glg, info) << "Find the amount of organic soil that is burned as a function of fire severity.";
-  assert((0 <= severity && severity < 5) && "Invalid fire severity: ");
+  assert((0 <= severity && severity < 5) && "Invalid fire severity! ");
+
+  double burn_thickness = 0.0;
 
   //  For now, severity class is based on ALFRESCO:
   //  0 - no burning
@@ -531,55 +539,63 @@ double WildFire::getBurnOrgSoilthick(const int severity) {
   //  3 - high + low surface
   //  4 = high + high surface
 
-  double bthick=0;
-  //////////////////////////////////
-  ///Rule 1: only organic layer can be burned (Site Related)
-  ///Rule 2: should be less than the burn thickness max (Cohort Related)
-  ///Rule 3: should be less than the wet organic soil layer depth
-  double totorgthick = cd->m_soil.mossthick + cd->m_soil.shlwthick
-                       + cd->m_soil.deepthick ;
+  double total_organic_thickness =  cd->m_soil.mossthick
+                                    + cd->m_soil.shlwthick
+                                    + cd->m_soil.deepthick ;
 
-  //Yuan: the severity categories are from ALFRESCO:
-  if (severity<=0) { // no burning
-    bthick = 0.;
-  } else if (severity==1) {   //low
-    bthick = firpar.foslburn[1] * totorgthick;
-  } else if (severity==2) {   //moderate
-    bthick = firpar.foslburn[2] * totorgthick;
-  } else if (severity==3) {
-    bthick = firpar.foslburn[3] * totorgthick;
-  } else if (severity==4) {    //high
-    bthick = firpar.foslburn[4] * totorgthick;
-  }
+  BOOST_LOG_SEV(glg, debug) << "Total organic thickness: " << total_organic_thickness;
 
-  //
-  //get the total organic depth with less than VSMburn soil water
-  double totorg = 0.;
+  //  Lookup burn thickness, based on severity and
+  //  'fraction organic soil layer burned' parameter.
+  //  (foslburn ==> "fraction organic soil layer burned")
+  burn_thickness = firpar.foslburn[severity] * total_organic_thickness;
+  BOOST_LOG_SEV(glg, debug) << "Calc burn thickness (severity): " << burn_thickness;
 
-  for (int i =0; i<cd->m_soil.numsl; i++) {
-    if(cd->m_soil.type[i]<=2
-       && edall->m_soid.vwc[i]<=(firpar.vsmburn*cd->m_soil.por[i])) { //Yuan: VSM constrained burn thickness
-      totorg += cd->m_soil.dz[i];
+  //  VSM constrained burn thickness
+  //  Find all layers where there is not much volumentric water - infact, less
+  //  water than specified in the fire parameters for 'vmsburn'
+  double total_dry_organic_thickness = 0.0;
+
+  for (int i = 0; i < cd->m_soil.numsl; i++) {
+    // 0:moss, 1:shlw peat, 2:deep peat, 3:mineral
+    if( cd->m_soil.type[i] <= 2 ) {
+
+      if (edall->m_soid.vwc[i] <= (firpar.vsmburn * cd->m_soil.por[i]) ) {
+        total_dry_organic_thickness += cd->m_soil.dz[i];
+      }
+      // layer is too wet to burn
+      // will all layers below this be too wet?
+      // should we break the layer loop here?
+
     } else {
-      break;
+      break; // can't burn mineral soil
     }
   }
-
-  // you can't burn mineral soil...
-  if (bthick > totorg) {
-    bthick = totorg;
+  if ( burn_thickness > total_dry_organic_thickness ) {
+    burn_thickness = total_dry_organic_thickness;
+    BOOST_LOG_SEV(glg, debug) << "Whoops! Burn thickness was greater than the thicknes of dry organic material. Constraining burn thickness...";
   }
+  BOOST_LOG_SEV(glg, debug) << "Calculated burn thickness using VSM constraint: " << burn_thickness;
+
 
   // always burn all moss, even if the severity is really low.
-  if(bthick < cd->m_soil.mossthick) {
-    bthick = cd->m_soil.mossthick;   //burn all moss layers
+  if( burn_thickness < cd->m_soil.mossthick ) {
+    BOOST_LOG_SEV(glg, debug) << "Whoops! Shallow burn, but we always burn all the moss!.";
+    burn_thickness = cd->m_soil.mossthick;   //burn all moss layers
   }
 
-  BOOST_LOG_SEV(glg, debug) << "Setting the burn thickness in FirData...";
-  fd->fire_soid.burnthick = bthick;
+  // Not sure that this will work in all circumstances?
+  //// there are at least 2 cm orgnanic left
+  //if( (total_dry_organic_thickness - burn_thickness) < 0.02 ){
+  //  BOOST_LOG_SEV(glg, debug) << "Whoops! Can't burn everything. Always leave a few cm of organic material.";
+  //  burn_thickness = total_dry_organic_thickness - 0.02;
+  //}
 
-  BOOST_LOG_SEV(glg, info) << "Final Calculated Organic Burn Thickness: " << bthick;
-  return bthick;
+  BOOST_LOG_SEV(glg, debug) << "Setting the burn thickness in FirData...";
+  fd->fire_soid.burnthick = burn_thickness;
+
+  BOOST_LOG_SEV(glg, info) << "Final Calculated Organic Burn Thickness: " << burn_thickness;
+  return burn_thickness;
 };
 
 void WildFire::setCohortLookup(CohortLookup* chtlup) {
