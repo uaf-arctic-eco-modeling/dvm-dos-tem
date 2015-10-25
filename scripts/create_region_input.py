@@ -282,6 +282,34 @@ def create_template_veg_nc_file(fname, sizey=10, sizex=10, rand=None):
 
   ncfile.close()
 
+def create_template_soil_texture_nc_file(fname, sizey=10, sizex=10, rand=None):
+  print "Creating a soil texture classification file, %s by %s pixels. Fill with random data?: %s" % (sizey, sizex, rand)
+
+  ncfile = netCDF4.Dataset(fname, mode='w', format='NETCDF4')
+
+  Y = ncfile.createDimension('Y', sizey)
+  X = ncfile.createDimension('X', sizex)
+  pct_sand = ncfile.createVariable('pct_sand', np.float32, ('Y','X'))
+  pct_silt = ncfile.createVariable('pct_silt', np.float32, ('Y','X'))
+  pct_clay = ncfile.createVariable('pct_clay', np.float32, ('Y','X'))
+
+  if (rand):
+    print "Filling template file with random data."
+    psand = np.random.uniform(low=0, high=100, size=(sizey,sizex))
+    psilt = np.random.uniform(low=0, high=100, size=(sizey,sizex))
+    pclay = np.random.uniform(low=0, high=100, size=(sizey,sizex))
+
+    bigsum = psand + psilt + pclay
+
+    pct_sand[:] = np.round(psand/bigsum*100)
+    pct_silt[:] = np.round(psilt/bigsum*100)
+    pct_clay[:] = np.round(pclay/bigsum*100)
+
+    print "WARNING: the random data is not perfect - due to rounding error, adding the percent sand/silt/clay does not always sum to exactly 100"
+
+  ncfile.close()
+
+
 
 def fill_veg_file(if_name, xo, yo, xs, ys, out_dir, of_name):
   '''Read subset of data from .tif into netcdf file for dvmdostem. '''
@@ -424,6 +452,12 @@ def fill_climate_file(start_yr, yrs, xo, yo, xs, ys, out_dir, of_name, sp_ref_fi
     nirr[:] = (1000000 / (60*60*24)) * nirr[:]
 
 
+def fill_soil_texture_file(if_name, xo, yo, xs, ys, out_dir, of_name, rand=True):
+  create_template_soil_texture_nc_file(of_name, sizey=ys, sizex=xs, rand=True)
+
+  print "ERROR: Filling the soil texture file with real data is not implemented yet!"
+
+
 def fill_drainage_file(if_name, xo, yo, xs, ys, out_dir, of_name, rand=False):
   create_template_drainage_file(of_name, sizey=ys, sizex=xs)
 
@@ -511,6 +545,10 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir, files=[]):
   if 'drain' in files:
     of_name = os.path.join(out_dir, "drainage.nc")
     fill_drainage_file(tif_dir + "iem_ancillary_data/soil_and_drainage/Lowland_1km.tif", xo, yo, xs, ys, out_dir, of_name)
+
+  if 'soil_texture' in files:
+    of_name = os.path.join(out_dir, "soil_texture.nc")
+    fill_soil_texture_file(tif_dir + "iem_ancillary_data/soil_and_drainage/ ?? need several files ?? .tif", xo, yo, xs, ys, out_dir, of_name)
 
   if 'run_mask' in files:
     make_run_mask(os.path.join(out_dir, "run-mask.nc"), sizey=ys, sizex=xs)
@@ -617,7 +655,7 @@ if __name__ == '__main__':
                       help="source window y size (default: %(default)s)")
 
   parser.add_argument('--which', default=['all'],
-                      help="which files to create (default: %(default)s)", choices=['all', 'veg', 'fire', 'drain', 'run_mask', 'co2', 'hist_climate', 'proj_climate', 'hist_fire', 'proj_fire'])
+                      help="which files to create (default: %(default)s)", choices=['all', 'veg', 'fire', 'drain', 'soil_texture', 'run_mask', 'co2', 'hist_climate', 'proj_climate', 'hist_fire', 'proj_fire'])
 
   print "Parsing command line arguments";
   args = parser.parse_args()
@@ -654,6 +692,6 @@ if __name__ == '__main__':
 
   if 'all' in which_files:
     print "Will generate ALL input files."
-    which_files = ['veg', 'fire', 'drain', 'run_mask', 'co2', 'hist_climate', 'proj_climate', 'hist_file', 'proj_fire']
+    which_files = ['veg', 'fire', 'drain', 'soil_texture', 'run_mask', 'co2', 'hist_climate', 'proj_climate', 'hist_file', 'proj_fire']
 
   main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir, files=which_files)
