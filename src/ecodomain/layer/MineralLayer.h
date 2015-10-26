@@ -12,8 +12,16 @@ using namespace std;
 class MineralLayer: public SoilLayer {
 public:
 
-  MineralLayer(const double & pdz, int sttype , SoilLookup * soillup);
+  MineralLayer(const double & pdz, float psand, float psilt, float pclay,
+               //int sttype,
+               SoilLookup * soillup);
+
   ~MineralLayer();
+
+  float pctsand;
+  float pctsilt;
+  float pctclay;
+
   double getDryThermCond(const double & bulkden);
   double getDryThermCond(const double & tcsolid,
                          const double & bulkden,

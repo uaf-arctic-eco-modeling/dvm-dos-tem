@@ -255,8 +255,11 @@ void Ground::initRockLayers() {
 
 void Ground::initSnowSoilLayers() {
   // mineral thickness must be input before calling this
-  for(int il =mineral.num-1; il>=0; il--) {
-    MineralLayer* ml = new MineralLayer(mineral.dz[il],mineral.texture[il],
+  for(int il = mineral.num - 1; il >= 0; il--) {
+    MineralLayer* ml = new MineralLayer(mineral.dz[il],
+                                        mineral.sand[il],
+                                        mineral.silt[il],
+                                        mineral.clay[il],
                                         &soillu);
     insertFront(ml);
   }
@@ -352,8 +355,13 @@ void Ground::set_state_from_restartdata(snwstate_dim *snowdim,
   mineral.set5Soilprofile(soiltype, dzsoil, soiltexture, MAX_SOI_LAY);
 
   for(int il =mineral.num-1; il>=0; il--) {
-    MineralLayer* ml = new MineralLayer(mineral.dz[il], mineral.texture[il],
+
+    MineralLayer* ml = new MineralLayer(mineral.dz[il],
+                                        mineral.sand[il],
+                                        mineral.silt[il],
+                                        mineral.clay[il],
                                         &soillu);
+
     ml->age = soilage[il];
     ml->frozen = frozen[il];
     insertFront(ml);
