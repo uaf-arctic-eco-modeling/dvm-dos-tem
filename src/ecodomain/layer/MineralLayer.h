@@ -12,9 +12,8 @@ using namespace std;
 class MineralLayer: public SoilLayer {
 public:
 
-  MineralLayer(const double & pdz, float psand, float psilt, float pclay,
-               //int sttype,
-               SoilLookup * soillup);
+  MineralLayer(const double & pdz, float psand, float psilt, float pclay
+               /*int sttype */);
 
   ~MineralLayer();
 
@@ -28,7 +27,7 @@ public:
                          const double & partden);
 
 private:
-  void  updateProperty5Lookup(SoilLookup * soillu);
+  void  updateProperty5Lookup();
 
 };
 #endif /*MINERALLAYER_H_*/

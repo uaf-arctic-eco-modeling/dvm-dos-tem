@@ -23,7 +23,7 @@ public:
   Layer();
   virtual ~Layer();
   enum TYPEKEY {I_SNOW, I_MOSS, I_FIB, I_HUM, I_MINE, I_ROCK, I_UNKNOWN};
-  // the texture class - see the 'SoilLookup.cpp'
+  // the texture class - see the 'SoilLookup.cpp' (depracated 10-27-2015)
   enum STKEY {I_SAND, I_LOAMY_SAND,  I_SANDY_LOAM,
               I_LOAM, I_SILTY_LOAM, I_SANDY_CLAY_LOAM, I_CLAY_LOAM,
               I_SILTY_CLAY_LOAM, I_SANDY_CLAY, I_SILTY_CLAY, I_CLAY, I_NONE

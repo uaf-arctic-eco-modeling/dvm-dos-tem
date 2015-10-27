@@ -5,8 +5,6 @@
 #define SOILLAYER_H_
 #include "Layer.h"
 
-#include "../../lookup/SoilLookup.h"
-
 #include <math.h>
 #include <cmath>
 #include <memory>

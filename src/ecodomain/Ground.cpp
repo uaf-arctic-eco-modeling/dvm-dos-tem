@@ -259,8 +259,7 @@ void Ground::initSnowSoilLayers() {
     MineralLayer* ml = new MineralLayer(mineral.dz[il],
                                         mineral.sand[il],
                                         mineral.silt[il],
-                                        mineral.clay[il],
-                                        &soillu);
+                                        mineral.clay[il]);
     insertFront(ml);
   }
 
@@ -359,8 +358,7 @@ void Ground::set_state_from_restartdata(snwstate_dim *snowdim,
     MineralLayer* ml = new MineralLayer(mineral.dz[il],
                                         mineral.sand[il],
                                         mineral.silt[il],
-                                        mineral.clay[il],
-                                        &soillu);
+                                        mineral.clay[il]);
 
     ml->age = soilage[il];
     ml->frozen = frozen[il];

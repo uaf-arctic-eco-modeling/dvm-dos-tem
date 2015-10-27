@@ -22,7 +22,6 @@ using namespace std;
 #include "layer/OrganicLayer.h"
 #include "layer/ParentLayer.h"
 
-#include "../lookup/SoilLookup.h"
 #include "../lookup/CohortLookup.h"
 
 #include "../data/CohortData.h"
@@ -140,7 +139,6 @@ private :
 
   bool rocklayercreated;
 
-  SoilLookup  soillu;
   CohortLookup * chtlu;
 
   void initRockLayers();
