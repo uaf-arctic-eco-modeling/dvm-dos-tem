@@ -1,17 +1,17 @@
 /*! \file
  */
-#ifndef MINERAL_H_
-#define MINERAL_H_
+#ifndef MINERAL_INFO_H_
+#define MINERAL_INFO_H_
 
 #include <iostream>
 #include "../layer/MineralLayer.h"
 
 using namespace std;
 
-class Mineral {
+class MineralInfo {
 public:
-  Mineral();
-  ~Mineral();
+  MineralInfo();
+  ~MineralInfo();
 
   int num;      ///> number of mineral layer. Not sure why we are not using MAX_MIN_LAY??
   double thick; ///> total thickness of mineral soils (m)
@@ -28,4 +28,4 @@ public:
                        int textures[], const int & maxnum);
 
 };
-#endif /*MINERAL_H_*/
+#endif /* MINERAL_INFO_H_ */

@@ -1,13 +1,13 @@
-#include "Mineral.h"
+#include "MineralInfo.h"
 
-Mineral::Mineral() {
-  setDefaultThick(0.);
+MineralInfo::MineralInfo() {
+  setDefaultThick(0.0);
 };
 
-Mineral::~Mineral() {
+MineralInfo::~MineralInfo() {
 };
 
-void Mineral::setDefaultThick(const double & thickness) {
+void MineralInfo::setDefaultThick(const double & thickness) {
   //The following is the default thickness and number of mineral layers (Yuan)
   num = MAX_MIN_LAY;
   thick = 0.0;
@@ -42,7 +42,7 @@ void Mineral::setDefaultThick(const double & thickness) {
 };
 
 
-void Mineral::set5Soilprofile(int soiltype[], double soildz[],
+void MineralInfo::set5Soilprofile(int soiltype[], double soildz[],
                               int soiltexture[], const int & maxnum) {
   num =0;
   thick =0.;

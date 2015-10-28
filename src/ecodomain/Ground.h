@@ -12,7 +12,7 @@ using namespace std;
 #include "horizon/Snow.h"
 #include "horizon/Moss.h"
 #include "horizon/Organic.h"
-#include "horizon/Mineral.h"
+#include "horizon/MineralInfo.h"
 #include "horizon/SoilParent.h"
 
 #include "layer/Layer.h"
@@ -43,7 +43,7 @@ public :
   Snow snow;
   Moss moss;
   Organic organic;
-  Mineral mineral;
+  MineralInfo mineralinfo;
   SoilParent soilparent; //soil parent materials, including rock
 
   // dimension parameters

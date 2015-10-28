@@ -43,7 +43,7 @@ SOURCES= 	src/TEM.o \
 		src/disturb/WildFire.o \
 		src/ecodomain/DoubleLinkedList.o \
 		src/ecodomain/Ground.o \
-		src/ecodomain/horizon/Mineral.o \
+		src/ecodomain/horizon/MineralInfo.o \
 		src/ecodomain/horizon/Moss.o \
 		src/ecodomain/horizon/Organic.o \
 		src/ecodomain/horizon/Snow.o \
@@ -98,7 +98,7 @@ OBJECTS =	ArgHandler.o \
 		WildFire.o \
 		DoubleLinkedList.o \
 		Ground.o \
-		Mineral.o \
+		MineralInfo.o \
 		Moss.o \
 		Organic.o \
 		Snow.o \
