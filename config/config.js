@@ -10,6 +10,7 @@
     "veg_class_file":     "DATA/Toolik_10x10_30yrs/vegetation.nc",
     "fire_file":          "DATA/Toolik_10x10_30yrs/historic-fire.nc",
     "drainage_file":      "DATA/Toolik_10x10_30yrs/drainage.nc",
+    "soil_texture_file":  "DATA/Toolik_10x10_30yrs/soil_texture.nc",
     "co2_file":           "DATA/Toolik_10x10_30yrs/co2.nc",
     "runmask_file":       "DATA/Toolik_10x10_30yrs/run-mask.nc",
 

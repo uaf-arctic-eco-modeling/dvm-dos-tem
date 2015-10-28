@@ -1,9 +1,12 @@
-/*! \file
- */
+/** MineralInfo object. 
+ * What more is there to say?
+*/
 #ifndef MINERAL_INFO_H_
 #define MINERAL_INFO_H_
 
 #include <iostream>
+#include <string>
+
 #include "../layer/MineralLayer.h"
 
 using namespace std;
@@ -11,6 +14,8 @@ using namespace std;
 class MineralInfo {
 public:
   MineralInfo();
+
+  MineralInfo(const std::string& fname, const int y, const int x);
   ~MineralInfo();
 
   int num;      ///> number of mineral layer. Not sure why we are not using MAX_MIN_LAY??

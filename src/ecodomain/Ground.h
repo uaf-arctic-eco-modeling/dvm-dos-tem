@@ -34,6 +34,8 @@ class Ground: public DoubleLinkedList {
 
 public :
   Ground();
+  Ground(MineralInfo mi);
+
   ~Ground();
 
   std::string layer_report_string();

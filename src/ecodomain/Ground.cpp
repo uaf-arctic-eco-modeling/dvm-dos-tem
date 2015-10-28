@@ -51,6 +51,9 @@ std::string layer2pointertag(const Layer * curl, const Layer * ql) {
   }
   return ss.str();
 }
+Ground::Ground(MineralInfo mi):mineralinfo(mi) {
+  // ??
+}
 
 Ground::Ground() {
   fstsoill = NULL;
@@ -66,7 +69,7 @@ Ground::Ground() {
   fstfntl  = NULL;
   lstfntl  = NULL;
   rocklayercreated=false;
-  this->mineralinfo = MineralInfo();
+  //this->mineralinfo = MineralInfo();
 };
 
 Ground::~Ground() {
@@ -208,30 +211,36 @@ void Ground::initDimension() {
   moss.type  = chtlu->mosstype;
   organic.shlwthick = chtlu->initfibthick;
   organic.deepthick = chtlu->inithumthick;
-  mineralinfo.num = 0;
-  mineralinfo.thick = 0;
-
-
-  for (int il=0; il<MAX_MIN_LAY; il++) {
-    //mineralinfo.sand = chtlu->pctsand;
-    //mineralinfo.silt = chtlu->pctsilt;
-    //mineralinfo.clay = chtlu->clay;
-    //mineralinfo.thick += MINETHICK[il];
-    //mineralinfo.dz[il] = MINETHICK[il];
-
-    // Not sure if it will be a problem addint thick for all layers, and not just
-    // the layers that have a texture defined??
-    // we aren't using texture, and I think every mineral layer will have percentages sand/silt/clay...
-
-    if (chtlu->minetexture[il] > 0 && MINETHICK[il]>0.) {
-      mineralinfo.num+=1;
-      mineralinfo.thick += MINETHICK[il];
-      mineralinfo.dz[il] = MINETHICK[il];
-      mineralinfo.texture[il] = chtlu->minetexture[il];
-    } else {
-      break;
-    }
-  }
+  
+  // SHOULD BE ABLE TO GET RID OF ALL OF THIS WITH PROPERLY CONSTRUCTED MineralInfo object!
+  //mineralinfo.num = 0;
+  //mineralinfo.thick = 0;
+  //
+  ////BOOST_LOG_SEV(glg, err) << "FIX THIS!!!! ARIBTRARILY SETTING TEXTURE!";
+  ////for (int il=0; il<MAX_MIN_LAY; il++) {
+  ////  chtlu->minetexture[il] = 4;
+  ////}
+  //
+  //for (int il=0; il<MAX_MIN_LAY; il++) {
+  //  //mineralinfo.sand = chtlu->pctsand;
+  //  //mineralinfo.silt = chtlu->pctsilt;
+  //  //mineralinfo.clay = chtlu->clay;
+  //  //mineralinfo.thick += MINETHICK[il];
+  //  //mineralinfo.dz[il] = MINETHICK[il];
+  //
+  //  // Not sure if it will be a problem adding thickness for all layers, and not just
+  //  // the layers that have a texture defined??
+  //  // we aren't using texture, and I think every mineral layer will have percentages sand/silt/clay...
+  //
+  //  if (chtlu->minetexture[il] > 0 && MINETHICK[il]>0.) {
+  //    mineralinfo.num+=1;
+  //    mineralinfo.thick += MINETHICK[il];
+  //    mineralinfo.dz[il] = MINETHICK[il];
+  //    mineralinfo.texture[il] = chtlu->minetexture[il];
+  //  } else {
+  //    break;
+  //  }
+  //}
 
   soilparent.thick = 50.;  //meter
 }

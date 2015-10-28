@@ -65,8 +65,11 @@ Cohort::Cohort(int y, int x, ModelData* modeldatapointer):
   //this->proj_climate = Climate(modeldatapointer->proj_climate, y, x);
   this->climate = Climate(modeldatapointer->hist_climate_file, modeldatapointer->co2_file, y, x);
   
-  this->ground = Ground();
-  //this->mineral = MineralInfo();
+  // Build a mineral info object
+  MineralInfo mineral_info = MineralInfo(modeldatapointer->soil_texture_file, y, x);
+
+  // setup the ground with the mineral info object
+  this->ground = Ground(mineral_info);
 
   BOOST_LOG_SEV(glg, debug) << "Setup the fire information...";
   // FIX: same thing with fire - may need historic and projected...
