@@ -32,6 +32,7 @@ public:
 
   int max_eq_yrs;
   int pre_run_yrs;
+  int sp_yrs;
 
   string parameter_dir;
   string hist_climate_file;

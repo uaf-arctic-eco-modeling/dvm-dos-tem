@@ -148,6 +148,12 @@ int main(int argc, char* argv[]){
 
   modeldata.update(args);
 
+  BOOST_LOG_SEV(glg, warn) << "Running EQ stage: " << modeldata.runeq;
+  BOOST_LOG_SEV(glg, warn) << "Running SP stage: " << modeldata.runsp;
+  //BOOST_LOG_SEV(glg, warn) << "Running TR stage: " << modeldata.runtr;
+  //BOOST_LOG_SEV(glg, warn) << "Running SC stage: " << modeldata.runsc;
+
+
   /*  
       Someday it may be worth the time/effort to make better use of
       boots::program_options here to manage the arguments from config file
@@ -303,21 +309,38 @@ int main(int argc, char* argv[]){
               BOOST_LOG_NAMED_SCOPE("SP");
 
               // FIX: if restart file has -9999, then soil temps can end up impossibly low
-              // look for and read-in restart-eq.nc ??
-              if (boost::filesystem::exists("DATA/Toolik_10x10_30yrs/output/restart-eq.nc")) {
+              // look for and read in restart-eq.nc (if it exists)
+              // should check for valid values prior to actual use
+              std::string eq_restart_fname = modeldata.output_dir \
+                                               + "restart-eq.nc";
+              if (boost::filesystem::exists(eq_restart_fname)) {
                 BOOST_LOG_SEV(glg, debug) << "WOW, gonna use the restart file!!!";
                 // update the cohort's restart data object
-                runner.cohort.restartdata.update_from_ncfile("DATA/Toolik_10x10_30yrs/output/restart-eq.nc", rowidx, colidx);
+                runner.cohort.restartdata.update_from_ncfile(eq_restart_fname, rowidx, colidx);
+                // runner.cohort.restartdata.verify_logical_values();
+                // The above may be a bad idea. Separating reading
+                // and validation will confuse things when variables
+                // are added in the future - possibility for a disconnect.
 
-                // copy values from the (updated) restart data to cohort and cd
-                // this should overwrite some things that were previously just set
-                // in initialize_state_parameters(...)
+                // copy values from the (updated) restart data to cohort
+                // and cd. this should overwrite some things that were
+                // previously just set in initialize_state_parameters(...)
                 runner.cohort.set_state_from_restartdata();
+
+                // run model
+                runner.run_years(0, modeldata.sp_yrs, "sp-run");
+
+                // Save status to spinup restart file 
+                std::string restart_fname = modeldata.output_dir \
+                                              + "restart-sp.nc";
+                runner.cohort.restartdata.append_to_ncfile(restart_fname, rowidx, colidx);
+
+
+              }
+              else{ //No EQ restart file
+                BOOST_LOG_SEV(glg, err) << "No EQ restart file.";
               }
 
-
-
-              // write out restart-sp.nc ???
             }
           }
 

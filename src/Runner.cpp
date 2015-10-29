@@ -50,6 +50,20 @@ Runner::~Runner() {
 
 void Runner::run_years(int start_year, int end_year, const std::string& stage) {
 
+  // Experiment - place for daily debugging output...
+  boost::filesystem::path folder("/tmp/debug-dvmdostem/");
+
+  //FIX - we check for dir/file existence and then create or not
+  //  in several places. Should probably move to a utility function.
+  if( !(boost::filesystem::exists(folder)) ) {
+    BOOST_LOG_SEV(glg, info) << "Creating folder: " << folder;
+    boost::filesystem::create_directory(folder);
+  } else {
+    BOOST_LOG_SEV(glg, info) << "'" << folder << "'" << "already exists; delete and recreate!";
+    boost::filesystem::remove_all(folder);
+    boost::filesystem::create_directory(folder);
+  }
+
   /** YEAR TIMESTEP LOOP */
   for (int iy = start_year; iy < end_year; ++iy) {
     BOOST_LOG_SEV(glg, debug) << "(Begining of year loop) " << cohort.ground.layer_report_string();

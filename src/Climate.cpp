@@ -550,7 +550,7 @@ std::vector<float> Climate::eq_range(const std::vector<float>& data) {
 
 void Climate::prepare_daily_driving_data(int iy, const std::string& stage) {
 
-  if ( (stage.compare("pre-run") == 0) || (stage.compare("eq") == 0 ) ) {
+//  if ( (stage.compare("pre-run") == 0) || (stage.compare("eq") == 0 ) ) {
 
     // effectively the same value each day of the year
     // also in pre-run, and eq stages, use constant co2 value for all years.
@@ -635,6 +635,12 @@ void Climate::prepare_daily_driving_data(int iy, const std::string& stage) {
 
     BOOST_LOG_SEV(glg, debug) << "avgX_prec = [" << temutil::vec2csv(avgX_prec) << "]";
     BOOST_LOG_SEV(glg, debug) << "avgX_prec.size() = " << avgX_prec.size();
+//  }
+
+  /**** Spin-up ****/
+  if(stage.compare("sp-run") == 0) {
+
   }
+
 }
 
