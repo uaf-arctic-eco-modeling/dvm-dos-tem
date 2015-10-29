@@ -1362,7 +1362,6 @@ void Cohort::set_restartdata_from_state() {
     restartdata.DZsoil[il]   = cd.d_soil.dz[il];
     restartdata.AGEsoil[il]  = cd.d_soil.age[il];
     restartdata.TYPEsoil[il] = cd.d_soil.type[il];
-    restartdata.TEXTUREsoil[il]= cd.d_soil.texture[il];
     restartdata.TSsoil[il]    = edall->d_sois.ts[il];
     restartdata.LIQsoil[il]   = edall->d_sois.liq[il];
     restartdata.ICEsoil[il]   = edall->d_sois.ice[il];

@@ -12,7 +12,6 @@ MineralLayer::MineralLayer(const double & pdz,
                            ) {
   BOOST_LOG_SEV(glg, debug) << "==> ==> Creating a MineralLayer...";
   tkey  = I_MINE;
-  //stkey = STKEY(sttype);
   dz    = pdz;
   pctsand = psand;
   pctsilt = psilt;

@@ -690,7 +690,6 @@ void OutRetrive::updateRestartOutputBuffer() {
     resod->DZsoil[il]   = cd->d_soil.dz[il];
     resod->AGEsoil[il]  = cd->d_soil.age[il];
     resod->TYPEsoil[il] = cd->d_soil.type[il];
-    resod->TEXTUREsoil[il]= cd->d_soil.texture[il];
     resod->TSsoil[il]    = edall->d_sois.ts[il];
     resod->LIQsoil[il]   = edall->d_sois.liq[il];
     resod->ICEsoil[il]   = edall->d_sois.ice[il];

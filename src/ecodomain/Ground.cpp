@@ -160,7 +160,7 @@ std::string Ground::layer_report_string() {
        << layer2pointertag(current_layer, lstfntl) << "|"
 
        // this T/ST KEY business seems to be dupliacate info as the "soil description tag"
-       //<< "T/ST KEY:" << std::right << setw(2) << current_layer->tkey << "/" << current_layer->stkey << " "
+       //<< "T/ST KEY:" << std::right << setw(2) << current_layer->tkey << "/" << "[na]"//current_layer->stkey << " "
 
        << soildesc2tag(current_layer->isSnow, "snow")
        << soildesc2tag(current_layer->isSoil, "soil")
@@ -361,18 +361,16 @@ void Ground::set_state_from_restartdata(snwstate_dim *snowdim,
   int soiltype[MAX_SOI_LAY];
   int soilage[MAX_SOI_LAY];
   double dzsoil[MAX_SOI_LAY];
-  int soiltexture[MAX_SOI_LAY];
   int frozen[MAX_SOI_LAY];
 
   for (int i=0; i<MAX_SOI_LAY; i++) {
     soiltype[i]    = rdata.TYPEsoil[i];
     soilage[i]     = rdata.AGEsoil[i];
     dzsoil[i]      = rdata.DZsoil[i];
-    soiltexture[i] = rdata.TEXTUREsoil[i];
     frozen[i]      = rdata.FROZENsoil[i];
   }
 
-  mineralinfo.set5Soilprofile(soiltype, dzsoil, soiltexture, MAX_SOI_LAY);
+  mineralinfo.set5Soilprofile(soiltype, dzsoil, MAX_SOI_LAY);
 
   for(int il =mineralinfo.num-1; il>=0; il--) {
 
@@ -714,7 +712,6 @@ void Ground::updateSoilHorizons() {
 
   for (int i=0; i<MAX_MIN_LAY; i++) {
     mineralinfo.dz[i] = MISSING_D;
-    mineralinfo.texture[i] = MISSING_I;
   }
 
   ///
@@ -1807,7 +1804,6 @@ void Ground::retrieveSoilDimension(soistate_dim * soildim) {
     soildim->dz[il]   = MISSING_D;
     soildim->type[il] = MISSING_I;
     soildim->por[il]  = MISSING_D;
-    soildim->texture[il]  = MISSING_I;
   }
 
   int slind=0;
@@ -1836,7 +1832,6 @@ void Ground::retrieveSoilDimension(soistate_dim * soildim) {
         }
       } else if(curr->isMineral) {
         soildim->type[slind] = 3;
-        soildim->texture[slind] = mineralinfo.texture[mlind];
         soildim->minenum+=1;
 
         if (mlind>=0 && mlind<=MINEZONE[0]) {

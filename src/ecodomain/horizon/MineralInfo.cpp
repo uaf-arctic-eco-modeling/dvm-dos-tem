@@ -64,15 +64,15 @@ void MineralInfo::setDefaultThick(const double & thickness) {
 };
 
 
-void MineralInfo::set5Soilprofile(int soiltype[], double soildz[],
-                              int soiltexture[], const int & maxnum) {
+void MineralInfo::set5Soilprofile(int soiltype[],
+                                  double soildz[],
+                                  const int & maxnum) {
   num =0;
   thick =0.;
 
   for(int i=0; i<maxnum; i++) {
     if (soiltype[i]==3) {
       dz[num]    = soildz[i];
-      texture[num] = soiltexture[i];
       num ++;
       thick += soildz[i];
     }

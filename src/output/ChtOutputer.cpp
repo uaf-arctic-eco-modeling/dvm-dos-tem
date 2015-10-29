@@ -64,7 +64,6 @@ void ChtOutputer::init(string & dirfile) {
   soildzV     = ncfile->add_var("SOILDZ", ncDouble, timeD, soilayerD);
   soiltypeV   = ncfile->add_var("SOILTYPE", ncInt, timeD, soilayerD);
   soilporoV   = ncfile->add_var("SOILPORO", ncDouble, timeD, soilayerD);
-  soiltextureV= ncfile->add_var("SOILTEXTURE", ncInt, timeD, soilayerD);
   soilrtfracV = ncfile->add_var("SOILRTFRAC", ncDouble, timeD, soilayerD, pftD);
 }
 
@@ -112,7 +111,6 @@ void ChtOutputer::outputCohortDimVars_mly(CohortData *dimod,
   soildzV->put_rec(&dimod->m_soil.dz[0], tstepcnt);
   soiltypeV->put_rec(&dimod->m_soil.type[0], tstepcnt);
   soilporoV->put_rec(&dimod->m_soil.por[0], tstepcnt);
-  soiltextureV->put_rec(&dimod->m_soil.texture[0], tstepcnt);
   soilrtfracV->put_rec(&dimod->m_soil.frootfrac[0][0], tstepcnt);
 }
 
@@ -160,6 +158,5 @@ void ChtOutputer::outputCohortDimVars_yly(CohortData *dimod,
   soildzV->put_rec(&dimod->y_soil.dz[0], tstepcnt);
   soiltypeV->put_rec(&dimod->y_soil.type[0], tstepcnt);
   soilporoV->put_rec(&dimod->y_soil.por[0], tstepcnt);
-  soiltextureV->put_rec(&dimod->y_soil.texture[0], tstepcnt);
   soilrtfracV->put_rec(&dimod->y_soil.frootfrac[0][0], tstepcnt);
 }

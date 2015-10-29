@@ -9,7 +9,6 @@ extern src::severity_logger< severity_level > glg;
 ParentLayer::ParentLayer(const double & thick) {
   BOOST_LOG_SEV(glg, debug) << "==> Creating a ParentLayer object...";
   tkey=I_ROCK;
-  stkey=I_NONE;
   isRock = true;
   solind = MISSING_I;
   dz = thick;

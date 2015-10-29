@@ -22,15 +22,15 @@ public:
   double thick; ///> total thickness of mineral soils (m)
 
   double dz[MAX_MIN_LAY];   ///> thickness of each mineral layer (m)
-  int texture[MAX_MIN_LAY]; ///> soil texture of each layer
 
   float sand[MAX_MIN_LAY];
   float silt[MAX_MIN_LAY];
   float clay[MAX_MIN_LAY];
 
   void setDefaultThick(const double & thickness);
-  void set5Soilprofile(int soiltype[], double dz[],
-                       int textures[], const int & maxnum);
+  void set5Soilprofile(int soiltype[],
+                       double dz[],
+                       const int & maxnum);
 
 };
 #endif /* MINERAL_INFO_H_ */

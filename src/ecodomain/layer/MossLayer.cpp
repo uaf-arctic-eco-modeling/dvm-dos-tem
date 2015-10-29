@@ -9,7 +9,6 @@ extern src::severity_logger< severity_level > glg;
 MossLayer::MossLayer(const double &pdz, const int & newmosstype) {
   BOOST_LOG_SEV(glg, debug) << "==> ==> Creating a MossLayer...";
   tkey=I_MOSS;
-  stkey=I_NONE;
   isMoss    = true;
   isOrganic = false;
   isFibric  = false;

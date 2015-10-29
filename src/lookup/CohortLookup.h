@@ -100,8 +100,6 @@ public:
   double coefminea;//carbon density vs ham
   double coefmineb;//carbon density vs ham
 
-  int minetexture[MAX_MIN_LAY];
-
   //active root depth criteria for determining
   //  thawing/freezing-derived growing season and degree-day
   double rtdp4gdd;

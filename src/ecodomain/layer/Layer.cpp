@@ -19,7 +19,6 @@ Layer::Layer() {
   isFibric = false;
   isHumic  = false;
   tkey  = I_UNKNOWN;
-  stkey = I_NONE;
   indl  = MISSING_I;
   solind= MISSING_I;
   age   = 0.;
