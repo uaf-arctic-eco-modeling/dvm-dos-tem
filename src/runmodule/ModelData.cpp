@@ -84,7 +84,6 @@ ModelData::ModelData() {
   set_dvmmodule(false);
   set_dslmodule(false);
   set_dsbmodule(false);
-  set_friderived(false); //FIX! obsolete??
 }
 
 
@@ -148,18 +147,6 @@ void ModelData::set_dsbmodule(const bool v) {
   this->dsbmodule = v;
 }
 
-bool ModelData::get_friderived() {
-  return this->friderived; // FIX! Obsolete??
-}
-void ModelData::set_friderived(const std::string &s) {
-  BOOST_LOG_SEV(glg, info) << "Setting friderived to " << s;
-  this->friderived = temutil::onoffstr2bool(s);
-}
-void ModelData::set_friderived(const bool v) {
-  BOOST_LOG_SEV(glg, info) << "Setting friderived to " << v;
-  this->friderived = v;
-}
-
 bool ModelData::get_nfeed() {
   return this->nfeed;
 }
@@ -203,7 +190,6 @@ std::string ModelData::describe_module_settings() {
   s << table_row(15, "dvmmodule", this->get_dvmmodule());
   s << table_row(15, "dslmodule", this->get_dslmodule());
   s << table_row(15, "dsbmodule", this->get_dsbmodule());
-  s << table_row(15, "friderived", this->friderived);
   s << table_row(15, "nfeed", this->get_nfeed());
   s << table_row(15, "avlnflg", this->get_avlnflg());
   return s.str();
