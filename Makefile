@@ -50,7 +50,6 @@ SOURCES= 	src/TEM.o \
 		src/ecodomain/horizon/SoilParent.o \
 		src/ecodomain/Vegetation.o \
 		src/lookup/CohortLookup.o \
-		src/lookup/SoilLookup.o \
 		src/output/BgcOutputer.o \
 		src/output/ChtOutputer.o \
 		src/output/EnvOutputer.o \
@@ -105,7 +104,6 @@ OBJECTS =	ArgHandler.o \
 		SoilParent.o \
 		Vegetation.o \
 		CohortLookup.o \
-		SoilLookup.o \
 		BgcOutputer.o \
 		ChtOutputer.o \
 		EnvOutputer.o \
