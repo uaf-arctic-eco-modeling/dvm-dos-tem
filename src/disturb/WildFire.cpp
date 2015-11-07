@@ -146,6 +146,7 @@ void WildFire::burn(const int severity) {
   
   BOOST_LOG_SEV(glg, note) << "HELP!! - WILD FIRE!! RUN FOR YOUR LIFE!";
 
+  BOOST_LOG_SEV(glg, note) << "Burning (simply clearing?) the 'FireData object...";
   fd->burn();
 
   // for soil part and root burning

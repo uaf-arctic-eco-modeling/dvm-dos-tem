@@ -13,11 +13,11 @@ public:
   Mineral();
   ~Mineral();
 
-  int num; /*! number of mineral layer*/
-  double thick; //total thickness of mineral soils (m)
+  int num;      ///> number of mineral layer. Not sure why we are not using MAX_MIN_LAY??
+  double thick; ///> total thickness of mineral soils (m)
 
-  double dz[MAX_MIN_LAY]; //thickness of each mineral layer (m)
-  int texture[MAX_MIN_LAY]; //soil texture of each layer
+  double dz[MAX_MIN_LAY];   ///> thickness of each mineral layer (m)
+  int texture[MAX_MIN_LAY]; ///> soil texture of each layer
 
   float sand[MAX_MIN_LAY];
   float silt[MAX_MIN_LAY];
