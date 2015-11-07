@@ -326,12 +326,91 @@ namespace temutil {
   void nc(int status) {
     handle_error(status);
   }
-  
-  
-  /** rough draft for reading a timeseries for a single location from a 
+
+  template <typename DTYPE>
+  DTYPE get_scalar(const std::string &filename,
+                   const std::string &var,
+                   const int y, const int x) {
+
+    BOOST_LOG_SEV(glg, debug) << "Opening dataset: " << filename;
+    BOOST_LOG_SEV(glg, debug) << "Getting variable: " << var;
+
+    int ncid;
+    temutil::nc( nc_open(filename.c_str(), NC_NOWRITE, &ncid) );
+
+
+    int scalar_var;
+    temutil::nc( nc_inq_varid(ncid, var.c_str(), &scalar_var) );
+
+    BOOST_LOG_SEV(glg, note) << "Getting value for pixel(y,x): ("<< y <<","<< x <<").";
+    int yD, xD;
+    size_t yD_len, xD_len;
+
+    temutil::nc( nc_inq_dimid(ncid, "Y", &yD) );
+    temutil::nc( nc_inq_dimlen(ncid, yD, &yD_len) );
+
+    temutil::nc( nc_inq_dimid(ncid, "X", &xD) );
+    temutil::nc( nc_inq_dimlen(ncid, xD, &xD_len) );
+
+    // specify start indices for each dimension (y, x)
+    size_t start[2];
+    start[0] = y;     // specified location
+    start[1] = x;     // specified location
+
+    // specify counts for each dimension
+    size_t count[2];
+    count[0] = 1;             // one location
+    count[1] = 1;             // one location
+
+    // might need to add a call to nc_inq_var so we can find the type and call
+    // the right nc_get_var_type(...) function..
+    char vname[NC_MAX_NAME+1];
+    nc_type the_type;
+    int num_dims;
+    int dim_ids[NC_MAX_VAR_DIMS];
+    int num_atts;
+    temutil::nc( nc_inq_var(ncid, scalar_var, vname, &the_type, &num_dims, dim_ids, &num_atts) );
+
+    // from netcdf.h
+    //  NC_NAT          0   
+    //  NC_BYTE         1   
+    //  NC_CHAR         2
+    //  NC_SHORT        3
+    //  NC_INT          4   
+    //  NC_LONG         NC_INT  
+    //  NC_FLOAT        5
+    //  NC_DOUBLE       6
+    //  NC_UBYTE        7
+    //  NC_USHORT       8
+    //  NC_UINT         9
+    //  NC_INT64       10
+    //  NC_UINT64      11
+    //  NC_STRING      12
+
+    DTYPE data2;
+
+    if (the_type == NC_INT64 || the_type == NC_INT) {
+      BOOST_LOG_SEV(glg, debug) << "--> NC_INT64 or NC_INT";
+      int data3;
+      temutil::nc( nc_get_vara_int(ncid, scalar_var, start, count, &data3) );
+      data2 = (DTYPE)data3;
+    } else if (the_type == NC_FLOAT) {
+      BOOST_LOG_SEV(glg, debug) << "--> NC_FLOAT";
+      float data3;
+      temutil::nc( nc_get_vara_float(ncid, scalar_var, start, count, &data3) );
+      data2 = (DTYPE)data3;
+    } else {
+      BOOST_LOG_SEV(glg, err) << "Unknown datatype: '" << the_type << "'. Returning empty vector.";
+    }
+
+    return data2;
+  }
+
+  /** rough draft for reading a timeseries for a single location from a
   *   new-style input file
   */
-  std::vector<float> get_timeseries(const std::string &filename,
+  template <typename DTYPE>
+  std::vector<DTYPE> get_timeseries(const std::string &filename,
                                     const std::string &var,
                                     const int y, const int x) {
 
@@ -349,9 +428,6 @@ namespace temutil {
 
     int timeseries_var;
     temutil::nc( nc_inq_varid(ncid, var.c_str(), &timeseries_var) );
-
-    BOOST_LOG_SEV(glg, debug) << "Allocate a vector with enough space for the whole timeseries (" << timeD_len << " timesteps)";
-    std::vector<float> data(timeD_len);
 
     BOOST_LOG_SEV(glg, note) << "Getting value for pixel(y,x): ("<< y <<","<< x <<").";
     int yD, xD;
@@ -375,11 +451,33 @@ namespace temutil {
     count[1] = 1;             // one location
     count[2] = 1;             // one location
 
-    BOOST_LOG_SEV(glg, debug) << "Grab the data from the netCDF file...";
-    temutil::nc( nc_get_vara_float(ncid, timeseries_var, start, count, &data[0]) );
+    // might need to add a call to nc_inq_var so we can find the type and call
+    // the right nc_get_var_type(...) function..
+    char vname[NC_MAX_NAME+1];
+    nc_type the_type;
+    int num_dims;
+    int dim_ids[NC_MAX_VAR_DIMS];
+    int num_atts;
+    temutil::nc( nc_inq_var(ncid, timeseries_var, vname, &the_type, &num_dims, dim_ids, &num_atts) );
 
-    return data;
-    
+    std::vector<DTYPE> data2;
+
+    BOOST_LOG_SEV(glg, debug) << "Grab the data from the netCDF file...";
+    if (the_type == NC_INT64 || NC_INT) {
+      int dataI[timeD_len];
+      temutil::nc( nc_get_vara_int(ncid, timeseries_var, start, count, &dataI[0]) );
+      unsigned dataArraySize = sizeof(dataI) / sizeof(DTYPE);
+      data2.insert(data2.end(), &dataI[0], &dataI[dataArraySize]);
+    } else if (the_type == NC_FLOAT) {
+      float dataF[timeD_len];
+      temutil::nc( nc_get_vara_float(ncid, timeseries_var, start, count, &dataF[0]) );
+      unsigned dataArraySize = sizeof(dataF) / sizeof(DTYPE);
+      data2.insert(data2.end(), &dataF[0], &dataF[dataArraySize]);
+
+    } else {
+      BOOST_LOG_SEV(glg, err) << "Unknown datatype: '" << the_type << "'. Returning empty vector.";
+    }
+    return data2;
   }
 
   /** rough draft for reading a timeseries of co2 data from a new-style co2 file.
@@ -417,8 +515,6 @@ namespace temutil {
     return data;
   }
 
-
-  
   /** rough draft - look up lon/lat in nc file from y,x coordinates. 
       Assumes that the file has some coordinate dimensions...
   */
@@ -724,5 +820,17 @@ namespace temutil {
   template void pfll2data_pft(std::list<std::string> &l, double *data);
   template void pfll2data_pft(std::list<std::string> &l, float *data);
 
+  // inorder to keep the template function definition out of the header
+  // we have to explicitly instantiate it here...
+
+  template int get_scalar(const std::string &filename,
+      const std::string &var, const int y, const int x);
+  template float get_scalar(const std::string &filename,
+      const std::string &var, const int y, const int x);
+
+  template std::vector<int> get_timeseries<int>(const std::string &filename,
+      const std::string &var, const int y, const int x);
+  template std::vector<float> get_timeseries<float>(const std::string &filename,
+      const std::string &var, const int y, const int x);
 
 }

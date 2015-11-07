@@ -105,8 +105,17 @@ namespace temutil {
   
   void nc(int status);
   
-  // draft - get a timeseries of data for a single location.
-  std::vector<float> get_timeseries(const std::string &filename,
+  /** rough draft for reading a scalar variable for a single location. */
+  template <typename DTYPE>
+  DTYPE get_scalar(const std::string &filename,
+                   const std::string &var,
+                   const int y, const int x);
+
+  /** rough draft for reading a timeseries for a single location from a
+  *   new-style input file
+  */
+  template <typename DTYPE>
+  std::vector<DTYPE> get_timeseries(const std::string &filename,
                                     const std::string &var,
                                     const int y, const int x);
   
