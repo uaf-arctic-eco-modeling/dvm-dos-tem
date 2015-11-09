@@ -399,17 +399,17 @@ void RestartData::update_from_ncfile(const std::string& fname, const int rowidx,
 
   read_px_pftpart_pft_vars(fname, rowidx, colidx);
 
-//  read_px_snow_vars(fname, rowidx, colidx);
-//
-//  read_px_root_pft_vars(fname, rowidx, colidx);
-//
-//  read_px_soil_vars(fname, rowidx, colidx);
-//
-//  read_px_rock_vars(fname, rowidx, colidx);
-//
-//  read_px_front_vars(fname, rowidx, colidx);
-//
-//  read_px_prev_pft_vars(fname, rowidx, colidx);
+  read_px_snow_vars(fname, rowidx, colidx);
+
+  read_px_root_pft_vars(fname, rowidx, colidx);
+
+  read_px_soil_vars(fname, rowidx, colidx);
+
+  read_px_rock_vars(fname, rowidx, colidx);
+
+  read_px_front_vars(fname, rowidx, colidx);
+
+  read_px_prev_pft_vars(fname, rowidx, colidx);
 
   BOOST_LOG_SEV(glg, debug) << "Done reading data from file into RestartData.";
 }
@@ -446,6 +446,108 @@ void RestartData::append_to_ncfile(const std::string& fname, const int rowidx, c
 
 }
 
+/** Checks values in this RestartData for out-of-range or nonsensical values. */
+void RestartData::verify_logical_values(){
+  BOOST_LOG_SEV(glg, debug) << "Checking RestartData for out-of-range values";
+  BOOST_LOG_SEV(glg, debug) << "NOTE: Currently this only checks for extreme negative values.";
+
+  //Temporary value to compare values against.
+  //This should catch all non-initialized values
+  int negative_limit = -5000;
+
+  // chtid
+  // dsr
+  // firea2sorgn
+  // yrsdist
+  for(int ii=0; ii<NUM_PFT; ii++){
+    //ifwoody[]
+    //ifdeciwoody
+    //ifperenial
+    //nonvascular
+    //vegage
+    //vegcov
+    //lai
+    //vegwater
+    //vegsnow
+    //labn
+    //deadc
+    //deadn
+    //topt
+    //eetmx
+    //unnormleafmx
+    //growingttime
+    //foliagemx
+    for(int jj=0; jj<NUM_PFT_PART; jj++){
+      //vegc[jj][ii]
+      //strn[jj][ii]
+    }
+    for(int jj=0; jj<MAX_ROT_LAY; jj++){
+      //rootfrac[jj][ii];
+    }
+    for(int jj=0; jj<10; jj++){
+      //toptA
+      //eetmxA
+      //unnormleafmxA
+      //growingttimeA
+    }
+  }
+
+  //[10][num pft]
+  //numsnowl
+  //snwextramass
+  for(int ii=0; ii<MAX_SNW_LAY; ii++){
+    //TSsnow
+    //DZsnow
+    //LIQsnow
+    //RHOsnow
+    //ICEsnow
+    //AGEsnow
+  }
+
+  //numsl
+  //monthsfrozen
+  //rtfrozendays
+  //rtunfrozendays
+  //watertab
+
+  for(int ii=0; ii<MAX_SOI_LAY; ii++){
+    //DZsoil
+    //TYPEsoil
+    //AGEsoil
+    //TSsoil
+    //LIQsoil
+    //ICEsoil
+    //FROZENsoil
+    //FROZENFRACsoil
+    //TEXTUREsoil
+    //rawc
+    //soma
+    //sompr
+    //somcr
+    //orgn
+    //avln
+    for(int jj=0; jj<12; jj++){
+      //prvltrfcnA[jj][ii]
+    }
+  }
+
+  for(int ii=0; ii<MAX_ROC_LAY; ii++){
+    //TSrock
+    //DZrock
+  }
+
+  for(int ii=0; ii<MAX_NUM_FNT; ii++){
+    //frontZ
+    //frontFT
+  }
+
+  //wdebrisc
+  //wdebrisn
+  //dmossc
+  //dmossn
+
+  BOOST_LOG_SEV(glg, debug) << "";
+}
 
 
 /** Read single values for variables have dimensions (Y, X).*/

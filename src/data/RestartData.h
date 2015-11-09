@@ -23,6 +23,7 @@ public :
   void reinitValue();
   void append_to_ncfile(const std::string& fname, const int rowidx, const int colidx);
   void update_from_ncfile(const std::string& fname, const int rowidx, const int colidx);
+  void verify_logical_values();
 
   void read_px_vars(const std::string& fname, const int rowidx, const int colidx);
   void read_px_pft_vars(const std::string& fname, const int rowidx, const int colidx);

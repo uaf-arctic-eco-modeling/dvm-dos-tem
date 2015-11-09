@@ -443,10 +443,16 @@ void Climate::load_from_file(const std::string& fname, int y, int x) {
   avgX_prec = avg_over(prec, 10);
   avgX_nirr = avg_over(nirr, 10);
   avgX_vapo = avg_over(vapo, 10);
-  
+ 
   // Do we need simplified 'avgX_' values for par, and cld??
   // ===> YES: the derived variables should prpbably be based off the avgX
   //      containers...
+
+  // create repetitive climate for spinup run stage
+  rptX_tair = rpt_years(tair, 30);
+  rptX_prec = rpt_years(prec, 30);
+  rptX_nirr = rpt_years(nirr, 30);
+  rptX_vapo = rpt_years(vapo, 30);
 
   // Finally, need to create the daily dataset(s) by interpolating the monthly
   // --> actually looking like these should not be calculated upon construciton.
@@ -485,6 +491,21 @@ std::vector<float> Climate::avg_over(const std::vector<float> & var, const int w
 
   return result;
 
+}
+
+std::vector<float> Climate::rpt_years(const std::vector<float> & var, const int window){
+
+  assert(var.size() % 12 == 0 && "The data vector is the wrong size! var.size() should be an even multiple of 12.");
+  assert(var.size() >= 12*window && "");
+
+  // Twelve monthly values per year, for a specified year count
+  std::vector<float> result(12*window, 0);
+
+  for(int ii=0; ii<12*window; ii++){
+
+  }
+
+  return result;
 }
 
 // Interpolate from monthly values to daily. Does NOT account for leap years!
@@ -548,9 +569,33 @@ std::vector<float> Climate::eq_range(const std::vector<float>& data) {
   return foo;
 }
 
+std::vector<float> Climate::interpolation_range(const std::vector<float>& data, int year){
+  std::vector<float> foo;
+
+  int curr_month = year*12;
+
+  // Copy in previous Dec, unless in year 0
+  if(year==0){
+    foo.push_back(data.at(11));
+  }
+  else{
+    foo.push_back(data.at(curr_month-1));
+  }
+
+  // Get Jan - Dec values
+  foo.insert(foo.end(), &data[curr_month], &data[curr_month+12]);
+
+  // Copy in next Jan
+  foo.push_back(data.at(curr_month+1));
+
+  return foo;
+}
+
 void Climate::prepare_daily_driving_data(int iy, const std::string& stage) {
 
-//  if ( (stage.compare("pre-run") == 0) || (stage.compare("eq") == 0 ) ) {
+  BOOST_LOG_SEV(glg, fatal) << "in daily driving data";
+
+  if ( (stage.compare("pre-run") == 0) || (stage.compare("eq") == 0 ) ) {
 
     // effectively the same value each day of the year
     // also in pre-run, and eq stages, use constant co2 value for all years.
@@ -635,10 +680,84 @@ void Climate::prepare_daily_driving_data(int iy, const std::string& stage) {
 
     BOOST_LOG_SEV(glg, debug) << "avgX_prec = [" << temutil::vec2csv(avgX_prec) << "]";
     BOOST_LOG_SEV(glg, debug) << "avgX_prec.size() = " << avgX_prec.size();
-//  }
+  }
 
   /**** Spin-up ****/
   if(stage.compare("sp-run") == 0) {
+
+    // effectively the same value each day of the year
+    co2_d = co2.at(iy);
+
+    // straight up interpolated....
+    tair_d = monthly2daily(interpolation_range(tair, iy));
+    tair_d = monthly2daily(interpolation_range(vapo, iy));
+    tair_d = monthly2daily(interpolation_range(nirr, iy));
+
+    // Not totally sure if this is right to interpolate these??
+    par_d = monthly2daily(interpolation_range(par, iy));
+    girr_d = monthly2daily(interpolation_range(girr, iy));
+
+    // The interpolation is slightly broken, so it 'overshoots' when the
+    // slope is negative, and can result in negative values.
+    BOOST_LOG_SEV(glg, info) << "Forcing negative values to zero in girr and nirr daily containers...";
+    std::for_each(nirr_d.begin(), nirr_d.end(), temutil::force_negative2zero);
+    std::for_each(girr_d.begin(), girr_d.end(), temutil::force_negative2zero);
+
+    // much more complicated than straight interpolation...
+    prec_d.clear();
+    for (int i=0; i < 12; ++i) {
+      std::vector<float> v = calculate_daily_prec(i, tair.at(iy*12+i), prec.at(iy*12+i));
+
+      prec_d.insert( prec_d.end(), v.begin(), v.end() );
+    }
+
+    // derive rain and snow from precip...
+    // Look into boost::zip_iterator
+    rain_d.clear();
+    snow_d.clear();
+    for (int i = 0; i < prec_d.size(); ++i) {
+      std::pair<float, float> rs = willmot_split(tair_d[i], prec_d[i]);
+      rain_d.push_back(rs.first);
+      snow_d.push_back(rs.second);
+    }
+
+    svp_d.resize(tair_d.size());
+    std::transform( tair_d.begin(), tair_d.end(), svp_d.begin(), calculate_saturated_vapor_pressure );
+
+    vpd_d.resize(tair_d.size());
+    std::transform( svp_d.begin(), svp_d.end(), vapo_d.begin(), vpd_d.begin(), calculate_vpd );
+
+    cld_d.resize(tair_d.size());
+    std::transform( girr_d.begin(), girr_d.end(), nirr_d.begin(), cld_d.begin(), calculate_clouds );
+
+    // THESE MAY NEVER BE USED??
+    // rhoa_d;
+    // dersvp_d;
+    // abshd_d;
+
+    BOOST_LOG_SEV(glg, debug) << "tair_d = [" << temutil::vec2csv(tair_d) << "]";
+    BOOST_LOG_SEV(glg, debug) << "nirr_d = [" << temutil::vec2csv(nirr_d) << "]";
+    BOOST_LOG_SEV(glg, debug) << "vapo_d = [" << temutil::vec2csv(vapo_d) << "]";
+    BOOST_LOG_SEV(glg, debug) << "prec_d = [" << temutil::vec2csv(prec_d) << "]";
+    BOOST_LOG_SEV(glg, debug) << "rain_d = [" << temutil::vec2csv(rain_d) << "]";
+    BOOST_LOG_SEV(glg, debug) << "snow_d = [" << temutil::vec2csv(snow_d) << "]";
+    BOOST_LOG_SEV(glg, debug) << "svp_d = [" << temutil::vec2csv(svp_d) << "]";
+    BOOST_LOG_SEV(glg, debug) << "vpd_d = [" << temutil::vec2csv(vpd_d) << "]";
+    BOOST_LOG_SEV(glg, debug) << "girr_d = [" << temutil::vec2csv(girr_d) << "]";
+    BOOST_LOG_SEV(glg, debug) << "cld_d = [" << temutil::vec2csv(cld_d) << "]";
+    BOOST_LOG_SEV(glg, debug) << "par_d = [" << temutil::vec2csv(par_d) << "]";
+
+    BOOST_LOG_SEV(glg, debug) << "tair_d.size() = " << tair_d.size();
+    BOOST_LOG_SEV(glg, debug) << "nirr_d.size() = " << nirr_d.size();
+    BOOST_LOG_SEV(glg, debug) << "vapo_d.size() = " << vapo_d.size();
+    BOOST_LOG_SEV(glg, debug) << "prec_d.size() = " << prec_d.size();
+    BOOST_LOG_SEV(glg, debug) << "rain_d.size() = " << rain_d.size();
+    BOOST_LOG_SEV(glg, debug) << "snow_d.size() = " << snow_d.size();
+    BOOST_LOG_SEV(glg, debug) << "vpd_d.size() = " << vpd_d.size();
+    BOOST_LOG_SEV(glg, debug) << "svp_d.size() = " << svp_d.size();
+    BOOST_LOG_SEV(glg, debug) << "girr_d.size() = " << girr_d.size();
+    BOOST_LOG_SEV(glg, debug) << "cld_d.size() = " << cld_d.size();
+    BOOST_LOG_SEV(glg, debug) << "par_d.size() = " << par_d.size();
 
   }
 

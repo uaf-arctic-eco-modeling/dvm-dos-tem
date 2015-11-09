@@ -28,6 +28,12 @@ public:
   std::vector<float> avgX_nirr;
   std::vector<float> avgX_vapo;
 
+  // repetitive climate, repeated over a specified number of years
+  std::vector<float> rptX_tair;
+  std::vector<float> rptX_prec;
+  std::vector<float> rptX_nirr;
+  std::vector<float> rptX_vapo;
+
   // Daily containers
 
   // this is not really a daily value, but for scope/access
@@ -64,10 +70,12 @@ private:
   void split_precip();
 
   std::vector<float> avg_over(const std::vector<float> & var, const int window);
+  std::vector<float> rpt_years(const std::vector<float> &, const int);
 
   std::vector<float> interpolate_daily(const std::vector<float> & var);
 
   std::vector<float> eq_range(const std::vector<float>& data);
+  std::vector<float> interpolation_range(const std::vector<float>&, int);
 
 
 

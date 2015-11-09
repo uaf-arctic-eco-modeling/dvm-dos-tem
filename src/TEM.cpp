@@ -314,10 +314,10 @@ int main(int argc, char* argv[]){
               std::string eq_restart_fname = modeldata.output_dir \
                                                + "restart-eq.nc";
               if (boost::filesystem::exists(eq_restart_fname)) {
-                BOOST_LOG_SEV(glg, debug) << "WOW, gonna use the restart file!!!";
+                BOOST_LOG_SEV(glg, debug) << "Loading data from the restart file for spinup";
                 // update the cohort's restart data object
                 runner.cohort.restartdata.update_from_ncfile(eq_restart_fname, rowidx, colidx);
-                // runner.cohort.restartdata.verify_logical_values();
+                //runner.cohort.restartdata.verify_logical_values();
                 // The above may be a bad idea. Separating reading
                 // and validation will confuse things when variables
                 // are added in the future - possibility for a disconnect.
