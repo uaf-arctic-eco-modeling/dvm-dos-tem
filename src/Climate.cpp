@@ -654,30 +654,11 @@ void Climate::prepare_daily_driving_data(int iy, const std::string& stage) {
     // dersvp_d;
     // abshd_d;
 
-    BOOST_LOG_SEV(glg, debug) << "tair_d = [" << temutil::vec2csv(tair_d) << "]";
-    BOOST_LOG_SEV(glg, debug) << "nirr_d = [" << temutil::vec2csv(nirr_d) << "]";
-    BOOST_LOG_SEV(glg, debug) << "vapo_d = [" << temutil::vec2csv(vapo_d) << "]";
-    BOOST_LOG_SEV(glg, debug) << "prec_d = [" << temutil::vec2csv(prec_d) << "]";
-    BOOST_LOG_SEV(glg, debug) << "rain_d = [" << temutil::vec2csv(rain_d) << "]";
-    BOOST_LOG_SEV(glg, debug) << "snow_d = [" << temutil::vec2csv(snow_d) << "]";
-    BOOST_LOG_SEV(glg, debug) << "svp_d = [" << temutil::vec2csv(svp_d) << "]";
-    BOOST_LOG_SEV(glg, debug) << "vpd_d = [" << temutil::vec2csv(vpd_d) << "]";
-    BOOST_LOG_SEV(glg, debug) << "girr_d = [" << temutil::vec2csv(girr_d) << "]";
-    BOOST_LOG_SEV(glg, debug) << "cld_d = [" << temutil::vec2csv(cld_d) << "]";
-    BOOST_LOG_SEV(glg, debug) << "par_d = [" << temutil::vec2csv(par_d) << "]";
 
-    BOOST_LOG_SEV(glg, debug) << "tair_d.size() = " << tair_d.size();
-    BOOST_LOG_SEV(glg, debug) << "nirr_d.size() = " << nirr_d.size();
-    BOOST_LOG_SEV(glg, debug) << "vapo_d.size() = " << vapo_d.size();
-    BOOST_LOG_SEV(glg, debug) << "prec_d.size() = " << prec_d.size();
-    BOOST_LOG_SEV(glg, debug) << "rain_d.size() = " << rain_d.size();
-    BOOST_LOG_SEV(glg, debug) << "snow_d.size() = " << snow_d.size();
-    BOOST_LOG_SEV(glg, debug) << "vpd_d.size() = " << vpd_d.size();
-    BOOST_LOG_SEV(glg, debug) << "svp_d.size() = " << svp_d.size();
-    BOOST_LOG_SEV(glg, debug) << "girr_d.size() = " << girr_d.size();
-    BOOST_LOG_SEV(glg, debug) << "cld_d.size() = " << cld_d.size();
-    BOOST_LOG_SEV(glg, debug) << "par_d.size() = " << par_d.size();
+    // Dump data to log stream for debugging analysis 
+    log_data_dump();
 
+    // Dump additional data specific to EQ
     BOOST_LOG_SEV(glg, debug) << "avgX_prec = [" << temutil::vec2csv(avgX_prec) << "]";
     BOOST_LOG_SEV(glg, debug) << "avgX_prec.size() = " << avgX_prec.size();
   }
@@ -735,6 +716,15 @@ void Climate::prepare_daily_driving_data(int iy, const std::string& stage) {
     // dersvp_d;
     // abshd_d;
 
+    // Dump data to log stream for debugging analysis
+    log_data_dump();
+
+  }
+
+}
+
+void Climate::log_data_dump(){
+
     BOOST_LOG_SEV(glg, debug) << "tair_d = [" << temutil::vec2csv(tair_d) << "]";
     BOOST_LOG_SEV(glg, debug) << "nirr_d = [" << temutil::vec2csv(nirr_d) << "]";
     BOOST_LOG_SEV(glg, debug) << "vapo_d = [" << temutil::vec2csv(vapo_d) << "]";
@@ -759,7 +749,4 @@ void Climate::prepare_daily_driving_data(int iy, const std::string& stage) {
     BOOST_LOG_SEV(glg, debug) << "cld_d.size() = " << cld_d.size();
     BOOST_LOG_SEV(glg, debug) << "par_d.size() = " << par_d.size();
 
-  }
-
 }
-

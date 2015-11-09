@@ -63,6 +63,8 @@ public:
 
   void prepare_daily_driving_data(int iy, const std::string& stage);
 
+  void log_data_dump();
+
 private:
 
   void load_from_file(const std::string& fname, int y, int x);
@@ -76,8 +78,6 @@ private:
 
   std::vector<float> eq_range(const std::vector<float>& data);
   std::vector<float> interpolation_range(const std::vector<float>&, int);
-
-
 
 };
 
