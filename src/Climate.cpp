@@ -388,10 +388,10 @@ void Climate::load_from_file(const std::string& fname, int y, int x) {
 
   BOOST_LOG_SEV(glg, info) << "Read in the base climate data timeseries ...";
 
-  tair = temutil::get_timeseries(fname, "tair", y, x);
-  vapo = temutil::get_timeseries(fname, "vapor_press", y, x);
-  prec = temutil::get_timeseries(fname, "precip", y, x);
-  nirr = temutil::get_timeseries(fname, "nirr", y, x);
+  tair = temutil::get_timeseries<float>(fname, "tair", y, x);
+  vapo = temutil::get_timeseries<float>(fname, "vapor_press", y, x);
+  prec = temutil::get_timeseries<float>(fname, "precip", y, x);
+  nirr = temutil::get_timeseries<float>(fname, "nirr", y, x);
 
   // Report on sizes...
   BOOST_LOG_SEV(glg, info) << "  -->sizes (tair, vapor_press, precip, nirr): ("

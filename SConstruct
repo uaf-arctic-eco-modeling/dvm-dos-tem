@@ -56,7 +56,7 @@ src_files = Split("""src/TEM.cpp
                      src/ecodomain/DoubleLinkedList.cpp
                      src/ecodomain/Ground.cpp
                      src/ecodomain/Vegetation.cpp
-                     src/ecodomain/horizon/Mineral.cpp
+                     src/ecodomain/horizon/MineralInfo.cpp
                      src/ecodomain/horizon/Moss.cpp
                      src/ecodomain/horizon/Organic.cpp
                      src/ecodomain/horizon/Snow.cpp
@@ -69,7 +69,6 @@ src_files = Split("""src/TEM.cpp
                      src/ecodomain/layer/SnowLayer.cpp
                      src/ecodomain/layer/SoilLayer.cpp
                      src/lookup/CohortLookup.cpp
-                     src/lookup/SoilLookup.cpp
                      src/output/BgcOutputer.cpp
                      src/output/ChtOutputer.cpp
                      src/output/EnvOutputer.cpp

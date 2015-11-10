@@ -14,7 +14,7 @@ const int DOYINDFST[12] = {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334
 // (unused) const int MAX_CO2_DRV_YR = 109;
 
 // maximum number of years of atmospheric driving data
-const int MAX_ATM_DRV_YR = 109;
+// (unused) const int MAX_ATM_DRV_YR = 109;
 
 // maximum number of years of NORMAL atmospheric driving data
 // (YUAN: used for spin-up)
@@ -45,6 +45,6 @@ const int MAX_VEG_SET = 15; // maximum number of vegetation datasets
 // maximum number of years of scenario run;
 // UNUSED! const int MAX_SC_YR = END_SC_YR-BEG_SC_YR+1;
 
-const int MAX_FIR_OCRNUM  = 30;// maximum number of fire occurrence in model run
+// (unused) const int MAX_FIR_OCRNUM  = 30;// maximum number of fire occurrence in model run
 
 #endif /*TIMECONST_H_*/

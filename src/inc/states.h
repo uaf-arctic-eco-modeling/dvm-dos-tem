@@ -160,7 +160,7 @@ struct soistate_dim {
   int age[MAX_SOI_LAY];
   int type[MAX_SOI_LAY]; //layer type://0,1,2,3 for moss, shallow peat,
                          //                       deep peat, mineral
-  int texture[MAX_SOI_LAY];  // 0 ~ 11, see the SoilLookup.cpp
+
   double frootfrac[MAX_SOI_LAY][NUM_PFT]; //fine root vertical distribution
 
   soistate_dim():numsl(UIN_I),mossnum(UIN_I),shlwnum(UIN_I),deepnum(UIN_I),
@@ -174,7 +174,6 @@ struct soistate_dim {
       por[i] = UIN_D;
       age[i] = UIN_I;
       type[i] = UIN_I;
-      texture[i] = UIN_I;
 
     }
 

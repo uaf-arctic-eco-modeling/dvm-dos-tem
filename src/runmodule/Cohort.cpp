@@ -64,6 +64,12 @@ Cohort::Cohort(int y, int x, ModelData* modeldatapointer):
   //this->hist_climate = Climate(modeldatapointer->hist_climate, y, x);
   //this->proj_climate = Climate(modeldatapointer->proj_climate, y, x);
   this->climate = Climate(modeldatapointer->hist_climate_file, modeldatapointer->co2_file, y, x);
+  
+  // Build a mineral info object
+  MineralInfo mineral_info = MineralInfo(modeldatapointer->soil_texture_file, y, x);
+
+  // setup the ground with the mineral info object
+  this->ground = Ground(mineral_info);
 
   BOOST_LOG_SEV(glg, debug) << "Setup the fire information...";
   // FIX: same thing with fire - may need historic and projected...
@@ -258,15 +264,15 @@ void Cohort::initialize_state_parameters() {
   //if (md->runmode.compare("multi") == 0) {
   //  float z = 0;
   //
-  //  for (int i = 0; i < ground.mineral.num; i++) {
-  //    z += ground.mineral.dz[i];
+  //  for (int i = 0; i < ground.mineralinfo.num; i++) {
+  //    z += ground.mineralinfo.dz[i];
   //
   //    if (z <= 0.30) {   //assuming the grid top-soil texture is for top 30 cm
   //      BOOST_LOG_SEV(glg, err) << "NOT IMPLEMENTED YET!!! Setting mineral texture...";
-  //      //ground.mineral.texture[i] = gd->topsoil;
+  //      //ground.mineralinfo.texture[i] = gd->topsoil;
   //    } else {
   //      BOOST_LOG_SEV(glg, err) << "NOT IMPLEMENTED YET!!! Setting mineral texture...";
-  //      //ground.mineral.texture[i] = gd->botsoil;
+  //      //ground.mineralinfo.texture[i] = gd->botsoil;
   //    }
   //  }
   //}
@@ -1356,7 +1362,6 @@ void Cohort::set_restartdata_from_state() {
     restartdata.DZsoil[il]   = cd.d_soil.dz[il];
     restartdata.AGEsoil[il]  = cd.d_soil.age[il];
     restartdata.TYPEsoil[il] = cd.d_soil.type[il];
-    restartdata.TEXTUREsoil[il]= cd.d_soil.texture[il];
     restartdata.TSsoil[il]    = edall->d_sois.ts[il];
     restartdata.LIQsoil[il]   = edall->d_sois.liq[il];
     restartdata.ICEsoil[il]   = edall->d_sois.ice[il];

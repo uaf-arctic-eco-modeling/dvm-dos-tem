@@ -43,14 +43,13 @@ SOURCES= 	src/TEM.o \
 		src/disturb/WildFire.o \
 		src/ecodomain/DoubleLinkedList.o \
 		src/ecodomain/Ground.o \
-		src/ecodomain/horizon/Mineral.o \
+		src/ecodomain/horizon/MineralInfo.o \
 		src/ecodomain/horizon/Moss.o \
 		src/ecodomain/horizon/Organic.o \
 		src/ecodomain/horizon/Snow.o \
 		src/ecodomain/horizon/SoilParent.o \
 		src/ecodomain/Vegetation.o \
 		src/lookup/CohortLookup.o \
-		src/lookup/SoilLookup.o \
 		src/output/BgcOutputer.o \
 		src/output/ChtOutputer.o \
 		src/output/EnvOutputer.o \
@@ -98,14 +97,13 @@ OBJECTS =	ArgHandler.o \
 		WildFire.o \
 		DoubleLinkedList.o \
 		Ground.o \
-		Mineral.o \
+		MineralInfo.o \
 		Moss.o \
 		Organic.o \
 		Snow.o \
 		SoilParent.o \
 		Vegetation.o \
 		CohortLookup.o \
-		SoilLookup.o \
 		BgcOutputer.o \
 		ChtOutputer.o \
 		EnvOutputer.o \

@@ -12,7 +12,7 @@ using namespace std;
 #include "horizon/Snow.h"
 #include "horizon/Moss.h"
 #include "horizon/Organic.h"
-#include "horizon/Mineral.h"
+#include "horizon/MineralInfo.h"
 #include "horizon/SoilParent.h"
 
 #include "layer/Layer.h"
@@ -22,7 +22,6 @@ using namespace std;
 #include "layer/OrganicLayer.h"
 #include "layer/ParentLayer.h"
 
-#include "../lookup/SoilLookup.h"
 #include "../lookup/CohortLookup.h"
 
 #include "../data/CohortData.h"
@@ -35,6 +34,8 @@ class Ground: public DoubleLinkedList {
 
 public :
   Ground();
+  Ground(MineralInfo mi);
+
   ~Ground();
 
   std::string layer_report_string();
@@ -44,7 +45,7 @@ public :
   Snow snow;
   Moss moss;
   Organic organic;
-  Mineral mineral;
+  MineralInfo mineralinfo;
   SoilParent soilparent; //soil parent materials, including rock
 
   // dimension parameters
@@ -140,7 +141,6 @@ private :
 
   bool rocklayercreated;
 
-  SoilLookup  soillu;
   CohortLookup * chtlu;
 
   void initRockLayers();

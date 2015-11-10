@@ -78,7 +78,6 @@ private :
   NcVar* soiltypeV;
   NcVar* soilporoV;
   NcVar* soilrtfracV;
-  NcVar* soiltextureV;
 
 };
 

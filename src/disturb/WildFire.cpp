@@ -41,7 +41,7 @@ WildFire::WildFire(const std::string& fname, const int y, const int x){
   // need templates or more overloads or something so that we can
   // read the std::vector<int> 
   //fire_years = temutil::get_timeseries(fname, "fire_years", y, x);
-  fire_sizes = temutil::get_timeseries(fname, "fire_sizes", y, x);
+  fire_sizes = temutil::get_timeseries<float>(fname, "fire_sizes", y, x);
   //fire_month = temutil::get_timeseries(fname, "fire_month", y, x);
 
 }
@@ -146,6 +146,7 @@ void WildFire::burn(const int severity) {
   
   BOOST_LOG_SEV(glg, note) << "HELP!! - WILD FIRE!! RUN FOR YOUR LIFE!";
 
+  BOOST_LOG_SEV(glg, note) << "Burning (simply clearing?) the 'FireData object...";
   fd->burn();
 
   // for soil part and root burning

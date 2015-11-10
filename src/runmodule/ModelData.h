@@ -38,6 +38,7 @@ public:
   string proj_climate_file;
   string veg_class_file;
   string fire_file;
+  string soil_texture_file;
   string drainage_file;
   string co2_file;
   string runmask_file;

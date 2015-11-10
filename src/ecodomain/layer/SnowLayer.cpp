@@ -9,7 +9,6 @@ extern src::severity_logger< severity_level > glg;
 SnowLayer::SnowLayer() {
   BOOST_LOG_SEV(glg, debug) << "==> Creating a SnowLayer layer object...";
   tkey = I_SNOW;
-  stkey= I_NONE;
   isSnow = true;
   solind = MISSING_I;
   liq    = MISSING_D;

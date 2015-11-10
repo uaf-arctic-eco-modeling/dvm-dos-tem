@@ -8,7 +8,6 @@ extern src::severity_logger< severity_level > glg;
 
 OrganicLayer::OrganicLayer(const double & pdz, const int & type) {
   BOOST_LOG_SEV(glg, debug) << "==> ==> Creating an OrganicLayer object...";
-  stkey=I_NONE;
   isMoss    = false;
   isMineral = false;
   isOrganic = true;

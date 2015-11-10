@@ -1,13 +1,35 @@
-#include "Mineral.h"
+#include "MineralInfo.h"
+#include "../../TEMUtilityFunctions.h" 
+#include "../../TEMLogger.h"
 
-Mineral::Mineral() {
-  setDefaultThick(0.);
+extern src::severity_logger< severity_level > glg;
+
+MineralInfo::MineralInfo() {}
+
+MineralInfo::MineralInfo(const std::string& fname, const int y, const int x) {
+  // what do do with f??
+  
+  BOOST_LOG_SEV(glg, info) << "Loading ModelInfo (soil texture) from file: " << fname;
+  BOOST_LOG_SEV(glg, info) << "Loading for (y, x) point: " << "("<< y <<","<< x <<").";
+
+  float psand = temutil::get_scalar<float>(fname, "pct_sand", y, x);
+  float psilt = temutil::get_scalar<float>(fname, "pct_silt", y, x);
+  float pclay = temutil::get_scalar<float>(fname, "pct_clay", y, x);
+  
+  for (int i = 0; i < MAX_MIN_LAY; ++i) {
+    sand[i] = psand;
+    silt[i] = psilt;
+    clay[i] = pclay;
+  }
+
+
+  setDefaultThick(0.0);
 };
 
-Mineral::~Mineral() {
+MineralInfo::~MineralInfo() {
 };
 
-void Mineral::setDefaultThick(const double & thickness) {
+void MineralInfo::setDefaultThick(const double & thickness) {
   //The following is the default thickness and number of mineral layers (Yuan)
   num = MAX_MIN_LAY;
   thick = 0.0;
@@ -42,15 +64,15 @@ void Mineral::setDefaultThick(const double & thickness) {
 };
 
 
-void Mineral::set5Soilprofile(int soiltype[], double soildz[],
-                              int soiltexture[], const int & maxnum) {
+void MineralInfo::set5Soilprofile(int soiltype[],
+                                  double soildz[],
+                                  const int & maxnum) {
   num =0;
   thick =0.;
 
   for(int i=0; i<maxnum; i++) {
     if (soiltype[i]==3) {
       dz[num]    = soildz[i];
-      texture[num] = soiltexture[i];
       num ++;
       thick += soildz[i];
     }

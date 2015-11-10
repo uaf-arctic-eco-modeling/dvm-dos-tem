@@ -51,6 +51,9 @@ std::string layer2pointertag(const Layer * curl, const Layer * ql) {
   }
   return ss.str();
 }
+Ground::Ground(MineralInfo mi):mineralinfo(mi) {
+  // ??
+}
 
 Ground::Ground() {
   fstsoill = NULL;
@@ -66,6 +69,7 @@ Ground::Ground() {
   fstfntl  = NULL;
   lstfntl  = NULL;
   rocklayercreated=false;
+  //this->mineralinfo = MineralInfo();
 };
 
 Ground::~Ground() {
@@ -156,7 +160,7 @@ std::string Ground::layer_report_string() {
        << layer2pointertag(current_layer, lstfntl) << "|"
 
        // this T/ST KEY business seems to be dupliacate info as the "soil description tag"
-       //<< "T/ST KEY:" << std::right << setw(2) << current_layer->tkey << "/" << current_layer->stkey << " "
+       //<< "T/ST KEY:" << std::right << setw(2) << current_layer->tkey << "/" << "[na]"//current_layer->stkey << " "
 
        << soildesc2tag(current_layer->isSnow, "snow")
        << soildesc2tag(current_layer->isSoil, "soil")
@@ -207,19 +211,36 @@ void Ground::initDimension() {
   moss.type  = chtlu->mosstype;
   organic.shlwthick = chtlu->initfibthick;
   organic.deepthick = chtlu->inithumthick;
-  mineral.num = 0;
-  mineral.thick = 0;
-
-  for (int il=0; il<MAX_MIN_LAY; il++) {
-    if (chtlu->minetexture[il] > 0 && MINETHICK[il]>0.) {
-      mineral.num+=1;
-      mineral.thick += MINETHICK[il];
-      mineral.dz[il] = MINETHICK[il];
-      mineral.texture[il] = chtlu->minetexture[il];
-    } else {
-      break;
-    }
-  }
+  
+  // SHOULD BE ABLE TO GET RID OF ALL OF THIS WITH PROPERLY CONSTRUCTED MineralInfo object!
+  //mineralinfo.num = 0;
+  //mineralinfo.thick = 0;
+  //
+  ////BOOST_LOG_SEV(glg, err) << "FIX THIS!!!! ARIBTRARILY SETTING TEXTURE!";
+  ////for (int il=0; il<MAX_MIN_LAY; il++) {
+  ////  chtlu->minetexture[il] = 4;
+  ////}
+  //
+  //for (int il=0; il<MAX_MIN_LAY; il++) {
+  //  //mineralinfo.sand = chtlu->pctsand;
+  //  //mineralinfo.silt = chtlu->pctsilt;
+  //  //mineralinfo.clay = chtlu->clay;
+  //  //mineralinfo.thick += MINETHICK[il];
+  //  //mineralinfo.dz[il] = MINETHICK[il];
+  //
+  //  // Not sure if it will be a problem adding thickness for all layers, and not just
+  //  // the layers that have a texture defined??
+  //  // we aren't using texture, and I think every mineral layer will have percentages sand/silt/clay...
+  //
+  //  if (chtlu->minetexture[il] > 0 && MINETHICK[il]>0.) {
+  //    mineralinfo.num+=1;
+  //    mineralinfo.thick += MINETHICK[il];
+  //    mineralinfo.dz[il] = MINETHICK[il];
+  //    mineralinfo.texture[il] = chtlu->minetexture[il];
+  //  } else {
+  //    break;
+  //  }
+  //}
 
   soilparent.thick = 50.;  //meter
 }
@@ -255,9 +276,11 @@ void Ground::initRockLayers() {
 
 void Ground::initSnowSoilLayers() {
   // mineral thickness must be input before calling this
-  for(int il =mineral.num-1; il>=0; il--) {
-    MineralLayer* ml = new MineralLayer(mineral.dz[il],mineral.texture[il],
-                                        &soillu);
+  for(int il = mineralinfo.num - 1; il >= 0; il--) {
+    MineralLayer* ml = new MineralLayer(mineralinfo.dz[il],
+                                        mineralinfo.sand[il],
+                                        mineralinfo.silt[il],
+                                        mineralinfo.clay[il]);
     insertFront(ml);
   }
 
@@ -338,22 +361,24 @@ void Ground::set_state_from_restartdata(snwstate_dim *snowdim,
   int soiltype[MAX_SOI_LAY];
   int soilage[MAX_SOI_LAY];
   double dzsoil[MAX_SOI_LAY];
-  int soiltexture[MAX_SOI_LAY];
   int frozen[MAX_SOI_LAY];
 
   for (int i=0; i<MAX_SOI_LAY; i++) {
     soiltype[i]    = rdata.TYPEsoil[i];
     soilage[i]     = rdata.AGEsoil[i];
     dzsoil[i]      = rdata.DZsoil[i];
-    soiltexture[i] = rdata.TEXTUREsoil[i];
     frozen[i]      = rdata.FROZENsoil[i];
   }
 
-  mineral.set5Soilprofile(soiltype, dzsoil, soiltexture, MAX_SOI_LAY);
+  mineralinfo.set5Soilprofile(soiltype, dzsoil, MAX_SOI_LAY);
 
-  for(int il =mineral.num-1; il>=0; il--) {
-    MineralLayer* ml = new MineralLayer(mineral.dz[il], mineral.texture[il],
-                                        &soillu);
+  for(int il =mineralinfo.num-1; il>=0; il--) {
+
+    MineralLayer* ml = new MineralLayer(mineralinfo.dz[il],
+                                        mineralinfo.sand[il],
+                                        mineralinfo.silt[il],
+                                        mineralinfo.clay[il]);
+
     ml->age = soilage[il];
     ml->frozen = frozen[il];
     insertFront(ml);
@@ -682,12 +707,11 @@ void Ground::updateSoilHorizons() {
     organic.deepdz[i] = MISSING_D;
   }
 
-  mineral.num = 0;
-  mineral.thick = 0.;
+  mineralinfo.num = 0;
+  mineralinfo.thick = 0.;
 
   for (int i=0; i<MAX_MIN_LAY; i++) {
-    mineral.dz[i] = MISSING_D;
-    mineral.texture[i] = MISSING_I;
+    mineralinfo.dz[i] = MISSING_D;
   }
 
   ///
@@ -724,11 +748,16 @@ void Ground::updateSoilHorizons() {
       }
     } else if(currl->isMineral) {
       ind +=1;
-      mineral.num +=1;
-      mineral.thick +=currl->dz;
-      mineral.dz[ind] = currl->dz;
-      mineral.texture[ind] = currl->stkey;
-
+      mineralinfo.num +=1;
+      mineralinfo.thick +=currl->dz;
+      mineralinfo.dz[ind] = currl->dz;
+      // Check that the layer is a MineralLayer - otherwise the compiler
+      // complains about currl not having pctsand member.
+      if (MineralLayer* ml = dynamic_cast<MineralLayer*>(currl)) {
+        mineralinfo.sand[ind] = ml->pctsand;
+        mineralinfo.silt[ind] = ml->pctsilt;
+        mineralinfo.clay[ind] = ml->pctclay;
+      }
       if (currl->nextl==NULL || (!currl->nextl->isMineral)) {
         ind = -1;
       }
@@ -1775,7 +1804,6 @@ void Ground::retrieveSoilDimension(soistate_dim * soildim) {
     soildim->dz[il]   = MISSING_D;
     soildim->type[il] = MISSING_I;
     soildim->por[il]  = MISSING_D;
-    soildim->texture[il]  = MISSING_I;
   }
 
   int slind=0;
@@ -1804,7 +1832,6 @@ void Ground::retrieveSoilDimension(soistate_dim * soildim) {
         }
       } else if(curr->isMineral) {
         soildim->type[slind] = 3;
-        soildim->texture[slind] = mineral.texture[mlind];
         soildim->minenum+=1;
 
         if (mlind>=0 && mlind<=MINEZONE[0]) {
