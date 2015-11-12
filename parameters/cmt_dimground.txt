@@ -87,7 +87,7 @@
 0.03939            // coefminea:
 0.78               // coefmineb:
 //===========================================================
-// CMT04 // Tussock Tundra - ground structure/dimension
+// CMT04 // Shrub Tundra - ground structure/dimension (NOTE: Was listed as Tussock Tundra. 11/2015)
 // Snow characteristics
 350                // snwdenmax:  max. snow density (kg/m3)
 120                // snwdennew:  new (min.) snow density (kg/m3)
@@ -109,27 +109,27 @@
 0.04025            // coefminea:
 0.0532             // coefmineb:
 //===========================================================
-// CMT05 // Shrub Tundra - ground structure/dimension
+// CMT05 // Tussock Tundra - ground structure/dimension (NOTE: Was listed as Shrub Tundra. Numbers were updated. 11/2015)
 // Snow characteristics
 350                // snwdenmax:  max. snow density (kg/m3)
 120                // snwdennew:  new (min.) snow density (kg/m3)
 0.                 // initsnwthick: initial snow thickness (m)
 0.                 // initsnwdense: initial snow density (kg/m3)
 // moss characteristics
-0.035              // maxmossthick: max. moss thickness (m)
+0.015              // maxmossthick: max. moss thickness (m)
 0.01               // initdmossthick: initial dead moss thickness (m)
 1                  // mosstype: moss type (1: sphagnum; 2: furthermoss; 3: other)
 0.049              // coefmossa:
 0.50               // coefmossb:
 // soil characteristics
-0.1244             // initfibthick: meters
-0.1853             // inithumthick:
-0.01               // coefshlwa:
-1.3574             // coefshlwb:
-0.03               // coefdeepa:
-1.2389371          // coefdeepb:
-0.04025            // coefminea:
-0.0532             // coefmineb:
+0.0667             // initfibthick: meters
+0.145              // inithumthick:
+0.0652             // coefshlwa:
+0.708             // coefshlwb:
+0.0545             // coefdeepa:
+0.975             // coefdeepb:
+0.0966            // coefminea:
+0.8239             // coefmineb:
 //===========================================================
 // CMT06 // Wet Sedge Tundra - ground structure/dimension
 // Snow characteristics
