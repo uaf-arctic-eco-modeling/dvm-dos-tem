@@ -182,7 +182,7 @@ void CalController::pause_at(const std::string& s) {
 /** Look thru the run_configuration data structure and run any commands that
     are found by calling operate_on_directive_str(..).
 */
-void CalController::run_config(int year) {
+void CalController::run_config(int year, const std::string& stage) {
 
   typedef Json::Value::iterator JVIt;
   for (JVIt it = run_configuration.begin(); it != run_configuration.end(); ++it) {
@@ -205,19 +205,24 @@ void CalController::run_config(int year) {
         this->control_loop();
       }
     }
+    if (stage.compare("pre-run") == 0) {
+      BOOST_LOG_SEV(glg, debug) << "In pre-run stage; ignoring calibraiton directives...";
+    } else {
 
-    if (boost::lexical_cast<string>(year) == key.asString()) {
-      BOOST_LOG_SEV(glg, info) << "ITERATE over the directives in the value... "
-                               << "(which is an array of string commands)";
+      if (boost::lexical_cast<string>(year) == key.asString()) {
+        BOOST_LOG_SEV(glg, info) << "ITERATE over the directives in the value... "
+                                 << "(which is an array of string commands)";
 
-      for( Json::ValueIterator itr = val.begin(); itr != val.end(); itr++ ) {
-        string directive  =  (*itr).asString();
+        for( Json::ValueIterator itr = val.begin(); itr != val.end(); itr++ ) {
+          string directive  =  (*itr).asString();
 
-        operate_on_directive_str(directive);
+          operate_on_directive_str(directive);
 
+        }
       }
-    }
-  }
+
+    } // end stage check...
+  } // end for loop over json items
 }
 
 void CalController::auto_run(int simulation_year) {
