@@ -61,7 +61,8 @@ public:
   
   std::vector<float> monthly2daily(const std::vector<float>& mly_vals);
 
-  void prepare_daily_driving_data(int iy, const std::string& stage);
+  void prepare_daily_driving_data_static(int iy, const std::string& stage);
+  void prepare_daily_driving_data_dynamic(int, const std::string&);
 
   void log_data_dump();
 

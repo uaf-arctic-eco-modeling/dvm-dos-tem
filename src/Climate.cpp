@@ -591,7 +591,9 @@ std::vector<float> Climate::interpolation_range(const std::vector<float>& data, 
   return foo;
 }
 
-void Climate::prepare_daily_driving_data(int iy, const std::string& stage) {
+//The following comment is not yet true
+/** Prepares daily driving data for static climate stages (EQ, SP)*/
+void Climate::prepare_daily_driving_data_static(int iy, const std::string& stage) {
 
   BOOST_LOG_SEV(glg, fatal) << "in daily driving data";
 
@@ -663,20 +665,32 @@ void Climate::prepare_daily_driving_data(int iy, const std::string& stage) {
     BOOST_LOG_SEV(glg, debug) << "avgX_prec.size() = " << avgX_prec.size();
   }
 
+}
+
+/** Prepares a single year of daily driving data for variable
+ *  climate stages (TR, SC)*/
+void Climate::prepare_daily_driving_data_dynamic(int iy, const std::string& stage) {
+
+
+  BOOST_LOG_SEV(glg, fatal) << "in daily driving data";
+
   /**** Spin-up ****/
   if(stage.compare("sp-run") == 0) {
 
+    int sp_year = iy%30;//FIX pull this value out somewhere sensible
+    //Either to the command line/config file or to Climate at least.
+
     // effectively the same value each day of the year
-    co2_d = co2.at(iy);
+    co2_d = co2.at(sp_year);
 
     // straight up interpolated....
-    tair_d = monthly2daily(interpolation_range(tair, iy));
-    tair_d = monthly2daily(interpolation_range(vapo, iy));
-    tair_d = monthly2daily(interpolation_range(nirr, iy));
+    tair_d = monthly2daily(interpolation_range(tair, sp_year));
+    vapo_d = monthly2daily(interpolation_range(vapo, sp_year));
+    nirr_d = monthly2daily(interpolation_range(nirr, sp_year));
 
     // Not totally sure if this is right to interpolate these??
-    par_d = monthly2daily(interpolation_range(par, iy));
-    girr_d = monthly2daily(interpolation_range(girr, iy));
+    par_d = monthly2daily(interpolation_range(par, sp_year));
+    girr_d = monthly2daily(interpolation_range(girr, sp_year));
 
     // The interpolation is slightly broken, so it 'overshoots' when the
     // slope is negative, and can result in negative values.
@@ -687,7 +701,7 @@ void Climate::prepare_daily_driving_data(int iy, const std::string& stage) {
     // much more complicated than straight interpolation...
     prec_d.clear();
     for (int i=0; i < 12; ++i) {
-      std::vector<float> v = calculate_daily_prec(i, tair.at(iy*12+i), prec.at(iy*12+i));
+      std::vector<float> v = calculate_daily_prec(i, tair.at(sp_year*12+i), prec.at(sp_year*12+i));
 
       prec_d.insert( prec_d.end(), v.begin(), v.end() );
     }
@@ -717,6 +731,67 @@ void Climate::prepare_daily_driving_data(int iy, const std::string& stage) {
     // abshd_d;
 
     // Dump data to log stream for debugging analysis
+    log_data_dump();
+
+  }
+
+
+  /**** Transient/Scenario ****/
+  if ( (stage.compare("tr") == 0) || (stage.compare("sc") == 0 ) ) {
+
+    // effectively the same value each day of the year
+    co2_d = co2.at(iy);
+
+    // Create the daily data by interpolating
+
+    // straight up interpolated....
+    tair_d = monthly2daily(interpolation_range(tair, iy));
+    vapo_d = monthly2daily(interpolation_range(vapo, iy));
+    nirr_d = monthly2daily(interpolation_range(nirr, iy));
+
+    // Not totally sure if this is right to interpolate these??
+    par_d = monthly2daily(interpolation_range(par, iy));
+    girr_d = monthly2daily(interpolation_range(girr, iy));
+
+    // The interpolation is slightly broken, so it 'overshoots' when the
+    // slope is negative, and can result in negative values.
+    BOOST_LOG_SEV(glg, info) << "Forcing negative values to zero in girr and nirr daily containers...";
+    std::for_each(nirr_d.begin(), nirr_d.end(), temutil::force_negative2zero);
+    std::for_each(girr_d.begin(), girr_d.end(), temutil::force_negative2zero);
+
+    // much more complicated than straight interpolation...
+    prec_d.clear();
+    for (int i=0; i < 12; ++i) {
+      std::vector<float> v = calculate_daily_prec(i, tair.at(i), prec.at(i));
+
+      prec_d.insert( prec_d.end(), v.begin(), v.end() );
+    }
+
+    // derive rain and snow from precip...
+    // Look into boost::zip_iterator
+    rain_d.clear();
+    snow_d.clear();
+    for (int i = 0; i < prec_d.size(); ++i) {
+      std::pair<float, float> rs = willmot_split(tair_d[i], prec_d[i]);
+      rain_d.push_back(rs.first);
+      snow_d.push_back(rs.second);
+    }
+
+    svp_d.resize(tair_d.size());
+    std::transform( tair_d.begin(), tair_d.end(), svp_d.begin(), calculate_saturated_vapor_pressure );
+
+    vpd_d.resize(tair_d.size());
+    std::transform( svp_d.begin(), svp_d.end(), vapo_d.begin(), vpd_d.begin(), calculate_vpd );
+
+    cld_d.resize(tair_d.size());
+    std::transform( girr_d.begin(), girr_d.end(), nirr_d.begin(), cld_d.begin(), calculate_clouds );
+
+    // THESE MAY NEVER BE USED??
+    // rhoa_d;
+    // dersvp_d;
+    // abshd_d;
+
+    // Dump data to log stream for debugging analysis 
     log_data_dump();
 
   }
