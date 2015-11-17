@@ -253,6 +253,9 @@ class ExpandingWindow(object):
 
     log.info("Load data to plot. Relimit data?: %s  Autoscale?: %s", relim, autoscale)
     
+    # storage for tracking module state changes...
+    module_state_dict = {}
+
     # gets a sorted list of json files...
     files = self.input_helper.files()
     self.input_helper.coverage_report(files)
@@ -279,8 +282,10 @@ class ExpandingWindow(object):
       trace['tmpy'] = x.copy() * np.nan
     
     # ----- READ EVERY FILE --------
-    log.info("Read every file and load into trace['tmpy'] container")
-    for file in files:
+    log.info("Read every file...")
+    log.info("Load data to trace['tmpy'] container; find module state-changes.")
+
+    for fnum, file in enumerate(files):
       # try reading the file
       try:
         with open(file) as f:
@@ -298,6 +303,20 @@ class ExpandingWindow(object):
               trace['tmpy'][idx] = pftdata[trace['jsontag']]
           else:
             trace['tmpy'][idx] = fdata[trace['jsontag']]
+
+        # Look at the previous file and see if the state of any
+        # modules or flags has changed...
+        if (fnum > 0):
+          with open(files[fnum-1]) as pfile:
+            pfdata = json.load(pfile)
+
+          for k in ["Nfeed", "AvlNFlag", "Baseline", "EnvModule", "BgcModule",
+                    "DvmModule", "DslModule", "DsbModule"]:
+
+            cstate = fdata[k]
+            pstate = pfdata[k]
+            if cstate != pstate:
+              module_state_dict[idx] = (k, cstate)
 
       except (IOError, ValueError) as e:
         logging.error("Problem: '%s' reading file '%s'" % (e, file))
@@ -321,8 +340,22 @@ class ExpandingWindow(object):
     for trace in self.traces:
       del trace['tmpy']
 
+    # ----- MODULE CHANGE MARKERS ------
+    # Clean up any existing 'module change markers' (vertical lines marking
+    # when modules turn on or off)
+    for ax in self.axes:
+      for line in ax.lines:
+        if line.get_label() == '__mscm':
+          ax.lines.remove(line)
 
-    # ----- RELIMIT and SCALE
+    # Then loop over the dictionary and plot a vertical line wherever necessary.
+    # The module stage dictionary could looks something like this:
+    # { 12: ('DslModule', true), 54: ('DvmModule', false)}
+    for ax in self.axes:
+      for k, val in module_state_dict.iteritems():
+        ax.axvline(k, linestyle='--', linewidth=0.3, color='blue', label='__mscm')
+
+    # ----- RELIMIT and SCALE ----------
     if relim:
       log.info("Recomputing data limits based on artist data")
       for ax in self.axes:
