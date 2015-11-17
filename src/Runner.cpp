@@ -66,18 +66,18 @@ void Runner::run_years(int start_year, int end_year, const std::string& stage) {
 
   /** YEAR TIMESTEP LOOP */
   for (int iy = start_year; iy < end_year; ++iy) {
-    BOOST_LOG_SEV(glg, debug) << "(Begining of year loop) " << cohort.ground.layer_report_string();
+    BOOST_LOG_SEV(glg, debug) << "(Beginning of year loop) " << cohort.ground.layer_report_string();
 
     /* Interpolate all the monthly values...? */
-    if(stage.compare("eq") == 0){
-      this->cohort.climate.prepare_daily_driving_data_static(iy, stage)
+    if( (stage.compare("eq")==0 || stage.compare("pre-run")==0) && iy==0){
+      this->cohort.climate.prepare_eq_daily_driving_data(iy, stage);
     }
-    if(stage.compare("sp") == 0){
+    else if(stage.compare("sp") == 0){
       //FIX - 30 should not be hardcoded
-      this->cohort.climate.prepare_daily_driving_data(iy%30, stage)
+      this->cohort.climate.prepare_daily_driving_data(iy%30, stage);
     }
-    else{
-      this->cohort.climate.prepare_daily_driving_data_dynamic(iy, stage);
+    else if(stage.compare("tr")==0 || stage.compare("sc")==0){
+      this->cohort.climate.prepare_daily_driving_data(iy, stage);
     }
 
     this->output_debug_daily_drivers(iy);
