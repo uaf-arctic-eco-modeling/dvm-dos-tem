@@ -164,7 +164,7 @@ class ExpandingWindow(object):
     self.no_show = no_show
 
     self.fig = plt.figure(figsize=(6*1.3,8*1.3))
-    self.fig.suptitle(figtitle)
+    self.ewp_title = self.fig.suptitle(figtitle)
 
     # build a list of the pft specific traces
     pfttraces = []
@@ -277,6 +277,27 @@ class ExpandingWindow(object):
       end = int( os.path.splitext( os.path.basename(files[-1]) )[0] )
       x = np.arange(0, end + 1 , 1) # <-- make range inclusive!
     
+
+    # ----- READ FIRST FILE FOR TITLE ------
+    if len(files) > 0:
+      try:
+        with open(files[0]) as f:
+          fdata = json.load(f)
+
+        title_txt = self.ewp_title.get_text()
+        details = "%s (%.2f,%.2f)" % (fdata["CMT"], fdata["Lat"], fdata["Lon"])
+        if not ' '.join((title_txt.split()[1:])) == details:
+          self.fig.suptitle("%s %s (%.2f,%.2f)" % (title_txt, fdata["CMT"], fdata["Lat"], fdata["Lon"] ))
+        else:
+          pass # nothing to do - title already has CMT, lat and lon...
+
+      except (IOError, ValueError) as e:
+        logging.error("Problem: '%s' reading file '%s'" % (e, f))
+
+    else:
+      pass # Nothing to do; no files, so can't find CMT or lat/lon
+
+
     # for each trace, create a tmp y container the same size as x
     for trace in self.traces:
       trace['tmpy'] = x.copy() * np.nan

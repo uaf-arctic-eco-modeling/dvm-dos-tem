@@ -123,6 +123,9 @@ void Runner::output_caljson_monthly(int year, int month){
   /* Not PFT dependent */
   data["Year"] = year;
   data["Month"] = month;
+  data["CMT"] = this->cohort.chtlu.cmtcode;
+  data["Lat"] = this->cohort.lat;
+  data["Lon"] = this->cohort.lon;
 
   data["Nfeed"] = this->cohort.md->get_nfeed();
   data["AvlNFlag"] = this->cohort.md->get_avlnflg();
@@ -256,6 +259,9 @@ void Runner::output_caljson_yearly(int year) {
 
   /* Not PFT dependent */
   data["Year"] = year;
+  data["CMT"] = this->cohort.chtlu.cmtcode;
+  data["Lat"] = this->cohort.lat;
+  data["Lon"] = this->cohort.lon;
 
   data["Nfeed"] = this->cohort.md->get_nfeed();
   data["AvlNFlag"] = this->cohort.md->get_avlnflg();
