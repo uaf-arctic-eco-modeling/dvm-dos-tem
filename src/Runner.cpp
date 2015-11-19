@@ -114,12 +114,28 @@ void Runner::run_years(int start_year, int end_year, const std::string& stage) {
 }
 
 void Runner::output_caljson_monthly(int year, int month){
+
+  // CAUTION: this->md and this->cohort.md are different instances!
+
   Json::Value data;
   std::ofstream out_stream;
 
   /* Not PFT dependent */
   data["Year"] = year;
   data["Month"] = month;
+  data["CMT"] = this->cohort.chtlu.cmtcode;
+  data["Lat"] = this->cohort.lat;
+  data["Lon"] = this->cohort.lon;
+
+  data["Nfeed"] = this->cohort.md->get_nfeed();
+  data["AvlNFlag"] = this->cohort.md->get_avlnflg();
+  data["Baseline"] = this->cohort.md->get_baseline();
+  data["EnvModule"] = this->cohort.md->get_envmodule();
+  data["BgcModule"] = this->cohort.md->get_bgcmodule();
+  data["DvmModule"] = this->cohort.md->get_dvmmodule();
+  data["DslModule"] = this->cohort.md->get_dslmodule();
+  data["DsbModule"] = this->cohort.md->get_dsbmodule();
+
   data["TAir"] = cohort.edall->m_atms.ta;
   data["Snowfall"] = cohort.edall->m_a2l.snfl;
   data["Rainfall"] = cohort.edall->m_a2l.rnfl;
@@ -235,10 +251,27 @@ void Runner::output_caljson_monthly(int year, int month){
 
 
 void Runner::output_caljson_yearly(int year) {
+
+  // CAUTION: this->md and this->cohort.md are different instances!
+
   Json::Value data;
   std::ofstream out_stream;
+
   /* Not PFT dependent */
   data["Year"] = year;
+  data["CMT"] = this->cohort.chtlu.cmtcode;
+  data["Lat"] = this->cohort.lat;
+  data["Lon"] = this->cohort.lon;
+
+  data["Nfeed"] = this->cohort.md->get_nfeed();
+  data["AvlNFlag"] = this->cohort.md->get_avlnflg();
+  data["Baseline"] = this->cohort.md->get_baseline();
+  data["EnvModule"] = this->cohort.md->get_envmodule();
+  data["BgcModule"] = this->cohort.md->get_bgcmodule();
+  data["DvmModule"] = this->cohort.md->get_dvmmodule();
+  data["DslModule"] = this->cohort.md->get_dslmodule();
+  data["DsbModule"] = this->cohort.md->get_dsbmodule();
+
   data["TAir"] = cohort.edall->y_atms.ta;
   data["Snowfall"] = cohort.edall->y_a2l.snfl;
   data["Rainfall"] = cohort.edall->y_a2l.rnfl;
