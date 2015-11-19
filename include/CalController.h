@@ -42,7 +42,7 @@ public:
   
   bool post_warmup_pause();
   void auto_run(int simulation_year);
-  void run_config(int simulation_year);
+  void run_config(int simulation_year, const std::string& stage);
   
   void show_cal_control_menu();
   void check_for_signals();

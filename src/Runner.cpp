@@ -74,7 +74,7 @@ void Runner::run_years(int start_year, int end_year, const std::string& stage) {
     if (this->calcontroller_ptr) { // should be null unless we are in "calibration mode"
 
       // Run any pre-configured directives
-      this->calcontroller_ptr->run_config(iy);
+      this->calcontroller_ptr->run_config(iy, stage);
 
       // See if a signal has arrived (possibly from user
       // hitting Ctrl-C) and if so, stop the simulation
