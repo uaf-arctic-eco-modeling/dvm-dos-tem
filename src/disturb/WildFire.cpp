@@ -360,11 +360,11 @@ void WildFire::burn() {
 
       // Above-ground veg. burning/death during fire
       // when summing, needs adjusting by 'vegcov'
-      comb_vegc += bd[ip]->m_vegs.c[I_leaf]*r_burn2ag_cn;
+      comb_vegc += bd[ip]->m_vegs.c[I_leaf] * r_burn2ag_cn;
 
       // We define dead c/n as the not-falling veg (or binding with living veg)
       // during fire,
-      bd[ip]->m_vegs.deadc = bd[ip]->m_vegs.c[I_leaf]*r_dead2ag_cn;
+      bd[ip]->m_vegs.deadc = bd[ip]->m_vegs.c[I_leaf] * r_dead2ag_cn;
 
       // Which then is the source of ground debris (this is for woody plants
       // only, others could be set deadc/n to zero)
@@ -377,7 +377,7 @@ void WildFire::burn() {
       bd[ip]->m_vegs.strn[I_leaf] *= (1.0 - r_burn2ag_cn-r_dead2ag_cn);
       comb_vegn += bd[ip]->m_vegs.strn[I_stem] * r_burn2ag_cn;
       bd[ip]->m_vegs.deadn += bd[ip]->m_vegs.strn[I_stem] * r_dead2ag_cn;
-      bd[ip]->m_vegs.strn[I_stem] *= (1.0 - r_burn2ag_cn-r_dead2ag_cn);
+      bd[ip]->m_vegs.strn[I_stem] *= (1.0 - r_burn2ag_cn - r_dead2ag_cn);
 
       // Below-ground veg. (root) burning/death during fire
       comb_vegc += bd[ip]->m_vegs.c[I_root] * r_burn2bg_cn[ip];

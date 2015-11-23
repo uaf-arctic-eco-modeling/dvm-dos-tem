@@ -10,6 +10,8 @@
 #define TEMUtilityFunctions_H
 
 #include <string>
+#include <iomanip>
+#include <sstream>
 #include <list>
 #include <netcdfcpp.h>
 #include <json/value.h>
@@ -20,16 +22,10 @@
 
 namespace temutil {
 
-
-
-
   template <typename T>
   T point_on_line(T m, T x, T b) {
     return (m*x)+b;
   }
-
-
-
 
   template <typename T>
   std::pair<T, T> line(std::pair<T,T> point1,
@@ -44,9 +40,6 @@ namespace temutil {
     mb.second = b;
     return mb; 
   }
-
-
-
 
   template <typename T>
   std::vector<T> resample(
