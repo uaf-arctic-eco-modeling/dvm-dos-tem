@@ -512,32 +512,33 @@ void Soil_Env::updateDailySM() {
   ed->d_sois.watertab = getWaterTable(lstsoill);
 
   if( (rnth + melt) > 0 ) {
-    ed->d_soi2l.qover  = getRunoff(fstsoill, drainl, rnth, melt); // mm/day
+    ed->d_soi2l.qover = getRunoff(fstsoill, drainl, rnth, melt); // mm/day
   } else {
-    ed->d_soi2l.qover  = 0.;
+    ed->d_soi2l.qover = 0.0;
   }
 
   double infil = rnth+melt-ed->d_soi2l.qover;
   ed->d_soi2l.qinfl = infil;
+
   // 2) Then soil water dynamics at daily time step
-  double sinday= 86400.;
 
   for (int i=0; i<MAX_SOI_LAY; i++) {
-    trans[i] /=sinday; // mm/day to mm/s
+    trans[i] /= SEC_IN_DAY; // mm/day to mm/s
   }
 
-  infil /=sinday; // mm/day to mm/s
-  evap /=sinday;  // mm/day to mm/s
-  // water drainage condition
-  double baseflow = 1.; //fraction of bottom drainage (free) into water system:
-                        //  0 - 1 upon drainage condition
+  infil /= SEC_IN_DAY; // mm/day to mm/s
+  evap /= SEC_IN_DAY;  // mm/day to mm/s
 
-  if(cd->drainage_type == 1) { //0: well-drained; 1: poorly-drained
-    baseflow = 0.;
+  // water drainage condition
+  double baseflow = 1.0; // fraction of bottom drainage (free) into water system:
+                         //  0 - 1 upon drainage condition
+
+  if(cd->drainage_type == 1) { // 0: well-drained; 1: poorly-drained
+    baseflow = 0.0;
   }
 
   richards.update(fstsoill, drainl, draindepth, baseflow, trans,
-                  evap, infil, sinday);
+                  evap, infil, SEC_IN_DAY);
   ed->d_soi2l.qdrain  += richards.qdrain;
   //
   ground->checkWaterValidity();

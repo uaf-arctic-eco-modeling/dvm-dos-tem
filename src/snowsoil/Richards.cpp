@@ -68,25 +68,28 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
   // in a soil profile, there may be a few or none
   Layer* currl=fstsoill;
 
-  while (currl!=NULL && currl->isMoss) {   // excluding dead moss layer(s) for hydrological process due to hydraulic parameters not validated, which causes oscilation
-    currl=currl->nextl; // if no exclusion of dead moss layer, comment out this 'while' loop
+  // excluding dead moss layer(s) for hydrological process due to
+  // hydraulic parameters not validated, which causes oscilation
+  // if no exclusion of dead moss layer, comment out this 'while' loop
+  while (currl != NULL && currl->isMoss) {
+    currl = currl->nextl;
   }
 
   indx0sl = currl->solind;
   Layer* topsoill = currl;
 
-  while (currl!=NULL && currl->solind<=drainl->solind) {
+  while ( (currl != NULL) && (currl->solind <= drainl->solind) ) {
     // prepare arrays for calling Richards Equation's solver
     // for one continuous section of unfrozen soil column:
     // 'soilind' from indx0al:indx0al+numal
     prepareSoilNodes(currl, bdraindepth);
 
     //
-    if (numal==1) {// one layer: no need to iterate, tip-bucket approach enough
+    if (numal == 1) {// one layer: no need to iterate, tip-bucket approach enough
       int ind = indx0al;
-      qin[ind]=0.;
+      qin[ind] = 0.0;
 
-      if (indx0al==fstsoill->solind) {
+      if (indx0al == fstsoill->solind) {
         qin[ind] = infil - evap;
       }
 
@@ -95,7 +98,7 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
                   * pow((double)s1, (double)2*bsw[ind] +2);
       hk[ind] = s1*s2;
 
-      if (ind==drainl->solind) {
+      if (ind == drainl->solind) {
         qout[ind] = hk[ind]*fbaseflow + trans[ind];
       } else {  //no drainage occurs if not in 'drainl'
         qout[ind] = trans[ind];
@@ -103,8 +106,9 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
 
       liqld[ind] += (qin[ind]-qout[ind]);
 
-      if (ind==drainl->solind) {
-        qdrain += hk[ind]*fbaseflow*timestep/86400.;//bottom drainage: mm/day->mm/sec
+      if (ind == drainl->solind) {
+        // bottom drainage: mm/day->mm/sec
+        qdrain += hk[ind] * fbaseflow * timestep / SEC_IN_DAY;
       }
     } else if(numal>1) {// iteration for unfrozen column with multiple layers
       iterate(trans, evap, infil, fbaseflow);
