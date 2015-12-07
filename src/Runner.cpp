@@ -50,18 +50,6 @@ Runner::~Runner() {
 
 void Runner::run_years(int start_year, int end_year, const std::string& stage) {
 
-  // Experiment - place for daily debugging output...
-  boost::filesystem::path folder("/tmp/debug-dvmdostem/");
-
-  if( !(boost::filesystem::exists(folder)) ) {
-    BOOST_LOG_SEV(glg, info) << "Creating folder: " << folder;
-    boost::filesystem::create_directory(folder);
-  } else {
-    BOOST_LOG_SEV(glg, info) << "'" << folder << "'" << "already exists; delete and recreate!";
-    boost::filesystem::remove_all(folder);
-    boost::filesystem::create_directory(folder);
-  }
-
   /** YEAR TIMESTEP LOOP */
   for (int iy = start_year; iy < end_year; ++iy) {
     BOOST_LOG_SEV(glg, debug) << "(Begining of year loop) " << cohort.ground.layer_report_string();
@@ -233,20 +221,18 @@ void Runner::output_caljson_monthly(int year, int month){
   data["GPPSum"] = cohort.bdall->m_a2v.gppall;
   data["NPPSum"] = cohort.bdall->m_a2v.nppall;
 
+
+  // Writes files like this:
+  //  0000000.json, 0000001.json, 0000002.json
+
   std::stringstream filename;
   filename.fill('0');
-
-  // this format file name works with FixedWindow plotting script 'YYYY_MM.json'
-  //filename << "/tmp/cal-dvmdostem/" << std::setw(4) << year << "_"
-  //         << std::setw(2) << month << ".json";
-
-  // (in progress) works with ExpandingWindow plotting scritp '0000000.json'
-  filename << "/tmp/cal-dvmdostem/" << std::setw(7) << (12 * year) + month
-           << ".json";
-
+  filename << md.monthly_cal_json.c_str()
+           << "/" << std::setw(7) << (12 * year) + month << ".json";
   out_stream.open(filename.str().c_str(), std::ofstream::out);
   out_stream << data << std::endl;
   out_stream.close();
+
 }
 
 
@@ -359,9 +345,13 @@ void Runner::output_caljson_yearly(int year) {
     data["PFT" + pft_str]["TotNitrogenUptake"] = cohort.bd[pft].y_soi2v.snuptakeall + cohort.bd[pft].y_soi2v.lnuptake;
   }
 
+  // Writes files like this:
+  //  00000.json, 00001.json, 00002.json
+
   std::stringstream filename;
   filename.fill('0');
-  filename << "/tmp/year-cal-dvmdostem/" << std::setw(5) << year << ".json";
+  filename << md.yearly_cal_json.c_str()
+           << "/" << std::setw(5) << year << ".json";
   out_stream.open(filename.str().c_str(), std::ofstream::out);
   out_stream << data << std::endl;
   out_stream.close();
@@ -370,9 +360,18 @@ void Runner::output_caljson_yearly(int year) {
 
 void Runner::output_debug_daily_drivers(int iy) {
 
+  // Writes files like this:
+  //  year_00000_daily_drivers.json
+  //  year_00001_daily_drivers.json
+  //  year_00002_daily_drivers.json
+
   std::stringstream filename;
   filename.fill('0');
-  filename << "/tmp/debug-dvmdostem/year_" << std::setw(5) << iy << "_daily_drivers.text";
+  filename << md.daily_cal_json.c_str()
+           << "/year_" << std::setw(5) << iy << "_daily_drivers.text";
+
+  // NOTE: (FIX?) This may not be the best place for these files as they are
+  // not exactly the same format/layout as the normal "calibration" json files
 
   std::ofstream out_stream;
   out_stream.open(filename.str().c_str(), std::ofstream::out);

@@ -45,6 +45,10 @@ public:
   string output_dir;
   bool output_monthly;
 
+  std::string yearly_cal_json;
+  std::string monthly_cal_json;
+  std::string daily_cal_json;
+
   int changeclimate; // 0: default (up to run stage); 1: dynamical; -1: static
   int changeco2; // 0: default (up to run stage); 1: dynamical; -1: static
   bool updatelai; // dynamical LAI in model or static LAI (from 'chtlu')

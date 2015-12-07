@@ -48,7 +48,16 @@ public:
   void check_for_signals();
   void async_pause(); // pauses, but thru the io_service, so may not be immediate.
   void pause();       // forces pause immediately
-  static void clear_and_create_json_storage(); // cleans /tmp directory
+
+
+  // 12/7/2015:
+  // clear_and_create_json_storage was originally a static member
+  // to allow using function w/o object instantiated. Does not seem
+  // to be necessary. Perhaps this should actually be part of temutil??
+
+  // cleans up calibration json files
+  void clear_and_create_json_storage();
+
   
 private:
   boost::shared_ptr< boost::asio::io_service > io_service;
@@ -58,6 +67,10 @@ private:
 
   std::map<std::string, CalCommand> cmd_map;
   
+  std::string daily_json;
+  std::string monthly_json;
+  std::string yearly_json;
+
   Json::Value run_configuration;
 
   void pause_handler(const boost::system::error_code& error,
@@ -67,6 +80,7 @@ private:
   void operate_on_directive_str(const std::string& line);
 
   Json::Value load_directives_from_file(const std::string& f);
+  void load_cal_json_storage_settings_from_config (const std::string& f);
 
   void quit_at(const std::string& exit_year);
   void pause_at(const std::string& pause_year);

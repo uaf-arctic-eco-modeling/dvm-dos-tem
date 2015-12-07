@@ -102,6 +102,8 @@ CalController::CalController(Cohort* cht_p):
   this->run_configuration =
       this->load_directives_from_file("config/calibration_directives.txt");
 
+  this->load_cal_json_storage_settings_from_config("config/config.js");
+
   if (!this->cohort_ptr) {
     BOOST_LOG_SEV(glg, err) << "Something is wrong and the Cohort pointer is null!";
   }
@@ -109,6 +111,27 @@ CalController::CalController(Cohort* cht_p):
   BOOST_LOG_SEV(glg, debug) << "Done constructing a CalController.";
 }
 
+
+void CalController::load_cal_json_storage_settings_from_config (
+    const std::string& f) {
+
+  BOOST_LOG_SEV(glg, note) << "Parse file '" << f << "' "
+                           << "for calibration json storage settings.";
+  Json::Value v;
+
+  if ( !(boost::filesystem::exists(f)) ) {
+    BOOST_LOG_SEV(glg, warn) << "config file '" << f << "' does not exist!!";
+  } else {
+    v = temutil::parse_control_file(f);
+  }
+
+  BOOST_LOG_SEV(glg, debug) << v.toStyledString();
+
+  this->daily_json    = v["calibration-IO"]["daily-json-folder"].asString();
+  this->monthly_json  = v["calibration-IO"]["monthly-json-folder"].asString();
+  this->yearly_json   = v["calibration-IO"]["yearly-json-folder"].asString();
+
+}
 
 /** Trys to load a calibration directives file, returns empty object if it fails.
 
@@ -400,28 +423,40 @@ bool CalController::post_warmup_pause() {
 */
 void CalController::clear_and_create_json_storage() {
 
-  boost::filesystem::path mly_json_folder("/tmp/cal-dvmdostem/");
-  boost::filesystem::path yly_json_folder("/tmp/year-cal-dvmdostem");
+  boost::filesystem::path yly_json_folder(yearly_json);
+  boost::filesystem::path mly_json_folder(monthly_json);
+  boost::filesystem::path dly_json_folder(daily_json);
 
   if( !(boost::filesystem::exists(yly_json_folder)) ) {
     BOOST_LOG_SEV(glg, info) << "Creating folder: " << yly_json_folder;
-    boost::filesystem::create_directory(yly_json_folder);
+    boost::filesystem::create_directories(yly_json_folder);
   } else {
-    BOOST_LOG_SEV(glg, info) << "Calibraiton json yearly folder already exists!"
-                             << "Delete and recreate...";
+    BOOST_LOG_SEV(glg, info) << "Calibration yearly json folder already exists!"
+                             << "...Delete and recreate...";
     boost::filesystem::remove_all(yly_json_folder);
-    boost::filesystem::create_directory(yly_json_folder);
+    boost::filesystem::create_directories(yly_json_folder);
   }
 
   if( !(boost::filesystem::exists(mly_json_folder)) ) {
     BOOST_LOG_SEV(glg, info) << "Creating folder: " << mly_json_folder;
-    boost::filesystem::create_directory(mly_json_folder);
+    boost::filesystem::create_directories(mly_json_folder);
   } else {
-    BOOST_LOG_SEV(glg, info) << "Calibraiton json monthly folder already exists!"
-                             << "Delete and recreate...";
+    BOOST_LOG_SEV(glg, info) << "Calibration monthly json folder already exists!"
+                             << "...Delete and recreate...";
     boost::filesystem::remove_all(mly_json_folder);
-    boost::filesystem::create_directory(mly_json_folder);
+    boost::filesystem::create_directories(mly_json_folder);
   }
+
+  if( !(boost::filesystem::exists(dly_json_folder)) ) {
+    BOOST_LOG_SEV(glg, info) << "Creating folder: " << dly_json_folder;
+    boost::filesystem::create_directory(dly_json_folder);
+  } else {
+    BOOST_LOG_SEV(glg, info) << "Calibration daily json folder already exists!"
+                             << "...Delete and recreate...";
+    boost::filesystem::remove_all(dly_json_folder);
+    boost::filesystem::create_directory(dly_json_folder);
+  }
+
 }
 
 

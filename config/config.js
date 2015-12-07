@@ -19,6 +19,13 @@
     "output_monthly":     1
   },
 
+  // define storage locations for json files generated and used
+  // during calibration
+  "calibration-IO": {
+    "yearly-json-folder":  "/tmp/dvmdostem/calibration/yearly",
+    "monthly-json-folder": "/tmp/dvmdostem/calibration/monthly",
+    "daily-json-folder":   "/tmp/dvmdostem/calibration/daily"
+  },
   "stage_settings": {
     "run_stage": "eq",           // eq, sp, tr, sc, or some combo there-of
     "restart_mode": "restart"   // other options??
