@@ -600,6 +600,9 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir, files=[]):
     in_rsds_base = tif_dir + "/rsds_mean_MJ-m2-d1_iem_cru_TS31_1901_2009/rsds_mean_MJ-m2-d1_iem_cru_TS31"
     in_vapo_base = tif_dir + "/vap_mean_hPa_iem_cru_TS31_1901_2009/vap_mean_hPa_iem_cru_TS31"
 
+    if years == "all":
+      years = 109
+
     fill_climate_file(1901+start_year, years, xo, yo, xs, ys, out_dir, of_name, sp_ref_file, in_tair_base, in_prec_base, in_rsds_base, in_vapo_base)
 
 
@@ -610,6 +613,9 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir, files=[]):
     in_prec_base = tif_dir + "/pr_total_mm_iem_cccma_cgcm3_1_sresa1b_2001_2100/pr_total_mm_iem_cccma_cgcm3_1_sresa1b"
     in_rsds_base = tif_dir + "/rsds_mean_MJ-m2-d1_iem_cccma_cgcm3_1_sresa1b_2001_2100/rsds_mean_MJ-m2-d1_iem_cccma_cgcm3_1_sresa1b"
     in_vapo_base = tif_dir + "/vap_mean_hPa_iem_cccma_cgcm3_1_sresa1b_2001_2100/vap_mean_hPa_iem_cccma_cgcm3_1_sresa1b"
+
+    if years == "all":
+      years = 100 
 
     fill_climate_file(2001+start_year, years, xo, yo, xs, ys, out_dir, of_name, sp_ref_file, in_tair_base, in_prec_base, in_rsds_base, in_vapo_base)
 
@@ -675,8 +681,8 @@ if __name__ == '__main__':
   parser.add_argument('--tag', default="Toolik",
                       help="A name for the dataset, used to name output directory. (default: %(default)s)")
 
-  parser.add_argument('--years', default=10, type=int,
-                      help="The number of years of the climate data to process. (default: %(default)s)")
+  parser.add_argument('--years', default=10, 
+                      help="The number of years of the climate data to process. (default: %(default)s). 'all' to run for all input TIFs")
   parser.add_argument('--start-year', default=0, type=int,
                       help="An offset to use for making a climate dataset that doesn't start at the beginning of the historic (1901) or projected (2001) datasets.")
 
@@ -719,8 +725,9 @@ if __name__ == '__main__':
     if not os.path.exists( os.path.join(out_dir, "output") ):
       os.mkdir(os.path.join(out_dir, "output"))
 
-    # FIX/TODO: handle more than just eq stage!
     create_template_restart_nc_file(os.path.join(out_dir, "output/restart-eq.nc"), sizey=ys, sizex=xs)
+    create_template_restart_nc_file(os.path.join(out_dir, "output/restart-sp.nc"), sizey=ys, sizex=xs)
+    create_template_restart_nc_file(os.path.join(out_dir, "output/restart-tr.nc"), sizey=ys, sizex=xs)
     exit()
 
 
