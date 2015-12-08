@@ -35,8 +35,11 @@ ModelData::ModelData(Json::Value controldata){
   runsp = (stgstr.find("sp") != std::string::npos) ? true : false;
   runtr = (stgstr.find("tr") != std::string::npos) ? true : false;
   runsc = (stgstr.find("sc") != std::string::npos) ? true : false;
-
+  mid_stage_pause = controldata["stage_settings"]["mid_stage_pause"].asBool();
   initmode = controldata["stage_settings"]["restart"].asInt();  // may become obsolete
+  tr_yrs        = controldata["stage_settings"]["tr_yrs"].asInt();
+  sc_yrs        = controldata["stage_settings"]["sc_yrs"].asInt();
+
   parameter_dir     = controldata["IO"]["parameter_dir"].asString();
   hist_climate_file = controldata["IO"]["hist_climate_file"].asString();
   proj_climate_file = controldata["IO"]["proj_climate_file"].asString();
