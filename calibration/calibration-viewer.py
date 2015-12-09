@@ -11,6 +11,7 @@ import textwrap
 import tarfile   # for reading from tar.gz files
 import shutil    # for cleaning up a /tmp directory
 import signal    # for a graceful exit
+import json_minify
 
 if (sys.platform == 'darwin') and (os.name == 'posix'):
   # this is the only one that seems to work on Mac OSX with animation...
@@ -25,12 +26,15 @@ import matplotlib.gridspec as gridspec
 
 import matplotlib.widgets
 
-import selutil
+# These values are set in main(), loaded from the config file...
+# They need to be defined here so that other functions in the file
+# can reference them. The program won't work unless these values are
+# successfully set to something other than empty strings.
+DEFAULT_YEARLY_JSON_LOCATION = ""
+DEFAULT_MONTHLY_JSON_LOCATION = ""
+DEFAULT_EXTRACTED_ARCHIVE_LOCATION = ""
 
-# The directories to look in for json files.
-DEFAULT_YEARLY_JSON_LOCATION = '/tmp/year-cal-dvmdostem'
-DEFAULT_MONTHLY_JSON_LOCATION = '/tmp/cal-dvmdostem'
-DEFAULT_EXTRACTED_ARCHIVE_LOCATION = '/tmp/extracted-calibration-archive'
+
 #
 # Disable some buttons on the default toobar that freeze the program.
 # There might be a better way to do this. Inspired from here:
@@ -79,6 +83,8 @@ class InputHelper(object):
 
     elif os.path.isfile(path):
       # Assume path is a .tar.gz (or other compression) with .json files in it
+
+      DEFAULT_EXTRACTED_ARCHIVE_LOCATION = '/tmp/extracted-calibration-archive'
 
       logging.info("Extracting archive to '%s'..." %
           DEFAULT_EXTRACTED_ARCHIVE_LOCATION)
@@ -648,19 +654,47 @@ if __name__ == '__main__':
   original_sigint = signal.getsignal(signal.SIGINT)
   signal.signal(signal.SIGINT, exit_gracefully)
 
-
   logger = logging.getLogger(__name__)
-  
+
+  #
+  # Load settings from the same config file that the main model uses...
+  #
+  try:
+    # Figure out the path to the config file. Should be up a directory.
+    # This calibration viewer lives in the calibration/ directory, and the
+    # config file lives in the config/ directory. So we get the absolute
+    # path to the script, and then move up and over to config/
+    cfg_file_path = os.path.join(
+        os.path.dirname(os.path.dirname(os.path.realpath(__file__))),
+        "config/config.js"
+    )
+
+    with open(cfg_file_path) as f:
+      fdata = f.read()
+      minidata = json_minify.json_minify(fdata) # strip comments
+      configdata = json.loads(minidata)
+
+    DEFAULT_MONTHLY_JSON_LOCATION = configdata["calibration-IO"]["monthly-json-folder"]
+    DEFAULT_YEARLY_JSON_LOCATION = configdata["calibration-IO"]["yearly-json-folder"]
+
+  except (IOError, ValueError) as e:
+    logging.error("Problem: '%s' reading the config file '%s'" % (e, f))
+    exit(-1)
+
+
+  #
+  # Setup the command line interface...
+  #
   parser = argparse.ArgumentParser(
 
     formatter_class=argparse.RawDescriptionHelpFormatter,
       
       description=textwrap.dedent('''\
         A viewer for dvmdostem calibration. Can create and or display
-        (1) Dynamically updating plots from data written out by
-        dvmdostem when it is running with --cal-mode=on.
-        (2) Static plots created as dvmdostem is running or from an 
-        archived calibration run.
+          (1) Dynamically updating plots from data written out by
+              dvmdostem when it is running with --cal-mode=on.
+          (2) Static plots created as dvmdostem is running or from an
+              archived calibration run.
         '''),
         
       epilog=textwrap.dedent('''\
@@ -720,6 +754,7 @@ if __name__ == '__main__':
 
             alt + p     change the pft being plotted - prompts for 
                         desired window size in controlling terminal
+                        (buggy)
 
 
         The link below lists more keyboard shortcuts (provided by 
@@ -793,6 +828,10 @@ if __name__ == '__main__':
   args = parser.parse_args()
   print args
 
+
+  #
+  # Start operating based on the command line arguments....
+  #
   if args.list_suites:
     # Print all the known suites to the console with descriptions and then quit.
     for key, value in configured_suites.iteritems():
