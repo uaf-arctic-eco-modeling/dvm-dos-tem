@@ -551,23 +551,30 @@ std::vector<float> Climate::eq_range(const std::vector<float>& data) {
 }
 
 std::vector<float> Climate::interpolation_range(const std::vector<float>& data, int year){
+  //BOOST_LOG_SEV(glg, fatal) << "interpolation_range, year: "<<year;
+
   std::vector<float> foo;
 
-  int curr_month = year*12;
+  int curr_jan = year*12;
 
   // Copy in previous Dec, unless in year 0
   if(year==0){
     foo.push_back(data.at(11));
   }
   else{
-    foo.push_back(data.at(curr_month-1));
+    foo.push_back(data.at(curr_jan-1));
   }
 
   // Get Jan - Dec values
-  foo.insert(foo.end(), &data[curr_month], &data[curr_month+12]);
+  foo.insert(foo.end(), &data[curr_jan], &data[curr_jan+12]);
 
-  // Copy in next Jan
-  foo.push_back(data.at(curr_month+1));
+  // Copy in next Jan, unless it is the last year's worth of data
+  if(year == data.size()/12-1){
+    foo.push_back(data.at(curr_jan));
+  }
+  else{
+    foo.push_back(data.at(curr_jan+13));
+  }
 
   return foo;
 }
@@ -575,9 +582,9 @@ std::vector<float> Climate::interpolation_range(const std::vector<float>& data, 
 /** Prepares daily driving data for static climate stages (EQ)*/
 void Climate::prepare_eq_daily_driving_data(int iy, const std::string& stage) {
 
-  BOOST_LOG_SEV(glg, fatal) << "in EQ daily driving data";
 
-  if ( (stage.compare("pre-run") == 0) || (stage.compare("eq") == 0 ) ) {
+  if ( (stage.find("pre") != std::string::npos)
+          || (stage.find("eq") != std::string::npos ) ) {
 
     // effectively the same value each day of the year
     // also in pre-run, and eq stages, use constant co2 value for all years.
@@ -652,7 +659,6 @@ void Climate::prepare_daily_driving_data(int iy, const std::string& stage) {
   //FIX rename iy to avoid confusion, since it isn't always the same
   //as the iy in Runner (SP passes in a modded value).
 
-  BOOST_LOG_SEV(glg, fatal) << "in single year daily driving data";
 
   // effectively the same value each day of the year
   co2_d = co2.at(iy);
@@ -664,9 +670,12 @@ void Climate::prepare_daily_driving_data(int iy, const std::string& stage) {
   vapo_d = monthly2daily(interpolation_range(vapo, iy));
   nirr_d = monthly2daily(interpolation_range(nirr, iy));
 
+  BOOST_LOG_SEV(glg, err) << "SP tair_d = [" << temutil::vec2csv(tair_d) << "]";
+
   // Not totally sure if this is right to interpolate these??
   par_d = monthly2daily(interpolation_range(par, iy));
-  girr_d = monthly2daily(interpolation_range(girr, iy));
+  // GIRR is passed to eq_range as it has only twelve values.
+  girr_d = monthly2daily(eq_range(girr));
 
   // The interpolation is slightly broken, so it 'overshoots' when the
   // slope is negative, and can result in negative values.
