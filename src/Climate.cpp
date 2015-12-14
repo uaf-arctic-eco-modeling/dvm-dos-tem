@@ -455,6 +455,13 @@ void Climate::load_from_file(const std::string& fname, int y, int x) {
 
 }
 
+/** This loads data from a projected climate data file, overwriting any old climate data*/
+void Climate::load_proj_climate(std::string& fname, int y, int x){
+  BOOST_LOG_SEV(glg, note) << "Climate, loading projected data";
+
+  this->load_from_file(fname, y, x);
+}
+
 std::vector<float> Climate::avg_over(const std::vector<float> & var, const int window) {
 
   assert(var.size() % 12 == 0 && "The data vector is the wrong size! var.size() should be an even multiple of 12.");
@@ -670,7 +677,7 @@ void Climate::prepare_daily_driving_data(int iy, const std::string& stage) {
   vapo_d = monthly2daily(interpolation_range(vapo, iy));
   nirr_d = monthly2daily(interpolation_range(nirr, iy));
 
-  BOOST_LOG_SEV(glg, err) << "SP tair_d = [" << temutil::vec2csv(tair_d) << "]";
+  BOOST_LOG_SEV(glg, debug) << stage << " tair_d = [" << temutil::vec2csv(tair_d) << "]";
 
   // Not totally sure if this is right to interpolate these??
   par_d = monthly2daily(interpolation_range(par, iy));

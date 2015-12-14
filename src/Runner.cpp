@@ -67,7 +67,7 @@ void Runner::run_years(int start_year, int end_year, const std::string& stage) {
   /** YEAR TIMESTEP LOOP */
   for (int iy = start_year; iy < end_year; ++iy) {
     BOOST_LOG_SEV(glg, debug) << "(Beginning of year loop) " << cohort.ground.layer_report_string();
-    BOOST_LOG_SEV(glg, fatal) << "Year loop, year: "<<iy;
+    BOOST_LOG_SEV(glg, err) << "Year loop, year: "<<iy;
 
     /* Interpolate all the monthly values...? */
     if( (stage.find("eq") != std::string::npos

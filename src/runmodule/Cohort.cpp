@@ -133,6 +133,12 @@ Cohort::Cohort(int y, int x, ModelData* modeldatapointer):
 Cohort::~Cohort() {
 };
 
+/** Provides necessary data to Climate for loading projected climate data*/
+void Cohort::load_proj_climate(std::string& proj_climate_file){
+
+  climate.load_proj_climate(proj_climate_file, y, x);
+}
+
 // initialization of pointers used in modules called here
 void Cohort::initialize_internal_pointers() {
 

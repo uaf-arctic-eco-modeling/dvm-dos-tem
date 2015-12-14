@@ -66,6 +66,8 @@ public:
 
   void log_data_dump();
 
+  void load_proj_climate(std::string&, int, int);
+
 private:
 
   void load_from_file(const std::string& fname, int y, int x);

@@ -319,6 +319,7 @@ int main(int argc, char* argv[]){
           if (modeldata.runsp) {
             {
               BOOST_LOG_NAMED_SCOPE("SP");
+              BOOST_LOG_SEV(glg, fatal) << "Running Spinup, "<<modeldata.sp_yrs<<" years\n";
 
               // Check for the existence of a restart file to output to
               // prior to running.
@@ -370,7 +371,7 @@ int main(int argc, char* argv[]){
           if(modeldata.runtr){
             {
               BOOST_LOG_NAMED_SCOPE("TR");
-              std::cout<<"Running Transient, "<<modeldata.tr_yrs<<" years\n";
+              BOOST_LOG_SEV(glg, fatal) << "Running Transient, "<<modeldata.tr_yrs<<" years\n";
 
               // Check for the existence of a restart file to output to
               // prior to running.
@@ -414,7 +415,7 @@ int main(int argc, char* argv[]){
           if(modeldata.runsc){
             {
               BOOST_LOG_NAMED_SCOPE("SC");
-              std::cout<<"Running Scenario, "<<modeldata.sc_yrs<<" years\n";
+              BOOST_LOG_SEV(glg, fatal) << "Running Scenario, "<<modeldata.sc_yrs<<" years\n";
 
               // Check for the existence of a restart file to output to
               // prior to running.
@@ -438,6 +439,9 @@ int main(int argc, char* argv[]){
                 // Copy values from the updated restart data to cohort
                 // and cd.
                 runner.cohort.set_state_from_restartdata();
+
+                //Loading projected data instead of historic. FIX?
+                runner.cohort.load_proj_climate(modeldata.proj_climate_file);
 
                 // Run model
                 runner.run_years(0, modeldata.sc_yrs, "sc-run");
