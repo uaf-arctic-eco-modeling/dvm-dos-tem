@@ -4,6 +4,8 @@
 
 #include <assert.h> // for assert? need C++ library?
 
+#include <boost/filesystem.hpp>
+
 #include "../include/Climate.h"
 
 #include "inc/errorcode.h"
@@ -381,6 +383,10 @@ Climate::Climate(const std::string& fname, const std::string& co2fname, int y, i
 }
 
 void Climate::load_from_file(const std::string& fname, int y, int x) {
+
+  if(!boost::filesystem::exists(fname)){
+    BOOST_LOG_SEV(glg, fatal) << "Input file "<<fname<<" does not exist";
+  }
 
   BOOST_LOG_SEV(glg, info) << "Loading climate from file: " << fname;
   BOOST_LOG_SEV(glg, info) << "Loading climate for (y, x) point: "
