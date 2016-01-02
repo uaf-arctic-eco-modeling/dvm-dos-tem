@@ -23,6 +23,9 @@ public :
   void reinitValue();
   void append_to_ncfile(const std::string& fname, const int rowidx, const int colidx);
   void update_from_ncfile(const std::string& fname, const int rowidx, const int colidx);
+  //The following function is perhaps inadvisable, and should
+  //be replaced with something that does not require manually adding
+  //new members.
   void verify_logical_values();
 
   void read_px_vars(const std::string& fname, const int rowidx, const int colidx);

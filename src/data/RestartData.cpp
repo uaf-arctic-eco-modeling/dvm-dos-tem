@@ -446,105 +446,110 @@ void RestartData::append_to_ncfile(const std::string& fname, const int rowidx, c
 
 }
 
-/** Checks values in this RestartData for out-of-range or nonsensical values. */
+/** Checks a given variable against an extreme negative value. FIX: should be more flexible*/
+template<typename T> void check_bounds(std::string var_name, T value){
+  if(value<-4000){
+    BOOST_LOG_SEV(glg, err) << var_name << " is out of bounds: " << value;
+  }
+}
+
+/** Checks values in this RestartData for out-of-range or nonsensical values. FIX: incomplete*/
 void RestartData::verify_logical_values(){
-  BOOST_LOG_SEV(glg, debug) << "Checking RestartData for out-of-range values";
-  BOOST_LOG_SEV(glg, debug) << "NOTE: Currently this only checks for extreme negative values.";
+  BOOST_LOG_SEV(glg, info) << "Checking RestartData for out-of-range values";
+  BOOST_LOG_SEV(glg, info) << "NOTE: Currently this only checks for extreme negative values.";
+  BOOST_LOG_SEV(glg, info) << "This should be replaced in the future with a more sensible approach, perhaps with templating";
 
-  //Temporary value to compare values against.
-  //This should catch all non-initialized values
-  int negative_limit = -5000;
+  //FIX Currently checking all values against a low negative number,
+  //whether or not it makes sense for that value to have been initialized
+  //to a low negative.
 
-  // chtid
-  // dsr
-  // firea2sorgn
-  // yrsdist
+  check_bounds("chtid", chtid);
+  check_bounds("dsr", dsr);
+  check_bounds("firea2sorgn", firea2sorgn);
+  check_bounds("yrsdist", yrsdist);
   for(int ii=0; ii<NUM_PFT; ii++){
-    //ifwoody[]
-    //ifdeciwoody
-    //ifperenial
-    //nonvascular
-    //vegage
-    //vegcov
-    //lai
-    //vegwater
-    //vegsnow
-    //labn
-    //deadc
-    //deadn
-    //topt
-    //eetmx
-    //unnormleafmx
-    //growingttime
-    //foliagemx
+    check_bounds("ifwoody", ifwoody[ii]);
+    check_bounds("ifdeciwoody", ifdeciwoody[ii]);
+    check_bounds("ifperenial", ifperenial[ii]);
+    check_bounds("nonvascular", nonvascular[ii]);
+    check_bounds("vegage", vegage[ii]);
+    check_bounds("vegcov", vegcov[ii]);
+    check_bounds("lai", lai[ii]);
+    check_bounds("vegwater", vegwater[ii]);
+    check_bounds("vegsnow", vegsnow[ii]);
+    check_bounds("labn", labn[ii]);
+    check_bounds("deadc", deadc[ii]);
+    check_bounds("deadn", deadn[ii]);
+    check_bounds("topt", topt[ii]);
+    check_bounds("eetmx", topt[ii]);
+    check_bounds("unnormleafmx", unnormleafmx[ii]);
+    check_bounds("growingttime", growingttime[ii]);
+    check_bounds("foliagemx", foliagemx[ii]);
     for(int jj=0; jj<NUM_PFT_PART; jj++){
-      //vegc[jj][ii]
-      //strn[jj][ii]
+      check_bounds("vegc", vegc[jj][ii]);
+      check_bounds("strn", strn[jj][ii]);
     }
     for(int jj=0; jj<MAX_ROT_LAY; jj++){
-      //rootfrac[jj][ii];
+      check_bounds("rootfrac", rootfrac[jj][ii]);
     }
     for(int jj=0; jj<10; jj++){
-      //toptA
-      //eetmxA
-      //unnormleafmxA
-      //growingttimeA
+      check_bounds("toptA", toptA[jj][ii]);
+      check_bounds("eetmxA", eetmxA[jj][ii]);
+      check_bounds("unnormleafmxA", unnormleafmxA[jj][ii]);
+      check_bounds("growingttimeA", growingttimeA[jj][ii]);
     }
   }
 
-  //[10][num pft]
-  //numsnowl
-  //snwextramass
+  check_bounds("numsnwl", numsnwl);
+  check_bounds("snwextramass", snwextramass);
   for(int ii=0; ii<MAX_SNW_LAY; ii++){
-    //TSsnow
-    //DZsnow
-    //LIQsnow
-    //RHOsnow
-    //ICEsnow
-    //AGEsnow
+    check_bounds("TSsnow", TSsnow[ii]);
+    check_bounds("DZsnow", DZsnow[ii]);
+    check_bounds("LIQsnow", LIQsnow[ii]);
+    check_bounds("RHOsnow", RHOsnow[ii]);
+    check_bounds("ICEsnow", ICEsnow[ii]);
+    check_bounds("AGEsnow", AGEsnow[ii]);
   }
 
-  //numsl
-  //monthsfrozen
-  //rtfrozendays
-  //rtunfrozendays
-  //watertab
-
+  check_bounds("numsl", numsl);
+  check_bounds("monthsfrozen", monthsfrozen);
+  check_bounds("rtfrozendays", rtfrozendays);
+  check_bounds("rtunfrozendays", rtunfrozendays);
+  check_bounds("watertab", watertab);
+  check_bounds("wdebrisc", wdebrisc);
+  check_bounds("wdebrisn", wdebrisn);
+  check_bounds("dmossc", dmossc);
+  check_bounds("dmossn", dmossn);
   for(int ii=0; ii<MAX_SOI_LAY; ii++){
-    //DZsoil
-    //TYPEsoil
-    //AGEsoil
-    //TSsoil
-    //LIQsoil
-    //ICEsoil
-    //FROZENsoil
-    //FROZENFRACsoil
-    //TEXTUREsoil
-    //rawc
-    //soma
-    //sompr
-    //somcr
-    //orgn
-    //avln
+    check_bounds("DZsoil", DZsoil[ii]);
+    check_bounds("TYPEsoil", TYPEsoil[ii]);
+    check_bounds("AGEsoil", AGEsoil[ii]);
+    check_bounds("TSsoil", TSsoil[ii]);
+    check_bounds("LIQsoil", LIQsoil[ii]);
+    check_bounds("ICEsoil", ICEsoil[ii]);
+    check_bounds("FROZENsoil", FROZENsoil[ii]);
+    check_bounds("FROZENFRACsoil", FROZENFRACsoil[ii]);
+    check_bounds("TEXTUREsoil", TEXTUREsoil[ii]);
+    check_bounds("rawc", rawc[ii]);
+    check_bounds("soma", soma[ii]);
+    check_bounds("sompr", sompr[ii]);
+    check_bounds("somcr", somcr[ii]);
+    check_bounds("orgn", orgn[ii]);
+    check_bounds("avln", avln[ii]);
     for(int jj=0; jj<12; jj++){
-      //prvltrfcnA[jj][ii]
+      check_bounds("prvltrfcnA", prvltrfcnA[jj][ii]);
     }
   }
 
   for(int ii=0; ii<MAX_ROC_LAY; ii++){
-    //TSrock
-    //DZrock
+    check_bounds("TSrock", TSrock[ii]);
+    check_bounds("DZrock", DZrock[ii]);
   }
 
   for(int ii=0; ii<MAX_NUM_FNT; ii++){
-    //frontZ
-    //frontFT
+    check_bounds("frontZ", frontZ[ii]);
+    check_bounds("frontFT", frontFT[ii]);
   }
-
-  //wdebrisc
-  //wdebrisn
-  //dmossc
-  //dmossn
 
   BOOST_LOG_SEV(glg, debug) << "";
 }
