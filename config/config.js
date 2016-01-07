@@ -36,8 +36,8 @@
     // running instances of dvmdostem from overwriting eachothers json files.
   },
   "stage_settings": {
-    "restart_mode": "restart"   // other options??
     "restart_mode": "restart",   // other options??
+    "run_stage": "eq",
     "mid_stage_pause": true,
     "tr_yrs": 109,
     "sc_yrs": 100
