@@ -29,10 +29,10 @@ public:
   std::vector<float> avgX_vapo;
 
   // repetitive climate, repeated over a specified number of years
-  std::vector<float> rptX_tair;
-  std::vector<float> rptX_prec;
-  std::vector<float> rptX_nirr;
-  std::vector<float> rptX_vapo;
+  //std::vector<float> rptX_tair;
+  //std::vector<float> rptX_prec;
+  //std::vector<float> rptX_nirr;
+  //std::vector<float> rptX_vapo;
 
   // Daily containers
 
