@@ -290,10 +290,18 @@ class ExpandingWindow(object):
         with open(files[0]) as f:
           fdata = json.load(f)
 
-        title_txt = self.ewp_title.get_text()
+        title_lines = self.ewp_title.get_text().splitlines()
+        first_line = title_lines[0]
+        cmt_latlon_list = first_line.split()[1:]
+
         details = "%s (%.2f,%.2f)" % (fdata["CMT"], fdata["Lat"], fdata["Lon"])
-        if not ' '.join((title_txt.split()[1:])) == details:
-          self.fig.suptitle("%s %s (%.2f,%.2f)" % (title_txt, fdata["CMT"], fdata["Lat"], fdata["Lon"] ))
+
+        if not ' '.join( cmt_latlon_list ) == details:
+          new_first_line = "%s %s" % (first_line, details)
+          title_lines[0] = new_first_line
+          new_title_string = "\n".join(title_lines)
+
+          self.fig.suptitle(new_title_string)
         else:
           pass # nothing to do - title already has CMT, lat and lon...
 
@@ -527,7 +535,7 @@ class ExpandingWindow(object):
                                                      # each will show in legend
 
   def clear_target_lines(self):
-    logging.info("Clearing all plot lines...")
+    logging.info("Clearing all target lines from axe(s)...")
     for ax in self.axes:
       ax.lines[:] = [l for l in ax.lines if not (l.get_linestyle() == '--')]
 
@@ -858,15 +866,18 @@ if __name__ == '__main__':
   logging.basicConfig(level=numeric_level, format=LOG_FORMAT)
 
   logging.info("Setting up calibration target display...")
+  target_title_tag = "--"
   if args.tar_cmtname:
     logging.info("displaying target values for '%s' community" % args.tar_cmtname)
     caltargets = calibration_targets.calibration_targets[args.tar_cmtname]
+    target_title_tag = "CMT %02d (%s)" % (caltargets["cmtnumber"], args.tar_cmtname)
   elif args.tar_cmtnum or args.tar_cmtnum == 0:
     logging.info("displaying target values for community number %s" % args.tar_cmtnum)
     for cmtname, data in calibration_targets.calibration_targets.iteritems():
       if data['cmtnumber'] == args.tar_cmtnum:
         logging.info("community #%s --commnunity name--> '%s'" % (args.tar_cmtnum, cmtname))
         caltargets = data
+        target_title_tag = "CMT %02d (%s)" % (args.tar_cmtnum, cmtname)
       else:
         pass
   else:
@@ -899,7 +910,7 @@ if __name__ == '__main__':
                         rows=suite['rows'],
                         cols=suite['cols'],
                         targets=caltargets,
-                        figtitle="%s" % (args.suite),
+                        figtitle="%s\nTargets Values for: %s" % (args.suite, target_title_tag),
                         no_show=args.no_show,
                        )
 
