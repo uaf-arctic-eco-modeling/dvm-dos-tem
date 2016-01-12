@@ -139,26 +139,26 @@ calibration_targets = {
     'cmtnumber': 5,
                                  #    pft0     pft1      pft2      pft3     pft4     pft5     pft6     pft7     pft8    pft9   
                                  #  betula    decid     egreen    sedge    forb     lichen   feather   sphag    blank   blank
-    'GPPAllIgnoringNitrogen':    [   2.220,   37.75,    32.49,    106.1,   29.59,   34.64,   24.70,    22.22,   0.00,   0.00 ], # ingpp     (gC/m2/year)   GPP without N limitation
-    'NPPAllIgnoringNitrogen':    [   1.011,   18.87,    16.25,    53.02,   14.80,   17.32,   12.36,    11.11,   0.00,   0.00 ], # innpp     (gC/m2/year)   NPP without N limitation 
+    'GPPAllIgnoringNitrogen':    [   2.02,    37.75,    32.49,    106.1,   29.59,   34.64,   24.70,    22.22,   0.00,   0.00 ], # ingpp     (gC/m2/year)   GPP without N limitation
+    'NPPAllIgnoringNitrogen':    [   1.011,   18.87,    16.25,    53.02,   14.80,   17.32,   12.35,    11.11,   0.00,   0.00 ], # innpp     (gC/m2/year)   NPP without N limitation 
     'NPPAll':                    [   0.541,   10.09,    8.687,    28.36,   7.912,   9.262,    6.61,    5.941,   0.00,   0.00 ], # npp       (gC/m2/year)   NPP with N limitation
     'Nuptake':                   [   0.006,   0.089,    0.117,    0.636,   0.155,   0.010,   0.066,    0.051,   0.00,   0.00 ], # nuptake   (gN/m2/year)
     'VegCarbon': {
-      'Leaf':                    [   0.760,   9.290,    11.30,    11.80,   4.66,    77.20,   30.74,    69.53,   0.00,   0.00 ], # vegcl     (gC/m2)
-      'Stem':                    [   3.400,  19.170,   19.320,     0.00,   0.00,    0.00,     0.00,     0.00,   0.00,   0.00 ], # vegcw     (gC/m2)
-      'Root':                    [   0.310,   1.500,    1.600,    19.72,   2.00,    0.00,     0.00,     0.00,   0.00,   0.00 ], # vegcr     (gC/m2)
+      'Leaf':                    [   4.14,   15.01,   74.61,    105.25,   0.85,    42.70,    37.22,    86.84,   0.00,   0.00 ], # vegcl     (gC/m2)
+      'Stem':                    [   69.78,  30.42,   127.74,     0.00,   0.00,     0.00,     0.00,     0.00,   0.00,   0.00 ], # vegcw     (gC/m2)
+      'Root':                    [   4.54,   5.41,    11.84,    166.51,   11.71,    0.00,     0.00,     0.00,   0.00,   0.00 ], # vegcr     (gC/m2)
     },
     'VegStructuralNitrogen': {
-      'Leaf':                    [   0.040,   0.290,    0.340,    0.520,   0.180,    1.28,    0.61,    1.19,    0.00,   0.00 ], # vegnl     (gN/m2)
-      'Stem':                    [   0.100,   0.400,    0.350,    0.000,   0.000,    0.00,    0.00,    0.00,    0.00,   0.00 ], # vegnw     (gN/m2)
-      'Root':                    [   0.010,   0.040,    0.050,    0.870,   0.090,    0.00,    0.00,    0.00,    0.00,   0.00 ], # vegnr     (gN/m2)
+      'Leaf':                    [   0.13,   0.47,    1.58,    4.72,   0.03,    0.69,    0.56,    1.49,    0.00,   0.00 ], # vegnl     (gN/m2)
+      'Stem':                    [   1.13,   0.49,    2.06,    0.000,  0.000,   0.00,    0.00,    0.00,    0.00,   0.00 ], # vegnw     (gN/m2)
+      'Root':                    [   1.02,   1.21,    1.77,    7.48,   1.81,    0.00,    0.00,    0.00,    0.00,   0.00 ], # vegnr     (gN/m2)
     },
-    'MossDeathC':               178.00,    #  dmossc
-    'CarbonShallow':          10612.00,    #  shlwc
-    'CarbonDeep':             20712.00,    #  deepc
-    'CarbonMineralSum':       24112.00,    #  minec
-    'OrganicNitrogenSum':      2220.00,    #  soln
-    'AvailableNitrogenSum':       1.71,    #  avln
+    'MossDeathC':              178.00,    #  dmossc
+    'CarbonShallow':          3079.00,    #  shlwc
+    'CarbonDeep':             7703.00,    #  deepc
+    'CarbonMineralSum':      43404.00,    #  minec
+    'OrganicNitrogenSum':     2206.00,    #  soln
+    'AvailableNitrogenSum':     8.958,    #  avln
   },
   ## WARNING: JUNK, PLACEHOLDER VALUES! USE AT YOUR OWN RISK!
   "wet sedge tundra": {
