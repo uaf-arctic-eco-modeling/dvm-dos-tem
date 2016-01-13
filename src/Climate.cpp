@@ -658,7 +658,7 @@ void Climate::prepare_eq_daily_driving_data(int iy, const std::string& stage) {
 
 
     // Dump data to log stream for debugging analysis 
-    log_data_dump();
+    this->dailycontainers2log();
 
     // Dump additional data specific to EQ
     BOOST_LOG_SEV(glg, debug) << "avgX_prec = [" << temutil::vec2csv(avgX_prec) << "]";
@@ -729,11 +729,11 @@ void Climate::prepare_daily_driving_data(int iy, const std::string& stage) {
   // abshd_d;
 
   // Dump data to log stream for debugging analysis 
-  log_data_dump();
+  this->dailycontainers2log();
 
 }
 
-void Climate::log_data_dump(){
+void Climate::dailycontainers2log() {
 
     BOOST_LOG_SEV(glg, debug) << "tair_d = [" << temutil::vec2csv(tair_d) << "]";
     BOOST_LOG_SEV(glg, debug) << "nirr_d = [" << temutil::vec2csv(nirr_d) << "]";

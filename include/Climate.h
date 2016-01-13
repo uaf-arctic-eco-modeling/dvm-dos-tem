@@ -64,7 +64,7 @@ public:
   void prepare_eq_daily_driving_data(int iy, const std::string& stage);
   void prepare_daily_driving_data(int, const std::string&);
 
-  void log_data_dump();
+  void dailycontainers2log();
 
   void load_proj_climate(std::string&, int, int);
 
