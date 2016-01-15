@@ -179,7 +179,7 @@
 0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          // initdeadc:
 0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          // initdeadn:
 //==========================================================
-// CMT05 // Tussock Tundra - (max. 10 PFTs) Plant physiological parameters and default initial conditions
+// CMT05 // Tussock Tundra (updated 1/15/2016 JDC) - (max. 10 PFTs) Plant physiological parameters and default initial conditions
 //Betula     Decid.       E.green      Sedges       Forbs        Lichens      Feather.     Sphag.       Misc1.       Misc2.       // names: comments                  
 400.0        400.0        400.0        400.0        400.0        400.0        400.0        400.0        0.0          0.0          // kc:
 75           75           75           75           75           75           75           75           0.0          0.0          // ki:

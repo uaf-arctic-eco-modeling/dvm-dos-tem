@@ -109,7 +109,7 @@
 0.04025            // coefminea:
 0.0532             // coefmineb:
 //===========================================================
-// CMT05 // Tussock Tundra - ground structure/dimension (NOTE: Was listed as Shrub Tundra. Numbers were updated. 11/2015)
+// CMT05 // Tussock Tundra (updated 1/15/2016 JDC)- ground structure/dimension 
 // Snow characteristics
 350                // snwdenmax:  max. snow density (kg/m3)
 120                // snwdennew:  new (min.) snow density (kg/m3)
