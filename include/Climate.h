@@ -81,7 +81,7 @@ private:
   std::vector<float> interpolate_daily(const std::vector<float> & var);
 
   std::vector<float> eq_range(const std::vector<float>& data);
-  std::vector<float> interpolation_range(const std::vector<float>&, int);
+  std::vector<float> interpolation_range(const std::vector<float>& data, int year);
 
 };
 
