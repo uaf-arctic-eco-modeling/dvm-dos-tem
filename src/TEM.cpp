@@ -331,7 +331,7 @@ int main(int argc, char* argv[]){
                 return 1;
               }
 
-
+              runner.cohort.climate.monthlycontainers2log();
               // FIX: if restart file has -9999, then soil temps can end up impossibly low
               // look for and read in restart-eq.nc (if it exists)
               // should check for valid values prior to actual use

@@ -731,6 +731,19 @@ void Climate::prepare_daily_driving_data(int iy, const std::string& stage) {
   // Dump data to log stream for debugging analysis 
   this->dailycontainers2log();
 
+
+/** Print the contents of the monthly containers to the log stream.
+* Format is intendend to be copy/pastable into python.
+*/
+void Climate::monthlycontainers2log() {
+  BOOST_LOG_SEV(glg, debug) << "co2 = [" << temutil::vec2csv(co2) << "]";
+  BOOST_LOG_SEV(glg, debug) << "tair = [" << temutil::vec2csv(tair) << "]";
+  BOOST_LOG_SEV(glg, debug) << "prec = [" << temutil::vec2csv(prec) << "]";
+  BOOST_LOG_SEV(glg, debug) << "nirr = [" << temutil::vec2csv(nirr) << "]";
+  BOOST_LOG_SEV(glg, debug) << "vapo = [" << temutil::vec2csv(vapo) << "]";
+  BOOST_LOG_SEV(glg, debug) << "girr = [" << temutil::vec2csv(girr) << "]";
+  BOOST_LOG_SEV(glg, debug) << "cld = [" << temutil::vec2csv(cld) << "]";
+  BOOST_LOG_SEV(glg, debug) << "par = [" << temutil::vec2csv(par) << "]";
 }
 
 void Climate::dailycontainers2log() {
