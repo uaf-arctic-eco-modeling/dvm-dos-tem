@@ -134,7 +134,8 @@ calibration_targets = {
     'OrganicNitrogenSum':     8444.00,    #  soln
     'AvailableNitrogenSum':      1.71,    #  avln
   },
-  ## WARNING: JUNK, PLACEHOLDER VALUES! USE AT YOUR OWN RISK!
+  ## JDC: Veg from Shaver & Chapin 1991; NPP,GPP, Nuptake, Veg N from Council (Eugenie); Soils data from Helene Tussock.xls; 
+  ## and from Nat. Soil Carbon Database (averages for Tussock from few profiles around and at Toolik)
   "tussock tundra": {
     'cmtnumber': 5,
                                  #    pft0     pft1      pft2      pft3     pft4     pft5     pft6     pft7     pft8    pft9   
