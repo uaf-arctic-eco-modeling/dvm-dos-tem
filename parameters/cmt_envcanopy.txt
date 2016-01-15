@@ -74,8 +74,8 @@
 0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegwater: initial intercepted rain water in canopy
 0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegsnow: initial intercepted snow water in canopy
 //===========================================================
-// CMT05 // CMT5 TEM Community - (max. 10 PFTs) (Biophysical) plant leaf characteristics and parameters
-//PFT0      PFT1        PFT2         PFT3         PFT4         PFT5         PFT6         PFT7         PFT8         PFT9             // names: comments                  
+// CMT05 // Tussock Tundra (updated 1/15/2016 JDC) - (max. 10 PFTs) (Biophysical) plant leaf characteristics and parameters
+//Betula    Decid.      E.green      Sedges       Forbs        Lichens      Feather.     Sphag.       Misc1.       Misc2.            // names: comments                  
 0.10        0.10        0.10         0.10         0.10         0.10         0.10         0.10         0.10         0.10             // albvisnir: canopy albedo
 0.5         0.5         0.5          0.5          0.5          0.5          0.5          0.5          0.5          0.5              // er: light extinction coefficient
 0.041       0.041       0.041        0.041        0.041        0.041        0.041        0.041        0.041        0.041            // ircoef: rainfall interception 
