@@ -114,7 +114,7 @@
 0.0020805       // kdcsompr:
 0.0000108       // kdcsomcr:
 //===========================================================
-// CMT05 // Tussock Tundra - (max. 10 PFTs) Plant calibrated parameters
+// CMT05 // Tussock Tundra (Colin Tucker's data)- (max. 10 PFTs) Plant calibrated parameters
 //Betula     Decid.      E.green     Sedges       Forbs        Lichens      Feather.     Sphag.       Misc1.      Misc2.      // names: comments
 2.5          60.40       50.7        150.6        50.40        90.1         70.7         90.3          0.0          0.0        // cmax:
 0.9          3.9         2.8         6.5          2.6          3.0          2.1          3.0          0.0          0.0        // nmax:
