@@ -750,6 +750,9 @@ void Climate::monthlycontainers2log() {
   BOOST_LOG_SEV(glg, debug) << "par = [" << temutil::vec2csv(par) << "]";
 }
 
+/** Print the contents of the daily containers to the log stream. 
+* Format is intendend to be copy/pastable into python.
+*/
 void Climate::dailycontainers2log() {
 
     BOOST_LOG_SEV(glg, debug) << "tair_d = [" << temutil::vec2csv(tair_d) << "]";
