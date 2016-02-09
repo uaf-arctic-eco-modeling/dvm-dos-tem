@@ -134,25 +134,26 @@ calibration_targets = {
     'OrganicNitrogenSum':     8444.00,    #  soln
     'AvailableNitrogenSum':      1.71,    #  avln
   },
-  ## CMT05 Tussock Tundra (updated 1/15/2016, JDC): Veg from Shaver & Chapin 1991; NPP,GPP, Nuptake, Veg N from Council (Euskirchen); 
-  ## Soils data from H. Genet Tussock.xls and from Nat. Soil Carbon Database (averages for Tussock from few profiles around and at Toolik)
+  ## CMT05 Tussock Tundra (updated 1/15/2016, JDC: NPP, Nuptake, Veg from Shaver & Chapin 1991; 
+  ## Assume Toolik C:N same as Council; then Veg N = Shaver & Chapin Veg C * (Council N / Council C); 
+  ## Soils data from H. Genet Tussock.xls and Nat. Soil Carbon Database (averages for Tussock from few profiles around and at Toolik)
   "tussock tundra": {
     'cmtnumber': 5,
                                  #    pft0     pft1      pft2      pft3     pft4     pft5     pft6     pft7     pft8    pft9   
                                  #  betula    decid     egreen    sedge    forb     lichen   feather   sphag    blank   blank
-    'GPPAllIgnoringNitrogen':    [   2.02,    37.75,    32.49,    106.1,   29.59,   34.64,   24.70,    22.22,   0.00,   0.00 ], # ingpp     (gC/m2/year)   GPP without N limitation
-    'NPPAllIgnoringNitrogen':    [   1.011,   18.87,    16.25,    53.02,   14.80,   17.32,   12.35,    11.11,   0.00,   0.00 ], # innpp     (gC/m2/year)   NPP without N limitation 
-    'NPPAll':                    [   0.541,   10.09,    8.687,    28.36,   7.912,   9.262,    6.61,    5.941,   0.00,   0.00 ], # npp       (gC/m2/year)   NPP with N limitation
-    'Nuptake':                   [   0.006,   0.089,    0.117,    0.636,   0.155,   0.010,   0.066,    0.051,   0.00,   0.00 ], # nuptake   (gN/m2/year)
+    'GPPAllIgnoringNitrogen':    [   96.87,   40.39,    155.6,    291.3,   5.236,   190.6,   135.9,    122.3,   0.00,   0.00 ], # ingpp     (gC/m2/year)   GPP without N limitation
+    'NPPAllIgnoringNitrogen':    [   48.43,   20.20,    77.79,    145.7,   2.618,   95.30,   67.96,    61.13,   0.00,   0.00 ], # innpp     (gC/m2/year)   NPP without N limitation 
+    'NPPAll':                    [   25.90,   10.80,    41.60,    77.90,   1.400,   50.96,   36.34,    32.69,   0.00,   0.00 ], # npp       (gC/m2/year)   NPP with N limitation
+    'Nuptake':                   [   0.400,   0.167,    0.750,    0.700,   0.500,   0.055,   0.363,    0.281,   0.00,   0.00 ], # nuptake   (gN/m2/year)
     'VegCarbon': {
-      'Leaf':                    [   4.14,   15.01,   74.61,    105.25,   0.85,    42.70,    37.22,    86.84,   0.00,   0.00 ], # vegcl     (gC/m2)
-      'Stem':                    [   69.78,  30.42,   127.74,     0.00,   0.00,     0.00,     0.00,     0.00,   0.00,   0.00 ], # vegcw     (gC/m2)
-      'Root':                    [   4.54,   5.41,    11.84,    166.51,   11.71,    0.00,     0.00,     0.00,   0.00,   0.00 ], # vegcr     (gC/m2)
+      'Leaf':                    [    4.14,   15.01,    74.61,   105.25,    0.85,    42.70,   37.22,   86.84,   0.00,   0.00 ], # vegcl     (gC/m2)
+      'Stem':                    [   69.78,   30.42,   127.74,     0.00,    0.00,     0.00,    0.00,    0.00,   0.00,   0.00 ], # vegcw     (gC/m2)
+      'Root':                    [    4.54,    5.41,    11.84,   166.51,   11.71,     0.00,    0.00,    0.00,   0.00,   0.00 ], # vegcr     (gC/m2)
     },
     'VegStructuralNitrogen': {
-      'Leaf':                    [   0.13,   0.47,    1.58,    4.72,   0.03,    0.69,    0.56,    1.49,    0.00,   0.00 ], # vegnl     (gN/m2)
-      'Stem':                    [   1.13,   0.49,    2.06,    0.000,  0.000,   0.00,    0.00,    0.00,    0.00,   0.00 ], # vegnw     (gN/m2)
-      'Root':                    [   1.02,   1.21,    1.77,    7.48,   1.81,    0.00,    0.00,    0.00,    0.00,   0.00 ], # vegnr     (gN/m2)
+      'Leaf':                    [    0.13,    0.47,     1.58,     4.72,    0.03,     0.69,    0.56,    1.49,   0.00,   0.00 ], # vegnl     (gN/m2)
+      'Stem':                    [    1.13,    0.49,     2.06,    0.000,   0.000,     0.00,    0.00,    0.00,   0.00,   0.00 ], # vegnw     (gN/m2)
+      'Root':                    [    1.02,    1.21,     1.77,     7.48,    1.81,     0.00,    0.00,    0.00,   0.00,   0.00 ], # vegnr     (gN/m2)
     },
     'MossDeathC':              178.00,    #  dmossc
     'CarbonShallow':          3079.00,    #  shlwc
