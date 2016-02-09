@@ -134,8 +134,8 @@ calibration_targets = {
     'OrganicNitrogenSum':     8444.00,    #  soln
     'AvailableNitrogenSum':      1.71,    #  avln
   },
-  ## CMT05 Tussock Tundra (updated 1/15/2016, JDC: NPP, Nuptake, Veg from Shaver & Chapin 1991; 
-  ## Assume Toolik C:N same as Council; then Veg N = Shaver & Chapin Veg C * (Council N / Council C); 
+  ## CMT05 Tussock Tundra (updated 2/09/2016, JDC: NPP, Nuptake, Veg from Shaver & Chapin 1991; 
+  ## Assume Toolik C:N same as Council; then Veg N = Shaver & Chapin Veg C * (Council N / Council C); MossDeathC from CTucker data;
   ## Soils data from H. Genet Tussock.xls and Nat. Soil Carbon Database (averages for Tussock from few profiles around and at Toolik)
   "tussock tundra": {
     'cmtnumber': 5,
