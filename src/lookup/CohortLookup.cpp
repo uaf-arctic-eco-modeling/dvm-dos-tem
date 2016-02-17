@@ -400,6 +400,7 @@ void CohortLookup::assignBgc4Ground(string &dircmt) {
   temutil::pfll2data(datalist, initshlwc);
   temutil::pfll2data(datalist, initdeepc);
   temutil::pfll2data(datalist, initminec);
+  temutil::pfll2data(datalist, initsoln);
   temutil::pfll2data(datalist, initavln);
 
 }
