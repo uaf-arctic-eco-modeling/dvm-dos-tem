@@ -69,6 +69,19 @@ def exit_gracefully(signum, frame):
   sys.exit(1)
 
 
+def yearly_files(tarfileobj):
+  '''Get the */yearly/*.json files...'''
+  for tarinfo in tarfileobj:
+    if 'yearly' in tarinfo.name:
+      yield tarinfo
+
+def monthly_files(tarfileobj):
+  '''Get the */monthly/*.json files...'''
+  for tarinfo in tarfileobj:
+    if 'monthly' in tarinfo.name:
+      yield tarinfo
+
+
 class InputHelper(object):
   '''A class to help abstract some of the details of opening .json files
   '''
@@ -97,13 +110,22 @@ class InputHelper(object):
         shutil.rmtree(DEFAULT_EXTRACTED_ARCHIVE_LOCATION)
 
       tf = tarfile.open(path)
-      for member in tf.getmembers():
-        if member.isreg(): # skip if TarInfo is not a file
-          member.name = os.path.basename(member.name)
-          tf.extract(member, DEFAULT_EXTRACTED_ARCHIVE_LOCATION)
 
-      # finally, set path to the new, "extracted archive" directory
-      self._path = DEFAULT_EXTRACTED_ARCHIVE_LOCATION
+      if self._monthly:
+        tf.extractall(DEFAULT_EXTRACTED_ARCHIVE_LOCATION, members=monthly_files(tf))
+        self._path = '%s/tmp/dvmdostem/calibration/monthly/' % DEFAULT_EXTRACTED_ARCHIVE_LOCATION
+      else:
+        tf.extractall(DEFAULT_EXTRACTED_ARCHIVE_LOCATION, members=yearly_files(tf))
+        self._path = '%s/tmp/dvmdostem/calibration/yearly/' % DEFAULT_EXTRACTED_ARCHIVE_LOCATION
+
+      # This is annoying, but when extracting the files, they end up in a
+      # directory tree like this (depending on the directory structure of
+      # the archive):
+      #
+      #   /tmp/extracted-calibration-archive/tmp/dvmdostem/calibration/
+      #
+
+      tf.close()
 
 
   def files(self):
@@ -389,6 +411,11 @@ class ExpandingWindow(object):
     for ax in self.axes:
       for k, val in module_state_dict.iteritems():
         ax.axvline(k, linestyle='--', linewidth=0.3, color='blue', label='__mscm')
+
+    # ------ FORMAT AXES --------------
+    # prevent scientific notation and "offset" labels for axes
+    for ax in self.axes:
+      ax.ticklabel_format(useOffset=False, style='plain')
 
     # ----- RELIMIT and SCALE ----------
     if relim:
