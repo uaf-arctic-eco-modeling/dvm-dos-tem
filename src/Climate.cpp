@@ -563,6 +563,10 @@ std::vector<float> Climate::eq_range(const std::vector<float>& data) {
   return foo;
 }
 
+/** Method to build a vector of 14 monthly data points for interpolation.
+* In order to interpolate out to the ends of the year, you need the 12 months
+* of data, plus the preceeding Dec and following Jan.
+*/
 std::vector<float> Climate::interpolation_range(const std::vector<float>& data, int year){
   //BOOST_LOG_SEV(glg, fatal) << "interpolation_range, year: "<<year;
 
