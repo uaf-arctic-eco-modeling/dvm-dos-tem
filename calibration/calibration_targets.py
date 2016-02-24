@@ -134,17 +134,17 @@ calibration_targets = {
     'OrganicNitrogenSum':     8444.00,    #  soln
     'AvailableNitrogenSum':      1.71,    #  avln
   },
-  ## CMT05 Tussock Tundra (updated 2/09/2016, JDC: NPP, Nuptake, Veg from Shaver & Chapin 1991; 
+  ## CMT05 Tussock Tundra (updated 2/23/2016, JDC: GPPain, NPPain, NPPall, Nuptake, Veg from Shaver & Chapin 1991; 
   ## Assume Toolik C:N same as Council; then Veg N = Shaver & Chapin Veg C * (Council N / Council C); MossDeathC from CTucker data;
   ## Soils data from H. Genet Tussock.xls and Nat. Soil Carbon Database (averages for Tussock from few profiles around and at Toolik)
   "tussock tundra": {
     'cmtnumber': 5,
                                  #    pft0     pft1      pft2      pft3     pft4     pft5     pft6     pft7     pft8    pft9   
                                  #  betula    decid     egreen    sedge    forb     lichen   feather   sphag    blank   blank
-    'GPPAllIgnoringNitrogen':    [   96.87,   40.39,    155.6,    291.3,   5.236,   190.6,   135.9,    122.3,   0.00,   0.00 ], # ingpp     (gC/m2/year)   GPP without N limitation
-    'NPPAllIgnoringNitrogen':    [   48.43,   20.20,    77.79,    145.7,   2.618,   95.30,   67.96,    61.13,   0.00,   0.00 ], # innpp     (gC/m2/year)   NPP without N limitation 
-    'NPPAll':                    [   25.90,   10.80,    41.60,    77.90,   1.400,   50.96,   36.34,    32.69,   0.00,   0.00 ], # npp       (gC/m2/year)   NPP with N limitation
-    'Nuptake':                   [   0.400,   0.167,    0.750,    0.700,   0.500,   0.055,   0.363,    0.281,   0.00,   0.00 ], # nuptake   (gN/m2/year)
+    'GPPAllIgnoringNitrogen':    [   106.2,   54.13,    208.5,    390.4,   7.016,   286.8,   191.8,    172.6,   0.00,   0.00 ], # ingpp     (gC/m2/year)   GPP without N limitation
+    'NPPAllIgnoringNitrogen':    [   59.00,   27.06,    104.2,    195.2,   3.508,   136.6,   94.97,    85.42,   0.00,   0.00 ], # innpp     (gC/m2/year)   NPP without N limitation 
+    'NPPAll':                    [   34.71,   14.47,    55.74,    104.4,   1.876,   68.29,   48.70,    43.81,   0.00,   0.00 ], # npp       (gC/m2/year)   NPP with N limitation
+    'Nuptake':                   [   0.197,   0.082,    0.418,    0.731,   0.009,   0.074,   0.487,    0.376,   0.00,   0.00 ], # nuptake   (gN/m2/year)
     'VegCarbon': {
       'Leaf':                    [    4.14,   15.01,    74.61,   105.25,    0.85,    42.70,   37.22,   86.84,   0.00,   0.00 ], # vegcl     (gC/m2)
       'Stem':                    [   69.78,   30.42,   127.74,     0.00,    0.00,     0.00,    0.00,    0.00,   0.00,   0.00 ], # vegcw     (gC/m2)
