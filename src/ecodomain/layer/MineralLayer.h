@@ -1,13 +1,7 @@
-/*! \file
- *
- */
 #ifndef MINERALLAYER_H_
 #define MINERALLAYER_H_
 #include "SoilLayer.h"
 
-#include <string>
-#include <cmath>
-using namespace std;
 
 class MineralLayer: public SoilLayer {
 public:

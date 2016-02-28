@@ -310,11 +310,11 @@ void Ground::initSnowSoilLayers() {
     initmldz[1] = fmax(0., moss.thick - initmldz[0]);
     int soiltype[] = {-1, -1};
 
-    if (initmldz[0] > 0.) {
+    if (initmldz[0] > 0.0) {
       soiltype[0] = 0;
     }
 
-    if (initmldz[1] > 0.) {
+    if (initmldz[1] > 0.0) {
       soiltype[1] = 0;
     }
 

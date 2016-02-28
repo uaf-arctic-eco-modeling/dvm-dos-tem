@@ -213,18 +213,19 @@ void Soil_Bgc::initializeState() {
   for (int il=0; il<MAX_SOI_LAY; il++ ) {
     double totc = bd->m_sois.rawc[il]+bd->m_sois.soma[il]
                   +bd->m_sois.sompr[il]+bd->m_sois.somcr[il];
-    if (totc > 0. && sumtotc > 0.) {
-    //available N should only be calculated where roots are actively 
-    //turning over (ie, root zone)
-      if(bd->m_v2soi.rtlfalfrac[il] > 0.){
-        bd->m_sois.avln [il] = chtlu->initavln*totc/sumtotc;
+
+    // Available N should only be calculated where roots are actively
+    // turning over (ie, root zone)
+    if (totc > 0.0 && sumtotc > 0.0) {
+      if(bd->m_v2soi.rtlfalfrac[il] > 0.0){
+        bd->m_sois.avln [il] = chtlu->initavln * totc/sumtotc;
       } else {
-        bd->m_sois.avln [il] = 0.;
+        bd->m_sois.avln [il] = 0.0;
       }
-      bd->m_sois.orgn [il] = chtlu->initsoln*totc/sumtotc;
+      bd->m_sois.orgn [il] = chtlu->initsoln * totc/sumtotc;
     } else {
-      bd->m_sois.avln [il] = 0.;
-      bd->m_sois.orgn [il] = 0.;
+      bd->m_sois.avln [il] = 0.0;
+      bd->m_sois.orgn [il] = 0.0;
     }
   }
 };

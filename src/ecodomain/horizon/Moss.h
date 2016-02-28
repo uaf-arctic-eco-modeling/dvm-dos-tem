@@ -1,6 +1,3 @@
-/*! \file
- */
-
 #ifndef MOSS_H_
 #define MOSS_H_
 

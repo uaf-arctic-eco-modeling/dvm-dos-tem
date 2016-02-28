@@ -6,8 +6,6 @@
 #include "SoilLayer.h"
 #include "../../inc/cohortconst.h"
 
-#include <string>
-#include <cmath>
 using namespace std;
 class MossLayer: public SoilLayer {
 public:
@@ -17,5 +15,5 @@ public:
   int mosstype;  // moss types: 1: sphagnum; 2: feathermoss; 3: other (including lichen)
 
 };
-#endif /*MOSSLAYER_H_*/
+#endif /* MOSSLAYER_H_ */
 
