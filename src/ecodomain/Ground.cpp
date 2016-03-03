@@ -305,12 +305,15 @@ void Ground::initSnowSoilLayers() {
   }
 
   // if nonvascular PFT exists
-  if (moss.thick>0.) {
-    double initmldz[] = {0., 0.};
-    initmldz[0] = fmin(0.01, moss.thick); //moss thick in m, which needs input,
-                                          //assuming 0.01 m is living, and the
-                                          //rest is dead
-    initmldz[1] = fmax(0., moss.thick - initmldz[0]);
+  if (moss.thick > 0.0) {
+
+    double initmldz[] = {0.0, 0.0};
+
+    initmldz[0] = fmin(0.01, moss.thick); // moss thick in m, which needs input,
+                                          // assuming 0.01 m is living, and the
+                                          // rest is dead
+    initmldz[1] = fmax(0.0, moss.thick - initmldz[0]);
+
     int soiltype[] = {-1, -1};
 
     if (initmldz[0] > 0.0) {
