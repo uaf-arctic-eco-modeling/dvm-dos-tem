@@ -1103,8 +1103,9 @@ void  Ground::redivideMossLayers(const int &mosstype) {
     adjustFrontsAfterThickchange(ml->z, ml->dz);//need to adjust
                                                 //'freezing/thawing front depth'
                                                 //due to top layer insert
-    getDmossThickness5Carbon(ml, moss.dmossc); //adjusting the fake 'dz',
-                                               //'front' adjusting included
+
+    // Adjusting the fake 'dz', 'front' adjusting included
+    get_dead_moss_thickness_from_C_content(ml, moss.dmossc);
     ml->derivePhysicalProperty();
 
     if(ml->tem>0.) {
@@ -1919,7 +1920,7 @@ void Ground::updateOslThickness5Carbon(Layer* fstsoil) {
                                    //  is always in the last moss layer
         }
 
-        getDmossThickness5Carbon(sl, mosscbot);
+        get_dead_moss_thickness_from_C_content(sl, mosscbot);
       }
 
       //
@@ -1938,8 +1939,8 @@ void Ground::updateOslThickness5Carbon(Layer* fstsoil) {
   checkFrontsValidity();
 }
 
-// conversion from OSL C to thickness
-void Ground::getDmossThickness5Carbon(SoilLayer* sl, const double &dmossc) {
+/** Conversion from dead moss C to thickness. See Yi 2009. */
+void Ground::get_dead_moss_thickness_from_C_content(SoilLayer* sl, const double &dmossc) {
   // NOTE: the Dead Moss C - thickness relationship is for the
   //       whole dead moss layer
   double osdzold = sl->dz;
@@ -1975,8 +1976,8 @@ void Ground::getDmossThickness5Carbon(SoilLayer* sl, const double &dmossc) {
   sl->ice *= fmax(0.0, f);
 }
 
-// conversion from dead Moss thickness to its C content
-void Ground::getDmossCarbon5Thickness(SoilLayer* sl, const double &dmossdz) {
+/** Conversion from dead Moss thickness to its C content. See Yi 2009. */
+void Ground::get_dead_moss_C_content_from_thickness(SoilLayer* sl, const double &dmossdz) {
   if(sl->isMoss) {
     moss.dmossc = soildimpar.coefmossa
                   * pow(dmossdz*100., soildimpar.coefmossb*1.)*10000.;
