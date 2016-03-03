@@ -203,15 +203,19 @@ void Ground::initParameter() {
   soildimpar.coefmineb  = chtlu->coefmineb;
 };
 
-//initial dimension from inputs
+/** Initialize dimensions from inputs. */
 void Ground::initDimension() {
   snow.thick = chtlu->initsnwthick;
   snow.dense = chtlu->initsnwdense;
+
   moss.thick = chtlu->initdmossthick;
   moss.type  = chtlu->mosstype;
   organic.shlwthick = chtlu->initfibthick;
   organic.deepthick = chtlu->inithumthick;
   
+  soilparent.thick = 50.0;  // meter
+
+
   // SHOULD BE ABLE TO GET RID OF ALL OF THIS WITH PROPERLY CONSTRUCTED MineralInfo object!
   //mineralinfo.num = 0;
   //mineralinfo.thick = 0;
@@ -242,18 +246,17 @@ void Ground::initDimension() {
   //  }
   //}
 
-  soilparent.thick = 50.;  //meter
 }
 
 void Ground::initLayerStructure(snwstate_dim *snowdim, soistate_dim *soildim) {
-  //needs to clean up old 'ground', if any
+  // Needs to clean up old 'ground', if any
   cleanAllLayers();
 
-  //layers are constructed from bottom
+  // Layers are constructed from bottom
   if(rocklayercreated) {
     cleanSnowSoilLayers();
   } else {
-    initRockLayers(); //rock in the bottom first and no-need to do again
+    initRockLayers(); // Rock in the bottom first and no-need to do again
   }
 
   initSnowSoilLayers();
@@ -320,8 +323,8 @@ void Ground::initSnowSoilLayers() {
 
     moss.setThicknesses(soiltype, initmldz, 2);
 
-    for(int il = moss.num-1; il>=0; il--) {
-      //moss type (1- sphagnum, 2- feathermoss), which needs input
+    for(int il = moss.num-1; il >= 0; il--) {
+      // moss type (1- sphagnum, 2- feathermoss), which needs input
       MossLayer* ml = new MossLayer(moss.dz[il], moss.type);
       insertFront(ml);
     }
@@ -525,8 +528,8 @@ void Ground::setFstLstMineLayers() {
 };
 
 void Ground::setFstLstMossLayers() {
-  fstmossl =NULL;
-  lstmossl =NULL;
+  fstmossl = NULL;
+  lstmossl = NULL;
   Layer* currl = fstsoill;
 
   while(currl!=NULL) {
@@ -720,9 +723,9 @@ void Ground::updateSoilHorizons() {
 
   while(currl!=NULL) {
     if(currl->isMoss) {
-      ind +=1;
-      moss.num +=1;
-      moss.thick +=currl->dz;
+      ind += 1;
+      moss.num += 1;
+      moss.thick += currl->dz;
       moss.dz[ind] = currl->dz;
 
       if (currl->nextl==NULL || (!currl->nextl->isMoss)) {
@@ -1076,15 +1079,15 @@ void  Ground::redivideSoilLayers() {
   checkWaterValidity();
 };
 
-//
+/** ??? */
 void  Ground::redivideMossLayers(const int &mosstype) {
-  //before adjusting moss layer, needs checking if Moss layer exists
+  // Before adjusting moss layer, needs checking if Moss layer exists
   setFstLstMossLayers();
 
-  // if no moss layer existed, but 'moss.dmossc' has been prescribed or
+  // If no moss layer existed, but 'moss.dmossc' has been prescribed or
   // dynamically known create a new moss layer above the first soil layer
   // for containing the 'dmossc'
-  if(fstmossl==NULL && moss.dmossc > 0.) {
+  if( fstmossl==NULL && moss.dmossc > 0.0 ) {
     moss.type = mosstype;
     moss.num  = 1;
     moss.thick = 0.10; // this is a fake value, will be adjusted below
@@ -1128,7 +1131,7 @@ void  Ground::redivideMossLayers(const int &mosstype) {
 
   // moss.thick is too small
   // remove the moss layer, but 'moss.dmossc' is keeping track of change.
-  if(moss.num==1 && moss.thick < soildimpar.minmossthick) {
+  if( (moss.num == 1) && (moss.thick < soildimpar.minmossthick) ) {
     removeLayer(fstmossl);   // and remove the upper moss-layer
     resortGroundLayers();
     updateSoilHorizons();
@@ -1883,13 +1886,13 @@ void Ground::updateOslThickness5Carbon(Layer* fstsoil) {
     return;
   }
 
-  double mosscbot = 0.;
-  double mossctop = 0.;
-  double shlwcbot = 0.;
-  double shlwctop = 0.;
-  double deepcbot = 0.;
-  double deepctop = 0.;
-  double olddz = 0.;
+  double mosscbot = 0.0;
+  double mossctop = 0.0;
+  double shlwcbot = 0.0;
+  double shlwctop = 0.0;
+  double deepcbot = 0.0;
+  double deepctop = 0.0;
+  double olddz = 0.0;
   Layer* currl=fstsoil;
 
   while(currl!=NULL) {
@@ -1898,15 +1901,15 @@ void Ground::updateOslThickness5Carbon(Layer* fstsoil) {
       olddz = sl->dz;
 
       if(sl->isHumic) {
-        deepcbot = deepctop+sl->rawc+sl->soma+sl->sompr+sl->somcr;
+        deepcbot = deepctop + sl->rawc + sl->soma + sl->sompr + sl->somcr;
         getOslThickness5Carbon(sl, deepctop, deepcbot);
         deepctop = deepcbot;
       } else if(sl->isFibric) {
-        shlwcbot = shlwctop+sl->rawc+sl->soma+sl->sompr+sl->somcr;
+        shlwcbot = shlwctop + sl->rawc + sl->soma + sl->sompr + sl->somcr;
         getOslThickness5Carbon(sl, shlwctop, shlwcbot);
         shlwctop = shlwcbot;
       } else if(sl->isMoss) {
-        mosscbot = mossctop+sl->rawc+sl->soma+sl->sompr+sl->somcr;
+        mosscbot = mossctop + sl->rawc + sl->soma + sl->sompr + sl->somcr;
 
         if (!sl->nextl->isMoss) {
           mosscbot += moss.dmossc; //dead moss C, which not included in SOM,
@@ -1923,19 +1926,19 @@ void Ground::updateOslThickness5Carbon(Layer* fstsoil) {
       break;
     }
 
-    currl =currl->nextl;
+    currl = currl->nextl;
   }
 
   //
   updateSoilHorizons();
   //
   checkFrontsValidity();
-};
+}
 
 // conversion from OSL C to thickness
 void Ground::getDmossThickness5Carbon(SoilLayer* sl, const double &dmossc) {
-  //NOTE: the Dead Moss C - thickness relationship is for the
-  //        whole dead moss layer
+  // NOTE: the Dead Moss C - thickness relationship is for the
+  //       whole dead moss layer
   double osdzold = sl->dz;
   double osdznew = sl->dz;
 
@@ -1948,21 +1951,26 @@ void Ground::getDmossThickness5Carbon(SoilLayer* sl, const double &dmossc) {
   }
 
   sl->dz=osdznew;
-  //need to adjust 'freezing/thawing front depth', if 'fronts'
-  //  depth below 'sl->z'
+
+  // Need to adjust 'freezing/thawing front depth', if 'fronts'
+  // depth below 'sl->z'
   adjustFrontsAfterThickchange(sl->z, osdznew - osdzold);
-  //'dz' dependent physical properties
+
+  // 'dz' dependent physical properties
   double oldporo = sl->poro;
-  sl->derivePhysicalProperty(); //update soil physical property after
-                                //  thickness change from C is done
-  double f=fmin(1., sl->dz/osdzold); //so if layer shrinks, it will adjust
-                                     //  water; otherwise, no change.
-  double f2=fmin(1., sl->poro/oldporo);  //for whatever reason, if
-                                         //  porosity changes
+
+  sl->derivePhysicalProperty(); // Update soil physical property after
+                                // thickness change from C is done
+
+  double f = fmin(1.0, sl->dz/osdzold); // So if layer shrinks, it will adjust
+                                        // water; otherwise, no change.
+
+  double f2 = fmin(1.0, sl->poro/oldporo);  // For whatever reason, if
+                                            //  porosity changes
   f = fmin(f, f2);
-  sl->liq *=fmax(0., f);
-  sl->ice *=fmax(0., f);
-};
+  sl->liq *= fmax(0.0, f);
+  sl->ice *= fmax(0.0, f);
+}
 
 // conversion from dead Moss thickness to its C content
 void Ground::getDmossCarbon5Thickness(SoilLayer* sl, const double &dmossdz) {

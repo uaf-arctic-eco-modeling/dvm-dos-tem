@@ -7,14 +7,14 @@
  *   June 28, 2011, by F.-M. Yuan:
  *     (1) Recoding based on DOS-TEM's code;
  *     (2) all unused functions are removed;
- *     (3) The soil moiture temperature calling is moved from "Ground.cpp"
+ *     (3) The soil moisture temperature calling is moved from "Ground.cpp"
  *         to here, so that "Ground.cpp" only for soil-domain operation
  *
  * Important:
  *   (1) Parameters are read from 'CohortLookup.cpp', and set
- *       to 'bgcpar' (struct:: soipar_bgc)
+ *       to 'bgcpar' (struct::soipar_bgc)
  *   (2) Calibrated Parameters are also read from 'CohortLookup.cpp'
- *       initially, and set to 'calpar' (strut:: soipar_cal)
+ *       initially, and set to 'calpar' (strut::soipar_cal)
  *
  *   (3) The calculation is for ONE community with multple PFT. So total
  *       water input must be from the total.

@@ -87,7 +87,7 @@ Cohort::Cohort(int y, int x, ModelData* modeldatapointer):
   this->soilenv = Soil_Env();
   
   // this seems to set a lot of pointers...
-  // THis might need to be the last step in creating a cohort...
+  // This might need to be the last step in creating a cohort...
   // after all the other components are ready...
   this->initialize_internal_pointers();
   
@@ -256,7 +256,7 @@ void Cohort::initialize_state_parameters() {
   soilenv.initializeParameter();
   soilbgc.initializeParameter();
 
-  ground.initDimension();   //read-in snow/soil structure from 'chtlu', does not appear to touch Layer objects...?
+  ground.initDimension();   // read-in snow/soil structure from 'chtlu', does not appear to touch Layer objects...?
 
   // FIX THIS!
   // reset the soil texture data from grid-level soil.nc, rather than 'chtlu',
@@ -278,8 +278,8 @@ void Cohort::initialize_state_parameters() {
   //}
 
 
-  // set-up the snow-soil-soilparent structure
-  //snow updated daily, while soil dimension at monthly
+  // Set-up the snow-soil-soilparent structure
+  // snow updated daily, while soil dimension at monthly
   ground.initLayerStructure(&cd.d_snow, &cd.m_soil);
 
   cd.d_soil = cd.m_soil;
@@ -802,8 +802,8 @@ void Cohort::updateMonthly_DIMgrd(const int & currmind, const bool & dslmodule) 
       double prvpft = 0.;
 
       for (int ip=0; ip<NUM_PFT; ip++) {
-        if (cd.m_veg.nonvascular[ip]!=I_vascular) {
-          if (cd.m_veg.vegcov[ip]>prvpft) {
+        if (cd.m_veg.nonvascular[ip] != I_vascular) {
+          if (cd.m_veg.vegcov[ip] > prvpft) {
             ground.moss.type = cd.d_veg.nonvascular[ip];
           }
         }
