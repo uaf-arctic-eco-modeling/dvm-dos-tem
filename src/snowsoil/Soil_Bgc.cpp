@@ -196,33 +196,43 @@ void Soil_Bgc::afterIntegration() {
 };
 
 void Soil_Bgc::initializeState() {
-  //set initiate state variable
-  double dmossc= chtlu->initdmossc;
+
+  // Set initiate state variable
   double shlwc = chtlu->initshlwc;
   double deepc = chtlu->initdeepc;
   double minec = chtlu->initminec;
+
   initSoilCarbon(shlwc, deepc, minec);
   assignCarbonLayer2BdMonthly();
+
   bd->m_sois.wdebrisc = 0;
-  bd->m_sois.dmossc   = dmossc;
-  //initial N based on input total and SOM C profile
-  double sumtotc = shlwc+deepc+minec;
-  //initial available N based only on organic SOM C total
-  double sumorgc = shlwc+minec;
+  bd->m_sois.dmossc   = chtlu->initdmossc;
+
+  // Initial N based on input total and SOM C profile
+  double sum_total_C = shlwc + deepc + minec;
+
+  // Initial available N based only on organic SOM C total
+  double sum_organic_C = shlwc + minec;
+  // Is the above correct? See V. Patil's change here:
+  // https://github.com/vppatil/dvm-dos-tem/commit/b7ff148a769f3574460f8fccafdd9250ac284def
+  // however it appears that this local variable is never used,
+  // so the change should have no effect.
 
   for (int il=0; il<MAX_SOI_LAY; il++ ) {
-    double totc = bd->m_sois.rawc[il]+bd->m_sois.soma[il]
-                  +bd->m_sois.sompr[il]+bd->m_sois.somcr[il];
+    double total_monthly_C = bd->m_sois.rawc[il] +
+                             bd->m_sois.soma[il] +
+                             bd->m_sois.sompr[il] +
+                             bd->m_sois.somcr[il];
 
     // Available N should only be calculated where roots are actively
     // turning over (ie, root zone)
-    if (totc > 0.0 && sumtotc > 0.0) {
-      if(bd->m_v2soi.rtlfalfrac[il] > 0.0){
-        bd->m_sois.avln [il] = chtlu->initavln * totc/sumtotc;
+    if (total_monthly_C > 0.0 && sum_total_C > 0.0) {
+      if(bd->m_v2soi.rtlfalfrac[il] > 0.0) {
+        bd->m_sois.avln[il] = chtlu->initavln * total_monthly_C/sum_total_C;
       } else {
-        bd->m_sois.avln [il] = 0.0;
+        bd->m_sois.avln[il] = 0.0;
       }
-      bd->m_sois.orgn [il] = chtlu->initsoln * totc/sumtotc;
+      bd->m_sois.orgn [il] = chtlu->initsoln * total_monthly_C/sum_total_C;
     } else {
       bd->m_sois.avln [il] = 0.0;
       bd->m_sois.orgn [il] = 0.0;
@@ -577,20 +587,27 @@ void Soil_Bgc::deltac() {
   }
 };
 
-// soil N budget
+/** soil N budget */
 void Soil_Bgc::deltan() {
   if (this->nfeed == 1) { // soil-plant N cycle switched on
-    //total N immobilization and net mineralization
-    totnetnmin = 0.;
+    // Total N immobilization and net mineralization
+    totnetnmin = 0.0;
 
     for(int i=0; i<cd->m_soil.numsl; i++) {
-      double totc = tmp_sois.rawc[i]+tmp_sois.soma[i]
-                    +tmp_sois.sompr[i]+tmp_sois.somcr[i];
-      double rhsum = del_soi2a.rhrawc[i]+del_soi2a.rhsoma[i]
-                     +del_soi2a.rhsompr[i]+del_soi2a.rhsomcr[i];
+      double totc = tmp_sois.rawc[i] +
+                    tmp_sois.soma[i] +
+                    tmp_sois.sompr[i] +
+                    tmp_sois.somcr[i];
+
+      double rhsum = del_soi2a.rhrawc[i] +
+                     del_soi2a.rhsoma[i] +
+                     del_soi2a.rhsompr[i]+
+                     del_soi2a.rhsomcr[i];
+
       double nimmob = getNimmob(ed->m_sois.liq[i], totc,
                                 tmp_sois.orgn[i], tmp_sois.avln[i],
                                 bd->m_soid.knmoist[i], bgcpar.kn2);
+
       del_soi2soi.nimmob[i] = nimmob;
       del_soi2soi.netnmin[i] = getNetmin(nimmob, totc, tmp_sois.orgn[i],
                                          rhsum ,bgcpar.nmincnsoil,
@@ -643,14 +660,15 @@ void Soil_Bgc::deltan() {
           del_soi2soi.netnmin[i] *=nminadj/totnetnmin;
         }
       }
-    } else { //N budget estimation of inorganic N loss
-      del_soi2l.avlnlost = bd->m_a2soi.avlninput - totnextract
-                           +totnetnmin;
+    } else { // End (this->avlnflg == 1)
+      // N budget estimation of inorganic N loss
+      del_soi2l.avlnlost = bd->m_a2soi.avlninput -
+                           totnextract + totnetnmin;
     }
 
     if ( !this->baseline ) {
-      del_soi2l.orgnlost = 0.; //DON lost - not yet done and this
-                               //  is the portal for future development
+      del_soi2l.orgnlost = 0.0; // Dynamic Organic N lost - not yet done.
+                                // this is the portal for future development.
     } else {
       // note: this will re-estimate the fire-emission re-deposition
       del_a2soi.orgninput = 0.;
@@ -664,7 +682,7 @@ void Soil_Bgc::deltan() {
       } else {
         del_soi2l.orgnlost  += bd->m_soid.orgnsum - orgneven;
       }
-    }
+    } // End baseline
   }
 };
 
