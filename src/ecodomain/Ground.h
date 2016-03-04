@@ -169,6 +169,9 @@ private :
                                     const double & thickchange);
   void getLayerFrozenstatusByFronts(Layer * soill);
 
+  double thicknessFromCarbon(const double carbon, const double coefA, const double coefB);
+  double carbonFromThickness(const double thickness, const double coefA, const double coefB);
+
   void get_dead_moss_C_content_from_thickness(SoilLayer* sl, const double &dmossdz);
   void get_dead_moss_thickness_from_C_content(SoilLayer* sl, const double &dmossc);
 

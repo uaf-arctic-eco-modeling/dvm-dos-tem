@@ -1211,9 +1211,7 @@ COMBINEBEGIN:
       nextsl = dynamic_cast<SoilLayer*>(fstminel);
     }
     
-    double rawcmin = soildimpar.coefshlwa
-                     * pow(MINSLWTHICK*100., soildimpar.coefshlwb*1.)*10000.;
-                     //Note: in Yi et al.(2009) - C in gC/cm2, depth in cm
+    double rawcmin = carbonFromThickness(MINSLWTHICK, soildimpar.coefshlwa, soildimpar.coefshlwb);
 
     // FIX: Problem if nextsl is still NULL
     if (nextsl->rawc >= rawcmin) {
@@ -1338,9 +1336,7 @@ COMBINEBEGIN:
       return;
     }
 
-    double deepcmin = soildimpar.coefdeepa
-                      * pow(MINDEPTHICK*100., soildimpar.coefdeepb*1.)*10000.; 
-                      //Note: in Yi et al.(2009) - C in gC/cm2, depth in cm
+    double deepcmin = carbonFromThickness(MINDEPTHICK, soildimpar.coefdeepa, soildimpar.coefdeepb);
 
     //assuming those SOMC available for forming a deep humific OS layer
     double somc = 0.5*lfibl->soma+lfibl->sompr+lfibl->somcr;
@@ -1947,9 +1943,7 @@ void Ground::get_dead_moss_thickness_from_C_content(SoilLayer* sl, const double 
   double orgsoil_dz_new = sl->dz;
 
   if(sl->isMoss) {
-    orgsoil_dz_new = pow((dmossc/10000.)/soildimpar.coefmossa,
-                         1./soildimpar.coefmossb) / 100.;
-                         //Note: in Yi et al.(2009) - C in gC/cm2, depth in cm
+    orgsoil_dz_new = thicknessFromCarbon(dmossc, soildimpar.coefmossa, soildimpar.coefmossb);
   } else {
     return;
   }
@@ -1979,12 +1973,36 @@ void Ground::get_dead_moss_thickness_from_C_content(SoilLayer* sl, const double 
 /** Calculate dead moss Carbon from layer thickness. See Yi 2009. */
 void Ground::get_dead_moss_C_content_from_thickness(SoilLayer* sl, const double &dmossdz) {
   if(sl->isMoss) {
-    moss.dmossc = soildimpar.coefmossa
-                  * pow(dmossdz*100., soildimpar.coefmossb*1.)*10000.;
-                  //Note: in Yi et al.(2009) - C in gC/cm2, depth in cm
+    moss.dmossc = carbonFromThickness(dmossdz, soildimpar.coefmossa, soildimpar.coefmossb);
   } else {
     return;
   }
+}
+
+/** Convert from gC/m^2 to layer thickness (meters) based on Yi et al, 2009. */
+double Ground::thicknessFromCarbon(const double carbon, const double coefA, const double coefB) {
+  assert ((coefB >= 1) && "Yi et al. 2009 says the b coefficient should be a fitted parameter constrained to >= 1!");
+
+  // T = (C/a)^(1/b)
+  double T;
+  T = pow( carbon/10000.0/coefA, 1/coefB); // convert gC/m^2 to gC/cm^2
+  T = T / 100.0;                           // convert thickness from cm to m
+
+  assert ((T >= 0) && "It doesn't make sense to have a negative thickness!");
+  return T;
+}
+
+/** Convert from layer thickness (meters) to gC/m^2 based on Yi et al, 2009. */
+double Ground::carbonFromThickness(const double thickness, const double coefA, const double coefB) {
+  assert ((coefB >= 1) && "Yi et al. 2009 says the b coefficient should be a fitted parameter constrained to >= 1!");
+
+  // C = aT^b
+  double C;
+  C = coefA * pow(thickness*100.0, coefB); // convert from m to cm
+  C = C * 10000.0;                         // convert from gC/cm^2 to gC/m^2
+
+  assert ((C >= 0) && "It doesn't make sense to have a negative amount of Carbon!");
+  return C;
 }
 
 // conversion from OSL C to thickness
@@ -2002,19 +2020,15 @@ void Ground::getOslThickness5Carbon(SoilLayer* sl, const double &plctop,
   double orgsoil_dz_old = sl->dz;
 
   if(sl->isFibric) {
-    pltop = pow((prevcumcarbon/10000.)/soildimpar.coefshlwa,
-                1./soildimpar.coefshlwb)/100.;
-                //Note: in Yi et al.(2009) - C in gC/cm2, depth in cm
-    plbot = pow((cumcarbon/10000.)/soildimpar.coefshlwa,
-                1./soildimpar.coefshlwb)/100.;
-                //Note: in Yi et al.(2009) - C in gC/cm2, depth in cm
+
+    pltop = thicknessFromCarbon(prevcumcarbon, soildimpar.coefshlwa, soildimpar.coefshlwb);
+    plbot = thicknessFromCarbon(cumcarbon, soildimpar.coefshlwa, soildimpar.coefshlwb);
+
   } else if (sl->isHumic) {
-    pltop = pow((prevcumcarbon/10000.)/soildimpar.coefdeepa,
-                1./soildimpar.coefdeepb)/100.;
-                //Note: in Yi et al.(2009) - C in gC/cm2, depth in cm
-    plbot = pow((cumcarbon/10000.)/soildimpar.coefdeepa,
-                1./soildimpar.coefdeepb)/100.;
-                //Note: in Yi et al.(2009) - C in gC/cm2, depth in cm
+
+    pltop = thicknessFromCarbon(prevcumcarbon, soildimpar.coefdeepa, soildimpar.coefdeepb);
+    plbot = thicknessFromCarbon(cumcarbon, soildimpar.coefdeepa, soildimpar.coefdeepb);
+
   } else {
     return;
   }
@@ -2054,17 +2068,15 @@ void Ground::getOslCarbon5Thickness(SoilLayer* sl, const double &plztop,
   double prevcumcarbon=0.;
 
   if(sl->isFibric) {
-    prevcumcarbon = soildimpar.coefshlwa
-                    * pow(dtop*100., soildimpar.coefshlwb*1.)*10000.;
-                    //Note: in Yi et al.(2009) - C in gC/cm2, depth in cm
-    cumcarbon = soildimpar.coefshlwa
-                * pow(dbot*100., soildimpar.coefshlwb*1.)*10000.;
-                //Note: in Yi et al.(2009) - C in gC/cm2, depth in cm
+
+    prevcumcarbon = carbonFromThickness(dtop, soildimpar.coefshlwa, soildimpar.coefshlwb);
+    cumcarbon = carbonFromThickness(dbot, soildimpar.coefshlwa, soildimpar.coefshlwb);
+
   } else if (sl->isHumic) {
-    prevcumcarbon = soildimpar.coefdeepa
-                    * pow(dtop*100., soildimpar.coefdeepb*1.)*10000.;
-    cumcarbon = soildimpar.coefdeepa
-                * pow(dbot*100., soildimpar.coefdeepb*1.)*10000.;
+
+    prevcumcarbon = carbonFromThickness(dtop, soildimpar.coefdeepa, soildimpar.coefdeepb);
+    cumcarbon = carbonFromThickness(dbot, soildimpar.coefdeepa, soildimpar.coefdeepb);
+
   } else {
     return;
   }
