@@ -50,6 +50,9 @@ Soil_Bgc::Soil_Bgc(): nfeed(false), avlnflg(false), baseline(false),
 Soil_Bgc::~Soil_Bgc() {
 };
 
+/** Writes Carbon values from the bd structure (BGC Data) into each soil layer 
+    held in the Ground object.
+*/
 void Soil_Bgc::assignCarbonBd2LayerMonthly() {
   Layer* currl = ground->fstsoill;
 
@@ -69,8 +72,13 @@ void Soil_Bgc::assignCarbonBd2LayerMonthly() {
   ground->moss.dmossc = bd->m_sois.dmossc;
   ground->organic.shlwc = bd->m_soid.shlwc;
   ground->organic.deepc = bd->m_soid.deepc;
-};
 
+  // What about mineral C ??
+}
+
+/** Writes Carbon values from each of the Ground object's Layers into the bd 
+    structure (BGC Data).
+*/
 void Soil_Bgc::assignCarbonLayer2BdMonthly() {
   Layer* currl = ground->fstsoill;
   int lstprocessedlayer = 0;
@@ -90,14 +98,14 @@ void Soil_Bgc::assignCarbonLayer2BdMonthly() {
   }
 
   for(int il = lstprocessedlayer+1; il<MAX_SOI_LAY; il++) {
-    bd->m_sois.rawc[il]=0.;
-    bd->m_sois.soma[il]=0.;
-    bd->m_sois.sompr[il]=0.;
-    bd->m_sois.somcr[il]=0.;
+    bd->m_sois.rawc[il] = 0.0;
+    bd->m_sois.soma[il] = 0.0;
+    bd->m_sois.sompr[il] = 0.0;
+    bd->m_sois.somcr[il] = 0.0;
   }
 
   bd->m_sois.dmossc = ground->moss.dmossc;
-};
+}
 
 void Soil_Bgc::prepareIntegration(const bool &mdnfeedback,
                                   const bool &mdavlnflg,
