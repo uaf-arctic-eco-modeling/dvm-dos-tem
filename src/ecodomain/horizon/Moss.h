@@ -22,4 +22,5 @@ public:
 
   void setThicknesses(int soiltype[], double soildz[],const int & soilmaxnum);
 };
-#endif /*MOSS_H_*/
+
+#endif /* MOSS_H_ */

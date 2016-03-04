@@ -334,7 +334,7 @@ void Ground::initSnowSoilLayers() {
   }
 
   // only ONE snow layer input assummed, if any
-  if(snow.thick>0) {
+  if(snow.thick > 0) {
     SnowLayer* sl = new SnowLayer();
     sl->dz = snow.thick;
     insertFront(sl);
@@ -1954,7 +1954,7 @@ void Ground::get_dead_moss_thickness_from_C_content(SoilLayer* sl, const double 
     return;
   }
 
-  sl->dz=osdznew;
+  sl->dz = osdznew;
 
   // Need to adjust 'freezing/thawing front depth', if 'fronts'
   // depth below 'sl->z'
@@ -1970,7 +1970,7 @@ void Ground::get_dead_moss_thickness_from_C_content(SoilLayer* sl, const double 
                                         // water; otherwise, no change.
 
   double f2 = fmin(1.0, sl->poro/oldporo);  // For whatever reason, if
-                                            //  porosity changes
+                                            // porosity changes
   f = fmin(f, f2);
   sl->liq *= fmax(0.0, f);
   sl->ice *= fmax(0.0, f);
@@ -1985,7 +1985,7 @@ void Ground::get_dead_moss_C_content_from_thickness(SoilLayer* sl, const double 
   } else {
     return;
   }
-};
+}
 
 // conversion from OSL C to thickness
 void Ground::getOslThickness5Carbon(SoilLayer* sl, const double &plctop,
