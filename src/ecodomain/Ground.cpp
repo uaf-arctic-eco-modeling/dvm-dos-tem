@@ -1939,26 +1939,26 @@ void Ground::updateOslThickness5Carbon(Layer* fstsoil) {
   checkFrontsValidity();
 }
 
-/** Conversion from dead moss C to thickness. See Yi 2009. */
+/** Calculate layer thickness from dead moss Carbon. See Yi 2009. */
 void Ground::get_dead_moss_thickness_from_C_content(SoilLayer* sl, const double &dmossc) {
   // NOTE: the Dead Moss C - thickness relationship is for the
   //       whole dead moss layer
-  double osdzold = sl->dz;
-  double osdznew = sl->dz;
+  double orgsoil_dz_old = sl->dz;
+  double orgsoil_dz_new = sl->dz;
 
   if(sl->isMoss) {
-    osdznew = pow((dmossc/10000.)/soildimpar.coefmossa,
-                  1./soildimpar.coefmossb) / 100.;
-                  //Note: in Yi et al.(2009) - C in gC/cm2, depth in cm
+    orgsoil_dz_new = pow((dmossc/10000.)/soildimpar.coefmossa,
+                         1./soildimpar.coefmossb) / 100.;
+                         //Note: in Yi et al.(2009) - C in gC/cm2, depth in cm
   } else {
     return;
   }
 
-  sl->dz = osdznew;
+  sl->dz = orgsoil_dz_new;
 
   // Need to adjust 'freezing/thawing front depth', if 'fronts'
   // depth below 'sl->z'
-  adjustFrontsAfterThickchange(sl->z, osdznew - osdzold);
+  adjustFrontsAfterThickchange(sl->z, orgsoil_dz_new - orgsoil_dz_old);
 
   // 'dz' dependent physical properties
   double oldporo = sl->poro;
@@ -1966,7 +1966,7 @@ void Ground::get_dead_moss_thickness_from_C_content(SoilLayer* sl, const double 
   sl->derivePhysicalProperty(); // Update soil physical property after
                                 // thickness change from C is done
 
-  double f = fmin(1.0, sl->dz/osdzold); // So if layer shrinks, it will adjust
+  double f = fmin(1.0, sl->dz/orgsoil_dz_old); // So if layer shrinks, it will adjust
                                         // water; otherwise, no change.
 
   double f2 = fmin(1.0, sl->poro/oldporo);  // For whatever reason, if
@@ -1976,7 +1976,7 @@ void Ground::get_dead_moss_thickness_from_C_content(SoilLayer* sl, const double 
   sl->ice *= fmax(0.0, f);
 }
 
-/** Conversion from dead Moss thickness to its C content. See Yi 2009. */
+/** Calculate dead moss Carbon from layer thickness. See Yi 2009. */
 void Ground::get_dead_moss_C_content_from_thickness(SoilLayer* sl, const double &dmossdz) {
   if(sl->isMoss) {
     moss.dmossc = soildimpar.coefmossa
@@ -1999,7 +1999,7 @@ void Ground::getOslThickness5Carbon(SoilLayer* sl, const double &plctop,
   double plbot = 0.;
   double cumcarbon    = plcbot; //Cumulative C from the top of the whole horizon
   double prevcumcarbon= plctop; //Cumulative C until the layer top
-  double osdzold = sl->dz;
+  double orgsoil_dz_old = sl->dz;
 
   if(sl->isFibric) {
     pltop = pow((prevcumcarbon/10000.)/soildimpar.coefshlwa,
@@ -2020,15 +2020,15 @@ void Ground::getOslThickness5Carbon(SoilLayer* sl, const double &plctop,
   }
 
   sl->dz=plbot-pltop;
-  double osdznew = sl->dz;
+  double orgsoil_dz_new = sl->dz;
   //need to adjust 'freezing/thawing front depth', if 'fronts'
   //  depth below 'sl->z'
-  adjustFrontsAfterThickchange(sl->z, osdznew - osdzold);
+  adjustFrontsAfterThickchange(sl->z, orgsoil_dz_new - orgsoil_dz_old);
   //'dz' dependent physical properties
   double oldporo = sl->poro;
   sl->derivePhysicalProperty(); //update soil physical property after
                                 //  thickness change from C is done
-  double f=fmin(1., sl->dz/osdzold); //so if layer shrinks, it will adjust
+  double f=fmin(1., sl->dz/orgsoil_dz_old); //so if layer shrinks, it will adjust
                                      //  water; otherwise, no change.
   double f2=fmin(1., sl->poro/oldporo);  //for whatever reason, if
                                          //  porosity changes
