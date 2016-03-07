@@ -717,28 +717,33 @@ void Soil_Bgc::deltastate() {
   //2) If soil respiration known, then internal C pool transformation
   //     can be estimated as following
   for(int il=0; il<cd->m_soil.numsl; il++) {
-    double rhsum = del_soi2a.rhrawc[il]+del_soi2a.rhsoma[il]
-                   +del_soi2a.rhsompr[il]+del_soi2a.rhsomcr[il];
+    double rhsum = del_soi2a.rhrawc[il] +
+                   del_soi2a.rhsoma[il] +
+                   del_soi2a.rhsompr[il] +
+                   del_soi2a.rhsomcr[il];
 
-    if (cd->m_soil.type[il+1]>0 &&   //
-        (il==0 || cd->m_soil.type[il]==0)) { //all products from dead moss C decomposition assumed into the last moss layer or first layer if no moss-layer
-      rhsum  += del_soi2a.rhmossc;
+    // All products from dead moss C decomposition assumed into the last moss
+    // layer or first layer if no moss-layer.
+    if ( cd->m_soil.type[il+1]>0 && (il==0 || cd->m_soil.type[il]==0) ) {
+      rhsum += del_soi2a.rhmossc;
     }
 
-    if (il==0) { //all products from debris C decomposition
-                 //  assumed into first layer
+    // All products from debris C decomposition assumed into first layer
+    if (il == 0) {
       rhsum  += del_soi2a.rhwdeb;
     }
 
-    del_sois.rawc[il] = ltrflc[il] //So note that: root death is the
-                                   //  reason for deep SOM increment
-                        -del_soi2a.rhrawc[il]*(1.0+somtoco2);    //
-    del_sois.soma[il]  = rhsum*somtoco2*fsoma
-                         - del_soi2a.rhsoma[il]*(1.0+somtoco2);      //
-    del_sois.sompr[il] = rhsum*somtoco2*fsompr
-                         - del_soi2a.rhsompr[il]*(1.0+somtoco2);      //
-    del_sois.somcr[il] = rhsum*somtoco2*fsomcr
-                         - del_soi2a.rhsomcr[il]*(1.0+somtoco2);      //
+    // So note that: root death is the reason for deep SOM increment
+    del_sois.rawc[il] = ltrflc[il] - del_soi2a.rhrawc[il] * (1.0+somtoco2);
+
+    del_sois.soma[il] = (rhsum * somtoco2 * fsoma) -
+                        del_soi2a.rhsoma[il] * (1.0+somtoco2);
+
+    del_sois.sompr[il] = (rhsum * somtoco2 * fsompr) -
+                         del_soi2a.rhsompr[il] * (1.0+somtoco2);
+
+    del_sois.somcr[il] = rhsum*somtoco2*fsomcr -
+                         del_soi2a.rhsomcr[il] * (1.0+somtoco2);
   }
 
   //dead moss, if any
