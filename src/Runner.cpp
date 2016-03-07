@@ -158,8 +158,13 @@ void Runner::output_caljson_monthly(int year, int month){
   data["CarbonMineralSum"] = cohort.bdall->m_soid.mineac
                              + cohort.bdall->m_soid.minebc
                              + cohort.bdall->m_soid.minecc;
+  // pools
+  data["DeadMossCarbon"] = cohort.bdall->m_sois.dmossc;
+  data["DeadMossNitrogen"] = cohort.bdall->m_sois.dmossn;
+  // fluxes
   data["MossdeathCarbon"] = cohort.bdall->m_v2soi.mossdeathc;
   data["MossdeathNitrogen"] = cohort.bdall->m_v2soi.mossdeathn;
+
   data["NetNMin"] = cohort.bdall->m_soi2soi.netnminsum;
   data["NetNImmob"] = cohort.bdall->m_soi2soi.nimmobsum;
   data["OrgNInput"] = cohort.bdall->m_a2soi.orgninput;
@@ -290,8 +295,13 @@ void Runner::output_caljson_yearly(int year) {
   data["CarbonMineralSum"] = cohort.bdall->y_soid.mineac
                              + cohort.bdall->y_soid.minebc
                              + cohort.bdall->y_soid.minecc;
-  data["MossdeathCarbon"] = cohort.bdall->y_sois.dmossc;
-  data["MossdeathNitrogen"] = cohort.bdall->y_sois.dmossn;
+  // pools
+  data["DeadMossCarbon"] = cohort.bdall->y_sois.dmossc;
+  data["DeadMossNitrogen"] = cohort.bdall->y_sois.dmossn;
+  // fluxes
+  data["MossdeathCarbon"] = cohort.bdall->y_v2soi.mossdeathc;
+  data["MossdeathNitrogen"] = cohort.bdall->y_v2soi.mossdeathn;
+
   data["NetNMin"] = cohort.bdall->y_soi2soi.netnminsum;
   data["NetNImmob"] = cohort.bdall->y_soi2soi.nimmobsum;
   data["OrgNInput"] = cohort.bdall->y_a2soi.orgninput;
