@@ -23,10 +23,10 @@ public :
   void reinitValue();
   void append_to_ncfile(const std::string& fname, const int rowidx, const int colidx);
   void update_from_ncfile(const std::string& fname, const int rowidx, const int colidx);
-  //The following function is perhaps inadvisable, and should
-  //be replaced with something that does not require manually adding
-  //new members.
+  //The following two functions should probably be replaced with
+  //something that does not require manually adding new members.
   void verify_logical_values();
+  void restartdata_to_log();
 
   void read_px_vars(const std::string& fname, const int rowidx, const int colidx);
   void read_px_pft_vars(const std::string& fname, const int rowidx, const int colidx);
@@ -54,7 +54,7 @@ public :
   int dsr;
   double firea2sorgn;
 
-  //vegegetation
+  //vegetation
   int yrsdist;
 
   int ifwoody[NUM_PFT]; // - 'veg_dim'

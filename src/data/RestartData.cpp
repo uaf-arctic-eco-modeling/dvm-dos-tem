@@ -1271,3 +1271,119 @@ void RestartData::write_px_prev_pft_vars(const std::string& fname, const int row
 
 }
 
+
+/**Writes this RestartData to the log stream. Should be replaced with templating eventually.*/
+void RestartData::restartdata_to_log(){
+  //PFT and PFT part loops are repeated in order to keep variable
+  //types together for initial debugging. This may change in the future.
+
+  BOOST_LOG_SEV(glg, debug) << "***** RESTARTDATA *****";
+
+  //atm
+  BOOST_LOG_SEV(glg, debug) << "dsr: " << dsr;
+  BOOST_LOG_SEV(glg, debug) << "firea2sorgn: " << firea2sorgn;
+
+  //vegetation
+  BOOST_LOG_SEV(glg, debug) << "yrsdist: " << yrsdist;
+
+  for(int ii=0; ii<NUM_PFT; ii++){
+    BOOST_LOG_SEV(glg, debug) << "ifwoody[" << ii << "]: " << ifwoody[ii];
+    BOOST_LOG_SEV(glg, debug) << "ifdeciwoody[" << ii << "]: " << ifdeciwoody[ii];
+    BOOST_LOG_SEV(glg, debug) << "ifperenial[" << ii << "]: " << ifperenial[ii];
+    BOOST_LOG_SEV(glg, debug) << "nonvascular[" << ii << "]: " << nonvascular[ii];
+    BOOST_LOG_SEV(glg, debug) << "vegage[" << ii << "]: " << vegage[ii];
+    BOOST_LOG_SEV(glg, debug) << "vegcov[" << ii << "]: " << vegcov[ii];
+    BOOST_LOG_SEV(glg, debug) << "lai[" << ii << "]: " << lai[ii];
+    BOOST_LOG_SEV(glg, debug) << "vegwater[" << ii << "]: " << vegwater[ii];
+    BOOST_LOG_SEV(glg, debug) << "vegsnow[" << ii << "]: " << vegsnow[ii];
+    BOOST_LOG_SEV(glg, debug) << "labn[" << ii << "]: " << labn[ii];
+    BOOST_LOG_SEV(glg, debug) << "deadc[" << ii << "]: " << deadc[ii];
+    BOOST_LOG_SEV(glg, debug) << "deadn[" << ii << "]: " << deadn[ii];
+    BOOST_LOG_SEV(glg, debug) << "topt[" << ii << "]: " << topt[ii];
+    BOOST_LOG_SEV(glg, debug) << "eetmx[" << ii << "]: " << eetmx[ii];
+    BOOST_LOG_SEV(glg, debug) << "unnormleafmx[" << ii << "]: " << unnormleafmx[ii];
+    BOOST_LOG_SEV(glg, debug) << "growingttime[" << ii << "]: " << growingttime[ii];
+    BOOST_LOG_SEV(glg, debug) << "foliagemx[" << ii << "]: " << foliagemx[ii];
+
+    for(int jj=0; jj<MAX_ROT_LAY; jj++){
+      BOOST_LOG_SEV(glg, debug) << "rootfrac[" << jj << "][" << ii << "]: " << rootfrac[jj][ii];
+    }
+
+    for(int jj=0; jj<NUM_PFT_PART; jj++){
+      BOOST_LOG_SEV(glg, debug) << "vegc[" << jj << "][" << ii << "]: " << vegc[jj][ii];
+      BOOST_LOG_SEV(glg, debug) << "strn[" << jj << "][" << ii << "]: " << strn[jj][ii];
+    }
+
+    for(int jj=0; jj<10; jj++){
+      BOOST_LOG_SEV(glg, debug) << "toptA[" << jj << "][" << ii << "]: " << toptA[jj][ii];
+      BOOST_LOG_SEV(glg, debug) << "eetmxA[" << jj << "][" << ii << "]: " << eetmxA[jj][ii];
+      BOOST_LOG_SEV(glg, debug) << "unnormleafmxA[" << jj << "][" << ii << "]: " << unnormleafmxA[jj][ii];
+      BOOST_LOG_SEV(glg, debug) << "growingttimeA[" << jj << "][" << ii << "]: " << growingttimeA[jj][ii];
+    }
+
+  }
+
+  //snow
+  BOOST_LOG_SEV(glg, debug) << "numsnwl: " << numsnwl;
+  BOOST_LOG_SEV(glg, debug) << "snwextramass: " << snwextramass;
+  for(int ii; ii<MAX_SNW_LAY; ii++){
+    BOOST_LOG_SEV(glg, debug) << "TSsnow[" << ii << "]: " << TSsnow[ii];
+    BOOST_LOG_SEV(glg, debug) << "DZsnow[" << ii << "]: " << DZsnow[ii];
+    BOOST_LOG_SEV(glg, debug) << "LIQsnow[" << ii << "]: " << LIQsnow[ii];
+    BOOST_LOG_SEV(glg, debug) << "RHOsnow[" << ii << "]: " << RHOsnow[ii];
+    BOOST_LOG_SEV(glg, debug) << "ICEsnow[" << ii << "]: " << ICEsnow[ii];
+    BOOST_LOG_SEV(glg, debug) << "AGEsnow[" << ii << "]: " << AGEsnow[ii];
+  }
+
+  //ground/soil
+  BOOST_LOG_SEV(glg, debug) << "numsl: " << numsl;
+  BOOST_LOG_SEV(glg, debug) << "monthsfrozen: " << monthsfrozen;
+  BOOST_LOG_SEV(glg, debug) << "rtfrozendays: " << rtfrozendays;
+  BOOST_LOG_SEV(glg, debug) << "rtunfrozendays: " << rtunfrozendays;
+  BOOST_LOG_SEV(glg, debug) << "watertab: " << watertab;
+  BOOST_LOG_SEV(glg, debug) << "wdebrisc: " << wdebrisc;
+  BOOST_LOG_SEV(glg, debug) << "dmossc: " << dmossc;
+  BOOST_LOG_SEV(glg, debug) << "wdebrisn: " << wdebrisn;
+  BOOST_LOG_SEV(glg, debug) << "dmossn: " << dmossn;
+
+  for(int ii=0; ii<MAX_SOI_LAY; ii++){
+    BOOST_LOG_SEV(glg, debug) << "DZsoil[" << ii << "]: " << DZsoil[ii];
+    BOOST_LOG_SEV(glg, debug) << "TYPEsoil[" << ii << "]: " << TYPEsoil[ii];
+    BOOST_LOG_SEV(glg, debug) << "AGEsoil[" << ii << "]: " << AGEsoil[ii];
+    BOOST_LOG_SEV(glg, debug) << "TSsoil[" << ii << "]: " << TSsoil[ii];
+    BOOST_LOG_SEV(glg, debug) << "LIQsoil[" << ii << "]: " << LIQsoil[ii];
+    BOOST_LOG_SEV(glg, debug) << "ICEsoil[" << ii << "]: " << ICEsoil[ii];
+    BOOST_LOG_SEV(glg, debug) << "FROZENsoil[" << ii << "]: " << FROZENsoil[ii];
+    BOOST_LOG_SEV(glg, debug) << "FROZENFRACsoil[" << ii << "]: " << FROZENFRACsoil[ii];
+    BOOST_LOG_SEV(glg, debug) << "TEXTUREsoil[" << ii << "]: " << TEXTUREsoil[ii];
+    BOOST_LOG_SEV(glg, debug) << "rawc[" << ii << "]: " << rawc[ii];
+    BOOST_LOG_SEV(glg, debug) << "soma[" << ii << "]: " << soma[ii];
+    BOOST_LOG_SEV(glg, debug) << "sompr[" << ii << "]: " << sompr[ii];
+    BOOST_LOG_SEV(glg, debug) << "somcr[" << ii << "]: " << somcr[ii];
+    BOOST_LOG_SEV(glg, debug) << "orgn[" << ii << "]: " << orgn[ii];
+    BOOST_LOG_SEV(glg, debug) << "avln[" << ii << "]: " << avln[ii];
+
+    for(int jj=0; jj<12; jj++){
+      BOOST_LOG_SEV(glg, debug) << "prvltrfcnA[" << jj << "][" << ii << "]: " << prvltrfcnA[jj][ii];
+    }
+  }
+
+  for(int ii=0; ii<MAX_ROC_LAY; ii++){
+    BOOST_LOG_SEV(glg, debug) << "TSrock[" << ii << "]: " << TSrock[ii];
+    BOOST_LOG_SEV(glg, debug) << "DZrock[" << ii << "]: " << DZrock[ii];
+  }
+
+  for(int ii=0; ii<MAX_NUM_FNT; ii++){
+    BOOST_LOG_SEV(glg, debug) << "frontZ[" << ii << "]: " << frontZ[ii];
+    BOOST_LOG_SEV(glg, debug) << "frontFT[" << ii << "]: " << frontFT[ii];
+  }
+
+
+
+
+
+
+  BOOST_LOG_SEV(glg, debug) << "***** END RESTARTDATA *****";
+}
+
+
