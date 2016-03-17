@@ -47,6 +47,13 @@ DEFAULT_EXTRACTED_ARCHIVE_LOCATION = ""
 #
 from matplotlib.backend_bases import NavigationToolbar2
 
+def stylize_buttons(r, sizefrac=1.0):
+    "stylize all radio buttons in `r` collection."
+    [c.set_radius(c.get_radius()*sizefrac) for c in r.circles]
+    [c.set_linestyle('solid') for c in r.circles]
+    [c.set_edgecolor('black') for c in r.circles]
+    [c.set_linewidth(0.5) for c in r.circles] # not sure if this has any affect
+
 def home_overload(self, *args, **kwargs):
   logging.info("HOME button pressed. DISABLED; doing nothing.")
   return 'break'
@@ -194,79 +201,49 @@ class ExpandingWindow(object):
     self.fig = plt.figure(figsize=(6*1.3, 8*1.3))
     self.ewp_title = self.fig.suptitle(figtitle)
 
-    # build a list of the pft specific traces
-    pfttraces = []
-    for trace in self.traces:
-      if 'pft' in trace.keys():
-        pfttraces.append(trace['jsontag'])
+    if no_show:
+      # NO NEED FOR ANY SPACE FOR VARIOUS RADIO BUTTONS
+      self.gs = gridspec.GridSpec(rows, cols)
 
-    if ( (len(pfttraces) > 0) and (not no_show) ):
-      gs = gridspec.GridSpec(rows, cols+1, width_ratios=[8,1])
-      if (not no_show):
-        logging.debug("Setting up a radio button pft chooser...")
-        self.pftradioax = plt.subplot(gs[0:, -1]) # all rows, last column
+    else:
+      # MAKE SPACE FOR VARIOUS CONTROL BUTTONS
+      self.gs = gridspec.GridSpec(rows, cols+1, width_ratios=[8,1])
+
+      # figure out the index of the button that should be selected
+      # this is horribly ugly, but seems to work...
+      idx = [i for i,v in enumerate([configured_suites[k]['traces']==traceslist for k,v in configured_suites.iteritems()]) if v]
+      active_idx = idx[0]
+
+      # SUITE Selection
+      logging.debug("Set up radio buttons for picking the SUITE to display...")
+      self.suiteradioax = plt.subplot(self.gs[0:2, -1])
+      self.suiteradio = matplotlib.widgets.RadioButtons(
+          self.suiteradioax,
+          [ k for k, v in configured_suites.iteritems() ],
+          active=active_idx
+      )
+      self.suiteradio.on_clicked(self.suite_changer)
+      stylize_buttons(self.suiteradio, sizefrac=0.75)
+
+      # PFT Selection
+      pfttraces = []
+      for trace in self.traces:
+        if 'pft' in trace.keys():
+          pfttraces.append(trace['jsontag'])
+
+      if ( (len(pfttraces) > 0) ):
+        logging.debug("Setup radio buttons for picking the PFT to display...")
+        self.pftradioax = plt.subplot(self.gs[2:4, -1])
         self.pftradio = matplotlib.widgets.RadioButtons(
             self.pftradioax,
             ['PFT%i'%(i) for i in range(0,10)],
             active=int(self.get_currentpft()[-1])
         )
         self.pftradio.on_clicked(self.pftchanger)
-    else:
-      gs = gridspec.GridSpec(rows, cols)
+        stylize_buttons(self.pftradio, sizefrac=0.75)
 
-    # Make the first axes, then all others, sharing x on the first axes.
-    self.axes = [ plt.subplot(gs[0,0]) ]
-    for r in range(1, rows):
-      self.axes.append(plt.subplot(gs[r, 0], sharex=self.axes[0]))
+    self.setup_axes_ticks_events_and_load_data()
 
-    # Turn off all tick labels on x axis
-    for r in range(rows):
-      plt.setp(self.axes[r].get_xticklabels(), visible=False)
-
-    # Set the x label and ticks for the last (lowest) subplot
-    if self.input_helper.monthly():
-      self.axes[-1].set_xlabel("Month")
-    else:
-      self.axes[-1].set_xlabel("Years")
-
-    plt.setp(self.axes[-1].get_xticklabels(), visible=True)
-    gs.tight_layout(self.fig, rect=[0.05, 0.00, 1.00, 0.95])
-                                         # L     B     W     H
-
-    self.fig.canvas.mpl_connect('key_press_event', self.key_press_event)
-
-
-    x = np.arange(0)
-    y = x.copy() * np.nan
-  
-    logging.debug("Setting up empty x,y data for every trace...")
-    for trace in self.traces:
-      ax = self.axes[ trace['axesnum'] ]
-      if 'pftpart' in trace.keys():
-        lbl = '%s %s' % (trace['jsontag'], trace['pftpart'])
-        trace['artists'] = ax.plot(x,y,label=lbl)
-      else:
-        trace['artists'] = ax.plot(x, y, label=trace['jsontag'])
-
-    self.plot_target_lines()
-
-    logging.debug("Set the backgrond pft text for for pft specific variables..")
-    self.set_bg_pft_txt()
-
-    logging.debug("Label the y axes with units if available")
-    for i, ax in enumerate(self.axes):
-      for trace in self.traces:
-        if trace['axesnum'] == i:
-          if 'units' in trace.keys():
-            ax.set_ylabel("%s" % trace['units'])
-          else:
-            logging.debug("No units are set in this trace!!")
-
-    self.relim_autoscale_draw()
-    self.grid_and_legend()
-    
-    self.load_data2plot(relim=True, autoscale=True)
-  
     logging.info("Done creating an expanding window plot object...")
 
 
@@ -465,6 +442,126 @@ class ExpandingWindow(object):
       logging.info("Data limits are inside view limits. Load data and redraw.")
       self.load_data2plot(relim=True, autoscale=True)
       return [trace['artists'][0] for trace in self.traces]
+
+  def setup_axes_ticks_events_and_load_data(self):
+    '''A catch-all setup function'''
+
+    # Make the first axes, then all others, sharing x on the first axes.
+    self.axes = [ plt.subplot(self.gs[0,0]) ]
+    for r in range(1, self.gs.get_geometry()[0]):
+      self.axes.append(plt.subplot(self.gs[r, 0], sharex=self.axes[0]))
+
+    # Turn off all tick labels on x axis
+    for r in range(self.gs.get_geometry()[0]):
+      plt.setp(self.axes[r].get_xticklabels(), visible=False)
+
+    # Set the x label and ticks for the last (lowest) subplot
+    if self.input_helper.monthly():
+      self.axes[-1].set_xlabel("Month")
+    else:
+      self.axes[-1].set_xlabel("Years")
+
+    plt.setp(self.axes[-1].get_xticklabels(), visible=True)
+                                         # L     B     W     H
+    self.gs.tight_layout(self.fig, rect=[0.05, 0.00, 1.00, 0.95])
+
+    self.fig.canvas.mpl_connect('key_press_event', self.key_press_event)
+
+    x = np.arange(0)
+    y = x.copy() * np.nan
+
+    logging.debug("Setting up empty x,y data for every trace...")
+    for trace in self.traces:
+      ax = self.axes[ trace['axesnum'] ]
+      if 'pftpart' in trace.keys():
+        lbl = '%s %s' % (trace['jsontag'], trace['pftpart'])
+        trace['artists'] = ax.plot(x,y,label=lbl)
+      else:
+        trace['artists'] = ax.plot(x, y, label=trace['jsontag'])
+
+    self.plot_target_lines()
+
+    logging.debug("Set the backgrond pft text for for pft specific variables..")
+    self.set_bg_pft_txt()
+
+    logging.debug("Label the y axes with units if available")
+    for i, ax in enumerate(self.axes):
+      for trace in self.traces:
+        if trace['axesnum'] == i:
+          if 'units' in trace.keys():
+            ax.set_ylabel("%s" % trace['units'])
+          else:
+            logging.debug("No units are set in this trace!!")
+
+    self.relim_autoscale_draw()
+    self.grid_and_legend()
+
+    self.load_data2plot(relim=True, autoscale=True)
+
+
+  def suite_changer(self, suite):
+    '''Changes which plot suite is being shown/updated'''
+
+    logging.info("Changing to view the %s plot suite." % suite)
+    # get the index of the selected button
+    keys = [k for k, v in configured_suites.iteritems()]
+    for i, k in enumerate(keys):
+      if k == suite:
+        n = i
+
+    # Deal with the title. First get the old title, pull out the suite, (
+    # first element in first line), replace it with the new suite, and then
+    # make a new string and set the title.
+    title_tokens = [l.split() for l in self.ewp_title.get_text().splitlines()]
+    title_tokens[0][0] = suite
+    self.ewp_title.set_text("\n".join([' '.join(w) for w in title_tokens]))
+
+    # Now clear the old figure
+    self.fig.clear()
+
+    # Set the new title
+    self.fig.suptitle(self.ewp_title.get_text())
+
+    # Update the traces list based on the new suite
+    self.traces = configured_suites[suite]['traces']
+
+    # Set up the grid spec with room for the pft and suite buttons on the right
+    self.gs = gridspec.GridSpec(configured_suites[suite]['rows'], configured_suites[suite]['cols']+1, width_ratios=[8,1])
+
+    # Setup the radio button suite
+    logging.info("Setting up a radio button SUITE chooser...")
+    self.suiteradioax = plt.subplot(self.gs[0:2, -1]) # just a few rows, last column
+    self.suiteradio = matplotlib.widgets.RadioButtons(
+        self.suiteradioax,
+        [ k for k, v in configured_suites.iteritems() ],
+        active=n
+    )
+    self.suiteradio.on_clicked(self.suite_changer)
+    stylize_buttons(self.suiteradio, sizefrac=0.75)
+
+    # Should really figure out what the old pft number was?
+    self.set_pft_number(0)
+
+    # build a list of the pft specific traces
+    pfttraces = []
+    for trace in self.traces:
+      if 'pft' in trace.keys():
+        pfttraces.append(trace['jsontag'])
+
+    if ( (len(pfttraces) > 0) ):
+      logging.info("Setting up a radio button pft chooser...")
+      self.pftradioax = plt.subplot(self.gs[2:4, -1]) # just a few rows, last column
+      self.pftradio = matplotlib.widgets.RadioButtons(
+          self.pftradioax,
+          ['PFT%i'%(i) for i in range(0,10)],
+          active=int(self.get_currentpft()[-1])
+        )
+
+      self.pftradio.on_clicked(self.pftchanger)
+      stylize_buttons(self.pftradio, sizefrac=0.75)
+
+    self.setup_axes_ticks_events_and_load_data()
+
 
   def pftchanger(self, label):
     '''Changes which pft is being plotted.'''
