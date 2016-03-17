@@ -191,7 +191,7 @@ class ExpandingWindow(object):
 
     self.no_show = no_show
 
-    self.fig = plt.figure(figsize=(6*1.3,8*1.3))
+    self.fig = plt.figure(figsize=(6*1.3, 8*1.3))
     self.ewp_title = self.fig.suptitle(figtitle)
 
     # build a list of the pft specific traces
@@ -230,8 +230,8 @@ class ExpandingWindow(object):
       self.axes[-1].set_xlabel("Years")
 
     plt.setp(self.axes[-1].get_xticklabels(), visible=True)
-                                  # L     B     W     H
     gs.tight_layout(self.fig, rect=[0.05, 0.00, 1.00, 0.95])
+                                         # L     B     W     H
 
     self.fig.canvas.mpl_connect('key_press_event', self.key_press_event)
 
