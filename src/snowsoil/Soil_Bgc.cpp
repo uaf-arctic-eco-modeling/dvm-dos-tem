@@ -245,8 +245,8 @@ void Soil_Bgc::initializeState() {
       bd->m_sois.avln [il] = 0.0;
       bd->m_sois.orgn [il] = 0.0;
     }
-  }
-};
+  } // end soil layer loop
+}
 
 void Soil_Bgc::set_state_from_restartdata(const RestartData & rdata) {
   
