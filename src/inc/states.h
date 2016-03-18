@@ -228,11 +228,11 @@ struct soistate_env {
 };
 
 struct soistate_bgc {
-  double wdebrisc;    //wood debris C
-  double wdebrisn;    //wood debris N
+  double wdebrisc;    // wood debris C
+  double wdebrisn;    // wood debris N
 
-  double dmossc;  //dead moss material C
-  double dmossn;  //dead moss material N
+  double dmossc;  // dead moss material C
+  double dmossn;  // dead moss material N
 
   double rawc[MAX_SOI_LAY];   //soil raw plant material C
   double soma[MAX_SOI_LAY];   //active som c

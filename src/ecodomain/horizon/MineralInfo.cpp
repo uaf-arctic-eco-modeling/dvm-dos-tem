@@ -7,7 +7,6 @@ extern src::severity_logger< severity_level > glg;
 MineralInfo::MineralInfo() {}
 
 MineralInfo::MineralInfo(const std::string& fname, const int y, const int x) {
-  // what do do with f??
   
   BOOST_LOG_SEV(glg, info) << "Loading ModelInfo (soil texture) from file: " << fname;
   BOOST_LOG_SEV(glg, info) << "Loading for (y, x) point: " << "("<< y <<","<< x <<").";
@@ -22,26 +21,24 @@ MineralInfo::MineralInfo(const std::string& fname, const int y, const int x) {
     clay[i] = pclay;
   }
 
-
   setDefaultThick(0.0);
-};
+}
 
-MineralInfo::~MineralInfo() {
-};
+MineralInfo::~MineralInfo() {}
 
 void MineralInfo::setDefaultThick(const double & thickness) {
-  //The following is the default thickness and number of mineral layers (Yuan)
+  // The following is the default thickness and number of mineral layers (Yuan)
   num = MAX_MIN_LAY;
   thick = 0.0;
 
   for (int i=0; i<MAX_MIN_LAY; i++) {
-    dz[i]=MINETHICK[i]; //default thickness (defined in MINETHICK[]
-                        //  in /inc/layerconst.h)
-    thick+=dz[i];
+    dz[i] = MINETHICK[i]; // Default thickness
+                          // (defined in MINETHICK[] in /inc/layerconst.h)
+    thick += dz[i];
   }
 
-  // if total thickness input, needs update the actual bottom layer's thickness
-  if (thickness > 0.) {
+  // If total thickness input, needs update the actual bottom layer's thickness
+  if (thickness > 0.0) {
     thick = 0.0;
     num = 0;
 
@@ -52,16 +49,16 @@ void MineralInfo::setDefaultThick(const double & thickness) {
         dz[i] = thick - thickness;
         thick = thickness;
         break;
-      } else if (i==MAX_MIN_LAY-1) {//last layer, but still input
-                                    //  thickness too large
-        dz[i] += thickness - thick; // add the rest into the bottom layer
+      } else if (i==MAX_MIN_LAY-1) { // last layer, but still input thickness
+                                     // too large
+        dz[i] += thickness - thick;  // add the rest into the bottom layer
         thick = thickness;
       }
 
       num ++;
     }
   }
-};
+}
 
 
 void MineralInfo::set5Soilprofile(int soiltype[],
@@ -77,5 +74,5 @@ void MineralInfo::set5Soilprofile(int soiltype[],
       thick += soildz[i];
     }
   }
-};
+}
 

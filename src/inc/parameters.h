@@ -166,7 +166,7 @@ struct soipar_dim {
   double coefshlwa;//carbon vs thick
   double coefshlwb;//carbon vs thick
 
-  double mindeepthick;
+  double mindeepthick; // FIX: Unused???
   double coefdeepa;//carbon vs thick
   double coefdeepb;//carbon vs thick
 

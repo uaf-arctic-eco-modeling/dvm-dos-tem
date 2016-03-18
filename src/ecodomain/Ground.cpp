@@ -203,15 +203,19 @@ void Ground::initParameter() {
   soildimpar.coefmineb  = chtlu->coefmineb;
 };
 
-//initial dimension from inputs
+/** Initialize dimensions from inputs. */
 void Ground::initDimension() {
   snow.thick = chtlu->initsnwthick;
   snow.dense = chtlu->initsnwdense;
+
   moss.thick = chtlu->initdmossthick;
   moss.type  = chtlu->mosstype;
   organic.shlwthick = chtlu->initfibthick;
   organic.deepthick = chtlu->inithumthick;
   
+  soilparent.thick = 50.0;  // meter
+
+
   // SHOULD BE ABLE TO GET RID OF ALL OF THIS WITH PROPERLY CONSTRUCTED MineralInfo object!
   //mineralinfo.num = 0;
   //mineralinfo.thick = 0;
@@ -242,18 +246,17 @@ void Ground::initDimension() {
   //  }
   //}
 
-  soilparent.thick = 50.;  //meter
 }
 
 void Ground::initLayerStructure(snwstate_dim *snowdim, soistate_dim *soildim) {
-  //needs to clean up old 'ground', if any
+  // Needs to clean up old 'ground', if any
   cleanAllLayers();
 
-  //layers are constructed from bottom
+  // Layers are constructed from bottom
   if(rocklayercreated) {
     cleanSnowSoilLayers();
   } else {
-    initRockLayers(); //rock in the bottom first and no-need to do again
+    initRockLayers(); // Rock in the bottom first and no-need to do again
   }
 
   initSnowSoilLayers();
@@ -302,33 +305,36 @@ void Ground::initSnowSoilLayers() {
   }
 
   // if nonvascular PFT exists
-  if (moss.thick>0.) {
-    double initmldz[] = {0., 0.};
-    initmldz[0] = fmin(0.01, moss.thick); //moss thick in m, which needs input,
-                                          //assuming 0.01 m is living, and the
-                                          //rest is dead
-    initmldz[1] = fmax(0., moss.thick - initmldz[0]);
+  if (moss.thick > 0.0) {
+
+    double initmldz[] = {0.0, 0.0};
+
+    initmldz[0] = fmin(0.01, moss.thick); // moss thick in m, which needs input,
+                                          // assuming 0.01 m is living, and the
+                                          // rest is dead
+    initmldz[1] = fmax(0.0, moss.thick - initmldz[0]);
+
     int soiltype[] = {-1, -1};
 
-    if (initmldz[0] > 0.) {
+    if (initmldz[0] > 0.0) {
       soiltype[0] = 0;
     }
 
-    if (initmldz[1] > 0.) {
+    if (initmldz[1] > 0.0) {
       soiltype[1] = 0;
     }
 
     moss.setThicknesses(soiltype, initmldz, 2);
 
-    for(int il = moss.num-1; il>=0; il--) {
-      //moss type (1- sphagnum, 2- feathermoss), which needs input
+    for(int il = moss.num-1; il >= 0; il--) {
+      // moss type (1- sphagnum, 2- feathermoss), which needs input
       MossLayer* ml = new MossLayer(moss.dz[il], moss.type);
       insertFront(ml);
     }
   }
 
   // only ONE snow layer input assummed, if any
-  if(snow.thick>0) {
+  if(snow.thick > 0) {
     SnowLayer* sl = new SnowLayer();
     sl->dz = snow.thick;
     insertFront(sl);
@@ -525,8 +531,8 @@ void Ground::setFstLstMineLayers() {
 };
 
 void Ground::setFstLstMossLayers() {
-  fstmossl =NULL;
-  lstmossl =NULL;
+  fstmossl = NULL;
+  lstmossl = NULL;
   Layer* currl = fstsoill;
 
   while(currl!=NULL) {
@@ -720,9 +726,9 @@ void Ground::updateSoilHorizons() {
 
   while(currl!=NULL) {
     if(currl->isMoss) {
-      ind +=1;
-      moss.num +=1;
-      moss.thick +=currl->dz;
+      ind += 1;
+      moss.num += 1;
+      moss.thick += currl->dz;
       moss.dz[ind] = currl->dz;
 
       if (currl->nextl==NULL || (!currl->nextl->isMoss)) {
@@ -1076,15 +1082,15 @@ void  Ground::redivideSoilLayers() {
   checkWaterValidity();
 };
 
-//
+/** ??? */
 void  Ground::redivideMossLayers(const int &mosstype) {
-  //before adjusting moss layer, needs checking if Moss layer exists
+  // Before adjusting moss layer, needs checking if Moss layer exists
   setFstLstMossLayers();
 
-  // if no moss layer existed, but 'moss.dmossc' has been prescribed or
+  // If no moss layer existed, but 'moss.dmossc' has been prescribed or
   // dynamically known create a new moss layer above the first soil layer
   // for containing the 'dmossc'
-  if(fstmossl==NULL && moss.dmossc > 0.) {
+  if( fstmossl==NULL && moss.dmossc > 0.0 ) {
     moss.type = mosstype;
     moss.num  = 1;
     moss.thick = 0.10; // this is a fake value, will be adjusted below
@@ -1097,8 +1103,9 @@ void  Ground::redivideMossLayers(const int &mosstype) {
     adjustFrontsAfterThickchange(ml->z, ml->dz);//need to adjust
                                                 //'freezing/thawing front depth'
                                                 //due to top layer insert
-    getDmossThickness5Carbon(ml, moss.dmossc); //adjusting the fake 'dz',
-                                               //'front' adjusting included
+
+    // Adjusting the fake 'dz', 'front' adjusting included
+    get_dead_moss_thickness_from_C_content(ml, moss.dmossc);
     ml->derivePhysicalProperty();
 
     if(ml->tem>0.) {
@@ -1128,7 +1135,7 @@ void  Ground::redivideMossLayers(const int &mosstype) {
 
   // moss.thick is too small
   // remove the moss layer, but 'moss.dmossc' is keeping track of change.
-  if(moss.num==1 && moss.thick < soildimpar.minmossthick) {
+  if( (moss.num == 1) && (moss.thick < soildimpar.minmossthick) ) {
     removeLayer(fstmossl);   // and remove the upper moss-layer
     resortGroundLayers();
     updateSoilHorizons();
@@ -1204,9 +1211,7 @@ COMBINEBEGIN:
       nextsl = dynamic_cast<SoilLayer*>(fstminel);
     }
     
-    double rawcmin = soildimpar.coefshlwa
-                     * pow(MINSLWTHICK*100., soildimpar.coefshlwb*1.)*10000.;
-                     //Note: in Yi et al.(2009) - C in gC/cm2, depth in cm
+    double rawcmin = carbonFromThickness(MINSLWTHICK, soildimpar.coefshlwa, soildimpar.coefshlwb);
 
     // FIX: Problem if nextsl is still NULL
     if (nextsl->rawc >= rawcmin) {
@@ -1331,9 +1336,7 @@ COMBINEBEGIN:
       return;
     }
 
-    double deepcmin = soildimpar.coefdeepa
-                      * pow(MINDEPTHICK*100., soildimpar.coefdeepb*1.)*10000.; 
-                      //Note: in Yi et al.(2009) - C in gC/cm2, depth in cm
+    double deepcmin = carbonFromThickness(MINDEPTHICK, soildimpar.coefdeepa, soildimpar.coefdeepb);
 
     //assuming those SOMC available for forming a deep humific OS layer
     double somc = 0.5*lfibl->soma+lfibl->sompr+lfibl->somcr;
@@ -1883,13 +1886,13 @@ void Ground::updateOslThickness5Carbon(Layer* fstsoil) {
     return;
   }
 
-  double mosscbot = 0.;
-  double mossctop = 0.;
-  double shlwcbot = 0.;
-  double shlwctop = 0.;
-  double deepcbot = 0.;
-  double deepctop = 0.;
-  double olddz = 0.;
+  double mosscbot = 0.0;
+  double mossctop = 0.0;
+  double shlwcbot = 0.0;
+  double shlwctop = 0.0;
+  double deepcbot = 0.0;
+  double deepctop = 0.0;
+  double olddz = 0.0;
   Layer* currl=fstsoil;
 
   while(currl!=NULL) {
@@ -1898,22 +1901,22 @@ void Ground::updateOslThickness5Carbon(Layer* fstsoil) {
       olddz = sl->dz;
 
       if(sl->isHumic) {
-        deepcbot = deepctop+sl->rawc+sl->soma+sl->sompr+sl->somcr;
+        deepcbot = deepctop + sl->rawc + sl->soma + sl->sompr + sl->somcr;
         getOslThickness5Carbon(sl, deepctop, deepcbot);
         deepctop = deepcbot;
       } else if(sl->isFibric) {
-        shlwcbot = shlwctop+sl->rawc+sl->soma+sl->sompr+sl->somcr;
+        shlwcbot = shlwctop + sl->rawc + sl->soma + sl->sompr + sl->somcr;
         getOslThickness5Carbon(sl, shlwctop, shlwcbot);
         shlwctop = shlwcbot;
       } else if(sl->isMoss) {
-        mosscbot = mossctop+sl->rawc+sl->soma+sl->sompr+sl->somcr;
+        mosscbot = mossctop + sl->rawc + sl->soma + sl->sompr + sl->somcr;
 
         if (!sl->nextl->isMoss) {
           mosscbot += moss.dmossc; //dead moss C, which not included in SOM,
                                    //  is always in the last moss layer
         }
 
-        getDmossThickness5Carbon(sl, mosscbot);
+        get_dead_moss_thickness_from_C_content(sl, mosscbot);
       }
 
       //
@@ -1923,57 +1926,84 @@ void Ground::updateOslThickness5Carbon(Layer* fstsoil) {
       break;
     }
 
-    currl =currl->nextl;
+    currl = currl->nextl;
   }
 
   //
   updateSoilHorizons();
   //
   checkFrontsValidity();
-};
+}
 
-// conversion from OSL C to thickness
-void Ground::getDmossThickness5Carbon(SoilLayer* sl, const double &dmossc) {
-  //NOTE: the Dead Moss C - thickness relationship is for the
-  //        whole dead moss layer
-  double osdzold = sl->dz;
-  double osdznew = sl->dz;
+/** Calculate layer thickness from dead moss Carbon. See Yi 2009. */
+void Ground::get_dead_moss_thickness_from_C_content(SoilLayer* sl, const double &dmossc) {
+  // NOTE: the Dead Moss C - thickness relationship is for the
+  //       whole dead moss layer
+  double orgsoil_dz_old = sl->dz;
+  double orgsoil_dz_new = sl->dz;
 
   if(sl->isMoss) {
-    osdznew = pow((dmossc/10000.)/soildimpar.coefmossa,
-                  1./soildimpar.coefmossb) / 100.;
-                  //Note: in Yi et al.(2009) - C in gC/cm2, depth in cm
+    orgsoil_dz_new = thicknessFromCarbon(dmossc, soildimpar.coefmossa, soildimpar.coefmossb);
   } else {
     return;
   }
 
-  sl->dz=osdznew;
-  //need to adjust 'freezing/thawing front depth', if 'fronts'
-  //  depth below 'sl->z'
-  adjustFrontsAfterThickchange(sl->z, osdznew - osdzold);
-  //'dz' dependent physical properties
+  sl->dz = orgsoil_dz_new;
+
+  // Need to adjust 'freezing/thawing front depth', if 'fronts'
+  // depth below 'sl->z'
+  adjustFrontsAfterThickchange(sl->z, orgsoil_dz_new - orgsoil_dz_old);
+
+  // 'dz' dependent physical properties
   double oldporo = sl->poro;
-  sl->derivePhysicalProperty(); //update soil physical property after
-                                //  thickness change from C is done
-  double f=fmin(1., sl->dz/osdzold); //so if layer shrinks, it will adjust
-                                     //  water; otherwise, no change.
-  double f2=fmin(1., sl->poro/oldporo);  //for whatever reason, if
-                                         //  porosity changes
-  f = fmin(f, f2);
-  sl->liq *=fmax(0., f);
-  sl->ice *=fmax(0., f);
-};
 
-// conversion from dead Moss thickness to its C content
-void Ground::getDmossCarbon5Thickness(SoilLayer* sl, const double &dmossdz) {
+  sl->derivePhysicalProperty(); // Update soil physical property after
+                                // thickness change from C is done
+
+  double f = fmin(1.0, sl->dz/orgsoil_dz_old); // So if layer shrinks, it will adjust
+                                        // water; otherwise, no change.
+
+  double f2 = fmin(1.0, sl->poro/oldporo);  // For whatever reason, if
+                                            // porosity changes
+  f = fmin(f, f2);
+  sl->liq *= fmax(0.0, f);
+  sl->ice *= fmax(0.0, f);
+}
+
+/** Calculate dead moss Carbon from layer thickness. See Yi 2009. */
+void Ground::get_dead_moss_C_content_from_thickness(SoilLayer* sl, const double &dmossdz) {
   if(sl->isMoss) {
-    moss.dmossc = soildimpar.coefmossa
-                  * pow(dmossdz*100., soildimpar.coefmossb*1.)*10000.;
-                  //Note: in Yi et al.(2009) - C in gC/cm2, depth in cm
+    moss.dmossc = carbonFromThickness(dmossdz, soildimpar.coefmossa, soildimpar.coefmossb);
   } else {
     return;
   }
-};
+}
+
+/** Convert from gC/m^2 to layer thickness (meters) based on Yi et al, 2009. */
+double Ground::thicknessFromCarbon(const double carbon, const double coefA, const double coefB) {
+  assert ((coefB >= 1) && "Yi et al. 2009 says the b coefficient should be a fitted parameter constrained to >= 1!");
+
+  // T = (C/a)^(1/b)
+  double T;
+  T = pow( carbon/10000.0/coefA, 1/coefB); // convert gC/m^2 to gC/cm^2
+  T = T / 100.0;                           // convert thickness from cm to m
+
+  assert ((T >= 0) && "It doesn't make sense to have a negative thickness!");
+  return T;
+}
+
+/** Convert from layer thickness (meters) to gC/m^2 based on Yi et al, 2009. */
+double Ground::carbonFromThickness(const double thickness, const double coefA, const double coefB) {
+  assert ((coefB >= 1) && "Yi et al. 2009 says the b coefficient should be a fitted parameter constrained to >= 1!");
+
+  // C = aT^b
+  double C;
+  C = coefA * pow(thickness*100.0, coefB); // convert from m to cm
+  C = C * 10000.0;                         // convert from gC/cm^2 to gC/m^2
+
+  assert ((C >= 0) && "It doesn't make sense to have a negative amount of Carbon!");
+  return C;
+}
 
 // conversion from OSL C to thickness
 void Ground::getOslThickness5Carbon(SoilLayer* sl, const double &plctop,
@@ -1987,36 +2017,32 @@ void Ground::getOslThickness5Carbon(SoilLayer* sl, const double &plctop,
   double plbot = 0.;
   double cumcarbon    = plcbot; //Cumulative C from the top of the whole horizon
   double prevcumcarbon= plctop; //Cumulative C until the layer top
-  double osdzold = sl->dz;
+  double orgsoil_dz_old = sl->dz;
 
   if(sl->isFibric) {
-    pltop = pow((prevcumcarbon/10000.)/soildimpar.coefshlwa,
-                1./soildimpar.coefshlwb)/100.;
-                //Note: in Yi et al.(2009) - C in gC/cm2, depth in cm
-    plbot = pow((cumcarbon/10000.)/soildimpar.coefshlwa,
-                1./soildimpar.coefshlwb)/100.;
-                //Note: in Yi et al.(2009) - C in gC/cm2, depth in cm
+
+    pltop = thicknessFromCarbon(prevcumcarbon, soildimpar.coefshlwa, soildimpar.coefshlwb);
+    plbot = thicknessFromCarbon(cumcarbon, soildimpar.coefshlwa, soildimpar.coefshlwb);
+
   } else if (sl->isHumic) {
-    pltop = pow((prevcumcarbon/10000.)/soildimpar.coefdeepa,
-                1./soildimpar.coefdeepb)/100.;
-                //Note: in Yi et al.(2009) - C in gC/cm2, depth in cm
-    plbot = pow((cumcarbon/10000.)/soildimpar.coefdeepa,
-                1./soildimpar.coefdeepb)/100.;
-                //Note: in Yi et al.(2009) - C in gC/cm2, depth in cm
+
+    pltop = thicknessFromCarbon(prevcumcarbon, soildimpar.coefdeepa, soildimpar.coefdeepb);
+    plbot = thicknessFromCarbon(cumcarbon, soildimpar.coefdeepa, soildimpar.coefdeepb);
+
   } else {
     return;
   }
 
   sl->dz=plbot-pltop;
-  double osdznew = sl->dz;
+  double orgsoil_dz_new = sl->dz;
   //need to adjust 'freezing/thawing front depth', if 'fronts'
   //  depth below 'sl->z'
-  adjustFrontsAfterThickchange(sl->z, osdznew - osdzold);
+  adjustFrontsAfterThickchange(sl->z, orgsoil_dz_new - orgsoil_dz_old);
   //'dz' dependent physical properties
   double oldporo = sl->poro;
   sl->derivePhysicalProperty(); //update soil physical property after
                                 //  thickness change from C is done
-  double f=fmin(1., sl->dz/osdzold); //so if layer shrinks, it will adjust
+  double f=fmin(1., sl->dz/orgsoil_dz_old); //so if layer shrinks, it will adjust
                                      //  water; otherwise, no change.
   double f2=fmin(1., sl->poro/oldporo);  //for whatever reason, if
                                          //  porosity changes
@@ -2042,17 +2068,15 @@ void Ground::getOslCarbon5Thickness(SoilLayer* sl, const double &plztop,
   double prevcumcarbon=0.;
 
   if(sl->isFibric) {
-    prevcumcarbon = soildimpar.coefshlwa
-                    * pow(dtop*100., soildimpar.coefshlwb*1.)*10000.;
-                    //Note: in Yi et al.(2009) - C in gC/cm2, depth in cm
-    cumcarbon = soildimpar.coefshlwa
-                * pow(dbot*100., soildimpar.coefshlwb*1.)*10000.;
-                //Note: in Yi et al.(2009) - C in gC/cm2, depth in cm
+
+    prevcumcarbon = carbonFromThickness(dtop, soildimpar.coefshlwa, soildimpar.coefshlwb);
+    cumcarbon = carbonFromThickness(dbot, soildimpar.coefshlwa, soildimpar.coefshlwb);
+
   } else if (sl->isHumic) {
-    prevcumcarbon = soildimpar.coefdeepa
-                    * pow(dtop*100., soildimpar.coefdeepb*1.)*10000.;
-    cumcarbon = soildimpar.coefdeepa
-                * pow(dbot*100., soildimpar.coefdeepb*1.)*10000.;
+
+    prevcumcarbon = carbonFromThickness(dtop, soildimpar.coefdeepa, soildimpar.coefdeepb);
+    cumcarbon = carbonFromThickness(dbot, soildimpar.coefdeepa, soildimpar.coefdeepb);
+
   } else {
     return;
   }

@@ -134,7 +134,7 @@ class InputHelper(object):
     return sorted( glob.glob('%s/*.json' % self._path) )
 
   def path(self):
-    '''Useful for client programs wanting to show where files are coming from'''
+    '''Useful for client programs wanting to show where files are coming from.'''
     return self._path
 
   def monthly(self):
@@ -142,7 +142,7 @@ class InputHelper(object):
 
 
   def coverage_report(self, file_list):
-    '''convenience function to write some info about files to the logs'''
+    '''Convenience function to write some info about files to the logs'''
 
     logging.info( "%i json files in %s" % (len(file_list), self._path) )
 
@@ -289,11 +289,18 @@ class ExpandingWindow(object):
     self.input_helper.coverage_report(files)
 
     if self.window_size_yrs:  # seems broken TKinter Exception about 'can't enter readline'
+      log.info("Reducing files list to cover only the last %i years..." % self.window_size_yrs)
+
       if self.input_helper.monthly():
-        log.info("Reducing files list to last %i files..." % self.window_size_yrs*12)
-        files = files[-self.window_size_yrs*12]
+        logging.debug("No. of monthly files available: %s" % len(files))
+        logging.debug("Years represented: %s" % (len(files)/12))
+        logging.debug("current window size, years: %s" % self.window_size_yrs)
+        logging.debug("No. of monthly files to use from back of list: %s" % (int(self.window_size_yrs)*12))
+
+        first_file_idx = int(self.window_size_yrs) * 12
+        files = files[-first_file_idx:]
+
       else:
-        log.info("Reducing files list to last %i files..." % self.window_size_yrs)
         files = files[-self.window_size_yrs:]
 
     self.input_helper.coverage_report(files)

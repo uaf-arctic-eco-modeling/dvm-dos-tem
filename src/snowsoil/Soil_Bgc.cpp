@@ -50,6 +50,9 @@ Soil_Bgc::Soil_Bgc(): nfeed(false), avlnflg(false), baseline(false),
 Soil_Bgc::~Soil_Bgc() {
 };
 
+/** Writes Carbon values from the bd structure (BGC Data) into each soil layer 
+    held in the Ground object.
+*/
 void Soil_Bgc::assignCarbonBd2LayerMonthly() {
   Layer* currl = ground->fstsoill;
 
@@ -69,8 +72,13 @@ void Soil_Bgc::assignCarbonBd2LayerMonthly() {
   ground->moss.dmossc = bd->m_sois.dmossc;
   ground->organic.shlwc = bd->m_soid.shlwc;
   ground->organic.deepc = bd->m_soid.deepc;
-};
 
+  // What about mineral C ??
+}
+
+/** Writes Carbon values from each of the Ground object's Layers into the bd 
+    structure (BGC Data).
+*/
 void Soil_Bgc::assignCarbonLayer2BdMonthly() {
   Layer* currl = ground->fstsoill;
   int lstprocessedlayer = 0;
@@ -90,14 +98,14 @@ void Soil_Bgc::assignCarbonLayer2BdMonthly() {
   }
 
   for(int il = lstprocessedlayer+1; il<MAX_SOI_LAY; il++) {
-    bd->m_sois.rawc[il]=0.;
-    bd->m_sois.soma[il]=0.;
-    bd->m_sois.sompr[il]=0.;
-    bd->m_sois.somcr[il]=0.;
+    bd->m_sois.rawc[il] = 0.0;
+    bd->m_sois.soma[il] = 0.0;
+    bd->m_sois.sompr[il] = 0.0;
+    bd->m_sois.somcr[il] = 0.0;
   }
 
   bd->m_sois.dmossc = ground->moss.dmossc;
-};
+}
 
 void Soil_Bgc::prepareIntegration(const bool &mdnfeedback,
                                   const bool &mdavlnflg,
@@ -196,35 +204,46 @@ void Soil_Bgc::afterIntegration() {
 };
 
 void Soil_Bgc::initializeState() {
-  //set initiate state variable
-  double dmossc= chtlu->initdmossc;
+
+  // Set initiate state variable
   double shlwc = chtlu->initshlwc;
   double deepc = chtlu->initdeepc;
   double minec = chtlu->initminec;
+
   initSoilCarbon(shlwc, deepc, minec);
   assignCarbonLayer2BdMonthly();
+
   bd->m_sois.wdebrisc = 0;
-  bd->m_sois.dmossc   = dmossc;
-  //initial N based on input total and SOM C profile
-  double sumtotc = shlwc+deepc+minec;
-  //initial available N based only on organic SOM C total
-  double sumorgc = shlwc+minec;
+  bd->m_sois.dmossc   = chtlu->initdmossc;
+
+  // Initial N based on input total and SOM C profile
+  double sum_total_C = shlwc + deepc + minec;
+
+  // Initial available N based only on organic SOM C total
+  double sum_organic_C = shlwc + minec;
+  // Is the above correct? See V. Patil's change here:
+  // https://github.com/vppatil/dvm-dos-tem/commit/b7ff148a769f3574460f8fccafdd9250ac284def
+  // however it appears that this local variable is never used,
+  // so the change should have no effect.
 
   for (int il=0; il<MAX_SOI_LAY; il++ ) {
-    double totc = bd->m_sois.rawc[il]+bd->m_sois.soma[il]
-                  +bd->m_sois.sompr[il]+bd->m_sois.somcr[il];
-    if (totc > 0. && sumtotc > 0.) {
-    //available N should only be calculated where roots are actively 
-    //turning over (ie, root zone)
-      if(bd->m_v2soi.rtlfalfrac[il] > 0.){
-        bd->m_sois.avln [il] = chtlu->initavln*totc/sumtotc;
+    double total_monthly_C = bd->m_sois.rawc[il] +
+                             bd->m_sois.soma[il] +
+                             bd->m_sois.sompr[il] +
+                             bd->m_sois.somcr[il];
+
+    // Available N should only be calculated where roots are actively
+    // turning over (ie, root zone)
+    if (total_monthly_C > 0.0 && sum_total_C > 0.0) {
+      if(bd->m_v2soi.rtlfalfrac[il] > 0.0) {
+        bd->m_sois.avln[il] = chtlu->initavln * total_monthly_C/sum_total_C;
       } else {
-        bd->m_sois.avln [il] = 0.;
+        bd->m_sois.avln[il] = 0.0;
       }
-      bd->m_sois.orgn [il] = chtlu->initsoln*totc/sumtotc;
+      bd->m_sois.orgn [il] = chtlu->initsoln * total_monthly_C/sum_total_C;
     } else {
-      bd->m_sois.avln [il] = 0.;
-      bd->m_sois.orgn [il] = 0.;
+      bd->m_sois.avln [il] = 0.0;
+      bd->m_sois.orgn [il] = 0.0;
     }
   }
 };
@@ -576,20 +595,27 @@ void Soil_Bgc::deltac() {
   }
 };
 
-// soil N budget
+/** soil N budget */
 void Soil_Bgc::deltan() {
   if (this->nfeed == 1) { // soil-plant N cycle switched on
-    //total N immobilization and net mineralization
-    totnetnmin = 0.;
+    // Total N immobilization and net mineralization
+    totnetnmin = 0.0;
 
     for(int i=0; i<cd->m_soil.numsl; i++) {
-      double totc = tmp_sois.rawc[i]+tmp_sois.soma[i]
-                    +tmp_sois.sompr[i]+tmp_sois.somcr[i];
-      double rhsum = del_soi2a.rhrawc[i]+del_soi2a.rhsoma[i]
-                     +del_soi2a.rhsompr[i]+del_soi2a.rhsomcr[i];
+      double totc = tmp_sois.rawc[i] +
+                    tmp_sois.soma[i] +
+                    tmp_sois.sompr[i] +
+                    tmp_sois.somcr[i];
+
+      double rhsum = del_soi2a.rhrawc[i] +
+                     del_soi2a.rhsoma[i] +
+                     del_soi2a.rhsompr[i]+
+                     del_soi2a.rhsomcr[i];
+
       double nimmob = getNimmob(ed->m_sois.liq[i], totc,
                                 tmp_sois.orgn[i], tmp_sois.avln[i],
                                 bd->m_soid.knmoist[i], bgcpar.kn2);
+
       del_soi2soi.nimmob[i] = nimmob;
       del_soi2soi.netnmin[i] = getNetmin(nimmob, totc, tmp_sois.orgn[i],
                                          rhsum ,bgcpar.nmincnsoil,
@@ -642,14 +668,15 @@ void Soil_Bgc::deltan() {
           del_soi2soi.netnmin[i] *=nminadj/totnetnmin;
         }
       }
-    } else { //N budget estimation of inorganic N loss
-      del_soi2l.avlnlost = bd->m_a2soi.avlninput - totnextract
-                           +totnetnmin;
+    } else { // End (this->avlnflg == 1)
+      // N budget estimation of inorganic N loss
+      del_soi2l.avlnlost = bd->m_a2soi.avlninput -
+                           totnextract + totnetnmin;
     }
 
     if ( !this->baseline ) {
-      del_soi2l.orgnlost = 0.; //DON lost - not yet done and this
-                               //  is the portal for future development
+      del_soi2l.orgnlost = 0.0; // Dynamic Organic N lost - not yet done.
+                                // this is the portal for future development.
     } else {
       // note: this will re-estimate the fire-emission re-deposition
       del_a2soi.orgninput = 0.;
@@ -663,7 +690,7 @@ void Soil_Bgc::deltan() {
       } else {
         del_soi2l.orgnlost  += bd->m_soid.orgnsum - orgneven;
       }
-    }
+    } // End baseline
   }
 };
 
@@ -690,28 +717,33 @@ void Soil_Bgc::deltastate() {
   //2) If soil respiration known, then internal C pool transformation
   //     can be estimated as following
   for(int il=0; il<cd->m_soil.numsl; il++) {
-    double rhsum = del_soi2a.rhrawc[il]+del_soi2a.rhsoma[il]
-                   +del_soi2a.rhsompr[il]+del_soi2a.rhsomcr[il];
+    double rhsum = del_soi2a.rhrawc[il] +
+                   del_soi2a.rhsoma[il] +
+                   del_soi2a.rhsompr[il] +
+                   del_soi2a.rhsomcr[il];
 
-    if (cd->m_soil.type[il+1]>0 &&   //
-        (il==0 || cd->m_soil.type[il]==0)) { //all products from dead moss C decomposition assumed into the last moss layer or first layer if no moss-layer
-      rhsum  += del_soi2a.rhmossc;
+    // All products from dead moss C decomposition assumed into the last moss
+    // layer or first layer if no moss-layer.
+    if ( cd->m_soil.type[il+1]>0 && (il==0 || cd->m_soil.type[il]==0) ) {
+      rhsum += del_soi2a.rhmossc;
     }
 
-    if (il==0) { //all products from debris C decomposition
-                 //  assumed into first layer
+    // All products from debris C decomposition assumed into first layer
+    if (il == 0) {
       rhsum  += del_soi2a.rhwdeb;
     }
 
-    del_sois.rawc[il] = ltrflc[il] //So note that: root death is the
-                                   //  reason for deep SOM increment
-                        -del_soi2a.rhrawc[il]*(1.0+somtoco2);    //
-    del_sois.soma[il]  = rhsum*somtoco2*fsoma
-                         - del_soi2a.rhsoma[il]*(1.0+somtoco2);      //
-    del_sois.sompr[il] = rhsum*somtoco2*fsompr
-                         - del_soi2a.rhsompr[il]*(1.0+somtoco2);      //
-    del_sois.somcr[il] = rhsum*somtoco2*fsomcr
-                         - del_soi2a.rhsomcr[il]*(1.0+somtoco2);      //
+    // So note that: root death is the reason for deep SOM increment
+    del_sois.rawc[il] = ltrflc[il] - del_soi2a.rhrawc[il] * (1.0+somtoco2);
+
+    del_sois.soma[il] = (rhsum * somtoco2 * fsoma) -
+                        del_soi2a.rhsoma[il] * (1.0+somtoco2);
+
+    del_sois.sompr[il] = (rhsum * somtoco2 * fsompr) -
+                         del_soi2a.rhsompr[il] * (1.0+somtoco2);
+
+    del_sois.somcr[il] = rhsum*somtoco2*fsomcr -
+                         del_soi2a.rhsomcr[il] * (1.0+somtoco2);
   }
 
   //dead moss, if any
