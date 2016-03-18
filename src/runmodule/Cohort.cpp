@@ -516,18 +516,20 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
 
           soilenv.getSoilTransFactor(ed[ip].d_soid.fbtran,
                                      ground.fstsoill, frootfr);
-          ed[ip].d_vegd.btran = 0.;
+          ed[ip].d_vegd.btran = 0.0;
 
           for (int il=0; il<MAX_SOI_LAY; il++) {
-            ed[ip].d_vegd.btran+=ed[ip].d_soid.fbtran[il];
+            ed[ip].d_vegd.btran += ed[ip].d_soid.fbtran[il];
           }
-        } else {//for non-vascular plants - needs further algorithm development
+
+        } else {
+        // for NON-VASCULAR plants - needs further algorithm development
           double rh = ed[ip].d_atmd.vp/ed[ip].d_atmd.svp;
 
-          if ( rh >= 0.60 || ed[ip].d_soid.sws[0]>0.60) {
-            ed[ip].d_vegd.btran = 1.;
+          if ( rh >= 0.60 || (ed[ip].d_soid.sws[0] > 0.60) ) {
+            ed[ip].d_vegd.btran = 1.0;
           } else {
-            ed[ip].d_vegd.btran = 0.;
+            ed[ip].d_vegd.btran = 0.0;
           }
         }
 

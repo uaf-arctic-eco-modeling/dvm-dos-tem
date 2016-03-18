@@ -88,9 +88,11 @@ void TemperatureUpdator::updateTemps(const double & tdrv, Layer *fstvalidl,
 
 
 void TemperatureUpdator::processColumnNofront(Layer* fstvalidl, Layer *backl, const double & tdrv, const bool & meltsnow) {
+
   int startind, endind;
-  //the boundary of 'fstvalidl' as a virtual layer,
-  //  serving as boundary condition
+
+  // The boundary of 'fstvalidl' as a virtual layer,
+  // serving as boundary condition
   int ind = fstvalidl->indl - 1;
   startind = ind;
 
@@ -101,10 +103,10 @@ void TemperatureUpdator::processColumnNofront(Layer* fstvalidl, Layer *backl, co
   }
 
   e[ind]  = t[ind];
-  s[ind]  = 0.;
+  s[ind]  = 0.0;
   cn[ind] = 1.0e2; //assume very big thermal conductivity for this virtual
                    //  layer (Reason for osicillation!!! from e20 to e2)
-  cap[ind]= 0.; // assume no heat capacity for this virtual layer
+  cap[ind]= 0.0; // assume no heat capacity for this virtual layer
   // actual layers, above 'frontl', invovling thermal process
   Layer* currl = fstvalidl;
   double hcap;

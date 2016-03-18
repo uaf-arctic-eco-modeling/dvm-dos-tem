@@ -354,13 +354,13 @@ void Soil_Bgc::initSoilCarbon(double & initshlwc, double & initdeepc,
 // initialize Organic Soil layers' carbon based on input layer thickness
 void Soil_Bgc::initOslayerCarbon(double & shlwc, double & deepc) {
   Layer* currl = ground->fstsoill;
-  double dbmtop = 0.;
-  double dbmbot = 0.;
-  double cumcarbontop = 0.;
-  double cumcarbonbot = 0.;
-  double cumcarbonshlw = 0.;
-  double cumcarbondeep = 0.;
-  ground->moss.dmossc = 0.;
+  double dbmtop = 0.0;
+  double dbmbot = 0.0;
+  double cumcarbontop = 0.0;
+  double cumcarbonbot = 0.0;
+  double cumcarbonshlw = 0.0;
+  double cumcarbondeep = 0.0;
+  ground->moss.dmossc = 0.0;
 
   while(currl!=NULL) {
     if(currl->isSoil) {
@@ -371,8 +371,8 @@ void Soil_Bgc::initOslayerCarbon(double & shlwc, double & deepc) {
       if (currl==ground->fstmossl
           || currl==ground->fstshlwl
           || currl==ground->fstdeepl) {
-        dbmtop= 0.;
-        cumcarbontop = 0.;
+        dbmtop = 0.0;
+        cumcarbontop = 0.0;
       }
 
       dbmbot = dbmtop+currl->dz;
@@ -426,7 +426,7 @@ void Soil_Bgc::initOslayerCarbon(double & shlwc, double & deepc) {
       break;
     }
 
-    currl =currl->nextl;
+    currl = currl->nextl;
   }
 
   //Above calculation will give all soil organic layer C content UPON two
@@ -453,7 +453,7 @@ void Soil_Bgc::initOslayerCarbon(double & shlwc, double & deepc) {
       }
     }
 
-    currl =currl->nextl;
+    currl = currl->nextl;
   }
 };
 
