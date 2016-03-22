@@ -622,10 +622,9 @@ void Soil_Bgc::deltan() {
                                          decay, calpar.micbnup);
 
       if (cd->m_soil.type[i] == 0 && cd->m_soil.type[i+1] > 0) {  // dead moss decomposition product is into the last moss layer
-        if (tmp_sois.dmossc>0.) {
-          del_soi2soi.netnmin[i] += del_soi2a.rhmossc
-                                    * tmp_sois.dmossn
-                                    / tmp_sois.dmossc;
+        if (tmp_sois.dmossc > 0.0) {
+          del_soi2soi.netnmin[i] += del_soi2a.rhmossc *
+                                    tmp_sois.dmossn / tmp_sois.dmossc;
         }
       }
 
@@ -654,15 +653,15 @@ void Soil_Bgc::deltan() {
       }
 
       if( del_soi2l.avlnlost > totdzavln - totnextract
-          + totnetnmin+ bd->m_a2soi.avlninput) {
+          + totnetnmin + bd->m_a2soi.avlninput) {
         del_soi2l.avlnlost = totdzavln - totnextract
-                             + totnetnmin+ bd->m_a2soi.avlninput;
+                             + totnetnmin + bd->m_a2soi.avlninput;
       }
 
-      if (del_soi2l.avlnlost<0) {
+      if (del_soi2l.avlnlost < 0) {
         del_soi2l.avlnlost = 0.0;
-        double nminadj = del_soi2l.avlnlost + totnextract
-                         - bd->m_a2soi.avlninput-totdzavln;
+        double nminadj = del_soi2l.avlnlost +
+                         totnextract - bd->m_a2soi.avlninput - totdzavln;
 
         for(int i=0; i<cd->m_soil.numsl; i++) {
           del_soi2soi.netnmin[i] *=nminadj/totnetnmin;

@@ -294,12 +294,12 @@ void Ground::initSnowSoilLayers() {
 
   // but for insertation of layers into the double-linked matrix, do the
   //   deep organic first
-  for(int il =organic.deepnum-1; il>=0; il--) {
+  for(int il = organic.deepnum-1; il >=  0; il--) {
     OrganicLayer* pl = new OrganicLayer(organic.deepdz[il], 2); //2 means deep organic
     insertFront(pl);
   }
 
-  for(int il =organic.shlwnum-1; il>=0; il--) {
+  for(int il = organic.shlwnum-1; il >= 0; il--) {
     OrganicLayer* pl = new OrganicLayer(organic.shlwdz[il], 1); //1 means shallow organic
     insertFront(pl);
   }
@@ -339,7 +339,7 @@ void Ground::initSnowSoilLayers() {
     sl->dz = snow.thick;
     insertFront(sl);
   }
-};
+}
 
 void Ground::set_state_from_restartdata(snwstate_dim *snowdim,
                                    soistate_dim *soildim,
@@ -1122,13 +1122,13 @@ void  Ground::redivideMossLayers(const int &mosstype) {
       ml->frozenfrac = 1.;
     }
 
-    // initialize C as 0., which will be updated when 'dmossc' decomposes
-    ml->rawc = 0.;
-    ml->soma = 0.;
-    ml->sompr= 0.;
-    ml->somcr= 0.;
-    ml->orgn = 0.;
-    ml->avln = 0.;
+    // initialize C as 0.0, which will be updated when 'dmossc' decomposes
+    ml->rawc = 0.0;
+    ml->soma = 0.0;
+    ml->sompr= 0.0;
+    ml->somcr= 0.0;
+    ml->orgn = 0.0;
+    ml->avln = 0.0;
     resortGroundLayers();
     updateSoilHorizons();
   }  // one-layer moss currently assumed, so no need to do redivision
@@ -1572,7 +1572,7 @@ double Ground::adjustSoilAfterburn() {
       double tsomc = currl->rawc+currl->soma+currl->sompr+currl->somcr;
 
       if (currl->isMoss && !currl->nextl->isMoss) {
-        tsomc+=moss.dmossc;
+        tsomc += moss.dmossc;
       }
 
       if(tsomc<=0.) {
@@ -1812,7 +1812,7 @@ void Ground::retrieveSoilDimension(soistate_dim * soildim) {
   int slind=0;
   int mlind=0;
 
-  while(curr!=NULL) {
+  while(curr != NULL) {
     if(curr->isSoil) {
       soildim->age[slind] = (int)curr->age;
       soildim->dz[slind]  = curr->dz;
@@ -1821,32 +1821,32 @@ void Ground::retrieveSoilDimension(soistate_dim * soildim) {
 
       if(curr->isMoss) {
         soildim->type[slind] = 0;
-        soildim->mossthick +=curr->dz;
-        soildim->mossnum+=1;
+        soildim->mossthick += curr->dz;
+        soildim->mossnum += 1;
       } else if(curr->isOrganic) {
         if(curr->isFibric) {
           soildim->type[slind] = 1;
-          soildim->shlwthick +=curr->dz;
-          soildim->shlwnum+=1;
+          soildim->shlwthick += curr->dz;
+          soildim->shlwnum += 1;
         } else if(curr->isHumic) {
           soildim->type[slind] = 2;
-          soildim->deepthick +=curr->dz;
-          soildim->deepnum+=1;
+          soildim->deepthick += curr->dz;
+          soildim->deepnum += 1;
         }
       } else if(curr->isMineral) {
         soildim->type[slind] = 3;
-        soildim->minenum+=1;
+        soildim->minenum += 1;
 
         if (mlind>=0 && mlind<=MINEZONE[0]) {
-          soildim->mineathick +=curr->dz;
+          soildim->mineathick += curr->dz;
         }
 
         if (mlind>MINEZONE[0] && mlind<=MINEZONE[1]) {
-          soildim->minebthick +=curr->dz;
+          soildim->minebthick += curr->dz;
         }
 
         if (mlind>MINEZONE[1] && mlind<=MINEZONE[2]) {
-          soildim->minecthick +=curr->dz;
+          soildim->minecthick += curr->dz;
         }
 
         mlind++;
@@ -1856,15 +1856,20 @@ void Ground::retrieveSoilDimension(soistate_dim * soildim) {
     }
 
     curr= curr->nextl;
-  };
+  }
 
-  //
-  soildim->numsl= soildim->mossnum+soildim->shlwnum+soildim->deepnum+soildim->minenum;
+  soildim->numsl = soildim->mossnum +
+                   soildim->shlwnum +
+                   soildim->deepnum +
+                   soildim->minenum;
 
-  soildim->totthick = soildim->mossthick+soildim->shlwthick+soildim->deepthick
-                      + soildim->mineathick+soildim->minebthick
-                      + soildim->minecthick;
-};
+  soildim->totthick = soildim->mossthick +
+                      soildim->shlwthick +
+                      soildim->deepthick +
+                      soildim->mineathick +
+                      soildim->minebthick +
+                      soildim->minecthick;
+}
 
 void Ground::updateWholeFrozenStatus() {
   if(fstfntl==NULL && lstfntl==NULL) {

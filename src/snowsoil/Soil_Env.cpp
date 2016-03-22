@@ -737,18 +737,18 @@ void Soil_Env::getSoilTransFactor(double btran[MAX_SOI_LAY], Layer* fstsoill,
         psi = dynamic_cast<SoilLayer*>(currl)->getMatricPotential();
         psi = fmax(psimax, psi);
         psi = fmin(psisat, psi);
-        rresis = (1.- psi/psimax)/(1.- psisat/psimax);
-        btran[sind] = rootfr[sind]* rresis;
-        sumbtran   += rootfr[sind]* rresis;
+        rresis = (1.0 - psi/psimax)/(1.0 - psisat/psimax);
+        btran[sind] = rootfr[sind] * rresis;
+        sumbtran   += rootfr[sind] * rresis;
       }
     }
 
     currl=currl->nextl;
   }
 
-  if (sumbtran>1.) {
+  if (sumbtran > 1.0) {
     for (int il=0; il<cd->d_soil.numsl; il++) {
-      btran[sind] /=sumbtran;
+      btran[sind] /= sumbtran;
     }
   }
 }

@@ -524,7 +524,7 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
 
         } else {
         // for NON-VASCULAR plants - needs further algorithm development
-          double rh = ed[ip].d_atmd.vp/ed[ip].d_atmd.svp;
+          double rh = ed[ip].d_atmd.vp / ed[ip].d_atmd.svp;
 
           if ( rh >= 0.60 || (ed[ip].d_soid.sws[0] > 0.60) ) {
             ed[ip].d_vegd.btran = 1.0;
@@ -801,7 +801,7 @@ void Cohort::updateMonthly_DIMgrd(const int & currmind, const bool & dslmodule) 
     // dynamics then, re-do layer division or combination is necessary
     // for better thermal/hydrological simulation
     if (cd.hasnonvascular && ground.moss.type<=0) {  //
-      double prvpft = 0.;
+      double prvpft = 0.0;
 
       for (int ip=0; ip<NUM_PFT; ip++) {
         if (cd.m_veg.nonvascular[ip] != I_vascular) {
