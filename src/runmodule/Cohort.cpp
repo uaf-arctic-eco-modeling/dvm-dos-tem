@@ -480,8 +480,13 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
   double tdrv, daylength;
 
   for(int id = 0; id < dinmcurr; id++) {
-
     int doy = temutil::day_of_year(currmind, id);
+
+    BOOST_LOG_SEV(glg, debug) << "Beginning of Env module's day loop."
+                              << " midx=" << currmind
+                              << " id=" << id
+                              << " doy=" << doy << ground.layer_report_string();
+
     daylength = temutil::length_of_day(this->lat, doy);
 
     /* Daily processes for a Cohort, Environmental module...
