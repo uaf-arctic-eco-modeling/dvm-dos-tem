@@ -387,7 +387,7 @@ void Soil_Bgc::initOslayerCarbon(double & shlwc, double & deepc) {
         cumcarbondeep += cumcarbonbot - cumcarbontop;
       }
 
-      if(cumcarbonbot-cumcarbontop>0.) {
+      if( cumcarbonbot - cumcarbontop > 0.0 ) {
         if (currl->isOrganic) {  // dead moss layers are not regarded as soil organic layers
           if(currl->isFibric){
             currl->rawc  = bgcpar.eqrawc * (cumcarbonbot - cumcarbontop); //note: those eq-fractions of SOM pools must be estimated before
@@ -401,16 +401,16 @@ void Soil_Bgc::initOslayerCarbon(double & shlwc, double & deepc) {
             currl->somcr = bgcpar.eqsomcr * (cumcarbonbot - cumcarbontop);            
           }
         } else {
-          currl->rawc  = 0.;
-          currl->soma  = 0.;
-          currl->sompr = 0.;
-          currl->somcr = 0.;
+          currl->rawc  = 0.0;
+          currl->soma  = 0.0;
+          currl->sompr = 0.0;
+          currl->somcr = 0.0;
         }
       } else {
-        currl->rawc  = 0.;
-        currl->soma  = 0.;
-        currl->sompr = 0.;
-        currl->somcr = 0.;
+        currl->rawc  = 0.0;
+        currl->soma  = 0.0;
+        currl->sompr = 0.0;
+        currl->somcr = 0.0;
       }
 
       cumcarbontop = cumcarbonbot;
@@ -510,16 +510,21 @@ void Soil_Bgc::initMslayerCarbon(double & minec) {
 
 // before delta and afterdelta are considered in Integrator
 void Soil_Bgc::deltac() {
-  double kmoss = 0.;     //for dead moss materials (in model, dmossc)
-  double krawc = 0.;     //for littering materials (in model, rawc)
-  double ksoma = 0.;     //for active SOM (in model, soma)
-  double ksompr = 0.;    //for PR SOM (in model, sompr)
-  double ksomcr = 0.;    //for CR SOM (in model, somcr)
+  double kmoss = 0.0;     // for dead moss materials (in model, dmossc)
+  double krawc = 0.0;     // for littering materials (in model, rawc)
+  double ksoma = 0.0;     // for active SOM (in model, soma)
+  double ksompr = 0.0;    // for PR SOM (in model, sompr)
+  double ksomcr = 0.0;    // for CR SOM (in model, somcr)
 
   for (int il =0; il<cd->m_soil.numsl; il++) {
-    bd->m_soid.rhmoist[il] = getRhmoist(ed->m_soid.sws[il],  //Yuan: vwc normalized by total pore - this will allow respiration (methane/oxidation) implicitly
-                                        bgcpar.moistmin, bgcpar.moistmax,
-                                        bgcpar.moistopt);
+
+    // Yuan: vwc normalized by total pore - this will allow
+    // respiration (methane/oxidation) implicitly
+    bd->m_soid.rhmoist[il] = getRhmoist( ed->m_soid.sws[il],
+                                         bgcpar.moistmin,
+                                         bgcpar.moistmax,
+                                         bgcpar.moistopt );
+
     bd->m_soid.rhq10[il] = getRhq10(ed->m_sois.ts[il]);
     krawc  = bgcpar.kdrawc[il];
     ksoma  = bgcpar.kdsoma[il];
