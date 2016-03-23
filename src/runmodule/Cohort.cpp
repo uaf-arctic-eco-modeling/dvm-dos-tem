@@ -825,11 +825,10 @@ void Cohort::updateMonthly_DIMgrd(const int & currmind, const bool & dslmodule) 
   assignSoilBd2pfts_monthly();
 }
 
-//////////////////////////////////////////////////////////////////////////////////////
-// adjusting fine root fraction in soil
+/** Adjusting fine root fraction in soil */
 void Cohort::getSoilFineRootFrac_Monthly() {
   double mossthick = cd.m_soil.mossthick;
-  double totfrootc = 0.;   //fine root C summed for all PFTs
+  double totfrootc = 0.0;   // fine root C summed for all PFTs
 
   for (int ip=0; ip<NUM_PFT; ip++) {
     if (cd.m_veg.vegcov[ip]>0.) {
@@ -839,25 +838,29 @@ void Cohort::getSoilFineRootFrac_Monthly() {
       cumrootfrac[0] = cd.m_veg.frootfrac[0][ip];
 
       for (int il=1; il<MAX_ROT_LAY; il++) {
-        cumrootfrac[il] = cumrootfrac[il-1]+cd.m_veg.frootfrac[il][ip];
+        cumrootfrac[il] = cumrootfrac[il-1] + cd.m_veg.frootfrac[il][ip];
       }
 
       // calculate soil fine root fraction from PFT's 10-rootlayer structure
-      // note: at this point, soil fine root fraction ACTUALLY
-      //         is root biomass C distribution along soil profile
+      // note: At this point, soil fine root fraction ACTUALLY IS
+      //       ROOT BIOMASS C distribution along soil profile!
+      //       In other words, the variable names are misleading as the value
+      //       has been converted from a fraction (which is what is input
+      //       in the parameter file) to a pool using the thickness of the layer
       for (int il=0; il<cd.m_soil.numsl; il++) {
-        if (cd.m_soil.type[il]>0) {   // non-moss soil layers only
+        if (cd.m_soil.type[il] > 0) {   // non-moss soil layers only
           layertop = cd.m_soil.z[il] - mossthick;
-          layerbot = cd.m_soil.z[il]+cd.m_soil.dz[il]-mossthick;
-          cd.m_soil.frootfrac[il][ip]
-            = assignSoilLayerRootFrac(layertop, layerbot,
-                                      cumrootfrac, ROOTTHICK);  //fraction
-          cd.m_soil.frootfrac[il][ip] *= bd[ip].m_vegs.c[I_root];  //root C
+          layerbot = cd.m_soil.z[il] + cd.m_soil.dz[il] - mossthick;
+          cd.m_soil.frootfrac[il][ip] = assignSoilLayerRootFrac(layertop,
+                                                                layerbot,
+                                                                cumrootfrac,
+                                                                ROOTTHICK);
+          cd.m_soil.frootfrac[il][ip] *= bd[ip].m_vegs.c[I_root];  // root C
           totfrootc += cd.m_soil.frootfrac[il][ip];
         }
-      }
-    }
-  }
+      } // end m_soil.numsl loop
+    } // end veg.cov[ip] > 0.0
+  } // end PFT loop
 
   // soil fine root fraction - adjusted by both vertical distribution
   //   and root biomass of all PFTs
@@ -1202,13 +1205,15 @@ void Cohort::getBd4allveg_monthly() {
   double sumrtltrfall = 0.;
 
   for (int il=0; il<cd.m_soil.numsl; il++) {
-    bdall->m_v2soi.rtlfalfrac[il] = 0.;
+    bdall->m_v2soi.rtlfalfrac[il] = 0.0;
 
     for (int ip=0; ip<NUM_PFT; ip++) {
-      if (cd.m_veg.vegcov[ip]>0.) {
+      if (cd.m_veg.vegcov[ip] > 0.0) {
         bd[ip].m_v2soi.rtlfalfrac[il] = cd.m_soil.frootfrac[il][ip];
-        bdall->m_v2soi.rtlfalfrac[il] += bd[ip].m_v2soi.rtlfalfrac[il]
-                                         * bd[ip].m_v2soi.ltrfalc[I_root];
+
+        bdall->m_v2soi.rtlfalfrac[il] += bd[ip].m_v2soi.rtlfalfrac[il] *
+                                         bd[ip].m_v2soi.ltrfalc[I_root];
+
       }
     }
 
