@@ -219,13 +219,6 @@ void Soil_Bgc::initializeState() {
   // Initial N based on input total and SOM C profile
   double sum_total_C = shlwc + deepc + minec;
 
-  // Initial available N based only on organic SOM C total
-  double sum_organic_C = shlwc + minec;
-  // Is the above correct? See V. Patil's change here:
-  // https://github.com/vppatil/dvm-dos-tem/commit/b7ff148a769f3574460f8fccafdd9250ac284def
-  // however it appears that this local variable is never used,
-  // so the change should have no effect.
-
   for (int il=0; il<MAX_SOI_LAY; il++ ) {
     double total_monthly_C = bd->m_sois.rawc[il] +
                              bd->m_sois.soma[il] +
