@@ -118,60 +118,85 @@ std::string Ground::layer_report_string() {
     report << " (No Layers - nothing to report...)" << std::endl;
   }
   
+  // Choose which variable groups to print out
+  bool depth_group = true;
+  bool physical_group = true;
+  bool C_group = true;
+  bool pointer_table = true;
+
   // build the header for the table
-  report << "[" << std::right << setw(2) << "ix" << "] "
-         << std::right << setw(12) << std::setprecision(6) << "dz" << " "
-         << std::right << setw(12) << std::setprecision(6) << "z" << " "
-         << std::right << setw(12) << std::setprecision(3) << "tem" << " "
-         << std::right << setw(12) << std::setprecision(3) << "rawc" << " "
+  report << "[" << std::right << setw(2) << "ix" << "] ";
 
-         << "SOIL" << "|"
-         << "MOSS" << "|"
-         << "SHLW" << "|"
-         << "DEEP" << "|"
-         << "MINE" << "|"
-         << "FRNT" << "|"
-
-         << std::endl;
+  if (depth_group) {
+    report << std::right << setw(9) << std::setprecision(3) << "dz" << " "
+           << std::right << setw(9) << std::setprecision(3) << "z" << " ";
+  }
+  if (physical_group) {
+    report << std::right << setw(12) << std::setprecision(6) << "tem" << " "
+           << std::right << setw(12) << std::setprecision(6) << "liq" << " "
+           << std::right << setw(12) << std::setprecision(6) << "poro" << " ";
+  }
+  if (C_group) {
+    report << std::right << setw(12) << std::setprecision(6) << "rawc" << " ";
+  }
+  if (pointer_table) {
+    report << "SOIL" << "|"
+           << "MOSS" << "|"
+           << "SHLW" << "|"
+           << "DEEP" << "|"
+           << "MINE" << "|"
+           << "FRNT" << "|";
+  }
+//  if (layer_type_desc) {
+//    report <<
+//  }
+  report << std::endl;
 
   // iterate the layer pointers, filling the table with data.
   int idx = 0;
   while (current_layer != NULL) {
     // do stuff with current_layer
     std::stringstream ls;
-    ls << "[" << std::right << setw(2) << idx << "] "
-       << std::fixed
-       << std::right << setw(12) << std::setprecision(6) << current_layer->dz << " "
-       << std::right << setw(12) << std::setprecision(6) << current_layer->z << " "
-       << std::right << setw(12) << std::setprecision(3) << current_layer->tem << " "
-       << std::right << setw(12) << std::setprecision(3) << current_layer->rawc << " "
-       //<< std::right << setw(16) << std::setprecision(16) << current_layer << " "
-       << layer2pointertag(current_layer, fstsoill) << ""
-       << layer2pointertag(current_layer, lstsoill) << "|"
-       << layer2pointertag(current_layer, fstmossl) << ""
-       << layer2pointertag(current_layer, lstmossl) << "|"
-       << layer2pointertag(current_layer, fstshlwl) << ""
-       << layer2pointertag(current_layer, lstshlwl) << "|"
-       << layer2pointertag(current_layer, fstdeepl) << ""
-       << layer2pointertag(current_layer, lstdeepl) << "|"
-       << layer2pointertag(current_layer, fstminel) << ""
-       << layer2pointertag(current_layer, lstminel) << "|"
-       << layer2pointertag(current_layer, fstfntl) << ""
-       << layer2pointertag(current_layer, lstfntl) << "|"
 
-       // this T/ST KEY business seems to be dupliacate info as the "soil description tag"
-       //<< "T/ST KEY:" << std::right << setw(2) << current_layer->tkey << "/" << "[na]"//current_layer->stkey << " "
+    ls << "[" << std::right << setw(2) << idx << "] " << std::fixed;
+    if (depth_group) {
+      ls << std::right << setw(9) << std::setprecision(3) << current_layer->dz << " "
+         << std::right << setw(9) << std::setprecision(3) << current_layer->z << " ";
+    }
+    if (physical_group) {
+      ls << std::right << setw(12) << std::setprecision(3) << current_layer->tem << " "
+         << std::right << setw(12) << std::setprecision(3) << current_layer->liq << " "
+         << std::right << setw(12) << std::setprecision(3) << current_layer->poro << " ";
+    }
+    if (C_group) {
+      ls << std::right << setw(12) << std::setprecision(3) << current_layer->rawc << " ";
+    }
+    if (pointer_table) {
+      ls << layer2pointertag(current_layer, fstsoill) << ""
+         << layer2pointertag(current_layer, lstsoill) << "|"
+         << layer2pointertag(current_layer, fstmossl) << ""
+         << layer2pointertag(current_layer, lstmossl) << "|"
+         << layer2pointertag(current_layer, fstshlwl) << ""
+         << layer2pointertag(current_layer, lstshlwl) << "|"
+         << layer2pointertag(current_layer, fstdeepl) << ""
+         << layer2pointertag(current_layer, lstdeepl) << "|"
+         << layer2pointertag(current_layer, fstminel) << ""
+         << layer2pointertag(current_layer, lstminel) << "|"
+         << layer2pointertag(current_layer, fstfntl) << ""
+         << layer2pointertag(current_layer, lstfntl) << "|"
+         // this T/ST KEY business seems to be dupliacate info as the "soil description tag"
+         //<< "T/ST KEY:" << std::right << setw(2) << current_layer->tkey << "/" << "[na]"//current_layer->stkey << " "
 
-       << soildesc2tag(current_layer->isSnow, "snow")
-       << soildesc2tag(current_layer->isSoil, "soil")
-       << soildesc2tag(current_layer->isRock, "rock")
-       << soildesc2tag(current_layer->isMoss, "moss")
-       << soildesc2tag(current_layer->isMineral, "mineral")
-       << soildesc2tag(current_layer->isOrganic, "organic")
-       << soildesc2tag(current_layer->isFibric, "fibric")
-       << soildesc2tag(current_layer->isHumic, "humic")
-
-       << std::endl;
+         << soildesc2tag(current_layer->isSnow, "snow")
+         << soildesc2tag(current_layer->isSoil, "soil")
+         << soildesc2tag(current_layer->isRock, "rock")
+         << soildesc2tag(current_layer->isMoss, "moss")
+         << soildesc2tag(current_layer->isMineral, "mineral")
+         << soildesc2tag(current_layer->isOrganic, "organic")
+         << soildesc2tag(current_layer->isFibric, "fibric")
+         << soildesc2tag(current_layer->isHumic, "humic");
+    }
+    ls << std::endl;
 
     report << ls.str();
 
