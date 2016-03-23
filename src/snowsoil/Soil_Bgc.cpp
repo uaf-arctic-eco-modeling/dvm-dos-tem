@@ -294,37 +294,41 @@ void Soil_Bgc::set_state_from_restartdata(const RestartData & rdata) {
 
 void Soil_Bgc::initializeParameter() {
   BOOST_LOG_SEV(glg, note) << "Initializing parameters in Soil_Bgc from chtlu (CohortLookup) values.";
-  calpar.micbnup  = chtlu->micbnup;
-  calpar.kdcmoss  = chtlu->kdcmoss;
-  calpar.kdcrawc  = chtlu->kdcrawc;
-  calpar.kdcsoma  = chtlu->kdcsoma;
-  calpar.kdcsompr = chtlu->kdcsompr;
-  calpar.kdcsomcr = chtlu->kdcsomcr;
-  bgcpar.rhq10    = chtlu->rhq10;
-  bgcpar.moistmin = chtlu->moistmin;
-  bgcpar.moistmax = chtlu->moistmax;
-  bgcpar.moistopt = chtlu->moistopt;
-  bgcpar.fsoma  = chtlu->fsoma;
-  bgcpar.fsompr = chtlu->fsompr;
-  bgcpar.fsomcr = chtlu->fsomcr;
-  bgcpar.som2co2= chtlu->som2co2;
-  //Jenkinson and Rayner (1977): 1t plant C ha-1 yr-1 for 10,000yrs,
-  //  will produce:
-  //  0.48 tC of RAWC, 0.28tC of SOMA, 11.3tC of SOMPR, and 12.2 tC of SOMCR,
-  //  i.e. total 24.26 tC, so we have the following
-  // but normally these can be estimated from Ks calibrated
-  bgcpar.eqrawc = 0.48/(0.48+0.28+11.3+12.2);
-  bgcpar.eqsoma  = 0.28/(0.48+0.28+11.3+12.2);
-  bgcpar.eqsompr = 11.3/(0.48+0.28+11.3+12.2);
-  bgcpar.eqsomcr = 12.2/(0.48+0.28+11.3+12.2);
+  calpar.micbnup    = chtlu->micbnup;
+  calpar.kdcmoss    = chtlu->kdcmoss;
+  calpar.kdcrawc    = chtlu->kdcrawc;
+  calpar.kdcsoma    = chtlu->kdcsoma;
+  calpar.kdcsompr   = chtlu->kdcsompr;
+  calpar.kdcsomcr   = chtlu->kdcsomcr;
+  bgcpar.rhq10      = chtlu->rhq10;
+  bgcpar.moistmin   = chtlu->moistmin;
+  bgcpar.moistmax   = chtlu->moistmax;
+  bgcpar.moistopt   = chtlu->moistopt;
+  bgcpar.fsoma      = chtlu->fsoma;
+  bgcpar.fsompr     = chtlu->fsompr;
+  bgcpar.fsomcr     = chtlu->fsomcr;
+  bgcpar.som2co2    = chtlu->som2co2;
   bgcpar.lcclnc     = chtlu->lcclnc;
+  bgcpar.kn2        = chtlu->kn2;
+  bgcpar.propftos   = chtlu->propftos;
+  bgcpar.fnloss     = chtlu->fnloss;
   bgcpar.nmincnsoil = chtlu->nmincnsoil;
-  bgcpar.kn2 = chtlu->kn2;
-  bgcpar.propftos     = chtlu->propftos;
-  decay = 0.26299 + (1.14757*bgcpar.propftos)
-          - (0.42956*pow( (double) bgcpar.propftos,2.0 ));
-  bgcpar.fnloss       = chtlu->fnloss;
-};
+
+  BOOST_LOG_SEV(glg, note) << "Calculating parameter in Soil_Bgc from Jenkinson and Rayner (1977).";
+  // Alternatively these can be estimated from Ks calibrated.
+  // Jenkinson and Rayner (1977):
+  //   1t plant C / ha / yr for 10,000yrs, will produce:
+  //   0.48t RAWC + 0.28t SOMA + 11.3t SOMPR + 12.2t SOMCR = 24.26 tC
+  bgcpar.eqrawc = 0.48 / (0.48 + 0.28 + 11.3 + 12.2);
+  bgcpar.eqsoma = 0.28 / (0.48 + 0.28 + 11.3 + 12.2);
+  bgcpar.eqsompr = 11.3 / (0.48 + 0.28 + 11.3 + 12.2);
+  bgcpar.eqsomcr = 12.2 / (0.48 + 0.28 + 11.3 + 12.2);
+
+  BOOST_LOG_SEV(glg, note) << "Calculating decay in Soil_Bgc.";
+  decay = 0.26299 +
+          (1.14757 * bgcpar.propftos) -
+          (0.42956 * pow((double)bgcpar.propftos, 2.0));
+}
 
 void Soil_Bgc::initSoilCarbon(double & initshlwc, double & initdeepc,
                               double & initminec) {
