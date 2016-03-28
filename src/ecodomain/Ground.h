@@ -39,6 +39,7 @@ public :
   ~Ground();
 
   std::string layer_report_string();
+  std::string layer_report_string(const std::string& colunm_groups);
 
   // A ground (snow-soil<moss-peat-mineral>-soilparent column has the following
   //   5 types of horizons, each of which has a number of layers defined below

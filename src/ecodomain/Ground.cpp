@@ -20,14 +20,18 @@
 #include <iomanip>
 #include <string>
 #include <sstream>
+
+#include <boost/tokenizer.hpp>
+
 #include "Ground.h"
 #include "../TEMLogger.h"
+
 extern src::severity_logger< severity_level > glg;
 
 std::string soildesc2tag(const bool val, std::string tag) {
   if (val) {
     std::stringstream ss;
-    ss << std::setw(10) << std::right << tag;
+    ss << std::setw(9) << std::right << tag;
     return ss.str();
   } else {
     return "";
@@ -76,6 +80,12 @@ Ground::~Ground() {
   cleanAllLayers();
 }
 
+/** Overload for backwards compatibility, prints all columns in the layer report
+*/
+std::string Ground::layer_report_string() {
+  return this->layer_report_string("all");
+}
+
 /** A multi-line report describing Ground's layers...
 
   The first several columns hold are indices and scalar values.
@@ -107,7 +117,36 @@ Ground::~Ground() {
   [12]           20       30.205   -1.13197      -9999     |    |    |    | x x| x x|      rock
   \endcode
 */
-std::string Ground::layer_report_string() {
+std::string Ground::layer_report_string(const std::string& colunm_groups) {
+
+  bool depth_group = false;
+  bool thermal_group = false;
+  bool hydro_group = false;
+  bool CN_group = false;
+  bool pointer_table = false;
+  bool desc_table = false;
+
+  // Parse string of column groups.
+  boost::tokenizer<> tokens(colunm_groups);
+  typedef boost::tokenizer<>::iterator BstTknIt;
+  for (BstTknIt tkn_it=tokens.begin(); tkn_it!=tokens.end(); ++tkn_it) {
+    std::string tkn = *tkn_it;
+
+    if ("hydro" == tkn) { hydro_group = true; }
+    if ("thermal" == tkn) { thermal_group = true; }
+    if ("depth" == tkn) { depth_group = true; }
+    if ("CN" == tkn) { CN_group = true; }
+    if ("ptr-table" == tkn) { pointer_table = true; }
+    if ("dest-table" == tkn) { desc_table = true; }
+    if ("all" == tkn) {
+      depth_group = true;
+      thermal_group = true;
+      hydro_group = true;
+      CN_group = true;
+      pointer_table = true;
+      desc_table = true;
+    }
+  }
 
   std::stringstream report;
   report << "==== LAYER REPORT ====\n";
@@ -118,12 +157,6 @@ std::string Ground::layer_report_string() {
     report << " (No Layers - nothing to report...)" << std::endl;
   }
   
-  // Choose which variable groups to print out
-  bool depth_group = true;
-  bool physical_group = true;
-  bool C_group = true;
-  bool pointer_table = true;
-
   // build the header for the table
   report << "[" << std::right << setw(2) << "ix" << "] ";
 
@@ -131,13 +164,22 @@ std::string Ground::layer_report_string() {
     report << std::right << setw(9) << std::setprecision(3) << "dz" << " "
            << std::right << setw(9) << std::setprecision(3) << "z" << " ";
   }
-  if (physical_group) {
-    report << std::right << setw(12) << std::setprecision(6) << "tem" << " "
-           << std::right << setw(12) << std::setprecision(6) << "liq" << " "
-           << std::right << setw(12) << std::setprecision(6) << "poro" << " ";
+  if (thermal_group) {
+    report << std::right << setw(9) << std::setprecision(3) << "tem" << " "
+           << std::right << setw(4) << std::setprecision(2) << "fzn" << " "
+           << std::right << setw(9) << std::setprecision(3) << "fznfrac" << " "
+           << std::right << setw(9) << std::setprecision(3) << "tcond" << " "
+           << std::right << setw(9) << std::setprecision(3) << "pce_t" << " "
+           << std::right << setw(9) << std::setprecision(3) << "pce_f" << " ";
   }
-  if (C_group) {
-    report << std::right << setw(12) << std::setprecision(6) << "rawc" << " ";
+  if (hydro_group) {
+    report << std::right << setw(9) << std::setprecision(3) << "liq" << " "
+           << std::right << setw(9) << std::setprecision(3) << "ice" << " "
+           << std::right << setw(9) << std::setprecision(3) << "poro" << " ";
+
+  }
+  if (CN_group) {
+    report << std::right << setw(9) << std::setprecision(3) << "rawc" << " ";
   }
   if (pointer_table) {
     report << "SOIL" << "|"
@@ -147,9 +189,10 @@ std::string Ground::layer_report_string() {
            << "MINE" << "|"
            << "FRNT" << "|";
   }
-//  if (layer_type_desc) {
-//    report <<
-//  }
+  if (desc_table) {
+    report << std::left << setw(27) << "     - layer type -     " << " ";
+  }
+
   report << std::endl;
 
   // iterate the layer pointers, filling the table with data.
@@ -163,13 +206,23 @@ std::string Ground::layer_report_string() {
       ls << std::right << setw(9) << std::setprecision(3) << current_layer->dz << " "
          << std::right << setw(9) << std::setprecision(3) << current_layer->z << " ";
     }
-    if (physical_group) {
-      ls << std::right << setw(12) << std::setprecision(3) << current_layer->tem << " "
-         << std::right << setw(12) << std::setprecision(3) << current_layer->liq << " "
-         << std::right << setw(12) << std::setprecision(3) << current_layer->poro << " ";
+    if (thermal_group) {
+      ls << std::right << setw(9) << std::setprecision(3) << current_layer->tem << " "
+         << std::right << setw(4) << std::setprecision(2) << current_layer->frozen << " "
+         << std::right << setw(9) << std::setprecision(3) << current_layer->frozenfrac << " "
+         << std::right << setw(9) << std::setprecision(3) << current_layer->tcond << " "
+         << std::scientific
+         << std::right << setw(9) << std::setprecision(1) << current_layer->pce_t << " "
+         << std::right << setw(9) << std::setprecision(1) << current_layer->pce_f << " "
+         << std::fixed;
     }
-    if (C_group) {
-      ls << std::right << setw(12) << std::setprecision(3) << current_layer->rawc << " ";
+    if (hydro_group) {
+      ls << std::right << setw(9) << std::setprecision(3) << current_layer->liq << " "
+         << std::right << setw(9) << std::setprecision(3) << current_layer->ice << " "
+         << std::right << setw(9) << std::setprecision(3) << current_layer->poro << " ";
+    }
+    if (CN_group) {
+      ls << std::right << setw(9) << std::setprecision(3) << current_layer->rawc << " ";
     }
     if (pointer_table) {
       ls << layer2pointertag(current_layer, fstsoill) << ""
@@ -183,11 +236,12 @@ std::string Ground::layer_report_string() {
          << layer2pointertag(current_layer, fstminel) << ""
          << layer2pointertag(current_layer, lstminel) << "|"
          << layer2pointertag(current_layer, fstfntl) << ""
-         << layer2pointertag(current_layer, lstfntl) << "|"
+         << layer2pointertag(current_layer, lstfntl) << "|";
          // this T/ST KEY business seems to be dupliacate info as the "soil description tag"
          //<< "T/ST KEY:" << std::right << setw(2) << current_layer->tkey << "/" << "[na]"//current_layer->stkey << " "
-
-         << soildesc2tag(current_layer->isSnow, "snow")
+    }
+    if (desc_table) {
+      ls << soildesc2tag(current_layer->isSnow, "snow")
          << soildesc2tag(current_layer->isSoil, "soil")
          << soildesc2tag(current_layer->isRock, "rock")
          << soildesc2tag(current_layer->isMoss, "moss")
