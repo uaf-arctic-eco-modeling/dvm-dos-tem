@@ -102,6 +102,7 @@ double Layer::getThermalConductivity() {
     tc = getFrzThermCond();
   }
 
+  this->tcond = tc;
   return tc;
 };
 
