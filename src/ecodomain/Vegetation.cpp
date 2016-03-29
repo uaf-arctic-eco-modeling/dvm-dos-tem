@@ -147,7 +147,7 @@ void Vegetation::initializeState() {
       cd->m_veg.lai[i] = chtlu->lai[i];
 
       for (int il=0; il<MAX_ROT_LAY; il++) {
-        cd->m_veg.frootfrac[il][i] = chtlu->frootfrac[il][i]/100.;//chtlu - in %
+        cd->m_veg.frootfrac[il][i] = chtlu->frootfrac[il][i]/100.0; // chtlu - in %
       }
     }
   }
@@ -499,18 +499,17 @@ void Vegetation::updateFrootfrac() {
 
       for (int il=0; il<MAX_ROT_LAY; il++) {
         if (cd->m_veg.frootfrac[il][ip]>0.) {
-          totrootfrac+=cd->m_veg.frootfrac[il][ip];
+          totrootfrac += cd->m_veg.frootfrac[il][ip];
         }
       }
 
-      //
-      if (totrootfrac>0.) {
+      if (totrootfrac > 0.0) {
         for (int il=0; il<MAX_ROT_LAY; il++) {
           cd->m_veg.frootfrac[il][ip] /= totrootfrac;
         }
       } else {
         for (int il=1; il<MAX_ROT_LAY; il++) {
-          cd->m_veg.frootfrac[il][ip] = 0.;
+          cd->m_veg.frootfrac[il][ip] = 0.0;
         }
       }
     } // end of 'vegcov[ip]>0'

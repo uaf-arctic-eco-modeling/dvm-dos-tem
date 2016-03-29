@@ -20,14 +20,18 @@
 #include <iomanip>
 #include <string>
 #include <sstream>
+
+#include <boost/tokenizer.hpp>
+
 #include "Ground.h"
 #include "../TEMLogger.h"
+
 extern src::severity_logger< severity_level > glg;
 
 std::string soildesc2tag(const bool val, std::string tag) {
   if (val) {
     std::stringstream ss;
-    ss << std::setw(10) << std::right << tag;
+    ss << std::setw(9) << std::right << tag;
     return ss.str();
   } else {
     return "";
@@ -76,6 +80,12 @@ Ground::~Ground() {
   cleanAllLayers();
 }
 
+/** Overload for backwards compatibility, prints all columns in the layer report
+*/
+std::string Ground::layer_report_string() {
+  return this->layer_report_string("all");
+}
+
 /** A multi-line report describing Ground's layers...
 
   The first several columns hold are indices and scalar values.
@@ -107,7 +117,36 @@ Ground::~Ground() {
   [12]           20       30.205   -1.13197      -9999     |    |    |    | x x| x x|      rock
   \endcode
 */
-std::string Ground::layer_report_string() {
+std::string Ground::layer_report_string(const std::string& colunm_groups) {
+
+  bool depth_group = false;
+  bool thermal_group = false;
+  bool hydro_group = false;
+  bool CN_group = false;
+  bool pointer_table = false;
+  bool desc_table = false;
+
+  // Parse string of column groups.
+  boost::tokenizer<> tokens(colunm_groups);
+  typedef boost::tokenizer<>::iterator BstTknIt;
+  for (BstTknIt tkn_it=tokens.begin(); tkn_it!=tokens.end(); ++tkn_it) {
+    std::string tkn = *tkn_it;
+
+    if ("hydro" == tkn) { hydro_group = true; }
+    if ("thermal" == tkn) { thermal_group = true; }
+    if ("depth" == tkn) { depth_group = true; }
+    if ("CN" == tkn) { CN_group = true; }
+    if ("ptr-table" == tkn) { pointer_table = true; }
+    if ("dest-table" == tkn) { desc_table = true; }
+    if ("all" == tkn) {
+      depth_group = true;
+      thermal_group = true;
+      hydro_group = true;
+      CN_group = true;
+      pointer_table = true;
+      desc_table = true;
+    }
+  }
 
   std::stringstream report;
   report << "==== LAYER REPORT ====\n";
@@ -119,59 +158,99 @@ std::string Ground::layer_report_string() {
   }
   
   // build the header for the table
-  report << "[" << std::right << setw(2) << "ix" << "] "
-         << std::right << setw(12) << std::setprecision(3) << "dz" << " "
-         << std::right << setw(12) << std::setprecision(3) << "z" << " "
-         << std::right << setw(12) << std::setprecision(3) << "tem" << " "
-         << std::right << setw(12) << std::setprecision(3) << "rawc" << " "
+  report << "[" << std::right << setw(2) << "ix" << "] ";
 
-         << "SOIL" << "|"
-         << "MOSS" << "|"
-         << "SHLW" << "|"
-         << "DEEP" << "|"
-         << "MINE" << "|"
-         << "FRNT" << "|"
+  if (depth_group) {
+    report << std::right << setw(9) << std::setprecision(3) << "dz" << " "
+           << std::right << setw(9) << std::setprecision(3) << "z" << " ";
+  }
+  if (thermal_group) {
+    report << std::right << setw(9) << std::setprecision(3) << "tem" << " "
+           << std::right << setw(4) << std::setprecision(2) << "fzn" << " "
+           << std::right << setw(9) << std::setprecision(3) << "fznfrac" << " "
+           << std::right << setw(9) << std::setprecision(3) << "tcond" << " "
+           << std::right << setw(9) << std::setprecision(3) << "pce_t" << " "
+           << std::right << setw(9) << std::setprecision(3) << "pce_f" << " ";
+  }
+  if (hydro_group) {
+    report << std::right << setw(9) << std::setprecision(3) << "liq" << " "
+           << std::right << setw(9) << std::setprecision(3) << "ice" << " "
+           << std::right << setw(9) << std::setprecision(3) << "poro" << " ";
 
-         << std::endl;
+  }
+  if (CN_group) {
+    report << std::right << setw(9) << std::setprecision(3) << "rawc" << " ";
+  }
+  if (pointer_table) {
+    report << "SOIL" << "|"
+           << "MOSS" << "|"
+           << "SHLW" << "|"
+           << "DEEP" << "|"
+           << "MINE" << "|"
+           << "FRNT" << "|";
+  }
+  if (desc_table) {
+    report << std::left << setw(27) << "     - layer type -     " << " ";
+  }
+
+  report << std::endl;
 
   // iterate the layer pointers, filling the table with data.
   int idx = 0;
   while (current_layer != NULL) {
     // do stuff with current_layer
     std::stringstream ls;
-    ls << "[" << std::right << setw(2) << idx << "] "
-       << std::fixed
-       << std::right << setw(12) << std::setprecision(3) << current_layer->dz << " "
-       << std::right << setw(12) << std::setprecision(3) << current_layer->z << " "
-       << std::right << setw(12) << std::setprecision(3) << current_layer->tem << " "
-       << std::right << setw(12) << std::setprecision(3) << current_layer->rawc << " "
-       //<< std::right << setw(16) << std::setprecision(16) << current_layer << " "
-       << layer2pointertag(current_layer, fstsoill) << ""
-       << layer2pointertag(current_layer, lstsoill) << "|"
-       << layer2pointertag(current_layer, fstmossl) << ""
-       << layer2pointertag(current_layer, lstmossl) << "|"
-       << layer2pointertag(current_layer, fstshlwl) << ""
-       << layer2pointertag(current_layer, lstshlwl) << "|"
-       << layer2pointertag(current_layer, fstdeepl) << ""
-       << layer2pointertag(current_layer, lstdeepl) << "|"
-       << layer2pointertag(current_layer, fstminel) << ""
-       << layer2pointertag(current_layer, lstminel) << "|"
-       << layer2pointertag(current_layer, fstfntl) << ""
-       << layer2pointertag(current_layer, lstfntl) << "|"
 
-       // this T/ST KEY business seems to be dupliacate info as the "soil description tag"
-       //<< "T/ST KEY:" << std::right << setw(2) << current_layer->tkey << "/" << "[na]"//current_layer->stkey << " "
-
-       << soildesc2tag(current_layer->isSnow, "snow")
-       << soildesc2tag(current_layer->isSoil, "soil")
-       << soildesc2tag(current_layer->isRock, "rock")
-       << soildesc2tag(current_layer->isMoss, "moss")
-       << soildesc2tag(current_layer->isMineral, "mineral")
-       << soildesc2tag(current_layer->isOrganic, "organic")
-       << soildesc2tag(current_layer->isFibric, "fibric")
-       << soildesc2tag(current_layer->isHumic, "humic")
-
-       << std::endl;
+    ls << "[" << std::right << setw(2) << idx << "] " << std::fixed;
+    if (depth_group) {
+      ls << std::right << setw(9) << std::setprecision(3) << current_layer->dz << " "
+         << std::right << setw(9) << std::setprecision(3) << current_layer->z << " ";
+    }
+    if (thermal_group) {
+      ls << std::right << setw(9) << std::setprecision(3) << current_layer->tem << " "
+         << std::right << setw(4) << std::setprecision(2) << current_layer->frozen << " "
+         << std::right << setw(9) << std::setprecision(3) << current_layer->frozenfrac << " "
+         << std::right << setw(9) << std::setprecision(3) << current_layer->tcond << " "
+         << std::scientific
+         << std::right << setw(9) << std::setprecision(1) << current_layer->pce_t << " "
+         << std::right << setw(9) << std::setprecision(1) << current_layer->pce_f << " "
+         << std::fixed;
+    }
+    if (hydro_group) {
+      ls << std::right << setw(9) << std::setprecision(3) << current_layer->liq << " "
+         << std::right << setw(9) << std::setprecision(3) << current_layer->ice << " "
+         << std::right << setw(9) << std::setprecision(3) << current_layer->poro << " ";
+    }
+    if (CN_group) {
+      ls << std::right << setw(9) << std::setprecision(3) << current_layer->rawc << " ";
+    }
+    if (pointer_table) {
+      ls << layer2pointertag(current_layer, fstsoill) << ""
+         << layer2pointertag(current_layer, lstsoill) << "|"
+         << layer2pointertag(current_layer, fstmossl) << ""
+         << layer2pointertag(current_layer, lstmossl) << "|"
+         << layer2pointertag(current_layer, fstshlwl) << ""
+         << layer2pointertag(current_layer, lstshlwl) << "|"
+         << layer2pointertag(current_layer, fstdeepl) << ""
+         << layer2pointertag(current_layer, lstdeepl) << "|"
+         << layer2pointertag(current_layer, fstminel) << ""
+         << layer2pointertag(current_layer, lstminel) << "|"
+         << layer2pointertag(current_layer, fstfntl) << ""
+         << layer2pointertag(current_layer, lstfntl) << "|";
+         // this T/ST KEY business seems to be dupliacate info as the "soil description tag"
+         //<< "T/ST KEY:" << std::right << setw(2) << current_layer->tkey << "/" << "[na]"//current_layer->stkey << " "
+    }
+    if (desc_table) {
+      ls << soildesc2tag(current_layer->isSnow, "snow")
+         << soildesc2tag(current_layer->isSoil, "soil")
+         << soildesc2tag(current_layer->isRock, "rock")
+         << soildesc2tag(current_layer->isMoss, "moss")
+         << soildesc2tag(current_layer->isMineral, "mineral")
+         << soildesc2tag(current_layer->isOrganic, "organic")
+         << soildesc2tag(current_layer->isFibric, "fibric")
+         << soildesc2tag(current_layer->isHumic, "humic");
+    }
+    ls << std::endl;
 
     report << ls.str();
 
@@ -294,12 +373,12 @@ void Ground::initSnowSoilLayers() {
 
   // but for insertation of layers into the double-linked matrix, do the
   //   deep organic first
-  for(int il =organic.deepnum-1; il>=0; il--) {
+  for(int il = organic.deepnum-1; il >=  0; il--) {
     OrganicLayer* pl = new OrganicLayer(organic.deepdz[il], 2); //2 means deep organic
     insertFront(pl);
   }
 
-  for(int il =organic.shlwnum-1; il>=0; il--) {
+  for(int il = organic.shlwnum-1; il >= 0; il--) {
     OrganicLayer* pl = new OrganicLayer(organic.shlwdz[il], 1); //1 means shallow organic
     insertFront(pl);
   }
@@ -339,7 +418,7 @@ void Ground::initSnowSoilLayers() {
     sl->dz = snow.thick;
     insertFront(sl);
   }
-};
+}
 
 void Ground::set_state_from_restartdata(snwstate_dim *snowdim,
                                    soistate_dim *soildim,
@@ -1122,13 +1201,13 @@ void  Ground::redivideMossLayers(const int &mosstype) {
       ml->frozenfrac = 1.;
     }
 
-    // initialize C as 0., which will be updated when 'dmossc' decomposes
-    ml->rawc = 0.;
-    ml->soma = 0.;
-    ml->sompr= 0.;
-    ml->somcr= 0.;
-    ml->orgn = 0.;
-    ml->avln = 0.;
+    // initialize C as 0.0, which will be updated when 'dmossc' decomposes
+    ml->rawc = 0.0;
+    ml->soma = 0.0;
+    ml->sompr= 0.0;
+    ml->somcr= 0.0;
+    ml->orgn = 0.0;
+    ml->avln = 0.0;
     resortGroundLayers();
     updateSoilHorizons();
   }  // one-layer moss currently assumed, so no need to do redivision
@@ -1572,7 +1651,7 @@ double Ground::adjustSoilAfterburn() {
       double tsomc = currl->rawc+currl->soma+currl->sompr+currl->somcr;
 
       if (currl->isMoss && !currl->nextl->isMoss) {
-        tsomc+=moss.dmossc;
+        tsomc += moss.dmossc;
       }
 
       if(tsomc<=0.) {
@@ -1812,7 +1891,7 @@ void Ground::retrieveSoilDimension(soistate_dim * soildim) {
   int slind=0;
   int mlind=0;
 
-  while(curr!=NULL) {
+  while(curr != NULL) {
     if(curr->isSoil) {
       soildim->age[slind] = (int)curr->age;
       soildim->dz[slind]  = curr->dz;
@@ -1821,32 +1900,32 @@ void Ground::retrieveSoilDimension(soistate_dim * soildim) {
 
       if(curr->isMoss) {
         soildim->type[slind] = 0;
-        soildim->mossthick +=curr->dz;
-        soildim->mossnum+=1;
+        soildim->mossthick += curr->dz;
+        soildim->mossnum += 1;
       } else if(curr->isOrganic) {
         if(curr->isFibric) {
           soildim->type[slind] = 1;
-          soildim->shlwthick +=curr->dz;
-          soildim->shlwnum+=1;
+          soildim->shlwthick += curr->dz;
+          soildim->shlwnum += 1;
         } else if(curr->isHumic) {
           soildim->type[slind] = 2;
-          soildim->deepthick +=curr->dz;
-          soildim->deepnum+=1;
+          soildim->deepthick += curr->dz;
+          soildim->deepnum += 1;
         }
       } else if(curr->isMineral) {
         soildim->type[slind] = 3;
-        soildim->minenum+=1;
+        soildim->minenum += 1;
 
         if (mlind>=0 && mlind<=MINEZONE[0]) {
-          soildim->mineathick +=curr->dz;
+          soildim->mineathick += curr->dz;
         }
 
         if (mlind>MINEZONE[0] && mlind<=MINEZONE[1]) {
-          soildim->minebthick +=curr->dz;
+          soildim->minebthick += curr->dz;
         }
 
         if (mlind>MINEZONE[1] && mlind<=MINEZONE[2]) {
-          soildim->minecthick +=curr->dz;
+          soildim->minecthick += curr->dz;
         }
 
         mlind++;
@@ -1856,15 +1935,20 @@ void Ground::retrieveSoilDimension(soistate_dim * soildim) {
     }
 
     curr= curr->nextl;
-  };
+  }
 
-  //
-  soildim->numsl= soildim->mossnum+soildim->shlwnum+soildim->deepnum+soildim->minenum;
+  soildim->numsl = soildim->mossnum +
+                   soildim->shlwnum +
+                   soildim->deepnum +
+                   soildim->minenum;
 
-  soildim->totthick = soildim->mossthick+soildim->shlwthick+soildim->deepthick
-                      + soildim->mineathick+soildim->minebthick
-                      + soildim->minecthick;
-};
+  soildim->totthick = soildim->mossthick +
+                      soildim->shlwthick +
+                      soildim->deepthick +
+                      soildim->mineathick +
+                      soildim->minebthick +
+                      soildim->minecthick;
+}
 
 void Ground::updateWholeFrozenStatus() {
   if(fstfntl==NULL && lstfntl==NULL) {

@@ -243,12 +243,12 @@ void Soil_Env::set_state_from_restartdata(const RestartData & rdata) {
 // Ground (snow-soil) thermal process
 void Soil_Env::updateDailyGroundT(const double & tdrv, const double & dayl) {
   double tsurface;
-  tsurface = tdrv *ed->d_soid.nfactor;
+  tsurface = tdrv * ed->d_soid.nfactor;
 
   if(ground->toplayer->isSoil) {
     updateDailySurfFlux(ground->toplayer, dayl);
-    ed->d_snw2a.swrefl = 0.;
-    ed->d_snw2a.sublim = 0.;
+    ed->d_snw2a.swrefl = 0.0;
+    ed->d_snw2a.sublim = 0.0;
   }
 
   // solution for snow-soil column thermal process
@@ -492,22 +492,27 @@ void Soil_Env::updateDailySM() {
   double trans[MAX_SOI_LAY], melt, evap, rnth;
 
   for (int i=0; i<MAX_SOI_LAY; i++) {
-    trans[i] = ed->d_v2a.tran*ed->d_soid.fbtran[i]; //mm/day: summed for
-                                                    //  all Vegetations
+    // mm/day
+    // summed for all vegetation?
+    // or for all soil layers?
+    trans[i] = ed->d_v2a.tran * ed->d_soid.fbtran[i];
   }
 
-  evap  = ed->d_soi2a.evap; //mm/day: summed for soil evaporation
-  rnth  = (ed->d_v2g.rthfl +ed->d_v2g.rdrip) //note: rthfl and rdrip
-                                             //  are already fpc adjusted
-          +(1.- cd->m_vegd.fpcsum)*ed->d_a2l.rnfl; //mm/day
-  melt  = ed->d_snw2soi.melt; //mm/day
+  evap  = ed->d_soi2a.evap; // mm/day: summed for soil evaporation
+
+  // mm/day note: rthfl and rdrip are already fpc adjusted
+  rnth  = (ed->d_v2g.rthfl + ed->d_v2g.rdrip) +
+          (1.0 - cd->m_vegd.fpcsum) * ed->d_a2l.rnfl;
+
+  melt  = ed->d_snw2soi.melt; // mm/day
+
   // 1) calculate the surface runoff and infiltration
-  ed->d_soi2l.qover  = 0.;
-  ed->d_soi2l.qdrain = 0.;
+  ed->d_soi2l.qover  = 0.0;
+  ed->d_soi2l.qdrain = 0.0;
   ed->d_sois.watertab = getWaterTable(lstsoill);
 
-  if(rnth+melt>0) {
-    ed->d_soi2l.qover  = getRunoff(fstsoill, drainl, rnth, melt); //mm/day
+  if( (rnth + melt) > 0 ) {
+    ed->d_soi2l.qover  = getRunoff(fstsoill, drainl, rnth, melt); // mm/day
   } else {
     ed->d_soi2l.qover  = 0.;
   }
@@ -732,18 +737,18 @@ void Soil_Env::getSoilTransFactor(double btran[MAX_SOI_LAY], Layer* fstsoill,
         psi = dynamic_cast<SoilLayer*>(currl)->getMatricPotential();
         psi = fmax(psimax, psi);
         psi = fmin(psisat, psi);
-        rresis = (1.- psi/psimax)/(1.- psisat/psimax);
-        btran[sind] = rootfr[sind]* rresis;
-        sumbtran   += rootfr[sind]* rresis;
+        rresis = (1.0 - psi/psimax)/(1.0 - psisat/psimax);
+        btran[sind] = rootfr[sind] * rresis;
+        sumbtran   += rootfr[sind] * rresis;
       }
     }
 
     currl=currl->nextl;
   }
 
-  if (sumbtran>1.) {
+  if (sumbtran > 1.0) {
     for (int il=0; il<cd->d_soil.numsl; il++) {
-      btran[sind] /=sumbtran;
+      btran[sind] /= sumbtran;
     }
   }
 }

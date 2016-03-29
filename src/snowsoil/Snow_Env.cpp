@@ -13,7 +13,7 @@ void Snow_Env::updateDailyM(const double & tdrv) {
   //dsmass is the total snowfall during one timestep:
   double dsmass = ed->d_v2g.sthfl + ed->d_v2g.sdrip //these 2 items has already
                                                     //  been adjusted by FPC
-                  + (1.- cd->m_vegd.fpcsum)* ed->d_a2l.snfl;
+                  + (1.0 - cd->m_vegd.fpcsum) * ed->d_a2l.snfl;
 
   //Note unit converstion: 1 mm H2O = 1 kgH2O/m2
   bool slchg1 = false;
@@ -44,7 +44,7 @@ void Snow_Env::updateDailyM(const double & tdrv) {
   }
 
   //here 'dsmass' is for snow-melting and sublimating
-  dsmass=ed->d_snw2a.sublim+ed->d_snw2soi.melt;
+  dsmass = ed->d_snw2a.sublim + ed->d_snw2soi.melt;
   //Note unit converstion: 1 mm H2O = 1 kgH2O/m2
 
   //removal of melted snow layers

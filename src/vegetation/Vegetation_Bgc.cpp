@@ -354,10 +354,10 @@ void Vegetation_Bgc::delta() {
   for (int i=I_leaf+1; i<NUM_PFT_PART; i++) {
     del_a2v.innpp[i] = 0.;
     del_v2a.rg[i]    = 0.;
-  /*double cpartrest = 0.;
-  for (int i=I_leaf; i<NUM_PFT_PART; i++) {
-    cpartrest +=bgcpar.cpart[i];
-  }*/
+  //double cpartrest = 0.;
+  //for (int i=I_leaf; i<NUM_PFT_PART; i++) {
+  //  cpartrest +=bgcpar.cpart[i];
+  //}
   //for (int i=I_leaf; i<NUM_PFT_PART; i++) {
     if (cpartrest>0. && innppall>0.) {
       del_a2v.innpp[i] = innppall * bgcpar.cpart[i]/cpartrest;

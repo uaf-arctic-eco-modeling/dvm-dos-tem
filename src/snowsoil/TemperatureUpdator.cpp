@@ -12,6 +12,14 @@
 
 extern src::severity_logger< severity_level > glg;
 
+void TemperatureUpdator::warn_bad_tld(const std::string& scope, const int idx){
+  if (this->tld[idx] != this->tld[idx]) {
+    BOOST_LOG_SEV(glg, warn) << scope << " - tld["<<idx<<"] is nan!";
+  }
+  if (tld[idx] == MISSING_D) {
+    BOOST_LOG_SEV(glg, warn) << scope << " - tld["<<idx<<"] is " << MISSING_D << ")";
+  }
+}
 
 TemperatureUpdator::TemperatureUpdator() {
   TSTEPMAX = 1;
@@ -88,9 +96,11 @@ void TemperatureUpdator::updateTemps(const double & tdrv, Layer *fstvalidl,
 
 
 void TemperatureUpdator::processColumnNofront(Layer* fstvalidl, Layer *backl, const double & tdrv, const bool & meltsnow) {
+
   int startind, endind;
-  //the boundary of 'fstvalidl' as a virtual layer,
-  //  serving as boundary condition
+
+  // The boundary of 'fstvalidl' as a virtual layer,
+  // serving as boundary condition
   int ind = fstvalidl->indl - 1;
   startind = ind;
 
@@ -101,10 +111,10 @@ void TemperatureUpdator::processColumnNofront(Layer* fstvalidl, Layer *backl, co
   }
 
   e[ind]  = t[ind];
-  s[ind]  = 0.;
+  s[ind]  = 0.0;
   cn[ind] = 1.0e2; //assume very big thermal conductivity for this virtual
                    //  layer (Reason for osicillation!!! from e20 to e2)
-  cap[ind]= 0.; // assume no heat capacity for this virtual layer
+  cap[ind]= 0.0; // assume no heat capacity for this virtual layer
   // actual layers, above 'frontl', invovling thermal process
   Layer* currl = fstvalidl;
   double hcap;
@@ -146,14 +156,7 @@ void TemperatureUpdator::processColumnNofront(Layer* fstvalidl, Layer *backl, co
   // post-iteration
   //check whether is nan
   for (int il = startind; il <= endind; il++) {
-    if ((tld[il])!=(tld[il])) {
-      BOOST_LOG_SEV(glg, warn) << "TemperatureUpdator::procesColumnNofront - "
-                               << "tld["<< il <<"] is nan!";
-    }
-
-    if (tld[ind]==MISSING_D) {
-      BOOST_LOG_SEV(glg, warn) << "tld["<< il <<"] is MISSING_D (" << MISSING_D<<")!";
-    }
+    warn_bad_tld("TemperatureUpdator::procesColumnNofront", il);
   }
 
 
@@ -289,14 +292,7 @@ void TemperatureUpdator::processAboveFronts(Layer* fstvalidl, Layer*fstfntl,
 
   // checking
   for (int il = startind; il <= endind; il++) {
-    if (tld[il]!=tld[il]) {
-      BOOST_LOG_SEV(glg, warn) << "TemperatureUpdator::processAboveFronts - "
-                               << "tld["<< il <<"] is nan!";
-    }
-
-    if (tld[il]==MISSING_D) {
-      BOOST_LOG_SEV(glg, warn) << "tld["<< il <<"] is MISSING_D (" << MISSING_D<<")!";
-    }
+    warn_bad_tld("TemperatureUpdator::processAboveFronts", il);
   }
 }
 
@@ -505,13 +501,7 @@ void TemperatureUpdator::processBetweenFronts(Layer*fstfntl, Layer*lstfntl,
   }
 
   for (int il = startind; il <= endind; il++) {
-    if (tld[il]!=tld[il]) {
-      BOOST_LOG_SEV(glg, warn) << "TemperatureUpdator::procesBetweenFronts - "
-                               << "tld["<< il <<"] is nan!";
-    }
-    if (tld[il]==MISSING_D) {
-      BOOST_LOG_SEV(glg, warn) << "tld["<< il <<"] is MISSING_D (" << MISSING_D<<")!";
-    }
+    warn_bad_tld("TemperatureUpdator::procesBetweenFronts", il);
   }
 }
 
@@ -666,13 +656,7 @@ void TemperatureUpdator::processBelowFronts(Layer* backl, Layer*lstfntl,
 
   // checking
   for (int il = startind; il <= endind; il++) {
-    if (tld[il]!=tld[il]) {
-      BOOST_LOG_SEV(glg, warn) << "TemperatureUpdator::procesBelowFronts - "
-                               << "tld["<< il <<"] is nan!";
-    }
-    if (tld[il]==MISSING_D) {
-      BOOST_LOG_SEV(glg, warn) << "tld["<< il <<"] is MISSING_D (" << MISSING_D<<")!";
-    }
+    warn_bad_tld("TemperatureUpdator::processBelowFronts", il);
   }
 
 }
@@ -682,10 +666,14 @@ void TemperatureUpdator::iterate(const int &startind, const int &endind) {
   if (endind - startind ==2) {
     for (int il = startind; il <= endind; il++) {
       tid[il] = t[il]; // temperature at the begin of one day
+
       tld[il] = t[il]; // the last determined temperature
+      warn_bad_tld("TemperatureUpdator::iterate", il);
     }
 
     tld[startind+1] = (tid[startind]+tid[endind])/2.0;
+    warn_bad_tld("TemperatureUpdator::iterate", startind+1);
+
     return;
   }
 
@@ -697,7 +685,10 @@ void TemperatureUpdator::iterate(const int &startind, const int &endind) {
 
   for (int il = startind; il <= endind; il++) {
     tid[il] = t[il]; // temperature at the begin of one day
+
     tld[il] = t[il]; // the last determined temperature
+    warn_bad_tld("TemperatureUpdator::iterate", il);
+
   }
 
   for (int i = startind; i <= endind; i++) {
@@ -763,9 +754,11 @@ int TemperatureUpdator::updateOneTimeStep(const int &startind,
 
     for (int i = startind; i <= endind; i++) {
       tld[i] = tit[i];
+      warn_bad_tld("TemperatureUpdator::updateOneTimeStep", i);
     }
 
     return 0; //status;
+
   } else if (is == -1) { //the difference between iteration is too big,
                          //  iterate again
     for (int i = startind; i <= endind; i++) {

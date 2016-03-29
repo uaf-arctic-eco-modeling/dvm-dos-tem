@@ -87,6 +87,9 @@ private:
   CrankNicholson cns;
   Ground *ground;
 
+  void warn_bad_tld(const std::string& scope, const int idx);
+
+
   void processColumnNofront(Layer* frontl, Layer *backl,
                             const double & tdrv, const bool & meltsnow);
 

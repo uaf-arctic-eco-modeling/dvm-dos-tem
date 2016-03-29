@@ -84,7 +84,7 @@ public:
   double ice;   //!ice content kg/m2
   double hcond;  // hydraulic conductivity
 
-  //! soil carbon pool unit : \{kgC}{m^2
+  // soil carbon pool unit : gC/m^2
   double rawc;
   double soma;
   double sompr;

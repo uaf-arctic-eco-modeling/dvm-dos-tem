@@ -219,13 +219,6 @@ void Soil_Bgc::initializeState() {
   // Initial N based on input total and SOM C profile
   double sum_total_C = shlwc + deepc + minec;
 
-  // Initial available N based only on organic SOM C total
-  double sum_organic_C = shlwc + minec;
-  // Is the above correct? See V. Patil's change here:
-  // https://github.com/vppatil/dvm-dos-tem/commit/b7ff148a769f3574460f8fccafdd9250ac284def
-  // however it appears that this local variable is never used,
-  // so the change should have no effect.
-
   for (int il=0; il<MAX_SOI_LAY; il++ ) {
     double total_monthly_C = bd->m_sois.rawc[il] +
                              bd->m_sois.soma[il] +
@@ -245,8 +238,8 @@ void Soil_Bgc::initializeState() {
       bd->m_sois.avln [il] = 0.0;
       bd->m_sois.orgn [il] = 0.0;
     }
-  }
-};
+  } // end soil layer loop
+}
 
 void Soil_Bgc::set_state_from_restartdata(const RestartData & rdata) {
   
@@ -301,37 +294,41 @@ void Soil_Bgc::set_state_from_restartdata(const RestartData & rdata) {
 
 void Soil_Bgc::initializeParameter() {
   BOOST_LOG_SEV(glg, note) << "Initializing parameters in Soil_Bgc from chtlu (CohortLookup) values.";
-  calpar.micbnup  = chtlu->micbnup;
-  calpar.kdcmoss  = chtlu->kdcmoss;
-  calpar.kdcrawc  = chtlu->kdcrawc;
-  calpar.kdcsoma  = chtlu->kdcsoma;
-  calpar.kdcsompr = chtlu->kdcsompr;
-  calpar.kdcsomcr = chtlu->kdcsomcr;
-  bgcpar.rhq10    = chtlu->rhq10;
-  bgcpar.moistmin = chtlu->moistmin;
-  bgcpar.moistmax = chtlu->moistmax;
-  bgcpar.moistopt = chtlu->moistopt;
-  bgcpar.fsoma  = chtlu->fsoma;
-  bgcpar.fsompr = chtlu->fsompr;
-  bgcpar.fsomcr = chtlu->fsomcr;
-  bgcpar.som2co2= chtlu->som2co2;
-  //Jenkinson and Rayner (1977): 1t plant C ha-1 yr-1 for 10,000yrs,
-  //  will produce:
-  //  0.48 tC of RAWC, 0.28tC of SOMA, 11.3tC of SOMPR, and 12.2 tC of SOMCR,
-  //  i.e. total 24.26 tC, so we have the following
-  // but normally these can be estimated from Ks calibrated
-  bgcpar.eqrawc = 0.48/(0.48+0.28+11.3+12.2);
-  bgcpar.eqsoma  = 0.28/(0.48+0.28+11.3+12.2);
-  bgcpar.eqsompr = 11.3/(0.48+0.28+11.3+12.2);
-  bgcpar.eqsomcr = 12.2/(0.48+0.28+11.3+12.2);
+  calpar.micbnup    = chtlu->micbnup;
+  calpar.kdcmoss    = chtlu->kdcmoss;
+  calpar.kdcrawc    = chtlu->kdcrawc;
+  calpar.kdcsoma    = chtlu->kdcsoma;
+  calpar.kdcsompr   = chtlu->kdcsompr;
+  calpar.kdcsomcr   = chtlu->kdcsomcr;
+  bgcpar.rhq10      = chtlu->rhq10;
+  bgcpar.moistmin   = chtlu->moistmin;
+  bgcpar.moistmax   = chtlu->moistmax;
+  bgcpar.moistopt   = chtlu->moistopt;
+  bgcpar.fsoma      = chtlu->fsoma;
+  bgcpar.fsompr     = chtlu->fsompr;
+  bgcpar.fsomcr     = chtlu->fsomcr;
+  bgcpar.som2co2    = chtlu->som2co2;
   bgcpar.lcclnc     = chtlu->lcclnc;
+  bgcpar.kn2        = chtlu->kn2;
+  bgcpar.propftos   = chtlu->propftos;
+  bgcpar.fnloss     = chtlu->fnloss;
   bgcpar.nmincnsoil = chtlu->nmincnsoil;
-  bgcpar.kn2 = chtlu->kn2;
-  bgcpar.propftos     = chtlu->propftos;
-  decay = 0.26299 + (1.14757*bgcpar.propftos)
-          - (0.42956*pow( (double) bgcpar.propftos,2.0 ));
-  bgcpar.fnloss       = chtlu->fnloss;
-};
+
+  BOOST_LOG_SEV(glg, note) << "Calculating parameter in Soil_Bgc from Jenkinson and Rayner (1977).";
+  // Alternatively these can be estimated from Ks calibrated.
+  // Jenkinson and Rayner (1977):
+  //   1t plant C / ha / yr for 10,000yrs, will produce:
+  //   0.48t RAWC + 0.28t SOMA + 11.3t SOMPR + 12.2t SOMCR = 24.26 tC
+  bgcpar.eqrawc = 0.48 / (0.48 + 0.28 + 11.3 + 12.2);
+  bgcpar.eqsoma = 0.28 / (0.48 + 0.28 + 11.3 + 12.2);
+  bgcpar.eqsompr = 11.3 / (0.48 + 0.28 + 11.3 + 12.2);
+  bgcpar.eqsomcr = 12.2 / (0.48 + 0.28 + 11.3 + 12.2);
+
+  BOOST_LOG_SEV(glg, note) << "Calculating decay in Soil_Bgc.";
+  decay = 0.26299 +
+          (1.14757 * bgcpar.propftos) -
+          (0.42956 * pow((double)bgcpar.propftos, 2.0));
+}
 
 void Soil_Bgc::initSoilCarbon(double & initshlwc, double & initdeepc,
                               double & initminec) {
@@ -354,13 +351,13 @@ void Soil_Bgc::initSoilCarbon(double & initshlwc, double & initdeepc,
 // initialize Organic Soil layers' carbon based on input layer thickness
 void Soil_Bgc::initOslayerCarbon(double & shlwc, double & deepc) {
   Layer* currl = ground->fstsoill;
-  double dbmtop = 0.;
-  double dbmbot = 0.;
-  double cumcarbontop = 0.;
-  double cumcarbonbot = 0.;
-  double cumcarbonshlw = 0.;
-  double cumcarbondeep = 0.;
-  ground->moss.dmossc = 0.;
+  double dbmtop = 0.0;
+  double dbmbot = 0.0;
+  double cumcarbontop = 0.0;
+  double cumcarbonbot = 0.0;
+  double cumcarbonshlw = 0.0;
+  double cumcarbondeep = 0.0;
+  ground->moss.dmossc = 0.0;
 
   while(currl!=NULL) {
     if(currl->isSoil) {
@@ -371,8 +368,8 @@ void Soil_Bgc::initOslayerCarbon(double & shlwc, double & deepc) {
       if (currl==ground->fstmossl
           || currl==ground->fstshlwl
           || currl==ground->fstdeepl) {
-        dbmtop= 0.;
-        cumcarbontop = 0.;
+        dbmtop = 0.0;
+        cumcarbontop = 0.0;
       }
 
       dbmbot = dbmtop+currl->dz;
@@ -394,7 +391,7 @@ void Soil_Bgc::initOslayerCarbon(double & shlwc, double & deepc) {
         cumcarbondeep += cumcarbonbot - cumcarbontop;
       }
 
-      if(cumcarbonbot-cumcarbontop>0.) {
+      if( cumcarbonbot - cumcarbontop > 0.0 ) {
         if (currl->isOrganic) {  // dead moss layers are not regarded as soil organic layers
           if(currl->isFibric){
             currl->rawc  = bgcpar.eqrawc * (cumcarbonbot - cumcarbontop); //note: those eq-fractions of SOM pools must be estimated before
@@ -408,16 +405,16 @@ void Soil_Bgc::initOslayerCarbon(double & shlwc, double & deepc) {
             currl->somcr = bgcpar.eqsomcr * (cumcarbonbot - cumcarbontop);            
           }
         } else {
-          currl->rawc  = 0.;
-          currl->soma  = 0.;
-          currl->sompr = 0.;
-          currl->somcr = 0.;
+          currl->rawc  = 0.0;
+          currl->soma  = 0.0;
+          currl->sompr = 0.0;
+          currl->somcr = 0.0;
         }
       } else {
-        currl->rawc  = 0.;
-        currl->soma  = 0.;
-        currl->sompr = 0.;
-        currl->somcr = 0.;
+        currl->rawc  = 0.0;
+        currl->soma  = 0.0;
+        currl->sompr = 0.0;
+        currl->somcr = 0.0;
       }
 
       cumcarbontop = cumcarbonbot;
@@ -426,7 +423,7 @@ void Soil_Bgc::initOslayerCarbon(double & shlwc, double & deepc) {
       break;
     }
 
-    currl =currl->nextl;
+    currl = currl->nextl;
   }
 
   //Above calculation will give all soil organic layer C content UPON two
@@ -453,7 +450,7 @@ void Soil_Bgc::initOslayerCarbon(double & shlwc, double & deepc) {
       }
     }
 
-    currl =currl->nextl;
+    currl = currl->nextl;
   }
 };
 
@@ -517,16 +514,21 @@ void Soil_Bgc::initMslayerCarbon(double & minec) {
 
 // before delta and afterdelta are considered in Integrator
 void Soil_Bgc::deltac() {
-  double kmoss = 0.;     //for dead moss materials (in model, dmossc)
-  double krawc = 0.;     //for littering materials (in model, rawc)
-  double ksoma = 0.;     //for active SOM (in model, soma)
-  double ksompr = 0.;    //for PR SOM (in model, sompr)
-  double ksomcr = 0.;    //for CR SOM (in model, somcr)
+  double kmoss = 0.0;     // for dead moss materials (in model, dmossc)
+  double krawc = 0.0;     // for littering materials (in model, rawc)
+  double ksoma = 0.0;     // for active SOM (in model, soma)
+  double ksompr = 0.0;    // for PR SOM (in model, sompr)
+  double ksomcr = 0.0;    // for CR SOM (in model, somcr)
 
   for (int il =0; il<cd->m_soil.numsl; il++) {
-    bd->m_soid.rhmoist[il] = getRhmoist(ed->m_soid.sws[il],  //Yuan: vwc normalized by total pore - this will allow respiration (methane/oxidation) implicitly
-                                        bgcpar.moistmin, bgcpar.moistmax,
-                                        bgcpar.moistopt);
+
+    // Yuan: vwc normalized by total pore - this will allow
+    // respiration (methane/oxidation) implicitly
+    bd->m_soid.rhmoist[il] = getRhmoist( ed->m_soid.sws[il],
+                                         bgcpar.moistmin,
+                                         bgcpar.moistmax,
+                                         bgcpar.moistopt );
+
     bd->m_soid.rhq10[il] = getRhq10(ed->m_sois.ts[il]);
     krawc  = bgcpar.kdrawc[il];
     ksoma  = bgcpar.kdsoma[il];
@@ -622,10 +624,9 @@ void Soil_Bgc::deltan() {
                                          decay, calpar.micbnup);
 
       if (cd->m_soil.type[i] == 0 && cd->m_soil.type[i+1] > 0) {  // dead moss decomposition product is into the last moss layer
-        if (tmp_sois.dmossc>0.) {
-          del_soi2soi.netnmin[i] += del_soi2a.rhmossc
-                                    * tmp_sois.dmossn
-                                    / tmp_sois.dmossc;
+        if (tmp_sois.dmossc > 0.0) {
+          del_soi2soi.netnmin[i] += del_soi2a.rhmossc *
+                                    tmp_sois.dmossn / tmp_sois.dmossc;
         }
       }
 
@@ -654,15 +655,15 @@ void Soil_Bgc::deltan() {
       }
 
       if( del_soi2l.avlnlost > totdzavln - totnextract
-          + totnetnmin+ bd->m_a2soi.avlninput) {
+          + totnetnmin + bd->m_a2soi.avlninput) {
         del_soi2l.avlnlost = totdzavln - totnextract
-                             + totnetnmin+ bd->m_a2soi.avlninput;
+                             + totnetnmin + bd->m_a2soi.avlninput;
       }
 
-      if (del_soi2l.avlnlost<0) {
+      if (del_soi2l.avlnlost < 0) {
         del_soi2l.avlnlost = 0.0;
-        double nminadj = del_soi2l.avlnlost + totnextract
-                         - bd->m_a2soi.avlninput-totdzavln;
+        double nminadj = del_soi2l.avlnlost +
+                         totnextract - bd->m_a2soi.avlninput - totdzavln;
 
         for(int i=0; i<cd->m_soil.numsl; i++) {
           del_soi2soi.netnmin[i] *=nminadj/totnetnmin;
