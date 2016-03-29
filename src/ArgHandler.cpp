@@ -31,6 +31,10 @@ void ArgHandler::parse(int argc, char** argv) {
        ->default_value(100),
      "The number of spinup years.")
 
+    ("tr-yrs,tr", boost::program_options::value<>(&tr_yrs)
+       ->default_value(0),
+     "The number of years to run transient. Overrides config for testing.")
+
     ("loop-order,o",
      boost::program_options::value<std::string>(&loop_order)
        ->default_value("space-major"),

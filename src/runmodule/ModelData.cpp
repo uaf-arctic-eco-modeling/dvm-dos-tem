@@ -73,6 +73,7 @@ void ModelData::update(ArgHandler const * arghandler) {
   this->pre_run_yrs = arghandler->get_pre_run_yrs();
   this->max_eq_yrs = arghandler->get_max_eq();
   this->sp_yrs = arghandler->get_sp_yrs();
+  this->tr_yrs = arghandler->get_tr_yrs();
 
 }
 
