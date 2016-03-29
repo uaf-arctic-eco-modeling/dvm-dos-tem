@@ -1378,11 +1378,6 @@ void RestartData::restartdata_to_log(){
     BOOST_LOG_SEV(glg, debug) << "frontFT[" << ii << "]: " << frontFT[ii];
   }
 
-
-
-
-
-
   BOOST_LOG_SEV(glg, debug) << "***** END RESTARTDATA *****";
 }
 
