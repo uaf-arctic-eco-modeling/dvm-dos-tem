@@ -24,7 +24,7 @@ fi
 # Find sha of most recent commit
 SHA=$(git log -1 --oneline | cut -d ' ' -f 1)
 
-TAG="all-mods-$SHA"
+TAG="$1-$SHA"
 echo "Using TAG: " $TAG
 
 # vv-------- CHANGE SETTINGS AS NEEDED ----vv
