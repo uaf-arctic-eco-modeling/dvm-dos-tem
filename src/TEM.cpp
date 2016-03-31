@@ -309,6 +309,12 @@ int main(int argc, char* argv[]){
 
               runner.run_years(0, modeldata.max_eq_yrs, "eq-run");
 
+              runner.cohort.set_restartdata_from_state();
+
+              runner.cohort.restartdata.verify_logical_values();
+              BOOST_LOG_SEV(glg, debug) << "RestartData post EQ";
+              runner.cohort.restartdata.restartdata_to_log();
+
               // Write out EQ restart file
               runner.cohort.restartdata.append_to_ncfile(restart_fname, rowidx, colidx); /* cohort id/key ???*/
 
@@ -346,6 +352,8 @@ int main(int argc, char* argv[]){
                 // The above may be a bad idea. Separating reading
                 // and validation will confuse things when variables
                 // are added in the future - possibility for a disconnect.
+                BOOST_LOG_SEV(glg, debug) << "RestartData pre SP";
+                runner.cohort.restartdata.restartdata_to_log();
 
                 // copy values from the (updated) restart data to cohort
                 // and cd. this should overwrite some things that were
@@ -354,6 +362,12 @@ int main(int argc, char* argv[]){
 
                 // run model
                 runner.run_years(0, modeldata.sp_yrs, "sp-run");
+
+                // Update restartdata structure from the running state
+                runner.cohort.set_restartdata_from_state();
+
+                BOOST_LOG_SEV(glg, debug) << "RestartData post SP";
+                runner.cohort.restartdata.restartdata_to_log();
 
                 // Save status to spinup restart file 
                 runner.cohort.restartdata.append_to_ncfile(restart_fname, rowidx, colidx);
@@ -364,7 +378,7 @@ int main(int argc, char* argv[]){
 
               }
               else{ //No EQ restart file
-                BOOST_LOG_SEV(glg, err) << "No EQ restart file.";
+                BOOST_LOG_SEV(glg, err) << "No restart file from EQ.";
               }
 
             }
@@ -393,12 +407,23 @@ int main(int argc, char* argv[]){
                 // Update the cohort's restart data object
                 runner.cohort.restartdata.update_from_ncfile(sp_restart_fname, rowidx, colidx);
 
+                runner.cohort.restartdata.verify_logical_values();
+
+                BOOST_LOG_SEV(glg, debug) << "RestartData pre TR";
+                runner.cohort.restartdata.restartdata_to_log();
+
                 // Copy values from the updated restart data to cohort
                 // and cd.
                 runner.cohort.set_state_from_restartdata();
 
                 // Run model
                 runner.run_years(0, modeldata.tr_yrs, "tr-run");
+
+                // Update restartdata structure from the running state
+                runner.cohort.set_restartdata_from_state();
+
+                BOOST_LOG_SEV(glg, debug) << "RestartData post TR";
+                runner.cohort.restartdata.restartdata_to_log();
 
                 // Save status to transient restart file
                 runner.cohort.restartdata.append_to_ncfile(restart_fname, rowidx, colidx);
@@ -409,7 +434,7 @@ int main(int argc, char* argv[]){
 
               }
               else{ //No SP restart file
-                BOOST_LOG_SEV(glg, fatal) << "No SP restart file.";
+                BOOST_LOG_SEV(glg, fatal) << "No restart file from SP.";
               }
             }
           }
@@ -437,6 +462,9 @@ int main(int argc, char* argv[]){
                 // Update the cohort's restart data object
                 runner.cohort.restartdata.update_from_ncfile(tr_restart_fname, rowidx, colidx);
 
+                BOOST_LOG_SEV(glg, debug) << "RestartData pre SC";
+                runner.cohort.restartdata.restartdata_to_log();
+
                 // Copy values from the updated restart data to cohort
                 // and cd.
                 runner.cohort.set_state_from_restartdata();
@@ -447,6 +475,12 @@ int main(int argc, char* argv[]){
                 // Run model
                 runner.run_years(0, modeldata.sc_yrs, "sc-run");
 
+                // Update restartdata structure from the running state
+                runner.cohort.set_restartdata_from_state();
+
+                BOOST_LOG_SEV(glg, debug) << "RestartData post SC";
+                runner.cohort.restartdata.restartdata_to_log();
+
                 // Save status to scenario restart file
                 // This may be unnecessary, but will provide a possibly
                 // interesting snapshot of the data structure
@@ -455,7 +489,7 @@ int main(int argc, char* argv[]){
 
               }
               else{ //No TR restart file
-                BOOST_LOG_SEV(glg, fatal) << "No TR restart file.";
+                BOOST_LOG_SEV(glg, fatal) << "No restart file from TR.";
               }
 
             }
