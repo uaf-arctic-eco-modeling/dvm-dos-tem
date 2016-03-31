@@ -71,9 +71,8 @@ void Runner::run_years(int start_year, int end_year, const std::string& stage) {
 
     /* Interpolate all the monthly values...? */
     if( (stage.find("eq") != std::string::npos
-           || stage.find("pre") != std::string::npos)
-        && iy==0){
-      this->cohort.climate.prepare_eq_daily_driving_data(iy, stage);
+           || stage.find("pre") != std::string::npos) ){
+      this->cohort.climate.prepare_daily_driving_data(iy, stage);
     }
 
     else if(stage.find("sp") != std::string::npos){

@@ -596,102 +596,44 @@ std::vector<float> Climate::interpolation_range(const std::vector<float>& data, 
   return foo;
 }
 
-/** Prepares daily driving data for static climate stages (EQ)*/
-void Climate::prepare_eq_daily_driving_data(int iy, const std::string& stage) {
-
-
-  if ( (stage.find("pre") != std::string::npos)
-          || (stage.find("eq") != std::string::npos ) ) {
-
-    // effectively the same value each day of the year
-    // also in pre-run, and eq stages, use constant co2 value for all years.
-    co2_d = co2.at(0);
-
-    // Create the daily data by interpolating the avgX data. So each year
-    // the numbers will be identical...
-    // SO...if iy != 0, then this could be a no-op maybe?? ..assumes that
-    // at some point iy was zero and the values were appropriately calculated
-    // once...
-
-    // straight up interpolated....
-    tair_d = monthly2daily(eq_range(avgX_tair));
-    vapo_d = monthly2daily(eq_range(avgX_vapo));
-    nirr_d = monthly2daily(eq_range(avgX_nirr));
-
-    // Not totally sure if this is right to interpolate these??
-    par_d = monthly2daily(eq_range(par));
-    girr_d = monthly2daily(eq_range(girr));
-
-    // The interpolation is slightly broken, so it 'overshoots' when the slope
-    // is negative, and can result in negative values.
-    BOOST_LOG_SEV(glg, info) << "Forcing negative values to zero in girr and nirr daily containers...";
-    std::for_each(nirr_d.begin(), nirr_d.end(), temutil::force_negative2zero);
-    std::for_each(girr_d.begin(), girr_d.end(), temutil::force_negative2zero);
-
-    // much more complicated than straight interpolation...
-    prec_d.clear();
-    for (int i=0; i < 12; ++i) {
-      std::vector<float> v = calculate_daily_prec(i, avgX_tair.at(i), avgX_prec.at(i));
-
-      prec_d.insert( prec_d.end(), v.begin(), v.end() );
-    }
-
-    // derive rain and snow from precip...
-    // Look into boost::zip_iterator
-    rain_d.clear();
-    snow_d.clear();
-    for (int i = 0; i < prec_d.size(); ++i) {
-      std::pair<float, float> rs = willmot_split(tair_d[i], prec_d[i]);
-      rain_d.push_back(rs.first);
-      snow_d.push_back(rs.second);
-    }
-
-    svp_d.resize(tair_d.size());
-    std::transform( tair_d.begin(), tair_d.end(), svp_d.begin(), calculate_saturated_vapor_pressure );
-
-    vpd_d.resize(tair_d.size());
-    std::transform( svp_d.begin(), svp_d.end(), vapo_d.begin(), vpd_d.begin(), calculate_vpd );
-
-    cld_d.resize(tair_d.size());
-    std::transform( girr_d.begin(), girr_d.end(), nirr_d.begin(), cld_d.begin(), calculate_clouds );
-
-    // THESE MAY NEVER BE USED??
-    // rhoa_d;
-    // dersvp_d;
-    // abshd_d;
-
-
-    // Dump data to log stream for debugging analysis 
-    this->dailycontainers2log();
-
-    // Dump additional data specific to EQ
-    BOOST_LOG_SEV(glg, debug) << "avgX_prec = [" << temutil::vec2csv(avgX_prec) << "]";
-    BOOST_LOG_SEV(glg, debug) << "avgX_prec.size() = " << avgX_prec.size();
-  }
-
-}
 
 /** Prepares a single year of daily driving data */ 
 void Climate::prepare_daily_driving_data(int iy, const std::string& stage) {
   //FIX rename iy to avoid confusion, since it isn't always the same
   //as the iy in Runner (SP passes in a modded value).
 
+  if( (stage.find("pre") != std::string::npos)
+      || (stage.find("eq") != std::string::npos) ){
+    //Uses the same value of CO2 every day of the year.
+    //Pre-Run and EQ also use constant CO2 value for all years.
+    co2_d = co2.at(0);
 
-  // effectively the same value each day of the year
-  co2_d = co2.at(iy);
+    //Create daily data by interpolating
+    tair_d = monthly2daily(eq_range(avgX_tair));
+    vapo_d = monthly2daily(eq_range(avgX_vapo));
+    nirr_d = monthly2daily(eq_range(avgX_nirr));
 
-  // Create the daily data by interpolating
+    //Not totally sure if this is right to interpolate (girr and par) 
+    par_d = monthly2daily(eq_range(par));
+  }
+  else{//Spin-up, Transient, Scenario
+    //Uses the same value of CO2 every day of the year
+    co2_d = co2.at(iy);
 
-  // straight up interpolated....
-  tair_d = monthly2daily(interpolation_range(tair, iy));
-  vapo_d = monthly2daily(interpolation_range(vapo, iy));
-  nirr_d = monthly2daily(interpolation_range(nirr, iy));
+    //Create daily data by interpolating
+    // straight up interpolated....
+    tair_d = monthly2daily(interpolation_range(tair, iy));
+    vapo_d = monthly2daily(interpolation_range(vapo, iy));
+    nirr_d = monthly2daily(interpolation_range(nirr, iy));
+
+    //Not totally sure if this is right to interpolate (girr and par) 
+    par_d = monthly2daily(interpolation_range(par, iy));
+  }
 
   BOOST_LOG_SEV(glg, debug) << stage << " tair_d = [" << temutil::vec2csv(tair_d) << "]";
 
-  // Not totally sure if this is right to interpolate these??
-  par_d = monthly2daily(interpolation_range(par, iy));
-  // GIRR is passed to eq_range as it has only twelve values.
+  //Not totally sure if this is right to interpolate (girr and par)
+  //GIRR is passed to eq_range for all stages as it has only twelve values.
   girr_d = monthly2daily(eq_range(girr));
 
   // The interpolation is slightly broken, so it 'overshoots' when the
@@ -703,7 +645,14 @@ void Climate::prepare_daily_driving_data(int iy, const std::string& stage) {
   // much more complicated than straight interpolation...
   prec_d.clear();
   for (int i=0; i < 12; ++i) {
-    std::vector<float> v = calculate_daily_prec(i, tair.at(i), prec.at(i));
+    std::vector<float> v;
+    if( (stage.find("pre") != std::string::npos)
+        || (stage.find("eq") != std::string::npos) ){
+      v = calculate_daily_prec(i, avgX_tair.at(i), avgX_prec.at(i));
+    }
+    else{//Spin-Up, Transient, Scenario
+      v = calculate_daily_prec(i, tair.at(i), prec.at(i));
+    }
 
     prec_d.insert( prec_d.end(), v.begin(), v.end() );
   }
@@ -734,7 +683,7 @@ void Climate::prepare_daily_driving_data(int iy, const std::string& stage) {
 
   // Dump data to log stream for debugging analysis 
   this->dailycontainers2log();
-
+}
 
 /** Print the contents of the monthly containers to the log stream.
 * Format is intendend to be copy/pastable into python.

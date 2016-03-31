@@ -231,7 +231,8 @@ int main(int argc, char* argv[]){
 
           // seg fault w/o preparing climate...so prepare year zero...
           // this is also called inside run_years(...)
-          runner.cohort.climate.prepare_eq_daily_driving_data(0, "eq");
+          runner.cohort.climate.prepare_daily_driving_data(0, "eq");
+          //runner.cohort.climate.prepare_eq_daily_driving_data(0, "eq");
 
           runner.cohort.initialize_internal_pointers(); // sets up lots of pointers to various things
           runner.cohort.initialize_state_parameters();  // sets data based on values in cohortlookup
