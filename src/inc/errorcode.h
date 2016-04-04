@@ -24,9 +24,15 @@ const double MISSING_D = -9999.;   //missing value (DOUBLE) used in the code
 //
 // Hopefully as the constructors get smarter we will need
 // to use these values less frequently.
-const int UIN_I = -99999;
-const float UIN_F = -88888.0;
-const double UIN_D = -77777.0;
+//
+// 4-6-2016 Note: Setting these to 'flag' values (e.g. -999999.0) results in
+// many broken model dynamics. May be useful for debugging, but for now,
+// setting all value to zero seems to fix the dynamics issues. We
+// are not sure if initializing everything to zero is exactly correct, but it
+// seems to be an improvement over other 'flag' initialization values.
+const int UIN_I = 0;
+const float UIN_F = 0.0;
+const double UIN_D = 0.0;
 
 #ifndef NULL
 #define NULL   ((void *) 0)
