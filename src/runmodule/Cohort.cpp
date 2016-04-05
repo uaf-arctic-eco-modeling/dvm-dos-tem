@@ -1229,8 +1229,8 @@ void Cohort::getBd4allveg_monthly() {
 }
 
 
-/** Syncronizes Cohort and CohortData's internal fields from the RestartData
- * object...Maybe Cohort should not own the RestartData object?
+/** Synchronizes Cohort and CohortData's internal fields from the
+ * RestartData object.
 */
 void Cohort::set_state_from_restartdata() {
   BOOST_LOG_SEV(glg, note) << "Updating this Cohort and CohortData object with "
@@ -1243,22 +1243,27 @@ void Cohort::set_state_from_restartdata() {
   soilenv.set_state_from_restartdata(this->restartdata);
   soilbgc.set_state_from_restartdata(this->restartdata);
 
-  // FIX: vegbgc and vegenv are arrays...need to call this for each element in
-  //      array????
-  //  vegbgc.set_state_from_restartdata(this->restartdata);
-  //  vegenv.set_state_from_restartdata(this->restartdata);
+  for(int ii=0; ii<NUM_PFT; ii++){
+    vegbgc[ii].set_state_from_restartdata(this->restartdata);
+    vegenv[ii].set_state_from_restartdata(this->restartdata);
+  }
 
   //  FIX: how to handle ground?? and snwstate_dim?? Looks like it is
   //  used for both m_snow and d_snow and y_snow??? which to update???
   // add more here....
+  // Right now, ground is instantiated when the model is, and various
+  // parts of it are updated in different functions above. It is
+  // difficult to tell if all ground values are being updated correctly
+  // since so many values are out of bounds when written to the
+  // restart file. 
 
 }
 
 
-/** Syncronizes Cohort's RestartData object from fields of Cohort and
+/** Synchronizes Cohort's RestartData object from fields of Cohort and
 * CohortData. The RestartData object should have methods for serializing
-* or otherwise packaging the data for archiving or communication with another
-* process.
+* or otherwise packaging the data for archiving or communication with
+* another process.
 */
 void Cohort::set_restartdata_from_state() {
   BOOST_LOG_SEV(glg, note) << "Updating this Cohort's restartdata member with "

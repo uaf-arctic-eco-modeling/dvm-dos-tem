@@ -277,6 +277,7 @@ void Soil_Bgc::set_state_from_restartdata(const RestartData & rdata) {
   bd->m_sois.wdebrisc = rdata.wdebrisc;
   bd->m_sois.wdebrisn = rdata.wdebrisn;
   bd->m_sois.dmossc   = rdata.dmossc;
+  bd->m_sois.dmossn   = rdata.dmossn;
   assignCarbonBd2LayerMonthly();
 };
 
