@@ -148,6 +148,12 @@ int main(int argc, char* argv[]){
 
   modeldata.update(args);
 
+  BOOST_LOG_SEV(glg, warn) << "Running EQ stage: " << modeldata.runeq;
+  BOOST_LOG_SEV(glg, warn) << "Running SP stage: " << modeldata.runsp;
+  BOOST_LOG_SEV(glg, warn) << "Running TR stage: " << modeldata.runtr;
+  BOOST_LOG_SEV(glg, warn) << "Running SC stage: " << modeldata.runsc;
+
+
   /*  
       Someday it may be worth the time/effort to make better use of
       boots::program_options here to manage the arguments from config file
@@ -226,6 +232,7 @@ int main(int argc, char* argv[]){
           // seg fault w/o preparing climate...so prepare year zero...
           // this is also called inside run_years(...)
           runner.cohort.climate.prepare_daily_driving_data(0, "eq");
+          //runner.cohort.climate.prepare_eq_daily_driving_data(0, "eq");
 
           runner.cohort.initialize_internal_pointers(); // sets up lots of pointers to various things
           runner.cohort.initialize_state_parameters();  // sets data based on values in cohortlookup
@@ -287,34 +294,201 @@ int main(int argc, char* argv[]){
 
               runner.cohort.md->set_dsbmodule(false);
 
+
+              // Check for the existence of a restart file to output to
+              // prior to running.
+              std::string restart_fname = modeldata.output_dir + "restart-eq.nc";
+              if(! boost::filesystem::exists(restart_fname)){
+                BOOST_LOG_SEV(glg, fatal) << "Restart file "<<restart_fname\
+                                          << " does not exist";
+                return 1;
+              }
+
               runner.run_years(0, modeldata.max_eq_yrs, "eq-run");
 
-              std::string restart_fname = modeldata.output_dir + "restart-eq.nc";
+              runner.cohort.set_restartdata_from_state();
 
-              // write out restart-eq.nc ???
+              runner.cohort.restartdata.verify_logical_values();
+              BOOST_LOG_SEV(glg, debug) << "RestartData post EQ";
+              runner.cohort.restartdata.restartdata_to_log();
+
+              // Write out EQ restart file
               runner.cohort.restartdata.append_to_ncfile(restart_fname, rowidx, colidx); /* cohort id/key ???*/
+
+              if (runner.calcontroller_ptr && modeldata.mid_stage_pause){
+                runner.calcontroller_ptr->pause();
+              }
             }
           }
           if (modeldata.runsp) {
             {
               BOOST_LOG_NAMED_SCOPE("SP");
+              BOOST_LOG_SEV(glg, fatal) << "Running Spinup, "<<modeldata.sp_yrs<<" years\n";
 
-              // FIX: if restart file has -9999, then soil temps can end up impossibly low
-              // look for and read-in restart-eq.nc ??
-              if (boost::filesystem::exists("DATA/Toolik_10x10_30yrs/output/restart-eq.nc")) {
-                BOOST_LOG_SEV(glg, debug) << "WOW, gonna use the restart file!!!";
-                // update the cohort's restart data object
-                runner.cohort.restartdata.update_from_ncfile("DATA/Toolik_10x10_30yrs/output/restart-eq.nc", rowidx, colidx);
-
-                // copy values from the (updated) restart data to cohort and cd
-                // this should overwrite some things that were previously just set
-                // in initialize_state_parameters(...)
-                runner.cohort.set_state_from_restartdata();
+              // Check for the existence of a restart file to output to
+              // prior to running.
+              std::string restart_fname = modeldata.output_dir \
+                                            + "restart-sp.nc";
+              if(!boost::filesystem::exists(restart_fname)){
+                BOOST_LOG_SEV(glg, fatal) << "Restart file "<<restart_fname\
+                                          << " does not exist";
+                return 1;
               }
 
+              runner.cohort.climate.monthlycontainers2log();
+              // FIX: if restart file has -9999, then soil temps can end up impossibly low
+              // look for and read in restart-eq.nc (if it exists)
+              // should check for valid values prior to actual use
+              std::string eq_restart_fname = modeldata.output_dir \
+                                               + "restart-eq.nc";
+              if (boost::filesystem::exists(eq_restart_fname)) {
+                BOOST_LOG_SEV(glg, debug) << "Loading data from the restart file for spinup";
+                // update the cohort's restart data object
+                runner.cohort.restartdata.update_from_ncfile(eq_restart_fname, rowidx, colidx);
+                runner.cohort.restartdata.verify_logical_values();
+                // The above may be a bad idea. Separating reading
+                // and validation will confuse things when variables
+                // are added in the future - possibility for a disconnect.
+                BOOST_LOG_SEV(glg, debug) << "RestartData pre SP";
+                runner.cohort.restartdata.restartdata_to_log();
 
+                // copy values from the (updated) restart data to cohort
+                // and cd. this should overwrite some things that were
+                // previously just set in initialize_state_parameters(...)
+                runner.cohort.set_state_from_restartdata();
 
-              // write out restart-sp.nc ???
+                // run model
+                runner.run_years(0, modeldata.sp_yrs, "sp-run");
+
+                // Update restartdata structure from the running state
+                runner.cohort.set_restartdata_from_state();
+
+                BOOST_LOG_SEV(glg, debug) << "RestartData post SP";
+                runner.cohort.restartdata.restartdata_to_log();
+
+                // Save status to spinup restart file 
+                runner.cohort.restartdata.append_to_ncfile(restart_fname, rowidx, colidx);
+
+                if(runner.calcontroller_ptr && modeldata.mid_stage_pause){
+                  runner.calcontroller_ptr->pause();
+                }
+
+              }
+              else{ //No EQ restart file
+                BOOST_LOG_SEV(glg, err) << "No restart file from EQ.";
+              }
+
+            }
+          }
+          if(modeldata.runtr){
+            {
+              BOOST_LOG_NAMED_SCOPE("TR");
+              BOOST_LOG_SEV(glg, fatal) << "Running Transient, "<<modeldata.tr_yrs<<" years\n";
+
+              // Check for the existence of a restart file to output to
+              // prior to running.
+              std::string restart_fname = modeldata.output_dir \
+                                            + "restart-tr.nc";
+              if(!boost::filesystem::exists(restart_fname)){
+                BOOST_LOG_SEV(glg, fatal) << "Restart file "<<restart_fname\
+                                          << " does not exist.";
+                return 1;
+              }
+
+              std::string sp_restart_fname = modeldata.output_dir \
+                                               + "restart-sp.nc";
+
+              if(boost::filesystem::exists(sp_restart_fname)){
+                BOOST_LOG_SEV(glg, debug) << "Loading data from the restart file for transient";
+
+                // Update the cohort's restart data object
+                runner.cohort.restartdata.update_from_ncfile(sp_restart_fname, rowidx, colidx);
+
+                runner.cohort.restartdata.verify_logical_values();
+
+                BOOST_LOG_SEV(glg, debug) << "RestartData pre TR";
+                runner.cohort.restartdata.restartdata_to_log();
+
+                // Copy values from the updated restart data to cohort
+                // and cd.
+                runner.cohort.set_state_from_restartdata();
+
+                // Run model
+                runner.run_years(0, modeldata.tr_yrs, "tr-run");
+
+                // Update restartdata structure from the running state
+                runner.cohort.set_restartdata_from_state();
+
+                BOOST_LOG_SEV(glg, debug) << "RestartData post TR";
+                runner.cohort.restartdata.restartdata_to_log();
+
+                // Save status to transient restart file
+                runner.cohort.restartdata.append_to_ncfile(restart_fname, rowidx, colidx);
+
+                if(runner.calcontroller_ptr && modeldata.mid_stage_pause){
+                  runner.calcontroller_ptr->pause();
+                }
+
+              }
+              else{ //No SP restart file
+                BOOST_LOG_SEV(glg, fatal) << "No restart file from SP.";
+              }
+            }
+          }
+          if(modeldata.runsc){
+            {
+              BOOST_LOG_NAMED_SCOPE("SC");
+              BOOST_LOG_SEV(glg, fatal) << "Running Scenario, "<<modeldata.sc_yrs<<" years\n";
+
+              // Check for the existence of a restart file to output to
+              // prior to running.
+              std::string restart_fname = modeldata.output_dir \
+                                            + "restart-sc.nc";
+              if(!boost::filesystem::exists(restart_fname)){
+                BOOST_LOG_SEV(glg, fatal) << "Restart file "<<restart_fname\
+                                          << " does not exist.";
+                return 1;
+              }
+
+              std::string tr_restart_fname = modeldata.output_dir \
+                                               + "restart-tr.nc";
+
+              if(boost::filesystem::exists(tr_restart_fname)){
+                BOOST_LOG_SEV(glg, debug) << "Loading data from the transient restart file for a scenario run";
+
+                // Update the cohort's restart data object
+                runner.cohort.restartdata.update_from_ncfile(tr_restart_fname, rowidx, colidx);
+
+                BOOST_LOG_SEV(glg, debug) << "RestartData pre SC";
+                runner.cohort.restartdata.restartdata_to_log();
+
+                // Copy values from the updated restart data to cohort
+                // and cd.
+                runner.cohort.set_state_from_restartdata();
+
+                //Loading projected data instead of historic. FIX?
+                runner.cohort.load_proj_climate(modeldata.proj_climate_file);
+
+                // Run model
+                runner.run_years(0, modeldata.sc_yrs, "sc-run");
+
+                // Update restartdata structure from the running state
+                runner.cohort.set_restartdata_from_state();
+
+                BOOST_LOG_SEV(glg, debug) << "RestartData post SC";
+                runner.cohort.restartdata.restartdata_to_log();
+
+                // Save status to scenario restart file
+                // This may be unnecessary, but will provide a possibly
+                // interesting snapshot of the data structure
+                // following a scenario run.
+                runner.cohort.restartdata.append_to_ncfile(restart_fname, rowidx, colidx);
+
+              }
+              else{ //No TR restart file
+                BOOST_LOG_SEV(glg, fatal) << "No restart file from TR.";
+              }
+
             }
           }
 

@@ -50,12 +50,40 @@ Runner::~Runner() {
 
 void Runner::run_years(int start_year, int end_year, const std::string& stage) {
 
+  // Experiment - place for daily debugging output...
+  boost::filesystem::path folder("/tmp/debug-dvmdostem/");
+
+  //FIX - we check for dir/file existence and then create or not
+  //  in several places. Should probably move to a utility function.
+  if( !(boost::filesystem::exists(folder)) ) {
+    BOOST_LOG_SEV(glg, info) << "Creating folder: " << folder;
+    boost::filesystem::create_directory(folder);
+  } else {
+    BOOST_LOG_SEV(glg, info) << "'" << folder << "'" << "already exists; delete and recreate!";
+    boost::filesystem::remove_all(folder);
+    boost::filesystem::create_directory(folder);
+  }
+
   /** YEAR TIMESTEP LOOP */
   for (int iy = start_year; iy < end_year; ++iy) {
-    BOOST_LOG_SEV(glg, debug) << "(Begining of year loop) " << cohort.ground.layer_report_string();
+    BOOST_LOG_SEV(glg, debug) << "(Beginning of year loop) " << cohort.ground.layer_report_string();
+    BOOST_LOG_SEV(glg, err) << "Year loop, year: "<<iy;
 
     /* Interpolate all the monthly values...? */
-    this->cohort.climate.prepare_daily_driving_data(iy, stage);
+    if( (stage.find("eq") != std::string::npos
+           || stage.find("pre") != std::string::npos) ){
+      this->cohort.climate.prepare_daily_driving_data(iy, stage);
+    }
+
+    else if(stage.find("sp") != std::string::npos){
+      //FIX - 30 should not be hardcoded
+      this->cohort.climate.prepare_daily_driving_data(iy%30, stage);
+    }
+
+    else if(stage.find("tr") != std::string::npos
+              || stage.find("sc") != std::string::npos){
+      this->cohort.climate.prepare_daily_driving_data(iy, stage);
+    }
 
     this->output_debug_daily_drivers(iy);
 
@@ -84,7 +112,7 @@ void Runner::run_years(int start_year, int end_year, const std::string& stage) {
       // the number of files it produces.
       if(this->calcontroller_ptr && md.output_monthly) {
         BOOST_LOG_SEV(glg, debug) << "Write monthly calibration data to json files...";
-        this->output_caljson_monthly(iy, im);
+        this->output_caljson_monthly(iy, im, stage);
       }
 
     } /* end month loop */
@@ -93,7 +121,7 @@ void Runner::run_years(int start_year, int end_year, const std::string& stage) {
 
     if(this->calcontroller_ptr) { // check args->get_cal_mode() or calcontroller_ptr? ??
       BOOST_LOG_SEV(glg, debug) << "Send yearly calibration data to json files...";
-      this->output_caljson_yearly(iy);
+      this->output_caljson_yearly(iy, stage);
     }
 
     BOOST_LOG_SEV(glg, note) << "Completed year " << iy << " for cohort/cell (row,col): (" << this->y << "," << this->x << ")";
@@ -101,7 +129,7 @@ void Runner::run_years(int start_year, int end_year, const std::string& stage) {
   } /* end year loop */
 }
 
-void Runner::output_caljson_monthly(int year, int month){
+void Runner::output_caljson_monthly(int year, int month, std::string stage){
 
   // CAUTION: this->md and this->cohort.md are different instances!
 
@@ -109,6 +137,7 @@ void Runner::output_caljson_monthly(int year, int month){
   std::ofstream out_stream;
 
   /* Not PFT dependent */
+  data["Runstage"] = stage;
   data["Year"] = year;
   data["Month"] = month;
   data["CMT"] = this->cohort.chtlu.cmtcode;
@@ -135,8 +164,6 @@ void Runner::output_caljson_monthly(int year, int month){
   data["PET"] = cohort.edall->m_l2a.pet;
   data["PAR"] = cohort.edall->m_a2v.pardown;            // <-- from edall
   data["PARAbsorb"] = cohort.edall->m_a2v.parabsorb;    // <-- from edall
-  //PAR?
-  //PARAbsorb
 
   data["VWCShlw"] = cohort.edall->m_soid.vwcshlw;
   data["VWCDeep"] = cohort.edall->m_soid.vwcdeep;
@@ -241,7 +268,7 @@ void Runner::output_caljson_monthly(int year, int month){
 }
 
 
-void Runner::output_caljson_yearly(int year) {
+void Runner::output_caljson_yearly(int year, std::string stage) {
 
   // CAUTION: this->md and this->cohort.md are different instances!
 
@@ -249,6 +276,7 @@ void Runner::output_caljson_yearly(int year) {
   std::ofstream out_stream;
 
   /* Not PFT dependent */
+  data["Runstage"] = stage;
   data["Year"] = year;
   data["CMT"] = this->cohort.chtlu.cmtcode;
   data["Lat"] = this->cohort.lat;

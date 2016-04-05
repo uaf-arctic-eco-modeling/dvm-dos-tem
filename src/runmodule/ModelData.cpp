@@ -35,8 +35,11 @@ ModelData::ModelData(Json::Value controldata){
   runsp = (stgstr.find("sp") != std::string::npos) ? true : false;
   runtr = (stgstr.find("tr") != std::string::npos) ? true : false;
   runsc = (stgstr.find("sc") != std::string::npos) ? true : false;
-
+  mid_stage_pause = controldata["stage_settings"]["mid_stage_pause"].asBool();
   initmode = controldata["stage_settings"]["restart"].asInt();  // may become obsolete
+  tr_yrs        = controldata["stage_settings"]["tr_yrs"].asInt();
+  sc_yrs        = controldata["stage_settings"]["sc_yrs"].asInt();
+
   parameter_dir     = controldata["IO"]["parameter_dir"].asString();
   hist_climate_file = controldata["IO"]["hist_climate_file"].asString();
   proj_climate_file = controldata["IO"]["proj_climate_file"].asString();
@@ -67,8 +70,15 @@ ModelData::ModelData(Json::Value controldata){
 void ModelData::update(ArgHandler const * arghandler) {
   BOOST_LOG_SEV(glg, debug) << "Updating ModelData from an ArgHandler...";
 
-  this->max_eq_yrs = arghandler->get_max_eq();
   this->pre_run_yrs = arghandler->get_pre_run_yrs();
+  this->max_eq_yrs = arghandler->get_max_eq();
+  this->sp_yrs = arghandler->get_sp_yrs();
+  if(arghandler->get_tr_yrs() != 0){
+    this->tr_yrs = arghandler->get_tr_yrs();
+  }
+  if(arghandler->get_sc_yrs() != 0){
+    this->sc_yrs = arghandler->get_sc_yrs();
+  }
 
 }
 

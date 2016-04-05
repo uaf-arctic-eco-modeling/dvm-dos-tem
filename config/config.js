@@ -36,8 +36,11 @@
     // running instances of dvmdostem from overwriting eachothers json files.
   },
   "stage_settings": {
-    "run_stage": "eq",           // eq, sp, tr, sc, or some combo there-of
-    "restart_mode": "restart"   // other options??
+    "restart_mode": "restart",   // other options??
+    "run_stage": "eq",
+    "mid_stage_pause": true,
+    "tr_yrs": 109,
+    "sc_yrs": 100
     //"restartfile_dir": "DATA/Toolik_10x10_30yrs/" // location for restart-XX.nc file
   }
 

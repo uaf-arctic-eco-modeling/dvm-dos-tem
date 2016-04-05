@@ -114,6 +114,7 @@ public :
   void set_state_from_restartdata();
   void set_restartdata_from_state();
 
+  void load_proj_climate(std::string&);//Provides data to Climate for loading proj data
 
 private:
 

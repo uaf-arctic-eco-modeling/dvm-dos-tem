@@ -29,9 +29,13 @@ public:
   bool runtr;
   bool runsc;
   int initmode;
+  bool mid_stage_pause; //Controls pauses between EQ, SP, TR, SC
 
   int max_eq_yrs;
   int pre_run_yrs;
+  int sp_yrs;
+  int tr_yrs;
+  int sc_yrs;
 
   string parameter_dir;
   string hist_climate_file;

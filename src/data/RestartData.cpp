@@ -399,17 +399,17 @@ void RestartData::update_from_ncfile(const std::string& fname, const int rowidx,
 
   read_px_pftpart_pft_vars(fname, rowidx, colidx);
 
-//  read_px_snow_vars(fname, rowidx, colidx);
-//
-//  read_px_root_pft_vars(fname, rowidx, colidx);
-//
-//  read_px_soil_vars(fname, rowidx, colidx);
-//
-//  read_px_rock_vars(fname, rowidx, colidx);
-//
-//  read_px_front_vars(fname, rowidx, colidx);
-//
-//  read_px_prev_pft_vars(fname, rowidx, colidx);
+  read_px_snow_vars(fname, rowidx, colidx);
+
+  read_px_root_pft_vars(fname, rowidx, colidx);
+
+  read_px_soil_vars(fname, rowidx, colidx);
+
+  read_px_rock_vars(fname, rowidx, colidx);
+
+  read_px_front_vars(fname, rowidx, colidx);
+
+  read_px_prev_pft_vars(fname, rowidx, colidx);
 
   BOOST_LOG_SEV(glg, debug) << "Done reading data from file into RestartData.";
 }
@@ -446,6 +446,113 @@ void RestartData::append_to_ncfile(const std::string& fname, const int rowidx, c
 
 }
 
+/** Checks a given variable against an extreme negative value. FIX: should be more flexible*/
+template<typename T> void check_bounds(std::string var_name, T value){
+  if(value<-4000){
+    BOOST_LOG_SEV(glg, err) << var_name << " is out of bounds: " << value;
+  }
+}
+
+/** Checks values in this RestartData for out-of-range or nonsensical values. FIX: incomplete*/
+void RestartData::verify_logical_values(){
+  BOOST_LOG_SEV(glg, info) << "Checking RestartData for out-of-range values";
+  BOOST_LOG_SEV(glg, info) << "NOTE: Currently this only checks for extreme negative values.";
+  BOOST_LOG_SEV(glg, info) << "This should be replaced in the future with a more sensible approach, perhaps with templating";
+
+  //FIX Currently checking all values against a low negative number,
+  //whether or not it makes sense for that value to have been initialized
+  //to a low negative.
+
+  check_bounds("chtid", chtid);
+  check_bounds("dsr", dsr);
+  check_bounds("firea2sorgn", firea2sorgn);
+  check_bounds("yrsdist", yrsdist);
+  for(int ii=0; ii<NUM_PFT; ii++){
+    check_bounds("ifwoody", ifwoody[ii]);
+    check_bounds("ifdeciwoody", ifdeciwoody[ii]);
+    check_bounds("ifperenial", ifperenial[ii]);
+    check_bounds("nonvascular", nonvascular[ii]);
+    check_bounds("vegage", vegage[ii]);
+    check_bounds("vegcov", vegcov[ii]);
+    check_bounds("lai", lai[ii]);
+    check_bounds("vegwater", vegwater[ii]);
+    check_bounds("vegsnow", vegsnow[ii]);
+    check_bounds("labn", labn[ii]);
+    check_bounds("deadc", deadc[ii]);
+    check_bounds("deadn", deadn[ii]);
+    check_bounds("topt", topt[ii]);
+    check_bounds("eetmx", topt[ii]);
+    check_bounds("unnormleafmx", unnormleafmx[ii]);
+    check_bounds("growingttime", growingttime[ii]);
+    check_bounds("foliagemx", foliagemx[ii]);
+    for(int jj=0; jj<NUM_PFT_PART; jj++){
+      check_bounds("vegc", vegc[jj][ii]);
+      check_bounds("strn", strn[jj][ii]);
+    }
+    for(int jj=0; jj<MAX_ROT_LAY; jj++){
+      check_bounds("rootfrac", rootfrac[jj][ii]);
+    }
+    for(int jj=0; jj<10; jj++){
+      check_bounds("toptA", toptA[jj][ii]);
+      check_bounds("eetmxA", eetmxA[jj][ii]);
+      check_bounds("unnormleafmxA", unnormleafmxA[jj][ii]);
+      check_bounds("growingttimeA", growingttimeA[jj][ii]);
+    }
+  }
+
+  check_bounds("numsnwl", numsnwl);
+  check_bounds("snwextramass", snwextramass);
+  for(int ii=0; ii<MAX_SNW_LAY; ii++){
+    check_bounds("TSsnow", TSsnow[ii]);
+    check_bounds("DZsnow", DZsnow[ii]);
+    check_bounds("LIQsnow", LIQsnow[ii]);
+    check_bounds("RHOsnow", RHOsnow[ii]);
+    check_bounds("ICEsnow", ICEsnow[ii]);
+    check_bounds("AGEsnow", AGEsnow[ii]);
+  }
+
+  check_bounds("numsl", numsl);
+  check_bounds("monthsfrozen", monthsfrozen);
+  check_bounds("rtfrozendays", rtfrozendays);
+  check_bounds("rtunfrozendays", rtunfrozendays);
+  check_bounds("watertab", watertab);
+  check_bounds("wdebrisc", wdebrisc);
+  check_bounds("wdebrisn", wdebrisn);
+  check_bounds("dmossc", dmossc);
+  check_bounds("dmossn", dmossn);
+  for(int ii=0; ii<MAX_SOI_LAY; ii++){
+    check_bounds("DZsoil", DZsoil[ii]);
+    check_bounds("TYPEsoil", TYPEsoil[ii]);
+    check_bounds("AGEsoil", AGEsoil[ii]);
+    check_bounds("TSsoil", TSsoil[ii]);
+    check_bounds("LIQsoil", LIQsoil[ii]);
+    check_bounds("ICEsoil", ICEsoil[ii]);
+    check_bounds("FROZENsoil", FROZENsoil[ii]);
+    check_bounds("FROZENFRACsoil", FROZENFRACsoil[ii]);
+    check_bounds("TEXTUREsoil", TEXTUREsoil[ii]);
+    check_bounds("rawc", rawc[ii]);
+    check_bounds("soma", soma[ii]);
+    check_bounds("sompr", sompr[ii]);
+    check_bounds("somcr", somcr[ii]);
+    check_bounds("orgn", orgn[ii]);
+    check_bounds("avln", avln[ii]);
+    for(int jj=0; jj<12; jj++){
+      check_bounds("prvltrfcnA", prvltrfcnA[jj][ii]);
+    }
+  }
+
+  for(int ii=0; ii<MAX_ROC_LAY; ii++){
+    check_bounds("TSrock", TSrock[ii]);
+    check_bounds("DZrock", DZrock[ii]);
+  }
+
+  for(int ii=0; ii<MAX_NUM_FNT; ii++){
+    check_bounds("frontZ", frontZ[ii]);
+    check_bounds("frontFT", frontFT[ii]);
+  }
+
+  BOOST_LOG_SEV(glg, debug) << "";
+}
 
 
 /** Read single values for variables have dimensions (Y, X).*/
@@ -1163,4 +1270,115 @@ void RestartData::write_px_prev_pft_vars(const std::string& fname, const int row
   temutil::nc( nc_close(ncid) );
 
 }
+
+
+/**Writes this RestartData to the log stream. Should be replaced with templating eventually.*/
+void RestartData::restartdata_to_log(){
+  //PFT and PFT part loops are repeated in order to keep variable
+  //types together for initial debugging. This may change in the future.
+
+  BOOST_LOG_SEV(glg, debug) << "***** RESTARTDATA *****";
+
+  //atm
+  BOOST_LOG_SEV(glg, debug) << "dsr: " << dsr;
+  BOOST_LOG_SEV(glg, debug) << "firea2sorgn: " << firea2sorgn;
+
+  //vegetation
+  BOOST_LOG_SEV(glg, debug) << "yrsdist: " << yrsdist;
+
+  for(int ii=0; ii<NUM_PFT; ii++){
+    BOOST_LOG_SEV(glg, debug) << "ifwoody[" << ii << "]: " << ifwoody[ii];
+    BOOST_LOG_SEV(glg, debug) << "ifdeciwoody[" << ii << "]: " << ifdeciwoody[ii];
+    BOOST_LOG_SEV(glg, debug) << "ifperenial[" << ii << "]: " << ifperenial[ii];
+    BOOST_LOG_SEV(glg, debug) << "nonvascular[" << ii << "]: " << nonvascular[ii];
+    BOOST_LOG_SEV(glg, debug) << "vegage[" << ii << "]: " << vegage[ii];
+    BOOST_LOG_SEV(glg, debug) << "vegcov[" << ii << "]: " << vegcov[ii];
+    BOOST_LOG_SEV(glg, debug) << "lai[" << ii << "]: " << lai[ii];
+    BOOST_LOG_SEV(glg, debug) << "vegwater[" << ii << "]: " << vegwater[ii];
+    BOOST_LOG_SEV(glg, debug) << "vegsnow[" << ii << "]: " << vegsnow[ii];
+    BOOST_LOG_SEV(glg, debug) << "labn[" << ii << "]: " << labn[ii];
+    BOOST_LOG_SEV(glg, debug) << "deadc[" << ii << "]: " << deadc[ii];
+    BOOST_LOG_SEV(glg, debug) << "deadn[" << ii << "]: " << deadn[ii];
+    BOOST_LOG_SEV(glg, debug) << "topt[" << ii << "]: " << topt[ii];
+    BOOST_LOG_SEV(glg, debug) << "eetmx[" << ii << "]: " << eetmx[ii];
+    BOOST_LOG_SEV(glg, debug) << "unnormleafmx[" << ii << "]: " << unnormleafmx[ii];
+    BOOST_LOG_SEV(glg, debug) << "growingttime[" << ii << "]: " << growingttime[ii];
+    BOOST_LOG_SEV(glg, debug) << "foliagemx[" << ii << "]: " << foliagemx[ii];
+
+    for(int jj=0; jj<MAX_ROT_LAY; jj++){
+      BOOST_LOG_SEV(glg, debug) << "rootfrac[" << jj << "][" << ii << "]: " << rootfrac[jj][ii];
+    }
+
+    for(int jj=0; jj<NUM_PFT_PART; jj++){
+      BOOST_LOG_SEV(glg, debug) << "vegc[" << jj << "][" << ii << "]: " << vegc[jj][ii];
+      BOOST_LOG_SEV(glg, debug) << "strn[" << jj << "][" << ii << "]: " << strn[jj][ii];
+    }
+
+    for(int jj=0; jj<10; jj++){
+      BOOST_LOG_SEV(glg, debug) << "toptA[" << jj << "][" << ii << "]: " << toptA[jj][ii];
+      BOOST_LOG_SEV(glg, debug) << "eetmxA[" << jj << "][" << ii << "]: " << eetmxA[jj][ii];
+      BOOST_LOG_SEV(glg, debug) << "unnormleafmxA[" << jj << "][" << ii << "]: " << unnormleafmxA[jj][ii];
+      BOOST_LOG_SEV(glg, debug) << "growingttimeA[" << jj << "][" << ii << "]: " << growingttimeA[jj][ii];
+    }
+
+  }
+
+  //snow
+  BOOST_LOG_SEV(glg, debug) << "numsnwl: " << numsnwl;
+  BOOST_LOG_SEV(glg, debug) << "snwextramass: " << snwextramass;
+  for(int ii; ii<MAX_SNW_LAY; ii++){
+    BOOST_LOG_SEV(glg, debug) << "TSsnow[" << ii << "]: " << TSsnow[ii];
+    BOOST_LOG_SEV(glg, debug) << "DZsnow[" << ii << "]: " << DZsnow[ii];
+    BOOST_LOG_SEV(glg, debug) << "LIQsnow[" << ii << "]: " << LIQsnow[ii];
+    BOOST_LOG_SEV(glg, debug) << "RHOsnow[" << ii << "]: " << RHOsnow[ii];
+    BOOST_LOG_SEV(glg, debug) << "ICEsnow[" << ii << "]: " << ICEsnow[ii];
+    BOOST_LOG_SEV(glg, debug) << "AGEsnow[" << ii << "]: " << AGEsnow[ii];
+  }
+
+  //ground/soil
+  BOOST_LOG_SEV(glg, debug) << "numsl: " << numsl;
+  BOOST_LOG_SEV(glg, debug) << "monthsfrozen: " << monthsfrozen;
+  BOOST_LOG_SEV(glg, debug) << "rtfrozendays: " << rtfrozendays;
+  BOOST_LOG_SEV(glg, debug) << "rtunfrozendays: " << rtunfrozendays;
+  BOOST_LOG_SEV(glg, debug) << "watertab: " << watertab;
+  BOOST_LOG_SEV(glg, debug) << "wdebrisc: " << wdebrisc;
+  BOOST_LOG_SEV(glg, debug) << "dmossc: " << dmossc;
+  BOOST_LOG_SEV(glg, debug) << "wdebrisn: " << wdebrisn;
+  BOOST_LOG_SEV(glg, debug) << "dmossn: " << dmossn;
+
+  for(int ii=0; ii<MAX_SOI_LAY; ii++){
+    BOOST_LOG_SEV(glg, debug) << "DZsoil[" << ii << "]: " << DZsoil[ii];
+    BOOST_LOG_SEV(glg, debug) << "TYPEsoil[" << ii << "]: " << TYPEsoil[ii];
+    BOOST_LOG_SEV(glg, debug) << "AGEsoil[" << ii << "]: " << AGEsoil[ii];
+    BOOST_LOG_SEV(glg, debug) << "TSsoil[" << ii << "]: " << TSsoil[ii];
+    BOOST_LOG_SEV(glg, debug) << "LIQsoil[" << ii << "]: " << LIQsoil[ii];
+    BOOST_LOG_SEV(glg, debug) << "ICEsoil[" << ii << "]: " << ICEsoil[ii];
+    BOOST_LOG_SEV(glg, debug) << "FROZENsoil[" << ii << "]: " << FROZENsoil[ii];
+    BOOST_LOG_SEV(glg, debug) << "FROZENFRACsoil[" << ii << "]: " << FROZENFRACsoil[ii];
+    BOOST_LOG_SEV(glg, debug) << "TEXTUREsoil[" << ii << "]: " << TEXTUREsoil[ii];
+    BOOST_LOG_SEV(glg, debug) << "rawc[" << ii << "]: " << rawc[ii];
+    BOOST_LOG_SEV(glg, debug) << "soma[" << ii << "]: " << soma[ii];
+    BOOST_LOG_SEV(glg, debug) << "sompr[" << ii << "]: " << sompr[ii];
+    BOOST_LOG_SEV(glg, debug) << "somcr[" << ii << "]: " << somcr[ii];
+    BOOST_LOG_SEV(glg, debug) << "orgn[" << ii << "]: " << orgn[ii];
+    BOOST_LOG_SEV(glg, debug) << "avln[" << ii << "]: " << avln[ii];
+
+    for(int jj=0; jj<12; jj++){
+      BOOST_LOG_SEV(glg, debug) << "prvltrfcnA[" << jj << "][" << ii << "]: " << prvltrfcnA[jj][ii];
+    }
+  }
+
+  for(int ii=0; ii<MAX_ROC_LAY; ii++){
+    BOOST_LOG_SEV(glg, debug) << "TSrock[" << ii << "]: " << TSrock[ii];
+    BOOST_LOG_SEV(glg, debug) << "DZrock[" << ii << "]: " << DZrock[ii];
+  }
+
+  for(int ii=0; ii<MAX_NUM_FNT; ii++){
+    BOOST_LOG_SEV(glg, debug) << "frontZ[" << ii << "]: " << frontZ[ii];
+    BOOST_LOG_SEV(glg, debug) << "frontFT[" << ii << "]: " << frontFT[ii];
+  }
+
+  BOOST_LOG_SEV(glg, debug) << "***** END RESTARTDATA *****";
+}
+
 

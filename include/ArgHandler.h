@@ -19,6 +19,9 @@ class ArgHandler {
 
   int pre_run_yrs;
   int max_eq;
+  int sp_yrs;
+  int tr_yrs;
+  int sc_yrs;
 
   bool cal_mode;
   bool floating_point_exp;
@@ -38,6 +41,9 @@ public:
 
   inline int get_pre_run_yrs() const {return pre_run_yrs;};
   inline int get_max_eq() const {return max_eq;};
+  inline int get_sp_yrs() const {return sp_yrs;};
+  inline int get_tr_yrs() const {return tr_yrs;};
+  inline int get_sc_yrs() const {return sc_yrs;};
   inline const bool get_fpe(){return floating_point_exp;};
 	
   inline const bool get_cal_mode(){return cal_mode;};

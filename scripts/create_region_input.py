@@ -728,6 +728,7 @@ if __name__ == '__main__':
     create_template_restart_nc_file(os.path.join(out_dir, "output/restart-eq.nc"), sizey=ys, sizex=xs)
     create_template_restart_nc_file(os.path.join(out_dir, "output/restart-sp.nc"), sizey=ys, sizex=xs)
     create_template_restart_nc_file(os.path.join(out_dir, "output/restart-tr.nc"), sizey=ys, sizex=xs)
+    create_template_restart_nc_file(os.path.join(out_dir, "output/restart-sc.nc"), sizey=ys, sizex=xs)
     exit()
 
 

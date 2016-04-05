@@ -27,6 +27,18 @@ void ArgHandler::parse(int argc, char** argv) {
        ->default_value(1000),
      "The maximum number of years to run in equlibrium stage.")
 
+    ("sp-yrs,s", boost::program_options::value<int>(&sp_yrs)
+       ->default_value(100),
+     "The number of spinup years.")
+
+    ("tr-yrs,t", boost::program_options::value<int>(&tr_yrs)
+       ->default_value(0),
+     "The number of years to run transient. Overrides config for testing.")
+
+    ("sc-yrs,n", boost::program_options::value<int>(&sc_yrs)
+       ->default_value(0),
+     "The number of years to run scenario. Overrides config for testing.")
+
     ("loop-order,o",
      boost::program_options::value<std::string>(&loop_order)
        ->default_value("space-major"),

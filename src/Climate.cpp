@@ -4,6 +4,8 @@
 
 #include <assert.h> // for assert? need C++ library?
 
+#include <boost/filesystem.hpp>
+
 #include "../include/Climate.h"
 
 #include "inc/errorcode.h"
@@ -382,6 +384,10 @@ Climate::Climate(const std::string& fname, const std::string& co2fname, int y, i
 
 void Climate::load_from_file(const std::string& fname, int y, int x) {
 
+  if(!boost::filesystem::exists(fname)){
+    BOOST_LOG_SEV(glg, fatal) << "Input file "<<fname<<" does not exist";
+  }
+
   BOOST_LOG_SEV(glg, info) << "Loading climate from file: " << fname;
   BOOST_LOG_SEV(glg, info) << "Loading climate for (y, x) point: "
                            << "(" << y <<","<< x <<"), all timesteps.";
@@ -443,15 +449,23 @@ void Climate::load_from_file(const std::string& fname, int y, int x) {
   avgX_prec = avg_over(prec, 10);
   avgX_nirr = avg_over(nirr, 10);
   avgX_vapo = avg_over(vapo, 10);
-  
+ 
   // Do we need simplified 'avgX_' values for par, and cld??
   // ===> YES: the derived variables should prpbably be based off the avgX
   //      containers...
+
 
   // Finally, need to create the daily dataset(s) by interpolating the monthly
   // --> actually looking like these should not be calculated upon construciton.
   //     instead, they shoudl get calculated each year...
 
+}
+
+/** This loads data from a projected climate data file, overwriting any old climate data*/
+void Climate::load_proj_climate(std::string& fname, int y, int x){
+  BOOST_LOG_SEV(glg, note) << "Climate, loading projected data";
+
+  this->load_from_file(fname, y, x);
 }
 
 std::vector<float> Climate::avg_over(const std::vector<float> & var, const int window) {
@@ -486,6 +500,7 @@ std::vector<float> Climate::avg_over(const std::vector<float> & var, const int w
   return result;
 
 }
+
 
 // Interpolate from monthly values to daily. Does NOT account for leap years!
 std::vector<float> Climate::monthly2daily(const std::vector<float>& mly_vals) {
@@ -548,66 +563,146 @@ std::vector<float> Climate::eq_range(const std::vector<float>& data) {
   return foo;
 }
 
+/** Method to build a vector of 14 monthly data points for interpolation.
+* In order to interpolate out to the ends of the year, you need the 12 months
+* of data, plus the preceeding Dec and following Jan.
+*/
+std::vector<float> Climate::interpolation_range(const std::vector<float>& data, int year){
+  //BOOST_LOG_SEV(glg, fatal) << "interpolation_range, year: "<<year;
+
+  std::vector<float> foo;
+
+  int curr_jan = year*12;
+
+  // Copy in previous Dec, unless in year 0
+  if(year==0){
+    foo.push_back(data.at(11));
+  }
+  else{
+    foo.push_back(data.at(curr_jan-1));
+  }
+
+  // Get Jan - Dec values
+  foo.insert(foo.end(), &data[curr_jan], &data[curr_jan+12]);
+
+  // Copy in next Jan, unless it is the last year's worth of data
+  if(year == data.size()/12-1){
+    foo.push_back(data.at(curr_jan));
+  }
+  else{
+    foo.push_back(data.at(curr_jan+13));
+  }
+
+  return foo;
+}
+
+
+/** Prepares a single year of daily driving data */ 
 void Climate::prepare_daily_driving_data(int iy, const std::string& stage) {
+  //FIX rename iy to avoid confusion, since it isn't always the same
+  //as the iy in Runner (SP passes in a modded value).
 
-  if ( (stage.compare("pre-run") == 0) || (stage.compare("eq") == 0 ) ) {
-
-    // effectively the same value each day of the year
-    // also in pre-run, and eq stages, use constant co2 value for all years.
+  if( (stage.find("pre") != std::string::npos)
+      || (stage.find("eq") != std::string::npos) ){
+    //Uses the same value of CO2 every day of the year.
+    //Pre-Run and EQ also use constant CO2 value for all years.
     co2_d = co2.at(0);
 
-    // Create the daily data by interpolating the avgX data. So each year
-    // the numbers will be identical...
-    // SO...if iy != 0, then this could be a no-op maybe?? ..assumes that
-    // at some point iy was zero and the values were appropriately calculated
-    // once...
-
-    // straight up interpolated....
+    //Create daily data by interpolating
     tair_d = monthly2daily(eq_range(avgX_tair));
     vapo_d = monthly2daily(eq_range(avgX_vapo));
     nirr_d = monthly2daily(eq_range(avgX_nirr));
 
-    // Not totally sure if this is right to interpolate these??
+    //Not totally sure if this is right to interpolate (girr and par) 
     par_d = monthly2daily(eq_range(par));
-    girr_d = monthly2daily(eq_range(girr));
+  }
+  else{//Spin-up, Transient, Scenario
+    //Uses the same value of CO2 every day of the year
+    co2_d = co2.at(iy);
 
-    // The interpolation is slightly broken, so it 'overshoots' when the slope
-    // is negative, and can result in negative values.
-    BOOST_LOG_SEV(glg, info) << "Forcing negative values to zero in girr and nirr daily containers...";
-    std::for_each(nirr_d.begin(), nirr_d.end(), temutil::force_negative2zero);
-    std::for_each(girr_d.begin(), girr_d.end(), temutil::force_negative2zero);
+    //Create daily data by interpolating
+    // straight up interpolated....
+    tair_d = monthly2daily(interpolation_range(tair, iy));
+    vapo_d = monthly2daily(interpolation_range(vapo, iy));
+    nirr_d = monthly2daily(interpolation_range(nirr, iy));
 
-    // much more complicated than straight interpolation...
-    prec_d.clear();
-    for (int i=0; i < 12; ++i) {
-      std::vector<float> v = calculate_daily_prec(i, avgX_tair.at(i), avgX_prec.at(i));
+    //Not totally sure if this is right to interpolate (girr and par) 
+    par_d = monthly2daily(interpolation_range(par, iy));
+  }
 
-      prec_d.insert( prec_d.end(), v.begin(), v.end() );
+  BOOST_LOG_SEV(glg, debug) << stage << " tair_d = [" << temutil::vec2csv(tair_d) << "]";
+
+  //Not totally sure if this is right to interpolate (girr and par)
+  //GIRR is passed to eq_range for all stages as it has only twelve values.
+  girr_d = monthly2daily(eq_range(girr));
+
+  // The interpolation is slightly broken, so it 'overshoots' when the
+  // slope is negative, and can result in negative values.
+  BOOST_LOG_SEV(glg, info) << "Forcing negative values to zero in girr and nirr daily containers...";
+  std::for_each(nirr_d.begin(), nirr_d.end(), temutil::force_negative2zero);
+  std::for_each(girr_d.begin(), girr_d.end(), temutil::force_negative2zero);
+
+  // much more complicated than straight interpolation...
+  prec_d.clear();
+  for (int i=0; i < 12; ++i) {
+    std::vector<float> v;
+    if( (stage.find("pre") != std::string::npos)
+        || (stage.find("eq") != std::string::npos) ){
+      v = calculate_daily_prec(i, avgX_tair.at(i), avgX_prec.at(i));
+    }
+    else{//Spin-Up, Transient, Scenario
+      v = calculate_daily_prec(i, tair.at(i), prec.at(i));
     }
 
-    // derive rain and snow from precip...
-    // Look into boost::zip_iterator
-    rain_d.clear();
-    snow_d.clear();
-    for (int i = 0; i < prec_d.size(); ++i) {
-      std::pair<float, float> rs = willmot_split(tair_d[i], prec_d[i]);
-      rain_d.push_back(rs.first);
-      snow_d.push_back(rs.second);
-    }
+    prec_d.insert( prec_d.end(), v.begin(), v.end() );
+  }
 
-    svp_d.resize(tair_d.size());
-    std::transform( tair_d.begin(), tair_d.end(), svp_d.begin(), calculate_saturated_vapor_pressure );
+  // derive rain and snow from precip...
+  // Look into boost::zip_iterator
+  rain_d.clear();
+  snow_d.clear();
+  for (int i = 0; i < prec_d.size(); ++i) {
+    std::pair<float, float> rs = willmot_split(tair_d[i], prec_d[i]);
+    rain_d.push_back(rs.first);
+    snow_d.push_back(rs.second);
+  }
 
-    vpd_d.resize(tair_d.size());
-    std::transform( svp_d.begin(), svp_d.end(), vapo_d.begin(), vpd_d.begin(), calculate_vpd );
+  svp_d.resize(tair_d.size());
+  std::transform( tair_d.begin(), tair_d.end(), svp_d.begin(), calculate_saturated_vapor_pressure );
 
-    cld_d.resize(tair_d.size());
-    std::transform( girr_d.begin(), girr_d.end(), nirr_d.begin(), cld_d.begin(), calculate_clouds );
+  vpd_d.resize(tair_d.size());
+  std::transform( svp_d.begin(), svp_d.end(), vapo_d.begin(), vpd_d.begin(), calculate_vpd );
 
-    // THESE MAY NEVER BE USED??
-    // rhoa_d;
-    // dersvp_d;
-    // abshd_d;
+  cld_d.resize(tair_d.size());
+  std::transform( girr_d.begin(), girr_d.end(), nirr_d.begin(), cld_d.begin(), calculate_clouds );
+
+  // THESE MAY NEVER BE USED??
+  // rhoa_d;
+  // dersvp_d;
+  // abshd_d;
+
+  // Dump data to log stream for debugging analysis 
+  this->dailycontainers2log();
+}
+
+/** Print the contents of the monthly containers to the log stream.
+* Format is intendend to be copy/pastable into python.
+*/
+void Climate::monthlycontainers2log() {
+  BOOST_LOG_SEV(glg, debug) << "co2 = [" << temutil::vec2csv(co2) << "]";
+  BOOST_LOG_SEV(glg, debug) << "tair = [" << temutil::vec2csv(tair) << "]";
+  BOOST_LOG_SEV(glg, debug) << "prec = [" << temutil::vec2csv(prec) << "]";
+  BOOST_LOG_SEV(glg, debug) << "nirr = [" << temutil::vec2csv(nirr) << "]";
+  BOOST_LOG_SEV(glg, debug) << "vapo = [" << temutil::vec2csv(vapo) << "]";
+  BOOST_LOG_SEV(glg, debug) << "girr = [" << temutil::vec2csv(girr) << "]";
+  BOOST_LOG_SEV(glg, debug) << "cld = [" << temutil::vec2csv(cld) << "]";
+  BOOST_LOG_SEV(glg, debug) << "par = [" << temutil::vec2csv(par) << "]";
+}
+
+/** Print the contents of the daily containers to the log stream. 
+* Format is intendend to be copy/pastable into python.
+*/
+void Climate::dailycontainers2log() {
 
     BOOST_LOG_SEV(glg, debug) << "tair_d = [" << temutil::vec2csv(tair_d) << "]";
     BOOST_LOG_SEV(glg, debug) << "nirr_d = [" << temutil::vec2csv(nirr_d) << "]";
@@ -633,8 +728,4 @@ void Climate::prepare_daily_driving_data(int iy, const std::string& stage) {
     BOOST_LOG_SEV(glg, debug) << "cld_d.size() = " << cld_d.size();
     BOOST_LOG_SEV(glg, debug) << "par_d.size() = " << par_d.size();
 
-    BOOST_LOG_SEV(glg, debug) << "avgX_prec = [" << temutil::vec2csv(avgX_prec) << "]";
-    BOOST_LOG_SEV(glg, debug) << "avgX_prec.size() = " << avgX_prec.size();
-  }
 }
-

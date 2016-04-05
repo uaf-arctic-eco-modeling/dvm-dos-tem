@@ -2260,31 +2260,31 @@ void Ground::checkWaterValidity() {
     }
 
     if (currl->ice < 0.0 || currl->liq < 0.0) {
-      BOOST_LOG_SEV(glg, err) << "Layer " << currl->indl
+      BOOST_LOG_SEV(glg, warn) << "Layer " << currl->indl
                               << " shall NOT have negative ice or liq water!";
     }
 
     if (currl->frozen == 1) {
       if (currl->liq > 0.0) {
-        BOOST_LOG_SEV(glg, err) << "Layer " << currl->indl
+        BOOST_LOG_SEV(glg, warn) << "Layer " << currl->indl
                                 << " is frozen and shall NOT have liquid water!";
       }
 
       // maybe from some mathematical round up? so '1.0e-3 is used as critical
       if ((currl->ice-currl->maxice) > 1.0e-3) {
-        BOOST_LOG_SEV(glg, err) << "Layer " << currl->indl
+        BOOST_LOG_SEV(glg, warn) << "Layer " << currl->indl
                                 << " is frozen and shall NOT have too much ice water!";
       }
     }
 
     if (currl->frozen == -1) {
       if (currl->ice > 0.0) {
-        BOOST_LOG_SEV(glg, err) << "Layer " << currl->indl
+        BOOST_LOG_SEV(glg, warn) << "Layer " << currl->indl
                                 << " is NOT frozen and shall NOT have ice!";
       }
 
       if ((currl->liq-currl->maxliq)>1.e-6 && currl->isSoil) {
-        BOOST_LOG_SEV(glg, err) << "Layer " << currl->indl
+        BOOST_LOG_SEV(glg, warn) << "Layer " << currl->indl
                                 << " is NOT frozen and shall NOT have too much liquid water!";
       }
     }
@@ -2294,14 +2294,14 @@ void Ground::checkWaterValidity() {
       double maxwat = fmax(0.0, currl->maxliq-currl->getVolIce()*currl->dz*DENLIQ);
 
       if ((currl->liq-maxwat) > 1.e-6) {
-        BOOST_LOG_SEV(glg, err) << "Layer " << currl->indl << " (soil) "
+        BOOST_LOG_SEV(glg, warn) << "Layer " << currl->indl << " (soil) "
                                 << "is partially unfrozen and shall NOT have too much liquid water!";
       }
 
       // adjust max. ice by liq occupied space
       maxwat = currl->maxice-currl->getVolLiq()*currl->dz*DENICE;
       if ((currl->ice-maxwat) > 1.e-6) {
-        BOOST_LOG_SEV(glg, err) << "Layer " << currl->indl << " (soil) "
+        BOOST_LOG_SEV(glg, warn) << "Layer " << currl->indl << " (soil) "
                                 << "is partially frozen and shall NOT have too much ice water!";
       }
     }
