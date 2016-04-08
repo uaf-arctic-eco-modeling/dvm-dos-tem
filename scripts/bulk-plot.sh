@@ -11,8 +11,9 @@
 # Command line argument processing
 #
 function usage () {
-  echo "usage: $ ./bulk-plot TAG"
+  echo "usage: "
   echo "       $ ./bulk-plot [--numpfts N] [--sparse] [--parallel] [-h | --help] --outdir PATH --tag TAG"
+  echo ""
   echo "  --sparse    Prints only one suite, for faster runs and testing."
   echo "  --parallel  Runs the plotting script as a background process so"
   echo "              many plots are made in parallel."
@@ -23,7 +24,12 @@ function usage () {
   echo "              path given for '--outdir'. The current git tag is good to use,"
   echo "              but the value you provide for "--tag" can be anything else you like."
 
-  echo "Error: " $1
+  echo "$#"
+  if [[ "$#" -gt 0 ]]
+  then
+    echo "Error: $1"
+  fi
+  echo ""
 }
 
 function parallel_ploter () {
@@ -94,7 +100,7 @@ then
   exit 1
 fi
 
-echo "Plotting for pfs 0 to $NUM_PFTS"
+echo "Plotting for pfts 0 to $NUM_PFTS"
 echo "Will plot these suites:"
 for SUITE in ${SUITES[@]}
 do
@@ -136,12 +142,12 @@ do
 
       args="--suite $SUITE --tar-cmtnum $TARGET_CMT --no-show --save-name $SAVE_LOC/$TAG-$SUITE-pft$I --pft $I"
 
-    if $PFLAG
-    then
-      parallel_ploter $args &
-    else
-      parallel_ploter $args
-    fi
+      if $PFLAG
+      then
+        parallel_ploter $args &
+      else
+        parallel_ploter $args
+      fi
 
     done
   fi
