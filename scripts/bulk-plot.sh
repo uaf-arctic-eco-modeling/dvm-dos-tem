@@ -12,7 +12,7 @@
 #
 function usage () {
   echo "usage: "
-  echo "       $ ./bulk-plot [--numpfts N] [--sparse] [--parallel] [-h | --help] --outdir PATH --tag TAG"
+  echo "  $ ./bulk-plot [--numpfts N] [--sparse] [--parallel] [--format F] [-h | --help] --outdir PATH --tag TAG"
   echo ""
   echo "  --sparse    Prints only one suite, for faster runs and testing."
   echo "  --parallel  Runs the plotting script as a background process so"
@@ -23,6 +23,8 @@ function usage () {
   echo "              The folder will be created within the folder specified at the"
   echo "              path given for '--outdir'. The current git tag is good to use,"
   echo "              but the value you provide for "--tag" can be anything else you like."
+  echo "  --format    The file format to use for saving plots. Default=pdf"
+  echo ""
 
   echo "$#"
   if [[ "$#" -gt 0 ]]
@@ -44,6 +46,7 @@ SUITES=("Fire" "Soil" "Vegetation" "VegSoil" "Environment" "NCycle")
 TAG=
 TARGET_CMT=5
 OUTDIR=
+FORMAT="pdf"
 PFLAG=   # Set to '&' to run plotting processes in background.
 
 while [ "$1" != "" ]; do
@@ -62,6 +65,10 @@ while [ "$1" != "" ]; do
 
     --tag )             shift
                         TAG="$1"
+                        ;;
+
+    --format )          shift
+                        FORMAT="$1"
                         ;;
 
     --targetcmt )       shift
@@ -127,7 +134,7 @@ do
   if [[ "$SUITE" == "Fire" || "$SUITE" == "Environment" ]]
   then
 
-    args="--suite $SUITE --tar-cmtnum $TARGET_CMT --no-show --save-name $SAVE_LOC/$TAG-$SUITE"
+    args="--save-format $FORMAT --suite $SUITE --tar-cmtnum $TARGET_CMT --no-show --save-name $SAVE_LOC/$TAG-$SUITE"
 
     if $PFLAG
     then
@@ -140,7 +147,7 @@ do
     for (( I=0; I<$NUM_PFTS; ++I ))
     do
 
-      args="--suite $SUITE --tar-cmtnum $TARGET_CMT --no-show --save-name $SAVE_LOC/$TAG-$SUITE-pft$I --pft $I"
+      args="--save-format $FORMAT --suite $SUITE --tar-cmtnum $TARGET_CMT --no-show --save-name $SAVE_LOC/$TAG-$SUITE-pft$I --pft $I"
 
       if $PFLAG
       then
