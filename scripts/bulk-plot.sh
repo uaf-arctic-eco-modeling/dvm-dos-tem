@@ -12,15 +12,33 @@
 #
 function usage () {
   echo "usage: $ ./bulk-plot TAG"
-  echo "       $ ./bulk-plot [--numpfts N] [--sparse] [-h | --help] --outdir PATH --tag TAG"
+  echo "       $ ./bulk-plot [--numpfts N] [--sparse] [--parallel] [-h | --help] --outdir PATH --tag TAG"
+  echo "  --sparse    Prints only one suite, for faster runs and testing."
+  echo "  --parallel  Runs the plotting script as a background process so"
+  echo "              many plots are made in parallel."
+  echo "  --numpfts   Change the number of pfts plotted. '3' will plot pfts 0,1,2".
+  echo "  --outdir    The path to a directory in which to store the generated plots."
+  echo "  --tag       A pre-fix for the folder continaing the generated plots."
+  echo "              The folder will be created within the folder specified at the"
+  echo "              path given for '--outdir'. The current git tag is good to use,"
+  echo "              but the value you provide for "--tag" can be anything else you like."
+
   echo "Error: " $1
 }
+
+function parallel_ploter () {
+
+  ./calibration/calibration-viewer.py "$@"
+
+}
+
 
 NUM_PFTS=10
 SUITES=("Fire" "Soil" "Vegetation" "VegSoil" "Environment" "NCycle")
 TAG=
 TARGET_CMT=5
 OUTDIR=
+PFLAG=   # Set to '&' to run plotting processes in background.
 
 while [ "$1" != "" ]; do
   case $1 in
@@ -31,6 +49,9 @@ while [ "$1" != "" ]; do
     # useful for debugging so you don't have to 
     # wait for everything to plot
     --sparse )          SUITES=("VegSoil")
+                        ;;
+
+    --parallel )        PFLAG="true"
                         ;;
 
     --tag )             shift
@@ -88,29 +109,49 @@ SAVE_LOC="$OUTDIR/$TAG"
 echo "Making directory: $SAVE_LOC"
 mkdir -p "$SAVE_LOC"
 
+# Collect metadata
+cp "config/config.js" "$SAVE_LOC/"
+cp "config/calibration_directives.txt" "$SAVE_LOC"
+# build metadata? cmd line args?
+
 # Loop over suites and pfts creating and saving a bunch of plots.
 for SUITE in ${SUITES[@]};
 do
 
   if [[ "$SUITE" == "Fire" || "$SUITE" == "Environment" ]]
   then
-    # echo $SUITE
-    ./calibration/calibration-viewer.py --suite "$SUITE" \
-                                        --tar-cmtnum "$TARGET_CMT" \
-                                        --no-show \
-                                        --save-name "$SAVE_LOC/$TAG-$SUITE"
+
+    args="--suite $SUITE --tar-cmtnum $TARGET_CMT --no-show --save-name $SAVE_LOC/$TAG-$SUITE"
+
+    if $PFLAG
+    then
+      parallel_ploter $args &
+    else
+      parallel_ploter $args
+    fi
+
   else
-    for (( I=0; I<=$NUM_PFTS; ++I ))
+    for (( I=0; I<$NUM_PFTS; ++I ))
     do
-      # echo $SUITE $I
-      ./calibration/calibration-viewer.py --suite "$SUITE" \
-                                          --tar-cmtnum "$TARGET_CMT" \
-                                          --no-show \
-                                          --save-name "$SAVE_LOC/$TAG-$SUITE-pft$I" \
-                                          --pft "$I"
+
+      args="--suite $SUITE --tar-cmtnum $TARGET_CMT --no-show --save-name $SAVE_LOC/$TAG-$SUITE-pft$I --pft $I"
+
+    if $PFLAG
+    then
+      parallel_ploter $args &
+    else
+      parallel_ploter $args
+    fi
+
     done
   fi
 
 done
 
+if $PFLAG
+then
+  echo "waiting for all sub processes to finish..."
+  wait
+fi
 
+echo "Done plotting."
