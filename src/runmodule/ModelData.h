@@ -29,7 +29,7 @@ public:
   bool runtr;
   bool runsc;
   int initmode;
-  bool mid_stage_pause; //Controls pauses between EQ, SP, TR, SC
+  bool inter_stage_pause; //Controls pauses between EQ, SP, TR, SC
 
   int max_eq_yrs;
   int pre_run_yrs;
