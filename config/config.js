@@ -38,7 +38,7 @@
   "stage_settings": {
     "restart_mode": "restart",   // other options??
     "run_stage": "eq",
-    "mid_stage_pause": true,
+    "inter_stage_pause": false,
     "tr_yrs": 109,
     "sc_yrs": 100
     //"restartfile_dir": "DATA/Toolik_10x10_30yrs/" // location for restart-XX.nc file

@@ -415,7 +415,7 @@ void Climate::load_from_file(const std::string& fname, int y, int x) {
   }
 
   // make some space for the derived variables
-  girr = std::vector<float>(12, 0); // <-- !! wow, no need for year dimesion??
+  girr = std::vector<float>(12, 0); // <-- !! wow, no need for year dimension??
   par = std::vector<float>(prec.size(), 0);
   cld = std::vector<float>(prec.size(), 0);
 
@@ -451,13 +451,13 @@ void Climate::load_from_file(const std::string& fname, int y, int x) {
   avgX_vapo = avg_over(vapo, 10);
  
   // Do we need simplified 'avgX_' values for par, and cld??
-  // ===> YES: the derived variables should prpbably be based off the avgX
+  // ===> YES: the derived variables should probably be based off the avgX
   //      containers...
 
 
   // Finally, need to create the daily dataset(s) by interpolating the monthly
-  // --> actually looking like these should not be calculated upon construciton.
-  //     instead, they shoudl get calculated each year...
+  // --> actually looking like these should not be calculated upon construction.
+  //     instead, they should get calculated each year...
 
 }
 

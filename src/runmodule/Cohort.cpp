@@ -1291,7 +1291,7 @@ void Cohort::set_restartdata_from_state() {
   restartdata.dsr                = edall->d_atms.dsr;
   restartdata.firea2sorgn        = fd->fire_a2soi.orgn; // to re-deposit fire-emitted N in one FRI
 
-  // vegegetation
+  // vegetation
   restartdata.yrsdist     = cd.yrsdist;
 
   for (int ip = 0; ip < NUM_PFT; ip++) {
