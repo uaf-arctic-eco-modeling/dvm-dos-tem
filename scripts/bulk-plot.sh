@@ -26,7 +26,6 @@ function usage () {
   echo "  --format    The file format to use for saving plots. Default=pdf"
   echo ""
 
-  echo "$#"
   if [[ "$#" -gt 0 ]]
   then
     echo "Error: $1"
@@ -34,7 +33,10 @@ function usage () {
   echo ""
 }
 
-function parallel_ploter () {
+# Function that basically just passes arguments thru to the
+# underlying calibration-viewer. This facilitates running the
+# calibration viewer in the background by calling "parallel_plotter <ARGS> &"
+function parallel_plotter () {
 
   ./calibration/calibration-viewer.py "$@"
 
@@ -138,9 +140,9 @@ do
 
     if $PFLAG
     then
-      parallel_ploter $args &
+      parallel_plotter $args &
     else
-      parallel_ploter $args
+      parallel_plotter $args
     fi
 
   else
@@ -151,9 +153,9 @@ do
 
       if $PFLAG
       then
-        parallel_ploter $args &
+        parallel_plotter $args &
       else
-        parallel_ploter $args
+        parallel_plotter $args
       fi
 
     done
