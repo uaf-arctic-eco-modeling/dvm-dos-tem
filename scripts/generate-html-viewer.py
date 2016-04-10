@@ -160,9 +160,9 @@ if __name__ == '__main__':
   print args
 
 
-  LEFT = glob.glob("%s/*.pdf" % (args.left))
-  CENTER = glob.glob("%s/*.pdf" % (args.center))
-  RIGHT = glob.glob("%s/*.pdf" % (args.right))
+  LEFT = sorted(glob.glob("%s/*.pdf" % (args.left)))
+  CENTER = sorted(glob.glob("%s/*.pdf" % (args.center)))
+  RIGHT = sorted(glob.glob("%s/*.pdf" % (args.right)))
   titlelist = (args.left, args.center, args.right)
 
   with open("three-view.html", 'w') as f:
