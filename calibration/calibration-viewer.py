@@ -734,22 +734,22 @@ class ExpandingWindow(object):
       ax.grid(True) # <-- w/o parameter, this toggles!!
       ax.legend(prop={'size':8.0}, loc='upper left')
 
-  def show(self, save_name="", dynamic=True):
+  def show(self, save_name="", dynamic=True, format="pdf"):
     '''Show the figure. If dynamic=True, then setup an animation.'''
 
-    logging.info("Displaying plot: dynamic=%s, no_show=%s, save_name=%s" % (dynamic, self.no_show, save_name))
+    logging.info("Displaying plot: dynamic=%s, no_show=%s, save_name=%s, format=%s" % (dynamic, self.no_show, save_name, format))
     if (dynamic and self.no_show):
       logging.warn("no_show=%s implies static. Generating static file only." % (self.no_show))
 
     if dynamic:
       logging.info("Setup animation.")
       self.ani = animation.FuncAnimation(self.fig, self.update, interval=100,
-                                       init_func=self.init, blit=True)
+                                         init_func=self.init, blit=True)
 
     if save_name != "":
       # the saved file will represent a snapshot of the state of the json
       # directory at the time the animation was started
-      full_name = save_name + ".pdf"
+      full_name = save_name + "." + format
       logging.info("Saving plot to '%s'" % (full_name))
       plt.savefig(full_name) # pdf may be smaller than png?
 
@@ -949,6 +949,9 @@ if __name__ == '__main__':
   parser.add_argument('--save-name', default="",
       help="A file name prefix to use for saving plots.")
 
+  parser.add_argument('--save-format', default="pdf",
+      help="Choose a file format to use for saving plots.")
+
   parser.add_argument('--no-show', action='store_true',
       help=textwrap.dedent('''Don't show the plots in the interactive viewer.
           Implies '--static'. Useful for scripts, or automatically saving output
@@ -966,7 +969,6 @@ if __name__ == '__main__':
   print "Parsing command line arguments..."
   args = parser.parse_args()
   print args
-
 
   #
   # Start operating based on the command line arguments....
@@ -1020,6 +1022,12 @@ if __name__ == '__main__':
     if 'pft' in trace.keys():
       trace['pft'] = 'PFT%i' % pft
 
+  if args.save_format not in plt.gcf().canvas.get_supported_filetypes().keys():
+    logging.error("%s' is not a supported format for saving plots!" % args.save_format)
+    logging.error("Please use one of: %s" % (' '.join(plt.gcf().canvas.get_supported_filetypes().keys())))
+    sys.exit(-1)
+
+
   logger.info("Starting main app...")
 
   logging.info("Dynamic=%s Static=%s No-show=%s Save-name='%s'" %
@@ -1046,7 +1054,7 @@ if __name__ == '__main__':
                        )
 
   logging.info("Show the plot object...")
-  ewp.show(dynamic=(not args.static), save_name=args.save_name)
+  ewp.show(dynamic=(not args.static), save_name=args.save_name, format=args.save_format)
 
   logger.info("Done with main app...")
 
