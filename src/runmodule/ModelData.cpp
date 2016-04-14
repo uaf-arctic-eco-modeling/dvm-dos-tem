@@ -72,13 +72,16 @@ void ModelData::update(ArgHandler const * arghandler) {
   this->pre_run_yrs = arghandler->get_pre_run_yrs();
   this->max_eq_yrs = arghandler->get_max_eq();
   this->sp_yrs = arghandler->get_sp_yrs();
-  if(arghandler->get_tr_yrs() != 0){
-    this->tr_yrs = arghandler->get_tr_yrs();
-  }
-  if(arghandler->get_sc_yrs() != 0){
-    this->sc_yrs = arghandler->get_sc_yrs();
-  }
+  this->tr_yrs = arghandler->get_tr_yrs();
+  this->sc_yrs = arghandler->get_sc_yrs();
 
+  // maybe we don't even need the runeq, runsp, etc variables?
+  // might be some antiquated pattern from pre IO-refactor...
+  if (this->pre_run_yrs > 0) { /* ?? nothing... */}
+  if (this->max_eq_yrs > 0) {runeq = true;}
+  if (this->sp_yrs > 0) {runsp = true;}
+  if (this->tr_yrs > 0) {runtr = true;}
+  if (this->sc_yrs > 0) {runsc = true;}
 }
 
 
