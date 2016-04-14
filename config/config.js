@@ -22,11 +22,23 @@
   // Define storage locations for json files generated and used
   // during calibration. The calibration-viewer.py program will read
   // this config file and these settings to determine where to look for
-  // the json files.
+  // the json files. dvmdostem will create a directory tree that looks
+  // like this:
+  //  dvmdostem/
+  //  └── calibration
+  //      ├── daily
+  //      │   ├── year_00000_daily_drivers.text
+  //      │   └── year_00001_daily_drivers.text
+  //      ├── monthly
+  //      │   ├── 0000000.json
+  //      │   ├── ...
+  //      │   └── 0000011.json
+  //      └── yearly
+  //          └── 00000.json
   "calibration-IO": {
-    "yearly-json-folder":  "/tmp/dvmdostem/calibration/yearly",
-    "monthly-json-folder": "/tmp/dvmdostem/calibration/monthly",
-    "daily-json-folder":   "/tmp/dvmdostem/calibration/daily"
+    "unique_pid_tag": "",
+    "caldata_tree_loc": "/tmp"
+
     // NOTE: It is generally reccomended that the files be kept in the /tmp
     // directory so that the operating system will clean up the files, as the
     // output can be voluminous, especially when generating monthly or daily

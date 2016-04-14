@@ -52,9 +52,8 @@ ModelData::ModelData(Json::Value controldata){
   output_dir        = controldata["IO"]["output_dir"].asString();
   output_monthly    = controldata["IO"]["output_monthly"].asInt();
 
-  yearly_cal_json   = controldata["calibration-IO"]["yearly-json-folder"].asString();
-  monthly_cal_json  = controldata["calibration-IO"]["monthly-json-folder"].asString();
-  daily_cal_json    = controldata["calibration-IO"]["daily-json-folder"].asString();
+  pid_tag           = controldata["calibration-IO"]["pid_tag"].asString();
+  caldata_tree_loc  = controldata["calibration-IO"]["caldata_tree_loc"].asString();
 
   changeclimate = controldata["model_settings"]["dynamic_climate"].asInt();
   changeco2     = controldata["model_settings"]["varied_co2"].asInt();
