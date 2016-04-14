@@ -82,6 +82,9 @@ void ModelData::update(ArgHandler const * arghandler) {
   if (this->sp_yrs > 0) {runsp = true;}
   if (this->tr_yrs > 0) {runtr = true;}
   if (this->sc_yrs > 0) {runsc = true;}
+
+  this->pid_tag = arghandler->get_pid_tag();
+
 }
 
 

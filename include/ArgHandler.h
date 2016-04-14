@@ -24,6 +24,8 @@ class ArgHandler {
   int sc_yrs;
 
   bool cal_mode;
+  std::string pid_tag;
+
   bool floating_point_exp;
 
   std::string loop_order;
@@ -49,6 +51,7 @@ public:
   inline const bool get_fpe(){return floating_point_exp;};
 	
   inline const bool get_cal_mode(){return cal_mode;};
+  inline const std::string get_pid_tag() const {return pid_tag;};
   inline const std::string get_loop_order(){return loop_order;};
 	inline const std::string get_ctrl_file(){return ctrl_file;};
   

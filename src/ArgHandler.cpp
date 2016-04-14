@@ -19,6 +19,14 @@ void ArgHandler::parse(int argc, char** argv) {
      "program will generate yearly and monthly '.json' files in your /tmp "
      " directory that are intended to be read by other programs or scripts.")
 
+    ("pid-tag,u", boost::program_options::value<std::string>(&pid_tag)
+      ->default_value(""),
+      "Use the process ID (passed as an argmument) to tag the output cal json "
+      "directories. Facilitates parallel runs, but may make the "
+      "calibration-viewer.py more difficult to work with (must pass/set the "
+      "PID tag so that the calibration-viewe.py knows where to find the json "
+      "files.")
+
     ("pre-run-yrs,p", boost::program_options::value<int>(&pre_run_yrs)
        ->default_value(10),
      "The number of 'pre-run' years.")
