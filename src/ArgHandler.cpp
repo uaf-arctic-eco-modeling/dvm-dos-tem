@@ -19,7 +19,7 @@ void ArgHandler::parse(int argc, char** argv) {
      "program will generate yearly and monthly '.json' files in your /tmp "
      " directory that are intended to be read by other programs or scripts.")
 
-    ("pre-run-yrs,pr", boost::program_options::value<int>(&pre_run_yrs)
+    ("pre-run-yrs,p", boost::program_options::value<int>(&pre_run_yrs)
        ->default_value(10),
      "The number of 'pre-run' years.")
 
