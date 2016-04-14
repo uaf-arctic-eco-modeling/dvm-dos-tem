@@ -813,8 +813,20 @@ if __name__ == '__main__':
       minidata = json_minify.json_minify(fdata) # strip comments
       configdata = json.loads(minidata)
 
-    DEFAULT_MONTHLY_JSON_LOCATION = configdata["calibration-IO"]["monthly-json-folder"]
-    DEFAULT_YEARLY_JSON_LOCATION = configdata["calibration-IO"]["yearly-json-folder"]
+    # NOTE: This is not perfect - if the user overrides the pid tag setting
+    # using the dvmdostem command line option, then this method of setting
+    # the calibration data folders won't be smart enough to catch that.
+    # May need to add cmd line option to the viewer to set the PID tag...
+    pid = configdata["calibration-IO"]["unique_pid_tag"]
+    if ("" != pid):
+      base = os.path.join(configdata["calibration-IO"]["caldata_tree_loc"],
+                          "dvmdostem-%s"%(pid), "calibration")
+    else:
+      base = os.path.join(configdata["calibration-IO"]["caldata_tree_loc"],
+                          "dvmdostem", "calibration")
+
+    DEFAULT_MONTHLY_JSON_LOCATION = os.path.join(base, "monthly")
+    DEFAULT_YEARLY_JSON_LOCATION = os.path.join(base, "yearly")
 
   except (IOError, ValueError) as e:
     logging.error("Problem: '%s' reading the config file '%s'" % (e, f))
