@@ -337,48 +337,38 @@ void BgcData::soil_endOfMonth(const int currmind) {
     }
   }
 
-  //annually mean variables
-  if (currmind==11) {
+  // annual value should be the december value. not averaged, not sumed over year
+  if (currmind == 11) {
+
     for (int il =0; il<MAX_SOI_LAY; il++) {
-      y_sois.rawc[il] = m_sois.rawc[il];
-      y_sois.soma[il] = m_sois.soma[il];
-      y_sois.sompr[il]= m_sois.sompr[il];
-      y_sois.somcr[il]= m_sois.somcr[il];
-      y_sois.orgn[il] = m_sois.orgn[il];
-      y_sois.avln[il] = m_sois.avln[il];
+      y_soid.tsomc[il]  = m_soid.tsomc[il]   ;
+      y_soid.rhmoist[il]= m_soid.rhmoist[il] ;
+      y_soid.rhq10[il]  = m_soid.rhq10[il]   ;
+      y_soid.ltrfcn[il] = m_soid.ltrfcn[il]  ;
+      y_soid.knmoist[il]= m_soid.knmoist[il] ;
+      y_sois.rawc[il]   = m_sois.rawc[il]    ;
+      y_sois.soma[il]   = m_sois.soma[il]    ;
+      y_sois.sompr[il]  = m_sois.sompr[il]   ;
+      y_sois.somcr[il]  = m_sois.somcr[il]   ;
+      y_sois.orgn[il]   = m_sois.orgn[il]    ;
+      y_sois.avln[il]   = m_sois.avln[il]    ;
     }
 
-    y_sois.dmossc = m_sois.dmossc;
-    y_sois.dmossn = m_sois.dmossn;
-    y_sois.wdebrisc = m_sois.wdebrisc;
-    y_sois.wdebrisn = m_sois.wdebrisn;
-    y_soid.shlwc = m_soid.shlwc;
-    y_soid.deepc = m_soid.deepc;
-    y_soid.mineac = m_soid.mineac;
-    y_soid.minebc = m_soid.minebc;
-    y_soid.minecc = m_soid.minecc;
-    y_soid.rawcsum = m_soid.rawcsum;
-    y_soid.somasum = m_soid.somasum;
-    y_soid.somprsum= m_soid.somprsum;
-    y_soid.somcrsum= m_soid.somcrsum;
-    y_soid.avlnsum = m_soid.avlnsum;
-    y_soid.orgnsum = m_soid.orgnsum;
-
-  } else {
-      // annual values of the pools are meaningfull only at the end of the year
-      // (december month)
-      // annual values of the pools result from the annual fluxes (sum of the
-      //  monthly values).
-      // For instance, annual change in SOILC should equal annual LITTERFALL minus annual
-      //  RH and ANNUAL FIRE SOIL EMISSIONS.
-  }
-
-  for (int il =0; il<MAX_SOI_LAY; il++) {
-    y_soid.tsomc[il]  += m_soid.tsomc[il]/12;
-    y_soid.rhmoist[il]+= m_soid.rhmoist[il]/12;
-    y_soid.rhq10[il]  += m_soid.rhq10[il]/12;
-    y_soid.ltrfcn[il] += m_soid.ltrfcn[il]/12;
-    y_soid.knmoist[il]+= m_soid.knmoist[il]/12;
+    y_sois.dmossc   = m_sois.dmossc     ;
+    y_sois.dmossn   = m_sois.dmossn     ;
+    y_sois.wdebrisc = m_sois.wdebrisc   ;
+    y_sois.wdebrisn = m_sois.wdebrisn   ;
+    y_soid.shlwc    = m_soid.shlwc      ;
+    y_soid.deepc    = m_soid.deepc      ;
+    y_soid.mineac   = m_soid.mineac     ;
+    y_soid.minebc   = m_soid.minebc     ;
+    y_soid.minecc   = m_soid.minecc     ;
+    y_soid.rawcsum  = m_soid.rawcsum    ;
+    y_soid.somasum  = m_soid.somasum    ;
+    y_soid.somprsum = m_soid.somprsum   ;
+    y_soid.somcrsum = m_soid.somcrsum   ;
+    y_soid.avlnsum  = m_soid.avlnsum    ;
+    y_soid.orgnsum  = m_soid.orgnsum    ;
   }
 
   // fluxes

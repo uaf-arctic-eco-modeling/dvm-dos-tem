@@ -112,7 +112,7 @@ configured_suites = {
   },
   'VegSoil':{
     'desc': "The standard targetted vegetation and soil outputs",
-    'rows': 8,
+    'rows': 9,
     'cols': 1,
     'traces': [
       { 'jsontag': 'GPPAllIgnoringNitrogen', 'units': 'gC/m^2', 'axesnum': 0, 'pft': '', },
@@ -144,7 +144,10 @@ configured_suites = {
       { 'jsontag': 'AvailableNitrogenSum', 'axesnum':7, 'units': 'gN/m^2', },
       { 'jsontag': 'StNitrogenUptakeAll', 'axesnum': 7, 'units': 'gN/m^2', },
       { 'jsontag': 'InNitrogenUptakeAll', 'axesnum': 7, 'units': 'gN/m^2', },
-    ] 
+
+      { 'jsontag': 'MossdeathCarbon', 'axesnum': 8, 'units': 'gC/m^2', },
+      { 'jsontag': 'MossdeathNitrogen', 'axesnum': 8, 'units': 'gC/m^2', },
+    ]
   },
   'NCycle':{
     'desc': "Viewing annual N cycle outputs",

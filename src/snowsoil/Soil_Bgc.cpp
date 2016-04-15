@@ -393,18 +393,11 @@ void Soil_Bgc::initOslayerCarbon(double & shlwc, double & deepc) {
       }
 
       if( cumcarbonbot - cumcarbontop > 0.0 ) {
-        if (currl->isOrganic) {  // dead moss layers are not regarded as soil organic layers
-          if(currl->isFibric){
-            currl->rawc  = bgcpar.eqrawc * (cumcarbonbot - cumcarbontop); //note: those eq-fractions of SOM pools must be estimated before
-            currl->soma  = bgcpar.eqsoma * (cumcarbonbot - cumcarbontop);
-            currl->sompr = bgcpar.eqsompr * (cumcarbonbot - cumcarbontop);
-            currl->somcr = bgcpar.eqsomcr * (cumcarbonbot - cumcarbontop);
-          } else {
-            currl->rawc  = bgcpar.eqrawc * (cumcarbonbot - cumcarbontop); //note: those eq-fractions of SOM pools must be estimated before
-            currl->soma  = bgcpar.eqsoma * (cumcarbonbot - cumcarbontop);
-            currl->sompr = bgcpar.eqsompr * (cumcarbonbot - cumcarbontop);
-            currl->somcr = bgcpar.eqsomcr * (cumcarbonbot - cumcarbontop);            
-          }
+        if (currl->isOrganic || currl->isMoss) {  // dead moss layers are not regarded as soil organic layers
+          currl->rawc  = bgcpar.eqrawc * (cumcarbonbot - cumcarbontop); //note: those eq-fractions of SOM pools must be estimated before
+          currl->soma  = bgcpar.eqsoma * (cumcarbonbot - cumcarbontop);
+          currl->sompr = bgcpar.eqsompr * (cumcarbonbot - cumcarbontop);
+          currl->somcr = bgcpar.eqsomcr * (cumcarbonbot - cumcarbontop);
         } else {
           currl->rawc  = 0.0;
           currl->soma  = 0.0;
