@@ -250,11 +250,23 @@ void Runner::check_sum_over_PFTs(){
 
   double ecosystem_C = 0;
   double ecosystem_C_by_compartment = 0;
-  double ecosystem_npp = 0;
+  //double ecosystem_N = 0; ???
   double ecosystem_strn = 0;
   double ecosystem_strn_by_compartment = 0;
 
-  //double ecosystem_N = 0; ???
+  double ecosystem_ingpp = 0;
+  double ecosystem_gpp = 0;
+  double ecosystem_innpp = 0;
+  double ecosystem_npp = 0;
+
+  double ecosystem_rm = 0;
+  double ecosystem_rg = 0;
+
+  double ecosystem_ltrfalc = 0;
+  double ecosystem_ltrfaln = 0;
+  double ecosystem_snuptake = 0;
+  double ecosystem_nmobil = 0;
+  double ecosystem_nresorb = 0;
 
   // sum various quantities over all PFTs
   for (int ip = 0; ip < NUM_PFT; ++ip) {
@@ -262,23 +274,51 @@ void Runner::check_sum_over_PFTs(){
     ecosystem_C_by_compartment += (this->cohort.bdall->m_vegs.c[I_leaf] +
                                    this->cohort.bdall->m_vegs.c[I_stem] +
                                    this->cohort.bdall->m_vegs.c[I_root]);
-
-    ecosystem_npp += this->cohort.bd[ip].m_a2v.nppall;
     ecosystem_strn += this->cohort.bd[ip].m_vegs.strnall;
     ecosystem_strn_by_compartment += (this->cohort.bdall->m_vegs.strn[I_leaf] +
                                       this->cohort.bdall->m_vegs.strn[I_stem] +
                                       this->cohort.bdall->m_vegs.strn[I_root]);
 
+    ecosystem_ingpp += this->cohort.bd[ip].m_a2v.ingppall;
+    ecosystem_gpp += this->cohort.bd[ip].m_a2v.gppall;
+    ecosystem_innpp += this->cohort.bd[ip].m_a2v.innppall;
+    ecosystem_npp += this->cohort.bd[ip].m_a2v.nppall;
+
+    ecosystem_rm += this->cohort.bd[ip].m_v2a.rmall;
+    ecosystem_rg += this->cohort.bd[ip].m_v2a.rgall;
+
+    ecosystem_ltrfalc += this->cohort.bd[ip].m_v2soi.ltrfalcall;
+    ecosystem_ltrfaln += this->cohort.bd[ip].m_v2soi.ltrfalnall;
+
+    ecosystem_snuptake += this->cohort.bd[ip].m_soi2v.snuptakeall;
+
+    ecosystem_nmobil += this->cohort.bd[ip].m_v2v.nmobilall;
+    ecosystem_nresorb += this->cohort.bd[ip].m_v2v.nresorball;
 
   }
 
   // Check that the sums are equal to the Runner level containers (ecosystem totals)
   log_not_equal(this->cohort.bdall->m_vegs.call, ecosystem_C, "Runner:: ecosystem veg C not matching sum over PFTs!");
   log_not_equal(this->cohort.bdall->m_vegs.call, ecosystem_C_by_compartment, "Runner:: ecosystem veg C not matching sum over compartments");
-  log_not_equal(this->cohort.bdall->m_a2v.nppall, ecosystem_npp, "Runner:: ecosystem npp not matching sum over PFTs!");
-  log_not_equal(this->cohort.bdall->m_vegs.strnall, ecosystem_strn, "Runner:: ecosystem strn not matching sum over PFTs!");
+  // ecosystem N?
   log_not_equal(this->cohort.bdall->m_vegs.strnall, ecosystem_strn, "Runner:: ecosystem strn not matching sum over PFTs!");
   log_not_equal(this->cohort.bdall->m_vegs.strnall, ecosystem_strn_by_compartment, "Runner:: ecosystem strn not matching sum over compartments!");
+
+  log_not_equal(this->cohort.bdall->m_a2v.ingppall, ecosystem_ingpp, "Runner:: ecosystem npp not matching sum over PFTs!");
+  log_not_equal(this->cohort.bdall->m_a2v.gppall, ecosystem_gpp, "Runner:: ecosystem npp not matching sum over PFTs!");
+  log_not_equal(this->cohort.bdall->m_a2v.innppall, ecosystem_innpp, "Runner:: ecosystem innpp not matching sum over PFTs!");
+  log_not_equal(this->cohort.bdall->m_a2v.nppall, ecosystem_npp, "Runner:: ecosystem npp not matching sum over PFTs!");
+
+  log_not_equal(this->cohort.bdall->m_v2a.rmall, ecosystem_rm, "Runner:: ecosystem rm not matching sum over PFTs!");
+  log_not_equal(this->cohort.bdall->m_v2a.rgall, ecosystem_rg, "Runner:: ecosystem rg not matching sum over PFTs!");
+
+  log_not_equal(this->cohort.bdall->m_v2soi.ltrfalcall, ecosystem_ltrfalc, "Runner:: ecosystem ltrfalc not matching sum over PFTs!");
+  log_not_equal(this->cohort.bdall->m_v2soi.ltrfalnall, ecosystem_ltrfaln, "Runner:: ecosystem ltrfaln not matching sum over PFTs!");
+
+  log_not_equal(this->cohort.bdall->m_soi2v.snuptakeall, ecosystem_snuptake, "Runner:: ecosystem snuptake not matching sum over PFTs!");
+
+  log_not_equal(this->cohort.bdall->m_v2v.nmobilall, ecosystem_nmobil, "Runner:: ecosystem nmobil not matching sum over PFTs!");
+  log_not_equal(this->cohort.bdall->m_v2v.nresorball, ecosystem_nresorb, "Runner:: ecosystem nresorb not matching sum over PFTs!");
 
 }
 
