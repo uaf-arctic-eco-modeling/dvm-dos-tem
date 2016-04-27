@@ -32,6 +32,8 @@ Runner::Runner(ModelData mdldata, bool cal_mode, int y, int x):
     this->calcontroller_ptr.reset( new CalController(&this->cohort) );
     this->calcontroller_ptr->clear_and_create_json_storage();
   } // else null??
+
+
   // within-grid cohort-level aggregated 'ed' (i.e. 'edall in 'cht')
   BOOST_LOG_SEV(glg, debug) << "Create some empty containers for 'cohort-level "
                             << "aggregations of 'ed', (i.e. 'edall in 'cohort')";
@@ -128,7 +130,163 @@ void Runner::run_years(int start_year, int end_year, const std::string& stage) {
   }} // end year loop (and named scope
 }
 
+void Runner::check_sum_over_compartments() {
+
+  for (int ip = 0; ip < NUM_PFT; ++ip) {
+
+    compartment_checksum("whole plant C", "plant C PART", ip,
+                         cohort.bd[ip].m_vegs.call,
+                         cohort.bd[ip].m_vegs.c[I_leaf] +
+                         cohort.bd[ip].m_vegs.c[I_stem] +
+                         cohort.bd[ip].m_vegs.c[I_root]);
+
+    compartment_checksum("whole plant strn", "plant strn PART", ip,
+                         cohort.bd[ip].m_vegs.strnall,
+                         cohort.bd[ip].m_vegs.strn[I_leaf] +
+                         cohort.bd[ip].m_vegs.strn[I_stem] +
+                         cohort.bd[ip].m_vegs.strn[I_root]);
+
+    // Not sure what to do about m_vegs.labn and m_vegs.nall?? ???
+
+    compartment_checksum("whole plant ingpp", "plant ingpp PART", ip,
+                         cohort.bd[ip].m_a2v.ingppall,
+                         cohort.bd[ip].m_a2v.ingpp[I_leaf] +
+                         cohort.bd[ip].m_a2v.ingpp[I_stem] +
+                         cohort.bd[ip].m_a2v.ingpp[I_root]);
+
+
+    compartment_checksum("whole plant gpp", "plant gpp PART", ip,
+                         cohort.bd[ip].m_a2v.gppall,
+                         cohort.bd[ip].m_a2v.gpp[I_leaf] +
+                         cohort.bd[ip].m_a2v.gpp[I_stem] +
+                         cohort.bd[ip].m_a2v.gpp[I_root]);
+
+    compartment_checksum("whole plant npp", "plant npp PART", ip,
+                         cohort.bd[ip].m_a2v.nppall,
+                         cohort.bd[ip].m_a2v.npp[I_leaf] +
+                         cohort.bd[ip].m_a2v.npp[I_stem] +
+                         cohort.bd[ip].m_a2v.npp[I_root]);
+
+    compartment_checksum("whole plant innpp", "plant innpp PART", ip,
+                        cohort.bd[ip].m_a2v.innppall,
+                        cohort.bd[ip].m_a2v.innpp[I_leaf] +
+                        cohort.bd[ip].m_a2v.innpp[I_stem] +
+                        cohort.bd[ip].m_a2v.innpp[I_root]);
+
+    compartment_checksum("whole plant rm", "plant rm PART", ip,
+                         cohort.bd[ip].m_v2a.rmall,
+                         cohort.bd[ip].m_v2a.rm[I_leaf] +
+                         cohort.bd[ip].m_v2a.rm[I_stem] +
+                         cohort.bd[ip].m_v2a.rm[I_root]);
+
+    compartment_checksum("whole plant rg", "plant rg PART", ip,
+                         cohort.bd[ip].m_v2a.rgall,
+                         cohort.bd[ip].m_v2a.rg[I_leaf] +
+                         cohort.bd[ip].m_v2a.rg[I_stem] +
+                         cohort.bd[ip].m_v2a.rg[I_root]);
+
+    compartment_checksum("whole plant N litterfall", "plant N litterfall PART", ip,
+                         cohort.bd[ip].m_v2soi.ltrfalnall,
+                         cohort.bd[ip].m_v2soi.ltrfaln[I_leaf] +
+                         cohort.bd[ip].m_v2soi.ltrfaln[I_stem] +
+                         cohort.bd[ip].m_v2soi.ltrfaln[I_root]);
+
+    compartment_checksum("whole plant C litterfall", "plant C litterfall PART", ip,
+                         cohort.bd[ip].m_v2soi.ltrfalcall,
+                         cohort.bd[ip].m_v2soi.ltrfalc[I_leaf] +
+                         cohort.bd[ip].m_v2soi.ltrfalc[I_stem] +
+                         cohort.bd[ip].m_v2soi.ltrfalc[I_root]);
+
+    compartment_checksum("whole plant snuptake", "plant snuptake PART", ip,
+                         cohort.bd[ip].m_soi2v.snuptakeall,
+                         cohort.bd[ip].m_soi2v.snuptake[I_leaf] +
+                         cohort.bd[ip].m_soi2v.snuptake[I_stem] +
+                         cohort.bd[ip].m_soi2v.snuptake[I_root]);
+
+    compartment_checksum("whole plant nmobil", "plant nmobil PART", ip,
+                         cohort.bd[ip].m_v2v.nmobilall,
+                         cohort.bd[ip].m_v2v.nmobil[I_leaf] +
+                         cohort.bd[ip].m_v2v.nmobil[I_stem] +
+                         cohort.bd[ip].m_v2v.nmobil[I_root]);
+
+    compartment_checksum("whole plant nresorb", "plant nresorb PART", ip,
+                         cohort.bd[ip].m_v2v.nresorball,
+                         cohort.bd[ip].m_v2v.nresorb[I_leaf] +
+                         cohort.bd[ip].m_v2v.nresorb[I_stem] +
+                         cohort.bd[ip].m_v2v.nresorb[I_root]);
+
+  } // end loop over PFTS
+}
+
+void Runner::compartment_checksum(const std::string& a_desc,
+                                  const std::string& b_desc,
+                                  int PFT, double A, double B) {
+
+  if ( !temutil::AlmostEqualRelative(A, B) ) {
+    BOOST_LOG_SEV(glg, err) << "Runner::compartment_checksum() PFT:" << PFT
+                            << " " << a_desc " and " << b_desc
+                            << " not summing correctly."
+  }
+
+}
+
+/** */
+void Runner::check_sum_over_PFTs(){
+
+  double ecosystem_C = 0;
+  double ecosystem_C_by_compartment = 0;
+  double ecosystem_npp = 0;
+  double ecosystem_strn = 0;
+  double ecosystem_strn_by_compartment = 0;
+
+  //double ecosystem_N = 0; ???
+
+  // sum various quantities over all PFTs
+  for (int ip = 0; ip < NUM_PFT; ++ip) {
+    ecosystem_C += this->cohort.bd[ip].m_vegs.call;
+    ecosystem_C_by_compartment += (this->cohort.bdall->m_vegs.c[I_leaf] +
+                                   this->cohort.bdall->m_vegs.c[I_stem] +
+                                   this->cohort.bdall->m_vegs.c[I_root]);
+
+    ecosystem_npp += this->cohort.bd[ip].m_a2v.nppall;
+    ecosystem_strn += this->cohort.bd[ip].m_vegs.strnall;
+    ecosystem_strn_by_compartment += (this->cohort.bdall->m_vegs.strn[I_leaf] +
+                                      this->cohort.bdall->m_vegs.strn[I_stem] +
+                                      this->cohort.bdall->m_vegs.strn[I_root]);
+
+
+  }
+
+  // Check that the sums are equal to the Runner level containers (ecosystem totals)
+  if ( !temutil::AlmostEqualRelative(this->cohort.bdall->m_vegs.call, ecosystem_C) ) {
+    BOOST_LOG_SEV(glg, err) << "Runner:: ecosystem veg C not matching sum over PFTs!";
+  }
+  if ( !temutil::AlmostEqualRelative(this->cohort.bdall->m_vegs.call, ecosystem_C_by_compartment) ) {
+    BOOST_LOG_SEV(glg, err) << "Runner:: ecosystem veg C not matching sum over compartments";
+  }
+  if ( !temutil::AlmostEqualRelative(this->cohort.bdall->m_a2v.nppall, ecosystem_npp) ) {
+    BOOST_LOG_SEV(glg, err) << "Runner:: ecosystem npp not matching sum over PFTs!";
+  }
+  if ( !temutil::AlmostEqualRelative(this->cohort.bdall->m_vegs.strnall, ecosystem_strn) ) {
+    BOOST_LOG_SEV(glg, err) << "Runner:: ecosystem strn not matching sum over PFTs!";
+  }
+  if ( !temutil::AlmostEqualRelative(this->cohort.bdall->m_vegs.strnall, ecosystem_strn) ) {
+    BOOST_LOG_SEV(glg, err) << "Runner:: ecosystem strn not matching sum over PFTs!";
+  }
+  if ( !temutil::AlmostEqualRelative(this->cohort.bdall->m_vegs.strnall, ecosystem_strn_by_compartment) ) {
+    BOOST_LOG_SEV(glg, err) << "Runner:: ecosystem strn not matching sum over compartments!";
+  }
+
+}
+
+
+
 void Runner::output_caljson_monthly(int year, int month, std::string stage){
+
+  BOOST_LOG_SEV(glg, err) << "========== MONTHLY CHECKSUMMING ============";
+  check_sum_over_compartments();
+  check_sum_over_PFTs();
+  BOOST_LOG_SEV(glg, err) << "========== END MONTHLY CHECKSUMMING ========";
 
   // CAUTION: this->md and this->cohort.md are different instances!
 
@@ -268,6 +426,13 @@ void Runner::output_caljson_monthly(int year, int month, std::string stage){
 
 
 void Runner::output_caljson_yearly(int year, std::string stage) {
+
+  BOOST_LOG_SEV(glg, err) << "========== YEARLY CHECKSUMMING ============";
+
+  check_sum_over_compartments();
+  check_sum_over_PFTs();
+
+  BOOST_LOG_SEV(glg, err) << "========== END YEARLY CHECKSUMMING ========";
 
   // CAUTION: this->md and this->cohort.md are different instances!
 

@@ -40,6 +40,10 @@ public:
   
   Cohort cohort;
 
+  void check_sum_over_compartments();
+  void check_sum_over_PFTs();
+  void compartment_checksum(const std::string& a_desc, const std::string& b_desc, int PFT, double A, double B);
+
   // Should end up as a null pointer if calibrationMode is off.
   boost::shared_ptr<CalController> calcontroller_ptr;
   int chtid;    /* currently-running 'cohort' id */
