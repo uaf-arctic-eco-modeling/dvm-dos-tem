@@ -256,19 +256,19 @@ void Vegetation_Bgc::prepareIntegration(const bool &nfeedback) {
   */
 
   // dead standing C falling
-  if(cd->yrsdist<9.) {
-    if(bd->m_vegs.deadc>0) {
-      d2wdebrisc = bd->m_vegs.deadc/9./12.;
+  if(cd->yrsdist < 9.0) {
+    if(bd->m_vegs.deadc > 0) {
+      d2wdebrisc = bd->m_vegs.deadc/9.0/12.0;
 
       if (nfeed==1) {
-        d2wdebrisn = bd->m_vegs.deadn/9./12.;
+        d2wdebrisn = bd->m_vegs.deadn/9.0/12.0;
       }
     }
   } else {
-    bd->m_vegs.deadc =0.;
+    bd->m_vegs.deadc = 0.0;
 
     if (nfeed==1) {
-      bd->m_vegs.deadn =0.;
+      bd->m_vegs.deadn = 0.0;
     }
   }
 
@@ -614,7 +614,7 @@ void Vegetation_Bgc::deltastate() {
   del_vegs.deadc = d2wdebrisc;
 
   for (int i=0; i<NUM_PFT_PART; i++) {
-    del_vegs.c[i] = del_a2v.npp[i] - del_v2soi.ltrfalc[i];
+    del_vegs.c[i] = del_a2v.npp[i] - del_v2soi.ltrfalc[i]; // <- should have moss?
   }
 
   if(nfeed) {
