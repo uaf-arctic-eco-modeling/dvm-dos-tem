@@ -399,6 +399,8 @@ void Runner::output_caljson_monthly(int year, int month, std::string stage){
   data["RHsoma"] = cohort.bdall->m_soi2a.rhsomasum;
   data["RHsompr"] = cohort.bdall->m_soi2a.rhsomprsum;
   data["RHsomcr"] = cohort.bdall->m_soi2a.rhsomcrsum;
+  data["RHwdeb"] = cohort.bdall->m_soi2a.rhwdeb;
+  data["RHmossc"] = cohort.bdall->m_soi2a.rhmossc;
   data["RH"] = cohort.bdall->m_soi2a.rhtot;
 
   data["Burnthick"] = cohort.fd->fire_soid.burnthick;
@@ -410,6 +412,11 @@ void Runner::output_caljson_monthly(int year, int month, std::string stage){
   data["BurnVeg2SoiBlwVegN"] = cohort.fd->fire_v2soi.blwn;
   data["BurnSoi2AirC"] = cohort.fd->fire_soi2a.orgc;
   data["BurnSoi2AirN"] = cohort.fd->fire_soi2a.orgn;
+  data["RawCSum"] = cohort.bdall->m_soid.rawcsum;
+  data["SomaSum"] = cohort.bdall->m_soid.somasum;
+  data["SomcrSum"] = cohort.bdall->m_soid.somcrsum;
+  data["SomprSum"] = cohort.bdall->m_soid.somprsum;
+
 
   /* PFT dependent variables */
   double parDownSum = 0;
@@ -444,6 +451,8 @@ void Runner::output_caljson_monthly(int year, int month, std::string stage){
     data["PFT" + pft_str]["InNitrogenUptake"] = cohort.bd[pft].m_soi2v.innuptake;
     data["PFT" + pft_str]["LuxNitrogenUptake"] = cohort.bd[pft].m_soi2v.lnuptake;
     data["PFT" + pft_str]["TotNitrogenUptake"] = cohort.bd[pft].m_soi2v.snuptakeall + cohort.bd[pft].m_soi2v.lnuptake;
+    data["PFT" + pft_str]["MossDeathC"] = cohort.bd[pft].m_v2soi.mossdeathc;
+
   }
 
   data["PARAbsorbSum"] = parAbsorbSum;
