@@ -65,6 +65,7 @@ void Runner::run_years(int start_year, int end_year, const std::string& stage) {
   }
 
   /** YEAR TIMESTEP LOOP */
+  BOOST_LOG_NAMED_SCOPE("Y") {
   for (int iy = start_year; iy < end_year; ++iy) {
     BOOST_LOG_SEV(glg, debug) << "(Beginning of year loop) " << cohort.ground.layer_report_string("depth thermal CN");
     BOOST_LOG_SEV(glg, err) << "Year loop, year: "<<iy;
@@ -100,6 +101,7 @@ void Runner::run_years(int start_year, int end_year, const std::string& stage) {
     }
 
     /** MONTH TIMESTEP LOOP */
+    BOOST_LOG_NAMED_SCOPE("M") {
     for (int im = 0; im < 12; ++im) {
       BOOST_LOG_SEV(glg, note) << "(Beginning of month loop, iy:"<<iy<<", im:"<<im<<") " << cohort.ground.layer_report_string("depth thermal CN desc");
 
@@ -112,7 +114,7 @@ void Runner::run_years(int start_year, int end_year, const std::string& stage) {
         BOOST_LOG_SEV(glg, info) << "Write monthly calibration data to json files...";
         this->output_caljson_monthly(iy, im, stage);
       }
-    } /* end month loop */
+    }} // end month loop (and named scope)
 
     BOOST_LOG_SEV(glg, note) << "(END OF YEAR) " << cohort.ground.layer_report_string("depth thermal CN ptr");
 
@@ -123,7 +125,7 @@ void Runner::run_years(int start_year, int end_year, const std::string& stage) {
 
     BOOST_LOG_SEV(glg, note) << "Completed year " << iy << " for cohort/cell (row,col): (" << this->y << "," << this->x << ")";
 
-  } /* end year loop */
+  }} // end year loop (and named scope
 }
 
 void Runner::output_caljson_monthly(int year, int month, std::string stage){

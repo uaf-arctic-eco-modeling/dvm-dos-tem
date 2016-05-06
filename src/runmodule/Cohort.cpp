@@ -365,8 +365,6 @@ void Cohort::initialize_state_parameters() {
 void Cohort::updateMonthly(const int & yrcnt, const int & currmind,
                            const int & dinmcurr) {
 
-  BOOST_LOG_NAMED_SCOPE("M") {
-
   BOOST_LOG_SEV(glg, note) << "Cohort::updateMonthly. Year: "
                             << yrcnt << " Month: " << currmind << " dinmcurr: "
                             << dinmcurr;
@@ -426,7 +424,6 @@ void Cohort::updateMonthly(const int & yrcnt, const int & currmind,
 //  // always output the restart data (monthly)
 //  BOOST_LOG_SEV(glg, debug) << "Output monthly restart data.";
 //  outbuffer.updateRestartOutputBuffer();
-  } // added for boost log scope
 };
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -487,10 +484,9 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
 
   // (iii) daily light/water processes at plant canopy
   double tdrv, daylength;
-
+  BOOST_LOG_NAMED_SCOPE("D") {
   for(int id = 0; id < dinmcurr; id++) {
     int doy = temutil::day_of_year(currmind, id);
-    BOOST_LOG_NAMED_SCOPE("D") {
 
     BOOST_LOG_SEV(glg, debug) << "Beginning of Env module's day loop."
                               << " midx=" << currmind
@@ -612,7 +608,6 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
         }
       }
     }
-    } // added for boost log scope
 
     //accumulate daily vars into monthly for 'ed' of all pfts
     edall->atm_endOfDay(dinmcurr);
@@ -637,7 +632,7 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
         }
       }
     }
-  } // end of day loop in a month
+  }} // end of day loop (and named scope)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////

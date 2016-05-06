@@ -137,8 +137,6 @@ int main(int argc, char* argv[]){
   BOOST_LOG_SEV(glg, note) << "Checking command line arguments...";
   args->verify(); // stub - doesn't really do anything yet
 
-  // setup log filter? based on command line flags? (daily, yearly, monthly?)
-
   BOOST_LOG_SEV(glg, note) << "Turn floating point exceptions on?: " << args->get_fpe();
   if (args->get_fpe()) { enable_floating_point_exceptions(); }
 
