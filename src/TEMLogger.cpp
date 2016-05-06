@@ -38,9 +38,15 @@ std::ostream& operator<< (std::ostream& strm, severity_level level) {
     return strm;
 }
 
-/** The custom log message filter, based on severity, and the "scope" */
-bool log_scope_filter( boost::log::value_ref<boost::log::attributes::named_scope_list> const& scopes,
-                       const std::string& target_scope) {
+/** This implementation will not show scopes beaneath the target scope. So for
+    example if the scope stack looks like this:
+
+      PRE-RUN->bgc->M->env
+
+    and the target_scope is 'M' then the message will not be matched.
+*/
+bool log_scope_filter_A( boost::log::value_ref<boost::log::attributes::named_scope_list> const& scopes,
+                         const std::string& target_scope) {
 
   // Start by matching everything...
   bool matched(true);
@@ -59,7 +65,6 @@ bool log_scope_filter( boost::log::value_ref<boost::log::attributes::named_scope
     typedef attrs::named_scope_list::const_iterator iterator_t;
     for (iterator_t iter = scopes.get().begin(); iter != scopes.get().end(); ++iter) {
 
-      
       if (wi_target_scope) {                           // already too deep
         matched = false;
         break;
@@ -73,11 +78,80 @@ bool log_scope_filter( boost::log::value_ref<boost::log::attributes::named_scope
     }
   }
 
-  //return true;
   return matched;
 
 }
 
+/** This implementation will show levels down until the next "time scope".
+    So for example if the scope is:
+
+    PRE-RUN->bgc->M->env
+
+    and the target scope is 'M', then the message will be matched.
+    As in show all monthly messages, but not daily messages
+
+*/
+bool filter_time_scope( boost::log::value_ref<boost::log::attributes::named_scope_list> const& scopes,
+                            const std::string& time_scope) {
+
+  bool matched(true);
+
+  if (time_scope.compare("all") != 0) {
+
+    typedef attrs::named_scope_list::const_iterator iterator_t;
+    for (iterator_t iter = scopes.get().begin(); iter != scopes.get().end(); ++iter) {
+
+      std::string scope = (*iter).scope_name.c_str();
+
+      if (time_scope.compare("Y") == 0) {
+        if (scope == "M") {
+          matched = false;
+          break;
+        }
+      }
+      else if (time_scope.compare("M") == 0) {
+        if (scope == "D") {
+          matched = false;
+          break;
+        }
+      }
+      else if (time_scope.compare("D") == 0) {
+        // nothing to do - currently matches everything as
+        // this is our finest resolution.
+      } else {
+        // nothing to do...
+      }
+    }
+  }
+  return matched;
+}
+
+/** This implementation will only match records that have the 'target_scope'
+    within the scope stack.
+*/
+bool log_scope_filter_exclude_not_matching(
+    boost::log::value_ref<boost::log::attributes::named_scope_list> const& scopes,
+    const std::string& target_scope) {
+
+  bool matched = false;
+
+  // descend stack..
+  typedef attrs::named_scope_list::const_iterator iterator_t;
+  for (iterator_t iter = scopes.get().begin(); iter != scopes.get().end(); ++iter) {
+
+    if ((*iter).scope_name.compare(target_scope.c_str()) == 0) {
+      matched = true;
+    }
+
+  }
+
+  return matched;
+
+}
+
+/** Handle some details for the logging component of the application - log
+    attributes, filters, etc.
+*/
 void setup_logging(const std::string& target_severity_level, const std::string& target_scope_level) {
 
   // Add the attributes
@@ -111,7 +185,7 @@ void setup_logging(const std::string& target_severity_level, const std::string& 
         severity >= parser.parseEnum(target_severity_level)
             &&
         boost::phoenix::bind(
-          &log_scope_filter,
+          &filter_time_scope,
           boost::log::expressions::attr<boost::log::attributes::named_scope_list>("Scope").or_none(),
           target_scope_level
         )
