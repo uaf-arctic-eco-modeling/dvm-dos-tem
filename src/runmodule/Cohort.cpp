@@ -312,7 +312,7 @@ void Cohort::initialize_state_parameters() {
 
   fire.initializeParameter();
   
-  BOOST_LOG_SEV(glg, debug) << "Done with Cohort::initStatepar()!  " << ground.layer_report_string();
+  BOOST_LOG_SEV(glg, debug) << "Done with Cohort::initStatepar()!  " << ground.layer_report_string("depth thermal ptr desc");
 }
 
 //void Cohort::prepareAllDrivingData() {
@@ -365,7 +365,7 @@ void Cohort::initialize_state_parameters() {
 void Cohort::updateMonthly(const int & yrcnt, const int & currmind,
                            const int & dinmcurr) {
 
-  BOOST_LOG_SEV(glg, debug) << "Cohort::updateMonthly. Year: "
+  BOOST_LOG_SEV(glg, note) << "Cohort::updateMonthly. Year: "
                             << yrcnt << " Month: " << currmind << " dinmcurr: "
                             << dinmcurr;
 
@@ -378,15 +378,15 @@ void Cohort::updateMonthly(const int & yrcnt, const int & currmind,
   cd.beginOfMonth();
   if(md->get_envmodule()) {
   
-    BOOST_LOG_SEV(glg, debug) << "RIGHT BEFORE updateMonthlyEnv()" << ground.layer_report_string();
-
-
-    // FIX: definitely a problem in here that is Making soil temperatures get ridiculously low -19 billion
+    BOOST_LOG_SEV(glg, debug) << "RIGHT BEFORE updateMonthlyEnv()"
+                              << ground.layer_report_string("depth thermal ptr");
   
-    BOOST_LOG_SEV(glg, debug) << "Run the environmental module - updates water/thermal processes to get (bio)physical conditions.";
+    BOOST_LOG_SEV(glg, info) << "Run the environmental module - updates water/thermal processes to get (bio)physical conditions.";
     updateMonthly_Env(currmind, dinmcurr);
     
-    BOOST_LOG_SEV(glg, debug) << "RIGHT AFTER updateMonthlyEnv() yr:"<<yrcnt<<" m:"<<currmind<<" "<< ground.layer_report_string();
+    BOOST_LOG_SEV(glg, debug) << "RIGHT AFTER updateMonthlyEnv() yr:"
+                              << yrcnt << " m:" << currmind << " "
+                              << ground.layer_report_string("depth thermal ptr");
 
   }
 
@@ -484,14 +484,14 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
 
   // (iii) daily light/water processes at plant canopy
   double tdrv, daylength;
-
+  BOOST_LOG_NAMED_SCOPE("D") {
   for(int id = 0; id < dinmcurr; id++) {
     int doy = temutil::day_of_year(currmind, id);
 
     BOOST_LOG_SEV(glg, debug) << "Beginning of Env module's day loop."
                               << " midx=" << currmind
                               << " id=" << id
-                              << " doy=" << doy << ground.layer_report_string();
+                              << " doy=" << doy << ground.layer_report_string("depth thermal hydro ptr");
 
     daylength = temutil::length_of_day(this->lat, doy);
 
@@ -632,7 +632,7 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
         }
       }
     }
-  } // end of day loop in a month
+  }} // end of day loop (and named scope)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////

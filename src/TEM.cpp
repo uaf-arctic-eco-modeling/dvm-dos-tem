@@ -132,7 +132,7 @@ int main(int argc, char* argv[]){
 	}
 
   std::cout << "Setting up logging...\n";
-  setup_logging(args->get_log_level());
+  setup_logging(args->get_log_level(), args->get_log_scope());
 
   BOOST_LOG_SEV(glg, note) << "Checking command line arguments...";
   args->verify(); // stub - doesn't really do anything yet
@@ -148,10 +148,10 @@ int main(int argc, char* argv[]){
 
   modeldata.update(args);
 
-  BOOST_LOG_SEV(glg, warn) << "Running EQ stage: " << modeldata.runeq;
-  BOOST_LOG_SEV(glg, warn) << "Running SP stage: " << modeldata.runsp;
-  BOOST_LOG_SEV(glg, warn) << "Running TR stage: " << modeldata.runtr;
-  BOOST_LOG_SEV(glg, warn) << "Running SC stage: " << modeldata.runsc;
+  BOOST_LOG_SEV(glg, note) << "Running EQ stage: " << modeldata.runeq;
+  BOOST_LOG_SEV(glg, note) << "Running SP stage: " << modeldata.runsp;
+  BOOST_LOG_SEV(glg, note) << "Running TR stage: " << modeldata.runtr;
+  BOOST_LOG_SEV(glg, note) << "Running SC stage: " << modeldata.runsc;
 
 
   /*  
@@ -169,7 +169,7 @@ int main(int argc, char* argv[]){
   // proceeds, there is somewhere to append output data...
   // ??? Maybe the type/shape of outputs that we create can, or should, depend on
   // ??? some of the settings in the ModelData object?
-  BOOST_LOG_SEV(glg, note) << "Creating a fresh 'n clean NEW output file...";
+  BOOST_LOG_SEV(glg, info) << "Creating a fresh 'n clean NEW output file...";
   create_new_output();
   
   time_t stime;
@@ -216,17 +216,17 @@ int main(int argc, char* argv[]){
 
         if (true == mask_value) {
 
-          BOOST_LOG_SEV(glg, debug) << "Running cell (" << rowidx << ", " << colidx << ")";
+          BOOST_LOG_SEV(glg, note) << "Running cell (" << rowidx << ", " << colidx << ")";
 
           //modeldata.initmode = 1; // OBSOLETE?
 
           // Maybe 'cal_mode' should be part of the ModelData config object ??
-          BOOST_LOG_SEV(glg, debug) << "Setup the NEW STYLE RUNNER OBJECT ...";
+          BOOST_LOG_SEV(glg, info) << "Setup the NEW STYLE RUNNER OBJECT ...";
           Runner runner(modeldata, args->get_cal_mode(), rowidx, colidx);
           // A 'new style' runner should come with a properly instantiated
           // Cohort object...
 
-          BOOST_LOG_SEV(glg, debug) << runner.cohort.ground.layer_report_string();
+          BOOST_LOG_SEV(glg, debug) << runner.cohort.ground.layer_report_string("depth thermal");
           //runner.cohort.reinitialize(md->initsource);
 
           // seg fault w/o preparing climate...so prepare year zero...
@@ -236,7 +236,8 @@ int main(int argc, char* argv[]){
 
           runner.cohort.initialize_internal_pointers(); // sets up lots of pointers to various things
           runner.cohort.initialize_state_parameters();  // sets data based on values in cohortlookup
-          BOOST_LOG_SEV(glg, debug) << "right after initialize_internal_pointers() and initialize_state_parameters()" << runner.cohort.ground.layer_report_string();
+          BOOST_LOG_SEV(glg, debug) << "right after initialize_internal_pointers() and initialize_state_parameters()"
+                                    << runner.cohort.ground.layer_report_string("depth ptr");
 
           if (modeldata.runeq) {
             {
@@ -261,12 +262,12 @@ int main(int argc, char* argv[]){
               runner.cohort.md->set_dvmmodule(false);
 
               BOOST_LOG_SEV(glg, debug) << "Ground, right before 'pre-run'. "
-                                        << runner.cohort.ground.layer_report_string();
+                                        << runner.cohort.ground.layer_report_string("depth thermal");
 
               runner.run_years(0, modeldata.pre_run_yrs, "pre-run"); // climate is prepared w/in here.
 
               BOOST_LOG_SEV(glg, debug) << "Ground, right after 'pre-run'"
-                                        << runner.cohort.ground.layer_report_string();
+                                        << runner.cohort.ground.layer_report_string("depth thermal");
 
               if (runner.calcontroller_ptr) {
 

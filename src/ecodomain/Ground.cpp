@@ -136,8 +136,8 @@ std::string Ground::layer_report_string(const std::string& colunm_groups) {
     if ("thermal" == tkn) { thermal_group = true; }
     if ("depth" == tkn) { depth_group = true; }
     if ("CN" == tkn) { CN_group = true; }
-    if ("ptr-table" == tkn) { pointer_table = true; }
-    if ("dest-table" == tkn) { desc_table = true; }
+    if ("ptr" == tkn) { pointer_table = true; }
+    if ("desc" == tkn) { desc_table = true; }
     if ("all" == tkn) {
       depth_group = true;
       thermal_group = true;
@@ -180,6 +180,10 @@ std::string Ground::layer_report_string(const std::string& colunm_groups) {
   }
   if (CN_group) {
     report << std::right << setw(9) << std::setprecision(3) << "rawc" << " ";
+    report << std::right << setw(9) << std::setprecision(3) << "soma" << " ";
+    report << std::right << setw(9) << std::setprecision(3) << "somcr" << " ";
+    report << std::right << setw(9) << std::setprecision(3) << "sompr" << " ";
+    report << std::right << setw(9) << std::setprecision(3) << "ms dmsc" << " ";
   }
   if (pointer_table) {
     report << "SOIL" << "|"
@@ -223,6 +227,10 @@ std::string Ground::layer_report_string(const std::string& colunm_groups) {
     }
     if (CN_group) {
       ls << std::right << setw(9) << std::setprecision(3) << current_layer->rawc << " ";
+      ls << std::right << setw(9) << std::setprecision(3) << current_layer->soma << " ";
+      ls << std::right << setw(9) << std::setprecision(3) << current_layer->somcr << " ";
+      ls << std::right << setw(9) << std::setprecision(3) << current_layer->sompr << " ";
+      ls << std::right << setw(9) << std::setprecision(3) << this->moss.dmossc << " ";
     }
     if (pointer_table) {
       ls << layer2pointertag(current_layer, fstsoill) << ""

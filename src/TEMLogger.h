@@ -59,7 +59,7 @@ BOOST_LOG_GLOBAL_LOGGER(my_logger, src::severity_logger< severity_level >);
  */
 std::ostream& operator<< (std::ostream& strm, severity_level lvl);
 
-void setup_logging(std::string lvl);
+void setup_logging(const std::string& target_severity_level, const std::string& target_scope_level);
 
 void test_log_and_filter_settings();
 
