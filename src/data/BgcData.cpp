@@ -62,7 +62,7 @@ void BgcData::veg_beginOfMonth() {
 };
 
 void BgcData::veg_endOfMonth(const int currmind) {
-  BOOST_LOG_SEV(glg, debug) << "End of month function for veg..(BGC data).";
+  BOOST_LOG_SEV(glg, info) << "End of month function for veg..(BGC data).";
 
 
   if (currmind==11) {

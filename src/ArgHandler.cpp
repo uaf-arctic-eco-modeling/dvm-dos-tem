@@ -56,6 +56,13 @@ void ArgHandler::parse(int argc, char** argv) {
      "Control the verbositiy of the console log statements. Choose one of "
      "the following: debug, info, note, warn, err, fatal.")
 
+    ("log-scope",
+     boost::program_options::value<std::string>(&log_scope)
+       ->default_value("all"),
+     "Control the scope of log messages: monthly, daily, or yearly. With a "
+     "setting of monthly, messages within the monthly (and yearly) scope will "
+     "be shown, but not messages within the daily scope.")
+
     ("fpe,x", boost::program_options::bool_switch(&floating_point_exp),
      "Switch for enabling floating point exceptions. If present, the program "
      "will crash when NaN or Inf are generated.")
