@@ -755,17 +755,20 @@ void Soil_Bgc::deltastate() {
       rhsum  += del_soi2a.rhwdeb;
     }
 
-    // So note that: root death is the reason for deep SOM increment
-    del_sois.rawc[il] = ltrflc[il] - del_soi2a.rhrawc[il] * (1.0+somtoco2);
+    // Only calculate these pools for non-moss layers...
+    if (cd->m_soil.type[il] > 0) {
+      // So note that: root death is the reason for deep SOM increment
+      del_sois.rawc[il] = ltrflc[il] - del_soi2a.rhrawc[il] * (1.0+somtoco2);
 
-    del_sois.soma[il] = (rhsum * somtoco2 * fsoma) -
-                        del_soi2a.rhsoma[il] * (1.0+somtoco2);
+      del_sois.soma[il] = (rhsum * somtoco2 * fsoma) -
+                          del_soi2a.rhsoma[il] * (1.0+somtoco2);
 
-    del_sois.sompr[il] = (rhsum * somtoco2 * fsompr) -
-                         del_soi2a.rhsompr[il] * (1.0+somtoco2);
+      del_sois.sompr[il] = (rhsum * somtoco2 * fsompr) -
+                           del_soi2a.rhsompr[il] * (1.0+somtoco2);
 
-    del_sois.somcr[il] = rhsum*somtoco2*fsomcr -
-                         del_soi2a.rhsomcr[il] * (1.0+somtoco2);
+      del_sois.somcr[il] = rhsum * somtoco2 * fsomcr -
+                           del_soi2a.rhsomcr[il] * (1.0+somtoco2);
+    }
   }
 
   //dead moss, if any
