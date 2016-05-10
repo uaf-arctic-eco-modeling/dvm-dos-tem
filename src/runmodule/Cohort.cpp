@@ -396,7 +396,10 @@ void Cohort::updateMonthly(const int & yrcnt, const int & currmind,
 
   if(md->get_bgcmodule()) {
     BOOST_LOG_SEV(glg, debug) << "Run the BGC processes to get the C/N fluxes.";
+    BOOST_LOG_SEV(glg, debug) << "RIGHT BEFORE updateMonthly_Bgc()" << ground.layer_report_string("depth CN");
     updateMonthly_Bgc(currmind);
+    BOOST_LOG_SEV(glg, debug) << "RIGHT AFTER updateMonthly_Bgc()" << ground.layer_report_string("depth CN");
+
   }
 
   if(md->get_dsbmodule()) {
@@ -678,7 +681,8 @@ void Cohort::updateMonthly_Bgc(const int & currmind) {
     bdall->veg_endOfYear();
   }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
+  BOOST_LOG_SEV(glg, debug) << "RIGHT BEFORE soil integration (midx=" << currmind << "): " << ground.layer_report_string("depth CN desc");
+
   // soil BGC module calling
   soilbgc.prepareIntegration(md->get_nfeed(), md->get_avlnflg(),
                              md->get_baseline());
@@ -689,6 +693,8 @@ void Cohort::updateMonthly_Bgc(const int & currmind) {
 
   //sharing the 'ground' portion in 'bdall' with each pft 'bd'
   assignSoilBd2pfts_monthly();
+  BOOST_LOG_SEV(glg, debug) << "RIGHT AFTER soil integration (midx=" << currmind << "): " << ground.layer_report_string("depth CN desc");
+
 };
 
 void Cohort::updateMonthly_Dsb(const int & yrind, const int & currmind) {
@@ -798,7 +804,9 @@ void Cohort::updateMonthly_DIMveg(const int & currmind, const bool & dvmmodule) 
 /** Dynamic Soil Layer Module Fucntion. */
 void Cohort::updateMonthly_DIMgrd(const int & currmind, const bool & dslmodule) {
   BOOST_LOG_NAMED_SCOPE("DIMgrd");
-  BOOST_LOG_SEV(glg, debug) << "A sample log message in DSL module";
+
+  BOOST_LOG_SEV(glg, debug) << "Beginning of updateMonthly_DIMgrd(midx=" << currmind << "):" << ground.layer_report_string("depth CN desc");
+
   // re-call the 'bdall' soil C contents and assign them to the double-linked layer matrix
   soilbgc.assignCarbonBd2LayerMonthly();
 
@@ -830,10 +838,15 @@ void Cohort::updateMonthly_DIMgrd(const int & currmind, const bool & dslmodule) 
 
   // update soil dimension
   ground.retrieveSoilDimension(&cd.m_soil);
+
   getSoilFineRootFrac_Monthly();
+
   cd.d_soil = cd.m_soil;      //soil dimension remains constant in a month
   // update all soil 'bd' to each pft
+
   assignSoilBd2pfts_monthly();
+  BOOST_LOG_SEV(glg, debug) << "END of updateMonthly_DIMgrd((midx=" << currmind << "):" << ground.layer_report_string("depth CN desc");
+
 }
 
 /** Adjusting fine root fraction in soil */

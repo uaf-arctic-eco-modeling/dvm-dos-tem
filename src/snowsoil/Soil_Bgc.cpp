@@ -563,31 +563,31 @@ void Soil_Bgc::deltac() {
   kmoss = bgcpar.kdmoss;
   del_soi2a.rhmossc = 0.;
 
-  if(tmp_sois.dmossc>0.) {
+  if(tmp_sois.dmossc > 0.0) {
     int il = 0;
     double rhmoist = bd->m_soid.rhmoist[il];
     double rhq10   = bd->m_soid.rhq10[il];
-    del_soi2a.rhmossc = kmoss * tmp_sois.dmossc*rhmoist*rhq10;
+    del_soi2a.rhmossc = kmoss * tmp_sois.dmossc * rhmoist * rhq10;
   }
 
   // for wood debris at ground surface
   del_soi2a.rhwdeb = 0.;
 
-  if(tmp_sois.wdebrisc>0) {
-    double rhmoist_wd =0.;
-    double rhq10_wd =0.;
-    double wdkd =0.;
+  if(tmp_sois.wdebrisc > 0) {
+    double rhmoist_wd = 0.0;
+    double rhq10_wd = 0.0;
+    double wdkd = 0.0;
 
     for (int il =0; il<cd->m_soil.numsl; il++) {
-      if(cd->m_soil.type[il]>0) { //0 moss 1 shlw, and 2 deep
-        rhmoist_wd =bd->m_soid.rhmoist[il] ;
-        rhq10_wd = bd->m_soid.rhq10[il] ;
+      if(cd->m_soil.type[il] > 0) { // 0 moss 1 shlw, and 2 deep
+        rhmoist_wd = bd->m_soid.rhmoist[il];
+        rhq10_wd = bd->m_soid.rhq10[il];
         wdkd = bgcpar.kdrawc[il];
-        break; //Taking the first non-moss layer's only for wood debris
+        break; // Taking the first non-moss layer's only for wood debris
       }
     }
 
-    del_soi2a.rhwdeb =   wdkd* tmp_sois.wdebrisc * rhmoist_wd * rhq10_wd;
+    del_soi2a.rhwdeb = wdkd * tmp_sois.wdebrisc * rhmoist_wd * rhq10_wd;
   }
 };
 
@@ -828,10 +828,10 @@ void Soil_Bgc::deltastate() {
       //        decomposition activity, rather than directly to the
       //        substrate itself, because theorectically this mobile SOM C
       //        should be related to microbial activity
-      double rhsum = del_soi2a.rhrawc[il]+del_soi2a.rhsoma[il]
-                     +del_soi2a.rhsompr[il]+del_soi2a.rhsomcr[il];
+      double rhsum = del_soi2a.rhrawc[il] + del_soi2a.rhsoma[il]
+                     + del_soi2a.rhsompr[il] + del_soi2a.rhsomcr[il];
 
-      if (rhsum>0.) {
+      if (rhsum > 0.0) {
         double totmobile = rhsum*mobiletoco2;
         d2mcarbon += totmobile;
         del_sois.rawc[il]  -= del_soi2a.rhrawc[il]*mobiletoco2;

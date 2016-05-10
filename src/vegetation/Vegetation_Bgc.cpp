@@ -533,7 +533,7 @@ void Vegetation_Bgc::deltanfeed() {
       double tempnuptakeFactor = 0;
       tempnuptakeFactor = inprodcn * (inprodcn - 2*nppall/fmax(1.e-8, nrequireall));  //Tucker: corrected from E.E. 2009 paper and tem-dvm code
       tempnuptake *= tempnuptakeFactor / (tempnuptakeFactor - pow(nppall/nrequireall, 2.0));
-      if (tempnuptake< 0.0 ) {
+      if (tempnuptake < 0.0 ) {
         tempnuptake = 0.0;
       }
 
