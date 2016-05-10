@@ -746,9 +746,9 @@ void Soil_Bgc::deltastate() {
 
     // All products from dead moss C decomposition assumed into the last moss
     // layer or first layer if no moss-layer.
-    if ( cd->m_soil.type[il+1]>0 && (il==0 || cd->m_soil.type[il]==0) ) {
-      rhsum += del_soi2a.rhmossc;
-    }
+    // if ( cd->m_soil.type[il+1] > 0 && (il==0 || cd->m_soil.type[il]==0) ) {
+    //   rhsum += del_soi2a.rhmossc;
+    // }
 
     // All products from debris C decomposition assumed into first layer
     if (il == 0) {
@@ -772,7 +772,7 @@ void Soil_Bgc::deltastate() {
   }
 
   //dead moss, if any
-  del_sois.dmossc = mossdeathc - del_soi2a.rhmossc*(1.0+somtoco2);
+  del_sois.dmossc = mossdeathc - del_soi2a.rhmossc;
   //ground surface wood debris decrement, if any
   del_sois.wdebrisc = d2wdebrisc- del_soi2a.rhwdeb;
   //(II) moving/mixing portion of C among layers
