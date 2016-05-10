@@ -138,14 +138,16 @@ void Runner::log_not_equal(const std::string& a_desc,
   if ( !temutil::AlmostEqualRelative(A, B) ) {
     BOOST_LOG_SEV(glg, err) << "PFT:" << PFT
                             << " " << a_desc << " and " << b_desc
-                            << " not summing correctly.";
+                            << " not summing correctly!"
+                            << " A: "<< A <<" B: "<< B <<" (A-B: "<< A - B <<")";
   }
 
 }
 
 void Runner::log_not_equal(double A, double B, const std::string& msg) {
   if ( !temutil::AlmostEqualRelative(A,B) ) {
-    BOOST_LOG_SEV(glg, err) << msg;
+    BOOST_LOG_SEV(glg, err) << msg
+                            <<" A: "<< A <<" B: "<< B <<" (A-B: "<< A - B <<")";
   }
 }
 
@@ -209,13 +211,13 @@ void Runner::check_sum_over_compartments() {
                   cohort.bd[ip].m_v2a.rg[I_root]);
 
     log_not_equal("whole plant N litterfall", "plant N litterfall PART", ip,
-                  cohort.bd[ip].m_v2soi.ltrfalnall,
+                  cohort.bd[ip].m_v2soi.ltrfalnall + cohort.bd[ip].m_v2soi.mossdeathn,
                   cohort.bd[ip].m_v2soi.ltrfaln[I_leaf] +
                   cohort.bd[ip].m_v2soi.ltrfaln[I_stem] +
                   cohort.bd[ip].m_v2soi.ltrfaln[I_root]);
 
     log_not_equal("whole plant C litterfall", "plant C litterfall PART", ip,
-                  cohort.bd[ip].m_v2soi.ltrfalcall,
+                  cohort.bd[ip].m_v2soi.ltrfalcall + cohort.bd[ip].m_v2soi.mossdeathc,
                   cohort.bd[ip].m_v2soi.ltrfalc[I_leaf] +
                   cohort.bd[ip].m_v2soi.ltrfalc[I_stem] +
                   cohort.bd[ip].m_v2soi.ltrfalc[I_root]);
@@ -271,13 +273,14 @@ void Runner::check_sum_over_PFTs(){
   // sum various quantities over all PFTs
   for (int ip = 0; ip < NUM_PFT; ++ip) {
     ecosystem_C += this->cohort.bd[ip].m_vegs.call;
-    ecosystem_C_by_compartment += (this->cohort.bdall->m_vegs.c[I_leaf] +
-                                   this->cohort.bdall->m_vegs.c[I_stem] +
-                                   this->cohort.bdall->m_vegs.c[I_root]);
+    ecosystem_C_by_compartment += (this->cohort.bd[ip].m_vegs.c[I_leaf] +
+                                   this->cohort.bd[ip].m_vegs.c[I_stem] +
+                                   this->cohort.bd[ip].m_vegs.c[I_root]);
+
     ecosystem_strn += this->cohort.bd[ip].m_vegs.strnall;
-    ecosystem_strn_by_compartment += (this->cohort.bdall->m_vegs.strn[I_leaf] +
-                                      this->cohort.bdall->m_vegs.strn[I_stem] +
-                                      this->cohort.bdall->m_vegs.strn[I_root]);
+    ecosystem_strn_by_compartment += (this->cohort.bd[ip].m_vegs.strn[I_leaf] +
+                                      this->cohort.bd[ip].m_vegs.strn[I_stem] +
+                                      this->cohort.bd[ip].m_vegs.strn[I_root]);
 
     ecosystem_ingpp += this->cohort.bd[ip].m_a2v.ingppall;
     ecosystem_gpp += this->cohort.bd[ip].m_a2v.gppall;
