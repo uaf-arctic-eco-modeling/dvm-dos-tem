@@ -364,6 +364,7 @@ void Ground::initRockLayers() {
   rocklayercreated=true;
 };
 
+/** Note as is, this is not setup to be called after fire! see moss initialization.*/
 void Ground::initSnowSoilLayers() {
   // mineral thickness must be input before calling this
   for(int il = mineralinfo.num - 1; il >= 0; il--) {
@@ -396,10 +397,14 @@ void Ground::initSnowSoilLayers() {
 
     double initmldz[] = {0.0, 0.0};
 
-    initmldz[0] = fmin(0.01, moss.thick); // moss thick in m, which needs input,
-                                          // assuming 0.01 m is living, and the
-                                          // rest is dead
-    initmldz[1] = fmax(0.0, moss.thick - initmldz[0]);
+    // sets living moss (top layer) to 1cm and sets the lower moss layer
+    // thickness based off of the parameterin cmt_dimground.txt
+    if (moss.thick > 0.0) {
+      initmldz[0] = 0.01;
+    } else { // we have no moss...
+      initmldz[0] = 0.0;
+    }
+    initmldz[1] = moss.thick;
 
     int soiltype[] = {-1, -1};
 

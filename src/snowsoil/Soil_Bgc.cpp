@@ -393,11 +393,38 @@ void Soil_Bgc::initOslayerCarbon(double & shlwc, double & deepc) {
       }
 
       if( cumcarbonbot - cumcarbontop > 0.0 ) {
-        if (currl->isOrganic || currl->isMoss) {  // dead moss layers are not regarded as soil organic layers
+        if (currl->isOrganic) {
           currl->rawc  = bgcpar.eqrawc * (cumcarbonbot - cumcarbontop); //note: those eq-fractions of SOM pools must be estimated before
           currl->soma  = bgcpar.eqsoma * (cumcarbonbot - cumcarbontop);
           currl->sompr = bgcpar.eqsompr * (cumcarbonbot - cumcarbontop);
           currl->somcr = bgcpar.eqsomcr * (cumcarbonbot - cumcarbontop);
+        } else if (currl->isMoss) {
+
+          // moss layers are not 'normal' soil organic layers, so contain
+          // no C in the normal soil C pools
+          currl->rawc  = 0.0;
+          currl->soma  = 0.0;
+          currl->sompr = 0.0;
+          currl->somcr = 0.0;
+
+          if (currl->isMoss && currl->nextl->isMoss) {
+
+            // top moss layer, no dead C
+            // (living C is accounted for in the vegetation)
+            ground->moss.dmossc = 0.0;
+
+          } else if (currl->isMoss && !currl->nextl->isMoss) {
+
+            // bottom moss layer, all dead, no living
+            ground->moss.dmossc = chtlu->initdmossc;
+
+          } else {
+            BOOST_LOG_SEV(glg, fatal) << "You should not get here. "
+                                      << "Maybe you have too many moss layers "
+                                      << "specified?";
+            exit(-1);
+          }
+
         } else {
           currl->rawc  = 0.0;
           currl->soma  = 0.0;
@@ -719,30 +746,33 @@ void Soil_Bgc::deltastate() {
 
     // All products from dead moss C decomposition assumed into the last moss
     // layer or first layer if no moss-layer.
-    if ( cd->m_soil.type[il+1]>0 && (il==0 || cd->m_soil.type[il]==0) ) {
-      rhsum += del_soi2a.rhmossc;
-    }
+    // if ( cd->m_soil.type[il+1] > 0 && (il==0 || cd->m_soil.type[il]==0) ) {
+    //   rhsum += del_soi2a.rhmossc;
+    // }
 
     // All products from debris C decomposition assumed into first layer
     if (il == 0) {
       rhsum  += del_soi2a.rhwdeb;
     }
 
-    // So note that: root death is the reason for deep SOM increment
-    del_sois.rawc[il] = ltrflc[il] - del_soi2a.rhrawc[il] * (1.0+somtoco2);
+    // Only calculate these pools for non-moss layers...
+    if (cd->m_soil.type[il] > 0) {
+      // So note that: root death is the reason for deep SOM increment
+      del_sois.rawc[il] = ltrflc[il] - del_soi2a.rhrawc[il] * (1.0+somtoco2);
 
-    del_sois.soma[il] = (rhsum * somtoco2 * fsoma) -
-                        del_soi2a.rhsoma[il] * (1.0+somtoco2);
+      del_sois.soma[il] = (rhsum * somtoco2 * fsoma) -
+                          del_soi2a.rhsoma[il] * (1.0+somtoco2);
 
-    del_sois.sompr[il] = (rhsum * somtoco2 * fsompr) -
-                         del_soi2a.rhsompr[il] * (1.0+somtoco2);
+      del_sois.sompr[il] = (rhsum * somtoco2 * fsompr) -
+                           del_soi2a.rhsompr[il] * (1.0+somtoco2);
 
-    del_sois.somcr[il] = rhsum*somtoco2*fsomcr -
-                         del_soi2a.rhsomcr[il] * (1.0+somtoco2);
+      del_sois.somcr[il] = rhsum * somtoco2 * fsomcr -
+                           del_soi2a.rhsomcr[il] * (1.0+somtoco2);
+    }
   }
 
   //dead moss, if any
-  del_sois.dmossc = mossdeathc - del_soi2a.rhmossc*(1.0+somtoco2);
+  del_sois.dmossc = mossdeathc - del_soi2a.rhmossc;
   //ground surface wood debris decrement, if any
   del_sois.wdebrisc = d2wdebrisc- del_soi2a.rhwdeb;
   //(II) moving/mixing portion of C among layers
