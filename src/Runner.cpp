@@ -32,6 +32,8 @@ Runner::Runner(ModelData mdldata, bool cal_mode, int y, int x):
     this->calcontroller_ptr.reset( new CalController(&this->cohort) );
     this->calcontroller_ptr->clear_and_create_json_storage();
   } // else null??
+
+
   // within-grid cohort-level aggregated 'ed' (i.e. 'edall in 'cht')
   BOOST_LOG_SEV(glg, debug) << "Create some empty containers for 'cohort-level "
                             << "aggregations of 'ed', (i.e. 'edall in 'cohort')";
@@ -128,7 +130,207 @@ void Runner::run_years(int start_year, int end_year, const std::string& stage) {
   }} // end year loop (and named scope
 }
 
+void Runner::log_not_equal(const std::string& a_desc,
+                           const std::string& b_desc,
+                           int PFT,
+                           double A, double B) {
+
+  if ( !temutil::AlmostEqualRelative(A, B) ) {
+    BOOST_LOG_SEV(glg, err) << "PFT:" << PFT
+                            << " " << a_desc << " and " << b_desc
+                            << " not summing correctly!"
+                            << " A: "<< A <<" B: "<< B <<" (A-B: "<< A - B <<")";
+  }
+
+}
+
+void Runner::log_not_equal(double A, double B, const std::string& msg) {
+  if ( !temutil::AlmostEqualRelative(A,B) ) {
+    BOOST_LOG_SEV(glg, err) << msg
+                            <<" A: "<< A <<" B: "<< B <<" (A-B: "<< A - B <<")";
+  }
+}
+
+/** Used to check that sums across PFT compartments match the 
+    corresponding 'all' container.
+
+*/
+void Runner::check_sum_over_compartments() {
+
+  for (int ip = 0; ip < NUM_PFT; ++ip) {
+
+    log_not_equal("whole plant C", "plant C PART", ip,
+                  cohort.bd[ip].m_vegs.call,
+                  cohort.bd[ip].m_vegs.c[I_leaf] +
+                  cohort.bd[ip].m_vegs.c[I_stem] +
+                  cohort.bd[ip].m_vegs.c[I_root]);
+
+    log_not_equal("whole plant strn", "plant strn PART", ip,
+                  cohort.bd[ip].m_vegs.strnall,
+                  cohort.bd[ip].m_vegs.strn[I_leaf] +
+                  cohort.bd[ip].m_vegs.strn[I_stem] +
+                  cohort.bd[ip].m_vegs.strn[I_root]);
+
+    // Not sure what to do about m_vegs.labn and m_vegs.nall?? ???
+
+    log_not_equal("whole plant ingpp", "plant ingpp PART", ip,
+                  cohort.bd[ip].m_a2v.ingppall,
+                  cohort.bd[ip].m_a2v.ingpp[I_leaf] +
+                  cohort.bd[ip].m_a2v.ingpp[I_stem] +
+                  cohort.bd[ip].m_a2v.ingpp[I_root]);
+
+
+    log_not_equal("whole plant gpp", "plant gpp PART", ip,
+                  cohort.bd[ip].m_a2v.gppall,
+                  cohort.bd[ip].m_a2v.gpp[I_leaf] +
+                  cohort.bd[ip].m_a2v.gpp[I_stem] +
+                  cohort.bd[ip].m_a2v.gpp[I_root]);
+
+    log_not_equal("whole plant npp", "plant npp PART", ip,
+                  cohort.bd[ip].m_a2v.nppall,
+                  cohort.bd[ip].m_a2v.npp[I_leaf] +
+                  cohort.bd[ip].m_a2v.npp[I_stem] +
+                  cohort.bd[ip].m_a2v.npp[I_root]);
+
+    log_not_equal("whole plant innpp", "plant innpp PART", ip,
+                  cohort.bd[ip].m_a2v.innppall,
+                  cohort.bd[ip].m_a2v.innpp[I_leaf] +
+                  cohort.bd[ip].m_a2v.innpp[I_stem] +
+                  cohort.bd[ip].m_a2v.innpp[I_root]);
+
+    log_not_equal("whole plant rm", "plant rm PART", ip,
+                  cohort.bd[ip].m_v2a.rmall,
+                  cohort.bd[ip].m_v2a.rm[I_leaf] +
+                  cohort.bd[ip].m_v2a.rm[I_stem] +
+                  cohort.bd[ip].m_v2a.rm[I_root]);
+
+    log_not_equal("whole plant rg", "plant rg PART", ip,
+                  cohort.bd[ip].m_v2a.rgall,
+                  cohort.bd[ip].m_v2a.rg[I_leaf] +
+                  cohort.bd[ip].m_v2a.rg[I_stem] +
+                  cohort.bd[ip].m_v2a.rg[I_root]);
+
+    log_not_equal("whole plant N litterfall", "plant N litterfall PART", ip,
+                  cohort.bd[ip].m_v2soi.ltrfalnall + cohort.bd[ip].m_v2soi.mossdeathn,
+                  cohort.bd[ip].m_v2soi.ltrfaln[I_leaf] +
+                  cohort.bd[ip].m_v2soi.ltrfaln[I_stem] +
+                  cohort.bd[ip].m_v2soi.ltrfaln[I_root]);
+
+    log_not_equal("whole plant C litterfall", "plant C litterfall PART", ip,
+                  cohort.bd[ip].m_v2soi.ltrfalcall + cohort.bd[ip].m_v2soi.mossdeathc,
+                  cohort.bd[ip].m_v2soi.ltrfalc[I_leaf] +
+                  cohort.bd[ip].m_v2soi.ltrfalc[I_stem] +
+                  cohort.bd[ip].m_v2soi.ltrfalc[I_root]);
+
+    log_not_equal("whole plant snuptake", "plant snuptake PART", ip,
+                  cohort.bd[ip].m_soi2v.snuptakeall,
+                  cohort.bd[ip].m_soi2v.snuptake[I_leaf] +
+                  cohort.bd[ip].m_soi2v.snuptake[I_stem] +
+                  cohort.bd[ip].m_soi2v.snuptake[I_root]);
+
+    log_not_equal("whole plant nmobil", "plant nmobil PART", ip,
+                  cohort.bd[ip].m_v2v.nmobilall,
+                  cohort.bd[ip].m_v2v.nmobil[I_leaf] +
+                  cohort.bd[ip].m_v2v.nmobil[I_stem] +
+                  cohort.bd[ip].m_v2v.nmobil[I_root]);
+
+    log_not_equal("whole plant nresorb", "plant nresorb PART", ip,
+                  cohort.bd[ip].m_v2v.nresorball,
+                  cohort.bd[ip].m_v2v.nresorb[I_leaf] +
+                  cohort.bd[ip].m_v2v.nresorb[I_stem] +
+                  cohort.bd[ip].m_v2v.nresorb[I_root]);
+
+  } // end loop over PFTS
+}
+
+/** Sum across PFTs, compare with ecosystem totals (eg data from 'bdall').
+
+Used to add up across all pfts (data held in cohort's bd array of BgcData objects)
+and compare with the data held in cohort's bdall BgcData object.
+*/
+void Runner::check_sum_over_PFTs(){
+
+  double ecosystem_C = 0;
+  double ecosystem_C_by_compartment = 0;
+  //double ecosystem_N = 0; ???
+  double ecosystem_strn = 0;
+  double ecosystem_strn_by_compartment = 0;
+
+  double ecosystem_ingpp = 0;
+  double ecosystem_gpp = 0;
+  double ecosystem_innpp = 0;
+  double ecosystem_npp = 0;
+
+  double ecosystem_rm = 0;
+  double ecosystem_rg = 0;
+
+  double ecosystem_ltrfalc = 0;
+  double ecosystem_ltrfaln = 0;
+  double ecosystem_snuptake = 0;
+  double ecosystem_nmobil = 0;
+  double ecosystem_nresorb = 0;
+
+  // sum various quantities over all PFTs
+  for (int ip = 0; ip < NUM_PFT; ++ip) {
+    ecosystem_C += this->cohort.bd[ip].m_vegs.call;
+    ecosystem_C_by_compartment += (this->cohort.bd[ip].m_vegs.c[I_leaf] +
+                                   this->cohort.bd[ip].m_vegs.c[I_stem] +
+                                   this->cohort.bd[ip].m_vegs.c[I_root]);
+
+    ecosystem_strn += this->cohort.bd[ip].m_vegs.strnall;
+    ecosystem_strn_by_compartment += (this->cohort.bd[ip].m_vegs.strn[I_leaf] +
+                                      this->cohort.bd[ip].m_vegs.strn[I_stem] +
+                                      this->cohort.bd[ip].m_vegs.strn[I_root]);
+
+    ecosystem_ingpp += this->cohort.bd[ip].m_a2v.ingppall;
+    ecosystem_gpp += this->cohort.bd[ip].m_a2v.gppall;
+    ecosystem_innpp += this->cohort.bd[ip].m_a2v.innppall;
+    ecosystem_npp += this->cohort.bd[ip].m_a2v.nppall;
+
+    ecosystem_rm += this->cohort.bd[ip].m_v2a.rmall;
+    ecosystem_rg += this->cohort.bd[ip].m_v2a.rgall;
+
+    ecosystem_ltrfalc += this->cohort.bd[ip].m_v2soi.ltrfalcall;
+    ecosystem_ltrfaln += this->cohort.bd[ip].m_v2soi.ltrfalnall;
+
+    ecosystem_snuptake += this->cohort.bd[ip].m_soi2v.snuptakeall;
+
+    ecosystem_nmobil += this->cohort.bd[ip].m_v2v.nmobilall;
+    ecosystem_nresorb += this->cohort.bd[ip].m_v2v.nresorball;
+
+  }
+
+  // Check that the sums are equal to the Runner level containers (ecosystem totals)
+  log_not_equal(this->cohort.bdall->m_vegs.call, ecosystem_C, "Runner:: ecosystem veg C not matching sum over PFTs!");
+  log_not_equal(this->cohort.bdall->m_vegs.call, ecosystem_C_by_compartment, "Runner:: ecosystem veg C not matching sum over compartments");
+  // ecosystem N?
+  log_not_equal(this->cohort.bdall->m_vegs.strnall, ecosystem_strn, "Runner:: ecosystem strn not matching sum over PFTs!");
+  log_not_equal(this->cohort.bdall->m_vegs.strnall, ecosystem_strn_by_compartment, "Runner:: ecosystem strn not matching sum over compartments!");
+
+  log_not_equal(this->cohort.bdall->m_a2v.ingppall, ecosystem_ingpp, "Runner:: ecosystem npp not matching sum over PFTs!");
+  log_not_equal(this->cohort.bdall->m_a2v.gppall, ecosystem_gpp, "Runner:: ecosystem npp not matching sum over PFTs!");
+  log_not_equal(this->cohort.bdall->m_a2v.innppall, ecosystem_innpp, "Runner:: ecosystem innpp not matching sum over PFTs!");
+  log_not_equal(this->cohort.bdall->m_a2v.nppall, ecosystem_npp, "Runner:: ecosystem npp not matching sum over PFTs!");
+
+  log_not_equal(this->cohort.bdall->m_v2a.rmall, ecosystem_rm, "Runner:: ecosystem rm not matching sum over PFTs!");
+  log_not_equal(this->cohort.bdall->m_v2a.rgall, ecosystem_rg, "Runner:: ecosystem rg not matching sum over PFTs!");
+
+  log_not_equal(this->cohort.bdall->m_v2soi.ltrfalcall, ecosystem_ltrfalc, "Runner:: ecosystem ltrfalc not matching sum over PFTs!");
+  log_not_equal(this->cohort.bdall->m_v2soi.ltrfalnall, ecosystem_ltrfaln, "Runner:: ecosystem ltrfaln not matching sum over PFTs!");
+
+  log_not_equal(this->cohort.bdall->m_soi2v.snuptakeall, ecosystem_snuptake, "Runner:: ecosystem snuptake not matching sum over PFTs!");
+
+  log_not_equal(this->cohort.bdall->m_v2v.nmobilall, ecosystem_nmobil, "Runner:: ecosystem nmobil not matching sum over PFTs!");
+  log_not_equal(this->cohort.bdall->m_v2v.nresorball, ecosystem_nresorb, "Runner:: ecosystem nresorb not matching sum over PFTs!");
+
+}
+
 void Runner::output_caljson_monthly(int year, int month, std::string stage){
+
+  BOOST_LOG_SEV(glg, err) << "========== MONTHLY CHECKSUMMING ============";
+  check_sum_over_compartments();
+  check_sum_over_PFTs();
+  BOOST_LOG_SEV(glg, err) << "========== END MONTHLY CHECKSUMMING ========";
 
   // CAUTION: this->md and this->cohort.md are different instances!
 
@@ -200,6 +402,8 @@ void Runner::output_caljson_monthly(int year, int month, std::string stage){
   data["RHsoma"] = cohort.bdall->m_soi2a.rhsomasum;
   data["RHsompr"] = cohort.bdall->m_soi2a.rhsomprsum;
   data["RHsomcr"] = cohort.bdall->m_soi2a.rhsomcrsum;
+  data["RHwdeb"] = cohort.bdall->m_soi2a.rhwdeb;
+  data["RHmossc"] = cohort.bdall->m_soi2a.rhmossc;
   data["RH"] = cohort.bdall->m_soi2a.rhtot;
 
   data["Burnthick"] = cohort.fd->fire_soid.burnthick;
@@ -211,6 +415,11 @@ void Runner::output_caljson_monthly(int year, int month, std::string stage){
   data["BurnVeg2SoiBlwVegN"] = cohort.fd->fire_v2soi.blwn;
   data["BurnSoi2AirC"] = cohort.fd->fire_soi2a.orgc;
   data["BurnSoi2AirN"] = cohort.fd->fire_soi2a.orgn;
+  data["RawCSum"] = cohort.bdall->m_soid.rawcsum;
+  data["SomaSum"] = cohort.bdall->m_soid.somasum;
+  data["SomcrSum"] = cohort.bdall->m_soid.somcrsum;
+  data["SomprSum"] = cohort.bdall->m_soid.somprsum;
+
 
   /* PFT dependent variables */
   double parDownSum = 0;
@@ -245,6 +454,8 @@ void Runner::output_caljson_monthly(int year, int month, std::string stage){
     data["PFT" + pft_str]["InNitrogenUptake"] = cohort.bd[pft].m_soi2v.innuptake;
     data["PFT" + pft_str]["LuxNitrogenUptake"] = cohort.bd[pft].m_soi2v.lnuptake;
     data["PFT" + pft_str]["TotNitrogenUptake"] = cohort.bd[pft].m_soi2v.snuptakeall + cohort.bd[pft].m_soi2v.lnuptake;
+    data["PFT" + pft_str]["MossDeathC"] = cohort.bd[pft].m_v2soi.mossdeathc;
+
   }
 
   data["PARAbsorbSum"] = parAbsorbSum;
@@ -268,6 +479,13 @@ void Runner::output_caljson_monthly(int year, int month, std::string stage){
 
 
 void Runner::output_caljson_yearly(int year, std::string stage) {
+
+  BOOST_LOG_SEV(glg, err) << "========== YEARLY CHECKSUMMING ============";
+
+  check_sum_over_compartments();
+  check_sum_over_PFTs();
+
+  BOOST_LOG_SEV(glg, err) << "========== END YEARLY CHECKSUMMING ========";
 
   // CAUTION: this->md and this->cohort.md are different instances!
 

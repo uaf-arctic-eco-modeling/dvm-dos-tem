@@ -238,7 +238,7 @@ int Integrator::adapt(float pstate[], const int & numeq) {
   int mflag = 0;
   int nintmon = 0;
   float oldstate[numeq];
-  float  ptol =0.01;
+  float  ptol = 0.01;
   blackhol = 0;
 
   while ( time != 1.0 ) {
@@ -391,15 +391,23 @@ bool Integrator::rkf45( const int& numeq, float pstate[], float& pdt) {
   return true;
 };
 
+/** Copy values from the y array into the model's state veg state variables.
+
+For example the stuff contained in bd->m_vegs.
+
+NOTE:
+  Seems like there is no need to pass the y array here?? Should be accessible
+  as a member of the Integrator? (this).
+*/
 void Integrator::y2cstate_veg(float y[]) {
   for (int i=0; i<NUM_PFT_PART; i++) {
     bd->m_vegs.c[i] = y[I_VEGC+i];
     bd->m_vegs.strn[i] = y[I_STRN+i] ;
   }
 
-  if(y[I_LABN]<0) {
-    y[I_STRN] += y[I_LABN] -0.001;
-    y[I_LABN]= 0.001;
+  if(y[I_LABN] < 0) {
+    y[I_STRN] += y[I_LABN] - 0.001;
+    y[I_LABN] = 0.001;
   }
 
   bd->m_vegs.labn  = y[I_LABN] ;

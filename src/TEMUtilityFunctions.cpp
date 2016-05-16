@@ -11,6 +11,7 @@
 #include <fstream>
 #include <cerrno>
 #include <sstream>
+#include <limits>
 
 #include <netcdfcpp.h>
 
@@ -26,6 +27,30 @@
 extern src::severity_logger< severity_level > glg;
 
 namespace temutil {
+
+  /** For safely comparing floating point numbers.
+    Idea completely taken from here:
+    https://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/
+  */
+  bool AlmostEqualRelative(double A, double B) {
+
+    double maxRelDiff = 2 * std::numeric_limits<double>::epsilon();
+
+    // Calculate the difference.
+    double diff = std::abs(A - B);
+
+    A = std::abs(A);
+    B = std::abs(B);
+
+    // Find the larger of A and B
+    double largest = (B > A) ? B : A;
+
+    if (diff <= largest * maxRelDiff) {
+      return true;
+    } else {
+      return false;
+    }
+  }
   
   /** Sets a negative number to 0.0.
   Can be used with std::for_each to make sure the contents of a

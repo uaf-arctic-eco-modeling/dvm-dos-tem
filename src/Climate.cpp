@@ -630,7 +630,7 @@ void Climate::prepare_daily_driving_data(int iy, const std::string& stage) {
     par_d = monthly2daily(interpolation_range(par, iy));
   }
 
-  BOOST_LOG_SEV(glg, debug) << stage << " tair_d = [" << temutil::vec2csv(tair_d) << "]";
+  //BOOST_LOG_SEV(glg, debug) << stage << " tair_d = [" << temutil::vec2csv(tair_d) << "]";
 
   //Not totally sure if this is right to interpolate (girr and par)
   //GIRR is passed to eq_range for all stages as it has only twelve values.
@@ -682,7 +682,7 @@ void Climate::prepare_daily_driving_data(int iy, const std::string& stage) {
   // abshd_d;
 
   // Dump data to log stream for debugging analysis 
-  this->dailycontainers2log();
+  //this->dailycontainers2log();
 }
 
 /** Print the contents of the monthly containers to the log stream.

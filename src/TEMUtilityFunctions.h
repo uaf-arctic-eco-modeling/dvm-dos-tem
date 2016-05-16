@@ -71,6 +71,7 @@ namespace temutil {
   }
 
 
+  bool AlmostEqualRelative(double A, double B);
 
   void force_negative2zero(float& i);
 
