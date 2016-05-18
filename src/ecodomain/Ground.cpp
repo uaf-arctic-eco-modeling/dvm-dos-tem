@@ -2006,20 +2006,23 @@ void Ground::updateOslThickness5Carbon(Layer* fstsoil) {
         getOslThickness5Carbon(sl, shlwctop, shlwcbot);
         shlwctop = shlwcbot;
       } else if(sl->isMoss) {
-        mosscbot = mossctop + sl->rawc + sl->soma + sl->sompr + sl->somcr;
-
-        if (!sl->nextl->isMoss) {
-          mosscbot += moss.dmossc; //dead moss C, which not included in SOM,
-                                   //  is always in the last moss layer
+        if ( sl->nextl->isMoss ) {
+          // Do nothing.
+          // The upper (living) moss layer has no C and so should
+          // not have its thickness adjusted by C content...
+          //
+          // Maybe thickness of the upper moss layer should be determined by
+          // the veg properties of the moss PFTs?
+        } else {
+          get_dead_moss_thickness_from_C_content(sl, moss.dmossc);
         }
-
-        get_dead_moss_thickness_from_C_content(sl, mosscbot);
       }
 
-      //
-      updateLayerZ(); //'dz' changes, so 'z' needs update for all
-                      //  (index will not change).
-    } else {
+      // Later thickness ('dz') may have changed, so update the 'z'
+      // (top of layer) for all layers.
+      updateLayerZ();
+
+    } else { // is soil layer, but not organic or moss (so mineral)
       break;
     }
 
