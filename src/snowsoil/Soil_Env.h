@@ -1,7 +1,7 @@
 #ifndef SOIL_ENV_H_
 #define SOIL_ENV_H_
 
-#include "Stefan.h"  
+#include "Stefan.h"
 #include "Richards.h"
 #include "TemperatureUpdator.h"
 
@@ -17,58 +17,63 @@
 
 #include "../ecodomain/Ground.h"
 
-class Soil_Env{
-	public:
+class Soil_Env {
+public:
 
-		Soil_Env();
-		~Soil_Env();
+  Soil_Env();
+  ~Soil_Env();
 
-		soipar_env envpar;
-	
-		Richards richards;
-		Stefan stefan;
-		TemperatureUpdator tempupdator;
+  soipar_env envpar;
 
-		void setGround(Ground* grndp);
-		void setCohortData(CohortData* cdp);
-		void setEnvData(EnvData* edp);
-		void setCohortLookup(CohortLookup * chtlup);
+  Richards richards;
+  Stefan stefan;
+  TemperatureUpdator tempupdator;
 
-		void resetDiagnostic();   /*! reset diagnostic variables to initial values */
+  void setGround(Ground* grndp);
+  void setCohortData(CohortData* cdp);
+  void setEnvData(EnvData* edp);
+  void setCohortLookup(CohortLookup * chtlup);
 
-		void initializeParameter();
-		void initializeState();
-		void initializeState5restart(RestartData* resin);
+  void resetDiagnostic();   /*! reset diagnostic variables to initial values */
 
-		void updateDailyGroundT(const double & tdrv, const double & dayl);
-      	void updateDailySM();
+  void initializeParameter();
+  void initializeState();
+  void set_state_from_restartdata(const RestartData & rdata);
 
-      	void getSoilTransFactor(double btran[MAX_SOI_LAY], Layer* fstsoill, const double vrootfr[MAX_SOI_LAY]);
+  void updateDailyGroundT(const double & tdrv, const double & dayl);
+  void updateDailySM();
 
-		void retrieveDailyTM(Layer* toplayer, Layer* lstsoill);
+  void getSoilTransFactor(double btran[MAX_SOI_LAY], Layer* fstsoill,
+                          const double vrootfr[MAX_SOI_LAY]);
 
-	private:
+  void retrieveDailyTM(Layer* toplayer, Layer* lstsoill);
 
-		 Ground * ground;
-		 CohortData * cd;
-		 EnvData * ed;
-		 CohortLookup* chtlu;
-  
-		 void updateDailySurfFlux(Layer* frontl, const double & dayl);
-		 void updateDailySoilThermal4Growth(Layer* fstsoill, const double &tsurface);
-		 void updateLayerStateAfterThermal(Layer* fstsoill, Layer *lstsoill, Layer* botlayer);
+private:
 
-		 void retrieveDailyFronts();
+  Ground * ground;
+  CohortData * cd;
+  EnvData * ed;
+  CohortLookup* chtlu;
 
-		 double getEvaporation(const double & dayl, const double &rad);
-		 double getPenMonET(const double & ta, const double& vpd, const double &irad,
-				const double &rv, const double & rh);
-		 double getWaterTable(Layer* fstsoil);
-		 double getRunoff(Layer* fstsoill, Layer* drainl, const double & rnth, const double & melt);
+  void updateDailySurfFlux(Layer* frontl, const double & dayl);
+  void updateDailySoilThermal4Growth(Layer* fstsoill, const double &tsurface);
+  void updateLayerStateAfterThermal(Layer* fstsoill, Layer *lstsoill,
+                                    Layer* botlayer);
 
-		 // the following codes not used anymore
-		 double getInflFrozen(Layer *fstminl, const double &  rnth, const double & melt);
-		 double updateLayerTemp5Lat(Layer* currl, const double & infil);
+  void retrieveDailyFronts();
+
+  double getEvaporation(const double & dayl, const double &rad);
+  double getPenMonET(const double & ta, const double& vpd, const double &irad,
+                     const double &rv, const double & rh);
+  double getWaterTable(Layer* fstsoil);
+  double getRunoff(Layer* fstsoill, Layer* drainl,
+                   const double & rnth,
+                   const double & melt);
+
+  // the following codes not used anymore
+  double getInflFrozen(Layer *fstminl, const double &  rnth,
+                       const double & melt);
+  double updateLayerTemp5Lat(Layer* currl, const double & infil);
 
 };
 

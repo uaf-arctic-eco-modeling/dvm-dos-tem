@@ -1,56 +1,56 @@
 #ifndef OUTRETRIVE_H_
-	#define OUTRETRIVE_H_
+#define OUTRETRIVE_H_
 
-    #include "Timer.h"
-	#include "ModelData.h"
+#include "ModelData.h"
 
-	#include "../data/EnvData.h"
-	#include "../data/BgcData.h"
-	#include "../data/FirData.h"
+#include "../data/EnvData.h"
+#include "../data/BgcData.h"
+#include "../data/FirData.h"
 
-    #include "../data/RestartData.h"
+#include "../data/RestartData.h"
 
-    #include "../data/OutDataRegn.h"
-    #include "../data/EnvDataDly.h"
+#include "../data/OutDataRegn.h"
+#include "../data/EnvDataDly.h"
 
-	class OutRetrive{
-		public :
-			OutRetrive();
-			~OutRetrive();
+class OutRetrive {
+public :
+  OutRetrive();
+  ~OutRetrive();
 
-			int cohortcount;
+  int cohortcount;
 
-	    	EnvDataDly envoddly[NUM_PFT][31];
-	    	EnvDataDly envoddlyall[31];
+  EnvDataDly envoddly[NUM_PFT][31];
+  EnvDataDly envoddlyall[31];
 
-	    	OutDataRegn * regnod;
+  OutDataRegn * regnod;
 
-	    	RestartData * resod;
+  RestartData * resod;
 
-	    	//
-	    	void setDimensionData(CohortData *cdp);
-	    	void setProcessData(const int &ip, EnvData *edp, BgcData *bdp);
-	    	void setFireData(FirData *fdp);
+  //
+  void setDimensionData(CohortData *cdp);
+  void setProcessData(const int &ip, EnvData *edp, BgcData *bdp);
+  void setFireData(FirData *fdp);
 
-	    	//
-	    	void setRegnOutData(OutDataRegn * regnodp);
-	    	void setRestartOutData(RestartData *resodp);
+  //
+  void setRegnOutData(OutDataRegn * regnodp);
+  void setRestartOutData(RestartData *resodp);
 
-	    	//
-	    	void assignSiteDlyOutputBuffer_Env(snwstate_dim d_snow, const int &ipft, const int &iday);
+  //
+  void assignSiteDlyOutputBuffer_Env(snwstate_dim d_snow, const int &ipft,
+                                     const int &iday);
 
-	    	void updateRegnOutputBuffer(const int &im);
+  void updateRegnOutputBuffer(const int &im);
 
-	    	void updateRestartOutputBuffer();
+  void updateRestartOutputBuffer();
 
-	    private:
-	    	//
-	    	CohortData *cd;
-	    	EnvData *edall;
-	    	BgcData *bdall;
-	    	EnvData *ed[NUM_PFT];
-	    	BgcData *bd[NUM_PFT];
-	    	FirData *fd;
+private:
+  //
+  CohortData *cd;
+  EnvData *edall;
+  BgcData *bdall;
+  EnvData *ed[NUM_PFT];
+  BgcData *bd[NUM_PFT];
+  FirData *fd;
 
 };
 #endif /*COHORT_H_*/

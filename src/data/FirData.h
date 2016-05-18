@@ -10,28 +10,28 @@
 #include "../inc/states.h"
 #include "../inc/timeconst.h"
 
-class FirData{
- 	public:
-        FirData();
-        ~FirData();
+class FirData {
+public:
+  FirData();
+  ~FirData();
 
-        void clear();
+  void clear();
 
-        bool useseverity;
+  bool useseverity;
 
-		soidiag_fir fire_soid;
+  soidiag_fir fire_soid;
 
-		veg2atm_fir fire_v2a;
-		veg2soi_fir fire_v2soi;
+  veg2atm_fir fire_v2a;
+  veg2soi_fir fire_v2soi;
 
-		soi2atm_fir fire_soi2a;
-		atm2soi_fir fire_a2soi;
-  
-	    void init();
-        void beginOfYear();
-        void endOfYear();
-        void burn();
-    
+  soi2atm_fir fire_soi2a;
+  atm2soi_fir fire_a2soi;
+
+  void init();
+  void beginOfYear();
+  void endOfYear();
+  void burn();
+
 };
 
 #endif /*FIRDATA_H_*/

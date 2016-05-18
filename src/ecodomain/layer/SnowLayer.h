@@ -11,28 +11,28 @@
 #include <cmath>
 using namespace std;
 
-class SnowLayer: public Layer{
-	public:
-		SnowLayer();
-		~SnowLayer();
+class SnowLayer: public Layer {
+public:
+  SnowLayer();
+  ~SnowLayer();
 
-		void clone(SnowLayer* sl); /*assign same member to another layer*/
+  void clone(SnowLayer* sl); /*assign same member to another layer*/
 
-		void updateThick();
-		void updateDensity(snwpar_dim *snwpar);
-    
-		virtual double getFrzThermCond(); // get frozen layer thermal conductivity
-		virtual double getUnfThermCond();// get unfrozen layer thermal conductivity
+  void updateThick();
+  void updateDensity(snwpar_dim *snwpar);
 
-		virtual double getFrzVolHeatCapa();// get frozen layer specific heat capcity
-		virtual double getUnfVolHeatCapa();// get unfrozen layer specific heat capacity
+  virtual double getFrzThermCond();//get frozen layer thermal conductivity
+  virtual double getUnfThermCond();//get unfrozen layer thermal conductivity
 
-		virtual double getMixVolHeatCapa();  //Yuan:
+  virtual double getFrzVolHeatCapa();//get frozen layer specific heat capcity
+  virtual double getUnfVolHeatCapa();//get unfrozen layer specific heat capacity
 
-	private:
+  virtual double getMixVolHeatCapa(); //Yuan:
 
-	   double getThermCond5Sturm();
-	   double getThermCond5Jordan();
-	    
+private:
+
+  double getThermCond5Sturm();
+  double getThermCond5Jordan();
+
 };
 #endif /*SNOWLAYER_H_*/

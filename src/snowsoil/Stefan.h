@@ -13,45 +13,54 @@
 
 #include "../util/CrankNicholson.h"
 
-class Stefan{
-	  public:
-		Stefan();
-		~Stefan();
+class Stefan {
+public:
+  Stefan();
+  ~Stefan();
 
-		bool debugging;
-	    int itsumall;
+  int itsumall;
 
-	    void setGround(Ground* grndp);
-	    void initpce();
-		void updateFronts(const double & tdrv, const double &timestep);
+  void setGround(Ground* grndp);
+  void initpce();
+  void updateFronts(const double & tdrv, const double &timestep);
 
-	  private:
+private:
 
-		Ground *ground;
-		Layer *botdrvl;
+  Ground *ground;
+  Layer *botdrvl;
 
-	 	void meltingSnowLayer(double const & tkfront, double & dse,
+  void meltingSnowLayer(double const & tkfront, double & dse,
                         double & sumresabv, const double & tdrv, Layer* currl);
-	 	void processNewFrontSoilLayerDown(const int &frozenstate, double const & sumrescum, double const & tkfront ,
-	 	                double & dse, double & newfntdz, Layer* currl);
-	 	void frontsDequeDown(const double & newfntz, const int & newfnttype);
-	 	void processNewFrontSoilLayerUp(const int &frozenstate, double const & sumrescum, double const & tkfront ,
-	 	                double & dse, double & newfntdz, Layer* currl);
-	 	void frontsDequeUp(const double & newfntz, const int & newfnttype);
 
-	 	double prepareBottomDriving();
+  void processNewFrontSoilLayerDown(const int &frozenstate,
+                                    double const & sumrescum,
+                                    double const & tkfront, double & dse,
+                                    double & newfntdz, Layer* currl);
 
-	 	//get the degree seconds needed to fully freeze/thaw  one or part of one layer
-	 	double getDegSecNeeded( const double & dz, const double & volwat, const double & tk , const double & sumresabv);
-	 	//calculate partial depth based on extra degree seconds
-	 	double getPartialDepth(const double & volwat,const double & tk,
- 								const double & sumresabv, const double & dse);
+  void frontsDequeDown(const double & newfntz, const int & newfnttype);
 
-        void combineExtraFronts();
-        void updateLayerFrozenState(Layer* toplayer);
-        void updateWaterAfterFront(Layer* toplayer);
+  void processNewFrontSoilLayerUp(const int &frozenstate,
+                                  double const & sumrescum,
+                                  double const & tkfront ,
+                                  double & dse, double & newfntdz,
+                                  Layer* currl);
 
- 		
+  void frontsDequeUp(const double & newfntz, const int & newfnttype);
+
+  double prepareBottomDriving();
+
+  //get the degree seconds needed to fully freeze/thaw  one or part of one layer
+  double getDegSecNeeded(const double & dz, const double & volwat,
+                         const double & tk , const double & sumresabv);
+  //calculate partial depth based on extra degree seconds
+  double getPartialDepth(const double & volwat,const double & tk,
+                         const double & sumresabv, const double & dse);
+
+  void combineExtraFronts();
+  void updateLayerFrozenState(Layer* toplayer);
+  void updateWaterAfterFront(Layer* toplayer);
+
+
 };
 
 #endif /*STEFAN_H_*/

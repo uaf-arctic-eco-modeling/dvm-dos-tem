@@ -1,41 +1,89 @@
-README dvm-dos-tem EXTRAPOLATION VERSION
+README for dvm-dos-tem
 ===========================================
 The dvm-dos-tem is a process based bio-geo-chemical ecosystem model.
 
-More info...?
+There are two ways in which you might interact with dvmdostem: 
+performaing an _extrapolation_, or performing a _calibration_. 
 
-Downloading
--------------
-There are several options for downloading or obtaining the model depending on your 
-particular usecase. Dvm-dos-tem is not distributed as a binary file, so you must compile 
-from source code. 
+When performing a calibration, you will evaluate the simulation as it is 
+running. You will also likely be pausing the simulation to adjusting parameters 
+and settings. Calibrations are performed for a single spatial location (a single 
+cohort or grid cell).
 
-* If you anticipate contributing to the code, you should use github to create
-your own fork and then git to "clone" the code.
-* How to: ...download version, keep up to date with sel version...
-* How to: ...download specific commit, no need to contribute or keep up to date...
+When performing an extrapolation the program progresses to completion,
+typically over one or more spatial locations (multiple cohorts, or grid cells). 
+The outputs are analyzed only once the simulation has completed for all
+time-steps and spatial locations.
+
+Requirements and Dependencies
+-----------------------------------------------------------------------------------------
+The following tools/libraries are necessary in order to compile and run dvm-dos-tem
+
+* Boost, including [Boost.Program_options](http://www.boost.org/doc/libs/1_53_0/doc/html/program_options.html)
+* NetCDF, C++ Interface, [NetCDF/Unidata](http://www.unidata.ucar.edu/software/netcdf/)
+* Jsoncpp [https://github.com/open-source-parsers/jsoncpp](https://github.com/open-source-parsers/jsoncpp)
+
+Downloading 
+-----------------------------------------------------------
+We (the Spatial Ecology Lab) are maintaining the main fork of dvm-dos-tem on 
+Github: [https://github.com/ua-snap/dvm-dos-tem](https://github.com/ua-snap/dvm-dos-tem)
+
+The dvm-dos-tem program is not distributed as a binary file, so to run the 
+program, you must download the source code and compile it yourself. 
+
+ * The `master` branch will always contain the latest production version of the
+model. 
+ * The `devel` branch will contain recent developments to the code. We try to 
+ maintain a stable `devel` branch: the code merged into `devel` should always compile 
+ and run, and typically has been reviewed by or discussed with several people in 
+ the lab.
+ 
+We are using Github's Pull Requests to manage contributins to the code.
+
 
 Compiling / Building
------------------------
-This project requires a version of NetCDF and Boost's program options to be installed on 
-your path. Assuming both of those exist, this should work to compile:
+-----------------------------------------------------------------------------
+You have two options for compling the source code:
+
+ * make (and Makefile)
+ * scons (and SConstruct file)
+ 
+Make is a old, widely availabe, powerful program with a somewhat arcane syntax. 
+The Makefile is not setup for partial-compilation, so editing a single file 
+requires and re-making the project will result in re-compiling every single
+file.
+
+Scons is a build program that is written in Python, and designed to be a easier
+to use than make. The scons and the SConstruct file are smart enough to do
+partial builds, so that some changes result in much faster builds.
+
+Both programs can take a flag specifying parallel builds and the number of 
+processors to use (e.g.: `-j4`) for parallel builds.
+
+This project requires a number of libraries are installed and available on your 
+path. For a complete list, see the install commands in `bootstrap-system.sh`
+
+If you have all the requsite libraries installed and available on your path, 
+then either of these commands should work:
 
     $ make
 
 or 
 
-    $ make dvm
+    $ scons
+
+### Notes on build environments
     
-There are some helpful scripts provided in the `env-setup-scripts/` folder that will set 
-a few environment variables for you for specific systems. For instance on aeshna, the 
+There are some helpful scripts provided in the `env-setup-scripts/` folder that will set
+a few environment variables for you for specific systems. For instance on atlas, the
 correct version of NetCDF is not provided as a system package, but the user tobey has
 made it available so that you don't have to compile it yourself. You must set an
-environment variable so that when you compile and run it will look in tobey's directory 
+environment variable so that when you compile and run it will look in tobey's directory
 for the NetCDF library files.
 
-You can either remember to run the setup commands/script each time you logon to the 
-computer where are you are interacting with the model or add a line to your ~/.bashrc 
-or ~/.bash_profile that "sources" the setup script. This makes sure the setup commands
+You can either remember to run the setup commands/script each time you logon to the
+computer where are you are interacting with the model or add a line to your `~/.bashrc`
+or `~/.bash_profile` that "sources" the setup script. This makes sure the setup commands
 are run each time you log on. 
 E.g.
 
@@ -47,117 +95,121 @@ If you are successful getting dvm-dos-tem to compile and run on a different syst
 it would be appreciated if you submit the appropriate setup commands so that other's
 don't have to spend time figuring out those details.
 
-Running
----------
-The program is partially controlled by a set of command line options. The `--help`
-provides some info and shows the defaults:
+Running 
+---------------------------------------------
 
-    $ ./DVMDOSTEM --help
-      -m [ --mode ] arg (=siterun)          change mode between siterun and regnrun
-      -f [ --control-file ] arg (=config/controlfile_site.txt)
+Running `dvmdostem` (operating the model) requires 3 types of "input" information:
+
+1. Driving data (input data)
+2. Parameter values
+3. Configuration options 
+
+Sample driving data is provided in the `DATA/` directory, sample parameters are 
+provided in the `parameters/` directory, and sample configuraiton options are 
+provided in the `config/` directory. More configuration options are available
+via options supplied on the command line when starting the program. The `--help`
+flag provides some info and shows the defaults:
+
+    $ ./dvmdostem --help
+      -c [ --cal-mode ]                     Switch for calibration mode. When this 
+                                            flag is preset, the program will be 
+                                            forced to run a single site and with 
+                                            --loop-order=space-major. The program 
+                                            will generate yearly and monthly 
+                                            '.json' files in your /tmp  directory 
+                                            that are intended to be read by other 
+                                            programs or scripts.
+      -p [ --pre-run-yrs ] arg (=10)        The number of 'pre-run' years.
+      -m [ --max-eq ] arg (=1000)           The maximum number of years to run in 
+                                            equlibrium stage.
+      -o [ --loop-order ] arg (=space-major)
+                                            Which control loop is on the outside: 
+                                            'space-major' or 'time-major'. For 
+                                            example 'space-major' means 'for each 
+                                            cohort, for each year'.
+      -f [ --ctrl-file ] arg (=config/config.js)
                                             choose a control file to use
-      -c [ --cohort-id ] arg (=1)           choose a specific cohort to run
-      -s [ --space-time-config ] arg        choose spatial or temporal running mode
-      -h [ --help ]                         produces helps message
-      -v [ --version ]                      show the version information
-      -d [ --debug ]                        enable debug mode
-
-The DATA/ directory of this project contains some sample data for single site runs and 
-some multi-site runs (multiple grid cells or cohorts). To use the default values, simply
-run the program like this:
-
-    $ ./DVMDOSTEM
+      -l [ --log-level ] arg (=warn)        Control the verbositiy of the console 
+                                            log statements. Choose one of the 
+                                            following: debug, info, note, warn, 
+                                            err, fatal.
+      -x [ --fpe ]                          Switch for enabling floating point 
+                                            exceptions. If present, the program 
+                                            will crash when NaN or Inf are 
+                                            generated.
+      -h [ --help ]                         produces helps message, then quits
 
 
-Developing
------------
-This project is maintained using Git (an open source distributed version control system) 
-and github (a web service that provides hosting for code projects and has tools and idioms
-for collaborative working on code-related projects.
+Documentation
+-----------------------------------------------------------------
+There is a Doxygen file (Doxyfile) included with this project. The current settings are
+for the Doxygen output to be generated in the docs/dvm-dos-tem/ directory.
 
-This project is maintained using the "Fork and Pull" workflow. Following are several 
-common use-cases:
+The file is setup to build a very comprehensive set of documents, including as many
+diagrams as possible (call graphs, dependency diagrams, etc). To build the diagrams,
+Doxygen requires a few extra packages, such as the dot package. This is not available on
+aeshna, so running Doxygen on aeshna will produce a bunch of errors.
 
-* To simply download and use a certain version of the software, no special tools or 
-programs are necessary.
-    
-    Navigate to the project's "Code" view on github, select the branch or tag of the code
-    to get and use the download link.
+Developing 
+----------------------------------------------------
+This project is maintained using Git (an open source distributed version control system)
+and Github (a web service that provides hosting for code projects and has tools and idioms
+for collaborative working on code-related projects).
 
-* If you plan to make changes to the source code that should be incorporated into the 
-Spatial Ecology Lab's main repository, then you will need the program Git on your
-computer. 
+This project is maintained using the "Fork and Pull" workflow. For more 
+on git, forking, pulling, etc, see the wiki.
 
-Git is, at heart, a command line tool, but there are numerous graphic front-ends (GUIs)
-available for Mac, Windows and Linux. If you are using SEL's aeshna cluster, Git is 
-already installed along with two helpful graphical tools, gitk and git-gui. There are 
-Git plugins for many other software development tools as well (e.g. Eclipse). Using the
-graphical tools may be easier if you have a basic familiarity with using Git from the
-command line.
+### Branching Model
 
-Here are two resources for getting and installing git on your computer:
+The SEL maintained repository for dvm-dos-tem uses two special branches: "`master`" and
+"`devel`". The `master` branch is considered the main, stable trunk of the code base. Each
+commit on the `master` branch is considered a "stable" release and will have a version
+number associated with it. The `devel` branch is used for holding recent developments
+that are ready to be shared amongst the SEL group, but for whatever the reason are not yet
+fit for including in the next "version" (release) of the model.
 
-* Github, how to setup Git <https://help.github.com/articles/set-up-git>
-* Git Book, installing git <http://git-scm.com/book/en/Getting-Started-Installing-Git>
+Generally changes are made on topic branches. Then the person who does the change requests
+that their modification be pulled into the SEL `devel` branch. Eventually when the group
+is happy with the `devel` branch, it is merged into `master`, creating the next "version"
+of dvm-dos-tem. This stable `master` branch is an integration point for other projects,
+such as the Alaska Integrated Ecosystem Model project.
 
-In general, the Git Book <http://git-scm.com/book/en/> is a good reference.
+### Coding Style
 
-Then you will need to follow the ideas described here to be able to keep your code
-up-to-date and to be able to contribute changes: <https://help.github.com/articles/fork-a-repo>.
+> TODO: add coding style info...why important, standards, makes diffs easier to read etc.
 
-After installing git on your computer and downloading the source code, here are a number 
-of settings, configurations, and "tweaks" that may be helpful for working with Git and 
-github.
-
-* Maybe start with this (Git Book again): <http://git-scm.com/book/en/Customizing-Git-Git-Configuration>.
-    
-    The settings concerning pager, external editors, and color are particularly useful.
-
-* Install and use gitk and git-gui (These come default with most installations of Git).
-    
-    * Gitk is a history viewer
-    * Git Gui allows you to add changes and commit them to the repository.
-
-* It is helpful if the prompt in your terminal program displays which branch you currently
-have checked out when you enter a directory with a git repository. To do this, you add a
-function to your `.bashrc` file. The `.bashrc` file is a setting file that is present in
-every user's home directory on most Linux like computers. The '.' in the file name makes
-the file "hidden"; use `ls -a` to see the file. If it is not present in your directory,
-you can create it. Add this to your `.bashrc` file:
-
-        \# function to find the current git branch
-        function parse_git_branch {
-            git branch --no-color 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/[\1] /'
-        }
-        
-        \# use parse_git_branch to add the git branch to your terminal prompt
-        PS1=$PS1: $(parse_git_branch)
-
-**NOTE:** You have to remember to reload the `.bashrc` file, either by closing and
-re-opening your terminal window, or typing:
-
-    $ source ~/.bashrc
+* line width max 80 chars
+* use spaces instead of tabs
+* documentation: doxygen style comments
+* commit messages...
+* line endings...
 
 
 ### Workflow
 
-For starters we will try the "integration manager" workflow. This is what is described
-[here](https://help.github.com/articles/fork-a-repo). This means that to get started you
-should first "fork" the project from the github.com/ua-snap/dvm-dos-tem.git repository. 
-This will give you your own dvm-dos-tem repository in your own github account 
-(github.com/YOU/dvm-dos-tem.git). Next you will "clone" from your account to your own 
-machine (where ever you perform your coding work). Finally when you have made changes on 
-your own working machine you will "push" those changes back to _your_ fork. If you would 
-like the changes you made to be incorporated into the shared project
-(github.com/ua-snap/dvm-dos-tem.git), then issue a "pull request" from your github 
-account.
+This project is using the "Integration Manager" workflow described [here](https://help.github.com/articles/fork-a-repo).
+This means that to get started you should first "fork" the project from the 
+github.com/ua-snap/dvm-dos-tem.git repository. This will give you your own dvm-dos-tem
+repository in your own github account (github.com/YOU/dvm-dos-tem.git). Next you will
+"clone" from your account to your own machine (where ever you perform your coding work).
+Finally when you have made changes on your own working machine you will "push" those
+changes back to _your_ fork. If you would like the changes you made to be incorporated
+into the shared project (github.com/ua-snap/dvm-dos-tem.git), then issue a "pull request"
+from your github account. This process is described in detail in the Tutorial
 
-Documentation
--------------
-There is a Doxygen file (Doxyfile) included with this project. The current settings are
-for the Doxygen output to be generated in the docs/dvm-dos-tem/ directory.
 
-The file is setup to build a very comprehensive set of documents, including as many 
-diagrams as possible (call graphs, dependency diagrams, etc). To build the diagrams, 
-Doxygen requires a few extra packages, such as the dot package. This is not available on 
-aeshna, so running Doxygen on aeshna will produce a bunch of errors.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

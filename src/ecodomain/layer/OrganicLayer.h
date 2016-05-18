@@ -1,5 +1,5 @@
 /*! \file
- * 
+ *
  */
 #ifndef ORGANICLAYER_H_
 #define ORGANICLAYER_H_
@@ -10,11 +10,11 @@
 using namespace std;
 
 class OrganicLayer: public SoilLayer {
- public:
+public:
 
- 	OrganicLayer(const double & pdz, const int & type);
+  OrganicLayer(const double & pdz, const int & type);
+  ~OrganicLayer();
+  void humify();
 
-    void humify();
-    
 };
 #endif /*PEATLAYER_H_*/

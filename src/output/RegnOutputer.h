@@ -2,7 +2,7 @@
 #define REGNOUTPUTER_H_
 /*! this class is used to output modeling results in the netcdf format
  * when running TEM at regional-mode (i.e., multiple sites)
- * 
+ *
  */
 
 #include <netcdfcpp.h>
@@ -13,129 +13,130 @@ using namespace std;
 #include "../inc/errorcode.h"
 #include "../data/OutDataRegn.h"
 
-class RegnOutputer{
-	
-	public:
-		RegnOutputer();
-		~RegnOutputer();
-	
- 		void init(string& outputdir, string& stage, int MAX_TIMESTEP);
-  
- 		void outputCohortVars(const int & yrind, const int & chtid, const int & status);
-  
-  		void outputCohortMissing(const int & yrind, const int & chtid);
-  		void setOutData(OutDataRegn *regnodp);
-  		  
-    	NcFile* rFile;
+class RegnOutputer {
 
-	 	NcVar* chtidV;
-	  	NcVar* statusV;
-		NcVar* yearV;
-		NcVar* yrmonV;
-  		NcVar* ysfV;
+public:
+  RegnOutputer();
+  ~RegnOutputer();
 
-   		//
-   		NcVar* growstartV;
-   		NcVar* growendV;
+  void init(string& outputdir, string& stage, int MAX_TIMESTEP);
 
-   		NcVar* vegcovV;
-   		NcVar* vegageV;
-   		NcVar* laiV;
-   		NcVar* vegcV;
-   		NcVar* leafcV;
-   		NcVar* stemcV;
-   		NcVar* rootcV;
-   		NcVar* vegnV;
-   		NcVar* labnV;
-   		NcVar* leafnV;
-   		NcVar* stemnV;
-   		NcVar* rootnV;
+  void outputCohortVars(const int & yrind, const int & chtid,
+                        const int & status);
 
-   		NcVar* gppV;
-   		NcVar* nppV;
-   		NcVar* rhV;
-        NcVar* ltrfalcV;
-        NcVar* ltrfalnV;
+  void outputCohortMissing(const int & yrind, const int & chtid);
+  void setOutData(OutDataRegn *regnodp);
 
-        NcVar* nuptakeV;
+  NcFile* rFile;
 
-        //
-   		NcVar* permafrostV;
+  NcVar* chtidV;
+  NcVar* statusV;
+  NcVar* yearV;
+  NcVar* yrmonV;
+  NcVar* ysfV;
 
-   		NcVar* mossdzV;
-   		NcVar* oshlwdzV;
-   		NcVar* odeepdzV;
-   		NcVar* mineadzV;
-   		NcVar* minebdzV;
-   		NcVar* minecdzV;
+  //
+  NcVar* growstartV;
+  NcVar* growendV;
 
-   		NcVar* oshlwcV;
-   		NcVar* odeepcV;
-   		NcVar* mineacV;
-   		NcVar* minebcV;
-   		NcVar* mineccV;
-   		NcVar* orgnV;
-   		NcVar* avlnV;
+  NcVar* vegcovV;
+  NcVar* vegageV;
+  NcVar* laiV;
+  NcVar* vegcV;
+  NcVar* leafcV;
+  NcVar* stemcV;
+  NcVar* rootcV;
+  NcVar* vegnV;
+  NcVar* labnV;
+  NcVar* leafnV;
+  NcVar* stemnV;
+  NcVar* rootnV;
 
-   		NcVar* netnminV;
+  NcVar* gppV;
+  NcVar* nppV;
+  NcVar* rhV;
+  NcVar* ltrfalcV;
+  NcVar* ltrfalnV;
 
-      	NcVar* orgninputV;
-   		NcVar* avlninputV;
-   		NcVar* orgnlostV;
-   		NcVar* avlnlostV;
-      	NcVar* doclostV;
+  NcVar* nuptakeV;
 
-      	//
-      	NcVar* eetV;
-   		NcVar* petV;
-   		NcVar* qinflV;
-   		NcVar* qdrainV;
-      	NcVar* qrunoffV;
+  //
+  NcVar* permafrostV;
 
-      	NcVar* snwthickV;
-      	NcVar* sweV;
+  NcVar* mossdzV;
+  NcVar* oshlwdzV;
+  NcVar* odeepdzV;
+  NcVar* mineadzV;
+  NcVar* minebdzV;
+  NcVar* minecdzV;
 
-   		NcVar* wtdV;
-   		NcVar* alcV;
-      	NcVar* aldV;
+  NcVar* oshlwcV;
+  NcVar* odeepcV;
+  NcVar* mineacV;
+  NcVar* minebcV;
+  NcVar* mineccV;
+  NcVar* orgnV;
+  NcVar* avlnV;
 
-   		NcVar* vwcshlwV;
-   		NcVar* vwcdeepV;
-   		NcVar* vwcmineaV;
-      	NcVar* vwcminebV;
-      	NcVar* vwcminecV;
+  NcVar* netnminV;
 
-   		NcVar* tshlwV;
-   		NcVar* tdeepV;
-   		NcVar* tmineaV;
-   		NcVar* tminebV;
-   		NcVar* tminecV;
+  NcVar* orgninputV;
+  NcVar* avlninputV;
+  NcVar* orgnlostV;
+  NcVar* avlnlostV;
+  NcVar* doclostV;
 
-   		NcVar* hkshlwV;
-   		NcVar* hkdeepV;
-   		NcVar* hkmineaV;
-   		NcVar* hkminebV;
-   		NcVar* hkminecV;
+  //
+  NcVar* eetV;
+  NcVar* petV;
+  NcVar* qinflV;
+  NcVar* qdrainV;
+  NcVar* qrunoffV;
 
-   		NcVar* tcshlwV;
-   		NcVar* tcdeepV;
-   		NcVar* tcmineaV;
-   		NcVar* tcminebV;
-   		NcVar* tcminecV;
+  NcVar* snwthickV;
+  NcVar* sweV;
 
-   		NcVar* tbotrockV;
+  NcVar* wtdV;
+  NcVar* alcV;
+  NcVar* aldV;
 
-   		//
-   		NcVar* burnthickV;
-   		NcVar* burnsoicV;
-   		NcVar* burnvegcV;
-   		NcVar* burnsoinV;
-   		NcVar* burnvegnV;
-   		NcVar* burnretaincV;
-   		NcVar* burnretainnV;
+  NcVar* vwcshlwV;
+  NcVar* vwcdeepV;
+  NcVar* vwcmineaV;
+  NcVar* vwcminebV;
+  NcVar* vwcminecV;
 
-   		OutDataRegn *regnod;
-   		
+  NcVar* tshlwV;
+  NcVar* tdeepV;
+  NcVar* tmineaV;
+  NcVar* tminebV;
+  NcVar* tminecV;
+
+  NcVar* hkshlwV;
+  NcVar* hkdeepV;
+  NcVar* hkmineaV;
+  NcVar* hkminebV;
+  NcVar* hkminecV;
+
+  NcVar* tcshlwV;
+  NcVar* tcdeepV;
+  NcVar* tcmineaV;
+  NcVar* tcminebV;
+  NcVar* tcminecV;
+
+  NcVar* tbotrockV;
+
+  //
+  NcVar* burnthickV;
+  NcVar* burnsoicV;
+  NcVar* burnvegcV;
+  NcVar* burnsoinV;
+  NcVar* burnvegnV;
+  NcVar* burnretaincV;
+  NcVar* burnretainnV;
+
+  OutDataRegn *regnod;
+
 };
 
 #endif /*REGNOUTPUTER_H_*/
