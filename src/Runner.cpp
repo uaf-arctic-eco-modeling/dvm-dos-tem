@@ -467,7 +467,7 @@ void Runner::output_caljson_monthly(int year, int month, std::string stage){
     parAbsorbSum+=cohort.ed[pft].m_a2v.parabsorb;
     data["PFT" + pft_str]["StNitrogenUptake"] = cohort.bd[pft].m_soi2v.snuptakeall;
     data["PFT" + pft_str]["InNitrogenUptake"] = cohort.bd[pft].m_soi2v.innuptake;
-    data["PFT" + pft_str]["LuxNitrogenUptake"] = cohort.bd[pft].m_soi2v.lnuptake;
+    data["PFT" + pft_str]["LabNitrogenUptake"] = cohort.bd[pft].m_soi2v.lnuptake;
     data["PFT" + pft_str]["TotNitrogenUptake"] = cohort.bd[pft].m_soi2v.snuptakeall + cohort.bd[pft].m_soi2v.lnuptake;
     data["PFT" + pft_str]["MossDeathC"] = cohort.bd[pft].m_v2soi.mossdeathc;
 
@@ -620,7 +620,7 @@ void Runner::output_caljson_yearly(int year, std::string stage) {
     data["PFT" + pft_str]["PARAbsorb"] = cohort.ed[pft].y_a2v.parabsorb;
     data["PFT" + pft_str]["StNitrogenUptake"] = cohort.bd[pft].y_soi2v.snuptakeall;
     data["PFT" + pft_str]["InNitrogenUptake"] = cohort.bd[pft].y_soi2v.innuptake;
-    data["PFT" + pft_str]["LuxNitrogenUptake"] = cohort.bd[pft].y_soi2v.lnuptake;
+    data["PFT" + pft_str]["LabNitrogenUptake"] = cohort.bd[pft].y_soi2v.lnuptake;
     data["PFT" + pft_str]["TotNitrogenUptake"] = cohort.bd[pft].y_soi2v.snuptakeall + cohort.bd[pft].y_soi2v.lnuptake;
   }
 
