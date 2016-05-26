@@ -62,7 +62,7 @@ public:
 
 private:
 
-  bool nfeed; // NOTE: It seems like this us probably supposed to shadow
+  bool nfeed; // NOTE: It seems like this is probably supposed to shadow
   // ModelData.nfeed. Not sure if this should be strictly
   // enforced somehow?
 

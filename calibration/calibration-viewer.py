@@ -968,7 +968,7 @@ if __name__ == '__main__':
 
   print "Parsing command line arguments..."
   args = parser.parse_args()
-  print args
+  #print args
 
   #
   # Start operating based on the command line arguments....

@@ -614,7 +614,7 @@ void Vegetation_Bgc::deltastate() {
   del_vegs.deadc = d2wdebrisc;
 
   for (int i=0; i<NUM_PFT_PART; i++) {
-    del_vegs.c[i] = del_a2v.npp[i] - del_v2soi.ltrfalc[i]; // <- should have moss?
+    del_vegs.c[i] = del_a2v.npp[i] - del_v2soi.ltrfalc[i];
   }
 
   if(nfeed) {
