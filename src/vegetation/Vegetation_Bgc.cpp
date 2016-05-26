@@ -890,12 +890,12 @@ double Vegetation_Bgc::getNuptake(const double & foliage, const double & raq10,
     }
   }
 
-  if (totrz>0.) {
-    meanrzksoil /=totrz;
+  if (totrz > 0.0) {
+    meanrzksoil /= totrz;
   }
 
   // nuptake rate
-  if(totrzliq>0. && totrzavln>0. && meanrzksoil>0.) {
+  if(totrzliq > 0.0 && totrzavln > 0.0 && meanrzksoil > 0.0) {
     // soil condition factor
     nuptake  = meanrzksoil*(totrzavln/totrzliq);
     nuptake /= (kn1 +nuptake);
@@ -906,46 +906,48 @@ double Vegetation_Bgc::getNuptake(const double & foliage, const double & raq10,
     // air temperature factor
     nuptake *= raq10;
   } else {
-    nuptake=0.;
+    nuptake = 0.0;
   }
 
   nuptake *= nmax;
   //need to distribute N uptake for each soil layer based on
   //  root, water, and avail-N distribution
-  double sumrootavln = 0.;
+  double sumrootavln = 0.0;
 
   for(int il =0; il<cd->m_soil.numsl; il++) {
-    fracnuptake[il] = 0.;
+    fracnuptake[il] = 0.0;
 
-    if (cd->m_soil.frootfrac[il][ipft]>0.
-        && bd->m_sois.avln[il]>0. && ed->m_sois.liq[il]>0.) {
-      fracnuptake[il] = cd->m_soil.frootfrac[il][ipft]
-                        *bd->m_sois.avln[il]*ed->m_sois.liq[il];
+    if (cd->m_soil.frootfrac[il][ipft] > 0.0 &&
+        bd->m_sois.avln[il] > 0.0 && ed->m_sois.liq[il] > 0.0) {
+
+      fracnuptake[il] = cd->m_soil.frootfrac[il][ipft] *
+                        bd->m_sois.avln[il] * ed->m_sois.liq[il];
+
     }
 
     sumrootavln +=fracnuptake[il];
   }
 
-  if (sumrootavln>0.) {
-    for(int il =0; il<cd->m_soil.numsl; il++) {
+  if (sumrootavln > 0.0) {
+    for(int il=0; il<cd->m_soil.numsl; il++) {
       fracnuptake[il] /= sumrootavln;
     }
   }
 
   return nuptake;
-};
+}
 
 void Vegetation_Bgc::setCohortLookup(CohortLookup* chtlup) {
   chtlu = chtlup;
-};
+}
 
 void Vegetation_Bgc::setCohortData(CohortData* cdp) {
   cd = cdp;
-};
+}
 
 void Vegetation_Bgc::setEnvData(EnvData* edp) {
   ed = edp;
-};
+}
 
 void Vegetation_Bgc::setBgcData(BgcData* bdp) {
   bd =bdp;
