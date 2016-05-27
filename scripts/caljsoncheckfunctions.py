@@ -371,6 +371,10 @@ def Check_C_cycle_veg_balance(idx, header=False, jd=None, pjd=None):
 
 def Check_C_cycle_veg_vascular_balance(idx, header=False, jd=None, pjd=None):
     '''Should duplicate Vegetation_Bgc::deltastate()'''
+
+    # vascular PFT list (CMT05)
+    pl = [0,1,2,3,4]
+
     if header:
         return '{:<4} {:>4} {:>10} {:>10} {:>15}     {:>10} {:>15} {:>15} {:>15}\n'.format(
                'idx', 'yr', 'err', 'deltaC', 'NPP-LFallC-mdc', 'mdc', 'VegC', 'NPP', 'LFallC' )
@@ -379,18 +383,18 @@ def Check_C_cycle_veg_vascular_balance(idx, header=False, jd=None, pjd=None):
 
         # If we are beyond the first year, load the previous year
         if pjd != None:
-            deltaC = eco_total("VegCarbon", jd, pftlist=[0,1,2,3,4]) - eco_total("VegCarbon", pjd, pftlist=[0,1,2,3,4])
+            deltaC = eco_total("VegCarbon", jd, pftlist=pl) - eco_total("VegCarbon", pjd, pftlist=pl)
 
         # FIll in the table with data...
         return '{:<4d} {:>4} {:>10.3f} {:>10.3f} {:>15.3f}     {:>10.3f} {:>15.3f} {:>15.3f} {:>15.3f}\n'.format(
                 idx,
                 jd['Year'],
-                (ecosystem_total_NPP_vascular(jd) - ecosystem_total_Litterfall_C_vascular(jd) - eco_total("MossDeathC",jd,pftlist=(0,1,2,3,4))) - deltaC,
+                (ecosystem_total_NPP_vascular(jd) - ecosystem_total_Litterfall_C_vascular(jd) - eco_total("MossDeathC",jd,pftlist=pl)) - deltaC,
                 deltaC,
-                ecosystem_total_NPP_vascular(jd) - ecosystem_total_Litterfall_C_vascular(jd) - eco_total("MossDeathC",jd,pftlist=(0,1,2,3,4)),
+                ecosystem_total_NPP_vascular(jd) - ecosystem_total_Litterfall_C_vascular(jd) - eco_total("MossDeathC",jd,pftlist=pl),
 
-                eco_total("MossDeathC",jd, pftlist=(0,1,2,3,4)),
-                eco_total("VegCarbon", jd, pftlist=[0,1,2,3,4]), 
+                eco_total("MossDeathC",jd, pftlist=pl),
+                eco_total("VegCarbon", jd, pftlist=pl), 
                 ecosystem_total_NPP_vascular(jd),
                 ecosystem_total_Litterfall_C_vascular(jd),
             )
@@ -399,6 +403,10 @@ def Check_C_cycle_veg_vascular_balance(idx, header=False, jd=None, pjd=None):
 
 def Check_C_cycle_veg_nonvascular_balance(idx, header=False, jd=None, pjd=None):
     '''Should duplicate Vegetation_Bgc::deltastate()'''
+
+    # non-vascular PFT list (CMT05)
+    pl = [5,6,7]
+
     if header:
         return '{:<4} {:>4} {:>10} {:>10} {:>15}     {:>10} {:>15} {:>15} {:>15}\n'.format(
                'idx', 'yr', 'err', 'deltaC', 'NPP-LFallC-mdc', 'mdc', 'VegC', 'NPP', 'LFallC' )
@@ -407,18 +415,18 @@ def Check_C_cycle_veg_nonvascular_balance(idx, header=False, jd=None, pjd=None):
 
         # If we are beyond the first year, load the previous year
         if pjd != None:
-            deltaC = eco_total("VegCarbon", jd, pftlist=[5,6,7]) - eco_total("VegCarbon", pjd, pftlist=[5,6,7])
+            deltaC = eco_total("VegCarbon", jd, pftlist=pl) - eco_total("VegCarbon", pjd, pftlist=pl)
 
         # FIll in the table with data...
         return '{:<4d} {:>4} {:>10.3f} {:>10.3f} {:>15.3f}     {:>10.3f} {:>15.3f} {:>15.3f} {:>15.3f}\n'.format(
                 idx,
                 jd['Year'],
-                (ecosystem_total_NPP_nonvascular(jd) - ecosystem_total_Litterfall_C_nonvascular(jd) - eco_total("MossDeathC", jd, pftlist=(5,6,7))) - deltaC,
+                (ecosystem_total_NPP_nonvascular(jd) - ecosystem_total_Litterfall_C_nonvascular(jd) - eco_total("MossDeathC", jd, pftlist=pl)) - deltaC,
                 deltaC,
-                ecosystem_total_NPP_nonvascular(jd) - ecosystem_total_Litterfall_C_nonvascular(jd) - eco_total("MossDeathC", jd, pftlist=(5,6,7)),
+                ecosystem_total_NPP_nonvascular(jd) - ecosystem_total_Litterfall_C_nonvascular(jd) - eco_total("MossDeathC", jd, pftlist=pl),
 
-                eco_total("MossDeathC", jd, pftlist=(5,6,7)),
-                eco_total("VegCarbon", jd, pftlist=[5,6,7]), 
+                eco_total("MossDeathC", jd, pftlist=pl),
+                eco_total("VegCarbon", jd, pftlist=pl), 
                 ecosystem_total_NPP_nonvascular(jd),
                 ecosystem_total_Litterfall_C_nonvascular(jd),
             )
