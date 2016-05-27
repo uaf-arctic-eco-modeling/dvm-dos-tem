@@ -1,7 +1,47 @@
 #!/usr/bin/env python
 
+import glob
+import json
 import numpy as np
 
+def compile_table_by_year(test_case):
+
+    # map 'test case' strings to various test and 
+    # reporting functions we have written in the module.
+    function_dict = {
+        'N_soil_balance':             Check_N_cycle_soil_balance,
+        'N_veg_balance':              Check_N_cycle_veg_balance,
+        'C_soil_balance':             Check_C_cycle_soil_balance,
+        'C_veg_balance':              Check_C_cycle_veg_balance,
+        'C_veg_vascular_balance':     Check_C_cycle_veg_vascular_balance,
+        'C_veg_nonvascular_balance':  Check_C_cycle_veg_nonvascular_balance,
+        'report_soil_C':              Report_Soil_C
+    }
+
+    check_func = function_dict[test_case]
+
+    jfiles = glob.glob("/tmp/dvmdostem/calibration/monthly/*.json")
+
+    jfiles = jfiles[:]
+    header = check_func(0, header=True)
+
+    table_data = ""
+    for idx, jfile in enumerate(jfiles):
+        with open(jfile, 'r') as f:
+            jdata = json.load(f)
+
+        prev_jdata = None
+        if idx > 0:
+            with open(jfiles[idx-1], 'r') as prev_jf:
+                prev_jdata = json.load(prev_jf)
+
+        row = check_func(idx, jd=jdata, pjd=prev_jdata, header=False)
+
+        table_data = table_data + row
+
+    full_report = header + table_data
+
+    return full_report
 
 
 def pft_total(jdata):
