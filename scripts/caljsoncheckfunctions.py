@@ -185,13 +185,6 @@ def ecosystem_total_veg_Resorb_R(jdata):
 
 ###################################
 
-def ecosystem_total_Litterfall_C(jdata):
-    '''Add up across all PFTs in an ecosystem'''
-    total_LFC = 0
-    for pft in range(0,10):
-        total_LFC += jdata["PFT%i"%pft]["LitterfallCarbonAll"]
-    return total_LFC
-
 def ecosystem_total_Litterfall_C_vascular(jdata):
     '''BRITTLE INDEX!'''
     total_LFC = 0
@@ -274,11 +267,11 @@ def Check_C_cycle_soil_balance(idx, header=False, jd=None, pjd=None):
                 idx,
                 jd["Month"],
                 jd["Year"],
-                delta_C - (ecosystem_total_Litterfall_C(jd) + eco_total("MossDeathC", jd) - jd["RH"]),
+                delta_C - (eco_total("LitterfallCarbonAll", jd)  + eco_total("MossDeathC", jd) - jd["RH"]),
                 delta_C,
-                ecosystem_total_Litterfall_C(jd) + eco_total("MossDeathC", jd) - jd["RH"],
+                eco_total("LitterfallCarbonAll", jd)  + eco_total("MossDeathC", jd) - jd["RH"],
                 ecosystem_sum_soilC(jd),
-                ecosystem_total_Litterfall_C(jd),
+                eco_total("LitterfallCarbonAll", jd) ,
                 eco_total("MossDeathC", jd),
                 jd['RH'], 
                 (jd['RHsomcr']+jd['RHsompr']+jd['RHsoma']+jd['RHraw']+jd['RHmossc']+jd['RHwdeb']),
@@ -310,7 +303,7 @@ def Report_Soil_C(idx, header=False, jd=None, pjd=None):
                 jd['RHsomcr'],
                 jd['RHmossc'],
                 jd['RHwdeb'],
-                ecosystem_total_Litterfall_C(jd) + jd['MossdeathCarbon'],
+                eco_total("LitterfallCarbonAll", jd)  + jd['MossdeathCarbon'],
                 jd['RawCSum'],
                 jd['SomaSum'],
                 jd['SomprSum'],
@@ -338,14 +331,14 @@ def Check_C_cycle_veg_balance(idx, header=False, jd=None, pjd=None):
         return '{:<4d} {:>4} {:>10.3f} {:>10.3f} {:>15.3f}     {:>10.3f} {:>15.3f} {:>15.3f} {:>15.3f}\n'.format(
                 idx,
                 jd['Year'],
-                (ecosystem_total_NPP(jd) - ecosystem_total_Litterfall_C(jd) - eco_total("MossDeathC", jd)) - deltaC,
+                (eco_total("NPPAll", jd)  - eco_total("LitterfallCarbonAll", jd)  - eco_total("MossDeathC", jd)) - deltaC,
                 deltaC,
-                ecosystem_total_NPP(jd) - ecosystem_total_Litterfall_C(jd) - eco_total("MossDeathC", jd),
+                eco_total("NPPAll", jd)  - eco_total("LitterfallCarbonAll", jd)  - eco_total("MossDeathC", jd),
 
                 eco_total("MossDeathC", jd),
                 eco_total("VegCarbon", jd), 
-                ecosystem_total_NPP(jd),
-                ecosystem_total_Litterfall_C(jd),
+                eco_total("NPPAll", jd) ,
+                eco_total("LitterfallCarbonAll", jd) ,
             )
 
 def Check_C_cycle_veg_vascular_balance(idx, header=False, jd=None, pjd=None):
@@ -368,13 +361,13 @@ def Check_C_cycle_veg_vascular_balance(idx, header=False, jd=None, pjd=None):
         return '{:<4d} {:>4} {:>10.3f} {:>10.3f} {:>15.3f}     {:>10.3f} {:>15.3f} {:>15.3f} {:>15.3f}\n'.format(
                 idx,
                 jd['Year'],
-                (ecosystem_total_NPP_vascular(jd) - ecosystem_total_Litterfall_C_vascular(jd) - eco_total("MossDeathC",jd,pftlist=pl)) - deltaC,
+                (eco_total("NPPAll", jd, pftlist=pl)  - ecosystem_total_Litterfall_C_vascular(jd) - eco_total("MossDeathC",jd,pftlist=pl)) - deltaC,
                 deltaC,
-                ecosystem_total_NPP_vascular(jd) - ecosystem_total_Litterfall_C_vascular(jd) - eco_total("MossDeathC",jd,pftlist=pl),
+                eco_total("NPPAll", jd, pftlist=pl)  - ecosystem_total_Litterfall_C_vascular(jd) - eco_total("MossDeathC",jd,pftlist=pl),
 
                 eco_total("MossDeathC",jd, pftlist=pl),
                 eco_total("VegCarbon", jd, pftlist=pl), 
-                ecosystem_total_NPP_vascular(jd),
+                eco_total("NPPAll", jd, pftlist=pl) ,
                 ecosystem_total_Litterfall_C_vascular(jd),
             )
 
@@ -400,13 +393,13 @@ def Check_C_cycle_veg_nonvascular_balance(idx, header=False, jd=None, pjd=None):
         return '{:<4d} {:>4} {:>10.3f} {:>10.3f} {:>15.3f}     {:>10.3f} {:>15.3f} {:>15.3f} {:>15.3f}\n'.format(
                 idx,
                 jd['Year'],
-                (ecosystem_total_NPP_nonvascular(jd) - ecosystem_total_Litterfall_C_nonvascular(jd) - eco_total("MossDeathC", jd, pftlist=pl)) - deltaC,
+                (eco_total("NPPAll", jd, pftlist=pl)  - ecosystem_total_Litterfall_C_nonvascular(jd) - eco_total("MossDeathC", jd, pftlist=pl)) - deltaC,
                 deltaC,
-                ecosystem_total_NPP_nonvascular(jd) - ecosystem_total_Litterfall_C_nonvascular(jd) - eco_total("MossDeathC", jd, pftlist=pl),
+                eco_total("NPPAll", jd, pftlist=pl)  - ecosystem_total_Litterfall_C_nonvascular(jd) - eco_total("MossDeathC", jd, pftlist=pl),
 
                 eco_total("MossDeathC", jd, pftlist=pl),
                 eco_total("VegCarbon", jd, pftlist=pl), 
-                ecosystem_total_NPP_nonvascular(jd),
+                eco_total("NPPAll", jd, pftlist=pl) ,
                 ecosystem_total_Litterfall_C_nonvascular(jd),
             )
 
