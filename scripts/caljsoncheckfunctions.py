@@ -113,14 +113,6 @@ def pft_total(jdata):
     '''Sum across all PFT compartments, given a "PFT" block of json data'''
     return jdata["Leaf"] + jdata["Stem"] + jdata["Root"]
 
-    
-############################
-def ecosystem_total_veg_N(jdata):
-    tN = 0
-    for pft in range(0,10):
-        tN += jdata["PFT%i"%pft]["NAll"]
-    return tN    
-
 def  ecosystem_total_veg_TotNitrogenUptake(jdata):
     t = 0
     for pft in range(0,10):
@@ -157,12 +149,6 @@ def  ecosystem_total_veg_TotNitrogenUptake(jdata):
 #         tN += pft_total(jdata["PFT%i"%pft]["VegStructuralNitrogen"])
 #     return tN
 
-# def ecosystem_total_veg_N(jdata):
-#     tN = 0
-#     for pft in range(0,10):
-#         tB += pft_total()
-
-###################################
 
 
 def ecosystem_sum_soilC(jdata):
@@ -185,9 +171,8 @@ def Check_N_cycle_veg_balance(idx, header=False, jd=None, pjd=None):
     else:
         deltaN = np.nan
         if pjd != None:
-            deltaN = ecosystem_total_veg_N(jd) - ecosystem_total_veg_N(pjd)
+            deltaN = eco_total("NAll", jd)  - eco_total("NAll", pjd) 
             
-        ecosystem_total_veg_N(jd),
         return  "{:<4} {:>6} {:>10.4f}    {:>10.3f} {:>10.3f} {:>10.3f} {:>10.3f} {:>10.3f}\n".format(
                 idx,
                 jd["Year"],
