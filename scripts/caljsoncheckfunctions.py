@@ -113,27 +113,6 @@ def pft_total(jdata):
     '''Sum across all PFT compartments, given a "PFT" block of json data'''
     return jdata["Leaf"] + jdata["Stem"] + jdata["Root"]
 
-def ecosystem_total_veg_C(jdata):
-    '''Add up across all PFTs in an ecosystem'''
-    total_C = 0
-    for pft in range(0,10):
-        total_C += pft_total(jdata["PFT%i"%pft]["VegCarbon"])
-    return total_C
-
-def ecosystem_total_veg_C_vascular(jdata):
-    '''BRITTLE INDEX!'''
-    total_C = 0
-    for pft in range(0,5):
-        total_C += pft_total(jdata["PFT%i"%pft]["VegCarbon"])
-    return total_C
-
-def ecosystem_total_veg_C_nonvascular(jdata):
-    '''BRITTLE INDEX!'''
-    total_C = 0
-    for pft in range(5,10):
-        total_C += pft_total(jdata["PFT%i"%pft]["VegCarbon"])
-    return total_C
-
 def ecosystem_total_mossdeathc(jdata):
     total_mossdeathc = 0
     for pft in range(0,10):
@@ -392,8 +371,7 @@ def Check_C_cycle_veg_balance(idx, header=False, jd=None, pjd=None):
 
         # If we are beyond the first year, load the previous year
         if pjd != None:
-            deltaC = ecosystem_total_veg_C(jd) - ecosystem_total_veg_C(pjd)
-
+            deltaC = eco_total("VegCarbon", jd) - eco_total("VegCarbon", pjd)
 
         # FIll in the table with data...
         return '{:<4d} {:>4} {:>10.3f} {:>10.3f} {:>15.3f}     {:>10.3f} {:>15.3f} {:>15.3f} {:>15.3f}\n'.format(
@@ -404,7 +382,7 @@ def Check_C_cycle_veg_balance(idx, header=False, jd=None, pjd=None):
                 ecosystem_total_NPP(jd) - ecosystem_total_Litterfall_C(jd) - ecosystem_total_mossdeathc(jd),
 
                 ecosystem_total_mossdeathc(jd),
-                ecosystem_total_veg_C(jd), 
+                eco_total("VegCarbon", jd), 
                 ecosystem_total_NPP(jd),
                 ecosystem_total_Litterfall_C(jd),
             )
@@ -419,7 +397,7 @@ def Check_C_cycle_veg_vascular_balance(idx, header=False, jd=None, pjd=None):
 
         # If we are beyond the first year, load the previous year
         if pjd != None:
-            deltaC = ecosystem_total_veg_C_vascular(jd) - ecosystem_total_veg_C_vascular(pjd)
+            deltaC = eco_total("VegCarbon", jd, pftlist=[0,1,2,3,4]) - eco_total("VegCarbon", pjd, pftlist=[0,1,2,3,4])
 
         # FIll in the table with data...
         return '{:<4d} {:>4} {:>10.3f} {:>10.3f} {:>15.3f}     {:>10.3f} {:>15.3f} {:>15.3f} {:>15.3f}\n'.format(
@@ -430,7 +408,7 @@ def Check_C_cycle_veg_vascular_balance(idx, header=False, jd=None, pjd=None):
                 ecosystem_total_NPP_vascular(jd) - ecosystem_total_Litterfall_C_vascular(jd) - ecosystem_total_mossdeathc_vascular(jd),
 
                 ecosystem_total_mossdeathc_vascular(jd),
-                ecosystem_total_veg_C_vascular(jd), 
+                eco_total("VegCarbon", jd, pftlist=[0,1,2,3,4]), 
                 ecosystem_total_NPP_vascular(jd),
                 ecosystem_total_Litterfall_C_vascular(jd),
             )
@@ -447,7 +425,7 @@ def Check_C_cycle_veg_nonvascular_balance(idx, header=False, jd=None, pjd=None):
 
         # If we are beyond the first year, load the previous year
         if pjd != None:
-            deltaC = ecosystem_total_veg_C_nonvascular(jd) - ecosystem_total_veg_C_nonvascular(pjd)
+            deltaC = eco_total("VegCarbon", jd, pftlist=[5,6,7]) - eco_total("VegCarbon", pjd, pftlist=[5,6,7])
 
         # FIll in the table with data...
         return '{:<4d} {:>4} {:>10.3f} {:>10.3f} {:>15.3f}     {:>10.3f} {:>15.3f} {:>15.3f} {:>15.3f}\n'.format(
@@ -458,7 +436,7 @@ def Check_C_cycle_veg_nonvascular_balance(idx, header=False, jd=None, pjd=None):
                 ecosystem_total_NPP_nonvascular(jd) - ecosystem_total_Litterfall_C_nonvascular(jd) - ecosystem_total_mossdeathc_nonvascular(jd),
 
                 ecosystem_total_mossdeathc_nonvascular(jd),
-                ecosystem_total_veg_C_nonvascular(jd), 
+                eco_total("VegCarbon", jd, pftlist=[5,6,7]), 
                 ecosystem_total_NPP_nonvascular(jd),
                 ecosystem_total_Litterfall_C_nonvascular(jd),
             )
