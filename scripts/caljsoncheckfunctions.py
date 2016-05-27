@@ -112,12 +112,6 @@ def pft_total(jdata):
     '''Sum across all PFT compartments, given a "PFT" block of json data'''
     return jdata["Leaf"] + jdata["Stem"] + jdata["Root"]
 
-def  ecosystem_total_veg_TotNitrogenUptake(jdata):
-    t = 0
-    for pft in range(0,10):
-        t += jdata["PFT%i"%pft]["TotNitrogenUptake"]
-    return t
-
 # def ecosystem_total_veg_LitterfallNitrogenPFT(jdata):
 #     t = 0
 #     for pft in range(0,10):
@@ -174,11 +168,11 @@ def Check_N_cycle_veg_balance(idx, header=False, jd=None, pjd=None):
                 idx,
                 jd["Year"],
                 
-                deltaN - (ecosystem_total_veg_TotNitrogenUptake(jd) - eco_total("LitterfallNitrogenPFT", jd) ),
+                deltaN - (eco_total("TotNitrogenUptake", jd) - eco_total("LitterfallNitrogenPFT", jd) ),
                 #delta vegN: (sum Veg N across (root, stem, leaves)) = NUptake - litterfallC - veg fire emission - deadN
 
                 deltaN,
-                ecosystem_total_veg_TotNitrogenUptake(jd),
+                eco_total("TotNitrogenUptake", jd),
                 eco_total("LitterfallNitrogenPFT", jd) ,
                 eco_total("NMobil", jd) ,
                 eco_total("NResorb", jd) ,
