@@ -221,17 +221,7 @@ def Check_N_cycle_veg_balance(idx, header=False, jd=None, pjd=None):
                 ecosystem_total_veg_Mobile_N(jd),
                 ecosystem_total_veg_Resorb_R(jd),
                 
-
-
-#                 ecosystem_total_veg_StructN(jd),
-#                 ecosystem_total_StNitrogenUptake(jd),
-#                 ecosystem_total_InNitrogenUptake(jd),
-#                 ecosystem_total_LuxNitrogenUptake(jd),
-#                 ecosystem_total_TotNitrogenUptake(jd),
-#                 ecosystem_total_LitterfallNitrogenPFT(jd),
-#                 ecosystem_total_LitterfallNitrogen(jd),
-                # nuptake - litterfall?
-                #delta vegN: (sum Veg N across (root, stem, leaves)) = NUptake - litterfallN - veg fire emission - deadN
+        #delta vegN: (sum Veg N across (root, stem, leaves)) = NUptake - litterfallN - veg fire emission - deadN
         )
 
 
@@ -275,7 +265,7 @@ def Report_Soil_C(idx, header=False, jd=None, pjd=None):
 
         # If we are beyond the first year, load the previous year
         if pjd != None:
-            deltaC = ecosystem_sum_soilC(jd) - ecosystem_sum_soilC(jd)
+            deltaC = ecosystem_sum_soilC(jd) - ecosystem_sum_soilC(pjd)
 
 
         # FIll in the table with data...
