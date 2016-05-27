@@ -4,7 +4,55 @@ import glob
 import json
 import numpy as np
 
-def compile_table_by_year(test_case):
+def run_tests(test_list, **kwargs):
+
+    # write to file (w2f)
+    if 'w2f' in kwargs:
+        outfile = kwargs['w2f']
+    else:
+        outfile = None
+
+    if outfile:
+        folder, fname = os.path.split(outfile)
+        if folder != '':
+
+            try:
+                os.makedirs(folder) # keyword argument 'exists_ok=True' is for python 3.4+
+            except OSError:
+                if not os.path.isdir(folder):
+                    raise
+
+        print "clearing output file: ", outfile
+        with open(outfile, 'w') as f:
+            f.write("")
+
+
+    for t in test_list:
+        title =  "------  %s  ------" % t
+        data = compile_table_by_year(t)
+
+        # print to console (p2c)
+        if 'p2c' in kwargs and kwargs['p2c'] == True:
+            print title
+            print data
+        if outfile != None:
+            with open(outfile, 'a') as f:
+                print "appending to file: ", outfile
+                f.write(title); f.write("\n")
+                f.write(data)
+
+
+def compile_table_by_year(test_case, **kwargs):
+
+    if 'fileslice' in kwargs:
+        slice_string = kwargs['fileslice']
+        # parse string into slice object
+        # https://stackoverflow.com/questions/680826/python-create-slice-object-from-string/681949#681949
+        custom_slice = slice(*map(lambda x: int(x.strip()) if x.strip() else None, slice_string.split(':')))
+    else:
+        custom_slice = slice(None,None,None)
+
+
 
     # map 'test case' strings to various test and 
     # reporting functions we have written in the module.
@@ -22,7 +70,7 @@ def compile_table_by_year(test_case):
 
     jfiles = glob.glob("/tmp/dvmdostem/calibration/monthly/*.json")
 
-    jfiles = jfiles[:]
+    jfiles = jfiles[custom_slice]
     header = check_func(0, header=True)
 
     table_data = ""
