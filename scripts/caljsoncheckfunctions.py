@@ -112,38 +112,6 @@ def pft_total(jdata):
     '''Sum across all PFT compartments, given a "PFT" block of json data'''
     return jdata["Leaf"] + jdata["Stem"] + jdata["Root"]
 
-# def ecosystem_total_veg_LitterfallNitrogenPFT(jdata):
-#     t = 0
-#     for pft in range(0,10):
-#         t += jdata["PFT%i"%pft]["LitterfallNitrogenPFT"]
-#     return t
-
-# def ecosystem_total_StNitrogenUptake(jdata):
-#     t = 0
-#     for pft in range(0,10):
-#         t += jdata["PFT%i"%pft]["StNitrogenUptake"]
-#     return t
-
-# def ecosystem_total_InNitrogenUptake(jdata):
-#     t = 0
-#     for pft in range(0,10):
-#         t += jdata["PFT%i"%pft]["InNitrogenUptake"]
-#     return t
-
-# def ecosystem_total_LuxNitrogenUptake(jdata):
-#     t = 0
-#     for pft in range(0,10):
-#         t += jdata["PFT%i"%pft]["LuxNitrogenUptake"]
-#     return t
-
-# def ecosystem_total_veg_StructN(jdata):
-#     tN = 0
-#     for pft in range(0,10):
-#         tN += pft_total(jdata["PFT%i"%pft]["VegStructuralNitrogen"])
-#     return tN
-
-
-
 def ecosystem_sum_soilC(jdata):
     total_soil_C = 0
     total_soil_C += jdata["CarbonMineralSum"]
