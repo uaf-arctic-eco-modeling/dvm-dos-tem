@@ -305,16 +305,17 @@ def Check_N_cycle_soil_balance(idx, header=False, jd=None, pjd=None):
 
 def Check_C_cycle_soil_balance(idx, header=False, jd=None, pjd=None):
     if header:
-        return '{:<4} {:>4} {:>8} {:>10} {:>10}     {:>10} {:>10} {:>10} {:>10} {:>10}\n'.format(
-               'idx', 'yr', 'err', 'deltaC', 'lf+mdc-rh', 'sum soil C', 'ltrfal', 'mossdeathc', 'RH', 'checksum'
+        return '{:<4} {:>2} {:>4} {:>8} {:>10} {:>10}     {:>10} {:>10} {:>10} {:>10} {:>10}\n'.format(
+               'idx', 'm', 'yr', 'err', 'deltaC', 'lf+mdc-rh', 'sum soil C', 'ltrfal', 'mossdeathc', 'RH', 'checksum'
         )
     else:
         delta_C = np.nan
         if pjd != None:
             delta_C = ecosystem_sum_soilC(jd) - ecosystem_sum_soilC(pjd)
 
-        return "{:<4} {:>4} {:>8.2f} {:>10.2f} {:>10.2f}     {:>10.2f} {:>10.2f} {:>10.2f} {:>10.2f} {:>10.2f}\n".format(
+        return "{:<4} {:>2} {:>4} {:>8.2f} {:>10.2f} {:>10.2f}     {:>10.2f} {:>10.2f} {:>10.2f} {:>10.2f} {:>10.2f}\n".format(
                 idx,
+                jd["Month"],
                 jd["Year"],
                 delta_C - (ecosystem_total_Litterfall_C(jd) + ecosystem_total_mossdeathc(jd) - jd["RH"]),
                 delta_C,
