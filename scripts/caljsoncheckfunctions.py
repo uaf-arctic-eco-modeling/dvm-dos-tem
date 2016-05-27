@@ -133,27 +133,6 @@ def  ecosystem_total_veg_TotNitrogenUptake(jdata):
 #         t += jdata["PFT%i"%pft]["LitterfallNitrogenPFT"]
 #     return t
 
-def ecosystem_total_veg_Litterfall_N(jdata):
-    t = 0
-    for pft in range(0,10):
-        t += jdata["PFT%i"%pft]["LitterfallNitrogenPFT"]
-    return t
-
-
-def ecosystem_total_veg_Mobile_N(jdata):
-    t = 0
-    for pft in range(0,10):
-        t += jdata["PFT%i"%pft]["NMobil"]
-    return t
-
-    
-def ecosystem_total_veg_Resorb_R(jdata):
-    t = 0
-    for pft in range(0,10):
-        t += jdata["PFT%i"%pft]["NResorb"]
-    return t
-
-
 # def ecosystem_total_StNitrogenUptake(jdata):
 #     t = 0
 #     for pft in range(0,10):
@@ -213,13 +192,13 @@ def Check_N_cycle_veg_balance(idx, header=False, jd=None, pjd=None):
                 idx,
                 jd["Year"],
                 
-                deltaN - (ecosystem_total_veg_TotNitrogenUptake(jd) - ecosystem_total_veg_Litterfall_N(jd)),
+                deltaN - (ecosystem_total_veg_TotNitrogenUptake(jd) - eco_total("LitterfallNitrogenPFT", jd) ),
 
                 deltaN,
                 ecosystem_total_veg_TotNitrogenUptake(jd),
-                ecosystem_total_veg_Litterfall_N(jd),
-                ecosystem_total_veg_Mobile_N(jd),
-                ecosystem_total_veg_Resorb_R(jd),
+                eco_total("LitterfallNitrogenPFT", jd) ,
+                eco_total("NMobil", jd) ,
+                eco_total("NResorb", jd) ,
                 
         #delta vegN: (sum Veg N across (root, stem, leaves)) = NUptake - litterfallN - veg fire emission - deadN
         )
