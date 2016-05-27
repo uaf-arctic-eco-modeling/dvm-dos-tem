@@ -71,6 +71,7 @@ def compile_table_by_year(test_case, **kwargs):
 
     jfiles = glob.glob("/tmp/dvmdostem/calibration/monthly/*.json")
 
+    print "Custom file slice:", custom_slice
     jfiles = jfiles[custom_slice]
     header = check_func(0, header=True)
 
@@ -92,6 +93,21 @@ def compile_table_by_year(test_case, **kwargs):
 
     return full_report
 
+def eco_total(key, jdata, **kwargs):
+
+  if 'pftlist' in kwargs:
+    pftlist = kwargs['pftlist']
+  else:
+    pftlist = range(0,10)
+
+  total = 0
+  for pft in ['PFT%i'%i for i in pftlist]:
+    if ( type(jdata[pft][key]) == dict ): # sniff out compartment variables
+      if len(jdata[pft][key]) == 3:
+        total += jdata[pft][key]["Leaf"] + jdata[pft][key]["Stem"] + jdata[pft][key]["Root"]
+    else:
+      total += jdata[pft][key]
+  return total
 
 def pft_total(jdata):
     '''Sum across all PFT compartments, given a "PFT" block of json data'''
