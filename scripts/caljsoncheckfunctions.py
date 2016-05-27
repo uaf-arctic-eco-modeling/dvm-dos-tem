@@ -68,7 +68,6 @@ def compile_table_by_year(test_case, **kwargs):
     }
 
     check_func = function_dict[test_case]
-
     jfiles = glob.glob("/tmp/dvmdostem/calibration/monthly/*.json")
 
     print "Custom file slice:", custom_slice
@@ -160,8 +159,6 @@ def ecosystem_sum_soilC(jdata):
 
     return total_soil_C
 
-#delta vegN: (sum Veg N across (root, stem, leaves)) = NUptake - litterfallC - veg fire emission - deadN
-
 def Check_N_cycle_veg_balance(idx, header=False, jd=None, pjd=None):
     '''Checking....?'''
     if header:
@@ -178,19 +175,19 @@ def Check_N_cycle_veg_balance(idx, header=False, jd=None, pjd=None):
                 jd["Year"],
                 
                 deltaN - (ecosystem_total_veg_TotNitrogenUptake(jd) - eco_total("LitterfallNitrogenPFT", jd) ),
+                #delta vegN: (sum Veg N across (root, stem, leaves)) = NUptake - litterfallC - veg fire emission - deadN
 
                 deltaN,
                 ecosystem_total_veg_TotNitrogenUptake(jd),
                 eco_total("LitterfallNitrogenPFT", jd) ,
                 eco_total("NMobil", jd) ,
                 eco_total("NResorb", jd) ,
-                
-        #delta vegN: (sum Veg N across (root, stem, leaves)) = NUptake - litterfallN - veg fire emission - deadN
         )
 
 
 def Check_N_cycle_soil_balance(idx, header=False, jd=None, pjd=None):
-    pass
+    return ''
+    #return 'NOT IMPLEMENTED YET'
 
 
 def Check_C_cycle_soil_balance(idx, header=False, jd=None, pjd=None):
