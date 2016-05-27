@@ -185,27 +185,6 @@ def ecosystem_total_veg_Resorb_R(jdata):
 
 ###################################
 
-def ecosystem_total_NPP(jdata):
-    '''Add up across all PFTs in an ecosystem'''
-    total_NPP = 0
-    for pft in range(0,10):
-        total_NPP += jdata["PFT%i"%pft]["NPPAll"]
-    return total_NPP
-
-def ecosystem_total_NPP_vascular(jdata):
-    '''BRITTLE INDEX!'''
-    total_NPP = 0
-    for pft in range(0,5):
-        total_NPP += jdata["PFT%i"%pft]["NPPAll"]
-    return total_NPP
-
-def ecosystem_total_NPP_nonvascular(jdata):
-    '''BRITTLE INDEX!'''
-    total_NPP = 0
-    for pft in range(5,10):
-        total_NPP += jdata["PFT%i"%pft]["NPPAll"]
-    return total_NPP
-
 def ecosystem_total_Litterfall_C(jdata):
     '''Add up across all PFTs in an ecosystem'''
     total_LFC = 0
