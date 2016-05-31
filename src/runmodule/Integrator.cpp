@@ -35,19 +35,19 @@ float Integrator::a52 =  -8.0;
 float Integrator::a53 =   7.173489279;
 float Integrator::a54 =  -0.2058966866;
 
-float Integrator::b1 =   0.118518519;
-float Integrator::b3 =   0.518986355;
-float Integrator::b4 =   0.50613149;
-float Integrator::b5 =  -0.18;
-float Integrator::b6 =   0.036363636;
+float Integrator::b1 =    0.118518519;
+float Integrator::b3 =    0.518986355;
+float Integrator::b4 =    0.50613149;
+float Integrator::b5 =   -0.18;
+float Integrator::b6 =    0.036363636;
 float Integrator::b61 =  -0.296296296;
 float Integrator::b62 =   2.0;
 float Integrator::b63 =  -1.381676413;
 float Integrator::b64 =   0.45297271;
 float Integrator::b65 =  -0.275;
 
-int REJECT =0;
-int ACCEPT=1;
+int REJECT = 0;
+int ACCEPT = 1;
 
 Integrator::Integrator() {
   inittol = 0.01;
@@ -422,9 +422,9 @@ void Integrator::y2cstate_soi(float y[]) {
     bd->m_sois.sompr[il]= y[I_L_SOMPR+il];
     bd->m_sois.somcr[il]= y[I_L_SOMCR+il];
 
-    if(y[I_L_AVLN+il]<0) { //add by shuhua Dec 8 2007
-      y[I_L_ORGN+il]+=y[I_L_AVLN+il] -0.001;
-      y[I_L_AVLN+il]=0.001;
+    if(y[I_L_AVLN+il] < 0) { //add by shuhua Dec 8 2007
+      y[I_L_ORGN+il] += y[I_L_AVLN+il] - 0.001;
+      y[I_L_AVLN+il] = 0.001;
     }
 
     bd->m_sois.orgn[il] = y[I_L_ORGN+il];
