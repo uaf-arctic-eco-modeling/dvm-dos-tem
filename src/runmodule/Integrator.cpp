@@ -298,11 +298,13 @@ int Integrator::adapt(float pstate[], const int & numeq) {
   return mflag;
 };
 
+/** Returns False if any pools go negative, otherwise, True/*/
 bool Integrator::rkf45( const int& numeq, float pstate[], float& pdt) {
   int negativepool = -1;
   int i;
   float ptdt = 0;
 
+  // initialize stuff to zero
   for ( i = 0; i < numeq; i++ ) {
     dum4[i] = dum5[i] = pstate[i];
     yprime[i] = rk45[i] = error[i] = 0.0;
@@ -315,9 +317,9 @@ bool Integrator::rkf45( const int& numeq, float pstate[], float& pdt) {
   step( numeq,yprime,f11,yprime,a1 );
   step( numeq,rk45,f11,rk45,b1 );
   step( numeq,dum4,f11,ydum,ptdt );
-  negativepool = checkPools();
 
-  if(negativepool>=0) {
+  negativepool = checkPools();
+  if(negativepool >= 0) {
     return false;
   }
 
@@ -328,8 +330,8 @@ bool Integrator::rkf45( const int& numeq, float pstate[], float& pdt) {
   }
 
   step( numeq,dum4,f13,ydum,pdt );
-  negativepool = checkPools();
 
+  negativepool = checkPools();
   if(negativepool>=0) {
     return false;
   }
@@ -343,8 +345,8 @@ bool Integrator::rkf45( const int& numeq, float pstate[], float& pdt) {
   }
 
   step( numeq,dum4,f14,ydum,pdt );
-  negativepool = checkPools();
 
+  negativepool = checkPools();
   if(negativepool>=0) {
     return false;
   }
@@ -358,8 +360,8 @@ bool Integrator::rkf45( const int& numeq, float pstate[], float& pdt) {
   }
 
   step( numeq,dum4,f15,ydum,pdt );
-  negativepool = checkPools();
 
+  negativepool = checkPools();
   if(negativepool>=0) {
     return false;
   }
@@ -373,8 +375,8 @@ bool Integrator::rkf45( const int& numeq, float pstate[], float& pdt) {
   }
 
   step( numeq,dum4,f16,ydum,pdt );
-  negativepool = checkPools();
 
+  negativepool = checkPools();
   if(negativepool>=0) {
     return false;
   }
@@ -689,6 +691,9 @@ int Integrator::checkPools() {
   return negativepool;
 };
 
+/** Returns the index/key of the first variable it encounteres with error
+    above some threshold.
+*/
 int Integrator::boundcon( float ptstate[], float err[], float& ptol ) {
   int test = ACCEPT;
   double same = 0.;

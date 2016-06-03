@@ -438,7 +438,7 @@ void Runner::output_caljson_monthly(int year, int month, std::string stage){
     char pft_chars[5];
     sprintf(pft_chars, "%d", pft);
     std::string pft_str = std::string(pft_chars);
-    //c++0x equivalent: std::string pftvalue = std::to_string(pft);
+    // c++0x equivalent: std::string pftvalue = std::to_string(pft);
     data["PFT" + pft_str]["VegCarbon"]["Leaf"] = cohort.bd[pft].m_vegs.c[I_leaf];
     data["PFT" + pft_str]["VegCarbon"]["Stem"] = cohort.bd[pft].m_vegs.c[I_stem];
     data["PFT" + pft_str]["VegCarbon"]["Root"] = cohort.bd[pft].m_vegs.c[I_root];

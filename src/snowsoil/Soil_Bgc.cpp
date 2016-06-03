@@ -719,7 +719,7 @@ void Soil_Bgc::deltan() {
         del_soi2l.orgnlost  += bd->m_soid.orgnsum - orgneven;
       }
     } // End baseline
-  }
+  } // end if (nfeed)
 };
 
 void Soil_Bgc::deltastate() {
@@ -929,7 +929,7 @@ void Soil_Bgc::deltastate() {
     for(int il = 0; il<cd->m_soil.numsl; il++) {
       // organic N pools
       //del_orgn[il] is from above SOM C mixing and moving
-      del_sois.orgn[il]= ltrfln[il] - del_soi2soi.netnmin[il] + del_orgn[il];
+      del_sois.orgn[il] = ltrfln[il] - del_soi2soi.netnmin[il] + del_orgn[il];
 
       if (cd->m_soil.type[il] == 0 && cd->m_soil.type[il+1] > 0) {
         // dead moss decomposition product is into the last moss layer
