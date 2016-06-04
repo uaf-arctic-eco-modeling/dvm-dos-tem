@@ -204,8 +204,8 @@ void Soil_Bgc::prepareIntegration(const bool &mdnfeedback,
 
 void Soil_Bgc::afterIntegration() {
   for(int i=0; i<cd->m_soil.numsl; i++) {
-    bd->m_soid.tsomc[i] = bd->m_sois.rawc[i]+bd->m_sois.soma[i]
-                          +bd->m_sois.sompr[i]+bd->m_sois.somcr[i];
+    bd->m_soid.tsomc[i] = bd->m_sois.rawc[i] + bd->m_sois.soma[i]
+                          + bd->m_sois.sompr[i] + bd->m_sois.somcr[i];
   }
 };
 
@@ -915,7 +915,7 @@ void Soil_Bgc::deltastate() {
       }
 
       if (this->nfeed == 1) {
-        del_orgn[il]=d2morgn *dcaddfrac;
+        del_orgn[il] = d2morgn * dcaddfrac;
       }
 
       if (mlleft<=0.0) {

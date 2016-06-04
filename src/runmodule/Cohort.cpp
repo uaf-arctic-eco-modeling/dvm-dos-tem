@@ -693,7 +693,7 @@ void Cohort::updateMonthly_Bgc(const int & currmind) {
 
   //sharing the 'ground' portion in 'bdall' with each pft 'bd'
   assignSoilBd2pfts_monthly();
-  BOOST_LOG_SEV(glg, debug) << "RIGHT AFTER soil integration (midx=" << currmind << "): " << ground.layer_report_string("depth CN desc");
+  BOOST_LOG_SEV(glg, debug) << "RIGHT AFTER soil integration (midx=" << currmind << "): " << ground.layer_report_string("depth CN desc hydro");
 
 };
 
@@ -899,7 +899,7 @@ void Cohort::getSoilFineRootFrac_Monthly() {
       }
     }
   }
-};
+}
 
 double Cohort::assignSoilLayerRootFrac(const double & topz, const double & botz,
                                        const double cumrootfrac[MAX_ROT_LAY],
@@ -924,14 +924,14 @@ double Cohort::assignSoilLayerRootFrac(const double & topz, const double & botz,
     }
   }
 
-  //calculating fine root fraction in a layer by linearly interpolation
+  // Calculating fine root fraction in a layer by linear interpolation
   double frfrac=0.;
   double sumfractop = 0.0;
   double sumfracbot = 0.0;
 
   if (indxtop >= 0. && indxbot>=0) {
     if (indxtop == 0) {
-      sumfractop = cumrootfrac[indxtop]/dzrotlay[indxtop]*topz;
+      sumfractop = (cumrootfrac[indxtop] / dzrotlay[indxtop]) * topz;
     } else {
       sumfractop = (cumrootfrac[indxtop]-cumrootfrac[indxtop-1])
                    / dzrotlay[indxtop]
