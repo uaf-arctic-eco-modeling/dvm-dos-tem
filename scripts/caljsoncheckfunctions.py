@@ -153,33 +153,38 @@ def ecosystem_sum_soilC(jdata):
 def Check_N_cycle_veg_balance(idx, header=False, jd=None, pjd=None):
     '''Checking....?'''
     if header:
-        return "{:<4} {:>6} {:>10} {:>10}   {:>10} {:>10} {:>10} {:>10} {:>10}\n".format(
-                "idx", "yr", "err1", "err2", "deltaN", "totalNuptake", "LitterfallN", "Nmobile", "Nresorb"
+        return "{:<4} {:>6} {:>10} {:>10} {:>10} {:>10} {:>10} {:>10} {:>10} {:>10} {:>10}\n".format(
+                "idx", "yr", "errT", "errS", "errL", "deltaN", "delNStr", "delNLab", "sumFlxT","sumFlxS", "sumFlxL"
         )
     else:
         deltaN = np.nan
+        deltaN_str = np.nan
+        deltaN_lab = np.nan
+
         if pjd != None:
-            deltaN = eco_total("NAll", jd)  - eco_total("NAll", pjd) 
+          deltaN = eco_total("NAll", jd)  - eco_total("NAll", pjd) 
+          deltaN_str = eco_total("VegStructuralNitrogen", jd) - eco_total("VegStructuralNitrogen", pjd) # <-- will sum compartments
+          deltaN_lab = eco_total("VegLabileNitrogen", jd) - eco_total("VegLabileNitrogen", pjd)
             
-        delta_str_N = jd["StNitrogenUptakeAll"] - eco_total("LitterfallNitrogenPFT", jd) + eco_total("NMobil", jd) -  eco_total("NResorb", jd)
+        sum_str_N_flux = jd["StNitrogenUptakeAll"] - eco_total("LitterfallNitrogenPFT", jd) + eco_total("NMobil", jd) -  eco_total("NResorb", jd)
+        sum_lab_N_flux = eco_total("LabNitrogenUptake", jd) + eco_total("NResorb", jd) - eco_total("NMobil", jd) 
 
-        delta_lab_N = eco_total("LabNitrogenUptake", jd) + eco_total("NResorb", jd) - eco_total("NMobil", jd) 
 
-        return  "{:<4} {:>6} {:>10.4f} {:>10.4f}    {:>10.3f} {:>10.3f} {:>10.3f} {:>10.3f} {:>10.3f}\n".format(
+        return  "{:<4} {:>6} {:>10.4f} {:>10.4f} {:>10.3f} {:>10.4f} {:>10.4f} {:>10.3f} {:>10.4f} {:>10.4f} {:>10.3f}\n".format(
                 idx,
                 jd["Year"],
-                # err 1
-                deltaN - (eco_total("TotNitrogenUptake", jd) + eco_total("LitterfallNitrogenPFT", jd) ),
-                # err 2
-                deltaN - (delta_str_N + delta_lab_N),                  
-                #delta vegN: (sum Veg N across (root, stem, leaves)) = NUptake - litterfallC - veg fire emission - deadN
+
+                deltaN - eco_total("TotNitrogenUptake", jd) + eco_total("LitterfallNitrogenPFT", jd),
+                deltaN_str - (eco_total("StNitrogenUptake", jd) + eco_total("NMobil", jd)) + (eco_total("LitterfallNitrogenPFT", jd) + eco_total("NResorb", jd)),
+                deltaN_lab - (eco_total("LabNitrogenUptake", jd) + eco_total("NResorb", jd)) + eco_total("NMobil", jd),
 
                 deltaN,
-                eco_total("TotNitrogenUptake", jd),
-                eco_total("LitterfallNitrogenPFT", jd) ,
-                eco_total("NMobil", jd) , # fluxes at play in both structural N and labile N...maybe cancel eachother out...
-                eco_total("NResorb", jd) ,
+                deltaN_str,
+                deltaN_lab,
 
+                sum_str_N_flux + sum_lab_N_flux,
+                sum_str_N_flux,
+                sum_lab_N_flux,
 
         )
 
