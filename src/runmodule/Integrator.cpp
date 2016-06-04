@@ -229,13 +229,15 @@ void Integrator::c2ystate_soi(float y[]) {
   y[I_DMOSSN] = bd->m_sois.dmossn;
 };
 
+
+/** Has some mechanism to check error and change step-size accordingly */
 int Integrator::adapt(float pstate[], const int & numeq) {
   int i;
   float ipart;
   float fpart;
   float time = 0.0;
   float dt = 1.0;
-  int mflag = 0;
+  int mflag = 0;        // <--not sure what this is used for?
   int nintmon = 0;
   float oldstate[numeq];
   float  ptol = 0.01;
@@ -246,7 +248,9 @@ int Integrator::adapt(float pstate[], const int & numeq) {
 
     if ( syint == 1 ) {
       while ( test != ACCEPT ) {
-        bool testavln = rkf45(numeq,pstate,dt);
+
+        // false indicates that some pool went negative....
+        bool testavln = rkf45(numeq, pstate, dt);
 
         if(testavln) {
           test = boundcon( dum4,error,ptol );
@@ -255,7 +259,9 @@ int Integrator::adapt(float pstate[], const int & numeq) {
         }
 
         //if(test>1)cout <<predstr[test-1] << " error is " << error[test-1] <<"------Integrator-------\n";
-        if ( dt <= pow(0.5,maxit) ) {
+
+        // Step size is already super small - accept the result
+        if ( dt <= pow(0.5, maxit) ) { // w/ maxit=20 --> ~0.00000095357
           test = ACCEPT;
           mflag = 1;
 
@@ -268,6 +274,7 @@ int Integrator::adapt(float pstate[], const int & numeq) {
           ++nintmon;
         }
 
+        // We are keeping this one...
         if ( test == ACCEPT ) {
           for( i = 0; i < numeq; i++ ) {
             pstate[i] = dum4[i];
@@ -291,9 +298,9 @@ int Integrator::adapt(float pstate[], const int & numeq) {
             pstate[i] = oldstate[i];
           }
         }
-      }
-    }    /* end rkf integrator (if) */
-  }      /* end time while */
+      } // end while test != accept
+    } // end syint loop
+  } // end time while
 
   return mflag;
 };
@@ -506,10 +513,13 @@ void Integrator::delta(float pstate[], float pdstate[]) {
     // update the delta of state
     ssl->deltastate();
     // assign fluxes and state back to pdstate
-    dc2ystate_soi(pdstate);
+    dc2ystate_soi(pdstate);   // copies from ssl->del_ arrays to pdstate
     dc2yflux_soi(pdstate);
   }
-};
+}
+
+
+
 
 void Integrator::y2tcstate_veg(float pstate[]) {
   for (int i=0; i<NUM_PFT_PART; i++) {
