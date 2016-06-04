@@ -233,13 +233,25 @@ void Soil_Bgc::initializeState() {
 
     // Available N should only be calculated where roots are actively
     // turning over (ie, root zone)
+    bool root_presence = false;
+    double sum_root_frac = 0.0;
+    for (int ipft=0; ipft<NUM_PFT; ++ipft) {
+      sum_root_frac += cd->m_soil.frootfrac[il][ipft];
+    }
+    if (sum_root_frac > 0.0) {
+      root_presence = true;
+    }
+
     if (total_monthly_C > 0.0 && sum_total_C > 0.0) {
-      if(bd->m_v2soi.rtlfalfrac[il] > 0.0) {
+
+      if (root_presence) {
         bd->m_sois.avln[il] = chtlu->initavln * total_monthly_C/sum_total_C;
       } else {
         bd->m_sois.avln[il] = 0.0;
       }
+
       bd->m_sois.orgn [il] = chtlu->initsoln * total_monthly_C/sum_total_C;
+
     } else {
       bd->m_sois.avln [il] = 0.0;
       bd->m_sois.orgn [il] = 0.0;

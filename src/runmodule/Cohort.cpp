@@ -298,6 +298,8 @@ void Cohort::initialize_state_parameters() {
 
   solprntenv.initializeState();
 
+  this->getSoilFineRootFrac_Monthly();
+
   // initializing soil bgc state conditions
   soilbgc.initializeState();
 
