@@ -118,6 +118,10 @@ private:
   bool dsbmodule;  // disturbance module on/off
   bool friderived; // option for switching Grid-level fire occurrence (upon FRI)
 
+  // Note: the dsl module ON lets the thickness, number and type of layers
+  //       change. With dsl module OFF, the C and N content will change, but
+  //       the thickness and number of layers should not change.
+
 };
 
 #endif /*MODELDATA_H_*/

@@ -142,7 +142,7 @@ private:
   int maxitmon;
   int retry;
 
-  int syint;
+  int syint; // << -- Appears to be unused??
   int test;
 
   float y[NUMEQ];

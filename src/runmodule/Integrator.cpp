@@ -251,7 +251,7 @@ int Integrator::adapt(float pstate[], const int & numeq) {
         bool testavln = rkf45(numeq, pstate, dt);
 
         if(testavln) {
-          test = boundcon( dum4,error,ptol );
+          test = boundcon(dum4, error, ptol);
         } else {
           test = testavln;
         }
