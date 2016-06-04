@@ -943,21 +943,27 @@ void Soil_Bgc::deltastate() {
         del_sois.orgn[il] += bd->m_a2soi.orgninput;
       }
 
-      double dondrain = 0.0; // dissolved organic N drainage??
-
-      if (totdzliq > 0.01) {
-        if((cd->m_soil.z[il]+cd->m_soil.dz[il]) <= ed->m_sois.draindepth) { //note: z is at the top of a layer
-          dondrain = del_soi2l.orgnlost
-                     * (ed->m_sois.liq[il]/totdzliq);
-        } else {
-          if (cd->m_soil.z[il]<ed->m_sois.draindepth) { // note: z is at the top of a layer
-            double fdz = (ed->m_sois.draindepth - cd->m_soil.z[il]) / cd->m_soil.dz[il];
-            dondrain = del_soi2l.orgnlost * (ed->m_sois.liq[il]/totdzliq) * fdz;
-          }
-        }
-      }
-
-      del_sois.orgn[il] -= dondrain;
+//      double dondrain = 0.0; // dissolved organic N drainage??
+//
+//      if (totdzliq > 0.01) {
+//        if((cd->m_soil.z[il]+cd->m_soil.dz[il]) <= ed->m_sois.draindepth) { //note: z is at the top of a layer
+//          dondrain = del_soi2l.orgnlost
+//                     * (ed->m_sois.liq[il]/totdzliq);
+//        } else {
+//          if (cd->m_soil.z[il]<ed->m_sois.draindepth) { // note: z is at the top of a layer
+//            double fdz = (ed->m_sois.draindepth - cd->m_soil.z[il]) / cd->m_soil.dz[il];
+//            dondrain = del_soi2l.orgnlost * (ed->m_sois.liq[il]/totdzliq) * fdz;
+//          }
+//        }
+//      }
+//
+//      del_sois.orgn[il] -= dondrain; // <==== When orgn ends up negative, the
+//                                     // Integrator has a hard time converging!
+//
+//      // If del_sosi.orgn is a "pool" variable and not a "change in pool"
+//      // variable, then it might be appropriate to force the values to zero:
+//      // with something like this:
+//      //if (del_sois.orgn[il] < 0) { del_sois.orgn[il] = 0.0; }
 
       // Inorganic N pools
       double ninput = 0.;
