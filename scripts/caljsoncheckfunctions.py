@@ -166,7 +166,7 @@ def Check_N_cycle_veg_balance(idx, header=False, jd=None, pjd=None):
           deltaN_str = eco_total("VegStructuralNitrogen", jd) - eco_total("VegStructuralNitrogen", pjd) # <-- will sum compartments
           deltaN_lab = eco_total("VegLabileNitrogen", jd) - eco_total("VegLabileNitrogen", pjd)
             
-        sum_str_N_flux = jd["StNitrogenUptakeAll"] - eco_total("LitterfallNitrogenPFT", jd) + eco_total("NMobil", jd) -  eco_total("NResorb", jd)
+        sum_str_N_flux = jd["StNitrogenUptakeAll"] - (eco_total("LitterfallNitrogenPFT", jd) + jd["MossdeathNitrogen"]) + eco_total("NMobil", jd) -  eco_total("NResorb", jd)
         sum_lab_N_flux = eco_total("LabNitrogenUptake", jd) + eco_total("NResorb", jd) - eco_total("NMobil", jd) 
 
 
@@ -174,8 +174,8 @@ def Check_N_cycle_veg_balance(idx, header=False, jd=None, pjd=None):
                 idx,
                 jd["Year"],
 
-                deltaN - eco_total("TotNitrogenUptake", jd) + eco_total("LitterfallNitrogenPFT", jd),
-                deltaN_str - (eco_total("StNitrogenUptake", jd) + eco_total("NMobil", jd)) + (eco_total("LitterfallNitrogenPFT", jd) + eco_total("NResorb", jd)),
+                deltaN - eco_total("TotNitrogenUptake", jd) + (eco_total("LitterfallNitrogenPFT", jd) + jd["MossdeathNitrogen"]),
+                deltaN_str - (eco_total("StNitrogenUptake", jd) + eco_total("NMobil", jd)) + (eco_total("LitterfallNitrogenPFT", jd) + jd["MossdeathNitrogen"] + eco_total("NResorb", jd)),
                 deltaN_lab - (eco_total("LabNitrogenUptake", jd) + eco_total("NResorb", jd)) + eco_total("NMobil", jd),
 
                 deltaN,
