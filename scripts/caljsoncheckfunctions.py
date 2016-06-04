@@ -4,6 +4,40 @@ import os
 import glob
 import json
 import numpy as np
+import pandas as pd
+
+import matplotlib.pyplot as plt
+
+import sys
+if sys.version_info[0] < 3:
+    from StringIO import StringIO
+else:
+    from io import StringIO
+
+def plot_tests(test_list, **kwargs):
+  #title =  "------  %s  ------" % t
+  for t in test_list:
+    data = compile_table_by_year(t, **kwargs)
+
+    np.loadtxt(StringIO(data), skiprows=1)
+    filter(None,data.split("\n")[0].split(" "))
+    df = pd.DataFrame(
+            np.loadtxt(StringIO(data), skiprows=1),
+            columns=filter(None,data.split("\n")[0].split(" "))
+        )
+
+    # fails to read some columns with many zeros - whole
+    # column ends up NaN. May need to update pandas version
+    #df = pd.read_csv(StringIO(data), header=0, delim_whitespace=True, na_values='NULL')
+
+    print "plotting dataframe..."
+    dfp = df.plot(subplots=True)#, grid=False)
+
+    #from IPython import embed; embed()
+
+    print "using matplotlib show..."
+    plt.show(block=True)
+
 
 def run_tests(test_list, **kwargs):
 
@@ -30,7 +64,7 @@ def run_tests(test_list, **kwargs):
 
     for t in test_list:
         title =  "------  %s  ------" % t
-        data = compile_table_by_year(t)
+        data = compile_table_by_year(t, **kwargs)
 
         # print to console (p2c)
         if 'p2c' in kwargs and kwargs['p2c'] == True:
@@ -41,7 +75,6 @@ def run_tests(test_list, **kwargs):
                 print "appending to file: ", outfile
                 f.write(title); f.write("\n")
                 f.write(data)
-
 
 def compile_table_by_year(test_case, **kwargs):
 
@@ -108,10 +141,6 @@ def eco_total(key, jdata, **kwargs):
       total += jdata[pft][key]
   return total
 
-def pft_total(jdata):
-    '''Sum across all PFT compartments, given a "PFT" block of json data'''
-    return jdata["Leaf"] + jdata["Stem"] + jdata["Root"]
-
 def ecosystem_sum_soilC(jdata):
     total_soil_C = 0
     total_soil_C += jdata["CarbonMineralSum"]
@@ -124,38 +153,60 @@ def ecosystem_sum_soilC(jdata):
 def Check_N_cycle_veg_balance(idx, header=False, jd=None, pjd=None):
     '''Checking....?'''
     if header:
-        return "{:<4} {:>6} {:>10}    {:>10} {:>10} {:>10} {:>10} {:>10}\n".format(
-                "idx", "yr", "err", "deltaN", "totalNuptake", "LitterfallN", "Nmobile", "Nresorb"
+        return "{:<4} {:>6} {:>10} {:>10}   {:>10} {:>10} {:>10} {:>10} {:>10}\n".format(
+                "idx", "yr", "err1", "err2", "deltaN", "totalNuptake", "LitterfallN", "Nmobile", "Nresorb"
         )
     else:
         deltaN = np.nan
         if pjd != None:
             deltaN = eco_total("NAll", jd)  - eco_total("NAll", pjd) 
             
-        return  "{:<4} {:>6} {:>10.4f}    {:>10.3f} {:>10.3f} {:>10.3f} {:>10.3f} {:>10.3f}\n".format(
+        delta_str_N = jd["StNitrogenUptakeAll"] - eco_total("LitterfallNitrogenPFT", jd) + eco_total("NMobil", jd) -  eco_total("NResorb", jd)
+
+        delta_lab_N = eco_total("LabNitrogenUptake", jd) + eco_total("NResorb", jd) - eco_total("NMobil", jd) 
+
+        return  "{:<4} {:>6} {:>10.4f} {:>10.4f}    {:>10.3f} {:>10.3f} {:>10.3f} {:>10.3f} {:>10.3f}\n".format(
                 idx,
                 jd["Year"],
-                
-                deltaN - (eco_total("TotNitrogenUptake", jd) - eco_total("LitterfallNitrogenPFT", jd) ),
+                # err 1
+                deltaN - (eco_total("TotNitrogenUptake", jd) + eco_total("LitterfallNitrogenPFT", jd) ),
+                # err 2
+                deltaN - (delta_str_N + delta_lab_N),                  
                 #delta vegN: (sum Veg N across (root, stem, leaves)) = NUptake - litterfallC - veg fire emission - deadN
 
                 deltaN,
                 eco_total("TotNitrogenUptake", jd),
                 eco_total("LitterfallNitrogenPFT", jd) ,
-                eco_total("NMobil", jd) ,
+                eco_total("NMobil", jd) , # fluxes at play in both structural N and labile N...maybe cancel eachother out...
                 eco_total("NResorb", jd) ,
-        )
 
+
+        )
 
 def Check_N_cycle_soil_balance(idx, header=False, jd=None, pjd=None):
     return ''
     #return 'NOT IMPLEMENTED YET'
 
+def err_C_soilbal(curr_jd, prev_jd):
+
+    delta_C = np.nan
+    if prev_jd != None:
+        delta_C = ecosystem_sum_soilC(curr_jd) - ecosystem_sum_soilC(prev_jd)
+
+    err = delta_C - (
+        eco_total("LitterfallCarbonAll", curr_jd) + 
+        eco_total("MossDeathC", curr_jd) - 
+        curr_jd["RH"]
+    )
+
+    return err
+
+
 
 def Check_C_cycle_soil_balance(idx, header=False, jd=None, pjd=None):
     if header:
         return '{:<4} {:>2} {:>4} {:>8} {:>10} {:>10}     {:>10} {:>10} {:>10} {:>10} {:>10}\n'.format(
-               'idx', 'm', 'yr', 'err', 'deltaC', 'lf+mdc-rh', 'sum soil C', 'ltrfal', 'mossdeathc', 'RH', 'checksum'
+               'idx', 'm', 'yr', 'err', 'deltaC', 'lfmdcrh', 'sumsoilC', 'ltrfal', 'mossdeathc', 'RH', 'checksum'
         )
     else:
         delta_C = np.nan
@@ -166,7 +217,7 @@ def Check_C_cycle_soil_balance(idx, header=False, jd=None, pjd=None):
                 idx,
                 jd["Month"],
                 jd["Year"],
-                delta_C - (eco_total("LitterfallCarbonAll", jd)  + eco_total("MossDeathC", jd) - jd["RH"]),
+                err_C_soilbal(jd, pjd),
                 delta_C,
                 eco_total("LitterfallCarbonAll", jd)  + eco_total("MossDeathC", jd) - jd["RH"],
                 ecosystem_sum_soilC(jd),
@@ -175,7 +226,6 @@ def Check_C_cycle_soil_balance(idx, header=False, jd=None, pjd=None):
                 jd['RH'], 
                 (jd['RHsomcr']+jd['RHsompr']+jd['RHsoma']+jd['RHraw']+jd['RHmossc']+jd['RHwdeb']),
             )
-
 
 def Report_Soil_C(idx, header=False, jd=None, pjd=None):
     '''Create a table/report for Soil Carbon'''
@@ -202,7 +252,7 @@ def Report_Soil_C(idx, header=False, jd=None, pjd=None):
                 jd['RHsomcr'],
                 jd['RHmossc'],
                 jd['RHwdeb'],
-                eco_total("LitterfallCarbonAll", jd)  + jd['MossdeathCarbon'],
+                eco_total("LitterfallCarbonAll", jd) + jd['MossdeathCarbon'],
                 jd['RawCSum'],
                 jd['SomaSum'],
                 jd['SomprSum'],
@@ -210,9 +260,6 @@ def Report_Soil_C(idx, header=False, jd=None, pjd=None):
                 jd['DeadMossCarbon'],
 
             )
-
-
-
 
 def Check_C_cycle_veg_balance(idx, header=False, jd=None, pjd=None):
     '''Should duplicate Vegetation_Bgc::deltastate()'''
@@ -270,8 +317,6 @@ def Check_C_cycle_veg_vascular_balance(idx, header=False, jd=None, pjd=None):
                 eco_total("LitterfallCarbonAll", jd, pftlist=pl) ,
             )
 
-
-
 def Check_C_cycle_veg_nonvascular_balance(idx, header=False, jd=None, pjd=None):
     '''Should duplicate Vegetation_Bgc::deltastate()'''
 
@@ -303,4 +348,4 @@ def Check_C_cycle_veg_nonvascular_balance(idx, header=False, jd=None, pjd=None):
             )
 
 if __name__ == '__main__':
-    pass
+    plot_tests(['C_soil_balance'], )
