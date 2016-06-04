@@ -233,8 +233,6 @@ void Integrator::c2ystate_soi(float y[]) {
 /** Has some mechanism to check error and change step-size accordingly */
 int Integrator::adapt(float pstate[], const int & numeq) {
   int i;
-  float ipart;
-  float fpart;
   float time = 0.0;
   float dt = 1.0;
   int mflag = 0;        // <--not sure what this is used for?
@@ -281,8 +279,10 @@ int Integrator::adapt(float pstate[], const int & numeq) {
           }
 
           time += dt;
-          fpart = modf( (0.01 + (time/(2.0*dt))),&ipart );
 
+          float ipart; // split into intger and fractional parts...
+          float fpart;
+          fpart = modf( (0.01 + (time/(2.0*dt))), &ipart );
           if ( fpart < 0.1 && dt < 1.0) {
             dt *= 2.0;
           }
