@@ -189,8 +189,25 @@ def Check_N_cycle_veg_balance(idx, header=False, jd=None, pjd=None):
         )
 
 def Check_N_cycle_soil_balance(idx, header=False, jd=None, pjd=None):
-    return ''
-    #return 'NOT IMPLEMENTED YET'
+
+    if header:
+      return "{:<6} {:<6} {:<2} {:>10} {:>10}\n".format("idx","yr","m","errORGN","errAVLN" )
+
+    delta_orgN = np.nan
+    delta_avlN = np.nan
+
+    if pjd != None:
+      delta_orgN = jd["OrganicNitrogenSum"] - pjd["OrganicNitrogenSum"]
+      delta_avlN = jd["AvailableNitrogenSum"] - pjd["AvailableNitrogenSum"]
+
+    return "{:<6} {:<6} {:<2} {:>10.4f} {:>10.4f}\n".format(
+        idx,
+        jd["Year"],
+        jd["Month"],
+
+        delta_orgN - ((eco_total("LitterfallNitrogenPFT", jd) + jd["MossdeathNitrogen"]) + jd["NetNMin"]),
+        delta_avlN - ( (jd["NetNMin"] + jd["AvlNInput"]) + (eco_total("TotNitrogenUptake", jd) + jd["AvlNLost"]) ),
+    )
 
 def err_C_soilbal(curr_jd, prev_jd):
 
