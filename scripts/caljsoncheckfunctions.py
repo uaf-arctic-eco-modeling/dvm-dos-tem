@@ -190,6 +190,21 @@ def bal_C_soil(curr_jd, prev_jd):
 
   return DeltaError(delta, err)
 
+def bal_N_soil_org(jd, pjd):
+  delta = np.nan
+  if pjd != None:
+    delta = jd["OrganicNitrogenSum"] - jd["OrganicNitrogenSum"]
+  err = delta - ( (eco_total("LitterfallNitrogenPFT", jd) + jd["MossdeathNitrogen"]) + jd["NetNMin"] )
+  return DeltaError(delta, err)
+
+def bal_N_soil_avl(jd, pjd):
+  delta = np.nan
+  if pjd != None:
+    delta = jd["AvailableNitrogenSum"] - pjd["AvailableNitrogenSum"]
+  err = delta - ( (jd["NetNMin"] + jd["AvlNInput"]) + (eco_total("TotNitrogenUptake", jd) + jd["AvlNLost"]) )
+  return DeltaError(delta, err)
+
+
 
 def Check_N_cycle_veg_balance(idx, header=False, jd=None, pjd=None):
     '''Checking....?'''
@@ -232,22 +247,16 @@ def Check_N_cycle_veg_balance(idx, header=False, jd=None, pjd=None):
 def Check_N_cycle_soil_balance(idx, header=False, jd=None, pjd=None):
 
     if header:
-      return "{:<6} {:<6} {:<2} {:>10} {:>10}\n".format("idx","yr","m","errORGN","errAVLN" )
+      return "{:<6} {:<6} {:<2} {:>10} {:>10} {:>10} {:>10}\n".format("idx","yr","m","errORGN","delORGN","errAVL","delAVL" )
 
-    delta_orgN = np.nan
-    delta_avlN = np.nan
-
-    if pjd != None:
-      delta_orgN = jd["OrganicNitrogenSum"] - pjd["OrganicNitrogenSum"]
-      delta_avlN = jd["AvailableNitrogenSum"] - pjd["AvailableNitrogenSum"]
-
-    return "{:<6} {:<6} {:<2} {:>10.4f} {:>10.4f}\n".format(
+    return "{:<6} {:<6} {:<2} {:>10.4f} {:>10.4f} {:>10.4f} {:>10.4f}\n".format(
         idx,
         jd["Year"],
         jd["Month"],
-
-        delta_orgN - ((eco_total("LitterfallNitrogenPFT", jd) + jd["MossdeathNitrogen"]) + jd["NetNMin"]),
-        delta_avlN - ( (jd["NetNMin"] + jd["AvlNInput"]) + (eco_total("TotNitrogenUptake", jd) + jd["AvlNLost"]) ),
+        bal_N_soil_org(jd, pjd).err,
+        bal_N_soil_org(jd, pjd).delta,
+        bal_N_soil_avl(jd, pjd).err,
+        bal_N_soil_avl(jd, pjd).delta
     )
 
 def Check_C_cycle_soil_balance(idx, header=False, jd=None, pjd=None):
@@ -392,8 +401,21 @@ def Check_C_cycle_veg_nonvascular_balance(idx, header=False, jd=None, pjd=None):
 
 if __name__ == '__main__':
   slstr = ':1000:'
+  slstr = ':500:'
 
   plot_tests(['C_soil_balance'], fileslice=slstr)
+
+  run_tests([
+    'N_soil_balance',
+    'N_veg_balance',
+    'C_soil_balance',
+    'C_veg_balance',
+    'C_veg_vascular_balance',
+    'C_veg_nonvascular_balance',
+    'report_soil_C'
+    ], p2c=True, fileslice=slstr)
+
+
 
   run_tests(['C_soil_balance', 'N_veg_balance'], fileslice=slstr, p2c=True)
 
