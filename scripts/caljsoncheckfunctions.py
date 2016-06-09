@@ -224,39 +224,29 @@ def bal_N_veg_lab(jd, pjd):
 def Check_N_cycle_veg_balance(idx, header=False, jd=None, pjd=None):
     '''Checking....?'''
     if header:
-        return "{:<4} {:>6} {:>10} {:>10} {:>10} {:>10} {:>10} {:>10} {:>10} {:>10} {:>10}\n".format(
-                "idx", "yr", "errT", "errS", "errL", "deltaN", "delNStr", "delNLab", "sumFlxT","sumFlxS", "sumFlxL"
+        return "{:<4} {:>6} {:>2} {:>10} {:>10} {:>10} {:>10} {:>10} {:>10} {:>10} {:>10} {:>10}\n".format(
+                "idx", "yr", "m", "errT", "errS", "errL", "deltaN", "delNStr", "delNLab", "sumFlxT","sumFlxS", "sumFlxL"
         )
     else:
-        deltaN = np.nan
-        deltaN_str = np.nan
-        deltaN_lab = np.nan
 
-        if pjd != None:
-          deltaN = eco_total("NAll", jd)  - eco_total("NAll", pjd) 
-          deltaN_str = eco_total("VegStructuralNitrogen", jd) - eco_total("VegStructuralNitrogen", pjd) # <-- will sum compartments
-          deltaN_lab = eco_total("VegLabileNitrogen", jd) - eco_total("VegLabileNitrogen", pjd)
-            
         sum_str_N_flux = jd["StNitrogenUptakeAll"] - (eco_total("LitterfallNitrogenPFT", jd) + jd["MossdeathNitrogen"]) + eco_total("NMobil", jd) -  eco_total("NResorb", jd)
         sum_lab_N_flux = eco_total("LabNitrogenUptake", jd) + eco_total("NResorb", jd) - eco_total("NMobil", jd) 
 
-
-        return  "{:<4} {:>6} {:>10.4f} {:>10.4f} {:>10.3f} {:>10.4f} {:>10.4f} {:>10.3f} {:>10.4f} {:>10.4f} {:>10.3f}\n".format(
+        return  "{:<4} {:>6} {:>2} {:>10.4f} {:>10.4f} {:>10.3f} {:>10.4f} {:>10.4f} {:>10.3f} {:>10.4f} {:>10.4f} {:>10.3f}\n".format(
                 idx,
                 jd["Year"],
+                jd["Month"],
+                bal_N_veg_tot(jd, pjd).err,
+                bal_N_veg_str(jd, pjd).err,
+                bal_N_veg_lab(jd, pjd).err,
 
-                deltaN - eco_total("TotNitrogenUptake", jd) + (eco_total("LitterfallNitrogenPFT", jd) + jd["MossdeathNitrogen"]),
-                deltaN_str - (eco_total("StNitrogenUptake", jd) + eco_total("NMobil", jd)) + (eco_total("LitterfallNitrogenPFT", jd) + jd["MossdeathNitrogen"] + eco_total("NResorb", jd)),
-                deltaN_lab - (eco_total("LabNitrogenUptake", jd) + eco_total("NResorb", jd)) + eco_total("NMobil", jd),
-
-                deltaN,
-                deltaN_str,
-                deltaN_lab,
+                bal_N_veg_tot(jd, pjd).delta,
+                bal_N_veg_str(jd, pjd).delta,
+                bal_N_veg_lab(jd, pjd).delta,
 
                 sum_str_N_flux + sum_lab_N_flux,
                 sum_str_N_flux,
                 sum_lab_N_flux,
-
         )
 
 def Check_N_cycle_soil_balance(idx, header=False, jd=None, pjd=None):
