@@ -137,14 +137,13 @@ def compile_table_by_year(test_case, **kwargs):
     return full_report
 
 def eco_total(key, jdata, **kwargs):
+  total = np.nan
 
   if jdata != None:
-
     if 'pftlist' in kwargs:
       pftlist = kwargs['pftlist']
     else:
       pftlist = range(0,10)
-
     total = 0
     for pft in ['PFT%i'%i for i in pftlist]:
       if ( type(jdata[pft][key]) == dict ): # sniff out compartment variables
@@ -152,22 +151,18 @@ def eco_total(key, jdata, **kwargs):
           total += jdata[pft][key]["Leaf"] + jdata[pft][key]["Stem"] + jdata[pft][key]["Root"]
       else:
         total += jdata[pft][key]
-    return total
 
-  else:
-    return np.nan
+  return total
 
 def ecosystem_sum_soilC(jdata):
-    if jdata != None:
-        total_soil_C = 0
-        total_soil_C += jdata["CarbonMineralSum"]
-        total_soil_C += jdata["CarbonDeep"]
-        total_soil_C += jdata["CarbonShallow"]
-        total_soil_C += jdata["DeadMossCarbon"]
-
-        return total_soil_C
-    else:
-        return np.nan
+  total = np.nan
+  if jdata != None:
+    total = 0
+    total += jdata["CarbonMineralSum"]
+    total += jdata["CarbonDeep"]
+    total += jdata["CarbonShallow"]
+    total += jdata["DeadMossCarbon"]
+  return total
 
 class DeltaError(object):
   '''Simply used to allow convenient access to data via . operator.'''
@@ -175,19 +170,18 @@ class DeltaError(object):
     self.delta = _d
     self.err = _e
 
-def calc_delta(cur, prev):
-  '''Returns nan if there is no previous data...'''
-  delta = np.nan
-  if prev != None:
-    delta = cur - prev
-  return delta
-
 def bal_C_soil(curr_jd, prev_jd):
-
-  delta = calc_delta(ecosystem_sum_soilC(curr_jd), ecosystem_sum_soilC(prev_jd))
-
+  delta = np.nan
+  if prev_jd != None:
+    delta = ecosystem_sum_soilC(curr_jd) - ecosystem_sum_soilC(prev_jd)
   err = delta - (eco_total("LitterfallCarbonAll", curr_jd) + eco_total("MossDeathC", curr_jd) - curr_jd["RH"])
+  return DeltaError(delta, err)
 
+def bal_C_veg(curr_jd, pjd):
+  delta = np.nan
+  if pjd != None:
+    delta = calc_delta(eco_total("VegCarbon", curr_jd), eco_total("VegCarbon", pjd))
+  err = delta - (eco_total("NPPAll", curr_jd) - eco_total("LitterfallCarbonAll", curr_jd)  - eco_total("MossDeathC", curr_jd))
   return DeltaError(delta, err)
 
 def bal_N_soil_org(jd, pjd):
@@ -202,6 +196,27 @@ def bal_N_soil_avl(jd, pjd):
   if pjd != None:
     delta = jd["AvailableNitrogenSum"] - pjd["AvailableNitrogenSum"]
   err = delta - ( (jd["NetNMin"] + jd["AvlNInput"]) + (eco_total("TotNitrogenUptake", jd) + jd["AvlNLost"]) )
+  return DeltaError(delta, err)
+
+def bal_N_veg_tot(jd, pjd):
+  delta = np.nan
+  if pjd != None:
+    delta = eco_total("NAll", jd)  - eco_total("NAll", pjd) 
+  err = delta - eco_total("TotNitrogenUptake", jd) + (eco_total("LitterfallNitrogenPFT", jd) + jd["MossdeathNitrogen"])
+  return DeltaError(delta, err)
+
+def bal_N_veg_str(jd, pjd):
+  delta = np.nan
+  if pjd != None:
+    delta = eco_total("VegStructuralNitrogen", jd) - eco_total("VegStructuralNitrogen", pjd) # <-- will sum compartments
+  err = delta - (eco_total("StNitrogenUptake", jd) + eco_total("NMobil", jd)) + (eco_total("LitterfallNitrogenPFT", jd) + jd["MossdeathNitrogen"] + eco_total("NResorb", jd))
+  return DeltaError(delta, err)
+
+def bal_N_veg_lab(jd, pjd):
+  delta = np.nan
+  if pjd != None:
+    delta = eco_total("VegLabileNitrogen", jd) - eco_total("VegLabileNitrogen", pjd)
+  err = delta - (eco_total("LabNitrogenUptake", jd) + eco_total("NResorb", jd)) + eco_total("NMobil", jd)
   return DeltaError(delta, err)
 
 
