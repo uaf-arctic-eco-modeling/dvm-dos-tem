@@ -138,28 +138,58 @@ def compile_table_by_year(test_case, **kwargs):
 
 def eco_total(key, jdata, **kwargs):
 
-  if 'pftlist' in kwargs:
-    pftlist = kwargs['pftlist']
-  else:
-    pftlist = range(0,10)
+  if jdata != None:
 
-  total = 0
-  for pft in ['PFT%i'%i for i in pftlist]:
-    if ( type(jdata[pft][key]) == dict ): # sniff out compartment variables
-      if len(jdata[pft][key]) == 3:
-        total += jdata[pft][key]["Leaf"] + jdata[pft][key]["Stem"] + jdata[pft][key]["Root"]
+    if 'pftlist' in kwargs:
+      pftlist = kwargs['pftlist']
     else:
-      total += jdata[pft][key]
-  return total
+      pftlist = range(0,10)
+
+    total = 0
+    for pft in ['PFT%i'%i for i in pftlist]:
+      if ( type(jdata[pft][key]) == dict ): # sniff out compartment variables
+        if len(jdata[pft][key]) == 3:
+          total += jdata[pft][key]["Leaf"] + jdata[pft][key]["Stem"] + jdata[pft][key]["Root"]
+      else:
+        total += jdata[pft][key]
+    return total
+
+  else:
+    return np.nan
 
 def ecosystem_sum_soilC(jdata):
-    total_soil_C = 0
-    total_soil_C += jdata["CarbonMineralSum"]
-    total_soil_C += jdata["CarbonDeep"]
-    total_soil_C += jdata["CarbonShallow"]
-    total_soil_C += jdata["DeadMossCarbon"]
+    if jdata != None:
+        total_soil_C = 0
+        total_soil_C += jdata["CarbonMineralSum"]
+        total_soil_C += jdata["CarbonDeep"]
+        total_soil_C += jdata["CarbonShallow"]
+        total_soil_C += jdata["DeadMossCarbon"]
 
-    return total_soil_C
+        return total_soil_C
+    else:
+        return np.nan
+
+class DeltaError(object):
+  '''Simply used to allow convenient access to data via . operator.'''
+  def __init__(self, _d, _e):
+    self.delta = _d
+    self.err = _e
+
+def calc_delta(cur, prev):
+  '''Returns nan if there is no previous data...'''
+  delta = np.nan
+  if prev != None:
+    delta = cur - prev
+  return delta
+
+def bal_C_soil(curr_jd, prev_jd):
+
+  delta = calc_delta(ecosystem_sum_soilC(curr_jd), ecosystem_sum_soilC(prev_jd))
+
+  err = delta - (eco_total("LitterfallCarbonAll", curr_jd) + eco_total("MossDeathC", curr_jd) - curr_jd["RH"])
+
+  return DeltaError(delta, err)
+
 
 def Check_N_cycle_veg_balance(idx, header=False, jd=None, pjd=None):
     '''Checking....?'''
@@ -220,45 +250,25 @@ def Check_N_cycle_soil_balance(idx, header=False, jd=None, pjd=None):
         delta_avlN - ( (jd["NetNMin"] + jd["AvlNInput"]) + (eco_total("TotNitrogenUptake", jd) + jd["AvlNLost"]) ),
     )
 
-def err_C_soilbal(curr_jd, prev_jd):
-
-    delta_C = np.nan
-    if prev_jd != None:
-        delta_C = ecosystem_sum_soilC(curr_jd) - ecosystem_sum_soilC(prev_jd)
-
-    err = delta_C - (
-        eco_total("LitterfallCarbonAll", curr_jd) + 
-        eco_total("MossDeathC", curr_jd) - 
-        curr_jd["RH"]
-    )
-
-    return err
-
-
-
 def Check_C_cycle_soil_balance(idx, header=False, jd=None, pjd=None):
     if header:
         return '{:<4} {:>2} {:>4} {:>8} {:>10} {:>10}     {:>10} {:>10} {:>10} {:>10} {:>10}\n'.format(
                'idx', 'm', 'yr', 'err', 'deltaC', 'lfmdcrh', 'sumsoilC', 'ltrfal', 'mossdeathc', 'RH', 'checksum'
         )
     else:
-        delta_C = np.nan
-        if pjd != None:
-            delta_C = ecosystem_sum_soilC(jd) - ecosystem_sum_soilC(pjd)
-
-        return "{:<4} {:>2} {:>4} {:>8.2f} {:>10.2f} {:>10.2f}     {:>10.2f} {:>10.2f} {:>10.2f} {:>10.2f} {:>10.2f}\n".format(
-                idx,
-                jd["Month"],
-                jd["Year"],
-                err_C_soilbal(jd, pjd),
-                delta_C,
-                eco_total("LitterfallCarbonAll", jd)  + eco_total("MossDeathC", jd) - jd["RH"],
-                ecosystem_sum_soilC(jd),
-                eco_total("LitterfallCarbonAll", jd) ,
-                eco_total("MossDeathC", jd),
-                jd['RH'], 
-                (jd['RHsomcr']+jd['RHsompr']+jd['RHsoma']+jd['RHraw']+jd['RHmossc']+jd['RHwdeb']),
-            )
+      return "{:<4} {:>2} {:>4} {:>8.2f} {:>10.2f} {:>10.2f}     {:>10.2f} {:>10.2f} {:>10.2f} {:>10.2f} {:>10.2f}\n".format(
+              idx,
+              jd["Month"],
+              jd["Year"],
+              bal_C_soil(jd, pjd).err,
+              bal_C_soil(jd, pjd).delta,
+              eco_total("LitterfallCarbonAll", jd)  + eco_total("MossDeathC", jd) - jd["RH"],
+              ecosystem_sum_soilC(jd),
+              eco_total("LitterfallCarbonAll", jd) ,
+              eco_total("MossDeathC", jd),
+              jd['RH'], 
+              (jd['RHsomcr']+jd['RHsompr']+jd['RHsoma']+jd['RHraw']+jd['RHmossc']+jd['RHwdeb']),
+          )
 
 def Report_Soil_C(idx, header=False, jd=None, pjd=None):
     '''Create a table/report for Soil Carbon'''
@@ -381,4 +391,9 @@ def Check_C_cycle_veg_nonvascular_balance(idx, header=False, jd=None, pjd=None):
             )
 
 if __name__ == '__main__':
-    plot_tests(['C_soil_balance'], )
+  slstr = ':1000:'
+
+  plot_tests(['C_soil_balance'], fileslice=slstr)
+
+  run_tests(['C_soil_balance', 'N_veg_balance'], fileslice=slstr, p2c=True)
+
