@@ -15,8 +15,35 @@ else:
     from io import StringIO
 
 
+def analyze(cjd, pjd):
+  '''Extract every ounce of knowledge from a pair of json data objects.
 
+  Returns a dict with all the data.
+  '''
 
+  results = {}
+
+  results['C veg err'] = bal_C_veg(cjd, pjd).err
+
+  results['C soil err'] = bal_C_soil(cjd, pjd).err
+  results['C soil del'] = bal_C_soil(cjd, pjd).delta
+
+  results['N veg err tot'] = bal_N_veg_tot(cjd, pjd).err
+  results['N veg err str'] = bal_N_veg_str(cjd, pjd).err
+  results['N veg err lab'] = bal_N_veg_lab(cjd, pjd).err
+  results['N soil err org'] = bal_N_soil_org(cjd, pjd).err
+  results['N soil err avl'] = bal_N_soil_avl(cjd, pjd).err
+
+  return results
+
+  # results['C']['veg']['err'] = err_C_vegbal(cjd, pjd)
+  # results['C']['soil']['err'] = bal_C_soil(cjd, pjd).e
+  # results['C']['soil']['del'] = bal_C_soil(cjd, pjd).d
+  # results['N']['veg']['err tot'] = err_N_vegbal_tot(cjd, pjd)
+  # results['N']['veg']['err str'] = err_N_vegbal_str(cjd, pjd)
+  # results['N']['veg']['err lab'] = err_N_vegbal_lab(cjd, pjd)
+  # results['N']['soil']['err org'] = bal_N_soil_org(cjd, pjd)
+  # results['N']['soil']['err avl'] = bal_N_soil_avl(cjd, pjd)
 
 def file_loader(**kwargs):
   '''Returns a list of files to open'''
@@ -35,6 +62,78 @@ def file_loader(**kwargs):
 
   return jfiles
 
+def error_image(**kwargs):
+  '''Returns an array with dimensions (yrs,months) for the error variable.'''
+
+  from mpl_toolkits.axes_grid1 import make_axes_locatable
+  from matplotlib.colors import LogNorm
+  from matplotlib.ticker import MultipleLocator
+  from matplotlib.ticker import MaxNLocator
+
+  jfiles = file_loader(**kwargs)
+
+  with open(jfiles[0], 'r') as f:
+    jdata = json.load(f)
+    m1 = int(jdata["Month"])
+    y1 = (jdata["Year"])
+
+  with open(jfiles[-1], 'r') as f:
+    jdata = json.load(f)
+    mlast = (jdata["Month"])
+    yrlast = (jdata["Year"])
+
+  # pad out the array so it fills an even 
+  # number of months/years. So if the slice
+  # lands on month 3 and end on month 10, 
+  # add 3 empty months at the beginning
+  # and 1 at the end. Helps for displaying as an image...
+  empty = np.empty(len(jfiles) + m1 + (11-mlast)) * np.nan
+
+  Cvegerr = np.copy(empty) 
+  Csoilerr = np.copy(empty)
+  Nsoilerr_avl = np.copy(empty)
+  Nsoilerr_org = np.copy(empty)
+  Nvegerr_tot = np.copy(empty)
+  Nvegerr_str = np.copy(empty)
+  Nvegerr_lab = np.copy(empty)
+
+  pjd = None
+  for idx, jfile in enumerate(jfiles):
+    with open(jfile, 'r') as f:
+        jdata = json.load(f)
+
+    diagnostics = analyze(jdata, pjd)
+
+    Cvegerr[idx+m1] = diagnostics['C veg err']
+    Csoilerr[idx+m1] = diagnostics['C soil err']
+    Nsoilerr_org[idx+m1] = diagnostics['N soil err org']
+    Nsoilerr_avl[idx+m1] = diagnostics['N soil err avl']
+    Nvegerr_tot[idx+m1] = diagnostics['N veg err tot']
+    Nvegerr_str[idx+m1] = diagnostics['N veg err str']
+    Nvegerr_lab[idx+m1] = diagnostics['N veg err lab']
+
+    pjd = jdata
+
+
+  # undertake the plotting of the now full arrays..
+  fig, axar = plt.subplots(1, 7)
+  for axidx, d in enumerate((Cvegerr, Csoilerr,  Nvegerr_tot, Nvegerr_str, Nvegerr_lab, Nsoilerr_org, Nsoilerr_avl)):
+
+    # center the colormap in the range
+    xval = np.max(np.abs(np.nanmin(d)), np.abs(np.nanmax(d)))
+
+    im = axar[axidx].imshow(d.reshape(len(d)/12, 12), interpolation="nearest", cmap="coolwarm", vmin=-1.0*xval, vmax=xval)
+    axar[axidx].set_aspect('auto')
+    axar[axidx].yaxis.set_visible(False)
+    divider = make_axes_locatable(axar[axidx])
+    colax = divider.append_axes("right", size="15%", pad=0.05)
+    cbar = plt.colorbar(im, cax=colax, ticks=MaxNLocator(4))#, format="%.2f" )
+    colax.xaxis.set_visible(False)
+
+  axar[0].yaxis.set_visible(True)
+  plt.tight_layout()
+
+  plt.show(block=True)
 
 def plot_tests(test_list, **kwargs):
   #title =  "------  %s  ------" % t
@@ -59,7 +158,6 @@ def plot_tests(test_list, **kwargs):
 
     print "using matplotlib show..."
     plt.show(block=True)
-
 
 def run_tests(test_list, **kwargs):
 
@@ -218,8 +316,6 @@ def bal_N_veg_lab(jd, pjd):
     delta = eco_total("VegLabileNitrogen", jd) - eco_total("VegLabileNitrogen", pjd)
   err = delta - (eco_total("LabNitrogenUptake", jd) + eco_total("NResorb", jd)) + eco_total("NMobil", jd)
   return DeltaError(delta, err)
-
-
 
 def Check_N_cycle_veg_balance(idx, header=False, jd=None, pjd=None):
     '''Checking....?'''
@@ -408,7 +504,11 @@ if __name__ == '__main__':
     'report_soil_C'
     ], p2c=True, fileslice=slstr)
 
+  error_image(fileslice=slstr)
 
 
-  run_tests(['C_soil_balance', 'N_veg_balance'], fileslice=slstr, p2c=True)
+
+
+
+
 
