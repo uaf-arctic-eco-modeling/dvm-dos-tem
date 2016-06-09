@@ -180,7 +180,7 @@ def bal_C_soil(curr_jd, prev_jd):
 def bal_C_veg(curr_jd, pjd):
   delta = np.nan
   if pjd != None:
-    delta = calc_delta(eco_total("VegCarbon", curr_jd), eco_total("VegCarbon", pjd))
+    delta = eco_total("VegCarbon", curr_jd) - eco_total("VegCarbon", pjd)
   err = delta - (eco_total("NPPAll", curr_jd) - eco_total("LitterfallCarbonAll", curr_jd)  - eco_total("MossDeathC", curr_jd))
   return DeltaError(delta, err)
 
@@ -291,13 +291,6 @@ def Report_Soil_C(idx, header=False, jd=None, pjd=None):
                'idx', 'yr', 'RHtot', 'RHrawc', 'RHsomac', 'RHsomprc','RHsomcrc','RHmossc','RHwdeb','Lfc+dmsc','rawc','soma','sompr','somcr','dmossc'
             )
     else:
-        deltaC = np.nan
-
-        # If we are beyond the first year, load the previous year
-        if pjd != None:
-            deltaC = ecosystem_sum_soilC(jd) - ecosystem_sum_soilC(pjd)
-
-
         # FIll in the table with data...
         return "{:<4} {:>4} {:>9.2f} {:>9.2f} {:>9.2f} {:>9.2f} {:>9.2f} {:>9.2f} {:>9.2f} {:>9.2f} {:>9.2f} {:>9.2f} {:>9.2f} {:>9.2f} {:>9.2f}\n".format(
                 idx,
@@ -321,23 +314,18 @@ def Report_Soil_C(idx, header=False, jd=None, pjd=None):
 def Check_C_cycle_veg_balance(idx, header=False, jd=None, pjd=None):
     '''Should duplicate Vegetation_Bgc::deltastate()'''
     if header:
-        return '{:<4} {:>4} {:>10} {:>10} {:>15}     {:>10} {:>15} {:>15} {:>15}\n'.format(
-               'idx', 'yr', 'err', 'deltaC', 'NPP-LFallC-mdc', 'mdc', 'VegC', 'NPP', 'LFallC' )
+        return '{:<4} {:>2} {:>4} {:>10} {:>10} {:>15}     {:>10} {:>15} {:>15} {:>15}\n'.format(
+               'idx', 'm', 'yr', 'err', 'deltaC', 'NPP-LFallC-mdc', 'mdc', 'VegC', 'NPP', 'LFallC' )
     else:
-        deltaC = np.nan
-
-        # If we are beyond the first year, load the previous year
-        if pjd != None:
-            deltaC = eco_total("VegCarbon", jd) - eco_total("VegCarbon", pjd)
-
         # FIll in the table with data...
-        return '{:<4d} {:>4} {:>10.3f} {:>10.3f} {:>15.3f}     {:>10.3f} {:>15.3f} {:>15.3f} {:>15.3f}\n'.format(
+        return '{:<4d} {:>2} {:>4} {:>10.3f} {:>10.3f} {:>15.3f}     {:>10.3f} {:>15.3f} {:>15.3f} {:>15.3f}\n'.format(
                 idx,
+                jd['Month'],
                 jd['Year'],
-                (eco_total("NPPAll", jd)  - eco_total("LitterfallCarbonAll", jd)  - eco_total("MossDeathC", jd)) - deltaC,
-                deltaC,
-                eco_total("NPPAll", jd)  - eco_total("LitterfallCarbonAll", jd)  - eco_total("MossDeathC", jd),
+                bal_C_veg(jd, pjd).err,
+                bal_C_veg(jd, pjd).delta,
 
+                eco_total("NPPAll", jd)  - eco_total("LitterfallCarbonAll", jd)  - eco_total("MossDeathC", jd),
                 eco_total("MossDeathC", jd),
                 eco_total("VegCarbon", jd), 
                 eco_total("NPPAll", jd) ,
