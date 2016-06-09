@@ -14,6 +14,28 @@ if sys.version_info[0] < 3:
 else:
     from io import StringIO
 
+
+
+
+
+def file_loader(**kwargs):
+  '''Returns a list of files to open'''
+  if 'fileslice' in kwargs:
+      slice_string = kwargs['fileslice']
+      # parse string into slice object
+      # https://stackoverflow.com/questions/680826/python-create-slice-object-from-string/681949#681949
+      custom_slice = slice(*map(lambda x: int(x.strip()) if x.strip() else None, slice_string.split(':')))
+  else:
+      custom_slice = slice(None,None,None)
+
+  jfiles = glob.glob("/tmp/dvmdostem/calibration/monthly/*.json")
+
+  print "Custom file slice:", custom_slice
+  jfiles = jfiles[custom_slice]
+
+  return jfiles
+
+
 def plot_tests(test_list, **kwargs):
   #title =  "------  %s  ------" % t
   for t in test_list:
@@ -78,15 +100,7 @@ def run_tests(test_list, **kwargs):
 
 def compile_table_by_year(test_case, **kwargs):
 
-    if 'fileslice' in kwargs:
-        slice_string = kwargs['fileslice']
-        # parse string into slice object
-        # https://stackoverflow.com/questions/680826/python-create-slice-object-from-string/681949#681949
-        custom_slice = slice(*map(lambda x: int(x.strip()) if x.strip() else None, slice_string.split(':')))
-    else:
-        custom_slice = slice(None,None,None)
-
-
+    jfiles = file_loader(**kwargs)
 
     # map 'test case' strings to various test and 
     # reporting functions we have written in the module.
@@ -101,10 +115,7 @@ def compile_table_by_year(test_case, **kwargs):
     }
 
     check_func = function_dict[test_case]
-    jfiles = glob.glob("/tmp/dvmdostem/calibration/monthly/*.json")
 
-    print "Custom file slice:", custom_slice
-    jfiles = jfiles[custom_slice]
     header = check_func(0, header=True)
 
     table_data = ""
