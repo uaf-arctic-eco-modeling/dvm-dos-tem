@@ -65,6 +65,8 @@ def file_loader(**kwargs):
 def error_image(**kwargs):
   '''Returns an array with dimensions (yrs,months) for the error variable.'''
 
+  plotlist = ['C veg err', 'C soil err', 'N veg err tot', 'N veg err str', 'N veg err lab', 'N soil err org', 'N soil err avl']
+
   from mpl_toolkits.axes_grid1 import make_axes_locatable
   from matplotlib.colors import LogNorm
   from matplotlib.ticker import MultipleLocator
@@ -90,13 +92,7 @@ def error_image(**kwargs):
   # and 1 at the end. Helps for displaying as an image...
   empty = np.empty(len(jfiles) + m1 + (11-mlast)) * np.nan
 
-  Cvegerr = np.copy(empty) 
-  Csoilerr = np.copy(empty)
-  Nsoilerr_avl = np.copy(empty)
-  Nsoilerr_org = np.copy(empty)
-  Nvegerr_tot = np.copy(empty)
-  Nvegerr_str = np.copy(empty)
-  Nvegerr_lab = np.copy(empty)
+  imgarrays = [np.copy(empty) for i in plotlist]
 
   pjd = None
   for idx, jfile in enumerate(jfiles):
@@ -105,20 +101,15 @@ def error_image(**kwargs):
 
     diagnostics = analyze(jdata, pjd)
 
-    Cvegerr[idx+m1] = diagnostics['C veg err']
-    Csoilerr[idx+m1] = diagnostics['C soil err']
-    Nsoilerr_org[idx+m1] = diagnostics['N soil err org']
-    Nsoilerr_avl[idx+m1] = diagnostics['N soil err avl']
-    Nvegerr_tot[idx+m1] = diagnostics['N veg err tot']
-    Nvegerr_str[idx+m1] = diagnostics['N veg err str']
-    Nvegerr_lab[idx+m1] = diagnostics['N veg err lab']
+    for pltnum, key in enumerate(plotlist):
+      imgarrays[pltnum][idx+m1] = diagnostics[key]
 
     pjd = jdata
 
 
   # undertake the plotting of the now full arrays..
-  fig, axar = plt.subplots(1, 7, sharex=True, sharey=True)
-  for axidx, data in enumerate((Cvegerr, Csoilerr, Nvegerr_tot, Nvegerr_str, Nvegerr_lab, Nsoilerr_org, Nsoilerr_avl)):
+  fig, axar = plt.subplots(1, len(imgarrays), sharex=True, sharey=True)
+  for axidx, data in enumerate(imgarrays):
 
     # We are going to use a divergent color scheme centered around zero,
     # so we need to find largest absolute value of the data and use that
@@ -167,7 +158,7 @@ def error_image(**kwargs):
 
 
   # set the titles for the subplots
-  for x in zip(axar, ['Cvegerr', 'Csoilerr', 'Nvegerr_tot', 'Nvegerr_str', 'Nvegerr_lab', 'Nsoilerr_org', 'Nsoilerr_avl']):
+  for x in zip(axar, plotlist):
     x[0].set_title(x[1])
 
   plt.tight_layout()
