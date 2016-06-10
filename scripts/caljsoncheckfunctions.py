@@ -69,6 +69,7 @@ def error_image(**kwargs):
   from matplotlib.colors import LogNorm
   from matplotlib.ticker import MultipleLocator
   from matplotlib.ticker import MaxNLocator
+  import matplotlib.ticker as mtkr
 
   jfiles = file_loader(**kwargs)
 
@@ -117,22 +118,50 @@ def error_image(**kwargs):
 
   # undertake the plotting of the now full arrays..
   fig, axar = plt.subplots(1, 7)
-  for axidx, d in enumerate((Cvegerr, Csoilerr,  Nvegerr_tot, Nvegerr_str, Nvegerr_lab, Nsoilerr_org, Nsoilerr_avl)):
+  for axidx, data in enumerate((Cvegerr, Csoilerr, Nvegerr_tot, Nvegerr_str, Nvegerr_lab, Nsoilerr_org, Nsoilerr_avl)):
 
-    # center the colormap in the range
-    xval = np.max(np.abs(np.nanmin(d)), np.abs(np.nanmax(d)))
+    # We are going to use a divergent color scheme centered around zero,
+    # so we need to find largest absolute value of the data and use that
+    # as the endpoints for the color-scaling.
+    xval = np.nanmax(np.abs(data))
+    print "Color map range for ax[%s]: %s" % (axidx, xval)
 
-    im = axar[axidx].imshow(d.reshape(len(d)/12, 12), interpolation="nearest", cmap="coolwarm", vmin=-1.0*xval, vmax=xval)
-    axar[axidx].set_aspect('auto')
+    # It is also handy to mask out the values that are zero (no error)
+    # or riduculously close to zero (effectively zero)
+    print "before mask: ", np.count_nonzero(~np.isnan(data))
+    data = np.ma.masked_equal(data, 0)
+    maskclose = np.isclose(data, np.zeros(data.shape))
+    data = np.ma.masked_array(data, mask=maskclose)
+    print "after mask: ", np.count_nonzero(~np.isnan(data))
+
+    im = axar[axidx].imshow(
+          data.reshape(len(data)/12, 12),
+          interpolation="nearest",
+          cmap="coolwarm", vmin=-xval, vmax=xval,
+          aspect='auto'
+        )
     axar[axidx].yaxis.set_visible(False)
+    axar[axidx].grid(False, axis='both')
+
     divider = make_axes_locatable(axar[axidx])
-    colax = divider.append_axes("right", size="15%", pad=0.05)
-    cbar = plt.colorbar(im, cax=colax, ticks=MaxNLocator(4))#, format="%.2f" )
-    colax.xaxis.set_visible(False)
+    cwm = plt.cm.coolwarm
+    cwm.set_bad('white',1.0)
+    cwm.set_over('yellow',1.0)
+    cwm.set_under('orange',1.0)
 
+    colax = divider.append_axes("bottom", size="5%", pad=0.05)
+    cbar = plt.colorbar(im, cax=colax, orientation='horizontal', format="%0.8f", ticks=mtkr.MaxNLocator(6, prune=None))
+    plt.setp(colax.xaxis.get_majorticklabels(), rotation=90)
+
+
+  # Turn the y axis on for the leftmost plot
   axar[0].yaxis.set_visible(True)
-  plt.tight_layout()
 
+  # set the titles for the subplots
+  for x in zip(axar, ['Cvegerr', 'Csoilerr', 'Nvegerr_tot', 'Nvegerr_str', 'Nvegerr_lab', 'Nsoilerr_org', 'Nsoilerr_avl']):
+    x[0].set_title(x[1])
+
+  plt.tight_layout()
   plt.show(block=True)
 
 def plot_tests(test_list, **kwargs):
