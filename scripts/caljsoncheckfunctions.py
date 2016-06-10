@@ -143,6 +143,7 @@ def error_image(**kwargs):
         )
     axar[axidx].yaxis.set_visible(False)
     axar[axidx].grid(False, axis='both')
+    axar[axidx].xaxis.set_label("THIS IS NOT WORKING?? PERHAPS HIDDEN BEHIND COLORBAR??")
 
     divider = make_axes_locatable(axar[axidx])
     cwm = plt.cm.coolwarm
@@ -157,6 +158,7 @@ def error_image(**kwargs):
 
   # Turn the y axis on for the leftmost plot
   axar[0].yaxis.set_visible(True)
+  axar[0].set_ylabel("Year")
 
   # set the titles for the subplots
   for x in zip(axar, ['Cvegerr', 'Csoilerr', 'Nvegerr_tot', 'Nvegerr_str', 'Nvegerr_lab', 'Nsoilerr_org', 'Nsoilerr_avl']):
