@@ -313,11 +313,11 @@ def bal_C_soil(curr_jd, prev_jd):
   err = delta - (eco_total("LitterfallCarbonAll", curr_jd) + eco_total("MossDeathC", curr_jd) - curr_jd["RH"])
   return DeltaError(delta, err)
 
-def bal_C_veg(curr_jd, pjd):
+def bal_C_veg(curr_jd, pjd, **kwargs):
   delta = np.nan
   if pjd != None:
-    delta = eco_total("VegCarbon", curr_jd) - eco_total("VegCarbon", pjd)
-  err = delta - (eco_total("NPPAll", curr_jd) - eco_total("LitterfallCarbonAll", curr_jd) - eco_total("MossDeathC", curr_jd))
+    delta = eco_total("VegCarbon", curr_jd, **kwargs) - eco_total("VegCarbon", pjd, **kwargs)
+  err = delta - (eco_total("NPPAll", curr_jd, **kwargs) - eco_total("LitterfallCarbonAll", curr_jd, **kwargs) - eco_total("MossDeathC", curr_jd, **kwargs))
   return DeltaError(delta, err)
 
 def bal_N_soil_org(jd, pjd):
@@ -470,60 +470,53 @@ def Check_C_cycle_veg_vascular_balance(idx, header=False, jd=None, pjd=None):
     '''Should duplicate Vegetation_Bgc::deltastate()'''
 
     # vascular PFT list (CMT05)
-    pl = [0,1,2,3,4]
+    vascular = [0,1,2,3,4]
 
     if header:
-        return '{:<4} {:>4} {:>10} {:>10} {:>15}     {:>10} {:>15} {:>15} {:>15}\n'.format(
-               'idx', 'yr', 'err', 'deltaC', 'NPP-LFallC-mdc', 'mdc', 'VegC', 'NPP', 'LFallC' )
+        return '{:<4} {:>2} {:>4} {:>10} {:>10} {:>15} {:>10} {:>15} {:>15} {:>15}\n'.format(
+               'idx', 'm', 'yr', 'err', 'deltaC', 'NPP-LFallC-mdc', 'mdc', 'VegC', 'NPP', 'LFallC' )
     else:
-        deltaC = np.nan
-
-        # If we are beyond the first year, load the previous year
-        if pjd != None:
-            deltaC = eco_total("VegCarbon", jd, pftlist=pl) - eco_total("VegCarbon", pjd, pftlist=pl)
-
-        # FIll in the table with data...
-        return '{:<4d} {:>4} {:>10.3f} {:>10.3f} {:>15.3f}     {:>10.3f} {:>15.3f} {:>15.3f} {:>15.3f}\n'.format(
+        return '{:<4d} {:>2} {:>4} {:>10.3f} {:>10.3f} {:>15.3f} {:>10.3f} {:>15.3f} {:>15.3f} {:>15.3f}\n'.format(
                 idx,
+                jd['Month'],
                 jd['Year'],
-                (eco_total("NPPAll", jd, pftlist=pl)  - eco_total("LitterfallCarbonAll", jd, pftlist=pl)  - eco_total("MossDeathC",jd,pftlist=pl)) - deltaC,
-                deltaC,
-                eco_total("NPPAll", jd, pftlist=pl)  - eco_total("LitterfallCarbonAll", jd, pftlist=pl)  - eco_total("MossDeathC",jd,pftlist=pl),
 
-                eco_total("MossDeathC",jd, pftlist=pl),
-                eco_total("VegCarbon", jd, pftlist=pl), 
-                eco_total("NPPAll", jd, pftlist=pl) ,
-                eco_total("LitterfallCarbonAll", jd, pftlist=pl) ,
+                bal_C_veg(jd, pjd, pftlist=vascular).err,
+                bal_C_veg(jd, pjd, pftlist=vascular).delta,
+
+                eco_total("NPPAll", jd, pftlist=vascular)  - eco_total("LitterfallCarbonAll", jd, pftlist=vascular)  - eco_total("MossDeathC",jd,pftlist=vascular),
+
+                eco_total("MossDeathC",jd, pftlist=vascular),
+                eco_total("VegCarbon", jd, pftlist=vascular), 
+                eco_total("NPPAll", jd, pftlist=vascular),
+                eco_total("LitterfallCarbonAll", jd, pftlist=vascular)
             )
 
 def Check_C_cycle_veg_nonvascular_balance(idx, header=False, jd=None, pjd=None):
     '''Should duplicate Vegetation_Bgc::deltastate()'''
 
     # non-vascular PFT list (CMT05)
-    pl = [5,6,7]
+    non_vasc = [5,6,7]
 
     if header:
-        return '{:<4} {:>4} {:>10} {:>10} {:>15}     {:>10} {:>15} {:>15} {:>15}\n'.format(
-               'idx', 'yr', 'err', 'deltaC', 'NPP-LFallC-mdc', 'mdc', 'VegC', 'NPP', 'LFallC' )
+        return '{:<4} {:>2} {:>4} {:>10} {:>10} {:>15} {:>10} {:>15} {:>15} {:>15}\n'.format(
+               'idx', 'm', 'yr', 'err', 'deltaC', 'NPP-LFallC-mdc', 'mdc', 'VegC', 'NPP', 'LFallC' )
     else:
-        deltaC = np.nan
-
-        # If we are beyond the first year, load the previous year
-        if pjd != None:
-            deltaC = eco_total("VegCarbon", jd, pftlist=pl) - eco_total("VegCarbon", pjd, pftlist=pl)
 
         # FIll in the table with data...
-        return '{:<4d} {:>4} {:>10.3f} {:>10.3f} {:>15.3f}     {:>10.3f} {:>15.3f} {:>15.3f} {:>15.3f}\n'.format(
+        return '{:<4d} {:>2} {:>4} {:>10.3f} {:>10.3f} {:>15.3f} {:>10.3f} {:>15.3f} {:>15.3f} {:>15.3f}\n'.format(
                 idx,
+                jd['Month'],
                 jd['Year'],
-                (eco_total("NPPAll", jd, pftlist=pl)  - eco_total("LitterfallCarbonAll", jd, pftlist=pl)  - eco_total("MossDeathC", jd, pftlist=pl)) - deltaC,
-                deltaC,
-                eco_total("NPPAll", jd, pftlist=pl)  - eco_total("LitterfallCarbonAll", jd, pftlist=pl)  - eco_total("MossDeathC", jd, pftlist=pl),
 
-                eco_total("MossDeathC", jd, pftlist=pl),
-                eco_total("VegCarbon", jd, pftlist=pl), 
-                eco_total("NPPAll", jd, pftlist=pl) ,
-                eco_total("LitterfallCarbonAll", jd, pftlist=pl) ,
+                bal_C_veg(jd, pjd, pftlist=non_vasc).err,
+                bal_C_veg(jd, pjd, pftlist=non_vasc).delta,
+
+                eco_total("NPPAll", jd, pftlist=non_vasc)  - eco_total("LitterfallCarbonAll", jd, pftlist=non_vasc)  - eco_total("MossDeathC", jd, pftlist=non_vasc),
+                eco_total("MossDeathC", jd, pftlist=non_vasc),
+                eco_total("VegCarbon", jd, pftlist=non_vasc), 
+                eco_total("NPPAll", jd, pftlist=non_vasc) ,
+                eco_total("LitterfallCarbonAll", jd, pftlist=non_vasc) ,
             )
 
 if __name__ == '__main__':
