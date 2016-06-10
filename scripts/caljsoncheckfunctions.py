@@ -117,7 +117,7 @@ def error_image(**kwargs):
 
 
   # undertake the plotting of the now full arrays..
-  fig, axar = plt.subplots(1, 7)
+  fig, axar = plt.subplots(1, 7, sharex=True, sharey=True)
   for axidx, data in enumerate((Cvegerr, Csoilerr, Nvegerr_tot, Nvegerr_str, Nvegerr_lab, Nsoilerr_org, Nsoilerr_avl)):
 
     # We are going to use a divergent color scheme centered around zero,
@@ -139,26 +139,32 @@ def error_image(**kwargs):
           data.reshape(len(data)/12, 12),
           interpolation="nearest",
           cmap="coolwarm", vmin=-xval, vmax=xval,
-          aspect='auto'
+          aspect='auto' # helps with non-square images...
         )
-    axar[axidx].yaxis.set_visible(False)
     axar[axidx].grid(False, axis='both')
-    axar[axidx].xaxis.set_label("THIS IS NOT WORKING?? PERHAPS HIDDEN BEHIND COLORBAR??")
+
+    #axar[axidx].yaxis.set_visible(False)
+    #axar[axidx].yaxis.set_major_locator(mtkr.MultipleLocator(5))
+    #axar[axidx].tick_params(axis='y', direction='in', length=3, width=.5, colors='k', labelleft='off', labelright='off')
+
+    axar[axidx].set_xlabel("Month")
+    axar[axidx].xaxis.set_major_locator(mtkr.MaxNLocator(5, integer=True)) # 5 seems to be magic number; works with zooming.
+    axar[axidx].tick_params(axis='x', direction='in', length=3, width=.5, colors='k')
 
     divider = make_axes_locatable(axar[axidx])
     cwm = plt.cm.coolwarm
     cwm.set_bad('white',1.0)
     cwm.set_over('yellow',1.0) # <- nothing should be ouside the colormap range...
     cwm.set_under('orange',1.0)
-
-    colax = divider.append_axes("bottom", size="5%", pad=0.05)
+    colax = divider.append_axes("bottom", size="3%", pad="10%")
     cbar = plt.colorbar(im, cax=colax, orientation='horizontal', format="%0.8f", ticks=mtkr.MaxNLocator(6, prune=None))
     plt.setp(colax.xaxis.get_majorticklabels(), rotation=90)
-
 
   # Turn the y axis on for the leftmost plot
   axar[0].yaxis.set_visible(True)
   axar[0].set_ylabel("Year")
+  #axar[0].tick_params(axis='y', direction='out', length=4, width=1, colors='k', labelleft='on', labelright='off')
+
 
   # set the titles for the subplots
   for x in zip(axar, ['Cvegerr', 'Csoilerr', 'Nvegerr_tot', 'Nvegerr_str', 'Nvegerr_lab', 'Nsoilerr_org', 'Nsoilerr_avl']):
