@@ -132,7 +132,8 @@ def error_image(**kwargs):
     data = np.ma.masked_equal(data, 0)
     maskclose = np.isclose(data, np.zeros(data.shape))
     data = np.ma.masked_array(data, mask=maskclose)
-    print "after mask: ", np.count_nonzero(~np.isnan(data))
+    data = np.ma.masked_invalid(data)
+    print "after mask: ", data.count()
 
     im = axar[axidx].imshow(
           data.reshape(len(data)/12, 12),
@@ -146,7 +147,7 @@ def error_image(**kwargs):
     divider = make_axes_locatable(axar[axidx])
     cwm = plt.cm.coolwarm
     cwm.set_bad('white',1.0)
-    cwm.set_over('yellow',1.0)
+    cwm.set_over('yellow',1.0) # <- nothing should be ouside the colormap range...
     cwm.set_under('orange',1.0)
 
     colax = divider.append_axes("bottom", size="5%", pad=0.05)
