@@ -21,9 +21,17 @@ def analyze(cjd, pjd):
   Returns a dict with all the data.
   '''
 
+  vasc = [0,1,2,3,4]
+  nonvasc = [5,6,7]
+
   results = {}
 
   results['C veg err'] = bal_C_veg(cjd, pjd).err
+  results['C veg del'] = bal_C_veg(cjd, pjd).delta
+  results['C veg vasc err'] = bal_C_veg(cjd, pjd, pftlist=vasc).err
+  results['C veg vasc del'] = bal_C_veg(cjd, pjd, pftlist=vasc).delta
+  results['C veg nonvasc err'] = bal_C_veg(cjd, pjd, pftlist=nonvasc).err
+  results['C veg nonvasc del'] = bal_C_veg(cjd, pjd, pftlist=nonvasc).delta
 
   results['C soil err'] = bal_C_soil(cjd, pjd).err
   results['C soil del'] = bal_C_soil(cjd, pjd).delta
@@ -35,15 +43,6 @@ def analyze(cjd, pjd):
   results['N soil err avl'] = bal_N_soil_avl(cjd, pjd).err
 
   return results
-
-  # results['C']['veg']['err'] = err_C_vegbal(cjd, pjd)
-  # results['C']['soil']['err'] = bal_C_soil(cjd, pjd).e
-  # results['C']['soil']['del'] = bal_C_soil(cjd, pjd).d
-  # results['N']['veg']['err tot'] = err_N_vegbal_tot(cjd, pjd)
-  # results['N']['veg']['err str'] = err_N_vegbal_str(cjd, pjd)
-  # results['N']['veg']['err lab'] = err_N_vegbal_lab(cjd, pjd)
-  # results['N']['soil']['err org'] = bal_N_soil_org(cjd, pjd)
-  # results['N']['soil']['err avl'] = bal_N_soil_avl(cjd, pjd)
 
 def file_loader(**kwargs):
   '''Returns a list of files to open'''
@@ -65,7 +64,11 @@ def file_loader(**kwargs):
 def error_image(**kwargs):
   '''Returns an array with dimensions (yrs,months) for the error variable.'''
 
-  plotlist = ['C veg err', 'C soil err', 'N veg err tot', 'N veg err str', 'N veg err lab', 'N soil err org', 'N soil err avl']
+  if "plotlist" not in kwargs:
+    plotlist = ['C veg err', 'C soil err', 'N veg err tot', 'N veg err str', 'N veg err lab', 'N soil err org', 'N soil err avl']
+  else:
+    plotlist = kwargs["plotlist"]
+
 
   from mpl_toolkits.axes_grid1 import make_axes_locatable
   from matplotlib.colors import LogNorm
@@ -526,8 +529,13 @@ if __name__ == '__main__':
     'report_soil_C'
     ], p2c=True, fileslice=slstr)
 
-  error_image(fileslice=slstr)
-
+  error_image(plotlist=[
+      'C veg err',
+      'C veg vasc err',
+      'C veg nonvasc err',
+      'N soil err org',
+      'N soil err avl'
+    ], fileslice=slstr)
 
 
 
