@@ -317,7 +317,7 @@ def bal_C_veg(curr_jd, pjd):
   delta = np.nan
   if pjd != None:
     delta = eco_total("VegCarbon", curr_jd) - eco_total("VegCarbon", pjd)
-  err = delta - (eco_total("NPPAll", curr_jd) - eco_total("LitterfallCarbonAll", curr_jd)  - eco_total("MossDeathC", curr_jd))
+  err = delta - (eco_total("NPPAll", curr_jd) - eco_total("LitterfallCarbonAll", curr_jd) - eco_total("MossDeathC", curr_jd))
   return DeltaError(delta, err)
 
 def bal_N_soil_org(jd, pjd):
@@ -337,7 +337,7 @@ def bal_N_soil_avl(jd, pjd):
 def bal_N_veg_tot(jd, pjd):
   delta = np.nan
   if pjd != None:
-    delta = eco_total("NAll", jd)  - eco_total("NAll", pjd) 
+    delta = eco_total("NAll", jd) - eco_total("NAll", pjd)
   err = delta - eco_total("TotNitrogenUptake", jd) + (eco_total("LitterfallNitrogenPFT", jd) + jd["MossdeathNitrogen"])
   return DeltaError(delta, err)
 
