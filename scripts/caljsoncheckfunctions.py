@@ -117,7 +117,7 @@ def error_image(**kwargs):
 
 
   # undertake the plotting of the now full arrays..
-  fig, axar = plt.subplots(1, 7)
+  fig, axar = plt.subplots(7, 1)
   for axidx, data in enumerate((Cvegerr, Csoilerr, Nvegerr_tot, Nvegerr_str, Nvegerr_lab, Nsoilerr_org, Nsoilerr_avl)):
 
     # We are going to use a divergent color scheme centered around zero,
@@ -135,7 +135,7 @@ def error_image(**kwargs):
     print "after mask: ", np.count_nonzero(~np.isnan(data))
 
     im = axar[axidx].imshow(
-          data.reshape(len(data)/12, 12),
+          data.reshape(len(data)/12,12).transpose(),
           interpolation="nearest",
           cmap="coolwarm", vmin=-xval, vmax=xval,
           aspect='auto'
@@ -149,13 +149,13 @@ def error_image(**kwargs):
     cwm.set_over('yellow',1.0)
     cwm.set_under('orange',1.0)
 
-    colax = divider.append_axes("bottom", size="5%", pad=0.05)
-    cbar = plt.colorbar(im, cax=colax, orientation='horizontal', format="%0.8f", ticks=mtkr.MaxNLocator(6, prune=None))
-    plt.setp(colax.xaxis.get_majorticklabels(), rotation=90)
+    colax = divider.append_axes("right", size="5%", pad=0.05)
+    cbar = plt.colorbar(im, cax=colax, orientation='vertical', format="%0.8f", ticks=mtkr.MaxNLocator(6, prune=None))
+    plt.setp(colax.xaxis.get_majorticklabels(), rotation=0)
 
 
   # Turn the y axis on for the leftmost plot
-  axar[0].yaxis.set_visible(True)
+  axar[-1].xaxis.set_visible(True)
 
   # set the titles for the subplots
   for x in zip(axar, ['Cvegerr', 'Csoilerr', 'Nvegerr_tot', 'Nvegerr_str', 'Nvegerr_lab', 'Nsoilerr_org', 'Nsoilerr_avl']):
