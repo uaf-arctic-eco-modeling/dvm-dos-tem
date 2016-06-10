@@ -323,7 +323,7 @@ def bal_C_veg(curr_jd, pjd):
 def bal_N_soil_org(jd, pjd):
   delta = np.nan
   if pjd != None:
-    delta = jd["OrganicNitrogenSum"] - jd["OrganicNitrogenSum"]
+    delta = jd["OrganicNitrogenSum"] - pjd["OrganicNitrogenSum"]
   err = delta - ( (eco_total("LitterfallNitrogenPFT", jd) + jd["MossdeathNitrogen"]) + jd["NetNMin"] )
   return DeltaError(delta, err)
 
