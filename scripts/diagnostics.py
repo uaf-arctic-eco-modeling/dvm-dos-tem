@@ -42,6 +42,14 @@ def analyze(cjd, pjd):
   results['N soil err org'] = bal_N_soil_org(cjd, pjd).err
   results['N soil err avl'] = bal_N_soil_avl(cjd, pjd).err
 
+  results['N veg vasc err tot'] = bal_N_veg_tot(cjd, pjd, pftlist=vasc).err
+  results['N veg vasc err str'] = bal_N_veg_str(cjd, pjd, pftlist=vasc).err
+  results['N veg vasc err lab'] = bal_N_veg_lab(cjd, pjd, pftlist=vasc).err
+
+  results['N veg nonvasc err tot'] = bal_N_veg_tot(cjd, pjd, pftlist=nonvasc).err
+  results['N veg nonvasc err str'] = bal_N_veg_str(cjd, pjd, pftlist=nonvasc).err
+  results['N veg nonvasc err lab'] = bal_N_veg_lab(cjd, pjd, pftlist=nonvasc).err
+
   return results
 
 def file_loader(**kwargs):
@@ -279,6 +287,8 @@ def eco_total(key, jdata, **kwargs):
       if ( type(jdata[pft][key]) == dict ): # sniff out compartment variables
         if len(jdata[pft][key]) == 3:
           total += jdata[pft][key]["Leaf"] + jdata[pft][key]["Stem"] + jdata[pft][key]["Root"]
+        else:
+          print "Error?: incorrect number of compartments..."
       else:
         total += jdata[pft][key]
 
@@ -328,25 +338,25 @@ def bal_N_soil_avl(jd, pjd):
   err = delta - ( (jd["NetNMin"] + jd["AvlNInput"]) + (eco_total("TotNitrogenUptake", jd) + jd["AvlNLost"]) )
   return DeltaError(delta, err)
 
-def bal_N_veg_tot(jd, pjd):
+def bal_N_veg_tot(jd, pjd, **kwargs):
   delta = np.nan
   if pjd != None:
-    delta = eco_total("NAll", jd) - eco_total("NAll", pjd)
-  err = delta - eco_total("TotNitrogenUptake", jd) + (eco_total("LitterfallNitrogenPFT", jd) + jd["MossdeathNitrogen"])
+    delta = eco_total("NAll", jd, **kwargs) - eco_total("NAll", pjd, **kwargs)
+  err = delta - eco_total("TotNitrogenUptake", jd, **kwargs) + (eco_total("LitterfallNitrogenPFT", jd, **kwargs) + jd["MossdeathNitrogen"])
   return DeltaError(delta, err)
 
-def bal_N_veg_str(jd, pjd):
+def bal_N_veg_str(jd, pjd, **kwargs):
   delta = np.nan
   if pjd != None:
-    delta = eco_total("VegStructuralNitrogen", jd) - eco_total("VegStructuralNitrogen", pjd) # <-- will sum compartments
-  err = delta - (eco_total("StNitrogenUptake", jd) + eco_total("NMobil", jd)) + (eco_total("LitterfallNitrogenPFT", jd) + jd["MossdeathNitrogen"] + eco_total("NResorb", jd))
+    delta = eco_total("VegStructuralNitrogen", jd, **kwargs) - eco_total("VegStructuralNitrogen", pjd, **kwargs) # <-- will sum compartments
+  err = delta - (eco_total("StNitrogenUptake", jd, **kwargs) + eco_total("NMobil", jd, **kwargs)) + (eco_total("LitterfallNitrogenPFT", jd, **kwargs) + jd["MossdeathNitrogen"] + eco_total("NResorb", jd, **kwargs))
   return DeltaError(delta, err)
 
-def bal_N_veg_lab(jd, pjd):
+def bal_N_veg_lab(jd, pjd, **kwargs):
   delta = np.nan
   if pjd != None:
-    delta = eco_total("VegLabileNitrogen", jd) - eco_total("VegLabileNitrogen", pjd)
-  err = delta - (eco_total("LabNitrogenUptake", jd) + eco_total("NResorb", jd)) + eco_total("NMobil", jd)
+    delta = eco_total("VegLabileNitrogen", jd, **kwargs) - eco_total("VegLabileNitrogen", pjd, **kwargs)
+  err = delta - (eco_total("LabNitrogenUptake", jd, **kwargs) + eco_total("NResorb", jd, **kwargs)) + eco_total("NMobil", jd, **kwargs)
   return DeltaError(delta, err)
 
 def Check_N_cycle_veg_balance(idx, header=False, jd=None, pjd=None):
@@ -514,28 +524,46 @@ def Check_C_cycle_veg_nonvascular_balance(idx, header=False, jd=None, pjd=None):
             )
 
 if __name__ == '__main__':
-  slstr = ':1000:'
+
+  slstr = ':6000:'
+
   slstr = ':500:'
 
   plot_tests(['C_soil_balance'], fileslice=slstr)
 
-  run_tests([
-    'N_soil_balance',
-    'N_veg_balance',
-    'C_soil_balance',
-    'C_veg_balance',
-    'C_veg_vascular_balance',
-    'C_veg_nonvascular_balance',
-    'report_soil_C'
-    ], p2c=True, fileslice=slstr)
+  run_tests(
+    [
+      'N_soil_balance',
+      'N_veg_balance',
+      'C_soil_balance',
+      'C_veg_balance',
+      'C_veg_vascular_balance',
+      'C_veg_nonvascular_balance',
+      'report_soil_C'
+    ],
+    w2f="tabular-reports-500-months.txt", 
+    fileslice=slstr
+  )
 
-  error_image(plotlist=[
+  error_image(
+    plotlist=[
       'C veg err',
       'C veg vasc err',
       'C veg nonvasc err',
       'N soil err org',
       'N soil err avl'
-    ], fileslice=slstr)
+      'N veg err tot',
+      'N veg err str',
+      'N veg err lab',
+      'N veg vasc err tot',
+      'N veg vasc err str',
+      'N veg vasc err lab',
+      'N veg nonvasc err tot',
+      'N veg nonvasc err str',
+      'N veg nonvasc err lab',
+    ], 
+    fileslice=slstr
+  )
 
 
 
