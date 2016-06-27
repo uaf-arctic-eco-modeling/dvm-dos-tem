@@ -25,7 +25,7 @@ void ArgHandler::parse(int argc, char** argv) {
       "directories. Facilitates parallel runs, but may make the "
       "calibration-viewer.py more difficult to work with (must pass/set the "
       "PID tag so that the calibration-viewe.py knows where to find the json "
-      "files.")
+      "files.)")
 
     ("pre-run-yrs,p", boost::program_options::value<int>(&pre_run_yrs)
        ->default_value(10),
