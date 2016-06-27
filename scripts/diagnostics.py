@@ -86,6 +86,8 @@ def error_image(**kwargs):
 
   jfiles = file_loader(**kwargs)
 
+  # Figure out the month and year for the first and last
+  # data files. Assumes that the datafiles are contiguous.
   with open(jfiles[0], 'r') as f:
     jdata = json.load(f)
     m1 = int(jdata["Month"])
@@ -96,15 +98,18 @@ def error_image(**kwargs):
     mlast = (jdata["Month"])
     yrlast = (jdata["Year"])
 
-  # pad out the array so it fills an even 
+  # Pad out the array so it fills an even 
   # number of months/years. So if the slice
   # lands on month 3 and end on month 10, 
   # add 3 empty months at the beginning
   # and 1 at the end. Helps for displaying as an image...
   empty = np.empty(len(jfiles) + m1 + (11-mlast)) * np.nan
 
+  # Make room for a lot of data
   imgarrays = [np.copy(empty) for i in plotlist]
 
+  # Run over all the files, calculating all the derived 
+  # diagnostics.
   pjd = None
   for idx, jfile in enumerate(jfiles):
     with open(jfile, 'r') as f:
@@ -529,8 +534,9 @@ if __name__ == '__main__':
 
   slstr = ':500:'
 
-  plot_tests(['C_soil_balance'], fileslice=slstr)
+  #plot_tests(['C_soil_balance'], fileslice=slstr)
 
+  '''
   run_tests(
     [
       'N_soil_balance',
@@ -544,27 +550,53 @@ if __name__ == '__main__':
     w2f="tabular-reports-500-months.txt", 
     fileslice=slstr
   )
+  '''
 
+  print "Running the imaging...."
   error_image(
     plotlist=[
       'C veg err',
       'C veg vasc err',
       'C veg nonvasc err',
       'N soil err org',
-      'N soil err avl'
+      'N soil err avl',
       'N veg err tot',
       'N veg err str',
       'N veg err lab',
+      # 'N veg vasc err tot',
+      # 'N veg vasc err str',
+      # 'N veg vasc err lab',
+      # 'N veg nonvasc err tot',
+      # 'N veg nonvasc err str',
+      # 'N veg nonvasc err lab',
+    ],
+    fileslice=slstr
+  )
+
+  error_image(
+    plotlist=[
       'N veg vasc err tot',
       'N veg vasc err str',
       'N veg vasc err lab',
       'N veg nonvasc err tot',
       'N veg nonvasc err str',
       'N veg nonvasc err lab',
-    ], 
+    ],
     fileslice=slstr
   )
-
+  error_image(
+    plotlist=[
+      'C veg err',
+      'C veg vasc err',
+      'C veg nonvasc err',
+      'N soil err org',
+      'N soil err avl',
+      'N veg err tot',
+      'N veg err str',
+      'N veg err lab',
+    ],
+    fileslice=slstr
+  )
 
 
 
