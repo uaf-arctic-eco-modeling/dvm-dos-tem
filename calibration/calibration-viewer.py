@@ -8,9 +8,9 @@ import json
 import logging
 import argparse
 import textwrap
-import tarfile   # for reading from tar.gz files
-import shutil    # for cleaning up a /tmp directory
-import signal    # for a graceful exit
+import tarfile        # for reading from tar.gz files
+import shutil         # for cleaning up a /tmp directory
+import signal         # for a graceful exit
 import json_minify
 
 if (sys.platform == 'darwin') and (os.name == 'posix'):

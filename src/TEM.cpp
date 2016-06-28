@@ -125,8 +125,9 @@ extern src::severity_logger< severity_level > glg;
 
 int main(int argc, char* argv[]){
 
+  // Read in and parse the command line arguments
   args->parse(argc, argv);
-	if (args->get_help()){
+	if (args->get_help()) {
 		args->show_help();
 		return 0;
 	}

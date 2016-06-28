@@ -14,8 +14,8 @@ void ArgHandler::parse(int argc, char** argv) {
 	desc.add_options()
 
     ("cal-mode,c", boost::program_options::bool_switch(&cal_mode),
-     "Switch for calibration mode. When this flag is preset, the program will "
-     "be forced to run a single site and with --loop-order=space-major. The "
+     "Switch for calibration mode. When this flag is present, the program will "
+     "be forced to run a single site and with '--loop-order=space-major'. The "
      "program will generate yearly and monthly '.json' files in your /tmp "
      " directory that are intended to be read by other programs or scripts.")
 
@@ -24,7 +24,7 @@ void ArgHandler::parse(int argc, char** argv) {
       "Use the process ID (passed as an argmument) to tag the output cal json "
       "directories. Facilitates parallel runs, but may make the "
       "calibration-viewer.py more difficult to work with (must pass/set the "
-      "PID tag so that the calibration-viewe.py knows where to find the json "
+      "PID tag so that the calibration-viewer.py knows where to find the json "
       "files.)")
 
     ("pre-run-yrs,p", boost::program_options::value<int>(&pre_run_yrs)
@@ -102,9 +102,10 @@ void ArgHandler::parse(int argc, char** argv) {
 */
 void ArgHandler::verify() {
 
+  BOOST_LOG_SEV(glg, warn) << "Argument validation/verification NOT fully implemented yet!";
+
   Json::Value controldata = temutil::parse_control_file(this->get_ctrl_file());
 
-  BOOST_LOG_SEV(glg, warn) << "Argument validation/verification NOT IMPLEMENTED YET!";
 }
 
 
