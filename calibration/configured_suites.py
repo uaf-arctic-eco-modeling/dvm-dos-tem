@@ -166,7 +166,7 @@ configured_suites = {
       { 'jsontag': 'LitterfallNitrogenPFT', 'axesnum': 2, 'units': 'gN/m^2', 'pft': '', },
       { 'jsontag': 'TotNitrogenUptake', 'axesnum': 2, 'units': 'gN/m^2', 'pft':'', },
       { 'jsontag': 'StNitrogenUptake', 'axesnum': 2, 'units': 'gN/m^2', 'pft': '', },
-      { 'jsontag': 'LuxNitrogenUptake', 'axesnum': 2, 'units': 'gN/m^2', 'pft': '', },
+      { 'jsontag': 'LabNitrogenUptake', 'axesnum': 2, 'units': 'gN/m^2', 'pft': '', },
 
       { 'jsontag': 'LitterfallNitrogen', 'axesnum': 3, 'units': 'gN/m^2', 'pft': '', 'pftpart': 'Leaf'},
       { 'jsontag': 'LitterfallNitrogen', 'axesnum': 3, 'units': 'gN/m^2', 'pft': '', 'pftpart': 'Stem'},

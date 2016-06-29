@@ -171,8 +171,6 @@ void Runner::check_sum_over_compartments() {
                   cohort.bd[ip].m_vegs.strn[I_stem] +
                   cohort.bd[ip].m_vegs.strn[I_root]);
 
-    // Not sure what to do about m_vegs.labn and m_vegs.nall?? ???
-
     log_not_equal("whole plant ingpp", "plant ingpp PART", ip,
                   cohort.bd[ip].m_a2v.ingppall,
                   cohort.bd[ip].m_a2v.ingpp[I_leaf] +
@@ -252,9 +250,11 @@ void Runner::check_sum_over_PFTs(){
 
   double ecosystem_C = 0;
   double ecosystem_C_by_compartment = 0;
-  //double ecosystem_N = 0; ???
+
+  double ecosystem_N = 0;
   double ecosystem_strn = 0;
   double ecosystem_strn_by_compartment = 0;
+  double ecosystem_labn = 0;
 
   double ecosystem_ingpp = 0;
   double ecosystem_gpp = 0;
@@ -281,6 +281,9 @@ void Runner::check_sum_over_PFTs(){
     ecosystem_strn_by_compartment += (this->cohort.bd[ip].m_vegs.strn[I_leaf] +
                                       this->cohort.bd[ip].m_vegs.strn[I_stem] +
                                       this->cohort.bd[ip].m_vegs.strn[I_root]);
+    ecosystem_labn += this->cohort.bd[ip].m_vegs.labn;
+
+    ecosystem_N += (this->cohort.bd[ip].m_vegs.strnall + this->cohort.bd[ip].m_vegs.labn);
 
     ecosystem_ingpp += this->cohort.bd[ip].m_a2v.ingppall;
     ecosystem_gpp += this->cohort.bd[ip].m_a2v.gppall;
@@ -303,7 +306,9 @@ void Runner::check_sum_over_PFTs(){
   // Check that the sums are equal to the Runner level containers (ecosystem totals)
   log_not_equal(this->cohort.bdall->m_vegs.call, ecosystem_C, "Runner:: ecosystem veg C not matching sum over PFTs!");
   log_not_equal(this->cohort.bdall->m_vegs.call, ecosystem_C_by_compartment, "Runner:: ecosystem veg C not matching sum over compartments");
-  // ecosystem N?
+
+  log_not_equal(this->cohort.bdall->m_vegs.nall, ecosystem_N, "Runner:: ecosystem nall not matching sum over PFTs (of strn and nall)!");
+  log_not_equal(this->cohort.bdall->m_vegs.labn, ecosystem_labn, "Runner:: ecosystem labn not matching sum over PFTs!");
   log_not_equal(this->cohort.bdall->m_vegs.strnall, ecosystem_strn, "Runner:: ecosystem strn not matching sum over PFTs!");
   log_not_equal(this->cohort.bdall->m_vegs.strnall, ecosystem_strn_by_compartment, "Runner:: ecosystem strn not matching sum over compartments!");
 
@@ -377,6 +382,10 @@ void Runner::output_caljson_monthly(int year, int month, std::string stage){
   data["TMineB"] = cohort.edall->m_soid.tmineb;
   data["TMineC"] = cohort.edall->m_soid.tminec;
 
+
+  data["NMobilAll"] = cohort.bdall->m_v2v.nmobilall;
+  data["NResorbAll"] = cohort.bdall->m_v2v.nresorball;
+
   data["StNitrogenUptakeAll"] = cohort.bdall->m_soi2v.snuptakeall;
   data["InNitrogenUptakeAll"] = cohort.bdall->m_soi2v.innuptake;
   data["AvailableNitrogenSum"] = cohort.bdall->m_soid.avlnsum;
@@ -437,6 +446,12 @@ void Runner::output_caljson_monthly(int year, int month, std::string stage){
     data["PFT" + pft_str]["VegStructuralNitrogen"]["Stem"] = cohort.bd[pft].m_vegs.strn[I_stem];
     data["PFT" + pft_str]["VegStructuralNitrogen"]["Root"] = cohort.bd[pft].m_vegs.strn[I_root];
     data["PFT" + pft_str]["VegLabileNitrogen"] = cohort.bd[pft].m_vegs.labn;
+
+    data["PFT" + pft_str]["NMobil"] = cohort.bd[pft].m_v2v.nmobilall; // <- the all denotes multi-compartment
+    data["PFT" + pft_str]["NResorb"] = cohort.bd[pft].m_v2v.nresorball;
+
+    data["PFT" + pft_str]["NAll"] = cohort.bd[pft].m_vegs.nall; // <-- Sum of labn and strn
+
     data["PFT" + pft_str]["GPPAll"] = cohort.bd[pft].m_a2v.gppall;
     data["PFT" + pft_str]["NPPAll"] = cohort.bd[pft].m_a2v.nppall;
     data["PFT" + pft_str]["GPPAllIgnoringNitrogen"] = cohort.bd[pft].m_a2v.ingppall;
@@ -452,7 +467,7 @@ void Runner::output_caljson_monthly(int year, int month, std::string stage){
     parAbsorbSum+=cohort.ed[pft].m_a2v.parabsorb;
     data["PFT" + pft_str]["StNitrogenUptake"] = cohort.bd[pft].m_soi2v.snuptakeall;
     data["PFT" + pft_str]["InNitrogenUptake"] = cohort.bd[pft].m_soi2v.innuptake;
-    data["PFT" + pft_str]["LuxNitrogenUptake"] = cohort.bd[pft].m_soi2v.lnuptake;
+    data["PFT" + pft_str]["LabNitrogenUptake"] = cohort.bd[pft].m_soi2v.lnuptake;
     data["PFT" + pft_str]["TotNitrogenUptake"] = cohort.bd[pft].m_soi2v.snuptakeall + cohort.bd[pft].m_soi2v.lnuptake;
     data["PFT" + pft_str]["MossDeathC"] = cohort.bd[pft].m_v2soi.mossdeathc;
 
@@ -531,6 +546,9 @@ void Runner::output_caljson_yearly(int year, std::string stage) {
   data["TMineB"] = cohort.edall->y_soid.tmineb;
   data["TMineC"] = cohort.edall->y_soid.tminec;
 
+  data["NMobilAll"] = cohort.bdall->m_v2v.nmobilall;
+  data["NResorbAll"] = cohort.bdall->m_v2v.nresorball;
+
   data["StNitrogenUptakeAll"] = cohort.bdall->y_soi2v.snuptakeall;
   data["InNitrogenUptakeAll"] = cohort.bdall->y_soi2v.innuptake;
   data["AvailableNitrogenSum"] = cohort.bdall->y_soid.avlnsum;
@@ -581,6 +599,12 @@ void Runner::output_caljson_yearly(int year, std::string stage) {
     data["PFT" + pft_str]["VegStructuralNitrogen"]["Stem"] = cohort.bd[pft].y_vegs.strn[I_stem];
     data["PFT" + pft_str]["VegStructuralNitrogen"]["Root"] = cohort.bd[pft].y_vegs.strn[I_root];
     data["PFT" + pft_str]["VegLabileNitrogen"] = cohort.bd[pft].y_vegs.labn;
+
+    data["PFT" + pft_str]["NAll"] = cohort.bd[pft].m_vegs.nall; // <-- Sum of labn and strn
+
+    data["PFT" + pft_str]["NMobil"] = cohort.bd[pft].m_v2v.nmobilall; // <- the all denotes multi-compartment
+    data["PFT" + pft_str]["NResorb"] = cohort.bd[pft].m_v2v.nresorball;
+
     data["PFT" + pft_str]["GPPAll"] = cohort.bd[pft].y_a2v.gppall;
     data["PFT" + pft_str]["NPPAll"] = cohort.bd[pft].y_a2v.nppall;
     data["PFT" + pft_str]["GPPAllIgnoringNitrogen"] = cohort.bd[pft].y_a2v.ingppall;
@@ -596,7 +620,7 @@ void Runner::output_caljson_yearly(int year, std::string stage) {
     data["PFT" + pft_str]["PARAbsorb"] = cohort.ed[pft].y_a2v.parabsorb;
     data["PFT" + pft_str]["StNitrogenUptake"] = cohort.bd[pft].y_soi2v.snuptakeall;
     data["PFT" + pft_str]["InNitrogenUptake"] = cohort.bd[pft].y_soi2v.innuptake;
-    data["PFT" + pft_str]["LuxNitrogenUptake"] = cohort.bd[pft].y_soi2v.lnuptake;
+    data["PFT" + pft_str]["LabNitrogenUptake"] = cohort.bd[pft].y_soi2v.lnuptake;
     data["PFT" + pft_str]["TotNitrogenUptake"] = cohort.bd[pft].y_soi2v.snuptakeall + cohort.bd[pft].y_soi2v.lnuptake;
   }
 
