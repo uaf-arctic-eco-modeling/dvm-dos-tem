@@ -106,6 +106,11 @@ void ArgHandler::verify() {
 
   Json::Value controldata = temutil::parse_control_file(this->get_ctrl_file());
 
+  if ((this->pid_tag.compare("") != 0) && (!this->cal_mode)) {
+    BOOST_LOG_SEV(glg, fatal) << "If you have specified a PID tag, you must also specify --cal-mode!";
+    exit(-1);
+  }
+
 }
 
 

@@ -11,7 +11,6 @@ import textwrap
 import tarfile        # for reading from tar.gz files
 import shutil         # for cleaning up a /tmp directory
 import signal         # for a graceful exit
-import json_minify
 
 if (sys.platform == 'darwin') and (os.name == 'posix'):
   # this is the only one that seems to work on Mac OSX with animation...
@@ -25,15 +24,6 @@ import matplotlib.animation as animation
 import matplotlib.gridspec as gridspec
 
 import matplotlib.widgets
-
-# These values are set in main(), loaded from the config file...
-# They need to be defined here so that other functions in the file
-# can reference them. The program won't work unless these values are
-# successfully set to something other than empty strings.
-DEFAULT_YEARLY_JSON_LOCATION = ""
-DEFAULT_MONTHLY_JSON_LOCATION = ""
-DEFAULT_EXTRACTED_ARCHIVE_LOCATION = ""
-
 
 #
 # Disable some buttons on the default toobar that freeze the program.
@@ -92,14 +82,17 @@ def monthly_files(tarfileobj):
 class InputHelper(object):
   '''A class to help abstract some of the details of opening .json files
   '''
-  def __init__(self, path=DEFAULT_YEARLY_JSON_LOCATION, monthly=False):
+  def __init__(self, path, monthly=False):
     logging.debug("Making an InputHelper object...")
 
     self._monthly = monthly
 
+    # Assume path is a directory full of .json files
     if os.path.isdir(path):
-      # Assume path is a directory full of .json files
-      self._path = path
+      if self._monthly:
+        self._path = os.path.join(path, "calibration/monthly")
+      else:
+        self._path = os.path.join(path, "calibration/yearly")
 
     elif os.path.isfile(path):
       # Assume path is a .tar.gz (or other compression) with .json files in it
@@ -796,44 +789,6 @@ if __name__ == '__main__':
   logger = logging.getLogger(__name__)
 
   #
-  # Load settings from the same config file that the main model uses...
-  #
-  try:
-    # Figure out the path to the config file. Should be up a directory.
-    # This calibration viewer lives in the calibration/ directory, and the
-    # config file lives in the config/ directory. So we get the absolute
-    # path to the script, and then move up and over to config/
-    cfg_file_path = os.path.join(
-        os.path.dirname(os.path.dirname(os.path.realpath(__file__))),
-        "config/config.js"
-    )
-
-    with open(cfg_file_path) as f:
-      fdata = f.read()
-      minidata = json_minify.json_minify(fdata) # strip comments
-      configdata = json.loads(minidata)
-
-    # NOTE: This is not perfect - if the user overrides the pid tag setting
-    # using the dvmdostem command line option, then this method of setting
-    # the calibration data folders won't be smart enough to catch that.
-    # May need to add cmd line option to the viewer to set the PID tag...
-    pid = configdata["calibration-IO"]["unique_pid_tag"]
-    if ("" != pid):
-      base = os.path.join(configdata["calibration-IO"]["caldata_tree_loc"],
-                          "dvmdostem-%s"%(pid), "calibration")
-    else:
-      base = os.path.join(configdata["calibration-IO"]["caldata_tree_loc"],
-                          "dvmdostem", "calibration")
-
-    DEFAULT_MONTHLY_JSON_LOCATION = os.path.join(base, "monthly")
-    DEFAULT_YEARLY_JSON_LOCATION = os.path.join(base, "yearly")
-
-  except (IOError, ValueError) as e:
-    logging.error("Problem: '%s' reading the config file '%s'" % (e, f))
-    exit(-1)
-
-
-  #
   # Setup the command line interface...
   #
   parser = argparse.ArgumentParser(
@@ -849,12 +804,9 @@ if __name__ == '__main__':
         '''),
         
       epilog=textwrap.dedent('''\
-        By default, the program tries to read json files from
-            
-            %s
+        By default, the program tries to read json files from your /tmp
+        directory and plot the resulting data.
         
-        and plot the resulting data. 
-
         When plotting dynamically the plot will expand to fit data that
         it finds in the directory or archive. Unless using the 
         '--no-show' flag, the plot will be displayed in an "interactive" 
@@ -915,7 +867,7 @@ if __name__ == '__main__':
             http://matplotlib.org/1.3.1/users/navigation_toolbar.html
 
         I am sure we forgot to mention something?
-        ''' % DEFAULT_YEARLY_JSON_LOCATION)
+        ''' % ())
       )
 
   parser.add_argument('--pft', default=0, type=int,
@@ -976,6 +928,10 @@ if __name__ == '__main__':
   parser.add_argument('--monthly', action='store_true', #default='/tmp/cal-dvmdostem',
       help=textwrap.dedent('''Read and disply monthly json files instead of 
           yearly. NOTE: may be slow!!'''))
+
+  parser.add_argument('--data-path', default="/tmp/dvmdostem/",
+      help=textwrap.dedent('''Look for json files in the specified path (instead
+           of the default location)'''))
 
 
   print "Parsing command line arguments..."
@@ -1049,10 +1005,11 @@ if __name__ == '__main__':
   if args.from_archive:
     input_helper = InputHelper(path=args.from_archive, monthly=args.monthly)
   else:
-    if args.monthly:
-      input_helper = InputHelper(path=DEFAULT_MONTHLY_JSON_LOCATION, monthly=args.monthly)
-    else:
-      input_helper = InputHelper(path=DEFAULT_YEARLY_JSON_LOCATION, monthly=args.monthly)
+    input_helper = InputHelper(path=args.data_path, monthly=args.monthly)
+
+  #logging.info("from_archive=%s" % args.from_archive)
+  #logging.info("data_path=%s" % args.data_path)
+
 
   logging.info("Build the plot object...")
   ewp = ExpandingWindow(
