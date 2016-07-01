@@ -8,6 +8,7 @@ import os                         # general path manipulations
 import shutil                     # cleaning up files
 import glob                       # listing/finding data files
 import json                       # reading data files
+import itertools
 import tarfile                    # opening archived data
 import argparse                   # command line interface
 import textwrap                   # help formatting
@@ -580,8 +581,9 @@ if __name__ == '__main__':
   ]
 
   # Make a table listing options for the help text
-  t = zip(error_image_choices, tab_reports_and_timeseries_choices)
-  option_table = "\n".join(["{:<20} {:<20}".format(r[0], r[1]) for r in t])
+  t = itertools.izip_longest(error_image_choices, tab_reports_and_timeseries_choices)
+  option_table = "\n".join(["{:>30} {:>30}".format(r[0], r[1]) for r in t])
+  option_table = "\n" + option_table
 
   #
   # Setup the command line interface...
