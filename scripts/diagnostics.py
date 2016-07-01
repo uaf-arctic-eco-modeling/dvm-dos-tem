@@ -377,7 +377,8 @@ def bal_N_veg_tot(jd, pjd, **kwargs):
   delta = np.nan
   if pjd != None:
     delta = eco_total("NAll", jd, **kwargs) - eco_total("NAll", pjd, **kwargs)
-  err = delta - eco_total("TotNitrogenUptake", jd, **kwargs) + (eco_total("LitterfallNitrogenPFT", jd, **kwargs) + jd["MossdeathNitrogen"])
+  err = delta - (eco_total("TotNitrogenUptake", jd, **kwargs) - (eco_total("LitterfallNitrogenPFT", jd, **kwargs) + jd["MossdeathNitrogen"]))
+
   return DeltaError(delta, err)
 
 def bal_N_veg_str(jd, pjd, **kwargs):
