@@ -1,12 +1,19 @@
 #!/usr/bin/env python
 
-import os
-import glob
-import json
-import numpy as np
-import pandas as pd
+#
+# T. Carman Spring/Summer 2016
+#
 
-import matplotlib.pyplot as plt
+import os                         # general path manipulations
+import shutil                     # cleaning up files
+import glob                       # listing/finding data files
+import json                       # reading data files
+import tarfile                    # opening archived data
+import argparse                   # command line interface
+import textwrap                   # help formatting
+import numpy as np                # general maths
+import pandas as pd               # for timeseries plots
+import matplotlib.pyplot as plt   # general plotting
 
 import sys
 if sys.version_info[0] < 3:
@@ -14,6 +21,12 @@ if sys.version_info[0] < 3:
 else:
     from io import StringIO
 
+# Generator function for extracting specific files from a tar archive
+def monthly_files(tarfileobj):
+  '''Get the */monthly/*.json files...'''
+  for tarinfo in tarfileobj:
+    if 'monthly' in tarinfo.name:
+      yield tarinfo
 
 def analyze(cjd, pjd):
   '''Extract every ounce of knowledge from a pair of json data objects.
@@ -62,7 +75,23 @@ def file_loader(**kwargs):
   else:
       custom_slice = slice(None,None,None)
 
-  jfiles = glob.glob("/tmp/dvmdostem/calibration/monthly/*.json")
+  if "fromarchive" in kwargs:
+    tf = tarfile.open(kwargs['fromarchive'])
+
+    # might be able to use tar checksum (crc) to implement some kind of caching...
+    TMP_EXTRACT_LOCATION = '/tmp/com.iab.dvmdostem.diagnostics.23f23f2' # <-- could be a checksum of the tar?
+
+    if ( os.path.isdir(TMP_EXTRACT_LOCATION) or os.path.isfile(TMP_EXTRACT_LOCATION) ):
+      print "Cleaning up the temporary location: ", TMP_EXTRACT_LOCATION
+      shutil.rmtree(TMP_EXTRACT_LOCATION)
+    tf.extractall(TMP_EXTRACT_LOCATION, members=monthly_files(tf))
+    full_glob = os.path.join(TMP_EXTRACT_LOCATION, "/tmp/dvmdostem/calibration/monthly/*.json")
+    print "Matching this pattern: ", full_glob
+    jfiles = glob.glob(full_glob)
+  else:
+    pattern_string = "/tmp/dvmdostem/calibration/monthly/*.json"
+    print "Looking for json files matching pattern:", pattern_string
+    jfiles = glob.glob(pattern_string)
 
   print "Custom file slice:", custom_slice
   jfiles = jfiles[custom_slice]
@@ -364,6 +393,7 @@ def bal_N_veg_lab(jd, pjd, **kwargs):
   err = delta - (eco_total("LabNitrogenUptake", jd, **kwargs) + eco_total("NResorb", jd, **kwargs)) + eco_total("NMobil", jd, **kwargs)
   return DeltaError(delta, err)
 
+
 def Check_N_cycle_veg_balance(idx, header=False, jd=None, pjd=None):
     '''Checking....?'''
     if header:
@@ -530,75 +560,90 @@ def Check_C_cycle_veg_nonvascular_balance(idx, header=False, jd=None, pjd=None):
 
 if __name__ == '__main__':
 
-  slstr = ':6000:'
+  error_image_choices = [
+    'C soil err',
+    'N soil err org', 'N soil err avl',
+    'C veg err', 'C veg vasc err', 'C veg nonvasc err',
+    'N veg err tot', 'N veg err str', 'N veg err lab',
+    'N veg vasc err tot', 'N veg vasc err str', 'N veg vasc err lab',
+    'N veg nonvasc err tot', 'N veg nonvasc err str', 'N veg nonvasc err lab',
+  ]
 
-  slstr = ':500:'
+  tab_reports_and_timeseries_choices = [
+    'N_soil_balance',
+    'N_veg_balance',
+    'C_soil_balance',
+    'C_veg_balance',
+    'C_veg_vascular_balance',
+    'C_veg_nonvascular_balance',
+    'report_soil_C'
+  ]
 
-  #plot_tests(['C_soil_balance'], fileslice=slstr)
+  # Make a table listing options for the help text
+  t = zip(error_image_choices, tab_reports_and_timeseries_choices)
+  option_table = "\n".join(["{:<20} {:<20}".format(r[0], r[1]) for r in t])
 
-  '''
-  run_tests(
-    [
-      'N_soil_balance',
-      'N_veg_balance',
-      'C_soil_balance',
-      'C_veg_balance',
-      'C_veg_vascular_balance',
-      'C_veg_nonvascular_balance',
-      'report_soil_C'
-    ],
-    w2f="tabular-reports-500-months.txt", 
-    fileslice=slstr
-  )
-  '''
+  #
+  # Setup the command line interface...
+  #
+  parser = argparse.ArgumentParser(
 
-  print "Running the imaging...."
-  error_image(
-    plotlist=[
-      'C veg err',
-      'C veg vasc err',
-      'C veg nonvasc err',
-      'N soil err org',
-      'N soil err avl',
-      'N veg err tot',
-      'N veg err str',
-      'N veg err lab',
-      # 'N veg vasc err tot',
-      # 'N veg vasc err str',
-      # 'N veg vasc err lab',
-      # 'N veg nonvasc err tot',
-      # 'N veg nonvasc err str',
-      # 'N veg nonvasc err lab',
-    ],
-    fileslice=slstr
-  )
+    formatter_class=argparse.RawDescriptionHelpFormatter,
 
-  error_image(
-    plotlist=[
-      'N veg vasc err tot',
-      'N veg vasc err str',
-      'N veg vasc err lab',
-      'N veg nonvasc err tot',
-      'N veg nonvasc err str',
-      'N veg nonvasc err lab',
-    ],
-    fileslice=slstr
-  )
-  error_image(
-    plotlist=[
-      'C veg err',
-      'C veg vasc err',
-      'C veg nonvasc err',
-      'N soil err org',
-      'N soil err avl',
-      'N veg err tot',
-      'N veg err str',
-      'N veg err lab',
-    ],
-    fileslice=slstr
+      description=textwrap.dedent('''\
+        Error image and tabular report options
+        %s
+        ''' % (option_table)),
+      epilog=textwrap.dedent('''\
+        epilog text...''')
+    )
+
+  parser.add_argument('-s', '--slice', default='', type=str,
+      help="A custom file slice string")
+
+  parser.add_argument('-a', '--from-archive', default=False,
+      help=textwrap.dedent('''Generate plots from an archive of json files, 
+          instead of the normal /tmp directory.'''))
+
+  parser.add_argument('-i', '--error-image', default=False, nargs='+',
+      choices=error_image_choices, metavar="P",
+      help=textwrap.dedent('''Generate at 2D image plot of the error''')
   )
 
+  parser.add_argument('-p', '--plot-timeseries', default=False, nargs='+',
+      choices=tab_reports_and_timeseries_choices, metavar="P",
+      help=textwrap.dedent('''Generate timeseries''')
+  )
 
+  parser.add_argument('-c', '--tab-reports', default=False, nargs='+',
+      choices=tab_reports_and_timeseries_choices, metavar="P",
+      help=textwrap.dedent('''Generate tabular reports''')
+  )
+
+  # parser.add_argument('--save-name', default="",
+  #     help="A file name prefix to use for saving plots.")
+
+  # parser.add_argument('--save-format', default="pdf",
+  #     help="Choose a file format to use for saving plots.")
+
+  print "Parsing command line arguments..."
+  args = parser.parse_args()
+  print args
+
+  slstr = args.slice
+  fromarchive = args.from_archive
+
+  if args.error_image:
+    print "Creating error image plots..."
+    error_image(plotlist=args.error_image, fileslice=slstr)
+
+  if args.plot_timeseries:
+    print "Creating timeseries plots..."
+    plot_tests(args.plot_timeseries, fileslice=slstr)
+
+  if args.tab_reports:
+    print "Creating tabular reports..."
+    run_tests(args.tab_reports, fileslice=slstr, p2c=True)
 
 
 
