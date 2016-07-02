@@ -204,8 +204,16 @@ def error_image(**kwargs):
 
 
   # set the titles for the subplots
+  assert len(axar) == len(plotlist) # zip silently trucates longer list
   for x in zip(axar, plotlist):
-    x[0].set_title(x[1])
+    if len(x[1].split(' ')) > 3:
+      print x[1].split(' ')
+      l1 = ' '.join(x[1].split(' ')[0:3])
+      l2 = ' '.join(x[1].split(' ')[3:])
+      newX1 = "\n".join([l1, l2])
+      x[0].set_title(newX1)
+    else:
+      x[0].set_title(x[1])
 
   plt.tight_layout()
   plt.show(block=True)
