@@ -1,5 +1,9 @@
 README for dvm-dos-tem
 ===========================================
+
+Basic information is provided in this README file. For more details, see the 
+wiki: [](https://github.com/ua-snap/dvm-dos-tem/wiki)
+
 The dvm-dos-tem is a process based bio-geo-chemical ecosystem model.
 
 There are two ways in which you might interact with dvmdostem: 
@@ -17,11 +21,32 @@ time-steps and spatial locations.
 
 Requirements and Dependencies
 -----------------------------------------------------------------------------------------
-The following tools/libraries are necessary in order to compile and run dvm-dos-tem
 
-* Boost, including [Boost.Program_options](http://www.boost.org/doc/libs/1_53_0/doc/html/program_options.html)
+## Main program
+
+The following tools/libraries are necessary in order to compile and run `dvm-dos-tem`. 
+
+* [Boost](http://www.boost.org), at least v1.54 (when Boost::Log was added)
+  - [Boost::Program_options](http://www.boost.org/doc/libs/1_61_0/libs/program_options/)
+  - [Boost::Filesystem](http://www.boost.org/doc/libs/1_61_0/libs/filesystem/)
+  - [Boost::Thread](http://www.boost.org/doc/libs/1_61_0/libs/thread/)
+  - [Boost.Log](http://www.boost.org/doc/libs/1_61_0/libs/log/)
+  - [Boost.System](http://www.boost.org/doc/libs/1_61_0/libs/system/)
 * NetCDF, C++ Interface, [NetCDF/Unidata](http://www.unidata.ucar.edu/software/netcdf/)
 * Jsoncpp [https://github.com/open-source-parsers/jsoncpp](https://github.com/open-source-parsers/jsoncpp)
+* [GNU Readline] (https://cnswww.cns.cwru.edu/php/chet/readline/rltop.html#TOCDocumentation) 
+* MPI - included in the Makefile and SConstruct, but not used yet. Will be needed as we implement parallelism.
+* pthread
+
+## Auxillary pre- and post-processing tools
+
+* Python
+ - numpy
+ - matplotlib
+ - pandas
+ - netCDF4
+
+* GDAL Command Line Tools
 
 Downloading 
 -----------------------------------------------------------
@@ -48,13 +73,13 @@ You have two options for compling the source code:
  * make (and Makefile)
  * scons (and SConstruct file)
  
-Make is a old, widely availabe, powerful program with a somewhat arcane syntax. 
+`Make` is a old, widely availabe, powerful program with a somewhat arcane syntax. 
 The Makefile is not setup for partial-compilation, so editing a single file 
 requires and re-making the project will result in re-compiling every single
-file.
+file. This can be annoyingly slow if you find yourself compiling frequently.
 
-Scons is a build program that is written in Python, and designed to be a easier
-to use than make. The scons and the SConstruct file are smart enough to do
+`Scons` is a build program that is written in Python, and designed to be a easier
+to use than make. The `scons` and the SConstruct file are smart enough to do
 partial builds, so that some changes result in much faster builds.
 
 Both programs can take a flag specifying parallel builds and the number of 
@@ -122,6 +147,11 @@ flag provides some info and shows the defaults:
       -p [ --pre-run-yrs ] arg (=10)        The number of 'pre-run' years.
       -m [ --max-eq ] arg (=1000)           The maximum number of years to run in 
                                             equlibrium stage.
+      -s [ --sp-yrs ] arg (=100)            The number of spinup years.
+      -t [ --tr-yrs ] arg (=0)              The number of years to run transient. 
+                                            Overrides config for testing.
+      -n [ --sc-yrs ] arg (=0)              The number of years to run scenario. 
+                                            Overrides config for testing.
       -o [ --loop-order ] arg (=space-major)
                                             Which control loop is on the outside: 
                                             'space-major' or 'time-major'. For 
@@ -133,6 +163,16 @@ flag provides some info and shows the defaults:
                                             log statements. Choose one of the 
                                             following: debug, info, note, warn, 
                                             err, fatal.
+      --log-scope arg (=all)                Control the scope of log messages: 
+                                            yearly, monthly, or daily. With a 
+                                            setting of M (monthly), messages within
+                                            the monthly (and yearly) scope will be 
+                                            shown, but not messages within the 
+                                            daily scope. Values other than 'Y', 
+                                            'M', 'D', or 'all' will be ignored. 
+                                            Scopes are determined by 'boost log 
+                                            named scopes' set within the source 
+                                            code.
       -x [ --fpe ]                          Switch for enabling floating point 
                                             exceptions. If present, the program 
                                             will crash when NaN or Inf are 
@@ -143,12 +183,12 @@ flag provides some info and shows the defaults:
 Documentation
 -----------------------------------------------------------------
 There is a Doxygen file (Doxyfile) included with this project. The current settings are
-for the Doxygen output to be generated in the docs/dvm-dos-tem/ directory.
+for the Doxygen output to be generated in the `docs/dvm-dos-tem/` directory.
 
 The file is setup to build a very comprehensive set of documents, including as many
 diagrams as possible (call graphs, dependency diagrams, etc). To build the diagrams,
 Doxygen requires a few extra packages, such as the dot package. This is not available on
-aeshna, so running Doxygen on aeshna will produce a bunch of errors.
+`aeshna`, so running Doxygen on `aeshna` will produce a bunch of errors.
 
 Developing 
 ----------------------------------------------------
