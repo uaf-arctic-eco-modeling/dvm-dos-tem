@@ -112,17 +112,24 @@ def file_loader(**kwargs):
   return jfiles
 
 def onclick(event):
-  print "SOMETHING HAPPENED!"
-
+  if event.xdata != None and event.ydata != None:
+    i_edy = np.rint(event.ydata)
+    i_edx = np.rint(event.xdata)
+    print "Data coordinates (y, x): ", "(%s,%s)"%(event.ydata, event.xdata)
+    print "Data coords as int: ", "(%s,%s)"%(i_edy, i_edx)
+    cax = event.inaxes
+    caximg = cax.images[0]
+    #print "Shape of axes image data array: ", caximg.get_array().shape
+    # with printoptions(precision=3, suppress=True):
+    #   print caximg.get_array()[int(event.ydata-2):int(event.ydata+3), int(event.xdata-2):int(event.xdata+3)]
+    print "Data at[%s, %s]: %s" % (i_edy, i_edx, caximg.get_array()[i_edy, i_edx])
+    print
 
   if event.key == 'ctrl+c':
-    logging.debug("Captured Ctrl-C. Quit nicely.")
+    print "Captured Ctrl-C. Quit nicely."
     exit_gracefully(event.key, None) # <-- need to pass something for frame ??
 
 
-  print event
-  if event.xdata != None and event.ydata != None:
-    print(event.xdata, event.ydata)
 
 def error_image(**kwargs):
   '''Returns an array with dimensions (yrs,months) for the error variable.'''
@@ -182,9 +189,11 @@ def error_image(**kwargs):
   fig, axar = plt.subplots(1, len(imgarrays), sharex=True, sharey=True)
   fig.set_tight_layout(True)
   cid = fig.canvas.mpl_connect('button_press_event', onclick)
+  #mpldatacursor.datacursor(display='single')
 
   for axidx, data in enumerate(imgarrays):
-
+    print "Plotting for axes %s" % axidx
+    print "-------------------------------------------"
     # We are going to use a divergent color scheme centered around zero,
     # so we need to find largest absolute value of the data and use that
     # as the endpoints for the color-scaling.
@@ -193,27 +202,33 @@ def error_image(**kwargs):
 
     # It is also handy to mask out the values that are zero (no error)
     # or riduculously close to zero (effectively zero)
-    print "before mask: ", np.count_nonzero(~np.isnan(data))
+    print "Valid values before masking values close to zero: ", np.count_nonzero(~np.isnan(data))
     data = np.ma.masked_equal(data, 0)
     maskclose = np.isclose(data, np.zeros(data.shape))
     data = np.ma.masked_array(data, mask=maskclose)
     data = np.ma.masked_invalid(data)
-    print "after mask: ", data.count()
+    print "Remaining data after masking near-zero data: ", data.count()
 
+    # Transform data to 2D shape for showing as an image
+    data = data.reshape(len(data)/12, 12)
+
+    # Display the data as an image
     im = axar[axidx].imshow(
-          data.reshape(len(data)/12, 12),
+          data,
           interpolation="nearest",
           cmap="coolwarm", vmin=-xval, vmax=xval,
           aspect='auto' # helps with non-square images...
         )
-    axar[axidx].grid(False, axis='both')
+    loc = MultipleLocator(base=1.0) # this locator puts ticks at regular intervals
+    axar[axidx].xaxis.set_major_locator(loc)
+    axar[axidx].grid(True, axis='both')
 
     #axar[axidx].yaxis.set_visible(False)
     #axar[axidx].yaxis.set_major_locator(mtkr.MultipleLocator(5))
     #axar[axidx].tick_params(axis='y', direction='in', length=3, width=.5, colors='k', labelleft='off', labelright='off')
 
     axar[axidx].set_xlabel("Month")
-    axar[axidx].xaxis.set_major_locator(mtkr.MaxNLocator(5, integer=True)) # 5 seems to be magic number; works with zooming.
+    #axar[axidx].xaxis.set_major_locator(mtkr.MaxNLocator(5, integer=True)) # 5 seems to be magic number; works with zooming.
     axar[axidx].tick_params(axis='x', direction='in', length=3, width=.5, colors='k')
 
     divider = make_axes_locatable(axar[axidx])
@@ -231,7 +246,7 @@ def error_image(**kwargs):
   #axar[0].tick_params(axis='y', direction='out', length=4, width=1, colors='k', labelleft='on', labelright='off')
 
 
-  # set the titles for the subplots
+  # set the titles for the subplots - rudimentady line-wrapping for long titles
   assert len(axar) == len(plotlist) # zip silently trucates longer list
   for x in zip(axar, plotlist):
     if len(x[1].split(' ')) > 3:
