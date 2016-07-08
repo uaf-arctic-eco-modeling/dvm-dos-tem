@@ -180,6 +180,7 @@ def error_image(**kwargs):
 
   # undertake the plotting of the now full arrays..
   fig, axar = plt.subplots(1, len(imgarrays), sharex=True, sharey=True)
+  fig.set_tight_layout(True)
   cid = fig.canvas.mpl_connect('button_press_event', onclick)
 
   for axidx, data in enumerate(imgarrays):
@@ -242,7 +243,6 @@ def error_image(**kwargs):
     else:
       x[0].set_title(x[1])
 
-  plt.tight_layout()
   plt.show(block=True)
 
 def plot_tests(test_list, **kwargs):
