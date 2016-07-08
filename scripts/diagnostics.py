@@ -8,6 +8,7 @@ import os                         # general path manipulations
 import shutil                     # cleaning up files
 import glob                       # listing/finding data files
 import json                       # reading data files
+import signal                     # for exiting gracefully
 import itertools
 import tarfile                    # opening archived data
 import argparse                   # command line interface
@@ -21,6 +22,17 @@ if sys.version_info[0] < 3:
     from StringIO import StringIO
 else:
     from io import StringIO
+
+def exit_gracefully(signum, frame):
+  '''A function for quitting w/o leaving a stacktrace on the users console.'''
+  print "Caught signal='%s', frame='%s'. Quitting - gracefully." % (signum, frame)
+  sys.exit(1)
+
+
+# Callback for SIGINT. Allows exit w/o printing stacktrace to users screen
+original_sigint = signal.getsignal(signal.SIGINT)
+signal.signal(signal.SIGINT, exit_gracefully)
+
 
 # Generator function for extracting specific files from a tar archive
 def monthly_files(tarfileobj):
@@ -99,6 +111,19 @@ def file_loader(**kwargs):
 
   return jfiles
 
+def onclick(event):
+  print "SOMETHING HAPPENED!"
+
+
+  if event.key == 'ctrl+c':
+    logging.debug("Captured Ctrl-C. Quit nicely.")
+    exit_gracefully(event.key, None) # <-- need to pass something for frame ??
+
+
+  print event
+  if event.xdata != None and event.ydata != None:
+    print(event.xdata, event.ydata)
+
 def error_image(**kwargs):
   '''Returns an array with dimensions (yrs,months) for the error variable.'''
 
@@ -155,6 +180,8 @@ def error_image(**kwargs):
 
   # undertake the plotting of the now full arrays..
   fig, axar = plt.subplots(1, len(imgarrays), sharex=True, sharey=True)
+  cid = fig.canvas.mpl_connect('button_press_event', onclick)
+
   for axidx, data in enumerate(imgarrays):
 
     # We are going to use a divergent color scheme centered around zero,
