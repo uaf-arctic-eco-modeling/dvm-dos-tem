@@ -459,14 +459,16 @@ def bal_N_soil_org(jd, pjd):
   delta = np.nan
   if pjd != None:
     delta = jd["OrganicNitrogenSum"] - pjd["OrganicNitrogenSum"]
-  err = delta - ( (eco_total("LitterfallNitrogenPFT", jd) + jd["MossdeathNitrogen"]) - jd["NetNMin"] )
+  sum_of_fluxes = sum_across("LitterfallNitrogenPFT", jd) + jd["MossdeathNitrogen"] - jd["NetNMin"]
+  err = delta - sum_of_fluxes
   return DeltaError(delta, err)
 
 def bal_N_soil_avl(jd, pjd):
   delta = np.nan
   if pjd != None:
     delta = jd["AvailableNitrogenSum"] - pjd["AvailableNitrogenSum"]
-  err = delta - ( (jd["NetNMin"] + jd["AvlNInput"]) - (eco_total("TotNitrogenUptake", jd) + jd["AvlNLost"]) )
+  sum_of_fluxes = (jd["NetNMin"] + jd["AvlNInput"]) - (sum_across("TotNitrogenUptake", jd) + jd["AvlNLost"])
+  err = delta - sum_of_fluxes
   return DeltaError(delta, err)
 
 def bal_N_veg_tot(jd, pjd, **kwargs):
