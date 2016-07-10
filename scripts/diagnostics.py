@@ -422,18 +422,52 @@ def bal_N_soil_avl(jd, pjd):
   return DeltaError(delta, err)
 
 def bal_N_veg_tot(jd, pjd, **kwargs):
+  import collections
+  compare = lambda x, y: collections.Counter(x) == collections.Counter(y)
+  vascular = [0,1,2,3,4]
+  nonvascular = [5,6,7]
+
   delta = np.nan
   if pjd != None:
     delta = eco_total("NAll", jd, **kwargs) - eco_total("NAll", pjd, **kwargs)
-  err = delta - (eco_total("TotNitrogenUptake", jd, **kwargs) - (eco_total("LitterfallNitrogenPFT", jd, **kwargs) + jd["MossdeathNitrogen"]))
+
+  if 'pftlist' in kwargs:
+    l = kwargs['pftlist']
+    if compare(l, vascular):
+      err = delta - (eco_total("TotNitrogenUptake", jd, **kwargs) - eco_total("LitterfallNitrogenPFT", jd, **kwargs))
+    elif compare(l, nonvascular):
+      err = delta - (eco_total("TotNitrogenUptake", jd, **kwargs) - (eco_total("LitterfallNitrogenPFT", jd, **kwargs) + jd["MossdeathNitrogen"]))
+    else:
+      print "ERROR!"
+  else:
+    err = delta - (eco_total("TotNitrogenUptake", jd, **kwargs) - (eco_total("LitterfallNitrogenPFT", jd, **kwargs) + jd["MossdeathNitrogen"]))
 
   return DeltaError(delta, err)
 
 def bal_N_veg_str(jd, pjd, **kwargs):
+
+  import collections
+  compare = lambda x, y: collections.Counter(x) == collections.Counter(y)
+  vascular = [0,1,2,3,4]
+  nonvascular = [5,6,7]
+
   delta = np.nan
   if pjd != None:
     delta = eco_total("VegStructuralNitrogen", jd, **kwargs) - eco_total("VegStructuralNitrogen", pjd, **kwargs) # <-- will sum compartments
-  err = delta - (eco_total("StNitrogenUptake", jd, **kwargs) + eco_total("NMobil", jd, **kwargs)) + (eco_total("LitterfallNitrogenPFT", jd, **kwargs) + jd["MossdeathNitrogen"] + eco_total("NResorb", jd, **kwargs))
+
+  if 'pftlist' in kwargs:
+    l = kwargs['pftlist']
+    if compare(l, vascular):
+      err = delta - (eco_total("StNitrogenUptake", jd, **kwargs) + eco_total("NMobil", jd, **kwargs)) + (eco_total("LitterfallNitrogenPFT", jd, **kwargs) + eco_total("NResorb", jd, **kwargs))
+      #return DeltaError(delta, err)
+    elif compare(l, nonvascular):
+      err = delta - (eco_total("StNitrogenUptake", jd, **kwargs) + eco_total("NMobil", jd, **kwargs)) + (jd["MossdeathNitrogen"] + eco_total("NResorb", jd, **kwargs))
+      #return DeltaError(delta, err)
+    else:
+      print "ERROR!"
+  else:
+    err = delta - (eco_total("StNitrogenUptake", jd, **kwargs) + eco_total("NMobil", jd, **kwargs)) + (eco_total("LitterfallNitrogenPFT", jd, **kwargs) + jd["MossdeathNitrogen"] + eco_total("NResorb", jd, **kwargs))
+
   return DeltaError(delta, err)
 
 def bal_N_veg_lab(jd, pjd, **kwargs):
