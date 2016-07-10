@@ -113,15 +113,13 @@ def file_loader(**kwargs):
 
 def onclick(event):
   if event.xdata != None and event.ydata != None:
-    i_edy = np.rint(event.ydata)
+    i_edy = np.rint(event.ydata) # rint - convert to integer with rounding
     i_edx = np.rint(event.xdata)
-    print "Data coordinates (y, x): ", "(%s,%s)"%(event.ydata, event.xdata)
-    print "Data coords as int: ", "(%s,%s)"%(i_edy, i_edx)
     cax = event.inaxes
     caximg = cax.images[0]
-    #print "Shape of axes image data array: ", caximg.get_array().shape
-    # with printoptions(precision=3, suppress=True):
-    #   print caximg.get_array()[int(event.ydata-2):int(event.ydata+3), int(event.xdata-2):int(event.xdata+3)]
+    print "Axes: %s" % (cax.get_title().replace("\n", " "))
+    print "Data coordinates (y, x): ", "(%s,%s)"%(event.ydata, event.xdata)
+    print "Data coords as int: ", "(%s,%s)"%(i_edy, i_edx)
     print "Data at[%s, %s]: %s" % (i_edy, i_edx, caximg.get_array()[i_edy, i_edx])
     print
 
