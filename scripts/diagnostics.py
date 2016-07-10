@@ -23,6 +23,17 @@ if sys.version_info[0] < 3:
 else:
     from io import StringIO
 
+# Setup a dict for mapping community type numbers
+# to differnet combos of PFTs for vascular/non-vascular
+CMTLU = {
+  5: {
+    'all'      : [0,1,2,3,4,5,6,7,8,9],
+    'vasc'     : [0,1,2,3,4],
+    'nonvasc'  : [5,6,7]
+  }
+}
+
+
 def exit_gracefully(signum, frame):
   '''A function for quitting w/o leaving a stacktrace on the users console.'''
   print "Caught signal='%s', frame='%s'. Quitting - gracefully." % (signum, frame)
@@ -52,12 +63,12 @@ def analyze(cjd, pjd):
 
   results = {}
 
-  results['C veg err'] = bal_C_veg(cjd, pjd).err
-  results['C veg del'] = bal_C_veg(cjd, pjd).delta
-  results['C veg vasc err'] = bal_C_veg(cjd, pjd, pftlist=vasc).err
-  results['C veg vasc del'] = bal_C_veg(cjd, pjd, pftlist=vasc).delta
-  results['C veg nonvasc err'] = bal_C_veg(cjd, pjd, pftlist=nonvasc).err
-  results['C veg nonvasc del'] = bal_C_veg(cjd, pjd, pftlist=nonvasc).delta
+  results['C veg err'] = bal_C_veg(cjd, pjd, xsec='all').err
+  results['C veg del'] = bal_C_veg(cjd, pjd, xsec='all').delta
+  results['C veg vasc err'] = bal_C_veg(cjd, pjd, xsec='vasc').err
+  results['C veg vasc del'] = bal_C_veg(cjd, pjd, xsec='vasc').delta
+  results['C veg nonvasc err'] = bal_C_veg(cjd, pjd, xsec='nonvasc').err
+  results['C veg nonvasc del'] = bal_C_veg(cjd, pjd, xsec='nonvasc').delta
 
   results['C soil err'] = bal_C_soil(cjd, pjd).err
   results['C soil del'] = bal_C_soil(cjd, pjd).delta
@@ -357,6 +368,22 @@ def compile_table_by_year(test_case, **kwargs):
 
     return full_report
 
+def sum_across(key, jdata, pfts=range(0,10)):
+  total = np.nan
+
+  if jdata != None:
+    total = 0
+    for pft in ['PFT%i'%i for i in pfts]:
+      if ( type(jdata[pft][key]) == dict ): # sniff out compartment variables
+        if len(jdata[pft][key]) == 3:
+          total += jdata[pft][key]["Leaf"] + jdata[pft][key]["Stem"] + jdata[pft][key]["Root"]
+        else:
+          print "Error?: incorrect number of compartments..."
+      else:
+        total += jdata[pft][key]
+
+  return total
+
 def eco_total(key, jdata, **kwargs):
   total = np.nan
 
@@ -397,15 +424,36 @@ def bal_C_soil(curr_jd, prev_jd):
   delta = np.nan
   if prev_jd != None:
     delta = ecosystem_sum_soilC(curr_jd) - ecosystem_sum_soilC(prev_jd)
-  err = delta - (eco_total("LitterfallCarbonAll", curr_jd) + eco_total("MossDeathC", curr_jd) - curr_jd["RH"])
+
+  sum_of_fluxes = sum_across("LitterfallCarbonAll", curr_jd) + sum_across("MossDeathC", curr_jd) - curr_jd["RH"]
+
+  err = delta - sum_of_fluxes
   return DeltaError(delta, err)
 
-def bal_C_veg(curr_jd, pjd, **kwargs):
+def bal_C_veg(curr_jd, pjd, xsec='all'):
+
+  pftlist = CMTLU[5][xsec] # kind of a stub - eventually may need to pass in CMT number
+
   delta = np.nan
   if pjd != None:
-    delta = eco_total("VegCarbon", curr_jd, **kwargs) - eco_total("VegCarbon", pjd, **kwargs)
-  err = delta - (eco_total("NPPAll", curr_jd, **kwargs) - eco_total("LitterfallCarbonAll", curr_jd, **kwargs) - eco_total("MossDeathC", curr_jd, **kwargs))
+    delta = sum_across("VegCarbon", curr_jd, pftlist) - sum_across("VegCarbon", pjd, pftlist)
+
+  if xsec == 'all':
+    sum_of_fluxes = sum_across("NPPAll", curr_jd, pftlist) \
+                    - sum_across("LitterfallCarbonAll", curr_jd, pftlist) \
+                    - sum_across("MossDeathC", curr_jd, pftlist)
+  if xsec == 'vasc':
+    sum_of_fluxes = sum_across("NPPAll", curr_jd, pftlist) \
+                    - sum_across("LitterfallCarbonAll", curr_jd, pftlist)
+
+  if xsec == 'nonvasc':
+    sum_of_fluxes = sum_across("NPPAll", curr_jd, pftlist) \
+                    - sum_across("LitterfallCarbonAll", curr_jd, pftlist) \
+                    - sum_across("MossDeathC", curr_jd, pftlist)
+
+  err = delta - sum_of_fluxes
   return DeltaError(delta, err)
+
 
 def bal_N_soil_org(jd, pjd):
   delta = np.nan
@@ -579,8 +627,8 @@ def Check_C_cycle_veg_balance(idx, header=False, jd=None, pjd=None):
                 idx,
                 jd['Month'],
                 jd['Year'],
-                bal_C_veg(jd, pjd).err,
-                bal_C_veg(jd, pjd).delta,
+                bal_C_veg(jd, pjd, xsec='all').err,
+                bal_C_veg(jd, pjd, xsec='all').delta,
 
                 eco_total("NPPAll", jd)  - eco_total("LitterfallCarbonAll", jd)  - eco_total("MossDeathC", jd),
                 eco_total("MossDeathC", jd),
@@ -604,8 +652,8 @@ def Check_C_cycle_veg_vascular_balance(idx, header=False, jd=None, pjd=None):
                 jd['Month'],
                 jd['Year'],
 
-                bal_C_veg(jd, pjd, pftlist=vascular).err,
-                bal_C_veg(jd, pjd, pftlist=vascular).delta,
+                bal_C_veg(jd, pjd, xsec='vasc').err,
+                bal_C_veg(jd, pjd, xsec='vasc').delta,
 
                 eco_total("NPPAll", jd, pftlist=vascular)  - eco_total("LitterfallCarbonAll", jd, pftlist=vascular)  - eco_total("MossDeathC",jd,pftlist=vascular),
 
@@ -632,8 +680,8 @@ def Check_C_cycle_veg_nonvascular_balance(idx, header=False, jd=None, pjd=None):
                 jd['Month'],
                 jd['Year'],
 
-                bal_C_veg(jd, pjd, pftlist=non_vasc).err,
-                bal_C_veg(jd, pjd, pftlist=non_vasc).delta,
+                bal_C_veg(jd, pjd, xsec='nonvasc').err,
+                bal_C_veg(jd, pjd, xsec='nonvasc').delta,
 
                 eco_total("NPPAll", jd, pftlist=non_vasc)  - eco_total("LitterfallCarbonAll", jd, pftlist=non_vasc)  - eco_total("MossDeathC", jd, pftlist=non_vasc),
                 eco_total("MossDeathC", jd, pftlist=non_vasc),
