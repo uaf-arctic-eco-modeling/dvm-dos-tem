@@ -73,19 +73,19 @@ def analyze(cjd, pjd):
   results['C soil err'] = bal_C_soil(cjd, pjd).err
   results['C soil del'] = bal_C_soil(cjd, pjd).delta
 
-  results['N veg err tot'] = bal_N_veg_tot(cjd, pjd).err
-  results['N veg err str'] = bal_N_veg_str(cjd, pjd).err
-  results['N veg err lab'] = bal_N_veg_lab(cjd, pjd).err
+  results['N veg err tot'] = bal_N_veg_tot(cjd, pjd, xsec='all').err
+  results['N veg err str'] = bal_N_veg_str(cjd, pjd, xsec='all').err
+  results['N veg err lab'] = bal_N_veg_lab(cjd, pjd, xsec='all').err
   results['N soil err org'] = bal_N_soil_org(cjd, pjd).err
   results['N soil err avl'] = bal_N_soil_avl(cjd, pjd).err
 
-  results['N veg vasc err tot'] = bal_N_veg_tot(cjd, pjd, pftlist=vasc).err
-  results['N veg vasc err str'] = bal_N_veg_str(cjd, pjd, pftlist=vasc).err
-  results['N veg vasc err lab'] = bal_N_veg_lab(cjd, pjd, pftlist=vasc).err
+  results['N veg vasc err tot'] = bal_N_veg_tot(cjd, pjd, xsec='vasc').err
+  results['N veg vasc err str'] = bal_N_veg_str(cjd, pjd, xsec='vasc').err
+  results['N veg vasc err lab'] = bal_N_veg_lab(cjd, pjd, xsec='vasc').err
 
-  results['N veg nonvasc err tot'] = bal_N_veg_tot(cjd, pjd, pftlist=nonvasc).err
-  results['N veg nonvasc err str'] = bal_N_veg_str(cjd, pjd, pftlist=nonvasc).err
-  results['N veg nonvasc err lab'] = bal_N_veg_lab(cjd, pjd, pftlist=nonvasc).err
+  results['N veg nonvasc err tot'] = bal_N_veg_tot(cjd, pjd, xsec='nonvasc').err
+  results['N veg nonvasc err str'] = bal_N_veg_str(cjd, pjd, xsec='nonvasc').err
+  results['N veg nonvasc err lab'] = bal_N_veg_lab(cjd, pjd, xsec='nonvasc').err
 
   return results
 
@@ -471,60 +471,75 @@ def bal_N_soil_avl(jd, pjd):
   err = delta - sum_of_fluxes
   return DeltaError(delta, err)
 
-def bal_N_veg_tot(jd, pjd, **kwargs):
-  import collections
-  compare = lambda x, y: collections.Counter(x) == collections.Counter(y)
-  vascular = [0,1,2,3,4]
-  nonvascular = [5,6,7]
+def bal_N_veg_tot(jd, pjd, xsec='all'):
+
+  pftlist = CMTLU[5][xsec] # kind of a stub - eventually may need to pass in CMT number
 
   delta = np.nan
   if pjd != None:
-    delta = eco_total("NAll", jd, **kwargs) - eco_total("NAll", pjd, **kwargs)
+    delta = sum_across("NAll", jd, pftlist) - sum_across("NAll", pjd, pftlist)
 
-  if 'pftlist' in kwargs:
-    l = kwargs['pftlist']
-    if compare(l, vascular):
-      err = delta - (eco_total("TotNitrogenUptake", jd, **kwargs) - eco_total("LitterfallNitrogenPFT", jd, **kwargs))
-    elif compare(l, nonvascular):
-      err = delta - (eco_total("TotNitrogenUptake", jd, **kwargs) - (eco_total("LitterfallNitrogenPFT", jd, **kwargs) + jd["MossdeathNitrogen"]))
-    else:
-      print "ERROR!"
-  else:
-    err = delta - (eco_total("TotNitrogenUptake", jd, **kwargs) - (eco_total("LitterfallNitrogenPFT", jd, **kwargs) + jd["MossdeathNitrogen"]))
+  if xsec == 'all':
+    sum_of_fluxes = sum_across("TotNitrogenUptake", jd, pftlist) - \
+                    sum_across("LitterfallNitrogenPFT", jd, pftlist) - \
+                    jd["MossdeathNitrogen"]
+
+  if xsec == 'vasc':
+    sum_of_fluxes = sum_across("TotNitrogenUptake", jd, pftlist) - \
+                    sum_across("LitterfallNitrogenPFT", jd, pftlist)
+
+  if xsec == 'nonvasc':
+    sum_of_fluxes = sum_across("TotNitrogenUptake", jd, pftlist) - \
+                    sum_across("LitterfallNitrogenPFT", jd, pftlist) - \
+                    jd["MossdeathNitrogen"] 
+
+  err = delta - sum_of_fluxes
 
   return DeltaError(delta, err)
 
-def bal_N_veg_str(jd, pjd, **kwargs):
+def bal_N_veg_str(jd, pjd, xsec='all'):
 
-  import collections
-  compare = lambda x, y: collections.Counter(x) == collections.Counter(y)
-  vascular = [0,1,2,3,4]
-  nonvascular = [5,6,7]
+  pftlist = CMTLU[5][xsec] # kind of a stub - eventually may need to pass in CMT number
 
   delta = np.nan
   if pjd != None:
-    delta = eco_total("VegStructuralNitrogen", jd, **kwargs) - eco_total("VegStructuralNitrogen", pjd, **kwargs) # <-- will sum compartments
+    delta = sum_across("VegStructuralNitrogen", jd, pftlist) - sum_across("VegStructuralNitrogen", pjd, pftlist) # <-- will sum compartments
 
-  if 'pftlist' in kwargs:
-    l = kwargs['pftlist']
-    if compare(l, vascular):
-      err = delta - (eco_total("StNitrogenUptake", jd, **kwargs) + eco_total("NMobil", jd, **kwargs)) + (eco_total("LitterfallNitrogenPFT", jd, **kwargs) + eco_total("NResorb", jd, **kwargs))
-      #return DeltaError(delta, err)
-    elif compare(l, nonvascular):
-      err = delta - (eco_total("StNitrogenUptake", jd, **kwargs) + eco_total("NMobil", jd, **kwargs)) + (jd["MossdeathNitrogen"] + eco_total("NResorb", jd, **kwargs))
-      #return DeltaError(delta, err)
-    else:
-      print "ERROR!"
-  else:
-    err = delta - (eco_total("StNitrogenUptake", jd, **kwargs) + eco_total("NMobil", jd, **kwargs)) + (eco_total("LitterfallNitrogenPFT", jd, **kwargs) + jd["MossdeathNitrogen"] + eco_total("NResorb", jd, **kwargs))
+  if xsec == 'all':
+    sum_of_fluxes = sum_across("StNitrogenUptake", jd, pftlist) + \
+                    sum_across("NMobil", jd, pftlist) - \
+                    sum_across("LitterfallNitrogenPFT", jd, pftlist) - \
+                    jd["MossdeathNitrogen"] - \
+                    sum_across("NResorb", jd, pftlist)
 
+  if xsec == 'vasc':
+    sum_of_fluxes = sum_across("StNitrogenUptake", jd, pftlist) + \
+                    sum_across("NMobil", jd, pftlist) - \
+                    sum_across("LitterfallNitrogenPFT", jd, pftlist) - \
+                    sum_across("NResorb", jd, pftlist)
+
+
+  if xsec == 'nonvasc':
+    sum_of_fluxes = sum_across("StNitrogenUptake", jd, pftlist) + \
+                    sum_across("NMobil", jd, pftlist) - \
+                    jd["MossdeathNitrogen"] - \
+                    sum_across("NResorb", jd, pftlist)
+
+  err = delta - sum_of_fluxes
   return DeltaError(delta, err)
 
-def bal_N_veg_lab(jd, pjd, **kwargs):
+def bal_N_veg_lab(jd, pjd, xsec='all'):
+
+  pftlist = CMTLU[5][xsec] # kind of a stub - eventually may need to pass in CMT number
+
   delta = np.nan
   if pjd != None:
-    delta = eco_total("VegLabileNitrogen", jd, **kwargs) - eco_total("VegLabileNitrogen", pjd, **kwargs)
-  err = delta - (eco_total("LabNitrogenUptake", jd, **kwargs) + eco_total("NResorb", jd, **kwargs)) + eco_total("NMobil", jd, **kwargs)
+    delta = sum_across("VegLabileNitrogen", jd, pftlist) - sum_across("VegLabileNitrogen", pjd, pftlist)
+
+  if xsec=='all' or xsec == 'vasc' or xsec == 'nonvasc':
+    sum_of_fluxes = sum_across("LabNitrogenUptake", jd, pftlist) + sum_across("NResorb", jd, pftlist) - sum_across("NMobil", jd, pftlist)
+
+  err = delta - sum_of_fluxes
   return DeltaError(delta, err)
 
 
@@ -543,13 +558,13 @@ def Check_N_cycle_veg_balance(idx, header=False, jd=None, pjd=None):
                 idx,
                 jd["Year"],
                 jd["Month"],
-                bal_N_veg_tot(jd, pjd).err,
-                bal_N_veg_str(jd, pjd).err,
-                bal_N_veg_lab(jd, pjd).err,
+                bal_N_veg_tot(jd, pjd, xsec='all').err,
+                bal_N_veg_str(jd, pjd, xsec='all').err,
+                bal_N_veg_lab(jd, pjd, xsec='all').err,
 
-                bal_N_veg_tot(jd, pjd).delta,
-                bal_N_veg_str(jd, pjd).delta,
-                bal_N_veg_lab(jd, pjd).delta,
+                bal_N_veg_tot(jd, pjd, xsec='all').delta,
+                bal_N_veg_str(jd, pjd, xsec='all').delta,
+                bal_N_veg_lab(jd, pjd, xsec='all').delta,
 
                 sum_str_N_flux + sum_lab_N_flux,
                 sum_str_N_flux,
