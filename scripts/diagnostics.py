@@ -23,16 +23,6 @@ if sys.version_info[0] < 3:
 else:
     from io import StringIO
 
-# Setup a dict for mapping community type numbers
-# to differnet combos of PFTs for vascular/non-vascular
-CMTLU = {
-  5: {
-    'all'      : [0,1,2,3,4,5,6,7,8,9],
-    'vasc'     : [0,1,2,3,4],
-    'nonvasc'  : [5,6,7]
-  }
-}
-
 
 def exit_gracefully(signum, frame):
   '''A function for quitting w/o leaving a stacktrace on the users console.'''
@@ -368,7 +358,18 @@ def compile_table_by_year(test_case, **kwargs):
 
     return full_report
 
-def sum_across(key, jdata, pfts=range(0,10)):
+def sum_across(key, jdata, xsec):
+  # Setup a dict for mapping community type numbers
+  # to differnet combos of PFTs for vascular/non-vascular
+  CMTLU = {
+    5: {
+      'all'      : [0,1,2,3,4,5,6,7,8,9],
+      'vasc'     : [0,1,2,3,4],
+      'nonvasc'  : [5,6,7]
+    }
+  }
+
+  pfts = CMTLU[5][xsec]
   total = np.nan
 
   if jdata != None:
@@ -425,41 +426,38 @@ def bal_C_soil(curr_jd, prev_jd):
   if prev_jd != None:
     delta = ecosystem_sum_soilC(curr_jd) - ecosystem_sum_soilC(prev_jd)
 
-  sum_of_fluxes = sum_across("LitterfallCarbonAll", curr_jd) + sum_across("MossDeathC", curr_jd) - curr_jd["RH"]
+  sum_of_fluxes = sum_across("LitterfallCarbonAll", curr_jd, 'all') + sum_across("MossDeathC", curr_jd, 'all') - curr_jd["RH"]
 
   err = delta - sum_of_fluxes
   return DeltaError(delta, err)
 
 def bal_C_veg(curr_jd, pjd, xsec='all'):
 
-  pftlist = CMTLU[5][xsec] # kind of a stub - eventually may need to pass in CMT number
-
   delta = np.nan
   if pjd != None:
-    delta = sum_across("VegCarbon", curr_jd, pftlist) - sum_across("VegCarbon", pjd, pftlist)
+    delta = sum_across("VegCarbon", curr_jd, xsec) - sum_across("VegCarbon", pjd, xsec)
 
   if xsec == 'all':
-    sum_of_fluxes = sum_across("NPPAll", curr_jd, pftlist) \
-                    - sum_across("LitterfallCarbonAll", curr_jd, pftlist) \
-                    - sum_across("MossDeathC", curr_jd, pftlist)
+    sum_of_fluxes = sum_across("NPPAll", curr_jd, xsec) \
+                    - sum_across("LitterfallCarbonAll", curr_jd, xsec) \
+                    - sum_across("MossDeathC", curr_jd, xsec)
   if xsec == 'vasc':
-    sum_of_fluxes = sum_across("NPPAll", curr_jd, pftlist) \
-                    - sum_across("LitterfallCarbonAll", curr_jd, pftlist)
+    sum_of_fluxes = sum_across("NPPAll", curr_jd, xsec) \
+                    - sum_across("LitterfallCarbonAll", curr_jd, xsec)
 
   if xsec == 'nonvasc':
-    sum_of_fluxes = sum_across("NPPAll", curr_jd, pftlist) \
-                    - sum_across("LitterfallCarbonAll", curr_jd, pftlist) \
-                    - sum_across("MossDeathC", curr_jd, pftlist)
+    sum_of_fluxes = sum_across("NPPAll", curr_jd, xsec) \
+                    - sum_across("LitterfallCarbonAll", curr_jd, xsec) \
+                    - sum_across("MossDeathC", curr_jd, xsec)
 
   err = delta - sum_of_fluxes
   return DeltaError(delta, err)
-
 
 def bal_N_soil_org(jd, pjd):
   delta = np.nan
   if pjd != None:
     delta = jd["OrganicNitrogenSum"] - pjd["OrganicNitrogenSum"]
-  sum_of_fluxes = sum_across("LitterfallNitrogenPFT", jd) + jd["MossdeathNitrogen"] - jd["NetNMin"]
+  sum_of_fluxes = sum_across("LitterfallNitrogenPFT", jd, 'all') + jd["MossdeathNitrogen"] - jd["NetNMin"]
   err = delta - sum_of_fluxes
   return DeltaError(delta, err)
 
@@ -467,30 +465,28 @@ def bal_N_soil_avl(jd, pjd):
   delta = np.nan
   if pjd != None:
     delta = jd["AvailableNitrogenSum"] - pjd["AvailableNitrogenSum"]
-  sum_of_fluxes = (jd["NetNMin"] + jd["AvlNInput"]) - (sum_across("TotNitrogenUptake", jd) + jd["AvlNLost"])
+  sum_of_fluxes = (jd["NetNMin"] + jd["AvlNInput"]) - (sum_across("TotNitrogenUptake", jd, 'all') + jd["AvlNLost"])
   err = delta - sum_of_fluxes
   return DeltaError(delta, err)
 
 def bal_N_veg_tot(jd, pjd, xsec='all'):
 
-  pftlist = CMTLU[5][xsec] # kind of a stub - eventually may need to pass in CMT number
-
   delta = np.nan
   if pjd != None:
-    delta = sum_across("NAll", jd, pftlist) - sum_across("NAll", pjd, pftlist)
+    delta = sum_across("NAll", jd, xsec) - sum_across("NAll", pjd, xsec)
 
   if xsec == 'all':
-    sum_of_fluxes = sum_across("TotNitrogenUptake", jd, pftlist) - \
-                    sum_across("LitterfallNitrogenPFT", jd, pftlist) - \
+    sum_of_fluxes = sum_across("TotNitrogenUptake", jd, xsec) - \
+                    sum_across("LitterfallNitrogenPFT", jd, xsec) - \
                     jd["MossdeathNitrogen"]
 
   if xsec == 'vasc':
-    sum_of_fluxes = sum_across("TotNitrogenUptake", jd, pftlist) - \
-                    sum_across("LitterfallNitrogenPFT", jd, pftlist)
+    sum_of_fluxes = sum_across("TotNitrogenUptake", jd, xsec) - \
+                    sum_across("LitterfallNitrogenPFT", jd, xsec)
 
   if xsec == 'nonvasc':
-    sum_of_fluxes = sum_across("TotNitrogenUptake", jd, pftlist) - \
-                    sum_across("LitterfallNitrogenPFT", jd, pftlist) - \
+    sum_of_fluxes = sum_across("TotNitrogenUptake", jd, xsec) - \
+                    sum_across("LitterfallNitrogenPFT", jd, xsec) - \
                     jd["MossdeathNitrogen"] 
 
   err = delta - sum_of_fluxes
@@ -499,45 +495,41 @@ def bal_N_veg_tot(jd, pjd, xsec='all'):
 
 def bal_N_veg_str(jd, pjd, xsec='all'):
 
-  pftlist = CMTLU[5][xsec] # kind of a stub - eventually may need to pass in CMT number
-
   delta = np.nan
   if pjd != None:
-    delta = sum_across("VegStructuralNitrogen", jd, pftlist) - sum_across("VegStructuralNitrogen", pjd, pftlist) # <-- will sum compartments
+    delta = sum_across("VegStructuralNitrogen", jd, xsec) - sum_across("VegStructuralNitrogen", pjd, xsec) # <-- will sum compartments
 
   if xsec == 'all':
-    sum_of_fluxes = sum_across("StNitrogenUptake", jd, pftlist) + \
-                    sum_across("NMobil", jd, pftlist) - \
-                    sum_across("LitterfallNitrogenPFT", jd, pftlist) - \
+    sum_of_fluxes = sum_across("StNitrogenUptake", jd, xsec) + \
+                    sum_across("NMobil", jd, xsec) - \
+                    sum_across("LitterfallNitrogenPFT", jd, xsec) - \
                     jd["MossdeathNitrogen"] - \
-                    sum_across("NResorb", jd, pftlist)
+                    sum_across("NResorb", jd, xsec)
 
   if xsec == 'vasc':
-    sum_of_fluxes = sum_across("StNitrogenUptake", jd, pftlist) + \
-                    sum_across("NMobil", jd, pftlist) - \
-                    sum_across("LitterfallNitrogenPFT", jd, pftlist) - \
-                    sum_across("NResorb", jd, pftlist)
+    sum_of_fluxes = sum_across("StNitrogenUptake", jd, xsec) + \
+                    sum_across("NMobil", jd, xsec) - \
+                    sum_across("LitterfallNitrogenPFT", jd, xsec) - \
+                    sum_across("NResorb", jd, xsec)
 
 
   if xsec == 'nonvasc':
-    sum_of_fluxes = sum_across("StNitrogenUptake", jd, pftlist) + \
-                    sum_across("NMobil", jd, pftlist) - \
+    sum_of_fluxes = sum_across("StNitrogenUptake", jd, xsec) + \
+                    sum_across("NMobil", jd, xsec) - \
                     jd["MossdeathNitrogen"] - \
-                    sum_across("NResorb", jd, pftlist)
+                    sum_across("NResorb", jd, xsec)
 
   err = delta - sum_of_fluxes
   return DeltaError(delta, err)
 
 def bal_N_veg_lab(jd, pjd, xsec='all'):
 
-  pftlist = CMTLU[5][xsec] # kind of a stub - eventually may need to pass in CMT number
-
   delta = np.nan
   if pjd != None:
-    delta = sum_across("VegLabileNitrogen", jd, pftlist) - sum_across("VegLabileNitrogen", pjd, pftlist)
+    delta = sum_across("VegLabileNitrogen", jd, xsec) - sum_across("VegLabileNitrogen", pjd, xsec)
 
   if xsec=='all' or xsec == 'vasc' or xsec == 'nonvasc':
-    sum_of_fluxes = sum_across("LabNitrogenUptake", jd, pftlist) + sum_across("NResorb", jd, pftlist) - sum_across("NMobil", jd, pftlist)
+    sum_of_fluxes = sum_across("LabNitrogenUptake", jd, xsec) + sum_across("NResorb", jd, xsec) - sum_across("NMobil", jd, xsec)
 
   err = delta - sum_of_fluxes
   return DeltaError(delta, err)
