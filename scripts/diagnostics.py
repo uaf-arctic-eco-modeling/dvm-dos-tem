@@ -29,12 +29,6 @@ def exit_gracefully(signum, frame):
   print "Caught signal='%s', frame='%s'. Quitting - gracefully." % (signum, frame)
   sys.exit(1)
 
-
-# Callback for SIGINT. Allows exit w/o printing stacktrace to users screen
-original_sigint = signal.getsignal(signal.SIGINT)
-signal.signal(signal.SIGINT, exit_gracefully)
-
-
 # Generator function for extracting specific files from a tar archive
 def monthly_files(tarfileobj):
   '''Get the */monthly/*.json files...'''
@@ -690,6 +684,10 @@ def Check_C_cycle_veg_nonvascular_balance(idx, header=False, jd=None, pjd=None):
             )
 
 if __name__ == '__main__':
+
+  # Callback for SIGINT. Allows exit w/o printing stacktrace to users screen
+  original_sigint = signal.getsignal(signal.SIGINT)
+  signal.signal(signal.SIGINT, exit_gracefully)
 
   error_image_choices = [
     'C soil',
