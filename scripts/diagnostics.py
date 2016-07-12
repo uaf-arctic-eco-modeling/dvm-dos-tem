@@ -53,31 +53,33 @@ def analyze(cjd, pjd):
 
   results = {}
 
-  results['C veg err'] = bal_C_veg(cjd, pjd, xsec='all').err
-  results['C veg del'] = bal_C_veg(cjd, pjd, xsec='all').delta
-  results['C veg vasc err'] = bal_C_veg(cjd, pjd, xsec='vasc').err
-  results['C veg vasc del'] = bal_C_veg(cjd, pjd, xsec='vasc').delta
-  results['C veg nonvasc err'] = bal_C_veg(cjd, pjd, xsec='nonvasc').err
-  results['C veg nonvasc del'] = bal_C_veg(cjd, pjd, xsec='nonvasc').delta
+  #results['C veg'] = bal_C_veg(cjd, pjd, xsec='all')
+  results['C veg'] = bal_C_veg(cjd, pjd, xsec='all')
+  #results['C veg del'] = bal_C_veg(cjd, pjd, xsec='all').delta
+  results['C veg vasc'] = bal_C_veg(cjd, pjd, xsec='vasc')
+  #results['C veg vasc del'] = bal_C_veg(cjd, pjd, xsec='vasc').delta
+  results['C veg nonvasc'] = bal_C_veg(cjd, pjd, xsec='nonvasc')
+  #results['C veg nonvasc del'] = bal_C_veg(cjd, pjd, xsec='nonvasc').delta
 
-  results['C soil err'] = bal_C_soil(cjd, pjd).err
-  results['C soil del'] = bal_C_soil(cjd, pjd).delta
+  results['C soil'] = bal_C_soil(cjd, pjd)
+  #results['C soil del'] = bal_C_soil(cjd, pjd).delta
 
-  results['N veg err tot'] = bal_N_veg_tot(cjd, pjd, xsec='all').err
-  results['N veg err str'] = bal_N_veg_str(cjd, pjd, xsec='all').err
-  results['N veg err lab'] = bal_N_veg_lab(cjd, pjd, xsec='all').err
-  results['N soil err org'] = bal_N_soil_org(cjd, pjd).err
-  results['N soil err avl'] = bal_N_soil_avl(cjd, pjd).err
+  results['N veg tot'] = bal_N_veg_tot(cjd, pjd, xsec='all')
+  results['N veg str'] = bal_N_veg_str(cjd, pjd, xsec='all')
+  results['N veg lab'] = bal_N_veg_lab(cjd, pjd, xsec='all')
+  results['N soil org'] = bal_N_soil_org(cjd, pjd)
+  results['N soil avl'] = bal_N_soil_avl(cjd, pjd)
 
-  results['N veg vasc err tot'] = bal_N_veg_tot(cjd, pjd, xsec='vasc').err
-  results['N veg vasc err str'] = bal_N_veg_str(cjd, pjd, xsec='vasc').err
-  results['N veg vasc err lab'] = bal_N_veg_lab(cjd, pjd, xsec='vasc').err
+  results['N veg vasc tot'] = bal_N_veg_tot(cjd, pjd, xsec='vasc')
+  results['N veg vasc str'] = bal_N_veg_str(cjd, pjd, xsec='vasc')
+  results['N veg vasc lab'] = bal_N_veg_lab(cjd, pjd, xsec='vasc')
 
-  results['N veg nonvasc err tot'] = bal_N_veg_tot(cjd, pjd, xsec='nonvasc').err
-  results['N veg nonvasc err str'] = bal_N_veg_str(cjd, pjd, xsec='nonvasc').err
-  results['N veg nonvasc err lab'] = bal_N_veg_lab(cjd, pjd, xsec='nonvasc').err
+  results['N veg nonvasc tot'] = bal_N_veg_tot(cjd, pjd, xsec='nonvasc')
+  results['N veg nonvasc str'] = bal_N_veg_str(cjd, pjd, xsec='nonvasc')
+  results['N veg nonvasc lab'] = bal_N_veg_lab(cjd, pjd, xsec='nonvasc')
 
   return results
+
 
 def file_loader(**kwargs):
   '''Returns a list of files to open'''
@@ -134,16 +136,9 @@ def error_image(**kwargs):
   '''Returns an array with dimensions (yrs,months) for the error variable.'''
 
   if "plotlist" not in kwargs:
-    plotlist = ['C veg err', 'C soil err', 'N veg err tot', 'N veg err str', 'N veg err lab', 'N soil err org', 'N soil err avl']
+    plotlist = ['C veg', 'C soil', 'N veg tot', 'N veg str', 'N veg lab', 'N soil org', 'N soil avl']
   else:
     plotlist = kwargs["plotlist"]
-
-
-  from mpl_toolkits.axes_grid1 import make_axes_locatable
-  from matplotlib.colors import LogNorm
-  from matplotlib.ticker import MultipleLocator
-  from matplotlib.ticker import MaxNLocator
-  import matplotlib.ticker as mtkr
 
   jfiles = file_loader(**kwargs)
 
@@ -167,7 +162,8 @@ def error_image(**kwargs):
   empty = np.empty(len(jfiles) + m1 + (11-mlast)) * np.nan
 
   # Make room for a lot of data
-  imgarrays = [np.copy(empty) for i in plotlist]
+  imgarrays_err = np.array([np.copy(empty) for i in plotlist])
+  imgarrays_delta = np.array([np.copy(empty) for i in plotlist])
 
   # Run over all the files, calculating all the derived 
   # diagnostics.
@@ -179,10 +175,23 @@ def error_image(**kwargs):
     diagnostics = analyze(jdata, pjd)
 
     for pltnum, key in enumerate(plotlist):
-      imgarrays[pltnum][idx+m1] = diagnostics[key]
+      imgarrays_err[pltnum][idx+m1] = diagnostics[key].err
+      imgarrays_delta[pltnum][idx+m1] = diagnostics[key].delta
 
     pjd = jdata
 
+  image_plot(imgarrays_err, plotlist)
+  image_plot(imgarrays_delta, plotlist)
+  image_plot(imgarrays_err/imgarrays_delta, plotlist)
+
+
+def image_plot(imgarrays, plotlist):
+
+  from mpl_toolkits.axes_grid1 import make_axes_locatable
+  from matplotlib.colors import LogNorm
+  from matplotlib.ticker import MultipleLocator
+  from matplotlib.ticker import MaxNLocator
+  import matplotlib.ticker as mtkr
 
   # undertake the plotting of the now full arrays..
   fig, axar = plt.subplots(1, len(imgarrays), sharex=True, sharey=True)
@@ -211,6 +220,13 @@ def error_image(**kwargs):
     # Transform data to 2D shape for showing as an image
     data = data.reshape(len(data)/12, 12)
 
+    divider = make_axes_locatable(axar[axidx])
+    cwm = plt.cm.coolwarm
+    cwm.set_bad('white',1.0)
+    cwm.set_over('yellow',1.0) # <- nothing should be ouside the colormap range...
+    cwm.set_under('orange',1.0)
+    colax = divider.append_axes("bottom", size="3%", pad="10%")
+
     # Display the data as an image
     im = axar[axidx].imshow(
           data,
@@ -222,6 +238,9 @@ def error_image(**kwargs):
     axar[axidx].xaxis.set_major_locator(loc)
     axar[axidx].grid(True, axis='both')
 
+    cbar = plt.colorbar(im, cax=colax, orientation='horizontal', format="%0.8f", ticks=mtkr.MaxNLocator(6, prune=None))
+    plt.setp(colax.xaxis.get_majorticklabels(), rotation=90)
+
     #axar[axidx].yaxis.set_visible(False)
     #axar[axidx].yaxis.set_major_locator(mtkr.MultipleLocator(5))
     #axar[axidx].tick_params(axis='y', direction='in', length=3, width=.5, colors='k', labelleft='off', labelright='off')
@@ -229,15 +248,6 @@ def error_image(**kwargs):
     axar[axidx].set_xlabel("Month")
     #axar[axidx].xaxis.set_major_locator(mtkr.MaxNLocator(5, integer=True)) # 5 seems to be magic number; works with zooming.
     axar[axidx].tick_params(axis='x', direction='in', length=3, width=.5, colors='k')
-
-    divider = make_axes_locatable(axar[axidx])
-    cwm = plt.cm.coolwarm
-    cwm.set_bad('white',1.0)
-    cwm.set_over('yellow',1.0) # <- nothing should be ouside the colormap range...
-    cwm.set_under('orange',1.0)
-    colax = divider.append_axes("bottom", size="3%", pad="10%")
-    cbar = plt.colorbar(im, cax=colax, orientation='horizontal', format="%0.8f", ticks=mtkr.MaxNLocator(6, prune=None))
-    plt.setp(colax.xaxis.get_majorticklabels(), rotation=90)
 
   # Turn the y axis on for the leftmost plot
   axar[0].yaxis.set_visible(True)
@@ -682,12 +692,12 @@ def Check_C_cycle_veg_nonvascular_balance(idx, header=False, jd=None, pjd=None):
 if __name__ == '__main__':
 
   error_image_choices = [
-    'C soil err',
-    'N soil err org', 'N soil err avl',
-    'C veg err', 'C veg vasc err', 'C veg nonvasc err',
-    'N veg err tot', 'N veg err str', 'N veg err lab',
-    'N veg vasc err tot', 'N veg vasc err str', 'N veg vasc err lab',
-    'N veg nonvasc err tot', 'N veg nonvasc err str', 'N veg nonvasc err lab',
+    'C soil',
+    'N soil org', 'N soil avl',
+    'C veg', 'C veg vasc', 'C veg nonvasc',
+    'N veg tot', 'N veg str', 'N veg lab',
+    'N veg vasc tot', 'N veg vasc str', 'N veg vasc lab',
+    'N veg nonvasc tot', 'N veg nonvasc str', 'N veg nonvasc lab',
   ]
 
   tab_reports_and_timeseries_choices = [
