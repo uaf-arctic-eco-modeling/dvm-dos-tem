@@ -385,26 +385,6 @@ def sum_across(key, jdata, xsec):
 
   return total
 
-def eco_total(key, jdata, **kwargs):
-  total = np.nan
-
-  if jdata != None:
-    if 'pftlist' in kwargs:
-      pftlist = kwargs['pftlist']
-    else:
-      pftlist = range(0,10)
-    total = 0
-    for pft in ['PFT%i'%i for i in pftlist]:
-      if ( type(jdata[pft][key]) == dict ): # sniff out compartment variables
-        if len(jdata[pft][key]) == 3:
-          total += jdata[pft][key]["Leaf"] + jdata[pft][key]["Stem"] + jdata[pft][key]["Root"]
-        else:
-          print "Error?: incorrect number of compartments..."
-      else:
-        total += jdata[pft][key]
-
-  return total
-
 def ecosystem_sum_soilC(jdata):
   total = np.nan
   if jdata != None:
@@ -543,8 +523,8 @@ def Check_N_cycle_veg_balance(idx, header=False, jd=None, pjd=None):
         )
     else:
 
-        sum_str_N_flux = jd["StNitrogenUptakeAll"] - (eco_total("LitterfallNitrogenPFT", jd) + jd["MossdeathNitrogen"]) + eco_total("NMobil", jd) -  eco_total("NResorb", jd)
-        sum_lab_N_flux = eco_total("LabNitrogenUptake", jd) + eco_total("NResorb", jd) - eco_total("NMobil", jd) 
+        sum_str_N_flux = jd["StNitrogenUptakeAll"] - (sum_across("LitterfallNitrogenPFT", jd, 'all') + jd["MossdeathNitrogen"]) + sum_across("NMobil", jd, 'all') -  sum_across("NResorb", jd, 'all')
+        sum_lab_N_flux = sum_across("LabNitrogenUptake", jd, 'all') + sum_across("NResorb", jd, 'all') - sum_across("NMobil", jd, 'all') 
 
         return  "{:<4} {:>6} {:>2} {:>10.4f} {:>10.4f} {:>10.3f} {:>10.4f} {:>10.4f} {:>10.3f} {:>10.4f} {:>10.4f} {:>10.3f}\n".format(
                 idx,
@@ -590,10 +570,10 @@ def Check_C_cycle_soil_balance(idx, header=False, jd=None, pjd=None):
               jd["Year"],
               bal_C_soil(jd, pjd).err,
               bal_C_soil(jd, pjd).delta,
-              eco_total("LitterfallCarbonAll", jd)  + eco_total("MossDeathC", jd) - jd["RH"],
+              sum_across("LitterfallCarbonAll", jd, 'all')  + sum_across("MossDeathC", jd, 'all') - jd["RH"],
               ecosystem_sum_soilC(jd),
-              eco_total("LitterfallCarbonAll", jd) ,
-              eco_total("MossDeathC", jd),
+              sum_across("LitterfallCarbonAll", jd, 'all') ,
+              sum_across("MossDeathC", jd, 'all'),
               jd['RH'], 
               (jd['RHsomcr']+jd['RHsompr']+jd['RHsoma']+jd['RHraw']+jd['RHmossc']+jd['RHwdeb']),
           )
@@ -616,7 +596,7 @@ def Report_Soil_C(idx, header=False, jd=None, pjd=None):
                 jd['RHsomcr'],
                 jd['RHmossc'],
                 jd['RHwdeb'],
-                eco_total("LitterfallCarbonAll", jd) + jd['MossdeathCarbon'],
+                sum_across("LitterfallCarbonAll", jd, 'all') + jd['MossdeathCarbon'],
                 jd['RawCSum'],
                 jd['SomaSum'],
                 jd['SomprSum'],
@@ -639,11 +619,11 @@ def Check_C_cycle_veg_balance(idx, header=False, jd=None, pjd=None):
                 bal_C_veg(jd, pjd, xsec='all').err,
                 bal_C_veg(jd, pjd, xsec='all').delta,
 
-                eco_total("NPPAll", jd)  - eco_total("LitterfallCarbonAll", jd)  - eco_total("MossDeathC", jd),
-                eco_total("MossDeathC", jd),
-                eco_total("VegCarbon", jd), 
-                eco_total("NPPAll", jd) ,
-                eco_total("LitterfallCarbonAll", jd) ,
+                sum_across("NPPAll", jd, 'all')  - sum_across("LitterfallCarbonAll", jd, 'all')  - sum_across("MossDeathC", jd, 'all'),
+                sum_across("MossDeathC", jd, 'all'),
+                sum_across("VegCarbon", jd, 'all'), 
+                sum_across("NPPAll", jd, 'all') ,
+                sum_across("LitterfallCarbonAll", jd, 'all') ,
             )
 
 def Check_C_cycle_veg_vascular_balance(idx, header=False, jd=None, pjd=None):
@@ -664,12 +644,12 @@ def Check_C_cycle_veg_vascular_balance(idx, header=False, jd=None, pjd=None):
                 bal_C_veg(jd, pjd, xsec='vasc').err,
                 bal_C_veg(jd, pjd, xsec='vasc').delta,
 
-                eco_total("NPPAll", jd, pftlist=vascular)  - eco_total("LitterfallCarbonAll", jd, pftlist=vascular)  - eco_total("MossDeathC",jd,pftlist=vascular),
+                sum_across("NPPAll", jd, 'vasc')  - sum_across("LitterfallCarbonAll", jd, 'vasc')  - sum_across("MossDeathC",jd,'vasc'),
 
-                eco_total("MossDeathC",jd, pftlist=vascular),
-                eco_total("VegCarbon", jd, pftlist=vascular), 
-                eco_total("NPPAll", jd, pftlist=vascular),
-                eco_total("LitterfallCarbonAll", jd, pftlist=vascular)
+                sum_across("MossDeathC",jd, 'vasc'),
+                sum_across("VegCarbon", jd, 'vasc'), 
+                sum_across("NPPAll", jd, 'vasc'),
+                sum_across("LitterfallCarbonAll", jd, 'vasc')
             )
 
 def Check_C_cycle_veg_nonvascular_balance(idx, header=False, jd=None, pjd=None):
@@ -692,11 +672,11 @@ def Check_C_cycle_veg_nonvascular_balance(idx, header=False, jd=None, pjd=None):
                 bal_C_veg(jd, pjd, xsec='nonvasc').err,
                 bal_C_veg(jd, pjd, xsec='nonvasc').delta,
 
-                eco_total("NPPAll", jd, pftlist=non_vasc)  - eco_total("LitterfallCarbonAll", jd, pftlist=non_vasc)  - eco_total("MossDeathC", jd, pftlist=non_vasc),
-                eco_total("MossDeathC", jd, pftlist=non_vasc),
-                eco_total("VegCarbon", jd, pftlist=non_vasc), 
-                eco_total("NPPAll", jd, pftlist=non_vasc) ,
-                eco_total("LitterfallCarbonAll", jd, pftlist=non_vasc) ,
+                sum_across("NPPAll", jd, 'nonvasc')  - sum_across("LitterfallCarbonAll", jd, 'nonvasc')  - sum_across("MossDeathC", jd, 'nonvasc'),
+                sum_across("MossDeathC", jd, 'nonvasc'),
+                sum_across("VegCarbon", jd, 'nonvasc'), 
+                sum_across("NPPAll", jd, 'nonvasc') ,
+                sum_across("LitterfallCarbonAll", jd, 'nonvasc') ,
             )
 
 if __name__ == '__main__':
