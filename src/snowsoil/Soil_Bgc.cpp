@@ -1024,18 +1024,6 @@ void Soil_Bgc::deltastate() {
       del_sois.wdebrisn -=del_soi2a.rhwdeb*tmp_sois.wdebrisn/tmp_sois.wdebrisc;
     }
   } // end of 'if (this->nfeed == 1)'
-
-  for (int il=0; il < MAX_SOI_LAY; ++il) {
-    if (del_soi2soi.netnmin[il] < 0) {
-      std::cout << "FORCING NETNMIN ==> 0.005\n";
-      del_soi2soi.netnmin[il] = 0.005;
-    }
-    if (del_soi2soi.nimmob[il] < 0) {
-      std::cout << "FORCING NIMMOB ==> 0\n";
-      del_soi2soi.nimmob[il] = 0;
-    }
-  }
-
 };
 
 double Soil_Bgc::getRhmoist(const double &vsm, const double &moistmin,
