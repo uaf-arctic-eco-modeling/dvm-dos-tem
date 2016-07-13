@@ -44,6 +44,10 @@ Vegetation::Vegetation(int cmtnum, const ModelData* mdp) {
   BOOST_LOG_SEV(glg, note) << "Setting Vegetation internal values from file: "
                            << mdp->parameter_dir << "cmt_dimvegetation.txt";
 
+
+  // MAYBE WE DON'T NEED TO SET PARAMETERS HERE? -
+  // They are set later in CohortLookup, and then read into the veg structure.
+
   // get a list of data for the cmt number
   std::list<std::string> l = temutil::parse_parameter_file(
       mdp->parameter_dir + "cmt_dimvegetation.txt", cmtnum, 40
@@ -493,6 +497,12 @@ double Vegetation::getYearlyMaxLAI(const int &ipft) {
 // the following can be developed further for dynamical fine root distribution
 // currently, it's only do some checking
 void Vegetation::updateFrootfrac() {
+
+  // Apparently loops over all PFTs and each PFT's 'artifical' soil layers
+  // and then reset the frootfrac for the 'artifical' soil layers so that
+  // the sum is up to 100%?
+  // Not sure how useful this code is....
+
   for (int ip=0; ip<NUM_PFT; ip++) {
     if (cd->m_veg.vegcov[ip]>0.) {
       double totrootfrac = 0.;

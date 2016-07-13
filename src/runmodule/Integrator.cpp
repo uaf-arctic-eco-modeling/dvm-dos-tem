@@ -35,19 +35,19 @@ float Integrator::a52 =  -8.0;
 float Integrator::a53 =   7.173489279;
 float Integrator::a54 =  -0.2058966866;
 
-float Integrator::b1 =   0.118518519;
-float Integrator::b3 =   0.518986355;
-float Integrator::b4 =   0.50613149;
-float Integrator::b5 =  -0.18;
-float Integrator::b6 =   0.036363636;
+float Integrator::b1 =    0.118518519;
+float Integrator::b3 =    0.518986355;
+float Integrator::b4 =    0.50613149;
+float Integrator::b5 =   -0.18;
+float Integrator::b6 =    0.036363636;
 float Integrator::b61 =  -0.296296296;
 float Integrator::b62 =   2.0;
 float Integrator::b63 =  -1.381676413;
 float Integrator::b64 =   0.45297271;
 float Integrator::b65 =  -0.275;
 
-int REJECT =0;
-int ACCEPT=1;
+int REJECT = 0;
+int ACCEPT = 1;
 
 Integrator::Integrator() {
   inittol = 0.01;
@@ -229,13 +229,13 @@ void Integrator::c2ystate_soi(float y[]) {
   y[I_DMOSSN] = bd->m_sois.dmossn;
 };
 
+
+/** Has some mechanism to check error and change step-size accordingly */
 int Integrator::adapt(float pstate[], const int & numeq) {
   int i;
-  float ipart;
-  float fpart;
   float time = 0.0;
   float dt = 1.0;
-  int mflag = 0;
+  int mflag = 0;        // <--not sure what this is used for?
   int nintmon = 0;
   float oldstate[numeq];
   float  ptol = 0.01;
@@ -246,16 +246,20 @@ int Integrator::adapt(float pstate[], const int & numeq) {
 
     if ( syint == 1 ) {
       while ( test != ACCEPT ) {
-        bool testavln = rkf45(numeq,pstate,dt);
+
+        // false indicates that some pool went negative....
+        bool testavln = rkf45(numeq, pstate, dt);
 
         if(testavln) {
-          test = boundcon( dum4,error,ptol );
+          test = boundcon(dum4, error, ptol);
         } else {
           test = testavln;
         }
 
         //if(test>1)cout <<predstr[test-1] << " error is " << error[test-1] <<"------Integrator-------\n";
-        if ( dt <= pow(0.5,maxit) ) {
+
+        // Step size is already super small - accept the result
+        if ( dt <= pow(0.5, maxit) ) { // w/ maxit=20 --> ~0.00000095357
           test = ACCEPT;
           mflag = 1;
 
@@ -268,14 +272,17 @@ int Integrator::adapt(float pstate[], const int & numeq) {
           ++nintmon;
         }
 
+        // We are keeping this one...
         if ( test == ACCEPT ) {
           for( i = 0; i < numeq; i++ ) {
             pstate[i] = dum4[i];
           }
 
           time += dt;
-          fpart = modf( (0.01 + (time/(2.0*dt))),&ipart );
 
+          float ipart; // split into intger and fractional parts...
+          float fpart;
+          fpart = modf( (0.01 + (time/(2.0*dt))), &ipart );
           if ( fpart < 0.1 && dt < 1.0) {
             dt *= 2.0;
           }
@@ -291,18 +298,20 @@ int Integrator::adapt(float pstate[], const int & numeq) {
             pstate[i] = oldstate[i];
           }
         }
-      }
-    }    /* end rkf integrator (if) */
-  }      /* end time while */
+      } // end while test != accept
+    } // end syint loop
+  } // end time while
 
   return mflag;
 };
 
+/** Returns False if any pools go negative, otherwise, True/*/
 bool Integrator::rkf45( const int& numeq, float pstate[], float& pdt) {
   int negativepool = -1;
   int i;
   float ptdt = 0;
 
+  // initialize stuff to zero
   for ( i = 0; i < numeq; i++ ) {
     dum4[i] = dum5[i] = pstate[i];
     yprime[i] = rk45[i] = error[i] = 0.0;
@@ -315,9 +324,9 @@ bool Integrator::rkf45( const int& numeq, float pstate[], float& pdt) {
   step( numeq,yprime,f11,yprime,a1 );
   step( numeq,rk45,f11,rk45,b1 );
   step( numeq,dum4,f11,ydum,ptdt );
-  negativepool = checkPools();
 
-  if(negativepool>=0) {
+  negativepool = checkPools();
+  if(negativepool >= 0) {
     return false;
   }
 
@@ -328,8 +337,8 @@ bool Integrator::rkf45( const int& numeq, float pstate[], float& pdt) {
   }
 
   step( numeq,dum4,f13,ydum,pdt );
-  negativepool = checkPools();
 
+  negativepool = checkPools();
   if(negativepool>=0) {
     return false;
   }
@@ -343,8 +352,8 @@ bool Integrator::rkf45( const int& numeq, float pstate[], float& pdt) {
   }
 
   step( numeq,dum4,f14,ydum,pdt );
-  negativepool = checkPools();
 
+  negativepool = checkPools();
   if(negativepool>=0) {
     return false;
   }
@@ -358,8 +367,8 @@ bool Integrator::rkf45( const int& numeq, float pstate[], float& pdt) {
   }
 
   step( numeq,dum4,f15,ydum,pdt );
-  negativepool = checkPools();
 
+  negativepool = checkPools();
   if(negativepool>=0) {
     return false;
   }
@@ -373,8 +382,8 @@ bool Integrator::rkf45( const int& numeq, float pstate[], float& pdt) {
   }
 
   step( numeq,dum4,f16,ydum,pdt );
-  negativepool = checkPools();
 
+  negativepool = checkPools();
   if(negativepool>=0) {
     return false;
   }
@@ -422,9 +431,9 @@ void Integrator::y2cstate_soi(float y[]) {
     bd->m_sois.sompr[il]= y[I_L_SOMPR+il];
     bd->m_sois.somcr[il]= y[I_L_SOMCR+il];
 
-    if(y[I_L_AVLN+il]<0) { //add by shuhua Dec 8 2007
-      y[I_L_ORGN+il]+=y[I_L_AVLN+il] -0.001;
-      y[I_L_AVLN+il]=0.001;
+    if(y[I_L_AVLN+il] < 0) { //add by shuhua Dec 8 2007
+      y[I_L_ORGN+il] += y[I_L_AVLN+il] - 0.001;
+      y[I_L_AVLN+il] = 0.001;
     }
 
     bd->m_sois.orgn[il] = y[I_L_ORGN+il];
@@ -504,10 +513,13 @@ void Integrator::delta(float pstate[], float pdstate[]) {
     // update the delta of state
     ssl->deltastate();
     // assign fluxes and state back to pdstate
-    dc2ystate_soi(pdstate);
+    dc2ystate_soi(pdstate);   // copies from ssl->del_ arrays to pdstate
     dc2yflux_soi(pdstate);
   }
-};
+}
+
+
+
 
 void Integrator::y2tcstate_veg(float pstate[]) {
   for (int i=0; i<NUM_PFT_PART; i++) {
@@ -689,6 +701,9 @@ int Integrator::checkPools() {
   return negativepool;
 };
 
+/** Returns the index/key of the first variable it encounteres with error
+    above some threshold.
+*/
 int Integrator::boundcon( float ptstate[], float err[], float& ptol ) {
   int test = ACCEPT;
   double same = 0.;

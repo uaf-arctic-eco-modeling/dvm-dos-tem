@@ -34,69 +34,67 @@ public :
   Integrator();
   ~Integrator();
 
-  enum vegvarkey {I_VEGC = 0, //index starts from zero
-                  I_STRN = NUM_PFT_PART,
-                  I_LABN = 2*NUM_PFT_PART,
-                  I_DEADC, I_DEADN, //0 ~ NUM_VEG_STATE-1 for veg state
-                                    //  variables
+  // After change the keys here, you must remember to update the
+  // NUMEQ_VEG and NUM_VEG_STATE in temconst.h !!!
+  enum vegvarkey {
+    I_VEGC = 0,              // index starts from zero
+    I_STRN = NUM_PFT_PART,
+    I_LABN = 2*NUM_PFT_PART,
+    I_DEADC, I_DEADN,        // 0 ~ NUM_VEG_STATE-1 for veg state variables
 
-                  I_INGPP = NUM_VEG_STATE, //NUM_VEG_STATE is the starting
-                                           //  index for flux variables
-                  I_INNPP = NUM_VEG_STATE + NUM_PFT_PART,
-                  I_GPP   = NUM_VEG_STATE + 2*NUM_PFT_PART,
-                  I_NPP   = NUM_VEG_STATE + 3*NUM_PFT_PART,
-                  I_RM    = NUM_VEG_STATE + 4*NUM_PFT_PART,
-                  I_RG    = NUM_VEG_STATE + 5*NUM_PFT_PART,
-                  I_LTRC  = NUM_VEG_STATE + 6*NUM_PFT_PART,
+    // NUM_VEG_STATE is the starting index for flux variables
+    I_INGPP = NUM_VEG_STATE,
+    I_INNPP = NUM_VEG_STATE + 1 * NUM_PFT_PART,
+    I_GPP   = NUM_VEG_STATE + 2 * NUM_PFT_PART,
+    I_NPP   = NUM_VEG_STATE + 3 * NUM_PFT_PART,
+    I_RM    = NUM_VEG_STATE + 4 * NUM_PFT_PART,
+    I_RG    = NUM_VEG_STATE + 5 * NUM_PFT_PART,
+    I_LTRC  = NUM_VEG_STATE + 6 * NUM_PFT_PART,
+    I_SNUP  = NUM_VEG_STATE + 7 * NUM_PFT_PART,
+    I_NMBOL = NUM_VEG_STATE + 8 * NUM_PFT_PART,
+    I_NRSRB = NUM_VEG_STATE + 9 * NUM_PFT_PART,
 
-                  I_SNUP  = NUM_VEG_STATE + 7*NUM_PFT_PART,
-                  I_NMBOL = NUM_VEG_STATE + 8*NUM_PFT_PART,
-                  I_NRSRB = NUM_VEG_STATE + 9*NUM_PFT_PART,
+    //11*NUM_PFT_PART veg C/N flux variables
+    I_LTRN  = NUM_VEG_STATE + 10 * NUM_PFT_PART,
 
-                  //11*NUM_PFT_PART veg C/N flux variables
-                  I_LTRN  = NUM_VEG_STATE + 10*NUM_PFT_PART,
+    //because indexed from zero, so here is the sum of all above
+    I_INNUP = NUM_VEG_STATE + 11 * NUM_PFT_PART,
+    I_LNUP
+  };
 
-                  //because indexed from zero, so here is the sum of all above
-                  I_INNUP = NUM_VEG_STATE + 11*NUM_PFT_PART,
-                  I_LNUP
-
-                 };
-
-  //after change the keys here , remember to update the
-  //  NUMEQ_VEG and NUM_VEG_STATE in temconst.h
+  // After change the keys here, you must remember to update the
+  // NUMEQ_SOI and MAXSTATE in temconst.h !!
   enum soivarkey {
     I_L_RAWC  = 0,
     I_L_SOMA  = MAX_SOI_LAY,
-    I_L_SOMPR = 2*MAX_SOI_LAY,
-    I_L_SOMCR = 3*MAX_SOI_LAY, //(4*LAYERS) these 4 lines -
-                               //  Layered Soil C state variables
-    I_L_ORGN  = 4*MAX_SOI_LAY,
-    I_L_AVLN  = 5*MAX_SOI_LAY, //(4*LAYERS) these 2 lines -
-                               //  Layered Soil N state variables
+    I_L_SOMPR = 2 * MAX_SOI_LAY,
+    I_L_SOMCR = 3 * MAX_SOI_LAY, // (4*LAYERS) these 4 lines -
+                                 // Layered Soil C state variables
+    I_L_ORGN  = 4 * MAX_SOI_LAY,
+    I_L_AVLN  = 5 * MAX_SOI_LAY, // (4*LAYERS) these 2 lines -
+                                 // Layered Soil N state variables
 
-    I_WDEBRISC= 6*MAX_SOI_LAY, //because indexed from zero, so here
-                               //  is the sum of all above
+    I_WDEBRISC= 6 * MAX_SOI_LAY, // because indexed from zero, so here
+                                 // is the sum of all above
     I_WDEBRISN,
     I_DMOSSC, I_DMOSSN,
 
     I_L_RH_RAW  = NUM_SOI_STATE,
     I_L_RH_SOMA = NUM_SOI_STATE + MAX_SOI_LAY,
-    I_L_RH_SOMPR= NUM_SOI_STATE + 2*MAX_SOI_LAY,
-    I_L_RH_SOMCR= NUM_SOI_STATE + 3*MAX_SOI_LAY,
-    I_L_NMIN    = NUM_SOI_STATE + 4*MAX_SOI_LAY,
+    I_L_RH_SOMPR= NUM_SOI_STATE + 2 * MAX_SOI_LAY,
+    I_L_RH_SOMCR= NUM_SOI_STATE + 3 * MAX_SOI_LAY,
+    I_L_NMIN    = NUM_SOI_STATE + 4 * MAX_SOI_LAY,
     // 6*MAX_SOI_LAY soil C/N flux variables
     I_L_NIMMOB  = NUM_SOI_STATE + 5*MAX_SOI_LAY,
 
-    I_RH_WD = NUM_SOI_STATE + 6*MAX_SOI_LAY, //because indexed from zero,
-                                             //  so here is the sum of all above
+    I_RH_WD = NUM_SOI_STATE + 6 * MAX_SOI_LAY, // Because indexed from zero,
+                                             // so here is the sum of all above
     I_RH_DMOSS,
 
     I_ORGNLOSS, I_AVLNLOSS
 
   };
 
-  //after change the keys here, remember to update the
-  //  NUMEQ and MAXSTATE in temconst.h
 
   char predstr_veg[NUMEQ_VEG][11];
   char predstr_soi[NUMEQ_SOI][11];
@@ -113,7 +111,7 @@ public :
 
 private:
 
-  int numsl;  //actual number of soil layers
+  int numsl;  // actual number of soil layers
 
   void c2ystate_veg(float y[]);
   void c2ystate_soi(float y[]);
@@ -144,7 +142,7 @@ private:
   int maxitmon;
   int retry;
 
-  int syint;
+  int syint; // << -- Appears to be unused??
   int test;
 
   float y[NUMEQ];
@@ -178,7 +176,7 @@ private:
 
   Soil_Bgc * ssl;
   Vegetation_Bgc * veg;
-  BgcData *bd;
+  BgcData * bd;
 
 };
 #endif /*INTEGRATOR_H_*/

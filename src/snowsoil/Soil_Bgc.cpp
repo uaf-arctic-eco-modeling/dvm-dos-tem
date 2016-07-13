@@ -113,14 +113,20 @@ void Soil_Bgc::prepareIntegration(const bool &mdnfeedback,
   this->set_nfeed(mdnfeedback);
   this->set_avlnflg(mdavlnflg);
   this->set_baseline(mdbaseline);
+
   // moss death rate if any (from Vegetation_bgc.cpp)
   mossdeathc    = bd->m_v2soi.mossdeathc;
   mossdeathn    = bd->m_v2soi.mossdeathn;
+
   // litter-fall C/N from Vegetation_bgc.cpp
   double blwlfc = bd->m_v2soi.ltrfalc[I_root];
   double abvlfc = fmax(0., bd->m_v2soi.ltrfalcall - blwlfc);
   double blwlfn = bd->m_v2soi.ltrfaln[I_root];
   double abvlfn = fmax(0., bd->m_v2soi.ltrfalnall - blwlfn);
+
+  // Maybe the "below" calc should be done like this?:
+  // double abvlfc = bd->m_v2soi.ltrfalc[I_stem] + bd->m_v2soi.ltrfalc[I_leaf];
+  // double abvlfn = bd->m_v2soi.ltrfaln[I_stem] + bd->m_v2soi.ltrfaln[I_leaf];
 
   for(int i=0; i<cd->m_soil.numsl; i++) {
     if (cd->m_soil.type[i]>0) {
@@ -198,8 +204,8 @@ void Soil_Bgc::prepareIntegration(const bool &mdnfeedback,
 
 void Soil_Bgc::afterIntegration() {
   for(int i=0; i<cd->m_soil.numsl; i++) {
-    bd->m_soid.tsomc[i] = bd->m_sois.rawc[i]+bd->m_sois.soma[i]
-                          +bd->m_sois.sompr[i]+bd->m_sois.somcr[i];
+    bd->m_soid.tsomc[i] = bd->m_sois.rawc[i] + bd->m_sois.soma[i]
+                          + bd->m_sois.sompr[i] + bd->m_sois.somcr[i];
   }
 };
 
@@ -227,13 +233,25 @@ void Soil_Bgc::initializeState() {
 
     // Available N should only be calculated where roots are actively
     // turning over (ie, root zone)
+    bool root_presence = false;
+    double sum_root_frac = 0.0;
+    for (int ipft=0; ipft<NUM_PFT; ++ipft) {
+      sum_root_frac += cd->m_soil.frootfrac[il][ipft];
+    }
+    if (sum_root_frac > 0.0) {
+      root_presence = true;
+    }
+
     if (total_monthly_C > 0.0 && sum_total_C > 0.0) {
-      if(bd->m_v2soi.rtlfalfrac[il] > 0.0) {
+
+      if (root_presence) {
         bd->m_sois.avln[il] = chtlu->initavln * total_monthly_C/sum_total_C;
       } else {
         bd->m_sois.avln[il] = 0.0;
       }
+
       bd->m_sois.orgn [il] = chtlu->initsoln * total_monthly_C/sum_total_C;
+
     } else {
       bd->m_sois.avln [il] = 0.0;
       bd->m_sois.orgn [il] = 0.0;
@@ -713,7 +731,7 @@ void Soil_Bgc::deltan() {
         del_soi2l.orgnlost  += bd->m_soid.orgnsum - orgneven;
       }
     } // End baseline
-  }
+  } // end if (nfeed)
 };
 
 void Soil_Bgc::deltastate() {
@@ -780,11 +798,11 @@ void Soil_Bgc::deltastate() {
   double s2dfraction = 1.0;
   double mobiletoco2 = (double)bgcpar.fsoma*(double)bgcpar.som2co2;
   double xtopdlthick  = fmin(0.10, cd->m_soil.deepthick);  //Yuan: the max. thickness of deep-C layers, which shallow-C can move into
-  double xtopmlthick  = 0.20;  //Yuan: the max. thickness of mineral-C layers, which deep-C can move into
-  double s2dcarbon1 = 0.0;
+  double xtopmlthick  = 0.20;                              //Yuan: the max. thickness of mineral-C layers, which deep-C can move into
+  double s2dcarbon1 = 0.0;  // read "soil to deep"?
   double s2dcarbon2 = 0.0;
   double s2dorgn    = 0.0;
-  double d2mcarbon = 0.0;
+  double d2mcarbon = 0.0;   // read "deep to mineral"?
   double d2morgn   = 0.0;
   double dlleft    = xtopdlthick;
   double mlleft    = xtopmlthick;
@@ -799,48 +817,55 @@ void Soil_Bgc::deltastate() {
     if (cd->m_soil.type[il]<=1) {
       if (del_sois.sompr[il] > 0.) {
         s2dcarbon1 += del_sois.sompr[il]*s2dfraction;   //
-        del_sois.sompr[il]*= (1.0-s2dfraction);
+        del_sois.sompr[il] *= (1.0-s2dfraction); // <<-- NOTE: may set delta sompr to zero?
       }
 
       if (del_sois.somcr[il] > 0.) {
         s2dcarbon2 += del_sois.somcr[il]*s2dfraction;   //
-        del_sois.somcr[il]*= (1.0-s2dfraction);
+        del_sois.somcr[il] *= (1.0-s2dfraction);
       }
 
       if (this->nfeed == 1) {  // move orgn with SOMC as well
         double totsomc = tmp_sois.rawc[il] + tmp_sois.soma[il]
                          + tmp_sois.sompr[il] + tmp_sois.somcr[il];
 
-        if (totsomc>(s2dcarbon1+s2dcarbon2)) {
-          del_orgn [il] = - (s2dcarbon1+s2dcarbon2) / totsomc
+        if (totsomc > (s2dcarbon1 + s2dcarbon2)) {
+          del_orgn[il] = - (s2dcarbon1+s2dcarbon2) / totsomc
                           * tmp_sois.orgn[il]; //assuming C/N same for all
                                                //  SOM components
         } else {
-          del_orgn[il] = 0.;
+          del_orgn[il] = 0.0;
         }
 
         s2dorgn += (-del_orgn[il]); //note: del_orgn[il] above is not positive
       }
 
-      //in case no existing deep humific layer
+      // In case there is no existing deep humific layer
       if (il<(cd->m_soil.numsl-1) && cd->m_soil.type[il+1]>2) {
-        del_sois.sompr[il]+=s2dcarbon1; //let the humified SOM C staying
-                                        //  in the last fibrous layer,
-        del_sois.somcr[il]+=s2dcarbon2; //which later on, if greater than a
-                                        //  min. value, will form a new
-                                        //  humic layer
+        // NOTE:
+        // Should this been 'cd->m_soil.type[il+1] > 1'??
+        // Also, not sure how this is supposed to work, since we are w/in the
+        // fibric layer check - not sure how this code will ever execute...
+
+        del_sois.sompr[il] += s2dcarbon1; // Let the humified SOM C staying
+                                          // in the last fibrous layer,
+        del_sois.somcr[il] += s2dcarbon2; // Which later on, if greater than a
+                                          // min. value, will form a new
+                                          // humic layer
 
         if (this->nfeed == 1) {
           del_orgn[il] += s2dorgn;
         }
       }
+    // end soil type 0 or 1
     } else if (cd->m_soil.type[il]==2 && dlleft>0) {
+      // Humic layers...
       // 2) s2dcarbon from above will move into the 'xtopdlthick';
       thickadded = fmin(cd->m_soil.dz[il], dlleft);
-      dcaddfrac = thickadded/xtopdlthick;
-      dlleft -=thickadded;
-      del_sois.sompr[il]+=dcaddfrac*s2dcarbon1;
-      del_sois.somcr[il]+=dcaddfrac*s2dcarbon2;
+      dcaddfrac = thickadded / xtopdlthick;
+      dlleft -= thickadded;
+      del_sois.sompr[il] += dcaddfrac * s2dcarbon1;
+      del_sois.somcr[il] += dcaddfrac * s2dcarbon2;
 
       if (this->nfeed == 1) {
         del_orgn[il]+=s2dorgn;
@@ -873,24 +898,25 @@ void Soil_Bgc::deltastate() {
           double totsomc = tmp_sois.rawc[il] + tmp_sois.soma[il]
                            + tmp_sois.sompr[il] + tmp_sois.somcr[il];
 
-          if (totsomc>totmobile) {
+          if (totsomc > totmobile) {
             del_orgn [il] = - totmobile/totsomc*tmp_sois.orgn[il]; //assuming C/N same for all SOM components
           } else {
-            del_orgn[il] = 0.;
+            del_orgn[il] = 0.0;
           }
 
           d2morgn += (-del_orgn[il]); //note: del_orgn[il] above is not positive
         }
       }
 
+    // end soil type 2 and 'dlleft>0'
+    } else if (cd->m_soil.type[il]==3) { // mineral layers...
       // 4) d2mcarbon from above will move into the 'xtopmlthick';
-    } else if (cd->m_soil.type[il]==3) {
       thickadded = fmin(cd->m_soil.dz[il], mlleft);
       dcaddfrac = thickadded/xtopmlthick;
-      mlleft -=thickadded;
-      double tsom=tmp_sois.soma[il]+tmp_sois.sompr[il]+tmp_sois.somcr[il];
+      mlleft -= thickadded;
+      double tsom = tmp_sois.soma[il] + tmp_sois.sompr[il] + tmp_sois.somcr[il];
 
-      if (tsom>0.) {
+      if (tsom > 0.0) {
         del_sois.soma[il]+= dcaddfrac*d2mcarbon*(tmp_sois.soma[il]/tsom);
         del_sois.sompr[il]+= dcaddfrac*d2mcarbon*(tmp_sois.sompr[il]/tsom);
         del_sois.somcr[il]+= dcaddfrac*d2mcarbon*(tmp_sois.somcr[il]/tsom);
@@ -901,26 +927,26 @@ void Soil_Bgc::deltastate() {
       }
 
       if (this->nfeed == 1) {
-        del_orgn[il]=d2morgn *dcaddfrac;
+        del_orgn[il] = d2morgn * dcaddfrac;
       }
 
       if (mlleft<=0.0) {
         break;
       }
-    }
+    } // end soil type 3
   }
 
   /////////////// Nitrogen pools in soil ///////////////////////////////////
   if (this->nfeed == 1) {
-    for(int il =0; il<cd->m_soil.numsl; il++) {
+    for(int il = 0; il<cd->m_soil.numsl; il++) {
       // organic N pools
       //del_orgn[il] is from above SOM C mixing and moving
-      del_sois.orgn[il]= ltrfln[il] - del_soi2soi.netnmin[il] + del_orgn[il];
+      del_sois.orgn[il] = ltrfln[il] - del_soi2soi.netnmin[il] + del_orgn[il];
 
       if (cd->m_soil.type[il] == 0 && cd->m_soil.type[il+1] > 0) {
         // dead moss decomposition product is into the last moss layer
 
-        del_sois.orgn[il] += del_soi2a.rhmossc*tmp_sois.dmossn/tmp_sois.dmossc;
+        del_sois.orgn[il] += del_soi2a.rhmossc * tmp_sois.dmossn / tmp_sois.dmossc;
         //because 'netmin' above included moss decomposition
       }
 
@@ -929,24 +955,29 @@ void Soil_Bgc::deltastate() {
         del_sois.orgn[il] += bd->m_a2soi.orgninput;
       }
 
-      double dondrain = 0.;
+//      double dondrain = 0.0; // dissolved organic N drainage??
+//
+//      if (totdzliq > 0.01) {
+//        if((cd->m_soil.z[il]+cd->m_soil.dz[il]) <= ed->m_sois.draindepth) { //note: z is at the top of a layer
+//          dondrain = del_soi2l.orgnlost
+//                     * (ed->m_sois.liq[il]/totdzliq);
+//        } else {
+//          if (cd->m_soil.z[il]<ed->m_sois.draindepth) { // note: z is at the top of a layer
+//            double fdz = (ed->m_sois.draindepth - cd->m_soil.z[il]) / cd->m_soil.dz[il];
+//            dondrain = del_soi2l.orgnlost * (ed->m_sois.liq[il]/totdzliq) * fdz;
+//          }
+//        }
+//      }
+//
+//      del_sois.orgn[il] -= dondrain; // <==== When orgn ends up negative, the
+//                                     // Integrator has a hard time converging!
+//
+//      // If del_sosi.orgn is a "pool" variable and not a "change in pool"
+//      // variable, then it might be appropriate to force the values to zero:
+//      // with something like this:
+//      //if (del_sois.orgn[il] < 0) { del_sois.orgn[il] = 0.0; }
 
-      if (totdzliq>0.01) {
-        if((cd->m_soil.z[il]+cd->m_soil.dz[il]) <= ed->m_sois.draindepth) { //note: z is at the top of a layer
-          dondrain = del_soi2l.orgnlost
-                     *(ed->m_sois.liq[il]/totdzliq);
-        } else {
-          if (cd->m_soil.z[il]<ed->m_sois.draindepth) { // note: z is at the top of a layer
-            double fdz = (ed->m_sois.draindepth - cd->m_soil.z[il])
-                         /cd->m_soil.dz[il];
-            dondrain = del_soi2l.orgnlost
-                       *(ed->m_sois.liq[il]/totdzliq)*fdz;
-          }
-        }
-      }
-
-      del_sois.orgn[il] -= dondrain;
-      // inorganic N pools
+      // Inorganic N pools
       double ninput = 0.;
 
       if (il == 0) {
@@ -984,7 +1015,7 @@ void Soil_Bgc::deltastate() {
     // dead moss layers
     if (tmp_sois.dmossc > 0.) {
       del_sois.dmossn = mossdeathn;
-      del_sois.dmossn -= del_soi2a.rhmossc*tmp_sois.dmossn/tmp_sois.dmossc;
+      del_sois.dmossn -= del_soi2a.rhmossc * tmp_sois.dmossn / tmp_sois.dmossc;
     }
 
     // wood debris
@@ -1069,7 +1100,7 @@ void Soil_Bgc::updateKdyrly4all() {
         ltrfalcn += ltrfcnque[i]/numrec;
       }
 
-      if (ltrfalcn>0.) {
+      if (ltrfalcn > 0.0) {
         kdrawc  = getKdyrly(ltrfalcn, bgcpar.lcclnc, calpar.kdcrawc);
         kdsoma  = getKdyrly(ltrfalcn, bgcpar.lcclnc, calpar.kdcsoma);
         kdsompr = getKdyrly(ltrfalcn, bgcpar.lcclnc, calpar.kdcsompr);
