@@ -431,6 +431,8 @@ void Runner::output_caljson_monthly(int year, int month, std::string stage){
 
 
   /* PFT dependent variables */
+
+  // calculated ecosystem summary values
   double parDownSum = 0;
   double parAbsorbSum = 0;
 
@@ -447,10 +449,10 @@ void Runner::output_caljson_monthly(int year, int month, std::string stage){
     data["PFT" + pft_str]["VegStructuralNitrogen"]["Root"] = cohort.bd[pft].m_vegs.strn[I_root];
     data["PFT" + pft_str]["VegLabileNitrogen"] = cohort.bd[pft].m_vegs.labn;
 
+    data["PFT" + pft_str]["NAll"] = cohort.bd[pft].m_vegs.nall; // <-- Sum of labn and strn
+
     data["PFT" + pft_str]["NMobil"] = cohort.bd[pft].m_v2v.nmobilall; // <- the all denotes multi-compartment
     data["PFT" + pft_str]["NResorb"] = cohort.bd[pft].m_v2v.nresorball;
-
-    data["PFT" + pft_str]["NAll"] = cohort.bd[pft].m_vegs.nall; // <-- Sum of labn and strn
 
     data["PFT" + pft_str]["GPPAll"] = cohort.bd[pft].m_a2v.gppall;
     data["PFT" + pft_str]["NPPAll"] = cohort.bd[pft].m_a2v.nppall;
@@ -461,15 +463,17 @@ void Runner::output_caljson_monthly(int year, int month, std::string stage){
     data["PFT" + pft_str]["LitterfallNitrogen"]["Leaf"] = cohort.bd[pft].m_v2soi.ltrfaln[I_leaf];
     data["PFT" + pft_str]["LitterfallNitrogen"]["Stem"] = cohort.bd[pft].m_v2soi.ltrfaln[I_stem];
     data["PFT" + pft_str]["LitterfallNitrogen"]["Root"] = cohort.bd[pft].m_v2soi.ltrfaln[I_root];
-    data["PFT" + pft_str]["PARDown"] = cohort.ed[pft].m_a2v.pardown;
-    parDownSum+=cohort.ed[pft].m_a2v.pardown;
-    data["PFT" + pft_str]["PARAbsorb"] = cohort.ed[pft].m_a2v.parabsorb;
-    parAbsorbSum+=cohort.ed[pft].m_a2v.parabsorb;
     data["PFT" + pft_str]["StNitrogenUptake"] = cohort.bd[pft].m_soi2v.snuptakeall;
     data["PFT" + pft_str]["InNitrogenUptake"] = cohort.bd[pft].m_soi2v.innuptake;
     data["PFT" + pft_str]["LabNitrogenUptake"] = cohort.bd[pft].m_soi2v.lnuptake;
     data["PFT" + pft_str]["TotNitrogenUptake"] = cohort.bd[pft].m_soi2v.snuptakeall + cohort.bd[pft].m_soi2v.lnuptake;
     data["PFT" + pft_str]["MossDeathC"] = cohort.bd[pft].m_v2soi.mossdeathc;
+
+    data["PFT" + pft_str]["PARDown"] = cohort.ed[pft].m_a2v.pardown;
+    data["PFT" + pft_str]["PARAbsorb"] = cohort.ed[pft].m_a2v.parabsorb;
+
+    parDownSum += cohort.ed[pft].m_a2v.pardown;
+    parAbsorbSum += cohort.ed[pft].m_a2v.parabsorb;
 
   }
 
@@ -609,19 +613,19 @@ void Runner::output_caljson_yearly(int year, std::string stage) {
     data["PFT" + pft_str]["NPPAll"] = cohort.bd[pft].y_a2v.nppall;
     data["PFT" + pft_str]["GPPAllIgnoringNitrogen"] = cohort.bd[pft].y_a2v.ingppall;
     data["PFT" + pft_str]["NPPAllIgnoringNitrogen"] = cohort.bd[pft].y_a2v.innppall;
-    data["PFT" + pft_str]["PARDown"] = cohort.ed[pft].y_a2v.pardown;
-    data["PFT" + pft_str]["PARAbsorb"] = cohort.ed[pft].y_a2v.parabsorb;
     data["PFT" + pft_str]["LitterfallCarbonAll"] = cohort.bd[pft].y_v2soi.ltrfalcall;
     data["PFT" + pft_str]["LitterfallNitrogenPFT"] = cohort.bd[pft].y_v2soi.ltrfalnall;
     data["PFT" + pft_str]["LitterfallNitrogen"]["Leaf"] = cohort.bd[pft].y_v2soi.ltrfaln[I_leaf];
     data["PFT" + pft_str]["LitterfallNitrogen"]["Stem"] = cohort.bd[pft].y_v2soi.ltrfaln[I_stem];
     data["PFT" + pft_str]["LitterfallNitrogen"]["Root"] = cohort.bd[pft].y_v2soi.ltrfaln[I_root];
-    data["PFT" + pft_str]["PARDown"] = cohort.ed[pft].y_a2v.pardown;
-    data["PFT" + pft_str]["PARAbsorb"] = cohort.ed[pft].y_a2v.parabsorb;
     data["PFT" + pft_str]["StNitrogenUptake"] = cohort.bd[pft].y_soi2v.snuptakeall;
     data["PFT" + pft_str]["InNitrogenUptake"] = cohort.bd[pft].y_soi2v.innuptake;
     data["PFT" + pft_str]["LabNitrogenUptake"] = cohort.bd[pft].y_soi2v.lnuptake;
     data["PFT" + pft_str]["TotNitrogenUptake"] = cohort.bd[pft].y_soi2v.snuptakeall + cohort.bd[pft].y_soi2v.lnuptake;
+
+    data["PFT" + pft_str]["PARDown"] = cohort.ed[pft].y_a2v.pardown;
+    data["PFT" + pft_str]["PARAbsorb"] = cohort.ed[pft].y_a2v.parabsorb;
+
   }
 
   // Writes files like this:

@@ -8,6 +8,7 @@ import os                         # general path manipulations
 import shutil                     # cleaning up files
 import glob                       # listing/finding data files
 import json                       # reading data files
+import signal                     # for exiting gracefully
 import itertools
 import tarfile                    # opening archived data
 import argparse                   # command line interface
@@ -21,6 +22,12 @@ if sys.version_info[0] < 3:
     from StringIO import StringIO
 else:
     from io import StringIO
+
+
+def exit_gracefully(signum, frame):
+  '''A function for quitting w/o leaving a stacktrace on the users console.'''
+  print "Caught signal='%s', frame='%s'. Quitting - gracefully." % (signum, frame)
+  sys.exit(1)
 
 # Generator function for extracting specific files from a tar archive
 def monthly_files(tarfileobj):
@@ -40,31 +47,33 @@ def analyze(cjd, pjd):
 
   results = {}
 
-  results['C veg err'] = bal_C_veg(cjd, pjd).err
-  results['C veg del'] = bal_C_veg(cjd, pjd).delta
-  results['C veg vasc err'] = bal_C_veg(cjd, pjd, pftlist=vasc).err
-  results['C veg vasc del'] = bal_C_veg(cjd, pjd, pftlist=vasc).delta
-  results['C veg nonvasc err'] = bal_C_veg(cjd, pjd, pftlist=nonvasc).err
-  results['C veg nonvasc del'] = bal_C_veg(cjd, pjd, pftlist=nonvasc).delta
+  #results['C veg'] = bal_C_veg(cjd, pjd, xsec='all')
+  results['C veg'] = bal_C_veg(cjd, pjd, xsec='all')
+  #results['C veg del'] = bal_C_veg(cjd, pjd, xsec='all').delta
+  results['C veg vasc'] = bal_C_veg(cjd, pjd, xsec='vasc')
+  #results['C veg vasc del'] = bal_C_veg(cjd, pjd, xsec='vasc').delta
+  results['C veg nonvasc'] = bal_C_veg(cjd, pjd, xsec='nonvasc')
+  #results['C veg nonvasc del'] = bal_C_veg(cjd, pjd, xsec='nonvasc').delta
 
-  results['C soil err'] = bal_C_soil(cjd, pjd).err
-  results['C soil del'] = bal_C_soil(cjd, pjd).delta
+  results['C soil'] = bal_C_soil(cjd, pjd)
+  #results['C soil del'] = bal_C_soil(cjd, pjd).delta
 
-  results['N veg err tot'] = bal_N_veg_tot(cjd, pjd).err
-  results['N veg err str'] = bal_N_veg_str(cjd, pjd).err
-  results['N veg err lab'] = bal_N_veg_lab(cjd, pjd).err
-  results['N soil err org'] = bal_N_soil_org(cjd, pjd).err
-  results['N soil err avl'] = bal_N_soil_avl(cjd, pjd).err
+  results['N veg tot'] = bal_N_veg_tot(cjd, pjd, xsec='all')
+  results['N veg str'] = bal_N_veg_str(cjd, pjd, xsec='all')
+  results['N veg lab'] = bal_N_veg_lab(cjd, pjd, xsec='all')
+  results['N soil org'] = bal_N_soil_org(cjd, pjd)
+  results['N soil avl'] = bal_N_soil_avl(cjd, pjd)
 
-  results['N veg vasc err tot'] = bal_N_veg_tot(cjd, pjd, pftlist=vasc).err
-  results['N veg vasc err str'] = bal_N_veg_str(cjd, pjd, pftlist=vasc).err
-  results['N veg vasc err lab'] = bal_N_veg_lab(cjd, pjd, pftlist=vasc).err
+  results['N veg vasc tot'] = bal_N_veg_tot(cjd, pjd, xsec='vasc')
+  results['N veg vasc str'] = bal_N_veg_str(cjd, pjd, xsec='vasc')
+  results['N veg vasc lab'] = bal_N_veg_lab(cjd, pjd, xsec='vasc')
 
-  results['N veg nonvasc err tot'] = bal_N_veg_tot(cjd, pjd, pftlist=nonvasc).err
-  results['N veg nonvasc err str'] = bal_N_veg_str(cjd, pjd, pftlist=nonvasc).err
-  results['N veg nonvasc err lab'] = bal_N_veg_lab(cjd, pjd, pftlist=nonvasc).err
+  results['N veg nonvasc tot'] = bal_N_veg_tot(cjd, pjd, xsec='nonvasc')
+  results['N veg nonvasc str'] = bal_N_veg_str(cjd, pjd, xsec='nonvasc')
+  results['N veg nonvasc lab'] = bal_N_veg_lab(cjd, pjd, xsec='nonvasc')
 
   return results
+
 
 def file_loader(**kwargs):
   '''Returns a list of files to open'''
@@ -99,20 +108,31 @@ def file_loader(**kwargs):
 
   return jfiles
 
+def onclick(event):
+  if event.xdata != None and event.ydata != None:
+    i_edy = np.rint(event.ydata) # rint - convert to integer with rounding
+    i_edx = np.rint(event.xdata)
+    cax = event.inaxes
+    caximg = cax.images[0]
+    print "Axes: %s" % (cax.get_title().replace("\n", " "))
+    print "Data coordinates (y, x): ", "(%s,%s)"%(event.ydata, event.xdata)
+    print "Data coords as int: ", "(%s,%s)"%(i_edy, i_edx)
+    print "Data at[%s, %s]: %s" % (i_edy, i_edx, caximg.get_array()[i_edy, i_edx])
+    print
+
+  if event.key == 'ctrl+c':
+    print "Captured Ctrl-C. Quit nicely."
+    exit_gracefully(event.key, None) # <-- need to pass something for frame ??
+
+
+
 def error_image(**kwargs):
   '''Returns an array with dimensions (yrs,months) for the error variable.'''
 
   if "plotlist" not in kwargs:
-    plotlist = ['C veg err', 'C soil err', 'N veg err tot', 'N veg err str', 'N veg err lab', 'N soil err org', 'N soil err avl']
+    plotlist = ['C veg', 'C soil', 'N veg tot', 'N veg str', 'N veg lab', 'N soil org', 'N soil avl']
   else:
     plotlist = kwargs["plotlist"]
-
-
-  from mpl_toolkits.axes_grid1 import make_axes_locatable
-  from matplotlib.colors import LogNorm
-  from matplotlib.ticker import MultipleLocator
-  from matplotlib.ticker import MaxNLocator
-  import matplotlib.ticker as mtkr
 
   jfiles = file_loader(**kwargs)
 
@@ -136,7 +156,8 @@ def error_image(**kwargs):
   empty = np.empty(len(jfiles) + m1 + (11-mlast)) * np.nan
 
   # Make room for a lot of data
-  imgarrays = [np.copy(empty) for i in plotlist]
+  imgarrays_err = np.array([np.copy(empty) for i in plotlist])
+  imgarrays_delta = np.array([np.copy(empty) for i in plotlist])
 
   # Run over all the files, calculating all the derived 
   # diagnostics.
@@ -148,15 +169,33 @@ def error_image(**kwargs):
     diagnostics = analyze(jdata, pjd)
 
     for pltnum, key in enumerate(plotlist):
-      imgarrays[pltnum][idx+m1] = diagnostics[key]
+      imgarrays_err[pltnum][idx+m1] = diagnostics[key].err
+      imgarrays_delta[pltnum][idx+m1] = diagnostics[key].delta
 
     pjd = jdata
 
+  image_plot(imgarrays_err, plotlist)
+  image_plot(imgarrays_delta, plotlist)
+  image_plot(imgarrays_err/imgarrays_delta, plotlist)
+
+
+def image_plot(imgarrays, plotlist):
+
+  from mpl_toolkits.axes_grid1 import make_axes_locatable
+  from matplotlib.colors import LogNorm
+  from matplotlib.ticker import MultipleLocator
+  from matplotlib.ticker import MaxNLocator
+  import matplotlib.ticker as mtkr
 
   # undertake the plotting of the now full arrays..
   fig, axar = plt.subplots(1, len(imgarrays), sharex=True, sharey=True)
-  for axidx, data in enumerate(imgarrays):
+  fig.set_tight_layout(True)
+  cid = fig.canvas.mpl_connect('button_press_event', onclick)
+  #mpldatacursor.datacursor(display='single')
 
+  for axidx, data in enumerate(imgarrays):
+    print "Plotting for axes %s" % axidx
+    print "-------------------------------------------"
     # We are going to use a divergent color scheme centered around zero,
     # so we need to find largest absolute value of the data and use that
     # as the endpoints for the color-scaling.
@@ -165,28 +204,15 @@ def error_image(**kwargs):
 
     # It is also handy to mask out the values that are zero (no error)
     # or riduculously close to zero (effectively zero)
-    print "before mask: ", np.count_nonzero(~np.isnan(data))
+    print "Valid values before masking values close to zero: ", np.count_nonzero(~np.isnan(data))
     data = np.ma.masked_equal(data, 0)
     maskclose = np.isclose(data, np.zeros(data.shape))
     data = np.ma.masked_array(data, mask=maskclose)
     data = np.ma.masked_invalid(data)
-    print "after mask: ", data.count()
+    print "Remaining data after masking near-zero data: ", data.count()
 
-    im = axar[axidx].imshow(
-          data.reshape(len(data)/12, 12),
-          interpolation="nearest",
-          cmap="coolwarm", vmin=-xval, vmax=xval,
-          aspect='auto' # helps with non-square images...
-        )
-    axar[axidx].grid(False, axis='both')
-
-    #axar[axidx].yaxis.set_visible(False)
-    #axar[axidx].yaxis.set_major_locator(mtkr.MultipleLocator(5))
-    #axar[axidx].tick_params(axis='y', direction='in', length=3, width=.5, colors='k', labelleft='off', labelright='off')
-
-    axar[axidx].set_xlabel("Month")
-    axar[axidx].xaxis.set_major_locator(mtkr.MaxNLocator(5, integer=True)) # 5 seems to be magic number; works with zooming.
-    axar[axidx].tick_params(axis='x', direction='in', length=3, width=.5, colors='k')
+    # Transform data to 2D shape for showing as an image
+    data = data.reshape(len(data)/12, 12)
 
     divider = make_axes_locatable(axar[axidx])
     cwm = plt.cm.coolwarm
@@ -194,8 +220,28 @@ def error_image(**kwargs):
     cwm.set_over('yellow',1.0) # <- nothing should be ouside the colormap range...
     cwm.set_under('orange',1.0)
     colax = divider.append_axes("bottom", size="3%", pad="10%")
+
+    # Display the data as an image
+    im = axar[axidx].imshow(
+          data,
+          interpolation="nearest",
+          cmap="coolwarm", vmin=-xval, vmax=xval,
+          aspect='auto' # helps with non-square images...
+        )
+    loc = MultipleLocator(base=1.0) # this locator puts ticks at regular intervals
+    axar[axidx].xaxis.set_major_locator(loc)
+    axar[axidx].grid(True, axis='both')
+
     cbar = plt.colorbar(im, cax=colax, orientation='horizontal', format="%0.8f", ticks=mtkr.MaxNLocator(6, prune=None))
     plt.setp(colax.xaxis.get_majorticklabels(), rotation=90)
+
+    #axar[axidx].yaxis.set_visible(False)
+    #axar[axidx].yaxis.set_major_locator(mtkr.MultipleLocator(5))
+    #axar[axidx].tick_params(axis='y', direction='in', length=3, width=.5, colors='k', labelleft='off', labelright='off')
+
+    axar[axidx].set_xlabel("Month")
+    #axar[axidx].xaxis.set_major_locator(mtkr.MaxNLocator(5, integer=True)) # 5 seems to be magic number; works with zooming.
+    axar[axidx].tick_params(axis='x', direction='in', length=3, width=.5, colors='k')
 
   # Turn the y axis on for the leftmost plot
   axar[0].yaxis.set_visible(True)
@@ -203,7 +249,7 @@ def error_image(**kwargs):
   #axar[0].tick_params(axis='y', direction='out', length=4, width=1, colors='k', labelleft='on', labelright='off')
 
 
-  # set the titles for the subplots
+  # set the titles for the subplots - rudimentady line-wrapping for long titles
   assert len(axar) == len(plotlist) # zip silently trucates longer list
   for x in zip(axar, plotlist):
     if len(x[1].split(' ')) > 3:
@@ -215,8 +261,8 @@ def error_image(**kwargs):
     else:
       x[0].set_title(x[1])
 
-  plt.tight_layout()
   plt.show(block=True)
+
 
 def plot_tests(test_list, **kwargs):
   #title =  "------  %s  ------" % t
@@ -236,8 +282,6 @@ def plot_tests(test_list, **kwargs):
 
     print "plotting dataframe..."
     dfp = df.plot(subplots=True)#, grid=False)
-
-    #from IPython import embed; embed()
 
     print "using matplotlib show..."
     plt.show(block=True)
@@ -317,16 +361,23 @@ def compile_table_by_year(test_case, **kwargs):
 
     return full_report
 
-def eco_total(key, jdata, **kwargs):
+def sum_across(key, jdata, xsec):
+  # Setup a dict for mapping community type numbers
+  # to differnet combos of PFTs for vascular/non-vascular
+  CMTLU = {
+    5: {
+      'all'      : [0,1,2,3,4,5,6,7,8,9],
+      'vasc'     : [0,1,2,3,4],
+      'nonvasc'  : [5,6,7]
+    }
+  }
+
+  pfts = CMTLU[5][xsec]
   total = np.nan
 
   if jdata != None:
-    if 'pftlist' in kwargs:
-      pftlist = kwargs['pftlist']
-    else:
-      pftlist = range(0,10)
     total = 0
-    for pft in ['PFT%i'%i for i in pftlist]:
+    for pft in ['PFT%i'%i for i in pfts]:
       if ( type(jdata[pft][key]) == dict ): # sniff out compartment variables
         if len(jdata[pft][key]) == 3:
           total += jdata[pft][key]["Leaf"] + jdata[pft][key]["Stem"] + jdata[pft][key]["Root"]
@@ -357,50 +408,113 @@ def bal_C_soil(curr_jd, prev_jd):
   delta = np.nan
   if prev_jd != None:
     delta = ecosystem_sum_soilC(curr_jd) - ecosystem_sum_soilC(prev_jd)
-  err = delta - (eco_total("LitterfallCarbonAll", curr_jd) + eco_total("MossDeathC", curr_jd) - curr_jd["RH"])
+
+  sum_of_fluxes = sum_across("LitterfallCarbonAll", curr_jd, 'all') + sum_across("MossDeathC", curr_jd, 'all') - curr_jd["RH"]
+
+  err = delta - sum_of_fluxes
   return DeltaError(delta, err)
 
-def bal_C_veg(curr_jd, pjd, **kwargs):
+def bal_C_veg(curr_jd, pjd, xsec='all'):
+
   delta = np.nan
   if pjd != None:
-    delta = eco_total("VegCarbon", curr_jd, **kwargs) - eco_total("VegCarbon", pjd, **kwargs)
-  err = delta - (eco_total("NPPAll", curr_jd, **kwargs) - eco_total("LitterfallCarbonAll", curr_jd, **kwargs) - eco_total("MossDeathC", curr_jd, **kwargs))
+    delta = sum_across("VegCarbon", curr_jd, xsec) - sum_across("VegCarbon", pjd, xsec)
+
+  if xsec == 'all':
+    sum_of_fluxes = sum_across("NPPAll", curr_jd, xsec) \
+                    - sum_across("LitterfallCarbonAll", curr_jd, xsec) \
+                    - sum_across("MossDeathC", curr_jd, xsec)
+  if xsec == 'vasc':
+    sum_of_fluxes = sum_across("NPPAll", curr_jd, xsec) \
+                    - sum_across("LitterfallCarbonAll", curr_jd, xsec)
+
+  if xsec == 'nonvasc':
+    sum_of_fluxes = sum_across("NPPAll", curr_jd, xsec) \
+                    - sum_across("LitterfallCarbonAll", curr_jd, xsec) \
+                    - sum_across("MossDeathC", curr_jd, xsec)
+
+  err = delta - sum_of_fluxes
   return DeltaError(delta, err)
 
 def bal_N_soil_org(jd, pjd):
   delta = np.nan
   if pjd != None:
     delta = jd["OrganicNitrogenSum"] - pjd["OrganicNitrogenSum"]
-  err = delta - ( (eco_total("LitterfallNitrogenPFT", jd) + jd["MossdeathNitrogen"]) - jd["NetNMin"] )
+  sum_of_fluxes = sum_across("LitterfallNitrogenPFT", jd, 'all') + jd["MossdeathNitrogen"] - jd["NetNMin"]
+  err = delta - sum_of_fluxes
   return DeltaError(delta, err)
 
 def bal_N_soil_avl(jd, pjd):
   delta = np.nan
   if pjd != None:
     delta = jd["AvailableNitrogenSum"] - pjd["AvailableNitrogenSum"]
-  err = delta - ( (jd["NetNMin"] + jd["AvlNInput"]) - (eco_total("TotNitrogenUptake", jd) + jd["AvlNLost"]) )
+  sum_of_fluxes = (jd["NetNMin"] + jd["AvlNInput"]) - (sum_across("TotNitrogenUptake", jd, 'all') + jd["AvlNLost"])
+  err = delta - sum_of_fluxes
   return DeltaError(delta, err)
 
-def bal_N_veg_tot(jd, pjd, **kwargs):
+def bal_N_veg_tot(jd, pjd, xsec='all'):
+
   delta = np.nan
   if pjd != None:
-    delta = eco_total("NAll", jd, **kwargs) - eco_total("NAll", pjd, **kwargs)
-  err = delta - (eco_total("TotNitrogenUptake", jd, **kwargs) - (eco_total("LitterfallNitrogenPFT", jd, **kwargs) + jd["MossdeathNitrogen"]))
+    delta = sum_across("NAll", jd, xsec) - sum_across("NAll", pjd, xsec)
+
+  if xsec == 'all':
+    sum_of_fluxes = sum_across("TotNitrogenUptake", jd, xsec) - \
+                    sum_across("LitterfallNitrogenPFT", jd, xsec) - \
+                    jd["MossdeathNitrogen"]
+
+  if xsec == 'vasc':
+    sum_of_fluxes = sum_across("TotNitrogenUptake", jd, xsec) - \
+                    sum_across("LitterfallNitrogenPFT", jd, xsec)
+
+  if xsec == 'nonvasc':
+    sum_of_fluxes = sum_across("TotNitrogenUptake", jd, xsec) - \
+                    sum_across("LitterfallNitrogenPFT", jd, xsec) - \
+                    jd["MossdeathNitrogen"] 
+
+  err = delta - sum_of_fluxes
 
   return DeltaError(delta, err)
 
-def bal_N_veg_str(jd, pjd, **kwargs):
+def bal_N_veg_str(jd, pjd, xsec='all'):
+
   delta = np.nan
   if pjd != None:
-    delta = eco_total("VegStructuralNitrogen", jd, **kwargs) - eco_total("VegStructuralNitrogen", pjd, **kwargs) # <-- will sum compartments
-  err = delta - (eco_total("StNitrogenUptake", jd, **kwargs) + eco_total("NMobil", jd, **kwargs)) + (eco_total("LitterfallNitrogenPFT", jd, **kwargs) + jd["MossdeathNitrogen"] + eco_total("NResorb", jd, **kwargs))
+    delta = sum_across("VegStructuralNitrogen", jd, xsec) - sum_across("VegStructuralNitrogen", pjd, xsec) # <-- will sum compartments
+
+  if xsec == 'all':
+    sum_of_fluxes = sum_across("StNitrogenUptake", jd, xsec) + \
+                    sum_across("NMobil", jd, xsec) - \
+                    sum_across("LitterfallNitrogenPFT", jd, xsec) - \
+                    jd["MossdeathNitrogen"] - \
+                    sum_across("NResorb", jd, xsec)
+
+  if xsec == 'vasc':
+    sum_of_fluxes = sum_across("StNitrogenUptake", jd, xsec) + \
+                    sum_across("NMobil", jd, xsec) - \
+                    sum_across("LitterfallNitrogenPFT", jd, xsec) - \
+                    sum_across("NResorb", jd, xsec)
+
+
+  if xsec == 'nonvasc':
+    sum_of_fluxes = sum_across("StNitrogenUptake", jd, xsec) + \
+                    sum_across("NMobil", jd, xsec) - \
+                    jd["MossdeathNitrogen"] - \
+                    sum_across("NResorb", jd, xsec)
+
+  err = delta - sum_of_fluxes
   return DeltaError(delta, err)
 
-def bal_N_veg_lab(jd, pjd, **kwargs):
+def bal_N_veg_lab(jd, pjd, xsec='all'):
+
   delta = np.nan
   if pjd != None:
-    delta = eco_total("VegLabileNitrogen", jd, **kwargs) - eco_total("VegLabileNitrogen", pjd, **kwargs)
-  err = delta - (eco_total("LabNitrogenUptake", jd, **kwargs) + eco_total("NResorb", jd, **kwargs)) + eco_total("NMobil", jd, **kwargs)
+    delta = sum_across("VegLabileNitrogen", jd, xsec) - sum_across("VegLabileNitrogen", pjd, xsec)
+
+  if xsec=='all' or xsec == 'vasc' or xsec == 'nonvasc':
+    sum_of_fluxes = sum_across("LabNitrogenUptake", jd, xsec) + sum_across("NResorb", jd, xsec) - sum_across("NMobil", jd, xsec)
+
+  err = delta - sum_of_fluxes
   return DeltaError(delta, err)
 
 
@@ -412,20 +526,20 @@ def Check_N_cycle_veg_balance(idx, header=False, jd=None, pjd=None):
         )
     else:
 
-        sum_str_N_flux = jd["StNitrogenUptakeAll"] - (eco_total("LitterfallNitrogenPFT", jd) + jd["MossdeathNitrogen"]) + eco_total("NMobil", jd) -  eco_total("NResorb", jd)
-        sum_lab_N_flux = eco_total("LabNitrogenUptake", jd) + eco_total("NResorb", jd) - eco_total("NMobil", jd) 
+        sum_str_N_flux = jd["StNitrogenUptakeAll"] - (sum_across("LitterfallNitrogenPFT", jd, 'all') + jd["MossdeathNitrogen"]) + sum_across("NMobil", jd, 'all') -  sum_across("NResorb", jd, 'all')
+        sum_lab_N_flux = sum_across("LabNitrogenUptake", jd, 'all') + sum_across("NResorb", jd, 'all') - sum_across("NMobil", jd, 'all') 
 
         return  "{:<4} {:>6} {:>2} {:>10.4f} {:>10.4f} {:>10.3f} {:>10.4f} {:>10.4f} {:>10.3f} {:>10.4f} {:>10.4f} {:>10.3f}\n".format(
                 idx,
                 jd["Year"],
                 jd["Month"],
-                bal_N_veg_tot(jd, pjd).err,
-                bal_N_veg_str(jd, pjd).err,
-                bal_N_veg_lab(jd, pjd).err,
+                bal_N_veg_tot(jd, pjd, xsec='all').err,
+                bal_N_veg_str(jd, pjd, xsec='all').err,
+                bal_N_veg_lab(jd, pjd, xsec='all').err,
 
-                bal_N_veg_tot(jd, pjd).delta,
-                bal_N_veg_str(jd, pjd).delta,
-                bal_N_veg_lab(jd, pjd).delta,
+                bal_N_veg_tot(jd, pjd, xsec='all').delta,
+                bal_N_veg_str(jd, pjd, xsec='all').delta,
+                bal_N_veg_lab(jd, pjd, xsec='all').delta,
 
                 sum_str_N_flux + sum_lab_N_flux,
                 sum_str_N_flux,
@@ -459,10 +573,10 @@ def Check_C_cycle_soil_balance(idx, header=False, jd=None, pjd=None):
               jd["Year"],
               bal_C_soil(jd, pjd).err,
               bal_C_soil(jd, pjd).delta,
-              eco_total("LitterfallCarbonAll", jd)  + eco_total("MossDeathC", jd) - jd["RH"],
+              sum_across("LitterfallCarbonAll", jd, 'all')  + sum_across("MossDeathC", jd, 'all') - jd["RH"],
               ecosystem_sum_soilC(jd),
-              eco_total("LitterfallCarbonAll", jd) ,
-              eco_total("MossDeathC", jd),
+              sum_across("LitterfallCarbonAll", jd, 'all') ,
+              sum_across("MossDeathC", jd, 'all'),
               jd['RH'], 
               (jd['RHsomcr']+jd['RHsompr']+jd['RHsoma']+jd['RHraw']+jd['RHmossc']+jd['RHwdeb']),
           )
@@ -485,7 +599,7 @@ def Report_Soil_C(idx, header=False, jd=None, pjd=None):
                 jd['RHsomcr'],
                 jd['RHmossc'],
                 jd['RHwdeb'],
-                eco_total("LitterfallCarbonAll", jd) + jd['MossdeathCarbon'],
+                sum_across("LitterfallCarbonAll", jd, 'all') + jd['MossdeathCarbon'],
                 jd['RawCSum'],
                 jd['SomaSum'],
                 jd['SomprSum'],
@@ -505,14 +619,14 @@ def Check_C_cycle_veg_balance(idx, header=False, jd=None, pjd=None):
                 idx,
                 jd['Month'],
                 jd['Year'],
-                bal_C_veg(jd, pjd).err,
-                bal_C_veg(jd, pjd).delta,
+                bal_C_veg(jd, pjd, xsec='all').err,
+                bal_C_veg(jd, pjd, xsec='all').delta,
 
-                eco_total("NPPAll", jd)  - eco_total("LitterfallCarbonAll", jd)  - eco_total("MossDeathC", jd),
-                eco_total("MossDeathC", jd),
-                eco_total("VegCarbon", jd), 
-                eco_total("NPPAll", jd) ,
-                eco_total("LitterfallCarbonAll", jd) ,
+                sum_across("NPPAll", jd, 'all')  - sum_across("LitterfallCarbonAll", jd, 'all')  - sum_across("MossDeathC", jd, 'all'),
+                sum_across("MossDeathC", jd, 'all'),
+                sum_across("VegCarbon", jd, 'all'), 
+                sum_across("NPPAll", jd, 'all') ,
+                sum_across("LitterfallCarbonAll", jd, 'all') ,
             )
 
 def Check_C_cycle_veg_vascular_balance(idx, header=False, jd=None, pjd=None):
@@ -530,15 +644,15 @@ def Check_C_cycle_veg_vascular_balance(idx, header=False, jd=None, pjd=None):
                 jd['Month'],
                 jd['Year'],
 
-                bal_C_veg(jd, pjd, pftlist=vascular).err,
-                bal_C_veg(jd, pjd, pftlist=vascular).delta,
+                bal_C_veg(jd, pjd, xsec='vasc').err,
+                bal_C_veg(jd, pjd, xsec='vasc').delta,
 
-                eco_total("NPPAll", jd, pftlist=vascular)  - eco_total("LitterfallCarbonAll", jd, pftlist=vascular)  - eco_total("MossDeathC",jd,pftlist=vascular),
+                sum_across("NPPAll", jd, 'vasc')  - sum_across("LitterfallCarbonAll", jd, 'vasc')  - sum_across("MossDeathC",jd,'vasc'),
 
-                eco_total("MossDeathC",jd, pftlist=vascular),
-                eco_total("VegCarbon", jd, pftlist=vascular), 
-                eco_total("NPPAll", jd, pftlist=vascular),
-                eco_total("LitterfallCarbonAll", jd, pftlist=vascular)
+                sum_across("MossDeathC",jd, 'vasc'),
+                sum_across("VegCarbon", jd, 'vasc'), 
+                sum_across("NPPAll", jd, 'vasc'),
+                sum_across("LitterfallCarbonAll", jd, 'vasc')
             )
 
 def Check_C_cycle_veg_nonvascular_balance(idx, header=False, jd=None, pjd=None):
@@ -558,25 +672,29 @@ def Check_C_cycle_veg_nonvascular_balance(idx, header=False, jd=None, pjd=None):
                 jd['Month'],
                 jd['Year'],
 
-                bal_C_veg(jd, pjd, pftlist=non_vasc).err,
-                bal_C_veg(jd, pjd, pftlist=non_vasc).delta,
+                bal_C_veg(jd, pjd, xsec='nonvasc').err,
+                bal_C_veg(jd, pjd, xsec='nonvasc').delta,
 
-                eco_total("NPPAll", jd, pftlist=non_vasc)  - eco_total("LitterfallCarbonAll", jd, pftlist=non_vasc)  - eco_total("MossDeathC", jd, pftlist=non_vasc),
-                eco_total("MossDeathC", jd, pftlist=non_vasc),
-                eco_total("VegCarbon", jd, pftlist=non_vasc), 
-                eco_total("NPPAll", jd, pftlist=non_vasc) ,
-                eco_total("LitterfallCarbonAll", jd, pftlist=non_vasc) ,
+                sum_across("NPPAll", jd, 'nonvasc')  - sum_across("LitterfallCarbonAll", jd, 'nonvasc')  - sum_across("MossDeathC", jd, 'nonvasc'),
+                sum_across("MossDeathC", jd, 'nonvasc'),
+                sum_across("VegCarbon", jd, 'nonvasc'), 
+                sum_across("NPPAll", jd, 'nonvasc') ,
+                sum_across("LitterfallCarbonAll", jd, 'nonvasc') ,
             )
 
 if __name__ == '__main__':
 
+  # Callback for SIGINT. Allows exit w/o printing stacktrace to users screen
+  original_sigint = signal.getsignal(signal.SIGINT)
+  signal.signal(signal.SIGINT, exit_gracefully)
+
   error_image_choices = [
-    'C soil err',
-    'N soil err org', 'N soil err avl',
-    'C veg err', 'C veg vasc err', 'C veg nonvasc err',
-    'N veg err tot', 'N veg err str', 'N veg err lab',
-    'N veg vasc err tot', 'N veg vasc err str', 'N veg vasc err lab',
-    'N veg nonvasc err tot', 'N veg nonvasc err str', 'N veg nonvasc err lab',
+    'C soil',
+    'N soil org', 'N soil avl',
+    'C veg', 'C veg vasc', 'C veg nonvasc',
+    'N veg tot', 'N veg str', 'N veg lab',
+    'N veg vasc tot', 'N veg vasc str', 'N veg vasc lab',
+    'N veg nonvasc tot', 'N veg nonvasc str', 'N veg nonvasc lab',
   ]
 
   tab_reports_and_timeseries_choices = [
