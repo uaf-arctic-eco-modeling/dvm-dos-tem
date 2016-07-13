@@ -134,7 +134,8 @@ def error_image(**kwargs):
   else:
     plotlist = kwargs["plotlist"]
 
-  jfiles = file_loader(**kwargs)
+  jfiles = sorted(file_loader(**kwargs))
+  
 
   # Figure out the month and year for the first and last
   # data files. Assumes that the datafiles are contiguous.
