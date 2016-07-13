@@ -263,6 +263,7 @@ def image_plot(imgarrays, plotlist):
 
   plt.show(block=True)
 
+
 def plot_tests(test_list, **kwargs):
   #title =  "------  %s  ------" % t
   for t in test_list:
@@ -281,8 +282,6 @@ def plot_tests(test_list, **kwargs):
 
     print "plotting dataframe..."
     dfp = df.plot(subplots=True)#, grid=False)
-
-    #from IPython import embed; embed()
 
     print "using matplotlib show..."
     plt.show(block=True)
