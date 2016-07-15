@@ -52,9 +52,8 @@ ModelData::ModelData(Json::Value controldata){
   output_dir        = controldata["IO"]["output_dir"].asString();
   output_monthly    = controldata["IO"]["output_monthly"].asInt();
 
-  yearly_cal_json   = controldata["calibration-IO"]["yearly-json-folder"].asString();
-  monthly_cal_json  = controldata["calibration-IO"]["monthly-json-folder"].asString();
-  daily_cal_json    = controldata["calibration-IO"]["daily-json-folder"].asString();
+  pid_tag           = controldata["calibration-IO"]["pid_tag"].asString();
+  caldata_tree_loc  = controldata["calibration-IO"]["caldata_tree_loc"].asString();
 
   changeclimate = controldata["model_settings"]["dynamic_climate"].asInt();
   changeco2     = controldata["model_settings"]["varied_co2"].asInt();
@@ -73,12 +72,18 @@ void ModelData::update(ArgHandler const * arghandler) {
   this->pre_run_yrs = arghandler->get_pre_run_yrs();
   this->max_eq_yrs = arghandler->get_max_eq();
   this->sp_yrs = arghandler->get_sp_yrs();
-  if(arghandler->get_tr_yrs() != 0){
-    this->tr_yrs = arghandler->get_tr_yrs();
-  }
-  if(arghandler->get_sc_yrs() != 0){
-    this->sc_yrs = arghandler->get_sc_yrs();
-  }
+  this->tr_yrs = arghandler->get_tr_yrs();
+  this->sc_yrs = arghandler->get_sc_yrs();
+
+  // maybe we don't even need the runeq, runsp, etc variables?
+  // might be some antiquated pattern from pre IO-refactor...
+  if (this->pre_run_yrs > 0) { /* ?? nothing... */}
+  if (this->max_eq_yrs > 0) {runeq = true;}
+  if (this->sp_yrs > 0) {runsp = true;}
+  if (this->tr_yrs > 0) {runtr = true;}
+  if (this->sc_yrs > 0) {runsc = true;}
+
+  this->pid_tag = arghandler->get_pid_tag();
 
 }
 

@@ -6,6 +6,7 @@
 
 #include <boost/assign/list_of.hpp> // for map_list_of()
 #include <boost/function.hpp>
+#include <boost/filesystem.hpp>
 
 #include <boost/asio.hpp>
 #include <boost/asio/signal_set.hpp>
@@ -58,7 +59,10 @@ public:
   // cleans up calibration json files
   void clear_and_create_json_storage();
 
-  
+  boost::filesystem::path monthly_json;
+  boost::filesystem::path daily_json;
+  boost::filesystem::path yearly_json;
+
 private:
   boost::shared_ptr< boost::asio::io_service > io_service;
   boost::asio::signal_set pause_sigs;
@@ -67,9 +71,6 @@ private:
 
   std::map<std::string, CalCommand> cmd_map;
   
-  std::string daily_json;
-  std::string monthly_json;
-  std::string yearly_json;
 
   Json::Value run_configuration;
 
@@ -80,7 +81,8 @@ private:
   void operate_on_directive_str(const std::string& line);
 
   Json::Value load_directives_from_file(const std::string& f);
-  void load_cal_json_storage_settings_from_config (const std::string& f);
+
+  void set_caljson_storage_paths();
 
   void quit_at(const std::string& exit_year);
   void pause_at(const std::string& pause_year);

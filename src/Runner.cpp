@@ -52,20 +52,6 @@ Runner::~Runner() {
 
 void Runner::run_years(int start_year, int end_year, const std::string& stage) {
 
-  // Experiment - place for daily debugging output...
-  boost::filesystem::path folder("/tmp/debug-dvmdostem/");
-
-  //FIX - we check for dir/file existence and then create or not
-  //  in several places. Should probably move to a utility function.
-  if( !(boost::filesystem::exists(folder)) ) {
-    BOOST_LOG_SEV(glg, info) << "Creating folder: " << folder;
-    boost::filesystem::create_directory(folder);
-  } else {
-    BOOST_LOG_SEV(glg, info) << "'" << folder << "'" << "already exists; delete and recreate!";
-    boost::filesystem::remove_all(folder);
-    boost::filesystem::create_directory(folder);
-  }
-
   /** YEAR TIMESTEP LOOP */
   BOOST_LOG_NAMED_SCOPE("Y") {
   for (int iy = start_year; iy < end_year; ++iy) {
@@ -88,9 +74,10 @@ void Runner::run_years(int start_year, int end_year, const std::string& stage) {
       this->cohort.climate.prepare_daily_driving_data(iy, stage);
     }
 
-    this->output_debug_daily_drivers(iy);
 
     if (this->calcontroller_ptr) { // should be null unless we are in "calibration mode"
+
+      this->output_debug_daily_drivers(iy, this->calcontroller_ptr->daily_json);
 
       // Run any pre-configured directives
       this->calcontroller_ptr->run_config(iy, stage);
@@ -113,8 +100,8 @@ void Runner::run_years(int start_year, int end_year, const std::string& stage) {
       // or from the control file. It should default to false given
       // the number of files it produces.
       if(this->calcontroller_ptr && md.output_monthly) {
-        BOOST_LOG_SEV(glg, info) << "Write monthly calibration data to json files...";
-        this->output_caljson_monthly(iy, im, stage);
+        BOOST_LOG_SEV(glg, debug) << "Write monthly calibration data to json files...";
+        this->output_caljson_monthly(iy, im, stage, this->calcontroller_ptr->monthly_json);
       }
     }} // end month loop (and named scope)
 
@@ -122,7 +109,7 @@ void Runner::run_years(int start_year, int end_year, const std::string& stage) {
 
     if(this->calcontroller_ptr) { // check args->get_cal_mode() or calcontroller_ptr? ??
       BOOST_LOG_SEV(glg, debug) << "Send yearly calibration data to json files...";
-      this->output_caljson_yearly(iy, stage);
+      this->output_caljson_yearly(iy, stage, this->calcontroller_ptr->yearly_json);
     }
 
     BOOST_LOG_SEV(glg, note) << "Completed year " << iy << " for cohort/cell (row,col): (" << this->y << "," << this->x << ")";
@@ -330,7 +317,7 @@ void Runner::check_sum_over_PFTs(){
 
 }
 
-void Runner::output_caljson_monthly(int year, int month, std::string stage){
+void Runner::output_caljson_monthly(int year, int month, std::string stage, boost::filesystem::path p){
 
   BOOST_LOG_SEV(glg, err) << "========== MONTHLY CHECKSUMMING ============";
   check_sum_over_compartments();
@@ -482,22 +469,25 @@ void Runner::output_caljson_monthly(int year, int month, std::string stage){
   data["GPPSum"] = cohort.bdall->m_a2v.gppall;
   data["NPPSum"] = cohort.bdall->m_a2v.nppall;
 
-
   // Writes files like this:
-  //  0000000.json, 0000001.json, 0000002.json
+  //  0000000.json, 0000001.json, 0000002.json, ...
 
   std::stringstream filename;
   filename.fill('0');
-  filename << md.monthly_cal_json.c_str()
-           << "/" << std::setw(7) << (12 * year) + month << ".json";
-  out_stream.open(filename.str().c_str(), std::ofstream::out);
+  filename << std::setw(7) << (12 * year) + month << ".json";
+
+  // Add the file name to the path
+  p /= filename.str();
+
+  // write out the data
+  out_stream.open(p.string().c_str(), std::ofstream::out);
   out_stream << data << std::endl;
   out_stream.close();
 
 }
 
 
-void Runner::output_caljson_yearly(int year, std::string stage) {
+void Runner::output_caljson_yearly(int year, std::string stage, boost::filesystem::path p) {
 
   BOOST_LOG_SEV(glg, err) << "========== YEARLY CHECKSUMMING ============";
 
@@ -633,31 +623,36 @@ void Runner::output_caljson_yearly(int year, std::string stage) {
 
   std::stringstream filename;
   filename.fill('0');
-  filename << md.yearly_cal_json.c_str()
-           << "/" << std::setw(5) << year << ".json";
-  out_stream.open(filename.str().c_str(), std::ofstream::out);
+  filename << std::setw(5) << year << ".json";
+
+  // Add the filename to the path
+  p /= filename.str();
+
+  out_stream.open(p.string().c_str(), std::ofstream::out);
   out_stream << data << std::endl;
   out_stream.close();
 
 }
 
-void Runner::output_debug_daily_drivers(int iy) {
+void Runner::output_debug_daily_drivers(int iy, boost::filesystem::path p) {
 
   // Writes files like this:
-  //  year_00000_daily_drivers.json
-  //  year_00001_daily_drivers.json
-  //  year_00002_daily_drivers.json
+  //  year_00000_daily_drivers.text
+  //  year_00001_daily_drivers.text
+  //  year_00002_daily_drivers.text
 
   std::stringstream filename;
   filename.fill('0');
-  filename << md.daily_cal_json.c_str()
-           << "/year_" << std::setw(5) << iy << "_daily_drivers.text";
+  filename << "year_" << std::setw(5) << iy << "_daily_drivers.text";
 
   // NOTE: (FIX?) This may not be the best place for these files as they are
   // not exactly the same format/layout as the normal "calibration" json files
 
+  // Add the file name to the path
+  p /= filename.str();
+
   std::ofstream out_stream;
-  out_stream.open(filename.str().c_str(), std::ofstream::out);
+  out_stream.open(p.string().c_str(), std::ofstream::out);
 
   out_stream << "tair_d = [" << temutil::vec2csv(cohort.climate.tair_d) << "]" << std::endl;
   out_stream << "nirr_d = [" << temutil::vec2csv(cohort.climate.nirr_d) << "]" << std::endl;
