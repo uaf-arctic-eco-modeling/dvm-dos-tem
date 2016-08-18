@@ -973,16 +973,16 @@ if __name__ == '__main__':
       help="print out configured suites")
 
 
-  group = parser.add_mutually_exclusive_group()
+  targetgroup = parser.add_mutually_exclusive_group()
 
-  group.add_argument('--tar-cmtname', default=None,
+  targetgroup.add_argument('--tar-cmtname', default=None,
       choices=calibration_targets.cmtnames(),
       metavar='',
       help=textwrap.dedent('''\
           "The name of the community type that should be used to display 
           target values lines.''')
   )
-  group.add_argument('--tar-cmtnum', default=None, type=int,
+  targetgroup.add_argument('--tar-cmtnum', default=None, type=int,
       choices=calibration_targets.cmtnumbers(),
       metavar='',
       help=textwrap.dedent('''\
