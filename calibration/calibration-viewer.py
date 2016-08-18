@@ -244,15 +244,16 @@ class InputHelper(object):
 
 
 class ExpandingWindow(object):
-  '''A set of expanding window plots that all share the x axis.
-  '''
+  '''A set of expanding window plots that all share the x axis.'''
 
   def __init__(self, input_helper, traceslist, figtitle="Expanding Window Plot",
-      rows=2, cols=1, targets={}, no_show=False):
+      rows=2, cols=1, targets={}, no_show=False, extrainput=[]):
 
     logging.debug("Ctor for Expanding Window plot...")
 
     self.input_helper = input_helper
+
+    self.extra_input_helpers = extrainput
 
     self.window_size_yrs = None
 
@@ -649,16 +650,23 @@ class ExpandingWindow(object):
       plt.close()
 
     if event.key == 'ctrl+p':
-      n = 100
-      files = self.input_helper.files()
+      logging.info("PRUNE")
 
-      if n < len(files):
-        logging.warning("Deleting first %s json files from '%s'!" %
-            (n, self.input_helper.path()))
-        for f in files[0:n]:
-          os.remove(f)
+      if len(self.extra_input_helpers) > 0:
+        logging.warning("You can't prune while viewing archives. Do Nothing.")
+        pass
+
       else:
-        logging.warning("Fewer than %s json files present - don't do anything." % n)
+        n = 100
+        files = self.input_helper.files()
+
+        if n < len(files):
+          logging.warning("Deleting first %s json files from '%s'!" %
+              (n, self.input_helper.path()))
+          for f in files[0:n]:
+            os.remove(f)
+        else:
+          logging.warning("Fewer than %s json files present - don't do anything." % n)
 
     if event.key == 'ctrl+j':
       # could add while true here to force user to
@@ -872,6 +880,9 @@ if __name__ == '__main__':
               dvmdostem when it is running with --cal-mode=on.
           (2) Static plots created as dvmdostem is running or from an
               archived calibration run.
+          (3) A set of plots that stitches together outputs from different
+              run stages; data for each stage is must be provided as a set of
+              .tar.gz archives.
         '''),
       epilog="" # moved content to extended help
     )
@@ -934,6 +945,14 @@ if __name__ == '__main__':
       help=textwrap.dedent('''Generate plots from an archive of json files, 
           instead of the normal /tmp directory.'''))
 
+  parser.add_argument('--archive-series', default=[], nargs='+',
+      help=textwrap.dedent("""Stitch data from the provided archive series onto
+          the end of the plot, after the data from the archive specifed in 
+          --from-archive. Will show vertical lines at the boundary of each
+          provided archive. Useful for showing data from multiple stages on
+          one plot.""")
+  )
+
   parser.add_argument('--monthly', action='store_true', #default='/tmp/cal-dvmdostem',
       help=textwrap.dedent('''Read and disply monthly json files instead of 
           yearly. NOTE: may be slow!!'''))
@@ -947,15 +966,15 @@ if __name__ == '__main__':
   args = parser.parse_args()
   #print args
 
+  #
+  # Keep reporting and testing functions that should print info and quit here.
+  #
   if args.extended_help:
     parser.print_help()
     print ""
     print generate_extened_help()
     sys.exit(0)
 
-  #
-  # Start operating based on the command line arguments....
-  #
   if args.list_suites:
     # Print all the known suites to the console with descriptions and then quit.
     for key, value in configured_suites.iteritems():
@@ -968,6 +987,10 @@ if __name__ == '__main__':
   if args.list_caltargets:
     print calibration_targets.caltargets2prettystring()
     sys.exit()
+
+  #
+  # Made it past the reporting? Keep looking at args, and setting up the plots.
+  #
 
   loglevel = args.loglevel
   suite = configured_suites[args.suite]
@@ -1016,7 +1039,26 @@ if __name__ == '__main__':
   logging.info("Dynamic=%s Static=%s No-show=%s Save-name='%s'" %
       (not args.static, args.static, args.no_show, args.save_name))
 
+
+
   logging.info("Setting up the input data source...")
+
+  if (args.from_archive) or (len(args.archive_series) > 0):
+    if not args.static:
+      logging.warning("Forcing to a static plot. Dynamic updating (animation) not currently possible when plotting from archives.")
+      args.static = True
+
+  additional_input_helpers = []
+
+  if len(args.archive_series) > 0:
+    if not args.from_archive:
+      logging.error("If you provide an archive-series, you must provide --from-archive!")
+      sys.exit(-1)
+
+  if args.archive_series:
+    for arc in args.archive_series:
+      additional_input_helpers.append(InputHelper(path=arc, monthly=args.monthly))
+
   if args.from_archive:
     input_helper = InputHelper(path=args.from_archive, monthly=args.monthly)
   else:
@@ -1035,6 +1077,7 @@ if __name__ == '__main__':
                         targets=caltargets,
                         figtitle="%s\nTargets Values for: %s" % (args.suite, target_title_tag),
                         no_show=args.no_show,
+                        extrainput=additional_input_helpers
                        )
 
   logging.info("Show the plot object...")
