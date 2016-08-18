@@ -168,7 +168,7 @@ class InputHelper(object):
     elif os.path.isfile(path):
       # Assume path is a .tar.gz (or other compression) with .json files in it
 
-      DEFAULT_EXTRACTED_ARCHIVE_LOCATION = '/tmp/extracted-calibration-archive'
+      DEFAULT_EXTRACTED_ARCHIVE_LOCATION = os.path.join('/tmp/extracted-calibration-archive', os.path.basename(path))
 
       logging.info("Extracting archive to '%s'..." %
           DEFAULT_EXTRACTED_ARCHIVE_LOCATION)
