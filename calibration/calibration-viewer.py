@@ -373,6 +373,9 @@ class ExpandingWindow(object):
     # gets a sorted list of json files...
     files = self.input_helper.files()
 
+    for inhelper in self.extra_input_helpers:
+      log.info("Loading data from extra input helpers...")
+      files += inhelper.files()
 
     self.input_helper.report()
     for inhelper in self.extra_input_helpers:
@@ -396,11 +399,13 @@ class ExpandingWindow(object):
     self.input_helper.coverage_report(files)
 
     # create an x range big enough for every possible file...
+    log.info("Creating x range of appropriate size...(%s)" % len(files))
     if len(files) == 0:
       x = np.arange(0)
     else:
       end = int( os.path.splitext( os.path.basename(files[-1]) )[0] )
-      x = np.arange(0, end + 1 , 1) # <-- make range inclusive!
+      #x = np.arange(0, end + 1 , 1) # <-- make range inclusive!
+      x = np.arange(0, len(files))
     
 
     # ----- READ FIRST FILE FOR TITLE ------
@@ -445,7 +450,8 @@ class ExpandingWindow(object):
         with open(file) as f:
           fdata = json.load(f)
 
-        idx = int(os.path.splitext( os.path.basename(file) )[0])
+        #idx = int(os.path.splitext( os.path.basename(file) )[0])
+        idx = fnum
 
         for trace in self.traces:
           # set the trace's tmpy[idx] to file's data
@@ -535,7 +541,9 @@ class ExpandingWindow(object):
     '''
     logging.info("Animation Frame %7i" % frame)
     
+    # gets a sorted list of json files...
     files = self.input_helper.files()
+
     self.input_helper.coverage_report(files)
 
     self.report_view_and_data_lims()
