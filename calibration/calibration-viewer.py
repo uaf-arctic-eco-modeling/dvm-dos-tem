@@ -709,6 +709,9 @@ class ExpandingWindow(object):
     logging.info("Updated the pft number to %i" % n)
     self.plot_target_lines()
 
+    logging.info("Reload all the data to the plot...")
+    self.load_data2plot(relim=True, autoscale=True)
+
   def key_press_event(self, event):
     logging.debug("You pressed: %s. Cursor at x: %s y: %s" % (event.key, event.xdata, event.ydata))
 
