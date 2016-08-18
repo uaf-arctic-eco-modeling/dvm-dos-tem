@@ -25,6 +25,77 @@ import matplotlib.gridspec as gridspec
 
 import matplotlib.widgets
 
+# Keep the detailed documentation here. Can be accessed via command
+# line --extended-help flag.
+def generate_extened_help():
+  help_text = textwrap.dedent('''\
+  By default, the program tries to read json files from your /tmp
+  directory and plot the resulting data. 
+
+  When plotting dynamically the plot will expand to fit data that
+  it finds in the directory or archive. Unless using the 
+  '--no-show' flag, the plot will be displayed in an "interactive" 
+  window provided by which-ever matplotlib backend you are using.
+
+  The different "suites" of plots refer to differnt
+  assembelages of variables that you would like plotted.
+  There is a seperate config file for "suites" of plots.
+
+  There are also command line options for showing target
+  value lines on the plots. If you specify that target
+  value lines should be shown (by name or number), the 
+  program will 1) search thru the calibration_targets.py file
+  that is provided in this directory for the appropriate
+  values, and 2) if the suite you specify contains variables
+  that have associated targets, then there will be dashed line
+  on the plot showing the target value.
+
+  I expereienced some problems with the interactive window
+  provided by matplotloib. Especially with the Home, Back,
+  and Forward buttons. They have been disabled in the code.
+  If you run the program with a high enough log level you 
+  should be able to find messages to this extent whenever
+  the buttons are clicked. Unfortunately the work around at
+  this time is to kill the plotting program (Ctrl-C in the 
+  controlling terminal window that started it) and start  the
+  program over. It can be helpful to pause DVMDOSTEM while
+  you are doing this.
+
+  When using the program, if you change the zoom, or pan, 
+  the plot will stop updating, even as more json data becomes
+  available. To resume the updating, use "Ctrl-r" (on the 
+  plot window, not the controlling terminal).
+
+      Keyboard Shortcuts
+      ------------------
+      ctrl + r    reset view, resume auto-expand
+
+      ctrl + q    quit
+
+      ctrl + p    purge json files - deletes first 100 json
+                  files if more than 100 json files exist in
+                  the /tmp directorty
+
+      ctrl + j    change to fixed window plot - prompts for
+                  desired window size in controlling terminal
+      ctrl + J    reset to expanding window plot
+
+      alt + p     change the pft being plotted - prompts for 
+                  desired window size in controlling terminal
+                  (buggy)
+
+
+  The link below lists more keyboard shortcuts (provided by 
+  matplotlib) that allow for handy things like turning the grid 
+  on and off and switching between log and linear axes:
+
+      http://matplotlib.org/1.3.1/users/navigation_toolbar.html
+
+  I am sure we forgot to mention something?
+  ''' % ())
+
+  print help_text
+
 #
 # Disable some buttons on the default toobar that freeze the program.
 # There might be a better way to do this. Inspired from here:
@@ -802,73 +873,11 @@ if __name__ == '__main__':
           (2) Static plots created as dvmdostem is running or from an
               archived calibration run.
         '''),
-        
-      epilog=textwrap.dedent('''\
-        By default, the program tries to read json files from your /tmp
-        directory and plot the resulting data.
-        
-        When plotting dynamically the plot will expand to fit data that
-        it finds in the directory or archive. Unless using the 
-        '--no-show' flag, the plot will be displayed in an "interactive" 
-        window provided by which-ever matplotlib backend you are using.
+      epilog="" # moved content to extended help
+    )
 
-        The different "suites" of plots refer to differnt
-        assembelages of variables that you would like plotted.
-        There is a seperate config file for "suites" of plots.
-
-        There are also command line options for showing target
-        value lines on the plots. If you specify that target
-        value lines should be shown (by name or number), the 
-        program will 1) search thru the calibration_targets.py file
-        that is provided in this directory for the appropriate
-        values, and 2) if the suite you specify contains variables
-        that have associated targets, then there will be dashed line
-        on the plot showing the target value.
-
-        I expereienced some problems with the interactive window
-        provided by matplotloib. Especially with the Home, Back,
-        and Forward buttons. They have been disabled in the code.
-        If you run the program with a high enough log level you 
-        should be able to find messages to this extent whenever
-        the buttons are clicked. Unfortunately the work around at
-        this time is to kill the plotting program (Ctrl-C in the 
-        controlling terminal window that started it) and start  the
-        program over. It can be helpful to pause DVMDOSTEM while
-        you are doing this.
-
-        When using the program, if you change the zoom, or pan, 
-        the plot will stop updating, even as more json data becomes
-        available. To resume the updating, use "Ctrl-r" (on the 
-        plot window, not the controlling terminal).
-        
-            Keyboard Shortcuts
-            ------------------
-            ctrl + r    reset view, resume auto-expand
-
-            ctrl + q    quit
-
-            ctrl + p    purge json files - deletes first 100 json
-                        files if more than 100 json files exist in
-                        the /tmp directorty
-
-            ctrl + j    change to fixed window plot - prompts for
-                        desired window size in controlling terminal
-            ctrl + J    reset to expanding window plot
-
-            alt + p     change the pft being plotted - prompts for 
-                        desired window size in controlling terminal
-                        (buggy)
-
-
-        The link below lists more keyboard shortcuts (provided by 
-        matplotlib) that allow for handy things like turning the grid 
-        on and off and switching between log and linear axes:
-    
-            http://matplotlib.org/1.3.1/users/navigation_toolbar.html
-
-        I am sure we forgot to mention something?
-        ''' % ())
-      )
+  parser.add_argument('--extended-help', action='store_true',
+      help="Show a detailed description of the program.")
 
   parser.add_argument('--pft', default=0, type=int,
       choices=[0,1,2,3,4,5,6,7,8,9],
@@ -937,6 +946,12 @@ if __name__ == '__main__':
   print "Parsing command line arguments..."
   args = parser.parse_args()
   #print args
+
+  if args.extended_help:
+    parser.print_help()
+    print ""
+    print generate_extened_help()
+    sys.exit(0)
 
   #
   # Start operating based on the command line arguments....
