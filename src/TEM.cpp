@@ -320,6 +320,9 @@ int main(int argc, char* argv[]){
               if (runner.calcontroller_ptr && modeldata.inter_stage_pause){
                 runner.calcontroller_ptr->pause();
               }
+              if (runner.calcontroller_ptr) {
+                runner.calcontroller_ptr->clear_and_create_json_storage();
+              }
             }
           }
           if (modeldata.runsp) {
@@ -373,6 +376,10 @@ int main(int argc, char* argv[]){
 
                 if(runner.calcontroller_ptr && modeldata.inter_stage_pause){
                   runner.calcontroller_ptr->pause();
+                }
+
+                if (runner.calcontroller_ptr) {
+                  runner.calcontroller_ptr->clear_and_create_json_storage();
                 }
 
               }
@@ -430,6 +437,11 @@ int main(int argc, char* argv[]){
                 if(runner.calcontroller_ptr && modeldata.inter_stage_pause){
                   runner.calcontroller_ptr->pause();
                 }
+
+                if (runner.calcontroller_ptr) {
+                  runner.calcontroller_ptr->clear_and_create_json_storage();
+                }
+
 
               }
               else{ // No SP restart file
