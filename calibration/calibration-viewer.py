@@ -508,6 +508,21 @@ class ExpandingWindow(object):
         if line.get_label() == '__mscm':
           ax.lines.remove(line)
 
+    # ----- STAGE CHANGE MARKERS -------
+    stage_changes = [len(inhelper.files()) for inhelper in self.extra_input_helpers]
+    stage_changes.insert(0, len(self.input_helper.files()))
+
+    for ax in self.axes:
+      # clean up anything existing...
+      for line in ax.lines:
+        if line.get_label() == '__scm':
+          ax.lines.remove(line)
+
+      # Assumes that all the data in the archives is complete and consistent.
+      for idx in np.cumsum(stage_changes)[0:-1]:
+        logging.info("Adding stage change line at year %s" % idx)
+        ax.axvline(idx, label='__scm', linestyle='--', color="red", alpha=1.0)
+
     # Then loop over the dictionary and plot a vertical line wherever necessary.
     # The module stage dictionary could looks something like this:
     # { 12: ('DslModule', true), 54: ('DvmModule', false)}
