@@ -201,7 +201,6 @@ class InputHelper(object):
 
   def files(self):
     '''Returns a list of files, either in a directory or .tar.gz archive'''
-    logging.debug("Returning a sorted list of files paths from %s that match a '*.json' pattern glob." % self._path)
     return sorted( glob.glob('%s/*.json' % self._path) )
 
   def path(self):
