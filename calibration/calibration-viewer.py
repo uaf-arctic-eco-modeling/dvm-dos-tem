@@ -897,7 +897,7 @@ class ExpandingWindow(object):
       plt.savefig(full_name) # pdf may be smaller than png?
 
     if not self.no_show:
-      plt.show()
+      plt.show(block=True)
 
 
   def report_view_and_data_lims(self):
