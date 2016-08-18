@@ -241,6 +241,51 @@ class InputHelper(object):
     else:
       logging.warning("No json files! Length of file list: %s." % len(file_list))
 
+  def report(self):
+
+    log = logging.getLogger('inputhelper::reportA')
+
+    log.info( "Path to input files: %s" % (self.path()) )
+
+    files = self.files()
+
+    if len(files) > 0:
+      if self._monthly:
+        ffy = int( os.path.splitext(os.path.basename(files[0]))[0] ) / 12
+        lfy = int( os.path.splitext(os.path.basename(files[-1]))[0] ) / 12
+        ffm = int( os.path.splitext(os.path.basename(files[0]))[0] ) % 12
+        lfm = int( os.path.splitext(os.path.basename(files[-1]))[0] ) % 12
+      else:
+        ffy = int(os.path.basename(files[0])[0:5])
+        lfy = int(os.path.basename(files[-1])[0:5])
+        ffm = '--'
+        lfm = '--'
+
+      if (len(files) != ((lfy-ffy)+1)):
+        log.warn("SOMETHING IS WRONG WITH THE INPUT DATA: count:%s last:%s first:%s:" % (len(files), lfy, ffy ))
+
+      if ffm != '--' and lfm != '--':
+        pass
+
+      self.report_on_file(files[0])
+      self.report_on_file(files[-1])
+    else:
+      logging.warning("No json files! Length of file list: %s." % len(files))
+
+  def report_on_file(self, f0):
+    log = logging.getLogger('inputhelper::reportB')
+    log.info( "::=> FILE %s" % (f0) )
+    try:
+      with open(f0) as f:
+        fdata = json.load(f)
+
+      "".format(fdata["Runstage"], fdata["CMT"], fdata["Lat"], fdata["Lon"])
+      details = "Runstage:%s CMT:%s Coords:(%.2f,%.2f)" % (fdata["Runstage"], fdata["CMT"], fdata["Lat"], fdata["Lon"])
+      log.info( "::==> %s" % (details) )
+    except (IOError, ValueError) as e:
+      log.error("Problem: '%s' reading file '%s'" % (e, f))
+
+
 
 class ExpandingWindow(object):
   '''A set of expanding window plots that all share the x axis.'''
@@ -327,7 +372,11 @@ class ExpandingWindow(object):
 
     # gets a sorted list of json files...
     files = self.input_helper.files()
-    self.input_helper.coverage_report(files)
+
+
+    self.input_helper.report()
+    for inhelper in self.extra_input_helpers:
+      inhelper.report()
 
     if self.window_size_yrs:  # seems broken TKinter Exception about 'can't enter readline'
       log.info("Reducing files list to cover only the last %i years..." % self.window_size_yrs)
