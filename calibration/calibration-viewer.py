@@ -25,6 +25,77 @@ import matplotlib.gridspec as gridspec
 
 import matplotlib.widgets
 
+# Keep the detailed documentation here. Can be accessed via command
+# line --extended-help flag.
+def generate_extened_help():
+  help_text = textwrap.dedent('''\
+  By default, the program tries to read json files from your /tmp
+  directory and plot the resulting data. 
+
+  When plotting dynamically the plot will expand to fit data that
+  it finds in the directory or archive. Unless using the 
+  '--no-show' flag, the plot will be displayed in an "interactive" 
+  window provided by which-ever matplotlib backend you are using.
+
+  The different "suites" of plots refer to differnt
+  assembelages of variables that you would like plotted.
+  There is a seperate config file for "suites" of plots.
+
+  There are also command line options for showing target
+  value lines on the plots. If you specify that target
+  value lines should be shown (by name or number), the 
+  program will 1) search thru the calibration_targets.py file
+  that is provided in this directory for the appropriate
+  values, and 2) if the suite you specify contains variables
+  that have associated targets, then there will be dashed line
+  on the plot showing the target value.
+
+  I expereienced some problems with the interactive window
+  provided by matplotloib. Especially with the Home, Back,
+  and Forward buttons. They have been disabled in the code.
+  If you run the program with a high enough log level you 
+  should be able to find messages to this extent whenever
+  the buttons are clicked. Unfortunately the work around at
+  this time is to kill the plotting program (Ctrl-C in the 
+  controlling terminal window that started it) and start  the
+  program over. It can be helpful to pause DVMDOSTEM while
+  you are doing this.
+
+  When using the program, if you change the zoom, or pan, 
+  the plot will stop updating, even as more json data becomes
+  available. To resume the updating, use "Ctrl-r" (on the 
+  plot window, not the controlling terminal).
+
+      Keyboard Shortcuts
+      ------------------
+      ctrl + r    reset view, resume auto-expand
+
+      ctrl + q    quit
+
+      ctrl + p    purge json files - deletes first 100 json
+                  files if more than 100 json files exist in
+                  the /tmp directorty
+
+      ctrl + j    change to fixed window plot - prompts for
+                  desired window size in controlling terminal
+      ctrl + J    reset to expanding window plot
+
+      alt + p     change the pft being plotted - prompts for 
+                  desired window size in controlling terminal
+                  (buggy)
+
+
+  The link below lists more keyboard shortcuts (provided by 
+  matplotlib) that allow for handy things like turning the grid 
+  on and off and switching between log and linear axes:
+
+      http://matplotlib.org/1.3.1/users/navigation_toolbar.html
+
+  I am sure we forgot to mention something?
+  ''' % ())
+
+  print help_text
+
 #
 # Disable some buttons on the default toobar that freeze the program.
 # There might be a better way to do this. Inspired from here:
@@ -97,7 +168,7 @@ class InputHelper(object):
     elif os.path.isfile(path):
       # Assume path is a .tar.gz (or other compression) with .json files in it
 
-      DEFAULT_EXTRACTED_ARCHIVE_LOCATION = '/tmp/extracted-calibration-archive'
+      DEFAULT_EXTRACTED_ARCHIVE_LOCATION = os.path.join('/tmp/extracted-calibration-archive', os.path.basename(path))
 
       logging.info("Extracting archive to '%s'..." %
           DEFAULT_EXTRACTED_ARCHIVE_LOCATION)
@@ -130,7 +201,6 @@ class InputHelper(object):
 
   def files(self):
     '''Returns a list of files, either in a directory or .tar.gz archive'''
-    logging.debug("Returning a sorted list of files paths from %s that match a '*.json' pattern glob." % self._path)
     return sorted( glob.glob('%s/*.json' % self._path) )
 
   def path(self):
@@ -171,17 +241,63 @@ class InputHelper(object):
     else:
       logging.warning("No json files! Length of file list: %s." % len(file_list))
 
+  def report(self):
+
+    log = logging.getLogger('inputhelper::reportA')
+
+    log.info( "Path to input files: %s" % (self.path()) )
+
+    files = self.files()
+
+    if len(files) > 0:
+      if self._monthly:
+        ffy = int( os.path.splitext(os.path.basename(files[0]))[0] ) / 12
+        lfy = int( os.path.splitext(os.path.basename(files[-1]))[0] ) / 12
+        ffm = int( os.path.splitext(os.path.basename(files[0]))[0] ) % 12
+        lfm = int( os.path.splitext(os.path.basename(files[-1]))[0] ) % 12
+      else:
+        ffy = int(os.path.basename(files[0])[0:5])
+        lfy = int(os.path.basename(files[-1])[0:5])
+        ffm = '--'
+        lfm = '--'
+
+      if (len(files) != ((lfy-ffy)+1)):
+        log.warn("SOMETHING IS WRONG WITH THE INPUT DATA: count:%s last:%s first:%s:" % (len(files), lfy, ffy ))
+
+      if ffm != '--' and lfm != '--':
+        pass
+
+      self.report_on_file(files[0])
+      self.report_on_file(files[-1])
+    else:
+      logging.warning("No json files! Length of file list: %s." % len(files))
+
+  def report_on_file(self, f0):
+    log = logging.getLogger('inputhelper::reportB')
+    log.info( "::=> FILE %s" % (f0) )
+    try:
+      with open(f0) as f:
+        fdata = json.load(f)
+
+      "".format(fdata["Runstage"], fdata["CMT"], fdata["Lat"], fdata["Lon"])
+      details = "Runstage:%s CMT:%s Coords:(%.2f,%.2f)" % (fdata["Runstage"], fdata["CMT"], fdata["Lat"], fdata["Lon"])
+      log.info( "::==> %s" % (details) )
+    except (IOError, ValueError) as e:
+      log.error("Problem: '%s' reading file '%s'" % (e, f))
+
+
 
 class ExpandingWindow(object):
-  '''A set of expanding window plots that all share the x axis.
-  '''
+  '''A set of expanding window plots that all share the x axis.'''
 
   def __init__(self, input_helper, traceslist, figtitle="Expanding Window Plot",
-      rows=2, cols=1, targets={}, no_show=False):
+      rows=2, cols=1, targets={}, no_show=False, extrainput=[]):
 
     logging.debug("Ctor for Expanding Window plot...")
 
     self.input_helper = input_helper
+
+    self.extra_input_helpers = extrainput
 
     self.window_size_yrs = None
 
@@ -256,7 +372,14 @@ class ExpandingWindow(object):
 
     # gets a sorted list of json files...
     files = self.input_helper.files()
-    self.input_helper.coverage_report(files)
+
+    for inhelper in self.extra_input_helpers:
+      log.info("Loading data from extra input helpers...")
+      files += inhelper.files()
+
+    self.input_helper.report()
+    for inhelper in self.extra_input_helpers:
+      inhelper.report()
 
     if self.window_size_yrs:  # seems broken TKinter Exception about 'can't enter readline'
       log.info("Reducing files list to cover only the last %i years..." % self.window_size_yrs)
@@ -276,11 +399,13 @@ class ExpandingWindow(object):
     self.input_helper.coverage_report(files)
 
     # create an x range big enough for every possible file...
+    log.info("Creating x range of appropriate size...(%s)" % len(files))
     if len(files) == 0:
       x = np.arange(0)
     else:
       end = int( os.path.splitext( os.path.basename(files[-1]) )[0] )
-      x = np.arange(0, end + 1 , 1) # <-- make range inclusive!
+      #x = np.arange(0, end + 1 , 1) # <-- make range inclusive!
+      x = np.arange(0, len(files))
     
 
     # ----- READ FIRST FILE FOR TITLE ------
@@ -325,7 +450,8 @@ class ExpandingWindow(object):
         with open(file) as f:
           fdata = json.load(f)
 
-        idx = int(os.path.splitext( os.path.basename(file) )[0])
+        #idx = int(os.path.splitext( os.path.basename(file) )[0])
+        idx = fnum
 
         for trace in self.traces:
           # set the trace's tmpy[idx] to file's data
@@ -382,6 +508,21 @@ class ExpandingWindow(object):
         if line.get_label() == '__mscm':
           ax.lines.remove(line)
 
+    # ----- STAGE CHANGE MARKERS -------
+    stage_changes = [len(inhelper.files()) for inhelper in self.extra_input_helpers]
+    stage_changes.insert(0, len(self.input_helper.files()))
+
+    for ax in self.axes:
+      # clean up anything existing...
+      for line in ax.lines:
+        if line.get_label() == '__scm':
+          ax.lines.remove(line)
+
+      # Assumes that all the data in the archives is complete and consistent.
+      for idx in np.cumsum(stage_changes)[0:-1]:
+        logging.info("Adding stage change line at year %s" % idx)
+        ax.axvline(idx, label='__scm', linestyle='--', color="red", alpha=1.0)
+
     # Then loop over the dictionary and plot a vertical line wherever necessary.
     # The module stage dictionary could looks something like this:
     # { 12: ('DslModule', true), 54: ('DvmModule', false)}
@@ -415,7 +556,9 @@ class ExpandingWindow(object):
     '''
     logging.info("Animation Frame %7i" % frame)
     
+    # gets a sorted list of json files...
     files = self.input_helper.files()
+
     self.input_helper.coverage_report(files)
 
     self.report_view_and_data_lims()
@@ -566,6 +709,9 @@ class ExpandingWindow(object):
     logging.info("Updated the pft number to %i" % n)
     self.plot_target_lines()
 
+    logging.info("Reload all the data to the plot...")
+    self.load_data2plot(relim=True, autoscale=True)
+
   def key_press_event(self, event):
     logging.debug("You pressed: %s. Cursor at x: %s y: %s" % (event.key, event.xdata, event.ydata))
 
@@ -578,16 +724,23 @@ class ExpandingWindow(object):
       plt.close()
 
     if event.key == 'ctrl+p':
-      n = 100
-      files = self.input_helper.files()
+      logging.info("PRUNE")
 
-      if n < len(files):
-        logging.warning("Deleting first %s json files from '%s'!" %
-            (n, self.input_helper.path()))
-        for f in files[0:n]:
-          os.remove(f)
+      if len(self.extra_input_helpers) > 0:
+        logging.warning("You can't prune while viewing archives. Do Nothing.")
+        pass
+
       else:
-        logging.warning("Fewer than %s json files present - don't do anything." % n)
+        n = 100
+        files = self.input_helper.files()
+
+        if n < len(files):
+          logging.warning("Deleting first %s json files from '%s'!" %
+              (n, self.input_helper.path()))
+          for f in files[0:n]:
+            os.remove(f)
+        else:
+          logging.warning("Fewer than %s json files present - don't do anything." % n)
 
     if event.key == 'ctrl+j':
       # could add while true here to force user to
@@ -747,7 +900,7 @@ class ExpandingWindow(object):
       plt.savefig(full_name) # pdf may be smaller than png?
 
     if not self.no_show:
-      plt.show()
+      plt.show(block=True)
 
 
   def report_view_and_data_lims(self):
@@ -801,74 +954,15 @@ if __name__ == '__main__':
               dvmdostem when it is running with --cal-mode=on.
           (2) Static plots created as dvmdostem is running or from an
               archived calibration run.
+          (3) A set of plots that stitches together outputs from different
+              run stages; data for each stage is must be provided as a set of
+              .tar.gz archives.
         '''),
-        
-      epilog=textwrap.dedent('''\
-        By default, the program tries to read json files from your /tmp
-        directory and plot the resulting data.
-        
-        When plotting dynamically the plot will expand to fit data that
-        it finds in the directory or archive. Unless using the 
-        '--no-show' flag, the plot will be displayed in an "interactive" 
-        window provided by which-ever matplotlib backend you are using.
+      epilog="" # moved content to extended help
+    )
 
-        The different "suites" of plots refer to differnt
-        assembelages of variables that you would like plotted.
-        There is a seperate config file for "suites" of plots.
-
-        There are also command line options for showing target
-        value lines on the plots. If you specify that target
-        value lines should be shown (by name or number), the 
-        program will 1) search thru the calibration_targets.py file
-        that is provided in this directory for the appropriate
-        values, and 2) if the suite you specify contains variables
-        that have associated targets, then there will be dashed line
-        on the plot showing the target value.
-
-        I expereienced some problems with the interactive window
-        provided by matplotloib. Especially with the Home, Back,
-        and Forward buttons. They have been disabled in the code.
-        If you run the program with a high enough log level you 
-        should be able to find messages to this extent whenever
-        the buttons are clicked. Unfortunately the work around at
-        this time is to kill the plotting program (Ctrl-C in the 
-        controlling terminal window that started it) and start  the
-        program over. It can be helpful to pause DVMDOSTEM while
-        you are doing this.
-
-        When using the program, if you change the zoom, or pan, 
-        the plot will stop updating, even as more json data becomes
-        available. To resume the updating, use "Ctrl-r" (on the 
-        plot window, not the controlling terminal).
-        
-            Keyboard Shortcuts
-            ------------------
-            ctrl + r    reset view, resume auto-expand
-
-            ctrl + q    quit
-
-            ctrl + p    purge json files - deletes first 100 json
-                        files if more than 100 json files exist in
-                        the /tmp directorty
-
-            ctrl + j    change to fixed window plot - prompts for
-                        desired window size in controlling terminal
-            ctrl + J    reset to expanding window plot
-
-            alt + p     change the pft being plotted - prompts for 
-                        desired window size in controlling terminal
-                        (buggy)
-
-
-        The link below lists more keyboard shortcuts (provided by 
-        matplotlib) that allow for handy things like turning the grid 
-        on and off and switching between log and linear axes:
-    
-            http://matplotlib.org/1.3.1/users/navigation_toolbar.html
-
-        I am sure we forgot to mention something?
-        ''' % ())
-      )
+  parser.add_argument('--extended-help', action='store_true',
+      help="Show a detailed description of the program.")
 
   parser.add_argument('--pft', default=0, type=int,
       choices=[0,1,2,3,4,5,6,7,8,9],
@@ -882,16 +976,16 @@ if __name__ == '__main__':
       help="print out configured suites")
 
 
-  group = parser.add_mutually_exclusive_group()
+  targetgroup = parser.add_mutually_exclusive_group()
 
-  group.add_argument('--tar-cmtname', default=None,
+  targetgroup.add_argument('--tar-cmtname', default=None,
       choices=calibration_targets.cmtnames(),
       metavar='',
       help=textwrap.dedent('''\
           "The name of the community type that should be used to display 
           target values lines.''')
   )
-  group.add_argument('--tar-cmtnum', default=None, type=int,
+  targetgroup.add_argument('--tar-cmtnum', default=None, type=int,
       choices=calibration_targets.cmtnumbers(),
       metavar='',
       help=textwrap.dedent('''\
@@ -925,6 +1019,14 @@ if __name__ == '__main__':
       help=textwrap.dedent('''Generate plots from an archive of json files, 
           instead of the normal /tmp directory.'''))
 
+  parser.add_argument('--archive-series', default=[], nargs='+',
+      help=textwrap.dedent("""Stitch data from the provided archive series onto
+          the end of the plot, after the data from the archive specifed in 
+          --from-archive. Will show vertical lines at the boundary of each
+          provided archive. Useful for showing data from multiple stages on
+          one plot.""")
+  )
+
   parser.add_argument('--monthly', action='store_true', #default='/tmp/cal-dvmdostem',
       help=textwrap.dedent('''Read and disply monthly json files instead of 
           yearly. NOTE: may be slow!!'''))
@@ -939,8 +1041,14 @@ if __name__ == '__main__':
   #print args
 
   #
-  # Start operating based on the command line arguments....
+  # Keep reporting and testing functions that should print info and quit here.
   #
+  if args.extended_help:
+    parser.print_help()
+    print ""
+    print generate_extened_help()
+    sys.exit(0)
+
   if args.list_suites:
     # Print all the known suites to the console with descriptions and then quit.
     for key, value in configured_suites.iteritems():
@@ -953,6 +1061,10 @@ if __name__ == '__main__':
   if args.list_caltargets:
     print calibration_targets.caltargets2prettystring()
     sys.exit()
+
+  #
+  # Made it past the reporting? Keep looking at args, and setting up the plots.
+  #
 
   loglevel = args.loglevel
   suite = configured_suites[args.suite]
@@ -1001,7 +1113,26 @@ if __name__ == '__main__':
   logging.info("Dynamic=%s Static=%s No-show=%s Save-name='%s'" %
       (not args.static, args.static, args.no_show, args.save_name))
 
+
+
   logging.info("Setting up the input data source...")
+
+  if (args.from_archive) or (len(args.archive_series) > 0):
+    if not args.static:
+      logging.warning("Forcing to a static plot. Dynamic updating (animation) not currently possible when plotting from archives.")
+      args.static = True
+
+  additional_input_helpers = []
+
+  if len(args.archive_series) > 0:
+    if not args.from_archive:
+      logging.error("If you provide an archive-series, you must provide --from-archive!")
+      sys.exit(-1)
+
+  if args.archive_series:
+    for arc in args.archive_series:
+      additional_input_helpers.append(InputHelper(path=arc, monthly=args.monthly))
+
   if args.from_archive:
     input_helper = InputHelper(path=args.from_archive, monthly=args.monthly)
   else:
@@ -1020,6 +1151,7 @@ if __name__ == '__main__':
                         targets=caltargets,
                         figtitle="%s\nTargets Values for: %s" % (args.suite, target_title_tag),
                         no_show=args.no_show,
+                        extrainput=additional_input_helpers
                        )
 
   logging.info("Show the plot object...")

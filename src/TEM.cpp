@@ -301,7 +301,7 @@ int main(int argc, char* argv[]){
               // prior to running.
               std::string restart_fname = modeldata.output_dir + "restart-eq.nc";
               if(! boost::filesystem::exists(restart_fname)){
-                BOOST_LOG_SEV(glg, fatal) << "Restart file "<<restart_fname\
+                BOOST_LOG_SEV(glg, fatal) << "Restart file " << restart_fname
                                           << " does not exist";
                 return 1;
               }
@@ -319,6 +319,9 @@ int main(int argc, char* argv[]){
 
               if (runner.calcontroller_ptr && modeldata.inter_stage_pause){
                 runner.calcontroller_ptr->pause();
+              }
+              if (runner.calcontroller_ptr) {
+                runner.calcontroller_ptr->clear_and_create_json_storage();
               }
             }
           }
@@ -375,8 +378,12 @@ int main(int argc, char* argv[]){
                   runner.calcontroller_ptr->pause();
                 }
 
+                if (runner.calcontroller_ptr) {
+                  runner.calcontroller_ptr->clear_and_create_json_storage();
+                }
+
               }
-              else{ //No EQ restart file
+              else{ // No EQ restart file
                 BOOST_LOG_SEV(glg, err) << "No restart file from EQ.";
               }
 
@@ -431,8 +438,13 @@ int main(int argc, char* argv[]){
                   runner.calcontroller_ptr->pause();
                 }
 
+                if (runner.calcontroller_ptr) {
+                  runner.calcontroller_ptr->clear_and_create_json_storage();
+                }
+
+
               }
-              else{ //No SP restart file
+              else{ // No SP restart file
                 BOOST_LOG_SEV(glg, fatal) << "No restart file from SP.";
               }
             }
@@ -468,7 +480,7 @@ int main(int argc, char* argv[]){
                 // and cd.
                 runner.cohort.set_state_from_restartdata();
 
-                //Loading projected data instead of historic. FIX?
+                // Loading projected data instead of historic. FIX?
                 runner.cohort.load_proj_climate(modeldata.proj_climate_file);
 
                 // Run model
@@ -487,7 +499,7 @@ int main(int argc, char* argv[]){
                 runner.cohort.restartdata.append_to_ncfile(restart_fname, rowidx, colidx);
 
               }
-              else{ //No TR restart file
+              else{ // No TR restart file
                 BOOST_LOG_SEV(glg, fatal) << "No restart file from TR.";
               }
 
