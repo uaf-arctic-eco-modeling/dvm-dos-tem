@@ -14,6 +14,8 @@ import numpy as np
 
 from osgeo import gdal
 
+import glob
+
 #some description of what region wanted
 #for now, keep to a rectangular requirement?
 #Maintain CF and COARDS standards
@@ -600,10 +602,16 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir, files=[]):
     in_rsds_base = tif_dir + "/rsds_mean_MJ-m2-d1_iem_cru_TS31_1901_2009/rsds_mean_MJ-m2-d1_iem_cru_TS31"
     in_vapo_base = tif_dir + "/vap_mean_hPa_iem_cru_TS31_1901_2009/vap_mean_hPa_iem_cru_TS31"
 
-    if years == "all":
-      years = 109
+    #Calculates number of years for running all. Values are different
+    #  for historic versus projected.
+    hc_years = 0
+    if years == -1:
+      filecount = len(glob.glob(tif_dir + "/tas_mean_C_iem_cru_TS31_1901_2009/*.tif"))
+      hc_years = filecount/12 
+    else:
+      hc_years = years
 
-    fill_climate_file(1901+start_year, years, xo, yo, xs, ys, out_dir, of_name, sp_ref_file, in_tair_base, in_prec_base, in_rsds_base, in_vapo_base)
+    fill_climate_file(1901+start_year, hc_years, xo, yo, xs, ys, out_dir, of_name, sp_ref_file, in_tair_base, in_prec_base, in_rsds_base, in_vapo_base)
 
 
   if 'proj_climate' in files:
@@ -614,10 +622,16 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir, files=[]):
     in_rsds_base = tif_dir + "/rsds_mean_MJ-m2-d1_iem_cccma_cgcm3_1_sresa1b_2001_2100/rsds_mean_MJ-m2-d1_iem_cccma_cgcm3_1_sresa1b"
     in_vapo_base = tif_dir + "/vap_mean_hPa_iem_cccma_cgcm3_1_sresa1b_2001_2100/vap_mean_hPa_iem_cccma_cgcm3_1_sresa1b"
 
-    if years == "all":
-      years = 100 
+    #Calculates number of years for running all. Values are different
+    #  for historic versus projected.
+    pc_years = 0;
+    if years == -1:
+      filecount = len(glob.glob(tif_dir + "/tas_mean_C_iem_cccma_cgcm3_1_sresa1b_2001_2100/*.tif"))
+      pc_years = filecount/12
+    else:
+      pc_years = years
 
-    fill_climate_file(2001+start_year, years, xo, yo, xs, ys, out_dir, of_name, sp_ref_file, in_tair_base, in_prec_base, in_rsds_base, in_vapo_base)
+    fill_climate_file(2001+start_year, pc_years, xo, yo, xs, ys, out_dir, of_name, sp_ref_file, in_tair_base, in_prec_base, in_rsds_base, in_vapo_base)
 
 
   if 'hist_fire' in files:
@@ -681,8 +695,8 @@ if __name__ == '__main__':
   parser.add_argument('--tag', default="Toolik",
                       help="A name for the dataset, used to name output directory. (default: %(default)s)")
 
-  parser.add_argument('--years', default=10, 
-                      help="The number of years of the climate data to process. (default: %(default)s). 'all' to run for all input TIFs")
+  parser.add_argument('--years', default=10, type=int, 
+                      help="The number of years of the climate data to process. (default: %(default)s). -1 to run for all input TIFs")
   parser.add_argument('--start-year', default=0, type=int,
                       help="An offset to use for making a climate dataset that doesn't start at the beginning of the historic (1901) or projected (2001) datasets.")
 
