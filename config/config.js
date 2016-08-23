@@ -1,20 +1,20 @@
 {
   "general": {
-    "run_name": "Toolik area, 10x10 test cells"
+    "run_name": "Toolik area, 10x10 test cells, all years"
   },
 
   "IO": {
     "parameter_dir":      "parameters/",
-    "hist_climate_file":  "DATA/Toolik_10x10_30yrs/historic-climate.nc",
-    "proj_climate_file":  "DATA/Toolik_10x10_30yrs/projected-climate.nc",
-    "veg_class_file":     "DATA/Toolik_10x10_30yrs/vegetation.nc",
-    "fire_file":          "DATA/Toolik_10x10_30yrs/historic-fire.nc",
-    "drainage_file":      "DATA/Toolik_10x10_30yrs/drainage.nc",
-    "soil_texture_file":  "DATA/Toolik_10x10_30yrs/soil_texture.nc",
-    "co2_file":           "DATA/Toolik_10x10_30yrs/co2.nc",
-    "runmask_file":       "DATA/Toolik_10x10_30yrs/run-mask.nc",
+    "hist_climate_file":  "DATA/Toolik_10x10_allyrs/historic-climate.nc",
+    "proj_climate_file":  "DATA/Toolik_10x10_allyrs/projected-climate.nc",
+    "veg_class_file":     "DATA/Toolik_10x10_allyrs/vegetation.nc",
+    "fire_file":          "DATA/Toolik_10x10_allyrs/historic-fire.nc",
+    "drainage_file":      "DATA/Toolik_10x10_allyrs/drainage.nc",
+    "soil_texture_file":  "DATA/Toolik_10x10_allyrs/soil_texture.nc",
+    "co2_file":           "DATA/Toolik_10x10_allyrs/co2.nc",
+    "runmask_file":       "DATA/Toolik_10x10_allyrs/run-mask.nc",
 
-    "output_dir":         "DATA/Toolik_10x10_30yrs/output/",
+    "output_dir":         "DATA/Toolik_10x10_allyrs/output/",
 
     "output_monthly":     1
   },
