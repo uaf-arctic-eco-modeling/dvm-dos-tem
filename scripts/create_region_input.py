@@ -569,21 +569,21 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir, files=[]):
   if 'fire' in files:
     # generate some new files...
     of_name = os.path.join(out_dir, "fire.nc")
-    fill_fire_file(tif_dir + "iem_ancillary_data/Fire/", xo, yo, xs, ys, out_dir, of_name)
+    fill_fire_file(os.path.join(tif_dir, "iem_ancillary_data/Fire/"), xo, yo, xs, ys, out_dir, of_name)
 
   if 'veg' in files:
     of_name = os.path.join(out_dir, "vegetation.nc")
-    fill_veg_file(tif_dir + "iem_ancillary_data/Landcover/LandCover_iem_TEM_2005.tif", xo, yo, xs, ys, out_dir, of_name)
+    fill_veg_file(os.path.join(tif_dir,  "iem_ancillary_data/Landcover/LandCover_iem_TEM_2005.tif"), xo, yo, xs, ys, out_dir, of_name)
 
   if 'drain' in files:
     of_name = os.path.join(out_dir, "drainage.nc")
-    fill_drainage_file(tif_dir + "iem_ancillary_data/soil_and_drainage/Lowland_1km.tif", xo, yo, xs, ys, out_dir, of_name)
+    fill_drainage_file(os.path.join(tif_dir,  "iem_ancillary_data/soil_and_drainage/Lowland_1km.tif"), xo, yo, xs, ys, out_dir, of_name)
 
   if 'soil_texture' in files:
     of_name = os.path.join(out_dir, "soil_texture.nc")
-    in_sand_base = tif_dir + "/iem_ancillary_data/soil_and_drainage/iem_domain_hayes_igbp_pct_sand.tif"
-    in_silt_base = tif_dir + "/iem_ancillary_data/soil_and_drainage/iem_domain_hayes_igbp_pct_silt.tif"
-    in_clay_base = tif_dir + "/iem_ancillary_data/soil_and_drainage/iem_domain_hayes_igbp_pct_clay.tif"
+    in_sand_base = os.path.join(tif_dir,  "iem_ancillary_data/soil_and_drainage/iem_domain_hayes_igbp_pct_sand.tif")
+    in_silt_base = os.path.join(tif_dir,  "iem_ancillary_data/soil_and_drainage/iem_domain_hayes_igbp_pct_silt.tif")
+    in_clay_base = os.path.join(tif_dir,  "iem_ancillary_data/soil_and_drainage/iem_domain_hayes_igbp_pct_clay.tif")
 
 
     fill_soil_texture_file(in_sand_base, in_silt_base, in_clay_base, xo, yo, xs, ys, out_dir, of_name, rand=False)
@@ -596,17 +596,17 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir, files=[]):
 
   if 'hist_climate' in files:
     of_name = "historic-climate.nc"
-    sp_ref_file  = tif_dir + "/tas_mean_C_iem_cru_TS31_1901_2009/tas_mean_C_iem_cru_TS31_%02d_%04d.tif" % (1, 1901)
-    in_tair_base = tif_dir + "/tas_mean_C_iem_cru_TS31_1901_2009/tas_mean_C_iem_cru_TS31"
-    in_prec_base = tif_dir + "/pr_total_mm_iem_cru_TS31_1901_2009/pr_total_mm_iem_cru_TS31"
-    in_rsds_base = tif_dir + "/rsds_mean_MJ-m2-d1_iem_cru_TS31_1901_2009/rsds_mean_MJ-m2-d1_iem_cru_TS31"
-    in_vapo_base = tif_dir + "/vap_mean_hPa_iem_cru_TS31_1901_2009/vap_mean_hPa_iem_cru_TS31"
+    sp_ref_file  = os.path.join(tif_dir,  "tas_mean_C_iem_cru_TS31_1901_2009/tas_mean_C_iem_cru_TS31_%02d_%04d.tif" % (1, 1901))
+    in_tair_base = os.path.join(tif_dir,  "tas_mean_C_iem_cru_TS31_1901_2009/tas_mean_C_iem_cru_TS31")
+    in_prec_base = os.path.join(tif_dir,  "pr_total_mm_iem_cru_TS31_1901_2009/pr_total_mm_iem_cru_TS31")
+    in_rsds_base = os.path.join(tif_dir,  "rsds_mean_MJ-m2-d1_iem_cru_TS31_1901_2009/rsds_mean_MJ-m2-d1_iem_cru_TS31")
+    in_vapo_base = os.path.join(tif_dir,  "vap_mean_hPa_iem_cru_TS31_1901_2009/vap_mean_hPa_iem_cru_TS31")
 
     #Calculates number of years for running all. Values are different
     #  for historic versus projected.
     hc_years = 0
     if years == -1:
-      filecount = len(glob.glob(tif_dir + "/tas_mean_C_iem_cru_TS31_1901_2009/*.tif"))
+      filecount = len(glob.glob(os.path.join(tif_dir,  "/tas_mean_C_iem_cru_TS31_1901_2009/*.tif")))
       hc_years = filecount/12 
     else:
       hc_years = years
@@ -616,11 +616,11 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir, files=[]):
 
   if 'proj_climate' in files:
     of_name = "projected-climate.nc"
-    sp_ref_file  = tif_dir + "/tas_mean_C_iem_cccma_cgcm3_1_sresa1b_2001_2100/tas_mean_C_iem_cccma_cgcm3_1_sresa1b_%02d_%04d.tif" % (1, 2001)
-    in_tair_base = tif_dir + "/tas_mean_C_iem_cccma_cgcm3_1_sresa1b_2001_2100/tas_mean_C_iem_cccma_cgcm3_1_sresa1b"
-    in_prec_base = tif_dir + "/pr_total_mm_iem_cccma_cgcm3_1_sresa1b_2001_2100/pr_total_mm_iem_cccma_cgcm3_1_sresa1b"
-    in_rsds_base = tif_dir + "/rsds_mean_MJ-m2-d1_iem_cccma_cgcm3_1_sresa1b_2001_2100/rsds_mean_MJ-m2-d1_iem_cccma_cgcm3_1_sresa1b"
-    in_vapo_base = tif_dir + "/vap_mean_hPa_iem_cccma_cgcm3_1_sresa1b_2001_2100/vap_mean_hPa_iem_cccma_cgcm3_1_sresa1b"
+    sp_ref_file  = os.path.join(tif_dir,  "tas_mean_C_iem_cccma_cgcm3_1_sresa1b_2001_2100/tas_mean_C_iem_cccma_cgcm3_1_sresa1b_%02d_%04d.tif" % (1, 2001))
+    in_tair_base = os.path.join(tif_dir,  "tas_mean_C_iem_cccma_cgcm3_1_sresa1b_2001_2100/tas_mean_C_iem_cccma_cgcm3_1_sresa1b")
+    in_prec_base = os.path.join(tif_dir,  "pr_total_mm_iem_cccma_cgcm3_1_sresa1b_2001_2100/pr_total_mm_iem_cccma_cgcm3_1_sresa1b")
+    in_rsds_base = os.path.join(tif_dir,  "rsds_mean_MJ-m2-d1_iem_cccma_cgcm3_1_sresa1b_2001_2100/rsds_mean_MJ-m2-d1_iem_cccma_cgcm3_1_sresa1b")
+    in_vapo_base = os.path.join(tif_dir,  "vap_mean_hPa_iem_cccma_cgcm3_1_sresa1b_2001_2100/vap_mean_hPa_iem_cccma_cgcm3_1_sresa1b")
 
     #Calculates number of years for running all. Values are different
     #  for historic versus projected.
@@ -636,14 +636,14 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir, files=[]):
 
   if 'hist_fire' in files:
     of_name = "historic-fire.nc"
-    in_fire_base = tif_dir + "/iem_ancillary_data/Fire/"
+    in_fire_base = os.path.join(tif_dir, "iem_ancillary_data/Fire/")
 
     print "Filling with RANDOM DATA!!"
     fill_fire_file2(1900, years, xo, yo, xs,ys, out_dir, of_name, rand=True)
 
   if 'proj_fire' in files:
     of_name = "projected-fire.nc"
-    in_fire_base = tif_dir + "/iem_ancillary_data/Fire/"
+    in_fire_base = os.path.join(tif_dir, "iem_ancillary_data/Fire/")
 
     print "Filling with RANDOM DATA!!"
     fill_fire_file2(2001, years, xo, yo, xs,ys, out_dir, of_name, rand=True)

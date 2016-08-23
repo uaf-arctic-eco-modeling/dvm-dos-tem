@@ -445,10 +445,10 @@ void Climate::load_from_file(const std::string& fname, int y, int x) {
   BOOST_LOG_SEV(glg, debug) << "par = [" << temutil::vec2csv(par) << "]";
 
   // create the simplified climate by averaging the first X years of data
-  avgX_tair = avg_over(tair, 10);
-  avgX_prec = avg_over(prec, 10);
-  avgX_nirr = avg_over(nirr, 10);
-  avgX_vapo = avg_over(vapo, 10);
+  avgX_tair = avg_over(tair, 30);
+  avgX_prec = avg_over(prec, 30);
+  avgX_nirr = avg_over(nirr, 30);
+  avgX_vapo = avg_over(vapo, 30);
  
   // Do we need simplified 'avgX_' values for par, and cld??
   // ===> YES: the derived variables should probably be based off the avgX
