@@ -277,13 +277,14 @@ int main(int argc, char* argv[]){
                                            << "data looks good.";
                   runner.calcontroller_ptr->pause();
                 }
-
-                runner.calcontroller_ptr->clear_and_create_json_storage();
               }
             }
-
             {
               BOOST_LOG_NAMED_SCOPE("EQ");
+
+              if (runner.calcontroller_ptr) {
+                runner.calcontroller_ptr->clear_and_create_json_storage();
+              }
 
               runner.cohort.md->set_envmodule(true);
               runner.cohort.md->set_dvmmodule(true);
@@ -320,15 +321,16 @@ int main(int argc, char* argv[]){
               if (runner.calcontroller_ptr && modeldata.inter_stage_pause){
                 runner.calcontroller_ptr->pause();
               }
-              if (runner.calcontroller_ptr) {
-                runner.calcontroller_ptr->clear_and_create_json_storage();
-              }
             }
           }
           if (modeldata.runsp) {
             {
               BOOST_LOG_NAMED_SCOPE("SP");
               BOOST_LOG_SEV(glg, fatal) << "Running Spinup, " << modeldata.sp_yrs << " years.";
+
+              if (runner.calcontroller_ptr) {
+                runner.calcontroller_ptr->clear_and_create_json_storage();
+              }
 
               // Check for the existence of a restart file to output to
               // prior to running.
@@ -375,11 +377,6 @@ int main(int argc, char* argv[]){
                 if(runner.calcontroller_ptr && modeldata.inter_stage_pause){
                   runner.calcontroller_ptr->pause();
                 }
-
-                if (runner.calcontroller_ptr) {
-                  runner.calcontroller_ptr->clear_and_create_json_storage();
-                }
-
               }
               else{ // No EQ restart file
                 BOOST_LOG_SEV(glg, err) << "No restart file from EQ.";
@@ -391,6 +388,10 @@ int main(int argc, char* argv[]){
             {
               BOOST_LOG_NAMED_SCOPE("TR");
               BOOST_LOG_SEV(glg, fatal) << "Running Transient, "<<modeldata.tr_yrs<<" years\n";
+
+              if (runner.calcontroller_ptr) {
+                runner.calcontroller_ptr->clear_and_create_json_storage();
+              }
 
               // Check for the existence of a restart file to output to
               // prior to running.
@@ -436,11 +437,6 @@ int main(int argc, char* argv[]){
                   runner.calcontroller_ptr->pause();
                 }
 
-                if (runner.calcontroller_ptr) {
-                  runner.calcontroller_ptr->clear_and_create_json_storage();
-                }
-
-
               }
               else{ // No SP restart file
                 BOOST_LOG_SEV(glg, fatal) << "No restart file from SP.";
@@ -451,6 +447,10 @@ int main(int argc, char* argv[]){
             {
               BOOST_LOG_NAMED_SCOPE("SC");
               BOOST_LOG_SEV(glg, fatal) << "Running Scenario, "<<modeldata.sc_yrs<<" years\n";
+
+              if (runner.calcontroller_ptr) {
+                runner.calcontroller_ptr->clear_and_create_json_storage();
+              }
 
               // Check for the existence of a restart file to output to
               // prior to running.
