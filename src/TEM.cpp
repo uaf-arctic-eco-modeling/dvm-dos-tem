@@ -328,14 +328,13 @@ int main(int argc, char* argv[]){
           if (modeldata.runsp) {
             {
               BOOST_LOG_NAMED_SCOPE("SP");
-              BOOST_LOG_SEV(glg, fatal) << "Running Spinup, "<<modeldata.sp_yrs<<" years\n";
+              BOOST_LOG_SEV(glg, fatal) << "Running Spinup, " << modeldata.sp_yrs << " years.";
 
               // Check for the existence of a restart file to output to
               // prior to running.
-              std::string restart_fname = modeldata.output_dir \
-                                            + "restart-sp.nc";
+              std::string restart_fname = modeldata.output_dir + "restart-sp.nc";
               if(!boost::filesystem::exists(restart_fname)){
-                BOOST_LOG_SEV(glg, fatal) << "Restart file "<<restart_fname\
+                BOOST_LOG_SEV(glg, fatal) << "Restart file " << restart_fname
                                           << " does not exist";
                 return 1;
               }
@@ -344,8 +343,7 @@ int main(int argc, char* argv[]){
               // FIX: if restart file has -9999, then soil temps can end up impossibly low
               // look for and read in restart-eq.nc (if it exists)
               // should check for valid values prior to actual use
-              std::string eq_restart_fname = modeldata.output_dir \
-                                               + "restart-eq.nc";
+              std::string eq_restart_fname = modeldata.output_dir + "restart-eq.nc";
               if (boost::filesystem::exists(eq_restart_fname)) {
                 BOOST_LOG_SEV(glg, debug) << "Loading data from the restart file for spinup";
                 // update the cohort's restart data object
