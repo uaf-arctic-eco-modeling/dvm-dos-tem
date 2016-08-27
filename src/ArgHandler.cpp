@@ -19,6 +19,15 @@ void ArgHandler::parse(int argc, char** argv) {
      "program will generate yearly and monthly '.json' files in your /tmp "
      " directory that are intended to be read by other programs or scripts.")
 
+    ("last-n-json", boost::program_options::value<int>(&last_n_json_files)
+     ->default_value(-1),
+     "Only output the json files for the last N years. -1 indicates to output "
+     "all years. This is useful for running with PEST, where we do need the "
+     "json files (and calibration mode), but PEST only looks at the last year, "
+     "so we can save a lot of effort and only write out the last file. Made "
+     "this option configurable so that we can write out a number of files, in "
+     "case we need to do some averaging over the last few years for PEST.")
+
     ("pid-tag,u", boost::program_options::value<std::string>(&pid_tag)
       ->default_value(""),
       "Use the process ID (passed as an argmument) to tag the output cal json "

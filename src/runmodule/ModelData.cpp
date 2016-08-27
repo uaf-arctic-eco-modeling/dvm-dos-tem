@@ -64,6 +64,7 @@ ModelData::ModelData(Json::Value controldata){
     Pass const * so that access to ArgHandler is read-only.
 */
 void ModelData::update(ArgHandler const * arghandler) {
+
   BOOST_LOG_SEV(glg, debug) << "Updating ModelData from an ArgHandler...";
 
   this->pre_run_yrs = arghandler->get_pre_run_yrs();
@@ -72,6 +73,7 @@ void ModelData::update(ArgHandler const * arghandler) {
   this->tr_yrs = arghandler->get_tr_yrs();
   this->sc_yrs = arghandler->get_sc_yrs();
   this->pid_tag = arghandler->get_pid_tag();
+  this->last_n_json_files = arghandler->get_last_n_json_files();
 
 }
 

@@ -121,7 +121,7 @@ void Runner::monthly_output(const int year, const int month, const std::string& 
     }
 
     // NetCDF ???
-    BOOST_LOG_SEV(glg, debug) << "Stub locaiton for monthly NetCDF output?";
+    BOOST_LOG_SEV(glg, debug) << "Stub location for monthly NetCDF output?";
 
   } else {
     BOOST_LOG_SEV(glg, debug) << "Monthly output turned off in config settings.";
@@ -134,10 +134,16 @@ void Runner::yearly_output(const int year, const std::string& stage,
     const int startyr, const int endyr) {
 
   if(this->calcontroller_ptr) {
+    if ( -1 == md.last_n_json_files ) {
       this->output_caljson_yearly(year, stage, this->calcontroller_ptr->yearly_json);
+    }
+
+    if ( year >= (endyr - md.last_n_json_files) ) {
+      this->output_caljson_yearly(year, stage, this->calcontroller_ptr->yearly_json);
+    }
   }
 
-  BOOST_LOG_SEV(glg, debug) << "Stub locaiton for yearly NetCDF output?";
+  BOOST_LOG_SEV(glg, debug) << "Stub loction for yearly NetCDF output?";
 
 }
 

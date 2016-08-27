@@ -47,6 +47,7 @@ public:
 
   std::string pid_tag;
   std::string caldata_tree_loc;
+  int last_n_json_files;
 
   int changeclimate; // 0: default (up to run stage); 1: dynamical; -1: static
   int changeco2; // 0: default (up to run stage); 1: dynamical; -1: static
