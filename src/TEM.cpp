@@ -155,8 +155,8 @@ int main(int argc, char* argv[]){
       and the command line.
   */
   
-  BOOST_LOG_SEV(glg, note) << "Running PR stage: " << modeldata.pre_run_yrs << "yrs";
-  BOOST_LOG_SEV(glg, note) << "Running EQ stage: " << modeldata.max_eq_yrs << "yrs";
+  BOOST_LOG_SEV(glg, note) << "Running PR stage: " << modeldata.pr_yrs << "yrs";
+  BOOST_LOG_SEV(glg, note) << "Running EQ stage: " << modeldata.eq_yrs << "yrs";
   BOOST_LOG_SEV(glg, note) << "Running SP stage: " << modeldata.sp_yrs << "yrs";
   BOOST_LOG_SEV(glg, note) << "Running TR stage: " << modeldata.tr_yrs << "yrs";
   BOOST_LOG_SEV(glg, note) << "Running SC stage: " << modeldata.sc_yrs << "yrs";
@@ -239,7 +239,7 @@ int main(int argc, char* argv[]){
           BOOST_LOG_SEV(glg, debug) << "right after initialize_internal_pointers() and initialize_state_parameters()"
                                     << runner.cohort.ground.layer_report_string("depth ptr");
           // PRE RUN STAGE (PR)
-          if (modeldata.pre_run_yrs > 0) {
+          if (modeldata.pr_yrs > 0) {
             BOOST_LOG_NAMED_SCOPE("PRE-RUN");
             /** Env-only "pre-run" stage.
                  - should use only the env module
@@ -263,7 +263,7 @@ int main(int argc, char* argv[]){
             BOOST_LOG_SEV(glg, debug) << "Ground, right before 'pre-run'. "
                                       << runner.cohort.ground.layer_report_string("depth thermal");
 
-            runner.run_years(0, modeldata.pre_run_yrs, "pre-run"); // climate is prepared w/in here.
+            runner.run_years(0, modeldata.pr_yrs, "pre-run"); // climate is prepared w/in here.
 
             BOOST_LOG_SEV(glg, debug) << "Ground, right after 'pre-run'"
                                       << runner.cohort.ground.layer_report_string("depth thermal");
@@ -280,7 +280,7 @@ int main(int argc, char* argv[]){
           }
 
           // EQULIBRIUM STAGE (EQ)
-          if (modeldata.max_eq_yrs > 0) {
+          if (modeldata.eq_yrs > 0) {
 
             BOOST_LOG_NAMED_SCOPE("EQ");
 
@@ -309,7 +309,7 @@ int main(int argc, char* argv[]){
               return 1;
             }
 
-            runner.run_years(0, modeldata.max_eq_yrs, "eq-run");
+            runner.run_years(0, modeldata.eq_yrs, "eq-run");
 
             runner.cohort.set_restartdata_from_state();
 

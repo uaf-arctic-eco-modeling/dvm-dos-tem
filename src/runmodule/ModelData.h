@@ -27,8 +27,8 @@ public:
   int initmode;  // NOT USED?
   bool inter_stage_pause; //Controls pauses between EQ, SP, TR, SC
 
-  int max_eq_yrs;
-  int pre_run_yrs;
+  int eq_yrs;
+  int pr_yrs;
   int sp_yrs;
   int tr_yrs;
   int sc_yrs;

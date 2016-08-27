@@ -17,8 +17,8 @@ class ArgHandler {
 	boost::program_options::options_description desc;
 	boost::program_options::variables_map varmap;
 
-  int pre_run_yrs;
-  int max_eq;
+  int pr_yrs;
+  int eq_yrs;
   int sp_yrs;
   int tr_yrs;
   int sc_yrs;
@@ -31,6 +31,7 @@ class ArgHandler {
   bool floating_point_exp;
 
   std::string loop_order;
+
 	std::string ctrl_file;
 
   std::string log_level;
@@ -45,8 +46,8 @@ public:
 	void verify();
 	void show_help();
 
-  inline int get_pre_run_yrs() const {return pre_run_yrs;};
-  inline int get_max_eq() const {return max_eq;};
+  inline int get_pr_yrs() const {return pr_yrs;};
+  inline int get_eq_yrs() const {return eq_yrs;};
   inline int get_sp_yrs() const {return sp_yrs;};
   inline int get_tr_yrs() const {return tr_yrs;};
   inline int get_sc_yrs() const {return sc_yrs;};

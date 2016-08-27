@@ -36,25 +36,25 @@ void ArgHandler::parse(int argc, char** argv) {
       "PID tag so that the calibration-viewer.py knows where to find the json "
       "files.)")
 
-    ("pre-run-yrs,p", boost::program_options::value<int>(&pre_run_yrs)
+    ("pr-yrs,p", boost::program_options::value<int>(&pr_yrs)
        ->default_value(10),
-     "The number of 'pre-run' years.")
+     "Number or PRE RUN years to run.")
 
-    ("max-eq,m", boost::program_options::value<int>(&max_eq)
+    ("eq-yrs,e", boost::program_options::value<int>(&eq_yrs)
        ->default_value(1000),
-     "The maximum number of years to run in equlibrium stage.")
+     "Number of EQUILIBRIUM years to run.")
 
     ("sp-yrs,s", boost::program_options::value<int>(&sp_yrs)
        ->default_value(100),
-     "The number of spinup years.")
+     "Number of SPINUP years to run.")
 
     ("tr-yrs,t", boost::program_options::value<int>(&tr_yrs)
        ->default_value(0),
-     "The number of years to run transient. Overrides config for testing.")
+     "Number of TRANSIENT years to run.")
 
     ("sc-yrs,n", boost::program_options::value<int>(&sc_yrs)
        ->default_value(0),
-     "The number of years to run scenario. Overrides config for testing.")
+     "Number of SCENARIO years to run.")
 
     ("loop-order,o",
      boost::program_options::value<std::string>(&loop_order)

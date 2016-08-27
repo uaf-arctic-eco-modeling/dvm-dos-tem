@@ -67,8 +67,8 @@ void ModelData::update(ArgHandler const * arghandler) {
 
   BOOST_LOG_SEV(glg, debug) << "Updating ModelData from an ArgHandler...";
 
-  this->pre_run_yrs = arghandler->get_pre_run_yrs();
-  this->max_eq_yrs = arghandler->get_max_eq();
+  this->pr_yrs = arghandler->get_pr_yrs();
+  this->eq_yrs = arghandler->get_eq_yrs();
   this->sp_yrs = arghandler->get_sp_yrs();
   this->tr_yrs = arghandler->get_tr_yrs();
   this->sc_yrs = arghandler->get_sc_yrs();
