@@ -24,10 +24,6 @@ public:
 
   string loop_order; // time-major or space-major
 
-  bool runeq;
-  bool runsp;
-  bool runtr;
-  bool runsc;
   int initmode;
   bool inter_stage_pause; //Controls pauses between EQ, SP, TR, SC
 

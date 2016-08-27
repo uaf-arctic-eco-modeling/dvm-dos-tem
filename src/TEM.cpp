@@ -149,18 +149,17 @@ int main(int argc, char* argv[]){
 
   modeldata.update(args);
 
-  BOOST_LOG_SEV(glg, note) << "Running EQ stage: " << modeldata.runeq;
-  BOOST_LOG_SEV(glg, note) << "Running SP stage: " << modeldata.runsp;
-  BOOST_LOG_SEV(glg, note) << "Running TR stage: " << modeldata.runtr;
-  BOOST_LOG_SEV(glg, note) << "Running SC stage: " << modeldata.runsc;
-
-
   /*  
       Someday it may be worth the time/effort to make better use of
       boots::program_options here to manage the arguments from config file
       and the command line.
   */
   
+  BOOST_LOG_SEV(glg, note) << "Running PR stage: " << modeldata.pre_run_yrs << "yrs";
+  BOOST_LOG_SEV(glg, note) << "Running EQ stage: " << modeldata.max_eq_yrs << "yrs";
+  BOOST_LOG_SEV(glg, note) << "Running SP stage: " << modeldata.sp_yrs << "yrs";
+  BOOST_LOG_SEV(glg, note) << "Running TR stage: " << modeldata.tr_yrs << "yrs";
+  BOOST_LOG_SEV(glg, note) << "Running SC stage: " << modeldata.sc_yrs << "yrs";
 
   // Turn off buffering...
   setvbuf(stdout, NULL, _IONBF, 0);

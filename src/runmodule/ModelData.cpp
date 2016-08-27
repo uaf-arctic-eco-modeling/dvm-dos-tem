@@ -31,10 +31,7 @@ ModelData::ModelData(Json::Value controldata){
   BOOST_LOG_SEV(glg, debug) << "Creating a ModelData. New style constructor with injected controldata...";
   
   std::string stgstr(controldata["stage_settings"]["run_stage"].asString());
-  runeq = (stgstr.find("eq") != std::string::npos) ? true : false;
-  runsp = (stgstr.find("sp") != std::string::npos) ? true : false;
-  runtr = (stgstr.find("tr") != std::string::npos) ? true : false;
-  runsc = (stgstr.find("sc") != std::string::npos) ? true : false;
+
   inter_stage_pause = controldata["stage_settings"]["inter_stage_pause"].asBool();
   initmode = controldata["stage_settings"]["restart"].asInt();  // may become obsolete
   tr_yrs        = controldata["stage_settings"]["tr_yrs"].asInt();
@@ -74,25 +71,12 @@ void ModelData::update(ArgHandler const * arghandler) {
   this->sp_yrs = arghandler->get_sp_yrs();
   this->tr_yrs = arghandler->get_tr_yrs();
   this->sc_yrs = arghandler->get_sc_yrs();
-
-  // maybe we don't even need the runeq, runsp, etc variables?
-  // might be some antiquated pattern from pre IO-refactor...
-  if (this->pre_run_yrs > 0) { /* ?? nothing... */}
-  if (this->max_eq_yrs > 0) {runeq = true;}
-  if (this->sp_yrs > 0) {runsp = true;}
-  if (this->tr_yrs > 0) {runtr = true;}
-  if (this->sc_yrs > 0) {runsc = true;}
-
   this->pid_tag = arghandler->get_pid_tag();
 
 }
 
 
 ModelData::ModelData() {
-  runeq = false;
-  runsp = false;
-  runtr = false;
-  runsc = false;
   set_envmodule(false);
   set_bgcmodule(false);
   set_dvmmodule(false);

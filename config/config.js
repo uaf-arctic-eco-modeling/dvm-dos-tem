@@ -49,7 +49,6 @@
   },
   "stage_settings": {
     "restart_mode": "restart",   // other options??
-    "run_stage": "eq",
     "inter_stage_pause": false,
     "tr_yrs": 109,
     "sc_yrs": 100
