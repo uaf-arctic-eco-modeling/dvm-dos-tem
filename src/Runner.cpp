@@ -91,26 +91,25 @@ void Runner::run_years(int start_year, int end_year, const std::string& stage) {
 
     /** MONTH TIMESTEP LOOP */
     BOOST_LOG_NAMED_SCOPE("M") {
-    for (int im = 0; im < 12; ++im) {
-      BOOST_LOG_SEV(glg, note) << "(Beginning of month loop, iy:"<<iy<<", im:"<<im<<") " << cohort.ground.layer_report_string("depth thermal CN desc");
+      for (int im = 0; im < 12; ++im) {
+        BOOST_LOG_SEV(glg, note) << "(Beginning of month loop, iy:"<<iy<<", im:"<<im<<") " << cohort.ground.layer_report_string("depth thermal CN desc");
 
-      this->cohort.updateMonthly(iy, im, DINM[im]);
+        this->cohort.updateMonthly(iy, im, DINM[im]);
 
-      // Monthly output control needs to be determined by a parameter
-      // or from the control file. It should default to false given
-      // the number of files it produces.
       if(this->calcontroller_ptr && md.output_monthly) {
         BOOST_LOG_SEV(glg, debug) << "Write monthly calibration data to json files...";
         this->output_caljson_monthly(iy, im, stage, this->calcontroller_ptr->monthly_json);
       }
-    }} // end month loop (and named scope)
 
-    BOOST_LOG_SEV(glg, note) << "(END OF YEAR) " << cohort.ground.layer_report_string("depth thermal CN ptr");
+      } // end month loop
+    } // end named scope
 
     if(this->calcontroller_ptr) { // check args->get_cal_mode() or calcontroller_ptr? ??
       BOOST_LOG_SEV(glg, debug) << "Send yearly calibration data to json files...";
       this->output_caljson_yearly(iy, stage, this->calcontroller_ptr->yearly_json);
     }
+
+    BOOST_LOG_SEV(glg, note) << "(END OF YEAR) " << cohort.ground.layer_report_string("depth thermal CN ptr");
 
     BOOST_LOG_SEV(glg, note) << "Completed year " << iy << " for cohort/cell (row,col): (" << this->y << "," << this->x << ")";
 

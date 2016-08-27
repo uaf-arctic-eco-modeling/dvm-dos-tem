@@ -24,7 +24,7 @@ public:
 
   string loop_order; // time-major or space-major
 
-  int initmode;
+  int initmode;  // NOT USED?
   bool inter_stage_pause; //Controls pauses between EQ, SP, TR, SC
 
   int max_eq_yrs;
