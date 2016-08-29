@@ -461,8 +461,9 @@ void CalController::clear_and_create_json_storage() {
 
 }
 
-/** Something
- *
+/** Copies JSON output to stage specific directories.
+ * Removes and recreates directories if they exist, simply creates
+ * them if they do not.
  */
 void CalController::archive_stage_JSON(const std::string& stage){
 
@@ -482,10 +483,10 @@ void CalController::archive_stage_JSON(const std::string& stage){
     boost::filesystem::remove_all(stage_yearly);
   }
   if(boost::filesystem::exists(stage_monthly)){
-    boost::filesystem::remove_all(stage_yearly);
+    boost::filesystem::remove_all(stage_monthly);
   }
   if(boost::filesystem::exists(stage_daily)){
-    boost::filesystem::remove_all(stage_yearly);
+    boost::filesystem::remove_all(stage_daily);
   }
 
   //Create or recreate timestep directories
