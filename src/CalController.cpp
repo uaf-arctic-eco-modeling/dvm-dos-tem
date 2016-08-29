@@ -468,7 +468,7 @@ void CalController::clear_and_create_json_storage() {
 void CalController::archive_stage_JSON(const std::string& stage){
 
   boost::filesystem::path stage_base = base_dir / stage;
-  BOOST_LOG_SEV(glg, fatal) << "stage_base " << stage_base;
+  BOOST_LOG_SEV(glg, debug) << "stage_base " << stage_base;
   boost::filesystem::path stage_yearly = base_dir / stage / "yearly";
   boost::filesystem::path stage_monthly = base_dir / stage / "monthly";
   boost::filesystem::path stage_daily = base_dir / stage / "daily";
