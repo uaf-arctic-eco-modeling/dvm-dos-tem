@@ -467,6 +467,48 @@ void CalController::clear_and_create_json_storage() {
 
 }
 
+/** Something
+ *
+ */
+void CalController::archive_stage_JSON(const std::string& stage){
+
+  boost::filesystem::path stage_base = base_dir / stage;
+  BOOST_LOG_SEV(glg, fatal) << "stage_base " << stage_base;
+  boost::filesystem::path stage_yearly = base_dir / stage / "yearly";
+  boost::filesystem::path stage_monthly = base_dir / stage / "monthly";
+  boost::filesystem::path stage_daily = base_dir / stage / "daily";
+
+  //If parent directory does *not* exist, create it.
+  if(!boost::filesystem::exists(stage_base)){
+    boost::filesystem::create_directory(stage_base);
+  }
+
+  //If timestep directories exist, delete them 
+  if(boost::filesystem::exists(stage_yearly)){
+    boost::filesystem::remove_all(stage_yearly);
+  }
+  if(boost::filesystem::exists(stage_monthly)){
+    boost::filesystem::remove_all(stage_yearly);
+  }
+  if(boost::filesystem::exists(stage_daily)){
+    boost::filesystem::remove_all(stage_yearly);
+  }
+
+  //Create or recreate timestep directories
+  boost::filesystem::create_directory(stage_yearly);
+  boost::filesystem::create_directory(stage_monthly);
+  boost::filesystem::create_directory(stage_daily);
+
+  //Copy files from output dirs to storage dirs
+  boost::filesystem::recursive_directory_iterator iter(yearly_json), eod;
+  for(boost::filesystem::directory_iterator file(yearly_json);
+      file != boost::filesystem::directory_iterator();
+      ++file){
+    boost::filesystem::path curr_file(file->path());
+    boost::filesystem::copy_file(curr_file, stage_yearly / curr_file.filename());
+  }
+}
+
 
 /** Check the io_service object for signals that may have arrived. */
 void CalController::check_for_signals() {
