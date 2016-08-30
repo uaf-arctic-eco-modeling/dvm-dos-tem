@@ -318,6 +318,10 @@ int main(int argc, char* argv[]){
               // Write out EQ restart file
               runner.cohort.restartdata.append_to_ncfile(restart_fname, rowidx, colidx); /* cohort id/key ???*/
 
+              if(runner.calcontroller_ptr){
+                runner.calcontroller_ptr->archive_stage_JSON("eq");
+              }
+
               if (runner.calcontroller_ptr && modeldata.inter_stage_pause){
                 runner.calcontroller_ptr->pause();
               }
@@ -373,6 +377,10 @@ int main(int argc, char* argv[]){
 
                 // Save status to spinup restart file 
                 runner.cohort.restartdata.append_to_ncfile(restart_fname, rowidx, colidx);
+
+                if(runner.calcontroller_ptr){
+                  runner.calcontroller_ptr->archive_stage_JSON("sp");
+                }
 
                 if(runner.calcontroller_ptr && modeldata.inter_stage_pause){
                   runner.calcontroller_ptr->pause();
@@ -432,6 +440,10 @@ int main(int argc, char* argv[]){
 
                 // Save status to transient restart file
                 runner.cohort.restartdata.append_to_ncfile(restart_fname, rowidx, colidx);
+
+                if(runner.calcontroller_ptr){
+                  runner.calcontroller_ptr->archive_stage_JSON("tr");
+                }
 
                 if(runner.calcontroller_ptr && modeldata.inter_stage_pause){
                   runner.calcontroller_ptr->pause();
@@ -495,6 +507,10 @@ int main(int argc, char* argv[]){
                 // interesting snapshot of the data structure
                 // following a scenario run.
                 runner.cohort.restartdata.append_to_ncfile(restart_fname, rowidx, colidx);
+
+                if(runner.calcontroller_ptr){
+                  runner.calcontroller_ptr->archive_stage_JSON("sc");
+                }
 
               }
               else{ // No TR restart file

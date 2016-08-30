@@ -135,6 +135,7 @@ void CalController::set_caljson_storage_paths() {
   // E.g.:
   // /tmp/dvmdostem-23/calibration/
   // /tmp/dvmdostem/calibration/
+  this->base_dir = base;
   this->daily_json = base / "daily";
   this->monthly_json = base / "monthly";
   this->yearly_json = base / "yearly";
@@ -431,38 +432,100 @@ bool CalController::post_warmup_pause() {
 */
 void CalController::clear_and_create_json_storage() {
 
+  BOOST_LOG_SEV(glg, debug) << "CalController::base_dir: " << base_dir;
   BOOST_LOG_SEV(glg, debug) << "CalController::yearly_json: " << yearly_json;
   BOOST_LOG_SEV(glg, debug) << "CalController::monthly_json: " << monthly_json;
   BOOST_LOG_SEV(glg, debug) << "CalController::daily_json: " << daily_json;
 
-  if( !(boost::filesystem::exists(yearly_json)) ) {
-    BOOST_LOG_SEV(glg, info) << "Creating folder: " << yearly_json;
-    boost::filesystem::create_directories(yearly_json);
-  } else {
-    BOOST_LOG_SEV(glg, info) << "Calibration yearly json folder already exists!"
-                             << "...Delete and recreate...";
+  if(boost::filesystem::exists(yearly_json)){
+    BOOST_LOG_SEV(glg, info) << "Calibration yearly json folder already "
+                             << "exists! Deleting..." ;
     boost::filesystem::remove_all(yearly_json);
-    boost::filesystem::create_directories(yearly_json);
   }
-
-  if( !(boost::filesystem::exists(monthly_json)) ) {
-    BOOST_LOG_SEV(glg, info) << "Creating folder: " << monthly_json;
-    boost::filesystem::create_directories(monthly_json);
-  } else {
-    BOOST_LOG_SEV(glg, info) << "Calibration monthly json folder already exists!"
-                             << "...Delete and recreate...";
+  if(boost::filesystem::exists(monthly_json)){
+    BOOST_LOG_SEV(glg, info) << "Calibration monthly json folder already "
+                             << "exists! Deleting...";
     boost::filesystem::remove_all(monthly_json);
-    boost::filesystem::create_directories(monthly_json);
+  }
+  if(boost::filesystem::exists(daily_json)){
+    BOOST_LOG_SEV(glg, info) << "Calibration daily json folder already "
+                             << "exists! Deleting...";
+    boost::filesystem::remove_all(daily_json);
   }
 
-  if( !(boost::filesystem::exists(daily_json)) ) {
-    BOOST_LOG_SEV(glg, info) << "Creating folder: " << daily_json;
-    boost::filesystem::create_directory(daily_json);
-  } else {
-    BOOST_LOG_SEV(glg, info) << "Calibration daily json folder already exists!"
-                             << "...Delete and recreate...";
-    boost::filesystem::remove_all(daily_json);
-    boost::filesystem::create_directory(daily_json);
+  BOOST_LOG_SEV(glg, info) << "Creating calibration JSON output directories";
+  boost::filesystem::create_directories(base_dir);
+  boost::filesystem::create_directory(yearly_json);
+  boost::filesystem::create_directory(monthly_json);
+  boost::filesystem::create_directory(daily_json);
+
+}
+
+/** Copies JSON output to stage specific directories.
+ * Removes and recreates directories if they exist, simply creates
+ * them if they do not.
+ */
+void CalController::archive_stage_JSON(const std::string& stage){
+
+  boost::filesystem::path stage_base = base_dir / stage;
+  BOOST_LOG_SEV(glg, debug) << "stage_base " << stage_base;
+  boost::filesystem::path stage_yearly = base_dir / stage / "yearly";
+  boost::filesystem::path stage_monthly = base_dir / stage / "monthly";
+  boost::filesystem::path stage_daily = base_dir / stage / "daily";
+
+  BOOST_LOG_SEV(glg, debug) << "Base directory for stage output does not "
+                            << "exist. Creating...";
+  //If parent directory does *not* exist, create it.
+  if(!boost::filesystem::exists(stage_base)){
+    boost::filesystem::create_directory(stage_base);
+  }
+
+  //If timestep directories exist, delete them 
+  if(boost::filesystem::exists(stage_yearly)){
+    BOOST_LOG_SEV(glg, debug) << stage_yearly
+                              << " already exists! Deleting...";
+    boost::filesystem::remove_all(stage_yearly);
+  }
+  if(boost::filesystem::exists(stage_monthly)){
+    BOOST_LOG_SEV(glg, debug) << stage_monthly
+                              << " already exists! Deleting...";
+    boost::filesystem::remove_all(stage_monthly);
+  }
+  if(boost::filesystem::exists(stage_daily)){
+    BOOST_LOG_SEV(glg, debug) << stage_daily 
+                              << " already exists! Deleting...";
+    boost::filesystem::remove_all(stage_daily);
+  }
+
+  //Create or recreate timestep directories
+  BOOST_LOG_SEV(glg, debug) << "Creating stage output directories...";
+  boost::filesystem::create_directory(stage_yearly);
+  boost::filesystem::create_directory(stage_monthly);
+  boost::filesystem::create_directory(stage_daily);
+
+  //Copy files from output dirs to storage dirs
+  BOOST_LOG_SEV(glg, debug) << "Copying yearly output."
+  for(boost::filesystem::directory_iterator file(yearly_json);
+      file != boost::filesystem::directory_iterator();
+      ++file){
+    boost::filesystem::path curr_file(file->path());
+    boost::filesystem::copy_file(curr_file, stage_yearly / curr_file.filename());
+  }
+
+  BOOST_LOG_SEV(glg, debug) << "Copying monthly output."
+  for(boost::filesystem::directory_iterator file(monthly_json);
+      file != boost::filesystem::directory_iterator();
+      ++file){
+    boost::filesystem::path curr_file(file->path());
+    boost::filesystem::copy_file(curr_file, stage_monthly / curr_file.filename());
+  }
+
+  BOOST_LOG_SEV(glg, debug) << "Copying daily output."
+  for(boost::filesystem::directory_iterator file(daily_json);
+      file != boost::filesystem::directory_iterator();
+      ++file){
+    boost::filesystem::path curr_file(file->path());
+    boost::filesystem::copy_file(curr_file, stage_daily / curr_file.filename());
   }
 
 }
