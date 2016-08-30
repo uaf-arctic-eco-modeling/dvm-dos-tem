@@ -504,7 +504,7 @@ void CalController::archive_stage_JSON(const std::string& stage){
   boost::filesystem::create_directory(stage_daily);
 
   //Copy files from output dirs to storage dirs
-  BOOST_LOG_SEV(glg, debug) << "Copying yearly output."
+  BOOST_LOG_SEV(glg, debug) << "Copying yearly output.";
   for(boost::filesystem::directory_iterator file(yearly_json);
       file != boost::filesystem::directory_iterator();
       ++file){
@@ -512,7 +512,7 @@ void CalController::archive_stage_JSON(const std::string& stage){
     boost::filesystem::copy_file(curr_file, stage_yearly / curr_file.filename());
   }
 
-  BOOST_LOG_SEV(glg, debug) << "Copying monthly output."
+  BOOST_LOG_SEV(glg, debug) << "Copying monthly output.";
   for(boost::filesystem::directory_iterator file(monthly_json);
       file != boost::filesystem::directory_iterator();
       ++file){
@@ -520,7 +520,7 @@ void CalController::archive_stage_JSON(const std::string& stage){
     boost::filesystem::copy_file(curr_file, stage_monthly / curr_file.filename());
   }
 
-  BOOST_LOG_SEV(glg, debug) << "Copying daily output."
+  BOOST_LOG_SEV(glg, debug) << "Copying daily output.";
   for(boost::filesystem::directory_iterator file(daily_json);
       file != boost::filesystem::directory_iterator();
       ++file){
