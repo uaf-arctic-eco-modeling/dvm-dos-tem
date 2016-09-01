@@ -49,7 +49,7 @@
   },
   "stage_settings": {
     "restart_mode": "restart",   // other options??
-    "inter_stage_pause": false,
+    "inter_stage_pause": false
 
     // maybe less confusing if these settings are only available from cmd line?
     //"tr_yrs": 109,
