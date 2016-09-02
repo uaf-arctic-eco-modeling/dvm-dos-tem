@@ -24,15 +24,11 @@ public:
 
   string loop_order; // time-major or space-major
 
-  bool runeq;
-  bool runsp;
-  bool runtr;
-  bool runsc;
-  int initmode;
+  int initmode;  // NOT USED?
   bool inter_stage_pause; //Controls pauses between EQ, SP, TR, SC
 
-  int max_eq_yrs;
-  int pre_run_yrs;
+  int eq_yrs;
+  int pr_yrs;
   int sp_yrs;
   int tr_yrs;
   int sc_yrs;
@@ -51,6 +47,7 @@ public:
 
   std::string pid_tag;
   std::string caldata_tree_loc;
+  int last_n_json_files;
 
   int changeclimate; // 0: default (up to run stage); 1: dynamical; -1: static
   int changeco2; // 0: default (up to run stage); 1: dynamical; -1: static

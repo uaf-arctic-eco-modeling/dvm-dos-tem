@@ -49,11 +49,15 @@
   },
   "stage_settings": {
     "restart_mode": "restart",   // other options??
-    "run_stage": "eq",
-    "inter_stage_pause": false,
-    "tr_yrs": 109,
-    "sc_yrs": 100
+    "inter_stage_pause": false
+
+    // maybe less confusing if these settings are only available from cmd line?
+    //"tr_yrs": 109,
+    //"sc_yrs": 100
+
+    // ??
     //"restartfile_dir": "DATA/Toolik_10x10_30yrs/" // location for restart-XX.nc file
+
   }
 
 //  "model_settings": {

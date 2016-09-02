@@ -91,30 +91,60 @@ void Runner::run_years(int start_year, int end_year, const std::string& stage) {
 
     /** MONTH TIMESTEP LOOP */
     BOOST_LOG_NAMED_SCOPE("M") {
-    for (int im = 0; im < 12; ++im) {
-      BOOST_LOG_SEV(glg, note) << "(Beginning of month loop, iy:"<<iy<<", im:"<<im<<") " << cohort.ground.layer_report_string("depth thermal CN desc");
+      for (int im = 0; im < 12; ++im) {
+        BOOST_LOG_SEV(glg, note) << "(Beginning of month loop, iy:"<<iy<<", im:"<<im<<") " << cohort.ground.layer_report_string("depth thermal CN desc");
 
-      this->cohort.updateMonthly(iy, im, DINM[im]);
+        this->cohort.updateMonthly(iy, im, DINM[im]);
 
-      // Monthly output control needs to be determined by a parameter
-      // or from the control file. It should default to false given
-      // the number of files it produces.
-      if(this->calcontroller_ptr && md.output_monthly) {
-        BOOST_LOG_SEV(glg, debug) << "Write monthly calibration data to json files...";
-        this->output_caljson_monthly(iy, im, stage, this->calcontroller_ptr->monthly_json);
-      }
-    }} // end month loop (and named scope)
+        this->monthly_output(iy, im, stage);
+
+      } // end month loop
+    } // end named scope
+
+    this->yearly_output(iy, stage, start_year, end_year);
 
     BOOST_LOG_SEV(glg, note) << "(END OF YEAR) " << cohort.ground.layer_report_string("depth thermal CN ptr");
-
-    if(this->calcontroller_ptr) { // check args->get_cal_mode() or calcontroller_ptr? ??
-      BOOST_LOG_SEV(glg, debug) << "Send yearly calibration data to json files...";
-      this->output_caljson_yearly(iy, stage, this->calcontroller_ptr->yearly_json);
-    }
 
     BOOST_LOG_SEV(glg, note) << "Completed year " << iy << " for cohort/cell (row,col): (" << this->y << "," << this->x << ")";
 
   }} // end year loop (and named scope
+}
+
+void Runner::monthly_output(const int year, const int month, const std::string& runstage) {
+
+  if (md.output_monthly) {
+
+    // Calibration json files....
+    if(this->calcontroller_ptr) {
+      BOOST_LOG_SEV(glg, debug) << "Write monthly data to json files...";
+      this->output_caljson_monthly(year, month, runstage, this->calcontroller_ptr->monthly_json);
+    }
+
+    // NetCDF ???
+    BOOST_LOG_SEV(glg, debug) << "Stub location for monthly NetCDF output?";
+
+  } else {
+    BOOST_LOG_SEV(glg, debug) << "Monthly output turned off in config settings.";
+  }
+
+
+}
+
+void Runner::yearly_output(const int year, const std::string& stage,
+    const int startyr, const int endyr) {
+
+  if(this->calcontroller_ptr) {
+    if ( -1 == md.last_n_json_files ) {
+      this->output_caljson_yearly(year, stage, this->calcontroller_ptr->yearly_json);
+    }
+
+    if ( year >= (endyr - md.last_n_json_files) ) {
+      this->output_caljson_yearly(year, stage, this->calcontroller_ptr->yearly_json);
+    }
+  }
+
+  BOOST_LOG_SEV(glg, debug) << "Stub loction for yearly NetCDF output?";
+
 }
 
 void Runner::log_not_equal(const std::string& a_desc,

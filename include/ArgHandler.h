@@ -17,18 +17,21 @@ class ArgHandler {
 	boost::program_options::options_description desc;
 	boost::program_options::variables_map varmap;
 
-  int pre_run_yrs;
-  int max_eq;
+  int pr_yrs;
+  int eq_yrs;
   int sp_yrs;
   int tr_yrs;
   int sc_yrs;
 
   bool cal_mode;
+  int last_n_json_files;
+
   std::string pid_tag;
 
   bool floating_point_exp;
 
   std::string loop_order;
+
 	std::string ctrl_file;
 
   std::string log_level;
@@ -43,14 +46,16 @@ public:
 	void verify();
 	void show_help();
 
-  inline int get_pre_run_yrs() const {return pre_run_yrs;};
-  inline int get_max_eq() const {return max_eq;};
+  inline int get_pr_yrs() const {return pr_yrs;};
+  inline int get_eq_yrs() const {return eq_yrs;};
   inline int get_sp_yrs() const {return sp_yrs;};
   inline int get_tr_yrs() const {return tr_yrs;};
   inline int get_sc_yrs() const {return sc_yrs;};
   inline const bool get_fpe(){return floating_point_exp;};
 	
   inline const bool get_cal_mode(){return cal_mode;};
+  inline const int get_last_n_json_files() const {return last_n_json_files;};
+
   inline const std::string get_pid_tag() const {return pid_tag;};
   inline const std::string get_loop_order(){return loop_order;};
 	inline const std::string get_ctrl_file(){return ctrl_file;};
