@@ -1043,6 +1043,8 @@ if __name__ == '__main__':
       help=textwrap.dedent('''Look for json files in the specified path (instead
            of the default location)'''))
 
+  parser.add_argument('--bulk', action='store_true')
+
 
   print "Parsing command line arguments..."
   args = parser.parse_args()
@@ -1149,21 +1151,50 @@ if __name__ == '__main__':
   #logging.info("from_archive=%s" % args.from_archive)
   #logging.info("data_path=%s" % args.data_path)
 
+  if args.bulk:
+    logging.info("Building a bunch of plot objects...")
 
-  logging.info("Build the plot object...")
-  ewp = ExpandingWindow(
-                        input_helper,
-                        suite['traces'],
-                        rows=suite['rows'],
-                        cols=suite['cols'],
-                        targets=caltargets,
-                        figtitle="%s\nTargets Values for: %s" % (args.suite, target_title_tag),
-                        no_show=args.no_show,
-                        extrainput=additional_input_helpers
-                       )
+    for PFT in range(0,10):
 
-  logging.info("Show the plot object...")
-  ewp.show(dynamic=(not args.static), save_name=args.save_name, format=args.save_format)
+      for k, S in configured_suites.iteritems():
+
+        logger.info("Set the right pft in the suite's traces list..")
+        for trace in S['traces']:
+          if 'pft' in trace.keys():
+            trace['pft'] = 'PFT%i' % PFT
+
+        logging.info("Build the plot object...")
+        ewp = ExpandingWindow(
+                              input_helper,
+                              S['traces'],
+                              rows=S['rows'],
+                              cols=S['cols'],
+                              targets=caltargets,
+                              figtitle="%s\nTargets Values for: %s" % (k, target_title_tag),
+                              no_show=True,
+                              extrainput=additional_input_helpers
+                             )
+
+        logging.info("Show the plot object...")
+        ewp.show(dynamic=False, save_name="%s_%s_pft%s"%(args.save_name,k,PFT), format=args.save_format)
+
+
+
+  else:
+    logging.info("Build a single plot object...")
+    ewp = ExpandingWindow(
+                          input_helper,
+                          suite['traces'],
+                          rows=suite['rows'],
+                          cols=suite['cols'],
+                          targets=caltargets,
+                          figtitle="%s\nTargets Values for: %s" % (args.suite, target_title_tag),
+                          no_show=args.no_show,
+                          extrainput=additional_input_helpers
+                         )
+
+    logging.info("Show the plot object...")
+    ewp.show(dynamic=(not args.static), save_name=args.save_name, format=args.save_format)
 
   logger.info("Done with main app...")
 
