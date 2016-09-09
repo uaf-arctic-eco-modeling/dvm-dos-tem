@@ -155,6 +155,7 @@ class InputHelper(object):
   '''
   def __init__(self, path, monthly=False):
     logging.debug("Making an InputHelper object...")
+    logging.debug("Looking for input files here: %s" % path )
 
     self._monthly = monthly
 
@@ -165,8 +166,12 @@ class InputHelper(object):
       else:
         self._path = os.path.join(path, "calibration/yearly")
 
+      logging.debug("Set input data path to: %s" % self._path)
+
     elif os.path.isfile(path):
       # Assume path is a .tar.gz (or other compression) with .json files in it
+
+      logging.info("Looking for input data files here: %s" % path)
 
       DEFAULT_EXTRACTED_ARCHIVE_LOCATION = os.path.join('/tmp/extracted-calibration-archive', os.path.basename(path))
 
@@ -197,6 +202,9 @@ class InputHelper(object):
       #
 
       tf.close()
+    else:
+      logging.error("Unable to find input data files at %s" % path)
+      sys.exit(-1)
 
 
   def files(self):
