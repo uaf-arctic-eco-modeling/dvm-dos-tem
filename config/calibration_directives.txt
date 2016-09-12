@@ -7,6 +7,5 @@
     // Examples:
     //"quitat": 1500,
     //"530": ["dsl on", "nfeed on", "dsb on"],
-    //"pwup": true // "post warm up pause", [true | false], boolean
   }
 }
