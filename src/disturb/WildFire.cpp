@@ -150,24 +150,28 @@ void WildFire::burn(const int severity) {
   fd->burn();
 
   // for soil part and root burning
-  //NOTE: here we operates on soil portion of 'bdall', later will copy that
-  //  to other PFTs if any
   double burndepth = getBurnOrgSoilthick(severity);
+  BOOST_LOG_SEV(glg, note) << "Setup some temporarty pools for tracking various burn related attributes (depths, C, N)";
   double totbotdepth = 0.0;
   double burnedsolc = 0.0;
   double burnedsoln = 0.0;
-  double r_burn2bg_cn[NUM_PFT]; //ratio of dead veg. after burning
-
+  double r_burn2bg_cn[NUM_PFT]; // ratio of dead veg. after burning
   for (int ip=0; ip<NUM_PFT; ip++) {
-    r_burn2bg_cn[ip] = 0.; //used for vegetation below-ground (root) loss,
+    r_burn2bg_cn[ip] = 0.; //  used for vegetation below-ground (root) loss,
                            //  and calculated below
   }
 
-  for (int il =0; il <cd->m_soil.numsl; il++) {
-    if(cd->m_soil.type[il] <= 2) { //dead moss is 0, shlw peat is 1 and deep org is 2
+  // NOTE: Here we operates on soil portion of 'bdall', later will copy that
+  // to other PFTs if any
+  BOOST_LOG_SEV(glg, note) << "Handle burning the soil (loop over all soil layers)...";
+  for (int il = 0; il < cd->m_soil.numsl; il++) {
 
-      // dead moss layer (burn all dead moss biomass)
+    // dead moss is 0, shlw peat is 1 and deep org is 2
+    if(cd->m_soil.type[il] <= 2) {
+      BOOST_LOG_SEV(glg, note) << "Layer type: " << cd->m_soil.type[il] << ". (deadmoss: 0, shwl peat: 1, deep org: 2)";
+
       if (bdall->m_sois.dmossc > 0.0) {
+        BOOST_LOG_SEV(glg, note) << "Burn all dead moss biomass. (Move C and N from bdall soil pool to 'burned' pool)";
         burnedsolc += bdall->m_sois.dmossc;
         burnedsoln += bdall->m_sois.dmossn;
         bdall->m_sois.dmossc = 0.0;
@@ -175,11 +179,14 @@ void WildFire::burn(const int severity) {
       }
 
       totbotdepth += cd->m_soil.dz[il];
-      double ilsolc =  bdall->m_sois.rawc[il]+bdall->m_sois.soma[il]
-                       + bdall->m_sois.sompr[il]+bdall->m_sois.somcr[il];
-      double ilsoln =  bdall->m_sois.orgn[il]+bdall->m_sois.avln[il];
 
-      if(totbotdepth<=burndepth) { //remove all the orgc/n in this layer
+      double ilsolc =  bdall->m_sois.rawc[il] + bdall->m_sois.soma[il] +
+                       bdall->m_sois.sompr[il] + bdall->m_sois.somcr[il];
+
+      double ilsoln =  bdall->m_sois.orgn[il] + bdall->m_sois.avln[il];
+
+      if(totbotdepth <= burndepth) { //remove all the orgc/n in this layer
+        BOOST_LOG_SEV(glg, note) << "Haven't reached burndepth (" << burndepth << ") yet. Remove all org C and N in this layer";
         burnedsolc += ilsolc;
         burnedsoln += ilsoln;
         bdall->m_sois.rawc[il] = 0.0;
@@ -196,10 +203,11 @@ void WildFire::burn(const int severity) {
           }
         }
       } else {
+        BOOST_LOG_SEV(glg, note) << "The bottom of this layer (il: " << il << ") is past the 'burndepth'. Find the remaining C and N as a fraction of layer thickness";
         double partleft = totbotdepth - burndepth;
 
-        //calculate the left c/n
-        if(partleft<cd->m_soil.dz[il]) {
+        // Calculate the remaining C, N
+        if(partleft < cd->m_soil.dz[il]) { // <-- Maybe this should be an assert instead of an if statement??
           burnedsolc += (1.0-partleft/cd->m_soil.dz[il]) * ilsolc;
           burnedsoln += (1.0-partleft/cd->m_soil.dz[il]) * ilsoln;
           bdall->m_sois.rawc[il] *= partleft/cd->m_soil.dz[il];
@@ -217,22 +225,29 @@ void WildFire::burn(const int severity) {
             }
           }
         } else {
-          //nothing can happen here
+          // should never get here??
+          BOOST_LOG_SEV(glg, err) << "The remaing soil after a burn is greater than the thickness of this layer. Something is wrong??";
+          BOOST_LOG_SEV(glg, err) << "partleft: " << partleft << "cd->m_soil.dz["<<il<<"]: " << cd->m_soil.dz[il];
           break;
         }
       }
     } else {   //non-organic soil layers or moss layers
+      BOOST_LOG_SEV(glg, note) << "Layer type:" << cd->m_soil.type[il] << ". Should be a non-organic soil or moss layer? (greater than type 2)";
+
+      BOOST_LOG_SEV(glg, note) << "Not much to do here. Can't really burn non-organic layers.";
+
       if(totbotdepth <= burndepth) { //may not be needed, but just in case
+        BOOST_LOG_SEV(glg, note) << "For some reason totbotdepth <= burndepth, so we are setting fd->fire_soid.burnthick = totbotdepth??";
         fd->fire_soid.burnthick = totbotdepth;
       }
 
-      break;
     }
-  }
+  } // end soil layer loop
 
   // needs to re-do the soil rootfrac for each pft which was modified above
   //   (in burn soil layer)
-  for (int ip=0; ip<NUM_PFT; ip++) {
+  BOOST_LOG_SEV(glg, note) << "Re-do the soil root fraction for each PFT modified by burning?";
+  for (int ip = 0; ip < NUM_PFT; ip++) {
     double rootfracsum = 0.0;
 
     for (int il = 0; il < cd->m_soil.numsl; il++) {
@@ -245,91 +260,99 @@ void WildFire::burn(const int severity) {
   }
 
   // all woody debris will burn out
+  BOOST_LOG_SEV(glg, note) << "Handle burnt woody debris...";
   double wdebrisc = bdall->m_sois.wdebrisc; //
   double wdebrisn = bdall->m_sois.wdebrisn; //
   bdall->m_sois.wdebrisc = 0.0;
   bdall->m_sois.wdebrisn = 0.0;
+
   // summarize
-  double vola_solc = (burnedsolc+wdebrisc)* (1.0- firpar.r_retain_c);
-  double vola_soln = (burnedsoln+wdebrisn) * (1.0- firpar.r_retain_n);
+  BOOST_LOG_SEV(glg, note) << "Summarize...?";
+  double vola_solc = (burnedsolc + wdebrisc) * (1.0 - firpar.r_retain_c);
+  double vola_soln = (burnedsoln + wdebrisn) * (1.0 - firpar.r_retain_n);
   double reta_solc = burnedsolc * firpar.r_retain_c;   //together with veg.-burned N return, This will be put into soil later
   double reta_soln = burnedsoln * firpar.r_retain_n;   //together with veg.-burned N return, This will be put into soil later
-  //////////////////////VEG burning and mortality ///////////////////////////////////////////////////////////////
-  double comb_vegc = 0.0;  //summed for all PFTs
+
+  BOOST_LOG_SEV(glg, note) << "Handle Vegetation burning and mortality...";
+  double comb_vegc = 0.0;  // summed for all PFTs
   double comb_vegn = 0.0;
   double comb_deadc = 0.0;
   double comb_deadn = 0.0;
   double dead_bg_vegc = 0.0;
   double dead_bg_vegn = 0.0;
 
-  for (int ip=0; ip<NUM_PFT; ip++) {
+  for (int ip = 0; ip < NUM_PFT; ip++) {
+
     if (cd->m_veg.vegcov[ip] > 0.0) {
+      BOOST_LOG_SEV(glg, note) << "Some of this PFT exists (coverage > 0). Burn it!";
 
       // vegetation burning/dead/living fraction for above-ground
       getBurnAbgVegetation(ip, severity);
 
-
-      //root death ratio: must be called after both above-ground and
-      //  below-ground burning
-      //r_live_cn is same for both above-ground and below-ground
+      // root death ratio: must be called after both above-ground and
+      // below-ground burning. r_live_cn is same for both above-ground
+      // and below-ground
       double r_dead2bg_cn = 1.0-r_burn2bg_cn[ip]- r_live_cn;
-      // dead veg c/n
-      //assuming all previous deadc burned
+
+      // Dead veg C, N. Assuming all previous deadc burned.
       comb_deadc += bd[ip]->m_vegs.deadc;
-      //assuming all previous deadn burned
+
+      // Assuming all previous deadn burned
       comb_deadn += bd[ip]->m_vegs.deadn;
       bd[ip]->m_vegs.deadc = 0.0;
       bd[ip]->m_vegs.deadn = 0.0;
-      // above-ground veg. burning/death during fire
+
+      // Above-ground veg. burning/death during fire
       // when summing, needs adjusting by 'vegcov'
       comb_vegc += bd[ip]->m_vegs.c[I_leaf]*r_burn2ag_cn;
-      //we define deadc/n as the not-falling veg (or binding with living veg)
-      //  during fire,
-      bd[ip]->m_vegs.deadc = bd[ip]->m_vegs.c[I_leaf]*r_dead2ag_cn;
-      // which then is the source of ground debris (this is for woody plants
-      //   only, others could be set deadc/n to zero)
-      bd[ip]->m_vegs.c[I_leaf] *= (1.0-r_burn2ag_cn-r_dead2ag_cn);
-      comb_vegc += bd[ip]->m_vegs.c[I_stem]*r_burn2ag_cn;
-      bd[ip]->m_vegs.deadc += bd[ip]->m_vegs.c[I_stem]*r_dead2ag_cn;
-      bd[ip]->m_vegs.c[I_stem] *= (1.0-r_burn2ag_cn-r_dead2ag_cn);
-      comb_vegn += bd[ip]->m_vegs.strn[I_leaf]*r_burn2ag_cn;
-      bd[ip]->m_vegs.deadn += bd[ip]->m_vegs.strn[I_leaf]*r_dead2ag_cn;
-      bd[ip]->m_vegs.strn[I_leaf] *= (1.0-r_burn2ag_cn-r_dead2ag_cn);
-      comb_vegn += bd[ip]->m_vegs.strn[I_stem]*r_burn2ag_cn;
-      bd[ip]->m_vegs.deadn += bd[ip]->m_vegs.strn[I_stem]*r_dead2ag_cn;
-      bd[ip]->m_vegs.strn[I_stem] *= (1.0-r_burn2ag_cn-r_dead2ag_cn);
-      // below-ground veg. (root) burning/death during fire
-      comb_vegc += bd[ip]->m_vegs.c[I_root]*r_burn2bg_cn[ip];
-      double deadc_tmp = bd[ip]->m_vegs.c[I_root]*r_dead2bg_cn;
 
-      for (int il =0; il <cd->m_soil.numsl; il++) {
-        //for the dead below-ground C/N caused by fire,
-        //  they are put into original layer
+      // We define dead c/n as the not-falling veg (or binding with living veg)
+      // during fire,
+      bd[ip]->m_vegs.deadc = bd[ip]->m_vegs.c[I_leaf]*r_dead2ag_cn;
+
+      // Which then is the source of ground debris (this is for woody plants
+      // only, others could be set deadc/n to zero)
+      bd[ip]->m_vegs.c[I_leaf] *= (1.0 - r_burn2ag_cn - r_dead2ag_cn);
+      comb_vegc += bd[ip]->m_vegs.c[I_stem] * r_burn2ag_cn;
+      bd[ip]->m_vegs.deadc += bd[ip]->m_vegs.c[I_stem] * r_dead2ag_cn;
+      bd[ip]->m_vegs.c[I_stem] *= (1.0 - r_burn2ag_cn-r_dead2ag_cn);
+      comb_vegn += bd[ip]->m_vegs.strn[I_leaf] * r_burn2ag_cn;
+      bd[ip]->m_vegs.deadn += bd[ip]->m_vegs.strn[I_leaf] * r_dead2ag_cn;
+      bd[ip]->m_vegs.strn[I_leaf] *= (1.0 - r_burn2ag_cn-r_dead2ag_cn);
+      comb_vegn += bd[ip]->m_vegs.strn[I_stem] * r_burn2ag_cn;
+      bd[ip]->m_vegs.deadn += bd[ip]->m_vegs.strn[I_stem] * r_dead2ag_cn;
+      bd[ip]->m_vegs.strn[I_stem] *= (1.0 - r_burn2ag_cn-r_dead2ag_cn);
+
+      // Below-ground veg. (root) burning/death during fire
+      comb_vegc += bd[ip]->m_vegs.c[I_root] * r_burn2bg_cn[ip];
+      comb_vegn += bd[ip]->m_vegs.strn[I_root] * r_burn2bg_cn[ip];
+
+      // For the dead below-ground C caused by fire, they are put into original layer
+      double deadc_tmp = bd[ip]->m_vegs.c[I_root]*r_dead2bg_cn;
+      for (int il = 0; il < cd->m_soil.numsl; il++) {
         if (cd->m_soil.frootfrac[il][ip] > 0.0) {
           //for this, 'rootfrac' must be updated above
-          bdall->m_sois.somcr[il] += deadc_tmp*cd->m_soil.frootfrac[il][ip];
+          bdall->m_sois.somcr[il] += deadc_tmp * cd->m_soil.frootfrac[il][ip];
         }
       }
+      dead_bg_vegc += deadc_tmp;
+      bd[ip]->m_vegs.c[I_root] *= (1.0 - r_burn2bg_cn[ip] - r_dead2bg_cn);
 
-      dead_bg_vegc +=deadc_tmp;
-      bd[ip]->m_vegs.c[I_root] *= (1.0-r_burn2bg_cn[ip]-r_dead2bg_cn);
-      comb_vegn += bd[ip]->m_vegs.strn[I_root] * r_burn2bg_cn[ip];
+      // For the dead below-ground N caused by fire, they are put into original layer
       double deadn_tmp = bd[ip]->m_vegs.strn[I_root] * r_dead2bg_cn; //this is needed below
-
       for (int il =0; il <cd->m_soil.numsl; il++) {
-        //for the dead below-ground C/N caused by fire,
-        //  they are put into original layer
         if (cd->m_soil.frootfrac[il][ip] > 0.0) {
           //for this, 'rootfrac' must be updated above
           bdall->m_sois.somcr[il] += deadn_tmp*cd->m_soil.frootfrac[il][ip];
         }
       }
-
       dead_bg_vegn +=deadn_tmp;
-      bd[ip]->m_vegs.strn[I_root] *= (1.0-r_burn2bg_cn[ip]-r_dead2bg_cn);
+      bd[ip]->m_vegs.strn[I_root] *= (1.0 - r_burn2bg_cn[ip] - r_dead2bg_cn);
+
       // one more veg N pool (labile N)
-      comb_vegn += bd[ip]->m_vegs.labn*(1.-r_live_cn);//assuming all labn emitted, leaving none into deadn
+      comb_vegn += bd[ip]->m_vegs.labn * (1.0 - r_live_cn);//assuming all labn emitted, leaving none into deadn
       bd[ip]->m_vegs.labn *= r_live_cn;
+
       // finally, we have:
       bd[ip]->m_vegs.call = bd[ip]->m_vegs.c[I_leaf]
                             + bd[ip]->m_vegs.c[I_stem]
@@ -338,13 +361,15 @@ void WildFire::burn(const int severity) {
                             + bd[ip]->m_vegs.strn[I_stem]
                             + bd[ip]->m_vegs.strn[I_root]
                             + bd[ip]->m_vegs.labn;
-    }// end of 'vegcov[ip]>0.'
-  }
 
-  double reta_vegc = (comb_vegc+comb_deadc) * firpar.r_retain_c;
-  double reta_vegn = (comb_vegn+comb_deadn) * firpar.r_retain_n;
-  /////////////////////////////////////////////////////////////////////////////////
-  // save the fire emission and return data into 'fd'
+    } // end of 'cd->m_veg.vegcov[ip] > 0.0' (no coverage, nothing to do)
+
+  } // end pft loop
+
+  double reta_vegc = (comb_vegc + comb_deadc) * firpar.r_retain_c;
+  double reta_vegn = (comb_vegn + comb_deadn) * firpar.r_retain_n;
+
+  BOOST_LOG_SEV(glg, note) << "Save the fire emmission anr return data into 'fd'...";
   fd->fire_v2a.orgc =  comb_vegc - reta_vegc;
   fd->fire_v2a.orgn =  comb_vegn - reta_vegn;
   fd->fire_v2soi.abvc = reta_vegc;
@@ -363,7 +388,7 @@ void WildFire::burn(const int severity) {
   //  chemically-resistant SOMC pool
   // Note - this 'retained C' could be used as char-coal, if need to do so.
   //        Then define the 'r_retain_c' in the model shall be workable
-  for (int il =0; il <cd->m_soil.numsl; il++) {
+  for (int il = 0; il < cd->m_soil.numsl; il++) {
     double tsomc = bdall->m_sois.rawc[il] + bdall->m_sois.soma[il]
                    + bdall->m_sois.sompr[il] + bdall->m_sois.somcr[il];
 
@@ -412,6 +437,7 @@ void WildFire::burn(const int severity) {
 void WildFire::getBurnAbgVegetation(const int &ip, const int severity) {
   assert ((severity >= 0 && severity <5) && "Invalid fire severity!!");
   
+  BOOST_LOG_SEV(glg, note) << "Calcuate (lookup?) above ground vegetation burned as a funciton of severity.";
   //Yuan: the severity categories are from ALFRESCO:
   // 0 - no burning; 1 - low; 2 - moderate; 3 - high + low surface;
   // 4 - high + high surface
@@ -439,6 +465,7 @@ void WildFire::getBurnAbgVegetation(const int &ip, const int severity) {
 //fire severity based organic soil burn thickness, and
 //  adjustment based on soil water condition
 double WildFire::getBurnOrgSoilthick(const int severity) {
+  BOOST_LOG_SEV(glg, info) << "Find the amount of organic soil that is burned as a function of fire severity.";
   double bthick=0;
   //////////////////////////////////
   ///Rule 1: only organic layer can be burned (Site Related)
@@ -452,6 +479,7 @@ double WildFire::getBurnOrgSoilthick(const int severity) {
   //4 - high + high surface
   //so, 1, 2, and 3/4 correspond to TEM's low, moderate, and
   //  high. But needs further field data supports
+  // TBC: foslburn == "fraction organic soil layer burned"
   if (severity<=0) { // no burning
     bthick = 0.;
   } else if (severity==1) {   //low
