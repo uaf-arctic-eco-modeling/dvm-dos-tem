@@ -185,10 +185,14 @@ void WildFire::burn(const int severity) {
   
   BOOST_LOG_SEV(glg, note) << "HELP!! - WILD FIRE!! RUN FOR YOUR LIFE!";
 
+  BOOST_LOG_SEV(glg, debug) << fd->report_to_string("Before WildFire::burn(..)");
   BOOST_LOG_SEV(glg, note) << "Burning (simply clearing?) the 'FireData object...";
   fd->burn();
-
+  BOOST_LOG_SEV(glg, debug) << fd->report_to_string("After WildFire::burn(..)");
+  
   // for soil part and root burning
+  // FIX: there isn't really a reason for getBurnOrgSoilthick to return a value
+  // as it has already set the "burn thickness" value in FirData...
   double burndepth = getBurnOrgSoilthick(severity);
   BOOST_LOG_SEV(glg, note) << "Setup some temporarty pools for tracking various burn related attributes (depths, C, N)";
   double totbotdepth = 0.0;
