@@ -5,7 +5,6 @@
 #include <math.h>
 #include <vector>
 #include <algorithm>
-using namespace std;
 
 #include "../data/CohortData.h"
 #include "../data/EnvData.h"
@@ -19,6 +18,7 @@ using namespace std;
 
 #include "../lookup/CohortLookup.h"
 
+using namespace std;
 class WildFire {
 public:
   WildFire();
@@ -49,13 +49,14 @@ public:
 
 private:
 
-  // less explicit fire occurance
   int fri;
+  std::vector<int> severity;
+  std::vector<int> explicit_fire_year;
+
   int fri_day_of_burn;
   float fri_area_of_burn;
   
   // explicit fire occurance
-  std::vector<int> years;
   std::vector<int> day_of_burn;
   std::vector<float> area_of_burn;   // km^2?
 
@@ -101,4 +102,4 @@ private:
   //void deriveFireSeverity();
 };
 
-#endif /*WILDFIRE_H_*/
+#endif /* WILDFIRE_H_ */

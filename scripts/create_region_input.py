@@ -212,12 +212,12 @@ def create_template_fire_file(fname, sizey=10, sizex=10, rand=None, vlen=False):
   severity = ncfile.createVariable('severity', np.int32, ('time', 'Y','X'))
   fri = ncfile.createVariable('fri', np.int32, ('Y','X',))
 
-#  fri_day = ncfile.createVariable('fri_day_of_burn', np.int, ('Y','X'))
-#  fri_area = ncfile.createVariable('fri_area_of_burn', np.float32, ('Y','X'))
-#
-#  f_years = ncfile.createVariable('years', np.int, ('time', 'Y', 'X',))
-#  f_day = ncfile.createVariable('day_of_burn', np.int, ('time', 'Y', 'X'))
-#  f_area = ncfile.createVariable('area_of_burn', np.float32, ('time', 'Y', 'X'))
+  fri_day = ncfile.createVariable('fri_day_of_burn', np.int, ('Y','X'))
+  fri_area = ncfile.createVariable('fri_area_of_burn', np.float32, ('Y','X'))
+
+  f_years = ncfile.createVariable('explicit_fire_year', np.int, ('time', 'Y', 'X',))
+  f_day = ncfile.createVariable('day_of_burn', np.int, ('time', 'Y', 'X'))
+  f_area = ncfile.createVariable('area_of_burn', np.float32, ('time', 'Y', 'X'))
 
   if vlen:
     print "I DON'T DO THAT ANY MORE. SORRY."
@@ -553,20 +553,17 @@ def fill_fire_file(if_name, xo, yo, xs, ys, out_dir, of_name):
   
     print "==> fill with random severity..."
     for iy in np.arange(0,100):
-      randmap = np.random.randint(0,6,(ys,xs))
-      nfd.variables['severity'][iy,:,:] = randmap
+      nfd.variables['severity'][iy,:,:] = np.random.randint(0,6,(ys,xs))
+      nfd.variables['explicit_fire_year'][iy,:,:] = np.random.randint(0, 1, (ys,xs))
+      nfd.variables['day_of_burn'][iy,:,:] = np.random.randint(100, 250, (ys,xs))
+      nfd.variables['area_of_burn'][iy,:,:] = np.random.randint(10, 1e6, (ys,xs))
 
     print "==> set random fri"
     nfd.variables['fri'][:,:] = 5
 
-#    nfd.variables['fri'][:,:] = 5                  #
-#    nfd.variables['fri_day_of_burn'][:,:] = 189    # about July 7
-#    nfd.variables['fri_area_of_burn'][:,:] = 10000 # ?? too big?
-#
-#    # explicit fire-date variabels.
-#    nfd.variables['years'][:,:,:] = 0
-#    nfd.variables['day_of_burn'][:,:,:] = 0
-#    nfd.variables['area_of_burn'][:,:,:] = 0
+    nfd.variables['fri_day_of_burn'][:,:] = 189    # about July 7
+    nfd.variables['fri_area_of_burn'][:,:] = 10000 # ?? too big?
+
 
 
 def fill_fire_file2(start_yr, yrs, xo, yo, xs, ys, out_dir, of_name, rand=False):

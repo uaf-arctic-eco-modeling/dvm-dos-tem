@@ -40,9 +40,10 @@ WildFire::WildFire(const std::string& fname, const int y, const int x){
   this->fri_day_of_burn = temutil::get_scalar<int>(fname, "fri_day_of_burn", y, x);
   this->fri_area_of_burn = temutil::get_scalar<float>(fname, "fri_area_of_burn", y, x);
 
-  this->years = temutil::get_timeseries<int>(fname, "years", y, x);
+  this->explicit_fire_year = temutil::get_timeseries<int>(fname, "explicit_fire_year", y, x);
   this->day_of_burn = temutil::get_timeseries<int>(fname, "day_of_burn", y, x);
   this->area_of_burn = temutil::get_timeseries<float>(fname, "area_of_burn", y, x);
+  this->severity = temutil::get_timeseries<int>(fname, "severity", y, x);
 
   BOOST_LOG_SEV(glg, debug) << "FRI based fire vectors/data:";
   BOOST_LOG_SEV(glg, debug) << "FRI:                " << this->fri;
@@ -50,9 +51,10 @@ WildFire::WildFire(const std::string& fname, const int y, const int x){
   BOOST_LOG_SEV(glg, debug) << "FRI area_of_burn:   " << this->fri_area_of_burn;
   
   BOOST_LOG_SEV(glg, debug) << "Explicit fire vectors/data:";
-  BOOST_LOG_SEV(glg, debug) << "fire years:        [" << temutil::vec2csv(this->years) << "]";
-  BOOST_LOG_SEV(glg, debug) << "fire day_of_burn:  [" << temutil::vec2csv(this->day_of_burn) << "]";
-  BOOST_LOG_SEV(glg, debug) << "fire area_of_burn: [" << temutil::vec2csv(this->area_of_burn) << "]";
+  BOOST_LOG_SEV(glg, debug) << "explicit fire year:  [" << temutil::vec2csv(this->explicit_fire_year) << "]";
+  BOOST_LOG_SEV(glg, debug) << "fire day_of_burn:    [" << temutil::vec2csv(this->day_of_burn) << "]";
+  BOOST_LOG_SEV(glg, debug) << "fire area_of_burn:   [" << temutil::vec2csv(this->area_of_burn) << "]";
+  BOOST_LOG_SEV(glg, debug) << "severity:            [" << temutil::vec2csv(this->severity) << "]";
 
   // need templates or more overloads or something so that we can
   // read the std::vector<int> 
