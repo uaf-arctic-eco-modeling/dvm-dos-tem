@@ -36,13 +36,31 @@ WildFire::WildFire(const std::string& fname, const int y, const int x){
   BOOST_LOG_SEV(glg, warn) << "HELL YEAH, NEW FIRE CTOR, PARAMETERIZED!!";
   BOOST_LOG_SEV(glg, warn) << "%%%%% NOT IMPLEMENTED YET!! %%%%%%%%%%%%%";
 
-  fri = temutil::get_fri(fname, y, x);
+  this->fri = temutil::get_scalar<int>(fname, "fri", y, x);
+  this->fri_day_of_burn = temutil::get_scalar<int>(fname, "fri_day_of_burn", y, x);
+  this->fri_area_of_burn = temutil::get_scalar<float>(fname, "fri_area_of_burn", y, x);
+
+  this->years = temutil::get_timeseries<int>(fname, "years", y, x);
+  this->day_of_burn = temutil::get_timeseries<int>(fname, "day_of_burn", y, x);
+  this->area_of_burn = temutil::get_timeseries<float>(fname, "area_of_burn", y, x);
+
+  BOOST_LOG_SEV(glg, debug) << "FRI based fire vectors/data:";
+  BOOST_LOG_SEV(glg, debug) << "FRI:                " << this->fri;
+  BOOST_LOG_SEV(glg, debug) << "FRI day_of_burn:    " << this->fri_day_of_burn;
+  BOOST_LOG_SEV(glg, debug) << "FRI area_of_burn:   " << this->fri_area_of_burn;
+  
+  BOOST_LOG_SEV(glg, debug) << "Explicit fire vectors/data:";
+  BOOST_LOG_SEV(glg, debug) << "fire years:        [" << temutil::vec2csv(this->years) << "]";
+  BOOST_LOG_SEV(glg, debug) << "fire day_of_burn:  [" << temutil::vec2csv(this->day_of_burn) << "]";
+  BOOST_LOG_SEV(glg, debug) << "fire area_of_burn: [" << temutil::vec2csv(this->area_of_burn) << "]";
 
   // need templates or more overloads or something so that we can
   // read the std::vector<int> 
   //fire_years = temutil::get_timeseries(fname, "fire_years", y, x);
   fire_sizes = temutil::get_timeseries<float>(fname, "fire_sizes", y, x);
   //fire_month = temutil::get_timeseries(fname, "fire_month", y, x);
+
+  BOOST_LOG_SEV(glg, debug) << "Done making WildFire object.";
 
 }
 
@@ -74,71 +92,71 @@ void WildFire::set_state_from_restartdata(const RestartData & rdata) {
   fd->fire_a2soi.orgn = rdata.firea2sorgn;
 }
 
-/** Returns an integer in closed range 0-4 represening fire severity.
-*  Finds fire severity as a function of drainage (well or poor) season (1-4)
-*  and size (??range?).
-*/
-int WildFire::derive_fire_severity(const int drainage, const int season, const int size) {
-
-  // FIX: Change size from classification to area of burn...
-  assert ( (drainage == 0 || drainage == 1) && "Invalid drainage!");
-  assert ( (season <= 4 && season >= 0) && "Invalid fire season!");
-  assert ( (size <= 4 && size >= 0) && "Invalid fire size!");
-
-  int severity = 0;
-
-  // well drained
-  if( drainage == 0 ) {
-
-    // shoulder seasons ?
-    if ( season == 1 || season == 2 || season == 4 ) {
-
-      if ( size == 1 ) {
-        severity = 1;
-      }
-      if ( size == 2 ) {
-        severity = 2;
-      }
-      if ( size > 2 ) {
-        severity = 3;
-      }
-
-    //  late season ?
-    } else if (season == 3) {
-      severity = 4;
-    }
-
-  }
-
-  return severity;
-}
-
-/** Figure out whether or not there should be a fire, based on stage, yr, month.
-*/
-bool WildFire::should_ignite(const int yr, const int midx, const std::string& stage) {
-  bool ignite = false;
-
-  if ( stage.compare("pre-run") == 0 || stage.compare("eq-run") == 0 || stage.compare("sp-run") == 0 ) {
-    BOOST_LOG_SEV(glg, debug) << "Determine fire by FRI.";
-    if (yr % cd->fri == 0 && yr > 0) {
-      if ( (midx >= 5 && midx <= 9) ) { // <-- FIX THIS! how should we choose/check month?
-        ignite = true;
-      } else {
-        BOOST_LOG_SEV(glg, debug) << "...Fire year, but wrong month....";
-      }
-    }
-    
-  } else if ( stage.compare("tr-run") == 0 || stage.compare("sc-run") == 0 ) {
-    BOOST_LOG_SEV(glg, debug) << "Determine fire by explicit year.";
-    BOOST_LOG_SEV(glg, warn) << "NOT IMPLEMENTED YET!";
-    // FIX: Implement this.
-  }
-  
-  BOOST_LOG_SEV(glg, debug) << "Should we ignite a fire (yr,midx,stage)?: "
-                            << "(" << yr << ", " << midx << ", " << stage << ") "
-                            << ignite;
-  return ignite;
-}
+///** Returns an integer in closed range 0-4 represening fire severity.
+//*  Finds fire severity as a function of drainage (well or poor) season (1-4)
+//*  and size (??range?).
+//*/
+//int WildFire::derive_fire_severity(const int drainage, const int season, const int size) {
+//
+//  // FIX: Change size from classification to area of burn...
+//  assert ( (drainage == 0 || drainage == 1) && "Invalid drainage!");
+//  assert ( (season <= 4 && season >= 0) && "Invalid fire season!");
+//  assert ( (size <= 4 && size >= 0) && "Invalid fire size!");
+//
+//  int severity = 0;
+//
+//  // well drained
+//  if( drainage == 0 ) {
+//
+//    // shoulder seasons ?
+//    if ( season == 1 || season == 2 || season == 4 ) {
+//
+//      if ( size == 1 ) {
+//        severity = 1;
+//      }
+//      if ( size == 2 ) {
+//        severity = 2;
+//      }
+//      if ( size > 2 ) {
+//        severity = 3;
+//      }
+//
+//    //  late season ?
+//    } else if (season == 3) {
+//      severity = 4;
+//    }
+//
+//  }
+//
+//  return severity;
+//}
+//
+///** Figure out whether or not there should be a fire, based on stage, yr, month.
+//*/
+//bool WildFire::should_ignite(const int yr, const int midx, const std::string& stage) {
+//  bool ignite = false;
+//
+//  if ( stage.compare("pre-run") == 0 || stage.compare("eq-run") == 0 || stage.compare("sp-run") == 0 ) {
+//    BOOST_LOG_SEV(glg, debug) << "Determine fire by FRI.";
+//    if (yr % cd->fri == 0 && yr > 0) {
+//      if ( (midx >= 5 && midx <= 9) ) { // <-- FIX THIS! how should we choose/check month?
+//        ignite = true;
+//      } else {
+//        BOOST_LOG_SEV(glg, debug) << "...Fire year, but wrong month....";
+//      }
+//    }
+//    
+//  } else if ( stage.compare("tr-run") == 0 || stage.compare("sc-run") == 0 ) {
+//    BOOST_LOG_SEV(glg, debug) << "Determine fire by explicit year.";
+//    BOOST_LOG_SEV(glg, warn) << "NOT IMPLEMENTED YET!";
+//    // FIX: Implement this.
+//  }
+//  
+//  BOOST_LOG_SEV(glg, debug) << "Should we ignite a fire (yr,midx,stage)?: "
+//                            << "(" << yr << ", " << midx << ", " << stage << ") "
+//                            << ignite;
+//  return ignite;
+//}
 
 /** Burning vegetation and soil organic C */
 void WildFire::burn(const int severity) {
@@ -378,6 +396,7 @@ void WildFire::burn(const int severity) {
   fd->fire_v2soi.blwn = dead_bg_vegn;
   fd->fire_soi2a.orgc = vola_solc;
   fd->fire_soi2a.orgn = vola_soln;
+
   // the above 'v2a.orgn' and 'soi2a.orgn', will be as one of N source,
   // which is depositing into soil evenly in one FRI
   //- this will let the system -N balanced in a long-term, if NO
@@ -438,6 +457,7 @@ void WildFire::getBurnAbgVegetation(const int &ip, const int severity) {
   assert ((severity >= 0 && severity <5) && "Invalid fire severity!!");
   
   BOOST_LOG_SEV(glg, note) << "Calcuate (lookup?) above ground vegetation burned as a funciton of severity.";
+
   //Yuan: the severity categories are from ALFRESCO:
   // 0 - no burning; 1 - low; 2 - moderate; 3 - high + low surface;
   // 4 - high + high surface
@@ -462,10 +482,19 @@ void WildFire::getBurnAbgVegetation(const int &ip, const int severity) {
   r_live_cn = 1.-r_burn2ag_cn-r_dead2ag_cn;
 }
 
+/** Returns the fraction of the organic soil layer to burn based on a variety of
+    factors.
+*/
+double burn_organic_soil(const int aob, const int dob /* slope, aspect, soil temp, etc */) {
+  
+}
+
+
 //fire severity based organic soil burn thickness, and
 //  adjustment based on soil water condition
 double WildFire::getBurnOrgSoilthick(const int severity) {
   BOOST_LOG_SEV(glg, info) << "Find the amount of organic soil that is burned as a function of fire severity.";
+
   double bthick=0;
   //////////////////////////////////
   ///Rule 1: only organic layer can be burned (Site Related)
@@ -505,13 +534,14 @@ double WildFire::getBurnOrgSoilthick(const int severity) {
     }
   }
 
-  if (bthick>totorg) {
-    bthick=totorg;
+  // you can't burn mineral soil...
+  if (bthick > totorg) {
+    bthick = totorg;
   }
 
-  //
-  if(bthick <cd->m_soil.mossthick) {
-    bthick =cd->m_soil.mossthick;   //burn all moss layers
+  // always burn all moss, even if the severity is really low.
+  if(bthick < cd->m_soil.mossthick) {
+    bthick = cd->m_soil.mossthick;   //burn all moss layers
   }
 
   fd->fire_soid.burnthick = bthick;

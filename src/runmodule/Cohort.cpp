@@ -75,7 +75,7 @@ Cohort::Cohort(int y, int x, ModelData* modeldatapointer):
   // FIX: same thing with fire - may need historic and projected...
   this->fire = WildFire(modeldatapointer->fire_file, y, x);
 
-  this->cd.fri = this->fire.fri;
+//  this->cd.fri = this->fire.fri;
 
   //  what if fire_years is a mask, and the other vectors parallel it
   //  
@@ -717,15 +717,18 @@ void Cohort::updateMonthly_Fir(const int & year, const int & midx) {
   }
 
   // see if it is an appropriate time to burn
-  if ( fire.should_ignite(year, midx, "eq-run" /* <<-- FIX THIS! what about other stages...? */) ) {
+  if ( 1) /*fire.should_ignite(year, midx, "eq-run"*/ /* <<-- FIX THIS! what about other stages...? */ {
 
     BOOST_LOG_SEV(glg, debug) << "Derive fire severity...";
-    int fire_severity = fire.derive_fire_severity(cd.drainage_type, 3, /* FIX THIS --> */ 1);
+    //int fire_severity = fire.derive_fire_severity(cd.drainage_type, 3, /* FIX THIS --> */ 1);
 
     // fire, update C/N pools for each pft through 'bd', but not soil structure
     // soil root fraction also updated through 'cd'
     BOOST_LOG_SEV(glg, debug) << "BURN!";
-    fire.burn(fire_severity);
+
+    fire.burn(1)/*fire_severity)*/;
+    
+    BOOST_LOG_SEV(glg, debug) << "Right after fire.burn(..)  " << ground.layer_report_string();
 
     BOOST_LOG_SEV(glg, debug) << "Collect burned veg C/N from individual pfts into bdall...";
     for (int ip=0; ip<NUM_PFT; ip++) {

@@ -25,10 +25,10 @@ public:
   WildFire(const std::string& fname, const int y, const int x);
   
   ~WildFire();
-
-  int fri;
-
-  int oneseverity;  //Yuan: fire severity category
+  
+//  int fri;
+//
+//  int oneseverity;  //Yuan: fire severity category
 
   void setCohortData(CohortData* cdp);
   void setAllEnvBgcData(EnvData* edp, BgcData* bdp);
@@ -40,16 +40,22 @@ public:
   void initializeState();
   void set_state_from_restartdata(const RestartData & rdata);
 
-  bool should_ignite(const int yr, const int midx, const std::string& stage);
-  int derive_fire_severity(const int drainage, const int season, const int size);
+//  bool should_ignite(const int yr, const int midx, const std::string& stage);
+//  int derive_fire_severity(const int drainage, const int season, const int size);
 
   void burn(const int severity);
 
 private:
 
-  std::vector<int> fire_years;
-  std::vector<int> fire_month;
-  std::vector<float> fire_sizes;   // km^2?
+  // statistical fire occurance
+  int fri;
+  int fri_day_of_burn;
+  float fri_area_of_burn;
+  
+  // explicit fire occurance
+  std::vector<int> years;
+  std::vector<int> day_of_burn;
+  std::vector<float> area_of_burn;   // km^2?
 
   firepar_bgc firpar;
 

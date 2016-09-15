@@ -207,65 +207,86 @@ def create_template_fire_file(fname, sizey=10, sizex=10, rand=None, vlen=False):
 
   Y = ncfile.createDimension('Y', sizey)
   X = ncfile.createDimension('X', sizex)
+  time = ncfile.createDimension('time', None)
+
   fri = ncfile.createVariable('fri', np.int, ('Y','X',))
+  fri_day = ncfile.createVariable('fri_day_of_burn', np.int, ('Y','X'))
+  fri_area = ncfile.createVariable('fri_area_of_burn', np.float32, ('Y','X'))
+
+
+
+  f_years = ncfile.createVariable('years', np.int, ('time', 'Y', 'X',))
+  f_day = ncfile.createVariable('day_of_burn', np.int, ('time', 'Y', 'X'))
+  f_area = ncfile.createVariable('area_of_burn', np.float32, ('time', 'Y', 'X'))
+
   
+  
+  
+
   if vlen:
-    '''Make the variable length type'''
-    fire_year_vector = ncfile.createVLType(np.int, 'fire_year_vector')
-    fire_year_vector_F = ncfile.createVLType(np.float, 'fire_year_vector_F')
-
-    fire_years = ncfile.createVariable('fire_years', fire_year_vector, ('Y','X'))
-    fire_sizes = ncfile.createVariable('fire_sizes', fire_year_vector_F, ('Y','X')) # is this just area in km^2 ??
-    fire_month = ncfile.createVariable('fire_month', fire_year_vector, ('Y','X'))
-  
-    if (rand):
-      print " --> NOTE: Filling FRI with random data!"
-      fri[:] = np.random.uniform(low=1, high=7, size=(sizey, sizex))
-
-      fri[0,0] = 5
-      print " --> NOTE: Set FRI for pixel 0,0 to: ", fri[0,0]
-
-      print " --> NOTE: Filling the fire_year and fire_sizes with random data!"
-      yr_data = np.empty(sizey * sizex, object)
-      sz_data = np.empty(sizey * sizex, object)
-      mn_data = np.empty(sizey * sizex, object)
-      for n in range(sizey * sizex):
-        # make a random length vector of ints between 1900 and 2006
-        yr_data[n] = np.array(sorted(np.random.randint(1900, 2006, np.random.randint(0,10,1))), dtype=np.int)
-
-        #sz_data[n] = np.random.randint(0,100,len(yr_data[n]))  # just some random data
-        sz_data[n] = np.zeros(len(yr_data[n])) + (0.007*1.7e6)  # 7% of the area of Alaska?
-
-        mn_data[n] = np.zeros(len(yr_data[n]), np.int) + 6              # july
-
-      yr_data = np.reshape(yr_data,(sizey,sizex))
-      sz_data = np.reshape(sz_data,(sizey,sizex))
-      mn_data = np.reshape(mn_data,(sizey,sizex))
-
-      fire_years[:] = yr_data
-      fire_sizes[:] = sz_data
-      fire_month[:] = mn_data
-
-    def quick_report(y,x):
-      assert len(fire_years[y,x]) == len(fire_sizes[y,x])
-      assert len(fire_years[y,x]) == len(fire_month[y,x])
-      print "  pixel(row,col): (%s,%s)" % (y,x)
-      print "             fri: ", fri[y,x]
-      print "           years: ", fire_years[y,x]
-      print "           sizes: ", fire_sizes[y,x]
-      print "          months: ", fire_month[y,x]
-
-    quick_report(0,0)
-    quick_report(1,2)
-    quick_report(0,2)
-    quick_report(2,1)
-
+    print "I DON'T DO THAT ANY MORE. SORRY."
   else:
-    '''Make a more traditional 'square' fire dataset.'''
-    time = ncfile.createDimension('time', None)
-    fire_years = ncfile.createVariable('fire_years', np.int, ('time','Y','X'))
-    fire_month = ncfile.createVariable('fire_month', np.int, ('time','Y','X'))
-    fire_sizes = ncfile.createVariable('fire_sizes', np.float32, ('time','Y','X'))
+    pass
+
+
+
+#  if vlen:
+#    '''Make the variable length type'''
+#    fire_year_vector = ncfile.createVLType(np.int, 'fire_year_vector')
+#    fire_year_vector_F = ncfile.createVLType(np.float, 'fire_year_vector_F')
+#
+#    fire_years = ncfile.createVariable('fire_years', fire_year_vector, ('Y','X'))
+#    fire_sizes = ncfile.createVariable('fire_sizes', fire_year_vector_F, ('Y','X')) # is this just area in km^2 ??
+#    fire_month = ncfile.createVariable('fire_month', fire_year_vector, ('Y','X'))
+#  
+#    if (rand):
+#      print " --> NOTE: Filling FRI with random data!"
+#      fri[:] = np.random.uniform(low=1, high=7, size=(sizey, sizex))
+#
+#      fri[0,0] = 5
+#      print " --> NOTE: Set FRI for pixel 0,0 to: ", fri[0,0]
+#
+#      print " --> NOTE: Filling the fire_year and fire_sizes with random data!"
+#      yr_data = np.empty(sizey * sizex, object)
+#      sz_data = np.empty(sizey * sizex, object)
+#      mn_data = np.empty(sizey * sizex, object)
+#      for n in range(sizey * sizex):
+#        # make a random length vector of ints between 1900 and 2006
+#        yr_data[n] = np.array(sorted(np.random.randint(1900, 2006, np.random.randint(0,10,1))), dtype=np.int)
+#
+#        #sz_data[n] = np.random.randint(0,100,len(yr_data[n]))  # just some random data
+#        sz_data[n] = np.zeros(len(yr_data[n])) + (0.007*1.7e6)  # 7% of the area of Alaska?
+#
+#        mn_data[n] = np.zeros(len(yr_data[n]), np.int) + 6              # july
+#
+#      yr_data = np.reshape(yr_data,(sizey,sizex))
+#      sz_data = np.reshape(sz_data,(sizey,sizex))
+#      mn_data = np.reshape(mn_data,(sizey,sizex))
+#
+#      fire_years[:] = yr_data
+#      fire_sizes[:] = sz_data
+#      fire_month[:] = mn_data
+#
+#    def quick_report(y,x):
+#      assert len(fire_years[y,x]) == len(fire_sizes[y,x])
+#      assert len(fire_years[y,x]) == len(fire_month[y,x])
+#      print "  pixel(row,col): (%s,%s)" % (y,x)
+#      print "             fri: ", fri[y,x]
+#      print "           years: ", fire_years[y,x]
+#      print "           sizes: ", fire_sizes[y,x]
+#      print "          months: ", fire_month[y,x]
+#
+#    quick_report(0,0)
+#    quick_report(1,2)
+#    quick_report(0,2)
+#    quick_report(2,1)
+#
+#  else:
+#    '''Make a more traditional 'square' fire dataset.'''
+#    time = ncfile.createDimension('time', None)
+#    fire_years = ncfile.createVariable('fire_years', np.int, ('time','Y','X'))
+#    fire_month = ncfile.createVariable('fire_month', np.int, ('time','Y','X'))
+#    fire_sizes = ncfile.createVariable('fire_sizes', np.float32, ('time','Y','X'))
 
   ncfile.close()
 
@@ -531,6 +552,15 @@ def fill_fire_file(if_name, xo, yo, xs, ys, out_dir, of_name):
   create_template_fire_file(of_name, sizey=ys, sizex=xs, rand=True)
 
   print "FILLING FIRE FILE WITH 'REAL' DATA IS NOT IMPLEMENTED YET!"
+  with netCDF4.Dataset(of_name, mode='a') as nfd:
+    nfd.variables['fri'][:,:] = 5                  #
+    nfd.variables['fri_day_of_burn'][:,:] = 189    # about July 7
+    nfd.variables['fri_area_of_burn'][:,:] = 10000 # ?? too big?
+
+    # explicit fire-date variabels.
+    nfd.variables['years'][:,:,:] = 0
+    nfd.variables['day_of_burn'][:,:,:] = 0
+    nfd.variables['area_of_burn'][:,:,:] = 0
 
 
 def fill_fire_file2(start_yr, yrs, xo, yo, xs, ys, out_dir, of_name, rand=False):
