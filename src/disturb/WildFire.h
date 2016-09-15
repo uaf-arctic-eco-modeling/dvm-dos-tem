@@ -41,9 +41,7 @@ public:
   void set_state_from_restartdata(const RestartData & rdata);
 
   bool should_ignite(const int yr, const int midx, const std::string& stage);
-
-//  bool should_ignite(const int yr, const int midx, const std::string& stage);
-//  int derive_fire_severity(const int drainage, const int season, const int size);
+  int derive_fire_severity(const int drainage, const int day_of_burn, const int size);
 
   void burn();
 

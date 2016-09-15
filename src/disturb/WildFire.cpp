@@ -94,45 +94,40 @@ void WildFire::set_state_from_restartdata(const RestartData & rdata) {
   fd->fire_a2soi.orgn = rdata.firea2sorgn;
 }
 
-///** Returns an integer in closed range 0-4 represening fire severity.
-//*  Finds fire severity as a function of drainage (well or poor) season (1-4)
-//*  and size (??range?).
-//*/
-//int WildFire::derive_fire_severity(const int drainage, const int season, const int size) {
-//
-//  // FIX: Change size from classification to area of burn...
-//  assert ( (drainage == 0 || drainage == 1) && "Invalid drainage!");
-//  assert ( (season <= 4 && season >= 0) && "Invalid fire season!");
-//  assert ( (size <= 4 && size >= 0) && "Invalid fire size!");
-//
-//  int severity = 0;
-//
-//  // well drained
-//  if( drainage == 0 ) {
-//
-//    // shoulder seasons ?
-//    if ( season == 1 || season == 2 || season == 4 ) {
-//
-//      if ( size == 1 ) {
-//        severity = 1;
-//      }
-//      if ( size == 2 ) {
-//        severity = 2;
-//      }
-//      if ( size > 2 ) {
-//        severity = 3;
-//      }
-//
-//    //  late season ?
-//    } else if (season == 3) {
-//      severity = 4;
-//    }
-//
-//  }
-//
-//  return severity;
-//}
-//
+
+/** Returns an integer in closed range 0-4 represening fire severity.
+*  Finds fire severity as a function of drainage (well or poor) season (1-4)
+*  and size (??range?).
+*/
+int WildFire::derive_fire_severity(const int drainage, const int day_of_burn, const int size) {
+
+  // This function/way of thinking may become obsolete!
+  //  - short term: read severity as an input
+  //  - longer term: do away with severity classification and calculate
+  //    % of organic layer to combust based on the following arguments:
+  //    (stage, slope, aspect, drainage, doy, aob, roab, tshlw)
+
+
+  assert ( (drainage == 0 || drainage == 1) && "Invalid drainage!");
+  assert ( (day_of_burn <= 364 && day_of_burn >= 0) && "Invalid day of burn!");
+  assert ( (size  && size >= 0) && "Invalid fire size!");
+
+  int severity;
+  
+  if (drainage == 1) {
+    severity = 0; // poorly drained, can't burn wet ground
+  }
+
+  if( drainage == 0 ) {  // well drained
+
+    BOOST_LOG_SEV(glg, err) << "NOT IMPLEMENTED YET...";
+    // NEED A WAY TO PARTITION BASED ON SIZE AND DAY OF YEAR?
+
+  }
+
+  return severity;
+}
+
 
 
 /** Figure out whether or not there should be a fire, based on stage, yr, month.
@@ -184,10 +179,14 @@ bool WildFire::should_ignite(const int yr, const int midx, const std::string& st
 }
 
 /** Burning vegetation and soil organic C */
-void WildFire::burn(const int severity) {
-  assert ((severity >= 0) && (severity < 5) && "Invalid fire severity!");
-  
+void WildFire::burn() {
+  BOOST_LOG_NAMED_SCOPE("burning");
   BOOST_LOG_SEV(glg, note) << "HELP!! - WILD FIRE!! RUN FOR YOUR LIFE!";
+
+  int severity = 1;
+  //int fire_severity = fire.derive_fire_severity(cd.drainage_type, 3, /* FIX THIS --> */ 1);
+  //BOOST_LOG_SEV(glg, debug) << "Derived fire severity: " << fire_severity;
+  assert ((severity >= 0) && (severity < 5) && "Invalid fire severity!");
 
   BOOST_LOG_SEV(glg, debug) << fd->report_to_string("Before WildFire::burn(..)");
   BOOST_LOG_SEV(glg, note) << "Burning (simply clearing?) the 'FireData object...";
