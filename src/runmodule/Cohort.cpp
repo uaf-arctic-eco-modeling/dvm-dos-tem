@@ -712,21 +712,20 @@ void Cohort::updateMonthly_Fir(const int & year, const int & midx) {
   BOOST_LOG_NAMED_SCOPE("fire")
 
   // FIX ?? not sure this may no longer be necessary??
+  // FIX? should this get moved into the "if fire" block?, or do we always zero out the FirData values?
   if (midx == 0) {
     fd->beginOfYear();
   }
 
   // see if it is an appropriate time to burn
-  if ( 1) /*fire.should_ignite(year, midx, "eq-run"*/ /* <<-- FIX THIS! what about other stages...? */ {
+  if ( fire.should_ignite(year, midx, stage) ) {
 
-    BOOST_LOG_SEV(glg, debug) << "Derive fire severity...";
-    //int fire_severity = fire.derive_fire_severity(cd.drainage_type, 3, /* FIX THIS --> */ 1);
+    BOOST_LOG_SEV(glg, debug) << "Right before fire.burn(..)  " << ground.layer_report_string();
 
-    // fire, update C/N pools for each pft through 'bd', but not soil structure
-    // soil root fraction also updated through 'cd'
-    BOOST_LOG_SEV(glg, debug) << "BURN!";
-
-    fire.burn(1)/*fire_severity)*/;
+    // Fire!
+    //  - Update C/N pools for each pft through 'bd', but not soil structure.
+    //  - Soil root fraction also updated through 'cd'.
+    fire.burn();
     
     BOOST_LOG_SEV(glg, debug) << "Right after fire.burn(..)  " << ground.layer_report_string();
 

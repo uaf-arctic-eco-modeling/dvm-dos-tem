@@ -148,12 +148,8 @@ void WildFire::set_state_from_restartdata(const RestartData & rdata) {
 */
 bool WildFire::should_ignite(const int yr, const int midx, const std::string& stage) {
 
-  // if we are using fri
-  //   then check fire.fri and fire.fri_day_of_burn
-  //   to see if it is a fire year and month
-
-  // otherwise, we are using explicit fire timing
-  //   check fire.years, and fire.day_of_burn
+  BOOST_LOG_SEV(glg, note) << "determining fire ignition for yr:" << yr
+                           << ", monthidx:" << midx << ", stage:" << stage;
 
   bool ignite = false;
 
@@ -162,20 +158,28 @@ bool WildFire::should_ignite(const int yr, const int midx, const std::string& st
     BOOST_LOG_SEV(glg, debug) << "Determine fire by FRI.";
 
     if ( (yr % this->fri) == 0 && yr > 0 ) {
+
       if (midx == temutil::doy2month(this->fri_day_of_burn)) {
-        ignite = true;
+        ignite = true; // yeah! correct year and month for fire!
       }
       // do nothing; correct year, wrong month.
     }
 
   } else if ( stage.compare("tr-run") == 0 || stage.compare("sc-run") == 0 ) {
+
     BOOST_LOG_SEV(glg, debug) << "Determine fire by explicit year.";
-    // FIX: Implement this.
+
+    if ( this->explicit_fire_year[yr] == 1 ){
+      if ( temutil::doy2month(this->day_of_burn[yr]) == midx ) {
+        ignite = true;
+      }
+    }
+  } else {
+    BOOST_LOG_SEV(glg, err) << "Unknown stage! (" << stage << ")";
   }
 
-  BOOST_LOG_SEV(glg, debug) << "Should we ignite a fire (yr:"
-                            << yr <<", midx:"<< midx <<", stage:"<< stage <<")?: "
-                            << ignite;
+  BOOST_LOG_SEV(glg, debug) << "Should we ignite a fire?:" << ignite;
+
   return ignite;
 }
 
