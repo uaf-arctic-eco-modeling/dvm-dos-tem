@@ -552,13 +552,18 @@ def fill_fire_file(if_name, xo, yo, xs, ys, out_dir, of_name):
   with netCDF4.Dataset(of_name, mode='a') as nfd:
   
     print "==> fill with random severity..."
-    for iy in np.arange(0,100):
-      nfd.variables['severity'][iy,:,:] = np.random.randint(0,6,(ys,xs))
-      nfd.variables['explicit_fire_year'][iy,:,:] = np.random.randint(0, 1, (ys,xs))
-      nfd.variables['day_of_burn'][iy,:,:] = np.random.randint(100, 250, (ys,xs))
-      nfd.variables['area_of_burn'][iy,:,:] = np.random.randint(10, 1e6, (ys,xs))
+    nfd.variables['severity'][:,:,:] = np.random.randint(0,6,(100,ys,xs))
 
-    print "==> set random fri"
+    print "==> fill with random explicit_fire_year..."
+    nfd.variables['explicit_fire_year'][:,:,:] = np.random.randint(0, 2, (100,ys,xs))
+
+    print "==> fill with random day_of_burn..."
+    nfd.variables['day_of_burn'][:,:,:] = np.random.randint(100, 250, (100,ys,xs))
+
+    print "==> fill with random area_of_burn..."
+    nfd.variables['area_of_burn'][:,:,:] = np.random.randint(10, 1e6, (100,ys,xs))
+
+    print "==> set arbitrary fri values..."
     nfd.variables['fri'][:,:] = 5
 
     nfd.variables['fri_day_of_burn'][:,:] = 189    # about July 7
