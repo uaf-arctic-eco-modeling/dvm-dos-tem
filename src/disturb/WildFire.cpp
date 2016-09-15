@@ -131,32 +131,51 @@ void WildFire::set_state_from_restartdata(const RestartData & rdata) {
 //  return severity;
 //}
 //
-///** Figure out whether or not there should be a fire, based on stage, yr, month.
-//*/
-//bool WildFire::should_ignite(const int yr, const int midx, const std::string& stage) {
-//  bool ignite = false;
-//
-//  if ( stage.compare("pre-run") == 0 || stage.compare("eq-run") == 0 || stage.compare("sp-run") == 0 ) {
-//    BOOST_LOG_SEV(glg, debug) << "Determine fire by FRI.";
-//    if (yr % cd->fri == 0 && yr > 0) {
-//      if ( (midx >= 5 && midx <= 9) ) { // <-- FIX THIS! how should we choose/check month?
-//        ignite = true;
-//      } else {
-//        BOOST_LOG_SEV(glg, debug) << "...Fire year, but wrong month....";
-//      }
-//    }
-//    
-//  } else if ( stage.compare("tr-run") == 0 || stage.compare("sc-run") == 0 ) {
-//    BOOST_LOG_SEV(glg, debug) << "Determine fire by explicit year.";
-//    BOOST_LOG_SEV(glg, warn) << "NOT IMPLEMENTED YET!";
-//    // FIX: Implement this.
-//  }
-//  
-//  BOOST_LOG_SEV(glg, debug) << "Should we ignite a fire (yr,midx,stage)?: "
-//                            << "(" << yr << ", " << midx << ", " << stage << ") "
-//                            << ignite;
-//  return ignite;
-//}
+
+
+/** Figure out whether or not there should be a fire, based on stage, yr, month.
+ *
+ *  There are two modes of operation: "FRI" (fire recurrence interval) and
+ *  "explicit". Pre-run, equlibrium, and spin-up stages all use the FRI settings
+ *  for determining whether or not a fire should ignite, while transient and 
+ *  scenario stages use explict dates for fire occurence.
+ *
+ *  The settings for FRI and the data for explicit fire dates are held in data
+ *  members of this (WildFire) object, (FIX: and are loaded in the constructor??)
+ *
+*/
+bool WildFire::should_ignite(const int yr, const int midx, const std::string& stage) {
+
+  // if we are using fri
+  //   then check fire.fri and fire.fri_day_of_burn
+  //   to see if it is a fire year and month
+
+  // otherwise, we are using explicit fire timing
+  //   check fire.years, and fire.day_of_burn
+
+  bool ignite = false;
+
+  if ( stage.compare("pre-run") == 0 || stage.compare("eq-run") == 0 || stage.compare("sp-run") == 0 ) {
+
+    BOOST_LOG_SEV(glg, debug) << "Determine fire by FRI.";
+
+    if ( (yr % this->fri) == 0 && yr > 0 ) {
+      if (midx == temutil::doy2month(this->fri_day_of_burn)) {
+        ignite = true;
+      }
+      // do nothing; correct year, wrong month.
+    }
+
+  } else if ( stage.compare("tr-run") == 0 || stage.compare("sc-run") == 0 ) {
+    BOOST_LOG_SEV(glg, debug) << "Determine fire by explicit year.";
+    // FIX: Implement this.
+  }
+
+  BOOST_LOG_SEV(glg, debug) << "Should we ignite a fire (yr,midx,stage)?: "
+                            << "(" << yr << ", " << midx << ", " << stage << ") "
+                            << ignite;
+  return ignite;
+}
 
 /** Burning vegetation and soil organic C */
 void WildFire::burn(const int severity) {
