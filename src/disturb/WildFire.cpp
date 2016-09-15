@@ -173,8 +173,8 @@ bool WildFire::should_ignite(const int yr, const int midx, const std::string& st
     // FIX: Implement this.
   }
 
-  BOOST_LOG_SEV(glg, debug) << "Should we ignite a fire (yr,midx,stage)?: "
-                            << "(" << yr << ", " << midx << ", " << stage << ") "
+  BOOST_LOG_SEV(glg, debug) << "Should we ignite a fire (yr:"
+                            << yr <<", midx:"<< midx <<", stage:"<< stage <<")?: "
                             << ignite;
   return ignite;
 }
@@ -408,7 +408,7 @@ void WildFire::burn(const int severity) {
   double reta_vegc = (comb_vegc + comb_deadc) * firpar.r_retain_c;
   double reta_vegn = (comb_vegn + comb_deadn) * firpar.r_retain_n;
 
-  BOOST_LOG_SEV(glg, note) << "Save the fire emmission anr return data into 'fd'...";
+  BOOST_LOG_SEV(glg, note) << "Save the fire emmission and return data into 'fd'...";
   fd->fire_v2a.orgc =  comb_vegc - reta_vegc;
   fd->fire_v2a.orgn =  comb_vegn - reta_vegn;
   fd->fire_v2soi.abvc = reta_vegc;
@@ -511,7 +511,7 @@ double burn_organic_soil(const int aob, const int dob /* slope, aspect, soil tem
 }
 
 
-//fire severity based organic soil burn thickness, and
+//fire severity-based organic soil burn thickness, and
 //  adjustment based on soil water condition
 double WildFire::getBurnOrgSoilthick(const int severity) {
   BOOST_LOG_SEV(glg, info) << "Find the amount of organic soil that is burned as a function of fire severity.";
