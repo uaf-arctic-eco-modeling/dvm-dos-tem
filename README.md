@@ -135,23 +135,40 @@ provided in the `config/` directory. More configuration options are available
 via options supplied on the command line when starting the program. The `--help`
 flag provides some info and shows the defaults:
 
-    $ ./dvmdostem --help
+    $ ./dvmdostem -h
       -c [ --cal-mode ]                     Switch for calibration mode. When this 
-                                            flag is preset, the program will be 
+                                            flag is present, the program will be 
                                             forced to run a single site and with 
-                                            --loop-order=space-major. The program 
+                                            '--loop-order=space-major'. The program
                                             will generate yearly and monthly 
                                             '.json' files in your /tmp  directory 
                                             that are intended to be read by other 
                                             programs or scripts.
-      -p [ --pre-run-yrs ] arg (=10)        The number of 'pre-run' years.
-      -m [ --max-eq ] arg (=1000)           The maximum number of years to run in 
-                                            equlibrium stage.
-      -s [ --sp-yrs ] arg (=100)            The number of spinup years.
-      -t [ --tr-yrs ] arg (=0)              The number of years to run transient. 
-                                            Overrides config for testing.
-      -n [ --sc-yrs ] arg (=0)              The number of years to run scenario. 
-                                            Overrides config for testing.
+      --last-n-json arg (=-1)               Only output the json files for the last
+                                            N years. -1 indicates to output all 
+                                            years. This is useful for running with 
+                                            PEST, where we do need the json files 
+                                            (and calibration mode), but PEST only 
+                                            looks at the last year, so we can save 
+                                            a lot of effort and only write out the 
+                                            last file. Made this option 
+                                            configurable so that we can write out a
+                                            number of files, in case we need to do 
+                                            some averaging over the last few years 
+                                            for PEST.
+      -u [ --pid-tag ] arg                  Use the process ID (passed as an 
+                                            argmument) to tag the output cal json 
+                                            directories. Facilitates parallel runs,
+                                            but may make the calibration-viewer.py 
+                                            more difficult to work with (must 
+                                            pass/set the PID tag so that the 
+                                            calibration-viewer.py knows where to 
+                                            find the json files.)
+      -p [ --pr-yrs ] arg (=10)             Number or PRE RUN years to run.
+      -e [ --eq-yrs ] arg (=1000)           Number of EQUILIBRIUM years to run.
+      -s [ --sp-yrs ] arg (=100)            Number of SPINUP years to run.
+      -t [ --tr-yrs ] arg (=0)              Number of TRANSIENT years to run.
+      -n [ --sc-yrs ] arg (=0)              Number of SCENARIO years to run.
       -o [ --loop-order ] arg (=space-major)
                                             Which control loop is on the outside: 
                                             'space-major' or 'time-major'. For 
