@@ -4,20 +4,40 @@ README for dvm-dos-tem
 Basic information is provided in this README file. For more details, see the 
 wiki: [](https://github.com/ua-snap/dvm-dos-tem/wiki)
 
-The dvm-dos-tem is a process based bio-geo-chemical ecosystem model.
+The dvm-dos-tem (`dvmdostem`) is a process based bio-geo-chemical ecosystem 
+model.
 
-There are two ways in which you might interact with dvmdostem: 
-performaing an _extrapolation_, or performing a _calibration_. 
-
-When performing a calibration, you will evaluate the simulation as it is 
-running. You will also likely be pausing the simulation to adjusting parameters 
-and settings. Calibrations are performed for a single spatial location (a single 
-cohort or grid cell).
+There are two primary ways in which you might interact with `dvmdostem`: 
+performing an _extrapolation_, or performing a _calibration_. 
 
 When performing an extrapolation the program progresses to completion,
 typically over one or more spatial locations (multiple cohorts, or grid cells). 
-The outputs are analyzed only once the simulation has completed for all
-time-steps and spatial locations.
+The outputs are typically analyzed only once the simulation has completed for 
+all time-steps and spatial locations.
+
+Calibrations are performed for a single spatial location (a single 
+cohort or grid cell). For calibration, we currently have two approaches: 
+
+1. manual calibration
+2. machine learning assisted calibration
+
+Most of our tooling was originally developed for the manual approach to
+calibration, and we have since adapted it to be usable under the guidance of 
+machine learning algorithms.
+
+Under a manual calibration, you will evaluate the simulation as it progresses, 
+pause the simulation to adjust parameters by hand, and then resume the
+simulation while keeping an eye on the model outputs with respect to the 
+calibration target values.
+
+Our current machine-learning assisted calibration process uses an external 
+software called [PEST](http://www.pesthomepage.org), which will automatically
+adjust parameters, and compute a final metric denoting how close the model
+outputs are to our calibration targets.
+
+There is more information concerning calibration in the `calibration/` 
+directory.
+
 
 Requirements and Dependencies
 -----------------------------------------------------------------------------------------
@@ -33,8 +53,8 @@ The following tools/libraries are necessary in order to compile and run `dvm-dos
   - [Boost.Log](http://www.boost.org/doc/libs/1_61_0/libs/log/)
   - [Boost.System](http://www.boost.org/doc/libs/1_61_0/libs/system/)
 * NetCDF, C++ Interface, [NetCDF/Unidata](http://www.unidata.ucar.edu/software/netcdf/)
-* Jsoncpp [https://github.com/open-source-parsers/jsoncpp](https://github.com/open-source-parsers/jsoncpp)
-* [GNU Readline] (https://cnswww.cns.cwru.edu/php/chet/readline/rltop.html#TOCDocumentation) 
+* [Jsoncpp](https://github.com/open-source-parsers/jsoncpp)
+* [GNU Readline](https://cnswww.cns.cwru.edu/php/chet/readline/rltop.html#TOCDocumentation) 
 * MPI - included in the Makefile and SConstruct, but not used yet. Will be needed as we implement parallelism.
 * pthread
 
@@ -127,7 +147,7 @@ Running `dvmdostem` (operating the model) requires 3 types of "input" informatio
 
 1. Driving data (input data)
 2. Parameter values
-3. Configuration options 
+3. Configuration options (from command line or config file)
 
 Sample driving data is provided in the `DATA/` directory, sample parameters are 
 provided in the `parameters/` directory, and sample configuraiton options are 
@@ -195,6 +215,19 @@ flag provides some info and shows the defaults:
                                             will crash when NaN or Inf are 
                                             generated.
       -h [ --help ]                         produces helps message, then quits
+
+### Viewing model progress and results
+
+Naturally after (or while) running `dvmdostem` you will want to view the model
+outputs. Presently the best way to do this is with the `calibration-viewer.py`
+program. The calibration viewer is designed to display data that `dvmdostem`
+writes to `.json` files. As evidenced by the name, the `calibration-viewer.py`
+was originally written to enable manual calibration of the model, but it is
+usable for general viewing purposes. The general idea is that as the model runs
+it will write date out to `.json` files that are stored in a user-configurable
+location. Then the `calibration-viewer.py` program will look for the `.json`
+files and display them. See the `--help` flag for many options availble when 
+using the viewer.
 
 
 Documentation
