@@ -1,5 +1,8 @@
 ﻿# Using the DVM-DOS-TEM calibrator
 
+> NOTE: As of 09/19/2016, this document could use substantial revision to
+incorporate our use of PEST.
+
 In general, here are the steps:
 
 1. Get the latest version from github.
@@ -8,7 +11,8 @@ In general, here are the steps:
 4. Set up all of the parameter and config files.
 5. Set up all of the input `.nc` files (climate, soil, fire, veg map, etc)
 6. Set up the correct target values.
-6. Run the model in calibration mode while running the plotting script in multiple other windows.       
+6. Run the model in calibration mode while running the plotting script in 
+multiple other windows.
 
 # Details for above steps
 
@@ -22,7 +26,7 @@ In general, here are the steps:
   - (subsequently) `git pull –ff-only upstream devel`
 
 ## Install the correct software (matplotlib, jsoncpp, readline, other?).
-The calibration viewer(s)  requires some additional Python tools beyond what 
+The calibration viewer(s) requires some additional Python tools beyond what 
 the model itself requires. See the `booststrap-system.sh` for details.
 
 ## Compile the source code.
