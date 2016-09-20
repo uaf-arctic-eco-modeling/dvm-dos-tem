@@ -24,14 +24,11 @@ class WildFire {
 public:
   WildFire();
 
-  WildFire(const std::string& fname, const int y, const int x);
+  WildFire(const std::string& fri_fname, const std::string& explicit_fname,
+           const int y, const int x);
   
   ~WildFire();
   
-//  int fri;
-//
-//  int oneseverity;  //Yuan: fire severity category
-
   void setCohortData(CohortData* cdp);
   void setAllEnvBgcData(EnvData* edp, BgcData* bdp);
   void setBgcData(BgcData* bdp, const int &ip);
@@ -43,22 +40,28 @@ public:
   void set_state_from_restartdata(const RestartData & rdata);
 
   bool should_ignite(const int yr, const int midx, const std::string& stage);
+
+  // not used or fully implemented yet...
+  //int lookup_severity(const int yr, const int midx, const std::string& stage);
   int derive_fire_severity(const int drainage, const int day_of_burn, const int size);
 
-  void burn();
+  void burn(int year);
+
+  std::string report_fire_inputs();
 
 private:
 
+  // storage for data read in from fire input files
   int fri;
-  std::vector<int> severity;
-  std::vector<int> explicit_fire_year;
-
   int fri_day_of_burn;
-  float fri_area_of_burn;
+  int fri_severity;
+  std::vector<int> explicit_fire_year;
+  std::vector<int> explicit_fire_day_of_burn;
+  std::vector<int> explicit_fire_severity;
   
-  // explicit fire occurance
-  std::vector<int> day_of_burn;
-  std::vector<float> area_of_burn;   // km^2?
+  // this will be set based on the current run stage
+  // (or eventually, some other derivation function)
+  int actual_severity;
 
   firepar_bgc firpar;
 

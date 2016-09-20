@@ -21,7 +21,11 @@
  *
  */
 
+#include <string>
+#include <sstream>
+
 #include "WildFire.h"
+
 
 #include "../TEMUtilityFunctions.h"
 #include "../TEMLogger.h"
@@ -32,29 +36,23 @@ WildFire::WildFire() {}
 
 WildFire::~WildFire() {}
 
-WildFire::WildFire(const std::string& fname, const int y, const int x){
-  BOOST_LOG_SEV(glg, warn) << "HELL YEAH, NEW FIRE CTOR, PARAMETERIZED!!";
-  BOOST_LOG_SEV(glg, warn) << "%%%%% NOT IMPLEMENTED YET!! %%%%%%%%%%%%%";
+WildFire::WildFire(const std::string& fri_fname,
+                   const std::string& explicit_fname, const int y, const int x) {
 
-  this->fri = temutil::get_scalar<int>(fname, "fri", y, x);
-  this->fri_day_of_burn = temutil::get_scalar<int>(fname, "fri_day_of_burn", y, x);
-  this->fri_area_of_burn = temutil::get_scalar<float>(fname, "fri_area_of_burn", y, x);
+  BOOST_LOG_SEV(glg, info) << "Setting up FRI fire data...";
+  this->fri = temutil::get_scalar<int>(fri_fname, "fri", y, x);
+  this->fri_severity = temutil::get_scalar<int>(fri_fname, "fri_severity", y, x);
+  this->fri_day_of_burn = temutil::get_scalar<int>(fri_fname, "fri_day_of_burn", y, x);
 
-  this->explicit_fire_year = temutil::get_timeseries<int>(fname, "explicit_fire_year", y, x);
-  this->day_of_burn = temutil::get_timeseries<int>(fname, "day_of_burn", y, x);
-  this->area_of_burn = temutil::get_timeseries<float>(fname, "area_of_burn", y, x);
-  this->severity = temutil::get_timeseries<int>(fname, "severity", y, x);
-
-  BOOST_LOG_SEV(glg, debug) << "FRI based fire vectors/data:";
-  BOOST_LOG_SEV(glg, debug) << "FRI:                " << this->fri;
-  BOOST_LOG_SEV(glg, debug) << "FRI day_of_burn:    " << this->fri_day_of_burn;
-  BOOST_LOG_SEV(glg, debug) << "FRI area_of_burn:   " << this->fri_area_of_burn;
+  BOOST_LOG_SEV(glg, info) << "Setting up explicit fire data...";
+  this->explicit_fire_year = temutil::get_timeseries<int>(explicit_fname, "explicit_fire_year", y, x);
+  this->explicit_fire_severity = temutil::get_timeseries<int>(explicit_fname, "explicit_fire_severity", y, x);
+  this->explicit_fire_day_of_burn = temutil::get_timeseries<int>(explicit_fname, "explicit_fire_day_of_burn", y, x);
   
-  BOOST_LOG_SEV(glg, debug) << "Explicit fire vectors/data:";
-  BOOST_LOG_SEV(glg, debug) << "explicit fire year:  [" << temutil::vec2csv(this->explicit_fire_year) << "]";
-  BOOST_LOG_SEV(glg, debug) << "fire day_of_burn:    [" << temutil::vec2csv(this->day_of_burn) << "]";
-  BOOST_LOG_SEV(glg, debug) << "fire area_of_burn:   [" << temutil::vec2csv(this->area_of_burn) << "]";
-  BOOST_LOG_SEV(glg, debug) << "severity:            [" << temutil::vec2csv(this->severity) << "]";
+  // Set to an definitely invalid number.
+  // Later this will be set to a valid number based on the run stage and
+  // possibly other factors.
+  this->actual_severity = -1;
 
   // need templates or more overloads or something so that we can
   // read the std::vector<int> 
@@ -63,10 +61,28 @@ WildFire::WildFire(const std::string& fname, const int y, const int x){
   //fire_month = temutil::get_timeseries(fname, "fire_month", y, x);
 
   BOOST_LOG_SEV(glg, debug) << "Done making WildFire object.";
+  BOOST_LOG_SEV(glg, debug) << this->report_fire_inputs();
 
 }
 
+/** Assemble and return a string with a bunch of data from this class */
+std::string WildFire::report_fire_inputs() {
 
+  std::stringstream report_string;
+  report_string << "FRI based fire vectors/data:" << std::endl;
+  report_string << "FRI:              " << this->fri << std::endl;
+  report_string << "FRI day_of_burn:  " << this->fri_day_of_burn << std::endl;
+  report_string << "FRI severity:     " << this->fri_severity << std::endl;
+  report_string << "Explicit fire vectors/data:" << std::endl;
+  report_string << "explicit fire year:        [" << temutil::vec2csv(this->explicit_fire_year) << "]" << std::endl;
+  report_string << "explicit fire day_of_burn: [" << temutil::vec2csv(this->explicit_fire_day_of_burn) << "]" << std::endl;
+  report_string << "explicit fire severity:    [" << temutil::vec2csv(this->explicit_fire_severity) << "]" << std::endl;
+
+  report_string << "Actual Fire Severity: " << this->actual_severity << std::endl;
+
+  return report_string.str();
+
+}
 
 // Looks like this is just used when setting up a Cohort...
 void WildFire::initializeParameter() {
@@ -138,7 +154,8 @@ int WildFire::derive_fire_severity(const int drainage, const int day_of_burn, co
  *  scenario stages use explict dates for fire occurence.
  *
  *  The settings for FRI and the data for explicit fire dates are held in data
- *  members of this (WildFire) object, (FIX: and are loaded in the constructor??)
+ *  members of this (WildFire) object. This function looks at those data
+ *  and sets the "actual_severity" member accordingly.
  *
 */
 bool WildFire::should_ignite(const int yr, const int midx, const std::string& stage) {
@@ -155,6 +172,7 @@ bool WildFire::should_ignite(const int yr, const int midx, const std::string& st
     if ( (yr % this->fri) == 0 && yr > 0 ) {
       if (midx == temutil::doy2month(this->fri_day_of_burn)) {
         ignite = true;
+        this->actual_severity = this->fri_severity;
       }
       // do nothing: correct year, wrong month.
     }
@@ -164,8 +182,9 @@ bool WildFire::should_ignite(const int yr, const int midx, const std::string& st
     BOOST_LOG_SEV(glg, debug) << "Determine fire by explicit year.";
 
     if ( this->explicit_fire_year[yr] == 1 ){
-      if ( temutil::doy2month(this->day_of_burn[yr]) == midx ) {
+      if ( temutil::doy2month(this->explicit_fire_day_of_burn[yr]) == midx ) {
         ignite = true;
+        this->actual_severity = this->explicit_fire_severity.at(yr);
       }
       // do nothing: correct year, wrong month
     }
@@ -179,15 +198,12 @@ bool WildFire::should_ignite(const int yr, const int midx, const std::string& st
 }
 
 /** Burning vegetation and soil organic C */
-void WildFire::burn() {
+void WildFire::burn(int year) {
   BOOST_LOG_NAMED_SCOPE("burning");
   BOOST_LOG_SEV(glg, note) << "HELP!! - WILD FIRE!! RUN FOR YOUR LIFE!";
 
-  int severity = 1;
-  BOOST_LOG_SEV(glg, warn) << "Work in progress: fire severity is hardcoded!";
-  //int fire_severity = fire.derive_fire_severity(cd.drainage_type, 3, /* FIX THIS --> */ 1);
-  //BOOST_LOG_SEV(glg, debug) << "Derived fire severity: " << fire_severity;
-  assert ((severity >= 0) && (severity < 5) && "Invalid fire severity!");
+  assert ((this->actual_severity >= 0) && (this->actual_severity < 5) && "Invalid fire severity!");
+  BOOST_LOG_SEV(glg, debug) << "Fire severity: " << this->actual_severity;
 
   BOOST_LOG_SEV(glg, debug) << fd->report_to_string("Before WildFire::burn(..)");
   BOOST_LOG_SEV(glg, note) << "Burning (simply clearing?) the 'FireData object...";
@@ -197,7 +213,7 @@ void WildFire::burn() {
   // for soil part and root burning
   // FIX: there isn't really a reason for getBurnOrgSoilthick to return a value
   // as it has already set the "burn thickness" value in FirData...
-  double burndepth = getBurnOrgSoilthick(severity);
+  double burndepth = getBurnOrgSoilthick(this->actual_severity);
   BOOST_LOG_SEV(glg, debug) << fd->report_to_string("After WildFire::getBurnOrgSoilthick(..)");
 
   BOOST_LOG_SEV(glg, note) << "Setup some temporarty pools for tracking various burn related attributes (depths, C, N)";
@@ -343,7 +359,7 @@ void WildFire::burn() {
       BOOST_LOG_SEV(glg, note) << "Some of this PFT exists (coverage > 0). Burn it!";
 
       // vegetation burning/dead/living fraction for above-ground
-      getBurnAbgVegetation(ip, severity);
+      getBurnAbgVegetation(ip, this->actual_severity);
 
       // root death ratio: must be called after both above-ground and
       // below-ground burning. r_live_cn is same for both above-ground

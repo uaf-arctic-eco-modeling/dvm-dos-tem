@@ -207,11 +207,11 @@ def create_template_fri_fire_file(fname, sizey=10, sizex=10, rand=None):
   Y = ncfile.createDimension('Y', sizey)
   X = ncfile.createDimension('X', sizex)
 
-  severity = ncfile.createVariable('severity', np.int32, ('Y','X'))
   fri = ncfile.createVariable('fri', np.int32, ('Y','X',))
+  sev = ncfile.createVariable('fri_severity', np.int32, ('Y','X'))
+  dob = ncfile.createVariable('fri_day_of_burn', np.int32, ('Y','X'))
 
   # not sure if we need these...
-  #fri_day = ncfile.createVariable('fri_day_of_burn', np.int, ('Y','X'))
   #fri_area = ncfile.createVariable('fri_area_of_burn', np.float32, ('Y','X'))
 
   ncfile.close()
@@ -227,12 +227,11 @@ def create_template_explicit_fire_file(fname, sizey=10, sizex=10, rand=None):
   X = ncfile.createDimension('X', sizex)
   time = ncfile.createDimension('time', None)
 
-  explicit_fire_year = ncfile.createVariable('explicit_fire_year', np.int, ('time', 'Y', 'X',))
-
-  severity = ncfile.createVariable('severity', np.int32, ('time', 'Y','X'))
+  exp_fire_yr = ncfile.createVariable('explicit_fire_year', np.int32, ('time', 'Y', 'X',))
+  exp_fire_sev = ncfile.createVariable('explicit_fire_severity', np.int32, ('time', 'Y','X'))
+  exp_fire_dob = ncfile.createVariable('explicit_fire_day_of_burn', np.int32, ('time', 'Y', 'X'))
 
   # not sure if we need these yet...
-  #f_day = ncfile.createVariable('day_of_burn', np.int, ('time', 'Y', 'X'))
   #f_area = ncfile.createVariable('area_of_burn', np.float32, ('time', 'Y', 'X'))
 
   ncfile.close()
@@ -501,11 +500,15 @@ def fill_fri_fire_file(if_name, xo, yo, xs, ys, out_dir, of_name):
 
   with netCDF4.Dataset(of_name, mode='a') as nfd:
 
-    print "==> fill with random severity..."
-    nfd.variables['severity'][:,:] = np.random.randint(0,5,(ys,xs))
+    print "==> set arbitrary fri value (same for all pixels; for easy testing)..."
+    nfd.variables['fri'][:,:] = 500
 
-    print "==> set arbitrary fri values (same for all pixels; for easy testing)..."
-    nfd.variables['fri'][:,:] = 5
+    print "==> fill with random severity..."
+    nfd.variables['fri_severity'][:,:] = np.random.randint(0, 5, (ys,xs))
+
+    print "==> set arbitrary day of burn value..."
+    nfd.variables['fri_day_of_burn'][:,:] = 189
+
 
 def fill_explicit_fire_file(if_name, xo, yo, xs, ys, out_dir, of_name):
   create_template_explicit_fire_file(of_name, sizey=ys, sizex=xs, rand=False)
@@ -518,7 +521,11 @@ def fill_explicit_fire_file(if_name, xo, yo, xs, ys, out_dir, of_name):
     nfd.variables['explicit_fire_year'][:,:,:] = np.random.randint(0, 2, (100,ys,xs))
 
     print "==> fill with random severity..."
-    nfd.variables['severity'][:,:,:] = np.random.randint(0, 5, (100,ys,xs))
+    nfd.variables['explicit_fire_severity'][:,:,:] = np.random.randint(0, 5, (100,ys,xs))
+
+    print "==> set random day of burn values..."
+    nfd.variables['explicit_fire_day_of_burn'][:,:,:] = np.random.randint(100, 210, (100,ys,xs))
+
 
     print "NOTE: with this arrangement, it is possible to have a year ",
     print " that is tagged for fire (explicit_fire_year==1) but a severity of 0!"
@@ -625,7 +632,8 @@ if __name__ == '__main__':
       description=textwrap.dedent('''\
         Creates a set of files for dvm-dos-tem.
 
-        <OUTDIR>/<TAG>_<YSIZE>x<XSIZE>/fire.nc
+        <OUTDIR>/<TAG>_<YSIZE>x<XSIZE>/fri_fire.nc
+                                  ... /explicit_fire.nc
                                   ... /vegetation.nc
                                   ... /drainage.nc
                                   ... /historic-climate.nc

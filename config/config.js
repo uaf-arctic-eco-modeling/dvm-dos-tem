@@ -15,7 +15,6 @@
     "runmask_file":       "DATA/Toolik_10x10_allyrs/run-mask.nc",
 
     "output_dir":         "DATA/Toolik_10x10_allyrs/output/",
-
     "output_monthly":     1
   },
 

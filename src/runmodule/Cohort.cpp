@@ -72,17 +72,8 @@ Cohort::Cohort(int y, int x, ModelData* modeldatapointer):
   this->ground = Ground(mineral_info);
 
   BOOST_LOG_SEV(glg, debug) << "Setup the fire information...";
-  // FIX: same thing with fire - may need historic and projected...
-  this->fire = WildFire(modeldatapointer->fire_file, y, x);
-
-//  this->cd.fri = this->fire.fri;
-
-  //  what if fire_years is a mask, and the other vectors parallel it
-  //  
-  // years =  [1  0  1  0  0  0  0  0  0  0  0  0  1  ]
-  // sizes =  [14 0  64 0  0  0  0  0  0  0  0  0  30 ]
-  // month =  [6  0  6  0  0  0  0  0  0  0  0  0  7  ]
-  //
+  this->fire = WildFire(modeldatapointer->fri_fire_file,
+                        modeldatapointer->explicit_fire_file, y, x);
 
   this->soilenv = Soil_Env();
   
@@ -725,7 +716,7 @@ void Cohort::updateMonthly_Fir(const int & year, const int & midx) {
     // Fire!
     //  - Update C/N pools for each pft through 'bd', but not soil structure.
     //  - Soil root fraction also updated through 'cd'.
-    fire.burn();
+    fire.burn(year);
     
     BOOST_LOG_SEV(glg, debug) << "Right after fire.burn(..)  " << ground.layer_report_string();
 
