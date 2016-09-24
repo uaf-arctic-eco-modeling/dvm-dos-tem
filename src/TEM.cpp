@@ -268,13 +268,11 @@ int main(int argc, char* argv[]){
             BOOST_LOG_SEV(glg, debug) << "Ground, right after 'pre-run'"
                                       << runner.cohort.ground.layer_report_string("depth thermal");
 
-            if (runner.calcontroller_ptr) {
 
-              if ( runner.calcontroller_ptr->post_warmup_pause() ){
-                BOOST_LOG_SEV(glg, info) << "Pausing. Please check that the 'pre-run' "
-                                         << "data looks good.";
-                runner.calcontroller_ptr->pause();
-              }
+            if (runner.calcontroller_ptr && modeldata.inter_stage_pause){
+              BOOST_LOG_SEV(glg, info) << "Pausing. Please check that the 'pre-run' "
+                                       << "data looks good.";
+              runner.calcontroller_ptr->pause();
             }
 
           }
