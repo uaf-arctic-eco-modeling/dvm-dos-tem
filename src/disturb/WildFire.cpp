@@ -57,7 +57,7 @@ WildFire::WildFire(const std::string& fri_fname,
   // need templates or more overloads or something so that we can
   // read the std::vector<int> 
   //fire_years = temutil::get_timeseries(fname, "fire_years", y, x);
-  fire_sizes = temutil::get_timeseries<float>(fname, "fire_sizes", y, x);
+  //fire_sizes = temutil::get_timeseries<float>(fname, "fire_sizes", y, x);
   //fire_month = temutil::get_timeseries(fname, "fire_month", y, x);
 
   BOOST_LOG_SEV(glg, debug) << "Done making WildFire object.";

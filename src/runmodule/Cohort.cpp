@@ -356,7 +356,7 @@ void Cohort::initialize_state_parameters() {
 //};
 
 void Cohort::updateMonthly(const int & yrcnt, const int & currmind,
-                           const int & dinmcurr) {
+                           const int & dinmcurr, std::string stage) {
 
   BOOST_LOG_SEV(glg, note) << "Cohort::updateMonthly. Year: "
                             << yrcnt << " Month: " << currmind << " dinmcurr: "
@@ -397,7 +397,7 @@ void Cohort::updateMonthly(const int & yrcnt, const int & currmind,
 
   if(md->get_dsbmodule()) {
     BOOST_LOG_SEV(glg, debug) << "Run the disturbance model.";
-    updateMonthly_Dsb(yrcnt, currmind);
+    updateMonthly_Dsb(yrcnt, currmind, stage);
   }
 
   BOOST_LOG_SEV(glg, debug) << "Clean up at the end of the month";
@@ -690,16 +690,16 @@ void Cohort::updateMonthly_Bgc(const int & currmind) {
 
 };
 
-void Cohort::updateMonthly_Dsb(const int & yrind, const int & currmind) {
+void Cohort::updateMonthly_Dsb(const int & yrind, const int & currmind, std::string stage) {
   BOOST_LOG_NAMED_SCOPE("dsb");
 
-  updateMonthly_Fir(yrind, currmind);
+  updateMonthly_Fir(yrind, currmind, stage);
 
   //updateMonthly_Flood(...)
 }
 
 /** Fire Disturbance module. */
-void Cohort::updateMonthly_Fir(const int & year, const int & midx) {
+void Cohort::updateMonthly_Fir(const int & year, const int & midx, std::string stage) {
   BOOST_LOG_NAMED_SCOPE("fire")
 
   // FIX ?? not sure this may no longer be necessary??
