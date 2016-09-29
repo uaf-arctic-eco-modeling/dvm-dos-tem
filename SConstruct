@@ -6,15 +6,13 @@ import os
 import platform
 import distutils.spawn
 
-USEMPI = True
+USEMPI = False
 
 libs = Split("""jsoncpp
                 readline
                 netcdf_c++
                 netcdf
                 pthread
-                mpi_cxx
-                mpi
                 boost_system
                 boost_filesystem
                 boost_program_options
@@ -100,13 +98,11 @@ platform_libs = []
 platform_include_path = []
 platform_library_path = []
 
-#compiler = 'g++'
-#compiler = '/usr/lib64/openmpi/bin/mpic++'
-compiler = distutils.spawn.find_executable('mpic++')
+#By default, attempt to find g++. Will be overwritten later if necessary. 
+compiler = distutils.spawn.find_executable('g++')
 
-print compiler
-
-if platform_name == 'Linux': #rar, tobey VM, Colin, Vijay, Helene VM(?)
+#Determine platform and modify libraries and paths accordingly
+if platform_name == 'Linux':
   platform_include_path = ['/usr/include',
                            '/usr/include/openmpi-x86_64',
                            '/usr/include/jsoncpp',
@@ -118,7 +114,7 @@ if platform_name == 'Linux': #rar, tobey VM, Colin, Vijay, Helene VM(?)
   platform_libs = libs
 
 
-elif platform_name == 'Darwin': #tobey
+elif platform_name == 'Darwin':
 
   platform_include_path = ['/usr/local/include']
   platform_library_path = ['/usr/local/lib']
@@ -149,8 +145,10 @@ if comp_name == 'aeshna': #aeshna... check name
 
 #atlas?
 
-
+#Modify setup for MPI, if necessary
 if(USEMPI):
+  compiler = distutils.spawn.find_executable('mpic++')
+
   #append src/parallel-code stuff to src_files and include_paths and libs
   src_files.append(Split("""src/parallel-code/Master.cpp
                             src/parallel-code/Slave.cpp
@@ -159,11 +157,13 @@ if(USEMPI):
 
   compiler_flags = compiler_flags + ' -m64 -DWITHMPI'
 
-  #compiler = '/usr/lib64/openmpi/bin/mpic++'
-  #g++ -I/usr/include/openmpi-x86_64 -pthread -m64 -L/usr/lib64/openmpi/lib -lmpi_cxx -lmpi
+  libs.append(Split("""mpi_cxx
+                       mpi"""))
 
 
 #VariantDir('scons_obj','src', duplicate=0)
+
+print "Compiler: " + compiler
 
 #Object compilation
 object_list = Object(src_files, CXX=compiler, CPPPATH=platform_include_path,
