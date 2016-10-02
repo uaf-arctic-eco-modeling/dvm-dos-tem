@@ -98,10 +98,10 @@ platform_libs = []
 platform_include_path = []
 platform_library_path = []
 
-#By default, attempt to find g++. Will be overwritten later if necessary. 
+# By default, attempt to find g++. Will be overwritten later if necessary.
 compiler = distutils.spawn.find_executable('g++')
 
-#Determine platform and modify libraries and paths accordingly
+# Determine platform and modify libraries and paths accordingly
 if platform_name == 'Linux':
   platform_include_path = ['/usr/include',
                            '/usr/include/openmpi-x86_64',
@@ -115,6 +115,11 @@ if platform_name == 'Linux':
 
 
 elif platform_name == 'Darwin':
+
+  # On OSX, using Homebrew, alternate g++ versions are installed so as not
+  # to interfere with the system g++, so here, we have to set the compiler
+  # to the specific version of g++ that we need.
+  compiler = distutils.spawn.find_executable('g++-4.8')
 
   platform_include_path = ['/usr/local/include']
   platform_library_path = ['/usr/local/lib']
