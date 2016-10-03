@@ -146,12 +146,20 @@ elif platform_name == 'Darwin':
   platform_libs[:] = [lib for lib in platform_libs if not lib == 'profiler']
 
 
-if comp_name == 'aeshna': #aeshna... check name
-    platform_include_path.append('/home/tobey/usr/local/include')
-    platform_library_path.append('/home/tobey/usr/local/lib')
+if comp_name == 'aeshna':
+  platform_include_path.append('/home/tobey/usr/local/include')
+  platform_library_path.append('/home/tobey/usr/local/lib')
 
+if comp_name == 'atlas.snap.uaf.edu':
+  platform_libs[:] = [lib for lib in platform_libs if not lib == 'jsoncpp']
+  platform_libs.append('json_linux-gcc-4.4.7_libmt')
 
-#atlas?
+  platform_include_path.insert(0, '/home/UA/tcarman2/boost_1_55_0/')
+  platform_include_path.insert(0, '/home/UA/rarutter/include')
+
+  platform_library_path.insert(0, '/home/UA/rarutter/lib')
+  platform_library_path.insert(0, '/home/UA/tcarman2/boost_1_55_0/stage/lib')
+
 
 # Modify setup for MPI, if necessary
 if(USEMPI):
