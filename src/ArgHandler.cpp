@@ -28,6 +28,12 @@ void ArgHandler::parse(int argc, char** argv) {
      "this option configurable so that we can write out a number of files, in "
      "case we need to do some averaging over the last few years for PEST.")
 
+    ("archive-all-json", boost::program_options::bool_switch(&archive_all_json),
+     "With this flag, the json files for every stage will be archived (at the "
+     "end of the stage), into directory named for the stage, within the main "
+     "json output directory location. Default behavior (without this flag) is "
+     "that each stage overwrites the json files from the previous stage.")
+
     ("pid-tag,u", boost::program_options::value<std::string>(&pid_tag)
       ->default_value(""),
       "Use the process ID (passed as an argmument) to tag the output cal json "
