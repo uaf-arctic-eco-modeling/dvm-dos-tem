@@ -126,6 +126,9 @@ elif platform_name == 'Darwin':
 
   compiler_flags = '-Werror -fpermissive -ansi -g -fPIC -DBOOST_ALL_DYN_LINK -DBSD_FPE'
 
+  # This is not really a Darwin-specific thing so much as the fact that
+  # for Tobey, when he installed boost, he inadvertantly specified that
+  # the multi-threaded libs be named with the -mt suffix.
   for lib in libs:
     if lib.startswith('boost'):
       platform_libs.append(lib + '-mt')
@@ -150,11 +153,11 @@ if comp_name == 'aeshna': #aeshna... check name
 
 #atlas?
 
-#Modify setup for MPI, if necessary
+# Modify setup for MPI, if necessary
 if(USEMPI):
   compiler = distutils.spawn.find_executable('mpic++')
 
-  #append src/parallel-code stuff to src_files and include_paths and libs
+  # append src/parallel-code stuff to src_files and include_paths and libs
   src_files.append(Split("""src/parallel-code/Master.cpp
                             src/parallel-code/Slave.cpp
                          """))
