@@ -269,10 +269,8 @@ int main(int argc, char* argv[]){
                                       << runner.cohort.ground.layer_report_string("depth thermal");
 
 
-            if (runner.calcontroller_ptr && modeldata.inter_stage_pause){
-              BOOST_LOG_SEV(glg, info) << "Pausing. Please check that the 'pre-run' "
-                                       << "data looks good.";
-              runner.calcontroller_ptr->pause();
+            if (runner.calcontroller_ptr) {
+              runner.calcontroller_ptr->handle_stage_end("pr", modeldata);
             }
 
           }
@@ -318,13 +316,10 @@ int main(int argc, char* argv[]){
             // Write out EQ restart file
             runner.cohort.restartdata.append_to_ncfile(restart_fname, rowidx, colidx); /* cohort id/key ???*/
 
-            if(runner.calcontroller_ptr && modeldata.archive_all_json) {
-              runner.calcontroller_ptr->archive_stage_JSON("eq");
+            if(runner.calcontroller_ptr) {
+              runner.calcontroller_ptr->handle_stage_end("eq", modeldata);
             }
 
-            if (runner.calcontroller_ptr && modeldata.inter_stage_pause){
-              runner.calcontroller_ptr->pause();
-            }
           }
 
           // SPINUP STAGE (SP)
@@ -378,13 +373,10 @@ int main(int argc, char* argv[]){
               // Save status to spinup restart file 
               runner.cohort.restartdata.append_to_ncfile(restart_fname, rowidx, colidx);
 
-              if(runner.calcontroller_ptr && modeldata.archive_all_json) {
-                runner.calcontroller_ptr->archive_stage_JSON("sp");
+              if(runner.calcontroller_ptr) {
+                runner.calcontroller_ptr->handle_stage_end("sp", modeldata);
               }
 
-              if(runner.calcontroller_ptr && modeldata.inter_stage_pause){
-                runner.calcontroller_ptr->pause();
-              }
             } else {
               BOOST_LOG_SEV(glg, err) << "No restart file from EQ.";
             }
@@ -437,12 +429,8 @@ int main(int argc, char* argv[]){
               // Save status to transient restart file
               runner.cohort.restartdata.append_to_ncfile(restart_fname, rowidx, colidx);
 
-              if(runner.calcontroller_ptr && modeldata.archive_all_json) {
-                runner.calcontroller_ptr->archive_stage_JSON("tr");
-              }
-
-              if(runner.calcontroller_ptr && modeldata.inter_stage_pause){
-                runner.calcontroller_ptr->pause();
+              if (runner.calcontroller_ptr) {
+                runner.calcontroller_ptr->handle_stage_end("tr", modeldata);
               }
 
             } else {
@@ -502,8 +490,8 @@ int main(int argc, char* argv[]){
               // following a scenario run.
               runner.cohort.restartdata.append_to_ncfile(restart_fname, rowidx, colidx);
 
-              if(runner.calcontroller_ptr && modeldata.archive_all_json) {
-                runner.calcontroller_ptr->archive_stage_JSON("sc");
+              if (runner.calcontroller_ptr) {
+                runner.calcontroller_ptr->handle_stage_end("sc", modeldata);
               }
 
             } else { // No TR restart file

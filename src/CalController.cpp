@@ -174,6 +174,23 @@ Json::Value CalController::load_directives_from_file(
   return v["calibration_autorun_settings"];
 }
 
+/** Do all the calibration-specific things that need to be taken care of at
+    the end of a stage.
+*/
+void CalController::handle_stage_end(const std::string& stage, ModelData& md) {
+
+  if (md.archive_all_json) {
+    this->archive_stage_JSON(stage);
+  }
+
+  if (md.inter_stage_pause) {
+    BOOST_LOG_SEV(glg, info) << "Pausing. Please check that the '"
+                             << stage <<"' data looks good.";
+    this->pause();
+  }
+
+}
+
 /** Print the run_configuration data structure to std out. */
 void CalController::print_directive_settings() {
   std::cout << "Calibration Directives" << std::endl;
