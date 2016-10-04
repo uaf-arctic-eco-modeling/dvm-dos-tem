@@ -177,13 +177,13 @@ Json::Value CalController::load_directives_from_file(
 /** Do all the calibration-specific things that need to be taken care of at
     the end of a stage.
 */
-void CalController::handle_stage_end(const std::string& stage, ModelData& md) {
+void CalController::handle_stage_end(const std::string& stage) {
 
-  if (md.archive_all_json) {
+  if (this->cohort_ptr->md->archive_all_json) {
     this->archive_stage_JSON(stage);
   }
 
-  if (md.inter_stage_pause) {
+  if (this->cohort_ptr->md->inter_stage_pause) {
     BOOST_LOG_SEV(glg, info) << "Pausing. Please check that the '"
                              << stage <<"' data looks good.";
     this->pause();

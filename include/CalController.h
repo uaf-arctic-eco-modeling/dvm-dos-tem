@@ -54,13 +54,11 @@ public:
   // clear_and_create_json_storage was originally a static member
   // to allow using function w/o object instantiated. Does not seem
   // to be necessary. Perhaps this should actually be part of temutil??
-
-  void handle_stage_end(const std::string& stage, ModelData& md);
-
   // cleans up calibration json files
   void clear_and_create_json_storage();
   void archive_stage_JSON(const std::string& stage);
 
+  void handle_stage_end(const std::string& stage);
   boost::filesystem::path base_dir;
   boost::filesystem::path monthly_json;
   boost::filesystem::path daily_json;

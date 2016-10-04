@@ -270,7 +270,7 @@ int main(int argc, char* argv[]){
 
 
             if (runner.calcontroller_ptr) {
-              runner.calcontroller_ptr->handle_stage_end("pr", modeldata);
+              runner.calcontroller_ptr->handle_stage_end("pr");
             }
 
           }
@@ -317,7 +317,7 @@ int main(int argc, char* argv[]){
             runner.cohort.restartdata.append_to_ncfile(restart_fname, rowidx, colidx); /* cohort id/key ???*/
 
             if(runner.calcontroller_ptr) {
-              runner.calcontroller_ptr->handle_stage_end("eq", modeldata);
+              runner.calcontroller_ptr->handle_stage_end("eq");
             }
 
           }
@@ -374,7 +374,7 @@ int main(int argc, char* argv[]){
               runner.cohort.restartdata.append_to_ncfile(restart_fname, rowidx, colidx);
 
               if(runner.calcontroller_ptr) {
-                runner.calcontroller_ptr->handle_stage_end("sp", modeldata);
+                runner.calcontroller_ptr->handle_stage_end("sp");
               }
 
             } else {
@@ -430,7 +430,7 @@ int main(int argc, char* argv[]){
               runner.cohort.restartdata.append_to_ncfile(restart_fname, rowidx, colidx);
 
               if (runner.calcontroller_ptr) {
-                runner.calcontroller_ptr->handle_stage_end("tr", modeldata);
+                runner.calcontroller_ptr->handle_stage_end("tr");
               }
 
             } else {
@@ -491,7 +491,7 @@ int main(int argc, char* argv[]){
               runner.cohort.restartdata.append_to_ncfile(restart_fname, rowidx, colidx);
 
               if (runner.calcontroller_ptr) {
-                runner.calcontroller_ptr->handle_stage_end("sc", modeldata);
+                runner.calcontroller_ptr->handle_stage_end("sc");
               }
 
             } else { // No TR restart file
