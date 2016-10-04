@@ -819,6 +819,8 @@ void Cohort::updateMonthly_DIMgrd(const int & currmind, const bool & dslmodule) 
 
       for (int ip=0; ip<NUM_PFT; ip++) {
         if (cd.m_veg.nonvascular[ip] != I_vascular) {
+          //FIX The following should be refined by at least taking the moss type
+          //  with the largest percent cover.
           if (cd.m_veg.vegcov[ip] > prvpft) {
             ground.moss.type = cd.d_veg.nonvascular[ip];
           }

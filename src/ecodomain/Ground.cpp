@@ -380,7 +380,7 @@ void Ground::initSnowSoilLayers() {
   organic.ShlwThickScheme(organic.shlwthick); //fibthick in m, which needs input
   organic.DeepThickScheme(organic.deepthick); //humthick in m, which needs input
 
-  // but for insertation of layers into the double-linked matrix, do the
+  // but for insertion of layers into the double-linked matrix, do the
   //   deep organic first
   for(int il = organic.deepnum-1; il >=  0; il--) {
     OrganicLayer* pl = new OrganicLayer(organic.deepdz[il], 2); //2 means deep organic
@@ -392,37 +392,60 @@ void Ground::initSnowSoilLayers() {
     insertFront(pl);
   }
 
-  // if nonvascular PFT exists
+  // if dead moss thickness is specified in chtlookup from init file
   if (moss.thick > 0.0) {
 
-    double initmldz[] = {0.0, 0.0};
+    bool moss_pft_exists = false;
+    //if ANY of the nonvascular PFTs have vegcov
+    for(int ii=0; ii<NUM_PFT; ii++){
+      if(chtlu->vegcov[ii]>0.0){
+        moss_pft_exists = true;
+      }
+    }
 
-    // sets living moss (top layer) to 1cm and sets the lower moss layer
-    // thickness based off of the parameterin cmt_dimground.txt
-    if (moss.thick > 0.0) {
+    if(moss_pft_exists){
+      double initmldz[] = {0.0, 0.0};
+
+      // sets living moss (top layer) to 1cm and sets the lower moss layer
+      // thickness based off of the parameterin cmt_dimground.txt
+      //if (moss.thick > 0.0) {
+    
+      //This is wrong - FIX. Should be related to living moss C pool
       initmldz[0] = 0.01;
-    } else { // we have no moss...
-      initmldz[0] = 0.0;
-    }
-    initmldz[1] = moss.thick;
 
-    int soiltype[] = {-1, -1};
+      //} else { // we have no moss...
+      //  initmldz[0] = 0.0;
+      //}
+      initmldz[1] = moss.thick;
 
-    if (initmldz[0] > 0.0) {
+      int soiltype[] = {-1, -1};
+
+      //if (initmldz[0] > 0.0) {
+
       soiltype[0] = 0;
-    }
 
-    if (initmldz[1] > 0.0) {
+      //}
+
+      //if (initmldz[1] > 0.0) {
+
       soiltype[1] = 0;
-    }
 
-    moss.setThicknesses(soiltype, initmldz, 2);
+      //}
 
-    for(int il = moss.num-1; il >= 0; il--) {
-      // moss type (1- sphagnum, 2- feathermoss), which needs input
-      MossLayer* ml = new MossLayer(moss.dz[il], moss.type);
-      insertFront(ml);
+      moss.setThicknesses(soiltype, initmldz, 2);
+
+      for(int il = moss.num-1; il >= 0; il--) {
+        // moss type (1- sphagnum, 2- feathermoss), which needs input
+        MossLayer* ml = new MossLayer(moss.dz[il], moss.type);
+        insertFront(ml);
+      }
     }
+    else{
+      BOOST_LOG_SEV(glg, debug)<<"No moss PFT exists, so do not create moss layers";
+    }
+  }
+  else{
+    BOOST_LOG_SEV(glg, debug)<<"No moss thickness specified";
   }
 
   // only ONE snow layer input assummed, if any
@@ -1184,54 +1207,87 @@ void  Ground::redivideMossLayers(const int &mosstype) {
   // for containing the 'dmossc'
   if( fstmossl==NULL && moss.dmossc > 0.0 ) {
     moss.type = mosstype;
-    moss.num  = 1;
-    moss.thick = 0.10; // this is a fake value, will be adjusted below
+
+    //Create two moss layers - one living and one dead
+    //Dead moss
+    moss.thick = thicknessFromCarbon(moss.dmossc, soildimpar.coefmossa, soildimpar.coefmossb); 
     MossLayer* ml = new MossLayer(moss.thick, moss.type);
+    moss.num = 1;
     ml->tem = fstsoill->tem;
-    ml->z = 0.;
+    ml->z = 0.0;
+    insertBefore(ml, fstsoill);
+    setFstLstMossLayers();
+    adjustFrontsAfterThickchange(ml->z, ml->dz);
+
+    //Live moss
+    moss.thick = 0.01;
+    ml = new MossLayer(moss.thick, moss.type);
+    moss.num = 2;
+    ml->tem = fstmossl->tem;
+    ml->z = 0.0;
+    insertBefore(ml, fstmossl);
+    setFstLstMossLayers();
+    adjustFrontsAfterThickchange(ml->z, ml->dz); 
+
+//    moss.num  = 1;
+//    moss.thick = 0.10; // this is a fake value, will be adjusted below
+//    MossLayer* ml = new MossLayer(moss.thick, moss.type);
+ //   ml->tem = fstsoill->tem;
+//    ml->z = 0.;
     // put the new layer into the double-linked structure
-    insertBefore(ml, fstsoill); // create the new moss layer above the
+//    insertBefore(ml, fstsoill); // create the new moss layer above the
                                 //   first soil layer
-    adjustFrontsAfterThickchange(ml->z, ml->dz);//need to adjust
+//    adjustFrontsAfterThickchange(ml->z, ml->dz);//need to adjust
                                                 //'freezing/thawing front depth'
                                                 //due to top layer insert
 
     // Adjusting the fake 'dz', 'front' adjusting included
-    get_dead_moss_thickness_from_C_content(ml, moss.dmossc);
-    ml->derivePhysicalProperty();
+//    get_dead_moss_thickness_from_C_content(ml, moss.dmossc);
+//    ml->derivePhysicalProperty();
 
-    if(ml->tem>0.) {
-      //assumming same volume content as the following layer
-      ml->liq = ml->nextl->getVolLiq()*DENLIQ*ml->dz;
-      ml->ice = 0.;
-      ml->frozen = -1;
-      ml->frozenfrac = 0.;
-    } else {
-      ml->liq = 0.;
-      //assumming same volume content as the following layer;
-      ml->ice = ml->nextl->getVolIce()*DENICE*ml->dz;
-      ml->frozen = 1;
-      ml->frozenfrac = 1.;
+    for(int ii=0; ii<moss.num; ii++){
+      if(ii==0){ml = (MossLayer*)fstmossl;}
+      else if(ii==1){ml = (MossLayer*)lstmossl;}
+
+      ml->derivePhysicalProperty();
+      if(ml->tem>0.) {
+        //assumming same volume content as the following layer
+        ml->liq = ml->nextl->getVolLiq()*DENLIQ*ml->dz;
+        ml->ice = 0.;
+        ml->frozen = -1;
+        ml->frozenfrac = 0.;
+      } else {
+        ml->liq = 0.;
+        //assumming same volume content as the following layer;
+        ml->ice = ml->nextl->getVolIce()*DENICE*ml->dz;
+        ml->frozen = 1;
+        ml->frozenfrac = 1.;
+      }
+
+      // initialize C as 0.0, which will be updated when 'dmossc' decomposes
+      ml->rawc = 0.0;
+      ml->soma = 0.0;
+      ml->sompr= 0.0;
+      ml->somcr= 0.0;
+      ml->orgn = 0.0;
+      ml->avln = 0.0;
+      resortGroundLayers();
+      updateSoilHorizons();
     }
-
-    // initialize C as 0.0, which will be updated when 'dmossc' decomposes
-    ml->rawc = 0.0;
-    ml->soma = 0.0;
-    ml->sompr= 0.0;
-    ml->somcr= 0.0;
-    ml->orgn = 0.0;
-    ml->avln = 0.0;
-    resortGroundLayers();
-    updateSoilHorizons();
-  }  // one-layer moss currently assumed, so no need to do redivision
+  }
+    // one-layer moss currently assumed, so no need to do redivision
 
   // moss.thick is too small
   // remove the moss layer, but 'moss.dmossc' is keeping track of change.
-  if( (moss.num == 1) && (moss.thick < soildimpar.minmossthick) ) {
-    removeLayer(fstmossl);   // and remove the upper moss-layer
-    resortGroundLayers();
-    updateSoilHorizons();
-  }
+  // 20161004 commented out the following because:
+  //   1. moss.num shouldn't be equal to 1. It should be 0 or 2 or higher.
+  //   2. If there is living moss, there should be dead moss....duh
+  //     -Helene
+  //if( (moss.num == 1) && (moss.thick < soildimpar.minmossthick) ) {
+  //  removeLayer(fstmossl);   // and remove the upper moss-layer
+  //  resortGroundLayers();
+  //  updateSoilHorizons();
+  //}
 
   // the above code causes pertubalation from year to year - needs more
   //   thought here
