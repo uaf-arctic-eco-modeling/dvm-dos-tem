@@ -451,12 +451,12 @@ void CalController::archive_stage_JSON(const std::string& stage){
 
   BOOST_LOG_SEV(glg, debug) << "Base directory for stage output does not "
                             << "exist. Creating...";
-  //If parent directory does *not* exist, create it.
+  // If parent directory does *not* exist, create it.
   if(!boost::filesystem::exists(stage_base)){
     boost::filesystem::create_directory(stage_base);
   }
 
-  //If timestep directories exist, delete them 
+  // If timestep directories exist, delete them
   if(boost::filesystem::exists(stage_yearly)){
     BOOST_LOG_SEV(glg, debug) << stage_yearly
                               << " already exists! Deleting...";
@@ -473,13 +473,13 @@ void CalController::archive_stage_JSON(const std::string& stage){
     boost::filesystem::remove_all(stage_daily);
   }
 
-  //Create or recreate timestep directories
+  // Create or recreate timestep directories
   BOOST_LOG_SEV(glg, debug) << "Creating stage output directories...";
   boost::filesystem::create_directory(stage_yearly);
   boost::filesystem::create_directory(stage_monthly);
   boost::filesystem::create_directory(stage_daily);
 
-  //Copy files from output dirs to storage dirs
+  // Copy files from output dirs to storage dirs
   BOOST_LOG_SEV(glg, debug) << "Copying yearly output.";
   for(boost::filesystem::directory_iterator file(yearly_json);
       file != boost::filesystem::directory_iterator();
