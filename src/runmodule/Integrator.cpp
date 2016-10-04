@@ -17,6 +17,10 @@
 *
 */
 
+#include "../TEMLogger.h"
+
+extern src::severity_logger< severity_level > glg;
+
 #include "Integrator.h"
 
 float Integrator::a1  =   0.115740741;
@@ -164,6 +168,35 @@ void Integrator::setVegetation_Bgc(Vegetation_Bgc * vegp) {
   veg = vegp;
 };
 
+void Integrator::report_array(float array[]){
+  BOOST_LOG_SEV(glg, debug)<<"Integrator report_array (incomplete):";
+
+  BOOST_LOG_SEV(glg, debug)<<"I_DMOSSC: "<<array[I_DMOSSC]<<" I_DMOSSN: "<<array[I_DMOSSN];
+
+  for(int ii=0; ii<NUMEQ; ii++){
+
+    if(ii==I_L_RAWC){
+      for(int il=0; il<MAX_SOI_LAY; il++){
+        BOOST_LOG_SEV(glg, debug)<<il<<": "<<array[I_L_RAWC+il];
+      }
+    }
+
+    if(ii==I_L_RH_RAW){
+      BOOST_LOG_SEV(glg, debug)<<"=== RH Report from Integrator array ===\n";
+      for(int jj=0; jj<MAX_SOI_LAY; jj++){
+        //std::cout<<std::right<<std::setw(2)<<jj<<": ";
+        //std::cout<<std::left<<std::setprecision(4);
+        BOOST_LOG_SEV(glg, debug)<<"RH_RAW: "<<array[ii+jj];
+        BOOST_LOG_SEV(glg, debug)<<"RH_SOMA: "<<array[ii+jj+MAX_SOI_LAY];
+        BOOST_LOG_SEV(glg, debug)<<"RH_SOMPR: "<<array[ii+jj+2*MAX_SOI_LAY];
+        BOOST_LOG_SEV(glg, debug)<<"RH_SOMCR: "<<array[ii+jj+3*MAX_SOI_LAY];
+      }
+      ii++;
+    }
+  }
+  BOOST_LOG_SEV(glg, debug)<<"I_RH_DMOSS: "<<array[I_RH_DMOSS];
+}
+
 void Integrator::updateMonthlyVbgc() {
   vegbgc = true; //these two switches will only allow
                  //  vegetation_bgc call in 'delta'
@@ -193,10 +226,13 @@ void Integrator::updateMonthlySbgc(const int & numsoillayer) {
     y[iv] = 0.0;
   }
 
+
   // initialize the state from 'bd';
   c2ystate_soi(y);
   // integration
+  report_array(y);
   adapt(y, NUMEQ_SOI);
+  report_array(y);
   // after integration , save results back to 'bd';
   y2cstate_soi(y);
   y2cflux_soi(y);
@@ -466,6 +502,7 @@ void Integrator::y2cflux_veg(float y[]) {
 };
 
 void Integrator::y2cflux_soi(float y[]) {
+  report_array(y);
   for(int il =0; il<numsl; il++) {
     bd->m_soi2a.rhrawc[il]    = y[I_L_RH_RAW+il];
     bd->m_soi2a.rhsoma[il]    = y[I_L_RH_SOMA+il];
@@ -609,6 +646,8 @@ void Integrator::dc2yflux_soi(float pdstate[]) {
   pdstate[I_RH_DMOSS] = ssl->del_soi2a.rhmossc;
   pdstate[I_ORGNLOSS] = ssl->del_soi2l.orgnlost;
   pdstate[I_AVLNLOSS] = ssl->del_soi2l.avlnlost;
+
+  report_array(pdstate);
 };
 
 void Integrator::step( const int& numeq, float pstate[],
