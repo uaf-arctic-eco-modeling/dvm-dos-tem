@@ -58,7 +58,9 @@ public:
   void clear_and_create_json_storage();
   void archive_stage_JSON(const std::string& stage);
 
+  void handle_stage_start();
   void handle_stage_end(const std::string& stage);
+
   boost::filesystem::path base_dir;
   boost::filesystem::path monthly_json;
   boost::filesystem::path daily_json;

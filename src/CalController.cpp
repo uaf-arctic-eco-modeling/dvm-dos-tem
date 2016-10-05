@@ -174,6 +174,15 @@ Json::Value CalController::load_directives_from_file(
   return v["calibration_autorun_settings"];
 }
 
+/** Do all the calibration-specific stuff that need to be taken care of at
+    the beginning of a stage. Presently this is just removing the json files
+    but there could be more in the future.
+*/
+void CalController::handle_stage_start() {
+  BOOST_LOG_SEV(glg, info) << "Remove all the json files...(except archived stage files)";
+  this->clear_and_create_json_storage();
+}
+
 /** Do all the calibration-specific things that need to be taken care of at
     the end of a stage.
 */

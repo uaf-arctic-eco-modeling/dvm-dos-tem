@@ -250,6 +250,10 @@ int main(int argc, char* argv[]){
                  - FIX: should ignore calibration directives?
             */
 
+            if (runner.calcontroller_ptr) {
+              runner.calcontroller_ptr->handle_stage_start();
+            }
+
             // turn off everything but env
             runner.cohort.md->set_envmodule(true);
             runner.cohort.md->set_bgcmodule(false);
@@ -281,7 +285,7 @@ int main(int argc, char* argv[]){
             BOOST_LOG_NAMED_SCOPE("EQ");
 
             if (runner.calcontroller_ptr) {
-              runner.calcontroller_ptr->clear_and_create_json_storage();
+              runner.calcontroller_ptr->handle_stage_start();
             }
 
             runner.cohort.md->set_envmodule(true);
@@ -328,7 +332,7 @@ int main(int argc, char* argv[]){
             BOOST_LOG_SEV(glg, fatal) << "Running Spinup, " << modeldata.sp_yrs << " years.";
 
             if (runner.calcontroller_ptr) {
-              runner.calcontroller_ptr->clear_and_create_json_storage();
+              runner.calcontroller_ptr->handle_stage_start();
             }
 
             // Check for the existence of a restart file to output to
@@ -388,7 +392,7 @@ int main(int argc, char* argv[]){
             BOOST_LOG_SEV(glg, fatal) << "Running Transient, " << modeldata.tr_yrs << " years";
 
             if (runner.calcontroller_ptr) {
-              runner.calcontroller_ptr->clear_and_create_json_storage();
+              runner.calcontroller_ptr->handle_stage_start();
             }
 
             // Check for the existence of a restart file to output to
@@ -444,7 +448,7 @@ int main(int argc, char* argv[]){
             BOOST_LOG_SEV(glg, fatal) << "Running Scenario, " << modeldata.sc_yrs << " years.";
 
             if (runner.calcontroller_ptr) {
-              runner.calcontroller_ptr->clear_and_create_json_storage();
+              runner.calcontroller_ptr->handle_stage_start();
             }
 
             // Check for the existence of a restart file to output to
