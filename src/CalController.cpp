@@ -104,6 +104,7 @@ CalController::CalController(Cohort* cht_p):
 
   this->set_caljson_storage_paths();
   this->clear_and_create_json_storage();
+  this->clear_archived_json();
 
   if (!this->cohort_ptr) {
     BOOST_LOG_SEV(glg, err) << "Something is wrong and the Cohort pointer is null!";
@@ -461,6 +462,26 @@ void CalController::clear_and_create_json_storage() {
   boost::filesystem::create_directory(monthly_json);
   boost::filesystem::create_directory(daily_json);
 
+}
+
+/** Clear all the archived json data
+*/
+void CalController::clear_archived_json() {
+  if (boost::filesystem::exists(base_dir / "pr")) {
+    boost::filesystem::remove_all(base_dir / "pr");
+  }
+  if (boost::filesystem::exists(base_dir / "eq")) {
+    boost::filesystem::remove_all(base_dir / "eq");
+  }
+  if (boost::filesystem::exists(base_dir / "sp")) {
+    boost::filesystem::remove_all(base_dir / "sp");
+  }
+  if (boost::filesystem::exists(base_dir / "tr")) {
+    boost::filesystem::remove_all(base_dir / "tr");
+  }
+  if (boost::filesystem::exists(base_dir / "sc")) {
+    boost::filesystem::remove_all(base_dir / "sc");
+  }
 }
 
 /** Copies JSON output to stage specific directories.

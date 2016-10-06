@@ -57,6 +57,8 @@ public:
   // cleans up calibration json files
   void clear_and_create_json_storage();
   void archive_stage_JSON(const std::string& stage);
+  void clear_archived_json();
+
 
   void handle_stage_start();
   void handle_stage_end(const std::string& stage);
