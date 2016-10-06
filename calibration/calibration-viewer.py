@@ -1185,7 +1185,18 @@ if __name__ == '__main__':
             trace['pft'] = 'PFT%i' % PFT
 
         # SETUP THE WORKER PROCESS
-        p = multiprocessing.Process( target=worker, args=(input_helper, S, caltargets, "%s\nTargets Values for: %s" % (k, target_title_tag), additional_input_helpers, "%s_%s_pft%s"%(args.save_name,k,PFT), args.save_format))
+        p = multiprocessing.Process(
+            target=worker,
+            args=(
+                input_helper,
+                S,
+                caltargets,
+                "%s\nTargets Values for: %s" % (k, target_title_tag),
+                additional_input_helpers,
+                "%s_%s_pft%s"%(args.save_name,k,PFT),
+                args.save_format
+            )
+        )
         jobs.append(p)
         p.start()
 
