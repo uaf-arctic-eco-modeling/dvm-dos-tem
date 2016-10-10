@@ -12,10 +12,12 @@ import tarfile        # for reading from tar.gz files
 import shutil         # for cleaning up a /tmp directory
 import signal         # for a graceful exit
 
+import multiprocessing
+
 if (sys.platform == 'darwin') and (os.name == 'posix'):
-  # this is the only one that seems to work on Mac OSX with animation...
+  # TkAgg is the only one that seems to work on Mac OSX with animation...
   import matplotlib
-  matplotlib.use('TkAgg')
+  matplotlib.use('TkAgg') # <-- MUST BE SIMPLY 'Agg' to work with multi-processing!
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -149,6 +151,23 @@ def monthly_files(tarfileobj):
     if 'monthly' in tarinfo.name:
       yield tarinfo
 
+def worker(in_helper, the_suite, calib_targets, title, add_in_helpers, save_fname, save_fmt):
+
+  logging.info("Build the plot object...")
+  ewp = ExpandingWindow(
+                        in_helper,
+                        S['traces'],
+                        rows=S['rows'],
+                        cols=S['cols'],
+                        targets=calib_targets,
+                        figtitle=title,
+                        no_show=True,
+                        extrainput=add_in_helpers
+                       )
+
+  logging.info("Show the plot object...")
+  ewp.show(dynamic=False, save_name=save_fname, format=save_fmt)
+  return
 
 class InputHelper(object):
   '''A class to help abstract some of the details of opening .json files
@@ -1043,6 +1062,8 @@ if __name__ == '__main__':
       help=textwrap.dedent('''Look for json files in the specified path (instead
            of the default location)'''))
 
+  parser.add_argument('--bulk', action='store_true')
+
 
   print "Parsing command line arguments..."
   args = parser.parse_args()
@@ -1149,24 +1170,58 @@ if __name__ == '__main__':
   #logging.info("from_archive=%s" % args.from_archive)
   #logging.info("data_path=%s" % args.data_path)
 
+  if args.bulk:
+    logging.warning("Attempting to switch backends.")
+    logging.warning("Apparently this is an experimental feature; your mileage may vary.")
+    plt.switch_backend("Agg")
 
-  logging.info("Build the plot object...")
-  ewp = ExpandingWindow(
-                        input_helper,
-                        suite['traces'],
-                        rows=suite['rows'],
-                        cols=suite['cols'],
-                        targets=caltargets,
-                        figtitle="%s\nTargets Values for: %s" % (args.suite, target_title_tag),
-                        no_show=args.no_show,
-                        extrainput=additional_input_helpers
-                       )
+    logging.info("Building a bunch of plot objects...")
 
-  logging.info("Show the plot object...")
-  ewp.show(dynamic=(not args.static), save_name=args.save_name, format=args.save_format)
+    jobs = []
+
+    for PFT in range(0,10):
+
+      for k, S in configured_suites.iteritems():
+
+        logger.info("Set the right pft in the suite's traces list..")
+        for trace in S['traces']:
+          if 'pft' in trace.keys():
+            trace['pft'] = 'PFT%i' % PFT
+
+        # SETUP THE WORKER PROCESS
+        p = multiprocessing.Process(
+            target=worker,
+            args=(
+                input_helper,
+                S,
+                caltargets,
+                "%s\nTargets Values for: %s" % (k, target_title_tag),
+                additional_input_helpers,
+                "%s_%s_pft%s"%(args.save_name,k,PFT),
+                args.save_format
+            )
+        )
+        jobs.append(p)
+        p.start()
+
+
+  else:
+    logging.info("Build a single plot object...")
+    ewp = ExpandingWindow(
+                          input_helper,
+                          suite['traces'],
+                          rows=suite['rows'],
+                          cols=suite['cols'],
+                          targets=caltargets,
+                          figtitle="%s\nTargets Values for: %s" % (args.suite, target_title_tag),
+                          no_show=args.no_show,
+                          extrainput=additional_input_helpers
+                         )
+
+    logging.info("Show the plot object...")
+    ewp.show(dynamic=(not args.static), save_name=args.save_name, format=args.save_format)
 
   logger.info("Done with main app...")
-
 
 
 
