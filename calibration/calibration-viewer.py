@@ -15,9 +15,9 @@ import signal         # for a graceful exit
 import multiprocessing
 
 if (sys.platform == 'darwin') and (os.name == 'posix'):
-  # this is the only one that seems to work on Mac OSX with animation...
+  # TkAgg is the only one that seems to work on Mac OSX with animation...
   import matplotlib
-  matplotlib.use('Agg') # <-- MUST BE SIMPLY 'Agg' to work with multi-processing!
+  matplotlib.use('TkAgg') # <-- MUST BE SIMPLY 'Agg' to work with multi-processing!
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -1171,6 +1171,10 @@ if __name__ == '__main__':
   #logging.info("data_path=%s" % args.data_path)
 
   if args.bulk:
+    logging.warning("Attempting to switch backends.")
+    logging.warning("Apparently this is an experimental feature; your mileage may vary.")
+    plt.switch_backend("Agg")
+
     logging.info("Building a bunch of plot objects...")
 
     jobs = []
