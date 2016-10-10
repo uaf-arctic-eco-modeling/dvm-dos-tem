@@ -25,6 +25,13 @@ function usage () {
   echo "              but the value you provide for "--tag" can be anything else you like."
   echo "  --format    The file format to use for saving plots. Default=pdf"
   echo ""
+  echo "NOTE: The bulk plot capability has been added directly to the "
+  echo "      calibration-viewer.py script. The implementation there is much "
+  echo "      more efficient because the json files/archives only need to be "
+  echo "      opened once. It is probably preferable to use "
+  echo "      calibration-viewer.py over this script! See the "
+  echo "      calibration-viewer.py --help flag for more info."
+  echo "      "
 
   if [[ "$#" -gt 0 ]]
   then
