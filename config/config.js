@@ -8,14 +8,14 @@
     "hist_climate_file":  "DATA/Toolik_10x10_allyrs/historic-climate.nc",
     "proj_climate_file":  "DATA/Toolik_10x10_allyrs/projected-climate.nc",
     "veg_class_file":     "DATA/Toolik_10x10_allyrs/vegetation.nc",
-    "fire_file":          "DATA/Toolik_10x10_allyrs/historic-fire.nc",
+//    "fire_file":          "DATA/Toolik_10x10_allyrs/historic-fire.nc",
     "drainage_file":      "DATA/Toolik_10x10_allyrs/drainage.nc",
     "soil_texture_file":  "DATA/Toolik_10x10_allyrs/soil_texture.nc",
     "co2_file":           "DATA/Toolik_10x10_allyrs/co2.nc",
     "runmask_file":       "DATA/Toolik_10x10_allyrs/run-mask.nc",
-
+    "fri_fire_file":      "DATA/Toolik_10x10_allyrs/fri_fire.nc",
+    "explicit_fire_file": "DATA/Toolik_10x10_allyrs/explicit_fire.nc",
     "output_dir":         "DATA/Toolik_10x10_allyrs/output/",
-
     "output_monthly":     1
   },
 

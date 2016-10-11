@@ -4,6 +4,8 @@
 */
 #include <iostream>
 #include <math.h>
+#include <string>
+#include <sstream>
 
 #include "../inc/diagnostics.h"
 #include "../inc/fluxes.h"
@@ -12,6 +14,7 @@
 
 class FirData {
 public:
+
   FirData();
   ~FirData();
 
@@ -31,6 +34,9 @@ public:
   void beginOfYear();
   void endOfYear();
   void burn();
+  
+  std::string report_to_string(const std::string& msg);
+
 
 };
 

@@ -109,7 +109,7 @@ public :
   //void prepareAllDrivingData();
   //void prepareDayDrivingData(const int & yrcnt, const int &usedatmyr);
   void updateMonthly(const int & yrcnt, const int & currmind,
-                     const int & dinmcurr);
+                     const int & dinmcurr, std::string stage);
   
   void set_state_from_restartdata();
   void set_restartdata_from_state();
@@ -127,10 +127,10 @@ private:
 
   void updateMonthly_Env(const int & currmind, const int & dinmcurr);
   void updateMonthly_Bgc(const int & currmind);
-  void updateMonthly_Dsb(const int & yrcnt, const int & currmind);
+  void updateMonthly_Dsb(const int & yrcnt, const int & currmind, std::string stage);
 
-  // Fire is a type of disturbance?
-  void updateMonthly_Fir(const int & year, const int & midx);
+  // Fire is a type of disturbance
+  void updateMonthly_Fir(const int & year, const int & midx, std::string stage);
 
   // update root distribution
   void getSoilFineRootFrac_Monthly();

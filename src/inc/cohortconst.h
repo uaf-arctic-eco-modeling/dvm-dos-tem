@@ -17,9 +17,10 @@ const int NUM_FSEVR    = 5; // no. of fire severity classes
 // 0 - no burning; 1 - low; 2 - moderate; 3 - high + low surface;
 // 4 - high + high surface
 
+// Not used as of 11/23/2015
 //no. of fire season categories: season: 1 (pre-season), 2(early fire),
 //3(late fire), and 4 (after-season) with 3 months in the order
-const int NUM_FSEASON  = 4;
-const int NUM_FSIZE    = 5; // no. of fire size categories
+//const int NUM_FSEASON  = 4;
+//const int NUM_FSIZE    = 5; // no. of fire size categories
 
 #endif /*COHORTCONST_H_*/

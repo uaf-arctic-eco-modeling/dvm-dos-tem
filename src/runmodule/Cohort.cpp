@@ -72,17 +72,8 @@ Cohort::Cohort(int y, int x, ModelData* modeldatapointer):
   this->ground = Ground(mineral_info);
 
   BOOST_LOG_SEV(glg, debug) << "Setup the fire information...";
-  // FIX: same thing with fire - may need historic and projected...
-  this->fire = WildFire(modeldatapointer->fire_file, y, x);
-
-  this->cd.fri = this->fire.fri;
-
-  //  what if fire_years is a mask, and the other vectors parallel it
-  //  
-  // years =  [1  0  1  0  0  0  0  0  0  0  0  0  1  ]
-  // sizes =  [14 0  64 0  0  0  0  0  0  0  0  0  30 ]
-  // month =  [6  0  6  0  0  0  0  0  0  0  0  0  7  ]
-  //
+  this->fire = WildFire(modeldatapointer->fri_fire_file,
+                        modeldatapointer->explicit_fire_file, y, x);
 
   this->soilenv = Soil_Env();
   
@@ -365,7 +356,7 @@ void Cohort::initialize_state_parameters() {
 //};
 
 void Cohort::updateMonthly(const int & yrcnt, const int & currmind,
-                           const int & dinmcurr) {
+                           const int & dinmcurr, std::string stage) {
 
   BOOST_LOG_SEV(glg, note) << "Cohort::updateMonthly. Year: "
                             << yrcnt << " Month: " << currmind << " dinmcurr: "
@@ -406,7 +397,7 @@ void Cohort::updateMonthly(const int & yrcnt, const int & currmind,
 
   if(md->get_dsbmodule()) {
     BOOST_LOG_SEV(glg, debug) << "Run the disturbance model.";
-    updateMonthly_Dsb(yrcnt, currmind);
+    updateMonthly_Dsb(yrcnt, currmind, stage);
   }
 
   BOOST_LOG_SEV(glg, debug) << "Clean up at the end of the month";
@@ -699,33 +690,35 @@ void Cohort::updateMonthly_Bgc(const int & currmind) {
 
 };
 
-void Cohort::updateMonthly_Dsb(const int & yrind, const int & currmind) {
+void Cohort::updateMonthly_Dsb(const int & yrind, const int & currmind, std::string stage) {
   BOOST_LOG_NAMED_SCOPE("dsb");
 
-  updateMonthly_Fir(yrind, currmind);
+  updateMonthly_Fir(yrind, currmind, stage);
 
   //updateMonthly_Flood(...)
 }
 
 /** Fire Disturbance module. */
-void Cohort::updateMonthly_Fir(const int & year, const int & midx) {
+void Cohort::updateMonthly_Fir(const int & year, const int & midx, std::string stage) {
   BOOST_LOG_NAMED_SCOPE("fire")
 
   // FIX ?? not sure this may no longer be necessary??
+  // FIX? should this get moved into the "if fire" block?, or do we always zero out the FirData values?
   if (midx == 0) {
     fd->beginOfYear();
   }
 
   // see if it is an appropriate time to burn
-  if ( fire.should_ignite(year, midx, "eq-run" /* <<-- FIX THIS! what about other stages...? */) ) {
+  if ( fire.should_ignite(year, midx, stage) ) {
 
-    BOOST_LOG_SEV(glg, debug) << "Derive fire severity...";
-    int fire_severity = fire.derive_fire_severity(cd.drainage_type, 3, /* FIX THIS --> */ 1);
+    BOOST_LOG_SEV(glg, debug) << "Right before fire.burn(..)  " << ground.layer_report_string();
 
-    // fire, update C/N pools for each pft through 'bd', but not soil structure
-    // soil root fraction also updated through 'cd'
-    BOOST_LOG_SEV(glg, debug) << "BURN!";
-    fire.burn(fire_severity);
+    // Fire!
+    //  - Update C/N pools for each pft through 'bd', but not soil structure.
+    //  - Soil root fraction also updated through 'cd'.
+    fire.burn(year);
+    
+    BOOST_LOG_SEV(glg, debug) << "Right after fire.burn(..)  " << ground.layer_report_string();
 
     BOOST_LOG_SEV(glg, debug) << "Collect burned veg C/N from individual pfts into bdall...";
     for (int ip=0; ip<NUM_PFT; ip++) {

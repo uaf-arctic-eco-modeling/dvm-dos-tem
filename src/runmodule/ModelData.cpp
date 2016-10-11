@@ -41,7 +41,8 @@ ModelData::ModelData(Json::Value controldata){
   hist_climate_file = controldata["IO"]["hist_climate_file"].asString();
   proj_climate_file = controldata["IO"]["proj_climate_file"].asString();
   veg_class_file    = controldata["IO"]["veg_class_file"].asString();
-  fire_file         = controldata["IO"]["fire_file"].asString();
+  fri_fire_file     = controldata["IO"]["fri_fire_file"].asString();
+  explicit_fire_file= controldata["IO"]["explicit_fire_file"].asString();
   drainage_file     = controldata["IO"]["drainage_file"].asString();
   soil_texture_file = controldata["IO"]["soil_texture_file"].asString();
   co2_file          = controldata["IO"]["co2_file"].asString();
@@ -52,9 +53,12 @@ ModelData::ModelData(Json::Value controldata){
   pid_tag           = controldata["calibration-IO"]["pid_tag"].asString();
   caldata_tree_loc  = controldata["calibration-IO"]["caldata_tree_loc"].asString();
 
+  updatelai     = controldata["model_settings"]["dynamic_lai"].asInt(); // checked in Cohort::updateMonthly_DIMVeg
+
+
+  // Unused (11/23/2015)
   changeclimate = controldata["model_settings"]["dynamic_climate"].asInt();
   changeco2     = controldata["model_settings"]["varied_co2"].asInt();
-  updatelai     = controldata["model_settings"]["dynamic_lai"].asInt();
   useseverity   = controldata["model_settings"]["fire_severity_as_input"].asInt();
 
 }
@@ -84,7 +88,6 @@ ModelData::ModelData() {
   set_dvmmodule(false);
   set_dslmodule(false);
   set_dsbmodule(false);
-  set_friderived(false); //FIX! obsolete??
 }
 
 
@@ -148,18 +151,6 @@ void ModelData::set_dsbmodule(const bool v) {
   this->dsbmodule = v;
 }
 
-bool ModelData::get_friderived() {
-  return this->friderived; // FIX! Obsolete??
-}
-void ModelData::set_friderived(const std::string &s) {
-  BOOST_LOG_SEV(glg, info) << "Setting friderived to " << s;
-  this->friderived = temutil::onoffstr2bool(s);
-}
-void ModelData::set_friderived(const bool v) {
-  BOOST_LOG_SEV(glg, info) << "Setting friderived to " << v;
-  this->friderived = v;
-}
-
 bool ModelData::get_nfeed() {
   return this->nfeed;
 }
@@ -203,7 +194,6 @@ std::string ModelData::describe_module_settings() {
   s << table_row(15, "dvmmodule", this->get_dvmmodule());
   s << table_row(15, "dslmodule", this->get_dslmodule());
   s << table_row(15, "dsbmodule", this->get_dsbmodule());
-  s << table_row(15, "friderived", this->friderived);
   s << table_row(15, "nfeed", this->get_nfeed());
   s << table_row(15, "avlnflg", this->get_avlnflg());
   return s.str();

@@ -94,7 +94,7 @@ void Runner::run_years(int start_year, int end_year, const std::string& stage) {
       for (int im = 0; im < 12; ++im) {
         BOOST_LOG_SEV(glg, note) << "(Beginning of month loop, iy:"<<iy<<", im:"<<im<<") " << cohort.ground.layer_report_string("depth thermal CN desc");
 
-        this->cohort.updateMonthly(iy, im, DINM[im]);
+        this->cohort.updateMonthly(iy, im, DINM[im], stage);
 
         this->monthly_output(iy, im, stage);
 

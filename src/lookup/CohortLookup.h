@@ -233,12 +233,13 @@ public:
   double initsoln;    // total soil organic N
   double initavln;    // total soil available N
 
-  //fire related parameters
+  // fire related parameters
   double fvcombust[NUM_FSEVR][NUM_PFT]; //fraction of burned above-ground veg.
   double fvslash[NUM_FSEVR][NUM_PFT]; //fraction of slashed above-ground veg.
 
-  double foslburn[NUM_FSEVR]; //fire severity based organic soil
-                              //  layer burning fraction
+  // "fraction of the organic soil layer burned"
+  double foslburn[NUM_FSEVR];
+
   double vsmburn; // a threshold value of VWC for burn organic layers
 
   double r_retain_c; // 0.1 calculated from Harden et al., 2003 (ATHarden42003a)

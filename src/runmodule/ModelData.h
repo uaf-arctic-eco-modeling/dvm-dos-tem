@@ -37,7 +37,8 @@ public:
   string hist_climate_file;
   string proj_climate_file;
   string veg_class_file;
-  string fire_file;
+  string fri_fire_file;
+  string explicit_fire_file;
   string soil_texture_file;
   string drainage_file;
   string co2_file;
@@ -76,10 +77,6 @@ public:
   void set_dsbmodule(const std::string &s);
   void set_dsbmodule(const bool v);
 
-  bool get_friderived();
-  void set_friderived(const std::string &s);
-  void set_friderived(const bool v);
-
   bool get_nfeed();
   void set_nfeed(const std::string &s);
   void set_nfeed(const bool v);
@@ -112,7 +109,6 @@ private:
 
   bool dslmodule;  // dynamic soil layer module on/off
   bool dsbmodule;  // disturbance module on/off
-  bool friderived; // option for switching Grid-level fire occurrence (upon FRI)
 
   // Note: the dsl module ON lets the thickness, number and type of layers
   //       change. With dsl module OFF, the C and N content will change, but

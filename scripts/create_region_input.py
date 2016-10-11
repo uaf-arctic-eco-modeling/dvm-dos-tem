@@ -198,74 +198,41 @@ def create_template_climate_nc_file(filename, sizey=10, sizex=10):
 
   ncfile.close()
 
-def create_template_fire_file(fname, sizey=10, sizex=10, rand=None, vlen=False):
-  print "Creating a fire file, %s by %s pixels. Fill with random data?: %s" % (sizey, sizex, rand)
+def create_template_fri_fire_file(fname, sizey=10, sizex=10, rand=None):
+  print "Creating an FRI fire file, %s by %s pixels. Fill with random data?: %s" % (sizey, sizex, rand)
   print "Opening/Creating file: ", fname
-  print "Creating 'variable length' fire file?: ", vlen
 
   ncfile = netCDF4.Dataset(fname, mode='w', format='NETCDF4')
 
   Y = ncfile.createDimension('Y', sizey)
   X = ncfile.createDimension('X', sizex)
-  fri = ncfile.createVariable('fri', np.int, ('Y','X',))
-  
-  if vlen:
-    '''Make the variable length type'''
-    fire_year_vector = ncfile.createVLType(np.int, 'fire_year_vector')
-    fire_year_vector_F = ncfile.createVLType(np.float, 'fire_year_vector_F')
 
-    fire_years = ncfile.createVariable('fire_years', fire_year_vector, ('Y','X'))
-    fire_sizes = ncfile.createVariable('fire_sizes', fire_year_vector_F, ('Y','X')) # is this just area in km^2 ??
-    fire_month = ncfile.createVariable('fire_month', fire_year_vector, ('Y','X'))
-  
-    if (rand):
-      print " --> NOTE: Filling FRI with random data!"
-      fri[:] = np.random.uniform(low=1, high=7, size=(sizey, sizex))
+  fri = ncfile.createVariable('fri', np.int32, ('Y','X',))
+  sev = ncfile.createVariable('fri_severity', np.int32, ('Y','X'))
+  dob = ncfile.createVariable('fri_day_of_burn', np.int32, ('Y','X'))
 
-      fri[0,0] = 5
-      print " --> NOTE: Set FRI for pixel 0,0 to: ", fri[0,0]
+  # not sure if we need these...
+  #fri_area = ncfile.createVariable('fri_area_of_burn', np.float32, ('Y','X'))
 
-      print " --> NOTE: Filling the fire_year and fire_sizes with random data!"
-      yr_data = np.empty(sizey * sizex, object)
-      sz_data = np.empty(sizey * sizex, object)
-      mn_data = np.empty(sizey * sizex, object)
-      for n in range(sizey * sizex):
-        # make a random length vector of ints between 1900 and 2006
-        yr_data[n] = np.array(sorted(np.random.randint(1900, 2006, np.random.randint(0,10,1))), dtype=np.int)
+  ncfile.close()
 
-        #sz_data[n] = np.random.randint(0,100,len(yr_data[n]))  # just some random data
-        sz_data[n] = np.zeros(len(yr_data[n])) + (0.007*1.7e6)  # 7% of the area of Alaska?
 
-        mn_data[n] = np.zeros(len(yr_data[n]), np.int) + 6              # july
+def create_template_explicit_fire_file(fname, sizey=10, sizex=10, rand=None):
+  print "Creating a fire file, %s by %s pixels. Fill with random data?: %s" % (sizey, sizex, rand)
+  print "Opening/Creating file: ", fname
 
-      yr_data = np.reshape(yr_data,(sizey,sizex))
-      sz_data = np.reshape(sz_data,(sizey,sizex))
-      mn_data = np.reshape(mn_data,(sizey,sizex))
+  ncfile = netCDF4.Dataset(fname, mode='w', format='NETCDF4')
 
-      fire_years[:] = yr_data
-      fire_sizes[:] = sz_data
-      fire_month[:] = mn_data
+  Y = ncfile.createDimension('Y', sizey)
+  X = ncfile.createDimension('X', sizex)
+  time = ncfile.createDimension('time', None)
 
-    def quick_report(y,x):
-      assert len(fire_years[y,x]) == len(fire_sizes[y,x])
-      assert len(fire_years[y,x]) == len(fire_month[y,x])
-      print "  pixel(row,col): (%s,%s)" % (y,x)
-      print "             fri: ", fri[y,x]
-      print "           years: ", fire_years[y,x]
-      print "           sizes: ", fire_sizes[y,x]
-      print "          months: ", fire_month[y,x]
+  exp_fire_yr = ncfile.createVariable('explicit_fire_year', np.int32, ('time', 'Y', 'X',))
+  exp_fire_sev = ncfile.createVariable('explicit_fire_severity', np.int32, ('time', 'Y','X'))
+  exp_fire_dob = ncfile.createVariable('explicit_fire_day_of_burn', np.int32, ('time', 'Y', 'X'))
 
-    quick_report(0,0)
-    quick_report(1,2)
-    quick_report(0,2)
-    quick_report(2,1)
-
-  else:
-    '''Make a more traditional 'square' fire dataset.'''
-    time = ncfile.createDimension('time', None)
-    fire_years = ncfile.createVariable('fire_years', np.int, ('time','Y','X'))
-    fire_month = ncfile.createVariable('fire_month', np.int, ('time','Y','X'))
-    fire_sizes = ncfile.createVariable('fire_sizes', np.float32, ('time','Y','X'))
+  # not sure if we need these yet...
+  #f_area = ncfile.createVariable('area_of_burn', np.float32, ('time', 'Y', 'X'))
 
   ncfile.close()
 
@@ -526,50 +493,53 @@ def fill_drainage_file(if_name, xo, yo, xs, ys, out_dir, of_name, rand=False):
         print "Writing subset data to new file"
         drain[:] = data
 
+def fill_fri_fire_file(if_name, xo, yo, xs, ys, out_dir, of_name):
+  create_template_fri_fire_file(of_name, sizey=ys, sizex=xs, rand=False)
 
-def fill_fire_file(if_name, xo, yo, xs, ys, out_dir, of_name):
-  create_template_fire_file(of_name, sizey=ys, sizex=xs, rand=True)
+  print "FILLING FRI FIRE FILE WITH 'REAL' DATA IS NOT IMPLEMENTED YET!"
 
-  print "FILLING FIRE FILE WITH 'REAL' DATA IS NOT IMPLEMENTED YET!"
+  with netCDF4.Dataset(of_name, mode='a') as nfd:
+
+    print "==> set arbitrary fri value (same for all pixels; for easy testing)..."
+    nfd.variables['fri'][:,:] = 500
+
+    print "==> fill with random severity..."
+    nfd.variables['fri_severity'][:,:] = np.random.randint(0, 5, (ys,xs))
+
+    print "==> set arbitrary day of burn value..."
+    nfd.variables['fri_day_of_burn'][:,:] = 189
 
 
-def fill_fire_file2(start_yr, yrs, xo, yo, xs, ys, out_dir, of_name, rand=False):
+def fill_explicit_fire_file(if_name, xo, yo, xs, ys, out_dir, of_name):
+  create_template_explicit_fire_file(of_name, sizey=ys, sizex=xs, rand=False)
 
-  create_template_fire_file(os.path.join(out_dir, of_name), sizey=ys, sizex=xs, rand=False, vlen=False)
+  print "FILLING EXPLICIT FIRE FILE WITH 'REAL' DATA IS NOT IMPLEMENTED YET!"
 
-  if rand:
-    print "FILLING WITH RANDOM DATA!!!!"
+  with netCDF4.Dataset(of_name, mode='a') as nfd:
 
-    f_yrs = np.random.choice((True, False), (yrs, ys, xs))
+    print "==> fill with random fire years...";
+    nfd.variables['explicit_fire_year'][:,:,:] = np.random.randint(0, 2, (100,ys,xs))
 
-    no_data = np.zeros((yrs, ys, xs)) + -1.0
-    rand_sizes = np.random.uniform(100, 1.7e6, (yrs, ys, xs))
-    rand_months = np.random.randint(4,10, (yrs, ys, xs))
+    print "==> fill with random severity..."
+    nfd.variables['explicit_fire_severity'][:,:,:] = np.random.randint(0, 5, (100,ys,xs))
 
-    with netCDF4.Dataset(os.path.join(out_dir, of_name), mode='a') as new_firedataset:
-      new_firedataset.variables['fire_years'][:] = f_yrs
-      new_firedataset.variables['fire_sizes'][:] = np.where(f_yrs, rand_sizes, no_data)
-      new_firedataset.variables['fire_month'][:] = np.where(f_yrs, rand_months, no_data)
+    print "==> set random day of burn values..."
+    nfd.variables['explicit_fire_day_of_burn'][:,:,:] = np.random.randint(100, 210, (100,ys,xs))
 
-      print " --> NOTE: Filling FRI with random data!"
-      new_firedataset.variables['fri'][:] = np.random.uniform(low=1, high=7, size=(ys,xs))
 
-      new_firedataset.variables['fri'][0,0] = 5
-      print " --> NOTE: Set FRI for pixel 0,0 to: ", new_firedataset.variables['fri'][0,0]
-
-  else:
-    print "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-    print " %% FILLING WITH REAL DATA NOT SUPPORTED YET!!!!"
-    print "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-
+    print "NOTE: with this arrangement, it is possible to have a year ",
+    print " that is tagged for fire (explicit_fire_year==1) but a severity of 0!"
 
 
 def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir, files=[]):
 
-  if 'fire' in files:
-    # generate some new files...
-    of_name = os.path.join(out_dir, "fire.nc")
-    fill_fire_file(os.path.join(tif_dir, "iem_ancillary_data/Fire/"), xo, yo, xs, ys, out_dir, of_name)
+  if 'fri_fire' in files:
+    of_name = os.path.join(out_dir, "fri_fire.nc")
+    fill_fri_fire_file(tif_dir + "iem_ancillary_data/Fire/", xo, yo, xs, ys, out_dir, of_name)
+
+  if 'explicit_fire' in files:
+    of_name = os.path.join(out_dir, "explicit_fire.nc")
+    fill_explicit_fire_file(tif_dir + "iem_ancillary_data/Fire/", xo, yo, xs, ys, out_dir, of_name)
 
   if 'veg' in files:
     of_name = os.path.join(out_dir, "vegetation.nc")
@@ -633,7 +603,6 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir, files=[]):
 
     fill_climate_file(2001+start_year, pc_years, xo, yo, xs, ys, out_dir, of_name, sp_ref_file, in_tair_base, in_prec_base, in_rsds_base, in_vapo_base)
 
-
   if 'hist_fire' in files:
     of_name = "historic-fire.nc"
     in_fire_base = os.path.join(tif_dir, "iem_ancillary_data/Fire/")
@@ -647,7 +616,6 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir, files=[]):
 
     print "Filling with RANDOM DATA!!"
     fill_fire_file2(2001, years, xo, yo, xs,ys, out_dir, of_name, rand=True)
-
 
   print "DONE"
 
@@ -664,7 +632,8 @@ if __name__ == '__main__':
       description=textwrap.dedent('''\
         Creates a set of files for dvm-dos-tem.
 
-        <OUTDIR>/<TAG>_<YSIZE>x<XSIZE>/fire.nc
+        <OUTDIR>/<TAG>_<YSIZE>x<XSIZE>/fri_fire.nc
+                                  ... /explicit_fire.nc
                                   ... /vegetation.nc
                                   ... /drainage.nc
                                   ... /historic-climate.nc
@@ -711,7 +680,7 @@ if __name__ == '__main__':
                       help="source window y size (default: %(default)s)")
 
   parser.add_argument('--which', default=['all'],
-                      help="which files to create (default: %(default)s)", choices=['all', 'veg', 'fire', 'drain', 'soil_texture', 'run_mask', 'co2', 'hist_climate', 'proj_climate', 'hist_fire', 'proj_fire'])
+                      help="which files to create (default: %(default)s)", choices=['all', 'veg', 'fri_fire', 'explicit_fire', 'drain', 'soil_texture', 'run_mask', 'co2', 'hist_climate', 'proj_climate',])
 
   print "Parsing command line arguments";
   args = parser.parse_args()
@@ -750,6 +719,6 @@ if __name__ == '__main__':
 
   if 'all' in which_files:
     print "Will generate ALL input files."
-    which_files = ['veg', 'fire', 'drain', 'soil_texture', 'run_mask', 'co2', 'hist_climate', 'proj_climate', 'hist_file', 'proj_fire']
+    which_files = ['veg', 'fri_fire', 'explicit_fire', 'drain', 'soil_texture', 'run_mask', 'co2', 'hist_climate', 'proj_climate']
 
   main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir, files=which_files)

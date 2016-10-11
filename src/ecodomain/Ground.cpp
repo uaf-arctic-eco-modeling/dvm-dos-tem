@@ -1638,8 +1638,11 @@ void Ground::combineTwoSoilLayersL2U(SoilLayer* lsl, SoilLayer* usl) {
 // So, it must be called after 'bd' layerd C content was assigned to the
 //   orginal double-linked layer matrix
 double Ground::adjustSoilAfterburn() {
-  double bdepthadj = 0.; //this is used to check if thickness change here would
-                         //  be modifying burn thickness in 'WildFire.cpp'
+  BOOST_LOG_SEV(glg, debug) << "Beginning of adjustSoilAfterburn(..)" << this->layer_report_string();
+
+  double bdepthadj = 0.; // this is used to check if thickness change here
+                         // would be modifying burn thickness in 'WildFire.cpp'
+
   // and 'frontz'
   Layer *currl  = toplayer;
 
@@ -1661,13 +1664,13 @@ double Ground::adjustSoilAfterburn() {
 
   while (currl!=NULL) {
     if(currl->isMoss || currl->isOrganic) {
-      double tsomc = currl->rawc+currl->soma+currl->sompr+currl->somcr;
+      double tsomc = currl->rawc + currl->soma + currl->sompr + currl->somcr;
 
       if (currl->isMoss && !currl->nextl->isMoss) {
         tsomc += moss.dmossc;
       }
 
-      if(tsomc<=0.) {
+      if(tsomc <= 0.0) {
         bdepthadj += currl->dz; //adding the removed layer thickness to
                                 //  that 'err' counting
         //need to adjust 'freezing/thawing front depth' due to top
@@ -2108,6 +2111,9 @@ double Ground::carbonFromThickness(const double thickness, const double coefA, c
 }
 
 // conversion from OSL C to thickness
+// after a fire we have lost a bunch of C and need to re-compute
+// the layer thickness based on the updated soil C (remaining after fire)
+// this is not necessarirtly a linear relationship, hence the coefdeepa, coefdeepc, see shua yi 2009 paper...
 void Ground::getOslThickness5Carbon(SoilLayer* sl, const double &plctop,
                                     const double &plcbot) {
   //NOTE: the OSL C - thickness relationship is for the whole same-type
