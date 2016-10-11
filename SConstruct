@@ -6,15 +6,13 @@ import os
 import platform
 import distutils.spawn
 
-USEMPI = True
+USEMPI = False
 
 libs = Split("""jsoncpp
                 readline
                 netcdf_c++
                 netcdf
                 pthread
-                mpi_cxx
-                mpi
                 boost_system
                 boost_filesystem
                 boost_program_options
@@ -100,13 +98,11 @@ platform_libs = []
 platform_include_path = []
 platform_library_path = []
 
-#compiler = 'g++'
-#compiler = '/usr/lib64/openmpi/bin/mpic++'
-compiler = distutils.spawn.find_executable('mpic++')
+# By default, attempt to find g++. Will be overwritten later if necessary.
+compiler = distutils.spawn.find_executable('g++')
 
-print compiler
-
-if platform_name == 'Linux': #rar, tobey VM, Colin, Vijay, Helene VM(?)
+# Determine platform and modify libraries and paths accordingly
+if platform_name == 'Linux':
   platform_include_path = ['/usr/include',
                            '/usr/include/openmpi-x86_64',
                            '/usr/include/jsoncpp',
@@ -118,13 +114,21 @@ if platform_name == 'Linux': #rar, tobey VM, Colin, Vijay, Helene VM(?)
   platform_libs = libs
 
 
-elif platform_name == 'Darwin': #tobey
+elif platform_name == 'Darwin':
+
+  # On OSX, using Homebrew, alternate g++ versions are installed so as not
+  # to interfere with the system g++, so here, we have to set the compiler
+  # to the specific version of g++ that we need.
+  compiler = distutils.spawn.find_executable('g++-4.8')
 
   platform_include_path = ['/usr/local/include']
   platform_library_path = ['/usr/local/lib']
 
   compiler_flags = '-Werror -fpermissive -ansi -g -fPIC -DBOOST_ALL_DYN_LINK -DBSD_FPE'
 
+  # This is not really a Darwin-specific thing so much as the fact that
+  # for Tobey, when he installed boost, he inadvertantly specified that
+  # the multi-threaded libs be named with the -mt suffix.
   for lib in libs:
     if lib.startswith('boost'):
       platform_libs.append(lib + '-mt')
@@ -142,16 +146,26 @@ elif platform_name == 'Darwin': #tobey
   platform_libs[:] = [lib for lib in platform_libs if not lib == 'profiler']
 
 
-if comp_name == 'aeshna': #aeshna... check name
-    platform_include_path.append('/home/tobey/usr/local/include')
-    platform_library_path.append('/home/tobey/usr/local/lib')
+if comp_name == 'aeshna':
+  platform_include_path.append('/home/tobey/usr/local/include')
+  platform_library_path.append('/home/tobey/usr/local/lib')
+
+if comp_name == 'atlas.snap.uaf.edu':
+  platform_libs[:] = [lib for lib in platform_libs if not lib == 'jsoncpp']
+  platform_libs.append('json_linux-gcc-4.4.7_libmt')
+
+  platform_include_path.insert(0, '/home/UA/tcarman2/boost_1_55_0/')
+  platform_include_path.insert(0, '/home/UA/rarutter/include')
+
+  platform_library_path.insert(0, '/home/UA/rarutter/lib')
+  platform_library_path.insert(0, '/home/UA/tcarman2/boost_1_55_0/stage/lib')
 
 
-#atlas?
-
-
+# Modify setup for MPI, if necessary
 if(USEMPI):
-  #append src/parallel-code stuff to src_files and include_paths and libs
+  compiler = distutils.spawn.find_executable('mpic++')
+
+  # append src/parallel-code stuff to src_files and include_paths and libs
   src_files.append(Split("""src/parallel-code/Master.cpp
                             src/parallel-code/Slave.cpp
                          """))
@@ -159,11 +173,13 @@ if(USEMPI):
 
   compiler_flags = compiler_flags + ' -m64 -DWITHMPI'
 
-  #compiler = '/usr/lib64/openmpi/bin/mpic++'
-  #g++ -I/usr/include/openmpi-x86_64 -pthread -m64 -L/usr/lib64/openmpi/lib -lmpi_cxx -lmpi
+  libs.append(Split("""mpi_cxx
+                       mpi"""))
 
 
 #VariantDir('scons_obj','src', duplicate=0)
+
+print "Compiler: " + compiler
 
 #Object compilation
 object_list = Object(src_files, CXX=compiler, CPPPATH=platform_include_path,
