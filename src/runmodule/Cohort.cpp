@@ -679,6 +679,7 @@ void Cohort::updateMonthly_Bgc(const int & currmind) {
   // soil BGC module calling
   soilbgc.prepareIntegration(md->get_nfeed(), md->get_avlnflg(),
                              md->get_baseline());
+  soilbgc.clear_del_structs();
   solintegrator.updateMonthlySbgc(MAX_SOI_LAY);
   soilbgc.afterIntegration();
   bdall->soil_endOfMonth(currmind);   // yearly data accumulation
@@ -796,7 +797,7 @@ void Cohort::updateMonthly_DIMveg(const int & currmind, const bool & dvmmodule) 
   veg.updateFrootfrac();
 };
 
-/** Dynamic Soil Layer Module Fucntion. */
+/** Dynamic Soil Layer Module Function. */
 void Cohort::updateMonthly_DIMgrd(const int & currmind, const bool & dslmodule) {
   BOOST_LOG_NAMED_SCOPE("DIMgrd");
 

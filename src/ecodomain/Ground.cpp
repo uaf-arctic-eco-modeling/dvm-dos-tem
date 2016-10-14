@@ -1202,30 +1202,38 @@ void  Ground::redivideMossLayers(const int &mosstype) {
   // Before adjusting moss layer, needs checking if Moss layer exists
   setFstLstMossLayers();
 
+  BOOST_LOG_SEV(glg, debug)<<"redividemosslayers() moss.dmossc: "<<moss.dmossc;
+  BOOST_LOG_SEV(glg, debug)<<"moss.thick: "<<moss.thick;
+
   // If no moss layer existed, but 'moss.dmossc' has been prescribed or
   // dynamically known create a new moss layer above the first soil layer
   // for containing the 'dmossc'
+  // if nonvascular pfts exist and have carbon fluxes  bd.v2soi.mossdeathc
   if( fstmossl==NULL && moss.dmossc > 0.0 ) {
     moss.type = mosstype;
 
     //Create two moss layers - one living and one dead
     //Dead moss
     moss.thick = thicknessFromCarbon(moss.dmossc, soildimpar.coefmossa, soildimpar.coefmossb); 
+    BOOST_LOG_SEV(glg, debug)<<"Creating new moss layer, type: "<<moss.type<<", thickness: "<<moss.thick;
     MossLayer* ml = new MossLayer(moss.thick, moss.type);
     moss.num = 1;
     ml->tem = fstsoill->tem;
     ml->z = 0.0;
     insertBefore(ml, fstsoill);
+    setFstLstSoilLayer();//Called before moss so that fstsoill is set.
     setFstLstMossLayers();
     adjustFrontsAfterThickchange(ml->z, ml->dz);
 
     //Live moss
     moss.thick = 0.01;
+    BOOST_LOG_SEV(glg, debug)<<"Creating new moss layer, type: "<<moss.type<<", thickness: "<<moss.thick;
     ml = new MossLayer(moss.thick, moss.type);
     moss.num = 2;
     ml->tem = fstmossl->tem;
     ml->z = 0.0;
     insertBefore(ml, fstmossl);
+    setFstLstSoilLayer();//Called before moss to ensure soil ptrs are set
     setFstLstMossLayers();
     adjustFrontsAfterThickchange(ml->z, ml->dz); 
 

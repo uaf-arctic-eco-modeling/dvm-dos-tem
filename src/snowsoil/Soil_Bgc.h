@@ -60,6 +60,7 @@ public:
   void prepareIntegration(const bool &mdnfeedback, const bool &mdavlnflg,
                           const bool &mdbaseline);
   void afterIntegration();
+  void clear_del_structs();
 
   int get_nfeed();
   void set_nfeed(int);

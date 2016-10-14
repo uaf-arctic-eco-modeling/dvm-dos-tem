@@ -209,6 +209,54 @@ void Soil_Bgc::afterIntegration() {
   }
 };
 
+void Soil_Bgc::clear_del_structs(){
+  //soistate_bgc del_sois
+  del_sois.wdebrisc = 0.0;
+  del_sois.wdebrisn = 0.0;
+  del_sois.dmossc = 0.0;
+  del_sois.dmossn = 0.0;
+
+  //soi2soi_bgc del_soi2soi
+  del_soi2soi.netnminsum = 0.0;
+  del_soi2soi.nimmobsum = 0.0;
+
+  //soi2atm_bgc del_soi2a
+  del_soi2a.rhwdeb = 0.0;
+  del_soi2a.rhmossc = 0.0;
+  del_soi2a.rhrawcsum = 0.0;
+  del_soi2a.rhsomasum = 0.0;
+  del_soi2a.rhsomprsum = 0.0;
+  del_soi2a.rhsomcrsum = 0.0;
+  del_soi2a.rhtot = 0.0;
+
+  //soi2lnd_bgc del_soi2l
+  del_soi2l.doclost = 0.0;
+  del_soi2l.avlnlost = 0.0;
+  del_soi2l.orgnlost = 0.0;
+
+  //atm2soi_bgc del_a2soi
+  del_a2soi.orgcinput = 0.0;
+  del_a2soi.orgninput = 0.0;
+  del_a2soi.avlninput = 0.0;
+
+  for(int il=0; il<MAX_SOI_LAY; il++){
+    del_sois.rawc[il] = 0.0;
+    del_sois.soma[il] = 0.0;
+    del_sois.sompr[il] = 0.0;
+    del_sois.somcr[il] = 0.0;
+    del_sois.orgn[il] = 0.0;
+    del_sois.avln[il] = 0.0;
+
+    del_soi2soi.netnmin[il] = 0.0;
+    del_soi2soi.nimmob[il] = 0.0;
+
+    del_soi2a.rhrawc[il] = 0.0;
+    del_soi2a.rhsoma[il] = 0.0;
+    del_soi2a.rhsompr[il] = 0.0;
+    del_soi2a.rhsomcr[il] = 0.0;
+  }
+};
+
 void Soil_Bgc::initializeState() {
 
   // Set initiate state variable
