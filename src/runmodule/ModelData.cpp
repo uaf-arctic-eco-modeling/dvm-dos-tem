@@ -78,6 +78,7 @@ void ModelData::update(ArgHandler const * arghandler) {
   this->sc_yrs = arghandler->get_sc_yrs();
   this->pid_tag = arghandler->get_pid_tag();
   this->last_n_json_files = arghandler->get_last_n_json_files();
+  this->archive_all_json = arghandler->get_archive_all_json();
 
 }
 

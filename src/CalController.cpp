@@ -104,6 +104,7 @@ CalController::CalController(Cohort* cht_p):
 
   this->set_caljson_storage_paths();
   this->clear_and_create_json_storage();
+  this->clear_archived_json();
 
   if (!this->cohort_ptr) {
     BOOST_LOG_SEV(glg, err) << "Something is wrong and the Cohort pointer is null!";
@@ -172,6 +173,32 @@ Json::Value CalController::load_directives_from_file(
   BOOST_LOG_SEV(glg, debug) << v.toStyledString();
 
   return v["calibration_autorun_settings"];
+}
+
+/** Do all the calibration-specific stuff that need to be taken care of at
+    the beginning of a stage. Presently this is just removing the json files
+    but there could be more in the future.
+*/
+void CalController::handle_stage_start() {
+  BOOST_LOG_SEV(glg, info) << "Remove all the json files...(except archived stage files)";
+  this->clear_and_create_json_storage();
+}
+
+/** Do all the calibration-specific things that need to be taken care of at
+    the end of a stage.
+*/
+void CalController::handle_stage_end(const std::string& stage) {
+
+  if (this->cohort_ptr->md->archive_all_json) {
+    this->archive_stage_JSON(stage);
+  }
+
+  if (this->cohort_ptr->md->inter_stage_pause) {
+    BOOST_LOG_SEV(glg, info) << "Pausing. Please check that the '"
+                             << stage <<"' data looks good.";
+    this->pause();
+  }
+
 }
 
 /** Print the run_configuration data structure to std out. */
@@ -437,6 +464,26 @@ void CalController::clear_and_create_json_storage() {
 
 }
 
+/** Clear all the archived json data
+*/
+void CalController::clear_archived_json() {
+  if (boost::filesystem::exists(base_dir / "pr")) {
+    boost::filesystem::remove_all(base_dir / "pr");
+  }
+  if (boost::filesystem::exists(base_dir / "eq")) {
+    boost::filesystem::remove_all(base_dir / "eq");
+  }
+  if (boost::filesystem::exists(base_dir / "sp")) {
+    boost::filesystem::remove_all(base_dir / "sp");
+  }
+  if (boost::filesystem::exists(base_dir / "tr")) {
+    boost::filesystem::remove_all(base_dir / "tr");
+  }
+  if (boost::filesystem::exists(base_dir / "sc")) {
+    boost::filesystem::remove_all(base_dir / "sc");
+  }
+}
+
 /** Copies JSON output to stage specific directories.
  * Removes and recreates directories if they exist, simply creates
  * them if they do not.
@@ -451,12 +498,12 @@ void CalController::archive_stage_JSON(const std::string& stage){
 
   BOOST_LOG_SEV(glg, debug) << "Base directory for stage output does not "
                             << "exist. Creating...";
-  //If parent directory does *not* exist, create it.
+  // If parent directory does *not* exist, create it.
   if(!boost::filesystem::exists(stage_base)){
     boost::filesystem::create_directory(stage_base);
   }
 
-  //If timestep directories exist, delete them 
+  // If timestep directories exist, delete them
   if(boost::filesystem::exists(stage_yearly)){
     BOOST_LOG_SEV(glg, debug) << stage_yearly
                               << " already exists! Deleting...";
@@ -473,13 +520,13 @@ void CalController::archive_stage_JSON(const std::string& stage){
     boost::filesystem::remove_all(stage_daily);
   }
 
-  //Create or recreate timestep directories
+  // Create or recreate timestep directories
   BOOST_LOG_SEV(glg, debug) << "Creating stage output directories...";
   boost::filesystem::create_directory(stage_yearly);
   boost::filesystem::create_directory(stage_monthly);
   boost::filesystem::create_directory(stage_daily);
 
-  //Copy files from output dirs to storage dirs
+  // Copy files from output dirs to storage dirs
   BOOST_LOG_SEV(glg, debug) << "Copying yearly output.";
   for(boost::filesystem::directory_iterator file(yearly_json);
       file != boost::filesystem::directory_iterator();

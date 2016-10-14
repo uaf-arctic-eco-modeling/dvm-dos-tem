@@ -250,6 +250,10 @@ int main(int argc, char* argv[]){
                  - FIX: should ignore calibration directives?
             */
 
+            if (runner.calcontroller_ptr) {
+              runner.calcontroller_ptr->handle_stage_start();
+            }
+
             // turn off everything but env
             runner.cohort.md->set_envmodule(true);
             runner.cohort.md->set_bgcmodule(false);
@@ -269,10 +273,8 @@ int main(int argc, char* argv[]){
                                       << runner.cohort.ground.layer_report_string("depth thermal");
 
 
-            if (runner.calcontroller_ptr && modeldata.inter_stage_pause){
-              BOOST_LOG_SEV(glg, info) << "Pausing. Please check that the 'pre-run' "
-                                       << "data looks good.";
-              runner.calcontroller_ptr->pause();
+            if (runner.calcontroller_ptr) {
+              runner.calcontroller_ptr->handle_stage_end("pr");
             }
 
           }
@@ -283,7 +285,7 @@ int main(int argc, char* argv[]){
             BOOST_LOG_NAMED_SCOPE("EQ");
 
             if (runner.calcontroller_ptr) {
-              runner.calcontroller_ptr->clear_and_create_json_storage();
+              runner.calcontroller_ptr->handle_stage_start();
             }
 
             runner.cohort.md->set_envmodule(true);
@@ -301,7 +303,7 @@ int main(int argc, char* argv[]){
             // Check for the existence of a restart file to output to
             // prior to running.
             std::string restart_fname = modeldata.output_dir + "restart-eq.nc";
-            if(! boost::filesystem::exists(restart_fname)){
+            if( !boost::filesystem::exists(restart_fname) ) {
               BOOST_LOG_SEV(glg, fatal) << "Restart file " << restart_fname
                                         << " does not exist";
               return 1;
@@ -318,22 +320,19 @@ int main(int argc, char* argv[]){
             // Write out EQ restart file
             runner.cohort.restartdata.append_to_ncfile(restart_fname, rowidx, colidx); /* cohort id/key ???*/
 
-            if(runner.calcontroller_ptr){
-              runner.calcontroller_ptr->archive_stage_JSON("eq");
+            if(runner.calcontroller_ptr) {
+              runner.calcontroller_ptr->handle_stage_end("eq");
             }
 
-            if (runner.calcontroller_ptr && modeldata.inter_stage_pause){
-              runner.calcontroller_ptr->pause();
-            }
           }
 
-          // SPINTUP STAGE (SP)
+          // SPINUP STAGE (SP)
           if (modeldata.sp_yrs > 0) {
             BOOST_LOG_NAMED_SCOPE("SP");
             BOOST_LOG_SEV(glg, fatal) << "Running Spinup, " << modeldata.sp_yrs << " years.";
 
             if (runner.calcontroller_ptr) {
-              runner.calcontroller_ptr->clear_and_create_json_storage();
+              runner.calcontroller_ptr->handle_stage_start();
             }
 
             // Check for the existence of a restart file to output to
@@ -378,42 +377,36 @@ int main(int argc, char* argv[]){
               // Save status to spinup restart file 
               runner.cohort.restartdata.append_to_ncfile(restart_fname, rowidx, colidx);
 
-              if(runner.calcontroller_ptr){
-                runner.calcontroller_ptr->archive_stage_JSON("sp");
+              if(runner.calcontroller_ptr) {
+                runner.calcontroller_ptr->handle_stage_end("sp");
               }
 
-              if(runner.calcontroller_ptr && modeldata.inter_stage_pause){
-                runner.calcontroller_ptr->pause();
-              }
-            }
-            else{ // No EQ restart file
+            } else {
               BOOST_LOG_SEV(glg, err) << "No restart file from EQ.";
             }
           }
 
-          // TRANSIENT STAGE (SP)
+          // TRANSIENT STAGE (TR)
           if (modeldata.tr_yrs > 0) {
             BOOST_LOG_NAMED_SCOPE("TR");
-            BOOST_LOG_SEV(glg, fatal) << "Running Transient, "<<modeldata.tr_yrs<<" years\n";
+            BOOST_LOG_SEV(glg, fatal) << "Running Transient, " << modeldata.tr_yrs << " years";
 
             if (runner.calcontroller_ptr) {
-              runner.calcontroller_ptr->clear_and_create_json_storage();
+              runner.calcontroller_ptr->handle_stage_start();
             }
 
             // Check for the existence of a restart file to output to
             // prior to running.
-            std::string restart_fname = modeldata.output_dir \
-                                          + "restart-tr.nc";
+            std::string restart_fname = modeldata.output_dir + "restart-tr.nc";
             if(!boost::filesystem::exists(restart_fname)){
-              BOOST_LOG_SEV(glg, fatal) << "Restart file "<<restart_fname\
+              BOOST_LOG_SEV(glg, fatal) << "Restart file " << restart_fname
                                         << " does not exist.";
               return 1;
             }
 
-            std::string sp_restart_fname = modeldata.output_dir \
-                                             + "restart-sp.nc";
+            std::string sp_restart_fname = modeldata.output_dir  + "restart-sp.nc";
 
-            if(boost::filesystem::exists(sp_restart_fname)){
+            if (boost::filesystem::exists(sp_restart_fname)) {
               BOOST_LOG_SEV(glg, debug) << "Loading data from the restart file for transient";
 
               // Update the cohort's restart data object
@@ -440,16 +433,11 @@ int main(int argc, char* argv[]){
               // Save status to transient restart file
               runner.cohort.restartdata.append_to_ncfile(restart_fname, rowidx, colidx);
 
-              if(runner.calcontroller_ptr){
-                runner.calcontroller_ptr->archive_stage_JSON("tr");
+              if (runner.calcontroller_ptr) {
+                runner.calcontroller_ptr->handle_stage_end("tr");
               }
 
-              if(runner.calcontroller_ptr && modeldata.inter_stage_pause){
-                runner.calcontroller_ptr->pause();
-              }
-
-            }
-            else{ // No SP restart file
+            } else {
               BOOST_LOG_SEV(glg, fatal) << "No restart file from SP.";
             }
           }
@@ -457,26 +445,25 @@ int main(int argc, char* argv[]){
           // SCENARIO STAGE (SC)
           if (modeldata.sc_yrs > 0) {
             BOOST_LOG_NAMED_SCOPE("SC");
-            BOOST_LOG_SEV(glg, fatal) << "Running Scenario, "<<modeldata.sc_yrs<<" years\n";
+            BOOST_LOG_SEV(glg, fatal) << "Running Scenario, " << modeldata.sc_yrs << " years.";
 
             if (runner.calcontroller_ptr) {
-              runner.calcontroller_ptr->clear_and_create_json_storage();
+              runner.calcontroller_ptr->handle_stage_start();
             }
 
             // Check for the existence of a restart file to output to
             // prior to running.
-            std::string restart_fname = modeldata.output_dir \
-                                          + "restart-sc.nc";
-            if(!boost::filesystem::exists(restart_fname)){
-              BOOST_LOG_SEV(glg, fatal) << "Restart file "<<restart_fname\
+            std::string restart_fname = modeldata.output_dir + "restart-sc.nc";
+            if (!boost::filesystem::exists(restart_fname)) {
+              BOOST_LOG_SEV(glg, fatal) << "Restart file " << restart_fname
                                         << " does not exist.";
               return 1;
             }
 
-            std::string tr_restart_fname = modeldata.output_dir \
+            std::string tr_restart_fname = modeldata.output_dir
                                              + "restart-tr.nc";
 
-            if(boost::filesystem::exists(tr_restart_fname)){
+            if (boost::filesystem::exists(tr_restart_fname)) {
               BOOST_LOG_SEV(glg, debug) << "Loading data from the transient restart file for a scenario run";
 
               // Update the cohort's restart data object
@@ -507,12 +494,11 @@ int main(int argc, char* argv[]){
               // following a scenario run.
               runner.cohort.restartdata.append_to_ncfile(restart_fname, rowidx, colidx);
 
-              if(runner.calcontroller_ptr){
-                runner.calcontroller_ptr->archive_stage_JSON("sc");
+              if (runner.calcontroller_ptr) {
+                runner.calcontroller_ptr->handle_stage_end("sc");
               }
 
-            }
-            else{ // No TR restart file
+            } else { // No TR restart file
               BOOST_LOG_SEV(glg, fatal) << "No restart file from TR.";
             }
           }
