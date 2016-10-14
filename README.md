@@ -1,27 +1,72 @@
 README for dvm-dos-tem
 ===========================================
-The dvm-dos-tem is a process based bio-geo-chemical ecosystem model.
 
-There are two ways in which you might interact with dvmdostem: 
-performaing an _extrapolation_, or performing a _calibration_. 
+Basic information is provided in this README file. For more details, see the 
+wiki: [](https://github.com/ua-snap/dvm-dos-tem/wiki)
 
-When performing a calibration, you will evaluate the simulation as it is 
-running. You will also likely be pausing the simulation to adjusting parameters 
-and settings. Calibrations are performed for a single spatial location (a single 
-cohort or grid cell).
+The dvm-dos-tem (`dvmdostem`) is a process based bio-geo-chemical ecosystem 
+model.
+
+There are two primary ways in which you might interact with `dvmdostem`: 
+performing an _extrapolation_, or performing a _calibration_. 
 
 When performing an extrapolation the program progresses to completion,
 typically over one or more spatial locations (multiple cohorts, or grid cells). 
-The outputs are analyzed only once the simulation has completed for all
-time-steps and spatial locations.
+The outputs are typically analyzed only once the simulation has completed for 
+all time-steps and spatial locations.
+
+Calibrations are performed for a single spatial location (a single 
+cohort or grid cell). For calibration, we currently have two approaches: 
+
+1. manual calibration
+2. machine learning assisted calibration
+
+Most of our tooling was originally developed for the manual approach to
+calibration, and we have since adapted it to be usable under the guidance of 
+machine learning algorithms.
+
+Under a manual calibration, you will evaluate the simulation as it progresses, 
+pause the simulation to adjust parameters by hand, and then resume the
+simulation while keeping an eye on the model outputs with respect to the 
+calibration target values.
+
+Our current machine-learning assisted calibration process uses an external 
+software called [PEST](http://www.pesthomepage.org), which will automatically
+adjust parameters, and compute a final metric denoting how close the model
+outputs are to our calibration targets.
+
+There is more information concerning calibration in the `calibration/` 
+directory.
+
 
 Requirements and Dependencies
 -----------------------------------------------------------------------------------------
-The following tools/libraries are necessary in order to compile and run dvm-dos-tem
 
-* Boost, including [Boost.Program_options](http://www.boost.org/doc/libs/1_53_0/doc/html/program_options.html)
+## Main program
+
+The following tools/libraries are necessary in order to compile and run `dvm-dos-tem`. 
+
+* [Boost](http://www.boost.org), at least v1.54 (when Boost::Log was added)
+  - [Boost::Program_options](http://www.boost.org/doc/libs/1_61_0/libs/program_options/)
+  - [Boost::Filesystem](http://www.boost.org/doc/libs/1_61_0/libs/filesystem/)
+  - [Boost::Thread](http://www.boost.org/doc/libs/1_61_0/libs/thread/)
+  - [Boost.Log](http://www.boost.org/doc/libs/1_61_0/libs/log/)
+  - [Boost.System](http://www.boost.org/doc/libs/1_61_0/libs/system/)
 * NetCDF, C++ Interface, [NetCDF/Unidata](http://www.unidata.ucar.edu/software/netcdf/)
-* Jsoncpp [https://github.com/open-source-parsers/jsoncpp](https://github.com/open-source-parsers/jsoncpp)
+* [Jsoncpp](https://github.com/open-source-parsers/jsoncpp)
+* [GNU Readline](https://cnswww.cns.cwru.edu/php/chet/readline/rltop.html#TOCDocumentation) 
+* MPI - included in the Makefile and SConstruct, but not used yet. Will be needed as we implement parallelism.
+* pthread
+
+## Auxillary pre- and post-processing tools
+
+* Python
+ - numpy
+ - matplotlib
+ - pandas
+ - netCDF4
+
+* GDAL Command Line Tools
 
 Downloading 
 -----------------------------------------------------------
@@ -48,13 +93,13 @@ You have two options for compling the source code:
  * make (and Makefile)
  * scons (and SConstruct file)
  
-Make is a old, widely availabe, powerful program with a somewhat arcane syntax. 
+`Make` is a old, widely availabe, powerful program with a somewhat arcane syntax. 
 The Makefile is not setup for partial-compilation, so editing a single file 
 requires and re-making the project will result in re-compiling every single
-file.
+file. This can be annoyingly slow if you find yourself compiling frequently.
 
-Scons is a build program that is written in Python, and designed to be a easier
-to use than make. The scons and the SConstruct file are smart enough to do
+`Scons` is a build program that is written in Python, and designed to be a easier
+to use than make. The `scons` and the SConstruct file are smart enough to do
 partial builds, so that some changes result in much faster builds.
 
 Both programs can take a flag specifying parallel builds and the number of 
@@ -102,7 +147,7 @@ Running `dvmdostem` (operating the model) requires 3 types of "input" informatio
 
 1. Driving data (input data)
 2. Parameter values
-3. Configuration options 
+3. Configuration options (from command line or config file)
 
 Sample driving data is provided in the `DATA/` directory, sample parameters are 
 provided in the `parameters/` directory, and sample configuraiton options are 
@@ -110,18 +155,40 @@ provided in the `config/` directory. More configuration options are available
 via options supplied on the command line when starting the program. The `--help`
 flag provides some info and shows the defaults:
 
-    $ ./dvmdostem --help
+    $ ./dvmdostem -h
       -c [ --cal-mode ]                     Switch for calibration mode. When this 
-                                            flag is preset, the program will be 
+                                            flag is present, the program will be 
                                             forced to run a single site and with 
-                                            --loop-order=space-major. The program 
+                                            '--loop-order=space-major'. The program
                                             will generate yearly and monthly 
                                             '.json' files in your /tmp  directory 
                                             that are intended to be read by other 
                                             programs or scripts.
-      -p [ --pre-run-yrs ] arg (=10)        The number of 'pre-run' years.
-      -m [ --max-eq ] arg (=1000)           The maximum number of years to run in 
-                                            equlibrium stage.
+      --last-n-json arg (=-1)               Only output the json files for the last
+                                            N years. -1 indicates to output all 
+                                            years. This is useful for running with 
+                                            PEST, where we do need the json files 
+                                            (and calibration mode), but PEST only 
+                                            looks at the last year, so we can save 
+                                            a lot of effort and only write out the 
+                                            last file. Made this option 
+                                            configurable so that we can write out a
+                                            number of files, in case we need to do 
+                                            some averaging over the last few years 
+                                            for PEST.
+      -u [ --pid-tag ] arg                  Use the process ID (passed as an 
+                                            argmument) to tag the output cal json 
+                                            directories. Facilitates parallel runs,
+                                            but may make the calibration-viewer.py 
+                                            more difficult to work with (must 
+                                            pass/set the PID tag so that the 
+                                            calibration-viewer.py knows where to 
+                                            find the json files.)
+      -p [ --pr-yrs ] arg (=10)             Number or PRE RUN years to run.
+      -e [ --eq-yrs ] arg (=1000)           Number of EQUILIBRIUM years to run.
+      -s [ --sp-yrs ] arg (=100)            Number of SPINUP years to run.
+      -t [ --tr-yrs ] arg (=0)              Number of TRANSIENT years to run.
+      -n [ --sc-yrs ] arg (=0)              Number of SCENARIO years to run.
       -o [ --loop-order ] arg (=space-major)
                                             Which control loop is on the outside: 
                                             'space-major' or 'time-major'. For 
@@ -133,22 +200,45 @@ flag provides some info and shows the defaults:
                                             log statements. Choose one of the 
                                             following: debug, info, note, warn, 
                                             err, fatal.
+      --log-scope arg (=all)                Control the scope of log messages: 
+                                            yearly, monthly, or daily. With a 
+                                            setting of M (monthly), messages within
+                                            the monthly (and yearly) scope will be 
+                                            shown, but not messages within the 
+                                            daily scope. Values other than 'Y', 
+                                            'M', 'D', or 'all' will be ignored. 
+                                            Scopes are determined by 'boost log 
+                                            named scopes' set within the source 
+                                            code.
       -x [ --fpe ]                          Switch for enabling floating point 
                                             exceptions. If present, the program 
                                             will crash when NaN or Inf are 
                                             generated.
       -h [ --help ]                         produces helps message, then quits
 
+### Viewing model progress and results
+
+Naturally after (or while) running `dvmdostem` you will want to view the model
+outputs. Presently the best way to do this is with the `calibration-viewer.py`
+program. The calibration viewer is designed to display data that `dvmdostem`
+writes to `.json` files. As evidenced by the name, the `calibration-viewer.py`
+was originally written to enable manual calibration of the model, but it is
+usable for general viewing purposes. The general idea is that as the model runs
+it will write date out to `.json` files that are stored in a user-configurable
+location. Then the `calibration-viewer.py` program will look for the `.json`
+files and display them. See the `--help` flag for many options availble when 
+using the viewer.
+
 
 Documentation
 -----------------------------------------------------------------
 There is a Doxygen file (Doxyfile) included with this project. The current settings are
-for the Doxygen output to be generated in the docs/dvm-dos-tem/ directory.
+for the Doxygen output to be generated in the `docs/dvm-dos-tem/` directory.
 
 The file is setup to build a very comprehensive set of documents, including as many
 diagrams as possible (call graphs, dependency diagrams, etc). To build the diagrams,
 Doxygen requires a few extra packages, such as the dot package. This is not available on
-aeshna, so running Doxygen on aeshna will produce a bunch of errors.
+`aeshna`, so running Doxygen on `aeshna` will produce a bunch of errors.
 
 Developing 
 ----------------------------------------------------
