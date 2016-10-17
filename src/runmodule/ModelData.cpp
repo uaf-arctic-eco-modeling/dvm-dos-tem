@@ -26,7 +26,7 @@ std::string table_row(int w, std::string d, bool v) {
 
 ModelData::~ModelData() {}
 
-ModelData::ModelData(Json::Value controldata){
+ModelData::ModelData(Json::Value controldata) {
 
   BOOST_LOG_SEV(glg, debug) << "Creating a ModelData. New style constructor with injected controldata...";
   
@@ -80,6 +80,11 @@ void ModelData::update(ArgHandler const * arghandler) {
   this->last_n_json_files = arghandler->get_last_n_json_files();
   this->archive_all_json = arghandler->get_archive_all_json();
 
+  // it it was set on the command line, then use that value, otherwise,
+  // use the value
+  if (arghandler->get_inter_stage_pause()) {
+    this->inter_stage_pause = arghandler->get_inter_stage_pause();
+  }
 }
 
 
