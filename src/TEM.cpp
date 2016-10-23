@@ -242,10 +242,11 @@ int main(int argc, char* argv[]){
           //The transition to SP must occur at the completion of a
           // fire cycle (i.e. a year or two prior to the next fire).
           // To ensure this, re-set modeldata's EQ year count to an
-          // even multiple of the FRI minus 2 (to be safe) 
-          int EQ_fire_cycles = modeldata.eq_yrs/runner.cohort.cd.fri;
-          if(modeldata.eq_yrs%runner.cohort.cd.fri != 0){
-            modeldata.eq_yrs = runner.cohort.cd.fri*(EQ_fire_cycles+1)-2;
+          // even multiple of the FRI minus 2 (to be safe)
+          int fri = runner.cohort.fire.getFRI(); 
+          int EQ_fire_cycles = modeldata.eq_yrs/fri;
+          if(modeldata.eq_yrs%fri != 0){
+            modeldata.eq_yrs = fri*(EQ_fire_cycles+1)-2;
           }
 
           // PRE RUN STAGE (PR)

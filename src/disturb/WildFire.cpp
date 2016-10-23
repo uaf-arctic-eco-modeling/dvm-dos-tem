@@ -598,7 +598,6 @@ void WildFire::setCohortLookup(CohortLookup* chtlup) {
 
 void WildFire::setCohortData(CohortData* cdp) {
   cd = cdp;
-  cd->fri = this->fri;
 };
 
 void WildFire::setAllEnvBgcData(EnvData* edp, BgcData *bdp) {
@@ -612,5 +611,9 @@ void WildFire::setBgcData(BgcData* bdp, const int &ip) {
 
 void WildFire::setFirData(FirData* fdp) {
   fd =fdp;
+}
+
+int WildFire::getFRI(){
+  return fri;
 }
 
