@@ -139,6 +139,7 @@ void Cohort::initialize_internal_pointers() {
   // ecosystem domain
   veg.setCohortData(&cd);
   veg.setCohortLookup(&chtlu);
+  ground.setBgcData(bdall);
   ground.setCohortLookup(&chtlu);
 
   // vegetation module pointers

@@ -816,6 +816,7 @@ void Ground::updateSoilHorizons() {
 
   organic.shlwnum = 0;
   organic.shlwthick = 0.;
+  organic.shlwc = 0.;
 
   for (int i=0; i<MAX_SLW_LAY; i++) {
     organic.shlwdz[i] = MISSING_D;
@@ -854,6 +855,7 @@ void Ground::updateSoilHorizons() {
       organic.shlwnum +=1;
       organic.shlwthick +=currl->dz;
       organic.shlwdz[ind] = currl->dz;
+      organic.shlwc += currl->rawc;
 
       if (currl->nextl==NULL || (!currl->nextl->isFibric)) {
         ind = -1;
@@ -1367,15 +1369,34 @@ COMBINEBEGIN:
       nextsl = dynamic_cast<SoilLayer*>(fstminel);
     }
     
+    double cfall_ls_tot = 0;//total carbon litterfall from leaf and stem
+    for(int pp=0; pp<2; pp++){//leaf and stem
+      for(int ip=0; ip<NUM_PFT; ip++){
+        if(chtlu->nonvascular[ip]==0){//vascular only
+          cfall_ls_tot += chtlu->cfall[pp][ip];
+        }
+      }  
+    }
+
     double rawcmin = carbonFromThickness(MINSLWTHICK, soildimpar.coefshlwa, soildimpar.coefshlwb);
 
     // FIX: Problem if nextsl is still NULL
-    if (nextsl->rawc >= rawcmin) {
+    //if (nextsl->rawc >= rawcmin) {
+    //bd->m_soid.shlwc? As seen Soil_Bgc.cpp:73
+    //if(organic.shlwc > 0.0){
+    double abvgfallC = bd->m_v2soi.ltrfalcall - bd->m_v2soi.ltrfalc[I_root];
+    if(abvgfallC > 0.0){
+    //if(cfall_ls_tot > 0.0){
+    //if(bd->m_v2soi.ltrfalcall > 0.0){
       organic.shlwchanged =true;
-      organic.ShlwThickScheme(MINSLWTHICK);
+      double thick = thicknessFromCarbon(abvgfallC, soildimpar.coefshlwa, soildimpar.coefshlwb);
+      //organic.ShlwThickScheme(MINSLWTHICK);
+      organic.ShlwThickScheme(thick);
       OrganicLayer* plnew = new OrganicLayer(organic.shlwdz[0], 1);
-      plnew->dz= MINSLWTHICK;
-      double frac = MINSLWTHICK/nextsl->dz;
+      //plnew->dz= MINSLWTHICK;
+      plnew->dz= thick;
+      //double frac = MINSLWTHICK/nextsl->dz;
+      double frac = thick/nextsl->dz;
       // assign properties for the new-created 'shlw' layer
       plnew->ice = fmax(0., nextsl->ice*frac);
       plnew->liq = fmax(0., nextsl->liq*frac);
@@ -1390,7 +1411,7 @@ COMBINEBEGIN:
 
       plnew->tem = nextsl->tem;
       getLayerFrozenstatusByFronts(plnew);
-      plnew->rawc  = rawcmin;
+      plnew->rawc  = abvgfallC;
       plnew->soma  = 0.;
       plnew->sompr = 0.;
       plnew->somcr = 0.;
@@ -1399,9 +1420,9 @@ COMBINEBEGIN:
       plnew->derivePhysicalProperty();
       insertBefore(plnew, nextsl);
       // adjust properties for the following layer
-      nextsl->ice -= plnew->ice;
-      nextsl->liq -= plnew->liq;
-      nextsl->rawc-=rawcmin;
+      //nextsl->ice -= plnew->ice;
+      //nextsl->liq -= plnew->liq;
+      //nextsl->rawc-=rawcmin;
 
       if (nextsl->isHumic) {//additional changes needed for if the
                             //  following layer is 'humic'
@@ -2429,6 +2450,10 @@ void Ground::cleanAllLayers() {
 }
 
 //////////////////////////////////////////////////////////////////////
+
+void Ground::setBgcData(BgcData *bdp){
+  bd = bdp;
+}
 
 void Ground::setCohortLookup(CohortLookup* chtlup) {
   chtlu = chtlup;

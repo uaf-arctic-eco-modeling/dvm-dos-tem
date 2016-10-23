@@ -129,14 +129,25 @@ void Soil_Bgc::prepareIntegration(const bool &mdnfeedback,
   // double abvlfn = bd->m_v2soi.ltrfaln[I_stem] + bd->m_v2soi.ltrfaln[I_leaf];
 
   for(int i=0; i<cd->m_soil.numsl; i++) {
-    if (cd->m_soil.type[i]>0) {
+    //FIX litterfall should be added to the shallow layer
+    //There *must* be a shallow layer
+    //if(fstshlwl!=NULL). if(currl->isShlw() && prevl != shlw)
+    //  add abvlfc and this shallow layer's blwlfc fraction
+    //else
+    //  just root death?
+    //else if fstshlwl==NULL and there is litterfall, ERROR
+    //if (cd->m_soil.type[i]>0) { WRONG
+    //soillayer sl = ground ;lksadjf; [i];
+
+    if(i==0 && cd->m_soil.type[i]==1
+       || i>0 && cd->m_soil.type[i]==1 && cd->m_soil.type[i-1]!=1){
       //always put the litter-falling in the first non-moss soil layer
       ltrflc[i] = abvlfc + bd->m_v2soi.rtlfalfrac[i] * blwlfc;
 
       ltrfln[i] = abvlfn + bd->m_v2soi.rtlfalfrac[i] * blwlfn;
       abvlfc = 0.;
       abvlfn = 0.;
-    } else {
+    } else if(cd->m_soil.type[i]>0) {
       // root death is directly put into each soil layer
       ltrflc[i] = bd->m_v2soi.rtlfalfrac[i] * blwlfc;
 

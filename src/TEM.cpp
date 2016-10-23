@@ -238,6 +238,16 @@ int main(int argc, char* argv[]){
           runner.cohort.initialize_state_parameters();  // sets data based on values in cohortlookup
           BOOST_LOG_SEV(glg, debug) << "right after initialize_internal_pointers() and initialize_state_parameters()"
                                     << runner.cohort.ground.layer_report_string("depth ptr");
+
+          //The transition to SP must occur at the completion of a
+          // fire cycle (i.e. a year or two prior to the next fire).
+          // To ensure this, re-set modeldata's EQ year count to an
+          // even multiple of the FRI minus 2 (to be safe) 
+          int EQ_fire_cycles = modeldata.eq_yrs/runner.cohort.cd.fri;
+          if(modeldata.eq_yrs%runner.cohort.cd.fri != 0){
+            modeldata.eq_yrs = runner.cohort.cd.fri*(EQ_fire_cycles+1)-2;
+          }
+
           // PRE RUN STAGE (PR)
           if (modeldata.pr_yrs > 0) {
             BOOST_LOG_NAMED_SCOPE("PRE-RUN");
