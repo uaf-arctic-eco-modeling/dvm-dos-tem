@@ -331,7 +331,8 @@ def fill_climate_file(start_yr, yrs, xo, yo, xs, ys, out_dir, of_name, sp_ref_fi
   #Populate input file with data from TIFs
   with netCDF4.Dataset(os.path.join(out_dir, of_name), mode='a') as new_climatedataset:
 
-    for yridx, year in enumerate( range(start_yr, start_yr + yrs)) : ## ??? How is args in scope here???
+    print "Working to prepare climate data for years %s to %s" % (start_yr, start_yr + yrs)
+    for yridx, year in enumerate(range(start_yr, start_yr + yrs)):
 
       for midx, month in enumerate(range(1,13)): # Note 1 based month!
 
@@ -572,11 +573,12 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir, files=[]):
     in_rsds_base = os.path.join(tif_dir,  "rsds_mean_MJ-m2-d1_iem_cru_TS31_1901_2009/rsds_mean_MJ-m2-d1_iem_cru_TS31")
     in_vapo_base = os.path.join(tif_dir,  "vap_mean_hPa_iem_cru_TS31_1901_2009/vap_mean_hPa_iem_cru_TS31")
 
-    #Calculates number of years for running all. Values are different
-    #  for historic versus projected.
+    # Calculates number of years for running all. Values are different
+    # for historic versus projected.
     hc_years = 0
     if years == -1:
       filecount = len(glob.glob(os.path.join(tif_dir,  "/tas_mean_C_iem_cru_TS31_1901_2009/*.tif")))
+      print "Found %s files..." % filecount
       hc_years = filecount/12 
     else:
       hc_years = years
@@ -592,11 +594,12 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir, files=[]):
     in_rsds_base = os.path.join(tif_dir,  "rsds_mean_MJ-m2-d1_iem_cccma_cgcm3_1_sresa1b_2001_2100/rsds_mean_MJ-m2-d1_iem_cccma_cgcm3_1_sresa1b")
     in_vapo_base = os.path.join(tif_dir,  "vap_mean_hPa_iem_cccma_cgcm3_1_sresa1b_2001_2100/vap_mean_hPa_iem_cccma_cgcm3_1_sresa1b")
 
-    #Calculates number of years for running all. Values are different
-    #  for historic versus projected.
+    # Calculates number of years for running all. Values are different
+    # for historic versus projected.
     pc_years = 0;
     if years == -1:
       filecount = len(glob.glob(tif_dir + "/tas_mean_C_iem_cccma_cgcm3_1_sresa1b_2001_2100/*.tif"))
+      print "Found %s files..." % filecount
       pc_years = filecount/12
     else:
       pc_years = years
