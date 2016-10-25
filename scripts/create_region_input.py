@@ -577,7 +577,7 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir, files=[]):
     # for historic versus projected.
     hc_years = 0
     if years == -1:
-      filecount = len(glob.glob(os.path.join(tif_dir,  "/tas_mean_C_iem_cru_TS31_1901_2009/*.tif")))
+      filecount = len(glob.glob(os.path.join(tif_dir,  "tas_mean_C_iem_cru_TS31_1901_2009/*.tif")))
       print "Found %s files..." % filecount
       hc_years = filecount/12 
     else:
@@ -598,7 +598,7 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir, files=[]):
     # for historic versus projected.
     pc_years = 0;
     if years == -1:
-      filecount = len(glob.glob(tif_dir + "/tas_mean_C_iem_cccma_cgcm3_1_sresa1b_2001_2100/*.tif"))
+      filecount = len(glob.glob(os.path.join(tif_dir, "tas_mean_C_iem_cccma_cgcm3_1_sresa1b_2001_2100/*.tif")))
       print "Found %s files..." % filecount
       pc_years = filecount/12
     else:
