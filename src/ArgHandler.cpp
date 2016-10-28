@@ -19,6 +19,10 @@ void ArgHandler::parse(int argc, char** argv) {
      "program will generate yearly and monthly '.json' files in your /tmp "
      " directory that are intended to be read by other programs or scripts.")
 
+    ("inter-stage-pause", boost::program_options::bool_switch(&inter_stage_pause),
+     "With this flag, (and when in calibration mode), the model will pause and "
+     "wait for user input at the end of each run-stage.")
+
     ("last-n-json", boost::program_options::value<int>(&last_n_json_files)
      ->default_value(-1),
      "Only output the json files for the last N years. -1 indicates to output "
@@ -124,6 +128,10 @@ void ArgHandler::verify() {
   if ((this->pid_tag.compare("") != 0) && (!this->cal_mode)) {
     BOOST_LOG_SEV(glg, fatal) << "If you have specified a PID tag, you must also specify --cal-mode!";
     exit(-1);
+  }
+
+  if ( (this->inter_stage_pause) && (!this->cal_mode) ) {
+    BOOST_LOG_SEV(glg, warn) << "Invalid argument combination!: --inter-stage-pause is not effective without --cal-mode!";
   }
 
 }

@@ -147,6 +147,7 @@ int main(int argc, char* argv[]){
   BOOST_LOG_SEV(glg, note) << "Creating a ModelData object based on settings in the control file";
   ModelData modeldata(controldata);
 
+  BOOST_LOG_SEV(glg, note) << "Update model settings based on command line flags/options...";
   modeldata.update(args);
 
   /*  
