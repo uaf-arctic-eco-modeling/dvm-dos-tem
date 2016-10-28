@@ -139,6 +139,7 @@ void Cohort::initialize_internal_pointers() {
   // ecosystem domain
   veg.setCohortData(&cd);
   veg.setCohortLookup(&chtlu);
+  ground.setBgcData(bdall);
   ground.setCohortLookup(&chtlu);
 
   // vegetation module pointers
@@ -679,6 +680,7 @@ void Cohort::updateMonthly_Bgc(const int & currmind) {
   // soil BGC module calling
   soilbgc.prepareIntegration(md->get_nfeed(), md->get_avlnflg(),
                              md->get_baseline());
+  soilbgc.clear_del_structs();
   solintegrator.updateMonthlySbgc(MAX_SOI_LAY);
   soilbgc.afterIntegration();
   bdall->soil_endOfMonth(currmind);   // yearly data accumulation
@@ -796,7 +798,7 @@ void Cohort::updateMonthly_DIMveg(const int & currmind, const bool & dvmmodule) 
   veg.updateFrootfrac();
 };
 
-/** Dynamic Soil Layer Module Fucntion. */
+/** Dynamic Soil Layer Module Function. */
 void Cohort::updateMonthly_DIMgrd(const int & currmind, const bool & dslmodule) {
   BOOST_LOG_NAMED_SCOPE("DIMgrd");
 
@@ -819,6 +821,8 @@ void Cohort::updateMonthly_DIMgrd(const int & currmind, const bool & dslmodule) 
 
       for (int ip=0; ip<NUM_PFT; ip++) {
         if (cd.m_veg.nonvascular[ip] != I_vascular) {
+          //FIX The following should be refined by at least taking the moss type
+          //  with the largest percent cover.
           if (cd.m_veg.vegcov[ip] > prvpft) {
             ground.moss.type = cd.d_veg.nonvascular[ip];
           }

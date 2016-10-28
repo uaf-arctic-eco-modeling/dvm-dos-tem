@@ -48,7 +48,7 @@ WildFire::WildFire(const std::string& fri_fname,
   this->explicit_fire_year = temutil::get_timeseries<int>(explicit_fname, "explicit_fire_year", y, x);
   this->explicit_fire_severity = temutil::get_timeseries<int>(explicit_fname, "explicit_fire_severity", y, x);
   this->explicit_fire_day_of_burn = temutil::get_timeseries<int>(explicit_fname, "explicit_fire_day_of_burn", y, x);
-  
+ 
   // Set to an definitely invalid number.
   // Later this will be set to a valid number based on the run stage and
   // possibly other factors.
@@ -149,9 +149,9 @@ int WildFire::derive_fire_severity(const int drainage, const int day_of_burn, co
 /** Figure out whether or not there should be a fire, based on stage, yr, month.
  *
  *  There are two modes of operation: "FRI" (fire recurrence interval) and
- *  "explicit". Pre-run, equlibrium, and spin-up stages all use the FRI settings
+ *  "explicit". Pre-run, equilibrium, and spin-up stages all use the FRI settings
  *  for determining whether or not a fire should ignite, while transient and 
- *  scenario stages use explict dates for fire occurence.
+ *  scenario stages use explicit dates for fire occurrence.
  *
  *  The settings for FRI and the data for explicit fire dates are held in data
  *  members of this (WildFire) object. This function looks at those data
@@ -216,7 +216,7 @@ void WildFire::burn(int year) {
   double burndepth = getBurnOrgSoilthick(this->actual_severity);
   BOOST_LOG_SEV(glg, debug) << fd->report_to_string("After WildFire::getBurnOrgSoilthick(..)");
 
-  BOOST_LOG_SEV(glg, note) << "Setup some temporarty pools for tracking various burn related attributes (depths, C, N)";
+  BOOST_LOG_SEV(glg, note) << "Setup some temporary pools for tracking various burn related attributes (depths, C, N)";
   double totbotdepth = 0.0;
   double burnedsolc = 0.0;
   double burnedsoln = 0.0;
@@ -356,7 +356,7 @@ void WildFire::burn(int year) {
   for (int ip = 0; ip < NUM_PFT; ip++) {
 
     if (cd->m_veg.vegcov[ip] > 0.0) {
-      BOOST_LOG_SEV(glg, note) << "Some of this PFT exists (coverage > 0). Burn it!";
+      BOOST_LOG_SEV(glg, note) << "Some of PFT"<<ip<<" exists (coverage > 0). Burn it!";
 
       // vegetation burning/dead/living fraction for above-ground
       getBurnAbgVegetation(ip, this->actual_severity);
@@ -611,5 +611,9 @@ void WildFire::setBgcData(BgcData* bdp, const int &ip) {
 
 void WildFire::setFirData(FirData* fdp) {
   fd =fdp;
+}
+
+int WildFire::getFRI(){
+  return fri;
 }
 

@@ -20,6 +20,7 @@
 
 #include <cstring>
 #include <iostream>
+#include <iomanip>
 #include <sstream>
 #include <string>
 #include <cmath>
@@ -108,6 +109,8 @@ public :
 
   void updateMonthlyVbgc();
   void updateMonthlySbgc(const int &numsl);
+
+  void report_array(float array[]);
 
 private:
 

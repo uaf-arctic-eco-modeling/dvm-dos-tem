@@ -15,6 +15,7 @@ void Organic::ShlwThickScheme(const double & totthickness) {
 
   shlwnum   = 0;
 
+  //These values are from Shuhua Yi's paper, 2010
   if(totthickness<=0.00) {
     shlwdz[0]=MISSING_D;
     shlwdz[1]=MISSING_D;

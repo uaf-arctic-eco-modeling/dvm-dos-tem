@@ -24,6 +24,7 @@ using namespace std;
 
 #include "../lookup/CohortLookup.h"
 
+#include "../data/BgcData.h"
 #include "../data/CohortData.h"
 #include "../data/FirData.h"
 #include "../data/RestartData.h"
@@ -94,6 +95,7 @@ public :
   int ststate; // thermal state of whole column,
   // 0: partially frozen, 1: totally frozen,, -1: totally unfrozen
 
+  void setBgcData(BgcData *bdp);
   void setCohortLookup(CohortLookup *chtlu);
 
   void initParameter();
@@ -142,6 +144,7 @@ private :
 
   bool rocklayercreated;
 
+  BgcData * bd;
   CohortLookup * chtlu;
 
   void initRockLayers();

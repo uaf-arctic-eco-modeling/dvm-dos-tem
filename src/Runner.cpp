@@ -485,6 +485,7 @@ void Runner::output_caljson_monthly(int year, int month, std::string stage, boos
     data["PFT" + pft_str]["LabNitrogenUptake"] = cohort.bd[pft].m_soi2v.lnuptake;
     data["PFT" + pft_str]["TotNitrogenUptake"] = cohort.bd[pft].m_soi2v.snuptakeall + cohort.bd[pft].m_soi2v.lnuptake;
     data["PFT" + pft_str]["MossDeathC"] = cohort.bd[pft].m_v2soi.mossdeathc;
+    data["PFT" + pft_str]["DeadMossC"] = cohort.bd[pft].m_sois.dmossc;
 
     data["PFT" + pft_str]["PARDown"] = cohort.ed[pft].m_a2v.pardown;
     data["PFT" + pft_str]["PARAbsorb"] = cohort.ed[pft].m_a2v.parabsorb;

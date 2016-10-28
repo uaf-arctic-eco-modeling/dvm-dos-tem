@@ -28,7 +28,9 @@ public:
            const int y, const int x);
   
   ~WildFire();
-  
+ 
+  int getFRI();
+ 
   void setCohortData(CohortData* cdp);
   void setAllEnvBgcData(EnvData* edp, BgcData* bdp);
   void setBgcData(BgcData* bdp, const int &ip);

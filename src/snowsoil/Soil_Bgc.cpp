@@ -129,14 +129,25 @@ void Soil_Bgc::prepareIntegration(const bool &mdnfeedback,
   // double abvlfn = bd->m_v2soi.ltrfaln[I_stem] + bd->m_v2soi.ltrfaln[I_leaf];
 
   for(int i=0; i<cd->m_soil.numsl; i++) {
-    if (cd->m_soil.type[i]>0) {
+    //FIX litterfall should be added to the shallow layer
+    //There *must* be a shallow layer
+    //if(fstshlwl!=NULL). if(currl->isShlw() && prevl != shlw)
+    //  add abvlfc and this shallow layer's blwlfc fraction
+    //else
+    //  just root death?
+    //else if fstshlwl==NULL and there is litterfall, ERROR
+    //if (cd->m_soil.type[i]>0) { WRONG
+    //soillayer sl = ground ;lksadjf; [i];
+
+    if(i==0 && cd->m_soil.type[i]==1
+       || i>0 && cd->m_soil.type[i]==1 && cd->m_soil.type[i-1]!=1){
       //always put the litter-falling in the first non-moss soil layer
       ltrflc[i] = abvlfc + bd->m_v2soi.rtlfalfrac[i] * blwlfc;
 
       ltrfln[i] = abvlfn + bd->m_v2soi.rtlfalfrac[i] * blwlfn;
       abvlfc = 0.;
       abvlfn = 0.;
-    } else {
+    } else if(cd->m_soil.type[i]>0) {
       // root death is directly put into each soil layer
       ltrflc[i] = bd->m_v2soi.rtlfalfrac[i] * blwlfc;
 
@@ -206,6 +217,54 @@ void Soil_Bgc::afterIntegration() {
   for(int i=0; i<cd->m_soil.numsl; i++) {
     bd->m_soid.tsomc[i] = bd->m_sois.rawc[i] + bd->m_sois.soma[i]
                           + bd->m_sois.sompr[i] + bd->m_sois.somcr[i];
+  }
+};
+
+void Soil_Bgc::clear_del_structs(){
+  //soistate_bgc del_sois
+  del_sois.wdebrisc = 0.0;
+  del_sois.wdebrisn = 0.0;
+  del_sois.dmossc = 0.0;
+  del_sois.dmossn = 0.0;
+
+  //soi2soi_bgc del_soi2soi
+  del_soi2soi.netnminsum = 0.0;
+  del_soi2soi.nimmobsum = 0.0;
+
+  //soi2atm_bgc del_soi2a
+  del_soi2a.rhwdeb = 0.0;
+  del_soi2a.rhmossc = 0.0;
+  del_soi2a.rhrawcsum = 0.0;
+  del_soi2a.rhsomasum = 0.0;
+  del_soi2a.rhsomprsum = 0.0;
+  del_soi2a.rhsomcrsum = 0.0;
+  del_soi2a.rhtot = 0.0;
+
+  //soi2lnd_bgc del_soi2l
+  del_soi2l.doclost = 0.0;
+  del_soi2l.avlnlost = 0.0;
+  del_soi2l.orgnlost = 0.0;
+
+  //atm2soi_bgc del_a2soi
+  del_a2soi.orgcinput = 0.0;
+  del_a2soi.orgninput = 0.0;
+  del_a2soi.avlninput = 0.0;
+
+  for(int il=0; il<MAX_SOI_LAY; il++){
+    del_sois.rawc[il] = 0.0;
+    del_sois.soma[il] = 0.0;
+    del_sois.sompr[il] = 0.0;
+    del_sois.somcr[il] = 0.0;
+    del_sois.orgn[il] = 0.0;
+    del_sois.avln[il] = 0.0;
+
+    del_soi2soi.netnmin[il] = 0.0;
+    del_soi2soi.nimmob[il] = 0.0;
+
+    del_soi2a.rhrawc[il] = 0.0;
+    del_soi2a.rhsoma[il] = 0.0;
+    del_soi2a.rhsompr[il] = 0.0;
+    del_soi2a.rhsomcr[il] = 0.0;
   }
 };
 
