@@ -415,6 +415,10 @@ void Runner::output_caljson_monthly(int year, int month, std::string stage, boos
   // pools
   data["DeadMossCarbon"] = cohort.bdall->m_sois.dmossc;
   data["DeadMossNitrogen"] = cohort.bdall->m_sois.dmossn;
+  data["StandingDeadC"] = cohort.bdall->m_vegs.deadc;
+  data["StandingDeadN"] = cohort.bdall->m_vegs.deadn;
+  data["WoodyDebrisC"] = cohort.bdall->m_sois.wdebrisc;
+  data["WoodyDebrisN"] = cohort.bdall->m_sois.wdebrisn;
   // fluxes
   data["MossdeathCarbon"] = cohort.bdall->m_v2soi.mossdeathc;
   data["MossdeathNitrogen"] = cohort.bdall->m_v2soi.mossdeathn;
@@ -432,6 +436,7 @@ void Runner::output_caljson_monthly(int year, int month, std::string stage, boos
   data["RHmossc"] = cohort.bdall->m_soi2a.rhmossc;
   data["RH"] = cohort.bdall->m_soi2a.rhtot;
 
+  data["YearsSinceDisturb"] = cohort.cd.yrsdist;
   data["Burnthick"] = cohort.fd->fire_soid.burnthick;
   data["BurnVeg2AirC"] = cohort.fd->fire_v2a.orgc;
   data["BurnVeg2AirN"] = cohort.fd->fire_v2a.orgn;
@@ -441,6 +446,8 @@ void Runner::output_caljson_monthly(int year, int month, std::string stage, boos
   data["BurnVeg2SoiBlwVegN"] = cohort.fd->fire_v2soi.blwn;
   data["BurnSoi2AirC"] = cohort.fd->fire_soi2a.orgc;
   data["BurnSoi2AirN"] = cohort.fd->fire_soi2a.orgn;
+  data["BurnAbvVeg2DeadC"] = cohort.fd->fire_v2dead.vegC;
+  data["BurnAbvVeg2DeadN"] = cohort.fd->fire_v2dead.strN;
   data["RawCSum"] = cohort.bdall->m_soid.rawcsum;
   data["SomaSum"] = cohort.bdall->m_soid.somasum;
   data["SomcrSum"] = cohort.bdall->m_soid.somcrsum;
@@ -586,6 +593,10 @@ void Runner::output_caljson_yearly(int year, std::string stage, boost::filesyste
   // pools
   data["DeadMossCarbon"] = cohort.bdall->y_sois.dmossc;
   data["DeadMossNitrogen"] = cohort.bdall->y_sois.dmossn;
+  data["StandingDeadC"] = cohort.bdall->y_vegs.deadc;
+  data["StandingDeadN"] = cohort.bdall->y_vegs.deadn;
+  data["WoodyDebrisC"] = cohort.bdall->y_sois.wdebrisc;
+  data["WoodyDebrisN"] = cohort.bdall->y_sois.wdebrisn;
   // fluxes
   data["MossdeathCarbon"] = cohort.bdall->y_v2soi.mossdeathc;
   data["MossdeathNitrogen"] = cohort.bdall->y_v2soi.mossdeathn;
@@ -610,6 +621,8 @@ void Runner::output_caljson_yearly(int year, std::string stage, boost::filesyste
   data["BurnVeg2SoiBlwVegN"] = cohort.fd->fire_v2soi.blwn;
   data["BurnSoi2AirC"] = cohort.fd->fire_soi2a.orgc;
   data["BurnSoi2AirN"] = cohort.fd->fire_soi2a.orgn;
+  data["BurnAbvVeg2DeadC"] = cohort.fd->fire_v2dead.vegC;
+  data["BurnAbvVeg2DeadN"] = cohort.fd->fire_v2dead.strN;
 
 
   for(int pft=0; pft<NUM_PFT; pft++) { //NUM_PFT
