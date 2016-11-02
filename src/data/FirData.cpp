@@ -41,6 +41,7 @@ void FirData::clear() {
   fire_v2soi= veg2soi_fir();
   fire_soi2a= soi2atm_fir();
   fire_a2soi= atm2soi_fir();
+  fire_v2dead = veg2dead_fir();
 };
 
 void FirData::init() {
