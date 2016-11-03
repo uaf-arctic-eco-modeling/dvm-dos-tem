@@ -76,8 +76,11 @@ struct vegstate_bgc {
   double deadc;    //C in the dead vegetation
   double deadn;    //N in the dead vegetation
 
+  double deadc0; //Initial value of C in standing dead post-fire
+  double deadn0; //Initial value of N in standing dead post-fire
+
   vegstate_bgc(): call(UIN_D), nall(UIN_D), labn(UIN_D), strnall(UIN_D),
-      deadc(UIN_D), deadn(UIN_D) {
+      deadc(UIN_D), deadn(UIN_D), deadc0(UIN_D), deadn0(UIN_D) {
 
     for (int i = 0; i < NUM_PFT_PART; ++i) {
       c[i] = UIN_D;
@@ -228,6 +231,8 @@ struct soistate_env {
 };
 
 struct soistate_bgc {
+  //Woody debris is *NOT* an actual soil layer. It is conceptually
+  //a separate set of pools.
   double wdebrisc;    // wood debris C
   double wdebrisn;    // wood debris N
 

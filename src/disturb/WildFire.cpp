@@ -352,6 +352,11 @@ void WildFire::burn(int year) {
   double comb_deadn = 0.0;
   double dead_bg_vegc = 0.0;
   double dead_bg_vegn = 0.0;
+  double veg_2_dead_C = 0.0;
+  double veg_2_dead_N = 0.0;
+
+  bdall->m_vegs.deadc0 = 0;//Zeroing the standing dead pools
+  bdall->m_vegs.deadn0 = 0;
 
   for (int ip = 0; ip < NUM_PFT; ip++) {
 
@@ -371,8 +376,12 @@ void WildFire::burn(int year) {
 
       // Assuming all previous deadn burned
       comb_deadn += bd[ip]->m_vegs.deadn;
-      bd[ip]->m_vegs.deadc = 0.0;
-      bd[ip]->m_vegs.deadn = 0.0;
+      //Zeroing the standing dead pools
+      bd[ip]->m_vegs.deadc0 = 0.0;
+      bd[ip]->m_vegs.deadn0 = 0.0;
+
+      veg_2_dead_C = (bd[ip]->m_vegs.c[I_leaf] + bd[ip]->m_vegs.c[I_stem]) * r_dead2ag_cn;
+      veg_2_dead_N = (bd[ip]->m_vegs.strn[I_leaf] + bd[ip]->m_vegs.strn[I_stem]) * r_dead2ag_cn;
 
       // Above-ground veg. burning/death during fire
       // when summing, needs adjusting by 'vegcov'
@@ -381,16 +390,18 @@ void WildFire::burn(int year) {
       // We define dead c/n as the not-falling veg (or binding with living veg)
       // during fire,
       bd[ip]->m_vegs.deadc = bd[ip]->m_vegs.c[I_leaf] * r_dead2ag_cn;
-
       // Which then is the source of ground debris (this is for woody plants
       // only, others could be set deadc/n to zero)
       bd[ip]->m_vegs.c[I_leaf] *= (1.0 - r_burn2ag_cn - r_dead2ag_cn);
+
       comb_vegc += bd[ip]->m_vegs.c[I_stem] * r_burn2ag_cn;
       bd[ip]->m_vegs.deadc += bd[ip]->m_vegs.c[I_stem] * r_dead2ag_cn;
       bd[ip]->m_vegs.c[I_stem] *= (1.0 - r_burn2ag_cn-r_dead2ag_cn);
+
       comb_vegn += bd[ip]->m_vegs.strn[I_leaf] * r_burn2ag_cn;
       bd[ip]->m_vegs.deadn += bd[ip]->m_vegs.strn[I_leaf] * r_dead2ag_cn;
       bd[ip]->m_vegs.strn[I_leaf] *= (1.0 - r_burn2ag_cn-r_dead2ag_cn);
+
       comb_vegn += bd[ip]->m_vegs.strn[I_stem] * r_burn2ag_cn;
       bd[ip]->m_vegs.deadn += bd[ip]->m_vegs.strn[I_stem] * r_dead2ag_cn;
       bd[ip]->m_vegs.strn[I_stem] *= (1.0 - r_burn2ag_cn - r_dead2ag_cn);
@@ -436,12 +447,43 @@ void WildFire::burn(int year) {
 
     } // end of 'cd->m_veg.vegcov[ip] > 0.0' (no coverage, nothing to do)
 
+    //Writing out initial standing dead pools. These values will be
+    //used to compute the rate of decomposition of the standing dead - 
+    //1/9th of the original value per year.
+    bd[ip]->m_vegs.deadc0 = veg_2_dead_C;
+    bd[ip]->m_vegs.deadn0 = veg_2_dead_N;
+
+    //Writing out initial values of standing dead pools to the pools
+    //actually used for computation. These values will be decremented
+    //by 1/9th the original value per year.
+    bd[ip]->m_vegs.deadc = veg_2_dead_C;
+    bd[ip]->m_vegs.deadn = veg_2_dead_N;
+
   } // end pft loop
 
   double reta_vegc = (comb_vegc + comb_deadc) * firpar.r_retain_c;
   double reta_vegn = (comb_vegn + comb_deadn) * firpar.r_retain_n;
 
-  BOOST_LOG_SEV(glg, note) << "Save the fire emmission and return data into 'fd'...";
+  //Writing out initial standing dead pools. These values will be
+  //used to compute the rate of decomposition of the standing dead - 
+  //1/9th of the original value per year.
+  //bdall->m_vegs.deadc0 = veg_2_dead_C;
+  //bdall->m_vegs.deadn0 = veg_2_dead_N;
+
+  //Writing out initial values of standing dead pools to the pools
+  //actually used for computation. These values will be decremented
+  //by 1/9th the original value per year.
+  //bdall->m_vegs.deadc = veg_2_dead_C;
+  //bdall->m_vegs.deadn = veg_2_dead_N;
+
+  BOOST_LOG_SEV(glg, note) << "Save the fire emission and return data into 'fd'...";
+  //Summing the PFT specific fluxes to dead standing
+  for(int ip=0; ip<NUM_PFT; ip++){
+    fd->fire_v2dead.vegC += bd[ip]->m_vegs.deadc;
+    fd->fire_v2dead.strN += bd[ip]->m_vegs.deadn;
+  }
+  //fd->fire_v2dead.vegC = veg_2_dead_C; 
+  //fd->fire_v2dead.strN = veg_2_dead_N;
   fd->fire_v2a.orgc =  comb_vegc - reta_vegc;
   fd->fire_v2a.orgn =  comb_vegn - reta_vegn;
   fd->fire_v2soi.abvc = reta_vegc;

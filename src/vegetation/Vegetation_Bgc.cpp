@@ -256,12 +256,30 @@ void Vegetation_Bgc::prepareIntegration(const bool &nfeedback) {
   */
 
   // dead standing C falling
-  if(cd->yrsdist < 9.0) {
-    if(bd->m_vegs.deadc > 0) {
-      d2wdebrisc = bd->m_vegs.deadc/9.0/12.0;
+  //if(cd->yrsdist < 10.0) {//cd->mthsdist<108
+  if(cd->mthsdist < 108) {
+    if(bd->m_vegs.deadc0 > 0) {
+      bd->m_v2soi.d2wdebrisc = bd->m_vegs.deadc0/9.0/12.0;
+
+      if(bd->m_v2soi.d2wdebrisc > bd->m_vegs.deadc){
+        bd->m_v2soi.d2wdebrisc = bd->m_vegs.deadc; 
+        bd->m_vegs.deadc = 0;
+      }
+      else{
+        bd->m_vegs.deadc -= bd->m_v2soi.d2wdebrisc;
+      }
 
       if (nfeed==1) {
-        d2wdebrisn = bd->m_vegs.deadn/9.0/12.0;
+        bd->m_v2soi.d2wdebrisn = bd->m_vegs.deadn0/9.0/12.0;
+
+        if(bd->m_v2soi.d2wdebrisn > bd->m_vegs.deadn){
+          bd->m_v2soi.d2wdebrisn = bd->m_vegs.deadn;
+          bd->m_vegs.deadn = 0;
+        }
+        else{
+          bd->m_vegs.deadn -= bd->m_v2soi.d2wdebrisn;
+        }
+
       }
     }
   } else {

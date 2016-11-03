@@ -1141,6 +1141,8 @@ void Cohort::getBd4allveg_monthly() {
   bdall->m_vegs.labn    = 0.;
   bdall->m_vegs.strnall = 0.;
   bdall->m_vegs.nall    = 0.;
+  bdall->m_vegs.deadc   = 0.;
+  bdall->m_vegs.deadn   = 0.;
   bdall->m_a2v.ingppall = 0.;
   bdall->m_a2v.innppall = 0.;
   bdall->m_a2v.gppall   = 0.;
@@ -1193,6 +1195,8 @@ void Cohort::getBd4allveg_monthly() {
       bdall->m_vegs.call    += bd[ip].m_vegs.call;
       bdall->m_vegs.strnall += bd[ip].m_vegs.strnall;
       bdall->m_vegs.nall    += bd[ip].m_vegs.nall;
+      bdall->m_vegs.deadc   += bd[ip].m_vegs.deadc;
+      bdall->m_vegs.deadn   += bd[ip].m_vegs.deadn;
       bdall->m_a2v.ingppall += bd[ip].m_a2v.ingppall;
       bdall->m_a2v.innppall += bd[ip].m_a2v.innppall;
       bdall->m_a2v.gppall   += bd[ip].m_a2v.gppall;
