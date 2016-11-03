@@ -422,6 +422,8 @@ void Runner::output_caljson_monthly(int year, int month, std::string stage, boos
   // fluxes
   data["MossdeathCarbon"] = cohort.bdall->m_v2soi.mossdeathc;
   data["MossdeathNitrogen"] = cohort.bdall->m_v2soi.mossdeathn;
+  data["D2WoodyDebrisC"] = cohort.bdall->m_v2soi.d2wdebrisc;
+  data["D2WoodyDebrisN"] = cohort.bdall->m_v2soi.d2wdebrisn;
 
   data["NetNMin"] = cohort.bdall->m_soi2soi.netnminsum;
   data["NetNImmob"] = cohort.bdall->m_soi2soi.nimmobsum;
@@ -474,6 +476,8 @@ void Runner::output_caljson_monthly(int year, int month, std::string stage, boos
     data["PFT" + pft_str]["VegLabileNitrogen"] = cohort.bd[pft].m_vegs.labn;
 
     data["PFT" + pft_str]["NAll"] = cohort.bd[pft].m_vegs.nall; // <-- Sum of labn and strn
+    data["PFT" + pft_str]["StandingDeadC"] = cohort.bd[pft].m_vegs.deadc;
+    data["PFT" + pft_str]["StandingDeadN"] = cohort.bd[pft].m_vegs.deadn;
 
     data["PFT" + pft_str]["NMobil"] = cohort.bd[pft].m_v2v.nmobilall; // <- the all denotes multi-compartment
     data["PFT" + pft_str]["NResorb"] = cohort.bd[pft].m_v2v.nresorball;
@@ -578,8 +582,8 @@ void Runner::output_caljson_yearly(int year, std::string stage, boost::filesyste
   data["TMineB"] = cohort.edall->y_soid.tmineb;
   data["TMineC"] = cohort.edall->y_soid.tminec;
 
-  data["NMobilAll"] = cohort.bdall->m_v2v.nmobilall;
-  data["NResorbAll"] = cohort.bdall->m_v2v.nresorball;
+  data["NMobilAll"] = cohort.bdall->y_v2v.nmobilall;
+  data["NResorbAll"] = cohort.bdall->y_v2v.nresorball;
 
   data["StNitrogenUptakeAll"] = cohort.bdall->y_soi2v.snuptakeall;
   data["InNitrogenUptakeAll"] = cohort.bdall->y_soi2v.innuptake;
@@ -600,6 +604,8 @@ void Runner::output_caljson_yearly(int year, std::string stage, boost::filesyste
   // fluxes
   data["MossdeathCarbon"] = cohort.bdall->y_v2soi.mossdeathc;
   data["MossdeathNitrogen"] = cohort.bdall->y_v2soi.mossdeathn;
+  data["D2WoodyDebrisC"] = cohort.bdall->y_v2soi.d2wdebrisc;
+  data["D2WoodyDebrisN"] = cohort.bdall->y_v2soi.d2wdebrisn;
 
   data["NetNMin"] = cohort.bdall->y_soi2soi.netnminsum;
   data["NetNImmob"] = cohort.bdall->y_soi2soi.nimmobsum;
@@ -638,10 +644,12 @@ void Runner::output_caljson_yearly(int year, std::string stage, boost::filesyste
     data["PFT" + pft_str]["VegStructuralNitrogen"]["Root"] = cohort.bd[pft].y_vegs.strn[I_root];
     data["PFT" + pft_str]["VegLabileNitrogen"] = cohort.bd[pft].y_vegs.labn;
 
-    data["PFT" + pft_str]["NAll"] = cohort.bd[pft].m_vegs.nall; // <-- Sum of labn and strn
+    data["PFT" + pft_str]["NAll"] = cohort.bd[pft].y_vegs.nall; // <-- Sum of labn and strn
+    data["PFT" + pft_str]["StandingDeadC"] = cohort.bd[pft].y_vegs.deadc;
+    data["PFT" + pft_str]["StandingDeadN"] = cohort.bd[pft].y_vegs.deadn;
 
-    data["PFT" + pft_str]["NMobil"] = cohort.bd[pft].m_v2v.nmobilall; // <- the all denotes multi-compartment
-    data["PFT" + pft_str]["NResorb"] = cohort.bd[pft].m_v2v.nresorball;
+    data["PFT" + pft_str]["NMobil"] = cohort.bd[pft].y_v2v.nmobilall; // <- the all denotes multi-compartment
+    data["PFT" + pft_str]["NResorb"] = cohort.bd[pft].y_v2v.nresorball;
 
     data["PFT" + pft_str]["GPPAll"] = cohort.bd[pft].y_a2v.gppall;
     data["PFT" + pft_str]["NPPAll"] = cohort.bd[pft].y_a2v.nppall;
