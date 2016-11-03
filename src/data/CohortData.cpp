@@ -37,6 +37,7 @@ void CohortData::clear() {
   month = MISSING_I;
   cmttype = MISSING_I;
   yrsdist = MISSING_I;
+  mthsdist = MISSING_I;
   drainage_type = MISSING_I;
   hasnonvascular = false;
   fill_n(vegyear, MAX_VEG_SET, MISSING_I);
@@ -169,6 +170,8 @@ void CohortData::endOfDay(const int & dinm) {
 // this is called when monthly calculation is done
 // then, accumulating the yearly variables from the monthly
 void CohortData::endOfMonth() {
+  mthsdist++;
+
   // 1) for vegetation dimension/structure variables
   y_vegd.fpcsum += m_vegd.fpcsum/12.;
 

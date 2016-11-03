@@ -751,7 +751,8 @@ void Cohort::updateMonthly_Fir(const int & year, const int & midx, std::string s
     assignSoilBd2pfts_monthly();
 
     BOOST_LOG_SEV(glg, debug) << "Post-burn, update cd, ground, fine root fraction...";
-    cd.yrsdist = 0.;
+    cd.yrsdist = 0;
+    cd.mthsdist = 0;
     ground.retrieveSnowDimension(&cd.d_snow);
     ground.retrieveSoilDimension(&cd.m_soil);
     cd.d_soil = cd.m_soil;
