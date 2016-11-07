@@ -202,17 +202,15 @@ int main(int argc, char* argv[]){
     // y <==> row <==> lat
     // x <==> col <==> lon
 
-    /* 
-       Loop over a 2D grid of 'cells' (cohorts?),
-       run each cell for some number of years. 
-       
-       Processing starts in the lower left corner (0,0).
-       Should really look into replacing this loop with 
-       something like python's map(...) function...
-        --> Could this allow us to use a map reduce strategy??
-     
-       Look into std::transform. 
-    */
+    // Loop over a 2D grid of 'cells' (cohorts?),
+    // run each cell for some number of years. 
+    //
+    // Processing starts in the lower left corner (0,0).
+    // Should really look into replacing this loop with 
+    // something like python's map(...) function...
+    // --> Could this allow us to use a map reduce strategy??
+    //
+    // Look into std::transform.
 
     // Use a few type definitions to save some typing.
     typedef std::vector<int> vec;
@@ -502,7 +500,7 @@ int main(int argc, char* argv[]){
     }
   
     
-  } else if(args->get_loop_order() == "time-major") {
+  } else if (args->get_loop_order() == "time-major") {
     BOOST_LOG_SEV(glg, warn) << "DO NOTHING. NOT IMPLEMENTED YET.";
     // for each year
 
