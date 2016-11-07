@@ -185,17 +185,21 @@ int main(int argc, char* argv[]){
   // Open the run mask (spatial mask)
   std::vector< std::vector<int> > run_mask = read_run_mask(modeldata.runmask_file);
 
-  // Create empty restart files for all stages based on size of run mask
-  RestartData::create_empty_file(modeldata.output_dir + "restart-eq.nc", 10, 10);
-  RestartData::create_empty_file(modeldata.output_dir + "restart-sp.nc", 10, 10);
-  RestartData::create_empty_file(modeldata.output_dir + "restart-tr.nc", 10, 10);
-  RestartData::create_empty_file(modeldata.output_dir + "restart-sc.nc", 10, 10);
-
   // Make some convenient handles for later...
   std::string eq_restart_fname = modeldata.output_dir + "restart-eq.nc";
   std::string sp_restart_fname = modeldata.output_dir + "restart-sp.nc";
   std::string tr_restart_fname = modeldata.output_dir + "restart-tr.nc";
   std::string sc_restart_fname = modeldata.output_dir + "restart-sc.nc";
+
+  // Figure out how big the run_mask is
+  int num_rows = run_mask.size();
+  int num_cols = run_mask[0].size();
+
+  // Create empty restart files for all stages based on size of run mask
+  RestartData::create_empty_file(eq_restart_fname, num_rows, num_cols);
+  RestartData::create_empty_file(sp_restart_fname, num_rows, num_cols);
+  RestartData::create_empty_file(tr_restart_fname, num_rows, num_cols);
+  RestartData::create_empty_file(sc_restart_fname, num_rows, num_cols);
 
   if (args->get_loop_order() == "space-major") {
 
