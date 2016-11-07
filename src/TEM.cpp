@@ -221,19 +221,14 @@ int main(int argc, char* argv[]){
 
           //modeldata.initmode = 1; // OBSOLETE?
 
-          // Maybe 'cal_mode' should be part of the ModelData config object ??
           BOOST_LOG_SEV(glg, info) << "Setup the NEW STYLE RUNNER OBJECT ...";
           Runner runner(modeldata, args->get_cal_mode(), rowidx, colidx);
-          // A 'new style' runner should come with a properly instantiated
-          // Cohort object...
 
           BOOST_LOG_SEV(glg, debug) << runner.cohort.ground.layer_report_string("depth thermal");
-          //runner.cohort.reinitialize(md->initsource);
 
           // seg fault w/o preparing climate...so prepare year zero...
           // this is also called inside run_years(...)
           runner.cohort.climate.prepare_daily_driving_data(0, "eq");
-          //runner.cohort.climate.prepare_eq_daily_driving_data(0, "eq");
 
           runner.cohort.initialize_internal_pointers(); // sets up lots of pointers to various things
           runner.cohort.initialize_state_parameters();  // sets data based on values in cohortlookup
@@ -275,7 +270,6 @@ int main(int argc, char* argv[]){
             BOOST_LOG_SEV(glg, debug) << "Ground, right after 'pre-run'"
                                       << runner.cohort.ground.layer_report_string("depth thermal");
 
-
             if (runner.calcontroller_ptr) {
               runner.calcontroller_ptr->handle_stage_end("pr");
             }
@@ -284,8 +278,8 @@ int main(int argc, char* argv[]){
 
           // EQULIBRIUM STAGE (EQ)
           if (modeldata.eq_yrs > 0) {
-
             BOOST_LOG_NAMED_SCOPE("EQ");
+            BOOST_LOG_SEV(glg, fatal) << "Running Equlibrium, " << modeldata.sp_yrs << " years.";
 
             if (runner.calcontroller_ptr) {
               runner.calcontroller_ptr->handle_stage_start();
@@ -302,18 +296,19 @@ int main(int argc, char* argv[]){
 
             runner.cohort.md->set_dsbmodule(false);
 
-            if(runner.cohort.md->get_dsbmodule()){
-              //The transition to SP must occur at the completion of a
+            if (runner.cohort.md->get_dsbmodule()) {
+              // The transition to SP must occur at the completion of a
               // fire cycle (i.e. a year or two prior to the next fire).
               // To ensure this, re-set modeldata's EQ year count to an
               // even multiple of the FRI minus 2 (to be safe)
               int fri = runner.cohort.fire.getFRI(); 
-              int EQ_fire_cycles = modeldata.eq_yrs/fri;
-              if(modeldata.eq_yrs%fri != 0){
-                modeldata.eq_yrs = fri*(EQ_fire_cycles+1)-2;
+              int EQ_fire_cycles = modeldata.eq_yrs / fri;
+              if (modeldata.eq_yrs%fri != 0) {
+                modeldata.eq_yrs = fri * (EQ_fire_cycles + 1) - 2;
               }
             }
 
+            // Run model
             // Check for the existence of a restart file to output to
             // prior to running.
             std::string restart_fname = modeldata.output_dir + "restart-eq.nc";
@@ -325,6 +320,7 @@ int main(int argc, char* argv[]){
 
             runner.run_years(0, modeldata.eq_yrs, "eq-run");
 
+            // Update restartdata structure from the running state
             runner.cohort.set_restartdata_from_state();
 
             runner.cohort.restartdata.verify_logical_values();
@@ -334,7 +330,7 @@ int main(int argc, char* argv[]){
             // Write out EQ restart file
             runner.cohort.restartdata.append_to_ncfile(restart_fname, rowidx, colidx); /* cohort id/key ???*/
 
-            if(runner.calcontroller_ptr) {
+            if (runner.calcontroller_ptr) {
               runner.calcontroller_ptr->handle_stage_end("eq");
             }
 
