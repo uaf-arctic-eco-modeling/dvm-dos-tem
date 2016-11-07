@@ -48,6 +48,8 @@ public :
   void write_px_front_vars(const std::string& fname, const int rowidx, const int colidx);
   void write_px_prev_pft_vars(const std::string& fname, const int rowidx, const int colidx);
 
+  static void create_empty_file(const std::string& fname, const int ysize, const int xsize);
+
   int chtid;
 
   // atm
