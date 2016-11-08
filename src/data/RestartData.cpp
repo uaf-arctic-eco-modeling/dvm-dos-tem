@@ -415,7 +415,7 @@ void RestartData::update_from_ncfile(const std::string& fname, const int rowidx,
 }
 
 /** Copies values from this RestartData object to a NetCDF file. */
-void RestartData::append_to_ncfile(const std::string& fname, const int rowidx, const int colidx) {
+void RestartData::write_pixel_to_ncfile(const std::string& fname, const int rowidx, const int colidx) {
 
   BOOST_LOG_SEV(glg, debug) << "Opening dataset: " << fname
                             << " to WRITE RestartData for pixel (y, x): ("
@@ -912,6 +912,268 @@ void RestartData::read_px_prev_pft_vars(const std::string& fname, const int rowi
   temutil::nc( nc_close(ncid) );
 
 }
+
+/** Creates (overwrites) an empty restart file. */
+void RestartData::create_empty_file(const std::string& fname,
+    const int ysize, const int xsize) {
+
+  BOOST_LOG_SEV(glg, debug) << "Opening new file with 'NC_CLOBBER'";
+  int ncid;
+  temutil::nc( nc_create(fname.c_str(), NC_CLOBBER, &ncid) );
+
+  //int old_fill_mode;
+  //temutil::nc( nc_set_fill(ncid, NC_NOFILL, &old_fill_mode) );
+  //BOOST_LOG_SEV(glg, debug) << "The old fill mode was: " << old_fill_mode;
+
+  // Define handles for dimensions
+  int yD;
+  int xD;
+  int pftD;
+  int pftpartD;
+  int snowlayerD;
+  int rootlayerD;
+  int soillayerD;
+  int rocklayerD;
+  int frontsD;
+  int prevtenD;
+  int prevtwelveD;
+
+  BOOST_LOG_SEV(glg, debug) << "Creating dimensions...";
+  temutil::nc( nc_def_dim(ncid, "Y", ysize, &yD) );
+  temutil::nc( nc_def_dim(ncid, "X", xsize, &xD) );
+  temutil::nc( nc_def_dim(ncid, "pft", 10, &pftD) );
+  temutil::nc( nc_def_dim(ncid, "pftpart", 3, &pftpartD) );
+  temutil::nc( nc_def_dim(ncid, "snowlayer", 6, &snowlayerD) );
+  temutil::nc( nc_def_dim(ncid, "rootlayer", 10, &rootlayerD) );
+  temutil::nc( nc_def_dim(ncid, "soillayer", 23, &soillayerD) );
+  temutil::nc( nc_def_dim(ncid, "rocklayer", 5, &rocklayerD) );
+  temutil::nc( nc_def_dim(ncid, "fronts", 10, &frontsD) );
+  temutil::nc( nc_def_dim(ncid, "prevten", 10, &prevtenD) );
+  temutil::nc( nc_def_dim(ncid, "prevtwelve", 12, &prevtwelveD) );
+
+
+  // Setup arrays holding dimids for different "types" of variables
+  // --> will re-arrange these later to define variables with different dims
+  int vartype2D_dimids[2];
+  vartype2D_dimids[0] = yD;
+  vartype2D_dimids[1] = xD;
+
+  int vartype3D_dimids[3];
+  vartype3D_dimids[0] = yD;
+  vartype3D_dimids[1] = xD;
+  vartype3D_dimids[2] = pftD;
+
+  int vartype4D_dimids[4];
+  vartype4D_dimids[0] = yD;
+  vartype4D_dimids[1] = xD;
+  vartype4D_dimids[2] = pftpartD;
+  vartype4D_dimids[3] = pftD;
+
+  // Setup 2D vars, integer
+  int dsrV;
+  int numslV;
+  int numsnwlV;
+  int rtfrozendaysV;
+  int rtunfrozendaysV;
+  int yrsdistV;
+  temutil::nc( nc_def_var(ncid, "dsr", NC_INT, 2, vartype2D_dimids, &dsrV) );
+  temutil::nc( nc_def_var(ncid, "numsl", NC_INT, 2, vartype2D_dimids, &numslV) );
+  temutil::nc( nc_def_var(ncid, "numsnwl", NC_INT, 2, vartype2D_dimids, &numsnwlV) );
+  temutil::nc( nc_def_var(ncid, "rtfrozendays", NC_INT, 2, vartype2D_dimids, &rtfrozendaysV) );
+  temutil::nc( nc_def_var(ncid, "rtunfrozendays", NC_INT, 2, vartype2D_dimids, &rtunfrozendaysV) );
+  temutil::nc( nc_def_var(ncid, "yrsdist", NC_INT, 2, vartype2D_dimids, &yrsdistV) );
+
+  // Setup 2D vars, double
+  int firea2sorgnV;
+  int snwextramasV;
+  int monthsfrozenV;
+  int watertabV;
+  int wdebriscV;
+  int wdebrisnV;
+  int dmosscV;
+  int dmossnV;
+  temutil::nc( nc_def_var(ncid, "firea2sorgn", NC_DOUBLE, 2, vartype2D_dimids, &firea2sorgnV) );
+  temutil::nc( nc_def_var(ncid, "snwextramass", NC_DOUBLE, 2, vartype2D_dimids, &snwextramasV) );
+  temutil::nc( nc_def_var(ncid, "monthsfrozen", NC_DOUBLE, 2, vartype2D_dimids, &monthsfrozenV) );
+  temutil::nc( nc_def_var(ncid, "watertab", NC_DOUBLE, 2, vartype2D_dimids, &watertabV) );
+  temutil::nc( nc_def_var(ncid, "wdebrisc", NC_DOUBLE, 2, vartype2D_dimids, &wdebriscV) );
+  temutil::nc( nc_def_var(ncid, "wdebrisn", NC_DOUBLE, 2, vartype2D_dimids, &wdebrisnV) );
+  temutil::nc( nc_def_var(ncid, "dmossc", NC_DOUBLE, 2, vartype2D_dimids, &dmosscV) );
+  temutil::nc( nc_def_var(ncid, "dmossn", NC_DOUBLE, 2, vartype2D_dimids, &dmossnV) );
+
+  // Setup 3D vars, integer
+  int ifwoodyV;
+  int ifdeciwoodyV;
+  int ifperenialV;
+  int nonvascularV;
+  int vegageV;
+  temutil::nc( nc_def_var(ncid, "ifwoody", NC_INT, 3, vartype3D_dimids, &ifwoodyV) );
+  temutil::nc( nc_def_var(ncid, "ifdeciwoody", NC_INT, 3, vartype3D_dimids, &ifdeciwoodyV) );
+  temutil::nc( nc_def_var(ncid, "ifperenial", NC_INT, 3, vartype3D_dimids, &ifperenialV) );
+  temutil::nc( nc_def_var(ncid, "nonvascular", NC_INT, 3, vartype3D_dimids, &nonvascularV) );
+  temutil::nc( nc_def_var(ncid, "vegage", NC_INT, 3, vartype3D_dimids, &vegageV) );
+
+  // Setup 3D vars, double
+  int vegcovV;
+  int laiV;
+  int vegwaterV;
+  int vegsnowV;
+  int labnV;
+  int deadcV;
+  int deadnV;
+  int toptV;
+  int eetmxV;
+  int unnormleafmxV;
+  int growingttimeV;
+  int foliagemxV;
+  temutil::nc( nc_def_var(ncid, "vegcov", NC_DOUBLE, 3, vartype3D_dimids, &vegcovV) );
+  temutil::nc( nc_def_var(ncid, "lai", NC_DOUBLE, 3, vartype3D_dimids, &laiV) );
+  temutil::nc( nc_def_var(ncid, "vegwater", NC_DOUBLE, 3, vartype3D_dimids, &vegwaterV) );
+  temutil::nc( nc_def_var(ncid, "vegsnow", NC_DOUBLE, 3, vartype3D_dimids, &vegsnowV) );
+  temutil::nc( nc_def_var(ncid, "labn", NC_DOUBLE, 3, vartype3D_dimids, &labnV) );
+  temutil::nc( nc_def_var(ncid, "deadc", NC_DOUBLE, 3, vartype3D_dimids, &deadcV) );
+  temutil::nc( nc_def_var(ncid, "deadn", NC_DOUBLE, 3, vartype3D_dimids, &deadnV) );
+  temutil::nc( nc_def_var(ncid, "topt", NC_DOUBLE, 3, vartype3D_dimids, &toptV) );
+  temutil::nc( nc_def_var(ncid, "eetmx", NC_DOUBLE, 3, vartype3D_dimids, &eetmxV) );
+  temutil::nc( nc_def_var(ncid, "unnormleafmx", NC_DOUBLE, 3, vartype3D_dimids, &unnormleafmxV) );
+  temutil::nc( nc_def_var(ncid, "growingttime", NC_DOUBLE, 3, vartype3D_dimids, &growingttimeV) );
+  temutil::nc( nc_def_var(ncid, "foliagemx", NC_DOUBLE, 3, vartype3D_dimids, &foliagemxV) );
+
+  // Setup 4D vars, double
+  int vegcV;
+  int strnV;
+  temutil::nc( nc_def_var(ncid, "vegc", NC_DOUBLE, 4, vartype4D_dimids, &vegcV) );
+  temutil::nc( nc_def_var(ncid, "strn", NC_DOUBLE, 4, vartype4D_dimids, &strnV) );
+
+  // re-arrange dims in vartype
+  vartype3D_dimids[0] = yD;
+  vartype3D_dimids[1] = xD;
+  vartype3D_dimids[2] = soillayerD;
+
+  // Setup 3D vars, integer
+  int TEXTUREsoilV;
+  int FROZENsoilV;
+  int TYPEsoilV;
+  int AGEsoilV;
+  temutil::nc( nc_def_var(ncid, "TEXTUREsoil", NC_INT, 3, vartype3D_dimids, &TEXTUREsoilV) );
+  temutil::nc( nc_def_var(ncid, "FROZENsoil", NC_INT, 3, vartype3D_dimids, &FROZENsoilV) );
+  temutil::nc( nc_def_var(ncid, "TYPEsoil", NC_INT, 3, vartype3D_dimids, &TYPEsoilV) );
+  temutil::nc( nc_def_var(ncid, "AGEsoil", NC_INT, 3, vartype3D_dimids, &AGEsoilV) );
+
+  // Setup 3D vars, double
+  int TSsoilV;
+  int DZsoilV;
+  int LIQsoilV;
+  int ICEsoilV;
+  int FROZENFRACsoilV;
+  int rawcV;
+  int somaV;
+  int somprV;
+  int somcrV;
+  int orgnV;
+  int avlnV;
+  temutil::nc( nc_def_var(ncid, "TSsoil", NC_DOUBLE, 3, vartype3D_dimids, &TSsoilV) );
+  temutil::nc( nc_def_var(ncid, "DZsoil", NC_DOUBLE, 3, vartype3D_dimids, &DZsoilV) );
+  temutil::nc( nc_def_var(ncid, "LIQsoil", NC_DOUBLE, 3, vartype3D_dimids, &LIQsoilV) );
+  temutil::nc( nc_def_var(ncid, "ICEsoil", NC_DOUBLE, 3, vartype3D_dimids, &ICEsoilV) );
+  temutil::nc( nc_def_var(ncid, "FROZENFRACsoil", NC_DOUBLE, 3, vartype3D_dimids, &FROZENFRACsoilV) );
+  temutil::nc( nc_def_var(ncid, "rawc", NC_DOUBLE, 3, vartype3D_dimids, &rawcV) );
+  temutil::nc( nc_def_var(ncid, "soma", NC_DOUBLE, 3, vartype3D_dimids, &somaV) );
+  temutil::nc( nc_def_var(ncid, "sompr", NC_DOUBLE, 3, vartype3D_dimids, &somprV) );
+  temutil::nc( nc_def_var(ncid, "somcr", NC_DOUBLE, 3, vartype3D_dimids, &somcrV) );
+  temutil::nc( nc_def_var(ncid, "orgn", NC_DOUBLE, 3, vartype3D_dimids, &orgnV) );
+  temutil::nc( nc_def_var(ncid, "avln", NC_DOUBLE, 3, vartype3D_dimids, &avlnV) );
+
+  // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  // NOTE: Seems odd, that these variables are defined in terms of soillayer
+  // dimension and not the snowlayer dimension??? If this changes, will have
+  // to update the custom MPI Type! (And for consistency, update the
+  // create_region_inpuy.py script, although the --crtf-only feature will
+  // probably be deprecated after adding the ability to create these files in
+  // the C++ code.
+  // The old files that we've been using prior to 11/2016 seem to have been
+  // using number of soil layers, so I left it at that for now....
+  // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  int TSsnowV;
+  int DZsnowV;
+  int LIQsnowV;
+  int RHOsnowV;
+  int ICEsnowV;
+  int AGEsnowV;
+  temutil::nc( nc_def_var(ncid, "TSsnow", NC_DOUBLE, 3, vartype3D_dimids, &TSsnowV) );
+  temutil::nc( nc_def_var(ncid, "DZsnow", NC_DOUBLE, 3, vartype3D_dimids, &DZsnowV) );
+  temutil::nc( nc_def_var(ncid, "LIQsnow", NC_DOUBLE, 3, vartype3D_dimids, &LIQsnowV) );
+  temutil::nc( nc_def_var(ncid, "RHOsnow", NC_DOUBLE, 3, vartype3D_dimids, &RHOsnowV) );
+  temutil::nc( nc_def_var(ncid, "ICEsnow", NC_DOUBLE, 3, vartype3D_dimids, &ICEsnowV) );
+  temutil::nc( nc_def_var(ncid, "AGEsnow", NC_DOUBLE, 3, vartype3D_dimids, &AGEsnowV) );
+
+  // re-arrange dims in vartype
+  vartype3D_dimids[0] = yD;
+  vartype3D_dimids[1] = xD;
+  vartype3D_dimids[2] = rocklayerD;
+
+  int TSrockV;
+  int DZrockV;
+  temutil::nc( nc_def_var(ncid, "TSrock", NC_DOUBLE, 3, vartype3D_dimids, &TSrockV) );
+  temutil::nc( nc_def_var(ncid, "DZrock", NC_DOUBLE, 3, vartype3D_dimids, &DZrockV) );
+
+
+  // re-arrange dims in vartype
+  vartype3D_dimids[0] = yD;
+  vartype3D_dimids[1] = xD;
+  vartype3D_dimids[2] = frontsD;
+
+  int frontFTV;
+  int frontZV;
+  temutil::nc( nc_def_var(ncid, "frontFT", NC_INT, 3, vartype3D_dimids, &frontFTV) );
+  temutil::nc( nc_def_var(ncid, "frontZ", NC_DOUBLE, 3, vartype3D_dimids, &frontZV) );
+
+  // re-arrange dims in vartype
+  vartype4D_dimids[0] = yD;
+  vartype4D_dimids[1] = xD;
+  vartype4D_dimids[2] = rootlayerD;
+  vartype4D_dimids[3] = pftD;
+
+  int rootfracV;
+  temutil::nc( nc_def_var(ncid, "rootfrac", NC_DOUBLE, 4, vartype4D_dimids, &rootfracV) );
+
+
+  // re-arrange dims in vartype
+  vartype4D_dimids[0] = yD;
+  vartype4D_dimids[1] = xD;
+  vartype4D_dimids[2] = prevtenD;
+  vartype4D_dimids[3] = pftD;
+
+  int toptAV;
+  int eetmxAV;
+  int unnormleafmxAV;
+  int growingttimeAV;
+  temutil::nc( nc_def_var(ncid, "toptA", NC_DOUBLE, 4, vartype4D_dimids, &toptAV) );
+  temutil::nc( nc_def_var(ncid, "eetmxA", NC_DOUBLE, 4, vartype4D_dimids, &eetmxAV) );
+  temutil::nc( nc_def_var(ncid, "unnormleafmxA", NC_DOUBLE, 4, vartype4D_dimids, &unnormleafmxAV) );
+  temutil::nc( nc_def_var(ncid, "growingttimeA", NC_DOUBLE, 4, vartype4D_dimids, &growingttimeAV) );
+
+  // re-arrange dims in vartype
+  vartype4D_dimids[0] = yD;
+  vartype4D_dimids[1] = xD;
+  vartype4D_dimids[2] = prevtwelveD;
+  vartype4D_dimids[3] = pftD;
+
+  int prvltrfcnAV;
+  temutil::nc( nc_def_var(ncid, "prvltrfcnA", NC_DOUBLE, 4, vartype4D_dimids, &prvltrfcnAV) );
+
+  /* Create Attributes?? */
+
+  /* End Define Mode (not scrictly necessary for netcdf 4) */
+  BOOST_LOG_SEV(glg, debug) << "Leaving 'define mode'...";
+  temutil::nc( nc_enddef(ncid) );
+
+  /* Close file. */
+  BOOST_LOG_SEV(glg, debug) << "Closing new file...";
+  temutil::nc( nc_close(ncid) );
+
+}
+
 
 /** Writes single values for variables have dimensions (Y, X).*/
 void RestartData::write_px_vars(const std::string& fname, const int rowidx, const int colidx) {
