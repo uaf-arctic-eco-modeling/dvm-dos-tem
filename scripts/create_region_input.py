@@ -111,6 +111,14 @@ def create_template_restart_nc_file(filename, sizex=10, sizey=10):
   print "Creating an empty restart file: ", filename
   ncfile = netCDF4.Dataset(filename, mode='w', format='NETCDF4')
 
+  print textwrap.dedent('''\
+  %%%%%   NOTE   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  Please note, this functionality may no longer be necessary, as functions have
+  been added to the dvmdostem model that will allow it to create its own empty 
+  restart files.
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  ''')
+
   # Dimensions for the file.
   Y = ncfile.createDimension('Y', sizey)
   X = ncfile.createDimension('X', sizex)
@@ -164,7 +172,6 @@ def create_template_restart_nc_file(filename, sizex=10, sizey=10):
 
   for v in ['prvltrfcnA']:
     ncfile.createVariable(v, np.double, ('Y','X','prevtwelve','pft'))
-
 
   ncfile.close()
 
@@ -656,7 +663,7 @@ if __name__ == '__main__':
   )
   
   parser.add_argument('--crtf-only', action="store_true",
-                      help="Only create the restart template file.")
+                      help="Only create the restart template file. Deprecated in favor of the built in capability in dvmdostem.")
 
   parser.add_argument('--tifs', default="../../snap-data",
                       help="Directory containing input TIF directories.")
