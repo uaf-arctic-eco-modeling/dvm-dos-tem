@@ -21,7 +21,7 @@ public :
   #endif
 
   void reinitValue();
-  void append_to_ncfile(const std::string& fname, const int rowidx, const int colidx);
+  void write_pixel_to_ncfile(const std::string& fname, const int rowidx, const int colidx);
   void update_from_ncfile(const std::string& fname, const int rowidx, const int colidx);
   //The following two functions should probably be replaced with
   //something that does not require manually adding new members.

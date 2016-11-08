@@ -334,7 +334,7 @@ int main(int argc, char* argv[]){
             runner.cohort.restartdata.restartdata_to_log();
 
             BOOST_LOG_SEV(glg, note) << "Writing RestartData to: " << eq_restart_fname;
-            runner.cohort.restartdata.append_to_ncfile(eq_restart_fname, rowidx, colidx);
+            runner.cohort.restartdata.write_pixel_to_ncfile(eq_restart_fname, rowidx, colidx);
 
             if (runner.calcontroller_ptr) {
               runner.calcontroller_ptr->handle_stage_end("eq");
@@ -379,7 +379,7 @@ int main(int argc, char* argv[]){
             runner.cohort.restartdata.restartdata_to_log();
 
             BOOST_LOG_SEV(glg, note) << "Writing RestartData out to: " << sp_restart_fname;
-            runner.cohort.restartdata.append_to_ncfile(sp_restart_fname, rowidx, colidx);
+            runner.cohort.restartdata.write_pixel_to_ncfile(sp_restart_fname, rowidx, colidx);
 
             if (runner.calcontroller_ptr) {
               runner.calcontroller_ptr->handle_stage_end("sp");
@@ -418,7 +418,7 @@ int main(int argc, char* argv[]){
             runner.cohort.restartdata.restartdata_to_log();
 
             BOOST_LOG_SEV(glg, note) << "Writing RestartData out to: " << tr_restart_fname;
-            runner.cohort.restartdata.append_to_ncfile(tr_restart_fname, rowidx, colidx);
+            runner.cohort.restartdata.write_pixel_to_ncfile(tr_restart_fname, rowidx, colidx);
 
             if (runner.calcontroller_ptr) {
               runner.calcontroller_ptr->handle_stage_end("tr");
@@ -458,7 +458,7 @@ int main(int argc, char* argv[]){
             runner.cohort.restartdata.restartdata_to_log();
 
             BOOST_LOG_SEV(glg, note) << "Writing RestartData out to: " << sc_restart_fname;
-            runner.cohort.restartdata.append_to_ncfile(sc_restart_fname, rowidx, colidx);
+            runner.cohort.restartdata.write_pixel_to_ncfile(sc_restart_fname, rowidx, colidx);
 
             if (runner.calcontroller_ptr) {
               runner.calcontroller_ptr->handle_stage_end("sc");

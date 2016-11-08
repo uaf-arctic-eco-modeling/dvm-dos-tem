@@ -415,7 +415,7 @@ void RestartData::update_from_ncfile(const std::string& fname, const int rowidx,
 }
 
 /** Copies values from this RestartData object to a NetCDF file. */
-void RestartData::append_to_ncfile(const std::string& fname, const int rowidx, const int colidx) {
+void RestartData::write_pixel_to_ncfile(const std::string& fname, const int rowidx, const int colidx) {
 
   BOOST_LOG_SEV(glg, debug) << "Opening dataset: " << fname
                             << " to WRITE RestartData for pixel (y, x): ("
