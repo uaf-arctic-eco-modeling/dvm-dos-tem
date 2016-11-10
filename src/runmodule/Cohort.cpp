@@ -706,6 +706,9 @@ void Cohort::updateMonthly_Fir(const int & year, const int & midx, std::string s
 
   // FIX ?? not sure this may no longer be necessary??
   // FIX? should this get moved into the "if fire" block?, or do we always zero out the FirData values?
+  if(cd.mthsdist >= 1){
+    fd->beginOfMonth();
+  }
   if (midx == 0) {
     fd->beginOfYear();
   }

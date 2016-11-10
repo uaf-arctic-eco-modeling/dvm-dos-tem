@@ -48,6 +48,10 @@ void FirData::init() {
   //
 };
 
+void FirData::beginOfMonth(){
+  fire_v2dead = veg2dead_fir();
+}
+
 void FirData::beginOfYear() {
   fire_soid.burnthick =0.;
   fire_v2a.orgc =0.;

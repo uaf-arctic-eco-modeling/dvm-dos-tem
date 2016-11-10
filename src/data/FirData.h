@@ -34,6 +34,7 @@ public:
   void init();
   void beginOfYear();
   void endOfYear();
+  void beginOfMonth();
   void burn();
   
   std::string report_to_string(const std::string& msg);
