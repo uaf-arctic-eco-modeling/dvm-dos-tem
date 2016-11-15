@@ -825,11 +825,15 @@ void Soil_Bgc::deltastate() {
     // layer or first layer if no moss-layer.
     // if ( cd->m_soil.type[il+1] > 0 && (il==0 || cd->m_soil.type[il]==0) ) {
     //   rhsum += del_soi2a.rhmossc;
+    //   Commented out above because rhsum is used to compute the
+    //   dynamic of soil organic matter, which is a different pool
+    //   than the moss carbon pool.
     // }
 
     // All products from debris C decomposition assumed into first layer
+    //Only add woody debris respiration once
     if (il == 0) {
-      rhsum  += del_soi2a.rhwdeb;
+//      rhsum  += del_soi2a.rhwdeb;
     }
 
     // Only calculate these pools for non-moss layers...
