@@ -706,8 +706,8 @@ void Cohort::updateMonthly_Fir(const int & year, const int & midx, std::string s
 
   // FIX ?? not sure this may no longer be necessary??
   // FIX? should this get moved into the "if fire" block?, or do we always zero out the FirData values?
-  if(cd.mthsdist >= 1){
-    fd->beginOfMonth();
+  if(cd.mthsdist >= fire.getFRI()*12){
+    fd->fire_a2soi.orgn = 0.0;
   }
   if (midx == 0) {
     fd->beginOfYear();
@@ -765,6 +765,10 @@ void Cohort::updateMonthly_Fir(const int & year, const int & midx, std::string s
   } else {
     BOOST_LOG_SEV(glg, debug) << "Not time for a fire. Nothing to do.";
   }
+
+  //Transfer monthly fire data, regardless of burn
+  year_fd[midx] = *fd;
+  fd->clear();
 }
 
 /** Dynamic Vegetation Module function. */

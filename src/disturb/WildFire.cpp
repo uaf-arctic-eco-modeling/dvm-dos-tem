@@ -497,7 +497,9 @@ void WildFire::burn(int year) {
   // which is depositing into soil evenly in one FRI
   //- this will let the system -N balanced in a long-term, if NO
   //  open-N cycle included
-  fd->fire_a2soi.orgn = (fd->fire_soi2a.orgn + fd->fire_v2a.orgn) / cd->fri;
+  //This should occur every month post-fire. FIX
+  fd->fire_a2soi.orgn = (fd->fire_soi2a.orgn + fd->fire_v2a.orgn) / this->fri;
+
 
   //put the retained C/N into the first unburned soil layer's
   //  chemically-resistant SOMC pool

@@ -439,17 +439,18 @@ void Runner::output_caljson_monthly(int year, int month, std::string stage, boos
   data["RH"] = cohort.bdall->m_soi2a.rhtot;
 
   data["YearsSinceDisturb"] = cohort.cd.yrsdist;
-  data["Burnthick"] = cohort.fd->fire_soid.burnthick;
-  data["BurnVeg2AirC"] = cohort.fd->fire_v2a.orgc;
-  data["BurnVeg2AirN"] = cohort.fd->fire_v2a.orgn;
-  data["BurnVeg2SoiAbvVegC"] = cohort.fd->fire_v2soi.abvc;
-  data["BurnVeg2SoiBlwVegC"] = cohort.fd->fire_v2soi.blwc;
-  data["BurnVeg2SoiAbvVegN"] = cohort.fd->fire_v2soi.abvn;
-  data["BurnVeg2SoiBlwVegN"] = cohort.fd->fire_v2soi.blwn;
-  data["BurnSoi2AirC"] = cohort.fd->fire_soi2a.orgc;
-  data["BurnSoi2AirN"] = cohort.fd->fire_soi2a.orgn;
-  data["BurnAbvVeg2DeadC"] = cohort.fd->fire_v2dead.vegC;
-  data["BurnAbvVeg2DeadN"] = cohort.fd->fire_v2dead.strN;
+  data["Burnthick"] = cohort.year_fd[month].fire_soid.burnthick;
+  data["BurnVeg2AirC"] = cohort.year_fd[month].fire_v2a.orgc;
+  data["BurnVeg2AirN"] = cohort.year_fd[month].fire_v2a.orgn;
+  data["BurnVeg2SoiAbvVegC"] = cohort.year_fd[month].fire_v2soi.abvc;
+  data["BurnVeg2SoiBlwVegC"] = cohort.year_fd[month].fire_v2soi.blwc;
+  data["BurnVeg2SoiAbvVegN"] = cohort.year_fd[month].fire_v2soi.abvn;
+  data["BurnVeg2SoiBlwVegN"] = cohort.year_fd[month].fire_v2soi.blwn;
+  data["BurnSoi2AirC"] = cohort.year_fd[month].fire_soi2a.orgc;
+  data["BurnSoi2AirN"] = cohort.year_fd[month].fire_soi2a.orgn;
+  data["BurnAir2SoiN"] = cohort.year_fd[month].fire_a2soi.orgn;
+  data["BurnAbvVeg2DeadC"] = cohort.year_fd[month].fire_v2dead.vegC;
+  data["BurnAbvVeg2DeadN"] = cohort.year_fd[month].fire_v2dead.strN;
   data["RawCSum"] = cohort.bdall->m_soid.rawcsum;
   data["SomaSum"] = cohort.bdall->m_soid.somasum;
   data["SomcrSum"] = cohort.bdall->m_soid.somcrsum;
@@ -617,19 +618,54 @@ void Runner::output_caljson_yearly(int year, std::string stage, boost::filesyste
   data["RHsompr"] = cohort.bdall->y_soi2a.rhsomprsum;
   data["RHsomcr"] = cohort.bdall->y_soi2a.rhsomcrsum;
   data["RH"] = cohort.bdall->y_soi2a.rhtot;
-  
-  data["Burnthick"] = cohort.fd->fire_soid.burnthick;
-  data["BurnVeg2AirC"] = cohort.fd->fire_v2a.orgc;
-  data["BurnVeg2AirN"] = cohort.fd->fire_v2a.orgn;
-  data["BurnVeg2SoiAbvVegC"] = cohort.fd->fire_v2soi.abvc;
-  data["BurnVeg2SoiBlwVegC"] = cohort.fd->fire_v2soi.blwc;
-  data["BurnVeg2SoiAbvVegN"] = cohort.fd->fire_v2soi.abvn;
-  data["BurnVeg2SoiBlwVegN"] = cohort.fd->fire_v2soi.blwn;
-  data["BurnSoi2AirC"] = cohort.fd->fire_soi2a.orgc;
-  data["BurnSoi2AirN"] = cohort.fd->fire_soi2a.orgn;
-  data["BurnAbvVeg2DeadC"] = cohort.fd->fire_v2dead.vegC;
-  data["BurnAbvVeg2DeadN"] = cohort.fd->fire_v2dead.strN;
+ 
+  //Placeholders for summing fire variables for the entire year
+  double burnthick = 0.0, veg2airc = 0.0, veg2airn = 0.0, veg2soiabvvegc=0.0, veg2soiabvvegn = 0.0, veg2soiblwvegc = 0.0, veg2soiblwvegn = 0.0, veg2deadc = 0.0, veg2deadn = 0.0, soi2airc = 0.0, soi2airn = 0.0, air2soin = 0.0;
+ 
+  for(int im=0; im<12; im++){
+    char mth_chars[2];
+    sprintf(mth_chars, "%02d", im);
+    std::string mth_str = std::string(mth_chars);
+    data["Fire"][mth_str]["Burnthick"] = cohort.year_fd[im].fire_soid.burnthick;
+    data["Fire"][mth_str]["Veg2AirC"] = cohort.year_fd[im].fire_v2a.orgc;
+    data["Fire"][mth_str]["Veg2AirN"] = cohort.year_fd[im].fire_v2a.orgn;
+    data["Fire"][mth_str]["Veg2SoiAbvVegC"] = cohort.year_fd[im].fire_v2soi.abvc;
+    data["Fire"][mth_str]["Veg2SoiBlwVegC"] = cohort.year_fd[im].fire_v2soi.blwc;
+    data["Fire"][mth_str]["Veg2SoiAbvVegN"] = cohort.year_fd[im].fire_v2soi.abvn;
+    data["Fire"][mth_str]["Veg2SoiBlwVegN"] = cohort.year_fd[im].fire_v2soi.blwn;
+    data["Fire"][mth_str]["Veg2DeadC"] = cohort.year_fd[im].fire_v2dead.vegC;
+    data["Fire"][mth_str]["Veg2DeadN"] = cohort.year_fd[im].fire_v2dead.strN;
+    data["Fire"][mth_str]["Soi2AirC"] = cohort.year_fd[im].fire_soi2a.orgc;
+    data["Fire"][mth_str]["Soi2AirN"] = cohort.year_fd[im].fire_soi2a.orgn;
+    data["Fire"][mth_str]["Air2SoiN"] = cohort.year_fd[im].fire_a2soi.orgn/12;
 
+    //Summed data for the entire year
+    burnthick += cohort.year_fd[im].fire_soid.burnthick;
+    veg2airc += cohort.year_fd[im].fire_v2a.orgc;
+    veg2airn += cohort.year_fd[im].fire_v2a.orgn;
+    veg2soiabvvegc += cohort.year_fd[im].fire_v2soi.abvc;
+    veg2soiblwvegc += cohort.year_fd[im].fire_v2soi.blwc;
+    veg2soiabvvegn += cohort.year_fd[im].fire_v2soi.abvn;
+    veg2soiblwvegn += cohort.year_fd[im].fire_v2soi.blwn;
+    veg2deadc += cohort.year_fd[im].fire_v2dead.vegC;
+    veg2deadn += cohort.year_fd[im].fire_v2dead.strN;
+    soi2airc += cohort.year_fd[im].fire_soi2a.orgc;
+    soi2airn += cohort.year_fd[im].fire_soi2a.orgn;
+    air2soin += cohort.year_fd[im].fire_a2soi.orgn/12;
+
+  }
+  data["Burnthick"] = burnthick;
+  data["BurnVeg2AirC"] = veg2airc;
+  data["BurnVeg2AirN"] = veg2airn;
+  data["BurnVeg2SoiAbvVegC"] = veg2soiabvvegc;
+  data["BurnVeg2SoiAbvVegN"] = veg2soiabvvegn;
+  data["BurnVeg2SoiBlwVegN"] = veg2soiblwvegn;
+  data["BurnVeg2SoiBlwVegC"] = veg2soiblwvegc;
+  data["BurnSoi2AirC"] = soi2airc;
+  data["BurnSoi2AirN"] = soi2airn;
+  data["BurnAir2SoiN"] = air2soin;
+  data["BurnAbvVeg2DeadC"] = veg2deadc;
+  data["BurnAbvVeg2DeadN"] = veg2deadn;
 
   for(int pft=0; pft<NUM_PFT; pft++) { //NUM_PFT
     char pft_chars[5];

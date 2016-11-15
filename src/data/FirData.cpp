@@ -40,8 +40,10 @@ void FirData::clear() {
   fire_v2a  = veg2atm_fir();
   fire_v2soi= veg2soi_fir();
   fire_soi2a= soi2atm_fir();
-  fire_a2soi= atm2soi_fir();
   fire_v2dead = veg2dead_fir();
+  //fire_a2soi is not cleared until FRI*12 months post fire, as it
+  //holds the flux value for transferring N back to the soil.
+  //fire_a2soi= atm2soi_fir();
 };
 
 void FirData::init() {
