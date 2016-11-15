@@ -785,6 +785,8 @@ void Soil_Bgc::deltan() {
       double orgneven = tsomcsum/bgcpar.nmincnsoil;
 
       if ( orgneven >= bd->m_soid.orgnsum) {
+        //This forces the C:N ratio in all the soil layers to be
+        //equal to the C:N ratio in the parameter file.
         del_a2soi.orgninput += orgneven - bd->m_soid.orgnsum;
       } else {
         del_soi2l.orgnlost  += bd->m_soid.orgnsum - orgneven;
