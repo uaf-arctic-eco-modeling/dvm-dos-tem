@@ -280,6 +280,7 @@ void WildFire::burn(int year) {
 
         // Calculate the remaining C, N
         if(partleft < cd->m_soil.dz[il]) { // <-- Maybe this should be an assert instead of an if statement??
+          BOOST_LOG_SEV(glg, debug) << "Burning all but "<<partleft<<"of layer "<<il;
           burnedsolc += (1.0-partleft/cd->m_soil.dz[il]) * ilsolc;
           burnedsoln += (1.0-partleft/cd->m_soil.dz[il]) * ilsoln;
           bdall->m_sois.rawc[il] *= partleft/cd->m_soil.dz[il];
@@ -298,13 +299,13 @@ void WildFire::burn(int year) {
           }
         } else {
           // should never get here??
-          BOOST_LOG_SEV(glg, err) << "The remaing soil after a burn is greater than the thickness of this layer. Something is wrong??";
+          BOOST_LOG_SEV(glg, err) << "The remaining soil after a burn is greater than the thickness of this layer. Something is wrong??";
           BOOST_LOG_SEV(glg, err) << "partleft: " << partleft << "cd->m_soil.dz["<<il<<"]: " << cd->m_soil.dz[il];
           break;
         }
       }
-    } else {   //non-organic soil layers or moss layers
-      BOOST_LOG_SEV(glg, note) << "Layer type:" << cd->m_soil.type[il] << ". Should be a non-organic soil or moss layer? (greater than type 2)";
+    } else {   //Mineral soil layers
+      BOOST_LOG_SEV(glg, note) << "Layer type:" << cd->m_soil.type[il] << ". Should be a non-organic soil layer? (greater than type 2)";
 
       BOOST_LOG_SEV(glg, note) << "Not much to do here. Can't really burn non-organic layers.";
 

@@ -403,6 +403,12 @@ void Cohort::updateMonthly(const int & yrcnt, const int & currmind,
 
   BOOST_LOG_SEV(glg, debug) << "Clean up at the end of the month";
   cd.endOfMonth();
+  BOOST_LOG_SEV(glg, debug) << "Soil aggregation at end of month";
+  //This call clears m_soid and updates it to the proper summed values
+  // from m_sois. This is especially important after fire, because
+  // otherwise the model enters the next month's integration with
+  // old values.
+  this->bdall->soil_endOfMonth(currmind);
 
   if(currmind == 11) {
     BOOST_LOG_SEV(glg, debug) << "Clean up at end of year.";
