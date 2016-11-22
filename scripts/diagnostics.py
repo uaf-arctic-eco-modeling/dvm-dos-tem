@@ -419,6 +419,7 @@ def bal_C_soil(curr_jd, prev_jd):
                   + sum_across("MossDeathC", curr_jd, 'all') \
                   + curr_jd["BurnVeg2SoiAbvVegC"] \
                   + curr_jd["BurnVeg2SoiBlwVegC"] \
+                  + curr_jd["D2WoodyDebrisC"] \
                   - curr_jd["RH"] \
                   - curr_jd["BurnSoi2AirC"]
 
@@ -457,7 +458,14 @@ def bal_N_soil_org(jd, pjd):
   delta = np.nan
   if pjd != None:
     delta = jd["OrganicNitrogenSum"] - pjd["OrganicNitrogenSum"]
-  sum_of_fluxes = sum_across("LitterfallNitrogenPFT", jd, 'all') + jd["MossdeathNitrogen"] - jd["NetNMin"] - jd["BurnSoi2AirN"]
+
+  sum_of_fluxes = sum_across("LitterfallNitrogenPFT", jd, 'all') \
+                  + jd["MossdeathNitrogen"] \
+                  + jd["BurnVeg2SoiAbvVegN"] \
+                  + jd["BurnVeg2SoiBlwVegN"] \
+                  - jd["NetNMin"] \
+                  - jd["BurnSoi2AirN"] \
+
   err = delta - sum_of_fluxes
   return DeltaError(delta, err)
 
@@ -478,7 +486,8 @@ def bal_N_veg_tot(jd, pjd, xsec='all'):
   if xsec == 'all':
     burn_flux = jd["BurnVeg2AirN"] \
                 + jd["BurnVeg2SoiAbvVegN"] \
-                + jd["BurnVeg2SoiBlwVegN"]
+                + jd["BurnVeg2SoiBlwVegN"] \
+                + jd["BurnAbvVeg2DeadN"]
 
     sum_of_fluxes = sum_across("TotNitrogenUptake", jd, xsec) \
                     - sum_across("LitterfallNitrogenPFT", jd, xsec) \
@@ -507,7 +516,8 @@ def bal_N_veg_str(jd, pjd, xsec='all'):
   if xsec == 'all':
     burn_flux = jd["BurnVeg2AirN"] \
                 + jd["BurnVeg2SoiAbvVegN"] \
-                + jd["BurnVeg2SoiBlwVegN"]
+                + jd["BurnVeg2SoiBlwVegN"] \
+                + jd["BurnAbvVeg2DeadN"]
 
     sum_of_fluxes = sum_across("StNitrogenUptake", jd, xsec) \
                     + sum_across("NMobil", jd, xsec) \
@@ -517,10 +527,10 @@ def bal_N_veg_str(jd, pjd, xsec='all'):
                     - burn_flux
 
   if xsec == 'vasc':
-    sum_of_fluxes = sum_across("StNitrogenUptake", jd, xsec) + \
-                    sum_across("NMobil", jd, xsec) - \
-                    sum_across("LitterfallNitrogenPFT", jd, xsec) - \
-                    sum_across("NResorb", jd, xsec)
+    sum_of_fluxes = sum_across("StNitrogenUptake", jd, xsec) \
+                    + sum_across("NMobil", jd, xsec) \
+                    - sum_across("LitterfallNitrogenPFT", jd, xsec) \
+                    - sum_across("NResorb", jd, xsec)
 
 
   if xsec == 'nonvasc':
@@ -539,7 +549,9 @@ def bal_N_veg_lab(jd, pjd, xsec='all'):
     delta = sum_across("VegLabileNitrogen", jd, xsec) - sum_across("VegLabileNitrogen", pjd, xsec)
 
   if xsec=='all' or xsec == 'vasc' or xsec == 'nonvasc':
-    sum_of_fluxes = sum_across("LabNitrogenUptake", jd, xsec) + sum_across("NResorb", jd, xsec) - sum_across("NMobil", jd, xsec)
+    sum_of_fluxes = sum_across("LabNitrogenUptake", jd, xsec) \
+                    + sum_across("NResorb", jd, xsec) \
+                    - sum_across("NMobil", jd, xsec)
 
   err = delta - sum_of_fluxes
   return DeltaError(delta, err)
