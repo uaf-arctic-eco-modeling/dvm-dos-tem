@@ -416,7 +416,7 @@ void Runner::output_caljson_monthly(int year, int month, std::string stage, boos
   data["DeadMossCarbon"] = cohort.bdall->m_sois.dmossc;
   data["DeadMossNitrogen"] = cohort.bdall->m_sois.dmossn;
   // fluxes
-  data["MossdeathCarbon"] = cohort.bdall->m_v2soi.mossdeathc;
+  data["MossDeathC"] = cohort.bdall->m_v2soi.mossdeathc;
   data["MossdeathNitrogen"] = cohort.bdall->m_v2soi.mossdeathn;
 
   data["NetNMin"] = cohort.bdall->m_soi2soi.netnminsum;
@@ -587,7 +587,7 @@ void Runner::output_caljson_yearly(int year, std::string stage, boost::filesyste
   data["DeadMossCarbon"] = cohort.bdall->y_sois.dmossc;
   data["DeadMossNitrogen"] = cohort.bdall->y_sois.dmossn;
   // fluxes
-  data["MossdeathCarbon"] = cohort.bdall->y_v2soi.mossdeathc;
+  data["MossDeathC"] = cohort.bdall->y_v2soi.mossdeathc;
   data["MossdeathNitrogen"] = cohort.bdall->y_v2soi.mossdeathn;
 
   data["NetNMin"] = cohort.bdall->y_soi2soi.netnminsum;

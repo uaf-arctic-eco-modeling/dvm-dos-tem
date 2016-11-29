@@ -145,7 +145,7 @@ configured_suites = {
       { 'jsontag': 'StNitrogenUptakeAll', 'axesnum': 7, 'units': 'gN/m^2', },
       { 'jsontag': 'InNitrogenUptakeAll', 'axesnum': 7, 'units': 'gN/m^2', },
 
-      { 'jsontag': 'MossdeathCarbon', 'axesnum': 8, 'units': 'gC/m^2', },
+      { 'jsontag': 'MossDeathC', 'axesnum': 8, 'units': 'gC/m^2', },
       { 'jsontag': 'MossdeathNitrogen', 'axesnum': 8, 'units': 'gC/m^2', },
     ]
   },
