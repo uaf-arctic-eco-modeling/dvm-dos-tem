@@ -415,9 +415,15 @@ void Runner::output_caljson_monthly(int year, int month, std::string stage, boos
   // pools
   data["DeadMossCarbon"] = cohort.bdall->m_sois.dmossc;
   data["DeadMossNitrogen"] = cohort.bdall->m_sois.dmossn;
+  data["StandingDeadC"] = cohort.bdall->m_vegs.deadc;
+  data["StandingDeadN"] = cohort.bdall->m_vegs.deadn;
+  data["WoodyDebrisC"] = cohort.bdall->m_sois.wdebrisc;
+  data["WoodyDebrisN"] = cohort.bdall->m_sois.wdebrisn;
   // fluxes
   data["MossdeathCarbon"] = cohort.bdall->m_v2soi.mossdeathc;
   data["MossdeathNitrogen"] = cohort.bdall->m_v2soi.mossdeathn;
+  data["D2WoodyDebrisC"] = cohort.bdall->m_v2soi.d2wdebrisc;
+  data["D2WoodyDebrisN"] = cohort.bdall->m_v2soi.d2wdebrisn;
 
   data["NetNMin"] = cohort.bdall->m_soi2soi.netnminsum;
   data["NetNImmob"] = cohort.bdall->m_soi2soi.nimmobsum;
@@ -432,15 +438,19 @@ void Runner::output_caljson_monthly(int year, int month, std::string stage, boos
   data["RHmossc"] = cohort.bdall->m_soi2a.rhmossc;
   data["RH"] = cohort.bdall->m_soi2a.rhtot;
 
-  data["Burnthick"] = cohort.fd->fire_soid.burnthick;
-  data["BurnVeg2AirC"] = cohort.fd->fire_v2a.orgc;
-  data["BurnVeg2AirN"] = cohort.fd->fire_v2a.orgn;
-  data["BurnVeg2SoiAbvVegC"] = cohort.fd->fire_v2soi.abvc;
-  data["BurnVeg2SoiBlwVegC"] = cohort.fd->fire_v2soi.blwc;
-  data["BurnVeg2SoiAbvVegN"] = cohort.fd->fire_v2soi.abvn;
-  data["BurnVeg2SoiBlwVegN"] = cohort.fd->fire_v2soi.blwn;
-  data["BurnSoi2AirC"] = cohort.fd->fire_soi2a.orgc;
-  data["BurnSoi2AirN"] = cohort.fd->fire_soi2a.orgn;
+  data["YearsSinceDisturb"] = cohort.cd.yrsdist;
+  data["Burnthick"] = cohort.year_fd[month].fire_soid.burnthick;
+  data["BurnVeg2AirC"] = cohort.year_fd[month].fire_v2a.orgc;
+  data["BurnVeg2AirN"] = cohort.year_fd[month].fire_v2a.orgn;
+  data["BurnVeg2SoiAbvVegC"] = cohort.year_fd[month].fire_v2soi.abvc;
+  data["BurnVeg2SoiBlwVegC"] = cohort.year_fd[month].fire_v2soi.blwc;
+  data["BurnVeg2SoiAbvVegN"] = cohort.year_fd[month].fire_v2soi.abvn;
+  data["BurnVeg2SoiBlwVegN"] = cohort.year_fd[month].fire_v2soi.blwn;
+  data["BurnSoi2AirC"] = cohort.year_fd[month].fire_soi2a.orgc;
+  data["BurnSoi2AirN"] = cohort.year_fd[month].fire_soi2a.orgn;
+  data["BurnAir2SoiN"] = cohort.year_fd[month].fire_a2soi.orgn;
+  data["BurnAbvVeg2DeadC"] = cohort.year_fd[month].fire_v2dead.vegC;
+  data["BurnAbvVeg2DeadN"] = cohort.year_fd[month].fire_v2dead.strN;
   data["RawCSum"] = cohort.bdall->m_soid.rawcsum;
   data["SomaSum"] = cohort.bdall->m_soid.somasum;
   data["SomcrSum"] = cohort.bdall->m_soid.somcrsum;
@@ -467,6 +477,8 @@ void Runner::output_caljson_monthly(int year, int month, std::string stage, boos
     data["PFT" + pft_str]["VegLabileNitrogen"] = cohort.bd[pft].m_vegs.labn;
 
     data["PFT" + pft_str]["NAll"] = cohort.bd[pft].m_vegs.nall; // <-- Sum of labn and strn
+    data["PFT" + pft_str]["StandingDeadC"] = cohort.bd[pft].m_vegs.deadc;
+    data["PFT" + pft_str]["StandingDeadN"] = cohort.bd[pft].m_vegs.deadn;
 
     data["PFT" + pft_str]["NMobil"] = cohort.bd[pft].m_v2v.nmobilall; // <- the all denotes multi-compartment
     data["PFT" + pft_str]["NResorb"] = cohort.bd[pft].m_v2v.nresorball;
@@ -571,8 +583,8 @@ void Runner::output_caljson_yearly(int year, std::string stage, boost::filesyste
   data["TMineB"] = cohort.edall->y_soid.tmineb;
   data["TMineC"] = cohort.edall->y_soid.tminec;
 
-  data["NMobilAll"] = cohort.bdall->m_v2v.nmobilall;
-  data["NResorbAll"] = cohort.bdall->m_v2v.nresorball;
+  data["NMobilAll"] = cohort.bdall->y_v2v.nmobilall;
+  data["NResorbAll"] = cohort.bdall->y_v2v.nresorball;
 
   data["StNitrogenUptakeAll"] = cohort.bdall->y_soi2v.snuptakeall;
   data["InNitrogenUptakeAll"] = cohort.bdall->y_soi2v.innuptake;
@@ -586,9 +598,15 @@ void Runner::output_caljson_yearly(int year, std::string stage, boost::filesyste
   // pools
   data["DeadMossCarbon"] = cohort.bdall->y_sois.dmossc;
   data["DeadMossNitrogen"] = cohort.bdall->y_sois.dmossn;
+  data["StandingDeadC"] = cohort.bdall->y_vegs.deadc;
+  data["StandingDeadN"] = cohort.bdall->y_vegs.deadn;
+  data["WoodyDebrisC"] = cohort.bdall->y_sois.wdebrisc;
+  data["WoodyDebrisN"] = cohort.bdall->y_sois.wdebrisn;
   // fluxes
   data["MossdeathCarbon"] = cohort.bdall->y_v2soi.mossdeathc;
   data["MossdeathNitrogen"] = cohort.bdall->y_v2soi.mossdeathn;
+  data["D2WoodyDebrisC"] = cohort.bdall->y_v2soi.d2wdebrisc;
+  data["D2WoodyDebrisN"] = cohort.bdall->y_v2soi.d2wdebrisn;
 
   data["NetNMin"] = cohort.bdall->y_soi2soi.netnminsum;
   data["NetNImmob"] = cohort.bdall->y_soi2soi.nimmobsum;
@@ -600,17 +618,54 @@ void Runner::output_caljson_yearly(int year, std::string stage, boost::filesyste
   data["RHsompr"] = cohort.bdall->y_soi2a.rhsomprsum;
   data["RHsomcr"] = cohort.bdall->y_soi2a.rhsomcrsum;
   data["RH"] = cohort.bdall->y_soi2a.rhtot;
-  
-  data["Burnthick"] = cohort.fd->fire_soid.burnthick;
-  data["BurnVeg2AirC"] = cohort.fd->fire_v2a.orgc;
-  data["BurnVeg2AirN"] = cohort.fd->fire_v2a.orgn;
-  data["BurnVeg2SoiAbvVegC"] = cohort.fd->fire_v2soi.abvc;
-  data["BurnVeg2SoiBlwVegC"] = cohort.fd->fire_v2soi.blwc;
-  data["BurnVeg2SoiAbvVegN"] = cohort.fd->fire_v2soi.abvn;
-  data["BurnVeg2SoiBlwVegN"] = cohort.fd->fire_v2soi.blwn;
-  data["BurnSoi2AirC"] = cohort.fd->fire_soi2a.orgc;
-  data["BurnSoi2AirN"] = cohort.fd->fire_soi2a.orgn;
+ 
+  //Placeholders for summing fire variables for the entire year
+  double burnthick = 0.0, veg2airc = 0.0, veg2airn = 0.0, veg2soiabvvegc=0.0, veg2soiabvvegn = 0.0, veg2soiblwvegc = 0.0, veg2soiblwvegn = 0.0, veg2deadc = 0.0, veg2deadn = 0.0, soi2airc = 0.0, soi2airn = 0.0, air2soin = 0.0;
+ 
+  for(int im=0; im<12; im++){
+    char mth_chars[2];
+    sprintf(mth_chars, "%02d", im);
+    std::string mth_str = std::string(mth_chars);
+    data["Fire"][mth_str]["Burnthick"] = cohort.year_fd[im].fire_soid.burnthick;
+    data["Fire"][mth_str]["Veg2AirC"] = cohort.year_fd[im].fire_v2a.orgc;
+    data["Fire"][mth_str]["Veg2AirN"] = cohort.year_fd[im].fire_v2a.orgn;
+    data["Fire"][mth_str]["Veg2SoiAbvVegC"] = cohort.year_fd[im].fire_v2soi.abvc;
+    data["Fire"][mth_str]["Veg2SoiBlwVegC"] = cohort.year_fd[im].fire_v2soi.blwc;
+    data["Fire"][mth_str]["Veg2SoiAbvVegN"] = cohort.year_fd[im].fire_v2soi.abvn;
+    data["Fire"][mth_str]["Veg2SoiBlwVegN"] = cohort.year_fd[im].fire_v2soi.blwn;
+    data["Fire"][mth_str]["Veg2DeadC"] = cohort.year_fd[im].fire_v2dead.vegC;
+    data["Fire"][mth_str]["Veg2DeadN"] = cohort.year_fd[im].fire_v2dead.strN;
+    data["Fire"][mth_str]["Soi2AirC"] = cohort.year_fd[im].fire_soi2a.orgc;
+    data["Fire"][mth_str]["Soi2AirN"] = cohort.year_fd[im].fire_soi2a.orgn;
+    data["Fire"][mth_str]["Air2SoiN"] = cohort.year_fd[im].fire_a2soi.orgn/12;
 
+    //Summed data for the entire year
+    burnthick += cohort.year_fd[im].fire_soid.burnthick;
+    veg2airc += cohort.year_fd[im].fire_v2a.orgc;
+    veg2airn += cohort.year_fd[im].fire_v2a.orgn;
+    veg2soiabvvegc += cohort.year_fd[im].fire_v2soi.abvc;
+    veg2soiblwvegc += cohort.year_fd[im].fire_v2soi.blwc;
+    veg2soiabvvegn += cohort.year_fd[im].fire_v2soi.abvn;
+    veg2soiblwvegn += cohort.year_fd[im].fire_v2soi.blwn;
+    veg2deadc += cohort.year_fd[im].fire_v2dead.vegC;
+    veg2deadn += cohort.year_fd[im].fire_v2dead.strN;
+    soi2airc += cohort.year_fd[im].fire_soi2a.orgc;
+    soi2airn += cohort.year_fd[im].fire_soi2a.orgn;
+    air2soin += cohort.year_fd[im].fire_a2soi.orgn/12;
+
+  }
+  data["Burnthick"] = burnthick;
+  data["BurnVeg2AirC"] = veg2airc;
+  data["BurnVeg2AirN"] = veg2airn;
+  data["BurnVeg2SoiAbvVegC"] = veg2soiabvvegc;
+  data["BurnVeg2SoiAbvVegN"] = veg2soiabvvegn;
+  data["BurnVeg2SoiBlwVegN"] = veg2soiblwvegn;
+  data["BurnVeg2SoiBlwVegC"] = veg2soiblwvegc;
+  data["BurnSoi2AirC"] = soi2airc;
+  data["BurnSoi2AirN"] = soi2airn;
+  data["BurnAir2SoiN"] = air2soin;
+  data["BurnAbvVeg2DeadC"] = veg2deadc;
+  data["BurnAbvVeg2DeadN"] = veg2deadn;
 
   for(int pft=0; pft<NUM_PFT; pft++) { //NUM_PFT
     char pft_chars[5];
@@ -625,10 +680,12 @@ void Runner::output_caljson_yearly(int year, std::string stage, boost::filesyste
     data["PFT" + pft_str]["VegStructuralNitrogen"]["Root"] = cohort.bd[pft].y_vegs.strn[I_root];
     data["PFT" + pft_str]["VegLabileNitrogen"] = cohort.bd[pft].y_vegs.labn;
 
-    data["PFT" + pft_str]["NAll"] = cohort.bd[pft].m_vegs.nall; // <-- Sum of labn and strn
+    data["PFT" + pft_str]["NAll"] = cohort.bd[pft].y_vegs.nall; // <-- Sum of labn and strn
+    data["PFT" + pft_str]["StandingDeadC"] = cohort.bd[pft].y_vegs.deadc;
+    data["PFT" + pft_str]["StandingDeadN"] = cohort.bd[pft].y_vegs.deadn;
 
-    data["PFT" + pft_str]["NMobil"] = cohort.bd[pft].m_v2v.nmobilall; // <- the all denotes multi-compartment
-    data["PFT" + pft_str]["NResorb"] = cohort.bd[pft].m_v2v.nresorball;
+    data["PFT" + pft_str]["NMobil"] = cohort.bd[pft].y_v2v.nmobilall; // <- the all denotes multi-compartment
+    data["PFT" + pft_str]["NResorb"] = cohort.bd[pft].y_v2v.nresorball;
 
     data["PFT" + pft_str]["GPPAll"] = cohort.bd[pft].y_a2v.gppall;
     data["PFT" + pft_str]["NPPAll"] = cohort.bd[pft].y_a2v.nppall;

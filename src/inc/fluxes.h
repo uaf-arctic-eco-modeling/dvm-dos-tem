@@ -312,5 +312,12 @@ struct veg2soi_fir {
   veg2soi_fir(): abvc(UIN_D), abvn(UIN_D), blwc(UIN_D), blwn(UIN_D) {}
 
 };
+
+struct veg2dead_fir{
+  double vegC;
+  double strN;
+  veg2dead_fir(): vegC(UIN_D), strN(UIN_D) {}
+};
+
 #endif /*FLUXES_H_*/
 

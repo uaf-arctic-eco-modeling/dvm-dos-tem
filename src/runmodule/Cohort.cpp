@@ -403,6 +403,12 @@ void Cohort::updateMonthly(const int & yrcnt, const int & currmind,
 
   BOOST_LOG_SEV(glg, debug) << "Clean up at the end of the month";
   cd.endOfMonth();
+  BOOST_LOG_SEV(glg, debug) << "Soil aggregation at end of month";
+  //This call clears m_soid and updates it to the proper summed values
+  // from m_sois. This is especially important after fire, because
+  // otherwise the model enters the next month's integration with
+  // old values.
+  this->bdall->soil_endOfMonth(currmind);
 
   if(currmind == 11) {
     BOOST_LOG_SEV(glg, debug) << "Clean up at end of year.";
@@ -706,6 +712,9 @@ void Cohort::updateMonthly_Fir(const int & year, const int & midx, std::string s
 
   // FIX ?? not sure this may no longer be necessary??
   // FIX? should this get moved into the "if fire" block?, or do we always zero out the FirData values?
+  if(cd.mthsdist >= fire.getFRI()*12){
+    fd->fire_a2soi.orgn = 0.0;
+  }
   if (midx == 0) {
     fd->beginOfYear();
   }
@@ -751,7 +760,8 @@ void Cohort::updateMonthly_Fir(const int & year, const int & midx, std::string s
     assignSoilBd2pfts_monthly();
 
     BOOST_LOG_SEV(glg, debug) << "Post-burn, update cd, ground, fine root fraction...";
-    cd.yrsdist = 0.;
+    cd.yrsdist = 0;
+    cd.mthsdist = 0;
     ground.retrieveSnowDimension(&cd.d_snow);
     ground.retrieveSoilDimension(&cd.m_soil);
     cd.d_soil = cd.m_soil;
@@ -761,6 +771,10 @@ void Cohort::updateMonthly_Fir(const int & year, const int & midx, std::string s
   } else {
     BOOST_LOG_SEV(glg, debug) << "Not time for a fire. Nothing to do.";
   }
+
+  //Transfer monthly fire data, regardless of burn
+  year_fd[midx] = *fd;
+  fd->clear();
 }
 
 /** Dynamic Vegetation Module function. */
@@ -1140,6 +1154,8 @@ void Cohort::getBd4allveg_monthly() {
   bdall->m_vegs.labn    = 0.;
   bdall->m_vegs.strnall = 0.;
   bdall->m_vegs.nall    = 0.;
+  bdall->m_vegs.deadc   = 0.;
+  bdall->m_vegs.deadn   = 0.;
   bdall->m_a2v.ingppall = 0.;
   bdall->m_a2v.innppall = 0.;
   bdall->m_a2v.gppall   = 0.;
@@ -1192,6 +1208,8 @@ void Cohort::getBd4allveg_monthly() {
       bdall->m_vegs.call    += bd[ip].m_vegs.call;
       bdall->m_vegs.strnall += bd[ip].m_vegs.strnall;
       bdall->m_vegs.nall    += bd[ip].m_vegs.nall;
+      bdall->m_vegs.deadc   += bd[ip].m_vegs.deadc;
+      bdall->m_vegs.deadn   += bd[ip].m_vegs.deadn;
       bdall->m_a2v.ingppall += bd[ip].m_a2v.ingppall;
       bdall->m_a2v.innppall += bd[ip].m_a2v.innppall;
       bdall->m_a2v.gppall   += bd[ip].m_a2v.gppall;

@@ -78,9 +78,11 @@ void BgcData::veg_endOfMonth(const int currmind) {
     y_vegs.nall   = m_vegs.nall;
     y_vegs.deadc  = m_vegs.deadc;
     y_vegs.deadn  = m_vegs.deadn;
+    y_vegs.deadc0 = m_vegs.deadc0;
+    y_vegs.deadn0 = m_vegs.deadn0;
 
   } else {
-    // annual values of the pools are meaningfull only at the end of the year
+    // annual values of the pools are meaningful only at the end of the year
     // (december month)
     // annual values of the pools result from the annual fluxes (sum of the
     //  monthly values).
@@ -162,6 +164,8 @@ void BgcData::veg_beginOfYear() {
   y_vegs.nall    = 0.;
   y_vegs.labn    = 0.;
   y_vegs.strnall = 0.;
+  y_vegs.deadc   = 0.;
+  y_vegs.deadn   = 0.;
   y_vegd.fca     = 0.;
   y_vegd.fna     = 0.;
   y_vegd.ftemp   = 0.;

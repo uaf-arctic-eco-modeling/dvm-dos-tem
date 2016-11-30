@@ -393,10 +393,15 @@ def ecosystem_sum_soilC(jdata):
   total = np.nan
   if jdata != None:
     total = 0
-    total += jdata["CarbonMineralSum"]
-    total += jdata["CarbonDeep"]
-    total += jdata["CarbonShallow"]
+    total += jdata["RawCSum"]
+    total += jdata["SomaSum"]
+    total += jdata["SomcrSum"]
+    total += jdata["SomprSum"]
+#    total += jdata["CarbonMineralSum"]
+#    total += jdata["CarbonDeep"]
+#    total += jdata["CarbonShallow"]
     total += jdata["DeadMossCarbon"]
+    total += jdata["WoodyDebrisC"]
   return total
 
 class DeltaError(object):
@@ -410,7 +415,13 @@ def bal_C_soil(curr_jd, prev_jd):
   if prev_jd != None:
     delta = ecosystem_sum_soilC(curr_jd) - ecosystem_sum_soilC(prev_jd)
 
-  sum_of_fluxes = sum_across("LitterfallCarbonAll", curr_jd, 'all') + sum_across("MossDeathC", curr_jd, 'all') - curr_jd["RH"]
+  sum_of_fluxes = sum_across("LitterfallCarbonAll", curr_jd, 'all') \
+                  + sum_across("MossDeathC", curr_jd, 'all') \
+                  + curr_jd["BurnVeg2SoiAbvVegC"] \
+                  + curr_jd["BurnVeg2SoiBlwVegC"] \
+                  + curr_jd["D2WoodyDebrisC"] \
+                  - curr_jd["RH"] \
+                  - curr_jd["BurnSoi2AirC"]
 
   err = delta - sum_of_fluxes
   return DeltaError(delta, err)
@@ -422,9 +433,15 @@ def bal_C_veg(curr_jd, pjd, xsec='all'):
     delta = sum_across("VegCarbon", curr_jd, xsec) - sum_across("VegCarbon", pjd, xsec)
 
   if xsec == 'all':
+    burn_flux = curr_jd["BurnVeg2AirC"] \
+                + curr_jd["BurnVeg2SoiAbvVegC"] \
+                + curr_jd["BurnVeg2SoiBlwVegC"] \
+                + curr_jd["BurnAbvVeg2DeadC"]
+
     sum_of_fluxes = sum_across("NPPAll", curr_jd, xsec) \
                     - sum_across("LitterfallCarbonAll", curr_jd, xsec) \
-                    - sum_across("MossDeathC", curr_jd, xsec)
+                    - sum_across("MossDeathC", curr_jd, xsec) \
+                    - burn_flux
   if xsec == 'vasc':
     sum_of_fluxes = sum_across("NPPAll", curr_jd, xsec) \
                     - sum_across("LitterfallCarbonAll", curr_jd, xsec)
@@ -441,7 +458,14 @@ def bal_N_soil_org(jd, pjd):
   delta = np.nan
   if pjd != None:
     delta = jd["OrganicNitrogenSum"] - pjd["OrganicNitrogenSum"]
-  sum_of_fluxes = sum_across("LitterfallNitrogenPFT", jd, 'all') + jd["MossdeathNitrogen"] - jd["NetNMin"]
+
+  sum_of_fluxes = sum_across("LitterfallNitrogenPFT", jd, 'all') \
+                  + jd["MossdeathNitrogen"] \
+                  + jd["BurnVeg2SoiAbvVegN"] \
+                  + jd["BurnVeg2SoiBlwVegN"] \
+                  - jd["NetNMin"] \
+                  - jd["BurnSoi2AirN"] \
+
   err = delta - sum_of_fluxes
   return DeltaError(delta, err)
 
@@ -460,18 +484,24 @@ def bal_N_veg_tot(jd, pjd, xsec='all'):
     delta = sum_across("NAll", jd, xsec) - sum_across("NAll", pjd, xsec)
 
   if xsec == 'all':
-    sum_of_fluxes = sum_across("TotNitrogenUptake", jd, xsec) - \
-                    sum_across("LitterfallNitrogenPFT", jd, xsec) - \
-                    jd["MossdeathNitrogen"]
+    burn_flux = jd["BurnVeg2AirN"] \
+                + jd["BurnVeg2SoiAbvVegN"] \
+                + jd["BurnVeg2SoiBlwVegN"] \
+                + jd["BurnAbvVeg2DeadN"]
+
+    sum_of_fluxes = sum_across("TotNitrogenUptake", jd, xsec) \
+                    - sum_across("LitterfallNitrogenPFT", jd, xsec) \
+                    - jd["MossdeathNitrogen"] \
+                    - burn_flux
 
   if xsec == 'vasc':
-    sum_of_fluxes = sum_across("TotNitrogenUptake", jd, xsec) - \
-                    sum_across("LitterfallNitrogenPFT", jd, xsec)
+    sum_of_fluxes = sum_across("TotNitrogenUptake", jd, xsec) \
+                    - sum_across("LitterfallNitrogenPFT", jd, xsec)
 
   if xsec == 'nonvasc':
-    sum_of_fluxes = sum_across("TotNitrogenUptake", jd, xsec) - \
-                    sum_across("LitterfallNitrogenPFT", jd, xsec) - \
-                    jd["MossdeathNitrogen"] 
+    sum_of_fluxes = sum_across("TotNitrogenUptake", jd, xsec) \
+                    - sum_across("LitterfallNitrogenPFT", jd, xsec) \
+                    - jd["MossdeathNitrogen"] 
 
   err = delta - sum_of_fluxes
 
@@ -484,17 +514,23 @@ def bal_N_veg_str(jd, pjd, xsec='all'):
     delta = sum_across("VegStructuralNitrogen", jd, xsec) - sum_across("VegStructuralNitrogen", pjd, xsec) # <-- will sum compartments
 
   if xsec == 'all':
-    sum_of_fluxes = sum_across("StNitrogenUptake", jd, xsec) + \
-                    sum_across("NMobil", jd, xsec) - \
-                    sum_across("LitterfallNitrogenPFT", jd, xsec) - \
-                    jd["MossdeathNitrogen"] - \
-                    sum_across("NResorb", jd, xsec)
+    burn_flux = jd["BurnVeg2AirN"] \
+                + jd["BurnVeg2SoiAbvVegN"] \
+                + jd["BurnVeg2SoiBlwVegN"] \
+                + jd["BurnAbvVeg2DeadN"]
+
+    sum_of_fluxes = sum_across("StNitrogenUptake", jd, xsec) \
+                    + sum_across("NMobil", jd, xsec) \
+                    - sum_across("LitterfallNitrogenPFT", jd, xsec) \
+                    - jd["MossdeathNitrogen"] \
+                    - sum_across("NResorb", jd, xsec) \
+                    - burn_flux
 
   if xsec == 'vasc':
-    sum_of_fluxes = sum_across("StNitrogenUptake", jd, xsec) + \
-                    sum_across("NMobil", jd, xsec) - \
-                    sum_across("LitterfallNitrogenPFT", jd, xsec) - \
-                    sum_across("NResorb", jd, xsec)
+    sum_of_fluxes = sum_across("StNitrogenUptake", jd, xsec) \
+                    + sum_across("NMobil", jd, xsec) \
+                    - sum_across("LitterfallNitrogenPFT", jd, xsec) \
+                    - sum_across("NResorb", jd, xsec)
 
 
   if xsec == 'nonvasc':
@@ -513,7 +549,9 @@ def bal_N_veg_lab(jd, pjd, xsec='all'):
     delta = sum_across("VegLabileNitrogen", jd, xsec) - sum_across("VegLabileNitrogen", pjd, xsec)
 
   if xsec=='all' or xsec == 'vasc' or xsec == 'nonvasc':
-    sum_of_fluxes = sum_across("LabNitrogenUptake", jd, xsec) + sum_across("NResorb", jd, xsec) - sum_across("NMobil", jd, xsec)
+    sum_of_fluxes = sum_across("LabNitrogenUptake", jd, xsec) \
+                    + sum_across("NResorb", jd, xsec) \
+                    - sum_across("NMobil", jd, xsec)
 
   err = delta - sum_of_fluxes
   return DeltaError(delta, err)

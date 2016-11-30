@@ -30,6 +30,7 @@ public:
 
   int cmttype; // vegetation community type
   int yrsdist; // years since last disturbance
+  int mthsdist; //months since last disturbance
   
   int drainage_type;
 

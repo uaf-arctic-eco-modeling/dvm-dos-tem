@@ -88,7 +88,8 @@ public :
   EnvData * edall;
   BgcData * bdall;
 
-  FirData * fd;   // this for all PFTs and their soil
+  FirData year_fd[12]; //Monthly fire data, for all PFTs and soil
+  FirData * fd;   //Fire data for an individual month 
 
   ModelData * md;
 

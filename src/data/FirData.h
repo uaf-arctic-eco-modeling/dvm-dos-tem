@@ -26,6 +26,7 @@ public:
 
   veg2atm_fir fire_v2a;
   veg2soi_fir fire_v2soi;
+  veg2dead_fir fire_v2dead;
 
   soi2atm_fir fire_soi2a;
   atm2soi_fir fire_a2soi;
@@ -33,6 +34,7 @@ public:
   void init();
   void beginOfYear();
   void endOfYear();
+  void beginOfMonth();
   void burn();
   
   std::string report_to_string(const std::string& msg);
