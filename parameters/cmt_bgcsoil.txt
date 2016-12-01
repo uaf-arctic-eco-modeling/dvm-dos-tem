@@ -13,7 +13,6 @@
 29.73             // nmincnsoil:
 0.2               // propftos:
 0.0               // fnloss:  fraction N leaching (0 - 1) when drainage occurs
-17                // initdmossc:
 1783              // initshlwc:
 5021              // initdeepc:
 9000              // initminec:
@@ -34,7 +33,6 @@
 29.73             // nmincnsoil:
 0.2               // propftos:
 0.0               // fnloss:  fraction N leaching (0 - 1) when drainage occurs
-178               // initdmossc:
 1783              // initshlwc:
 5021              // initdeepc:
 9000              // initminec:
@@ -55,7 +53,6 @@
 29.73             // nmincnsoil:
 0.2               // propftos:
 0.0               // fnloss:  fraction N leaching (0 - 1) when drainage occurs
-0.0               // initdmossc:
 1783              // initshlwc:
 5021              // initdeepc:
 9000              // initminec:
@@ -76,7 +73,6 @@
 29.73             // nmincnsoil:
 0.2               // propftos:
 0.0               // fnloss:  fraction N leaching (0 - 1) when drainage occurs
-0.0               // initdmossc:
 1783              // initshlwc:
 5021              // initdeepc:
 9000              // initminec:
@@ -97,7 +93,6 @@
 29.73             // nmincnsoil:
 0.2               // propftos:
 0.0               // fnloss:  fraction N leaching (0 - 1) when drainage occurs
-0.0               // initdmossc:
 1783              // initshlwc:
 5021              // initdeepc:
 9000              // initminec:
@@ -118,7 +113,6 @@
 24.6             // nmincnsoil:
 0.2               // propftos:
 0.0               // fnloss:  fraction N leaching (0 - 1) when drainage occurs
-1549.5               // initdmossc: MUST MATCH initdmossthick in cmt_dimground.txt!!!
 3000              // initshlwc:
 7700              // initdeepc:
 43000              // initminec:
@@ -139,7 +133,6 @@
 29.73             // nmincnsoil:
 0.2               // propftos:
 0.0               // fnloss:  fraction N leaching (0 - 1) when drainage occurs
-0.0               // initdmossc:
 1783              // initshlwc:
 5021              // initdeepc:
 9000              // initminec:

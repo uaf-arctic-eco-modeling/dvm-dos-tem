@@ -222,8 +222,6 @@ void BgcData::soil_beginOfMonth() {
 void BgcData::soil_beginOfYear() {
   y_sois.wdebrisc= 0.;
   y_sois.wdebrisn= 0.;
-  y_sois.dmossc  = 0.;
-  y_sois.dmossn  = 0.;
   y_soid.shlwc   = 0.;
   y_soid.deepc   = 0.;
   y_soid.mineac  = 0.;  // top mineral SOMC
@@ -358,8 +356,6 @@ void BgcData::soil_endOfMonth(const int currmind) {
       y_sois.avln[il]   = m_sois.avln[il]    ;
     }
 
-    y_sois.dmossc   = m_sois.dmossc     ;
-    y_sois.dmossn   = m_sois.dmossn     ;
     y_sois.wdebrisc = m_sois.wdebrisc   ;
     y_sois.wdebrisn = m_sois.wdebrisn   ;
     y_soid.shlwc    = m_soid.shlwc      ;
@@ -396,8 +392,7 @@ void BgcData::soil_endOfMonth(const int currmind) {
                   m_soi2a.rhsomasum +
                   m_soi2a.rhsomprsum +
                   m_soi2a.rhsomcrsum +
-                  m_soi2a.rhwdeb +
-                  m_soi2a.rhmossc;
+                  m_soi2a.rhwdeb;
 
   //cumulative annually
   y_soi2a.rhwdeb    += m_soi2a.rhwdeb;

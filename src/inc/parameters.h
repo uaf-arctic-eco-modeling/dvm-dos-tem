@@ -139,8 +139,6 @@ struct vegpar_bgc {
 struct soipar_cal {
   double micbnup;  // parameter related to N immoblization by soil microbial
 
-  double kdcmoss; // calibrated dead moss C material respiration rate
-                  // (at 0oC, favoriable soil moisture)
   double kdcrawc; // calibrated soil raw C material respiration rate
                   // (at 0oC, favoriable soil moisture, and not
                   // litter C/N adjusted)
@@ -149,7 +147,7 @@ struct soipar_cal {
                    //respiration rate (at 0oC)
   double kdcsomcr; // calibrated soil chemically-resistant SOM
                    // respiration rate (at 0oC)
-  soipar_cal(): micbnup(UIN_D), kdcmoss(UIN_D), kdcrawc(UIN_D), kdcsoma(UIN_D),
+  soipar_cal(): micbnup(UIN_D), kdcrawc(UIN_D), kdcsoma(UIN_D),
       kdcsompr(UIN_D), kdcsomcr(UIN_D) {}
 };
 
@@ -158,8 +156,6 @@ struct soipar_dim {
   // moss
   double maxmossthick;
   double minmossthick;
-  double coefmossa;//carbon vs thick
-  double coefmossb;//carbon vs thick
 
   // soils
   double minshlwthick;
@@ -173,8 +169,8 @@ struct soipar_dim {
   double coefminea;//carbon density vs ham
   double coefmineb;//carbon density vs ham
   
-  soipar_dim(): maxmossthick(UIN_D), minmossthick(UIN_D), coefmossa(UIN_D),
-      coefmossb(UIN_D), minshlwthick(UIN_D), coefshlwa(UIN_D), coefshlwb(UIN_D),
+  soipar_dim(): maxmossthick(UIN_D), minmossthick(UIN_D), 
+      minshlwthick(UIN_D), coefshlwa(UIN_D), coefshlwb(UIN_D),
       mindeepthick(UIN_D), coefdeepa(UIN_D), coefdeepb(UIN_D), coefminea(UIN_D),
       coefmineb(UIN_D) {}
 
@@ -222,9 +218,6 @@ struct soipar_bgc {
   double eqsompr;   // physically-resistant SOM
   double eqsomcr;   // chemically-resistant SOM
 
-  // dead moss material decomposition rate
-  double kdmoss;
-
   // litter C/N ratio adjusted C decomposition rate
   double lcclnc; // the litterfalling C/N ratio base for adjusting 'kdc' to 'kd'
   double kdrawc[MAX_SOI_LAY];
@@ -236,7 +229,7 @@ struct soipar_bgc {
                 rhq10(UIN_D), propftos(UIN_D), nmincnsoil(UIN_D), fnloss(UIN_D),
                 fsoma(UIN_D), fsompr(UIN_D), fsomcr(UIN_D), som2co2(UIN_D),
                 eqrawc(UIN_D), eqsoma(UIN_D), eqsompr(UIN_D), eqsomcr(UIN_D),
-                kdmoss(UIN_D), lcclnc(UIN_D) {
+                lcclnc(UIN_D) {
                 
     for (int i = 0; i < MAX_SOI_LAY; ++i) {
       kdrawc[i] = UIN_D;

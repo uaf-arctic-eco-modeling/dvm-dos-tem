@@ -13,10 +13,6 @@ public:
                  //             2: feathermoss;
                  //             3: other (including lichen)
 
-  double dmossc; // dead moss C (kg/m2), which not included in SOM, is always
-                 // in the last moss layer; AND, used as a tracker to determine
-                 // if a moss horizon exists.
-
   double thick;  // in meters
   double dz[MAX_MOS_LAY];
 

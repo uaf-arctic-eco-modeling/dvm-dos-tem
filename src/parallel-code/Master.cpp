@@ -329,8 +329,6 @@ void Master::write_cohort_record_to_restartnc_file(const NcFile & rfile, const R
   NcVar * frontFTV        = rfile.get_var("frontFT");    //freezing/thawing front
   NcVar * wdebriscV       = rfile.get_var("WDEBRISC");
   NcVar * wdebrisnV       = rfile.get_var("WDEBRISN");
-  NcVar * dmosscV         = rfile.get_var("DMOSSC");
-  NcVar * dmossnV         = rfile.get_var("DMOSSN");
   NcVar * rawcV           = rfile.get_var("RAWC");
   NcVar * somaV           = rfile.get_var("SOMA");
   NcVar * somprV          = rfile.get_var("SOMPR");
@@ -399,8 +397,6 @@ void Master::write_cohort_record_to_restartnc_file(const NcFile & rfile, const R
   frontFTV->put_rec(rd.frontFT , record);
   wdebriscV->put_rec(&rd.wdebrisc , record);
   wdebrisnV->put_rec(&rd.wdebrisn , record);
-  dmosscV->put_rec(&rd.dmossc , record);
-  dmossnV->put_rec(&rd.dmossn , record);
   rawcV->put_rec(rd.rawc , record);
   somaV->put_rec(rd.soma , record);
   somprV->put_rec(rd.sompr , record);
@@ -520,9 +516,6 @@ NcFile Master::setup_restartnc_file(int num_records){
   
   restartFile.add_var("WDEBRISC", ncDouble, chtD);
   restartFile.add_var("WDEBRISN", ncDouble, chtD);
-  
-  restartFile.add_var("DMOSSC", ncDouble, chtD);
-  restartFile.add_var("DMOSSN", ncDouble, chtD);
   
   restartFile.add_var("RAWC", ncDouble, chtD, soillayerD);
   restartFile.add_var("SOMA", ncDouble, chtD, soillayerD);

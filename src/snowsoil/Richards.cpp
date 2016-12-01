@@ -68,9 +68,9 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
   // in a soil profile, there may be a few or none
   Layer* currl=fstsoill;
 
-  // excluding dead moss layer(s) for hydrological process due to
-  // hydraulic parameters not validated, which causes oscilation
-  // if no exclusion of dead moss layer, comment out this 'while' loop
+  // excluding moss layer(s) for hydrological process due to
+  // hydraulic parameters not validated, which causes oscillation
+  // if no exclusion of moss layer, comment out this 'while' loop
   while (currl != NULL && currl->isMoss) {
     currl = currl->nextl;
   }
@@ -157,7 +157,7 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
     }
   } // end of whole soil layers loop for unfrozen column sections
 
-  // for layers above 'topsoill', e.g., 'dead moss',
+  // for layers above 'topsoill', e.g., 'moss',
   // if excluded from hydrological process
   currl = topsoill->prevl;
 

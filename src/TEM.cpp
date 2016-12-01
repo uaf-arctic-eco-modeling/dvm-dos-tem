@@ -291,10 +291,10 @@ int main(int argc, char* argv[]){
 
           }
 
-          // EQULIBRIUM STAGE (EQ)
+          // EQUILIBRIUM STAGE (EQ)
           if (modeldata.eq_yrs > 0) {
             BOOST_LOG_NAMED_SCOPE("EQ");
-            BOOST_LOG_SEV(glg, fatal) << "Running Equlibrium, " << modeldata.sp_yrs << " years.";
+            BOOST_LOG_SEV(glg, fatal) << "Running Equilibrium, " << modeldata.eq_yrs << " years.";
 
             if (runner.calcontroller_ptr) {
               runner.calcontroller_ptr->handle_stage_start();

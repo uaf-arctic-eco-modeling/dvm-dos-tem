@@ -236,9 +236,6 @@ struct soistate_bgc {
   double wdebrisc;    // wood debris C
   double wdebrisn;    // wood debris N
 
-  double dmossc;  // dead moss material C
-  double dmossn;  // dead moss material N
-
   double rawc[MAX_SOI_LAY];   //soil raw plant material C
   double soma[MAX_SOI_LAY];   //active som c
   double sompr[MAX_SOI_LAY];  //physically-resistant som c
@@ -247,7 +244,7 @@ struct soistate_bgc {
   double orgn[MAX_SOI_LAY];   // soil total N content kg/m2
   double avln[MAX_SOI_LAY];   // soil available N content kg/m2
   
-  soistate_bgc(): wdebrisc(UIN_D),wdebrisn(UIN_D),dmossc(UIN_D),dmossn(UIN_D) {
+  soistate_bgc(): wdebrisc(UIN_D),wdebrisn(UIN_D) {
     for (int i=0; i < MAX_SOI_LAY; ++i) {
       rawc[i] = UIN_D;
       soma[i] = UIN_D;

@@ -43,7 +43,6 @@ public:
   // soil
   double micbnup; //parameter related to N immoblization by soil microbial
 
-  double kdcmoss; //calibrated dead moss C material respiration rate (at 0oC)
   double kdcrawc; //calibrated soil raw C material respiration rate (at 0oC)
   double kdcsoma; //calibrated soil active SOM respiration rate (at 0oC)
   double kdcsompr; //calibrated soil physically-resistant
@@ -84,8 +83,6 @@ public:
   double maxdmossthick;
   double initdmossthick;
   int mosstype;
-  double coefmossa;//carbon vs thick
-  double coefmossb;//carbon vs thick
 
   // soils
   double initfibthick;
