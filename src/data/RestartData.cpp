@@ -111,7 +111,6 @@ MPI_Datatype RestartData::register_mpi_datatype() {
     MAX_NUM_FNT, // int frontFT[MAX_NUM_FNT];
     
     1, // double wdebrisc;
-    1, // double dmossc;
     
     MAX_SOI_LAY, // double rawc[MAX_SOI_LAY];
     MAX_SOI_LAY, // double soma[MAX_SOI_LAY];
@@ -119,7 +118,6 @@ MPI_Datatype RestartData::register_mpi_datatype() {
     MAX_SOI_LAY, // double somcr[MAX_SOI_LAY];
     
     1, // double wdebrisn;
-    1, // double dmossn;
     1, // double orgn[MAX_SOI_LAY];
     
     MAX_SOI_LAY, // double avln[MAX_SOI_LAY];
@@ -182,13 +180,11 @@ MPI_Datatype RestartData::register_mpi_datatype() {
     MPI_DOUBLE, // double frontZ[MAX_NUM_FNT];
     MPI_INT, // int frontFT[MAX_NUM_FNT];
     MPI_DOUBLE, // double wdebrisc;
-    MPI_DOUBLE, // double dmossc;
     MPI_DOUBLE, // double rawc[MAX_SOI_LAY];
     MPI_DOUBLE, // double soma[MAX_SOI_LAY];
     MPI_DOUBLE, // double sompr[MAX_SOI_LAY];
     MPI_DOUBLE, // double somcr[MAX_SOI_LAY];
     MPI_DOUBLE, // double wdebrisn;
-    MPI_DOUBLE, // double dmossn;
     MPI_DOUBLE, // double orgn[MAX_SOI_LAY];
     MPI_DOUBLE, // double avln[MAX_SOI_LAY];
     MPI_DOUBLE // double prvltrfcnA[12][MAX_SOI_LAY];
@@ -249,13 +245,11 @@ MPI_Datatype RestartData::register_mpi_datatype() {
     offsetof(RestartData, frontZ),
     offsetof(RestartData, frontFT),
     offsetof(RestartData, wdebrisc),
-    offsetof(RestartData, dmossc),
     offsetof(RestartData, rawc),
     offsetof(RestartData, soma),
     offsetof(RestartData, sompr),
     offsetof(RestartData, somcr),
     offsetof(RestartData, wdebrisn),
-    offsetof(RestartData, dmossn),
     offsetof(RestartData, orgn),
     offsetof(RestartData, avln),
     offsetof(RestartData, prvltrfcnA)
@@ -518,8 +512,6 @@ void RestartData::verify_logical_values(){
   check_bounds("watertab", watertab);
   check_bounds("wdebrisc", wdebrisc);
   check_bounds("wdebrisn", wdebrisn);
-  check_bounds("dmossc", dmossc);
-  check_bounds("dmossn", dmossn);
   for(int ii=0; ii<MAX_SOI_LAY; ii++){
     check_bounds("DZsoil", DZsoil[ii]);
     check_bounds("TYPEsoil", TYPEsoil[ii]);
@@ -602,10 +594,6 @@ void RestartData::read_px_vars(const std::string& fname, const int rowidx, const
   temutil::nc( nc_get_var1_double(ncid, cv, start, &wdebrisc) );
   temutil::nc( nc_inq_varid(ncid, "wdebrisn", &cv) );
   temutil::nc( nc_get_var1_double(ncid, cv, start, &wdebrisn) );
-  temutil::nc( nc_inq_varid(ncid, "dmossc", &cv) );
-  temutil::nc( nc_get_var1_double(ncid, cv, start, &dmossc) );
-  temutil::nc( nc_inq_varid(ncid, "dmossn", &cv) );
-  temutil::nc( nc_get_var1_double(ncid, cv, start, &dmossn) );
 
   temutil::nc( nc_close(ncid) );
 
@@ -990,16 +978,12 @@ void RestartData::create_empty_file(const std::string& fname,
   int watertabV;
   int wdebriscV;
   int wdebrisnV;
-  int dmosscV;
-  int dmossnV;
   temutil::nc( nc_def_var(ncid, "firea2sorgn", NC_DOUBLE, 2, vartype2D_dimids, &firea2sorgnV) );
   temutil::nc( nc_def_var(ncid, "snwextramass", NC_DOUBLE, 2, vartype2D_dimids, &snwextramasV) );
   temutil::nc( nc_def_var(ncid, "monthsfrozen", NC_DOUBLE, 2, vartype2D_dimids, &monthsfrozenV) );
   temutil::nc( nc_def_var(ncid, "watertab", NC_DOUBLE, 2, vartype2D_dimids, &watertabV) );
   temutil::nc( nc_def_var(ncid, "wdebrisc", NC_DOUBLE, 2, vartype2D_dimids, &wdebriscV) );
   temutil::nc( nc_def_var(ncid, "wdebrisn", NC_DOUBLE, 2, vartype2D_dimids, &wdebrisnV) );
-  temutil::nc( nc_def_var(ncid, "dmossc", NC_DOUBLE, 2, vartype2D_dimids, &dmosscV) );
-  temutil::nc( nc_def_var(ncid, "dmossn", NC_DOUBLE, 2, vartype2D_dimids, &dmossnV) );
 
   // Setup 3D vars, integer
   int ifwoodyV;
@@ -1222,10 +1206,6 @@ void RestartData::write_px_vars(const std::string& fname, const int rowidx, cons
   temutil::nc( nc_put_var1_double(ncid, cv, start, &wdebrisc) );
   temutil::nc( nc_inq_varid(ncid, "wdebrisn", &cv) );
   temutil::nc( nc_put_var1_double(ncid, cv, start, &wdebrisn) );
-  temutil::nc( nc_inq_varid(ncid, "dmossc", &cv) );
-  temutil::nc( nc_put_var1_double(ncid, cv, start, &dmossc) );
-  temutil::nc( nc_inq_varid(ncid, "dmossn", &cv) );
-  temutil::nc( nc_put_var1_double(ncid, cv, start, &dmossn) );
 
   temutil::nc( nc_close(ncid) );
 
@@ -1604,9 +1584,7 @@ void RestartData::restartdata_to_log(){
   BOOST_LOG_SEV(glg, debug) << "rtunfrozendays: " << rtunfrozendays;
   BOOST_LOG_SEV(glg, debug) << "watertab: " << watertab;
   BOOST_LOG_SEV(glg, debug) << "wdebrisc: " << wdebrisc;
-  BOOST_LOG_SEV(glg, debug) << "dmossc: " << dmossc;
   BOOST_LOG_SEV(glg, debug) << "wdebrisn: " << wdebrisn;
-  BOOST_LOG_SEV(glg, debug) << "dmossn: " << dmossn;
 
   for(int ii=0; ii<MAX_SOI_LAY; ii++){
     BOOST_LOG_SEV(glg, debug) << "DZsoil[" << ii << "]: " << DZsoil[ii];

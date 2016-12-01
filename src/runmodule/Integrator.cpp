@@ -124,8 +124,6 @@ Integrator::Integrator() {
 
   strcpy(predstr_soi[I_WDEBRISC],"WDEBRISC"); // wood debris C
   strcpy(predstr_soi[I_WDEBRISN],"WDEBRISN"); // wood debris N
-  strcpy(predstr_soi[I_DMOSSC],"DMOSSC"); // dead moss C
-  strcpy(predstr_soi[I_DMOSSN],"DMOSSN"); // dead moss N
 
   // soil C&N flux variables
   for(int il =0; il<MAX_SOI_LAY; il++) { //Yuan: here is the reason that the "temconst.h" is needed
@@ -147,7 +145,6 @@ Integrator::Integrator() {
   }
 
   strcpy(predstr_soi[I_RH_WD],"RHWD" ); //woody debris respiration
-  strcpy(predstr_soi[I_RH_DMOSS],"RHDMOSS" ); //dead moss respiration
   // Total Ecosystem N loss
   strcpy(predstr_soi[I_AVLNLOSS],"AVLNLOSS" ); //total inorganic nitrogen loss
   strcpy(predstr_soi[I_ORGNLOSS],"ORGNLOSS" ); //total organic nitrogen loss
@@ -171,7 +168,6 @@ void Integrator::setVegetation_Bgc(Vegetation_Bgc * vegp) {
 void Integrator::report_array(float array[]){
   BOOST_LOG_SEV(glg, debug)<<"Integrator report_array (incomplete):";
 
-  BOOST_LOG_SEV(glg, debug)<<"I_DMOSSC: "<<array[I_DMOSSC]<<" I_DMOSSN: "<<array[I_DMOSSN];
 
   for(int ii=0; ii<NUMEQ; ii++){
 
@@ -194,7 +190,6 @@ void Integrator::report_array(float array[]){
       ii++;
     }
   }
-  BOOST_LOG_SEV(glg, debug)<<"I_RH_DMOSS: "<<array[I_RH_DMOSS];
 }
 
 void Integrator::updateMonthlyVbgc() {
@@ -261,8 +256,6 @@ void Integrator::c2ystate_soi(float y[]) {
 
   y[I_WDEBRISC] = bd->m_sois.wdebrisc;
   y[I_WDEBRISN] = bd->m_sois.wdebrisn;
-  y[I_DMOSSC] = bd->m_sois.dmossc;
-  y[I_DMOSSN] = bd->m_sois.dmossn;
 };
 
 
@@ -478,8 +471,6 @@ void Integrator::y2cstate_soi(float y[]) {
 
   bd->m_sois.wdebrisc = y[I_WDEBRISC];
   bd->m_sois.wdebrisn = y[I_WDEBRISN];
-  bd->m_sois.dmossc   = y[I_DMOSSC];
-  bd->m_sois.dmossn   = y[I_DMOSSN];
 };
 
 void Integrator::y2cflux_veg(float y[]) {
@@ -513,8 +504,6 @@ void Integrator::y2cflux_soi(float y[]) {
   }
 
   bd->m_soi2a.rhwdeb   = y[I_RH_WD];
-  bd->m_soi2a.rhmossc  = y[I_RH_DMOSS];
-  //
   bd->m_soi2l.avlnlost = y[I_AVLNLOSS];
   bd->m_soi2l.orgnlost = y[I_ORGNLOSS];
 };
@@ -581,8 +570,6 @@ void Integrator::y2tcstate_soi(float pstate[]) {
 
   ssl->tmp_sois.wdebrisc= pstate[I_WDEBRISC];
   ssl->tmp_sois.wdebrisn= pstate[I_WDEBRISN];
-  ssl->tmp_sois.dmossc  = pstate[I_DMOSSC];
-  ssl->tmp_sois.dmossn  = pstate[I_DMOSSN];
 };
 
 // assign fluxes and state back to pdstate
@@ -609,8 +596,6 @@ void Integrator::dc2ystate_soi(float pdstate[]) {
 
   pdstate[I_WDEBRISC] = ssl->del_sois.wdebrisc;
   pdstate[I_WDEBRISN] = ssl->del_sois.wdebrisn;
-  pdstate[I_DMOSSC]   = ssl->del_sois.dmossc;
-  pdstate[I_DMOSSN]   = ssl->del_sois.dmossn;
 };
 
 void Integrator::dc2yflux_veg(float pdstate[]) {
@@ -643,7 +628,6 @@ void Integrator::dc2yflux_soi(float pdstate[]) {
   }
 
   pdstate[I_RH_WD]    = ssl->del_soi2a.rhwdeb;
-  pdstate[I_RH_DMOSS] = ssl->del_soi2a.rhmossc;
   pdstate[I_ORGNLOSS] = ssl->del_soi2l.orgnlost;
   pdstate[I_AVLNLOSS] = ssl->del_soi2l.avlnlost;
 
@@ -728,13 +712,6 @@ int Integrator::checkPools() {
       return I_WDEBRISN;
     }
 
-    if(ydum[I_DMOSSC]<0.) {
-      return I_DMOSSC;
-    }
-
-    if(ydum[I_DMOSSN]<0.) {
-      return I_DMOSSN;
-    }
   }
 
   return negativepool;
@@ -934,28 +911,10 @@ int Integrator::boundcon( float ptstate[], float err[], float& ptol ) {
       return test = soivarkey(I_WDEBRISN)+1;
     }
 
-    same = err[I_DMOSSC] - fabs( ptol * ptstate[I_DMOSSC]);
-
-    if (same>zero) {
-      return test = soivarkey(I_DMOSSN)+1;
-    }
-
-    same = err[I_DMOSSN] - fabs( ptol * ptstate[I_DMOSSN]);
-
-    if (same>zero) {
-      return test = soivarkey(I_DMOSSN)+1;
-    }
-
     same = err[I_RH_WD] - fabs( ptol * ptstate[I_RH_WD]);
 
     if (same>zero) {
       return test = soivarkey(I_RH_WD)+1;
-    }
-
-    same = err[I_RH_DMOSS] - fabs( ptol * ptstate[I_RH_DMOSS]);
-
-    if (same>zero) {
-      return test = soivarkey(I_RH_DMOSS)+1;
     }
 
     // soil N

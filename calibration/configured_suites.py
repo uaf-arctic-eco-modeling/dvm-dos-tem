@@ -68,14 +68,12 @@ configured_suites = {
 
       { 'jsontag': 'CarbonShallow', 'axesnum': 1, 'units': 'gC/m^2', },
       { 'jsontag': 'CarbonDeep', 'axesnum': 1, 'units': 'gC/m^2', },
-      { 'jsontag': 'DeadMossCarbon', 'axesnum': 1, 'units': 'gC/m^2', },
 
       { 'jsontag': 'CarbonMineralSum', 'axesnum': 2, 'units': 'gC/m^2', },
 
       { 'jsontag': 'OrganicNitrogenSum', 'axesnum':3, 'units': 'gN/m^2', },
 
       { 'jsontag': 'AvailableNitrogenSum', 'axesnum':4, 'units': 'gN/m^2', },
-      { 'jsontag': 'DeadMossNitrogen', 'axesnum': 4, 'units': 'gN/m^2', },
       { 'jsontag': 'StNitrogenUptakeAll', 'axesnum': 4, 'units': 'gN/m^2', },
       { 'jsontag': 'InNitrogenUptakeAll', 'axesnum': 4, 'units': 'gN/m^2', },
 
@@ -135,7 +133,6 @@ configured_suites = {
 
       { 'jsontag': 'CarbonShallow', 'axesnum': 4, 'units': 'gC/m^2', },
       { 'jsontag': 'CarbonDeep', 'axesnum': 4, 'units': 'gC/m^2', },
-      { 'jsontag': 'DeadMossCarbon', 'axesnum': 4, 'units': 'gC/m^2', },
 
       { 'jsontag': 'CarbonMineralSum', 'axesnum': 5, 'units': 'gC/m^2', },
 
@@ -178,7 +175,6 @@ configured_suites = {
       { 'jsontag': 'StNitrogenUptakeAll', 'axesnum': 5, 'units': 'gN/m^2', },
       { 'jsontag': 'InNitrogenUptakeAll', 'axesnum': 5, 'units': 'gN/m^2', },
 
-      { 'jsontag': 'DeadMossNitrogen', 'axesnum': 6, 'units': 'gN/m^2', },
       { 'jsontag': 'AvlNInput', 'axesnum': 6, 'units': 'gN/m^2', },
       { 'jsontag': 'AvlNLost', 'axesnum': 6, 'units': 'gN/m^2', },
 

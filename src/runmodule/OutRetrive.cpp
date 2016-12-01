@@ -710,8 +710,6 @@ void OutRetrive::updateRestartOutputBuffer() {
   //
   resod->wdebrisc = bdall->m_sois.wdebrisc;
   resod->wdebrisn = bdall->m_sois.wdebrisn;
-  resod->dmossc = bdall->m_sois.dmossc;
-  resod->dmossn = bdall->m_sois.dmossn;
 
   for(int il =0; il<cd->m_soil.numsl; il++) {
     resod->rawc[il]  = bdall->m_sois.rawc[il];

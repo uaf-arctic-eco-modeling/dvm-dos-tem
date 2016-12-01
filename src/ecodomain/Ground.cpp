@@ -8,12 +8,6 @@
  *   (2) EACH HORIZON may have a few LAYERS (max. no are pre-defined in
  *         /inc/layerconst.h), which are defined in /layer/..
  *
- *   (3) for 'Moss' horizon, there is a special variable 'dmossc', which is
- *         tracking dead moss biomass all the time (linked to bd.dmossc).
- *         This 'dmossc' is useful for constructing a new moss horizon if it
- *         does not exist when 'dmossc' accumulating to some critical value
- *         (large enough to build a valid layer);
- *    For Organic horizon, similar mechanism is applied to deal with new horizon
  *
  */
 
@@ -230,7 +224,6 @@ std::string Ground::layer_report_string(const std::string& colunm_groups) {
       ls << std::right << setw(9) << std::setprecision(3) << current_layer->soma << " ";
       ls << std::right << setw(9) << std::setprecision(3) << current_layer->somcr << " ";
       ls << std::right << setw(9) << std::setprecision(3) << current_layer->sompr << " ";
-      ls << std::right << setw(9) << std::setprecision(3) << this->moss.dmossc << " ";
     }
     if (pointer_table) {
       ls << layer2pointertag(current_layer, fstsoill) << ""
@@ -278,8 +271,6 @@ void Ground::initParameter() {
   //parameters for soil dimension
   soildimpar.maxmossthick = chtlu->maxdmossthick;
   soildimpar.minmossthick = chtlu->maxdmossthick*0.050;
-  soildimpar.coefmossa  = chtlu->coefmossa;
-  soildimpar.coefmossb  = chtlu->coefmossb;
   soildimpar.minshlwthick = 0.010;   // meters
   soildimpar.coefshlwa  = chtlu->coefshlwa;
   soildimpar.coefshlwb  = chtlu->coefshlwb;
@@ -404,35 +395,13 @@ void Ground::initSnowSoilLayers() {
     }
 
     if(moss_pft_exists){
-      double initmldz[] = {0.0, 0.0};
 
-      // sets living moss (top layer) to 1cm and sets the lower moss layer
-      // thickness based off of the parameterin cmt_dimground.txt
-      //if (moss.thick > 0.0) {
-    
       //This is wrong - FIX. Should be related to living moss C pool
-      initmldz[0] = 0.01;
+      double initmldz[1] = {0.01};
 
-      //} else { // we have no moss...
-      //  initmldz[0] = 0.0;
-      //}
-      initmldz[1] = moss.thick;
+      int soiltype[] = {0};
 
-      int soiltype[] = {-1, -1};
-
-      //if (initmldz[0] > 0.0) {
-
-      soiltype[0] = 0;
-
-      //}
-
-      //if (initmldz[1] > 0.0) {
-
-      soiltype[1] = 0;
-
-      //}
-
-      moss.setThicknesses(soiltype, initmldz, 2);
+      moss.setThicknesses(soiltype, initmldz, 1);
 
       for(int il = moss.num-1; il >= 0; il--) {
         // moss type (1- sphagnum, 2- feathermoss), which needs input
@@ -1204,64 +1173,31 @@ void  Ground::redivideMossLayers(const int &mosstype) {
   // Before adjusting moss layer, needs checking if Moss layer exists
   setFstLstMossLayers();
 
-  BOOST_LOG_SEV(glg, debug)<<"redividemosslayers() moss.dmossc: "<<moss.dmossc;
-  BOOST_LOG_SEV(glg, debug)<<"moss.thick: "<<moss.thick;
+  BOOST_LOG_SEV(glg, debug)<<"redividemosslayers() moss.thick: "<<moss.thick;
 
-  // If no moss layer existed, but 'moss.dmossc' has been prescribed or
-  // dynamically known create a new moss layer above the first soil layer
-  // for containing the 'dmossc'
-  // if nonvascular pfts exist and have carbon fluxes  bd.v2soi.mossdeathc
-  if( fstmossl==NULL && moss.dmossc > 0.0 ) {
+  // If no moss layer exists, force creation
+  if( fstmossl==NULL ) {
     moss.type = mosstype;
 
-    //Create two moss layers - one living and one dead
-    //Dead moss
-    moss.thick = thicknessFromCarbon(moss.dmossc, soildimpar.coefmossa, soildimpar.coefmossb); 
+    //Create live moss
+    moss.thick = 0.01;
     BOOST_LOG_SEV(glg, debug)<<"Creating new moss layer, type: "<<moss.type<<", thickness: "<<moss.thick;
     MossLayer* ml = new MossLayer(moss.thick, moss.type);
     moss.num = 1;
     ml->tem = fstsoill->tem;
     ml->z = 0.0;
     insertBefore(ml, fstsoill);
-    setFstLstSoilLayer();//Called before moss so that fstsoill is set.
-    setFstLstMossLayers();
-    adjustFrontsAfterThickchange(ml->z, ml->dz);
-
-    //Live moss
-    moss.thick = 0.01;
-    BOOST_LOG_SEV(glg, debug)<<"Creating new moss layer, type: "<<moss.type<<", thickness: "<<moss.thick;
-    ml = new MossLayer(moss.thick, moss.type);
-    moss.num = 2;
-    ml->tem = fstmossl->tem;
-    ml->z = 0.0;
-    insertBefore(ml, fstmossl);
     setFstLstSoilLayer();//Called before moss to ensure soil ptrs are set
     setFstLstMossLayers();
     adjustFrontsAfterThickchange(ml->z, ml->dz); 
 
-//    moss.num  = 1;
-//    moss.thick = 0.10; // this is a fake value, will be adjusted below
-//    MossLayer* ml = new MossLayer(moss.thick, moss.type);
- //   ml->tem = fstsoill->tem;
-//    ml->z = 0.;
-    // put the new layer into the double-linked structure
-//    insertBefore(ml, fstsoill); // create the new moss layer above the
-                                //   first soil layer
-//    adjustFrontsAfterThickchange(ml->z, ml->dz);//need to adjust
-                                                //'freezing/thawing front depth'
-                                                //due to top layer insert
-
-    // Adjusting the fake 'dz', 'front' adjusting included
-//    get_dead_moss_thickness_from_C_content(ml, moss.dmossc);
-//    ml->derivePhysicalProperty();
-
     for(int ii=0; ii<moss.num; ii++){
       if(ii==0){ml = (MossLayer*)fstmossl;}
-      else if(ii==1){ml = (MossLayer*)lstmossl;}
+      else if(ii==moss.num-1){ml = (MossLayer*)lstmossl;}
 
       ml->derivePhysicalProperty();
       if(ml->tem>0.) {
-        //assumming same volume content as the following layer
+        //assuming same volume content as the following layer
         ml->liq = ml->nextl->getVolLiq()*DENLIQ*ml->dz;
         ml->ice = 0.;
         ml->frozen = -1;
@@ -1274,7 +1210,6 @@ void  Ground::redivideMossLayers(const int &mosstype) {
         ml->frozenfrac = 1.;
       }
 
-      // initialize C as 0.0, which will be updated when 'dmossc' decomposes
       ml->rawc = 0.0;
       ml->soma = 0.0;
       ml->sompr= 0.0;
@@ -1288,19 +1223,6 @@ void  Ground::redivideMossLayers(const int &mosstype) {
     // one-layer moss currently assumed, so no need to do redivision
 
   // moss.thick is too small
-  // remove the moss layer, but 'moss.dmossc' is keeping track of change.
-  // 20161004 commented out the following because:
-  //   1. moss.num shouldn't be equal to 1. It should be 0 or 2 or higher.
-  //   2. If there is living moss, there should be dead moss....duh
-  //     -Helene
-  //if( (moss.num == 1) && (moss.thick < soildimpar.minmossthick) ) {
-  //  removeLayer(fstmossl);   // and remove the upper moss-layer
-  //  resortGroundLayers();
-  //  updateSoilHorizons();
-  //}
-
-  // the above code causes pertubalation from year to year - needs more
-  //   thought here
 };
 
 void Ground::redivideShlwLayers() {
@@ -1751,10 +1673,6 @@ double Ground::adjustSoilAfterburn() {
     if(currl->isMoss || currl->isOrganic) {
       double tsomc = currl->rawc + currl->soma + currl->sompr + currl->somcr;
 
-      if (currl->isMoss && !currl->nextl->isMoss) {
-        tsomc += moss.dmossc;
-      }
-
       if(tsomc <= 0.0) {
         bdepthadj += currl->dz; //adding the removed layer thickness to
                                 //  that 'err' counting
@@ -2071,8 +1989,6 @@ void Ground::updateOslThickness5Carbon(Layer* fstsoil) {
     return;
   }
 
-  double mosscbot = 0.0;
-  double mossctop = 0.0;
   double shlwcbot = 0.0;
   double shlwctop = 0.0;
   double deepcbot = 0.0;
@@ -2096,14 +2012,13 @@ void Ground::updateOslThickness5Carbon(Layer* fstsoil) {
       } else if(sl->isMoss) {
         if ( sl->nextl->isMoss ) {
           // Do nothing.
-          // The upper (living) moss layer has no C and so should
-          // not have its thickness adjusted by C content...
+          // The upper (living) moss layer has no SOC and so can't
+          // have its thickness adjusted by SOC content...
           //
           // Maybe thickness of the upper moss layer should be determined by
           // the veg properties of the moss PFTs?
-        } else {
-          get_dead_moss_thickness_from_C_content(sl, moss.dmossc);
         }
+        
       }
 
       // Later thickness ('dz') may have changed, so update the 'z'
@@ -2123,49 +2038,6 @@ void Ground::updateOslThickness5Carbon(Layer* fstsoil) {
   checkFrontsValidity();
 }
 
-/** Calculate layer thickness from dead moss Carbon. See Yi 2009. */
-void Ground::get_dead_moss_thickness_from_C_content(SoilLayer* sl, const double &dmossc) {
-  // NOTE: the Dead Moss C - thickness relationship is for the
-  //       whole dead moss layer
-  double orgsoil_dz_old = sl->dz;
-  double orgsoil_dz_new = sl->dz;
-
-  if(sl->isMoss) {
-    orgsoil_dz_new = thicknessFromCarbon(dmossc, soildimpar.coefmossa, soildimpar.coefmossb);
-  } else {
-    return;
-  }
-
-  sl->dz = orgsoil_dz_new;
-
-  // Need to adjust 'freezing/thawing front depth', if 'fronts'
-  // depth below 'sl->z'
-  adjustFrontsAfterThickchange(sl->z, orgsoil_dz_new - orgsoil_dz_old);
-
-  // 'dz' dependent physical properties
-  double oldporo = sl->poro;
-
-  sl->derivePhysicalProperty(); // Update soil physical property after
-                                // thickness change from C is done
-
-  double f = fmin(1.0, sl->dz/orgsoil_dz_old); // So if layer shrinks, it will adjust
-                                        // water; otherwise, no change.
-
-  double f2 = fmin(1.0, sl->poro/oldporo);  // For whatever reason, if
-                                            // porosity changes
-  f = fmin(f, f2);
-  sl->liq *= fmax(0.0, f);
-  sl->ice *= fmax(0.0, f);
-}
-
-/** Calculate dead moss Carbon from layer thickness. See Yi 2009. */
-void Ground::get_dead_moss_C_content_from_thickness(SoilLayer* sl, const double &dmossdz) {
-  if(sl->isMoss) {
-    moss.dmossc = carbonFromThickness(dmossdz, soildimpar.coefmossa, soildimpar.coefmossb);
-  } else {
-    return;
-  }
-}
 
 /** Convert from gC/m^2 to layer thickness (meters) based on Yi et al, 2009. */
 double Ground::thicknessFromCarbon(const double carbon, const double coefA, const double coefB) {

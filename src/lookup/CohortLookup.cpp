@@ -145,7 +145,6 @@ std::string CohortLookup::calparbgc2str() {
   s << "    kra[2] (fraction of available NPP (GPP after rm))\n";
   s << "// soil calibrated parameters\n";
   s << this->micbnup << " // micbnup: parameter for soil microbial immobialization of N\n";
-  s << this->kdcmoss << " // kdcmoss: dead moss C decompositin rates at reference condition\n";
   s << this->kdcrawc << " // kdcrawc: raw-material (litter) C decompositin rates at reference condition\n";
   s << this->kdcsoma << " // kdcsoma:\n";
   s << this->kdcsompr << " // kdcsompr:\n";
@@ -159,7 +158,7 @@ void CohortLookup::assignBgcCalpar(std::string & dircmt) {
 
   // get a list of data for the cmt number
   std::list<std::string> l = temutil::parse_parameter_file(
-      dircmt + "cmt_calparbgc.txt", temutil::cmtcode2num(this->cmtcode), 19
+      dircmt + "cmt_calparbgc.txt", temutil::cmtcode2num(this->cmtcode), 18
   );
 
   // pop each line off the front of the list
@@ -179,7 +178,6 @@ void CohortLookup::assignBgcCalpar(std::string & dircmt) {
   temutil::pfll2data_pft(l, frg);
 
   temutil::pfll2data(l, micbnup);
-  temutil::pfll2data(l, kdcmoss);
   temutil::pfll2data(l, kdcrawc);
   temutil::pfll2data(l, kdcsoma);
   temutil::pfll2data(l, kdcsompr);
@@ -232,7 +230,7 @@ void CohortLookup::assignGroundDimension(string &dircmt) {
 
   // get a list of data for the cmt number
   std::list<std::string> l = temutil::parse_parameter_file(
-      dircmt + "cmt_dimground.txt", temutil::cmtcode2num(this->cmtcode), 17
+      dircmt + "cmt_dimground.txt", temutil::cmtcode2num(this->cmtcode), 15
   );
 
   // pop each line off the front of the list
@@ -245,8 +243,6 @@ void CohortLookup::assignGroundDimension(string &dircmt) {
   temutil::pfll2data(l, maxdmossthick);
   temutil::pfll2data(l, initdmossthick);
   temutil::pfll2data(l, mosstype);
-  temutil::pfll2data(l, coefmossa);
-  temutil::pfll2data(l, coefmossb);
 
   temutil::pfll2data(l, initfibthick);
   temutil::pfll2data(l, inithumthick);
@@ -378,7 +374,7 @@ void CohortLookup::assignBgc4Ground(string &dircmt) {
   
   // get a list of data for the cmt number
   std::list<std::string> datalist = temutil::parse_parameter_file(
-      dircmt + "cmt_bgcsoil.txt", temutil::cmtcode2num(this->cmtcode), 19
+      dircmt + "cmt_bgcsoil.txt", temutil::cmtcode2num(this->cmtcode), 18
   );
 
   // pop each line off the front of the list
@@ -396,7 +392,6 @@ void CohortLookup::assignBgc4Ground(string &dircmt) {
   temutil::pfll2data(datalist, nmincnsoil);
   temutil::pfll2data(datalist, propftos);
   temutil::pfll2data(datalist, fnloss);
-  temutil::pfll2data(datalist, initdmossc);
   temutil::pfll2data(datalist, initshlwc);
   temutil::pfll2data(datalist, initdeepc);
   temutil::pfll2data(datalist, initminec);

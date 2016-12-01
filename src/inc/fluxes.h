@@ -226,8 +226,6 @@ struct soi2atm_env {
 struct soi2atm_bgc {
   double rhwdeb; //rh from wood debris
 
-  double rhmossc;
-
   double rhrawc[MAX_SOI_LAY];
   double rhsoma[MAX_SOI_LAY];
   double rhsompr[MAX_SOI_LAY];
@@ -240,7 +238,7 @@ struct soi2atm_bgc {
 
   double rhtot;  //total rhs
   
-  soi2atm_bgc(): rhwdeb(UIN_D), rhmossc(UIN_D), rhrawcsum(UIN_D),
+  soi2atm_bgc(): rhwdeb(UIN_D), rhrawcsum(UIN_D),
                  rhsomasum(UIN_D), rhsomprsum(UIN_D), rhsomcrsum(UIN_D) {
 
     for (int i = 0; i < MAX_SOI_LAY; ++i) {

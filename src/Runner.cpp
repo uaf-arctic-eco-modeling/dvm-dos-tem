@@ -413,8 +413,6 @@ void Runner::output_caljson_monthly(int year, int month, std::string stage, boos
                              + cohort.bdall->m_soid.minebc
                              + cohort.bdall->m_soid.minecc;
   // pools
-  data["DeadMossCarbon"] = cohort.bdall->m_sois.dmossc;
-  data["DeadMossNitrogen"] = cohort.bdall->m_sois.dmossn;
   data["StandingDeadC"] = cohort.bdall->m_vegs.deadc;
   data["StandingDeadN"] = cohort.bdall->m_vegs.deadn;
   data["WoodyDebrisC"] = cohort.bdall->m_sois.wdebrisc;
@@ -435,7 +433,6 @@ void Runner::output_caljson_monthly(int year, int month, std::string stage, boos
   data["RHsompr"] = cohort.bdall->m_soi2a.rhsomprsum;
   data["RHsomcr"] = cohort.bdall->m_soi2a.rhsomcrsum;
   data["RHwdeb"] = cohort.bdall->m_soi2a.rhwdeb;
-  data["RHmossc"] = cohort.bdall->m_soi2a.rhmossc;
   data["RH"] = cohort.bdall->m_soi2a.rhtot;
 
   data["YearsSinceDisturb"] = cohort.cd.yrsdist;
@@ -497,7 +494,6 @@ void Runner::output_caljson_monthly(int year, int month, std::string stage, boos
     data["PFT" + pft_str]["LabNitrogenUptake"] = cohort.bd[pft].m_soi2v.lnuptake;
     data["PFT" + pft_str]["TotNitrogenUptake"] = cohort.bd[pft].m_soi2v.snuptakeall + cohort.bd[pft].m_soi2v.lnuptake;
     data["PFT" + pft_str]["MossDeathC"] = cohort.bd[pft].m_v2soi.mossdeathc;
-    data["PFT" + pft_str]["DeadMossC"] = cohort.bd[pft].m_sois.dmossc;
 
     data["PFT" + pft_str]["PARDown"] = cohort.ed[pft].m_a2v.pardown;
     data["PFT" + pft_str]["PARAbsorb"] = cohort.ed[pft].m_a2v.parabsorb;
@@ -596,8 +592,6 @@ void Runner::output_caljson_yearly(int year, std::string stage, boost::filesyste
                              + cohort.bdall->y_soid.minebc
                              + cohort.bdall->y_soid.minecc;
   // pools
-  data["DeadMossCarbon"] = cohort.bdall->y_sois.dmossc;
-  data["DeadMossNitrogen"] = cohort.bdall->y_sois.dmossn;
   data["StandingDeadC"] = cohort.bdall->y_vegs.deadc;
   data["StandingDeadN"] = cohort.bdall->y_vegs.deadn;
   data["WoodyDebrisC"] = cohort.bdall->y_sois.wdebrisc;

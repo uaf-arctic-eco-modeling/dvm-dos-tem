@@ -69,7 +69,6 @@ void Soil_Bgc::assignCarbonBd2LayerMonthly() {
     currl = currl->nextl;
   }
 
-  ground->moss.dmossc = bd->m_sois.dmossc;
   ground->organic.shlwc = bd->m_soid.shlwc;
   ground->organic.deepc = bd->m_soid.deepc;
 
@@ -104,7 +103,6 @@ void Soil_Bgc::assignCarbonLayer2BdMonthly() {
     bd->m_sois.somcr[il] = 0.0;
   }
 
-  bd->m_sois.dmossc = ground->moss.dmossc;
 }
 
 void Soil_Bgc::prepareIntegration(const bool &mdnfeedback,
@@ -141,10 +139,11 @@ void Soil_Bgc::prepareIntegration(const bool &mdnfeedback,
 
     if(i==0 && cd->m_soil.type[i]==1
        || i>0 && cd->m_soil.type[i]==1 && cd->m_soil.type[i-1]!=1){
-      //always put the litter-falling in the first non-moss soil layer
-      ltrflc[i] = abvlfc + bd->m_v2soi.rtlfalfrac[i] * blwlfc;
+      //always put the litterfall from vascular and moss in the
+      // first non-moss soil layer
+      ltrflc[i] = abvlfc + bd->m_v2soi.mossdeathc + bd->m_v2soi.rtlfalfrac[i] * blwlfc;
 
-      ltrfln[i] = abvlfn + bd->m_v2soi.rtlfalfrac[i] * blwlfn;
+      ltrfln[i] = abvlfn + bd->m_v2soi.mossdeathn + bd->m_v2soi.rtlfalfrac[i] * blwlfn;
       abvlfc = 0.;
       abvlfn = 0.;
     } else if(cd->m_soil.type[i]>0) {
@@ -224,8 +223,6 @@ void Soil_Bgc::clear_del_structs(){
   //soistate_bgc del_sois
   del_sois.wdebrisc = 0.0;
   del_sois.wdebrisn = 0.0;
-  del_sois.dmossc = 0.0;
-  del_sois.dmossn = 0.0;
 
   //soi2soi_bgc del_soi2soi
   del_soi2soi.netnminsum = 0.0;
@@ -233,7 +230,6 @@ void Soil_Bgc::clear_del_structs(){
 
   //soi2atm_bgc del_soi2a
   del_soi2a.rhwdeb = 0.0;
-  del_soi2a.rhmossc = 0.0;
   del_soi2a.rhrawcsum = 0.0;
   del_soi2a.rhsomasum = 0.0;
   del_soi2a.rhsomprsum = 0.0;
@@ -279,7 +275,6 @@ void Soil_Bgc::initializeState() {
   assignCarbonLayer2BdMonthly();
 
   bd->m_sois.wdebrisc = 0;
-  bd->m_sois.dmossc   = chtlu->initdmossc;
 
   // Initial N based on input total and SOM C profile
   double sum_total_C = shlwc + deepc + minec;
@@ -365,15 +360,12 @@ void Soil_Bgc::set_state_from_restartdata(const RestartData & rdata) {
 
   bd->m_sois.wdebrisc = rdata.wdebrisc;
   bd->m_sois.wdebrisn = rdata.wdebrisn;
-  bd->m_sois.dmossc   = rdata.dmossc;
-  bd->m_sois.dmossn   = rdata.dmossn;
   assignCarbonBd2LayerMonthly();
 };
 
 void Soil_Bgc::initializeParameter() {
   BOOST_LOG_SEV(glg, note) << "Initializing parameters in Soil_Bgc from chtlu (CohortLookup) values.";
   calpar.micbnup    = chtlu->micbnup;
-  calpar.kdcmoss    = chtlu->kdcmoss;
   calpar.kdcrawc    = chtlu->kdcrawc;
   calpar.kdcsoma    = chtlu->kdcsoma;
   calpar.kdcsompr   = chtlu->kdcsompr;
@@ -435,7 +427,6 @@ void Soil_Bgc::initOslayerCarbon(double & shlwc, double & deepc) {
   double cumcarbonbot = 0.0;
   double cumcarbonshlw = 0.0;
   double cumcarbondeep = 0.0;
-  ground->moss.dmossc = 0.0;
 
   while(currl!=NULL) {
     if(currl->isSoil) {
@@ -452,12 +443,7 @@ void Soil_Bgc::initOslayerCarbon(double & shlwc, double & deepc) {
 
       dbmbot = dbmtop+currl->dz;
 
-      if(currl->isMoss) {
-        cumcarbonbot = ground->soildimpar.coefmossa
-                       * pow(dbmbot*100., ground->soildimpar.coefmossb*1.)
-                       * 10000; //from gC/cm2 to gC/m2
-        ground->moss.dmossc += (cumcarbonbot - cumcarbontop);
-      } else if(currl->isFibric) {
+      if(currl->isFibric) {
         cumcarbonbot = ground->soildimpar.coefshlwa
                        * pow(dbmbot*100., ground->soildimpar.coefshlwb*1.)
                        * 10000; //from gC/cm2 to gC/m2
@@ -483,24 +469,6 @@ void Soil_Bgc::initOslayerCarbon(double & shlwc, double & deepc) {
           currl->soma  = 0.0;
           currl->sompr = 0.0;
           currl->somcr = 0.0;
-
-          if (currl->isMoss && currl->nextl->isMoss) {
-
-            // top moss layer, no dead C
-            // (living C is accounted for in the vegetation)
-            ground->moss.dmossc = 0.0;
-
-          } else if (currl->isMoss && !currl->nextl->isMoss) {
-
-            // bottom moss layer, all dead, no living
-            ground->moss.dmossc = chtlu->initdmossc;
-
-          } else {
-            BOOST_LOG_SEV(glg, fatal) << "You should not get here. "
-                                      << "Maybe you have too many moss layers "
-                                      << "specified?";
-            exit(-1);
-          }
 
         } else {
           currl->rawc  = 0.0;
@@ -612,7 +580,6 @@ void Soil_Bgc::initMslayerCarbon(double & minec) {
 
 // before delta and afterdelta are considered in Integrator
 void Soil_Bgc::deltac() {
-  double kmoss = 0.0;     // for dead moss materials (in model, dmossc)
   double krawc = 0.0;     // for littering materials (in model, rawc)
   double ksoma = 0.0;     // for active SOM (in model, soma)
   double ksompr = 0.0;    // for PR SOM (in model, sompr)
@@ -662,18 +629,6 @@ void Soil_Bgc::deltac() {
     }
   } // loop for each soil layer
 
-  //for moss layers - only take a total of the horizon and
-  //  occurs in the first soil layer
-  kmoss = bgcpar.kdmoss;
-  del_soi2a.rhmossc = 0.;
-
-  if(tmp_sois.dmossc > 0.0) {
-    int il = 0;
-    double rhmoist = bd->m_soid.rhmoist[il];
-    double rhq10   = bd->m_soid.rhq10[il];
-    del_soi2a.rhmossc = kmoss * tmp_sois.dmossc * rhmoist * rhq10;
-  }
-
   // for wood debris at ground surface
   del_soi2a.rhwdeb = 0.;
 
@@ -720,13 +675,6 @@ void Soil_Bgc::deltan() {
       del_soi2soi.netnmin[i] = getNetmin(nimmob, totc, tmp_sois.orgn[i],
                                          rhsum ,bgcpar.nmincnsoil,
                                          decay, calpar.micbnup);
-
-      if (cd->m_soil.type[i] == 0 && cd->m_soil.type[i+1] > 0) {  // dead moss decomposition product is into the last moss layer
-        if (tmp_sois.dmossc > 0.0) {
-          del_soi2soi.netnmin[i] += del_soi2a.rhmossc *
-                                    tmp_sois.dmossn / tmp_sois.dmossc;
-        }
-      }
 
       totnetnmin += del_soi2soi.netnmin[i];
     }
@@ -823,20 +771,6 @@ void Soil_Bgc::deltastate() {
                    del_soi2a.rhsompr[il] +
                    del_soi2a.rhsomcr[il];
 
-    // All products from dead moss C decomposition assumed into the last moss
-    // layer or first layer if no moss-layer.
-    // if ( cd->m_soil.type[il+1] > 0 && (il==0 || cd->m_soil.type[il]==0) ) {
-    //   rhsum += del_soi2a.rhmossc;
-    //   Commented out above because rhsum is used to compute the
-    //   dynamic of soil organic matter, which is a different pool
-    //   than the moss carbon pool.
-    // }
-
-    // All products from debris C decomposition assumed into first layer
-    //Only add woody debris respiration once
-    if (il == 0) {
-//      rhsum  += del_soi2a.rhwdeb;
-    }
 
     // Only calculate these pools for non-moss layers...
     if (cd->m_soil.type[il] > 0) {
@@ -854,8 +788,6 @@ void Soil_Bgc::deltastate() {
     }
   }
 
-  //dead moss, if any
-  del_sois.dmossc = mossdeathc - del_soi2a.rhmossc;
   //ground surface wood debris decrement, if any
   del_sois.wdebrisc = d2wdebrisc- del_soi2a.rhwdeb;
   //(II) moving/mixing portion of C among layers
@@ -875,7 +807,7 @@ void Soil_Bgc::deltastate() {
   double thickadded= 0.0;
   double del_orgn[MAX_SOI_LAY]= {0.0}; // soil org. N change with SOMC transformation and/or allocation
 
-  for(int il =0; il<cd->m_soil.numsl; il++) {
+  for(int il=0; il<cd->m_soil.numsl; il++) {
     // 1) most of resistant-C increment into the fibric-horizon (generated
     //      above) will move down so that fibric horizon will be
     //      coarse-material dominated (active SOM will remain)
@@ -1008,13 +940,6 @@ void Soil_Bgc::deltastate() {
       //del_orgn[il] is from above SOM C mixing and moving
       del_sois.orgn[il] = ltrfln[il] - del_soi2soi.netnmin[il] + del_orgn[il];
 
-      if (cd->m_soil.type[il] == 0 && cd->m_soil.type[il+1] > 0) {
-        // dead moss decomposition product is into the last moss layer
-
-        del_sois.orgn[il] += del_soi2a.rhmossc * tmp_sois.dmossn / tmp_sois.dmossc;
-        //because 'netmin' above included moss decomposition
-      }
-
       if (il==0) { //put the deposited orgn (here, mainly fire emitted
                    //  or budget estimation) into the first soil layer
         del_sois.orgn[il] += bd->m_a2soi.orgninput;
@@ -1077,11 +1002,6 @@ void Soil_Bgc::deltastate() {
       }
     } // end of soil layer loop
 
-    // dead moss layers
-    if (tmp_sois.dmossc > 0.) {
-      del_sois.dmossn = mossdeathn;
-      del_sois.dmossn -= del_soi2a.rhmossc * tmp_sois.dmossn / tmp_sois.dmossc;
-    }
 
     // wood debris
     if (tmp_sois.wdebrisc > 0.) {
@@ -1184,8 +1104,6 @@ void Soil_Bgc::updateKdyrly4all() {
     bgcpar.kdsomcr[il] = kdsomcr;
   }
 
-  bgcpar.kdmoss = calpar.kdcmoss; //dead moss decomposition not
-                                  //  adjusted by ltrfall C/N ratio
 };
 
 double Soil_Bgc::getKdyrly(double & yrltrcn, const double lcclnc,

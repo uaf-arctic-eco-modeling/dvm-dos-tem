@@ -400,7 +400,6 @@ def ecosystem_sum_soilC(jdata):
 #    total += jdata["CarbonMineralSum"]
 #    total += jdata["CarbonDeep"]
 #    total += jdata["CarbonShallow"]
-    total += jdata["DeadMossCarbon"]
     total += jdata["WoodyDebrisC"]
   return total
 
@@ -643,7 +642,6 @@ def Report_Soil_C(idx, header=False, jd=None, pjd=None):
                 jd['SomaSum'],
                 jd['SomprSum'],
                 jd['SomcrSum'],
-                jd['DeadMossCarbon'],
 
             )
 

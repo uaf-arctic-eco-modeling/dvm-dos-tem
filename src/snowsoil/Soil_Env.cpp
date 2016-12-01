@@ -444,10 +444,10 @@ void Soil_Env::retrieveDailyFronts() {
     ed->d_sois.frontstype[il]= ground->frontstype[il];
   }
 
-  // determine the deepth of daily active layer depth (seasonal or permafrost)
+  // determine the depth of daily active layer depth (seasonal or permafrost)
   ed->d_soid.ald = MISSING_D;
 
-  for (int il =0; il<MAX_NUM_FNT; il++) {
+  for (int il=0; il<MAX_NUM_FNT; il++) {
     if (il==0 && ed->d_soid.unfrzcolumn<=0.) {
       ed->d_soid.ald = 0.;
       break;
@@ -462,7 +462,7 @@ void Soil_Env::retrieveDailyFronts() {
     }
   }
 
-  // determine the top deepth of daily active layer (seasonal)
+  // determine the daily thaw depth 
   ed->d_soid.alc = 0.;
 
   for (int il =0; il<MAX_NUM_FNT; il++) {

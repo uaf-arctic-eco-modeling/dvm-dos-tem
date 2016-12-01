@@ -128,14 +128,12 @@ public :
   int frontFT[MAX_NUM_FNT];
 
   double wdebrisc;
-  double dmossc;
   double rawc[MAX_SOI_LAY];
   double soma[MAX_SOI_LAY];
   double sompr[MAX_SOI_LAY];
   double somcr[MAX_SOI_LAY];
 
   double wdebrisn;
-  double dmossn;
   double orgn[MAX_SOI_LAY];
   double avln[MAX_SOI_LAY];
 

@@ -125,14 +125,12 @@ private:
   NcVar* frontFTV;
 
   NcVar* wdebriscV;
-  NcVar* dmosscV;
   NcVar* rawcV;
   NcVar* somaV;
   NcVar* somprV;
   NcVar* somcrV;
 
   NcVar* wdebrisnV;
-  NcVar* dmossnV;
   NcVar* solnV;
   NcVar* avlnV;
 

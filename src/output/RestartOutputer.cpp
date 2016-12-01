@@ -97,8 +97,6 @@ void RestartOutputer::init(string& outputdir,string& stage) {
   frontFTV=restartFile->add_var("frontFT", ncInt, chtD, frontD); //freezing/thawing front
   wdebriscV =restartFile->add_var("WDEBRISC", ncDouble, chtD);
   wdebrisnV =restartFile->add_var("WDEBRISN", ncDouble, chtD);
-  dmosscV =restartFile->add_var("DMOSSC", ncDouble, chtD);
-  dmossnV =restartFile->add_var("DMOSSN", ncDouble, chtD);
   rawcV  =restartFile->add_var("RAWC", ncDouble, chtD, soillayerD);
   somaV  =restartFile->add_var("SOMA", ncDouble, chtD, soillayerD);
   somprV =restartFile->add_var("SOMPR", ncDouble, chtD, soillayerD);
@@ -175,8 +173,6 @@ void RestartOutputer::outputVariables(const int & chtcount) {
   frontFTV->put_rec(&resod->frontFT[0], chtcount);
   wdebriscV->put_rec(&resod->wdebrisc, chtcount);
   wdebrisnV->put_rec(&resod->wdebrisn, chtcount);
-  dmosscV->put_rec(&resod->dmossc, chtcount);
-  dmossnV->put_rec(&resod->dmossn, chtcount);
   rawcV->put_rec(&resod->rawc[0], chtcount);
   somaV->put_rec(&resod->soma[0], chtcount);
   somprV->put_rec(&resod->sompr[0], chtcount);
