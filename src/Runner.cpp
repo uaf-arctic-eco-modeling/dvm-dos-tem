@@ -418,7 +418,7 @@ void Runner::output_caljson_monthly(int year, int month, std::string stage, boos
   data["WoodyDebrisC"] = cohort.bdall->m_sois.wdebrisc;
   data["WoodyDebrisN"] = cohort.bdall->m_sois.wdebrisn;
   // fluxes
-  data["MossdeathCarbon"] = cohort.bdall->m_v2soi.mossdeathc;
+  data["MossDeathC"] = cohort.bdall->m_v2soi.mossdeathc;
   data["MossdeathNitrogen"] = cohort.bdall->m_v2soi.mossdeathn;
   data["D2WoodyDebrisC"] = cohort.bdall->m_v2soi.d2wdebrisc;
   data["D2WoodyDebrisN"] = cohort.bdall->m_v2soi.d2wdebrisn;
@@ -597,7 +597,7 @@ void Runner::output_caljson_yearly(int year, std::string stage, boost::filesyste
   data["WoodyDebrisC"] = cohort.bdall->y_sois.wdebrisc;
   data["WoodyDebrisN"] = cohort.bdall->y_sois.wdebrisn;
   // fluxes
-  data["MossdeathCarbon"] = cohort.bdall->y_v2soi.mossdeathc;
+  data["MossDeathC"] = cohort.bdall->y_v2soi.mossdeathc;
   data["MossdeathNitrogen"] = cohort.bdall->y_v2soi.mossdeathn;
   data["D2WoodyDebrisC"] = cohort.bdall->y_v2soi.d2wdebrisc;
   data["D2WoodyDebrisN"] = cohort.bdall->y_v2soi.d2wdebrisn;

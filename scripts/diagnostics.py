@@ -637,7 +637,7 @@ def Report_Soil_C(idx, header=False, jd=None, pjd=None):
                 jd['RHsomcr'],
                 jd['RHmossc'],
                 jd['RHwdeb'],
-                sum_across("LitterfallCarbonAll", jd, 'all') + jd['MossdeathCarbon'],
+                sum_across("LitterfallCarbonAll", jd, 'all') + jd['MossDeathC'],
                 jd['RawCSum'],
                 jd['SomaSum'],
                 jd['SomprSum'],
