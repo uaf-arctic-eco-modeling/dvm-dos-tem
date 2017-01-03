@@ -852,12 +852,14 @@ void Runner::create_netCDF_output_files(int ysize, int xsize) {
     std::cout<<"veg: "<<temp_spec.veg<<std::endl;
     std::cout<<"soil: "<<temp_spec.soil<<std::endl;
 
+    BOOST_LOG_SEV(glg, debug)<<"Variable: "<<name<<". Timestep: "<<timestep;
 
     //Creating NetCDF file
     BOOST_LOG_SEV(glg, debug)<<"Creating output NetCDF file "<<temp_spec.filename;
     temutil::nc( nc_create(temp_spec.filename.c_str(), NC_CLOBBER, &ncid) );
 
     BOOST_LOG_SEV(glg, debug) << "Adding dimensions...";
+
     //All variables will have time, y, x 
     temutil::nc( nc_def_dim(ncid, "time", NC_UNLIMITED, &timeD) );
     temutil::nc( nc_def_dim(ncid, "y", ysize, &yD) );
@@ -868,6 +870,7 @@ void Runner::create_netCDF_output_files(int ysize, int xsize) {
       vartype3D_dimids[0] = timeD;
       vartype3D_dimids[1] = yD;
       vartype3D_dimids[2] = xD;
+
       temutil::nc( nc_def_var(ncid, name.c_str(), NC_DOUBLE, 3, vartype3D_dimids, &Var) );
     }
 
@@ -915,65 +918,16 @@ void Runner::create_netCDF_output_files(int ysize, int xsize) {
     BOOST_LOG_SEV(glg, debug) << "Closing new file...";
     temutil::nc( nc_close(ncid) );
 
-    //Add output specifiers to the correct map
+    //Add output specifiers to the map tracking the appropriate timestep
     if(timestep.compare("monthly") == 0){
       monthly_netcdf_outputs.insert(std::map<std::string, output_spec>::value_type(name, temp_spec));;
       //monthly_netcdf_outputs.insert({name, filename}); c++11
     }
     else if(timestep.compare("yearly") == 0){
-      std::cout<<"Constructed filename: "<<temp_spec.filename<<std::endl;
       yearly_netcdf_outputs.insert(std::map<std::string, output_spec>::value_type(name, temp_spec));;
     }
 
   }
-
-  
-/*
-  if(curr_spec.dim_count==3){//Environmental variable
-    //3D variables
-    int vartype3D_dimids[3];
-    vartype3D_dimids[0] = timeD;
-    vartype3D_dimids[1] = yD;
-    vartype3D_dimids[2] = xD;
-  }
-  else if(curr_spec.veg && curr_spec.dim_count==4){
-    temutil::nc( nc_def_dim(ncid, "pft", NUM_PFT, &pftD) );
-
-    //4D Veg 
-    int vartypeVeg4D_dimids[4];
-    vartypeVeg4D_dimids[0] = timeD;
-    vartypeVeg4D_dimids[1] = pftD;
-    vartypeVeg4D_dimids[2] = yD;
-    vartypeVeg4D_dimids[3] = xD;
-
-  }
-  else if(curr_spec.veg && curr_spec.dim_count==5){//Compartment as well
-    temutil::nc( nc_def_dim(ncid, "pft", NUM_PFT, &pftD) );
-    temutil::nc( nc_def_dim(ncid, "pftpart", NUM_PFT_PART, &pftpartD) );
-
-    //5D Veg
-    int vartypeVeg5D_dimids[5];
-    vartypeVeg5D_dimids[0] = timeD;
-    vartypeVeg5D_dimids[1] = pftD;
-    vartypeVeg5D_dimids[2] = pftpartD;
-    vartypeVeg5D_dimids[3] = yD;
-    vartypeVeg5D_dimids[4] = xD;
-  }
-  else if(curr_spec.soil){
-    temutil::nc( nc_def_dim(ncid, "layer", MAX_SOI_LAY, &layerD) );
-
-    //4D Soil
-    vartypeSoil4D_dimids[0] = timeD;
-    vartypeSoil4D_dimids[1] = layerD;
-    vartypeSoil4D_dimids[2] = yD;
-    vartypeSoil4D_dimids[3] = xD;
-  }
-*/
-
-  /* Create Coordinate Variables?? */
-
-  /* Create Data Variables */
-
 
   //vegC (pft, pftpart, timestep, x, y)
   //soil carbon (layer)
