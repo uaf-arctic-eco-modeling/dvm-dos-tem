@@ -776,11 +776,11 @@ void Runner::create_netCDF_output_files(int ysize, int xsize) {
   //NetCDF file variables
   int ncid;
   int timeD;    // unlimited dimension
+  int xD;
+  int yD;
   int pftD;
   int pftpartD;
   int layerD;
-  int xD;
-  int yD;
   int Var;
 
   //3D Ecosystem
@@ -879,9 +879,9 @@ void Runner::create_netCDF_output_files(int ysize, int xsize) {
       temutil::nc( nc_def_dim(ncid, "pft", NUM_PFT, &pftD) );
 
       vartypeVeg4D_dimids[0] = timeD;
-      vartypeVeg4D_dimids[1] = pftD;
-      vartypeVeg4D_dimids[2] = yD;
-      vartypeVeg4D_dimids[3] = xD;
+      vartypeVeg4D_dimids[1] = yD;
+      vartypeVeg4D_dimids[2] = xD;
+      vartypeVeg4D_dimids[3] = pftD;
 
       temutil::nc( nc_def_var(ncid, name.c_str(), NC_DOUBLE, 4, vartypeVeg4D_dimids, &Var) );
     }
@@ -892,10 +892,10 @@ void Runner::create_netCDF_output_files(int ysize, int xsize) {
       temutil::nc( nc_def_dim(ncid, "pftpart", NUM_PFT_PART, &pftpartD) );
 
       vartypeVeg5D_dimids[0] = timeD;
-      vartypeVeg5D_dimids[1] = pftD;
-      vartypeVeg5D_dimids[2] = pftpartD;
-      vartypeVeg5D_dimids[3] = yD;
-      vartypeVeg5D_dimids[4] = xD;
+      vartypeVeg5D_dimids[1] = yD;
+      vartypeVeg5D_dimids[2] = xD;
+      vartypeVeg5D_dimids[3] = pftD;
+      vartypeVeg5D_dimids[4] = pftpartD;
 
       temutil::nc( nc_def_var(ncid, name.c_str(), NC_DOUBLE, 5, vartypeVeg5D_dimids, &Var) );
     }
@@ -905,9 +905,11 @@ void Runner::create_netCDF_output_files(int ysize, int xsize) {
       temutil::nc( nc_def_dim(ncid, "layer", MAX_SOI_LAY, &layerD) );
 
       vartypeSoil4D_dimids[0] = timeD;
-      vartypeSoil4D_dimids[1] = layerD;
-      vartypeSoil4D_dimids[2] = yD;
-      vartypeSoil4D_dimids[3] = xD;
+      vartypeSoil4D_dimids[1] = yD;
+      vartypeSoil4D_dimids[2] = xD;
+      vartypeSoil4D_dimids[3] = layerD;
+
+      temutil::nc( nc_def_var(ncid, name.c_str(), NC_DOUBLE, 4, vartypeSoil4D_dimids, &Var) );
     }
 
     /* End Define Mode (not strictly necessary for netcdf 4) */
@@ -945,72 +947,158 @@ void Runner::create_netCDF_output_files(int ysize, int xsize) {
 void Runner::output_netCDF_monthly(int year, int month){
   int timestep = year*12 + month;
 
-  std::cout<<"outputting monthly netcdf\n";
+  int rowidx = this->y;
+  int colidx = this->x;
+
   output_spec curr_spec;
   int ncid;
-  int timeD; //unlimited dimensions
+  int timeD; //unlimited dimension
+  int xD;
+  int yD;
   int pftD;
   int pftpartD;
   int layerD;
-  int xD;
-  int yD;
   int cv; //reusable variable handle
 
   //Iterate through the map.
   //Based on dimension count, veg, and soil, then manually find the vars
 
 
-  curr_spec = monthly_netcdf_outputs["TALD"];
-  
+  //3D system-wide variables
   size_t start3[3];
   start3[0] = timestep;
-  start3[1] = 0;
-  start3[2] = 0;
+  start3[1] = rowidx;
+  start3[2] = colidx;
 
-  size_t count3[3];
-  count3[0] = 1;
-  count3[1] = 1;
-  count3[2] = 1;
+//  curr_spec = monthly_netcdf_outputs["GROWSTART"];
+//  curr_spec = monthly_netcdf_outputs["GROWEND"];
+//  curr_spec = monthly_netcdf_outputs["PERMAFROST"];
+//  curr_spec = monthly_netcdf_outputs["MOSSDZ"];
+//  curr_spec = monthly_netcdf_outputs["SHLWDZ"];
+//  curr_spec = monthly_netcdf_outputs["DEEPDZ"];
+//  curr_spec = monthly_netcdf_outputs["SHLWC"];
+//  curr_spec = monthly_netcdf_outputs["DEEPC"];
+//  curr_spec = monthly_netcdf_outputs["MINEC"];
+//  curr_spec = monthly_netcdf_outputs["EET"];
+//  curr_spec = monthly_netcdf_outputs["PET"];
+//  curr_spec = monthly_netcdf_outputs["SNOWTHICK"];
+//  curr_spec = monthly_netcdf_outputs["SWE"];
+//  curr_spec = monthly_netcdf_outputs["WATERTAB"];
+//  curr_spec = monthly_netcdf_outputs["ALD"];
+//  curr_spec = monthly_netcdf_outputs["VWCSHLW"];
+//  curr_spec = monthly_netcdf_outputs["VWCDEEP"];
+//  curr_spec = monthly_netcdf_outputs["VWCMINETOP"];
+//  curr_spec = monthly_netcdf_outputs["VWCMINEBOT"];
+//  curr_spec = monthly_netcdf_outputs["TSHLW"];
+//  curr_spec = monthly_netcdf_outputs["TDEEP"];
+//  curr_spec = monthly_netcdf_outputs["TMINETOP"];
+//  curr_spec = monthly_netcdf_outputs["TMINEBOT"];
+//  curr_spec = monthly_netcdf_outputs["HKSHLW"];
+//  curr_spec = monthly_netcdf_outputs["HKDEEP"];
+//  curr_spec = monthly_netcdf_outputs["HKMINETOP"];
+//  curr_spec = monthly_netcdf_outputs["HKMINEBOT"];
+//  curr_spec = monthly_netcdf_outputs["TCSHLW"];
+//  curr_spec = monthly_netcdf_outputs["TCDEEP"];
+//  curr_spec = monthly_netcdf_outputs["TCMINETOP"];
+//  curr_spec = monthly_netcdf_outputs["TCMINEBOT"];
+//  curr_spec = monthly_netcdf_outputs["TROCK34M"];
+//  curr_spec = monthly_netcdf_outputs["SOMCALD"];
+//  curr_spec = monthly_netcdf_outputs["VWCALD"];
 
-  int placeholder = 9;
+/*  curr_spec = monthly_netcdf_outputs["TALD"];
+  int tald = ???;
 
-  std::cout<<"opening "<<curr_spec.filename<<std::endl;
   temutil::nc( nc_open(curr_spec.filename.c_str(), NC_WRITE, &ncid) );
   temutil::nc( nc_inq_varid(ncid, "TALD", &cv) );
   temutil::nc( nc_put_var1_int(ncid, cv, start3, &placeholder) );
   temutil::nc( nc_close(ncid) );
-  
+*/
+//  curr_spec = monthly_netcdf_outputs["SNOWSTART"];
+//  curr_spec = monthly_netcdf_outputs["SNOWEND"];
+//  curr_spec = monthly_netcdf_outputs["NDEOP"];
+//  curr_spec = monthly_netcdf_outputs["DEADC"];
+//  curr_spec = monthly_netcdf_outputs["DEADN"];
+//  curr_spec = monthly_netcdf_outputs["DWD"];
+//  curr_spec = monthly_netcdf_outputs["DWDN"];
+//  curr_spec = monthly_netcdf_outputs["WDRH"];
+//  curr_spec = monthly_netcdf_outputs["ORL"];
 
-  //Vegetation-related variables
-  //curr_spec = monthly_netcdf_outputs.find("VEGC")
+
+  //Soil Variables
+  size_t soilstart4[4];
+  soilstart4[0] = timestep;
+  soilstart4[1] = rowidx;
+  soilstart4[2] = colidx;
+  soilstart4[3] = 0;
+
+  size_t soilcount4[4];
+  soilcount4[0] = 1;
+  soilcount4[1] = 1;
+  soilcount4[2] = 1;
+  soilcount4[3] = MAX_SOI_LAY;
+
+//  curr_spec = monthly_netcdf_outputs["SOC"];
+//  double soilc[MAX_SOI_LAY];
+//  for(int il=0; il<MAX_SOI_LAY; il++){
+//    soilc[il] = cohort.bd[] 
+//  }
+//  temutil::nc( nc_open(curr_spec.filename.c_str(), NC_WRITE, &ncid) );
+//  temutil::nc( nc_inq_varid(ncid, "SOC", &cv) );
+//  temutil::nc( nc_put_vara_double(ncid, cv, soilstart4, soilcount4, &soilc[0]) );
+//  temutil::nc( nc_close(ncid) );
+
+  //PFT variables
+  size_t vegstart4[4];
+  vegstart4[0] = timestep;
+  vegstart4[1] = rowidx;
+  vegstart4[2] = colidx;
+  vegstart4[3] = 0;//PFT
+
+  size_t vegcount4[4];
+  vegcount4[0] = 1;
+  vegcount4[1] = 1;
+  vegcount4[2] = 1;
+  vegcount4[3] = NUM_PFT;
+
+  curr_spec = monthly_netcdf_outputs["NPP"];
+  double npp[NUM_PFT];
+  for(int ip=0; ip<NUM_PFT; ip++){
+    npp[ip] = cohort.bd[ip].m_a2v.nppall; 
+  }
+  temutil::nc( nc_open(curr_spec.filename.c_str(), NC_WRITE, &ncid) );
+  temutil::nc( nc_inq_varid(ncid, "NPP", &cv) );
+  temutil::nc( nc_put_vara_double(ncid, cv, vegstart4, vegcount4, &npp[0]) );
+  temutil::nc( nc_close(ncid) );
+
+
+
+  //PFT and PFT compartment variables
   size_t start5[5];
-  start5[0] = timestep;//time
-  start5[1] = 0;
-  start5[2] = 0;
-  start5[3] = 0;
-  start5[4] = 0;
+  start5[0] = timestep;
+  start5[1] = rowidx;
+  start5[2] = colidx;
+  start5[3] = 0;//PFT
+  start5[4] = 0;//PFT Compartment
 
   size_t count5[5];
   count5[0] = 1;
   count5[1] = 1;
   count5[2] = 1;
-  count5[3] = NUM_PFT_PART;
-  count5[4] = NUM_PFT;
+  count5[3] = NUM_PFT;
+  count5[4] = NUM_PFT_PART;
 
+  curr_spec = monthly_netcdf_outputs["VEGC"];
   double vegc[NUM_PFT_PART][NUM_PFT];
   for(int ip=0; ip<NUM_PFT; ip++){
     for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
       vegc[ipp][ip] = cohort.bd[ip].m_vegs.c[ipp];
     }
   }
-  curr_spec = monthly_netcdf_outputs["VEGC"];
-  std::cout<<"opening "<<curr_spec.filename<<std::endl;
   temutil::nc( nc_open(curr_spec.filename.c_str(), NC_WRITE, &ncid) );
-  //temutil::nc( nc_open(curr_spec.filename.c_str(), NC_SHARE, &ncid) );
   temutil::nc( nc_inq_varid(ncid, "VEGC", &cv) );
   temutil::nc( nc_put_vara_double(ncid, cv, start5, count5, &vegc[0][0]) );
-
   temutil::nc( nc_close(ncid) );
+
 }
 
 
