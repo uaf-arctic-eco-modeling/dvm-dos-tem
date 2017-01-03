@@ -86,7 +86,7 @@ void ppv(const std::vector<TYPE> &v){
 void pp_2dvec(const std::vector<std::vector<int> > & vv);
 
 // draft - generate a netcdf file that can follow CF conventions
-void create_new_output();
+//void create_netCDF_output_files(int ysize, int xsize);
 
 // draft - reading new-style co2 file
 std::vector<float> read_new_co2_file(const std::string &filename);
@@ -166,13 +166,6 @@ int main(int argc, char* argv[]){
   // Turn off buffering...
   setvbuf(stdout, NULL, _IONBF, 0);
   setvbuf(stderr, NULL, _IONBF, 0);
-
-  // Create empty output files now so that later, as the program
-  // proceeds, there is somewhere to append output data...
-  // ??? Maybe the type/shape of outputs that we create can, or should, depend on
-  // ??? some of the settings in the ModelData object?
-  BOOST_LOG_SEV(glg, info) << "Creating a fresh 'n clean NEW output file...";
-  create_new_output();
   
   time_t stime;
   time_t etime;
@@ -200,6 +193,12 @@ int main(int argc, char* argv[]){
   RestartData::create_empty_file(sp_restart_fname, num_rows, num_cols);
   RestartData::create_empty_file(tr_restart_fname, num_rows, num_cols);
   RestartData::create_empty_file(sc_restart_fname, num_rows, num_cols);
+
+  // Create empty output files now so that later, as the program
+  // proceeds, there is somewhere to append output data...
+  BOOST_LOG_SEV(glg, info) << "Creating a set of empty NetCDF output files";
+  //create_netCDF_output_files(num_rows, num_cols);
+  
 
   if (args->get_loop_order() == "space-major") {
 
@@ -238,6 +237,7 @@ int main(int argc, char* argv[]){
 
           BOOST_LOG_SEV(glg, info) << "Setup the NEW STYLE RUNNER OBJECT ...";
           Runner runner(modeldata, args->get_cal_mode(), rowidx, colidx);
+          runner.create_netCDF_output_files(num_rows, num_cols);
 
           BOOST_LOG_SEV(glg, debug) << runner.cohort.ground.layer_report_string("depth thermal");
 
@@ -631,46 +631,211 @@ std::vector<float> read_new_co2_file(const std::string &filename) {
   return co2data;
 }
 
-/** rough draft for new output files
+
+/** Construct empty netCDF output files. Unfinished.
 */
-void create_new_output() {
+/*
+void create_netCDF_output_files(int ysize, int xsize) {
 
+  //unordered map? Faster by-key access C++11
+  //std::map<std::string, output_spec> monthly_netcdf_outputs;
+  //std::map<std::string, output_spec> yearly_netcdf_outputs;
+
+
+  //Load output specification file
+  BOOST_LOG_SEV(glg, debug) << "Loading output specification file";
+  std::ifstream output_csv("output_spec.csv");
+
+  std::string s;
+  std::getline(output_csv, s);//Discard first line - header strings
+
+  std::string token;//Substrings between commas
+  std::string name;//CSV file variable name
+  std::string timestep;//Yearly, monthly, or daily
+
+  //NetCDF file variables
   int ncid;
-
-  BOOST_LOG_SEV(glg, debug) << "Creating dataset...";
-  temutil::nc( nc_create("general-outputs-monthly.nc", NC_CLOBBER, &ncid) );
-
   int timeD;    // unlimited dimension
   int pftD;
+  int pftpartD;
+  int layerD;
   int xD;
   int yD;
+  int Var;
 
-  /* Create Dimensions */
-  BOOST_LOG_SEV(glg, debug) << "Adding dimensions...";
-  temutil::nc( nc_def_dim(ncid, "time", NC_UNLIMITED, &timeD) );
-  temutil::nc( nc_def_dim(ncid, "pft", NUM_PFT, &pftD) );
-  temutil::nc( nc_def_dim(ncid, "y", 10, &yD) );
-  temutil::nc( nc_def_dim(ncid, "x", 10, &xD) );
+  //5D Veg
+  int vartypeVeg5D_dimids[5];
+  vartypeVeg5D_dimids[0] = timeD;
+  vartypeVeg5D_dimids[1] = pftD;
+  vartypeVeg5D_dimids[2] = pftpartD;
+  vartypeVeg5D_dimids[3] = yD;
+  vartypeVeg5D_dimids[4] = xD;
+ 
+  //Ingest output specification file, create output_spec for each entry. 
+  while(std::getline(output_csv, s)){ 
+
+    std::istringstream ss(s);
+
+    output_spec temp_spec;
+    temp_spec.veg = false;
+    temp_spec.soil = false;
+    temp_spec.dim_count = 3;//All variables have time, y, x
+
+    for(int ii=0; ii<9; ii++){
+      std::getline(ss, token, ',');
+      //std::cout<<"token: "<<token<<std::endl;
+
+      //indices 1 and 2 are ignored, as they are for human-reader
+      //benefit. Variable description and units, respectively.
+      if(ii==0){//Variable name
+        name = token; 
+      }
+      else if(ii==3){//Yearly
+        if(token.length()>0){timestep = "yearly";}
+      }
+      else if(ii==4){//Monthly
+        if(token.length()>0){timestep = "monthly";}
+      }
+      else if(ii==5){//Daily
+        if(token.length()>0){timestep = "daily";}
+      }
+      else if(ii==6){//PFT
+        if(token.length()>0){
+          temp_spec.veg = true;
+          temp_spec.dim_count++;
+        }
+      }
+      else if(ii==7 && temp_spec.veg){//Compartment, must have PFT specified
+        if(token.length()>0){
+          temp_spec.dim_count++;
+        }
+      }
+      else if(ii==8){//Layer
+        if(token.length()>0){
+          temp_spec.soil = true;
+          temp_spec.dim_count++;
+        }
+      }
+    }
+
+    temp_spec.filename = name + "_" + timestep + ".nc";
+
+    std::cout<<"name: "<<name<<std::endl;
+    std::cout<<"name length: "<<name.length()<<std::endl;
+    std::cout<<"timestep: "<<timestep<<std::endl;
+    std::cout<<"dimensions: "<<temp_spec.dim_count<<std::endl;
+    std::cout<<"filename: "<<temp_spec.filename<<std::endl;
+    std::cout<<"veg: "<<temp_spec.veg<<std::endl;
+    std::cout<<"soil: "<<temp_spec.soil<<std::endl;
+
+
+    //Creating NetCDF file
+    BOOST_LOG_SEV(glg, debug)<<"Creating output NetCDF file "<<temp_spec.filename;
+    temutil::nc( nc_create(temp_spec.filename.c_str(), NC_CLOBBER, &ncid) );
+
+    BOOST_LOG_SEV(glg, debug) << "Adding dimensions...";
+    //All variables will have time, y, x 
+    temutil::nc( nc_def_dim(ncid, "time", NC_UNLIMITED, &timeD) );
+    temutil::nc( nc_def_dim(ncid, "y", ysize, &yD) );
+    temutil::nc( nc_def_dim(ncid, "x", xsize, &xD) );
+
+    //Vegetation specific dimensions
+    if(temp_spec.veg){
+      temutil::nc( nc_def_dim(ncid, "pft", NUM_PFT, &pftD) );
+      if(temp_spec.dim_count==5){//Compartment specified as well
+        temutil::nc( nc_def_dim(ncid, "pftpart", NUM_PFT_PART, &pftpartD) );
+
+        temutil::nc( nc_def_var(ncid, name.c_str(), NC_DOUBLE, 5, vartypeVeg5D_dimids,  &Var) );
+      }
+    }
+    //Soil specific dimensions
+    else if(temp_spec.soil){
+      temutil::nc( nc_def_dim(ncid, "layer", MAX_SOI_LAY, &layerD) );
+    }
+*/
+    /* End Define Mode (not strictly necessary for netcdf 4) */
+//    BOOST_LOG_SEV(glg, debug) << "Leaving 'define mode'...";
+//    temutil::nc( nc_enddef(ncid) );
+
+    /* Close file. */
+//    BOOST_LOG_SEV(glg, debug) << "Closing new file...";
+//    temutil::nc( nc_close(ncid) );
+/*
+    //Add output specifiers to the correct map
+    if(timestep.compare("monthly") == 0){
+      runner.monthly_netcdf_outputs.insert(std::map<std::string, output_spec>::value_type(name, temp_spec));;
+      //monthly_netcdf_outputs.insert({name, filename}); c++11
+    }
+    else if(timestep.compare("yearly") == 0){
+      std::cout<<"Constructed filename: "<<temp_spec.filename<<std::endl;
+      runner.yearly_netcdf_outputs.insert(std::map<std::string, output_spec>::value_type(name, temp_spec));;
+    }
+
+  }
+
+  */
+/*
+  if(curr_spec.dim_count==3){//Environmental variable
+    //3D variables
+    int vartype3D_dimids[3];
+    vartype3D_dimids[0] = timeD;
+    vartype3D_dimids[1] = yD;
+    vartype3D_dimids[2] = xD;
+  }
+  else if(curr_spec.veg && curr_spec.dim_count==4){
+    temutil::nc( nc_def_dim(ncid, "pft", NUM_PFT, &pftD) );
+
+    //4D Veg 
+    int vartypeVeg4D_dimids[4];
+    vartypeVeg4D_dimids[0] = timeD;
+    vartypeVeg4D_dimids[1] = pftD;
+    vartypeVeg4D_dimids[2] = yD;
+    vartypeVeg4D_dimids[3] = xD;
+
+  }
+  else if(curr_spec.veg && curr_spec.dim_count==5){//Compartment as well
+    temutil::nc( nc_def_dim(ncid, "pft", NUM_PFT, &pftD) );
+    temutil::nc( nc_def_dim(ncid, "pftpart", NUM_PFT_PART, &pftpartD) );
+
+    //5D Veg
+    int vartypeVeg5D_dimids[5];
+    vartypeVeg5D_dimids[0] = timeD;
+    vartypeVeg5D_dimids[1] = pftD;
+    vartypeVeg5D_dimids[2] = pftpartD;
+    vartypeVeg5D_dimids[3] = yD;
+    vartypeVeg5D_dimids[4] = xD;
+  }
+  else if(curr_spec.soil){
+    temutil::nc( nc_def_dim(ncid, "layer", MAX_SOI_LAY, &layerD) );
+
+    //4D Soil
+    int vartypeSoil4D_dimids[4];
+    vartypeSoil4D_dimids[0] = timeD;
+    vartypeSoil4D_dimids[1] = layerD;
+    vartypeSoil4D_dimids[2] = yD;
+    vartypeSoil4D_dimids[3] = xD;
+  }
+*/
 
   /* Create Coordinate Variables?? */
 
   /* Create Data Variables */
 
-  // 4D vars
-  BOOST_LOG_SEV(glg, debug) << "Adding 4D variables...";
-  int vartypeA_dimids[4];
-  vartypeA_dimids[0] = timeD;
-  vartypeA_dimids[1] = pftD;
-  vartypeA_dimids[2] = yD;
-  vartypeA_dimids[3] = xD;
 
-  int vegcV;
-  int veg_fractionV;
-  int growstartV;
-  temutil::nc( nc_def_var(ncid, "vegc", NC_DOUBLE, 4, vartypeA_dimids,  &vegcV) );
-  temutil::nc( nc_def_var(ncid, "veg_fraction", NC_DOUBLE, 4, vartypeA_dimids, &veg_fractionV) );
-  temutil::nc( nc_def_var(ncid, "growstart", NC_DOUBLE, 4, vartypeA_dimids, &growstartV) );
+  //vegC (pft, pftpart, timestep, x, y)
+  //soil carbon (layer)
+  //NPP (ecosystem)
+  //RH (total)
+  //BurnVegC ()
+  //soil temp (layer, daily)
 
+//  int vegcV;
+//  int veg_fractionV;
+//  int growstartV;
+  //5D, really temutil::nc( nc_def_var(ncid, "vegc", NC_DOUBLE, 4, vartypeA_dimids,  &vegcV) );
+  //temutil::nc( nc_def_var(ncid, "veg_fraction", NC_DOUBLE, 4, vartypeA_dimids, &veg_fractionV) );
+  //temutil::nc( nc_def_var(ncid, "growstart", NC_DOUBLE, 4, vartypeA_dimids, &growstartV) );
+/*
   // 3D vars
   BOOST_LOG_SEV(glg, debug) << "Adding 3D variables...";
   int vartypeB_dimids[3];
@@ -680,19 +845,14 @@ void create_new_output() {
 
   int org_shlw_thicknessV;
   temutil::nc( nc_def_var(ncid, "org_shlw_thickness", NC_DOUBLE, 3, vartypeB_dimids, &org_shlw_thicknessV) );
-  
+ */ 
   /* Create Attributes? */
   
 
-  /* End Define Mode (not scrictly necessary for netcdf 4) */
-  BOOST_LOG_SEV(glg, debug) << "Leaving 'define mode'...";
-  temutil::nc( nc_enddef(ncid) );
-
-  /* Load coordinate variables?? */
 
   /* Close file. */
-  BOOST_LOG_SEV(glg, debug) << "Closing new file...";
-  temutil::nc( nc_close(ncid) );
+  //BOOST_LOG_SEV(glg, debug) << "Closing new file...";
+  //temutil::nc( nc_close(ncid) );
 
-}
+//}
 

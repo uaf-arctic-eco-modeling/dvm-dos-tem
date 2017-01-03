@@ -120,8 +120,9 @@ void Runner::monthly_output(const int year, const int month, const std::string& 
       this->output_caljson_monthly(year, month, runstage, this->calcontroller_ptr->monthly_json);
     }
 
-    // NetCDF ???
-    BOOST_LOG_SEV(glg, debug) << "Stub location for monthly NetCDF output?";
+    // NetCDF
+    BOOST_LOG_SEV(glg, debug) << "Monthly NetCDF output function call";
+    output_netCDF_monthly(year, month);
 
   } else {
     BOOST_LOG_SEV(glg, debug) << "Monthly output turned off in config settings.";
@@ -750,4 +751,312 @@ void Runner::output_debug_daily_drivers(int iy, boost::filesystem::path p) {
 
   out_stream.close();
 }
+
+
+/** Construct empty netCDF output files. Unfinished.
+*/
+void Runner::create_netCDF_output_files(int ysize, int xsize) {
+
+  //unordered map? Faster by-key access C++11
+  //std::map<std::string, output_spec> monthly_netcdf_outputs;
+  //std::map<std::string, output_spec> yearly_netcdf_outputs;
+
+
+  //Load output specification file
+  BOOST_LOG_SEV(glg, debug) << "Loading output specification file";
+  std::ifstream output_csv("output_spec.csv");
+
+  std::string s;
+  std::getline(output_csv, s);//Discard first line - header strings
+
+  std::string token;//Substrings between commas
+  std::string name;//CSV file variable name
+  std::string timestep;//Yearly, monthly, or daily
+
+  //NetCDF file variables
+  int ncid;
+  int timeD;    // unlimited dimension
+  int pftD;
+  int pftpartD;
+  int layerD;
+  int xD;
+  int yD;
+  int Var;
+
+  //3D Ecosystem
+  int vartype3D_dimids[3];
+
+  //4D Soil
+  int vartypeSoil4D_dimids[4];
+
+  //4D Veg - PFT but not PFT compartments
+  int vartypeVeg4D_dimids[4];
+
+  //5D Veg
+  int vartypeVeg5D_dimids[5];
+ 
+  //Ingest output specification file, create output_spec for each entry. 
+  while(std::getline(output_csv, s)){ 
+
+    std::istringstream ss(s);
+
+    output_spec temp_spec;
+    temp_spec.veg = false;
+    temp_spec.soil = false;
+    temp_spec.dim_count = 3;//All variables have time, y, x
+
+    for(int ii=0; ii<9; ii++){
+      std::getline(ss, token, ',');
+      //std::cout<<"token: "<<token<<std::endl;
+
+      //indices 1 and 2 are ignored, as they are for human-reader
+      //benefit. Variable description and units, respectively.
+      if(ii==0){//Variable name
+        name = token; 
+      }
+      else if(ii==3){//Yearly
+        if(token.length()>0){timestep = "yearly";}
+      }
+      else if(ii==4){//Monthly
+        if(token.length()>0){timestep = "monthly";}
+      }
+      else if(ii==5){//Daily
+        if(token.length()>0){timestep = "daily";}
+      }
+      else if(ii==6){//PFT
+        if(token.length()>0){
+          temp_spec.veg = true;
+          temp_spec.dim_count++;
+        }
+      }
+      else if(ii==7 && temp_spec.veg){//Compartment, must have PFT specified
+        if(token.length()>0){
+          temp_spec.dim_count++;
+        }
+      }
+      else if(ii==8){//Layer
+        if(token.length()>0){
+          temp_spec.soil = true;
+          temp_spec.dim_count++;
+        }
+      }
+    }
+
+    temp_spec.filename = name + "_" + timestep + ".nc";
+
+    std::cout<<"name: "<<name<<std::endl;
+    std::cout<<"name length: "<<name.length()<<std::endl;
+    std::cout<<"timestep: "<<timestep<<std::endl;
+    std::cout<<"dimensions: "<<temp_spec.dim_count<<std::endl;
+    std::cout<<"filename: "<<temp_spec.filename<<std::endl;
+    std::cout<<"veg: "<<temp_spec.veg<<std::endl;
+    std::cout<<"soil: "<<temp_spec.soil<<std::endl;
+
+
+    //Creating NetCDF file
+    BOOST_LOG_SEV(glg, debug)<<"Creating output NetCDF file "<<temp_spec.filename;
+    temutil::nc( nc_create(temp_spec.filename.c_str(), NC_CLOBBER, &ncid) );
+
+    BOOST_LOG_SEV(glg, debug) << "Adding dimensions...";
+    //All variables will have time, y, x 
+    temutil::nc( nc_def_dim(ncid, "time", NC_UNLIMITED, &timeD) );
+    temutil::nc( nc_def_dim(ncid, "y", ysize, &yD) );
+    temutil::nc( nc_def_dim(ncid, "x", xsize, &xD) );
+
+    //System-wide variables
+    if(temp_spec.dim_count==3){
+      vartype3D_dimids[0] = timeD;
+      vartype3D_dimids[1] = yD;
+      vartype3D_dimids[2] = xD;
+      temutil::nc( nc_def_var(ncid, name.c_str(), NC_DOUBLE, 3, vartype3D_dimids, &Var) );
+    }
+
+    //Vegetation specific dimensions
+    else if(temp_spec.veg && temp_spec.dim_count<5){
+      temutil::nc( nc_def_dim(ncid, "pft", NUM_PFT, &pftD) );
+
+      vartypeVeg4D_dimids[0] = timeD;
+      vartypeVeg4D_dimids[1] = pftD;
+      vartypeVeg4D_dimids[2] = yD;
+      vartypeVeg4D_dimids[3] = xD;
+
+      temutil::nc( nc_def_var(ncid, name.c_str(), NC_DOUBLE, 4, vartypeVeg4D_dimids, &Var) );
+    }
+
+    //Vegetation with PFT compartments
+    else if(temp_spec.veg && temp_spec.dim_count==5){ 
+      temutil::nc( nc_def_dim(ncid, "pft", NUM_PFT, &pftD) );
+      temutil::nc( nc_def_dim(ncid, "pftpart", NUM_PFT_PART, &pftpartD) );
+
+      vartypeVeg5D_dimids[0] = timeD;
+      vartypeVeg5D_dimids[1] = pftD;
+      vartypeVeg5D_dimids[2] = pftpartD;
+      vartypeVeg5D_dimids[3] = yD;
+      vartypeVeg5D_dimids[4] = xD;
+
+      temutil::nc( nc_def_var(ncid, name.c_str(), NC_DOUBLE, 5, vartypeVeg5D_dimids, &Var) );
+    }
+
+    //Soil specific dimensions
+    else if(temp_spec.soil){
+      temutil::nc( nc_def_dim(ncid, "layer", MAX_SOI_LAY, &layerD) );
+
+      vartypeSoil4D_dimids[0] = timeD;
+      vartypeSoil4D_dimids[1] = layerD;
+      vartypeSoil4D_dimids[2] = yD;
+      vartypeSoil4D_dimids[3] = xD;
+    }
+
+    /* End Define Mode (not strictly necessary for netcdf 4) */
+    BOOST_LOG_SEV(glg, debug) << "Leaving 'define mode'...";
+    temutil::nc( nc_enddef(ncid) );
+
+    /* Close file. */
+    BOOST_LOG_SEV(glg, debug) << "Closing new file...";
+    temutil::nc( nc_close(ncid) );
+
+    //Add output specifiers to the correct map
+    if(timestep.compare("monthly") == 0){
+      monthly_netcdf_outputs.insert(std::map<std::string, output_spec>::value_type(name, temp_spec));;
+      //monthly_netcdf_outputs.insert({name, filename}); c++11
+    }
+    else if(timestep.compare("yearly") == 0){
+      std::cout<<"Constructed filename: "<<temp_spec.filename<<std::endl;
+      yearly_netcdf_outputs.insert(std::map<std::string, output_spec>::value_type(name, temp_spec));;
+    }
+
+  }
+
+  
+/*
+  if(curr_spec.dim_count==3){//Environmental variable
+    //3D variables
+    int vartype3D_dimids[3];
+    vartype3D_dimids[0] = timeD;
+    vartype3D_dimids[1] = yD;
+    vartype3D_dimids[2] = xD;
+  }
+  else if(curr_spec.veg && curr_spec.dim_count==4){
+    temutil::nc( nc_def_dim(ncid, "pft", NUM_PFT, &pftD) );
+
+    //4D Veg 
+    int vartypeVeg4D_dimids[4];
+    vartypeVeg4D_dimids[0] = timeD;
+    vartypeVeg4D_dimids[1] = pftD;
+    vartypeVeg4D_dimids[2] = yD;
+    vartypeVeg4D_dimids[3] = xD;
+
+  }
+  else if(curr_spec.veg && curr_spec.dim_count==5){//Compartment as well
+    temutil::nc( nc_def_dim(ncid, "pft", NUM_PFT, &pftD) );
+    temutil::nc( nc_def_dim(ncid, "pftpart", NUM_PFT_PART, &pftpartD) );
+
+    //5D Veg
+    int vartypeVeg5D_dimids[5];
+    vartypeVeg5D_dimids[0] = timeD;
+    vartypeVeg5D_dimids[1] = pftD;
+    vartypeVeg5D_dimids[2] = pftpartD;
+    vartypeVeg5D_dimids[3] = yD;
+    vartypeVeg5D_dimids[4] = xD;
+  }
+  else if(curr_spec.soil){
+    temutil::nc( nc_def_dim(ncid, "layer", MAX_SOI_LAY, &layerD) );
+
+    //4D Soil
+    vartypeSoil4D_dimids[0] = timeD;
+    vartypeSoil4D_dimids[1] = layerD;
+    vartypeSoil4D_dimids[2] = yD;
+    vartypeSoil4D_dimids[3] = xD;
+  }
+*/
+
+  /* Create Coordinate Variables?? */
+
+  /* Create Data Variables */
+
+
+  //vegC (pft, pftpart, timestep, x, y)
+  //soil carbon (layer)
+  //NPP (ecosystem)
+  //RH (total)
+  //BurnVegC ()
+  //soil temp (layer, daily)
+
+}
+
+//void Runner::output_netCDF_monthly(){
+//  output_netCDF(&monthly_netcdf_outputs);
+//}
+
+void Runner::output_netCDF_monthly(int year, int month){
+  int timestep = year*12 + month;
+
+  std::cout<<"outputting monthly netcdf\n";
+  output_spec curr_spec;
+  int ncid;
+  int timeD; //unlimited dimensions
+  int pftD;
+  int pftpartD;
+  int layerD;
+  int xD;
+  int yD;
+  int cv; //reusable variable handle
+
+  //Iterate through the map.
+  //Based on dimension count, veg, and soil, then manually find the vars
+
+
+  curr_spec = monthly_netcdf_outputs["TALD"];
+  
+  size_t start3[3];
+  start3[0] = timestep;
+  start3[1] = 0;
+  start3[2] = 0;
+
+  size_t count3[3];
+  count3[0] = 1;
+  count3[1] = 1;
+  count3[2] = 1;
+
+  int placeholder = 9;
+
+  std::cout<<"opening "<<curr_spec.filename<<std::endl;
+  temutil::nc( nc_open(curr_spec.filename.c_str(), NC_WRITE, &ncid) );
+  temutil::nc( nc_inq_varid(ncid, "TALD", &cv) );
+  temutil::nc( nc_put_var1_int(ncid, cv, start3, &placeholder) );
+  temutil::nc( nc_close(ncid) );
+  
+
+  //Vegetation-related variables
+  //curr_spec = monthly_netcdf_outputs.find("VEGC")
+  size_t start5[5];
+  start5[0] = timestep;//time
+  start5[1] = 0;
+  start5[2] = 0;
+  start5[3] = 0;
+  start5[4] = 0;
+
+  size_t count5[5];
+  count5[0] = 1;
+  count5[1] = 1;
+  count5[2] = 1;
+  count5[3] = NUM_PFT_PART;
+  count5[4] = NUM_PFT;
+
+  double vegc[NUM_PFT_PART][NUM_PFT];
+  for(int ip=0; ip<NUM_PFT; ip++){
+    for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
+      vegc[ipp][ip] = cohort.bd[ip].m_vegs.c[ipp];
+    }
+  }
+  curr_spec = monthly_netcdf_outputs["VEGC"];
+  std::cout<<"opening "<<curr_spec.filename<<std::endl;
+  temutil::nc( nc_open(curr_spec.filename.c_str(), NC_WRITE, &ncid) );
+  //temutil::nc( nc_open(curr_spec.filename.c_str(), NC_SHARE, &ncid) );
+  temutil::nc( nc_inq_varid(ncid, "VEGC", &cv) );
+  temutil::nc( nc_put_vara_double(ncid, cv, start5, count5, &vegc[0][0]) );
+
+  temutil::nc( nc_close(ncid) );
+}
+
 
