@@ -756,8 +756,6 @@ void Runner::output_debug_daily_drivers(int iy, boost::filesystem::path p) {
 //void Runner::output_netCDF_monthly(){
 //  output_netCDF(&monthly_netcdf_outputs);
 
-  //vegC (pft, pftpart, timestep, x, y)
-  //soil carbon (layer)
   //NPP (ecosystem)
   //RH (total)
   //BurnVegC ()
@@ -845,7 +843,7 @@ void Runner::output_netCDF_monthly(int year, int month){
 //  curr_spec = monthly_netcdf_outputs["ORL"];
 
 
-  //Soil Variables
+  /*** Soil Variables ***/
   size_t soilstart4[4];
   soilstart4[0] = timestep;
   soilstart4[1] = rowidx;
@@ -858,17 +856,22 @@ void Runner::output_netCDF_monthly(int year, int month){
   soilcount4[2] = 1;
   soilcount4[3] = MAX_SOI_LAY;
 
-//  curr_spec = md.monthly_netcdf_outputs["SOC"];
-//  double soilc[MAX_SOI_LAY];
-//  for(int il=0; il<MAX_SOI_LAY; il++){
-//    soilc[il] = cohort.bd[] 
-//  }
-//  temutil::nc( nc_open(curr_spec.filename.c_str(), NC_WRITE, &ncid) );
-//  temutil::nc( nc_inq_varid(ncid, "SOC", &cv) );
-//  temutil::nc( nc_put_vara_double(ncid, cv, soilstart4, soilcount4, &soilc[0]) );
-//  temutil::nc( nc_close(ncid) );
+  curr_spec = md.monthly_netcdf_outputs["SOC"];
+  double soilc[MAX_SOI_LAY];
+  int il = 0;
+  Layer* currL = this->cohort.ground.toplayer;
+  while(currL != NULL){
+    soilc[il] = currL->rawc;
+    il++;
+    currL = currL->nextl;
+  }
+  temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+  temutil::nc( nc_inq_varid(ncid, "SOC", &cv) );
+  temutil::nc( nc_put_vara_double(ncid, cv, soilstart4, soilcount4, &soilc[0]) );
+  temutil::nc( nc_close(ncid) );
 
-  //PFT variables
+
+  /*** PFT variables ***/
   size_t vegstart4[4];
   vegstart4[0] = timestep;
   vegstart4[1] = rowidx;
@@ -893,7 +896,7 @@ void Runner::output_netCDF_monthly(int year, int month){
 
 
 
-  //PFT and PFT compartment variables
+  /*** PFT and PFT compartment variables ***/
   size_t start5[5];
   start5[0] = timestep;
   start5[1] = rowidx;
