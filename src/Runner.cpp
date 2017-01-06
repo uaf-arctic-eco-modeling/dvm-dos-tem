@@ -144,7 +144,8 @@ void Runner::yearly_output(const int year, const std::string& stage,
     }
   }
 
-  BOOST_LOG_SEV(glg, debug) << "Stub loction for yearly NetCDF output?";
+  BOOST_LOG_SEV(glg, debug) << "NetCDF yearly output call";
+  output_netCDF_yearly(year);
 
 }
 
@@ -763,9 +764,9 @@ void Runner::output_netCDF_monthly(int year, int month){
 
 }
 
-//void Runner::output_netCDF_yearly(int year){
-//  output_netCDF(year, 0);
-//}
+void Runner::output_netCDF_yearly(int year){
+  output_netCDF(md.yearly_netcdf_outputs, year, 0);
+}
 
 void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, int year, int month){
   int timestep = year*12 + month;
@@ -920,10 +921,30 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   count5[3] = NUM_PFT;
   count5[4] = NUM_PFT_PART;
 
+  map_itr = netcdf_outputs.find("BURNVEGC");
+  if(map_itr != netcdf_outputs.end()){
+    curr_spec = map_itr->second;
+
+    double burnvegc[NUM_PFT_PART][NUM_PFT];
+    for(int ip=0; ip<NUM_PFT; ip++){
+      for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
+        burnvegc[ipp][ip] = 2;
+      }
+    }
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "BURNVEGC", &cv) );
+    temutil::nc( nc_put_vara_double(ncid, cv, start5, count5, &burnvegc[0][0]) );
+    temutil::nc( nc_close(ncid) );
+  }
+  map_itr = netcdf_outputs.end();
+
+
+
   map_itr = netcdf_outputs.find("VEGC");
   if(map_itr != netcdf_outputs.end()){
     curr_spec = map_itr->second;
-    //curr_spec = netcdf_outputs["VEGC"];
+
     double vegc[NUM_PFT_PART][NUM_PFT];
     for(int ip=0; ip<NUM_PFT; ip++){
       for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
