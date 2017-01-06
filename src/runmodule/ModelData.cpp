@@ -263,10 +263,13 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize) {
       std::getline(ss, token, ',');
       //std::cout<<"token: "<<token<<std::endl;
 
-      //indices 1 and 2 are ignored, as they are for human-reader
-      //benefit. Variable description and units, respectively.
+      //index 1 is ignored, as it is a variable description for the
+      // benefit of a human reader
       if(ii==0){//Variable name
         name = token; 
+      }
+      else if(ii==2){//Units
+        temp_spec.units = token;
       }
       else if(ii==3){//Yearly
         if(token.length()>0){timestep = "yearly";}
@@ -301,8 +304,7 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize) {
     BOOST_LOG_SEV(glg, debug)<<"Variable: "<<name<<". Timestep: "<<timestep;
 
     boost::filesystem::path output_filepath = output_base / temp_spec.filename;
-    //convert just-constructed path to string for simplicity in the
-    // following function calls.
+    //convert path to string for simplicity in the following function calls
     temp_spec.filestr = output_filepath.string();
 
     //Creating NetCDF file
