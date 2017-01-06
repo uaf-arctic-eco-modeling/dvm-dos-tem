@@ -886,7 +886,7 @@ void Runner::output_netCDF_monthly(int year, int month){
   for(int ip=0; ip<NUM_PFT; ip++){
     npp[ip] = cohort.bd[ip].m_a2v.nppall; 
   }
-  temutil::nc( nc_open(curr_spec.filename.c_str(), NC_WRITE, &ncid) );
+  temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
   temutil::nc( nc_inq_varid(ncid, "NPP", &cv) );
   temutil::nc( nc_put_vara_double(ncid, cv, vegstart4, vegcount4, &npp[0]) );
   temutil::nc( nc_close(ncid) );
@@ -915,7 +915,7 @@ void Runner::output_netCDF_monthly(int year, int month){
       vegc[ipp][ip] = cohort.bd[ip].m_vegs.c[ipp];
     }
   }
-  temutil::nc( nc_open(curr_spec.filename.c_str(), NC_WRITE, &ncid) );
+  temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
   temutil::nc( nc_inq_varid(ncid, "VEGC", &cv) );
   temutil::nc( nc_put_vara_double(ncid, cv, start5, count5, &vegc[0][0]) );
   temutil::nc( nc_close(ncid) );

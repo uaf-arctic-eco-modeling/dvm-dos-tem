@@ -214,6 +214,7 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize) {
   //std::map<std::string, output_spec> monthly_netcdf_outputs;
   //std::map<std::string, output_spec> yearly_netcdf_outputs;
 
+  boost::filesystem::path output_base = output_dir;
 
   //Load output specification file
   BOOST_LOG_SEV(glg, debug) << "Loading output specification file";
@@ -297,19 +298,16 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize) {
 
     temp_spec.filename = name + "_" + timestep + ".nc";
 
-    std::cout<<"name: "<<name<<std::endl;
-    std::cout<<"name length: "<<name.length()<<std::endl;
-    std::cout<<"timestep: "<<timestep<<std::endl;
-    std::cout<<"dimensions: "<<temp_spec.dim_count<<std::endl;
-    std::cout<<"filename: "<<temp_spec.filename<<std::endl;
-    std::cout<<"veg: "<<temp_spec.veg<<std::endl;
-    std::cout<<"soil: "<<temp_spec.soil<<std::endl;
-
     BOOST_LOG_SEV(glg, debug)<<"Variable: "<<name<<". Timestep: "<<timestep;
 
+    boost::filesystem::path output_filepath = output_base / temp_spec.filename;
+    //convert just-constructed path to string for simplicity in the
+    // following function calls.
+    temp_spec.filestr = output_filepath.string();
+
     //Creating NetCDF file
-    BOOST_LOG_SEV(glg, debug)<<"Creating output NetCDF file "<<temp_spec.filename;
-    temutil::nc( nc_create(temp_spec.filename.c_str(), NC_CLOBBER, &ncid) );
+    BOOST_LOG_SEV(glg, debug)<<"Creating output NetCDF file "<<temp_spec.filestr;
+    temutil::nc( nc_create(temp_spec.filestr.c_str(), NC_CLOBBER, &ncid) );
 
     BOOST_LOG_SEV(glg, debug) << "Adding dimensions...";
 

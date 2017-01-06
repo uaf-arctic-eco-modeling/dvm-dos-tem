@@ -7,6 +7,7 @@
 
 struct output_spec{
   std::string filename;
+  std::string filestr; //subjective filepath with filename.
   bool veg;
   bool soil;
   int dim_count;
