@@ -62,7 +62,8 @@ public:
 
   //void output_netCDF(int year, boost::filesystem::path p);
   void output_netCDF_monthly(int year, int month);
-  void output_netCDF_yearly();
+  void output_netCDF_yearly(int year);
+  void output_netCDF(std::map<std::string, output_spec> &outputs, int year, int month);
 
 private:
   bool calibrationMode;

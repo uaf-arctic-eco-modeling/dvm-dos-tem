@@ -753,17 +753,21 @@ void Runner::output_debug_daily_drivers(int iy, boost::filesystem::path p) {
 }
 
 
-//void Runner::output_netCDF_monthly(){
-//  output_netCDF(&monthly_netcdf_outputs);
+void Runner::output_netCDF_monthly(int year, int month){
+  output_netCDF(md.monthly_netcdf_outputs, year, month);
 
   //NPP (ecosystem)
   //RH (total)
   //BurnVegC ()
   //soil temp (layer, daily)
 
+}
+
+//void Runner::output_netCDF_yearly(int year){
+//  output_netCDF(year, 0);
 //}
 
-void Runner::output_netCDF_monthly(int year, int month){
+void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, int year, int month){
   int timestep = year*12 + month;
 
   int rowidx = this->y;
@@ -779,9 +783,7 @@ void Runner::output_netCDF_monthly(int year, int month){
   int layerD;
   int cv; //reusable variable handle
 
-  //Iterate through the map.
-  //Based on dimension count, veg, and soil, then manually find the vars
-
+  std::map<std::string, output_spec>::iterator map_itr;
 
   //3D system-wide variables
   size_t start3[3];
@@ -856,20 +858,24 @@ void Runner::output_netCDF_monthly(int year, int month){
   soilcount4[2] = 1;
   soilcount4[3] = MAX_SOI_LAY;
 
-  curr_spec = md.monthly_netcdf_outputs["SOC"];
-  double soilc[MAX_SOI_LAY];
-  int il = 0;
-  Layer* currL = this->cohort.ground.toplayer;
-  while(currL != NULL){
-    soilc[il] = currL->rawc;
-    il++;
-    currL = currL->nextl;
-  }
-  temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
-  temutil::nc( nc_inq_varid(ncid, "SOC", &cv) );
-  temutil::nc( nc_put_vara_double(ncid, cv, soilstart4, soilcount4, &soilc[0]) );
-  temutil::nc( nc_close(ncid) );
+  map_itr = netcdf_outputs.find("SOC");
+  if(map_itr != netcdf_outputs.end()){
 
+    curr_spec = map_itr->second;
+    double soilc[MAX_SOI_LAY];
+    int il = 0;
+    Layer* currL = this->cohort.ground.toplayer;
+    while(currL != NULL){
+      soilc[il] = currL->rawc;
+      il++;
+      currL = currL->nextl;
+    }
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "SOC", &cv) );
+    temutil::nc( nc_put_vara_double(ncid, cv, soilstart4, soilcount4, &soilc[0]) );
+    temutil::nc( nc_close(ncid) );
+  }
+  map_itr = netcdf_outputs.end();
 
   /*** PFT variables ***/
   size_t vegstart4[4];
@@ -884,16 +890,19 @@ void Runner::output_netCDF_monthly(int year, int month){
   vegcount4[2] = 1;
   vegcount4[3] = NUM_PFT;
 
-  curr_spec = md.monthly_netcdf_outputs["NPP"];
-  double npp[NUM_PFT];
-  for(int ip=0; ip<NUM_PFT; ip++){
-    npp[ip] = cohort.bd[ip].m_a2v.nppall; 
+  map_itr = netcdf_outputs.find("NPP");
+  if(map_itr != netcdf_outputs.end()){
+    curr_spec = map_itr->second;
+    double npp[NUM_PFT];
+    for(int ip=0; ip<NUM_PFT; ip++){
+      npp[ip] = cohort.bd[ip].m_a2v.nppall; 
+    }
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "NPP", &cv) );
+    temutil::nc( nc_put_vara_double(ncid, cv, vegstart4, vegcount4, &npp[0]) );
+    temutil::nc( nc_close(ncid) );
   }
-  temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
-  temutil::nc( nc_inq_varid(ncid, "NPP", &cv) );
-  temutil::nc( nc_put_vara_double(ncid, cv, vegstart4, vegcount4, &npp[0]) );
-  temutil::nc( nc_close(ncid) );
-
+  map_itr = netcdf_outputs.end();
 
 
   /*** PFT and PFT compartment variables ***/
@@ -911,17 +920,22 @@ void Runner::output_netCDF_monthly(int year, int month){
   count5[3] = NUM_PFT;
   count5[4] = NUM_PFT_PART;
 
-  curr_spec = md.monthly_netcdf_outputs["VEGC"];
-  double vegc[NUM_PFT_PART][NUM_PFT];
-  for(int ip=0; ip<NUM_PFT; ip++){
-    for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
-      vegc[ipp][ip] = cohort.bd[ip].m_vegs.c[ipp];
+  map_itr = netcdf_outputs.find("VEGC");
+  if(map_itr != netcdf_outputs.end()){
+    curr_spec = map_itr->second;
+    //curr_spec = netcdf_outputs["VEGC"];
+    double vegc[NUM_PFT_PART][NUM_PFT];
+    for(int ip=0; ip<NUM_PFT; ip++){
+      for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
+        vegc[ipp][ip] = cohort.bd[ip].m_vegs.c[ipp];
+      }
     }
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "VEGC", &cv) );
+    temutil::nc( nc_put_vara_double(ncid, cv, start5, count5, &vegc[0][0]) );
+    temutil::nc( nc_close(ncid) );
   }
-  temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
-  temutil::nc( nc_inq_varid(ncid, "VEGC", &cv) );
-  temutil::nc( nc_put_vara_double(ncid, cv, start5, count5, &vegc[0][0]) );
-  temutil::nc( nc_close(ncid) );
+  map_itr = netcdf_outputs.end();
 
 }
 
