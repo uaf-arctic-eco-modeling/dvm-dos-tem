@@ -27,15 +27,10 @@
 #include "../src/runmodule/ModelData.h"
 #include "CalController.h"
 #include "ArgHandler.h"
+#include "util_structs.h"
 
 using namespace std;
 
-struct output_spec{
-  std::string filename;
-  bool veg;
-  bool soil;
-  int dim_count;
-};
 
 class Runner {
 public:
@@ -47,9 +42,6 @@ public:
   int x;
   
   Cohort cohort;
-
-  std::map<std::string, output_spec> monthly_netcdf_outputs;
-  std::map<std::string, output_spec> yearly_netcdf_outputs;
 
   void check_sum_over_compartments();
   void check_sum_over_PFTs();
@@ -69,7 +61,6 @@ public:
   void output_debug_daily_drivers(int iy, boost::filesystem::path p);
 
   //void output_netCDF(int year, boost::filesystem::path p);
-  void create_netCDF_output_files(int ysize, int xsize);
   void output_netCDF_monthly(int year, int month);
   void output_netCDF_yearly();
 

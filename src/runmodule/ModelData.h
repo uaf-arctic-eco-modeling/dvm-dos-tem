@@ -8,6 +8,8 @@
 #include <json/value.h>
 
 #include "../../include/ArgHandler.h"
+#include "../../include/util_structs.h"
+#include "../inc/layerconst.h"
 
 using namespace std;
 
@@ -21,6 +23,8 @@ public:
 
   void update(ArgHandler const * arghandler);
   std::string describe_module_settings();
+
+  void create_netCDF_output_files(int ysize, int xsize);
 
   string loop_order; // time-major or space-major
 
@@ -45,6 +49,11 @@ public:
   string runmask_file;
   string output_dir;
   bool output_monthly;
+
+  //Maps holding data about variables to be output at specific timesteps
+  std::map<std::string, output_spec> daily_netcdf_outputs;
+  std::map<std::string, output_spec> monthly_netcdf_outputs;
+  std::map<std::string, output_spec> yearly_netcdf_outputs;
 
   std::string pid_tag;
   std::string caldata_tree_loc;

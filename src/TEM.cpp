@@ -197,7 +197,7 @@ int main(int argc, char* argv[]){
   // Create empty output files now so that later, as the program
   // proceeds, there is somewhere to append output data...
   BOOST_LOG_SEV(glg, info) << "Creating a set of empty NetCDF output files";
-  //create_netCDF_output_files(num_rows, num_cols);
+  modeldata.create_netCDF_output_files(num_rows, num_cols);
   
 
   if (args->get_loop_order() == "space-major") {
@@ -237,7 +237,6 @@ int main(int argc, char* argv[]){
 
           BOOST_LOG_SEV(glg, info) << "Setup the NEW STYLE RUNNER OBJECT ...";
           Runner runner(modeldata, args->get_cal_mode(), rowidx, colidx);
-          runner.create_netCDF_output_files(num_rows, num_cols);
 
           BOOST_LOG_SEV(glg, debug) << runner.cohort.ground.layer_report_string("depth thermal");
 
