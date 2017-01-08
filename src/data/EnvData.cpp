@@ -365,6 +365,10 @@ void EnvData::atm_endOfDay(const int & dinm) {
   // total land to atm
   m_l2a.eet += d_l2a.eet;
   m_l2a.pet += d_l2a.pet;
+
+  //Store daily values for netCDF output
+  month_of_eet[dinm] = d_l2a.eet;
+  month_of_pet[dinm] = d_l2a.pet;
 };
 
 void EnvData::veg_endOfDay(const int & dinm) {

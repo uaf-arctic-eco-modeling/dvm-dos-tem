@@ -374,10 +374,15 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize) {
     temutil::nc( nc_close(ncid) );
 
     //Add output specifiers to the map tracking the appropriate timestep
-    if(timestep.compare("monthly") == 0){
+    if(timestep.compare("daily") == 0){
+      daily_netcdf_outputs.insert(std::map<std::string, output_spec>::value_type(name, temp_spec));;
+    }
+
+    else if(timestep.compare("monthly") == 0){
       monthly_netcdf_outputs.insert(std::map<std::string, output_spec>::value_type(name, temp_spec));;
       //monthly_netcdf_outputs.insert({name, filename}); c++11
     }
+
     else if(timestep.compare("yearly") == 0){
       yearly_netcdf_outputs.insert(std::map<std::string, output_spec>::value_type(name, temp_spec));;
     }

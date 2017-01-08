@@ -123,6 +123,7 @@ void Runner::monthly_output(const int year, const int month, const std::string& 
     // NetCDF
     BOOST_LOG_SEV(glg, debug) << "Monthly NetCDF output function call";
     output_netCDF_monthly(year, month);
+    output_netCDF_daily_per_month(md.daily_netcdf_outputs, month);
 
   } else {
     BOOST_LOG_SEV(glg, debug) << "Monthly output turned off in config settings.";
@@ -756,12 +757,6 @@ void Runner::output_debug_daily_drivers(int iy, boost::filesystem::path p) {
 
 void Runner::output_netCDF_monthly(int year, int month){
   output_netCDF(md.monthly_netcdf_outputs, year, month);
-
-  //NPP (ecosystem)
-  //RH (total)
-  //BurnVegC ()
-  //soil temp (layer, daily)
-
 }
 
 void Runner::output_netCDF_yearly(int year){
@@ -839,7 +834,20 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 //  curr_spec = monthly_netcdf_outputs["SNOWEND"];
 //  curr_spec = monthly_netcdf_outputs["NDEOP"];
 //  curr_spec = monthly_netcdf_outputs["DEADC"];
-//  curr_spec = monthly_netcdf_outputs["DEADN"];
+
+  map_itr = netcdf_outputs.find("DEADN");
+  if(map_itr != netcdf_outputs.end()){
+    curr_spec = map_itr->second;
+
+    double deadn = cohort.bdall->m_vegs.deadn;
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "DEADN", &cv) );
+    temutil::nc( nc_put_var1_double(ncid, cv, start3, &deadn) );
+    temutil::nc( nc_close(ncid) );
+  }
+  map_itr = netcdf_outputs.end();
+
 //  curr_spec = monthly_netcdf_outputs["DWD"];
 //  curr_spec = monthly_netcdf_outputs["DWDN"];
 //  curr_spec = monthly_netcdf_outputs["WDRH"];
@@ -861,8 +869,8 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
   map_itr = netcdf_outputs.find("SOC");
   if(map_itr != netcdf_outputs.end()){
-
     curr_spec = map_itr->second;
+
     double soilc[MAX_SOI_LAY];
     int il = 0;
     Layer* currL = this->cohort.ground.toplayer;
@@ -871,12 +879,14 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
       il++;
       currL = currL->nextl;
     }
+
     temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "SOC", &cv) );
     temutil::nc( nc_put_vara_double(ncid, cv, soilstart4, soilcount4, &soilc[0]) );
     temutil::nc( nc_close(ncid) );
   }
   map_itr = netcdf_outputs.end();
+
 
   /*** PFT variables ***/
   size_t vegstart4[4];
@@ -894,10 +904,12 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   map_itr = netcdf_outputs.find("NPP");
   if(map_itr != netcdf_outputs.end()){
     curr_spec = map_itr->second;
+
     double npp[NUM_PFT];
     for(int ip=0; ip<NUM_PFT; ip++){
       npp[ip] = cohort.bd[ip].m_a2v.nppall; 
     }
+
     temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "NPP", &cv) );
     temutil::nc( nc_put_vara_double(ncid, cv, vegstart4, vegcount4, &npp[0]) );
@@ -929,6 +941,7 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
     for(int ip=0; ip<NUM_PFT; ip++){
       for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
         burnvegc[ipp][ip] = 2;
+        /**********FAKE VALUES**********/
       }
     }
 
@@ -951,6 +964,7 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
         vegc[ipp][ip] = cohort.bd[ip].m_vegs.c[ipp];
       }
     }
+
     temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "VEGC", &cv) );
     temutil::nc( nc_put_vara_double(ncid, cv, start5, count5, &vegc[0][0]) );
@@ -960,4 +974,57 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
 }
 
+void Runner::output_netCDF_daily_per_month(std::map<std::string, output_spec> &netcdf_outputs, int month){
 
+  BOOST_LOG_SEV(glg, debug)<<"Outputting accumulated daily data on the monthly timestep";
+
+  int dinm = DINM[month];
+
+  int rowidx = this->y;
+  int colidx = this->x;
+
+  output_spec curr_spec;
+  int ncid;
+  int timeD; //unlimited dimension
+  int xD;
+  int yD;
+  int pftD;
+  int pftpartD;
+  int layerD;
+  int cv; //reusable variable handle
+  size_t dimlen; //reusable
+
+  //Reusable iterator
+  std::map<std::string, output_spec>::iterator map_itr;
+
+  //3D system-wide variables
+  size_t start3[3];
+  //start3[0] is set based on the previous length of the time dimension 
+  start3[1] = rowidx;
+  start3[2] = colidx;
+
+  size_t count3[3];
+  count3[0] = dinm;
+  count3[1] = 1;
+  count3[2] = 1;
+
+  map_itr = netcdf_outputs.find("EET");
+  if(map_itr != netcdf_outputs.end()){
+    curr_spec = map_itr->second;
+    double tot_EET[dinm];
+    for(int dayidx=0; dayidx<dinm; dayidx++){
+      for(int ip=0; ip<NUM_PFT; ip++){
+        tot_EET[dayidx] += cohort.ed[ip].month_of_eet[dayidx];
+      }
+    }
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_dimid(ncid, "time", &cv) );
+    temutil::nc( nc_inq_dimlen(ncid, cv, &dimlen) );//timestep count
+    start3[0] = dimlen;
+    temutil::nc( nc_inq_varid(ncid, "EET", &cv) );
+    temutil::nc( nc_put_vara_double(ncid, cv, start3, count3, &tot_EET[0]) );
+    temutil::nc( nc_close(ncid) );
+  }
+  map_itr = netcdf_outputs.end();
+
+}

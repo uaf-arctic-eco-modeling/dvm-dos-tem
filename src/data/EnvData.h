@@ -88,6 +88,11 @@ public:
   snw2atm_env y_snw2a;
   snw2soi_env y_snw2soi;
 
+  //Arrays to hold a month's worth of variables for daily
+  // netCDF output.
+  double month_of_eet[31];
+  double month_of_pet[31];
+
   double monthsfrozen;      // months since bottom soil frozen started -
                             //   24 months is the criterial for permafrost
   int rtfrozendays;         // soil top rootzone continously frozen days
