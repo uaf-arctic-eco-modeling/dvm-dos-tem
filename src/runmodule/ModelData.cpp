@@ -211,14 +211,10 @@ std::string ModelData::describe_module_settings() {
 */
 void ModelData::create_netCDF_output_files(int ysize, int xsize) {
 
-  //unordered map? Faster by-key access C++11
-  //std::map<std::string, output_spec> monthly_netcdf_outputs;
-  //std::map<std::string, output_spec> yearly_netcdf_outputs;
-
   boost::filesystem::path output_base = output_dir;
 
   //Load output specification file
-  BOOST_LOG_SEV(glg, fatal) << "Loading output specification file "<<output_spec_file;
+  BOOST_LOG_SEV(glg, debug) << "Loading output specification file "<<output_spec_file;
   std::ifstream output_csv(output_spec_file.c_str());
 
   std::string s;
@@ -247,7 +243,7 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize) {
   //4D Veg - PFT but not PFT compartments
   int vartypeVeg4D_dimids[4];
 
-  //5D Veg
+  //5D Veg - PFT and PFT compartment
   int vartypeVeg5D_dimids[5];
  
   //Ingest output specification file, create output_spec for each entry. 

@@ -52,6 +52,8 @@ public:
   bool output_monthly;
 
   //Maps holding data about variables to be output at specific timesteps
+  //C++11 would allow the use of unordered_maps, which have a faster
+  // by-key access time.
   std::map<std::string, output_spec> daily_netcdf_outputs;
   std::map<std::string, output_spec> monthly_netcdf_outputs;
   std::map<std::string, output_spec> yearly_netcdf_outputs;

@@ -756,10 +756,12 @@ void Runner::output_debug_daily_drivers(int iy, boost::filesystem::path p) {
 
 
 void Runner::output_netCDF_monthly(int year, int month){
+  BOOST_LOG_SEV(glg, debug)<<"NetCDF monthly output";
   output_netCDF(md.monthly_netcdf_outputs, year, month);
 }
 
 void Runner::output_netCDF_yearly(int year){
+  BOOST_LOG_SEV(glg, debug)<<"NetCDF yearly output";
   output_netCDF(md.yearly_netcdf_outputs, year, 0);
 }
 
@@ -796,7 +798,6 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 //  curr_spec = monthly_netcdf_outputs["SHLWC"];
 //  curr_spec = monthly_netcdf_outputs["DEEPC"];
 //  curr_spec = monthly_netcdf_outputs["MINEC"];
-//  curr_spec = monthly_netcdf_outputs["EET"];
 //  curr_spec = monthly_netcdf_outputs["PET"];
 //  curr_spec = monthly_netcdf_outputs["SNOWTHICK"];
 //  curr_spec = monthly_netcdf_outputs["SWE"];
@@ -951,7 +952,6 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
     temutil::nc( nc_close(ncid) );
   }
   map_itr = netcdf_outputs.end();
-
 
 
   map_itr = netcdf_outputs.find("VEGC");
