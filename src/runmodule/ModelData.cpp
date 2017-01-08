@@ -48,6 +48,7 @@ ModelData::ModelData(Json::Value controldata) {
   co2_file          = controldata["IO"]["co2_file"].asString();
   runmask_file      = controldata["IO"]["runmask_file"].asString();
   output_dir        = controldata["IO"]["output_dir"].asString();
+  output_spec_file  = controldata["IO"]["output_spec_file"].asString();
   output_monthly    = controldata["IO"]["output_monthly"].asInt();
 
   pid_tag           = controldata["calibration-IO"]["pid_tag"].asString();
@@ -217,8 +218,8 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize) {
   boost::filesystem::path output_base = output_dir;
 
   //Load output specification file
-  BOOST_LOG_SEV(glg, debug) << "Loading output specification file";
-  std::ifstream output_csv("output_spec.csv");
+  BOOST_LOG_SEV(glg, fatal) << "Loading output specification file "<<output_spec_file;
+  std::ifstream output_csv(output_spec_file.c_str());
 
   std::string s;
   std::getline(output_csv, s);//Discard first line - header strings

@@ -16,6 +16,7 @@
     "fri_fire_file":      "DATA/Toolik_10x10_allyrs/fri_fire.nc",
     "explicit_fire_file": "DATA/Toolik_10x10_allyrs/explicit_fire.nc",
     "output_dir":         "DATA/Toolik_10x10_allyrs/output/",
+    "output_spec_file":   "config/output_spec.csv",
     "output_monthly":     1
   },
 

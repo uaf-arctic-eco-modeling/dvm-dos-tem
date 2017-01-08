@@ -48,6 +48,7 @@ public:
   string co2_file;
   string runmask_file;
   string output_dir;
+  string output_spec_file;
   bool output_monthly;
 
   //Maps holding data about variables to be output at specific timesteps
