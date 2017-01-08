@@ -365,6 +365,8 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize) {
       temutil::nc( nc_def_var(ncid, name.c_str(), NC_DOUBLE, 4, vartypeSoil4D_dimids, &Var) );
     }
 
+    temutil::nc( nc_put_att_text(ncid, Var, "units", temp_spec.units.length(), temp_spec.units.c_str()) );
+
     /* End Define Mode (not strictly necessary for netcdf 4) */
     BOOST_LOG_SEV(glg, debug) << "Leaving 'define mode'...";
     temutil::nc( nc_enddef(ncid) );
@@ -375,16 +377,16 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize) {
 
     //Add output specifiers to the map tracking the appropriate timestep
     if(timestep.compare("daily") == 0){
-      daily_netcdf_outputs.insert(std::map<std::string, output_spec>::value_type(name, temp_spec));;
+      daily_netcdf_outputs.insert(std::map<std::string, output_spec>::value_type(name, temp_spec));
     }
 
     else if(timestep.compare("monthly") == 0){
-      monthly_netcdf_outputs.insert(std::map<std::string, output_spec>::value_type(name, temp_spec));;
+      monthly_netcdf_outputs.insert(std::map<std::string, output_spec>::value_type(name, temp_spec));
       //monthly_netcdf_outputs.insert({name, filename}); c++11
     }
 
     else if(timestep.compare("yearly") == 0){
-      yearly_netcdf_outputs.insert(std::map<std::string, output_spec>::value_type(name, temp_spec));;
+      yearly_netcdf_outputs.insert(std::map<std::string, output_spec>::value_type(name, temp_spec));
     }
 
   }
