@@ -858,15 +858,15 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   /*** Soil Variables ***/
   size_t soilstart4[4];
   soilstart4[0] = timestep;
-  soilstart4[1] = rowidx;
-  soilstart4[2] = colidx;
-  soilstart4[3] = 0;
+  soilstart4[1] = 0;
+  soilstart4[2] = rowidx;
+  soilstart4[3] = colidx;
 
   size_t soilcount4[4];
   soilcount4[0] = 1;
-  soilcount4[1] = 1;
+  soilcount4[1] = MAX_SOI_LAY;
   soilcount4[2] = 1;
-  soilcount4[3] = MAX_SOI_LAY;
+  soilcount4[3] = 1;
 
   map_itr = netcdf_outputs.find("SOC");
   if(map_itr != netcdf_outputs.end()){
@@ -892,15 +892,15 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   /*** PFT variables ***/
   size_t vegstart4[4];
   vegstart4[0] = timestep;
-  vegstart4[1] = rowidx;
-  vegstart4[2] = colidx;
-  vegstart4[3] = 0;//PFT
+  vegstart4[1] = 0;//PFT
+  vegstart4[2] = rowidx;
+  vegstart4[3] = colidx;
 
   size_t vegcount4[4];
   vegcount4[0] = 1;
-  vegcount4[1] = 1;
+  vegcount4[1] = NUM_PFT;
   vegcount4[2] = 1;
-  vegcount4[3] = NUM_PFT;
+  vegcount4[3] = 1;
 
   map_itr = netcdf_outputs.find("NPP");
   if(map_itr != netcdf_outputs.end()){
@@ -922,17 +922,17 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   /*** PFT and PFT compartment variables ***/
   size_t start5[5];
   start5[0] = timestep;
-  start5[1] = rowidx;
-  start5[2] = colidx;
-  start5[3] = 0;//PFT
-  start5[4] = 0;//PFT Compartment
+  start5[1] = 0;//PFT Compartment
+  start5[2] = 0;//PFT
+  start5[3] = rowidx;
+  start5[4] = colidx;
 
   size_t count5[5];
   count5[0] = 1;
-  count5[1] = 1;
-  count5[2] = 1;
-  count5[3] = NUM_PFT;
-  count5[4] = NUM_PFT_PART;
+  count5[1] = NUM_PFT_PART;
+  count5[2] = NUM_PFT;
+  count5[3] = 1;
+  count5[4] = 1;
 
   map_itr = netcdf_outputs.find("BURNVEGC");
   if(map_itr != netcdf_outputs.end()){

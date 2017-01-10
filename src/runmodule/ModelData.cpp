@@ -302,6 +302,7 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize) {
 
     BOOST_LOG_SEV(glg, debug)<<"Variable: "<<name<<". Timestep: "<<timestep;
 
+    //filename with local path
     boost::filesystem::path output_filepath = output_base / temp_spec.filename;
     //convert path to string for simplicity in the following function calls
     temp_spec.filestr = output_filepath.string();
@@ -331,9 +332,9 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize) {
       temutil::nc( nc_def_dim(ncid, "pft", NUM_PFT, &pftD) );
 
       vartypeVeg4D_dimids[0] = timeD;
-      vartypeVeg4D_dimids[1] = yD;
-      vartypeVeg4D_dimids[2] = xD;
-      vartypeVeg4D_dimids[3] = pftD;
+      vartypeVeg4D_dimids[1] = pftD;
+      vartypeVeg4D_dimids[2] = yD;
+      vartypeVeg4D_dimids[3] = xD;
 
       temutil::nc( nc_def_var(ncid, name.c_str(), NC_DOUBLE, 4, vartypeVeg4D_dimids, &Var) );
     }
@@ -343,9 +344,9 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize) {
       temutil::nc( nc_def_dim(ncid, "pftpart", NUM_PFT_PART, &pftpartD) );
 
       vartypeVeg4D_dimids[0] = timeD;
-      vartypeVeg4D_dimids[1] = yD;
-      vartypeVeg4D_dimids[2] = xD;
-      vartypeVeg4D_dimids[3] = pftpartD;
+      vartypeVeg4D_dimids[1] = pftpartD;
+      vartypeVeg4D_dimids[2] = yD;
+      vartypeVeg4D_dimids[3] = xD;
 
       temutil::nc( nc_def_var(ncid, name.c_str(), NC_DOUBLE, 4, vartypeVeg4D_dimids, &Var) );
     }
@@ -356,10 +357,10 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize) {
       temutil::nc( nc_def_dim(ncid, "pftpart", NUM_PFT_PART, &pftpartD) );
 
       vartypeVeg5D_dimids[0] = timeD;
-      vartypeVeg5D_dimids[1] = yD;
-      vartypeVeg5D_dimids[2] = xD;
-      vartypeVeg5D_dimids[3] = pftD;
-      vartypeVeg5D_dimids[4] = pftpartD;
+      vartypeVeg5D_dimids[1] = pftpartD;
+      vartypeVeg5D_dimids[2] = pftD;
+      vartypeVeg5D_dimids[3] = yD;
+      vartypeVeg5D_dimids[4] = xD;
 
       temutil::nc( nc_def_var(ncid, name.c_str(), NC_DOUBLE, 5, vartypeVeg5D_dimids, &Var) );
     }
@@ -369,9 +370,9 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize) {
       temutil::nc( nc_def_dim(ncid, "layer", MAX_SOI_LAY, &layerD) );
 
       vartypeSoil4D_dimids[0] = timeD;
-      vartypeSoil4D_dimids[1] = yD;
-      vartypeSoil4D_dimids[2] = xD;
-      vartypeSoil4D_dimids[3] = layerD;
+      vartypeSoil4D_dimids[1] = layerD;
+      vartypeSoil4D_dimids[2] = yD;
+      vartypeSoil4D_dimids[3] = xD;
 
       temutil::nc( nc_def_var(ncid, name.c_str(), NC_DOUBLE, 4, vartypeSoil4D_dimids, &Var) );
     }
