@@ -11,6 +11,7 @@ struct output_spec{
   std::string units;
   bool veg;
   bool soil;
+  bool compartment;
   int dim_count;
 };
 

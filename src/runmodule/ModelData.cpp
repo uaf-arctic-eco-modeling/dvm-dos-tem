@@ -254,6 +254,7 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize) {
     output_spec temp_spec;
     temp_spec.veg = false;
     temp_spec.soil = false;
+    temp_spec.compartment = false;
     temp_spec.dim_count = 3;//All variables have time, y, x
 
     for(int ii=0; ii<9; ii++){
@@ -283,8 +284,9 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize) {
           temp_spec.dim_count++;
         }
       }
-      else if(ii==7 && temp_spec.veg){//Compartment, must have PFT specified
+      else if(ii==7){//Compartment
         if(token.length()>0){
+          temp_spec.compartment = true;
           temp_spec.dim_count++;
         }
       }
@@ -324,8 +326,8 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize) {
       temutil::nc( nc_def_var(ncid, name.c_str(), NC_DOUBLE, 3, vartype3D_dimids, &Var) );
     }
 
-    //Vegetation specific dimensions
-    else if(temp_spec.veg && temp_spec.dim_count<5){
+    //PFT specific dimensions
+    else if(temp_spec.veg && !temp_spec.compartment){
       temutil::nc( nc_def_dim(ncid, "pft", NUM_PFT, &pftD) );
 
       vartypeVeg4D_dimids[0] = timeD;
@@ -336,8 +338,20 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize) {
       temutil::nc( nc_def_var(ncid, name.c_str(), NC_DOUBLE, 4, vartypeVeg4D_dimids, &Var) );
     }
 
-    //Vegetation with PFT compartments
-    else if(temp_spec.veg && temp_spec.dim_count==5){ 
+    //PFT compartment only
+    else if(!temp_spec.veg && temp_spec.compartment){
+      temutil::nc( nc_def_dim(ncid, "pftpart", NUM_PFT_PART, &pftpartD) );
+
+      vartypeVeg4D_dimids[0] = timeD;
+      vartypeVeg4D_dimids[1] = yD;
+      vartypeVeg4D_dimids[2] = xD;
+      vartypeVeg4D_dimids[3] = pftpartD;
+
+      temutil::nc( nc_def_var(ncid, name.c_str(), NC_DOUBLE, 4, vartypeVeg4D_dimids, &Var) );
+    }
+
+    //PFT and PFT compartments
+    else if(temp_spec.veg && temp_spec.compartment){ 
       temutil::nc( nc_def_dim(ncid, "pft", NUM_PFT, &pftD) );
       temutil::nc( nc_def_dim(ncid, "pftpart", NUM_PFT_PART, &pftpartD) );
 
