@@ -789,52 +789,14 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   start3[1] = rowidx;
   start3[2] = colidx;
 
-//  curr_spec = monthly_netcdf_outputs["GROWSTART"];
-//  curr_spec = monthly_netcdf_outputs["GROWEND"];
-//  curr_spec = monthly_netcdf_outputs["PERMAFROST"];
-//  curr_spec = monthly_netcdf_outputs["MOSSDZ"];
-//  curr_spec = monthly_netcdf_outputs["SHLWDZ"];
-//  curr_spec = monthly_netcdf_outputs["DEEPDZ"];
-//  curr_spec = monthly_netcdf_outputs["SHLWC"];
-//  curr_spec = monthly_netcdf_outputs["DEEPC"];
-//  curr_spec = monthly_netcdf_outputs["MINEC"];
-//  curr_spec = monthly_netcdf_outputs["PET"];
-//  curr_spec = monthly_netcdf_outputs["SNOWTHICK"];
-//  curr_spec = monthly_netcdf_outputs["SWE"];
-//  curr_spec = monthly_netcdf_outputs["WATERTAB"];
-//  curr_spec = monthly_netcdf_outputs["ALD"];
-//  curr_spec = monthly_netcdf_outputs["VWCSHLW"];
-//  curr_spec = monthly_netcdf_outputs["VWCDEEP"];
-//  curr_spec = monthly_netcdf_outputs["VWCMINETOP"];
-//  curr_spec = monthly_netcdf_outputs["VWCMINEBOT"];
-//  curr_spec = monthly_netcdf_outputs["TSHLW"];
-//  curr_spec = monthly_netcdf_outputs["TDEEP"];
-//  curr_spec = monthly_netcdf_outputs["TMINETOP"];
-//  curr_spec = monthly_netcdf_outputs["TMINEBOT"];
-//  curr_spec = monthly_netcdf_outputs["HKSHLW"];
-//  curr_spec = monthly_netcdf_outputs["HKDEEP"];
-//  curr_spec = monthly_netcdf_outputs["HKMINETOP"];
-//  curr_spec = monthly_netcdf_outputs["HKMINEBOT"];
-//  curr_spec = monthly_netcdf_outputs["TCSHLW"];
-//  curr_spec = monthly_netcdf_outputs["TCDEEP"];
-//  curr_spec = monthly_netcdf_outputs["TCMINETOP"];
-//  curr_spec = monthly_netcdf_outputs["TCMINEBOT"];
-//  curr_spec = monthly_netcdf_outputs["TROCK34M"];
-//  curr_spec = monthly_netcdf_outputs["SOMCALD"];
-//  curr_spec = monthly_netcdf_outputs["VWCALD"];
-
-/*  curr_spec = monthly_netcdf_outputs["TALD"];
-  int tald = ???;
-
-  temutil::nc( nc_open(curr_spec.filename.c_str(), NC_WRITE, &ncid) );
-  temutil::nc( nc_inq_varid(ncid, "TALD", &cv) );
-  temutil::nc( nc_put_var1_int(ncid, cv, start3, &placeholder) );
-  temutil::nc( nc_close(ncid) );
-*/
-//  curr_spec = monthly_netcdf_outputs["SNOWSTART"];
-//  curr_spec = monthly_netcdf_outputs["SNOWEND"];
-//  curr_spec = monthly_netcdf_outputs["NDEOP"];
-//  curr_spec = monthly_netcdf_outputs["DEADC"];
+  //deepc
+  //deepdz
+  //growend
+  //growstart
+  //mossdz
+  //permafrost
+  //shlwc
+  //shlwdz
 
   map_itr = netcdf_outputs.find("DEADN");
   if(map_itr != netcdf_outputs.end()){
@@ -848,11 +810,6 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
     temutil::nc( nc_close(ncid) );
   }
   map_itr = netcdf_outputs.end();
-
-//  curr_spec = monthly_netcdf_outputs["DWD"];
-//  curr_spec = monthly_netcdf_outputs["DWDN"];
-//  curr_spec = monthly_netcdf_outputs["WDRH"];
-//  curr_spec = monthly_netcdf_outputs["ORL"];
 
 
   /*** Soil Variables ***/
@@ -890,17 +847,29 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
 
   /*** PFT variables ***/
-  size_t vegstart4[4];
-  vegstart4[0] = timestep;
-  vegstart4[1] = 0;//PFT
-  vegstart4[2] = rowidx;
-  vegstart4[3] = colidx;
+  size_t PFTstart4[4];
+  PFTstart4[0] = timestep;
+  PFTstart4[1] = 0;//PFT
+  PFTstart4[2] = rowidx;
+  PFTstart4[3] = colidx;
 
-  size_t vegcount4[4];
-  vegcount4[0] = 1;
-  vegcount4[1] = NUM_PFT;
-  vegcount4[2] = 1;
-  vegcount4[3] = 1;
+  size_t PFTcount4[4];
+  PFTcount4[0] = 1;
+  PFTcount4[1] = NUM_PFT;
+  PFTcount4[2] = 1;
+  PFTcount4[3] = 1;
+
+  size_t CompStart4[4];
+  CompStart4[0] = timestep;
+  CompStart4[1] = 0;//PFT compartment
+  CompStart4[2] = rowidx;
+  CompStart4[3] = colidx;
+
+  size_t CompCount4[4];
+  CompCount4[0] = 1;
+  CompCount4[1] = NUM_PFT_PART;
+  CompCount4[2] = 1;
+  CompCount4[3] = 1;
 
   map_itr = netcdf_outputs.find("NPP");
   if(map_itr != netcdf_outputs.end()){
@@ -913,7 +882,7 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
     temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "NPP", &cv) );
-    temutil::nc( nc_put_vara_double(ncid, cv, vegstart4, vegcount4, &npp[0]) );
+    temutil::nc( nc_put_vara_double(ncid, cv, PFTstart4, PFTcount4, &npp[0]) );
     temutil::nc( nc_close(ncid) );
   }
   map_itr = netcdf_outputs.end();
@@ -953,21 +922,60 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   }
   map_itr = netcdf_outputs.end();
 
-
+  //VEGC
   map_itr = netcdf_outputs.find("VEGC");
   if(map_itr != netcdf_outputs.end()){
     curr_spec = map_itr->second;
 
-    double vegc[NUM_PFT_PART][NUM_PFT];
-    for(int ip=0; ip<NUM_PFT; ip++){
-      for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
-        vegc[ipp][ip] = cohort.bd[ip].m_vegs.c[ipp];
-      }
-    }
-
     temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "VEGC", &cv) );
-    temutil::nc( nc_put_vara_double(ncid, cv, start5, count5, &vegc[0][0]) );
+
+    //PFT and compartment
+    if(curr_spec.pft && curr_spec.compartment){
+      double vegc[NUM_PFT_PART][NUM_PFT];
+      for(int ip=0; ip<NUM_PFT; ip++){
+        for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
+          if(curr_spec.monthly){
+            vegc[ipp][ip] = cohort.bd[ip].m_vegs.c[ipp];
+          }
+          else if(curr_spec.yearly){
+            vegc[ipp][ip] = cohort.bd[ip].y_vegs.c[ipp];
+          }
+        }
+      }
+
+      temutil::nc( nc_put_vara_double(ncid, cv, start5, count5, &vegc[0][0]) );
+    }
+    //PFT only
+    else if(curr_spec.pft && !curr_spec.compartment){
+      double vegc[NUM_PFT];
+      for(int ip=0; ip<NUM_PFT; ip++){
+        if(curr_spec.monthly){
+          vegc[ip] = cohort.bd[ip].m_vegs.call;
+        }
+        else if(curr_spec.yearly){
+          vegc[ip] = cohort.bd[ip].y_vegs.call;
+        }
+      }
+
+      temutil::nc( nc_put_vara_double(ncid, cv, PFTstart4, PFTcount4, &vegc[0]) );
+    }
+    //Compartment only
+    else if(!curr_spec.pft && curr_spec.compartment){
+      double vegc[NUM_PFT_PART] = {0};
+      for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
+        for(int ip=0; ip<NUM_PFT; ip++){
+          if(curr_spec.monthly){
+            vegc[ipp] += cohort.bd[ip].m_vegs.c[ipp];
+          }
+          else if(curr_spec.yearly){
+            vegc[ipp] += cohort.bd[ip].y_vegs.c[ipp];
+          }
+        }
+      }
+
+      temutil::nc( nc_put_vara_double(ncid, cv, CompStart4, CompCount4, &vegc[0]) );
+    }
     temutil::nc( nc_close(ncid) );
   }
   map_itr = netcdf_outputs.end();

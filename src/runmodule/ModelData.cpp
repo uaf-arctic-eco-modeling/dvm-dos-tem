@@ -251,23 +251,29 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize) {
 
     std::istringstream ss(s);
 
+    std::string units;
+    std::string desc;
+
     output_spec temp_spec;
-    temp_spec.veg = false;
-    temp_spec.soil = false;
+    temp_spec.pft = false;
     temp_spec.compartment = false;
+    temp_spec.soil = false;
+    temp_spec.yearly = false;
+    temp_spec.monthly = false;
     temp_spec.dim_count = 3;//All variables have time, y, x
 
     for(int ii=0; ii<9; ii++){
       std::getline(ss, token, ',');
       //std::cout<<"token: "<<token<<std::endl;
 
-      //index 1 is ignored, as it is a variable description for the
-      // benefit of a human reader
       if(ii==0){//Variable name
         name = token; 
       }
+      else if(ii==1){//Short description
+        desc = token;
+      }
       else if(ii==2){//Units
-        temp_spec.units = token;
+        units = token;
       }
       else if(ii==3){//Yearly
         if(token.length()>0){timestep = "yearly";}
@@ -280,7 +286,7 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize) {
       }
       else if(ii==6){//PFT
         if(token.length()>0){
-          temp_spec.veg = true;
+          temp_spec.pft = true;
           temp_spec.dim_count++;
         }
       }
@@ -328,7 +334,7 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize) {
     }
 
     //PFT specific dimensions
-    else if(temp_spec.veg && !temp_spec.compartment){
+    else if(temp_spec.pft && !temp_spec.compartment){
       temutil::nc( nc_def_dim(ncid, "pft", NUM_PFT, &pftD) );
 
       vartypeVeg4D_dimids[0] = timeD;
@@ -340,7 +346,7 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize) {
     }
 
     //PFT compartment only
-    else if(!temp_spec.veg && temp_spec.compartment){
+    else if(!temp_spec.pft && temp_spec.compartment){
       temutil::nc( nc_def_dim(ncid, "pftpart", NUM_PFT_PART, &pftpartD) );
 
       vartypeVeg4D_dimids[0] = timeD;
@@ -352,7 +358,7 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize) {
     }
 
     //PFT and PFT compartments
-    else if(temp_spec.veg && temp_spec.compartment){ 
+    else if(temp_spec.pft && temp_spec.compartment){ 
       temutil::nc( nc_def_dim(ncid, "pft", NUM_PFT, &pftD) );
       temutil::nc( nc_def_dim(ncid, "pftpart", NUM_PFT_PART, &pftpartD) );
 
@@ -377,7 +383,8 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize) {
       temutil::nc( nc_def_var(ncid, name.c_str(), NC_DOUBLE, 4, vartypeSoil4D_dimids, &Var) );
     }
 
-    temutil::nc( nc_put_att_text(ncid, Var, "units", temp_spec.units.length(), temp_spec.units.c_str()) );
+    temutil::nc( nc_put_att_text(ncid, Var, "units", units.length(), units.c_str()) );
+    temutil::nc( nc_put_att_text(ncid, Var, "long_name", desc.length(), desc.c_str()) );
 
     /* End Define Mode (not strictly necessary for netcdf 4) */
     BOOST_LOG_SEV(glg, debug) << "Leaving 'define mode'...";
@@ -393,11 +400,13 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize) {
     }
 
     else if(timestep.compare("monthly") == 0){
+      temp_spec.monthly = true;
       monthly_netcdf_outputs.insert(std::map<std::string, output_spec>::value_type(name, temp_spec));
       //monthly_netcdf_outputs.insert({name, filename}); c++11
     }
 
     else if(timestep.compare("yearly") == 0){
+      temp_spec.yearly = true;
       yearly_netcdf_outputs.insert(std::map<std::string, output_spec>::value_type(name, temp_spec));
     }
 

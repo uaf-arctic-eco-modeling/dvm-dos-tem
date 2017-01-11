@@ -8,10 +8,11 @@
 struct output_spec{
   std::string filename;
   std::string filestr; //subjective filepath with filename.
-  std::string units;
-  bool veg;
-  bool soil;
+  bool pft;
   bool compartment;
+  bool soil;
+  bool yearly;
+  bool monthly;
   int dim_count;
 };
 
