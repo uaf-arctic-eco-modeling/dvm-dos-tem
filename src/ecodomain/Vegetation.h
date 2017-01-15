@@ -7,7 +7,7 @@
 #include "../data/CohortData.h"
 #include "../data/RestartData.h"
 
-#include "../runmodule/ModelData.h"
+#include "../../include/ModelData.h"
 
 #include "../inc/errorcode.h"
 #include "../inc/parameters.h"

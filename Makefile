@@ -57,7 +57,7 @@ SOURCES= 	src/TEM.o \
 		src/output/RestartOutputer.o \
 		src/runmodule/Cohort.o \
 		src/runmodule/Integrator.o \
-		src/runmodule/ModelData.o \
+		src/ModelData.o \
 		src/runmodule/OutRetrive.o \
 		src/snowsoil/Richards.o \
 		src/snowsoil/Snow_Env.o \

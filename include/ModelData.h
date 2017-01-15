@@ -7,9 +7,9 @@
 #include <cstdlib>
 #include <json/value.h>
 
-#include "../../include/ArgHandler.h"
-#include "../../include/util_structs.h"
-#include "../inc/layerconst.h"
+#include "ArgHandler.h"
+#include "util_structs.h"
+#include "../src/inc/layerconst.h"
 
 using namespace std;
 

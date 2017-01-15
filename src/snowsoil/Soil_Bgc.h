@@ -10,7 +10,7 @@
 #include "../data/RestartData.h"
 
 #include "../lookup/CohortLookup.h"
-#include "../runmodule/ModelData.h"
+#include "../../include/ModelData.h"
 
 #include "../inc/parameters.h"
 

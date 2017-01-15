@@ -1,10 +1,10 @@
 #include <exception>
 #include <json/value.h>
 #include <boost/filesystem.hpp>
-#include "ModelData.h"
+#include "../include/ModelData.h"
 
-#include "../TEMLogger.h"
-#include "../TEMUtilityFunctions.h"
+#include "TEMLogger.h"
+#include "TEMUtilityFunctions.h"
 
 extern src::severity_logger< severity_level > glg;
 

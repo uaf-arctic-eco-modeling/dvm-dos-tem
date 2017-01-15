@@ -24,7 +24,7 @@
 
 
 #include "../src/runmodule/Cohort.h"
-#include "../src/runmodule/ModelData.h"
+#include "ModelData.h"
 #include "CalController.h"
 #include "ArgHandler.h"
 #include "util_structs.h"
