@@ -980,6 +980,65 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   }
   map_itr = netcdf_outputs.end();
 
+
+ //VEGN
+  map_itr = netcdf_outputs.find("VEGN");
+  if(map_itr != netcdf_outputs.end()){
+    curr_spec = map_itr->second;
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "VEGN", &cv) );
+
+    //PFT and compartment
+    if(curr_spec.pft && curr_spec.compartment){
+      double vegn[NUM_PFT_PART][NUM_PFT];
+      for(int ip=0; ip<NUM_PFT; ip++){
+        for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
+          if(curr_spec.monthly){
+            vegn[ipp][ip] = cohort.bd[ip].m_vegs.strn[ipp];
+          }
+          else if(curr_spec.yearly){
+            vegn[ipp][ip] = cohort.bd[ip].y_vegs.strn[ipp];
+          }
+        }
+      }
+
+      temutil::nc( nc_put_vara_double(ncid, cv, start5, count5, &vegn[0][0]) );
+    }
+    //PFT only
+    else if(curr_spec.pft && !curr_spec.compartment){
+      double vegn[NUM_PFT];
+      for(int ip=0; ip<NUM_PFT; ip++){
+        if(curr_spec.monthly){
+          vegn[ip] = cohort.bd[ip].m_vegs.strnall;
+        }
+        else if(curr_spec.yearly){
+          vegn[ip] = cohort.bd[ip].y_vegs.strnall;
+        }
+      }
+
+      temutil::nc( nc_put_vara_double(ncid, cv, PFTstart4, PFTcount4, &vegn[0]) );
+    }
+    //Compartment only
+    else if(!curr_spec.pft && curr_spec.compartment){
+      double vegn[NUM_PFT_PART] = {0};
+      for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
+        for(int ip=0; ip<NUM_PFT; ip++){
+          if(curr_spec.monthly){
+            vegn[ipp] += cohort.bd[ip].m_vegs.strn[ipp];
+          }
+          else if(curr_spec.yearly){
+            vegn[ipp] += cohort.bd[ip].y_vegs.strn[ipp];
+          }
+        }
+      }
+
+      temutil::nc( nc_put_vara_double(ncid, cv, CompStart4, CompCount4, &vegn[0]) );
+    }
+    temutil::nc( nc_close(ncid) );
+  }
+  map_itr = netcdf_outputs.end();
+
 }
 
 void Runner::output_netCDF_daily_per_month(std::map<std::string, output_spec> &netcdf_outputs, int month){
