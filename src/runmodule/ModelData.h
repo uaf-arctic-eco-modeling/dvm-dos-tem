@@ -24,7 +24,7 @@ public:
   void update(ArgHandler const * arghandler);
   std::string describe_module_settings();
 
-  void create_netCDF_output_files(int ysize, int xsize);
+  void create_netCDF_output_files(int ysize, int xsize, const std::string & stage);
 
   string loop_order; // time-major or space-major
 
@@ -50,6 +50,10 @@ public:
   string output_dir;
   string output_spec_file;
   bool output_monthly;
+  bool nc_eq; //NetCDF output flags for each stage
+  bool nc_sp;
+  bool nc_tr;
+  bool nc_sc;
 
   //Maps holding data about variables to be output at specific timesteps
   //C++11 would allow the use of unordered_maps, which have a faster

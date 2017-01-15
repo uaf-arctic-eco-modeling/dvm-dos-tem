@@ -197,8 +197,18 @@ int main(int argc, char* argv[]){
   // Create empty output files now so that later, as the program
   // proceeds, there is somewhere to append output data...
   BOOST_LOG_SEV(glg, info) << "Creating a set of empty NetCDF output files";
-  modeldata.create_netCDF_output_files(num_rows, num_cols);
-  
+  if(modeldata.eq_yrs > 0 && modeldata.nc_eq){
+    modeldata.create_netCDF_output_files(num_rows, num_cols, "eq");
+  }
+  if(modeldata.sp_yrs > 0 && modeldata.nc_sp){
+    modeldata.create_netCDF_output_files(num_rows, num_cols, "sp");
+  }
+  if(modeldata.tr_yrs > 0 && modeldata.nc_tr){
+    modeldata.create_netCDF_output_files(num_rows, num_cols, "tr");
+  }
+  if(modeldata.sc_yrs > 0 && modeldata.nc_sc){
+    modeldata.create_netCDF_output_files(num_rows, num_cols, "sc");
+  }
 
   if (args->get_loop_order() == "space-major") {
 

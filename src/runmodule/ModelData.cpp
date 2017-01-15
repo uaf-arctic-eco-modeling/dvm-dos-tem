@@ -50,6 +50,10 @@ ModelData::ModelData(Json::Value controldata) {
   output_dir        = controldata["IO"]["output_dir"].asString();
   output_spec_file  = controldata["IO"]["output_spec_file"].asString();
   output_monthly    = controldata["IO"]["output_monthly"].asInt();
+  nc_eq             = controldata["IO"]["output_nc_eq"].asBool();
+  nc_sp             = controldata["IO"]["output_nc_sp"].asBool();
+  nc_tr             = controldata["IO"]["output_nc_tr"].asBool();
+  nc_sc             = controldata["IO"]["output_nc_sc"].asBool();
 
   pid_tag           = controldata["calibration-IO"]["pid_tag"].asString();
   caldata_tree_loc  = controldata["calibration-IO"]["caldata_tree_loc"].asString();
@@ -209,7 +213,7 @@ std::string ModelData::describe_module_settings() {
 
 /** Construct empty netCDF output files. Unfinished.
 */
-void ModelData::create_netCDF_output_files(int ysize, int xsize) {
+void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::string& stage) {
 
   boost::filesystem::path output_base = output_dir;
 
@@ -304,7 +308,7 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize) {
       }
     }
 
-    temp_spec.filename = name + "_" + timestep + ".nc";
+    temp_spec.filename = name + "_" + timestep + "_" + stage + ".nc";
 
     BOOST_LOG_SEV(glg, debug)<<"Variable: "<<name<<". Timestep: "<<timestep;
 
