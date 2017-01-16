@@ -196,6 +196,11 @@ int main(int argc, char* argv[]){
   int num_cols = run_mask[0].size();
 
   // Create empty restart files for all stages based on size of run mask
+  if (!boost::filesystem::exists(modeldata.output_dir)) {
+    BOOST_LOG_SEV(glg, info) << "Creating output directory as specified in "
+                             << "config file: ", modeldata.output_dir;
+    boost::filesystem::create_directory(modeldata.output_dir);
+  }
   RestartData::create_empty_file(eq_restart_fname, num_rows, num_cols);
   RestartData::create_empty_file(sp_restart_fname, num_rows, num_cols);
   RestartData::create_empty_file(tr_restart_fname, num_rows, num_cols);
