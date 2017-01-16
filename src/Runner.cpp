@@ -794,20 +794,36 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   start3[1] = rowidx;
   start3[2] = colidx;
 
-  //deepc
-  //deepdz
-  //growend
-  //growstart
-  //mossdz
-  //permafrost
-  //shlwc
-  //shlwdz
+  map_itr = netcdf_outputs.find("DEADC");
+  if(map_itr != netcdf_outputs.end()){
+    curr_spec = map_itr->second;
+
+    double deadc;
+    if(curr_spec.monthly){
+      deadc = cohort.bdall->m_vegs.deadc;
+    }
+    else if(curr_spec.yearly){
+      deadc = cohort.bdall->y_vegs.deadc;
+    }
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "DEADC", &cv) );
+    temutil::nc( nc_put_var1_double(ncid, cv, start3, &deadc) );
+    temutil::nc( nc_close(ncid) );
+  }
+  map_itr = netcdf_outputs.end();
 
   map_itr = netcdf_outputs.find("DEADN");
   if(map_itr != netcdf_outputs.end()){
     curr_spec = map_itr->second;
 
-    double deadn = cohort.bdall->m_vegs.deadn;
+    double deadn;
+    if(curr_spec.monthly){
+      deadn = cohort.bdall->m_vegs.deadn;
+    }
+    else if(curr_spec.yearly){
+      deadn = cohort.bdall->y_vegs.deadn;
+    }
 
     temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "DEADN", &cv) );
