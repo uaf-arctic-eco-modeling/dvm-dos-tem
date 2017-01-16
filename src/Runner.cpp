@@ -120,10 +120,15 @@ void Runner::monthly_output(const int year, const int month, const std::string& 
       this->output_caljson_monthly(year, month, runstage, this->calcontroller_ptr->monthly_json);
     }
 
-    // NetCDF
-    BOOST_LOG_SEV(glg, debug) << "Monthly NetCDF output function call";
-    output_netCDF_monthly(year, month);
-    output_netCDF_daily_per_month(md.daily_netcdf_outputs, month);
+    // NetCDF output. Semi-kludgy
+    if(   (runstage.find("eq")!=std::string::npos && md.nc_eq)
+       || (runstage.find("sp")!=std::string::npos && md.nc_sp)
+       || (runstage.find("tr")!=std::string::npos && md.nc_tr)
+       || (runstage.find("sc")!=std::string::npos && md.nc_sc) ){
+      BOOST_LOG_SEV(glg, debug) << "Monthly NetCDF output function call, runstage: "<<runstage<<" year: "<<year<<" month: "<<month;
+      output_netCDF_monthly(year, month);
+      output_netCDF_daily_per_month(md.daily_netcdf_outputs, month);
+    }
 
   } else {
     BOOST_LOG_SEV(glg, debug) << "Monthly output turned off in config settings.";
