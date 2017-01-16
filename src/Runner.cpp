@@ -794,6 +794,7 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   start3[1] = rowidx;
   start3[2] = colidx;
 
+  //Standing dead C
   map_itr = netcdf_outputs.find("DEADC");
   if(map_itr != netcdf_outputs.end()){
     curr_spec = map_itr->second;
@@ -813,6 +814,7 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   }
   map_itr = netcdf_outputs.end();
 
+  //Standing dead N
   map_itr = netcdf_outputs.find("DEADN");
   if(map_itr != netcdf_outputs.end()){
     curr_spec = map_itr->second;
@@ -829,6 +831,66 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
     temutil::nc( nc_inq_varid(ncid, "DEADN", &cv) );
     temutil::nc( nc_put_var1_double(ncid, cv, start3, &deadn) );
     temutil::nc( nc_close(ncid) );
+  }
+  map_itr = netcdf_outputs.end();
+
+  //Woody debris C
+  map_itr = netcdf_outputs.find("DWD");
+  if(map_itr != netcdf_outputs.end()){
+    curr_spec = map_itr->second;
+
+    double woodyc;
+    if(curr_spec.monthly){
+      woodyc = cohort.bdall->m_sois.wdebrisc;
+    }
+    else if(curr_spec.yearly){
+      woodyc = cohort.bdall->y_sois.wdebrisc;
+    }
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "DWD", &cv) );
+    temutil::nc( nc_put_var1_double(ncid, cv, start3, &woodyc) );
+    temutil::nc( nc_close(ncid) );
+  }
+  map_itr = netcdf_outputs.end();
+
+  //Woody debris N
+  map_itr = netcdf_outputs.find("DWDN");
+  if(map_itr != netcdf_outputs.end()){
+    curr_spec = map_itr->second;
+
+    double woodyn;
+    if(curr_spec.monthly){
+      woodyn = cohort.bdall->m_sois.wdebrisn;
+    }
+    else if(curr_spec.yearly){
+      woodyn = cohort.bdall->y_sois.wdebrisn;
+    }
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "DWDN", &cv) );
+    temutil::nc( nc_put_var1_double(ncid, cv, start3, &woodyn) );
+    temutil::nc( nc_close(ncid) );
+  }
+  map_itr = netcdf_outputs.end();
+
+  //Woody debris RH
+  map_itr = netcdf_outputs.find("WDRH");
+  if(map_itr != netcdf_outputs.end()){
+    curr_spec = map_itr->second;
+
+    double woodyrh;
+    if(curr_spec.monthly){
+      woodyrh = cohort.bdall->m_soi2a.rhwdeb;
+    }
+    else if(curr_spec.yearly){
+      woodyrh = cohort.bdall->y_soi2a.rhwdeb;
+    }
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "WDRH", &cv) );
+    temutil::nc( nc_put_var1_double(ncid, cv, start3, &woodyrh) );
+    temutil::nc( nc_close(ncid) ); 
   }
   map_itr = netcdf_outputs.end();
 
