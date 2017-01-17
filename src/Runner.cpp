@@ -120,20 +120,20 @@ void Runner::monthly_output(const int year, const int month, const std::string& 
       this->output_caljson_monthly(year, month, runstage, this->calcontroller_ptr->monthly_json);
     }
 
-    // NetCDF output. Semi-kludgy
-    if(   (runstage.find("eq")!=std::string::npos && md.nc_eq)
-       || (runstage.find("sp")!=std::string::npos && md.nc_sp)
-       || (runstage.find("tr")!=std::string::npos && md.nc_tr)
-       || (runstage.find("sc")!=std::string::npos && md.nc_sc) ){
-      BOOST_LOG_SEV(glg, debug) << "Monthly NetCDF output function call, runstage: "<<runstage<<" year: "<<year<<" month: "<<month;
-      output_netCDF_monthly(year, month);
-      output_netCDF_daily_per_month(md.daily_netcdf_outputs, month);
-    }
-
   } else {
     BOOST_LOG_SEV(glg, debug) << "Monthly output turned off in config settings.";
   }
 
+  // NetCDF output is not controlled by the monthly output flag in
+  // the config file. TODO Semi-kludgy
+  if(   (runstage.find("eq")!=std::string::npos && md.nc_eq)
+     || (runstage.find("sp")!=std::string::npos && md.nc_sp)
+     || (runstage.find("tr")!=std::string::npos && md.nc_tr)
+     || (runstage.find("sc")!=std::string::npos && md.nc_sc) ){
+    BOOST_LOG_SEV(glg, debug) << "Monthly NetCDF output function call, runstage: "<<runstage<<" year: "<<year<<" month: "<<month;
+    output_netCDF_monthly(year, month);
+    output_netCDF_daily_per_month(md.daily_netcdf_outputs, month);
+  }
 
 }
 
@@ -150,8 +150,15 @@ void Runner::yearly_output(const int year, const std::string& stage,
     }
   }
 
-  BOOST_LOG_SEV(glg, debug) << "NetCDF yearly output call";
-  output_netCDF_yearly(year);
+  // NetCDF output. Semi-kludgy
+  if(   (stage.find("eq")!=std::string::npos && md.nc_eq)
+     || (stage.find("sp")!=std::string::npos && md.nc_sp)
+     || (stage.find("tr")!=std::string::npos && md.nc_tr)
+     || (stage.find("sc")!=std::string::npos && md.nc_sc) ){
+    BOOST_LOG_SEV(glg, debug) << "Yearly NetCDF output function call, runstage: "<<stage<<" year: "<<year;
+    output_netCDF_yearly(year);
+  }
+
 
 }
 
