@@ -797,9 +797,35 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
   //3D system-wide variables
   size_t start3[3];
-  start3[0] = timestep;
+  //start3[0] will be set later based on file inquiries
   start3[1] = rowidx;
   start3[2] = colidx;
+
+  //Burn thickness
+  map_itr = netcdf_outputs.find("BURNTHICK");
+  if(map_itr != netcdf_outputs.end()){
+    curr_spec = map_itr->second;
+
+    double burnthick;
+    if(curr_spec.monthly){
+      burnthick = cohort.year_fd[month].fire_soid.burnthick;
+    }
+    else if(curr_spec.yearly){
+      burnthick = 0;
+      for(int im; im<12; im++){
+        start3[0] = year;
+        burnthick += cohort.year_fd[im].fire_soid.burnthick;
+      }
+    }
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    start3[0] = temutil::get_nc_timedim_len(ncid);
+
+    temutil::nc( nc_inq_varid(ncid, "BURNTHICK", &cv) );
+    temutil::nc( nc_put_var1_double(ncid, cv, start3, &burnthick) );
+    temutil::nc( nc_close(ncid) );
+  }
+  map_itr = netcdf_outputs.end();
 
   //Standing dead C
   map_itr = netcdf_outputs.find("DEADC");
