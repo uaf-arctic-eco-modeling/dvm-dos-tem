@@ -1051,6 +1051,62 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   map_itr = netcdf_outputs.end();
 
 
+  /*** Three combination vars: time(year, month, day) ***/
+  //Snowthick - a snapshot of the time when output is called
+  BOOST_LOG_SEV(glg, fatal)<<"Snowthick";
+  map_itr = netcdf_outputs.find("SNOWTHICK");
+  if(map_itr != netcdf_outputs.end()){
+    curr_spec = map_itr->second;
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "SNOWTHICK", &cv) );
+    start3[0] = temutil::get_nc_timedim_len(ncid);
+
+    if(curr_spec.daily){
+      
+      temutil::nc( nc_put_vara_double(ncid, cv, start3, count3, &cohort.edall->daily_snowthick[0]) );
+    }
+    else if(curr_spec.monthly || curr_spec.yearly){
+      double snowthick;
+      Layer* currL = cohort.ground.toplayer;
+      while(currL->isSnow){
+        snowthick += currL->dz;
+        currL = currL->nextl;
+      }
+
+      temutil::nc( nc_put_var1_double(ncid, cv, start3, &snowthick) );
+    }
+
+    temutil::nc( nc_close(ncid) ); 
+  }
+  map_itr = netcdf_outputs.end();
+
+
+  //Snow water equivalent - a snapshot of the time when output is called
+  BOOST_LOG_SEV(glg, fatal)<<"SWE";
+  map_itr = netcdf_outputs.find("SWE");
+  if(map_itr != netcdf_outputs.end()){
+    curr_spec = map_itr->second;
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "SWE", &cv) );
+    start3[0] = temutil::get_nc_timedim_len(ncid);
+
+    double swe;
+    if(curr_spec.daily){
+      temutil::nc( nc_put_vara_double(ncid, cv, start3, count3, &cohort.edall->daily_swesum[0]) );
+    }
+
+    else if(curr_spec.monthly || curr_spec.yearly){
+      temutil::nc( nc_put_var1_double(ncid, cv, start3, &cohort.edall->d_snws.swesum) );
+    }
+
+    temutil::nc( nc_close(ncid) ); 
+  }
+  map_itr = netcdf_outputs.end();
+
+
+
   /*** Soil Variables ***/
   size_t soilstart4[4];
   //soilstart4[0] is set later based on length of time dimension

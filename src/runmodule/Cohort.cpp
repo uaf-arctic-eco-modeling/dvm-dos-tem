@@ -573,6 +573,9 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
     soilenv.updateDailyGroundT(tdrv, daylength);
     //snow water/thickness changing - must be done after 'T' because of melting
     snowenv.updateDailyM(tdrv);
+    //Capture daily snow water equivalent and thickness for NetCDF output
+    edall->daily_swesum[id] = edall->d_snws.swesum;
+    edall->daily_snowthick[id] = edall->d_snws.snowthick;
     //get the new bottom drainage layer and its depth,
     //  which needed for soil moisture calculation
     ground.setDrainL(ground.lstsoill, edall->d_soid.ald,

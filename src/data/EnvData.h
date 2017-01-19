@@ -92,6 +92,8 @@ public:
   // netCDF output.
   double month_of_eet[31];
   double month_of_pet[31];
+  double daily_swesum[31];
+  double daily_snowthick[31];
 
   double monthsfrozen;      // months since bottom soil frozen started -
                             //   24 months is the criterial for permafrost

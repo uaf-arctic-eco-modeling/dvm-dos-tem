@@ -194,6 +194,7 @@ void Snow_Env::updateSnowEd(Layer *toplayer) {
       ed->d_snws.snwliq[snowind] = currl->liq;
       ed->d_snws.swe[snowind] = currl->ice;
       ed->d_snws.swesum += currl->ice;
+      ed->d_snws.snowthick += currl->dz;
       currl=currl->nextl;
     } else {
       if (snowind>=MAX_SNW_LAY) {
