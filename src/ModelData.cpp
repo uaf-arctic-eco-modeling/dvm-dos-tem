@@ -321,6 +321,9 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
     BOOST_LOG_SEV(glg, debug)<<"Creating output NetCDF file "<<temp_spec.filestr;
     temutil::nc( nc_create(temp_spec.filestr.c_str(), NC_CLOBBER, &ncid) );
 
+    BOOST_LOG_SEV(glg, debug) << "Adding file-level attributes";
+    temutil::nc( nc_put_att_text(ncid, NC_GLOBAL, "Git_SHA", strlen(GIT_SHA), GIT_SHA ) );
+
     BOOST_LOG_SEV(glg, debug) << "Adding dimensions...";
 
     //All variables will have time, y, x 
@@ -387,6 +390,7 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
       temutil::nc( nc_def_var(ncid, name.c_str(), NC_DOUBLE, 4, vartypeSoil4D_dimids, &Var) );
     }
 
+    BOOST_LOG_SEV(glg, debug) << "Adding variable-level attributes";
     temutil::nc( nc_put_att_text(ncid, Var, "units", units.length(), units.c_str()) );
     temutil::nc( nc_put_att_text(ncid, Var, "long_name", desc.length(), desc.c_str()) );
     temutil::nc( nc_put_att_double(ncid, Var, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );

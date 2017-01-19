@@ -5,6 +5,7 @@
 import os
 import platform
 import distutils.spawn
+import subprocess
 
 USEMPI = False
 
@@ -180,6 +181,9 @@ if(USEMPI):
 #VariantDir('scons_obj','src', duplicate=0)
 
 print "Compiler: " + compiler
+
+GIT_SHA = subprocess.Popen('git describe --abbrev=6 --dirty --always --tags', stdout=subprocess.PIPE, shell=True).stdout.read().strip()
+compiler_flags += ' -DGIT_SHA=\\"' + GIT_SHA + '\\"'
 
 #Object compilation
 object_list = Object(src_files, CXX=compiler, CPPPATH=platform_include_path,
