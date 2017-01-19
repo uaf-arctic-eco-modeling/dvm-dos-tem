@@ -899,6 +899,29 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   map_itr = netcdf_outputs.end();
 
 
+  //Deep C
+  BOOST_LOG_SEV(glg, fatal)<<"Deep C";
+  map_itr = netcdf_outputs.find("DEEPC");
+  if(map_itr != netcdf_outputs.end()){
+    curr_spec = map_itr->second;
+
+    double deepc;
+    if(curr_spec.monthly){
+      deepc = cohort.bdall->m_soid.deepc;
+    }
+    else if(curr_spec.yearly){
+      deepc = cohort.bdall->y_soid.deepc;
+    }
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    start3[0] = temutil::get_nc_timedim_len(ncid);
+    temutil::nc( nc_inq_varid(ncid, "DEEPC", &cv) );
+    temutil::nc( nc_put_var1_double(ncid, cv, start3, &deepc) );
+    temutil::nc( nc_close(ncid) ); 
+  }//end deep C
+  map_itr = netcdf_outputs.end();
+
+
   //Woody debris C
   BOOST_LOG_SEV(glg, fatal)<<"woody debris C";
   map_itr = netcdf_outputs.find("DWDC");
@@ -945,6 +968,56 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   map_itr = netcdf_outputs.end();
 
 
+  //Mineral C
+  BOOST_LOG_SEV(glg, fatal)<<"Mineral C";
+  map_itr = netcdf_outputs.find("MINEC");
+  if(map_itr != netcdf_outputs.end()){
+    curr_spec = map_itr->second;
+
+    double minec;
+    if(curr_spec.monthly){
+      minec = cohort.bdall->m_soid.mineac
+              + cohort.bdall->m_soid.minebc
+              + cohort.bdall->m_soid.minecc;
+    }
+    else if(curr_spec.yearly){
+      minec = cohort.bdall->y_soid.mineac
+              + cohort.bdall->y_soid.minebc
+              + cohort.bdall->y_soid.minecc;
+    }
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    start3[0] = temutil::get_nc_timedim_len(ncid);
+    temutil::nc( nc_inq_varid(ncid, "MINEC", &cv) );
+    temutil::nc( nc_put_var1_double(ncid, cv, start3, &minec) );
+    temutil::nc( nc_close(ncid) ); 
+  }//end mineral C
+  map_itr = netcdf_outputs.end();
+
+
+  //Shallow C
+  BOOST_LOG_SEV(glg, fatal)<<"Shallow C";
+  map_itr = netcdf_outputs.find("SHLWC");
+  if(map_itr != netcdf_outputs.end()){
+    curr_spec = map_itr->second;
+
+    double shlwc;
+    if(curr_spec.monthly){
+      shlwc = cohort.bdall->m_soid.shlwc;
+    }
+    else if(curr_spec.yearly){
+      shlwc = cohort.bdall->y_soid.shlwc;
+    }
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    start3[0] = temutil::get_nc_timedim_len(ncid);
+    temutil::nc( nc_inq_varid(ncid, "SHLWC", &cv) );
+    temutil::nc( nc_put_var1_double(ncid, cv, start3, &shlwc) );
+    temutil::nc( nc_close(ncid) ); 
+  }//end shallow C
+  map_itr = netcdf_outputs.end();
+
+
   //Woody debris RH
   BOOST_LOG_SEV(glg, fatal)<<"woody debris rh";
   map_itr = netcdf_outputs.find("WDRH");
@@ -985,6 +1058,10 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     curr_spec = map_itr->second;
 
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "SOC", &cv) );
+    soilstart4[0] = temutil::get_nc_timedim_len(ncid);
+
     double soilc[MAX_SOI_LAY];
     int il = 0;
     Layer* currL = this->cohort.ground.toplayer;
@@ -994,9 +1071,6 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
       currL = currL->nextl;
     }
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
-    soilstart4[0] = temutil::get_nc_timedim_len(ncid);
-    temutil::nc( nc_inq_varid(ncid, "SOC", &cv) );
     temutil::nc( nc_put_vara_double(ncid, cv, soilstart4, soilcount4, &soilc[0]) );
     temutil::nc( nc_close(ncid) );
   }
@@ -1050,20 +1124,34 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     curr_spec = map_itr->second;
 
-    double burnvegc[NUM_PFT_PART][NUM_PFT];
-    for(int ip=0; ip<NUM_PFT; ip++){
-      for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
-        burnvegc[ipp][ip] = 2;
-        /**********FAKE VALUES**********/
-      }
-    }
-
     temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
-    start5[0] = temutil::get_nc_timedim_len(ncid);
     temutil::nc( nc_inq_varid(ncid, "BURNVEGC", &cv) );
-    temutil::nc( nc_put_vara_double(ncid, cv, start5, count5, &burnvegc[0][0]) );
+
+    //PFT and compartment
+    if(curr_spec.pft && curr_spec.compartment){
+      start5[0] = temutil::get_nc_timedim_len(ncid);
+
+      double burnvegc[NUM_PFT_PART][NUM_PFT];
+      for(int ip=0; ip<NUM_PFT; ip++){
+        for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
+          //burnvegc[ipp][ip] = cohort.fd_month
+        }
+      }
+
+      //temutil::nc( nc_put_vara_double(ncid, cv, start5, count5, &burnvegc[0][0]) );
+    }
+    //PFT only
+    else if(curr_spec.pft && !curr_spec.compartment){
+      PFTstart4[0] = temutil::get_nc_timedim_len(ncid);
+
+    }
+    //Compartment only
+    else if(!curr_spec.pft && curr_spec.compartment){
+      CompStart4[0] = temutil::get_nc_timedim_len(ncid);
+
+    }
     temutil::nc( nc_close(ncid) );
-  }
+  }//end Burn Veg C
   map_itr = netcdf_outputs.end();
 
 
@@ -1341,6 +1429,8 @@ void Runner::output_netCDF_daily_per_month(std::map<std::string, output_spec> &n
   map_itr = netcdf_outputs.find("EET");
   if(map_itr != netcdf_outputs.end()){
     curr_spec = map_itr->second;
+
+
     double tot_EET[dinm];
     for(int dayidx=0; dayidx<dinm; dayidx++){
       for(int ip=0; ip<NUM_PFT; ip++){
