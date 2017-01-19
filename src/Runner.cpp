@@ -132,7 +132,6 @@ void Runner::monthly_output(const int year, const int month, const std::string& 
      || (runstage.find("sc")!=std::string::npos && md.nc_sc) ){
     BOOST_LOG_SEV(glg, debug) << "Monthly NetCDF output function call, runstage: "<<runstage<<" year: "<<year<<" month: "<<month;
     output_netCDF_monthly(year, month);
-    output_netCDF_daily_per_month(md.daily_netcdf_outputs, month);
   }
 
 }
@@ -770,6 +769,8 @@ void Runner::output_debug_daily_drivers(int iy, boost::filesystem::path p) {
 void Runner::output_netCDF_monthly(int year, int month){
   BOOST_LOG_SEV(glg, debug)<<"NetCDF monthly output";
   output_netCDF(md.monthly_netcdf_outputs, year, month);
+
+  BOOST_LOG_SEV(glg, fatal)<<"Outputting accumulated daily data on the monthly timestep";
   output_netCDF(md.daily_netcdf_outputs, year, month);
 }
 
@@ -1454,6 +1455,112 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
     }
     temutil::nc( nc_close(ncid) );
   }
+  map_itr = netcdf_outputs.end();
+
+
+  //EET
+  map_itr = netcdf_outputs.find("EET");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"EET";
+    curr_spec = map_itr->second;
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "EET", &cv) );
+
+    //PFT
+    if(curr_spec.pft){
+      PFTstart4[0] = temutil::get_nc_timedim_len(ncid);
+
+      if(curr_spec.daily){
+        PFTcount4[0] = dinm;
+
+        double EET[dinm][NUM_PFT];
+        for(int ip=0; ip<NUM_PFT; ip++){
+          for(int id=0; id<dinm; id++){
+            EET[id][ip] = cohort.ed[ip].daily_eet[id];
+          }
+        }
+
+        temutil::nc( nc_put_vara_double(ncid, cv, PFTstart4, PFTcount4, &EET[0][0]) );
+      }
+      else if(curr_spec.monthly){
+        double EET[NUM_PFT];
+        for(int ip=0; ip<NUM_PFT; ip++){
+          EET[ip] = cohort.ed[ip].m_l2a.eet;
+        }
+
+        temutil::nc( nc_put_vara_double(ncid, cv, PFTstart4, PFTcount4, &EET[0]) );
+      }
+      else if(curr_spec.yearly){
+        double EET[NUM_PFT];
+        for(int ip=0; ip<NUM_PFT; ip++){
+          EET[ip] = cohort.ed[ip].y_l2a.eet;
+        }
+
+        temutil::nc( nc_put_vara_double(ncid, cv, PFTstart4, PFTcount4, &EET[0]) );
+      }
+    }
+    //Not PFT. Total?
+    else if(!curr_spec.pft){
+      /*** STUB ***/
+      //total EET - is this useful?
+    }
+
+   temutil::nc( nc_close(ncid) );
+  }//end EET
+  map_itr = netcdf_outputs.end();
+
+
+  //PET
+  map_itr = netcdf_outputs.find("PET");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"PET";
+    curr_spec = map_itr->second;
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "PET", &cv) );
+
+    //PFT
+    if(curr_spec.pft){
+      PFTstart4[0] = temutil::get_nc_timedim_len(ncid);
+
+      if(curr_spec.daily){
+        PFTcount4[0] = dinm;
+
+        double PET[dinm][NUM_PFT];
+        for(int ip=0; ip<NUM_PFT; ip++){
+          for(int id=0; id<dinm; id++){
+            PET[id][ip] = cohort.ed[ip].daily_pet[id];
+          }
+        }
+
+        temutil::nc( nc_put_vara_double(ncid, cv, PFTstart4, PFTcount4, &PET[0][0]) );
+      }
+      else if(curr_spec.monthly){
+        double PET[NUM_PFT];
+        for(int ip=0; ip<NUM_PFT; ip++){
+          PET[ip] = cohort.ed[ip].m_l2a.pet;
+        }
+
+        temutil::nc( nc_put_vara_double(ncid, cv, PFTstart4, PFTcount4, &PET[0]) );
+      }
+      else if(curr_spec.yearly){
+        double PET[NUM_PFT];
+        for(int ip=0; ip<NUM_PFT; ip++){
+          PET[ip] = cohort.ed[ip].y_l2a.pet;
+        }
+
+        temutil::nc( nc_put_vara_double(ncid, cv, PFTstart4, PFTcount4, &PET[0]) );
+      }
+    }
+    //Not PFT. Total?
+    else if(!curr_spec.pft){
+      /*** STUB ***/
+      //total PET - is this useful?
+    }
+
+   temutil::nc( nc_close(ncid) );
+  }//end PET
   map_itr = netcdf_outputs.end();
 
 }

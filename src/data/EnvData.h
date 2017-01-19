@@ -90,8 +90,8 @@ public:
 
   //Arrays to hold a month's worth of variables for daily
   // netCDF output.
-  double month_of_eet[31];
-  double month_of_pet[31];
+  double daily_eet[31];
+  double daily_pet[31];
   double daily_swesum[31];
   double daily_snowthick[31];
 
