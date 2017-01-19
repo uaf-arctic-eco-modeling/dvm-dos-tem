@@ -801,6 +801,32 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   start3[1] = rowidx;
   start3[2] = colidx;
 
+  //Burned soil carbon 
+  BOOST_LOG_SEV(glg, fatal)<<"Burned soil C";
+  map_itr = netcdf_outputs.find("BURNSOIC");
+  if(map_itr != netcdf_outputs.end()){
+    curr_spec = map_itr->second;
+
+    double burnSoilC;
+    if(curr_spec.monthly){
+      burnSoilC = cohort.year_fd[month].fire_soi2a.orgc;
+    }
+    else if(curr_spec.yearly){
+      burnSoilC = 0;
+      for(int im=0; im<12; im++){
+        burnSoilC += cohort.year_fd[im].fire_soi2a.orgc;
+      }
+    }
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    start3[0] = temutil::get_nc_timedim_len(ncid);
+    temutil::nc( nc_inq_varid(ncid, "BURNSOIC", &cv) );
+    temutil::nc( nc_put_var1_double(ncid, cv, start3, &burnSoilC) );
+    temutil::nc( nc_close(ncid) );
+  }//end BURNSOIC
+  map_itr = netcdf_outputs.end();
+
+
   //Burn thickness
   BOOST_LOG_SEV(glg, fatal)<<"burnthick";
   map_itr = netcdf_outputs.find("BURNTHICK");
@@ -826,6 +852,7 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   }
   map_itr = netcdf_outputs.end();
 
+
   //Standing dead C
   BOOST_LOG_SEV(glg, fatal)<<"standing dead C";
   map_itr = netcdf_outputs.find("DEADC");
@@ -847,6 +874,7 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
     temutil::nc( nc_close(ncid) );
   }
   map_itr = netcdf_outputs.end();
+
 
   //Standing dead N
   BOOST_LOG_SEV(glg, fatal)<<"standing dead N";
@@ -870,6 +898,7 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   }
   map_itr = netcdf_outputs.end();
 
+
   //Woody debris C
   BOOST_LOG_SEV(glg, fatal)<<"woody debris C";
   map_itr = netcdf_outputs.find("DWDC");
@@ -892,6 +921,7 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   }
   map_itr = netcdf_outputs.end();
 
+
   //Woody debris N
   BOOST_LOG_SEV(glg, fatal)<<"woody debris N";
   map_itr = netcdf_outputs.find("DWDN");
@@ -913,6 +943,7 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
     temutil::nc( nc_close(ncid) );
   }
   map_itr = netcdf_outputs.end();
+
 
   //Woody debris RH
   BOOST_LOG_SEV(glg, fatal)<<"woody debris rh";
@@ -997,28 +1028,6 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   CompCount4[2] = 1;
   CompCount4[3] = 1;
 
-  //NPP
-  BOOST_LOG_SEV(glg, fatal)<<"NPP";
-  map_itr = netcdf_outputs.find("NPP");
-  if(map_itr != netcdf_outputs.end()){
-    curr_spec = map_itr->second;
-
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
-    temutil::nc( nc_inq_varid(ncid, "NPP", &cv) );
-
-    if(curr_spec.pft && !curr_spec.compartment){
-      double npp[NUM_PFT];
-      for(int ip=0; ip<NUM_PFT; ip++){
-        npp[ip] = cohort.bd[ip].m_a2v.nppall; 
-      }
-
-      PFTstart4[0] = temutil::get_nc_timedim_len(ncid);
-      temutil::nc( nc_put_vara_double(ncid, cv, PFTstart4, PFTcount4, &npp[0]) );
-    }
-    temutil::nc( nc_close(ncid) );
-  }
-  map_itr = netcdf_outputs.end();
-
 
   /*** PFT and PFT compartment variables ***/
   size_t start5[5];
@@ -1056,6 +1065,111 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
     temutil::nc( nc_close(ncid) );
   }
   map_itr = netcdf_outputs.end();
+
+
+  //GPP
+  BOOST_LOG_SEV(glg, fatal)<<"GPP";
+  map_itr = netcdf_outputs.find("GPP");
+  if(map_itr != netcdf_outputs.end()){
+    curr_spec = map_itr->second;
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "GPP", &cv) );
+
+    //PFT and compartment
+    if(curr_spec.pft && curr_spec.compartment){
+      start5[0] = temutil::get_nc_timedim_len(ncid);
+
+      double gpp[NUM_PFT_PART][NUM_PFT];
+      for(int ip=0; ip<NUM_PFT; ip++){
+        for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
+          gpp[ipp][ip] = cohort.bd[ip].m_a2v.gpp[ipp];
+        }
+      }
+
+      temutil::nc( nc_put_vara_double(ncid, cv, start5, count5, &gpp[0][0]) );
+    }
+    //PFT only
+    else if(curr_spec.pft && !curr_spec.compartment){
+      PFTstart4[0] = temutil::get_nc_timedim_len(ncid);
+
+      double gpp[NUM_PFT];
+      for(int ip=0; ip<NUM_PFT; ip++){
+        gpp[ip] = cohort.bd[ip].m_a2v.gppall; 
+      }
+
+      temutil::nc( nc_put_vara_double(ncid, cv, PFTstart4, PFTcount4, &gpp[0]) );
+    }
+    //Compartment only
+    else if(!curr_spec.pft && curr_spec.compartment){
+      CompStart4[0] = temutil::get_nc_timedim_len(ncid);
+
+      double gpp[NUM_PFT_PART] = {0};
+      for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
+        for(int ip=0; ip<NUM_PFT; ip++){
+          gpp[ipp] += cohort.bd[ip].m_a2v.gpp[ipp];
+        }
+      }
+
+      temutil::nc( nc_put_vara_double(ncid, cv, CompStart4, CompCount4, &gpp[0]) );
+    }
+
+    temutil::nc( nc_close(ncid) );
+  }//end GPP
+  map_itr = netcdf_outputs.end();
+
+
+  //NPP
+  BOOST_LOG_SEV(glg, fatal)<<"NPP";
+  map_itr = netcdf_outputs.find("NPP");
+  if(map_itr != netcdf_outputs.end()){
+    curr_spec = map_itr->second;
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "NPP", &cv) );
+
+    //PFT and compartment
+    if(curr_spec.pft && curr_spec.compartment){
+      start5[0] = temutil::get_nc_timedim_len(ncid);
+
+      double npp[NUM_PFT_PART][NUM_PFT];
+      for(int ip=0; ip<NUM_PFT; ip++){
+        for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
+          npp[ipp][ip] = cohort.bd[ip].m_a2v.npp[ipp];
+        }
+      }
+
+      temutil::nc( nc_put_vara_double(ncid, cv, start5, count5, &npp[0][0]) );
+    }
+    //PFT only
+    else if(curr_spec.pft && !curr_spec.compartment){
+      PFTstart4[0] = temutil::get_nc_timedim_len(ncid);
+
+      double npp[NUM_PFT];
+      for(int ip=0; ip<NUM_PFT; ip++){
+        npp[ip] = cohort.bd[ip].m_a2v.nppall; 
+      }
+
+      temutil::nc( nc_put_vara_double(ncid, cv, PFTstart4, PFTcount4, &npp[0]) );
+    }
+    //Compartment only
+    else if(!curr_spec.pft && curr_spec.compartment){
+      CompStart4[0] = temutil::get_nc_timedim_len(ncid);
+
+      double npp[NUM_PFT_PART] = {0};
+      for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
+        for(int ip=0; ip<NUM_PFT; ip++){
+          npp[ipp] += cohort.bd[ip].m_a2v.npp[ipp];
+        }
+      }
+
+      temutil::nc( nc_put_vara_double(ncid, cv, CompStart4, CompCount4, &npp[0]) );
+    }
+
+    temutil::nc( nc_close(ncid) );
+  }//end NPP
+  map_itr = netcdf_outputs.end();
+
 
   //VEGC
   BOOST_LOG_SEV(glg, fatal)<<"vegc";
