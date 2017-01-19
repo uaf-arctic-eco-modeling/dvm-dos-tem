@@ -10,6 +10,7 @@
 #include "ArgHandler.h"
 #include "util_structs.h"
 #include "../src/inc/layerconst.h"
+#include "../src/inc/errorcode.h"
 
 using namespace std;
 

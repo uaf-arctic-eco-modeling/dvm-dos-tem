@@ -389,6 +389,7 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
 
     temutil::nc( nc_put_att_text(ncid, Var, "units", units.length(), units.c_str()) );
     temutil::nc( nc_put_att_text(ncid, Var, "long_name", desc.length(), desc.c_str()) );
+    temutil::nc( nc_put_att_double(ncid, Var, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
 
     /* End Define Mode (not strictly necessary for netcdf 4) */
     BOOST_LOG_SEV(glg, debug) << "Leaving 'define mode'...";
