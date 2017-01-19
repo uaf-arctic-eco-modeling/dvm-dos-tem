@@ -770,6 +770,7 @@ void Runner::output_debug_daily_drivers(int iy, boost::filesystem::path p) {
 void Runner::output_netCDF_monthly(int year, int month){
   BOOST_LOG_SEV(glg, debug)<<"NetCDF monthly output";
   output_netCDF(md.monthly_netcdf_outputs, year, month);
+  output_netCDF(md.daily_netcdf_outputs, year, month);
 }
 
 void Runner::output_netCDF_yearly(int year){
@@ -779,6 +780,8 @@ void Runner::output_netCDF_yearly(int year){
 
 void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, int year, int month){
   int timestep = year*12 + month;
+
+  int dinm = DINM[month];
 
   int rowidx = this->y;
   int colidx = this->x;
@@ -801,6 +804,13 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   start3[1] = rowidx;
   start3[2] = colidx;
 
+  //For 3D daily-level variables
+  size_t count3[3];
+  count3[0] = dinm;
+  count3[1] = 1;
+  count3[2] = 1;
+
+  /*** Two combination vars: time(month, year) ***/
   //Burned soil carbon 
   BOOST_LOG_SEV(glg, fatal)<<"Burned soil C";
   map_itr = netcdf_outputs.find("BURNSOIC");

@@ -13,6 +13,7 @@ struct output_spec{
   bool soil;
   bool yearly;
   bool monthly;
+  bool daily;
   int dim_count;
 };
 

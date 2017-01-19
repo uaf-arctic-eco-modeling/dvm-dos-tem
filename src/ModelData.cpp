@@ -280,13 +280,25 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
         units = token;
       }
       else if(ii==3){//Yearly
-        if(token.length()>0){timestep = "yearly";}
+        if(token.length()>0){
+          timestep = "yearly";
+          temp_spec.yearly = true;
+        }
       }
       else if(ii==4){//Monthly
-        if(token.length()>0){timestep = "monthly";}
+        if(token.length()>0){
+          timestep = "monthly";
+          temp_spec.monthly = true;
+          temp_spec.yearly = false;
+        }
       }
       else if(ii==5){//Daily
-        if(token.length()>0){timestep = "daily";}
+        if(token.length()>0){
+          timestep = "daily";
+          temp_spec.daily = true;
+          temp_spec.monthly = false;
+          temp_spec.yearly = false;
+        }
       }
       else if(ii==6){//PFT
         if(token.length()>0){
@@ -404,18 +416,16 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
     temutil::nc( nc_close(ncid) );
 
     //Add output specifiers to the map tracking the appropriate timestep
-    if(timestep.compare("daily") == 0){
+    if(temp_spec.daily){
       daily_netcdf_outputs.insert(std::map<std::string, output_spec>::value_type(name, temp_spec));
     }
 
-    else if(timestep.compare("monthly") == 0){
-      temp_spec.monthly = true;
+    else if(temp_spec.monthly){
       monthly_netcdf_outputs.insert(std::map<std::string, output_spec>::value_type(name, temp_spec));
       //monthly_netcdf_outputs.insert({name, filename}); c++11
     }
 
-    else if(timestep.compare("yearly") == 0){
-      temp_spec.yearly = true;
+    else if(temp_spec.yearly){
       yearly_netcdf_outputs.insert(std::map<std::string, output_spec>::value_type(name, temp_spec));
     }
 
