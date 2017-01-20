@@ -811,6 +811,82 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   count3[1] = 1;
   count3[2] = 1;
 
+  /*** Single option vars: time(year) ***/
+  map_itr = netcdf_outputs.find("DEEPDZ");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"deepdz";
+    curr_spec = map_itr->second;
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "DEEPDZ", &cv) );
+    start3[0] = temutil::get_nc_timedim_len(ncid);
+
+    double deepdz = 0;
+    Layer* currL = cohort.ground.toplayer;
+    while(currL!=NULL){
+      if(currL->isHumic){
+        deepdz += currL->dz;
+      }
+      currL = currL->nextl;
+    }
+
+    temutil::nc( nc_put_var1_double(ncid, cv, start3, &deepdz) );
+    temutil::nc( nc_close(ncid) );
+  }//end DEEPDZ
+  map_itr = netcdf_outputs.end();
+
+
+  map_itr = netcdf_outputs.find("MOSSDZ");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"mossdz";
+    curr_spec = map_itr->second;
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "MOSSDZ", &cv) );
+    start3[0] = temutil::get_nc_timedim_len(ncid);
+
+    double mossdz = 0;
+    Layer* currL = cohort.ground.toplayer;
+    while(currL!=NULL){
+      if(currL->isMoss){
+        mossdz += currL->dz;
+      }
+      currL = currL->nextl;
+    }
+    //The following may never get set to anything useful?
+    //y_soil.mossthick;
+
+    temutil::nc( nc_put_var1_double(ncid, cv, start3, &mossdz) );
+    temutil::nc( nc_close(ncid) );
+  }//end MOSSDZ
+  map_itr = netcdf_outputs.end();
+
+
+  map_itr = netcdf_outputs.find("SHLWDZ");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"shlwdz";
+    curr_spec = map_itr->second;
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "SHLWDZ", &cv) );
+    start3[0] = temutil::get_nc_timedim_len(ncid);
+
+    double shlwdz = 0;
+    Layer* currL = cohort.ground.toplayer;
+    while(currL!=NULL){
+      if(currL->isFibric){
+        shlwdz += currL->dz;
+      }
+      currL = currL->nextl;
+    }
+
+    temutil::nc( nc_put_var1_double(ncid, cv, start3, &shlwdz) );
+    temutil::nc( nc_close(ncid) );
+  }//end SHLWDZ
+  map_itr = netcdf_outputs.end();
+
+
+
   /*** Two combination vars: time(month, year) ***/
   //Burned soil carbon 4 combos: time(month, year) gran(layer, tot) 
   map_itr = netcdf_outputs.find("BURNSOIC");
