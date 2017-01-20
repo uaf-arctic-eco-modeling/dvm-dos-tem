@@ -8,13 +8,15 @@
 struct output_spec{
   std::string filename;
   std::string filestr; //subjective filepath with filename.
+  int dim_count;
+
+  //Which dimensions to define
   bool pft;
   bool compartment;
-  bool soil;
+  bool layer;
   bool yearly;
   bool monthly;
   bool daily;
-  int dim_count;
 };
 
 

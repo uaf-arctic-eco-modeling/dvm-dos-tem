@@ -261,7 +261,7 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
     output_spec temp_spec;
     temp_spec.pft = false;
     temp_spec.compartment = false;
-    temp_spec.soil = false;
+    temp_spec.layer = false;
     temp_spec.yearly = false;
     temp_spec.monthly = false;
     temp_spec.dim_count = 3;//All variables have time, y, x
@@ -314,7 +314,7 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
       }
       else if(ii==8){//Layer
         if(token.length()>0){
-          temp_spec.soil = true;
+          temp_spec.layer = true;
           temp_spec.dim_count++;
         }
       }
@@ -391,7 +391,7 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
     }
 
     //Soil specific dimensions
-    else if(temp_spec.soil){
+    else if(temp_spec.layer){
       temutil::nc( nc_def_dim(ncid, "layer", MAX_SOI_LAY, &layerD) );
 
       vartypeSoil4D_dimids[0] = timeD;

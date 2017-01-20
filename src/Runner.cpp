@@ -812,29 +812,69 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   count3[2] = 1;
 
   /*** Two combination vars: time(month, year) ***/
-  //Burned soil carbon 
+  //Burned soil carbon 4 combos: time(month, year) gran(layer, tot) 
   map_itr = netcdf_outputs.find("BURNSOIC");
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, fatal)<<"Burned soil C";
     curr_spec = map_itr->second;
 
-    double burnSoilC;
-    if(curr_spec.monthly){
-      burnSoilC = cohort.year_fd[month].fire_soi2a.orgc;
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "BURNSOIC", &cv) );
+
+    if(curr_spec.layer){
+      /*** STUB ***/
     }
-    else if(curr_spec.yearly){
-      burnSoilC = 0;
-      for(int im=0; im<12; im++){
-        burnSoilC += cohort.year_fd[im].fire_soi2a.orgc;
+    else if(!curr_spec.layer){
+      start3[0] = temutil::get_nc_timedim_len(ncid);
+
+      double burnSoilC;
+      if(curr_spec.monthly){
+        burnSoilC = cohort.year_fd[month].fire_soi2a.orgc;
       }
+      else if(curr_spec.yearly){
+        burnSoilC = 0;
+        for(int im=0; im<12; im++){
+          burnSoilC += cohort.year_fd[im].fire_soi2a.orgc;
+        }
+      }
+      temutil::nc( nc_put_var1_double(ncid, cv, start3, &burnSoilC) );
     }
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
-    start3[0] = temutil::get_nc_timedim_len(ncid);
-    temutil::nc( nc_inq_varid(ncid, "BURNSOIC", &cv) );
-    temutil::nc( nc_put_var1_double(ncid, cv, start3, &burnSoilC) );
     temutil::nc( nc_close(ncid) );
   }//end BURNSOIC
+  map_itr = netcdf_outputs.end();
+
+
+  //Burned soil nitrogen 4 combos: time(month, year) gran(layer, tot) 
+  map_itr = netcdf_outputs.find("BURNSOILN");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"Burned soil N";
+    curr_spec = map_itr->second;
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "BURNSOILN", &cv) );
+
+    if(curr_spec.layer){
+      /*** STUB ***/
+    }
+    else if(!curr_spec.layer){
+      start3[0] = temutil::get_nc_timedim_len(ncid);
+
+      double burnSoilN;
+      if(curr_spec.monthly){
+        burnSoilN = cohort.year_fd[month].fire_soi2a.orgn;
+      }
+      else if(curr_spec.yearly){
+        burnSoilN = 0;
+        for(int im=0; im<12; im++){
+          burnSoilN += cohort.year_fd[im].fire_soi2a.orgn;
+        }
+      }
+      temutil::nc( nc_put_var1_double(ncid, cv, start3, &burnSoilN) );
+    }
+
+    temutil::nc( nc_close(ncid) );
+  }//end BURNSOILN
   map_itr = netcdf_outputs.end();
 
 
