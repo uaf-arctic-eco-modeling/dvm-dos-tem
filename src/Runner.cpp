@@ -813,9 +813,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
   /*** Two combination vars: time(month, year) ***/
   //Burned soil carbon 
-  BOOST_LOG_SEV(glg, fatal)<<"Burned soil C";
   map_itr = netcdf_outputs.find("BURNSOIC");
   if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"Burned soil C";
     curr_spec = map_itr->second;
 
     double burnSoilC;
@@ -839,9 +839,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
 
   //Burn thickness
-  BOOST_LOG_SEV(glg, fatal)<<"burnthick";
   map_itr = netcdf_outputs.find("BURNTHICK");
   if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"burnthick";
     curr_spec = map_itr->second;
 
     double burnthick;
@@ -865,9 +865,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
 
   //Standing dead C
-  BOOST_LOG_SEV(glg, fatal)<<"standing dead C";
   map_itr = netcdf_outputs.find("DEADC");
   if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"standing dead C";
     curr_spec = map_itr->second;
 
     double deadc;
@@ -888,9 +888,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
 
   //Standing dead N
-  BOOST_LOG_SEV(glg, fatal)<<"standing dead N";
   map_itr = netcdf_outputs.find("DEADN");
   if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"standing dead N";
     curr_spec = map_itr->second;
 
     double deadn;
@@ -911,9 +911,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
 
   //Deep C
-  BOOST_LOG_SEV(glg, fatal)<<"Deep C";
   map_itr = netcdf_outputs.find("DEEPC");
   if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"Deep C";
     curr_spec = map_itr->second;
 
     double deepc;
@@ -934,9 +934,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
 
   //Woody debris C
-  BOOST_LOG_SEV(glg, fatal)<<"woody debris C";
   map_itr = netcdf_outputs.find("DWDC");
   if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"woody debris C";
     curr_spec = map_itr->second;
 
     double woodyc;
@@ -957,9 +957,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
 
   //Woody debris N
-  BOOST_LOG_SEV(glg, fatal)<<"woody debris N";
   map_itr = netcdf_outputs.find("DWDN");
   if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"woody debris N";
     curr_spec = map_itr->second;
 
     double woodyn;
@@ -980,9 +980,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
 
   //Mineral C
-  BOOST_LOG_SEV(glg, fatal)<<"Mineral C";
   map_itr = netcdf_outputs.find("MINEC");
   if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"Mineral C";
     curr_spec = map_itr->second;
 
     double minec;
@@ -1007,9 +1007,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
 
   //Shallow C
-  BOOST_LOG_SEV(glg, fatal)<<"Shallow C";
   map_itr = netcdf_outputs.find("SHLWC");
   if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"Shallow C";
     curr_spec = map_itr->second;
 
     double shlwc;
@@ -1030,9 +1030,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
 
   //Woody debris RH
-  BOOST_LOG_SEV(glg, fatal)<<"woody debris rh";
   map_itr = netcdf_outputs.find("WDRH");
   if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"woody debris rh";
     curr_spec = map_itr->second;
 
     double woodyrh;
@@ -1054,9 +1054,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
   /*** Three combination vars: time(year, month, day) ***/
   //Snowthick - a snapshot of the time when output is called
-  BOOST_LOG_SEV(glg, fatal)<<"Snowthick";
   map_itr = netcdf_outputs.find("SNOWTHICK");
   if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"Snowthick";
     curr_spec = map_itr->second;
 
     temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
@@ -1084,9 +1084,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
 
   //Snow water equivalent - a snapshot of the time when output is called
-  BOOST_LOG_SEV(glg, fatal)<<"SWE";
   map_itr = netcdf_outputs.find("SWE");
   if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"SWE";
     curr_spec = map_itr->second;
 
     temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
@@ -1123,6 +1123,7 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
   map_itr = netcdf_outputs.find("SOC");
   if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"SOC";
     curr_spec = map_itr->second;
 
     temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
@@ -1186,9 +1187,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   count5[4] = 1;
 
   //Burned Veg Carbon
-  BOOST_LOG_SEV(glg, fatal)<<"BURNVEGC";
   map_itr = netcdf_outputs.find("BURNVEGC");
   if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"BURNVEGC";
     curr_spec = map_itr->second;
 
     temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
@@ -1223,9 +1224,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
 
   //GPP
-  BOOST_LOG_SEV(glg, fatal)<<"GPP";
   map_itr = netcdf_outputs.find("GPP");
   if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"GPP";
     curr_spec = map_itr->second;
 
     temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
@@ -1275,9 +1276,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
 
   //NPP
-  BOOST_LOG_SEV(glg, fatal)<<"NPP";
   map_itr = netcdf_outputs.find("NPP");
   if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"NPP";
     curr_spec = map_itr->second;
 
     temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
@@ -1327,9 +1328,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
 
   //VEGC
-  BOOST_LOG_SEV(glg, fatal)<<"vegc";
   map_itr = netcdf_outputs.find("VEGC");
   if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"vegc";
     curr_spec = map_itr->second;
 
     temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
@@ -1393,9 +1394,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
 
   //VEGN
-  BOOST_LOG_SEV(glg, fatal)<<"VEGN NetCDF output";
   map_itr = netcdf_outputs.find("VEGN");
   if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"VEGN NetCDF output";
     curr_spec = map_itr->second;
 
     temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
@@ -1565,57 +1566,4 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
 }
 
-void Runner::output_netCDF_daily_per_month(std::map<std::string, output_spec> &netcdf_outputs, int month){
 
-  BOOST_LOG_SEV(glg, fatal)<<"Outputting accumulated daily data on the monthly timestep";
-
-  int dinm = DINM[month];
-
-  int rowidx = this->y;
-  int colidx = this->x;
-
-  output_spec curr_spec;
-  int ncid;
-  int timeD; //unlimited dimension
-  int xD;
-  int yD;
-  int pftD;
-  int pftpartD;
-  int layerD;
-  int cv; //reusable variable handle
-  size_t dimlen; //reusable
-
-  //Reusable iterator
-  std::map<std::string, output_spec>::iterator map_itr;
-
-  //3D system-wide variables
-  size_t start3[3];
-  //start3[0] is set based on the previous length of the time dimension 
-  start3[1] = rowidx;
-  start3[2] = colidx;
-
-  size_t count3[3];
-  count3[0] = dinm;
-  count3[1] = 1;
-  count3[2] = 1;
-/*
-  map_itr = netcdf_outputs.find("EET");
-  if(map_itr != netcdf_outputs.end()){
-    curr_spec = map_itr->second;
-
-
-    double tot_EET[dinm];
-    for(int dayidx=0; dayidx<dinm; dayidx++){
-      for(int ip=0; ip<NUM_PFT; ip++){
-        tot_EET[dayidx] += cohort.ed[ip].month_of_eet[dayidx];
-      }
-    }
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
-    start3[0] = temutil::get_nc_timedim_len(ncid);
-    temutil::nc( nc_inq_varid(ncid, "EET", &cv) );
-    temutil::nc( nc_put_vara_double(ncid, cv, start3, count3, &tot_EET[0]) );
-    temutil::nc( nc_close(ncid) );
-  }
-  map_itr = netcdf_outputs.end();
-*/
-}
