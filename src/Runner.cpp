@@ -767,7 +767,7 @@ void Runner::output_debug_daily_drivers(int iy, boost::filesystem::path p) {
 
 
 void Runner::output_netCDF_monthly(int year, int month){
-  BOOST_LOG_SEV(glg, debug)<<"NetCDF monthly output";
+  BOOST_LOG_SEV(glg, fatal)<<"NetCDF monthly output";
   output_netCDF(md.monthly_netcdf_outputs, year, month);
 
   BOOST_LOG_SEV(glg, fatal)<<"Outputting accumulated daily data on the monthly timestep";
@@ -775,7 +775,7 @@ void Runner::output_netCDF_monthly(int year, int month){
 }
 
 void Runner::output_netCDF_yearly(int year){
-  BOOST_LOG_SEV(glg, debug)<<"NetCDF yearly output";
+  BOOST_LOG_SEV(glg, fatal)<<"NetCDF yearly output";
   output_netCDF(md.yearly_netcdf_outputs, year, 0);
 }
 
@@ -812,6 +812,20 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   count3[2] = 1;
 
   /*** Single option vars: time(year) ***/
+  map_itr = netcdf_outputs.find("ALD");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"ALD";
+    curr_spec = map_itr->second;
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "ALD", &cv) );
+    start3[0] = temutil::get_nc_timedim_len(ncid);
+
+    temutil::nc( nc_put_var1_double(ncid, cv, start3, &cohort.edall->y_soid.ald) );
+    temutil::nc( nc_close(ncid) );
+  }//end ALD
+  map_itr = netcdf_outputs.end();
+
   map_itr = netcdf_outputs.find("DEEPDZ");
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, fatal)<<"deepdz";
@@ -836,9 +850,39 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   map_itr = netcdf_outputs.end();
 
 
+  map_itr = netcdf_outputs.find("GROWEND");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"GROWEND";
+    curr_spec = map_itr->second;
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "GROWEND", &cv) );
+    start3[0] = temutil::get_nc_timedim_len(ncid);
+
+//diagnostics.h   rtdpgrowstart DOY
+//    EnvData   d_soid, m_soid, y_soid.rtdpgrowstart
+
+      //The following does not work as expected.
+      //growstart and growend are re-set to UIN_INT when the other
+      //is in effect.
+//    int growstart = cohort.ed[0].y_soid.rtdpgrowstart;
+
+//    temutil::nc( nc_put_var1_double(ncid, cv, start3, &growstart) );
+    temutil::nc( nc_close(ncid) );
+  }//end GROWEND
+  map_itr = netcdf_outputs.end();
+
+
+  map_itr = netcdf_outputs.find("GROWSTART");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"GROWSTART";
+  }//end GROWSTART
+  map_itr = netcdf_outputs.end();
+
+
   map_itr = netcdf_outputs.find("MOSSDZ");
   if(map_itr != netcdf_outputs.end()){
-    BOOST_LOG_SEV(glg, fatal)<<"mossdz";
+    BOOST_LOG_SEV(glg, fatal)<<"MOSSDZ";
     curr_spec = map_itr->second;
 
     temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
@@ -862,9 +906,41 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   map_itr = netcdf_outputs.end();
 
 
+//  map_itr = netcdf_outputs.find("ORL");
+//  if(map_itr != netcdf_outputs.end()){
+//    BOOST_LOG_SEV(glg, fatal)<<"ORL";
+//    curr_spec = map_itr->second;
+//
+//    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+//    temutil::nc( nc_inq_varid(ncid, "ORL", &cv) );
+//    start3[0] = temutil::get_nc_timedim_len(ncid);
+//
+//    temutil::nc( nc_put_var1_double(ncid, cv, start3, &) );
+//    temutil::nc( nc_close(ncid) );
+//  }//end ORL
+//  map_itr = netcdf_outputs.end();
+
+
+  map_itr = netcdf_outputs.find("PERMAFROST");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"PERMAFROST";
+    curr_spec = map_itr->second;
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "PERMAFROST", &cv) );
+    start3[0] = temutil::get_nc_timedim_len(ncid);
+
+    double permafrost = cohort.edall->y_soid.permafrost;
+
+    temutil::nc( nc_put_var1_double(ncid, cv, start3, &permafrost) );
+    temutil::nc( nc_close(ncid) );
+  }//end PERMAFROST
+  map_itr = netcdf_outputs.end();
+
+
   map_itr = netcdf_outputs.find("SHLWDZ");
   if(map_itr != netcdf_outputs.end()){
-    BOOST_LOG_SEV(glg, fatal)<<"shlwdz";
+    BOOST_LOG_SEV(glg, fatal)<<"SHLWDZ";
     curr_spec = map_itr->second;
 
     temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
@@ -883,6 +959,20 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
     temutil::nc( nc_put_var1_double(ncid, cv, start3, &shlwdz) );
     temutil::nc( nc_close(ncid) );
   }//end SHLWDZ
+  map_itr = netcdf_outputs.end();
+
+
+  map_itr = netcdf_outputs.find("SNOWEND");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"SNOWEND";
+  }//end SNOWEND
+  map_itr = netcdf_outputs.end();
+
+
+  map_itr = netcdf_outputs.find("SNOWSTART");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"SNOWSTART";
+  }//end SNOWSTART
   map_itr = netcdf_outputs.end();
 
 
