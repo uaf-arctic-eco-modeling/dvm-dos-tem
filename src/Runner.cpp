@@ -799,19 +799,74 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
   std::map<std::string, output_spec>::iterator map_itr;
 
-  //3D system-wide variables
+  /*** 3D variables ***/
   size_t start3[3];
-  //start3[0] will be set later based on file inquiries
+  //Index 0 is set later from the length of the time dimension
   start3[1] = rowidx;
   start3[2] = colidx;
 
-  //For 3D daily-level variables
+  //For daily-level variables
   size_t count3[3];
   count3[0] = dinm;
   count3[1] = 1;
   count3[2] = 1;
 
-  /*** Single option vars: time(year) ***/
+  /*** Soil Variables ***/
+  size_t soilstart4[4];
+  //Index 0 is set later from the length of the time dimension
+  soilstart4[1] = 0;
+  soilstart4[2] = rowidx;
+  soilstart4[3] = colidx;
+
+  size_t soilcount4[4];
+  soilcount4[0] = 1;
+  soilcount4[1] = MAX_SOI_LAY;
+  soilcount4[2] = 1;
+  soilcount4[3] = 1;
+
+  /*** PFT variables ***/
+  size_t PFTstart4[4];
+  //Index 0 is set later from the length of the time dimension
+  PFTstart4[1] = 0;//PFT
+  PFTstart4[2] = rowidx;
+  PFTstart4[3] = colidx;
+
+  size_t PFTcount4[4];
+  PFTcount4[0] = 1;
+  PFTcount4[1] = NUM_PFT;
+  PFTcount4[2] = 1;
+  PFTcount4[3] = 1;
+
+  /*** Compartment variables ***/
+  size_t CompStart4[4];
+  //Index 0 is set later from the length of the time dimension
+  CompStart4[1] = 0;//PFT compartment
+  CompStart4[2] = rowidx;
+  CompStart4[3] = colidx;
+
+  size_t CompCount4[4];
+  CompCount4[0] = 1;
+  CompCount4[1] = NUM_PFT_PART;
+  CompCount4[2] = 1;
+  CompCount4[3] = 1;
+
+  /*** PFT and PFT compartment variables ***/
+  size_t start5[5];
+  //Index 0 is set later from the length of the time dimension
+  start5[1] = 0;//PFT Compartment
+  start5[2] = 0;//PFT
+  start5[3] = rowidx;
+  start5[4] = colidx;
+
+  size_t count5[5];
+  count5[0] = 1;
+  count5[1] = NUM_PFT_PART;
+  count5[2] = NUM_PFT;
+  count5[3] = 1;
+  count5[4] = 1;
+
+
+  /*** Single option vars: (year) ***/
   map_itr = netcdf_outputs.find("ALD");
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, fatal)<<"ALD";
@@ -825,6 +880,7 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
     temutil::nc( nc_close(ncid) );
   }//end ALD
   map_itr = netcdf_outputs.end();
+
 
   map_itr = netcdf_outputs.find("DEEPDZ");
   if(map_itr != netcdf_outputs.end()){
@@ -977,8 +1033,335 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
 
 
-  /*** Two combination vars: time(month, year) ***/
-  //Burned soil carbon 4 combos: time(month, year) gran(layer, tot) 
+  /*** Two combination vars: (month, year) ***/
+  map_itr = netcdf_outputs.find("BURNAIR2SOIC");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"Burned soil C";
+  }//end BURNAIR2SOIC
+  map_itr = netcdf_outputs.end();
+
+
+  map_itr = netcdf_outputs.find("BURNAIR2SOIN");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"Burned soil N";
+  }//end BURNAIR2SOIN
+  map_itr = netcdf_outputs.end();
+
+
+  //Burn thickness
+  map_itr = netcdf_outputs.find("BURNTHICK");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"burnthick";
+    curr_spec = map_itr->second;
+
+    double burnthick;
+    if(curr_spec.monthly){
+      burnthick = cohort.year_fd[month].fire_soid.burnthick;
+    }
+    else if(curr_spec.yearly){
+      burnthick = 0;
+      for(int im=0; im<12; im++){
+        burnthick += cohort.year_fd[im].fire_soid.burnthick;
+      }
+    }
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    start3[0] = temutil::get_nc_timedim_len(ncid);
+    temutil::nc( nc_inq_varid(ncid, "BURNTHICK", &cv) );
+    temutil::nc( nc_put_var1_double(ncid, cv, start3, &burnthick) );
+    temutil::nc( nc_close(ncid) );
+  }//end BURNTHICK
+  map_itr = netcdf_outputs.end();
+
+
+  //Standing dead C
+  map_itr = netcdf_outputs.find("DEADC");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"standing dead C";
+    curr_spec = map_itr->second;
+
+    double deadc;
+    if(curr_spec.monthly){
+      deadc = cohort.bdall->m_vegs.deadc;
+    }
+    else if(curr_spec.yearly){
+      deadc = cohort.bdall->y_vegs.deadc;
+    }
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    start3[0] = temutil::get_nc_timedim_len(ncid);
+    temutil::nc( nc_inq_varid(ncid, "DEADC", &cv) );
+    temutil::nc( nc_put_var1_double(ncid, cv, start3, &deadc) );
+    temutil::nc( nc_close(ncid) );
+  }//end DEADC
+  map_itr = netcdf_outputs.end();
+
+
+  //Standing dead N
+  map_itr = netcdf_outputs.find("DEADN");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"standing dead N";
+    curr_spec = map_itr->second;
+
+    double deadn;
+    if(curr_spec.monthly){
+      deadn = cohort.bdall->m_vegs.deadn;
+    }
+    else if(curr_spec.yearly){
+      deadn = cohort.bdall->y_vegs.deadn;
+    }
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    start3[0] = temutil::get_nc_timedim_len(ncid);
+    temutil::nc( nc_inq_varid(ncid, "DEADN", &cv) );
+    temutil::nc( nc_put_var1_double(ncid, cv, start3, &deadn) );
+    temutil::nc( nc_close(ncid) );
+  }//end DEADN
+  map_itr = netcdf_outputs.end();
+
+
+  //Deep C
+  map_itr = netcdf_outputs.find("DEEPC");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"Deep C";
+    curr_spec = map_itr->second;
+
+    double deepc;
+    if(curr_spec.monthly){
+      deepc = cohort.bdall->m_soid.deepc;
+    }
+    else if(curr_spec.yearly){
+      deepc = cohort.bdall->y_soid.deepc;
+    }
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    start3[0] = temutil::get_nc_timedim_len(ncid);
+    temutil::nc( nc_inq_varid(ncid, "DEEPC", &cv) );
+    temutil::nc( nc_put_var1_double(ncid, cv, start3, &deepc) );
+    temutil::nc( nc_close(ncid) ); 
+  }//end DEEPC
+  map_itr = netcdf_outputs.end();
+
+
+  //Woody debris C
+  map_itr = netcdf_outputs.find("DWDC");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"woody debris C";
+    curr_spec = map_itr->second;
+
+    double woodyc;
+    if(curr_spec.monthly){
+      woodyc = cohort.bdall->m_sois.wdebrisc;
+    }
+    else if(curr_spec.yearly){
+      woodyc = cohort.bdall->y_sois.wdebrisc;
+    }
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    start3[0] = temutil::get_nc_timedim_len(ncid);
+    temutil::nc( nc_inq_varid(ncid, "DWDC", &cv) );
+    temutil::nc( nc_put_var1_double(ncid, cv, start3, &woodyc) );
+    temutil::nc( nc_close(ncid) );
+  }//end DWDC
+  map_itr = netcdf_outputs.end();
+
+
+  //Woody debris N
+  map_itr = netcdf_outputs.find("DWDN");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"woody debris N";
+    curr_spec = map_itr->second;
+
+    double woodyn;
+    if(curr_spec.monthly){
+      woodyn = cohort.bdall->m_sois.wdebrisn;
+    }
+    else if(curr_spec.yearly){
+      woodyn = cohort.bdall->y_sois.wdebrisn;
+    }
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    start3[0] = temutil::get_nc_timedim_len(ncid);
+    temutil::nc( nc_inq_varid(ncid, "DWDN", &cv) );
+    temutil::nc( nc_put_var1_double(ncid, cv, start3, &woodyn) );
+    temutil::nc( nc_close(ncid) );
+  }//end DWDN
+  map_itr = netcdf_outputs.end();
+
+
+  //Mineral C
+  map_itr = netcdf_outputs.find("MINEC");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"Mineral C";
+    curr_spec = map_itr->second;
+
+    double minec;
+    if(curr_spec.monthly){
+      minec = cohort.bdall->m_soid.mineac
+              + cohort.bdall->m_soid.minebc
+              + cohort.bdall->m_soid.minecc;
+    }
+    else if(curr_spec.yearly){
+      minec = cohort.bdall->y_soid.mineac
+              + cohort.bdall->y_soid.minebc
+              + cohort.bdall->y_soid.minecc;
+    }
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    start3[0] = temutil::get_nc_timedim_len(ncid);
+    temutil::nc( nc_inq_varid(ncid, "MINEC", &cv) );
+    temutil::nc( nc_put_var1_double(ncid, cv, start3, &minec) );
+    temutil::nc( nc_close(ncid) ); 
+  }//end MINEC
+  map_itr = netcdf_outputs.end();
+
+
+  map_itr = netcdf_outputs.find("NDEOP");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"NDEOP";
+    curr_spec = map_itr->second;
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    start3[0] = temutil::get_nc_timedim_len(ncid);
+
+    /*** STUB ***/
+
+    temutil::nc( nc_inq_varid(ncid, "NDEOP", &cv) );
+    //temutil::nc( nc_put_var1_double(ncid, cv, start3, &minec) );
+    temutil::nc( nc_close(ncid) ); 
+  }//end NDEOP
+  map_itr = netcdf_outputs.end();
+
+
+  //Shallow C
+  map_itr = netcdf_outputs.find("SHLWC");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"Shallow C";
+    curr_spec = map_itr->second;
+
+    double shlwc;
+    if(curr_spec.monthly){
+      shlwc = cohort.bdall->m_soid.shlwc;
+    }
+    else if(curr_spec.yearly){
+      shlwc = cohort.bdall->y_soid.shlwc;
+    }
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    start3[0] = temutil::get_nc_timedim_len(ncid);
+    temutil::nc( nc_inq_varid(ncid, "SHLWC", &cv) );
+    temutil::nc( nc_put_var1_double(ncid, cv, start3, &shlwc) );
+    temutil::nc( nc_close(ncid) ); 
+  }//end SHLWC 
+  map_itr = netcdf_outputs.end();
+
+
+  //Woody debris RH
+  map_itr = netcdf_outputs.find("WDRH");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"woody debris rh";
+    curr_spec = map_itr->second;
+
+    double woodyrh;
+    if(curr_spec.monthly){
+      woodyrh = cohort.bdall->m_soi2a.rhwdeb;
+    }
+    else if(curr_spec.yearly){
+      woodyrh = cohort.bdall->y_soi2a.rhwdeb;
+    }
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    start3[0] = temutil::get_nc_timedim_len(ncid);
+    temutil::nc( nc_inq_varid(ncid, "WDRH", &cv) );
+    temutil::nc( nc_put_var1_double(ncid, cv, start3, &woodyrh) );
+    temutil::nc( nc_close(ncid) ); 
+  }//end WDRH
+  map_itr = netcdf_outputs.end();
+
+
+  /*** Three combination vars: (year, month, day) ***/
+  //HKDEEP
+  //HKMINEBOT
+  //HKMINETOP
+  //HKSHLW
+
+  //Snowthick - a snapshot of the time when output is called
+  map_itr = netcdf_outputs.find("SNOWTHICK");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"Snowthick";
+    curr_spec = map_itr->second;
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "SNOWTHICK", &cv) );
+    start3[0] = temutil::get_nc_timedim_len(ncid);
+
+    if(curr_spec.daily){
+      
+      temutil::nc( nc_put_vara_double(ncid, cv, start3, count3, &cohort.edall->daily_snowthick[0]) );
+    }
+    else if(curr_spec.monthly || curr_spec.yearly){
+      double snowthick;
+      Layer* currL = cohort.ground.toplayer;
+      while(currL->isSnow){
+        snowthick += currL->dz;
+        currL = currL->nextl;
+      }
+
+      temutil::nc( nc_put_var1_double(ncid, cv, start3, &snowthick) );
+    }
+
+    temutil::nc( nc_close(ncid) ); 
+  }//end SNOWTHICK
+  map_itr = netcdf_outputs.end();
+
+
+  //Snow water equivalent - a snapshot of the time when output is called
+  map_itr = netcdf_outputs.find("SWE");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"SWE";
+    curr_spec = map_itr->second;
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "SWE", &cv) );
+    start3[0] = temutil::get_nc_timedim_len(ncid);
+
+    double swe;
+    if(curr_spec.daily){
+      temutil::nc( nc_put_vara_double(ncid, cv, start3, count3, &cohort.edall->daily_swesum[0]) );
+    }
+
+    else if(curr_spec.monthly || curr_spec.yearly){
+      temutil::nc( nc_put_var1_double(ncid, cv, start3, &cohort.edall->d_snws.swesum) );
+    }
+
+    temutil::nc( nc_close(ncid) ); 
+  }//end SWE
+  map_itr = netcdf_outputs.end();
+
+
+  //TCDEEP
+  //TCMINEBOT
+  //TCMINETOP
+  //TCSHLW
+  //TDEEP
+  //TMINEBOT
+  //TMINETOP
+  //TROCK34M
+  //TSHLW
+  //TTD
+  //VWCDEEP
+  //VWCMINEBOT
+  //VWCMINETOP
+  //VWCSHLW
+  //VWCTD
+  //WATERTAB
+
+
+  /*** Four combination vars. (year, month)x(layer, tot)  ***/
+  //AVLN
+
+
+  //Burned soil carbon
   map_itr = netcdf_outputs.find("BURNSOIC");
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, fatal)<<"Burned soil C";
@@ -1011,7 +1394,7 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   map_itr = netcdf_outputs.end();
 
 
-  //Burned soil nitrogen 4 combos: time(month, year) gran(layer, tot) 
+  //Burned soil nitrogen 
   map_itr = netcdf_outputs.find("BURNSOILN");
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, fatal)<<"Burned soil N";
@@ -1044,288 +1427,13 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   map_itr = netcdf_outputs.end();
 
 
-  //Burn thickness
-  map_itr = netcdf_outputs.find("BURNTHICK");
-  if(map_itr != netcdf_outputs.end()){
-    BOOST_LOG_SEV(glg, fatal)<<"burnthick";
-    curr_spec = map_itr->second;
+  //NETNMIN
+  //NINPUT
+  //NLOST
+  //ORGN
+  //RH
+ // data["RH"] = cohort.bdall->y_soi2a.rhtot;
 
-    double burnthick;
-    if(curr_spec.monthly){
-      burnthick = cohort.year_fd[month].fire_soid.burnthick;
-    }
-    else if(curr_spec.yearly){
-      burnthick = 0;
-      for(int im=0; im<12; im++){
-        burnthick += cohort.year_fd[im].fire_soid.burnthick;
-      }
-    }
-
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
-    start3[0] = temutil::get_nc_timedim_len(ncid);
-    temutil::nc( nc_inq_varid(ncid, "BURNTHICK", &cv) );
-    temutil::nc( nc_put_var1_double(ncid, cv, start3, &burnthick) );
-    temutil::nc( nc_close(ncid) );
-  }
-  map_itr = netcdf_outputs.end();
-
-
-  //Standing dead C
-  map_itr = netcdf_outputs.find("DEADC");
-  if(map_itr != netcdf_outputs.end()){
-    BOOST_LOG_SEV(glg, fatal)<<"standing dead C";
-    curr_spec = map_itr->second;
-
-    double deadc;
-    if(curr_spec.monthly){
-      deadc = cohort.bdall->m_vegs.deadc;
-    }
-    else if(curr_spec.yearly){
-      deadc = cohort.bdall->y_vegs.deadc;
-    }
-
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
-    start3[0] = temutil::get_nc_timedim_len(ncid);
-    temutil::nc( nc_inq_varid(ncid, "DEADC", &cv) );
-    temutil::nc( nc_put_var1_double(ncid, cv, start3, &deadc) );
-    temutil::nc( nc_close(ncid) );
-  }
-  map_itr = netcdf_outputs.end();
-
-
-  //Standing dead N
-  map_itr = netcdf_outputs.find("DEADN");
-  if(map_itr != netcdf_outputs.end()){
-    BOOST_LOG_SEV(glg, fatal)<<"standing dead N";
-    curr_spec = map_itr->second;
-
-    double deadn;
-    if(curr_spec.monthly){
-      deadn = cohort.bdall->m_vegs.deadn;
-    }
-    else if(curr_spec.yearly){
-      deadn = cohort.bdall->y_vegs.deadn;
-    }
-
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
-    start3[0] = temutil::get_nc_timedim_len(ncid);
-    temutil::nc( nc_inq_varid(ncid, "DEADN", &cv) );
-    temutil::nc( nc_put_var1_double(ncid, cv, start3, &deadn) );
-    temutil::nc( nc_close(ncid) );
-  }
-  map_itr = netcdf_outputs.end();
-
-
-  //Deep C
-  map_itr = netcdf_outputs.find("DEEPC");
-  if(map_itr != netcdf_outputs.end()){
-    BOOST_LOG_SEV(glg, fatal)<<"Deep C";
-    curr_spec = map_itr->second;
-
-    double deepc;
-    if(curr_spec.monthly){
-      deepc = cohort.bdall->m_soid.deepc;
-    }
-    else if(curr_spec.yearly){
-      deepc = cohort.bdall->y_soid.deepc;
-    }
-
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
-    start3[0] = temutil::get_nc_timedim_len(ncid);
-    temutil::nc( nc_inq_varid(ncid, "DEEPC", &cv) );
-    temutil::nc( nc_put_var1_double(ncid, cv, start3, &deepc) );
-    temutil::nc( nc_close(ncid) ); 
-  }//end deep C
-  map_itr = netcdf_outputs.end();
-
-
-  //Woody debris C
-  map_itr = netcdf_outputs.find("DWDC");
-  if(map_itr != netcdf_outputs.end()){
-    BOOST_LOG_SEV(glg, fatal)<<"woody debris C";
-    curr_spec = map_itr->second;
-
-    double woodyc;
-    if(curr_spec.monthly){
-      woodyc = cohort.bdall->m_sois.wdebrisc;
-    }
-    else if(curr_spec.yearly){
-      woodyc = cohort.bdall->y_sois.wdebrisc;
-    }
-
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
-    start3[0] = temutil::get_nc_timedim_len(ncid);
-    temutil::nc( nc_inq_varid(ncid, "DWDC", &cv) );
-    temutil::nc( nc_put_var1_double(ncid, cv, start3, &woodyc) );
-    temutil::nc( nc_close(ncid) );
-  }
-  map_itr = netcdf_outputs.end();
-
-
-  //Woody debris N
-  map_itr = netcdf_outputs.find("DWDN");
-  if(map_itr != netcdf_outputs.end()){
-    BOOST_LOG_SEV(glg, fatal)<<"woody debris N";
-    curr_spec = map_itr->second;
-
-    double woodyn;
-    if(curr_spec.monthly){
-      woodyn = cohort.bdall->m_sois.wdebrisn;
-    }
-    else if(curr_spec.yearly){
-      woodyn = cohort.bdall->y_sois.wdebrisn;
-    }
-
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
-    start3[0] = temutil::get_nc_timedim_len(ncid);
-    temutil::nc( nc_inq_varid(ncid, "DWDN", &cv) );
-    temutil::nc( nc_put_var1_double(ncid, cv, start3, &woodyn) );
-    temutil::nc( nc_close(ncid) );
-  }
-  map_itr = netcdf_outputs.end();
-
-
-  //Mineral C
-  map_itr = netcdf_outputs.find("MINEC");
-  if(map_itr != netcdf_outputs.end()){
-    BOOST_LOG_SEV(glg, fatal)<<"Mineral C";
-    curr_spec = map_itr->second;
-
-    double minec;
-    if(curr_spec.monthly){
-      minec = cohort.bdall->m_soid.mineac
-              + cohort.bdall->m_soid.minebc
-              + cohort.bdall->m_soid.minecc;
-    }
-    else if(curr_spec.yearly){
-      minec = cohort.bdall->y_soid.mineac
-              + cohort.bdall->y_soid.minebc
-              + cohort.bdall->y_soid.minecc;
-    }
-
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
-    start3[0] = temutil::get_nc_timedim_len(ncid);
-    temutil::nc( nc_inq_varid(ncid, "MINEC", &cv) );
-    temutil::nc( nc_put_var1_double(ncid, cv, start3, &minec) );
-    temutil::nc( nc_close(ncid) ); 
-  }//end mineral C
-  map_itr = netcdf_outputs.end();
-
-
-  //Shallow C
-  map_itr = netcdf_outputs.find("SHLWC");
-  if(map_itr != netcdf_outputs.end()){
-    BOOST_LOG_SEV(glg, fatal)<<"Shallow C";
-    curr_spec = map_itr->second;
-
-    double shlwc;
-    if(curr_spec.monthly){
-      shlwc = cohort.bdall->m_soid.shlwc;
-    }
-    else if(curr_spec.yearly){
-      shlwc = cohort.bdall->y_soid.shlwc;
-    }
-
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
-    start3[0] = temutil::get_nc_timedim_len(ncid);
-    temutil::nc( nc_inq_varid(ncid, "SHLWC", &cv) );
-    temutil::nc( nc_put_var1_double(ncid, cv, start3, &shlwc) );
-    temutil::nc( nc_close(ncid) ); 
-  }//end shallow C
-  map_itr = netcdf_outputs.end();
-
-
-  //Woody debris RH
-  map_itr = netcdf_outputs.find("WDRH");
-  if(map_itr != netcdf_outputs.end()){
-    BOOST_LOG_SEV(glg, fatal)<<"woody debris rh";
-    curr_spec = map_itr->second;
-
-    double woodyrh;
-    if(curr_spec.monthly){
-      woodyrh = cohort.bdall->m_soi2a.rhwdeb;
-    }
-    else if(curr_spec.yearly){
-      woodyrh = cohort.bdall->y_soi2a.rhwdeb;
-    }
-
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
-    start3[0] = temutil::get_nc_timedim_len(ncid);
-    temutil::nc( nc_inq_varid(ncid, "WDRH", &cv) );
-    temutil::nc( nc_put_var1_double(ncid, cv, start3, &woodyrh) );
-    temutil::nc( nc_close(ncid) ); 
-  }
-  map_itr = netcdf_outputs.end();
-
-
-  /*** Three combination vars: time(year, month, day) ***/
-  //Snowthick - a snapshot of the time when output is called
-  map_itr = netcdf_outputs.find("SNOWTHICK");
-  if(map_itr != netcdf_outputs.end()){
-    BOOST_LOG_SEV(glg, fatal)<<"Snowthick";
-    curr_spec = map_itr->second;
-
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
-    temutil::nc( nc_inq_varid(ncid, "SNOWTHICK", &cv) );
-    start3[0] = temutil::get_nc_timedim_len(ncid);
-
-    if(curr_spec.daily){
-      
-      temutil::nc( nc_put_vara_double(ncid, cv, start3, count3, &cohort.edall->daily_snowthick[0]) );
-    }
-    else if(curr_spec.monthly || curr_spec.yearly){
-      double snowthick;
-      Layer* currL = cohort.ground.toplayer;
-      while(currL->isSnow){
-        snowthick += currL->dz;
-        currL = currL->nextl;
-      }
-
-      temutil::nc( nc_put_var1_double(ncid, cv, start3, &snowthick) );
-    }
-
-    temutil::nc( nc_close(ncid) ); 
-  }
-  map_itr = netcdf_outputs.end();
-
-
-  //Snow water equivalent - a snapshot of the time when output is called
-  map_itr = netcdf_outputs.find("SWE");
-  if(map_itr != netcdf_outputs.end()){
-    BOOST_LOG_SEV(glg, fatal)<<"SWE";
-    curr_spec = map_itr->second;
-
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
-    temutil::nc( nc_inq_varid(ncid, "SWE", &cv) );
-    start3[0] = temutil::get_nc_timedim_len(ncid);
-
-    double swe;
-    if(curr_spec.daily){
-      temutil::nc( nc_put_vara_double(ncid, cv, start3, count3, &cohort.edall->daily_swesum[0]) );
-    }
-
-    else if(curr_spec.monthly || curr_spec.yearly){
-      temutil::nc( nc_put_var1_double(ncid, cv, start3, &cohort.edall->d_snws.swesum) );
-    }
-
-    temutil::nc( nc_close(ncid) ); 
-  }
-  map_itr = netcdf_outputs.end();
-
-
-
-  /*** Soil Variables ***/
-  size_t soilstart4[4];
-  //soilstart4[0] is set later based on length of time dimension
-  soilstart4[1] = 0;
-  soilstart4[2] = rowidx;
-  soilstart4[3] = colidx;
-
-  size_t soilcount4[4];
-  soilcount4[0] = 1;
-  soilcount4[1] = MAX_SOI_LAY;
-  soilcount4[2] = 1;
-  soilcount4[3] = 1;
 
   map_itr = netcdf_outputs.find("SOC");
   if(map_itr != netcdf_outputs.end()){
@@ -1347,50 +1455,19 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
     temutil::nc( nc_put_vara_double(ncid, cv, soilstart4, soilcount4, &soilc[0]) );
     temutil::nc( nc_close(ncid) );
-  }
+  }//end SOC
   map_itr = netcdf_outputs.end();
 
 
-  /*** PFT variables ***/
-  size_t PFTstart4[4];
-  //PFTstart4[0] is set later based on the length of the time dimension
-  PFTstart4[1] = 0;//PFT
-  PFTstart4[2] = rowidx;
-  PFTstart4[3] = colidx;
-
-  size_t PFTcount4[4];
-  PFTcount4[0] = 1;
-  PFTcount4[1] = NUM_PFT;
-  PFTcount4[2] = 1;
-  PFTcount4[3] = 1;
-
-  size_t CompStart4[4];
-  //CompStart4[0] is set later based on the length of the time dimension
-  CompStart4[1] = 0;//PFT compartment
-  CompStart4[2] = rowidx;
-  CompStart4[3] = colidx;
-
-  size_t CompCount4[4];
-  CompCount4[0] = 1;
-  CompCount4[1] = NUM_PFT_PART;
-  CompCount4[2] = 1;
-  CompCount4[3] = 1;
-
-
-  /*** PFT and PFT compartment variables ***/
-  size_t start5[5];
-  //start5[0] is set later based on the length of the time dimension
-  start5[1] = 0;//PFT Compartment
-  start5[2] = 0;//PFT
-  start5[3] = rowidx;
-  start5[4] = colidx;
-
-  size_t count5[5];
-  count5[0] = 1;
-  count5[1] = NUM_PFT_PART;
-  count5[2] = NUM_PFT;
-  count5[3] = 1;
-  count5[4] = 1;
+  /*** Six combination vars: (year,month)x(PFT,Comp,Both)***/
+  //BURNVEG2AIRC
+  //BURNVEG2AIRN
+  //BURNVEG2DEADC
+  //BURNVEG2DEADN
+  //BURNVEG2SOIABVC
+  //BURNVEG2SOIABVN
+  //BURNVEG2SOIBLWC
+  //BURNVEG2SOIBLWN
 
   //Burned Veg Carbon
   map_itr = netcdf_outputs.find("BURNVEGC");
@@ -1479,6 +1556,11 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
     temutil::nc( nc_close(ncid) );
   }//end GPP
   map_itr = netcdf_outputs.end();
+
+
+  //LAI
+  //LTRFALC
+  //LTRVALN
 
 
   //NPP
@@ -1595,7 +1677,7 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
       temutil::nc( nc_put_vara_double(ncid, cv, CompStart4, CompCount4, &vegc[0]) );
     }
     temutil::nc( nc_close(ncid) );
-  }
+  }//end VEGC
   map_itr = netcdf_outputs.end();
 
 
@@ -1661,9 +1743,11 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
       temutil::nc( nc_put_vara_double(ncid, cv, CompStart4, CompCount4, &vegn[0]) );
     }
     temutil::nc( nc_close(ncid) );
-  }
+  }//end VEGN
   map_itr = netcdf_outputs.end();
 
+
+  /*** Six combination vars: (year,month,day)x(PFT,total) ***/
 
   //EET
   map_itr = netcdf_outputs.find("EET");
