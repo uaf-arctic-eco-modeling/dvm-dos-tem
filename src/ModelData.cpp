@@ -264,6 +264,7 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
     temp_spec.layer = false;
     temp_spec.yearly = false;
     temp_spec.monthly = false;
+    temp_spec.daily = false;
     temp_spec.dim_count = 3;//All variables have time, y, x
 
     for(int ii=0; ii<9; ii++){
