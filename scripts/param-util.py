@@ -56,37 +56,67 @@ def get_CMT_datablock(afile, cmtnum):
 
   return data[startidx:end]
 
+def detect_block_with_pft_info(cmtdatablock):
+  # Perhaps should look at all lines??
+  secondline = cmtdatablock[1].strip("//").split()
+  if len(secondline) >= 9:
+    print "Looks like a PFT header line!"
+    return True
+  else:
+    return False
 
-def cmtdatablock2dict(data):
+def parse_header_line(datablock):
+
+  # Assume header is first line
+  l1 = datablock[0]
+
+  # Header line, e.g: 
+  # // CMT07 // Heath Tundra - (ma.....
+  header = l1.strip().strip("//").strip().split("//")
+  hdr_cmtkey = header[0].strip()
+  txtcmtname = header[1].strip().split('-')[0].strip()
+  hdrcomment = header[1].strip().split('-')[1].strip()
+  return hdr_cmtkey, txtcmtname, hdrcomment
+
+def parse_pft_header_line(line):
+  pass
+
+def cmtdatablock2dict(cmtdatablock):
 
   cmtdict = {}
 
-  for i, line in enumerate(data):
-    if i == 0: # Header line, like: "// CMT07 // Heath Tundra - (ma.....""
-      header = line.strip().strip("//").strip().split("//")
-      hdr_cmtkey = header[0].strip()
-      txtcmtname = header[1].strip().split('-')[0].strip()
-      hdrcomment = header[1].strip().split('-')[1].strip()
-      cmtdict['tag'] = hdr_cmtkey
-      cmtdict['cmtname'] = txtcmtname
-      cmtdict['comment'] = hdrcomment
+  pftblock = detect_block_with_pft_info(cmtdatablock)
 
-    elif i == 1: # PFT name line, like: "//Decid.     E.green      ...."
-      pftlist = line.strip("//").strip().split()
-      pftnames = pftlist[0:10]
-      for i, pftname in enumerate(pftnames):
-        cmtdict['pft%i'%i] = {}
-        cmtdict['pft%i'%i]['name'] = pftname
+  hdr_cmtkey, txtcmtname, hdrcomment = parse_header_line(cmtdatablock)
+  cmtdict['tag'] = hdr_cmtkey
+  cmtdict['cmtname'] = txtcmtname
+  cmtdict['comment'] = hdrcomment
 
-    elif line.strip()[0:2] == "//":
-      pass # commented out line
+  if pftblock:
+    # Look at the second line for something like this:
+    # PFT name line, like: "//Decid.     E.green      ...."
+    pftlist = cmtdatablock[1].strip("//").strip().split()
+    pftnames = pftlist[0:10]
+    
+    for i, pftname in enumerate(pftnames):
+      cmtdict['pft%i'%i] = {}
+      cmtdict['pft%i'%i]['name'] = pftname
+
+
+  for i, line in enumerate(cmtdatablock):
+    if line.strip()[0:2] == "//":
+      print "passing line", i
+      continue # Nothing to do...commented line
 
     else: # normal data line
       dline = line.strip().split("//")
       values = dline[0].split()
       comment = dline[1].strip().strip("//").split(':')[0]
-      for i, value in enumerate(values):
-        cmtdict['pft%i'%i][comment] = value
+      if len(values) >= 5: # <--ARBITRARY! likely a pft data line
+        for i, value in enumerate(values):
+          cmtdict['pft%i'%i][comment] = value
+      else:
+        cmtdict[comment] = values[0]
 
   return cmtdict
 
@@ -98,7 +128,6 @@ if __name__ == '__main__':
     'parameters/cmt_calparbgc.txt',
     'parameters/cmt_bgcsoil.txt',
     'parameters/cmt_bgcvegetation.txt',
-    'parameters/cmt_calparbgc.txt',
     'parameters/cmt_calparbgc.txt.backupsomeparams',
     'parameters/cmt_dimground.txt',
     'parameters/cmt_dimvegetation.txt',
@@ -115,7 +144,7 @@ if __name__ == '__main__':
   #   print "".join(get_CMT_datablock(i, 2))
   #   print "{:45s}".format("DONE")
 
-  d = get_CMT_datablock(testFiles[0], 2)
+  d = get_CMT_datablock(testFiles[4], 2)
   print "".join(d)
 
   print json.dumps(cmtdatablock2dict(d), sort_keys=True, indent=2)
