@@ -45,6 +45,8 @@ def get_CMT_datablock(afile, cmtnum):
     if i == 0: # Header line, e.g.: "// CMT07 // Heath Tundra - (ma.....""
       pass    
     elif i == 1: # PFT name line, e,g.: "//Decid.     E.green      ...."
+      # Not sure how/why this is working on non-PFT data blocks
+      # but is seems to do the trick?
       pass
 
     if (i > 0) and "CMT" in line:
@@ -75,8 +77,6 @@ def cmtdatablock2dict(data):
       for i, pftname in enumerate(pftnames):
         cmtdict['pft%i'%i] = {}
         cmtdict['pft%i'%i]['name'] = pftname
-      # print pftlist
-      # print pftnames
 
     elif line.strip()[0:2] == "//":
       pass # commented out line
@@ -91,6 +91,8 @@ def cmtdatablock2dict(data):
   return cmtdict
 
 if __name__ == '__main__':
+
+  print "NOTE! Does not work correctly on non-PFT files yet!!"
 
   testFiles = [
     'parameters/cmt_calparbgc.txt',
@@ -118,4 +120,5 @@ if __name__ == '__main__':
 
   print json.dumps(cmtdatablock2dict(d), sort_keys=True, indent=2)
    
+  print "NOTE! Does not work correctly on non-PFT files yet!!"
 
