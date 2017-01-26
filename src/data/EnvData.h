@@ -94,6 +94,10 @@ public:
   double daily_pet[31];
   double daily_swesum[31];
   double daily_snowthick[31];
+  double daily_tshlw[31];
+  double daily_tdeep[31];
+  double daily_vwcshlw[31];
+  double daily_vwcdeep[31];
 
   double monthsfrozen;      // months since bottom soil frozen started -
                             //   24 months is the criterial for permafrost

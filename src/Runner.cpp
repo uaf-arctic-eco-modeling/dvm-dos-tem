@@ -1347,16 +1347,132 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   //TCMINEBOT
   //TCMINETOP
   //TCSHLW
+
+
   //TDEEP
+  map_itr = netcdf_outputs.find("TDEEP");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"TDEEP";
+    curr_spec = map_itr->second;
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "TDEEP", &cv) );
+    start3[0] = temutil::get_nc_timedim_len(ncid);
+
+    double tdeep;
+    if(curr_spec.daily){
+      temutil::nc( nc_put_vara_double(ncid, cv, start3, count3, &cohort.edall->daily_tdeep[0]) );
+    }
+    else if(curr_spec.monthly){
+      tdeep = cohort.edall->m_soid.tdeep;
+      temutil::nc( nc_put_var1_double(ncid, cv, start3, &tdeep) );
+    }
+    else if(curr_spec.yearly){
+      tdeep = cohort.edall->y_soid.tdeep;
+      temutil::nc( nc_put_var1_double(ncid, cv, start3, &tdeep) );
+    }
+
+    temutil::nc( nc_close(ncid) );
+  }//end TDEEP
+  map_itr = netcdf_outputs.end();
+
+
   //TMINEBOT
   //TMINETOP
   //TROCK34M
+
+
   //TSHLW
+  map_itr = netcdf_outputs.find("TSHLW");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"TSHLW";
+    curr_spec = map_itr->second;
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "TSHLW", &cv) );
+    start3[0] = temutil::get_nc_timedim_len(ncid);
+
+    double tshlw;
+    if(curr_spec.daily){
+      temutil::nc( nc_put_vara_double(ncid, cv, start3, count3, &cohort.edall->daily_tshlw[0]) );
+    }
+    else if(curr_spec.monthly){
+      tshlw = cohort.edall->m_soid.tshlw;
+      temutil::nc( nc_put_var1_double(ncid, cv, start3, &tshlw) );
+    }
+    else if(curr_spec.yearly){
+      tshlw = cohort.edall->y_soid.tshlw;
+      temutil::nc( nc_put_var1_double(ncid, cv, start3, &tshlw) );
+    }
+
+    temutil::nc( nc_close(ncid) );
+  }//end TSHLW
+  map_itr = netcdf_outputs.end();
+
+
   //TTD
+
+
   //VWCDEEP
+  map_itr = netcdf_outputs.find("VWCDEEP");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"VWCDEEP";
+    curr_spec = map_itr->second;
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "VWCDEEP", &cv) );
+    start3[0] = temutil::get_nc_timedim_len(ncid);
+
+    double vwcdeep;
+    if(curr_spec.daily){
+      temutil::nc( nc_put_vara_double(ncid, cv, start3, count3, &cohort.edall->daily_vwcdeep[0]) );
+    }
+    else if(curr_spec.monthly){
+      vwcdeep = cohort.edall->m_soid.vwcdeep;
+      temutil::nc( nc_put_var1_double(ncid, cv, start3, &vwcdeep) );
+    }
+    else if(curr_spec.yearly){
+      vwcdeep = cohort.edall->y_soid.vwcdeep;
+      temutil::nc( nc_put_var1_double(ncid, cv, start3, &vwcdeep) );
+    }
+
+    temutil::nc( nc_close(ncid) );
+  }//end VWCDEEP
+  map_itr = netcdf_outputs.end();
+
+
   //VWCMINEBOT
   //VWCMINETOP
+
+
   //VWCSHLW
+  map_itr = netcdf_outputs.find("VWCSHLW");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"VWCSHLW";
+    curr_spec = map_itr->second;
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "VWCSHLW", &cv) );
+    start3[0] = temutil::get_nc_timedim_len(ncid);
+
+    double vwcshlw;
+    if(curr_spec.daily){
+      temutil::nc( nc_put_vara_double(ncid, cv, start3, count3, &cohort.edall->daily_vwcshlw[0]) );      
+    }
+    else if(curr_spec.monthly){
+      vwcshlw = cohort.edall->m_soid.vwcshlw;
+      temutil::nc( nc_put_var1_double(ncid, cv, start3, &vwcshlw) );
+    }
+    else if(curr_spec.yearly){
+      vwcshlw = cohort.edall->y_soid.vwcshlw;
+      temutil::nc( nc_put_var1_double(ncid, cv, start3, &vwcshlw) );
+    }
+
+    temutil::nc( nc_close(ncid) );
+  }//end VWCSHLW
+  map_itr = netcdf_outputs.end();
+
+
   //VWCTD
   //WATERTAB
 

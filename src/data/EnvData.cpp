@@ -369,6 +369,10 @@ void EnvData::atm_endOfDay(const int & dinm) {
   //Store daily values for netCDF output
   daily_eet[dinm] = d_l2a.eet;
   daily_pet[dinm] = d_l2a.pet;
+  daily_tshlw[dinm] = d_soid.tshlw;
+  daily_tdeep[dinm] = d_soid.tdeep;
+  daily_vwcshlw[dinm] = d_soid.vwcshlw;
+  daily_vwcdeep[dinm] = d_soid.vwcdeep;
 };
 
 void EnvData::veg_endOfDay(const int & dinm) {
