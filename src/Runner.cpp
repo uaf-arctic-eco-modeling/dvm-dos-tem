@@ -1431,8 +1431,57 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   //NINPUT
   //NLOST
   //ORGN
-  //RH
- // data["RH"] = cohort.bdall->y_soi2a.rhtot;
+
+
+  map_itr = netcdf_outputs.find("RH");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"RH";
+    curr_spec = map_itr->second;
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "RH", &cv) );
+
+    if(curr_spec.layer){
+      soilstart4[0] = temutil::get_nc_timedim_len(ncid);
+
+      double rh[MAX_SOI_LAY];
+      if(curr_spec.monthly){
+        for(int il=0; il<MAX_SOI_LAY; il++){
+          rh[il] = cohort.bdall->m_soi2a.rhrawc[il]
+                 + cohort.bdall->m_soi2a.rhsoma[il]
+                 + cohort.bdall->m_soi2a.rhsompr[il]
+                 + cohort.bdall->m_soi2a.rhsomcr[il];
+        }
+      }
+      else if(curr_spec.yearly){
+        for(int il=0; il<MAX_SOI_LAY; il++){
+          rh[il] = cohort.bdall->y_soi2a.rhrawc[il]
+                 + cohort.bdall->y_soi2a.rhsoma[il]
+                 + cohort.bdall->y_soi2a.rhsompr[il]
+                 + cohort.bdall->y_soi2a.rhsomcr[il];
+        }
+      }
+
+      temutil::nc( nc_put_vara_double(ncid, cv, soilstart4, soilcount4, &rh[0]) );
+    }
+
+    else if(!curr_spec.layer){
+      start3[0] = temutil::get_nc_timedim_len(ncid);
+
+      double rh;
+      if(curr_spec.monthly){
+        rh = cohort.bdall->m_soi2a.rhtot;
+      }
+      else if(curr_spec.yearly){
+        rh = cohort.bdall->y_soi2a.rhtot;
+      }
+
+      temutil::nc( nc_put_var1_double(ncid, cv, start3, &rh) );
+    }
+
+    temutil::nc( nc_close(ncid) );
+  }//end RH 
+  map_itr = netcdf_outputs.end();
 
 
   map_itr = netcdf_outputs.find("SOC");
