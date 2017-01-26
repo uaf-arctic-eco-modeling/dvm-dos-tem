@@ -115,6 +115,12 @@ struct soidiag_env {
   int rtdpgrowstart; //growing starting DOY based on soil thawing over
                      //  'rtdep4gdd'
   int rtdpgrowend; //growing ending DOY based on soil freezing over 'rtdep4gdd'
+  //The previous two variables will only contain values when the other
+  //  does not. 
+  //The following two variables hold the growstart and growend DOYs
+  //  for output at the end of the year.
+  int rtdpGSoutput;
+  int rtdpGEoutput;
 
   double nfactor;
 

@@ -582,6 +582,11 @@ void EnvData::grnd_endOfDay(const int & dinm, const int & doy) {
       d_soid.rtdpgrowend = MISSING_I;
       m_soid.rtdpgrowend = MISSING_I;
       y_soid.rtdpgrowend = MISSING_I;
+
+      //Storing the yearly growstart value for output.
+      d_soid.rtdpGSoutput = doy;
+      m_soid.rtdpGSoutput = doy;
+      y_soid.rtdpGSoutput = doy;
     }
   } else if (d_soid.rtdpgrowend <= 0) {
     if (rtfrozendays>=5) { //top soil root zone is frozen for continuous 5
@@ -594,6 +599,11 @@ void EnvData::grnd_endOfDay(const int & dinm, const int & doy) {
       d_soid.rtdpgrowstart= MISSING_I;
       m_soid.rtdpgrowstart= MISSING_I;
       y_soid.rtdpgrowstart= MISSING_I;
+
+      //Storing the yearly growend value for output.
+      d_soid.rtdpGSoutput = doy;
+      m_soid.rtdpGSoutput = doy;
+      y_soid.rtdpGSoutput = doy;
     }
   }
 

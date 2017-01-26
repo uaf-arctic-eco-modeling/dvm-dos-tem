@@ -915,15 +915,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
     temutil::nc( nc_inq_varid(ncid, "GROWEND", &cv) );
     start3[0] = temutil::get_nc_timedim_len(ncid);
 
-//diagnostics.h   rtdpgrowstart DOY
-//    EnvData   d_soid, m_soid, y_soid.rtdpgrowstart
+    double growend = cohort.edall->y_soid.rtdpGEoutput;
 
-      //The following does not work as expected.
-      //growstart and growend are re-set to UIN_INT when the other
-      //is in effect.
-//    int growstart = cohort.ed[0].y_soid.rtdpgrowstart;
-
-//    temutil::nc( nc_put_var1_double(ncid, cv, start3, &growstart) );
+    temutil::nc( nc_put_var1_double(ncid, cv, start3, &growend) );
     temutil::nc( nc_close(ncid) );
   }//end GROWEND
   map_itr = netcdf_outputs.end();
@@ -932,6 +926,16 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   map_itr = netcdf_outputs.find("GROWSTART");
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, fatal)<<"GROWSTART";
+    curr_spec = map_itr->second;
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "GROWSTART", &cv) );
+    start3[0] = temutil::get_nc_timedim_len(ncid);
+
+    double growstart = cohort.edall->y_soid.rtdpGSoutput;
+
+    temutil::nc( nc_put_var1_double(ncid, cv, start3, &growstart) );
+    temutil::nc( nc_close(ncid) );
   }//end GROWSTART
   map_itr = netcdf_outputs.end();
 
