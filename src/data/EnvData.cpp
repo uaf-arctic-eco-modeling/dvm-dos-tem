@@ -369,10 +369,6 @@ void EnvData::atm_endOfDay(const int & dinm) {
   //Store daily values for netCDF output
   daily_eet[dinm] = d_l2a.eet;
   daily_pet[dinm] = d_l2a.pet;
-  daily_tshlw[dinm] = d_soid.tshlw;
-  daily_tdeep[dinm] = d_soid.tdeep;
-  daily_vwcshlw[dinm] = d_soid.vwcshlw;
-  daily_vwcdeep[dinm] = d_soid.vwcdeep;
 };
 
 void EnvData::veg_endOfDay(const int & dinm) {
@@ -628,6 +624,16 @@ void EnvData::grnd_endOfDay(const int & dinm, const int & doy) {
   m_soi2a.evap_pet+= d_soi2a.evap_pet;
   m_soi2l.qover  += d_soi2l.qover;
   m_soi2l.qdrain += d_soi2l.qdrain;
+
+  //Storing daily data for NetCDF output at end of month
+  daily_tshlw[dinm] = d_soid.tshlw;
+  daily_tdeep[dinm] = d_soid.tdeep;
+  daily_vwcshlw[dinm] = d_soid.vwcshlw;
+  daily_vwcdeep[dinm] = d_soid.vwcdeep;
+  daily_tcshlw[dinm] = d_soid.tcshlw;
+  daily_tcdeep[dinm] = d_soid.tcdeep;
+  daily_hkshlw[dinm] = d_soid.hkshlw;
+  daily_hkdeep[dinm] = d_soid.hkdeep;
 };
 
 void EnvData::atm_endOfMonth() {

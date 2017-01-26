@@ -1285,9 +1285,64 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
   /*** Three combination vars: (year, month, day) ***/
   //HKDEEP
+  map_itr = netcdf_outputs.find("HKDEEP");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"HKDEEP";
+    curr_spec = map_itr->second;
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "HKDEEP", &cv) );
+    start3[0] = temutil::get_nc_timedim_len(ncid);
+
+    double hkdeep;
+    if(curr_spec.daily){
+      temutil::nc( nc_put_vara_double(ncid, cv, start3, count3, &cohort.edall->daily_hkdeep[0]) );
+    }
+    else if(curr_spec.monthly){
+      hkdeep = cohort.edall->m_soid.hkdeep;
+      temutil::nc( nc_put_var1_double(ncid, cv, start3, &hkdeep) );
+    }
+    else if(curr_spec.yearly){
+      hkdeep = cohort.edall->y_soid.hkdeep;
+      temutil::nc( nc_put_var1_double(ncid, cv, start3, &hkdeep) );
+    }
+
+    temutil::nc( nc_close(ncid) );
+  }//end HKDEEP 
+  map_itr = netcdf_outputs.end();
+
+
   //HKMINEBOT
   //HKMINETOP
+
+
   //HKSHLW
+  map_itr = netcdf_outputs.find("HKSHLW");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"HKSHLW";
+    curr_spec = map_itr->second;
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "HKSHLW", &cv) );
+    start3[0] = temutil::get_nc_timedim_len(ncid);
+
+    double hkshlw;
+    if(curr_spec.daily){
+      temutil::nc( nc_put_vara_double(ncid, cv, start3, count3, &cohort.edall->daily_hkshlw[0]) );
+    }
+    else if(curr_spec.monthly){
+      hkshlw = cohort.edall->m_soid.hkshlw;
+      temutil::nc( nc_put_var1_double(ncid, cv, start3, &hkshlw) );
+    }
+    else if(curr_spec.yearly){
+      hkshlw = cohort.edall->y_soid.hkshlw;
+      temutil::nc( nc_put_var1_double(ncid, cv, start3, &hkshlw) );
+    }
+
+    temutil::nc( nc_close(ncid) );
+  }//end HKSHLW 
+  map_itr = netcdf_outputs.end();
+
 
   //Snowthick - a snapshot of the time when output is called
   map_itr = netcdf_outputs.find("SNOWTHICK");
@@ -1344,9 +1399,63 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
 
   //TCDEEP
+  map_itr = netcdf_outputs.find("TCDEEP");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"TCDEEP";
+    curr_spec = map_itr->second;
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "TCDEEP", &cv) );
+    start3[0] = temutil::get_nc_timedim_len(ncid);
+
+    double tcdeep;
+    if(curr_spec.daily){
+      temutil::nc( nc_put_vara_double(ncid, cv, start3, count3, &cohort.edall->daily_tcdeep[0]) );
+    }
+    else if(curr_spec.monthly){
+      tcdeep = cohort.edall->m_soid.tcdeep;
+      temutil::nc( nc_put_var1_double(ncid, cv, start3, &tcdeep) );
+    }
+    else if(curr_spec.yearly){
+      tcdeep = cohort.edall->y_soid.tcdeep;
+      temutil::nc( nc_put_var1_double(ncid, cv, start3, &tcdeep) );
+    }
+
+    temutil::nc( nc_close(ncid) );
+  }//end TCDEEP
+  map_itr = netcdf_outputs.end();
+
+
   //TCMINEBOT
   //TCMINETOP
+
+
   //TCSHLW
+  map_itr = netcdf_outputs.find("TCSHLW");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"TCSHLW";
+    curr_spec = map_itr->second;
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "TCSHLW", &cv) );
+    start3[0] = temutil::get_nc_timedim_len(ncid);
+
+    double tcshlw;
+    if(curr_spec.daily){
+      temutil::nc( nc_put_vara_double(ncid, cv, start3, count3, &cohort.edall->daily_tcshlw[0]) );
+    }
+    else if(curr_spec.monthly){
+      tcshlw = cohort.edall->m_soid.tcshlw;
+      temutil::nc( nc_put_var1_double(ncid, cv, start3, &tcshlw) );
+    }
+    else if(curr_spec.yearly){
+      tcshlw = cohort.edall->y_soid.tcshlw;
+      temutil::nc( nc_put_var1_double(ncid, cv, start3, &tcshlw) );
+    }
+
+    temutil::nc( nc_close(ncid) );
+  }//end TCSHLW
+  map_itr = netcdf_outputs.end();
 
 
   //TDEEP
