@@ -1363,6 +1363,47 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
   /*** Four combination vars. (year, month)x(layer, tot)  ***/
   //AVLN
+  map_itr = netcdf_outputs.find("AVLN");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"AVLN";
+    curr_spec = map_itr->second;
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "AVLN", &cv) );
+
+    if(curr_spec.layer){
+      soilstart4[0] = temutil::get_nc_timedim_len(ncid);
+
+      double avln[MAX_SOI_LAY];
+      if(curr_spec.monthly){
+        for(int il=0; il<MAX_SOI_LAY; il++){
+          avln[il] = cohort.bdall->m_sois.avln[il];
+        }
+      }
+      else if(curr_spec.yearly){
+        for(int il=0; il<MAX_SOI_LAY; il++){
+          avln[il] = cohort.bdall->y_sois.avln[il];
+        }
+      }
+
+      temutil::nc( nc_put_vara_double(ncid, cv, soilstart4, soilcount4, &avln[0]) );
+    }
+    else if(!curr_spec.layer){
+      start3[0] = temutil::get_nc_timedim_len(ncid);
+
+      double avln;
+      if(curr_spec.monthly){
+        avln = cohort.bdall->m_soid.avlnsum;
+      }
+      else if(curr_spec.yearly){
+        avln = cohort.bdall->y_soid.avlnsum;
+      }
+
+      temutil::nc( nc_put_var1_double(ncid, cv, start3, &avln) );
+    }
+    temutil::nc( nc_close(ncid) );
+  }//end AVLN
+  map_itr = netcdf_outputs.end();
 
 
   //Burned soil carbon
@@ -1376,21 +1417,22 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
     if(curr_spec.layer){
       /*** STUB ***/
+      //By-layer may not be feasible yet.
     }
     else if(!curr_spec.layer){
       start3[0] = temutil::get_nc_timedim_len(ncid);
 
-      double burnSoilC;
+      double burnsoilC;
       if(curr_spec.monthly){
-        burnSoilC = cohort.year_fd[month].fire_soi2a.orgc;
+        burnsoilC = cohort.year_fd[month].fire_soi2a.orgc;
       }
       else if(curr_spec.yearly){
-        burnSoilC = 0;
+        burnsoilC = 0;
         for(int im=0; im<12; im++){
-          burnSoilC += cohort.year_fd[im].fire_soi2a.orgc;
+          burnsoilC += cohort.year_fd[im].fire_soi2a.orgc;
         }
       }
-      temutil::nc( nc_put_var1_double(ncid, cv, start3, &burnSoilC) );
+      temutil::nc( nc_put_var1_double(ncid, cv, start3, &burnsoilC) );
     }
 
     temutil::nc( nc_close(ncid) );
@@ -1844,12 +1886,23 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
         temutil::nc( nc_put_vara_double(ncid, cv, PFTstart4, PFTcount4, &EET[0]) );
       }
     }
-    //Not PFT. Total?
+    //Not PFT. Total
     else if(!curr_spec.pft){
-      /*** STUB ***/
-      //total EET - is this useful?
-    }
+      start3[0] = temutil::get_nc_timedim_len(ncid);
 
+      double eet;
+      if(curr_spec.daily){
+        eet = cohort.edall->d_l2a.eet;
+      }
+      else if(curr_spec.monthly){
+        eet = cohort.edall->m_l2a.eet;
+      }
+      else if(curr_spec.yearly){
+        eet = cohort.edall->y_l2a.eet;
+      }
+
+      temutil::nc( nc_put_var1_double(ncid, cv, start3, &eet) );
+    }
    temutil::nc( nc_close(ncid) );
   }//end EET
   map_itr = netcdf_outputs.end();
