@@ -2032,11 +2032,154 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
 
   //BURNVEG2DEADC
+  map_itr = netcdf_outputs.find("BURNVEG2DEADC");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"BURNVEG2DEADC";
+    curr_spec = map_itr->second;
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "BURNVEG2DEADC", &cv) );
+    start3[0] = temutil::get_nc_timedim_len(ncid);
+
+    double burnveg2deadc;
+    if(curr_spec.monthly){
+      burnveg2deadc = cohort.year_fd[month].fire_v2dead.vegC;
+    }
+    else if(curr_spec.yearly){
+      burnveg2deadc = cohort.fd->fire_v2dead.vegC;
+    }
+
+    temutil::nc( nc_put_var1_double(ncid, cv, start3, &burnveg2deadc) );
+
+    temutil::nc( nc_close(ncid) );
+  }//end BURNVEG2DEADC
+  map_itr = netcdf_outputs.end();
+
+
   //BURNVEG2DEADN
+  map_itr = netcdf_outputs.find("BURNVEG2DEADN");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"BURNVEG2DEADN";
+    curr_spec = map_itr->second;
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "BURNVEG2DEADN", &cv) );
+    start3[0] = temutil::get_nc_timedim_len(ncid);
+
+    double burnveg2deadn;
+    if(curr_spec.monthly){
+      burnveg2deadn = cohort.year_fd[month].fire_v2dead.strN;
+    }
+    else if(curr_spec.yearly){
+      burnveg2deadn = cohort.fd->fire_v2dead.strN;
+    }
+
+    temutil::nc( nc_put_var1_double(ncid, cv, start3, &burnveg2deadn) );
+
+    temutil::nc( nc_close(ncid) );
+  }//end BURNVEG2DEADN
+  map_itr = netcdf_outputs.end();
+
+
   //BURNVEG2SOIABVC
+  map_itr = netcdf_outputs.find("BURNVEG2SOIABVC");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"BURNVEG2SOIABVC";
+    curr_spec = map_itr->second;
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "BURNVEG2SOIABVC", &cv) );
+    start3[0] = temutil::get_nc_timedim_len(ncid);
+
+    double burnveg2soiabvc;
+    if(curr_spec.monthly){
+      burnveg2soiabvc = cohort.year_fd[month].fire_v2soi.abvc;
+    }
+    else if(curr_spec.yearly){
+      burnveg2soiabvc = cohort.fd->fire_v2soi.abvc;
+    }
+
+    temutil::nc( nc_put_var1_double(ncid, cv, start3, &burnveg2soiabvc) );
+
+    temutil::nc( nc_close(ncid) );
+  }//end BURNVEG2SOIABVC
+  map_itr = netcdf_outputs.end();
+
+
   //BURNVEG2SOIABVN
+  map_itr = netcdf_outputs.find("BURNVEG2SOIABVN");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"BURNVEG2SOIABVN";
+    curr_spec = map_itr->second;
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "BURNVEG2SOIABVN", &cv) );
+    start3[0] = temutil::get_nc_timedim_len(ncid);
+
+    double burnveg2soiabvn;
+    if(curr_spec.monthly){
+      burnveg2soiabvn = cohort.year_fd[month].fire_v2soi.abvn;
+    }
+    else if(curr_spec.yearly){
+      burnveg2soiabvn = cohort.fd->fire_v2soi.abvn;
+    }
+
+    temutil::nc( nc_put_var1_double(ncid, cv, start3, &burnveg2soiabvn) );
+
+    temutil::nc( nc_close(ncid) );
+  }//end BURNVEG2SOIABVN
+  map_itr = netcdf_outputs.end();
+
+
   //BURNVEG2SOIBLWC
+  map_itr = netcdf_outputs.find("BURNVEG2SOIBLWC");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"BURNVEG2SOIBLWC";
+    curr_spec = map_itr->second;
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "BURNVEG2SOIBLWC", &cv) );
+    start3[0] = temutil::get_nc_timedim_len(ncid);
+
+    double burnveg2soiblwc;
+    if(curr_spec.monthly){
+      burnveg2soiblwc = cohort.year_fd[month].fire_v2soi.blwc;
+    }
+    else if(curr_spec.yearly){
+      burnveg2soiblwc = cohort.fd->fire_v2soi.blwc;
+    }
+
+    temutil::nc( nc_put_var1_double(ncid, cv, start3, &burnveg2soiblwc) );
+
+    temutil::nc( nc_close(ncid) );
+  }//end BURNVEG2SOIBLWC
+  map_itr = netcdf_outputs.end();
+
+
   //BURNVEG2SOIBLWN
+  map_itr = netcdf_outputs.find("BURNVEG2SOIBLWN");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"BURNVEG2SOIBLWN";
+    curr_spec = map_itr->second;
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "BURNVEG2SOIBLWN", &cv) );
+    start3[0] = temutil::get_nc_timedim_len(ncid);
+
+    double burnveg2soiblwn;
+    if(curr_spec.monthly){
+      burnveg2soiblwn = cohort.year_fd[month].fire_v2soi.blwn;
+    }
+    else if(curr_spec.yearly){
+      burnveg2soiblwn = cohort.fd->fire_v2soi.blwn;
+    }
+
+    temutil::nc( nc_put_var1_double(ncid, cv, start3, &burnveg2soiblwn) );
+
+    temutil::nc( nc_close(ncid) );
+  }//end BURNVEG2SOIBLWN
+  map_itr = netcdf_outputs.end();
+
 
   //Burned Veg Carbon
   map_itr = netcdf_outputs.find("BURNVEGC");
