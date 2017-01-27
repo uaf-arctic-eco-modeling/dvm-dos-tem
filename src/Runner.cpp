@@ -1748,7 +1748,48 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   //NETNMIN
   //NINPUT
   //NLOST
+
+
   //ORGN
+  map_itr = netcdf_outputs.find("ORGN");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"ORGN";
+    curr_spec = map_itr->second;
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "ORGN", &cv) );
+
+    if(curr_spec.layer){
+      soilstart4[0] = temutil::get_nc_timedim_len(ncid);
+
+      double orgn[MAX_SOI_LAY];
+      int il = 0;
+      Layer* currL = this->cohort.ground.toplayer;
+      while(currL != NULL){
+        orgn[il] = currL->orgn;
+        il++;
+        currL = currL->nextl;
+      }
+
+      temutil::nc( nc_put_vara_double(ncid, cv, soilstart4, soilcount4, &orgn[0]) );
+    }
+    //Total, instead of by layer
+    else if(!curr_spec.layer){
+      start3[0] = temutil::get_nc_timedim_len(ncid);
+
+      double orgn;
+      if(curr_spec.monthly){
+        orgn = cohort.bdall->m_soid.orgnsum;
+      }
+      else if(curr_spec.yearly){
+        orgn = cohort.bdall->y_soid.orgnsum;
+      }
+
+      temutil::nc( nc_put_var1_double(ncid, cv, start3, &orgn) );
+    }
+    temutil::nc( nc_close(ncid) );
+  }//end ORGN
+  map_itr = netcdf_outputs.end();
 
 
   map_itr = netcdf_outputs.find("RH");
@@ -1809,18 +1850,35 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
     temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "SOC", &cv) );
-    soilstart4[0] = temutil::get_nc_timedim_len(ncid);
 
-    double soilc[MAX_SOI_LAY];
-    int il = 0;
-    Layer* currL = this->cohort.ground.toplayer;
-    while(currL != NULL){
-      soilc[il] = currL->rawc;
-      il++;
-      currL = currL->nextl;
+    if(curr_spec.layer){
+      soilstart4[0] = temutil::get_nc_timedim_len(ncid);
+
+      double soilc[MAX_SOI_LAY];
+      int il = 0;
+      Layer* currL = this->cohort.ground.toplayer;
+      while(currL != NULL){
+        soilc[il] = currL->rawc;
+        il++;
+        currL = currL->nextl;
+      }
+
+      temutil::nc( nc_put_vara_double(ncid, cv, soilstart4, soilcount4, &soilc[0]) );
     }
+    //Total, instead of by layer
+    else if(!curr_spec.layer){
+      start3[0] = temutil::get_nc_timedim_len(ncid);
 
-    temutil::nc( nc_put_vara_double(ncid, cv, soilstart4, soilcount4, &soilc[0]) );
+      double soilc;
+      if(curr_spec.monthly){
+        soilc = cohort.bdall->m_soid.rawcsum;
+      }
+      else if(curr_spec.yearly){
+        soilc = cohort.bdall->y_soid.rawcsum;
+      }
+
+      temutil::nc( nc_put_var1_double(ncid, cv, start3, &soilc) );
+    }
     temutil::nc( nc_close(ncid) );
   }//end SOC
   map_itr = netcdf_outputs.end();
