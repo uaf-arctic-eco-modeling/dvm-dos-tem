@@ -1746,8 +1746,77 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
 
   //NETNMIN
+  map_itr = netcdf_outputs.find("NETNMIN");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"NETNMIN";
+    curr_spec = map_itr->second;
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "NETNMIN", &cv) );
+
+    if(curr_spec.layer){
+      soilstart4[0] = temutil::get_nc_timedim_len(ncid);
+
+      double netnmin[MAX_SOI_LAY];
+      for(int il=0; il<MAX_SOI_LAY; il++){
+        if(curr_spec.monthly){
+          netnmin[il] = cohort.bdall->m_soi2soi.netnmin[il];
+        }
+        else if(curr_spec.yearly){
+          netnmin[il] = cohort.bdall->y_soi2soi.netnmin[il];
+        }
+      }
+
+      temutil::nc( nc_put_vara_double(ncid, cv, soilstart4, soilcount4, &netnmin[0]) );
+    }
+    //Total, instead of by layer
+    else if(!curr_spec.layer){
+      start3[0] = temutil::get_nc_timedim_len(ncid);
+
+      double netnmin;
+      if(curr_spec.monthly){
+        netnmin = cohort.bdall->m_soi2soi.netnminsum;
+      }
+      else if(curr_spec.yearly){
+        netnmin = cohort.bdall->y_soi2soi.netnminsum;
+      }
+
+      temutil::nc( nc_put_var1_double(ncid, cv, start3, &netnmin) );
+    }
+    temutil::nc( nc_close(ncid) );
+  }//end NETNMIN
+  map_itr = netcdf_outputs.end();
+
+
+
   //NINPUT
+
+
   //NLOST
+  map_itr = netcdf_outputs.find("NLOST");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"NLOST";
+    curr_spec = map_itr->second;
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "NLOST", &cv) );
+    start3[0] = temutil::get_nc_timedim_len(ncid);
+
+    double nlost;
+    if(curr_spec.monthly){
+      nlost = cohort.bdall->m_soi2l.avlnlost
+            + cohort.bdall->m_soi2l.orgnlost;
+    }
+    else if(curr_spec.yearly){
+      nlost = cohort.bdall->y_soi2l.avlnlost
+            + cohort.bdall->y_soi2l.orgnlost;
+ 
+    }
+
+    temutil::nc( nc_put_var1_double(ncid, cv, start3, &nlost) );
+    temutil::nc( nc_close(ncid) );
+  }//end NLOST
+  map_itr = netcdf_outputs.end();
 
 
   //ORGN
