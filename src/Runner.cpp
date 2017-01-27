@@ -2448,6 +2448,20 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
       temutil::nc( nc_put_vara_double(ncid, cv, CompStart4, CompCount4, &vegc[0]) );
     }
+    //Neither PFT nor compartment
+    else if(!curr_spec.pft && !curr_spec.compartment){
+      start3[0] = temutil::get_nc_timedim_len(ncid);
+
+      double vegc;
+      if(curr_spec.monthly){
+        vegc = cohort.bdall->m_vegs.call;
+      }
+      else if(curr_spec.yearly){
+        vegc = cohort.bdall->y_vegs.call;
+      }
+
+      temutil::nc( nc_put_var1_double(ncid, cv, start3, &vegc) );
+    }
     temutil::nc( nc_close(ncid) );
   }//end VEGC
   map_itr = netcdf_outputs.end();
@@ -2513,6 +2527,20 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
       }
 
       temutil::nc( nc_put_vara_double(ncid, cv, CompStart4, CompCount4, &vegn[0]) );
+    }
+    //Neither PFT nor compartment
+    else if(!curr_spec.pft && !curr_spec.compartment){
+      start3[0] = temutil::get_nc_timedim_len(ncid);
+
+      double vegn;
+      if(curr_spec.monthly){
+        vegn = cohort.bdall->m_vegs.nall;
+      }
+      else if(curr_spec.yearly){
+        vegn = cohort.bdall->y_vegs.nall;
+      }
+
+      temutil::nc( nc_put_var1_double(ncid, cv, start3, &vegn) );
     }
     temutil::nc( nc_close(ncid) );
   }//end VEGN
