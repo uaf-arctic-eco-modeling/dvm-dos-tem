@@ -1630,7 +1630,34 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
 
   //VWCTD
+
+
   //WATERTAB
+  map_itr = netcdf_outputs.find("WATERTAB");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"WATERTAB";
+    curr_spec = map_itr->second;
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "WATERTAB", &cv) );
+    start3[0] = temutil::get_nc_timedim_len(ncid);
+
+    double watertab;
+    if(curr_spec.daily){
+      temutil::nc( nc_put_vara_double(ncid, cv, start3, count3, &cohort.edall->daily_watertab[0]) );      
+    }
+    else if(curr_spec.monthly){
+      watertab = cohort.edall->m_sois.watertab;
+      temutil::nc( nc_put_var1_double(ncid, cv, start3, &watertab) );
+    }
+    else if(curr_spec.yearly){
+      watertab = cohort.edall->y_sois.watertab;
+      temutil::nc( nc_put_var1_double(ncid, cv, start3, &watertab) );
+    }
+
+    temutil::nc( nc_close(ncid) );
+  }//end WATERTAB
+  map_itr = netcdf_outputs.end();
 
 
   /*** Four combination vars. (year, month)x(layer, tot)  ***/
