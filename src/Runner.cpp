@@ -1051,6 +1051,23 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   map_itr = netcdf_outputs.find("BURNAIR2SOIC");
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, fatal)<<"Burned soil C";
+    curr_spec = map_itr->second;
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    start3[0] = temutil::get_nc_timedim_len(ncid);
+    temutil::nc( nc_inq_varid(ncid, "BURNAIR2SOIC", &cv) );
+
+    double burnair2soic;
+    if(curr_spec.monthly){
+      /*** STUB ***/
+      //This variable is not yet easily accessible
+    }
+    else if(curr_spec.yearly){
+      /*** STUB ***/
+    }
+
+    temutil::nc( nc_put_var1_double(ncid, cv, start3, &burnair2soic) );
+    temutil::nc( nc_close(ncid) );
   }//end BURNAIR2SOIC
   map_itr = netcdf_outputs.end();
 
@@ -1058,6 +1075,25 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   map_itr = netcdf_outputs.find("BURNAIR2SOIN");
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, fatal)<<"Burned soil N";
+    curr_spec = map_itr->second;
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    start3[0] = temutil::get_nc_timedim_len(ncid);
+    temutil::nc( nc_inq_varid(ncid, "BURNAIR2SOIN", &cv) );
+
+    double burnair2soin;
+    if(curr_spec.monthly){
+      burnair2soin = cohort.year_fd[month].fire_a2soi.orgn;
+    }
+    else if(curr_spec.yearly){
+      burnair2soin = 0;
+      for(int im=0; im<12; im++){
+        burnair2soin += cohort.year_fd[im].fire_a2soi.orgn;
+      }
+    }
+
+    temutil::nc( nc_put_var1_double(ncid, cv, start3, &burnair2soin) );
+    temutil::nc( nc_close(ncid) );
   }//end BURNAIR2SOIN
   map_itr = netcdf_outputs.end();
 
@@ -1067,6 +1103,10 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, fatal)<<"burnthick";
     curr_spec = map_itr->second;
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    start3[0] = temutil::get_nc_timedim_len(ncid);
+    temutil::nc( nc_inq_varid(ncid, "BURNTHICK", &cv) );
 
     double burnthick;
     if(curr_spec.monthly){
@@ -1079,9 +1119,6 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
       }
     }
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
-    start3[0] = temutil::get_nc_timedim_len(ncid);
-    temutil::nc( nc_inq_varid(ncid, "BURNTHICK", &cv) );
     temutil::nc( nc_put_var1_double(ncid, cv, start3, &burnthick) );
     temutil::nc( nc_close(ncid) );
   }//end BURNTHICK
@@ -1791,7 +1828,55 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
   /*** Six combination vars: (year,month)x(PFT,Comp,Both)***/
   //BURNVEG2AIRC
+  map_itr = netcdf_outputs.find("BURNVEG2AIRC");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"BURNVEG2AIRC";
+    curr_spec = map_itr->second;
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "BURNVEG2AIRC", &cv) );
+    start3[0] = temutil::get_nc_timedim_len(ncid);
+
+    double burnveg2airc;
+    if(curr_spec.monthly){
+      burnveg2airc = cohort.year_fd[month].fire_v2a.orgc;
+    }
+    else if(curr_spec.yearly){
+      burnveg2airc = cohort.fd->fire_v2a.orgc;
+    }
+
+    temutil::nc( nc_put_var1_double(ncid, cv, start3, &burnveg2airc) );
+
+    temutil::nc( nc_close(ncid) );
+  }//end BURNVEG2AIRC
+  map_itr = netcdf_outputs.end();
+
+
   //BURNVEG2AIRN
+  map_itr = netcdf_outputs.find("BURNVEG2AIRN");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"BURNVEG2AIRN";
+    curr_spec = map_itr->second;
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "BURNVEG2AIRN", &cv) );
+    start3[0] = temutil::get_nc_timedim_len(ncid);
+
+    double burnveg2airn;
+    if(curr_spec.monthly){
+      burnveg2airn = cohort.year_fd[month].fire_v2a.orgn;
+    }
+    else if(curr_spec.yearly){
+      burnveg2airn = cohort.fd->fire_v2a.orgn;
+    }
+
+    temutil::nc( nc_put_var1_double(ncid, cv, start3, &burnveg2airn) );
+
+    temutil::nc( nc_close(ncid) );
+  }//end BURNVEG2AIRN
+  map_itr = netcdf_outputs.end();
+
+
   //BURNVEG2DEADC
   //BURNVEG2DEADN
   //BURNVEG2SOIABVC
