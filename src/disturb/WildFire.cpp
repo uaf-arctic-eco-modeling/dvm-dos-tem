@@ -304,6 +304,9 @@ void WildFire::burn(int year) {
     }
   } // end soil layer loop
 
+  //Setting relative organic layer burn (rolb) value
+  fd->fire_soid.rolb = fd->fire_soid.burnthick / totbotdepth;
+
   // needs to re-do the soil rootfrac for each pft which was modified above
   //   (in burn soil layer)
   BOOST_LOG_SEV(glg, note) << "Re-do the soil root fraction for each PFT modified by burning?";

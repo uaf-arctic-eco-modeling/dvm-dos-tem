@@ -966,19 +966,29 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   map_itr = netcdf_outputs.end();
 
 
-//  map_itr = netcdf_outputs.find("ORL");
-//  if(map_itr != netcdf_outputs.end()){
-//    BOOST_LOG_SEV(glg, fatal)<<"ORL";
-//    curr_spec = map_itr->second;
-//
-//    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
-//    temutil::nc( nc_inq_varid(ncid, "ORL", &cv) );
-//    start3[0] = temutil::get_nc_timedim_len(ncid);
-//
-//    temutil::nc( nc_put_var1_double(ncid, cv, start3, &) );
-//    temutil::nc( nc_close(ncid) );
-//  }//end ORL
-//  map_itr = netcdf_outputs.end();
+  map_itr = netcdf_outputs.find("ROLB");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"ROLB";
+    curr_spec = map_itr->second;
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "ROLB", &cv) );
+    start3[0] = temutil::get_nc_timedim_len(ncid);
+
+    double rolb;
+    if(curr_spec.monthly){
+      rolb = cohort.year_fd[month].fire_soid.rolb;
+    }
+    else if(curr_spec.yearly){
+      //FIX. This will not work if there is more than one fire per year
+      // What does yearly ROLB even mean with multiple fires?
+      rolb = cohort.fd->fire_soid.rolb;
+    }
+
+    temutil::nc( nc_put_var1_double(ncid, cv, start3, &rolb) );
+    temutil::nc( nc_close(ncid) );
+  }//end ROLB
+  map_itr = netcdf_outputs.end();
 
 
   map_itr = netcdf_outputs.find("PERMAFROST");
@@ -1896,6 +1906,24 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
 
   //LAI
+  map_itr = netcdf_outputs.find("LAI");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"LAI";
+    curr_spec = map_itr->second;
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "LAI", &cv) );
+
+    //PFT
+    if(curr_spec.pft){
+      PFTstart4[0] = temutil::get_nc_timedim_len(ncid);
+
+      temutil::nc( nc_put_vara_double(ncid, cv, PFTstart4, PFTcount4, &cohort.cd.m_veg.lai[0]) );
+
+    }
+    temutil::nc( nc_close(ncid) );
+  }//end LAI
+  map_itr = netcdf_outputs.end();
 
 
   //LTRFALC

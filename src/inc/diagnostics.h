@@ -242,7 +242,8 @@ struct soidiag_bgc {
 
 struct soidiag_fir {
   double burnthick;
-  soidiag_fir(): burnthick(UIN_D) {}
+  double rolb;
+  soidiag_fir(): burnthick(UIN_D), rolb(UIN_D) {}
 };
 
 #endif /*DIAGNOSTICS_H_*/
