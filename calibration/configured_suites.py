@@ -108,6 +108,28 @@ configured_suites = {
       { 'jsontag': 'TotNitrogenUptake', 'axesnum': 4, 'units': 'gC/m^2', 'pft': '', }
     ] 
   },
+  'VegExtra':{
+    'desc': "Some extra vegetation outputs",
+    'rows': 5,
+    'cols': 1,
+    'traces': [
+      { 'jsontag': 'GPP', 'units': '', 'axesnum': 0, 'pft': '', 'pftpart':'Leaf' },
+      { 'jsontag': 'GPP', 'units': '', 'axesnum': 0, 'pft': '', 'pftpart':'Stem' },
+      { 'jsontag': 'GPP', 'units': '', 'axesnum': 0, 'pft': '', 'pftpart':'Root' },
+
+      { 'jsontag': 'NPP', 'units': '', 'axesnum': 1, 'pft': '', 'pftpart':'Leaf' },
+      { 'jsontag': 'NPP', 'units': '', 'axesnum': 1, 'pft': '', 'pftpart':'Stem' },
+      { 'jsontag': 'NPP', 'units': '', 'axesnum': 1, 'pft': '', 'pftpart':'Root' },
+
+      { 'jsontag': 'LitterfallCarbon', 'units': '', 'axesnum': 2, 'pft': '', 'pftpart':'Leaf' },
+      { 'jsontag': 'LitterfallCarbon', 'units': '', 'axesnum': 2, 'pft': '', 'pftpart':'Stem' },
+      { 'jsontag': 'LitterfallCarbon', 'units': '', 'axesnum': 2, 'pft': '', 'pftpart':'Root' },
+
+      { 'jsontag': 'LitterfallNitrogen', 'units': '', 'axesnum': 3, 'pft': '', 'pftpart':'Leaf' },
+      { 'jsontag': 'LitterfallNitrogen', 'units': '', 'axesnum': 3, 'pft': '', 'pftpart':'Stem' },
+      { 'jsontag': 'LitterfallNitrogen', 'units': '', 'axesnum': 3, 'pft': '', 'pftpart':'Root' },
+    ]
+  },
   'VegSoil':{
     'desc': "The standard targetted vegetation and soil outputs",
     'rows': 9,
