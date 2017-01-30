@@ -780,7 +780,7 @@ void Runner::output_netCDF_yearly(int year){
 }
 
 void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, int year, int month){
-  int timestep = year*12 + month;
+  int month_timestep = year*12 + month;
 
   int dinm = DINM[month];
 
@@ -874,7 +874,8 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
     temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "ALD", &cv) );
-    start3[0] = temutil::get_nc_timedim_len(ncid);
+    //start3[0] = temutil::get_nc_timedim_len(ncid);
+    start3[0] = year;
 
     temutil::nc( nc_put_var1_double(ncid, cv, start3, &cohort.edall->y_soid.ald) );
     temutil::nc( nc_close(ncid) );
@@ -889,7 +890,8 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
     temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "DEEPDZ", &cv) );
-    start3[0] = temutil::get_nc_timedim_len(ncid);
+    //start3[0] = temutil::get_nc_timedim_len(ncid);
+    start3[0] = year;
 
     double deepdz = 0;
     Layer* currL = cohort.ground.toplayer;
@@ -913,7 +915,8 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
     temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "GROWEND", &cv) );
-    start3[0] = temutil::get_nc_timedim_len(ncid);
+    //start3[0] = temutil::get_nc_timedim_len(ncid);
+    start3[0] = year;
 
     double growend = cohort.edall->y_soid.rtdpGEoutput;
 
@@ -930,7 +933,8 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
     temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "GROWSTART", &cv) );
-    start3[0] = temutil::get_nc_timedim_len(ncid);
+    //start3[0] = temutil::get_nc_timedim_len(ncid);
+    start3[0] = year;
 
     double growstart = cohort.edall->y_soid.rtdpGSoutput;
 
@@ -947,7 +951,8 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
     temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "MOSSDZ", &cv) );
-    start3[0] = temutil::get_nc_timedim_len(ncid);
+    //start3[0] = temutil::get_nc_timedim_len(ncid);
+    start3[0] = year;
 
     double mossdz = 0;
     Layer* currL = cohort.ground.toplayer;
@@ -973,13 +978,15 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
     temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "ROLB", &cv) );
-    start3[0] = temutil::get_nc_timedim_len(ncid);
+    //start3[0] = temutil::get_nc_timedim_len(ncid);
 
     double rolb;
     if(curr_spec.monthly){
+      start3[0] = month_timestep;
       rolb = cohort.year_fd[month].fire_soid.rolb;
     }
     else if(curr_spec.yearly){
+      start3[0] = year;
       //FIX. This will not work if there is more than one fire per year
       // What does yearly ROLB even mean with multiple fires?
       rolb = cohort.fd->fire_soid.rolb;
@@ -998,7 +1005,8 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
     temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "PERMAFROST", &cv) );
-    start3[0] = temutil::get_nc_timedim_len(ncid);
+    //start3[0] = temutil::get_nc_timedim_len(ncid);
+    start3[0] = year;
 
     double permafrost = cohort.edall->y_soid.permafrost;
 
@@ -1015,7 +1023,8 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
     temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "SHLWDZ", &cv) );
-    start3[0] = temutil::get_nc_timedim_len(ncid);
+    //start3[0] = temutil::get_nc_timedim_len(ncid);
+    start3[0] = year;
 
     double shlwdz = 0;
     Layer* currL = cohort.ground.toplayer;
@@ -1054,15 +1063,17 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
     curr_spec = map_itr->second;
 
     temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
-    start3[0] = temutil::get_nc_timedim_len(ncid);
     temutil::nc( nc_inq_varid(ncid, "BURNAIR2SOIC", &cv) );
+    //start3[0] = temutil::get_nc_timedim_len(ncid);
 
     double burnair2soic;
     if(curr_spec.monthly){
+      start3[0] = month_timestep;
       /*** STUB ***/
       //This variable is not yet easily accessible
     }
     else if(curr_spec.yearly){
+      start3[0] = year;
       /*** STUB ***/
     }
 
@@ -1078,14 +1089,16 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
     curr_spec = map_itr->second;
 
     temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
-    start3[0] = temutil::get_nc_timedim_len(ncid);
     temutil::nc( nc_inq_varid(ncid, "BURNAIR2SOIN", &cv) );
+    //start3[0] = temutil::get_nc_timedim_len(ncid);
 
     double burnair2soin;
     if(curr_spec.monthly){
+      start3[0] = month_timestep;
       burnair2soin = cohort.year_fd[month].fire_a2soi.orgn;
     }
     else if(curr_spec.yearly){
+      start3[0] = year;
       burnair2soin = 0;
       for(int im=0; im<12; im++){
         burnair2soin += cohort.year_fd[im].fire_a2soi.orgn;
@@ -1105,14 +1118,16 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
     curr_spec = map_itr->second;
 
     temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
-    start3[0] = temutil::get_nc_timedim_len(ncid);
     temutil::nc( nc_inq_varid(ncid, "BURNTHICK", &cv) );
+    //start3[0] = temutil::get_nc_timedim_len(ncid);
 
     double burnthick;
     if(curr_spec.monthly){
+      start3[0] = month_timestep;
       burnthick = cohort.year_fd[month].fire_soid.burnthick;
     }
     else if(curr_spec.yearly){
+      start3[0] = year;
       burnthick = 0;
       for(int im=0; im<12; im++){
         burnthick += cohort.year_fd[im].fire_soid.burnthick;
@@ -1131,17 +1146,20 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
     BOOST_LOG_SEV(glg, fatal)<<"standing dead C";
     curr_spec = map_itr->second;
 
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "DEADC", &cv) );
+    //start3[0] = temutil::get_nc_timedim_len(ncid);
+
     double deadc;
     if(curr_spec.monthly){
+      start3[0] = month_timestep;
       deadc = cohort.bdall->m_vegs.deadc;
     }
     else if(curr_spec.yearly){
+      start3[0] = year;
       deadc = cohort.bdall->y_vegs.deadc;
     }
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
-    start3[0] = temutil::get_nc_timedim_len(ncid);
-    temutil::nc( nc_inq_varid(ncid, "DEADC", &cv) );
     temutil::nc( nc_put_var1_double(ncid, cv, start3, &deadc) );
     temutil::nc( nc_close(ncid) );
   }//end DEADC
@@ -1154,17 +1172,20 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
     BOOST_LOG_SEV(glg, fatal)<<"standing dead N";
     curr_spec = map_itr->second;
 
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "DEADN", &cv) );
+    //start3[0] = temutil::get_nc_timedim_len(ncid);
+
     double deadn;
     if(curr_spec.monthly){
+      start3[0] = month_timestep;
       deadn = cohort.bdall->m_vegs.deadn;
     }
     else if(curr_spec.yearly){
+      start3[0] = year;
       deadn = cohort.bdall->y_vegs.deadn;
     }
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
-    start3[0] = temutil::get_nc_timedim_len(ncid);
-    temutil::nc( nc_inq_varid(ncid, "DEADN", &cv) );
     temutil::nc( nc_put_var1_double(ncid, cv, start3, &deadn) );
     temutil::nc( nc_close(ncid) );
   }//end DEADN
@@ -1177,17 +1198,20 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
     BOOST_LOG_SEV(glg, fatal)<<"Deep C";
     curr_spec = map_itr->second;
 
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "DEEPC", &cv) );
+    //start3[0] = temutil::get_nc_timedim_len(ncid);
+
     double deepc;
     if(curr_spec.monthly){
+      start3[0] = month_timestep;
       deepc = cohort.bdall->m_soid.deepc;
     }
     else if(curr_spec.yearly){
+      start3[0] = year;
       deepc = cohort.bdall->y_soid.deepc;
     }
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
-    start3[0] = temutil::get_nc_timedim_len(ncid);
-    temutil::nc( nc_inq_varid(ncid, "DEEPC", &cv) );
     temutil::nc( nc_put_var1_double(ncid, cv, start3, &deepc) );
     temutil::nc( nc_close(ncid) ); 
   }//end DEEPC
@@ -1200,17 +1224,20 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
     BOOST_LOG_SEV(glg, fatal)<<"woody debris C";
     curr_spec = map_itr->second;
 
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "DWDC", &cv) );
+    //start3[0] = temutil::get_nc_timedim_len(ncid);
+
     double woodyc;
     if(curr_spec.monthly){
+      start3[0] = month_timestep;
       woodyc = cohort.bdall->m_sois.wdebrisc;
     }
     else if(curr_spec.yearly){
+      start3[0] = year;
       woodyc = cohort.bdall->y_sois.wdebrisc;
     }
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
-    start3[0] = temutil::get_nc_timedim_len(ncid);
-    temutil::nc( nc_inq_varid(ncid, "DWDC", &cv) );
     temutil::nc( nc_put_var1_double(ncid, cv, start3, &woodyc) );
     temutil::nc( nc_close(ncid) );
   }//end DWDC
@@ -1223,17 +1250,20 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
     BOOST_LOG_SEV(glg, fatal)<<"woody debris N";
     curr_spec = map_itr->second;
 
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "DWDN", &cv) );
+    //start3[0] = temutil::get_nc_timedim_len(ncid);
+
     double woodyn;
     if(curr_spec.monthly){
+      start3[0] = month_timestep;
       woodyn = cohort.bdall->m_sois.wdebrisn;
     }
     else if(curr_spec.yearly){
+      start3[0] = year;
       woodyn = cohort.bdall->y_sois.wdebrisn;
     }
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
-    start3[0] = temutil::get_nc_timedim_len(ncid);
-    temutil::nc( nc_inq_varid(ncid, "DWDN", &cv) );
     temutil::nc( nc_put_var1_double(ncid, cv, start3, &woodyn) );
     temutil::nc( nc_close(ncid) );
   }//end DWDN
@@ -1246,21 +1276,24 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
     BOOST_LOG_SEV(glg, fatal)<<"Mineral C";
     curr_spec = map_itr->second;
 
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "MINEC", &cv) );
+    //start3[0] = temutil::get_nc_timedim_len(ncid);
+
     double minec;
     if(curr_spec.monthly){
+      start3[0] = month_timestep;
       minec = cohort.bdall->m_soid.mineac
               + cohort.bdall->m_soid.minebc
               + cohort.bdall->m_soid.minecc;
     }
     else if(curr_spec.yearly){
+      start3[0] = year;
       minec = cohort.bdall->y_soid.mineac
               + cohort.bdall->y_soid.minebc
               + cohort.bdall->y_soid.minecc;
     }
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
-    start3[0] = temutil::get_nc_timedim_len(ncid);
-    temutil::nc( nc_inq_varid(ncid, "MINEC", &cv) );
     temutil::nc( nc_put_var1_double(ncid, cv, start3, &minec) );
     temutil::nc( nc_close(ncid) ); 
   }//end MINEC
@@ -1290,17 +1323,20 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
     BOOST_LOG_SEV(glg, fatal)<<"Shallow C";
     curr_spec = map_itr->second;
 
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "SHLWC", &cv) );
+    //start3[0] = temutil::get_nc_timedim_len(ncid);
+
     double shlwc;
     if(curr_spec.monthly){
+      start3[0] = month_timestep;
       shlwc = cohort.bdall->m_soid.shlwc;
     }
     else if(curr_spec.yearly){
+      start3[0] = year;
       shlwc = cohort.bdall->y_soid.shlwc;
     }
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
-    start3[0] = temutil::get_nc_timedim_len(ncid);
-    temutil::nc( nc_inq_varid(ncid, "SHLWC", &cv) );
     temutil::nc( nc_put_var1_double(ncid, cv, start3, &shlwc) );
     temutil::nc( nc_close(ncid) ); 
   }//end SHLWC 
@@ -1313,17 +1349,20 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
     BOOST_LOG_SEV(glg, fatal)<<"woody debris rh";
     curr_spec = map_itr->second;
 
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "WDRH", &cv) );
+    //start3[0] = temutil::get_nc_timedim_len(ncid);
+
     double woodyrh;
     if(curr_spec.monthly){
+      start3[0] = month_timestep;
       woodyrh = cohort.bdall->m_soi2a.rhwdeb;
     }
     else if(curr_spec.yearly){
+      start3[0] = year;
       woodyrh = cohort.bdall->y_soi2a.rhwdeb;
     }
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
-    start3[0] = temutil::get_nc_timedim_len(ncid);
-    temutil::nc( nc_inq_varid(ncid, "WDRH", &cv) );
     temutil::nc( nc_put_var1_double(ncid, cv, start3, &woodyrh) );
     temutil::nc( nc_close(ncid) ); 
   }//end WDRH
@@ -1339,17 +1378,20 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
     temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "HKDEEP", &cv) );
-    start3[0] = temutil::get_nc_timedim_len(ncid);
+    //start3[0] = temutil::get_nc_timedim_len(ncid);
 
     double hkdeep;
     if(curr_spec.daily){
+      start3[0] = temutil::get_nc_timedim_len(ncid); 
       temutil::nc( nc_put_vara_double(ncid, cv, start3, count3, &cohort.edall->daily_hkdeep[0]) );
     }
     else if(curr_spec.monthly){
+      start3[0] = month_timestep;
       hkdeep = cohort.edall->m_soid.hkdeep;
       temutil::nc( nc_put_var1_double(ncid, cv, start3, &hkdeep) );
     }
     else if(curr_spec.yearly){
+      start3[0] = year;
       hkdeep = cohort.edall->y_soid.hkdeep;
       temutil::nc( nc_put_var1_double(ncid, cv, start3, &hkdeep) );
     }
@@ -1359,8 +1401,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   map_itr = netcdf_outputs.end();
 
 
-  //HKMINEBOT
-  //HKMINETOP
+  //HKMINEA
+  //HKMINEB
+  //HKMINEC
 
 
   //HKSHLW
@@ -1371,17 +1414,20 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
     temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "HKSHLW", &cv) );
-    start3[0] = temutil::get_nc_timedim_len(ncid);
+    //start3[0] = temutil::get_nc_timedim_len(ncid);
 
     double hkshlw;
     if(curr_spec.daily){
+      start3[0] = temutil::get_nc_timedim_len(ncid); 
       temutil::nc( nc_put_vara_double(ncid, cv, start3, count3, &cohort.edall->daily_hkshlw[0]) );
     }
     else if(curr_spec.monthly){
+      start3[0] = month_timestep;
       hkshlw = cohort.edall->m_soid.hkshlw;
       temutil::nc( nc_put_var1_double(ncid, cv, start3, &hkshlw) );
     }
     else if(curr_spec.yearly){
+      start3[0] = year;
       hkshlw = cohort.edall->y_soid.hkshlw;
       temutil::nc( nc_put_var1_double(ncid, cv, start3, &hkshlw) );
     }
@@ -1399,13 +1445,14 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
     temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "SNOWTHICK", &cv) );
-    start3[0] = temutil::get_nc_timedim_len(ncid);
+    //start3[0] = temutil::get_nc_timedim_len(ncid);
 
     if(curr_spec.daily){
-      
+      start3[0] = temutil::get_nc_timedim_len(ncid);
       temutil::nc( nc_put_vara_double(ncid, cv, start3, count3, &cohort.edall->daily_snowthick[0]) );
     }
-    else if(curr_spec.monthly || curr_spec.yearly){
+    else if(curr_spec.monthly){
+      start3[0] = month_timestep;
       double snowthick;
       Layer* currL = cohort.ground.toplayer;
       while(currL->isSnow){
@@ -1413,6 +1460,16 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
         currL = currL->nextl;
       }
 
+      temutil::nc( nc_put_var1_double(ncid, cv, start3, &snowthick) );
+    }
+    else if(curr_spec.yearly){
+      start3[0] = year;
+      double snowthick;
+      Layer* currL = cohort.ground.toplayer;
+      while(currL->isSnow){
+        snowthick += currL->dz;
+        currL = currL->nextl;
+      }
       temutil::nc( nc_put_var1_double(ncid, cv, start3, &snowthick) );
     }
 
@@ -1429,15 +1486,21 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
     temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "SWE", &cv) );
-    start3[0] = temutil::get_nc_timedim_len(ncid);
+    //start3[0] = temutil::get_nc_timedim_len(ncid);
 
     double swe;
     if(curr_spec.daily){
+      start3[0] = temutil::get_nc_timedim_len(ncid);
       temutil::nc( nc_put_vara_double(ncid, cv, start3, count3, &cohort.edall->daily_swesum[0]) );
     }
 
-    else if(curr_spec.monthly || curr_spec.yearly){
-      temutil::nc( nc_put_var1_double(ncid, cv, start3, &cohort.edall->d_snws.swesum) );
+    else if(curr_spec.monthly){
+      start3[0] = month_timestep;
+      temutil::nc( nc_put_var1_double(ncid, cv, start3, &cohort.edall->m_snws.swesum) );
+    }
+    else if(curr_spec.yearly){
+      start3[0] = year;
+      temutil::nc( nc_put_var1_double(ncid, cv, start3, &cohort.edall->y_snws.swesum) );
     }
 
     temutil::nc( nc_close(ncid) ); 
@@ -1453,17 +1516,20 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
     temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "TCDEEP", &cv) );
-    start3[0] = temutil::get_nc_timedim_len(ncid);
+    //start3[0] = temutil::get_nc_timedim_len(ncid);
 
     double tcdeep;
     if(curr_spec.daily){
+      start3[0] = temutil::get_nc_timedim_len(ncid);
       temutil::nc( nc_put_vara_double(ncid, cv, start3, count3, &cohort.edall->daily_tcdeep[0]) );
     }
     else if(curr_spec.monthly){
+      start3[0] = month_timestep;
       tcdeep = cohort.edall->m_soid.tcdeep;
       temutil::nc( nc_put_var1_double(ncid, cv, start3, &tcdeep) );
     }
     else if(curr_spec.yearly){
+      start3[0] = year;
       tcdeep = cohort.edall->y_soid.tcdeep;
       temutil::nc( nc_put_var1_double(ncid, cv, start3, &tcdeep) );
     }
@@ -1485,21 +1551,23 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
     temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "TCSHLW", &cv) );
-    start3[0] = temutil::get_nc_timedim_len(ncid);
+    //start3[0] = temutil::get_nc_timedim_len(ncid);
 
     double tcshlw;
     if(curr_spec.daily){
+      start3[0] = temutil::get_nc_timedim_len(ncid);
       temutil::nc( nc_put_vara_double(ncid, cv, start3, count3, &cohort.edall->daily_tcshlw[0]) );
     }
     else if(curr_spec.monthly){
+      start3[0] = month_timestep;
       tcshlw = cohort.edall->m_soid.tcshlw;
       temutil::nc( nc_put_var1_double(ncid, cv, start3, &tcshlw) );
     }
     else if(curr_spec.yearly){
+      start3[0] = year;
       tcshlw = cohort.edall->y_soid.tcshlw;
       temutil::nc( nc_put_var1_double(ncid, cv, start3, &tcshlw) );
     }
-
     temutil::nc( nc_close(ncid) );
   }//end TCSHLW
   map_itr = netcdf_outputs.end();
@@ -1513,21 +1581,23 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
     temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "TDEEP", &cv) );
-    start3[0] = temutil::get_nc_timedim_len(ncid);
+    //start3[0] = temutil::get_nc_timedim_len(ncid);
 
     double tdeep;
     if(curr_spec.daily){
+      start3[0] = temutil::get_nc_timedim_len(ncid);
       temutil::nc( nc_put_vara_double(ncid, cv, start3, count3, &cohort.edall->daily_tdeep[0]) );
     }
     else if(curr_spec.monthly){
+      start3[0] = month_timestep;
       tdeep = cohort.edall->m_soid.tdeep;
       temutil::nc( nc_put_var1_double(ncid, cv, start3, &tdeep) );
     }
     else if(curr_spec.yearly){
+      start3[0] = year;
       tdeep = cohort.edall->y_soid.tdeep;
       temutil::nc( nc_put_var1_double(ncid, cv, start3, &tdeep) );
     }
-
     temutil::nc( nc_close(ncid) );
   }//end TDEEP
   map_itr = netcdf_outputs.end();
@@ -1546,21 +1616,23 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
     temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "TSHLW", &cv) );
-    start3[0] = temutil::get_nc_timedim_len(ncid);
+    //start3[0] = temutil::get_nc_timedim_len(ncid);
 
     double tshlw;
     if(curr_spec.daily){
+      start3[0] = temutil::get_nc_timedim_len(ncid);
       temutil::nc( nc_put_vara_double(ncid, cv, start3, count3, &cohort.edall->daily_tshlw[0]) );
     }
     else if(curr_spec.monthly){
+      start3[0] = month_timestep;
       tshlw = cohort.edall->m_soid.tshlw;
       temutil::nc( nc_put_var1_double(ncid, cv, start3, &tshlw) );
     }
     else if(curr_spec.yearly){
+      start3[0] = year;
       tshlw = cohort.edall->y_soid.tshlw;
       temutil::nc( nc_put_var1_double(ncid, cv, start3, &tshlw) );
     }
-
     temutil::nc( nc_close(ncid) );
   }//end TSHLW
   map_itr = netcdf_outputs.end();
@@ -1577,21 +1649,23 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
     temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "VWCDEEP", &cv) );
-    start3[0] = temutil::get_nc_timedim_len(ncid);
+    //start3[0] = temutil::get_nc_timedim_len(ncid);
 
     double vwcdeep;
     if(curr_spec.daily){
+      start3[0] = temutil::get_nc_timedim_len(ncid);
       temutil::nc( nc_put_vara_double(ncid, cv, start3, count3, &cohort.edall->daily_vwcdeep[0]) );
     }
     else if(curr_spec.monthly){
+      start3[0] = month_timestep;
       vwcdeep = cohort.edall->m_soid.vwcdeep;
       temutil::nc( nc_put_var1_double(ncid, cv, start3, &vwcdeep) );
     }
     else if(curr_spec.yearly){
+      start3[0] = year;
       vwcdeep = cohort.edall->y_soid.vwcdeep;
       temutil::nc( nc_put_var1_double(ncid, cv, start3, &vwcdeep) );
     }
-
     temutil::nc( nc_close(ncid) );
   }//end VWCDEEP
   map_itr = netcdf_outputs.end();
@@ -1609,21 +1683,23 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
     temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "VWCSHLW", &cv) );
-    start3[0] = temutil::get_nc_timedim_len(ncid);
+    //start3[0] = temutil::get_nc_timedim_len(ncid);
 
     double vwcshlw;
     if(curr_spec.daily){
+      start3[0] = temutil::get_nc_timedim_len(ncid);
       temutil::nc( nc_put_vara_double(ncid, cv, start3, count3, &cohort.edall->daily_vwcshlw[0]) );      
     }
     else if(curr_spec.monthly){
+      start3[0] = month_timestep;
       vwcshlw = cohort.edall->m_soid.vwcshlw;
       temutil::nc( nc_put_var1_double(ncid, cv, start3, &vwcshlw) );
     }
     else if(curr_spec.yearly){
+      start3[0] = year;
       vwcshlw = cohort.edall->y_soid.vwcshlw;
       temutil::nc( nc_put_var1_double(ncid, cv, start3, &vwcshlw) );
     }
-
     temutil::nc( nc_close(ncid) );
   }//end VWCSHLW
   map_itr = netcdf_outputs.end();
@@ -1640,21 +1716,23 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
     temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "WATERTAB", &cv) );
-    start3[0] = temutil::get_nc_timedim_len(ncid);
+    //start3[0] = temutil::get_nc_timedim_len(ncid);
 
     double watertab;
     if(curr_spec.daily){
+      start3[0] = temutil::get_nc_timedim_len(ncid);
       temutil::nc( nc_put_vara_double(ncid, cv, start3, count3, &cohort.edall->daily_watertab[0]) );      
     }
     else if(curr_spec.monthly){
+      start3[0] = month_timestep;
       watertab = cohort.edall->m_sois.watertab;
       temutil::nc( nc_put_var1_double(ncid, cv, start3, &watertab) );
     }
     else if(curr_spec.yearly){
+      start3[0] = year;
       watertab = cohort.edall->y_sois.watertab;
       temutil::nc( nc_put_var1_double(ncid, cv, start3, &watertab) );
     }
-
     temutil::nc( nc_close(ncid) );
   }//end WATERTAB
   map_itr = netcdf_outputs.end();
@@ -1671,33 +1749,35 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
     temutil::nc( nc_inq_varid(ncid, "AVLN", &cv) );
 
     if(curr_spec.layer){
-      soilstart4[0] = temutil::get_nc_timedim_len(ncid);
+      //soilstart4[0] = temutil::get_nc_timedim_len(ncid);
 
       double avln[MAX_SOI_LAY];
       if(curr_spec.monthly){
+        soilstart4[0] = month_timestep;
         for(int il=0; il<MAX_SOI_LAY; il++){
           avln[il] = cohort.bdall->m_sois.avln[il];
         }
       }
       else if(curr_spec.yearly){
+        soilstart4[0] = year;
         for(int il=0; il<MAX_SOI_LAY; il++){
           avln[il] = cohort.bdall->y_sois.avln[il];
         }
       }
-
       temutil::nc( nc_put_vara_double(ncid, cv, soilstart4, soilcount4, &avln[0]) );
     }
     else if(!curr_spec.layer){
-      start3[0] = temutil::get_nc_timedim_len(ncid);
+      //start3[0] = temutil::get_nc_timedim_len(ncid);
 
       double avln;
       if(curr_spec.monthly){
+        start3[0] = month_timestep;
         avln = cohort.bdall->m_soid.avlnsum;
       }
       else if(curr_spec.yearly){
+        start3[0] = year;
         avln = cohort.bdall->y_soid.avlnsum;
       }
-
       temutil::nc( nc_put_var1_double(ncid, cv, start3, &avln) );
     }
     temutil::nc( nc_close(ncid) );
@@ -1719,13 +1799,15 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
       //By-layer may not be feasible yet.
     }
     else if(!curr_spec.layer){
-      start3[0] = temutil::get_nc_timedim_len(ncid);
+      //start3[0] = temutil::get_nc_timedim_len(ncid);
 
       double burnsoilC;
       if(curr_spec.monthly){
+        start3[0] = month_timestep;
         burnsoilC = cohort.year_fd[month].fire_soi2a.orgc;
       }
       else if(curr_spec.yearly){
+        start3[0] = year;
         burnsoilC = 0;
         for(int im=0; im<12; im++){
           burnsoilC += cohort.year_fd[im].fire_soi2a.orgc;
@@ -1733,7 +1815,6 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
       }
       temutil::nc( nc_put_var1_double(ncid, cv, start3, &burnsoilC) );
     }
-
     temutil::nc( nc_close(ncid) );
   }//end BURNSOIC
   map_itr = netcdf_outputs.end();
@@ -1752,13 +1833,15 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
       /*** STUB ***/
     }
     else if(!curr_spec.layer){
-      start3[0] = temutil::get_nc_timedim_len(ncid);
+      //start3[0] = temutil::get_nc_timedim_len(ncid);
 
       double burnSoilN;
       if(curr_spec.monthly){
+        start3[0] = month_timestep;
         burnSoilN = cohort.year_fd[month].fire_soi2a.orgn;
       }
       else if(curr_spec.yearly){
+        start3[0] = year;
         burnSoilN = 0;
         for(int im=0; im<12; im++){
           burnSoilN += cohort.year_fd[im].fire_soi2a.orgn;
@@ -1782,14 +1865,16 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
     temutil::nc( nc_inq_varid(ncid, "NETNMIN", &cv) );
 
     if(curr_spec.layer){
-      soilstart4[0] = temutil::get_nc_timedim_len(ncid);
+      //soilstart4[0] = temutil::get_nc_timedim_len(ncid);
 
       double netnmin[MAX_SOI_LAY];
       for(int il=0; il<MAX_SOI_LAY; il++){
         if(curr_spec.monthly){
+          soilstart4[0] = month_timestep;
           netnmin[il] = cohort.bdall->m_soi2soi.netnmin[il];
         }
         else if(curr_spec.yearly){
+          soilstart4[0] = year;
           netnmin[il] = cohort.bdall->y_soi2soi.netnmin[il];
         }
       }
@@ -1798,13 +1883,15 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
     }
     //Total, instead of by layer
     else if(!curr_spec.layer){
-      start3[0] = temutil::get_nc_timedim_len(ncid);
+      //start3[0] = temutil::get_nc_timedim_len(ncid);
 
       double netnmin;
       if(curr_spec.monthly){
+        start3[0] = month_timestep;
         netnmin = cohort.bdall->m_soi2soi.netnminsum;
       }
       else if(curr_spec.yearly){
+        start3[0] = year;
         netnmin = cohort.bdall->y_soi2soi.netnminsum;
       }
 
@@ -1827,14 +1914,16 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
     temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "NLOST", &cv) );
-    start3[0] = temutil::get_nc_timedim_len(ncid);
+    //start3[0] = temutil::get_nc_timedim_len(ncid);
 
     double nlost;
     if(curr_spec.monthly){
+      start3[0] = month_timestep;
       nlost = cohort.bdall->m_soi2l.avlnlost
             + cohort.bdall->m_soi2l.orgnlost;
     }
     else if(curr_spec.yearly){
+      start3[0] = year;
       nlost = cohort.bdall->y_soi2l.avlnlost
             + cohort.bdall->y_soi2l.orgnlost;
  
@@ -1856,7 +1945,14 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
     temutil::nc( nc_inq_varid(ncid, "ORGN", &cv) );
 
     if(curr_spec.layer){
-      soilstart4[0] = temutil::get_nc_timedim_len(ncid);
+      //soilstart4[0] = temutil::get_nc_timedim_len(ncid);
+
+      if(curr_spec.monthly){
+        soilstart4[0] = month_timestep;
+      }
+      else if(curr_spec.yearly){
+        soilstart4[0] = year;
+      }
 
       double orgn[MAX_SOI_LAY];
       int il = 0;
@@ -1871,13 +1967,15 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
     }
     //Total, instead of by layer
     else if(!curr_spec.layer){
-      start3[0] = temutil::get_nc_timedim_len(ncid);
+      //start3[0] = temutil::get_nc_timedim_len(ncid);
 
       double orgn;
       if(curr_spec.monthly){
+        start3[0] = month_timestep;
         orgn = cohort.bdall->m_soid.orgnsum;
       }
       else if(curr_spec.yearly){
+        start3[0] = year;
         orgn = cohort.bdall->y_soid.orgnsum;
       }
 
@@ -1897,10 +1995,11 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
     temutil::nc( nc_inq_varid(ncid, "RH", &cv) );
 
     if(curr_spec.layer){
-      soilstart4[0] = temutil::get_nc_timedim_len(ncid);
+      //soilstart4[0] = temutil::get_nc_timedim_len(ncid);
 
       double rh[MAX_SOI_LAY];
       if(curr_spec.monthly){
+        soilstart4[0] = month_timestep;
         for(int il=0; il<MAX_SOI_LAY; il++){
           rh[il] = cohort.bdall->m_soi2a.rhrawc[il]
                  + cohort.bdall->m_soi2a.rhsoma[il]
@@ -1909,6 +2008,7 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
         }
       }
       else if(curr_spec.yearly){
+        soilstart4[0] = year;
         for(int il=0; il<MAX_SOI_LAY; il++){
           rh[il] = cohort.bdall->y_soi2a.rhrawc[il]
                  + cohort.bdall->y_soi2a.rhsoma[il]
@@ -1921,13 +2021,15 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
     }
 
     else if(!curr_spec.layer){
-      start3[0] = temutil::get_nc_timedim_len(ncid);
+      //start3[0] = temutil::get_nc_timedim_len(ncid);
 
       double rh;
       if(curr_spec.monthly){
+        start3[0] = month_timestep;
         rh = cohort.bdall->m_soi2a.rhtot;
       }
       else if(curr_spec.yearly){
+        start3[0] = year;
         rh = cohort.bdall->y_soi2a.rhtot;
       }
 
@@ -1948,7 +2050,14 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
     temutil::nc( nc_inq_varid(ncid, "SOC", &cv) );
 
     if(curr_spec.layer){
-      soilstart4[0] = temutil::get_nc_timedim_len(ncid);
+      //soilstart4[0] = temutil::get_nc_timedim_len(ncid);
+
+      if(curr_spec.monthly){
+        soilstart4[0] = month_timestep;
+      }
+      else if(curr_spec.yearly){
+        soilstart4[0] = year;
+      }
 
       double soilc[MAX_SOI_LAY];
       int il = 0;
@@ -1963,13 +2072,15 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
     }
     //Total, instead of by layer
     else if(!curr_spec.layer){
-      start3[0] = temutil::get_nc_timedim_len(ncid);
+      //start3[0] = temutil::get_nc_timedim_len(ncid);
 
       double soilc;
       if(curr_spec.monthly){
+        start3[0] = month_timestep;
         soilc = cohort.bdall->m_soid.rawcsum;
       }
       else if(curr_spec.yearly){
+        start3[0] = year;
         soilc = cohort.bdall->y_soid.rawcsum;
       }
 
@@ -1989,13 +2100,15 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
     temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "BURNVEG2AIRC", &cv) );
-    start3[0] = temutil::get_nc_timedim_len(ncid);
+    //start3[0] = temutil::get_nc_timedim_len(ncid);
 
     double burnveg2airc;
     if(curr_spec.monthly){
+      start3[0] = month_timestep;
       burnveg2airc = cohort.year_fd[month].fire_v2a.orgc;
     }
     else if(curr_spec.yearly){
+      start3[0] = year;
       burnveg2airc = cohort.fd->fire_v2a.orgc;
     }
 
@@ -2014,13 +2127,15 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
     temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "BURNVEG2AIRN", &cv) );
-    start3[0] = temutil::get_nc_timedim_len(ncid);
+    //start3[0] = temutil::get_nc_timedim_len(ncid);
 
     double burnveg2airn;
     if(curr_spec.monthly){
+      start3[0] = month_timestep;
       burnveg2airn = cohort.year_fd[month].fire_v2a.orgn;
     }
     else if(curr_spec.yearly){
+      start3[0] = year;
       burnveg2airn = cohort.fd->fire_v2a.orgn;
     }
 
@@ -2039,13 +2154,15 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
     temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "BURNVEG2DEADC", &cv) );
-    start3[0] = temutil::get_nc_timedim_len(ncid);
+    //start3[0] = temutil::get_nc_timedim_len(ncid);
 
     double burnveg2deadc;
     if(curr_spec.monthly){
+      start3[0] = month_timestep;
       burnveg2deadc = cohort.year_fd[month].fire_v2dead.vegC;
     }
     else if(curr_spec.yearly){
+      start3[0] = year;
       burnveg2deadc = cohort.fd->fire_v2dead.vegC;
     }
 
@@ -2064,13 +2181,15 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
     temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "BURNVEG2DEADN", &cv) );
-    start3[0] = temutil::get_nc_timedim_len(ncid);
+    //start3[0] = temutil::get_nc_timedim_len(ncid);
 
     double burnveg2deadn;
     if(curr_spec.monthly){
+      start3[0] = month_timestep;
       burnveg2deadn = cohort.year_fd[month].fire_v2dead.strN;
     }
     else if(curr_spec.yearly){
+      start3[0] = year;
       burnveg2deadn = cohort.fd->fire_v2dead.strN;
     }
 
@@ -2089,13 +2208,15 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
     temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "BURNVEG2SOIABVC", &cv) );
-    start3[0] = temutil::get_nc_timedim_len(ncid);
+    //start3[0] = temutil::get_nc_timedim_len(ncid);
 
     double burnveg2soiabvc;
     if(curr_spec.monthly){
+      start3[0] = month_timestep;
       burnveg2soiabvc = cohort.year_fd[month].fire_v2soi.abvc;
     }
     else if(curr_spec.yearly){
+      start3[0] = year;
       burnveg2soiabvc = cohort.fd->fire_v2soi.abvc;
     }
 
@@ -2114,13 +2235,15 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
     temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "BURNVEG2SOIABVN", &cv) );
-    start3[0] = temutil::get_nc_timedim_len(ncid);
+    //start3[0] = temutil::get_nc_timedim_len(ncid);
 
     double burnveg2soiabvn;
     if(curr_spec.monthly){
+      start3[0] = month_timestep;
       burnveg2soiabvn = cohort.year_fd[month].fire_v2soi.abvn;
     }
     else if(curr_spec.yearly){
+      start3[0] = year;
       burnveg2soiabvn = cohort.fd->fire_v2soi.abvn;
     }
 
@@ -2139,13 +2262,15 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
     temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "BURNVEG2SOIBLWC", &cv) );
-    start3[0] = temutil::get_nc_timedim_len(ncid);
+    //start3[0] = temutil::get_nc_timedim_len(ncid);
 
     double burnveg2soiblwc;
     if(curr_spec.monthly){
+      start3[0] = month_timestep;
       burnveg2soiblwc = cohort.year_fd[month].fire_v2soi.blwc;
     }
     else if(curr_spec.yearly){
+      start3[0] = year;
       burnveg2soiblwc = cohort.fd->fire_v2soi.blwc;
     }
 
@@ -2164,13 +2289,15 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
     temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "BURNVEG2SOIBLWN", &cv) );
-    start3[0] = temutil::get_nc_timedim_len(ncid);
+    //start3[0] = temutil::get_nc_timedim_len(ncid);
 
     double burnveg2soiblwn;
     if(curr_spec.monthly){
+      start3[0] = month_timestep;
       burnveg2soiblwn = cohort.year_fd[month].fire_v2soi.blwn;
     }
     else if(curr_spec.yearly){
+      start3[0] = year;
       burnveg2soiblwn = cohort.fd->fire_v2soi.blwn;
     }
 
@@ -2229,16 +2356,18 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
     //PFT and compartment
     if(curr_spec.pft && curr_spec.compartment){
-      start5[0] = temutil::get_nc_timedim_len(ncid);
+      //start5[0] = temutil::get_nc_timedim_len(ncid);
 
       double gpp[NUM_PFT_PART][NUM_PFT];
       for(int ip=0; ip<NUM_PFT; ip++){
         for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
 
           if(curr_spec.monthly){
+            start5[0] = month_timestep;
             gpp[ipp][ip] = cohort.bd[ip].m_a2v.gpp[ipp];
           }
           else if(curr_spec.yearly){
+            start5[0] = year;
             gpp[ipp][ip] = cohort.bd[ip].y_a2v.gpp[ipp];
           }
         }
@@ -2248,15 +2377,17 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
     }
     //PFT only
     else if(curr_spec.pft && !curr_spec.compartment){
-      PFTstart4[0] = temutil::get_nc_timedim_len(ncid);
+      //PFTstart4[0] = temutil::get_nc_timedim_len(ncid);
 
       double gpp[NUM_PFT];
       for(int ip=0; ip<NUM_PFT; ip++){
 
         if(curr_spec.monthly){
+          PFTstart4[0] = month_timestep;
           gpp[ip] = cohort.bd[ip].m_a2v.gppall; 
         }
         else if(curr_spec.yearly){
+          PFTstart4[0] = year;
           gpp[ip] = cohort.bd[ip].y_a2v.gppall; 
         }
       }
@@ -2265,16 +2396,18 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
     }
     //Compartment only
     else if(!curr_spec.pft && curr_spec.compartment){
-      CompStart4[0] = temutil::get_nc_timedim_len(ncid);
+      //CompStart4[0] = temutil::get_nc_timedim_len(ncid);
 
       double gpp[NUM_PFT_PART] = {0};
       for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
         for(int ip=0; ip<NUM_PFT; ip++){
 
           if(curr_spec.monthly){
+            CompStart4[0] = month_timestep;
             gpp[ipp] += cohort.bd[ip].m_a2v.gpp[ipp];
           }
           else if(curr_spec.yearly){
+            CompStart4[0] = year;
             gpp[ipp] += cohort.bd[ip].m_a2v.gpp[ipp];
           }
         }
@@ -2284,13 +2417,15 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
     }
     //Neither PFT nor Compartment - total instead
     else if(!curr_spec.pft && !curr_spec.compartment){
-      start3[0] = temutil::get_nc_timedim_len(ncid);
+      //start3[0] = temutil::get_nc_timedim_len(ncid);
 
       double gpp;
       if(curr_spec.monthly){
+        start3[0] = month_timestep;
         gpp = cohort.bdall->m_a2v.gppall;
       }
       else if(curr_spec.yearly){
+        start3[0] = year;
         gpp = cohort.bdall->y_a2v.gppall;
       }
 
@@ -2312,10 +2447,21 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
     //PFT
     if(curr_spec.pft){
-      PFTstart4[0] = temutil::get_nc_timedim_len(ncid);
+      //PFTstart4[0] = temutil::get_nc_timedim_len(ncid);
 
-      temutil::nc( nc_put_vara_double(ncid, cv, PFTstart4, PFTcount4, &cohort.cd.m_veg.lai[0]) );
+      if(curr_spec.monthly){
+        PFTstart4[0] = month_timestep;
+        temutil::nc( nc_put_vara_double(ncid, cv, PFTstart4, PFTcount4, &cohort.cd.m_veg.lai[0]) );
+      }
+      else if(curr_spec.yearly){
+        PFTstart4[0] = year;
+        temutil::nc( nc_put_vara_double(ncid, cv, PFTstart4, PFTcount4, &cohort.cd.m_veg.lai[0]) );
+      }
 
+    }
+    //Total
+    else if(!curr_spec.pft){
+      /*** STUB ***/
     }
     temutil::nc( nc_close(ncid) );
   }//end LAI
@@ -2333,16 +2479,18 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
     //PFT and compartment
     if(curr_spec.pft && curr_spec.compartment){
-      start5[0] = temutil::get_nc_timedim_len(ncid);
+      //start5[0] = temutil::get_nc_timedim_len(ncid);
 
       double ltrfalc[NUM_PFT_PART][NUM_PFT];
       for(int ip=0; ip<NUM_PFT; ip++){
         for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
 
           if(curr_spec.monthly){
+            start5[0] = month_timestep;
             ltrfalc[ipp][ip] = cohort.bd[ip].m_v2soi.ltrfalc[ipp];
           }
           else if(curr_spec.yearly){
+            start5[0] = year;
             ltrfalc[ipp][ip] = cohort.bd[ip].y_v2soi.ltrfalc[ipp];
           }
         }
@@ -2352,15 +2500,17 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
     }
     //PFT only
     else if(curr_spec.pft && !curr_spec.compartment){
-      PFTstart4[0] = temutil::get_nc_timedim_len(ncid);
+      //PFTstart4[0] = temutil::get_nc_timedim_len(ncid);
 
       double ltrfalc[NUM_PFT];
       for(int ip=0; ip<NUM_PFT; ip++){
 
         if(curr_spec.monthly){
+          PFTstart4[0] = month_timestep;
           ltrfalc[ip] = cohort.bd[ip].m_v2soi.ltrfalcall;
         }
         else if(curr_spec.yearly){
+          PFTstart4[0] = year;
           ltrfalc[ip] = cohort.bd[ip].y_v2soi.ltrfalcall;
         }
       }
@@ -2369,16 +2519,18 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
     }
     //Compartment only
     else if(!curr_spec.pft && curr_spec.compartment){
-      CompStart4[0] = temutil::get_nc_timedim_len(ncid);
+      //CompStart4[0] = temutil::get_nc_timedim_len(ncid);
 
       double ltrfalc[NUM_PFT_PART] = {0};
       for(int ip=0; ip<NUM_PFT; ip++){
         for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
 
           if(curr_spec.monthly){
+            CompStart4[0] = month_timestep;
             ltrfalc[ipp] += cohort.bd[ip].m_v2soi.ltrfalc[ipp];
           }
           else if(curr_spec.yearly){
+            CompStart4[0] = year;
             ltrfalc[ipp] += cohort.bd[ip].y_v2soi.ltrfalc[ipp];
           }
         }
@@ -2388,15 +2540,17 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
     }
     //Neither PFT nor compartment - totals
     else if(!curr_spec.pft && !curr_spec.compartment){
-      start3[0] = temutil::get_nc_timedim_len(ncid);
+      //start3[0] = temutil::get_nc_timedim_len(ncid);
 
       double ltrfalc = 0;
       for(int ip=0; ip<NUM_PFT; ip++){
 
         if(curr_spec.monthly){
+          start3[0] = month_timestep;
           ltrfalc += cohort.bd[ip].m_v2soi.ltrfalcall;
         }
         else if(curr_spec.yearly){
+          start3[0] = year;
           ltrfalc += cohort.bd[ip].y_v2soi.ltrfalcall;
         }
       }
@@ -2418,16 +2572,18 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
     //PFT and compartment
     if(curr_spec.pft && curr_spec.compartment){
-      start5[0] = temutil::get_nc_timedim_len(ncid);
+      //start5[0] = temutil::get_nc_timedim_len(ncid);
 
       double ltrfaln[NUM_PFT_PART][NUM_PFT];
       for(int ip=0; ip<NUM_PFT; ip++){
         for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
 
           if(curr_spec.monthly){
+            start5[0] = month_timestep;
             ltrfaln[ipp][ip] = cohort.bd[ip].m_v2soi.ltrfaln[ipp];
           }
           else if(curr_spec.yearly){
+            start5[0] = year;
             ltrfaln[ipp][ip] = cohort.bd[ip].y_v2soi.ltrfaln[ipp];
           }
         }
@@ -2437,15 +2593,17 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
     }
     //PFT only
     else if(curr_spec.pft && !curr_spec.compartment){
-      PFTstart4[0] = temutil::get_nc_timedim_len(ncid);
+      //PFTstart4[0] = temutil::get_nc_timedim_len(ncid);
 
       double ltrfaln[NUM_PFT];
       for(int ip=0; ip<NUM_PFT; ip++){
 
         if(curr_spec.monthly){
+          PFTstart4[0] = month_timestep;
           ltrfaln[ip] = cohort.bd[ip].m_v2soi.ltrfalnall;
         }
         else if(curr_spec.yearly){
+          PFTstart4[0] = year;
           ltrfaln[ip] = cohort.bd[ip].y_v2soi.ltrfalnall;
         }
       }
@@ -2454,16 +2612,18 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
     }
     //Compartment only
     else if(!curr_spec.pft && curr_spec.compartment){
-      CompStart4[0] = temutil::get_nc_timedim_len(ncid);
+      //CompStart4[0] = temutil::get_nc_timedim_len(ncid);
 
       double ltrfaln[NUM_PFT_PART] = {0};
       for(int ip=0; ip<NUM_PFT; ip++){
         for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
 
           if(curr_spec.monthly){
+            CompStart4[0] = month_timestep;
             ltrfaln[ipp] += cohort.bd[ip].m_v2soi.ltrfaln[ipp];
           }
           else if(curr_spec.yearly){
+            CompStart4[0] = year;
             ltrfaln[ipp] += cohort.bd[ip].y_v2soi.ltrfaln[ipp];
           }
         }
@@ -2473,15 +2633,17 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
     }
     //Neither PFT nor compartment - totals
     else if(!curr_spec.pft && !curr_spec.compartment){
-      start3[0] = temutil::get_nc_timedim_len(ncid);
+      //start3[0] = temutil::get_nc_timedim_len(ncid);
 
       double ltrfaln = 0;
       for(int ip=0; ip<NUM_PFT; ip++){
 
         if(curr_spec.monthly){
+          start3[0] = month_timestep;
           ltrfaln += cohort.bd[ip].m_v2soi.ltrfalnall;
         }
         else if(curr_spec.yearly){
+          start3[0] = year;
           ltrfaln += cohort.bd[ip].y_v2soi.ltrfalnall;
         }
       }
@@ -2503,12 +2665,23 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
     //PFT and compartment
     if(curr_spec.pft && curr_spec.compartment){
-      start5[0] = temutil::get_nc_timedim_len(ncid);
+      //start5[0] = temutil::get_nc_timedim_len(ncid);
 
       double npp[NUM_PFT_PART][NUM_PFT];
-      for(int ip=0; ip<NUM_PFT; ip++){
-        for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
-          npp[ipp][ip] = cohort.bd[ip].m_a2v.npp[ipp];
+      if(curr_spec.monthly){
+        start5[0] = month_timestep;
+        for(int ip=0; ip<NUM_PFT; ip++){
+          for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
+            npp[ipp][ip] = cohort.bd[ip].m_a2v.npp[ipp];
+          }
+        }
+      }
+      else if(curr_spec.yearly){
+        start5[0] = year;
+        for(int ip=0; ip<NUM_PFT; ip++){
+          for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
+            npp[ipp][ip] = cohort.bd[ip].y_a2v.npp[ipp];
+          }
         }
       }
 
@@ -2516,23 +2689,43 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
     }
     //PFT only
     else if(curr_spec.pft && !curr_spec.compartment){
-      PFTstart4[0] = temutil::get_nc_timedim_len(ncid);
+      //PFTstart4[0] = temutil::get_nc_timedim_len(ncid);
 
       double npp[NUM_PFT];
-      for(int ip=0; ip<NUM_PFT; ip++){
-        npp[ip] = cohort.bd[ip].m_a2v.nppall; 
+      if(curr_spec.monthly){
+        PFTstart4[0] = month_timestep;
+        for(int ip=0; ip<NUM_PFT; ip++){
+          npp[ip] = cohort.bd[ip].m_a2v.nppall; 
+        }
+      }
+      else if(curr_spec.yearly){
+        PFTstart4[0] = year;
+        for(int ip=0; ip<NUM_PFT; ip++){
+          npp[ip] = cohort.bd[ip].y_a2v.nppall; 
+        }
       }
 
       temutil::nc( nc_put_vara_double(ncid, cv, PFTstart4, PFTcount4, &npp[0]) );
     }
     //Compartment only
     else if(!curr_spec.pft && curr_spec.compartment){
-      CompStart4[0] = temutil::get_nc_timedim_len(ncid);
+      //CompStart4[0] = temutil::get_nc_timedim_len(ncid);
 
       double npp[NUM_PFT_PART] = {0};
-      for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
-        for(int ip=0; ip<NUM_PFT; ip++){
-          npp[ipp] += cohort.bd[ip].m_a2v.npp[ipp];
+      if(curr_spec.monthly){
+        CompStart4[0] = month_timestep;
+        for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
+          for(int ip=0; ip<NUM_PFT; ip++){
+            npp[ipp] += cohort.bd[ip].m_a2v.npp[ipp];
+          }
+        }
+      }
+      else if(curr_spec.yearly){
+        CompStart4[0] = year;
+        for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
+          for(int ip=0; ip<NUM_PFT; ip++){
+            npp[ipp] += cohort.bd[ip].y_a2v.npp[ipp];
+          }
         }
       }
 
@@ -2540,13 +2733,15 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
     }
     //Neither PFT nor Compartment - total instead
     else if(!curr_spec.pft && !curr_spec.compartment){
-      start3[0] = temutil::get_nc_timedim_len(ncid);
+      //start3[0] = temutil::get_nc_timedim_len(ncid);
 
       double npp;
       if(curr_spec.monthly){
+        start3[0] = month_timestep;
         npp = cohort.bdall->m_a2v.nppall;
       }
       else if(curr_spec.yearly){
+        start3[0] = year;
         npp = cohort.bdall->y_a2v.nppall;
       }
 
@@ -2568,15 +2763,17 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
     //PFT and compartment
     if(curr_spec.pft && curr_spec.compartment){
-      start5[0] = temutil::get_nc_timedim_len(ncid);
+      //start5[0] = temutil::get_nc_timedim_len(ncid);
 
       double vegc[NUM_PFT_PART][NUM_PFT];
       for(int ip=0; ip<NUM_PFT; ip++){
         for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
           if(curr_spec.monthly){
+            start5[0] = month_timestep;
             vegc[ipp][ip] = cohort.bd[ip].m_vegs.c[ipp];
           }
           else if(curr_spec.yearly){
+            start5[0] = year;
             vegc[ipp][ip] = cohort.bd[ip].y_vegs.c[ipp];
           }
         }
@@ -2586,14 +2783,16 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
     }
     //PFT only
     else if(curr_spec.pft && !curr_spec.compartment){
-      PFTstart4[0] = temutil::get_nc_timedim_len(ncid);
+      //PFTstart4[0] = temutil::get_nc_timedim_len(ncid);
 
       double vegc[NUM_PFT];
       for(int ip=0; ip<NUM_PFT; ip++){
         if(curr_spec.monthly){
+          PFTstart4[0] = month_timestep;
           vegc[ip] = cohort.bd[ip].m_vegs.call;
         }
         else if(curr_spec.yearly){
+          PFTstart4[0] = year;
           vegc[ip] = cohort.bd[ip].y_vegs.call;
         }
       }
@@ -2608,9 +2807,11 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
       for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
         for(int ip=0; ip<NUM_PFT; ip++){
           if(curr_spec.monthly){
+            CompStart4[0] = month_timestep;
             vegc[ipp] += cohort.bd[ip].m_vegs.c[ipp];
           }
           else if(curr_spec.yearly){
+            CompStart4[0] = year;
             vegc[ipp] += cohort.bd[ip].y_vegs.c[ipp];
           }
         }
@@ -2624,9 +2825,11 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
       double vegc;
       if(curr_spec.monthly){
+        start3[0] = month_timestep;
         vegc = cohort.bdall->m_vegs.call;
       }
       else if(curr_spec.yearly){
+        start3[0] = year;
         vegc = cohort.bdall->y_vegs.call;
       }
 
@@ -2648,15 +2851,17 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
     //PFT and compartment
     if(curr_spec.pft && curr_spec.compartment){
-      start5[0] = temutil::get_nc_timedim_len(ncid);
+      //start5[0] = temutil::get_nc_timedim_len(ncid);
 
       double vegn[NUM_PFT_PART][NUM_PFT];
       for(int ip=0; ip<NUM_PFT; ip++){
         for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
           if(curr_spec.monthly){
+            start5[0] = month_timestep;
             vegn[ipp][ip] = cohort.bd[ip].m_vegs.strn[ipp];
           }
           else if(curr_spec.yearly){
+            start5[0] = year;
             vegn[ipp][ip] = cohort.bd[ip].y_vegs.strn[ipp];
           }
         }
@@ -2666,14 +2871,16 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
     }
     //PFT only
     else if(curr_spec.pft && !curr_spec.compartment){
-      PFTstart4[0] = temutil::get_nc_timedim_len(ncid);
+      //PFTstart4[0] = temutil::get_nc_timedim_len(ncid);
 
       double vegn[NUM_PFT];
       for(int ip=0; ip<NUM_PFT; ip++){
         if(curr_spec.monthly){
+          PFTstart4[0] = month_timestep;
           vegn[ip] = cohort.bd[ip].m_vegs.strnall;
         }
         else if(curr_spec.yearly){
+          PFTstart4[0] = year;
           vegn[ip] = cohort.bd[ip].y_vegs.strnall;
         }
       }
@@ -2682,15 +2889,17 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
     }
     //Compartment only
     else if(!curr_spec.pft && curr_spec.compartment){
-      CompStart4[0] = temutil::get_nc_timedim_len(ncid);
+      //CompStart4[0] = temutil::get_nc_timedim_len(ncid);
 
       double vegn[NUM_PFT_PART] = {0};
       for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
         for(int ip=0; ip<NUM_PFT; ip++){
           if(curr_spec.monthly){
+            CompStart4[0] = month_timestep;
             vegn[ipp] += cohort.bd[ip].m_vegs.strn[ipp];
           }
           else if(curr_spec.yearly){
+            CompStart4[0] = year;
             vegn[ipp] += cohort.bd[ip].y_vegs.strn[ipp];
           }
         }
@@ -2700,13 +2909,15 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
     }
     //Neither PFT nor compartment
     else if(!curr_spec.pft && !curr_spec.compartment){
-      start3[0] = temutil::get_nc_timedim_len(ncid);
+      //start3[0] = temutil::get_nc_timedim_len(ncid);
 
       double vegn;
       if(curr_spec.monthly){
+        start3[0] = month_timestep;
         vegn = cohort.bdall->m_vegs.nall;
       }
       else if(curr_spec.yearly){
+        start3[0] = year;
         vegn = cohort.bdall->y_vegs.nall;
       }
 
@@ -2730,9 +2941,10 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
     //PFT
     if(curr_spec.pft){
-      PFTstart4[0] = temutil::get_nc_timedim_len(ncid);
+      //PFTstart4[0] = temutil::get_nc_timedim_len(ncid);
 
       if(curr_spec.daily){
+        PFTstart4[0] = temutil::get_nc_timedim_len(ncid);
         PFTcount4[0] = dinm;
 
         double EET[dinm][NUM_PFT];
@@ -2745,6 +2957,7 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
         temutil::nc( nc_put_vara_double(ncid, cv, PFTstart4, PFTcount4, &EET[0][0]) );
       }
       else if(curr_spec.monthly){
+        PFTstart4[0] = month_timestep;
         double EET[NUM_PFT];
         for(int ip=0; ip<NUM_PFT; ip++){
           EET[ip] = cohort.ed[ip].m_l2a.eet;
@@ -2753,6 +2966,7 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
         temutil::nc( nc_put_vara_double(ncid, cv, PFTstart4, PFTcount4, &EET[0]) );
       }
       else if(curr_spec.yearly){
+        PFTstart4[0] = year;
         double EET[NUM_PFT];
         for(int ip=0; ip<NUM_PFT; ip++){
           EET[ip] = cohort.ed[ip].y_l2a.eet;
@@ -2763,16 +2977,19 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
     }
     //Not PFT. Total
     else if(!curr_spec.pft){
-      start3[0] = temutil::get_nc_timedim_len(ncid);
+      //start3[0] = temutil::get_nc_timedim_len(ncid);
 
       double eet;
       if(curr_spec.daily){
+        start3[0] = temutil::get_nc_timedim_len(ncid);
         eet = cohort.edall->d_l2a.eet;
       }
       else if(curr_spec.monthly){
+        start3[0] = month_timestep;
         eet = cohort.edall->m_l2a.eet;
       }
       else if(curr_spec.yearly){
+        start3[0] = year;
         eet = cohort.edall->y_l2a.eet;
       }
 
@@ -2794,9 +3011,10 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
     //PFT
     if(curr_spec.pft){
-      PFTstart4[0] = temutil::get_nc_timedim_len(ncid);
+      //PFTstart4[0] = temutil::get_nc_timedim_len(ncid);
 
       if(curr_spec.daily){
+        PFTstart4[0] = temutil::get_nc_timedim_len(ncid);
         PFTcount4[0] = dinm;
 
         double PET[dinm][NUM_PFT];
@@ -2809,6 +3027,7 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
         temutil::nc( nc_put_vara_double(ncid, cv, PFTstart4, PFTcount4, &PET[0][0]) );
       }
       else if(curr_spec.monthly){
+        PFTstart4[0] = month_timestep;
         double PET[NUM_PFT];
         for(int ip=0; ip<NUM_PFT; ip++){
           PET[ip] = cohort.ed[ip].m_l2a.pet;
@@ -2817,6 +3036,7 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
         temutil::nc( nc_put_vara_double(ncid, cv, PFTstart4, PFTcount4, &PET[0]) );
       }
       else if(curr_spec.yearly){
+        PFTstart4[0] = year;
         double PET[NUM_PFT];
         for(int ip=0; ip<NUM_PFT; ip++){
           PET[ip] = cohort.ed[ip].y_l2a.pet;
