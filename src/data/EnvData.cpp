@@ -628,10 +628,19 @@ void EnvData::grnd_endOfDay(const int & dinm, const int & doy) {
   //Storing daily data for NetCDF output at end of month
   daily_tshlw[dinm] = d_soid.tshlw;
   daily_tdeep[dinm] = d_soid.tdeep;
+  daily_tminea[dinm] = d_soid.tminea;
+  daily_tmineb[dinm] = d_soid.tmineb;
+  daily_tminec[dinm] = d_soid.tminec;
   daily_vwcshlw[dinm] = d_soid.vwcshlw;
   daily_vwcdeep[dinm] = d_soid.vwcdeep;
+  daily_vwcminea[dinm] = d_soid.vwcminea;
+  daily_vwcmineb[dinm] = d_soid.vwcmineb;
+  daily_vwcminec[dinm] = d_soid.vwcminec;
   daily_tcshlw[dinm] = d_soid.tcshlw;
   daily_tcdeep[dinm] = d_soid.tcdeep;
+  daily_tcminea[dinm] = d_soid.tcminea;
+  daily_tcmineb[dinm] = d_soid.tcmineb;
+  daily_tcminec[dinm] = d_soid.tcminec;
   daily_hkshlw[dinm] = d_soid.hkshlw;
   daily_hkdeep[dinm] = d_soid.hkdeep;
   daily_hkminea[dinm] = d_soid.hkminea;
