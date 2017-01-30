@@ -102,6 +102,9 @@ public:
   double daily_tcdeep[31];
   double daily_hkshlw[31];
   double daily_hkdeep[31];
+  double daily_hkminea[31];
+  double daily_hkmineb[31];
+  double daily_hkminec[31];
   double daily_watertab[31];
 
   double monthsfrozen;      // months since bottom soil frozen started -

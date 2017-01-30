@@ -1300,23 +1300,6 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   map_itr = netcdf_outputs.end();
 
 
-  map_itr = netcdf_outputs.find("NDEOP");
-  if(map_itr != netcdf_outputs.end()){
-    BOOST_LOG_SEV(glg, fatal)<<"NDEOP";
-    curr_spec = map_itr->second;
-
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
-    start3[0] = temutil::get_nc_timedim_len(ncid);
-
-    /*** STUB ***/
-
-    temutil::nc( nc_inq_varid(ncid, "NDEOP", &cv) );
-    //temutil::nc( nc_put_var1_double(ncid, cv, start3, &minec) );
-    temutil::nc( nc_close(ncid) ); 
-  }//end NDEOP
-  map_itr = netcdf_outputs.end();
-
-
   //Shallow C
   map_itr = netcdf_outputs.find("SHLWC");
   if(map_itr != netcdf_outputs.end()){
@@ -1402,8 +1385,96 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
 
   //HKMINEA
+  map_itr = netcdf_outputs.find("HKMINEA");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"HKMINEA";
+    curr_spec = map_itr->second;
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "HKMINEA", &cv) );
+    //start3[0] = temutil::get_nc_timedim_len(ncid);
+
+    double hkminea;
+    if(curr_spec.daily){
+      start3[0] = temutil::get_nc_timedim_len(ncid); 
+      temutil::nc( nc_put_vara_double(ncid, cv, start3, count3, &cohort.edall->daily_hkminea[0]) );
+    }
+    else if(curr_spec.monthly){
+      start3[0] = month_timestep;
+      hkminea = cohort.edall->m_soid.hkminea;
+      temutil::nc( nc_put_var1_double(ncid, cv, start3, &hkminea) );
+    }
+    else if(curr_spec.yearly){
+      start3[0] = year;
+      hkminea = cohort.edall->y_soid.hkminea;
+      temutil::nc( nc_put_var1_double(ncid, cv, start3, &hkminea) );
+    }
+
+    temutil::nc( nc_close(ncid) );
+  }//end HKMINEA
+  map_itr = netcdf_outputs.end();
+
+
   //HKMINEB
+  map_itr = netcdf_outputs.find("HKMINEB");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"HKMINEB";
+    curr_spec = map_itr->second;
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "HKMINEB", &cv) );
+    //start3[0] = temutil::get_nc_timedim_len(ncid);
+
+    double hkmineb;
+    if(curr_spec.daily){
+      start3[0] = temutil::get_nc_timedim_len(ncid); 
+      temutil::nc( nc_put_vara_double(ncid, cv, start3, count3, &cohort.edall->daily_hkmineb[0]) );
+    }
+    else if(curr_spec.monthly){
+      start3[0] = month_timestep;
+      hkmineb = cohort.edall->m_soid.hkmineb;
+      temutil::nc( nc_put_var1_double(ncid, cv, start3, &hkmineb) );
+    }
+    else if(curr_spec.yearly){
+      start3[0] = year;
+      hkmineb = cohort.edall->y_soid.hkmineb;
+      temutil::nc( nc_put_var1_double(ncid, cv, start3, &hkmineb) );
+    }
+
+    temutil::nc( nc_close(ncid) );
+  }//end HKMINEB
+  map_itr = netcdf_outputs.end();
+
+
   //HKMINEC
+  map_itr = netcdf_outputs.find("HKMINEC");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"HKMINEC";
+    curr_spec = map_itr->second;
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "HKMINEC", &cv) );
+    //start3[0] = temutil::get_nc_timedim_len(ncid);
+
+    double hkminec;
+    if(curr_spec.daily){
+      start3[0] = temutil::get_nc_timedim_len(ncid); 
+      temutil::nc( nc_put_vara_double(ncid, cv, start3, count3, &cohort.edall->daily_hkminec[0]) );
+    }
+    else if(curr_spec.monthly){
+      start3[0] = month_timestep;
+      hkminec = cohort.edall->m_soid.hkminec;
+      temutil::nc( nc_put_var1_double(ncid, cv, start3, &hkminec) );
+    }
+    else if(curr_spec.yearly){
+      start3[0] = year;
+      hkminec = cohort.edall->y_soid.hkminec;
+      temutil::nc( nc_put_var1_double(ncid, cv, start3, &hkminec) );
+    }
+
+    temutil::nc( nc_close(ncid) );
+  }//end HKMINEC
+  map_itr = netcdf_outputs.end();
 
 
   //HKSHLW
@@ -1605,7 +1676,6 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
   //TMINEBOT
   //TMINETOP
-  //TROCK34M
 
 
   //TSHLW
@@ -2305,43 +2375,6 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
     temutil::nc( nc_close(ncid) );
   }//end BURNVEG2SOIBLWN
-  map_itr = netcdf_outputs.end();
-
-
-  //Burned Veg Carbon
-  map_itr = netcdf_outputs.find("BURNVEGC");
-  if(map_itr != netcdf_outputs.end()){
-    BOOST_LOG_SEV(glg, fatal)<<"BURNVEGC";
-    curr_spec = map_itr->second;
-
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
-    temutil::nc( nc_inq_varid(ncid, "BURNVEGC", &cv) );
-
-    //PFT and compartment
-    if(curr_spec.pft && curr_spec.compartment){
-      start5[0] = temutil::get_nc_timedim_len(ncid);
-
-      double burnvegc[NUM_PFT_PART][NUM_PFT];
-      for(int ip=0; ip<NUM_PFT; ip++){
-        for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
-          //burnvegc[ipp][ip] = cohort.fd_month
-        }
-      }
-
-      //temutil::nc( nc_put_vara_double(ncid, cv, start5, count5, &burnvegc[0][0]) );
-    }
-    //PFT only
-    else if(curr_spec.pft && !curr_spec.compartment){
-      PFTstart4[0] = temutil::get_nc_timedim_len(ncid);
-
-    }
-    //Compartment only
-    else if(!curr_spec.pft && curr_spec.compartment){
-      CompStart4[0] = temutil::get_nc_timedim_len(ncid);
-
-    }
-    temutil::nc( nc_close(ncid) );
-  }//end Burn Veg C
   map_itr = netcdf_outputs.end();
 
 

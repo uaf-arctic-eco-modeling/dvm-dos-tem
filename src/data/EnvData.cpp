@@ -634,6 +634,9 @@ void EnvData::grnd_endOfDay(const int & dinm, const int & doy) {
   daily_tcdeep[dinm] = d_soid.tcdeep;
   daily_hkshlw[dinm] = d_soid.hkshlw;
   daily_hkdeep[dinm] = d_soid.hkdeep;
+  daily_hkminea[dinm] = d_soid.hkminea;
+  daily_hkmineb[dinm] = d_soid.hkmineb;
+  daily_hkminec[dinm] = d_soid.hkminec;
 
   daily_watertab[dinm] = d_sois.watertab;
 };
