@@ -244,7 +244,7 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
   //4D Soil
   int vartypeSoil4D_dimids[4];
 
-  //4D Veg - PFT but not PFT compartments
+  //4D Veg - PFT or compartment but not both 
   int vartypeVeg4D_dimids[4];
 
   //5D Veg - PFT and PFT compartment
@@ -258,14 +258,14 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
     std::string units;
     std::string desc;
 
-    output_spec temp_spec;
-    temp_spec.pft = false;
-    temp_spec.compartment = false;
-    temp_spec.layer = false;
-    temp_spec.yearly = false;
-    temp_spec.monthly = false;
-    temp_spec.daily = false;
-    temp_spec.dim_count = 3;//All variables have time, y, x
+    output_spec new_spec;
+    new_spec.pft = false;
+    new_spec.compartment = false;
+    new_spec.layer = false;
+    new_spec.yearly = false;
+    new_spec.monthly = false;
+    new_spec.daily = false;
+    new_spec.dim_count = 3;//All variables have time, y, x
 
     for(int ii=0; ii<9; ii++){
       std::getline(ss, token, ',');
@@ -283,56 +283,56 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
       else if(ii==3){//Yearly
         if(token.length()>0){
           timestep = "yearly";
-          temp_spec.yearly = true;
+          new_spec.yearly = true;
         }
       }
       else if(ii==4){//Monthly
         if(token.length()>0){
           timestep = "monthly";
-          temp_spec.monthly = true;
-          temp_spec.yearly = false;
+          new_spec.monthly = true;
+          new_spec.yearly = false;
         }
       }
       else if(ii==5){//Daily
         if(token.length()>0){
           timestep = "daily";
-          temp_spec.daily = true;
-          temp_spec.monthly = false;
-          temp_spec.yearly = false;
+          new_spec.daily = true;
+          new_spec.monthly = false;
+          new_spec.yearly = false;
         }
       }
       else if(ii==6){//PFT
         if(token.length()>0){
-          temp_spec.pft = true;
-          temp_spec.dim_count++;
+          new_spec.pft = true;
+          new_spec.dim_count++;
         }
       }
       else if(ii==7){//Compartment
         if(token.length()>0){
-          temp_spec.compartment = true;
-          temp_spec.dim_count++;
+          new_spec.compartment = true;
+          new_spec.dim_count++;
         }
       }
       else if(ii==8){//Layer
         if(token.length()>0){
-          temp_spec.layer = true;
-          temp_spec.dim_count++;
+          new_spec.layer = true;
+          new_spec.dim_count++;
         }
       }
     }
 
-    temp_spec.filename = name + "_" + timestep + "_" + stage + ".nc";
+    new_spec.filename = name + "_" + timestep + "_" + stage + ".nc";
 
     BOOST_LOG_SEV(glg, debug)<<"Variable: "<<name<<". Timestep: "<<timestep;
 
     //filename with local path
-    boost::filesystem::path output_filepath = output_base / temp_spec.filename;
+    boost::filesystem::path output_filepath = output_base / new_spec.filename;
     //convert path to string for simplicity in the following function calls
-    temp_spec.filestr = output_filepath.string();
+    new_spec.filestr = output_filepath.string();
 
     //Creating NetCDF file
-    BOOST_LOG_SEV(glg, debug)<<"Creating output NetCDF file "<<temp_spec.filestr;
-    temutil::nc( nc_create(temp_spec.filestr.c_str(), NC_CLOBBER, &ncid) );
+    BOOST_LOG_SEV(glg, debug)<<"Creating output NetCDF file "<<new_spec.filestr;
+    temutil::nc( nc_create(new_spec.filestr.c_str(), NC_CLOBBER, &ncid) );
 
     BOOST_LOG_SEV(glg, debug) << "Adding file-level attributes";
     temutil::nc( nc_put_att_text(ncid, NC_GLOBAL, "Git_SHA", strlen(GIT_SHA), GIT_SHA ) );
@@ -345,7 +345,7 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
     temutil::nc( nc_def_dim(ncid, "x", xsize, &xD) );
 
     //System-wide variables
-    if(temp_spec.dim_count==3){
+    if(new_spec.dim_count==3){
       vartype3D_dimids[0] = timeD;
       vartype3D_dimids[1] = yD;
       vartype3D_dimids[2] = xD;
@@ -354,7 +354,7 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
     }
 
     //PFT specific dimensions
-    else if(temp_spec.pft && !temp_spec.compartment){
+    else if(new_spec.pft && !new_spec.compartment){
       temutil::nc( nc_def_dim(ncid, "pft", NUM_PFT, &pftD) );
 
       vartypeVeg4D_dimids[0] = timeD;
@@ -366,7 +366,7 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
     }
 
     //PFT compartment only
-    else if(!temp_spec.pft && temp_spec.compartment){
+    else if(!new_spec.pft && new_spec.compartment){
       temutil::nc( nc_def_dim(ncid, "pftpart", NUM_PFT_PART, &pftpartD) );
 
       vartypeVeg4D_dimids[0] = timeD;
@@ -378,7 +378,7 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
     }
 
     //PFT and PFT compartments
-    else if(temp_spec.pft && temp_spec.compartment){ 
+    else if(new_spec.pft && new_spec.compartment){ 
       temutil::nc( nc_def_dim(ncid, "pft", NUM_PFT, &pftD) );
       temutil::nc( nc_def_dim(ncid, "pftpart", NUM_PFT_PART, &pftpartD) );
 
@@ -392,7 +392,7 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
     }
 
     //Soil specific dimensions
-    else if(temp_spec.layer){
+    else if(new_spec.layer){
       temutil::nc( nc_def_dim(ncid, "layer", MAX_SOI_LAY, &layerD) );
 
       vartypeSoil4D_dimids[0] = timeD;
@@ -417,17 +417,17 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
     temutil::nc( nc_close(ncid) );
 
     //Add output specifiers to the map tracking the appropriate timestep
-    if(temp_spec.daily){
-      daily_netcdf_outputs.insert(std::map<std::string, output_spec>::value_type(name, temp_spec));
+    if(new_spec.daily){
+      daily_netcdf_outputs.insert(std::map<std::string, output_spec>::value_type(name, new_spec));
     }
 
-    else if(temp_spec.monthly){
-      monthly_netcdf_outputs.insert(std::map<std::string, output_spec>::value_type(name, temp_spec));
+    else if(new_spec.monthly){
+      monthly_netcdf_outputs.insert(std::map<std::string, output_spec>::value_type(name, new_spec));
       //monthly_netcdf_outputs.insert({name, filename}); c++11
     }
 
-    else if(temp_spec.yearly){
-      yearly_netcdf_outputs.insert(std::map<std::string, output_spec>::value_type(name, temp_spec));
+    else if(new_spec.yearly){
+      yearly_netcdf_outputs.insert(std::map<std::string, output_spec>::value_type(name, new_spec));
     }
 
   }
