@@ -1385,6 +1385,29 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   map_itr = netcdf_outputs.end();
 
 
+  //HKLAYER
+  map_itr = netcdf_outputs.find("HKLAYER");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"HKLAYER";
+    curr_spec = map_itr->second;
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "HKLAYER", &cv) );
+
+    if(curr_spec.monthly){
+      soilstart4[0] = month_timestep;
+      temutil::nc( nc_put_vara_double(ncid, cv, soilstart4, soilcount4, &cohort.edall->m_soid.hcond[0]) );
+    }
+    else if(curr_spec.yearly){
+      soilstart4[0] = year;
+      temutil::nc( nc_put_vara_double(ncid, cv, soilstart4, soilcount4, &cohort.edall->y_soid.hcond[0]) );
+    }
+
+    temutil::nc( nc_close(ncid) );
+  }//end HKLAYER
+  map_itr = netcdf_outputs.end();
+
+
   //HKMINEA
   map_itr = netcdf_outputs.find("HKMINEA");
   if(map_itr != netcdf_outputs.end()){
@@ -1604,6 +1627,29 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   map_itr = netcdf_outputs.end();
 
 
+  //TCLAYER
+  map_itr = netcdf_outputs.find("TCLAYER");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"TCLAYER";
+    curr_spec = map_itr->second;
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "TCLAYER", &cv) );
+
+    if(curr_spec.monthly){
+      soilstart4[0] = month_timestep;
+      temutil::nc( nc_put_vara_double(ncid, cv, soilstart4, soilcount4, &cohort.edall->m_soid.tcond[0]) );
+    }
+    else if(curr_spec.yearly){
+      soilstart4[0] = year;
+      temutil::nc( nc_put_vara_double(ncid, cv, soilstart4, soilcount4, &cohort.edall->y_soid.tcond[0]) );
+    }
+
+    temutil::nc( nc_close(ncid) );
+  }//end TCLAYER
+  map_itr = netcdf_outputs.end();
+
+
   //TCMINEA
   map_itr = netcdf_outputs.find("TCMINEA");
   if(map_itr != netcdf_outputs.end()){
@@ -1749,6 +1795,29 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   map_itr = netcdf_outputs.end();
 
 
+  //TLAYER
+  map_itr = netcdf_outputs.find("TLAYER");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"TLAYER";
+    curr_spec = map_itr->second;
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "TLAYER", &cv) );
+
+    if(curr_spec.monthly){
+      soilstart4[0] = month_timestep;
+      temutil::nc( nc_put_vara_double(ncid, cv, soilstart4, soilcount4, &cohort.edall->m_sois.ts[0]) );
+    }
+    else if(curr_spec.yearly){
+      soilstart4[0] = year;
+      temutil::nc( nc_put_vara_double(ncid, cv, soilstart4, soilcount4, &cohort.edall->y_sois.ts[0]) );
+    }
+
+    temutil::nc( nc_close(ncid) );
+  }//end TLAYER
+  map_itr = netcdf_outputs.end();
+
+
   //TMINEA
   map_itr = netcdf_outputs.find("TMINEA");
   if(map_itr != netcdf_outputs.end()){
@@ -1865,9 +1934,6 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   map_itr = netcdf_outputs.end();
 
 
-  //TTD
-
-
   //VWCDEEP
   map_itr = netcdf_outputs.find("VWCDEEP");
   if(map_itr != netcdf_outputs.end()){
@@ -1894,6 +1960,29 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
     }
     temutil::nc( nc_close(ncid) );
   }//end VWCDEEP
+  map_itr = netcdf_outputs.end();
+
+
+  //VWCLAYER
+  map_itr = netcdf_outputs.find("VWCLAYER");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"VWCLAYER";
+    curr_spec = map_itr->second;
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "VWCLAYER", &cv) );
+
+    if(curr_spec.monthly){
+      soilstart4[0] = month_timestep;
+      temutil::nc( nc_put_vara_double(ncid, cv, soilstart4, soilcount4, &cohort.edall->m_soid.vwc[0]) );
+    }
+    else if(curr_spec.yearly){
+      soilstart4[0] = year;
+      temutil::nc( nc_put_vara_double(ncid, cv, soilstart4, soilcount4, &cohort.edall->y_soid.vwc[0]) );
+    }
+
+    temutil::nc( nc_close(ncid) );
+  }//end VWCLAYER
   map_itr = netcdf_outputs.end();
 
 
@@ -2011,9 +2100,6 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
     temutil::nc( nc_close(ncid) );
   }//end VWCSHLW
   map_itr = netcdf_outputs.end();
-
-
-  //VWCTD
 
 
   //WATERTAB
