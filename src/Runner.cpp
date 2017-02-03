@@ -1051,6 +1051,7 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   }//end SNOWSTART
   map_itr = netcdf_outputs.end();
 
+
   //Years since disturbance
   map_itr = netcdf_outputs.find("YSD");
   if(map_itr != netcdf_outputs.end()){
@@ -2314,6 +2315,52 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   map_itr = netcdf_outputs.end();
 
 
+  //DRAINAGE
+  map_itr = netcdf_outputs.find("DRAINAGE");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"DRAINAGE";
+    curr_spec = map_itr->second;
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "DRAINAGE", &cv) );
+
+    if(curr_spec.layer){
+
+      if(curr_spec.daily){
+        /*** STUB ***/
+      }
+      else if(curr_spec.monthly){
+        soilstart4[0] = month_timestep;
+        /*** STUB ***/
+      }
+      else if(curr_spec.yearly){
+        soilstart4[0] = year;
+        /*** STUB ***/
+      }
+
+    }
+    else if(!curr_spec.layer){
+
+      if(curr_spec.daily){
+        start3[0] = day_timestep;
+        temutil::nc( nc_put_vara_double(ncid, cv, start3, count3, &cohort.edall->m_soi2l.qdrain) );
+      }
+      else if(curr_spec.monthly){
+        start3[0] = month_timestep;
+        temutil::nc( nc_put_var1_double(ncid, cv, start3, &cohort.edall->m_soi2l.qdrain) );
+      }
+      else if(curr_spec.yearly){
+        start3[0] = year;
+        temutil::nc( nc_put_var1_double(ncid, cv, start3, &cohort.edall->y_soi2l.qdrain) );
+      }
+
+    }
+
+    temutil::nc( nc_close(ncid) );
+  }//end DRAINAGE
+  map_itr = netcdf_outputs.end();
+
+
   //NETNMIN
   map_itr = netcdf_outputs.find("NETNMIN");
   if(map_itr != netcdf_outputs.end()){
@@ -3151,6 +3198,37 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
     }
     temutil::nc( nc_close(ncid) );
   }//end NPP
+  map_itr = netcdf_outputs.end();
+
+
+  //NUPTAKE
+  map_itr = netcdf_outputs.find("NUPTAKE");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"NUPTAKE";
+    curr_spec = map_itr->second;
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "NUPTAKE", &cv) );
+
+    //PFT and compartment
+    if(curr_spec.pft && curr_spec.compartment){
+      /*** STUB ***/
+    }
+    //PFT only
+    else if(curr_spec.pft && !curr_spec.compartment){
+    }
+    //Compartment only
+    else if(!curr_spec.pft && curr_spec.compartment){
+      /*** STUB ***/
+    }
+    //Neither PFT nor compartment
+    else if(!curr_spec.pft && !curr_spec.compartment){
+
+      //cohort.bdall->m_soi2v.snuptakeall or innuptake
+    }
+
+    temutil::nc( nc_close(ncid) );
+  }//end NUPTAKE
   map_itr = netcdf_outputs.end();
 
 

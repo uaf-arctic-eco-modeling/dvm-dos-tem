@@ -650,6 +650,8 @@ void EnvData::grnd_endOfDay(const int & dinm, const int & doy) {
   daily_hkminec[dinm] = d_soid.hkminec;
 
   daily_watertab[dinm] = d_sois.watertab;
+
+  daily_drainage[dinm] = d_soi2l.qdrain;
 };
 
 void EnvData::atm_endOfMonth() {
