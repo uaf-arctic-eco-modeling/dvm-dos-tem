@@ -2361,10 +2361,54 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   map_itr = netcdf_outputs.end();
 
 
+  //NDRAIN
+  map_itr = netcdf_outputs.find("NDRAIN");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"NetCDF output: NDRAIN";
+    curr_spec = map_itr->second;
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "NDRAIN", &cv) );
+
+    if(curr_spec.layer){
+
+      if(curr_spec.monthly){
+        soilstart4[0] = month_timestep;
+        //temutil::nc( nc_put_vara_double(ncid, cv, soilstart4, soilcount4, &cohort.soilbgc.bd->m_soi2l.ndrain[0]) );
+      }
+      else if(curr_spec.yearly){
+        /*** STUB ***/
+      }
+    }
+    else if(!curr_spec.layer){
+
+      double ndrain = 0;
+      if(curr_spec.monthly){
+        start3[0] = month_timestep;
+
+        for(int il=0; il<MAX_SOI_LAY; il++){
+          //ndrain += bd->m_soi2l.ndrain[il];
+          /*** STUB ***/
+        }
+
+      }
+      if(curr_spec.yearly){
+        start3[0] = year;
+        /*** STUB ***/
+      }
+
+      //temutil::nc( nc_put_var1_double(ncid, cv, start3, &ndrain) );
+    }
+
+    temutil::nc( nc_close(ncid) );
+  }//end NDRAIN
+  map_itr = netcdf_outputs.end();
+
+
   //NETNMIN
   map_itr = netcdf_outputs.find("NETNMIN");
   if(map_itr != netcdf_outputs.end()){
-    BOOST_LOG_SEV(glg, fatal)<<"NETNMIN";
+    BOOST_LOG_SEV(glg, fatal)<<"NetCDF output: NETNMIN";
     curr_spec = map_itr->second;
 
     temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
@@ -2406,8 +2450,83 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   map_itr = netcdf_outputs.end();
 
 
+  //NIMMOB
+  map_itr = netcdf_outputs.find("NIMMOB");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"NetCDF output: NIMMOB";
+    curr_spec = map_itr->second;
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "NIMMOB", &cv) );
+
+    if(curr_spec.layer){
+
+      double nimmob[MAX_SOI_LAY];
+      for(int il=0; il<MAX_SOI_LAY; il++){
+        if(curr_spec.monthly){
+          soilstart4[0] = month_timestep;
+          nimmob[il] = cohort.bdall->m_soi2soi.nimmob[il];
+        }
+        else if(curr_spec.yearly){
+          soilstart4[0] = year;
+          nimmob[il] = cohort.bdall->y_soi2soi.nimmob[il];
+        }
+      }
+
+      temutil::nc( nc_put_vara_double(ncid, cv, soilstart4, soilcount4, &nimmob[0]) );
+    }
+    else if(!curr_spec.layer){
+
+      double nimmob;
+      if(curr_spec.monthly){
+        start3[0] = month_timestep;
+        nimmob = cohort.bdall->m_soi2soi.nimmobsum;
+      }
+      else if(curr_spec.yearly){
+        start3[0] = year;
+        nimmob = cohort.bdall->y_soi2soi.nimmobsum;
+      }
+
+      temutil::nc( nc_put_var1_double(ncid, cv, start3, &nimmob) );
+    }
+
+    temutil::nc( nc_close(ncid) );
+  }//end NIMMOB
+  map_itr = netcdf_outputs.end();
+
 
   //NINPUT
+  map_itr = netcdf_outputs.find("NINPUT");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"NetCDF output: NINPUT";
+    curr_spec = map_itr->second;
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "NINPUT", &cv) );
+
+    if(curr_spec.layer){
+      /*** STUB ***/
+    }
+    else if(!curr_spec.layer){
+
+      double ninput;
+      if(curr_spec.monthly){
+        start3[0] = month_timestep;
+        ninput = cohort.bdall->m_a2soi.avlninput;
+      }
+      else if(curr_spec.yearly){
+        start3[0] = year;
+        ninput = cohort.bdall->y_a2soi.avlninput;
+      }
+
+      temutil::nc( nc_put_var1_double(ncid, cv, start3, &ninput) );
+    }
+
+    temutil::nc( nc_close(ncid) );
+  }//end NINPUT
+  map_itr = netcdf_outputs.end();
+
+
 
 
   //NLOST
