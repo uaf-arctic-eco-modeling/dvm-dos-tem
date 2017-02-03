@@ -1051,6 +1051,22 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   }//end SNOWSTART
   map_itr = netcdf_outputs.end();
 
+  //Years since disturbance
+  map_itr = netcdf_outputs.find("YSD");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"YSD";
+    curr_spec = map_itr->second;
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "YSD", &cv) );
+    start3[0] = year;
+
+    double ysd = cohort.cd.yrsdist;
+
+    temutil::nc( nc_put_var1_double(ncid, cv, start3, &ysd) );
+    temutil::nc( nc_close(ncid) );
+  }//end PERMAFROST
+  map_itr = netcdf_outputs.end();
 
 
   /*** Two combination vars: (month, year) ***/
@@ -2689,7 +2705,21 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
     }
     //Total
     else if(!curr_spec.pft){
-      /*** STUB ***/
+
+      double lai = 0;
+      if(curr_spec.monthly){
+        start3[0] = month_timestep;
+        for(int ip=0; ip<NUM_PFT; ip++){
+          lai += cohort.cd.m_veg.lai[ip];
+        }
+      }
+      else if(curr_spec.yearly){
+        start3[0] = year;
+        for(int ip=0; ip<NUM_PFT; ip++){
+          lai += cohort.cd.y_veg.lai[ip];
+        }
+      }
+      temutil::nc( nc_put_var1_double(ncid, cv, start3, &lai) );
     }
     temutil::nc( nc_close(ncid) );
   }//end LAI
