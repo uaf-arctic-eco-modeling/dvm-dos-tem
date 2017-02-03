@@ -2131,6 +2131,76 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   map_itr = netcdf_outputs.end();
 
 
+  /*** Three combination vars. (year, month)x(layer) ***/
+  //LAYERDEPTH
+  map_itr = netcdf_outputs.find("LAYERDEPTH");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"LAYERDEPTH";
+    curr_spec = map_itr->second;
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "LAYERDEPTH", &cv) );
+
+    if(curr_spec.monthly){
+      soilstart4[0] = month_timestep;
+      temutil::nc( nc_put_vara_double(ncid, cv, soilstart4, soilcount4, &cohort.cd.m_soil.z[0]) );
+    }
+    else if(curr_spec.yearly){
+      soilstart4[0] = year;
+      temutil::nc( nc_put_vara_double(ncid, cv, soilstart4, soilcount4, &cohort.cd.y_soil.z[0]) );
+    }
+
+    temutil::nc( nc_close(ncid) );
+  }//end LAYERDEPTH 
+  map_itr = netcdf_outputs.end();
+
+
+  //LAYERDZ
+  map_itr = netcdf_outputs.find("LAYERDZ");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"LAYERDZ";
+    curr_spec = map_itr->second;
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "LAYERDZ", &cv) );
+
+    if(curr_spec.monthly){
+      soilstart4[0] = month_timestep;
+      temutil::nc( nc_put_vara_double(ncid, cv, soilstart4, soilcount4, &cohort.cd.m_soil.dz[0]) );
+    }
+    else if(curr_spec.yearly){
+      soilstart4[0] = year;
+      temutil::nc( nc_put_vara_double(ncid, cv, soilstart4, soilcount4, &cohort.cd.y_soil.dz[0]) );
+    }
+
+    temutil::nc( nc_close(ncid) );
+  }//end LAYERDZ 
+  map_itr = netcdf_outputs.end();
+
+
+  //LAYERTYPE
+  map_itr = netcdf_outputs.find("LAYERTYPE");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"LAYERTYPE";
+    curr_spec = map_itr->second;
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "LAYERTYPE", &cv) );
+
+    if(curr_spec.monthly){
+      soilstart4[0] = month_timestep;
+      temutil::nc( nc_put_vara_int(ncid, cv, soilstart4, soilcount4, &cohort.cd.m_soil.type[0]) );
+    }
+    else if(curr_spec.yearly){
+      soilstart4[0] = year;
+      temutil::nc( nc_put_vara_int(ncid, cv, soilstart4, soilcount4, &cohort.cd.y_soil.type[0]) );
+    }
+
+    temutil::nc( nc_close(ncid) );
+  }//end LAYERTYPE 
+  map_itr = netcdf_outputs.end();
+
+
   /*** Four combination vars. (year, month)x(layer, tot)  ***/
   //AVLN
   map_itr = netcdf_outputs.find("AVLN");
