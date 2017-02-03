@@ -3568,21 +3568,26 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
     //Not PFT. Total
     else if(!curr_spec.pft){
 
-      double eet;
       if(curr_spec.daily){
         start3[0] = day_timestep;
-        eet = cohort.edall->d_l2a.eet;
+        double eet[31] = {0};
+        for(int ii=0; ii<31; ii++){
+          for(int ip=0; ip<NUM_PFT; ip++){
+            eet[ii] += cohort.ed[ip].daily_eet[ii];
+          }
+        }
+        temutil::nc( nc_put_vara_double(ncid, cv, start3, count3, &eet[0]) );
       }
       else if(curr_spec.monthly){
         start3[0] = month_timestep;
-        eet = cohort.edall->m_l2a.eet;
+        double eet = cohort.edall->m_l2a.eet;
+        temutil::nc( nc_put_var1_double(ncid, cv, start3, &eet) );
       }
       else if(curr_spec.yearly){
         start3[0] = year;
-        eet = cohort.edall->y_l2a.eet;
+        double eet = cohort.edall->y_l2a.eet;
+        temutil::nc( nc_put_var1_double(ncid, cv, start3, &eet) );
       }
-
-      temutil::nc( nc_put_var1_double(ncid, cv, start3, &eet) );
     }
    temutil::nc( nc_close(ncid) );
   }//end EET
@@ -3633,10 +3638,29 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
         temutil::nc( nc_put_vara_double(ncid, cv, PFTstart4, PFTcount4, &PET[0]) );
       }
     }
-    //Not PFT. Total?
+    //Not PFT. Total
     else if(!curr_spec.pft){
-      /*** STUB ***/
-      //total PET - is this useful?
+
+      if(curr_spec.daily){
+        start3[0] = day_timestep;
+        double pet[31] = {0};
+        for(int ii=0; ii<31; ii++){
+          for(int ip=0; ip<NUM_PFT; ip++){
+            pet[ii] += cohort.ed[ip].daily_pet[ii];
+          }
+        }
+        temutil::nc( nc_put_vara_double(ncid, cv, start3, count3, &pet[0]) );
+      }
+      else if(curr_spec.monthly){
+        start3[0] = month_timestep;
+        double pet = cohort.edall->m_l2a.pet;
+        temutil::nc( nc_put_var1_double(ncid, cv, start3, &pet) );
+      }
+      else if(curr_spec.yearly){
+        start3[0] = year;
+        double pet = cohort.edall->y_l2a.pet;
+        temutil::nc( nc_put_var1_double(ncid, cv, start3, &pet) );
+      }
     }
 
    temutil::nc( nc_close(ncid) );
