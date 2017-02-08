@@ -2502,8 +2502,6 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   map_itr = netcdf_outputs.end();
 
 
-
-
   //NLOST
   map_itr = netcdf_outputs.find("NLOST");
   if(map_itr != netcdf_outputs.end()){
@@ -3295,21 +3293,40 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   map_itr = netcdf_outputs.end();
 
 
-  //NUPTAKE
-  map_itr = netcdf_outputs.find("NUPTAKE");
+  //NUPTAKEIN
+  map_itr = netcdf_outputs.find("NUPTAKEIN");
   if(map_itr != netcdf_outputs.end()){
-    BOOST_LOG_SEV(glg, fatal)<<"NUPTAKE";
+    BOOST_LOG_SEV(glg, fatal)<<"NUPTAKEIN";
     curr_spec = map_itr->second;
 
     temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
-    temutil::nc( nc_inq_varid(ncid, "NUPTAKE", &cv) );
+    temutil::nc( nc_inq_varid(ncid, "NUPTAKEIN", &cv) );
 
     //PFT and compartment
     if(curr_spec.pft && curr_spec.compartment){
       /*** STUB ***/
+      //Currently unavailable. N uptake will need to be made accessible
+      // by PFT compartment.
     }
     //PFT only
     else if(curr_spec.pft && !curr_spec.compartment){
+      double innuptake[NUM_PFT];
+
+      if(curr_spec.monthly){
+        PFTstart4[0] = month_timestep;
+
+        for(int ip=0; ip<NUM_PFT; ip++){
+          innuptake[ip] = cohort.bd[ip].m_soi2v.innuptake;
+        }
+      }
+      else if(curr_spec.yearly){
+        PFTstart4[0] = year;
+
+        for(int ip=0; ip<NUM_PFT; ip++){
+          innuptake[ip] = cohort.bd[ip].y_soi2v.innuptake;
+        }
+      }
+      temutil::nc( nc_put_vara_double(ncid, cv, PFTstart4, PFTcount4, &innuptake[0]) );
     }
     //Compartment only
     else if(!curr_spec.pft && curr_spec.compartment){
@@ -3317,12 +3334,165 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
     }
     //Neither PFT nor compartment
     else if(!curr_spec.pft && !curr_spec.compartment){
+      double innuptake = 0;
 
-      //cohort.bdall->m_soi2v.snuptakeall or innuptake
+      if(curr_spec.monthly){
+        start3[0] = month_timestep;
+        innuptake = cohort.bdall->m_soi2v.innuptake;
+      }
+      else if(curr_spec.yearly){
+        start3[0] = year;
+        innuptake = cohort.bdall->y_soi2v.innuptake;
+      }
+      temutil::nc( nc_put_var1_double(ncid, cv, start3, &innuptake) );
     }
 
     temutil::nc( nc_close(ncid) );
-  }//end NUPTAKE
+  }//end NUPTAKEIN
+  map_itr = netcdf_outputs.end();
+
+
+  //NUPTAKELAB
+  map_itr = netcdf_outputs.find("NUPTAKELAB");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"NUPTAKELAB";
+    curr_spec = map_itr->second;
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "NUPTAKELAB", &cv) );
+
+    //PFT and compartment
+    if(curr_spec.pft && curr_spec.compartment){
+      /*** STUB ***/
+      //Currently unavailable. Labile N uptake will need to be made
+      // accessible by PFT compartment.
+    }
+    //PFT only
+    else if(curr_spec.pft && !curr_spec.compartment){
+      double labnuptake[NUM_PFT];
+
+      if(curr_spec.monthly){
+        PFTstart4[0] = month_timestep;
+
+        for(int ip=0; ip<NUM_PFT; ip++){
+          labnuptake[ip] = cohort.bd[ip].m_soi2v.lnuptake;
+        }
+      }
+      else if(curr_spec.yearly){
+        PFTstart4[0] = year;
+
+        for(int ip=0; ip<NUM_PFT; ip++){
+          labnuptake[ip] = cohort.bd[ip].y_soi2v.lnuptake;
+        }
+      }
+      temutil::nc( nc_put_vara_double(ncid, cv, PFTstart4, PFTcount4, &labnuptake[0]) );
+    }
+    //Compartment only
+    else if(!curr_spec.pft && curr_spec.compartment){
+      /*** STUB ***/
+    }
+    //Neither PFT nor compartment
+    else if(!curr_spec.pft && !curr_spec.compartment){
+      double labnuptake = 0;
+
+      if(curr_spec.monthly){
+        start3[0] = month_timestep;
+        labnuptake = cohort.bdall->m_soi2v.lnuptake;
+      }
+      else if(curr_spec.yearly){
+        start3[0] = year;
+        labnuptake = cohort.bdall->y_soi2v.lnuptake;
+      }
+      temutil::nc( nc_put_var1_double(ncid, cv, start3, &labnuptake) );
+    }
+
+    temutil::nc( nc_close(ncid) );
+  }//end NUPTAKELAB
+  map_itr = netcdf_outputs.end();
+
+
+  //NUPTAKEST
+  map_itr = netcdf_outputs.find("NUPTAKEST");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"NUPTAKEST";
+    curr_spec = map_itr->second;
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "NUPTAKEST", &cv) );
+
+    //PFT and compartment
+    if(curr_spec.pft && curr_spec.compartment){
+      double snuptake[NUM_PFT_PART][NUM_PFT];
+
+      for(int ip=0; ip<NUM_PFT; ip++){
+        for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
+          if(curr_spec.monthly){
+            start5[0] = month_timestep;
+            snuptake[ipp][ip] = cohort.bd[ip].m_soi2v.snuptake[ipp];
+          }
+          else if(curr_spec.yearly){
+            start5[0] = year;
+            snuptake[ipp][ip] = cohort.bd[ip].y_soi2v.snuptake[ipp];
+          }
+        }
+      }
+      temutil::nc( nc_put_vara_double(ncid, cv, start5, count5, &snuptake[0][0]) );
+    }
+    //PFT only
+    else if(curr_spec.pft && !curr_spec.compartment){
+      double snuptake[NUM_PFT] = {0};
+
+      if(curr_spec.monthly){
+        PFTstart4[0] = month_timestep;
+
+        for(int ip=0; ip<NUM_PFT; ip++){
+          snuptake[ip] = cohort.bd[ip].m_soi2v.snuptakeall;
+        }
+      }
+      else if(curr_spec.yearly){
+        PFTstart4[0] = year;
+
+        for(int ip=0; ip<NUM_PFT; ip++){
+          snuptake[ip] = cohort.bd[ip].y_soi2v.snuptakeall;
+        }
+      }
+      temutil::nc( nc_put_vara_double(ncid, cv, PFTstart4, PFTcount4, &snuptake[0]) );
+    }
+    //Compartment only
+    else if(!curr_spec.pft && curr_spec.compartment){
+      double snuptake[NUM_PFT_PART] = {0};
+      for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
+        for(int ip=0; ip<NUM_PFT; ip++){
+          if(curr_spec.monthly){
+            CompStart4[0] = month_timestep;
+            snuptake[ipp] += cohort.bd[ip].m_soi2v.snuptake[ipp]; 
+          }
+          else if(curr_spec.yearly){
+            CompStart4[0] = year;
+            snuptake[ipp] += cohort.bd[ip].y_soi2v.snuptake[ipp]; 
+          }
+        }
+      }
+
+      temutil::nc( nc_put_vara_double(ncid, cv, CompStart4, CompCount4, &snuptake[0]) );
+    }
+    //Neither PFT nor compartment
+    else if(!curr_spec.pft && !curr_spec.compartment){
+      double snuptakeall = 0;
+
+      if(curr_spec.monthly){
+        start3[0] = month_timestep;
+        snuptakeall = cohort.bdall->m_soi2v.snuptakeall;
+      }
+      else if(curr_spec.yearly){
+        start3[0] = year;
+        snuptakeall = cohort.bdall->y_soi2v.snuptakeall;
+      }
+      temutil::nc( nc_put_var1_double(ncid, cv, start3, &snuptakeall) );
+    }
+
+    temutil::nc( nc_close(ncid) );
+  }//end NUPTAKEST
   map_itr = netcdf_outputs.end();
 
 
