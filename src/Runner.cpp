@@ -1280,6 +1280,81 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   map_itr = netcdf_outputs.end();
 
 
+  //QDRAINAGE
+  map_itr = netcdf_outputs.find("QDRAINAGE");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"NetCDF output: QDRAINAGE";
+    curr_spec = map_itr->second;
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "QDRAINAGE", &cv) );
+
+    double qdrainage = 0;
+    if(curr_spec.monthly){
+      start3[0] = month_timestep;
+      qdrainage = cohort.edall->m_soi2l.qdrain; 
+    }
+    else if(curr_spec.yearly){
+      start3[0] = year;
+      qdrainage = cohort.edall->y_soi2l.qdrain; 
+    }
+
+    temutil::nc( nc_put_var1_double(ncid, cv, start3, &qdrainage) );
+    temutil::nc( nc_close(ncid) ); 
+  }//end QDRAINAGE 
+  map_itr = netcdf_outputs.end();
+
+
+  //QINFILTRATION
+  map_itr = netcdf_outputs.find("QINFILTRATION");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"NetCDF output: QINFILTRATION";
+    curr_spec = map_itr->second;
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "QINFILTRATION", &cv) );
+
+    double qinfil = 0;
+    if(curr_spec.monthly){
+      start3[0] = month_timestep;
+      qinfil = cohort.edall->m_soi2l.qinfl; 
+    }
+    else if(curr_spec.yearly){
+      start3[0] = year;
+      qinfil = cohort.edall->y_soi2l.qinfl; 
+    }
+
+    temutil::nc( nc_put_var1_double(ncid, cv, start3, &qinfil) );
+    temutil::nc( nc_close(ncid) ); 
+  }//end QINFILTRATION
+  map_itr = netcdf_outputs.end();
+
+
+  //QRUNOFF
+  map_itr = netcdf_outputs.find("QRUNOFF");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, fatal)<<"NetCDF output: QRUNOFF";
+    curr_spec = map_itr->second;
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "QRUNOFF", &cv) );
+
+    double qrunoff = 0;
+    if(curr_spec.monthly){
+      start3[0] = month_timestep;
+      qrunoff = cohort.edall->m_soi2l.qover; 
+    }
+    else if(curr_spec.yearly){
+      start3[0] = year;
+      qrunoff = cohort.edall->y_soi2l.qover;
+    }
+
+    temutil::nc( nc_put_var1_double(ncid, cv, start3, &qrunoff) );
+    temutil::nc( nc_close(ncid) ); 
+  }//end QRUNOFF 
+  map_itr = netcdf_outputs.end();
+
+
   //Shallow C
   map_itr = netcdf_outputs.find("SHLWC");
   if(map_itr != netcdf_outputs.end()){
@@ -2287,52 +2362,6 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
     temutil::nc( nc_close(ncid) );
   }//end BURNSOILN
-  map_itr = netcdf_outputs.end();
-
-
-  //DRAINAGE
-  map_itr = netcdf_outputs.find("DRAINAGE");
-  if(map_itr != netcdf_outputs.end()){
-    BOOST_LOG_SEV(glg, fatal)<<"DRAINAGE";
-    curr_spec = map_itr->second;
-
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
-    temutil::nc( nc_inq_varid(ncid, "DRAINAGE", &cv) );
-
-    if(curr_spec.layer){
-
-      if(curr_spec.daily){
-        /*** STUB ***/
-      }
-      else if(curr_spec.monthly){
-        soilstart4[0] = month_timestep;
-        /*** STUB ***/
-      }
-      else if(curr_spec.yearly){
-        soilstart4[0] = year;
-        /*** STUB ***/
-      }
-
-    }
-    else if(!curr_spec.layer){
-
-      if(curr_spec.daily){
-        start3[0] = day_timestep;
-        temutil::nc( nc_put_vara_double(ncid, cv, start3, count3, &cohort.edall->m_soi2l.qdrain) );
-      }
-      else if(curr_spec.monthly){
-        start3[0] = month_timestep;
-        temutil::nc( nc_put_var1_double(ncid, cv, start3, &cohort.edall->m_soi2l.qdrain) );
-      }
-      else if(curr_spec.yearly){
-        start3[0] = year;
-        temutil::nc( nc_put_var1_double(ncid, cv, start3, &cohort.edall->y_soi2l.qdrain) );
-      }
-
-    }
-
-    temutil::nc( nc_close(ncid) );
-  }//end DRAINAGE
   map_itr = netcdf_outputs.end();
 
 
