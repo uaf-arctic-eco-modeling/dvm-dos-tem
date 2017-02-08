@@ -1071,31 +1071,6 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
 
 
   /*** Two combination vars: (month, year) ***/
-  map_itr = netcdf_outputs.find("BURNAIR2SOIC");
-  if(map_itr != netcdf_outputs.end()){
-    BOOST_LOG_SEV(glg, fatal)<<"Burned soil C";
-    curr_spec = map_itr->second;
-
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
-    temutil::nc( nc_inq_varid(ncid, "BURNAIR2SOIC", &cv) );
-
-    double burnair2soic;
-    if(curr_spec.monthly){
-      start3[0] = month_timestep;
-      /*** STUB ***/
-      //This variable is not yet easily accessible
-    }
-    else if(curr_spec.yearly){
-      start3[0] = year;
-      /*** STUB ***/
-    }
-
-    temutil::nc( nc_put_var1_double(ncid, cv, start3, &burnair2soic) );
-    temutil::nc( nc_close(ncid) );
-  }//end BURNAIR2SOIC
-  map_itr = netcdf_outputs.end();
-
-
   map_itr = netcdf_outputs.find("BURNAIR2SOIN");
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, fatal)<<"Burned soil N";
