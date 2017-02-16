@@ -60,19 +60,25 @@ def detect_block_with_pft_info(cmtdatablock):
   # Perhaps should look at all lines??
   secondline = cmtdatablock[1].strip("//").split()
   if len(secondline) >= 9:
-    print "Looks like a PFT header line!"
+    #print "Looks like a PFT header line!"
     return True
   else:
     return False
 
 def parse_header_line(datablock):
+  '''Splits a header line into components: cmtkey, text name, comment.
+
+  Assumes a CMT block header line looks like this:
+  // CMT07 // Heath Tundra - (ma.....
+
+  '''
 
   # Assume header is first line
-  l1 = datablock[0]
+  l0 = datablock[0]
 
   # Header line, e.g: 
-  # // CMT07 // Heath Tundra - (ma.....
-  header = l1.strip().strip("//").strip().split("//")
+  header = l0.strip().strip("//").strip().split("//")
+
   hdr_cmtkey = header[0].strip()
   txtcmtname = header[1].strip().split('-')[0].strip()
   hdrcomment = header[1].strip().split('-')[1].strip()
@@ -105,7 +111,7 @@ def cmtdatablock2dict(cmtdatablock):
 
   for i, line in enumerate(cmtdatablock):
     if line.strip()[0:2] == "//":
-      print "passing line", i
+      #print "passing line", i
       continue # Nothing to do...commented line
 
     else: # normal data line
