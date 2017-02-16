@@ -87,21 +87,27 @@ def parse_header_line(datablock):
   return hdr_cmtkey, txtcmtname, hdrcomment
 
 
-def get_pft_verbose_name(**kwargs):
+def get_pft_verbose_name(cmtkey=None, pftkey=None, cmtnum=None, pftnum=None):
   path2params = os.path.join(os.path.split(os.path.dirname(os.path.realpath(__file__)))[0], 'parameters/')
 
-  if 'cmtkey' in kwargs:
-    cmtnum = int(kwargs['cmtkey'].lstrip('CMT'))
-  elif 'cmtnum' in kwargs:
-    cmtnum = kwargs['cmtnum']
+  if cmtkey and cmtnum:
+    raise ValueError("you must provide only one of you cmtkey or cmtnumber")
 
-  dd = get_CMT_datablock(os.path.join(path2params, 'cmt_calparbgc.txt'), cmtnum)
-  dd = cmtdatablock2dict(dd)
+  if pftkey and pftnum:
+    raise ValueError("you must provide only one of pftkey or pftnumber")
 
-  if 'pftkey' not in kwargs:
-    print "ERROR! YOU GOTTA PROVIDE A PFTKEY!"
+  if cmtkey: # convert to number
+    cmtnum = int(cmtkey.lstrip('CMT'))
 
-  return dd[kwargs['pftkey'].lower()]['name']
+  if pftnum: # convert to key
+    pftkey = 'pft%i' % pftnum
+
+  data = get_CMT_datablock(os.path.join(path2params, 'cmt_calparbgc.txt'), cmtnum)
+  dd = cmtdatablock2dict(data)
+
+
+  return dd[pftkey.lower()]['name']
+
 
 
 def cmtdatablock2dict(cmtdatablock):
