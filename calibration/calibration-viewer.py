@@ -27,6 +27,12 @@ import matplotlib.gridspec as gridspec
 
 import matplotlib.widgets
 
+# Find the path to the this file so that we can look, relative to this file
+# up one directory and into the scripts/ directory
+sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../'))
+print sys.path
+import scripts.param_util as pu
+
 # Keep the detailed documentation here. Can be accessed via command
 # line --extended-help flag.
 def generate_extened_help():
@@ -867,15 +873,27 @@ class ExpandingWindow(object):
     for trace in self.traces:
       if 'pft' in trace.keys():
         ax = self.axes[trace['axesnum']]
+
+        logger.debug("Setting the verbose name for the PFT!")
+        t = self.ewp_title.get_text()
+        spos = t.find('CMT')
+        if spos < 0: # did not find the CMT code yet in the title...
+          vname = ''
+        else:
+          cmtkey = t[spos:spos+5]
+          vname = "(%s)" % pu.get_pft_verbose_name(pftkey=trace['pft'], cmtkey=cmtkey)
+        logger.debug("verbose PFT name is: %s" % vname)
+
         ax.text(
                   0.5, 0.5,
-                  "%s" % trace['pft'],
+                  "%s %s" % (trace['pft'], vname),
                   fontdict=font,
                   horizontalalignment='center',
                   #verticalalignment='center',
                   transform=ax.transAxes,
                   #bbox=dict(facecolor='red', alpha=0.2)
                 )
+
 
   def get_currentpft(self):
     '''return the current pft. currently assumes that all traces have the same pft'''
