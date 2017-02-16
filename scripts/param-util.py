@@ -3,7 +3,9 @@
 # T. Carman
 # January 2017
 
+import os
 import json
+
 
 def get_CMTs_in_file(aFile):
 
@@ -84,8 +86,23 @@ def parse_header_line(datablock):
   hdrcomment = header[1].strip().split('-')[1].strip()
   return hdr_cmtkey, txtcmtname, hdrcomment
 
-def parse_pft_header_line(line):
-  pass
+
+def get_pft_verbose_name(**kwargs):
+  path2params = os.path.join(os.path.split(os.path.dirname(os.path.realpath(__file__)))[0], 'parameters/')
+
+  if 'cmtkey' in kwargs:
+    cmtnum = int(kwargs['cmtkey'].lstrip('CMT'))
+  elif 'cmtnum' in kwargs:
+    cmtnum = kwargs['cmtnum']
+
+  dd = get_CMT_datablock(os.path.join(path2params, 'cmt_calparbgc.txt'), cmtnum)
+  dd = cmtdatablock2dict(dd)
+
+  if 'pftkey' not in kwargs:
+    print "ERROR! YOU GOTTA PROVIDE A PFTKEY!"
+
+  return dd[kwargs['pftkey'].lower()]['name']
+
 
 def cmtdatablock2dict(cmtdatablock):
 
@@ -125,6 +142,8 @@ def cmtdatablock2dict(cmtdatablock):
         cmtdict[comment] = values[0]
 
   return cmtdict
+
+
 
 if __name__ == '__main__':
 
