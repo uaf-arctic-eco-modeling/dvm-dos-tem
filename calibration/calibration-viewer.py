@@ -875,12 +875,16 @@ class ExpandingWindow(object):
         ax = self.axes[trace['axesnum']]
 
         logger.debug("Setting the verbose name for the PFT!")
-        t = self.ewp_title.get_text()
-        spos = t.find('CMT')
+        # Split the lines and look in the first line; the second line of the
+        # title will have the CMT code for the target lines. The first line
+        # of the title has CMT code read from first file in the file list.
+        t_line0 = self.ewp_title.get_text().split('\n')[0]
+        spos = t_line0.find('CMT')
         if spos < 0: # did not find the CMT code yet in the title...
+          logger.warn("Did not find CMT text in title - can't lookup PFT verbose name!")
           vname = ''
         else:
-          cmtkey = t[spos:spos+5]
+          cmtkey = t_line0[spos:spos+5]
           vname = "(%s)" % pu.get_pft_verbose_name(pftkey=trace['pft'], cmtkey=cmtkey)
         logger.debug("verbose PFT name is: %s" % vname)
 
