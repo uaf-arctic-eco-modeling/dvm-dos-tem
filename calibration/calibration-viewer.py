@@ -556,6 +556,11 @@ class ExpandingWindow(object):
 
     log.info("Finished loading data.")
 
+    # ----- SETUP PFT BG TEXT -----------
+    self.clear_bg_pft_txt()
+    self.set_bg_pft_txt()
+
+
   def update(self, frame):
     '''The animation updating function. Loads new data, but only upates view
     if the user is "zoomed out" (data limits are w/in view limits).
