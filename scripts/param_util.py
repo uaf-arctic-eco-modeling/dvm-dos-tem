@@ -8,7 +8,18 @@ import json
 
 
 def get_CMTs_in_file(aFile):
+  '''
+  Gets a list of the CMTs found in a file.
 
+  Parameters
+  ----------
+  aFile : string, required
+    The path to a file to read.
+
+  Returns
+  -------
+  A list of CMTs found in a file.
+  '''
   data = read_paramfile(aFile)
 
   cmtkey_list = []
@@ -20,19 +31,46 @@ def get_CMTs_in_file(aFile):
   return cmtkey_list
 
 def find_cmt_start_idx(data, cmtkey):
+  '''
+  Finds the starting index for a CMT data block in a list of lines.
+
+  Parameters
+  ----------
+  data : [str, str, ...] 
+    A list of strings (maybe from a parameter file)
+  cmtkey : str
+    A a CMT code string like 'CMT05' to search for in the list.
+
+  Returns
+  -------
+  i : int 
+    The first index in the list where the CMT key is found. If key is not found
+    returns None.
+  '''
   for i, line in enumerate(data):
     if cmtkey.upper() in line:
       return i
 
-  # returns None...
-  # need to figure out what to do if key is not found...
-
+  # Key not found
+  return None
 
 def read_paramfile(thefile):
+  '''
+  Opens and reads a file, returning the data as a list of lines (with newlines).
+
+  Parameters
+  ----------
+  theFile : str
+    A path to a file to open and read.
+
+  Returns
+  -------
+  d : [str, str, str, ...]
+    A list of strings (with newlines at the end of each string).
+  '''
   with open(thefile, 'r') as f:
     data = f.readlines()
   return data
-
 
 def get_CMT_datablock(afile, cmtnum):
   data = read_paramfile(afile)
@@ -86,7 +124,6 @@ def parse_header_line(datablock):
   hdrcomment = header[1].strip().split('-')[1].strip()
   return hdr_cmtkey, txtcmtname, hdrcomment
 
-
 def get_pft_verbose_name(cmtkey=None, pftkey=None, cmtnum=None, pftnum=None):
   path2params = os.path.join(os.path.split(os.path.dirname(os.path.realpath(__file__)))[0], 'parameters/')
 
@@ -107,8 +144,6 @@ def get_pft_verbose_name(cmtkey=None, pftkey=None, cmtnum=None, pftnum=None):
 
 
   return dd[pftkey.lower()]['name']
-
-
 
 def cmtdatablock2dict(cmtdatablock):
 
