@@ -442,32 +442,7 @@ class ExpandingWindow(object):
     
 
     # ----- READ FIRST FILE FOR TITLE ------
-    if len(files) > 0:
-      try:
-        with open(files[0]) as f:
-          fdata = json.load(f)
-
-        title_lines = self.ewp_title.get_text().splitlines()
-        first_line = title_lines[0]
-        cmt_latlon_list = first_line.split()[1:]
-
-        details = "%s (%.2f,%.2f)" % (fdata["CMT"], fdata["Lat"], fdata["Lon"])
-
-        if not ' '.join( cmt_latlon_list ) == details:
-          new_first_line = "%s %s" % (first_line, details)
-          title_lines[0] = new_first_line
-          new_title_string = "\n".join(title_lines)
-
-          self.fig.suptitle(new_title_string)
-        else:
-          pass # nothing to do - title already has CMT, lat and lon...
-
-      except (IOError, ValueError) as e:
-        logging.error("Problem: '%s' reading file '%s'" % (e, f))
-
-    else:
-      pass # Nothing to do; no files, so can't find CMT or lat/lon
-
+    self.set_title_from_first_file(files)
 
     # for each trace, create a tmp y container the same size as x
     for trace in self.traces:
@@ -803,6 +778,33 @@ class ExpandingWindow(object):
       logging.debug("Captured Ctrl-C. Quit nicely.")
       exit_gracefully(event.key, None) # <-- need to pass something for frame ??
 
+
+  def set_title_from_first_file(self, files):
+    if len(files) > 0:
+      try:
+        with open(files[0]) as f:
+          fdata = json.load(f)
+
+        title_lines = self.ewp_title.get_text().splitlines()
+        first_line = title_lines[0]
+        cmt_latlon_list = first_line.split()[1:]
+
+        details = "%s (%.2f,%.2f)" % (fdata["CMT"], fdata["Lat"], fdata["Lon"])
+
+        if not ' '.join( cmt_latlon_list ) == details:
+          new_first_line = "%s %s" % (first_line, details)
+          title_lines[0] = new_first_line
+          new_title_string = "\n".join(title_lines)
+
+          self.fig.suptitle(new_title_string)
+        else:
+          pass # nothing to do - title already has CMT, lat and lon...
+
+      except (IOError, ValueError) as e:
+        logging.error("Problem: '%s' reading file '%s'" % (e, f))
+
+    else:
+      pass # Nothing to do; no files, so can't find CMT or lat/lon
 
   def plot_target_lines(self):
     logging.debug("Plotting the target lines for calibrated parameters...")
