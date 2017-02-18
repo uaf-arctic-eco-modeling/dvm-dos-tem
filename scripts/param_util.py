@@ -217,6 +217,133 @@ def cmtdatablock2dict(cmtdatablock):
 
 
 
+def format_CMTdatadict(dd, format=None):
+  '''
+  Returns a formatted block of CMT data.
+
+  Parameters
+  ----------
+  dd : dict
+    Dictionary containing parameter names and values for a CMT.
+  format : str (optional)
+    A string specifying which format to return. Defaults to None.
+
+  Returns
+  -------
+  d : [str, str, ...]
+    A list of strings
+  '''
+  if format is not None:
+    print "NOT IMPLEMENTED YET!"
+    exit(-1)
+
+  ref_order = generate_reference_order("parameters/cmt_calparbgc.txt")
+  dwpftvs = False
+
+  ll = []
+  ll.append("// First line comment...")
+  ll.append("// Second line comment (?? PFT string?)")
+
+  def is_pft_var(v):
+    if v not in dd.keys() and v in dd['pft0'].keys():
+      return True
+    else:
+      return False
+
+  for var in ref_order:
+    if not is_pft_var(var):
+      pass
+    else:
+      # get each item from dict, append to line
+      linestring = ''
+      slpftkeys = sorted([i for i in dd.keys() if 'pft' in i])
+      for pft in slpftkeys:
+        linestring += "{:>12.6f} ".format(dd[pft][var])
+      linestring += ('// comment??')
+      ll.append(linestring)
+
+  for var in ref_order:
+    if is_pft_var(var):
+      pass # Nothing to do; already did pft stuff
+    else:
+      # get item from dict, append to line
+      ll.append('{:<12.5f} // comment??'.format(dd[var]))
+
+  return ll
+
+
+
+
+def generate_reference_order(aFile):
+  '''
+  Lists order that variables should be in in a parameter file based on CMT 0.
+
+  Parameters
+  ----------
+  aFile: str
+    The file to use as a base.
+
+  Returns
+  -------
+  l : [str, str, ...]
+    A list of strings containing the variable names, parsed from the input file
+    in the order they appear in the input file.
+  '''
+
+  cmt_calparbgc = []
+  db = get_CMT_datablock(aFile, 0)
+
+  pftblock = detect_block_with_pft_info(db)
+
+  ref_order = []
+
+  for line in db:
+    t = comment_splitter(line)
+    if t[0] == '':
+      pass # nothing before the comment, ignore this line - is has no data
+    else:
+      # looks like t0 has some data, so now we need the
+      # comment (t[1]) which we will further refine to get the
+      # tag, which we will append to the "reference order" list
+      tokens = t[1].strip().lstrip("//").strip().split(":")
+      tag = tokens[0]
+      desc = "".join(tokens[1:])
+      print "Found tag:", tag, " Desc: ", desc
+      ref_order.append(tag)
+
+  return ref_order
+
+
+def comment_splitter(line):
+  '''
+  Splits a string into data before comment and after comment.
+
+  The comment delimiter ('//') will be included in the after component.
+
+  Parameters
+  ----------
+  line : str
+    A string representing the line of data. May or may not contain the comment
+    delimiter.
+
+  Returns
+  -------
+  t : (str, str) - Tuple of strings.
+    A tuple containing the "before comment" string, and the "after comment"
+    string. The "after commnet" string will include the comment charachter.
+  '''
+  cmtidx = line.find("//")
+  if cmtidx < 0:
+    return (line, '')
+  else:
+    return (line[0:cmtidx], line[cmtidx:])
+
+
+
+
+
+
+
 if __name__ == '__main__':
 
   print "NOTE! Does not work correctly on non-PFT files yet!!"
