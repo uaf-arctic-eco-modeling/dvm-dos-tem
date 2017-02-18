@@ -73,6 +73,23 @@ def read_paramfile(thefile):
   return data
 
 def get_CMT_datablock(afile, cmtnum):
+  '''
+  Search file, returns the first block of data for one CMT as a list of strings.
+
+  Parameters
+  ----------
+  afile : str
+    Path to a file to search.
+  cmtnum : int
+    The CMT number to search for. Converted (internally) to the CMT key.
+
+
+  Returns
+  -------
+  d : [str, str, ...]
+    A list of strings, one item for each line in the CMT's datablock.
+    Each string will have a newline charachter in it.
+  '''
   data = read_paramfile(afile)
 
   cmtkey = 'CMT%02i' % cmtnum
@@ -146,6 +163,20 @@ def get_pft_verbose_name(cmtkey=None, pftkey=None, cmtnum=None, pftnum=None):
   return dd[pftkey.lower()]['name']
 
 def cmtdatablock2dict(cmtdatablock):
+  '''
+  Converts a "CMT datablock" (list of strings) into a dict structure.
+
+  Parameters
+  ----------
+  cmtdatablock : [str, str, ...]
+    A list of strings (with new lines) holding parameter data for a CMT.
+
+  Returns
+  -------
+  d : dict
+    A multi-level dict mapping names (deduced from comments) to parameter 
+    values.holding parameter values.
+  '''
 
   cmtdict = {}
 
@@ -176,7 +207,7 @@ def cmtdatablock2dict(cmtdatablock):
       dline = line.strip().split("//")
       values = dline[0].split()
       comment = dline[1].strip().strip("//").split(':')[0]
-      if len(values) >= 5: # <--ARBITRARY! likely a pft data line
+      if len(values) >= 5: # <--ARBITRARY! likely a pft data line?
         for i, value in enumerate(values):
           cmtdict['pft%i'%i][comment] = value
       else:
