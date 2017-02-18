@@ -209,9 +209,9 @@ def cmtdatablock2dict(cmtdatablock):
       comment = dline[1].strip().strip("//").split(':')[0]
       if len(values) >= 5: # <--ARBITRARY! likely a pft data line?
         for i, value in enumerate(values):
-          cmtdict['pft%i'%i][comment] = value
+          cmtdict['pft%i'%i][comment] = float(value)
       else:
-        cmtdict[comment] = values[0]
+        cmtdict[comment] = float(values[0])
 
   return cmtdict
 
