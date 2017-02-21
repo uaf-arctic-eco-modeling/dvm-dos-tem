@@ -217,7 +217,7 @@ def cmtdatablock2dict(cmtdatablock):
 
 
 
-def format_CMTdatadict(dd, format=None):
+def format_CMTdatadict(dd, refFile, format=None):
   '''
   Returns a formatted block of CMT data.
 
@@ -225,6 +225,8 @@ def format_CMTdatadict(dd, format=None):
   ----------
   dd : dict
     Dictionary containing parameter names and values for a CMT.
+  refFile : str
+    A path to a file that should be used for reference in formatting the output.
   format : str (optional)
     A string specifying which format to return. Defaults to None.
 
@@ -237,7 +239,7 @@ def format_CMTdatadict(dd, format=None):
     print "NOT IMPLEMENTED YET!"
     exit(-1)
 
-  ref_order = generate_reference_order("parameters/cmt_calparbgc.txt")
+  ref_order = generate_reference_order(refFile)
   dwpftvs = False
 
   ll = []
@@ -256,10 +258,9 @@ def format_CMTdatadict(dd, format=None):
     else:
       # get each item from dict, append to line
       linestring = ''
-      slpftkeys = sorted([i for i in dd.keys() if 'pft' in i])
-      for pft in slpftkeys:
+      for pft in get_datablock_pftkeys(dd):
         linestring += "{:>12.6f} ".format(dd[pft][var])
-      linestring += ('// comment??')
+      linestring += ('// %s: ' % var)
       ll.append(linestring)
 
   for var in ref_order:
@@ -338,6 +339,21 @@ def comment_splitter(line):
   else:
     return (line[0:cmtidx], line[cmtidx:])
 
+
+def get_datablock_pftkeys(dd):
+  '''
+  Returns a sorted list of the pft keys present in a CMT data dictionary.
+
+  Parameters
+  ----------
+  dd : dict
+    A CMT data dictionary (as might be created from cmtdatablock2dict(..)).
+
+  Returns
+  -------
+  A sorted list of the keys present in dd that contain the string 'pft'.
+  '''
+  return sorted([i for i in dd.keys() if 'pft' in i])
 
 
 
