@@ -355,6 +355,53 @@ def get_datablock_pftkeys(dd):
   '''
   return sorted([i for i in dd.keys() if 'pft' in i])
 
+def enforce_initvegc_split(aFile, cmtnum):
+  '''
+  Makes sure that the 'cpart' compartments variables match the proportions
+  set in initvegc variables in a cmt_bgcvegetation.txt file.
+
+  The initvegc(leaf, wood, root) variables in cmt_bgcvegetation.txt are the
+  measured values from literature. The cpar(leaf, wood, root) variables, which 
+  are in the same file, should be set to the fractional make up of the the
+  components. So if the initvegc values for l, w, r are 100, 200, 300, then the 
+  cpart values should be 0.166, 0.33, and 0.5. It is very easy for these values
+  to get out of sync when users manually update the parameter file.
+
+  Parameters
+  ----------
+  aFile : str
+    Path to a parameter file to work on. Must have bgcvegetation.txt in the name
+    and must be a 'bgcvegetation' parameter file for this function to make sense
+    and work.
+  cmtnum : int
+    The community number in the file to work on.
+
+
+  Returns
+  -------
+  d : dict
+    A CMT data dictionary with the updated cpart values.
+  '''
+
+  if ('bgcvegetation.txt' not in aFile):
+    raise ValueError("This function only makes sense on cmt_bgcvegetation.txt files.")
+
+
+  d = get_CMT_datablock(aFile, cmtnum)
+  dd = cmtdatablock2dict(d)
+
+  for pft in get_datablock_pftkeys(dd):
+    sumC = dd[pft]['initvegcl'] + dd[pft]['initvegcw'] + dd[pft]['initvegcr']
+    if sumC > 0.0:
+      dd[pft]['cpartl'] = dd[pft]['initvegcl'] / sumC
+      dd[pft]['cpartw'] = dd[pft]['initvegcw'] / sumC
+      dd[pft]['cpartr'] = dd[pft]['initvegcr'] / sumC
+    else:
+      dd[pft]['cpartl'] = 0.0
+      dd[pft]['cpartw'] = 0.0
+      dd[pft]['cpartr'] = 0.0
+
+  return dd
 
 
 
