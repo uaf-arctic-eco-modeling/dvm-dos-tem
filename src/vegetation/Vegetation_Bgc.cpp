@@ -372,10 +372,11 @@ void Vegetation_Bgc::delta() {
 
   // the rest goes to stem/root, assuming equal priority
   double innpprest = fmax(0., gpp_all-rm_all-npprgl)/(1.0+calpar.frg);
-  double cpartrest = 0.;
+
+  double cmpt2stemrootratio = 0.0;
 
   for (int i=I_leaf+1; i<NUM_PFT_PART; i++) { // <-- cpart of everything but leaves!!!
-    cpartrest += bgcpar.cpart[i];
+    cmpt2stemrootratio += bgcpar.cpart[i];
   }
 
   // Handle stems and roots
@@ -383,8 +384,8 @@ void Vegetation_Bgc::delta() {
     del_a2v.innpp[i] = 0.0;
     del_v2a.rg[i]    = 0.0;
 
-    if (cpartrest > 0.0 && gpp_avail > 0.0) {
-      del_a2v.innpp[i] = gpp_avail * bgcpar.cpart[i] / cpartrest;
+    if (cmpt2stemrootratio > 0.0 && gpp_avail > 0.0) {
+      del_a2v.innpp[i] = gpp_avail * bgcpar.cpart[i] / cmpt2stemrootratio;
       del_v2a.rg[i]    = calpar.frg * del_a2v.innpp[i];
     }
   }
