@@ -341,7 +341,7 @@ void Vegetation_Bgc::delta() {
   double gpp_all = getGPP(co2, par, fleaf, ffoliage,
                            bd->m_vegd.ftemp, bd->m_vegd.gv);
   // maintainence respiration first estimation
-  double rm = 0.;
+  double rm_all = 0.;
 
   for (int i=0; i<NUM_PFT_PART; i++) {
     if (tmp_vegs.c[i]>0.) {
@@ -351,18 +351,18 @@ void Vegetation_Bgc::delta() {
       del_v2a.rm[i]    = 0.;
     }
 
-    rm += del_v2a.rm[i];
+    rm_all += del_v2a.rm[i];
   }
 
   double rmadj = 1.0;  // used below for summarizing ingpp[]
 
-  if (rm>gpp_all && rm>0.0) {
-    rmadj=gpp_all/rm;
+  if (rm_all>gpp_all && rm_all>0.0) {
+    rmadj=gpp_all/rm_all;
   }
 
   // total available C for allocation
   // if C assimilation available, first goes to maintenance respiration
-  double innppall = fmax(0., gpp_all-rm)/(1.0+calpar.frg);
+  double innppall = fmax(0., gpp_all-rm_all)/(1.0+calpar.frg);
   // NPP allocation to leaf estimated first
   double nppl = dleafc;
   // Leaves have the second priority for C assimilation
@@ -371,7 +371,7 @@ void Vegetation_Bgc::delta() {
   double npprgl = del_a2v.innpp[I_leaf] + del_v2a.rg[I_leaf];
 
   // the rest goes to stem/root, assuming equal priority
-  double innpprest = fmax(0., gpp_all-rm-npprgl)/(1.0+calpar.frg);
+  double innpprest = fmax(0., gpp_all-rm_all-npprgl)/(1.0+calpar.frg);
   double cpartrest = 0.;
 
   for (int i=I_leaf+1; i<NUM_PFT_PART; i++) { // <-- cpart of everything but leaves!!!
@@ -392,7 +392,7 @@ void Vegetation_Bgc::delta() {
   // summary of INGPP
   for (int i=0; i<NUM_PFT_PART; i++) {
     del_a2v.ingpp[i] = del_a2v.innpp[i]+del_v2a.rm[i]*rmadj+del_v2a.rg[i];
-    //may be over the 'gpp_all' due to 'rm', which are biomass-C based,
+    //may be over the 'gpp_all' due to 'rm_all', which are biomass-C based,
     //  if not adjusted by 'rmadj'
   }
 
