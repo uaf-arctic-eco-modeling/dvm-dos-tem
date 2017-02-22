@@ -454,7 +454,7 @@ double Vegetation::getFfoliage(const int &ipft, const bool & ifwoody,
       ffoliage = 1.0; //annual: yearly max. not controlled by current plant
                       //  C biomass (because it dies every year)
     } else {
-      ffoliage = 1.0/(1.0 + vegdimpar.kfoliage[ipft] * exp(vegdimpar.cov[ipft]* vegc));
+      ffoliage = 1.0 / (1.0 + vegdimpar.kfoliage[ipft] * exp(vegdimpar.cov[ipft] * vegc));
     }
   //  } else {
   //    //from Zhuang et al., 2003
@@ -484,14 +484,14 @@ double Vegetation::getYearlyMaxLAI(const int &ipft) {
                                //  adjusted by 'vegcov'
 //    double covlai = chtlu->envlai[im][ipft]*cd->m_veg.vegcov[ipft];
       double covlai = chtlu->envlai[im][ipft];
-    if (laimax<=covlai) {
+    if (laimax <= covlai) {
       laimax = covlai;
     }
   }
 
   laimax *= cd->m_vegd.ffoliage[ipft];
   return laimax;
-};
+}
 
 
 // the following can be developed further for dynamical fine root distribution

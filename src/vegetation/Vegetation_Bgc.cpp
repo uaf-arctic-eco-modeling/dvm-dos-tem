@@ -197,19 +197,27 @@ void Vegetation_Bgc::prepareIntegration(const bool &nfeedback) {
 
   // temperature factor for GPP
   bd->m_vegd.ftemp = getTempFactor4GPP(ed->m_atms.ta, prvtopt);
+
   // temperature factor for plant respiration
   bd->m_vegd.raq10 = getRaq10(ed->m_atms.ta);
+
+  // dleafc is for "delta" or "difference"
+  // this is the difference between the yearly maximum leaf biomass
+  // (potentially affected by drought) and the (current) monthly value of
+  // leaf biomass.
+
   // leaf C requirement for growth, used to dynamically determine C allocation
-  //yearly max. leaf C, adjusted by seasonal foliage growth index 'fleaf'
-  dleafc = cd->m_vegd.maxleafc[ipft]*cd->m_vegd.fleaf[ipft];
+  // yearly max. leaf C, adjusted by seasonal foliage growth index 'fleaf'
+  dleafc = cd->m_vegd.maxleafc[ipft] * cd->m_vegd.fleaf[ipft];
+
   // C requirement of foliage growth at current timestep
   dleafc -= bd->m_vegs.c[I_leaf];
-  dleafc = fmax(0., dleafc);
+  dleafc = fmax(0.0, dleafc);
   // litter-falling seasonal adjustment
 
   //previous 10 year mean of growing season degree-day, using for
   //  normalizing current growing period needed for litterfalling
-  double prvttime = 0.;
+  double prvttime = 0.0;
 
   deque<double> ttimedeque = cd->prvgrowingttimeque[ipft];
   recnum=ttimedeque.size();
@@ -370,8 +378,8 @@ void Vegetation_Bgc::delta() {
   }
 
   for (int i=I_leaf+1; i<NUM_PFT_PART; i++) {
-    del_a2v.innpp[i] = 0.;
-    del_v2a.rg[i]    = 0.;
+    del_a2v.innpp[i] = 0.0;
+    del_v2a.rg[i]    = 0.0;
   //double cpartrest = 0.;
   //for (int i=I_leaf; i<NUM_PFT_PART; i++) {
   //  cpartrest +=bgcpar.cpart[i];
@@ -731,24 +739,38 @@ void Vegetation_Bgc::afterIntegration() {
 double  Vegetation_Bgc::getGPP(const double &co2, const double &par,
                                const double &leaf, const double &foliage,
                                const double &ftemp, const double &gv) {
+  // par:             photosynthetically active radiation in J/m2/s
+  // co2:             should be ppm
+  // leaf:
+  // foliage:
+  // ftemp:
+  // gv:
+
+  // ci:
+  // thawpct:         percentage of month frozen or thawed
+  // fpar:            could be J/m2/s
+  // gpp:             should be gC/m2/m
+  // calpar.cmax:     g/m2/month
+
   double ci  = co2 * gv;
   double thawpcnt = ed->m_soid.rtdpthawpct;
-  //par : photosynthetically active radiation in J/(m2s)
-  double fpar = par/(bgcpar.ki + par);
+  double fpar = par / (bgcpar.ki + par);
+
   double gpp = calpar.cmax * foliage * ci / (bgcpar.kc + ci);
-  //double gpp = calpar.cmax * ci / (bgcpar.kc + ci);
-  //gpp *= leaf * fpar;
   gpp *= fpar;
-  //gpp *= leaf;
   gpp *= ftemp;
   gpp *= thawpcnt;
 
-  if(gpp<0) {
-    gpp=0.;
+  if(gpp < 0.0) {
+    gpp = 0.0;
   }
 
+  //double gpp = calpar.cmax * ci / (bgcpar.kc + ci);
+  //gpp *= leaf * fpar;
+  //gpp *= leaf;
+
   return gpp;
-};
+}
 
 double Vegetation_Bgc::getRm(const double & vegc, const double & raq10,
                              const double &kr) {
