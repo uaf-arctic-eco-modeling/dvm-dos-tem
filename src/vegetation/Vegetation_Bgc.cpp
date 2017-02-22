@@ -329,6 +329,22 @@ void Vegetation_Bgc::prepareIntegration(const bool &nfeedback) {
 
 // C and N fluxes without N limitation
 void Vegetation_Bgc::delta() {
+
+  // THIS REALLY NEEDS TO BE MOVED ELSEWHERE.....
+  // Make sure that the cpart parameter adds up to 100% (or 0% for undefined
+  // PFTs) for all compartments.
+  double cpart_all = 0.0;
+  for (int i=I_leaf; i<NUM_PFT_PART; i++) {
+    cpart_all += bgcpar.cpart[i];
+  }
+  if (! (temutil::AlmostEqualRelative(cpart_all, 1.0) ||
+         temutil::AlmostEqualRelative(cpart_all, 0.0)) ) {
+    BOOST_LOG_SEV(glg, fatal) << "YOU HAVE A PROBLEM WITH YOUR PARAMETER FILE.";
+    BOOST_LOG_SEV(glg, fatal) << "Look for the 'cpart' variable and make sure"
+                              << "all the compartment fractions sum to 1";
+    exit(-1);
+  }
+
   /// some environment variables
   double co2 = ed->m_atms.co2;
   double par = ed->m_a2l.par;
