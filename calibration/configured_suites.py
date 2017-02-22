@@ -128,6 +128,14 @@ configured_suites = {
       { 'jsontag': 'LitterfallNitrogen', 'units': '', 'axesnum': 3, 'pft': '', 'pftpart':'Leaf' },
       { 'jsontag': 'LitterfallNitrogen', 'units': '', 'axesnum': 3, 'pft': '', 'pftpart':'Stem' },
       { 'jsontag': 'LitterfallNitrogen', 'units': '', 'axesnum': 3, 'pft': '', 'pftpart':'Root' },
+
+      { 'jsontag': 'RespMaint', 'units': '', 'axesnum': 4, 'pft': '', 'pftpart':'Leaf' },
+      { 'jsontag': 'RespMaint', 'units': '', 'axesnum': 4, 'pft': '', 'pftpart':'Stem' },
+      { 'jsontag': 'RespMaint', 'units': '', 'axesnum': 4, 'pft': '', 'pftpart':'Root' },
+      { 'jsontag': 'RespGrowth', 'units': '', 'axesnum': 4, 'pft': '', 'pftpart':'Leaf' },
+      { 'jsontag': 'RespGrowth', 'units': '', 'axesnum': 4, 'pft': '', 'pftpart':'Stem' },
+      { 'jsontag': 'RespGrowth', 'units': '', 'axesnum': 4, 'pft': '', 'pftpart':'Root' },
+
     ]
   },
   'VegSoil':{
