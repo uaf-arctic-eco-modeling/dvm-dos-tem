@@ -354,7 +354,7 @@ void Vegetation_Bgc::delta() {
     rm += del_v2a.rm[i];
   }
 
-  double rmadj = 1.0;  //used below for summarizing ingpp[]
+  double rmadj = 1.0;  // used below for summarizing ingpp[]
 
   if (rm>ingppall && rm>0.0) {
     rmadj=ingppall/rm;
@@ -376,10 +376,10 @@ void Vegetation_Bgc::delta() {
   // Assign remainder of C (after respiration, and leaf growth) to
   // stems and roots.
   double innpprest = fmax(0.0, ingppall-rm-npprgl) * (1.0 - calpar.frg);
-  double cpartrest = 0.;
+  double cpartrest = 0.0;
 
-  for (int i=I_leaf+1; i<NUM_PFT_PART; i++) {
-    cpartrest +=bgcpar.cpart[i];
+  for (int i=I_leaf+1; i<NUM_PFT_PART; i++) { // <-- cpart of everything but leaves!!!
+    cpartrest += bgcpar.cpart[i];
   }
 
   // Handle stems and roots
