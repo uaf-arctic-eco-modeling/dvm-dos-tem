@@ -392,6 +392,17 @@ void Vegetation_Bgc::delta() {
   del_v2a.rg[I_leaf] = calpar.frg * del_a2v.innpp[I_leaf];
   double npprgl = del_a2v.innpp[I_leaf] + del_v2a.rg[I_leaf];
 
+
+  // Now if the combination of leaf NPP and growth respiration (rg) is larger
+  // than the available gpp, we need to down-regulate the growth (and growth
+  // respiration) so that they don't exceed the C availble from GPP (after
+  // maintenance respiration).
+  if ((del_a2v.innpp[I_leaf] + del_v2a.rg[I_leaf]) > gpp_avail) {
+    del_a2v.innpp[I_leaf] = gpp_avail / (1.0 + calpar.frg);
+    del_v2a.rg[I_leaf] = del_a2v.innpp[I_leaf] * calpar.frg;
+  }
+
+
   // the rest goes to stem/root, assuming equal priority
   double innpprest = fmax(0., gpp_all-rm_all-npprgl)/(1.0+calpar.frg);
 
