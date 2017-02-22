@@ -57,7 +57,7 @@ SOURCES= 	src/TEM.o \
 		src/output/RestartOutputer.o \
 		src/runmodule/Cohort.o \
 		src/runmodule/Integrator.o \
-		src/runmodule/ModelData.o \
+		src/ModelData.o \
 		src/runmodule/OutRetrive.o \
 		src/snowsoil/Richards.o \
 		src/snowsoil/Snow_Env.o \
@@ -136,13 +136,18 @@ OBJECTS += Master.o \
 		Slave.o
 endif
 
+GIT_VERSION := $(shell git describe --abbrev=6 --dirty --always --tags)
+
 TEMOBJ = obj/TEM.o
 
 dvm: $(SOURCES) $(TEMOBJ)
 	$(CC) -o $(APPNAME) $(INCLUDES) $(addprefix obj/, $(OBJECTS)) $(TEMOBJ) $(LIBDIR) $(LIBS) $(MPILFLAGS)
 
+
 lib: $(SOURCES) 
 	$(CC) -o libTEM.so -shared $(INCLUDES) $(addprefix obj/, $(OBJECTS)) $(LIBDIR) $(LIBS) $(MPILFLAGS)
+
+CFLAGS += -DGIT_SHA=\"$(GIT_VERSION)\"
 
 .cpp.o:
 	$(CC) $(CFLAGS) $(MPICFLAGS) $(INCLUDES) $(MPIINCLUDES) $< -o obj/$(notdir $@)

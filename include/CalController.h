@@ -15,7 +15,7 @@
 #include <json/value.h>
 
 #include "../src/runmodule/Cohort.h"
-#include "../src/runmodule/ModelData.h"
+#include "ModelData.h"
 
 //For readline
 #include <readline/readline.h>

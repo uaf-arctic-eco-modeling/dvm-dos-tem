@@ -308,7 +308,7 @@ namespace temutil {
 
   }
 
-  /** Given an NcFile object and dimension name, reutrns a pointer to the NcDim.
+  /** Given an NcFile object and dimension name, returns a pointer to the NcDim.
   * 
   * If the dimension-read is not valid, then an error message is logged and 
   * the program exits with a non-zero status.
@@ -341,6 +341,18 @@ namespace temutil {
       exit(-1);
     }
     return var;
+  }
+
+  /** Given an NetCDF file ID, returns the length of the "time" dimension
+ *
+ * TODO: What should the behaviour be with an error?
+ */
+  int get_nc_timedim_len(const int& ncid){
+    int cv;
+    size_t dimlen;
+    temutil::nc( nc_inq_dimid(ncid, "time", &cv) );
+    temutil::nc( nc_inq_dimlen(ncid, cv, &dimlen) );
+    return dimlen;
   }
 
 

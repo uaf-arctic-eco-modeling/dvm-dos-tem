@@ -94,6 +94,7 @@ namespace temutil {
 
   NcVar* get_ncvar(const NcFile& file, std::string varname);
 
+  int get_nc_timedim_len(const int& ncid);
 
   std::pair<float, float> get_location(std::string gridfilename, int grid_id);
 

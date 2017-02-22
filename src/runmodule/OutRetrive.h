@@ -1,7 +1,7 @@
 #ifndef OUTRETRIVE_H_
 #define OUTRETRIVE_H_
 
-#include "ModelData.h"
+#include "../../include/ModelData.h"
 
 #include "../data/EnvData.h"
 #include "../data/BgcData.h"

@@ -127,8 +127,10 @@ struct snwstate_env {
                    //  form a layer of min. thickness
   double swesum; // total snow water equivalent (mm H2O, or, kg/m2)
   double tsnwave;
+  double snowthick;
 
-  snwstate_env():swesum(UIN_D), tsnwave(UIN_D), extraswe(UIN_D) {
+  snwstate_env():swesum(UIN_D), tsnwave(UIN_D), extraswe(UIN_D),
+                 snowthick(UIN_D) {
     for (int i = 0; i < MAX_SNW_LAY; ++i) {
       tsnw[i] = UIN_D;
       swe[i] = UIN_D;

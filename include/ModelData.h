@@ -7,7 +7,10 @@
 #include <cstdlib>
 #include <json/value.h>
 
-#include "../../include/ArgHandler.h"
+#include "ArgHandler.h"
+#include "util_structs.h"
+#include "../src/inc/layerconst.h"
+#include "../src/inc/errorcode.h"
 
 using namespace std;
 
@@ -21,6 +24,8 @@ public:
 
   void update(ArgHandler const * arghandler);
   std::string describe_module_settings();
+
+  void create_netCDF_output_files(int ysize, int xsize, const std::string & stage);
 
   string loop_order; // time-major or space-major
 
@@ -44,7 +49,19 @@ public:
   string co2_file;
   string runmask_file;
   string output_dir;
+  string output_spec_file;
   bool output_monthly;
+  bool nc_eq; //NetCDF output flags for each stage
+  bool nc_sp;
+  bool nc_tr;
+  bool nc_sc;
+
+  //Maps holding data about variables to be output at specific timesteps
+  //C++11 would allow the use of unordered_maps, which have a faster
+  // by-key access time.
+  std::map<std::string, output_spec> daily_netcdf_outputs;
+  std::map<std::string, output_spec> monthly_netcdf_outputs;
+  std::map<std::string, output_spec> yearly_netcdf_outputs;
 
   std::string pid_tag;
   std::string caldata_tree_loc;

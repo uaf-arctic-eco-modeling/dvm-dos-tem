@@ -16,6 +16,7 @@
 #include <sstream>
 #include <vector>
 #include <deque>
+#include <map>
 
 #ifdef WITHMPI
 #include <mpi.h>
@@ -23,11 +24,13 @@
 
 
 #include "../src/runmodule/Cohort.h"
-#include "../src/runmodule/ModelData.h"
+#include "ModelData.h"
 #include "CalController.h"
 #include "ArgHandler.h"
+#include "util_structs.h"
 
 using namespace std;
+
 
 class Runner {
 public:
@@ -56,6 +59,11 @@ public:
   void output_caljson_yearly(int year, std::string, boost::filesystem::path p);
   void output_caljson_monthly(int year, int month, std::string, boost::filesystem::path p);
   void output_debug_daily_drivers(int iy, boost::filesystem::path p);
+
+  //void output_netCDF(int year, boost::filesystem::path p);
+  void output_netCDF_monthly(int year, int month);
+  void output_netCDF_yearly(int year);
+  void output_netCDF(std::map<std::string, output_spec> &outputs, int year, int month);
 
 private:
   bool calibrationMode;

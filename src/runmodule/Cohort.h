@@ -29,7 +29,7 @@
 #include "Integrator.h"
 
 // headers for run
-#include "ModelData.h"
+#include "../../include/ModelData.h"
 #include "OutRetrive.h"
 
 class Cohort {

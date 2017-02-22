@@ -10,7 +10,7 @@
 #include "../inc/states.h"
 #include "../inc/diagnostics.h"
 
-#include "../runmodule/ModelData.h"
+#include "../../include/ModelData.h"
 
 using namespace std;
 

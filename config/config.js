@@ -16,7 +16,12 @@
     "fri_fire_file":      "DATA/Toolik_10x10_allyrs/fri_fire.nc",
     "explicit_fire_file": "DATA/Toolik_10x10_allyrs/explicit_fire.nc",
     "output_dir":         "DATA/Toolik_10x10_allyrs/output/",
-    "output_monthly":     1
+    "output_spec_file":   "config/output_spec.csv",
+    "output_monthly":     1, //JSON specific
+    "output_nc_eq":       1,
+    "output_nc_sp":       0,
+    "output_nc_tr":       1,
+    "output_nc_sc":       1 
   },
 
   // Define storage locations for json files generated and used

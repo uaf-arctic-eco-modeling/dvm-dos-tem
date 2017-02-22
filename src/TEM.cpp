@@ -86,7 +86,7 @@ void ppv(const std::vector<TYPE> &v){
 void pp_2dvec(const std::vector<std::vector<int> > & vv);
 
 // draft - generate a netcdf file that can follow CF conventions
-void create_new_output();
+//void create_netCDF_output_files(int ysize, int xsize);
 
 // draft - reading new-style co2 file
 std::vector<float> read_new_co2_file(const std::string &filename);
@@ -166,13 +166,6 @@ int main(int argc, char* argv[]){
   // Turn off buffering...
   setvbuf(stdout, NULL, _IONBF, 0);
   setvbuf(stderr, NULL, _IONBF, 0);
-
-  // Create empty output files now so that later, as the program
-  // proceeds, there is somewhere to append output data...
-  // ??? Maybe the type/shape of outputs that we create can, or should, depend on
-  // ??? some of the settings in the ModelData object?
-  BOOST_LOG_SEV(glg, info) << "Creating a fresh 'n clean NEW output file...";
-  create_new_output();
   
   time_t stime;
   time_t etime;
@@ -205,6 +198,22 @@ int main(int argc, char* argv[]){
   RestartData::create_empty_file(sp_restart_fname, num_rows, num_cols);
   RestartData::create_empty_file(tr_restart_fname, num_rows, num_cols);
   RestartData::create_empty_file(sc_restart_fname, num_rows, num_cols);
+
+  // Create empty output files now so that later, as the program
+  // proceeds, there is somewhere to append output data...
+  BOOST_LOG_SEV(glg, info) << "Creating a set of empty NetCDF output files";
+  if(modeldata.eq_yrs > 0 && modeldata.nc_eq){
+    modeldata.create_netCDF_output_files(num_rows, num_cols, "eq");
+  }
+  if(modeldata.sp_yrs > 0 && modeldata.nc_sp){
+    modeldata.create_netCDF_output_files(num_rows, num_cols, "sp");
+  }
+  if(modeldata.tr_yrs > 0 && modeldata.nc_tr){
+    modeldata.create_netCDF_output_files(num_rows, num_cols, "tr");
+  }
+  if(modeldata.sc_yrs > 0 && modeldata.nc_sc){
+    modeldata.create_netCDF_output_files(num_rows, num_cols, "sc");
+  }
 
   if (args->get_loop_order() == "space-major") {
 
@@ -636,68 +645,4 @@ std::vector<float> read_new_co2_file(const std::string &filename) {
   return co2data;
 }
 
-/** rough draft for new output files
-*/
-void create_new_output() {
-
-  int ncid;
-
-  BOOST_LOG_SEV(glg, debug) << "Creating dataset...";
-  temutil::nc( nc_create("general-outputs-monthly.nc", NC_CLOBBER, &ncid) );
-
-  int timeD;    // unlimited dimension
-  int pftD;
-  int xD;
-  int yD;
-
-  /* Create Dimensions */
-  BOOST_LOG_SEV(glg, debug) << "Adding dimensions...";
-  temutil::nc( nc_def_dim(ncid, "time", NC_UNLIMITED, &timeD) );
-  temutil::nc( nc_def_dim(ncid, "pft", NUM_PFT, &pftD) );
-  temutil::nc( nc_def_dim(ncid, "y", 10, &yD) );
-  temutil::nc( nc_def_dim(ncid, "x", 10, &xD) );
-
-  /* Create Coordinate Variables?? */
-
-  /* Create Data Variables */
-
-  // 4D vars
-  BOOST_LOG_SEV(glg, debug) << "Adding 4D variables...";
-  int vartypeA_dimids[4];
-  vartypeA_dimids[0] = timeD;
-  vartypeA_dimids[1] = pftD;
-  vartypeA_dimids[2] = yD;
-  vartypeA_dimids[3] = xD;
-
-  int vegcV;
-  int veg_fractionV;
-  int growstartV;
-  temutil::nc( nc_def_var(ncid, "vegc", NC_DOUBLE, 4, vartypeA_dimids,  &vegcV) );
-  temutil::nc( nc_def_var(ncid, "veg_fraction", NC_DOUBLE, 4, vartypeA_dimids, &veg_fractionV) );
-  temutil::nc( nc_def_var(ncid, "growstart", NC_DOUBLE, 4, vartypeA_dimids, &growstartV) );
-
-  // 3D vars
-  BOOST_LOG_SEV(glg, debug) << "Adding 3D variables...";
-  int vartypeB_dimids[3];
-  vartypeB_dimids[0] = timeD;
-  vartypeB_dimids[1] = yD;
-  vartypeB_dimids[2] = xD;
-
-  int org_shlw_thicknessV;
-  temutil::nc( nc_def_var(ncid, "org_shlw_thickness", NC_DOUBLE, 3, vartypeB_dimids, &org_shlw_thicknessV) );
-  
-  /* Create Attributes? */
-  
-
-  /* End Define Mode (not scrictly necessary for netcdf 4) */
-  BOOST_LOG_SEV(glg, debug) << "Leaving 'define mode'...";
-  temutil::nc( nc_enddef(ncid) );
-
-  /* Load coordinate variables?? */
-
-  /* Close file. */
-  BOOST_LOG_SEV(glg, debug) << "Closing new file...";
-  temutil::nc( nc_close(ncid) );
-
-}
 

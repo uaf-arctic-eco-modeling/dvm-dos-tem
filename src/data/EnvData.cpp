@@ -365,6 +365,10 @@ void EnvData::atm_endOfDay(const int & dinm) {
   // total land to atm
   m_l2a.eet += d_l2a.eet;
   m_l2a.pet += d_l2a.pet;
+
+  //Store daily values for netCDF output
+  daily_eet[dinm] = d_l2a.eet;
+  daily_pet[dinm] = d_l2a.pet;
 };
 
 void EnvData::veg_endOfDay(const int & dinm) {
@@ -493,6 +497,8 @@ void EnvData::grnd_endOfDay(const int & dinm, const int & doy) {
     m_soid.sws[il] += d_soid.sws[il]/dinm;
     m_soid.aws[il] += d_soid.aws[il]/dinm;
     m_soid.fbtran[il] += d_soid.fbtran[il]/dinm;
+    m_soid.tcond[il] += d_soid.tcond[il]/dinm;
+    m_soid.hcond[il] += d_soid.hcond[il]/dinm;
     m_soid.liqsum += d_sois.liq[il]/dinm;
     m_soid.icesum += d_sois.ice[il]/dinm;
     m_soid.tsave  += d_sois.ts[il]/numsoi/dinm;
@@ -578,6 +584,11 @@ void EnvData::grnd_endOfDay(const int & dinm, const int & doy) {
       d_soid.rtdpgrowend = MISSING_I;
       m_soid.rtdpgrowend = MISSING_I;
       y_soid.rtdpgrowend = MISSING_I;
+
+      //Storing the yearly growstart value for output.
+      d_soid.rtdpGSoutput = doy;
+      m_soid.rtdpGSoutput = doy;
+      y_soid.rtdpGSoutput = doy;
     }
   } else if (d_soid.rtdpgrowend <= 0) {
     if (rtfrozendays>=5) { //top soil root zone is frozen for continuous 5
@@ -590,6 +601,11 @@ void EnvData::grnd_endOfDay(const int & dinm, const int & doy) {
       d_soid.rtdpgrowstart= MISSING_I;
       m_soid.rtdpgrowstart= MISSING_I;
       y_soid.rtdpgrowstart= MISSING_I;
+
+      //Storing the yearly growend value for output.
+      d_soid.rtdpGSoutput = doy;
+      m_soid.rtdpGSoutput = doy;
+      y_soid.rtdpGSoutput = doy;
     }
   }
 
@@ -610,6 +626,32 @@ void EnvData::grnd_endOfDay(const int & dinm, const int & doy) {
   m_soi2a.evap_pet+= d_soi2a.evap_pet;
   m_soi2l.qover  += d_soi2l.qover;
   m_soi2l.qdrain += d_soi2l.qdrain;
+
+  //Storing daily data for NetCDF output at end of month
+  daily_tshlw[dinm] = d_soid.tshlw;
+  daily_tdeep[dinm] = d_soid.tdeep;
+  daily_tminea[dinm] = d_soid.tminea;
+  daily_tmineb[dinm] = d_soid.tmineb;
+  daily_tminec[dinm] = d_soid.tminec;
+  daily_vwcshlw[dinm] = d_soid.vwcshlw;
+  daily_vwcdeep[dinm] = d_soid.vwcdeep;
+  daily_vwcminea[dinm] = d_soid.vwcminea;
+  daily_vwcmineb[dinm] = d_soid.vwcmineb;
+  daily_vwcminec[dinm] = d_soid.vwcminec;
+  daily_tcshlw[dinm] = d_soid.tcshlw;
+  daily_tcdeep[dinm] = d_soid.tcdeep;
+  daily_tcminea[dinm] = d_soid.tcminea;
+  daily_tcmineb[dinm] = d_soid.tcmineb;
+  daily_tcminec[dinm] = d_soid.tcminec;
+  daily_hkshlw[dinm] = d_soid.hkshlw;
+  daily_hkdeep[dinm] = d_soid.hkdeep;
+  daily_hkminea[dinm] = d_soid.hkminea;
+  daily_hkmineb[dinm] = d_soid.hkmineb;
+  daily_hkminec[dinm] = d_soid.hkminec;
+
+  daily_watertab[dinm] = d_sois.watertab;
+
+  daily_drainage[dinm] = d_soi2l.qdrain;
 };
 
 void EnvData::atm_endOfMonth() {
@@ -695,6 +737,8 @@ void EnvData::grnd_endOfMonth() {
     y_soid.sws[il] += m_soid.sws[il]/12.;
     y_soid.aws[il] += m_soid.aws[il]/12.;
     y_soid.fbtran[il] += m_soid.fbtran[il]/12.;
+    y_soid.tcond[il] += m_soid.tcond[il]/12.;
+    y_soid.hcond[il] += m_soid.hcond[il]/12.;
   }
 
   y_soid.frasat    += m_soid.frasat/12.;
