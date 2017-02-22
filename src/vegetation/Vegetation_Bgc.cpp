@@ -362,11 +362,11 @@ void Vegetation_Bgc::delta() {
 
   // total available C for allocation
   // if C assimilation available, first goes to maintenance respiration
-  double innppall = fmax(0., gpp_all-rm_all)/(1.0+calpar.frg);
+  double gpp_avail = fmax(0., gpp_all-rm_all)/(1.0+calpar.frg);
   // NPP allocation to leaf estimated first
   double nppl = dleafc;
   // Leaves have the second priority for C assimilation
-  del_a2v.innpp[I_leaf] = fmin(nppl, innppall);
+  del_a2v.innpp[I_leaf] = fmin(nppl, gpp_avail);
   del_v2a.rg[I_leaf] = calpar.frg * del_a2v.innpp[I_leaf];
   double npprgl = del_a2v.innpp[I_leaf] + del_v2a.rg[I_leaf];
 
@@ -383,8 +383,8 @@ void Vegetation_Bgc::delta() {
     del_a2v.innpp[i] = 0.0;
     del_v2a.rg[i]    = 0.0;
 
-    if (cpartrest > 0.0 && innppall > 0.0) {
-      del_a2v.innpp[i] = innppall * bgcpar.cpart[i] / cpartrest;
+    if (cpartrest > 0.0 && gpp_avail > 0.0) {
+      del_a2v.innpp[i] = gpp_avail * bgcpar.cpart[i] / cpartrest;
       del_v2a.rg[i]    = calpar.frg * del_a2v.innpp[i];
     }
   }
