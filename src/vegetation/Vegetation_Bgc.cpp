@@ -361,14 +361,15 @@ void Vegetation_Bgc::delta() {
   }
 
   // total available C for allocation
-  //if C assimilation available, first goes to maintenance respiration
+  // if C assimilation available, first goes to maintenance respiration
   double innppall = fmax(0., ingppall-rm)/(1.0+calpar.frg);
   // NPP allocation to leaf estimated first
   double nppl = dleafc;
-  //leaf has the second priority for C assimilation
+  // Leaves have the second priority for C assimilation
   del_a2v.innpp[I_leaf] = fmin(nppl, innppall);
   del_v2a.rg[I_leaf] = calpar.frg * del_a2v.innpp[I_leaf];
-  double npprgl = del_a2v.innpp[I_leaf]+del_v2a.rg[I_leaf];
+  double npprgl = del_a2v.innpp[I_leaf] + del_v2a.rg[I_leaf];
+
   // the rest goes to stem/root, assuming equal priority
   double innpprest = fmax(0., ingppall-rm-npprgl)/(1.0+calpar.frg);
   double cpartrest = 0.;
@@ -377,16 +378,13 @@ void Vegetation_Bgc::delta() {
     cpartrest +=bgcpar.cpart[i];
   }
 
+  // Handle stems and roots
   for (int i=I_leaf+1; i<NUM_PFT_PART; i++) {
     del_a2v.innpp[i] = 0.0;
     del_v2a.rg[i]    = 0.0;
-  //double cpartrest = 0.;
-  //for (int i=I_leaf; i<NUM_PFT_PART; i++) {
-  //  cpartrest +=bgcpar.cpart[i];
-  //}
-  //for (int i=I_leaf; i<NUM_PFT_PART; i++) {
-    if (cpartrest>0. && innppall>0.) {
-      del_a2v.innpp[i] = innppall * bgcpar.cpart[i]/cpartrest;
+
+    if (cpartrest > 0.0 && innppall > 0.0) {
+      del_a2v.innpp[i] = innppall * bgcpar.cpart[i] / cpartrest;
       del_v2a.rg[i]    = calpar.frg * del_a2v.innpp[i];
     }
   }
@@ -407,7 +405,7 @@ void Vegetation_Bgc::delta() {
       del_v2soi.ltrfalc[i] = 0.;
     }
   }
-};
+}
 
 // C and N fluxes regulated by N uptakes
 void Vegetation_Bgc::deltanfeed() {
