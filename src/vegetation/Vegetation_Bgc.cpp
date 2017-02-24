@@ -527,21 +527,21 @@ void Vegetation_Bgc::deltanfeed() {
 
     // all N supply
     double tempnuptake = del_soi2v.innuptake;
-    double templabn = nresorball+tmp_vegs.labn; //resorbed N is portion of
-                                                //  available 'labile N'
-    double nsupply = tempnuptake+templabn;
+    double templabn = nresorball + tmp_vegs.labn; //resorbed N is portion of
+                                                  //  available 'labile N'
+    double nsupply = tempnuptake + templabn;
     //C fluxes regulated by N uptake and labile N and N requirements
     double reduction = 1.0;
 
-    if (nrequireall>0.) {
-      reduction = fmax(0., nsupply/nrequireall);
+    if (nrequireall > 0.0) {
+      reduction = fmax(0.0, nsupply/nrequireall);
     }
 
     if (reduction < 1.0) {
       for (int i=0; i<NUM_PFT_PART; i++) {
         // npp/gpp reduction due to N limitation
-        if (bgcpar.cpart[i]>0.) {
-          del_a2v.npp[i] = del_a2v.innpp[i]*reduction;
+        if (bgcpar.cpart[i] > 0.0) {
+          del_a2v.npp[i] = del_a2v.innpp[i] * reduction;
 
           if (del_a2v.npp[i] > 0.0) {
             del_v2a.rg[i] = calpar.frg * del_a2v.npp[i];
@@ -555,9 +555,9 @@ void Vegetation_Bgc::deltanfeed() {
             del_a2v.gpp[i] = 0.0;
           }
         } else {
-          del_a2v.npp[i] = 0.;
-          del_v2a.rg[i]  = 0.;
-          del_a2v.gpp[i] = 0.;
+          del_a2v.npp[i] = 0.0;
+          del_v2a.rg[i]  = 0.0;
+          del_a2v.gpp[i] = 0.0;
         }
 
         // N allocation
