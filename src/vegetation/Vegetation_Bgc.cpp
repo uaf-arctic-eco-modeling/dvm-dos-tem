@@ -360,11 +360,11 @@ void Vegetation_Bgc::delta() {
   double rm_all = 0.;
 
   for (int i=0; i<NUM_PFT_PART; i++) {
-    if (tmp_vegs.c[i]>0.) {
+    if (tmp_vegs.c[i] > 0.0) {
       bd->m_vegd.kr[i] = getKr(tmp_vegs.c[i], i);
       del_v2a.rm[i] = getRm(tmp_vegs.c[i], bd->m_vegd.raq10, bd->m_vegd.kr[i]);
     } else {
-      del_v2a.rm[i]    = 0.;
+      del_v2a.rm[i]    = 0.0;
     }
 
     rm_all += del_v2a.rm[i];
@@ -425,18 +425,15 @@ void Vegetation_Bgc::delta() {
 
   // summary of INGPP
   for (int i=0; i<NUM_PFT_PART; i++) {
-    del_a2v.ingpp[i] = del_a2v.innpp[i]+del_v2a.rm[i]*rmadj+del_v2a.rg[i];
-    //may be over the 'gpp_all' due to 'rm_all', which are biomass-C based,
-    //  if not adjusted by 'rmadj'
+    del_a2v.ingpp[i] = del_a2v.innpp[i] + del_v2a.rm[i] * rm_adjust + del_v2a.rg[i];
   }
 
-  // litter-falling
+  // Handle litterfall
   for (int i=0; i<NUM_PFT_PART; i++) {
-    if (calpar.cfall[i]>0.) {
-      //del_v2soi.ltrfalc[i] = fmax(0., fltrfall*calpar.cfall[i] * tmp_vegs.c[i]);
-      del_v2soi.ltrfalc[i] = fmax(0., calpar.cfall[i] * tmp_vegs.c[i]);
+    if (calpar.cfall[i] > 0.0) {
+      del_v2soi.ltrfalc[i] = fmax(0.0, calpar.cfall[i] * tmp_vegs.c[i]);
     } else {
-      del_v2soi.ltrfalc[i] = 0.;
+      del_v2soi.ltrfalc[i] = 0.0;
     }
   }
 }
