@@ -394,8 +394,7 @@ void Vegetation_Bgc::delta() {
   // Then set growth respiration for leaves.
   del_v2a.rg[I_leaf] = calpar.frg * del_a2v.innpp[I_leaf];
 
-
-  // Now if the combination of leaf NPP and growth respiration (rg) is larger
+  // If the combination of leaf NPP and growth respiration (rg) is larger
   // than the available gpp, we need to down-regulate the growth (and growth
   // respiration) so that they don't exceed the C availble from GPP (after
   // maintenance respiration).
@@ -406,11 +405,7 @@ void Vegetation_Bgc::delta() {
     del_v2a.rg[I_leaf] = del_a2v.innpp[I_leaf] * calpar.frg;
   }
 
-  // Now update the available GPP after leaf growth.
-  gpp_avail = (gpp_all - rm_wholePFT - npp_and_rg_leaves) - del_a2v.innpp[I_leaf];
-  gpp_avail = fmax(0.0, gpp_avail);
-
-  // And allocate (distribute) the remaining GPP amongst roots and stems
+  // Allocate (distribute) the remaining GPP amongst roots and stems
   // based on the cpart distrubution specified in the parameter files.
   double cpart_stems_and_roots = 0.0;
 
@@ -422,7 +417,7 @@ void Vegetation_Bgc::delta() {
     for (int i=I_leaf+1; i<NUM_PFT_PART; i++) {
       del_a2v.innpp[i] = 0.0;
       del_v2a.rg[i]    = 0.0;
-      if (gpp_avail > 0.0) {
+      if (cpart_stems_and_roots > 0.0 && gpp_avail > 0.0){
         del_a2v.innpp[i] = gpp_avail * (bgcpar.cpart[i] / cpart_stems_and_roots); // <-- maybe divide by (1.0 + calpar.frg) ???
         del_v2a.rg[i]    = calpar.frg * del_a2v.innpp[i];
       }
@@ -435,7 +430,7 @@ void Vegetation_Bgc::delta() {
   }
 
 
-  // summary of INGPP
+  // summary of INGPP - use adjustment calculated above.
   for (int i=0; i<NUM_PFT_PART; i++) {
     del_a2v.ingpp[i] = del_a2v.innpp[i] + del_v2a.rm[i] * rm_adjust + del_v2a.rg[i];
   }
