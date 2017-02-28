@@ -129,8 +129,18 @@ struct snwstate_env {
   double tsnwave;
   double snowthick;
 
+  //The following two variables are used to track the presence or absence
+  // of enough snow to create a snow layer. The output variables SNOWSTART
+  // and SNOWEND are determined from them.
+  int days_present; //Consecutive days with a snow layer
+  int days_absent; //Consecutive days without snow
+
+  int snowstart;//DOY - first day a snow layer exists and sticks for 7 days
+  int snowend;//DOY - first day of no snow layers for 7 consecutive days
+
   snwstate_env():swesum(UIN_D), tsnwave(UIN_D), extraswe(UIN_D),
-                 snowthick(UIN_D) {
+                 snowthick(UIN_D), days_present(UIN_I), days_absent(UIN_I),
+                 snowstart(UIN_I), snowend(UIN_I) {
     for (int i = 0; i < MAX_SNW_LAY; ++i) {
       tsnw[i] = UIN_D;
       swe[i] = UIN_D;

@@ -133,6 +133,14 @@ void EnvData::grnd_beginOfYear() {
 
   y_snws.swesum  = 0.;
   y_snws.tsnwave = 0.;
+  y_snws.days_present = 0;
+  y_snws.days_absent = 0;
+  d_snws.snowstart = MISSING_I;
+  m_snws.snowstart = MISSING_I;
+  y_snws.snowstart = MISSING_I;
+  d_snws.snowend = MISSING_I;
+  m_snws.snowend = MISSING_I;
+  y_snws.snowend = MISSING_I;
   y_snwd.snowfreeFst= MISSING_I;
   y_snwd.snowfreeLst= MISSING_I;
   y_snw2a.swrefl = 0.;
@@ -405,6 +413,31 @@ void EnvData::grnd_endOfDay(const int & dinm, const int & doy) {
       m_snws.swesum  += d_snws.swe[i]/dinm;
       m_snws.tsnwave += d_snws.tsnw[i]/numsnw/dinm;
     }
+    y_snws.days_present += 1;//Tracking snow age for SNOWSTART and SNOWEND
+    y_snws.days_absent = 0;
+  }
+  else{
+    y_snws.days_present = 0;//No snow - reset snow age.
+    y_snws.days_absent += 1;//Increment days without snow
+  }
+
+  //For now, we determine a season's change in snow status
+  //  based on seven consecutive days of the alternate.
+  //It is possible for there to be snow in the fall, followed by a
+  //  week or more of no snow, which would trigger snowend to
+  //  be re-set. To ensure reasonable values for snowstart and
+  //  snowend, the assignment statements are restricted to
+  //  fall and spring, respectively.
+  if(y_snws.days_present == 7 && doy > 182){
+    d_snws.snowstart = doy - 6;
+    m_snws.snowstart = doy - 6;
+    y_snws.snowstart = doy - 6;
+  }
+
+  if(y_snws.days_absent == 7 && doy < 182){
+    d_snws.snowend = doy - 6;
+    m_snws.snowend = doy - 6;
+    y_snws.snowend = doy - 6;
   }
 
   m_snw2a.swrefl += d_snw2a.swrefl/dinm;// short-wave radiation reflection

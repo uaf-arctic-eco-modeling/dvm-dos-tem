@@ -1085,6 +1085,16 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   map_itr = netcdf_outputs.find("SNOWEND");
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: SNOWEND";
+    curr_spec = map_itr->second;
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "SNOWEND", &cv) );
+    start3[0] = year;
+
+    double snowend = cohort.edall->y_snws.snowend;
+
+    temutil::nc( nc_put_var1_double(ncid, cv, start3, &snowend) );
+    temutil::nc( nc_close(ncid) );
   }//end SNOWEND
   map_itr = netcdf_outputs.end();
 
@@ -1092,6 +1102,16 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   map_itr = netcdf_outputs.find("SNOWSTART");
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: SNOWSTART";
+    curr_spec = map_itr->second;
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "SNOWSTART", &cv) );
+    start3[0] = year;
+
+    double snowstart = cohort.edall->y_snws.snowstart;
+
+    temutil::nc( nc_put_var1_double(ncid, cv, start3, &snowstart) );
+    temutil::nc( nc_close(ncid) );
   }//end SNOWSTART
   map_itr = netcdf_outputs.end();
 
