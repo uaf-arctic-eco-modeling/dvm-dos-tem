@@ -384,6 +384,12 @@ void Vegetation_Bgc::delta() {
   // accounting for maintenance and growth respiration (Ra).
   double gpp_avail = fmax( 0.0, (gpp_all-rm_wholePFT) / (1.0 + calpar.frg) );
 
+  // NOTE: Forcing gpp_avail >= 0 is wrong - in the winter respiration can
+  //       exceed GPP, and in this case gpp_avail should be allowed to go
+  //       negative. If someone fixes this, make sure to update the gpp_avail
+  //       formulation below too (after allocating to leaves and
+  //       down-regulating).
+
   // Calculate leaf growth and associated growth respiration.
   //
   // Leaves have the second priority for C assimilation, after maintenace
@@ -404,6 +410,14 @@ void Vegetation_Bgc::delta() {
     del_a2v.innpp[I_leaf] = gpp_avail / (1.0 + calpar.frg);
     del_v2a.rg[I_leaf] = del_a2v.innpp[I_leaf] * calpar.frg;
   }
+  // update temporary variable after down-regulation
+  npp_and_rg_leaves = del_a2v.innpp[I_leaf] + del_v2a.rg[I_leaf];
+
+  // Update the available gpp.
+  // Remaining C from GPP available after maintenance respiration and leaf
+  // growth. Stems and roots are the lowest priority so they take remaining C
+  // after leaf growth and maintenance resp. have been accounted for.
+  gpp_avail = fmax(0.0, (gpp_all - rm_wholePFT - npp_and_rg_leaves) / (1.0 + calpar.frg));
 
   // Allocate (distribute) the remaining GPP amongst roots and stems
   // based on the cpart distrubution specified in the parameter files.
