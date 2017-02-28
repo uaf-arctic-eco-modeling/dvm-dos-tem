@@ -101,11 +101,6 @@ Cohort::Cohort(int y, int x, ModelData* modeldatapointer):
 
   Vegetation_Bgc vegbgc[NUM_PFT];
 
-
-
-  // output
-  //OutRetrive outbuffer;
-
   // data
   EnvData ed[NUM_PFT];
   BgcData bd[NUM_PFT];
@@ -191,15 +186,6 @@ void Cohort::initialize_internal_pointers() {
 
   solintegrator.setBgcData(bdall);
   solintegrator.setSoil_Bgc(&soilbgc);
-  // Output data pointers
-  outbuffer.setDimensionData(&cd);
-  outbuffer.setProcessData(-1, edall, bdall);
-
-  for (int ip=0; ip<NUM_PFT; ip++) {
-    outbuffer.setProcessData(ip, &ed[ip], &bd[ip]);
-  }
-
-  outbuffer.setFireData(fd);
 };
 
 //The following 'set...' functions allow initialized data pointers
@@ -419,14 +405,6 @@ void Cohort::updateMonthly(const int & yrcnt, const int & currmind,
   BOOST_LOG_SEV(glg, debug) << "Synchronize the RestartData object with the model's state...";
   this->set_restartdata_from_state();
   BOOST_LOG_SEV(glg, debug) << "TODO: ouput some data!";
-//  if (md->outRegn) {
-//    BOOST_LOG_SEV(glg, debug) << "Output all data for multiple cohorts.";
-//    outbuffer.updateRegnOutputBuffer(currmind);
-//  }
-//
-//  // always output the restart data (monthly)
-//  BOOST_LOG_SEV(glg, debug) << "Output monthly restart data.";
-//  outbuffer.updateRestartOutputBuffer();
 };
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -627,17 +605,6 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
       edall->grnd_endOfMonth();
     }
 
-    ////////////////////////////
-    //output data store for daily - because the output is implemented monthly
-    if (md->outSiteDay) {
-      outbuffer.assignSiteDlyOutputBuffer_Env(cd.d_snow, -1, id);   // '-1' indicates for all-pft integrated datasets
-
-      for (int ip=0; ip<NUM_PFT; ip++) {
-        if (cd.d_veg.vegcov[ip]>0.0) {
-          outbuffer.assignSiteDlyOutputBuffer_Env(cd.d_snow, ip, id);
-        }
-      }
-    }
   }} // end of day loop (and named scope)
 }
 

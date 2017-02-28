@@ -53,7 +53,6 @@ SOURCES= 	src/TEM.o \
 		src/runmodule/Cohort.o \
 		src/runmodule/Integrator.o \
 		src/ModelData.o \
-		src/runmodule/OutRetrive.o \
 		src/snowsoil/Richards.o \
 		src/snowsoil/Snow_Env.o \
 		src/snowsoil/Soil_Bgc.o \
@@ -102,7 +101,6 @@ OBJECTS =	ArgHandler.o \
 		Cohort.o \
 		Integrator.o \
 		ModelData.o \
-		OutRetrive.o \
 		Richards.o \
 		Snow_Env.o \
 		Soil_Bgc.o \
