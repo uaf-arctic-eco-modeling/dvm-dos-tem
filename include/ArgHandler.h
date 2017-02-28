@@ -26,6 +26,7 @@ class ArgHandler {
   bool cal_mode;
   bool inter_stage_pause;
   bool archive_all_json;
+  bool tar_caljson;
   int last_n_json_files;
 
   std::string pid_tag;
@@ -58,6 +59,7 @@ public:
   inline const bool get_cal_mode(){return cal_mode;};
   inline const bool get_inter_stage_pause() const {return inter_stage_pause;};
   inline const bool get_archive_all_json() const {return archive_all_json;};
+  inline const bool get_tar_caljson() const {return tar_caljson;};
   inline const int get_last_n_json_files() const {return last_n_json_files;};
 
   inline const std::string get_pid_tag() const {return pid_tag;};

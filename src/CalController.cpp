@@ -193,6 +193,10 @@ void CalController::handle_stage_end(const std::string& stage) {
     this->archive_stage_JSON(stage);
   }
 
+  if (this->cohort_ptr->md->tar_caljson) {
+    this->tar_caljson_for_stage(stage);
+  }
+
   if (this->cohort_ptr->md->inter_stage_pause) {
     BOOST_LOG_SEV(glg, info) << "Pausing. Please check that the '"
                              << stage <<"' data looks good.";
@@ -483,6 +487,20 @@ void CalController::clear_archived_json() {
     boost::filesystem::remove_all(base_dir / "sc");
   }
 }
+
+void CalController::tar_caljson_for_stage(const std::string& stage) {
+
+  std::string outfile = "/tmp/" + stage + "-data.tar.gz";
+
+  std::string system_call_string = "tar -czf " + outfile + " " + this->base_dir.c_str();
+  BOOST_LOG_SEV(glg, info) << "Attempting system() call with this command: " << system_call_string;
+
+  int return_value = system(system_call_string.c_str());
+
+  BOOST_LOG_SEV(glg, info) << "system() call return value: " << return_value;
+
+}
+
 
 /** Copies JSON output to stage specific directories.
  * Removes and recreates directories if they exist, simply creates

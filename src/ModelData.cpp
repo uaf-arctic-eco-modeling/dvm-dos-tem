@@ -84,6 +84,7 @@ void ModelData::update(ArgHandler const * arghandler) {
   this->pid_tag = arghandler->get_pid_tag();
   this->last_n_json_files = arghandler->get_last_n_json_files();
   this->archive_all_json = arghandler->get_archive_all_json();
+  this->tar_caljson = arghandler->get_tar_caljson();
 
   // it it was set on the command line, then use that value, otherwise,
   // use the value
