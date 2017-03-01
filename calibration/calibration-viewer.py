@@ -27,6 +27,12 @@ import matplotlib.gridspec as gridspec
 
 import matplotlib.widgets
 
+# Find the path to the this file so that we can look, relative to this file
+# up one directory and into the scripts/ directory
+sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../'))
+print sys.path
+import scripts.param_util as pu
+
 # Keep the detailed documentation here. Can be accessed via command
 # line --extended-help flag.
 def generate_extened_help():
@@ -436,32 +442,7 @@ class ExpandingWindow(object):
     
 
     # ----- READ FIRST FILE FOR TITLE ------
-    if len(files) > 0:
-      try:
-        with open(files[0]) as f:
-          fdata = json.load(f)
-
-        title_lines = self.ewp_title.get_text().splitlines()
-        first_line = title_lines[0]
-        cmt_latlon_list = first_line.split()[1:]
-
-        details = "%s (%.2f,%.2f)" % (fdata["CMT"], fdata["Lat"], fdata["Lon"])
-
-        if not ' '.join( cmt_latlon_list ) == details:
-          new_first_line = "%s %s" % (first_line, details)
-          title_lines[0] = new_first_line
-          new_title_string = "\n".join(title_lines)
-
-          self.fig.suptitle(new_title_string)
-        else:
-          pass # nothing to do - title already has CMT, lat and lon...
-
-      except (IOError, ValueError) as e:
-        logging.error("Problem: '%s' reading file '%s'" % (e, f))
-
-    else:
-      pass # Nothing to do; no files, so can't find CMT or lat/lon
-
+    self.set_title_from_first_file(files)
 
     # for each trace, create a tmp y container the same size as x
     for trace in self.traces:
@@ -574,6 +555,11 @@ class ExpandingWindow(object):
       plt.draw()
 
     log.info("Finished loading data.")
+
+    # ----- SETUP PFT BG TEXT -----------
+    self.clear_bg_pft_txt()
+    self.set_bg_pft_txt()
+
 
   def update(self, frame):
     '''The animation updating function. Loads new data, but only upates view
@@ -798,6 +784,33 @@ class ExpandingWindow(object):
       exit_gracefully(event.key, None) # <-- need to pass something for frame ??
 
 
+  def set_title_from_first_file(self, files):
+    if len(files) > 0:
+      try:
+        with open(files[0]) as f:
+          fdata = json.load(f)
+
+        title_lines = self.ewp_title.get_text().splitlines()
+        first_line = title_lines[0]
+        cmt_latlon_list = first_line.split()[1:]
+
+        details = "%s (%.2f,%.2f)" % (fdata["CMT"], fdata["Lat"], fdata["Lon"])
+
+        if not ' '.join( cmt_latlon_list ) == details:
+          new_first_line = "%s %s" % (first_line, details)
+          title_lines[0] = new_first_line
+          new_title_string = "\n".join(title_lines)
+
+          self.fig.suptitle(new_title_string)
+        else:
+          pass # nothing to do - title already has CMT, lat and lon...
+
+      except (IOError, ValueError) as e:
+        logging.error("Problem: '%s' reading file '%s'" % (e, f))
+
+    else:
+      pass # Nothing to do; no files, so can't find CMT or lat/lon
+
   def plot_target_lines(self):
     logging.debug("Plotting the target lines for calibrated parameters...")
 
@@ -867,15 +880,31 @@ class ExpandingWindow(object):
     for trace in self.traces:
       if 'pft' in trace.keys():
         ax = self.axes[trace['axesnum']]
+
+        logger.debug("Setting the verbose name for the PFT!")
+        # Split the lines and look in the first line; the second line of the
+        # title will have the CMT code for the target lines. The first line
+        # of the title has CMT code read from first file in the file list.
+        t_line0 = self.ewp_title.get_text().split('\n')[0]
+        spos = t_line0.find('CMT')
+        if spos < 0: # did not find the CMT code yet in the title...
+          logger.warn("Did not find CMT text in title - can't lookup PFT verbose name!")
+          vname = ''
+        else:
+          cmtkey = t_line0[spos:spos+5]
+          vname = "(%s)" % pu.get_pft_verbose_name(pftkey=trace['pft'], cmtkey=cmtkey)
+        logger.debug("verbose PFT name is: %s" % vname)
+
         ax.text(
                   0.5, 0.5,
-                  "%s" % trace['pft'],
+                  "%s %s" % (trace['pft'], vname),
                   fontdict=font,
                   horizontalalignment='center',
                   #verticalalignment='center',
                   transform=ax.transAxes,
                   #bbox=dict(facecolor='red', alpha=0.2)
                 )
+
 
   def get_currentpft(self):
     '''return the current pft. currently assumes that all traces have the same pft'''
