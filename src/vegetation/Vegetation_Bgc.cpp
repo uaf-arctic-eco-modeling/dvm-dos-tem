@@ -462,33 +462,40 @@ void Vegetation_Bgc::delta() {
 // C and N fluxes regulated by N uptakes
 void Vegetation_Bgc::deltanfeed() {
   if(nfeed) {
-    //max. N uptake determined by plant f(foliage),
-    //  air temperature, and soil conditions
-    if (cd->m_veg.nonvascular[ipft]==0) {
-      del_soi2v.innuptake = getNuptake(cd->m_vegd.ffoliage[ipft],
-                                       bd->m_vegd.raq10,
-                                       bgcpar.knuptake, calpar.nmax);
+
+    // Figure out the initial N uptake.
+    if (cd->m_veg.nonvascular[ipft] == 0) {
+      // For vascular plants, N uptake is determined by foliage,
+      // air temp, and soil conditions.
+      del_soi2v.innuptake = getNuptake(
+          cd->m_vegd.ffoliage[ipft],
+          bd->m_vegd.raq10,
+          bgcpar.knuptake,
+          calpar.nmax
+      );
     } else {
+      // For non-vascular plants, we are not sure of the best algorithm yet.
+      // They absorb N mainly from wet-deposition, from substrate (soil,
+      // rock, etc), from neighboring plants, or from biofixation.
+
+      // For now simply scale with a calibrated parameter and foliage...
       del_soi2v.innuptake = calpar.nmax * cd->m_vegd.ffoliage[ipft];
-        //need more mechanism algorithm for non-vascular plants:
-        // they absorb N mainly from wet-deposition, and could from substrate
-        // (soil) through co-existed plants, or from biofixation
     }
 
+    // Force innuptake to be non-negative.
     if (del_soi2v.innuptake < 0.0) {
       del_soi2v.innuptake = 0.0;
     }
 
-    double avln = 0.;
-
-    for(int il =0; il<cd->m_soil.numsl; il++) {
-      if (cd->m_soil.frootfrac[il][ipft]> 0.) {
+    // Adjust innuptake based on the available N.
+    double avln = 0.0;
+    for(int il=0; il<cd->m_soil.numsl; il++) {
+      if (cd->m_soil.frootfrac[il][ipft] > 0.0) {
         avln += bd->m_sois.avln[il];
       }
     }
-
-    if (del_soi2v.innuptake > 0.95*avln) {
-      del_soi2v.innuptake = 0.95*avln;
+    if (del_soi2v.innuptake > 0.95 * avln) {
+      del_soi2v.innuptake = 0.95 * avln;
     }
 
     // N litterfall and accompanying resorbtion
@@ -683,7 +690,7 @@ void Vegetation_Bgc::deltanfeed() {
       del_a2v.npp[i] = del_a2v.innpp[i];
     }
   }
-};
+}
 
 // summarize C and N state variable changes
 void Vegetation_Bgc::deltastate() {
