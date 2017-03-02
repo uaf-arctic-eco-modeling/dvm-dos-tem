@@ -487,16 +487,26 @@ void Vegetation_Bgc::deltanfeed() {
       del_soi2v.innuptake = 0.0;
     }
 
-    // Adjust innuptake based on the available N.
-    double avln = 0.0;
-    for(int il=0; il<cd->m_soil.numsl; il++) {
-      if (cd->m_soil.frootfrac[il][ipft] > 0.0) {
-        avln += bd->m_sois.avln[il];
+    // Adjust innuptake based on the soil available N.
+    if (cd->m_veg.nonvascular[ipft] == 0) {
+
+      // For vascular plants, find all the available N in soil layers
+      // that have fine roots and then give some percentage to innuptake.
+      double avln = 0.0;
+      for(int il=0; il<cd->m_soil.numsl; il++) {
+        if (cd->m_soil.frootfrac[il][ipft] > 0.0) {
+          avln += bd->m_sois.avln[il];
+        }
       }
+      if (del_soi2v.innuptake > 0.95 * avln) {
+        del_soi2v.innuptake = 0.95 * avln;
+      }
+
+    } else {
+      // For non-vascular plants innuptake is not influenced by soil
+      // available Nitrogen! Nothing to do...
     }
-    if (del_soi2v.innuptake > 0.95 * avln) {
-      del_soi2v.innuptake = 0.95 * avln;
-    }
+
 
     // N litterfall and accompanying resorbtion
     for (int i=0; i<NUM_PFT_PART; i++) {
