@@ -500,27 +500,27 @@ void Vegetation_Bgc::deltanfeed() {
 
     // N litterfall and accompanying resorbtion
     for (int i=0; i<NUM_PFT_PART; i++) {
-      if (calpar.nfall[i]>0.) {
+      if (calpar.nfall[i] > 0.0) {
         //assuming 'calpar.nfall' is the max. monthly fraction,
         //  and allowing the following seasonal variation
         //del_v2soi.ltrfaln[i] = fmax(0., fltrfall*calpar.nfall[i]
         //                                * tmp_vegs.strn[i]);
-        del_v2soi.ltrfaln[i] = fmax(0., calpar.nfall[i]*tmp_vegs.strn[i]);
+        del_v2soi.ltrfaln[i] = fmax(0.0, calpar.nfall[i]*tmp_vegs.strn[i]);
       } else {
-        del_v2soi.ltrfaln[i] = 0.;
+        del_v2soi.ltrfaln[i] = 0.0;
       }
     }
 
-    double nresorball = 0.;
+    double nresorball = 0.0;
 
     for (int i=0; i<NUM_PFT_PART; i++) {
-      double c2n = 0.;
+      double c2n = 0.0;
 
-      if (tmp_vegs.strn[i]>0.) {
-        c2n=tmp_vegs.c[i]/tmp_vegs.strn[i];
+      if (tmp_vegs.strn[i] > 0.0) {
+        c2n = tmp_vegs.c[i] / tmp_vegs.strn[i];
       }
 
-      if (c2n>0.) {
+      if (c2n > 0.0) {
         if(del_v2soi.ltrfaln[i] <= del_v2soi.ltrfalc[i]/c2n) {
           del_v2v.nresorb[i] = del_v2soi.ltrfalc[i]/c2n
                                - del_v2soi.ltrfaln[i];
@@ -660,9 +660,9 @@ void Vegetation_Bgc::deltanfeed() {
     double nfall = 0.;
 
     for (int i=0; i<NUM_PFT_PART; i++) {
-      snuptakeall+=del_soi2v.snuptake[i];
-      nmobilall  +=del_v2v.nmobil[i];
-      nfall      +=del_v2soi.ltrfaln[i];
+      snuptakeall += del_soi2v.snuptake[i];
+      nmobilall   += del_v2v.nmobil[i];
+      nfall       += del_v2soi.ltrfaln[i];
     }
 
     //vegetation N labile N after changes ('nmobile' already
