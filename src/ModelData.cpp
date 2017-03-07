@@ -212,7 +212,11 @@ std::string ModelData::describe_module_settings() {
 }
 
 
-/** Construct empty netCDF output files. Unfinished.
+/** Construct empty netCDF output files.
+ *
+ *  This function reads in output selections from a csv file specified
+ *  in the config file. It creates an output_spec and an empty
+ *  NetCDF file for each line.
 */
 void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::string& stage) {
 
