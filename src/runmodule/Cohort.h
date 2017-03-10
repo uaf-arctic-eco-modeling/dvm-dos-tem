@@ -30,7 +30,6 @@
 
 // headers for run
 #include "../../include/ModelData.h"
-#include "OutRetrive.h"
 
 class Cohort {
 public :
@@ -78,9 +77,6 @@ public :
   Soil_Bgc soilbgc;
 
   WildFire fire;
-
-  // output
-  OutRetrive outbuffer;
 
   // data
   EnvData ed[NUM_PFT];

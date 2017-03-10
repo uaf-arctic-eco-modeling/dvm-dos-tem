@@ -31,7 +31,6 @@ local_include_paths = Split("""./src
                                ./src/inc
                                ./src/input
                                ./src/lookup
-                               ./src/output
                                ./src/runmodule
                                ./src/snowsoil
                                ./src/util
@@ -69,14 +68,8 @@ src_files = Split("""src/TEM.cpp
                      src/ecodomain/layer/SnowLayer.cpp
                      src/ecodomain/layer/SoilLayer.cpp
                      src/lookup/CohortLookup.cpp
-                     src/output/BgcOutputer.cpp
-                     src/output/ChtOutputer.cpp
-                     src/output/EnvOutputer.cpp
-                     src/output/RegnOutputer.cpp
-                     src/output/RestartOutputer.cpp
                      src/runmodule/Cohort.cpp
                      src/runmodule/Integrator.cpp
-                     src/runmodule/OutRetrive.cpp
                      src/snowsoil/Richards.cpp
                      src/snowsoil/Snow_Env.cpp
                      src/snowsoil/Soil_Bgc.cpp

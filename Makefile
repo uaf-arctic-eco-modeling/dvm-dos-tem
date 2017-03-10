@@ -50,15 +50,9 @@ SOURCES= 	src/TEM.o \
 		src/ecodomain/horizon/SoilParent.o \
 		src/ecodomain/Vegetation.o \
 		src/lookup/CohortLookup.o \
-		src/output/BgcOutputer.o \
-		src/output/ChtOutputer.o \
-		src/output/EnvOutputer.o \
-		src/output/RegnOutputer.o \
-		src/output/RestartOutputer.o \
 		src/runmodule/Cohort.o \
 		src/runmodule/Integrator.o \
 		src/ModelData.o \
-		src/runmodule/OutRetrive.o \
 		src/snowsoil/Richards.o \
 		src/snowsoil/Snow_Env.o \
 		src/snowsoil/Soil_Bgc.o \
@@ -104,15 +98,9 @@ OBJECTS =	ArgHandler.o \
 		SoilParent.o \
 		Vegetation.o \
 		CohortLookup.o \
-		BgcOutputer.o \
-		ChtOutputer.o \
-		EnvOutputer.o \
-		RegnOutputer.o \
-		RestartOutputer.o \
 		Cohort.o \
 		Integrator.o \
 		ModelData.o \
-		OutRetrive.o \
 		Richards.o \
 		Snow_Env.o \
 		Soil_Bgc.o \

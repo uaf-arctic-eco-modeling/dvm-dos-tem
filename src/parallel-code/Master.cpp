@@ -17,7 +17,7 @@
 #include "../data/RestartData.h"
 #include "../inc/tbc_mpi_constants.h"
 #include "../util/tbc-debug-util.h"
-#include "../output/RestartOutputer.h"
+//#include "../output/RestartOutputer.h"
 
 #include "../TEMLogger.h"
 
