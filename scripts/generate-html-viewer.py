@@ -7,6 +7,7 @@
 
 import fnmatch
 import os
+import collections
 
 import argparse
 import textwrap
@@ -240,7 +241,7 @@ def build_new_page(left_path, center_path, right_path):
   # for each column that can be passed to the template...
   dm = {}
   for cat in categories:
-    dm[cat] = {}
+    dm[cat] = collections.OrderedDict()
     for col, il in zip(['L','C','R'], (left_img_list, center_img_list, right_img_list)):
       dm[cat][col] = [p for p in il if classify(p)==cat]
 
