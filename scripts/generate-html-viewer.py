@@ -135,15 +135,17 @@ def NEW_template():
       <![endif]-->
     </head>
     <body>
+      <div class="container-fluid">
       <div class="navbar-fixed-top">
         <div class="row">
-          <div class="col-sm-4">Left title</div>
-          <div class="col-sm-4">center title</div>
-          <div class="col-sm-4">right title</div>
+          <div class="col-sm-4"><div class="fixed-column-headerbox">{{ titles.L }}</div></div>
+          <div class="col-sm-4"><div class="fixed-column-headerbox">{{ titles.C }}</div></div>
+          <div class="col-sm-4"><div class="fixed-column-headerbox">{{ titles.R }}</div></div>
         </div>
       </div>
-      <div class="container-fluid">
-        {% for category, imglists in dm.iteritems() %}
+      </div>
+      <div class="container-fluid main-data-area">
+        {% for category, col2imglistmap in dm.iteritems() %}
         <div class="row">
           <div class="panel-group">
             <div class="panel panel-default">
@@ -203,8 +205,8 @@ def build_new_page(left_path, center_path, right_path):
 
   # Find all the images in the left, center and right paths/trees - recursive!!
   left_img_list = build_full_image_list(args.left)
-  right_img_list = build_full_image_list(args.right)
   center_img_list = build_full_image_list(args.center)
+  right_img_list = build_full_image_list(args.right)
 
   # Figure out what rows we need
   categories = set(map(classify, left_img_list+center_img_list+right_img_list))
@@ -217,7 +219,14 @@ def build_new_page(left_path, center_path, right_path):
     for col, il in zip(['L','C','R'], (left_img_list, center_img_list, right_img_list)):
       dm[cat][col] = [p for p in il if classify(p)==cat]
 
-  ns = NEW_template().render(dm=dm)
+  titles = {
+    'L':left_path,
+    'C':center_path,
+    'R':right_path,
+  }
+
+
+  ns = NEW_template().render(dm=dm, titles=titles)
  
   with open("NEWthree-view.html", 'w') as f:
     f.write( ns )
