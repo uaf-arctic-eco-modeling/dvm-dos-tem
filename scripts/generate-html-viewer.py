@@ -145,16 +145,16 @@ def NEW_template():
       <div class="container-fluid">
         {% for category, imglists in dm.iteritems() %}
         <div class="row">
-          {% for column, paths in imglists.iteritems() %}
-          <div class="col-sm-4">
-            <div class="panel-group">
-              <div class="panel panel-default">
-                <div class="panel-heading">
-                  <h4 class="panel-title">
-                    <a data-toggle="collapse" href="#collapse-{{ column }}-{{ category }}">{{ category }}</a>
-                  </h4>
-                </div>
-                <div id="collapse-{{ column }}-{{ category }}" class="panel-collapse collapse">
+          <div class="panel-group">
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <h4 class="panel-title">
+                  <a data-toggle="collapse" href="#collapse-{{ column }}-{{ category }}">{{ category }}</a>
+                </h4>
+              </div>
+              <div id="collapse-{{ column }}-{{ category }}" class="panel-collapse collapse">
+                {% for column, paths in imglists.iteritems() %}
+                <div class="col-sm-4">
                   <ul class="list-group">
                     {% for image in paths %}
                     <li class="list-group-item">
@@ -163,10 +163,10 @@ def NEW_template():
                     {% endfor %}
                   </ul>
                 </div>
+                {% endfor %}
               </div>
             </div>
           </div>
-          {% endfor %}
         </div>
         {% endfor %}
       </div>
