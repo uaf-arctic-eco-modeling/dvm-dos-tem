@@ -212,7 +212,36 @@ def build_new_page(left_path, center_path, right_path):
   #       list_of_imgs_in_category.append(image)
   #   return list_of_imgs_in_category
 
+
+  def walkdepth(some_dir, depth=1):
+    '''Like os.path.walk, but with depth control. 
+    From: http://stackoverflow.com/questions/229186/
+    '''
+    some_dir = some_dir.rstrip(os.path.sep)
+    assert os.path.isdir(some_dir)
+    num_sep = some_dir.count(os.path.sep)
+    for root, dirs, files in os.walk(some_dir):
+      yield root, dirs, files
+      num_sep_this = root.count(os.path.sep)
+      if num_sep + depth <= num_sep_this:
+        del dirs[:]
+
   def classify(filepath):
+    '''Attempts to 'classify' a file based on the underscore seperated fields.
+    Expects a file name something like:
+      "sometag_Vegetation_pft0.png" or "_histo_pestplot.png"
+
+    Parameters
+    ----------
+    filepath : str (required)
+      Splits the last element (basename) of a path on underscores, and
+      then looks for either the last element, or second to last element.
+
+    Returns
+    -------
+    c : str
+      The classification string.
+    '''
     bn = os.path.basename(filepath)
     sbn = os.path.splitext(bn)[0]
     tokens = sbn.split('_')
@@ -221,18 +250,20 @@ def build_new_page(left_path, center_path, right_path):
     else:
       return tokens[-1]
 
-  def build_full_image_list(path):
+  def build_full_image_list(path, depth=None):
+    path = os.path.normpath(path)
     images, pdfs, pngs = [], [], []
-    for root, dirnames, filenames in os.walk(path):
-      pdfs += [os.path.join(root, filename) for filename in fnmatch.filter(filenames, "*.pdf")]
-      pngs += [os.path.join(root, filename) for filename in fnmatch.filter(filenames, "*.png")]
+    for root, dirs, files in walkdepth(path, depth=depth):
+      pdfs += [os.path.join(root, filename) for filename in fnmatch.filter(files, "*.pdf")]
+      pngs += [os.path.join(root, filename) for filename in fnmatch.filter(files, "*.png")]
+
     images = pdfs + pngs
     return images
 
   # Find all the images in the left, center and right paths/trees - recursive!!
-  left_img_list = build_full_image_list(args.left)
-  center_img_list = build_full_image_list(args.center)
-  right_img_list = build_full_image_list(args.right)
+  left_img_list = build_full_image_list(args.left, depth=1)
+  center_img_list = build_full_image_list(args.center, depth=1)
+  right_img_list = build_full_image_list(args.right, depth=1)
 
   # Figure out what rows we need
   categories = set(map(classify, left_img_list+center_img_list+right_img_list))
