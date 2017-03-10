@@ -5,15 +5,33 @@
 
 # T. Carman Spring 2016
 
+import fnmatch
+import os
+
 import argparse
 import textwrap
 import glob
+
+from jinja2 import Template
 
 def generate_head_tag():
   '''Generates the <head> tag to be used in an html page.'''
   h = textwrap.dedent('''\
     <head>
       <meta charset="utf-8">
+
+      <!-- Latest compiled and minified CSS -->
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+      <!-- jQuery library -->
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+
+      <!-- Latest compiled JavaScript -->
+      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+      <!-- something about mobile first design with bootstrap... -->
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+
       <title>dvmdostem output viewer</title>
       <link rel="stylesheet" href="">
 
@@ -67,9 +85,151 @@ def generate_head_tag():
 
   return h
 
+
+def NEW_template():
+  '''
+  Parameters that must be passed to render(...)
+  ---------------------------------------------
+  dm : dict
+    A dict mapping 'categories' to lists of image
+    paths (one list for each column).
+
+  Returns
+  -------
+  A jinja2 Template instance.
+  '''
+  return Template(textwrap.dedent('''\
+
+  <!DOCTYPE html>
+  <html lang="en">
+    <head>
+      <meta charset="utf-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+
+      <title>dvmdostem output viewer</title>
+
+      <!-- Bootstrap -->
+      <!--<link href="css/bootstrap.min.css" rel="stylesheet">-->
+
+      <!-- Latest compiled and minified CSS -->
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+      <!-- Optional theme -->
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+      <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+      <!-- Include all compiled plugins (below), or include individual files as needed -->
+      <!--<script src="js/bootstrap.min.js"></script>-->
+
+      <!-- Latest compiled and minified JavaScript -->
+      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+      <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+      <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+      <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+      <![endif]-->
+    </head>
+    <body>
+      <div class="navbar-fixed-top">
+        <div class="row">
+          <div class="col-sm-4">Left title</div>
+          <div class="col-sm-4">center title</div>
+          <div class="col-sm-4">right title</div>
+        </div>
+      </div>
+      <div class="container-fluid">
+        {% for category, imglists in dm.iteritems() %}
+        <div class="row">
+          {% for column, paths in imglists.iteritems() %}
+          <div class="col-sm-4">
+            <div class="panel-group">
+              <div class="panel panel-default">
+                <div class="panel-heading">
+                  <h4 class="panel-title">
+                    <a data-toggle="collapse" href="#collapse-{{ column }}-{{ category }}">{{ category }}</a>
+                  </h4>
+                </div>
+                <div id="collapse-{{ column }}-{{ category }}" class="panel-collapse collapse">
+                  <ul class="list-group">
+                    {% for image in paths %}
+                    <li class="list-group-item">
+                      <img class="img-responsive" src="{{ image }}" />
+                    </li>
+                    {% endfor %}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% endfor %}
+      </div>
+    </body>
+  '''))
+
+
+def build_new_page(left_path, center_path, right_path):
+  # Unused...
+  # def build_list_imgs_in_category(category, image_list):
+  #   list_of_imgs_in_category = []
+  #   for image in image_list:
+  #     print classify(image)
+  #     if classify(image) == category:
+  #       list_of_imgs_in_category.append(image)
+  #   return list_of_imgs_in_category
+
+  def classify(filepath):
+    bn = os.path.basename(filepath)
+    sbn = os.path.splitext(bn)[0]
+    tokens = sbn.split('_')
+    if 'pft' in tokens[-1]:
+      return tokens[-2]
+    else:
+      return tokens[-1]
+
+  def build_full_image_list(path):
+    images, pdfs, pngs = [], [], []
+    for root, dirnames, filenames in os.walk(path):
+      pdfs += [os.path.join(root, filename) for filename in fnmatch.filter(filenames, "*.pdf")]
+      pngs += [os.path.join(root, filename) for filename in fnmatch.filter(filenames, "*.png")]
+    images = pdfs + pngs
+    return images
+
+  # Find all the images in the left, center and right paths/trees - recursive!!
+  left_img_list = build_full_image_list(args.left)
+  right_img_list = build_full_image_list(args.right)
+  center_img_list = build_full_image_list(args.center)
+
+  # Figure out what rows we need
+  categories = set(map(classify, left_img_list+center_img_list+right_img_list))
+
+  # Build up this dict mapping 'categories' of plots to lists of file paths
+  # for each column that can be passed to the template...
+  dm = {}
+  for cat in categories:
+    dm[cat] = {}
+    for col, il in zip(['L','C','R'], (left_img_list, center_img_list, right_img_list)):
+      dm[cat][col] = [p for p in il if classify(p)==cat]
+
+  ns = NEW_template().render(dm=dm)
+ 
+  with open("NEWthree-view.html", 'w') as f:
+    f.write( ns )
+
+  from IPython import embed; embed() 
+
+
+
 def generate_col_div(imglist, tag_type):
   '''Generates a <div> with <img> tags inside, one for each item in the list.'''
   HTML = ""
+
   if tag_type == "img":
     HTML = '''<div class="plot-column">\n'''
     for i in imglist:
@@ -100,6 +260,7 @@ def generate_page(left_img_list=[], center_img_list=[], right_img_list=[], title
   '''Generates a page of html, returns it as a string'''
 
   page = textwrap.dedent('''
+    <!DOCTYPE html>
     <html lang="en">
 
     {headtag:}
@@ -160,10 +321,25 @@ if __name__ == '__main__':
   print args
 
 
+  build_new_page(args.left, args.center, args.right)
+  exit()
+
   LEFT = sorted(glob.glob("%s/*.pdf" % (args.left)))
   CENTER = sorted(glob.glob("%s/*.pdf" % (args.center)))
   RIGHT = sorted(glob.glob("%s/*.pdf" % (args.right)))
   titlelist = (args.left, args.center, args.right)
+
+
+  # unused??
+  def build_list_imgs_in_category(category, image_list):
+    list_of_imgs_in_category = []
+    for image in image_list:
+      print classify(image)
+      if classify(image) == category:
+        list_of_imgs_in_category.append(image)
+
+    return list_of_imgs_in_category
+
 
   with open("three-view.html", 'w') as f:
     f.write( generate_page(LEFT, CENTER, RIGHT, titlelist, tag_type=args.display_method[0]) )
