@@ -29,8 +29,8 @@ if __name__ == '__main__':
   parser.add_argument('--reset', action='store_true', 
       help=textwrap.dedent('''Set all pixels to zero (don't run).'''))
 
-  parser.add_argument("--xy", nargs=2,
-  		help=textwrap.dedent('''The x, y position of the pixel to turn on.'''))
+  parser.add_argument("--xy", nargs=2, type=int,
+      help=textwrap.dedent('''The x, y position of the pixel to turn on.'''))
 
   parser.add_argument("--show", action='store_true',
       help=textwrap.dedent('''Print the mask after modification.'''))
