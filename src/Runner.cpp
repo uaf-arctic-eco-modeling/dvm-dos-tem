@@ -366,7 +366,7 @@ void Runner::output_caljson_monthly(int year, int month, std::string stage, boos
   BOOST_LOG_SEV(glg, err) << "========== MONTHLY CHECKSUMMING ============";
   check_sum_over_compartments();
   check_sum_over_PFTs();
-  BOOST_LOG_SEV(glg, err) << "========== END MONTHLY CHECKSUMMING ========";
+  BOOST_LOG_SEV(glg, err) << "========== END MONTHLY CHECKSUMMING month: " << month << " year: " << year << "============";
 
   // CAUTION: this->md and this->cohort.md are different instances!
 
@@ -569,7 +569,7 @@ void Runner::output_caljson_yearly(int year, std::string stage, boost::filesyste
   check_sum_over_compartments();
   check_sum_over_PFTs();
 
-  BOOST_LOG_SEV(glg, err) << "========== END YEARLY CHECKSUMMING ========";
+  BOOST_LOG_SEV(glg, err) << "========== END YEARLY CHECKSUMMING year: " << year << " ========";
 
   // CAUTION: this->md and this->cohort.md are different instances!
 
