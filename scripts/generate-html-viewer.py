@@ -93,6 +93,8 @@ def NEW_template():
   dm : dict
     A dict mapping 'categories' to lists of image
     paths (one list for each column).
+  titles : dict
+    A dict mapping columns (L, C, R) to title text.
 
   Returns
   -------
@@ -133,6 +135,22 @@ def NEW_template():
         <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
         <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
       <![endif]-->
+
+      <style type="text/css">
+
+        .fixed-column-headerbox {
+          padding: 5px;
+          margin: 4px;
+          border: 1px solid gray;
+          background-color: yellow;
+
+        }
+
+        .main-data-area {
+          margin-top: 50px;
+        }
+
+      </style>
     </head>
     <body>
       <div class="container-fluid">
@@ -149,13 +167,19 @@ def NEW_template():
         <div class="row">
           <div class="panel-group">
             <div class="panel panel-default">
-              <div class="panel-heading">
-                <h4 class="panel-title">
-                  <a data-toggle="collapse" href="#collapse-{{ column }}-{{ category }}">{{ category }}</a>
-                </h4>
+
+              <div class="panel-heading clearfix">
+                  {% for column, paths in col2imglistmap.iteritems() %}
+                    <div class="col-sm-4">
+                      <h4 class="panel-title">
+                      <a data-toggle="collapse" href="#collapse-{{ category }}">{{ category }}</a>
+                      </h4>
+                    </div>
+                  {% endfor %}
               </div>
-              <div id="collapse-{{ column }}-{{ category }}" class="panel-collapse collapse">
-                {% for column, paths in imglists.iteritems() %}
+
+              <div id="collapse-{{ category }}" class="panel-collapse collapse">
+                {% for column, paths in col2imglistmap.iteritems() %}
                 <div class="col-sm-4">
                   <ul class="list-group">
                     {% for image in paths %}
@@ -167,6 +191,7 @@ def NEW_template():
                 </div>
                 {% endfor %}
               </div>
+
             </div>
           </div>
         </div>
