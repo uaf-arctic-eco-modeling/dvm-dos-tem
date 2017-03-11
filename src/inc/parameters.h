@@ -15,9 +15,10 @@ struct vegpar_cal {
   double cfall[NUM_PFT_PART];
   double nfall[NUM_PFT_PART];
 
-  double kra; // parameter for maintenance resp. (rm)
+  double kra;               // parameter for maintenance resp. (rm)
   double krb[NUM_PFT_PART]; // parameter for maintenance resp. (rm)
-  double frg;// fraction of available NPP (GPP after rm) for growth respiration
+  double frg;               // fraction of available GPP after rm for
+                            // growth respiration
 
   vegpar_cal(): cmax(UIN_D), nmax(UIN_D), kra(UIN_D), frg(UIN_D) {
     for (int i = 0; i < NUM_PFT_PART; ++i) {
@@ -30,7 +31,7 @@ struct vegpar_cal {
 
 // dimension parameters for vegetation
 struct vegpar_dim {
-  double sla[NUM_PFT]; // specific leaf area
+  double sla[NUM_PFT];  // specific leaf area
   double klai[NUM_PFT]; // a coefficient to convert LAI to FPC
                         // (foliage percentage coverage)
 
@@ -45,7 +46,7 @@ struct vegpar_dim {
   // for the vegetation biomass (C) or age adjusted leaf phenology
   double kfoliage[NUM_PFT];  // these 2 parameters for non-forest
   double cov[NUM_PFT];
-  double m1[NUM_PFT];     // these 4 parameters for forest
+  double m1[NUM_PFT];        // these 4 parameters for forest
   double m2[NUM_PFT];
   double m3[NUM_PFT];
   double m4[NUM_PFT];

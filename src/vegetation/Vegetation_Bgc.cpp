@@ -197,19 +197,27 @@ void Vegetation_Bgc::prepareIntegration(const bool &nfeedback) {
 
   // temperature factor for GPP
   bd->m_vegd.ftemp = getTempFactor4GPP(ed->m_atms.ta, prvtopt);
+
   // temperature factor for plant respiration
   bd->m_vegd.raq10 = getRaq10(ed->m_atms.ta);
+
+  // dleafc is for "delta" or "difference"
+  // this is the difference between the yearly maximum leaf biomass
+  // (potentially affected by drought) and the (current) monthly value of
+  // leaf biomass.
+
   // leaf C requirement for growth, used to dynamically determine C allocation
-  //yearly max. leaf C, adjusted by seasonal foliage growth index 'fleaf'
-  dleafc = cd->m_vegd.maxleafc[ipft]*cd->m_vegd.fleaf[ipft];
+  // yearly max. leaf C, adjusted by seasonal foliage growth index 'fleaf'
+  dleafc = cd->m_vegd.maxleafc[ipft] * cd->m_vegd.fleaf[ipft];
+
   // C requirement of foliage growth at current timestep
   dleafc -= bd->m_vegs.c[I_leaf];
-  dleafc = fmax(0., dleafc);
+  dleafc = fmax(0.0, dleafc);
   // litter-falling seasonal adjustment
 
   //previous 10 year mean of growing season degree-day, using for
   //  normalizing current growing period needed for litterfalling
-  double prvttime = 0.;
+  double prvttime = 0.0;
 
   deque<double> ttimedeque = cd->prvgrowingttimeque[ipft];
   recnum=ttimedeque.size();
@@ -321,6 +329,22 @@ void Vegetation_Bgc::prepareIntegration(const bool &nfeedback) {
 
 // C and N fluxes without N limitation
 void Vegetation_Bgc::delta() {
+
+  // THIS REALLY NEEDS TO BE MOVED ELSEWHERE.....
+  // Make sure that the cpart parameter adds up to 100% (or 0% for undefined
+  // PFTs) for all compartments.
+  double cpart_all = 0.0;
+  for (int i=I_leaf; i<NUM_PFT_PART; i++) {
+    cpart_all += bgcpar.cpart[i];
+  }
+  if (! (temutil::AlmostEqualRelative(cpart_all, 1.0) ||
+         temutil::AlmostEqualRelative(cpart_all, 0.0)) ) {
+    BOOST_LOG_SEV(glg, fatal) << "YOU HAVE A PROBLEM WITH YOUR PARAMETER FILE.";
+    BOOST_LOG_SEV(glg, fatal) << "Look for the 'cpart' variable and make sure"
+                              << "all the compartment fractions sum to 1";
+    exit(-1);
+  }
+
   /// some environment variables
   double co2 = ed->m_atms.co2;
   double par = ed->m_a2l.par;
@@ -330,132 +354,183 @@ void Vegetation_Bgc::delta() {
   // 2) plant size (biomass C) or age controlled
   double ffoliage = cd->m_vegd.ffoliage[ipft];
   //GPP without N limitation
-  double ingppall = getGPP(co2, par, fleaf, ffoliage,
+  double gpp_all = getGPP(co2, par, fleaf, ffoliage,
                            bd->m_vegd.ftemp, bd->m_vegd.gv);
-  // maintainence respiration first estimation
-  double rm = 0.;
 
+
+  // First compute maintenance respiration based on GPP, respiration
+  // rate (kr) and temperature. This is the amount of respiration needed to
+  // keep living tissue alive, so it is basically based on the amount of
+  // living biomass of the PFT.
+
+  double rm_wholePFT = 0.0;
   for (int i=0; i<NUM_PFT_PART; i++) {
-    if (tmp_vegs.c[i]>0.) {
+    if (tmp_vegs.c[i] > 0.0) {
       bd->m_vegd.kr[i] = getKr(tmp_vegs.c[i], i);
       del_v2a.rm[i] = getRm(tmp_vegs.c[i], bd->m_vegd.raq10, bd->m_vegd.kr[i]);
     } else {
-      del_v2a.rm[i]    = 0.;
+      del_v2a.rm[i]    = 0.0;
     }
-
-    rm += del_v2a.rm[i];
+    rm_wholePFT += del_v2a.rm[i];
   }
 
-  double rmadj = 1.0;  //used below for summarizing ingpp[]
-
-  if (rm>ingppall && rm>0.0) {
-    rmadj=ingppall/rm;
+  // CALCULATE ADJUSTMENT FACTOR? used below for summarizing ingpp[]
+  double rm_adjust = 1.0;
+  if (rm_wholePFT > gpp_all && rm_wholePFT > 0.0) {
+    rm_adjust = gpp_all / rm_wholePFT;
   }
 
-  // total available C for allocation
-  //if C assimilation available, first goes to maintenance respiration
-  double innppall = fmax(0., ingppall-rm)/(1.0+calpar.frg);
-  // NPP allocation to leaf estimated first
-  double nppl = dleafc;
-  //leaf has the second priority for C assimilation
-  del_a2v.innpp[I_leaf] = fmin(nppl, innppall);
+  // Remaining C from GPP available for allocation to new tissue growth after
+  // accounting for maintenance and growth respiration (Ra).
+  double gpp_avail = fmax( 0.0, (gpp_all-rm_wholePFT) / (1.0 + calpar.frg) );
+
+  // NOTE: Forcing gpp_avail >= 0 is wrong - in the winter respiration can
+  //       exceed GPP, and in this case gpp_avail should be allowed to go
+  //       negative. If someone fixes this, make sure to update the gpp_avail
+  //       formulation below too (after allocating to leaves and
+  //       down-regulating).
+
+  // Calculate leaf growth and associated growth respiration.
+  //
+  // Leaves have the second priority for C assimilation, after maintenace
+  // respiration (Rm). dleafc is the default C allocation (from parameter files)
+  // to leaves affected by drought.
+  del_a2v.innpp[I_leaf] = fmin(dleafc, (gpp_avail)); // <-- Maybe divide gpp_avail/(1.0 + calpar.frg) ??
+
+  // Then set growth respiration for leaves.
   del_v2a.rg[I_leaf] = calpar.frg * del_a2v.innpp[I_leaf];
-  double npprgl = del_a2v.innpp[I_leaf]+del_v2a.rg[I_leaf];
-  // the rest goes to stem/root, assuming equal priority
-  double innpprest = fmax(0., ingppall-rm-npprgl)/(1.0+calpar.frg);
-  double cpartrest = 0.;
 
-  for (int i=I_leaf+1; i<NUM_PFT_PART; i++) {
-    cpartrest +=bgcpar.cpart[i];
+  // If the combination of leaf NPP and growth respiration (rg) is larger
+  // than the available gpp, we need to down-regulate the growth (and growth
+  // respiration) so that they don't exceed the C availble from GPP (after
+  // maintenance respiration).
+  double npp_and_rg_leaves = del_a2v.innpp[I_leaf] + del_v2a.rg[I_leaf];
+
+  if (npp_and_rg_leaves > gpp_avail) {
+    del_a2v.innpp[I_leaf] = gpp_avail / (1.0 + calpar.frg);
+    del_v2a.rg[I_leaf] = del_a2v.innpp[I_leaf] * calpar.frg;
+  }
+  // update temporary variable after down-regulation
+  npp_and_rg_leaves = del_a2v.innpp[I_leaf] + del_v2a.rg[I_leaf];
+
+  // Update the available gpp.
+  // Remaining C from GPP available after maintenance respiration and leaf
+  // growth. Stems and roots are the lowest priority so they take remaining C
+  // after leaf growth and maintenance resp. have been accounted for.
+  gpp_avail = fmax(0.0, (gpp_all - rm_wholePFT - npp_and_rg_leaves) / (1.0 + calpar.frg));
+
+  // Allocate (distribute) the remaining GPP amongst roots and stems
+  // based on the cpart distrubution specified in the parameter files.
+  double cpart_stems_and_roots = 0.0;
+
+  for (int i=I_leaf+1; i<NUM_PFT_PART; i++) { // <-- cpart of everything but leaves!!!
+    cpart_stems_and_roots += bgcpar.cpart[i];
   }
 
-  for (int i=I_leaf+1; i<NUM_PFT_PART; i++) {
-    del_a2v.innpp[i] = 0.;
-    del_v2a.rg[i]    = 0.;
-  //double cpartrest = 0.;
-  //for (int i=I_leaf; i<NUM_PFT_PART; i++) {
-  //  cpartrest +=bgcpar.cpart[i];
-  //}
-  //for (int i=I_leaf; i<NUM_PFT_PART; i++) {
-    if (cpartrest>0. && innppall>0.) {
-      del_a2v.innpp[i] = innppall * bgcpar.cpart[i]/cpartrest;
-      del_v2a.rg[i]    = calpar.frg * del_a2v.innpp[i];
+  if (cpart_stems_and_roots > 0.0) {
+    for (int i=I_leaf+1; i<NUM_PFT_PART; i++) {
+      del_a2v.innpp[i] = 0.0;
+      del_v2a.rg[i]    = 0.0;
+      if (cpart_stems_and_roots > 0.0 && gpp_avail > 0.0){
+        del_a2v.innpp[i] = gpp_avail * (bgcpar.cpart[i] / cpart_stems_and_roots); // <-- maybe divide by (1.0 + calpar.frg) ???
+        del_v2a.rg[i]    = calpar.frg * del_a2v.innpp[i];
+      }
     }
+  } else {
+    // This PFT is a moss or lichen and has no stems and roots. Allocate the
+    // remaining availabe GPP to leaf growth and associated growth respiration.
+    del_a2v.innpp[I_leaf] += gpp_avail / (1.0 + calpar.frg);
+    del_v2a.rg[I_leaf] = del_a2v.innpp[I_leaf] * calpar.frg;
   }
 
-  // summary of INGPP
+
+  // summary of INGPP - use adjustment calculated above.
   for (int i=0; i<NUM_PFT_PART; i++) {
-    del_a2v.ingpp[i] = del_a2v.innpp[i]+del_v2a.rm[i]*rmadj+del_v2a.rg[i];
-    //may be over the 'ingppall' due to 'rm', which are biomass-C based,
-    //  if not adjusted by 'rmadj'
+    del_a2v.ingpp[i] = del_a2v.innpp[i] + del_v2a.rm[i] * rm_adjust + del_v2a.rg[i];
   }
 
-  // litter-falling
+  // Handle litterfall
   for (int i=0; i<NUM_PFT_PART; i++) {
-    if (calpar.cfall[i]>0.) {
-      //del_v2soi.ltrfalc[i] = fmax(0., fltrfall*calpar.cfall[i] * tmp_vegs.c[i]);
-      del_v2soi.ltrfalc[i] = fmax(0., calpar.cfall[i] * tmp_vegs.c[i]);
+    if (calpar.cfall[i] > 0.0) {
+      del_v2soi.ltrfalc[i] = fmax(0.0, calpar.cfall[i] * tmp_vegs.c[i]);
     } else {
-      del_v2soi.ltrfalc[i] = 0.;
+      del_v2soi.ltrfalc[i] = 0.0;
     }
   }
-};
+}
 
 // C and N fluxes regulated by N uptakes
 void Vegetation_Bgc::deltanfeed() {
   if(nfeed) {
-    //max. N uptake determined by plant f(foliage),
-    //  air temperature, and soil conditions
-    if (cd->m_veg.nonvascular[ipft]==0) {
-      del_soi2v.innuptake = getNuptake(cd->m_vegd.ffoliage[ipft],
-                                       bd->m_vegd.raq10,
-                                       bgcpar.knuptake, calpar.nmax);
+
+    // Figure out the initial N uptake.
+    if (cd->m_veg.nonvascular[ipft] == 0) {
+      // For vascular plants, N uptake is determined by foliage,
+      // air temp, and soil conditions.
+      del_soi2v.innuptake = getNuptake(
+          cd->m_vegd.ffoliage[ipft],
+          bd->m_vegd.raq10,
+          bgcpar.knuptake,
+          calpar.nmax
+      );
     } else {
+      // For non-vascular plants, we are not sure of the best algorithm yet.
+      // They absorb N mainly from wet-deposition, from substrate (soil,
+      // rock, etc), from neighboring plants, or from biofixation.
+
+      // For now simply scale with a calibrated parameter and foliage...
       del_soi2v.innuptake = calpar.nmax * cd->m_vegd.ffoliage[ipft];
-        //need more mechanism algorithm for non-vascular plants:
-        // they absorb N mainly from wet-deposition, and could from substrate
-        // (soil) through co-existed plants, or from biofixation
     }
 
+    // Force innuptake to be non-negative.
     if (del_soi2v.innuptake < 0.0) {
       del_soi2v.innuptake = 0.0;
     }
 
-    double avln = 0.;
+    // Adjust innuptake based on the soil available N.
+    if (cd->m_veg.nonvascular[ipft] == 0) {
 
-    for(int il =0; il<cd->m_soil.numsl; il++) {
-      if (cd->m_soil.frootfrac[il][ipft]> 0.) {
-        avln += bd->m_sois.avln[il];
+      // For vascular plants, find all the available N in soil layers
+      // that have fine roots and then give some percentage to innuptake.
+      double avln = 0.0;
+      for(int il=0; il<cd->m_soil.numsl; il++) {
+        if (cd->m_soil.frootfrac[il][ipft] > 0.0) {
+          avln += bd->m_sois.avln[il];
+        }
       }
+      if (del_soi2v.innuptake > 0.95 * avln) {
+        del_soi2v.innuptake = 0.95 * avln;
+      }
+
+    } else {
+      // For non-vascular plants innuptake is not influenced by soil
+      // available Nitrogen! Nothing to do...
     }
 
-    if (del_soi2v.innuptake > 0.95*avln) {
-      del_soi2v.innuptake = 0.95*avln;
-    }
 
     // N litterfall and accompanying resorbtion
     for (int i=0; i<NUM_PFT_PART; i++) {
-      if (calpar.nfall[i]>0.) {
+      if (calpar.nfall[i] > 0.0) {
         //assuming 'calpar.nfall' is the max. monthly fraction,
         //  and allowing the following seasonal variation
         //del_v2soi.ltrfaln[i] = fmax(0., fltrfall*calpar.nfall[i]
         //                                * tmp_vegs.strn[i]);
-        del_v2soi.ltrfaln[i] = fmax(0., calpar.nfall[i]*tmp_vegs.strn[i]);
+        del_v2soi.ltrfaln[i] = fmax(0.0, calpar.nfall[i]*tmp_vegs.strn[i]);
       } else {
-        del_v2soi.ltrfaln[i] = 0.;
+        del_v2soi.ltrfaln[i] = 0.0;
       }
     }
 
-    double nresorball = 0.;
+    double nresorball = 0.0;
 
     for (int i=0; i<NUM_PFT_PART; i++) {
-      double c2n = 0.;
+      double c2n = 0.0;
 
-      if (tmp_vegs.strn[i]>0.) {
-        c2n=tmp_vegs.c[i]/tmp_vegs.strn[i];
+      if (tmp_vegs.strn[i] > 0.0) {
+        c2n = tmp_vegs.c[i] / tmp_vegs.strn[i];
       }
 
-      if (c2n>0.) {
+      if (c2n > 0.0) {
         if(del_v2soi.ltrfaln[i] <= del_v2soi.ltrfalc[i]/c2n) {
           del_v2v.nresorb[i] = del_v2soi.ltrfalc[i]/c2n
                                - del_v2soi.ltrfaln[i];
@@ -487,21 +562,21 @@ void Vegetation_Bgc::deltanfeed() {
 
     // all N supply
     double tempnuptake = del_soi2v.innuptake;
-    double templabn = nresorball+tmp_vegs.labn; //resorbed N is portion of
-                                                //  available 'labile N'
-    double nsupply = tempnuptake+templabn;
+    double templabn = nresorball + tmp_vegs.labn; //resorbed N is portion of
+                                                  //  available 'labile N'
+    double nsupply = tempnuptake + templabn;
     //C fluxes regulated by N uptake and labile N and N requirements
     double reduction = 1.0;
 
-    if (nrequireall>0.) {
-      reduction = fmax(0., nsupply/nrequireall);
+    if (nrequireall > 0.0) {
+      reduction = fmax(0.0, nsupply/nrequireall);
     }
 
     if (reduction < 1.0) {
       for (int i=0; i<NUM_PFT_PART; i++) {
         // npp/gpp reduction due to N limitation
-        if (bgcpar.cpart[i]>0.) {
-          del_a2v.npp[i] = del_a2v.innpp[i]*reduction;
+        if (bgcpar.cpart[i] > 0.0) {
+          del_a2v.npp[i] = del_a2v.innpp[i] * reduction;
 
           if (del_a2v.npp[i] > 0.0) {
             del_v2a.rg[i] = calpar.frg * del_a2v.npp[i];
@@ -515,9 +590,9 @@ void Vegetation_Bgc::deltanfeed() {
             del_a2v.gpp[i] = 0.0;
           }
         } else {
-          del_a2v.npp[i] = 0.;
-          del_v2a.rg[i]  = 0.;
-          del_a2v.gpp[i] = 0.;
+          del_a2v.npp[i] = 0.0;
+          del_v2a.rg[i]  = 0.0;
+          del_a2v.gpp[i] = 0.0;
         }
 
         // N allocation
@@ -595,9 +670,9 @@ void Vegetation_Bgc::deltanfeed() {
     double nfall = 0.;
 
     for (int i=0; i<NUM_PFT_PART; i++) {
-      snuptakeall+=del_soi2v.snuptake[i];
-      nmobilall  +=del_v2v.nmobil[i];
-      nfall      +=del_v2soi.ltrfaln[i];
+      snuptakeall += del_soi2v.snuptake[i];
+      nmobilall   += del_v2v.nmobil[i];
+      nfall       += del_v2soi.ltrfaln[i];
     }
 
     //vegetation N labile N after changes ('nmobile' already
@@ -625,7 +700,7 @@ void Vegetation_Bgc::deltanfeed() {
       del_a2v.npp[i] = del_a2v.innpp[i];
     }
   }
-};
+}
 
 // summarize C and N state variable changes
 void Vegetation_Bgc::deltastate() {
@@ -731,24 +806,38 @@ void Vegetation_Bgc::afterIntegration() {
 double  Vegetation_Bgc::getGPP(const double &co2, const double &par,
                                const double &leaf, const double &foliage,
                                const double &ftemp, const double &gv) {
+  // par:             photosynthetically active radiation in J/m2/s
+  // co2:             should be ppm
+  // leaf:
+  // foliage:
+  // ftemp:
+  // gv:
+
+  // ci:
+  // thawpct:         percentage of month frozen or thawed
+  // fpar:            could be J/m2/s
+  // gpp:             should be gC/m2/m
+  // calpar.cmax:     g/m2/month
+
   double ci  = co2 * gv;
   double thawpcnt = ed->m_soid.rtdpthawpct;
-  //par : photosynthetically active radiation in J/(m2s)
-  double fpar = par/(bgcpar.ki + par);
+  double fpar = par / (bgcpar.ki + par);
+
   double gpp = calpar.cmax * foliage * ci / (bgcpar.kc + ci);
-  //double gpp = calpar.cmax * ci / (bgcpar.kc + ci);
-  //gpp *= leaf * fpar;
   gpp *= fpar;
-  //gpp *= leaf;
   gpp *= ftemp;
   gpp *= thawpcnt;
 
-  if(gpp<0) {
-    gpp=0.;
+  if(gpp < 0.0) {
+    gpp = 0.0;
   }
 
+  //double gpp = calpar.cmax * ci / (bgcpar.kc + ci);
+  //gpp *= leaf * fpar;
+  //gpp *= leaf;
+
   return gpp;
-};
+}
 
 double Vegetation_Bgc::getRm(const double & vegc, const double & raq10,
                              const double &kr) {
