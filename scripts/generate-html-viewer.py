@@ -89,8 +89,11 @@ def generate_head_tag():
 
 def NEW_template():
   '''
-  Parameters that must be passed to render(...)
-  ---------------------------------------------
+  Returns a jinja2 template instance. To use the template instance, 
+  call template.render(...)
+
+  Parameters that must be passed to template.render(...)
+  -------------------------------------------------------
   dm : dict
     A dict mapping 'categories' to lists of image
     paths (one list for each column).
@@ -227,9 +230,13 @@ def build_new_page(left_path, center_path, right_path):
         del dirs[:]
 
   def classify(filepath):
-    '''Attempts to 'classify' a file based on the underscore seperated fields.
+    '''
+    Attempts to 'classify' a file based on the underscore seperated fields.
     Expects a file name something like:
-      "sometag_Vegetation_pft0.png" or "_histo_pestplot.png"
+        "sometag_Vegetation_pft0.png"
+        "_histo_pestplot.png"
+    The category is the last field before the file-name extension, unless the 
+    last field containes pft, in which case, the seconds to last field is used.
 
     Parameters
     ----------
@@ -257,7 +264,12 @@ def build_new_page(left_path, center_path, right_path):
       pdfs += [os.path.join(root, filename) for filename in fnmatch.filter(files, "*.pdf")]
       pngs += [os.path.join(root, filename) for filename in fnmatch.filter(files, "*.png")]
 
+    print "%s" % path
+    print "_" * len(path)
+    print "pdfs: %8i" % len(pdfs)
+    print "pngs: %8i" % len(pngs)
     images = pdfs + pngs
+
     return images
 
   # Find all the images in the left, center and right paths/trees - recursive!!
@@ -265,7 +277,8 @@ def build_new_page(left_path, center_path, right_path):
   center_img_list = build_full_image_list(args.center, depth=1)
   right_img_list = build_full_image_list(args.right, depth=1)
 
-  # Figure out what rows we need
+  # Figure out what rows we need - one row for every category, that shows up in 
+  # any of the three lists.
   categories = set(map(classify, left_img_list+center_img_list+right_img_list))
 
   # Build up this dict mapping 'categories' of plots to lists of file paths
@@ -281,7 +294,6 @@ def build_new_page(left_path, center_path, right_path):
     'C':center_path,
     'R':right_path,
   }
-
 
   ns = NEW_template().render(dm=dm, titles=titles)
  
@@ -388,9 +400,14 @@ if __name__ == '__main__':
     #formatter_class=argparse.RawDescriptionHelpFormatter,
     formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     description=textwrap.dedent('''
-      Generate an HTML page for looking at sets of dvmdostem \
-      calibraiton plots side by side. Open the resulting .html file
-      in a webbrowser to see the plots.
+      Generate an HTML page with a 3-column layout for looking at sets of 
+      dvmdostem output plots side by side. 
+
+      The resulting three column page has a collapsible row for each "category"
+      of images found in the directories provided with the --left, --center, 
+      and --right arguments.
+
+      Open the resulting .html file in a web-browser to see the plots.
     ''')
   )
 
@@ -412,7 +429,7 @@ if __name__ == '__main__':
     .pdf images in the --left, --right and --center directories.'''))
 
   args = parser.parse_args()
-  print args
+  #print args
 
   if args.version_1_output:
     generate_version_1_html(args)
