@@ -359,6 +359,29 @@ def generate_page(left_img_list=[], center_img_list=[], right_img_list=[], title
       ))
   return page
 
+def generate_version_1_html(args):
+  LEFT = sorted(glob.glob("%s/*.pdf" % (args.left)))
+  CENTER = sorted(glob.glob("%s/*.pdf" % (args.center)))
+  RIGHT = sorted(glob.glob("%s/*.pdf" % (args.right)))
+  titlelist = (args.left, args.center, args.right)
+
+
+  # unused??
+  def build_list_imgs_in_category(category, image_list):
+    list_of_imgs_in_category = []
+    for image in image_list:
+      print classify(image)
+      if classify(image) == category:
+        list_of_imgs_in_category.append(image)
+
+    return list_of_imgs_in_category
+
+
+  with open("three-view.html", 'w') as f:
+    f.write( generate_page(LEFT, CENTER, RIGHT, titlelist, tag_type=args.display_method[0]) )
+
+
+
 if __name__ == '__main__':
 
   parser = argparse.ArgumentParser(
@@ -383,31 +406,18 @@ if __name__ == '__main__':
   parser.add_argument('--display-method', nargs=1, default=["img"], choices=['img', 'object/embed'],
     help=textwrap.dedent('''Which method to use to display the pdfs.'''))
 
+  parser.add_argument('--version-1-output', action='store_true', 
+    help=textwrap.dedent('''Generate the first version of html page. Writes
+    a file static HTML page, 'three-view.html', that attempts to display all
+    .pdf images in the --left, --right and --center directories.'''))
+
   args = parser.parse_args()
   print args
 
+  if args.version_1_output:
+    generate_version_1_html(args)
 
   build_new_page(args.left, args.center, args.right)
-  exit()
 
-  LEFT = sorted(glob.glob("%s/*.pdf" % (args.left)))
-  CENTER = sorted(glob.glob("%s/*.pdf" % (args.center)))
-  RIGHT = sorted(glob.glob("%s/*.pdf" % (args.right)))
-  titlelist = (args.left, args.center, args.right)
-
-
-  # unused??
-  def build_list_imgs_in_category(category, image_list):
-    list_of_imgs_in_category = []
-    for image in image_list:
-      print classify(image)
-      if classify(image) == category:
-        list_of_imgs_in_category.append(image)
-
-    return list_of_imgs_in_category
-
-
-  with open("three-view.html", 'w') as f:
-    f.write( generate_page(LEFT, CENTER, RIGHT, titlelist, tag_type=args.display_method[0]) )
 
 
