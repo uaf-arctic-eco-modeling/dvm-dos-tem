@@ -265,14 +265,16 @@ def build_new_page(left_path, center_path, right_path, autoshow=False):
       return tokens[-1]
 
   def build_full_image_list(path, depth=None):
-    path = os.path.normpath(path)
     images, pdfs, pngs = [], [], []
-    for root, dirs, files in walkdepth(path, depth=depth):
-      pdfs += [os.path.join(root, filename) for filename in fnmatch.filter(files, "*.pdf")]
-      pngs += [os.path.join(root, filename) for filename in fnmatch.filter(files, "*.png")]
+    if path == "" or path == None:
+      pass # Nothing to do with an empty path...
+    else:
+      path = os.path.normpath(path)
+      for root, dirs, files in walkdepth(path, depth=depth):
+        pdfs += [os.path.join(root, filename) for filename in fnmatch.filter(files, "*.pdf")]
+        pngs += [os.path.join(root, filename) for filename in fnmatch.filter(files, "*.png")]
 
     print "%s" % path
-    print "=" * len(path)
     print "  pdfs: %8i" % len(pdfs)
     print "  pngs: %8i" % len(pngs)
     print ""
