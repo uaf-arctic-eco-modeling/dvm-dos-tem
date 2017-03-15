@@ -8,7 +8,7 @@
 import fnmatch
 import os
 import collections
-
+import webbrowser
 import argparse
 import textwrap
 import glob
@@ -205,7 +205,7 @@ def NEW_template():
   '''))
 
 
-def build_new_page(left_path, center_path, right_path):
+def build_new_page(left_path, center_path, right_path, autoshow=False):
   # Unused...
   # def build_list_imgs_in_category(category, image_list):
   #   list_of_imgs_in_category = []
@@ -265,9 +265,10 @@ def build_new_page(left_path, center_path, right_path):
       pngs += [os.path.join(root, filename) for filename in fnmatch.filter(files, "*.png")]
 
     print "%s" % path
-    print "_" * len(path)
-    print "pdfs: %8i" % len(pdfs)
-    print "pngs: %8i" % len(pngs)
+    print "=" * len(path)
+    print "  pdfs: %8i" % len(pdfs)
+    print "  pngs: %8i" % len(pngs)
+    print ""
     images = pdfs + pngs
 
     return images
@@ -280,6 +281,8 @@ def build_new_page(left_path, center_path, right_path):
   # Figure out what rows we need - one row for every category, that shows up in 
   # any of the three lists.
   categories = set(map(classify, left_img_list+center_img_list+right_img_list))
+  print "Found %i categories: %s" % (len(categories), ' '.join(categories))
+  print ""
 
   # Build up this dict mapping 'categories' of plots to lists of file paths
   # for each column that can be passed to the template...
@@ -295,12 +298,19 @@ def build_new_page(left_path, center_path, right_path):
     'R':right_path,
   }
 
+
   ns = NEW_template().render(dm=dm, titles=titles)
- 
-  with open("NEWthree-view.html", 'w') as f:
+
+  newFileName = "output-view.html"
+  with open(newFileName, 'w') as f:
     f.write( ns )
 
-  from IPython import embed; embed() 
+  print "Created file: %s" % (newFileName)
+  print "Open this file in a web-browser: file://%s" % (os.path.join(os.getcwd(), newFileName)) 
+  if autoshow:
+    print "Trying to auto-show in browser (doesn't work on all platforms)..."
+    webbrowser.open("file://{}".format(os.path.join(os.getcwd(), newFileName)), new=0, autoraise=True)
+  print ""
 
 
 
@@ -420,8 +430,13 @@ if __name__ == '__main__':
   parser.add_argument('-r', '--right', metavar='',
     help=textwrap.dedent('''A path to a directory of files for the right column'''))
 
+  parser.add_argument('--show', action='store_true',
+    help=textwrap.dedent('''Attempt to open the resulting page in a web-browser
+      tab. Might not work on all platforms. If the browser does not pop up with
+      the new page loaded, then copy/paste the provided URL into a browser.'''))
+
   parser.add_argument('--display-method', nargs=1, default=["img"], choices=['img', 'object/embed'],
-    help=textwrap.dedent('''Which method to use to display the pdfs.'''))
+    help=textwrap.dedent('''Deprecated. Which method to use to display the pdfs.'''))
 
   parser.add_argument('--create-bundle', default=None,
     help=textwrap.dedent('''Create a self-contained bundle with the generated
@@ -440,7 +455,7 @@ if __name__ == '__main__':
   if args.version_1_output:
     generate_version_1_html(args)
 
-  build_new_page(args.left, args.center, args.right)
+  build_new_page(args.left, args.center, args.right, autoshow=args.show)
 
   if args.create_bundle:
     print "NOT IMPLEMENTED YET..."
