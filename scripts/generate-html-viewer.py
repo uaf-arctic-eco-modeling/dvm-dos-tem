@@ -140,6 +140,13 @@ def NEW_template():
         <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
       <![endif]-->
 
+      <script>
+        !window.jQuery && alert("This page won't work properly without " + 
+          "jQuery and Boostrap, which are loaded from a Content Delivery " +
+          "Network, and cached locally. Try again when you are conncected to " +
+          "the internet.");
+      </script>
+
       <style type="text/css">
 
         .fixed-column-headerbox {
