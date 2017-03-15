@@ -423,6 +423,12 @@ if __name__ == '__main__':
   parser.add_argument('--display-method', nargs=1, default=["img"], choices=['img', 'object/embed'],
     help=textwrap.dedent('''Which method to use to display the pdfs.'''))
 
+  parser.add_argument('--create-bundle', default=None,
+    help=textwrap.dedent('''Create a self-contained bundle with the generated
+    HTML file all the data and found in the --left, --center, and --right 
+    locations. The HTML file will use relative paths, so assuming the bundle
+    is not modified, the viewer should work.'''))
+
   parser.add_argument('--version-1-output', action='store_true', 
     help=textwrap.dedent('''Generate the first version of html page. Writes
     a file static HTML page, 'three-view.html', that attempts to display all
@@ -435,6 +441,9 @@ if __name__ == '__main__':
     generate_version_1_html(args)
 
   build_new_page(args.left, args.center, args.right)
+
+  if args.create_bundle:
+    print "NOT IMPLEMENTED YET..."
 
 
 
