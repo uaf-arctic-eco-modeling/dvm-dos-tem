@@ -280,13 +280,10 @@ std::list<std::string> Runner::check_sum_over_compartments() {
 
   } // end loop over PFTS
 
-  // Remove any empty items...
-  std::list<std::string>::iterator it;
-  for (it = errlist.begin(); it != errlist.end(); it++) {
-    if ( (*it).empty() ) {
-      errlist.erase(it);
-    }
-  }
+  // The way this works, we end up with a bunch of empty items in the list,
+  // so here we remove them.
+  errlist.erase(std::remove_if(errlist.begin(), errlist.end(), temutil::emptyContainer<std::string>), errlist.end());
+
   return errlist;
 }
 
@@ -379,13 +376,10 @@ std::list<std::string> Runner::check_sum_over_PFTs(){
   errlist.push_back(report_not_equal(this->cohort.bdall->m_v2v.nmobilall, ecosystem_nmobil, "Runner:: ecosystem nmobil not matching sum over PFTs!"));
   errlist.push_back(report_not_equal(this->cohort.bdall->m_v2v.nresorball, ecosystem_nresorb, "Runner:: ecosystem nresorb not matching sum over PFTs!"));
 
-  // Remove any empty items...
-  std::list<std::string>::iterator it;
-  for (it = errlist.begin(); it != errlist.end(); it++) {
-    if ( (*it).empty() ) {
-      errlist.erase(it);
-    }
-  }
+  // The way this works, we end up with a bunch of empty items in the list,
+  // so here we remove them.
+  errlist.erase(std::remove_if(errlist.begin(), errlist.end(), temutil::emptyContainer<std::string>), errlist.end());
+
   return errlist;
 
 }

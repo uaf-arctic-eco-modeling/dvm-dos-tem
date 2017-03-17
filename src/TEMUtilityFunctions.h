@@ -22,6 +22,16 @@
 
 namespace temutil {
 
+  /** A 'predicate' function that can be used with std::remove_if(..)
+
+   Intended to be used with STL containers, so requirements on T are
+   that T must have a .empty() method!
+  */
+  template <typename T>
+  bool emptyContainer(T t) {
+    return t.empty();
+  }
+
   template <typename T>
   T point_on_line(T m, T x, T b) {
     return (m*x)+b;
