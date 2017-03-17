@@ -26,7 +26,7 @@ yum install -y hdf5-openmpi-devel
 yum install -y xauth
 
 # packages used for plotting
-yum install -y python-matplotlib python-matplotlib-wx netcdf4-python python-ipython
+yum install -y python-matplotlib python-matplotlib-wx netcdf4-python python-ipython python-jinja2
 
 # For processing/preparing the "new style" inputs
 yum install -y gdal gdal-devel
