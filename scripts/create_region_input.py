@@ -348,7 +348,7 @@ def fill_climate_file(start_yr, yrs, xo, yo, xs, ys, out_dir, of_name, sp_ref_fi
         in_tair = in_tair_base + "_%02d_%04d.tif" % (month, year)
         in_prec = in_prec_base + "_%02d_%04d.tif" % (month, year)
         in_rsds = in_rsds_base + "_%02d_%04d.tif" % (month, year)
-        in_vapo = in_rsds_base + "_%02d_%04d.tif" % (month, year)
+        in_vapo = in_vapo_base + "_%02d_%04d.tif" % (month, year)
 
         # TRANSLATE TO NETCDF
         print "Converting tif --> netcdf..."

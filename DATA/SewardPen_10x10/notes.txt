@@ -1,0 +1,56 @@
+03-16-2017
+----------
+
+Note: for future reference, the x and y offsets to create
+this set of files from the SNAP data are x:228, y:635
+
+Discovered that in the past, we had been using rsds values for 
+vapor_press! When I went to create new files with
+the bug fixed, I realized that I only had vapor pressure numbers
+thru 2039. Maybe we had been using rsds simply as an easy way
+to fill out the arrays for vapor pressure. The values and patterns
+are not terribly different between the two.
+
+However to remedy the issue, here were my steps:
+ 
+ - Download the remainder of the vapor pressure data from SNAP
+ - Run the new (parallel) version of the create_region_input.py
+   script. This is a little strange, as I haven't merged that 
+   branch yet, but it is so much faster, (~10min to create the
+   whole dataset) that I wanted to use it. I ended up doing a
+   smaller test with the old serial version, and it provided the
+   same results.
+
+        $ ./create_region_input.py --tifs ../../snap-data/ --tag SewardPen --years -1 --yoff 635 --xoff 228 --xsize 10 --ysize 10 --which all
+
+ - Then poke around at the files a bit to make sure that
+   only what I expect was changed. 
+
+ - Use IPython to really check that the climate data only changed
+   for the vapo_press variable:
+
+        In [16]: %paste
+        import netCDF4 as nc
+        old_hist = nc.Dataset("../DATA/SewardPen_10x10/historic-climate.nc", 'r')
+        new_hist = nc.Dataset("some-dvmdostem-inputs/SewardPen_10x10/historic-climate.nc", 'r')
+
+        delta_tair = old_hist.variables['tair'][:,0,0] - new_hist.variables['tair'][:,0,0]
+        delta_precip = old_hist.variables['precip'][:,0,0] - new_hist.variables['precip'][:,0,0]
+        delta_nirr = old_hist.variables['nirr'][:,0,0] - new_hist.variables['nirr'][:,0,0]
+        delta_vapor_press = old_hist.variables['vapor_press'][:,0,0] - new_hist.variables['vapor_press'][:,0,0]
+
+        print delta_tair.max(), delta_tair.min()
+        print delta_precip.max(), delta_precip.min()
+        print delta_nirr.max(), delta_nirr.min()
+        print delta_vapor_press.max(), delta_vapor_press.min()
+
+        ## -- End pasted text --
+        0.0 0.0
+        0.0 0.0
+        0.0 0.0
+        6.51266 -5.32817
+
+ - This looks good - only the vapor_press variable has changed.
+ - Copy the new climate files into place, write this file and commit.
+
+
