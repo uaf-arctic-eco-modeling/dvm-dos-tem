@@ -5,11 +5,17 @@ from subprocess import call
 from subprocess import check_call
 import subprocess
 
+import shutil
+
+import multiprocessing as mp
+
 import argparse
 import textwrap
 import os
 
 import netCDF4
+import nco as NCO
+
 import numpy as np
 
 from osgeo import gdal
@@ -272,6 +278,61 @@ def create_template_soil_texture_nc_file(fname, sizey=10, sizex=10):
   ncfile.close()
 
 
+def convert_and_subset(in_file, master_output, xo, yo, xs, ys, yridx, midx, variablename):
+  '''
+  Convert a .tif to .nc file and subset it using pixel offsets.
+
+  This is indended to be called as a independant multiprocessing.Process.
+
+  Parameters
+  ----------
+  in_file : str (path)
+    The tif file (from SNAP) with data in it
+  master_output : str (path)
+    The (per variable) master file that should get appended to.
+  xo, yo : int
+    The X and Y pixel offsets (lower left corner?)
+  xs, ys : int
+    The X and Y sizes (in pixels)
+  yridx : int
+    The year index for this in_file.
+  midx : int
+    The month index for this in_file
+  variablename : str
+    The variable we are working on. I.e. tair, precip, etc.
+
+  Returns
+  -------
+  None
+  '''
+  cpn = mp.current_process().name
+
+  tmpfile1 = '/tmp/script-temporary_%s.nc' % variablename
+  tmpfile2 = '/tmp/script-temporary_%s-2.nc' % variablename
+
+  print "{:}: infile: {} master_output: {} vname: {}".format(
+      cpn, in_file, master_output, variablename)
+
+  print "{:}: Converting tif --> netcdf...".format(cpn)
+  check_call(['gdal_translate', '-of', 'netCDF', in_file, tmpfile1])
+
+  print "{:}: Subsetting...".format(cpn)
+  check_call(['gdal_translate', '-of', 'netCDF', '-srcwin', str(xo), str(yo), str(xs), str(ys), tmpfile1, tmpfile2])
+
+  print "{:}: Writing subset's data to new file...".format(cpn)
+
+  new_climatedataset = netCDF4.Dataset(master_output, mode='a')
+  t2 = netCDF4.Dataset(tmpfile2, mode='r')
+
+  theVariable = new_climatedataset.variables[variablename]
+  theVariable[yridx*12+midx] = t2.variables['Band1'][:]
+
+  new_climatedataset.close()
+  t2.close()
+
+  print "{:}: Done appending.".format(cpn)
+
+
 
 def fill_veg_file(if_name, xo, yo, xs, ys, out_dir, of_name):
   '''Read subset of data from .tif into netcdf file for dvmdostem. '''
@@ -295,9 +356,73 @@ def fill_veg_file(if_name, xo, yo, xs, ys, out_dir, of_name):
     veg_class[:] = t1.variables['Band1'][:]
 
 def fill_climate_file(start_yr, yrs, xo, yo, xs, ys, out_dir, of_name, sp_ref_file, in_tair_base, in_prec_base, in_rsds_base, in_vapo_base):
-  # TRANSLATE TO NETCDF
-  #Create empty file to copy data into
-  create_template_climate_nc_file(os.path.join(out_dir, of_name), sizey=ys, sizex=xs)
+
+  # create short handle for output file
+  masterOutFile = os.path.join(out_dir, of_name)
+
+  dataVarList = ['tair', 'precip', 'nirr', 'vapor_press']
+
+  # Create empty file with all the correct dimensions. At the end data will
+  # be copied into this file.
+  create_template_climate_nc_file(masterOutFile, sizey=ys, sizex=xs)
+
+  # Copy the master into a separate file for each variable
+  for v in dataVarList:
+    shutil.copyfile(masterOutFile, os.path.join(out_dir, 'TEMP-{}-{}'.format(v, of_name)))
+
+  # Now we have to loop over all the .tif files - there is one file for each
+  # month of each year for each variable - and extract the data so we can
+  # save it in our new NetCDF file.
+  print "Working to prepare climate data for years %s to %s" % (start_yr, start_yr + yrs)
+  for yridx, year in enumerate(range(start_yr, start_yr + yrs)):
+
+    for midx, month in enumerate(range(1,13)): # Note 1 based month!
+
+      print year, month
+
+      basePathList = [in_tair_base, in_prec_base, in_rsds_base, in_vapo_base]
+      baseFiles = [basePath + "_{:02d}_{:04d}.tif".format(month, year) for basePath in basePathList]
+      tmpFiles = [os.path.join(out_dir, 'TEMP-{}-{}'.format(v, of_name)) for v in dataVarList]
+
+      procs = []
+      for tiffimage, tmpFileName, vName in zip(baseFiles, tmpFiles , dataVarList):
+        proc = mp.Process(target=convert_and_subset, args=(tiffimage, tmpFileName, xo, yo, xs, ys, yridx,midx,vName))
+        procs.append(proc)
+        proc.start()
+
+      for proc in procs:
+        proc.join()
+
+  print "Done with year loop."
+
+  print "Copy data from temporary per-variable files into master"
+  for tFile, var in zip(tmpFiles, dataVarList):
+    # Need to make a list of variables to exclude from the
+    # ncks append operation (all except the current variable)
+    masked_list = [i for i in dataVarList if var not in i]
+
+    opt_str = "lat,lon," + ",".join(masked_list)
+    check_call(['ncks', '--append', '-x','-v',opt_str, tFile, masterOutFile])
+
+    os.remove(tFile)
+
+    # This fails. Looks to me like a bug in nco as it expand the option string
+    #nco = NCO.Nco()
+    #opt_str = "--append -x -v lat,lon," + ",".join(masked_list)
+    #nco.ncks(input=tFile, output=masterOutFile, options=opt_str)
+    ''' Error from console:
+    Copy data from temporary per-variable files into master /tmp/smaller-temporary-file-with-spatial-info.nc
+    Error in calling operator ncks with:
+    >>> /usr/local/bin/ncks - - a p p e n d - x - v p r e c i p , n i r r , v a p o r _ p r e s s --overwrite --output=some-dvmdostem-inputs/SouthBarrow_10x10/historic-climate.nc some-dvmdostem-inputs/SouthBarrow_10x10/TEMP-tair-historic-climate.nc <<<
+    Inputs: some-dvmdostem-inputs/SouthBarrow_10x10/TEMP-tair-historic-climate.nc
+    '''
+
+  print "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+  print "%% NOTE! Converting rsds (nirr) from MJ/m^2/day to W/m^2!"
+  print "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+  with netCDF4.Dataset(masterOutFile, mode='a') as new_climatedataset:
+    nirr = new_climatedataset.variables['nirr']
+    nirr[:] = (1000000 / (60*60*24)) * nirr[:]
 
   tmpfile = '/tmp/temporary-file-with-spatial-info.nc'
   smaller_tmpfile = '/tmp/smaller-temporary-file-with-spatial-info.nc'
@@ -309,7 +434,6 @@ def fill_climate_file(start_yr, yrs, xo, yo, xs, ys, out_dir, of_name, sp_ref_fi
     ])
   print "Finished creating temporary file with spatial info."
 
-  #from IPython import embed; embed()
   print "Make a subset of the temporary file with LAT and LON variables: ", smaller_tmpfile
   check_call(['gdal_translate', '-of', 'netCDF',
       '-co', 'WRITE_LONLAT=YES',
@@ -323,7 +447,7 @@ def fill_climate_file(start_yr, yrs, xo, yo, xs, ys, out_dir, of_name, sp_ref_fi
   temp_subset_with_lonlat = netCDF4.Dataset(smaller_tmpfile, mode='r')
 
   # Open the new file for appending
-  new_climatedataset = netCDF4.Dataset(os.path.join(out_dir, of_name), mode='a')
+  new_climatedataset = netCDF4.Dataset(masterOutFile, mode='a')
 
   # Insert lat/lon from temp file into the new file
   lat = new_climatedataset.variables['lat']
@@ -334,85 +458,6 @@ def fill_climate_file(start_yr, yrs, xo, yo, xs, ys, out_dir, of_name, sp_ref_fi
   new_climatedataset.close()
   temp_subset_with_lonlat.close()
   print "Done copying LON/LAT."
-
-  #Populate input file with data from TIFs
-  with netCDF4.Dataset(os.path.join(out_dir, of_name), mode='a') as new_climatedataset:
-
-    print "Working to prepare climate data for years %s to %s" % (start_yr, start_yr + yrs)
-    for yridx, year in enumerate(range(start_yr, start_yr + yrs)):
-
-      for midx, month in enumerate(range(1,13)): # Note 1 based month!
-
-        print year, month
-
-        in_tair = in_tair_base + "_%02d_%04d.tif" % (month, year)
-        in_prec = in_prec_base + "_%02d_%04d.tif" % (month, year)
-        in_rsds = in_rsds_base + "_%02d_%04d.tif" % (month, year)
-        in_vapo = in_rsds_base + "_%02d_%04d.tif" % (month, year)
-
-        # TRANSLATE TO NETCDF
-        print "Converting tif --> netcdf..."
-        check_call(['gdal_translate', '-of', 'netCDF',
-              in_tair,
-              '/tmp/script-temporary_tair.nc'])
-
-        check_call(['gdal_translate', '-of', 'netCDF',
-              in_rsds,
-              '/tmp/script-temporary_rsds.nc'])
-
-        check_call(['gdal_translate', '-of', 'netCDF',
-              in_prec,
-              '/tmp/script-temporary_pr.nc'])
-
-        check_call(['gdal_translate', '-of', 'netCDF',
-              in_vapo,
-              '/tmp/script-temporary_vapo.nc'])
-
-        print "Subsetting...."
-        check_call(['gdal_translate', '-of', 'netCDF', '-srcwin',
-              str(xo), str(yo), str(xs), str(ys),
-              '/tmp/script-temporary_tair.nc', '/tmp/script-temporary_tair2.nc'])
-
-        check_call(['gdal_translate', '-of', 'netCDF', '-srcwin',
-              str(xo), str(yo), str(xs), str(ys),
-              '/tmp/script-temporary_rsds.nc', '/tmp/script-temporary_rsds2.nc'])
-
-        check_call(['gdal_translate', '-of', 'netCDF', '-srcwin',
-              str(xo), str(yo), str(xs), str(ys),
-              '/tmp/script-temporary_pr.nc', '/tmp/script-temporary_pr2.nc'])
-
-        check_call(['gdal_translate', '-of', 'netCDF', '-srcwin',
-              str(xo), str(yo), str(xs), str(ys),
-              '/tmp/script-temporary_vapo.nc', '/tmp/script-temporary_vapo2.nc'])
-
-
-        print "Writing subset's data to new files..."
-        with netCDF4.Dataset('/tmp/script-temporary_tair2.nc', mode='r') as t2:
-          tair = new_climatedataset.variables['tair']
-          tair[yridx*12+midx] = t2.variables['Band1'][:]
-
-        with netCDF4.Dataset('/tmp/script-temporary_rsds2.nc', mode='r') as t2:
-          nirr = new_climatedataset.variables['nirr']
-          nirr[yridx*12+midx] = t2.variables['Band1'][:]
-
-        with netCDF4.Dataset('/tmp/script-temporary_pr2.nc', mode='r') as t2:
-          prec = new_climatedataset.variables['precip']
-          prec[yridx*12+midx] = t2.variables['Band1'][:]
-
-        with netCDF4.Dataset('/tmp/script-temporary_vapo2.nc', mode='r') as t2:
-          vapo = new_climatedataset.variables['vapor_press']
-          vapo[yridx*12+midx] = t2.variables['Band1'][:]
-
-        print "Done appending. Closing the new file"
-
-    print "Done with year loop."
-
-  print "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-  print "%% NOTE! Converting rsds (nirr) from MJ/m^2/day to W/m^2!"
-  print "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-  with netCDF4.Dataset(os.path.join(out_dir, of_name), mode='a') as new_climatedataset:
-    nirr = new_climatedataset.variables['nirr']
-    nirr[:] = (1000000 / (60*60*24)) * nirr[:]
 
 
 def fill_soil_texture_file(if_sand_name, if_silt_name, if_clay_name, xo, yo, xs, ys, out_dir, of_name, rand=True):
