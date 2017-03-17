@@ -3635,6 +3635,178 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   map_itr = netcdf_outputs.end();
 
 
+  //RG
+  map_itr = netcdf_outputs.find("RG");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: RG";
+    curr_spec = map_itr->second;
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "RG", &cv) );
+
+    //PFT and compartment
+    if(curr_spec.pft && curr_spec.compartment){
+
+      double rg[NUM_PFT_PART][NUM_PFT];
+      for(int ip=0; ip<NUM_PFT; ip++){
+        for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
+          if(curr_spec.monthly){
+            start5[0] = month_timestep;
+            rg[ipp][ip] = cohort.bd[ip].m_v2a.rg[ipp];
+          }
+          else if(curr_spec.yearly){
+            start5[0] = year;
+            rg[ipp][ip] = cohort.bd[ip].y_v2a.rg[ipp];
+          }
+        }
+      }
+
+      temutil::nc( nc_put_vara_double(ncid, cv, start5, count5, &rg[0][0]) ); 
+    }
+    //PFT only
+    else if(curr_spec.pft && !curr_spec.compartment){
+
+      double rg[NUM_PFT];
+      for(int ip=0; ip<NUM_PFT; ip++){
+        if(curr_spec.monthly){
+          PFTstart4[0] = month_timestep;
+          rg[ip] = cohort.bd[ip].m_v2a.rgall;
+        }
+        else if(curr_spec.yearly){
+          PFTstart4[0] = year;
+          rg[ip] = cohort.bd[ip].y_v2a.rgall;
+        }
+      }
+
+      temutil::nc( nc_put_vara_double(ncid, cv, PFTstart4, PFTcount4, &rg[0]) ); 
+    }
+    //Compartment only
+    else if(!curr_spec.pft && curr_spec.compartment){
+
+      double rg[NUM_PFT_PART] = {0};
+      for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
+        for(int ip=0; ip<NUM_PFT; ip++){
+          if(curr_spec.monthly){
+            CompStart4[0] = month_timestep;
+            rg[ipp] += cohort.bd[ip].m_v2a.rg[ipp];
+          }
+          else if(curr_spec.yearly){
+            CompStart4[0] = year;
+            rg[ipp] += cohort.bd[ip].y_v2a.rg[ipp];
+          }
+        }
+      }
+
+      temutil::nc( nc_put_vara_double(ncid, cv, CompStart4, CompCount4, &rg[0]) );
+ 
+    }
+    //Neither PFT nor compartment - Total
+    else if(!curr_spec.pft && !curr_spec.compartment){
+
+      double rg;
+      if(curr_spec.monthly){
+        start3[0] = month_timestep;
+        rg = cohort.bdall->m_v2a.rgall;
+      }
+      else if(curr_spec.yearly){
+        start3[0] = year;
+        rg = cohort.bdall->y_v2a.rgall;
+      }
+
+      temutil::nc( nc_put_var1_double(ncid, cv, start3, &rg) );
+    }
+
+    temutil::nc( nc_close(ncid) );
+  }//end RG
+  map_itr = netcdf_outputs.end();
+
+
+  //RM
+  map_itr = netcdf_outputs.find("RM");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: RM";
+    curr_spec = map_itr->second;
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "RM", &cv) );
+
+    //PFT and compartment
+    if(curr_spec.pft && curr_spec.compartment){
+
+      double rm[NUM_PFT_PART][NUM_PFT];
+      for(int ip=0; ip<NUM_PFT; ip++){
+        for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
+          if(curr_spec.monthly){
+            start5[0] = month_timestep;
+            rm[ipp][ip] = cohort.bd[ip].m_v2a.rm[ipp];
+          }
+          else if(curr_spec.yearly){
+            start5[0] = year;
+            rm[ipp][ip] = cohort.bd[ip].y_v2a.rm[ipp];
+          }
+        }
+      }
+
+      temutil::nc( nc_put_vara_double(ncid, cv, start5, count5, &rm[0][0]) ); 
+    }
+    //PFT only
+    else if(curr_spec.pft && !curr_spec.compartment){
+
+      double rm[NUM_PFT];
+      for(int ip=0; ip<NUM_PFT; ip++){
+        if(curr_spec.monthly){
+          PFTstart4[0] = month_timestep;
+          rm[ip] = cohort.bd[ip].m_v2a.rmall;
+        }
+        else if(curr_spec.yearly){
+          PFTstart4[0] = year;
+          rm[ip] = cohort.bd[ip].y_v2a.rmall;
+        }
+      }
+
+      temutil::nc( nc_put_vara_double(ncid, cv, PFTstart4, PFTcount4, &rm[0]) ); 
+    }
+    //Compartment only
+    else if(!curr_spec.pft && curr_spec.compartment){
+
+      double rm[NUM_PFT_PART] = {0};
+      for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
+        for(int ip=0; ip<NUM_PFT; ip++){
+          if(curr_spec.monthly){
+            CompStart4[0] = month_timestep;
+            rm[ipp] += cohort.bd[ip].m_v2a.rm[ipp];
+          }
+          else if(curr_spec.yearly){
+            CompStart4[0] = year;
+            rm[ipp] += cohort.bd[ip].y_v2a.rm[ipp];
+          }
+        }
+      }
+
+      temutil::nc( nc_put_vara_double(ncid, cv, CompStart4, CompCount4, &rm[0]) );
+ 
+    }
+    //Neither PFT nor compartment - Total
+    else if(!curr_spec.pft && !curr_spec.compartment){
+
+      double rm;
+      if(curr_spec.monthly){
+        start3[0] = month_timestep;
+        rm = cohort.bdall->m_v2a.rmall;
+      }
+      else if(curr_spec.yearly){
+        start3[0] = year;
+        rm = cohort.bdall->y_v2a.rmall;
+      }
+
+      temutil::nc( nc_put_var1_double(ncid, cv, start3, &rm) );
+    }
+
+    temutil::nc( nc_close(ncid) );
+  }//end RM
+  map_itr = netcdf_outputs.end();
+
+
   //VEGC
   map_itr = netcdf_outputs.find("VEGC");
   if(map_itr != netcdf_outputs.end()){
