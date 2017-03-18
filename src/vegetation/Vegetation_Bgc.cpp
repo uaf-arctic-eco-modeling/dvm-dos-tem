@@ -407,7 +407,7 @@ void Vegetation_Bgc::delta() {
   double npp_and_rg_leaves = del_a2v.innpp[I_leaf] + del_v2a.rg[I_leaf];
 
   if (npp_and_rg_leaves > gpp_avail) {
-    del_a2v.innpp[I_leaf] = gpp_avail / (1.0 + calpar.frg);
+    del_a2v.innpp[I_leaf] = gpp_avail;
     del_v2a.rg[I_leaf] = del_a2v.innpp[I_leaf] * calpar.frg;
   }
   // update temporary variable after down-regulation
@@ -439,7 +439,7 @@ void Vegetation_Bgc::delta() {
   } else {
     // This PFT is a moss or lichen and has no stems and roots. Allocate the
     // remaining availabe GPP to leaf growth and associated growth respiration.
-    del_a2v.innpp[I_leaf] += gpp_avail / (1.0 + calpar.frg);
+    del_a2v.innpp[I_leaf] += gpp_avail;
     del_v2a.rg[I_leaf] = del_a2v.innpp[I_leaf] * calpar.frg;
   }
 
