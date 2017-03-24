@@ -117,12 +117,12 @@ void Vegetation_Bgc::initializeState() {
 
   for (int i=0; i<NUM_PFT_PART; i++) {
     bd->m_vegs.c[i]    = chtlu->initvegc[i][ipft];
-    //Save five percent of structural nitrogen for labile. See :125
+    // Save five percent of structural nitrogen for labile. See below.
     bd->m_vegs.strn[i] = chtlu->initvegn[i][ipft]*0.95;
     totvegn += chtlu->initvegn[i][ipft];
   }
 
-  bd->m_vegs.labn  = totvegn*0.05;
+  bd->m_vegs.labn  = totvegn*0.05;// Use the reserved five percent of str N
   bd->m_vegs.deadc = chtlu->initdeadc[ipft];
   bd->m_vegs.deadn = chtlu->initdeadn[ipft];
   //
