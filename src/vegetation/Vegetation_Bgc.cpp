@@ -369,7 +369,7 @@ void Vegetation_Bgc::delta() {
       bd->m_vegd.kr[i] = getKr(tmp_vegs.c[i], i);
       del_v2a.rm[i] = getRm(tmp_vegs.c[i], bd->m_vegd.raq10, bd->m_vegd.kr[i]);
     } else {
-      del_v2a.rm[i]    = 0.0;
+      del_v2a.rm[i] = 0.0;
     }
     rm_wholePFT += del_v2a.rm[i];
   }
@@ -846,16 +846,16 @@ double Vegetation_Bgc::getRm(const double & vegc, const double & raq10,
   rm = kr * vegc;
   rm *= respq10;
 
-  if (rm<0.0) {
-    rm= 0.0;
+  if (rm < 0.0) {
+    rm = 0.0;
   }
 
-  if (rm>0.10*vegc) {
-    rm= 0.10*vegc;  //maintenance resp. cannot be over 10% of veg.C
+  if (rm > 0.10 * vegc) {
+    rm = 0.10 * vegc;  // maintenance resp. cannot be over 10% of veg C
   }
 
   return rm;
-};
+}
 
 double Vegetation_Bgc::getGV(const double & eet,const double & pet ) {
   double gv;
