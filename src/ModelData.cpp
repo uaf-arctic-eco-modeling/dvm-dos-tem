@@ -232,6 +232,7 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
   std::string token;//Substrings between commas
   std::string name;//CSV file variable name
   std::string timestep;//Yearly, monthly, or daily
+  std::string invalid_option = "invalid";//This marks an invalid selection
 
   //NetCDF file variables
   int ncid;
@@ -286,20 +287,20 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
         units = token;
       }
       else if(ii==3){//Yearly
-        if(token.length()>0){
+        if(token.length()>0 && token.compare(invalid_option) != 0){
           timestep = "yearly";
           new_spec.yearly = true;
         }
       }
       else if(ii==4){//Monthly
-        if(token.length()>0){
+        if(token.length()>0 && token.compare(invalid_option) != 0){
           timestep = "monthly";
           new_spec.monthly = true;
           new_spec.yearly = false;
         }
       }
       else if(ii==5){//Daily
-        if(token.length()>0){
+        if(token.length()>0 && token.compare(invalid_option) != 0){
           timestep = "daily";
           new_spec.daily = true;
           new_spec.monthly = false;
@@ -307,19 +308,19 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
         }
       }
       else if(ii==6){//PFT
-        if(token.length()>0){
+        if(token.length()>0 && token.compare(invalid_option) != 0){
           new_spec.pft = true;
           new_spec.dim_count++;
         }
       }
       else if(ii==7){//Compartment
-        if(token.length()>0){
+        if(token.length()>0 && token.compare(invalid_option) != 0){
           new_spec.compartment = true;
           new_spec.dim_count++;
         }
       }
       else if(ii==8){//Layer
-        if(token.length()>0){
+        if(token.length()>0 && token.compare(invalid_option) != 0){
           new_spec.layer = true;
           new_spec.dim_count++;
         }
