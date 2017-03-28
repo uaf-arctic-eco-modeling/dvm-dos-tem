@@ -374,12 +374,6 @@ void Vegetation_Bgc::delta() {
     rm_wholePFT += del_v2a.rm[i];
   }
 
-  // CALCULATE ADJUSTMENT FACTOR? used below for summarizing ingpp[]
-  double rm_adjust = 1.0;
-  if (rm_wholePFT > gpp_all && rm_wholePFT > 0.0) {
-    rm_adjust = gpp_all / rm_wholePFT;
-  }
-
   // Remaining C from GPP available for allocation to new tissue growth after
   // accounting for maintenance and growth respiration (Ra).
   double gpp_avail = fmax( 0.0, (gpp_all-rm_wholePFT) / (1.0 + calpar.frg) );
@@ -444,9 +438,9 @@ void Vegetation_Bgc::delta() {
   }
 
 
-  // summary of INGPP - use adjustment calculated above.
+  // Partition 'ingpp' based on initial NPP, Rg, and Rm
   for (int i=0; i<NUM_PFT_PART; i++) {
-    del_a2v.ingpp[i] = del_a2v.innpp[i] + del_v2a.rm[i] * rm_adjust + del_v2a.rg[i];
+    del_a2v.ingpp[i] = del_a2v.innpp[i] + del_v2a.rm[i] + del_v2a.rg[i];
   }
 
   // Handle litterfall
