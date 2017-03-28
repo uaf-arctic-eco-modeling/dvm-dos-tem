@@ -374,69 +374,86 @@ void Vegetation_Bgc::delta() {
     rm_wholePFT += del_v2a.rm[i];
   }
 
-  // Remaining C from GPP available for allocation to new tissue growth after
-  // accounting for maintenance and growth respiration (Ra).
-  double gpp_avail = fmax( 0.0, (gpp_all-rm_wholePFT) / (1.0 + calpar.frg) );
+  // C available from GPP for allocation to new tissue after
+  // accounting for maintenance respiration.
+  double C_avail = gpp_all - rm_wholePFT;
 
-  // NOTE: Forcing gpp_avail >= 0 is wrong - in the winter respiration can
-  //       exceed GPP, and in this case gpp_avail should be allowed to go
-  //       negative. If someone fixes this, make sure to update the gpp_avail
-  //       formulation below too (after allocating to leaves and
-  //       down-regulating).
+  // For instances when Rm is larger than GPP, i.e. winter months
+  if (rm_wholePFT > gpp_all) {
 
-  // Calculate leaf growth and associated growth respiration.
-  //
-  // Leaves have the second priority for C assimilation, after maintenace
-  // respiration (Rm). dleafc is the default C allocation (from parameter files)
-  // to leaves affected by drought.
-  del_a2v.innpp[I_leaf] = fmin(dleafc, (gpp_avail)); // <-- Maybe divide gpp_avail/(1.0 + calpar.frg) ??
+    // No growth is possible, growth respiration should therefore be zero.
+    for (int i=I_leaf; i<NUM_PFT_PART; i++) { 
+      del_v2a.rg[i] = 0.0;
+    }
 
-  // Then set growth respiration for leaves.
-  del_v2a.rg[I_leaf] = calpar.frg * del_a2v.innpp[I_leaf];
-
-  // If the combination of leaf NPP and growth respiration (rg) is larger
-  // than the available gpp, we need to down-regulate the growth (and growth
-  // respiration) so that they don't exceed the C availble from GPP (after
-  // maintenance respiration).
-  double npp_and_rg_leaves = del_a2v.innpp[I_leaf] + del_v2a.rg[I_leaf];
-
-  if (npp_and_rg_leaves > gpp_avail) {
-    del_a2v.innpp[I_leaf] = gpp_avail;
-    del_v2a.rg[I_leaf] = del_a2v.innpp[I_leaf] * calpar.frg;
-  }
-  // update temporary variable after down-regulation
-  npp_and_rg_leaves = del_a2v.innpp[I_leaf] + del_v2a.rg[I_leaf];
-
-  // Update the available gpp.
-  // Remaining C from GPP available after maintenance respiration and leaf
-  // growth. Stems and roots are the lowest priority so they take remaining C
-  // after leaf growth and maintenance resp. have been accounted for.
-  gpp_avail = fmax(0.0, (gpp_all - rm_wholePFT - npp_and_rg_leaves) / (1.0 + calpar.frg));
-
-  // Allocate (distribute) the remaining GPP amongst roots and stems
-  // based on the cpart distrubution specified in the parameter files.
-  double cpart_stems_and_roots = 0.0;
-
-  for (int i=I_leaf+1; i<NUM_PFT_PART; i++) { // <-- cpart of everything but leaves!!!
-    cpart_stems_and_roots += bgcpar.cpart[i];
-  }
-
-  if (cpart_stems_and_roots > 0.0) {
-    for (int i=I_leaf+1; i<NUM_PFT_PART; i++) {
-      del_a2v.innpp[i] = 0.0;
-      del_v2a.rg[i]    = 0.0;
-      if (cpart_stems_and_roots > 0.0 && gpp_avail > 0.0){
-        del_a2v.innpp[i] = gpp_avail * (bgcpar.cpart[i] / cpart_stems_and_roots); // <-- maybe divide by (1.0 + calpar.frg) ???
-        del_v2a.rg[i]    = calpar.frg * del_a2v.innpp[i];
+    // NPP is negative in order to represent the effect of
+    // negative vegetation C balance on vegetation C pools and overall
+    // ecosystem C balance. The negative NPP should be allocated based on
+    //   (1) the allocation coefficients among compartments,
+    //   (2) the existing C pool of each compartment.
+    // We decided to first affect the stem and root compartment because they
+    // are considered as "storage compartment", and then leaves (for evergreens)
+    for (int i=I_leaf; i<NUM_PFT_PART; i++) {
+      if (tmp_vegs.c[i] > 0.0) {
+        del_a2v.innpp[i] = (gpp_all * bgcpar.cpart[i] / cpart_all) - del_v2a.rm[i];
+        if (del_a2v.innpp[i] > 0.0) {
+          del_a2v.innpp[i] = ((gpp_all * bgcpar.cpart[i] / cpart_all) - del_v2a.rm[i]) / (1.0+calpar.frg);
+          del_v2a.rg[i] = del_a2v.innpp[i] * calpar.frg;
+        }
+      } else {
+        del_a2v.innpp[i] = 0.0;
       }
     }
+
   } else {
-    // This PFT is a moss or lichen and has no stems and roots. Allocate the
-    // remaining availabe GPP to leaf growth and associated growth respiration.
-    del_a2v.innpp[I_leaf] += gpp_avail;
-    del_v2a.rg[I_leaf] = del_a2v.innpp[I_leaf] * calpar.frg;
+    // When C from GPP is available after maintenance respiration, it is
+    // allocated to the leaf compartment first, then stems and roots.
+
+    // First - allocation for leaf growth (NPP and associated growth respiration)
+    // dleafc is the default C allocation (from parameter files) to leaves
+    // affected by drought.
+    del_a2v.innpp[I_leaf] = fmin(dleafc, C_avail / (1.0 + calpar.frg)); 
+    del_v2a.rg[I_leaf] = calpar.frg * del_a2v.innpp[I_leaf];
+
+    // update temporary variable after down-regulation
+    double npp_and_rg_leaves = 0.0;
+    npp_and_rg_leaves = del_a2v.innpp[I_leaf] + del_v2a.rg[I_leaf];
+
+    // Remaining C after maintenance respiration and leaf growth. Stems and
+    // roots are the lowest priority so they take remaining C after leaf growth
+    // and maintenance resp. have been accounted for.
+    C_avail = gpp_all - rm_wholePFT - npp_and_rg_leaves;
+
+    // Allocate (distribute) the remaining available C amongst roots and stems
+    // based on the cpart distrubution specified in the parameter files.
+    double cpart_stems_and_roots = 0.0;
+
+    for (int i=I_leaf+1; i<NUM_PFT_PART; i++) { // <-- cpart of everything but leaves!!!
+      cpart_stems_and_roots += bgcpar.cpart[i];
+    }
+
+    if (cpart_stems_and_roots > 0.0) {
+      for (int i=I_leaf+1; i<NUM_PFT_PART; i++) {
+        del_a2v.innpp[i] = 0.0;
+        del_v2a.rg[i]    = 0.0;
+        if (cpart_stems_and_roots > 0.0 && C_avail > 0.0){
+          del_a2v.innpp[i] = (C_avail / (1.0 + calpar.frg))* (bgcpar.cpart[i] / cpart_stems_and_roots); 
+          del_v2a.rg[i]    = calpar.frg * del_a2v.innpp[i];
+        }
+      }
+    } else {
+      // This PFT is a moss or lichen and has no stems and roots. Allocate the
+      // remaining availabe GPP to leaf growth and associated growth respiration.
+      del_a2v.innpp[I_leaf] += C_avail;
+      del_v2a.rg[I_leaf] = del_a2v.innpp[I_leaf] * calpar.frg;
+    }
   }
 
+  // Compute NPP all
+  double innpp_all = 0.0;
+  for (int i=0; i<NUM_PFT_PART; i++){
+    innpp_all += del_a2v.innpp[i];
+  }
 
   // Partition 'ingpp' based on initial NPP, Rg, and Rm
   for (int i=0; i<NUM_PFT_PART; i++) {
