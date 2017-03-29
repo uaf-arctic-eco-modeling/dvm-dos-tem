@@ -55,12 +55,17 @@ private:
 
   // storage for data read in from fire input files
   int fri;
-  int fri_day_of_burn;
+  int fri_jday_of_burn;
+  int fri_area_of_burn;
   int fri_severity;
-  std::vector<int> explicit_fire_year;
-  std::vector<int> explicit_fire_day_of_burn;
-  std::vector<int> explicit_fire_severity;
-  
+
+  std::vector<int> exp_year_of_burn;
+  std::vector<int> exp_month_of_burn;
+  std::vector<int> exp_jday_of_burn;
+  std::vector<int> exp_fire_severity;
+  std::vector<int> exp_area_of_burn;
+
+
   // this will be set based on the current run stage
   // (or eventually, some other derivation function)
   int actual_severity;
