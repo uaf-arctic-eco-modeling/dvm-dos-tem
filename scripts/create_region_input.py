@@ -672,9 +672,13 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir, files=[]):
     of_name = os.path.join(out_dir, "fri_fire.nc")
     fill_fri_fire_file(tif_dir + "iem_ancillary_data/Fire/", xo, yo, xs, ys, out_dir, of_name)
 
-  if 'explicit_fire' in files:
-    of_name = os.path.join(out_dir, "explicit_fire.nc")
-    fill_explicit_fire_file(tif_dir + "iem_ancillary_data/Fire/", xo, yo, xs, ys, out_dir, of_name)
+  if 'historic_explicit_fire' in files:
+    of_name = os.path.join(out_dir, "historic_explicit_fire.nc")
+    fill_explicit_fire_file(tif_dir + "iem_ancillary_data/Fire/", years, xo, yo, xs, ys, out_dir, of_name)
+
+  if 'projected_explicit_fire' in files:
+    of_name = os.path.join(out_dir, "projected_explicit_fire.nc")
+    fill_explicit_fire_file(tif_dir + "iem_ancillary_data/Fire/", years, xo, yo, xs, ys, out_dir, of_name)
 
   if 'veg' in files:
     of_name = os.path.join(out_dir, "vegetation.nc")
@@ -763,14 +767,19 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir, files=[]):
 
 if __name__ == '__main__':
 
+  fileChoices = ['run_mask', 'co2', 'veg', 'drain', 'soil_texture',
+                 'fri_fire', 'historic_explicit_fire', 'projected_explicit_fire', 
+                 'hist_climate', 'proj_climate']
+
   parser = argparse.ArgumentParser(
     formatter_class = argparse.RawDescriptionHelpFormatter,
 
       description=textwrap.dedent('''\
-        Creates a set of files for dvm-dos-tem.
+        Creates a set of input files for dvmdostem.
 
         <OUTDIR>/<TAG>_<YSIZE>x<XSIZE>/fri_fire.nc
-                                  ... /explicit_fire.nc
+                                  ... /historic-explicit-fire.nc
+                                  ... /projected-explicit-fire.nc
                                   ... /vegetation.nc
                                   ... /drainage.nc
                                   ... /historic-climate.nc
@@ -817,7 +826,8 @@ if __name__ == '__main__':
                       help="source window y size (default: %(default)s)")
 
   parser.add_argument('--which', default=['all'], nargs='+',
-                      help="which files to create (default: %(default)s)", choices=['all', 'veg', 'fri_fire', 'explicit_fire', 'drain', 'soil_texture', 'run_mask', 'co2', 'hist_climate', 'proj_climate',])
+                      help="which files to create (default: %(default)s)",
+                      choices=fileChoices+['all'])
 
   print "Parsing command line arguments";
   args = parser.parse_args()
@@ -856,6 +866,9 @@ if __name__ == '__main__':
 
   if 'all' in which_files:
     print "Will generate ALL input files."
-    which_files = ['veg', 'fri_fire', 'explicit_fire', 'drain', 'soil_texture', 'run_mask', 'co2', 'hist_climate', 'proj_climate']
+    which_files = fileChoices
 
   main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir, files=which_files)
+
+
+
