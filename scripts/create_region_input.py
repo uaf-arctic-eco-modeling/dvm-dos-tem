@@ -411,8 +411,16 @@ def fill_veg_file(if_name, xo, yo, xs, ys, out_dir, of_name):
   # Copy from temporary location to into the placeholder file we just created
   with netCDF4.Dataset(temporary) as t1, netCDF4.Dataset(of_name, mode='a') as new_vegdataset:
     veg_class = new_vegdataset.variables['veg_class']
-    veg_class[:] = t1.variables['Band1'][:]
+
     new_vegdataset.source = source_attr_string(xo=xo, yo=yo)
+
+    veg_class[:] = t1.variables['Band1'][:].data 
+    # For some reason, some rows of the temporary file are numpy masked arrays
+    # and if we don't directly access the data, then we get strange results '
+    # (i.e. stuff that should be ocean shows up as CMT02??)
+    # If we use the .data method, then the ocean ends up filled with '-1' and 
+    # lakes end up as CMT00, which is what we want. Alternatively, could use the
+    # .filled(-1) method.
 
 
 def fill_climate_file(start_yr, yrs, xo, yo, xs, ys,
