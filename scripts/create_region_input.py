@@ -14,7 +14,6 @@ import textwrap
 import os
 
 import netCDF4
-import nco as NCO
 
 import numpy as np
 
