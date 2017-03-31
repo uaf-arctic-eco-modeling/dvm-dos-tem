@@ -268,12 +268,15 @@ def create_template_fri_fire_file(fname, sizey=10, sizex=10, rand=None):
   Y = ncfile.createDimension('Y', sizey)
   X = ncfile.createDimension('X', sizex)
 
+  # Do we need time dimension??
+
   fri = ncfile.createVariable('fri', np.int32, ('Y','X',))
   sev = ncfile.createVariable('fri_severity', np.int32, ('Y','X'))
-  dob = ncfile.createVariable('fri_day_of_burn', np.int32, ('Y','X'))
+  dob = ncfile.createVariable('fri_jday_of_burn', np.int32, ('Y','X'))
+  aob = ncfile.createVariable('fri_area_of_burn', np.int32, ('Y','X'))
 
-  # not sure if we need these...
-  #fri_area = ncfile.createVariable('fri_area_of_burn', np.float32, ('Y','X'))
+  if rand:
+    print "Fill FRI fire file with random data NOT IMPLEMENTED YET! See fill function."
 
   ncfile.source = source_attr_string()
   ncfile.close()
@@ -613,17 +616,38 @@ def fill_fri_fire_file(if_name, xo, yo, xs, ys, out_dir, of_name):
 
   print "FILLING FRI FIRE FILE WITH 'REAL' DATA IS NOT IMPLEMENTED YET!"
 
+
+  print "Attempting to read vegetation.nc file and set fire properties based on community type..."
+
+  cmt2fireprops = {
+    0: {'fri':   -1, 'sev': -1, 'jdob':  -1, 'aob':  -1 }, # rock/snow/water
+    1: {'fri':  100, 'sev':  3, 'jdob': 165, 'aob': 100 }, # black spruce
+    2: {'fri':  105, 'sev':  2, 'jdob': 175, 'aob': 225 }, # white spruce
+    3: {'fri':  400, 'sev':  3, 'jdob': 194, 'aob': 104 }, # boreal deciduous
+    4: {'fri': 1000, 'sev':  2, 'jdob': 200, 'aob': 350 }, # shrub tundra
+    5: {'fri': 2222, 'sev':  3, 'jdob': 187, 'aob': 210 }, # tussock tundra
+    6: {'fri': 1500, 'sev':  1, 'jdob': 203, 'aob': 130 }, # wet sedge tundra
+    7: {'fri': 1225, 'sev':  4, 'jdob': 174, 'aob': 250 }, # heath tundra
+    8: {'fri':  759, 'sev':  3, 'jdob': 182, 'aob': 156 }, # maritime forest
+  }
+
+  guess_vegfile = os.path.join(os.path.split(of_name)[0], 'vegetation.nc')
+
+  with netCDF4.Dataset(guess_vegfile ,'r') as vegFile:
+    vd = vegFile.variables['veg_class'][:]
+    fri = np.array([cmt2fireprops[i]['fri'] for i in vd.flatten()]).reshape(vd.shape)
+    sev = np.array([cmt2fireprops[i]['sev'] for i in vd.flatten()]).reshape(vd.shape)
+    jdob = np.array([cmt2fireprops[i]['jdob'] for i in vd.flatten()]).reshape(vd.shape)
+    aob = np.array([cmt2fireprops[i]['aob'] for i in vd.flatten()]).reshape(vd.shape)
+
   with netCDF4.Dataset(of_name, mode='a') as nfd:
+    print "==> write data to new FRI based fire file..."
+    nfd.variables['fri'][:,:] = fri
+    nfd.variables['fri_severity'][:,:] = sev
+    nfd.variables['fri_jday_of_burn'][:,:] = jdob
+    nfd.variables['fri_area_of_burn'][:,:] = aob
 
-    print "==> set arbitrary fri value (same for all pixels; for easy testing)..."
-    nfd.variables['fri'][:,:] = 500
-
-    print "==> fill with random severity..."
-    nfd.variables['fri_severity'][:,:] = np.random.randint(0, 5, (ys,xs))
-
-    print "==> set arbitrary day of burn value..."
-    nfd.variables['fri_day_of_burn'][:,:] = 189
-
+    print "==> write global :source attribute to FRI fire file..."
     nfd.source = source_attr_string(xo=xo, yo=yo)
 
 
