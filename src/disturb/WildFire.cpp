@@ -47,7 +47,6 @@ WildFire::WildFire(const std::string& fri_fname,
 
   BOOST_LOG_SEV(glg, info) << "Setting up explicit fire data...";
   this->exp_year_of_burn   = temutil::get_timeseries<int>(explicit_fname, "exp_year_of_burn", y, x);
-  this->exp_month_of_burn  = temutil::get_timeseries<int>(explicit_fname, "exp_month_of_burn", y, x);
   this->exp_jday_of_burn   = temutil::get_timeseries<int>(explicit_fname, "exp_jday_of_burn", y, x);
   this->exp_area_of_burn   = temutil::get_timeseries<int>(explicit_fname, "exp_area_of_burn", y, x);
   this->exp_fire_severity  = temutil::get_timeseries<int>(explicit_fname, "exp_fire_severity", y, x);
@@ -74,7 +73,6 @@ std::string WildFire::report_fire_inputs() {
 
   report_string << "EXPLICIT fire vectors/data:" << std::endl;
   report_string << "exp_year_of_burn:        [" << temutil::vec2csv(this->exp_year_of_burn) << "]" << std::endl;
-  report_string << "exp_month_of_burn:       [" << temutil::vec2csv(this->exp_month_of_burn) << "]" << std::endl;
   report_string << "exp_jday_of_burn:        [" << temutil::vec2csv(this->exp_jday_of_burn) << "]" << std::endl;
   report_string << "exp_fire_severity:       [" << temutil::vec2csv(this->exp_area_of_burn) << "]" << std::endl;
 

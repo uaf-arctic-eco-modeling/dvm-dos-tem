@@ -53,21 +53,45 @@ public:
 
 private:
 
-  // storage for data read in from fire input files
+  // There are two distinct types of fire "drivers":
+  // 1) Generic fire based on fire recurrance interval (FRI).
+  // 2) Distinct and explicitly defined fires.
+  //
+  // The FRI approach is used for equlibrium and spinup stages, while
+  // explicitly defined fire is used for transient and scenario stages.
+  //
+  // With an FRI approach, each pixel has an FRI, or periodicity.
+  // When the model reaches the correct time according to the FRI, the
+  // pixel burns according to the values set for julian day of burn, area
+  // of burn, and severity of burn. In other words fire will be the same
+  // each time it occurs.
+  //
+  // With the explicit approach, each pixel has a time-series of
+  // properties that define fire. The properties the same properties
+  // that define fire under an FRI regime, but the pixel can have
+  // different types of fire over the course of the timeseries.
+  //
+  // The timeseries can be defined several ways:
+  //  1) arbitrarily generated sample data
+  //  2) based on outputs from the ALFRESCO model
+  //  3) based on the historical data
+  //
+  // The client generating the input files is responsible for ensuring
+  // that a pixel with a 10km^2 area of burn is in a contiguous group of
+  // 10 pixels each of which also uses a 10km^2 area of burn.
+
   int fri;
   int fri_jday_of_burn;
   int fri_area_of_burn;
   int fri_severity;
 
   std::vector<int> exp_year_of_burn;
-  std::vector<int> exp_month_of_burn;
   std::vector<int> exp_jday_of_burn;
   std::vector<int> exp_fire_severity;
   std::vector<int> exp_area_of_burn;
 
 
-  // this will be set based on the current run stage
-  // (or eventually, some other derivation function)
+  // This stores the severity as looked up in the inputs? 
   int actual_severity;
 
   firepar_bgc firpar;
