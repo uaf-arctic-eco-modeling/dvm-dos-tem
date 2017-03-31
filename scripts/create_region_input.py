@@ -801,7 +801,7 @@ if __name__ == '__main__':
   parser.add_argument('--ysize', default=5, type=int,
                       help="source window y size (default: %(default)s)")
 
-  parser.add_argument('--which', default=['all'],
+  parser.add_argument('--which', default=['all'], nargs='+',
                       help="which files to create (default: %(default)s)", choices=['all', 'veg', 'fri_fire', 'explicit_fire', 'drain', 'soil_texture', 'run_mask', 'co2', 'hist_climate', 'proj_climate',])
 
   print "Parsing command line arguments";
