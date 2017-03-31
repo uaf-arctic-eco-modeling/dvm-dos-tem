@@ -259,6 +259,7 @@ def create_template_climate_nc_file(filename, sizey=10, sizex=10):
   ncfile.source = source_attr_string()
   ncfile.close()
 
+
 def create_template_fri_fire_file(fname, sizey=10, sizex=10, rand=None):
   print "Creating an FRI fire file, %s by %s pixels. Fill with random data?: %s" % (sizey, sizex, rand)
   print "Opening/Creating file: ", fname
@@ -370,7 +371,9 @@ def convert_and_subset(in_file, master_output, xo, yo, xs, ys, yridx, midx, vari
   check_call(['gdal_translate', '-of', 'netCDF', in_file, tmpfile1])
 
   print "{:}: Subsetting...".format(cpn)
-  check_call(['gdal_translate', '-of', 'netCDF', '-srcwin', str(xo), str(yo), str(xs), str(ys), tmpfile1, tmpfile2])
+  check_call(['gdal_translate', '-of', 'netCDF',
+              '-srcwin', str(xo), str(yo), str(xs), str(ys),
+              tmpfile1, tmpfile2])
 
   print "{:}: Writing subset's data to new file...".format(cpn)
 
@@ -401,16 +404,20 @@ def fill_veg_file(if_name, xo, yo, xs, ys, out_dir, of_name):
   if not os.path.exists( os.path.dirname(temporary) ):
     os.makedirs(os.path.dirname(temporary))
 
-  subprocess.call(['gdal_translate', '-of', 'netcdf', '-srcwin', str(xo), str(yo), str(xs), str(ys), if_name, temporary])
+  subprocess.call(['gdal_translate', '-of', 'netcdf',
+                   '-srcwin', str(xo), str(yo), str(xs), str(ys),
+                   if_name, temporary])
 
-  # Copy from temporary location to into the placeholde file we just created
+  # Copy from temporary location to into the placeholder file we just created
   with netCDF4.Dataset(temporary) as t1, netCDF4.Dataset(of_name, mode='a') as new_vegdataset:
     veg_class = new_vegdataset.variables['veg_class']
     veg_class[:] = t1.variables['Band1'][:]
     new_vegdataset.source = source_attr_string(xo=xo, yo=yo)
 
 
-def fill_climate_file(start_yr, yrs, xo, yo, xs, ys, out_dir, of_name, sp_ref_file, in_tair_base, in_prec_base, in_rsds_base, in_vapo_base):
+def fill_climate_file(start_yr, yrs, xo, yo, xs, ys,
+                      out_dir, of_name, sp_ref_file,
+                      in_tair_base, in_prec_base, in_rsds_base, in_vapo_base):
 
   # create short handle for output file
   masterOutFile = os.path.join(out_dir, of_name)
@@ -462,6 +469,7 @@ def fill_climate_file(start_yr, yrs, xo, yo, xs, ys, out_dir, of_name, sp_ref_fi
     os.remove(tFile)
 
     # This fails. Looks to me like a bug in nco as it expand the option string
+    #import nco as NCO
     #nco = NCO.Nco()
     #opt_str = "--append -x -v lat,lon," + ",".join(masked_list)
     #nco.ncks(input=tFile, output=masterOutFile, options=opt_str)
