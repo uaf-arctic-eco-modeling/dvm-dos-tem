@@ -710,10 +710,10 @@ if __name__ == '__main__':
   parser.add_argument('--crtf-only', action="store_true",
                       help="Only create the restart template file. Deprecated in favor of the built in capability in dvmdostem.")
 
-  parser.add_argument('--tifs', default="../../snap-data",
+  parser.add_argument('--tifs', default="../snap-data",
                       help="Directory containing input TIF directories.")
 
-  parser.add_argument('--outdir', default="some-dvmdostem-inputs",
+  parser.add_argument('--outdir', default="input-staging-area",
                       help="Directory for netCDF output files. (default: %(default)s)")
 
   parser.add_argument('--tag', default="Toolik",
