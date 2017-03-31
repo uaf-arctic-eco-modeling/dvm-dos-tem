@@ -22,20 +22,26 @@ from osgeo import gdal
 
 import glob
 
-#some description of what region wanted
-#for now, keep to a rectangular requirement?
-#Maintain CF and COARDS standards
 
-#Select y,x or lat,lon bounding box coordinates for use
+# for now, keep to a rectangular requirement?
+# Select y,x or lat,lon bounding box coordinates for use?
 
 
-#Data should be in a rectangular (grid) layout
-#NetCDF
-#Conforms to CF & COARDS standards
-#Geospatial information must be with the file. Each file should have variables for Lat and Lon each defined in terms of the dimensions of (y,x) where (y,x) are the rectangular grid coordinates.
+# Data should be in a rectangular (grid) layout, NetCDF format.
+# Should aim to conforms to CF & COARDS standards
+# Geospatial information must be with the file. Each file should have 
+# variables for Lat and Lon each defined in terms of the dimensions of (y,x) 
+# where (y,x) are the rectangular grid coordinates.
+#  --> Since extracting the Lat/Long info seems to be one of the slowest parts
+#      of the process, and because keeping it in every file would result in 
+#      a lot of redundant info, for now we are only storing spatial info
+#      with the climate files.
+
+# (0,0) pixel is hardcoded to the exact values from Toolik for testing.
 
 
-#(0,0) pixel is hardcoded to the exact values from Toolik for testing.
+
+
 
 def make_run_mask(filename, sizey=10, sizex=10):
   '''Generate a file representing the run mask'''
