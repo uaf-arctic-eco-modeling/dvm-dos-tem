@@ -14,7 +14,6 @@ import textwrap
 import os
 
 import netCDF4
-import nco as NCO
 
 import numpy as np
 
@@ -22,20 +21,64 @@ from osgeo import gdal
 
 import glob
 
-#some description of what region wanted
-#for now, keep to a rectangular requirement?
-#Maintain CF and COARDS standards
 
-#Select y,x or lat,lon bounding box coordinates for use
+# for now, keep to a rectangular requirement?
+# Select y,x or lat,lon bounding box coordinates for use?
 
 
-#Data should be in a rectangular (grid) layout
-#NetCDF
-#Conforms to CF & COARDS standards
-#Geospatial information must be with the file. Each file should have variables for Lat and Lon each defined in terms of the dimensions of (y,x) where (y,x) are the rectangular grid coordinates.
+# Data should be in a rectangular (grid) layout, NetCDF format.
+# Should aim to conforms to CF & COARDS standards
+# Geospatial information must be with the file. Each file should have 
+# variables for Lat and Lon each defined in terms of the dimensions of (y,x) 
+# where (y,x) are the rectangular grid coordinates.
+#  --> Since extracting the Lat/Long info seems to be one of the slowest parts
+#      of the process, and because keeping it in every file would result in 
+#      a lot of redundant info, for now we are only storing spatial info
+#      with the climate files.
+
+# (0,0) pixel is hardcoded to the exact values from Toolik for testing.
 
 
-#(0,0) pixel is hardcoded to the exact values from Toolik for testing.
+
+def source_attr_string(ys='', xs='', yo='', xo='', msg=''):
+  '''
+  Returns a string to be included as a netCDF global attribute named "source".
+
+  The string will start with the filename and function name responsible for
+  creating the (new) input file, and if provided, will include values for size
+  and offset. The size attributes are relatively self-explanatory (by looking
+  at the size of the resulting file), and so can generally be ignored. The
+  offset arguments are much more important to include.
+
+  Parameters
+  ----------
+  ys, xs : str
+    Strings denoting the spatial size of the domain.
+  yo, xo : str
+    Strings denoting the pixel offsets used by gdal_translate to create the
+    input dataset.
+  msg : str
+    An additional message string to be included.
+
+  Returns
+  -------
+  s : str
+    A string something like:
+    "./create_region_input.py::fill_veg_file --xoff 915 --yoff 292"
+  '''
+  import inspect
+  cf = inspect.currentframe().f_back # <-- gotta look up one frame.
+
+  # Start with the file name and function name
+  s = "{}::{}".format(cf.f_code.co_filename, cf.f_code.co_name,)
+
+  # add other info if present.
+  for t, val in zip(['--xsize','--ysize','--xoff','--yoff',''],[xs,ys,xo,yo,msg]):
+    if val != '':
+      s += " {} {}".format(t, val)
+
+  return s
+
 
 def make_run_mask(filename, sizey=10, sizex=10):
   '''Generate a file representing the run mask'''
@@ -51,6 +94,7 @@ def make_run_mask(filename, sizey=10, sizex=10):
   run[:] = np.zeros((sizey, sizex))
   run[0,0] = 1
     
+  ncfile.source = source_attr_string()
   ncfile.close()
 
 
@@ -97,6 +141,7 @@ def make_co2_file(filename):
     1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 
     2008, 2009 ]
 
+  new_ncfile.source = source_attr_string()
   new_ncfile.close()
 
 
@@ -109,6 +154,7 @@ def create_template_drainage_file(fname, sizey=10, sizex=10):
   X = ncfile.createDimension('X', sizex)
   drainage_class = ncfile.createVariable('drainage_class', np.int, ('Y', 'X',))
 
+  ncfile.source = source_attr_string()
   ncfile.close()
 
 
@@ -179,6 +225,7 @@ def create_template_restart_nc_file(filename, sizex=10, sizey=10):
   for v in ['prvltrfcnA']:
     ncfile.createVariable(v, np.double, ('Y','X','prevtwelve','pft'))
 
+  ncfile.source = source_attr_string()
   ncfile.close()
 
 def create_template_climate_nc_file(filename, sizey=10, sizex=10):
@@ -209,6 +256,7 @@ def create_template_climate_nc_file(filename, sizey=10, sizex=10):
   nirr = ncfile.createVariable('nirr', np.float32, ('time', 'Y', 'X',))
   vapor_press = ncfile.createVariable('vapor_press', np.float32, ('time', 'Y', 'X',))
 
+  ncfile.source = source_attr_string()
   ncfile.close()
 
 def create_template_fri_fire_file(fname, sizey=10, sizex=10, rand=None):
@@ -227,6 +275,7 @@ def create_template_fri_fire_file(fname, sizey=10, sizex=10, rand=None):
   # not sure if we need these...
   #fri_area = ncfile.createVariable('fri_area_of_burn', np.float32, ('Y','X'))
 
+  ncfile.source = source_attr_string()
   ncfile.close()
 
 
@@ -247,7 +296,9 @@ def create_template_explicit_fire_file(fname, sizey=10, sizex=10, rand=None):
   # not sure if we need these yet...
   #f_area = ncfile.createVariable('area_of_burn', np.float32, ('time', 'Y', 'X'))
 
+  ncfile.source = source_attr_string()
   ncfile.close()
+
 
 def create_template_veg_nc_file(fname, sizey=10, sizex=10, rand=None):
   print "Creating a vegetation classification file, %s by %s pixels. Fill with random data?: %s" % (sizey, sizex, rand)
@@ -262,6 +313,7 @@ def create_template_veg_nc_file(fname, sizey=10, sizex=10, rand=None):
     print " --> NOTE: Filling with random data!"
     veg_class[:] = np.random.uniform(low=1, high=7, size=(sizey,sizex))
 
+  ncfile.source = source_attr_string()
   ncfile.close()
 
 def create_template_soil_texture_nc_file(fname, sizey=10, sizex=10):
@@ -275,6 +327,7 @@ def create_template_soil_texture_nc_file(fname, sizey=10, sizex=10):
   pct_silt = ncfile.createVariable('pct_silt', np.float32, ('Y','X'))
   pct_clay = ncfile.createVariable('pct_clay', np.float32, ('Y','X'))
 
+  ncfile.source = source_attr_string()
   ncfile.close()
 
 
@@ -354,6 +407,8 @@ def fill_veg_file(if_name, xo, yo, xs, ys, out_dir, of_name):
   with netCDF4.Dataset(temporary) as t1, netCDF4.Dataset(of_name, mode='a') as new_vegdataset:
     veg_class = new_vegdataset.variables['veg_class']
     veg_class[:] = t1.variables['Band1'][:]
+    new_vegdataset.source = source_attr_string(xo=xo, yo=yo)
+
 
 def fill_climate_file(start_yr, yrs, xo, yo, xs, ys, out_dir, of_name, sp_ref_file, in_tair_base, in_prec_base, in_rsds_base, in_vapo_base):
 
@@ -454,10 +509,14 @@ def fill_climate_file(start_yr, yrs, xo, yo, xs, ys, out_dir, of_name, sp_ref_fi
   lon = new_climatedataset.variables['lon']
   lat[:] = temp_subset_with_lonlat.variables['lat']
   lon[:] = temp_subset_with_lonlat.variables['lon']
+  print "Done copying LON/LAT."
+
+  print "Write attribute with pixel offsets to file..."
+  new_climatedataset.source = source_attr_string(xo=xo, yo=yo)
 
   new_climatedataset.close()
   temp_subset_with_lonlat.close()
-  print "Done copying LON/LAT."
+
 
 
 def fill_soil_texture_file(if_sand_name, if_silt_name, if_clay_name, xo, yo, xs, ys, out_dir, of_name, rand=True):
@@ -509,6 +568,7 @@ def fill_soil_texture_file(if_sand_name, if_silt_name, if_clay_name, xo, yo, xs,
       with netCDF4.Dataset('/tmp/create_region_input_script_clay_texture.nc', mode='r') as f:
         p_clay[:] = f.variables['Band1'][:]
 
+    soil_tex.source =  source_attr_string(xo=xo, yo=yo)
 
 
 def fill_drainage_file(if_name, xo, yo, xs, ys, out_dir, of_name, rand=False):
@@ -546,6 +606,8 @@ def fill_drainage_file(if_name, xo, yo, xs, ys, out_dir, of_name, rand=False):
         print "Writing subset data to new file"
         drain[:] = data
 
+      drainage_class.source = source_attr_string(xo=xo, yo=yo)
+
 def fill_fri_fire_file(if_name, xo, yo, xs, ys, out_dir, of_name):
   create_template_fri_fire_file(of_name, sizey=ys, sizex=xs, rand=False)
 
@@ -561,6 +623,8 @@ def fill_fri_fire_file(if_name, xo, yo, xs, ys, out_dir, of_name):
 
     print "==> set arbitrary day of burn value..."
     nfd.variables['fri_day_of_burn'][:,:] = 189
+
+    nfd.source = source_attr_string(xo=xo, yo=yo)
 
 
 def fill_explicit_fire_file(if_name, xo, yo, xs, ys, out_dir, of_name):
@@ -582,6 +646,8 @@ def fill_explicit_fire_file(if_name, xo, yo, xs, ys, out_dir, of_name):
 
     print "NOTE: with this arrangement, it is possible to have a year ",
     print " that is tagged for fire (explicit_fire_year==1) but a severity of 0!"
+
+    nfd.source = source_attr_string(xo=xo, yo=yo)
 
 
 def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir, files=[]):
@@ -710,10 +776,10 @@ if __name__ == '__main__':
   parser.add_argument('--crtf-only', action="store_true",
                       help="Only create the restart template file. Deprecated in favor of the built in capability in dvmdostem.")
 
-  parser.add_argument('--tifs', default="../../snap-data",
+  parser.add_argument('--tifs', default="../snap-data",
                       help="Directory containing input TIF directories.")
 
-  parser.add_argument('--outdir', default="some-dvmdostem-inputs",
+  parser.add_argument('--outdir', default="input-staging-area",
                       help="Directory for netCDF output files. (default: %(default)s)")
 
   parser.add_argument('--tag', default="Toolik",
@@ -734,7 +800,7 @@ if __name__ == '__main__':
   parser.add_argument('--ysize', default=5, type=int,
                       help="source window y size (default: %(default)s)")
 
-  parser.add_argument('--which', default=['all'],
+  parser.add_argument('--which', default=['all'], nargs='+',
                       help="which files to create (default: %(default)s)", choices=['all', 'veg', 'fri_fire', 'explicit_fire', 'drain', 'soil_texture', 'run_mask', 'co2', 'hist_climate', 'proj_climate',])
 
   print "Parsing command line arguments";
