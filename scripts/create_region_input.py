@@ -259,6 +259,7 @@ def create_template_climate_nc_file(filename, sizey=10, sizex=10):
   ncfile.source = source_attr_string()
   ncfile.close()
 
+
 def create_template_fri_fire_file(fname, sizey=10, sizex=10, rand=None):
   print "Creating an FRI fire file, %s by %s pixels. Fill with random data?: %s" % (sizey, sizex, rand)
   print "Opening/Creating file: ", fname
@@ -373,7 +374,9 @@ def convert_and_subset(in_file, master_output, xo, yo, xs, ys, yridx, midx, vari
   check_call(['gdal_translate', '-of', 'netCDF', in_file, tmpfile1])
 
   print "{:}: Subsetting...".format(cpn)
-  check_call(['gdal_translate', '-of', 'netCDF', '-srcwin', str(xo), str(yo), str(xs), str(ys), tmpfile1, tmpfile2])
+  check_call(['gdal_translate', '-of', 'netCDF',
+              '-srcwin', str(xo), str(yo), str(xs), str(ys),
+              tmpfile1, tmpfile2])
 
   print "{:}: Writing subset's data to new file...".format(cpn)
 
@@ -404,16 +407,28 @@ def fill_veg_file(if_name, xo, yo, xs, ys, out_dir, of_name):
   if not os.path.exists( os.path.dirname(temporary) ):
     os.makedirs(os.path.dirname(temporary))
 
-  subprocess.call(['gdal_translate', '-of', 'netcdf', '-srcwin', str(xo), str(yo), str(xs), str(ys), if_name, temporary])
+  subprocess.call(['gdal_translate', '-of', 'netcdf',
+                   '-srcwin', str(xo), str(yo), str(xs), str(ys),
+                   if_name, temporary])
 
-  # Copy from temporary location to into the placeholde file we just created
+  # Copy from temporary location to into the placeholder file we just created
   with netCDF4.Dataset(temporary) as t1, netCDF4.Dataset(of_name, mode='a') as new_vegdataset:
     veg_class = new_vegdataset.variables['veg_class']
-    veg_class[:] = t1.variables['Band1'][:]
+
     new_vegdataset.source = source_attr_string(xo=xo, yo=yo)
 
+    veg_class[:] = t1.variables['Band1'][:].data 
+    # For some reason, some rows of the temporary file are numpy masked arrays
+    # and if we don't directly access the data, then we get strange results '
+    # (i.e. stuff that should be ocean shows up as CMT02??)
+    # If we use the .data method, then the ocean ends up filled with '-1' and 
+    # lakes end up as CMT00, which is what we want. Alternatively, could use the
+    # .filled(-1) method.
 
-def fill_climate_file(start_yr, yrs, xo, yo, xs, ys, out_dir, of_name, sp_ref_file, in_tair_base, in_prec_base, in_rsds_base, in_vapo_base):
+
+def fill_climate_file(start_yr, yrs, xo, yo, xs, ys,
+                      out_dir, of_name, sp_ref_file,
+                      in_tair_base, in_prec_base, in_rsds_base, in_vapo_base):
 
   # create short handle for output file
   masterOutFile = os.path.join(out_dir, of_name)
@@ -465,6 +480,7 @@ def fill_climate_file(start_yr, yrs, xo, yo, xs, ys, out_dir, of_name, sp_ref_fi
     os.remove(tFile)
 
     # This fails. Looks to me like a bug in nco as it expand the option string
+    #import nco as NCO
     #nco = NCO.Nco()
     #opt_str = "--append -x -v lat,lon," + ",".join(masked_list)
     #nco.ncks(input=tFile, output=masterOutFile, options=opt_str)
@@ -680,9 +696,13 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir, files=[]):
     of_name = os.path.join(out_dir, "fri_fire.nc")
     fill_fri_fire_file(tif_dir + "iem_ancillary_data/Fire/", xo, yo, xs, ys, out_dir, of_name)
 
-  if 'explicit_fire' in files:
-    of_name = os.path.join(out_dir, "explicit_fire.nc")
-    fill_explicit_fire_file(tif_dir + "iem_ancillary_data/Fire/", xo, yo, xs, ys, out_dir, of_name)
+  if 'historic_explicit_fire' in files:
+    of_name = os.path.join(out_dir, "historic_explicit_fire.nc")
+    fill_explicit_fire_file(tif_dir + "iem_ancillary_data/Fire/", years, xo, yo, xs, ys, out_dir, of_name)
+
+  if 'projected_explicit_fire' in files:
+    of_name = os.path.join(out_dir, "projected_explicit_fire.nc")
+    fill_explicit_fire_file(tif_dir + "iem_ancillary_data/Fire/", years, xo, yo, xs, ys, out_dir, of_name)
 
   if 'veg' in files:
     of_name = os.path.join(out_dir, "vegetation.nc")
@@ -771,14 +791,19 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir, files=[]):
 
 if __name__ == '__main__':
 
+  fileChoices = ['run_mask', 'co2', 'veg', 'drain', 'soil_texture',
+                 'fri_fire', 'historic_explicit_fire', 'projected_explicit_fire', 
+                 'hist_climate', 'proj_climate']
+
   parser = argparse.ArgumentParser(
     formatter_class = argparse.RawDescriptionHelpFormatter,
 
       description=textwrap.dedent('''\
-        Creates a set of files for dvm-dos-tem.
+        Creates a set of input files for dvmdostem.
 
         <OUTDIR>/<TAG>_<YSIZE>x<XSIZE>/fri_fire.nc
-                                  ... /explicit_fire.nc
+                                  ... /historic-explicit-fire.nc
+                                  ... /projected-explicit-fire.nc
                                   ... /vegetation.nc
                                   ... /drainage.nc
                                   ... /historic-climate.nc
@@ -825,7 +850,8 @@ if __name__ == '__main__':
                       help="source window y size (default: %(default)s)")
 
   parser.add_argument('--which', default=['all'], nargs='+',
-                      help="which files to create (default: %(default)s)", choices=['all', 'veg', 'fri_fire', 'explicit_fire', 'drain', 'soil_texture', 'run_mask', 'co2', 'hist_climate', 'proj_climate',])
+                      help="which files to create (default: %(default)s)",
+                      choices=fileChoices+['all'])
 
   print "Parsing command line arguments";
   args = parser.parse_args()
@@ -864,6 +890,9 @@ if __name__ == '__main__':
 
   if 'all' in which_files:
     print "Will generate ALL input files."
-    which_files = ['veg', 'fri_fire', 'explicit_fire', 'drain', 'soil_texture', 'run_mask', 'co2', 'hist_climate', 'proj_climate']
+    which_files = fileChoices
 
   main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir, files=which_files)
+
+
+
