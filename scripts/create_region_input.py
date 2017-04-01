@@ -631,10 +631,7 @@ def fill_drainage_file(if_name, xo, yo, xs, ys, out_dir, of_name, rand=False):
 def fill_fri_fire_file(if_name, xo, yo, xs, ys, out_dir, of_name):
   create_template_fri_fire_file(of_name, sizey=ys, sizex=xs, rand=False)
 
-  print "FILLING FRI FIRE FILE WITH 'REAL' DATA IS NOT IMPLEMENTED YET!"
-
-
-  print "Attempting to read vegetation.nc file and set fire properties based on community type..."
+  print "WARNING FAKE DATA!"
 
   cmt2fireprops = {
     0: {'fri':   -1, 'sev': -1, 'jdob':  -1, 'aob':  -1 }, # rock/snow/water
@@ -649,6 +646,7 @@ def fill_fri_fire_file(if_name, xo, yo, xs, ys, out_dir, of_name):
   }
 
   guess_vegfile = os.path.join(os.path.split(of_name)[0], 'vegetation.nc')
+  print "--> NOTE: Attempting to read: {:} and set fire properties based on community type...".format(guess_vegfile)
 
   with netCDF4.Dataset(guess_vegfile ,'r') as vegFile:
     vd = vegFile.variables['veg_class'][:]
