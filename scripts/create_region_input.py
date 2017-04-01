@@ -293,12 +293,13 @@ def create_template_explicit_fire_file(fname, sizey=10, sizex=10, rand=None):
   X = ncfile.createDimension('X', sizex)
   time = ncfile.createDimension('time', None)
 
-  exp_fire_yr = ncfile.createVariable('explicit_fire_year', np.int32, ('time', 'Y', 'X',))
-  exp_fire_sev = ncfile.createVariable('explicit_fire_severity', np.int32, ('time', 'Y','X'))
-  exp_fire_dob = ncfile.createVariable('explicit_fire_day_of_burn', np.int32, ('time', 'Y', 'X'))
+  exp_yob = ncfile.createVariable('exp_year_of_burn', np.int32, ('time', 'Y', 'X',))
+  exp_dob = ncfile.createVariable('exp_jday_of_burn', np.int32, ('time', 'Y', 'X',))
+  exp_sev = ncfile.createVariable('exp_fire_severity', np.int32, ('time', 'Y','X'))
+  exp_aob = ncfile.createVariable('exp_area_of_burn', np.int32, ('time', 'Y','X'))
 
-  # not sure if we need these yet...
-  #f_area = ncfile.createVariable('area_of_burn', np.float32, ('time', 'Y', 'X'))
+  if rand:
+    print "Fill EXPLICIT fire file with random data NOT IMPLEMENTED HERE! See fill function."
 
   ncfile.source = source_attr_string()
   ncfile.close()
@@ -667,42 +668,38 @@ def fill_fri_fire_file(if_name, xo, yo, xs, ys, out_dir, of_name):
     nfd.source = source_attr_string(xo=xo, yo=yo)
 
 
-def fill_explicit_fire_file(if_name, xo, yo, xs, ys, out_dir, of_name):
+def fill_explicit_fire_file(if_name, yrs, xo, yo, xs, ys, out_dir, of_name):
   create_template_explicit_fire_file(of_name, sizey=ys, sizex=xs, rand=False)
 
-  print "FILLING EXPLICIT FIRE FILE WITH 'REAL' DATA IS NOT IMPLEMENTED YET!"
+  print "WARNING FAKE DATA!"
+
+  # guess_vegfile = os.path.join(os.path.split(of_name)[0], 'vegetation.nc')
+  # print "--> NOTE: Attempting to read: {:} and set fire properties based on community type...".format(guess_vegfile)
+  # with netCDF4.Dataset(guess_vegfile ,'r') as vegFile:
+  #   vd = vegFile.variables['veg_class'][:]
+
+  # print "--> NOTE: Attempting to read {:} set time dimension based on???".format('?????')
+  # with 
+
+  mask = np.random.randint(0,2, (ys, xs))
+  exp_yob = np.random.randint(0, 2, (years, ys, xs))
+  exp_jdob = np.random.randint(152, 244, (years, ys, xs))
+  exp_sev = np.random.randint(0,5, (years, ys, xs))
+  exp_aob = np.random.randint(1, 20000, (years, ys, xs))
 
   with netCDF4.Dataset(of_name, mode='a') as nfd:
-
-    print "==> fill with random fire years...";
-    nfd.variables['explicit_fire_year'][:,:,:] = np.random.randint(0, 2, (100,ys,xs))
-
-    print "==> fill with random severity..."
-    nfd.variables['explicit_fire_severity'][:,:,:] = np.random.randint(0, 5, (100,ys,xs))
-
-    print "==> set random day of burn values..."
-    nfd.variables['explicit_fire_day_of_burn'][:,:,:] = np.random.randint(100, 210, (100,ys,xs))
-
-
-    print "NOTE: with this arrangement, it is possible to have a year ",
-    print " that is tagged for fire (explicit_fire_year==1) but a severity of 0!"
-
+    nfd.variables['exp_year_of_burn'][:,:,:] = exp_yob
+    nfd.variables['exp_jday_of_burn'][:,:,:] = exp_jdob
+    nfd.variables['exp_fire_severity'][:,:,:] = exp_sev
+    nfd.variables['exp_area_of_burn'][:,:,:] = exp_aob
     nfd.source = source_attr_string(xo=xo, yo=yo)
+
+  print "NOTE: with this arrangement, it is possible to have a year "
+  print "      that is tagged for fire (exp_year_of_burn==1) but a severity"
+  print "      of 0! (As well as many other strange combinations!)"
 
 
 def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir, files=[]):
-
-  if 'fri_fire' in files:
-    of_name = os.path.join(out_dir, "fri_fire.nc")
-    fill_fri_fire_file(tif_dir + "iem_ancillary_data/Fire/", xo, yo, xs, ys, out_dir, of_name)
-
-  if 'historic_explicit_fire' in files:
-    of_name = os.path.join(out_dir, "historic_explicit_fire.nc")
-    fill_explicit_fire_file(tif_dir + "iem_ancillary_data/Fire/", years, xo, yo, xs, ys, out_dir, of_name)
-
-  if 'projected_explicit_fire' in files:
-    of_name = os.path.join(out_dir, "projected_explicit_fire.nc")
-    fill_explicit_fire_file(tif_dir + "iem_ancillary_data/Fire/", years, xo, yo, xs, ys, out_dir, of_name)
 
   if 'veg' in files:
     of_name = os.path.join(out_dir, "vegetation.nc")
@@ -717,7 +714,6 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir, files=[]):
     in_sand_base = os.path.join(tif_dir,  "iem_ancillary_data/soil_and_drainage/iem_domain_hayes_igbp_pct_sand.tif")
     in_silt_base = os.path.join(tif_dir,  "iem_ancillary_data/soil_and_drainage/iem_domain_hayes_igbp_pct_silt.tif")
     in_clay_base = os.path.join(tif_dir,  "iem_ancillary_data/soil_and_drainage/iem_domain_hayes_igbp_pct_clay.tif")
-
 
     fill_soil_texture_file(in_sand_base, in_silt_base, in_clay_base, xo, yo, xs, ys, out_dir, of_name, rand=False)
 
@@ -768,19 +764,18 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir, files=[]):
 
     fill_climate_file(2001+start_year, pc_years, xo, yo, xs, ys, out_dir, of_name, sp_ref_file, in_tair_base, in_prec_base, in_rsds_base, in_vapo_base)
 
-  if 'hist_fire' in files:
-    of_name = "historic-fire.nc"
-    in_fire_base = os.path.join(tif_dir, "iem_ancillary_data/Fire/")
 
-    print "Filling with RANDOM DATA!!"
-    fill_fire_file2(1900, years, xo, yo, xs,ys, out_dir, of_name, rand=True)
+  if 'fri_fire' in files:
+    of_name = os.path.join(out_dir, "fri-fire.nc")
+    fill_fri_fire_file(tif_dir + "iem_ancillary_data/Fire/", xo, yo, xs, ys, out_dir, of_name)
 
-  if 'proj_fire' in files:
-    of_name = "projected-fire.nc"
-    in_fire_base = os.path.join(tif_dir, "iem_ancillary_data/Fire/")
+  if 'historic_explicit_fire' in files:
+    of_name = os.path.join(out_dir, "historic-explicit-fire.nc")
+    fill_explicit_fire_file(tif_dir + "iem_ancillary_data/Fire/", years, xo, yo, xs, ys, out_dir, of_name)
 
-    print "Filling with RANDOM DATA!!"
-    fill_fire_file2(2001, years, xo, yo, xs,ys, out_dir, of_name, rand=True)
+  if 'projected_explicit_fire' in files:
+    of_name = os.path.join(out_dir, "projected-explicit-fire.nc")
+    fill_explicit_fire_file(tif_dir + "iem_ancillary_data/Fire/", years, xo, yo, xs, ys, out_dir, of_name)
 
   print "DONE"
 
