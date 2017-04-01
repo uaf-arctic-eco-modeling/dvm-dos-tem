@@ -24,11 +24,13 @@ class WildFire {
 public:
   WildFire();
 
-  WildFire(const std::string& fri_fname, const std::string& explicit_fname,
+  WildFire(const std::string& fri_fname, const std::string& exp_fname,
            const int y, const int x);
   
   ~WildFire();
- 
+
+  void load_explicit_fire_data(const std::string& expfname, const int y, const int x);
+
   int getFRI();
  
   void setCohortData(CohortData* cdp);

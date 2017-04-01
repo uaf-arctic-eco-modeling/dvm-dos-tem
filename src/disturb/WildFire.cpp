@@ -36,8 +36,18 @@ WildFire::WildFire() {}
 
 WildFire::~WildFire() {}
 
+void WildFire::load_explicit_fire_data(const std::string& exp_fname, const int y, const int x) {
+  BOOST_LOG_SEV(glg, info) << "Setting up explicit fire data...";
+  // THis could be either historic or projected?? do we need to resize the vectors??
+  this->exp_year_of_burn   = temutil::get_timeseries<int>(exp_fname, "exp_year_of_burn", y, x);
+  this->exp_jday_of_burn   = temutil::get_timeseries<int>(exp_fname, "exp_jday_of_burn", y, x);
+  this->exp_area_of_burn   = temutil::get_timeseries<int>(exp_fname, "exp_area_of_burn", y, x);
+  this->exp_fire_severity  = temutil::get_timeseries<int>(exp_fname, "exp_fire_severity", y, x);
+}
+
 WildFire::WildFire(const std::string& fri_fname,
-                   const std::string& explicit_fname, const int y, const int x) {
+                   const std::string& explicit_fname,
+                   const int y, const int x) {
 
   BOOST_LOG_SEV(glg, info) << "Setting up FRI fire data...";
   this->fri              = temutil::get_scalar<int>(fri_fname, "fri", y, x);
@@ -45,11 +55,7 @@ WildFire::WildFire(const std::string& fri_fname,
   this->fri_jday_of_burn = temutil::get_scalar<int>(fri_fname, "fri_jday_of_burn", y, x);
   this->fri_area_of_burn = temutil::get_scalar<int>(fri_fname, "fri_area_of_burn", y, x);
 
-  BOOST_LOG_SEV(glg, info) << "Setting up explicit fire data...";
-  this->exp_year_of_burn   = temutil::get_timeseries<int>(explicit_fname, "exp_year_of_burn", y, x);
-  this->exp_jday_of_burn   = temutil::get_timeseries<int>(explicit_fname, "exp_jday_of_burn", y, x);
-  this->exp_area_of_burn   = temutil::get_timeseries<int>(explicit_fname, "exp_area_of_burn", y, x);
-  this->exp_fire_severity  = temutil::get_timeseries<int>(explicit_fname, "exp_fire_severity", y, x);
+  this->load_explicit_fire_data(explicit_fname, y, x);
 
   // Set to an definitely invalid number.
   // Later this will be set to a valid number based on the run stage and

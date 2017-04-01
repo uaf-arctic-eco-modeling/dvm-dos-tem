@@ -42,7 +42,8 @@ ModelData::ModelData(Json::Value controldata) {
   proj_climate_file = controldata["IO"]["proj_climate_file"].asString();
   veg_class_file    = controldata["IO"]["veg_class_file"].asString();
   fri_fire_file     = controldata["IO"]["fri_fire_file"].asString();
-  explicit_fire_file= controldata["IO"]["explicit_fire_file"].asString();
+  hist_exp_fire_file= controldata["IO"]["hist_exp_fire_file"].asString();
+  proj_exp_fire_file= controldata["IO"]["proj_exp_fire_file"].asString();
   drainage_file     = controldata["IO"]["drainage_file"].asString();
   soil_texture_file = controldata["IO"]["soil_texture_file"].asString();
   co2_file          = controldata["IO"]["co2_file"].asString();
