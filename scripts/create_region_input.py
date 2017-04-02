@@ -80,7 +80,7 @@ def source_attr_string(ys='', xs='', yo='', xo='', msg=''):
   return s
 
 
-def make_run_mask(filename, sizey=10, sizex=10):
+def make_run_mask(filename, sizey=10, sizex=10, setpx='', match2veg=False):
   '''Generate a file representing the run mask'''
 
   print "Creating a run_mask file, %s by %s pixels." % (sizey, sizex)
@@ -90,10 +90,23 @@ def make_run_mask(filename, sizey=10, sizex=10):
   X = ncfile.createDimension('X', sizex)
   run = ncfile.createVariable('run', np.int, ('Y', 'X',))
 
-  print " --> NOTE: Turning off all pixels except 0,0."
-  run[:] = np.zeros((sizey, sizex))
-  run[0,0] = 1
+  if setpx != '':
+    y, x = setpx.split(",")
+    print " --> NOTE: Turning off all pixels except (y,x): %s,%s." % (y, x)
+    run[:] = np.zeros((sizey, sizex))
+    run[y,x] = 1
     
+  if match2veg:
+    guess_vegfile = os.path.join(os.path.split(filename)[0], 'vegetation.nc')
+    print "--> NOTE: Attempting to read: {:}".format(guess_vegfile)
+    print "          and set runmask true where veg_class > 0."
+
+    with netCDF4.Dataset(guess_vegfile ,'r') as vegFile:
+      vd = vegFile.variables['veg_class'][:]
+
+    run[:] = np.where(vd>0, 1, 0)
+
+
   ncfile.source = source_attr_string()
   ncfile.close()
 
@@ -698,7 +711,7 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir, files=[]):
     fill_soil_texture_file(in_sand_base, in_silt_base, in_clay_base, xo, yo, xs, ys, out_dir, of_name, rand=False)
 
   if 'run_mask' in files:
-    make_run_mask(os.path.join(out_dir, "run-mask.nc"), sizey=ys, sizex=xs)
+    make_run_mask(os.path.join(out_dir, "run-mask.nc"), sizey=ys, sizex=xs, match2veg=True) #setpx='1,1')
 
   if 'co2' in files:
     make_co2_file(os.path.join(out_dir, "co2.nc"))
