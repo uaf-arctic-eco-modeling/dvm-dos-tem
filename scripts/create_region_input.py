@@ -669,35 +669,56 @@ def fill_fri_fire_file(if_name, xo, yo, xs, ys, out_dir, of_name):
 def fill_explicit_fire_file(if_name, yrs, xo, yo, xs, ys, out_dir, of_name):
   create_template_explicit_fire_file(of_name, sizey=ys, sizex=xs, rand=False)
 
-  print "WARNING FAKE DATA!"
+  print "WARNING: FAKE DATA!"
 
   # guess_vegfile = os.path.join(os.path.split(of_name)[0], 'vegetation.nc')
-  # print "--> NOTE: Attempting to read: {:} and set fire properties based on community type...".format(guess_vegfile)
+  # print "--> NOTE: Attempting to read: {:}".format(guess_vegfile)
+  # print "    and set fire properties based on community type..."
   # with netCDF4.Dataset(guess_vegfile ,'r') as vegFile:
   #   vd = vegFile.variables['veg_class'][:]
 
-  # print "--> NOTE: Attempting to read {:} set time dimension based on???".format('?????')
-  # with 
-
-  mask = np.random.randint(0,2, (ys, xs))
-  exp_yob = np.random.randint(0, 2, (years, ys, xs))
-  exp_jdob = np.random.randint(152, 244, (years, ys, xs))
-  exp_sev = np.random.randint(0,5, (years, ys, xs))
-  exp_aob = np.random.randint(1, 20000, (years, ys, xs))
-
   with netCDF4.Dataset(of_name, mode='a') as nfd:
-    nfd.variables['exp_year_of_burn'][:,:,:] = exp_yob
-    nfd.variables['exp_jday_of_burn'][:,:,:] = exp_jdob
-    nfd.variables['exp_fire_severity'][:,:,:] = exp_sev
-    nfd.variables['exp_area_of_burn'][:,:,:] = exp_aob
+
+    for yr in range(0, yrs):
+
+      # Future: lookup from snap/alfresco .tif files...
+
+      # Generate indices a few random pixels to burn
+      flat_burn_indices = np.random.randint(0, (ys*xs), (ys*xs)*0.3)
+      burn_indices = np.unravel_index(flat_burn_indices, (ys,xs))
+
+      print burn_indices
+      # Now set the other variables, but only for the burning pixels...
+      exp_yob = np.zeros((ys,xs))
+      exp_jdob = np.zeros((ys,xs))
+      exp_sev = np.zeros((ys,xs))
+      exp_aob = np.zeros((ys,xs))
+
+      exp_yob[burn_indices] = 1
+      exp_jdob[burn_indices] = np.random.randint(152, 244, len(flat_burn_indices))
+      exp_sev[burn_indices] = np.random.randint(0, 5, len(flat_burn_indices))
+      exp_aob[burn_indices] = np.random.randint(1, 20000, len(flat_burn_indices))
+
+      nfd.variables['exp_year_of_burn'][yr,:,:] = exp_yob
+      nfd.variables['exp_jday_of_burn'][yr,:,:] = exp_jdob
+      nfd.variables['exp_fire_severity'][yr,:,:] = exp_sev
+      nfd.variables['exp_area_of_burn'][yr,:,:] = exp_aob
+
+    print "Done filling out fire years..."
+
+  print "Setting :source attribute on new explicit fire file..."
+  with netCDF4.Dataset(of_name, mode='a') as nfd:
     nfd.source = source_attr_string(xo=xo, yo=yo)
 
-  print "NOTE: with this arrangement, it is possible to have a year "
-  print "      that is tagged for fire (exp_year_of_burn==1) but a severity"
-  print "      of 0! (As well as many other strange combinations!)"
 
 
 def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir, files=[]):
+
+  #
+  # Make the veg file first, then run-mask, then climate, then fire.
+  #
+  # The fire files require the presence of the veg map, and climate!
+  #
 
   if 'veg' in files:
     of_name = os.path.join(out_dir, "vegetation.nc")
@@ -769,10 +790,22 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir, files=[]):
 
   if 'historic_explicit_fire' in files:
     of_name = os.path.join(out_dir, "historic-explicit-fire.nc")
+
+    climate = os.path.join(os.path.split(of_name)[0], 'historic-climate.nc')
+    print "--> NOTE: Guessing length of time dimension from: {:}".format(climate)
+    with netCDF4.Dataset(climate, 'r') as climate_dataset:
+      years = len(climate_dataset.dimensions['time']) / 12
+
     fill_explicit_fire_file(tif_dir + "iem_ancillary_data/Fire/", years, xo, yo, xs, ys, out_dir, of_name)
 
   if 'projected_explicit_fire' in files:
     of_name = os.path.join(out_dir, "projected-explicit-fire.nc")
+
+    climate = os.path.join(os.path.split(of_name)[0], 'projected-climate.nc')
+    print "--> NOTE: Guessing length of time dimension from: {:}".format(climate)
+    with netCDF4.Dataset(climate, 'r') as climate_dataset:
+      years = len(climate_dataset.dimensions['time']) / 12
+
     fill_explicit_fire_file(tif_dir + "iem_ancillary_data/Fire/", years, xo, yo, xs, ys, out_dir, of_name)
 
   print "DONE"
