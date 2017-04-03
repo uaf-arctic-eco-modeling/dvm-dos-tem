@@ -1,6 +1,0 @@
-03-30-2017
-----------
-
-Toolik area sample data, offsets from SNAP tif x:915, y:292
-
-
