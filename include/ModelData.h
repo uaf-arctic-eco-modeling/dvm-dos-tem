@@ -30,7 +30,7 @@ public:
   string loop_order; // time-major or space-major
 
   int initmode;  // NOT USED?
-  bool inter_stage_pause; //Controls pauses between EQ, SP, TR, SC
+  bool inter_stage_pause; // Controls pauses between EQ, SP, TR, SC
 
   int eq_yrs;
   int pr_yrs;
@@ -43,7 +43,8 @@ public:
   string proj_climate_file;
   string veg_class_file;
   string fri_fire_file;
-  string explicit_fire_file;
+  string hist_exp_fire_file;
+  string proj_exp_fire_file;
   string soil_texture_file;
   string drainage_file;
   string co2_file;
@@ -51,13 +52,13 @@ public:
   string output_dir;
   string output_spec_file;
   bool output_monthly;
-  bool nc_eq; //NetCDF output flags for each stage
+  bool nc_eq; // NetCDF output flags for each stage
   bool nc_sp;
   bool nc_tr;
   bool nc_sc;
 
-  //Maps holding data about variables to be output at specific timesteps
-  //C++11 would allow the use of unordered_maps, which have a faster
+  // Maps holding data about variables to be output at specific timesteps
+  // C++11 would allow the use of unordered_maps, which have a faster
   // by-key access time.
   std::map<std::string, output_spec> daily_netcdf_outputs;
   std::map<std::string, output_spec> monthly_netcdf_outputs;

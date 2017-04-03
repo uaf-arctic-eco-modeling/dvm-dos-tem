@@ -36,29 +36,31 @@ WildFire::WildFire() {}
 
 WildFire::~WildFire() {}
 
+void WildFire::load_explicit_fire_data(const std::string& exp_fname, const int y, const int x) {
+  BOOST_LOG_SEV(glg, info) << "Setting up explicit fire data...";
+  // THis could be either historic or projected?? do we need to resize the vectors??
+  this->exp_year_of_burn   = temutil::get_timeseries<int>(exp_fname, "exp_year_of_burn", y, x);
+  this->exp_jday_of_burn   = temutil::get_timeseries<int>(exp_fname, "exp_jday_of_burn", y, x);
+  this->exp_area_of_burn   = temutil::get_timeseries<int>(exp_fname, "exp_area_of_burn", y, x);
+  this->exp_fire_severity  = temutil::get_timeseries<int>(exp_fname, "exp_fire_severity", y, x);
+}
+
 WildFire::WildFire(const std::string& fri_fname,
-                   const std::string& explicit_fname, const int y, const int x) {
+                   const std::string& explicit_fname,
+                   const int y, const int x) {
 
   BOOST_LOG_SEV(glg, info) << "Setting up FRI fire data...";
-  this->fri = temutil::get_scalar<int>(fri_fname, "fri", y, x);
-  this->fri_severity = temutil::get_scalar<int>(fri_fname, "fri_severity", y, x);
-  this->fri_day_of_burn = temutil::get_scalar<int>(fri_fname, "fri_day_of_burn", y, x);
+  this->fri              = temutil::get_scalar<int>(fri_fname, "fri", y, x);
+  this->fri_severity     = temutil::get_scalar<int>(fri_fname, "fri_severity", y, x);
+  this->fri_jday_of_burn = temutil::get_scalar<int>(fri_fname, "fri_jday_of_burn", y, x);
+  this->fri_area_of_burn = temutil::get_scalar<int>(fri_fname, "fri_area_of_burn", y, x);
 
-  BOOST_LOG_SEV(glg, info) << "Setting up explicit fire data...";
-  this->explicit_fire_year = temutil::get_timeseries<int>(explicit_fname, "explicit_fire_year", y, x);
-  this->explicit_fire_severity = temutil::get_timeseries<int>(explicit_fname, "explicit_fire_severity", y, x);
-  this->explicit_fire_day_of_burn = temutil::get_timeseries<int>(explicit_fname, "explicit_fire_day_of_burn", y, x);
- 
+  this->load_explicit_fire_data(explicit_fname, y, x);
+
   // Set to an definitely invalid number.
   // Later this will be set to a valid number based on the run stage and
   // possibly other factors.
   this->actual_severity = -1;
-
-  // need templates or more overloads or something so that we can
-  // read the std::vector<int> 
-  //fire_years = temutil::get_timeseries(fname, "fire_years", y, x);
-  //fire_sizes = temutil::get_timeseries<float>(fname, "fire_sizes", y, x);
-  //fire_month = temutil::get_timeseries(fname, "fire_month", y, x);
 
   BOOST_LOG_SEV(glg, debug) << "Done making WildFire object.";
   BOOST_LOG_SEV(glg, debug) << this->report_fire_inputs();
@@ -69,14 +71,16 @@ WildFire::WildFire(const std::string& fri_fname,
 std::string WildFire::report_fire_inputs() {
 
   std::stringstream report_string;
-  report_string << "FRI based fire vectors/data:" << std::endl;
-  report_string << "FRI:              " << this->fri << std::endl;
-  report_string << "FRI day_of_burn:  " << this->fri_day_of_burn << std::endl;
-  report_string << "FRI severity:     " << this->fri_severity << std::endl;
-  report_string << "Explicit fire vectors/data:" << std::endl;
-  report_string << "explicit fire year:        [" << temutil::vec2csv(this->explicit_fire_year) << "]" << std::endl;
-  report_string << "explicit fire day_of_burn: [" << temutil::vec2csv(this->explicit_fire_day_of_burn) << "]" << std::endl;
-  report_string << "explicit fire severity:    [" << temutil::vec2csv(this->explicit_fire_severity) << "]" << std::endl;
+  report_string << "FRI fire vectors/data:" << std::endl;
+  report_string << "fri:              " << this->fri << std::endl;
+  report_string << "fri_severity:     " << this->fri_severity << std::endl;
+  report_string << "fri_jday_of_burn: " << this->fri_jday_of_burn << std::endl;
+  report_string << "fri_area_of_burn: " << this->fri_area_of_burn << std::endl;
+
+  report_string << "EXPLICIT fire vectors/data:" << std::endl;
+  report_string << "exp_year_of_burn:        [" << temutil::vec2csv(this->exp_year_of_burn) << "]" << std::endl;
+  report_string << "exp_jday_of_burn:        [" << temutil::vec2csv(this->exp_jday_of_burn) << "]" << std::endl;
+  report_string << "exp_fire_severity:       [" << temutil::vec2csv(this->exp_area_of_burn) << "]" << std::endl;
 
   report_string << "Actual Fire Severity: " << this->actual_severity << std::endl;
 
@@ -99,11 +103,11 @@ void WildFire::initializeParameter() {
                                    //   organic layers
   firpar.r_retain_c = chtlu->r_retain_c;
   firpar.r_retain_n = chtlu->r_retain_n;
-};
+}
 
 void WildFire::initializeState() {
   fd->fire_a2soi.orgn = 0.0;
-};
+}
 
 // Looks like this is just used when setting up a Cohort from a Restart file...
 void WildFire::set_state_from_restartdata(const RestartData & rdata) {
@@ -170,7 +174,7 @@ bool WildFire::should_ignite(const int yr, const int midx, const std::string& st
     BOOST_LOG_SEV(glg, debug) << "Determine fire by FRI.";
 
     if ( (yr % this->fri) == 0 && yr > 0 ) {
-      if (midx == temutil::doy2month(this->fri_day_of_burn)) {
+      if (midx == temutil::doy2month(this->fri_jday_of_burn)) {
         ignite = true;
         this->actual_severity = this->fri_severity;
       }
@@ -181,10 +185,10 @@ bool WildFire::should_ignite(const int yr, const int midx, const std::string& st
 
     BOOST_LOG_SEV(glg, debug) << "Determine fire by explicit year.";
 
-    if ( this->explicit_fire_year[yr] == 1 ){
-      if ( temutil::doy2month(this->explicit_fire_day_of_burn[yr]) == midx ) {
+    if ( this->exp_year_of_burn[yr] == 1 ){
+      if ( temutil::doy2month(this->exp_jday_of_burn[yr]) == midx ) {
         ignite = true;
-        this->actual_severity = this->explicit_fire_severity.at(yr);
+        this->actual_severity = this->exp_fire_severity.at(yr);
       }
       // do nothing: correct year, wrong month
     }
