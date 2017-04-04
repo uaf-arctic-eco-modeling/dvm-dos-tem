@@ -39,7 +39,7 @@ WildFire::~WildFire() {}
 void WildFire::load_explicit_fire_data(const std::string& exp_fname, const int y, const int x) {
   BOOST_LOG_SEV(glg, info) << "Setting up explicit fire data...";
   // THis could be either historic or projected?? do we need to resize the vectors??
-  this->exp_year_of_burn   = temutil::get_timeseries<int>(exp_fname, "exp_year_of_burn", y, x);
+  this->exp_burn_mask   = temutil::get_timeseries<int>(exp_fname, "exp_burn_mask", y, x);
   this->exp_jday_of_burn   = temutil::get_timeseries<int>(exp_fname, "exp_jday_of_burn", y, x);
   this->exp_area_of_burn   = temutil::get_timeseries<int>(exp_fname, "exp_area_of_burn", y, x);
   this->exp_fire_severity  = temutil::get_timeseries<int>(exp_fname, "exp_fire_severity", y, x);
@@ -78,7 +78,7 @@ std::string WildFire::report_fire_inputs() {
   report_string << "fri_area_of_burn: " << this->fri_area_of_burn << std::endl;
 
   report_string << "EXPLICIT fire vectors/data:" << std::endl;
-  report_string << "exp_year_of_burn:        [" << temutil::vec2csv(this->exp_year_of_burn) << "]" << std::endl;
+  report_string << "exp_burn_mask:        [" << temutil::vec2csv(this->exp_burn_mask) << "]" << std::endl;
   report_string << "exp_jday_of_burn:        [" << temutil::vec2csv(this->exp_jday_of_burn) << "]" << std::endl;
   report_string << "exp_fire_severity:       [" << temutil::vec2csv(this->exp_area_of_burn) << "]" << std::endl;
 
@@ -185,7 +185,7 @@ bool WildFire::should_ignite(const int yr, const int midx, const std::string& st
 
     BOOST_LOG_SEV(glg, debug) << "Determine fire by explicit year.";
 
-    if ( this->exp_year_of_burn[yr] == 1 ){
+    if ( this->exp_burn_mask[yr] == 1 ){
       if ( temutil::doy2month(this->exp_jday_of_burn[yr]) == midx ) {
         ignite = true;
         this->actual_severity = this->exp_fire_severity.at(yr);

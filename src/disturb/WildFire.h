@@ -87,7 +87,7 @@ private:
   int fri_area_of_burn;
   int fri_severity;
 
-  std::vector<int> exp_year_of_burn;
+  std::vector<int> exp_burn_mask;
   std::vector<int> exp_jday_of_burn;
   std::vector<int> exp_fire_severity;
   std::vector<int> exp_area_of_burn;

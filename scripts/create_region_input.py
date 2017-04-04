@@ -306,7 +306,7 @@ def create_template_explicit_fire_file(fname, sizey=10, sizex=10, rand=None):
   X = ncfile.createDimension('X', sizex)
   time = ncfile.createDimension('time', None)
 
-  exp_yob = ncfile.createVariable('exp_year_of_burn', np.int32, ('time', 'Y', 'X',))
+  exp_bm = ncfile.createVariable('exp_burn_mask', np.int32, ('time', 'Y', 'X',))
   exp_dob = ncfile.createVariable('exp_jday_of_burn', np.int32, ('time', 'Y', 'X',))
   exp_sev = ncfile.createVariable('exp_fire_severity', np.int32, ('time', 'Y','X'))
   exp_aob = ncfile.createVariable('exp_area_of_burn', np.int32, ('time', 'Y','X'))
@@ -702,17 +702,17 @@ def fill_explicit_fire_file(if_name, yrs, xo, yo, xs, ys, out_dir, of_name):
 
       print burn_indices
       # Now set the other variables, but only for the burning pixels...
-      exp_yob = np.zeros((ys,xs))
+      exp_bm = np.zeros((ys,xs))
       exp_jdob = np.zeros((ys,xs))
       exp_sev = np.zeros((ys,xs))
       exp_aob = np.zeros((ys,xs))
 
-      exp_yob[burn_indices] = 1
+      exp_bm[burn_indices] = 1
       exp_jdob[burn_indices] = np.random.randint(152, 244, len(flat_burn_indices))
       exp_sev[burn_indices] = np.random.randint(0, 5, len(flat_burn_indices))
       exp_aob[burn_indices] = np.random.randint(1, 20000, len(flat_burn_indices))
 
-      nfd.variables['exp_year_of_burn'][yr,:,:] = exp_yob
+      nfd.variables['exp_burn_mask'][yr,:,:] = exp_bm
       nfd.variables['exp_jday_of_burn'][yr,:,:] = exp_jdob
       nfd.variables['exp_fire_severity'][yr,:,:] = exp_sev
       nfd.variables['exp_area_of_burn'][yr,:,:] = exp_aob
