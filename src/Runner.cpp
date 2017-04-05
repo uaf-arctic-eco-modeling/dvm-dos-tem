@@ -1389,6 +1389,56 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   map_itr = netcdf_outputs.end();
 
 
+  //MOSSDEATHC
+  map_itr = netcdf_outputs.find("MOSSDEATHC");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: MOSSDEATHC";
+    curr_spec = map_itr->second;
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "MOSSDEATHC", &cv) );
+
+    double mossdeathc = 0;
+    if(curr_spec.monthly){
+      start3[0] = month_timestep;
+      mossdeathc = cohort.bdall->m_v2soi.mossdeathc; 
+    }
+    else if(curr_spec.yearly){
+      start3[0] = year;
+      mossdeathc = cohort.bdall->y_v2soi.mossdeathc; 
+    }
+
+    temutil::nc( nc_put_var1_double(ncid, cv, start3, &mossdeathc) ); 
+    temutil::nc( nc_close(ncid) ); 
+  }//end MOSSDEATHC
+  map_itr = netcdf_outputs.end();
+
+
+  //MOSSDEATHN
+  map_itr = netcdf_outputs.find("MOSSDEATHN");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: MOSSDEATHN";
+    curr_spec = map_itr->second;
+
+    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_inq_varid(ncid, "MOSSDEATHN", &cv) );
+
+    double mossdeathn = 0;
+    if(curr_spec.monthly){
+      start3[0] = month_timestep;
+      mossdeathn = cohort.bdall->m_v2soi.mossdeathn; 
+    }
+    else if(curr_spec.yearly){
+      start3[0] = year;
+      mossdeathn = cohort.bdall->y_v2soi.mossdeathn; 
+    }
+
+    temutil::nc( nc_put_var1_double(ncid, cv, start3, &mossdeathn) ); 
+    temutil::nc( nc_close(ncid) ); 
+  }//end MOSSDEATHN
+  map_itr = netcdf_outputs.end();
+
+
   //QDRAINAGE
   map_itr = netcdf_outputs.find("QDRAINAGE");
   if(map_itr != netcdf_outputs.end()){
