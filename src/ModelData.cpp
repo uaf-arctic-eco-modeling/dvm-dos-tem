@@ -327,18 +327,24 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
       }
     }
 
-    new_spec.filename = name + "_" + timestep + "_" + stage + ".nc";
+    // File location information for reconstructing a complete path
+    //  and filename during output.
+    new_spec.file_path = output_base.string();
+    new_spec.filename_prefix = name + "_" + timestep;
+
+    //Temporary name for file creation.
+    std::string creation_filename = name + "_" + timestep + "_" + stage + ".nc";
 
     BOOST_LOG_SEV(glg, debug)<<"Variable: "<<name<<". Timestep: "<<timestep;
 
     //filename with local path
-    boost::filesystem::path output_filepath = output_base / new_spec.filename;
+    boost::filesystem::path output_filepath = output_base / creation_filename;
     //convert path to string for simplicity in the following function calls
-    new_spec.filestr = output_filepath.string();
+    std::string creation_filestr = output_filepath.string();
 
     //Creating NetCDF file
-    BOOST_LOG_SEV(glg, debug)<<"Creating output NetCDF file "<<new_spec.filestr;
-    temutil::nc( nc_create(new_spec.filestr.c_str(), NC_CLOBBER, &ncid) );
+    BOOST_LOG_SEV(glg, debug)<<"Creating output NetCDF file "<<creation_filestr;
+    temutil::nc( nc_create(creation_filestr.c_str(), NC_CLOBBER, &ncid) );
 
     BOOST_LOG_SEV(glg, debug) << "Adding file-level attributes";
     temutil::nc( nc_put_att_text(ncid, NC_GLOBAL, "Git_SHA", strlen(GIT_SHA), GIT_SHA ) );
