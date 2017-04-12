@@ -647,6 +647,7 @@ def fill_fri_fire_file(if_name, xo, yo, xs, ys, out_dir, of_name):
   print "WARNING FAKE DATA!"
 
   cmt2fireprops = {
+   -1: {'fri':   -1, 'sev': -1, 'jdob':  -1, 'aob':  -1 }, # No data?
     0: {'fri':   -1, 'sev': -1, 'jdob':  -1, 'aob':  -1 }, # rock/snow/water
     1: {'fri':  100, 'sev':  3, 'jdob': 165, 'aob': 100 }, # black spruce
     2: {'fri':  105, 'sev':  2, 'jdob': 175, 'aob': 225 }, # white spruce
@@ -848,7 +849,6 @@ if __name__ == '__main__':
                                   ... /historic-climate.nc
                                   ... /projected-climate.nc
                                   ... /co2.nc
-                                  ... /historic-fire.nc
                                   ... /run-mask.nc
 
         <OUTDIR>/<TAG>_<YSIZE>x<XSIZE>/output/restart-eq.nc
