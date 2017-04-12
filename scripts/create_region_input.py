@@ -729,7 +729,7 @@ def fill_explicit_fire_file(if_name, yrs, xo, yo, xs, ys, out_dir, of_name):
       flat_burn_indices = np.random.randint(0, (ys*xs), (ys*xs)*0.3)
       burn_indices = np.unravel_index(flat_burn_indices, (ys,xs))
 
-      print burn_indices
+      #print burn_indices
       # Now set the other variables, but only for the burning pixels...
       exp_yob = np.zeros((ys,xs))
       exp_jdob = np.zeros((ys,xs))
