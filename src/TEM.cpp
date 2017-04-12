@@ -323,7 +323,7 @@ int main(int argc, char* argv[]){
             runner.cohort.md->set_avlnflg(true);
             runner.cohort.md->set_baseline(true);
 
-            runner.cohort.md->set_dsbmodule(false);
+            runner.cohort.md->set_dsbmodule(true);
 
             if (runner.cohort.md->get_dsbmodule()) {
               // The transition to SP must occur at the completion of a
