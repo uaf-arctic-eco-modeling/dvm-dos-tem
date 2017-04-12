@@ -38,7 +38,35 @@ import glob
 
 # (0,0) pixel is hardcoded to the exact values from Toolik for testing.
 
-
+def tunnel_fast(latvar,lonvar,lat0,lon0):
+  '''
+  Find closest point in a set of (lat,lon) points to specified point
+  latvar - 2D latitude variable from an open netCDF dataset
+  lonvar - 2D longitude variable from an open netCDF dataset
+  lat0,lon0 - query point
+  Returns iy,ix such that the square of the tunnel distance
+  between (latval[it,ix],lonval[iy,ix]) and (lat0,lon0)
+  is minimum.
+  Code from Unidata's Python Workshop:
+  https://github.com/Unidata/unidata-python-workshop
+  '''
+  rad_factor = np.pi/180.0 # for trignometry, need angles in radians
+  # Read latitude and longitude from file into numpy arrays
+  latvals = latvar[:] * rad_factor
+  lonvals = lonvar[:] * rad_factor
+  ny,nx = latvals.shape
+  lat0_rad = lat0 * rad_factor
+  lon0_rad = lon0 * rad_factor
+  # Compute numpy arrays for all values, no loops
+  clat,clon = np.cos(latvals), np.cos(lonvals)
+  slat,slon = np.sin(latvals), np.sin(lonvals)
+  delX = np.cos(lat0_rad)*np.cos(lon0_rad) - clat*clon
+  delY = np.cos(lat0_rad)*np.sin(lon0_rad) - clat*slon
+  delZ = np.sin(lat0_rad) - slat;
+  dist_sq = delX**2 + delY**2 + delZ**2
+  minindex_1d = dist_sq.argmin()  # 1D index of minimum element
+  iy_min,ix_min = np.unravel_index(minindex_1d, latvals.shape)
+  return iy_min,ix_min
 
 def source_attr_string(ys='', xs='', yo='', xo='', msg=''):
   '''
@@ -647,6 +675,7 @@ def fill_fri_fire_file(if_name, xo, yo, xs, ys, out_dir, of_name):
   print "WARNING FAKE DATA!"
 
   cmt2fireprops = {
+   -1: {'fri':   -1, 'sev': -1, 'jdob':  -1, 'aob':  -1 }, # No data?
     0: {'fri':   -1, 'sev': -1, 'jdob':  -1, 'aob':  -1 }, # rock/snow/water
     1: {'fri':  100, 'sev':  3, 'jdob': 165, 'aob': 100 }, # black spruce
     2: {'fri':  105, 'sev':  2, 'jdob': 175, 'aob': 225 }, # white spruce
@@ -700,7 +729,7 @@ def fill_explicit_fire_file(if_name, yrs, xo, yo, xs, ys, out_dir, of_name):
       flat_burn_indices = np.random.randint(0, (ys*xs), (ys*xs)*0.3)
       burn_indices = np.unravel_index(flat_burn_indices, (ys,xs))
 
-      print burn_indices
+      #print burn_indices
       # Now set the other variables, but only for the burning pixels...
       exp_bm = np.zeros((ys,xs))
       exp_jdob = np.zeros((ys,xs))
@@ -848,7 +877,6 @@ if __name__ == '__main__':
                                   ... /historic-climate.nc
                                   ... /projected-climate.nc
                                   ... /co2.nc
-                                  ... /historic-fire.nc
                                   ... /run-mask.nc
 
         <OUTDIR>/<TAG>_<YSIZE>x<XSIZE>/output/restart-eq.nc
@@ -892,9 +920,31 @@ if __name__ == '__main__':
                       help="which files to create (default: %(default)s)",
                       choices=fileChoices+['all'])
 
+  parser.add_argument('--iyix-from-latlon', default=None, nargs=2, type=float,
+                      help="Find closest pixel to provided lat and lon arguments.")
+
   print "Parsing command line arguments";
   args = parser.parse_args()
   print "args: ", args
+
+
+  if args.iyix_from_latlon:
+    ncfile = netCDF4.Dataset("../snap-data/temporary-veg-from-LandCover_iem_ALFRESCO_2005tif.nc", 'r')
+    latvar = ncfile.variables['lat']
+    lonvar = ncfile.variables['lon']
+
+    #toolik = {'lat':68.626480, 'lon':-149.594995}
+    #bnza_lter = {'lat':64.70138, 'lon':-148.31034}
+    #target = bnza_lter
+    target = {'lat':args.iyix_from_latlon[0], 'lon':args.iyix_from_latlon[1]}
+    iy,ix = tunnel_fast(latvar, lonvar, target['lat'], target['lon'])
+    print('Target lat, lon:', target['lat'], target['lon'])
+    print('Delta with target lat, lon:', target['lat'] - latvar[iy,ix], target['lon'] - lonvar[iy,ix])
+    print('lat, lon of closest match:', latvar[iy,ix], lonvar[iy,ix])
+    print('indices of closest match iy, ix (from LOWER left):', iy, ix)
+    print('indices of closest match iy, ix (from UPPER left):', len(ncfile.dimensions['y'])-iy, ix)
+    ncfile.close()
+    exit()
 
   years = args.years
   start_year = args.start_year
