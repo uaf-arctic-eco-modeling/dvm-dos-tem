@@ -112,7 +112,7 @@ private:
   BgcData * bd[NUM_PFT];
   BgcData * bdall;
 
-  double getBurnOrgSoilthick(const int severity);
+  double getBurnOrgSoilthick(const int year);
   void getBurnAbgVegetation(const int ipft, const int severity);
 
   ////////

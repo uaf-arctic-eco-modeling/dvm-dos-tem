@@ -181,7 +181,7 @@ void WildFire::burn(int year) {
   // for soil part and root burning
   // FIX: there isn't really a reason for getBurnOrgSoilthick to return a value
   // as it has already set the "burn thickness" value in FirData...
-  double burndepth = getBurnOrgSoilthick(-1);
+  double burndepth = getBurnOrgSoilthick(year);
   BOOST_LOG_SEV(glg, debug) << fd->report_to_string("After WildFire::getBurnOrgSoilthick(..)");
 
   BOOST_LOG_SEV(glg, note) << "Setup some temporary pools for tracking various burn related attributes (depths, C, N)";
@@ -562,7 +562,7 @@ void WildFire::getBurnAbgVegetation(const int ipft, const int severity) {
 *   2. can't exceed a pixel specified 'max burn thickness'
 *   3. should not burn into "wet" organic soil layers
 */
-double WildFire::getBurnOrgSoilthick(const int severity) {
+double WildFire::getBurnOrgSoilthick(const int year) {
 
 
   BOOST_LOG_SEV(glg, info) << "Find the amount of organic soil that is burned as a function of fire severity.";
@@ -588,7 +588,7 @@ double WildFire::getBurnOrgSoilthick(const int severity) {
 
   if ( this->fri_derived ) {                    // FRI-derived fire regime
     if (this->fri_severity >= 0) {              // fire severity is available from the input files - so get folb from the parameter file;
-      folb = firpar.foslburn[severity];   
+      folb = firpar.foslburn[this->fri_severity];
     }else {                                     // fire severity is available from the input files - apply the lookup table from Yi et al. 2010;
       if( cd->drainage_type == 0 ) {            // 0: well-drained; 1: poorly-drained;
         if ( this->fri_jday_of_burn <= 212 ) {   // Early fire, before July 31st (from Turetsly et al. 2011);
@@ -605,8 +605,8 @@ double WildFire::getBurnOrgSoilthick(const int severity) {
       } 
     }
   } else {                                      // Explicit fire regime;
-    if (this->exp_fire_severity[0] >= 0) {    // fire severity is available from the input files - so get folb from the parameter file;
-      folb = firpar.foslburn[severity];   
+    if (this->exp_fire_severity[year] >= 0) {    // fire severity is available from the input files - so get folb from the parameter file;
+      folb = firpar.foslburn[this->exp_fire_severity[year]];
     } else {  
       if ( cd->cmttype > 3) {                   // tundra ecosystems: Mack et al. 2011;
         folb = 0.01*((21.5-6.1)/21.5);
