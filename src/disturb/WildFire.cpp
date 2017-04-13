@@ -138,7 +138,7 @@ bool WildFire::should_ignite(const int yr, const int midx, const std::string& st
                            << ", monthidx:" << midx << ", stage:" << stage;
 
   bool ignite = false;
-  bool this->fri_derived = false;
+  bool fri_derived = false;
 
   if ( stage.compare("pre-run") == 0 || stage.compare("eq-run") == 0 || stage.compare("sp-run") == 0 ) {
 
