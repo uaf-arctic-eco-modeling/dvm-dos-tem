@@ -56,11 +56,6 @@ WildFire::WildFire(const std::string& fri_fname,
   this->asp = temutil::get_scalar<int>(topo_fname, "ASP", y, x);
   this->elev = temutil::get_scalar<int>(topo_fname, "ELEV", y, x);
 
-  // Set to an definitely invalid number.
-  // Later this will be set to a valid number based on the run stage and
-  // possibly other factors.
-  this->actual_severity = -1;
-
   // need templates or more overloads or something so that we can
   // read the std::vector<int> 
   //fire_years = temutil::get_timeseries(fname, "fire_years", y, x);
@@ -87,7 +82,6 @@ std::string WildFire::report_fire_inputs() {
   report_string << "explicit fire area_of_burn: [" << temutil::vec2csv(this->exp_area_of_burn) << "]" << std::endl;
   report_string << "explicit fire severity:     [" << temutil::vec2csv(this->exp_fire_severity) << "]" << std::endl;
 
-  report_string << "Actual Fire Severity: " << this->actual_severity << std::endl;
 
   return report_string.str();
 
@@ -131,6 +125,8 @@ void WildFire::set_state_from_restartdata(const RestartData & rdata) {
  *  members of this (WildFire) object. This function looks at those data
  *  and sets the "actual_severity" member accordingly.
  *
+ *  NOTE: how to handle fire severity, to be determined.
+ *
 */
 bool WildFire::should_ignite(const int yr, const int midx, const std::string& stage) {
 
@@ -148,7 +144,6 @@ bool WildFire::should_ignite(const int yr, const int midx, const std::string& st
     if ( (yr % this->fri) == 0 && yr > 0 ) {
       if (midx == temutil::doy2month(this->fri_jday_of_burn)) {
         ignite = true;
-//      this->actual_severity = this->fri_severity;
       }
       // do nothing: correct year, wrong month.
     }
@@ -161,7 +156,6 @@ bool WildFire::should_ignite(const int yr, const int midx, const std::string& st
     if ( this->exp_burn_mask[yr] == 1 ){
       if ( temutil::doy2month(this->exp_jday_of_burn[yr]) == midx ) {
         ignite = true;
-//      this->actual_severity = this->exp_fire_severity.at(yr);
       }
       // do nothing: correct year, wrong month
     }
@@ -178,9 +172,6 @@ bool WildFire::should_ignite(const int yr, const int midx, const std::string& st
 void WildFire::burn(int year) {
   BOOST_LOG_NAMED_SCOPE("burning");
   BOOST_LOG_SEV(glg, note) << "HELP!! - WILD FIRE!! RUN FOR YOUR LIFE!";
-
-//assert ((this->actual_severity >= 0) && (this->actual_severity < 5) && "Invalid fire severity!");
-//BOOST_LOG_SEV(glg, debug) << "Fire severity: " << this->actual_severity;
 
   BOOST_LOG_SEV(glg, debug) << fd->report_to_string("Before WildFire::burn(..)");
   BOOST_LOG_SEV(glg, note) << "Burning (simply clearing?) the 'FireData object...";
@@ -330,7 +321,7 @@ void WildFire::burn(int year) {
       BOOST_LOG_SEV(glg, note) << "Some of PFT"<<ip<<" exists (coverage > 0). Burn it!";
 
       // vegetation burning/dead/living fraction for above-ground
-      getBurnAbgVegetation(ip, this->actual_severity);
+      getBurnAbgVegetation(ip, -4/*severity*/);
 
       // root death ratio: must be called after both above-ground and
       // below-ground burning. r_live_cn is same for both above-ground

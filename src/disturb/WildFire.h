@@ -98,8 +98,6 @@ private:
   std::vector<int> exp_area_of_burn;
 
 
-  // This stores the severity as looked up in the inputs? 
-  int actual_severity;
 
   firepar_bgc firpar;
 
