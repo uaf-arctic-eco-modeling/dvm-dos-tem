@@ -611,11 +611,13 @@ double WildFire::getBurnOrgSoilthick(const int severity) {
       if ( cd->cmttype > 3) {                   // tundra ecosystems: Mack et al. 2011;
         folb = 0.01*((21.5-6.1)/21.5);
       } else {                                  // boreal forest: Genet et al.2013;
-        if(fd->gd->slope<2){
-          folb = 0.1276966713-0.0319397467*this->slope+0.0020914862*this->exp_jday_of_burn+0.0127016155* log(this->exp_area_of_burn);
-        } else {
-          folb = -0.2758306315+0.0117609336*this->slope-0.0744057680*cos(this->asp * 3.14159265 / 180 ) +0.0260221684*ed->m_soid.tshlw+0.0011413114*this->exp_jday_of_burn+0.0336302905*log (this->exp_area_of_burn);
-        }
+        BOOST_LOG_SEV(glg, fatal) << "NEED TO FIX THIS!!! NO FirData object anymore!";
+        exit(-1);
+//        if(fd->gd->slope<2){
+//          folb = 0.1276966713-0.0319397467*this->slope+0.0020914862*this->exp_jday_of_burn+0.0127016155* log(this->exp_area_of_burn);
+//        } else {
+//          folb = -0.2758306315+0.0117609336*this->slope-0.0744057680*cos(this->asp * 3.14159265 / 180 ) +0.0260221684*ed->m_soid.tshlw+0.0011413114*this->exp_jday_of_burn+0.0336302905*log (this->exp_area_of_burn);
+//        }
       }
     }
   }
