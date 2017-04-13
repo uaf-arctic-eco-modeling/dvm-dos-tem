@@ -47,8 +47,6 @@ public:
 
   // not used or fully implemented yet...
   //int lookup_severity(const int yr, const int midx, const std::string& stage);
-  int derive_fire_severity(const int drainage, const int day_of_burn, const int size);
-
   void burn(int year);
 
   std::string report_fire_inputs();
@@ -87,6 +85,8 @@ private:
   int fri_area_of_burn;
   int fri_severity;
 
+  bool fri_derived;
+
   std::vector<int> exp_burn_mask;
   std::vector<int> exp_jday_of_burn;
   std::vector<int> exp_fire_severity;
@@ -98,6 +98,7 @@ private:
 
   firepar_bgc firpar;
 
+  double folb
   double r_live_cn;      // ratio of living veg. after burning
   double r_dead2ag_cn;   // ratio of dead veg. after burning
   double r_burn2ag_cn;   // burned above-ground veg. after burning
@@ -110,8 +111,8 @@ private:
   BgcData * bd[NUM_PFT];
   BgcData * bdall;
 
-  double getBurnOrgSoilthick(const int severity);
-  void getBurnAbgVegetation(const int &ip, const int severity);
+  double getBurnOrgSoilthick();
+  void getBurnAbgVegetation(const int &ip);
 
   ////////
   // MAYBE get rid of all these???

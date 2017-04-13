@@ -43,7 +43,7 @@ SCRIPT
 VAGRANTFILE_API_VERSION = "2" # <--don't change unless you know what you're doing!
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
-  config.vm.box = "chef/fedora-20"
+  config.vm.box = "TFDuesing/Fedora-20"
   
   mem = 756
   cores = 4
