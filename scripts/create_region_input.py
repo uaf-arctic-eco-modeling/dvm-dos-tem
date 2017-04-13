@@ -522,7 +522,7 @@ def fill_climate_file(start_yr, yrs, xo, yo, xs, ys,
     os.remove(tFile)
 
     # This fails. Looks to me like a bug in nco as it expand the option string
-    #import nco as NCO
+    # import nco as NCO
     #nco = NCO.Nco()
     #opt_str = "--append -x -v lat,lon," + ",".join(masked_list)
     #nco.ncks(input=tFile, output=masterOutFile, options=opt_str)
