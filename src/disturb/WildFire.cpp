@@ -82,10 +82,10 @@ std::string WildFire::report_fire_inputs() {
   report_string << "FRI area_of_burn:  " << this->fri_area_of_burn << std::endl;
   report_string << "FRI severity:     " << this->fri_severity << std::endl;
   report_string << "exp fire vectors/data:" << std::endl;
-  report_string << "explicit fire year:        [" << temutil::vec2csv(this->exp_burn_mask) << "]" << std::endl;
+  report_string << "explicit fire year:         [" << temutil::vec2csv(this->exp_burn_mask) << "]" << std::endl;
   report_string << "explicit fire jday_of_burn: [" << temutil::vec2csv(this->exp_jday_of_burn) << "]" << std::endl;
   report_string << "explicit fire area_of_burn: [" << temutil::vec2csv(this->exp_area_of_burn) << "]" << std::endl;
-  report_string << "explicit fire severity:    [" << temutil::vec2csv(this->exp_fire_severity) << "]" << std::endl;
+  report_string << "explicit fire severity:     [" << temutil::vec2csv(this->exp_fire_severity) << "]" << std::endl;
 
   report_string << "Actual Fire Severity: " << this->actual_severity << std::endl;
 

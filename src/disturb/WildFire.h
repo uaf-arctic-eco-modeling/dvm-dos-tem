@@ -24,7 +24,9 @@ class WildFire {
 public:
   WildFire();
 
-  WildFire(const std::string& fri_fname, const std::string& exp_fname, const std::string& topo_fname,
+  WildFire(const std::string& fri_fname,
+           const std::string& exp_fname,
+           const std::string& topo_fname,
            const int y, const int x);
   
   ~WildFire();
