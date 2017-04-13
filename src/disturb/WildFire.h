@@ -113,7 +113,7 @@ private:
   BgcData * bdall;
 
   double getBurnOrgSoilthick(const int year);
-  void getBurnAbgVegetation(const int ipft, const int severity);
+  void getBurnAbgVegetation(const int ipft, const int year);
 
   ////////
   // MAYBE get rid of all these???

@@ -321,7 +321,7 @@ void WildFire::burn(int year) {
       BOOST_LOG_SEV(glg, note) << "Some of PFT"<<ip<<" exists (coverage > 0). Burn it!";
 
       // vegetation burning/dead/living fraction for above-ground
-      getBurnAbgVegetation(ip, -4/*severity*/);
+      getBurnAbgVegetation(ip, year);
 
       // root death ratio: must be called after both above-ground and
       // below-ground burning. r_live_cn is same for both above-ground
@@ -485,8 +485,7 @@ void WildFire::burn(int year) {
 
 
 // above ground burning ONLY, based on fire severity indirectly or directly
-void WildFire::getBurnAbgVegetation(const int ipft, const int severity) {
-  assert ((severity >= 0 && severity <5) && "Invalid fire severity!!");
+void WildFire::getBurnAbgVegetation(const int ipft, const int year) {
   
   BOOST_LOG_SEV(glg, note) << "Lookup the above ground vegetation burned as a funciton of severity.";
   BOOST_LOG_SEV(glg, note) << " - Set the ratios for 'burn to above ground C,N' and 'dead to above ground C,N' member variables.";
@@ -504,8 +503,8 @@ void WildFire::getBurnAbgVegetation(const int ipft, const int severity) {
 
   if ( this->fri_derived ) {                    // FRI-derived fire regime
     if (this->fri_severity >= 0) {              // fire severity is available from the input files - so get fvcomb and fvdead from the parameter file;
-      this->r_burn2ag_cn = firpar.fvcomb[severity][ipft];
-      this->r_dead2ag_cn = firpar.fvdead[severity][ipft];
+      this->r_burn2ag_cn = firpar.fvcomb[this->fri_severity][ipft];
+      this->r_dead2ag_cn = firpar.fvdead[this->fri_severity][ipft];
     }else {                                     // fire severity is available from the input files - apply the lookup table from Yi et al. 2010;
       if( cd->drainage_type == 0 ) {            // 0: well-drained; 1: poorly-drained;
         if ( this->fri_jday_of_burn <= 212 ) {   // Early fire, before July 31st (from Turetsly et al. 2011);
@@ -526,9 +525,9 @@ void WildFire::getBurnAbgVegetation(const int ipft, const int severity) {
       } 
     }
   } else {                                      // Explicit fire regime;
-    if (this->exp_fire_severity[0] >= 0) {    // fire severity is available from the input files - so get folb from the parameter file;
-      this->r_burn2ag_cn = firpar.fvcomb[severity][ipft];
-      this->r_dead2ag_cn = firpar.fvdead[severity][ipft];
+    if (this->exp_fire_severity[year] >= 0) {    // fire severity is available from the input files - so get folb from the parameter file;
+      this->r_burn2ag_cn = firpar.fvcomb[this->exp_fire_severity[year]][ipft];
+      this->r_dead2ag_cn = firpar.fvdead[this->exp_fire_severity[year]][ipft];
     } else {  
       if( cd->drainage_type == 0 ) {            // 0: well-drained; 1: poorly-drained;
         if ( this->fri_jday_of_burn <= 212 ) {   // Early fire, before July 31st (from Turetsly et al. 2011);
