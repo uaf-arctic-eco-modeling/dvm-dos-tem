@@ -526,7 +526,7 @@ void WildFire::getBurnAbgVegetation(const int ipft, const int severity) {
       } 
     }
   } else {                                      // Explicit fire regime;
-    if (this->exp_fire_severity >= 0) {    // fire severity is available from the input files - so get folb from the parameter file;
+    if (this->exp_fire_severity[0] >= 0) {    // fire severity is available from the input files - so get folb from the parameter file;
       this->r_burn2ag_cn = firpar.fvcomb[severity][ipft];
       this->r_dead2ag_cn = firpar.fvdead[severity][ipft];
     } else {  
@@ -605,7 +605,7 @@ double WildFire::getBurnOrgSoilthick(const int severity) {
       } 
     }
   } else {                                      // Explicit fire regime;
-    if (this->exp_fire_severity >= 0) {    // fire severity is available from the input files - so get folb from the parameter file;
+    if (this->exp_fire_severity[0] >= 0) {    // fire severity is available from the input files - so get folb from the parameter file;
       folb = firpar.foslburn[severity];   
     } else {  
       if ( cd->cmttype > 3) {                   // tundra ecosystems: Mack et al. 2011;
