@@ -15,6 +15,7 @@
     "fri_fire_file":      "DATA/bnza_lter_10x10/fri-fire.nc",
     "hist_exp_fire_file": "DATA/bnza_lter_10x10/historic-explicit-fire.nc",
     "proj_exp_fire_file": "DATA/bnza_lter_10x10/projected-explicit-fire.nc",
+    "topo_file":          "DATA/bnza_lter_10x10/topo.nc",
     "output_dir":         "DATA/bnza_lter_10x10/output/",
     "output_spec_file":   "config/output_spec.csv",
     "output_monthly":     1, //JSON specific

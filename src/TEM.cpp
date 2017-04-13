@@ -470,6 +470,9 @@ int main(int argc, char* argv[]){
             // Loading projected data instead of historic. FIX?
             runner.cohort.load_proj_climate(modeldata.proj_climate_file);
 
+BOOST_LOG_SEV(glg,fatal) << "Need to deal with loading projected fire data";
+exit(-1);
+
             // Run model
             runner.run_years(0, modeldata.sc_yrs, "sc-run");
 
