@@ -494,7 +494,7 @@ void WildFire::burn(int year) {
 
 
 // above ground burning ONLY, based on fire severity indirectly or directly
-void WildFire::getBurnAbgVegetation(const int &ip, const int severity) {
+void WildFire::getBurnAbgVegetation(const int ipft, const int severity) {
   assert ((severity >= 0 && severity <5) && "Invalid fire severity!!");
   
   BOOST_LOG_SEV(glg, note) << "Lookup the above ground vegetation burned as a funciton of severity.";
@@ -513,8 +513,8 @@ void WildFire::getBurnAbgVegetation(const int &ip, const int severity) {
 
   if ( this->fri_derived ) {                    // FRI-derived fire regime
     if (this->fri_severity >= 0) {              // fire severity is available from the input files - so get fvcomb and fvdead from the parameter file;
-      this->r_burn2ag_cn = firpar.fvcomb[severity][ip];
-      this->r_dead2ag_cn = firpar.fvdead[severity][ip];
+      this->r_burn2ag_cn = firpar.fvcomb[severity][ipft];
+      this->r_dead2ag_cn = firpar.fvdead[severity][ipft];
     }else {                                     // fire severity is available from the input files - apply the lookup table from Yi et al. 2010;
       if( cd->drainage_type == 0 ) {            // 0: well-drained; 1: poorly-drained;
         if ( this->fri_jday_of_burn <= 212 ) {   // Early fire, before July 31st (from Turetsly et al. 2011);
@@ -536,8 +536,8 @@ void WildFire::getBurnAbgVegetation(const int &ip, const int severity) {
     }
   } else {                                      // Explicit fire regime;
     if (this->exp_fire_severity >= 0) {    // fire severity is available from the input files - so get folb from the parameter file;
-      this->r_burn2ag_cn = firpar.fvcomb[severity][ip];
-      this->r_dead2ag_cn = firpar.fvdead[severity][ip];
+      this->r_burn2ag_cn = firpar.fvcomb[severity][ipft];
+      this->r_dead2ag_cn = firpar.fvdead[severity][ipft];
     } else {  
       if( cd->drainage_type == 0 ) {            // 0: well-drained; 1: poorly-drained;
         if ( this->fri_jday_of_burn <= 212 ) {   // Early fire, before July 31st (from Turetsly et al. 2011);

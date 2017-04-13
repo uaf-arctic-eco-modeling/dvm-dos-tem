@@ -117,7 +117,7 @@ private:
   BgcData * bdall;
 
   double getBurnOrgSoilthick();
-  void getBurnAbgVegetation(const int &ip);
+  void getBurnAbgVegetation(const int ipft, const int severity);
 
   ////////
   // MAYBE get rid of all these???
