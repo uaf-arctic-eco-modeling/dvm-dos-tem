@@ -181,7 +181,7 @@ void WildFire::burn(int year) {
   // for soil part and root burning
   // FIX: there isn't really a reason for getBurnOrgSoilthick to return a value
   // as it has already set the "burn thickness" value in FirData...
-  double burndepth = getBurnOrgSoilthick();
+  double burndepth = getBurnOrgSoilthick(-1);
   BOOST_LOG_SEV(glg, debug) << fd->report_to_string("After WildFire::getBurnOrgSoilthick(..)");
 
   BOOST_LOG_SEV(glg, note) << "Setup some temporary pools for tracking various burn related attributes (depths, C, N)";

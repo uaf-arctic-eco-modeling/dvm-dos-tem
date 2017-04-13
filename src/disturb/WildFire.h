@@ -31,8 +31,6 @@ public:
   
   ~WildFire();
 
-  void load_explicit_fire_data(const std::string& expfname, const int y, const int x);
-
   int getFRI();
  
   void setCohortData(CohortData* cdp);
@@ -114,7 +112,7 @@ private:
   BgcData * bd[NUM_PFT];
   BgcData * bdall;
 
-  double getBurnOrgSoilthick();
+  double getBurnOrgSoilthick(const int severity);
   void getBurnAbgVegetation(const int ipft, const int severity);
 
   ////////
