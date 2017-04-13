@@ -37,19 +37,19 @@ WildFire::WildFire() {}
 WildFire::~WildFire() {}
 
 WildFire::WildFire(const std::string& fri_fname,
-                   const std::string& explicit_fname, const std::string& topo_fname, const int y, const int x) {
+                   const std::string& exp_fname, const std::string& topo_fname, const int y, const int x) {
 
   BOOST_LOG_SEV(glg, info) << "Setting up FRI fire data...";
   this->fri = temutil::get_scalar<int>(fri_fname, "fri", y, x);
   this->fri_severity = temutil::get_scalar<int>(fri_fname, "fri_severity", y, x);
-  this->fri_day_of_burn = temutil::get_scalar<int>(fri_fname, "fri_day_of_burn", y, x);
+  this->fri_jday_of_burn = temutil::get_scalar<int>(fri_fname, "fri_jday_of_burn", y, x);
   this->fri_area_of_burn = temutil::get_scalar<int>(fri_fname, "fri_area_of_burn", y, x);
 
   BOOST_LOG_SEV(glg, info) << "Setting up explicit fire data...";
-  this->explicit_fire_year = temutil::get_timeseries<int>(explicit_fname, "explicit_fire_year", y, x);
-  this->explicit_fire_severity = temutil::get_timeseries<int>(explicit_fname, "explicit_jday_of_burn", y, x);
-  this->explicit_fire_day_of_burn = temutil::get_timeseries<int>(explicit_fname, "explicit_area_of_burn", y, x);
-  this->explicit_fire_area_of_burn = temutil::get_timeseries<int>(explicit_fname, "explicit_area_of_burn", y, x);
+  this->exp_burn_mask = temutil::get_timeseries<int>(exp_fname, "exp_burn_mask", y, x);
+  this->exp_fire_severity = temutil::get_timeseries<int>(exp_fname, "exp_severity", y, x);
+  this->exp_jday_of_burn = temutil::get_timeseries<int>(exp_fname, "exp_jday_of_burn", y, x);
+  this->exp_area_of_burn = temutil::get_timeseries<int>(exp_fname, "exp_area_of_burn", y, x);
  
   BOOST_LOG_SEV(glg, info) << "Setting up topographic data...";
   this->slope = temutil::get_scalar<int>(topo_fname, "SLOPE", y, x);
@@ -78,14 +78,14 @@ std::string WildFire::report_fire_inputs() {
   std::stringstream report_string;
   report_string << "FRI based fire vectors/data:" << std::endl;
   report_string << "FRI:              " << this->fri << std::endl;
-  report_string << "FRI day_of_burn:  " << this->fri_day_of_burn << std::endl;
+  report_string << "FRI jday_of_burn:  " << this->fri_jday_of_burn << std::endl;
   report_string << "FRI area_of_burn:  " << this->fri_area_of_burn << std::endl;
   report_string << "FRI severity:     " << this->fri_severity << std::endl;
-  report_string << "Explicit fire vectors/data:" << std::endl;
-  report_string << "explicit fire year:        [" << temutil::vec2csv(this->explicit_fire_year) << "]" << std::endl;
-  report_string << "explicit fire day_of_burn: [" << temutil::vec2csv(this->explicit_fire_day_of_burn) << "]" << std::endl;
-  report_string << "explicit fire area_of_burn: [" << temutil::vec2csv(this->explicit_fire_area_of_burn) << "]" << std::endl;
-  report_string << "explicit fire severity:    [" << temutil::vec2csv(this->explicit_fire_severity) << "]" << std::endl;
+  report_string << "exp fire vectors/data:" << std::endl;
+  report_string << "explicit fire year:        [" << temutil::vec2csv(this->exp_burn_mask) << "]" << std::endl;
+  report_string << "explicit fire jday_of_burn: [" << temutil::vec2csv(this->exp_jday_of_burn) << "]" << std::endl;
+  report_string << "explicit fire area_of_burn: [" << temutil::vec2csv(this->exp_area_of_burn) << "]" << std::endl;
+  report_string << "explicit fire severity:    [" << temutil::vec2csv(this->exp_fire_severity) << "]" << std::endl;
 
   report_string << "Actual Fire Severity: " << this->actual_severity << std::endl;
 
@@ -123,7 +123,7 @@ void WildFire::set_state_from_restartdata(const RestartData & rdata) {
 /** Figure out whether or not there should be a fire, based on stage, yr, month.
  *
  *  There are two modes of operation: "FRI" (fire recurrence interval) and
- *  "explicit". Pre-run, equilibrium, and spin-up stages all use the FRI settings
+ *  "exp". Pre-run, equilibrium, and spin-up stages all use the FRI settings
  *  for determining whether or not a fire should ignite, while transient and 
  *  scenario stages use explicit dates for fire occurrence.
  *
@@ -146,7 +146,7 @@ bool WildFire::should_ignite(const int yr, const int midx, const std::string& st
     BOOST_LOG_SEV(glg, debug) << "Determine fire from FRI.";
 
     if ( (yr % this->fri) == 0 && yr > 0 ) {
-      if (midx == temutil::doy2month(this->fri_day_of_burn)) {
+      if (midx == temutil::doy2month(this->fri_jday_of_burn)) {
         ignite = true;
 //      this->actual_severity = this->fri_severity;
       }
@@ -158,10 +158,10 @@ bool WildFire::should_ignite(const int yr, const int midx, const std::string& st
     this->fri_derived = false;
     BOOST_LOG_SEV(glg, debug) << "Determine fire from explicit fire regime.";
 
-    if ( this->explicit_fire_year[yr] == 1 ){
-      if ( temutil::doy2month(this->explicit_fire_day_of_burn[yr]) == midx ) {
+    if ( this->exp_burn_mask[yr] == 1 ){
+      if ( temutil::doy2month(this->exp_jday_of_burn[yr]) == midx ) {
         ignite = true;
-//      this->actual_severity = this->explicit_fire_severity.at(yr);
+//      this->actual_severity = this->exp_fire_severity.at(yr);
       }
       // do nothing: correct year, wrong month
     }
@@ -517,7 +517,7 @@ void WildFire::getBurnAbgVegetation(const int &ip, const int severity) {
       this->r_dead2ag_cn = firpar.fvdead[severity][ip];
     }else {                                     // fire severity is available from the input files - apply the lookup table from Yi et al. 2010;
       if( cd->drainage_type == 0 ) {            // 0: well-drained; 1: poorly-drained;
-        if ( this->fri_day_of_burn <= 212 ) {   // Early fire, before July 31st (from Turetsly et al. 2011);
+        if ( this->fri_jday_of_burn <= 212 ) {   // Early fire, before July 31st (from Turetsly et al. 2011);
           if ( this->fri_area_of_burn < 1.0 ) { // Small fire year (less that 1% of the area burned);
             this->r_burn2ag_cn = 0.16;
             this->r_dead2ag_cn = 0.76;
@@ -535,12 +535,12 @@ void WildFire::getBurnAbgVegetation(const int &ip, const int severity) {
       } 
     }
   } else {                                      // Explicit fire regime;
-    if (this->explicit_fire_severity >= 0) {    // fire severity is available from the input files - so get folb from the parameter file;
+    if (this->exp_fire_severity >= 0) {    // fire severity is available from the input files - so get folb from the parameter file;
       this->r_burn2ag_cn = firpar.fvcomb[severity][ip];
       this->r_dead2ag_cn = firpar.fvdead[severity][ip];
     } else {  
       if( cd->drainage_type == 0 ) {            // 0: well-drained; 1: poorly-drained;
-        if ( this->fri_day_of_burn <= 212 ) {   // Early fire, before July 31st (from Turetsly et al. 2011);
+        if ( this->fri_jday_of_burn <= 212 ) {   // Early fire, before July 31st (from Turetsly et al. 2011);
           if ( this->fri_area_of_burn < 1.0 ) { // Small fire year (less that 1% of the area burned);
             this->r_burn2ag_cn = 0.16;
             this->r_dead2ag_cn = 0.76;
@@ -600,7 +600,7 @@ double WildFire::getBurnOrgSoilthick(const int severity) {
       folb = firpar.foslburn[severity];   
     }else {                                     // fire severity is available from the input files - apply the lookup table from Yi et al. 2010;
       if( cd->drainage_type == 0 ) {            // 0: well-drained; 1: poorly-drained;
-        if ( this->fri_day_of_burn <= 212 ) {   // Early fire, before July 31st (from Turetsly et al. 2011);
+        if ( this->fri_jday_of_burn <= 212 ) {   // Early fire, before July 31st (from Turetsly et al. 2011);
           if ( this->fri_area_of_burn < 1.0 ) { // Small fire year (less that 1% of the area burned);
             folb = 0.54;
           } else {
@@ -614,16 +614,16 @@ double WildFire::getBurnOrgSoilthick(const int severity) {
       } 
     }
   } else {                                      // Explicit fire regime;
-    if (this->explicit_fire_severity >= 0) {    // fire severity is available from the input files - so get folb from the parameter file;
+    if (this->exp_fire_severity >= 0) {    // fire severity is available from the input files - so get folb from the parameter file;
       folb = firpar.foslburn[severity];   
     } else {  
       if ( cd->cmttype > 3) {                   // tundra ecosystems: Mack et al. 2011;
         folb = 0.01*((21.5-6.1)/21.5);
       } else {                                  // boreal forest: Genet et al.2013;
         if(fd->gd->slope<2){
-          folb = 0.1276966713-0.0319397467*this->slope+0.0020914862*this->explicit_fire_day_of_burn+0.0127016155* log(this->explicit_fire_area_of_burn);
+          folb = 0.1276966713-0.0319397467*this->slope+0.0020914862*this->exp_jday_of_burn+0.0127016155* log(this->exp_area_of_burn);
         } else {
-          folb = -0.2758306315+0.0117609336*this->slope-0.0744057680*cos(this->asp * 3.14159265 / 180 ) +0.0260221684*ed->m_soid.tshlw+0.0011413114*this->explicit_fire_day_of_burn+0.0336302905*log (this->explicit_fire_area_of_burn);
+          folb = -0.2758306315+0.0117609336*this->slope-0.0744057680*cos(this->asp * 3.14159265 / 180 ) +0.0260221684*ed->m_soid.tshlw+0.0011413114*this->exp_jday_of_burn+0.0336302905*log (this->exp_area_of_burn);
         }
       }
     }

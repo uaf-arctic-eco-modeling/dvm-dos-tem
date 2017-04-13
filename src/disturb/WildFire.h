@@ -24,7 +24,7 @@ class WildFire {
 public:
   WildFire();
 
-  WildFire(const std::string& fri_fname, const std::string& exp_fname,
+  WildFire(const std::string& fri_fname, const std::string& exp_fname, const std::string& topo_fname,
            const int y, const int x);
   
   ~WildFire();
@@ -84,6 +84,9 @@ private:
   int fri_jday_of_burn;
   int fri_area_of_burn;
   int fri_severity;
+  double slope;
+  double asp;
+  double elev;
 
   bool fri_derived;
 
@@ -98,7 +101,7 @@ private:
 
   firepar_bgc firpar;
 
-  double folb
+  double folb;           // Fraction of OL burned
   double r_live_cn;      // ratio of living veg. after burning
   double r_dead2ag_cn;   // ratio of dead veg. after burning
   double r_burn2ag_cn;   // burned above-ground veg. after burning

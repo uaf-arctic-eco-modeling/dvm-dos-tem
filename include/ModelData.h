@@ -42,6 +42,7 @@ public:
   string hist_climate_file;
   string proj_climate_file;
   string veg_class_file;
+  string topo_file;
   string fri_fire_file;
   string hist_exp_fire_file;
   string proj_exp_fire_file;
