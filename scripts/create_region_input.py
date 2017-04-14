@@ -185,6 +185,20 @@ def make_co2_file(filename):
   new_ncfile.source = source_attr_string()
   new_ncfile.close()
 
+def create_template_topo_file(fname, sizey=10, sizex=10):
+  '''Generate a template file for drainage classification.'''
+  print "Creating an empty topography  file, %s by %s pixels. (%s)" % (sizey, sizex, os.path.basename(fname))
+  ncfile = netCDF4.Dataset(fname, mode='w', format='NETCDF4')
+
+  Y = ncfile.createDimension('Y', sizey)
+  X = ncfile.createDimension('X', sizex)
+  slope = ncfile.createVariable('slope', np.int, ('Y', 'X',))
+  aspect = ncfile.createVariable('aspect', np.int, ('Y', 'X',))
+  elevation = ncfile.createVariable('elevation', np.int, ('Y', 'X',))
+
+  ncfile.source = source_attr_string()
+  ncfile.close()
+
 
 def create_template_drainage_file(fname, sizey=10, sizex=10):
   '''Generate a template file for drainage classification.'''
@@ -433,6 +447,26 @@ def convert_and_subset(in_file, master_output, xo, yo, xs, ys, yridx, midx, vari
 
   print "{:}: Done appending.".format(cpn)
 
+def fill_topo_file(inSlope, inAspect, inElev, xo, yo, xs, ys, out_dir, of_name):
+  '''Read subset of data from various tifs into single netcdf file for dvmdostem'''
+
+  create_template_topo_file(of_name, sizey=ys, sizex=xs)
+
+  # get a string for use as a file handle for each input file
+  tmpSlope = '/tmp/cri-{:}'.format(os.path.basename(inSlope))
+  tmpAspect = '/tmp/cri-{:}'.format(os.path.basename(inAspect))
+  tmpElev = '/tmp/cri-{:}'.format(os.path.basename(inElev))
+
+  for inFile, tmpFile in zip([inSlope, inAspect, inElev], [tmpSlope, tmpAspect, tmpElev]):
+    subprocess.call(['gdal_translate', '-of', 'netcdf',
+                      '-srcwin', str(xo), str(yo), str(xs), str(ys),
+                      inFile, tmpFile])
+
+  with netCDF4.Dataset(of_name, mode='a') as new_topodataset:
+    for ncvar, tmpFileName in zip(['slope','aspect','elevation'],[tmpSlope,tmpAspect,tmpElev]):
+      with netCDF4.Dataset(tmpFileName, 'r') as TF:
+        V = new_topodataset.variables[ncvar]
+        V[:] = TF.variables['Band1']
 
 
 def fill_veg_file(if_name, xo, yo, xs, ys, out_dir, of_name):
@@ -778,6 +812,13 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir, files=[]):
 
     fill_soil_texture_file(in_sand_base, in_silt_base, in_clay_base, xo, yo, xs, ys, out_dir, of_name, rand=False)
 
+  if 'topo' in files:
+    of_name = os.path.join(out_dir, "topo.nc")
+    in_slope = os.path.join(tif_dir,  "iem_ancillary_data/Elevation/ALF_AK_CAN_prism_slope_1km.tif")
+    in_aspect = os.path.join(tif_dir,  "iem_ancillary_data/Elevation/ALF_AK_CAN_prism_aspect_1km.tif")
+    in_elev = os.path.join(tif_dir,  "iem_ancillary_data/Elevation/ALF_AK_CAN_prism_dem_1km.tif")
+    fill_topo_file(in_slope, in_aspect, in_elev, xo,yo,xs,ys,out_dir, of_name)
+
   if 'run_mask' in files:
     make_run_mask(os.path.join(out_dir, "run-mask.nc"), sizey=ys, sizex=xs, match2veg=True) #setpx='1,1')
 
@@ -859,7 +900,7 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir, files=[]):
 
 if __name__ == '__main__':
 
-  fileChoices = ['run_mask', 'co2', 'veg', 'drain', 'soil_texture',
+  fileChoices = ['run_mask', 'co2', 'veg', 'drain', 'soil_texture', 'topo',
                  'fri_fire', 'historic_explicit_fire', 'projected_explicit_fire', 
                  'hist_climate', 'proj_climate']
 

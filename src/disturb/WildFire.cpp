@@ -52,9 +52,9 @@ WildFire::WildFire(const std::string& fri_fname,
   this->exp_area_of_burn = temutil::get_timeseries<int>(exp_fname, "exp_area_of_burn", y, x);
  
   BOOST_LOG_SEV(glg, info) << "Setting up topographic data...";
-  this->slope = temutil::get_scalar<int>(topo_fname, "SLOPE", y, x);
-  this->asp = temutil::get_scalar<int>(topo_fname, "ASP", y, x);
-  this->elev = temutil::get_scalar<int>(topo_fname, "ELEV", y, x);
+  this->slope = temutil::get_scalar<int>(topo_fname, "slope", y, x);
+  this->asp = temutil::get_scalar<int>(topo_fname, "aspect", y, x);
+  this->elev = temutil::get_scalar<int>(topo_fname, "elevation", y, x);
 
   // need templates or more overloads or something so that we can
   // read the std::vector<int> 
