@@ -7,10 +7,10 @@
 
 struct output_spec{
   std::string filename;
-  std::string filestr; //subjective filepath with filename.
+  std::string filestr; // subjective filepath with filename.
   int dim_count;
 
-  //Which dimensions to define
+  // Which dimensions to define
   bool pft;
   bool compartment;
   bool layer;
@@ -20,4 +20,4 @@ struct output_spec{
 };
 
 
-#endif
+#endif /* UTIL_STRUCTS_H_ */
