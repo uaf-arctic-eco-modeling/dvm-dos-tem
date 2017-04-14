@@ -6,8 +6,8 @@
 
 
 struct output_spec{
-  std::string filename;
-  std::string filestr; //subjective filepath with filename.
+  std::string file_path; // Subjective file path, not including filename
+  std::string filename_prefix; //example: ALD_monthly
   int dim_count;
 
   //Which dimensions to define
