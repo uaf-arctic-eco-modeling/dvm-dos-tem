@@ -900,9 +900,9 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir, files=[]):
 
 if __name__ == '__main__':
 
-  fileChoices = ['run_mask', 'co2', 'veg', 'drain', 'soil_texture', 'topo',
-                 'fri_fire', 'historic_explicit_fire', 'projected_explicit_fire', 
-                 'hist_climate', 'proj_climate']
+  fileChoices = ['run-mask', 'co2', 'vegetation', 'drainage', 'soil-texture', 'topo',
+                 'fri-fire', 'historic-explicit-fire', 'projected-explicit-fire',
+                 'historic-climate', 'projected-climate']
 
   parser = argparse.ArgumentParser(
     formatter_class = argparse.RawDescriptionHelpFormatter,
@@ -910,22 +910,15 @@ if __name__ == '__main__':
       description=textwrap.dedent('''\
         Creates a set of input files for dvmdostem.
 
-        <OUTDIR>/<TAG>_<YSIZE>x<XSIZE>/fri_fire.nc
-                                  ... /historic-explicit-fire.nc
-                                  ... /projected-explicit-fire.nc
-                                  ... /vegetation.nc
-                                  ... /drainage.nc
-                                  ... /historic-climate.nc
-                                  ... /projected-climate.nc
-                                  ... /co2.nc
-                                  ... /run-mask.nc
+        <OUTDIR>/<TAG>_<YSIZE>x<XSIZE>/
+                {0}
 
         <OUTDIR>/<TAG>_<YSIZE>x<XSIZE>/output/restart-eq.nc
 
         Assumes a certain layout for the source files. At this point, the 
         source files are generally .tifs that have been created for the IEM
         project.
-        '''),
+        '''.format("\n                ".join([i+'.nc' for i in fileChoices]))),
 
       epilog=textwrap.dedent(''''''),
   )
@@ -958,8 +951,15 @@ if __name__ == '__main__':
                       help="source window y size (default: %(default)s)")
 
   parser.add_argument('--which', default=['all'], nargs='+',
-                      help="which files to create (default: %(default)s)",
-                      choices=fileChoices+['all'])
+                      choices=fileChoices+['all'],
+                      metavar='FILE',
+                      help=textwrap.dedent('''\
+                        Space separated list of which files to create. 
+                        Allowed values: {:}. (default: %(default)s)
+                        '''.format(', '.join(fileChoices+['all'])))
+                      )
+
+
 
   parser.add_argument('--iyix-from-latlon', default=None, nargs=2, type=float,
                       help="Find closest pixel to provided lat and lon arguments.")

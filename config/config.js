@@ -12,6 +12,7 @@
     "soil_texture_file":  "DATA/bnza_lter_10x10/soil_texture.nc",
     "co2_file":           "DATA/bnza_lter_10x10/co2.nc",
     "runmask_file":       "DATA/bnza_lter_10x10/run-mask.nc",
+    "topo_file":          "DATA/bnza_lter_10x10/topo.nc",
     "fri_fire_file":      "DATA/bnza_lter_10x10/fri-fire.nc",
     "hist_exp_fire_file": "DATA/bnza_lter_10x10/historic-explicit-fire.nc",
     "proj_exp_fire_file": "DATA/bnza_lter_10x10/projected-explicit-fire.nc",
