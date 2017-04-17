@@ -435,7 +435,7 @@ def sum_across(key, jdata, xsec):
   # We should really build this programatically based on the parameter files
   # or something! Bound to get out of whack if we try to maintain manually!
   CMTLU = {
-    1: {
+    1: { # Black spruce - split guesses by looking at parameters/cmt_calparbgc.txt
       'all'      : [0,1,2,3,4,5,6,7,8,9],
       'vasc'     : [0,1,2,3,4,5,6],
       'nonvasc'  : [7, 8]
