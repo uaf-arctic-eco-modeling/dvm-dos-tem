@@ -50,10 +50,8 @@ def analyze(cjd, pjd):
   Returns a dict with all the data (calculated values).
   '''
 
-  # Need to lookup vascular/non-vascular split based on CMT??
-
-  vasc = [0,1,2,3,4]
-  nonvasc = [5,6,7]
+  # The vascular/non-vascular split (i.e. which pfts should be considered
+  # vascular or non) is done in the sum_across function from a lookup table.
 
   results = {}
 
