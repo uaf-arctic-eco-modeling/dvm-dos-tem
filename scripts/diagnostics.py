@@ -434,17 +434,26 @@ def compile_table_by_year(test_case, **kwargs):
 def sum_across(key, jdata, xsec):
   # Setup a dict for mapping community type numbers
   # to differnet combos of PFTs for vascular/non-vascular
+  # We should really build this programatically based on the parameter files
+  # or something! Bound to get out of whack if we try to maintain manually!
   CMTLU = {
+    1: {
+      'all'      : [0,1,2,3,4,5,6,7,8,9],
+      'vasc'     : [0,1,2,3,4,5,6],
+      'nonvasc'  : [7, 8]
+    },
     5: {
       'all'      : [0,1,2,3,4,5,6,7,8,9],
       'vasc'     : [0,1,2,3,4],
       'nonvasc'  : [5,6,7]
-    }
+    },
+    6: {}
   }
 
-  pfts = CMTLU[5][xsec]
-  total = np.nan
+  CMT = int(jdata['CMT'].lstrip('CMT')) # reduce from string like 'CMT01'
 
+  pfts = CMTLU[CMT][xsec]
+  total = np.nan
   if jdata != None:
     total = 0
     for pft in ['PFT%i'%i for i in pfts]:
