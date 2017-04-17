@@ -150,17 +150,24 @@ def onclick(event):
     exit_gracefully(event.key, None) # <-- need to pass something for frame ??
 
 
-def error_image(**kwargs):
-  '''Returns an array with dimensions (yrs,months) for the error variable.
+def error_image(save_plots=False, save_format="pdf", **kwargs):
+  '''
+  Generates "Error Image Plots", that are shown, and or saved.
 
   Parameters
   ----------
   plotlist : list of str
-  
+    Which plots to create (i.e. 'C soil' 'N veg', etc)
+  save_plots : bool
+    Whether or not to save the plots to files.
+  save_format : str
+    Which file format to use for saving image.
+
   --> various kwargs, passed to file loader
 
   Returns
   -------
+  None
   '''
 
   if "plotlist" not in kwargs:
@@ -209,13 +216,30 @@ def error_image(**kwargs):
 
     pjd = jdata
 
-  image_plot(imgarrays_err, plotlist)
-  image_plot(imgarrays_delta, plotlist)
-  image_plot(imgarrays_err/imgarrays_delta, plotlist)
+  # Old method - resulted in 2 or more plots per panel (i.e. 'C soil', 
+  # 'C veg', etc), and then one figure for each error, delta, and error/delta.
+  # No titles, kind of hard to interpert.
+  # image_plot(imgarrays_err, plotlist)
+  # image_plot(imgarrays_delta, plotlist)
+  # image_plot(imgarrays_err/imgarrays_delta, plotlist)
+
+  # New method - shows one figure of for each item in plot list (i.e. 'C soil' 
+  # 'N veg', etc), and each figure has error, delta, and error/delta on it.
+  for idx, p in enumerate(plotlist):
+    new_list = np.array((imgarrays_err[idx], imgarrays_delta[idx], imgarrays_err[idx]/imgarrays_delta[idx]))
+    image_plot(new_list,
+               ['error','delta','err/delta'], # list of titles for subplots
+               title=p,                       # figure title
+               save=save_plots,               # pass-thru whether or not to save
+               format=save_format)            # pass-thru saving format
 
 
-def image_plot(imgarrays, plotlist):
 
+def image_plot(imgarrays, plotlist, title='', save=False, format='pdf'):
+  '''
+  Carry out the rendering of several "image plots" side by side:
+  Setup grid, layout, colorbar, render data, set titles, axes labels, etc.
+  '''
   from mpl_toolkits.axes_grid1 import make_axes_locatable
   from matplotlib.colors import LogNorm
   from matplotlib.ticker import MultipleLocator
@@ -224,8 +248,14 @@ def image_plot(imgarrays, plotlist):
 
   # undertake the plotting of the now full arrays..
   fig, axar = plt.subplots(1, len(imgarrays), sharex=True, sharey=True)
-  fig.set_tight_layout(True)
+
+  #fig.set_tight_layout(True)
+  print "Making room for title..."
+  plt.subplots_adjust(top=0.9, bottom=0.16)
+  fig.suptitle(title, fontsize=16)
+
   cid = fig.canvas.mpl_connect('button_press_event', onclick)
+
   #mpldatacursor.datacursor(display='single')
 
   for axidx, data in enumerate(imgarrays):
@@ -295,6 +325,11 @@ def image_plot(imgarrays, plotlist):
       x[0].set_title(newX1)
     else:
       x[0].set_title(x[1])
+
+  if save:
+    file_name = title + "." + format
+    print "saving file: %s" % file_name
+    plt.savefig(file_name)
 
   plt.show(block=True)
 
@@ -853,11 +888,12 @@ if __name__ == '__main__':
       help=textwrap.dedent('''Generate tabular reports''')
   )
 
-  # parser.add_argument('--save-name', default="",
-  #     help="A file name prefix to use for saving plots.")
+  parser.add_argument('--save-plots', action='store_true', default=False,
+      help="Saves plots (to current directory).")
 
-  # parser.add_argument('--save-format', default="pdf",
-  #     help="Choose a file format to use for saving plots.")
+  parser.add_argument('--save-format', default="pdf",
+      choices=['pdf', 'png', 'jpg'],
+      help="Choose a file format to use for saving plots.")
 
   print "Parsing command line arguments..."
   args = parser.parse_args()
@@ -865,10 +901,13 @@ if __name__ == '__main__':
 
   slstr = args.slice
   fromarchive = args.from_archive
+  save = args.save_plots
+  imgformat = args.save_format
+
 
   if args.error_image:
     print "Creating error image plots..."
-    error_image(plotlist=args.error_image, fileslice=slstr)
+    error_image(plotlist=args.error_image, fileslice=slstr, save_plots=save, save_format=imgformat)
 
   if args.plot_timeseries:
     print "Creating timeseries plots..."
