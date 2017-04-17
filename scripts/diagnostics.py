@@ -37,10 +37,20 @@ def monthly_files(tarfileobj):
       yield tarinfo
 
 def analyze(cjd, pjd):
-  '''Extract every ounce of knowledge from a pair of json data objects.
-
-  Returns a dict with all the data.
   '''
+  Extract every ounce of knowledge from a pair of json data objects.
+
+  Parameters
+  ----------
+  cjd : json?
+    The 'current' json data object.
+  pjd : json?
+    The previous json data object.
+
+  Returns a dict with all the data (calculated values).
+  '''
+
+  # Need to lookup vascular/non-vascular split based on CMT??
 
   vasc = [0,1,2,3,4]
   nonvasc = [5,6,7]
@@ -76,7 +86,22 @@ def analyze(cjd, pjd):
 
 
 def file_loader(**kwargs):
-  '''Returns a list of files to open'''
+  '''
+  Build a list of files to open.
+
+  Parameters
+  ----------
+  fileslice : str, optional
+    A string of the form 'start:end'
+
+  fromarchive : str, optional
+    A path to a .tar.gz archive to read from.
+
+  Returns
+  -------
+  jfiles : list of str
+    A list of .json file paths.
+  '''
   if 'fileslice' in kwargs:
       slice_string = kwargs['fileslice']
       # parse string into slice object
@@ -125,9 +150,18 @@ def onclick(event):
     exit_gracefully(event.key, None) # <-- need to pass something for frame ??
 
 
-
 def error_image(**kwargs):
-  '''Returns an array with dimensions (yrs,months) for the error variable.'''
+  '''Returns an array with dimensions (yrs,months) for the error variable.
+
+  Parameters
+  ----------
+  plotlist : list of str
+  
+  --> various kwargs, passed to file loader
+
+  Returns
+  -------
+  '''
 
   if "plotlist" not in kwargs:
     plotlist = ['C veg', 'C soil', 'N veg tot', 'N veg str', 'N veg lab', 'N soil org', 'N soil avl']
@@ -757,6 +791,39 @@ if __name__ == '__main__':
     formatter_class=argparse.RawDescriptionHelpFormatter,
 
       description=textwrap.dedent('''\
+        Diagnostics plots for dvmdostem in calibration mode. 
+
+        In general this program is designed to check that the sum of the fluxes
+        computed and recorded by dvmdostem is comensurate with the changes in 
+        pool values computed and recorded by dvmdostem. We have been calling 
+        this an a-posteriori check of the C and N balance closure.
+
+        This program provides two ways to look at this diagnostic information:
+          - Error Image Plots
+          - Tabular Reports
+
+        This program can assess data over the entire duration of a model run or
+        a user-specified slice. The Error Image Plots are better for looking at
+        the big picture, while the tabular reports are better for analyzing a
+        smaller slice of the timeseries.
+
+        The Error Image Plot uses the y axis for simulation year and x axis for
+        simulation month, creating a 2D image for the timeseries. Each pixel 
+        in the images is colored based on the error value for that point in 
+        time. To compute the error value, the program first computes a delta
+        value for a given pool:
+
+          delta = (current pool value) - (previous pool value)
+
+        Then to compute the error value, the program substracts the sum of
+        fluxes that should affect a give pool from the delta value for the pool:
+
+          error = (delta) - (sum of fluxes)
+
+        Ideally the error is zero. For each Error Image Plot this program also 
+        generates a plot showing the pool deltas, and a plot showing the error
+        values divided by the delta values.
+
         Error image and tabular report options
         %s
         ''' % (option_table)),
