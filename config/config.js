@@ -9,7 +9,7 @@
     "proj_climate_file":  "DATA/bnza_lter_10x10/projected-climate.nc",
     "veg_class_file":     "DATA/bnza_lter_10x10/vegetation.nc",
     "drainage_file":      "DATA/bnza_lter_10x10/drainage.nc",
-    "soil_texture_file":  "DATA/bnza_lter_10x10/soil_texture.nc",
+    "soil_texture_file":  "DATA/bnza_lter_10x10/soil-texture.nc",
     "co2_file":           "DATA/bnza_lter_10x10/co2.nc",
     "runmask_file":       "DATA/bnza_lter_10x10/run-mask.nc",
     "topo_file":          "DATA/bnza_lter_10x10/topo.nc",

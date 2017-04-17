@@ -466,7 +466,7 @@ def fill_topo_file(inSlope, inAspect, inElev, xo, yo, xs, ys, out_dir, of_name):
     for ncvar, tmpFileName in zip(['slope','aspect','elevation'],[tmpSlope,tmpAspect,tmpElev]):
       with netCDF4.Dataset(tmpFileName, 'r') as TF:
         V = new_topodataset.variables[ncvar]
-        V[:] = TF.variables['Band1']
+        V[:] = TF.variables['Band1'][:]
 
 
 def fill_veg_file(if_name, xo, yo, xs, ys, out_dir, of_name):
@@ -514,6 +514,49 @@ def fill_climate_file(start_yr, yrs, xo, yo, xs, ys,
   # Create empty file with all the correct dimensions. At the end data will
   # be copied into this file.
   create_template_climate_nc_file(masterOutFile, sizey=ys, sizex=xs)
+
+  # Start with setting up the spatial info (copying from input file)
+  # Best do to this before the data so that we can catch bugs before waiting 
+  # for all the data to copy.
+  tmpfile = '/tmp/temporary-file-with-spatial-info.nc'
+  smaller_tmpfile = '/tmp/smaller-temporary-file-with-spatial-info.nc'
+  print "Creating a temporary file with LAT and LON variables: ", tmpfile
+  check_call([
+      'gdal_translate', '-of', 'netCDF', '-co', 'WRITE_LONLAT=YES',
+      sp_ref_file,
+      tmpfile
+    ])
+  print "Finished creating temporary file with spatial info."
+
+  print "Make a subset of the temporary file with LAT and LON variables: ", smaller_tmpfile
+  check_call(['gdal_translate', '-of', 'netCDF',
+      '-co', 'WRITE_LONLAT=YES',
+      '-srcwin', str(xo), str(yo), str(xs), str(ys),
+      tmpfile, smaller_tmpfile
+    ])
+  print "Finished creating the temporary subset...(cropping to our domain)"
+
+  print "Copy the LAT/LON variables from the temporary file into our new dataset..."
+  # Open the 'temporary' dataset
+  temp_subset_with_lonlat = netCDF4.Dataset(smaller_tmpfile, mode='r')
+
+  # Open the new file for appending
+  new_climatedataset = netCDF4.Dataset(masterOutFile, mode='a')
+
+  # Insert lat/lon from temp file into the new file
+  lat = new_climatedataset.variables['lat']
+  lon = new_climatedataset.variables['lon']
+  lat[:] = temp_subset_with_lonlat.variables['lat'][:]
+  lon[:] = temp_subset_with_lonlat.variables['lon'][:]
+
+  print "Write attribute with pixel offsets to file..."
+  new_climatedataset.source = source_attr_string(xo=xo, yo=yo)
+
+  print "Done copying LON/LAT."
+
+  print "Closing new dataset and temporary file."
+  new_climatedataset.close()
+  temp_subset_with_lonlat.close()
 
   # Copy the master into a separate file for each variable
   for v in dataVarList:
@@ -573,45 +616,6 @@ def fill_climate_file(start_yr, yrs, xo, yo, xs, ys,
   with netCDF4.Dataset(masterOutFile, mode='a') as new_climatedataset:
     nirr = new_climatedataset.variables['nirr']
     nirr[:] = (1000000 / (60*60*24)) * nirr[:]
-
-  tmpfile = '/tmp/temporary-file-with-spatial-info.nc'
-  smaller_tmpfile = '/tmp/smaller-temporary-file-with-spatial-info.nc'
-  print "Creating a temporary file with LAT and LON variables: ", tmpfile
-  check_call([
-      'gdal_translate', '-of', 'netCDF', '-co', 'WRITE_LONLAT=YES',
-      sp_ref_file,
-      tmpfile
-    ])
-  print "Finished creating temporary file with spatial info."
-
-  print "Make a subset of the temporary file with LAT and LON variables: ", smaller_tmpfile
-  check_call(['gdal_translate', '-of', 'netCDF',
-      '-co', 'WRITE_LONLAT=YES',
-      '-srcwin', str(xo), str(yo), str(xs), str(ys),
-      tmpfile, smaller_tmpfile
-    ])
-  print "Finished creating the temporary subset...(cropping to our domain)"
-
-  print "Copy the LAT/LON variables from the temporary file into our new dataset..."
-  # Open the 'temporary' dataset
-  temp_subset_with_lonlat = netCDF4.Dataset(smaller_tmpfile, mode='r')
-
-  # Open the new file for appending
-  new_climatedataset = netCDF4.Dataset(masterOutFile, mode='a')
-
-  # Insert lat/lon from temp file into the new file
-  lat = new_climatedataset.variables['lat']
-  lon = new_climatedataset.variables['lon']
-  lat[:] = temp_subset_with_lonlat.variables['lat']
-  lon[:] = temp_subset_with_lonlat.variables['lon']
-  print "Done copying LON/LAT."
-
-  print "Write attribute with pixel offsets to file..."
-  new_climatedataset.source = source_attr_string(xo=xo, yo=yo)
-
-  new_climatedataset.close()
-  temp_subset_with_lonlat.close()
-
 
 
 def fill_soil_texture_file(if_sand_name, if_silt_name, if_clay_name, xo, yo, xs, ys, out_dir, of_name, rand=True):
@@ -795,16 +799,15 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir, files=[]):
   #
   # The fire files require the presence of the veg map, and climate!
   #
-
-  if 'veg' in files:
+  if 'vegetation' in files:
     of_name = os.path.join(out_dir, "vegetation.nc")
     fill_veg_file(os.path.join(tif_dir,  "iem_ancillary_data/Landcover/LandCover_iem_TEM_2005.tif"), xo, yo, xs, ys, out_dir, of_name)
 
-  if 'drain' in files:
+  if 'drainage' in files:
     of_name = os.path.join(out_dir, "drainage.nc")
     fill_drainage_file(os.path.join(tif_dir,  "iem_ancillary_data/soil_and_drainage/Lowland_1km.tif"), xo, yo, xs, ys, out_dir, of_name)
 
-  if 'soil_texture' in files:
+  if 'soil-texture' in files:
     of_name = os.path.join(out_dir, "soil_texture.nc")
     in_sand_base = os.path.join(tif_dir,  "iem_ancillary_data/soil_and_drainage/iem_domain_hayes_igbp_pct_sand.tif")
     in_silt_base = os.path.join(tif_dir,  "iem_ancillary_data/soil_and_drainage/iem_domain_hayes_igbp_pct_silt.tif")
@@ -819,13 +822,13 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir, files=[]):
     in_elev = os.path.join(tif_dir,  "iem_ancillary_data/Elevation/ALF_AK_CAN_prism_dem_1km.tif")
     fill_topo_file(in_slope, in_aspect, in_elev, xo,yo,xs,ys,out_dir, of_name)
 
-  if 'run_mask' in files:
+  if 'run-mask' in files:
     make_run_mask(os.path.join(out_dir, "run-mask.nc"), sizey=ys, sizex=xs, match2veg=True) #setpx='1,1')
 
   if 'co2' in files:
     make_co2_file(os.path.join(out_dir, "co2.nc"))
 
-  if 'hist_climate' in files:
+  if 'historic-climate' in files:
     of_name = "historic-climate.nc"
     sp_ref_file  = os.path.join(tif_dir,  "tas_mean_C_iem_cru_TS31_1901_2009/tas_mean_C_iem_cru_TS31_%02d_%04d.tif" % (1, 1901))
     in_tair_base = os.path.join(tif_dir,  "tas_mean_C_iem_cru_TS31_1901_2009/tas_mean_C_iem_cru_TS31")
@@ -846,7 +849,7 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir, files=[]):
     fill_climate_file(1901+start_year, hc_years, xo, yo, xs, ys, out_dir, of_name, sp_ref_file, in_tair_base, in_prec_base, in_rsds_base, in_vapo_base)
 
 
-  if 'proj_climate' in files:
+  if 'projected-climate' in files:
     of_name = "projected-climate.nc"
     sp_ref_file  = os.path.join(tif_dir,  "tas_mean_C_iem_cccma_cgcm3_1_sresa1b_2001_2100/tas_mean_C_iem_cccma_cgcm3_1_sresa1b_%02d_%04d.tif" % (1, 2001))
     in_tair_base = os.path.join(tif_dir,  "tas_mean_C_iem_cccma_cgcm3_1_sresa1b_2001_2100/tas_mean_C_iem_cccma_cgcm3_1_sresa1b")
@@ -867,11 +870,11 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir, files=[]):
     fill_climate_file(2001+start_year, pc_years, xo, yo, xs, ys, out_dir, of_name, sp_ref_file, in_tair_base, in_prec_base, in_rsds_base, in_vapo_base)
 
 
-  if 'fri_fire' in files:
+  if 'fri-fire' in files:
     of_name = os.path.join(out_dir, "fri-fire.nc")
     fill_fri_fire_file(tif_dir + "iem_ancillary_data/Fire/", xo, yo, xs, ys, out_dir, of_name)
 
-  if 'historic_explicit_fire' in files:
+  if 'historic-explicit-fire' in files:
     of_name = os.path.join(out_dir, "historic-explicit-fire.nc")
 
     climate = os.path.join(os.path.split(of_name)[0], 'historic-climate.nc')
@@ -881,7 +884,7 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir, files=[]):
 
     fill_explicit_fire_file(tif_dir + "iem_ancillary_data/Fire/", years, xo, yo, xs, ys, out_dir, of_name)
 
-  if 'projected_explicit_fire' in files:
+  if 'projected-explicit-fire' in files:
     of_name = os.path.join(out_dir, "projected-explicit-fire.nc")
 
     climate = os.path.join(os.path.split(of_name)[0], 'projected-climate.nc')
