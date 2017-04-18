@@ -88,4 +88,4 @@ private:
   void yearly_output(const int year, const std::string& stage, const int startyr, const int endyr);
 
 };
-#endif /*RUNNER_H_*/
+#endif /* RUNNER_H_ */

@@ -326,17 +326,21 @@ int main(int argc, char* argv[]){
             runner.cohort.md->set_avlnflg(true);
             runner.cohort.md->set_baseline(true);
 
-            runner.cohort.md->set_dsbmodule(false);
+            runner.cohort.md->set_dsbmodule(true);
 
             if (runner.cohort.md->get_dsbmodule()) {
               // The transition to SP must occur at the completion of a
               // fire cycle (i.e. a year or two prior to the next fire).
               // To ensure this, re-set modeldata's EQ year count to an
               // even multiple of the FRI minus 2 (to be safe)
-              int fri = runner.cohort.fire.getFRI(); 
-              int EQ_fire_cycles = modeldata.eq_yrs / fri;
-              if (modeldata.eq_yrs%fri != 0) {
-                modeldata.eq_yrs = fri * (EQ_fire_cycles + 1) - 2;
+              if (modeldata.eq_yrs < runner.cohort.fire.getFRI()) {
+                BOOST_LOG_SEV(glg, err) << "The model will not run enough years to complete a disturbance cycle!";
+              } else {
+                int fri = runner.cohort.fire.getFRI();
+                int EQ_fire_cycles = modeldata.eq_yrs / fri;
+                if (modeldata.eq_yrs%fri != 0) {
+                  modeldata.eq_yrs = fri * (EQ_fire_cycles + 1) - 2;
+                }
               }
             }
 
@@ -352,6 +356,10 @@ int main(int argc, char* argv[]){
 
             BOOST_LOG_SEV(glg, note) << "Writing RestartData to: " << eq_restart_fname;
             runner.cohort.restartdata.write_pixel_to_ncfile(eq_restart_fname, rowidx, colidx);
+
+            if (modeldata.eq_yrs < runner.cohort.fire.getFRI()) {
+              BOOST_LOG_SEV(glg, err) << "The model did not run enough years to complete a disturbance cycle!";
+            }
 
             if (runner.calcontroller_ptr) {
               runner.calcontroller_ptr->handle_stage_end("eq");
@@ -464,6 +472,9 @@ int main(int argc, char* argv[]){
 
             // Loading projected data instead of historic. FIX?
             runner.cohort.load_proj_climate(modeldata.proj_climate_file);
+
+BOOST_LOG_SEV(glg,fatal) << "Need to deal with loading projected fire data";
+exit(-1);
 
             // Run model
             runner.run_years(0, modeldata.sc_yrs, "sc-run");

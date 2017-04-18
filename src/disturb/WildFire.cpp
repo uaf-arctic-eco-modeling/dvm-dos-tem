@@ -37,28 +37,24 @@ WildFire::WildFire() {}
 WildFire::~WildFire() {}
 
 WildFire::WildFire(const std::string& fri_fname,
-                   const std::string& explicit_fname, const int y, const int x) {
+                   const std::string& exp_fname, const std::string& topo_fname, const int y, const int x) {
 
   BOOST_LOG_SEV(glg, info) << "Setting up FRI fire data...";
   this->fri = temutil::get_scalar<int>(fri_fname, "fri", y, x);
   this->fri_severity = temutil::get_scalar<int>(fri_fname, "fri_severity", y, x);
-  this->fri_day_of_burn = temutil::get_scalar<int>(fri_fname, "fri_day_of_burn", y, x);
+  this->fri_jday_of_burn = temutil::get_scalar<int>(fri_fname, "fri_jday_of_burn", y, x);
+  this->fri_area_of_burn = temutil::get_scalar<int>(fri_fname, "fri_area_of_burn", y, x);
 
   BOOST_LOG_SEV(glg, info) << "Setting up explicit fire data...";
-  this->explicit_fire_year = temutil::get_timeseries<int>(explicit_fname, "explicit_fire_year", y, x);
-  this->explicit_fire_severity = temutil::get_timeseries<int>(explicit_fname, "explicit_fire_severity", y, x);
-  this->explicit_fire_day_of_burn = temutil::get_timeseries<int>(explicit_fname, "explicit_fire_day_of_burn", y, x);
+  this->exp_burn_mask = temutil::get_timeseries<int>(exp_fname, "exp_burn_mask", y, x);
+  this->exp_fire_severity = temutil::get_timeseries<int>(exp_fname, "exp_fire_severity", y, x);
+  this->exp_jday_of_burn = temutil::get_timeseries<int>(exp_fname, "exp_jday_of_burn", y, x);
+  this->exp_area_of_burn = temutil::get_timeseries<int>(exp_fname, "exp_area_of_burn", y, x);
  
-  // Set to an definitely invalid number.
-  // Later this will be set to a valid number based on the run stage and
-  // possibly other factors.
-  this->actual_severity = -1;
-
-  // need templates or more overloads or something so that we can
-  // read the std::vector<int> 
-  //fire_years = temutil::get_timeseries(fname, "fire_years", y, x);
-  //fire_sizes = temutil::get_timeseries<float>(fname, "fire_sizes", y, x);
-  //fire_month = temutil::get_timeseries(fname, "fire_month", y, x);
+  BOOST_LOG_SEV(glg, info) << "Setting up topographic data...";
+  this->slope = temutil::get_scalar<int>(topo_fname, "slope", y, x);
+  this->asp = temutil::get_scalar<int>(topo_fname, "aspect", y, x);
+  this->elev = temutil::get_scalar<int>(topo_fname, "elevation", y, x);
 
   BOOST_LOG_SEV(glg, debug) << "Done making WildFire object.";
   BOOST_LOG_SEV(glg, debug) << this->report_fire_inputs();
@@ -71,14 +67,15 @@ std::string WildFire::report_fire_inputs() {
   std::stringstream report_string;
   report_string << "FRI based fire vectors/data:" << std::endl;
   report_string << "FRI:              " << this->fri << std::endl;
-  report_string << "FRI day_of_burn:  " << this->fri_day_of_burn << std::endl;
+  report_string << "FRI jday_of_burn:  " << this->fri_jday_of_burn << std::endl;
+  report_string << "FRI area_of_burn:  " << this->fri_area_of_burn << std::endl;
   report_string << "FRI severity:     " << this->fri_severity << std::endl;
-  report_string << "Explicit fire vectors/data:" << std::endl;
-  report_string << "explicit fire year:        [" << temutil::vec2csv(this->explicit_fire_year) << "]" << std::endl;
-  report_string << "explicit fire day_of_burn: [" << temutil::vec2csv(this->explicit_fire_day_of_burn) << "]" << std::endl;
-  report_string << "explicit fire severity:    [" << temutil::vec2csv(this->explicit_fire_severity) << "]" << std::endl;
+  report_string << "exp fire vectors/data:" << std::endl;
+  report_string << "explicit fire year:         [" << temutil::vec2csv(this->exp_burn_mask) << "]" << std::endl;
+  report_string << "explicit fire jday_of_burn: [" << temutil::vec2csv(this->exp_jday_of_burn) << "]" << std::endl;
+  report_string << "explicit fire area_of_burn: [" << temutil::vec2csv(this->exp_area_of_burn) << "]" << std::endl;
+  report_string << "explicit fire severity:     [" << temutil::vec2csv(this->exp_fire_severity) << "]" << std::endl;
 
-  report_string << "Actual Fire Severity: " << this->actual_severity << std::endl;
 
   return report_string.str();
 
@@ -111,51 +108,18 @@ void WildFire::set_state_from_restartdata(const RestartData & rdata) {
 }
 
 
-/** Returns an integer in closed range 0-4 represening fire severity.
-*  Finds fire severity as a function of drainage (well or poor) season (1-4)
-*  and size (??range?).
-*/
-int WildFire::derive_fire_severity(const int drainage, const int day_of_burn, const int size) {
-
-  // This function/way of thinking may become obsolete!
-  //  - short term: read severity as an input
-  //  - longer term: do away with severity classification and calculate
-  //    % of organic layer to combust based on the following arguments:
-  //    (stage, slope, aspect, drainage, doy, aob, roab, tshlw)
-
-
-  assert ( (drainage == 0 || drainage == 1) && "Invalid drainage!");
-  assert ( (day_of_burn <= 364 && day_of_burn >= 0) && "Invalid day of burn!");
-  assert ( (size  && size >= 0) && "Invalid fire size!");
-
-  int severity;
-  
-  if (drainage == 1) {
-    severity = 0; // poorly drained, can't burn wet ground
-  }
-
-  if( drainage == 0 ) {  // well drained
-
-    BOOST_LOG_SEV(glg, err) << "NOT IMPLEMENTED YET...";
-    // NEED A WAY TO PARTITION BASED ON SIZE AND DAY OF YEAR?
-
-  }
-
-  return severity;
-}
-
-
-
 /** Figure out whether or not there should be a fire, based on stage, yr, month.
  *
  *  There are two modes of operation: "FRI" (fire recurrence interval) and
- *  "explicit". Pre-run, equilibrium, and spin-up stages all use the FRI settings
+ *  "exp". Pre-run, equilibrium, and spin-up stages all use the FRI settings
  *  for determining whether or not a fire should ignite, while transient and 
  *  scenario stages use explicit dates for fire occurrence.
  *
  *  The settings for FRI and the data for explicit fire dates are held in data
  *  members of this (WildFire) object. This function looks at those data
  *  and sets the "actual_severity" member accordingly.
+ *
+ *  NOTE: how to handle fire severity, to be determined.
  *
 */
 bool WildFire::should_ignite(const int yr, const int midx, const std::string& stage) {
@@ -164,27 +128,28 @@ bool WildFire::should_ignite(const int yr, const int midx, const std::string& st
                            << ", monthidx:" << midx << ", stage:" << stage;
 
   bool ignite = false;
+  bool fri_derived = false;
 
   if ( stage.compare("pre-run") == 0 || stage.compare("eq-run") == 0 || stage.compare("sp-run") == 0 ) {
 
-    BOOST_LOG_SEV(glg, debug) << "Determine fire by FRI.";
+    this->fri_derived = true;
+    BOOST_LOG_SEV(glg, debug) << "Determine fire from FRI.";
 
     if ( (yr % this->fri) == 0 && yr > 0 ) {
-      if (midx == temutil::doy2month(this->fri_day_of_burn)) {
+      if (midx == temutil::doy2month(this->fri_jday_of_burn)) {
         ignite = true;
-        this->actual_severity = this->fri_severity;
       }
       // do nothing: correct year, wrong month.
     }
 
   } else if ( stage.compare("tr-run") == 0 || stage.compare("sc-run") == 0 ) {
 
-    BOOST_LOG_SEV(glg, debug) << "Determine fire by explicit year.";
+    this->fri_derived = false;
+    BOOST_LOG_SEV(glg, debug) << "Determine fire from explicit fire regime.";
 
-    if ( this->explicit_fire_year[yr] == 1 ){
-      if ( temutil::doy2month(this->explicit_fire_day_of_burn[yr]) == midx ) {
+    if ( this->exp_burn_mask[yr] == 1 ){
+      if ( temutil::doy2month(this->exp_jday_of_burn[yr]) == midx ) {
         ignite = true;
-        this->actual_severity = this->explicit_fire_severity.at(yr);
       }
       // do nothing: correct year, wrong month
     }
@@ -202,9 +167,6 @@ void WildFire::burn(int year) {
   BOOST_LOG_NAMED_SCOPE("burning");
   BOOST_LOG_SEV(glg, note) << "HELP!! - WILD FIRE!! RUN FOR YOUR LIFE!";
 
-  assert ((this->actual_severity >= 0) && (this->actual_severity < 5) && "Invalid fire severity!");
-  BOOST_LOG_SEV(glg, debug) << "Fire severity: " << this->actual_severity;
-
   BOOST_LOG_SEV(glg, debug) << fd->report_to_string("Before WildFire::burn(..)");
   BOOST_LOG_SEV(glg, note) << "Burning (simply clearing?) the 'FireData object...";
   fd->burn();
@@ -213,7 +175,7 @@ void WildFire::burn(int year) {
   // for soil part and root burning
   // FIX: there isn't really a reason for getBurnOrgSoilthick to return a value
   // as it has already set the "burn thickness" value in FirData...
-  double burndepth = getBurnOrgSoilthick(this->actual_severity);
+  double burndepth = getBurnOrgSoilthick(year);
   BOOST_LOG_SEV(glg, debug) << fd->report_to_string("After WildFire::getBurnOrgSoilthick(..)");
 
   BOOST_LOG_SEV(glg, note) << "Setup some temporary pools for tracking various burn related attributes (depths, C, N)";
@@ -266,7 +228,7 @@ void WildFire::burn(int year) {
         double partleft = totbotdepth - burndepth;
 
         // Calculate the remaining C, N
-        if(partleft < cd->m_soil.dz[il]) { // <-- Maybe this should be an assert instead of an if statement??
+        if (partleft < cd->m_soil.dz[il]) { // <-- Maybe this should be an assert instead of an if statement??
           BOOST_LOG_SEV(glg, debug) << "Burning all but "<<partleft<<"of layer "<<il;
           burnedsolc += (1.0-partleft/cd->m_soil.dz[il]) * ilsolc;
           burnedsoln += (1.0-partleft/cd->m_soil.dz[il]) * ilsoln;
@@ -293,14 +255,12 @@ void WildFire::burn(int year) {
       }
     } else {   //Mineral soil layers
       BOOST_LOG_SEV(glg, note) << "Layer type:" << cd->m_soil.type[il] << ". Should be a non-organic soil layer? (greater than type 2)";
-
       BOOST_LOG_SEV(glg, note) << "Not much to do here. Can't really burn non-organic layers.";
 
       if(totbotdepth <= burndepth) { //may not be needed, but just in case
         BOOST_LOG_SEV(glg, note) << "For some reason totbotdepth <= burndepth, so we are setting fd->fire_soid.burnthick = totbotdepth??";
         fd->fire_soid.burnthick = totbotdepth;
       }
-
     }
   } // end soil layer loop
 
@@ -331,9 +291,9 @@ void WildFire::burn(int year) {
 
   // summarize
   BOOST_LOG_SEV(glg, note) << "Summarize...?";
-  double vola_solc = (burnedsolc + wdebrisc) * (1.0 - firpar.r_retain_c);
-  double vola_soln = (burnedsoln + wdebrisn) * (1.0 - firpar.r_retain_n);
-  double reta_solc = burnedsolc * firpar.r_retain_c;   //together with veg.-burned N return, This will be put into soil later
+  double vola_solc = burnedsolc * (1.0 - firpar.r_retain_c) + wdebrisc;
+  double vola_soln = burnedsoln * (1.0 - firpar.r_retain_n) + wdebrisn;
+  double reta_solc = burnedsolc * firpar.r_retain_c;   //together with veg.-burned C return, This will be put into soil later
   double reta_soln = burnedsoln * firpar.r_retain_n;   //together with veg.-burned N return, This will be put into soil later
 
   BOOST_LOG_SEV(glg, note) << "Handle Vegetation burning and mortality...";
@@ -346,8 +306,8 @@ void WildFire::burn(int year) {
   double veg_2_dead_C = 0.0;
   double veg_2_dead_N = 0.0;
 
-  bdall->m_vegs.deadc0 = 0;//Zeroing the standing dead pools
-  bdall->m_vegs.deadn0 = 0;
+  bdall->m_vegs.deadc0 = 0.0;//Zeroing the standing dead pools
+  bdall->m_vegs.deadn0 = 0.0;
 
   for (int ip = 0; ip < NUM_PFT; ip++) {
 
@@ -355,18 +315,18 @@ void WildFire::burn(int year) {
       BOOST_LOG_SEV(glg, note) << "Some of PFT"<<ip<<" exists (coverage > 0). Burn it!";
 
       // vegetation burning/dead/living fraction for above-ground
-      getBurnAbgVegetation(ip, this->actual_severity);
+      getBurnAbgVegetation(ip, year);
 
       // root death ratio: must be called after both above-ground and
       // below-ground burning. r_live_cn is same for both above-ground
       // and below-ground
-      double r_dead2bg_cn = 1.0-r_burn2bg_cn[ip]- r_live_cn;
+      double r_dead2bg_cn = 1.0-r_burn2bg_cn[ip]-r_live_cn;
 
       // Dead veg C, N. Assuming all previous deadc burned.
       comb_deadc += bd[ip]->m_vegs.deadc;
-
       // Assuming all previous deadn burned
       comb_deadn += bd[ip]->m_vegs.deadn;
+      
       //Zeroing the standing dead pools
       bd[ip]->m_vegs.deadc0 = 0.0;
       bd[ip]->m_vegs.deadn0 = 0.0;
@@ -519,8 +479,7 @@ void WildFire::burn(int year) {
 
 
 // above ground burning ONLY, based on fire severity indirectly or directly
-void WildFire::getBurnAbgVegetation(const int &ip, const int severity) {
-  assert ((severity >= 0 && severity <5) && "Invalid fire severity!!");
+void WildFire::getBurnAbgVegetation(const int ipft, const int year) {
   
   BOOST_LOG_SEV(glg, note) << "Lookup the above ground vegetation burned as a funciton of severity.";
   BOOST_LOG_SEV(glg, note) << " - Set the ratios for 'burn to above ground C,N' and 'dead to above ground C,N' member variables.";
@@ -533,17 +492,58 @@ void WildFire::getBurnAbgVegetation(const int &ip, const int severity) {
   // 3 - high + low surface
   // 4 - high + high surface
 
-  this->r_burn2ag_cn = firpar.fvcomb[severity][ip];
-  this->r_dead2ag_cn = firpar.fvdead[severity][ip];
+//  this->r_burn2ag_cn = firpar.fvcomb[severity][ip];
+//  this->r_dead2ag_cn = firpar.fvdead[severity][ip];
 
-  this->r_live_cn = 1.0 - r_burn2ag_cn - r_dead2ag_cn;
-}
+  if ( this->fri_derived ) {                    // FRI-derived fire regime
+    if (this->fri_severity >= 0) {              // fire severity is available from the input files - so get fvcomb and fvdead from the parameter file;
+      this->r_burn2ag_cn = firpar.fvcomb[this->fri_severity][ipft];
+      this->r_dead2ag_cn = firpar.fvdead[this->fri_severity][ipft];
+    }else {                                     // fire severity is available from the input files - apply the lookup table from Yi et al. 2010;
+      if( cd->drainage_type == 0 ) {            // 0: well-drained; 1: poorly-drained;
+        if ( this->fri_jday_of_burn <= 212 ) {   // Early fire, before July 31st (from Turetsly et al. 2011);
+          if ( this->fri_area_of_burn < 1.0 ) { // Small fire year (less that 1% of the area burned);
+            this->r_burn2ag_cn = 0.16;
+            this->r_dead2ag_cn = 0.76;
+          } else {
+            this->r_burn2ag_cn = 0.24;
+            this->r_dead2ag_cn = 0.75;
+          }
+        } else {                                // late fire (after July 31st);
+          this->r_burn2ag_cn = 0.32;
+          this->r_dead2ag_cn = 0.67;
+        } 
+      } else {                                  // lowland;
+        this->r_burn2ag_cn = 0.16;
+        this->r_dead2ag_cn = 0.76;
+      } 
+    }
+  } else {                                      // Explicit fire regime;
+    if (this->exp_fire_severity[year] >= 0) {    // fire severity is available from the input files - so get folb from the parameter file;
+      this->r_burn2ag_cn = firpar.fvcomb[this->exp_fire_severity[year]][ipft];
+      this->r_dead2ag_cn = firpar.fvdead[this->exp_fire_severity[year]][ipft];
+    } else {  
+      if( cd->drainage_type == 0 ) {            // 0: well-drained; 1: poorly-drained;
+        if ( this->fri_jday_of_burn <= 212 ) {   // Early fire, before July 31st (from Turetsly et al. 2011);
+          if ( this->fri_area_of_burn < 1.0 ) { // Small fire year (less that 1% of the area burned);
+            this->r_burn2ag_cn = 0.16;
+            this->r_dead2ag_cn = 0.76;
+          } else {
+            this->r_burn2ag_cn = 0.24;
+            this->r_dead2ag_cn = 0.75;
+          }
+        } else {                                // late fire (after July 31st);
+          this->r_burn2ag_cn = 0.32;
+          this->r_dead2ag_cn = 0.67;
+        } 
+      } else {                                  // lowland;
+        this->r_burn2ag_cn = 0.16;
+        this->r_dead2ag_cn = 0.76;
+      } 
+    }
+  }
 
-/** Returns the fraction of the organic soil layer to burn based on a variety of
-    factors.
-*/
-double burn_organic_soil(const int aob, const int dob /* slope, aspect, soil temp, etc? */) {
-  // ??
+  this->r_live_cn = 1.0 - this->r_burn2ag_cn - this->r_dead2ag_cn;
 }
 
 
@@ -555,9 +555,11 @@ double burn_organic_soil(const int aob, const int dob /* slope, aspect, soil tem
 *   2. can't exceed a pixel specified 'max burn thickness'
 *   3. should not burn into "wet" organic soil layers
 */
-double WildFire::getBurnOrgSoilthick(const int severity) {
+double WildFire::getBurnOrgSoilthick(const int year) {
+
+
   BOOST_LOG_SEV(glg, info) << "Find the amount of organic soil that is burned as a function of fire severity.";
-  assert((0 <= severity && severity < 5) && "Invalid fire severity! ");
+//assert((0 <= severity && severity < 5) && "Invalid fire severity! ");
 
   double burn_thickness = 0.0;
 
@@ -574,10 +576,55 @@ double WildFire::getBurnOrgSoilthick(const int severity) {
 
   BOOST_LOG_SEV(glg, debug) << "Total organic thickness: " << total_organic_thickness;
 
+  //compute the fraction of OL to burn FOLB
+  double folb = 0.0;
+
+  if ( this->fri_derived ) {                    // FRI-derived fire regime
+    if (this->fri_severity >= 0) {              // fire severity is available from the input files - so get folb from the parameter file;
+      folb = firpar.foslburn[this->fri_severity];
+    }else {                                     // fire severity is available from the input files - apply the lookup table from Yi et al. 2010;
+      if( cd->drainage_type == 0 ) {            // 0: well-drained; 1: poorly-drained;
+        if ( this->fri_jday_of_burn <= 212 ) {   // Early fire, before July 31st (from Turetsly et al. 2011);
+          if ( this->fri_area_of_burn < 1.0 ) { // Small fire year (less that 1% of the area burned);
+            folb = 0.54;
+          } else {
+            folb = 0.69;
+          }
+        } else {                                // late fire (after July 31st);
+          folb = 0.80;
+        } 
+      } else {                                  // lowland;
+        folb = 0.48;
+      } 
+    }
+  } else {                                      // Explicit fire regime;
+    if (this->exp_fire_severity[year] >= 0) {    // fire severity is available from the input files - so get folb from the parameter file;
+      folb = firpar.foslburn[this->exp_fire_severity[year]];
+    } else {  
+      if ( cd->cmttype > 3) {                   // tundra ecosystems: Mack et al. 2011;
+        folb = 0.01*((21.5-6.1)/21.5);
+      } else {                                  // boreal forest: Genet et al.2013;
+         if(this->slope<2){
+          folb = 0.1276966713-0.0319397467*this->slope+0.0020914862*this->exp_jday_of_burn[year]+0.0127016155* log(this->exp_area_of_burn[year]);
+        } else {
+          folb = -0.2758306315+0.0117609336*this->slope-0.0744057680*cos(this->asp * 3.14159265 / 180 ) +0.0260221684*edall->m_soid.tshlw+0.0011413114*this->exp_jday_of_burn[year]+0.0336302905*log (this->exp_area_of_burn[year]);
+        }
+      }
+    }
+  }
+
+  if (folb > 1.0) folb=1.0;
+  if (folb < 0.0) folb=0.0;
+
+
   //  Lookup burn thickness, based on severity and
   //  'fraction organic soil layer burned' parameter.
   //  (foslburn ==> "fraction organic soil layer burned")
-  burn_thickness = firpar.foslburn[severity] * total_organic_thickness;
+  //burn_thickness = firpar.foslburn[severity] * total_organic_thickness;
+
+
+  burn_thickness = folb * total_organic_thickness;
+
   BOOST_LOG_SEV(glg, debug) << "Calc burn thickness (severity): " << burn_thickness;
 
   //  VSM constrained burn thickness
@@ -588,7 +635,6 @@ double WildFire::getBurnOrgSoilthick(const int severity) {
   for (int i = 0; i < cd->m_soil.numsl; i++) {
     // 0:moss, 1:shlw peat, 2:deep peat, 3:mineral
     if( cd->m_soil.type[i] <= 2 ) {
-
       if (edall->m_soid.vwc[i] <= (firpar.vsmburn * cd->m_soil.por[i]) ) {
         total_dry_organic_thickness += cd->m_soil.dz[i];
       }
@@ -602,16 +648,16 @@ double WildFire::getBurnOrgSoilthick(const int severity) {
   }
   if ( burn_thickness > total_dry_organic_thickness ) {
     burn_thickness = total_dry_organic_thickness;
-    BOOST_LOG_SEV(glg, debug) << "Whoops! Burn thickness was greater than the thicknes of dry organic material. Constraining burn thickness...";
+    BOOST_LOG_SEV(glg, debug) << "Whoops! Burn thickness was greater than the thickness of dry organic material. Constraining burn thickness...";
   }
   BOOST_LOG_SEV(glg, debug) << "Calculated burn thickness using VSM constraint: " << burn_thickness;
 
 
-  // always burn all moss, even if the severity is really low.
-  if( burn_thickness < cd->m_soil.mossthick ) {
-    BOOST_LOG_SEV(glg, debug) << "Whoops! Shallow burn, but we always burn all the moss!.";
-    burn_thickness = cd->m_soil.mossthick;   //burn all moss layers
-  }
+// always burn all moss, even if the severity is really low.
+//  if( burn_thickness < cd->m_soil.mossthick ) {
+//    BOOST_LOG_SEV(glg, debug) << "Whoops! Shallow burn, but we always burn all the moss!";
+//    burn_thickness = cd->m_soil.mossthick;   //burn all moss layers
+//  }
 
   // Not sure that this will work in all circumstances?
   //// there are at least 2 cm orgnanic left

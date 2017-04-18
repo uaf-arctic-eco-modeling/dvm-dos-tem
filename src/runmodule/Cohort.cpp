@@ -71,9 +71,9 @@ Cohort::Cohort(int y, int x, ModelData* modeldatapointer):
   // setup the ground with the mineral info object
   this->ground = Ground(mineral_info);
 
-  BOOST_LOG_SEV(glg, debug) << "Setup the fire information...";
-  this->fire = WildFire(modeldatapointer->fri_fire_file,
-                        modeldatapointer->explicit_fire_file, y, x);
+  BOOST_LOG_SEV(glg, debug) << "Setup the fire information, defaulting to HISTORIC explicit data.";
+  this->fire = WildFire(modeldatapointer->fri_fire_file, 
+    modeldatapointer->hist_exp_fire_file, modeldatapointer->topo_file, y, x);
 
   this->soilenv = Soil_Env();
   
