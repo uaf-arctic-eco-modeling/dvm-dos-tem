@@ -329,115 +329,126 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
       }
     }
 
-    new_spec.filename = name + "_" + timestep + "_" + stage + ".nc";
+    // Only create a file if a timestep is specified for the variable.
+    //  Otherwise, assume the user does not want that variable output.
+    if(new_spec.yearly || new_spec.monthly || new_spec.daily){
 
-    BOOST_LOG_SEV(glg, debug)<<"Variable: "<<name<<". Timestep: "<<timestep;
+      // File location information for reconstructing a complete path
+      //  and filename during output.
+      new_spec.file_path = output_base.string();
+      new_spec.filename_prefix = name + "_" + timestep;
 
-    //filename with local path
-    boost::filesystem::path output_filepath = output_base / new_spec.filename;
-    //convert path to string for simplicity in the following function calls
-    new_spec.filestr = output_filepath.string();
+      //Temporary name for file creation.
+      std::string creation_filename = name + "_" + timestep + "_" + stage + ".nc";
 
-    //Creating NetCDF file
-    BOOST_LOG_SEV(glg, debug)<<"Creating output NetCDF file "<<new_spec.filestr;
-    temutil::nc( nc_create(new_spec.filestr.c_str(), NC_CLOBBER, &ncid) );
+      BOOST_LOG_SEV(glg, debug)<<"Variable: "<<name<<". Timestep: "<<timestep;
 
-    BOOST_LOG_SEV(glg, debug) << "Adding file-level attributes";
-    temutil::nc( nc_put_att_text(ncid, NC_GLOBAL, "Git_SHA", strlen(GIT_SHA), GIT_SHA ) );
+      //filename with local path
+      boost::filesystem::path output_filepath = output_base / creation_filename;
+      //convert path to string for simplicity in the following function calls
+      std::string creation_filestr = output_filepath.string();
 
-    BOOST_LOG_SEV(glg, debug) << "Adding dimensions...";
+      //Creating NetCDF file
+      BOOST_LOG_SEV(glg, debug)<<"Creating output NetCDF file "<<creation_filestr;
+      temutil::nc( nc_create(creation_filestr.c_str(), NC_CLOBBER, &ncid) );
 
-    //All variables will have time, y, x 
-    temutil::nc( nc_def_dim(ncid, "time", NC_UNLIMITED, &timeD) );
-    temutil::nc( nc_def_dim(ncid, "y", ysize, &yD) );
-    temutil::nc( nc_def_dim(ncid, "x", xsize, &xD) );
+      BOOST_LOG_SEV(glg, debug) << "Adding file-level attributes";
+      temutil::nc( nc_put_att_text(ncid, NC_GLOBAL, "Git_SHA", strlen(GIT_SHA), GIT_SHA ) );
 
-    //System-wide variables
-    if(new_spec.dim_count==3){
-      vartype3D_dimids[0] = timeD;
-      vartype3D_dimids[1] = yD;
-      vartype3D_dimids[2] = xD;
+      BOOST_LOG_SEV(glg, debug) << "Adding dimensions...";
 
-      temutil::nc( nc_def_var(ncid, name.c_str(), NC_DOUBLE, 3, vartype3D_dimids, &Var) );
-    }
+      //All variables will have time, y, x 
+      temutil::nc( nc_def_dim(ncid, "time", NC_UNLIMITED, &timeD) );
+      temutil::nc( nc_def_dim(ncid, "y", ysize, &yD) );
+      temutil::nc( nc_def_dim(ncid, "x", xsize, &xD) );
 
-    //PFT specific dimensions
-    else if(new_spec.pft && !new_spec.compartment){
-      temutil::nc( nc_def_dim(ncid, "pft", NUM_PFT, &pftD) );
+      //System-wide variables
+      if(new_spec.dim_count==3){
+        vartype3D_dimids[0] = timeD;
+        vartype3D_dimids[1] = yD;
+        vartype3D_dimids[2] = xD;
 
-      vartypeVeg4D_dimids[0] = timeD;
-      vartypeVeg4D_dimids[1] = pftD;
-      vartypeVeg4D_dimids[2] = yD;
-      vartypeVeg4D_dimids[3] = xD;
+        temutil::nc( nc_def_var(ncid, name.c_str(), NC_DOUBLE, 3, vartype3D_dimids, &Var) );
+      }
 
-      temutil::nc( nc_def_var(ncid, name.c_str(), NC_DOUBLE, 4, vartypeVeg4D_dimids, &Var) );
-    }
+      //PFT specific dimensions
+      else if(new_spec.pft && !new_spec.compartment){
+        temutil::nc( nc_def_dim(ncid, "pft", NUM_PFT, &pftD) );
 
-    //PFT compartment only
-    else if(!new_spec.pft && new_spec.compartment){
-      temutil::nc( nc_def_dim(ncid, "pftpart", NUM_PFT_PART, &pftpartD) );
+        vartypeVeg4D_dimids[0] = timeD;
+        vartypeVeg4D_dimids[1] = pftD;
+        vartypeVeg4D_dimids[2] = yD;
+        vartypeVeg4D_dimids[3] = xD;
 
-      vartypeVeg4D_dimids[0] = timeD;
-      vartypeVeg4D_dimids[1] = pftpartD;
-      vartypeVeg4D_dimids[2] = yD;
-      vartypeVeg4D_dimids[3] = xD;
+        temutil::nc( nc_def_var(ncid, name.c_str(), NC_DOUBLE, 4, vartypeVeg4D_dimids, &Var) );
+      }
 
-      temutil::nc( nc_def_var(ncid, name.c_str(), NC_DOUBLE, 4, vartypeVeg4D_dimids, &Var) );
-    }
+      //PFT compartment only
+      else if(!new_spec.pft && new_spec.compartment){
+        temutil::nc( nc_def_dim(ncid, "pftpart", NUM_PFT_PART, &pftpartD) );
 
-    //PFT and PFT compartments
-    else if(new_spec.pft && new_spec.compartment){ 
-      temutil::nc( nc_def_dim(ncid, "pft", NUM_PFT, &pftD) );
-      temutil::nc( nc_def_dim(ncid, "pftpart", NUM_PFT_PART, &pftpartD) );
+        vartypeVeg4D_dimids[0] = timeD;
+        vartypeVeg4D_dimids[1] = pftpartD;
+        vartypeVeg4D_dimids[2] = yD;
+        vartypeVeg4D_dimids[3] = xD;
 
-      vartypeVeg5D_dimids[0] = timeD;
-      vartypeVeg5D_dimids[1] = pftpartD;
-      vartypeVeg5D_dimids[2] = pftD;
-      vartypeVeg5D_dimids[3] = yD;
-      vartypeVeg5D_dimids[4] = xD;
+        temutil::nc( nc_def_var(ncid, name.c_str(), NC_DOUBLE, 4, vartypeVeg4D_dimids, &Var) );
+      }
 
-      temutil::nc( nc_def_var(ncid, name.c_str(), NC_DOUBLE, 5, vartypeVeg5D_dimids, &Var) );
-    }
+      //PFT and PFT compartments
+      else if(new_spec.pft && new_spec.compartment){ 
+        temutil::nc( nc_def_dim(ncid, "pft", NUM_PFT, &pftD) );
+        temutil::nc( nc_def_dim(ncid, "pftpart", NUM_PFT_PART, &pftpartD) );
 
-    //Soil specific dimensions
-    else if(new_spec.layer){
-      temutil::nc( nc_def_dim(ncid, "layer", MAX_SOI_LAY, &layerD) );
+        vartypeVeg5D_dimids[0] = timeD;
+        vartypeVeg5D_dimids[1] = pftpartD;
+        vartypeVeg5D_dimids[2] = pftD;
+        vartypeVeg5D_dimids[3] = yD;
+        vartypeVeg5D_dimids[4] = xD;
 
-      vartypeSoil4D_dimids[0] = timeD;
-      vartypeSoil4D_dimids[1] = layerD;
-      vartypeSoil4D_dimids[2] = yD;
-      vartypeSoil4D_dimids[3] = xD;
+        temutil::nc( nc_def_var(ncid, name.c_str(), NC_DOUBLE, 5, vartypeVeg5D_dimids, &Var) );
+      }
 
-      temutil::nc( nc_def_var(ncid, name.c_str(), NC_DOUBLE, 4, vartypeSoil4D_dimids, &Var) );
-    }
+      //Soil specific dimensions
+      else if(new_spec.layer){
+        temutil::nc( nc_def_dim(ncid, "layer", MAX_SOI_LAY, &layerD) );
 
-    BOOST_LOG_SEV(glg, debug) << "Adding variable-level attributes";
-    temutil::nc( nc_put_att_text(ncid, Var, "units", units.length(), units.c_str()) );
-    temutil::nc( nc_put_att_text(ncid, Var, "long_name", desc.length(), desc.c_str()) );
-    temutil::nc( nc_put_att_double(ncid, Var, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
+        vartypeSoil4D_dimids[0] = timeD;
+        vartypeSoil4D_dimids[1] = layerD;
+        vartypeSoil4D_dimids[2] = yD;
+        vartypeSoil4D_dimids[3] = xD;
 
-    /* End Define Mode (not strictly necessary for netcdf 4) */
-    BOOST_LOG_SEV(glg, debug) << "Leaving 'define mode'...";
-    temutil::nc( nc_enddef(ncid) );
+        temutil::nc( nc_def_var(ncid, name.c_str(), NC_DOUBLE, 4, vartypeSoil4D_dimids, &Var) );
+      }
 
-    /* Close file. */
-    BOOST_LOG_SEV(glg, debug) << "Closing new file...";
-    temutil::nc( nc_close(ncid) );
+      BOOST_LOG_SEV(glg, debug) << "Adding variable-level attributes";
+      temutil::nc( nc_put_att_text(ncid, Var, "units", units.length(), units.c_str()) );
+      temutil::nc( nc_put_att_text(ncid, Var, "long_name", desc.length(), desc.c_str()) );
+      temutil::nc( nc_put_att_double(ncid, Var, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
 
-    //Add output specifiers to the map tracking the appropriate timestep
-    if(new_spec.daily){
-      daily_netcdf_outputs.insert(std::map<std::string, output_spec>::value_type(name, new_spec));
-    }
+      /* End Define Mode (not strictly necessary for netcdf 4) */
+      BOOST_LOG_SEV(glg, debug) << "Leaving 'define mode'...";
+      temutil::nc( nc_enddef(ncid) );
 
-    else if(new_spec.monthly){
-      monthly_netcdf_outputs.insert(std::map<std::string, output_spec>::value_type(name, new_spec));
-      //monthly_netcdf_outputs.insert({name, filename}); c++11
-    }
+      /* Close file. */
+      BOOST_LOG_SEV(glg, debug) << "Closing new file...";
+      temutil::nc( nc_close(ncid) );
 
-    else if(new_spec.yearly){
-      yearly_netcdf_outputs.insert(std::map<std::string, output_spec>::value_type(name, new_spec));
-    }
+      //Add output specifiers to the map tracking the appropriate timestep
+      if(new_spec.daily){
+        daily_netcdf_outputs.insert(std::map<std::string, output_spec>::value_type(name, new_spec));
+      }
 
+      else if(new_spec.monthly){
+        monthly_netcdf_outputs.insert(std::map<std::string, output_spec>::value_type(name, new_spec));
+        //monthly_netcdf_outputs.insert({name, filename}); c++11
+      }
+
+      else if(new_spec.yearly){
+        yearly_netcdf_outputs.insert(std::map<std::string, output_spec>::value_type(name, new_spec));
+      }
+
+    }//End file creation section (if timestep is specified)
   }
 }
 

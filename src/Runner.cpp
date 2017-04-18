@@ -131,7 +131,7 @@ void Runner::monthly_output(const int year, const int month, const std::string& 
      || (runstage.find("tr")!=std::string::npos && md.nc_tr)
      || (runstage.find("sc")!=std::string::npos && md.nc_sc) ){
     BOOST_LOG_SEV(glg, debug) << "Monthly NetCDF output function call, runstage: "<<runstage<<" year: "<<year<<" month: "<<month;
-    output_netCDF_monthly(year, month);
+    output_netCDF_monthly(year, month, runstage);
   }
 
 }
@@ -155,7 +155,7 @@ void Runner::yearly_output(const int year, const std::string& stage,
      || (stage.find("tr")!=std::string::npos && md.nc_tr)
      || (stage.find("sc")!=std::string::npos && md.nc_sc) ){
     BOOST_LOG_SEV(glg, debug) << "Yearly NetCDF output function call, runstage: "<<stage<<" year: "<<year;
-    output_netCDF_yearly(year);
+    output_netCDF_yearly(year, stage);
   }
 
 
@@ -855,26 +855,42 @@ void Runner::output_debug_daily_drivers(int iy, boost::filesystem::path p) {
 }
 
 
-void Runner::output_netCDF_monthly(int year, int month){
+void Runner::output_netCDF_monthly(int year, int month, std::string stage){
   BOOST_LOG_SEV(glg, debug)<<"NetCDF monthly output, year: "<<year<<" month: "<<month;
-  output_netCDF(md.monthly_netcdf_outputs, year, month);
+  output_netCDF(md.monthly_netcdf_outputs, year, month, stage);
 
   BOOST_LOG_SEV(glg, debug)<<"Outputting accumulated daily data on the monthly timestep";
-  output_netCDF(md.daily_netcdf_outputs, year, month);
+  output_netCDF(md.daily_netcdf_outputs, year, month, stage);
 }
 
-void Runner::output_netCDF_yearly(int year){
+void Runner::output_netCDF_yearly(int year, std::string stage){
   BOOST_LOG_SEV(glg, debug)<<"NetCDF yearly output, year: "<<year;
-  output_netCDF(md.yearly_netcdf_outputs, year, 0);
+  output_netCDF(md.yearly_netcdf_outputs, year, 0, stage);
 }
 
-void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, int year, int month){
+void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, int year, int month, std::string stage){
   int month_timestep = year*12 + month;
 
   int day_timestep = year*365;
   for(int im=0; im<month; im++){
     day_timestep += DINM[im];
   }
+
+  std::string file_stage_suffix;
+  if(stage.find("eq")!=std::string::npos){
+    file_stage_suffix = "_eq.nc";
+  }
+  else if(stage.find("sp")!=std::string::npos){
+    file_stage_suffix = "_sp.nc";
+  }
+  else if(stage.find("tr")!=std::string::npos){
+    file_stage_suffix = "_tr.nc";
+  }
+  else if(stage.find("sc")!=std::string::npos){
+    file_stage_suffix = "_sc.nc";
+  }
+
+  std::string curr_filename;
 
   int dinm = DINM[month];
 
@@ -965,8 +981,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: ALD";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "ALD", &cv) );
     start3[0] = year;
 
@@ -980,8 +997,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: DEEPDZ";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "DEEPDZ", &cv) );
     start3[0] = year;
 
@@ -1004,8 +1022,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: GROWEND";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "GROWEND", &cv) );
     start3[0] = year;
 
@@ -1021,8 +1040,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: GROWSTART";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "GROWSTART", &cv) );
     start3[0] = year;
 
@@ -1038,8 +1058,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: MOSSDZ";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "MOSSDZ", &cv) );
     start3[0] = year;
 
@@ -1064,8 +1085,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: ROLB";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "ROLB", &cv) );
 
     double rolb;
@@ -1090,8 +1112,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: PERMAFROST";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "PERMAFROST", &cv) );
     start3[0] = year;
 
@@ -1107,8 +1130,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: SHLWDZ";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "SHLWDZ", &cv) );
     start3[0] = year;
 
@@ -1131,8 +1155,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: SNOWEND";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "SNOWEND", &cv) );
     start3[0] = year;
 
@@ -1148,8 +1173,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: SNOWSTART";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "SNOWSTART", &cv) );
     start3[0] = year;
 
@@ -1166,8 +1192,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: YSD";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "YSD", &cv) );
     start3[0] = year;
 
@@ -1184,8 +1211,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: BURNAIR2SOIN";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "BURNAIR2SOIN", &cv) );
 
     double burnair2soin;
@@ -1212,8 +1240,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: BURNTHICK";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "BURNTHICK", &cv) );
 
     double burnthick;
@@ -1240,8 +1269,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: DEADC";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "DEADC", &cv) );
 
     double deadc;
@@ -1265,8 +1295,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: DEADN";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "DEADN", &cv) );
 
     double deadn;
@@ -1290,8 +1321,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: DEEPC";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "DEEPC", &cv) );
 
     double deepc;
@@ -1315,8 +1347,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: DWDC";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "DWDC", &cv) );
 
     double woodyc;
@@ -1340,8 +1373,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"DWDN";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "DWDN", &cv) );
 
     double woodyn;
@@ -1365,8 +1399,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"MINEC";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "MINEC", &cv) );
 
     double minec;
@@ -1394,8 +1429,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: MOSSDEATHC";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "MOSSDEATHC", &cv) );
 
     double mossdeathc = 0;
@@ -1419,8 +1455,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: MOSSDEATHN";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "MOSSDEATHN", &cv) );
 
     double mossdeathn = 0;
@@ -1444,8 +1481,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: QDRAINAGE";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "QDRAINAGE", &cv) );
 
     double qdrainage = 0;
@@ -1469,8 +1507,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: QINFILTRATION";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "QINFILTRATION", &cv) );
 
     double qinfil = 0;
@@ -1494,8 +1533,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: QRUNOFF";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "QRUNOFF", &cv) );
 
     double qrunoff = 0;
@@ -1519,8 +1559,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"SHLWC";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "SHLWC", &cv) );
 
     double shlwc;
@@ -1544,8 +1585,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"WDRH";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "WDRH", &cv) );
 
     double woodyrh;
@@ -1570,8 +1612,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: HKDEEP";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "HKDEEP", &cv) );
 
     double hkdeep;
@@ -1600,8 +1643,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: HKLAYER";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "HKLAYER", &cv) );
 
     if(curr_spec.monthly){
@@ -1623,8 +1667,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: HKMINEA";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "HKMINEA", &cv) );
 
     double hkminea;
@@ -1653,8 +1698,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: HKMINEB";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "HKMINEB", &cv) );
 
     double hkmineb;
@@ -1683,8 +1729,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: HKMINEC";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "HKMINEC", &cv) );
 
     double hkminec;
@@ -1713,8 +1760,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: HKSHLW";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "HKSHLW", &cv) );
 
     double hkshlw;
@@ -1743,8 +1791,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: SNOWTHICK";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "SNOWTHICK", &cv) );
 
     if(curr_spec.daily){
@@ -1783,8 +1832,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: SWE";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "SWE", &cv) );
 
     double swe;
@@ -1812,8 +1862,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: TCDEEP";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "TCDEEP", &cv) );
 
     double tcdeep;
@@ -1842,8 +1893,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: TCLAYER";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "TCLAYER", &cv) );
 
     if(curr_spec.monthly){
@@ -1865,8 +1917,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: TCMINEA";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "TCMINEA", &cv) );
 
     double tcminea;
@@ -1894,8 +1947,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: TCMINEB";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "TCMINEB", &cv) );
 
     double tcmineb;
@@ -1923,8 +1977,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: TCMINEC";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "TCMINEC", &cv) );
 
     double tcminec;
@@ -1952,8 +2007,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: TCSHLW";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "TCSHLW", &cv) );
 
     double tcshlw;
@@ -1981,8 +2037,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: TDEEP";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "TDEEP", &cv) );
 
     double tdeep;
@@ -2010,8 +2067,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: TLAYER";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "TLAYER", &cv) );
 
     if(curr_spec.monthly){
@@ -2033,8 +2091,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: TMINEA";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "TMINEA", &cv) );
 
     double tminea;
@@ -2062,8 +2121,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: TMINEB";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "TMINEB", &cv) );
 
     double tmineb;
@@ -2091,8 +2151,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: TMINEC";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "TMINEC", &cv) );
 
     double tminec;
@@ -2120,8 +2181,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: TSHLW";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "TSHLW", &cv) );
 
     double tshlw;
@@ -2149,8 +2211,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: VWCDEEP";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "VWCDEEP", &cv) );
 
     double vwcdeep;
@@ -2178,8 +2241,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: VWCLAYER";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "VWCLAYER", &cv) );
 
     if(curr_spec.monthly){
@@ -2201,8 +2265,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: VWCMINEA";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "VWCMINEA", &cv) );
 
     double vwcminea;
@@ -2230,8 +2295,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: VWCMINEB";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "VWCMINEB", &cv) );
 
     double vwcmineb;
@@ -2259,8 +2325,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: VWCMINEC";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "VWCMINEC", &cv) );
 
     double vwcminec;
@@ -2288,8 +2355,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: VWCSHLW";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "VWCSHLW", &cv) );
 
     double vwcshlw;
@@ -2317,8 +2385,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: WATERTAB";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "WATERTAB", &cv) );
 
     double watertab;
@@ -2347,8 +2416,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: LAYERDEPTH";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "LAYERDEPTH", &cv) );
 
     if(curr_spec.monthly){
@@ -2370,8 +2440,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: LAYERDZ";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "LAYERDZ", &cv) );
 
     if(curr_spec.monthly){
@@ -2393,8 +2464,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: LAYERTYPE";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "LAYERTYPE", &cv) );
 
     if(curr_spec.monthly){
@@ -2417,8 +2489,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: AVLN";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "AVLN", &cv) );
 
     if(curr_spec.layer){
@@ -2461,8 +2534,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: BURNSOIC";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "BURNSOIC", &cv) );
 
     if(curr_spec.layer){
@@ -2495,8 +2569,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: BURNSOILN";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "BURNSOILN", &cv) );
 
     if(curr_spec.layer){
@@ -2529,8 +2604,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: NDRAIN";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "NDRAIN", &cv) );
 
     if(curr_spec.layer){
@@ -2573,8 +2649,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: NETNMIN";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "NETNMIN", &cv) );
 
     if(curr_spec.layer){
@@ -2618,8 +2695,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: NIMMOB";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "NIMMOB", &cv) );
 
     if(curr_spec.layer){
@@ -2663,8 +2741,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: NINPUT";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "NINPUT", &cv) );
 
     if(curr_spec.layer){
@@ -2695,8 +2774,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: NLOST";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "NLOST", &cv) );
 
     double nlost;
@@ -2723,8 +2803,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: ORGN";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "ORGN", &cv) );
 
     if(curr_spec.layer){
@@ -2771,8 +2852,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: RH";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "RH", &cv) );
 
     if(curr_spec.layer){
@@ -2825,8 +2907,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: SOC";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "SOC", &cv) );
 
     if(curr_spec.layer){
@@ -2875,8 +2958,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: BURNVEG2AIRC";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "BURNVEG2AIRC", &cv) );
 
     double burnveg2airc;
@@ -2901,8 +2985,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: BURNVEG2AIRN";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "BURNVEG2AIRN", &cv) );
 
     double burnveg2airn;
@@ -2927,8 +3012,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: BURNVEG2DEADC";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "BURNVEG2DEADC", &cv) );
 
     double burnveg2deadc;
@@ -2953,8 +3039,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: BURNVEG2DEADN";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "BURNVEG2DEADN", &cv) );
 
     double burnveg2deadn;
@@ -2979,8 +3066,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: BURNVEG2SOIABVC";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "BURNVEG2SOIABVC", &cv) );
 
     double burnveg2soiabvc;
@@ -3005,8 +3093,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: BURNVEG2SOIABVN";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "BURNVEG2SOIABVN", &cv) );
 
     double burnveg2soiabvn;
@@ -3031,8 +3120,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: BURNVEG2SOIBLWC";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "BURNVEG2SOIBLWC", &cv) );
 
     double burnveg2soiblwc;
@@ -3057,8 +3147,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: BURNVEG2SOIBLWN";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "BURNVEG2SOIBLWN", &cv) );
 
     double burnveg2soiblwn;
@@ -3083,8 +3174,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: GPP";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "GPP", &cv) );
 
     //PFT and compartment
@@ -3170,8 +3262,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: INGPP";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "INGPP", &cv) );
 
     //PFT and compartment
@@ -3257,8 +3350,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: INNPP";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "INNPP", &cv) );
 
     //PFT and compartment
@@ -3344,8 +3438,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: LAI";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "LAI", &cv) );
 
     //PFT
@@ -3389,8 +3484,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: LTRFALC";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "LTRFALC", &cv) );
 
     //PFT and compartment
@@ -3478,8 +3574,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: LTRFALN";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "LTRFALN", &cv) );
 
     //PFT and compartment
@@ -3567,8 +3664,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: NPP";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "NPP", &cv) );
 
     //PFT and compartment
@@ -3661,8 +3759,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: NUPTAKEIN";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "NUPTAKEIN", &cv) );
 
     //PFT and compartment
@@ -3720,8 +3819,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: NUPTAKELAB";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "NUPTAKELAB", &cv) );
 
     //PFT and compartment
@@ -3779,8 +3879,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: NUPTAKEST";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "NUPTAKEST", &cv) );
 
     //PFT and compartment
@@ -3864,8 +3965,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: RG";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "RG", &cv) );
 
     //PFT and compartment
@@ -3950,8 +4052,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: RM";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "RM", &cv) );
 
     //PFT and compartment
@@ -4036,8 +4139,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: VEGC";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "VEGC", &cv) );
 
     //PFT and compartment
@@ -4120,8 +4224,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: VEGN";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "VEGN", &cv) );
 
     //PFT and compartment
@@ -4206,8 +4311,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: EET";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "EET", &cv) );
 
     //PFT
@@ -4279,8 +4385,9 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: PET";
     curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
-    temutil::nc( nc_open(curr_spec.filestr.c_str(), NC_WRITE, &ncid) );
+    temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
     temutil::nc( nc_inq_varid(ncid, "PET", &cv) );
 
     //PFT
