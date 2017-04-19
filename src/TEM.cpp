@@ -45,6 +45,8 @@
 
 #include <json/value.h>
 
+#include <omp.h>
+
 #ifdef WITHMPI
 #include <mpi.h>
 #include "data/RestartData.h" // for defining MPI typemap...
@@ -239,13 +241,29 @@ int main(int argc, char* argv[]){
 
     vec2D::const_iterator row;
     vec::const_iterator col;
-    for (row = run_mask.begin(); row != run_mask.end() ; ++row) {
-      for (col = row->begin(); col != row->end(); ++col) {
 
-        bool mask_value = *col;
+    // OpenMP requires:
+    //  - The structured block to have a single entry and exit point.
+    //  - The loop variable must be of type signed integer.
+    //  - The comparison operator must be in the form
+    //      loop_variable [<|<=|>|>=] loop_invariant integer
+    //  - The third expression must be either integer addition or
+    //      subtraction by a loop invariant value
+    //  - The loop must increment or decrement on every iteration,
+    //      depending on the comparison operator
+    //  - The loop must be a basic block: no jump to outside the loop
+    //      other than the exit statement.
+    #pragma omp parallel for
+    for(int rowidx=0; rowidx<num_rows; rowidx++){
+      for(int colidx=0; colidx<num_cols; colidx++){
+    //for (row = run_mask.begin(); row != run_mask.end() ; ++row) {
+      //for (col = row->begin(); col != row->end(); ++col) {
 
-        int rowidx = row - run_mask.begin();
-        int colidx = col - row->begin();
+        //bool mask_value = *col;
+        bool mask_value = run_mask[rowidx].at(colidx);
+
+        //int rowidx = row - run_mask.begin();
+        //int colidx = col - row->begin();
 
         if (true == mask_value) {
 
@@ -528,8 +546,8 @@ exit(-1);
         } else {
           BOOST_LOG_SEV(glg, debug) << "Skipping cell (" << rowidx << ", " << colidx << ")";
         }
-      }
-    }
+      }//end col loop
+    }//end row loop
   
     
   } else if (args->get_loop_order() == "time-major") {

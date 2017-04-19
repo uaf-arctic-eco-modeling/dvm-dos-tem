@@ -7,6 +7,7 @@ import platform
 import distutils.spawn
 import subprocess
 
+USEOMP = True
 USEMPI = False
 
 libs = Split("""jsoncpp
@@ -155,6 +156,10 @@ if comp_name == 'atlas.snap.uaf.edu':
   platform_library_path.insert(0, '/home/UA/tcarman2/boost_1_55_0/stage/lib')
 
 
+if(USEOMP):
+  #append build flag for openmp
+  compiler_flags = compiler_flags + ' -fopenmp'
+
 # Modify setup for MPI, if necessary
 if(USEMPI):
   compiler = distutils.spawn.find_executable('mpic++')
@@ -186,5 +191,6 @@ object_list = Object(src_files, CXX=compiler, CPPPATH=platform_include_path,
 #object_file_list = [os.path.basename(str(object)) for object in object_list]
 
 Program('dvmdostem', object_list, CXX=compiler, CPPPATH=local_include_paths,
-        LIBS=platform_libs, LIBPATH=platform_library_path)
+        LIBS=platform_libs, LIBPATH=platform_library_path, 
+        LINKFLAGS="-fopenmp")
 #Library()
