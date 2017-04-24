@@ -118,7 +118,7 @@ def file_loader(**kwargs):
       print "Cleaning up the temporary location: ", TMP_EXTRACT_LOCATION
       shutil.rmtree(TMP_EXTRACT_LOCATION)
     tf.extractall(TMP_EXTRACT_LOCATION, members=monthly_files(tf))
-    full_glob = os.path.join(TMP_EXTRACT_LOCATION, "/tmp/dvmdostem/calibration/monthly/*.json")
+    full_glob = os.path.join(TMP_EXTRACT_LOCATION, "tmp/dvmdostem/calibration/monthly/*.json")
     print "Matching this pattern: ", full_glob
     jfiles = glob.glob(full_glob)
   else:
@@ -325,11 +325,11 @@ def image_plot(imgarrays, plotlist, title='', save=False, format='pdf'):
       x[0].set_title(x[1])
 
   if save:
-    file_name = title + "." + format
+    file_name = os.path.join(SAVE_DIR, title + "." + format)
     print "saving file: %s" % file_name
     plt.savefig(file_name)
-
-  plt.show(block=True)
+  else:
+    plt.show(block=True)
 
 
 def plot_tests(test_list, **kwargs):
@@ -896,7 +896,9 @@ if __name__ == '__main__':
   )
 
   parser.add_argument('--save-plots', action='store_true', default=False,
-      help="Saves plots (to current directory).")
+      help=textwrap.dedent('''\
+        Saves plots to 'diagnostics-plots/' subdirectory instead of displaying
+        them in a pop-up interactive window.. Overwrites any existing plots.'''))
 
   parser.add_argument('--save-format', default="pdf",
       choices=['pdf', 'png', 'jpg'],
@@ -904,17 +906,30 @@ if __name__ == '__main__':
 
   print "Parsing command line arguments..."
   args = parser.parse_args()
-  print args
+  print "Command line argument settings:"
+  for k, v in vars(args).iteritems():
+    print "  %s = %s" % (k, v)
 
   slstr = args.slice
-  fromarchive = args.from_archive
+  archive = args.from_archive
   save = args.save_plots
   imgformat = args.save_format
+
+  SAVE_DIR = "diagnostics-plots"
+
+  if save:
+    # Clean up old plots,
+    if os.path.isdir(SAVE_DIR) or os.path.isfile(SAVE_DIR):
+      print "Cleaning up existing plots (in %s)..." % SAVE_DIR
+      shutil.rmtree(SAVE_DIR)
+
+    print "Making an empty directory to save plots in..."
+    os.makedirs(SAVE_DIR)
 
 
   if args.error_image:
     print "Creating error image plots..."
-    error_image(plotlist=args.error_image, fileslice=slstr, save_plots=save, save_format=imgformat)
+    error_image(plotlist=args.error_image, fileslice=slstr, save_plots=save, save_format=imgformat, fromarchive=archive)
 
   if args.plot_timeseries:
     print "Creating timeseries plots..."
