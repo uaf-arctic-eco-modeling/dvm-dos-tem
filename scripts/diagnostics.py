@@ -430,6 +430,21 @@ def compile_table_by_year(test_case, **kwargs):
     return full_report
 
 def sum_across(key, jdata, xsec):
+  '''
+  Parameters
+  ----------
+  key : str
+    The key to lookup in the json data object.
+  jdata : json object
+    A json data object (output from dvmdostem)
+  xsec : str
+    A string, ('all', 'vasc', 'nonvasc') specifying which PFTs to sum over.
+
+  Returns
+  -------
+  total : float
+    The sum of the values for 'key' across the cross-section specified by 'xsec'.
+  '''
   # Setup a dict for mapping community type numbers
   # to differnet combos of PFTs for vascular/non-vascular
   # We should really build this programatically based on the parameter files
@@ -502,6 +517,22 @@ def bal_C_soil(curr_jd, prev_jd):
   return DeltaError(delta, err)
 
 def bal_C_veg(curr_jd, pjd, xsec='all'):
+  '''
+  Parameters
+  ----------
+  curr_jd : json data
+    Current month.
+  pjd : json data
+    Previous month.
+  xsec : str
+    A string specifying the "cross section" of pfts to look. One of:
+    'all', 'vasc', 'nonvasc'.
+
+  Returns
+  -------
+  d : DeltaError
+    A DeltaError object.
+  '''
 
   delta = np.nan
   if pjd != None:
