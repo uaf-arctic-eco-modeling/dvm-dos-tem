@@ -866,16 +866,24 @@ void Runner::output_debug_daily_drivers(int iy, boost::filesystem::path p) {
 
 
 void Runner::output_netCDF_monthly(int year, int month, std::string stage){
-  BOOST_LOG_SEV(glg, debug)<<"NetCDF monthly output, year: "<<year<<" month: "<<month;
-  output_netCDF(md.monthly_netcdf_outputs, year, month, stage);
-
-  BOOST_LOG_SEV(glg, debug)<<"Outputting accumulated daily data on the monthly timestep";
-  output_netCDF(md.daily_netcdf_outputs, year, month, stage);
+  #pragma omp critical(NetCDFmonthly)
+  {
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF monthly output, year: "<<year<<" month: "<<month;
+    output_netCDF(md.monthly_netcdf_outputs, year, month, stage);
+  }
+  #pragma omp critical(NetCDFdaily)
+  {
+    BOOST_LOG_SEV(glg, debug)<<"Outputting accumulated daily data on the monthly timestep";
+    output_netCDF(md.daily_netcdf_outputs, year, month, stage);
+  }
 }
 
 void Runner::output_netCDF_yearly(int year, std::string stage){
-  BOOST_LOG_SEV(glg, debug)<<"NetCDF yearly output, year: "<<year;
-  output_netCDF(md.yearly_netcdf_outputs, year, 0, stage);
+  #pragma omp critical(NetCDFyearly)
+  {
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF yearly output, year: "<<year;
+    output_netCDF(md.yearly_netcdf_outputs, year, 0, stage);
+  }
 }
 
 void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, int year, int month, std::string stage){

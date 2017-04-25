@@ -253,17 +253,11 @@ int main(int argc, char* argv[]){
     //      depending on the comparison operator
     //  - The loop must be a basic block: no jump to outside the loop
     //      other than the exit statement.
-    #pragma omp parallel for
+    #pragma omp parallel for collapse(2) schedule(dynamic)
     for(int rowidx=0; rowidx<num_rows; rowidx++){
       for(int colidx=0; colidx<num_cols; colidx++){
-    //for (row = run_mask.begin(); row != run_mask.end() ; ++row) {
-      //for (col = row->begin(); col != row->end(); ++col) {
 
-        //bool mask_value = *col;
         bool mask_value = run_mask[rowidx].at(colidx);
-
-        //int rowidx = row - run_mask.begin();
-        //int colidx = col - row->begin();
 
         if (true == mask_value) {
 

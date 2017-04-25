@@ -39,22 +39,31 @@ WildFire::~WildFire() {}
 WildFire::WildFire(const std::string& fri_fname,
                    const std::string& exp_fname, const std::string& topo_fname, const int y, const int x) {
 
-  BOOST_LOG_SEV(glg, info) << "Setting up FRI fire data...";
-  this->fri = temutil::get_scalar<int>(fri_fname, "fri", y, x);
-  this->fri_severity = temutil::get_scalar<int>(fri_fname, "fri_severity", y, x);
-  this->fri_jday_of_burn = temutil::get_scalar<int>(fri_fname, "fri_jday_of_burn", y, x);
-  this->fri_area_of_burn = temutil::get_scalar<int>(fri_fname, "fri_area_of_burn", y, x);
+  #pragma omp critical(load_input)
+  {
+    BOOST_LOG_SEV(glg, info) << "Setting up FRI fire data...";
+    this->fri = temutil::get_scalar<int>(fri_fname, "fri", y, x);
+    this->fri_severity = temutil::get_scalar<int>(fri_fname, "fri_severity", y, x);
+    this->fri_jday_of_burn = temutil::get_scalar<int>(fri_fname, "fri_jday_of_burn", y, x);
+    this->fri_area_of_burn = temutil::get_scalar<int>(fri_fname, "fri_area_of_burn", y, x);
+  }//End critical(fri)
 
-  BOOST_LOG_SEV(glg, info) << "Setting up explicit fire data...";
-  this->exp_burn_mask = temutil::get_timeseries<int>(exp_fname, "exp_burn_mask", y, x);
-  this->exp_fire_severity = temutil::get_timeseries<int>(exp_fname, "exp_fire_severity", y, x);
-  this->exp_jday_of_burn = temutil::get_timeseries<int>(exp_fname, "exp_jday_of_burn", y, x);
-  this->exp_area_of_burn = temutil::get_timeseries<int>(exp_fname, "exp_area_of_burn", y, x);
- 
-  BOOST_LOG_SEV(glg, info) << "Setting up topographic data...";
-  this->slope = temutil::get_scalar<int>(topo_fname, "slope", y, x);
-  this->asp = temutil::get_scalar<int>(topo_fname, "aspect", y, x);
-  this->elev = temutil::get_scalar<int>(topo_fname, "elevation", y, x);
+  #pragma omp critical(load_input)
+  {
+    BOOST_LOG_SEV(glg, info) << "Setting up explicit fire data...";
+    this->exp_burn_mask = temutil::get_timeseries<int>(exp_fname, "exp_burn_mask", y, x);
+    this->exp_fire_severity = temutil::get_timeseries<int>(exp_fname, "exp_fire_severity", y, x);
+    this->exp_jday_of_burn = temutil::get_timeseries<int>(exp_fname, "exp_jday_of_burn", y, x);
+    this->exp_area_of_burn = temutil::get_timeseries<int>(exp_fname, "exp_area_of_burn", y, x);
+  }//End critical(exp_fir) 
+
+  #pragma omp critical(load_input)
+  {
+    BOOST_LOG_SEV(glg, info) << "Setting up topographic data...";
+    this->slope = temutil::get_scalar<int>(topo_fname, "slope", y, x);
+    this->asp = temutil::get_scalar<int>(topo_fname, "aspect", y, x);
+    this->elev = temutil::get_scalar<int>(topo_fname, "elevation", y, x);
+  }//End critical(topographic)
 
   BOOST_LOG_SEV(glg, debug) << "Done making WildFire object.";
   BOOST_LOG_SEV(glg, debug) << this->report_fire_inputs();

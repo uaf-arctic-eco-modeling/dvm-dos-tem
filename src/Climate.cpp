@@ -379,7 +379,10 @@ Climate::Climate(const std::string& fname, const std::string& co2fname, int y, i
   this->load_from_file(fname, y, x);
 
   // co2 is not spatially explicit
-  this->co2 = temutil::get_timeseries(co2fname, "co2");
+  #pragma omp critical(load_input)
+  {
+    this->co2 = temutil::get_timeseries(co2fname, "co2");
+  }
 }
 
 void Climate::load_from_file(const std::string& fname, int y, int x) {
@@ -388,16 +391,19 @@ void Climate::load_from_file(const std::string& fname, int y, int x) {
     BOOST_LOG_SEV(glg, fatal) << "Input file "<<fname<<" does not exist";
   }
 
-  BOOST_LOG_SEV(glg, info) << "Loading climate from file: " << fname;
-  BOOST_LOG_SEV(glg, info) << "Loading climate for (y, x) point: "
-                           << "(" << y <<","<< x <<"), all timesteps.";
+  #pragma omp critical(load_input)
+  {
+    BOOST_LOG_SEV(glg, info) << "Loading climate from file: " << fname;
+    BOOST_LOG_SEV(glg, info) << "Loading climate for (y, x) point: "
+                             << "(" << y <<","<< x <<"), all timesteps.";
 
-  BOOST_LOG_SEV(glg, info) << "Read in the base climate data timeseries ...";
+    BOOST_LOG_SEV(glg, info) << "Read in the base climate data timeseries ...";
 
-  tair = temutil::get_timeseries<float>(fname, "tair", y, x);
-  vapo = temutil::get_timeseries<float>(fname, "vapor_press", y, x);
-  prec = temutil::get_timeseries<float>(fname, "precip", y, x);
-  nirr = temutil::get_timeseries<float>(fname, "nirr", y, x);
+    tair = temutil::get_timeseries<float>(fname, "tair", y, x);
+    vapo = temutil::get_timeseries<float>(fname, "vapor_press", y, x);
+    prec = temutil::get_timeseries<float>(fname, "precip", y, x);
+    nirr = temutil::get_timeseries<float>(fname, "nirr", y, x);
+  }//End critical(load_climate)
 
   // Report on sizes...
   BOOST_LOG_SEV(glg, info) << "  -->sizes (tair, vapor_press, precip, nirr): ("
