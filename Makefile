@@ -10,6 +10,7 @@ LIBS=-lnetcdf_c++ -lnetcdf -lboost_system -lboost_filesystem \
 -lboost_program_options -lboost_thread -lboost_log -ljsoncpp -lpthread -lreadline
 
 USEMPI = false
+USEOMP = false
 
 ifeq ($(USEMPI),true)
   MPIINCLUDES = $(shell mpic++ -showme:compile)
@@ -17,6 +18,12 @@ ifeq ($(USEMPI),true)
   MPILFLAGS = $(shell mpic++ -showme:link)
 else
   # do nothing..
+endif
+
+ifeq ($(USEOMP),true)
+  OMPCFLAGS = -fopenmp
+  OMPLFLAGS = -fopenmp
+else
 endif
 
 # Create a build directory for .o object files.
@@ -124,21 +131,21 @@ OBJECTS += Master.o \
 		Slave.o
 endif
 
-GIT_VERSION := $(shell git describe --abbrev=6 --dirty --always --tags)
+GIT_SHA := $(shell git describe --abbrev=6 --dirty --always --tags)
 
 TEMOBJ = obj/TEM.o
 
 dvm: $(SOURCES) $(TEMOBJ)
-	$(CC) -o $(APPNAME) $(INCLUDES) $(addprefix obj/, $(OBJECTS)) $(TEMOBJ) $(LIBDIR) $(LIBS) $(MPILFLAGS)
+	$(CC) -o $(APPNAME) $(INCLUDES) $(addprefix obj/, $(OBJECTS)) $(TEMOBJ) $(LIBDIR) $(LIBS) $(MPILFLAGS) $(OMPLFLAGS)
 
 
 lib: $(SOURCES) 
-	$(CC) -o libTEM.so -shared $(INCLUDES) $(addprefix obj/, $(OBJECTS)) $(LIBDIR) $(LIBS) $(MPILFLAGS)
+	$(CC) -o libTEM.so -shared $(INCLUDES) $(addprefix obj/, $(OBJECTS)) $(LIBDIR) $(LIBS) $(MPILFLAGS) $(OMPLFLAGS)
 
-CFLAGS += -DGIT_SHA=\"$(GIT_VERSION)\"
+CFLAGS += -DGIT_SHA=\"$(GIT_SHA)\"
 
 .cpp.o:
-	$(CC) $(CFLAGS) $(MPICFLAGS) $(INCLUDES) $(MPIINCLUDES) $< -o obj/$(notdir $@)
+	$(CC) $(CFLAGS) $(MPICFLAGS) $(OMPCFLAGS) $(INCLUDES) $(MPIINCLUDES) $< -o obj/$(notdir $@)
 
 clean:
 	rm -f $(OBJECTS) $(APPNAME) TEM.o libTEM.so* *~ obj/*
