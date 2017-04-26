@@ -55,16 +55,11 @@ def analyze(cjd, pjd):
 
   results = {}
 
-  #results['C veg'] = bal_C_veg(cjd, pjd, xsec='all')
   results['C veg'] = bal_C_veg(cjd, pjd, xsec='all')
-  #results['C veg del'] = bal_C_veg(cjd, pjd, xsec='all').delta
   results['C veg vasc'] = bal_C_veg(cjd, pjd, xsec='vasc')
-  #results['C veg vasc del'] = bal_C_veg(cjd, pjd, xsec='vasc').delta
   results['C veg nonvasc'] = bal_C_veg(cjd, pjd, xsec='nonvasc')
-  #results['C veg nonvasc del'] = bal_C_veg(cjd, pjd, xsec='nonvasc').delta
 
   results['C soil'] = bal_C_soil(cjd, pjd)
-  #results['C soil del'] = bal_C_soil(cjd, pjd).delta
 
   results['N veg tot'] = bal_N_veg_tot(cjd, pjd, xsec='all')
   results['N veg str'] = bal_N_veg_str(cjd, pjd, xsec='all')
@@ -244,7 +239,8 @@ def image_plot(imgarrays, plotlist, title='', save=False, format='pdf'):
   from matplotlib.ticker import MaxNLocator
   import matplotlib.ticker as mtkr
 
-  # undertake the plotting of the now full arrays..
+  # Undertake the plotting of the now full arrays.
+  # One row, with a column for each item in the imagearrays list
   fig, axar = plt.subplots(1, len(imgarrays), sharex=True, sharey=True)
 
   #fig.set_tight_layout(True)
