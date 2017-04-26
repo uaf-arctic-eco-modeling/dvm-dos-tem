@@ -61,6 +61,12 @@ def analyze(cjd, pjd):
 
   results['C soil'] = bal_C_soil(cjd, pjd)
 
+  results['C standing dead'] = bal_C_standing_dead(cjd, pjd)
+  results['N standing dead'] = bal_N_standing_dead(cjd, pjd)
+
+  results['C woody debris'] = bal_C_woody_debris(cjd, pjd)
+  results['N woody debris'] = bal_N_woody_debris(cjd, pjd)
+
   results['N veg tot'] = bal_N_veg_tot(cjd, pjd, xsec='all')
   results['N veg str'] = bal_N_veg_str(cjd, pjd, xsec='all')
   results['N veg lab'] = bal_N_veg_lab(cjd, pjd, xsec='all')
@@ -504,6 +510,44 @@ class DeltaError(object):
     self.delta = _d
     self.err = _e
 
+def bal_C_standing_dead(cjd, pjd):
+  delta = np.nan
+  if pjd != None:
+    delta = cjd["StandingDeadC"] - pjd["StandingDeadC"]
+  sum_of_fluxes = cjd["BurnAbvVeg2DeadC"] - cjd["D2WoodyDebrisC"]
+  err = delta - sum_of_fluxes
+  return DeltaError(delta, err)
+
+def bal_N_standing_dead(cjd, pjd):
+  delta = np.nan
+  if pjd != None:
+    delta = cjd["StandingDeadN"] - pjd["StandingDeadN"]
+  sum_of_fluxes = cjd["BurnAbvVeg2DeadN"] - cjd["D2WoodyDebrisN"]
+  err = delta - sum_of_fluxes
+  return DeltaError(delta, err)
+
+def bal_C_woody_debris(cjd, pjd):
+  delta = np.nan
+  if pjd != None:
+    delta = cjd["WoodyDebrisC"] - pjd["WoodyDebrisC"]
+  sum_of_fluxes = cjd["D2WoodyDebrisC"] - cjd["RHwdeb"]
+  err = delta - sum_of_fluxes
+  return DeltaError(delta, err)
+
+def bal_N_woody_debris(cjd, pjd):
+  delta = np.nan
+  if pjd != None:
+    delta = cjd["WoodyDebrisN"] - pjd["WoodyDebrisN"]
+
+  # Avoid divide by zero problem - assume no RH if there is no WoodyDebrisC
+  if cjd["WoodyDebrisC"] != 0:
+    sum_of_fluxes = cjd["D2WoodyDebrisN"] - (cjd["RHwdeb"] * cjd["WoodyDebrisN"]/cjd["WoodyDebrisC"])
+  else:
+    sum_of_fluxes = cjd["D2WoodyDebrisN"]
+
+  err = delta - sum_of_fluxes
+  return DeltaError(delta, err)
+
 def bal_C_soil(curr_jd, prev_jd):
   delta = np.nan
   if prev_jd != None:
@@ -843,6 +887,8 @@ if __name__ == '__main__':
     'N veg tot', 'N veg str', 'N veg lab',
     'N veg vasc tot', 'N veg vasc str', 'N veg vasc lab',
     'N veg nonvasc tot', 'N veg nonvasc str', 'N veg nonvasc lab',
+    'C standing dead', 'C woody debris',
+    'N standing dead', 'N woody debris'
   ]
 
   tab_reports_and_timeseries_choices = [
