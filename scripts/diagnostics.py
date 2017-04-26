@@ -253,22 +253,30 @@ def image_plot(imgarrays, plotlist, title='', save=False, format='pdf'):
   #mpldatacursor.datacursor(display='single')
 
   for axidx, data in enumerate(imgarrays):
-    print "Plotting for axes %s" % axidx
+    print "Plotting for axes %s (%s)" % (axidx, plotlist[axidx])
     print "-------------------------------------------"
     # We are going to use a divergent color scheme centered around zero,
     # so we need to find largest absolute value of the data and use that
     # as the endpoints for the color-scaling.
+    print "min/max ignoring nans: %s %s" % (np.nanmin(data), np.nanmax(data))
     xval = np.nanmax(np.abs(data))
     print "Color map range for ax[%s]: %s" % (axidx, xval)
 
     # It is also handy to mask out the values that are zero (no error)
     # or riduculously close to zero (effectively zero)
-    print "Valid values before masking values close to zero: ", np.count_nonzero(~np.isnan(data))
+    print "Number of non nan values: ", np.count_nonzero(~np.isnan(data))
+
     data = np.ma.masked_equal(data, 0)
+    print "Number of values after masking values equal to zero:", data.count()
+
     maskclose = np.isclose(data, np.zeros(data.shape))
     data = np.ma.masked_array(data, mask=maskclose)
+    print "Number of values after masking values close to zero:", data.count()
+
     data = np.ma.masked_invalid(data)
-    print "Remaining data after masking near-zero data: ", data.count()
+    print "Remaining data after masking invalid data: ", data.count()
+
+    print "min/max values in data array:", data.min(), data.max()
 
     # Transform data to 2D shape for showing as an image
     data = data.reshape(len(data)/12, 12)
