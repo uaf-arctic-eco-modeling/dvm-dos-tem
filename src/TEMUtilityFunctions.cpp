@@ -593,7 +593,6 @@ namespace temutil {
 
     #pragma omp critical(load_input)
     {
-      std::cout<<"begin pragma\n";
       BOOST_LOG_SEV(glg, debug) << "Opening dataset: " << filename;
       int ncid;
       temutil::nc( nc_open(filename.c_str(), NC_NOWRITE, &ncid ) );
@@ -613,7 +612,7 @@ namespace temutil {
 
       temutil::nc( nc_get_var1_float(ncid, latV, start, &lat_value));
       temutil::nc( nc_get_var1_float(ncid, lonV, start, &lon_value));
-      std::cout<<"ending pragma\n";
+
       temutil::nc( nc_close(ncid) );
     }//End critical(get_latlon)
 
