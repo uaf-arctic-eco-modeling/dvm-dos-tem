@@ -175,7 +175,7 @@ def error_image(save_plots=False, save_format="pdf", **kwargs):
     plotlist = kwargs["plotlist"]
 
   jfiles = sorted(file_loader(**kwargs))
-  
+
 
   # Figure out the month and year for the first and last
   # data files. Assumes that the datafiles are contiguous.
@@ -205,7 +205,7 @@ def error_image(save_plots=False, save_format="pdf", **kwargs):
   pjd = None
   for idx, jfile in enumerate(jfiles):
     with open(jfile, 'r') as f:
-        jdata = json.load(f)
+      jdata = json.load(f)
 
     diagnostics = analyze(jdata, pjd)
 
@@ -245,7 +245,9 @@ def image_plot(imgarrays, plotlist, title='', save=False, format='pdf'):
   from matplotlib.ticker import MaxNLocator
   import matplotlib.ticker as mtkr
 
-  # Undertake the plotting of the now full arrays.
+  # One set of data for each plot
+  assert len(imgarrays) == len(plotlist)
+
   # One row, with a column for each item in the imagearrays list
   fig, axar = plt.subplots(1, len(imgarrays), sharex=True, sharey=True)
 
@@ -254,13 +256,13 @@ def image_plot(imgarrays, plotlist, title='', save=False, format='pdf'):
   plt.subplots_adjust(top=0.9, bottom=0.16)
   fig.suptitle(title, fontsize=16)
 
+  # setup the callback
   cid = fig.canvas.mpl_connect('button_press_event', onclick)
 
-  #mpldatacursor.datacursor(display='single')
+  for axidx, (ax, data, plotname) in enumerate(zip(axar, imgarrays, plotlist)):
 
-  for axidx, data in enumerate(imgarrays):
-    print "Plotting for axes %s (%s)" % (axidx, plotlist[axidx])
-    print "-------------------------------------------"
+    print "%s plot. axar[%s] '%s' data shape: %s" % (title, axidx, plotname, data.shape)
+    print "---------------------------------------------------------------"
     # We are going to use a divergent color scheme centered around zero,
     # so we need to find largest absolute value of the data and use that
     # as the endpoints for the color-scaling.
@@ -287,34 +289,56 @@ def image_plot(imgarrays, plotlist, title='', save=False, format='pdf'):
     # Transform data to 2D shape for showing as an image
     data = data.reshape(len(data)/12, 12)
 
-    divider = make_axes_locatable(axar[axidx])
-    cwm = plt.cm.coolwarm
-    cwm.set_bad('white',1.0)
-    cwm.set_over('yellow',1.0) # <- nothing should be ouside the colormap range...
-    cwm.set_under('orange',1.0)
+    # Not totally sure how this part works, but it seems to help make room
+    # for the colorbar axes
+    divider = make_axes_locatable(ax)
     colax = divider.append_axes("bottom", size="3%", pad="10%")
 
+    # Use this colormap for the error and delta plots
+    cm1 = plt.cm.coolwarm
+    cm1.set_bad('white',1.0)
+    cm1.set_over('yellow') # <- nothing should be ouside the colormap range...
+    cm1.set_under('orange')
+
+    # Use this colormap for the err/delta plot
+    cm2 = plt.cm.RdYlGn_r
+    cm2.set_bad('white',1.0)
+    cm2.set_over('pink') # <- nothing should be ouside the colormap range...
+    cm2.set_under('green')
+
     # Display the data as an image
-    im = axar[axidx].imshow(
+    im = ax.imshow(
           data,
           interpolation="nearest",
-          cmap="coolwarm", vmin=-xval, vmax=xval,
+          cmap=cm1, vmin=-np.nanmax(np.abs(data)), vmax=np.nanmax(np.abs(data)),
           aspect='auto' # helps with non-square images...
         )
+
+    # Set some tick mark stuff
     loc = MultipleLocator(base=1.0) # this locator puts ticks at regular intervals
-    axar[axidx].xaxis.set_major_locator(loc)
-    axar[axidx].grid(True, axis='both')
+    ax.xaxis.set_major_locator(loc)
+    ax.grid(True, axis='both')
 
     cbar = plt.colorbar(im, cax=colax, orientation='horizontal', format="%0.8f", ticks=mtkr.MaxNLocator(6, prune=None))
+
+    # use the other colormap for the error divided by delta plot
+    # and adjust the tick labels
+    if plotname == 'err/delta':
+      im.cmap = cm2
+      cbar = plt.colorbar(im, cax=colax, orientation='horizontal', format="%0.2f", ticks=mtkr.MaxNLocator(6, prune=None))
+
     plt.setp(colax.xaxis.get_majorticklabels(), rotation=90)
 
     #axar[axidx].yaxis.set_visible(False)
     #axar[axidx].yaxis.set_major_locator(mtkr.MultipleLocator(5))
     #axar[axidx].tick_params(axis='y', direction='in', length=3, width=.5, colors='k', labelleft='off', labelright='off')
 
-    axar[axidx].set_xlabel("Month")
-    #axar[axidx].xaxis.set_major_locator(mtkr.MaxNLocator(5, integer=True)) # 5 seems to be magic number; works with zooming.
-    axar[axidx].tick_params(axis='x', direction='in', length=3, width=.5, colors='k')
+    ax.set_xlabel("Month")
+    ax.xaxis.set_major_locator(mtkr.MaxNLocator(5, integer=True)) # 5 seems to be magic number; works with zooming.
+    ax.tick_params(axis='x', direction='in', length=3, width=.5, colors='k')
+
+    # end of loop over axes/images
+    print ""
 
   # Turn the y axis on for the leftmost plot
   axar[0].yaxis.set_visible(True)
@@ -962,7 +986,7 @@ if __name__ == '__main__':
           instead of the normal /tmp directory.'''))
 
   parser.add_argument('-i', '--error-image', default=False, nargs='+',
-      choices=error_image_choices, metavar="P",
+      choices=error_image_choices+['all'], metavar="P",
       help=textwrap.dedent('''Generate at 2D image plot of the error''')
   )
 
@@ -998,6 +1022,11 @@ if __name__ == '__main__':
 
   SAVE_DIR = "diagnostics-plots"
 
+  if args.error_image == ['all']:
+    errimgs = error_image_choices
+  else:
+    errimgs = args.error_image
+
   if save:
     # Clean up old plots,
     if os.path.isdir(SAVE_DIR) or os.path.isfile(SAVE_DIR):
@@ -1010,7 +1039,7 @@ if __name__ == '__main__':
 
   if args.error_image:
     print "Creating error image plots..."
-    error_image(plotlist=args.error_image, fileslice=slstr, save_plots=save, save_format=imgformat, fromarchive=archive)
+    error_image(plotlist=errimgs, fileslice=slstr, save_plots=save, save_format=imgformat, fromarchive=archive)
 
   if args.plot_timeseries:
     print "Creating timeseries plots..."
