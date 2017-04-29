@@ -61,9 +61,9 @@ public:
   // Maps holding data about variables to be output at specific timesteps
   // C++11 would allow the use of unordered_maps, which have a faster
   // by-key access time.
-  std::map<std::string, output_spec> daily_netcdf_outputs;
-  std::map<std::string, output_spec> monthly_netcdf_outputs;
-  std::map<std::string, output_spec> yearly_netcdf_outputs;
+  std::map<std::string, OutputSpec> daily_netcdf_outputs;
+  std::map<std::string, OutputSpec> monthly_netcdf_outputs;
+  std::map<std::string, OutputSpec> yearly_netcdf_outputs;
 
   std::string pid_tag;
   std::string caldata_tree_loc;

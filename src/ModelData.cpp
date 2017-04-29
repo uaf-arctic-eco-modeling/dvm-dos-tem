@@ -217,7 +217,7 @@ std::string ModelData::describe_module_settings() {
 /** Construct empty netCDF output files.
  *
  *  This function reads in output selections from a csv file specified
- *  in the config file. It creates an output_spec and an empty
+ *  in the config file. It creates an OutputSpec and an empty
  *  NetCDF file for each line.
 */
 void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::string& stage) {
@@ -258,7 +258,7 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
   //5D Veg - PFT and PFT compartment
   int vartypeVeg5D_dimids[5];
  
-  //Ingest output specification file, create output_spec for each entry. 
+  //Ingest output specification file, create OutputSpec for each entry. 
   while(std::getline(output_csv, s)){ 
 
     std::istringstream ss(s);
@@ -266,7 +266,7 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
     std::string units;
     std::string desc;
 
-    output_spec new_spec;
+    OutputSpec new_spec;
     new_spec.pft = false;
     new_spec.compartment = false;
     new_spec.layer = false;
@@ -436,16 +436,16 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
 
       //Add output specifiers to the map tracking the appropriate timestep
       if(new_spec.daily){
-        daily_netcdf_outputs.insert(std::map<std::string, output_spec>::value_type(name, new_spec));
+        daily_netcdf_outputs.insert(std::map<std::string, OutputSpec>::value_type(name, new_spec));
       }
 
       else if(new_spec.monthly){
-        monthly_netcdf_outputs.insert(std::map<std::string, output_spec>::value_type(name, new_spec));
+        monthly_netcdf_outputs.insert(std::map<std::string, OutputSpec>::value_type(name, new_spec));
         //monthly_netcdf_outputs.insert({name, filename}); c++11
       }
 
       else if(new_spec.yearly){
-        yearly_netcdf_outputs.insert(std::map<std::string, output_spec>::value_type(name, new_spec));
+        yearly_netcdf_outputs.insert(std::map<std::string, OutputSpec>::value_type(name, new_spec));
       }
 
     }//End file creation section (if timestep is specified)

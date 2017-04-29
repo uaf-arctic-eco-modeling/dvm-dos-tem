@@ -5,7 +5,7 @@
 #define UTIL_STRUCTS_H_
 
 
-struct output_spec{
+struct OutputSpec{
   std::string file_path; // Subjective file path, not including filename
   std::string filename_prefix; //example: ALD_monthly
   int dim_count;
