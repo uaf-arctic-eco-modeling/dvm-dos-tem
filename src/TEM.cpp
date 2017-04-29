@@ -620,12 +620,81 @@ void output_volume_estimator(const ModelData& md, bool calmode) {
 
   BOOST_LOG_SEV(glg, info) << "Stop here";
 
+  for (int i=0; i<STAGES; i++) {
+    std::string s = stages[i];
+
+      double D_est = 0;
+      double M_est = 0;
+      double Y_est = 0;
+      BOOST_LOG_SEV(glg, info) << "Setting timesteps estimates to zero.";
+
+      // yearly
+      std::map<std::string, OutputSpec>::const_iterator map_itr;
+      for(map_itr = md.yearly_netcdf_outputs.begin(); map_itr != md.yearly_netcdf_outputs.end(); ++map_itr ){
+
+        double output_estimate = 8;
+        OutputSpec os = map_itr->second;
+
+        (os.pft) ? (output_estimate *= NUM_PFT) : output_estimate *= 1;
+        (os.compartment) ? (output_estimate *= NUM_PFT_PART) : output_estimate *= 1;
+        (os.layer) ? (output_estimate *= MAX_SOI_LAY) : output_estimate *= 1;
+        (os.yearly) ? (output_estimate *= (1*stgrunyrs.at(i))) : output_estimate *= 1;
+
+        Y_est += output_estimate;
+      }
+      map_itr = md.yearly_netcdf_outputs.end();
+
+      // monthly
+      for(map_itr = md.monthly_netcdf_outputs.begin(); map_itr != md.monthly_netcdf_outputs.end(); ++map_itr ){
+
+        double output_estimate = 8;
+        OutputSpec os = map_itr->second;
+
+        (os.pft) ? (output_estimate *= NUM_PFT) : output_estimate *= 1;
+        (os.compartment) ? (output_estimate *= NUM_PFT_PART) : output_estimate *= 1;
+        (os.layer) ? (output_estimate *= MAX_SOI_LAY) : output_estimate *= 1;
+        (os.monthly) ? (output_estimate *= (12*stgrunyrs.at(i))) : output_estimate *= 1;
+
+        M_est += output_estimate;
+      }
+      map_itr = md.monthly_netcdf_outputs.end();
+
+      // daily
+      for(map_itr = md.daily_netcdf_outputs.begin(); map_itr != md.daily_netcdf_outputs.end(); ++map_itr ){
+
+        double output_estimate = 8;
+        OutputSpec os = map_itr->second;
+
+        (os.pft) ? (output_estimate *= NUM_PFT) : output_estimate *= 1;
+        (os.compartment) ? (output_estimate *= NUM_PFT_PART) : output_estimate *= 1;
+        (os.layer) ? (output_estimate *= MAX_SOI_LAY) : output_estimate *= 1;
+        (os.daily) ? (output_estimate *= (365*stgrunyrs.at(i))) : output_estimate *= 1;
+
+        D_est += output_estimate;
+      }
+      map_itr = md.daily_netcdf_outputs.end();
+
+      // Open the run mask (spatial mask)
+      std::vector< std::vector<int> > run_mask = read_run_mask(md.runmask_file);
+
+      int num_rows = run_mask.size();
+      int num_cols = run_mask[0].size();
+
+      D_est *= num_cols*num_rows;
+      M_est *= num_cols*num_rows;
+      Y_est *= num_cols*num_rows;
+
+      BOOST_LOG_SEV(glg, info) << "Yearly estimated volume for stage " << s << ": " << hsize(Y_est);
+      BOOST_LOG_SEV(glg, info) << "MOnthly estimated volume for stage " << s << ": " << hsize(M_est);
+      BOOST_LOG_SEV(glg, info) << "daily estimated volume for stage " << s << ": " << hsize(D_est);
+      BOOST_LOG_SEV(glg, info) << "   ";
   }
 
   Json::StyledWriter styledWriter;
   std::cout << styledWriter.write(value);
 
 }
+
 
 /** Pretty print a 2D vector of ints */
 void pp_2dvec(const std::vector<std::vector<int> > & vv) {
