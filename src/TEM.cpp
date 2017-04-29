@@ -35,6 +35,9 @@
 #include <exception>
 #include <map>
 #include <set>
+#include <json/writer.h>
+
+#include <json/value.h>
 
 #include <boost/filesystem.hpp>
 #include <boost/asio/signal_set.hpp>
@@ -118,6 +121,9 @@ void enable_floating_point_exceptions() {
   #endif
 
 }
+
+// Forward declaration...
+void output_volume_estimator(const ModelData& md, bool calmode);
 
 
 ArgHandler* args = new ArgHandler();
@@ -217,6 +223,8 @@ int main(int argc, char* argv[]){
   if(modeldata.sc_yrs > 0 && modeldata.nc_sc){
     modeldata.create_netCDF_output_files(num_rows, num_cols, "sc");
   }
+
+  output_volume_estimator(modeldata, args->get_cal_mode());
 
   if (args->get_loop_order() == "space-major") {
 
@@ -554,6 +562,70 @@ int main(int argc, char* argv[]){
   return 0;
 } /* End main() */
 
+
+/** Returns a 'human readable' size string with SI suffix */
+std::string hsize(double size) {
+  int i = 0;
+  const std::string units[] = {"B","kB","MB","GB","TB","PB","EB","ZB","YB"};
+  while (size > 1024) {
+    size /= 1024;
+    i++;
+  }
+  std::stringstream ss;
+  ss.precision(0);
+  (size < 0.5) ? size = 0 : size=size;
+  ss << fixed << size << " " << units[i];
+  std::string size_string = ss.str();
+  return size_string;
+}
+
+
+
+void output_volume_estimator(const ModelData& md, bool calmode) {
+
+  Json::Value value(Json::objectValue);
+
+  const int STAGES = 5;
+  const std::string stages[] = {"pr","eq","sp","tr","sc"};
+  std::vector<int> stgrunyrs(5, 0);
+  stgrunyrs.at(0) = md.pr_yrs;
+  stgrunyrs.at(1) = md.eq_yrs;
+  stgrunyrs.at(2) = md.sp_yrs;
+  stgrunyrs.at(3) = md.tr_yrs;
+  stgrunyrs.at(4) = md.sc_yrs;
+
+  // cal json
+  if (calmode) {
+
+    // Table of coefficients for bytes per year of run time
+    // for each stage and different types of output (archive, daily, etc).
+    int COEF[STAGES][4] = {
+      // arch   daily monthly  yearly
+      { 22000, 41000, 200000, 20000 }, // pre run
+      { 56000, 41000, 240000, 24000 }, // eq
+      { 15000, 36000, 199000, 16000 }, // sp
+      { 15000, 36000, 199000, 16000 }, // tr
+      { 15000, 36000, 199000, 16000 }, // sc
+    };
+
+    for (int i=0; i<STAGES; i++) {
+      std::string s = stages[i];
+      int yrs = stgrunyrs.at(i);
+      (md.tar_caljson) ? value[s]["archive"] = hsize(yrs * COEF[i][0]) : value[s]["archive"] = hsize(0);
+      value[s]["daily"] = hsize(yrs * COEF[i][1]);
+      (md.output_monthly) ? value[s]["monthly"] = hsize(yrs * COEF[i][2]) : value[s]["monthly"] = hsize(0);
+      value[s]["yearly"] = hsize(yrs * COEF[i][3]);
+    }
+  }
+
+  BOOST_LOG_SEV(glg, info) << "Stop here";
+
+  }
+
+  Json::StyledWriter styledWriter;
+  std::cout << styledWriter.write(value);
+
+}
 
 /** Pretty print a 2D vector of ints */
 void pp_2dvec(const std::vector<std::vector<int> > & vv) {
