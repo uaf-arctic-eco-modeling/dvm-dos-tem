@@ -224,19 +224,19 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
 
   boost::filesystem::path output_base = output_dir;
 
-  //Load output specification file
+  // Load output specification file
   BOOST_LOG_SEV(glg, debug) << "Loading output specification file "<<output_spec_file;
   std::ifstream output_csv(output_spec_file.c_str());
 
   std::string s;
-  std::getline(output_csv, s);//Discard first line - header strings
+  std::getline(output_csv, s); // Discard first line - header strings
 
-  std::string token;//Substrings between commas
-  std::string name;//CSV file variable name
-  std::string timestep;//Yearly, monthly, or daily
-  std::string invalid_option = "invalid";//This marks an invalid selection
+  std::string token;    // Substrings between commas
+  std::string name;     // CSV file variable name
+  std::string timestep; // Yearly, monthly, or daily
+  std::string invalid_option = "invalid"; // This marks an invalid selection
 
-  //NetCDF file variables
+  // NetCDF file variables
   int ncid;
   int timeD;    // unlimited dimension
   int xD;
@@ -258,7 +258,7 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
   //5D Veg - PFT and PFT compartment
   int vartypeVeg5D_dimids[5];
  
-  //Ingest output specification file, create OutputSpec for each entry. 
+  // Ingest output specification file, create OutputSpec for each entry.
   while(std::getline(output_csv, s)){ 
 
     std::istringstream ss(s);
@@ -273,7 +273,7 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
     new_spec.yearly = false;
     new_spec.monthly = false;
     new_spec.daily = false;
-    new_spec.dim_count = 3;//All variables have time, y, x
+    new_spec.dim_count = 3; // All variables have time, y, x
 
     for(int ii=0; ii<9; ii++){
       std::getline(ss, token, ',');
@@ -327,7 +327,7 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
           new_spec.dim_count++;
         }
       }
-    }
+    } // end looping over tokens (aka columns) in a line
 
     // Only create a file if a timestep is specified for the variable.
     //  Otherwise, assume the user does not want that variable output.
@@ -434,7 +434,7 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
       BOOST_LOG_SEV(glg, debug) << "Closing new file...";
       temutil::nc( nc_close(ncid) );
 
-      //Add output specifiers to the map tracking the appropriate timestep
+      // Add OutputSpec objects to the map tracking the appropriate timestep
       if(new_spec.daily){
         daily_netcdf_outputs.insert(std::map<std::string, OutputSpec>::value_type(name, new_spec));
       }
@@ -448,8 +448,8 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
         yearly_netcdf_outputs.insert(std::map<std::string, OutputSpec>::value_type(name, new_spec));
       }
 
-    }//End file creation section (if timestep is specified)
-  }
+    } // End file creation section (if timestep is specified)
+  } // End looping over the output spec file.
 }
 
 
