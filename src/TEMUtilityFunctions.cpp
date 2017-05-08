@@ -600,7 +600,7 @@ namespace temutil {
       int yD, xD;
       temutil::nc( nc_inq_dimid(ncid, "Y", &yD) );
       temutil::nc( nc_inq_dimid(ncid, "X", &xD) );
-      std::cout<<"inquired X and Y\n";
+
       int latV;
       int lonV;
       temutil::nc( nc_inq_varid(ncid, "lat", &latV) );
