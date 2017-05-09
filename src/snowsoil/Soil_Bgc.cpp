@@ -999,6 +999,7 @@ void Soil_Bgc::deltastate() {
                             - ndrain - rtnextract[il];
       } else {
         del_sois.avln[il] = 0;
+        del_soi2soi.netnmin[il] = 0.0;
       }
     } // end of soil layer loop
 
