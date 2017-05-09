@@ -212,7 +212,7 @@ configured_suites = {
   },
   'Fire':{
     'desc': "Visualizing fire disturbance of soil and vegetation",
-    'rows': 5,
+    'rows': 7,
     'cols': 1,
     'traces': [
       { 'jsontag': 'Burnthick', 'units': 'cm', 'axesnum': 0, },
@@ -226,9 +226,21 @@ configured_suites = {
       { 'jsontag': 'BurnVeg2SoiBlwVegN', 'axesnum': 2, 'units': 'gN/m^2',},
       
       { 'jsontag': 'BurnSoi2AirC', 'axesnum': 3, 'units': 'gC/m^2',},
+      { 'jsontag': 'D2WoodyDebrisC', 'axesnum': 3, 'units': '',},
+      { 'jsontag': 'MossDeathC', 'axesnum': 3, 'units': '',},
 
-      { 'jsontag': 'BurnSoi2AirN', 'axesnum': 4, 'units': 'gC/m^2',},      
+      { 'jsontag': 'BurnSoi2AirN', 'axesnum': 4, 'units': 'gC/m^2',},
+      { 'jsontag': 'D2WoodyDebrisN', 'axesnum': 4, 'units': '',},
+      { 'jsontag': 'MossdeathNitrogen', 'axesnum': 4, 'units': '',},
 
-    ] 
+      { 'jsontag': 'StandingDeadC', 'axesnum': 5, 'units': '',},
+      { 'jsontag': 'WoodyDebrisC', 'axesnum': 5, 'units': '',},
+
+      { 'jsontag': 'StandingDeadN', 'axesnum': 6, 'units': '',},
+      { 'jsontag': 'WoodyDebrisN', 'axesnum': 6, 'units': '',},
+
+    ]
+  },
+}
   },
 }

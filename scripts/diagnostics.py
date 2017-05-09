@@ -653,7 +653,7 @@ def bal_N_soil_avl(jd, pjd):
   delta = np.nan
   if pjd != None:
     delta = jd["AvailableNitrogenSum"] - pjd["AvailableNitrogenSum"]
-  sum_of_fluxes = (jd["NetNMin"] + jd["AvlNInput"]) - (sum_across("TotNitrogenUptake", jd, 'all') + jd["AvlNLost"])
+  sum_of_fluxes = (jd["NetNMin"] + jd["AvlNInput"]) - (jd["NExtract"] + jd["AvlNLost"])
   err = delta - sum_of_fluxes
   return DeltaError(delta, err)
 

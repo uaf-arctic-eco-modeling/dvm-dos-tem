@@ -473,6 +473,11 @@ void Runner::output_caljson_monthly(int year, int month, std::string stage, boos
   data["D2WoodyDebrisC"] = cohort.bdall->m_v2soi.d2wdebrisc;
   data["D2WoodyDebrisN"] = cohort.bdall->m_v2soi.d2wdebrisn;
 
+  double t = 0.0;
+  for (int il=0; il < MAX_SOI_LAY; il++) {
+    t += cohort.bdall->m_soi2v.nextract[il];
+  }
+  data["NExtract"] = t;
   data["NetNMin"] = cohort.bdall->m_soi2soi.netnminsum;
   data["NetNImmob"] = cohort.bdall->m_soi2soi.nimmobsum;
   data["OrgNInput"] = cohort.bdall->m_a2soi.orgninput;
@@ -683,6 +688,11 @@ void Runner::output_caljson_yearly(int year, std::string stage, boost::filesyste
   data["D2WoodyDebrisC"] = cohort.bdall->y_v2soi.d2wdebrisc;
   data["D2WoodyDebrisN"] = cohort.bdall->y_v2soi.d2wdebrisn;
 
+  double t = 0.0;
+  for (int il=0; il < MAX_SOI_LAY; il++) {
+    t += cohort.bdall->m_soi2v.nextract[il];
+  }
+  data["NExtract"] = t;
   data["NetNMin"] = cohort.bdall->y_soi2soi.netnminsum;
   data["NetNImmob"] = cohort.bdall->y_soi2soi.nimmobsum;
   data["OrgNInput"] = cohort.bdall->y_a2soi.orgninput;
