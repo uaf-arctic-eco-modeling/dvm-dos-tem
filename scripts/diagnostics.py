@@ -300,12 +300,6 @@ def image_plot(imgarrays, plotlist, title='', save=False, format='pdf'):
     cm1.set_over('yellow') # <- nothing should be ouside the colormap range...
     cm1.set_under('orange')
 
-    # Use this colormap for the err/delta plot
-    cm2 = plt.cm.RdYlGn_r
-    cm2.set_bad('white',1.0)
-    cm2.set_over('pink') # <- nothing should be ouside the colormap range...
-    cm2.set_under('green')
-
     # Display the data as an image
     im = ax.imshow(
           data,
@@ -323,6 +317,14 @@ def image_plot(imgarrays, plotlist, title='', save=False, format='pdf'):
 
     # use the other colormap for the error divided by delta plot
     # and adjust the tick labels
+
+    # For the (error/delta) plot it is nice to have a different colormap
+    # and slightly different colorbar settings
+    cm2 = plt.cm.RdYlGn_r
+    cm2.set_bad('white',1.0)
+    cm2.set_over('pink') # <- nothing should be ouside the colormap range...
+    cm2.set_under('green')
+
     if plotname == 'err/delta':
       im.cmap = cm2
       cbar = plt.colorbar(im, cax=colax, orientation='horizontal', format="%0.2f", ticks=mtkr.MaxNLocator(6, prune=None))
@@ -642,7 +644,7 @@ def bal_N_soil_org(jd, pjd):
                   + jd["BurnVeg2SoiAbvVegN"] \
                   + jd["BurnVeg2SoiBlwVegN"] \
                   - jd["NetNMin"] \
-                  - jd["BurnSoi2AirN"] \
+                  - jd["BurnSoi2AirN"]
 
   err = delta - sum_of_fluxes
   return DeltaError(delta, err)
@@ -970,6 +972,17 @@ if __name__ == '__main__':
         Ideally the error is zero. For each Error Image Plot this program also 
         generates a plot showing the pool deltas, and a plot showing the error
         values divided by the delta values.
+
+        NOTE: 
+          When there is fire, the str and lab N plots are kind of useless
+          because the flux recorded in the json files is the total flux and
+          the fluxes on the str and lab N pools is some proportion of the total.
+
+        NOTE:
+
+        NOTE:
+          You must run dvmdostem such that it creates monthly json files!
+
 
         Error image and tabular report options
         %s
