@@ -55,31 +55,31 @@ def analyze(cjd, pjd):
 
   results = {}
 
-  results['C veg'] = bal_C_veg(cjd, pjd, xsec='all')
-  results['C veg vasc'] = bal_C_veg(cjd, pjd, xsec='vasc')
-  results['C veg nonvasc'] = bal_C_veg(cjd, pjd, xsec='nonvasc')
+  results['C_veg'] = bal_C_veg(cjd, pjd, xsec='all')
+  results['C_veg_vasc'] = bal_C_veg(cjd, pjd, xsec='vasc')
+  results['C_veg_nonvasc'] = bal_C_veg(cjd, pjd, xsec='nonvasc')
 
-  results['C soil'] = bal_C_soil(cjd, pjd)
+  results['C_soil'] = bal_C_soil(cjd, pjd)
 
-  results['C standing dead'] = bal_C_standing_dead(cjd, pjd)
-  results['N standing dead'] = bal_N_standing_dead(cjd, pjd)
+  results['C_standing_dead'] = bal_C_standing_dead(cjd, pjd)
+  results['N_standing_dead'] = bal_N_standing_dead(cjd, pjd)
 
-  results['C woody debris'] = bal_C_woody_debris(cjd, pjd)
-  results['N woody debris'] = bal_N_woody_debris(cjd, pjd)
+  results['C_woody_debris'] = bal_C_woody_debris(cjd, pjd)
+  results['N_woody_debris'] = bal_N_woody_debris(cjd, pjd)
 
-  results['N veg tot'] = bal_N_veg_tot(cjd, pjd, xsec='all')
-  results['N veg str'] = bal_N_veg_str(cjd, pjd, xsec='all')
-  results['N veg lab'] = bal_N_veg_lab(cjd, pjd, xsec='all')
-  results['N soil org'] = bal_N_soil_org(cjd, pjd)
-  results['N soil avl'] = bal_N_soil_avl(cjd, pjd)
+  results['N_veg_tot'] = bal_N_veg_tot(cjd, pjd, xsec='all')
+  results['N_veg_str'] = bal_N_veg_str(cjd, pjd, xsec='all')
+  results['N_veg_lab'] = bal_N_veg_lab(cjd, pjd, xsec='all')
+  results['N_soil_org'] = bal_N_soil_org(cjd, pjd)
+  results['N_soil_avl'] = bal_N_soil_avl(cjd, pjd)
 
-  results['N veg vasc tot'] = bal_N_veg_tot(cjd, pjd, xsec='vasc')
-  results['N veg vasc str'] = bal_N_veg_str(cjd, pjd, xsec='vasc')
-  results['N veg vasc lab'] = bal_N_veg_lab(cjd, pjd, xsec='vasc')
+  results['N_veg_vasc_tot'] = bal_N_veg_tot(cjd, pjd, xsec='vasc')
+  results['N_veg_vasc_str'] = bal_N_veg_str(cjd, pjd, xsec='vasc')
+  results['N_veg_vasc_lab'] = bal_N_veg_lab(cjd, pjd, xsec='vasc')
 
-  results['N veg nonvasc tot'] = bal_N_veg_tot(cjd, pjd, xsec='nonvasc')
-  results['N veg nonvasc str'] = bal_N_veg_str(cjd, pjd, xsec='nonvasc')
-  results['N veg nonvasc lab'] = bal_N_veg_lab(cjd, pjd, xsec='nonvasc')
+  results['N_veg_nonvasc_tot'] = bal_N_veg_tot(cjd, pjd, xsec='nonvasc')
+  results['N_veg_nonvasc_str'] = bal_N_veg_str(cjd, pjd, xsec='nonvasc')
+  results['N_veg_nonvasc_lab'] = bal_N_veg_lab(cjd, pjd, xsec='nonvasc')
 
   return results
 
@@ -905,14 +905,14 @@ if __name__ == '__main__':
   signal.signal(signal.SIGINT, exit_gracefully)
 
   error_image_choices = [
-    'C soil',
-    'N soil org', 'N soil avl',
-    'C veg', 'C veg vasc', 'C veg nonvasc',
-    'N veg tot', 'N veg str', 'N veg lab',
-    'N veg vasc tot', 'N veg vasc str', 'N veg vasc lab',
-    'N veg nonvasc tot', 'N veg nonvasc str', 'N veg nonvasc lab',
-    'C standing dead', 'C woody debris',
-    'N standing dead', 'N woody debris'
+    'C_soil',
+    'N_soil_org', 'N_soil_avl',
+    'C_veg', 'C_veg_vasc', 'C_veg_nonvasc',
+    'N_veg_tot', 'N_veg_str', 'N_veg_lab',
+    'N_veg_vasc_tot', 'N_veg_vasc_str', 'N_veg_vasc_lab',
+    'N_veg_nonvasc_tot', 'N_veg_nonvasc_str', 'N_veg_nonvasc_lab',
+    'C_standing_dead', 'C_woody_debris',
+    'N_standing_dead', 'N_woody_debris'
   ]
 
   tab_reports_and_timeseries_choices = [
