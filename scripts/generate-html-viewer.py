@@ -13,6 +13,7 @@ import argparse
 import textwrap
 import glob
 
+
 from jinja2 import Template
 
 def generate_head_tag():
@@ -195,7 +196,11 @@ def NEW_template():
                   <ul class="list-group">
                     {% for image in paths %}
                     <li class="list-group-item">
-                      <img class="img-responsive" src="{{ image }}" />
+                      {% if '.txt' in image %}
+                        {{ image | safe }}
+                      {% else %}
+                        <img class="img-responsive" src="{{ image }}" />
+                      {% endif %}
                     </li>
                     {% endfor %}
                   </ul>
@@ -282,7 +287,7 @@ def build_new_page(left_path, center_path, right_path, autoshow=False):
     return classification
 
   def build_full_image_list(path, depth=None):
-    images, pdfs, pngs = [], [], []
+    images, pdfs, pngs, txts = [], [], [], []
     if path == "" or path == None:
       pass # Nothing to do with an empty path...
     else:
@@ -290,12 +295,13 @@ def build_new_page(left_path, center_path, right_path, autoshow=False):
       for root, dirs, files in walkdepth(path, depth=depth):
         pdfs += [os.path.join(root, filename) for filename in fnmatch.filter(files, "*.pdf")]
         pngs += [os.path.join(root, filename) for filename in fnmatch.filter(files, "*.png")]
+        txts += [os.path.join(root, filename) for filename in fnmatch.filter(files, "*.txt")]
 
     print "%s" % path
     print "  pdfs: %8i" % len(pdfs)
     print "  pngs: %8i" % len(pngs)
-    print ""
-    images = pdfs + pngs
+    print "  txts: %8i" % len(txts)
+    images = pdfs + pngs + txts
 
     return images
 
@@ -315,8 +321,8 @@ def build_new_page(left_path, center_path, right_path, autoshow=False):
   dm = {}
   for cat in categories:
     dm[cat] = collections.OrderedDict()
-    for col, il in zip(['L','C','R'], (left_img_list, center_img_list, right_img_list)):
-      dm[cat][col] = [p for p in il if classify(p)==cat]
+    for col, imglist in zip(['L','C','R'], (left_img_list, center_img_list, right_img_list)):
+      dm[cat][col] = [i for i in imglist if classify(i)==cat]
 
   titles = {
     'L':left_path,
