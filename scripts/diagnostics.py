@@ -161,6 +161,8 @@ def error_image(save_plots=False, save_format="pdf", **kwargs):
     Whether or not to save the plots to files.
   save_format : str
     Which file format to use for saving image.
+  savetag : str
+    A tag to insertin the midst of the output file name.
 
   --> various kwargs, passed to file loader
 
@@ -230,11 +232,12 @@ def error_image(save_plots=False, save_format="pdf", **kwargs):
                ['error','delta','err/delta'], # list of titles for subplots
                title=p,                       # figure title
                save=save_plots,               # pass-thru whether or not to save
+               savetag=savetag,               # pass-thru - a string to put in the filename
                format=save_format)            # pass-thru saving format
 
 
 
-def image_plot(imgarrays, plotlist, title='', save=False, format='pdf'):
+def image_plot(imgarrays, plotlist, title='', save=False, format='pdf', savetag=''):
   '''
   Carry out the rendering of several "image plots" side by side:
   Setup grid, layout, colorbar, render data, set titles, axes labels, etc.
@@ -361,7 +364,7 @@ def image_plot(imgarrays, plotlist, title='', save=False, format='pdf'):
       x[0].set_title(x[1])
 
   if save:
-    file_name = os.path.join(SAVE_DIR, title + "." + format)
+    file_name = os.path.join(SAVE_DIR, title + "_" + savetag + "_diagnostic." + format)
     print "saving file: %s" % file_name
     plt.savefig(file_name)
   else:
@@ -1018,6 +1021,10 @@ if __name__ == '__main__':
         Saves plots to 'diagnostics-plots/' subdirectory instead of displaying
         them in a pop-up interactive window.. Overwrites any existing plots.'''))
 
+  parser.add_argument('--save-tag', default='',
+      help=textwrap.dedent('''\
+        A tag to add to the output file's name, e.g.: "C_soil-<TAG>-diagnostics.png"'''))
+
   parser.add_argument('--save-format', default="pdf",
       choices=['pdf', 'png', 'jpg'],
       help="Choose a file format to use for saving plots.")
@@ -1032,6 +1039,7 @@ if __name__ == '__main__':
   archive = args.from_archive
   save = args.save_plots
   imgformat = args.save_format
+  savetag = args.save_tag
 
   SAVE_DIR = "diagnostics-plots"
 
@@ -1052,7 +1060,7 @@ if __name__ == '__main__':
 
   if args.error_image:
     print "Creating error image plots..."
-    error_image(plotlist=errimgs, fileslice=slstr, save_plots=save, save_format=imgformat, fromarchive=archive)
+    error_image(plotlist=errimgs, fileslice=slstr, save_plots=save, save_format=imgformat, fromarchive=archive, savetag=savetag)
 
   if args.plot_timeseries:
     print "Creating timeseries plots..."

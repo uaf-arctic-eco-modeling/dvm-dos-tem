@@ -238,12 +238,22 @@ def build_new_page(left_path, center_path, right_path, autoshow=False):
 
   def classify(filepath):
     '''
-    Attempts to 'classify' a file based on the underscore seperated fields.
-    Expects a file name something like:
-        "sometag_Vegetation_pft0.png"
-        "_histo_pestplot.png"
-    The category is the last field before the file-name extension, unless the 
-    last field containes pft, in which case, the seconds to last field is used.
+    Attempts to classify a file based on the underscore seperated fields.
+    Expects a file name something like the following:
+
+        "sometag_Vegetation_pft0.png"    # calibration "suites"
+        "_histo_pestplot.png"            # pest plots
+        "*-diagnostics.png"              # diagnostics plots
+
+
+    For the calibration suites, the category is the last filed before the 
+    extension, unless 'pft' is in the last field, in which case the category
+    is the second to last field.
+
+    For pest plots, the category is the last field before the extension.
+
+    For diagnostic plots, the category is the second to last field before the
+    extension.
 
     Parameters
     ----------
@@ -259,10 +269,17 @@ def build_new_page(left_path, center_path, right_path, autoshow=False):
     bn = os.path.basename(filepath)
     sbn = os.path.splitext(bn)[0]
     tokens = sbn.split('_')
+    #print tokens
+    classification = None
     if 'pft' in tokens[-1]:
-      return tokens[-2]
+      classification =  tokens[-2]
+    elif 'diagnostic' in tokens[-1]:
+      classification = "diagnostic-" + tokens[-2]
     else:
-      return tokens[-1]
+      classification = tokens[-1]
+
+    #print "returning %s" % (classification) 
+    return classification
 
   def build_full_image_list(path, depth=None):
     images, pdfs, pngs = [], [], []
@@ -289,7 +306,7 @@ def build_new_page(left_path, center_path, right_path, autoshow=False):
 
   # Figure out what rows we need - one row for every category, that shows up in 
   # any of the three lists.
-  categories = set(map(classify, left_img_list+center_img_list+right_img_list))
+  categories = sorted(set(map(classify, left_img_list+center_img_list+right_img_list)))
   print "Found %i categories: %s" % (len(categories), ' '.join(categories))
   print ""
 
