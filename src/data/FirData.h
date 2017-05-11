@@ -4,34 +4,42 @@
 */
 #include <iostream>
 #include <math.h>
+#include <string>
+#include <sstream>
 
 #include "../inc/diagnostics.h"
 #include "../inc/fluxes.h"
 #include "../inc/states.h"
 #include "../inc/timeconst.h"
 
-class FirData{
- 	public:
-        FirData();
-        ~FirData();
+class FirData {
+public:
 
-        void clear();
+  FirData();
+  ~FirData();
 
-        bool useseverity;
+  void clear();
 
-		soidiag_fir fire_soid;
+  bool useseverity;
 
-		veg2atm_fir fire_v2a;
-		veg2soi_fir fire_v2soi;
+  soidiag_fir fire_soid;
 
-		soi2atm_fir fire_soi2a;
-		atm2soi_fir fire_a2soi;
+  veg2atm_fir fire_v2a;
+  veg2soi_fir fire_v2soi;
+  veg2dead_fir fire_v2dead;
+
+  soi2atm_fir fire_soi2a;
+  atm2soi_fir fire_a2soi;
+
+  void init();
+  void beginOfYear();
+  void endOfYear();
+  void beginOfMonth();
+  void burn();
   
-	    void init();
-        void beginOfYear();
-        void endOfYear();
-        void burn();
-    
+  std::string report_to_string(const std::string& msg);
+
+
 };
 
 #endif /*FIRDATA_H_*/

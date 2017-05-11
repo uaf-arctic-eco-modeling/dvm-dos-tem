@@ -12,7 +12,7 @@ using namespace std;
 #include "horizon/Snow.h"
 #include "horizon/Moss.h"
 #include "horizon/Organic.h"
-#include "horizon/Mineral.h"
+#include "horizon/MineralInfo.h"
 #include "horizon/SoilParent.h"
 
 #include "layer/Layer.h"
@@ -22,9 +22,9 @@ using namespace std;
 #include "layer/OrganicLayer.h"
 #include "layer/ParentLayer.h"
 
-#include "../lookup/SoilLookup.h"
 #include "../lookup/CohortLookup.h"
 
+#include "../data/BgcData.h"
 #include "../data/CohortData.h"
 #include "../data/FirData.h"
 #include "../data/RestartData.h"
@@ -33,141 +33,158 @@ using namespace std;
 
 class Ground: public DoubleLinkedList {
 
-	public :
-      	Ground();
-      	~Ground();
+public :
+  Ground();
+  Ground(MineralInfo mi);
 
-      	bool debugging;
+  ~Ground();
 
-      	// A ground (snow-soil<moss-peat-mineral>-soilparent column has the following 5 types of horizons,
-      	//  each of which has a number of layers defined below
-      	Snow snow;
-      	Moss moss;
-		Organic organic;
-		Mineral mineral;
-		SoilParent soilparent;          //soil parent materials, including rock
+  std::string layer_report_string();
+  std::string layer_report_string(const std::string& colunm_groups);
 
-		// dimension parameters
-		snwpar_dim snowdimpar;
-		soipar_dim soildimpar;
+  // A ground (snow-soil<moss-peat-mineral>-soilparent column has the following
+  //   5 types of horizons, each of which has a number of layers defined below
+  Snow snow;
+  Moss moss;
+  Organic organic;
+  MineralInfo mineralinfo;
+  SoilParent soilparent; //soil parent materials, including rock
 
-		// layer boundary for each type of horizon
+  // dimension parameters
+  snwpar_dim snowdimpar;
+  soipar_dim soildimpar;
 
-		Layer* fstsoill;      // first layer of soil column: snow/rock horizons excluded
-		Layer* lstsoill;      // last layer of soil column: snow/rock horizons excluded
+  // layer boundary for each type of horizon
 
-		Layer* fstmossl;      // first moss layer
-		Layer* lstmossl;      // last moss layer
-		Layer* fstshlwl;      // first fibric os layer
-		Layer* lstshlwl;      // last firbric os layer
-		Layer* fstdeepl;      // first amorphous os layer
-		Layer* lstdeepl;      // last amorphous os layer
-		Layer* fstminel;       // first mineral layer*/
-		Layer* lstminel;       // last mineral layer
+  Layer* fstsoill; // first layer of soil column: snow/rock horizons excluded
+  Layer* lstsoill; // last layer of soil column: snow/rock horizons excluded
 
-		// freezing/thawing fronts
-		double frntz[MAX_NUM_FNT];
-		int frnttype[MAX_NUM_FNT];
-		deque<double> frontsz;    // fronts depth in order from top to bottom: distance from ground soil surface
-		deque<int> frontstype;    // fronts type in order as above: 1 = freezing front - front with upper frozen/lower unfrozen,
-		                          //                               -1 = thawing front - frotn with upper unfrozen/lower frozen.
-		                          // SO freezing/thawing fronts are alternatively in order,
-		                          // i.e., a freezing front must be followed by a thawign front, or vice versa
+  Layer* fstmossl; // first moss layer
+  Layer* lstmossl; // last moss layer
+  Layer* fstshlwl; // first fibric os layer
+  Layer* lstshlwl; // last firbric os layer
+  Layer* fstdeepl; // first amorphous os layer
+  Layer* lstdeepl; // last amorphous os layer
+  Layer* fstminel; // first mineral layer*/
+  Layer* lstminel; // last mineral layer
 
-		Layer* fstfntl;       /*! first snow/soil layer containing phase change front */
-		Layer* lstfntl;       /*! last snow/soil layer containing phase change front */
+  // freezing/thawing fronts
+  double frntz[MAX_NUM_FNT];
+  int frnttype[MAX_NUM_FNT];
+  deque<double> frontsz; //fronts depth in order from top to bottom:
+                         //  distance from ground soil surface
+  deque<int> frontstype; //fronts type in order as above:
+                         //  1 = freezing front - front with upper
+                         //    frozen/lower unfrozen,
+                         //  -1 = thawing front - frotn with upper
+                         //    unfrozen/lower frozen.
+  // SO freezing/thawing fronts are alternatively in order,
+  // i.e., a freezing front must be followed by a thawign front, or vice versa
 
-		// this is the last layer in which Richards Equation applied for
-		Layer* drainl;        /*! layer in which the subsurface drainage occurs */
+  Layer* fstfntl; /*! first snow/soil layer containing phase change front */
+  Layer* lstfntl; /*! last snow/soil layer containing phase change front */
 
-		double draindepth;    // the subsurface drainage depth (m), which much be in somewhere of 'drainl'
-		                      // this depth is one of following situation: watertable, barrier (e.g., frozen), or soil bottom)
+  // this is the last layer in which Richards Equation applied for
+  Layer* drainl; /*! layer in which the subsurface drainage occurs */
 
- 		int ststate; // thermal state of whole column,
- 		            // 0: partially frozen, 1: totally frozen,, -1: totally unfrozen
+  double draindepth; //the subsurface drainage depth (m), which much
+                     //  be in somewhere of 'drainl'
+  //this depth is one of following situation: watertable, barrier
+  //  (e.g., frozen), or soil bottom)
 
-		void setCohortLookup(CohortLookup *chtlu);
+  int ststate; // thermal state of whole column,
+  // 0: partially frozen, 1: totally frozen,, -1: totally unfrozen
 
-		void initParameter();
-		void initDimension();
-		void initLayerStructure(snwstate_dim * snowdim, soistate_dim * soildim);
-		void initLayerStructure5restart(snwstate_dim * snowdim, soistate_dim * soildim, RestartData * resin);
+  void setBgcData(BgcData *bdp);
+  void setCohortLookup(CohortLookup *chtlu);
 
-		void resortGroundLayers();
+  void initParameter();
+  void initDimension();
+  void initLayerStructure(snwstate_dim * snowdim, soistate_dim * soildim);
+  void set_state_from_restartdata(snwstate_dim *snowdim, soistate_dim *soildim,
+                             const RestartData & rdata);
+  void resortGroundLayers();
 
-		// snow layers
-		bool constructSnowLayers(const double & dsmass, const double & tdrv);
-		bool divideSnowLayers();
-		bool combineSnowLayers();
+  // snow layers
+  bool constructSnowLayers(const double & dsmass, const double & tdrv);
+  bool divideSnowLayers();
+  bool combineSnowLayers();
 
-		void updateSnowLayerPropertiesDaily();
-		void updateSnowHorizon();
-		void checkSnowLayer();
+  void updateSnowLayerPropertiesDaily();
+  void updateSnowHorizon();
+  void checkSnowLayer();
 
-		// soil layers
-		void redivideSoilLayers();
+  // soil layers
+  void redivideSoilLayers();
 
-		// thawing/freezing fronts
-		void setFstLstFrontLayers();
-		void updateWholeFrozenStatus();  //update if whole soil frozen(1)/unfrozen(-1)/partially-frozen(0)
+  // thawing/freezing fronts
+  void setFstLstFrontLayers();
+  void updateWholeFrozenStatus(); //update if whole soil frozen(1)/
+                                  //  unfrozen(-1)/partially-frozen(0)
 
-		// update water drainage layer and depth
-		void setDrainL(Layer* lstsoill, double & barrierdepth, double & watertab);
+  // update water drainage layer and depth
+  void setDrainL(Layer* lstsoill, double & barrierdepth, double & watertab);
 
-   		// soil burning caused soil structure change
-		double adjustSoilAfterburn();
+  // soil burning caused soil structure change
+  double adjustSoilAfterburn();
 
-		// organic layer thickness dynamics with C content
-	  	void updateOslThickness5Carbon(Layer* fstsoill);
+  // organic layer thickness dynamics with C content
+  void updateOslThickness5Carbon(Layer* fstsoill);
 
-		//
-	    void retrieveSnowDimension(snwstate_dim * snowdim);
-		void retrieveSoilDimension(soistate_dim * soildim);   //This is required if anything changed in the dimension
+  //
+  void retrieveSnowDimension(snwstate_dim * snowdim);
+  void retrieveSoilDimension(soistate_dim * soildim);//This is required if
+                                                     //  anything changed in
+                                                     //  the dimension
 
-		//
-		void checkWaterValidity();
+  //
+  void checkWaterValidity();
 
-	private :
+private :
 
-		bool rocklayercreated;
+  bool rocklayercreated;
 
- 		SoilLookup  soillu;
- 		CohortLookup * chtlu;
+  BgcData * bd;
+  CohortLookup * chtlu;
 
-		void initRockLayers();
-		void initSnowSoilLayers();
+  void initRockLayers();
+  void initSnowSoilLayers();
 
-		void setFstLstSoilLayer();
-		void setFstLstMossLayers();
-		void setFstLstShlwLayers();
-		void setFstLstDeepLayers();
-		void setFstLstMineLayers();
-		void updateLayerIndex();
-		void updateLayerZ();
+  void setFstLstSoilLayer();
+  void setFstLstMossLayers();
+  void setFstLstShlwLayers();
+  void setFstLstDeepLayers();
+  void setFstLstMineLayers();
+  void updateLayerIndex();
+  void updateLayerZ();
 
-		void updateSoilHorizons();
+  void updateSoilHorizons();
 
-		void redivideMossLayers(const int &mosstype);
-		void redivideShlwLayers();
-		void redivideDeepLayers();
+  void redivideMossLayers(const int &mosstype);
+  void redivideShlwLayers();
+  void redivideDeepLayers();
 
-		void splitOneSoilLayer(SoilLayer*usl, SoilLayer* lsl, const double & updeptop, const double &lsldz);
-		void combineTwoSoilLayersU2L(SoilLayer* usl, SoilLayer* lsl);
-		void combineTwoSoilLayersL2U(SoilLayer* lsl, SoilLayer* usl);
+  void splitOneSoilLayer(SoilLayer*usl, SoilLayer* lsl,
+                         const double & updeptop, const double &lsldz);
+  void combineTwoSoilLayersU2L(SoilLayer* usl, SoilLayer* lsl);
+  void combineTwoSoilLayersL2U(SoilLayer* lsl, SoilLayer* usl);
 
-		void adjustFrontsAfterThickchange(const double & depth, const double & thickchange);
-		void getLayerFrozenstatusByFronts(Layer * soill);
+  void adjustFrontsAfterThickchange(const double & depth,
+                                    const double & thickchange);
+  void getLayerFrozenstatusByFronts(Layer * soill);
 
-		void getDmossCarbon5Thickness(SoilLayer* sl, const double &dmossdz);
-		void getDmossThickness5Carbon(SoilLayer* sl, const double &dmossc);
+  double thicknessFromCarbon(const double carbon, const double coefA, const double coefB);
+  double carbonFromThickness(const double thickness, const double coefA, const double coefB);
 
-		void getOslCarbon5Thickness(SoilLayer* sl, const double &plctop, const double &plcbot);
-	  	void getOslThickness5Carbon(SoilLayer* sl, const double &plztop, const double &plzbot);
+  void getOslCarbon5Thickness(SoilLayer* sl, const double &plctop,
+                              const double &plcbot);
+  void getOslThickness5Carbon(SoilLayer* sl, const double &plztop,
+                              const double &plzbot);
 
-		void checkFrontsValidity();
+  void checkFrontsValidity();
 
-		void cleanSnowSoilLayers();
-		void cleanAllLayers();
+  void cleanSnowSoilLayers();
+  void cleanAllLayers();
 
 };
 

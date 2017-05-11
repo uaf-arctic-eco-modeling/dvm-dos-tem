@@ -1,128 +1,149 @@
 #ifndef COHORT_H_
-	#define COHORT_H_
+#define COHORT_H_
 
-	#include "../ecodomain/Ground.h"
-	#include "../ecodomain/Vegetation.h"
+#include "../../include/Climate.h"
 
-	#include "../atmosphere/Atmosphere.h"
+#include "../ecodomain/Ground.h"
+#include "../ecodomain/Vegetation.h"
 
-	#include "../vegetation/Vegetation_Env.h"
-	#include "../vegetation/Vegetation_Bgc.h"
+#include "../vegetation/Vegetation_Env.h"
+#include "../vegetation/Vegetation_Bgc.h"
 
-	#include "../snowsoil/Snow_Env.h"
-	#include "../snowsoil/Soil_Env.h"
-	#include "../snowsoil/SoilParent_Env.h"
-	#include "../snowsoil/Soil_Bgc.h"
+#include "../snowsoil/Snow_Env.h"
+#include "../snowsoil/Soil_Env.h"
+#include "../snowsoil/SoilParent_Env.h"
+#include "../snowsoil/Soil_Bgc.h"
 
-	#include "../disturb/WildFire.h"
+#include "../disturb/WildFire.h"
 
-	#include "../data/RegionData.h"
-	#include "../data/GridData.h"
-	#include "../data/CohortData.h"
+#include "../data/CohortData.h"
 
-	#include "../data/EnvData.h"
-	#include "../data/BgcData.h"
-	#include "../data/FirData.h"
+#include "../data/EnvData.h"
+#include "../data/BgcData.h"
+#include "../data/FirData.h"
 
-	#include "../data/RestartData.h"
+#include "../data/RestartData.h"
 
-	#include "../lookup/CohortLookup.h"
+#include "../lookup/CohortLookup.h"
 
-	#include "Integrator.h"
+#include "Integrator.h"
 
 // headers for run
-	#include "Timer.h"
-	#include "ModelData.h"
-	#include "OutRetrive.h"
+#include "../../include/ModelData.h"
 
-	class Cohort{
-		public :
-			Cohort();
-			~Cohort();
-	
-	        // model running status
-			int errorid;
-			bool failed;    // when an exception is caught, set failed to be true
-	
- 			//
- 			Timer * timer;
+class Cohort {
+public :
+  Cohort();
+  Cohort(int y, int x, ModelData* modeldatapointer);
+  ~Cohort();
+  
+  int y;
+  int x;
 
- 			//inputs
-			CohortLookup chtlu;
+  float lon;
+  float lat;
 
-			// domain
-            Atmosphere atm;
-            Vegetation veg;
-            Ground ground;
+  // model running status
+  int errorid;
+  bool failed;    // when an exception is caught, set failed to be true
 
-            // processes
-            Vegetation_Env vegenv[NUM_PFT];
-            Snow_Env snowenv;
-            Soil_Env soilenv;
-            SoilParent_Env solprntenv;
+  /*
+    Note: FRI is a member of CohortData because it is checked in
+    Soil_Bgc::prepareintegration(...), and at that point there is no access to
+    the members/fields of a Cohort...
+  */
 
-            Vegetation_Bgc vegbgc[NUM_PFT];
-            Soil_Bgc soilbgc;
+  // old? can I deprecate these??
+  //double pfsize[NUM_FSIZE];
+  //double pfseason[NUM_FSEASON];
+  
+  //inputs
+  CohortLookup chtlu;
 
-            WildFire fire;
+  // domain
+  Vegetation veg;
+  Ground ground;
+  
+  // new domain
+  Climate climate;
 
-            // output
-            OutRetrive outbuffer;
+  // processes
+  Vegetation_Env vegenv[NUM_PFT];
+  Snow_Env snowenv;
+  Soil_Env soilenv;
+  SoilParent_Env solprntenv;
 
-		// data
-            EnvData ed[NUM_PFT];
-            BgcData bd[NUM_PFT];
-            EnvData * edall;
-            BgcData * bdall;
+  Vegetation_Bgc vegbgc[NUM_PFT];
+  Soil_Bgc soilbgc;
 
-            FirData * fd;   // this for all PFTs and their soil
-    
-            ModelData * md;
-            RegionData * rd;
-            GridData * gd;
+  WildFire fire;
 
-            CohortData cd;
-            RestartData resid;    //for input
+  // data
+  EnvData ed[NUM_PFT];
+  BgcData bd[NUM_PFT];
+  EnvData * edall;
+  BgcData * bdall;
 
- 		    void initSubmodules();
- 		    void setTime(Timer * timerp);
+  FirData year_fd[12]; //Monthly fire data, for all PFTs and soil
+  FirData * fd;   //Fire data for an individual month 
 
- 		    void setModelData(ModelData* md);
- 		    void setInputData(RegionData * rd, GridData * gd);
- 		    void setProcessData(EnvData * alledp, BgcData * allbdp, FirData *fdp);
+  ModelData * md;
 
- 		    void initStatePar();
- 		    void prepareAllDrivingData();
- 	        void prepareDayDrivingData(const int & yrcnt, const int &usedatmyr);
- 		    void updateMonthly(const int & yrcnt, const int & currmind, const int & dinmcurr);
+  CohortData cd;
+  RestartData restartdata;
+  
 
-	private:
+//  void NEW_load_climate_from_file(int y, int x);
+//  void NEW_load_veg_class_from_file(int y, int x);
+//  void NEW_load_fire_from_file(int y, int x);
 
-            Integrator vegintegrator[NUM_PFT];
-            Integrator solintegrator;
+  void initialize_internal_pointers();
+
+  void setModelData(ModelData* md);
+  void setProcessData(EnvData * alledp, BgcData * allbdp, FirData *fdp);
+
+  void initialize_state_parameters();
+  //void prepareAllDrivingData();
+  //void prepareDayDrivingData(const int & yrcnt, const int &usedatmyr);
+  void updateMonthly(const int & yrcnt, const int & currmind,
+                     const int & dinmcurr, std::string stage);
+  
+  void set_state_from_restartdata();
+  void set_restartdata_from_state();
+
+  void load_proj_climate(std::string&);//Provides data to Climate for loading proj data
+
+private:
+
+  Integrator vegintegrator[NUM_PFT];
+  Integrator solintegrator;
 
 
-     	    void updateMonthly_DIMveg(const int & currmind, const bool & dvmmodule);
-     	    void updateMonthly_DIMgrd(const int & currmind, const bool & dslmodule);
+  void updateMonthly_DIMveg(const int & currmind, const bool & dvmmodule);
+  void updateMonthly_DIMgrd(const int & currmind, const bool & dslmodule);
 
-     	    void updateMonthly_Env(const int & currmind, const int & dinmcurr);
- 	 	    void updateMonthly_Bgc(const int & currmind);
-     	    void updateMonthly_Fir(const int & yrcnt, const int & currmind);
+  void updateMonthly_Env(const int & currmind, const int & dinmcurr);
+  void updateMonthly_Bgc(const int & currmind);
+  void updateMonthly_Dsb(const int & yrcnt, const int & currmind, std::string stage);
 
-		    // update root distribution
-		    void getSoilFineRootFrac_Monthly();
-		    double assignSoilLayerRootFrac(const double & topz, const double & botz,
-		           const double csumrootfrac[MAX_ROT_LAY], const double dzrotlay[MAX_ROT_LAY]);
+  // Fire is a type of disturbance
+  void updateMonthly_Fir(const int & year, const int & midx, std::string stage);
 
-		   //
-     	   void assignAtmEd2pfts_daily();
-     	   void assignGroundEd2pfts_daily();
-		   void getSoilTransfactor4all_daily();
-		   void getEd4allveg_daily();
-     	   void getEd4land_daily();
+  // update root distribution
+  void getSoilFineRootFrac_Monthly();
+  double assignSoilLayerRootFrac(const double & topz, const double & botz,
+                                 const double csumrootfrac[MAX_ROT_LAY],
+                                 const double dzrotlay[MAX_ROT_LAY]);
 
-     	   void assignSoilBd2pfts_monthly();
-     	   void getBd4allveg_monthly();
+  //
+  void assignAtmEd2pfts_daily();
+  void assignGroundEd2pfts_daily();
+  void getSoilTransfactor4all_daily();
+  void getEd4allveg_daily();
+  void getEd4land_daily();
+
+  void assignSoilBd2pfts_monthly();
+  void getBd4allveg_monthly();
 
 };
 #endif /*COHORT_H_*/
