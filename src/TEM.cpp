@@ -323,7 +323,7 @@ int main(int argc, char* argv[]){
           // EQUILIBRIUM STAGE (EQ)
           if (modeldata.eq_yrs > 0) {
             BOOST_LOG_NAMED_SCOPE("EQ");
-            BOOST_LOG_SEV(glg, fatal) << "Running Equilibrium, " << modeldata.eq_yrs << " years.";
+            BOOST_LOG_SEV(glg, fatal) << "Equilibrium Initial Year Count: " << modeldata.eq_yrs;
 
             if (runner.calcontroller_ptr) {
               runner.calcontroller_ptr->handle_stage_start();
@@ -340,6 +340,9 @@ int main(int argc, char* argv[]){
 
             runner.cohort.md->set_dsbmodule(true);
 
+            // This variable ensures that OpenMP threads do not modify
+            // the shared modeldata.eq_yrs value.
+            int fri_adj_eq_yrs = modeldata.eq_yrs;//EQ years adjusted by FRI if necessary
             if (runner.cohort.md->get_dsbmodule()) {
               // The transition to SP must occur at the completion of a
               // fire cycle (i.e. a year or two prior to the next fire).
@@ -351,13 +354,18 @@ int main(int argc, char* argv[]){
                 int fri = runner.cohort.fire.getFRI();
                 int EQ_fire_cycles = modeldata.eq_yrs / fri;
                 if (modeldata.eq_yrs%fri != 0) {
-                  modeldata.eq_yrs = fri * (EQ_fire_cycles + 1) - 2;
+                  // Extend the run to the end of the current fire cycle
+                  fri_adj_eq_yrs = fri * (EQ_fire_cycles + 1) - 2;
+                }
+                else{
+                  fri_adj_eq_yrs -= 2;
                 }
               }
             }
 
             // Run model
-            runner.run_years(0, modeldata.eq_yrs, "eq-run");
+            BOOST_LOG_SEV(glg, fatal) << "Running Equilibrium, " << fri_adj_eq_yrs << " years.";
+            runner.run_years(0, fri_adj_eq_yrs, "eq-run");
 
             // Update restartdata structure from the running state
             runner.cohort.set_restartdata_from_state();
