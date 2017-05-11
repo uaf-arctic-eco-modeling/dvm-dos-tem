@@ -55,30 +55,31 @@ def analyze(cjd, pjd):
 
   results = {}
 
-  #results['C veg'] = bal_C_veg(cjd, pjd, xsec='all')
-  results['C veg'] = bal_C_veg(cjd, pjd, xsec='all')
-  #results['C veg del'] = bal_C_veg(cjd, pjd, xsec='all').delta
-  results['C veg vasc'] = bal_C_veg(cjd, pjd, xsec='vasc')
-  #results['C veg vasc del'] = bal_C_veg(cjd, pjd, xsec='vasc').delta
-  results['C veg nonvasc'] = bal_C_veg(cjd, pjd, xsec='nonvasc')
-  #results['C veg nonvasc del'] = bal_C_veg(cjd, pjd, xsec='nonvasc').delta
+  results['C_veg'] = bal_C_veg(cjd, pjd, xsec='all')
+  results['C_veg_vasc'] = bal_C_veg(cjd, pjd, xsec='vasc')
+  results['C_veg_nonvasc'] = bal_C_veg(cjd, pjd, xsec='nonvasc')
 
-  results['C soil'] = bal_C_soil(cjd, pjd)
-  #results['C soil del'] = bal_C_soil(cjd, pjd).delta
+  results['C_soil'] = bal_C_soil(cjd, pjd)
 
-  results['N veg tot'] = bal_N_veg_tot(cjd, pjd, xsec='all')
-  results['N veg str'] = bal_N_veg_str(cjd, pjd, xsec='all')
-  results['N veg lab'] = bal_N_veg_lab(cjd, pjd, xsec='all')
-  results['N soil org'] = bal_N_soil_org(cjd, pjd)
-  results['N soil avl'] = bal_N_soil_avl(cjd, pjd)
+  results['C_standing_dead'] = bal_C_standing_dead(cjd, pjd)
+  results['N_standing_dead'] = bal_N_standing_dead(cjd, pjd)
 
-  results['N veg vasc tot'] = bal_N_veg_tot(cjd, pjd, xsec='vasc')
-  results['N veg vasc str'] = bal_N_veg_str(cjd, pjd, xsec='vasc')
-  results['N veg vasc lab'] = bal_N_veg_lab(cjd, pjd, xsec='vasc')
+  results['C_woody_debris'] = bal_C_woody_debris(cjd, pjd)
+  results['N_woody_debris'] = bal_N_woody_debris(cjd, pjd)
 
-  results['N veg nonvasc tot'] = bal_N_veg_tot(cjd, pjd, xsec='nonvasc')
-  results['N veg nonvasc str'] = bal_N_veg_str(cjd, pjd, xsec='nonvasc')
-  results['N veg nonvasc lab'] = bal_N_veg_lab(cjd, pjd, xsec='nonvasc')
+  results['N_veg_tot'] = bal_N_veg_tot(cjd, pjd, xsec='all')
+  results['N_veg_str'] = bal_N_veg_str(cjd, pjd, xsec='all')
+  results['N_veg_lab'] = bal_N_veg_lab(cjd, pjd, xsec='all')
+  results['N_soil_org'] = bal_N_soil_org(cjd, pjd)
+  results['N_soil_avl'] = bal_N_soil_avl(cjd, pjd)
+
+  results['N_veg_vasc_tot'] = bal_N_veg_tot(cjd, pjd, xsec='vasc')
+  results['N_veg_vasc_str'] = bal_N_veg_str(cjd, pjd, xsec='vasc')
+  results['N_veg_vasc_lab'] = bal_N_veg_lab(cjd, pjd, xsec='vasc')
+
+  results['N_veg_nonvasc_tot'] = bal_N_veg_tot(cjd, pjd, xsec='nonvasc')
+  results['N_veg_nonvasc_str'] = bal_N_veg_str(cjd, pjd, xsec='nonvasc')
+  results['N_veg_nonvasc_lab'] = bal_N_veg_lab(cjd, pjd, xsec='nonvasc')
 
   return results
 
@@ -118,7 +119,7 @@ def file_loader(**kwargs):
       print "Cleaning up the temporary location: ", TMP_EXTRACT_LOCATION
       shutil.rmtree(TMP_EXTRACT_LOCATION)
     tf.extractall(TMP_EXTRACT_LOCATION, members=monthly_files(tf))
-    full_glob = os.path.join(TMP_EXTRACT_LOCATION, "/tmp/dvmdostem/calibration/monthly/*.json")
+    full_glob = os.path.join(TMP_EXTRACT_LOCATION, "tmp/dvmdostem/calibration/monthly/*.json")
     print "Matching this pattern: ", full_glob
     jfiles = glob.glob(full_glob)
   else:
@@ -160,6 +161,8 @@ def error_image(save_plots=False, save_format="pdf", **kwargs):
     Whether or not to save the plots to files.
   save_format : str
     Which file format to use for saving image.
+  savetag : str
+    A tag to insertin the midst of the output file name.
 
   --> various kwargs, passed to file loader
 
@@ -174,7 +177,7 @@ def error_image(save_plots=False, save_format="pdf", **kwargs):
     plotlist = kwargs["plotlist"]
 
   jfiles = sorted(file_loader(**kwargs))
-  
+
 
   # Figure out the month and year for the first and last
   # data files. Assumes that the datafiles are contiguous.
@@ -204,7 +207,7 @@ def error_image(save_plots=False, save_format="pdf", **kwargs):
   pjd = None
   for idx, jfile in enumerate(jfiles):
     with open(jfile, 'r') as f:
-        jdata = json.load(f)
+      jdata = json.load(f)
 
     diagnostics = analyze(jdata, pjd)
 
@@ -229,11 +232,12 @@ def error_image(save_plots=False, save_format="pdf", **kwargs):
                ['error','delta','err/delta'], # list of titles for subplots
                title=p,                       # figure title
                save=save_plots,               # pass-thru whether or not to save
+               savetag=savetag,               # pass-thru - a string to put in the filename
                format=save_format)            # pass-thru saving format
 
 
 
-def image_plot(imgarrays, plotlist, title='', save=False, format='pdf'):
+def image_plot(imgarrays, plotlist, title='', save=False, format='pdf', savetag=''):
   '''
   Carry out the rendering of several "image plots" side by side:
   Setup grid, layout, colorbar, render data, set titles, axes labels, etc.
@@ -244,7 +248,10 @@ def image_plot(imgarrays, plotlist, title='', save=False, format='pdf'):
   from matplotlib.ticker import MaxNLocator
   import matplotlib.ticker as mtkr
 
-  # undertake the plotting of the now full arrays..
+  # One set of data for each plot
+  assert len(imgarrays) == len(plotlist)
+
+  # One row, with a column for each item in the imagearrays list
   fig, axar = plt.subplots(1, len(imgarrays), sharex=True, sharey=True)
 
   #fig.set_tight_layout(True)
@@ -252,59 +259,91 @@ def image_plot(imgarrays, plotlist, title='', save=False, format='pdf'):
   plt.subplots_adjust(top=0.9, bottom=0.16)
   fig.suptitle(title, fontsize=16)
 
+  # setup the callback
   cid = fig.canvas.mpl_connect('button_press_event', onclick)
 
-  #mpldatacursor.datacursor(display='single')
+  for axidx, (ax, data, plotname) in enumerate(zip(axar, imgarrays, plotlist)):
 
-  for axidx, data in enumerate(imgarrays):
-    print "Plotting for axes %s" % axidx
-    print "-------------------------------------------"
+    print "%s plot. axar[%s] '%s' data shape: %s" % (title, axidx, plotname, data.shape)
+    print "---------------------------------------------------------------"
     # We are going to use a divergent color scheme centered around zero,
     # so we need to find largest absolute value of the data and use that
     # as the endpoints for the color-scaling.
+    print "min/max ignoring nans: %s %s" % (np.nanmin(data), np.nanmax(data))
     xval = np.nanmax(np.abs(data))
     print "Color map range for ax[%s]: %s" % (axidx, xval)
 
     # It is also handy to mask out the values that are zero (no error)
     # or riduculously close to zero (effectively zero)
-    print "Valid values before masking values close to zero: ", np.count_nonzero(~np.isnan(data))
+    print "Number of non nan values: ", np.count_nonzero(~np.isnan(data))
+
     data = np.ma.masked_equal(data, 0)
+    print "Number of values after masking values equal to zero:", data.count()
+
     maskclose = np.isclose(data, np.zeros(data.shape))
     data = np.ma.masked_array(data, mask=maskclose)
+    print "Number of values after masking values close to zero:", data.count()
+
     data = np.ma.masked_invalid(data)
-    print "Remaining data after masking near-zero data: ", data.count()
+    print "Remaining data after masking invalid data: ", data.count()
+
+    print "min/max values in data array:", data.min(), data.max()
 
     # Transform data to 2D shape for showing as an image
     data = data.reshape(len(data)/12, 12)
 
-    divider = make_axes_locatable(axar[axidx])
-    cwm = plt.cm.coolwarm
-    cwm.set_bad('white',1.0)
-    cwm.set_over('yellow',1.0) # <- nothing should be ouside the colormap range...
-    cwm.set_under('orange',1.0)
+    # Not totally sure how this part works, but it seems to help make room
+    # for the colorbar axes
+    divider = make_axes_locatable(ax)
     colax = divider.append_axes("bottom", size="3%", pad="10%")
 
+    # Use this colormap for the error and delta plots
+    cm1 = plt.cm.coolwarm
+    cm1.set_bad('white',1.0)
+    cm1.set_over('yellow') # <- nothing should be ouside the colormap range...
+    cm1.set_under('orange')
+
     # Display the data as an image
-    im = axar[axidx].imshow(
+    im = ax.imshow(
           data,
           interpolation="nearest",
-          cmap="coolwarm", vmin=-xval, vmax=xval,
+          cmap=cm1, vmin=-np.nanmax(np.abs(data)), vmax=np.nanmax(np.abs(data)),
           aspect='auto' # helps with non-square images...
         )
+
+    # Set some tick mark stuff
     loc = MultipleLocator(base=1.0) # this locator puts ticks at regular intervals
-    axar[axidx].xaxis.set_major_locator(loc)
-    axar[axidx].grid(True, axis='both')
+    ax.xaxis.set_major_locator(loc)
+    ax.grid(True, axis='both')
 
     cbar = plt.colorbar(im, cax=colax, orientation='horizontal', format="%0.8f", ticks=mtkr.MaxNLocator(6, prune=None))
+
+    # use the other colormap for the error divided by delta plot
+    # and adjust the tick labels
+
+    # For the (error/delta) plot it is nice to have a different colormap
+    # and slightly different colorbar settings
+    cm2 = plt.cm.RdYlGn_r
+    cm2.set_bad('white',1.0)
+    cm2.set_over('pink') # <- nothing should be ouside the colormap range...
+    cm2.set_under('green')
+
+    if plotname == 'err/delta':
+      im.cmap = cm2
+      cbar = plt.colorbar(im, cax=colax, orientation='horizontal', format="%0.2f", ticks=mtkr.MaxNLocator(6, prune=None))
+
     plt.setp(colax.xaxis.get_majorticklabels(), rotation=90)
 
     #axar[axidx].yaxis.set_visible(False)
     #axar[axidx].yaxis.set_major_locator(mtkr.MultipleLocator(5))
     #axar[axidx].tick_params(axis='y', direction='in', length=3, width=.5, colors='k', labelleft='off', labelright='off')
 
-    axar[axidx].set_xlabel("Month")
-    #axar[axidx].xaxis.set_major_locator(mtkr.MaxNLocator(5, integer=True)) # 5 seems to be magic number; works with zooming.
-    axar[axidx].tick_params(axis='x', direction='in', length=3, width=.5, colors='k')
+    ax.set_xlabel("Month")
+    ax.xaxis.set_major_locator(mtkr.MaxNLocator(5, integer=True)) # 5 seems to be magic number; works with zooming.
+    ax.tick_params(axis='x', direction='in', length=3, width=.5, colors='k')
+
+    # end of loop over axes/images
+    print ""
 
   # Turn the y axis on for the leftmost plot
   axar[0].yaxis.set_visible(True)
@@ -325,11 +364,11 @@ def image_plot(imgarrays, plotlist, title='', save=False, format='pdf'):
       x[0].set_title(x[1])
 
   if save:
-    file_name = title + "." + format
+    file_name = os.path.join(SAVE_DIR, title + "_" + savetag + "_diagnostic." + format)
     print "saving file: %s" % file_name
     plt.savefig(file_name)
-
-  plt.show(block=True)
+  else:
+    plt.show(block=True)
 
 
 def plot_tests(test_list, **kwargs):
@@ -430,6 +469,21 @@ def compile_table_by_year(test_case, **kwargs):
     return full_report
 
 def sum_across(key, jdata, xsec):
+  '''
+  Parameters
+  ----------
+  key : str
+    The key to lookup in the json data object.
+  jdata : json object
+    A json data object (output from dvmdostem)
+  xsec : str
+    A string, ('all', 'vasc', 'nonvasc') specifying which PFTs to sum over.
+
+  Returns
+  -------
+  total : float
+    The sum of the values for 'key' across the cross-section specified by 'xsec'.
+  '''
   # Setup a dict for mapping community type numbers
   # to differnet combos of PFTs for vascular/non-vascular
   # We should really build this programatically based on the parameter files
@@ -485,6 +539,44 @@ class DeltaError(object):
     self.delta = _d
     self.err = _e
 
+def bal_C_standing_dead(cjd, pjd):
+  delta = np.nan
+  if pjd != None:
+    delta = cjd["StandingDeadC"] - pjd["StandingDeadC"]
+  sum_of_fluxes = cjd["BurnAbvVeg2DeadC"] - cjd["D2WoodyDebrisC"]
+  err = delta - sum_of_fluxes
+  return DeltaError(delta, err)
+
+def bal_N_standing_dead(cjd, pjd):
+  delta = np.nan
+  if pjd != None:
+    delta = cjd["StandingDeadN"] - pjd["StandingDeadN"]
+  sum_of_fluxes = cjd["BurnAbvVeg2DeadN"] - cjd["D2WoodyDebrisN"]
+  err = delta - sum_of_fluxes
+  return DeltaError(delta, err)
+
+def bal_C_woody_debris(cjd, pjd):
+  delta = np.nan
+  if pjd != None:
+    delta = cjd["WoodyDebrisC"] - pjd["WoodyDebrisC"]
+  sum_of_fluxes = cjd["D2WoodyDebrisC"] - cjd["RHwdeb"]
+  err = delta - sum_of_fluxes
+  return DeltaError(delta, err)
+
+def bal_N_woody_debris(cjd, pjd):
+  delta = np.nan
+  if pjd != None:
+    delta = cjd["WoodyDebrisN"] - pjd["WoodyDebrisN"]
+
+  # Avoid divide by zero problem - assume no RH if there is no WoodyDebrisC
+  if cjd["WoodyDebrisC"] != 0:
+    sum_of_fluxes = cjd["D2WoodyDebrisN"] - (cjd["RHwdeb"] * cjd["WoodyDebrisN"]/cjd["WoodyDebrisC"])
+  else:
+    sum_of_fluxes = cjd["D2WoodyDebrisN"]
+
+  err = delta - sum_of_fluxes
+  return DeltaError(delta, err)
+
 def bal_C_soil(curr_jd, prev_jd):
   delta = np.nan
   if prev_jd != None:
@@ -502,6 +594,22 @@ def bal_C_soil(curr_jd, prev_jd):
   return DeltaError(delta, err)
 
 def bal_C_veg(curr_jd, pjd, xsec='all'):
+  '''
+  Parameters
+  ----------
+  curr_jd : json data
+    Current month.
+  pjd : json data
+    Previous month.
+  xsec : str
+    A string specifying the "cross section" of pfts to look. One of:
+    'all', 'vasc', 'nonvasc'.
+
+  Returns
+  -------
+  d : DeltaError
+    A DeltaError object.
+  '''
 
   delta = np.nan
   if pjd != None:
@@ -539,7 +647,7 @@ def bal_N_soil_org(jd, pjd):
                   + jd["BurnVeg2SoiAbvVegN"] \
                   + jd["BurnVeg2SoiBlwVegN"] \
                   - jd["NetNMin"] \
-                  - jd["BurnSoi2AirN"] \
+                  - jd["BurnSoi2AirN"]
 
   err = delta - sum_of_fluxes
   return DeltaError(delta, err)
@@ -548,7 +656,7 @@ def bal_N_soil_avl(jd, pjd):
   delta = np.nan
   if pjd != None:
     delta = jd["AvailableNitrogenSum"] - pjd["AvailableNitrogenSum"]
-  sum_of_fluxes = (jd["NetNMin"] + jd["AvlNInput"]) - (sum_across("TotNitrogenUptake", jd, 'all') + jd["AvlNLost"])
+  sum_of_fluxes = (jd["NetNMin"] + jd["AvlNInput"]) - (jd["NExtract"] + jd["AvlNLost"])
   err = delta - sum_of_fluxes
   return DeltaError(delta, err)
 
@@ -802,12 +910,14 @@ if __name__ == '__main__':
   signal.signal(signal.SIGINT, exit_gracefully)
 
   error_image_choices = [
-    'C soil',
-    'N soil org', 'N soil avl',
-    'C veg', 'C veg vasc', 'C veg nonvasc',
-    'N veg tot', 'N veg str', 'N veg lab',
-    'N veg vasc tot', 'N veg vasc str', 'N veg vasc lab',
-    'N veg nonvasc tot', 'N veg nonvasc str', 'N veg nonvasc lab',
+    'C_soil',
+    'N_soil_org', 'N_soil_avl',
+    'C_veg', 'C_veg_vasc', 'C_veg_nonvasc',
+    'N_veg_tot', 'N_veg_str', 'N_veg_lab',
+    'N_veg_vasc_tot', 'N_veg_vasc_str', 'N_veg_vasc_lab',
+    'N_veg_nonvasc_tot', 'N_veg_nonvasc_str', 'N_veg_nonvasc_lab',
+    'C_standing_dead', 'C_woody_debris',
+    'N_standing_dead', 'N_woody_debris'
   ]
 
   tab_reports_and_timeseries_choices = [
@@ -866,6 +976,17 @@ if __name__ == '__main__':
         generates a plot showing the pool deltas, and a plot showing the error
         values divided by the delta values.
 
+        NOTE: 
+          When there is fire, the str and lab N plots are kind of useless
+          because the flux recorded in the json files is the total flux and
+          the fluxes on the str and lab N pools is some proportion of the total.
+
+        NOTE:
+
+        NOTE:
+          You must run dvmdostem such that it creates monthly json files!
+
+
         Error image and tabular report options
         %s
         ''' % (option_table)),
@@ -881,7 +1002,7 @@ if __name__ == '__main__':
           instead of the normal /tmp directory.'''))
 
   parser.add_argument('-i', '--error-image', default=False, nargs='+',
-      choices=error_image_choices, metavar="P",
+      choices=error_image_choices+['all'], metavar="P",
       help=textwrap.dedent('''Generate at 2D image plot of the error''')
   )
 
@@ -896,7 +1017,13 @@ if __name__ == '__main__':
   )
 
   parser.add_argument('--save-plots', action='store_true', default=False,
-      help="Saves plots (to current directory).")
+      help=textwrap.dedent('''\
+        Saves plots to 'diagnostics-plots/' subdirectory instead of displaying
+        them in a pop-up interactive window.. Overwrites any existing plots.'''))
+
+  parser.add_argument('--save-tag', default='',
+      help=textwrap.dedent('''\
+        A tag to add to the output file's name, e.g.: "C_soil-<TAG>-diagnostics.png"'''))
 
   parser.add_argument('--save-format', default="pdf",
       choices=['pdf', 'png', 'jpg'],
@@ -904,17 +1031,36 @@ if __name__ == '__main__':
 
   print "Parsing command line arguments..."
   args = parser.parse_args()
-  print args
+  print "Command line argument settings:"
+  for k, v in vars(args).iteritems():
+    print "  %s = %s" % (k, v)
 
   slstr = args.slice
-  fromarchive = args.from_archive
+  archive = args.from_archive
   save = args.save_plots
   imgformat = args.save_format
+  savetag = args.save_tag
+
+  SAVE_DIR = "diagnostics-plots"
+
+  if args.error_image == ['all']:
+    errimgs = error_image_choices
+  else:
+    errimgs = args.error_image
+
+  if save:
+    # Clean up old plots,
+    if os.path.isdir(SAVE_DIR) or os.path.isfile(SAVE_DIR):
+      print "Cleaning up existing plots (in %s)..." % SAVE_DIR
+      shutil.rmtree(SAVE_DIR)
+
+    print "Making an empty directory to save plots in..."
+    os.makedirs(SAVE_DIR)
 
 
   if args.error_image:
     print "Creating error image plots..."
-    error_image(plotlist=args.error_image, fileslice=slstr, save_plots=save, save_format=imgformat)
+    error_image(plotlist=errimgs, fileslice=slstr, save_plots=save, save_format=imgformat, fromarchive=archive, savetag=savetag)
 
   if args.plot_timeseries:
     print "Creating timeseries plots..."
