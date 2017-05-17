@@ -242,5 +242,3 @@ configured_suites = {
     ]
   },
 }
-  },
-}
