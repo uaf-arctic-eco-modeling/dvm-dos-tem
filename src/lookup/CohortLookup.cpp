@@ -130,13 +130,13 @@ std::string CohortLookup::calparbgc2str() {
     s << std::setw(12) << std::setfill(' ') << this->krb[1][i];
   }
 
-  s << "    krb[1] (coeff in maintenance resp., leaf)\n";
+  s << "    krb[1] (coeff in maintenance resp., stem)\n";
 
   for (int i = 0 ; i < NUM_PFT; ++i) {
     s << std::setw(12) << std::setfill(' ') << this->krb[2][i];
   }
 
-  s << "    krb[2] (coeff in maintenance resp., leaf)\n";
+  s << "    krb[2] (coeff in maintenance resp., root)\n";
 
   for (int i = 0 ; i < NUM_PFT; ++i) {
     s << std::setw(12) << std::setfill(' ') << this->frg[i];
