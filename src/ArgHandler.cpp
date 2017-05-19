@@ -33,7 +33,13 @@ void ArgHandler::parse(int argc, char** argv) {
      "case we need to do some averaging over the last few years for PEST.")
 
     ("tar-caljson", boost::program_options::bool_switch(&tar_caljson),
-     "ADD SOME HELP.")
+     "When this flag is present, the calibration-json files will be bundled "
+     "into a *-data.tar.gz archive at the end of each stage. The prefix for "
+     "the archive will be a two letter code for the run-stage, (i.e. 'pr', "
+     "'eq', 'sp', 'tr', or 'sc'). The resulting archive will be in the "
+     "system's /tmp directory. It is up to the user to move or otherwise save "
+     "these archive files. Subsequent model runs will overwrite any existing "
+     "archive files.")
 
     ("archive-all-json", boost::program_options::bool_switch(&archive_all_json),
      "With this flag, the json files for every stage will be archived (at the "

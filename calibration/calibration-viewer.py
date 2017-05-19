@@ -1039,16 +1039,15 @@ if __name__ == '__main__':
       metavar='',
       help=textwrap.dedent('''\
           "The name of the community type that should be used to display 
-          target values lines.''')
-  )
+          target values lines.'''))
+
   targetgroup.add_argument('--tar-cmtnum', default=None, type=int,
       choices=calibration_targets.cmtnumbers(),
       metavar='',
       help=textwrap.dedent('''\
           The number of the community type that should be used to display
           target values lines. Allowed values are: %s''' %
-          calibration_targets.caltargets2prettystring3())
-  )
+          calibration_targets.caltargets2prettystring3()))
 
   parser.add_argument('--list-caltargets', action='store_true',
       help="print out a list of known calibration target communities")
@@ -1080,18 +1079,27 @@ if __name__ == '__main__':
           the end of the plot, after the data from the archive specifed in 
           --from-archive. Will show vertical lines at the boundary of each
           provided archive. Useful for showing data from multiple stages on
-          one plot.""")
-  )
+          one plot."""))
 
   parser.add_argument('--monthly', action='store_true', #default='/tmp/cal-dvmdostem',
       help=textwrap.dedent('''Read and disply monthly json files instead of 
           yearly. NOTE: may be slow!!'''))
 
   parser.add_argument('--data-path', default="/tmp/dvmdostem/",
-      help=textwrap.dedent('''Look for json files in the specified path (instead
-           of the default location)'''))
+      help=textwrap.dedent('''Look for json files in the specified path
+          (instead of the default location)'''))
 
-  parser.add_argument('--bulk', action='store_true')
+  parser.add_argument('--bulk', action='store_true',
+      help=textwrap.dedent('''With this flag, the viewer will attempt to
+          generate a multitude of plots - one plot for each PFT for each suite.
+          This option uses the multiprocessing module so will use more than one
+          core on your computer. The --no-show and --save-name options are 
+          implied. The final --save-name is assembled from the --save-name option
+          passed on the command line (if any), the suite, and the PFT,
+          resulting in something like this: '_Environment_PFT0.pdf' if no
+          --save-name is specified on the command line. NOTE: With some versions
+          of python and matplotlib, running with --bulk will be extremely slow!
+          '''))
 
 
   print "Parsing command line arguments..."
