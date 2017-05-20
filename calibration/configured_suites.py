@@ -100,9 +100,9 @@ configured_suites = {
       { 'jsontag': 'VegCarbon', 'axesnum': 2, 'units': 'gC/m^2','pft': '', 'pftpart': 'Root'},
       { 'jsontag': 'LitterfallCarbonAll', 'axesnum': 2, 'units': 'gC/m^2', 'pft': '', },
 
-      { 'jsontag': 'VegStructuralNitrogen', 'axesnum': 3, units='gN/m^2', 'pft': '', 'pftpart': 'Leaf'},
-      { 'jsontag': 'VegStructuralNitrogen', 'axesnum': 3, units='gN/m^2', 'pft': '', 'pftpart': 'Stem'},
-      { 'jsontag': 'VegStructuralNitrogen', 'axesnum': 3, units='gN/m^2', 'pft': '', 'pftpart': 'Root'},
+      { 'jsontag': 'VegStructuralNitrogen', 'axesnum': 3, 'units': 'gN/m^2', 'pft': '', 'pftpart': 'Leaf'},
+      { 'jsontag': 'VegStructuralNitrogen', 'axesnum': 3, 'units': 'gN/m^2', 'pft': '', 'pftpart': 'Stem'},
+      { 'jsontag': 'VegStructuralNitrogen', 'axesnum': 3, 'units': 'gN/m^2', 'pft': '', 'pftpart': 'Root'},
 
       { 'jsontag': 'LitterfallNitrogenPFT', 'axesnum': 4, 'units': 'gN/m^2', 'pft': '', },
       { 'jsontag': 'TotNitrogenUptake', 'axesnum': 4, 'units': 'gN/m^2', 'pft': '', }
