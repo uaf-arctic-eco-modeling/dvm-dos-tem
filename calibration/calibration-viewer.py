@@ -65,7 +65,7 @@ def generate_extened_help():
   should be able to find messages to this extent whenever
   the buttons are clicked. Unfortunately the work around at
   this time is to kill the plotting program (Ctrl-C in the 
-  controlling terminal window that started it) and start  the
+  controlling terminal window that started it) and start the
   program over. It can be helpful to pause DVMDOSTEM while
   you are doing this.
 
@@ -76,6 +76,8 @@ def generate_extened_help():
 
       Keyboard Shortcuts
       ------------------
+      ctrl + g    Quit. Plot window must be active to recieve the signal.
+
       ctrl + r    reset view, resume auto-expand
 
       ctrl + q    quit
@@ -143,6 +145,9 @@ def exit_gracefully(signum, frame):
   '''A function for quitting w/o leaving a stacktrace on the users console.'''
   logging.info("Caught signal='%s', frame='%s'. Quitting - gracefully." % (signum, frame))
   sys.exit(1)
+
+def do_nothing(signal_number, frame):
+  print "Doing nothing with signal number: ", signal_number
 
 
 def yearly_files(tarfileobj):
@@ -779,8 +784,8 @@ class ExpandingWindow(object):
       except ValueError as e:
         logging.warning("Invalid Entry! (%s)" % e)
 
-    if event.key == 'ctrl+c':
-      logging.debug("Captured Ctrl-C. Quit nicely.")
+    if event.key == 'ctrl+g':
+      logging.debug("Captured Ctrl-g. Quit nicely.")
       exit_gracefully(event.key, None) # <-- need to pass something for frame ??
 
 
@@ -993,7 +998,7 @@ if __name__ == '__main__':
   
   # Callback for SIGINT. Allows exit w/o printing stacktrace to users screen
   original_sigint = signal.getsignal(signal.SIGINT)
-  signal.signal(signal.SIGINT, exit_gracefully)
+  signal.signal(signal.SIGINT, do_nothing)
 
   logger = logging.getLogger(__name__)
 
