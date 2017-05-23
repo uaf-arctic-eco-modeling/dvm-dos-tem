@@ -1034,20 +1034,12 @@ if __name__ == '__main__':
 
   targetgroup = parser.add_mutually_exclusive_group()
 
-  targetgroup.add_argument('--tar-cmtname', default=None,
-      choices=calibration_targets.cmtnames(),
-      metavar='',
+  targetgroup.add_argument('--targets', action='store_true',
       help=textwrap.dedent('''\
-          "The name of the community type that should be used to display 
-          target values lines.'''))
-
-  targetgroup.add_argument('--tar-cmtnum', default=None, type=int,
-      choices=calibration_targets.cmtnumbers(),
-      metavar='',
-      help=textwrap.dedent('''\
-          The number of the community type that should be used to display
-          target values lines. Allowed values are: %s''' %
-          calibration_targets.caltargets2prettystring3()))
+          Display target value lines on the plots. Target values are looked up
+          in the calibration_targets.py file (same directory as this viewer
+          program) and the CMT code listed in the first input file (in the
+          first series if inputs are to be read from multiple series).'''))
 
   parser.add_argument('--list-caltargets', action='store_true',
       help="print out a list of known calibration target communities")
@@ -1144,25 +1136,6 @@ if __name__ == '__main__':
   
   logging.basicConfig(level=numeric_level, format=LOG_FORMAT)
 
-  logging.info("Setting up calibration target display...")
-  target_title_tag = "--"
-  if args.tar_cmtname:
-    logging.info("displaying target values for '%s' community" % args.tar_cmtname)
-    caltargets = calibration_targets.calibration_targets[args.tar_cmtname]
-    target_title_tag = "CMT %02d (%s)" % (caltargets["cmtnumber"], args.tar_cmtname)
-  elif args.tar_cmtnum or args.tar_cmtnum == 0:
-    logging.info("displaying target values for community number %s" % args.tar_cmtnum)
-    for cmtname, data in calibration_targets.calibration_targets.iteritems():
-      if data['cmtnumber'] == args.tar_cmtnum:
-        logging.info("community #%s --commnunity name--> '%s'" % (args.tar_cmtnum, cmtname))
-        caltargets = data
-        target_title_tag = "CMT %02d (%s)" % (args.tar_cmtnum, cmtname)
-      else:
-        pass
-  else:
-    logging.info("Not displaying target data")
-    caltargets = {}
-
   logger.info("Set the right pft in the suite's traces list..")
   for trace in suite['traces']:
     if 'pft' in trace.keys():
@@ -1206,6 +1179,35 @@ if __name__ == '__main__':
 
   #logging.info("from_archive=%s" % args.from_archive)
   #logging.info("data_path=%s" % args.data_path)
+
+  # Do we need to worry about a case where the different input archives
+  # represent differnt community types - and therefore should have different
+  # target values displayed?
+  if args.targets:
+    logging.info("Setting up calibration target display...")
+    if len(input_helper.files()) > 0:
+      try:
+        with open(input_helper.files()[0], 'r') as ff:
+          fdata = json.load(ff)
+          cmtstr = fdata["CMT"] # returns string like "CMT05"
+      except (IOError, ValueError) as e:
+        logging.error("Problem: '%s' reading file '%s'" % (e, f))
+
+      for cmtname, data in calibration_targets.calibration_targets.iteritems():
+        if cmtstr == 'CMT{:02d}'.format(data['cmtnumber']):
+          caltargets = data
+          target_title_tag = "CMT {} ({:})".format(data['cmtnumber'], cmtname)
+        else:
+          pass # wrong cmt
+
+    else:
+      print logging.warn("No files. Can't figure out which CMT to display targets for without files.")
+      target_title_tag = "--"
+
+  else:
+    target_title_tag = "--"
+    logging.info("Not displaying target data")
+    caltargets = {}
 
   if args.bulk:
     logging.warning("Attempting to switch backends.")
