@@ -37,6 +37,7 @@ public:
   vegstate_bgc del_vegs;
 
   void initializeParameter();
+
   void initializeState();
   void set_state_from_restartdata(const RestartData & rdata);
 

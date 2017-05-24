@@ -65,7 +65,7 @@ def generate_extened_help():
   should be able to find messages to this extent whenever
   the buttons are clicked. Unfortunately the work around at
   this time is to kill the plotting program (Ctrl-C in the 
-  controlling terminal window that started it) and start  the
+  controlling terminal window that started it) and start the
   program over. It can be helpful to pause DVMDOSTEM while
   you are doing this.
 
@@ -76,6 +76,8 @@ def generate_extened_help():
 
       Keyboard Shortcuts
       ------------------
+      ctrl + g    Quit. Plot window must be active to recieve the signal.
+
       ctrl + r    reset view, resume auto-expand
 
       ctrl + q    quit
@@ -143,6 +145,9 @@ def exit_gracefully(signum, frame):
   '''A function for quitting w/o leaving a stacktrace on the users console.'''
   logging.info("Caught signal='%s', frame='%s'. Quitting - gracefully." % (signum, frame))
   sys.exit(1)
+
+def do_nothing(signal_number, frame):
+  print "Doing nothing with signal number: ", signal_number
 
 
 def yearly_files(tarfileobj):
@@ -779,8 +784,8 @@ class ExpandingWindow(object):
       except ValueError as e:
         logging.warning("Invalid Entry! (%s)" % e)
 
-    if event.key == 'ctrl+c':
-      logging.debug("Captured Ctrl-C. Quit nicely.")
+    if event.key == 'ctrl+g':
+      logging.debug("Captured Ctrl-g. Quit nicely.")
       exit_gracefully(event.key, None) # <-- need to pass something for frame ??
 
 
@@ -993,7 +998,7 @@ if __name__ == '__main__':
   
   # Callback for SIGINT. Allows exit w/o printing stacktrace to users screen
   original_sigint = signal.getsignal(signal.SIGINT)
-  signal.signal(signal.SIGINT, exit_gracefully)
+  signal.signal(signal.SIGINT, do_nothing)
 
   logger = logging.getLogger(__name__)
 
@@ -1034,21 +1039,12 @@ if __name__ == '__main__':
 
   targetgroup = parser.add_mutually_exclusive_group()
 
-  targetgroup.add_argument('--tar-cmtname', default=None,
-      choices=calibration_targets.cmtnames(),
-      metavar='',
+  targetgroup.add_argument('--targets', action='store_true',
       help=textwrap.dedent('''\
-          "The name of the community type that should be used to display 
-          target values lines.''')
-  )
-  targetgroup.add_argument('--tar-cmtnum', default=None, type=int,
-      choices=calibration_targets.cmtnumbers(),
-      metavar='',
-      help=textwrap.dedent('''\
-          The number of the community type that should be used to display
-          target values lines. Allowed values are: %s''' %
-          calibration_targets.caltargets2prettystring3())
-  )
+          Display target value lines on the plots. Target values are looked up
+          in the calibration_targets.py file (same directory as this viewer
+          program) and the CMT code listed in the first input file (in the
+          first series if inputs are to be read from multiple series).'''))
 
   parser.add_argument('--list-caltargets', action='store_true',
       help="print out a list of known calibration target communities")
@@ -1080,18 +1076,27 @@ if __name__ == '__main__':
           the end of the plot, after the data from the archive specifed in 
           --from-archive. Will show vertical lines at the boundary of each
           provided archive. Useful for showing data from multiple stages on
-          one plot.""")
-  )
+          one plot."""))
 
   parser.add_argument('--monthly', action='store_true', #default='/tmp/cal-dvmdostem',
       help=textwrap.dedent('''Read and disply monthly json files instead of 
           yearly. NOTE: may be slow!!'''))
 
   parser.add_argument('--data-path', default="/tmp/dvmdostem/",
-      help=textwrap.dedent('''Look for json files in the specified path (instead
-           of the default location)'''))
+      help=textwrap.dedent('''Look for json files in the specified path
+          (instead of the default location)'''))
 
-  parser.add_argument('--bulk', action='store_true')
+  parser.add_argument('--bulk', action='store_true',
+      help=textwrap.dedent('''With this flag, the viewer will attempt to
+          generate a multitude of plots - one plot for each PFT for each suite.
+          This option uses the multiprocessing module so will use more than one
+          core on your computer. The --no-show and --save-name options are 
+          implied. The final --save-name is assembled from the --save-name option
+          passed on the command line (if any), the suite, and the PFT,
+          resulting in something like this: '_Environment_PFT0.pdf' if no
+          --save-name is specified on the command line. NOTE: With some versions
+          of python and matplotlib, running with --bulk will be extremely slow!
+          '''))
 
 
   print "Parsing command line arguments..."
@@ -1136,25 +1141,6 @@ if __name__ == '__main__':
   
   logging.basicConfig(level=numeric_level, format=LOG_FORMAT)
 
-  logging.info("Setting up calibration target display...")
-  target_title_tag = "--"
-  if args.tar_cmtname:
-    logging.info("displaying target values for '%s' community" % args.tar_cmtname)
-    caltargets = calibration_targets.calibration_targets[args.tar_cmtname]
-    target_title_tag = "CMT %02d (%s)" % (caltargets["cmtnumber"], args.tar_cmtname)
-  elif args.tar_cmtnum or args.tar_cmtnum == 0:
-    logging.info("displaying target values for community number %s" % args.tar_cmtnum)
-    for cmtname, data in calibration_targets.calibration_targets.iteritems():
-      if data['cmtnumber'] == args.tar_cmtnum:
-        logging.info("community #%s --commnunity name--> '%s'" % (args.tar_cmtnum, cmtname))
-        caltargets = data
-        target_title_tag = "CMT %02d (%s)" % (args.tar_cmtnum, cmtname)
-      else:
-        pass
-  else:
-    logging.info("Not displaying target data")
-    caltargets = {}
-
   logger.info("Set the right pft in the suite's traces list..")
   for trace in suite['traces']:
     if 'pft' in trace.keys():
@@ -1198,6 +1184,35 @@ if __name__ == '__main__':
 
   #logging.info("from_archive=%s" % args.from_archive)
   #logging.info("data_path=%s" % args.data_path)
+
+  # Do we need to worry about a case where the different input archives
+  # represent differnt community types - and therefore should have different
+  # target values displayed?
+  if args.targets:
+    logging.info("Setting up calibration target display...")
+    if len(input_helper.files()) > 0:
+      try:
+        with open(input_helper.files()[0], 'r') as ff:
+          fdata = json.load(ff)
+          cmtstr = fdata["CMT"] # returns string like "CMT05"
+      except (IOError, ValueError) as e:
+        logging.error("Problem: '%s' reading file '%s'" % (e, f))
+
+      for cmtname, data in calibration_targets.calibration_targets.iteritems():
+        if cmtstr == 'CMT{:02d}'.format(data['cmtnumber']):
+          caltargets = data
+          target_title_tag = "CMT {} ({:})".format(data['cmtnumber'], cmtname)
+        else:
+          pass # wrong cmt
+
+    else:
+      print logging.warn("No files. Can't figure out which CMT to display targets for without files.")
+      target_title_tag = "--"
+
+  else:
+    target_title_tag = "--"
+    logging.info("Not displaying target data")
+    caltargets = {}
 
   if args.bulk:
     logging.warning("Attempting to switch backends.")

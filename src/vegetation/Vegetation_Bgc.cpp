@@ -109,7 +109,8 @@ void Vegetation_Bgc::initializeParameter() {
   }
 
   calpar.frg = chtlu->frg[ipft];
-};
+
+}
 
 // set the initial states from inputs
 void Vegetation_Bgc::initializeState() {
@@ -331,19 +332,16 @@ void Vegetation_Bgc::prepareIntegration(const bool &nfeedback) {
 // C and N fluxes without N limitation
 void Vegetation_Bgc::delta() {
 
-  // THIS REALLY NEEDS TO BE MOVED ELSEWHERE.....
-  // Make sure that the cpart parameter adds up to 100% (or 0% for undefined
-  // PFTs) for all compartments.
+  // Finding cpart_all might be totally unnecessary - the sum of cpart across
+  // compartments should always be 1.0?
+  // This is checked at startup in CohortLookup::assignBgc4Vegetation()
+  // And a cursory test run with the following assert statement seems to
+  // indicate that when the parameters are properly defined (and pass the
+  // checks in CohortLookup) that cpart_all is indeed always 1.0:
+  // assert ((temutil::AlmostEqualRelative, 1.0) && "cpart_all should always be 1.0");
   double cpart_all = 0.0;
   for (int i=I_leaf; i<NUM_PFT_PART; i++) {
     cpart_all += bgcpar.cpart[i];
-  }
-  if (! (temutil::AlmostEqualRelative(cpart_all, 1.0) ||
-         temutil::AlmostEqualRelative(cpart_all, 0.0)) ) {
-    BOOST_LOG_SEV(glg, fatal) << "YOU HAVE A PROBLEM WITH YOUR PARAMETER FILE.";
-    BOOST_LOG_SEV(glg, fatal) << "Look for the 'cpart' variable and make sure"
-                              << "all the compartment fractions sum to 1";
-    exit(-1);
   }
 
   /// some environment variables

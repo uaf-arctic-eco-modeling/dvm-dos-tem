@@ -339,6 +339,75 @@ void CohortLookup::assignBgc4Vegetation(string & dircmt) {
   temutil::pfll2data_pft(l, initdeadc);
   temutil::pfll2data_pft(l, initdeadn);
 
+
+  // Makes sure that the 'cpart' compartment variables match the proportions
+  // set in initvegc variables in a cmt_bgcvegetation.txt file.
+
+  // The initvegc(leaf, wood, root) variables in cmt_bgcvegetation.txt are the
+  // measured values from literature. The cpart(leaf, wood, root) variables,
+  // which are in the same file, should be set to the fractional make up of
+  // the components. So if the initvegc values for l, w, r are 100, 200, 300,
+  // then the cpart values should be 0.166, 0.33, and 0.5. It is very easy for
+  // these values to get out of sync when users manually update the parameter
+  // file.
+
+  std::stringstream ss;
+  ss << fixed;
+
+  // Build the header
+  ss << "Table of cpart and initvegc values and discrepancies." << endl
+     << right << setw(5) << setprecision(1) << setfill(' ') << "PFT"
+     << right << setw(12) << setprecision(1) << setfill(' ') << "COMPARTMENT"
+     << right << setw(12) << setprecision(6) << setfill(' ') << "cpart"
+     << right << setw(12) << setprecision(6) << setfill(' ') << "initvegC"
+     << right << setw(12) << setprecision(6) << setfill(' ') << "cpart*sumC"
+     << right << setw(12) << setprecision(6) << setfill(' ') << "diff"
+     << right << setw(12) << setprecision(6) << setfill(' ') << "%error"
+     << endl;
+
+
+  bool OK = true; // Sentinel value enabling us to quit if any checks fail
+
+  for (int ipft=0; ipft < NUM_PFT; ipft++) {
+
+    // First, check that cpart for all the compartments adds to 1 (or zero)
+    double cpart_sum = cpart[I_leaf][ipft] + cpart[I_stem][ipft] + cpart[I_root][ipft];
+    if (! (temutil::AlmostEqualRelative(cpart_sum, 1.0) ||
+           temutil::AlmostEqualRelative(cpart_sum, 0.0)) ) {
+      BOOST_LOG_SEV(glg, fatal) << "cpart for PFT " << ipft << " does not add up to 1 (or zero)!";
+      OK = false;
+    }
+
+    // Next check that the cpart values are comensurate with the values that
+    // are set for initvegc.
+    double sumC = initvegc[I_leaf][ipft] + initvegc[I_stem][ipft] + initvegc[I_root][ipft];
+    for (int jpart=I_leaf; jpart < NUM_PFT_PART; jpart++) {
+
+      double diff = abs((cpart[jpart][ipft] * sumC) - initvegc[jpart][ipft]);
+      double percent_error = 100.0 * abs((cpart[jpart][ipft] * sumC) - initvegc[jpart][ipft]) / sumC;
+      if (percent_error > 0.1) {
+        OK = false;
+        BOOST_LOG_SEV(glg, fatal) << "Problem with initvegc and cpart parameters for PFT: " << ipft << "!";
+      }
+
+      // Put together the data for the table
+      ss << right << setw(5) << setprecision(1) << setfill(' ') << ipft
+         << right << setw(12) << setprecision(1) << setfill(' ') << jpart
+         << right << setw(12) << setprecision(6) << setfill(' ') << cpart[jpart][ipft]
+         << right << setw(12) << setprecision(6) << setfill(' ') << initvegc[jpart][ipft]
+         << right << setw(12) << setprecision(6) << setfill(' ') << cpart[jpart][ipft] * sumC
+         << right << setw(12) << setprecision(6) << setfill(' ') << diff
+         << right << setw(12) << setprecision(6) << setfill(' ') << percent_error
+         << endl;
+    }
+  }
+  BOOST_LOG_SEV(glg, debug) << ss.str();
+
+  if (!OK) {
+    BOOST_LOG_SEV(glg, fatal) << "Problem with cmt_bgcvegetation.txt!!";
+    exit(-1);
+  }
+
 }
 
 /** Assign environemntal parameters for the ground based on config file */

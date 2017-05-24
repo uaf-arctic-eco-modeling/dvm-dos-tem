@@ -1,6 +1,6 @@
 {
   "general": {
-    "run_name": "Toolik area, 10x10 test cells, all years"
+    "run_name": "A sample dvmdostem run. Modify this text to suit your needs."
   },
 
   "IO": {
