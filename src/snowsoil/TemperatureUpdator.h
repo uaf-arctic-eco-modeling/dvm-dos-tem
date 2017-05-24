@@ -87,7 +87,7 @@ private:
   CrankNicholson cns;
   Ground *ground;
 
-  void warn_bad_tld(const std::string& scope, const int idx);
+  void warn_bad_tld(const int idx);
 
 
   void processColumnNofront(Layer* frontl, Layer *backl,
