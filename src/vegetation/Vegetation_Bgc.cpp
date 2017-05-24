@@ -332,9 +332,13 @@ void Vegetation_Bgc::prepareIntegration(const bool &nfeedback) {
 // C and N fluxes without N limitation
 void Vegetation_Bgc::delta() {
 
-  // This might be unnecessary - the sum of cpart across compartments should
-  // always be 1.0? This is checked at startup in
-  // Vegetation_Bgc::verify_parameters()
+  // Finding cpart_all might be totally unnecessary - the sum of cpart across
+  // compartments should always be 1.0?
+  // This is checked at startup in CohortLookup::assignBgc4Vegetation()
+  // And a cursory test run with the following assert statement seems to
+  // indicate that when the parameters are properly defined (and pass the
+  // checks in CohortLookup) that cpart_all is indeed always 1.0:
+  // assert ((temutil::AlmostEqualRelative, 1.0) && "cpart_all should always be 1.0");
   double cpart_all = 0.0;
   for (int i=I_leaf; i<NUM_PFT_PART; i++) {
     cpart_all += bgcpar.cpart[i];
