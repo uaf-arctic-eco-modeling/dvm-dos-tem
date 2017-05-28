@@ -6,11 +6,11 @@ Cell 0,0
 EQ 5000
 
 
+Most of the profiling maps share the same call:
 ./dvmdostem -l fatal -p 10 -e 5000 -s 0 -t 0 -n 0
 
-
-
 map files prefix: dvmdostem_1p_1n_2017-
+
 
 5-23_17-16.map
 1211.6s (~20.2 min)
@@ -21,11 +21,14 @@ map files prefix: dvmdostem_1p_1n_2017-
 This did not remove warn_bad_tld correctly, just a test run.
 
 
-
 05-24_05-24
 1084.1s (18.06min)
 Adds BOOST named scopes to the functions, avoiding the string construction in warn_bad_tld calls.
 
 
+05-28_18-53
+./dvmdostem -l disabled -p 10 -e 5000 -s 0 -t 0 -n 0
+577.7s (9.63min)
+Adds option to disable logging.
 
 

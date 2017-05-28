@@ -23,11 +23,12 @@ EnumParser< severity_level >::EnumParser() {
     enumMap["warn"] = warn;
     enumMap["err"] = err;
     enumMap["fatal"] = fatal;
+    enumMap["disabled"] = disabled;
 }
 
 std::ostream& operator<< (std::ostream& strm, severity_level level) {
     static const char* strings[] = { 
-      "debug", "info", "note", "warn", "err", "fatal"
+      "debug", "info", "note", "warn", "err", "fatal", "disabled"
     };
 
     if (static_cast< std::size_t >(level) < sizeof(strings) / sizeof(*strings))
@@ -194,8 +195,14 @@ void setup_logging(const std::string& target_severity_level, const std::string& 
   } catch (std::runtime_error& e) {
     std::cout << e.what() << std::endl;
     std::cout << "'" << target_severity_level << "' is an invalid --log-level! "
-              << "Must be one of [debug, info, note, warn, err, fatal]\n";
+              << "Must be one of [debug, info, note, warn, err, fatal, disabled]\n";
     exit(-1);
+  }
+
+  //If logging is set to disabled, set the core flag
+  if(target_severity_level.find("disabled") != std::string::npos){
+    std::cout << "Logging disabled\n";
+    logging::core::get()->set_logging_enabled(false);
   }
 
 }

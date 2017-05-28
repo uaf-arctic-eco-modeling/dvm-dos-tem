@@ -30,7 +30,7 @@ namespace sinks = boost::log::sinks;
 
 /** Define the "severity levels" for Boost::Log's severity logger. */
 enum severity_level {
-  debug, info, note, warn, err, fatal
+  debug, info, note, warn, err, fatal, disabled
 };
 
 /** Convert from string to enum integer value.
