@@ -550,7 +550,7 @@ exit(-1);
   BOOST_LOG_SEV(glg, note) << "DONE WITH NEW STYLE run (" << args->get_loop_order() << ")";
 
   etime = time(0);
-  BOOST_LOG_SEV(glg, fatal) << "Total Seconds: " << difftime(etime, stime);
+  BOOST_LOG_SEV(glg, info) << "Total Seconds: " << difftime(etime, stime);
   return 0;
 } /* End main() */
 
