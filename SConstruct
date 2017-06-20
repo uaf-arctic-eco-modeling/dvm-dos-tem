@@ -7,7 +7,7 @@ import platform
 import distutils.spawn
 import subprocess
 
-USEOMP = True
+USEOMP = False
 USEMPI = False
 
 libs = Split("""jsoncpp
