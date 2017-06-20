@@ -12,12 +12,12 @@
 
 extern src::severity_logger< severity_level > glg;
 
-void TemperatureUpdator::warn_bad_tld(const std::string& scope, const int idx){
+void TemperatureUpdator::warn_bad_tld(const int idx){
   if (this->tld[idx] != this->tld[idx]) {
-    BOOST_LOG_SEV(glg, warn) << scope << " - tld["<<idx<<"] is nan!";
+    BOOST_LOG_SEV(glg, warn) << "tld["<<idx<<"] is nan!";
   }
   if (tld[idx] == MISSING_D) {
-    BOOST_LOG_SEV(glg, warn) << scope << " - tld["<<idx<<"] is " << MISSING_D << ")";
+    BOOST_LOG_SEV(glg, warn) << "tld["<<idx<<"] is " << MISSING_D << ")";
   }
 }
 
@@ -96,6 +96,7 @@ void TemperatureUpdator::updateTemps(const double & tdrv, Layer *fstvalidl,
 
 
 void TemperatureUpdator::processColumnNofront(Layer* fstvalidl, Layer *backl, const double & tdrv, const bool & meltsnow) {
+  BOOST_LOG_NAMED_SCOPE("TemperatureUpdator::processColumnNofront"){
 
   int startind, endind;
 
@@ -156,7 +157,7 @@ void TemperatureUpdator::processColumnNofront(Layer* fstvalidl, Layer *backl, co
   // post-iteration
   //check whether is nan
   for (int il = startind; il <= endind; il++) {
-    warn_bad_tld("TemperatureUpdator::procesColumnNofront", il);
+    warn_bad_tld(il);
   }
 
 
@@ -174,12 +175,15 @@ void TemperatureUpdator::processColumnNofront(Layer* fstvalidl, Layer *backl, co
       ind=endind-1;  // endind is a virtual layer for bottom boundary
     }
   }
+  }// Closes BOOST named scope
 }
 
 void TemperatureUpdator::processAboveFronts(Layer* fstvalidl, Layer*fstfntl,
                                             const double & tdrv,
                                             const bool & meltsnow,
                                             const bool &usefntl) {
+  BOOST_LOG_NAMED_SCOPE("TemperatureUpdator::processAboveFronts"){
+
   double hcap;
   int startind, endind;
   //the boundary of 'fstvalidl' as a virtual layer,
@@ -292,13 +296,17 @@ void TemperatureUpdator::processAboveFronts(Layer* fstvalidl, Layer*fstfntl,
 
   // checking
   for (int il = startind; il <= endind; il++) {
-    warn_bad_tld("TemperatureUpdator::processAboveFronts", il);
+    warn_bad_tld(il);
   }
+
+  }// Closes BOOST named scope
 }
 
 void TemperatureUpdator::processBetweenFronts(Layer*fstfntl, Layer*lstfntl,
                                               const bool&adjfntl,
                                               const bool&usefntl) {
+  BOOST_LOG_NAMED_SCOPE("TemperatureUpdator::processBetweenFronts"){
+
   int startind, endind;
 
   if (lstfntl->indl - fstfntl->indl < 2) {
@@ -501,13 +509,17 @@ void TemperatureUpdator::processBetweenFronts(Layer*fstfntl, Layer*lstfntl,
   }
 
   for (int il = startind; il <= endind; il++) {
-    warn_bad_tld("TemperatureUpdator::procesBetweenFronts", il);
+    warn_bad_tld(il);
   }
+
+  }// Closes BOOST named scope
 }
 
 void TemperatureUpdator::processBelowFronts(Layer* backl, Layer*lstfntl,
                                             const bool &adjfntl,
                                             const bool &usefntl) {
+  BOOST_LOG_NAMED_SCOPE("TemperatureUpdator::processBelowFronts"){
+
   int startind, endind;
   // pre-iteration
   int numfnt = ground->frontsz.size();
@@ -656,23 +668,26 @@ void TemperatureUpdator::processBelowFronts(Layer* backl, Layer*lstfntl,
 
   // checking
   for (int il = startind; il <= endind; il++) {
-    warn_bad_tld("TemperatureUpdator::processBelowFronts", il);
+    warn_bad_tld(il);
   }
 
+  }// Closes BOOST named scope
 }
 
 void TemperatureUpdator::iterate(const int &startind, const int &endind) {
+  BOOST_LOG_NAMED_SCOPE("TemperatureUpdator::iterate"){
+
   // besides 'top'/'bottom', there is ONLY 1 actual layer for iteration
   if (endind - startind ==2) {
     for (int il = startind; il <= endind; il++) {
       tid[il] = t[il]; // temperature at the begin of one day
 
       tld[il] = t[il]; // the last determined temperature
-      warn_bad_tld("TemperatureUpdator::iterate", il);
+      warn_bad_tld(il);
     }
 
     tld[startind+1] = (tid[startind]+tid[endind])/2.0;
-    warn_bad_tld("TemperatureUpdator::iterate", startind+1);
+    warn_bad_tld(startind+1);
 
     return;
   }
@@ -687,7 +702,7 @@ void TemperatureUpdator::iterate(const int &startind, const int &endind) {
     tid[il] = t[il]; // temperature at the begin of one day
 
     tld[il] = t[il]; // the last determined temperature
-    warn_bad_tld("TemperatureUpdator::iterate", il);
+    warn_bad_tld(il);
 
   }
 
@@ -735,11 +750,14 @@ void TemperatureUpdator::iterate(const int &startind, const int &endind) {
       }
     }
   } // end of while
+  } // Closes BOOST named scope
 }
 
 
 int TemperatureUpdator::updateOneTimeStep(const int &startind,
                                           const int & endind) {
+  BOOST_LOG_NAMED_SCOPE("TemperatureUpdator::updateOneTimeStep"){
+
   int status = -1;
   int is;
 
@@ -754,7 +772,7 @@ int TemperatureUpdator::updateOneTimeStep(const int &startind,
 
     for (int i = startind; i <= endind; i++) {
       tld[i] = tit[i];
-      warn_bad_tld("TemperatureUpdator::updateOneTimeStep", i);
+      warn_bad_tld(i);
     }
 
     return 0; //status;
@@ -769,6 +787,8 @@ int TemperatureUpdator::updateOneTimeStep(const int &startind,
   }
 
   return status;
+
+  }// Closes BOOST named scope
 }
 
 // the main calculation will be done here
