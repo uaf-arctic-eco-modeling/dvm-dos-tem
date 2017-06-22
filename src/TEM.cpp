@@ -186,6 +186,30 @@ class OutputEstimate {
     return size_string;
   }
 
+  /** Untested!!
+    - sizestr must be something like "1.5 MB"
+  */
+  int hsize2bytes(const std::string& sizestr) {
+    // last 2 chars
+    std::string hrunit = sizestr.substr(sizestr.size()-2, std::string::npos); // last 2 chars
+
+    // first bit of string (till 2nd to last char), converted to dbl
+    double size = atof(sizestr.substr(0, sizestr.size()-2).c_str());
+
+    //assert( (size > 0 && size < ??) & "INVALID SIZE! CAN'T CONVERT!");
+
+    std::vector<std::string> units = boost::assign::list_of("B")("kB")("MB")("GB")("TB")("PB")("EB")("ZB")("YB");
+
+    //assert( !(std::find(units.begin(), units.end(), hrunit) != units.end()) & "INVALID UNITS!!" );
+
+    int i = 0;
+    while ( !(hrunit.compare(units[i])) == 0 )  {
+      size *= 1024;
+      i++;
+    }
+    return size; // in bytes
+  }
+
   int active_cells;
   std::vector<StageOutputEstimate> stage_output_estimates;
 
@@ -858,45 +882,6 @@ int main(int argc, char* argv[]){
   return 0;
 } /* End main() */
 
-
-// Must be something like "1.5 MB"
-int hsize2bytes(const std::string& sizestr) {
-  // last 2 chars
-  std::string hrunit = sizestr.substr(sizestr.size()-2, std::string::npos); // last 2 chars
-
-  // first bit of string (till 2nd to last char), converted to dbl
-  double size = atof(sizestr.substr(0, sizestr.size()-2).c_str());
-
-  //assert( (size > 0 && size < ??) & "INVALID SIZE! CAN'T CONVERT!");
-
-  std::vector<std::string> units = boost::assign::list_of("B")("kB")("MB")("GB")("TB")("PB")("EB")("ZB")("YB");
-
-  //assert( !(std::find(units.begin(), units.end(), hrunit) != units.end()) & "INVALID UNITS!!" );
-
-  int i = 0;
-  while ( !(hrunit.compare(units[i])) == 0 )  {
-    size *= 1024;
-    i++;
-  }
-  return size; // in bytes
-}
-
-
-/** Returns a 'human readable' size string with SI suffix */
-std::string hsize(double size) {
-  int i = 0;
-  const std::string units[] = {"B","kB","MB","GB","TB","PB","EB","ZB","YB"};
-  while (size > 1024) {
-    size /= 1024;
-    i++;
-  }
-  std::stringstream ss;
-  ss.precision(0);
-  (size < 0.5) ? size = 0 : size=size;
-  ss << fixed << size << " " << units[i];
-  std::string size_string = ss.str();
-  return size_string;
-}
 
 /** Pretty print a 2D vector of ints */
 void pp_2dvec(const std::vector<std::vector<int> > & vv) {
