@@ -222,7 +222,65 @@ namespace temutil {
     return root;
   }
 
+  /** rough draft for reading a run-mask (2D vector of ints)
+  */
+  std::vector< std::vector<int> > read_run_mask(const std::string &filename) {
+    int ncid;
+    
+    BOOST_LOG_SEV(glg, debug) << "Opening dataset: " << filename;
+    temutil::nc( nc_open(filename.c_str(), NC_NOWRITE, &ncid) );
+    
+    BOOST_LOG_SEV(glg, debug) << "Find out how much data there is...";
+    int yD, xD;
+    size_t yD_len, xD_len;
 
+    temutil::nc( nc_inq_dimid(ncid, "Y", &yD) );
+    temutil::nc( nc_inq_dimlen(ncid, yD, &yD_len) );
+
+    temutil::nc( nc_inq_dimid(ncid, "X", &xD) );
+    temutil::nc( nc_inq_dimlen(ncid, xD, &xD_len) );
+
+    BOOST_LOG_SEV(glg, debug) << "Allocate a 2D run-mask vector (y,x). Size: (" << yD_len << ", " << xD_len << ")";
+    std::vector< std::vector<int> > run_mask(yD_len, std::vector<int>(xD_len));
+    
+    BOOST_LOG_SEV(glg, debug) << "Read the run flag data from the file into the 2D vector...";
+    int runV;
+    temutil::nc( nc_inq_varid(ncid, "run", &runV) );
+
+    BOOST_LOG_SEV(glg, debug) << "Grab one row at a time";
+    BOOST_LOG_SEV(glg, debug) << "(need contiguous memory, and vector<vector> are not contiguous)";
+
+    std::vector< std::vector<int> >::iterator row;
+    for (row = run_mask.begin();  row != run_mask.end(); ++row) {
+
+      int rowidx = row - run_mask.begin();
+
+      // specify start indices for each dimension (y, x)
+      size_t start[2];
+      start[0] = rowidx;    // Y
+      start[1] = 0;         // X
+
+      // specify counts for each dimension
+      size_t count[2];
+      count[0] = 1;         // one row
+      count[1] = xD_len;    // all data
+      
+      std::vector<int> rowdata(xD_len);
+
+      temutil::nc( nc_get_vara_int(ncid, runV, start, count, &rowdata[0] ) );
+    
+      run_mask[rowidx] = rowdata;
+      
+    }
+    
+    temutil::nc( nc_close(ncid) );
+
+    //pp_2dvec(run_mask);
+
+    BOOST_LOG_SEV(glg, debug) << "Return the vector...";
+    return run_mask;
+
+  }
 
   /** Opens a netcdf file and collects a bunch of info into a string for printing.
   */

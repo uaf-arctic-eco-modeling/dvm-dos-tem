@@ -93,7 +93,9 @@ namespace temutil {
   std::string file2string(const char *filename);
 
   Json::Value parse_control_file(const std::string &filepath);
-  
+
+  std::vector< std::vector<int> > read_run_mask(const std::string &filename);
+
   std::string report_on_netcdf_file(const std::string& fname, const std::string& varname);
 
   std::string report_yx_pixel_dims2str(const std::string& fname);

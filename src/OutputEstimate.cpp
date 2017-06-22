@@ -1,0 +1,266 @@
+//
+//  OutputEstimate.cpp
+//  
+//
+//  Created by Tobey Carman on 6/22/17.
+//
+//
+
+#include <map>
+
+#include "../include/OutputEstimate.h"
+#include "TEMUtilityFunctions.h"
+
+OutputEstimate::OutputEstimate(const ModelData& md, bool calmode) {
+
+  stage_output_estimates = boost::assign::list_of
+      // Table of coefficients for bytes per year of run-time for
+      // each stage and different types of json output (archive, daily, etc).
+      (StageOutputEstimate("pr", md.pr_yrs, 22000,  41000,  200000,  20000))
+      (StageOutputEstimate("eq", md.eq_yrs, 56000,  41000,  240000,  24000))
+      (StageOutputEstimate("sp", md.sp_yrs, 15000,  36000,  199000,  16000))
+      (StageOutputEstimate("tr", md.tr_yrs, 15000,  36000,  199000,  16000))
+      (StageOutputEstimate("sc", md.sc_yrs, 15000,  36000,  199000,  16000));
+
+  // Open the run mask (spatial mask) and count all the non-zero cells.
+  std::vector< std::vector<int> > run_mask = temutil::read_run_mask(md.runmask_file);
+
+  this->active_cells = 0;
+
+  // Use a few type definitions to save some typing.
+  typedef std::vector<int> vec;
+  typedef std::vector<vec> vec2D;
+
+  vec2D::const_iterator row;
+  vec::const_iterator col;
+  for (row = run_mask.begin(); row != run_mask.end() ; ++row) {
+    for (col = row->begin(); col != row->end(); ++col) {
+      bool mask_value = *col;
+      if (mask_value) {this->active_cells++;}
+    }
+  }
+
+  std::cout << "Number of active cells: " << this->active_cells << std::endl;
+
+  std::vector<StageOutputEstimate>::iterator itr;
+  for (itr = stage_output_estimates.begin(); itr != stage_output_estimates.end(); itr++){
+
+    std::cout << "Estimating output for stage: " << itr->name << std::endl;
+    // handle all the calibration/json stuff
+    if (calmode) {
+      // cal mode means at least yearly and daily
+      std::cout << "  Estimating JSON CALIBRATION output" << std::endl;
+      itr->json_out.yearly = itr->runyears * itr->json_out.jcoef_yearly;
+      itr->json_out.daily = itr->runyears * itr->json_out.jcoef_daily;
+
+      // setting in config file
+      if (md.output_monthly) {
+        itr->json_out.monthly = itr->runyears * itr->json_out.jcoef_monthly;
+      } else {
+        itr->json_out.monthly = 0;
+      }
+      // could be an overestimate if user does not have monthly enabled too?
+      if (md.tar_caljson) {
+        itr->json_out.archive = itr->runyears * itr->json_out.jcoef_archive;
+      } else {
+        itr->json_out.archive = 0;
+      }
+    }
+
+    // Handle the NetCDF stuff...
+    double D_est = 0; double M_est = 0; double Y_est = 0;
+
+    // yearly
+    std::cout << "  Estimating YEARLY NC output for stage: " << itr->name << std::endl;
+    std::map<std::string, OutputSpec>::const_iterator map_itr;
+    for(map_itr = md.yearly_netcdf_outputs.begin(); map_itr != md.yearly_netcdf_outputs.end(); ++map_itr ){
+
+      double output_estimate = 8;
+      OutputSpec os = map_itr->second;
+
+      (os.pft) ? (output_estimate *= NUM_PFT) : output_estimate *= 1;
+      (os.compartment) ? (output_estimate *= NUM_PFT_PART) : output_estimate *= 1;
+      (os.layer) ? (output_estimate *= MAX_SOI_LAY) : output_estimate *= 1;
+      (os.yearly) ? (output_estimate *= (1 * itr->runyears)) : output_estimate *= 1;
+
+      Y_est += output_estimate;
+    }
+    map_itr = md.yearly_netcdf_outputs.end();
+
+    // monthly
+    std::cout << "  Estimating MONTHLY NC output for stage: " << itr->name << std::endl;
+    for(map_itr = md.monthly_netcdf_outputs.begin(); map_itr != md.monthly_netcdf_outputs.end(); ++map_itr ){
+
+      double output_estimate = 8;
+      OutputSpec os = map_itr->second;
+
+      (os.pft) ? (output_estimate *= NUM_PFT) : output_estimate *= 1;
+      (os.compartment) ? (output_estimate *= NUM_PFT_PART) : output_estimate *= 1;
+      (os.layer) ? (output_estimate *= MAX_SOI_LAY) : output_estimate *= 1;
+      (os.monthly) ? (output_estimate *= (12 * itr->runyears)) : output_estimate *= 1;
+
+      M_est += output_estimate;
+    }
+    map_itr = md.monthly_netcdf_outputs.end();
+
+    // daily
+    std::cout << "  Estimating DAILY NC output for stage: " << itr->name << std::endl;
+    for(map_itr = md.daily_netcdf_outputs.begin(); map_itr != md.daily_netcdf_outputs.end(); ++map_itr ){
+
+      double output_estimate = 8;
+      OutputSpec os = map_itr->second;
+
+      (os.pft) ? (output_estimate *= NUM_PFT) : output_estimate *= 1;
+      (os.compartment) ? (output_estimate *= NUM_PFT_PART) : output_estimate *= 1;
+      (os.layer) ? (output_estimate *= MAX_SOI_LAY) : output_estimate *= 1;
+      (os.daily) ? (output_estimate *= (365 * itr->runyears)) : output_estimate *= 1;
+
+      D_est += output_estimate;
+    }
+    map_itr = md.daily_netcdf_outputs.end();
+
+    itr->nc_out.yearly = Y_est;
+    itr->nc_out.monthly = M_est;
+    itr->nc_out.daily = D_est;
+
+    std::cout << std::endl;
+  }
+
+  //std::cout << "SET BREAKPOINT HERE\n";
+}
+
+void OutputEstimate::print_estimate(){
+
+  std::stringstream ss;
+  std::vector<StageOutputEstimate>::iterator itr;
+
+  ss << "-- calibration json output data volume estimates: " << hsize(json_total()) << std::endl;
+  ss << std::setw(10) << " "
+     << std::setw(10) << "run years"
+     << std::setw(10) << "archive"
+     << std::setw(10) << "daily"
+     << std::setw(10) << "monthly"
+     << std::setw(10) << "yearly"
+     << std::endl;
+  for (itr = stage_output_estimates.begin(); itr != stage_output_estimates.end(); itr++) {
+    ss << std::setw(10) << (*itr).name
+       << std::setw(10) << (*itr).runyears
+       << std::setw(10) << hsize((*itr).json_out.archive)
+       << std::setw(10) << hsize((*itr).json_out.daily)
+       << std::setw(10) << hsize((*itr).json_out.monthly)
+       << std::setw(10) << hsize((*itr).json_out.yearly)
+       << std::endl;
+  }
+  itr = stage_output_estimates.end();
+  std::cout << ss.str();
+  std::cout << std::endl;
+  ss.str("");
+  ss.clear(); // clear state flags
+
+  ss << "-- netcdf output data volume estimate: " << hsize(netcdf_total()) << std::endl;
+  ss << std::setw(10) << " "
+     << std::setw(10) << "run years"
+     << std::setw(10) << "daily"
+     << std::setw(10) << "monthly"
+     << std::setw(10) << "yearly"
+     << std::endl;
+
+  for (itr = stage_output_estimates.begin(); itr != stage_output_estimates.end(); itr++) {
+    ss << std::setw(10) << (*itr).name;
+    ss << std::setw(10) << (*itr).runyears;
+    ss << std::setw(10) << hsize((*itr).nc_out.daily);
+    ss << std::setw(10) << hsize((*itr).nc_out.monthly);
+    ss << std::setw(10) << hsize((*itr).nc_out.yearly);
+    ss << std::endl;
+  }
+  itr = stage_output_estimates.end();
+  std::cout << ss.str();
+  std::cout << std::endl;
+  ss.str("");
+  ss.clear(); // clear state flags
+
+  std::cout << "Cell Total: " << hsize(this->cell_total()) << std::endl;
+  std::cout << "All cells: " << hsize(this->all_cells_total()) << std::endl;
+}
+
+double OutputEstimate::netcdf_total() {
+  double t = 0;
+  std::vector<StageOutputEstimate>::iterator itr;
+  for (itr = stage_output_estimates.begin(); itr != stage_output_estimates.end(); itr++) {
+    t += (*itr).nc_out.daily;
+    t += (*itr).nc_out.monthly;
+    t += (*itr).nc_out.yearly;
+  }
+  return t;
+}
+
+double OutputEstimate::json_total() {
+  // This will probably over-estimate, as the yearly/monthly/daily outputs
+  // are deleted for each stage. Maybe should find the stage with the max
+  // runyears and use that for the yearly/monthly/daily estimates.
+  double t = 0;
+  std::vector<StageOutputEstimate>::iterator itr;
+  for (itr = stage_output_estimates.begin(); itr != stage_output_estimates.end(); itr++) {
+    t += (*itr).json_out.archive;
+    t += (*itr).json_out.daily;
+    t += (*itr).json_out.monthly;
+    t += (*itr).json_out.yearly;
+  }
+  return t;
+}
+
+double OutputEstimate::cell_total() {
+  double t = 0;
+    t += json_total();
+    t += netcdf_total();
+  return t;
+}
+
+double OutputEstimate::all_cells_total() {
+  return active_cells * (json_total() + netcdf_total());
+}
+
+/** Returns a 'human readable' size string with SI suffix */
+std::string OutputEstimate::hsize(double size) {
+  int i = 0;
+  const std::string units[] = {"B","kB","MB","GB","TB","PB","EB","ZB","YB"};
+  while (size > 1024) {
+    size /= 1024;
+    i++;
+  }
+  std::stringstream ss;
+  ss.precision(0);
+  (size < 0.5) ? size = 0 : size=size;
+  ss << fixed << size << " " << units[i];
+  std::string size_string = ss.str();
+  return size_string;
+}
+
+
+/** (UNTESTED!) Given a string like "1.5 MB" should return a double (bytes). */
+int OutputEstimate::hsize2bytes(const std::string& sizestr) {
+  // last 2 chars
+  std::string hrunit = sizestr.substr(sizestr.size()-2, std::string::npos); // last 2 chars
+
+  // first bit of string (till 2nd to last char), converted to dbl
+  double size = atof(sizestr.substr(0, sizestr.size()-2).c_str());
+
+  //assert( (size > 0 && size < ??) & "INVALID SIZE! CAN'T CONVERT!");
+
+  std::vector<std::string> units = boost::assign::list_of("B")("kB")("MB")("GB")("TB")("PB")("EB")("ZB")("YB");
+
+  //assert( !(std::find(units.begin(), units.end(), hrunit) != units.end()) & "INVALID UNITS!!" );
+
+  int i = 0;
+  while ( !(hrunit.compare(units[i])) == 0 )  {
+    size *= 1024;
+    i++;
+  }
+  return size; // in bytes
+}
+
+// ideas for  API functions
+//  oe.per_grid_cell()
+//  oe.per_year()
+//  oe.print_table()
+
