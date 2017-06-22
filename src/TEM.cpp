@@ -182,32 +182,12 @@ class OutputEstimate {
     return size_string;
   }
 
-  /** (UNTESTED!) Given a string like "1.5 MB" should return a double (bytes). */
-  int hsize2bytes(const std::string& sizestr) {
-    // last 2 chars
-    std::string hrunit = sizestr.substr(sizestr.size()-2, std::string::npos); // last 2 chars
-
-    // first bit of string (till 2nd to last char), converted to dbl
-    double size = atof(sizestr.substr(0, sizestr.size()-2).c_str());
-
-    //assert( (size > 0 && size < ??) & "INVALID SIZE! CAN'T CONVERT!");
-
-    std::vector<std::string> units = boost::assign::list_of("B")("kB")("MB")("GB")("TB")("PB")("EB")("ZB")("YB");
-
-    //assert( !(std::find(units.begin(), units.end(), hrunit) != units.end()) & "INVALID UNITS!!" );
-
-    int i = 0;
-    while ( !(hrunit.compare(units[i])) == 0 )  {
-      size *= 1024;
-      i++;
-    }
-    return size; // in bytes
-  }
 
   int active_cells;
   std::vector<StageOutputEstimate> stage_output_estimates;
 
 public:
+
   OutputEstimate(const ModelData& md, bool calmode) {
 
     stage_output_estimates = boost::assign::list_of
@@ -416,6 +396,28 @@ public:
     return active_cells * (json_total() + netcdf_total());
   }
 
+  /** (UNTESTED!) Given a string like "1.5 MB" should return a double (bytes). */
+  int hsize2bytes(const std::string& sizestr) {
+    // last 2 chars
+    std::string hrunit = sizestr.substr(sizestr.size()-2, std::string::npos); // last 2 chars
+
+    // first bit of string (till 2nd to last char), converted to dbl
+    double size = atof(sizestr.substr(0, sizestr.size()-2).c_str());
+
+    //assert( (size > 0 && size < ??) & "INVALID SIZE! CAN'T CONVERT!");
+
+    std::vector<std::string> units = boost::assign::list_of("B")("kB")("MB")("GB")("TB")("PB")("EB")("ZB")("YB");
+
+    //assert( !(std::find(units.begin(), units.end(), hrunit) != units.end()) & "INVALID UNITS!!" );
+
+    int i = 0;
+    while ( !(hrunit.compare(units[i])) == 0 )  {
+      size *= 1024;
+      i++;
+    }
+    return size; // in bytes
+  }
+
 // ideas for  API functions
 //  oe.per_grid_cell()
 //  oe.per_year()
@@ -525,13 +527,10 @@ int main(int argc, char* argv[]){
 
   OutputEstimate oe = OutputEstimate(modeldata, args->get_cal_mode());
   oe.print_estimate();
-//  oe.cell_total()
-//  oe.caljson_total()
-//  oe.netcdf_total()
-//  oe.per_grid_cell()
-//  oe.per_year()
-//  oe.print_table()
-//
+  if ( oe.all_cells_total() > oe.hsize2bytes("1 GB") ) {
+    BOOST_LOG_SEV(glg, fatal) << "TOO MUCH OUTPUT SPECIFIED! ADJUST YOUR SETTINGS AND TRY AGAIN. Or run with '--force-output'";
+    exit(-1);
+  }
 
 
   if (args->get_loop_order() == "space-major") {
