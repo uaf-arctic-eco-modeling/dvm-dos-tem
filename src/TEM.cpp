@@ -337,7 +337,7 @@ public:
     std::stringstream ss;
     std::vector<StageOutputEstimate>::iterator itr;
 
-    ss << "-- calibration json output data volume estimates --" << std::endl;
+    ss << "-- calibration json output data volume estimates: " << hsize(json_total()) << std::endl;
     ss << std::setw(10) << " "
        << std::setw(10) << "run years"
        << std::setw(10) << "archive"
@@ -360,7 +360,7 @@ public:
     ss.str("");
     ss.clear(); // clear state flags
 
-    ss << "-- netcdf output data volume estimates --" << std::endl;
+    ss << "-- netcdf output data volume estimate: " << hsize(netcdf_total()) << std::endl;
     ss << std::setw(10) << " "
        << std::setw(10) << "run years"
        << std::setw(10) << "daily"
@@ -413,11 +413,8 @@ public:
 
   double grand_total() {
     double t = 0;
-    std::vector<StageOutputEstimate>::iterator itr;
-    for (itr = stage_output_estimates.begin(); itr != stage_output_estimates.end(); itr++) {
       t += json_total();
       t += netcdf_total();
-    }
     return t;
   }
 
