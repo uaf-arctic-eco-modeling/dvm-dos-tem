@@ -531,10 +531,6 @@ int main(int argc, char* argv[]){
     modeldata.create_netCDF_output_files(num_rows, num_cols, "sc");
   }
 
-  Json::Value output_estimate;
-  output_estimate = output_volume_estimator(modeldata, args->get_cal_mode());
-  enforce_maximum_output_volume(output_estimate, hsize2bytes("0.75 GB"));
-
   OutputEstimate oe = OutputEstimate(modeldata, args->get_cal_mode());
   oe.print_estimate();
 //  oe.grand_total()
