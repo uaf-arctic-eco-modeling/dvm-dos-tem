@@ -226,7 +226,7 @@ public:
       // handle all the calibration/json stuff
       if (calmode) {
         // cal mode means at least yearly and daily
-        std::cout << "Estimating CALIBRATION output" << std::endl;
+        std::cout << "  Estimating JSON CALIBRATION output" << std::endl;
         itr->json_out.yearly = itr->runyears * itr->json_out.jcoef_yearly;
         itr->json_out.daily = itr->runyears * itr->json_out.jcoef_daily;
 
@@ -236,7 +236,6 @@ public:
         } else {
           itr->json_out.monthly = 0;
         }
-
         // could be an overestimate if user does not have monthly enabled too?
         if (md.tar_caljson) {
           itr->json_out.archive = itr->runyears * itr->json_out.jcoef_archive;
@@ -249,7 +248,7 @@ public:
       double D_est = 0; double M_est = 0; double Y_est = 0;
 
       // yearly
-      std::cout << "Estimating YEARLY NC output for stage: " << itr->name << std::endl;
+      std::cout << "  Estimating YEARLY NC output for stage: " << itr->name << std::endl;
       std::map<std::string, OutputSpec>::const_iterator map_itr;
       for(map_itr = md.yearly_netcdf_outputs.begin(); map_itr != md.yearly_netcdf_outputs.end(); ++map_itr ){
 
@@ -266,7 +265,7 @@ public:
       map_itr = md.yearly_netcdf_outputs.end();
 
       // monthly
-      std::cout << "Estimating MONTHLY NC output for stage: " << itr->name << std::endl;
+      std::cout << "  Estimating MONTHLY NC output for stage: " << itr->name << std::endl;
       for(map_itr = md.monthly_netcdf_outputs.begin(); map_itr != md.monthly_netcdf_outputs.end(); ++map_itr ){
 
         double output_estimate = 8;
@@ -282,7 +281,7 @@ public:
       map_itr = md.monthly_netcdf_outputs.end();
 
       // daily
-      std::cout << "Estimating DAILY NC output for stage: " << itr->name << std::endl;
+      std::cout << "  Estimating DAILY NC output for stage: " << itr->name << std::endl;
       for(map_itr = md.daily_netcdf_outputs.begin(); map_itr != md.daily_netcdf_outputs.end(); ++map_itr ){
 
         double output_estimate = 8;
@@ -301,7 +300,9 @@ public:
       itr->nc_out.monthly = M_est;
       itr->nc_out.daily = D_est;
 
+      std::cout << std::endl;
     }
+
     //std::cout << "SET BREAKPOINT HERE\n";
   }
 
