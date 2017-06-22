@@ -124,12 +124,7 @@ void enable_floating_point_exceptions() {
 
 // Forward declaration...eventually should move this stuff to other classes
 // or modules...
-Json::Value output_volume_estimator(const ModelData& md, bool calmode);
-void pp_output_estimate(const Json::Value& est);
-void enforce_maximum_output_volume(const Json::Value& output_estimate, unsigned long long limit);
-//unsigned long long add_all_recursive(const Json::Value& root, unsigned short depth, unsigned long long);
 int hsize2bytes(const std::string& sizestr);
-unsigned long long adder(Json::Value root);
 
 struct NetcdfOutputTypes {
   double daily;
@@ -309,21 +304,7 @@ public:
       itr->nc_out.daily = D_est;
 
     }
-//
-//    // Quick 'n dirty printing...
-//    Json::StyledWriter styledWriter;
-//    std::cout << styledWriter.write(out_est);
-//
-//    pp_output_estimate(out_est);
-//
-//    //add_all_recursive(out_est, 0, 0);
-//    unsigned long long grand_total = adder(out_est);
-//    cout << "Grand TOTAL: " << grand_total << endl;
-//    cout << "Grand TOTAL: " << hsize(grand_total) << endl;
-//
-//    return out_est;
-
-    std::cout << "STOP HERE\n";
+    std::cout << "SET BREAKPOINT HERE\n";
   }
 
 
@@ -915,162 +896,6 @@ std::string hsize(double size) {
   ss << fixed << size << " " << units[i];
   std::string size_string = ss.str();
   return size_string;
-}
-
-
-
-Json::Value output_volume_estimator(const ModelData& md, bool calmode) {
-
-  Json::Value value(Json::objectValue);
-
-  const int STAGES = 5;
-  const std::string stages[] = {"pr","eq","sp","tr","sc"};
-  std::vector<int> stgrunyrs(5, 0);
-  stgrunyrs.at(0) = md.pr_yrs;
-  stgrunyrs.at(1) = md.eq_yrs;
-  stgrunyrs.at(2) = md.sp_yrs;
-  stgrunyrs.at(3) = md.tr_yrs;
-  stgrunyrs.at(4) = md.sc_yrs;
-
-  // cal json
-  if (calmode) {
-
-    // Table of coefficients for bytes per year of run time
-    // for each stage and different types of output (archive, daily, etc).
-    int COEF[STAGES][4] = {
-      // arch   daily monthly  yearly
-      { 22000, 41000, 200000, 20000 }, // pre run
-      { 56000, 41000, 240000, 24000 }, // eq
-      { 15000, 36000, 199000, 16000 }, // sp
-      { 15000, 36000, 199000, 16000 }, // tr
-      { 15000, 36000, 199000, 16000 }, // sc
-    };
-
-    for (int i=0; i<STAGES; i++) {
-      std::string s = stages[i];
-      int yrs = stgrunyrs.at(i);
-      (md.tar_caljson) ? value[s]["archive"] = hsize(yrs * COEF[i][0]) : value[s]["archive"] = hsize(0);
-      value[s]["daily"] = hsize(yrs * COEF[i][1]);
-      (md.output_monthly) ? value[s]["monthly"] = hsize(yrs * COEF[i][2]) : value[s]["monthly"] = hsize(0);
-      value[s]["yearly"] = hsize(yrs * COEF[i][3]);
-    }
-  }
-
-  BOOST_LOG_SEV(glg, info) << "Stop here";
-
-  for (int i=0; i<STAGES; i++) {
-    std::string s = stages[i];
-
-      double D_est = 0;
-      double M_est = 0;
-      double Y_est = 0;
-      BOOST_LOG_SEV(glg, info) << "Setting timesteps estimates to zero.";
-
-      // yearly
-      std::map<std::string, OutputSpec>::const_iterator map_itr;
-      for(map_itr = md.yearly_netcdf_outputs.begin(); map_itr != md.yearly_netcdf_outputs.end(); ++map_itr ){
-
-        double output_estimate = 8;
-        OutputSpec os = map_itr->second;
-
-        (os.pft) ? (output_estimate *= NUM_PFT) : output_estimate *= 1;
-        (os.compartment) ? (output_estimate *= NUM_PFT_PART) : output_estimate *= 1;
-        (os.layer) ? (output_estimate *= MAX_SOI_LAY) : output_estimate *= 1;
-        (os.yearly) ? (output_estimate *= (1*stgrunyrs.at(i))) : output_estimate *= 1;
-
-        Y_est += output_estimate;
-      }
-      map_itr = md.yearly_netcdf_outputs.end();
-
-      // monthly
-      for(map_itr = md.monthly_netcdf_outputs.begin(); map_itr != md.monthly_netcdf_outputs.end(); ++map_itr ){
-
-        double output_estimate = 8;
-        OutputSpec os = map_itr->second;
-
-        (os.pft) ? (output_estimate *= NUM_PFT) : output_estimate *= 1;
-        (os.compartment) ? (output_estimate *= NUM_PFT_PART) : output_estimate *= 1;
-        (os.layer) ? (output_estimate *= MAX_SOI_LAY) : output_estimate *= 1;
-        (os.monthly) ? (output_estimate *= (12*stgrunyrs.at(i))) : output_estimate *= 1;
-
-        M_est += output_estimate;
-      }
-      map_itr = md.monthly_netcdf_outputs.end();
-
-      // daily
-      for(map_itr = md.daily_netcdf_outputs.begin(); map_itr != md.daily_netcdf_outputs.end(); ++map_itr ){
-
-        double output_estimate = 8;
-        OutputSpec os = map_itr->second;
-
-        (os.pft) ? (output_estimate *= NUM_PFT) : output_estimate *= 1;
-        (os.compartment) ? (output_estimate *= NUM_PFT_PART) : output_estimate *= 1;
-        (os.layer) ? (output_estimate *= MAX_SOI_LAY) : output_estimate *= 1;
-        (os.daily) ? (output_estimate *= (365*stgrunyrs.at(i))) : output_estimate *= 1;
-
-        D_est += output_estimate;
-      }
-      map_itr = md.daily_netcdf_outputs.end();
-
-      // Open the run mask (spatial mask)
-      std::vector< std::vector<int> > run_mask = read_run_mask(md.runmask_file);
-
-      int num_rows = run_mask.size();
-      int num_cols = run_mask[0].size();
-
-      D_est *= num_cols*num_rows;
-      M_est *= num_cols*num_rows;
-      Y_est *= num_cols*num_rows;
-
-      BOOST_LOG_SEV(glg, info) << "Yearly estimated volume for stage " << s << ": " << hsize(Y_est);
-      BOOST_LOG_SEV(glg, info) << "MOnthly estimated volume for stage " << s << ": " << hsize(M_est);
-      BOOST_LOG_SEV(glg, info) << "daily estimated volume for stage " << s << ": " << hsize(D_est);
-      BOOST_LOG_SEV(glg, info) << "   ";
-  }
-
-  Json::StyledWriter styledWriter;
-  std::cout << styledWriter.write(value);
-
-}
-
-
-/** Define the strategy to use for quitting in cases where the output volume is
-estimated to be beyond the passed in limit 
-
-There are several ways the total could be calculated...
-*/
-void enforce_maximum_output_volume(const Json::Value& output_estimate, unsigned long long limit) {
-
-
-  //std::cout << "Finding total estimate...\n=======================\n";
-  //unsigned long long total = add_all_recursive2(output_estimate, 0, 0);
-  //std::cout << "=====================\nGrand total is: " << hsize(total) << std::endl;
-
-
-  // traverse the output estimate, adding up all values
-  // (except the runyears numbers)
-
-  //stages = output_estimate.getMemberNames();
-
-
-//stage in output_estimate.getMemberNames():
-//    for type in types:
-//      for resolution in reses:
-//        size += output_estimate[stage][type][resolution]
-
-//  output_estimate["eq"]["netcdf"]["daily"]
-//  output_estimate["eq"]["netcdf"]["monthly"]
-//  output_estimate["eq"]["netcdf"]["yearly"]
-//
-//  output_estimate["eq"]["json"]["archive"]
-//  output_estimate["eq"]["json"]["daily"]
-//  output_estimate["eq"]["json"]["monthly"]
-//  output_estimate["eq"]["json"]["yearly"]
-
-
-  //unsigned long long totalsize = add_all_recursive(output_estimate, 0, 0); // start at zero size, zero depth...
-  //std::cout << "Size estimate: " << totalsize << std::endl;
-
 }
 
 /** Pretty print a 2D vector of ints */
