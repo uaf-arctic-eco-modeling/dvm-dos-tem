@@ -122,8 +122,15 @@ void enable_floating_point_exceptions() {
 
 }
 
-// Forward declaration...
-void output_volume_estimator(const ModelData& md, bool calmode);
+// Forward declaration...eventually should move this stuff to other classes
+// or modules...
+Json::Value output_volume_estimator(const ModelData& md, bool calmode);
+void pp_output_estimate(const Json::Value& est);
+void enforce_maximum_output_volume(const Json::Value& output_estimate, unsigned long long limit);
+//unsigned long long add_all_recursive(const Json::Value& root, unsigned short depth, unsigned long long);
+int hsize2bytes(const std::string& sizestr);
+unsigned long long adder(Json::Value root);
+
 
 
 ArgHandler* args = new ArgHandler();
@@ -224,7 +231,10 @@ int main(int argc, char* argv[]){
     modeldata.create_netCDF_output_files(num_rows, num_cols, "sc");
   }
 
-  output_volume_estimator(modeldata, args->get_cal_mode());
+  Json::Value output_estimate;
+  output_estimate = output_volume_estimator(modeldata, args->get_cal_mode());
+  enforce_maximum_output_volume(output_estimate, hsize2bytes("0.75 GB"));
+
 
   if (args->get_loop_order() == "space-major") {
 
@@ -563,6 +573,29 @@ int main(int argc, char* argv[]){
 } /* End main() */
 
 
+// Must be something like "1.5 MB"
+int hsize2bytes(const std::string& sizestr) {
+  // last 2 chars
+  std::string hrunit = sizestr.substr(sizestr.size()-2, std::string::npos); // last 2 chars
+
+  // first bit of string (till 2nd to last char), converted to dbl
+  double size = atof(sizestr.substr(0, sizestr.size()-2).c_str());
+
+  //assert( (size > 0 && size < ??) & "INVALID SIZE! CAN'T CONVERT!");
+
+  std::vector<std::string> units = boost::assign::list_of("B")("kB")("MB")("GB")("TB")("PB")("EB")("ZB")("YB");
+
+  //assert( !(std::find(units.begin(), units.end(), hrunit) != units.end()) & "INVALID UNITS!!" );
+
+  int i = 0;
+  while ( !(hrunit.compare(units[i])) == 0 )  {
+    size *= 1024;
+    i++;
+  }
+  return size; // in bytes
+}
+
+
 /** Returns a 'human readable' size string with SI suffix */
 std::string hsize(double size) {
   int i = 0;
@@ -581,7 +614,7 @@ std::string hsize(double size) {
 
 
 
-void output_volume_estimator(const ModelData& md, bool calmode) {
+Json::Value output_volume_estimator(const ModelData& md, bool calmode) {
 
   Json::Value value(Json::objectValue);
 
@@ -695,6 +728,45 @@ void output_volume_estimator(const ModelData& md, bool calmode) {
 
 }
 
+
+/** Define the strategy to use for quitting in cases where the output volume is
+estimated to be beyond the passed in limit 
+
+There are several ways the total could be calculated...
+*/
+void enforce_maximum_output_volume(const Json::Value& output_estimate, unsigned long long limit) {
+
+
+  //std::cout << "Finding total estimate...\n=======================\n";
+  //unsigned long long total = add_all_recursive2(output_estimate, 0, 0);
+  //std::cout << "=====================\nGrand total is: " << hsize(total) << std::endl;
+
+
+  // traverse the output estimate, adding up all values
+  // (except the runyears numbers)
+
+  //stages = output_estimate.getMemberNames();
+
+
+//stage in output_estimate.getMemberNames():
+//    for type in types:
+//      for resolution in reses:
+//        size += output_estimate[stage][type][resolution]
+
+//  output_estimate["eq"]["netcdf"]["daily"]
+//  output_estimate["eq"]["netcdf"]["monthly"]
+//  output_estimate["eq"]["netcdf"]["yearly"]
+//
+//  output_estimate["eq"]["json"]["archive"]
+//  output_estimate["eq"]["json"]["daily"]
+//  output_estimate["eq"]["json"]["monthly"]
+//  output_estimate["eq"]["json"]["yearly"]
+
+
+  //unsigned long long totalsize = add_all_recursive(output_estimate, 0, 0); // start at zero size, zero depth...
+  //std::cout << "Size estimate: " << totalsize << std::endl;
+
+}
 
 /** Pretty print a 2D vector of ints */
 void pp_2dvec(const std::vector<std::vector<int> > & vv) {
