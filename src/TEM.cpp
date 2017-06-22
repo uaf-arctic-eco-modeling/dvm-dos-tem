@@ -122,10 +122,6 @@ void enable_floating_point_exceptions() {
 
 }
 
-// Forward declaration...eventually should move this stuff to other classes
-// or modules...
-int hsize2bytes(const std::string& sizestr);
-
 struct NetcdfOutputTypes {
   double daily;
   double monthly;
@@ -149,9 +145,9 @@ struct JsonOutputTypes {
     jcoef_archive(_jca), jcoef_daily(_jcd), jcoef_monthly(_jcm), jcoef_yearly(_jcy) {}
 };
 
-/** Holds the ouput volume estimate for a stage:
+/** Holds the ouput volume estimate for a run-stage. Notes:
  *   - sizes are in bytes
- *   - for one year
+ *   - for all years represented by runyears
  *   - for one cell
  */
 struct StageOutputEstimate {
@@ -186,9 +182,7 @@ class OutputEstimate {
     return size_string;
   }
 
-  /** Untested!!
-    - sizestr must be something like "1.5 MB"
-  */
+  /** (UNTESTED!) Given a string like "1.5 MB" should return a double (bytes). */
   int hsize2bytes(const std::string& sizestr) {
     // last 2 chars
     std::string hrunit = sizestr.substr(sizestr.size()-2, std::string::npos); // last 2 chars
@@ -328,9 +322,8 @@ public:
       itr->nc_out.daily = D_est;
 
     }
-    std::cout << "SET BREAKPOINT HERE\n";
+    //std::cout << "SET BREAKPOINT HERE\n";
   }
-
 
   void print_estimate(){
 
@@ -382,11 +375,11 @@ public:
     ss.str("");
     ss.clear(); // clear state flags
 
-    std::cout << "Grand Total: " << hsize(this->grand_total()) << std::endl;
+    std::cout << "Cell Total: " << hsize(this->cell_total()) << std::endl;
+    std::cout << "All cells: " << hsize(this->all_cells_total()) << std::endl;
   }
 
-  double netcdf_total(){
-
+  double netcdf_total() {
     double t = 0;
     std::vector<StageOutputEstimate>::iterator itr;
     for (itr = stage_output_estimates.begin(); itr != stage_output_estimates.end(); itr++) {
@@ -397,8 +390,10 @@ public:
     return t;
   }
 
-  double json_total(){
-
+  double json_total() {
+    // This will probably over-estimate, as the yearly/monthly/daily outputs
+    // are deleted for each stage. Maybe should find the stage with the max
+    // runyears and use that for the yearly/monthly/daily estimates.
     double t = 0;
     std::vector<StageOutputEstimate>::iterator itr;
     for (itr = stage_output_estimates.begin(); itr != stage_output_estimates.end(); itr++) {
@@ -410,18 +405,18 @@ public:
     return t;
   }
 
-
-  double grand_total() {
+  double cell_total() {
     double t = 0;
       t += json_total();
       t += netcdf_total();
     return t;
   }
 
+  double all_cells_total() {
+    return active_cells * (json_total() + netcdf_total());
+  }
 
-//  oe.grand_total()
-//  oe.caljson_total()
-//  oe.netcdf_total()
+// ideas for  API functions
 //  oe.per_grid_cell()
 //  oe.per_year()
 //  oe.print_table()
@@ -530,7 +525,7 @@ int main(int argc, char* argv[]){
 
   OutputEstimate oe = OutputEstimate(modeldata, args->get_cal_mode());
   oe.print_estimate();
-//  oe.grand_total()
+//  oe.cell_total()
 //  oe.caljson_total()
 //  oe.netcdf_total()
 //  oe.per_grid_cell()
