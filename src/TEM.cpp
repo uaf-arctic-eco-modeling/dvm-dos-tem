@@ -135,12 +135,12 @@ struct JsonOutputTypes {
   double monthly;
   double yearly;
 
-  int jcoef_archive;
-  int jcoef_daily;
-  int jcoef_monthly;
-  int jcoef_yearly;
+  double jcoef_archive;
+  double jcoef_daily;
+  double jcoef_monthly;
+  double jcoef_yearly;
 
-  JsonOutputTypes(int _jca, int _jcd, int _jcm, int _jcy):
+  JsonOutputTypes(double _jca, double _jcd, double _jcm, double _jcy):
     archive(0), daily(0), monthly(0), yearly(0),
     jcoef_archive(_jca), jcoef_daily(_jcd), jcoef_monthly(_jcm), jcoef_yearly(_jcy) {}
 };
