@@ -219,7 +219,7 @@ int main(int argc, char* argv[]){
   }
 
   OutputEstimate oe = OutputEstimate(modeldata, args->get_cal_mode());
-  oe.print_estimate();
+  BOOST_LOG_SEV(glg, info) << oe.estimate_as_table();
   if ( oe.all_cells_total() > oe.hsize2bytes("1 GB") ) {
     BOOST_LOG_SEV(glg, fatal) << "TOO MUCH OUTPUT SPECIFIED! ADJUST YOUR SETTINGS AND TRY AGAIN. Or run with '--force-output'";
     exit(-1);

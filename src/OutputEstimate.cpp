@@ -131,7 +131,7 @@ OutputEstimate::OutputEstimate(const ModelData& md, bool calmode) {
 
 }
 
-void OutputEstimate::print_estimate(){
+std::string OutputEstimate::estimate_as_table(){
 
   std::stringstream ss;
   std::vector<StageOutputEstimate>::iterator itr;
@@ -155,9 +155,6 @@ void OutputEstimate::print_estimate(){
   }
   itr = stage_output_estimates.end();
   ss << std::endl;
-  BOOST_LOG_SEV(glg, debug) << ss.str();
-  ss.str("");
-  ss.clear(); // clear state flags
 
   ss << "-- netcdf output data volume estimate: " << hsize(netcdf_total()) << std::endl;
   ss << std::setw(10) << " "
@@ -177,12 +174,13 @@ void OutputEstimate::print_estimate(){
   }
   itr = stage_output_estimates.end();
   ss << std::endl;
-  BOOST_LOG_SEV(glg, debug) << ss.str();
-  ss.str("");
-  ss.clear(); // clear state flags
 
-  BOOST_LOG_SEV(glg, debug) << "Cell Total: " << hsize(this->cell_total());
-  BOOST_LOG_SEV(glg, debug) << "All cells: " << hsize(this->all_cells_total());
+  ss << "Cell Total: " << hsize(this->cell_total());
+  ss << std::endl;
+  ss << "All cells: " << hsize(this->all_cells_total());
+
+  return ss.str();
+
 }
 
 double OutputEstimate::netcdf_total() {

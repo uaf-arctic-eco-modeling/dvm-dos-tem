@@ -75,7 +75,7 @@ public:
 
   OutputEstimate(const ModelData& md, bool calmode);
 
-  void print_estimate();
+  std::string estimate_as_table();
 
   double netcdf_total();
 
