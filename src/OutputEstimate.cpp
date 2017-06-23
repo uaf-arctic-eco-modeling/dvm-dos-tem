@@ -11,6 +11,10 @@
 #include "../include/OutputEstimate.h"
 #include "TEMUtilityFunctions.h"
 
+#include "TEMLogger.h"
+
+extern src::severity_logger< severity_level > glg;
+
 OutputEstimate::OutputEstimate(const ModelData& md, bool calmode) {
 
   stage_output_estimates = boost::assign::list_of
@@ -40,16 +44,16 @@ OutputEstimate::OutputEstimate(const ModelData& md, bool calmode) {
     }
   }
 
-  std::cout << "Number of active cells: " << this->active_cells << std::endl;
+  BOOST_LOG_SEV(glg, debug) << "Number of active cells in run-mask: " << this->active_cells;
 
   std::vector<StageOutputEstimate>::iterator itr;
   for (itr = stage_output_estimates.begin(); itr != stage_output_estimates.end(); itr++){
 
-    std::cout << "Estimating output for stage: " << itr->name << std::endl;
+    BOOST_LOG_SEV(glg, debug) << "Estimating output for stage: " << itr->name;
     // handle all the calibration/json stuff
     if (calmode) {
       // cal mode means at least yearly and daily
-      std::cout << "  Estimating JSON CALIBRATION output" << std::endl;
+      BOOST_LOG_SEV(glg, debug) << "  Estimating JSON CALIBRATION output";
       itr->json_out.yearly = itr->runyears * itr->json_out.jcoef_yearly;
       itr->json_out.daily = itr->runyears * itr->json_out.jcoef_daily;
 
@@ -71,7 +75,7 @@ OutputEstimate::OutputEstimate(const ModelData& md, bool calmode) {
     double D_est = 0; double M_est = 0; double Y_est = 0;
 
     // yearly
-    std::cout << "  Estimating YEARLY NC output for stage: " << itr->name << std::endl;
+    BOOST_LOG_SEV(glg, debug) << "  Estimating YEARLY NC output for stage: " << itr->name;
     std::map<std::string, OutputSpec>::const_iterator map_itr;
     for(map_itr = md.yearly_netcdf_outputs.begin(); map_itr != md.yearly_netcdf_outputs.end(); ++map_itr ){
 
@@ -88,7 +92,7 @@ OutputEstimate::OutputEstimate(const ModelData& md, bool calmode) {
     map_itr = md.yearly_netcdf_outputs.end();
 
     // monthly
-    std::cout << "  Estimating MONTHLY NC output for stage: " << itr->name << std::endl;
+    BOOST_LOG_SEV(glg, debug) << "  Estimating MONTHLY NC output for stage: " << itr->name;
     for(map_itr = md.monthly_netcdf_outputs.begin(); map_itr != md.monthly_netcdf_outputs.end(); ++map_itr ){
 
       double output_estimate = 8;
@@ -104,7 +108,7 @@ OutputEstimate::OutputEstimate(const ModelData& md, bool calmode) {
     map_itr = md.monthly_netcdf_outputs.end();
 
     // daily
-    std::cout << "  Estimating DAILY NC output for stage: " << itr->name << std::endl;
+    BOOST_LOG_SEV(glg, debug) << "  Estimating DAILY NC output for stage: " << itr->name;
     for(map_itr = md.daily_netcdf_outputs.begin(); map_itr != md.daily_netcdf_outputs.end(); ++map_itr ){
 
       double output_estimate = 8;
@@ -123,10 +127,8 @@ OutputEstimate::OutputEstimate(const ModelData& md, bool calmode) {
     itr->nc_out.monthly = M_est;
     itr->nc_out.daily = D_est;
 
-    std::cout << std::endl;
   }
 
-  //std::cout << "SET BREAKPOINT HERE\n";
 }
 
 void OutputEstimate::print_estimate(){
@@ -152,8 +154,8 @@ void OutputEstimate::print_estimate(){
        << std::endl;
   }
   itr = stage_output_estimates.end();
-  std::cout << ss.str();
-  std::cout << std::endl;
+  ss << std::endl;
+  BOOST_LOG_SEV(glg, debug) << ss.str();
   ss.str("");
   ss.clear(); // clear state flags
 
@@ -174,13 +176,13 @@ void OutputEstimate::print_estimate(){
     ss << std::endl;
   }
   itr = stage_output_estimates.end();
-  std::cout << ss.str();
-  std::cout << std::endl;
+  ss << std::endl;
+  BOOST_LOG_SEV(glg, debug) << ss.str();
   ss.str("");
   ss.clear(); // clear state flags
 
-  std::cout << "Cell Total: " << hsize(this->cell_total()) << std::endl;
-  std::cout << "All cells: " << hsize(this->all_cells_total()) << std::endl;
+  BOOST_LOG_SEV(glg, debug) << "Cell Total: " << hsize(this->cell_total());
+  BOOST_LOG_SEV(glg, debug) << "All cells: " << hsize(this->all_cells_total());
 }
 
 double OutputEstimate::netcdf_total() {
