@@ -110,6 +110,14 @@ if platform_name == 'Linux':
 
 
 elif platform_name == 'Darwin':
+ 
+  # See ua-snap/dvm-dos-tem PR #300 for discussion
+  if(USEOMP):
+    print "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+    print "NOTE: OpenMP not working on OSX! Reverting to serial build...."
+    print "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+    print ""
+    USEOMP = False
 
   # On OSX, using Homebrew, alternate g++ versions are installed so as not
   # to interfere with the system g++, so here, we have to set the compiler
