@@ -218,13 +218,26 @@ int main(int argc, char* argv[]){
     modeldata.create_netCDF_output_files(num_rows, num_cols, "sc");
   }
 
+
+  // Work on checking that the particular configuration will not result in too
+  // much output.
   OutputEstimate oe = OutputEstimate(modeldata, args->get_cal_mode());
   BOOST_LOG_SEV(glg, info) << oe.estimate_as_table();
-  if ( oe.all_cells_total() > oe.hsize2bytes("1 GB") ) {
-    BOOST_LOG_SEV(glg, fatal) << "TOO MUCH OUTPUT SPECIFIED! ADJUST YOUR SETTINGS AND TRY AGAIN. Or run with '--force-output'";
-    exit(-1);
-  }
 
+  if (args->get_max_output_volume().compare("-1") == 0) {
+    // pass - nothing to do, user doesn't want to check for excessive output.
+  } else {
+
+    std::string  mxsz_s = args->get_max_output_volume();
+    double mxsz = oe.hsize2bytes(mxsz_s);
+
+    if ( oe.all_cells_total() > mxsz ) {
+      BOOST_LOG_SEV(glg, fatal) << "TOO MUCH OUTPUT SPECIFIED! "
+                                << "ADJUST YOUR SETTINGS AND TRY AGAIN. "
+                                << "Or run with '--max-output-volume=-1'";
+      exit(-1);
+    }
+  }
 
   if (args->get_loop_order() == "space-major") {
 

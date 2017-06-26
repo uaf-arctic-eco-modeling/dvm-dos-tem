@@ -238,7 +238,7 @@ std::string OutputEstimate::hsize(double size) {
 
 
 /** (UNTESTED!) Given a string like "1.5 MB" should return a double (bytes). */
-int OutputEstimate::hsize2bytes(const std::string& sizestr) {
+double OutputEstimate::hsize2bytes(const std::string& sizestr) {
   // last 2 chars
   std::string hrunit = sizestr.substr(sizestr.size()-2, std::string::npos); // last 2 chars
 
