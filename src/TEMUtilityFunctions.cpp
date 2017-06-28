@@ -586,27 +586,35 @@ namespace temutil {
       Assumes that the file has some coordinate dimensions...
   */
   std::pair<float, float> get_latlon(const std::string& filename, int y, int x) {
-    BOOST_LOG_SEV(glg, debug) << "Opening dataset: " << filename;
-    int ncid;
-    temutil::nc( nc_open(filename.c_str(), NC_NOWRITE, &ncid ) );
 
-    int yD, xD;
-    temutil::nc( nc_inq_dimid(ncid, "Y", &yD) );
-    temutil::nc( nc_inq_dimid(ncid, "X", &xD) );
-
-    int latV;
-    int lonV;
-    temutil::nc( nc_inq_varid(ncid, "lat", &latV) );
-    temutil::nc( nc_inq_varid(ncid, "lon", &lonV) );
-
-    size_t start[2];
-    start[0] = y;
-    start[1] = x;
-
-    float lon_value;
+    //Variables needed outside the openmp block
     float lat_value;
-    temutil::nc( nc_get_var1_float(ncid, latV, start, &lat_value));
-    temutil::nc( nc_get_var1_float(ncid, lonV, start, &lon_value));
+    float lon_value;
+
+    #pragma omp critical(load_input)
+    {
+      BOOST_LOG_SEV(glg, debug) << "Opening dataset: " << filename;
+      int ncid;
+      temutil::nc( nc_open(filename.c_str(), NC_NOWRITE, &ncid ) );
+
+      int yD, xD;
+      temutil::nc( nc_inq_dimid(ncid, "Y", &yD) );
+      temutil::nc( nc_inq_dimid(ncid, "X", &xD) );
+
+      int latV;
+      int lonV;
+      temutil::nc( nc_inq_varid(ncid, "lat", &latV) );
+      temutil::nc( nc_inq_varid(ncid, "lon", &lonV) );
+
+      size_t start[2];
+      start[0] = y;
+      start[1] = x;
+
+      temutil::nc( nc_get_var1_float(ncid, latV, start, &lat_value));
+      temutil::nc( nc_get_var1_float(ncid, lonV, start, &lon_value));
+
+      temutil::nc( nc_close(ncid) );
+    }//End critical(get_latlon)
 
     return std::pair<float, float>(lat_value, lon_value);
   }
@@ -694,31 +702,38 @@ namespace temutil {
 
   /** rough draft for reading a single location, veg classification
   */
-  int get_veg_class(const std::string &filename, int y, int x) {
+  int get_veg_class(const std::string &filename2, int y2, int x2) {
 
-    BOOST_LOG_SEV(glg, debug) << "Opening dataset: " << filename;
-    int ncid;
-    temutil::nc( nc_open(filename.c_str(), NC_NOWRITE, &ncid ) );
-
-    int xD, yD;
-
-    //size_t yD_len, xD_len;
-
-    temutil::nc( nc_inq_dimid(ncid, "Y", &yD) );
-    //temutil::nc( nc_inq_dimlen(ncid, yD, &yD_len) );
-
-    temutil::nc( nc_inq_dimid(ncid, "X", &xD) );
-    //temutil::nc( nc_inq_dimlen(ncid, xD, &xD_len) );
-
-    int veg_classificationV;
-    temutil::nc( nc_inq_varid(ncid, "veg_class", &veg_classificationV) );
-
-    size_t start[2];
-    start[0] = y;
-    start[1] = x;
-
+    //Variable needed outside the omp block
     int veg_class_value;
-    temutil::nc( nc_get_var1_int(ncid, veg_classificationV, start, &veg_class_value)  );
+
+    #pragma omp critical(load_input)
+    {
+      BOOST_LOG_SEV(glg, debug) << "Opening dataset: " << filename2;
+      int ncid2;
+      temutil::nc( nc_open(filename2.c_str(), NC_NOWRITE, &ncid2 ) );
+
+      int xD2, yD2;
+
+      //size_t yD_len, xD_len;
+
+      temutil::nc( nc_inq_dimid(ncid2, "Y", &yD2) );
+      //temutil::nc( nc_inq_dimlen(ncid, yD, &yD_len) );
+
+      temutil::nc( nc_inq_dimid(ncid2, "X", &xD2) );
+      //temutil::nc( nc_inq_dimlen(ncid, xD, &xD_len) );
+
+      int veg_classificationV;
+      temutil::nc( nc_inq_varid(ncid2, "veg_class", &veg_classificationV) );
+
+      size_t start[2];
+      start[0] = y2;
+      start[1] = x2;
+
+      temutil::nc( nc_get_var1_int(ncid2, veg_classificationV, start, &veg_class_value)  );
+
+      temutil::nc( nc_close(ncid2) );
+    }//End critical(get_veg_class)
 
     return veg_class_value;
   }
@@ -728,23 +743,30 @@ namespace temutil {
 
     BOOST_LOG_SEV(glg, debug) << "Opening dataset: " << filename;
 
-    int ncid;
-    temutil::nc( nc_open(filename.c_str(), NC_NOWRITE, &ncid ) );
-
-    int xD, yD;
-
-    temutil::nc( nc_inq_dimid(ncid, "Y", &yD) );
-    temutil::nc( nc_inq_dimid(ncid, "X", &xD) );
-
-    int drainage_classV;
-    temutil::nc( nc_inq_varid(ncid, "drainage_class", &drainage_classV) );
-
-    size_t start[2];
-    start[0] = y;
-    start[1] = x;
-
+    //This variable is needed outside the omp block 
     int drainage_class_value;
-    temutil::nc( nc_get_var1_int(ncid, drainage_classV, start, &drainage_class_value)  );
+
+    #pragma omp critical(load_input)
+    {
+      int ncid;
+      temutil::nc( nc_open(filename.c_str(), NC_NOWRITE, &ncid ) );
+
+      int xD, yD;
+
+      temutil::nc( nc_inq_dimid(ncid, "Y", &yD) );
+      temutil::nc( nc_inq_dimid(ncid, "X", &xD) );
+
+      int drainage_classV;
+      temutil::nc( nc_inq_varid(ncid, "drainage_class", &drainage_classV) );
+
+      size_t start[2];
+      start[0] = y;
+      start[1] = x;
+
+      temutil::nc( nc_get_var1_int(ncid, drainage_classV, start, &drainage_class_value)  );
+
+      temutil::nc( nc_close(ncid) );
+    }//End critical(get_drainage)
 
     return drainage_class_value;
   }

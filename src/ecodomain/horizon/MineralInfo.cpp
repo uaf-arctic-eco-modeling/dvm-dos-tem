@@ -7,20 +7,22 @@ extern src::severity_logger< severity_level > glg;
 MineralInfo::MineralInfo() {}
 
 MineralInfo::MineralInfo(const std::string& fname, const int y, const int x) {
-  
-  BOOST_LOG_SEV(glg, info) << "Loading ModelInfo (soil texture) from file: " << fname;
-  BOOST_LOG_SEV(glg, info) << "Loading for (y, x) point: " << "("<< y <<","<< x <<").";
 
-  float psand = temutil::get_scalar<float>(fname, "pct_sand", y, x);
-  float psilt = temutil::get_scalar<float>(fname, "pct_silt", y, x);
-  float pclay = temutil::get_scalar<float>(fname, "pct_clay", y, x);
-  
-  for (int i = 0; i < MAX_MIN_LAY; ++i) {
-    sand[i] = psand;
-    silt[i] = psilt;
-    clay[i] = pclay;
-  }
+  #pragma omp critical(load_input)
+  {  
+    BOOST_LOG_SEV(glg, info) << "Loading ModelInfo (soil texture) from file: " << fname;
+    BOOST_LOG_SEV(glg, info) << "Loading for (y, x) point: " << "("<< y <<","<< x <<").";
 
+    float psand = temutil::get_scalar<float>(fname, "pct_sand", y, x);
+    float psilt = temutil::get_scalar<float>(fname, "pct_silt", y, x);
+    float pclay = temutil::get_scalar<float>(fname, "pct_clay", y, x);
+    
+    for (int i = 0; i < MAX_MIN_LAY; ++i) {
+      sand[i] = psand;
+      silt[i] = psilt;
+      clay[i] = pclay;
+    }
+  }//End critical(soil_texture)
   setDefaultThick(0.0);
 }
 

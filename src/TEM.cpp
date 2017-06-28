@@ -45,6 +45,8 @@
 
 #include <json/value.h>
 
+#include <omp.h>
+
 #ifdef WITHMPI
 #include <mpi.h>
 #include "data/RestartData.h" // for defining MPI typemap...
@@ -239,13 +241,23 @@ int main(int argc, char* argv[]){
 
     vec2D::const_iterator row;
     vec::const_iterator col;
-    for (row = run_mask.begin(); row != run_mask.end() ; ++row) {
-      for (col = row->begin(); col != row->end(); ++col) {
 
-        bool mask_value = *col;
+    // OpenMP requires:
+    //  - The structured block to have a single entry and exit point.
+    //  - The loop variable must be of type signed integer.
+    //  - The comparison operator must be in the form
+    //      loop_variable [<|<=|>|>=] loop_invariant integer
+    //  - The third expression must be either integer addition or
+    //      subtraction by a loop invariant value
+    //  - The loop must increment or decrement on every iteration,
+    //      depending on the comparison operator
+    //  - The loop must be a basic block: no jump to outside the loop
+    //      other than the exit statement.
+    #pragma omp parallel for collapse(2) schedule(dynamic)
+    for(int rowidx=0; rowidx<num_rows; rowidx++){
+      for(int colidx=0; colidx<num_cols; colidx++){
 
-        int rowidx = row - run_mask.begin();
-        int colidx = col - row->begin();
+        bool mask_value = run_mask[rowidx].at(colidx);
 
         if (true == mask_value) {
 
@@ -311,7 +323,7 @@ int main(int argc, char* argv[]){
           // EQUILIBRIUM STAGE (EQ)
           if (modeldata.eq_yrs > 0) {
             BOOST_LOG_NAMED_SCOPE("EQ");
-            BOOST_LOG_SEV(glg, fatal) << "Running Equilibrium, " << modeldata.eq_yrs << " years.";
+            BOOST_LOG_SEV(glg, fatal) << "Equilibrium Initial Year Count: " << modeldata.eq_yrs;
 
             if (runner.calcontroller_ptr) {
               runner.calcontroller_ptr->handle_stage_start();
@@ -328,6 +340,9 @@ int main(int argc, char* argv[]){
 
             runner.cohort.md->set_dsbmodule(true);
 
+            // This variable ensures that OpenMP threads do not modify
+            // the shared modeldata.eq_yrs value.
+            int fri_adj_eq_yrs = modeldata.eq_yrs;//EQ years adjusted by FRI if necessary
             if (runner.cohort.md->get_dsbmodule()) {
               // The transition to SP must occur at the completion of a
               // fire cycle (i.e. a year or two prior to the next fire).
@@ -339,13 +354,18 @@ int main(int argc, char* argv[]){
                 int fri = runner.cohort.fire.getFRI();
                 int EQ_fire_cycles = modeldata.eq_yrs / fri;
                 if (modeldata.eq_yrs%fri != 0) {
-                  modeldata.eq_yrs = fri * (EQ_fire_cycles + 1) - 2;
+                  // Extend the run to the end of the current fire cycle
+                  fri_adj_eq_yrs = fri * (EQ_fire_cycles + 1) - 2;
+                }
+                else{
+                  fri_adj_eq_yrs -= 2;
                 }
               }
             }
 
             // Run model
-            runner.run_years(0, modeldata.eq_yrs, "eq-run");
+            BOOST_LOG_SEV(glg, fatal) << "Running Equilibrium, " << fri_adj_eq_yrs << " years.";
+            runner.run_years(0, fri_adj_eq_yrs, "eq-run");
 
             // Update restartdata structure from the running state
             runner.cohort.set_restartdata_from_state();
@@ -528,8 +548,8 @@ exit(-1);
         } else {
           BOOST_LOG_SEV(glg, debug) << "Skipping cell (" << rowidx << ", " << colidx << ")";
         }
-      }
-    }
+      }//end col loop
+    }//end row loop
   
     
   } else if (args->get_loop_order() == "time-major") {

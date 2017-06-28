@@ -7,6 +7,7 @@ import platform
 import distutils.spawn
 import subprocess
 
+USEOMP = False
 USEMPI = False
 
 libs = Split("""jsoncpp
@@ -109,6 +110,14 @@ if platform_name == 'Linux':
 
 
 elif platform_name == 'Darwin':
+ 
+  # See ua-snap/dvm-dos-tem PR #300 for discussion
+  if(USEOMP):
+    print "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+    print "NOTE: OpenMP not working on OSX! Reverting to serial build...."
+    print "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+    print ""
+    USEOMP = False
 
   # On OSX, using Homebrew, alternate g++ versions are installed so as not
   # to interfere with the system g++, so here, we have to set the compiler
@@ -155,6 +164,10 @@ if comp_name == 'atlas.snap.uaf.edu':
   platform_library_path.insert(0, '/home/UA/tcarman2/boost_1_55_0/stage/lib')
 
 
+if(USEOMP):
+  #append build flag for openmp
+  compiler_flags = compiler_flags + ' -fopenmp'
+
 # Modify setup for MPI, if necessary
 if(USEMPI):
   compiler = distutils.spawn.find_executable('mpic++')
@@ -186,5 +199,6 @@ object_list = Object(src_files, CXX=compiler, CPPPATH=platform_include_path,
 #object_file_list = [os.path.basename(str(object)) for object in object_list]
 
 Program('dvmdostem', object_list, CXX=compiler, CPPPATH=local_include_paths,
-        LIBS=platform_libs, LIBPATH=platform_library_path)
+        LIBS=platform_libs, LIBPATH=platform_library_path, 
+        LINKFLAGS="-fopenmp")
 #Library()
