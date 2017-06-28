@@ -53,7 +53,7 @@
 #ifdef WITHMPI
 #include <mpi.h>
 #include "data/RestartData.h" // for defining MPI typemap...
-#include "inc/tbc_mpi_constants.h"
+//#include "inc/tbc_mpi_constants.h"
 #endif
 
 // For managing the floating point environment
@@ -269,6 +269,33 @@ int main(int argc, char* argv[]){
     vec2D::const_iterator row;
     vec::const_iterator col;
 
+
+#ifdef WITHMPI
+    std::cout<<"using mpi\n";
+
+    MPI_Init(NULL, NULL);
+
+    int id = MPI::COMM_WORLD.Get_rank();
+    int ntasks = MPI::COMM_WORLD.Get_size();
+
+    int total_cells = num_rows*num_cols;
+
+    std::cout<<"id: "<<id<<" of ntasks: "<<ntasks<<std::endl;
+
+    for(int curr_cell=id; curr_cell<total_cells; curr_cell+=ntasks){
+
+      int rowidx = curr_cell / num_cols;
+      int colidx = curr_cell % num_cols;
+
+      std::cout<<"cell: "<<rowidx<<", "<<colidx<<std::endl;
+ 
+      bool mask_value = run_mask[rowidx][colidx];
+      std::cout<<"mask for "<<rowidx<<","<<colidx<<": "<<mask_value<<std::endl;
+
+#else
+    std::cout<<"not using mpi\n";
+
+
     // OpenMP requires:
     //  - The structured block to have a single entry and exit point.
     //  - The loop variable must be of type signed integer.
@@ -285,6 +312,8 @@ int main(int argc, char* argv[]){
       for(int colidx=0; colidx<num_cols; colidx++){
 
         bool mask_value = run_mask[rowidx].at(colidx);
+
+#endif
 
         if (true == mask_value) {
 
@@ -576,9 +605,22 @@ int main(int argc, char* argv[]){
         } else {
           BOOST_LOG_SEV(glg, debug) << "Skipping cell (" << rowidx << ", " << colidx << ")";
         }
+<<<<<<< HEAD
       }//end col loop
     }//end row loop
   
+=======
+
+#ifdef WITHMPI
+    }
+    MPI_Finalize();
+
+#else
+      }
+    }
+
+#endif
+>>>>>>> Implements basic MPI usage
     
   } else if (args->get_loop_order() == "time-major") {
     BOOST_LOG_SEV(glg, warn) << "DO NOTHING. NOT IMPLEMENTED YET.";

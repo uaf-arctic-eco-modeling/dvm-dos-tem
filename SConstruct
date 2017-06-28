@@ -178,6 +178,7 @@ if(USEMPI):
   # append src/parallel-code stuff to src_files and include_paths and libs
   local_include_paths.append('src/parallel-code')
 
+
   compiler_flags = compiler_flags + ' -m64 -DWITHMPI'
 
   libs.append(Split("""mpi_cxx
