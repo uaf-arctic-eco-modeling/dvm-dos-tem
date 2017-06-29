@@ -232,6 +232,7 @@ int main(int argc, char* argv[]){
     double mxsz = oe.hsize2bytes(mxsz_s);
 
     if ( oe.all_cells_total() > mxsz ) {
+      BOOST_LOG_SEV(glg, fatal) << oe.estimate_as_table();
       BOOST_LOG_SEV(glg, fatal) << "TOO MUCH OUTPUT SPECIFIED! "
                                 << "ADJUST YOUR SETTINGS AND TRY AGAIN. "
                                 << "Or run with '--max-output-volume=-1'";
