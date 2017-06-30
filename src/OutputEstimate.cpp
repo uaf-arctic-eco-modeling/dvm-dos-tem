@@ -7,6 +7,7 @@
 //
 
 #include <map>
+#include <boost/algorithm/string.hpp>
 
 #include "../include/OutputEstimate.h"
 #include "TEMUtilityFunctions.h"
@@ -237,22 +238,43 @@ std::string OutputEstimate::hsize(double size) {
 }
 
 
-/** (UNTESTED!) Given a string like "1.5 MB" should return a double (bytes). */
-double OutputEstimate::hsize2bytes(const std::string& sizestr) {
-  // last 2 chars
-  std::string hrunit = sizestr.substr(sizestr.size()-2, std::string::npos); // last 2 chars
-
-  // first bit of string (till 2nd to last char), converted to dbl
-  double size = atof(sizestr.substr(0, sizestr.size()-2).c_str());
-
-  //assert( (size > 0 && size < ??) & "INVALID SIZE! CAN'T CONVERT!");
+/** Given a string like "1.5 MB" should return a double in bytes. 
+*
+* Function is reasonably tolerant to strange input string formatting as 
+* all leading and trailing whitespace should be stripped before conversion
+* is attempted. The function will exit with an error message if the units 
+* are invalid, or if the string to number conversion fails.
+*/
+double OutputEstimate::hsize2bytes(std::string sizestr) {
 
   std::vector<std::string> units = boost::assign::list_of("B")("kB")("MB")("GB")("TB")("PB")("EB")("ZB")("YB");
 
-  //assert( !(std::find(units.begin(), units.end(), hrunit) != units.end()) & "INVALID UNITS!!" );
+  // strip any whitespace....
+  boost::algorithm::trim(sizestr);
+
+  // split the string up into the numeric portion and the units suffix
+  std::string hrunit = sizestr.substr(sizestr.size()-2, std::string::npos);
+  std::string numeric_part = sizestr.substr(0, sizestr.size()-2);
+
+  // strip any remaining whitespace...
+  boost::algorithm::trim(numeric_part);
+
+  bool found = (std::find(units.begin(), units.end(), hrunit) != units.end());
+  if ( !found ) {
+    BOOST_LOG_SEV(glg, fatal) << "INVALID UNIT SPECIFICATION!: " << hrunit;
+    exit(-1);
+  }
+
+  double size;
+  try {
+    size = boost::lexical_cast<double>(numeric_part);
+  } catch (boost::bad_lexical_cast &) {
+    BOOST_LOG_SEV(glg, fatal) << "Problem casting '" << numeric_part << "' to double!";
+    exit(-1);
+  }
 
   int i = 0;
-  while ( !(hrunit.compare(units[i])) == 0 )  {
+  while ( !(hrunit.compare(units[i])) == 0 && (i < units.size()) )  {
     size *= 1024;
     i++;
   }

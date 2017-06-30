@@ -85,7 +85,7 @@ public:
 
   double all_cells_total();
 
-  double hsize2bytes(const std::string& sizestr);
+  double hsize2bytes(std::string sizestr);
 
 
 // ideas for  API functions

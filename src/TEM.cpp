@@ -231,6 +231,11 @@ int main(int argc, char* argv[]){
     std::string  mxsz_s = args->get_max_output_volume();
     double mxsz = oe.hsize2bytes(mxsz_s);
 
+    if ( !(mxsz >= 0) ) {
+      BOOST_LOG_SEV(glg, fatal) << "Invalid size specification!: " << mxsz_s;
+      exit(-1);
+    }
+
     if ( oe.all_cells_total() > mxsz ) {
       BOOST_LOG_SEV(glg, fatal) << oe.estimate_as_table();
       BOOST_LOG_SEV(glg, fatal) << "TOO MUCH OUTPUT SPECIFIED! "
