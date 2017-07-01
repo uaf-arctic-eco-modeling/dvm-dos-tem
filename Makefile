@@ -40,6 +40,7 @@ SOURCES= 	src/TEM.o \
 		src/ArgHandler.o \
 		src/TEMUtilityFunctions.o \
 		src/Climate.o \
+		src/OutputEstimate.o \
 		src/Runner.o \
 		src/data/BgcData.o \
 		src/data/CohortData.o \
@@ -88,6 +89,7 @@ OBJECTS =	ArgHandler.o \
 		CalController.o \
 		TEMUtilityFunctions.o \
 		Climate.o \
+		OutputEstimate.o \
 		Runner.o \
 		BgcData.o \
 		CohortData.o \
