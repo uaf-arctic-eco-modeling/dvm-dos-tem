@@ -39,7 +39,8 @@ local_include_paths = Split("""./src
 
                                                             
 src_files = Split("""src/TEM.cpp
-                     src/TEMUtilityFunctions.cpp  
+                     src/TEMUtilityFunctions.cpp
+                     src/OutputEstimate.cpp
                      src/CalController.cpp
                      src/TEMLogger.cpp 
                      src/ArgHandler.cpp

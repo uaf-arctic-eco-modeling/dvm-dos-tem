@@ -35,6 +35,9 @@
 #include <exception>
 #include <map>
 #include <set>
+#include <json/writer.h>
+
+#include <json/value.h>
 
 #include <boost/filesystem.hpp>
 #include <boost/asio/signal_set.hpp>
@@ -66,6 +69,7 @@
 
 #include "inc/timeconst.h"
 #include "../include/ArgHandler.h"
+#include "../include/OutputEstimate.h"
 #include "TEMLogger.h"
 #include "TEMUtilityFunctions.h"
 #include "../include/Runner.h"
@@ -93,9 +97,6 @@ void pp_2dvec(const std::vector<std::vector<int> > & vv);
 // draft - reading new-style co2 file
 std::vector<float> read_new_co2_file(const std::string &filename);
 
-// draft - reading in a 2D run mask...
-std::vector< std::vector<int> > read_run_mask(const std::string &filename);
-
 /** Enables a 'floating point exception' mask that will make the program crash
  *  when a floating point number is generated (and or operated upon).
  *
@@ -120,7 +121,6 @@ void enable_floating_point_exceptions() {
   #endif
 
 }
-
 
 ArgHandler* args = new ArgHandler();
 
@@ -178,7 +178,7 @@ int main(int argc, char* argv[]){
   BOOST_LOG_SEV(glg, debug) << "NEW STYLE: Going to run space-major over a 2D area covered by run mask...";
 
   // Open the run mask (spatial mask)
-  std::vector< std::vector<int> > run_mask = read_run_mask(modeldata.runmask_file);
+  std::vector< std::vector<int> > run_mask = temutil::read_run_mask(modeldata.runmask_file);
 
   // Make some convenient handles for later...
   std::string eq_restart_fname = modeldata.output_dir + "restart-eq.nc";
@@ -218,6 +218,33 @@ int main(int argc, char* argv[]){
   }
   if(modeldata.sc_yrs > 0 && modeldata.nc_sc){
     modeldata.create_netCDF_output_files(num_rows, num_cols, "sc");
+  }
+
+
+  // Work on checking that the particular configuration will not result in too
+  // much output.
+  OutputEstimate oe = OutputEstimate(modeldata, args->get_cal_mode());
+  BOOST_LOG_SEV(glg, info) << oe.estimate_as_table();
+
+  if (args->get_max_output_volume().compare("-1") == 0) {
+    // pass - nothing to do, user doesn't want to check for excessive output.
+  } else {
+
+    std::string  mxsz_s = args->get_max_output_volume();
+    double mxsz = oe.hsize2bytes(mxsz_s);
+
+    if ( !(mxsz >= 0) ) {
+      BOOST_LOG_SEV(glg, fatal) << "Invalid size specification!: " << mxsz_s;
+      exit(-1);
+    }
+
+    if ( oe.all_cells_total() > mxsz ) {
+      BOOST_LOG_SEV(glg, fatal) << oe.estimate_as_table();
+      BOOST_LOG_SEV(glg, fatal) << "TOO MUCH OUTPUT SPECIFIED! "
+                                << "ADJUST YOUR SETTINGS AND TRY AGAIN. "
+                                << "Or run with '--max-output-volume=-1'";
+      exit(-1);
+    }
   }
 
   if (args->get_loop_order() == "space-major") {
@@ -493,8 +520,8 @@ int main(int argc, char* argv[]){
             // Loading projected data instead of historic. FIX?
             runner.cohort.load_proj_climate(modeldata.proj_climate_file);
 
-BOOST_LOG_SEV(glg,fatal) << "Need to deal with loading projected fire data";
-exit(-1);
+            BOOST_LOG_SEV(glg,fatal) << "Need to deal with loading projected fire data";
+            exit(-1);
 
             // Run model
             runner.run_years(0, modeldata.sc_yrs, "sc-run");
@@ -588,67 +615,6 @@ void pp_2dvec(const std::vector<std::vector<int> > & vv) {
     std::cout << std::endl;
   }
 }
-
-/** rough draft for reading a run-mask (2D vector of ints)
-*/
-std::vector< std::vector<int> > read_run_mask(const std::string &filename) {
-  int ncid;
-  
-  BOOST_LOG_SEV(glg, debug) << "Opening dataset: " << filename;
-  temutil::nc( nc_open(filename.c_str(), NC_NOWRITE, &ncid) );
-  
-  BOOST_LOG_SEV(glg, debug) << "Find out how much data there is...";
-  int yD, xD;
-  size_t yD_len, xD_len;
-
-  temutil::nc( nc_inq_dimid(ncid, "Y", &yD) );
-  temutil::nc( nc_inq_dimlen(ncid, yD, &yD_len) );
-
-  temutil::nc( nc_inq_dimid(ncid, "X", &xD) );
-  temutil::nc( nc_inq_dimlen(ncid, xD, &xD_len) );
-
-  BOOST_LOG_SEV(glg, debug) << "Allocate a 2D run-mask vector (y,x). Size: (" << yD_len << ", " << xD_len << ")";
-  std::vector< std::vector<int> > run_mask(yD_len, std::vector<int>(xD_len));
-  
-  BOOST_LOG_SEV(glg, debug) << "Read the run flag data from the file into the 2D vector...";
-  int runV;
-  temutil::nc( nc_inq_varid(ncid, "run", &runV) );
-
-  BOOST_LOG_SEV(glg, debug) << "Grab one row at a time";
-  BOOST_LOG_SEV(glg, debug) << "(need contiguous memory, and vector<vector> are not contiguous)";
-
-  std::vector< std::vector<int> >::iterator row;
-  for (row = run_mask.begin();  row != run_mask.end(); ++row) {
-
-    int rowidx = row - run_mask.begin();
-
-    // specify start indices for each dimension (y, x)
-    size_t start[2];
-    start[0] = rowidx;    // Y
-    start[1] = 0;         // X
-
-    // specify counts for each dimension
-    size_t count[2];
-    count[0] = 1;         // one row
-    count[1] = xD_len;    // all data
-    
-    std::vector<int> rowdata(xD_len);
-
-    temutil::nc( nc_get_vara_int(ncid, runV, start, count, &rowdata[0] ) );
-  
-    run_mask[rowidx] = rowdata;
-    
-  }
-  
-  temutil::nc( nc_close(ncid) );
-
-  //pp_2dvec(run_mask);
-
-  BOOST_LOG_SEV(glg, debug) << "Return the vector...";
-  return run_mask;
-
-}
-
 
 /** rough draft for reading new-style co2 data
 */

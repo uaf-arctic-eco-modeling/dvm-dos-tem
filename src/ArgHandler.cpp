@@ -19,6 +19,13 @@ void ArgHandler::parse(int argc, char** argv) {
      "program will generate yearly and monthly '.json' files in your /tmp "
      " directory that are intended to be read by other programs or scripts.")
 
+    ("max-output-volume", boost::program_options::value<std::string>(&max_output_volume)
+     ->default_value("0.75 GB"),
+     "Sets the maximum allowed value for the estimated output volume. If the "
+     "estimated output volume exceeds this value, the program will quit. Use "
+     "the special value '-1' to indicate no cap on output volume. Use this at "
+     "your own risk - you may end up filling your hard-drive!")
+
     ("inter-stage-pause", boost::program_options::bool_switch(&inter_stage_pause),
      "With this flag, (and when in calibration mode), the model will pause and "
      "wait for user input at the end of each run-stage.")

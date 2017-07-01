@@ -29,6 +29,8 @@ class ArgHandler {
   bool tar_caljson;
   int last_n_json_files;
 
+  std::string max_output_volume;
+
   std::string pid_tag;
 
   bool floating_point_exp;
@@ -65,6 +67,8 @@ public:
   inline const std::string get_pid_tag() const {return pid_tag;};
   inline const std::string get_loop_order(){return loop_order;};
 	inline const std::string get_ctrl_file(){return ctrl_file;};
+
+  inline const std::string get_max_output_volume(){return max_output_volume;};
   
   inline const std::string get_log_level(){return log_level;};
   inline const std::string get_log_scope(){return log_scope;};

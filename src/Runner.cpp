@@ -878,7 +878,7 @@ void Runner::output_netCDF_yearly(int year, std::string stage){
     output_netCDF(md.yearly_netcdf_outputs, year, 0, stage);
 }
 
-void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, int year, int month, std::string stage){
+void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, int year, int month, std::string stage){
   int month_timestep = year*12 + month;
 
   int day_timestep = year*365;
@@ -907,7 +907,7 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   int rowidx = this->y;
   int colidx = this->x;
 
-  output_spec curr_spec;
+  OutputSpec curr_spec;
   int ncid;
   int timeD; //unlimited dimension
   int xD;
@@ -917,7 +917,7 @@ void Runner::output_netCDF(std::map<std::string, output_spec> &netcdf_outputs, i
   int layerD;
   int cv; //reusable variable handle
 
-  std::map<std::string, output_spec>::iterator map_itr;
+  std::map<std::string, OutputSpec>::iterator map_itr;
 
   /*** 3D variables ***/
   size_t start3[3];
