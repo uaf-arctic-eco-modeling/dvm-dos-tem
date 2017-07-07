@@ -270,30 +270,6 @@ int main(int argc, char* argv[]){
     vec::const_iterator col;
 
 
-#ifdef WITHMPI
-    BOOST_LOG_SEV(glg, debug) << "Built and running with MPI";
-
-    //Intended for passing argc and argv, the arguments to MPI_Init
-    // are currently unnecessary.
-    MPI_Init(NULL, NULL);
-
-    int id = MPI::COMM_WORLD.Get_rank();
-    int ntasks = MPI::COMM_WORLD.Get_size();
-
-    int total_cells = num_rows*num_cols;
-
-    for(int curr_cell=id; curr_cell<total_cells; curr_cell+=ntasks){
-
-      int rowidx = curr_cell / num_cols;
-      int colidx = curr_cell % num_cols;
-
-      bool mask_value = run_mask[rowidx][colidx];
-
-      BOOST_LOG_SEV(glg, debug) << "MPI rank: "<<id<<", cell: "<<rowidx<<", "<<colidx<<" mask value: "<<mask_value;
-
-#else
-    BOOST_LOG_SEV(glg, debug) << "Not built with MPI";
-
     // OpenMP requires:
     //  - The structured block to have a single entry and exit point.
     //  - The loop variable must be of type signed integer.
@@ -305,6 +281,32 @@ int main(int argc, char* argv[]){
     //      depending on the comparison operator
     //  - The loop must be a basic block: no jump to outside the loop
     //      other than the exit statement.
+
+#ifdef WITHMPI
+    BOOST_LOG_SEV(glg, fatal) << "Built and running with MPI";
+
+    //Intended for passing argc and argv, the arguments to MPI_Init
+    // are currently unnecessary.
+    MPI_Init(NULL, NULL);
+
+    int id = MPI::COMM_WORLD.Get_rank();
+    int ntasks = MPI::COMM_WORLD.Get_size();
+
+    int total_cells = num_rows*num_cols;
+
+    #pragma omp parallel for schedule(dynamic)
+    for(int curr_cell=id; curr_cell<total_cells; curr_cell+=ntasks){
+
+      int rowidx = curr_cell / num_cols;
+      int colidx = curr_cell % num_cols;
+
+      bool mask_value = run_mask[rowidx][colidx];
+
+      BOOST_LOG_SEV(glg, fatal) << "MPI rank: "<<id<<", cell: "<<rowidx<<", "<<colidx<<" mask value: "<<mask_value;
+
+#else
+    BOOST_LOG_SEV(glg, fatal) << "Not built with MPI";
+
     #pragma omp parallel for collapse(2) schedule(dynamic)
     for(int rowidx=0; rowidx<num_rows; rowidx++){
       for(int colidx=0; colidx<num_cols; colidx++){
