@@ -271,8 +271,10 @@ int main(int argc, char* argv[]){
 
 
 #ifdef WITHMPI
-    std::cout<<"using mpi\n";
+    BOOST_LOG_SEV(glg, debug) << "Built and running with MPI";
 
+    //Intended for passing argc and argv, the arguments to MPI_Init
+    // are currently unnecessary.
     MPI_Init(NULL, NULL);
 
     int id = MPI::COMM_WORLD.Get_rank();
@@ -280,21 +282,17 @@ int main(int argc, char* argv[]){
 
     int total_cells = num_rows*num_cols;
 
-    std::cout<<"id: "<<id<<" of ntasks: "<<ntasks<<std::endl;
-
     for(int curr_cell=id; curr_cell<total_cells; curr_cell+=ntasks){
 
       int rowidx = curr_cell / num_cols;
       int colidx = curr_cell % num_cols;
 
-      std::cout<<"cell: "<<rowidx<<", "<<colidx<<std::endl;
- 
       bool mask_value = run_mask[rowidx][colidx];
-      std::cout<<"mask for "<<rowidx<<","<<colidx<<": "<<mask_value<<std::endl;
+
+      BOOST_LOG_SEV(glg, debug) << "MPI rank: "<<id<<", cell: "<<rowidx<<", "<<colidx<<" mask value: "<<mask_value;
 
 #else
-    std::cout<<"not using mpi\n";
-
+    BOOST_LOG_SEV(glg, debug) << "Not built with MPI";
 
     // OpenMP requires:
     //  - The structured block to have a single entry and exit point.
@@ -605,11 +603,6 @@ int main(int argc, char* argv[]){
         } else {
           BOOST_LOG_SEV(glg, debug) << "Skipping cell (" << rowidx << ", " << colidx << ")";
         }
-<<<<<<< HEAD
-      }//end col loop
-    }//end row loop
-  
-=======
 
 #ifdef WITHMPI
     }
@@ -620,7 +613,6 @@ int main(int argc, char* argv[]){
     }
 
 #endif
->>>>>>> Implements basic MPI usage
     
   } else if (args->get_loop_order() == "time-major") {
     BOOST_LOG_SEV(glg, warn) << "DO NOTHING. NOT IMPLEMENTED YET.";
