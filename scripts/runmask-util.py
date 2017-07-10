@@ -10,6 +10,10 @@ import textwrap
 def show_mask(file, note):
   with nc.Dataset(file, 'r') as mask:
     print "========== %s ==================================" % (note)
+    print "** Keep in mind that in this display the origin is the upper "
+    print "** left of the grid! This is opposite of the way that ncdump "
+    print "** and ncview display data (origin is lower left)!!"
+    print ""
     print "'%s'" % (file)
     print mask.variables['run']
     print mask.variables['run'][:]
