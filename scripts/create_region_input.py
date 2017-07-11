@@ -710,7 +710,9 @@ def fill_drainage_file(if_name, xo, yo, xs, ys, out_dir, of_name, rand=False):
 def fill_fri_fire_file(if_name, xo, yo, xs, ys, out_dir, of_name):
   create_template_fri_fire_file(of_name, sizey=ys, sizex=xs, rand=False)
 
-  print "WARNING FAKE DATA!"
+  print "%%%%%%  WARNING  %%%%%%%%%%%%%%%%%"
+  print "GENERATING FAKE DATA!"
+  print "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
   cmt2fireprops = {
    -1: {'fri':   -1, 'sev': -1, 'jdob':  -1, 'aob':  -1 }, # No data?
@@ -718,7 +720,7 @@ def fill_fri_fire_file(if_name, xo, yo, xs, ys, out_dir, of_name):
     1: {'fri':  100, 'sev':  3, 'jdob': 165, 'aob': 100 }, # black spruce
     2: {'fri':  105, 'sev':  2, 'jdob': 175, 'aob': 225 }, # white spruce
     3: {'fri':  400, 'sev':  3, 'jdob': 194, 'aob': 104 }, # boreal deciduous
-    4: {'fri': 1000, 'sev':  2, 'jdob': 200, 'aob': 350 }, # shrub tundra
+    4: {'fri': 2000, 'sev':  2, 'jdob': 200, 'aob': 350 }, # shrub tundra
     5: {'fri': 2222, 'sev':  3, 'jdob': 187, 'aob': 210 }, # tussock tundra
     6: {'fri': 1500, 'sev':  1, 'jdob': 203, 'aob': 130 }, # wet sedge tundra
     7: {'fri': 1225, 'sev':  4, 'jdob': 174, 'aob': 250 }, # heath tundra
@@ -749,7 +751,12 @@ def fill_fri_fire_file(if_name, xo, yo, xs, ys, out_dir, of_name):
 def fill_explicit_fire_file(if_name, yrs, xo, yo, xs, ys, out_dir, of_name):
   create_template_explicit_fire_file(of_name, sizey=ys, sizex=xs, rand=False)
 
-  print "WARNING: FAKE DATA!"
+  print "%%%%%%  WARNING  %%%%%%%%%%%%%%%%%"
+  print "GENERATING FAKE DATA!"
+  print "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+
+  never_burn = ([9],[9])
+  print "--> Never burn pixels: {}".format(zip(*never_burn))
 
   # guess_vegfile = os.path.join(os.path.split(of_name)[0], 'vegetation.nc')
   # print "--> NOTE: Attempting to read: {:}".format(guess_vegfile)
@@ -778,6 +785,9 @@ def fill_explicit_fire_file(if_name, yrs, xo, yo, xs, ys, out_dir, of_name):
       exp_jdob[burn_indices] = np.random.randint(152, 244, len(flat_burn_indices))
       exp_sev[burn_indices] = np.random.randint(0, 5, len(flat_burn_indices))
       exp_aob[burn_indices] = np.random.randint(1, 20000, len(flat_burn_indices))
+
+      # Make sure far corner pixel never burns:
+      exp_bm[never_burn] = 0
 
       nfd.variables['exp_burn_mask'][yr,:,:] = exp_bm
       nfd.variables['exp_jday_of_burn'][yr,:,:] = exp_jdob
