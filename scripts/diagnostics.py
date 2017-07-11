@@ -494,6 +494,11 @@ def sum_across(key, jdata, xsec):
       'vasc'     : [0,1,2,3,4,5,6],
       'nonvasc'  : [7, 8]
     },
+    4: {
+      'all'      : [0,1,2,3,4,5,6,7,8,9], # <- ?? need to include 9 ??
+      'vasc'     : [0,1,2,3,4,5,6],
+      'nonvasc'  : [7,8]
+    },
     5: {
       'all'      : [0,1,2,3,4,5,6,7,8,9],
       'vasc'     : [0,1,2,3,4],
@@ -853,6 +858,10 @@ def Check_C_cycle_veg_balance(idx, header=False, jd=None, pjd=None):
 def Check_C_cycle_veg_vascular_balance(idx, header=False, jd=None, pjd=None):
     '''Should duplicate Vegetation_Bgc::deltastate()'''
 
+    print "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+    print "DEPRECATED! Proof-read before trusting!"
+    print "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+
     # vascular PFT list (CMT05)
     vascular = [0,1,2,3,4]
 
@@ -878,6 +887,10 @@ def Check_C_cycle_veg_vascular_balance(idx, header=False, jd=None, pjd=None):
 
 def Check_C_cycle_veg_nonvascular_balance(idx, header=False, jd=None, pjd=None):
     '''Should duplicate Vegetation_Bgc::deltastate()'''
+
+    print "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+    print "DEPRECATED! Proof-read before trusting!"
+    print "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
     # non-vascular PFT list (CMT05)
     non_vasc = [5,6,7]
