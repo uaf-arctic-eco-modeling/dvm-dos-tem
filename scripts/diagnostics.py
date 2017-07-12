@@ -508,6 +508,13 @@ def sum_across(key, jdata, xsec):
   }
 
   CMT = int(jdata['CMT'].lstrip('CMT')) # reduce from string like 'CMT01'
+  if CMT not in CMTLU.keys():
+    print "%% ERROR! {:%>65s}".format('%')
+    print " YOU MIGHT BE THE FIRST TO WORK WITH THIS COMMUNITY TYPE!"
+    print " ADD THE VASCULAR/NON-VASCULAR SPLIT TO THE LOOKUP TABLE"
+    print " IN THE sum_across() FUNCTION."
+    print "%%%%%%%%%%{:%>65s}".format('%')
+    sys.exit(-1)
 
   pfts = CMTLU[CMT][xsec]
   total = np.nan
