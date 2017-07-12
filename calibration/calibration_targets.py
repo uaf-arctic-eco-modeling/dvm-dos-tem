@@ -108,11 +108,11 @@ calibration_targets = {
     'OrganicNitrogenSum':      363.00,    #  soln
     'AvailableNitrogenSum':      0.76,    #  avln
   },
-  ## WARNING: JUNK, PLACEHOLDER VALUES! USE AT YOUR OWN RISK!
+  ## Updated by EE (April, May, June 2017)
   "shrub tundra": {
     'cmtnumber': 4,
                                  #    pft0     pft1      pft2     pft3     pft4     pft5      pft6      pft7      pft8     pft9   
-                                 #  Spruce    Salix    Decid.  E.green   Sedges    Forbs   Grasses   Lichens   Feather.    Misc.
+                                 #  Salix    Betula    Decid.   E.green   Sedges    Forbs   Grasses   Lichens   Feather.    Misc.
     'GPPAllIgnoringNitrogen':    [  143.89,  288.65,   42.33,    9.03,    19.39,   28.44,    11.29,    16.45,     37.38,    0.00 ], # ingpp     (gC/m2/year)   GPP without N limitation
     'NPPAllIgnoringNitrogen':    [  107.92,  216.49,   39.57,    8.44,    18.13,   26.59,    10.56,    15.38,     34.95,    0.00 ], # innpp     (gC/m2/year)   NPP without N limitation 
     'NPPAll':                    [   71.95,  144.33,   21.16,    4.51,     9.69,   14.22,     5.65,     8.23,     18.69,    0.00 ], # npp       (gC/m2/year)   NPP with N limitation
@@ -128,11 +128,11 @@ calibration_targets = {
       'Root':                    [    0.08,    0.56,    0.04,    0.01,     0.12,    0.17,     0.07,      0.0,       0.0,     0.0 ], # vegnr     (gN/m2)
     },
     'MossDeathC':              178.00,    #  dmossc
-    'CarbonShallow':          6607.00,    #  shlwc
-    'CarbonDeep':            10529.00,    #  deepc
-    'CarbonMineralSum':      26758.00,    #  minec
-    'OrganicNitrogenSum':     8444.00,    #  soln
-    'AvailableNitrogenSum':      1.71,    #  avln
+    'CarbonShallow':          2340.00,    #  shlwc
+    'CarbonDeep':            5853.00,    #  deepc
+    'CarbonMineralSum':      37022.00,    #  minec
+    'OrganicNitrogenSum':     1843.00,    #  soln
+    'AvailableNitrogenSum':      3.93,    #  avln
   },
   ## CMT05 Tussock Tundra (updated 2/23/2016, JDC: GPPain, NPPain, NPPall, Nuptake, Veg from Shaver & Chapin 1991; 
   ## Assume Toolik C:N same as Council; then Veg N = Shaver & Chapin Veg C * (Council N / Council C); MossDeathC from CTucker data;
