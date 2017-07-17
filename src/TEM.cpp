@@ -480,6 +480,8 @@ int main(int argc, char* argv[]){
             // Copy values from the updated restart data to cohort and cd
             runner.cohort.set_state_from_restartdata();
 
+            BOOST_LOG_SEV(glg,err) << "MAKE SURE YOUR FIRE INPUTS ARE SETUP CORRECTLY!";
+
             // Run model
             runner.run_years(0, modeldata.tr_yrs, "tr-run");
 
@@ -520,8 +522,7 @@ int main(int argc, char* argv[]){
             // Loading projected data instead of historic. FIX?
             runner.cohort.load_proj_climate(modeldata.proj_climate_file);
 
-            BOOST_LOG_SEV(glg,fatal) << "Need to deal with loading projected fire data";
-            exit(-1);
+            BOOST_LOG_SEV(glg,err) << "MAKE SURE YOUR FIRE INPUTS ARE SETUP CORRECTLY!";
 
             // Run model
             runner.run_years(0, modeldata.sc_yrs, "sc-run");
