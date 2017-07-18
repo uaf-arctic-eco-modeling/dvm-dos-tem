@@ -408,33 +408,47 @@ def enforce_initvegc_split(aFile, cmtnum):
 
 
 if __name__ == '__main__':
+  import sys
+  import argparse
+  import textwrap
 
-  print "NOTE! Does not work correctly on non-PFT files yet!!"
+  parser = argparse.ArgumentParser(
+    formatter_class=argparse.RawDescriptionHelpFormatter,
+    description=textwrap.dedent('''
+      Script for manipulating dvmdostem parameter files.
 
-  testFiles = [
-    'parameters/cmt_calparbgc.txt',
-    'parameters/cmt_bgcsoil.txt',
-    'parameters/cmt_bgcvegetation.txt',
-    'parameters/cmt_calparbgc.txt.backupsomeparams',
-    'parameters/cmt_dimground.txt',
-    'parameters/cmt_dimvegetation.txt',
-    'parameters/cmt_envcanopy.txt',
-    'parameters/cmt_envground.txt',
-    'parameters/cmt_firepar.txt'
-  ]
+      '''.format('')
+    )
+  )
 
-  for i in testFiles:
-    print "{:>45s}: {}".format(i, get_CMTs_in_file(i)) 
+  parser.add_argument('--reformat-block', nargs=2, metavar=('FILE', 'CMT'),
+      help=textwrap.dedent('''??'''))
 
-  # for i in testFiles:
-  #   print "{:>45s}".format(i)
-  #   print "".join(get_CMT_datablock(i, 2))
-  #   print "{:45s}".format("DONE")
+  parser.add_argument('--enforce-initvegc', nargs=2, metavar=('FILE', 'CMT'),
+      help=textwrap.dedent('''??'''))
 
-  d = get_CMT_datablock(testFiles[4], 2)
-  print "".join(d)
 
-  print json.dumps(cmtdatablock2dict(d), sort_keys=True, indent=2)
-   
-  print "NOTE! Does not work correctly on non-PFT files yet!!"
+  args = parser.parse_args()
+
+  if args.reformat_block:
+    theFile = args.reformat_block[0]
+    cmt = int(args.reformat_block[1])
+    d = get_CMT_datablock(theFile, cmt)
+    dd = cmtdatablock2dict(d)
+    lines = format_CMTdatadict(dd, theFile)
+    for l in lines:
+      print l
+
+    sys.exit(0)
+
+  if args.enforce_initvegc:
+    theFile = args.enforce_initvegc[0]
+    cmt = int(args.enforce_initvegc[1])
+    dd = enforce_initvegc_split(theFile, 4)
+    lines = format_CMTdatadict(dd, theFile)
+    for l in lines:
+      print l
+    sys.exit(0)
+
+
 
