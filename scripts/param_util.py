@@ -80,7 +80,7 @@ def get_CMT_datablock(afile, cmtnum):
   ----------
   afile : str
     Path to a file to search.
-  cmtnum : int
+  cmtnum : int or str
     The CMT number to search for. Converted (internally) to the CMT key.
 
 
@@ -92,7 +92,10 @@ def get_CMT_datablock(afile, cmtnum):
   '''
   data = read_paramfile(afile)
 
-  cmtkey = 'CMT%02i' % cmtnum
+  if type(cmtnum) == int:
+    cmtkey = 'CMT%02i' % cmtnum
+  else:
+    cmtkey = cmtnum
 
   startidx = find_cmt_start_idx(data, cmtkey)
 
@@ -121,6 +124,7 @@ def detect_block_with_pft_info(cmtdatablock):
     return True
   else:
     return False
+
 
 def parse_header_line(datablock):
   '''Splits a header line into components: cmtkey, text name, comment.
@@ -216,7 +220,6 @@ def cmtdatablock2dict(cmtdatablock):
   return cmtdict
 
 
-
 def format_CMTdatadict(dd, refFile, format=None):
   '''
   Returns a formatted block of CMT data.
@@ -240,11 +243,27 @@ def format_CMTdatadict(dd, refFile, format=None):
     exit(-1)
 
   ref_order = generate_reference_order(refFile)
-  dwpftvs = False
 
+
+  # The line list
   ll = []
-  ll.append("// First line comment...")
-  ll.append("// Second line comment (?? PFT string?)")
+
+  # Work on formatting the first comment line
+  cmt, name, comment = parse_header_line(get_CMT_datablock(refFile, dd['tag']))
+  ll.append("// " + " // ".join((cmt, name, comment)))
+
+  # and work on formatting the second comment line
+  pftnamelist = []
+  for k in sorted(dd.keys()):
+    if 'pft' in k:
+      pftnamelist.append(dd[k]['name'])
+  if len(pftnamelist) > 0:
+    s = " ".join(["{: >12s}".format(i) for i in pftnamelist])
+    if s.startswith("  "):
+      s2 = "//" + s[2:]
+    else:
+      print "ERROR!: initial PFT name is too long - no space for comment chars: ", s
+    ll.append(s2)
 
   def is_pft_var(v):
     if v not in dd.keys() and v in dd['pft0'].keys():
@@ -259,7 +278,7 @@ def format_CMTdatadict(dd, refFile, format=None):
       # get each item from dict, append to line
       linestring = ''
       for pft in get_datablock_pftkeys(dd):
-        linestring += "{:>12.6f} ".format(dd[pft][var])
+        linestring += "{: >12.6f} ".format(dd[pft][var])
       linestring += ('// %s: ' % var)
       ll.append(linestring)
 
@@ -268,7 +287,7 @@ def format_CMTdatadict(dd, refFile, format=None):
       pass # Nothing to do; already did pft stuff
     else:
       # get item from dict, append to line
-      ll.append('{:<12.5f} // comment??'.format(dd[var]))
+      ll.append('{:<12.6f} // {}'.format(dd[var], var))
 
   return ll
 
