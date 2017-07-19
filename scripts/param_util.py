@@ -5,6 +5,7 @@
 
 import os
 import json
+import re
 
 
 def get_CMTs_in_file(aFile):
@@ -252,11 +253,21 @@ def format_CMTdatadict(dd, refFile, format=None):
   cmt, name, comment = parse_header_line(get_CMT_datablock(refFile, dd['tag']))
   ll.append("// " + " // ".join((cmt, name, comment)))
 
-  # and work on formatting the second comment line
+  # Now work on formatting the second comment line, which may not exist, or
+  # may need to have PFT names as column headers. Look at the keys in the
+  # data dict to figure out what to do...
   pftnamelist = []
   for k in sorted(dd.keys()):
-    if 'pft' in k:
+    # regular expression matching pft and a digit
+    # need this 'cuz cmt_bgcsoil.txt has a parameter named 'propftos'
+    # when there is a match, the result is a regular expression object
+    # otherwise it is None.
+    result = re.match('pft\d', k)
+    if result:
       pftnamelist.append(dd[k]['name'])
+    else:
+      pass # not a PFT key
+
   if len(pftnamelist) > 0:
     s = " ".join(["{: >12s}".format(i) for i in pftnamelist])
     if s.startswith("  "):
@@ -264,8 +275,11 @@ def format_CMTdatadict(dd, refFile, format=None):
     else:
       print "ERROR!: initial PFT name is too long - no space for comment chars: ", s
     ll.append(s2)
+  else:
+    pass # No need for second comment line
 
   def is_pft_var(v):
+    '''Function for testing if a variable is PFT specific or not.'''
     if v not in dd.keys() and v in dd['pft0'].keys():
       return True
     else:
