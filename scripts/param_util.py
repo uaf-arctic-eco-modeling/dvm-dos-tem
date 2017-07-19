@@ -223,28 +223,35 @@ def cmtdatablock2dict(cmtdatablock):
 
 def format_CMTdatadict(dd, refFile, format=None):
   '''
-  Returns a formatted block of CMT data.
+  Format a block of CMT data.
 
-  Parameters
-  ----------
-  dd : dict
-    Dictionary containing parameter names and values for a CMT.
-  refFile : str
-    A path to a file that should be used for reference in formatting the output.
-  format : str (optional)
-    A string specifying which format to return. Defaults to None.
+  `dd` : dict containing parameter names and values for a CMT.
+
+  `refFile` : str with a path to a file that should be used for reference 
+  in formatting the output.
+
+  `format` : str (optional) specifying which format to return. Defaults to None.
 
   Returns
-  -------
-  d : [str, str, ...]
-    A list of strings
+  =======
+
+  `ll` : [str, str, ...] A list of strings that are formatted with fixed width
+  columns, 12 chars wide, with 6 places after the decimal, something like this:
+
+      // CMT05 // Tussock Tundra  ...
+      //    Betula       Decid.   ...
+        400.000000   400.000000   ...
+         75.000000    75.000000   ...
+         -5.000000    -5.000000   ...
+      ...
+
   '''
   if format is not None:
     print "NOT IMPLEMENTED YET!"
     exit(-1)
 
+  # Figure out which order to print the variables in.
   ref_order = generate_reference_order(refFile)
-
 
   # The line list
   ll = []
