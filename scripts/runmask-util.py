@@ -255,7 +255,29 @@ if __name__ == '__main__':
           any pixel (set to 0) where any of the input files contain bad or 
           missing data.'''))
 
+  parser.add_argument("--select-only-cmt", metavar=('FOLDER','CMT'), nargs=2,
+    help=textwrap.dedent('''Select only pixels with a certain CMT number'''))
+
   args = parser.parse_args()
+
+  if args.select_only_cmt:
+    input_folder_path = args.select_only_cmt[0]
+    cmt = int(args.select_only_cmt[1])
+    with nc.Dataset(os.path.join(input_folder_path, 'vegetation.nc')) as vm:
+      new_mask = np.ma.masked_not_equal(vm.variables['veg_class'][:], cmt)
+
+    sizey, sizex = new_mask.shape
+
+    # (Over) write the file back out
+    with nc.Dataset(os.path.join(input_folder_path, "run-mask.nc"), 'w') as nf:
+      Y = nf.createDimension('Y', sizey)
+      X = nf.createDimension('X', sizex)
+      run = nf.createVariable('run', np.int, ('Y', 'X',))
+
+      run[:] = np.invert(new_mask.mask)
+
+    show_mask(os.path.join(input_folder_path, "run-mask.nc"), "New mask file showing only cmt {}".format(cmt))
+    exit(0)
 
 
   if args.conform_mask_to_inputs:

@@ -5,6 +5,7 @@
 
 import os
 import json
+import re
 
 
 def get_CMTs_in_file(aFile):
@@ -80,7 +81,7 @@ def get_CMT_datablock(afile, cmtnum):
   ----------
   afile : str
     Path to a file to search.
-  cmtnum : int
+  cmtnum : int or str
     The CMT number to search for. Converted (internally) to the CMT key.
 
 
@@ -92,7 +93,10 @@ def get_CMT_datablock(afile, cmtnum):
   '''
   data = read_paramfile(afile)
 
-  cmtkey = 'CMT%02i' % cmtnum
+  if type(cmtnum) == int:
+    cmtkey = 'CMT%02i' % cmtnum
+  else:
+    cmtkey = cmtnum
 
   startidx = find_cmt_start_idx(data, cmtkey)
 
@@ -121,6 +125,7 @@ def detect_block_with_pft_info(cmtdatablock):
     return True
   else:
     return False
+
 
 def parse_header_line(datablock):
   '''Splits a header line into components: cmtkey, text name, comment.
@@ -216,37 +221,72 @@ def cmtdatablock2dict(cmtdatablock):
   return cmtdict
 
 
-
 def format_CMTdatadict(dd, refFile, format=None):
   '''
-  Returns a formatted block of CMT data.
+  Format a block of CMT data.
 
-  Parameters
-  ----------
-  dd : dict
-    Dictionary containing parameter names and values for a CMT.
-  refFile : str
-    A path to a file that should be used for reference in formatting the output.
-  format : str (optional)
-    A string specifying which format to return. Defaults to None.
+  `dd` : dict containing parameter names and values for a CMT.
+
+  `refFile` : str with a path to a file that should be used for reference 
+  in formatting the output.
+
+  `format` : str (optional) specifying which format to return. Defaults to None.
 
   Returns
-  -------
-  d : [str, str, ...]
-    A list of strings
+  =======
+
+  `ll` : [str, str, ...] A list of strings that are formatted with fixed width
+  columns, 12 chars wide, with 6 places after the decimal, something like this:
+
+      // CMT05 // Tussock Tundra  ...
+      //    Betula       Decid.   ...
+        400.000000   400.000000   ...
+         75.000000    75.000000   ...
+         -5.000000    -5.000000   ...
+      ...
+
   '''
   if format is not None:
     print "NOT IMPLEMENTED YET!"
     exit(-1)
 
+  # Figure out which order to print the variables in.
   ref_order = generate_reference_order(refFile)
-  dwpftvs = False
 
+  # The line list
   ll = []
-  ll.append("// First line comment...")
-  ll.append("// Second line comment (?? PFT string?)")
+
+  # Work on formatting the first comment line
+  cmt, name, comment = parse_header_line(get_CMT_datablock(refFile, dd['tag']))
+  ll.append("// " + " // ".join((cmt, name, comment)))
+
+  # Now work on formatting the second comment line, which may not exist, or
+  # may need to have PFT names as column headers. Look at the keys in the
+  # data dict to figure out what to do...
+  pftnamelist = []
+  for k in sorted(dd.keys()):
+    # regular expression matching pft and a digit
+    # need this 'cuz cmt_bgcsoil.txt has a parameter named 'propftos'
+    # when there is a match, the result is a regular expression object
+    # otherwise it is None.
+    result = re.match('pft\d', k)
+    if result:
+      pftnamelist.append(dd[k]['name'])
+    else:
+      pass # not a PFT key
+
+  if len(pftnamelist) > 0:
+    s = " ".join(["{: >12s}".format(i) for i in pftnamelist])
+    if s.startswith("  "):
+      s2 = "//" + s[2:]
+    else:
+      print "ERROR!: initial PFT name is too long - no space for comment chars: ", s
+    ll.append(s2)
+  else:
+    pass # No need for second comment line
 
   def is_pft_var(v):
+    '''Function for testing if a variable is PFT specific or not.'''
     if v not in dd.keys() and v in dd['pft0'].keys():
       return True
     else:
@@ -259,7 +299,7 @@ def format_CMTdatadict(dd, refFile, format=None):
       # get each item from dict, append to line
       linestring = ''
       for pft in get_datablock_pftkeys(dd):
-        linestring += "{:>12.6f} ".format(dd[pft][var])
+        linestring += "{: >12.6f} ".format(dd[pft][var])
       linestring += ('// %s: ' % var)
       ll.append(linestring)
 
@@ -268,7 +308,7 @@ def format_CMTdatadict(dd, refFile, format=None):
       pass # Nothing to do; already did pft stuff
     else:
       # get item from dict, append to line
-      ll.append('{:<12.5f} // comment??'.format(dd[var]))
+      ll.append('{:<12.6f} // {}'.format(dd[var], var))
 
   return ll
 
@@ -408,33 +448,47 @@ def enforce_initvegc_split(aFile, cmtnum):
 
 
 if __name__ == '__main__':
+  import sys
+  import argparse
+  import textwrap
 
-  print "NOTE! Does not work correctly on non-PFT files yet!!"
+  parser = argparse.ArgumentParser(
+    formatter_class=argparse.RawDescriptionHelpFormatter,
+    description=textwrap.dedent('''
+      Script for manipulating dvmdostem parameter files.
 
-  testFiles = [
-    'parameters/cmt_calparbgc.txt',
-    'parameters/cmt_bgcsoil.txt',
-    'parameters/cmt_bgcvegetation.txt',
-    'parameters/cmt_calparbgc.txt.backupsomeparams',
-    'parameters/cmt_dimground.txt',
-    'parameters/cmt_dimvegetation.txt',
-    'parameters/cmt_envcanopy.txt',
-    'parameters/cmt_envground.txt',
-    'parameters/cmt_firepar.txt'
-  ]
+      '''.format('')
+    )
+  )
 
-  for i in testFiles:
-    print "{:>45s}: {}".format(i, get_CMTs_in_file(i)) 
+  parser.add_argument('--reformat-block', nargs=2, metavar=('FILE', 'CMT'),
+      help=textwrap.dedent('''??'''))
 
-  # for i in testFiles:
-  #   print "{:>45s}".format(i)
-  #   print "".join(get_CMT_datablock(i, 2))
-  #   print "{:45s}".format("DONE")
+  parser.add_argument('--enforce-initvegc', nargs=2, metavar=('FILE', 'CMT'),
+      help=textwrap.dedent('''??'''))
 
-  d = get_CMT_datablock(testFiles[4], 2)
-  print "".join(d)
 
-  print json.dumps(cmtdatablock2dict(d), sort_keys=True, indent=2)
-   
-  print "NOTE! Does not work correctly on non-PFT files yet!!"
+  args = parser.parse_args()
+
+  if args.reformat_block:
+    theFile = args.reformat_block[0]
+    cmt = int(args.reformat_block[1])
+    d = get_CMT_datablock(theFile, cmt)
+    dd = cmtdatablock2dict(d)
+    lines = format_CMTdatadict(dd, theFile)
+    for l in lines:
+      print l
+
+    sys.exit(0)
+
+  if args.enforce_initvegc:
+    theFile = args.enforce_initvegc[0]
+    cmt = int(args.enforce_initvegc[1])
+    dd = enforce_initvegc_split(theFile, 4)
+    lines = format_CMTdatadict(dd, theFile)
+    for l in lines:
+      print l
+    sys.exit(0)
+
+
 
