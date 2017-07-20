@@ -192,9 +192,9 @@ def create_template_topo_file(fname, sizey=10, sizex=10):
 
   Y = ncfile.createDimension('Y', sizey)
   X = ncfile.createDimension('X', sizex)
-  slope = ncfile.createVariable('slope', np.int, ('Y', 'X',))
-  aspect = ncfile.createVariable('aspect', np.int, ('Y', 'X',))
-  elevation = ncfile.createVariable('elevation', np.int, ('Y', 'X',))
+  slope = ncfile.createVariable('slope', np.double, ('Y', 'X',))
+  aspect = ncfile.createVariable('aspect', np.double, ('Y', 'X',))
+  elevation = ncfile.createVariable('elevation', np.double, ('Y', 'X',))
 
   ncfile.source = source_attr_string()
   ncfile.close()
