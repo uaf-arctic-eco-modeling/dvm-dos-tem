@@ -502,7 +502,9 @@ void CalController::tar_caljson_for_stage(const std::string& stage) {
 }
 
 
-/** Copies JSON output to stage specific directories.
+/** DEPRECATED: prefer "tar_caljson_for_stage(...)"
+ *
+ * Copies JSON output to stage specific directories.
  * Removes and recreates directories if they exist, simply creates
  * them if they do not.
  */

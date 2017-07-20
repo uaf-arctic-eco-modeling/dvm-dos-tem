@@ -49,6 +49,7 @@ void ArgHandler::parse(int argc, char** argv) {
      "archive files.")
 
     ("archive-all-json", boost::program_options::bool_switch(&archive_all_json),
+     "DEPRECATED! Prefer --tar-caljson. "
      "With this flag, the json files for every stage will be archived (at the "
      "end of the stage), into directory named for the stage, within the main "
      "json output directory location. Default behavior (without this flag) is "
