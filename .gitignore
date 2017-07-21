@@ -32,3 +32,4 @@ Debug/*
 
 # complied object files...
 *.o
+.sconsign.dblite
