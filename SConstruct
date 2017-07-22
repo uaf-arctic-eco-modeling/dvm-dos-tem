@@ -158,10 +158,13 @@ if comp_name == 'atlas.snap.uaf.edu':
   platform_libs[:] = [lib for lib in platform_libs if not lib == 'jsoncpp']
   platform_libs.append('json_linux-gcc-4.4.7_libmt')
 
+  # Note: 07-21-2017 - tbc updated the jsoncpp build, so we 
+  # can use his version instead of ruth's. Ruth's older build
+  # is in /home/UA/rarutter/include, and /home/UA/rarutter/lib
   platform_include_path.insert(0, '/home/UA/tcarman2/boost_1_55_0/')
-  platform_include_path.insert(0, '/home/UA/rarutter/include')
+  platform_include_path.insert(0, '/home/UA/tcarman2/custom-software/jsoncpp/include')
 
-  platform_library_path.insert(0, '/home/UA/rarutter/lib')
+  platform_library_path.insert(0, '/home/UA/tcarman2/custom-software/jsoncpp/libs/linux-gcc-4.4.7')
   platform_library_path.insert(0, '/home/UA/tcarman2/boost_1_55_0/stage/lib')
 
 
