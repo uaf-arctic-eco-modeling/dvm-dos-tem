@@ -467,8 +467,20 @@ if __name__ == '__main__':
   parser.add_argument('--enforce-initvegc', nargs=2, metavar=('FILE', 'CMT'),
       help=textwrap.dedent('''??'''))
 
+  parser.add_argument('--dump-block-to-json', nargs=2, metavar=('FILE', 'CMT'),
+      help=textwrap.dedent('''Extract the specific CMT data block from the
+        specified data input file and print the contents to stdout as a json
+        object (string).'''))
 
   args = parser.parse_args()
+
+  if args.dump_block_to_json:
+    theFile = args.dump_block_to_json[0]
+    cmt = int(args.dump_block_to_json[1])
+    d = get_CMT_datablock(theFile, cmt)
+    dd = cmtdatablock2dict(d)
+    print dd
+    sys.exit(0)
 
   if args.reformat_block:
     theFile = args.reformat_block[0]
