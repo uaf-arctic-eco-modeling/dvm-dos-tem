@@ -472,14 +472,30 @@ if __name__ == '__main__':
         specified data input file and print the contents to stdout as a json
         object (string).'''))
 
+  parser.add_argument('--fmt-block-from-json', nargs=2, metavar=('INFILE', 'REFFILE'),
+      help=textwrap.dedent('''Reads infile (assumed to be a well formed data dict of dvmdostem parameter data in json form), formats the block according to the reffile, and spits contents back to stdouts'''))
+
   args = parser.parse_args()
+
+  if args.fmt_block_from_json:
+    inFile = args.fmt_block_from_json[0]
+    refFile = args.fmt_block_from_json[1]
+    with open(inFile) as data_file:
+      dd = json.load(data_file)
+    lines = format_CMTdatadict(dd, refFile)
+    for l in lines:
+      print l
+    sys.exit(0)
 
   if args.dump_block_to_json:
     theFile = args.dump_block_to_json[0]
     cmt = int(args.dump_block_to_json[1])
     d = get_CMT_datablock(theFile, cmt)
     dd = cmtdatablock2dict(d)
-    print dd
+    # Dumping to a string (json.dumps()) before printing helps make sure
+    # that only double quotes are used, wich is critical for valid json
+    # and reading back in as a json object
+    print json.dumps(dd)
     sys.exit(0)
 
   if args.reformat_block:
@@ -490,7 +506,6 @@ if __name__ == '__main__':
     lines = format_CMTdatadict(dd, theFile)
     for l in lines:
       print l
-
     sys.exit(0)
 
   if args.enforce_initvegc:
