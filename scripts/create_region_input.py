@@ -367,6 +367,11 @@ def create_template_veg_nc_file(fname, sizey=10, sizex=10, rand=None):
 
   Y = ncfile.createDimension('Y', sizey)
   X = ncfile.createDimension('X', sizex)
+
+  # Spatial Ref. variables
+  lat = ncfile.createVariable('lat', np.float32, ('Y', 'X',))
+  lon = ncfile.createVariable('lon', np.float32, ('Y', 'X',))
+
   veg_class = ncfile.createVariable('veg_class', np.int, ('Y', 'X',))
 
   if (rand):
@@ -484,16 +489,21 @@ def fill_veg_file(if_name, xo, yo, xs, ys, out_dir, of_name):
     os.makedirs(os.path.dirname(temporary))
 
   subprocess.call(['gdal_translate', '-of', 'netcdf',
+                   '-co', 'WRITE_LONLAT=YES',
                    '-srcwin', str(xo), str(yo), str(xs), str(ys),
                    if_name, temporary])
 
   # Copy from temporary location to into the placeholder file we just created
   with netCDF4.Dataset(temporary) as t1, netCDF4.Dataset(of_name, mode='a') as new_vegdataset:
     veg_class = new_vegdataset.variables['veg_class']
+    lat = new_vegdataset.variables['lat']
+    lon = new_vegdataset.variables['lon']
 
     new_vegdataset.source = source_attr_string(xo=xo, yo=yo)
 
     veg_class[:] = t1.variables['Band1'][:].data 
+    lat[:] = t1.variables['lat'][:]
+    lon[:] = t1.variables['lon'][:]
     # For some reason, some rows of the temporary file are numpy masked arrays
     # and if we don't directly access the data, then we get strange results '
     # (i.e. stuff that should be ocean shows up as CMT02??)
