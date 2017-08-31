@@ -1005,8 +1005,9 @@ if __name__ == '__main__':
     print('Target lat, lon:', target['lat'], target['lon'])
     print('Delta with target lat, lon:', target['lat'] - latvar[iy,ix], target['lon'] - lonvar[iy,ix])
     print('lat, lon of closest match:', latvar[iy,ix], lonvar[iy,ix])
-    print('indices of closest match iy, ix (from LOWER left):', iy, ix)
-    print('indices of closest match iy, ix (from UPPER left):', len(ncfile.dimensions['y'])-iy, ix)
+    print('indices of closest match iy, ix (FROM LOWER left):', iy, ix)
+    print('indices of closest match iy, ix (FROM UPPER left):', len(ncfile.dimensions['y'])-iy, ix)
+    print('** NOTE: Use coords FROM UPPER LEFT to build/crop a new dataset with that pixel at the LOWER LEFT corner of the dataset!')
     ncfile.close()
     exit()
 
