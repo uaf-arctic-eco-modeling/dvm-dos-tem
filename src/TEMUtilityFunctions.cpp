@@ -215,7 +215,15 @@ namespace temutil {
 
     if ( !parsingSuccessful ) {
         BOOST_LOG_SEV(glg, fatal) << "Failed to parse configuration file: " << filepath;
-        BOOST_LOG_SEV(glg, fatal) << reader.getFormatedErrorMessages();
+        // 08/31/2017, Commented this function out.
+        // In older version of jsoncpp, there was a typo and the function
+        // call was missing a 't'. In more recent versions of jsoncpp, the
+        // older (misspelled) funciton has been deprecated. We haven't been
+        // having may errors parsing config files and trying to handle
+        // compiling on different machines with different versions of jsoncpp
+        // has been a pain, so for now we figure it will be easier to just not
+        // use the offending function call.
+        //BOOST_LOG_SEV(glg, fatal) << reader.getFormattedErrorMessages();
         exit(-1);
     }
 
