@@ -13,7 +13,7 @@
 #include <sstream>
 #include <limits>
 
-#include <netcdfcpp.h>
+#include <netcdf.h>
 
 #include <json/reader.h>
 #include <json/value.h>
@@ -344,63 +344,6 @@ namespace temutil {
   }
 
 
-  /** Opens a netcdf file for reading, returns NcFile object.
-  * 
-  * NetCDF library error mode is set to silent (no printing to std::out), and
-  * non-fatal. If the file open fails, it logs a message and exits the program
-  * with a non-zero exit code.
-  */
-  NcFile open_ncfile(std::string filename) {
-    
-    BOOST_LOG_SEV(glg, info) << "Opening NetCDF file: " << filename;
-
-    NcError err(NcError::silent_nonfatal);
-    NcFile file(filename.c_str(), NcFile::ReadOnly);
-    
-    if( !file.is_valid() ) {
-      BOOST_LOG_SEV(glg, fatal) << "Problem opening/reading " << filename;
-      exit(-1);
-    }
-
-    return file;
-
-  }
-
-  /** Given an NcFile object and dimension name, returns a pointer to the NcDim.
-  * 
-  * If the dimension-read is not valid, then an error message is logged and 
-  * the program exits with a non-zero status.
-  */
-  NcDim* get_ncdim(const NcFile& file, std::string dimname) {
-  
-    BOOST_LOG_SEV(glg, debug) << "Looking for dimension '" << dimname << "' in NetCDF file...";
-    NcDim* dim = file.get_dim(dimname.c_str());
-    
-    BOOST_LOG_SEV(glg, debug) << "'" << dimname <<"' is valid?: " << dim->is_valid();
-    if ( !dim->is_valid() ) {
-      BOOST_LOG_SEV(glg, fatal) << "Problem with '" << dimname << "' in NetCDF file.";
-      exit(-1);
-    }
-
-    return dim;
-
-  }
-
-  /** Given an NcFile object and a variable name, returns a pointer to the NcVar.
-  *
-  * If getting the variable fails, then an error message is logged, and the
-  * the program exits with a non-zero status.
-  */
-  NcVar* get_ncvar(const NcFile& file, std::string varname) {
-    BOOST_LOG_SEV(glg, debug) << "Looking for variable '" << varname << "' in NetCDF file...";
-    NcVar* var = file.get_var(varname.c_str());
-    if (var == NULL) {
-      BOOST_LOG_SEV(glg, fatal) << "Problem with '" << varname << "' variable in NetCDF file!";
-      exit(-1);
-    }
-    return var;
-  }
-
   /** Given an NetCDF file ID, returns the length of the "time" dimension
  *
  * TODO: What should the behaviour be with an error?
@@ -413,31 +356,7 @@ namespace temutil {
     return dimlen;
   }
 
-
-  /** Look up a lat-lon pair in a NetCDF file given a rec_id.
-  *
-  * Note: rec_id - the order (from ZERO) in the .nc file,
-  *       gridid - the grid id user-defined in the dataset
-  */
-  std::pair<float, float> get_location(std::string gridfilename, int rec_id) {
-
-    float lat;
-    float lon;
-
-    NcFile grid_file = temutil::open_ncfile(gridfilename);
-
-    NcVar* latV = temutil::get_ncvar(grid_file, "LAT");
-    latV->set_cur(rec_id);
-    latV->get(&lat, 1);
-
-    NcVar* lonV = temutil::get_ncvar(grid_file, "LON");
-    lonV->set_cur(rec_id);
-    lonV->get(&lon, 1);
-
-    return std::pair<float, float> (lat, lon);
-
-  }
-  
+ 
   /** Handles NetCDF errors by printing message and exiting. */
   void handle_error(int status) {
     if (status != NC_NOERR) {

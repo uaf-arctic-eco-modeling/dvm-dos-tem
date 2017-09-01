@@ -11,9 +11,10 @@
 
 #include <string>
 #include <iomanip>
+#include <iostream>
 #include <sstream>
 #include <list>
-#include <netcdfcpp.h>
+#include <netcdf.h>
 #include <json/value.h>
 
 #include <boost/lexical_cast.hpp>
@@ -100,15 +101,7 @@ namespace temutil {
 
   std::string report_yx_pixel_dims2str(const std::string& fname);
 
-  NcFile open_ncfile(std::string filename);
-
-  NcDim* get_ncdim(const NcFile& file, std::string dimname);
-
-  NcVar* get_ncvar(const NcFile& file, std::string varname);
-
   int get_nc_timedim_len(const int& ncid);
-
-  std::pair<float, float> get_location(std::string gridfilename, int grid_id);
 
   void handle_error(int status);
   
