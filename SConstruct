@@ -12,7 +12,6 @@ USEMPI = False
 
 libs = Split("""jsoncpp
                 readline
-                netcdf_c++
                 netcdf
                 pthread
                 boost_system
