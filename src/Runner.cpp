@@ -5,9 +5,6 @@
 
 #ifdef WITHMPI
 #include <mpi.h>
-#include "parallel-code/Master.h"
-#include "parallel-code/Slave.h"
-#include "inc/tbc_mpi_constants.h"
 #endif
 
 #include "../include/Runner.h"

@@ -79,10 +79,6 @@ SOURCES= 	src/TEM.o \
 		src/ecodomain/layer/ParentLayer.o \
 		src/ecodomain/layer/SnowLayer.o \
 		src/ecodomain/layer/SoilLayer.o
-ifeq ($(USEMPI),true)
-SOURCES += src/parallel-code/Master.o \
-		src/parallel-code/Slave.o
-endif
 
 OBJECTS =	ArgHandler.o \
 		TEMLogger.o \
@@ -128,10 +124,7 @@ OBJECTS =	ArgHandler.o \
 		SnowLayer.o \
 		SoilLayer.o \
 		TemperatureUpdator.o
-ifeq ($(USEMPI),true)
-OBJECTS += Master.o \
-		Slave.o
-endif
+
 
 GIT_SHA := $(shell git describe --abbrev=6 --dirty --always --tags)
 
