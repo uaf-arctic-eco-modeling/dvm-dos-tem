@@ -473,7 +473,9 @@ if __name__ == '__main__':
         object (string).'''))
 
   parser.add_argument('--fmt-block-from-json', nargs=2, metavar=('INFILE', 'REFFILE'),
-      help=textwrap.dedent('''Reads infile (assumed to be a well formed data dict of dvmdostem parameter data in json form), formats the block according to the reffile, and spits contents back to stdouts'''))
+      help=textwrap.dedent('''Reads infile (assumed to be a well formed data
+        dict of dvmdostem parameter data in json form), formats the block
+        according to the reffile, and spits contents back to stdouts'''))
 
   args = parser.parse_args()
 
