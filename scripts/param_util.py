@@ -487,7 +487,69 @@ if __name__ == '__main__':
         dict of dvmdostem parameter data in json form), formats the block
         according to the reffile, and spits contents back to stdouts'''))
 
+  parser.add_argument('--report-pft-names', nargs=2, metavar=('INFOLDER', 'CMTNUM'),
+      help=textwrap.dedent('''Prints the PFT name lines for each parameter file
+        so that it is easy to visually check that all the PFTs are named
+        exactly the same for the given %(metavar)s. Might require a wide screen
+        to view the columns lined up appropriately! Prints n/a if the CMT
+        does not exist in the file.'''))
+
+  parser.add_argument('--report-cmt-names', nargs=2, metavar=('INFOLDER', 'CMTNUM'),
+      help=textwrap.dedent('''Prints the CMT number and name for each file.
+        Prints na/ if the CMT does not exist in the file!'''))
+
   args = parser.parse_args()
+
+  required_param_files = [
+    'cmt_bgcsoil.txt',
+    'cmt_bgcvegetation.txt',
+    'cmt_calparbgc.txt',
+    'cmt_dimground.txt',
+    'cmt_dimvegetation.txt',
+    'cmt_envcanopy.txt',
+    'cmt_envground.txt',
+    'cmt_firepar.txt',
+  ]
+
+  if args.report_pft_names:
+
+    infolder = args.report_pft_names[0]
+    cmtnum = int(args.report_pft_names[1])
+
+    print "Checking for {}".format(cmtnum)
+    for f in required_param_files:
+      f2 = os.path.join(infolder, f)
+
+      cmts_in_file = get_CMTs_in_file(f2)
+      if cmtnum not in [int(i.strip().lstrip('CMT')) for i in cmts_in_file]:
+        print "{:>45s} {}".format(f2, "n/a")
+      else:
+        db = get_CMT_datablock(f2, cmtnum)
+        if detect_block_with_pft_info(db):
+          print "{:>45s}: {}".format(f2, (db[1]).strip())
+        else:
+          pass #print "{} is not a pft file!".format(f)
+    sys.exit(0)
+
+  if args.report_cmt_names:
+
+    infolder = args.report_cmt_names[0]
+    cmtnum = int(args.report_cmt_names[1])
+
+    print "{:>45s} {:>8s}   {}".format("file name","cmt key","long name")
+    for f in required_param_files:
+      f2 = os.path.join(infolder, f)
+
+      cmts_in_file = get_CMTs_in_file(f2)
+      if cmtnum not in [int(i.strip().lstrip('CMT')) for i in cmts_in_file]:
+        print "{0:>45s} {1:>8s}   {1}".format(f2, "n/a")
+
+      else:
+        db = get_CMT_datablock(f2, cmtnum)
+        dd = cmtdatablock2dict(db)
+        print "{:>45s} {:>8s}   {}".format(f2, dd['tag'], dd['cmtname'])
+    sys.exit(0)
+
 
   if args.fmt_block_from_json:
     inFile = args.fmt_block_from_json[0]
