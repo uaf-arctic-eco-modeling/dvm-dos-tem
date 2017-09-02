@@ -59,7 +59,7 @@
 0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegwater: initial intercepted rain water in canopy
 0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegsnow: initial intercepted snow water in canopy
 //===========================================================
-// CMT04 // CMT4 TEM Community - (max. 10 PFTs) (Biophysical) plant leaf characteristics and parameters
+// CMT04 // Shrub Tundra - (max. 10 PFTs) (Biophysical) plant leaf characteristics and parameters
 //Salix     Betula      Decid.       E.green      Sedges       Forbs        Grasses      Lichens      Feather      Misc1.       // names: comments
 0.10        0.10        0.10         0.10         0.10         0.10         0.10         0.10         0.10         0.10             // albvisnir: canopy albedo
 0.5         0.5         0.5          0.5          0.5          0.5          0.5          0.5          0.5          0.5              // er: light extinction coefficient
