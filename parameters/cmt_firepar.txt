@@ -92,7 +92,7 @@
 0.10                                                   // r_retain_n: ratio of burning residue N (retained into soil)
 //===========================================================
 // CMT04 // CMT4 TEM Community - fire disturbance parameters
-//PFT0      PFT1        PFT2         PFT3         PFT4         PFT5         PFT6         PFT7         PFT8         PFT9      // names: comments                  
+//Salix     Betula      Decid.       E.green      Sedges       Forbs        Grasses      Lichens      Feather      Misc1.       // names: comments
 0.00         0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvcomb[5][10]: fraction of each PFT vegetation combusted for 5 severities
 0.15         0.15        0.15        0.15         0.80         0.80         0.80         1.00         1.00         0.00      // 
 0.25         0.25        0.25        0.25         1.00         1.00         1.00         1.00         1.00         0.00      // 
