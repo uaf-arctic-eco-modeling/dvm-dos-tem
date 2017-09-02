@@ -76,6 +76,7 @@ def read_paramfile(thefile):
 def get_CMT_datablock(afile, cmtnum):
   '''
   Search file, returns the first block of data for one CMT as a list of strings.
+  Ignores empty lines.
 
   Parameters
   ----------
@@ -92,6 +93,8 @@ def get_CMT_datablock(afile, cmtnum):
     Each string will have a newline charachter in it.
   '''
   data = read_paramfile(afile)
+
+  data = [i for i in data if i != '\n']
 
   if type(cmtnum) == int:
     cmtkey = 'CMT%02i' % cmtnum
@@ -143,7 +146,10 @@ def parse_header_line(datablock):
 
   hdr_cmtkey = header[0].strip()
   txtcmtname = header[1].strip().split('-')[0].strip()
-  hdrcomment = header[1].strip().split('-')[1].strip()
+  if len(header[1].strip().split('-')) > 1:
+    hdrcomment = header[1].strip().split('-')[1].strip()
+  else:
+    hdrcomment = ''
   return hdr_cmtkey, txtcmtname, hdrcomment
 
 def get_pft_verbose_name(cmtkey=None, pftkey=None, cmtnum=None, pftnum=None):
@@ -211,7 +217,11 @@ def cmtdatablock2dict(cmtdatablock):
     else: # normal data line
       dline = line.strip().split("//")
       values = dline[0].split()
-      comment = dline[1].strip().strip("//").split(':')[0]
+      if len(dline) > 1:
+        comment = dline[1].strip().strip("//").split(':')[0]
+      else:
+        comment = ''
+
       if len(values) >= 5: # <--ARBITRARY! likely a pft data line?
         for i, value in enumerate(values):
           cmtdict['pft%i'%i][comment] = float(value)
