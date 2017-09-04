@@ -1,20 +1,20 @@
 diff --git a/Makefile b/Makefile
-index f932fdd..1ef2bd6 100644
+index 3160c1c..4adf14b 100644
 --- a/Makefile
 +++ b/Makefile
-@@ -11,10 +11,11 @@ else
- endif
+@@ -4,10 +4,11 @@
+ # -DBSD_FPE for BSD (OSX)
+ # -DGNU_FPE for various Linux
  
- APPNAME=dvmdostem
 -CC=g++
 -CFLAGS=-c -Werror -ansi -g -fPIC -DBOOST_ALL_DYN_LINK
--LIBS=-lnetcdf_c++ -lnetcdf -lboost_system -lboost_filesystem \
---lboost_program_options -lboost_thread -lboost_log -ljson -lreadline
+-LIBS=-lnetcdf -lboost_system -lboost_filesystem \
+--lboost_program_options -lboost_thread -lboost_log -ljsoncpp -lpthread -lreadline
 +CC=g++-4.8
 +CFLAGS=-c -Werror -ansi -g -fpermissive -fPIC -DBOOST_ALL_DYN_LINK
-+LIBS=-lnetcdf_c++ -lnetcdf -lboost_system-mt -lboost_filesystem-mt \
-+-lboost_program_options-mt -lboost_thread-mt -lboost_log-mt -lreadline \
-+/usr/local/lib/libjson.a
- LIBDIR=$(SITE_SPECIFIC_LIBS)
- INCLUDES=$(SITE_SPECIFIC_INCLUDES)
- SOURCES= 	src/TEM.o \
++LIBS=-lnetcdf -lboost_system-mt -lboost_filesystem-mt \
++-lboost_program_options-mt -lboost_thread-mt -lboost_log-mt \
++-lreadline /usr/local/lib/libjsoncpp.a
+ 
+ USEMPI = false
+ USEOMP = false

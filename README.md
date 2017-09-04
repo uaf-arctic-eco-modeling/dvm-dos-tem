@@ -52,7 +52,6 @@ The following tools/libraries are necessary in order to compile and run `dvm-dos
   - [Boost::Thread](http://www.boost.org/doc/libs/1_61_0/libs/thread/)
   - [Boost.Log](http://www.boost.org/doc/libs/1_61_0/libs/log/)
   - [Boost.System](http://www.boost.org/doc/libs/1_61_0/libs/system/)
-* NetCDF, C++ Interface, [NetCDF/Unidata](http://www.unidata.ucar.edu/software/netcdf/)
 * [Jsoncpp](https://github.com/open-source-parsers/jsoncpp)
 * [GNU Readline](https://cnswww.cns.cwru.edu/php/chet/readline/rltop.html#TOCDocumentation) 
 * MPI - included in the Makefile and SConstruct, but not used yet. Will be needed as we implement parallelism.

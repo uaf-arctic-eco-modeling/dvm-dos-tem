@@ -6,7 +6,7 @@
 
 CC=g++
 CFLAGS=-c -Werror -ansi -g -fPIC -DBOOST_ALL_DYN_LINK
-LIBS=-lnetcdf_c++ -lnetcdf -lboost_system -lboost_filesystem \
+LIBS=-lnetcdf -lboost_system -lboost_filesystem \
 -lboost_program_options -lboost_thread -lboost_log -ljsoncpp -lpthread -lreadline
 
 USEMPI = false
@@ -79,10 +79,6 @@ SOURCES= 	src/TEM.o \
 		src/ecodomain/layer/ParentLayer.o \
 		src/ecodomain/layer/SnowLayer.o \
 		src/ecodomain/layer/SoilLayer.o
-ifeq ($(USEMPI),true)
-SOURCES += src/parallel-code/Master.o \
-		src/parallel-code/Slave.o
-endif
 
 OBJECTS =	ArgHandler.o \
 		TEMLogger.o \
@@ -128,10 +124,7 @@ OBJECTS =	ArgHandler.o \
 		SnowLayer.o \
 		SoilLayer.o \
 		TemperatureUpdator.o
-ifeq ($(USEMPI),true)
-OBJECTS += Master.o \
-		Slave.o
-endif
+
 
 GIT_SHA := $(shell git describe --abbrev=6 --dirty --always --tags)
 

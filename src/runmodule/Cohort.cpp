@@ -18,8 +18,6 @@
 #include <string>
 #include <map>
 
-#include <netcdfcpp.h>
-
 #include <boost/assign/list_of.hpp> // for 'list_of()'
 
 #include "../TEMLogger.h"

@@ -12,7 +12,6 @@ USEMPI = False
 
 libs = Split("""jsoncpp
                 readline
-                netcdf_c++
                 netcdf
                 pthread
                 boost_system
@@ -177,9 +176,6 @@ if(USEMPI):
   compiler = distutils.spawn.find_executable('mpic++')
 
   # append src/parallel-code stuff to src_files and include_paths and libs
-  src_files.append(Split("""src/parallel-code/Master.cpp
-                            src/parallel-code/Slave.cpp
-                         """))
   local_include_paths.append('src/parallel-code')
 
   compiler_flags = compiler_flags + ' -m64 -DWITHMPI'
