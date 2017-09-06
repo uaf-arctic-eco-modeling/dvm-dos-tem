@@ -76,6 +76,7 @@ def read_paramfile(thefile):
 def get_CMT_datablock(afile, cmtnum):
   '''
   Search file, returns the first block of data for one CMT as a list of strings.
+  Ignores empty lines.
 
   Parameters
   ----------
@@ -92,6 +93,8 @@ def get_CMT_datablock(afile, cmtnum):
     Each string will have a newline charachter in it.
   '''
   data = read_paramfile(afile)
+
+  data = [i for i in data if i != '\n']
 
   if type(cmtnum) == int:
     cmtkey = 'CMT%02i' % cmtnum
@@ -143,7 +146,10 @@ def parse_header_line(datablock):
 
   hdr_cmtkey = header[0].strip()
   txtcmtname = header[1].strip().split('-')[0].strip()
-  hdrcomment = header[1].strip().split('-')[1].strip()
+  if len(header[1].strip().split('-')) > 1:
+    hdrcomment = header[1].strip().split('-')[1].strip()
+  else:
+    hdrcomment = ''
   return hdr_cmtkey, txtcmtname, hdrcomment
 
 def get_pft_verbose_name(cmtkey=None, pftkey=None, cmtnum=None, pftnum=None):
@@ -211,7 +217,11 @@ def cmtdatablock2dict(cmtdatablock):
     else: # normal data line
       dline = line.strip().split("//")
       values = dline[0].split()
-      comment = dline[1].strip().strip("//").split(':')[0]
+      if len(dline) > 1:
+        comment = dline[1].strip().strip("//").split(':')[0]
+      else:
+        comment = ''
+
       if len(values) >= 5: # <--ARBITRARY! likely a pft data line?
         for i, value in enumerate(values):
           cmtdict['pft%i'%i][comment] = float(value)
@@ -473,9 +483,73 @@ if __name__ == '__main__':
         object (string).'''))
 
   parser.add_argument('--fmt-block-from-json', nargs=2, metavar=('INFILE', 'REFFILE'),
-      help=textwrap.dedent('''Reads infile (assumed to be a well formed data dict of dvmdostem parameter data in json form), formats the block according to the reffile, and spits contents back to stdouts'''))
+      help=textwrap.dedent('''Reads infile (assumed to be a well formed data
+        dict of dvmdostem parameter data in json form), formats the block
+        according to the reffile, and spits contents back to stdouts'''))
+
+  parser.add_argument('--report-pft-names', nargs=2, metavar=('INFOLDER', 'CMTNUM'),
+      help=textwrap.dedent('''Prints the PFT name lines for each parameter file
+        so that it is easy to visually check that all the PFTs are named
+        exactly the same for the given %(metavar)s. Might require a wide screen
+        to view the columns lined up appropriately! Prints n/a if the CMT
+        does not exist in the file.'''))
+
+  parser.add_argument('--report-cmt-names', nargs=2, metavar=('INFOLDER', 'CMTNUM'),
+      help=textwrap.dedent('''Prints the CMT number and name for each file.
+        Prints na/ if the CMT does not exist in the file!'''))
 
   args = parser.parse_args()
+
+  required_param_files = [
+    'cmt_bgcsoil.txt',
+    'cmt_bgcvegetation.txt',
+    'cmt_calparbgc.txt',
+    'cmt_dimground.txt',
+    'cmt_dimvegetation.txt',
+    'cmt_envcanopy.txt',
+    'cmt_envground.txt',
+    'cmt_firepar.txt',
+  ]
+
+  if args.report_pft_names:
+
+    infolder = args.report_pft_names[0]
+    cmtnum = int(args.report_pft_names[1])
+
+    print "Checking for {}".format(cmtnum)
+    for f in required_param_files:
+      f2 = os.path.join(infolder, f)
+
+      cmts_in_file = get_CMTs_in_file(f2)
+      if cmtnum not in [int(i.strip().lstrip('CMT')) for i in cmts_in_file]:
+        print "{:>45s} {}".format(f2, "n/a")
+      else:
+        db = get_CMT_datablock(f2, cmtnum)
+        if detect_block_with_pft_info(db):
+          print "{:>45s}: {}".format(f2, (db[1]).strip())
+        else:
+          pass #print "{} is not a pft file!".format(f)
+    sys.exit(0)
+
+  if args.report_cmt_names:
+
+    infolder = args.report_cmt_names[0]
+    cmtnum = int(args.report_cmt_names[1])
+
+    print "{:>45s} {:>8s}   {}".format("file name","cmt key","long name")
+    for f in required_param_files:
+      f2 = os.path.join(infolder, f)
+
+      cmts_in_file = get_CMTs_in_file(f2)
+      if cmtnum not in [int(i.strip().lstrip('CMT')) for i in cmts_in_file]:
+        print "{0:>45s} {1:>8s}   {1}".format(f2, "n/a")
+
+      else:
+        db = get_CMT_datablock(f2, cmtnum)
+        dd = cmtdatablock2dict(db)
+        print "{:>45s} {:>8s}   {}".format(f2, dd['tag'], dd['cmtname'])
+    sys.exit(0)
+
 
   if args.fmt_block_from_json:
     inFile = args.fmt_block_from_json[0]
