@@ -192,6 +192,11 @@ def create_template_topo_file(fname, sizey=10, sizex=10):
 
   Y = ncfile.createDimension('Y', sizey)
   X = ncfile.createDimension('X', sizex)
+
+  # Spatial Ref. variables
+  lat = ncfile.createVariable('lat', np.float32, ('Y', 'X',))
+  lon = ncfile.createVariable('lon', np.float32, ('Y', 'X',))
+
   slope = ncfile.createVariable('slope', np.double, ('Y', 'X',))
   aspect = ncfile.createVariable('aspect', np.double, ('Y', 'X',))
   elevation = ncfile.createVariable('elevation', np.double, ('Y', 'X',))
@@ -207,6 +212,11 @@ def create_template_drainage_file(fname, sizey=10, sizex=10):
 
   Y = ncfile.createDimension('Y', sizey)
   X = ncfile.createDimension('X', sizex)
+
+  # Spatial Ref. variables
+  lat = ncfile.createVariable('lat', np.float32, ('Y', 'X',))
+  lon = ncfile.createVariable('lon', np.float32, ('Y', 'X',))
+
   drainage_class = ncfile.createVariable('drainage_class', np.int, ('Y', 'X',))
 
   ncfile.source = source_attr_string()
@@ -326,6 +336,10 @@ def create_template_fri_fire_file(fname, sizey=10, sizex=10, rand=None):
 
   # Do we need time dimension??
 
+  # Spatial Ref. variables
+  lat = ncfile.createVariable('lat', np.float32, ('Y', 'X',))
+  lon = ncfile.createVariable('lon', np.float32, ('Y', 'X',))
+
   fri = ncfile.createVariable('fri', np.int32, ('Y','X',))
   sev = ncfile.createVariable('fri_severity', np.int32, ('Y','X'))
   dob = ncfile.createVariable('fri_jday_of_burn', np.int32, ('Y','X'))
@@ -348,6 +362,10 @@ def create_template_explicit_fire_file(fname, sizey=10, sizex=10, rand=None):
   X = ncfile.createDimension('X', sizex)
   time = ncfile.createDimension('time', None)
 
+  # Spatial Ref. variables
+  lat = ncfile.createVariable('lat', np.float32, ('Y', 'X',))
+  lon = ncfile.createVariable('lon', np.float32, ('Y', 'X',))
+
   exp_bm = ncfile.createVariable('exp_burn_mask', np.int32, ('time', 'Y', 'X',))
   exp_dob = ncfile.createVariable('exp_jday_of_burn', np.int32, ('time', 'Y', 'X',))
   exp_sev = ncfile.createVariable('exp_fire_severity', np.int32, ('time', 'Y','X'))
@@ -367,6 +385,11 @@ def create_template_veg_nc_file(fname, sizey=10, sizex=10, rand=None):
 
   Y = ncfile.createDimension('Y', sizey)
   X = ncfile.createDimension('X', sizex)
+
+  # Spatial Ref. variables
+  lat = ncfile.createVariable('lat', np.float32, ('Y', 'X',))
+  lon = ncfile.createVariable('lon', np.float32, ('Y', 'X',))
+
   veg_class = ncfile.createVariable('veg_class', np.int, ('Y', 'X',))
 
   if (rand):
@@ -383,6 +406,11 @@ def create_template_soil_texture_nc_file(fname, sizey=10, sizex=10):
 
   Y = ncfile.createDimension('Y', sizey)
   X = ncfile.createDimension('X', sizex)
+
+  # Spatial Ref. variables
+  lat = ncfile.createVariable('lat', np.float32, ('Y', 'X',))
+  lon = ncfile.createVariable('lon', np.float32, ('Y', 'X',))
+
   pct_sand = ncfile.createVariable('pct_sand', np.float32, ('Y','X'))
   pct_silt = ncfile.createVariable('pct_silt', np.float32, ('Y','X'))
   pct_clay = ncfile.createVariable('pct_clay', np.float32, ('Y','X'))
@@ -459,6 +487,7 @@ def fill_topo_file(inSlope, inAspect, inElev, xo, yo, xs, ys, out_dir, of_name):
 
   for inFile, tmpFile in zip([inSlope, inAspect, inElev], [tmpSlope, tmpAspect, tmpElev]):
     subprocess.call(['gdal_translate', '-of', 'netcdf',
+                     '-co', 'WRITE_LONLAT=YES',
                       '-srcwin', str(xo), str(yo), str(xs), str(ys),
                       inFile, tmpFile])
 
@@ -468,6 +497,10 @@ def fill_topo_file(inSlope, inAspect, inElev, xo, yo, xs, ys, out_dir, of_name):
         V = new_topodataset.variables[ncvar]
         V[:] = TF.variables['Band1'][:]
 
+  with netCDF4.Dataset(of_name, mode='a') as new_topodataset:
+    with netCDF4.Dataset(tmpSlope, 'r') as TF:
+        new_topodataset.variables['lat'][:] = TF.variables['lat'][:]
+        new_topodataset.variables['lon'][:] = TF.variables['lon'][:]
 
 def fill_veg_file(if_name, xo, yo, xs, ys, out_dir, of_name):
   '''Read subset of data from .tif into netcdf file for dvmdostem. '''
@@ -484,16 +517,21 @@ def fill_veg_file(if_name, xo, yo, xs, ys, out_dir, of_name):
     os.makedirs(os.path.dirname(temporary))
 
   subprocess.call(['gdal_translate', '-of', 'netcdf',
+                   '-co', 'WRITE_LONLAT=YES',
                    '-srcwin', str(xo), str(yo), str(xs), str(ys),
                    if_name, temporary])
 
   # Copy from temporary location to into the placeholder file we just created
   with netCDF4.Dataset(temporary) as t1, netCDF4.Dataset(of_name, mode='a') as new_vegdataset:
     veg_class = new_vegdataset.variables['veg_class']
+    lat = new_vegdataset.variables['lat']
+    lon = new_vegdataset.variables['lon']
 
     new_vegdataset.source = source_attr_string(xo=xo, yo=yo)
 
     veg_class[:] = t1.variables['Band1'][:].data 
+    lat[:] = t1.variables['lat'][:]
+    lon[:] = t1.variables['lon'][:]
     # For some reason, some rows of the temporary file are numpy masked arrays
     # and if we don't directly access the data, then we get strange results '
     # (i.e. stuff that should be ocean shows up as CMT02??)
@@ -644,18 +682,21 @@ def fill_soil_texture_file(if_sand_name, if_silt_name, if_clay_name, xo, yo, xs,
       print "Filling with real data..."
 
       print "Subsetting TIF to netCDF"
-      subprocess.check_call(['gdal_translate','-of','netCDF','-srcwin',
-                             str(xo), str(yo), str(xs), str(ys),
+      subprocess.check_call(['gdal_translate','-of','netCDF',
+                             '-co', 'WRITE_LONLAT=YES',
+                             '-srcwin', str(xo), str(yo), str(xs), str(ys),
                              if_sand_name,
                              '/tmp/create_region_input_script_sand_texture.nc'])
 
-      subprocess.check_call(['gdal_translate','-of','netCDF','-srcwin',
-                             str(xo), str(yo), str(xs), str(ys),
+      subprocess.check_call(['gdal_translate','-of','netCDF',
+                             '-co', 'WRITE_LONLAT=YES',
+                             '-srcwin', str(xo), str(yo), str(xs), str(ys),
                              if_silt_name,
                              '/tmp/create_region_input_script_silt_texture.nc'])
 
-      subprocess.check_call(['gdal_translate','-of','netCDF','-srcwin',
-                             str(xo), str(yo), str(xs), str(ys),
+      subprocess.check_call(['gdal_translate','-of','netCDF',
+                             '-co', 'WRITE_LONLAT=YES',
+                             '-srcwin', str(xo), str(yo), str(xs), str(ys),
                              if_clay_name,
                              '/tmp/create_region_input_script_clay_texture.nc'])
 
@@ -666,6 +707,14 @@ def fill_soil_texture_file(if_sand_name, if_silt_name, if_clay_name, xo, yo, xs,
         p_silt[:] = f.variables['Band1'][:]
       with netCDF4.Dataset('/tmp/create_region_input_script_clay_texture.nc', mode='r') as f:
         p_clay[:] = f.variables['Band1'][:]
+
+    # While we went to the trouble of writing lat/lon to all the temporary
+    # files, we are only going to use one of those files to get the 
+    # data into the final file...
+
+    with netCDF4.Dataset('/tmp/create_region_input_script_sand_texture.nc', mode='r') as f:
+      soil_tex.variables['lat'][:] = f.variables['lat'][:]
+      soil_tex.variables['lon'][:] = f.variables['lon'][:]
 
     soil_tex.source =  source_attr_string(xo=xo, yo=yo)
 
@@ -689,8 +738,9 @@ def fill_drainage_file(if_name, xo, yo, xs, ys, out_dir, of_name, rand=False):
       print "Filling with real data"
 
       print "Subsetting TIF to netCDF..."
-      check_call(['gdal_translate', '-of', 'netCDF', '-srcwin',
-                  str(xo), str(yo), str(xs), str(ys),
+      check_call(['gdal_translate', '-of', 'netCDF',
+                  '-co', 'WRITE_LONLAT=YES',
+                  '-srcwin', str(xo), str(yo), str(xs), str(ys),
                   if_name,
                   '/tmp/script-temp_drainage_subset.nc'])
 
@@ -704,6 +754,10 @@ def fill_drainage_file(if_name, xo, yo, xs, ys, out_dir, of_name, rand=False):
 
         print "Writing subset data to new file"
         drain[:] = data
+
+        print "Writing lat/lon data to new file..."
+        drainage_class.variables['lat'][:] = temp_drainage.variables['lat'][:]
+        drainage_class.variables['lon'][:] = temp_drainage.variables['lon'][:]
 
       drainage_class.source = source_attr_string(xo=xo, yo=yo)
 
@@ -736,6 +790,8 @@ def fill_fri_fire_file(if_name, xo, yo, xs, ys, out_dir, of_name):
     sev = np.array([cmt2fireprops[i]['sev'] for i in vd.flatten()]).reshape(vd.shape)
     jdob = np.array([cmt2fireprops[i]['jdob'] for i in vd.flatten()]).reshape(vd.shape)
     aob = np.array([cmt2fireprops[i]['aob'] for i in vd.flatten()]).reshape(vd.shape)
+    latv = vegFile.variables['lat'][:]
+    lonv = vegFile.variables['lon'][:]
 
   with netCDF4.Dataset(of_name, mode='a') as nfd:
     print "==> write data to new FRI based fire file..."
@@ -743,6 +799,10 @@ def fill_fri_fire_file(if_name, xo, yo, xs, ys, out_dir, of_name):
     nfd.variables['fri_severity'][:,:] = sev
     nfd.variables['fri_jday_of_burn'][:,:] = jdob
     nfd.variables['fri_area_of_burn'][:,:] = aob
+
+    print "Writing lat/lon from veg file..."
+    nfd.variables['lat'][:] = latv
+    nfd.variables['lon'][:] = lonv
 
     print "==> write global :source attribute to FRI fire file..."
     nfd.source = source_attr_string(xo=xo, yo=yo)
@@ -758,13 +818,18 @@ def fill_explicit_fire_file(if_name, yrs, xo, yo, xs, ys, out_dir, of_name):
   never_burn = ([9],[9])
   print "--> Never burn pixels: {}".format(zip(*never_burn))
 
-  # guess_vegfile = os.path.join(os.path.split(of_name)[0], 'vegetation.nc')
-  # print "--> NOTE: Attempting to read: {:}".format(guess_vegfile)
+  guess_vegfile = os.path.join(os.path.split(of_name)[0], 'vegetation.nc')
+  print "--> NOTE: Attempting to read: {:} for lat/lon info...".format(guess_vegfile)
   # print "    and set fire properties based on community type..."
   # with netCDF4.Dataset(guess_vegfile ,'r') as vegFile:
   #   vd = vegFile.variables['veg_class'][:]
 
   with netCDF4.Dataset(of_name, mode='a') as nfd:
+
+    print "Writing lat/lon from veg file..."
+    with netCDF4.Dataset(guess_vegfile ,'r') as vegFile:
+      nfd.variables['lat'][:] = vegFile.variables['lat'][:]
+      nfd.variables['lon'][:] = vegFile.variables['lon'][:]
 
     for yr in range(0, yrs):
 
@@ -995,8 +1060,9 @@ if __name__ == '__main__':
     print('Target lat, lon:', target['lat'], target['lon'])
     print('Delta with target lat, lon:', target['lat'] - latvar[iy,ix], target['lon'] - lonvar[iy,ix])
     print('lat, lon of closest match:', latvar[iy,ix], lonvar[iy,ix])
-    print('indices of closest match iy, ix (from LOWER left):', iy, ix)
-    print('indices of closest match iy, ix (from UPPER left):', len(ncfile.dimensions['y'])-iy, ix)
+    print('indices of closest match iy, ix (FROM LOWER left):', iy, ix)
+    print('indices of closest match iy, ix (FROM UPPER left):', len(ncfile.dimensions['y'])-iy, ix)
+    print('** NOTE: Use coords FROM UPPER LEFT to build/crop a new dataset with that pixel at the LOWER LEFT corner of the dataset!')
     ncfile.close()
     exit()
 
