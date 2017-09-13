@@ -33,3 +33,6 @@ Debug/*
 # complied object files...
 *.o
 .sconsign.dblite
+
+# Ignore hidden vagrant directory
+.vagrant/*
