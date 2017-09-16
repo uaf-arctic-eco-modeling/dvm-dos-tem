@@ -502,6 +502,15 @@ def fill_topo_file(inSlope, inAspect, inElev, xo, yo, xs, ys, out_dir, of_name):
         new_topodataset.variables['lat'][:] = TF.variables['lat'][:]
         new_topodataset.variables['lon'][:] = TF.variables['lon'][:]
 
+from contextlib import contextmanager
+
+@contextmanager
+def custom_netcdf_attr_bug_wrapper(ncid):
+  # Maybe a bug? https://github.com/Unidata/netcdf4-python/issues/110
+  ncid.setncattr('junkattr', 'somejunk')
+  yield ncid
+  del ncid.junkattr
+
 def fill_veg_file(if_name, xo, yo, xs, ys, out_dir, of_name):
   '''Read subset of data from .tif into netcdf file for dvmdostem. '''
 
@@ -527,7 +536,8 @@ def fill_veg_file(if_name, xo, yo, xs, ys, out_dir, of_name):
     lat = new_vegdataset.variables['lat']
     lon = new_vegdataset.variables['lon']
 
-    new_vegdataset.source = source_attr_string(xo=xo, yo=yo)
+    with custom_netcdf_attr_bug_wrapper(new_vegdataset) as f:
+      f.source = source_attr_string(xo=xo, yo=yo)
 
     veg_class[:] = t1.variables['Band1'][:].data 
     lat[:] = t1.variables['lat'][:]
@@ -588,7 +598,8 @@ def fill_climate_file(start_yr, yrs, xo, yo, xs, ys,
   lon[:] = temp_subset_with_lonlat.variables['lon'][:]
 
   print "Write attribute with pixel offsets to file..."
-  new_climatedataset.source = source_attr_string(xo=xo, yo=yo)
+  with custom_netcdf_attr_bug_wrapper(new_climatedataset) as f:
+    f.source = source_attr_string(xo=xo, yo=yo)
 
   print "Done copying LON/LAT."
 
@@ -716,7 +727,8 @@ def fill_soil_texture_file(if_sand_name, if_silt_name, if_clay_name, xo, yo, xs,
       soil_tex.variables['lat'][:] = f.variables['lat'][:]
       soil_tex.variables['lon'][:] = f.variables['lon'][:]
 
-    soil_tex.source =  source_attr_string(xo=xo, yo=yo)
+    with custom_netcdf_attr_bug_wrapper(soil_tex) as f:
+      f.source =  source_attr_string(xo=xo, yo=yo)
 
 
 def fill_drainage_file(if_name, xo, yo, xs, ys, out_dir, of_name, rand=False):
@@ -759,7 +771,8 @@ def fill_drainage_file(if_name, xo, yo, xs, ys, out_dir, of_name, rand=False):
         drainage_class.variables['lat'][:] = temp_drainage.variables['lat'][:]
         drainage_class.variables['lon'][:] = temp_drainage.variables['lon'][:]
 
-      drainage_class.source = source_attr_string(xo=xo, yo=yo)
+    with custom_netcdf_attr_bug_wrapper(drainage_class) as f:
+      f.source = source_attr_string(xo=xo, yo=yo)
 
 def fill_fri_fire_file(if_name, xo, yo, xs, ys, out_dir, of_name):
   create_template_fri_fire_file(of_name, sizey=ys, sizex=xs, rand=False)
@@ -804,8 +817,9 @@ def fill_fri_fire_file(if_name, xo, yo, xs, ys, out_dir, of_name):
     nfd.variables['lat'][:] = latv
     nfd.variables['lon'][:] = lonv
 
-    print "==> write global :source attribute to FRI fire file..."
-    nfd.source = source_attr_string(xo=xo, yo=yo)
+    with custom_netcdf_attr_bug_wrapper(nfd) as f:
+      print "==> write global :source attribute to FRI fire file..."
+      f.source = source_attr_string(xo=xo, yo=yo)
 
 
 def fill_explicit_fire_file(if_name, yrs, xo, yo, xs, ys, out_dir, of_name):
@@ -861,11 +875,10 @@ def fill_explicit_fire_file(if_name, yrs, xo, yo, xs, ys, out_dir, of_name):
 
     print "Done filling out fire years..."
 
-  print "Setting :source attribute on new explicit fire file..."
-  with netCDF4.Dataset(of_name, mode='a') as nfd:
-    nfd.source = source_attr_string(xo=xo, yo=yo)
-
-
+    print "Setting :source attribute on new explicit fire file..."
+    with custom_netcdf_attr_bug_wrapper(nfd) as f:
+      f.source = source_attr_string(xo=xo, yo=yo)
+ 
 
 def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir, files=[]):
 
