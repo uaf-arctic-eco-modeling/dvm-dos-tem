@@ -53,7 +53,7 @@ void Runner::run_years(int start_year, int end_year, const std::string& stage) {
   BOOST_LOG_NAMED_SCOPE("Y") {
   for (int iy = start_year; iy < end_year; ++iy) {
     BOOST_LOG_SEV(glg, debug) << "(Beginning of year loop) " << cohort.ground.layer_report_string("depth thermal CN");
-    BOOST_LOG_SEV(glg, err) << "Year loop, year: "<<iy;
+    BOOST_LOG_SEV(glg, err) << "y: "<<this->y<<" x: "<<this->x<<" Year: "<<iy;
 
     /* Interpolate all the monthly values...? */
     if( (stage.find("eq") != std::string::npos
