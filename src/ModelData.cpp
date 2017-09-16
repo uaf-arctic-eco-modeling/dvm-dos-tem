@@ -330,25 +330,25 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
     } // end looping over tokens (aka columns) in a line
 
     // Only create a file if a timestep is specified for the variable.
-    //  Otherwise, assume the user does not want that variable output.
+    // Otherwise, assume the user does not want that variable output.
     if(new_spec.yearly || new_spec.monthly || new_spec.daily){
 
       // File location information for reconstructing a complete path
-      //  and filename during output.
+      // and filename during output.
       new_spec.file_path = output_base.string();
       new_spec.filename_prefix = name + "_" + timestep;
 
-      //Temporary name for file creation.
+      // Temporary name for file creation.
       std::string creation_filename = name + "_" + timestep + "_" + stage + ".nc";
 
       BOOST_LOG_SEV(glg, debug)<<"Variable: "<<name<<". Timestep: "<<timestep;
 
-      //filename with local path
+      // filename with local path
       boost::filesystem::path output_filepath = output_base / creation_filename;
-      //convert path to string for simplicity in the following function calls
+      // convert path to string for simplicity in the following function calls
       std::string creation_filestr = output_filepath.string();
 
-      //Creating NetCDF file
+      // Creating NetCDF file
       BOOST_LOG_SEV(glg, debug)<<"Creating output NetCDF file "<<creation_filestr;
       temutil::nc( nc_create(creation_filestr.c_str(), NC_CLOBBER, &ncid) );
 
@@ -357,12 +357,12 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
 
       BOOST_LOG_SEV(glg, debug) << "Adding dimensions...";
 
-      //All variables will have time, y, x 
+      // All variables will have time, y, x
       temutil::nc( nc_def_dim(ncid, "time", NC_UNLIMITED, &timeD) );
       temutil::nc( nc_def_dim(ncid, "y", ysize, &yD) );
       temutil::nc( nc_def_dim(ncid, "x", xsize, &xD) );
 
-      //System-wide variables
+      // System-wide variables
       if(new_spec.dim_count==3){
         vartype3D_dimids[0] = timeD;
         vartype3D_dimids[1] = yD;
@@ -371,7 +371,7 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
         temutil::nc( nc_def_var(ncid, name.c_str(), NC_DOUBLE, 3, vartype3D_dimids, &Var) );
       }
 
-      //PFT specific dimensions
+      // PFT specific dimensions
       else if(new_spec.pft && !new_spec.compartment){
         temutil::nc( nc_def_dim(ncid, "pft", NUM_PFT, &pftD) );
 
@@ -383,7 +383,7 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
         temutil::nc( nc_def_var(ncid, name.c_str(), NC_DOUBLE, 4, vartypeVeg4D_dimids, &Var) );
       }
 
-      //PFT compartment only
+      // PFT compartment only
       else if(!new_spec.pft && new_spec.compartment){
         temutil::nc( nc_def_dim(ncid, "pftpart", NUM_PFT_PART, &pftpartD) );
 
@@ -395,7 +395,7 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
         temutil::nc( nc_def_var(ncid, name.c_str(), NC_DOUBLE, 4, vartypeVeg4D_dimids, &Var) );
       }
 
-      //PFT and PFT compartments
+      // PFT and PFT compartments
       else if(new_spec.pft && new_spec.compartment){ 
         temutil::nc( nc_def_dim(ncid, "pft", NUM_PFT, &pftD) );
         temutil::nc( nc_def_dim(ncid, "pftpart", NUM_PFT_PART, &pftpartD) );
@@ -409,7 +409,7 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
         temutil::nc( nc_def_var(ncid, name.c_str(), NC_DOUBLE, 5, vartypeVeg5D_dimids, &Var) );
       }
 
-      //Soil specific dimensions
+      // Soil specific dimensions
       else if(new_spec.layer){
         temutil::nc( nc_def_dim(ncid, "layer", MAX_SOI_LAY, &layerD) );
 
