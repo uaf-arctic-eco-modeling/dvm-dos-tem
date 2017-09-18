@@ -294,6 +294,8 @@ int main(int argc, char* argv[]){
 
     int total_cells = num_rows*num_cols;
 
+
+
     #pragma omp parallel for schedule(dynamic)
     for(int curr_cell=id; curr_cell<total_cells; curr_cell+=ntasks){
 
@@ -317,6 +319,12 @@ int main(int argc, char* argv[]){
 
         if (true == mask_value) {
 
+          // I think this is safe w/in our OpenMP block because I am
+          // handling the exception here...
+          // Not sure about other OpenMP pragama blocks w/in this one? Any
+          // Exceptions would leak out of the inner pragma and be handled
+          // by this try/catch??
+          try {
           BOOST_LOG_SEV(glg, note) << "Running cell (" << rowidx << ", " << colidx << ")";
 
           //modeldata.initmode = 1; // OBSOLETE?
@@ -601,21 +609,34 @@ int main(int argc, char* argv[]){
               - run_years( TR_BEG <= iy <= TR_END )
               
           */
+        } catch (std::exception& e) {
 
+          BOOST_LOG_SEV(glg, err) << "EXCEPTION!! (row, col): (" << rowidx << ", " << colidx << "): " << e.what();
+
+          // std::string fail_file_name = "fail_log.txt";
+          // boost::filesystem::path fail_log_path = modeldata.output_dir / fail_file_name;
+
+          std::ofstream outfile;
+          outfile.open((modeldata.output_dir + "fail_log.txt").c_str(), std::ios_base::app); // Append mode
+          outfile << "EXCEPTION!! At pixel at (row, col): ("<<rowidx <<", "<<colidx<<") "<< e.what() <<"\n";
+          outfile.close();
+
+          // Write to fail_mask.nc file?? or json? might be good for visualization
+
+        }
         } else {
           BOOST_LOG_SEV(glg, debug) << "Skipping cell (" << rowidx << ", " << colidx << ")";
         }
 
 #ifdef WITHMPI
-    }
+    } // End of single, flattened loop over cells (and OpenMP pragma)
     MPI_Finalize();
 
 #else
-      }
-    }
-
+      } // end col loop
+    } // end row loop, and OpenMP pragma
 #endif
-    
+
   } else if (args->get_loop_order() == "time-major") {
     BOOST_LOG_SEV(glg, warn) << "DO NOTHING. NOT IMPLEMENTED YET.";
     // for each year

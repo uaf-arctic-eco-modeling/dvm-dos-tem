@@ -369,8 +369,14 @@ namespace temutil {
   void handle_error(int status) {
     if (status != NC_NOERR) {
       fprintf(stderr, "%s\n", nc_strerror(status));
-      BOOST_LOG_SEV(glg, fatal) << nc_strerror(status);
-      exit(-1);
+      BOOST_LOG_SEV(glg, err) << nc_strerror(status);
+
+      std::string msg = "Exception from netcdf: ";
+      msg = msg + nc_strerror(status);
+
+      throw std::runtime_error(msg);
+
+      //exit(-1);
     }
   }
   
