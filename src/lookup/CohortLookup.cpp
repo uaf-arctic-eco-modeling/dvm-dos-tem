@@ -405,7 +405,8 @@ void CohortLookup::assignBgc4Vegetation(string & dircmt) {
 
   if (!OK) {
     BOOST_LOG_SEV(glg, fatal) << "Problem with cmt_bgcvegetation.txt!!";
-    exit(-1);
+    throw std::runtime_error("Problem with initial parameter files!");
+
   }
 
 }
