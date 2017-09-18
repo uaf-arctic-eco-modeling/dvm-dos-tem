@@ -310,9 +310,6 @@ int main(int argc, char* argv[]){
 
             BOOST_LOG_SEV(glg, err) << "EXCEPTION!! (row, col): (" << rowidx << ", " << colidx << "): " << e.what();
 
-            // std::string fail_file_name = "fail_log.txt";
-            // boost::filesystem::path fail_log_path = modeldata.output_dir / fail_file_name;
-
             std::ofstream outfile;
             outfile.open((modeldata.output_dir + "fail_log.txt").c_str(), std::ios_base::app); // Append mode
             outfile << "EXCEPTION!! At pixel at (row, col): ("<<rowidx <<", "<<colidx<<") "<< e.what() <<"\n";
