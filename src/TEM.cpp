@@ -52,8 +52,9 @@
 
 #ifdef WITHMPI
 #include <mpi.h>
+#include <netcdf_par.h>
 #include "data/RestartData.h" // for defining MPI typemap...
-#include "inc/tbc_mpi_constants.h"
+//#include "inc/tbc_mpi_constants.h"
 #endif
 
 // For managing the floating point environment
@@ -204,6 +205,11 @@ int main(int argc, char* argv[]){
       BOOST_LOG_SEV(glg, debug) << "rank: "<<id<<" Hit MPI_Barrier.";
       MPI_Barrier(MPI::COMM_WORLD);
     }
+
+    int ncid;
+                                   // path            c mode               mpi comm obj     mpi info netcdfid
+    temutil::nc( nc_create_par("test-parallel-io.nc", NC_NETCDF4|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+    std::cout << "CREATED A PARALLEL IO FILE! Process: " << id << "\n";
 
 #else
     BOOST_LOG_SEV(glg, note) << "Clearing output directory...";
@@ -844,3 +850,4 @@ void write_status(const std::string fname, int row, int col, int statusCode) {
   /* Close the netcdf file. */
   temutil::nc( nc_close(ncid) );
 }
+
