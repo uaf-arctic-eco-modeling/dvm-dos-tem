@@ -468,7 +468,7 @@ void Climate::load_from_file(const std::string& fname, int y, int x) {
 }
 
 /** This loads data from a projected climate data file, overwriting any old climate data*/
-void Climate::load_proj_climate(std::string& fname, int y, int x){
+void Climate::load_proj_climate(const std::string& fname, int y, int x){
   BOOST_LOG_SEV(glg, note) << "Climate, loading projected data";
 
   this->load_from_file(fname, y, x);
