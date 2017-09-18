@@ -167,7 +167,40 @@ int main(int argc, char* argv[]){
       boots::program_options here to manage the arguments from config file
       and the command line.
   */
-  
+
+#ifdef WITHMPI
+    BOOST_LOG_SEV(glg, fatal) << "Built and running with MPI";
+
+    // Intended for passing argc and argv, the arguments to MPI_Init
+    // are currently unnecessary.
+    MPI_Init(NULL, NULL);
+
+    int id = MPI::COMM_WORLD.Get_rank();     // Change this to C interface?? MPI_Comm_World?
+    int ntasks = MPI::COMM_WORLD.Get_size();
+    if (id == 0) {
+
+      BOOST_LOG_SEV(glg, note) << "Clearing output directory...";
+      const boost::filesystem::path out_dir_path(modeldata.output_dir);
+      if (boost::filesystem::exists( out_dir_path )) {
+        boost::filesystem::remove_all( out_dir_path );
+      }
+      boost::filesystem::create_directories(out_dir_path);
+      BOOST_LOG_SEV(glg, debug) << "rank: "<<id<<" Hit MPI_Barrier.";
+      MPI_Barrier(MPI::COMM_WORLD);
+    } else {
+      BOOST_LOG_SEV(glg, debug) << "rank: "<<id<<" Hit MPI_Barrier.";
+      MPI_Barrier(MPI::COMM_WORLD);
+    }
+
+#else
+    BOOST_LOG_SEV(glg, note) << "Clearing output directory...";
+    const boost::filesystem::path out_dir_path(modeldata.output_dir);
+    if (boost::filesystem::exists( out_dir_path )) {
+      boost::filesystem::remove_all( out_dir_path );
+    }
+    boost::filesystem::create_directories(out_dir_path);
+#endif
+
   BOOST_LOG_SEV(glg, note) << "Running PR stage: " << modeldata.pr_yrs << "yrs";
   BOOST_LOG_SEV(glg, note) << "Running EQ stage: " << modeldata.eq_yrs << "yrs";
   BOOST_LOG_SEV(glg, note) << "Running SP stage: " << modeldata.sp_yrs << "yrs";
@@ -310,6 +343,9 @@ int main(int argc, char* argv[]){
 
             BOOST_LOG_SEV(glg, err) << "EXCEPTION!! (row, col): (" << rowidx << ", " << colidx << "): " << e.what();
 
+
+            // IS THIS THREAD SAFE??
+            // IS IT SAFE WITH MPI??
             std::ofstream outfile;
             outfile.open((modeldata.output_dir + "fail_log.txt").c_str(), std::ios_base::app); // Append mode
             outfile << "EXCEPTION!! At pixel at (row, col): ("<<rowidx <<", "<<colidx<<") "<< e.what() <<"\n";
