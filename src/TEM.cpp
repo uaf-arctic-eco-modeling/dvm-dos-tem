@@ -52,6 +52,7 @@
 
 #ifdef WITHMPI
 #include <mpi.h>
+#include <netcdf_par.h>
 #include "data/RestartData.h" // for defining MPI typemap...
 //#include "inc/tbc_mpi_constants.h"
 #endif
@@ -192,10 +193,10 @@ int main(int argc, char* argv[]){
       MPI_Barrier(MPI::COMM_WORLD);
     }
 
-    //int ncid;
-    //                               // path            c mode               mpi comm obj     mpi info netcdfid
-    //temutil::nc( nc_create_par("test-parallel-io.nc", NC_NETCDF4|NC_MPIIO, MPI::COMM_WORLD, MPI::Info, &ncid) );
-    //std::cout << "CREATED A PARALLEL IO FILE! Process: " << id << "\n";
+    int ncid;
+                                   // path            c mode               mpi comm obj     mpi info netcdfid
+    temutil::nc( nc_create_par("test-parallel-io.nc", NC_NETCDF4|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+    std::cout << "CREATED A PARALLEL IO FILE! Process: " << id << "\n";
 
 #else
     BOOST_LOG_SEV(glg, note) << "Clearing output directory...";
