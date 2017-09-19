@@ -32,7 +32,9 @@ yum install -y python-matplotlib python-matplotlib-wx netcdf4-python python-ipyt
 # useful for our pre and post processing scripts.
 yum install python-basemap-data python-basemap-data-hires python-basemap
 
+
 # For processing/preparing the "new style" inputs
+yum install -y gdal-python
 yum install -y gdal gdal-devel
 
 # For compiling with Scons
