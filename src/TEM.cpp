@@ -197,6 +197,54 @@ int main(int argc, char* argv[]){
                                    // path            c mode               mpi comm obj     mpi info netcdfid
     temutil::nc( nc_create_par("test-parallel-io.nc", NC_NETCDF4|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
     std::cout << "CREATED A PARALLEL IO FILE! Process: " << id << "\n";
+    
+    int mpi_rank = id; 
+    int mpi_size = ntasks; 
+    int NDIMS = 2;
+    int DIMSIZE = 24;
+    int QTR_DATA = (DIMSIZE*DIMSIZE)/4;
+    //int NUM_PROC = 4;
+    int data[DIMSIZE*DIMSIZE];
+    size_t start[NDIMS], count[NDIMS];
+    int v1id, dimids[NDIMS];
+
+    /* Create two dimensions. */
+    temutil::nc( nc_def_dim(ncid, "d1", DIMSIZE, dimids));
+    temutil::nc( nc_def_dim(ncid, "d2", DIMSIZE, &dimids[1]));
+    
+    int myFillValue = -9999;
+    /* Create one var. */
+    temutil::nc( nc_def_var(ncid, "v1", NC_INT, NDIMS, dimids, &v1id));
+    temutil::nc( nc_def_var_fill(ncid, v1id, 0, &myFillValue)); 
+    temutil::nc( nc_enddef(ncid));
+    
+    /* Set up slab for this process. */
+    start[0] = mpi_rank * DIMSIZE/mpi_size;
+    start[1] = 0;
+    count[0] = DIMSIZE/mpi_size;
+    count[1] = DIMSIZE;
+    //printf("mpi_rank=%d start[0]=%d start[1]=%d count[0]=%d count[1]=%d\n",
+    //       mpi_rank, start[0], start[1], count[0], count[1]);
+    
+    /* Create phony data. We're going to write a 24x24 array of ints,
+       in 4 sets of 144. */
+    //printf("mpi_rank*QTR_DATA=%d (mpi_rank+1)*QTR_DATA-1=%d\n",
+    //       mpi_rank*QTR_DATA, (mpi_rank+1)*QTR_DATA);
+    for (int i=mpi_rank*QTR_DATA; i<(mpi_rank+1)*QTR_DATA; i++)
+       data[i] = mpi_rank;
+    
+    /*if ((res = nc_var_par_access(ncid, v1id, NC_COLLECTIVE)))
+      BAIL(res);*/
+    temutil::nc( nc_var_par_access(ncid, v1id, NC_INDEPENDENT));
+    
+    /* Write slabs of phony data. */
+    temutil::nc( nc_put_vara_int(ncid, v1id, start, count, &data[mpi_rank*QTR_DATA]));
+    
+    /* Close the netcdf file. */
+    temutil::nc( nc_close(ncid));
+
+
+
 
 #else
     BOOST_LOG_SEV(glg, note) << "Clearing output directory...";
