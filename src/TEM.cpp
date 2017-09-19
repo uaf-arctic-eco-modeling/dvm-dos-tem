@@ -36,7 +36,7 @@
 #include <map>
 #include <set>
 #include <json/writer.h>
-
+#include <netcdf.h>
 #include <json/value.h>
 
 #include <boost/filesystem.hpp>
