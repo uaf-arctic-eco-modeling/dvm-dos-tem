@@ -28,7 +28,9 @@ dnf install -y xauth
 # packages used for plotting
 dnf install -y python-matplotlib python-matplotlib-wx netcdf4-python python-ipython
 
+
 # For processing/preparing the "new style" inputs
+dnf install -y gdal-python
 dnf install -y gdal gdal-devel
 
 # For compiling with Scons

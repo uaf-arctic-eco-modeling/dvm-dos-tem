@@ -2,6 +2,12 @@
 DATA/*/output/*.nc
 input-staging-area/*
 
+parameters-*/
+
+some-dvmdostem-inputs/*
+auto-post-process/*
+junk/*
+
 calibration-plots/*
 
 # ingore the build directory and compiled binaries
@@ -36,3 +42,6 @@ Debug/*
 
 # Ignore hidden vagrant directory
 .vagrant/*
+
+# assorted temporary stuff
+bundle*
