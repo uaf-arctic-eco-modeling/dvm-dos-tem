@@ -43,13 +43,14 @@ SCRIPT
 VAGRANTFILE_API_VERSION = "2" # <--don't change unless you know what you're doing!
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
-  config.vm.box = "TFDuesing/Fedora-20"
+  config.vm.box = "fedora/25-cloud-base"
   
-  mem = 756
+  mem = 1024 
   cores = 4
   puts "Rolling your guest VM with #{cores} processors and #{mem}MB of RAM..."
   config.vm.provider "virtualbox" do |vb|
     vb.customize ["modifyvm", :id, "--memory", mem, "--cpus", cores, "--ioapic", "on"]
+    vb.name = "Fed25 dvmdostem"
   end
 
 
