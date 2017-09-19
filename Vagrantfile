@@ -53,7 +53,11 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     vb.name = "Fed25 dvmdostem"
   end
 
-
+  # Set this up for sftp access from notepad++ in Windows 10. Note that we also had to 
+  # find the guest virtualbox ip address (in ipconfig on host) and add it in the notepad++ 
+  # profile settings. (Needed NppFTP plugin for notepad++)
+  config.vm.network "forwarded_port", guest:22, host:2222
+  
   # Necessary for viewing interactive plots
   # (calibration mode, visualiation scripts, etc)
   config.ssh.forward_x11 = true  
