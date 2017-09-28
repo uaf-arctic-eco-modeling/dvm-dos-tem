@@ -440,10 +440,12 @@ void RestartData::write_pixel_to_ncfile(const std::string& fname, const int rowi
 
 }
 
-/** Checks a given variable against an extreme negative value. FIX: should be more flexible*/
+/** Checks a given variable against an extreme negative value. 
+ *  FIX: should be more flexible
+ */
 template<typename T> void check_bounds(std::string var_name, T value){
   if(value<-4000){
-    BOOST_LOG_SEV(glg, err) << var_name << " is out of bounds: " << value;
+    BOOST_LOG_SEV(glg, warn) << var_name << " is out of bounds: " << value;
   }
 }
 
