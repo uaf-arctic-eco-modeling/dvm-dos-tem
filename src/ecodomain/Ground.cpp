@@ -2047,7 +2047,7 @@ void Ground::updateOslThickness5Carbon(Layer* fstsoil) {
 */
 double Ground::thicknessFromCarbon(const double carbon, const double coefA, const double coefB) {
   //assert ((coefB >= 1) && "Yi et al. 2009 says the b coefficient should be a fitted parameter constrained to >= 1!");
-  if (!(coefB >= 1)) BOOST_LOG_SEV(glg, err) << "Yi et al. 2009 says the b coefficient should be a fitted parameter constrained to >= 1!";
+  if (!(coefB >= 1)) BOOST_LOG_SEV(glg, warn) << "Yi et al. 2009 says the b coefficient should be a fitted parameter constrained to >= 1!";
 
   // T = (C/a)^(1/b)
   double T;
@@ -2067,7 +2067,7 @@ double Ground::thicknessFromCarbon(const double carbon, const double coefA, cons
 */
 double Ground::carbonFromThickness(const double thickness, const double coefA, const double coefB) {
   //assert ((coefB >= 1) && "Yi et al. 2009 says the b coefficient should be a fitted parameter constrained to >= 1!");
-  if (!(coefB >= 1)) BOOST_LOG_SEV(glg, err) << "Yi et al. 2009 says the b coefficient should be a fitted parameter constrained to >= 1!";
+  if (!(coefB >= 1)) BOOST_LOG_SEV(glg, warn) << "Yi et al. 2009 says the b coefficient should be a fitted parameter constrained to >= 1!";
 
   // C = aT^b
   double C;
