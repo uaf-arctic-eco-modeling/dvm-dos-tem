@@ -243,6 +243,9 @@ if __name__ == '__main__':
   parser.add_argument('--reset', action='store_true', 
       help=textwrap.dedent('''Set all pixels to zero (don't run).'''))
 
+  parser.add_argument('--all-on', action='store_true', 
+      help=textwrap.dedent('''Set all pixels to 1 (run). Inverse of --reset.'''))
+
   parser.add_argument("--xy", nargs=2, type=int, metavar=('X','Y'),
       help=textwrap.dedent('''The x, y position of the pixel to turn on.'''))
 
@@ -320,6 +323,10 @@ if __name__ == '__main__':
       X,Y = args.xy
       print "Turning pixel(x,y) to '1', (ON)."
       mask.variables['run'][X,Y] = 1
+
+    if args.all_on:
+      print "Setting all pixels in runmask to '1' (ON)."
+      mask.variables['run'][:] = 1
 
   # Show the after state
   if args.show:
