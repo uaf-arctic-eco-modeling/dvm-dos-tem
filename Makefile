@@ -3,13 +3,18 @@
 # Add compiler flag for enabling floating point exceptions:
 # -DBSD_FPE for BSD (OSX)
 # -DGNU_FPE for various Linux
+SITE_SPECIFIC_INCLUDES="-I/home/UA/tcarman2/.local/easybuild/software/jsoncpp/1.8.1-foss-2016a/include/jsoncpp"
+#SITE_SEPCIFIC_INCLUDES="-isystem /home/UA/tcarman2/.local/easybuild/software/Boost/1.55.0-foss-2016a-Python-2.7.11/include:$(SITE_SPECIFIC_INCLUDES)"
+
+#SITE_SPECIFIC_LIBS="-L/home/UA/tcarman2/.local/easybuild/software/Boost/1.60.0-foss-2016a/lib/ -L/home/UA/tcarman2/.local/easybuild/software/Boost/1.55.0-foss-2016a-Python-2.7.11/lib/"
+SITE_SPECIFIC_LIBS="-L/home/UA/tcarman2/.local/easybuild/software/Boost/1.55.0-foss-2016a-Python-2.7.11/lib/"
 
 CC=g++
-CFLAGS=-c -Werror -ansi -g -fPIC -DBOOST_ALL_DYN_LINK
+CFLAGS=-c -ansi -g -gdwarf-2 -fPIC -DBOOST_ALL_DYN_LINK -Werror # -W -Wall -Werror -Wno-system-headers
 LIBS=-lnetcdf -lboost_system -lboost_filesystem \
 -lboost_program_options -lboost_thread -lboost_log -ljsoncpp -lpthread -lreadline
 
-USEMPI = false
+USEMPI = true
 USEOMP = false
 
 ifeq ($(USEMPI),true)
