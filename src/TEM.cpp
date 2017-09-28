@@ -145,6 +145,33 @@ void write_sample_parallel_io(int id, int ntasks) {
 }
 
 
+void write_status(const std::string fname, int row, int col, int statusCode) {
+
+  int ncid;
+  int statusV;
+
+  temutil::nc( nc_open(fname.c_str(),  NC_WRITE, &ncid) );
+  temutil::nc( nc_inq_varid(ncid, "run_status", &statusV) );
+
+
+  int NDIMS = 2;
+
+  size_t start[NDIMS], count[NDIMS];
+  // Set point to write
+  start[0] = row;
+  start[1] = col;
+  count[0] = 1;
+  count[1] = 1;
+
+  std::cout << "WRITING FOR (row, col): " << row << ", " << col << "\n";
+
+  // Write data
+  temutil::nc( nc_put_vara(ncid, statusV, start, count,  &statusCode) );
+
+  /* Close the netcdf file. */
+  temutil::nc( nc_close(ncid) );
+}
+
 void create_empty_run_status_file(const std::string& fname,
     const int ysize, const int xsize);
 
@@ -309,6 +336,7 @@ int main(int argc, char* argv[]){
   RestartData::create_empty_file(tr_restart_fname, num_rows, num_cols);
   RestartData::create_empty_file(sc_restart_fname, num_rows, num_cols);
 
+
   // Create empty output files now so that later, as the program
   // proceeds, there is somewhere to append output data...
   BOOST_LOG_SEV(glg, info) << "Creating a set of empty NetCDF output files";
@@ -430,11 +458,12 @@ int main(int argc, char* argv[]){
           try {
 
             advance_model(rowidx, colidx, modeldata, args->get_cal_mode(), eq_restart_fname, sp_restart_fname, tr_restart_fname, sc_restart_fname);
-
+            std::cout << "The good write - finished cell!\n";
+            write_status(run_status_fname, rowidx, colidx, 100);            
+            
           } catch (std::exception& e) {
 
             BOOST_LOG_SEV(glg, err) << "EXCEPTION!! (row, col): (" << rowidx << ", " << colidx << "): " << e.what();
-
 
             // IS THIS THREAD SAFE??
             // IS IT SAFE WITH MPI??
@@ -444,6 +473,8 @@ int main(int argc, char* argv[]){
             outfile.close();
 
             // Write to fail_mask.nc file?? or json? might be good for visualization
+            write_status(run_status_fname, rowidx, colidx, -200); // <- what if this throws??
+            BOOST_LOG_SEV(glg, err) << "End of exception handler.";
 
           }
         } else {
