@@ -2041,7 +2041,10 @@ void Ground::updateOslThickness5Carbon(Layer* fstsoil) {
 }
 
 
-/** Convert from gC/m^2 to layer thickness (meters) based on Yi et al, 2009. */
+/** Convert from gC/m^2 to layer thickness (meters) based on Yi et al, 2009. 
+ *
+ * Throws std::runtime_error if thickness goes negative.
+*/
 double Ground::thicknessFromCarbon(const double carbon, const double coefA, const double coefB) {
   //assert ((coefB >= 1) && "Yi et al. 2009 says the b coefficient should be a fitted parameter constrained to >= 1!");
   if (!(coefB >= 1)) BOOST_LOG_SEV(glg, err) << "Yi et al. 2009 says the b coefficient should be a fitted parameter constrained to >= 1!";
@@ -2051,11 +2054,17 @@ double Ground::thicknessFromCarbon(const double carbon, const double coefA, cons
   T = pow( carbon/10000.0/coefA, 1/coefB); // convert gC/m^2 to gC/cm^2
   T = T / 100.0;                           // convert thickness from cm to m
 
-  assert ((T >= 0) && "It doesn't make sense to have a negative thickness!");
+  if( !(T >= 0) ) {
+    throw std::runtime_error("It doesn't make sense to have a negative thickness!");
+  }
+
   return T;
 }
 
-/** Convert from layer thickness (meters) to gC/m^2 based on Yi et al, 2009. */
+/** Convert from layer thickness (meters) to gC/m^2 based on Yi et al, 2009. 
+ * 
+ * Throws std::runtime_error if C goes negative
+*/
 double Ground::carbonFromThickness(const double thickness, const double coefA, const double coefB) {
   //assert ((coefB >= 1) && "Yi et al. 2009 says the b coefficient should be a fitted parameter constrained to >= 1!");
   if (!(coefB >= 1)) BOOST_LOG_SEV(glg, err) << "Yi et al. 2009 says the b coefficient should be a fitted parameter constrained to >= 1!";
@@ -2065,7 +2074,10 @@ double Ground::carbonFromThickness(const double thickness, const double coefA, c
   C = coefA * pow(thickness*100.0, coefB); // convert from m to cm
   C = C * 10000.0;                         // convert from gC/cm^2 to gC/m^2
 
-  assert ((C >= 0) && "It doesn't make sense to have a negative amount of Carbon!");
+  if( !(C >= 0) ) {
+    throw std::runtime_error("It doesn't make sense to have a negative amount of Carbon!");
+  }
+
   return C;
 }
 
