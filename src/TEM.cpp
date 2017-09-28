@@ -460,7 +460,7 @@ int main(int argc, char* argv[]){
 
             advance_model(rowidx, colidx, modeldata, args->get_cal_mode(), eq_restart_fname, sp_restart_fname, tr_restart_fname, sc_restart_fname);
             std::cout << "The good write - finished cell!\n";
-            write_status(run_status_fname, rowidx, colidx, 100);            
+            write_status(run_status_fname, rowidx, colidx, 100);
             
           } catch (std::exception& e) {
 
@@ -474,12 +474,13 @@ int main(int argc, char* argv[]){
             outfile.close();
 
             // Write to fail_mask.nc file?? or json? might be good for visualization
-            write_status(run_status_fname, rowidx, colidx, -200); // <- what if this throws??
+            write_status(run_status_fname, rowidx, colidx, -100); // <- what if this throws??
             BOOST_LOG_SEV(glg, err) << "End of exception handler.";
 
           }
         } else {
           BOOST_LOG_SEV(glg, debug) << "Skipping cell (" << rowidx << ", " << colidx << ")";
+          write_status(run_status_fname, rowidx, colidx, 0);
         }
 
 #ifdef WITHMPI
