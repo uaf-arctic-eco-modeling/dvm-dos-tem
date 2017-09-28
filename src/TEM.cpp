@@ -92,6 +92,9 @@ void ppv(const std::vector<TYPE> &v){
 
 void write_sample_parallel_io(int id, int ntasks) {
 
+#ifndef WITHMPI
+    std::cout << "DO NOTHING! Can't try parallel file IO if not compiled with -DWITHMPI " << std::endl; 
+#else
     int ncid;
                                    // path            c mode               mpi comm obj     mpi info netcdfid
     temutil::nc( nc_create_par("test-parallel-io.nc", NC_NETCDF4|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
@@ -141,7 +144,7 @@ void write_sample_parallel_io(int id, int ntasks) {
 
     /* Close the netcdf file. */
     temutil::nc( nc_close(ncid));
-
+#endif
 }
 
 
@@ -149,10 +152,6 @@ void write_status(const std::string fname, int row, int col, int statusCode) {
 
   int ncid;
   int statusV;
-
-  temutil::nc( nc_open(fname.c_str(),  NC_WRITE, &ncid) );
-  temutil::nc( nc_inq_varid(ncid, "run_status", &statusV) );
-
 
   int NDIMS = 2;
 
@@ -163,13 +162,66 @@ void write_status(const std::string fname, int row, int col, int statusCode) {
   count[0] = 1;
   count[1] = 1;
 
-  std::cout << "WRITING FOR (row, col): " << row << ", " << col << "\n";
+#ifdef WITHMPI
+
+  int id = MPI::COMM_WORLD.Get_rank();
+  int ntasks = MPI::COMM_WORLD.Get_size();
+
+  nc_set_log_level(5); // can't seem to re-compile netcdf libs with --enable-logging
+
+  // Open dataset
+  temutil::nc( nc_create_par(fname.c_str(), NC_NETCDF4|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+  //temutil::nc( nc_open_par(fname.c_str(), NC_NETCDF4|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+  //temutil::nc( nc_inq_varid(ncid, "run_status", &statusV) );
+
+  // Define handles for dimensions
+  int yD;
+  int xD;
+
+  std::cout << "(MPI " << id << "/" << ntasks << ") Creating Dimensions...\n";
+  temutil::nc( nc_def_dim(ncid, "Y", 10, &yD) );
+  temutil::nc( nc_def_dim(ncid, "X", 10, &xD) );
+
+  // Setup arrays holding dimids for the variable
+  int vartype2D_dimids[2];
+  vartype2D_dimids[0] = yD;
+  vartype2D_dimids[1] = xD;
+
+  // Create variable(s) in nc file
+  std::cout << "(MPI " << id << "/" << ntasks << ") Creating Variable(s)...\n";
+  temutil::nc( nc_def_var(ncid, "run_status", NC_INT, 2, vartype2D_dimids, &statusV) );
+
+  // end define mode
+  temutil::nc( nc_enddef(ncid));
+
+  // Do some reporting...
+  std::cout << "(MPI " << id << "/" << ntasks << ") End define mode. Opened a PARALLEL file for recording run status.\n";
+  
 
   // Write data
+  std::cout << "(MPI " << id << "/" << ntasks << ") WRITING FOR PIXEL (row, col): " << row << ", " << col << "\n";
+  temutil::nc( nc_var_par_access(ncid, statusV, NC_INDEPENDENT) );
   temutil::nc( nc_put_vara(ncid, statusV, start, count,  &statusCode) );
 
   /* Close the netcdf file. */
+  std::cout << "(MPI " << id << "/" << ntasks << ") Closing PARALLEL file." << row << ", " << col << "\n";
   temutil::nc( nc_close(ncid) );
+#else
+
+  // Open dataset
+  temutil::nc( nc_open(fname.c_str(), NC_WRITE, &ncid) );
+  temutil::nc( nc_inq_varid(ncid, "run_status", &statusV) );
+  
+  // Do some reporting...
+  std::cout << "WRITING FOR (row, col): " << row << ", " << col << "\n";
+
+  // Write data
+  temutil::nc( nc_put_vara_int(ncid, statusV, start, count,  &statusCode) );
+
+  /* Close the netcdf file. */
+  temutil::nc( nc_close(ncid) );
+
+#endif
 }
 
 void create_empty_run_status_file(const std::string& fname,
@@ -459,7 +511,7 @@ int main(int argc, char* argv[]){
           try {
 
             advance_model(rowidx, colidx, modeldata, args->get_cal_mode(), eq_restart_fname, sp_restart_fname, tr_restart_fname, sc_restart_fname);
-            std::cout << "The good write - finished cell!\n";
+            std::cout << "SUCCESS! Finished cell " << rowidx << ", " << colidx << ". Writing status file..\n";
             write_status(run_status_fname, rowidx, colidx, 100);
             
           } catch (std::exception& e) {
@@ -479,7 +531,7 @@ int main(int argc, char* argv[]){
 
           }
         } else {
-          BOOST_LOG_SEV(glg, debug) << "Skipping cell (" << rowidx << ", " << colidx << ")";
+          BOOST_LOG_SEV(glg, fatal) << "Skipping cell (" << rowidx << ", " << colidx << ")";
           write_status(run_status_fname, rowidx, colidx, 0);
         }
 
@@ -861,9 +913,25 @@ void advance_model(const int rowidx, const int colidx,
 void create_empty_run_status_file(const std::string& fname,
     const int ysize, const int xsize) {
 
-  BOOST_LOG_SEV(glg, debug) << "Opening new file with 'NC_CLOBBER'";
   int ncid;
+
+
+#ifdef WITHMPI
+
+  int id = MPI::COMM_WORLD.Get_rank();
+  int ntasks = MPI::COMM_WORLD.Get_size();
+
+                            // path            c mode               mpi comm obj     mpi info netcdfid
+  temutil::nc( nc_create_par(fname.c_str(), NC_NETCDF4|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+
+  std::cout << "(MPI " << id << "/" << ntasks << ") Creating PARALLEL run_status file! \n";
+
+#else
+
+  BOOST_LOG_SEV(glg, debug) << "Opening new file with 'NC_CLOBBER'";
   temutil::nc( nc_create(fname.c_str(), NC_CLOBBER, &ncid) );
+
+#endif
 
   // Define handles for dimensions
   int yD;
