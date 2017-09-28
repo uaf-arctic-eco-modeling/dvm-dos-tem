@@ -1361,17 +1361,19 @@ COMBINEBEGIN:
 
 void Ground::redivideDeepLayers() {
   ////////// IF there exists 'deep' layer(s) ////////////////
-  if(fstdeepl!=NULL) {
-    Layer * currl =fstdeepl;
+  if(fstdeepl != NULL) {
+    Layer * currl = fstdeepl;
     // Adjusting the OS horion's layer division/combination
     SoilLayer* upsl ;
     SoilLayer* lwsl;
-    //combine all deep layers into ONE for re-structuring
-COMBINEBEGIN:
-    currl =fstdeepl;
+
+    // combine all deep layers into ONE for re-structuring
+
+    COMBINEBEGIN:
+    currl = fstdeepl;
 
     while(currl!=NULL) {
-      if(currl->indl<lstdeepl->indl) {
+      if(currl->indl < lstdeepl->indl) {
         upsl = dynamic_cast<SoilLayer*>(currl);
         lwsl = dynamic_cast<SoilLayer*>(currl->nextl);
         combineTwoSoilLayersL2U(lwsl,upsl); //combine this layer and next layer
