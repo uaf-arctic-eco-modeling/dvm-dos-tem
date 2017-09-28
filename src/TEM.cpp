@@ -315,7 +315,6 @@ int main(int argc, char* argv[]){
   int num_rows = run_mask.size();
   int num_cols = run_mask[0].size();
 
-
   // Make some convenient handles for later...
   std::string run_status_fname = modeldata.output_dir + "run_status.nc";
   std::string eq_restart_fname = modeldata.output_dir + "restart-eq.nc";
@@ -323,19 +322,21 @@ int main(int argc, char* argv[]){
   std::string tr_restart_fname = modeldata.output_dir + "restart-tr.nc";
   std::string sc_restart_fname = modeldata.output_dir + "restart-sc.nc";
 
-  // Create empty restart files for all stages based on size of run mask
+  // Make sure the output directory exists!!
   if (!boost::filesystem::exists(modeldata.output_dir)) {
     BOOST_LOG_SEV(glg, info) << "Creating output directory as specified in "
                              << "config file: ", modeldata.output_dir;
     boost::filesystem::create_directory(modeldata.output_dir);
   }
 
-  create_empty_run_status_file(run_status_fname, num_rows, num_cols);
+  // Create empty restart files for all stages based on size of run mask
   RestartData::create_empty_file(eq_restart_fname, num_rows, num_cols);
   RestartData::create_empty_file(sp_restart_fname, num_rows, num_cols);
   RestartData::create_empty_file(tr_restart_fname, num_rows, num_cols);
   RestartData::create_empty_file(sc_restart_fname, num_rows, num_cols);
 
+  // Create empty run status file
+  create_empty_run_status_file(run_status_fname, num_rows, num_cols);
 
   // Create empty output files now so that later, as the program
   // proceeds, there is somewhere to append output data...
