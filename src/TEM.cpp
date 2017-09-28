@@ -145,6 +145,9 @@ void write_sample_parallel_io(int id, int ntasks) {
 }
 
 
+void create_empty_run_status_file(const std::string& fname,
+    const int ysize, const int xsize);
+
 // The main driving function
 void advance_model(const int rowidx, const int colidx,
                    const ModelData&, const bool calmode,
@@ -281,15 +284,17 @@ int main(int argc, char* argv[]){
   // Open the run mask (spatial mask)
   std::vector< std::vector<int> > run_mask = temutil::read_run_mask(modeldata.runmask_file);
 
+  // Figure out how big the run_mask is
+  int num_rows = run_mask.size();
+  int num_cols = run_mask[0].size();
+
+
   // Make some convenient handles for later...
+  std::string run_status_fname = modeldata.output_dir + "run_status.nc";
   std::string eq_restart_fname = modeldata.output_dir + "restart-eq.nc";
   std::string sp_restart_fname = modeldata.output_dir + "restart-sp.nc";
   std::string tr_restart_fname = modeldata.output_dir + "restart-tr.nc";
   std::string sc_restart_fname = modeldata.output_dir + "restart-sc.nc";
-
-  // Figure out how big the run_mask is
-  int num_rows = run_mask.size();
-  int num_cols = run_mask[0].size();
 
   // Create empty restart files for all stages based on size of run mask
   if (!boost::filesystem::exists(modeldata.output_dir)) {
@@ -297,6 +302,8 @@ int main(int argc, char* argv[]){
                              << "config file: ", modeldata.output_dir;
     boost::filesystem::create_directory(modeldata.output_dir);
   }
+
+  create_empty_run_status_file(run_status_fname, num_rows, num_cols);
   RestartData::create_empty_file(eq_restart_fname, num_rows, num_cols);
   RestartData::create_empty_file(sp_restart_fname, num_rows, num_cols);
   RestartData::create_empty_file(tr_restart_fname, num_rows, num_cols);
@@ -816,4 +823,47 @@ void advance_model(const int rowidx, const int colidx,
 
 
 } // end advance_model
+
+/** Creates (overwrites) an empty run_status file. */
+void create_empty_run_status_file(const std::string& fname,
+    const int ysize, const int xsize) {
+
+  BOOST_LOG_SEV(glg, debug) << "Opening new file with 'NC_CLOBBER'";
+  int ncid;
+  temutil::nc( nc_create(fname.c_str(), NC_CLOBBER, &ncid) );
+
+  // Define handles for dimensions
+  int yD;
+  int xD;
+
+  BOOST_LOG_SEV(glg, debug) << "Creating dimensions...";
+  temutil::nc( nc_def_dim(ncid, "Y", ysize, &yD) );
+  temutil::nc( nc_def_dim(ncid, "X", xsize, &xD) );
+
+  // Setup arrays holding dimids for different "types" of variables
+  // --> will re-arrange these later to define variables with different dims
+  int vartype2D_dimids[2];
+  vartype2D_dimids[0] = yD;
+  vartype2D_dimids[1] = xD;
+
+  // Setup 2D vars, integer
+  // Define handle for variable(s)
+  int run_statusV;
+  
+  // Create variable(s) in nc file
+  temutil::nc( nc_def_var(ncid, "run_status", NC_INT, 2, vartype2D_dimids, &run_statusV) );
+
+  // SET FILL VALUE?
+
+  /* Create Attributes?? */
+
+  /* End Define Mode (not scrictly necessary for netcdf 4) */
+  BOOST_LOG_SEV(glg, debug) << "Leaving 'define mode'...";
+  temutil::nc( nc_enddef(ncid) );
+
+  /* Close file. */
+  BOOST_LOG_SEV(glg, debug) << "Closing new file...";
+  temutil::nc( nc_close(ncid) );
+
+}
 
