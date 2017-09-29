@@ -341,11 +341,34 @@ int main(int argc, char* argv[]){
     //      depending on the comparison operator
     //  - The loop must be a basic block: no jump to outside the loop
     //      other than the exit statement.
+
+#ifdef WITHMPI
+    // We already have run MPI_Init and have a communicator and info objects.
+    // Also we have already found the processor id (id) and number of processors
+    // in this communicator group (ntasks).
+    
+    int total_cells = num_rows * num_cols;
+
+    #pragma omp parallel for schedule(dynamic)
+    for(int curr_cell=id; curr_cell<total_cells; curr_cell+=ntasks){
+
+      int rowidx = curr_cell / num_cols;
+      int colidx = curr_cell % num_cols;
+
+      bool mask_value = run_mask[rowidx][colidx];
+
+      BOOST_LOG_SEV(glg, fatal) << "MPI rank: "<<id<<", cell: "<<rowidx<<", "<<colidx<<" mask value: "<<mask_value;
+
+#else
+
+    BOOST_LOG_SEV(glg, info) << "Not built with MPI! Running serially!";
     #pragma omp parallel for collapse(2) schedule(dynamic)
     for(int rowidx=0; rowidx<num_rows; rowidx++){
       for(int colidx=0; colidx<num_cols; colidx++){
 
         bool mask_value = run_mask[rowidx].at(colidx);
+
+#endif
 
         if (true == mask_value) {
 
@@ -374,15 +397,20 @@ int main(int argc, char* argv[]){
             // Write to fail_mask.nc file?? or json? might be good for visualization
             write_status(run_status_fname, rowidx, colidx, -100); // <- what if this throws??
             BOOST_LOG_SEV(glg, err) << "End of exception handler.";
-
           }
+
         } else {
           BOOST_LOG_SEV(glg, debug) << "Skipping cell (" << rowidx << ", " << colidx << ")";
           write_status(run_status_fname, rowidx, colidx, 0);
         }
-      }//end col loop
-    }//end row loop
-  
+
+#ifdef WITHMPI
+    } // End of single, flattened loop over cells (and OpenMP pragma)
+#else
+      } // end col loop
+    } // end row loop, and OpenMP pragma
+#endif
+
   } else if (args->get_loop_order() == "time-major") {
     BOOST_LOG_SEV(glg, warn) << "DO NOTHING. NOT IMPLEMENTED YET.";
     // for each year
