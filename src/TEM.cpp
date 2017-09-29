@@ -195,16 +195,18 @@ void write_status(const std::string fname, int row, int col, int statusCode) {
   temutil::nc( nc_enddef(ncid));
 
   // Do some reporting...
-  std::cout << "(MPI " << id << "/" << ntasks << ") End define mode. Opened a PARALLEL file for recording run status.\n";
+  std::cout << "(MPI " << id << "/" << ntasks << ") Opened a PARALLEL file for PIXEL row,col: " << row << ", " << col << "\n";
   
 
   // Write data
-  std::cout << "(MPI " << id << "/" << ntasks << ") WRITING FOR PIXEL (row, col): " << row << ", " << col << "\n";
+  std::cout << "(MPI " << id << "/" << ntasks << ") Setting access mode...\n";
   temutil::nc( nc_var_par_access(ncid, statusV, NC_INDEPENDENT) );
+  
+  std::cout << "(MPI " << id << "/" << ntasks << ") WRITING " << statusCode << " for PIXEL row,col: " << row << ", " << col << "\n";
   temutil::nc( nc_put_vara(ncid, statusV, start, count,  &statusCode) );
 
   /* Close the netcdf file. */
-  std::cout << "(MPI " << id << "/" << ntasks << ") Closing PARALLEL file." << row << ", " << col << "\n";
+  std::cout << "(MPI " << id << "/" << ntasks << ") Closing PARALLEL file for PIXEL row,col: " << row << ", " << col << "\n";
   temutil::nc( nc_close(ncid) );
 #else
 
