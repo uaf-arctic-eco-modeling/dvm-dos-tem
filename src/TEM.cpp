@@ -170,34 +170,34 @@ void write_status(const std::string fname, int row, int col, int statusCode) {
   nc_set_log_level(5); // can't seem to re-compile netcdf libs with --enable-logging
 
   // Open dataset
-  temutil::nc( nc_create_par(fname.c_str(), NC_NETCDF4|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
-  //temutil::nc( nc_open_par(fname.c_str(), NC_NETCDF4|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
-  //temutil::nc( nc_inq_varid(ncid, "run_status", &statusV) );
+  temutil::nc( nc_open_par(fname.c_str(), NC_NETCDF4|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+  temutil::nc( nc_inq_varid(ncid, "run_status", &statusV) );
 
-  // Define handles for dimensions
-  int yD;
-  int xD;
+  ////temutil::nc( nc_create_par(fname.c_str(), NC_NETCDF4|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );  ////// Define handles for dimensions
 
-  std::cout << "(MPI " << id << "/" << ntasks << ") Creating Dimensions...\n";
-  temutil::nc( nc_def_dim(ncid, "Y", 10, &yD) );
-  temutil::nc( nc_def_dim(ncid, "X", 10, &xD) );
+  ////int yD;
+  ////int xD;
 
-  // Setup arrays holding dimids for the variable
-  int vartype2D_dimids[2];
-  vartype2D_dimids[0] = yD;
-  vartype2D_dimids[1] = xD;
+  ////std::cout << "(MPI " << id << "/" << ntasks << ") Creating Dimensions...\n";
+  ////temutil::nc( nc_def_dim(ncid, "Y", 10, &yD) );
+  ////temutil::nc( nc_def_dim(ncid, "X", 10, &xD) );
 
-  // Create variable(s) in nc file
-  std::cout << "(MPI " << id << "/" << ntasks << ") Creating Variable(s)...\n";
-  temutil::nc( nc_def_var(ncid, "run_status", NC_INT, 2, vartype2D_dimids, &statusV) );
+  ////// Setup arrays holding dimids for the variable
+  ////int vartype2D_dimids[2];
+  ////vartype2D_dimids[0] = yD;
+  ////vartype2D_dimids[1] = xD;
 
-  // end define mode
-  temutil::nc( nc_enddef(ncid));
+  ////// Create variable(s) in nc file
+  ////std::cout << "(MPI " << id << "/" << ntasks << ") Creating Variable(s)...\n";
+  ////temutil::nc( nc_def_var(ncid, "run_status", NC_INT, 2, vartype2D_dimids, &statusV) );
+
+  ////// end define mode
+  ////std::cout << "(MPI " << id << "/" << ntasks << ") End define mode.\n"; 
+  ////temutil::nc( nc_enddef(ncid));
 
   // Do some reporting...
   std::cout << "(MPI " << id << "/" << ntasks << ") Opened a PARALLEL file for PIXEL row,col: " << row << ", " << col << "\n";
   
-
   // Write data
   std::cout << "(MPI " << id << "/" << ntasks << ") Setting access mode...\n";
   temutil::nc( nc_var_par_access(ncid, statusV, NC_INDEPENDENT) );
