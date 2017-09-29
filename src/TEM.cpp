@@ -88,33 +88,16 @@ void ppv(const std::vector<TYPE> &v){
   std::cout << "\n";
 }
 
-void write_status(const std::string fname, int row, int col, int statusCode) {
+/** Write out a status code to a particular pixel in the run status file.
+*/
+void write_status(const std::string fname, int row, int col, int statusCode);
 
-  int ncid;
-  int statusV;
-
-  temutil::nc( nc_open(fname.c_str(),  NC_WRITE, &ncid) );
-  temutil::nc( nc_inq_varid(ncid, "run_status", &statusV) );
-
-
-  int NDIMS = 2;
-
-  size_t start[NDIMS], count[NDIMS];
-  // Set point to write
-  start[0] = row;
-  start[1] = col;
-  count[0] = 1;
-  count[1] = 1;
-
-  std::cout << "WRITING FOR (row, col): " << row << ", " << col << "\n";
-
-  // Write data
-  temutil::nc( nc_put_vara(ncid, statusV, start, count,  &statusCode) );
-
-  /* Close the netcdf file. */
-  temutil::nc( nc_close(ncid) );
-}
-
+/** Builds an empty netcdf file for recording the run status. 
+ * Ultimately we might want to spit the run status out in a more easily 
+ * consumable way like txt to stdout or json, but for now we can use netcdf. 
+ * Also it makes for a simple netcdf file to experiment with for MPI, 
+ * parallel output
+ */
 void create_empty_run_status_file(const std::string& fname,
     const int ysize, const int xsize);
 
@@ -808,3 +791,28 @@ void create_empty_run_status_file(const std::string& fname,
 
 }
 
+void write_status(const std::string fname, int row, int col, int statusCode) {
+
+  int ncid;
+  int statusV;
+
+  temutil::nc( nc_open(fname.c_str(),  NC_WRITE, &ncid) );
+  temutil::nc( nc_inq_varid(ncid, "run_status", &statusV) );
+
+
+  int NDIMS = 2;
+
+  size_t start[NDIMS], count[NDIMS];
+  // Set point to write
+  start[0] = row;
+  start[1] = col;
+  count[0] = 1;
+  count[1] = 1;
+
+  // Write data
+  BOOST_LOG_SEV(glg, note) << "WRITING FOR OUTPUT STATUS FOR (row, col): " << row << ", " << col << "\n";
+  temutil::nc( nc_put_vara(ncid, statusV, start, count,  &statusCode) );
+
+  /* Close the netcdf file. */
+  temutil::nc( nc_close(ncid) );
+}
