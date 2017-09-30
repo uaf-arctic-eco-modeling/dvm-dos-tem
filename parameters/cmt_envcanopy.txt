@@ -118,3 +118,18 @@
 75          75          75           75           75           75           75           75           75           75               // ppfd50::
 0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegwater: initial intercepted rain water in canopy
 0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegsnow: initial intercepted snow water in canopy
+//===========================================================
+// CMT08 // CMT8 Shrubland Community - (max. 10 PFTs) (Biophysical) plant leaf characteristics and parameters
+//Dec Shrub  Evr Shrub    Dec Tree     Evr Tree     Forbs        Gram         Feather      Lichen       Equisetum    Misc.        // names: comments
+0.10         0.10         0.10         0.10         0.10         0.10         0.10         0.10         0.10         0.10             // albvisnir: canopy albedo
+0.5          0.5          0.5          0.5          0.5          0.5          0.5          0.5          0.5          0.5              // er: light extinction coefficient
+0.041        0.041        0.041        0.041        0.041        0.041        0.041        0.041        0.041        0.041            // ircoef: rainfall interception 
+0.041        0.041        0.041        0.041        0.041        0.041        0.041        0.041        0.041        0.041            // iscoef: snow interception
+0.003        0.003        0.003        0.003        0.003        0.003        0.003        0.003        0.003        0.003            // glmax: max. canopy conductance (m/s)
+0.08         0.08         0.08         0.08         0.08         0.08         0.08         0.08         0.08         0.08             // gl_bl: boundary layer conductance
+0.00001      0.00001      0.00001      0.00001      0.00001      0.00001      0.00001      0.00001      0.00001      0.00001          // gl_c:  cuticular conductance
+930          930          930          930          930          930          930          930          930          930              // vpd_open:  vpd (pa) for leaf stomata fully openness
+4100         4100         4100         4100         4100         4100         4100         4100         4100         4100             // vpd_close: vpd (pa) for leaf stomata fully closure
+75           75           75           75           75           75           75           75           75           75               // ppfd50::
+0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegwater: initial intercepted rain water in canopy
+0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegsnow: initial intercepted snow water in canopy

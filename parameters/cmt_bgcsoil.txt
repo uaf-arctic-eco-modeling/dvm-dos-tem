@@ -158,3 +158,23 @@
 32640             // initminec:
 1405               // initsoln:
 0.17              // initavln:
+//===========================================================
+// CMT08 // CMT8 Shrubland Community  - soil microbial activity (BGC) parameters and default initial conditions
+2.0               // rhq10:
+0.0               // moistmin:
+0.5               // moistopt:
+1.0               // moistmax:
+75.67             // lcclnc:  this might be too hi?
+0.372             // fsoma:
+0.611             // fsompr:
+0.017             // fsomcr:
+0.346             // som2co2:
+0.0042            // kn2:
+16.37             // nmincnsoil:
+0.2               // propftos:
+0.0               // fnloss:  fraction N leaching (0 - 1) when drainage occurs
+3745.51           // initshlwc:
+7672.62           // initdeepc:
+24235.14          // initminec:
+2177.91           // initsoln:
+0.8               // initavln:

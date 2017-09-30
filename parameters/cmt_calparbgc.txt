@@ -174,3 +174,25 @@
 0.26       // kdcsoma:
 0.0062      // kdcsompr:
 0.0000005   // kdcsomcr:
+//===========================================================
+// CMT08 // Shrubland- (max. 10 PFTs over 1 soil column) (BGC) plant calibrated parameters
+//Dec.Shrub  Evr.Shrub    Dec.Tree     Evr.Tree     Forbs        Gram       Feather     Lichen     Equisetum    Misc.        // names: comments
+370.00       120.00      700.00      1470.00       285.0       2300.0      135.0        19.0       75.0          0.0          // cmax:
+10.20         9.00         8.20        10.00         3.00        27.00       3.0         3.0        4.0          0.0          // nmax:
+ 0.0950       0.0006       0.0500       0.0009       0.0027       0.0009     0.0278     0.0788    0.0020       0.0          // cfall(0): leaf
+ 0.00065      0.0262       0.0025       0.0160       0.0000       0.0000     0.0000      0.0000     0.0000       0.0          // cfall(1): stem
+ 0.0009       0.0230       0.0033       0.0137       0.0527       0.0090     0.0000      0.0000     0.1290       0.0          // cfall(2): root
+ 0.00002      0.000014     0.00002      0.000014     0.0001       0.00009    0.0035      0.0010     0.0025       0.0          // nfall(0): leaf
+ 0.00015      0.000017     0.00014      0.000017     0.0000       0.0000     0.0000      0.0000     0.0000       0.0          // nfall(1): stem
+ 0.0100       0.000008     0.0100       0.000008     0.00013      0.00990    0.0000      0.0000     0.0020       0.0          // nfall(2): root
+-8.06e-05    -8.06e-05    -8.06e-05    -8.06e-05    -8.06e-05    -8.06e-05  -8.06e-05   -8.06e-05  -8.06e-05     0.0          // kra:    coeff(0) in maintenance resp.
+-1.00        -7.50        -7.50        -2.60        -4.90        -6.00      -3.0        -1.0       -4.7          0.0          // krb(0): coeff(1) in maintenance resp.(leave)
+-6.60        -2.00        -4.65        -3.40         0.00         0.00       0.0         0.0        0.0          0.0          // krb(1): coeff(1) in maintenance resp.(stem)
+-7.90        -1.40        -5.00        -2.50        -1.00        -1.00       0.0         0.0       -2.9          0.0          // krb(2): coeff(1) in maintenance resp.(root)
+ 0.20         0.20         0.20         0.20         0.20         0.00       0.0         0.0        0.0          0.0          // frg: fraction of available NPP (GPP after rm) for growth resp.
+// soil calibrated parameters
+0.8265        // micbnup: parameter for soil microbial immobialization of N
+0.077       // kdcrawc: raw-material (litter) C decompositin rates at reference condition
+0.03       // kdcsoma:
+0.0085      // kdcsompr:
+0.000025    // kdcsomcr:
