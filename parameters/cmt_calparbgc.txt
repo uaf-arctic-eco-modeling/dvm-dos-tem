@@ -196,3 +196,25 @@
 0.03       // kdcsoma:
 0.0085      // kdcsompr:
 0.000025    // kdcsomcr:
+//===========================================================
+// CMT09 // Shrub tundra at EML (deep root project)- (max. 10 PFTs over 1 soil column) (BGC) plant calibrated parameters
+//Betnan   Carex       Ericoid      Feather      Lichen      OthMoss    Rubcha      Misc1    Misc2   Misc3      // names: comments
+2470.00    300.00      1710.00       510.00       108.0        88.0      285.0        0.0      0.0     0.0       // cmax:
+70.20       20.00        30.20        23.00         3.00       10.00      13.0        0.0      0.0     0.0       // nmax:
+ 0.00001     0.00001      0.00001      0.0258       0.009       0.14       0.0278     0.0      0.0     0.0       // cfall(0): leaf
+ 0.025       0.0362       0.020        0.0000       0.0000      0.000      0.035      0.0      0.0     0.0       // cfall(1): stem
+ 0.034       0.0330       0.019        0.0000       0.0000      0.000      0.02       0.0      0.0     0.0       // cfall(2): root
+ 0.00009     0.00001      0.00002      0.00035      0.0001      0.00001    0.0035     0.0      0.0     0.0       // nfall(0): leaf
+ 0.00055     0.00017      0.00014      0.0000       0.0000      0.000      0.0001     0.0      0.0     0.0       // nfall(1): stem
+ 0.0100      0.00008      0.0100       0.0000       0.0000      0.000      0.0001     0.0      0.0     0.0       // nfall(2): root
+-8.06e-05   -8.06e-05    -8.06e-05    -8.06e-05    -8.06e-05   -8.06e-05  -8.06e-05   0.0      0.0     0.0       // kra:    coeff(0) in maintenance resp.
+-7.50       -8.50        -9.50        -4.00        -4.30       -3.57      -3.0        0.0      0.0     0.0       // krb(0): coeff(1) in maintenance resp.(leave)
+-3.85       -4.00        -3.65         0.00         0.00        0.00      -3.5        0.0      0.0     0.0       // krb(1): coeff(1) in maintenance resp.(stem)
+-6.60       -3.00        -5.00         0.00         0.00        0.00      -2.0        0.0      0.0     0.0       // krb(2): coeff(1) in maintenance resp.(root)
+ 0.20        0.20         0.20         0.20         0.20        0.00       0.0        0.0      0.0     0.0       // frg: fraction of available NPP (GPP after rm) for growth resp.
+// soil calibrated parameters
+0.45        // micbnup: parameter for soil microbial immobialization of N
+0.91       // kdcrawc: raw-material (litter) C decompositin rates at reference condition
+0.67       // kdcsoma:
+0.91      // kdcsompr:
+0.00025    // kdcsomcr:

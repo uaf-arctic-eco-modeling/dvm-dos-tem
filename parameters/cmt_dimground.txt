@@ -178,3 +178,23 @@
 0.9750             // coefdeepb:
 0.0996             // coefminea:
 0.6931             // coefmineb:
+//===========================================================
+// CMT09 // Shrub Tundra EML
+// Snow characteristics
+350                // snwdenmax:  max. snow density (kg/m3)
+120                // snwdennew:  new (min.) snow density (kg/m3)
+0.                 // initsnwthick: initial snow thickness (m)
+0.                 // initsnwdense: initial snow density (kg/m3)
+// moss characteristics
+0.035              // maxmossthick: max. moss thickness (m)
+0.005              // initdmossthick: initial dead moss thickness (m)
+2                  // mosstype: moss type (1: sphagnum; 2: furthermoss; 3: other)
+// soil characteristics
+0.147              // initfibthick: meters
+0.255              // inithumthick:
+0.0652             // coefshlwa:
+0.7080             // coefshlwb:
+0.0545             // coefdeepa:
+0.9750             // coefdeepb:
+0.0996             // coefminea:
+0.7810             // coefmineb:

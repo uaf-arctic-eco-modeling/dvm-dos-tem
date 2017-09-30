@@ -240,6 +240,32 @@ calibration_targets = {
     'OrganicNitrogenSum':     2177.91,    #  soln
     'AvailableNitrogenSum':       0.8,    #  avln
   },
+ ## Prepared from EML??
+  "Shrub tundra EML": {
+    'cmtnumber': 9,
+                                 #      pft0       pft1      pft2      pft3     pft4     pft5     pft6     pft7      pft8    pft9   
+                                 #    Betnan     Carex    Ericoid    Feather  Lichen  Othmoss    Rubcha    Misc.    Misc.   Misc.   
+    'GPPAllIgnoringNitrogen':    [   1112.72,    200.06,   725.94,   364.58,   52.96,   55.43,  129.52,    0.00,    0.00,   0.00 ], # ingpp     (gC/m2/year)   GPP without N limitation
+    'NPPAllIgnoringNitrogen':    [    834.54,    150.04,   544.46,   273.44,   39.72,   41.57,   97.14,    0.00,    0.00,   0.00 ], # innpp     (gC/m2/year)   NPP without N limitation 
+    'NPPAll':                    [    556.36,    100.03,   362.97,   182.29,   26.48,   27.71,   64.76,    0.00,    0.00,   0.00 ], # npp       (gC/m2/year)   NPP with N limitation
+    'Nuptake':                   [      6.68,      1.20,     4.36,     2.19,    0.32,    0.33,    0.78,    0.00,    0.00,   0.00 ], # nuptake   (gN/m2/year)
+    'VegCarbon': {
+      'Leaf':                    [    397.15,     19.63,   269.81,   588.10,  139.99,   89.41,    1.33,    0.00,    0.00,   0.00 ], # vegcl     (gC/m2)
+      'Stem':                    [   1767.96,    171.73,  1362.49,     0.00,    0.00,    0.00,   82.22,    0.00,    0.00,   0.00 ], # vegcw     (gC/m2)
+      'Root':                    [    203.43,     80.40,   245.86,     0.00,    0.00,    0.00,   63.43,    0.00,    0.00,   0.00 ], # vegcr     (gC/m2)
+    },
+    'VegStructuralNitrogen': {
+      'Leaf':                    [      6.95,      0.57,     5.52,     8.75,    2.30,    0.50,   0.044,    0.00,    0.00,   0.00 ], # vegnl     (gN/m2)
+      'Stem':                    [     26.05,      2.30,    13.91,     0.00,    0.00,    0.00,    1.30,    0.00,    0.00,   0.00 ], # vegnw     (gN/m2)
+      'Root':                    [      3.33,      0.92,     2.47,     0.00,    0.00,    0.00,    1.27,    0.00,    0.00,   0.00 ], # vegnr     (gN/m2)
+    },
+    'MossDeathC':                0.00,    #  dmossc928.0
+    'CarbonShallow':          4365.66,    #  shlwc
+    'CarbonDeep':            12814.11,    #  deepc
+    'CarbonMineralSum':      36329.49,    #  minec
+    'OrganicNitrogenSum':     1904.10,    #  soln
+    'AvailableNitrogenSum':      4.00,    #  avln
+  },
   },
 }
 

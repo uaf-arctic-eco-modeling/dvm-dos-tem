@@ -385,3 +385,46 @@
 0.0          1.3          0.0          1.3          1.3          0.5          2.00         2.00         1.3          0           // envlai[9]:
 0.0          0.8          0.0          0.8          1.0          0.0          2.00         2.00         0.8          0           // envlai[10]:
 0.0          0.7          0.0          0.7          0.5          0.0          2.00         2.00         0.7          0           // envlai[11]:
+//===========================================================
+// CMT09 // Shrub tundra EML - (max. 10 PFTs over 1 soil column) (BGC) Plant structure/dimension
+//Betnan    Carex        Ericoid     Feather       Lichen     OtherMoss      Rubcha       Misc.       Misc.        Misc.        // names: comments
+1.00         1.00         1.00         1.00         1.00         1.00         1.00         0            0            0            // vegfrac: vegetation coverage on land - 0 indicates that PFT does't exist
+1            0            1            0            0            0            1            0            0            0            // ifwoody: woody plants (1) or not (0)
+0            0            0            0            0            0            0            0            0            0            // ifdeciwoody: deciduous woodland (1) or not (0)
+1            1            1            1            1            1            1            0            0            0            // ifperenial: perenial (1) or not (0)
+0            0            0            2            3            0            0            0            0            0            // nonvascular type: vascular (0), sphagnum (1), feathermoss (2), lichen (3)
+0.014        0.006        0.0056       0.02         0.006        0.02         0.014        0            0            0            // sla: specific leaf area (m2/gC)
+0.250        0.0537       0.1133       0.250        0.250        0.250        0.4564       0            0            0            // klai: extinction coeff for conversion from lai to fpc
+0.0          0.0          0.0          0.0          0.0          0.0          0.0          0            0            0            // minleaf: this and the following 4 parameters are for EET/PET controlled phenology - f(leaf)
+0.42893      0.79640      0.79640      0.79640      0.79640      0.79640      0.79640      0            0            0            // aleaf
+0.33295      0.46635      0.46635      0.46635      0.46635      0.46635      0.46635      0            0            0            // bleaf
+0.32228     -0.02873     -0.02873     -0.02873     -0.02873     -0.02873     -0.02873      0            0            0            // cleaf
+1.6662       1.6662       1.6662       1.6662       1.6662       1.6662       1.6662       0            0            0            // kfoliage: this and the following 1 parameters are for non-woody plant's f(foliage) 
+-0.009      -0.527       -0.447       -0.057       -0.273       -0.057       -0.107        0            0            0            // cov
+15.206       15.206       15.206       15.206       15.206       15.206       15.206       0            0            0            // m1: this and the following 3 parameters are for woody plant's f(foliage)
+-0.3197     -0.3197      -0.3197      -0.3197      -0.3197      -0.3197      -0.3197       0            0            0            // m2
+0.0401       0.0401       0.0401       0.0401       0.0401       0.0401       0.0401       0            0            0            // m3
+0.0001       0.0001       0.0001       0.0001       0.0001       0.0001       0.0001       0            0            0            // m4
+18.9         8.0          52.4         100          100          100          8.6          0.00         0.00         0.00         // frprod[0]: fine root allocation percentage vertically in soils (every 10 cm)
+52.5         36.7         26.0         0.00         0.00         0.00         15.6         0.00         0.00         0.00         // frprod[1]:
+28.4         26.0         20.3         0.00         0.00         0.00         31.5         0.00         0.00         0.00         // frprod[2]:
+0.187        27.65        1.084        0.00         0.00         0.00         37.34        0.00         0.00         0.00         // frprod[3]:
+0.00         1.664        0.255        0.00         0.00         0.00         6.912        0.00         0.00         0.00         // frprod[4]:
+0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[5]:
+0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[6]:
+0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[7]:
+0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[8]:
+0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[9]:
+0.00         0.04         0.05         0.77         0.29         0.77         0.07         0.00         0.00         0.00         // lai: initial LAI
+0.0          1.0          0.5          1.0          0.1          1.0          0.0          0.0          0.0          0.0          // envlai[0]: monthly lai for a year, used for static input of LAI
+0.0          1.5          0.3          1.5          0.2          1.5          0.0          0.0          0.0          0.0          // envlai[1]:   
+0.0          2.0          0.5          0.0          0.3          0.0          0.0          0.0          0.0          0.0          // envlai[2]: 
+0.5          1.5          1.2          0.0          0.6          0.0          1.0          0.0          0.0          0.0          // envlai[3]:
+1.3          0.3          1.3          1.3          1.3          1.3          1.9          0.0          0.0          0.0          // envlai[4]:
+1.9          0.0          1.9          1.9          1.9          1.9          2.5          0.0          0.0          0.0          // envlai[5]:
+2.0          0.0          2.0          0.0          0.1          0.0          2.0          0.0          0.0          0.0          // envlai[6]:
+2.0          0.0          2.0          0.0          0.2          0.0          2.0          0.0          0.0          0.0          // envlai[7]:
+0.5          0.0          1.5          1.5          0.5          1.5          1.5          0.0          0.0          0.0          // envlai[8]:
+0.2          0.3          1.3          1.3          1.3          1.3          0.0          0.0          0.0          0.0          // envlai[9]:
+0.0          0.5          0.8          0.0          1.9          0.0          0.0          0.0          0.0          0.0          // envlai[10]:
+0.0          0.8          0.7          1.1          2.1          1.1          0.0          0.0          0.0          0.0          // envlai[11]:
