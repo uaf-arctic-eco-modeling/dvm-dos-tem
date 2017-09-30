@@ -188,31 +188,31 @@ calibration_targets = {
     'OrganicNitrogenSum':     2698.00,    #  soln
     'AvailableNitrogenSum':      0.48,    #  avln
   },
-  ## WARNING: JUNK, PLACEHOLDER VALUES! USE AT YOUR OWN RISK!
+  ## CMT07 - HEATH TUNDRA - CALIBRATION TOOLIK CLIMATE   Lichen gpp 18.525, npp was 1/2, Miss 6.621, 6.19, 3.31
   "heath tundra": {
     'cmtnumber': 7,
-                                 #    pft0     pft1      pft2      pft3     pft4     pft5     pft6     pft7     pft8    pft9   
-                                 #  Spruce    Salix    Decid.   E.green   Sedges    Forbs  Grasses  Lichens  Feather.   Misc.
-    'GPPAllIgnoringNitrogen':    [  468.74,   81.73,    27.51,    22.23,   29.85,   28.44,   11.29,    7.75,   42.18,   0.00 ], # ingpp     (gC/m2/year)   GPP without N limitation
-    'NPPAllIgnoringNitrogen':    [  200.39,   61.30,    25.73,    20.79,   27.91,   26.59,   10.56,    7.25,   39.44,   0.00 ], # innpp     (gC/m2/year)   NPP without N limitation 
-    'NPPAll':                    [  133.59,   40.87,    13.76,    11.12,   14.92,   14.22,    5.65,    3.87,   21.09,   0.00 ], # npp       (gC/m2/year)   NPP with N limitation
-    'Nuptake':                   [    0.67,    0.42,     0.17,     0.17,    0.22,    0.21,    0.08,    0.01,    0.24,   0.00 ], # nuptake   (gN/m2/year)
+                                 #    pft0     pft1      pft2      pft3       pft4    pft5     pft6     pft7     pft8    pft9   
+                                 #  D.shrub   E.shrub    Forb      Lichen    Sedge    Moss      Misc.   Misc.    Misc.   Misc.
+    'GPPAllIgnoringNitrogen':    [   9.303,   31.494,    2.667,    37.000,   2.667,   12.000,    0.00,    0.00,    0.00,   0.00 ], # ingpp     (gC/m2/year)   GPP without N limitation
+    'NPPAllIgnoringNitrogen':    [   8.698,   29.447,    2.493,    18.525,   2.493,   11.987,    0.00,    0.00,    0.00,   0.00 ], # innpp     (gC/m2/year)   NPP without N limitation 
+    'NPPAll':                    [   4.539,   15.747,    1.333,    18.525,   1.333,    6.000,    0.00,    0.00,    0.00,   0.00 ], # npp       (gC/m2/year)   NPP with N limitation
+    'Nuptake':                   [    0.09,    0.215,    0.165,     0.010,   0.080,    0.051,    0.00,    0.00,    0.00,   0.00 ], # nuptake   (gN/m2/year)
     'VegCarbon': {
-      'Leaf':                    [  121.92,   13.17,     8.85,     6.03,    5.60,    5.33,    2.12,   35.22,  100.35,   0.00 ], # vegcl     (gC/m2)
-      'Stem':                    [ 1519.45,  129.81,    76.07,    13.10,    0.00,    0.00,    0.00,    0.00,    0.00,   0.00 ], # vegcw     (gC/m2)
-      'Root':                    [  410.34,    4.00,     4.20,     1.17,    9.33,    8.89,    3.53,    0.00,    0.00,   0.00 ], # vegcr     (gC/m2)
+      'Leaf':                    [   2.650,   21.216,    1.100,   102.384,   1.100,    4.138,    0.00,    0.00,    0.00,   0.00 ], # vegcl     (gC/m2)
+      'Stem':                    [  35.642,   24.296,    0.000,     0.000,   0.000,    0.000,    0.00,    0.00,    0.00,   0.00 ], # vegcw     (gC/m2)
+      'Root':                    [   1.984,    2.776,    0.833,     0.000,   0.833,    0.000,    0.00,    0.00,    0.00,   0.00 ], # vegcr     (gC/m2)
     },
     'VegStructuralNitrogen': {
-      'Leaf':                    [    1.05,    0.53,     0.38,     0.15,    0.26,    0.25,    0.09,    0.99,    2.31,   0.00 ], # vegnl     (gN/m2)
-      'Stem':                    [    2.74,    3.05,     3.10,     0.23,    0.00,    0.00,    0.00,    0.00,    0.00,   0.00 ], # vegnw     (gN/m2)
-      'Root':                    [    3.52,    0.06,     0.06,     0.01,    0.19,    0.17,    0.07,    0.00,    0.00,   0.00 ], # vegnr     (gN/m2)
+      'Leaf':                    [   0.161,    0.161,    0.300,     1.200,   0.130,    0.810,    0.00,    0.00,    0.00,   0.00 ], # vegnl     (gN/m2)
+      'Stem':                    [   0.210,    0.210,    0.000,     0.000,   0.000,    0.000,    0.00,    0.00,    0.00,   0.00 ], # vegnw     (gN/m2)
+      'Root':                    [   0.414,    0.414,    0.030,     0.000,   0.030,    0.000,    0.00,    0.00,    0.00,   0.00 ], # vegnr     (gN/m2)
     },
     'MossDeathC':              178.00,    #  dmossc
-    'CarbonShallow':          1783.00,    #  shlwc
-    'CarbonDeep':             5021.00,    #  deepc
-    'CarbonMineralSum':       9000.00,    #  minec
-    'OrganicNitrogenSum':      363.00,    #  soln
-    'AvailableNitrogenSum':      0.76,    #  avln
+    'CarbonShallow':          1065.00,    #  shlwc
+    'CarbonDeep':             1071.00,    #  deepc
+    'CarbonMineralSum':      32640.00,    #  minec
+    'OrganicNitrogenSum':     1405.00,    #  soln
+    'AvailableNitrogenSum':      0.17,    #  avln
   },
   ## WARNING: JUNK, PLACEHOLDER VALUES! USE AT YOUR OWN RISK!
   "maritime forest": {

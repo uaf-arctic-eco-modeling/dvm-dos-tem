@@ -138,3 +138,23 @@
 44252             // initminec:
 2698              // initsoln:
 0.48              // initavln:
+//===========================================================
+// CMT07 // CMT7 Heath tundra TEM Community  - soil microbial activity (BGC) parameters and default initial conditions
+2.0               // rhq10:
+0.0               // moistmin:
+0.5               // moistopt:
+1.0               // moistmax:
+45.70             // lcclnc:
+0.372             // fsoma:
+0.611             // fsompr:
+0.017             // fsomcr:
+0.346             // som2co2:
+0.0042            // kn2:
+29.73             // nmincnsoil:
+0.2               // propftos:
+0.0               // fnloss:  fraction N leaching (0 - 1) when drainage occurs
+1065              // initshlwc:
+1071              // initdeepc:
+32640             // initminec:
+1405               // initsoln:
+0.17              // initavln:

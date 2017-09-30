@@ -202,7 +202,6 @@
 0.10               // initvwc(7): initial soil volume water content at every 10 cm interval
 0.10               // initvwc(8): initial soil volume water content at every 10 cm interval
 0.10               // initvwc(9): initial soil volume water content at every 10 cm interval
-
 //===========================================================
 // CMT07 // CMT7 TEM Community - ground(snow-soil) (bio)physical properties and parameters
 0.8                // snwalbmax:
