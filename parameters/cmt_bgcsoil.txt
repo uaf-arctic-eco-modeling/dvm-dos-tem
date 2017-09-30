@@ -83,8 +83,8 @@
 2.0               // rhq10:
 0.0               // moistmin:
 0.5               // moistopt:
-1.0               // moistmax:
-47.61             // lcclnc:
+1.0               // moistmax: 
+47.60             // lcclnc:
 0.372             // fsoma:
 0.611             // fsompr:
 0.017             // fsomcr:
@@ -95,9 +95,9 @@
 0.0               // fnloss:  fraction N leaching (0 - 1) when drainage occurs
 2340              // initshlwc:
 5853              // initdeepc:
-37022            // initminec:
-1843             // initsoln:
-3.93              // initavln:
+37022             // initminec:
+1843              // initsoln:
+3.93              // initavln:  was 0.68
 //===========================================================
 // CMT05 // Tussock Tundra (updated 1/15/2016 JDC) - Soil microbial activity (BGC) parameters and default initial conditions.
 2.0               // rhq10:

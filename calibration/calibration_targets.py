@@ -108,28 +108,28 @@ calibration_targets = {
     'OrganicNitrogenSum':      363.00,    #  soln
     'AvailableNitrogenSum':      0.76,    #  avln
   },
-  ## Updated by EE (April, May, June 2017)
+  ## CMT04 - SHRUB TUNDRA - CALIBRATION SEWARD PENINSULA CLIMATE (COUNCIL)
   "shrub tundra": {
     'cmtnumber': 4,
                                  #    pft0     pft1      pft2     pft3     pft4     pft5      pft6      pft7      pft8     pft9   
                                  #  Salix    Betula    Decid.   E.green   Sedges    Forbs   Grasses   Lichens   Feather.    Misc.
     'GPPAllIgnoringNitrogen':    [  143.89,  288.65,   42.33,    9.03,    19.39,   28.44,    11.29,    16.45,     37.38,    0.00 ], # ingpp     (gC/m2/year)   GPP without N limitation
-    'NPPAllIgnoringNitrogen':    [  107.92,  216.49,   39.57,    8.44,    18.13,   26.59,    10.56,    15.38,     34.95,    0.00 ], # innpp     (gC/m2/year)   NPP without N limitation 
+    'NPPAllIgnoringNitrogen':    [  107.92,  216.49,   39.57,    8.44,    18.13,   26.59,    10.56,     8.23,     18.69,    0.00 ], # innpp     (gC/m2/year)   NPP without N limitation 
     'NPPAll':                    [   71.95,  144.33,   21.16,    4.51,     9.69,   14.22,     5.65,     8.23,     18.69,    0.00 ], # npp       (gC/m2/year)   NPP with N limitation
     'Nuptake':                   [    0.81,    1.55,    0.29,    0.06,     0.14,    0.21,     0.08,     0.01,      0.54,    0.00 ], # nuptake   (gN/m2/year)
     'VegCarbon': {
-      'Leaf':                    [   23.85,    38.1,   14.85,    1.30,     3.64,    5.33,     2.12,     18.7,     89.00,    0.00 ], # vegcl     (gC/m2)
-      'Stem':                    [  194.07,  502.07,   30.67,    9.47,      0.0,     0.0,      0.0,      0.0,       0.0,     0.0 ], # vegcw     (gC/m2)
-      'Root':                    [    6.10,   38.35,    2.25,    0.66,     6.06,    8.89,     3.53,      0.0,       0.0,     0.0 ], # vegcr     (gC/m2)
+      'Leaf':                    [   23.85,   38.01,   14.85,    1.30,     3.64,    5.33,     2.12,     18.7,     89.00,    0.00 ], # vegcl     (gC/m2)
+      'Stem':                    [  194.07,  502.07,   30.67,    9.47,     0.00,    0.00,     0.00,      0.0,      0.00,    0.00 ], # vegcw     (gC/m2)
+      'Root':                    [    6.10,   38.35,    2.25,    0.66,     6.06,    8.89,     3.53,      0.0,      0.00,    0.00 ], # vegcr     (gC/m2)
     },
     'VegStructuralNitrogen': {
-      'Leaf':                    [    1.16,    1.84,    0.73,    0.03,     0.17,    0.25,     0.09,     0.67,      2.59,     0.0 ], # vegnl     (gN/m2)
-      'Stem':                    [    1.94,    5.73,    0.66,    0.18,      0.0,     0.0,      0.0,      0.0,       0.0,     0.0 ], # vegnw     (gN/m2)
-      'Root':                    [    0.08,    0.56,    0.04,    0.01,     0.12,    0.17,     0.07,      0.0,       0.0,     0.0 ], # vegnr     (gN/m2)
+      'Leaf':                    [    1.16,    1.84,    0.73,    0.03,     0.17,    0.25,     0.09,     0.67,      2.59,    0.00 ], # vegnl     (gN/m2)
+      'Stem':                    [    1.94,    5.73,    0.66,    0.18,     0.00,    0.00,     0.00,     0.00,      0.00,    0.00 ], # vegnw     (gN/m2)
+      'Root':                    [    0.08,    0.56,    0.04,    0.01,     0.12,    0.17,     0.07,     0.00,      0.00,    0.00 ], # vegnr     (gN/m2)
     },
     'MossDeathC':              178.00,    #  dmossc
-    'CarbonShallow':          2340.00,    #  shlwc
-    'CarbonDeep':            5853.00,    #  deepc
+    'CarbonShallow':          2240.00,    #  shlwc
+    'CarbonDeep':             5853.00,    #  deepc
     'CarbonMineralSum':      37022.00,    #  minec
     'OrganicNitrogenSum':     1843.00,    #  soln
     'AvailableNitrogenSum':      3.93,    #  avln

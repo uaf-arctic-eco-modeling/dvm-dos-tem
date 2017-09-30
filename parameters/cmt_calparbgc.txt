@@ -88,26 +88,26 @@
 0.0000108       // kdcsomcr:
 //===========================================================
 // CMT04 // Shrub Tundra - (max. 10 PFTs over 1 soil column) (BGC) plant calibrated parameters
-//Salix      Betula       Decid.       E.green      Sedges       Forbs        Grasses      Lichens      Feather      Misc1.       // names: comments
-600.0        900.0         165.0       30.0        75.0        100.0        150.0        120.0        100.0         0.0          // cmax:
-10.00        6.03         .6748       .2477        5.69       .9386         1.500        6.200        8.100        0.0          // nmax:
-.16         .18           .003        .000001     .001        .0001        .0001         .07         .03800         0.0          // cfall(0): leave
-.0007       .02           .100        .0500       .0000       .00000       .00000       .00000      .00000         0.0          // cfall(1): stem
-.001        .001          .0380       .002        .06         .2           .35          .0000       .00000         0.0          // cfall(2): root
-.0001       .0001         .0002       .0003       .1          .07          .09          .0040       .0100          0.0          // nfall(0): leave
-.0001       .001          .0001       .0001       .00000      .0000        .0000        .0000       .0000          0.0          // nfall(1): stem
-.45         .5            .0001       .0001       .10         .001          .001        .0000       .0000          0.0          // nfall(2): root
--1.199861E-4 -8.028072E-5 -1.355907E-4 -1.108010E-4 3.1074157E-4 -1.627851E-5 -1.001330622 -1.060000E-5 -1.060084E-5 0.0          // kra:    coeff(0) in maintenance resp.
--2.300000000 -3.900000000 -7.500000000 -3.300000075 -1.200000000 -3.600000065 -3.100000000 -3.100000000 -3.900000000 0.0          // krb(0): coeff(1) in maintenance resp.(leave)
--6.999910082 -6.199682467 -3.902339696 -5.800000000 0.0000000000 0.0000000000 0.0000000000 0.0000000000 0.0000000000 0.0          // krb(1): coeff(1) in maintenance resp.(stem)
--3.199640000 -2.050005157 -1.000000000 -2.500035771 -3.301128816 -1.800000000 -1.800000000 0.0000000000 0.0000000000 0.0          // krb(2): coeff(1) in maintenance resp.(root)
-.2           .2           .2           .2           .2           .2           .2          .1            .1         0.0          // frg: frac of avail NPP (GPP after rm) for growth resp.
+//Salix      Betula      Decid.       E.green      Sedges       Forbs       Grasses     Lichens     Feather   Misc1.     // names: comments
+380.00       750.00     110.00        25.00        30.00        77.00       127.00       41.00       64.00       0.0     // cmax:
+ 6.00         7.00        8.20         9.00         7.60         4.50        30.00        3.000       3.00       0.0     // nmax:
+ 0.19         0.02        0.0011       0.0005       0.006        0.00300     0.00150      0.04000     0.01700    0.0     // cfall(0): leave
+ 0.0009       0.0220      0.065        0.0350       0.00000      0.00000     0.00000      0.00000     0.00000    0.0     // cfall(1): stem
+ 0.00050      0.00310     0.0070       0.0070       0.0880       0.092       0.0550       0.00000     0.00000    0.0     // cfall(2): root
+ 0.00001      0.00001     0.0000200    0.000014     0.00007      0.00010     0.00015      0.00100     0.00353    0.0     // nfall(0): leave
+ 0.000001     0.0005      0.0001585    0.0002       0.00000      0.00000     0.00000      0.00000     0.00000    0.0     // nfall(1): stem
+ 0.00001      0.0001      0.01004759   0.0000082    0.00688      0.00020     0.00250      0.0000      0.00000    0.0     // nfall(2): root
+-8.0600E-5   -8.0600E-5  -8.0600E-5   -8.0600E-5   -8.0600E-5   -8.0600E-5  -8.0600E-5   -8.0600E-5  -8.0600E-5  0.0     // kra:    coeff(0) in maintenance resp.
+-1.0000      -3.55778    -6.10000     -6.80000    -11.90100     -5.1000     -4.4000      -3.55000    -4.10000    0.0     // krb(0): coeff(1) in maintenance resp.(leave)
+-7.500       -5.500      -2.50100     -3.4000       0.00000      0.0000      0.0000       0.00000     0.00000    0.0     // krb(1): coeff(1) in maintenance resp.(stem)
+-4.9000      -2.5500     -4.56000     -3.55000     -1.10000     -1.0000     -1.0000       0.00000     0.00000    0.0     // krb(2): coeff(1) in maintenance resp.(root)
+ 0.1000       0.1000      0.1000       0.1000       0.1000       0.1000      0.1000       0.10000     0.10000    0.0     // frg: frac of avail NPP (GPP after rm) for growth resp.
 // soil calibrated parameters
-0.45   // micbnup: parameter for soil microbial immobialization of N
-0.99 // kdcrawc: raw-material (litter) C decompositin rates at reference condition
-1.9  // kdcsoma:
-0.010000    // kdcsompr:
-0.0100000E-5    // kdcsomcr:
+0.51     // micbnup: parameter for soil microbial immobialization of N
+0.92     // kdcrawc: raw-material (litter) C decompositin rates at reference condition
+0.85     // kdcsoma:
+0.02     // kdcsompr:
+0.00007  // kdcsomcr:
 //===========================================================
 // CMT05 // Tussock Tundra // Updated by E.E. calibration, April, May 2017
 //    Betula       Decid.      E.green       Sedges        Forbs      Lichens     Feather.       Sphag.       Misc1.       Misc2.

@@ -90,14 +90,14 @@
 0.005              // initdmossthick: initial dead moss thickness (m)
 1                  // mosstype: moss type (1: sphagnum; 2: furthermoss; 3: other)
 // soil characteristics
-0.1                // initfibthick: meters
-0.1                // inithumthick:
-0.01               // coefshlwa:
-1.3574             // coefshlwb:
-0.03               // coefdeepa:
-1.2389371          // coefdeepb:
-0.04025            // coefminea:
-0.0532             // coefmineb:
+0.05878             // initfibthick: meters
+0.11212             // inithumthick:
+0.0652              // coefshlwa:
+0.708               // coefshlwb:
+0.0545              // coefdeepa:
+0.975               // coefdeepb:
+0.0966              // coefminea:
+0.7851              // coefmineb:
 //===========================================================
 // CMT05 // Tussock Tundra (updated 1/15/2016 JDC)- ground structure/dimension 
 // Snow characteristics
