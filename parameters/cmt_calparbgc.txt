@@ -132,26 +132,26 @@
 0.0001      // kdcsomcr:
 //===========================================================
 // CMT06 // Wet Sedge Tundra - (max. 10 PFTs over 1 soil column) (BGC) plant calibrated parameters
-//Decid.     Sedges       Grasses      Forbs        Lichens      Feather      Sphag.       PFT7       PFT8         PFT9         // names: comments
-66.40        108.6        20.8         35.4         42.1         29.47        26.3         0.0        0.0          0.0          // cmax:
-0.550        4.01         0.29         0.97         0.12         0.41         0.32         0.0        0.0          0.0          // nmax:
-0.081        0.083        0.083        0.083        0.008        0.015        0.005        0.0        0.0          0.0          // cfall(0): leave
-0.078        0.0          0.0          0.0          0.0          0.0          0.0          0.0        0.0          0.0          // cfall(1): stem
-0.067        0.032        0.101        0.087        0.0          0.0          0.0          0.0        0.0          0.0          // cfall(2): root
-0.028        0.042        0.042        0.042        0.007        0.004        0.001        0.0        0.0          0.0          // nfall(0): leave
-0.008        0.0          0.0          0.0          0.0          0.0          0.0          0.0        0.0          0.0          // nfall(1): stem
-0.002        0.042        0.042        0.042        0.0          0.0          0.0          0.0        0.0          0.0          // nfall(2): root
--8.06e-05    -8.06e-05    -8.06e-05    -8.06e-05    -8.06e-05    -8.06e-05    -8.06e-05    0.0        0.0          0.0          // kra:    coeff(0) in maintenance resp.
--2.49        -6.3         -3.90        -7.50        -2.40        -2.12        -2.35        0.0        0.0          0.0          // krb(0): coeff(1) in maintenance resp.(leave)
--3.93        0.0          0.0          -3.9         0.0          0.0          0.0          0.0        0.0          0.0          // krb(1): coeff(1) in maintenance resp.(stem)
--0.06        -1.6         0.0          -1.0         0.0          0.0          0.0          0.0        0.0          0.0          // krb(2): coeff(1) in maintenance resp.(root)
-0.20         0.20         0.20         0.20         0.20         0.20         0.20         0.0        0.0          0.0          // frg: fraction of available NPP (GPP after rm) for growth resp.
+//Decid.     Sedges       Grasses      Forbs        Lichens      Feather      Sphag.       PFT7     PFT8      PFT9        // names: comments
+36.80        585.6       140.8         68.5         10.0         48.00        19.3          0.0      0.0       0.0        // cmax:
+ 4.10         14.01        8.29         9.20         4.32         3.00         3.32         0.0      0.0       0.0        // nmax:
+ 0.190        0.00001      0.000005     0.0037       0.096        0.038        0.000008     0.0      0.0       0.0        // cfall(0): leave
+ 0.000005     0.0          0.0          0.0          0.0          0.0          0.0          0.0      0.0       0.0        // cfall(1): stem
+ 0.00001      0.049        0.144        0.132        0.0          0.0          0.0          0.0      0.0       0.0        // cfall(2): root
+ 0.00005      0.00007      0.00005      0.002        0.00002      0.00001      0.0001       0.0      0.0       0.0        // nfall(0): leave
+ 0.00055      0.0          0.0          0.0          0.0          0.0          0.0          0.0      0.0       0.0        // nfall(1): stem
+ 0.011        0.003        0.0035       0.002        0.0          0.0          0.0          0.0      0.0       0.0        // nfall(2): root
+-8.06e-05    -8.06e-05    -8.06e-05    -8.06e-05    -8.06e-05    -8.06e-05    -8.06e-05     0.0      0.0       0.0        // kra:    coeff(0) in maintenance resp.
+-1.49        -9.3         -8.40        -4.1         -4.1         -9.3         -4.1          0.0      0.0       0.0        // krb(0): coeff(1) in maintenance resp.(leave)
+-10.93        0.0          0.0         -0.0          0.0          0.0          0.0          0.0      0.0       0.0        // krb(1): coeff(1) in maintenance resp.(stem)
+-7.06        -3.0         -1.0         -2.00         0.0          0.0          0.0          0.0      0.0       0.0        // krb(2): coeff(1) in maintenance resp.(root)
+ 0.20         0.20         0.20         0.20         0.20         0.20         0.20         0.0      0.0       0.0        // frg: fraction of available NPP (GPP after rm) for growth resp.
 // soil calibrated parameters
-2.65253         // micbnup: parameter for soil microbial immobialization of N
-0.0507042       // kdcrawc: raw-material (litter) C decompositin rates at reference condition
-0.0108046       // kdcsoma:
-0.0020805       // kdcsompr:
-0.0000108       // kdcsomcr:
+0.73        // micbnup: parameter for soil microbial immobialization of N
+0.20       // kdcrawc: raw-material (litter) C decompositin rates at reference condition
+0.12       // kdcsoma:
+0.030       // kdcsompr:
+0.00025       // kdcsomcr:
 //===========================================================
 // CMT07 // Heath Tundra - (max. 10 PFTs over 1 soil column) (BGC) plant calibrated parameters
 //Decid.     E.green      Forbs        Lichens      Grasses      Moss       Misc2.    PFT7       PFT8         PFT9           // names: comments

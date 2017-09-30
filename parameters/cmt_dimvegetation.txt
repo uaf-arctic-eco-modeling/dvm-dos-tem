@@ -276,7 +276,7 @@
 -0.3197     -0.3197     -0.3197     -0.3197      -0.3197       -0.3197      -0.3197      0.00         0.00         0.00         // m2
 0.0401      0.0401      0.0401       0.0401       0.0401       0.0401       0.0401       0.00         0.00         0.00         // m3
 0.0001      0.0001      0.0001       0.0001       0.0001       0.0001       0.0001       0.00         0.00         0.00         // m4
-30.0        30.0        30.0         30.0         0.00         0.00         0.00         0.0          0.00         0.00         // frprod[0]:
+30.0        30.0        30.0         30.0         1.00         1.00         1.00         0.0          0.00         0.00         // frprod[0]:
 50.0        50.0        50.0         50.0         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[1]:
 10.0        10.0        10.0         10.00        0.00         0.00         0.00         0.00         0.00         0.00         // frprod[2]:
 5.00        5.00        5.00         5.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[3]:   
@@ -286,19 +286,19 @@
 0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[7]:
 0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[8]:
 0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[9]:
-0.93        0.00        0.07         0.05         0.04         0.04         0.02         0.00         0.00         0.00         // lai: initial LAI
-1.0         0.0         0.0          0.5          1.0          0.0          1.5          0.00         0.00         0.00         // envlai[0]: monthly LAI for a year, used for static input of LAI
-1.1         0.0         0.0          0.3          1.5          0.0          1.5          0.00         0.00         0.00         // envlai[1]: monthly LAI for a year, used for static input of LAI 
-1.2         0.0         0.0          0.5          2.0          0.5          1.5          0.00         0.00         0.00         // envlai[2]: monthly LAI for a year, used for static input of LAI 
-1.2         0.5         1.0          1.2          1.5          1.0          1.5          0.00         0.00         0.00         // envlai[3]: monthly LAI for a year, used for static input of LAI
-1.3         1.3         1.9          1.3          0.3          1.3          1.5          0.00         0.00         0.00         // envlai[4]: monthly LAI for a year, used for static input of LAI 
-1.9         1.9         2.5          1.9          0.0          1.9          1.5          0.00         0.00         0.00         // envlai[5]: monthly LAI for a year, used for static input of LAI  
-2.0         2.0         2.0          2.0          0.0          2.0          1.5          0.00         0.00         0.00         // envlai[6]: monthly LAI for a year, used for static input of LAI 
-2.0         2.0         2.0          2.0          0.0          2.0          1.5          0.00         0.00         0.00         // envlai[7]: monthly LAI for a year, used for static input of LAI
-1.5         0.5         1.5          1.5          0.0          1.5          1.5          0.00         0.00         0.00         // envlai[8]: monthly LAI for a year, used for static input of LAI  
-1.3         0.2         0.0          1.3          0.3          1.3          1.5          0.00         0.00         0.00         // envlai[9]: monthly LAI for a year, used for static input of LAI
-1.1         0.0         0.0          0.8          0.5          1.0          1.5          0.00         0.00         0.00         // envlai[10]: monthly LAI for a year, used for static input of LAI 
-1.0         0.0         0.0          0.7          0.8          0.5          1.5          0.00         0.00         0.00         // envlai[11]: monthly LAI for a year, used for static input of LAI
+0.143       0.143       0.143        0.143        0.142        0.142        0.142        0.00         0.00         0.00         // lai: initial LAI
+1.0         0.0         0.0          0.5          1.5          1.5          1.5          0.00         0.00         0.00         // envlai[0]: monthly LAI for a year, used for static input of LAI
+1.1         0.0         0.0          0.3          1.5          1.5          1.5          0.00         0.00         0.00         // envlai[1]: monthly LAI for a year, used for static input of LAI 
+1.2         0.0         0.0          0.5          1.5          1.5          1.5          0.00         0.00         0.00         // envlai[2]: monthly LAI for a year, used for static input of LAI 
+1.2         0.5         1.0          1.2          1.5          1.5          1.5          0.00         0.00         0.00         // envlai[3]: monthly LAI for a year, used for static input of LAI
+1.3         1.3         1.9          1.3          1.5          1.5          1.5          0.00         0.00         0.00         // envlai[4]: monthly LAI for a year, used for static input of LAI 
+1.9         1.9         2.5          1.9          1.5          1.5          1.5          0.00         0.00         0.00         // envlai[5]: monthly LAI for a year, used for static input of LAI  
+2.0         2.0         2.0          2.0          1.5          1.5          1.5          0.00         0.00         0.00         // envlai[6]: monthly LAI for a year, used for static input of LAI 
+2.0         2.0         2.0          2.0          1.5          1.5          1.5          0.00         0.00         0.00         // envlai[7]: monthly LAI for a year, used for static input of LAI
+1.5         0.5         1.5          1.5          1.5          1.5          1.5          0.00         0.00         0.00         // envlai[8]: monthly LAI for a year, used for static input of LAI  
+1.3         0.2         0.0          1.3          1.5          1.5          1.5          0.00         0.00         0.00         // envlai[9]: monthly LAI for a year, used for static input of LAI
+1.1         0.0         0.0          0.8          1.5          1.5          1.5          0.00         0.00         0.00         // envlai[10]: monthly LAI for a year, used for static input of LAI 
+1.0         0.0         0.0          0.7          1.5          1.5          1.5          0.00         0.00         0.00         // envlai[11]: monthly LAI for a year, used for static input of LAI
 //===========================================================
 // CMT07 // Heath Tundra - (max. 10 PFTs over 1 soil column) (BGC) Plant structure/dimension
 //Decid.    E.green     Forbs        Lichens      Grasses      Moss         Misc2.       PFT7         PFT8         PFT9         // names: comments                  
