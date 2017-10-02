@@ -159,7 +159,7 @@
 1405               // initsoln:
 0.17              // initavln:
 //===========================================================
-// CMT08 // CMT8 Shrubland Community  - soil microbial activity (BGC) parameters and default initial conditions
+// CMT12 // Lowland Boreal Wet Shrubland - soil microbial activity (BGC) parameters and default initial conditions
 2.0               // rhq10:
 0.0               // moistmin:
 0.5               // moistopt:
@@ -179,7 +179,7 @@
 2177.91           // initsoln:
 0.8               // initavln:
 //===========================================================
-// CMT09 // CMT9 Shrub Tundra EML Community  - soil microbial activity (BGC) parameters and default initial conditions
+// CMT20 // EML Shrub Tundra - 
 2.0               // rhq10:
 0.0               // moistmin:
 0.5               // moistopt:
@@ -199,7 +199,7 @@
 1904.10           // initsoln: was 1904.10
 4.0               // initavln:
 //===========================================================
-// CMT10 // CMT10 Tussock Tundra EML Community  - soil microbial activity (BGC) parameters and default initial conditions
+// CMT21 // EML Tussock Tundra -
 2.0               // rhq10:
 0.0               // moistmin:
 0.5               // moistopt:

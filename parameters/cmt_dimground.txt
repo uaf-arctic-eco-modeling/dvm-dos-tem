@@ -159,7 +159,7 @@
 0.0966              // coefminea:
 0.781               // coefmineb:
 //===========================================================
-// CMT08 // Shrubland
+// CMT12 // Lowland Boreal Wet Shrubland - more comment?
 // Snow characteristics
 350                // snwdenmax:  max. snow density (kg/m3)
 120                // snwdennew:  new (min.) snow density (kg/m3)
@@ -179,7 +179,7 @@
 0.0996             // coefminea:
 0.6931             // coefmineb:
 //===========================================================
-// CMT09 // Shrub Tundra EML
+// CMT20 // EML Shrub Tundra - 
 // Snow characteristics
 350                // snwdenmax:  max. snow density (kg/m3)
 120                // snwdennew:  new (min.) snow density (kg/m3)
@@ -199,7 +199,7 @@
 0.0996             // coefminea:
 0.7810             // coefmineb:
 //===========================================================
-// CMT10 // Tussock Tundra EML
+// CMT21 // EML Tussock Tundra -
 // Snow characteristics
 350                // snwdenmax:  max. snow density (kg/m3)
 120                // snwdennew:  new (min.) snow density (kg/m3)

@@ -287,7 +287,7 @@
 0.0          0.0          0.0          0.0          0.0          0.0        0.0          0.0          0.0          0.0            // initdeadc:
 0.0          0.0          0.0          0.0          0.0          0.0        0.0          0.0          0.0          0.0            // initdeadn:
 //===========================================================
-// CMT08 // Shrubland - (max. 10 PFTs over 1 soil column) (BGC) Plant physiological parameters and default initial conditions
+// CMT12 // Lowland Boreal Wet Shrubland - (max. 10 PFTs over 1 soil column) (BGC) Plant physiological parameters and default initial conditions
 //DecShrub   EvrShrub     DecTree     EvrTree     Forbs        Gram         Feather      Lichen       Equisetum    Misc.          // names: comments 
 400.0        400.0        400.0        400.0        400.0        400.0        400.0        400.0        400.0        0.0          // kc:
 75           75           75           75           75           75           75           75           75           0.0          // ki:
@@ -323,7 +323,7 @@
 0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          // initdeadc:
 0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          // initdeadn:
 //===========================================================
-// CMT09 // Shrub Tundra EML - (max. 10 PFTs over 1 soil column) (BGC) Plant physiological parameters and default initial conditions
+// CMT20 // EML Shrub Tundra - 
 //Betnan     Carex       Ericoid      Feather      Lichen      OtherMoss    Rubcha      PFT7         PFT8         PFT9           // names: comments                  
 400.0        400.0        400.0        400.0        400.0        400.0       400.0       0.0          0.0          0.0            // kc:
 75           75           75           75           75           75          75          0.0          0.0          0.0            // ki:
@@ -359,7 +359,7 @@
 0.0          0.0          0.0          0.0          0.0          0.0         0.0         0.0          0.0          0.0            // initdeadc:
 0.0          0.0          0.0          0.0          0.0          0.0         0.0         0.0          0.0          0.0            // initdeadn:
 //===========================================================
-// CMT10 // Tussuck Tundra EML - (max. 10 PFTs over 1 soil column) (BGC) Plant physiological parameters and default initial conditions
+// CMT21 // EML Tussock Tundra -
 //Betnan     Carex       Ericoid      Erivag       Feather     Lichen      OtherMoss    Rubcha     Sphagnum        PFT9           // names: comments                  
 400.0        400.0        400.0        400.0        400.0        400.0       400.0       400.0       400.0         0.0            // kc:
 75           75           75           75           75           75          75          75          75            0.0            // ki:

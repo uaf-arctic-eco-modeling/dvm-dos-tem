@@ -175,7 +175,7 @@
 0.0062      // kdcsompr:
 0.0000005   // kdcsomcr:
 //===========================================================
-// CMT08 // Shrubland- (max. 10 PFTs over 1 soil column) (BGC) plant calibrated parameters
+// CMT12 // Lowland Boreal Wet Shrubland - (max. 10 PFTs over 1 soil column) (BGC) plant calibrated parameters
 //Dec.Shrub  Evr.Shrub    Dec.Tree     Evr.Tree     Forbs        Gram       Feather     Lichen     Equisetum    Misc.        // names: comments
 370.00       120.00      700.00      1470.00       285.0       2300.0      135.0        19.0       75.0          0.0          // cmax:
 10.20         9.00         8.20        10.00         3.00        27.00       3.0         3.0        4.0          0.0          // nmax:
@@ -197,7 +197,7 @@
 0.0085      // kdcsompr:
 0.000025    // kdcsomcr:
 //===========================================================
-// CMT09 // Shrub tundra at EML (deep root project)- (max. 10 PFTs over 1 soil column) (BGC) plant calibrated parameters
+// CMT20 // EML Shrub Tundra - 
 //Betnan   Carex       Ericoid      Feather      Lichen      OthMoss    Rubcha      Misc1    Misc2   Misc3      // names: comments
 2470.00    300.00      1710.00       510.00       108.0        88.0      285.0        0.0      0.0     0.0       // cmax:
 70.20       20.00        30.20        23.00         3.00       10.00      13.0        0.0      0.0     0.0       // nmax:
@@ -219,7 +219,7 @@
 0.91      // kdcsompr:
 0.00025    // kdcsomcr:
 //===========================================================
-// CMT10 // Tussock tundra at EML (deep root project)- (max. 10 PFTs over 1 soil column) (BGC) plant calibrated parameters
+// CMT21 // EML Tussock Tundra -
 //Betnan   Carex     Ericoid     Erivag     Feather     Lichen    OthMoss    Rubcha     Sphagnum     Misc.     // names: comments
 180.00    680.00     1320.00    1505.00        0.81     103.0      928.0      345.0       21.0        0.0      // cmax:
  7.20      15.00       28.20      40.00        0.50       3.00      10.0        5.0        2.5        0.0      // nmax:
