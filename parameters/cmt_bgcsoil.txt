@@ -119,7 +119,7 @@
 2206              // initsoln:
 0.68              // initavln:
 //===========================================================
-// CMT06 // CMT6 Wet Sedge tundra TEM Community  - soil microbial activity (BGC) parameters and default initial conditions
+// CMT06 // Wet Sedge Tundra - soil microbial activity (BGC) parameters and default initial conditions
 2.0               // rhq10:
 0.0               // moistmin:
 0.5               // moistopt:

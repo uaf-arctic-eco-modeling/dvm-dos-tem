@@ -174,7 +174,7 @@
 0.10               // initvwc(9): initial soil volume water content at every 10 cm interval
 
 //===========================================================
-// CMT06 // CMT6 TEM Community - ground(snow-soil) (bio)physical properties and parameters
+// CMT06 // Wet Sedge Tundra - ground(snow-soil) (bio)physical properties and parameters
 0.8                // snwalbmax:
 0.4                // snwalbmin:
 -1.5e7             // psimax:
