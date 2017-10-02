@@ -139,7 +139,7 @@
 2698              // initsoln:
 0.48              // initavln:
 //===========================================================
-// CMT07 // CMT7 Heath tundra TEM Community  - soil microbial activity (BGC) parameters and default initial conditions
+// CMT07 // Heath Tundra - soil microbial activity (BGC) parameters and default initial conditions
 2.0               // rhq10:
 0.0               // moistmin:
 0.5               // moistopt:
