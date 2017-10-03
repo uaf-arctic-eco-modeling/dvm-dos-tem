@@ -118,7 +118,7 @@ Cohort::~Cohort() {
 };
 
 /** Provides necessary data to Climate for loading projected climate data*/
-void Cohort::load_proj_climate(std::string& proj_climate_file){
+void Cohort::load_proj_climate(const std::string& proj_climate_file){
 
   climate.load_proj_climate(proj_climate_file, y, x);
 }

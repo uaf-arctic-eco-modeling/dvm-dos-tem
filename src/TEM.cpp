@@ -88,6 +88,28 @@ void ppv(const std::vector<TYPE> &v){
   std::cout << "\n";
 }
 
+/** Write out a status code to a particular pixel in the run status file.
+*/
+void write_status(const std::string fname, int row, int col, int statusCode);
+
+/** Builds an empty netcdf file for recording the run status. 
+ * Ultimately we might want to spit the run status out in a more easily 
+ * consumable way like txt to stdout or json, but for now we can use netcdf. 
+ * Also it makes for a simple netcdf file to experiment with for MPI, 
+ * parallel output
+ */
+void create_empty_run_status_file(const std::string& fname,
+    const int ysize, const int xsize);
+
+// The main driving function
+void advance_model(const int rowidx, const int colidx,
+                   const ModelData&, const bool calmode,
+                   const std::string& eq_restart_fname,
+                   const std::string& sp_restart_fname,
+                   const std::string& tr_restart_fname,
+                   const std::string& sc_restart_fname);
+
+
 // draft pretty-printers...
 void pp_2dvec(const std::vector<std::vector<int> > & vv);
 
@@ -158,7 +180,40 @@ int main(int argc, char* argv[]){
       boots::program_options here to manage the arguments from config file
       and the command line.
   */
-  
+
+#ifdef WITHMPI
+    BOOST_LOG_SEV(glg, fatal) << "Built and running with MPI";
+
+    // Intended for passing argc and argv, the arguments to MPI_Init
+    // are currently unnecessary.
+    MPI_Init(NULL, NULL);
+
+    int id = MPI::COMM_WORLD.Get_rank();     // Change this to C interface?? MPI_Comm_World?
+    int ntasks = MPI::COMM_WORLD.Get_size();
+    if (id == 0) {
+
+      BOOST_LOG_SEV(glg, note) << "Clearing output directory...";
+      const boost::filesystem::path out_dir_path(modeldata.output_dir);
+      if (boost::filesystem::exists( out_dir_path )) {
+        boost::filesystem::remove_all( out_dir_path );
+      }
+      boost::filesystem::create_directories(out_dir_path);
+      BOOST_LOG_SEV(glg, debug) << "rank: "<<id<<" Hit MPI_Barrier.";
+      MPI_Barrier(MPI::COMM_WORLD);
+    } else {
+      BOOST_LOG_SEV(glg, debug) << "rank: "<<id<<" Hit MPI_Barrier.";
+      MPI_Barrier(MPI::COMM_WORLD);
+    }
+
+#else
+    BOOST_LOG_SEV(glg, note) << "Clearing output directory...";
+    const boost::filesystem::path out_dir_path(modeldata.output_dir);
+    if (boost::filesystem::exists( out_dir_path )) {
+      boost::filesystem::remove_all( out_dir_path );
+    }
+    boost::filesystem::create_directories(out_dir_path);
+#endif
+
   BOOST_LOG_SEV(glg, note) << "Running PR stage: " << modeldata.pr_yrs << "yrs";
   BOOST_LOG_SEV(glg, note) << "Running EQ stage: " << modeldata.eq_yrs << "yrs";
   BOOST_LOG_SEV(glg, note) << "Running SP stage: " << modeldata.sp_yrs << "yrs";
@@ -180,26 +235,32 @@ int main(int argc, char* argv[]){
   // Open the run mask (spatial mask)
   std::vector< std::vector<int> > run_mask = temutil::read_run_mask(modeldata.runmask_file);
 
+  // Figure out how big the run_mask is
+  int num_rows = run_mask.size();
+  int num_cols = run_mask[0].size();
+
   // Make some convenient handles for later...
+  std::string run_status_fname = modeldata.output_dir + "run_status.nc";
   std::string eq_restart_fname = modeldata.output_dir + "restart-eq.nc";
   std::string sp_restart_fname = modeldata.output_dir + "restart-sp.nc";
   std::string tr_restart_fname = modeldata.output_dir + "restart-tr.nc";
   std::string sc_restart_fname = modeldata.output_dir + "restart-sc.nc";
 
-  // Figure out how big the run_mask is
-  int num_rows = run_mask.size();
-  int num_cols = run_mask[0].size();
-
-  // Create empty restart files for all stages based on size of run mask
+  // Make sure the output directory exists!!
   if (!boost::filesystem::exists(modeldata.output_dir)) {
     BOOST_LOG_SEV(glg, info) << "Creating output directory as specified in "
                              << "config file: ", modeldata.output_dir;
     boost::filesystem::create_directory(modeldata.output_dir);
   }
+
+  // Create empty restart files for all stages based on size of run mask
   RestartData::create_empty_file(eq_restart_fname, num_rows, num_cols);
   RestartData::create_empty_file(sp_restart_fname, num_rows, num_cols);
   RestartData::create_empty_file(tr_restart_fname, num_rows, num_cols);
   RestartData::create_empty_file(sc_restart_fname, num_rows, num_cols);
+
+  // Create empty run status file
+  create_empty_run_status_file(run_status_fname, num_rows, num_cols);
 
   // Create empty output files now so that later, as the program
   // proceeds, there is somewhere to append output data...
@@ -288,298 +349,40 @@ int main(int argc, char* argv[]){
 
         if (true == mask_value) {
 
-          BOOST_LOG_SEV(glg, note) << "Running cell (" << rowidx << ", " << colidx << ")";
+          // I think this is safe w/in our OpenMP block because I am
+          // handling the exception here...
+          // Not sure about other OpenMP pragama blocks w/in this one? Any
+          // Exceptions would leak out of the inner pragma and be handled
+          // by this try/catch??
+          try {
 
-          //modeldata.initmode = 1; // OBSOLETE?
+            advance_model(rowidx, colidx, modeldata, args->get_cal_mode(), eq_restart_fname, sp_restart_fname, tr_restart_fname, sc_restart_fname);
+            std::cout << "The good write - finished cell!\n";
+            write_status(run_status_fname, rowidx, colidx, 100);
+            
+          } catch (std::exception& e) {
 
-          BOOST_LOG_SEV(glg, info) << "Setup the NEW STYLE RUNNER OBJECT ...";
-          Runner runner(modeldata, args->get_cal_mode(), rowidx, colidx);
+            BOOST_LOG_SEV(glg, err) << "EXCEPTION!! (row, col): (" << rowidx << ", " << colidx << "): " << e.what();
 
-          BOOST_LOG_SEV(glg, debug) << runner.cohort.ground.layer_report_string("depth thermal");
+            // IS THIS THREAD SAFE??
+            // IS IT SAFE WITH MPI??
+            std::ofstream outfile;
+            outfile.open((modeldata.output_dir + "fail_log.txt").c_str(), std::ios_base::app); // Append mode
+            outfile << "EXCEPTION!! At pixel at (row, col): ("<<rowidx <<", "<<colidx<<") "<< e.what() <<"\n";
+            outfile.close();
 
-          // seg fault w/o preparing climate...so prepare year zero...
-          // this is also called inside run_years(...)
-          runner.cohort.climate.prepare_daily_driving_data(0, "eq");
-
-          runner.cohort.initialize_internal_pointers(); // sets up lots of pointers to various things
-          runner.cohort.initialize_state_parameters();  // sets data based on values in cohortlookup
-          BOOST_LOG_SEV(glg, debug) << "right after initialize_internal_pointers() and initialize_state_parameters()"
-                                    << runner.cohort.ground.layer_report_string("depth ptr");
-
-
-          // PRE RUN STAGE (PR)
-          if (modeldata.pr_yrs > 0) {
-            BOOST_LOG_NAMED_SCOPE("PRE-RUN");
-            /** Env-only "pre-run" stage.
-                 - should use only the env module
-                 - number of years to run can be controlled on cmd line
-                 - use fixed climate that is averaged over first X years
-                 - use static (fixed) co2 value (first element of co2 file)
-                 - FIX: need to set yrs since dsb ?
-                 - FIX: should ignore calibration directives?
-            */
-
-            if (runner.calcontroller_ptr) {
-              runner.calcontroller_ptr->handle_stage_start();
-            }
-
-            // turn off everything but env
-            runner.cohort.md->set_envmodule(true);
-            runner.cohort.md->set_bgcmodule(false);
-            runner.cohort.md->set_nfeed(false);
-            runner.cohort.md->set_avlnflg(false);
-            runner.cohort.md->set_baseline(false);
-            runner.cohort.md->set_dsbmodule(false);
-            runner.cohort.md->set_dslmodule(false);
-            runner.cohort.md->set_dvmmodule(false);
-
-            BOOST_LOG_SEV(glg, debug) << "Ground, right before 'pre-run'. "
-                                      << runner.cohort.ground.layer_report_string("depth thermal");
-
-            runner.run_years(0, modeldata.pr_yrs, "pre-run"); // climate is prepared w/in here.
-
-            BOOST_LOG_SEV(glg, debug) << "Ground, right after 'pre-run'"
-                                      << runner.cohort.ground.layer_report_string("depth thermal");
-
-            if (runner.calcontroller_ptr) {
-              runner.calcontroller_ptr->handle_stage_end("pr");
-            }
+            // Write to fail_mask.nc file?? or json? might be good for visualization
+            write_status(run_status_fname, rowidx, colidx, -100); // <- what if this throws??
+            BOOST_LOG_SEV(glg, err) << "End of exception handler.";
 
           }
-
-          // EQUILIBRIUM STAGE (EQ)
-          if (modeldata.eq_yrs > 0) {
-            BOOST_LOG_NAMED_SCOPE("EQ");
-            BOOST_LOG_SEV(glg, fatal) << "Equilibrium Initial Year Count: " << modeldata.eq_yrs;
-
-            if (runner.calcontroller_ptr) {
-              runner.calcontroller_ptr->handle_stage_start();
-            }
-
-            runner.cohort.md->set_envmodule(true);
-            runner.cohort.md->set_dvmmodule(true);
-            runner.cohort.md->set_bgcmodule(true);
-            runner.cohort.md->set_dslmodule(true);
-
-            runner.cohort.md->set_nfeed(true);
-            runner.cohort.md->set_avlnflg(true);
-            runner.cohort.md->set_baseline(true);
-
-            runner.cohort.md->set_dsbmodule(true);
-
-            // This variable ensures that OpenMP threads do not modify
-            // the shared modeldata.eq_yrs value.
-            int fri_adj_eq_yrs = modeldata.eq_yrs;//EQ years adjusted by FRI if necessary
-            if (runner.cohort.md->get_dsbmodule()) {
-              // The transition to SP must occur at the completion of a
-              // fire cycle (i.e. a year or two prior to the next fire).
-              // To ensure this, re-set modeldata's EQ year count to an
-              // even multiple of the FRI minus 2 (to be safe)
-              if (modeldata.eq_yrs < runner.cohort.fire.getFRI()) {
-                BOOST_LOG_SEV(glg, err) << "The model will not run enough years to complete a disturbance cycle!";
-              } else {
-                int fri = runner.cohort.fire.getFRI();
-                int EQ_fire_cycles = modeldata.eq_yrs / fri;
-                if (modeldata.eq_yrs%fri != 0) {
-                  // Extend the run to the end of the current fire cycle
-                  fri_adj_eq_yrs = fri * (EQ_fire_cycles + 1) - 2;
-                }
-                else{
-                  fri_adj_eq_yrs -= 2;
-                }
-              }
-            }
-
-            // Run model
-            BOOST_LOG_SEV(glg, fatal) << "Running Equilibrium, " << fri_adj_eq_yrs << " years.";
-            runner.run_years(0, fri_adj_eq_yrs, "eq-run");
-
-            // Update restartdata structure from the running state
-            runner.cohort.set_restartdata_from_state();
-
-            runner.cohort.restartdata.verify_logical_values();
-            BOOST_LOG_SEV(glg, debug) << "RestartData post EQ";
-            runner.cohort.restartdata.restartdata_to_log();
-
-            BOOST_LOG_SEV(glg, note) << "Writing RestartData to: " << eq_restart_fname;
-            runner.cohort.restartdata.write_pixel_to_ncfile(eq_restart_fname, rowidx, colidx);
-
-            if (modeldata.eq_yrs < runner.cohort.fire.getFRI()) {
-              BOOST_LOG_SEV(glg, err) << "The model did not run enough years to complete a disturbance cycle!";
-            }
-
-            if (runner.calcontroller_ptr) {
-              runner.calcontroller_ptr->handle_stage_end("eq");
-            }
-
-          }
-
-          // SPINUP STAGE (SP)
-          if (modeldata.sp_yrs > 0) {
-            BOOST_LOG_NAMED_SCOPE("SP");
-            BOOST_LOG_SEV(glg, fatal) << "Running Spinup, " << modeldata.sp_yrs << " years.";
-
-            if (runner.calcontroller_ptr) {
-              runner.calcontroller_ptr->handle_stage_start();
-            }
-
-            runner.cohort.climate.monthlycontainers2log();
-
-            BOOST_LOG_SEV(glg, debug) << "Loading RestartData from: " << eq_restart_fname;
-            runner.cohort.restartdata.update_from_ncfile(eq_restart_fname, rowidx, colidx);
-
-            // FIX: if restart file has -9999, then soil temps can end up
-            // impossibly low should check for valid values prior to actual use
-
-            // Maybe a diffcult to maintain in the future
-            // when/if more variables are added?
-            runner.cohort.restartdata.verify_logical_values();
-
-            BOOST_LOG_SEV(glg, debug) << "RestartData pre SP";
-            runner.cohort.restartdata.restartdata_to_log();
-
-            // Copy values from the updated restart data to cohort and cd
-            runner.cohort.set_state_from_restartdata();
-
-            // Run model
-            runner.run_years(0, modeldata.sp_yrs, "sp-run");
-
-            // Update restartdata structure from the running state
-            runner.cohort.set_restartdata_from_state();
-
-            BOOST_LOG_SEV(glg, debug) << "RestartData post SP";
-            runner.cohort.restartdata.restartdata_to_log();
-
-            BOOST_LOG_SEV(glg, note) << "Writing RestartData out to: " << sp_restart_fname;
-            runner.cohort.restartdata.write_pixel_to_ncfile(sp_restart_fname, rowidx, colidx);
-
-            if (runner.calcontroller_ptr) {
-              runner.calcontroller_ptr->handle_stage_end("sp");
-            }
-
-          }
-
-          // TRANSIENT STAGE (TR)
-          if (modeldata.tr_yrs > 0) {
-            BOOST_LOG_NAMED_SCOPE("TR");
-            BOOST_LOG_SEV(glg, fatal) << "Running Transient, " << modeldata.tr_yrs << " years";
-
-            if (runner.calcontroller_ptr) {
-              runner.calcontroller_ptr->handle_stage_start();
-            }
-
-            // update the cohort's restart data object
-            BOOST_LOG_SEV(glg, debug) << "Loading RestartData from: " << sp_restart_fname;
-            runner.cohort.restartdata.update_from_ncfile(sp_restart_fname, rowidx, colidx);
-
-            runner.cohort.restartdata.verify_logical_values();
-
-            BOOST_LOG_SEV(glg, debug) << "RestartData pre TR";
-            runner.cohort.restartdata.restartdata_to_log();
-
-            // Copy values from the updated restart data to cohort and cd
-            runner.cohort.set_state_from_restartdata();
-
-            BOOST_LOG_SEV(glg,err) << "MAKE SURE YOUR FIRE INPUTS ARE SETUP CORRECTLY!";
-
-            // Run model
-            runner.run_years(0, modeldata.tr_yrs, "tr-run");
-
-            // Update restartdata structure from the running state
-            runner.cohort.set_restartdata_from_state();
-
-            BOOST_LOG_SEV(glg, debug) << "RestartData post TR";
-            runner.cohort.restartdata.restartdata_to_log();
-
-            BOOST_LOG_SEV(glg, note) << "Writing RestartData out to: " << tr_restart_fname;
-            runner.cohort.restartdata.write_pixel_to_ncfile(tr_restart_fname, rowidx, colidx);
-
-            if (runner.calcontroller_ptr) {
-              runner.calcontroller_ptr->handle_stage_end("tr");
-            }
-
-          }
-
-          // SCENARIO STAGE (SC)
-          if (modeldata.sc_yrs > 0) {
-            BOOST_LOG_NAMED_SCOPE("SC");
-            BOOST_LOG_SEV(glg, fatal) << "Running Scenario, " << modeldata.sc_yrs << " years.";
-
-            if (runner.calcontroller_ptr) {
-              runner.calcontroller_ptr->handle_stage_start();
-            }
-
-            // update the cohort's restart data object
-            BOOST_LOG_SEV(glg, debug) << "Loading RestartData from: " << tr_restart_fname;
-            runner.cohort.restartdata.update_from_ncfile(tr_restart_fname, rowidx, colidx);
-
-            BOOST_LOG_SEV(glg, debug) << "RestartData pre SC";
-            runner.cohort.restartdata.restartdata_to_log();
-
-            // Copy values from the updated restart data to cohort and cd
-            runner.cohort.set_state_from_restartdata();
-
-            // Loading projected data instead of historic. FIX?
-            runner.cohort.load_proj_climate(modeldata.proj_climate_file);
-
-            BOOST_LOG_SEV(glg,err) << "MAKE SURE YOUR FIRE INPUTS ARE SETUP CORRECTLY!";
-
-            // Run model
-            runner.run_years(0, modeldata.sc_yrs, "sc-run");
-
-            // Update restartdata structure from the running state
-            runner.cohort.set_restartdata_from_state();
-
-            BOOST_LOG_SEV(glg, debug) << "RestartData post SC";
-            runner.cohort.restartdata.restartdata_to_log();
-
-            BOOST_LOG_SEV(glg, note) << "Writing RestartData out to: " << sc_restart_fname;
-            runner.cohort.restartdata.write_pixel_to_ncfile(sc_restart_fname, rowidx, colidx);
-
-            if (runner.calcontroller_ptr) {
-              runner.calcontroller_ptr->handle_stage_end("sc");
-            }
-
-          }
-
-          // NOTE: Could have an option to set some time constants based on
-          //       some sizes/dimensions of the input driving data...
-
-          /**
-          
-
-           
-            eq
-              - create the climate from the average of the first X years
-                of the driving climate data. 
-                SIZE: 12 months,  1 year
-              - set to default module settings to: ??
-              - run_years( 0 <= iy < MAX_EQ_YEAR )
-              - act on calibration directives
-              -
-           
-            sp
-              - create the climate from the first X years of the driving
-                climate dataset. 
-                SIZE: 12 months,  X years
-              - set to default module settings: ??
-              - run_years( SP_BEG <= iy <= SP_END )
-              
-            tr
-              - create climate by loading the driving climate data (historic)
-                SIZE: 12 months, length of driving dataset? OR number from inc/timeconst.h
-              - set to default module settings: ??
-              - run_years( TR_BEG <= iy <= TR_END )
-              
-          */
-
         } else {
           BOOST_LOG_SEV(glg, debug) << "Skipping cell (" << rowidx << ", " << colidx << ")";
+          write_status(run_status_fname, rowidx, colidx, 0);
         }
       }//end col loop
     }//end row loop
   
-    
   } else if (args->get_loop_order() == "time-major") {
     BOOST_LOG_SEV(glg, warn) << "DO NOTHING. NOT IMPLEMENTED YET.";
     // for each year
@@ -601,7 +404,6 @@ int main(int argc, char* argv[]){
   BOOST_LOG_SEV(glg, info) << "Total Seconds: " << difftime(etime, stime);
   return 0;
 } /* End main() */
-
 
 /** Pretty print a 2D vector of ints */
 void pp_2dvec(const std::vector<std::vector<int> > & vv) {
@@ -646,4 +448,371 @@ std::vector<float> read_new_co2_file(const std::string &filename) {
   return co2data;
 }
 
+/** Advance model. Attempt to drive the model thru the run-stages.
+ * May throw exceptions. (Which kind?)
+*/
+void advance_model(const int rowidx, const int colidx,
+                   const ModelData& modeldata, const bool calmode,
+                   const std::string& eq_restart_fname,
+                   const std::string& sp_restart_fname,
+                   const std::string& tr_restart_fname,
+                   const std::string& sc_restart_fname) {
 
+  BOOST_LOG_SEV(glg, note) << "Running cell (" << rowidx << ", " << colidx << ")";
+
+  //modeldata.initmode = 1; // OBSOLETE?
+
+  BOOST_LOG_SEV(glg, info) << "Setup the NEW STYLE RUNNER OBJECT ...";
+  Runner runner(modeldata, calmode, rowidx, colidx);
+
+  BOOST_LOG_SEV(glg, debug) << runner.cohort.ground.layer_report_string("depth thermal");
+
+  // seg fault w/o preparing climate...so prepare year zero...
+  // this is also called inside run_years(...)
+  runner.cohort.climate.prepare_daily_driving_data(0, "eq");
+
+  runner.cohort.initialize_internal_pointers(); // sets up lots of pointers to various things
+  runner.cohort.initialize_state_parameters();  // sets data based on values in cohortlookup
+  BOOST_LOG_SEV(glg, debug) << "right after initialize_internal_pointers() and initialize_state_parameters()"
+                            << runner.cohort.ground.layer_report_string("depth ptr");
+
+
+  // PRE RUN STAGE (PR)
+  if (modeldata.pr_yrs > 0) {
+    BOOST_LOG_NAMED_SCOPE("PRE-RUN");
+    /** Env-only "pre-run" stage.
+         - should use only the env module
+         - number of years to run can be controlled on cmd line
+         - use fixed climate that is averaged over first X years
+         - use static (fixed) co2 value (first element of co2 file)
+         - FIX: need to set yrs since dsb ?
+         - FIX: should ignore calibration directives?
+    */
+
+    if (runner.calcontroller_ptr) {
+      runner.calcontroller_ptr->handle_stage_start();
+    }
+
+    // turn off everything but env
+    runner.cohort.md->set_envmodule(true);
+    runner.cohort.md->set_bgcmodule(false);
+    runner.cohort.md->set_nfeed(false);
+    runner.cohort.md->set_avlnflg(false);
+    runner.cohort.md->set_baseline(false);
+    runner.cohort.md->set_dsbmodule(false);
+    runner.cohort.md->set_dslmodule(false);
+    runner.cohort.md->set_dvmmodule(false);
+
+    BOOST_LOG_SEV(glg, debug) << "Ground, right before 'pre-run'. "
+                              << runner.cohort.ground.layer_report_string("depth thermal");
+
+    runner.run_years(0, modeldata.pr_yrs, "pre-run"); // climate is prepared w/in here.
+
+    BOOST_LOG_SEV(glg, debug) << "Ground, right after 'pre-run'"
+                              << runner.cohort.ground.layer_report_string("depth thermal");
+
+    if (runner.calcontroller_ptr) {
+      runner.calcontroller_ptr->handle_stage_end("pr");
+    }
+
+  }
+
+  // EQUILIBRIUM STAGE (EQ)
+  if (modeldata.eq_yrs > 0) {
+    BOOST_LOG_NAMED_SCOPE("EQ");
+    BOOST_LOG_SEV(glg, fatal) << "Equilibrium Initial Year Count: " << modeldata.eq_yrs;
+
+    if (runner.calcontroller_ptr) {
+      runner.calcontroller_ptr->handle_stage_start();
+    }
+
+    runner.cohort.md->set_envmodule(true);
+    runner.cohort.md->set_dvmmodule(true);
+    runner.cohort.md->set_bgcmodule(true);
+    runner.cohort.md->set_dslmodule(true);
+
+    runner.cohort.md->set_nfeed(true);
+    runner.cohort.md->set_avlnflg(true);
+    runner.cohort.md->set_baseline(true);
+
+    runner.cohort.md->set_dsbmodule(true);
+
+    // This variable ensures that OpenMP threads do not modify
+    // the shared modeldata.eq_yrs value.
+    int fri_adj_eq_yrs = modeldata.eq_yrs;//EQ years adjusted by FRI if necessary
+    if (runner.cohort.md->get_dsbmodule()) {
+      // The transition to SP must occur at the completion of a
+      // fire cycle (i.e. a year or two prior to the next fire).
+      // To ensure this, re-set modeldata's EQ year count to an
+      // even multiple of the FRI minus 2 (to be safe)
+      if (modeldata.eq_yrs < runner.cohort.fire.getFRI()) {
+        BOOST_LOG_SEV(glg, err) << "The model will not run enough years to complete a disturbance cycle!";
+      } else {
+        int fri = runner.cohort.fire.getFRI();
+        int EQ_fire_cycles = modeldata.eq_yrs / fri;
+        if (modeldata.eq_yrs%fri != 0) {
+          // Extend the run to the end of the current fire cycle
+          fri_adj_eq_yrs = fri * (EQ_fire_cycles + 1) - 2;
+        }
+        else{
+          fri_adj_eq_yrs -= 2;
+        }
+      }
+    }
+
+    // Run model
+    BOOST_LOG_SEV(glg, fatal) << "Running Equilibrium, " << fri_adj_eq_yrs << " years.";
+    runner.run_years(0, fri_adj_eq_yrs, "eq-run");
+
+    // Update restartdata structure from the running state
+    runner.cohort.set_restartdata_from_state();
+
+    runner.cohort.restartdata.verify_logical_values();
+    BOOST_LOG_SEV(glg, debug) << "RestartData post EQ";
+    runner.cohort.restartdata.restartdata_to_log();
+
+    BOOST_LOG_SEV(glg, note) << "Writing RestartData to: " << eq_restart_fname;
+    runner.cohort.restartdata.write_pixel_to_ncfile(eq_restart_fname, rowidx, colidx);
+
+    if (modeldata.eq_yrs < runner.cohort.fire.getFRI()) {
+      BOOST_LOG_SEV(glg, err) << "The model did not run enough years to complete a disturbance cycle!";
+    }
+
+    if (runner.calcontroller_ptr) {
+      runner.calcontroller_ptr->handle_stage_end("eq");
+    }
+
+  }
+
+  // SPINUP STAGE (SP)
+  if (modeldata.sp_yrs > 0) {
+    BOOST_LOG_NAMED_SCOPE("SP");
+    BOOST_LOG_SEV(glg, fatal) << "Running Spinup, " << modeldata.sp_yrs << " years.";
+
+    if (runner.calcontroller_ptr) {
+      runner.calcontroller_ptr->handle_stage_start();
+    }
+
+    runner.cohort.climate.monthlycontainers2log();
+
+    BOOST_LOG_SEV(glg, debug) << "Loading RestartData from: " << eq_restart_fname;
+    runner.cohort.restartdata.update_from_ncfile(eq_restart_fname, rowidx, colidx);
+
+    // FIX: if restart file has -9999, then soil temps can end up
+    // impossibly low should check for valid values prior to actual use
+
+    // Maybe a diffcult to maintain in the future
+    // when/if more variables are added?
+    runner.cohort.restartdata.verify_logical_values();
+
+    BOOST_LOG_SEV(glg, debug) << "RestartData pre SP";
+    runner.cohort.restartdata.restartdata_to_log();
+
+    // Copy values from the updated restart data to cohort and cd
+    runner.cohort.set_state_from_restartdata();
+
+    // Run model
+    runner.run_years(0, modeldata.sp_yrs, "sp-run");
+
+    // Update restartdata structure from the running state
+    runner.cohort.set_restartdata_from_state();
+
+    BOOST_LOG_SEV(glg, debug) << "RestartData post SP";
+    runner.cohort.restartdata.restartdata_to_log();
+
+    BOOST_LOG_SEV(glg, note) << "Writing RestartData out to: " << sp_restart_fname;
+    runner.cohort.restartdata.write_pixel_to_ncfile(sp_restart_fname, rowidx, colidx);
+
+    if (runner.calcontroller_ptr) {
+      runner.calcontroller_ptr->handle_stage_end("sp");
+    }
+
+  }
+
+  // TRANSIENT STAGE (TR)
+  if (modeldata.tr_yrs > 0) {
+    BOOST_LOG_NAMED_SCOPE("TR");
+    BOOST_LOG_SEV(glg, fatal) << "Running Transient, " << modeldata.tr_yrs << " years";
+
+    if (runner.calcontroller_ptr) {
+      runner.calcontroller_ptr->handle_stage_start();
+    }
+
+    // update the cohort's restart data object
+    BOOST_LOG_SEV(glg, debug) << "Loading RestartData from: " << sp_restart_fname;
+    runner.cohort.restartdata.update_from_ncfile(sp_restart_fname, rowidx, colidx);
+
+    runner.cohort.restartdata.verify_logical_values();
+
+    BOOST_LOG_SEV(glg, debug) << "RestartData pre TR";
+    runner.cohort.restartdata.restartdata_to_log();
+
+    // Copy values from the updated restart data to cohort and cd
+    runner.cohort.set_state_from_restartdata();
+
+    BOOST_LOG_SEV(glg,err) << "MAKE SURE YOUR FIRE INPUTS ARE SETUP CORRECTLY!";
+
+    // Run model
+    runner.run_years(0, modeldata.tr_yrs, "tr-run");
+
+    // Update restartdata structure from the running state
+    runner.cohort.set_restartdata_from_state();
+
+    BOOST_LOG_SEV(glg, debug) << "RestartData post TR";
+    runner.cohort.restartdata.restartdata_to_log();
+
+    BOOST_LOG_SEV(glg, note) << "Writing RestartData out to: " << tr_restart_fname;
+    runner.cohort.restartdata.write_pixel_to_ncfile(tr_restart_fname, rowidx, colidx);
+
+    if (runner.calcontroller_ptr) {
+      runner.calcontroller_ptr->handle_stage_end("tr");
+    }
+
+  }
+
+  // SCENARIO STAGE (SC)
+  if (modeldata.sc_yrs > 0) {
+    BOOST_LOG_NAMED_SCOPE("SC");
+    BOOST_LOG_SEV(glg, fatal) << "Running Scenario, " << modeldata.sc_yrs << " years.";
+
+    if (runner.calcontroller_ptr) {
+      runner.calcontroller_ptr->handle_stage_start();
+    }
+
+    // update the cohort's restart data object
+    BOOST_LOG_SEV(glg, debug) << "Loading RestartData from: " << tr_restart_fname;
+    runner.cohort.restartdata.update_from_ncfile(tr_restart_fname, rowidx, colidx);
+
+    BOOST_LOG_SEV(glg, debug) << "RestartData pre SC";
+    runner.cohort.restartdata.restartdata_to_log();
+
+    // Copy values from the updated restart data to cohort and cd
+    runner.cohort.set_state_from_restartdata();
+
+    // Loading projected data instead of historic. FIX?
+    runner.cohort.load_proj_climate(modeldata.proj_climate_file);
+
+    BOOST_LOG_SEV(glg,err) << "MAKE SURE YOUR FIRE INPUTS ARE SETUP CORRECTLY!";
+
+    // Run model
+    runner.run_years(0, modeldata.sc_yrs, "sc-run");
+
+    // Update restartdata structure from the running state
+    runner.cohort.set_restartdata_from_state();
+
+    BOOST_LOG_SEV(glg, debug) << "RestartData post SC";
+    runner.cohort.restartdata.restartdata_to_log();
+
+    BOOST_LOG_SEV(glg, note) << "Writing RestartData out to: " << sc_restart_fname;
+    runner.cohort.restartdata.write_pixel_to_ncfile(sc_restart_fname, rowidx, colidx);
+
+    if (runner.calcontroller_ptr) {
+      runner.calcontroller_ptr->handle_stage_end("sc");
+    }
+
+  }
+
+  // NOTE: Could have an option to set some time constants based on
+  //       some sizes/dimensions of the input driving data...
+
+  /**
+
+
+   
+    eq
+      - create the climate from the average of the first X years
+        of the driving climate data. 
+        SIZE: 12 months,  1 year
+      - set to default module settings to: ??
+      - run_years( 0 <= iy < MAX_EQ_YEAR )
+      - act on calibration directives
+      -
+   
+    sp
+      - create the climate from the first X years of the driving
+        climate dataset. 
+        SIZE: 12 months,  X years
+      - set to default module settings: ??
+      - run_years( SP_BEG <= iy <= SP_END )
+      
+    tr
+      - create climate by loading the driving climate data (historic)
+        SIZE: 12 months, length of driving dataset? OR number from inc/timeconst.h
+      - set to default module settings: ??
+      - run_years( TR_BEG <= iy <= TR_END )
+      
+  */
+
+
+
+
+} // end advance_model
+
+/** Creates (overwrites) an empty run_status file. */
+void create_empty_run_status_file(const std::string& fname,
+    const int ysize, const int xsize) {
+
+  BOOST_LOG_SEV(glg, debug) << "Opening new file with 'NC_CLOBBER'";
+  int ncid;
+  temutil::nc( nc_create(fname.c_str(), NC_CLOBBER, &ncid) );
+
+  // Define handles for dimensions
+  int yD;
+  int xD;
+
+  BOOST_LOG_SEV(glg, debug) << "Creating dimensions...";
+  temutil::nc( nc_def_dim(ncid, "Y", ysize, &yD) );
+  temutil::nc( nc_def_dim(ncid, "X", xsize, &xD) );
+
+  // Setup arrays holding dimids for different "types" of variables
+  // --> will re-arrange these later to define variables with different dims
+  int vartype2D_dimids[2];
+  vartype2D_dimids[0] = yD;
+  vartype2D_dimids[1] = xD;
+
+  // Setup 2D vars, integer
+  // Define handle for variable(s)
+  int run_statusV;
+  
+  // Create variable(s) in nc file
+  temutil::nc( nc_def_var(ncid, "run_status", NC_INT, 2, vartype2D_dimids, &run_statusV) );
+
+  // SET FILL VALUE?
+
+  /* Create Attributes?? */
+
+  /* End Define Mode (not scrictly necessary for netcdf 4) */
+  BOOST_LOG_SEV(glg, debug) << "Leaving 'define mode'...";
+  temutil::nc( nc_enddef(ncid) );
+
+  /* Close file. */
+  BOOST_LOG_SEV(glg, debug) << "Closing new file...";
+  temutil::nc( nc_close(ncid) );
+
+}
+
+void write_status(const std::string fname, int row, int col, int statusCode) {
+
+  int ncid;
+  int statusV;
+
+  temutil::nc( nc_open(fname.c_str(),  NC_WRITE, &ncid) );
+  temutil::nc( nc_inq_varid(ncid, "run_status", &statusV) );
+
+
+  int NDIMS = 2;
+
+  size_t start[NDIMS], count[NDIMS];
+  // Set point to write
+  start[0] = row;
+  start[1] = col;
+  count[0] = 1;
+  count[1] = 1;
+
+  // Write data
+  BOOST_LOG_SEV(glg, note) << "WRITING FOR OUTPUT STATUS FOR (row, col): " << row << ", " << col << "\n";
+  temutil::nc( nc_put_vara(ncid, statusV, start, count,  &statusCode) );
+
+  /* Close the netcdf file. */
+  temutil::nc( nc_close(ncid) );
+}

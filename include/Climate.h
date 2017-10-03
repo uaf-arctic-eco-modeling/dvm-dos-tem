@@ -67,7 +67,7 @@ public:
   void monthlycontainers2log();
   void dailycontainers2log();
 
-  void load_proj_climate(std::string&, int, int);
+  void load_proj_climate(const std::string&, int, int);
 
 private:
 

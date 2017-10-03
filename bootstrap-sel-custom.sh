@@ -35,16 +35,6 @@ then
 fi
 cd dvm-dos-tem
 git remote rename origin upstream
-git checkout devel
-git pull --ff-only upstream devel:devel
-cd ..
-
-if [ ! -d "$HOME"/ddtv ]
-then
-  git clone git@github.com:tobeycarman/ddtv.git "$HOME"/ddtv
-fi
-cd ddtv
-git remote rename origin upstream
 git checkout master
 git pull --ff-only upstream master:master
 cd ..

@@ -2,6 +2,12 @@
 DATA/*/output/*.nc
 input-staging-area/*
 
+parameters-*/
+
+some-dvmdostem-inputs/*
+auto-post-process/*
+junk/*
+
 calibration-plots/*
 
 # ingore the build directory and compiled binaries
@@ -33,3 +39,9 @@ Debug/*
 # complied object files...
 *.o
 .sconsign.dblite
+
+# Ignore hidden vagrant directory
+.vagrant/*
+
+# assorted temporary stuff
+bundle*
