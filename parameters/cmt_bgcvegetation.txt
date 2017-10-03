@@ -252,7 +252,7 @@
 0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          // initdeadn:
 //===========================================================
 // CMT07 // Heath Tundra - (max. 10 PFTs over 1 soil column) (BGC) Plant physiological parameters and default initial conditions
-//Decid.     E.green      Forbs        Lichens      Grasses      Moss       Misc2.       PFT7         PFT8         PFT9           // names: comments                  
+//Decid.     E.green      Forbs        Lichens      Grasses      Moss       Misc.       Misc.         Misc.        Misc.          // names: comments                  
 400.0        400.0        400.0        400.0        400.0        400.0      0.0          0.0          0.0          0.0            // kc:
 75           75           75           75           75           75         0.0          0.0          0.0          0.0            // ki:
 -8.0         -8.0        -1.0         -8.0         -8.0         -1.0        0.0          0.0          0.0          0.0            // tmin:
@@ -288,7 +288,7 @@
 0.0          0.0          0.0          0.0          0.0          0.0        0.0          0.0          0.0          0.0            // initdeadn:
 //===========================================================
 // CMT12 // Lowland Boreal Wet Shrubland - (max. 10 PFTs over 1 soil column) (BGC) Plant physiological parameters and default initial conditions
-//DecShrub   EvrShrub     DecTree     EvrTree     Forbs        Gram         Feather      Lichen       Equisetum    Misc.          // names: comments 
+//DecShrub   EvrShrub     DecTree     EvrTree       Forbs        Gram         Feather      Lichen       Equisetum    Misc.        // names: comments 
 400.0        400.0        400.0        400.0        400.0        400.0        400.0        400.0        400.0        0.0          // kc:
 75           75           75           75           75           75           75           75           75           0.0          // ki:
 -8.0         -8.0        -8.0         -8.0         -8.0         -8.0         -8.0         -8.0         -8.0          0.0          // tmin:
@@ -324,7 +324,7 @@
 0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          // initdeadn:
 //===========================================================
 // CMT20 // EML Shrub Tundra - 
-//Betnan     Carex       Ericoid      Feather      Lichen      OtherMoss    Rubcha      PFT7         PFT8         PFT9           // names: comments                  
+//Betnan     Carex       Ericoid      Feather       Lichen      OthMoss     Rubcha       Misc1        Misc2        Misc3          // names: comments
 400.0        400.0        400.0        400.0        400.0        400.0       400.0       0.0          0.0          0.0            // kc:
 75           75           75           75           75           75          75          0.0          0.0          0.0            // ki:
 -8.0         -8.0        -8.0         -8.0         -8.0         -8.0        -8.0         0.0          0.0          0.0            // tmin:
@@ -360,7 +360,7 @@
 0.0          0.0          0.0          0.0          0.0          0.0         0.0         0.0          0.0          0.0            // initdeadn:
 //===========================================================
 // CMT21 // EML Tussock Tundra -
-//Betnan     Carex       Ericoid      Erivag       Feather     Lichen      OtherMoss    Rubcha     Sphagnum        PFT9           // names: comments                  
+//Betnan     Carex        Ericoid      Erivag       Feather     Lichen      OtherMoss    Rubcha     Sphagnum       Misc.           // names: comments
 400.0        400.0        400.0        400.0        400.0        400.0       400.0       400.0       400.0         0.0            // kc:
 75           75           75           75           75           75          75          75          75            0.0            // ki:
 -8.0         -8.0        -8.0         -8.0         -8.0         -8.0        -8.0        -8.0        -8.0           0.0            // tmin:

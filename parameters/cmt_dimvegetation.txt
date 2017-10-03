@@ -301,7 +301,7 @@
 1.0         0.0         0.0          0.7          1.5          1.5          1.5          0.00         0.00         0.00         // envlai[11]: monthly LAI for a year, used for static input of LAI
 //===========================================================
 // CMT07 // Heath Tundra - (max. 10 PFTs over 1 soil column) (BGC) Plant structure/dimension
-//Decid.    E.green     Forbs        Lichens      Grasses      Moss         Misc2.       PFT7         PFT8         PFT9         // names: comments                  
+//Decid.    E.green     Forbs        Lichens      Grasses      Moss         Misc.       Misc.         Misc.        Misc.        // names: comments                  
 1.00        1.00        1.00         1.00         1.00         1.00         0.00         0.00         0.00         0.00         // vegfrac: vegetation coverage on land - 0 indicates that PFT does't exist
 1           1           1            1            0            0            0            0            0            0            // ifwoody: woody plants (1) or not (0)
 0           1           1            0            0            0            0            0            0            0            // ifdeciwoody: deciduous woodland (1) or not (0)
@@ -344,7 +344,7 @@
 1.0         0.0         0.0          0.7          0.8          0.5          0.00         0.00         0.00         0.00         // envlai[11]: monthly LAI for a year, used for static input of LAI
 //===========================================================
 // CMT12 // Lowland Boreal Wet Shrubland - (max. 10 PFTs over 1 soil column) (BGC) Plant structure/dimension
-//Dec Shrub  Evr Shrub    Dec Tree     Evr Tree     Forbs        Gram         Feather      Lichen       Equisetum    Misc.        // names: comments
+//DecShrub   EvrShrub     DecTree      EvrTree      Forbs        Gram         Feather      Lichen       Equisetum    Misc.        // names: comments 
 1.00         1.00         1.00         1.00         1.00         1.00         1.00         1.00         1.00         0            // vegfrac: vegetation coverage on land - 0 indicates that PFT does't exist
 1            1            1            1            0            0            0            0            0            0            // ifwoody: woody plants (1) or not (0)
 1            0            1            0            0            0            0            0            0            0            // ifdeciwoody: deciduous woodland (1) or not (0)
@@ -387,7 +387,7 @@
 0.0          0.7          0.0          0.7          0.5          0.0          2.00         2.00         0.7          0           // envlai[11]:
 //===========================================================
 // CMT20 // EML Shrub Tundra - 
-//Betnan    Carex        Ericoid     Feather       Lichen     OtherMoss      Rubcha       Misc.       Misc.        Misc.        // names: comments
+//Betnan     Carex        Ericoid      Feather      Lichen      OthMoss       Rubcha       Misc1        Misc2        Misc3        // names: comments
 1.00         1.00         1.00         1.00         1.00         1.00         1.00         0            0            0            // vegfrac: vegetation coverage on land - 0 indicates that PFT does't exist
 1            0            1            0            0            0            1            0            0            0            // ifwoody: woody plants (1) or not (0)
 0            0            0            0            0            0            0            0            0            0            // ifdeciwoody: deciduous woodland (1) or not (0)
@@ -430,7 +430,7 @@
 0.0          0.8          0.7          1.1          2.1          1.1          0.0          0.0          0.0          0.0          // envlai[11]:
 //===========================================================
 // CMT21 // EML Tussock Tundra -
-//Betnan    Carex        Ericoid     Erivag       Feather       Lichen     OtherMoss    Rubcha       Sphag.        Misc.        // names: comments
+//Betnan     Carex        Ericoid      Erivag       Feather     Lichen       OtherMoss    Rubcha      Sphagnum       Misc.           // names: comments
 0.01         0.01         0.01         0.01         0.01         0.01         0.01        0.01         0.01          0            // vegfrac: vegetation coverage on land - 0 indicates that PFT does't exist
 1            0            1            0            0            0            0            1            0            0            // ifwoody: woody plants (1) or not (0)
 1            0            0            0            0            0            0            0            0            0            // ifdeciwoody: deciduous woodland (1) or not (0)

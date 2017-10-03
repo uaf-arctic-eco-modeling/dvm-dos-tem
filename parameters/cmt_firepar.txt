@@ -115,7 +115,7 @@
 0.10                                                   // r_retain_n: ratio of burning residue N (retained into soil)
 //===========================================================
 // CMT05 // Tussock Tundra - fire disturbance parameters
-//PFT0      PFT1        PFT2         PFT3         PFT4         PFT5         PFT6         PFT7         PFT8         PFT9      // names: comments                  
+//Betula     Decid.      E.green     Sedges       Forbs        Lichens      Feather.     Sphag.       Misc1.       Misc2.    // names: comments                  
 0.00         0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvcomb[5][10]: fraction of each PFT vegetation combusted for 5 severities
 0.15         0.15        0.15        0.15         0.15         0.70         0.70         0.80         0.00         0.00      // 
 0.25         0.25        0.25        0.25         0.25         0.80         0.80         0.90         0.00         0.00      // 
@@ -138,7 +138,7 @@
 0.10                                                   // r_retain_n: ratio of burning residue N (retained into soil)
 //===========================================================
 // CMT06 // Wet Sedge Tundra - fire disturbance parameters
-//PFT0      PFT1        PFT2         PFT3         PFT4         PFT5         PFT6         PFT7         PFT8         PFT9      // names: comments                  
+//Decid.     Sedges       Grasses    Forbs        Lichens      Feather      Sphag.       PFT7         PFT8         PFT9      // names: comments                  
 0.00         0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvcomb[5][10]: fraction of each PFT vegetation combusted for 5 severities
 0.15         0.15        0.15        0.15         0.15         0.70         0.70         0.80         1.00         0.00      // 
 0.25         0.25        0.25        0.25         0.25         0.80         0.80         0.90         1.00         0.00      // 
@@ -161,7 +161,7 @@
 0.10                                                   // r_retain_n: ratio of burning residue N (retained into soil)
 //===========================================================
 // CMT07 // Heath Tundra - fire disturbance parameters
-//PFT0      PFT1        PFT2         PFT3         PFT4         PFT5         PFT6         PFT7         PFT8         PFT9      // names: comments                  
+//Decid.     E.green     Forbs       Lichens      Grasses      Moss         Misc.        Misc.        Misc.        Misc.     // names: comments
 0.00         0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvcomb[5][10]: fraction of each PFT vegetation combusted for 5 severities
 0.15         0.15        0.15        0.15         0.15         0.70         0.70         0.80         1.00         0.00      // 
 0.25         0.25        0.25        0.25         0.25         0.80         0.80         0.90         1.00         0.00      // 
@@ -184,7 +184,7 @@
 0.10                                                   // r_retain_n: ratio of burning residue N (retained into soil)
 //===========================================================
 // CMT12 // Lowland Boreal Wet Shrubland - fire disturbance parameters
-//Dec Shrub  Evr Shrub    Dec Tree     Evr Tree     Forbs        Gram         Feather      Lichen       Equisetum    Misc.     // names: comments
+//DecShrub   EvrShrub     DecTree      EvrTree      Forbs        Gram         Feather      Lichen       Equisetum    Misc.     // names: comments 
 0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvcomb[5][10]: fraction of each PFT vegetation combusted for 5 severities
 0.15         0.15         0.15         0.15         0.15         0.70         0.70         0.80         1.00         0.00      // 
 0.25         0.25         0.25         0.25         0.25         0.80         0.80         0.90         1.00         0.00      // 
@@ -207,7 +207,7 @@
 0.10                                                   // r_retain_n: ratio of burning residue N (retained into soil)
 //===========================================================
 // CMT20 // EML Shrub Tundra - 
-//PFT0      PFT1        PFT2         PFT3         PFT4         PFT5         PFT6         PFT7         PFT8         PFT9      // names: comments                  
+//Betnan     Carex       Ericoid      Feather     Lichen       OthMoss      Rubcha       Misc1        Misc2        Misc3     // names: comments
 0.00         0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvcomb[5][10]: fraction of each PFT vegetation combusted for 5 severities
 0.15         0.15        0.15        0.15         0.15         0.70         0.70         0.80         1.00         0.00      // 
 0.25         0.25        0.25        0.25         0.25         0.80         0.80         0.90         1.00         0.00      // 
@@ -230,7 +230,7 @@
 0.10                                                   // r_retain_n: ratio of burning residue N (retained into soil)
 //===========================================================
 // CMT21 // EML Tussock Tundra -
-//PFT0      PFT1        PFT2         PFT3         PFT4         PFT5         PFT6         PFT7         PFT8         PFT9      // names: comments                  
+//Betnan     Carex       Ericoid     Erivag       Feather     Lichen      OtherMoss    Rubcha     Sphagnum        Misc.      // names: comments
 0.00         0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvcomb[5][10]: fraction of each PFT vegetation combusted for 5 severities
 0.15         0.15        0.15        0.15         0.15         0.70         0.70         0.80         1.00         0.00      // 
 0.25         0.25        0.25        0.25         0.25         0.80         0.80         0.90         1.00         0.00      // 

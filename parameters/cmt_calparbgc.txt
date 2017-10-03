@@ -110,7 +110,7 @@
 0.00007  // kdcsomcr:
 //===========================================================
 // CMT05 // Tussock Tundra - (max. 10 PFTs) Plant calibrated parameters
-//Betula   Decid.     E.green     Sedges       Forbs      Lichens    Feather       Sphag.    Misc1.   Misc2.  // names: comments
+//Betula    Decid.      E.green     Sedges      Forbs       Lichens     Feather     Sphag.     Misc1.  Misc2.  // names: comments
 430.0     220.7244    1000.76     1800.00      30.00      500.00      300.00      350.00       0.0     0.0    // cmax:
  10.00     11.00        20.00       15.70       1.50        2.00        7.00        6.00       0.0     0.0    // nmax:
  0.2000     0.1150       0.1100      0.0500     0.0922      0.1100      0.2120      0.0950     0.0     0.0    // cfall(0): leave
@@ -154,7 +154,7 @@
 0.00025       // kdcsomcr:
 //===========================================================
 // CMT07 // Heath Tundra - (max. 10 PFTs over 1 soil column) (BGC) plant calibrated parameters
-//Decid.    E.green      Forbs        Lichens      Grasses      Moss       Misc2.    PFT7       PFT8         PFT9           // names: comments
+//Decid.     E.green      Forbs        Lichens      Grasses      Moss       Misc.       Misc.      Misc.        Misc.        // names: comments
 26.40       89.70        23.0        113.1          4.8         38.1        0.0         0.0        0.0          0.0          // cmax:
  4.50       10.72         4.50         2.120        2.29         1.00       0.0         0.0        0.0          0.0          // nmax:
  0.065       0.048        0.075        0.0120       0.000001     0.079      0.0         0.0        0.0          0.0          // cfall(0): leave
@@ -176,7 +176,7 @@
 0.0000005   // kdcsomcr:
 //===========================================================
 // CMT12 // Lowland Boreal Wet Shrubland - (max. 10 PFTs over 1 soil column) (BGC) plant calibrated parameters
-//Dec.Shrub  Evr.Shrub    Dec.Tree     Evr.Tree     Forbs        Gram       Feather     Lichen     Equisetum    Misc.        // names: comments
+//DecShrub   EvrShrub      DecTree      EvrTree     Forbs        Gram       Feather     Lichen     Equisetum    Misc.        // names: comments 
 370.00       120.00      700.00      1470.00       285.0       2300.0      135.0        19.0       75.0          0.0          // cmax:
 10.20         9.00         8.20        10.00         3.00        27.00       3.0         3.0        4.0          0.0          // nmax:
  0.0950       0.0006       0.0500       0.0009       0.0027       0.0009     0.0278     0.0788    0.0020       0.0          // cfall(0): leaf
@@ -198,7 +198,7 @@
 0.000025    // kdcsomcr:
 //===========================================================
 // CMT20 // EML Shrub Tundra - 
-//Betnan   Carex       Ericoid      Feather      Lichen      OthMoss    Rubcha      Misc1    Misc2   Misc3      // names: comments
+//Betnan     Carex       Ericoid      Feather       Lichen      OthMoss   Rubcha     Misc1    Misc2   Misc3      // names: comments
 2470.00    300.00      1710.00       510.00       108.0        88.0      285.0        0.0      0.0     0.0       // cmax:
 70.20       20.00        30.20        23.00         3.00       10.00      13.0        0.0      0.0     0.0       // nmax:
  0.00001     0.00001      0.00001      0.0258       0.009       0.14       0.0278     0.0      0.0     0.0       // cfall(0): leaf
@@ -220,7 +220,7 @@
 0.00025    // kdcsomcr:
 //===========================================================
 // CMT21 // EML Tussock Tundra -
-//Betnan   Carex     Ericoid     Erivag     Feather     Lichen    OthMoss    Rubcha     Sphagnum     Misc.     // names: comments
+//Betnan   Carex       Ericoid    Erivag       Feather   Lichen     OtherMoss  Rubcha     Sphagnum    Misc.    // names: comments
 180.00    680.00     1320.00    1505.00        0.81     103.0      928.0      345.0       21.0        0.0      // cmax:
  7.20      15.00       28.20      40.00        0.50       3.00      10.0        5.0        2.5        0.0      // nmax:
  0.25       0.37        0.0500     0.0010      0.017      0.020      0.040      0.52       0.009      0.0      // cfall(0): leaf
