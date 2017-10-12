@@ -53,7 +53,7 @@
 #ifdef WITHMPI
 #include <mpi.h>
 #include "data/RestartData.h" // for defining MPI typemap...
-#include "inc/tbc_mpi_constants.h"
+//#include "inc/tbc_mpi_constants.h"
 #endif
 
 // For managing the floating point environment
@@ -181,38 +181,23 @@ int main(int argc, char* argv[]){
       and the command line.
   */
 
+
+  BOOST_LOG_SEV(glg, note) << "Clearing output directory: "<<modeldata.output_dir;
+  const boost::filesystem::path out_dir_path(modeldata.output_dir);
+  if (boost::filesystem::exists( out_dir_path )) {
+    boost::filesystem::remove_all( out_dir_path );
+  }
+  boost::filesystem::create_directories(out_dir_path);
+
+
 #ifdef WITHMPI
     BOOST_LOG_SEV(glg, fatal) << "Built and running with MPI";
 
     // Intended for passing argc and argv, the arguments to MPI_Init
     // are currently unnecessary.
     MPI_Init(NULL, NULL);
-
-    int id = MPI::COMM_WORLD.Get_rank();     // Change this to C interface?? MPI_Comm_World?
-    int ntasks = MPI::COMM_WORLD.Get_size();
-    if (id == 0) {
-
-      BOOST_LOG_SEV(glg, note) << "Clearing output directory...";
-      const boost::filesystem::path out_dir_path(modeldata.output_dir);
-      if (boost::filesystem::exists( out_dir_path )) {
-        boost::filesystem::remove_all( out_dir_path );
-      }
-      boost::filesystem::create_directories(out_dir_path);
-      BOOST_LOG_SEV(glg, debug) << "rank: "<<id<<" Hit MPI_Barrier.";
-      MPI_Barrier(MPI::COMM_WORLD);
-    } else {
-      BOOST_LOG_SEV(glg, debug) << "rank: "<<id<<" Hit MPI_Barrier.";
-      MPI_Barrier(MPI::COMM_WORLD);
-    }
-
-#else
-    BOOST_LOG_SEV(glg, note) << "Clearing output directory...";
-    const boost::filesystem::path out_dir_path(modeldata.output_dir);
-    if (boost::filesystem::exists( out_dir_path )) {
-      boost::filesystem::remove_all( out_dir_path );
-    }
-    boost::filesystem::create_directories(out_dir_path);
 #endif
+
 
   BOOST_LOG_SEV(glg, note) << "Running PR stage: " << modeldata.pr_yrs << "yrs";
   BOOST_LOG_SEV(glg, note) << "Running EQ stage: " << modeldata.eq_yrs << "yrs";
@@ -341,11 +326,36 @@ int main(int argc, char* argv[]){
     //      depending on the comparison operator
     //  - The loop must be a basic block: no jump to outside the loop
     //      other than the exit statement.
-    #pragma omp parallel for collapse(2) schedule(dynamic)
+ 
+#ifdef WITHMPI
+
+    int id = MPI::COMM_WORLD.Get_rank();
+    int ntasks = MPI::COMM_WORLD.Get_size();
+
+    int total_cells = num_rows*num_cols;
+
+    BOOST_LOG_SEV(glg, debug) << "id: "<<id<<" of ntasks: "<<ntasks;
+
+    #pragma omp parallel for schedule(dynamic)
+    for(int curr_cell=id; curr_cell<total_cells; curr_cell+=ntasks){
+
+      int rowidx = curr_cell / num_cols;
+      int colidx = curr_cell % num_cols;
+
+      bool mask_value = run_mask[rowidx][colidx];
+      BOOST_LOG_SEV(glg, fatal) << "MPI rank: "<<id<<", cell: "<<rowidx\
+                                << ", "<<colidx<<" run: "<<mask_value;
+
+#else
+    BOOST_LOG_SEV(glg, debug) << "Not built with MPI";
+
+   #pragma omp parallel for collapse(2) schedule(dynamic)
     for(int rowidx=0; rowidx<num_rows; rowidx++){
       for(int colidx=0; colidx<num_cols; colidx++){
 
         bool mask_value = run_mask[rowidx].at(colidx);
+
+#endif
 
         if (true == mask_value) {
 
@@ -380,9 +390,17 @@ int main(int argc, char* argv[]){
           BOOST_LOG_SEV(glg, debug) << "Skipping cell (" << rowidx << ", " << colidx << ")";
           write_status(run_status_fname, rowidx, colidx, 0);
         }
+ 
+#ifdef WITHMPI
+    }
+    MPI_Finalize();
+
+#else
       }//end col loop
     }//end row loop
-  
+
+#endif
+ 
   } else if (args->get_loop_order() == "time-major") {
     BOOST_LOG_SEV(glg, warn) << "DO NOTHING. NOT IMPLEMENTED YET.";
     // for each year
