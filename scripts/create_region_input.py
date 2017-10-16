@@ -1009,6 +1009,15 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
 
     fill_explicit_fire_file(tif_dir + "iem_ancillary_data/Fire/", years, xo, yo, xs, ys, out_dir, of_name)
 
+  print(textwrap.dedent('''\
+
+      ----> CAVEATS:
+       * Time coordiate starting point is hard-coded and assumed to match
+         the input file series
+       * The input file series are from SNAP, use CRU3.1 for historic climate
+         and AR4 for the projected climate.
+  '''))
+
   print "DONE"
 
 
