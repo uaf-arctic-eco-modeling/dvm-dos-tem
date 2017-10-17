@@ -251,7 +251,10 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
 
   // NetCDF variable handle
   int Var;
-  int tcV // time coordinate variable
+  int tcVar; // time coordinate variable
+
+  // 1D Coordinate
+  int vartype1D_dimids[1];
 
   // 3D Ecosystem
   int vartype3D_dimids[3];
@@ -428,6 +431,14 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
         temutil::nc( nc_def_var(ncid, name.c_str(), NC_DOUBLE, 4, vartypeSoil4D_dimids, &Var) );
       }
 
+      if (stage.compare("tr") != 0 && timestep.compare("monthly") != 0) {
+        BOOST_LOG_SEV(glg, warn) << "NOT SURE WHAT TO DO WITH THESE TIME UNITS YET!!!";
+        vartype1D_dimids[0] = timeD;
+        temutil::nc( nc_def_var(ncid, "time", NC_DOUBLE, 1, vartype1D_dimids, &tcVar) );
+        std::string tcv_unit_str = "days since 1901-01-01 0:0:0";
+        temutil::nc( nc_put_att_text(ncid, tcVar, "units", tcv_unit_str.length(), tcv_unit_str.c_str()) );
+      }
+
       BOOST_LOG_SEV(glg, debug) << "Adding variable-level attributes";
       temutil::nc( nc_put_att_text(ncid, Var, "units", units.length(), units.c_str()) );
       temutil::nc( nc_put_att_text(ncid, Var, "long_name", desc.length(), desc.c_str()) );
@@ -436,6 +447,27 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
       /* End Define Mode (not strictly necessary for netcdf 4) */
       BOOST_LOG_SEV(glg, debug) << "Leaving 'define mode'...";
       temutil::nc( nc_enddef(ncid) );
+
+      if (stage.compare("tr") == 0 && timestep.compare("monthly") == 0) {
+        BOOST_LOG_SEV(glg, debug) << "Copying time coordinate variable from input file!";
+
+
+        int hist_climate_ncid;
+        int hist_climate_tcV;
+        temutil::nc( nc_open(this->hist_climate_file.c_str(), NC_NOWRITE, &hist_climate_ncid) );
+        temutil::nc( nc_inq_varid(hist_climate_ncid, "time", &hist_climate_tcV));
+
+
+
+        temutil::nc( nc_copy_var(hist_climate_ncid, hist_climate_tcV, ncid) );
+
+
+
+
+
+
+
+      }
 
       /* Close file. */
       BOOST_LOG_SEV(glg, debug) << "Closing new file...";
