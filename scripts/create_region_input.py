@@ -15,7 +15,9 @@ import os
 
 import netCDF4
 
+import datetime as dt
 import numpy as np
+import pandas as pd
 
 from osgeo import gdal
 
@@ -674,11 +676,12 @@ def fill_climate_file(start_yr, yrs, xo, yo, xs, ys,
       with custom_netcdf_attr_bug_wrapper(new_climatedataset) as f:
         tcV = f.createVariable("time", np.double, ('time'))
         tcV.setncatts({
-          'long_name':'time',
-          'units':'months since {}-1-1 0:0:0'.format(start_yr)
+          'long_name': 'time',
+          'units': 'days since {}-1-1 0:0:0'.format(start_yr),
         })
-
-        tcV[:] = np.arange(0, f.dimensions['time'].size)
+        start_date = dt.datetime(year=start_yr, month=1, day=1)
+        month_starts = pd.date_range(start_date, periods=f.dimensions['time'].size, freq="MS")
+        tcV[:] = netCDF4.date2num(month_starts.to_pydatetime(), units="days since 1901-01-01", calendar="365_day")
 
 
 
