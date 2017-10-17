@@ -236,26 +236,33 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
   std::string timestep; // Yearly, monthly, or daily
   std::string invalid_option = "invalid"; // This marks an invalid selection
 
-  // NetCDF file variables
+  // Handle for the NetCDF file
   int ncid;
+
+  // NetCDF file dimensions, applicable to all output files
   int timeD;    // unlimited dimension
   int xD;
   int yD;
+
+  // NetCDF file dimensions; different dims are applicable for different vars.
   int pftD;
   int pftpartD;
   int layerD;
-  int Var;
 
-  //3D Ecosystem
+  // NetCDF variable handle
+  int Var;
+  int tcV // time coordinate variable
+
+  // 3D Ecosystem
   int vartype3D_dimids[3];
 
-  //4D Soil
+  // 4D Soil
   int vartypeSoil4D_dimids[4];
 
-  //4D Veg - PFT or compartment but not both 
+  // 4D Veg - PFT or compartment but not both
   int vartypeVeg4D_dimids[4];
 
-  //5D Veg - PFT and PFT compartment
+  // 5D Veg - PFT and PFT compartment
   int vartypeVeg5D_dimids[5];
  
   // Ingest output specification file, create OutputSpec for each entry.
@@ -279,13 +286,13 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
       std::getline(ss, token, ',');
       //std::cout<<"token: "<<token<<std::endl;
 
-      if(ii==0){//Variable name
+      if(ii==0){ // Variable name
         name = token; 
       }
-      else if(ii==1){//Short description
+      else if(ii==1){ // Short description
         desc = token;
       }
-      else if(ii==2){//Units
+      else if(ii==2){ // Units
         units = token;
       }
       else if(ii==3){//Yearly
@@ -294,14 +301,14 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
           new_spec.yearly = true;
         }
       }
-      else if(ii==4){//Monthly
+      else if(ii==4){ // Monthly
         if(token.length()>0 && token.compare(invalid_option) != 0){
           timestep = "monthly";
           new_spec.monthly = true;
           new_spec.yearly = false;
         }
       }
-      else if(ii==5){//Daily
+      else if(ii==5){ // Daily
         if(token.length()>0 && token.compare(invalid_option) != 0){
           timestep = "daily";
           new_spec.daily = true;
@@ -309,19 +316,19 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
           new_spec.yearly = false;
         }
       }
-      else if(ii==6){//PFT
+      else if(ii==6){ // PFT
         if(token.length()>0 && token.compare(invalid_option) != 0){
           new_spec.pft = true;
           new_spec.dim_count++;
         }
       }
-      else if(ii==7){//Compartment
+      else if(ii==7){ // Compartment
         if(token.length()>0 && token.compare(invalid_option) != 0){
           new_spec.compartment = true;
           new_spec.dim_count++;
         }
       }
-      else if(ii==8){//Layer
+      else if(ii==8){ // Layer
         if(token.length()>0 && token.compare(invalid_option) != 0){
           new_spec.layer = true;
           new_spec.dim_count++;
@@ -349,7 +356,7 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
       std::string creation_filestr = output_filepath.string();
 
       // Creating NetCDF file
-      BOOST_LOG_SEV(glg, debug)<<"Creating output NetCDF file "<<creation_filestr;
+      BOOST_LOG_SEV(glg, debug) << "Creating output NetCDF file " << creation_filestr;
       temutil::nc( nc_create(creation_filestr.c_str(), NC_CLOBBER, &ncid) );
 
       BOOST_LOG_SEV(glg, debug) << "Adding file-level attributes";
@@ -357,7 +364,7 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
 
       BOOST_LOG_SEV(glg, debug) << "Adding dimensions...";
 
-      // All variables will have time, y, x
+      // All variables will have dimensions: time, y, x
       temutil::nc( nc_def_dim(ncid, "time", NC_UNLIMITED, &timeD) );
       temutil::nc( nc_def_dim(ncid, "y", ysize, &yD) );
       temutil::nc( nc_def_dim(ncid, "x", xsize, &xD) );
