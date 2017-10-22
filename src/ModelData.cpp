@@ -490,26 +490,38 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
         temutil::nc( nc_put_vara_int(ncid, tcV, start, count, &time_coord_values[0]) );
 
       }
+
+
+      // This copies the entire time coordinate variable, so the resulting
+      // file will have however many entries along the time axis as the input
+      // data has. This might be problematic if the input dataset has hundreds
+      // of years of data and the user specifes to only run several years -
+      // the output data set might end up being unnecessiarily large. Maybe
+      // the netcdf compression will make this a non-issue?
       if (stage.compare("tr") == 0 && timestep.compare("monthly") == 0) {
         BOOST_LOG_SEV(glg, debug) << "Copying time coordinate variable from input file!";
 
-
         int hist_climate_ncid;
         int hist_climate_tcV;
+
         temutil::nc( nc_open(this->hist_climate_file.c_str(), NC_NOWRITE, &hist_climate_ncid) );
         temutil::nc( nc_inq_varid(hist_climate_ncid, "time", &hist_climate_tcV));
 
-
-
         temutil::nc( nc_copy_var(hist_climate_ncid, hist_climate_tcV, ncid) );
-
-
-
-
-
-
-
       }
+
+      if (stage.compare("sc") == 0 && timestep.compare("monthly") == 0) {
+        BOOST_LOG_SEV(glg, debug) << "Copying time coordinate variable from input file!";
+
+        int proj_climate_ncid;
+        int proj_climate_tcV;
+
+        temutil::nc( nc_open(this->proj_climate_file.c_str(), NC_NOWRITE, &proj_climate_ncid) );
+        temutil::nc( nc_inq_varid(proj_climate_ncid, "time", &proj_climate_tcV));
+
+        temutil::nc( nc_copy_var(proj_climate_ncid, proj_climate_tcV, ncid) );
+      }
+
 
       /* Close file. */
       BOOST_LOG_SEV(glg, debug) << "Closing new file...";
