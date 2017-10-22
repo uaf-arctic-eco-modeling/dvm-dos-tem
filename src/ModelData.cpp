@@ -447,11 +447,12 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
                                 << "from the input historic climate in order to "
                                 << "pick up the correct starting date.";
 
-        BOOST_LOG_SEV(glg, err) << "TO DO: Specify calendar! (365_day)";
-
         std::string tcv_unit_str = "days since 1901-01-01 0:0:0";
 
         temutil::nc( nc_put_att_text(ncid, tcVar, "units", tcv_unit_str.length(), tcv_unit_str.c_str()) );
+
+        std::string tcv_calendar_str = "365_day";
+        temutil::nc( nc_put_att_text(ncid, tcVar, "calendar", tcv_calendar_str.length(), tcv_calendar_str.c_str()) );
 
         // below, we actually write out the time coordinate variable values
 
