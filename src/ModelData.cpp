@@ -443,13 +443,13 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
         vartype1D_dimids[0] = timeD;
         temutil::nc( nc_def_var(ncid, "time", NC_DOUBLE, 1, vartype1D_dimids, &tcVar) );
 
-        BOOST_LOG_SEV(glg, err) << "TO DO: need to copy the attribute string "
-                                << "from the input historic climate in order to "
-                                << "pick up the correct starting date.";
+        int hist_climate_ncid;
+        int hist_climate_tcV;
 
-        std::string tcv_unit_str = "days since 1901-01-01 0:0:0";
+        temutil::nc( nc_open(this->hist_climate_file.c_str(), NC_NOWRITE, &hist_climate_ncid) );
+        temutil::nc( nc_inq_varid(hist_climate_ncid, "time", &hist_climate_tcV));
 
-        temutil::nc( nc_put_att_text(ncid, tcVar, "units", tcv_unit_str.length(), tcv_unit_str.c_str()) );
+        temutil::nc( nc_copy_att(hist_climate_ncid, hist_climate_tcV, "units", ncid, tcVar));
 
         std::string tcv_calendar_str = "365_day";
         temutil::nc( nc_put_att_text(ncid, tcVar, "calendar", tcv_calendar_str.length(), tcv_calendar_str.c_str()) );
@@ -457,7 +457,6 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
         // below, we actually write out the time coordinate variable values
 
       }
-
 
       BOOST_LOG_SEV(glg, debug) << "Adding variable-level attributes";
       temutil::nc( nc_put_att_text(ncid, Var, "units", units.length(), units.c_str()) );
@@ -482,11 +481,6 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
 
         start[0] = 0;
         count[0] = time_coord_values.size();
-
-        BOOST_LOG_SEV(glg, debug) << time_coord_values.size();
-        for (int i=0; i < this->tr_yrs; i++) {
-          BOOST_LOG_SEV(glg, debug) << time_coord_values.at(i);
-        }
 
         temutil::nc( nc_put_vara_int(ncid, tcV, start, count, &time_coord_values[0]) );
 
