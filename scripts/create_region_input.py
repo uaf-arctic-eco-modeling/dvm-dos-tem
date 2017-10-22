@@ -678,10 +678,22 @@ def fill_climate_file(start_yr, yrs, xo, yo, xs, ys,
         tcV.setncatts({
           'long_name': 'time',
           'units': 'days since {}-1-1 0:0:0'.format(start_yr),
+          'calendar': '365_day'
         })
-        start_date = dt.datetime(year=start_yr, month=1, day=1)
-        month_starts = pd.date_range(start_date, periods=f.dimensions['time'].size, freq="MS")
-        tcV[:] = netCDF4.date2num(month_starts.to_pydatetime(), units="days since 1901-01-01", calendar="365_day")
+        # Build up a vector of datetime stamps for the first day of each month
+        month_starts = pd.date_range(
+            dt.datetime(year=start_yr, month=1, day=1),
+            periods=f.dimensions['time'].size,
+            freq="MS"
+        )
+
+        # Set the values for the time coordinate variable, using the
+        # helper function from netCDF4 library to get the proper offsets
+        tcV[:] = netCDF4.date2num(
+            month_starts.to_pydatetime(),
+            units="days since {}-01-01".format(start_yr),
+            calendar="365_day"
+        )
 
 
 
