@@ -439,6 +439,25 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
         temutil::nc( nc_put_att_text(ncid, tcVar, "units", tcv_unit_str.length(), tcv_unit_str.c_str()) );
       }
 
+      if (stage.compare("tr") == 0 && timestep.compare("yearly") == 0) {
+        vartype1D_dimids[0] = timeD;
+        temutil::nc( nc_def_var(ncid, "time", NC_DOUBLE, 1, vartype1D_dimids, &tcVar) );
+
+        BOOST_LOG_SEV(glg, err) << "TO DO: need to copy the attribute string "
+                                << "from the input historic climate in order to "
+                                << "pick up the correct starting date.";
+
+        BOOST_LOG_SEV(glg, err) << "TO DO: Specify calendar! (365_day)";
+
+        std::string tcv_unit_str = "days since 1901-01-01 0:0:0";
+
+        temutil::nc( nc_put_att_text(ncid, tcVar, "units", tcv_unit_str.length(), tcv_unit_str.c_str()) );
+
+        // below, we actually write out the time coordinate variable values
+
+      }
+
+
       BOOST_LOG_SEV(glg, debug) << "Adding variable-level attributes";
       temutil::nc( nc_put_att_text(ncid, Var, "units", units.length(), units.c_str()) );
       temutil::nc( nc_put_att_text(ncid, Var, "long_name", desc.length(), desc.c_str()) );
@@ -448,6 +467,29 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
       BOOST_LOG_SEV(glg, debug) << "Leaving 'define mode'...";
       temutil::nc( nc_enddef(ncid) );
 
+      if (stage.compare("tr") == 0 && timestep.compare("yearly") == 0) {
+        BOOST_LOG_SEV(glg, debug) << "Filling out time coordinate variable for yearly transient outputs...";
+        int tcV;
+        temutil::nc( nc_inq_varid(ncid, "time", &tcV));
+
+        std::vector<int> time_coord_values(this->tr_yrs, 0);
+        for (int i=0; i < this->tr_yrs; i++) {
+          time_coord_values.at(i) = 365*i;
+        }
+        size_t start[1];
+        size_t count[1];
+
+        start[0] = 0;
+        count[0] = time_coord_values.size();
+
+        BOOST_LOG_SEV(glg, debug) << time_coord_values.size();
+        for (int i=0; i < this->tr_yrs; i++) {
+          BOOST_LOG_SEV(glg, debug) << time_coord_values.at(i);
+        }
+
+        temutil::nc( nc_put_vara_int(ncid, tcV, start, count, &time_coord_values[0]) );
+
+      }
       if (stage.compare("tr") == 0 && timestep.compare("monthly") == 0) {
         BOOST_LOG_SEV(glg, debug) << "Copying time coordinate variable from input file!";
 
