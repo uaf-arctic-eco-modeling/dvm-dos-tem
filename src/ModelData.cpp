@@ -431,15 +431,13 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
         temutil::nc( nc_def_var(ncid, name.c_str(), NC_DOUBLE, 4, vartypeSoil4D_dimids, &Var) );
       }
 
-      if (stage.compare("tr") != 0 && timestep.compare("monthly") != 0) {
-        BOOST_LOG_SEV(glg, warn) << "NOT SURE WHAT TO DO WITH THESE TIME UNITS YET!!!";
-        vartype1D_dimids[0] = timeD;
-        temutil::nc( nc_def_var(ncid, "time", NC_DOUBLE, 1, vartype1D_dimids, &tcVar) );
-        std::string tcv_unit_str = "days since 1901-01-01 0:0:0";
-        temutil::nc( nc_put_att_text(ncid, tcVar, "units", tcv_unit_str.length(), tcv_unit_str.c_str()) );
-      }
+      //  monthly tr :  days since 1901, copy attributes and data from hist climate
+      //  yearly tr :  days since 1901, copy attributes from hist climate; generate data...
+      //
+      //  monthly sc : days since 2001, copy attributes and data from proj climate
+      //  yearly sc : days since 2001, copy attributes from proj climate, generate data...
 
-      if (stage.compare("tr") == 0 && timestep.compare("yearly") == 0) {
+      if (stage == "tr" && (timestep == "yearly" || timestep == "monthly")) {
         vartype1D_dimids[0] = timeD;
         temutil::nc( nc_def_var(ncid, "time", NC_DOUBLE, 1, vartype1D_dimids, &tcVar) );
 
@@ -451,12 +449,34 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
 
         temutil::nc( nc_copy_att(hist_climate_ncid, hist_climate_tcV, "units", ncid, tcVar));
 
+        // eventually can remove this one inputs are done?
         std::string tcv_calendar_str = "365_day";
         temutil::nc( nc_put_att_text(ncid, tcVar, "calendar", tcv_calendar_str.length(), tcv_calendar_str.c_str()) );
 
         // below, we actually write out the time coordinate variable values
 
       }
+
+      if (stage == "sc" && (timestep == "yearly" || timestep == "monthly")) {
+        vartype1D_dimids[0] = timeD;
+        temutil::nc( nc_def_var(ncid, "time", NC_DOUBLE, 1, vartype1D_dimids, &tcVar) );
+
+        int proj_climate_ncid;
+        int proj_climate_tcV;
+
+        temutil::nc( nc_open(this->proj_climate_file.c_str(), NC_NOWRITE, &proj_climate_ncid) );
+        temutil::nc( nc_inq_varid(proj_climate_ncid, "time", &proj_climate_tcV));
+
+        temutil::nc( nc_copy_att(proj_climate_ncid, proj_climate_tcV, "units", ncid, tcVar));
+
+        // eventually can remove this one inputs are done?
+        std::string tcv_calendar_str = "365_day";
+        temutil::nc( nc_put_att_text(ncid, tcVar, "calendar", tcv_calendar_str.length(), tcv_calendar_str.c_str()) );
+
+        // below, we actually write out the time coordinate variable values
+
+      }
+
 
       BOOST_LOG_SEV(glg, debug) << "Adding variable-level attributes";
       temutil::nc( nc_put_att_text(ncid, Var, "units", units.length(), units.c_str()) );
@@ -467,14 +487,20 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
       BOOST_LOG_SEV(glg, debug) << "Leaving 'define mode'...";
       temutil::nc( nc_enddef(ncid) );
 
-      if (stage.compare("tr") == 0 && timestep.compare("yearly") == 0) {
-        BOOST_LOG_SEV(glg, debug) << "Filling out time coordinate variable for yearly transient outputs...";
+      /* Fill out the time coordinate variable */
+      if ((stage == "tr") || (stage == "sc") && timestep == "yearly") {
+        BOOST_LOG_SEV(glg, debug) << "Time coordinate variable, tr or sc, yearly.";
+
         int tcV;
         temutil::nc( nc_inq_varid(ncid, "time", &tcV));
 
-        std::vector<int> time_coord_values(this->tr_yrs, 0);
-        for (int i=0; i < this->tr_yrs; i++) {
-          time_coord_values.at(i) = 365*i;
+        int runyrs;
+        if (stage == "tr") { runyrs = this->tr_yrs; }
+        if (stage == "sc") { runyrs = this->sc_yrs; }
+
+        std::vector<int> time_coord_values(runyrs, 0);
+        for (int i=0; i < runyrs; i++) {
+          time_coord_values.at(i) = 365 * i; // assumes attribute calendar:'365_day'
         }
         size_t start[1];
         size_t count[1];
@@ -486,35 +512,33 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
 
       }
 
+      if ((stage == "tr" || stage == "sc") && timestep == "monthly") {
+        BOOST_LOG_SEV(glg, debug) << "Time coordinate variable, tr or sc, monthly.";
 
-      // This copies the entire time coordinate variable, so the resulting
-      // file will have however many entries along the time axis as the input
-      // data has. This might be problematic if the input dataset has hundreds
-      // of years of data and the user specifes to only run several years -
-      // the output data set might end up being unnecessiarily large. Maybe
-      // the netcdf compression will make this a non-issue?
-      if (stage.compare("tr") == 0 && timestep.compare("monthly") == 0) {
-        BOOST_LOG_SEV(glg, debug) << "Copying time coordinate variable from input file!";
+        int runyrs = 0;
+        std::vector<int> full_time_coord;
 
-        int hist_climate_ncid;
-        int hist_climate_tcV;
+        if (stage == "tr") {
+          runyrs = this->tr_yrs;
+          full_time_coord = temutil::get_timeseries2(this->hist_climate_file, "time", 0);
+        }
+        if (stage == "sc") {
+          runyrs = this->sc_yrs;
+          full_time_coord = temutil::get_timeseries2(this->proj_climate_file, "time", 0);
+        }
 
-        temutil::nc( nc_open(this->hist_climate_file.c_str(), NC_NOWRITE, &hist_climate_ncid) );
-        temutil::nc( nc_inq_varid(hist_climate_ncid, "time", &hist_climate_tcV));
+        int tcV;
+        temutil::nc( nc_inq_varid(ncid, "time", &tcV));
 
-        temutil::nc( nc_copy_var(hist_climate_ncid, hist_climate_tcV, ncid) );
-      }
+        size_t start[1];
+        size_t count[1];
 
-      if (stage.compare("sc") == 0 && timestep.compare("monthly") == 0) {
-        BOOST_LOG_SEV(glg, debug) << "Copying time coordinate variable from input file!";
+        start[0] = 0;
+        count[0] = runyrs * 12;
 
-        int proj_climate_ncid;
-        int proj_climate_tcV;
+        temutil::nc( nc_put_vara_int(ncid, tcV, start, count, &full_time_coord[0]) );
 
-        temutil::nc( nc_open(this->proj_climate_file.c_str(), NC_NOWRITE, &proj_climate_ncid) );
-        temutil::nc( nc_inq_varid(proj_climate_ncid, "time", &proj_climate_tcV));
 
-        temutil::nc( nc_copy_var(proj_climate_ncid, proj_climate_tcV, ncid) );
       }
 
 

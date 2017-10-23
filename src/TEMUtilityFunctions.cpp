@@ -541,7 +541,7 @@ namespace temutil {
   /** rough draft for reading a timeseries of co2 data from a new-style co2 file.
   */
   std::vector<float> get_timeseries(const std::string &filename,
-                                    const std::string& var) {
+                                    const std::string &var) {
 
     BOOST_LOG_SEV(glg, debug) << "Opening dataset: " << filename;
     BOOST_LOG_SEV(glg, debug) << "Getting variable: " << var;
