@@ -17,7 +17,15 @@ void ArgHandler::parse(int argc, char** argv) {
      "Switch for calibration mode. When this flag is present, the program will "
      "be forced to run a single site and with '--loop-order=space-major'. The "
      "program will generate yearly and monthly '.json' files in your /tmp "
-     " directory that are intended to be read by other programs or scripts.")
+     "directory that are intended to be read by other programs or scripts.")
+
+    ("force-cmt", boost::program_options::value<int>(&force_cmt)
+     ->default_value(-1),
+     "Force the model to run with a particular CMT number. Without this flag, "
+     "the model determines which CMT to use for a grid cell based on the input "
+     "vegetation map. The flag allows the user to force a grid cell to run "
+     "with a particular CMT regardless of what the input vegetation map holds. "
+     "Only works for single pixels ('site runs') when using calibration mode.")
 
     ("max-output-volume", boost::program_options::value<std::string>(&max_output_volume)
      ->default_value("0.75 GB"),
@@ -143,13 +151,19 @@ void ArgHandler::verify() {
   Json::Value controldata = temutil::parse_control_file(this->get_ctrl_file());
 
   if ((this->pid_tag.compare("") != 0) && (!this->cal_mode)) {
-    BOOST_LOG_SEV(glg, fatal) << "If you have specified a PID tag, you must also specify --cal-mode!";
+    BOOST_LOG_SEV(glg, fatal) << "Invalid argument combination!: If you have specified a PID tag, you must also specify --cal-mode!";
     exit(-1);
   }
 
   if ( (this->inter_stage_pause) && (!this->cal_mode) ) {
     BOOST_LOG_SEV(glg, warn) << "Invalid argument combination!: --inter-stage-pause is not effective without --cal-mode!";
   }
+
+  if ( (this->force_cmt >= 0) && (!this->cal_mode) ) {
+    BOOST_LOG_SEV(glg, fatal) << "Invalid argument combination!: You must use --cal-mode when forcing the community type!";
+    exit(-1);
+  }
+  // Check that the value for --force-cmt is present in all input parameter files
 
 }
 

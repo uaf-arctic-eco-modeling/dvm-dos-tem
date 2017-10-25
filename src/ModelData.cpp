@@ -26,7 +26,7 @@ std::string table_row(int w, std::string d, bool v) {
 
 ModelData::~ModelData() {}
 
-ModelData::ModelData(Json::Value controldata) {
+ModelData::ModelData(Json::Value controldata):force_cmt(-1) {
 
   BOOST_LOG_SEV(glg, debug) << "Creating a ModelData. New style constructor with injected controldata...";
   
@@ -93,10 +93,15 @@ void ModelData::update(ArgHandler const * arghandler) {
   if (arghandler->get_inter_stage_pause()) {
     this->inter_stage_pause = arghandler->get_inter_stage_pause();
   }
+
+  // User wants to override the veg map
+  if (arghandler->get_force_cmt() >= 0) {
+    this->force_cmt = arghandler->get_force_cmt();
+  }
 }
 
 
-ModelData::ModelData() {
+ModelData::ModelData():force_cmt(-1) {
   set_envmodule(false);
   set_bgcmodule(false);
   set_dvmmodule(false);

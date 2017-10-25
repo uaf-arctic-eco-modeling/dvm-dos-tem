@@ -43,8 +43,12 @@ Cohort::Cohort(int y, int x, ModelData* modeldatapointer):
 
   BOOST_LOG_SEV(glg, info) << "Make a CohortData...";
   this->cd = CohortData(); // empty? / uninitialized? / undefined? values...
-  
-  this->cd.cmttype = temutil::get_veg_class(modeldatapointer->veg_class_file, y, x);
+
+  if (modeldatapointer->force_cmt >= 0) {
+    this->cd.cmttype = modeldatapointer->force_cmt;
+  } else {
+    this->cd.cmttype = temutil::get_veg_class(modeldatapointer->veg_class_file, y, x);
+  }
   this->cd.drainage_type = temutil::get_drainage_class(modeldatapointer->drainage_file, y, x);
 
   BOOST_LOG_SEV(glg, info) << "Next, we build a CohortLookup object, properly configured with parameter directory and community type.";
