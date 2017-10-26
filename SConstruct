@@ -8,10 +8,13 @@ import distutils.spawn
 import subprocess
 
 USEOMP = False
-USEMPI = False
+USEMPI = True
 
 libs = Split("""jsoncpp
                 readline
+                curl
+                hdf5_hl
+                hdf5
                 netcdf
                 pthread
                 boost_system
@@ -95,15 +98,17 @@ platform_library_path = []
 
 # By default, attempt to find g++. Will be overwritten later if necessary.
 compiler = distutils.spawn.find_executable('g++')
+print compiler
 
 # Determine platform and modify libraries and paths accordingly
 if platform_name == 'Linux':
   platform_include_path = ['/usr/include',
                            '/usr/include/openmpi-x86_64',
                            '/usr/include/jsoncpp',
+                           '/home/vagrant/netcdf-4.4.1.1/netcdf/include',
                            '~/usr/local/include']
 
-  platform_library_path = ['/usr/lib64', '~/usr/local/lib']
+  platform_library_path = ['/home/vagrant/netcdf-4.4.1.1/netcdf/lib', '/home/vagrant/hdf5-1.8.19/hdf5/lib', '/usr/lib64', '~/usr/local/lib']
 
   compiler_flags = '-Werror -ansi -g -fPIC -DBOOST_ALL_DYN_LINK -DGNU_FPE'
   platform_libs = libs
@@ -142,8 +147,8 @@ elif platform_name == 'Darwin':
   # apparently the shared library version of jsoncpp has some bugs.
   # See the note at the top of the SConstruct file:
   # https://github.com/jacobsa/jsoncpp/blob/master/SConstruct
-  platform_libs[:] = [lib for lib in platform_libs if not lib == 'jsoncpp']
-  platform_libs.append(File('/usr/local/lib/libjsoncpp.a'))
+  #platform_libs[:] = [lib for lib in platform_libs if not lib == 'jsoncpp']
+  #platform_libs.append(File('/usr/local/lib/libjsoncpp.a'))
 
   # no profiler at this time
   platform_libs[:] = [lib for lib in platform_libs if not lib == 'profiler']
@@ -174,6 +179,7 @@ if(USEOMP):
 # Modify setup for MPI, if necessary
 if(USEMPI):
   compiler = distutils.spawn.find_executable('mpic++')
+  print compiler
 
   # append src/parallel-code stuff to src_files and include_paths and libs
   #local_include_paths.append('src/parallel-code')

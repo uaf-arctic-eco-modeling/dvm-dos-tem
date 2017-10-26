@@ -182,23 +182,6 @@ int main(int argc, char* argv[]){
   */
 
 
-  BOOST_LOG_SEV(glg, note) << "Clearing output directory: "<<modeldata.output_dir;
-  const boost::filesystem::path out_dir_path(modeldata.output_dir);
-  if (boost::filesystem::exists( out_dir_path )) {
-    boost::filesystem::remove_all( out_dir_path );
-  }
-  boost::filesystem::create_directories(out_dir_path);
-
-
-#ifdef WITHMPI
-    BOOST_LOG_SEV(glg, fatal) << "Built and running with MPI";
-
-    // Intended for passing argc and argv, the arguments to MPI_Init
-    // are currently unnecessary.
-    MPI_Init(NULL, NULL);
-#endif
-
-
   BOOST_LOG_SEV(glg, note) << "Running PR stage: " << modeldata.pr_yrs << "yrs";
   BOOST_LOG_SEV(glg, note) << "Running EQ stage: " << modeldata.eq_yrs << "yrs";
   BOOST_LOG_SEV(glg, note) << "Running SP stage: " << modeldata.sp_yrs << "yrs";
@@ -231,21 +214,53 @@ int main(int argc, char* argv[]){
   std::string tr_restart_fname = modeldata.output_dir + "restart-tr.nc";
   std::string sc_restart_fname = modeldata.output_dir + "restart-sc.nc";
 
-  // Make sure the output directory exists!!
-  if (!boost::filesystem::exists(modeldata.output_dir)) {
-    BOOST_LOG_SEV(glg, info) << "Creating output directory as specified in "
-                             << "config file: ", modeldata.output_dir;
-    boost::filesystem::create_directory(modeldata.output_dir);
+#ifdef WITHMPI
+  BOOST_LOG_SEV(glg, fatal) << "Built and running with MPI";
+
+  //Intended for passing argc and argv, the arguments to MPI_Init
+  // are currently unnecessary.
+  MPI_Init(NULL, NULL);
+
+  int id = MPI::COMM_WORLD.Get_rank();
+  int ntasks = MPI::COMM_WORLD.Get_size();
+#else
+  //
+  int id = 0;
+#endif
+
+  //Limit output directory and file setup to a single process.
+  // variable 'id' is artificially set to 0 if not built with MPI.
+  if(id==0){
+    BOOST_LOG_SEV(glg, info) << "Handling single-process setup";
+
+    BOOST_LOG_SEV(glg, info) << "Checking for output directory: "<<modeldata.output_dir;
+    boost::filesystem::path out_dir_path(modeldata.output_dir);
+    if( boost::filesystem::exists(out_dir_path) ){
+      BOOST_LOG_SEV(glg, info) << "Output directory exists. Deleting...";
+      boost::filesystem::remove_all(out_dir_path);
+    }
+    BOOST_LOG_SEV(glg, info) << "Creating output directory: "<<modeldata.output_dir;
+    boost::filesystem::create_directories(out_dir_path);
+
+    // Create empty restart files for all stages based on size of run mask
+    BOOST_LOG_SEV(glg, info) << "Creating empty restart files.";
+    RestartData::create_empty_file(eq_restart_fname, num_rows, num_cols);
+    RestartData::create_empty_file(sp_restart_fname, num_rows, num_cols);
+    RestartData::create_empty_file(tr_restart_fname, num_rows, num_cols);
+    RestartData::create_empty_file(sc_restart_fname, num_rows, num_cols);
+
+    // Create empty run status file
+    BOOST_LOG_SEV(glg, info) << "Creating empty run status file.";
+    create_empty_run_status_file(run_status_fname, num_rows, num_cols);
+
+    MPI_Barrier(MPI::COMM_WORLD);
+  }//End of single-process setup
+  else{
+    //Block all processes until process 0 has completed output
+    // directory setup.
+    MPI_Barrier(MPI::COMM_WORLD);
   }
 
-  // Create empty restart files for all stages based on size of run mask
-  RestartData::create_empty_file(eq_restart_fname, num_rows, num_cols);
-  RestartData::create_empty_file(sp_restart_fname, num_rows, num_cols);
-  RestartData::create_empty_file(tr_restart_fname, num_rows, num_cols);
-  RestartData::create_empty_file(sc_restart_fname, num_rows, num_cols);
-
-  // Create empty run status file
-  create_empty_run_status_file(run_status_fname, num_rows, num_cols);
 
   // Create empty output files now so that later, as the program
   // proceeds, there is somewhere to append output data...
@@ -326,8 +341,8 @@ int main(int argc, char* argv[]){
     //      depending on the comparison operator
     //  - The loop must be a basic block: no jump to outside the loop
     //      other than the exit statement.
- 
 #ifdef WITHMPI
+    BOOST_LOG_SEV(glg, info) << "Beginning MPI parallel section";
 
     int id = MPI::COMM_WORLD.Get_rank();
     int ntasks = MPI::COMM_WORLD.Get_size();
@@ -770,7 +785,7 @@ void advance_model(const int rowidx, const int colidx,
 void create_empty_run_status_file(const std::string& fname,
     const int ysize, const int xsize) {
 
-  BOOST_LOG_SEV(glg, debug) << "Opening new file with 'NC_CLOBBER'";
+  BOOST_LOG_SEV(glg, debug) << "Opening new file: "<<fname<<" with 'NC_CLOBBER'";
   int ncid;
   temutil::nc( nc_create(fname.c_str(), NC_CLOBBER, &ncid) );
 
