@@ -787,7 +787,7 @@ void advance_model(const int rowidx, const int colidx,
 void create_empty_run_status_file(const std::string& fname,
     const int ysize, const int xsize) {
 
-  BOOST_LOG_SEV(glg, debug) << "Opening new file: "<<fname<<" with 'NC_CLOBBER'";
+  BOOST_LOG_SEV(glg, debug) << "Creating new file: "<<fname<<" with 'NC_CLOBBER'";
   int ncid;
 
 
@@ -797,7 +797,7 @@ void create_empty_run_status_file(const std::string& fname,
   int ntasks = MPI::COMM_WORLD.Get_size();
 
                             // path            c mode               mpi comm obj     mpi info netcdfid
-  temutil::nc( nc_create_par(fname.c_str(), NC_NETCDF4|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+  temutil::nc( nc_create_par(fname.c_str(), NC_CLOBBER|NC_NETCDF4|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
 
   std::cout << "(MPI " << id << "/" << ntasks << ") Creating PARALLEL run_status file! \n";
 
@@ -854,49 +854,21 @@ void write_status(const std::string fname, int row, int col, int statusCode) {
   // Set point to write
   start[0] = row;
   start[1] = col;
-  count[0] = 1;
-  count[1] = 1;
 
 #ifdef WITHMPI
 
+  //These are for logging identification only.
   int id = MPI::COMM_WORLD.Get_rank();
   int ntasks = MPI::COMM_WORLD.Get_size();
 
-  nc_set_log_level(5); // can't seem to re-compile netcdf libs with --enable-logging
-
   // Open dataset
-  temutil::nc( nc_create_par(fname.c_str(), NC_NETCDF4|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
-  //temutil::nc( nc_open_par(fname.c_str(), NC_NETCDF4|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
-  //temutil::nc( nc_inq_varid(ncid, "run_status", &statusV) );
-
-  // Define handles for dimensions
-  int yD;
-  int xD;
-
-  std::cout << "(MPI " << id << "/" << ntasks << ") Creating Dimensions...\n";
-  temutil::nc( nc_def_dim(ncid, "Y", 10, &yD) );
-  temutil::nc( nc_def_dim(ncid, "X", 10, &xD) );
-
-  // Setup arrays holding dimids for the variable
-  int vartype2D_dimids[2];
-  vartype2D_dimids[0] = yD;
-  vartype2D_dimids[1] = xD;
-
-  // Create variable(s) in nc file
-  std::cout << "(MPI " << id << "/" << ntasks << ") Creating Variable(s)...\n";
-  temutil::nc( nc_def_var(ncid, "run_status", NC_INT, 2, vartype2D_dimids, &statusV) );
-
-  // end define mode
-  temutil::nc( nc_enddef(ncid));
-
-  // Do some reporting...
-  std::cout << "(MPI " << id << "/" << ntasks << ") End define mode. Opened a PARALLEL file for recording run status.\n";
-  
+  temutil::nc( nc_open_par(fname.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+  temutil::nc( nc_inq_varid(ncid, "run_status", &statusV) );
+  temutil::nc( nc_var_par_access(ncid, statusV, NC_INDEPENDENT) );
 
   // Write data
   std::cout << "(MPI " << id << "/" << ntasks << ") WRITING FOR PIXEL (row, col): " << row << ", " << col << "\n";
-  temutil::nc( nc_var_par_access(ncid, statusV, NC_INDEPENDENT) );
-  temutil::nc( nc_put_vara(ncid, statusV, start, count,  &statusCode) );
+  temutil::nc( nc_put_var1_int(ncid, statusV, start,  &statusCode) );
 
   /* Close the netcdf file. */
   std::cout << "(MPI " << id << "/" << ntasks << ") Closing PARALLEL file." << row << ", " << col << "\n";
@@ -909,7 +881,7 @@ void write_status(const std::string fname, int row, int col, int statusCode) {
   
   // Write data
   BOOST_LOG_SEV(glg, note) << "WRITING FOR OUTPUT STATUS FOR (row, col): " << row << ", " << col << "\n";
-  temutil::nc( nc_put_vara_int(ncid, statusV, start, count,  &statusCode) );
+  temutil::nc( nc_put_var1_int(ncid, statusV, start, &statusCode) );
 
   /* Close the netcdf file. */
   temutil::nc( nc_close(ncid) );
