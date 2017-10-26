@@ -1036,31 +1036,31 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
   }//end DEEPDZ
   map_itr = netcdf_outputs.end();
 
-}
 
-//
-//{
-//  map_itr = netcdf_outputs.find("GROWEND");
-//  if(map_itr != netcdf_outputs.end()){
-//    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: GROWEND";
-//    curr_spec = map_itr->second;
-//    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
-//
-//    #pragma omp critical(outputGROWEND)
-//    {
-//      temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
-//      temutil::nc( nc_inq_varid(ncid, "GROWEND", &cv) );
-//      start3[0] = year;
-//
-//      double growend = cohort.edall->y_soid.rtdpGEoutput;
-//
-//      temutil::nc( nc_put_var1_double(ncid, cv, start3, &growend) );
-//      temutil::nc( nc_close(ncid) );
-//    }//end critical(outputGROWEND)
-//  }//end GROWEND
-//  map_itr = netcdf_outputs.end();
-//
-//
+  map_itr = netcdf_outputs.find("GROWEND");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: GROWEND";
+    curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
+
+    #pragma omp critical(outputGROWEND)
+    {
+#ifdef WITHMPI
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_inq_varid(ncid, "GROWEND", &cv) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      start3[0] = year;
+
+      double growend = cohort.edall->y_soid.rtdpGEoutput;
+
+      temutil::nc( nc_put_var1_double(ncid, cv, start3, &growend) );
+      temutil::nc( nc_close(ncid) );
+#endif
+    }//end critical(outputGROWEND)
+  }//end GROWEND
+  map_itr = netcdf_outputs.end();
+
+}
 //  map_itr = netcdf_outputs.find("GROWSTART");
 //  if(map_itr != netcdf_outputs.end()){
 //    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: GROWSTART";
