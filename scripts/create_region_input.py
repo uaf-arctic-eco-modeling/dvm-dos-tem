@@ -774,52 +774,83 @@ def fill_drainage_file(if_name, xo, yo, xs, ys, out_dir, of_name, rand=False):
     with custom_netcdf_attr_bug_wrapper(drainage_class) as f:
       f.source = source_attr_string(xo=xo, yo=yo)
 
-def fill_fri_fire_file(if_name, xo, yo, xs, ys, out_dir, of_name):
+def fill_fri_fire_file(if_name, xo, yo, xs, ys, out_dir, of_name, rand=True):
+
   create_template_fri_fire_file(of_name, sizey=ys, sizex=xs, rand=False)
 
-  print "%%%%%%  WARNING  %%%%%%%%%%%%%%%%%"
-  print "GENERATING FAKE DATA!"
-  print "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+  if not rand:
 
-  cmt2fireprops = {
-   -1: {'fri':   -1, 'sev': -1, 'jdob':  -1, 'aob':  -1 }, # No data?
-    0: {'fri':   -1, 'sev': -1, 'jdob':  -1, 'aob':  -1 }, # rock/snow/water
-    1: {'fri':  100, 'sev':  3, 'jdob': 165, 'aob': 100 }, # black spruce
-    2: {'fri':  105, 'sev':  2, 'jdob': 175, 'aob': 225 }, # white spruce
-    3: {'fri':  400, 'sev':  3, 'jdob': 194, 'aob': 104 }, # boreal deciduous
-    4: {'fri': 2000, 'sev':  2, 'jdob': 200, 'aob': 350 }, # shrub tundra
-    5: {'fri': 2222, 'sev':  3, 'jdob': 187, 'aob': 210 }, # tussock tundra
-    6: {'fri': 1500, 'sev':  1, 'jdob': 203, 'aob': 130 }, # wet sedge tundra
-    7: {'fri': 1225, 'sev':  4, 'jdob': 174, 'aob': 250 }, # heath tundra
-    8: {'fri':  759, 'sev':  3, 'jdob': 182, 'aob': 156 }, # maritime forest
-  }
+    # Translate and subset to temporary location
+    temporary = os.path.join('/tmp/', os.path.basename(of_name))
 
-  guess_vegfile = os.path.join(os.path.split(of_name)[0], 'vegetation.nc')
-  print "--> NOTE: Attempting to read: {:} and set fire properties based on community type...".format(guess_vegfile)
+    if not os.path.exists( os.path.dirname(temporary) ):
+      os.makedirs(os.path.dirname(temporary))
 
-  with netCDF4.Dataset(guess_vegfile ,'r') as vegFile:
-    vd = vegFile.variables['veg_class'][:]
-    fri = np.array([cmt2fireprops[i]['fri'] for i in vd.flatten()]).reshape(vd.shape)
-    sev = np.array([cmt2fireprops[i]['sev'] for i in vd.flatten()]).reshape(vd.shape)
-    jdob = np.array([cmt2fireprops[i]['jdob'] for i in vd.flatten()]).reshape(vd.shape)
-    aob = np.array([cmt2fireprops[i]['aob'] for i in vd.flatten()]).reshape(vd.shape)
-    latv = vegFile.variables['lat'][:]
-    lonv = vegFile.variables['lon'][:]
+    subprocess.call(['gdal_translate', '-of', 'netcdf',
+                     '-co', 'WRITE_LONLAT=YES',
+                     '-srcwin', str(xo), str(yo), str(xs), str(ys),
+                     if_name, temporary])
 
-  with netCDF4.Dataset(of_name, mode='a') as nfd:
-    print "==> write data to new FRI based fire file..."
-    nfd.variables['fri'][:,:] = fri
-    nfd.variables['fri_severity'][:,:] = sev
-    nfd.variables['fri_jday_of_burn'][:,:] = jdob
-    nfd.variables['fri_area_of_burn'][:,:] = aob
+    with netCDF4.Dataset(temporary, mode='r') as temp_fri, netCDF4.Dataset(of_name, mode='a') as new_fri:
+      print "--> Copying data from temporary subset file into new file..."
+      new_fri.variables['fri'][:] = temp_fri.variables['Band1'][:]
+      new_fri.variables['fri_severity'][:] = 2
+      new_fri.variables['fri_jday_of_burn'][:] = 213
+      new_fri.variables['fri_area_of_burn'][:] = 10 # <--- FIX THIS !!!!
 
-    print "Writing lat/lon from veg file..."
-    nfd.variables['lat'][:] = latv
-    nfd.variables['lon'][:] = lonv
+      print "--> Copying lat/lon from temporary subset file into new file..."
+      new_fri.variables['lat'][:] = temp_fri.variables['lat'][:]
+      new_fri.variables['lon'][:] = temp_fri.variables['lon'][:]
 
-    with custom_netcdf_attr_bug_wrapper(nfd) as f:
-      print "==> write global :source attribute to FRI fire file..."
-      f.source = source_attr_string(xo=xo, yo=yo)
+      with custom_netcdf_attr_bug_wrapper(new_fri) as f:
+        print "==> write global :source attribute to FRI fire file..."
+        f.source = source_attr_string(xo=xo, yo=yo)
+
+  else: # rand == True    
+
+    print "%%%%%%  WARNING  %%%%%%%%%%%%%%%%%"
+    print "GENERATING FAKE DATA!"
+    print "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+
+    cmt2fireprops = {
+     -1: {'fri':   -1, 'sev': -1, 'jdob':  -1, 'aob':  -1 }, # No data?
+      0: {'fri':   -1, 'sev': -1, 'jdob':  -1, 'aob':  -1 }, # rock/snow/water
+      1: {'fri':  100, 'sev':  3, 'jdob': 165, 'aob': 100 }, # black spruce
+      2: {'fri':  105, 'sev':  2, 'jdob': 175, 'aob': 225 }, # white spruce
+      3: {'fri':  400, 'sev':  3, 'jdob': 194, 'aob': 104 }, # boreal deciduous
+      4: {'fri': 2000, 'sev':  2, 'jdob': 200, 'aob': 350 }, # shrub tundra
+      5: {'fri': 2222, 'sev':  3, 'jdob': 187, 'aob': 210 }, # tussock tundra
+      6: {'fri': 1500, 'sev':  1, 'jdob': 203, 'aob': 130 }, # wet sedge tundra
+      7: {'fri': 1225, 'sev':  4, 'jdob': 174, 'aob': 250 }, # heath tundra
+      8: {'fri':  759, 'sev':  3, 'jdob': 182, 'aob': 156 }, # maritime forest
+    }
+
+    guess_vegfile = os.path.join(os.path.split(of_name)[0], 'vegetation.nc')
+    print "--> NOTE: Attempting to read: {:} and set fire properties based on community type...".format(guess_vegfile)
+
+    with netCDF4.Dataset(guess_vegfile ,'r') as vegFile:
+      vd = vegFile.variables['veg_class'][:]
+      fri = np.array([cmt2fireprops[i]['fri'] for i in vd.flatten()]).reshape(vd.shape)
+      sev = np.array([cmt2fireprops[i]['sev'] for i in vd.flatten()]).reshape(vd.shape)
+      jdob = np.array([cmt2fireprops[i]['jdob'] for i in vd.flatten()]).reshape(vd.shape)
+      aob = np.array([cmt2fireprops[i]['aob'] for i in vd.flatten()]).reshape(vd.shape)
+      latv = vegFile.variables['lat'][:]
+      lonv = vegFile.variables['lon'][:]
+
+    with netCDF4.Dataset(of_name, mode='a') as nfd:
+      print "==> write data to new FRI based fire file..."
+      nfd.variables['fri'][:,:] = fri
+      nfd.variables['fri_severity'][:,:] = sev
+      nfd.variables['fri_jday_of_burn'][:,:] = jdob
+      nfd.variables['fri_area_of_burn'][:,:] = aob
+
+      print "Writing lat/lon from veg file..."
+      nfd.variables['lat'][:] = latv
+      nfd.variables['lon'][:] = lonv
+
+      with custom_netcdf_attr_bug_wrapper(nfd) as f:
+        print "==> write global :source attribute to FRI fire file..."
+        f.source = source_attr_string(xo=xo, yo=yo)
 
 
 def fill_explicit_fire_file(if_name, yrs, xo, yo, xs, ys, out_dir, of_name):
@@ -960,7 +991,7 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir, files=[]):
 
   if 'fri-fire' in files:
     of_name = os.path.join(out_dir, "fri-fire.nc")
-    fill_fri_fire_file(tif_dir + "iem_ancillary_data/Fire/", xo, yo, xs, ys, out_dir, of_name)
+    fill_fri_fire_file(tif_dir + "iem_ancillary_data/Fire/FRI.tif", xo, yo, xs, ys, out_dir, of_name, rand=False)
 
   if 'historic-explicit-fire' in files:
     of_name = os.path.join(out_dir, "historic-explicit-fire.nc")
