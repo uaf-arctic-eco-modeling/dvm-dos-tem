@@ -516,7 +516,7 @@ def custom_netcdf_attr_bug_wrapper(ncid):
 def fill_veg_file(if_name, xo, yo, xs, ys, out_dir, of_name):
   '''Read subset of data from .tif into netcdf file for dvmdostem. '''
 
-  of_stripped = os.path.basename(of_name);
+  of_stripped = os.path.basename(of_name)
 
   # Create place for data
   create_template_veg_nc_file(of_name, sizey=ys, sizex=xs, rand=None)
@@ -684,7 +684,7 @@ def fill_climate_file(start_yr, yrs, xo, yo, xs, ys,
         month_starts = pd.date_range(
             dt.datetime(year=start_yr, month=1, day=1),
             periods=f.dimensions['time'].size,
-            freq="MS"
+            freq="MS" # <- MS is month start
         )
 
         # Set the values for the time coordinate variable, using the
