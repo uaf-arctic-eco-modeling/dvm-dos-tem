@@ -447,13 +447,13 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
         temutil::nc( nc_open(this->hist_climate_file.c_str(), NC_NOWRITE, &hist_climate_ncid) );
         temutil::nc( nc_inq_varid(hist_climate_ncid, "time", &hist_climate_tcV));
 
+        // Copy attributes for time variable
         temutil::nc( nc_copy_att(hist_climate_ncid, hist_climate_tcV, "units", ncid, tcVar));
+        temutil::nc( nc_copy_att(hist_climate_ncid, hist_climate_tcV, "calendar", ncid, tcVar));
 
-        // eventually can remove this one inputs are done?
-        std::string tcv_calendar_str = "365_day";
-        temutil::nc( nc_put_att_text(ncid, tcVar, "calendar", tcv_calendar_str.length(), tcv_calendar_str.c_str()) );
-
-        // below, we actually write out the time coordinate variable values
+        // perhaps write calendar attribute if it does not exist?
+        //std::string s = "365_day";
+        //temutil::nc( nc_put_att_text(ncid, tcVar, "calendar", s.length(), s.c_str()) );
 
       }
 
@@ -468,12 +468,11 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
         temutil::nc( nc_inq_varid(proj_climate_ncid, "time", &proj_climate_tcV));
 
         temutil::nc( nc_copy_att(proj_climate_ncid, proj_climate_tcV, "units", ncid, tcVar));
+        temutil::nc( nc_copy_att(proj_climate_ncid, proj_climate_tcV, "calendar", ncid, tcVar));
 
-        // eventually can remove this one inputs are done?
-        std::string tcv_calendar_str = "365_day";
-        temutil::nc( nc_put_att_text(ncid, tcVar, "calendar", tcv_calendar_str.length(), tcv_calendar_str.c_str()) );
-
-        // below, we actually write out the time coordinate variable values
+        // perhaps write calendar attribute if it does not exist?
+        //std::string s = "365_day";
+        //temutil::nc( nc_put_att_text(ncid, tcVar, "calendar", s.length(), s.c_str()) );
 
       }
 
@@ -537,7 +536,6 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
         count[0] = runyrs * 12;
 
         temutil::nc( nc_put_vara_int(ncid, tcV, start, count, &full_time_coord[0]) );
-
 
       }
 
