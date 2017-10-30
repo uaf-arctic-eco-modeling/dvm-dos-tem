@@ -241,26 +241,36 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
   std::string timestep; // Yearly, monthly, or daily
   std::string invalid_option = "invalid"; // This marks an invalid selection
 
-  // NetCDF file variables
+  // Handle for the NetCDF file
   int ncid;
+
+  // NetCDF file dimensions, applicable to all output files
   int timeD;    // unlimited dimension
   int xD;
   int yD;
+
+  // NetCDF file dimensions; different dims are applicable for different vars.
   int pftD;
   int pftpartD;
   int layerD;
-  int Var;
 
-  //3D Ecosystem
+  // NetCDF variable handle
+  int Var;
+  int tcVar; // time coordinate variable
+
+  // 1D Coordinate
+  int vartype1D_dimids[1];
+
+  // 3D Ecosystem
   int vartype3D_dimids[3];
 
-  //4D Soil
+  // 4D Soil
   int vartypeSoil4D_dimids[4];
 
-  //4D Veg - PFT or compartment but not both 
+  // 4D Veg - PFT or compartment but not both
   int vartypeVeg4D_dimids[4];
 
-  //5D Veg - PFT and PFT compartment
+  // 5D Veg - PFT and PFT compartment
   int vartypeVeg5D_dimids[5];
  
   // Ingest output specification file, create OutputSpec for each entry.
@@ -284,13 +294,13 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
       std::getline(ss, token, ',');
       //std::cout<<"token: "<<token<<std::endl;
 
-      if(ii==0){//Variable name
+      if(ii==0){ // Variable name
         name = token; 
       }
-      else if(ii==1){//Short description
+      else if(ii==1){ // Short description
         desc = token;
       }
-      else if(ii==2){//Units
+      else if(ii==2){ // Units
         units = token;
       }
       else if(ii==3){//Yearly
@@ -299,14 +309,14 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
           new_spec.yearly = true;
         }
       }
-      else if(ii==4){//Monthly
+      else if(ii==4){ // Monthly
         if(token.length()>0 && token.compare(invalid_option) != 0){
           timestep = "monthly";
           new_spec.monthly = true;
           new_spec.yearly = false;
         }
       }
-      else if(ii==5){//Daily
+      else if(ii==5){ // Daily
         if(token.length()>0 && token.compare(invalid_option) != 0){
           timestep = "daily";
           new_spec.daily = true;
@@ -314,19 +324,19 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
           new_spec.yearly = false;
         }
       }
-      else if(ii==6){//PFT
+      else if(ii==6){ // PFT
         if(token.length()>0 && token.compare(invalid_option) != 0){
           new_spec.pft = true;
           new_spec.dim_count++;
         }
       }
-      else if(ii==7){//Compartment
+      else if(ii==7){ // Compartment
         if(token.length()>0 && token.compare(invalid_option) != 0){
           new_spec.compartment = true;
           new_spec.dim_count++;
         }
       }
-      else if(ii==8){//Layer
+      else if(ii==8){ // Layer
         if(token.length()>0 && token.compare(invalid_option) != 0){
           new_spec.layer = true;
           new_spec.dim_count++;
@@ -354,7 +364,7 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
       std::string creation_filestr = output_filepath.string();
 
       // Creating NetCDF file
-      BOOST_LOG_SEV(glg, debug)<<"Creating output NetCDF file "<<creation_filestr;
+      BOOST_LOG_SEV(glg, debug) << "Creating output NetCDF file " << creation_filestr;
       temutil::nc( nc_create(creation_filestr.c_str(), NC_CLOBBER, &ncid) );
 
       BOOST_LOG_SEV(glg, debug) << "Adding file-level attributes";
@@ -362,7 +372,7 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
 
       BOOST_LOG_SEV(glg, debug) << "Adding dimensions...";
 
-      // All variables will have time, y, x
+      // All variables will have dimensions: time, y, x
       temutil::nc( nc_def_dim(ncid, "time", NC_UNLIMITED, &timeD) );
       temutil::nc( nc_def_dim(ncid, "y", ysize, &yD) );
       temutil::nc( nc_def_dim(ncid, "x", xsize, &xD) );
@@ -426,7 +436,53 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
         temutil::nc( nc_def_var(ncid, name.c_str(), NC_DOUBLE, 4, vartypeSoil4D_dimids, &Var) );
       }
 
-      BOOST_LOG_SEV(glg, debug) << "Adding variable-level attributes";
+      //  monthly tr :  days since 1901, copy attributes and data from hist climate
+      //  yearly tr :  days since 1901, copy attributes from hist climate; generate data...
+      //
+      //  monthly sc : days since 2001, copy attributes and data from proj climate
+      //  yearly sc : days since 2001, copy attributes from proj climate, generate data...
+
+      if (stage == "tr" && (timestep == "yearly" || timestep == "monthly")) {
+        vartype1D_dimids[0] = timeD;
+        temutil::nc( nc_def_var(ncid, "time", NC_DOUBLE, 1, vartype1D_dimids, &tcVar) );
+
+        int hist_climate_ncid;
+        int hist_climate_tcV;
+
+        temutil::nc( nc_open(this->hist_climate_file.c_str(), NC_NOWRITE, &hist_climate_ncid) );
+        temutil::nc( nc_inq_varid(hist_climate_ncid, "time", &hist_climate_tcV));
+
+        // Copy attributes for time variable
+        temutil::nc( nc_copy_att(hist_climate_ncid, hist_climate_tcV, "units", ncid, tcVar));
+        temutil::nc( nc_copy_att(hist_climate_ncid, hist_climate_tcV, "calendar", ncid, tcVar));
+
+        // perhaps write calendar attribute if it does not exist?
+        //std::string s = "365_day";
+        //temutil::nc( nc_put_att_text(ncid, tcVar, "calendar", s.length(), s.c_str()) );
+
+      }
+
+      if (stage == "sc" && (timestep == "yearly" || timestep == "monthly")) {
+        vartype1D_dimids[0] = timeD;
+        temutil::nc( nc_def_var(ncid, "time", NC_DOUBLE, 1, vartype1D_dimids, &tcVar) );
+
+        int proj_climate_ncid;
+        int proj_climate_tcV;
+
+        temutil::nc( nc_open(this->proj_climate_file.c_str(), NC_NOWRITE, &proj_climate_ncid) );
+        temutil::nc( nc_inq_varid(proj_climate_ncid, "time", &proj_climate_tcV));
+
+        temutil::nc( nc_copy_att(proj_climate_ncid, proj_climate_tcV, "units", ncid, tcVar));
+        temutil::nc( nc_copy_att(proj_climate_ncid, proj_climate_tcV, "calendar", ncid, tcVar));
+
+        // perhaps write calendar attribute if it does not exist?
+        //std::string s = "365_day";
+        //temutil::nc( nc_put_att_text(ncid, tcVar, "calendar", s.length(), s.c_str()) );
+
+      }
+
+
+      BOOST_LOG_SEV(glg, debug) << "Adding variable-level attributes from output spec.";
       temutil::nc( nc_put_att_text(ncid, Var, "units", units.length(), units.c_str()) );
       temutil::nc( nc_put_att_text(ncid, Var, "long_name", desc.length(), desc.c_str()) );
       temutil::nc( nc_put_att_double(ncid, Var, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
@@ -434,6 +490,60 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
       /* End Define Mode (not strictly necessary for netcdf 4) */
       BOOST_LOG_SEV(glg, debug) << "Leaving 'define mode'...";
       temutil::nc( nc_enddef(ncid) );
+
+      /* Fill out the time coordinate variable */
+      if ((stage == "tr") || (stage == "sc") && timestep == "yearly") {
+        BOOST_LOG_SEV(glg, debug) << "Time coordinate variable, tr or sc, yearly.";
+
+        int tcV;
+        temutil::nc( nc_inq_varid(ncid, "time", &tcV));
+
+        int runyrs;
+        if (stage == "tr") { runyrs = this->tr_yrs; }
+        if (stage == "sc") { runyrs = this->sc_yrs; }
+
+        std::vector<int> time_coord_values(runyrs, 0);
+        for (int i=0; i < runyrs; i++) {
+          time_coord_values.at(i) = 365 * i; // assumes attribute calendar:'365_day'
+        }
+        size_t start[1];
+        size_t count[1];
+
+        start[0] = 0;
+        count[0] = time_coord_values.size();
+
+        temutil::nc( nc_put_vara_int(ncid, tcV, start, count, &time_coord_values[0]) );
+
+      }
+
+      if ((stage == "tr" || stage == "sc") && timestep == "monthly") {
+        BOOST_LOG_SEV(glg, debug) << "Time coordinate variable, tr or sc, monthly.";
+
+        int runyrs = 0;
+        std::vector<int> full_time_coord;
+
+        if (stage == "tr") {
+          runyrs = this->tr_yrs;
+          full_time_coord = temutil::get_timeseries2(this->hist_climate_file, "time", 0);
+        }
+        if (stage == "sc") {
+          runyrs = this->sc_yrs;
+          full_time_coord = temutil::get_timeseries2(this->proj_climate_file, "time", 0);
+        }
+
+        int tcV;
+        temutil::nc( nc_inq_varid(ncid, "time", &tcV));
+
+        size_t start[1];
+        size_t count[1];
+
+        start[0] = 0;
+        count[0] = runyrs * 12;
+
+        temutil::nc( nc_put_vara_int(ncid, tcV, start, count, &full_time_coord[0]) );
+
+      }
+
 
       /* Close file. */
       BOOST_LOG_SEV(glg, debug) << "Closing new file...";

@@ -15,7 +15,9 @@ import os
 
 import netCDF4
 
+import datetime as dt
 import numpy as np
+import pandas as pd
 
 from osgeo import gdal
 
@@ -514,7 +516,7 @@ def custom_netcdf_attr_bug_wrapper(ncid):
 def fill_veg_file(if_name, xo, yo, xs, ys, out_dir, of_name):
   '''Read subset of data from .tif into netcdf file for dvmdostem. '''
 
-  of_stripped = os.path.basename(of_name);
+  of_stripped = os.path.basename(of_name)
 
   # Create place for data
   create_template_veg_nc_file(of_name, sizey=ys, sizex=xs, rand=None)
@@ -552,7 +554,8 @@ def fill_veg_file(if_name, xo, yo, xs, ys, out_dir, of_name):
 
 def fill_climate_file(start_yr, yrs, xo, yo, xs, ys,
                       out_dir, of_name, sp_ref_file,
-                      in_tair_base, in_prec_base, in_rsds_base, in_vapo_base):
+                      in_tair_base, in_prec_base, in_rsds_base, in_vapo_base,
+                      time_coord_var):
 
   # create short handle for output file
   masterOutFile = os.path.join(out_dir, of_name)
@@ -659,12 +662,39 @@ def fill_climate_file(start_yr, yrs, xo, yo, xs, ys,
     Inputs: some-dvmdostem-inputs/SouthBarrow_10x10/TEMP-tair-historic-climate.nc
     '''
 
-  print "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-  print "%% NOTE! Converting rsds (nirr) from MJ/m^2/day to W/m^2!"
-  print "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
   with netCDF4.Dataset(masterOutFile, mode='a') as new_climatedataset:
+
+    print "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+    print "%% NOTE! Converting rsds (nirr) from MJ/m^2/day to W/m^2!"
+    print "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+
     nirr = new_climatedataset.variables['nirr']
     nirr[:] = (1000000 / (60*60*24)) * nirr[:]
+
+    if time_coord_var:
+      print "Write time coordinate variable attribute for time axis..."
+      with custom_netcdf_attr_bug_wrapper(new_climatedataset) as f:
+        tcV = f.createVariable("time", np.double, ('time'))
+        tcV.setncatts({
+          'long_name': 'time',
+          'units': 'days since {}-1-1 0:0:0'.format(start_yr),
+          'calendar': '365_day'
+        })
+        # Build up a vector of datetime stamps for the first day of each month
+        month_starts = pd.date_range(
+            dt.datetime(year=start_yr, month=1, day=1),
+            periods=f.dimensions['time'].size,
+            freq="MS" # <- MS is month start
+        )
+
+        # Set the values for the time coordinate variable, using the
+        # helper function from netCDF4 library to get the proper offsets
+        tcV[:] = netCDF4.date2num(
+            month_starts.to_pydatetime(),
+            units="days since {}-01-01".format(start_yr),
+            calendar="365_day"
+        )
+
 
 
 def fill_soil_texture_file(if_sand_name, if_silt_name, if_clay_name, xo, yo, xs, ys, out_dir, of_name, rand=True):
@@ -880,7 +910,8 @@ def fill_explicit_fire_file(if_name, yrs, xo, yo, xs, ys, out_dir, of_name):
       f.source = source_attr_string(xo=xo, yo=yo)
  
 
-def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir, files=[]):
+def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir, 
+         files=[], time_coord_var=False):
 
   #
   # Make the veg file first, then run-mask, then climate, then fire.
@@ -934,7 +965,13 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir, files=[]):
     else:
       hc_years = years
 
-    fill_climate_file(1901+start_year, hc_years, xo, yo, xs, ys, out_dir, of_name, sp_ref_file, in_tair_base, in_prec_base, in_rsds_base, in_vapo_base)
+    # NOTE: Should make this smarter so that the starting year is picked from
+    # the input path strings specified above.
+    fill_climate_file(1901+start_year, hc_years,
+                      xo, yo, xs, ys,
+                      out_dir, of_name, sp_ref_file,
+                      in_tair_base, in_prec_base, in_rsds_base, in_vapo_base,
+                      time_coord_var)
 
 
   if 'projected-climate' in files:
@@ -955,7 +992,12 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir, files=[]):
     else:
       pc_years = years
 
-    fill_climate_file(2001+start_year, pc_years, xo, yo, xs, ys, out_dir, of_name, sp_ref_file, in_tair_base, in_prec_base, in_rsds_base, in_vapo_base)
+    # NOTE: Should make this smarter so that the starting year is picked from
+    # the input path strings specified above.
+    fill_climate_file(2001+start_year, pc_years,
+                      xo, yo, xs, ys, out_dir, of_name, sp_ref_file,
+                      in_tair_base, in_prec_base, in_rsds_base, in_vapo_base,
+                      time_coord_var)
 
 
   if 'fri-fire' in files:
@@ -981,6 +1023,15 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir, files=[]):
       years = len(climate_dataset.dimensions['time']) / 12
 
     fill_explicit_fire_file(tif_dir + "iem_ancillary_data/Fire/", years, xo, yo, xs, ys, out_dir, of_name)
+
+  print(textwrap.dedent('''\
+
+      ----> CAVEATS:
+       * Time coordiate starting point is hard-coded and assumed to match
+         the input file series
+       * The input file series are from SNAP, use CRU3.1 for historic climate
+         and AR4 for the projected climate.
+  '''))
 
   print "DONE"
 
@@ -1030,6 +1081,11 @@ if __name__ == '__main__':
                       help="The number of years of the climate data to process. (default: %(default)s). -1 to run for all input TIFs")
   parser.add_argument('--start-year', default=0, type=int,
                       help="An offset to use for making a climate dataset that doesn't start at the beginning of the historic (1901) or projected (2001) datasets.")
+  parser.add_argument('--buildout-time-coord', action='store_true',
+                      help=textwrap.dedent('''\
+                        "Add a time coordinate variable to the *-climate.nc 
+                        files. Also populates the coordinate variable 
+                        attributes.'''))
 
   parser.add_argument('--xoff', default=915,
                       help="source window offset for x axis (default: %(default)s)")
@@ -1114,7 +1170,9 @@ if __name__ == '__main__':
     print "Will generate ALL input files."
     which_files = fileChoices
 
-  main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir, files=which_files)
+  main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
+       files=which_files,
+       time_coord_var=args.buildout_time_coord)
 
 
 
