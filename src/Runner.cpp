@@ -1492,500 +1492,596 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
   }//end DEEPC
   map_itr = netcdf_outputs.end();
 
+
+  //Woody debris C
+  map_itr = netcdf_outputs.find("DWDC");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: DWDC";
+    curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
+
+    #pragma omp critical(outputDWDC)
+    {
+#ifdef WITHMPI
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_inq_varid(ncid, "DWDC", &cv) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+#else
+      temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
+      temutil::nc( nc_inq_varid(ncid, "DWDC", &cv) );
+#endif
+
+      double woodyc;
+      if(curr_spec.monthly){
+        start3[0] = month_timestep;
+        woodyc = cohort.bdall->m_sois.wdebrisc;
+      }
+      else if(curr_spec.yearly){
+        start3[0] = year;
+        woodyc = cohort.bdall->y_sois.wdebrisc;
+      }
+
+      temutil::nc( nc_put_var1_double(ncid, cv, start3, &woodyc) );
+      temutil::nc( nc_close(ncid) );
+    }//end critical(outputDWDC)
+  }//end DWDC
+  map_itr = netcdf_outputs.end();
+
+
+  //Woody debris N
+  map_itr = netcdf_outputs.find("DWDN");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, debug)<<"DWDN";
+    curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
+
+    #pragma omp critical(outputDWDN)
+    {
+#ifdef WITHMPI
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_inq_varid(ncid, "DWDN", &cv) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+#else
+      temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
+      temutil::nc( nc_inq_varid(ncid, "DWDN", &cv) );
+#endif
+
+      double woodyn;
+      if(curr_spec.monthly){
+        start3[0] = month_timestep;
+        woodyn = cohort.bdall->m_sois.wdebrisn;
+      }
+      else if(curr_spec.yearly){
+        start3[0] = year;
+        woodyn = cohort.bdall->y_sois.wdebrisn;
+      }
+
+      temutil::nc( nc_put_var1_double(ncid, cv, start3, &woodyn) );
+      temutil::nc( nc_close(ncid) );
+    }//end critical(outputDWDN)
+  }//end DWDN
+  map_itr = netcdf_outputs.end();
+
+
+  //Mineral C
+  map_itr = netcdf_outputs.find("MINEC");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, debug)<<"MINEC";
+    curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
+
+    #pragma omp critical(outputMINEC)
+    {
+#ifdef WITHMPI
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_inq_varid(ncid, "MINEC", &cv) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+#else
+      temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
+      temutil::nc( nc_inq_varid(ncid, "MINEC", &cv) );
+#endif
+
+      double minec;
+      if(curr_spec.monthly){
+        start3[0] = month_timestep;
+        minec = cohort.bdall->m_soid.mineac
+                + cohort.bdall->m_soid.minebc
+                + cohort.bdall->m_soid.minecc;
+      }
+      else if(curr_spec.yearly){
+        start3[0] = year;
+        minec = cohort.bdall->y_soid.mineac
+                + cohort.bdall->y_soid.minebc
+                + cohort.bdall->y_soid.minecc;
+      }
+
+      temutil::nc( nc_put_var1_double(ncid, cv, start3, &minec) );
+      temutil::nc( nc_close(ncid) ); 
+    }//end critical(outputMINEC)
+  }//end MINEC
+  map_itr = netcdf_outputs.end();
+
+
+  //MOSSDEATHC
+  map_itr = netcdf_outputs.find("MOSSDEATHC");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: MOSSDEATHC";
+    curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
+
+    #pragma omp critical(outputMOSSDEATHC)
+    {
+#ifdef WITHMPI
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_inq_varid(ncid, "MOSSDEATHC", &cv) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+#else
+      temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
+      temutil::nc( nc_inq_varid(ncid, "MOSSDEATHC", &cv) );
+#endif
+
+      double mossdeathc = 0;
+      if(curr_spec.monthly){
+        start3[0] = month_timestep;
+        mossdeathc = cohort.bdall->m_v2soi.mossdeathc; 
+      }
+      else if(curr_spec.yearly){
+        start3[0] = year;
+        mossdeathc = cohort.bdall->y_v2soi.mossdeathc; 
+      }
+
+      temutil::nc( nc_put_var1_double(ncid, cv, start3, &mossdeathc) ); 
+      temutil::nc( nc_close(ncid) ); 
+    }//end critical(outputMOSSDEATHC)
+  }//end MOSSDEATHC
+  map_itr = netcdf_outputs.end();
+
+
+  //MOSSDEATHN
+  map_itr = netcdf_outputs.find("MOSSDEATHN");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: MOSSDEATHN";
+    curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
+
+    #pragma omp critical(outputMOSSDEATHN)
+    {
+#ifdef WITHMPI
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_inq_varid(ncid, "MOSSDEATHN", &cv) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+#else
+      temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
+      temutil::nc( nc_inq_varid(ncid, "MOSSDEATHN", &cv) );
+#endif
+
+      double mossdeathn = 0;
+      if(curr_spec.monthly){
+        start3[0] = month_timestep;
+        mossdeathn = cohort.bdall->m_v2soi.mossdeathn; 
+      }
+      else if(curr_spec.yearly){
+        start3[0] = year;
+        mossdeathn = cohort.bdall->y_v2soi.mossdeathn; 
+      }
+
+      temutil::nc( nc_put_var1_double(ncid, cv, start3, &mossdeathn) ); 
+      temutil::nc( nc_close(ncid) ); 
+    }//end critical(outputMOSSDEATHN)
+  }//end MOSSDEATHN
+  map_itr = netcdf_outputs.end();
+
+
+  //QDRAINAGE
+  map_itr = netcdf_outputs.find("QDRAINAGE");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: QDRAINAGE";
+    curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
+
+    #pragma omp critical(outputQDRAINAGE)
+    {
+#ifdef WITHMPI
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_inq_varid(ncid, "QDRAINAGE", &cv) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+#else
+      temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
+      temutil::nc( nc_inq_varid(ncid, "QDRAINAGE", &cv) );
+#endif
+
+      double qdrainage = 0;
+      if(curr_spec.monthly){
+        start3[0] = month_timestep;
+        qdrainage = cohort.edall->m_soi2l.qdrain; 
+      }
+      else if(curr_spec.yearly){
+        start3[0] = year;
+        qdrainage = cohort.edall->y_soi2l.qdrain; 
+      }
+
+      temutil::nc( nc_put_var1_double(ncid, cv, start3, &qdrainage) );
+      temutil::nc( nc_close(ncid) ); 
+    }//end critical(outputQDRAINAGE)
+  }//end QDRAINAGE 
+  map_itr = netcdf_outputs.end();
+
+
+  //QINFILTRATION
+  map_itr = netcdf_outputs.find("QINFILTRATION");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: QINFILTRATION";
+    curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
+
+    #pragma omp critical(outputQINFILTRATION)
+    {
+#ifdef WITHMPI
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_inq_varid(ncid, "QINFILTRATION", &cv) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+#else
+      temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
+      temutil::nc( nc_inq_varid(ncid, "QINFILTRATION", &cv) );
+#endif
+
+      double qinfil = 0;
+      if(curr_spec.monthly){
+        start3[0] = month_timestep;
+        qinfil = cohort.edall->m_soi2l.qinfl; 
+      }
+      else if(curr_spec.yearly){
+        start3[0] = year;
+        qinfil = cohort.edall->y_soi2l.qinfl; 
+      }
+
+      temutil::nc( nc_put_var1_double(ncid, cv, start3, &qinfil) );
+      temutil::nc( nc_close(ncid) ); 
+    }//end critical(outputQINFILTRATION)
+  }//end QINFILTRATION
+  map_itr = netcdf_outputs.end();
+
+
+  //QRUNOFF
+  map_itr = netcdf_outputs.find("QRUNOFF");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: QRUNOFF";
+    curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
+
+    #pragma omp critical(outputQRUNOFF)
+    {
+#ifdef WITHMPI
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_inq_varid(ncid, "QRUNOFF", &cv) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+#else
+      temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
+      temutil::nc( nc_inq_varid(ncid, "QRUNOFF", &cv) );
+#endif
+
+      double qrunoff = 0;
+      if(curr_spec.monthly){
+        start3[0] = month_timestep;
+        qrunoff = cohort.edall->m_soi2l.qover; 
+      }
+      else if(curr_spec.yearly){
+        start3[0] = year;
+        qrunoff = cohort.edall->y_soi2l.qover;
+      }
+
+      temutil::nc( nc_put_var1_double(ncid, cv, start3, &qrunoff) );
+      temutil::nc( nc_close(ncid) ); 
+    }//end critical(outputQRUNOFF)
+  }//end QRUNOFF 
+  map_itr = netcdf_outputs.end();
+
+
+  //Shallow C
+  map_itr = netcdf_outputs.find("SHLWC");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, debug)<<"SHLWC";
+    curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
+
+    #pragma omp critical(outputSHLWC)
+    {
+#ifdef WITHMPI
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_inq_varid(ncid, "SHLWC", &cv) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+#else
+      temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
+      temutil::nc( nc_inq_varid(ncid, "SHLWC", &cv) );
+#endif
+
+      double shlwc;
+      if(curr_spec.monthly){
+        start3[0] = month_timestep;
+        shlwc = cohort.bdall->m_soid.shlwc;
+      }
+      else if(curr_spec.yearly){
+        start3[0] = year;
+        shlwc = cohort.bdall->y_soid.shlwc;
+      }
+
+      temutil::nc( nc_put_var1_double(ncid, cv, start3, &shlwc) );
+      temutil::nc( nc_close(ncid) ); 
+    }//end critical(outputSHLWC)
+  }//end SHLWC 
+  map_itr = netcdf_outputs.end();
+
+
+  //Woody debris RH
+  map_itr = netcdf_outputs.find("WDRH");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, debug)<<"WDRH";
+    curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
+
+    #pragma omp critical(outputWDRH)
+    {
+#ifdef WITHMPI
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_inq_varid(ncid, "WDRH", &cv) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+#else
+      temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
+      temutil::nc( nc_inq_varid(ncid, "WDRH", &cv) );
+#endif
+
+      double woodyrh;
+      if(curr_spec.monthly){
+        start3[0] = month_timestep;
+        woodyrh = cohort.bdall->m_soi2a.rhwdeb;
+      }
+      else if(curr_spec.yearly){
+        start3[0] = year;
+        woodyrh = cohort.bdall->y_soi2a.rhwdeb;
+      }
+
+      temutil::nc( nc_put_var1_double(ncid, cv, start3, &woodyrh) );
+      temutil::nc( nc_close(ncid) ); 
+    }//end critical(outputWDRH)
+  }//end WDRH
+  map_itr = netcdf_outputs.end();
+
+
+  /*** Three combination vars: (year, month, day) ***/
+  //HKDEEP
+  map_itr = netcdf_outputs.find("HKDEEP");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: HKDEEP";
+    curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
+
+    #pragma omp critical(outputHKDEEP)
+    {
+#ifdef WITHMPI
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_inq_varid(ncid, "HKDEEP", &cv) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+#else
+      temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
+      temutil::nc( nc_inq_varid(ncid, "HKDEEP", &cv) );
+#endif
+
+      double hkdeep;
+      if(curr_spec.daily){
+        start3[0] = day_timestep; 
+        temutil::nc( nc_put_vara_double(ncid, cv, start3, count3, &cohort.edall->daily_hkdeep[0]) );
+      }
+      else if(curr_spec.monthly){
+        start3[0] = month_timestep;
+        hkdeep = cohort.edall->m_soid.hkdeep;
+        temutil::nc( nc_put_var1_double(ncid, cv, start3, &hkdeep) );
+      }
+      else if(curr_spec.yearly){
+        start3[0] = year;
+        hkdeep = cohort.edall->y_soid.hkdeep;
+        temutil::nc( nc_put_var1_double(ncid, cv, start3, &hkdeep) );
+      }
+
+      temutil::nc( nc_close(ncid) );
+    }//end critical(outputHKDEEP)
+  }//end HKDEEP 
+  map_itr = netcdf_outputs.end();
+
+
+  //HKLAYER
+  map_itr = netcdf_outputs.find("HKLAYER");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: HKLAYER";
+    curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
+
+    #pragma omp critical(outputHKLAYER)
+    {
+#ifdef WITHMPI
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_inq_varid(ncid, "HKLAYER", &cv) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+#else
+      temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
+      temutil::nc( nc_inq_varid(ncid, "HKLAYER", &cv) );
+#endif
+
+      if(curr_spec.monthly){
+        soilstart4[0] = month_timestep;
+        temutil::nc( nc_put_vara_double(ncid, cv, soilstart4, soilcount4, &cohort.edall->m_soid.hcond[0]) );
+      }
+      else if(curr_spec.yearly){
+        soilstart4[0] = year;
+        temutil::nc( nc_put_vara_double(ncid, cv, soilstart4, soilcount4, &cohort.edall->y_soid.hcond[0]) );
+      }
+
+      temutil::nc( nc_close(ncid) );
+    }//end critical(outputHKLAYER)
+
+  }//end HKLAYER
+  map_itr = netcdf_outputs.end();
+
+
+  //HKMINEA
+  map_itr = netcdf_outputs.find("HKMINEA");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: HKMINEA";
+    curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
+
+    #pragma omp critical(outputHKMINEA)
+    {
+#ifdef WITHMPI
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_inq_varid(ncid, "HKMINEA", &cv) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+#else
+      temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
+      temutil::nc( nc_inq_varid(ncid, "HKMINEA", &cv) );
+#endif
+
+      double hkminea;
+      if(curr_spec.daily){
+        start3[0] = day_timestep; 
+        temutil::nc( nc_put_vara_double(ncid, cv, start3, count3, &cohort.edall->daily_hkminea[0]) );
+      }
+      else if(curr_spec.monthly){
+        start3[0] = month_timestep;
+        hkminea = cohort.edall->m_soid.hkminea;
+        temutil::nc( nc_put_var1_double(ncid, cv, start3, &hkminea) );
+      }
+      else if(curr_spec.yearly){
+        start3[0] = year;
+        hkminea = cohort.edall->y_soid.hkminea;
+        temutil::nc( nc_put_var1_double(ncid, cv, start3, &hkminea) );
+      }
+
+      temutil::nc( nc_close(ncid) );
+    }//end critical(outputHKMINEA)
+  }//end HKMINEA
+  map_itr = netcdf_outputs.end();
+
+
+  //HKMINEB
+  map_itr = netcdf_outputs.find("HKMINEB");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: HKMINEB";
+    curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
+
+    #pragma omp critical(outputHKMINEB)
+    {
+#ifdef WITHMPI
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_inq_varid(ncid, "HKMINEB", &cv) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+#else
+      temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
+      temutil::nc( nc_inq_varid(ncid, "HKMINEB", &cv) );
+#endif
+
+      double hkmineb;
+      if(curr_spec.daily){
+        start3[0] = day_timestep; 
+        temutil::nc( nc_put_vara_double(ncid, cv, start3, count3, &cohort.edall->daily_hkmineb[0]) );
+      }
+      else if(curr_spec.monthly){
+        start3[0] = month_timestep;
+        hkmineb = cohort.edall->m_soid.hkmineb;
+        temutil::nc( nc_put_var1_double(ncid, cv, start3, &hkmineb) );
+      }
+      else if(curr_spec.yearly){
+        start3[0] = year;
+        hkmineb = cohort.edall->y_soid.hkmineb;
+        temutil::nc( nc_put_var1_double(ncid, cv, start3, &hkmineb) );
+      }
+
+      temutil::nc( nc_close(ncid) );
+    }//end critical(outputHKMINEB)
+  }//end HKMINEB
+  map_itr = netcdf_outputs.end();
+
+
+  //HKMINEC
+  map_itr = netcdf_outputs.find("HKMINEC");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: HKMINEC";
+    curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
+
+    #pragma omp critical(outputHKMINEC)
+    {
+#ifdef WITHMPI
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_inq_varid(ncid, "HKMINEC", &cv) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+#else
+      temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
+      temutil::nc( nc_inq_varid(ncid, "HKMINEC", &cv) );
+#endif
+
+      double hkminec;
+      if(curr_spec.daily){
+        start3[0] = day_timestep; 
+        temutil::nc( nc_put_vara_double(ncid, cv, start3, count3, &cohort.edall->daily_hkminec[0]) );
+      }
+      else if(curr_spec.monthly){
+        start3[0] = month_timestep;
+        hkminec = cohort.edall->m_soid.hkminec;
+        temutil::nc( nc_put_var1_double(ncid, cv, start3, &hkminec) );
+      }
+      else if(curr_spec.yearly){
+        start3[0] = year;
+        hkminec = cohort.edall->y_soid.hkminec;
+        temutil::nc( nc_put_var1_double(ncid, cv, start3, &hkminec) );
+      }
+
+      temutil::nc( nc_close(ncid) );
+    }//end critical(outputHKMINEC)
+  }//end HKMINEC
+  map_itr = netcdf_outputs.end();
+
+
+  //HKSHLW
+  map_itr = netcdf_outputs.find("HKSHLW");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: HKSHLW";
+    curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
+
+    #pragma omp critical(outputHKSHLW)
+    {
+#ifdef WITHMPI
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_inq_varid(ncid, "HKSHLW", &cv) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+#else
+      temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
+      temutil::nc( nc_inq_varid(ncid, "HKSHLW", &cv) );
+#endif
+
+      double hkshlw;
+      if(curr_spec.daily){
+        start3[0] = day_timestep; 
+        temutil::nc( nc_put_vara_double(ncid, cv, start3, count3, &cohort.edall->daily_hkshlw[0]) );
+      }
+      else if(curr_spec.monthly){
+        start3[0] = month_timestep;
+        hkshlw = cohort.edall->m_soid.hkshlw;
+        temutil::nc( nc_put_var1_double(ncid, cv, start3, &hkshlw) );
+      }
+      else if(curr_spec.yearly){
+        start3[0] = year;
+        hkshlw = cohort.edall->y_soid.hkshlw;
+        temutil::nc( nc_put_var1_double(ncid, cv, start3, &hkshlw) );
+      }
+
+      temutil::nc( nc_close(ncid) );
+    }
+  }//end HKSHLW 
+  map_itr = netcdf_outputs.end();
+
 }
-//  //Woody debris C
-//  map_itr = netcdf_outputs.find("DWDC");
-//  if(map_itr != netcdf_outputs.end()){
-//    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: DWDC";
-//    curr_spec = map_itr->second;
-//    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
-//
-//    #pragma omp critical(outputDWDC)
-//    {
-//      temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
-//      temutil::nc( nc_inq_varid(ncid, "DWDC", &cv) );
-//
-//      double woodyc;
-//      if(curr_spec.monthly){
-//        start3[0] = month_timestep;
-//        woodyc = cohort.bdall->m_sois.wdebrisc;
-//      }
-//      else if(curr_spec.yearly){
-//        start3[0] = year;
-//        woodyc = cohort.bdall->y_sois.wdebrisc;
-//      }
-//
-//      temutil::nc( nc_put_var1_double(ncid, cv, start3, &woodyc) );
-//      temutil::nc( nc_close(ncid) );
-//    }//end critical(outputDWDC)
-//  }//end DWDC
-//  map_itr = netcdf_outputs.end();
-//
-//
-//  //Woody debris N
-//  map_itr = netcdf_outputs.find("DWDN");
-//  if(map_itr != netcdf_outputs.end()){
-//    BOOST_LOG_SEV(glg, debug)<<"DWDN";
-//    curr_spec = map_itr->second;
-//    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
-//
-//    #pragma omp critical(outputDWDN)
-//    {
-//      temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
-//      temutil::nc( nc_inq_varid(ncid, "DWDN", &cv) );
-//
-//      double woodyn;
-//      if(curr_spec.monthly){
-//        start3[0] = month_timestep;
-//        woodyn = cohort.bdall->m_sois.wdebrisn;
-//      }
-//      else if(curr_spec.yearly){
-//        start3[0] = year;
-//        woodyn = cohort.bdall->y_sois.wdebrisn;
-//      }
-//
-//      temutil::nc( nc_put_var1_double(ncid, cv, start3, &woodyn) );
-//      temutil::nc( nc_close(ncid) );
-//    }//end critical(outputDWDN)
-//  }//end DWDN
-//  map_itr = netcdf_outputs.end();
-//
-//
-//  //Mineral C
-//  map_itr = netcdf_outputs.find("MINEC");
-//  if(map_itr != netcdf_outputs.end()){
-//    BOOST_LOG_SEV(glg, debug)<<"MINEC";
-//    curr_spec = map_itr->second;
-//    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
-//
-//    #pragma omp critical(outputMINEC)
-//    {
-//      temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
-//      temutil::nc( nc_inq_varid(ncid, "MINEC", &cv) );
-//
-//      double minec;
-//      if(curr_spec.monthly){
-//        start3[0] = month_timestep;
-//        minec = cohort.bdall->m_soid.mineac
-//                + cohort.bdall->m_soid.minebc
-//                + cohort.bdall->m_soid.minecc;
-//      }
-//      else if(curr_spec.yearly){
-//        start3[0] = year;
-//        minec = cohort.bdall->y_soid.mineac
-//                + cohort.bdall->y_soid.minebc
-//                + cohort.bdall->y_soid.minecc;
-//      }
-//
-//      temutil::nc( nc_put_var1_double(ncid, cv, start3, &minec) );
-//      temutil::nc( nc_close(ncid) ); 
-//    }//end critical(outputMINEC)
-//  }//end MINEC
-//  map_itr = netcdf_outputs.end();
-//
-//
-//  //MOSSDEATHC
-//  map_itr = netcdf_outputs.find("MOSSDEATHC");
-//  if(map_itr != netcdf_outputs.end()){
-//    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: MOSSDEATHC";
-//    curr_spec = map_itr->second;
-//    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
-//
-//    #pragma omp critical(outputMOSSDEATHC)
-//    {
-//      temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
-//      temutil::nc( nc_inq_varid(ncid, "MOSSDEATHC", &cv) );
-//
-//      double mossdeathc = 0;
-//      if(curr_spec.monthly){
-//        start3[0] = month_timestep;
-//        mossdeathc = cohort.bdall->m_v2soi.mossdeathc; 
-//      }
-//      else if(curr_spec.yearly){
-//        start3[0] = year;
-//        mossdeathc = cohort.bdall->y_v2soi.mossdeathc; 
-//      }
-//
-//      temutil::nc( nc_put_var1_double(ncid, cv, start3, &mossdeathc) ); 
-//      temutil::nc( nc_close(ncid) ); 
-//    }//end critical(outputMOSSDEATHC)
-//  }//end MOSSDEATHC
-//  map_itr = netcdf_outputs.end();
-//
-//
-//  //MOSSDEATHN
-//  map_itr = netcdf_outputs.find("MOSSDEATHN");
-//  if(map_itr != netcdf_outputs.end()){
-//    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: MOSSDEATHN";
-//    curr_spec = map_itr->second;
-//    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
-//
-//    #pragma omp critical(outputMOSSDEATHN)
-//    {
-//      temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
-//      temutil::nc( nc_inq_varid(ncid, "MOSSDEATHN", &cv) );
-//
-//      double mossdeathn = 0;
-//      if(curr_spec.monthly){
-//        start3[0] = month_timestep;
-//        mossdeathn = cohort.bdall->m_v2soi.mossdeathn; 
-//      }
-//      else if(curr_spec.yearly){
-//        start3[0] = year;
-//        mossdeathn = cohort.bdall->y_v2soi.mossdeathn; 
-//      }
-//
-//      temutil::nc( nc_put_var1_double(ncid, cv, start3, &mossdeathn) ); 
-//      temutil::nc( nc_close(ncid) ); 
-//    }//end critical(outputMOSSDEATHN)
-//  }//end MOSSDEATHN
-//  map_itr = netcdf_outputs.end();
-//
-//
-//  //QDRAINAGE
-//  map_itr = netcdf_outputs.find("QDRAINAGE");
-//  if(map_itr != netcdf_outputs.end()){
-//    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: QDRAINAGE";
-//    curr_spec = map_itr->second;
-//    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
-//
-//    #pragma omp critical(outputQDRAINAGE)
-//    {
-//      temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
-//      temutil::nc( nc_inq_varid(ncid, "QDRAINAGE", &cv) );
-//
-//      double qdrainage = 0;
-//      if(curr_spec.monthly){
-//        start3[0] = month_timestep;
-//        qdrainage = cohort.edall->m_soi2l.qdrain; 
-//      }
-//      else if(curr_spec.yearly){
-//        start3[0] = year;
-//        qdrainage = cohort.edall->y_soi2l.qdrain; 
-//      }
-//
-//      temutil::nc( nc_put_var1_double(ncid, cv, start3, &qdrainage) );
-//      temutil::nc( nc_close(ncid) ); 
-//    }//end critical(outputQDRAINAGE)
-//  }//end QDRAINAGE 
-//  map_itr = netcdf_outputs.end();
-//
-//
-//  //QINFILTRATION
-//  map_itr = netcdf_outputs.find("QINFILTRATION");
-//  if(map_itr != netcdf_outputs.end()){
-//    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: QINFILTRATION";
-//    curr_spec = map_itr->second;
-//    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
-//
-//    #pragma omp critical(outputQINFILTRATION)
-//    {
-//      temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
-//      temutil::nc( nc_inq_varid(ncid, "QINFILTRATION", &cv) );
-//
-//      double qinfil = 0;
-//      if(curr_spec.monthly){
-//        start3[0] = month_timestep;
-//        qinfil = cohort.edall->m_soi2l.qinfl; 
-//      }
-//      else if(curr_spec.yearly){
-//        start3[0] = year;
-//        qinfil = cohort.edall->y_soi2l.qinfl; 
-//      }
-//
-//      temutil::nc( nc_put_var1_double(ncid, cv, start3, &qinfil) );
-//      temutil::nc( nc_close(ncid) ); 
-//    }//end critical(outputQINFILTRATION)
-//  }//end QINFILTRATION
-//  map_itr = netcdf_outputs.end();
-//
-//
-//  //QRUNOFF
-//  map_itr = netcdf_outputs.find("QRUNOFF");
-//  if(map_itr != netcdf_outputs.end()){
-//    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: QRUNOFF";
-//    curr_spec = map_itr->second;
-//    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
-//
-//    #pragma omp critical(outputQRUNOFF)
-//    {
-//      temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
-//      temutil::nc( nc_inq_varid(ncid, "QRUNOFF", &cv) );
-//
-//      double qrunoff = 0;
-//      if(curr_spec.monthly){
-//        start3[0] = month_timestep;
-//        qrunoff = cohort.edall->m_soi2l.qover; 
-//      }
-//      else if(curr_spec.yearly){
-//        start3[0] = year;
-//        qrunoff = cohort.edall->y_soi2l.qover;
-//      }
-//
-//      temutil::nc( nc_put_var1_double(ncid, cv, start3, &qrunoff) );
-//      temutil::nc( nc_close(ncid) ); 
-//    }//end critical(outputQRUNOFF)
-//  }//end QRUNOFF 
-//  map_itr = netcdf_outputs.end();
-//
-//
-//  //Shallow C
-//  map_itr = netcdf_outputs.find("SHLWC");
-//  if(map_itr != netcdf_outputs.end()){
-//    BOOST_LOG_SEV(glg, debug)<<"SHLWC";
-//    curr_spec = map_itr->second;
-//    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
-//
-//    #pragma omp critical(outputSHLWC)
-//    {
-//      temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
-//      temutil::nc( nc_inq_varid(ncid, "SHLWC", &cv) );
-//
-//      double shlwc;
-//      if(curr_spec.monthly){
-//        start3[0] = month_timestep;
-//        shlwc = cohort.bdall->m_soid.shlwc;
-//      }
-//      else if(curr_spec.yearly){
-//        start3[0] = year;
-//        shlwc = cohort.bdall->y_soid.shlwc;
-//      }
-//
-//      temutil::nc( nc_put_var1_double(ncid, cv, start3, &shlwc) );
-//      temutil::nc( nc_close(ncid) ); 
-//    }//end critical(outputSHLWC)
-//  }//end SHLWC 
-//  map_itr = netcdf_outputs.end();
-//
-//
-//  //Woody debris RH
-//  map_itr = netcdf_outputs.find("WDRH");
-//  if(map_itr != netcdf_outputs.end()){
-//    BOOST_LOG_SEV(glg, debug)<<"WDRH";
-//    curr_spec = map_itr->second;
-//    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
-//
-//    #pragma omp critical(outputWDRH)
-//    {
-//      temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
-//      temutil::nc( nc_inq_varid(ncid, "WDRH", &cv) );
-//
-//      double woodyrh;
-//      if(curr_spec.monthly){
-//        start3[0] = month_timestep;
-//        woodyrh = cohort.bdall->m_soi2a.rhwdeb;
-//      }
-//      else if(curr_spec.yearly){
-//        start3[0] = year;
-//        woodyrh = cohort.bdall->y_soi2a.rhwdeb;
-//      }
-//
-//      temutil::nc( nc_put_var1_double(ncid, cv, start3, &woodyrh) );
-//      temutil::nc( nc_close(ncid) ); 
-//    }//end critical(outputWDRH)
-//  }//end WDRH
-//  map_itr = netcdf_outputs.end();
-//
-//
-//  /*** Three combination vars: (year, month, day) ***/
-//  //HKDEEP
-//  map_itr = netcdf_outputs.find("HKDEEP");
-//  if(map_itr != netcdf_outputs.end()){
-//    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: HKDEEP";
-//    curr_spec = map_itr->second;
-//    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
-//
-//    #pragma omp critical(outputHKDEEP)
-//    {
-//      temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
-//      temutil::nc( nc_inq_varid(ncid, "HKDEEP", &cv) );
-//
-//      double hkdeep;
-//      if(curr_spec.daily){
-//        start3[0] = day_timestep; 
-//        temutil::nc( nc_put_vara_double(ncid, cv, start3, count3, &cohort.edall->daily_hkdeep[0]) );
-//      }
-//      else if(curr_spec.monthly){
-//        start3[0] = month_timestep;
-//        hkdeep = cohort.edall->m_soid.hkdeep;
-//        temutil::nc( nc_put_var1_double(ncid, cv, start3, &hkdeep) );
-//      }
-//      else if(curr_spec.yearly){
-//        start3[0] = year;
-//        hkdeep = cohort.edall->y_soid.hkdeep;
-//        temutil::nc( nc_put_var1_double(ncid, cv, start3, &hkdeep) );
-//      }
-//
-//      temutil::nc( nc_close(ncid) );
-//    }//end critical(outputHKDEEP)
-//  }//end HKDEEP 
-//  map_itr = netcdf_outputs.end();
-//
-//
-//  //HKLAYER
-//  map_itr = netcdf_outputs.find("HKLAYER");
-//  if(map_itr != netcdf_outputs.end()){
-//    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: HKLAYER";
-//    curr_spec = map_itr->second;
-//    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
-//
-//    #pragma omp critical(outputHKLAYER)
-//    {
-//      temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
-//      temutil::nc( nc_inq_varid(ncid, "HKLAYER", &cv) );
-//
-//      if(curr_spec.monthly){
-//        soilstart4[0] = month_timestep;
-//        temutil::nc( nc_put_vara_double(ncid, cv, soilstart4, soilcount4, &cohort.edall->m_soid.hcond[0]) );
-//      }
-//      else if(curr_spec.yearly){
-//        soilstart4[0] = year;
-//        temutil::nc( nc_put_vara_double(ncid, cv, soilstart4, soilcount4, &cohort.edall->y_soid.hcond[0]) );
-//      }
-//
-//      temutil::nc( nc_close(ncid) );
-//    }//end critical(outputHKLAYER)
-//
-//  }//end HKLAYER
-//  map_itr = netcdf_outputs.end();
-//
-//
-//  //HKMINEA
-//  map_itr = netcdf_outputs.find("HKMINEA");
-//  if(map_itr != netcdf_outputs.end()){
-//    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: HKMINEA";
-//    curr_spec = map_itr->second;
-//    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
-//
-//    #pragma omp critical(outputHKMINEA)
-//    {
-//      temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
-//      temutil::nc( nc_inq_varid(ncid, "HKMINEA", &cv) );
-//
-//      double hkminea;
-//      if(curr_spec.daily){
-//        start3[0] = day_timestep; 
-//        temutil::nc( nc_put_vara_double(ncid, cv, start3, count3, &cohort.edall->daily_hkminea[0]) );
-//      }
-//      else if(curr_spec.monthly){
-//        start3[0] = month_timestep;
-//        hkminea = cohort.edall->m_soid.hkminea;
-//        temutil::nc( nc_put_var1_double(ncid, cv, start3, &hkminea) );
-//      }
-//      else if(curr_spec.yearly){
-//        start3[0] = year;
-//        hkminea = cohort.edall->y_soid.hkminea;
-//        temutil::nc( nc_put_var1_double(ncid, cv, start3, &hkminea) );
-//      }
-//
-//      temutil::nc( nc_close(ncid) );
-//    }//end critical(outputHKMINEA)
-//  }//end HKMINEA
-//  map_itr = netcdf_outputs.end();
-//
-//
-//  //HKMINEB
-//  map_itr = netcdf_outputs.find("HKMINEB");
-//  if(map_itr != netcdf_outputs.end()){
-//    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: HKMINEB";
-//    curr_spec = map_itr->second;
-//    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
-//
-//    #pragma omp critical(outputHKMINEB)
-//    {
-//      temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
-//      temutil::nc( nc_inq_varid(ncid, "HKMINEB", &cv) );
-//
-//      double hkmineb;
-//      if(curr_spec.daily){
-//        start3[0] = day_timestep; 
-//        temutil::nc( nc_put_vara_double(ncid, cv, start3, count3, &cohort.edall->daily_hkmineb[0]) );
-//      }
-//      else if(curr_spec.monthly){
-//        start3[0] = month_timestep;
-//        hkmineb = cohort.edall->m_soid.hkmineb;
-//        temutil::nc( nc_put_var1_double(ncid, cv, start3, &hkmineb) );
-//      }
-//      else if(curr_spec.yearly){
-//        start3[0] = year;
-//        hkmineb = cohort.edall->y_soid.hkmineb;
-//        temutil::nc( nc_put_var1_double(ncid, cv, start3, &hkmineb) );
-//      }
-//
-//      temutil::nc( nc_close(ncid) );
-//    }//end critical(outputHKMINEB)
-//  }//end HKMINEB
-//  map_itr = netcdf_outputs.end();
-//
-//
-//  //HKMINEC
-//  map_itr = netcdf_outputs.find("HKMINEC");
-//  if(map_itr != netcdf_outputs.end()){
-//    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: HKMINEC";
-//    curr_spec = map_itr->second;
-//    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
-//
-//    #pragma omp critical(outputHKMINEC)
-//    {
-//      temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
-//      temutil::nc( nc_inq_varid(ncid, "HKMINEC", &cv) );
-//
-//      double hkminec;
-//      if(curr_spec.daily){
-//        start3[0] = day_timestep; 
-//        temutil::nc( nc_put_vara_double(ncid, cv, start3, count3, &cohort.edall->daily_hkminec[0]) );
-//      }
-//      else if(curr_spec.monthly){
-//        start3[0] = month_timestep;
-//        hkminec = cohort.edall->m_soid.hkminec;
-//        temutil::nc( nc_put_var1_double(ncid, cv, start3, &hkminec) );
-//      }
-//      else if(curr_spec.yearly){
-//        start3[0] = year;
-//        hkminec = cohort.edall->y_soid.hkminec;
-//        temutil::nc( nc_put_var1_double(ncid, cv, start3, &hkminec) );
-//      }
-//
-//      temutil::nc( nc_close(ncid) );
-//    }//end critical(outputHKMINEC)
-//  }//end HKMINEC
-//  map_itr = netcdf_outputs.end();
-//
-//
-//  //HKSHLW
-//  map_itr = netcdf_outputs.find("HKSHLW");
-//  if(map_itr != netcdf_outputs.end()){
-//    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: HKSHLW";
-//    curr_spec = map_itr->second;
-//    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
-//
-//    #pragma omp critical(outputHKSHLW)
-//    {
-//      temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
-//      temutil::nc( nc_inq_varid(ncid, "HKSHLW", &cv) );
-//
-//      double hkshlw;
-//      if(curr_spec.daily){
-//        start3[0] = day_timestep; 
-//        temutil::nc( nc_put_vara_double(ncid, cv, start3, count3, &cohort.edall->daily_hkshlw[0]) );
-//      }
-//      else if(curr_spec.monthly){
-//        start3[0] = month_timestep;
-//        hkshlw = cohort.edall->m_soid.hkshlw;
-//        temutil::nc( nc_put_var1_double(ncid, cv, start3, &hkshlw) );
-//      }
-//      else if(curr_spec.yearly){
-//        start3[0] = year;
-//        hkshlw = cohort.edall->y_soid.hkshlw;
-//        temutil::nc( nc_put_var1_double(ncid, cv, start3, &hkshlw) );
-//      }
-//
-//      temutil::nc( nc_close(ncid) );
-//    }
-//  }//end HKSHLW 
-//  map_itr = netcdf_outputs.end();
-//
-//
 //  //Snowthick - a snapshot of the time when output is called
 //  map_itr = netcdf_outputs.find("SNOWTHICK");
 //  if(map_itr != netcdf_outputs.end()){
