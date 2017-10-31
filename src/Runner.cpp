@@ -1283,180 +1283,216 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
   }//end SNOWSTART
   map_itr = netcdf_outputs.end();
 
+
+  //Years since disturbance
+  map_itr = netcdf_outputs.find("YSD");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: YSD";
+    curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
+
+    #pragma omp critical(outputYSD)
+    {
+#ifdef WITHMPI
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_inq_varid(ncid, "YSD", &cv) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+#else
+      temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
+      temutil::nc( nc_inq_varid(ncid, "YSD", &cv) );
+#endif
+      start3[0] = year;
+
+      double ysd = cohort.cd.yrsdist;
+
+      temutil::nc( nc_put_var1_double(ncid, cv, start3, &ysd) );
+      temutil::nc( nc_close(ncid) );
+    }//end critical(outputYSD)
+  }//end YSD
+  map_itr = netcdf_outputs.end();
+
+
+  /*** Two combination vars: (month, year) ***/
+  map_itr = netcdf_outputs.find("BURNAIR2SOIN");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: BURNAIR2SOIN";
+    curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
+
+    #pragma omp critical(outputBURNAIR2SOIN)
+    {
+#ifdef WITHMPI
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_inq_varid(ncid, "BURNAIR2SOIN", &cv) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+#else
+      temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
+      temutil::nc( nc_inq_varid(ncid, "BURNAIR2SOIN", &cv) );
+#endif
+
+      double burnair2soin;
+      if(curr_spec.monthly){
+        start3[0] = month_timestep;
+        burnair2soin = cohort.year_fd[month].fire_a2soi.orgn;
+      }
+      else if(curr_spec.yearly){
+        start3[0] = year;
+        burnair2soin = 0;
+        for(int im=0; im<12; im++){
+          burnair2soin += cohort.year_fd[im].fire_a2soi.orgn;
+        }
+      }
+
+      temutil::nc( nc_put_var1_double(ncid, cv, start3, &burnair2soin) );
+      temutil::nc( nc_close(ncid) );
+    }//end critical(outputBURNAIR2SOIN)
+  }//end BURNAIR2SOIN
+  map_itr = netcdf_outputs.end();
+
+
+  //Burn thickness
+  map_itr = netcdf_outputs.find("BURNTHICK");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: BURNTHICK";
+    curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
+
+    #pragma omp critical(outputBURNTHICK)
+    {
+#ifdef WITHMPI
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_inq_varid(ncid, "BURNTHICK", &cv) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+#else
+      temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
+      temutil::nc( nc_inq_varid(ncid, "BURNTHICK", &cv) );
+#endif
+
+      double burnthick;
+      if(curr_spec.monthly){
+        start3[0] = month_timestep;
+        burnthick = cohort.year_fd[month].fire_soid.burnthick;
+      }
+      else if(curr_spec.yearly){
+        start3[0] = year;
+        burnthick = 0;
+        for(int im=0; im<12; im++){
+          burnthick += cohort.year_fd[im].fire_soid.burnthick;
+        }
+      }
+
+      temutil::nc( nc_put_var1_double(ncid, cv, start3, &burnthick) );
+      temutil::nc( nc_close(ncid) );
+    }//end critical(outputBURNTHICK)
+  }//end BURNTHICK
+  map_itr = netcdf_outputs.end();
+
+
+  //Standing dead C
+  map_itr = netcdf_outputs.find("DEADC");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: DEADC";
+    curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
+
+    #pragma omp critical(outputDEADC)
+    {
+#ifdef WITHMPI
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_inq_varid(ncid, "DEADC", &cv) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+#else
+      temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
+      temutil::nc( nc_inq_varid(ncid, "DEADC", &cv) );
+#endif
+
+      double deadc;
+      if(curr_spec.monthly){
+        start3[0] = month_timestep;
+        deadc = cohort.bdall->m_vegs.deadc;
+      }
+      else if(curr_spec.yearly){
+        start3[0] = year;
+        deadc = cohort.bdall->y_vegs.deadc;
+      }
+
+      temutil::nc( nc_put_var1_double(ncid, cv, start3, &deadc) );
+      temutil::nc( nc_close(ncid) );
+    }//end critical(outputDEADC)
+  }//end DEADC
+  map_itr = netcdf_outputs.end();
+
+
+  //Standing dead N
+  map_itr = netcdf_outputs.find("DEADN");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: DEADN";
+    curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
+
+    #pragma omp critical(outputDEADN)
+    {
+#ifdef WITHMPI
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_inq_varid(ncid, "DEADN", &cv) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+#else
+      temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
+      temutil::nc( nc_inq_varid(ncid, "DEADN", &cv) );
+#endif
+
+      double deadn;
+      if(curr_spec.monthly){
+        start3[0] = month_timestep;
+        deadn = cohort.bdall->m_vegs.deadn;
+      }
+      else if(curr_spec.yearly){
+        start3[0] = year;
+        deadn = cohort.bdall->y_vegs.deadn;
+      }
+
+      temutil::nc( nc_put_var1_double(ncid, cv, start3, &deadn) );
+      temutil::nc( nc_close(ncid) );
+    }//end critical(outputDEADN)
+  }//end DEADN
+  map_itr = netcdf_outputs.end();
+
+
+  //Deep C
+  map_itr = netcdf_outputs.find("DEEPC");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: DEEPC";
+    curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
+
+    #pragma omp critical(outputDEEPC)
+    {
+#ifdef WITHMPI
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_inq_varid(ncid, "DEEPC", &cv) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+#else
+      temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
+      temutil::nc( nc_inq_varid(ncid, "DEEPC", &cv) );
+#endif
+
+      double deepc;
+      if(curr_spec.monthly){
+        start3[0] = month_timestep;
+        deepc = cohort.bdall->m_soid.deepc;
+      }
+      else if(curr_spec.yearly){
+        start3[0] = year;
+        deepc = cohort.bdall->y_soid.deepc;
+      }
+
+      temutil::nc( nc_put_var1_double(ncid, cv, start3, &deepc) );
+      temutil::nc( nc_close(ncid) ); 
+    }//end critical(outputDEEPC)
+  }//end DEEPC
+  map_itr = netcdf_outputs.end();
+
 }
-//  //Years since disturbance
-//  map_itr = netcdf_outputs.find("YSD");
-//  if(map_itr != netcdf_outputs.end()){
-//    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: YSD";
-//    curr_spec = map_itr->second;
-//    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
-//
-//    #pragma omp critical(outputYSD)
-//    {
-//      temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
-//      temutil::nc( nc_inq_varid(ncid, "YSD", &cv) );
-//      start3[0] = year;
-//
-//      double ysd = cohort.cd.yrsdist;
-//
-//      temutil::nc( nc_put_var1_double(ncid, cv, start3, &ysd) );
-//      temutil::nc( nc_close(ncid) );
-//    }//end critical(outputYSD)
-//  }//end PERMAFROST
-//  map_itr = netcdf_outputs.end();
-//
-//
-//  /*** Two combination vars: (month, year) ***/
-//  map_itr = netcdf_outputs.find("BURNAIR2SOIN");
-//  if(map_itr != netcdf_outputs.end()){
-//    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: BURNAIR2SOIN";
-//    curr_spec = map_itr->second;
-//    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
-//
-//    #pragma omp critical(outputBURNAIR2SOIN)
-//    {
-//      temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
-//      temutil::nc( nc_inq_varid(ncid, "BURNAIR2SOIN", &cv) );
-//
-//      double burnair2soin;
-//      if(curr_spec.monthly){
-//        start3[0] = month_timestep;
-//        burnair2soin = cohort.year_fd[month].fire_a2soi.orgn;
-//      }
-//      else if(curr_spec.yearly){
-//        start3[0] = year;
-//        burnair2soin = 0;
-//        for(int im=0; im<12; im++){
-//          burnair2soin += cohort.year_fd[im].fire_a2soi.orgn;
-//        }
-//      }
-//
-//      temutil::nc( nc_put_var1_double(ncid, cv, start3, &burnair2soin) );
-//      temutil::nc( nc_close(ncid) );
-//    }//end critical(outputBURNAIR2SOIN)
-//  }//end BURNAIR2SOIN
-//  map_itr = netcdf_outputs.end();
-//
-//
-//  //Burn thickness
-//  map_itr = netcdf_outputs.find("BURNTHICK");
-//  if(map_itr != netcdf_outputs.end()){
-//    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: BURNTHICK";
-//    curr_spec = map_itr->second;
-//    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
-//
-//    #pragma omp critical(outputBURNTHICK)
-//    {
-//      temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
-//      temutil::nc( nc_inq_varid(ncid, "BURNTHICK", &cv) );
-//
-//      double burnthick;
-//      if(curr_spec.monthly){
-//        start3[0] = month_timestep;
-//        burnthick = cohort.year_fd[month].fire_soid.burnthick;
-//      }
-//      else if(curr_spec.yearly){
-//        start3[0] = year;
-//        burnthick = 0;
-//        for(int im=0; im<12; im++){
-//          burnthick += cohort.year_fd[im].fire_soid.burnthick;
-//        }
-//      }
-//
-//      temutil::nc( nc_put_var1_double(ncid, cv, start3, &burnthick) );
-//      temutil::nc( nc_close(ncid) );
-//    }//end critical(outputBURNTHICK)
-//  }//end BURNTHICK
-//  map_itr = netcdf_outputs.end();
-//
-//
-//  //Standing dead C
-//  map_itr = netcdf_outputs.find("DEADC");
-//  if(map_itr != netcdf_outputs.end()){
-//    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: DEADC";
-//    curr_spec = map_itr->second;
-//    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
-//
-//    #pragma omp critical(outputDEADC)
-//    {
-//      temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
-//      temutil::nc( nc_inq_varid(ncid, "DEADC", &cv) );
-//
-//      double deadc;
-//      if(curr_spec.monthly){
-//        start3[0] = month_timestep;
-//        deadc = cohort.bdall->m_vegs.deadc;
-//      }
-//      else if(curr_spec.yearly){
-//        start3[0] = year;
-//        deadc = cohort.bdall->y_vegs.deadc;
-//      }
-//
-//      temutil::nc( nc_put_var1_double(ncid, cv, start3, &deadc) );
-//      temutil::nc( nc_close(ncid) );
-//    }//end critical(outputDEADC)
-//  }//end DEADC
-//  map_itr = netcdf_outputs.end();
-//
-//
-//  //Standing dead N
-//  map_itr = netcdf_outputs.find("DEADN");
-//  if(map_itr != netcdf_outputs.end()){
-//    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: DEADN";
-//    curr_spec = map_itr->second;
-//    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
-//
-//    #pragma omp critical(outputDEADN)
-//    {
-//      temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
-//      temutil::nc( nc_inq_varid(ncid, "DEADN", &cv) );
-//
-//      double deadn;
-//      if(curr_spec.monthly){
-//        start3[0] = month_timestep;
-//        deadn = cohort.bdall->m_vegs.deadn;
-//      }
-//      else if(curr_spec.yearly){
-//        start3[0] = year;
-//        deadn = cohort.bdall->y_vegs.deadn;
-//      }
-//
-//      temutil::nc( nc_put_var1_double(ncid, cv, start3, &deadn) );
-//      temutil::nc( nc_close(ncid) );
-//    }//end critical(outputDEADN)
-//  }//end DEADN
-//  map_itr = netcdf_outputs.end();
-//
-//
-//  //Deep C
-//  map_itr = netcdf_outputs.find("DEEPC");
-//  if(map_itr != netcdf_outputs.end()){
-//    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: DEEPC";
-//    curr_spec = map_itr->second;
-//    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
-//
-//    #pragma omp critical(outputDEEPC)
-//    {
-//      temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
-//      temutil::nc( nc_inq_varid(ncid, "DEEPC", &cv) );
-//
-//      double deepc;
-//      if(curr_spec.monthly){
-//        start3[0] = month_timestep;
-//        deepc = cohort.bdall->m_soid.deepc;
-//      }
-//      else if(curr_spec.yearly){
-//        start3[0] = year;
-//        deepc = cohort.bdall->y_soid.deepc;
-//      }
-//
-//      temutil::nc( nc_put_var1_double(ncid, cv, start3, &deepc) );
-//      temutil::nc( nc_close(ncid) ); 
-//    }//end critical(outputDEEPC)
-//  }//end DEEPC
-//  map_itr = netcdf_outputs.end();
-//
-//
 //  //Woody debris C
 //  map_itr = netcdf_outputs.find("DWDC");
 //  if(map_itr != netcdf_outputs.end()){
