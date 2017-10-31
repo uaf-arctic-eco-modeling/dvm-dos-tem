@@ -585,7 +585,7 @@ if __name__ == '__main__':
   if args.enforce_initvegc:
     theFile = args.enforce_initvegc[0]
     cmt = int(args.enforce_initvegc[1])
-    dd = enforce_initvegc_split(theFile, 4)
+    dd = enforce_initvegc_split(theFile, cmt)
     lines = format_CMTdatadict(dd, theFile)
     for l in lines:
       print l
