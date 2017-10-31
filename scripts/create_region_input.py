@@ -795,8 +795,16 @@ def fill_fri_fire_file(if_name, xo, yo, xs, ys, out_dir, of_name, rand=True):
       print "--> Copying data from temporary subset file into new file..."
       new_fri.variables['fri'][:] = temp_fri.variables['Band1'][:]
       new_fri.variables['fri_severity'][:] = 2
-      new_fri.variables['fri_jday_of_burn'][:] = 213
-      new_fri.variables['fri_area_of_burn'][:] = 10 # <--- FIX THIS !!!!
+      new_fri.variables['fri_jday_of_burn'][:] = 156
+      new_fri.variables['fri_jday_of_burn'].setncatts({
+          'long_name': 'julian day of burn'
+        })
+      new_fri.variables['fri_area_of_burn'][:] = 4.06283e+08 # square meters
+      new_fri.variables['fri_area_of_burn'].setncatts({
+          'long_name': 'area of burn',
+          'units': 'm2',
+          'note': "mean area of fire scar computed from statewide fire records 1950 to 1980"
+        })
 
       print "--> Copying lat/lon from temporary subset file into new file..."
       new_fri.variables['lat'][:] = temp_fri.variables['lat'][:]
