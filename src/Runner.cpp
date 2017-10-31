@@ -996,11 +996,14 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
       temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "ALD", &cv) );
       temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+#else
+      temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
+      temutil::nc( nc_inq_varid(ncid, "ALD", &cv) );
+#endif
       start3[0] = year;
 
       temutil::nc( nc_put_var1_double(ncid, cv, start3, &cohort.edall->y_soid.ald) );
       temutil::nc( nc_close(ncid) );
-#endif
     }//end critical(outputALD)
   }//end ALD
   map_itr = netcdf_outputs.end();
@@ -1018,6 +1021,10 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
       temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "DEEPDZ", &cv) );
       temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+#else
+      temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
+      temutil::nc( nc_inq_varid(ncid, "DEEPDZ", &cv) );
+#endif
       start3[0] = year;
 
       double deepdz = 0;
@@ -1031,7 +1038,6 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
 
       temutil::nc( nc_put_var1_double(ncid, cv, start3, &deepdz) );
       temutil::nc( nc_close(ncid) );
-#endif
     }//end critical(outputDEEPDZ)
   }//end DEEPDZ
   map_itr = netcdf_outputs.end();
@@ -1049,39 +1055,48 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
       temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "GROWEND", &cv) );
       temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+#else
+      temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
+      temutil::nc( nc_inq_varid(ncid, "GROWEND", &cv) );
+#endif
       start3[0] = year;
 
       double growend = cohort.edall->y_soid.rtdpGEoutput;
 
       temutil::nc( nc_put_var1_double(ncid, cv, start3, &growend) );
       temutil::nc( nc_close(ncid) );
-#endif
     }//end critical(outputGROWEND)
   }//end GROWEND
   map_itr = netcdf_outputs.end();
 
+
+  map_itr = netcdf_outputs.find("GROWSTART");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: GROWSTART";
+    curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
+
+    #pragma omp critical(outputGROWSTART)
+    {
+#ifdef WITHMPI
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_inq_varid(ncid, "GROWSTART", &cv) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+#else
+      temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
+      temutil::nc( nc_inq_varid(ncid, "GROWSTART", &cv) );
+#endif
+      start3[0] = year;
+
+      double growstart = cohort.edall->y_soid.rtdpGSoutput;
+
+      temutil::nc( nc_put_var1_double(ncid, cv, start3, &growstart) );
+      temutil::nc( nc_close(ncid) );
+    }//end critical(outputGROWSTART)
+  }//end GROWSTART
+  map_itr = netcdf_outputs.end();
+
 }
-//  map_itr = netcdf_outputs.find("GROWSTART");
-//  if(map_itr != netcdf_outputs.end()){
-//    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: GROWSTART";
-//    curr_spec = map_itr->second;
-//    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
-//
-//    #pragma omp critical(outputGROWSTART)
-//    {
-//      temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
-//      temutil::nc( nc_inq_varid(ncid, "GROWSTART", &cv) );
-//      start3[0] = year;
-//
-//      double growstart = cohort.edall->y_soid.rtdpGSoutput;
-//
-//      temutil::nc( nc_put_var1_double(ncid, cv, start3, &growstart) );
-//      temutil::nc( nc_close(ncid) );
-//    }//end critical(outputGROWSTART)
-//  }//end GROWSTART
-//  map_itr = netcdf_outputs.end();
-//
-//
 //  map_itr = netcdf_outputs.find("MOSSDZ");
 //  if(map_itr != netcdf_outputs.end()){
 //    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: MOSSDZ";
