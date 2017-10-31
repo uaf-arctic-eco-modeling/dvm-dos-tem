@@ -1096,158 +1096,194 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
   }//end GROWSTART
   map_itr = netcdf_outputs.end();
 
+
+  map_itr = netcdf_outputs.find("MOSSDZ");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: MOSSDZ";
+    curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
+
+    #pragma omp critical(outputMOSSDZ)
+    {
+#ifdef WITHMPI
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_inq_varid(ncid, "MOSSDZ", &cv) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+#else
+      temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
+      temutil::nc( nc_inq_varid(ncid, "MOSSDZ", &cv) );
+#endif
+      start3[0] = year;
+
+      double mossdz = 0;
+      Layer* currL = cohort.ground.toplayer;
+      while(currL!=NULL){
+        if(currL->isMoss){
+          mossdz += currL->dz;
+        }
+        currL = currL->nextl;
+      }
+      //The following may never get set to anything useful?
+      //y_soil.mossthick;
+
+      temutil::nc( nc_put_var1_double(ncid, cv, start3, &mossdz) );
+      temutil::nc( nc_close(ncid) );
+    }//end critical(outputMOSSDZ)
+  }//end MOSSDZ
+  map_itr = netcdf_outputs.end();
+
+
+  map_itr = netcdf_outputs.find("ROLB");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: ROLB";
+    curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
+
+    #pragma omp critical(outputROLB)
+    {
+#ifdef WITHMPI
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_inq_varid(ncid, "ROLB", &cv) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+#else
+      temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
+      temutil::nc( nc_inq_varid(ncid, "ROLB", &cv) );
+#endif
+
+      double rolb;
+      if(curr_spec.monthly){
+        start3[0] = month_timestep;
+        rolb = cohort.year_fd[month].fire_soid.rolb;
+      }
+      else if(curr_spec.yearly){
+        start3[0] = year;
+        //FIX. This will not work if there is more than one fire per year
+        // What does yearly ROLB even mean with multiple fires?
+        rolb = cohort.fd->fire_soid.rolb;
+      }
+
+      temutil::nc( nc_put_var1_double(ncid, cv, start3, &rolb) );
+      temutil::nc( nc_close(ncid) );
+    }//end critical(outputROLB)
+  }//end ROLB
+  map_itr = netcdf_outputs.end();
+
+
+  map_itr = netcdf_outputs.find("PERMAFROST");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: PERMAFROST";
+    curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
+
+    #pragma omp critical(outputPERMAFROST)
+    {
+#ifdef WITHMPI
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_inq_varid(ncid, "PERMAFROST", &cv) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+#else
+      temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
+      temutil::nc( nc_inq_varid(ncid, "PERMAFROST", &cv) );
+#endif
+      start3[0] = year;
+
+      double permafrost = cohort.edall->y_soid.permafrost;
+
+      temutil::nc( nc_put_var1_double(ncid, cv, start3, &permafrost) );
+      temutil::nc( nc_close(ncid) );
+    }//end critical(outputPERMAFROST)
+  }//end PERMAFROST
+  map_itr = netcdf_outputs.end();
+
+
+  map_itr = netcdf_outputs.find("SHLWDZ");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: SHLWDZ";
+    curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
+
+    #pragma omp critical(outputSHLWDZ)
+    {
+#ifdef WITHMPI
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_inq_varid(ncid, "SHLWDZ", &cv) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+#else
+      temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
+      temutil::nc( nc_inq_varid(ncid, "SHLWDZ", &cv) );
+#endif
+      start3[0] = year;
+
+      double shlwdz = 0;
+      Layer* currL = cohort.ground.toplayer;
+      while(currL!=NULL){
+        if(currL->isFibric){
+          shlwdz += currL->dz;
+        }
+        currL = currL->nextl;
+      }
+
+      temutil::nc( nc_put_var1_double(ncid, cv, start3, &shlwdz) );
+      temutil::nc( nc_close(ncid) );
+    }//end critical(outputSHLWDZ)
+  }//end SHLWDZ
+  map_itr = netcdf_outputs.end();
+
+
+  map_itr = netcdf_outputs.find("SNOWEND");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: SNOWEND";
+    curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
+
+    #pragma omp critical(outputSNOWEND)
+    {
+#ifdef WITHMPI
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_inq_varid(ncid, "SNOWEND", &cv) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+#else
+      temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
+      temutil::nc( nc_inq_varid(ncid, "SNOWEND", &cv) );
+#endif
+      start3[0] = year;
+
+      double snowend = cohort.edall->y_snws.snowend;
+
+      temutil::nc( nc_put_var1_double(ncid, cv, start3, &snowend) );
+      temutil::nc( nc_close(ncid) );
+    }//end critical(outputSNOWEND)
+  }//end SNOWEND
+  map_itr = netcdf_outputs.end();
+
+
+  map_itr = netcdf_outputs.find("SNOWSTART");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: SNOWSTART";
+    curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
+
+    #pragma omp critical(outputSNOWSTART)
+    {
+#ifdef WITHMPI
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_inq_varid(ncid, "SNOWSTART", &cv) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+#else
+      temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
+      temutil::nc( nc_inq_varid(ncid, "SNOWSTART", &cv) );
+#endif
+      start3[0] = year;
+
+      double snowstart = cohort.edall->y_snws.snowstart;
+
+      temutil::nc( nc_put_var1_double(ncid, cv, start3, &snowstart) );
+      temutil::nc( nc_close(ncid) );
+    }//end critical(outputSNOWSTART)
+  }//end SNOWSTART
+  map_itr = netcdf_outputs.end();
+
 }
-//  map_itr = netcdf_outputs.find("MOSSDZ");
-//  if(map_itr != netcdf_outputs.end()){
-//    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: MOSSDZ";
-//    curr_spec = map_itr->second;
-//    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
-//
-//    #pragma omp critical(outputMOSSDZ)
-//    {
-//      temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
-//      temutil::nc( nc_inq_varid(ncid, "MOSSDZ", &cv) );
-//      start3[0] = year;
-//
-//      double mossdz = 0;
-//      Layer* currL = cohort.ground.toplayer;
-//      while(currL!=NULL){
-//        if(currL->isMoss){
-//          mossdz += currL->dz;
-//        }
-//        currL = currL->nextl;
-//      }
-//      //The following may never get set to anything useful?
-//      //y_soil.mossthick;
-//
-//      temutil::nc( nc_put_var1_double(ncid, cv, start3, &mossdz) );
-//      temutil::nc( nc_close(ncid) );
-//    }//end critical(outputMOSSDZ)
-//  }//end MOSSDZ
-//  map_itr = netcdf_outputs.end();
-//
-//
-//  map_itr = netcdf_outputs.find("ROLB");
-//  if(map_itr != netcdf_outputs.end()){
-//    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: ROLB";
-//    curr_spec = map_itr->second;
-//    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
-//
-//    #pragma omp critical(outputROLB)
-//    {
-//      temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
-//      temutil::nc( nc_inq_varid(ncid, "ROLB", &cv) );
-//
-//      double rolb;
-//      if(curr_spec.monthly){
-//        start3[0] = month_timestep;
-//        rolb = cohort.year_fd[month].fire_soid.rolb;
-//      }
-//      else if(curr_spec.yearly){
-//        start3[0] = year;
-//        //FIX. This will not work if there is more than one fire per year
-//        // What does yearly ROLB even mean with multiple fires?
-//        rolb = cohort.fd->fire_soid.rolb;
-//      }
-//
-//      temutil::nc( nc_put_var1_double(ncid, cv, start3, &rolb) );
-//      temutil::nc( nc_close(ncid) );
-//    }//end critical(outputROLB)
-//  }//end ROLB
-//  map_itr = netcdf_outputs.end();
-//
-//
-//  map_itr = netcdf_outputs.find("PERMAFROST");
-//  if(map_itr != netcdf_outputs.end()){
-//    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: PERMAFROST";
-//    curr_spec = map_itr->second;
-//    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
-//
-//    #pragma omp critical(outputPERMAFROST)
-//    {
-//      temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
-//      temutil::nc( nc_inq_varid(ncid, "PERMAFROST", &cv) );
-//      start3[0] = year;
-//
-//      double permafrost = cohort.edall->y_soid.permafrost;
-//
-//      temutil::nc( nc_put_var1_double(ncid, cv, start3, &permafrost) );
-//      temutil::nc( nc_close(ncid) );
-//    }//end critical(outputPERMAFROST)
-//  }//end PERMAFROST
-//  map_itr = netcdf_outputs.end();
-//
-//
-//  map_itr = netcdf_outputs.find("SHLWDZ");
-//  if(map_itr != netcdf_outputs.end()){
-//    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: SHLWDZ";
-//    curr_spec = map_itr->second;
-//    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
-//
-//    #pragma omp critical(outputSHLWDZ)
-//    {
-//      temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
-//      temutil::nc( nc_inq_varid(ncid, "SHLWDZ", &cv) );
-//      start3[0] = year;
-//
-//      double shlwdz = 0;
-//      Layer* currL = cohort.ground.toplayer;
-//      while(currL!=NULL){
-//        if(currL->isFibric){
-//          shlwdz += currL->dz;
-//        }
-//        currL = currL->nextl;
-//      }
-//
-//      temutil::nc( nc_put_var1_double(ncid, cv, start3, &shlwdz) );
-//      temutil::nc( nc_close(ncid) );
-//    }//end critical(outputSHLWDZ)
-//  }//end SHLWDZ
-//  map_itr = netcdf_outputs.end();
-//
-//
-//  map_itr = netcdf_outputs.find("SNOWEND");
-//  if(map_itr != netcdf_outputs.end()){
-//    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: SNOWEND";
-//    curr_spec = map_itr->second;
-//    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
-//
-//    #pragma omp critical(outputSNOWEND)
-//    {
-//      temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
-//      temutil::nc( nc_inq_varid(ncid, "SNOWEND", &cv) );
-//      start3[0] = year;
-//
-//      double snowend = cohort.edall->y_snws.snowend;
-//
-//      temutil::nc( nc_put_var1_double(ncid, cv, start3, &snowend) );
-//      temutil::nc( nc_close(ncid) );
-//    }//end critical(outputSNOWEND)
-//  }//end SNOWEND
-//  map_itr = netcdf_outputs.end();
-//
-//
-//  map_itr = netcdf_outputs.find("SNOWSTART");
-//  if(map_itr != netcdf_outputs.end()){
-//    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: SNOWSTART";
-//    curr_spec = map_itr->second;
-//    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
-//
-//    #pragma omp critical(outputSNOWSTART)
-//    {
-//      temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
-//      temutil::nc( nc_inq_varid(ncid, "SNOWSTART", &cv) );
-//      start3[0] = year;
-//
-//      double snowstart = cohort.edall->y_snws.snowstart;
-//
-//      temutil::nc( nc_put_var1_double(ncid, cv, start3, &snowstart) );
-//      temutil::nc( nc_close(ncid) );
-//    }//end critical(outputSNOWSTART)
-//  }//end SNOWSTART
-//  map_itr = netcdf_outputs.end();
-//
-//
 //  //Years since disturbance
 //  map_itr = netcdf_outputs.find("YSD");
 //  if(map_itr != netcdf_outputs.end()){
