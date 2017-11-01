@@ -191,27 +191,33 @@ int main(int argc, char* argv[]){
     int id = MPI::COMM_WORLD.Get_rank();     // Change this to C interface?? MPI_Comm_World?
     int ntasks = MPI::COMM_WORLD.Get_size();
     if (id == 0) {
-
+      if (args->get_no_output_cleanup()) {
+        BOOST_LOG_SEV(glg, warn) << "Not cleaning output directory! Files from previous run may remain!";
+      } else {
+        BOOST_LOG_SEV(glg, note) << "Clearing output directory...";
+        const boost::filesystem::path out_dir_path(modeldata.output_dir);
+        if (boost::filesystem::exists( out_dir_path )) {
+          boost::filesystem::remove_all( out_dir_path );
+        }
+        boost::filesystem::create_directories(out_dir_path);
+        BOOST_LOG_SEV(glg, debug) << "rank: "<<id<<" Hit MPI_Barrier.";
+        MPI_Barrier(MPI::COMM_WORLD);
+      } else {
+        BOOST_LOG_SEV(glg, debug) << "rank: "<<id<<" Hit MPI_Barrier.";
+        MPI_Barrier(MPI::COMM_WORLD);
+      }
+    }
+#else
+    if (args->get_no_output_cleanup()) {
+      BOOST_LOG_SEV(glg, warn) << "Not cleaning output directory! Files from previous run may remain!";
+    } else {
       BOOST_LOG_SEV(glg, note) << "Clearing output directory...";
       const boost::filesystem::path out_dir_path(modeldata.output_dir);
       if (boost::filesystem::exists( out_dir_path )) {
         boost::filesystem::remove_all( out_dir_path );
       }
       boost::filesystem::create_directories(out_dir_path);
-      BOOST_LOG_SEV(glg, debug) << "rank: "<<id<<" Hit MPI_Barrier.";
-      MPI_Barrier(MPI::COMM_WORLD);
-    } else {
-      BOOST_LOG_SEV(glg, debug) << "rank: "<<id<<" Hit MPI_Barrier.";
-      MPI_Barrier(MPI::COMM_WORLD);
     }
-
-#else
-    BOOST_LOG_SEV(glg, note) << "Clearing output directory...";
-    const boost::filesystem::path out_dir_path(modeldata.output_dir);
-    if (boost::filesystem::exists( out_dir_path )) {
-      boost::filesystem::remove_all( out_dir_path );
-    }
-    boost::filesystem::create_directories(out_dir_path);
 #endif
 
   BOOST_LOG_SEV(glg, note) << "Running PR stage: " << modeldata.pr_yrs << "yrs";
