@@ -8,7 +8,7 @@ import distutils.spawn
 import subprocess
 
 USEOMP = False
-USEMPI = False
+USEMPI = True
 
 libs = Split("""jsoncpp
                 readline
@@ -99,15 +99,23 @@ compiler = distutils.spawn.find_executable('g++')
 # Determine platform and modify libraries and paths accordingly
 if platform_name == 'Linux':
   platform_include_path = ['/usr/include',
+                           "/usr/lib64/openmpi/include", 
                            '/usr/include/openmpi-x86_64',
-                           '/usr/include/jsoncpp',
+                           #'/usr/include/jsoncpp',
+                           '/home/vagrant/.local/easybuild/build/jsoncpp/1.8.1/GCC-5.3.0/jsoncpp-1.8.1/include/',
                            '~/usr/local/include']
 
-  platform_library_path = ['/usr/lib64', '~/usr/local/lib']
+  platform_library_path = ['/usr/lib64/openmpi/lib', '/usr/lib64', '~/usr/local/lib']
 
-  compiler_flags = '-Werror -ansi -g -fPIC -DBOOST_ALL_DYN_LINK -DGNU_FPE'
+  compiler_flags = '-Werror -ansi -g -fPIC -DBOOST_ALL_DYN_LINK -DGNU_FPE -D_GLIBCXX_USE_CXX11_ABI=0'
   platform_libs = libs
 
+  # statically link jsoncpp
+  # apparently the shared library version of jsoncpp has some bugs.
+  # See the note at the top of the SConstruct file:
+  # https://github.com/jacobsa/jsoncpp/blob/master/SConstruct
+  platform_libs[:] = [lib for lib in platform_libs if not lib == 'jsoncpp']
+  platform_libs.append(File('/home/vagrant/.local/easybuild/build/jsoncpp/1.8.1/GCC-5.3.0/jsoncpp-1.8.1/libs/linux-gcc-5.3.0/libjson_linux-gcc-5.3.0_libmt.a'))
 
 elif platform_name == 'Darwin':
  
@@ -180,8 +188,10 @@ if(USEMPI):
 
   compiler_flags = compiler_flags + ' -m64 -DWITHMPI'
 
-  libs.append(Split("""mpi_cxx
-                       mpi"""))
+  # Not necessary - gives error:  
+  # libnetcdf.so: undefined reference to `H5Pset_dxpl_mpio`
+  #libs.append(Split("""mpi_cxx
+  #                     mpi"""))
 
 
 #VariantDir('scons_obj','src', duplicate=0)
