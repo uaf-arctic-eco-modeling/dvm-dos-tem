@@ -102,15 +102,17 @@ print compiler
 
 # Determine platform and modify libraries and paths accordingly
 if platform_name == 'Linux':
-  platform_include_path = ['/usr/include',
+  platform_include_path = ['/home/UA/rarutter/downloads/hdf5-1.8.19/hdf5/include',
+                           '/home/UA/rarutter/downloads/netcdf-4.4.1.1/netcdf/include',
+                           '/usr/include',
                            '/usr/include/openmpi-x86_64',
                            '/usr/include/jsoncpp',
                            '/home/vagrant/netcdf-4.4.1.1/netcdf/include',
                            '~/usr/local/include']
 
-  platform_library_path = ['/home/vagrant/netcdf-4.4.1.1/netcdf/lib', '/home/vagrant/hdf5-1.8.19/hdf5/lib', '/usr/lib64', '~/usr/local/lib']
+  platform_library_path = ['/home/vagrant/netcdf-4.4.1.1/netcdf/lib', '/home/vagrant/hdf5-1.8.19/hdf5/lib', '/home/UA/rarutter/downloads/netcdf-4.4.1.1/netcdf/lib', '/home/UA/rarutter/downloads/hdf5-1.8.19/hdf5/lib', '/usr/lib64', '~/usr/local/lib']
 
-  compiler_flags = '-Werror -ansi -g -fPIC -DBOOST_ALL_DYN_LINK -DGNU_FPE'
+  compiler_flags = '-Wno-error -ansi -g -fPIC -DBOOST_ALL_DYN_LINK -DGNU_FPE'
   platform_libs = libs
 
 

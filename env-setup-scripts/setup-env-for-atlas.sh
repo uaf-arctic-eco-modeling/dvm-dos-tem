@@ -19,7 +19,7 @@ echo "Setting up site specific libs..."
 export SITE_SPECIFIC_LIBS="-L/home/UA/tcarman2/boost_1_55_0/stage/lib -L/home/UA/tcarman2/custom-software/jsoncpp/libs/linux-gcc-4.4.7"
 
 echo "Setting the path for loading libraries..."
-export LD_LIBRARY_PATH="/home/UA/tcarman2/custom-software/jsoncpp/libs/linux-gcc-4.4.7:/home/UA/tcarman2/boost_1_55_0/stage/lib:$LD_LIBRARY_PATH"
+export LD_LIBRARY_PATH="/home/UA/rarutter/downloads/hdf5-1.8.19/hdf5/lib:/home/UA/tcarman2/custom-software/jsoncpp/libs/linux-gcc-4.4.7:/home/UA/tcarman2/boost_1_55_0/stage/lib:$LD_LIBRARY_PATH"
 
 echo "Fixing jsoncpp library name in Makefile..."
 sed -e 's/\<ljsoncpp\>/ljson_linux-gcc-4.4.7_libmt/g' Makefile > Makefile.tmp && mv Makefile.tmp Makefile
