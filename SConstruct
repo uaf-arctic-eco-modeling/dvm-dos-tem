@@ -10,6 +10,8 @@ import subprocess
 USEOMP = False
 USEMPI = True
 
+EasyBuild = False
+
 libs = Split("""jsoncpp
                 readline
                 netcdf
@@ -101,8 +103,6 @@ if platform_name == 'Linux':
   platform_include_path = ['/usr/include',
                            "/usr/lib64/openmpi/include", 
                            '/usr/include/openmpi-x86_64',
-                           #'/usr/include/jsoncpp',
-                           '/home/vagrant/.local/easybuild/build/jsoncpp/1.8.1/GCC-5.3.0/jsoncpp-1.8.1/include/',
                            '~/usr/local/include']
 
   platform_library_path = ['/usr/lib64/openmpi/lib', '/usr/lib64', '~/usr/local/lib']
@@ -110,12 +110,20 @@ if platform_name == 'Linux':
   compiler_flags = '-Werror -ansi -g -fPIC -DBOOST_ALL_DYN_LINK -DGNU_FPE -D_GLIBCXX_USE_CXX11_ABI=0'
   platform_libs = libs
 
-  # statically link jsoncpp
-  # apparently the shared library version of jsoncpp has some bugs.
-  # See the note at the top of the SConstruct file:
-  # https://github.com/jacobsa/jsoncpp/blob/master/SConstruct
-  platform_libs[:] = [lib for lib in platform_libs if not lib == 'jsoncpp']
-  platform_libs.append(File('/home/vagrant/.local/easybuild/build/jsoncpp/1.8.1/GCC-5.3.0/jsoncpp-1.8.1/libs/linux-gcc-5.3.0/libjson_linux-gcc-5.3.0_libmt.a'))
+  #jsoncpp is handled differently if using easybuild
+  if EasyBuild:
+    platform_include_path.append('/home/vagrant/.local/easybuild/build/jsoncpp/1.8.1/GCC-5.3.0/jsoncpp-1.8.1/include/')
+
+    # statically link jsoncpp
+    # apparently the shared library version of jsoncpp has some bugs.
+    # See the note at the top of the SConstruct file:
+    # https://github.com/jacobsa/jsoncpp/blob/master/SConstruct
+    platform_libs[:] = [lib for lib in platform_libs if not lib == 'jsoncpp']
+    platform_libs.append(File('/home/vagrant/.local/easybuild/build/jsoncpp/1.8.1/GCC-5.3.0/jsoncpp-1.8.1/libs/linux-gcc-5.3.0/libjson_linux-gcc-5.3.0_libmt.a'))
+
+  #Not using easybuild
+  else:
+    platform_include_path.append('/usr/include/jsoncpp')
 
 elif platform_name == 'Darwin':
  
