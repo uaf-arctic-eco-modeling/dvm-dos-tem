@@ -3,10 +3,8 @@
 # Add compiler flag for enabling floating point exceptions:
 # -DBSD_FPE for BSD (OSX)
 # -DGNU_FPE for various Linux
-SITE_SPECIFIC_INCLUDES="-I/home/UA/tcarman2/.local/easybuild/software/jsoncpp/1.8.1-foss-2016a/include/jsoncpp"
-#SITE_SEPCIFIC_INCLUDES="-isystem /home/UA/tcarman2/.local/easybuild/software/Boost/1.55.0-foss-2016a-Python-2.7.11/include:$(SITE_SPECIFIC_INCLUDES)"
+SITE_SPECIFIC_INCLUDES=-I/home/UA/tcarman2/.local/easybuild/software/jsoncpp/1.8.1-foss-2016a/include/jsoncpp/ -I/home/UA/tcarman2/.local/easybuild/build/netCDF/4.4.0/foss-2016a/netcdf-c-4.4.0/include/
 
-#SITE_SPECIFIC_LIBS="-L/home/UA/tcarman2/.local/easybuild/software/Boost/1.60.0-foss-2016a/lib/ -L/home/UA/tcarman2/.local/easybuild/software/Boost/1.55.0-foss-2016a-Python-2.7.11/lib/"
 SITE_SPECIFIC_LIBS="-L/home/UA/tcarman2/.local/easybuild/software/Boost/1.55.0-foss-2016a-Python-2.7.11/lib/"
 
 CC=g++
