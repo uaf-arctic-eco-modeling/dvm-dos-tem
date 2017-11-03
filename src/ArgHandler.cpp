@@ -34,6 +34,12 @@ void ArgHandler::parse(int argc, char** argv) {
      "the special value '-1' to indicate no cap on output volume. Use this at "
      "your own risk - you may end up filling your hard-drive!")
 
+    ("no-output-cleanup", boost::program_options::bool_switch(&no_output_cleanup),
+     "Do not clean the output directory at the beginging of a run. This might "
+     "be useful when running dvmdostem under the control of an outside program "
+     "such as PEcAn that makes assumptions about the presence of an output "
+     "directory and may perform its own cleanup.")
+
     ("inter-stage-pause", boost::program_options::bool_switch(&inter_stage_pause),
      "With this flag, (and when in calibration mode), the model will pause and "
      "wait for user input at the end of each run-stage.")
