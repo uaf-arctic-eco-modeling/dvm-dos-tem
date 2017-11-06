@@ -120,7 +120,8 @@ namespace temutil {
   std::vector<DTYPE> get_timeseries(const std::string &filename,
                                     const std::string &var,
                                     const int y, const int x);
-  
+
+
   // draft - reads all timesteps co2 data
   std::vector<float> get_timeseries(const std::string &filename,
                                     const std::string &var);
@@ -147,6 +148,60 @@ namespace temutil {
   std::list<std::string> parse_parameter_file(
       const std::string& fname, int cmtnumber, int linesofdata);
 
+
+  /** Templated function for reading a timeseries variable from a basic netcdf
+      file.
+  */
+  template <typename DTYPE>
+  std::vector<DTYPE> get_timeseries2(const std::string &filename,
+                                     const std::string &var,
+                                     DTYPE type_example) {
+
+    int ncid;
+    temutil::nc( nc_open(filename.c_str(), NC_NOWRITE, &ncid) );
+
+    int timeseries_var;
+    temutil::nc( nc_inq_varid(ncid, var.c_str(), &timeseries_var) );
+
+    int timeD;
+    size_t timeD_len;
+
+    temutil::nc( nc_inq_dimid(ncid, "time", &timeD) );
+    temutil::nc( nc_inq_dimlen(ncid, timeD, &timeD_len) );
+
+    size_t start[1];
+    start[0] = 0;         // from beginning of time
+
+    size_t count[1];
+    count[0] = timeD_len; // all time
+
+    // Stuff for figuring out what kind of variable we have
+    char vname[NC_MAX_NAME+1];
+    nc_type the_type;
+    int num_dims;
+    int dim_ids[NC_MAX_VAR_DIMS];
+    int num_atts;
+    temutil::nc( nc_inq_var(ncid, timeseries_var, vname, &the_type, &num_dims, dim_ids, &num_atts) );
+
+    // final data location
+    std::vector<DTYPE> data2;
+
+    if (the_type == NC_INT64 || NC_INT) {
+      int dataI[timeD_len];
+      temutil::nc( nc_get_vara_int(ncid, timeseries_var, start, count, &dataI[0]) );
+      unsigned dataArraySize = sizeof(dataI) / sizeof(DTYPE);
+      data2.insert(data2.end(), &dataI[0], &dataI[dataArraySize]);
+    } else if (the_type == NC_FLOAT){
+      float dataF[timeD_len];
+      temutil::nc( nc_get_vara_float(ncid, timeseries_var, start, count, &dataF[0]) );
+      unsigned dataArraySize = sizeof(dataF) / sizeof(DTYPE);
+      data2.insert(data2.end(), &dataF[0], &dataF[dataArraySize]);
+    } else {
+      std::cout << "Unknown datatype: '" << the_type << "'. Returning empty vector.\n";
+    }
+
+    return data2;
+  }
 
   /* NOTES:
    - not sure these need to be templates? to work with doubles, ints, or floats?

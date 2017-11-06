@@ -32,6 +32,8 @@ public:
 
   string loop_order; // time-major or space-major
 
+  int force_cmt; // used to override the veg map (calibration mode only)
+
   int initmode;  // NOT USED?
   bool inter_stage_pause; // Controls pauses between EQ, SP, TR, SC
 
