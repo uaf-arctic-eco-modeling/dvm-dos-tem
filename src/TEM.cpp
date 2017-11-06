@@ -53,7 +53,7 @@
 #ifdef WITHMPI
 #include <mpi.h>
 #include "data/RestartData.h" // for defining MPI typemap...
-#include "inc/tbc_mpi_constants.h"
+//#include "inc/tbc_mpi_constants.h"
 #endif
 
 // For managing the floating point environment
@@ -91,6 +91,7 @@ void ppv(const std::vector<TYPE> &v){
 /** Write out a status code to a particular pixel in the run status file.
 */
 void write_status(const std::string fname, int row, int col, int statusCode);
+
 
 /** Builds an empty netcdf file for recording the run status. 
  * Ultimately we might want to spit the run status out in a more easily 
@@ -181,38 +182,6 @@ int main(int argc, char* argv[]){
       and the command line.
   */
 
-#ifdef WITHMPI
-    BOOST_LOG_SEV(glg, fatal) << "Built and running with MPI";
-
-    // Intended for passing argc and argv, the arguments to MPI_Init
-    // are currently unnecessary.
-    MPI_Init(NULL, NULL);
-
-    int id = MPI::COMM_WORLD.Get_rank();     // Change this to C interface?? MPI_Comm_World?
-    int ntasks = MPI::COMM_WORLD.Get_size();
-    if (id == 0) {
-
-      BOOST_LOG_SEV(glg, note) << "Clearing output directory...";
-      const boost::filesystem::path out_dir_path(modeldata.output_dir);
-      if (boost::filesystem::exists( out_dir_path )) {
-        boost::filesystem::remove_all( out_dir_path );
-      }
-      boost::filesystem::create_directories(out_dir_path);
-      BOOST_LOG_SEV(glg, debug) << "rank: "<<id<<" Hit MPI_Barrier.";
-      MPI_Barrier(MPI::COMM_WORLD);
-    } else {
-      BOOST_LOG_SEV(glg, debug) << "rank: "<<id<<" Hit MPI_Barrier.";
-      MPI_Barrier(MPI::COMM_WORLD);
-    }
-
-#else
-    BOOST_LOG_SEV(glg, note) << "Clearing output directory...";
-    const boost::filesystem::path out_dir_path(modeldata.output_dir);
-    if (boost::filesystem::exists( out_dir_path )) {
-      boost::filesystem::remove_all( out_dir_path );
-    }
-    boost::filesystem::create_directories(out_dir_path);
-#endif
 
   BOOST_LOG_SEV(glg, note) << "Running PR stage: " << modeldata.pr_yrs << "yrs";
   BOOST_LOG_SEV(glg, note) << "Running EQ stage: " << modeldata.eq_yrs << "yrs";
@@ -246,21 +215,54 @@ int main(int argc, char* argv[]){
   std::string tr_restart_fname = modeldata.output_dir + "restart-tr.nc";
   std::string sc_restart_fname = modeldata.output_dir + "restart-sc.nc";
 
-  // Make sure the output directory exists!!
-  if (!boost::filesystem::exists(modeldata.output_dir)) {
-    BOOST_LOG_SEV(glg, info) << "Creating output directory as specified in "
-                             << "config file: ", modeldata.output_dir;
-    boost::filesystem::create_directory(modeldata.output_dir);
+#ifdef WITHMPI
+  BOOST_LOG_SEV(glg, fatal) << "Built and running with MPI";
+
+  //Intended for passing argc and argv, the arguments to MPI_Init
+  // are currently unnecessary.
+  MPI_Init(NULL, NULL);
+
+  int id = MPI::COMM_WORLD.Get_rank();
+  int ntasks = MPI::COMM_WORLD.Get_size();
+#else
+  //
+  int id = 0;
+#endif
+
+  //Limit output directory and file setup to a single process.
+  // variable 'id' is artificially set to 0 if not built with MPI.
+  if(id==0){
+    BOOST_LOG_SEV(glg, info) << "Handling single-process setup";
+
+    BOOST_LOG_SEV(glg, info) << "Checking for output directory: "<<modeldata.output_dir;
+    boost::filesystem::path out_dir_path(modeldata.output_dir);
+    if( boost::filesystem::exists(out_dir_path) ){
+      BOOST_LOG_SEV(glg, info) << "Output directory exists. Deleting...";
+      boost::filesystem::remove_all(out_dir_path);
+    }
+    BOOST_LOG_SEV(glg, info) << "Creating output directory: "<<modeldata.output_dir;
+    boost::filesystem::create_directories(out_dir_path);
+
+    // Create empty restart files for all stages based on size of run mask
+    BOOST_LOG_SEV(glg, info) << "Creating empty restart files.";
+    RestartData::create_empty_file(eq_restart_fname, num_rows, num_cols);
+    RestartData::create_empty_file(sp_restart_fname, num_rows, num_cols);
+    RestartData::create_empty_file(tr_restart_fname, num_rows, num_cols);
+    RestartData::create_empty_file(sc_restart_fname, num_rows, num_cols);
+
+    MPI_Barrier(MPI::COMM_WORLD);
+  }//End of single-process setup
+  else{
+    //Block all processes until process 0 has completed output
+    // directory setup.
+    MPI_Barrier(MPI::COMM_WORLD);
   }
 
-  // Create empty restart files for all stages based on size of run mask
-  RestartData::create_empty_file(eq_restart_fname, num_rows, num_cols);
-  RestartData::create_empty_file(sp_restart_fname, num_rows, num_cols);
-  RestartData::create_empty_file(tr_restart_fname, num_rows, num_cols);
-  RestartData::create_empty_file(sc_restart_fname, num_rows, num_cols);
 
   // Create empty run status file
+  BOOST_LOG_SEV(glg, info) << "Creating empty run status file.";
   create_empty_run_status_file(run_status_fname, num_rows, num_cols);
+
 
   // Create empty output files now so that later, as the program
   // proceeds, there is somewhere to append output data...
@@ -341,11 +343,36 @@ int main(int argc, char* argv[]){
     //      depending on the comparison operator
     //  - The loop must be a basic block: no jump to outside the loop
     //      other than the exit statement.
-    #pragma omp parallel for collapse(2) schedule(dynamic)
+#ifdef WITHMPI
+    BOOST_LOG_SEV(glg, info) << "Beginning MPI parallel section";
+
+    int id = MPI::COMM_WORLD.Get_rank();
+    int ntasks = MPI::COMM_WORLD.Get_size();
+
+    int total_cells = num_rows*num_cols;
+
+    BOOST_LOG_SEV(glg, debug) << "id: "<<id<<" of ntasks: "<<ntasks;
+
+    #pragma omp parallel for schedule(dynamic)
+    for(int curr_cell=id; curr_cell<total_cells; curr_cell+=ntasks){
+
+      int rowidx = curr_cell / num_cols;
+      int colidx = curr_cell % num_cols;
+
+      bool mask_value = run_mask[rowidx][colidx];
+      BOOST_LOG_SEV(glg, fatal) << "MPI rank: "<<id<<", cell: "<<rowidx\
+                                << ", "<<colidx<<" run: "<<mask_value;
+
+#else
+    BOOST_LOG_SEV(glg, debug) << "Not built with MPI";
+
+   #pragma omp parallel for collapse(2) schedule(dynamic)
     for(int rowidx=0; rowidx<num_rows; rowidx++){
       for(int colidx=0; colidx<num_cols; colidx++){
 
         bool mask_value = run_mask[rowidx].at(colidx);
+
+#endif
 
         if (true == mask_value) {
 
@@ -357,7 +384,7 @@ int main(int argc, char* argv[]){
           try {
 
             advance_model(rowidx, colidx, modeldata, args->get_cal_mode(), eq_restart_fname, sp_restart_fname, tr_restart_fname, sc_restart_fname);
-            std::cout << "The good write - finished cell!\n";
+            std::cout << "SUCCESS! Finished cell " << rowidx << ", " << colidx << ". Writing status file..\n";
             write_status(run_status_fname, rowidx, colidx, 100);
             
           } catch (std::exception& e) {
@@ -377,12 +404,20 @@ int main(int argc, char* argv[]){
 
           }
         } else {
-          BOOST_LOG_SEV(glg, debug) << "Skipping cell (" << rowidx << ", " << colidx << ")";
+          BOOST_LOG_SEV(glg, fatal) << "Skipping cell (" << rowidx << ", " << colidx << ")";
           write_status(run_status_fname, rowidx, colidx, 0);
         }
+ 
+#ifdef WITHMPI
+    }
+    MPI_Finalize();
+
+#else
       }//end col loop
     }//end row loop
-  
+
+#endif
+ 
   } else if (args->get_loop_order() == "time-major") {
     BOOST_LOG_SEV(glg, warn) << "DO NOTHING. NOT IMPLEMENTED YET.";
     // for each year
@@ -752,9 +787,26 @@ void advance_model(const int rowidx, const int colidx,
 void create_empty_run_status_file(const std::string& fname,
     const int ysize, const int xsize) {
 
-  BOOST_LOG_SEV(glg, debug) << "Opening new file with 'NC_CLOBBER'";
+  BOOST_LOG_SEV(glg, debug) << "Creating new file: "<<fname<<" with 'NC_CLOBBER'";
   int ncid;
+
+
+#ifdef WITHMPI
+
+  int id = MPI::COMM_WORLD.Get_rank();
+  int ntasks = MPI::COMM_WORLD.Get_size();
+
+                            // path            c mode               mpi comm obj     mpi info netcdfid
+  temutil::nc( nc_create_par(fname.c_str(), NC_CLOBBER|NC_NETCDF4|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+
+  std::cout << "(MPI " << id << "/" << ntasks << ") Creating PARALLEL run_status file! \n";
+
+#else
+
+  BOOST_LOG_SEV(glg, debug) << "Opening new file with 'NC_CLOBBER'";
   temutil::nc( nc_create(fname.c_str(), NC_CLOBBER, &ncid) );
+
+#endif
 
   // Define handles for dimensions
   int yD;
@@ -796,23 +848,43 @@ void write_status(const std::string fname, int row, int col, int statusCode) {
   int ncid;
   int statusV;
 
-  temutil::nc( nc_open(fname.c_str(),  NC_WRITE, &ncid) );
-  temutil::nc( nc_inq_varid(ncid, "run_status", &statusV) );
-
-
   int NDIMS = 2;
 
   size_t start[NDIMS], count[NDIMS];
   // Set point to write
   start[0] = row;
   start[1] = col;
-  count[0] = 1;
-  count[1] = 1;
+
+#ifdef WITHMPI
+
+  //These are for logging identification only.
+  int id = MPI::COMM_WORLD.Get_rank();
+  int ntasks = MPI::COMM_WORLD.Get_size();
+
+  // Open dataset
+  temutil::nc( nc_open_par(fname.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+  temutil::nc( nc_inq_varid(ncid, "run_status", &statusV) );
+  temutil::nc( nc_var_par_access(ncid, statusV, NC_INDEPENDENT) );
 
   // Write data
+  std::cout << "(MPI " << id << "/" << ntasks << ") WRITING FOR PIXEL (row, col): " << row << ", " << col << "\n";
+  temutil::nc( nc_put_var1_int(ncid, statusV, start,  &statusCode) );
+
+  /* Close the netcdf file. */
+  std::cout << "(MPI " << id << "/" << ntasks << ") Closing PARALLEL file." << row << ", " << col << "\n";
+  temutil::nc( nc_close(ncid) );
+#else
+
+  // Open dataset
+  temutil::nc( nc_open(fname.c_str(), NC_WRITE, &ncid) );
+  temutil::nc( nc_inq_varid(ncid, "run_status", &statusV) );
+  
+  // Write data
   BOOST_LOG_SEV(glg, note) << "WRITING FOR OUTPUT STATUS FOR (row, col): " << row << ", " << col << "\n";
-  temutil::nc( nc_put_vara(ncid, statusV, start, count,  &statusCode) );
+  temutil::nc( nc_put_var1_int(ncid, statusV, start, &statusCode) );
 
   /* Close the netcdf file. */
   temutil::nc( nc_close(ncid) );
+
+#endif
 }

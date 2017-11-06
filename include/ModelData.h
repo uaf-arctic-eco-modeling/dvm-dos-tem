@@ -12,6 +12,9 @@
 #include "../src/inc/layerconst.h"
 #include "../src/inc/errorcode.h"
 
+#include <mpi.h>
+#include <netcdf_par.h>
+
 using namespace std;
 
 class ModelData {
