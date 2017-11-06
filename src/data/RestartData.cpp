@@ -907,7 +907,7 @@ void RestartData::read_px_prev_pft_vars(const std::string& fname, const int rowi
 void RestartData::create_empty_file(const std::string& fname,
     const int ysize, const int xsize) {
 
-  BOOST_LOG_SEV(glg, debug) << "Opening new file with 'NC_CLOBBER'";
+  BOOST_LOG_SEV(glg, debug) << "Opening new file: "<<fname<<" with 'NC_CLOBBER'";
   int ncid;
   temutil::nc( nc_create(fname.c_str(), NC_CLOBBER, &ncid) );
 
