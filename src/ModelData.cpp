@@ -538,6 +538,7 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
         start[0] = 0;
         count[0] = time_coord_values.size();
 
+        temutil::nc( nc_var_par_access(ncid, tcV, NC_COLLECTIVE) );
         temutil::nc( nc_put_vara_int(ncid, tcV, start, count, &time_coord_values[0]) );
 
       }
@@ -565,7 +566,7 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
 
         start[0] = 0;
         count[0] = runyrs * 12;
-
+        temutil::nc( nc_var_par_access(ncid, tcV, NC_COLLECTIVE) );
         temutil::nc( nc_put_vara_int(ncid, tcV, start, count, &full_time_coord[0]) );
 
       }
