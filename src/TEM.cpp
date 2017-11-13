@@ -218,7 +218,7 @@ int main(int argc, char* argv[]){
 #ifdef WITHMPI
   BOOST_LOG_SEV(glg, fatal) << "Built and running with MPI";
 
-  //Intended for passing argc and argv, the arguments to MPI_Init
+  // Intended for passing argc and argv, the arguments to MPI_Init
   // are currently unnecessary.
   MPI_Init(NULL, NULL);
 
@@ -229,7 +229,7 @@ int main(int argc, char* argv[]){
   int id = 0;
 #endif
 
-  //Limit output directory and file setup to a single process.
+  // Limit output directory and file setup to a single process.
   // variable 'id' is artificially set to 0 if not built with MPI.
   if(id==0){
     BOOST_LOG_SEV(glg, info) << "Handling single-process setup";
@@ -250,14 +250,18 @@ int main(int argc, char* argv[]){
     RestartData::create_empty_file(tr_restart_fname, num_rows, num_cols);
     RestartData::create_empty_file(sc_restart_fname, num_rows, num_cols);
 
+#ifdef WITHMPI
+
     MPI_Barrier(MPI::COMM_WORLD);
-  }//End of single-process setup
+  } // End of single-process setup
   else{
-    //Block all processes until process 0 has completed output
+    // Block all processes until process 0 has completed output
     // directory setup.
     MPI_Barrier(MPI::COMM_WORLD);
   }
-
+#else
+  } // Nothing to do; only one process, id will equal 0.
+#endif
 
   // Create empty run status file
   BOOST_LOG_SEV(glg, info) << "Creating empty run status file.";
