@@ -104,7 +104,7 @@
 0.0               // moistmin:
 0.5               // moistopt:
 1.0               // moistmax:
-49.50             // lcclnc:
+39.54             // lcclnc:
 0.372             // fsoma:
 0.611             // fsompr:
 0.017             // fsomcr:
@@ -113,11 +113,11 @@
 24.6              // nmincnsoil:
 0.2               // propftos:
 0.0               // fnloss:  fraction N leaching (0 - 1) when drainage occurs
-3079              // initshlwc:
-7703              // initdeepc:
-43404             // initminec:
-2206              // initsoln:
-0.68              // initavln:
+3000              // initshlwc:
+7700              // initdeepc:
+4300              // initminec:
+2200              // initsoln:
+8.9               // initavln:
 //===========================================================
 // CMT06 // Wet Sedge Tundra - soil microbial activity (BGC) parameters and default initial conditions
 2.0               // rhq10:
