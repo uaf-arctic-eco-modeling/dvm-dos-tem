@@ -509,6 +509,8 @@ void Runner::output_caljson_monthly(int year, int month, std::string stage, boos
   /* PFT dependent variables */
 
   // calculated ecosystem summary values
+  double litterfallCsum = 0;
+  double litterfallNsum = 0;
   double parDownSum = 0;
   double parAbsorbSum = 0;
 
@@ -569,6 +571,9 @@ void Runner::output_caljson_monthly(int year, int month, std::string stage, boos
     data["PFT" + pft_str]["TotNitrogenUptake"] = cohort.bd[pft].m_soi2v.snuptakeall + cohort.bd[pft].m_soi2v.lnuptake;
     data["PFT" + pft_str]["MossDeathC"] = cohort.bd[pft].m_v2soi.mossdeathc;
 
+    litterfallCsum += cohort.bd[pft].m_v2soi.ltrfalcall;
+    litterfallNsum += cohort.bd[pft].m_v2soi.ltrfalnall;
+
     data["PFT" + pft_str]["PARDown"] = cohort.ed[pft].m_a2v.pardown;
     data["PFT" + pft_str]["PARAbsorb"] = cohort.ed[pft].m_a2v.parabsorb;
 
@@ -576,6 +581,9 @@ void Runner::output_caljson_monthly(int year, int month, std::string stage, boos
     parAbsorbSum += cohort.ed[pft].m_a2v.parabsorb;
 
   }
+
+  data["LitterfallCsum"] = litterfallCsum;
+  data["LitterfallNsum"] = litterfallNsum;
 
   data["PARAbsorbSum"] = parAbsorbSum;
   data["PARDownSum"] = parDownSum;
@@ -749,6 +757,10 @@ void Runner::output_caljson_yearly(int year, std::string stage, boost::filesyste
   data["BurnAbvVeg2DeadC"] = veg2deadc;
   data["BurnAbvVeg2DeadN"] = veg2deadn;
 
+  //Calculated sums
+  double litterfallCsum = 0;
+  double litterfallNsum = 0;
+
   for(int pft=0; pft<NUM_PFT; pft++) { //NUM_PFT
     char pft_chars[5];
     sprintf(pft_chars, "%d", pft);
@@ -808,7 +820,13 @@ void Runner::output_caljson_yearly(int year, std::string stage, boost::filesyste
     data["PFT" + pft_str]["PARDown"] = cohort.ed[pft].y_a2v.pardown;
     data["PFT" + pft_str]["PARAbsorb"] = cohort.ed[pft].y_a2v.parabsorb;
 
+    litterfallCsum += cohort.bd[pft].y_v2soi.ltrfalcall; 
+    litterfallNsum += cohort.bd[pft].y_v2soi.ltrfalnall;
+
   }
+
+  data["LitterfallCsum"] = litterfallCsum;
+  data["LitterfallNsum"] = litterfallNsum;
 
   // Writes files like this:
   //  00000.json, 00001.json, 00002.json
