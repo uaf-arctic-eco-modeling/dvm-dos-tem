@@ -237,8 +237,14 @@ int main(int argc, char* argv[]){
     BOOST_LOG_SEV(glg, info) << "Checking for output directory: "<<modeldata.output_dir;
     boost::filesystem::path out_dir_path(modeldata.output_dir);
     if( boost::filesystem::exists(out_dir_path) ){
-      BOOST_LOG_SEV(glg, info) << "Output directory exists. Deleting...";
-      boost::filesystem::remove_all(out_dir_path);
+      if (args->get_no_output_cleanup()) {
+        BOOST_LOG_SEV(glg, warn) << "WARNING!! Not cleaning up output directory! "
+                                 << "Old and potentially confusing files may be "
+                                 << "present from previous runs!!";
+      } else {
+        BOOST_LOG_SEV(glg, info) << "Output directory exists. Deleting...";
+        boost::filesystem::remove_all(out_dir_path);
+      }
     }
     BOOST_LOG_SEV(glg, info) << "Creating output directory: "<<modeldata.output_dir;
     boost::filesystem::create_directories(out_dir_path);
@@ -861,7 +867,7 @@ void write_status(const std::string fname, int row, int col, int statusCode) {
 
 #ifdef WITHMPI
 
-  //These are for logging identification only.
+  // These are for logging identification only.
   int id = MPI::COMM_WORLD.Get_rank();
   int ntasks = MPI::COMM_WORLD.Get_size();
 
