@@ -52,7 +52,7 @@ src_files = Split("""src/TEM.cpp
                      src/BgcData.cpp
                      src/CohortData.cpp
                      src/EnvData.cpp
-                     src/data/EnvDataDly.cpp
+                     src/EnvDataDly.cpp
                      src/data/FirData.cpp
                      src/data/RestartData.cpp
                      src/disturb/WildFire.cpp

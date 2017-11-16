@@ -1,15 +1,15 @@
 #ifndef ENVDATADLY_H_
 #define ENVDATADLY_H_
 
-#include "../inc/diagnostics.h"
-#include "../inc/fluxes.h"
-#include "../inc/states.h"
+#include "../src/inc/diagnostics.h"
+#include "../src/inc/fluxes.h"
+#include "../src/inc/states.h"
 
-#include "../inc/errorcode.h"
-#include "../inc/layerconst.h"
-#include "../inc/timeconst.h"
-#include "../inc/physicalconst.h"
-#include "../inc/cohortconst.h"
+#include "../src/inc/errorcode.h"
+#include "../src/inc/layerconst.h"
+#include "../src/inc/timeconst.h"
+#include "../src/inc/physicalconst.h"
+#include "../src/inc/cohortconst.h"
 
 class EnvDataDly {
 public:
