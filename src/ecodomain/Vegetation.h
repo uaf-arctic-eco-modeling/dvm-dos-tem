@@ -5,7 +5,7 @@
 #include "../../include/EnvData.h"
 #include "../../include/BgcData.h"
 #include "../../include/CohortData.h"
-#include "../data/RestartData.h"
+#include "../../include/RestartData.h"
 
 #include "../../include/ModelData.h"
 

@@ -52,7 +52,7 @@
 
 #ifdef WITHMPI
 #include <mpi.h>
-#include "data/RestartData.h" // for defining MPI typemap...
+#include "../include/RestartData.h" // for defining MPI typemap...
 //#include "inc/tbc_mpi_constants.h"
 #endif
 
@@ -73,7 +73,7 @@
 #include "TEMLogger.h"
 #include "TEMUtilityFunctions.h"
 #include "../include/Runner.h"
-#include "data/RestartData.h"
+#include "../include/RestartData.h"
 
 #include <netcdf.h>
 

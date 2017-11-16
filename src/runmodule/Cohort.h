@@ -22,7 +22,7 @@
 #include "../../include/BgcData.h"
 #include "../../include/FireData.h"
 
-#include "../data/RestartData.h"
+#include "../../include/RestartData.h"
 
 #include "../lookup/CohortLookup.h"
 

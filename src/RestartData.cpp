@@ -22,10 +22,10 @@
 #include <mpi.h>
 #endif
 
-#include "RestartData.h"
-#include "../TEMUtilityFunctions.h"
+#include "../include/RestartData.h"
+#include "TEMUtilityFunctions.h"
 
-#include "../TEMLogger.h"
+#include "TEMLogger.h"
 
 extern src::severity_logger< severity_level > glg;
 

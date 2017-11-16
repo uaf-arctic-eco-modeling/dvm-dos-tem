@@ -5,7 +5,7 @@
 
 #include "../../include/CohortData.h"
 #include "../../include/EnvData.h"
-#include "../data/RestartData.h"
+#include "../../include/RestartData.h"
 
 #include "../ecodomain/Ground.h"
 
