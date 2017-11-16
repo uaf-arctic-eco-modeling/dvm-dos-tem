@@ -3,18 +3,18 @@
 
 #include <deque>
 
-#include "../inc/diagnostics.h"
-#include "../inc/fluxes.h"
-#include "../inc/states.h"
+#include "../src/inc/diagnostics.h"
+#include "../src/inc/fluxes.h"
+#include "../src/inc/states.h"
 
-#include "../inc/errorcode.h"
-#include "../inc/layerconst.h"
-#include "../inc/timeconst.h"
-#include "../inc/physicalconst.h"
-#include "../inc/cohortconst.h"
+#include "../src/inc/errorcode.h"
+#include "../src/inc/layerconst.h"
+#include "../src/inc/timeconst.h"
+#include "../src/inc/physicalconst.h"
+#include "../src/inc/cohortconst.h"
 
-#include "../../include/Climate.h"
-#include "../../include/CohortData.h"
+#include "Climate.h"
+#include "CohortData.h"
 
 using namespace std;
 

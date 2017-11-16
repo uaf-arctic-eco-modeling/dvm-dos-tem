@@ -14,7 +14,7 @@
 #include "../src/inc/fluxes.h"
 #include "../src/inc/states.h"
 
-#include "../src/data/EnvData.h"
+#include "EnvData.h"
 #include "CohortData.h"
 
 class BgcData {

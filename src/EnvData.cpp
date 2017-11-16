@@ -1,7 +1,7 @@
-#include "EnvData.h"
+#include "../include/EnvData.h"
 
-#include "../TEMUtilityFunctions.h"
-#include "../TEMLogger.h"
+#include "TEMUtilityFunctions.h"
+#include "TEMLogger.h"
 
 extern src::severity_logger< severity_level > glg;
 

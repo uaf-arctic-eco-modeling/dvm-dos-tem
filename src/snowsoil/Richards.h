@@ -9,7 +9,7 @@
 #include <limits>
 
 #include "../../include/CohortData.h"
-#include "../data/EnvData.h"
+#include "../../include/EnvData.h"
 
 #include "../ecodomain/layer/Layer.h"
 #include "../ecodomain/layer/SoilLayer.h"

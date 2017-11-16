@@ -44,7 +44,7 @@ SOURCES= 	src/TEM.o \
 		src/Runner.o \
 		src/BgcData.o \
 		src/CohortData.o \
-		src/data/EnvData.o \
+		src/EnvData.o \
 		src/data/EnvDataDly.o \
 		src/data/FirData.o \
 		src/data/RestartData.o \

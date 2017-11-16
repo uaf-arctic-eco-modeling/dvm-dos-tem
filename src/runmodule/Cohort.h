@@ -18,7 +18,7 @@
 
 #include "../../include/CohortData.h"
 
-#include "../data/EnvData.h"
+#include "../../include/EnvData.h"
 #include "../../include/BgcData.h"
 #include "../data/FirData.h"
 

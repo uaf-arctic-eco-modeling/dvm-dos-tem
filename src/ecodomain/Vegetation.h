@@ -2,7 +2,7 @@
 #define VEGETATION_H_
 #include "../lookup/CohortLookup.h"
 
-#include "../data/EnvData.h"
+#include "../../include/EnvData.h"
 #include "../../include/BgcData.h"
 #include "../../include/CohortData.h"
 #include "../data/RestartData.h"
