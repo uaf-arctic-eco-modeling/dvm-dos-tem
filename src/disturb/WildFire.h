@@ -6,7 +6,7 @@
 #include <vector>
 #include <algorithm>
 
-#include "../data/CohortData.h"
+#include "../../include/CohortData.h"
 #include "../data/EnvData.h"
 #include "../data/FirData.h"
 #include "../../include/BgcData.h"

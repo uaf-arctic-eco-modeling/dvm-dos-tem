@@ -8,7 +8,7 @@
 #include "../inc/diagnostics.h"
 #include "../inc/parameters.h"
 
-#include "../data/CohortData.h"
+#include "../../include/CohortData.h"
 #include "../data/EnvData.h"
 #include "../data/FirData.h"
 #include "../data/RestartData.h"

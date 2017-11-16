@@ -50,7 +50,7 @@ src_files = Split("""src/TEM.cpp
                      src/ModelData.cpp
                      src/Runner.cpp
                      src/BgcData.cpp
-                     src/data/CohortData.cpp
+                     src/CohortData.cpp
                      src/data/EnvData.cpp
                      src/data/EnvDataDly.cpp
                      src/data/FirData.cpp

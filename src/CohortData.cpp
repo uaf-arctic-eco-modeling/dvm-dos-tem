@@ -1,8 +1,8 @@
-#include "CohortData.h"
+#include "../include/CohortData.h"
 
-#include "../TEMUtilityFunctions.h"
+#include "TEMUtilityFunctions.h"
 
-#include "../TEMLogger.h"
+#include "TEMLogger.h"
 
 
 extern src::severity_logger< severity_level > glg;

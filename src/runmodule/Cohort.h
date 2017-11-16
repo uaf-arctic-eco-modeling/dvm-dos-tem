@@ -16,7 +16,7 @@
 
 #include "../disturb/WildFire.h"
 
-#include "../data/CohortData.h"
+#include "../../include/CohortData.h"
 
 #include "../data/EnvData.h"
 #include "../../include/BgcData.h"
