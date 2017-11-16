@@ -1,6 +1,6 @@
 #include <string>
 
-#include "FirData.h"
+#include "../include/FireData.h"
 
 FirData::FirData() {
   fire_a2soi.orgn = 0.0;

@@ -20,7 +20,7 @@
 
 #include "../../include/EnvData.h"
 #include "../../include/BgcData.h"
-#include "../data/FirData.h"
+#include "../../include/FireData.h"
 
 #include "../data/RestartData.h"
 

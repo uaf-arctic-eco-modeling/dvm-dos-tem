@@ -1,5 +1,5 @@
-#ifndef FIRDATA_H_
-#define FIRDATA_H_
+#ifndef FIREDATA_H_
+#define FIREDATA_H_
 /*! this class contains the fire at annually time steps.
 */
 #include <iostream>
@@ -7,10 +7,10 @@
 #include <string>
 #include <sstream>
 
-#include "../inc/diagnostics.h"
-#include "../inc/fluxes.h"
-#include "../inc/states.h"
-#include "../inc/timeconst.h"
+#include "../src/inc/diagnostics.h"
+#include "../src/inc/fluxes.h"
+#include "../src/inc/states.h"
+#include "../src/inc/timeconst.h"
 
 class FirData {
 public:
@@ -42,4 +42,4 @@ public:
 
 };
 
-#endif /*FIRDATA_H_*/
+#endif /*FIREDATA_H_*/

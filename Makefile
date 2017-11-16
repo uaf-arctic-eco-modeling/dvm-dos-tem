@@ -46,7 +46,7 @@ SOURCES= 	src/TEM.o \
 		src/CohortData.o \
 		src/EnvData.o \
 		src/EnvDataDly.o \
-		src/data/FirData.o \
+		src/FireData.o \
 		src/data/RestartData.o \
 		src/disturb/WildFire.o \
 		src/ecodomain/DoubleLinkedList.o \
@@ -91,7 +91,7 @@ OBJECTS =	ArgHandler.o \
 		CohortData.o \
 		EnvData.o \
 		EnvDataDly.o \
-		FirData.o \
+		FireData.o \
 		RestartData.o \
 		WildFire.o \
 		DoubleLinkedList.o \
