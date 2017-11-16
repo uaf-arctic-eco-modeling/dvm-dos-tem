@@ -11,7 +11,7 @@
 #include "../../include/CohortData.h"
 #include "../../include/EnvData.h"
 #include "../../include/FireData.h"
-#include "../data/RestartData.h"
+#include "../../include/RestartData.h"
 
 class Vegetation_Env {
 public:

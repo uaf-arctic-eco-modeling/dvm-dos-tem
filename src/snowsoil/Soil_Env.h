@@ -8,7 +8,7 @@
 #include "../../include/CohortData.h"
 #include "../../include/EnvData.h"
 #include "../../include/FireData.h"
-#include "../data/RestartData.h"
+#include "../../include/RestartData.h"
 
 #include "../inc/errorcode.h"
 #include "../inc/parameters.h"

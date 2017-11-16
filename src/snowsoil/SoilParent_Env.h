@@ -2,7 +2,7 @@
 #define SOILPARENT_ENV_H_
 
 #include "../../include/EnvData.h"
-#include "../data/RestartData.h"
+#include "../../include/RestartData.h"
 
 #include "../ecodomain/Ground.h"
 

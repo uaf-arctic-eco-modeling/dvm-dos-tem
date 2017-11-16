@@ -7,7 +7,7 @@
 #include "../../include/EnvData.h"
 #include "../../include/FireData.h"
 #include "../../include/BgcData.h"
-#include "../data/RestartData.h"
+#include "../../include/RestartData.h"
 
 #include "../inc/parameters.h"
 

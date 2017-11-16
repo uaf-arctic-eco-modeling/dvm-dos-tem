@@ -7,9 +7,9 @@
 #include <mpi.h> // for "exporting" an MPI derived type...
 #endif
 
-#include "../inc/errorcode.h"
-#include "../inc/cohortconst.h"
-#include "../inc/layerconst.h"
+#include "../src/inc/errorcode.h"
+#include "../src/inc/cohortconst.h"
+#include "../src/inc/layerconst.h"
 
 class RestartData {
 public :
