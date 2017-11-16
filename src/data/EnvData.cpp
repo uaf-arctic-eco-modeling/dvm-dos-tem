@@ -636,9 +636,9 @@ void EnvData::grnd_endOfDay(const int & dinm, const int & doy) {
       y_soid.rtdpgrowstart= MISSING_I;
 
       //Storing the yearly growend value for output.
-      d_soid.rtdpGSoutput = doy;
-      m_soid.rtdpGSoutput = doy;
-      y_soid.rtdpGSoutput = doy;
+      d_soid.rtdpGEoutput = doy;
+      m_soid.rtdpGEoutput = doy;
+      y_soid.rtdpGEoutput = doy;
     }
   }
 
