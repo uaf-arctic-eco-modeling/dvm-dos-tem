@@ -3,7 +3,7 @@
 #include "../lookup/CohortLookup.h"
 
 #include "../data/EnvData.h"
-#include "../data/BgcData.h"
+#include "../../include/BgcData.h"
 #include "../data/CohortData.h"
 #include "../data/RestartData.h"
 
