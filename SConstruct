@@ -53,7 +53,7 @@ src_files = Split("""src/TEM.cpp
                      src/CohortData.cpp
                      src/EnvData.cpp
                      src/EnvDataDly.cpp
-                     src/data/FirData.cpp
+                     src/FireData.cpp
                      src/data/RestartData.cpp
                      src/disturb/WildFire.cpp
                      src/ecodomain/DoubleLinkedList.cpp

@@ -26,7 +26,7 @@ using namespace std;
 
 #include "../../include/BgcData.h"
 #include "../../include/CohortData.h"
-#include "../data/FirData.h"
+#include "../../include/FireData.h"
 #include "../data/RestartData.h"
 
 #include "../inc/parameters.h"
