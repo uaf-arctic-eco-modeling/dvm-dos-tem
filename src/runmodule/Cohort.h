@@ -19,7 +19,7 @@
 #include "../data/CohortData.h"
 
 #include "../data/EnvData.h"
-#include "../data/BgcData.h"
+#include "../../include/BgcData.h"
 #include "../data/FirData.h"
 
 #include "../data/RestartData.h"

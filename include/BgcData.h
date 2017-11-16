@@ -9,13 +9,13 @@
 #include <iostream>
 #include <math.h>
 
-#include "../inc/errorcode.h"
-#include "../inc/diagnostics.h"
-#include "../inc/fluxes.h"
-#include "../inc/states.h"
+#include "../src/inc/errorcode.h"
+#include "../src/inc/diagnostics.h"
+#include "../src/inc/fluxes.h"
+#include "../src/inc/states.h"
 
-#include "EnvData.h"
-#include "CohortData.h"
+#include "../src/data/EnvData.h"
+#include "../src/data/CohortData.h"
 
 class BgcData {
 public:

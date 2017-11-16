@@ -24,7 +24,7 @@ using namespace std;
 
 #include "../lookup/CohortLookup.h"
 
-#include "../data/BgcData.h"
+#include "../../include/BgcData.h"
 #include "../data/CohortData.h"
 #include "../data/FirData.h"
 #include "../data/RestartData.h"

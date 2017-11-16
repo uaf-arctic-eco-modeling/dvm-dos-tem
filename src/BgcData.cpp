@@ -1,6 +1,6 @@
-#include "../TEMLogger.h"
+#include "TEMLogger.h"
 
-#include "BgcData.h"
+#include "../include/BgcData.h"
 extern src::severity_logger< severity_level > glg;
 
 BgcData::BgcData() {};
