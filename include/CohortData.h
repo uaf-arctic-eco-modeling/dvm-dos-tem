@@ -3,14 +3,14 @@
 
 #include <deque>
 
-#include "../inc/errorcode.h"
-#include "../inc/timeconst.h"
-#include "../inc/cohortconst.h"
+#include "../src/inc/errorcode.h"
+#include "../src/inc/timeconst.h"
+#include "../src/inc/cohortconst.h"
 
-#include "../inc/states.h"
-#include "../inc/diagnostics.h"
+#include "../src/inc/states.h"
+#include "../src/inc/diagnostics.h"
 
-#include "../../include/ModelData.h"
+#include "ModelData.h"
 
 using namespace std;
 

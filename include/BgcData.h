@@ -15,7 +15,7 @@
 #include "../src/inc/states.h"
 
 #include "../src/data/EnvData.h"
-#include "../src/data/CohortData.h"
+#include "CohortData.h"
 
 class BgcData {
 public:

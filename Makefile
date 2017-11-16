@@ -43,7 +43,7 @@ SOURCES= 	src/TEM.o \
 		src/OutputEstimate.o \
 		src/Runner.o \
 		src/BgcData.o \
-		src/data/CohortData.o \
+		src/CohortData.o \
 		src/data/EnvData.o \
 		src/data/EnvDataDly.o \
 		src/data/FirData.o \

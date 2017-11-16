@@ -14,7 +14,7 @@
 #include "../inc/cohortconst.h"
 
 #include "../../include/Climate.h"
-#include "CohortData.h"
+#include "../../include/CohortData.h"
 
 using namespace std;
 

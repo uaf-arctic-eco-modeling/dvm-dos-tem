@@ -4,7 +4,7 @@
 
 #include "../data/EnvData.h"
 #include "../../include/BgcData.h"
-#include "../data/CohortData.h"
+#include "../../include/CohortData.h"
 #include "../data/RestartData.h"
 
 #include "../../include/ModelData.h"

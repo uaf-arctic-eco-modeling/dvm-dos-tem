@@ -5,7 +5,7 @@
 #include "Richards.h"
 #include "TemperatureUpdator.h"
 
-#include "../data/CohortData.h"
+#include "../../include/CohortData.h"
 #include "../data/EnvData.h"
 #include "../data/FirData.h"
 #include "../data/RestartData.h"
