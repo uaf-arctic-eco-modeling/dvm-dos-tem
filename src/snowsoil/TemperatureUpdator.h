@@ -19,7 +19,7 @@
 #include "../inc/errorcode.h"
 #include "../inc/layerconst.h"
 
-#include "../data/EnvData.h"
+#include "../../include/EnvData.h"
 #include "../util/CrankNicholson.h"
 
 class TemperatureUpdator {
