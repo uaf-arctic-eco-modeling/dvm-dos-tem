@@ -65,7 +65,7 @@ SOURCES= 	src/TEM.o \
 		src/Snow_Env.o \
 		src/Soil_Bgc.o \
 		src/Soil_Env.o \
-		src/snowsoil/SoilParent_Env.o \
+		src/SoilParent_Env.o \
 		src/snowsoil/Stefan.o \
 		src/snowsoil/TemperatureUpdator.o \
 		src/CrankNicholson.o \

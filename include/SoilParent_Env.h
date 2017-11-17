@@ -1,10 +1,10 @@
 #ifndef SOILPARENT_ENV_H_
 #define SOILPARENT_ENV_H_
 
-#include "../../include/EnvData.h"
-#include "../../include/RestartData.h"
+#include "EnvData.h"
+#include "RestartData.h"
 
-#include "../../include/Ground.h"
+#include "Ground.h"
 
 class SoilParent_Env {
 public:
