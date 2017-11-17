@@ -1,9 +1,9 @@
 /*! \file
  *
  */
-#include "MineralLayer.h"
+#include "../include/MineralLayer.h"
 
-#include "../../TEMLogger.h"
+#include "TEMLogger.h"
 extern src::severity_logger< severity_level > glg;
 
 MineralLayer::MineralLayer(const double & pdz,

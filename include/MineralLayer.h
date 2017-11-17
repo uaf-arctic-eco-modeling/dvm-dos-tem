@@ -1,6 +1,6 @@
 #ifndef MINERALLAYER_H_
 #define MINERALLAYER_H_
-#include "SoilLayer.h"
+#include "../src/ecodomain/layer/SoilLayer.h"
 
 
 class MineralLayer: public SoilLayer {
