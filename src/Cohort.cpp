@@ -20,10 +20,10 @@
 
 #include <boost/assign/list_of.hpp> // for 'list_of()'
 
-#include "../TEMLogger.h"
-#include "../TEMUtilityFunctions.h"
+#include "TEMLogger.h"
+#include "TEMUtilityFunctions.h"
 
-#include "Cohort.h"
+#include "../include/Cohort.h"
 
 extern src::severity_logger< severity_level > glg;
 

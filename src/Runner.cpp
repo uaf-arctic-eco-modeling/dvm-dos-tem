@@ -8,7 +8,7 @@
 #endif
 
 #include "../include/Runner.h"
-#include "runmodule/Cohort.h"
+#include "../include/Cohort.h"
 #include "TEMUtilityFunctions.h"
 #include "TEMLogger.h"
 #include "util/tbc-debug-util.h"
