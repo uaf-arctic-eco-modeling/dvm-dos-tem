@@ -12,7 +12,7 @@
 #include <mpi.h>
 #endif
 
-#include "tbc-debug-util.h"
+#include "../include/tbc-debug-util.h"
 
 #ifdef WITHMPI
 // For now, not using any of these funcitons w/o MPI, so have

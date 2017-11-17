@@ -11,7 +11,7 @@
 #include "../include/Cohort.h"
 #include "TEMUtilityFunctions.h"
 #include "TEMLogger.h"
-#include "util/tbc-debug-util.h"
+#include "../include/tbc-debug-util.h"
 
 extern src::severity_logger< severity_level > glg;
 
