@@ -3,7 +3,7 @@
  */
 #ifndef MOSSLAYER_H_
 #define MOSSLAYER_H_
-#include "../src/ecodomain/layer/SoilLayer.h"
+#include "SoilLayer.h"
 #include "../src/inc/cohortconst.h"
 
 using namespace std;

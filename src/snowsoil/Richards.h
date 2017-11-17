@@ -12,7 +12,7 @@
 #include "../../include/EnvData.h"
 
 #include "../../include/Layer.h"
-#include "../ecodomain/layer/SoilLayer.h"
+#include "../../include/SoilLayer.h"
 #include "../util/CrankNicholson.h"
 
 class Richards {

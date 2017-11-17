@@ -1,9 +1,9 @@
 /*! \file
  *
  */
-#include "SoilLayer.h"
+#include "../include/SoilLayer.h"
 
-#include "../../TEMLogger.h"
+#include "TEMLogger.h"
 extern src::severity_logger< severity_level > glg;
 
 SoilLayer::SoilLayer() {
