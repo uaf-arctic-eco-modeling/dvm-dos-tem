@@ -9,7 +9,7 @@
 using namespace std;
 
 #include "DoubleLinkedList.h"
-#include "../src/ecodomain/horizon/Snow.h"
+#include "Snow.h"
 #include "Moss.h"
 #include "Organic.h"
 #include "MineralInfo.h"

@@ -1,4 +1,4 @@
-#include "Snow.h"
+#include "../include/Snow.h"
 
 Snow::Snow() {
   int indl=0;
