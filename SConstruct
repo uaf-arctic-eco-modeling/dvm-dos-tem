@@ -23,22 +23,7 @@ libs = Split("""jsoncpp
                 boost_thread
                 boost_log""")
 
-local_include_paths = Split("""./src
-                               ./include
-                               ./src/atmosphere
-                               ./src/data
-                               ./src/disturb
-                               ./src/ecodomain
-                               ./src/ecodomain/horizon
-                               ./src/ecodomain/layer
-                               ./src/inc
-                               ./src/input
-                               ./src/lookup
-                               ./src/runmodule
-                               ./src/snowsoil
-                               ./src/util
-                               ./src/vegetation""")
-
+local_include_paths = ['./include']
                                                             
 src_files = Split("""src/TEM.cpp
                      src/TEMUtilityFunctions.cpp
