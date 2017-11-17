@@ -19,7 +19,7 @@ using namespace std;
 #include "MossLayer.h"
 #include "../src/ecodomain/layer/SnowLayer.h"
 #include "MineralLayer.h"
-#include "../src/ecodomain/layer/OrganicLayer.h"
+#include "OrganicLayer.h"
 #include "../src/ecodomain/layer/ParentLayer.h"
 
 #include "CohortLookup.h"

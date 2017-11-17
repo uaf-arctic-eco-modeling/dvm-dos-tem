@@ -3,7 +3,7 @@
  */
 #ifndef ORGANICLAYER_H_
 #define ORGANICLAYER_H_
-#include "SoilLayer.h"
+#include "../src/ecodomain/layer/SoilLayer.h"
 
 #include <string>
 #include <cmath>
@@ -17,4 +17,4 @@ public:
   void humify();
 
 };
-#endif /*PEATLAYER_H_*/
+#endif /*ORGANICLAYER_H_*/

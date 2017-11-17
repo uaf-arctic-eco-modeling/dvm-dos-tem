@@ -75,7 +75,7 @@ SOURCES= 	src/TEM.o \
 		src/Layer.o \
 		src/MineralLayer.o \
 		src/MossLayer.o \
-		src/ecodomain/layer/OrganicLayer.o \
+		src/OrganicLayer.o \
 		src/ecodomain/layer/ParentLayer.o \
 		src/ecodomain/layer/SnowLayer.o \
 		src/ecodomain/layer/SoilLayer.o

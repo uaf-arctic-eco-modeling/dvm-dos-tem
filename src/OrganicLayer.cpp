@@ -1,9 +1,9 @@
 /*! \file
  *
  */
-#include "OrganicLayer.h"
+#include "../include/OrganicLayer.h"
 
-#include "../../TEMLogger.h"
+#include "TEMLogger.h"
 extern src::severity_logger< severity_level > glg;
 
 OrganicLayer::OrganicLayer(const double & pdz, const int & type) {
