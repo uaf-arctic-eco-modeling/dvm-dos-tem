@@ -49,7 +49,7 @@ SOURCES= 	src/TEM.o \
 		src/FireData.o \
 		src/RestartData.o \
 		src/WildFire.o \
-		src/ecodomain/DoubleLinkedList.o \
+		src/DoubleLinkedList.o \
 		src/ecodomain/Ground.o \
 		src/ecodomain/horizon/MineralInfo.o \
 		src/ecodomain/horizon/Moss.o \

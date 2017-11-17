@@ -3,7 +3,7 @@
 #ifndef DOUBLELINKEDLIST_H_
 #define DOUBLELINKEDLIST_H_
 
-#include "layer/Layer.h"
+#include "../src/ecodomain/layer/Layer.h"
 
 #include <string>
 #include <iostream>
