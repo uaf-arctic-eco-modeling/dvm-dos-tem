@@ -77,7 +77,7 @@ src_files = Split("""src/TEM.cpp
                      src/Richards.cpp
                      src/Snow_Env.cpp
                      src/Soil_Bgc.cpp
-                     src/snowsoil/Soil_Env.cpp
+                     src/Soil_Env.cpp
                      src/snowsoil/SoilParent_Env.cpp
                      src/snowsoil/Stefan.cpp
                      src/snowsoil/TemperatureUpdator.cpp
