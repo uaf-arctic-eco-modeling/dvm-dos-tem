@@ -46,10 +46,10 @@ in N uptake over soil.
  *
  */
 
-#include "../TEMLogger.h"
-#include "../TEMUtilityFunctions.h"
+#include "TEMLogger.h"
+#include "TEMUtilityFunctions.h"
 
-#include "Vegetation_Bgc.h"
+#include "../include/Vegetation_Bgc.h"
 
 extern src::severity_logger< severity_level > glg;
 

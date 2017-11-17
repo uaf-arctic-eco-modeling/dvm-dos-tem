@@ -27,7 +27,7 @@
 using namespace std;
 
 #include "../src/snowsoil/Soil_Bgc.h"
-#include "../src/vegetation/Vegetation_Bgc.h"
+#include "Vegetation_Bgc.h"
 #include "temconst.h"
 
 class Integrator {

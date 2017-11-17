@@ -70,7 +70,7 @@ SOURCES= 	src/TEM.o \
 		src/snowsoil/TemperatureUpdator.o \
 		src/CrankNicholson.o \
 		src/tbc-debug-util.o \
-		src/vegetation/Vegetation_Bgc.o \
+		src/Vegetation_Bgc.o \
 		src/vegetation/Vegetation_Env.o \
 		src/Layer.o \
 		src/MineralLayer.o \

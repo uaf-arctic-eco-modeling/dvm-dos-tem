@@ -7,7 +7,7 @@
 #include "Vegetation.h"
 
 #include "../src/vegetation/Vegetation_Env.h"
-#include "../src/vegetation/Vegetation_Bgc.h"
+#include "Vegetation_Bgc.h"
 
 #include "../src/snowsoil/Snow_Env.h"
 #include "../src/snowsoil/Soil_Env.h"
