@@ -13,7 +13,7 @@
 #include "../inc/errorcode.h"
 #include "../inc/parameters.h"
 #include "../inc/layerconst.h"
-#include "../lookup/CohortLookup.h"
+#include "../../include/CohortLookup.h"
 
 #include "../ecodomain/Ground.h"
 

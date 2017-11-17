@@ -71,7 +71,7 @@ src_files = Split("""src/TEM.cpp
                      src/ecodomain/layer/ParentLayer.cpp
                      src/ecodomain/layer/SnowLayer.cpp
                      src/ecodomain/layer/SoilLayer.cpp
-                     src/lookup/CohortLookup.cpp
+                     src/CohortLookup.cpp
                      src/runmodule/Cohort.cpp
                      src/runmodule/Integrator.cpp
                      src/snowsoil/Richards.cpp

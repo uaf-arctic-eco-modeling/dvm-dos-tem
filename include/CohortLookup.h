@@ -9,9 +9,9 @@
 #include <cstdlib>
 using namespace std;
 
-#include "../inc/cohortconst.h"
-#include "../inc/timeconst.h"
-#include "../inc/layerconst.h"
+#include "../src/inc/cohortconst.h"
+#include "../src/inc/timeconst.h"
+#include "../src/inc/layerconst.h"
 
 class CohortLookup {
 public:

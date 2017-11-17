@@ -24,7 +24,7 @@
 
 #include "../../include/RestartData.h"
 
-#include "../lookup/CohortLookup.h"
+#include "../../include/CohortLookup.h"
 
 #include "Integrator.h"
 

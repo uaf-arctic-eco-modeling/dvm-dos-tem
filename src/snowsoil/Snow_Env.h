@@ -9,7 +9,7 @@
 
 #include "../ecodomain/Ground.h"
 
-#include "../lookup/CohortLookup.h"
+#include "../../include/CohortLookup.h"
 
 class Snow_Env {
 public:

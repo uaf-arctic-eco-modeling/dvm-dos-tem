@@ -22,7 +22,7 @@ using namespace std;
 #include "layer/OrganicLayer.h"
 #include "layer/ParentLayer.h"
 
-#include "../lookup/CohortLookup.h"
+#include "../../include/CohortLookup.h"
 
 #include "../../include/BgcData.h"
 #include "../../include/CohortData.h"

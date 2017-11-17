@@ -16,7 +16,7 @@
 #include "../src/inc/timeconst.h"
 #include "../src/inc/parameters.h"
 
-#include "../src/lookup/CohortLookup.h"
+#include "CohortLookup.h"
 
 using namespace std;
 

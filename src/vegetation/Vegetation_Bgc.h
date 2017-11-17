@@ -1,6 +1,6 @@
 #ifndef VEGETATION_BGC_H_
 #define VEGETATION_BGC_H_
-#include "../lookup/CohortLookup.h"
+#include "../../include/CohortLookup.h"
 #include "../../include/ModelData.h"
 
 #include "../../include/CohortData.h"

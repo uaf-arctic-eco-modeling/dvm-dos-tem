@@ -7,11 +7,11 @@
 #include <vector> 
 #include <list>
 
-#include "../TEMLogger.h"
+#include "TEMLogger.h"
 
-#include "../TEMUtilityFunctions.h"
+#include "TEMUtilityFunctions.h"
 
-#include "CohortLookup.h"
+#include "../include/CohortLookup.h"
 
 extern src::severity_logger< severity_level > glg;
 
