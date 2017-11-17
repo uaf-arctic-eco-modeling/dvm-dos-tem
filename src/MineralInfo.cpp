@@ -1,6 +1,6 @@
-#include "MineralInfo.h"
-#include "../../TEMUtilityFunctions.h" 
-#include "../../TEMLogger.h"
+#include "../include/MineralInfo.h"
+#include "TEMUtilityFunctions.h" 
+#include "TEMLogger.h"
 
 extern src::severity_logger< severity_level > glg;
 
