@@ -1,7 +1,7 @@
 #ifndef MOSS_H_
 #define MOSS_H_
 
-#include "../src/ecodomain/layer/MossLayer.h"
+#include "MossLayer.h"
 
 class Moss {
 public:

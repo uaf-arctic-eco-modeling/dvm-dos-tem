@@ -16,7 +16,7 @@ using namespace std;
 #include "SoilParent.h"
 
 #include "Layer.h"
-#include "../src/ecodomain/layer/MossLayer.h"
+#include "MossLayer.h"
 #include "../src/ecodomain/layer/SnowLayer.h"
 #include "MineralLayer.h"
 #include "../src/ecodomain/layer/OrganicLayer.h"

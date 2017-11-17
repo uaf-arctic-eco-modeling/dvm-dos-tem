@@ -1,9 +1,9 @@
 /*! \file
  *
  */
-#include "MossLayer.h"
+#include "../include/MossLayer.h"
 
-#include "../../TEMLogger.h"
+#include "TEMLogger.h"
 extern src::severity_logger< severity_level > glg;
 
 MossLayer::MossLayer(const double &pdz, const int & newmosstype) {

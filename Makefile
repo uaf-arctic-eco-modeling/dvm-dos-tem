@@ -74,7 +74,7 @@ SOURCES= 	src/TEM.o \
 		src/vegetation/Vegetation_Env.o \
 		src/Layer.o \
 		src/MineralLayer.o \
-		src/ecodomain/layer/MossLayer.o \
+		src/MossLayer.o \
 		src/ecodomain/layer/OrganicLayer.o \
 		src/ecodomain/layer/ParentLayer.o \
 		src/ecodomain/layer/SnowLayer.o \
