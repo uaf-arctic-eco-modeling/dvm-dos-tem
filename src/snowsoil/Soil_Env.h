@@ -2,7 +2,7 @@
 #define SOIL_ENV_H_
 
 #include "Stefan.h"
-#include "Richards.h"
+#include "../../include/Richards.h"
 #include "TemperatureUpdator.h"
 
 #include "../../include/CohortData.h"
