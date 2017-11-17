@@ -7,11 +7,11 @@
 #include <cmath>
 #include <vector>
 
-#include "../../include/Ground.h"
-#include "../../include/errorcode.h"
-#include "../../include/layerconst.h"
+#include "Ground.h"
+#include "errorcode.h"
+#include "layerconst.h"
 
-#include "../../include/CrankNicholson.h"
+#include "CrankNicholson.h"
 
 class Stefan {
 public:
