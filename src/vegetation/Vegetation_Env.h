@@ -3,10 +3,10 @@
 #include <cmath>
 
 #include "../../include/CohortLookup.h"
-#include "../inc/states.h"
-#include "../inc/fluxes.h"
-#include "../inc/diagnostics.h"
-#include "../inc/parameters.h"
+#include "../../include/states.h"
+#include "../../include/fluxes.h"
+#include "../../include/diagnostics.h"
+#include "../../include/parameters.h"
 
 #include "../../include/CohortData.h"
 #include "../../include/EnvData.h"

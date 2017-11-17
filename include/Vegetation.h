@@ -9,8 +9,8 @@
 
 #include "ModelData.h"
 
-#include "../src/inc/errorcode.h"
-#include "../src/inc/parameters.h"
+#include "errorcode.h"
+#include "parameters.h"
 
 #include <cmath>
 

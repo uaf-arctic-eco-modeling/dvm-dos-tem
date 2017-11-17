@@ -18,8 +18,8 @@
 #include <json/reader.h>
 #include <json/value.h>
 
-#include "inc/physicalconst.h" // for PI
-#include "inc/timeconst.h" // for mapping from first day of month -> day of year
+#include "../include/physicalconst.h" // for PI
+#include "../include/timeconst.h" // for mapping from first day of month -> day of year
 
 #include "TEMLogger.h"
 #include "TEMUtilityFunctions.h"

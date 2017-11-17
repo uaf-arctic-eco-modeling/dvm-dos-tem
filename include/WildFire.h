@@ -12,9 +12,9 @@
 #include "BgcData.h"
 #include "RestartData.h"
 
-#include "../src/inc/errorcode.h"
-#include "../src/inc/timeconst.h"
-#include "../src/inc/parameters.h"
+#include "errorcode.h"
+#include "timeconst.h"
+#include "parameters.h"
 
 #include "CohortLookup.h"
 

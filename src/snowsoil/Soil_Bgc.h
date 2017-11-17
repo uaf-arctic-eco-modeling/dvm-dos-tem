@@ -1,7 +1,7 @@
 #ifndef SOIL_BGC_H_
 #define SOIL_BGC_H_
 
-#include "../inc/errorcode.h"
+#include "../../include/errorcode.h"
 
 #include "../../include/CohortData.h"
 #include "../../include/EnvData.h"
@@ -12,7 +12,7 @@
 #include "../../include/CohortLookup.h"
 #include "../../include/ModelData.h"
 
-#include "../inc/parameters.h"
+#include "../../include/parameters.h"
 
 #include "../../include/Ground.h"
 

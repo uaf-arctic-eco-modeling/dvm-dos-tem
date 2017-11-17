@@ -29,7 +29,7 @@ using namespace std;
 #include "FireData.h"
 #include "RestartData.h"
 
-#include "../src/inc/parameters.h"
+#include "parameters.h"
 
 class Ground: public DoubleLinkedList {
 
