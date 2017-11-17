@@ -1,21 +1,21 @@
 #ifndef SOIL_ENV_H_
 #define SOIL_ENV_H_
 
-#include "Stefan.h"
-#include "../../include/Richards.h"
-#include "TemperatureUpdator.h"
+#include "../src/snowsoil/Stefan.h"
+#include "Richards.h"
+#include "../src/snowsoil/TemperatureUpdator.h"
 
-#include "../../include/CohortData.h"
-#include "../../include/EnvData.h"
-#include "../../include/FireData.h"
-#include "../../include/RestartData.h"
+#include "CohortData.h"
+#include "EnvData.h"
+#include "FireData.h"
+#include "RestartData.h"
 
-#include "../../include/errorcode.h"
-#include "../../include/parameters.h"
-#include "../../include/layerconst.h"
-#include "../../include/CohortLookup.h"
+#include "errorcode.h"
+#include "parameters.h"
+#include "layerconst.h"
+#include "CohortLookup.h"
 
-#include "../../include/Ground.h"
+#include "Ground.h"
 
 class Soil_Env {
 public:
