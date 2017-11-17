@@ -5,10 +5,10 @@
  *  Checked on: 2013-02-18 by F.-M. Yuan
  */
 
-#include "TemperatureUpdator.h"
+#include "../include/TemperatureUpdator.h"
 
-#include "../TEMLogger.h"
-#include "../TEMUtilityFunctions.h"
+#include "TEMLogger.h"
+#include "TEMUtilityFunctions.h"
 
 extern src::severity_logger< severity_level > glg;
 

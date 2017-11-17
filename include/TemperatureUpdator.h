@@ -10,17 +10,17 @@
 
 #include <cmath>
 
-#include "../../include/Ground.h"
-#include "../../include/Layer.h"
-#include "../../include/SnowLayer.h"
-#include "../../include/SoilLayer.h"
+#include "Ground.h"
+#include "Layer.h"
+#include "SnowLayer.h"
+#include "SoilLayer.h"
 
-#include "../../include/physicalconst.h"
-#include "../../include/errorcode.h"
-#include "../../include/layerconst.h"
+#include "physicalconst.h"
+#include "errorcode.h"
+#include "layerconst.h"
 
-#include "../../include/EnvData.h"
-#include "../../include/CrankNicholson.h"
+#include "EnvData.h"
+#include "CrankNicholson.h"
 
 class TemperatureUpdator {
 public:
