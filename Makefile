@@ -72,7 +72,7 @@ SOURCES= 	src/TEM.o \
 		src/util/tbc-debug-util.o \
 		src/vegetation/Vegetation_Bgc.o \
 		src/vegetation/Vegetation_Env.o \
-		src/ecodomain/layer/Layer.o \
+		src/Layer.o \
 		src/ecodomain/layer/MineralLayer.o \
 		src/ecodomain/layer/MossLayer.o \
 		src/ecodomain/layer/OrganicLayer.o \
