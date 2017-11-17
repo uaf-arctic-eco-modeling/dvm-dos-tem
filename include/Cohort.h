@@ -4,7 +4,7 @@
 #include "Climate.h"
 
 #include "Ground.h"
-#include "../src/ecodomain/Vegetation.h"
+#include "Vegetation.h"
 
 #include "../src/vegetation/Vegetation_Env.h"
 #include "../src/vegetation/Vegetation_Bgc.h"

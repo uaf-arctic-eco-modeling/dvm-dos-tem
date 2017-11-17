@@ -1,16 +1,16 @@
 #ifndef VEGETATION_H_
 #define VEGETATION_H_
-#include "../../include/CohortLookup.h"
+#include "CohortLookup.h"
 
-#include "../../include/EnvData.h"
-#include "../../include/BgcData.h"
-#include "../../include/CohortData.h"
-#include "../../include/RestartData.h"
+#include "EnvData.h"
+#include "BgcData.h"
+#include "CohortData.h"
+#include "RestartData.h"
 
-#include "../../include/ModelData.h"
+#include "ModelData.h"
 
-#include "../inc/errorcode.h"
-#include "../inc/parameters.h"
+#include "../src/inc/errorcode.h"
+#include "../src/inc/parameters.h"
 
 #include <cmath>
 
