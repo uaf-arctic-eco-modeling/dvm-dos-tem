@@ -9,7 +9,7 @@
 
 #include "../include/TEMLogger.h"
 
-#include "TEMUtilityFunctions.h"
+#include "../include/TEMUtilityFunctions.h"
 
 #include "../include/CohortLookup.h"
 

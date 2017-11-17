@@ -10,7 +10,7 @@
 #include <boost/algorithm/string.hpp>
 
 #include "../include/OutputEstimate.h"
-#include "TEMUtilityFunctions.h"
+#include "../include/TEMUtilityFunctions.h"
 
 #include "../include/TEMLogger.h"
 

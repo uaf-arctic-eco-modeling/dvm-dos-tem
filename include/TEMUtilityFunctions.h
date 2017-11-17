@@ -19,7 +19,7 @@
 
 #include <boost/lexical_cast.hpp>
 
-#include "../include/cohortconst.h" // needed for NUM_PFT
+#include "cohortconst.h" // needed for NUM_PFT
 
 namespace temutil {
 
