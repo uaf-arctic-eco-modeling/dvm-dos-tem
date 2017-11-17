@@ -53,7 +53,7 @@ SOURCES= 	src/TEM.o \
 		src/Ground.o \
 		src/MineralInfo.o \
 		src/Moss.o \
-		src/ecodomain/horizon/Organic.o \
+		src/Organic.o \
 		src/ecodomain/horizon/Snow.o \
 		src/ecodomain/horizon/SoilParent.o \
 		src/ecodomain/Vegetation.o \

@@ -11,7 +11,7 @@ using namespace std;
 #include "DoubleLinkedList.h"
 #include "../src/ecodomain/horizon/Snow.h"
 #include "Moss.h"
-#include "../src/ecodomain/horizon/Organic.h"
+#include "Organic.h"
 #include "MineralInfo.h"
 #include "../src/ecodomain/horizon/SoilParent.h"
 
