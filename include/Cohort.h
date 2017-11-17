@@ -26,7 +26,7 @@
 
 #include "CohortLookup.h"
 
-#include "../src/runmodule/Integrator.h"
+#include "Integrator.h"
 
 // headers for run
 #include "ModelData.h"

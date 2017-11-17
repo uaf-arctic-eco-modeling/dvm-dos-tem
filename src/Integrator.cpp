@@ -17,11 +17,11 @@
 *
 */
 
-#include "../TEMLogger.h"
+#include "TEMLogger.h"
 
 extern src::severity_logger< severity_level > glg;
 
-#include "Integrator.h"
+#include "../include/Integrator.h"
 
 float Integrator::a1  =   0.115740741;
 float Integrator::a3  =   0.548927875;
