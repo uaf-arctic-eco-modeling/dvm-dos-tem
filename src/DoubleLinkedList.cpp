@@ -4,7 +4,7 @@
  *      is not null
 */
 
-#include "TEMLogger.h"
+#include "../include/TEMLogger.h"
 #include "../include/DoubleLinkedList.h"
 
 extern src::severity_logger< severity_level > glg;

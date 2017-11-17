@@ -3,7 +3,7 @@
  */
 #include "../include/SnowLayer.h"
 
-#include "TEMLogger.h"
+#include "../include/TEMLogger.h"
 extern src::severity_logger< severity_level > glg;
 
 SnowLayer::SnowLayer() {

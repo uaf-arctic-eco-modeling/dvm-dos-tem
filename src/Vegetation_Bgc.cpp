@@ -46,7 +46,7 @@ in N uptake over soil.
  *
  */
 
-#include "TEMLogger.h"
+#include "../include/TEMLogger.h"
 #include "TEMUtilityFunctions.h"
 
 #include "../include/Vegetation_Bgc.h"

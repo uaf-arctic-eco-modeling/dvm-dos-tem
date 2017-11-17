@@ -21,7 +21,7 @@
 #include "../include/physicalconst.h" // for PI
 #include "../include/timeconst.h" // for mapping from first day of month -> day of year
 
-#include "TEMLogger.h"
+#include "../include/TEMLogger.h"
 #include "TEMUtilityFunctions.h"
 
 extern src::severity_logger< severity_level > glg;
