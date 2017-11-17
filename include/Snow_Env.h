@@ -1,15 +1,15 @@
 #ifndef SNOW_ENV_H_
 #define SNOW_ENV_H_
 
-#include "../../include/errorcode.h"
+#include "errorcode.h"
 
-#include "../../include/CohortData.h"
-#include "../../include/EnvData.h"
-#include "../../include/RestartData.h"
+#include "CohortData.h"
+#include "EnvData.h"
+#include "RestartData.h"
 
-#include "../../include/Ground.h"
+#include "Ground.h"
 
-#include "../../include/CohortLookup.h"
+#include "CohortLookup.h"
 
 class Snow_Env {
 public:

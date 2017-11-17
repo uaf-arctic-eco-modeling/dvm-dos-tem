@@ -9,7 +9,7 @@
 #include "Vegetation_Env.h"
 #include "Vegetation_Bgc.h"
 
-#include "../src/snowsoil/Snow_Env.h"
+#include "Snow_Env.h"
 #include "../src/snowsoil/Soil_Env.h"
 #include "../src/snowsoil/SoilParent_Env.h"
 #include "../src/snowsoil/Soil_Bgc.h"
