@@ -6,17 +6,17 @@
 #include <vector>
 #include <algorithm>
 
-#include "../../include/CohortData.h"
-#include "../../include/EnvData.h"
-#include "../../include/FireData.h"
-#include "../../include/BgcData.h"
-#include "../../include/RestartData.h"
+#include "CohortData.h"
+#include "EnvData.h"
+#include "FireData.h"
+#include "BgcData.h"
+#include "RestartData.h"
 
-#include "../inc/errorcode.h"
-#include "../inc/timeconst.h"
-#include "../inc/parameters.h"
+#include "../src/inc/errorcode.h"
+#include "../src/inc/timeconst.h"
+#include "../src/inc/parameters.h"
 
-#include "../lookup/CohortLookup.h"
+#include "../src/lookup/CohortLookup.h"
 
 using namespace std;
 

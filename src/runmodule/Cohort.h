@@ -14,7 +14,7 @@
 #include "../snowsoil/SoilParent_Env.h"
 #include "../snowsoil/Soil_Bgc.h"
 
-#include "../disturb/WildFire.h"
+#include "../../include/WildFire.h"
 
 #include "../../include/CohortData.h"
 

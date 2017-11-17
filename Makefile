@@ -48,7 +48,7 @@ SOURCES= 	src/TEM.o \
 		src/EnvDataDly.o \
 		src/FireData.o \
 		src/RestartData.o \
-		src/disturb/WildFire.o \
+		src/WildFire.o \
 		src/ecodomain/DoubleLinkedList.o \
 		src/ecodomain/Ground.o \
 		src/ecodomain/horizon/MineralInfo.o \

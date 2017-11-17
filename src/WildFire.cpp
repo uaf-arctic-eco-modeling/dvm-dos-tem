@@ -24,11 +24,10 @@
 #include <string>
 #include <sstream>
 
-#include "WildFire.h"
+#include "../include/WildFire.h"
 
-
-#include "../TEMUtilityFunctions.h"
-#include "../TEMLogger.h"
+#include "TEMUtilityFunctions.h"
+#include "TEMLogger.h"
 
 extern src::severity_logger< severity_level > glg;
 
