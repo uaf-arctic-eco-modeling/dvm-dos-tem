@@ -3,7 +3,7 @@
  */
 #include "../include/MossLayer.h"
 
-#include "TEMLogger.h"
+#include "../include/TEMLogger.h"
 extern src::severity_logger< severity_level > glg;
 
 MossLayer::MossLayer(const double &pdz, const int & newmosstype) {

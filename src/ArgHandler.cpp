@@ -2,7 +2,7 @@
 
 #include "../include/ArgHandler.h"
 
-#include "TEMLogger.h"
+#include "../include/TEMLogger.h"
 #include "TEMUtilityFunctions.h"
 
 extern src::severity_logger< severity_level > glg;

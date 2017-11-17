@@ -11,7 +11,7 @@
 #include <boost/lexical_cast.hpp>
 
 #include "../include/CalController.h"
-#include "TEMLogger.h"
+#include "../include/TEMLogger.h"
 #include "../include/Cohort.h"
 #include "TEMUtilityFunctions.h"
 
