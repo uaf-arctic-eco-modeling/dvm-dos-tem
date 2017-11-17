@@ -29,4 +29,4 @@ public:
   void setSnowThicknesses(double dzp[], const int & maxnum);
 
 };
-#endif /*MOSS_H_*/
+#endif /*SNOW_H_*/
