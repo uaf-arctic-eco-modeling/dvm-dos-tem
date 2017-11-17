@@ -22,7 +22,7 @@
 #include "../include/timeconst.h" // for mapping from first day of month -> day of year
 
 #include "../include/TEMLogger.h"
-#include "TEMUtilityFunctions.h"
+#include "../include/TEMUtilityFunctions.h"
 
 extern src::severity_logger< severity_level > glg;
 

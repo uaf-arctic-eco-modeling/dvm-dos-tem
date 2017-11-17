@@ -1,6 +1,6 @@
 #include "../include/CohortData.h"
 
-#include "TEMUtilityFunctions.h"
+#include "../include/TEMUtilityFunctions.h"
 
 #include "../include/TEMLogger.h"
 

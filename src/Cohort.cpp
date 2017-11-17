@@ -21,7 +21,7 @@
 #include <boost/assign/list_of.hpp> // for 'list_of()'
 
 #include "../include/TEMLogger.h"
-#include "TEMUtilityFunctions.h"
+#include "../include/TEMUtilityFunctions.h"
 
 #include "../include/Cohort.h"
 

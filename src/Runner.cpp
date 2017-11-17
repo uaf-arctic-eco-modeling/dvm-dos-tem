@@ -9,7 +9,7 @@
 
 #include "../include/Runner.h"
 #include "../include/Cohort.h"
-#include "TEMUtilityFunctions.h"
+#include "../include/TEMUtilityFunctions.h"
 #include "../include/TEMLogger.h"
 #include "../include/tbc-debug-util.h"
 

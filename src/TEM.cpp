@@ -71,7 +71,7 @@
 #include "../include/ArgHandler.h"
 #include "../include/OutputEstimate.h"
 #include "../include/TEMLogger.h"
-#include "TEMUtilityFunctions.h"
+#include "../include/TEMUtilityFunctions.h"
 #include "../include/Runner.h"
 #include "../include/RestartData.h"
 

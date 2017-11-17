@@ -23,7 +23,7 @@
 #endif
 
 #include "../include/RestartData.h"
-#include "TEMUtilityFunctions.h"
+#include "../include/TEMUtilityFunctions.h"
 
 #include "../include/TEMLogger.h"
 
