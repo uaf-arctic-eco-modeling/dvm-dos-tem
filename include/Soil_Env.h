@@ -3,7 +3,7 @@
 
 #include "Stefan.h"
 #include "Richards.h"
-#include "../src/snowsoil/TemperatureUpdator.h"
+#include "TemperatureUpdator.h"
 
 #include "CohortData.h"
 #include "EnvData.h"
