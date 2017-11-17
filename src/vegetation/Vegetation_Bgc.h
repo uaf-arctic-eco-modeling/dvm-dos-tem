@@ -13,7 +13,7 @@
 
 #include "../snowsoil/Soil_Bgc.h"
 
-#include "../ecodomain/Vegetation.h"
+#include "../../include/Vegetation.h"
 
 #include <cmath>
 
