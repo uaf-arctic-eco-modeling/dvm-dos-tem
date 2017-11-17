@@ -4,7 +4,7 @@
 #ifndef SNOW_H_
 #define SNOW_H_
 
-#include "../layer/SnowLayer.h"
+#include "../src/ecodomain/layer/SnowLayer.h"
 
 class Snow {
 public:
