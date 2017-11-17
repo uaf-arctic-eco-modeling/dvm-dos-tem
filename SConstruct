@@ -63,7 +63,7 @@ src_files = Split("""src/TEM.cpp
                      src/Moss.cpp
                      src/Organic.cpp
                      src/Snow.cpp
-                     src/ecodomain/horizon/SoilParent.cpp
+                     src/SoilParent.cpp
                      src/ecodomain/layer/Layer.cpp
                      src/ecodomain/layer/MineralLayer.cpp
                      src/ecodomain/layer/MossLayer.cpp

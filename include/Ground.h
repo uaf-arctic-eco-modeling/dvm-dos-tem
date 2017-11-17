@@ -13,7 +13,7 @@ using namespace std;
 #include "Moss.h"
 #include "Organic.h"
 #include "MineralInfo.h"
-#include "../src/ecodomain/horizon/SoilParent.h"
+#include "SoilParent.h"
 
 #include "../src/ecodomain/layer/Layer.h"
 #include "../src/ecodomain/layer/MossLayer.h"
