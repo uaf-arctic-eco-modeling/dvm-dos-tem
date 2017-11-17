@@ -1,7 +1,7 @@
 #ifndef SOIL_ENV_H_
 #define SOIL_ENV_H_
 
-#include "../src/snowsoil/Stefan.h"
+#include "Stefan.h"
 #include "Richards.h"
 #include "../src/snowsoil/TemperatureUpdator.h"
 

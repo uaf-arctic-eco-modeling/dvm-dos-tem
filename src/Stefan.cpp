@@ -1,4 +1,4 @@
-#include "Stefan.h"
+#include "../include/Stefan.h"
 
 Stefan::Stefan() {
 };
