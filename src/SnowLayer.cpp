@@ -1,9 +1,9 @@
 /*! \file
  *
  */
-#include "SnowLayer.h"
+#include "../include/SnowLayer.h"
 
-#include "../../TEMLogger.h"
+#include "TEMLogger.h"
 extern src::severity_logger< severity_level > glg;
 
 SnowLayer::SnowLayer() {
