@@ -77,7 +77,7 @@ SOURCES= 	src/TEM.o \
 		src/MossLayer.o \
 		src/OrganicLayer.o \
 		src/ParentLayer.o \
-		src/ecodomain/layer/SnowLayer.o \
+		src/SnowLayer.o \
 		src/ecodomain/layer/SoilLayer.o
 
 OBJECTS =	ArgHandler.o \
