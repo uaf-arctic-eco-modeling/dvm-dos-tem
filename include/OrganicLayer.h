@@ -3,7 +3,7 @@
  */
 #ifndef ORGANICLAYER_H_
 #define ORGANICLAYER_H_
-#include "../src/ecodomain/layer/SoilLayer.h"
+#include "SoilLayer.h"
 
 #include <string>
 #include <cmath>

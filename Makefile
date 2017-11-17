@@ -78,7 +78,7 @@ SOURCES= 	src/TEM.o \
 		src/OrganicLayer.o \
 		src/ParentLayer.o \
 		src/SnowLayer.o \
-		src/ecodomain/layer/SoilLayer.o
+		src/SoilLayer.o
 
 OBJECTS =	ArgHandler.o \
 		TEMLogger.o \

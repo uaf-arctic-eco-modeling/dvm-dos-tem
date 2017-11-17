@@ -13,7 +13,7 @@
 #include "../../include/Ground.h"
 #include "../../include/Layer.h"
 #include "../../include/SnowLayer.h"
-#include "../ecodomain/layer/SoilLayer.h"
+#include "../../include/SoilLayer.h"
 
 #include "../inc/physicalconst.h"
 #include "../inc/errorcode.h"
