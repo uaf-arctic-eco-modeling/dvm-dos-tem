@@ -55,7 +55,7 @@ SOURCES= 	src/TEM.o \
 		src/Moss.o \
 		src/Organic.o \
 		src/Snow.o \
-		src/ecodomain/horizon/SoilParent.o \
+		src/SoilParent.o \
 		src/ecodomain/Vegetation.o \
 		src/CohortLookup.o \
 		src/Cohort.o \
