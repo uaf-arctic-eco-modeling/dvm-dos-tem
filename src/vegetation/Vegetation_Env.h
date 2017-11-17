@@ -2,7 +2,7 @@
 #define VEGETATION_ENV_H_
 #include <cmath>
 
-#include "../lookup/CohortLookup.h"
+#include "../../include/CohortLookup.h"
 #include "../inc/states.h"
 #include "../inc/fluxes.h"
 #include "../inc/diagnostics.h"

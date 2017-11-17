@@ -9,7 +9,7 @@
 #include "../../include/BgcData.h"
 #include "../../include/RestartData.h"
 
-#include "../lookup/CohortLookup.h"
+#include "../../include/CohortLookup.h"
 #include "../../include/ModelData.h"
 
 #include "../inc/parameters.h"
