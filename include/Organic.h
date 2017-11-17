@@ -6,7 +6,7 @@
 #include "iostream"
 using namespace std;
 
-#include "../layer/OrganicLayer.h"
+#include "../src/ecodomain/layer/OrganicLayer.h"
 
 class Organic {
 public:
