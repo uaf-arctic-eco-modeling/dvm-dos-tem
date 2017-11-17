@@ -3,7 +3,7 @@
  */
 #ifndef SNOWLAYER_H_
 #define SNOWLAYER_H_
-#include "../layer/Layer.h"
+#include "../../../include/Layer.h"
 #include "../../inc/physicalconst.h"
 #include "../../inc/parameters.h"
 

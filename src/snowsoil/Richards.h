@@ -11,7 +11,7 @@
 #include "../../include/CohortData.h"
 #include "../../include/EnvData.h"
 
-#include "../ecodomain/layer/Layer.h"
+#include "../../include/Layer.h"
 #include "../ecodomain/layer/SoilLayer.h"
 #include "../util/CrankNicholson.h"
 
