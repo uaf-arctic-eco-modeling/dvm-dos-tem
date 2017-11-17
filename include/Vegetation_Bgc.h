@@ -11,7 +11,7 @@
 
 #include "parameters.h"
 
-#include "../src/snowsoil/Soil_Bgc.h"
+#include "Soil_Bgc.h"
 
 #include "Vegetation.h"
 

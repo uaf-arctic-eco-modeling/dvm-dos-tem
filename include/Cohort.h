@@ -12,7 +12,7 @@
 #include "Snow_Env.h"
 #include "../src/snowsoil/Soil_Env.h"
 #include "../src/snowsoil/SoilParent_Env.h"
-#include "../src/snowsoil/Soil_Bgc.h"
+#include "Soil_Bgc.h"
 
 #include "WildFire.h"
 

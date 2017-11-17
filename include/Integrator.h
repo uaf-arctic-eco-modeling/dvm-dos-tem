@@ -26,7 +26,7 @@
 #include <cmath>
 using namespace std;
 
-#include "../src/snowsoil/Soil_Bgc.h"
+#include "Soil_Bgc.h"
 #include "Vegetation_Bgc.h"
 #include "temconst.h"
 

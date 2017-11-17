@@ -22,9 +22,9 @@
  *
  */
 
-#include "../TEMLogger.h"
+#include "TEMLogger.h"
 
-#include "Soil_Bgc.h"
+#include "../include/Soil_Bgc.h"
 
 extern src::severity_logger< severity_level > glg;
 

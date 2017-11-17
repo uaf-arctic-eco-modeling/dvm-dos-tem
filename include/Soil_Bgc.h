@@ -1,20 +1,20 @@
 #ifndef SOIL_BGC_H_
 #define SOIL_BGC_H_
 
-#include "../../include/errorcode.h"
+#include "errorcode.h"
 
-#include "../../include/CohortData.h"
-#include "../../include/EnvData.h"
-#include "../../include/FireData.h"
-#include "../../include/BgcData.h"
-#include "../../include/RestartData.h"
+#include "CohortData.h"
+#include "EnvData.h"
+#include "FireData.h"
+#include "BgcData.h"
+#include "RestartData.h"
 
-#include "../../include/CohortLookup.h"
-#include "../../include/ModelData.h"
+#include "CohortLookup.h"
+#include "ModelData.h"
 
-#include "../../include/parameters.h"
+#include "parameters.h"
 
-#include "../../include/Ground.h"
+#include "Ground.h"
 
 #include <cmath>
 
