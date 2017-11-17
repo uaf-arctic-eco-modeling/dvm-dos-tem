@@ -20,7 +20,7 @@
 #include "../../include/layerconst.h"
 
 #include "../../include/EnvData.h"
-#include "../util/CrankNicholson.h"
+#include "../../include/CrankNicholson.h"
 
 class TemperatureUpdator {
 public:

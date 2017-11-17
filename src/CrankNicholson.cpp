@@ -1,7 +1,7 @@
 /*! \file
  */
 
-#include "CrankNicholson.h"
+#include "../include/CrankNicholson.h"
 
 CrankNicholson::CrankNicholson() {
 }

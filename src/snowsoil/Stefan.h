@@ -11,7 +11,7 @@
 #include "../../include/errorcode.h"
 #include "../../include/layerconst.h"
 
-#include "../util/CrankNicholson.h"
+#include "../../include/CrankNicholson.h"
 
 class Stefan {
 public:

@@ -13,7 +13,7 @@
 
 #include "../../include/Layer.h"
 #include "../../include/SoilLayer.h"
-#include "../util/CrankNicholson.h"
+#include "../../include/CrankNicholson.h"
 
 class Richards {
 public :

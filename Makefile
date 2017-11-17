@@ -68,7 +68,7 @@ SOURCES= 	src/TEM.o \
 		src/snowsoil/SoilParent_Env.o \
 		src/snowsoil/Stefan.o \
 		src/snowsoil/TemperatureUpdator.o \
-		src/util/CrankNicholson.o \
+		src/CrankNicholson.o \
 		src/util/tbc-debug-util.o \
 		src/vegetation/Vegetation_Bgc.o \
 		src/vegetation/Vegetation_Env.o \
