@@ -8,28 +8,28 @@
 #include <deque>
 using namespace std;
 
-#include "../../include/DoubleLinkedList.h"
-#include "horizon/Snow.h"
-#include "horizon/Moss.h"
-#include "horizon/Organic.h"
-#include "horizon/MineralInfo.h"
-#include "horizon/SoilParent.h"
+#include "DoubleLinkedList.h"
+#include "../src/ecodomain/horizon/Snow.h"
+#include "../src/ecodomain/horizon/Moss.h"
+#include "../src/ecodomain/horizon/Organic.h"
+#include "../src/ecodomain/horizon/MineralInfo.h"
+#include "../src/ecodomain/horizon/SoilParent.h"
 
-#include "layer/Layer.h"
-#include "layer/MossLayer.h"
-#include "layer/SnowLayer.h"
-#include "layer/MineralLayer.h"
-#include "layer/OrganicLayer.h"
-#include "layer/ParentLayer.h"
+#include "../src/ecodomain/layer/Layer.h"
+#include "../src/ecodomain/layer/MossLayer.h"
+#include "../src/ecodomain/layer/SnowLayer.h"
+#include "../src/ecodomain/layer/MineralLayer.h"
+#include "../src/ecodomain/layer/OrganicLayer.h"
+#include "../src/ecodomain/layer/ParentLayer.h"
 
-#include "../../include/CohortLookup.h"
+#include "CohortLookup.h"
 
-#include "../../include/BgcData.h"
-#include "../../include/CohortData.h"
-#include "../../include/FireData.h"
-#include "../../include/RestartData.h"
+#include "BgcData.h"
+#include "CohortData.h"
+#include "FireData.h"
+#include "RestartData.h"
 
-#include "../inc/parameters.h"
+#include "../src/inc/parameters.h"
 
 class Ground: public DoubleLinkedList {
 

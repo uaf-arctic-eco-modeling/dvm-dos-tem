@@ -10,7 +10,7 @@
 
 #include <cmath>
 
-#include "../ecodomain/Ground.h"
+#include "../../include/Ground.h"
 #include "../ecodomain/layer/Layer.h"
 #include "../ecodomain/layer/SnowLayer.h"
 #include "../ecodomain/layer/SoilLayer.h"

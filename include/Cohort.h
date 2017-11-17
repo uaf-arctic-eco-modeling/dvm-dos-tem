@@ -3,7 +3,7 @@
 
 #include "Climate.h"
 
-#include "../src/ecodomain/Ground.h"
+#include "Ground.h"
 #include "../src/ecodomain/Vegetation.h"
 
 #include "../src/vegetation/Vegetation_Env.h"

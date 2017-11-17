@@ -7,7 +7,7 @@
 #include <cmath>
 #include <vector>
 
-#include "../ecodomain/Ground.h"
+#include "../../include/Ground.h"
 #include "../inc/errorcode.h"
 #include "../inc/layerconst.h"
 
