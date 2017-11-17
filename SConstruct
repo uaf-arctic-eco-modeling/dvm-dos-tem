@@ -56,7 +56,7 @@ src_files = Split("""src/TEM.cpp
                      src/FireData.cpp
                      src/RestartData.cpp
                      src/WildFire.cpp
-                     src/ecodomain/DoubleLinkedList.cpp
+                     src/DoubleLinkedList.cpp
                      src/ecodomain/Ground.cpp
                      src/ecodomain/Vegetation.cpp
                      src/ecodomain/horizon/MineralInfo.cpp
