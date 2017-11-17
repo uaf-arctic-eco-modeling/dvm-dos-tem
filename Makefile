@@ -62,7 +62,7 @@ SOURCES= 	src/TEM.o \
 		src/Integrator.o \
 		src/ModelData.o \
 		src/Richards.o \
-		src/snowsoil/Snow_Env.o \
+		src/Snow_Env.o \
 		src/snowsoil/Soil_Bgc.o \
 		src/snowsoil/Soil_Env.o \
 		src/snowsoil/SoilParent_Env.o \

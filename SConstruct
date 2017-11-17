@@ -75,7 +75,7 @@ src_files = Split("""src/TEM.cpp
                      src/Cohort.cpp
                      src/Integrator.cpp
                      src/Richards.cpp
-                     src/snowsoil/Snow_Env.cpp
+                     src/Snow_Env.cpp
                      src/snowsoil/Soil_Bgc.cpp
                      src/snowsoil/Soil_Env.cpp
                      src/snowsoil/SoilParent_Env.cpp
