@@ -7,10 +7,10 @@
 #include <string>
 #include <sstream>
 
-#include "../src/inc/diagnostics.h"
-#include "../src/inc/fluxes.h"
-#include "../src/inc/states.h"
-#include "../src/inc/timeconst.h"
+#include "diagnostics.h"
+#include "fluxes.h"
+#include "states.h"
+#include "timeconst.h"
 
 class FirData {
 public:

@@ -8,8 +8,8 @@
 
 #include "../include/Climate.h"
 
-#include "inc/errorcode.h"
-#include "inc/timeconst.h"
+#include "../include/errorcode.h"
+#include "../include/timeconst.h"
 
 #include "TEMUtilityFunctions.h"
 #include "TEMLogger.h"

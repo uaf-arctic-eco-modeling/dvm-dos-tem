@@ -10,9 +10,9 @@
 #include "../../include/FireData.h"
 #include "../../include/RestartData.h"
 
-#include "../inc/errorcode.h"
-#include "../inc/parameters.h"
-#include "../inc/layerconst.h"
+#include "../../include/errorcode.h"
+#include "../../include/parameters.h"
+#include "../../include/layerconst.h"
 #include "../../include/CohortLookup.h"
 
 #include "../../include/Ground.h"

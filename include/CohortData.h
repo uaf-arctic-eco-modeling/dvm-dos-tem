@@ -3,12 +3,12 @@
 
 #include <deque>
 
-#include "../src/inc/errorcode.h"
-#include "../src/inc/timeconst.h"
-#include "../src/inc/cohortconst.h"
+#include "errorcode.h"
+#include "timeconst.h"
+#include "cohortconst.h"
 
-#include "../src/inc/states.h"
-#include "../src/inc/diagnostics.h"
+#include "states.h"
+#include "diagnostics.h"
 
 #include "ModelData.h"
 

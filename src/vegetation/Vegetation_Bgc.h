@@ -9,7 +9,7 @@
 #include "../../include/BgcData.h"
 #include "../../include/RestartData.h"
 
-#include "../inc/parameters.h"
+#include "../../include/parameters.h"
 
 #include "../snowsoil/Soil_Bgc.h"
 

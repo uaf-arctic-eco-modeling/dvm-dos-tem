@@ -11,9 +11,9 @@
 
 using namespace std;
 
-#include "../src/inc/errorcode.h"
-#include "../src/inc/physicalconst.h"
-#include "../src/inc/layerconst.h"
+#include "errorcode.h"
+#include "physicalconst.h"
+#include "layerconst.h"
 
 class Layer {
 private:

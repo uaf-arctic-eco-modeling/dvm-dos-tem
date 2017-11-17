@@ -9,8 +9,8 @@
 
 #include "ArgHandler.h"
 #include "util_structs.h"
-#include "../src/inc/layerconst.h"
-#include "../src/inc/errorcode.h"
+#include "layerconst.h"
+#include "errorcode.h"
 
 #ifdef WITHMPI
 #include <mpi.h>

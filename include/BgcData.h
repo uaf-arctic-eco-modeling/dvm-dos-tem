@@ -9,10 +9,10 @@
 #include <iostream>
 #include <math.h>
 
-#include "../src/inc/errorcode.h"
-#include "../src/inc/diagnostics.h"
-#include "../src/inc/fluxes.h"
-#include "../src/inc/states.h"
+#include "errorcode.h"
+#include "diagnostics.h"
+#include "fluxes.h"
+#include "states.h"
 
 #include "EnvData.h"
 #include "CohortData.h"

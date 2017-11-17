@@ -3,15 +3,15 @@
 
 #include <deque>
 
-#include "../src/inc/diagnostics.h"
-#include "../src/inc/fluxes.h"
-#include "../src/inc/states.h"
+#include "diagnostics.h"
+#include "fluxes.h"
+#include "states.h"
 
-#include "../src/inc/errorcode.h"
-#include "../src/inc/layerconst.h"
-#include "../src/inc/timeconst.h"
-#include "../src/inc/physicalconst.h"
-#include "../src/inc/cohortconst.h"
+#include "errorcode.h"
+#include "layerconst.h"
+#include "timeconst.h"
+#include "physicalconst.h"
+#include "cohortconst.h"
 
 #include "Climate.h"
 #include "CohortData.h"

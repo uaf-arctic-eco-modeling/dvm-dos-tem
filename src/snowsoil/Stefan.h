@@ -8,8 +8,8 @@
 #include <vector>
 
 #include "../../include/Ground.h"
-#include "../inc/errorcode.h"
-#include "../inc/layerconst.h"
+#include "../../include/errorcode.h"
+#include "../../include/layerconst.h"
 
 #include "../util/CrankNicholson.h"
 

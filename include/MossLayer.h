@@ -4,7 +4,7 @@
 #ifndef MOSSLAYER_H_
 #define MOSSLAYER_H_
 #include "SoilLayer.h"
-#include "../src/inc/cohortconst.h"
+#include "cohortconst.h"
 
 using namespace std;
 class MossLayer: public SoilLayer {

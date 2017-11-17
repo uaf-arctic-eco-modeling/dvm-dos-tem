@@ -15,9 +15,9 @@
 #include "../../include/SnowLayer.h"
 #include "../../include/SoilLayer.h"
 
-#include "../inc/physicalconst.h"
-#include "../inc/errorcode.h"
-#include "../inc/layerconst.h"
+#include "../../include/physicalconst.h"
+#include "../../include/errorcode.h"
+#include "../../include/layerconst.h"
 
 #include "../../include/EnvData.h"
 #include "../util/CrankNicholson.h"
