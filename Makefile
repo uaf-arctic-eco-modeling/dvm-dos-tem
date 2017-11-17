@@ -12,7 +12,7 @@ CFLAGS=-c -ansi -g -gdwarf-2 -fPIC -DBOOST_ALL_DYN_LINK -Werror # -W -Wall -Werr
 LIBS=-lnetcdf -lboost_system -lboost_filesystem \
 -lboost_program_options -lboost_thread -lboost_log -ljsoncpp -lpthread -lreadline
 
-USEMPI = true
+USEMPI = false
 USEOMP = false
 
 ifeq ($(USEMPI),true)
