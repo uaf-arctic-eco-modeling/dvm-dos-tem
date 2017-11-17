@@ -73,7 +73,7 @@ SOURCES= 	src/TEM.o \
 		src/vegetation/Vegetation_Bgc.o \
 		src/vegetation/Vegetation_Env.o \
 		src/Layer.o \
-		src/ecodomain/layer/MineralLayer.o \
+		src/MineralLayer.o \
 		src/ecodomain/layer/MossLayer.o \
 		src/ecodomain/layer/OrganicLayer.o \
 		src/ecodomain/layer/ParentLayer.o \
