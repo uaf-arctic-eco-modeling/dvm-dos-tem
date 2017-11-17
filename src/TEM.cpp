@@ -580,7 +580,7 @@ void advance_model(const int rowidx, const int colidx,
     runner.cohort.md->set_avlnflg(true);
     runner.cohort.md->set_baseline(true);
 
-    runner.cohort.md->set_dsbmodule(true);
+    runner.cohort.md->set_dsbmodule(false);
 
     // This variable ensures that OpenMP threads do not modify
     // the shared modeldata.eq_yrs value.
@@ -638,6 +638,15 @@ void advance_model(const int rowidx, const int colidx,
       runner.calcontroller_ptr->handle_stage_start();
     }
 
+    runner.cohort.md->set_envmodule(true);
+    runner.cohort.md->set_bgcmodule(true);
+    runner.cohort.md->set_nfeed(true);
+    runner.cohort.md->set_avlnflg(true);
+    runner.cohort.md->set_baseline(true);
+    runner.cohort.md->set_dsbmodule(false);
+    runner.cohort.md->set_dslmodule(true);
+    runner.cohort.md->set_dvmmodule(true);
+
     runner.cohort.climate.monthlycontainers2log();
 
     BOOST_LOG_SEV(glg, debug) << "Loading RestartData from: " << eq_restart_fname;
@@ -683,6 +692,15 @@ void advance_model(const int rowidx, const int colidx,
       runner.calcontroller_ptr->handle_stage_start();
     }
 
+    runner.cohort.md->set_envmodule(true);
+    runner.cohort.md->set_bgcmodule(true);
+    runner.cohort.md->set_nfeed(true);
+    runner.cohort.md->set_avlnflg(true);
+    runner.cohort.md->set_baseline(true);
+    runner.cohort.md->set_dsbmodule(false);
+    runner.cohort.md->set_dslmodule(true);
+    runner.cohort.md->set_dvmmodule(true);
+
     // update the cohort's restart data object
     BOOST_LOG_SEV(glg, debug) << "Loading RestartData from: " << sp_restart_fname;
     runner.cohort.restartdata.update_from_ncfile(sp_restart_fname, rowidx, colidx);
@@ -723,6 +741,15 @@ void advance_model(const int rowidx, const int colidx,
     if (runner.calcontroller_ptr) {
       runner.calcontroller_ptr->handle_stage_start();
     }
+
+    runner.cohort.md->set_envmodule(true);
+    runner.cohort.md->set_bgcmodule(true);
+    runner.cohort.md->set_nfeed(true);
+    runner.cohort.md->set_avlnflg(true);
+    runner.cohort.md->set_baseline(true);
+    runner.cohort.md->set_dsbmodule(false);
+    runner.cohort.md->set_dslmodule(true);
+    runner.cohort.md->set_dvmmodule(true);
 
     // update the cohort's restart data object
     BOOST_LOG_SEV(glg, debug) << "Loading RestartData from: " << tr_restart_fname;
