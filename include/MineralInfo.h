@@ -7,7 +7,7 @@
 #include <iostream>
 #include <string>
 
-#include "../layer/MineralLayer.h"
+#include "../src/ecodomain/layer/MineralLayer.h"
 
 using namespace std;
 

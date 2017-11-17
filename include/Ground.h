@@ -12,7 +12,7 @@ using namespace std;
 #include "../src/ecodomain/horizon/Snow.h"
 #include "../src/ecodomain/horizon/Moss.h"
 #include "../src/ecodomain/horizon/Organic.h"
-#include "../src/ecodomain/horizon/MineralInfo.h"
+#include "MineralInfo.h"
 #include "../src/ecodomain/horizon/SoilParent.h"
 
 #include "../src/ecodomain/layer/Layer.h"

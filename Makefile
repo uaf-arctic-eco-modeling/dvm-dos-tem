@@ -51,7 +51,7 @@ SOURCES= 	src/TEM.o \
 		src/WildFire.o \
 		src/DoubleLinkedList.o \
 		src/Ground.o \
-		src/ecodomain/horizon/MineralInfo.o \
+		src/MineralInfo.o \
 		src/ecodomain/horizon/Moss.o \
 		src/ecodomain/horizon/Organic.o \
 		src/ecodomain/horizon/Snow.o \
