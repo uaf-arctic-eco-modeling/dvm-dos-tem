@@ -23,7 +23,7 @@
  *
  */
 
-#include "Vegetation_Env.h"
+#include "../include/Vegetation_Env.h"
 
 Vegetation_Env::Vegetation_Env() {
   ipft = MISSING_I;

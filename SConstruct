@@ -84,7 +84,7 @@ src_files = Split("""src/TEM.cpp
                      src/CrankNicholson.cpp
                      src/tbc-debug-util.cpp
                      src/Vegetation_Bgc.cpp
-                     src/vegetation/Vegetation_Env.cpp""")
+                     src/Vegetation_Env.cpp""")
 
 
 platform_name = platform.system()

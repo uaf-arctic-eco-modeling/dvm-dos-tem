@@ -6,7 +6,7 @@
 #include "Ground.h"
 #include "Vegetation.h"
 
-#include "../src/vegetation/Vegetation_Env.h"
+#include "Vegetation_Env.h"
 #include "Vegetation_Bgc.h"
 
 #include "../src/snowsoil/Snow_Env.h"
