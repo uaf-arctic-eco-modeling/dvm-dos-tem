@@ -3,8 +3,8 @@
  */
 #ifndef MOSSLAYER_H_
 #define MOSSLAYER_H_
-#include "SoilLayer.h"
-#include "../../inc/cohortconst.h"
+#include "../src/ecodomain/layer/SoilLayer.h"
+#include "../src/inc/cohortconst.h"
 
 using namespace std;
 class MossLayer: public SoilLayer {
