@@ -59,7 +59,7 @@ SOURCES= 	src/TEM.o \
 		src/ecodomain/Vegetation.o \
 		src/CohortLookup.o \
 		src/Cohort.o \
-		src/runmodule/Integrator.o \
+		src/Integrator.o \
 		src/ModelData.o \
 		src/snowsoil/Richards.o \
 		src/snowsoil/Snow_Env.o \

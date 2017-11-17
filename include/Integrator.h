@@ -26,9 +26,9 @@
 #include <cmath>
 using namespace std;
 
-#include "../snowsoil/Soil_Bgc.h"
-#include "../vegetation/Vegetation_Bgc.h"
-#include "../inc/temconst.h"
+#include "../src/snowsoil/Soil_Bgc.h"
+#include "../src/vegetation/Vegetation_Bgc.h"
+#include "../src/inc/temconst.h"
 
 class Integrator {
 public :
