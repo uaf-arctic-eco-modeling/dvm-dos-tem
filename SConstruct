@@ -83,7 +83,7 @@ src_files = Split("""src/TEM.cpp
                      src/snowsoil/TemperatureUpdator.cpp
                      src/CrankNicholson.cpp
                      src/tbc-debug-util.cpp
-                     src/vegetation/Vegetation_Bgc.cpp
+                     src/Vegetation_Bgc.cpp
                      src/vegetation/Vegetation_Env.cpp""")
 
 
