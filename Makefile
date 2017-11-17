@@ -50,7 +50,7 @@ SOURCES= 	src/TEM.o \
 		src/RestartData.o \
 		src/WildFire.o \
 		src/DoubleLinkedList.o \
-		src/ecodomain/Ground.o \
+		src/Ground.o \
 		src/ecodomain/horizon/MineralInfo.o \
 		src/ecodomain/horizon/Moss.o \
 		src/ecodomain/horizon/Organic.o \

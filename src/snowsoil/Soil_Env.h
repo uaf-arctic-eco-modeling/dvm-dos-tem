@@ -15,7 +15,7 @@
 #include "../inc/layerconst.h"
 #include "../../include/CohortLookup.h"
 
-#include "../ecodomain/Ground.h"
+#include "../../include/Ground.h"
 
 class Soil_Env {
 public:

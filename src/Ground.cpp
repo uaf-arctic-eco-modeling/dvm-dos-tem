@@ -17,8 +17,8 @@
 
 #include <boost/tokenizer.hpp>
 
-#include "Ground.h"
-#include "../TEMLogger.h"
+#include "../include/Ground.h"
+#include "TEMLogger.h"
 
 extern src::severity_logger< severity_level > glg;
 

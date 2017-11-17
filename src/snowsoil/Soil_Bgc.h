@@ -14,7 +14,7 @@
 
 #include "../inc/parameters.h"
 
-#include "../ecodomain/Ground.h"
+#include "../../include/Ground.h"
 
 #include <cmath>
 

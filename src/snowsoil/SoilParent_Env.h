@@ -4,7 +4,7 @@
 #include "../../include/EnvData.h"
 #include "../../include/RestartData.h"
 
-#include "../ecodomain/Ground.h"
+#include "../../include/Ground.h"
 
 class SoilParent_Env {
 public:
