@@ -1,9 +1,9 @@
 /*! \file
  *
  */
-#include "ParentLayer.h"
+#include "../include/ParentLayer.h"
 
-#include "../../TEMLogger.h"
+#include "TEMLogger.h"
 extern src::severity_logger< severity_level > glg;
 
 ParentLayer::ParentLayer(const double & thick) {

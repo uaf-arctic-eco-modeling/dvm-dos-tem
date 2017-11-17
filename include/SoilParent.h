@@ -1,6 +1,6 @@
 #ifndef SOILPARENT_H_
 #define SOILPARENT_H_
-#include "../src/ecodomain/layer/ParentLayer.h"
+#include "ParentLayer.h"
 
 class SoilParent {
 public:

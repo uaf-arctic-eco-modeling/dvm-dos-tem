@@ -20,7 +20,7 @@ using namespace std;
 #include "../src/ecodomain/layer/SnowLayer.h"
 #include "MineralLayer.h"
 #include "OrganicLayer.h"
-#include "../src/ecodomain/layer/ParentLayer.h"
+#include "ParentLayer.h"
 
 #include "CohortLookup.h"
 
