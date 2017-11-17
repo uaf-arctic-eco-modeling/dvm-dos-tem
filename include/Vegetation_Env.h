@@ -2,16 +2,16 @@
 #define VEGETATION_ENV_H_
 #include <cmath>
 
-#include "../../include/CohortLookup.h"
-#include "../../include/states.h"
-#include "../../include/fluxes.h"
-#include "../../include/diagnostics.h"
-#include "../../include/parameters.h"
+#include "CohortLookup.h"
+#include "states.h"
+#include "fluxes.h"
+#include "diagnostics.h"
+#include "parameters.h"
 
-#include "../../include/CohortData.h"
-#include "../../include/EnvData.h"
-#include "../../include/FireData.h"
-#include "../../include/RestartData.h"
+#include "CohortData.h"
+#include "EnvData.h"
+#include "FireData.h"
+#include "RestartData.h"
 
 class Vegetation_Env {
 public:
