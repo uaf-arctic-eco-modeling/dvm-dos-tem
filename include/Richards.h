@@ -8,12 +8,12 @@
 #include <cmath>
 #include <limits>
 
-#include "../../include/CohortData.h"
-#include "../../include/EnvData.h"
+#include "CohortData.h"
+#include "EnvData.h"
 
-#include "../../include/Layer.h"
-#include "../../include/SoilLayer.h"
-#include "../../include/CrankNicholson.h"
+#include "Layer.h"
+#include "SoilLayer.h"
+#include "CrankNicholson.h"
 
 class Richards {
 public :
@@ -99,4 +99,4 @@ private:
 
 };
 
-#endif /*RICHARD_H_*/
+#endif /*RICHARDS_H_*/
