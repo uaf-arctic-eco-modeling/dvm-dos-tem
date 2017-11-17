@@ -58,7 +58,7 @@ SOURCES= 	src/TEM.o \
 		src/ecodomain/horizon/SoilParent.o \
 		src/ecodomain/Vegetation.o \
 		src/CohortLookup.o \
-		src/runmodule/Cohort.o \
+		src/Cohort.o \
 		src/runmodule/Integrator.o \
 		src/ModelData.o \
 		src/snowsoil/Richards.o \

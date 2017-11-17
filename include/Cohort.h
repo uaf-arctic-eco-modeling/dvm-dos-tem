@@ -1,35 +1,35 @@
 #ifndef COHORT_H_
 #define COHORT_H_
 
-#include "../../include/Climate.h"
+#include "Climate.h"
 
-#include "../ecodomain/Ground.h"
-#include "../ecodomain/Vegetation.h"
+#include "../src/ecodomain/Ground.h"
+#include "../src/ecodomain/Vegetation.h"
 
-#include "../vegetation/Vegetation_Env.h"
-#include "../vegetation/Vegetation_Bgc.h"
+#include "../src/vegetation/Vegetation_Env.h"
+#include "../src/vegetation/Vegetation_Bgc.h"
 
-#include "../snowsoil/Snow_Env.h"
-#include "../snowsoil/Soil_Env.h"
-#include "../snowsoil/SoilParent_Env.h"
-#include "../snowsoil/Soil_Bgc.h"
+#include "../src/snowsoil/Snow_Env.h"
+#include "../src/snowsoil/Soil_Env.h"
+#include "../src/snowsoil/SoilParent_Env.h"
+#include "../src/snowsoil/Soil_Bgc.h"
 
-#include "../../include/WildFire.h"
+#include "WildFire.h"
 
-#include "../../include/CohortData.h"
+#include "CohortData.h"
 
-#include "../../include/EnvData.h"
-#include "../../include/BgcData.h"
-#include "../../include/FireData.h"
+#include "EnvData.h"
+#include "BgcData.h"
+#include "FireData.h"
 
-#include "../../include/RestartData.h"
+#include "RestartData.h"
 
-#include "../../include/CohortLookup.h"
+#include "CohortLookup.h"
 
-#include "Integrator.h"
+#include "../src/runmodule/Integrator.h"
 
 // headers for run
-#include "../../include/ModelData.h"
+#include "ModelData.h"
 
 class Cohort {
 public :
