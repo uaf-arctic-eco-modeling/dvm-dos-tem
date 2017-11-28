@@ -213,6 +213,7 @@ std::string ModelData::describe_module_settings() {
   s << table_row(15, "dvmmodule", this->get_dvmmodule());
   s << table_row(15, "dslmodule", this->get_dslmodule());
   s << table_row(15, "dsbmodule", this->get_dsbmodule());
+  s << table_row(15, "baseline", this->get_baseline());
   s << table_row(15, "nfeed", this->get_nfeed());
   s << table_row(15, "avlnflg", this->get_avlnflg());
   return s.str();
