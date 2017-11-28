@@ -8,7 +8,7 @@ import distutils.spawn
 import subprocess
 
 USEOMP = False
-USEMPI = True
+USEMPI = False
 
 libs = Split("""jsoncpp
                 readline
