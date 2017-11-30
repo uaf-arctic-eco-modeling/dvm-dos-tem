@@ -52,8 +52,8 @@
 
 #ifdef WITHMPI
 #include <mpi.h>
-#include "data/RestartData.h" // for defining MPI typemap...
-//#include "inc/tbc_mpi_constants.h"
+#include "../include/RestartData.h" // for defining MPI typemap...
+//#include "../include/tbc_mpi_constants.h"
 #endif
 
 // For managing the floating point environment
@@ -67,13 +67,13 @@
 
 
 
-#include "inc/timeconst.h"
+#include "../include/timeconst.h"
 #include "../include/ArgHandler.h"
 #include "../include/OutputEstimate.h"
-#include "TEMLogger.h"
-#include "TEMUtilityFunctions.h"
+#include "../include/TEMLogger.h"
+#include "../include/TEMUtilityFunctions.h"
 #include "../include/Runner.h"
-#include "data/RestartData.h"
+#include "../include/RestartData.h"
 
 #include <netcdf.h>
 

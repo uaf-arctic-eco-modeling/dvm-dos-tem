@@ -2,7 +2,7 @@
 #include <boost/log/expressions.hpp>
 #include <boost/phoenix.hpp>
 
-#include "TEMLogger.h"
+#include "../include/TEMLogger.h"
 
 // Create the global logger object
 src::severity_logger< severity_level > glg;

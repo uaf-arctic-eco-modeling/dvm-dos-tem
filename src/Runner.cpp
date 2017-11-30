@@ -8,10 +8,10 @@
 #endif
 
 #include "../include/Runner.h"
-#include "runmodule/Cohort.h"
-#include "TEMUtilityFunctions.h"
-#include "TEMLogger.h"
-#include "util/tbc-debug-util.h"
+#include "../include/Cohort.h"
+#include "../include/TEMUtilityFunctions.h"
+#include "../include/TEMLogger.h"
+#include "../include/tbc-debug-util.h"
 
 extern src::severity_logger< severity_level > glg;
 

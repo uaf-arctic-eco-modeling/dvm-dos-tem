@@ -23,22 +23,7 @@ libs = Split("""jsoncpp
                 boost_thread
                 boost_log""")
 
-local_include_paths = Split("""./src
-                               ./include
-                               ./src/atmosphere
-                               ./src/data
-                               ./src/disturb
-                               ./src/ecodomain
-                               ./src/ecodomain/horizon
-                               ./src/ecodomain/layer
-                               ./src/inc
-                               ./src/input
-                               ./src/lookup
-                               ./src/runmodule
-                               ./src/snowsoil
-                               ./src/util
-                               ./src/vegetation""")
-
+local_include_paths = ['./include']
                                                             
 src_files = Split("""src/TEM.cpp
                      src/TEMUtilityFunctions.cpp
@@ -49,42 +34,42 @@ src_files = Split("""src/TEM.cpp
                      src/Climate.cpp
                      src/ModelData.cpp
                      src/Runner.cpp
-                     src/data/BgcData.cpp
-                     src/data/CohortData.cpp
-                     src/data/EnvData.cpp
-                     src/data/EnvDataDly.cpp
-                     src/data/FirData.cpp
-                     src/data/RestartData.cpp
-                     src/disturb/WildFire.cpp
-                     src/ecodomain/DoubleLinkedList.cpp
-                     src/ecodomain/Ground.cpp
-                     src/ecodomain/Vegetation.cpp
-                     src/ecodomain/horizon/MineralInfo.cpp
-                     src/ecodomain/horizon/Moss.cpp
-                     src/ecodomain/horizon/Organic.cpp
-                     src/ecodomain/horizon/Snow.cpp
-                     src/ecodomain/horizon/SoilParent.cpp
-                     src/ecodomain/layer/Layer.cpp
-                     src/ecodomain/layer/MineralLayer.cpp
-                     src/ecodomain/layer/MossLayer.cpp
-                     src/ecodomain/layer/OrganicLayer.cpp
-                     src/ecodomain/layer/ParentLayer.cpp
-                     src/ecodomain/layer/SnowLayer.cpp
-                     src/ecodomain/layer/SoilLayer.cpp
-                     src/lookup/CohortLookup.cpp
-                     src/runmodule/Cohort.cpp
-                     src/runmodule/Integrator.cpp
-                     src/snowsoil/Richards.cpp
-                     src/snowsoil/Snow_Env.cpp
-                     src/snowsoil/Soil_Bgc.cpp
-                     src/snowsoil/Soil_Env.cpp
-                     src/snowsoil/SoilParent_Env.cpp
-                     src/snowsoil/Stefan.cpp
-                     src/snowsoil/TemperatureUpdator.cpp
-                     src/util/CrankNicholson.cpp
-                     src/util/tbc-debug-util.cpp
-                     src/vegetation/Vegetation_Bgc.cpp
-                     src/vegetation/Vegetation_Env.cpp""")
+                     src/BgcData.cpp
+                     src/CohortData.cpp
+                     src/EnvData.cpp
+                     src/EnvDataDly.cpp
+                     src/FireData.cpp
+                     src/RestartData.cpp
+                     src/WildFire.cpp
+                     src/DoubleLinkedList.cpp
+                     src/Ground.cpp
+                     src/Vegetation.cpp
+                     src/MineralInfo.cpp
+                     src/Moss.cpp
+                     src/Organic.cpp
+                     src/Snow.cpp
+                     src/SoilParent.cpp
+                     src/Layer.cpp
+                     src/MineralLayer.cpp
+                     src/MossLayer.cpp
+                     src/OrganicLayer.cpp
+                     src/ParentLayer.cpp
+                     src/SnowLayer.cpp
+                     src/SoilLayer.cpp
+                     src/CohortLookup.cpp
+                     src/Cohort.cpp
+                     src/Integrator.cpp
+                     src/Richards.cpp
+                     src/Snow_Env.cpp
+                     src/Soil_Bgc.cpp
+                     src/Soil_Env.cpp
+                     src/SoilParent_Env.cpp
+                     src/Stefan.cpp
+                     src/TemperatureUpdator.cpp
+                     src/CrankNicholson.cpp
+                     src/tbc-debug-util.cpp
+                     src/Vegetation_Bgc.cpp
+                     src/Vegetation_Env.cpp""")
 
 
 platform_name = platform.system()

@@ -8,11 +8,11 @@
 
 #include "../include/Climate.h"
 
-#include "inc/errorcode.h"
-#include "inc/timeconst.h"
+#include "../include/errorcode.h"
+#include "../include/timeconst.h"
 
-#include "TEMUtilityFunctions.h"
-#include "TEMLogger.h"
+#include "../include/TEMUtilityFunctions.h"
+#include "../include/TEMLogger.h"
 
 extern src::severity_logger< severity_level > glg;
 

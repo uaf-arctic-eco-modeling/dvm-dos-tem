@@ -10,9 +10,9 @@
 #include <boost/algorithm/string.hpp>
 
 #include "../include/OutputEstimate.h"
-#include "TEMUtilityFunctions.h"
+#include "../include/TEMUtilityFunctions.h"
 
-#include "TEMLogger.h"
+#include "../include/TEMLogger.h"
 
 extern src::severity_logger< severity_level > glg;
 
