@@ -319,6 +319,32 @@ calibration_targets = {
     'OrganicNitrogenSum':     1998.37,    #  soln
     'AvailableNitrogenSum':      1.70,    #  avln
   },
+  ## Updated by Heather Greaves 2017
+  "Boreal Bog": {
+    'cmtnumber': 31,
+                                 #    pft0      pft1      pft2       pft3      pft4     pft5      pft6    pft7     pft8    pft9   
+                                 #    Sphag     Sedge    Dshrub     Eshrub     Forb     Moss      Misc.   Misc.    Misc.   Misc.
+    'GPPAllIgnoringNitrogen':    [   504.11,   133.91,    12.82,    207.88,    65.46,   27.25,    0.0,    0.0,     0.0,    0.0 ], # ingpp     (gC/m2/year)   GPP without N limitation 
+    'NPPAllIgnoringNitrogen':    [   252.05,    66.95,     6.41,    103.94,    32.73,   13.62,    0.0,    0.0,     0.0,    0.0 ], # innpp     (gC/m2/year)   NPP without N limitation
+    'NPPAll':                    [   190.95,    35.81,     3.43,     40.84,    17.51,    8.51,    0.0,    0.0,     0.0,    0.0 ], # npp       (gC/m2/year)   NPP with N limitation
+    'Nuptake':                   [     3.23,     0.7,      0.02,     0.23,      0.04,    0.33,    0.0,    0.0,     0.0,    0.0 ], # nuptake   (gN/m2/year)
+    'VegCarbon': {                                                                                            
+      'Leaf':                    [   141.12,    22.74,     0.57,     16.10,     7.13,   24.04,    0.0,    0.0,     0.0,    0.0 ], # vegcl     (gC/m2) 
+      'Stem':                    [     0.00,    45.80,    13.24,     74.89,     0.0,     0.0,     0.0,    0.0,     0.0,    0.0 ], # vegcw     (gC/m2)
+      'Root':                    [     0.00,    59.83,     6.75,     70.59,    52.89,    0.0,     0.0,    0.0,     0.0,    0.0 ], # vegcr     (gC/m2)
+    },                                                                                                        
+    'VegStructuralNitrogen': {                                                                                
+      'Leaf':                    [     1.771,    0.948,    0.021,     0.543,    0.317,   0.285,   0.0,    0.0,     0.0,    0.0 ], # vegnl     (gN/m2)
+      'Stem':                    [     0.0,      0.728,    0.230,     1.274,    0.0,     0.0,     0.0,    0.0,     0.0,    0.0 ], # vegnw     (gN/m2)
+      'Root':                    [     0.0,      1.618,    0.160,     1.754,    1.485,   0.0,     0.0,    0.0,     0.0,    0.0 ], # vegnr     (gN/m2)
+    },
+    'MossDeathC':                0.00,    #  dmossc ## IGNORE
+    'CarbonShallow':          6028.95,    #  shlwc# From Mi et al, based on Manies
+    'CarbonDeep':            40300.79,    #  deepc# From Mi et al, based on Manies
+    'CarbonMineralSum':      60975.00,    #  minec# From Manies %C, %N, and BD
+    'OrganicNitrogenSum':     5548.86,    #  soln # From Manies %C, %N, and BD
+    'AvailableNitrogenSum':      9.41     #  avln # Using Bayley et al 2005 extractable n
+  },
   ## CMT44 - SHRUB TUNDRA - CALIBRATION SEWARD PENINSULA CLIMATE (COUNCIL)   JOY Aug 17 2019 changed BETULA for Kougarok
   "shrub tundra kougarok": {
     'cmtnumber': 44,
@@ -344,7 +370,7 @@ calibration_targets = {
     'CarbonMineralSum':      37022.00,    #  minec
     'OrganicNitrogenSum':     1843.00,    #  soln
     'AvailableNitrogenSum':      3.93,    #  avln
-  },
+  }
 
 }
 

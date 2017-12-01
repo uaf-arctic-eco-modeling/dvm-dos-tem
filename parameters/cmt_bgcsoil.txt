@@ -221,6 +221,26 @@
 1998.37           // initsoln: reduced from 1998.37 based on C/N soil   715.98
 1.7               // initavln:
 //===========================================================
+// CMT31 // Boreal Bog
+2.0               // rhq10:
+0.0               // moistmin:
+0.8               // moistopt: changed from 0.5 to 0.8
+1.0               // moistmax:
+50.00             // lcclnc: Updated. Subsequently reduced from 65.43 to 50.0
+0.372             // fsoma:
+0.611             // fsompr:
+0.017             // fsomcr:
+0.346             // som2co2:
+0.0042            // kn2:
+19.34             // nmincnsoil: Updated
+0.2               // propftos:
+0.0               // fnloss:  fraction N leaching (0 - 1) when drainage occurs
+6028.95           // initshlwc: Updated
+40300.79          // initdeepc: Updated
+60975             // initminec: Updated
+5548.86           // initsoln: Updated
+9.41              // initavln: Updated
+//===========================================================
 // CMT44 // Shrub Tundra Kougarok
 2.0               // rhq10:
 0.0               // moistmin:
