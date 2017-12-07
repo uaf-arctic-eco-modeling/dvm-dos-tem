@@ -250,11 +250,11 @@ int main(int argc, char* argv[]){
     boost::filesystem::create_directories(out_dir_path);
 
     // Create empty restart files for all stages based on size of run mask
-    BOOST_LOG_SEV(glg, info) << "Creating empty restart files.";
-    RestartData::create_empty_file(eq_restart_fname, num_rows, num_cols);
-    RestartData::create_empty_file(sp_restart_fname, num_rows, num_cols);
-    RestartData::create_empty_file(tr_restart_fname, num_rows, num_cols);
-    RestartData::create_empty_file(sc_restart_fname, num_rows, num_cols);
+//    BOOST_LOG_SEV(glg, info) << "Creating empty restart files.";
+//    RestartData::create_empty_file(eq_restart_fname, num_rows, num_cols);
+//    RestartData::create_empty_file(sp_restart_fname, num_rows, num_cols);
+//    RestartData::create_empty_file(tr_restart_fname, num_rows, num_cols);
+//    RestartData::create_empty_file(sc_restart_fname, num_rows, num_cols);
 
 #ifdef WITHMPI
 
@@ -268,6 +268,15 @@ int main(int argc, char* argv[]){
 #else
   } // Nothing to do; only one process, id will equal 0.
 #endif
+
+  //Creating empty restart files for all stages.
+  //Attempting to restrict this to one process (in the conditional
+  // statements above) causes a silent hang in nc_create_par(...)
+  BOOST_LOG_SEV(glg, info) << "Creating empty restart files.";
+  RestartData::create_empty_file(eq_restart_fname, num_rows, num_cols);
+  RestartData::create_empty_file(sp_restart_fname, num_rows, num_cols);
+  RestartData::create_empty_file(tr_restart_fname, num_rows, num_cols);
+  RestartData::create_empty_file(sc_restart_fname, num_rows, num_cols);
 
   // Create empty run status file
   BOOST_LOG_SEV(glg, info) << "Creating empty run status file.";

@@ -21,6 +21,13 @@
 
 #include "cohortconst.h" // needed for NUM_PFT
 
+#ifdef WITHMPI
+#include <mpi.h>
+#include <netcdf_par.h>
+#else
+#include <netcdf.h>
+#endif
+
 namespace temutil {
 
   /** A 'predicate' function that can be used with std::remove_if(..)
