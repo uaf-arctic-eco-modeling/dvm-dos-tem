@@ -293,7 +293,6 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
 
     for(int ii=0; ii<9; ii++){
       std::getline(ss, token, ',');
-      //std::cout<<"token: "<<token<<std::endl;
 
       if(ii==0){ // Variable name
         name = token; 

@@ -406,7 +406,8 @@ int main(int argc, char* argv[]){
           try {
 
             advance_model(rowidx, colidx, modeldata, args->get_cal_mode(), pr_restart_fname, eq_restart_fname, sp_restart_fname, tr_restart_fname, sc_restart_fname);
-            std::cout << "SUCCESS! Finished cell " << rowidx << ", " << colidx << ". Writing status file..\n";
+            BOOST_LOG_SEV(glg, note) << "Finished cell " << rowidx << ", " << colidx << ". Writing status file...";
+            std::cout << "cell " << rowidx << ", " << colidx << " complete.\n";
             write_status(run_status_fname, rowidx, colidx, 100);
             
           } catch (std::exception& e) {
@@ -859,7 +860,7 @@ void create_empty_run_status_file(const std::string& fname,
                             // path            c mode               mpi comm obj     mpi info netcdfid
   temutil::nc( nc_create_par(fname.c_str(), NC_CLOBBER|NC_NETCDF4|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
 
-  std::cout << "(MPI " << id << "/" << ntasks << ") Creating PARALLEL run_status file! \n";
+  BOOST_LOG_SEV(glg, debug) << "(MPI " << id << "/" << ntasks << ") Creating PARALLEL run_status file! \n";
 
 #else
 
@@ -927,11 +928,11 @@ void write_status(const std::string fname, int row, int col, int statusCode) {
   temutil::nc( nc_var_par_access(ncid, statusV, NC_INDEPENDENT) );
 
   // Write data
-  std::cout << "(MPI " << id << "/" << ntasks << ") WRITING FOR PIXEL (row, col): " << row << ", " << col << "\n";
+  BOOST_LOG_SEV(glg, note) << "(MPI " << id << "/" << ntasks << ") WRITING FOR PIXEL (row, col): " << row << ", " << col << "\n";
   temutil::nc( nc_put_var1_int(ncid, statusV, start,  &statusCode) );
 
   /* Close the netcdf file. */
-  std::cout << "(MPI " << id << "/" << ntasks << ") Closing PARALLEL file." << row << ", " << col << "\n";
+  BOOST_LOG_SEV(glg, debug) << "(MPI " << id << "/" << ntasks << ") Closing PARALLEL file." << row << ", " << col << "\n";
   temutil::nc( nc_close(ncid) );
 #else
 
