@@ -194,8 +194,7 @@ int main(int argc, char* argv[]){
   setvbuf(stdout, NULL, _IONBF, 0);
   setvbuf(stderr, NULL, _IONBF, 0);
   
-  time_t stime;
-  time_t etime;
+  time_t stime, etime, cell_stime, cell_etime;
   stime = time(0);
 
   BOOST_LOG_SEV(glg, note) << "Start dvmdostem @ " << ctime(&stime);
@@ -405,9 +404,14 @@ int main(int argc, char* argv[]){
           // by this try/catch??
           try {
 
+            cell_stime = time(0);
+
             advance_model(rowidx, colidx, modeldata, args->get_cal_mode(), pr_restart_fname, eq_restart_fname, sp_restart_fname, tr_restart_fname, sc_restart_fname);
+
+            cell_etime = time(0);
+
             BOOST_LOG_SEV(glg, note) << "Finished cell " << rowidx << ", " << colidx << ". Writing status file...";
-            std::cout << "cell " << rowidx << ", " << colidx << " complete.\n";
+            std::cout << "cell " << rowidx << ", " << colidx << " complete." << difftime(cell_etime, cell_stime) << std::endl;
             write_status(run_status_fname, rowidx, colidx, 100);
             
           } catch (std::exception& e) {
