@@ -13,8 +13,6 @@
 #include <sstream>
 #include <limits>
 
-#include <netcdf.h>
-
 #include <json/reader.h>
 #include <json/value.h>
 
@@ -297,7 +295,12 @@ namespace temutil {
     std::stringstream ss;
 
     int ncid;
+
+#ifdef WITHMPI
+    temutil::nc( nc_open_par(fname.c_str(), NC_NOWRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+#else
     temutil::nc( nc_open(fname.c_str(), NC_NOWRITE, &ncid) );
+#endif
 
     // lookup variable by name
     int vid;
@@ -333,7 +336,12 @@ namespace temutil {
     std::stringstream ss;
 
     int ncid;
+
+#ifdef WITHMPI
+    temutil::nc( nc_open_par(fname.c_str(), NC_NOWRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+#else
     temutil::nc( nc_open(fname.c_str(), NC_NOWRITE, &ncid) );
+#endif
 
     int xD, yD;
     size_t xD_len, yD_len;
