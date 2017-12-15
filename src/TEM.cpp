@@ -464,6 +464,8 @@ int main(int argc, char* argv[]){
 
   etime = time(0);
   BOOST_LOG_SEV(glg, info) << "Total Seconds: " << difftime(etime, stime);
+  //cout as well as log, since Atlas runs have logging disabled.
+  std::cout << "Total Seconds: " << difftime(etime, stime) << std::endl;
   return 0;
 } /* End main() */
 
