@@ -33,7 +33,6 @@ ModelData::ModelData(Json::Value controldata):force_cmt(-1) {
   std::string stgstr(controldata["stage_settings"]["run_stage"].asString());
 
   inter_stage_pause = controldata["stage_settings"]["inter_stage_pause"].asBool();
-  initmode = controldata["stage_settings"]["restart"].asInt();  // may become obsolete
   tr_yrs        = controldata["stage_settings"]["tr_yrs"].asInt();
   sc_yrs        = controldata["stage_settings"]["sc_yrs"].asInt();
 

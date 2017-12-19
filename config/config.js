@@ -55,7 +55,6 @@
     // running instances of dvmdostem from overwriting eachothers json files.
   },
   "stage_settings": {
-    "restart_mode": "restart",   // other options??
     "inter_stage_pause": false
 
     // maybe less confusing if these settings are only available from cmd line?
