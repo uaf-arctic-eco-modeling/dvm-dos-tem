@@ -508,8 +508,23 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
 
       }
 
-
       BOOST_LOG_SEV(glg, debug) << "Adding variable-level attributes from output spec.";
+
+      // Swap out generic /time unit from output spec with appropriate
+      // timestep denomination.
+      if (units.find("time") != std::string::npos) {
+        BOOST_LOG_SEV(glg, debug) << "Updating units string! ";
+        std::string real_timestep;
+        if (timestep == "yearly") { real_timestep = "year"; }
+        if (timestep == "monthly") { real_timestep = "month"; }
+        if (timestep == "daily") { real_timestep = "day"; }
+        units.replace(units.begin() + units.find("time"),
+                      units.end(),
+                      real_timestep.begin(),
+                      real_timestep.end());
+
+      }
+      BOOST_LOG_SEV(glg, debug) << "Using units string: " << units.c_str();
       temutil::nc( nc_put_att_text(ncid, Var, "units", units.length(), units.c_str()) );
       temutil::nc( nc_put_att_text(ncid, Var, "long_name", desc.length(), desc.c_str()) );
       temutil::nc( nc_put_att_double(ncid, Var, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
