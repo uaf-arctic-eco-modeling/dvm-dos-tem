@@ -33,8 +33,12 @@ ModelData::ModelData(Json::Value controldata):force_cmt(-1) {
   std::string stgstr(controldata["stage_settings"]["run_stage"].asString());
 
   inter_stage_pause = controldata["stage_settings"]["inter_stage_pause"].asBool();
-  tr_yrs        = controldata["stage_settings"]["tr_yrs"].asInt();
-  sc_yrs        = controldata["stage_settings"]["sc_yrs"].asInt();
+
+  pr_yrs            = controldata["stage_settings"]["pr_yrs"].asInt();
+  eq_yrs            = controldata["stage_settings"]["eq_yrs"].asInt();
+  sp_yrs            = controldata["stage_settings"]["sp_yrs"].asInt();
+  tr_yrs            = controldata["stage_settings"]["tr_yrs"].asInt();
+  sc_yrs            = controldata["stage_settings"]["sc_yrs"].asInt();
 
   parameter_dir     = controldata["IO"]["parameter_dir"].asString();
   hist_climate_file = controldata["IO"]["hist_climate_file"].asString();
@@ -77,11 +81,23 @@ void ModelData::update(ArgHandler const * arghandler) {
 
   BOOST_LOG_SEV(glg, debug) << "Updating ModelData from an ArgHandler...";
 
-  this->pr_yrs = arghandler->get_pr_yrs();
-  this->eq_yrs = arghandler->get_eq_yrs();
-  this->sp_yrs = arghandler->get_sp_yrs();
-  this->tr_yrs = arghandler->get_tr_yrs();
-  this->sc_yrs = arghandler->get_sc_yrs();
+  if (arghandler->get_pr_yrs() >= 0) {
+    this->pr_yrs = arghandler->get_pr_yrs();
+  }
+  if (arghandler->get_eq_yrs() >= 0) {
+    this->eq_yrs = arghandler->get_eq_yrs();
+  }
+  if (arghandler->get_sp_yrs() >= 0) {
+    this->sp_yrs = arghandler->get_sp_yrs();
+  }
+  if (arghandler->get_tr_yrs() >= 0) {
+    this->tr_yrs = arghandler->get_tr_yrs();
+
+  }
+  if (arghandler->get_sc_yrs() >= 0) {
+    this->sc_yrs = arghandler->get_sc_yrs();
+  }
+
   this->pid_tag = arghandler->get_pid_tag();
   this->last_n_json_files = arghandler->get_last_n_json_files();
   this->archive_all_json = arghandler->get_archive_all_json();

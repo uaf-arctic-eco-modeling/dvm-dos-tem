@@ -78,24 +78,24 @@ void ArgHandler::parse(int argc, char** argv) {
       "files.)")
 
     ("pr-yrs,p", boost::program_options::value<int>(&pr_yrs)
-       ->default_value(10),
-     "Number or PRE RUN years to run.")
+       ->default_value(-1),
+     "Number or PRE RUN years to run. If negative (default), will use config file value.")
 
     ("eq-yrs,e", boost::program_options::value<int>(&eq_yrs)
-       ->default_value(1000),
-     "Number of EQUILIBRIUM years to run.")
+       ->default_value(-1),
+     "Number of EQUILIBRIUM years to run. If negative (default), will use config file value.")
 
     ("sp-yrs,s", boost::program_options::value<int>(&sp_yrs)
-       ->default_value(100),
-     "Number of SPINUP years to run.")
+       ->default_value(-1),
+     "Number of SPINUP years to run. If negative (default), will use config file value.")
 
     ("tr-yrs,t", boost::program_options::value<int>(&tr_yrs)
-       ->default_value(0),
-     "Number of TRANSIENT years to run.")
+       ->default_value(-1),
+     "Number of TRANSIENT years to run. If negative (default), will use config file value.")
 
     ("sc-yrs,n", boost::program_options::value<int>(&sc_yrs)
-       ->default_value(0),
-     "Number of SCENARIO years to run.")
+       ->default_value(-1),
+     "Number of SCENARIO years to run. If negative (default), will use config file value.")
 
     ("loop-order,o",
      boost::program_options::value<std::string>(&loop_order)

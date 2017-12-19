@@ -55,11 +55,14 @@
     // running instances of dvmdostem from overwriting eachothers json files.
   },
   "stage_settings": {
-    "inter_stage_pause": false
+    "inter_stage_pause": false,
 
-    // maybe less confusing if these settings are only available from cmd line?
-    //"tr_yrs": 109,
-    //"sc_yrs": 100
+     // These defaults can be overridden on the command line
+    "pr_yrs": 10,
+    "eq_yrs": 100,
+    "sp_yrs": 20,
+    "tr_yrs": 109,
+    "sc_yrs": 91,
 
     // ??
     //"restartfile_dir": "DATA/Toolik_10x10_30yrs/" // location for restart-XX.nc file
