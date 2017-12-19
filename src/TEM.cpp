@@ -562,20 +562,14 @@ void advance_model(const int rowidx, const int colidx,
     BOOST_LOG_SEV(glg, debug) << "Ground, right before 'pre-run'. "
                               << runner.cohort.ground.layer_report_string("depth thermal");
 
+    //runner.load_from_cached_restart("", rowidx, colidx); // LOAD NOTHING??
+
     runner.run_years(0, modeldata.pr_yrs, "pre-run"); // climate is prepared w/in here.
+
+    runner.cache_restart_info(pr_restart_fname, rowidx, colidx);
 
     BOOST_LOG_SEV(glg, debug) << "Ground, right after 'pre-run'"
                               << runner.cohort.ground.layer_report_string("depth thermal");
-
-    // Update restartdata structure from the running state
-    runner.cohort.set_restartdata_from_state();
-
-    runner.cohort.restartdata.verify_logical_values();
-    BOOST_LOG_SEV(glg, debug) << "RestartData post PR";
-    runner.cohort.restartdata.restartdata_to_log();
-
-    BOOST_LOG_SEV(glg, note) << "Writing RestartData to: " << pr_restart_fname;
-    runner.cohort.restartdata.write_pixel_to_ncfile(pr_restart_fname, rowidx, colidx);
 
     if (runner.calcontroller_ptr) {
       runner.calcontroller_ptr->handle_stage_end("pr");
@@ -626,19 +620,13 @@ void advance_model(const int rowidx, const int colidx,
       }
     }
 
+    runner.load_from_cached_restart(pr_restart_fname, rowidx, colidx);
+
     // Run model
     BOOST_LOG_SEV(glg, fatal) << "Running Equilibrium, " << fri_adj_eq_yrs << " years.";
     runner.run_years(0, fri_adj_eq_yrs, "eq-run");
 
-    // Update restartdata structure from the running state
-    runner.cohort.set_restartdata_from_state();
-
-    runner.cohort.restartdata.verify_logical_values();
-    BOOST_LOG_SEV(glg, debug) << "RestartData post EQ";
-    runner.cohort.restartdata.restartdata_to_log();
-
-    BOOST_LOG_SEV(glg, note) << "Writing RestartData to: " << eq_restart_fname;
-    runner.cohort.restartdata.write_pixel_to_ncfile(eq_restart_fname, rowidx, colidx);
+    runner.cache_restart_info(eq_restart_fname, rowidx, colidx);
 
     if (modeldata.eq_yrs < runner.cohort.fire.getFRI()) {
       BOOST_LOG_SEV(glg, err) << "The model did not run enough years to complete a disturbance cycle!";
@@ -670,33 +658,13 @@ void advance_model(const int rowidx, const int colidx,
 
     runner.cohort.climate.monthlycontainers2log();
 
-    BOOST_LOG_SEV(glg, debug) << "Loading RestartData from: " << eq_restart_fname;
-    runner.cohort.restartdata.update_from_ncfile(eq_restart_fname, rowidx, colidx);
 
-    // FIX: if restart file has -9999, then soil temps can end up
-    // impossibly low should check for valid values prior to actual use
-
-    // Maybe a diffcult to maintain in the future
-    // when/if more variables are added?
-    runner.cohort.restartdata.verify_logical_values();
-
-    BOOST_LOG_SEV(glg, debug) << "RestartData pre SP";
-    runner.cohort.restartdata.restartdata_to_log();
-
-    // Copy values from the updated restart data to cohort and cd
-    runner.cohort.set_state_from_restartdata();
+    runner.load_from_cached_restart(eq_restart_fname, rowidx, colidx);
 
     // Run model
     runner.run_years(0, modeldata.sp_yrs, "sp-run");
 
-    // Update restartdata structure from the running state
-    runner.cohort.set_restartdata_from_state();
-
-    BOOST_LOG_SEV(glg, debug) << "RestartData post SP";
-    runner.cohort.restartdata.restartdata_to_log();
-
-    BOOST_LOG_SEV(glg, note) << "Writing RestartData out to: " << sp_restart_fname;
-    runner.cohort.restartdata.write_pixel_to_ncfile(sp_restart_fname, rowidx, colidx);
+    runner.cache_restart_info(sp_restart_fname, rowidx, colidx);
 
     if (runner.calcontroller_ptr) {
       runner.calcontroller_ptr->handle_stage_end("sp");
@@ -722,31 +690,14 @@ void advance_model(const int rowidx, const int colidx,
     runner.cohort.md->set_dslmodule(true);
     runner.cohort.md->set_dvmmodule(true);
 
-    // update the cohort's restart data object
-    BOOST_LOG_SEV(glg, debug) << "Loading RestartData from: " << sp_restart_fname;
-    runner.cohort.restartdata.update_from_ncfile(sp_restart_fname, rowidx, colidx);
-
-    runner.cohort.restartdata.verify_logical_values();
-
-    BOOST_LOG_SEV(glg, debug) << "RestartData pre TR";
-    runner.cohort.restartdata.restartdata_to_log();
-
-    // Copy values from the updated restart data to cohort and cd
-    runner.cohort.set_state_from_restartdata();
+    runner.load_from_cached_restart(sp_restart_fname, rowidx, colidx);
 
     BOOST_LOG_SEV(glg,err) << "MAKE SURE YOUR FIRE INPUTS ARE SETUP CORRECTLY!";
 
     // Run model
     runner.run_years(0, modeldata.tr_yrs, "tr-run");
 
-    // Update restartdata structure from the running state
-    runner.cohort.set_restartdata_from_state();
-
-    BOOST_LOG_SEV(glg, debug) << "RestartData post TR";
-    runner.cohort.restartdata.restartdata_to_log();
-
-    BOOST_LOG_SEV(glg, note) << "Writing RestartData out to: " << tr_restart_fname;
-    runner.cohort.restartdata.write_pixel_to_ncfile(tr_restart_fname, rowidx, colidx);
+    runner.cache_restart_info(tr_restart_fname, rowidx, colidx);
 
     if (runner.calcontroller_ptr) {
       runner.calcontroller_ptr->handle_stage_end("tr");
@@ -772,15 +723,7 @@ void advance_model(const int rowidx, const int colidx,
     runner.cohort.md->set_dslmodule(true);
     runner.cohort.md->set_dvmmodule(true);
 
-    // update the cohort's restart data object
-    BOOST_LOG_SEV(glg, debug) << "Loading RestartData from: " << tr_restart_fname;
-    runner.cohort.restartdata.update_from_ncfile(tr_restart_fname, rowidx, colidx);
-
-    BOOST_LOG_SEV(glg, debug) << "RestartData pre SC";
-    runner.cohort.restartdata.restartdata_to_log();
-
-    // Copy values from the updated restart data to cohort and cd
-    runner.cohort.set_state_from_restartdata();
+    runner.load_from_cached_restart(tr_restart_fname, rowidx, colidx);
 
     // Loading projected data instead of historic. FIX?
     runner.cohort.load_proj_climate(modeldata.proj_climate_file);
@@ -790,14 +733,7 @@ void advance_model(const int rowidx, const int colidx,
     // Run model
     runner.run_years(0, modeldata.sc_yrs, "sc-run");
 
-    // Update restartdata structure from the running state
-    runner.cohort.set_restartdata_from_state();
-
-    BOOST_LOG_SEV(glg, debug) << "RestartData post SC";
-    runner.cohort.restartdata.restartdata_to_log();
-
-    BOOST_LOG_SEV(glg, note) << "Writing RestartData out to: " << sc_restart_fname;
-    runner.cohort.restartdata.write_pixel_to_ncfile(sc_restart_fname, rowidx, colidx);
+    runner.cache_restart_info(sc_restart_fname, rowidx, colidx);
 
     if (runner.calcontroller_ptr) {
       runner.calcontroller_ptr->handle_stage_end("sc");

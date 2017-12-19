@@ -104,7 +104,39 @@ void Runner::run_years(int start_year, int end_year, const std::string& stage) {
 
     BOOST_LOG_SEV(glg, note) << "Completed year " << iy << " for cohort/cell (row,col): (" << this->y << "," << this->x << ")";
 
-  }} // end year loop (and named scope
+  }} // end year loop (and named scope)
+}
+
+void Runner::load_from_cached_restart(const std::string& restart_fname, int rowidx, int colidx){
+
+  BOOST_LOG_SEV(glg, debug) << "Loading RestartData from: " << restart_fname;
+  this->cohort.restartdata.update_from_ncfile(restart_fname, rowidx, colidx);
+
+  BOOST_LOG_SEV(glg, debug) << "Warn about strange values in restart data file...";
+  this->cohort.restartdata.verify_logical_values();
+
+  BOOST_LOG_SEV(glg, debug) << "RestartData pre stage: ";
+  this->cohort.restartdata.restartdata_to_log();
+
+  BOOST_LOG_SEV(glg, debug) << "Copy values from the updated restart data to "
+                            << "cohort and cd";
+  this->cohort.set_state_from_restartdata();
+}
+
+void Runner::cache_restart_info(const std::string& output_restart_fname, int rowidx, int colidx){
+
+  BOOST_LOG_SEV(glg, debug) << "Copy values from cohort to restartdata object.";
+  this->cohort.set_restartdata_from_state();
+
+  BOOST_LOG_SEV(glg, debug) << "Warn about strange values in restart data file...";
+  this->cohort.restartdata.verify_logical_values();
+
+  BOOST_LOG_SEV(glg, debug) << "RestartData post stage: ";
+  this->cohort.restartdata.restartdata_to_log();
+
+  BOOST_LOG_SEV(glg, note) << "Writing RestartData to: " << output_restart_fname;
+  this->cohort.restartdata.write_pixel_to_ncfile(output_restart_fname, rowidx, colidx);
+
 }
 
 void Runner::monthly_output(const int year, const int month, const std::string& runstage) {

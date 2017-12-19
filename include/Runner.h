@@ -65,7 +65,12 @@ public:
   void output_netCDF_yearly(int year, std::string stage);
   void output_netCDF(std::map<std::string, OutputSpec> &outputs, int year, int month, std::string stage);
 
+  void load_from_cached_restart(const std::string& restart_fname, int rowidx, int colidx);
+  void cache_restart_info(const std::string& output_restart_fname, int rowidx, int colidx);
+
 private:
+
+
   bool calibrationMode;
 
   std::string loop_order;
