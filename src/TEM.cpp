@@ -104,12 +104,7 @@ void create_empty_run_status_file(const std::string& fname,
 
 // The main driving function
 void advance_model(const int rowidx, const int colidx,
-                   const ModelData&, const bool calmode,
-                   const std::string& pr_restart_fname,
-                   const std::string& eq_restart_fname,
-                   const std::string& sp_restart_fname,
-                   const std::string& tr_restart_fname,
-                   const std::string& sc_restart_fname);
+                   const ModelData&, const bool calmode);
 
 
 // draft pretty-printers...
@@ -211,11 +206,6 @@ int main(int argc, char* argv[]){
 
   // Make some convenient handles for later...
   std::string run_status_fname = modeldata.output_dir + "run_status.nc";
-  std::string pr_restart_fname = modeldata.output_dir + "restart-pr.nc";
-  std::string eq_restart_fname = modeldata.output_dir + "restart-eq.nc";
-  std::string sp_restart_fname = modeldata.output_dir + "restart-sp.nc";
-  std::string tr_restart_fname = modeldata.output_dir + "restart-tr.nc";
-  std::string sc_restart_fname = modeldata.output_dir + "restart-sc.nc";
 
 #ifdef WITHMPI
   BOOST_LOG_SEV(glg, fatal) << "Built and running with MPI";
@@ -251,13 +241,6 @@ int main(int argc, char* argv[]){
     BOOST_LOG_SEV(glg, info) << "Creating output directory: "<<modeldata.output_dir;
     boost::filesystem::create_directories(out_dir_path);
 
-    // Create empty restart files for all stages based on size of run mask
-//    BOOST_LOG_SEV(glg, info) << "Creating empty restart files.";
-//    RestartData::create_empty_file(eq_restart_fname, num_rows, num_cols);
-//    RestartData::create_empty_file(sp_restart_fname, num_rows, num_cols);
-//    RestartData::create_empty_file(tr_restart_fname, num_rows, num_cols);
-//    RestartData::create_empty_file(sc_restart_fname, num_rows, num_cols);
-
 #ifdef WITHMPI
 
     MPI_Barrier(MPI::COMM_WORLD);
@@ -275,11 +258,11 @@ int main(int argc, char* argv[]){
   //Attempting to restrict this to one process (in the conditional
   // statements above) causes a silent hang in nc_create_par(...)
   BOOST_LOG_SEV(glg, info) << "Creating empty restart files.";
-  RestartData::create_empty_file(pr_restart_fname, num_rows, num_cols);
-  RestartData::create_empty_file(eq_restart_fname, num_rows, num_cols);
-  RestartData::create_empty_file(sp_restart_fname, num_rows, num_cols);
-  RestartData::create_empty_file(tr_restart_fname, num_rows, num_cols);
-  RestartData::create_empty_file(sc_restart_fname, num_rows, num_cols);
+  RestartData::create_empty_file(modeldata.output_dir + modeldata.end_pr_restartdata, num_rows, num_cols);
+  RestartData::create_empty_file(modeldata.output_dir + modeldata.end_eq_restartdata, num_rows, num_cols);
+  RestartData::create_empty_file(modeldata.output_dir + modeldata.end_sp_restartdata, num_rows, num_cols);
+  RestartData::create_empty_file(modeldata.output_dir + modeldata.end_tr_restartdata, num_rows, num_cols);
+  RestartData::create_empty_file(modeldata.output_dir + modeldata.end_sc_restartdata, num_rows, num_cols);
 
   // Create empty run status file
   BOOST_LOG_SEV(glg, info) << "Creating empty run status file.";
@@ -405,7 +388,7 @@ int main(int argc, char* argv[]){
           // by this try/catch??
           try {
 
-            advance_model(rowidx, colidx, modeldata, args->get_cal_mode(), pr_restart_fname, eq_restart_fname, sp_restart_fname, tr_restart_fname, sc_restart_fname);
+            advance_model(rowidx, colidx, modeldata, args->get_cal_mode());
             std::cout << "SUCCESS! Finished cell " << rowidx << ", " << colidx << ". Writing status file..\n";
             write_status(run_status_fname, rowidx, colidx, 100);
             
@@ -509,12 +492,7 @@ std::vector<float> read_new_co2_file(const std::string &filename) {
  * May throw exceptions. (Which kind?)
 */
 void advance_model(const int rowidx, const int colidx,
-                   const ModelData& modeldata, const bool calmode,
-                   const std::string& pr_restart_fname,
-                   const std::string& eq_restart_fname,
-                   const std::string& sp_restart_fname,
-                   const std::string& tr_restart_fname,
-                   const std::string& sc_restart_fname) {
+                   const ModelData& modeldata, const bool calmode) {
 
   BOOST_LOG_SEV(glg, note) << "Running cell (" << rowidx << ", " << colidx << ")";
 
@@ -566,7 +544,7 @@ void advance_model(const int rowidx, const int colidx,
 
     runner.run_years(0, modeldata.pr_yrs, "pre-run"); // climate is prepared w/in here.
 
-    runner.cache_restart_info(pr_restart_fname, rowidx, colidx);
+    runner.cache_restart_info(modeldata.output_dir + modeldata.end_pr_restartdata, rowidx, colidx);
 
     BOOST_LOG_SEV(glg, debug) << "Ground, right after 'pre-run'"
                               << runner.cohort.ground.layer_report_string("depth thermal");
@@ -626,7 +604,7 @@ void advance_model(const int rowidx, const int colidx,
     BOOST_LOG_SEV(glg, fatal) << "Running Equilibrium, " << fri_adj_eq_yrs << " years.";
     runner.run_years(0, fri_adj_eq_yrs, "eq-run");
 
-    runner.cache_restart_info(eq_restart_fname, rowidx, colidx);
+    runner.cache_restart_info(modeldata.output_dir + modeldata.end_eq_restartdata, rowidx, colidx);
 
     if (modeldata.eq_yrs < runner.cohort.fire.getFRI()) {
       BOOST_LOG_SEV(glg, err) << "The model did not run enough years to complete a disturbance cycle!";
@@ -664,7 +642,7 @@ void advance_model(const int rowidx, const int colidx,
     // Run model
     runner.run_years(0, modeldata.sp_yrs, "sp-run");
 
-    runner.cache_restart_info(sp_restart_fname, rowidx, colidx);
+    runner.cache_restart_info(modeldata.output_dir + modeldata.end_sp_restartdata, rowidx, colidx);
 
     if (runner.calcontroller_ptr) {
       runner.calcontroller_ptr->handle_stage_end("sp");
@@ -697,7 +675,7 @@ void advance_model(const int rowidx, const int colidx,
     // Run model
     runner.run_years(0, modeldata.tr_yrs, "tr-run");
 
-    runner.cache_restart_info(tr_restart_fname, rowidx, colidx);
+    runner.cache_restart_info(modeldata.output_dir + modeldata.end_tr_restartdata, rowidx, colidx);
 
     if (runner.calcontroller_ptr) {
       runner.calcontroller_ptr->handle_stage_end("tr");
@@ -733,7 +711,7 @@ void advance_model(const int rowidx, const int colidx,
     // Run model
     runner.run_years(0, modeldata.sc_yrs, "sc-run");
 
-    runner.cache_restart_info(sc_restart_fname, rowidx, colidx);
+    runner.cache_restart_info(modeldata.output_dir + modeldata.end_sc_restartdata, rowidx, colidx);
 
     if (runner.calcontroller_ptr) {
       runner.calcontroller_ptr->handle_stage_end("sc");
