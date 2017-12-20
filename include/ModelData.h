@@ -47,6 +47,19 @@ public:
   int tr_yrs;
   int sc_yrs;
 
+  // the restart data files that will be read 
+  string eq_restart_from;
+  string sp_restart_from;
+  string tr_restart_from;
+  string sc_restart_from;
+
+  // the files where restart datas will be written
+  string end_pr_restartdata;
+  string end_eq_restartdata;
+  string end_sp_restartdata;
+  string end_tr_restartdata;
+  string end_sc_restartdata;
+
   string parameter_dir;
   string hist_climate_file;
   string proj_climate_file;

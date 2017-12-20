@@ -66,6 +66,35 @@ ModelData::ModelData(Json::Value controldata):force_cmt(-1) {
   updatelai     = controldata["model_settings"]["dynamic_lai"].asInt(); // checked in Cohort::updateMonthly_DIMVeg
 
 
+  // NOTE: Order is important, output_dir must be set above for the
+  // following to work!
+  end_pr_restartdata = "restart-pr.nc";
+  end_eq_restartdata = "restart-eq.nc";
+  end_sp_restartdata = "restart-sp.nc";
+  end_tr_restartdata = "restart-tr.nc";
+  end_sc_restartdata = "restart-sc.nc";
+
+  if ("" != controldata["stage_settings"]["eq_restart_from"].asString()) {
+    eq_restart_from = controldata["stage_settings"]["eq_restart_from"].asString();
+  } else {
+    eq_restart_from = output_dir + end_pr_restartdata;
+  }
+  if ("" != controldata["stage_settings"]["sp_restart_from"].asString()) {
+    sp_restart_from = controldata["stage_settings"]["sp_restart_from"].asString();
+  } else {
+    sp_restart_from = output_dir + end_eq_restartdata;
+  }
+  if ("" != controldata["stage_settings"]["tr_restart_from"].asString()) {
+    tr_restart_from = controldata["stage_settings"]["tr_restart_from"].asString();
+  } else {
+    tr_restart_from = output_dir + end_sp_restartdata;
+  }
+  if ("" != controldata["stage_settings"]["sc_restart_from"].asString()) {
+    sc_restart_from = controldata["stage_settings"]["sc_restart_from"].asString();
+  } else {
+    sc_restart_from = output_dir + end_tr_restartdata;
+  }
+
   // Unused (11/23/2015)
   changeclimate = controldata["model_settings"]["dynamic_climate"].asInt();
   changeco2     = controldata["model_settings"]["varied_co2"].asInt();

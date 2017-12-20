@@ -64,8 +64,27 @@
     "tr_yrs": 109,
     "sc_yrs": 91,
 
-    // ??
-    //"restartfile_dir": "DATA/Toolik_10x10_30yrs/" // location for restart-XX.nc file
+    // If this is an empty string, then the model will use its default
+    // restart files to transition between stages. This means that at the end
+    // of each stage, the model will write out to disk all the data required
+    // to save the state of the model. Then at the beginning of the next stage,
+    // the model will look for this "restart file" and use it to initialize the
+    // model stage before beginning to run the years in the stage. These files
+    // get created automatically when the run begins and have names following
+    // the pattern:
+    //      <model-output-dir>/restart-<stage>.nc file file
+    // For example, "restart-pr.nc" represents the state at the end of
+    // the pre-run stage.
+    //
+    // If a non-empty string is set for any of the following variables, then
+    // the model will look for a file located at the path specified in the
+    // string and use this file to initialize the stage (instead of the default
+    //     <model-output-dir>/restart-<stage>.nc file
+
+    "eq_restart_from": "",
+    "sp_restart_from": "",
+    "tr_restart_from": "",
+    "sc_restart_from": ""
 
   }
 

@@ -109,7 +109,7 @@ void Runner::run_years(int start_year, int end_year, const std::string& stage) {
 
 void Runner::load_from_cached_restart(const std::string& restart_fname, int rowidx, int colidx){
 
-  BOOST_LOG_SEV(glg, debug) << "Loading RestartData from: " << restart_fname;
+  BOOST_LOG_SEV(glg, note) << "Loading RestartData from: " << restart_fname;
   this->cohort.restartdata.update_from_ncfile(restart_fname, rowidx, colidx);
 
   BOOST_LOG_SEV(glg, debug) << "Warn about strange values in restart data file...";

@@ -620,7 +620,7 @@ void advance_model(const int rowidx, const int colidx,
       }
     }
 
-    runner.load_from_cached_restart(pr_restart_fname, rowidx, colidx);
+    runner.load_from_cached_restart(modeldata.eq_restart_from, rowidx, colidx);
 
     // Run model
     BOOST_LOG_SEV(glg, fatal) << "Running Equilibrium, " << fri_adj_eq_yrs << " years.";
@@ -659,7 +659,7 @@ void advance_model(const int rowidx, const int colidx,
     runner.cohort.climate.monthlycontainers2log();
 
 
-    runner.load_from_cached_restart(eq_restart_fname, rowidx, colidx);
+    runner.load_from_cached_restart(modeldata.sp_restart_from, rowidx, colidx);
 
     // Run model
     runner.run_years(0, modeldata.sp_yrs, "sp-run");
@@ -690,7 +690,7 @@ void advance_model(const int rowidx, const int colidx,
     runner.cohort.md->set_dslmodule(true);
     runner.cohort.md->set_dvmmodule(true);
 
-    runner.load_from_cached_restart(sp_restart_fname, rowidx, colidx);
+    runner.load_from_cached_restart(modeldata.tr_restart_from, rowidx, colidx);
 
     BOOST_LOG_SEV(glg,err) << "MAKE SURE YOUR FIRE INPUTS ARE SETUP CORRECTLY!";
 
@@ -723,7 +723,7 @@ void advance_model(const int rowidx, const int colidx,
     runner.cohort.md->set_dslmodule(true);
     runner.cohort.md->set_dvmmodule(true);
 
-    runner.load_from_cached_restart(tr_restart_fname, rowidx, colidx);
+    runner.load_from_cached_restart(modeldata.sc_restart_from, rowidx, colidx);
 
     // Loading projected data instead of historic. FIX?
     runner.cohort.load_proj_climate(modeldata.proj_climate_file);
