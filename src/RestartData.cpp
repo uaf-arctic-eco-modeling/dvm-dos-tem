@@ -1173,7 +1173,7 @@ void RestartData::write_px_vars(const std::string& fname, const int rowidx, cons
   int ncid;
 
 #ifdef WITHMPI
-  temutil::nc( nc_open_par(fname.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+  temutil::nc( nc_open_par(fname.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
 #else
   temutil::nc( nc_open(fname.c_str(), NC_WRITE, &ncid) );
 #endif
@@ -1235,7 +1235,7 @@ void RestartData::write_px_pft_vars(const std::string& fname, const int rowidx, 
   int ncid;
 
 #ifdef WITHMPI
-  temutil::nc( nc_open_par(fname.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+  temutil::nc( nc_open_par(fname.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
 #else
   temutil::nc( nc_open(fname.c_str(), NC_WRITE, &ncid) );
 #endif
@@ -1298,7 +1298,7 @@ void RestartData::write_px_pftpart_pft_vars(const std::string& fname, const int 
   int ncid;
 
 #ifdef WITHMPI
-  temutil::nc( nc_open_par(fname.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+  temutil::nc( nc_open_par(fname.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
 #else
   temutil::nc( nc_open(fname.c_str(), NC_WRITE, &ncid) );
 #endif
@@ -1333,7 +1333,7 @@ void RestartData::write_px_snow_vars(const std::string& fname, const int rowidx,
   int ncid;
 
 #ifdef WITHMPI
-  temutil::nc( nc_open_par(fname.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+  temutil::nc( nc_open_par(fname.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
 #else
   temutil::nc( nc_open(fname.c_str(), NC_WRITE, &ncid) );
 #endif
@@ -1374,7 +1374,7 @@ void RestartData::write_px_root_pft_vars(const std::string& fname, const int row
   int ncid;
 
 #ifdef WITHMPI
-  temutil::nc( nc_open_par(fname.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+  temutil::nc( nc_open_par(fname.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
 #else
   temutil::nc( nc_open(fname.c_str(), NC_WRITE, &ncid) );
 #endif
@@ -1406,7 +1406,7 @@ void RestartData::write_px_soil_vars(const std::string& fname, const int rowidx,
   int ncid;
 
 #ifdef WITHMPI
-  temutil::nc( nc_open_par(fname.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+  temutil::nc( nc_open_par(fname.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
 #else
   temutil::nc( nc_open(fname.c_str(), NC_WRITE, &ncid) );
 #endif
@@ -1462,7 +1462,7 @@ void RestartData::write_px_rock_vars(const std::string& fname, const int rowidx,
   int ncid;
 
 #ifdef WITHMPI
-  temutil::nc( nc_open_par(fname.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+  temutil::nc( nc_open_par(fname.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
 #else
   temutil::nc( nc_open(fname.c_str(), NC_WRITE, &ncid) );
 #endif
@@ -1496,7 +1496,7 @@ void RestartData::write_px_front_vars(const std::string& fname, const int rowidx
   int ncid;
 
 #ifdef WITHMPI
-  temutil::nc( nc_open_par(fname.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+  temutil::nc( nc_open_par(fname.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
 #else
   temutil::nc( nc_open(fname.c_str(), NC_WRITE, &ncid) );
 #endif
@@ -1530,7 +1530,7 @@ void RestartData::write_px_prev_pft_vars(const std::string& fname, const int row
   int ncid;
 
 #ifdef WITHMPI
-  temutil::nc( nc_open_par(fname.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+  temutil::nc( nc_open_par(fname.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
 #else
   temutil::nc( nc_open(fname.c_str(), NC_WRITE, &ncid) );
 #endif
