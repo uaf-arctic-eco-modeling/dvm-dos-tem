@@ -922,7 +922,7 @@ void write_status(const std::string fname, int row, int col, int statusCode) {
   int ntasks = MPI::COMM_WORLD.Get_size();
 
   // Open dataset
-  temutil::nc( nc_open_par(fname.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+  temutil::nc( nc_open_par(fname.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
   temutil::nc( nc_inq_varid(ncid, "run_status", &statusV) );
   temutil::nc( nc_var_par_access(ncid, statusV, NC_INDEPENDENT) );
 
