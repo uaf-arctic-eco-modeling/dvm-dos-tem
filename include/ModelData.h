@@ -32,7 +32,7 @@ public:
   void update(ArgHandler const * arghandler);
   std::string describe_module_settings();
 
-  void create_netCDF_output_files(int ysize, int xsize, const std::string & stage);
+  void create_netCDF_output_files(int ysize, int xsize, const std::string & stage, int stage_year_count);
 
   string loop_order; // time-major or space-major
 
