@@ -1011,9 +1011,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputALD)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "ALD", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "ALD", &cv) );
@@ -1036,9 +1036,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputDEEPDZ)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "DEEPDZ", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "DEEPDZ", &cv) );
@@ -1070,9 +1070,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputGROWEND)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "GROWEND", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "GROWEND", &cv) );
@@ -1097,9 +1097,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputGROWSTART)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "GROWSTART", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "GROWSTART", &cv) );
@@ -1124,9 +1124,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputMOSSDZ)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "MOSSDZ", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "MOSSDZ", &cv) );
@@ -1160,9 +1160,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputROLB)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "ROLB", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "ROLB", &cv) );
@@ -1196,9 +1196,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputPERMAFROST)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "PERMAFROST", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "PERMAFROST", &cv) );
@@ -1223,9 +1223,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputSHLWDZ)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "SHLWDZ", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "SHLWDZ", &cv) );
@@ -1257,9 +1257,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputSNOWEND)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "SNOWEND", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "SNOWEND", &cv) );
@@ -1284,9 +1284,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputSNOWSTART)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "SNOWSTART", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "SNOWSTART", &cv) );
@@ -1312,9 +1312,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputYSD)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "YSD", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "YSD", &cv) );
@@ -1340,9 +1340,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputBURNAIR2SOIN)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "BURNAIR2SOIN", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "BURNAIR2SOIN", &cv) );
@@ -1378,9 +1378,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputBURNTHICK)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "BURNTHICK", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "BURNTHICK", &cv) );
@@ -1416,9 +1416,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputDEADC)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "DEADC", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "DEADC", &cv) );
@@ -1451,9 +1451,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputDEADN)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "DEADN", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "DEADN", &cv) );
@@ -1486,9 +1486,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputDEEPC)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "DEEPC", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "DEEPC", &cv) );
@@ -1521,9 +1521,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputDWDC)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "DWDC", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "DWDC", &cv) );
@@ -1556,9 +1556,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputDWDN)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "DWDN", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "DWDN", &cv) );
@@ -1591,9 +1591,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputMINEC)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "MINEC", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "MINEC", &cv) );
@@ -1630,9 +1630,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputMOSSDEATHC)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "MOSSDEATHC", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "MOSSDEATHC", &cv) );
@@ -1665,9 +1665,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputMOSSDEATHN)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "MOSSDEATHN", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "MOSSDEATHN", &cv) );
@@ -1700,9 +1700,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputQDRAINAGE)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "QDRAINAGE", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "QDRAINAGE", &cv) );
@@ -1735,9 +1735,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputQINFILTRATION)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "QINFILTRATION", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "QINFILTRATION", &cv) );
@@ -1770,9 +1770,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputQRUNOFF)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "QRUNOFF", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "QRUNOFF", &cv) );
@@ -1805,9 +1805,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputSHLWC)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "SHLWC", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "SHLWC", &cv) );
@@ -1840,9 +1840,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputWDRH)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "WDRH", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "WDRH", &cv) );
@@ -1876,9 +1876,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputHKDEEP)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "HKDEEP", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "HKDEEP", &cv) );
@@ -1916,9 +1916,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputHKLAYER)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "HKLAYER", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "HKLAYER", &cv) );
@@ -1950,9 +1950,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputHKMINEA)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "HKMINEA", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "HKMINEA", &cv) );
@@ -1990,9 +1990,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputHKMINEB)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "HKMINEB", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "HKMINEB", &cv) );
@@ -2030,9 +2030,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputHKMINEC)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "HKMINEC", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "HKMINEC", &cv) );
@@ -2070,9 +2070,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputHKSHLW)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "HKSHLW", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "HKSHLW", &cv) );
@@ -2110,9 +2110,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputSNOWTHICK)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "SNOWTHICK", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "SNOWTHICK", &cv) );
@@ -2160,9 +2160,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputSWE)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "SWE", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "SWE", &cv) );
@@ -2199,9 +2199,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputTCDEEP)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "TCDEEP", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "TCDEEP", &cv) );
@@ -2239,9 +2239,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputTCLAYER)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "TCLAYER", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "TCLAYER", &cv) );
@@ -2272,9 +2272,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputTCMINEA)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "TCMINEA", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "TCMINEA", &cv) );
@@ -2311,9 +2311,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputTCMINEB)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "TCMINEB", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "TCMINEB", &cv) );
@@ -2350,9 +2350,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputTCMINEC)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "TCMINEC", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "TCMINEC", &cv) );
@@ -2389,9 +2389,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputTCSHLW)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "TCSHLW", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "TCSHLW", &cv) );
@@ -2428,9 +2428,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputTDEEP)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "TDEEP", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "TDEEP", &cv) );
@@ -2467,9 +2467,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputTLAYER)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "TLAYER", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "TLAYER", &cv) );
@@ -2500,9 +2500,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputTMINEA)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "TMINEA", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "TMINEA", &cv) );
@@ -2539,9 +2539,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputTMINEB)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "TMINEB", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "TMINEB", &cv) );
@@ -2578,9 +2578,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputTMINEC)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "TMINEC", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "TMINEC", &cv) );
@@ -2617,9 +2617,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputTSHLW)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "TSHLW", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "TSHLW", &cv) );
@@ -2656,9 +2656,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputVWCDEEP)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "VWCDEEP", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "VWCDEEP", &cv) );
@@ -2695,9 +2695,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputVWCLAYER)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "VWCLAYER", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "VWCLAYER", &cv) );
@@ -2728,9 +2728,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputVWCMINEA)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "VWCMINEA", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "VWCMINEA", &cv) );
@@ -2767,9 +2767,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputVWCMINEB)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "VWCMINEB", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "VWCMINEB", &cv) );
@@ -2806,9 +2806,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputVWCMINEC)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "VWCMINEC", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "VWCMINEC", &cv) );
@@ -2845,9 +2845,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputVWCSHLW)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "VWCSHLW", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "VWCSHLW", &cv) );
@@ -2884,9 +2884,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputWATERTAB)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "WATERTAB", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "WATERTAB", &cv) );
@@ -2924,9 +2924,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputLAYERDEPTH)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "LAYERDEPTH", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "LAYERDEPTH", &cv) );
@@ -2957,9 +2957,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputLAYERDZ)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "LAYERDZ", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "LAYERDZ", &cv) );
@@ -2990,9 +2990,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputLAYERTYPE)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "LAYERTYPE", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "LAYERTYPE", &cv) );
@@ -3024,9 +3024,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputAVLN)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "AVLN", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "AVLN", &cv) );
@@ -3078,9 +3078,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputBURNSOIC)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "BURNSOIC", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "BURNSOIC", &cv) );
@@ -3122,9 +3122,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputBURNSOILN)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "BURNSOILN", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "BURNSOILN", &cv) );
@@ -3166,9 +3166,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputNDRAIN)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "NDRAIN", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "NDRAIN", &cv) );
@@ -3220,9 +3220,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputNETNMIN)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "NETNMIN", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "NETNMIN", &cv) );
@@ -3275,9 +3275,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputNIMMOB)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "NIMMOB", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "NIMMOB", &cv) );
@@ -3330,9 +3330,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputNINPUT)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "NINPUT", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "NINPUT", &cv) );
@@ -3372,9 +3372,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputNLOST)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "NLOST", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "NLOST", &cv) );
@@ -3410,9 +3410,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputORGN)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "ORGN", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "ORGN", &cv) );
@@ -3468,9 +3468,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputRH)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "RH", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "RH", &cv) );
@@ -3532,9 +3532,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputSOC)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "SOC", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "SOC", &cv) );
@@ -3592,9 +3592,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputBURNVEG2AIRC)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "BURNVEG2AIRC", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "BURNVEG2AIRC", &cv) );
@@ -3628,9 +3628,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputBURNVEG2AIRN)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "BURNVEG2AIRN", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "BURNVEG2AIRN", &cv) );
@@ -3664,9 +3664,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputBURNVEG2DEADC)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "BURNVEG2DEADC", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "BURNVEG2DEADC", &cv) );
@@ -3700,9 +3700,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputBURNVEG2DEADN)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "BURNVEG2DEADN", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "BURNVEG2DEADN", &cv) );
@@ -3736,9 +3736,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputBURNVEG2SOIABVC)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "BURNVEG2SOIABVC", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "BURNVEG2SOIABVC", &cv) );
@@ -3772,9 +3772,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputBURNVEG2SOIABVN)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "BURNVEG2SOIABVN", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "BURNVEG2SOIABVN", &cv) );
@@ -3808,9 +3808,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputBURNVEG2SOIBLWC)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "BURNVEG2SOIBLWC", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "BURNVEG2SOIBLWC", &cv) );
@@ -3844,9 +3844,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputBURNVEG2SOIBLWN)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "BURNVEG2SOIBLWN", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "BURNVEG2SOIBLWN", &cv) );
@@ -3880,9 +3880,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputGPP)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "GPP", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "GPP", &cv) );
@@ -3977,9 +3977,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputINGPP)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "INGPP", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "INGPP", &cv) );
@@ -4074,9 +4074,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputINNPP)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "INNPP", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "INNPP", &cv) );
@@ -4171,9 +4171,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputLAI)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "LAI", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "LAI", &cv) );
@@ -4226,9 +4226,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputLTRFALC)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "LTRFALC", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "LTRFALC", &cv) );
@@ -4325,9 +4325,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputLTRFALN)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "LTRFALN", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "LTRFALN", &cv) );
@@ -4424,9 +4424,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputNPP)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "NPP", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "NPP", &cv) );
@@ -4528,9 +4528,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputNUPTAKEIN)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "NUPTAKEIN", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "NUPTAKEIN", &cv) );
@@ -4597,9 +4597,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputNUPTAKELAB)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "NUPTAKELAB", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "NUPTAKELAB", &cv) );
@@ -4666,9 +4666,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputNUPTAKEST)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "NUPTAKEST", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "NUPTAKEST", &cv) );
@@ -4761,9 +4761,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputRG)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "RG", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "RG", &cv) );
@@ -4785,7 +4785,6 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
             }
           }
         }
-
         temutil::nc( nc_put_vara_double(ncid, cv, start5, count5, &rg[0][0]) ); 
       }
       //PFT only
@@ -4857,9 +4856,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputRM)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "RM", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "RM", &cv) );
@@ -4953,9 +4952,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputVEGC)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "VEGC", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "VEGC", &cv) );
@@ -5047,9 +5046,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputVEGN)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "VEGN", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "VEGN", &cv) );
@@ -5143,9 +5142,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputEET)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "EET", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "EET", &cv) );
@@ -5226,9 +5225,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputPET)
     {
 #ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "PET", &cv) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_COLLECTIVE) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
       temutil::nc( nc_inq_varid(ncid, "PET", &cv) );

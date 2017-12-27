@@ -226,7 +226,7 @@ std::string ModelData::describe_module_settings() {
  *  in the config file. It creates an OutputSpec and an empty
  *  NetCDF file for each line.
 */
-void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::string& stage) {
+void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::string& stage, int stage_year_count) {
 
   boost::filesystem::path output_base = output_dir;
 
@@ -377,10 +377,21 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
       BOOST_LOG_SEV(glg, debug) << "Adding file-level attributes";
       temutil::nc( nc_put_att_text(ncid, NC_GLOBAL, "Git_SHA", strlen(GIT_SHA), GIT_SHA ) );
 
-      BOOST_LOG_SEV(glg, debug) << "Adding dimensions...";
+      //Calculating total timesteps
+      int stage_timestep_count = 0;
+      if(timestep == "yearly"){
+        stage_timestep_count = stage_year_count;
+      }
+      else if(timestep == "monthly"){
+        stage_timestep_count = stage_year_count*12;
+      }
+      else if(timestep == "daily"){
+        stage_timestep_count = stage_year_count*365;
+      }
 
+      BOOST_LOG_SEV(glg, debug) << "Adding dimensions...";
       // All variables will have dimensions: time, y, x
-      temutil::nc( nc_def_dim(ncid, "time", NC_UNLIMITED, &timeD) );
+      temutil::nc( nc_def_dim(ncid, "time", stage_timestep_count, &timeD) );
       temutil::nc( nc_def_dim(ncid, "y", ysize, &yD) );
       temutil::nc( nc_def_dim(ncid, "x", xsize, &xD) );
 
@@ -553,9 +564,7 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
 
         start[0] = 0;
         count[0] = time_coord_values.size();
-#ifdef WITHMPI
-        temutil::nc( nc_var_par_access(ncid, tcV, NC_COLLECTIVE) );
-#endif
+
         temutil::nc( nc_put_vara_int(ncid, tcV, start, count, &time_coord_values[0]) );
 
       }
@@ -583,9 +592,7 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
 
         start[0] = 0;
         count[0] = runyrs * 12;
-#ifdef WITHMPI
-        temutil::nc( nc_var_par_access(ncid, tcV, NC_COLLECTIVE) );
-#endif
+
         temutil::nc( nc_put_vara_int(ncid, tcV, start, count, &full_time_coord[0]) );
 
       }
