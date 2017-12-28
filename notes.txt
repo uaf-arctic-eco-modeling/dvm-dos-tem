@@ -1,0 +1,9 @@
+
+
+Toolik 10x10 sample data set
+Input vegetation is forced to a uniform distribution of vegtypes 4-7.
+
+This run is to provide a reasonable set of outputs for model verification.
+
+
+
