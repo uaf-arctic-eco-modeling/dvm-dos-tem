@@ -15,4 +15,4 @@
 echo $SBATCH_RESERVATION
 echo $SLURM_JOB_NODELIST
 
-mpirun -n 100 ./dvmdostem -l disabled -p 100 -e 1000 -s 250 -t 109 -n 0
+mpirun -n 100 ./dvmdostem -l disabled -p 100 -e 1000 -s 250 -t 109 -n 91 
