@@ -180,8 +180,6 @@ void Integrator::report_array(float array[]){
     if(ii==I_L_RH_RAW){
       BOOST_LOG_SEV(glg, debug)<<"=== RH Report from Integrator array ===\n";
       for(int jj=0; jj<MAX_SOI_LAY; jj++){
-        //std::cout<<std::right<<std::setw(2)<<jj<<": ";
-        //std::cout<<std::left<<std::setprecision(4);
         BOOST_LOG_SEV(glg, debug)<<"RH_RAW: "<<array[ii+jj];
         BOOST_LOG_SEV(glg, debug)<<"RH_SOMA: "<<array[ii+jj+MAX_SOI_LAY];
         BOOST_LOG_SEV(glg, debug)<<"RH_SOMPR: "<<array[ii+jj+2*MAX_SOI_LAY];

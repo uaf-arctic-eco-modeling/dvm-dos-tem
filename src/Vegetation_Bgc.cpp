@@ -926,7 +926,7 @@ double Vegetation_Bgc::getKr(const double & vegc, const int & ipart) {
   return kr;
 };
 
-// the maintainence respiration temperature factor
+// the maintenance respiration temperature factor
 double Vegetation_Bgc::getRaq10(const double & tair) {
   double raq10;
   double raq10a0 = bgcpar.raq10a0;
