@@ -106,6 +106,7 @@ def stitch_stages(var, timestep, stages, fileprefix=''):
   full_ds = np.array([])
   units_str = ''
   for i, exp_file in enumerate(expected_file_names):
+    print "Trying to open: ", exp_file
     with nc.Dataset(exp_file, 'r') as f:
       #print f.variables[var].units
       if i == 0:
@@ -161,7 +162,7 @@ def check_files(fnames):
     print "Warning! No dimensions, can't check for time as first dimension!"
 
 
-def mask_by_cmt(data, cmtnum, vegmap_filepath="/atlas_scratch/tcarman2/dvm-dos-tem/DATA/SewardPen_10x10/vegetation.nc"):
+def mask_by_cmt(data, cmtnum, vegmap_filepath):
   '''
   Expects `data` to be at least a 2D array with the last two dimensions being
   (y, x). `cmtnum` is the community type number that will remain unmasked
@@ -172,23 +173,26 @@ def mask_by_cmt(data, cmtnum, vegmap_filepath="/atlas_scratch/tcarman2/dvm-dos-t
   Returns a numpy  masked array with the same dimensions as `data`. In the
   returned array, data for pixels in `vegmap_filepath` equal to `cmtnum` will
   unmasked.
+
+  Example:
+
+    # An nd veg mask
+    # Assumed that the shape of data is either 
+    # 3D (time, y, x), 
+    # 4D (time, pft, y, x) or (time, layer, y, x) or 
+    # 5D (time, pftpart, pft, y, x),
+    # and that in any case, the last two dimensions are y and x
+
+    # For example:
+    In [142]: ba = np.random.randint(0,100,(2,3,4,5,5))
+
+    In [143]: np.broadcast_to(np.random.randint(0,2,(5,5)), ba.shape).shape
+    Out[143]: (2, 3, 4, 5, 5)
+
   '''
   vegmap = nc.Dataset(vegmap_filepath, 'r')
 
   vegmask = np.ma.masked_not_equal(vegmap.variables['veg_class'][:], cmtnum)
-
-  # An nd veg mask
-  # Assumed that the shape of data is either 
-  # 3D (time, y, x), 
-  # 4D (time, pft, y, x) or (time, layer, y, x) or 
-  # 5D (time, pftpart, pft, y, x),
-  # and that in any case, the last two dimensions are y and x
-
-  # For example:
-  # In [142]: ba = np.random.randint(0,100,(2,3,4,5,5))
-
-  # In [143]: np.broadcast_to(np.random.randint(0,2,(5,5)), ba.shape).shape
-  # Out[143]: (2, 3, 4, 5, 5)
 
   vmnd_mask = np.broadcast_to(vegmask.mask, data.shape)
 
@@ -197,8 +201,33 @@ def mask_by_cmt(data, cmtnum, vegmap_filepath="/atlas_scratch/tcarman2/dvm-dos-t
 
   return vmnd_all
 
+def mask_by_failed_run_status(data, run_status_filepath="run_status.nc"):
+  '''
+  Masks out any data for which the run status is < 0 in the `run_status_filepath`.
 
-def plot_spatial_summary_timeseries(var, timestep, cmtnum=4, stages=['eq', 'sp', 'tr'],):
+  `data`: (numpy.ndarray) must have at least 2 dimensions (y, x) and they must
+   be the last dimensions.
+
+  `run_status_file`: (str) path to a dvmdostem run_status.nc file that has
+  dimensions (y,x) and single variable run_status(y,x) that has positive values
+  for successfully run pixels and negative values for failed pixels.
+
+  Returns a numpy masked array the same shape as `data` with all the data for
+  failed pixels masked out.
+
+  Example: see mask_by_cmt(...)
+  '''
+  runstat = nc.Dataset(run_status_filepath)
+
+  runstatmask = np.ma.masked_less(runstat.variables['run_status'][:], 0)
+
+  rsnd_mask = np.broadcast_to(runstatmask.mask, data.shape)
+
+  rsnd_all = np.ma.masked_array(data, rsnd_mask)
+
+  return rsnd_all
+
+def plot_spatial_summary_timeseries(var, timestep, cmtnum, stages, ref_veg_map, ref_run_status):
   '''
   Plots a single line with min/max shading representing the `var` averaged over
   the spatial dimension, considering only pixels for `cmtnum`. Stitches together
@@ -212,6 +241,14 @@ def plot_spatial_summary_timeseries(var, timestep, cmtnum=4, stages=['eq', 'sp',
 
   `stages`: (list) must contain one or more of "pr","eq","sp","tr","sc".
 
+  `ref_veg_map`: (str) must be a file path to a dvmdostem vegetation input map
+  with dimensions (y, x) and a single variable veg_class(y,x) with a number for
+  representing the community type for that pixel.
+  
+  `ref_run_status`: (str) must be a file path to a dvmdostem run_status.nc map
+  with dimensions (y,x) and a single variable run_status(y, with a number for 
+  how the pixel completed its run.
+
   Attempts to find the requsite files for `var`, `timestep` and `stages`.
   Plots a timeseries of variable `var` after averaging over the spatial
   dimensions. If the data found in the input files is higher dimensionality
@@ -221,8 +258,13 @@ def plot_spatial_summary_timeseries(var, timestep, cmtnum=4, stages=['eq', 'sp',
   Returns `None`
   '''
   data, units = stitch_stages(var, timestep, stages)
+  print "data size:", data.size
 
-  data = mask_by_cmt(data, cmtnum)
+  data = mask_by_cmt(data, cmtnum, ref_veg_map)
+  print "data count after masking cmt:", data.count()
+
+  data = mask_by_failed_run_status(data, ref_run_status)
+  print "data count after masking run status:", data.count()
 
   if len(data.shape) == 5: # assume (time, pftpart, pft, y, x)
     data = sum_across_compartments(data)
@@ -261,11 +303,10 @@ def workhorse_spatial_summary_plot(data, cmtnum, yunits, varname, stages):
   )
   plt.ylabel(yunits)
   plt.title("{} for CMT {} averaged spatially for stages {}".format(varname, cmtnum, stages))
+  plt.show(block=True)
 
 
-def plot_inputs(cmtnum=4, 
-    hist_fname="/atlas_scratch/tcarman2/dvm-dos-tem/DATA/SewardPen_10x10/historic-climate.nc",
-    proj_fname="/atlas_scratch/tcarman2/dvm-dos-tem/DATA/SewardPen_10x10/projected-climate.nc"):
+def plot_inputs(cmtnum, hist_fname, proj_fname, ref_veg_map):
   '''
   Plots the historic and projected climate inputs, averaging over the spatial
   dimensions and with shading for min/max.
@@ -299,10 +340,10 @@ def plot_inputs(cmtnum=4,
   vp = np.concatenate((hvp, pvp), axis=0)
   nirr = np.concatenate((hnirr, pnirr), axis=0)
 
-  tair = mask_by_cmt(tair, cmtnum)
-  precip = mask_by_cmt(precip, cmtnum)
-  vp = mask_by_cmt(vp, cmtnum)
-  nirr = mask_by_cmt(nirr, cmtnum)
+  tair = mask_by_cmt(tair, cmtnum, ref_veg_map)
+  precip = mask_by_cmt(precip, cmtnum, ref_veg_map)
+  vp = mask_by_cmt(vp, cmtnum, ref_veg_map)
+  nirr = mask_by_cmt(nirr, cmtnum, ref_veg_map)
 
   #fig, (tair_ax, precip_ax, vp_ax, nirr_ax) = plt.subplots()
 
@@ -324,12 +365,13 @@ def plot_inputs(cmtnum=4,
     # add a line marking the transition from historic to projected
     pax.vlines(htair.shape[0], *pax.yaxis.get_view_interval(), color='red')
 
-    pax.set_title("{} averaged spatially for historic and projected".format(vname))
+    pax.set_title("{} averaged spatially for historic and projected masked to cmt{}".format(vname, cmtnum))
 
   plt.tight_layout()
-
+  plt.show(block=True)
   
-def boxplot_monthlies(var, stages, cmtnum=4, facecolor='blue'):
+
+def boxplot_monthlies(var, stages, cmtnum, ref_veg_map, ref_run_status, facecolor='blue'):
   '''
   Makes a boxplot showing distribution of values for `var` for each month,
   averaged over spatial dimensions, and only considering `cmtnum`. If multiple
@@ -339,14 +381,22 @@ def boxplot_monthlies(var, stages, cmtnum=4, facecolor='blue'):
   `var`: (str) one of the dvmdostem output variables.
   `stages`: (list) must contain one or more of "pr","eq","sp","tr","sc".
   `cmtnum`: (int) which CMT to work with.
+  `ref_veg_map`: (str) path to a vegetation map to use for masking cmts
+  `ref_run_status`: (str) path to run status map to use for masking failed cells
   `facecolor`: (str) color to use for the box.
 
   Returns `None`
   '''
 
   data, units = stitch_stages(var, 'monthly', stages)
+  print "data size:", data.size
 
-  data = mask_by_cmt(data, cmtnum)
+  data = mask_by_cmt(data, cmtnum, ref_veg_map)
+  print "data count after masking cmt:", data.count()
+
+  data = mask_by_failed_run_status(data, ref_run_status)
+  print "data count after masking run status:", data.count()
+
 
   # list of months
   months = "Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec".split(' ')
@@ -374,16 +424,27 @@ def boxplot_monthlies(var, stages, cmtnum=4, facecolor='blue'):
   )
   plt.ylabel(units)
   plt.title("{} for CMT {}, averaged spatially ".format(var, cmtnum))
+  plt.show(block=True)
 
 
-def boxplot_by_pft(var, timestep='monthly', cmtnum=4, stages=['eq','sp']):
+def boxplot_by_pft(var, timestep, cmtnum, stages, ref_veg_map, ref_run_status):
   '''
-  This one is a work in progress...
+  Work in progress...
   '''
 
   data, units = stitch_stages(var, timestep, stages)
-  d2 = sum_across_compartments(data)
-  d3 = mask_by_cmt(d2, cmtnum)
+  print "data size:", data.size
+  print data.shape
+
+  d2 = data
+  # d2 = sum_across_compartments(data)
+  # print "data size after summing compartments:", d2.size
+
+  d3 = mask_by_cmt(d2, cmtnum, ref_veg_map)
+  print "data size after masking cmt:", d3.count()
+
+  d3 = mask_by_failed_run_status(d3, ref_run_status)
+  print "data count after masking run status:", d3.count()
 
   pft0avg = np.ma.average(d3, axis=(2,3))
   #plt.plot(pft0avg) # Line plot
@@ -398,6 +459,7 @@ def boxplot_by_pft(var, timestep='monthly', cmtnum=4, stages=['eq','sp']):
       capprops=dict(color='blue'),
   )
   plt.ylabel(units)
+  plt.show(block=True)
 
 
 
