@@ -8,6 +8,7 @@
 import os
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.gridspec as gridspec
 import netCDF4 as nc
 import collections
 
@@ -227,7 +228,22 @@ def mask_by_failed_run_status(data, run_status_filepath="run_status.nc"):
 
   return rsnd_all
 
-def plot_spatial_summary_timeseries(var, timestep, cmtnum, stages, ref_veg_map, ref_run_status):
+def plot_comp_sst():
+
+  ROWS=4; COLS=4 
+
+  gs = gridspec.GridSpec(ROWS, COLS)
+
+  for i, cmt in enumerate([4,5,6,7]):
+    ax = plt.subplot(gs[i,:])
+    plot_spatial_summary_timeseries('VEGC', 'yearly', cmt, 'tr sc'.split(' '), "vegetation.nc", "run_status.nc", ax=ax)
+
+  plt.tight_layout()
+  plt.show(block=True)
+
+
+
+def plot_spatial_summary_timeseries(var, timestep, cmtnum, stages, ref_veg_map, ref_run_status, ax=None):
   '''
   Plots a single line with min/max shading representing the `var` averaged over
   the spatial dimension, considering only pixels for `cmtnum`. Stitches together
@@ -248,6 +264,10 @@ def plot_spatial_summary_timeseries(var, timestep, cmtnum, stages, ref_veg_map, 
   `ref_run_status`: (str) must be a file path to a dvmdostem run_status.nc map
   with dimensions (y,x) and a single variable run_status(y, with a number for 
   how the pixel completed its run.
+
+  `ax`: (matplotlib.axes._subplots.AxesSubplot instance) will plot line(s) on
+  this axes instance. If ax in None, then will create (and show) a new figure
+  and plot.
 
   Attempts to find the requsite files for `var`, `timestep` and `stages`.
   Plots a timeseries of variable `var` after averaging over the spatial
@@ -275,10 +295,10 @@ def plot_spatial_summary_timeseries(var, timestep, cmtnum, stages, ref_veg_map, 
   if len(data.shape) == 3: # assume (time, y, x)
     pass # all set...
 
-  workhorse_spatial_summary_plot(data, cmtnum, units, var, stages)
+  workhorse_spatial_summary_plot(data, cmtnum, units, var, stages, ax=ax)
 
 
-def workhorse_spatial_summary_plot(data, cmtnum, yunits, varname, stages):
+def workhorse_spatial_summary_plot(data, cmtnum, yunits, varname, stages, ax=None):
   '''
   Worker function, plots a line for average along time axis (axis 0), 
   with shading for min and max.
@@ -292,18 +312,37 @@ def workhorse_spatial_summary_plot(data, cmtnum, yunits, varname, stages):
   `stages`: (list) used for the plot title, must contain one or 
             more of "pr","eq","sp","tr","sc".
 
+  `ax`: (matplotlib.axes._subplots.AxesSubplot instance) will plot line(s) on
+  this axes instance. If ax in None, then will create (and show) a new figure
+  and plot.
+
   Returns `None`
   '''
-  plt.plot(np.ma.average(data, axis=(1,2)), linewidth=0.5, label="CMT {}".format(cmtnum))
-  plt.fill_between(
-      np.arange(0, len(data)),
-      np.ma.min(data, axis=(1,2)), 
-      np.ma.max(data, axis=(1,2)), 
-      color='gray', alpha=0.25
-  )
-  plt.ylabel(yunits)
-  plt.title("{} for CMT {} averaged spatially for stages {}".format(varname, cmtnum, stages))
-  plt.show(block=True)
+  if ax is not None:
+    print "Plotting on existing ax instance..."
+    ax.plot(np.ma.average(data, axis=(1,2)), linewidth=0.5, label="CMT {}".format(cmtnum))
+    ax.fill_between(
+        np.arange(0, len(data)),
+        np.ma.min(data, axis=(1,2)), 
+        np.ma.max(data, axis=(1,2)), 
+        color='gray', alpha=0.25
+    )
+    ax.set_ylabel(yunits)
+    ax.set_title("{} for CMT {} averaged spatially for stages {}".format(varname, cmtnum, stages))
+    #plt.show(block=True)
+
+  else:
+    print "Plotting on new ax, figure..."
+    plt.plot(np.ma.average(data, axis=(1,2)), linewidth=0.5, label="CMT {}".format(cmtnum))
+    plt.fill_between(
+        np.arange(0, len(data)),
+        np.ma.min(data, axis=(1,2)), 
+        np.ma.max(data, axis=(1,2)), 
+        color='gray', alpha=0.25
+    )
+    plt.ylabel(yunits)
+    plt.title("{} for CMT {} averaged spatially for stages {}".format(varname, cmtnum, stages))
+    plt.show(block=True)
 
 
 def plot_inputs(cmtnum, hist_fname, proj_fname, ref_veg_map):
