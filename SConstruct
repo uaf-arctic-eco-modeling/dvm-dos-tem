@@ -119,7 +119,7 @@ elif platform_name == 'Darwin':
   platform_include_path = ['/usr/local/include']
   platform_library_path = ['/usr/local/lib']
 
-  compiler_flags = '-Werror -fpermissive -ansi -g -fPIC -DBOOST_ALL_DYN_LINK -DBSD_FPE'
+  compiler_flags = '-Werror -fpermissive -ansi -g -fPIC -std=c++11 -DBOOST_ALL_DYN_LINK -DBSD_FPE'
 
   # This is not really a Darwin-specific thing so much as the fact that
   # for Tobey, when he installed boost, he inadvertantly specified that
