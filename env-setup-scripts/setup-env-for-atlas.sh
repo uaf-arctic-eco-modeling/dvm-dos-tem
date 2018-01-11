@@ -16,6 +16,10 @@
 # or manually adjust the jsoncpp path in the Makefile. We might want a separate
 # environment setup script for Ruth's atlas environment?
 
+# NOTE: (Jan 2018) Changing to C++11. The EasyBuild provided libs seem to have 
+# been compiled without -std=c++11 so we need this adjust CFLAGS to have a 
+# special variable for BOOST.
+
 echo "Loading modules..."
 module purge
 module load jsoncpp/1.8.1-foss-2016a netCDF/4.4.0-foss-2016a Boost/1.55.0-foss-2016a-Python-2.7.11
@@ -27,9 +31,15 @@ export SITE_SPECIFIC_INCLUDES="-I/home/UA/tcarman2/.local/easybuild/software/jso
 echo "Setting up site specific libs..."
 export SITE_SPECIFIC_LIBS="-L/home/UA/tcarman2/.local/easybuild/software/Boost/1.55.0-foss-2016a-Python-2.7.11/lib/"
 
+echo "Adding special CFLAG variable for Boost, C++11 in Makefile..."
+sed -e 's/-DBOOST_ALL_DYN_LINK -Werror/-DBOOST_ALL_DYN_LINK -DBOOST_NO_CXX11_SCOPED_ENUMS -Werror/' Makefile > Makefile.tmp && mv Makefile.tmp Makefile
+
 echo "NOTE: This file will NOT work if it is run as a script!"
 echo "      Instead use the 'source' command like this:"
 echo "      $ source env-setup-scripts/setup-env-for-atlas.sh"
 echo ""
 
+echo "NOTE: Please remember not to commit the modified Makefile!!"
+echo "      You can revert the change with this command:"
+echo "      $ git checkout -- Makefile"
 
