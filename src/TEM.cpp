@@ -265,7 +265,6 @@ int main(int argc, char* argv[]){
     // Block all processes until process 0 has completed output
     // directory setup.
     std::cout << "[NON-ZERO PROCESS] SETTING MPI BARRIER id=" << id << "\n";
-
     MPI_Barrier(MPI::COMM_WORLD);
   }
 #else
@@ -411,7 +410,6 @@ int main(int argc, char* argv[]){
             advance_model(rowidx, colidx, modeldata, args->get_cal_mode(), pr_restart_fname, eq_restart_fname, sp_restart_fname, tr_restart_fname, sc_restart_fname);
 
             cell_etime = time(0);
-
             BOOST_LOG_SEV(glg, note) << "Finished cell " << rowidx << ", " << colidx << ". Writing status file...";
             std::cout << "cell " << rowidx << ", " << colidx << " complete." << difftime(cell_etime, cell_stime) << std::endl;
             write_status(run_status_fname, rowidx, colidx, 100);
