@@ -258,12 +258,14 @@ int main(int argc, char* argv[]){
 //    RestartData::create_empty_file(sc_restart_fname, num_rows, num_cols);
 
 #ifdef WITHMPI
-
+    std::cout << "SETTING MPI BARRIER id=" << id << "\n";
     MPI_Barrier(MPI::COMM_WORLD);
   } // End of single-process setup
   else{
     // Block all processes until process 0 has completed output
     // directory setup.
+    std::cout << "[NON-ZERO PROCESS] SETTING MPI BARRIER id=" << id << "\n";
+
     MPI_Barrier(MPI::COMM_WORLD);
   }
 #else
