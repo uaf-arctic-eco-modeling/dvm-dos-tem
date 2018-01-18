@@ -380,7 +380,7 @@ namespace temutil {
       BOOST_LOG_SEV(glg, err) << nc_strerror(status);
 
       std::string msg = "Exception from netcdf: ";
-      msg = msg + nc_strerror(status);
+      msg = std::to_string(status) + msg + nc_strerror(status);
 
       throw std::runtime_error(msg);
 

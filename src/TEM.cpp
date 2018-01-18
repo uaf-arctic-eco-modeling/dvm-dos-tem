@@ -911,7 +911,7 @@ void create_empty_run_status_file(const std::string& fname,
 }
 
 void write_status(const std::string fname, int row, int col, int statusCode) {
-
+  std::cout << "in write_status(...)\n";
   int ncid;
   int statusV;
 
@@ -927,18 +927,26 @@ void write_status(const std::string fname, int row, int col, int statusCode) {
   // These are for logging identification only.
   int id = MPI::COMM_WORLD.Get_rank();
   int ntasks = MPI::COMM_WORLD.Get_size();
+  std::cout << "got mpi stuff: "<< id << "/" << ntasks << "\n";
 
   // Open dataset
+  std::cout << "calling nc_open_par(...)\n";
   temutil::nc( nc_open_par(fname.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
+
+  std::cout << "calling nc_inq_var(...)\n";
   temutil::nc( nc_inq_varid(ncid, "run_status", &statusV) );
+
+  std::cout << "calling nc_var_par_access(...)\n";
   temutil::nc( nc_var_par_access(ncid, statusV, NC_INDEPENDENT) );
 
   // Write data
-  BOOST_LOG_SEV(glg, note) << "(MPI " << id << "/" << ntasks << ") WRITING FOR PIXEL (row, col): " << row << ", " << col << "\n";
+  BOOST_LOG_SEV(glg, err) << "(MPI " << id << "/" << ntasks << ") WRITING FOR PIXEL (row, col): " << row << ", " << col << "\n";
+  std::cout << "calling nc_put_var1_int(...)\n";
   temutil::nc( nc_put_var1_int(ncid, statusV, start,  &statusCode) );
 
   /* Close the netcdf file. */
-  BOOST_LOG_SEV(glg, debug) << "(MPI " << id << "/" << ntasks << ") Closing PARALLEL file." << row << ", " << col << "\n";
+  BOOST_LOG_SEV(glg, err) << "(MPI " << id << "/" << ntasks << ") Closing PARALLEL file." << row << ", " << col << "\n";
+  std::cout << "calling nc_close(...)\n";
   temutil::nc( nc_close(ncid) );
 #else
 
