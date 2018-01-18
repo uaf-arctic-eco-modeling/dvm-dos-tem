@@ -250,12 +250,9 @@ int main(int argc, char* argv[]){
     BOOST_LOG_SEV(glg, info) << "Creating output directory: "<<modeldata.output_dir;
     boost::filesystem::create_directories(out_dir_path);
 
-    // Create empty restart files for all stages based on size of run mask
-//    BOOST_LOG_SEV(glg, info) << "Creating empty restart files.";
-//    RestartData::create_empty_file(eq_restart_fname, num_rows, num_cols);
-//    RestartData::create_empty_file(sp_restart_fname, num_rows, num_cols);
-//    RestartData::create_empty_file(tr_restart_fname, num_rows, num_cols);
-//    RestartData::create_empty_file(sc_restart_fname, num_rows, num_cols);
+    // Create empty run status file
+    BOOST_LOG_SEV(glg, info) << "Creating empty run status file.";
+    create_empty_run_status_file(run_status_fname, num_rows, num_cols);
 
 #ifdef WITHMPI
     std::cout << "SETTING MPI BARRIER id=" << id << "\n";
@@ -280,10 +277,6 @@ int main(int argc, char* argv[]){
   RestartData::create_empty_file(sp_restart_fname, num_rows, num_cols);
   RestartData::create_empty_file(tr_restart_fname, num_rows, num_cols);
   RestartData::create_empty_file(sc_restart_fname, num_rows, num_cols);
-
-  // Create empty run status file
-  BOOST_LOG_SEV(glg, info) << "Creating empty run status file.";
-  create_empty_run_status_file(run_status_fname, num_rows, num_cols);
 
 
   // Create empty output files now so that later, as the program
@@ -857,23 +850,8 @@ void create_empty_run_status_file(const std::string& fname,
   BOOST_LOG_SEV(glg, debug) << "Creating new file: "<<fname<<" with 'NC_CLOBBER'";
   int ncid;
 
-
-#ifdef WITHMPI
-
-  int id = MPI::COMM_WORLD.Get_rank();
-  int ntasks = MPI::COMM_WORLD.Get_size();
-
-                            // path            c mode               mpi comm obj     mpi info netcdfid
-  temutil::nc( nc_create_par(fname.c_str(), NC_CLOBBER|NC_NETCDF4|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
-
-  BOOST_LOG_SEV(glg, debug) << "(MPI " << id << "/" << ntasks << ") Creating PARALLEL run_status file! \n";
-
-#else
-
   BOOST_LOG_SEV(glg, debug) << "Opening new file with 'NC_CLOBBER'";
-  temutil::nc( nc_create(fname.c_str(), NC_CLOBBER, &ncid) );
-
-#endif
+  temutil::nc( nc_create(fname.c_str(), NC_CLOBBER|NC_NETCDF4, &ncid) );
 
   // Define handles for dimensions
   int yD;
