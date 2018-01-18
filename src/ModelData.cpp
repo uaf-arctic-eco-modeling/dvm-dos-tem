@@ -363,15 +363,15 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
       // convert path to string for simplicity in the following function calls
       std::string creation_filestr = output_filepath.string();
 
-// #ifdef WITHMPI
-//       // Creating PARALLEL NetCDF file
-//       BOOST_LOG_SEV(glg, debug)<<"Creating a parallel output NetCDF file " << creation_filestr;
-//       temutil::nc( nc_create_par(creation_filestr.c_str(), NC_CLOBBER|NC_NETCDF4|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
-// #else
+#ifdef WITHMPI
+      // Creating PARALLEL NetCDF file
+      BOOST_LOG_SEV(glg, debug)<<"Creating a parallel output NetCDF file " << creation_filestr;
+      temutil::nc( nc_create_par(creation_filestr.c_str(), NC_CLOBBER|NC_NETCDF4|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+#else
       // Creating NetCDF file
       BOOST_LOG_SEV(glg, debug) << "Creating an output NetCDF file " << creation_filestr;
       temutil::nc( nc_create(creation_filestr.c_str(), NC_CLOBBER|NC_NETCDF4, &ncid) );
-// #endif
+#endif
 
       BOOST_LOG_SEV(glg, debug) << "Adding file-level attributes";
       temutil::nc( nc_put_att_text(ncid, NC_GLOBAL, "Git_SHA", strlen(GIT_SHA), GIT_SHA ) );

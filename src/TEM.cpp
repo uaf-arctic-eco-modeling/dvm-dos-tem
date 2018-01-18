@@ -228,6 +228,7 @@ int main(int argc, char* argv[]){
 #else
   //
   int id = 0;
+  int ntasks = 1;
 #endif
 
   // Limit output directory and file setup to a single process.
@@ -254,28 +255,6 @@ int main(int argc, char* argv[]){
     BOOST_LOG_SEV(glg, info) << "Creating empty run status file.";
     create_empty_run_status_file(run_status_fname, num_rows, num_cols);
 
-
-
-    // Create empty output files now so that later, as the program
-    // proceeds, there is somewhere to append output data...
-    BOOST_LOG_SEV(glg, info) << "Creating a set of empty NetCDF output files";
-    if(modeldata.eq_yrs > 0 && modeldata.nc_eq){
-      modeldata.create_netCDF_output_files(num_rows, num_cols, "eq", modeldata.eq_yrs);
-      if(modeldata.eq_yrs > 100 && modeldata.daily_netcdf_outputs.size() > 0){
-        BOOST_LOG_SEV(glg, fatal) << "Daily outputs specified with EQ run greater than 100 years! Reconsider...";
-      }
-    }
-    if(modeldata.sp_yrs > 0 && modeldata.nc_sp){
-      modeldata.create_netCDF_output_files(num_rows, num_cols, "sp", modeldata.sp_yrs);
-    }
-    if(modeldata.tr_yrs > 0 && modeldata.nc_tr){
-      modeldata.create_netCDF_output_files(num_rows, num_cols, "tr", modeldata.tr_yrs);
-    }
-    if(modeldata.sc_yrs > 0 && modeldata.nc_sc){
-      modeldata.create_netCDF_output_files(num_rows, num_cols, "sc", modeldata.sc_yrs);
-    }
-
-
 #ifdef WITHMPI
     std::cout << "SETTING MPI BARRIER id=" << id << "\n";
     MPI_Barrier(MPI::COMM_WORLD);
@@ -290,15 +269,40 @@ int main(int argc, char* argv[]){
   } // Nothing to do; only one process, id will equal 0.
 #endif
 
+  // ALL PROCESSES TOGETHER NOW...
+
   //Creating empty restart files for all stages.
-  //Attempting to restrict this to one process (in the conditional
-  // statements above) causes a silent hang in nc_create_par(...)
   BOOST_LOG_SEV(glg, info) << "Creating empty restart files.";
   RestartData::create_empty_file(pr_restart_fname, num_rows, num_cols);
   RestartData::create_empty_file(eq_restart_fname, num_rows, num_cols);
   RestartData::create_empty_file(sp_restart_fname, num_rows, num_cols);
   RestartData::create_empty_file(tr_restart_fname, num_rows, num_cols);
   RestartData::create_empty_file(sc_restart_fname, num_rows, num_cols);
+
+  // Create empty output files now so that later, as the program
+  // proceeds, there is somewhere to append output data...
+  BOOST_LOG_SEV(glg, info) << "Creating a set of empty NetCDF output files";
+  std::cout << "("<<id<<"/"<<ntasks<<") Creating a set of empty NetCDF output files...\n";
+  if(modeldata.eq_yrs > 0 && modeldata.nc_eq){
+    //std::cout << "(EQ) Creating a set of empty NetCDF output files...\n";
+    modeldata.create_netCDF_output_files(num_rows, num_cols, "eq", modeldata.eq_yrs);
+    if(modeldata.eq_yrs > 100 && modeldata.daily_netcdf_outputs.size() > 0){
+      BOOST_LOG_SEV(glg, fatal) << "Daily outputs specified with EQ run greater than 100 years! Reconsider...";
+    }
+  }
+  if(modeldata.sp_yrs > 0 && modeldata.nc_sp){
+    //std::cout << "(SP) Creating a set of empty NetCDF output files...\n";
+    modeldata.create_netCDF_output_files(num_rows, num_cols, "sp", modeldata.sp_yrs);
+  }
+  if(modeldata.tr_yrs > 0 && modeldata.nc_tr){
+    //std::cout << "(TR) Creating a set of empty NetCDF output files...\n";
+    modeldata.create_netCDF_output_files(num_rows, num_cols, "tr", modeldata.tr_yrs);
+  }
+  if(modeldata.sc_yrs > 0 && modeldata.nc_sc){
+    //std::cout << "(SC) Creating a set of empty NetCDF output files...\n";
+    modeldata.create_netCDF_output_files(num_rows, num_cols, "sc", modeldata.sc_yrs);
+  }
+
 
   // Work on checking that the particular configuration will not result in too
   // much output.
@@ -362,12 +366,10 @@ int main(int argc, char* argv[]){
 #ifdef WITHMPI
     BOOST_LOG_SEV(glg, info) << "Beginning MPI parallel section";
 
-    int id = MPI::COMM_WORLD.Get_rank();
-    int ntasks = MPI::COMM_WORLD.Get_size();
-
     int total_cells = num_rows*num_cols;
 
     BOOST_LOG_SEV(glg, debug) << "id: "<<id<<" of ntasks: "<<ntasks;
+    std::cout << "id: " << id << " of ntasks: " << ntasks << "\n";
 
     #pragma omp parallel for schedule(dynamic)
     for(int curr_cell=id; curr_cell<total_cells; curr_cell+=ntasks){
