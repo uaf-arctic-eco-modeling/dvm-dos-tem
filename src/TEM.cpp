@@ -321,6 +321,7 @@ int main(int argc, char* argv[]){
       exit(-1);
     }
 
+    std::cout << "("<<id<<"/"<<ntasks<<") Estimated output size: " << oe.hsize(oe.all_cells_total()) << "\n";
     if ( oe.all_cells_total() > mxsz ) {
       BOOST_LOG_SEV(glg, fatal) << oe.estimate_as_table();
       BOOST_LOG_SEV(glg, fatal) << "TOO MUCH OUTPUT SPECIFIED! "

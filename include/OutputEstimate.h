@@ -65,9 +65,6 @@ struct StageOutputEstimate {
 
 class OutputEstimate {
 
-  /** Returns a 'human readable' size string with SI suffix */
-  std::string hsize(double size);
-
   int active_cells;
   std::vector<StageOutputEstimate> stage_output_estimates;
 
@@ -87,6 +84,8 @@ public:
 
   double hsize2bytes(std::string sizestr);
 
+  /** Returns a 'human readable' size string with SI suffix */
+  std::string hsize(double size);
 
 // ideas for  API functions
 //  oe.per_grid_cell()
