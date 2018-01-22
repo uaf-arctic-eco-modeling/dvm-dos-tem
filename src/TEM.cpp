@@ -234,6 +234,7 @@ int main(int argc, char* argv[]){
   // Limit output directory and file setup to a single process.
   // variable 'id' is artificially set to 0 if not built with MPI.
   if(id==0){
+    std::cout << "====== Rank 0 setup ======\n";
     BOOST_LOG_SEV(glg, info) << "Handling single-process setup";
 
     BOOST_LOG_SEV(glg, info) << "Checking for output directory: "<<modeldata.output_dir;
@@ -249,10 +250,12 @@ int main(int argc, char* argv[]){
       }
     }
     BOOST_LOG_SEV(glg, info) << "Creating output directory: "<<modeldata.output_dir;
+    std::cout << "Creating output directory: " << modeldata.output_dir << "\n";
     boost::filesystem::create_directories(out_dir_path);
 
     // Create empty run status file
     BOOST_LOG_SEV(glg, info) << "Creating empty run status file.";
+    std::cout << "Creating empty run_status file: " << run_status_fname << "\n";
     create_empty_run_status_file(run_status_fname, num_rows, num_cols);
 
 #ifdef WITHMPI
@@ -379,8 +382,8 @@ int main(int argc, char* argv[]){
       int colidx = curr_cell % num_cols;
 
       bool mask_value = run_mask[rowidx][colidx];
-      BOOST_LOG_SEV(glg, fatal) << "MPI rank: "<<id<<", cell: "<<rowidx\
-                                << ", "<<colidx<<" run: "<<mask_value;
+      BOOST_LOG_SEV(glg, fatal) << "MPI rank: " << id << ", cell: " << rowidx 
+                                << ", " << colidx << " run: " << mask_value;
 
 #else
     BOOST_LOG_SEV(glg, debug) << "Not built with MPI";
@@ -408,7 +411,7 @@ int main(int argc, char* argv[]){
 
             cell_etime = time(0);
             BOOST_LOG_SEV(glg, note) << "Finished cell " << rowidx << ", " << colidx << ". Writing status file...";
-            std::cout << "cell " << rowidx << ", " << colidx << " complete." << difftime(cell_etime, cell_stime) << std::endl;
+            std::cout << "cell " << rowidx << ", " << colidx << " complete in " << difftime(cell_etime, cell_stime) << " seconds\n";
             write_status(run_status_fname, rowidx, colidx, 100);
             
           } catch (std::exception& e) {
@@ -893,7 +896,7 @@ void create_empty_run_status_file(const std::string& fname,
 }
 
 void write_status(const std::string fname, int row, int col, int statusCode) {
-  std::cout << "in write_status(...)\n";
+  //std::cout << "in write_status(...)\n";
   int ncid;
   int statusV;
 
@@ -909,26 +912,26 @@ void write_status(const std::string fname, int row, int col, int statusCode) {
   // These are for logging identification only.
   int id = MPI::COMM_WORLD.Get_rank();
   int ntasks = MPI::COMM_WORLD.Get_size();
-  std::cout << "got mpi stuff: "<< id << "/" << ntasks << "\n";
+  //std::cout << "got mpi stuff: "<< id << "/" << ntasks << "\n";
 
   // Open dataset
-  std::cout << "calling nc_open_par(...)\n";
+  //std::cout << "calling nc_open_par(...)\n";
   temutil::nc( nc_open_par(fname.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
 
-  std::cout << "calling nc_inq_var(...)\n";
+  //std::cout << "calling nc_inq_var(...)\n";
   temutil::nc( nc_inq_varid(ncid, "run_status", &statusV) );
 
-  std::cout << "calling nc_var_par_access(...)\n";
+  //std::cout << "calling nc_var_par_access(...)\n";
   temutil::nc( nc_var_par_access(ncid, statusV, NC_INDEPENDENT) );
 
   // Write data
   BOOST_LOG_SEV(glg, err) << "(MPI " << id << "/" << ntasks << ") WRITING FOR PIXEL (row, col): " << row << ", " << col << "\n";
-  std::cout << "calling nc_put_var1_int(...)\n";
+  //std::cout << "calling nc_put_var1_int(...)\n";
   temutil::nc( nc_put_var1_int(ncid, statusV, start,  &statusCode) );
 
   /* Close the netcdf file. */
   BOOST_LOG_SEV(glg, err) << "(MPI " << id << "/" << ntasks << ") Closing PARALLEL file." << row << ", " << col << "\n";
-  std::cout << "calling nc_close(...)\n";
+  //std::cout << "calling nc_close(...)\n";
   temutil::nc( nc_close(ncid) );
 #else
 

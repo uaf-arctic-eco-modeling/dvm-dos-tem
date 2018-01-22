@@ -17,8 +17,8 @@
     "hist_exp_fire_file": "DATA/Toolik_10x10/historic-explicit-fire.nc",
     "proj_exp_fire_file": "DATA/Toolik_10x10/projected-explicit-fire.nc",
     "topo_file":          "DATA/Toolik_10x10/topo.nc",
-    "output_dir":         "/workspace/Shared/Tech_Projects/dvmdostem/out_Toolik_PoC_10x10_PR100_EQ1000_SP250_TR109_SC91/",
-    "output_spec_file":   "config/output_spec.csv",
+    "output_dir":         "/workspace/Shared/Tech_Projects/dvmdostem/n128-all-createio-fullyrs-fineres/",
+    "output_spec_file":   "config/finer_res_output_spec.csv",
     "output_monthly":     0, //JSON specific
     "output_nc_eq":       1,
     "output_nc_sp":       1,

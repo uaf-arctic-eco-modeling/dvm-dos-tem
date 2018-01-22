@@ -1000,7 +1000,15 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
   count5[3] = 1;
   count5[4] = 1;
 
+#ifdef WITHMPI
+  int id = MPI::COMM_WORLD.Get_rank();
+  int ntasks = MPI::COMM_WORLD.Get_size();
+#else
+  int id = 0;
+  int ntasks = 1;
+#endif
 
+  //std::cout << "Proc (" << id << "/" << ntasks << ") is going to write out some data...\n";
   /*** Single option vars: (year) ***/
   map_itr = netcdf_outputs.find("ALD");
   if(map_itr != netcdf_outputs.end()){
