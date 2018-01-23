@@ -160,7 +160,7 @@ calibration_targets = {
     'CarbonDeep':             7703.00,    #  deepc
     'CarbonMineralSum':      43404.00,    #  minec
     'OrganicNitrogenSum':     2206.00,    #  soln
-    'AvailableNitrogenSum':      8.958,   #  avln
+    'AvailableNitrogenSum':       0.68,    #  avln
   },
   ## CMT06 - WETSEDGE TUNDRA - CALIBRATION WITH SOUTH BARROW CLIMATE  Lichen gpp was 0.375, npp 0.187, feather 8.4 sphg 2.9, 1.45
   "wet sedge tundra": {

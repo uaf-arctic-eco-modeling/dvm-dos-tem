@@ -110,14 +110,14 @@
 0.10               // initdmossthick: initial dead moss thickness (m) MUST MATCH initdmossc in cmt_bgcsoil.txt!!!
 1                  // mosstype: moss type (1: sphagnum; 2: furthermoss; 3: other)
 // soil characteristics
-0.0667             // initfibthick: meters
-0.145              // inithumthick:
-0.0652             // coefshlwa:
-0.708              // coefshlwb:
-0.0545             // coefdeepa:
-0.975              // coefdeepb:
-0.0966             // coefminea:
-0.8239             // coefmineb:
+0.08958             // initfibthick: meters
+0.15127             // inithumthick:
+0.0652              // coefshlwa:
+0.708               // coefshlwb:
+0.0545              // coefdeepa:
+0.975               // coefdeepb:
+0.0966              // coefminea:
+0.8197              // coefmineb:
 //===========================================================
 // CMT06 // Wet Sedge Tundra - ground structure/dimension
 // Snow characteristics
