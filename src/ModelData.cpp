@@ -366,7 +366,7 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
 #ifdef WITHMPI
       // Creating PARALLEL NetCDF file
       BOOST_LOG_SEV(glg, debug)<<"Creating a parallel output NetCDF file " << creation_filestr;
-      temutil::nc( nc_create_par(creation_filestr.c_str(), NC_CLOBBER|NC_NETCDF4|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_create_par(creation_filestr.c_str(), NC_CLOBBER|NC_NETCDF4|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
 #else
       // Creating NetCDF file
       BOOST_LOG_SEV(glg, debug) << "Creating an output NetCDF file " << creation_filestr;

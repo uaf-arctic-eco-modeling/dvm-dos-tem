@@ -21,6 +21,8 @@ libs = Split("""jsoncpp
                 boost_filesystem
                 boost_program_options
                 boost_thread
+                boost_mpi
+                boost_serialization
                 boost_log""")
 
 local_include_paths = ['./include']
@@ -89,13 +91,14 @@ print compiler
 if platform_name == 'Linux':
   platform_include_path = ['/home/UA/rarutter/downloads/hdf5-1.8.19/hdf5/include',
                            '/home/UA/rarutter/downloads/netcdf-4.4.1.1/netcdf/include',
+                           '/usr/local/boost_1_55_0',
                            '/usr/include',
                            '/usr/include/openmpi-x86_64',
                            '/usr/include/jsoncpp',
                            '/home/vagrant/netcdf-4.4.1.1/netcdf/include',
                            '~/usr/local/include']
 
-  platform_library_path = ['/home/vagrant/netcdf-4.4.1.1/netcdf/lib', '/home/vagrant/hdf5-1.8.19/hdf5/lib', '/home/UA/rarutter/downloads/netcdf-4.4.1.1/netcdf/lib', '/home/UA/rarutter/downloads/hdf5-1.8.19/hdf5/lib', '/usr/lib64', '~/usr/local/lib']
+  platform_library_path = ['/home/vagrant/netcdf-4.4.1.1/netcdf/lib', '/home/vagrant/hdf5-1.8.19/hdf5/lib', '/home/UA/rarutter/downloads/netcdf-4.4.1.1/netcdf/lib', '/home/UA/rarutter/downloads/hdf5-1.8.19/hdf5/lib', '/usr/local/boost_1_55_0/stage/lib', '/usr/lib64', '~/usr/local/lib']
 
   compiler_flags = '-Wno-error -ansi -g -fPIC -DBOOST_ALL_DYN_LINK -DGNU_FPE'
   platform_libs = libs
