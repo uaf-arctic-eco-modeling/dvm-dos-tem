@@ -912,7 +912,7 @@ void RestartData::create_empty_file(const std::string& fname,
 
 #ifdef WITHMPI
   BOOST_LOG_SEV(glg, debug) << "Creating new parallel restart file: "<<fname;
-  temutil::nc( nc_create_par(fname.c_str(), NC_CLOBBER|NC_NETCDF4|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+  temutil::nc( nc_create_par(fname.c_str(), NC_CLOBBER|NC_NETCDF4|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
 #else
   temutil::nc( nc_create(fname.c_str(), NC_CLOBBER, &ncid) );
 #endif

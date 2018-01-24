@@ -253,36 +253,7 @@ int main(int argc, char* argv[]){
     BOOST_LOG_SEV(glg, info) << "Creating output directory: "<<modeldata.output_dir;
     boost::filesystem::create_directories(out_dir_path);
 
-    // Create empty restart files for all stages based on size of run mask
-//    BOOST_LOG_SEV(glg, info) << "Creating empty restart files.";
-//    RestartData::create_empty_file(eq_restart_fname, num_rows, num_cols);
-//    RestartData::create_empty_file(sp_restart_fname, num_rows, num_cols);
-//    RestartData::create_empty_file(tr_restart_fname, num_rows, num_cols);
-//    RestartData::create_empty_file(sc_restart_fname, num_rows, num_cols);
-    modeldata.create_netCDF_output_files(num_rows, num_cols, "eq", modeldata.eq_yrs);
-
-#ifdef WITHMPI
-
-    MPI_Barrier(MPI::COMM_WORLD);
-  } // End of single-process setup
-  else{
-    // Block all processes until process 0 has completed output
-    // directory setup.
-    MPI_Barrier(MPI::COMM_WORLD);
-  }
-#else
-  } // Nothing to do; only one process, id will equal 0.
-#endif
-
-  boost::mpi::environment env;
-  boost::mpi::communicator world;
-  int fake_value = 27;
-  //broadcast(world, fake_value, 0);
-  broadcast(world, modeldata.yearly_netcdf_outputs, 0);
-
   //Creating empty restart files for all stages.
-  //Attempting to restrict this to one process (in the conditional
-  // statements above) causes a silent hang in nc_create_par(...)
   BOOST_LOG_SEV(glg, info) << "Creating empty restart files.";
   RestartData::create_empty_file(pr_restart_fname, num_rows, num_cols);
   RestartData::create_empty_file(eq_restart_fname, num_rows, num_cols);
@@ -294,12 +265,11 @@ int main(int argc, char* argv[]){
   BOOST_LOG_SEV(glg, info) << "Creating empty run status file.";
   create_empty_run_status_file(run_status_fname, num_rows, num_cols);
 
-
   // Create empty output files now so that later, as the program
   // proceeds, there is somewhere to append output data...
   BOOST_LOG_SEV(glg, info) << "Creating a set of empty NetCDF output files";
   if(modeldata.eq_yrs > 0 && modeldata.nc_eq){
-//    modeldata.create_netCDF_output_files(num_rows, num_cols, "eq", modeldata.eq_yrs);
+    modeldata.create_netCDF_output_files(num_rows, num_cols, "eq", modeldata.eq_yrs);
     if(modeldata.eq_yrs > 100 && modeldata.daily_netcdf_outputs.size() > 0){
       BOOST_LOG_SEV(glg, fatal) << "Daily outputs specified with EQ run greater than 100 years! Reconsider...";
     }
@@ -313,6 +283,31 @@ int main(int argc, char* argv[]){
   if(modeldata.sc_yrs > 0 && modeldata.nc_sc){
     modeldata.create_netCDF_output_files(num_rows, num_cols, "sc", modeldata.sc_yrs);
   }
+
+#ifdef WITHMPI
+
+    MPI_Barrier(MPI::COMM_WORLD);
+
+  } // End of single-process setup
+  else{
+    // Block all processes until process 0 has completed output
+    // directory setup.
+    MPI_Barrier(MPI::COMM_WORLD);
+
+  }
+
+  //Use Boost.MPI to broadcast output_spec maps to the other processes
+  //This may render the above Barriers irrelevant, but that
+  //  hasn't been tested
+  boost::mpi::environment env;
+  boost::mpi::communicator world;
+  broadcast(world, modeldata.yearly_netcdf_outputs, 0);
+  broadcast(world, modeldata.monthly_netcdf_outputs, 0);
+  broadcast(world, modeldata.daily_netcdf_outputs, 0);
+
+#else
+  } // Nothing to do; only one process, id will equal 0.
+#endif
 
 
   // Work on checking that the particular configuration will not result in too
@@ -874,7 +869,7 @@ void create_empty_run_status_file(const std::string& fname,
   int ntasks = MPI::COMM_WORLD.Get_size();
 
                             // path            c mode               mpi comm obj     mpi info netcdfid
-  temutil::nc( nc_create_par(fname.c_str(), NC_CLOBBER|NC_NETCDF4|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+  temutil::nc( nc_create_par(fname.c_str(), NC_CLOBBER|NC_NETCDF4|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
 
   BOOST_LOG_SEV(glg, debug) << "(MPI " << id << "/" << ntasks << ") Creating PARALLEL run_status file! \n";
 
