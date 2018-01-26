@@ -1,7 +1,7 @@
 #!/bin/bash -l
 
 # Job name, for clarity
-#SBATCH --job-name="tbc-next"
+#SBATCH --job-name="tlk-cmt5-joy-cal"
 
 # Reservation
 #SBATCH --reservation=snap_8 
@@ -10,7 +10,7 @@
 #SBATCH -p main
 
 # Number of MPI tasks
-#SBATCH -n 128
+#SBATCH -n 20
 
 echo $SBATCH_RESERVATION
 echo $SLURM_JOB_NODELIST
@@ -29,7 +29,7 @@ echo "== LD_LIBRARY_PATH ============================"
 echo $LD_LIBRARY_PATH | tr ":" "\n"
 echo "==============================================="
 
-mpirun --mca btl self,tcp --mca btl_tcp_if_include eth2 --mca oob_tcp_if_include eth2 -n 128 ./dvmdostem -l disabled --max-output-volume 25GB -p 100 -e 1000 -s 250 -t 109 -n 91 
+mpirun --mca btl self,tcp --mca btl_tcp_if_include eth2 --mca oob_tcp_if_include eth2 -n 20 ./dvmdostem -l disabled --max-output-volume 25GB -p 100 -e 1000 -s 250 -t 109 -n 91 
 
 
 
