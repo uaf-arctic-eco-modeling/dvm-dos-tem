@@ -625,6 +625,63 @@ double Soil_Env::getEvaporation(const double & dayl, const double &rad) {
 // modified to set that from the bottom soil layer
 // this will eliminate the 'fake watertable' due to temporary water
 // saturation of upper
+//double Soil_Env::getWaterTable(Layer* lstsoill) {
+//  Layer* currl = lstsoill;
+//  double wtd = 0.0;
+//  double s, dz, por;
+//  double thetai, thetal;
+//  bool bottomsat = true;   // Yuan: initialize the bottom layer as saturated
+//  double sums = 0.0;
+//  double ztot = 0.0;
+//
+//  while (currl != NULL) {
+//    if(!currl->isRock) {
+//      dz = currl->dz;
+//      ztot += dz;
+//      por = currl->poro;
+//      thetai = currl->getVolIce();
+//      thetai = fmin(por, thetai); // Ice can't be > available space
+//      thetal = currl->getVolLiq();
+//      thetal = fmin( por - thetai, thetal ); // Liq can't be > space left after ice
+//      if (por-thetai < 0.00000000001) { // If space completely filled by ice
+//        s = thetal /   0.00000000001; // Then s (saturation) is approximately zero
+//      } else { // If space NOT completely filled by ice
+//      s = thetal / (por - thetai); // s is proportion of available space (after ice counted)
+//                                   // filled by liq water
+//                                   // (Does not seem to propogate NaN via the
+//                                   // return value?)
+//      }
+//      if (bottomsat) {    //if bottomsat still set to true
+//        if (s > 0.999) {   // if ALL the available space is filled with water
+//          sums = ztot;  // sums is the same as the accumulated soil column height
+//        } else {
+//          bottomsat = false;
+//          sums += fmax(0.0, s-0.6) / (1.0-0.6)*dz;  // ????? s has to be >0.6 to get sums > 0?
+//          // if over 0.6 saturation, let the lower portion be part of
+//          // below water table. this is arbitrary, but useful if the
+//          // deeper layer is thick (1 or 2 m)
+//        }
+//      }
+//    } else {
+//      if (currl->isSnow) {
+//        break;
+//      }
+//    }
+//
+//    currl = currl->prevl;
+//  }
+//
+//  wtd = ztot - sums;  //the water table is measured from ground surface
+//  return wtd;
+//}
+
+// Heather Feb 2018: Original version does not consider a layer filled with ice
+// to be saturated, which seems odd. Also, if bottom layer was filled with ice,
+// no accumulation of saturation could occur. Edited so that ice and water are both
+// considered part of water table. Also removed arbitrary cutoff (0.6) for inclusion
+// of water from the first partially saturated layer encountered: now a fraction
+// of that layer's dz (corresponding to the fraction of filled pore space in the layer)
+// is included in saturated column height.
 double Soil_Env::getWaterTable(Layer* lstsoill) {
   Layer* currl = lstsoill;
   double wtd = 0.0;
@@ -635,46 +692,38 @@ double Soil_Env::getWaterTable(Layer* lstsoill) {
   double ztot = 0.0;
 
   while (currl != NULL) {
-    if(!currl->isRock) {
+
+      if(!currl->isRock) {
       dz = currl->dz;
       ztot += dz;
       por = currl->poro;
-      thetai = currl->getVolIce();
-      thetai = fmin(por, thetai);
-      thetal = currl->getVolLiq();
-      thetal = fmin( por - thetai, thetal );
-      if (por-thetai < 0.00000000001) {
-        s = thetal /  0.00000000001;
-      } else {
-      s = thetal / (por - thetai); // FIX THIS: potential divide by zero error
-                                   // Does not seem to propogate NaN via the
-                                   // return value?
-      }
-      if (bottomsat) {    //if bottom-layer saturated
-        if (s > 0.999) {   //
-          sums = ztot;
-        } else {
-          bottomsat = false;
-          sums += fmax(0.0, s-0.6) / (1.0-0.6)*dz;
-          // if over 0.6 saturation, let the lower portion be part of
-          // below water table. this is arbitrary, but useful if the
-          // deeper layer is thick (1 or 2 m)
+
+      if (bottomsat) {    // if we are on bottom layer or still working in saturated column
+        thetai = currl->getVolIce();
+        thetal = currl->getVolLiq();
+        thetal = fmin( por - thetai, thetal ); // Liq can't be > porosity remaining after ice
+        s = ( thetai + thetal ) / por; // s = saturated fraction of porosity
+        s = fmin((double)s , 1.0);
+
+        if ( s > 0.9999 ) {   // if ALL pore space is filled (layer is saturated)
+          sums = ztot;  // saturated column height = accumulated soil column height
+        } else {  // if this layer is not fully saturated (has empty space)
+            sums += s * dz;  // add saturated fraction of currl to accumlated saturated column
+            bottomsat = false; // top of saturated column is reached, skip remaining layers
         }
       }
     } else {
-      if (currl->isSnow) {
+        if (currl->isSnow) {
         break;
       }
     }
-
     currl = currl->prevl;
   }
-
   wtd = ztot - sums;  //the water table is measured from ground surface
   return wtd;
 }
 
-//
+
 double Soil_Env::getRunoff(Layer* toplayer, Layer* drainl,
                            const double & rnth,const double & melt) {
   double runoff = 0.; // overland runoff
