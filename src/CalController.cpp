@@ -11,9 +11,9 @@
 #include <boost/lexical_cast.hpp>
 
 #include "../include/CalController.h"
-#include "TEMLogger.h"
-#include "runmodule/Cohort.h"
-#include "TEMUtilityFunctions.h"
+#include "../include/TEMLogger.h"
+#include "../include/Cohort.h"
+#include "../include/TEMUtilityFunctions.h"
 
 extern src::severity_logger< severity_level > glg;
 

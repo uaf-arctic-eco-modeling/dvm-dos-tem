@@ -18,7 +18,7 @@
 #include <boost/assign/list_of.hpp>
 
 #include "ModelData.h"
-#include "../src/TEMUtilityFunctions.h"
+#include "TEMUtilityFunctions.h"
 
 
 struct NetcdfOutputTypes {

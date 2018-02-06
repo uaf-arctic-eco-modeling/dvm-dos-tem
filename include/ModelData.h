@@ -9,8 +9,15 @@
 
 #include "ArgHandler.h"
 #include "util_structs.h"
-#include "../src/inc/layerconst.h"
-#include "../src/inc/errorcode.h"
+#include "layerconst.h"
+#include "errorcode.h"
+
+#ifdef WITHMPI
+#include <mpi.h>
+#include <netcdf_par.h>
+#else
+#include <netcdf.h>
+#endif
 
 using namespace std;
 
@@ -25,9 +32,11 @@ public:
   void update(ArgHandler const * arghandler);
   std::string describe_module_settings();
 
-  void create_netCDF_output_files(int ysize, int xsize, const std::string & stage);
+  void create_netCDF_output_files(int ysize, int xsize, const std::string & stage, int stage_year_count);
 
   string loop_order; // time-major or space-major
+
+  int force_cmt; // used to override the veg map (calibration mode only)
 
   int initmode;  // NOT USED?
   bool inter_stage_pause; // Controls pauses between EQ, SP, TR, SC

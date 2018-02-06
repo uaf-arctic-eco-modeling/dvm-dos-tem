@@ -3,8 +3,8 @@
 #include <boost/filesystem.hpp>
 #include "../include/ModelData.h"
 
-#include "TEMLogger.h"
-#include "TEMUtilityFunctions.h"
+#include "../include/TEMLogger.h"
+#include "../include/TEMUtilityFunctions.h"
 
 extern src::severity_logger< severity_level > glg;
 
@@ -26,7 +26,7 @@ std::string table_row(int w, std::string d, bool v) {
 
 ModelData::~ModelData() {}
 
-ModelData::ModelData(Json::Value controldata) {
+ModelData::ModelData(Json::Value controldata):force_cmt(-1) {
 
   BOOST_LOG_SEV(glg, debug) << "Creating a ModelData. New style constructor with injected controldata...";
   
@@ -93,10 +93,15 @@ void ModelData::update(ArgHandler const * arghandler) {
   if (arghandler->get_inter_stage_pause()) {
     this->inter_stage_pause = arghandler->get_inter_stage_pause();
   }
+
+  // User wants to override the veg map
+  if (arghandler->get_force_cmt() >= 0) {
+    this->force_cmt = arghandler->get_force_cmt();
+  }
 }
 
 
-ModelData::ModelData() {
+ModelData::ModelData():force_cmt(-1) {
   set_envmodule(false);
   set_bgcmodule(false);
   set_dvmmodule(false);
@@ -208,6 +213,7 @@ std::string ModelData::describe_module_settings() {
   s << table_row(15, "dvmmodule", this->get_dvmmodule());
   s << table_row(15, "dslmodule", this->get_dslmodule());
   s << table_row(15, "dsbmodule", this->get_dsbmodule());
+  s << table_row(15, "baseline", this->get_baseline());
   s << table_row(15, "nfeed", this->get_nfeed());
   s << table_row(15, "avlnflg", this->get_avlnflg());
   return s.str();
@@ -220,7 +226,7 @@ std::string ModelData::describe_module_settings() {
  *  in the config file. It creates an OutputSpec and an empty
  *  NetCDF file for each line.
 */
-void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::string& stage) {
+void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::string& stage, int stage_year_count) {
 
   boost::filesystem::path output_base = output_dir;
 
@@ -236,26 +242,36 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
   std::string timestep; // Yearly, monthly, or daily
   std::string invalid_option = "invalid"; // This marks an invalid selection
 
-  // NetCDF file variables
+  // Handle for the NetCDF file
   int ncid;
+
+  // NetCDF file dimensions, applicable to all output files
   int timeD;    // unlimited dimension
   int xD;
   int yD;
+
+  // NetCDF file dimensions; different dims are applicable for different vars.
   int pftD;
   int pftpartD;
   int layerD;
-  int Var;
 
-  //3D Ecosystem
+  // NetCDF variable handle
+  int Var;
+  int tcVar; // time coordinate variable
+
+  // 1D Coordinate
+  int vartype1D_dimids[1];
+
+  // 3D Ecosystem
   int vartype3D_dimids[3];
 
-  //4D Soil
+  // 4D Soil
   int vartypeSoil4D_dimids[4];
 
-  //4D Veg - PFT or compartment but not both 
+  // 4D Veg - PFT or compartment but not both
   int vartypeVeg4D_dimids[4];
 
-  //5D Veg - PFT and PFT compartment
+  // 5D Veg - PFT and PFT compartment
   int vartypeVeg5D_dimids[5];
  
   // Ingest output specification file, create OutputSpec for each entry.
@@ -277,15 +293,14 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
 
     for(int ii=0; ii<9; ii++){
       std::getline(ss, token, ',');
-      //std::cout<<"token: "<<token<<std::endl;
 
-      if(ii==0){//Variable name
+      if(ii==0){ // Variable name
         name = token; 
       }
-      else if(ii==1){//Short description
+      else if(ii==1){ // Short description
         desc = token;
       }
-      else if(ii==2){//Units
+      else if(ii==2){ // Units
         units = token;
       }
       else if(ii==3){//Yearly
@@ -294,14 +309,14 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
           new_spec.yearly = true;
         }
       }
-      else if(ii==4){//Monthly
+      else if(ii==4){ // Monthly
         if(token.length()>0 && token.compare(invalid_option) != 0){
           timestep = "monthly";
           new_spec.monthly = true;
           new_spec.yearly = false;
         }
       }
-      else if(ii==5){//Daily
+      else if(ii==5){ // Daily
         if(token.length()>0 && token.compare(invalid_option) != 0){
           timestep = "daily";
           new_spec.daily = true;
@@ -309,19 +324,19 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
           new_spec.yearly = false;
         }
       }
-      else if(ii==6){//PFT
+      else if(ii==6){ // PFT
         if(token.length()>0 && token.compare(invalid_option) != 0){
           new_spec.pft = true;
           new_spec.dim_count++;
         }
       }
-      else if(ii==7){//Compartment
+      else if(ii==7){ // Compartment
         if(token.length()>0 && token.compare(invalid_option) != 0){
           new_spec.compartment = true;
           new_spec.dim_count++;
         }
       }
-      else if(ii==8){//Layer
+      else if(ii==8){ // Layer
         if(token.length()>0 && token.compare(invalid_option) != 0){
           new_spec.layer = true;
           new_spec.dim_count++;
@@ -330,48 +345,69 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
     } // end looping over tokens (aka columns) in a line
 
     // Only create a file if a timestep is specified for the variable.
-    //  Otherwise, assume the user does not want that variable output.
+    // Otherwise, assume the user does not want that variable output.
     if(new_spec.yearly || new_spec.monthly || new_spec.daily){
 
       // File location information for reconstructing a complete path
-      //  and filename during output.
+      // and filename during output.
       new_spec.file_path = output_base.string();
       new_spec.filename_prefix = name + "_" + timestep;
 
-      //Temporary name for file creation.
+      // Temporary name for file creation.
       std::string creation_filename = name + "_" + timestep + "_" + stage + ".nc";
 
       BOOST_LOG_SEV(glg, debug)<<"Variable: "<<name<<". Timestep: "<<timestep;
 
-      //filename with local path
+      // filename with local path
       boost::filesystem::path output_filepath = output_base / creation_filename;
-      //convert path to string for simplicity in the following function calls
+      // convert path to string for simplicity in the following function calls
       std::string creation_filestr = output_filepath.string();
 
-      //Creating NetCDF file
-      BOOST_LOG_SEV(glg, debug)<<"Creating output NetCDF file "<<creation_filestr;
-      temutil::nc( nc_create(creation_filestr.c_str(), NC_CLOBBER, &ncid) );
+#ifdef WITHMPI
+      // Creating PARALLEL NetCDF file
+      BOOST_LOG_SEV(glg, debug)<<"Creating a parallel output NetCDF file " << creation_filestr;
+      temutil::nc( nc_create_par(creation_filestr.c_str(), NC_CLOBBER|NC_NETCDF4|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+#else
+      // Creating NetCDF file
+      BOOST_LOG_SEV(glg, debug) << "Creating an output NetCDF file " << creation_filestr;
+      temutil::nc( nc_create(creation_filestr.c_str(), NC_CLOBBER|NC_NETCDF4, &ncid) );
+#endif
 
       BOOST_LOG_SEV(glg, debug) << "Adding file-level attributes";
       temutil::nc( nc_put_att_text(ncid, NC_GLOBAL, "Git_SHA", strlen(GIT_SHA), GIT_SHA ) );
 
-      BOOST_LOG_SEV(glg, debug) << "Adding dimensions...";
+      //Calculating total timesteps
+      int stage_timestep_count = 0;
+      if(timestep == "yearly"){
+        stage_timestep_count = stage_year_count;
+      }
+      else if(timestep == "monthly"){
+        stage_timestep_count = stage_year_count*12;
+      }
+      else if(timestep == "daily"){
+        stage_timestep_count = stage_year_count*365;
+      }
 
-      //All variables will have time, y, x 
-      temutil::nc( nc_def_dim(ncid, "time", NC_UNLIMITED, &timeD) );
+      BOOST_LOG_SEV(glg, debug) << "Adding dimensions...";
+      // All variables will have dimensions: time, y, x
+      temutil::nc( nc_def_dim(ncid, "time", stage_timestep_count, &timeD) );
       temutil::nc( nc_def_dim(ncid, "y", ysize, &yD) );
       temutil::nc( nc_def_dim(ncid, "x", xsize, &xD) );
 
-      //System-wide variables
+      // System-wide variables
       if(new_spec.dim_count==3){
         vartype3D_dimids[0] = timeD;
         vartype3D_dimids[1] = yD;
         vartype3D_dimids[2] = xD;
 
         temutil::nc( nc_def_var(ncid, name.c_str(), NC_DOUBLE, 3, vartype3D_dimids, &Var) );
+#ifdef WITHMPI
+        //Instruct HDF5 to use independent parallel access for this variable
+        temutil::nc( nc_var_par_access(ncid, Var, NC_INDEPENDENT) );
+#endif
       }
 
-      //PFT specific dimensions
+      // PFT specific dimensions
       else if(new_spec.pft && !new_spec.compartment){
         temutil::nc( nc_def_dim(ncid, "pft", NUM_PFT, &pftD) );
 
@@ -381,9 +417,13 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
         vartypeVeg4D_dimids[3] = xD;
 
         temutil::nc( nc_def_var(ncid, name.c_str(), NC_DOUBLE, 4, vartypeVeg4D_dimids, &Var) );
+#ifdef WITHMPI
+        //Instruct HDF5 to use independent parallel access for this variable
+        temutil::nc( nc_var_par_access(ncid, Var, NC_INDEPENDENT) );
+#endif
       }
 
-      //PFT compartment only
+      // PFT compartment only
       else if(!new_spec.pft && new_spec.compartment){
         temutil::nc( nc_def_dim(ncid, "pftpart", NUM_PFT_PART, &pftpartD) );
 
@@ -393,9 +433,13 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
         vartypeVeg4D_dimids[3] = xD;
 
         temutil::nc( nc_def_var(ncid, name.c_str(), NC_DOUBLE, 4, vartypeVeg4D_dimids, &Var) );
+#ifdef WITHMPI
+        //Instruct HDF5 to use independent parallel access for this variable
+        temutil::nc( nc_var_par_access(ncid, Var, NC_INDEPENDENT) );
+#endif
       }
 
-      //PFT and PFT compartments
+      // PFT and PFT compartments
       else if(new_spec.pft && new_spec.compartment){ 
         temutil::nc( nc_def_dim(ncid, "pft", NUM_PFT, &pftD) );
         temutil::nc( nc_def_dim(ncid, "pftpart", NUM_PFT_PART, &pftpartD) );
@@ -407,9 +451,13 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
         vartypeVeg5D_dimids[4] = xD;
 
         temutil::nc( nc_def_var(ncid, name.c_str(), NC_DOUBLE, 5, vartypeVeg5D_dimids, &Var) );
+#ifdef WITHMPI
+        //Instruct HDF5 to use independent parallel access for this variable
+        temutil::nc( nc_var_par_access(ncid, Var, NC_INDEPENDENT) );
+#endif
       }
 
-      //Soil specific dimensions
+      // Soil specific dimensions
       else if(new_spec.layer){
         temutil::nc( nc_def_dim(ncid, "layer", MAX_SOI_LAY, &layerD) );
 
@@ -419,9 +467,74 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
         vartypeSoil4D_dimids[3] = xD;
 
         temutil::nc( nc_def_var(ncid, name.c_str(), NC_DOUBLE, 4, vartypeSoil4D_dimids, &Var) );
+#ifdef WITHMPI
+        //Instruct HDF5 to use independent parallel access for this variable
+        temutil::nc( nc_var_par_access(ncid, Var, NC_INDEPENDENT) );
+#endif
       }
 
-      BOOST_LOG_SEV(glg, debug) << "Adding variable-level attributes";
+      //  monthly tr :  days since 1901, copy attributes and data from hist climate
+      //  yearly tr :  days since 1901, copy attributes from hist climate; generate data...
+      //
+      //  monthly sc : days since 2001, copy attributes and data from proj climate
+      //  yearly sc : days since 2001, copy attributes from proj climate, generate data...
+
+      if (stage == "tr" && (timestep == "yearly" || timestep == "monthly")) {
+        vartype1D_dimids[0] = timeD;
+        temutil::nc( nc_def_var(ncid, "time", NC_DOUBLE, 1, vartype1D_dimids, &tcVar) );
+
+        int hist_climate_ncid;
+        int hist_climate_tcV;
+
+        temutil::nc( nc_open(this->hist_climate_file.c_str(), NC_NOWRITE, &hist_climate_ncid) );
+        temutil::nc( nc_inq_varid(hist_climate_ncid, "time", &hist_climate_tcV));
+
+        // Copy attributes for time variable
+        temutil::nc( nc_copy_att(hist_climate_ncid, hist_climate_tcV, "units", ncid, tcVar));
+        temutil::nc( nc_copy_att(hist_climate_ncid, hist_climate_tcV, "calendar", ncid, tcVar));
+
+        // perhaps write calendar attribute if it does not exist?
+        //std::string s = "365_day";
+        //temutil::nc( nc_put_att_text(ncid, tcVar, "calendar", s.length(), s.c_str()) );
+
+      }
+
+      if (stage == "sc" && (timestep == "yearly" || timestep == "monthly")) {
+        vartype1D_dimids[0] = timeD;
+        temutil::nc( nc_def_var(ncid, "time", NC_DOUBLE, 1, vartype1D_dimids, &tcVar) );
+
+        int proj_climate_ncid;
+        int proj_climate_tcV;
+
+        temutil::nc( nc_open(this->proj_climate_file.c_str(), NC_NOWRITE, &proj_climate_ncid) );
+        temutil::nc( nc_inq_varid(proj_climate_ncid, "time", &proj_climate_tcV));
+
+        temutil::nc( nc_copy_att(proj_climate_ncid, proj_climate_tcV, "units", ncid, tcVar));
+        temutil::nc( nc_copy_att(proj_climate_ncid, proj_climate_tcV, "calendar", ncid, tcVar));
+
+        // perhaps write calendar attribute if it does not exist?
+        //std::string s = "365_day";
+        //temutil::nc( nc_put_att_text(ncid, tcVar, "calendar", s.length(), s.c_str()) );
+
+      }
+
+      BOOST_LOG_SEV(glg, debug) << "Adding variable-level attributes from output spec.";
+
+      // Swap out generic /time unit from output spec with appropriate
+      // timestep denomination.
+      if (units.find("time") != std::string::npos) {
+        BOOST_LOG_SEV(glg, debug) << "Updating units string! ";
+        std::string real_timestep;
+        if (timestep == "yearly") { real_timestep = "year"; }
+        if (timestep == "monthly") { real_timestep = "month"; }
+        if (timestep == "daily") { real_timestep = "day"; }
+        units.replace(units.begin() + units.find("time"),
+                      units.end(),
+                      real_timestep.begin(),
+                      real_timestep.end());
+
+      }
+      BOOST_LOG_SEV(glg, debug) << "Using units string: " << units.c_str();
       temutil::nc( nc_put_att_text(ncid, Var, "units", units.length(), units.c_str()) );
       temutil::nc( nc_put_att_text(ncid, Var, "long_name", desc.length(), desc.c_str()) );
       temutil::nc( nc_put_att_double(ncid, Var, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
@@ -429,6 +542,60 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
       /* End Define Mode (not strictly necessary for netcdf 4) */
       BOOST_LOG_SEV(glg, debug) << "Leaving 'define mode'...";
       temutil::nc( nc_enddef(ncid) );
+
+      /* Fill out the time coordinate variable */
+      if ((stage == "tr") || (stage == "sc") && timestep == "yearly") {
+        BOOST_LOG_SEV(glg, debug) << "Time coordinate variable, tr or sc, yearly.";
+
+        int tcV;
+        temutil::nc( nc_inq_varid(ncid, "time", &tcV));
+
+        int runyrs;
+        if (stage == "tr") { runyrs = this->tr_yrs; }
+        if (stage == "sc") { runyrs = this->sc_yrs; }
+
+        std::vector<int> time_coord_values(runyrs, 0);
+        for (int i=0; i < runyrs; i++) {
+          time_coord_values.at(i) = 365 * i; // assumes attribute calendar:'365_day'
+        }
+        size_t start[1];
+        size_t count[1];
+
+        start[0] = 0;
+        count[0] = time_coord_values.size();
+
+        temutil::nc( nc_put_vara_int(ncid, tcV, start, count, &time_coord_values[0]) );
+
+      }
+
+      if ((stage == "tr" || stage == "sc") && timestep == "monthly") {
+        BOOST_LOG_SEV(glg, debug) << "Time coordinate variable, tr or sc, monthly.";
+
+        int runyrs = 0;
+        std::vector<int> full_time_coord;
+
+        if (stage == "tr") {
+          runyrs = this->tr_yrs;
+          full_time_coord = temutil::get_timeseries2(this->hist_climate_file, "time", 0);
+        }
+        if (stage == "sc") {
+          runyrs = this->sc_yrs;
+          full_time_coord = temutil::get_timeseries2(this->proj_climate_file, "time", 0);
+        }
+
+        int tcV;
+        temutil::nc( nc_inq_varid(ncid, "time", &tcV));
+
+        size_t start[1];
+        size_t count[1];
+
+        start[0] = 0;
+        count[0] = runyrs * 12;
+
+        temutil::nc( nc_put_vara_int(ncid, tcV, start, count, &full_time_coord[0]) );
+
+      }
+
 
       /* Close file. */
       BOOST_LOG_SEV(glg, debug) << "Closing new file...";

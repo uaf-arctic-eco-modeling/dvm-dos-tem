@@ -23,7 +23,7 @@
 #endif
 
 
-#include "../src/runmodule/Cohort.h"
+#include "Cohort.h"
 #include "ModelData.h"
 #include "CalController.h"
 #include "ArgHandler.h"

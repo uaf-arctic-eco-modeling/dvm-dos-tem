@@ -243,8 +243,14 @@ if __name__ == '__main__':
   parser.add_argument('--reset', action='store_true', 
       help=textwrap.dedent('''Set all pixels to zero (don't run).'''))
 
-  parser.add_argument("--xy", nargs=2, type=int, metavar=('X','Y'),
-      help=textwrap.dedent('''The x, y position of the pixel to turn on.'''))
+  parser.add_argument('--all-on', action='store_true', 
+      help=textwrap.dedent('''Set all pixels to 1 (run). Inverse of --reset.'''))
+
+  parser.add_argument("--yx", nargs=2, type=int, metavar=('Y','X'),
+      help=textwrap.dedent('''The y, x  (row, col) position of the pixel to turn on.'''))
+
+  parser.add_argument("--yx-off", nargs=2, type=int, metavar=('Y','X'),
+      help=textwrap.dedent('''The y, x  (row, col) position of the pixel to turn OFF.'''))
 
   parser.add_argument("--show", action='store_true',
       help=textwrap.dedent('''Print the mask after modification.'''))
@@ -316,10 +322,19 @@ if __name__ == '__main__':
       print "Setting all pixels in runmask to '0' (OFF)."
       mask.variables['run'][:] = 0
 
-    if args.xy:
-      X,Y = args.xy
-      print "Turning pixel(x,y) to '1', (ON)."
-      mask.variables['run'][X,Y] = 1
+    if args.yx:
+      Y,X = args.yx
+      print "Turning pixel(y,x) ({},{}) to '1', (ON).".format(Y,X)
+      mask.variables['run'][Y,X] = 1
+
+    if args.all_on:
+      print "Setting all pixels in runmask to '1' (ON)."
+      mask.variables['run'][:] = 1
+
+    if args.yx_off:
+      Y, X = args.yx_off
+      print "Setting pixel (y, x) ({},{}) to '0', (OFF).".format(Y,X)
+      mask.variables['run'][Y,X] = 0
 
   # Show the after state
   if args.show:

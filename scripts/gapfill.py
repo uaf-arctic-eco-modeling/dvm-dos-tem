@@ -165,7 +165,7 @@ for climate_file in CLIMATE_FILES:
       for v in VARS:
 
         print "Generating fill data"
-        filled = gapfill_along_timeseries(myFile[v][:])
+        filled = gapfill_along_timeseries(myFile.variables[v][:])
 
         print myFile.source
         print myFile.ncattrs()

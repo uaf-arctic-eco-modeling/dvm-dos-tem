@@ -13,16 +13,14 @@
 #include <sstream>
 #include <limits>
 
-#include <netcdf.h>
-
 #include <json/reader.h>
 #include <json/value.h>
 
-#include "inc/physicalconst.h" // for PI
-#include "inc/timeconst.h" // for mapping from first day of month -> day of year
+#include "../include/physicalconst.h" // for PI
+#include "../include/timeconst.h" // for mapping from first day of month -> day of year
 
-#include "TEMLogger.h"
-#include "TEMUtilityFunctions.h"
+#include "../include/TEMLogger.h"
+#include "../include/TEMUtilityFunctions.h"
 
 extern src::severity_logger< severity_level > glg;
 
@@ -297,7 +295,12 @@ namespace temutil {
     std::stringstream ss;
 
     int ncid;
+
+#ifdef WITHMPI
+    temutil::nc( nc_open_par(fname.c_str(), NC_NOWRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+#else
     temutil::nc( nc_open(fname.c_str(), NC_NOWRITE, &ncid) );
+#endif
 
     // lookup variable by name
     int vid;
@@ -333,7 +336,12 @@ namespace temutil {
     std::stringstream ss;
 
     int ncid;
+
+#ifdef WITHMPI
+    temutil::nc( nc_open_par(fname.c_str(), NC_NOWRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+#else
     temutil::nc( nc_open(fname.c_str(), NC_NOWRITE, &ncid) );
+#endif
 
     int xD, yD;
     size_t xD_len, yD_len;
@@ -369,8 +377,14 @@ namespace temutil {
   void handle_error(int status) {
     if (status != NC_NOERR) {
       fprintf(stderr, "%s\n", nc_strerror(status));
-      BOOST_LOG_SEV(glg, fatal) << nc_strerror(status);
-      exit(-1);
+      BOOST_LOG_SEV(glg, err) << nc_strerror(status);
+
+      std::string msg = "Exception from netcdf: ";
+      msg = msg + nc_strerror(status);
+
+      throw std::runtime_error(msg);
+
+      //exit(-1);
     }
   }
   
@@ -535,7 +549,7 @@ namespace temutil {
   /** rough draft for reading a timeseries of co2 data from a new-style co2 file.
   */
   std::vector<float> get_timeseries(const std::string &filename,
-                                    const std::string& var) {
+                                    const std::string &var) {
 
     BOOST_LOG_SEV(glg, debug) << "Opening dataset: " << filename;
     BOOST_LOG_SEV(glg, debug) << "Getting variable: " << var;

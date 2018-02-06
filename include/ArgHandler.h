@@ -24,12 +24,14 @@ class ArgHandler {
   int sc_yrs;
 
   bool cal_mode;
+  int force_cmt;
   bool inter_stage_pause;
   bool archive_all_json;
   bool tar_caljson;
   int last_n_json_files;
 
   std::string max_output_volume;
+  bool no_output_cleanup;
 
   std::string pid_tag;
 
@@ -59,6 +61,7 @@ public:
   inline const bool get_fpe(){return floating_point_exp;};
 	
   inline const bool get_cal_mode(){return cal_mode;};
+  inline const int  get_force_cmt() const {return force_cmt;};
   inline const bool get_inter_stage_pause() const {return inter_stage_pause;};
   inline const bool get_archive_all_json() const {return archive_all_json;};
   inline const bool get_tar_caljson() const {return tar_caljson;};
@@ -69,7 +72,8 @@ public:
 	inline const std::string get_ctrl_file(){return ctrl_file;};
 
   inline const std::string get_max_output_volume(){return max_output_volume;};
-  
+  inline const bool get_no_output_cleanup(){return no_output_cleanup;};
+
   inline const std::string get_log_level(){return log_level;};
   inline const std::string get_log_scope(){return log_scope;};
 

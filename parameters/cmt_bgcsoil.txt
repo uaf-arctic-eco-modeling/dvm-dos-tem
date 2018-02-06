@@ -83,8 +83,8 @@
 2.0               // rhq10:
 0.0               // moistmin:
 0.5               // moistopt:
-1.0               // moistmax:
-47.61             // lcclnc:
+1.0               // moistmax: 
+47.60             // lcclnc:
 0.372             // fsoma:
 0.611             // fsompr:
 0.017             // fsomcr:
@@ -95,9 +95,9 @@
 0.0               // fnloss:  fraction N leaching (0 - 1) when drainage occurs
 2340              // initshlwc:
 5853              // initdeepc:
-37022            // initminec:
-1843             // initsoln:
-3.93              // initavln:
+37022             // initminec:
+1843              // initsoln:
+3.93              // initavln:  was 0.68
 //===========================================================
 // CMT05 // Tussock Tundra (updated 1/15/2016 JDC) - Soil microbial activity (BGC) parameters and default initial conditions.
 2.0               // rhq10:
@@ -110,21 +110,21 @@
 0.017             // fsomcr:
 0.257             // som2co2:
 0.0042            // kn2:
-24.6             // nmincnsoil:
+24.6              // nmincnsoil:
 0.2               // propftos:
 0.0               // fnloss:  fraction N leaching (0 - 1) when drainage occurs
 3000              // initshlwc:
 7700              // initdeepc:
-43000              // initminec:
-2200               // initsoln:
-8.9                // initavln:
+4300              // initminec:
+2200              // initsoln:
+8.9               // initavln:
 //===========================================================
-// CMT06 // CMT6 TEM Community  - soil microbial activity (BGC) parameters and default initial conditions
+// CMT06 // Wet Sedge Tundra - soil microbial activity (BGC) parameters and default initial conditions
 2.0               // rhq10:
 0.0               // moistmin:
 0.5               // moistopt:
 1.0               // moistmax:
-84.44             // lcclnc:
+41.30             // lcclnc:
 0.372             // fsoma:
 0.611             // fsompr:
 0.017             // fsomcr:
@@ -133,8 +133,88 @@
 29.73             // nmincnsoil:
 0.2               // propftos:
 0.0               // fnloss:  fraction N leaching (0 - 1) when drainage occurs
-1783              // initshlwc:
-5021              // initdeepc:
-9000              // initminec:
-363               // initsoln:
-0.76              // initavln:
+3358              // initshlwc:
+8401              // initdeepc:
+44252             // initminec:
+2698              // initsoln:
+0.48              // initavln:
+//===========================================================
+// CMT07 // Heath Tundra - soil microbial activity (BGC) parameters and default initial conditions
+2.0               // rhq10:
+0.0               // moistmin:
+0.5               // moistopt:
+1.0               // moistmax:
+45.70             // lcclnc:
+0.372             // fsoma:
+0.611             // fsompr:
+0.017             // fsomcr:
+0.346             // som2co2:
+0.0042            // kn2:
+29.73             // nmincnsoil:
+0.2               // propftos:
+0.0               // fnloss:  fraction N leaching (0 - 1) when drainage occurs
+1065              // initshlwc:
+1071              // initdeepc:
+32640             // initminec:
+1405               // initsoln:
+0.17              // initavln:
+//===========================================================
+// CMT12 // Lowland Boreal Wet Shrubland - soil microbial activity (BGC) parameters and default initial conditions
+2.0               // rhq10:
+0.0               // moistmin:
+0.5               // moistopt:
+1.0               // moistmax:
+75.67             // lcclnc:  this might be too hi?
+0.372             // fsoma:
+0.611             // fsompr:
+0.017             // fsomcr:
+0.346             // som2co2:
+0.0042            // kn2:
+16.37             // nmincnsoil:
+0.2               // propftos:
+0.0               // fnloss:  fraction N leaching (0 - 1) when drainage occurs
+3745.51           // initshlwc:
+7672.62           // initdeepc:
+24235.14          // initminec:
+2177.91           // initsoln:
+0.8               // initavln:
+//===========================================================
+// CMT20 // EML Shrub Tundra - 
+2.0               // rhq10:
+0.0               // moistmin:
+0.5               // moistopt:
+1.0               // moistmax:
+47.60             // lcclnc:
+0.372             // fsoma:
+0.611             // fsompr:
+0.017             // fsomcr:
+0.346             // som2co2:
+0.0042            // kn2:
+28.10             // nmincnsoil:
+0.2               // propftos:
+0.0               // fnloss:  fraction N leaching (0 - 1) when drainage occurs
+4365.66           // initshlwc:
+12814.11          // initdeepc:
+36329.49          // initminec: was 36329.49
+1904.10           // initsoln: was 1904.10
+4.0               // initavln:
+//===========================================================
+// CMT21 // EML Tussock Tundra -
+2.0               // rhq10:
+0.0               // moistmin:
+0.5               // moistopt:
+1.0               // moistmax:
+49.50             // lcclnc:  corrected 8/4/17
+0.372             // fsoma:
+0.611             // fsompr:
+0.017             // fsomcr:
+0.346             // som2co2:
+0.0042            // kn2:
+30.32             // nmincnsoil:
+0.2               // propftos:
+0.0               // fnloss:  fraction N leaching (0 - 1) when drainage occurs
+4365.66           // initshlwc:
+12814.11          // initdeepc:
+43416.95          // initminec: was reduced from 43416.95  21708.50
+1998.37           // initsoln: reduced from 1998.37 based on C/N soil   715.98
+1.7               // initavln:

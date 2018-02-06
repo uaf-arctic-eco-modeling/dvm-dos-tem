@@ -2,8 +2,8 @@
 
 #include "../include/ArgHandler.h"
 
-#include "TEMLogger.h"
-#include "TEMUtilityFunctions.h"
+#include "../include/TEMLogger.h"
+#include "../include/TEMUtilityFunctions.h"
 
 extern src::severity_logger< severity_level > glg;
 
@@ -17,7 +17,15 @@ void ArgHandler::parse(int argc, char** argv) {
      "Switch for calibration mode. When this flag is present, the program will "
      "be forced to run a single site and with '--loop-order=space-major'. The "
      "program will generate yearly and monthly '.json' files in your /tmp "
-     " directory that are intended to be read by other programs or scripts.")
+     "directory that are intended to be read by other programs or scripts.")
+
+    ("force-cmt", boost::program_options::value<int>(&force_cmt)
+     ->default_value(-1),
+     "Force the model to run with a particular CMT number. Without this flag, "
+     "the model determines which CMT to use for a grid cell based on the input "
+     "vegetation map. The flag allows the user to force a grid cell to run "
+     "with a particular CMT regardless of what the input vegetation map holds. "
+     "Only works for single pixels ('site runs') when using calibration mode.")
 
     ("max-output-volume", boost::program_options::value<std::string>(&max_output_volume)
      ->default_value("0.75 GB"),
@@ -25,6 +33,12 @@ void ArgHandler::parse(int argc, char** argv) {
      "estimated output volume exceeds this value, the program will quit. Use "
      "the special value '-1' to indicate no cap on output volume. Use this at "
      "your own risk - you may end up filling your hard-drive!")
+
+    ("no-output-cleanup", boost::program_options::bool_switch(&no_output_cleanup),
+     "Do not clean the output directory at the beginging of a run. This might "
+     "be useful when running dvmdostem under the control of an outside program "
+     "such as PEcAn that makes assumptions about the presence of an output "
+     "directory and may perform its own cleanup.")
 
     ("inter-stage-pause", boost::program_options::bool_switch(&inter_stage_pause),
      "With this flag, (and when in calibration mode), the model will pause and "
@@ -143,13 +157,19 @@ void ArgHandler::verify() {
   Json::Value controldata = temutil::parse_control_file(this->get_ctrl_file());
 
   if ((this->pid_tag.compare("") != 0) && (!this->cal_mode)) {
-    BOOST_LOG_SEV(glg, fatal) << "If you have specified a PID tag, you must also specify --cal-mode!";
+    BOOST_LOG_SEV(glg, fatal) << "Invalid argument combination!: If you have specified a PID tag, you must also specify --cal-mode!";
     exit(-1);
   }
 
   if ( (this->inter_stage_pause) && (!this->cal_mode) ) {
     BOOST_LOG_SEV(glg, warn) << "Invalid argument combination!: --inter-stage-pause is not effective without --cal-mode!";
   }
+
+  if ( (this->force_cmt >= 0) && (!this->cal_mode) ) {
+    BOOST_LOG_SEV(glg, fatal) << "Invalid argument combination!: You must use --cal-mode when forcing the community type!";
+    exit(-1);
+  }
+  // Check that the value for --force-cmt is present in all input parameter files
 
 }
 

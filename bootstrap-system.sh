@@ -28,7 +28,13 @@ yum install -y xauth
 # packages used for plotting
 yum install -y python-matplotlib python-matplotlib-wx netcdf4-python python-ipython python-jinja2
 
+# Stuff for plotting on a basemap with python 
+# useful for our pre and post processing scripts.
+yum install python-basemap-data python-basemap-data-hires python-basemap
+
+
 # For processing/preparing the "new style" inputs
+yum install -y gdal-python
 yum install -y gdal gdal-devel
 
 # For compiling with Scons
