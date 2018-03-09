@@ -524,7 +524,7 @@ def fill_veg_file(if_name, xo, yo, xs, ys, out_dir, of_name):
 def fill_climate_file(start_yr, yrs, xo, yo, xs, ys,
                       out_dir, of_name, sp_ref_file,
                       in_tair_base, in_prec_base, in_rsds_base, in_vapo_base,
-                      time_coord_var):
+                      time_coord_var, model='', scen=''):
 
   # create short handle for output file
   masterOutFile = os.path.join(out_dir, of_name)
@@ -570,8 +570,11 @@ def fill_climate_file(start_yr, yrs, xo, yo, xs, ys,
   lon[:] = temp_subset_with_lonlat.variables['lon'][:]
 
   print "Write attribute with pixel offsets to file..."
+  print "Write attributes for model and scenario..."
   with custom_netcdf_attr_bug_wrapper(new_climatedataset) as f:
     f.source = source_attr_string(xo=xo, yo=yo)
+    f.model = model
+    f.scenario = scen
 
   print "Done copying LON/LAT."
 
@@ -985,22 +988,49 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
                       xo, yo, xs, ys,
                       out_dir, of_name, sp_ref_file,
                       in_tair_base, in_prec_base, in_rsds_base, in_vapo_base,
-                      time_coord_var)
+                      time_coord_var, model='cru', scen='TS31')
 
 
   if 'projected-climate' in files:
     of_name = "projected-climate.nc"
-    sp_ref_file  = os.path.join(tif_dir,  "tas_mean_C_iem_cccma_cgcm3_1_sresa1b_2001_2100/tas_mean_C_iem_cccma_cgcm3_1_sresa1b_%02d_%04d.tif" % (1, 2001))
-    in_tair_base = os.path.join(tif_dir,  "tas_mean_C_iem_cccma_cgcm3_1_sresa1b_2001_2100/tas_mean_C_iem_cccma_cgcm3_1_sresa1b")
-    in_prec_base = os.path.join(tif_dir,  "pr_total_mm_iem_cccma_cgcm3_1_sresa1b_2001_2100/pr_total_mm_iem_cccma_cgcm3_1_sresa1b")
-    in_rsds_base = os.path.join(tif_dir,  "rsds_mean_MJ-m2-d1_iem_cccma_cgcm3_1_sresa1b_2001_2100/rsds_mean_MJ-m2-d1_iem_cccma_cgcm3_1_sresa1b")
-    in_vapo_base = os.path.join(tif_dir,  "vap_mean_hPa_iem_cccma_cgcm3_1_sresa1b_2001_2100/vap_mean_hPa_iem_cccma_cgcm3_1_sresa1b")
+
+    #   dict(model=ar5_MRI-CGCM3, scen=rcp85, starty=2006, endy=2100)
+    a = dict(model='iem_cccma_cgcm3_1', scen='sresa1b', starty=2001, endy=2100)
+
+    a['var'] = 'tas_mean'; a['units'] = 'C'
+    in_tair_base = os.path.join(tif_dir, 
+        "{var}_{units}_{model}_{scen}_{starty}_{endy}".format(**a),
+        "{var}_{units}_{model}_{scen}".format(**a))
+
+    a['var'] = 'pr_total'; a['units'] = 'mm'
+    in_prec_base = os.path.join(tif_dir, 
+        "{var}_{units}_{model}_{scen}_{starty}_{endy}".format(**a),
+        "{var}_{units}_{model}_{scen}".format(**a))
+
+    a['var'] = 'rsds_mean'; a['units'] = 'MJ-m2-d1'
+    in_rsds_base = os.path.join(tif_dir, 
+        "{var}_{units}_{model}_{scen}_{starty}_{endy}".format(**a),
+        "{var}_{units}_{model}_{scen}".format(**a))
+
+    a['var'] = 'vap_mean'; a['units'] = 'hPa'
+    in_vapo_base = os.path.join(tif_dir, 
+        "{var}_{units}_{model}_{scen}_{starty}_{endy}".format(**a),
+        "{var}_{units}_{model}_{scen}".format(**a))
+
+
+    # Set back to using temperature for a few other general file checks
+    a['var'] = 'tas_mean'; a['units'] = 'C'
+
+    # Set the spatial reference file. Use the first month of the starting year
+    sp_ref_file =  os.path.join(tif_dir, 
+        "{var}_{units}_{model}_{scen}_{starty}_{endy}".format(**a),
+        "{var}_{units}_{model}_{scen}_{month:02d}_{starty}.tif".format(month=1, **a))
 
     # Calculates number of years for running all. Values are different
     # for historic versus projected.
     pc_years = 0;
     if years == -1:
-      filecount = len(glob.glob(os.path.join(tif_dir, "tas_mean_C_iem_cccma_cgcm3_1_sresa1b_2001_2100/*.tif")))
+      filecount = len(glob.glob(os.path.join(tif_dir, "{var}_{units}_{model}_{scen}_{starty}_{endy}/*.tif".format(**a))))
       print "Found %s files..." % filecount
       pc_years = filecount/12
     else:
@@ -1008,10 +1038,10 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
 
     # NOTE: Should make this smarter so that the starting year is picked from
     # the input path strings specified above.
-    fill_climate_file(2001+start_year, pc_years,
+    fill_climate_file(a['starty']+start_year, pc_years,
                       xo, yo, xs, ys, out_dir, of_name, sp_ref_file,
                       in_tair_base, in_prec_base, in_rsds_base, in_vapo_base,
-                      time_coord_var)
+                      time_coord_var, model=a['model'], scen=a['scen'])
 
 
   if 'fri-fire' in files:
