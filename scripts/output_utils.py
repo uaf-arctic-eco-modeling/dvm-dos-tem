@@ -557,6 +557,49 @@ def boxplot_by_pft(var, timestep, cmtnum, stages, ref_veg_map, ref_run_status):
   plt.show(block=True)
 
 
+def plot_soil_layers():
+  '''
+  WORK IN PROGRESS! 
+  
+  Attempts to display an intuitive representation of the soil column using
+  a horizontal bar chart. 
+   - bar width is set by the value of the variable under investigation
+   - bar color is set by the LAYERTYPE
+   - bar height (thickness?) is controlled by the LAYERDZ
+
+  The y axis is depth (cumulative sum of LAYERDZ)
+  
+  '''
+  with nc.Dataset("all-merged/SOC_monthly_tr.nc") as f:
+    soc = np.ma.masked_values(f.variables['SOC'][:], f.variables['SOC']._FillValue)
+
+  soc = np.ma.masked_values(soc, -99999)
+  soc = average_monthly_pool_to_yearly(soc)
+    
+  with nc.Dataset("all-merged/LAYERDZ_yearly_tr.nc") as dzf:
+    dz = dzf.variables['LAYERDZ'][:]
+
+  with nc.Dataset("all-merged/LAYERTYPE_yearly_tr.nc") as ltf:
+    lt = ltf.variables['LAYERTYPE'][:]
+  
+  Y = 0
+  X = 0
+  time = 78
+
+  def cmapper(x):
+    #    moss     shallow  deep     mineral  undefined 
+    c = ['green', 'red',   'black', 'gray',  'y']
+
+    if isinstance(x, np.ma.core.MaskedConstant):
+      return c[-1]
+    else:
+      return c[int(x)]
+
+  colors = map(cmapper, lt[time,:,Y,X])
+  bottoms = np.cumsum(dz[time,:,Y,X]) * -1  # <-- reverses y axis!
+  widths = soc[time,:,Y,X]
+  heights =  dz[time,:,Y,X]
+  plt.barh(bottoms, widths, heights, color=colors)
 
 
 
