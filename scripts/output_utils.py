@@ -71,11 +71,67 @@ def sum_across_layers(data):
 
   Returns a 3D array that has been summed over the `layer` dimension, 
   effectively creating a new array with totals for an entire gridcell/pixel 
-  instead of having the totals broken out by PFT.
+  instead of having the totals broken out by layer.
   '''
   if len(data.shape) != 4:
     raise RuntimeError('data input parameter must have 4 dimensions')
   return np.sum(data, axis=1)
+
+
+def average_monthly_pool_to_yearly(data):
+  '''
+  Expects `data` to be a 3D, 4D, or 5D numpy MASKED array with dimensions
+  `(time, layers, y, x)`, `(time, pft, y, x)`  or `(time, pftpart, pft, y, x)`
+  and the size of the time dimension to be an even multiple of 12. The calling 
+  client is expected to set up the mask correctly, i.e. if data is read from a 
+  netcdf file, then using the _FillValue for the mask. 
+
+  The function will compute the average of the input array along the time 
+  dimension in strides of 12.
+
+  Returns a 3, 4, or 45 numpy array with dimensions e.g. `(time, layers, y, x)`, 
+  (same as input), but the length of the returned time dimension will be 
+  1/12th of the length of the input array.
+
+  Note: this function contains a loop and could probably be vectorized somehow
+  with some fancy numpy indexing.
+
+  Examples:
+      Load a monthly file with soil layer data and convert it to monthly.
+
+      >>> import numpy as np
+      >>> import netCDF4 as nc
+      >>> import scripts.output_utils as ou
+      >>>
+      >>> soc = nc.Dataset('all-merged/SOC_monthly_tr.nc')
+      >>> a = np.ma.masked_values(soc.variables['SOC'][:], soc.variables['SOC']._FillValue)
+      >>> a = np.ma.masked_values(a, -99999)
+      >>> 
+      >>> b = average_monthly_pool_to_yearly(a)
+      >>> print a.shape, b.shape
+      (1308, 22, 10, 10) (109, 22, 10, 10)
+
+  '''
+  if len(data.shape) != 4:
+    raise RuntimeError('data input parameter must have 4 dimensions.')
+  if data.shape[0] % 12 > 0:
+    raise RuntimeError('data input parameter first dimension (time) must be evenly divisible by 12')
+  if not isinstance(data, np.ma.core.MaskedArray):
+    raise RuntimeError('data input parameter must be a numpy masked array!')
+
+  original_dims = list(data.shape)
+  new_time = original_dims[0] / 12
+  new_dims = original_dims
+  new_dims[0] = new_time
+
+  output = np.ones(new_dims) * np.nan
+  for i in range(0, new_time):
+    yr_start = i * 12
+    yr_end = i*12 + 12
+
+    output[i] = data[yr_start:yr_end].mean(axis=0)
+
+  return output
 
 
 def stitch_stages(var, timestep, stages, fileprefix=''):
