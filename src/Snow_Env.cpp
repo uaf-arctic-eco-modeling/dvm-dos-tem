@@ -91,7 +91,8 @@ void Snow_Env::updateDailySurfFlux( Layer* toplayer, const double & tdrv) {
         double layicermv = fmin(sublim, currl->ice);
         actsub += layicermv;
         sublim -= layicermv;
-        currl->ice -= layicermv;
+        //layicermv used to be subtracted from currl->ice here, but
+        // that duplicates the removal in Ground::constructSnowLayers()
       } else {
         break;
       }
