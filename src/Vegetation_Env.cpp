@@ -228,8 +228,8 @@ void Vegetation_Env::updateWaterBalance(const double & daylhr, double leaf_area_
     ed->d_v2a.sublim =0.;
     ed->d_v2g.rdrip = 0;
     ed->d_v2g.sdrip = 0;
-    ed->d_v2g.rthfl = rnfl;
-    ed->d_v2g.sthfl = snfl ;
+    ed->d_v2g.rthfl = 0;
+    ed->d_v2g.sthfl = 0;
     ed->d_vegs.snow  =0.;
     ed->d_vegs.rwater=0.;
   }
