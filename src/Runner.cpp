@@ -3092,7 +3092,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
       }
       else if(!curr_spec.layer){
 
-        double burnsoilC;
+        double burnsoilC = 0.0;
         if(curr_spec.monthly){
           start3[0] = month_timestep;
           burnsoilC = cohort.year_fd[month].fire_soi2a.orgc;
@@ -3135,7 +3135,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
       }
       else if(!curr_spec.layer){
 
-        double burnSoilN;
+        double burnSoilN = 0.0;
         if(curr_spec.monthly){
           start3[0] = month_timestep;
           burnSoilN = cohort.year_fd[month].fire_soi2a.orgn;
