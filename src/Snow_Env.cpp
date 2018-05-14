@@ -91,7 +91,8 @@ void Snow_Env::updateDailySurfFlux( Layer* toplayer, const double & tdrv) {
         double layicermv = fmin(sublim, currl->ice);
         actsub += layicermv;
         sublim -= layicermv;
-        currl->ice -= layicermv;
+        //layicermv used to be subtracted from currl->ice here, but
+        // that duplicates the removal in Ground::constructSnowLayers()
       } else {
         break;
       }
@@ -185,6 +186,7 @@ double  Snow_Env::meltSnowLayersAfterT(Layer* toplayer) {
 // assign double-linked snow horizon data to 'ed'
 void Snow_Env::updateSnowEd(Layer *toplayer) {
   ed->d_snws.swesum = 0.;
+  ed->d_snws.snowthick = 0.;
   Layer* currl=toplayer;
   int snowind = 0;
 
@@ -262,6 +264,7 @@ void Snow_Env::set_state_from_restartdata(const RestartData & rdata) {
   Layer* currl = ground->toplayer;
   int snind = -1;
   ed->d_snws.swesum = 0;
+  ed->d_snws.snowthick = 0;
 
   while(currl!=NULL) {
     if(currl->isSnow) {

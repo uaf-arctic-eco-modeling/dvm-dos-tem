@@ -2124,7 +2124,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
       }
       else if(curr_spec.monthly){
         start3[0] = month_timestep;
-        double snowthick;
+        double snowthick=0.0;
         Layer* currL = cohort.ground.toplayer;
         while(currL->isSnow){
           snowthick += currL->dz;
@@ -2135,7 +2135,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
       }
       else if(curr_spec.yearly){
         start3[0] = year;
-        double snowthick;
+        double snowthick=0.0;
         Layer* currL = cohort.ground.toplayer;
         while(currL->isSnow){
           snowthick += currL->dz;
