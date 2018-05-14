@@ -2,16 +2,13 @@
 
 # setting up to use boost on modex
 echo "Loading module files..."
-module purge; module load python/2.7.14 gcc/5.4.0 boost/1.67.0 netcdf/4.4.1.1-gnu540
+module purge; module load python/2.7.14 gcc/5.4.0 boost/1.67.0 netcdf/4.3.3.1 jsoncpp/jsoncpp-1.8.4
 
 echo "Setting up site specific inlcudes..."
 export SITE_SPECIFIC_INCLUDES="-I/data/software/src/jsoncpp_1.8.4/jsoncpp-1.8.4/include/"
 
 echo "Setting up site specific libs..."
 export SITE_SPECIFIC_LIBS="-L/data/software/boost/1.67.0/lib/ -L/data/software/src/jsoncpp_1.8.4/jsoncpp-1.8.4/build-shared/"
-
-echo "Setting path for loading libraries..."
-export LD_LIBRARY_PATH="/data/software/gcc/gcc-5.4.0/lib64/:/data/software/src/jsoncpp_1.8.4/jsoncpp-1.8.4/build-shared/:/data/software/boost/1.67.0/lib/"
 
 echo "NOTE: With recent versions of jsoncpp, the API changed so that Json::Reader "
 echo "      is no longer a valid use pattern. Fortunatley this was only used once "
