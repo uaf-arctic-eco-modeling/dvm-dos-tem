@@ -649,10 +649,16 @@ def fill_climate_file(start_yr, yrs, xo, yo, xs, ys,
           'units': 'days since {}-1-1 0:0:0'.format(start_yr),
           'calendar': '365_day'
         })
+
         # Build up a vector of datetime stamps for the first day of each month
+        try:
+          periods = f.dimensions['time'].size # only available in netCDF4 >1.2.2
+        except AttributeError as e:
+          periods = len(f.dimensions['time'])
+
         month_starts = pd.date_range(
             dt.datetime(year=start_yr, month=1, day=1),
-            periods=f.dimensions['time'].size,
+            periods=periods,
             freq="MS" # <- MS is month start
         )
 
@@ -1091,7 +1097,7 @@ if __name__ == '__main__':
                       help="An offset to use for making a climate dataset that doesn't start at the beginning of the historic (1901) or projected (2001) datasets.")
   parser.add_argument('--buildout-time-coord', action='store_true',
                       help=textwrap.dedent('''\
-                        "Add a time coordinate variable to the *-climate.nc 
+                        Add a time coordinate variable to the *-climate.nc 
                         files. Also populates the coordinate variable 
                         attributes.'''))
 
