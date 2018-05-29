@@ -4,10 +4,12 @@ import os
 import errno
 import glob
 import netCDF4 as nc
+import numpy as np
 
 import argparse
 import textwrap
 
+import subprocess
 
 def mkdir_p(path):
   '''Emulates the shell's `mkdir -p`.'''
@@ -291,6 +293,38 @@ def climate_ts_plot(args):
 
 
 
+def tunnel_fast(latvar,lonvar,lat0,lon0):
+  '''
+  Find closest point in a set of (lat,lon) points to specified point
+  latvar - 2D latitude variable from an open netCDF dataset
+  lonvar - 2D longitude variable from an open netCDF dataset
+  lat0,lon0 - query point
+  Returns iy,ix such that the square of the tunnel distance
+  between (latval[it,ix],lonval[iy,ix]) and (lat0,lon0)
+  is minimum.
+  Code from Unidata's Python Workshop:
+  https://github.com/Unidata/unidata-python-workshop
+  '''
+  #from IPython import embed; embed()
+  rad_factor = np.pi/180.0 # for trignometry, need angles in radians
+  # Read latitude and longitude from file into numpy arrays
+  latvals = latvar[:] * rad_factor
+  lonvals = lonvar[:] * rad_factor
+  ny,nx = latvals.shape
+  lat0_rad = lat0 * rad_factor
+  lon0_rad = lon0 * rad_factor
+  # Compute numpy arrays for all values, no loops
+  clat,clon = np.cos(latvals), np.cos(lonvals)
+  slat,slon = np.sin(latvals), np.sin(lonvals)
+  delX = np.cos(lat0_rad)*np.cos(lon0_rad) - clat*clon
+  delY = np.cos(lat0_rad)*np.sin(lon0_rad) - clat*slon
+  delZ = np.sin(lat0_rad) - slat;
+  dist_sq = delX**2 + delY**2 + delZ**2
+  minindex_1d = dist_sq.argmin()  # 1D index of minimum element
+  iy_min,ix_min = np.unravel_index(minindex_1d, latvals.shape)
+  return iy_min,ix_min
+
+
 if __name__ == '__main__':
   parser = argparse.ArgumentParser(
     formatter_class = argparse.RawDescriptionHelpFormatter,
@@ -309,6 +343,13 @@ if __name__ == '__main__':
   )
   subparsers = parser.add_subparsers(help='sub commands', dest='command')
 
+  query_parser = subparsers.add_parser('query', help=textwrap.dedent('''\
+    Query one or more dvmdostem inputs for various information.'''))
+  query_parser.add_argument('--iyix-from-latlon', default=None, nargs=2, type=float,
+      help="Find closest pixel to provided lat and lon arguments.")
+  query_parser.add_argument('--latlon-file', 
+      default='../snap-data/temporary-veg-from-LandCover_TEM_2005.tif', 
+      help="The file to read from for getting lat/lon pixel offsets.")
 
   crop_parser = subparsers.add_parser('crop',help=textwrap.dedent('''\
       Crop an input dataset, using offset and size. The reason we need this in
@@ -357,5 +398,41 @@ if __name__ == '__main__':
   if args.command == 'climate-gap-plot':
     climate_gap_count_plot(args)
 
+  if args.command == 'query':
+    if args.iyix_from_latlon:
+
+      TMP_NC_FILE = '/tmp/WINNING.nc'
+
+      # Convert to netcdf
+      subprocess.call(['gdal_translate',
+          #'-overwrite',
+          '-of','netcdf',
+          #'-t_srs', '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs',
+          '-co', 'WRITE_LONLAT=YES',
+          args.latlon_file,
+          TMP_NC_FILE])
+
+      # Or can set GDAL_DATA environment variable and use EPSG code:
+      #GDAL_DATA=/home/UA/tcarman2/anaconda/share/gdal gdalwarp -of netcdf infile.tif outfile.nc -t_srs EPSG:4326
+
+      ncfile = nc.Dataset(TMP_NC_FILE, 'r')
+      latvar = ncfile.variables['lat']
+      lonvar = ncfile.variables['lon']
+
+      #from IPython import embed; embed()
+      #toolik = {'lat':68.626480, 'lon':-149.594995}
+      #bnza_lter = {'lat':64.70138, 'lon':-148.31034}
+      #target = bnza_lter
+      target = {'lat':args.iyix_from_latlon[0], 'lon':args.iyix_from_latlon[1]}
+      iy,ix = tunnel_fast(latvar, lonvar, target['lat'], target['lon'])
+      print('Target lat, lon:', target['lat'], target['lon'])
+      print('Delta with target lat, lon:', target['lat'] - latvar[iy,ix], target['lon'] - lonvar[iy,ix])
+      print('lat, lon of closest match:', latvar[iy,ix], lonvar[iy,ix])
+      print('indices of closest match iy, ix (FROM LOWER left):', iy, ix)
+      print('indices of closest match iy, ix (FROM UPPER left):', len(ncfile.dimensions['y'])-iy, ix)
+      print('** NOTE: Use coords FROM UPPER LEFT to build/crop a new dataset with that pixel at the LOWER LEFT corner of the dataset!')
+      ncfile.close()
+      #os.remove(TMP_NC_FILE)
+      exit()
 
 
