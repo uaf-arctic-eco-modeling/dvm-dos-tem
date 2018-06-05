@@ -4258,7 +4258,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
         }
         else if(curr_spec.yearly){
           PFTstart4[0] = year;
-          temutil::nc( nc_put_vara_double(ncid, cv, PFTstart4, PFTcount4, &cohort.cd.m_veg.lai[0]) );
+          temutil::nc( nc_put_vara_double(ncid, cv, PFTstart4, PFTcount4, &cohort.cd.y_veg.lai[0]) );
         }
 
       }
@@ -4269,13 +4269,17 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
         if(curr_spec.monthly){
           start3[0] = month_timestep;
           for(int ip=0; ip<NUM_PFT; ip++){
-            lai += cohort.cd.m_veg.lai[ip];
+            if(cohort.cd.m_veg.vegcov[ip]>0.){
+              lai += cohort.cd.m_veg.lai[ip];
+            }
           }
         }
         else if(curr_spec.yearly){
           start3[0] = year;
           for(int ip=0; ip<NUM_PFT; ip++){
-            lai += cohort.cd.y_veg.lai[ip];
+            if(cohort.cd.y_veg.vegcov[ip]>0.){
+              lai += cohort.cd.y_veg.lai[ip];
+            }
           }
         }
         temutil::nc( nc_put_var1_double(ncid, cv, start3, &lai) );
