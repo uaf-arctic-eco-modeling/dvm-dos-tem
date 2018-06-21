@@ -189,6 +189,46 @@ def crop_wrapper(args):
     y, x = args.yx
     crop_file(infile, outfile, y, x, args.ysize, args.xsize)
 
+def climate_ts_plot(args):
+  '''
+  Makes one figure for historic and one figure for projected climate file. 
+  Each figure will have 4 plots, one for each of the expected climate driver
+  variables.
+  '''
+
+  # Keep imports of graphic stuff here so that the rest of the script
+  # is usable even w/o matplotlib installed.
+  import matplotlib.pyplot as plt
+  import matplotlib.gridspec as gridspec
+
+  CLIMATE_FILES = ['historic-climate.nc', 'projected-climate.nc']
+  VARS = ['tair', 'precip', 'nirr', 'vapor_press']
+  ROWS = 4
+  COLS = 1
+
+  y, x = args.yx
+
+  gs = gridspec.GridSpec(ROWS, COLS)
+
+  for i, v in enumerate(VARS):
+    ax = plt.subplot(gs[i,0])
+    with nc.Dataset(os.path.join(args.input_folder, CLIMATE_FILES[0])) as hds:
+      ax.plot(hds.variables[v][:,y, x])
+      ax.set_title(v)
+  plt.suptitle(os.path.join(args.input_folder, CLIMATE_FILES[0]))
+  plt.show(block=True)
+
+  plt.title(CLIMATE_FILES[1])
+  for i, v in enumerate(VARS):
+    ax = plt.subplot(gs[i,0])
+    with nc.Dataset(os.path.join(args.input_folder, CLIMATE_FILES[1])) as hds:
+      ax.plot(hds.variables[v][:,y, x])
+      ax.set_title(v)
+  plt.suptitle(os.path.join(args.input_folder, CLIMATE_FILES[1]))
+  plt.show(block=True)
+
+
+
 
 if __name__ == '__main__':
   parser = argparse.ArgumentParser(
@@ -226,6 +266,14 @@ if __name__ == '__main__':
   # EXAMPLES
   # ./input_utils.py crop --yx 0 0 --ysize 1 --xsize 1 DATA/Toolik_10x10
 
+  climate_ts_plot_parser = subparsers.add_parser('climate-ts-plot', help=textwrap.dedent('''\
+    Quick 'n dirty time series plots of the 4 climate driver variables for a 
+    single pixel. Makes figures, one for historic, one for projected.
+    '''))
+  climate_ts_plot_parser.add_argument('--yx', type=int, nargs=2, required=True, help="The Y, X position of the pixel to plot")
+  climate_ts_plot_parser.add_argument('input_folder', help="Path to a folder containing a set of dvmdostem inputs.")
+
+
   args = parser.parse_args()
 
   print args
@@ -234,5 +282,8 @@ if __name__ == '__main__':
     verify_input_files(args.input_folder)
     crop_wrapper(args)
 
+  if args.command == 'climate-ts-plot':
+    #verify_input_files(args.input_folder)
+    climate_ts_plot(args)
 
 

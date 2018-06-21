@@ -110,7 +110,7 @@ def gapfill_along_timeseries(data, plot=False):
         #print "Setting datam[{},{},{}] = {}".format(tidx, yc, xc, new_value)
         datam[tidx, yc, xc] = new_value
       else:
-        print "Cant' operating on ends of timeseries! Passing..."
+        print "Can't operate on ends of timeseries! Passing..."
 
   print_mask_count_along_timeseries(datam)
 
@@ -139,7 +139,7 @@ if __name__ == '__main__':
 
         {}
 
-      within the input %(metavar)s. Both files will have their missing values
+      within the input folder. Both files will have their missing values
       filled and the files will be over-written with the new interpolated
       data. Additionally an attribute will be written to each file indicating
       the file has been modifed by this script.
