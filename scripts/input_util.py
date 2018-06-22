@@ -189,8 +189,69 @@ def crop_wrapper(args):
     y, x = args.yx
     crop_file(infile, outfile, y, x, args.ysize, args.xsize)
 
+def climate_gap_count_plot(args):
+  '''
+  Creates plots showing how many missing datapoints exist for each pixel.
+
+  Creates 2 figures: first from the historic file and then from the projected
+  file.
+
+  Each variable is shown in a different sub-plot. There are some idiosyncracies
+  surrouding the labeling of the colorbar, so use with caution! But this should
+  give a rough idea where there are bad pixels and how bad they are.
+  ''' 
+
+  # Keep imports of graphic stuff here so that the rest of the script
+  # is usable even w/o matplotlib installed.
+  import numpy as np
+  import matplotlib.pyplot as plt
+  import matplotlib.gridspec as gridspec
+
+  CLIMATE_FILES = ['historic-climate.nc', 'projected-climate.nc']
+  VARS = ['tair', 'precip', 'nirr', 'vapor_press']
+
+  ROWS = 2
+  COLS = 2
+
+  gs = gridspec.GridSpec(ROWS, COLS)
+
+  for cf in CLIMATE_FILES:
+    axtair = plt.subplot(gs[0,0])
+    axprecip = plt.subplot(gs[0,1])
+    axnirr = plt.subplot(gs[1,0])
+    axvapo = plt.subplot(gs[1,1])
+
+    for i, (ax, v) in enumerate(zip([axtair, axprecip, axnirr, axvapo], VARS)):
+      with nc.Dataset(os.path.join(args.input_folder, cf)) as hds:
+
+        dataset = hds.variables[v][:] # Should be a 3D numpy array (time, y, x)
+        if type(dataset) != np.ma.core.MaskedArray:
+          dataset = np.ma.core.MaskedArray(dataset, np.zeros(dataset.shape, dtype = bool))
+
+        img = ax.imshow(
+            np.ma.masked_greater_equal(
+                np.apply_along_axis(np.count_nonzero, 0, dataset.mask),
+                len(dataset)),
+            interpolation='none',
+            vmin=0,
+            vmax=len(dataset),
+            cmap='gray_r',
+            origin='lower',
+
+        )
+      ax.set_title(v)
+      plt.colorbar(img, ax=ax)
+
+    plt.suptitle(os.path.join(args.input_folder, cf))
+    plt.tight_layout()
+    plt.show(block=True)
+
+
+
 def climate_ts_plot(args):
   '''
+  Make time series plots of the 4 climate driver variables for a single pixel.
+
   Makes one figure for historic and one figure for projected climate file. 
   Each figure will have 4 plots, one for each of the expected climate driver
   variables.
@@ -268,11 +329,18 @@ if __name__ == '__main__':
 
   climate_ts_plot_parser = subparsers.add_parser('climate-ts-plot', help=textwrap.dedent('''\
     Quick 'n dirty time series plots of the 4 climate driver variables for a 
-    single pixel. Makes figures, one for historic, one for projected.
+    single pixel. Makes 2 figures, one for historic, one for projected.
     '''))
   climate_ts_plot_parser.add_argument('--yx', type=int, nargs=2, required=True, help="The Y, X position of the pixel to plot")
   climate_ts_plot_parser.add_argument('input_folder', help="Path to a folder containing a set of dvmdostem inputs.")
 
+  climate_gap_count_plot_parser = subparsers.add_parser('climate-gap-plot',
+    help=textwrap.dedent('''Generates an image plot for each variable in the 
+      input climate files (historic and projected). Each pixel in the image 
+      shows the number of values along the time axis that have missing or no
+      data.
+    '''))
+  climate_gap_count_plot_parser.add_argument('input_folder', help="Path to a folder containing a set of dvmdostem inputs.")
 
   args = parser.parse_args()
 
@@ -285,5 +353,9 @@ if __name__ == '__main__':
   if args.command == 'climate-ts-plot':
     #verify_input_files(args.input_folder)
     climate_ts_plot(args)
+
+  if args.command == 'climate-gap-plot':
+    climate_gap_count_plot(args)
+
 
 
