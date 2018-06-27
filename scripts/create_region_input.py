@@ -602,7 +602,7 @@ def fill_climate_file(start_yr, yrs, xo, yo, xs, ys,
 
       procs = []
       for tiffimage, tmpFileName, vName in zip(baseFiles, tmpFiles , dataVarList):
-        proc = mp.Process(target=convert_and_subset, args=(tiffimage, tmpFileName, xo, yo, xs, ys, yridx,midx,vName))
+        proc = mp.Process(target=convert_and_subset, args=(tiffimage, tmpFileName, xo, yo, xs, ys, yridx, midx, vName))
         procs.append(proc)
         proc.start()
 
@@ -978,7 +978,7 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
     if years == -1:
       filecount = len(glob.glob(os.path.join(tif_dir,  "tas_mean_C_iem_cru_TS31_1901_2009/*.tif")))
       print "Found %s files..." % filecount
-      hc_years = filecount/12 
+      hc_years = (filecount/12) - start_year
     else:
       hc_years = years
 
@@ -1032,7 +1032,7 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
     if years == -1:
       filecount = len(glob.glob(os.path.join(tif_dir, "{var}_{units}_{model}_{scen}_{starty}_{endy}/*.tif".format(**a))))
       print "Found %s files..." % filecount
-      pc_years = filecount/12
+      pc_years = (filecount/12) - start_year
     else:
       pc_years = years
 
