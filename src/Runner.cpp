@@ -2150,6 +2150,76 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
   map_itr = netcdf_outputs.end();
 
 
+  //SNOWFALL
+  map_itr = netcdf_outputs.find("SNOWFALL");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: SNOWFALL";
+    curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
+
+    #pragma omp critical(outputSNOWFALL)
+    {
+#ifdef WITHMPI
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_inq_varid(ncid, "SNOWFALL", &cv) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
+#else
+      temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
+      temutil::nc( nc_inq_varid(ncid, "SNOWFALL", &cv) );
+#endif
+
+      if(curr_spec.monthly){
+        start3[0] = month_timestep;
+
+        temutil::nc( nc_put_var1_double(ncid, cv, start3, &cohort.edall->m_a2l.snfl) );
+      }
+      else if(curr_spec.yearly){
+        start3[0] = year;
+
+        temutil::nc( nc_put_var1_double(ncid, cv, start3, &cohort.edall->y_a2l.snfl) );
+      }
+
+      temutil::nc( nc_close(ncid) ); 
+    }//end critical(outputSNOWFALL)
+  }//end SNOWFALL
+  map_itr = netcdf_outputs.end();
+
+
+  //RAINFALL
+  map_itr = netcdf_outputs.find("RAINFALL");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: RAINFALL";
+    curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
+
+    #pragma omp critical(outputRAINFALL)
+    {
+#ifdef WITHMPI
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_inq_varid(ncid, "RAINFALL", &cv) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
+#else
+      temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
+      temutil::nc( nc_inq_varid(ncid, "RAINFALL", &cv) );
+#endif
+
+      if(curr_spec.monthly){
+        start3[0] = month_timestep;
+
+        temutil::nc( nc_put_var1_double(ncid, cv, start3, &cohort.edall->m_a2l.rnfl) );
+      }
+      else if(curr_spec.yearly){
+        start3[0] = year;
+
+        temutil::nc( nc_put_var1_double(ncid, cv, start3, &cohort.edall->y_a2l.rnfl) );
+      }
+
+      temutil::nc( nc_close(ncid) ); 
+    }//end critical(outputRAINFALL)
+  }//end RAINFALL
+  map_itr = netcdf_outputs.end();
+
+
   //Snow water equivalent - a snapshot of the time when output is called
   map_itr = netcdf_outputs.find("SWE");
   if(map_itr != netcdf_outputs.end()){
