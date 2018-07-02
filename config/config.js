@@ -65,15 +65,15 @@
     // ??
     //"restartfile_dir": "DATA/Toolik_10x10_30yrs/" // location for restart-XX.nc file
 
-  }
+  },
 
-//  "model_settings": {
+  "model_settings": {
+    "dynamic_lai": 0               // from model (1) or from input (0)
 //    //"dynamic_climate": 0,
 //    //"varied_co2": 0,
-//    //"dynamic_lai": 1,               // from model (1) or from input (0)
 //    //"fire_severity_as_input": 0,    // fire sev. as input or ??
 //    //"output_starting_year": -9999
-//  }
+  }
 
 //  "output_switches": {
 //    "daily_output": 0,
