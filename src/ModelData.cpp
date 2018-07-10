@@ -62,11 +62,10 @@ ModelData::ModelData(Json::Value controldata):force_cmt(-1) {
 
   updatelai     = controldata["model_settings"]["dynamic_lai"].asInt(); // checked in Cohort::updateMonthly_DIMVeg
 
-
   // Unused (11/23/2015)
-  changeclimate = controldata["model_settings"]["dynamic_climate"].asInt();
-  changeco2     = controldata["model_settings"]["varied_co2"].asInt();
-  useseverity   = controldata["model_settings"]["fire_severity_as_input"].asInt();
+  //changeclimate = controldata["model_settings"]["dynamic_climate"].asInt();
+  //changeco2     = controldata["model_settings"]["varied_co2"].asInt();
+  //useseverity   = controldata["model_settings"]["fire_severity_as_input"].asInt();
 
 }
 
