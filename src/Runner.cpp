@@ -4258,7 +4258,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
         }
         else if(curr_spec.yearly){
           PFTstart4[0] = year;
-          temutil::nc( nc_put_vara_double(ncid, cv, PFTstart4, PFTcount4, &cohort.cd.m_veg.lai[0]) );
+          temutil::nc( nc_put_vara_double(ncid, cv, PFTstart4, PFTcount4, &cohort.cd.y_veg.lai[0]) );
         }
 
       }
@@ -4269,13 +4269,17 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
         if(curr_spec.monthly){
           start3[0] = month_timestep;
           for(int ip=0; ip<NUM_PFT; ip++){
-            lai += cohort.cd.m_veg.lai[ip];
+            if(cohort.cd.m_veg.vegcov[ip]>0.){
+              lai += cohort.cd.m_veg.lai[ip];
+            }
           }
         }
         else if(curr_spec.yearly){
           start3[0] = year;
           for(int ip=0; ip<NUM_PFT; ip++){
-            lai += cohort.cd.y_veg.lai[ip];
+            if(cohort.cd.y_veg.vegcov[ip]>0.){
+              lai += cohort.cd.y_veg.lai[ip];
+            }
           }
         }
         temutil::nc( nc_put_var1_double(ncid, cv, start3, &lai) );
@@ -5035,15 +5039,19 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
 
         double vegc[NUM_PFT_PART][NUM_PFT];
         for(int ip=0; ip<NUM_PFT; ip++){
-          for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
-            if(curr_spec.monthly){
-              start5[0] = month_timestep;
-              vegc[ipp][ip] = cohort.bd[ip].m_vegs.c[ipp];
+          if(cohort.cd.m_veg.vegcov[ip]>0.){//only check PFTs that exist
+
+            for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
+              if(curr_spec.monthly){
+                start5[0] = month_timestep;
+                vegc[ipp][ip] = cohort.bd[ip].m_vegs.c[ipp];
+              }
+              else if(curr_spec.yearly){
+                start5[0] = year;
+                vegc[ipp][ip] = cohort.bd[ip].y_vegs.c[ipp];
+              }
             }
-            else if(curr_spec.yearly){
-              start5[0] = year;
-              vegc[ipp][ip] = cohort.bd[ip].y_vegs.c[ipp];
-            }
+
           }
         }
 
@@ -5054,13 +5062,17 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
 
         double vegc[NUM_PFT];
         for(int ip=0; ip<NUM_PFT; ip++){
-          if(curr_spec.monthly){
-            PFTstart4[0] = month_timestep;
-            vegc[ip] = cohort.bd[ip].m_vegs.call;
-          }
-          else if(curr_spec.yearly){
-            PFTstart4[0] = year;
-            vegc[ip] = cohort.bd[ip].y_vegs.call;
+          if(cohort.cd.m_veg.vegcov[ip]>0.){//only check PFTs that exist
+
+            if(curr_spec.monthly){
+              PFTstart4[0] = month_timestep;
+              vegc[ip] = cohort.bd[ip].m_vegs.call;
+            }
+            else if(curr_spec.yearly){
+              PFTstart4[0] = year;
+              vegc[ip] = cohort.bd[ip].y_vegs.call;
+            }
+
           }
         }
 
@@ -5072,13 +5084,17 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
         double vegc[NUM_PFT_PART] = {0};
         for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
           for(int ip=0; ip<NUM_PFT; ip++){
-            if(curr_spec.monthly){
-              CompStart4[0] = month_timestep;
-              vegc[ipp] += cohort.bd[ip].m_vegs.c[ipp];
-            }
-            else if(curr_spec.yearly){
-              CompStart4[0] = year;
-              vegc[ipp] += cohort.bd[ip].y_vegs.c[ipp];
+            if(cohort.cd.m_veg.vegcov[ip]>0.){//only check PFTs that exist
+
+              if(curr_spec.monthly){
+                CompStart4[0] = month_timestep;
+                vegc[ipp] += cohort.bd[ip].m_vegs.c[ipp];
+              }
+              else if(curr_spec.yearly){
+                CompStart4[0] = year;
+                vegc[ipp] += cohort.bd[ip].y_vegs.c[ipp];
+              }
+
             }
           }
         }
@@ -5129,15 +5145,19 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
 
         double vegn[NUM_PFT_PART][NUM_PFT];
         for(int ip=0; ip<NUM_PFT; ip++){
-          for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
-            if(curr_spec.monthly){
-              start5[0] = month_timestep;
-              vegn[ipp][ip] = cohort.bd[ip].m_vegs.strn[ipp];
+          if(cohort.cd.m_veg.vegcov[ip]>0.){//only check PFTs that exist
+
+            for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
+              if(curr_spec.monthly){
+                start5[0] = month_timestep;
+                vegn[ipp][ip] = cohort.bd[ip].m_vegs.strn[ipp];
+              }
+              else if(curr_spec.yearly){
+                start5[0] = year;
+                vegn[ipp][ip] = cohort.bd[ip].y_vegs.strn[ipp];
+              }
             }
-            else if(curr_spec.yearly){
-              start5[0] = year;
-              vegn[ipp][ip] = cohort.bd[ip].y_vegs.strn[ipp];
-            }
+
           }
         }
 
@@ -5148,13 +5168,17 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
 
         double vegn[NUM_PFT];
         for(int ip=0; ip<NUM_PFT; ip++){
-          if(curr_spec.monthly){
-            PFTstart4[0] = month_timestep;
-            vegn[ip] = cohort.bd[ip].m_vegs.strnall;
-          }
-          else if(curr_spec.yearly){
-            PFTstart4[0] = year;
-            vegn[ip] = cohort.bd[ip].y_vegs.strnall;
+          if(cohort.cd.m_veg.vegcov[ip]>0.){//only check PFTs that exist
+
+            if(curr_spec.monthly){
+              PFTstart4[0] = month_timestep;
+              vegn[ip] = cohort.bd[ip].m_vegs.strnall;
+            }
+            else if(curr_spec.yearly){
+              PFTstart4[0] = year;
+              vegn[ip] = cohort.bd[ip].y_vegs.strnall;
+            }
+
           }
         }
 
@@ -5166,13 +5190,17 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
         double vegn[NUM_PFT_PART] = {0};
         for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
           for(int ip=0; ip<NUM_PFT; ip++){
-            if(curr_spec.monthly){
-              CompStart4[0] = month_timestep;
-              vegn[ipp] += cohort.bd[ip].m_vegs.strn[ipp];
-            }
-            else if(curr_spec.yearly){
-              CompStart4[0] = year;
-              vegn[ipp] += cohort.bd[ip].y_vegs.strn[ipp];
+            if(cohort.cd.m_veg.vegcov[ip]>0.){//only check PFTs that exist
+
+              if(curr_spec.monthly){
+                CompStart4[0] = month_timestep;
+                vegn[ipp] += cohort.bd[ip].m_vegs.strn[ipp];
+              }
+              else if(curr_spec.yearly){
+                CompStart4[0] = year;
+                vegn[ipp] += cohort.bd[ip].y_vegs.strn[ipp];
+              }
+
             }
           }
         }
