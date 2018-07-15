@@ -89,7 +89,7 @@ def average_monthly_pool_to_yearly(data):
   The function will compute the average of the input array along the time 
   dimension in strides of 12.
 
-  Returns a 3, 4, or 45 numpy array with dimensions e.g. `(time, layers, y, x)`, 
+  Returns a 3D, 4D, or 5D numpy array with dimensions e.g. `(time, layers, y, x)`, 
   (same as input), but the length of the returned time dimension will be 
   1/12th of the length of the input array.
 
@@ -97,7 +97,7 @@ def average_monthly_pool_to_yearly(data):
   with some fancy numpy indexing.
 
   Examples:
-      Load a monthly file with soil layer data and convert it to monthly.
+      Load a monthly file with soil layer data and convert it to yearly.
 
       >>> import numpy as np
       >>> import netCDF4 as nc
