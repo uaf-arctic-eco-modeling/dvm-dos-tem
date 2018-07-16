@@ -604,7 +604,26 @@ def plot_soil_layers():
 
 
 def plot_soil_layers2(args):
-  '''Second attempt at plotting soil profiles.'''
+  '''
+  Makes plots of soil profile variables. Generates one plot/axis for each 
+  variable specified. Y axis is the depth, X axis is the value of the variable.
+  Plots include horizontal lines marking layer boundaries. 
+
+  Calling code must supply`args` which must be a dictionary with the following
+  keys set:
+  `outfolder`: (string) a path to a folder containing dvmdostem output files.
+  `time`: (int) index along time axis to plot 
+  `yx`: (tuple) the pixel coordinates to source for the plot(s)
+  `timeres`: (string) either 'monthly', 'yearly', or 'daily' (daily is untested)
+  `stage`: (string) the run stage to plot from
+  `vars`: a list of variables names to plot, e.g. ['TLAYER', 'SOC', 'ORGN']
+
+  The function will look in `outfolder` for the appropriate dvmdostem output
+  files basedon variable name, stage, and time resolution. 
+
+  NOTE: The LAYERDZ and LAYERDEPTH files must be present in `outfolder` for 
+  the speficied `stage` and `timeres`!
+  '''
 
   od = args.outfolder
   time = args.timestep
