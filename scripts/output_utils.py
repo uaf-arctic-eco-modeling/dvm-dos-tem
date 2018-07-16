@@ -6,6 +6,7 @@
 # A set of functions for plotting dvmdostem ouputs.
 
 import os
+import glob
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
@@ -600,6 +601,159 @@ def plot_soil_layers():
   widths = soc[time,:,Y,X]
   heights =  dz[time,:,Y,X]
   plt.barh(bottoms, widths, heights, color=colors)
+
+
+def plot_soil_layers2(args):
+  '''Second attempt at plotting soil profiles.'''
+
+  od = args.outfolder
+  time = args.timestep
+  Y, X = args.yx
+  timeres = (args.time_res).lower()
+  stage = (args.stage).lower()
+  #svars = [v.upper() for v in args.vars]
+
+  opt_vars = [v.upper() for v in args.vars]
+  req_vars = ['LAYERDZ']
+
+  def pull_data(the_var):
+    '''Pulls data out of an nc file'''
+    the_file = glob.glob(os.path.join(od, "{}_{}_{}.nc".format(the_var, timeres, stage)))
+    if len(the_file) != 1:
+      raise RuntimeError("There should be one and only one file here:", the_file)
+    the_file = the_file[0]
+    with nc.Dataset(the_file, 'r') as ds:
+      data = ds.variables[the_var][:]
+      units = ds.variables[the_var].units
+    return data, units
+
+
+  depth, depthunits = pull_data('LAYERDEPTH')
+  dz, dzunits = pull_data('LAYERDZ')
+
+  # Setup the plotting
+  ROWS=1; COLS=len(opt_vars)
+  gs = gridspec.GridSpec(ROWS, COLS)
+
+  fig = plt.figure()
+  ax0 = plt.subplot(gs[:,0])
+  ax0.set_ylabel(depthunits)
+  print depthunits, dzunits
+  for i, v in enumerate(opt_vars):
+    if i == 0:
+      ax0.set_title(v)
+      ax0.invert_yaxis()
+    else:
+      ax = plt.subplot(gs[:,i], sharey=ax0)
+      ax.set_title(v)
+
+  for ax in fig.axes:
+
+    vardata, units = pull_data(ax.get_title())
+
+    if ax.get_title().upper() in ['SOC','VWC']:
+      ''' For volume/mass stuff, use bars'''
+      ax.barh(
+        depth[time,:,Y,X],       # bottom
+        vardata[time,:,Y,X],     # width
+        dz[time,:,Y,X],          # height
+        #alpha=0.85,
+      )
+
+    elif ax.get_title().upper() in ['TLAYER','HKLAYER']:
+      '''Line plot, offset so markers are at the midpoint of layer.'''
+      ax.plot(
+        vardata[time,:,Y,X],
+        depth[time,:,Y,X] + (0.5 * dz[time,:,Y,X]),
+        color='red',
+        marker='o',
+        markeredgecolor='gray',
+        markerfacecolor='red',
+        #alpha=0.85,
+      )
+    else:
+      '''Plain line.'''
+      ax.plot(
+        vardata[time,:,Y,X],
+        depth[time,:,Y,X],
+        color='green',
+      )
+
+    # Label the X axis
+    ax.set_xlabel(units)
+
+    # Put in the layer markers.
+    xmin, xmax = ax.xaxis.get_view_interval()
+    ax.hlines(
+      depth[time,:,Y,X],         # y positions
+      xmin, xmax,                # x min and max
+      linestyles='dashed', color='orange'
+    )
+
+    ax.grid(False, which='both', axis='both')
+
+  fig.suptitle("Soil Profile stage: {} {}, timestep: {}".format(stage, timeres, time))
+
+  # add tabular printout
+
+  plt.show(block=True)
+if __name__ == '__main__':
+
+  import argparse
+  import textwrap
+
+  parser = argparse.ArgumentParser(
+    formatter_class = argparse.RawDescriptionHelpFormatter,
+
+      description=textwrap.dedent('''\
+        Command line interface for utility functions that work on 
+        dvmdostem outputs. This script may also be imported and used
+        from other scripts (if you wish to import functions without 
+        using this command line interface).
+
+        The command line interface contains (or will in the future)
+        different sub-commands for different types of operations.
+        '''.format("")),
+
+      epilog=textwrap.dedent(''''''),
+  )
+  subparsers = parser.add_subparsers(help='sub commands', dest='command')
+
+  # EXAMPLES
+  # ./input_utils.py soil-profiles /some/path/to/some/outputs/
+
+  sp_parser = subparsers.add_parser('soil-profiles', 
+      help=textwrap.dedent('''\
+        Make plots of soil profiles variables (i.e. outputs that are specified 
+        to be by layer)'''))
+  sp_parser.add_argument("--yx", nargs=2, type=int, 
+      help=textwrap.dedent('''The (Y,X) pixel coordinates to plot'''))
+  sp_parser.add_argument("--timestep", type=int, default=0, 
+      help=textwrap.dedent('''The timestep for which to make the profile'''))
+  sp_parser.add_argument('--time-res', type=str, default="monthly",
+      help='The time resolution: monthly or yearly')
+  sp_parser.add_argument('--stage', default="tr", 
+      choices=['pr', 'eq','sp','tr','sc'], help="The stage to plot")
+  sp_parser.add_argument('--vars', nargs='*', default=['SOC'], help='The soil layer variables to plot')
+  sp_parser.add_argument('outfolder', help="Path to a folder containing a set of dvmdostem outputs")
+
+
+  ss_parser = subparsers.add_parser('spatial-summaries',
+      help=textwrap.dedent('''\
+      Make plots that are summaries over the spatial dimensions.'''))
+
+  #ss_parser.add_argument()
+
+  args = parser.parse_args()
+
+  print args
+  if args.command == 'soil-profiles':
+    plot_soil_layers2(args)
+
+  if args.command == 'spatial-summaries':
+    print "Not implemented yet"
+
+
 
 
 
