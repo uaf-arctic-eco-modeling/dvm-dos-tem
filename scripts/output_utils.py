@@ -768,6 +768,7 @@ def print_soil_table(outdir, stage, timeres, Y, X, timestep):
           data.append(ds.variables[v][timestep,il,Y,X])
     print row_fmt.format(*data)
 
+
 if __name__ == '__main__':
 
   import argparse
@@ -795,6 +796,8 @@ if __name__ == '__main__':
   parser.add_argument("--timestep", type=int, default=0, 
       help=textwrap.dedent('''The timestep for which to make the profile'''))
 
+  #parser.add_argument("--timeslice" ... ) # <-- might be handy in the future...
+
   parser.add_argument('--timeres', type=str, default="monthly",
       choices=['yearly', 'monthly', 'daily'],
       help='The time resolution: monthly or yearly')
@@ -818,6 +821,23 @@ if __name__ == '__main__':
   sp_parser.add_argument('outfolder', help="Path to a folder containing a set of dvmdostem outputs")
 
   # sc for 'site compare'
+  # ./output_util.py --stage tr --yx 0 0 --timeres monthly site-compare --save-name some/path/to/somefile.pdf /path/to/inputA /path/to/inputB /pathto.inpuC
+  sc_parser = subparsers.add_parser('site-compare',
+      help=textwrap.dedent('''\
+        Make time-series plots of various variables, with a line for each site.
+        Note that the different "sites" don't have to be geographic sites, but 
+        could be the same site, but differnet model runs with outputs stored
+        in different folders. Basically each positional argument supplied
+        is treated as a "site". This command may result in many plots which 
+        will be saved in a single pdf, with the name (and path) specified by the 
+        --savename option.
+        '''))
+  sc_parser.add_argument('--vars', nargs="*")
+  sc_parser.add_argument('--savename', default="dvmdostem-outpututils-sitecompare.pdf")
+  sc_parser.add_argument('output_folder', nargs='+', metavar="FOLDER",
+      help=textwrap.dedent('''\
+        Path to a folder containing dvmdostem outputs.
+        '''))
 
   # ss for 'spatial summary'
   ss_parser = subparsers.add_parser('spatial-summaries',
@@ -827,7 +847,8 @@ if __name__ == '__main__':
   #ss_parser.add_argument()
 
   args = parser.parse_args()
-  #print args
+  print args
+
 
   if args.command == 'soil-profiles':
     if args.print_full_table:
@@ -835,11 +856,12 @@ if __name__ == '__main__':
     plot_soil_layers2(args)
 
   if args.command == 'spatial-summaries':
-    print "Not implemented yet"
+    print "Not implemented yet. Or rather, the command line interface is not "
+    print "implemented yet - many of the plot functions are done!"
 
-
-
-
+  if args.command == 'site-compare':
+    print "Not implemented yet..."
+    print "Warn about conflicting arguments? Or about ignoring --yx argument??"
 
 
 '''
