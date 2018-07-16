@@ -630,10 +630,9 @@ def plot_soil_layers2(args):
   Y, X = args.yx
   timeres = (args.time_res).lower()
   stage = (args.stage).lower()
-  #svars = [v.upper() for v in args.vars]
 
   opt_vars = [v.upper() for v in args.vars]
-  req_vars = ['LAYERDZ']
+  # req_vars = ['LAYERDZ'] # req_vars is unused right now, might be good for error handling
 
   def pull_data(the_var):
     '''Pulls data out of an nc file'''
@@ -645,7 +644,6 @@ def plot_soil_layers2(args):
       data = ds.variables[the_var][:]
       units = ds.variables[the_var].units
     return data, units
-
 
   depth, depthunits = pull_data('LAYERDEPTH')
   dz, dzunits = pull_data('LAYERDZ')
@@ -794,6 +792,7 @@ if __name__ == '__main__':
   # EXAMPLES
   # ./input_utils.py soil-profiles /some/path/to/some/outputs/
 
+  # sp for 'soil profile'
   sp_parser = subparsers.add_parser('soil-profiles', 
       help=textwrap.dedent('''\
         Make plots of soil profiles variables (i.e. outputs that are specified 
@@ -810,7 +809,9 @@ if __name__ == '__main__':
   sp_parser.add_argument('--print-full-table', action='store_true', help="Prints a full table of all soil/layer variables to the console.")
   sp_parser.add_argument('outfolder', help="Path to a folder containing a set of dvmdostem outputs")
 
+  # sc for 'site compare'
 
+  # ss for 'spatial summary'
   ss_parser = subparsers.add_parser('spatial-summaries',
       help=textwrap.dedent('''\
       Make plots that are summaries over the spatial dimensions.'''))
