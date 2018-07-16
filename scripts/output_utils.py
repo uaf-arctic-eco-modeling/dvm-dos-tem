@@ -13,6 +13,7 @@ import matplotlib.gridspec as gridspec
 import netCDF4 as nc
 import collections
 
+
 def sum_monthly_flux_to_yearly(data):
   '''
   Expects `data` to be at least a 1D array, with the first axis being time.
@@ -628,7 +629,7 @@ def plot_soil_layers2(args):
   od = args.outfolder
   time = args.timestep
   Y, X = args.yx
-  timeres = (args.time_res).lower()
+  timeres = (args.timeres).lower()
   stage = (args.stage).lower()
 
   opt_vars = [v.upper() for v in args.vars]
@@ -787,6 +788,21 @@ if __name__ == '__main__':
 
       epilog=textwrap.dedent(''''''),
   )
+
+  parser.add_argument("--yx", nargs=2, type=int, default=[0, 0],
+      help=textwrap.dedent('''The (Y,X) pixel coordinates to plot'''))
+
+  parser.add_argument("--timestep", type=int, default=0, 
+      help=textwrap.dedent('''The timestep for which to make the profile'''))
+
+  parser.add_argument('--timeres', type=str, default="monthly",
+      choices=['yearly', 'monthly', 'daily'],
+      help='The time resolution: monthly or yearly')
+
+  parser.add_argument('--stage', default="tr", 
+      choices=['pr', 'eq','sp','tr','sc'], help="The stage to plot")
+
+
   subparsers = parser.add_subparsers(help='sub commands', dest='command')
 
   # EXAMPLES
@@ -797,14 +813,6 @@ if __name__ == '__main__':
       help=textwrap.dedent('''\
         Make plots of soil profiles variables (i.e. outputs that are specified 
         to be by layer)'''))
-  sp_parser.add_argument("--yx", nargs=2, type=int, 
-      help=textwrap.dedent('''The (Y,X) pixel coordinates to plot'''))
-  sp_parser.add_argument("--timestep", type=int, default=0, 
-      help=textwrap.dedent('''The timestep for which to make the profile'''))
-  sp_parser.add_argument('--time-res', type=str, default="monthly",
-      help='The time resolution: monthly or yearly')
-  sp_parser.add_argument('--stage', default="tr", 
-      choices=['pr', 'eq','sp','tr','sc'], help="The stage to plot")
   sp_parser.add_argument('--vars', nargs='*', default=['SOC'], help='The soil layer variables to plot')
   sp_parser.add_argument('--print-full-table', action='store_true', help="Prints a full table of all soil/layer variables to the console.")
   sp_parser.add_argument('outfolder', help="Path to a folder containing a set of dvmdostem outputs")
@@ -823,7 +831,7 @@ if __name__ == '__main__':
 
   if args.command == 'soil-profiles':
     if args.print_full_table:
-      print_soil_table(args.outfolder, args.stage, args.time_res, args.yx[0], args.yx[1], args.timestep)
+      print_soil_table(args.outfolder, args.stage, args.timeres, args.yx[0], args.yx[1], args.timestep)
     plot_soil_layers2(args)
 
   if args.command == 'spatial-summaries':
