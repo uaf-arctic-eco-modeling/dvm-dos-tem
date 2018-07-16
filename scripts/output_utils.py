@@ -716,6 +716,59 @@ def plot_soil_layers2(args):
   # add tabular printout
 
   plt.show(block=True)
+
+
+def print_soil_table(outdir, stage, timeres, Y, X, timestep):
+  '''
+  Prints a table to stdout with all the soil info.
+
+  Looks in the `outdir` for any .nc file with 'layer' in the dimension list,
+  and `stage` and `timeres` in the name, e.g. "SOC_monthly_tr.nc". Each
+  appropriate file found will get a column in the printed table. The printed
+  table will be for the pixel specified by `Y` and `X` and for the specified
+  `timestep`
+
+  Prints a very wide table if there are many by-layer outputs available. A neat
+  addition to this function would be a better way to control the width.
+  '''
+
+  def get_var_name(fpath):
+    '''Extract variable name from full path'''
+    return os.path.basename(fpath).split("_")[0]
+
+  allncfiles = glob.glob(os.path.join(outdir, "*_{}_{}.nc".format(timeres, stage)))
+  soilfiles = []
+  soillayerdimlengths = []
+  for f in allncfiles:
+    with nc.Dataset(f) as ds:
+      if 'layer' in ds.dimensions:
+        soilfiles.append(f)
+        soillayerdimlengths.append(ds.dimensions['layer'].size)
+
+  soillayerdimlengths = set(soillayerdimlengths)
+  if len(soillayerdimlengths) > 1:
+    raise RuntimeError("Not all files/variables have the same lenght of layer dimensions")
+
+  header_fmt = "{:>15s} " * len(soilfiles)
+  row_fmt = "{:>15.3f} " * len(soilfiles)
+
+  varlist = [get_var_name(f) for f in soilfiles]
+  print "---- Soil Profile ----"
+  print "  output directory: {}".format(outdir)
+  print "  {} files stage: {} pixel(y,x): ({},{}) timestep: {}".format(timeres.upper(), stage.upper(), Y, X, timestep)
+  print header_fmt.format(*varlist)
+
+  # This is probably not very effecient.
+  for il in range(0, soillayerdimlengths.pop()):
+    data = []
+    for v, f in zip(varlist, soilfiles):
+      with nc.Dataset(f) as ds:
+        if ds.variables[v][timestep,il,Y,X] is np.ma.masked:
+          data.append(np.nan)
+        else:
+          data.append(ds.variables[v][timestep,il,Y,X])
+    print row_fmt.format(*data)
+
 if __name__ == '__main__':
 
   import argparse
@@ -754,6 +807,7 @@ if __name__ == '__main__':
   sp_parser.add_argument('--stage', default="tr", 
       choices=['pr', 'eq','sp','tr','sc'], help="The stage to plot")
   sp_parser.add_argument('--vars', nargs='*', default=['SOC'], help='The soil layer variables to plot')
+  sp_parser.add_argument('--print-full-table', action='store_true', help="Prints a full table of all soil/layer variables to the console.")
   sp_parser.add_argument('outfolder', help="Path to a folder containing a set of dvmdostem outputs")
 
 
@@ -764,9 +818,11 @@ if __name__ == '__main__':
   #ss_parser.add_argument()
 
   args = parser.parse_args()
+  #print args
 
-  print args
   if args.command == 'soil-profiles':
+    if args.print_full_table:
+      print_soil_table(args.outfolder, args.stage, args.time_res, args.yx[0], args.yx[1], args.timestep)
     plot_soil_layers2(args)
 
   if args.command == 'spatial-summaries':
