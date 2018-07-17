@@ -637,17 +637,33 @@ def plot_soil_layers2(args):
 
   def pull_data(the_var):
     '''Pulls data out of an nc file'''
-    the_file = glob.glob(os.path.join(od, "{}_{}_{}.nc".format(the_var, timeres, stage)))
-    if len(the_file) != 1:
-      raise RuntimeError("There should be one and only one file here:", the_file)
+    fglob = os.path.join(od, "{}_{}_{}.nc".format(the_var, timeres, stage))
+    the_file = glob.glob(fglob)
+
+    if len(the_file) < 1:
+      raise RuntimeError("Can't find file for variable '{}' here: {}".format(the_var, fglob))
+    if len(the_file) > 1:
+      raise RuntimeError("Appears to be more than one file matching glob?: {}".format(fglob))
+
     the_file = the_file[0]
+    print "Pulling data from ", the_file
     with nc.Dataset(the_file, 'r') as ds:
       data = ds.variables[the_var][:]
       units = ds.variables[the_var].units
     return data, units
 
+  # Need to specify units in output_spec files!!
   depth, depthunits = pull_data('LAYERDEPTH')
   dz, dzunits = pull_data('LAYERDZ')
+
+  if depthunits == '':
+    print "WARNING! Missing depth units! Assumed to be meters."
+    depthunits = 'm'
+  if dzunits == '':
+    print "WARNING! Missing dz units! Assumed to be meters."
+    dzunits = 'm'
+  if dzunits != depthunits:
+    print "WARNING! depthunits ({}) and dzunits ({}) are not the same!".format(depthunits, dzunits) 
 
   # Setup the plotting
   ROWS=1; COLS=len(opt_vars)
@@ -655,8 +671,8 @@ def plot_soil_layers2(args):
 
   fig = plt.figure()
   ax0 = plt.subplot(gs[:,0])
-  ax0.set_ylabel(depthunits)
-  print depthunits, dzunits
+  ax0.set_ylabel("Depth ({})".format(depthunits))
+
   for i, v in enumerate(opt_vars):
     if i == 0:
       ax0.set_title(v)
