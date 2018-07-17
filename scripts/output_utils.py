@@ -685,33 +685,36 @@ def plot_soil_layers2(args):
 
     vardata, units = pull_data(ax.get_title())
 
-    if ax.get_title().upper() in ['SOC','VWC']:
-      ''' For volume/mass stuff, use bars'''
-      ax.barh(
-        depth[time,:,Y,X],       # bottom
-        vardata[time,:,Y,X],     # width
-        dz[time,:,Y,X],          # height
-        #alpha=0.85,
-      )
+    # Line plot, offset so markers are at the midpoint of layer.'''
+    ax.plot(
+      vardata[time,:,Y,X],
+      depth[time,:,Y,X] + (0.5 * dz[time,:,Y,X]),
+      #color='red',
+      marker='o',
+      markeredgecolor='gray',
+      #markerfacecolor='red',
+      alpha=0.85,
+    )
 
-    elif ax.get_title().upper() in ['TLAYER','HKLAYER']:
-      '''Line plot, offset so markers are at the midpoint of layer.'''
-      ax.plot(
-        vardata[time,:,Y,X],
-        depth[time,:,Y,X] + (0.5 * dz[time,:,Y,X]),
-        color='red',
-        marker='o',
-        markeredgecolor='gray',
-        markerfacecolor='red',
-        #alpha=0.85,
-      )
-    else:
-      '''Plain line.'''
-      ax.plot(
-        vardata[time,:,Y,X],
-        depth[time,:,Y,X],
-        color='green',
-      )
+    # First attempt was to use horizontal bars to display variables that
+    # represent mass or volume (e.g. SOC). This worked for versions of
+    # matplotlib < 2.x, but in the more recent versions there is some
+    # issue and the y scale gets really messed up when plotting bars.
+    #
+    # if ax.get_title().upper() in ['SOC','VWC']:
+    #   ''' For volume/mass stuff, use bars'''
+    #   ax.barh(
+    #     depth[time,:,Y,X],       # bottom
+    #     vardata[time,:,Y,X],     # width
+    #     dz[time,:,Y,X],          # height
+    #   )
+    # else:
+    #   '''Line plot, offset so markers are at the midpoint of layer.'''
+    #   ax.plot(
+    #     vardata[time,:,Y,X],
+    #     depth[time,:,Y,X] + (0.5 * dz[time,:,Y,X]),
+    #     marker='o',
+    #   )
 
     # Label the X axis
     ax.set_xlabel(units)
