@@ -729,9 +729,11 @@ def plot_soil_layers2(args):
 
     ax.grid(False, which='both', axis='both')
 
-  fig.suptitle("Soil Profile stage: {} {}, timestep: {}".format(stage, timeres, time))
+  # Turn off y axis labels for all but the left one (first axes instance)
+  for ax in fig.axes[1:]:
+    ax.yaxis.set_visible(False)
 
-  # add tabular printout
+  fig.suptitle("Soil Profile stage: {} {}, timestep: {}".format(stage, timeres, time))
 
   plt.show(block=True)
 
