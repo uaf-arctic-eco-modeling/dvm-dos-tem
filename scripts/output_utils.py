@@ -696,6 +696,10 @@ def plot_soil_layers2(args):
       alpha=0.85,
     )
 
+    if ax.get_title() == 'TLAYER':
+      ymin, ymax = ax.yaxis.get_view_interval()
+      ax.vlines(0, ymin, ymax, linestyles='solid', color='red')
+
     # First attempt was to use horizontal bars to display variables that
     # represent mass or volume (e.g. SOC). This worked for versions of
     # matplotlib < 2.x, but in the more recent versions there is some
