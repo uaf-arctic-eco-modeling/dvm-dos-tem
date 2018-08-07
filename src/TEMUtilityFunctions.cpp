@@ -96,10 +96,10 @@ namespace temutil {
 
     int month;
 
-    if (doy < 31) {
+    if (doy <= 31) {
       month = 0;
     }
-    if (doy >= 334) {
+    if (doy > 334) {
       month =  11;
     }
 
@@ -107,7 +107,7 @@ namespace temutil {
 
       // from timeconst.h
       // DOYINDFST[12] = {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334};
-      if (doy >= DOYINDFST[midx] && doy < DOYINDFST[midx+1]) {
+      if (doy > DOYINDFST[midx] && doy <= DOYINDFST[midx+1]) {
         month = midx;
         break; // found our month, no need to continue
       }
@@ -115,6 +115,23 @@ namespace temutil {
 
     return month;
 
+  }
+
+  /** Given a day of the year, returns the day of the month it falls in.
+   *    - Does not handle leap years
+   *    - Assumes DOY and month are zero based
+   */
+  int doy2dom(const int doy){
+    assert( (doy >= 0 && doy <= 364) && "Invalid day of year! DOY must be >= 0 and <= 364");
+
+    int month = doy2month(doy);
+    int previous_days = 0;
+
+    for(int midx=0; midx<month; midx++){
+      previous_days += DINM[midx];
+    }
+
+    return doy-previous_days-1; //-1 to return day index, rather than value
   }
 
   /** Length of day as a function of latitude (degrees) and day of year.

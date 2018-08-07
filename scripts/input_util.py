@@ -4,10 +4,12 @@ import os
 import errno
 import glob
 import netCDF4 as nc
+import numpy as np
 
 import argparse
 import textwrap
 
+import subprocess
 
 def mkdir_p(path):
   '''Emulates the shell's `mkdir -p`.'''
@@ -189,6 +191,139 @@ def crop_wrapper(args):
     y, x = args.yx
     crop_file(infile, outfile, y, x, args.ysize, args.xsize)
 
+def climate_gap_count_plot(args):
+  '''
+  Creates plots showing how many missing datapoints exist for each pixel.
+
+  Creates 2 figures: first from the historic file and then from the projected
+  file.
+
+  Each variable is shown in a different sub-plot. There are some idiosyncracies
+  surrouding the labeling of the colorbar, so use with caution! But this should
+  give a rough idea where there are bad pixels and how bad they are.
+  ''' 
+
+  # Keep imports of graphic stuff here so that the rest of the script
+  # is usable even w/o matplotlib installed.
+  import numpy as np
+  import matplotlib.pyplot as plt
+  import matplotlib.gridspec as gridspec
+
+  CLIMATE_FILES = ['historic-climate.nc', 'projected-climate.nc']
+  VARS = ['tair', 'precip', 'nirr', 'vapor_press']
+
+  ROWS = 2
+  COLS = 2
+
+  gs = gridspec.GridSpec(ROWS, COLS)
+
+  for cf in CLIMATE_FILES:
+    axtair = plt.subplot(gs[0,0])
+    axprecip = plt.subplot(gs[0,1])
+    axnirr = plt.subplot(gs[1,0])
+    axvapo = plt.subplot(gs[1,1])
+
+    for i, (ax, v) in enumerate(zip([axtair, axprecip, axnirr, axvapo], VARS)):
+      with nc.Dataset(os.path.join(args.input_folder, cf)) as hds:
+
+        dataset = hds.variables[v][:] # Should be a 3D numpy array (time, y, x)
+        if type(dataset) != np.ma.core.MaskedArray:
+          dataset = np.ma.core.MaskedArray(dataset, np.zeros(dataset.shape, dtype = bool))
+
+        img = ax.imshow(
+            np.ma.masked_greater_equal(
+                np.apply_along_axis(np.count_nonzero, 0, dataset.mask),
+                len(dataset)),
+            interpolation='none',
+            vmin=0,
+            vmax=len(dataset),
+            cmap='gray_r',
+            origin='lower',
+
+        )
+      ax.set_title(v)
+      plt.colorbar(img, ax=ax)
+
+    plt.suptitle(os.path.join(args.input_folder, cf))
+    plt.tight_layout()
+    plt.show(block=True)
+
+
+
+def climate_ts_plot(args):
+  '''
+  Make time series plots of the 4 climate driver variables for a single pixel.
+
+  Makes one figure for historic and one figure for projected climate file. 
+  Each figure will have 4 plots, one for each of the expected climate driver
+  variables.
+  '''
+
+  # Keep imports of graphic stuff here so that the rest of the script
+  # is usable even w/o matplotlib installed.
+  import matplotlib.pyplot as plt
+  import matplotlib.gridspec as gridspec
+
+  CLIMATE_FILES = ['historic-climate.nc', 'projected-climate.nc']
+  VARS = ['tair', 'precip', 'nirr', 'vapor_press']
+  ROWS = 4
+  COLS = 1
+
+  y, x = args.yx
+
+  gs = gridspec.GridSpec(ROWS, COLS)
+
+  for i, v in enumerate(VARS):
+    ax = plt.subplot(gs[i,0])
+    with nc.Dataset(os.path.join(args.input_folder, CLIMATE_FILES[0])) as hds:
+      ax.plot(hds.variables[v][:,y, x])
+      ax.set_title(v)
+  plt.suptitle(os.path.join(args.input_folder, CLIMATE_FILES[0]))
+  plt.show(block=True)
+
+  plt.title(CLIMATE_FILES[1])
+  for i, v in enumerate(VARS):
+    ax = plt.subplot(gs[i,0])
+    with nc.Dataset(os.path.join(args.input_folder, CLIMATE_FILES[1])) as hds:
+      ax.plot(hds.variables[v][:,y, x])
+      ax.set_title(v)
+  plt.suptitle(os.path.join(args.input_folder, CLIMATE_FILES[1]))
+  plt.show(block=True)
+
+
+
+
+def tunnel_fast(latvar,lonvar,lat0,lon0):
+  '''
+  Find closest point in a set of (lat,lon) points to specified point
+  latvar - 2D latitude variable from an open netCDF dataset
+  lonvar - 2D longitude variable from an open netCDF dataset
+  lat0,lon0 - query point
+  Returns iy,ix such that the square of the tunnel distance
+  between (latval[it,ix],lonval[iy,ix]) and (lat0,lon0)
+  is minimum.
+  Code from Unidata's Python Workshop:
+  https://github.com/Unidata/unidata-python-workshop
+  '''
+  #from IPython import embed; embed()
+  rad_factor = np.pi/180.0 # for trignometry, need angles in radians
+  # Read latitude and longitude from file into numpy arrays
+  latvals = latvar[:] * rad_factor
+  lonvals = lonvar[:] * rad_factor
+  ny,nx = latvals.shape
+  lat0_rad = lat0 * rad_factor
+  lon0_rad = lon0 * rad_factor
+  # Compute numpy arrays for all values, no loops
+  clat,clon = np.cos(latvals), np.cos(lonvals)
+  slat,slon = np.sin(latvals), np.sin(lonvals)
+  delX = np.cos(lat0_rad)*np.cos(lon0_rad) - clat*clon
+  delY = np.cos(lat0_rad)*np.sin(lon0_rad) - clat*slon
+  delZ = np.sin(lat0_rad) - slat;
+  dist_sq = delX**2 + delY**2 + delZ**2
+  minindex_1d = dist_sq.argmin()  # 1D index of minimum element
+  iy_min,ix_min = np.unravel_index(minindex_1d, latvals.shape)
+  return iy_min,ix_min
+
 
 if __name__ == '__main__':
   parser = argparse.ArgumentParser(
@@ -208,6 +343,13 @@ if __name__ == '__main__':
   )
   subparsers = parser.add_subparsers(help='sub commands', dest='command')
 
+  query_parser = subparsers.add_parser('query', help=textwrap.dedent('''\
+    Query one or more dvmdostem inputs for various information.'''))
+  query_parser.add_argument('--iyix-from-latlon', default=None, nargs=2, type=float,
+      help="Find closest pixel to provided lat and lon arguments.")
+  query_parser.add_argument('--latlon-file', 
+      default='../snap-data/temporary-veg-from-LandCover_TEM_2005.tif', 
+      help="The file to read from for getting lat/lon pixel offsets.")
 
   crop_parser = subparsers.add_parser('crop',help=textwrap.dedent('''\
       Crop an input dataset, using offset and size. The reason we need this in
@@ -226,6 +368,21 @@ if __name__ == '__main__':
   # EXAMPLES
   # ./input_utils.py crop --yx 0 0 --ysize 1 --xsize 1 DATA/Toolik_10x10
 
+  climate_ts_plot_parser = subparsers.add_parser('climate-ts-plot', help=textwrap.dedent('''\
+    Quick 'n dirty time series plots of the 4 climate driver variables for a 
+    single pixel. Makes 2 figures, one for historic, one for projected.
+    '''))
+  climate_ts_plot_parser.add_argument('--yx', type=int, nargs=2, required=True, help="The Y, X position of the pixel to plot")
+  climate_ts_plot_parser.add_argument('input_folder', help="Path to a folder containing a set of dvmdostem inputs.")
+
+  climate_gap_count_plot_parser = subparsers.add_parser('climate-gap-plot',
+    help=textwrap.dedent('''Generates an image plot for each variable in the 
+      input climate files (historic and projected). Each pixel in the image 
+      shows the number of values along the time axis that have missing or no
+      data.
+    '''))
+  climate_gap_count_plot_parser.add_argument('input_folder', help="Path to a folder containing a set of dvmdostem inputs.")
+
   args = parser.parse_args()
 
   print args
@@ -234,5 +391,48 @@ if __name__ == '__main__':
     verify_input_files(args.input_folder)
     crop_wrapper(args)
 
+  if args.command == 'climate-ts-plot':
+    #verify_input_files(args.input_folder)
+    climate_ts_plot(args)
+
+  if args.command == 'climate-gap-plot':
+    climate_gap_count_plot(args)
+
+  if args.command == 'query':
+    if args.iyix_from_latlon:
+
+      TMP_NC_FILE = '/tmp/WINNING.nc'
+
+      # Convert to netcdf
+      subprocess.call(['gdal_translate',
+          #'-overwrite',
+          '-of','netcdf',
+          #'-t_srs', '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs',
+          '-co', 'WRITE_LONLAT=YES',
+          args.latlon_file,
+          TMP_NC_FILE])
+
+      # Or can set GDAL_DATA environment variable and use EPSG code:
+      #GDAL_DATA=/home/UA/tcarman2/anaconda/share/gdal gdalwarp -of netcdf infile.tif outfile.nc -t_srs EPSG:4326
+
+      ncfile = nc.Dataset(TMP_NC_FILE, 'r')
+      latvar = ncfile.variables['lat']
+      lonvar = ncfile.variables['lon']
+
+      #from IPython import embed; embed()
+      #toolik = {'lat':68.626480, 'lon':-149.594995}
+      #bnza_lter = {'lat':64.70138, 'lon':-148.31034}
+      #target = bnza_lter
+      target = {'lat':args.iyix_from_latlon[0], 'lon':args.iyix_from_latlon[1]}
+      iy,ix = tunnel_fast(latvar, lonvar, target['lat'], target['lon'])
+      print('Target lat, lon:', target['lat'], target['lon'])
+      print('Delta with target lat, lon:', target['lat'] - latvar[iy,ix], target['lon'] - lonvar[iy,ix])
+      print('lat, lon of closest match:', latvar[iy,ix], lonvar[iy,ix])
+      print('indices of closest match iy, ix (FROM LOWER left):', iy, ix)
+      print('indices of closest match iy, ix (FROM UPPER left):', len(ncfile.dimensions['y'])-iy, ix)
+      print('** NOTE: Use coords FROM UPPER LEFT to build/crop a new dataset with that pixel at the LOWER LEFT corner of the dataset!')
+      ncfile.close()
+      #os.remove(TMP_NC_FILE)
+      exit()
 
 
