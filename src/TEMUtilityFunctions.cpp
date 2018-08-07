@@ -96,10 +96,10 @@ namespace temutil {
 
     int month;
 
-    if (doy < 31) {
+    if (doy <= 31) {
       month = 0;
     }
-    if (doy >= 334) {
+    if (doy > 334) {
       month =  11;
     }
 
@@ -107,7 +107,7 @@ namespace temutil {
 
       // from timeconst.h
       // DOYINDFST[12] = {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334};
-      if (doy >= DOYINDFST[midx] && doy < DOYINDFST[midx+1]) {
+      if (doy > DOYINDFST[midx] && doy <= DOYINDFST[midx+1]) {
         month = midx;
         break; // found our month, no need to continue
       }
