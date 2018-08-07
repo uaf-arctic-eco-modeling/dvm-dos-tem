@@ -189,6 +189,8 @@ void EnvData::grnd_beginOfYear() {
     y_soid.sws[il] = 0.;
     y_soid.aws[il] = 0.;
     y_soid.fbtran[il] = 0.;
+    y_soid.tcond[il] = 0;
+    y_soid.hcond[il] = 0;
   }
 
   y_soid.permafrost  = 1;
@@ -320,6 +322,8 @@ void EnvData::grnd_beginOfMonth() {
     m_soid.sws[il] = 0.;
     m_soid.aws[il] = 0.;
     m_soid.fbtran[il] = 0.;
+    m_soid.tcond[il] = 0;
+    m_soid.hcond[il] = 0;
   }
 
   m_soid.frasat = 0.;
