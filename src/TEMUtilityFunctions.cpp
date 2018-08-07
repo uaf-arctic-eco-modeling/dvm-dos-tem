@@ -117,6 +117,23 @@ namespace temutil {
 
   }
 
+  /** Given a day of the year, returns the day of the month it falls in.
+   *    - Does not handle leap years
+   *    - Assumes DOY and month are zero based
+   */
+  int doy2dom(const int doy){
+    assert( (doy >= 0 && doy <= 364) && "Invalid day of year! DOY must be >= 0 and <= 364");
+
+    int month = doy2month(doy);
+    int previous_days = 0;
+
+    for(int midx=0; midx<month; midx++){
+      previous_days += DINM[midx];
+    }
+
+    return doy-previous_days-1; //-1 to return day index, rather than value
+  }
+
   /** Length of day as a function of latitude (degrees) and day of year.
   */
   float length_of_day(float lat, int doy) {

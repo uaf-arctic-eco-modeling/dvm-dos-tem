@@ -89,6 +89,7 @@ namespace temutil {
   double NON_ZERO(const double val, const int sign);
 
   int doy2month(const int doy);
+  int doy2dom(const int doy);
 
   int day_of_year(int month, int day);
 
