@@ -30,9 +30,13 @@ if __name__ == '__main__':
   parser.add_argument('--pft', type=int,
     help = textwrap.dedent('''The PFT to plot when plotting by PFT and compartment'''))
 
-  parser.add_argument('--layers', type=int,
-    help = textwrap.dedent('''Number of layers to plot. Starts at the surface.'''))
+  parser.add_argument('--layers', type=int, required=False, nargs=2,
+    metavar=('START', 'END'),
+    help = textwrap.dedent('''The range of layers to plot.'''))
 
+  parser.add_argument('--timesteps', type=int, required=False, nargs=2,
+    metavar=('START','END'),
+    help = textwrap.dedent('''The range of timesteps to plot.'''))
 
   args = parser.parse_args()
 
@@ -48,7 +52,19 @@ if __name__ == '__main__':
           plotting_var = var
           print "plotting var: " + plotting_var
 
-      nc_data = ncFile.variables[plotting_var][:,:]
+      if args.timesteps is not None:
+        time_start = args.timesteps[0]
+        time_end = args.timesteps[1]
+        nc_data = ncFile.variables[plotting_var][time_start:time_end,:]
+      else:
+        nc_data = ncFile.variables[plotting_var][:,:]
+
+      if args.layers is not None:
+        layer_start = args.layers[0]
+        layer_end = args.layers[1]
+      else:
+        layer_start = 0 
+        layer_end = 3
 
       dim_count = len(nc_dims)
 
@@ -58,6 +74,7 @@ if __name__ == '__main__':
       print "shape: " + str(nc_data.shape)
 
       mpl.rc('lines', linewidth=1, markersize=3, marker='o')
+
 
       #Variables by time only
       #time, y?, x?
@@ -90,15 +107,12 @@ if __name__ == '__main__':
 
         #By soil layer
         if 'layer' in nc_dims:
-          if args.layers:
-            layer_count = args.layers
-          else:
-            layer_count = 3
+          layer_count = layer_end - layer_start + 1
           fig, ax = plt.subplots(layer_count,1)
 
-          for layer in range(0, layer_count):
-            ax[layer].plot(data[:,layer])
-            ax[layer].set_ylabel("layer " + str(layer))
+          for layer in range(layer_start, layer_end+1):
+            ax[layer-layer_start].plot(data[:,layer])
+            ax[layer-layer_start].set_ylabel("layer " + str(layer))
 
 
       #Variables by both PFT and Compartment
