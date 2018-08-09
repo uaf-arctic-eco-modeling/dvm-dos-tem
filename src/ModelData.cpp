@@ -544,7 +544,7 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
       temutil::nc( nc_enddef(ncid) );
 
       /* Fill out the time coordinate variable */
-      if ((stage == "tr") || (stage == "sc") && timestep == "yearly") {
+      if ((stage == "tr" || stage == "sc") && timestep == "yearly") {
         BOOST_LOG_SEV(glg, debug) << "Time coordinate variable, tr or sc, yearly.";
 
         int tcV;

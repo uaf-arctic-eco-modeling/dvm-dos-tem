@@ -28,71 +28,71 @@ CalController::CalController(Cohort* cht_p):
   io_service(new boost::asio::io_service),
   pause_sigs(*io_service, SIGINT, SIGTERM),
   cohort_ptr(cht_p) {
-  cmd_map = boost::assign::map_list_of
-            ("q", CalCommand("quit the calibrator",
-                             boost::bind(&CalController::quit, this)) )
-            ("c",
+  cmd_map = {
+            {"q", CalCommand("quit the calibrator",
+                             boost::bind(&CalController::quit, this)) },
+            {"c",
               CalCommand("continue simulation",
                           boost::bind(&CalController::continue_simulation,
-                                      this)) )
-            ("r",
+                                      this)) },
+            {"r",
               CalCommand("reload calparbgc file",
                           boost::bind(&CalController::reload_calparbgc_file,
-                                      this)) )
-            ("reload all",
+                                      this)) },
+            {"reload all",
               CalCommand("reload all cmt files",
                           boost::bind(&CalController::reload_all_cmt_files,
-                                      this)) )
-            ("h",
+                                      this)) },
+            {"h",
               CalCommand("show short menu",
-                          boost::bind(&CalController::show_short_menu, this)) )
-            ("help",
+                          boost::bind(&CalController::show_short_menu, this)) },
+            {"help",
               CalCommand("show full menu",
-                          boost::bind(&CalController::show_full_menu, this)) )
+                          boost::bind(&CalController::show_full_menu, this)) },
 
-            ("print calparbgc",
+            {"print calparbgc",
               CalCommand("prints out the calparbgc parameters ",
-                         boost::bind(&CalController::print_calparbgc, this)) )
-            ("print module settings",
+                         boost::bind(&CalController::print_calparbgc, this)) },
+            {"print module settings",
               CalCommand("print module settings (on/off)",
-                         boost::bind(&CalController::print_modules_settings, this)) )
+                         boost::bind(&CalController::print_modules_settings, this)) },
 
-            ("print directives",
+            {"print directives",
               CalCommand("show data from the run_configuration data structure",
-                         boost::bind(&CalController::print_directive_settings, this)) )
+                         boost::bind(&CalController::print_directive_settings, this)) },
 
-            ("quitat",
+            {"quitat",
               CalCommand("quits and exits at simulation year specified",
-                         boost::bind(&CalController::quit_at, this, _1)) )
-            ("pauseat",
+                         boost::bind(&CalController::quit_at, this, _1)) },
+            {"pauseat",
               CalCommand("pauses at simulation year specified",
-                         boost::bind(&CalController::pause_at, this, _1)) )
+                         boost::bind(&CalController::pause_at, this, _1)) },
 
-            ("env",
+            {"env",
               CalCommand("changes env module state",
-                         boost::bind(&CalController::env_cmd, this, _1)) )
-            ("bgc",
+                         boost::bind(&CalController::env_cmd, this, _1)) },
+            {"bgc",
               CalCommand("changes bgc module state",
-                         boost::bind(&CalController::bgc_cmd, this, _1)) )
-            ("avln",
+                         boost::bind(&CalController::bgc_cmd, this, _1)) },
+            {"avln",
               CalCommand("changes available Nitrogen setting",
-                         boost::bind(&CalController::avln_cmd, this, _1)) )
-            ("dsb",
+                         boost::bind(&CalController::avln_cmd, this, _1)) },
+            {"dsb",
               CalCommand("changes dsb module state",
-                         boost::bind(&CalController::dsb_cmd, this, _1)) )
-            ("dsl",
+                         boost::bind(&CalController::dsb_cmd, this, _1)) },
+            {"dsl",
               CalCommand("changes dsl module state",
-                         boost::bind(&CalController::dsl_cmd, this, _1)) )
-            ("dvm",
+                         boost::bind(&CalController::dsl_cmd, this, _1)) },
+            {"dvm",
               CalCommand("changes dvm module state",
-                         boost::bind(&CalController::dvm_cmd, this, _1)) )
-            ("nfeed",
+                         boost::bind(&CalController::dvm_cmd, this, _1)) },
+            {"nfeed",
               CalCommand("changes nitrogen feedback setting",
-                          boost::bind(&CalController::nfeed_cmd, this, _1)) )
-            ("baseline",
+                          boost::bind(&CalController::nfeed_cmd, this, _1)) },
+            {"baseline",
               CalCommand("changes baseline setting",
-                          boost::bind(&CalController::baseline_cmd, this, _1)) )
-            ;
+                          boost::bind(&CalController::baseline_cmd, this, _1)) },
+            };
 
   BOOST_LOG_SEV(glg, debug) << "Set async wait on signals to PAUSE handler.";
   pause_sigs.async_wait( boost::bind(&CalController::pause_handler, this,
