@@ -127,24 +127,24 @@ void Stefan::updateFronts(const double & tdrv, const double &timestep) {
           break; // for snow or already beyond ground, break
         }
 
-           tkunf = currl->getUnfThermCond();
-         tkfrz = currl->getFrzThermCond();
-         if(tdrv2<0.0){
-           tkres = tkfrz;
-           tkfront =tkunf;
-         }else {
-           tkres = tkunf;
-           tkfront = tkfrz;
-         }
+        tkunf = currl->getUnfThermCond();
+        tkfrz = currl->getFrzThermCond();
+        if(tdrv2<0.0){
+          tkres = tkfrz;
+          tkfront =tkunf;
+        }else {
+          tkres = tkunf;
+          tkfront = tkfrz;
+        }
 
-         sumresblw += currl->dz/tkres;
-         if (currl->frozen != freezing2) {
-           if(currl->isSoil){
-             processNewFrontSoilLayerUp(freezing2, sumresblw, tkfront, dse, newfntz2, currl);
-           }
-         }
+        sumresblw += currl->dz/tkres;
+        if (currl->frozen != freezing2) {
+          if(currl->isSoil){
+            processNewFrontSoilLayerUp(freezing2, sumresblw, tkfront, dse, newfntz2, currl);
+          }
+        }
 
-         currl=currl->prevl;
+        currl=currl->prevl;
       }
 
       // (3) then upwardly incorporate the new front into the two deques: 'ground->frontsz' and 'ground->frontstype'
