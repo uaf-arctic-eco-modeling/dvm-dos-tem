@@ -6,11 +6,13 @@
 # A set of functions for plotting dvmdostem ouputs.
 
 import os
+import glob
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import netCDF4 as nc
 import collections
+
 
 def sum_monthly_flux_to_yearly(data):
   '''
@@ -89,7 +91,7 @@ def average_monthly_pool_to_yearly(data):
   The function will compute the average of the input array along the time 
   dimension in strides of 12.
 
-  Returns a 3, 4, or 45 numpy array with dimensions e.g. `(time, layers, y, x)`, 
+  Returns a 3D, 4D, or 5D numpy array with dimensions e.g. `(time, layers, y, x)`, 
   (same as input), but the length of the returned time dimension will be 
   1/12th of the length of the input array.
 
@@ -97,7 +99,7 @@ def average_monthly_pool_to_yearly(data):
   with some fancy numpy indexing.
 
   Examples:
-      Load a monthly file with soil layer data and convert it to monthly.
+      Load a monthly file with soil layer data and convert it to yearly.
 
       >>> import numpy as np
       >>> import netCDF4 as nc
@@ -602,6 +604,289 @@ def plot_soil_layers():
   plt.barh(bottoms, widths, heights, color=colors)
 
 
+def plot_soil_layers2(args):
+  '''
+  Makes plots of soil profile variables. Generates one plot/axis for each 
+  variable specified. Y axis is the depth, X axis is the value of the variable.
+  Plots include horizontal lines marking layer boundaries. 
+
+  Calling code must supply`args` which must be a dictionary with the following
+  keys set:
+  `outfolder`: (string) a path to a folder containing dvmdostem output files.
+  `time`: (int) index along time axis to plot 
+  `yx`: (tuple) the pixel coordinates to source for the plot(s)
+  `timeres`: (string) either 'monthly', 'yearly', or 'daily' (daily is untested)
+  `stage`: (string) the run stage to plot from
+  `vars`: a list of variables names to plot, e.g. ['TLAYER', 'SOC', 'ORGN']
+
+  The function will look in `outfolder` for the appropriate dvmdostem output
+  files basedon variable name, stage, and time resolution. 
+
+  NOTE: The LAYERDZ and LAYERDEPTH files must be present in `outfolder` for 
+  the speficied `stage` and `timeres`!
+  '''
+
+  od = args.outfolder
+  time = args.timestep
+  Y, X = args.yx
+  timeres = (args.timeres).lower()
+  stage = (args.stage).lower()
+
+  opt_vars = [v.upper() for v in args.vars]
+  # req_vars = ['LAYERDZ'] # req_vars is unused right now, might be good for error handling
+
+  def pull_data(the_var):
+    '''Pulls data out of an nc file'''
+    fglob = os.path.join(od, "{}_{}_{}.nc".format(the_var, timeres, stage))
+    the_file = glob.glob(fglob)
+
+    if len(the_file) < 1:
+      raise RuntimeError("Can't find file for variable '{}' here: {}".format(the_var, fglob))
+    if len(the_file) > 1:
+      raise RuntimeError("Appears to be more than one file matching glob?: {}".format(fglob))
+
+    the_file = the_file[0]
+    print "Pulling data from ", the_file
+    with nc.Dataset(the_file, 'r') as ds:
+      data = ds.variables[the_var][:]
+      units = ds.variables[the_var].units
+    return data, units
+
+  # Need to specify units in output_spec files!!
+  depth, depthunits = pull_data('LAYERDEPTH')
+  dz, dzunits = pull_data('LAYERDZ')
+
+  if depthunits == '':
+    print "WARNING! Missing depth units! Assumed to be meters."
+    depthunits = 'm'
+  if dzunits == '':
+    print "WARNING! Missing dz units! Assumed to be meters."
+    dzunits = 'm'
+  if dzunits != depthunits:
+    print "WARNING! depthunits ({}) and dzunits ({}) are not the same!".format(depthunits, dzunits) 
+
+  # Setup the plotting
+  ROWS=1; COLS=len(opt_vars)
+  gs = gridspec.GridSpec(ROWS, COLS)
+
+  fig = plt.figure()
+  ax0 = plt.subplot(gs[:,0])
+  ax0.set_ylabel("Depth ({})".format(depthunits))
+
+  for i, v in enumerate(opt_vars):
+    if i == 0:
+      ax0.set_title(v)
+      ax0.invert_yaxis()
+    else:
+      ax = plt.subplot(gs[:,i], sharey=ax0)
+      ax.set_title(v)
+
+  for ax in fig.axes:
+
+    vardata, units = pull_data(ax.get_title())
+
+    # Line plot, offset so markers are at the midpoint of layer.'''
+    ax.plot(
+      vardata[time,:,Y,X],
+      depth[time,:,Y,X] + (0.5 * dz[time,:,Y,X]),
+      #color='red',
+      marker='o',
+      markeredgecolor='gray',
+      #markerfacecolor='red',
+      alpha=0.85,
+    )
+
+    if ax.get_title() == 'TLAYER':
+      ymin, ymax = ax.yaxis.get_view_interval()
+      ax.vlines(0, ymin, ymax, linestyles='solid', color='red')
+
+    # First attempt was to use horizontal bars to display variables that
+    # represent mass or volume (e.g. SOC). This worked for versions of
+    # matplotlib < 2.x, but in the more recent versions there is some
+    # issue and the y scale gets really messed up when plotting bars.
+    #
+    # if ax.get_title().upper() in ['SOC','VWC']:
+    #   ''' For volume/mass stuff, use bars'''
+    #   ax.barh(
+    #     depth[time,:,Y,X],       # bottom
+    #     vardata[time,:,Y,X],     # width
+    #     dz[time,:,Y,X],          # height
+    #   )
+    # else:
+    #   '''Line plot, offset so markers are at the midpoint of layer.'''
+    #   ax.plot(
+    #     vardata[time,:,Y,X],
+    #     depth[time,:,Y,X] + (0.5 * dz[time,:,Y,X]),
+    #     marker='o',
+    #   )
+
+    # Label the X axis
+    ax.set_xlabel(units)
+
+    # Put in the layer markers.
+    xmin, xmax = ax.xaxis.get_view_interval()
+    ax.hlines(
+      depth[time,:,Y,X],         # y positions
+      xmin, xmax,                # x min and max
+      linestyles='dashed', color='orange'
+    )
+
+    ax.grid(False, which='both', axis='both')
+
+  # Turn off y axis labels for all but the left one (first axes instance)
+  for ax in fig.axes[1:]:
+    ax.yaxis.set_visible(False)
+
+  fig.suptitle("Soil Profile stage: {} {}, timestep: {}".format(stage, timeres, time))
+
+  plt.show(block=True)
+
+
+def print_soil_table(outdir, stage, timeres, Y, X, timestep):
+  '''
+  Prints a table to stdout with all the soil info.
+
+  Looks in the `outdir` for any .nc file with 'layer' in the dimension list,
+  and `stage` and `timeres` in the name, e.g. "SOC_monthly_tr.nc". Each
+  appropriate file found will get a column in the printed table. The printed
+  table will be for the pixel specified by `Y` and `X` and for the specified
+  `timestep`
+
+  Prints a very wide table if there are many by-layer outputs available. A neat
+  addition to this function would be a better way to control the width.
+  '''
+
+  def get_var_name(fpath):
+    '''Extract variable name from full path'''
+    return os.path.basename(fpath).split("_")[0]
+
+  allncfiles = glob.glob(os.path.join(outdir, "*_{}_{}.nc".format(timeres, stage)))
+  soilfiles = []
+  soillayerdimlengths = []
+  for f in allncfiles:
+    with nc.Dataset(f) as ds:
+      if 'layer' in ds.dimensions:
+        soilfiles.append(f)
+        soillayerdimlengths.append(ds.dimensions['layer'].size)
+
+  soillayerdimlengths = set(soillayerdimlengths)
+  if len(soillayerdimlengths) > 1:
+    raise RuntimeError("Not all files/variables have the same lenght of layer dimensions")
+
+  header_fmt = "{:>15s} " * len(soilfiles)
+  row_fmt = "{:>15.3f} " * len(soilfiles)
+
+  varlist = [get_var_name(f) for f in soilfiles]
+  print "---- Soil Profile ----"
+  print "  output directory: {}".format(outdir)
+  print "  {} files stage: {} pixel(y,x): ({},{}) timestep: {}".format(timeres.upper(), stage.upper(), Y, X, timestep)
+  print header_fmt.format(*varlist)
+
+  # This is probably not very effecient.
+  for il in range(0, soillayerdimlengths.pop()):
+    data = []
+    for v, f in zip(varlist, soilfiles):
+      with nc.Dataset(f) as ds:
+        if ds.variables[v][timestep,il,Y,X] is np.ma.masked:
+          data.append(np.nan)
+        else:
+          data.append(ds.variables[v][timestep,il,Y,X])
+    print row_fmt.format(*data)
+
+
+if __name__ == '__main__':
+
+  import argparse
+  import textwrap
+
+  parser = argparse.ArgumentParser(
+    formatter_class = argparse.RawDescriptionHelpFormatter,
+
+      description=textwrap.dedent('''\
+        Command line interface for utility functions that work on 
+        dvmdostem outputs. This script may also be imported and used
+        from other scripts (if you wish to import functions without 
+        using this command line interface).
+
+        The command line interface contains (or will in the future)
+        different sub-commands for different types of operations.
+        '''.format("")),
+
+      epilog=textwrap.dedent(''''''),
+  )
+
+  parser.add_argument("--yx", nargs=2, type=int, default=[0, 0],
+      help=textwrap.dedent('''The (Y,X) pixel coordinates to plot'''))
+
+  parser.add_argument("--timestep", type=int, default=0, 
+      help=textwrap.dedent('''The timestep for which to make the profile'''))
+
+  #parser.add_argument("--timeslice" ... ) # <-- might be handy in the future...
+
+  parser.add_argument('--timeres', type=str, default="monthly",
+      choices=['yearly', 'monthly', 'daily'],
+      help='The time resolution: monthly or yearly')
+
+  parser.add_argument('--stage', default="tr", 
+      choices=['pr', 'eq','sp','tr','sc'], help="The stage to plot")
+
+
+  subparsers = parser.add_subparsers(help='sub commands', dest='command')
+
+  # EXAMPLES
+  # ./input_utils.py soil-profiles /some/path/to/some/outputs/
+
+  # sp for 'soil profile'
+  sp_parser = subparsers.add_parser('soil-profiles', 
+      help=textwrap.dedent('''\
+        Make plots of soil profiles variables (i.e. outputs that are specified 
+        to be by layer)'''))
+  sp_parser.add_argument('--vars', nargs='*', default=['SOC'], help='The soil layer variables to plot')
+  sp_parser.add_argument('--print-full-table', action='store_true', help="Prints a full table of all soil/layer variables to the console.")
+  sp_parser.add_argument('outfolder', help="Path to a folder containing a set of dvmdostem outputs")
+
+  # sc for 'site compare'
+  # ./output_util.py --stage tr --yx 0 0 --timeres monthly site-compare --save-name some/path/to/somefile.pdf /path/to/inputA /path/to/inputB /pathto.inpuC
+  sc_parser = subparsers.add_parser('site-compare',
+      help=textwrap.dedent('''\
+        Make time-series plots of various variables, with a line for each site.
+        Note that the different "sites" don't have to be geographic sites, but 
+        could be the same site, but differnet model runs with outputs stored
+        in different folders. Basically each positional argument supplied
+        is treated as a "site". This command may result in many plots which 
+        will be saved in a single pdf, with the name (and path) specified by the 
+        --savename option.
+        '''))
+  sc_parser.add_argument('--vars', nargs="*")
+  sc_parser.add_argument('--savename', default="dvmdostem-outpututils-sitecompare.pdf")
+  sc_parser.add_argument('output_folder', nargs='+', metavar="FOLDER",
+      help=textwrap.dedent('''\
+        Path to a folder containing dvmdostem outputs.
+        '''))
+
+  # ss for 'spatial summary'
+  ss_parser = subparsers.add_parser('spatial-summaries',
+      help=textwrap.dedent('''\
+      Make plots that are summaries over the spatial dimensions.'''))
+
+  #ss_parser.add_argument()
+
+  args = parser.parse_args()
+  print args
+
+
+  if args.command == 'soil-profiles':
+    if args.print_full_table:
+      print_soil_table(args.outfolder, args.stage, args.timeres, args.yx[0], args.yx[1], args.timestep)
+    plot_soil_layers2(args)
+
+  if args.command == 'spatial-summaries':
+    print "Not implemented yet. Or rather, the command line interface is not "
+    print "implemented yet - many of the plot functions are done!"
+
+  if args.command == 'site-compare':
+    print "Not implemented yet..."
+    print "Warn about conflicting arguments? Or about ignoring --yx argument??"
 
 
 '''
