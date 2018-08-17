@@ -30,12 +30,14 @@ private:
   Layer *botdrvl;
 
   void meltingSnowLayer(double const & tkfront, double & dse,
-                        double & sumresabv, const double & tdrv, Layer* currl);
+                        double & sumresabv, const double & tdrv,
+                        Layer* currl, const double & timestep);
 
   void processNewFrontSoilLayerDown(const int &frozenstate,
                                     double const & sumrescum,
                                     double const & tkfront, double & dse,
-                                    double & newfntdz, Layer* currl);
+                                    double & newfntdz, Layer* currl,
+                                    const double & timestep);
 
   void frontsDequeDown(const double & newfntz, const int & newfnttype);
 

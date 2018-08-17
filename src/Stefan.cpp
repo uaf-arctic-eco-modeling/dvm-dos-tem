@@ -71,9 +71,9 @@ void Stefan::updateFronts(const double & tdrv, const double &timestep) {
 
     if (currl->frozen != freezing1){//if the layer has a different frozen status
       if(currl->isSnow) {
-        meltingSnowLayer(tkfront, dse, sumresabv, tdrv1, currl);
+        meltingSnowLayer(tkfront, dse, sumresabv, tdrv1, currl, timestep);
       } else if(currl->isSoil) {
-        processNewFrontSoilLayerDown(freezing1, sumresabv, tkfront, dse, newfntz1, currl);
+        processNewFrontSoilLayerDown(freezing1, sumresabv, tkfront, dse, newfntz1, currl, timestep);
       }
     }
 
@@ -166,7 +166,8 @@ void Stefan::updateFronts(const double & tdrv, const double &timestep) {
 
 void Stefan::meltingSnowLayer(double const & tkfront, double & dse,
                               double & sumresabv,
-                              const double & tdrv, Layer* currl) {
+                              const double & tdrv, Layer* currl,
+                              const double & timestep) {
   SnowLayer* snwl; //check to see whether the dse can totally melt a snow layer
   snwl = dynamic_cast<SnowLayer*>(currl);
   double dz = snwl->dz;
@@ -175,6 +176,7 @@ void Stefan::meltingSnowLayer(double const & tkfront, double & dse,
   if(tdrv>0) {
     double volwat = snwl->ice/(snwl->rho*dz);
     dsn = getDegSecNeeded(dz, volwat, tkfront, sumresabv);
+    dsn += abs(snwl->tem) * timestep;
 
     if(dse>=dsn) {
       snwl->frozen =-1; //this layer will be removed in
@@ -206,7 +208,8 @@ void Stefan::meltingSnowLayer(double const & tkfront, double & dse,
 void Stefan::processNewFrontSoilLayerDown(const int &freezing,
                                           double const & sumrescum,
                                           double const & tkfront, double & dse,
-                                          double & newfntz, Layer* sl) {
+                                          double & newfntz, Layer* sl,
+                                          const double & timestep) {
   newfntz = 0.;
   double volwat=0.; //volumetric ice/liq water (meters) to be thawing/freezing;
   double dz=0.; //soil thickness (meters) to be thawing/freezing
@@ -231,6 +234,7 @@ void Stefan::processNewFrontSoilLayerDown(const int &freezing,
   }
 
   dsn = getDegSecNeeded(dz, volwat, tkfront, sumrescum);
+  dsn += abs(sl->tem)*timestep;
 
   if(dse>=dsn) {
     //whole layer will be frozen or unfrozen, and a new
