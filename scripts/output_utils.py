@@ -659,7 +659,13 @@ def plot_fronts(args):
     front_freeze = ax0.scatter(np.arange(0,1308),np.ma.masked_where(ftype[:,fnt_idx,Y,X] > 0, fdepth[:,fnt_idx,Y,X]), color='blue', marker='o')
     front_freeze_line = ax0.plot(np.ma.masked_where(ftype[:,fnt_idx,Y,X] > 0, fdepth[:,fnt_idx,Y,X]), label='freeze front {}'.format(fnt_idx), color='blue', alpha=0.5)
 
+  if args.show_layers:
+    layerdepth, layerdepth_units = pull_data_wrapper(args, variable="LAYERDEPTH", required_dims=['time','layer','y','x'])
+    for lidx in range(0,layerdepth.shape[1]):
+      layerline = ax0.plot(layerdepth[:,lidx,Y,X], color='gray', alpha=0.5, linewidth=0.5)
 
+  # This is super cluttered in the default view if there are many layers or if
+  # the time axis is long, but looks good when you zoom in.
   ax0.xaxis.set_major_locator(matplotlib.ticker.MultipleLocator(12))
   ax0.xaxis.set_minor_locator(matplotlib.ticker.MultipleLocator(6))
   ax0.invert_yaxis()
@@ -942,9 +948,15 @@ if __name__ == '__main__':
 
   fronts_parser = subparsers.add_parser('fronts',
     help=textwrap.dedent('''\
-      Make a plot of the fronts.
+      Make a plot of the fronts. Y axis depth with 0 at the surface, X axis is
+      time (tested with monthly data).
       '''))
-  fronts_parser.add_argument('outfolder', help="Path to a folder containing a set of dvmdostem outputs")
+  fronts_parser.add_argument('--show-layers', action='store_true', help=textwrap.dedent('''\
+    Plot the layers. Assumes that file for LAYERDEPTH is available in the
+    outfolder.'''))
+  fronts_parser.add_argument('outfolder', help=textwrap.dedent('''\
+    "Path to a folder containing a set of dvmdostem outputs, presumably with
+    files for FRONTSDEPTH and FRONTSTYPE'''))
 
   # sc for 'site compare'
   # ./output_util.py --stage tr --yx 0 0 --timeres monthly site-compare --save-name some/path/to/somefile.pdf /path/to/inputA /path/to/inputB /pathto.inpuC
