@@ -663,8 +663,26 @@ def plot_fronts(args):
 
   if args.show_layers:
     layerdepth, layerdepth_units = pull_data_wrapper(args, variable="LAYERDEPTH", required_dims=['time','layer','y','x'])
+    layer_lines = []
     for lidx in range(0,layerdepth.shape[1]):
-      layerline = ax0.plot(layerdepth[:,lidx,Y,X], color='gray', alpha=0.5, linewidth=0.5)
+      layerline = ax0.plot(layerdepth[:,lidx,Y,X], color='gray', alpha=0.5, linewidth=0.5, marker='o', markersize=.75)
+      layer_lines.append(layerline)
+
+  if args.layer_colors:
+    ltype, ltype_units = pull_data_wrapper(args, "LAYERTYPE")
+    for il, l in enumerate(layer_lines):
+      if il == 0:
+        pass
+      else:
+        currl = l[0]
+        prevl = layer_lines[il-1][0]
+
+        # Make sure to grab the previous layer (il-1) for the layer type condition!
+        ax0.fill_between(x, currl.get_ydata(), prevl.get_ydata(), ltype[:,il-1,Y,X] == 0, color='xkcd:green', alpha=.5)
+        ax0.fill_between(x, currl.get_ydata(), prevl.get_ydata(), ltype[:,il-1,Y,X] == 1, color='xkcd:sand', alpha=.5)
+        ax0.fill_between(x, currl.get_ydata(), prevl.get_ydata(), ltype[:,il-1,Y,X] == 2, color='xkcd:coffee', alpha=.5)
+        ax0.fill_between(x, currl.get_ydata(), prevl.get_ydata(), ltype[:,il-1,Y,X] == 3, color='xkcd:silver', alpha=.5)
+
 
   # This is super cluttered in the default view if there are many layers or if
   # the time axis is long, but looks good when you zoom in.
@@ -953,9 +971,13 @@ if __name__ == '__main__':
       Make a plot of the fronts. Y axis depth with 0 at the surface, X axis is
       time (tested with monthly data).
       '''))
-  fronts_parser.add_argument('--show-layers', action='store_true', help=textwrap.dedent('''\
-    Plot the layers. Assumes that file for LAYERDEPTH is available in the
-    outfolder.'''))
+  fronts_parser.add_argument('--show-layers', action='store_true',
+    help=textwrap.dedent('''Plot the layers. Assumes that file for LAYERDEPTH 
+      is available in the outfolder.'''))
+  fronts_parser.add_argument('--layer-colors', action='store_true',
+    help=textwrap.dedent('''Try to color the layers based on the LAYERTYPE.
+      Green for moss, sand for shallow soil, dark brown for deep soil, and gray
+      for mineral.'''))
   fronts_parser.add_argument('outfolder', help=textwrap.dedent('''\
     "Path to a folder containing a set of dvmdostem outputs, presumably with
     files for FRONTSDEPTH and FRONTSTYPE'''))
