@@ -655,11 +655,11 @@ def plot_fronts(args):
   x = np.arange(0, fdepth.shape[0])
 
   for fnt_idx in range(0,10):
-    front_thaw = ax0.scatter(x, np.ma.masked_where(ftype[:,fnt_idx,Y,X] < 0, fdepth[:,fnt_idx,Y,X]), color='orange', marker='o')
-    front_thaw_line = ax0.plot(np.ma.masked_where(ftype[:,fnt_idx,Y,X] < 0, fdepth[:,fnt_idx,Y,X]), label='thaw front {}'.format(fnt_idx), color='orange', alpha=0.5)
+    front_thaw = ax0.scatter(x, np.ma.masked_where(ftype[:,fnt_idx,Y,X] > 0, fdepth[:,fnt_idx,Y,X]), color='orange', marker='o')
+    front_thaw_line = ax0.plot(np.ma.masked_where(ftype[:,fnt_idx,Y,X] > 0, fdepth[:,fnt_idx,Y,X]), label='thaw front {}'.format(fnt_idx), color='orange', alpha=0.5)
 
-    front_freeze = ax0.scatter(x ,np.ma.masked_where(ftype[:,fnt_idx,Y,X] > 0, fdepth[:,fnt_idx,Y,X]), color='blue', marker='o')
-    front_freeze_line = ax0.plot(np.ma.masked_where(ftype[:,fnt_idx,Y,X] > 0, fdepth[:,fnt_idx,Y,X]), label='freeze front {}'.format(fnt_idx), color='blue', alpha=0.5)
+    front_freeze = ax0.scatter(x ,np.ma.masked_where(ftype[:,fnt_idx,Y,X] < 0, fdepth[:,fnt_idx,Y,X]), color='blue', marker='o')
+    front_freeze_line = ax0.plot(np.ma.masked_where(ftype[:,fnt_idx,Y,X] < 0, fdepth[:,fnt_idx,Y,X]), label='freeze front {}'.format(fnt_idx), color='blue', alpha=0.5)
 
   if args.show_layers:
     layerdepth, layerdepth_units = pull_data_wrapper(args, variable="LAYERDEPTH", required_dims=['time','layer','y','x'])
