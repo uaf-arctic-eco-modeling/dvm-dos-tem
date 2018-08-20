@@ -603,6 +603,37 @@ def plot_soil_layers():
   heights =  dz[time,:,Y,X]
   plt.barh(bottoms, widths, heights, color=colors)
 
+def pull_data_wrapper(args, variable=None, required_dims=None):
+
+  od = args.outfolder
+  timeres = (args.timeres).lower()
+  stage = (args.stage).lower()
+
+  def pull_data(the_var, required_dims):
+    '''Pulls data out of an nc file'''
+    fglob = os.path.join(od, "{}_{}_{}.nc".format(the_var, timeres, stage))
+    the_file = glob.glob(fglob)
+
+    if len(the_file) < 1:
+      raise RuntimeError("Can't find file for variable '{}' here: {}".format(the_var, fglob))
+    if len(the_file) > 1:
+      raise RuntimeError("Appears to be more than one file matching glob?: {}".format(fglob))
+
+    the_file = the_file[0]
+    print "Pulling data from ", the_file
+    with nc.Dataset(the_file, 'r') as ds:
+      if required_dims != None:
+        for rd in required_dims:
+          if rd not in ds.dimensions.keys():
+            raise RuntimeError("'{}' is a required dimension for this operation. File: {}".format(rd, the_file))
+
+      data = ds.variables[the_var][:]
+      units = ds.variables[the_var].units
+    return data, units
+
+  data, units = pull_data(variable, required_dims)
+
+  return data, units
 
 def plot_soil_layers2(args):
   '''
@@ -632,29 +663,9 @@ def plot_soil_layers2(args):
   timeres = (args.timeres).lower()
   stage = (args.stage).lower()
 
-  opt_vars = [v.upper() for v in args.vars]
-  # req_vars = ['LAYERDZ'] # req_vars is unused right now, might be good for error handling
-
-  def pull_data(the_var):
-    '''Pulls data out of an nc file'''
-    fglob = os.path.join(od, "{}_{}_{}.nc".format(the_var, timeres, stage))
-    the_file = glob.glob(fglob)
-
-    if len(the_file) < 1:
-      raise RuntimeError("Can't find file for variable '{}' here: {}".format(the_var, fglob))
-    if len(the_file) > 1:
-      raise RuntimeError("Appears to be more than one file matching glob?: {}".format(fglob))
-
-    the_file = the_file[0]
-    print "Pulling data from ", the_file
-    with nc.Dataset(the_file, 'r') as ds:
-      data = ds.variables[the_var][:]
-      units = ds.variables[the_var].units
-    return data, units
-
   # Need to specify units in output_spec files!!
-  depth, depthunits = pull_data('LAYERDEPTH')
-  dz, dzunits = pull_data('LAYERDZ')
+  depth, depthunits = pull_data_wrapper(args, 'LAYERDEPTH', required_dims=['time','layer','y','x'])
+  dz, dzunits = pull_data_wrapper(args, 'LAYERDZ', required_dims=['time','layer','y','x',])
 
   if depthunits == '':
     print "WARNING! Missing depth units! Assumed to be meters."
@@ -666,14 +677,14 @@ def plot_soil_layers2(args):
     print "WARNING! depthunits ({}) and dzunits ({}) are not the same!".format(depthunits, dzunits) 
 
   # Setup the plotting
-  ROWS=1; COLS=len(opt_vars)
+  ROWS=1; COLS=len([v.upper() for v in args.vars])
   gs = gridspec.GridSpec(ROWS, COLS)
 
   fig = plt.figure()
   ax0 = plt.subplot(gs[:,0])
   ax0.set_ylabel("Depth ({})".format(depthunits))
 
-  for i, v in enumerate(opt_vars):
+  for i, v in enumerate([v.upper() for v in args.vars]):
     if i == 0:
       ax0.set_title(v)
       ax0.invert_yaxis()
@@ -683,7 +694,7 @@ def plot_soil_layers2(args):
 
   for ax in fig.axes:
 
-    vardata, units = pull_data(ax.get_title())
+    vardata, units = pull_data_wrapper(args, ax.get_title())
 
     # Line plot, offset so markers are at the midpoint of layer.'''
     ax.plot(
