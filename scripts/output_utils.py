@@ -604,6 +604,23 @@ def plot_soil_layers():
   plt.barh(bottoms, widths, heights, color=colors)
 
 def pull_data_wrapper(args, variable=None, required_dims=None):
+  '''
+  Extracts data from an netcdf file.
+
+  `args` must be a dict with settings for outfolder, timeres, and stage.
+  `variable` must be a string with the variable name that is expected to be in
+  the netcdf file. The file is expected to be names like this:
+  "VARIABLE_TIMERES_STAGE.nc" and is expected to be present in the
+  args.outfolder.
+
+  If required_dims is passed, then the dimensions of the variable to extract
+  are checked against the list and a RuntimeError is thrown if there is a
+  a problem.
+
+  Returns a tuple (data, units), where data is a numpy array or masked array
+  and units is a string that is extracted from the attributs of the netcdf file.
+
+  '''
 
   od = args.outfolder
   timeres = (args.timeres).lower()
