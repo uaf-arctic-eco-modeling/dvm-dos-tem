@@ -8,6 +8,7 @@
 import os
 import glob
 import numpy as np
+import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import netCDF4 as nc
@@ -603,6 +604,69 @@ def plot_soil_layers():
   heights =  dz[time,:,Y,X]
   plt.barh(bottoms, widths, heights, color=colors)
 
+def plot_fronts(args):
+  '''
+  Makes a timeseries plot of all the fronts that are output. The X axis is time,
+  the Y axis is depth from surface (0 at the top of the plot). Each front will
+  have a line on the plot. 
+
+  Blue dots are used for FREEZING fronts (frozen above, warm below, values > 0)
+  Red is used for THAWING fronts (warm above, frozen below, value < 0)
+
+  # NOTE:
+  # In the model, there are two places that fronts info is stored: 
+  # a pair of deques and a pair of arrays. The arrays are set to have a max
+  # size of 10 (MAX_FRONTS or something like that) As the model runs, the
+  # values are written periodically from the dequees into the arrays. The 
+  # arrays are the structures that are output to the netcdf files. Our output
+  # netcdf files and output_spec files are not setup to deal with a "fronts" 
+  # dimension. So for now, since we know there will only be 
+  # 10 fronts, we'll store the stuff in files with a layer dimension, using the
+  # first 10 slots. After a little testing it looks like there are rarely more
+  # than 2 fronts, so this setup is not space efficient.
+  '''
+
+  time = args.timestep
+  Y, X = args.yx
+  od = args.outfolder
+  timeres = (args.timeres).lower()
+  stage = (args.stage).lower()
+
+  ftype, ftype_units = pull_data_wrapper(args, variable='FRONTSTYPE', required_dims=['time','layer','y','x'])
+  fdepth, fdepth_units = pull_data_wrapper(args, variable='FRONTSDEPTH', required_dims=['time','layer','y','x'])
+
+  if fdepth_units == '':
+    print "WARNING! Missing depth units! Assumed to be meters."
+    depthunits = 'm'
+  if ftype_units == '':
+    print "WARNING! Missing front type units! Assumed to be categorical."
+    dzunits = 'categorical'
+
+  # Setup the plotting
+  ROWS=1; COLS=1
+  gs = gridspec.GridSpec(ROWS, COLS)
+
+  fig = plt.figure()
+  ax0 = plt.subplot(gs[:])
+  ax0.set_ylabel("Depth ({})".format(fdepth_units))
+  ax0.set_xlabel("Time")
+  ax0.set_title("{}".format(od))
+
+  for fnt_idx in range(0,10):
+    front_thaw = ax0.scatter(np.arange(0,1308),np.ma.masked_where(ftype[:,fnt_idx,Y,X] < 0, fdepth[:,fnt_idx,Y,X]), color='orange', marker='o')
+    front_thaw_line = ax0.plot(np.ma.masked_where(ftype[:,fnt_idx,Y,X] < 0, fdepth[:,fnt_idx,Y,X]), label='thaw front {}'.format(fnt_idx), color='orange', alpha=0.5)
+
+    front_freeze = ax0.scatter(np.arange(0,1308),np.ma.masked_where(ftype[:,fnt_idx,Y,X] > 0, fdepth[:,fnt_idx,Y,X]), color='blue', marker='o')
+    front_freeze_line = ax0.plot(np.ma.masked_where(ftype[:,fnt_idx,Y,X] > 0, fdepth[:,fnt_idx,Y,X]), label='freeze front {}'.format(fnt_idx), color='blue', alpha=0.5)
+
+
+  ax0.xaxis.set_major_locator(matplotlib.ticker.MultipleLocator(12))
+  ax0.xaxis.set_minor_locator(matplotlib.ticker.MultipleLocator(6))
+  ax0.invert_yaxis()
+
+  plt.show(block=True)
+
+
 def pull_data_wrapper(args, variable=None, required_dims=None):
   '''
   Extracts data from an netcdf file.
@@ -868,10 +932,19 @@ if __name__ == '__main__':
   sp_parser = subparsers.add_parser('soil-profiles', 
       help=textwrap.dedent('''\
         Make plots of soil profiles variables (i.e. outputs that are specified 
-        to be by layer)'''))
+        to be by layer). NOTE: you must have outputs for the variables
+        LAYERDZ and LAYERTYPE in addition to the variables you'd like to
+        plot for these panles to work!'''))
   sp_parser.add_argument('--vars', nargs='*', default=['SOC'], help='The soil layer variables to plot')
   sp_parser.add_argument('--print-full-table', action='store_true', help="Prints a full table of all soil/layer variables to the console.")
   sp_parser.add_argument('outfolder', help="Path to a folder containing a set of dvmdostem outputs")
+
+
+  fronts_parser = subparsers.add_parser('fronts',
+    help=textwrap.dedent('''\
+      Make a plot of the fronts.
+      '''))
+  fronts_parser.add_argument('outfolder', help="Path to a folder containing a set of dvmdostem outputs")
 
   # sc for 'site compare'
   # ./output_util.py --stage tr --yx 0 0 --timeres monthly site-compare --save-name some/path/to/somefile.pdf /path/to/inputA /path/to/inputB /pathto.inpuC
@@ -902,6 +975,8 @@ if __name__ == '__main__':
   args = parser.parse_args()
   print args
 
+  if args.command == 'fronts':
+    plot_fronts(args)
 
   if args.command == 'soil-profiles':
     if args.print_full_table:
