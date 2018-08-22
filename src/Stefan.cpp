@@ -32,6 +32,10 @@ void Stefan::updateFronts(const double & tdrv, const double &timestep) {
   // driving force
   int freezing1; //the freezing/thawing force based on the driving temperature
   double tdrv1 = tdrv;
+  //20180820 While comparing the code to the papers describing these
+  // processes, it seemed like tdrv1 needed to be converted from
+  // degrees C to degrees K. However, we tested that change, and
+  // it appears that not converting it produces better results.
   double dse = fabs(tdrv1 * timestep); // the extra degree second
   double sumresabv  =0. ; // sum of resistence for above layers;
 
@@ -96,7 +100,14 @@ void Stefan::updateFronts(const double & tdrv, const double &timestep) {
                                            //  update 'ice' and 'liq' water in
                                            //  a layer due to phase change
   ground->setFstLstFrontLayers();
-  /*  // there exists a bug, turn off temporarily - to be checking (fmyuan: 3/22/2013)
+
+  //20180820 The following is commented out despite being described in
+  // papers because it leads to the soil stack being very cold or
+  // completely frozen for the whole year. Without it, the ALD and
+  // thawing fronts are a bit too deep, but appear closer to reality
+  // than with it. 
+
+/*    // there exists a bug, turn off temporarily - to be checking (fmyuan: 3/22/2013)
 
       // After testing - the bottom-up appears having shallower ALD and colder soil T - be sure of validating this in field
     // bottom-up determined front moving
@@ -117,6 +128,10 @@ void Stefan::updateFronts(const double & tdrv, const double &timestep) {
         freezing2 = 1;
       }
 
+      //20180820 While comparing the code to the papers describing these
+      // processes, it seemed like tdrv2 needed to be converted from
+      // degrees C to degrees K. However, we tested that change, and
+      // it appears that not converting it produces better results.
       dse = fabs(tdrv2 * timestep);
       double newfntz2 = botdrvl->z+botdrvl->dz;
       while(dse>0.){
@@ -174,7 +189,13 @@ void Stefan::meltingSnowLayer(double const & tkfront, double & dse,
   double dsn;
 
   if(tdrv>0) {
-    double volwat = snwl->ice/(snwl->rho*dz);
+    //With this, volwat == 1 because they are all calculated based
+    //on an initial rho. ice=rho*dz - this treats the snow layer
+    //like pure ice.
+    //double volwat = snwl->ice/(snwl->rho*dz);
+    //This formula is the ratio of the snow density to the density
+    //of ice, which allows for the fact that snow isn't a slab of ice
+    double volwat = snwl->rho/DENICE;
     dsn = getDegSecNeeded(dz, volwat, tkfront, sumresabv);
     dsn += abs(snwl->tem) * timestep;
 
@@ -411,6 +432,9 @@ void Stefan::processNewFrontSoilLayerUp(const int &freezing,
   }
 
   dsn = getDegSecNeeded(dz, volwat, tkfront, sumrescum);
+  //Unlike the other places dsn is calculated, it is not modified
+  // by layer temperature and timestep here, because the bottom-up
+  // calculations already allow for that.
 
   if(dse>=dsn) {
     //whole layer will be frozen or unfrozen, and a new
@@ -561,6 +585,7 @@ void Stefan::frontsDequeUp(const double &newfntz, const int &newfnttype) {
 
 double Stefan::getDegSecNeeded(const double & dz, const double & volwat,
                                const double & tk, const double & sumresabv) {
+  //Calculations from Woo 2004 and Yi 2009
   /*input
    *     dz: the thickness of  fraction of (or whole)  soil layer:
    *     volwat: volumetric water thickness, either ice or liquid water
