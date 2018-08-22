@@ -594,8 +594,8 @@ double Stefan::getDegSecNeeded(const double & dz, const double & volwat,
    */
   double needed=0.;
   double effvolwat = volwat;
-  double lhfv = 3.34e8;
-  needed = lhfv * effvolwat * (sumresabv +0.5 * dz/tk);
+  double lhfv = LHFUS * 1000;//Converting units
+  needed = lhfv * effvolwat * (sumresabv + 0.5 * dz/tk);
   return needed;
 };
 
