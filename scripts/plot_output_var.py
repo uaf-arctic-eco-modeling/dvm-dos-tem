@@ -43,6 +43,13 @@ if __name__ == '__main__':
   parser.add_argument('--sharex', action='store_true',
     help=textwrap.dedent('''All plots share an x axes for linked panning and zooming.'''))
 
+
+  parser.add_argument('--annual-grid', action='store_true',
+    help=textwrap.dedent('''Display a vertial grid line every 12 months.
+      Generally this is too dense when viewing a long timeseries, but is helpful
+      if you plan to zoom in on the data.'''))
+
+  parser.add_argument('--yx', type=int, nargs=2, required=False, default=[0,0],
   args = parser.parse_args()
   print args
 
@@ -140,6 +147,10 @@ if __name__ == '__main__':
           ax[pftpart].plot(data[:,pftpart])
           ax[pftpart].set_ylabel("pftpart " + str(pftpart))
 
+      if args.annual_grid:
+        for a in ax:
+          a.xaxis.set_major_locator(mpl.ticker.MultipleLocator(12))
+          a.grid()
 
       #All variables share this section
       fig.canvas.set_window_title(plotting_var)
