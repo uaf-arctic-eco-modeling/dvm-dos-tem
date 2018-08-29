@@ -43,6 +43,8 @@ if __name__ == '__main__':
   parser.add_argument('--sharex', action='store_true',
     help=textwrap.dedent('''All plots share an x axes for linked panning and zooming.'''))
 
+  parser.add_argument('--sharey', action='store_true',
+    help=textwrap.dedent('''All plots share a y axes for linked panning, zooming, and autoscaling.'''))
 
   parser.add_argument('--annual-grid', action='store_true',
     help=textwrap.dedent('''Display a vertial grid line every 12 months.
@@ -102,7 +104,7 @@ if __name__ == '__main__':
       #time, y?, x?
       if(dim_count == 3):
         data = nc_data[:,Y,X]
-        fig, ax = plt.subplots(1,1, sharex=args.sharex)
+        fig, ax = plt.subplots(1,1, sharex=args.sharex, sharey=args.sharey)
         ax.plot(data)
 
 
@@ -114,7 +116,7 @@ if __name__ == '__main__':
         #from IPython import embed; embed()
         #By PFT only
         if 'pft' in nc_dims:
-          fig, ax = plt.subplots(10,1, sharex=args.sharex)
+          fig, ax = plt.subplots(10,1, sharex=args.sharex, sharey=args.sharey)
 
           for pft in range(0,10):
             ax[pft].plot(data[:,pft])
@@ -122,7 +124,7 @@ if __name__ == '__main__':
 
         #By PFT compartment
         if 'pftpart' in nc_dims:
-          fig, ax = plt.subplots(3,1, sharex=args.sharex)
+          fig, ax = plt.subplots(3,1, sharex=args.sharex, sharey=args.sharey)
 
           for pftpart in range(0,3):
             ax[pftpart].plot(data[:,pftpart])
@@ -131,12 +133,11 @@ if __name__ == '__main__':
         #By soil layer
         if 'layer' in nc_dims:
           layer_count = layer_end - layer_start + 1
-          fig, ax = plt.subplots(layer_count,1,  sharex=args.sharex)
+          fig, ax = plt.subplots(layer_count,1,  sharex=args.sharex, sharey=args.sharey)
 
           for layer in range(layer_start, layer_end+1):
             ax[layer-layer_start].plot(data[:,layer])
             ax[layer-layer_start].set_ylabel("layer " + str(layer))
-
 
       #Variables by both PFT and Compartment
       #time, pftpart, pft, y?, x?
@@ -150,7 +151,7 @@ if __name__ == '__main__':
 
         data = nc_data[:,:,pft_choice,Y,X]
 
-        fig, ax = plt.subplots(3,1, sharex=args.sharex)
+        fig, ax = plt.subplots(3,1, sharex=args.sharex, sharey=args.sharey)
   
         for pftpart in range(0, 3):
           ax[pftpart].plot(data[:,pftpart])
