@@ -20,7 +20,9 @@ if __name__ == '__main__':
   parser = argparse.ArgumentParser(
     formatter_class=argparse.RawDescriptionHelpFormatter,
     description=textwrap.dedent('''
-      Script for plotting a single dvm-dos-tem output netCDF file. It is hardcoded to cell 0,0 and determines variable name by any netCDF var that is not time.
+      Script for plotting a single dvm-dos-tem output netCDF file. It is
+      hardcoded to cell 0,0 and determines variable name by any netCDF var that
+      is not time.
     ''')
   )
 
@@ -38,7 +40,11 @@ if __name__ == '__main__':
     metavar=('START','END'),
     help = textwrap.dedent('''The range of timesteps to plot.'''))
 
+  parser.add_argument('--sharex', action='store_true',
+    help=textwrap.dedent('''All plots share an x axes for linked panning and zooming.'''))
+
   args = parser.parse_args()
+  print args
 
   if args.file:
 
@@ -80,7 +86,7 @@ if __name__ == '__main__':
       #time, y?, x?
       if(dim_count == 3):
         data = nc_data[:,0,0]
-        fig, ax = plt.subplots(1,1)
+        fig, ax = plt.subplots(1,1, sharex=args.sharex)
         ax.plot(data)
 
 
@@ -89,9 +95,10 @@ if __name__ == '__main__':
       if(dim_count == 4):
         data = nc_data[:,:,0,0]
 
+        #from IPython import embed; embed()
         #By PFT only
         if 'pft' in nc_dims:
-          fig, ax = plt.subplots(10,1)
+          fig, ax = plt.subplots(10,1, sharex=args.sharex)
 
           for pft in range(0,10):
             ax[pft].plot(data[:,pft])
@@ -99,7 +106,7 @@ if __name__ == '__main__':
 
         #By PFT compartment
         if 'pftpart' in nc_dims:
-          fig, ax = plt.subplots(3,1)
+          fig, ax = plt.subplots(3,1, sharex=args.sharex)
 
           for pftpart in range(0,3):
             ax[pftpart].plot(data[:,pftpart])
@@ -108,7 +115,7 @@ if __name__ == '__main__':
         #By soil layer
         if 'layer' in nc_dims:
           layer_count = layer_end - layer_start + 1
-          fig, ax = plt.subplots(layer_count,1)
+          fig, ax = plt.subplots(layer_count,1,  sharex=args.sharex)
 
           for layer in range(layer_start, layer_end+1):
             ax[layer-layer_start].plot(data[:,layer])
@@ -127,7 +134,7 @@ if __name__ == '__main__':
 
         data = nc_data[:,:,pft_choice,0,0]
 
-        fig, ax = plt.subplots(3,1)
+        fig, ax = plt.subplots(3,1, sharex=args.sharex)
   
         for pftpart in range(0, 3):
           ax[pftpart].plot(data[:,pftpart])
