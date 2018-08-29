@@ -50,6 +50,8 @@ if __name__ == '__main__':
       if you plan to zoom in on the data.'''))
 
   parser.add_argument('--yx', type=int, nargs=2, required=False, default=[0,0],
+    metavar=('Y', 'X'), help=textwrap.dedent('''Select the pixel to plot'''))
+
   args = parser.parse_args()
   print args
 
@@ -79,8 +81,15 @@ if __name__ == '__main__':
         layer_start = 0 
         layer_end = 3
 
+      if args.yx is not None:
+        Y, X = args.yx
+      else:
+        # defaults are set with argument options above
+        pass
+
       dim_count = len(nc_dims)
 
+      print "pixel(Y,X): ({},{})".format(Y, X)
       print "dim count: " + str(dim_count) 
       print "dimensions: " + str(nc_dims)
       print "variables: " + str(nc_vars)
@@ -92,7 +101,7 @@ if __name__ == '__main__':
       #Variables by time only
       #time, y?, x?
       if(dim_count == 3):
-        data = nc_data[:,0,0]
+        data = nc_data[:,Y,X]
         fig, ax = plt.subplots(1,1, sharex=args.sharex)
         ax.plot(data)
 
@@ -100,7 +109,7 @@ if __name__ == '__main__':
       #Variables by PFT, Compartment, or Layer
       #time, [section], y?, x?
       if(dim_count == 4):
-        data = nc_data[:,:,0,0]
+        data = nc_data[:,:,Y,X]
 
         #from IPython import embed; embed()
         #By PFT only
@@ -139,7 +148,7 @@ if __name__ == '__main__':
 
         print "Plotting PFT: " + str(pft_choice)
 
-        data = nc_data[:,:,pft_choice,0,0]
+        data = nc_data[:,:,pft_choice,Y,X]
 
         fig, ax = plt.subplots(3,1, sharex=args.sharex)
   
