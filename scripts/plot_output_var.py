@@ -43,6 +43,10 @@ if __name__ == '__main__':
     metavar=('START', 'END'),
     help = textwrap.dedent('''The range of layers to plot.'''))
 
+  parser.add_argument('--layer-sum', action='store_true',
+    help=textwrap.dedent('''Adds a subplot at the top which is the sum of all
+      the other layers that are displayed.'''))
+
   parser.add_argument('--timesteps', type=int, required=False, nargs=2,
     metavar=('START','END'),
     help = textwrap.dedent('''The range of timesteps to plot.'''))
@@ -136,12 +140,55 @@ if __name__ == '__main__':
 
         #By soil layer
         if 'layer' in nc_dims:
-          layer_count = layer_end - layer_start + 1
-          fig, axes = plt.subplots(layer_count,1,  sharex=args.sharex, sharey=args.sharey)
+          print "displaying layers {} -to-> {}".format(layer_start, layer_end)
+          layers = range(layer_start, layer_end + 1)
 
-          for layer in range(layer_start, layer_end+1):
-            axes[layer-layer_start].plot(data[:,layer])
-            axes[layer-layer_start].set_ylabel("layer " + str(layer))
+          number_subplots = len(layers)
+          if args.layer_sum:
+            number_subplots +=1
+
+          fig, axes = plt.subplots(number_subplots, 1,  sharex=args.sharex, sharey=args.sharey)
+
+          # Use a dicrete map with one color for each layer
+          # Helpful to have it be a sequential map also so that you can 
+          # intuit layer depth from the color
+          custom_cmap = plt.cm.get_cmap('plasma_r', len(layers))
+
+          if args.layer_sum:
+            sum_ax = axes[0]
+            layer_axes = axes[1:]
+          else:
+            sum_ax = None
+            layer_axes = axes
+
+          # plot the individual layer lines each on their own ax
+          if len(layers) != len(layer_axes):
+            print "WARNING!"
+          for i, (layer, ax) in enumerate(zip(layers, layer_axes)):
+            ax.plot(data[:,layer], color=custom_cmap(i))
+            ax.set_ylabel("L{:3d}".format(layer))
+
+
+          if sum_ax is not None:
+            # plot the basic sum line on the top (sum) ax
+            sum_over_chosen_layers = data[:, layer_start:layer_end+1].sum(axis=1)
+            sum_ax.plot(sum_over_chosen_layers, label='sum', color='lightgray')
+
+            # plot the fill_betweens for layers on the top (sum) ax
+            for i, layer in enumerate(layers):
+              print i, layer
+              if layer == layer_end:
+                lower_bound = np.ma.masked_array(np.zeros(data.shape[0]))
+                upper_bound = data[:,layer:layer_end+1].sum(axis=1)
+              else:
+                lower_bound = data[:,layer+1:layer_end+1].sum(axis=1)
+                upper_bound = data[:,layer:layer_end+1].sum(axis=1)
+
+              clean_lower = np.where(lower_bound[:].mask, 0, lower_bound[:])
+              clean_upper = np.where(upper_bound[:].mask, 0, upper_bound[:])
+
+              sum_ax.fill_between(np.arange(0, data.shape[0]), clean_upper, clean_lower, color=custom_cmap(i))
+
 
       # Variables by both PFT and Compartment
       # time, pftpart, pft, y?, x?
