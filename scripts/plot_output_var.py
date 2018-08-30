@@ -101,6 +101,7 @@ if __name__ == '__main__':
       print "variables: " + str(nc_vars)
       print "shape: " + str(nc_data.shape)
 
+
       mpl.rc('lines', linewidth=1, markersize=3, marker='o')
 
 
@@ -108,8 +109,8 @@ if __name__ == '__main__':
       #time, y?, x?
       if(dim_count == 3):
         data = nc_data[:,Y,X]
-        fig, ax = plt.subplots(1,1, sharex=args.sharex, sharey=args.sharey)
-        ax.plot(data)
+        fig, axes = plt.subplots(1,1, sharex=args.sharex, sharey=args.sharey)
+        axes.plot(data)
 
 
       #Variables by PFT, Compartment, or Layer
@@ -119,29 +120,28 @@ if __name__ == '__main__':
 
         #By PFT only
         if 'pft' in nc_dims:
-          fig, ax = plt.subplots(10,1, sharex=args.sharex, sharey=args.sharey)
+          fig, axes = plt.subplots(10,1, sharex=args.sharex, sharey=args.sharey)
 
           for pft in range(0,10):
-            ax[pft].plot(data[:,pft])
-            ax[pft].set_ylabel("pft" + str(pft))
+            axes[pft].plot(data[:,pft])
+            axes[pft].set_ylabel("pft" + str(pft))
 
         #By PFT compartment
         if 'pftpart' in nc_dims:
-          fig, ax = plt.subplots(3,1, sharex=args.sharex, sharey=args.sharey)
+          fig, axes = plt.subplots(3,1, sharex=args.sharex, sharey=args.sharey)
 
           for pftpart in range(0,3):
-            ax[pftpart].plot(data[:,pftpart])
-            ax[pftpart].set_ylabel("pftpart " + str(pftpart))
+            axes[pftpart].plot(data[:,pftpart])
+            axes[pftpart].set_ylabel("pftpart " + str(pftpart))
 
         #By soil layer
         if 'layer' in nc_dims:
           layer_count = layer_end - layer_start + 1
-          fig, ax = plt.subplots(layer_count,1,  sharex=args.sharex, sharey=args.sharey)
+          fig, axes = plt.subplots(layer_count,1,  sharex=args.sharex, sharey=args.sharey)
 
           for layer in range(layer_start, layer_end+1):
-            ax[layer-layer_start].plot(data[:,layer])
-            ax[layer-layer_start].set_ylabel("layer " + str(layer))
-
+            axes[layer-layer_start].plot(data[:,layer])
+            axes[layer-layer_start].set_ylabel("layer " + str(layer))
 
       # Variables by both PFT and Compartment
       # time, pftpart, pft, y?, x?
@@ -155,16 +155,16 @@ if __name__ == '__main__':
 
         data = nc_data[:,:,pft_choice,Y,X]
 
-        fig, ax = plt.subplots(3,1, sharex=args.sharex, sharey=args.sharey)
+        fig, axes = plt.subplots(3,1, sharex=args.sharex, sharey=args.sharey)
   
         for pftpart in range(0, 3):
-          ax[pftpart].plot(data[:,pftpart])
-          ax[pftpart].set_ylabel("pftpart " + str(pftpart))
+          axes[pftpart].plot(data[:,pftpart])
+          axes[pftpart].set_ylabel("pftpart " + str(pftpart))
 
       if args.annual_grid:
-        for a in ax:
-          a.xaxis.set_major_locator(mpl.ticker.MultipleLocator(12))
-          a.grid()
+        for ax in axes:
+          ax.xaxis.set_major_locator(mpl.ticker.MultipleLocator(12))
+          ax.grid()
 
       # All variables share this section
       fig.canvas.set_window_title(plotting_var)
