@@ -20,14 +20,21 @@ if __name__ == '__main__':
   parser = argparse.ArgumentParser(
     formatter_class=argparse.RawDescriptionHelpFormatter,
     description=textwrap.dedent('''
-      Script for plotting a single dvm-dos-tem output netCDF file. It is
-      hardcoded to cell 0,0 and determines variable name by any netCDF var that
-      is not time.
+      Script for plotting a single dvm-dos-tem output netCDF file. 
+
+      Options are available for controlling which pixel to plot, which pft(s), 
+      which layer(s), and how closely the subplots should be linked for scale,
+      panning and zooming.
+
+      Determines variable name by any netCDF var that is not time.
     ''')
   )
 
   parser.add_argument('--file', nargs='?', metavar=('FILE'),
     help = textwrap.dedent('''The output .nc file to operate on'''))
+
+  parser.add_argument('--yx', type=int, nargs=2, required=False, default=[0,0],
+    metavar=('Y', 'X'), help=textwrap.dedent('''Select the pixel to plot'''))
 
   parser.add_argument('--pft', type=int,
     help = textwrap.dedent('''The PFT to plot when plotting by PFT and compartment'''))
@@ -50,9 +57,6 @@ if __name__ == '__main__':
     help=textwrap.dedent('''Display a vertial grid line every 12 months.
       Generally this is too dense when viewing a long timeseries, but is helpful
       if you plan to zoom in on the data.'''))
-
-  parser.add_argument('--yx', type=int, nargs=2, required=False, default=[0,0],
-    metavar=('Y', 'X'), help=textwrap.dedent('''Select the pixel to plot'''))
 
   args = parser.parse_args()
   print args
@@ -113,7 +117,6 @@ if __name__ == '__main__':
       if(dim_count == 4):
         data = nc_data[:,:,Y,X]
 
-        #from IPython import embed; embed()
         #By PFT only
         if 'pft' in nc_dims:
           fig, ax = plt.subplots(10,1, sharex=args.sharex, sharey=args.sharey)
@@ -139,8 +142,9 @@ if __name__ == '__main__':
             ax[layer-layer_start].plot(data[:,layer])
             ax[layer-layer_start].set_ylabel("layer " + str(layer))
 
-      #Variables by both PFT and Compartment
-      #time, pftpart, pft, y?, x?
+
+      # Variables by both PFT and Compartment
+      # time, pftpart, pft, y?, x?
       if(dim_count == 5):
         if args.pft is not None:
           pft_choice = args.pft
@@ -162,7 +166,7 @@ if __name__ == '__main__':
           a.xaxis.set_major_locator(mpl.ticker.MultipleLocator(12))
           a.grid()
 
-      #All variables share this section
+      # All variables share this section
       fig.canvas.set_window_title(plotting_var)
       plt.xlabel("time")
       plt.show()
