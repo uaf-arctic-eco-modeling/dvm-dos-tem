@@ -71,7 +71,7 @@ if __name__ == '__main__':
       nc_dims = [dim for dim in ncFile.dimensions]
       nc_vars = [var for var in ncFile.variables]
 
-      #Should be determined more neatly.
+      # Should be determined more neatly.
       for var in nc_vars:
         if var != 'time':
           plotting_var = var
@@ -108,21 +108,26 @@ if __name__ == '__main__':
 
       mpl.rc('lines', linewidth=1, markersize=3, marker='o')
 
+      if args.layer_sum and plotting_var not in ['SOC', 'RH']:
+        print "WARNING: The sum across layer plot has not been tested on other "
+        print "variables! The plot is only intended to work with variables that "
+        print "have non-negative values!"
 
-      #Variables by time only
-      #time, y?, x?
+
+      # Variables by time only
+      # time, y?, x?
       if(dim_count == 3):
         data = nc_data[:,Y,X]
         fig, axes = plt.subplots(1,1, sharex=args.sharex, sharey=args.sharey)
         axes.plot(data)
 
 
-      #Variables by PFT, Compartment, or Layer
-      #time, [section], y?, x?
+      # Variables by PFT, Compartment, or Layer
+      # time, [section], y?, x?
       if(dim_count == 4):
         data = nc_data[:,:,Y,X]
 
-        #By PFT only
+        # By PFT only
         if 'pft' in nc_dims:
           fig, axes = plt.subplots(10,1, sharex=args.sharex, sharey=args.sharey)
 
@@ -130,7 +135,7 @@ if __name__ == '__main__':
             axes[pft].plot(data[:,pft])
             axes[pft].set_ylabel("pft" + str(pft))
 
-        #By PFT compartment
+        # By PFT compartment
         if 'pftpart' in nc_dims:
           fig, axes = plt.subplots(3,1, sharex=args.sharex, sharey=args.sharey)
 
@@ -138,7 +143,7 @@ if __name__ == '__main__':
             axes[pftpart].plot(data[:,pftpart])
             axes[pftpart].set_ylabel("pftpart " + str(pftpart))
 
-        #By soil layer
+        # By soil layer
         if 'layer' in nc_dims:
           print "displaying layers {} -to-> {}".format(layer_start, layer_end)
           layers = range(layer_start, layer_end + 1)
