@@ -39,7 +39,7 @@ if __name__ == '__main__':
   parser.add_argument('--pft', type=int,
     help = textwrap.dedent('''The PFT to plot when plotting by PFT and compartment'''))
 
-  parser.add_argument('--layers', type=int, required=False, nargs=2,
+  parser.add_argument('--layers', type=int, nargs=2, required=False, default=[0,3],
     metavar=('START', 'END'),
     help = textwrap.dedent('''The range of layers to plot.'''))
 
@@ -84,18 +84,10 @@ if __name__ == '__main__':
       else:
         nc_data = ncFile.variables[plotting_var][:,:]
 
-      if args.layers is not None:
-        layer_start = args.layers[0]
-        layer_end = args.layers[1]
-      else:
-        layer_start = 0 
-        layer_end = 3
+      layer_start, layer_end = args.layers
 
-      if args.yx is not None:
-        Y, X = args.yx
-      else:
-        # defaults are set with argument options above
-        pass
+      Y, X = args.yx
+
 
       dim_count = len(nc_dims)
 
