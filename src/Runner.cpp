@@ -893,6 +893,47 @@ void Runner::output_netCDF_yearly(int year, std::string stage){
     output_netCDF(md.yearly_netcdf_outputs, year, 0, stage);
 }
 
+void Runner::output_nc_soil_layer_daily(int ncid, int cv, int *data, int max_var_count, int timestep, int dinm){
+
+  //timestep, layer, row, col
+  size_t soilstart[4];
+  soilstart[0] = timestep;
+  soilstart[1] = 0;
+  soilstart[2] = this->y;
+  soilstart[3] = this->x;
+
+  size_t soilcount[4];
+  //soilcount[0] = 1;
+  soilcount[0] = dinm;
+  soilcount[1] = max_var_count;
+  soilcount[2] = 1;
+  soilcount[3] = 1;
+
+  temutil::nc( nc_put_vara_int(ncid, cv, soilstart, soilcount, data) );
+}
+
+void Runner::output_nc_soil_layer_daily(int ncid, int cv, double *data, int max_var_count, int timestep, int dinm){
+
+  //timestep, layer, row, col
+  size_t soilstart[4];
+  soilstart[0] = timestep;
+  soilstart[1] = 0;
+  soilstart[2] = this->y;
+  soilstart[3] = this->x;
+
+  size_t soilcount[4];
+  //soilcount[0] = 1;
+  soilcount[0] = dinm;
+  soilcount[1] = max_var_count;
+  soilcount[2] = 1;
+  soilcount[3] = 1;
+
+  temutil::nc( nc_put_vara_double(ncid, cv, soilstart, soilcount, data) );
+}
+
+
+
+
 void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, int year, int month, std::string stage){
   int month_timestep = year*12 + month;
 
@@ -2602,18 +2643,17 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     //This uses the summary structs, but might be more accurate
     // if the deque of fronts was checked directly.
     if(curr_spec.daily){
-      for(int ii=0; ii<dinm; ii++){
-        soilstart4[0] = day_timestep+ii;
-        temutil::nc( nc_put_vara_int(ncid, cv, soilstart4, frontcount4, &cohort.edall->daily_frontstype[ii][0]) );
-      }
+      output_nc_soil_layer_daily(ncid, cv, &cohort.edall->daily_frontstype[0][0], MAX_NUM_FNT, day_timestep, dinm);
     }
     else if(curr_spec.monthly){
       soilstart4[0] = month_timestep;
       temutil::nc( nc_put_vara_int(ncid, cv, soilstart4, frontcount4, &cohort.ground.frnttype[0]) );
+      //nc_output_soil(ncid, cv, &cohort.ground.frnttype[0], MAX_NUM_FNT, month_timestep)
     }
     else if(curr_spec.yearly){
       soilstart4[0] = year;
       temutil::nc( nc_put_vara_int(ncid, cv, soilstart4, frontcount4, &cohort.ground.frnttype[0]) );
+      //nc_output_soil(ncid, cv, &cohort.ground.frnttype[0], MAX_NUM_FNT, year)
     }
 
     }//end critical(outputFRONTSTYPE)
@@ -2642,25 +2682,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     //This uses the summary structs, but might be more accurate
     // if the deque of fronts was checked directly.
     if(curr_spec.daily){
-//      soilstart4[0] = day_timestep;
-//      int total_depths = dinm*MAX_NUM_FNT;
-//      frontcount4[1] = MAX_NUM_FNT;//total_depths;
-//      double depths[total_depths];
-
-//      for(int ii=0; ii<total_depths; ii++){
-//        depths[ii] = cohort.edall->daily_frontsdepth[ii/MAX_NUM_FNT][ii%MAX_NUM_FNT];
-//      }
-
-//      for(int id=0; id<dinm; id++){
-//        for(int fi; fi<MAX_NUM_FNT; fi++){
-//          depths[] = cohort.edall->daily_frontsdepth[][];
-//        }
-//      }
-      for(int ii=0; ii<dinm; ii++){
-        soilstart4[0] = day_timestep+ii;
-        temutil::nc( nc_put_vara_double(ncid, cv, soilstart4, frontcount4, &cohort.edall->daily_frontsdepth[ii][0]) );
-      }
-      //temutil::nc( nc_put_vara_double(ncid, cv, soilstart4, frontcount4, &depths[0]) );
+      output_nc_soil_layer_daily(ncid, cv, &cohort.edall->daily_frontsdepth[0][0], MAX_NUM_FNT, day_timestep, dinm);
     }
     else if(curr_spec.monthly){
       soilstart4[0] = month_timestep;
@@ -5152,7 +5174,6 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
 
       //PFT and compartment
       if(curr_spec.pft && curr_spec.compartment){
-
         double vegc[NUM_PFT_PART][NUM_PFT];
         for(int ip=0; ip<NUM_PFT; ip++){
           if(cohort.cd.m_veg.vegcov[ip]>0.){//only check PFTs that exist
