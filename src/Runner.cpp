@@ -2607,7 +2607,10 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
       temutil::nc( nc_inq_varid(ncid, "TLAYER", &cv) );
 #endif
 
-      if(curr_spec.monthly){
+      if(curr_spec.daily){
+        output_nc_soil_layer_daily(ncid, cv, &cohort.edall->daily_tlayer[0][0], MAX_SOI_LAY, day_timestep, dinm);
+      }
+      else if(curr_spec.monthly){
         soilstart4[0] = month_timestep;
         temutil::nc( nc_put_vara_double(ncid, cv, soilstart4, soilcount4, &cohort.edall->m_sois.ts[0]) );
       }

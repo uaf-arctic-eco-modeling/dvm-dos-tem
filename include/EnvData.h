@@ -118,11 +118,12 @@ public:
   double daily_drainage[31];
   double daily_frontsdepth[31][MAX_NUM_FNT];
   int daily_frontstype[31][MAX_NUM_FNT];
+  double daily_tlayer[31][MAX_SOI_LAY];
 
   double monthsfrozen;      // months since bottom soil frozen started -
-                            //   24 months is the criterial for permafrost
-  int rtfrozendays;         // soil top rootzone continously frozen days
-  int rtunfrozendays;       // soil top rootzone continously unfrozen days
+                            //   24 months is the criterion for permafrost
+  int rtfrozendays;         // soil top rootzone continuously frozen days
+  int rtunfrozendays;       // soil top rootzone continuously unfrozen days
 
   CohortData * cd;
 
