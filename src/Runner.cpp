@@ -966,6 +966,20 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
   frontcount4[2] = 1;
   frontcount4[3] = 1;
 
+  size_t frontstart5[5];
+  //Index 0 is set later
+  frontstart5[1] = 0;
+  frontstart5[2] = 0;
+  frontstart5[3] = rowidx;
+  frontstart5[4] = colidx;
+
+  size_t frontcount5[5];
+  frontcount5[0] = 1;
+  frontcount5[1] = dinm;
+  frontcount5[2] = MAX_NUM_FNT;
+  frontcount5[3] = 1;
+  frontcount5[4] = 1;
+
   /*** PFT variables ***/
   size_t PFTstart4[4];
   //Index 0 is set later
@@ -2587,7 +2601,13 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
 
     //This uses the summary structs, but might be more accurate
     // if the deque of fronts was checked directly.
-    if(curr_spec.monthly){
+    if(curr_spec.daily){
+      for(int ii=0; ii<dinm; ii++){
+        soilstart4[0] = day_timestep+ii;
+        temutil::nc( nc_put_vara_int(ncid, cv, soilstart4, frontcount4, &cohort.edall->daily_frontstype[ii][0]) );
+      }
+    }
+    else if(curr_spec.monthly){
       soilstart4[0] = month_timestep;
       temutil::nc( nc_put_vara_int(ncid, cv, soilstart4, frontcount4, &cohort.ground.frnttype[0]) );
     }
@@ -2621,7 +2641,28 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
 
     //This uses the summary structs, but might be more accurate
     // if the deque of fronts was checked directly.
-    if(curr_spec.monthly){
+    if(curr_spec.daily){
+//      soilstart4[0] = day_timestep;
+//      int total_depths = dinm*MAX_NUM_FNT;
+//      frontcount4[1] = MAX_NUM_FNT;//total_depths;
+//      double depths[total_depths];
+
+//      for(int ii=0; ii<total_depths; ii++){
+//        depths[ii] = cohort.edall->daily_frontsdepth[ii/MAX_NUM_FNT][ii%MAX_NUM_FNT];
+//      }
+
+//      for(int id=0; id<dinm; id++){
+//        for(int fi; fi<MAX_NUM_FNT; fi++){
+//          depths[] = cohort.edall->daily_frontsdepth[][];
+//        }
+//      }
+      for(int ii=0; ii<dinm; ii++){
+        soilstart4[0] = day_timestep+ii;
+        temutil::nc( nc_put_vara_double(ncid, cv, soilstart4, frontcount4, &cohort.edall->daily_frontsdepth[ii][0]) );
+      }
+      //temutil::nc( nc_put_vara_double(ncid, cv, soilstart4, frontcount4, &depths[0]) );
+    }
+    else if(curr_spec.monthly){
       soilstart4[0] = month_timestep;
       temutil::nc( nc_put_vara_double(ncid, cv, soilstart4, frontcount4, &cohort.ground.frntz[0]) );
     }

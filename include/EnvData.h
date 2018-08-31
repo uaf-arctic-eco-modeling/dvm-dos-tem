@@ -116,6 +116,8 @@ public:
   double daily_hkminec[31];
   double daily_watertab[31];
   double daily_drainage[31];
+  double daily_frontsdepth[31][MAX_NUM_FNT];
+  int daily_frontstype[31][MAX_NUM_FNT];
 
   double monthsfrozen;      // months since bottom soil frozen started -
                             //   24 months is the criterial for permafrost
