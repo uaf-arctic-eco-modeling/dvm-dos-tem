@@ -2600,12 +2600,11 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     {
 #ifdef WITHMPI
       temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
-      temutil::nc( nc_inq_varid(ncid, "TLAYER", &cv) );
       temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
-      temutil::nc( nc_inq_varid(ncid, "TLAYER", &cv) );
 #endif
+      temutil::nc( nc_inq_varid(ncid, "TLAYER", &cv) );
 
       if(curr_spec.daily){
         output_nc_soil_layer(ncid, cv, &cohort.edall->daily_tlayer[0][0], MAX_SOI_LAY, day_timestep, dinm);
@@ -2614,8 +2613,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
         output_nc_soil_layer(ncid, cv, &cohort.edall->m_sois.ts[0], MAX_SOI_LAY, month_timestep, 1);
       }
       else if(curr_spec.yearly){
-        soilstart4[0] = year;
-        temutil::nc( nc_put_vara_double(ncid, cv, soilstart4, soilcount4, &cohort.edall->y_sois.ts[0]) );
+        output_nc_soil_layer(ncid, cv, &cohort.edall->y_sois.ts[0], MAX_SOI_LAY, year, 1);
       }
 
       temutil::nc( nc_close(ncid) );
