@@ -4,7 +4,7 @@
 import sys
 import netCDF4 as nc
 import numpy as np
-import matplotlib as mpl
+import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 
@@ -31,7 +31,8 @@ if __name__ == '__main__':
   )
 
   parser.add_argument('--file', nargs='?', metavar=('FILE'),
-    help = textwrap.dedent('''The output .nc file to operate on'''))
+    help = textwrap.dedent('''The output .nc file to operate on. (Output from 
+      dvmdostem, input to this script).'''))
 
   parser.add_argument('--yx', type=int, nargs=2, required=False, default=[0,0],
     metavar=('Y', 'X'), help=textwrap.dedent('''Select the pixel to plot'''))
@@ -103,8 +104,7 @@ if __name__ == '__main__':
       print "selected time range size: {} start: {} end: {}".format(
           len(time_range), time_range[0], time_range[-1])
 
-
-      mpl.rc('lines', linewidth=1, markersize=3, marker='o')
+      matplotlib.rc('lines', linewidth=1, markersize=3, marker='o')
 
       if args.layer_sum and plotting_var not in ['SOC', 'RH']:
         print "WARNING: The sum across layer plot has not been tested on other "
