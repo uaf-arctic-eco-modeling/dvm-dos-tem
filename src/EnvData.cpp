@@ -693,6 +693,15 @@ void EnvData::grnd_endOfDay(const int & dinm, const int & doy) {
 
   daily_drainage[dom] = d_soi2l.qdrain;
 
+  for(int il=0; il<MAX_SOI_LAY; il++){
+    daily_tlayer[dom][il] = d_sois.ts[il];
+  }
+
+  for(int fid=0; fid<MAX_NUM_FNT; fid++){
+    daily_frontsdepth[dom][fid] = d_sois.frontsz[fid];
+    daily_frontstype[dom][fid] = d_sois.frontstype[fid];
+  }
+
 };
 
 void EnvData::atm_endOfMonth() {

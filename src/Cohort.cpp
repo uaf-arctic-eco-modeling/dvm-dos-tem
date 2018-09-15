@@ -568,6 +568,10 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
     //assuming rock layer's temperature equal to that of lstsoill
     solprntenv.retrieveDailyTM(ground.lstsoill);
 
+    //Propogates some daily values (specifically Front data)
+    // into edall from each ed
+    getEd4allgrnd_daily();
+
     //sharing the 'ground' portion in 'edall' with each pft 'ed'
     assignGroundEd2pfts_daily();
 
@@ -990,6 +994,14 @@ void Cohort::getSoilTransfactor4all_daily() {
         edall->d_soid.fbtran[il] += ed[ip].d_soid.fbtran[il];
       }
     }
+  }
+}
+
+//TODO Check for other variables to be propogated to edall
+void Cohort::getEd4allgrnd_daily(){
+  for(int fid=0; fid<MAX_NUM_FNT; fid++){
+    edall->d_sois.frontsz[fid] = ground.frntz[fid];
+    edall->d_sois.frontstype[fid] = ground.frnttype[fid];
   }
 }
 
