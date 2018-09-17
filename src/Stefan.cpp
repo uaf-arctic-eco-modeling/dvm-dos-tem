@@ -101,82 +101,14 @@ void Stefan::updateFronts(const double & tdrv, const double &timestep) {
                                            //  a layer due to phase change
   ground->setFstLstFrontLayers();
 
-  //20180820 The following is commented out despite being described in
-  // papers because it leads to the soil stack being very cold or
-  // completely frozen for the whole year. Without it, the ALD and
-  // thawing fronts are a bit too deep, but appear closer to reality
-  // than with it. 
+  //20180914
+  //Prior to 2013, there was a bottom-up check here that used the
+  //temperature at the bottom of the soil stack to adjust the
+  //fronts upwards. During testing, it appeared to consistently cool the
+  //soil stack too much, leading to shallow or nonexistent fronts.
+  //This comment is simply to make note of that approach - for details
+  //see the code history in Git.
 
-/*    // there exists a bug, turn off temporarily - to be checking (fmyuan: 3/22/2013)
-
-      // After testing - the bottom-up appears having shallower ALD and colder soil T - be sure of validating this in field
-    // bottom-up determined front moving
-    // (1) determine the bottom driving layer
-
-    double tdrv2  = prepareBottomDriving();
-    int freezing2; // the freezing/thawing force based on the driving temperature
-
-    // (2) find the front
-    if(botdrvl!=NULL && tdrv2!=MISSING_D){
-      //tdrv2=botdrvl->tem;
-      double sumresblw= 0.;
-
-      currl =botdrvl;
-      if(tdrv2>0.0){
-        freezing2 = -1;
-      }else{
-        freezing2 = 1;
-      }
-
-      //20180820 While comparing the code to the papers describing these
-      // processes, it seemed like tdrv2 needed to be converted from
-      // degrees C to degrees K. However, we tested that change, and
-      // it appears that not converting it produces better results.
-      dse = fabs(tdrv2 * timestep);
-      double newfntz2 = botdrvl->z+botdrvl->dz;
-      while(dse>0.){
-        if(currl==NULL || currl->isSnow){
-          if (dse>0.) {
-            newfntz2 = 0.;   // this will weep out all fronts in the soil column
-          }
-          break; // for snow or already beyond ground, break
-        }
-
-        tkunf = currl->getUnfThermCond();
-        tkfrz = currl->getFrzThermCond();
-        if(tdrv2<0.0){
-          tkres = tkfrz;
-          tkfront =tkunf;
-        }else {
-          tkres = tkunf;
-          tkfront = tkfrz;
-        }
-
-        sumresblw += currl->dz/tkres;
-        if (currl->frozen != freezing2) {
-          if(currl->isSoil){
-            processNewFrontSoilLayerUp(freezing2, sumresblw, tkfront, dse, newfntz2, currl);
-          }
-        }
-
-        currl=currl->prevl;
-      }
-
-      // (3) then upwardly incorporate the new front into the two deques: 'ground->frontsz' and 'ground->frontstype'
-      if (newfntz2>=0.) {
-        frontsDequeUp(newfntz2, -freezing2);   //NOTE: bottom-up freezing front actually is the thawing front if look downward
-      }
-
-      // post-front-positioning adjustments
-      combineExtraFronts();    // it is possible that there are too many fronts exist to hold in 'ed's 'frontz' and 'fronttype', so combine them if there are too many
-
-      updateLayerFrozenState(ground->toplayer);     // this must be done before the following call
-      updateWaterAfterFront(ground->toplayer);    // after fronts processed, need to update 'ice' and 'liq' water in a layer due to phase change
-
-      ground->setFstLstFrontLayers();
-    }
-
-  //*/
 };
 
 void Stefan::meltingSnowLayer(double const & tkfront, double & dse,
