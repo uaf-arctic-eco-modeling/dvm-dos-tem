@@ -55,7 +55,7 @@ void SnowLayer::updateThick() {
 // get frozen layer thermal conductivity, according to Jordan 1991
 double SnowLayer::getFrzThermCond() {
   //if (ctype==0){// tundra
-  return getThermCond5Jordan();
+  return getThermCond();
   //}else{
   //return getThermCond5Sturm();
   //}
@@ -64,18 +64,19 @@ double SnowLayer::getFrzThermCond() {
 // get unfrozen layer thermal conductivity
 double SnowLayer::getUnfThermCond() {
   //if(ctype==0){
-  return getThermCond5Jordan();
+  return getThermCond();
   //}else{
   //return getThermCond5Sturm();
   //}
 };
 
+//From Sturm 2002 (which references Sturm 1997)
 double SnowLayer::getThermCond5Sturm() {
   double tc=0;
   double rhogcm = rho /1000.; // convert from  kg/m3 to g/cm3
 
   if(rhogcm<=0.6 && rhogcm>=0.156) {
-    tc = 0.138 -1.01* rhogcm +3.233* rhogcm*rhogcm;
+    tc = 0.138 - 1.01 * rhogcm + 3.233 * rhogcm * rhogcm;
   } else if(rhogcm<0.156) {
     tc =0.023 +0.234 *rhogcm;
   }
@@ -83,10 +84,15 @@ double SnowLayer::getThermCond5Sturm() {
   return tc;
 };
 
-//in TROleson142004a
-double SnowLayer::getThermCond5Jordan() {
+double SnowLayer::getThermCond() {
   double tc=0;
-  tc = TCAIR + (7.75e-5 * rho + 1.105e-6*rho*rho)*(TCICE-TCAIR);
+
+  //From Jordan 1991, referenced in Oleson 2004
+  //tc = TCAIR + (7.75e-5 * rho + 1.105e-6*rho*rho)*(TCICE-TCAIR);
+
+  //From Goodrich 1982
+  //Shuhua's notes indicate that Goodrich should be used
+  // for snow, but not for soil.
   tc = 2.9*1.e-6 * rho*rho;
 
   if(tc<0.04) {

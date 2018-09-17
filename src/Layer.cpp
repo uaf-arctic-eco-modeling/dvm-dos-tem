@@ -131,7 +131,18 @@ double Layer::getEffVolWater() {
 double Layer::getVolIce() {
   if (dz != 0) {
     double vice = ice/DENICE/dz; // FIX THIS: divide by zero error when there is no thickness!
-    vice = fmin((double)vice, (double)poro);
+
+    //The logic for snow is slightly different than for soil, as
+    // it is the actual matrix being modified, rather than
+    // material within the matrix. In this case, snow
+    // layers have no value for porosity. 
+    if(isSnow){
+      vice = fmax(0.0, vice);
+    }
+    else{
+      vice = fmin((double)vice, (double)poro);
+    }
+
     return vice;
   } else {
     return 0;
@@ -141,7 +152,18 @@ double Layer::getVolIce() {
 double Layer::getVolLiq() {
   if (dz != 0) {
     double vliq = liq/DENLIQ/dz; // FIX THIS: divide by zero error when there is no thickness!
-    vliq = fmin((double)vliq,(double)poro);
+
+    //The logic for snow is slightly different than for soil, as
+    // it is the actual matrix being modified, rather than
+    // material within the matrix. In this case, snow
+    // layers have no value for porosity.
+    if(isSnow){
+      vliq = fmax(0.0, vliq);
+    }
+    else{
+      vliq = fmin((double)vliq,(double)poro);
+    }
+    
     return vliq;
   } else {
     return 0;

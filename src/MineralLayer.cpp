@@ -67,13 +67,14 @@ void MineralLayer::updateProperty5Lookup() {
   albdryvis = 0.18;
   albdrynir = 0.36;
 
+  //TODO
   // Note:
   // in dos-tem, these values are calculated here. In dvm-dos-tem, the values
   // are calculated in derivePhysicalPropert(..). So there is a bit of
   // redundancy present until we figure out the best way to arrange this.
-  minliq = 0.05 * 1000.0 * dz;
-  maxliq = poro * 1000.0 * dz;
-  maxice = poro * 1000.0 * dz - minliq;
+  //minliq = 0.05 * 1000.0 * dz;
+  //maxliq = poro * 1000.0 * dz;
+  //maxice = poro * 1000.0 * dz - minliq;
 
   derivePhysicalProperty();
 };
