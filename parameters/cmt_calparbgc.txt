@@ -136,7 +136,7 @@
 0.000005     // kdcsomcr
 //===========================================================
 // CMT06 // Wet Sedge Tundra //
-//Decid.     Sedges       Grasses      Forbs        Lichens      Feather      Sphag.       PFT7     PFT8      PFT9        // names: comments
+//Decid      Sedges       Grasses      Forbs        Lichens      Feather      Sphag        PFT7     PFT8      PFT9        // pftnames
 36.80        585.6       140.8         68.5         10.0         48.00        19.3          0.0      0.0       0.0        // cmax:
  4.10         14.01        8.29         9.20         4.32         3.00         3.32         0.0      0.0       0.0        // nmax:
  0.190        0.00001      0.000005     0.0037       0.096        0.038        0.000008     0.0      0.0       0.0        // cfall(0): leave

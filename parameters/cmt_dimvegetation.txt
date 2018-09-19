@@ -263,7 +263,7 @@
 0.0         0.0         0.7          0.0          0.5          2.00         2.00         2.00          0            0           // envlai[11]:
 //===========================================================
 // CMT06 // Wet Sedge Tundra
-//Decid.    Sedges      Grasses      Forbs        Lichens      Feather      Sphag.       PFT7         PFT8         PFT9         // names: comments                  
+//Decid     Sedges      Grasses      Forbs        Lichens      Feather      Sphag        PFT7         PFT8         PFT9         // pftnames
 1.00        1.00        1.00         1.00         1.00         1.00         1.00         0.00         0.00         0.00         // vegfrac: vegetation coverage on land - 0 indicates that PFT does't exist
 1           1           1            1            0            0            0            0            0            0            // ifwoody: woody plants (1) or not (0)
 0           1           1            0            0            0            0            0            0            0            // ifdeciwoody: deciduous woodland (1) or not (0)

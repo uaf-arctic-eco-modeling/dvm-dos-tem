@@ -221,7 +221,7 @@
 0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          // initdeadn:
 //===========================================================
 // CMT06 // Wet Sedge Tundra 
-//Decid.     Sedges       Grasses      Forbs        Lichens      Feather      Sphag.       PFT7         PFT8         PFT9         // names: comments                  
+//Decid      Sedges       Grasses      Forbs        Lichens      Feather      Sphag        PFT7         PFT8         PFT9         // pftnames
 400.0        400.0        400.0        400.0        400.0        400.0        400.0        0.0          0.0          0.0          // kc:
 75           75           75           75           75           75           75           0.0          0.0          0.0          // ki:
 -5.0         -5.0        -5.0         -5.0         -5.0         -5.0         -5.0          0.0          0.0          0.0          // tmin:
