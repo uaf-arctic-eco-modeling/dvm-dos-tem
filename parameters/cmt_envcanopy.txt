@@ -65,7 +65,7 @@
 0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegsnow: initial intercepted snow water in canopy
 //===========================================================
 // CMT04 // Shrub Tundra
-//Salix     Betula      Decid.       E.green      Sedges       Forbs        Grasses      Lichens      Feather      Misc1.       // names: comments
+//Salix     Betula      Decid        EGreen       Sedges       Forbs        Grasses      Lichens      Feather      PFT9             // pftnames:
 0.10        0.10        0.10         0.10         0.10         0.10         0.10         0.10         0.10         0.10             // albvisnir: canopy albedo
 0.5         0.5         0.5          0.5          0.5          0.5          0.5          0.5          0.5          0.5              // er: light extinction coefficient
 0.041       0.041       0.041        0.041        0.041        0.041        0.041        0.041        0.041        0.041            // ircoef: rainfall interception 
