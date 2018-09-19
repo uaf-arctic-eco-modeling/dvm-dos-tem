@@ -51,24 +51,16 @@ def get_CMTs_in_file(aFile):
   for i, line in enumerate(data):
     # Looks for CMT at the beginning of a comment line.
     # Will match:
-    # "// CMT06 ....", "  //   CMT06"
+    # "// CMT06 ....", or "  //   CMT06 ..."
     # but not
     # '// some other text CMT06 '
     line = line.strip().lstrip('//').strip()
     if line.find('CMT') == 0:
-      components = line.split('//')
-      clean_components = [c.strip() for c in components]
-      clean_components = filter(None, clean_components) # Get rid of empty strings
-
-      if len(clean_components) < 2:
-        error_exit(aFile, "Invalid CMT specification! Must have cmtkey AND name!", linenumber=i+1)
-
-      cmtkey = clean_components[0]
+      cmtkey, cmtname, cmtcomments = parse_header_line(line)
       cmtnum = int(cmtkey[3:])
-      cmtname = clean_components[1]
-      cmtcomments = ' // '.join(clean_components[2:])
       cmtdict = dict(cmtkey=cmtkey, cmtnum=cmtnum, cmtname=cmtname, cmtcomment=cmtcomments)
       cmt_list.append(cmtdict)
+
     elif line.find('CMT') > 0:
       # Must be a comment line, and not the start of a valid CMT data block.
       pass
