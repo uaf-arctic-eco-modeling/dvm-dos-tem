@@ -1,5 +1,7 @@
+// dmvdostem parameter file
+// soil microbial activity (BGC) parameters and default initial conditions
 //===========================================================
-// CMT00 // Default TEM Community  - soil microbial activity (BGC) parameters and default initial conditions
+// CMT00 // BARE GROUND OPEN WATER SNOW AND ICE
 2.0               // rhq10:
 0.0               // moistmin:
 0.5               // moistopt:
@@ -19,7 +21,7 @@
 363               // initsoln:
 0.76              // initavln:
 //===========================================================
-// CMT01 // CMT1 TEM Community  - soil microbial activity (BGC) parameters and default initial conditions
+// CMT01 // Black Spruce Forest
 2.0               // rhq10:
 0.0               // moistmin:
 0.5               // moistopt:
@@ -39,7 +41,7 @@
 363               // initsoln:
 0.76              // initavln:
 //===========================================================
-// CMT02 // CMT2 TEM Community  - soil microbial activity (BGC) parameters and default initial conditions
+// CMT02 // White Spruce Forest
 2.0               // rhq10:
 0.0               // moistmin:
 0.5               // moistopt:
@@ -59,7 +61,7 @@
 363               // initsoln:
 0.76              // initavln:
 //===========================================================
-// CMT03 // CMT3 TEM Community  - soil microbial activity (BGC) parameters and default initial conditions
+// CMT03 // Boreal Deciduous Forest
 2.0               // rhq10:
 0.0               // moistmin:
 0.5               // moistopt:
@@ -79,7 +81,7 @@
 363               // initsoln:
 0.76              // initavln:
 //===========================================================
-// CMT04 // Shrub Tundra  - soil microbial activity (BGC) parameters and default initial conditions
+// CMT04 // Shrub Tundra
 2.0               // rhq10:
 0.0               // moistmin:
 0.5               // moistopt:
@@ -99,7 +101,7 @@
 1843              // initsoln:
 3.93              // initavln:  was 0.68
 //===========================================================
-// CMT05 // Tussock Tundra (updated 1/15/2016 JDC) - Soil microbial activity (BGC) parameters and default initial conditions.
+// CMT05 // Tussock Tundra // (updated 1/15/2016 JDC)
 2.0               // rhq10:
 0.0               // moistmin:
 0.5               // moistopt:
@@ -119,7 +121,7 @@
 2200              // initsoln:
 8.9               // initavln:
 //===========================================================
-// CMT06 // Wet Sedge Tundra - soil microbial activity (BGC) parameters and default initial conditions
+// CMT06 // Wet Sedge Tundra
 2.0               // rhq10:
 0.0               // moistmin:
 0.5               // moistopt:
@@ -139,7 +141,7 @@
 2698              // initsoln:
 0.48              // initavln:
 //===========================================================
-// CMT07 // Heath Tundra - soil microbial activity (BGC) parameters and default initial conditions
+// CMT07 // Heath Tundra
 2.0               // rhq10:
 0.0               // moistmin:
 0.5               // moistopt:
@@ -159,7 +161,7 @@
 1405               // initsoln:
 0.17              // initavln:
 //===========================================================
-// CMT12 // Lowland Boreal Wet Shrubland - soil microbial activity (BGC) parameters and default initial conditions
+// CMT12 // Lowland Boreal Wet Shrubland
 2.0               // rhq10:
 0.0               // moistmin:
 0.5               // moistopt:
@@ -179,7 +181,7 @@
 2177.91           // initsoln:
 0.8               // initavln:
 //===========================================================
-// CMT20 // EML Shrub Tundra - 
+// CMT20 // EML Shrub Tundra
 2.0               // rhq10:
 0.0               // moistmin:
 0.5               // moistopt:
@@ -199,7 +201,7 @@
 1904.10           // initsoln: was 1904.10
 4.0               // initavln:
 //===========================================================
-// CMT21 // EML Tussock Tundra -
+// CMT21 // EML Tussock Tundra
 2.0               // rhq10:
 0.0               // moistmin:
 0.5               // moistopt:
