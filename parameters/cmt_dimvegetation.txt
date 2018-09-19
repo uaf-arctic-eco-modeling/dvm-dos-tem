@@ -220,7 +220,7 @@
 1.0         0.0         0.0          0.7          0.8          0.5          1.5          2.1          1.1          0            // envlai[11]: monthly LAI for a year, used for static input of LAI
 //===========================================================
 // CMT05 // Tussock Tundra // (updated 1/15/2016 JDC)
-//Betula    Decid.      E.green      Sedges       Forbs        Lichens      Feather.     Sphag.       Misc1.       Misc2.       // names: comments                  
+//Betula    Decid       EGreen       Sedges       Forbs        Lichens      Feather      Sphag        PFT8         PFT9         // pftnames:
 0.01        0.01        0.01         0.01         0.01         0.01         0.01         0.01         0.           0.           // vegfrac: vegetation coverage on land - 0 indicates that PFT does't exist
 1           1           1            0            0            0            0            0            0            0            // ifwoody: woody plants (1) or not (0)
 1           0           0            0            0            0            0            0            0            0            // ifdeciwoody: deciduous woodland (1) or not (0)

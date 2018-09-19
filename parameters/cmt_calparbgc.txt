@@ -114,7 +114,7 @@
 0.00007  // kdcsomcr:
 //===========================================================
 // CMT05 // Tussock Tundra // Updated by E.E. calibration, April, May 2017
-//    Betula       Decid.      E.green       Sedges        Forbs      Lichens     Feather.       Sphag.       Misc1.       Misc2.
+//    Betula        Decid       EGreen       Sedges        Forbs      Lichens      Feather        Sphag         PFT8         PFT9 // pftnames:
   400.000000   250.000000   800.000000  2000.000000   120.000000   300.000000   350.000000   200.000000     0.000000     0.000000 // cmax: 
     7.000000     8.200000     9.000000    27.600000     4.500000     3.000000     3.000000     3.000000     0.000000     0.000000 // nmax: 
     0.009970     0.109998     0.090001     0.059997     0.010000     0.065000     0.099000     0.065000     0.000000     0.000000 // cfall(0): 

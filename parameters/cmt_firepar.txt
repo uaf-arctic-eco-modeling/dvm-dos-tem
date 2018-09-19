@@ -120,7 +120,7 @@
 0.10                                                   // r_retain_n: ratio of burning residue N (retained into soil)
 //===========================================================
 // CMT05 // Tussock Tundra
-//Betula     Decid.      E.green     Sedges       Forbs        Lichens      Feather.     Sphag.       Misc1.       Misc2.    // names: comments                  
+//Betula     Decid       EGreen      Sedges       Forbs        Lichens      Feather      Sphag        PFT8         PFT9      // pftnames:
 0.00         0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvcomb[5][10]: fraction of each PFT vegetation combusted for 5 severities
 0.15         0.15        0.15        0.15         0.15         0.70         0.70         0.80         0.00         0.00      // 
 0.25         0.25        0.25        0.25         0.25         0.80         0.80         0.90         0.00         0.00      // 
