@@ -158,7 +158,7 @@
 0.00025       // kdcsomcr:
 //===========================================================
 // CMT07 // Heath Tundra //
-//Decid.     E.green      Forbs        Lichens      Grasses      Moss       Misc.       Misc.      Misc.        Misc.        // names: comments
+//Decid     EGreen        Forbs        Lichens      Grasses      Moss       PFT6        PFT7       PFT8         PFT9         // pftnames:
 26.40       89.70        23.0        113.1          4.8         38.1        0.0         0.0        0.0          0.0          // cmax:
  4.50       10.72         4.50         2.120        2.29         1.00       0.0         0.0        0.0          0.0          // nmax:
  0.065       0.048        0.075        0.0120       0.000001     0.079      0.0         0.0        0.0          0.0          // cfall(0): leave

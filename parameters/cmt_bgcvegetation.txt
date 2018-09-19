@@ -257,7 +257,7 @@
 0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          // initdeadn:
 //===========================================================
 // CMT07 // Heath Tundra 
-//Decid.     E.green      Forbs        Lichens      Grasses      Moss       Misc.       Misc.         Misc.        Misc.          // names: comments                  
+//Decid      EGreen       Forbs        Lichens      Grasses      Moss       PFT6         PFT7         PFT8         PFT9           // pftnames:
 400.0        400.0        400.0        400.0        400.0        400.0      0.0          0.0          0.0          0.0            // kc:
 75           75           75           75           75           75         0.0          0.0          0.0          0.0            // ki:
 -8.0         -8.0        -1.0         -8.0         -8.0         -1.0        0.0          0.0          0.0          0.0            // tmin:
