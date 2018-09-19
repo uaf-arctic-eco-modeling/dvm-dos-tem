@@ -545,6 +545,10 @@ if __name__ == '__main__':
         specified data input file and print the contents to stdout as a json
         object (string).'''))
 
+  parser.add_argument('--dump-block', nargs=2, metavar=('FILE', 'CMT'),
+      help=textwrap.dedent('''Extract the specific CMT data block from the
+        specified input file and print the contents to stdout'''))
+
   parser.add_argument('--fmt-block-from-json', nargs=2, metavar=('INFILE', 'REFFILE'),
       help=textwrap.dedent('''Reads infile (assumed to be a well formed data
         dict of dvmdostem parameter data in json form), formats the block
@@ -645,6 +649,13 @@ if __name__ == '__main__':
     lines = format_CMTdatadict(dd, refFile)
     for l in lines:
       print l
+    sys.exit(0)
+
+  if args.dump_block:
+    theFile = args.dump_block[0]
+    cmt = int(args.dump_block[1])
+    d = get_CMT_datablock(theFile, cmt)
+    print ''.join(d)
     sys.exit(0)
 
   if args.dump_block_to_json:
