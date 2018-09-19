@@ -1,6 +1,8 @@
 // dvmdostem parameter file
 // Fire disturbance parameters
 // Max of 10 PFTs over 1 soil column
+// PFT names should be CamelCase and must not have a period in them!
+//
 //===========================================================
 // CMT00 // BARE GROUND OPEN WATER SNOW AND ICE
 //PFT0      PFT1        PFT2         PFT3         PFT4         PFT5         PFT6         PFT7         PFT8         PFT9      // names: comments                  
@@ -26,7 +28,7 @@
 0.10                                                   // r_retain_n: ratio of burning residue N (retained into soil)
 //===========================================================
 // CMT01 // Black Spruce Forest
-//PFT0      PFT1        PFT2         PFT3         PFT4         PFT5         PFT6         PFT7         PFT8         PFT9      // names: comments                  
+//BlackSpr   Decid       DecidShrub  EGreen       Sphag        Feather      Moss         Lichen       Forbs        Sedge     // pftnames:
 0.00         0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvcomb[5][10]: fraction of each PFT vegetation combusted for 5 severities
 0.15         0.15        0.15        0.15         0.80         0.80         0.80         1.00         1.00         0.00      // 
 0.25         0.25        0.25        0.25         1.00         1.00         1.00         1.00         1.00         0.00      // 

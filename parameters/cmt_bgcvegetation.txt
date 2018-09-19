@@ -1,6 +1,8 @@
 // dvmdostem parameter file
 // Initial values for BGC plant physiological parameters
 // Maximum of 10 PFTs
+// PFT names should be CamelCase and must not have a period in them!
+//
 //===========================================================
 // CMT00 // Bare/Open Water/Snow and Ice?  // ##JUNK VALUES!!!###
 //PFT0       PFT1         PFT2         PFT3         PFT4         PFT5         PFT6         PFT7         PFT8         PFT9         // names: comments                  
@@ -39,7 +41,7 @@
 0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          // initdeadn:
 //===========================================================
 // CMT01 // Black Spruce Forest // ###JUNK VALUES!!!###
-//PFT0       PFT1         PFT2         PFT3         PFT4         PFT5         PFT6         PFT7         PFT8         PFT9         // names: comments                  
+//BlackSpr   Decid        DecidShrub   EGreen       Sphag      Feather        Moss         Lichen        Forbs       Sedge        // pftnames:
 400.0        400.0        400.0        400.0        400.0        400.0        400.0        400.0        400.0        400.0        // kc:
 75           75           75           75           75           75           75           75           75           75           // ki:
 -8.0         -8.0        -8.0         -8.0         -8.0         -8.0         -8.0         -8.0         -8.0         -8.0          // tmin:

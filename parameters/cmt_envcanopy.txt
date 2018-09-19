@@ -1,6 +1,8 @@
 // dvmdostem parameter file
 // Biophysical plant leaf characteristics and parameters
 // Maximum of 10 PFTs
+// PFT names should be CamelCase and must not have a period in them!
+//
 //===========================================================
 // CMT00 // Default TEM Community
 //PFT0      PFT1        PFT2         PFT3         PFT4         PFT5         PFT6         PFT7         PFT8         PFT9             // names: comments                  
@@ -18,7 +20,7 @@
 0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegsnow: initial intercepted snow water in canopy
 //===========================================================
 // CMT01 // Black Spruce Forest
-//PFT0      PFT1        PFT2         PFT3         PFT4         PFT5         PFT6         PFT7         PFT8         PFT9             // names: comments                  
+//BlackSpr  Decid       DecidShrub   EGreen       Sphag        Feather      Moss         Lichen       Forbs        Sedge            // pftnames:
 0.10        0.10        0.10         0.10         0.10         0.10         0.10         0.10         0.10         0.10             // albvisnir: canopy albedo
 0.5         0.5         0.5          0.5          0.5          0.5          0.5          0.5          0.5          0.5              // er: light extinction coefficient
 0.041       0.041       0.041        0.041        0.041        0.041        0.041        0.041        0.041        0.041            // ircoef: rainfall interception 

@@ -1,5 +1,6 @@
 // dvmdostem parameter file for BGC calibrated parameters
 // Maximum of 10 PFTs over one soil column.
+// PFT names should be CamelCase and must not have a period in them!
 //
 //===========================================================
 // CMT00 // BARE GROUND OPEN WATER SNOW AND ICE // ##THESE ARE JUNK VALUES###
@@ -25,7 +26,7 @@
 0.0000108       // kdcsomcr:
 //===========================================================
 // CMT01 // Black Spruce Forest // ###THESE ARE JUNK VALUES!!!###
-//BlkSpr.    Decid.     Decid.Shrub   E.green      Sphag.      Feather       Moss         Lichen        Forbs       Sedge
+//BlackSpr   Decid        DecidShrub   EGreen       Sphag      Feather        Moss         Lichen        Forbs       Sedge        // pftnames:
 2200         2200.0       1250.0         83.0       50.0         27.0         28.0         260.0         250.0       0.0          // cmax:
 3.3          3.3          2.5          0.80         1.4          1.5          2.2          1.1          2.1          0.0          // nmax:
 0.018        0.018        0.03        0.110        0.083        0.083        0.083        0.001        0.018         0.0          // cfall(0): leave

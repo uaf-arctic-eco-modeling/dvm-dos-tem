@@ -1,6 +1,8 @@
 // dvmdostem parameter file
 // Plant structure and dimensions
 // Max 10 PFTs
+// PFT names should be CamelCase and must not have a period in them!
+//
 //===========================================================
 // CMT00 // BARE GROUND OPEN WATER SNOW AND ICE
 //PFT0      PFT1        PFT2         PFT3         PFT4         PFT5         PFT6         PFT7         PFT8         PFT9         // names: comments                  
@@ -46,7 +48,7 @@
 1.0         0.0         0.0          0.7          0.8          0.5          1.5          2.1          1.1          0            // envlai[11]: monthly LAI for a year, used for static input of LAI
 //===========================================================
 // CMT01 // Black Spruce Forest
-//PFT0      PFT1        PFT2         PFT3         PFT4         PFT5         PFT6         PFT7         PFT8         PFT9         // names: comments                  
+//BlackSpr  Decid       DecidShrub   EGreen       Sphag      Feather        Moss         Lichen       Forbs        Sedge        // pftnames:
 1.00        1.00        1.00         1.00         1.00         1.00         1.00         1.00         1.00         0.           // vegfrac: vegetation coverage on land - 0 indicates that PFT does't exist
 1           1           1            1            0            0            0            0            0            0            // ifwoody: woody plants (1) or not (0)
 0           0           1            0            0            0            0            0            0            0            // ifdeciwoody: deciduous woodland (1) or not (0)
