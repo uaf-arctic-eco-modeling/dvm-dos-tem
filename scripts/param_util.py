@@ -474,7 +474,7 @@ def enforce_initvegc_split(aFile, cmtnum):
   set in initvegc variables in a cmt_bgcvegetation.txt file.
 
   The initvegc(leaf, wood, root) variables in cmt_bgcvegetation.txt are the
-  measured values from literature. The cpar(leaf, wood, root) variables, which 
+  measured values from literature. The cpart(leaf, wood, root) variables, which 
   are in the same file, should be set to the fractional make up of the the
   components. So if the initvegc values for l, w, r are 100, 200, 300, then the 
   cpart values should be 0.166, 0.33, and 0.5. It is very easy for these values
@@ -538,7 +538,10 @@ if __name__ == '__main__':
       help=textwrap.dedent('''??'''))
 
   parser.add_argument('--enforce-initvegc', nargs=2, metavar=('FILE', 'CMT'),
-      help=textwrap.dedent('''??'''))
+      help=textwrap.dedent('''Reads data from cmt_bgcvegetation.txt file for
+        the specified community and adjusts the cpart compartment parmeters so 
+        as to match the proportions of the initvegc compartment parameters.
+        Re-formats the block of data and prints to stdout.'''))
 
   parser.add_argument('--dump-block-to-json', nargs=2, metavar=('FILE', 'CMT'),
       help=textwrap.dedent('''Extract the specific CMT data block from the
