@@ -543,6 +543,11 @@ if __name__ == '__main__':
       help=textwrap.dedent('''Prints the CMT number and name for each file.
         Prints na/ if the CMT does not exist in the file!'''))
 
+  parser.add_argument('--report-all-cmts', nargs=1, metavar=('FOLDER'),
+      help=textwrap.dedent('''Prints out a table with all the CMT names found
+        in each file found in the %(metavar)s. Only looks at files named like:
+        'cmt_*.txt' in the %(metavar)s.'''))
+
   args = parser.parse_args()
 
   required_param_files = [
@@ -575,6 +580,22 @@ if __name__ == '__main__':
           print "{:>45s}: {}".format(f2, (db[1]).strip())
         else:
           pass #print "{} is not a pft file!".format(f)
+    sys.exit(0)
+
+  if args.report_all_cmts:
+
+    infolder = args.report_all_cmts[0]
+
+    all_files = glob.glob(os.path.join(args.report_all_cmts[0], 'cmt_*.txt'))
+
+    for f in all_files:
+      cmts = get_CMTs_in_file(f)
+      print f
+      print "{:>7} {:>5}   {:<50s} {}".format('key', 'num', 'name', 'comment')
+      for c in cmts:
+        print "{:>7} {:>5d}   {:50s} {}".format(c['cmtkey'], c['cmtnum'], c['cmtname'], c['cmtcomment'])
+      print ""
+
     sys.exit(0)
 
   if args.report_cmt_names:
