@@ -47,7 +47,7 @@
 1.1         0.0         0.0          0.8          0.5          1.0          1.5          1.9          0.0          0            // envlai[10]: monthly LAI for a year, used for static input of LAI 
 1.0         0.0         0.0          0.7          0.8          0.5          1.5          2.1          1.1          0            // envlai[11]: monthly LAI for a year, used for static input of LAI
 //===========================================================
-// CMT01 // Black Spruce Forest
+// CMT01 // Black Spruce Forest //###THESE ARE JUNK VALUES!!!###
 //BlackSpr  Decid       DecidShrub   EGreen       Sphag      Feather        Moss         Lichen       Forbs        Sedge        // pftnames:
 1.00        1.00        1.00         1.00         1.00         1.00         1.00         1.00         1.00         0.           // vegfrac: vegetation coverage on land - 0 indicates that PFT does't exist
 1           1           1            1            0            0            0            0            0            0            // ifwoody: woody plants (1) or not (0)

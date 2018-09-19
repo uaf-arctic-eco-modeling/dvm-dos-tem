@@ -21,7 +21,7 @@
 363               // initsoln:
 0.76              // initavln:
 //===========================================================
-// CMT01 // Black Spruce Forest
+// CMT01 // Black Spruce Forest // ###THESE ARE JUNK VALUES!!!###
 2.0               // rhq10:
 0.0               // moistmin:
 0.5               // moistopt:

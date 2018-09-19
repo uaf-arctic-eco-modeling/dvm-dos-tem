@@ -21,7 +21,7 @@
 0.04025            // coefminea:
 0.0532             // coefmineb:
 //===========================================================
-// CMT01 // Black Spruce Forest
+// CMT01 // Black Spruce Forest // ### THESE ARE JUNK VALUES!!! ###
 // Snow characteristics
 350                // snwdenmax:  max. snow density (kg/m3)
 120                // snwdennew:  new (min.) snow density (kg/m3)

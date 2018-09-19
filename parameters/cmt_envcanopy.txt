@@ -19,7 +19,7 @@
 0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegwater: initial intercepted rain water in canopy
 0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegsnow: initial intercepted snow water in canopy
 //===========================================================
-// CMT01 // Black Spruce Forest
+// CMT01 // Black Spruce Forest // ###THESE ARE JUNK VALUES!!!###
 //BlackSpr  Decid       DecidShrub   EGreen       Sphag        Feather      Moss         Lichen       Forbs        Sedge            // pftnames:
 0.10        0.10        0.10         0.10         0.10         0.10         0.10         0.10         0.10         0.10             // albvisnir: canopy albedo
 0.5         0.5         0.5          0.5          0.5          0.5          0.5          0.5          0.5          0.5              // er: light extinction coefficient
