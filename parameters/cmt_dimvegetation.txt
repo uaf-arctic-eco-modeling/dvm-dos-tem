@@ -435,7 +435,7 @@
 0.0          0.8          0.7          1.1          2.1          1.1          0.0          0.0          0.0          0.0          // envlai[11]:
 //===========================================================
 // CMT21 // EML Tussock Tundra
-//Betnan     Carex        Ericoid      Erivag       Feather     Lichen       OtherMoss    Rubcha      Sphagnum       Misc.           // names: comments
+//Betnan     Carex        Ericoid      Erivag       Feather     Lichen       OtherMoss    Rubcha      Sphagnum       PFT9         // pftnames:
 0.01         0.01         0.01         0.01         0.01         0.01         0.01        0.01         0.01          0            // vegfrac: vegetation coverage on land - 0 indicates that PFT does't exist
 1            0            1            0            0            0            0            1            0            0            // ifwoody: woody plants (1) or not (0)
 1            0            0            0            0            0            0            0            0            0            // ifdeciwoody: deciduous woodland (1) or not (0)

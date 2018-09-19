@@ -155,7 +155,7 @@
 0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegsnow: initial intercepted snow water in canopy
 //===========================================================
 // CMT21 // EML Tussock Tundra
-//Betnan    Carex       Ericoid      Erivag       Feather      Lichen       OtherMoss    Rubcha       Sphagnum     Misc.            // names: comments
+//Betnan    Carex       Ericoid      Erivag       Feather      Lichen       OtherMoss    Rubcha       Sphagnum     PFT9             // pftnames:
 0.10        0.10        0.10         0.10         0.10         0.10         0.10         0.10         0.10         0.10             // albvisnir: canopy albedo
 0.5         0.5         0.5          0.5          0.5          0.5          0.5          0.5          0.5          0.5              // er: light extinction coefficient
 0.041       0.041       0.041        0.041        0.041        0.041        0.041        0.041        0.041        0.041            // ircoef: rainfall interception 

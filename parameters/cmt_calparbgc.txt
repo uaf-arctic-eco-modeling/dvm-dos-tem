@@ -224,7 +224,7 @@
 0.00025    // kdcsomcr:
 //===========================================================
 // CMT21 // EML Tussock Tundra
-//Betnan   Carex       Ericoid    Erivag       Feather   Lichen     OtherMoss  Rubcha     Sphagnum    Misc.    // names: comments
+//Betnan   Carex       Ericoid    Erivag       Feather   Lichen     OtherMoss  Rubcha     Sphagnum    PFT9     // pftnames:
 180.00    680.00     1320.00    1505.00        0.81     103.0      928.0      345.0       21.0        0.0      // cmax:
  7.20      15.00       28.20      40.00        0.50       3.00      10.0        5.0        2.5        0.0      // nmax:
  0.25       0.37        0.0500     0.0010      0.017      0.020      0.040      0.52       0.009      0.0      // cfall(0): leaf
