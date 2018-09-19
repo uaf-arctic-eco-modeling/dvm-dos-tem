@@ -1,5 +1,8 @@
+// dvmdostem parameter file
+// Fire disturbance parameters
+// Max of 10 PFTs over 1 soil column
 //===========================================================
-// CMT00 // Default TEM Community - fire disturbance parameters
+// CMT00 // BARE GROUND OPEN WATER SNOW AND ICE
 //PFT0      PFT1        PFT2         PFT3         PFT4         PFT5         PFT6         PFT7         PFT8         PFT9      // names: comments                  
 0.00         0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvcomb[5][10]: fraction of each PFT vegetation combusted for 5 severities
 0.15         0.15        0.15        0.15         0.80         0.80         0.80         1.00         1.00         0.00      // 
@@ -12,7 +15,7 @@
 0.64         0.64        0.64        0.64         0.00         0.00         0.00         0.00         0.00         0.00      // 
 0.64         0.64        0.64        0.64         0.00         0.00         0.00         0.00         0.00         0.00      // 
 // ground
-0.00                                                   // foslburn[5]:  fraction of OS layer burned for each of 5 fire severity classes                                                                                           
+0.00                                                   // foslburn[5]:  fraction of OS layer burned for each of 5 fire severity classes
 0.48
 0.54
 0.69
@@ -22,7 +25,7 @@
 0.10                                                   // r_retain_c: ratio of burning residue C (retained into soil) 
 0.10                                                   // r_retain_n: ratio of burning residue N (retained into soil)
 //===========================================================
-// CMT01 // CMT1 TEM Community - fire disturbance parameters
+// CMT01 // Black Spruce Forest
 //PFT0      PFT1        PFT2         PFT3         PFT4         PFT5         PFT6         PFT7         PFT8         PFT9      // names: comments                  
 0.00         0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvcomb[5][10]: fraction of each PFT vegetation combusted for 5 severities
 0.15         0.15        0.15        0.15         0.80         0.80         0.80         1.00         1.00         0.00      // 
@@ -35,7 +38,7 @@
 0.64         0.64        0.64        0.64         0.00         0.00         0.00         0.00         0.00         0.00      // 
 0.64         0.64        0.64        0.64         0.00         0.00         0.00         0.00         0.00         0.00      // 
 // ground
-0.00                                                   // foslburn[5]:  fraction of OS layer burned for each of 5 fire severity classes                                                                                           
+0.00                                                   // foslburn[5]:  fraction of OS layer burned for each of 5 fire severity classes
 0.48
 0.54
 0.69
@@ -45,7 +48,7 @@
 0.10                                                   // r_retain_c: ratio of burning residue C (retained into soil) 
 0.10                                                   // r_retain_n: ratio of burning residue N (retained into soil)
 //===========================================================
-// CMT02 // CMT2 TEM Community - fire disturbance parameters
+// CMT02 // White Spruce Forest
 //PFT0      PFT1        PFT2         PFT3         PFT4         PFT5         PFT6         PFT7         PFT8         PFT9      // names: comments                  
 0.00         0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvcomb[5][10]: fraction of each PFT vegetation combusted for 5 severities
 0.15         0.15        0.15        0.15         0.80         0.80         0.80         1.00         1.00         0.00      // 
@@ -58,7 +61,7 @@
 0.64         0.64        0.64        0.64         0.00         0.00         0.00         0.00         0.00         0.00      // 
 0.64         0.64        0.64        0.64         0.00         0.00         0.00         0.00         0.00         0.00      // 
 // ground
-0.00                                                   // foslburn[5]:  fraction of OS layer burned for each of 5 fire severity classes                                                                                           
+0.00                                                   // foslburn[5]:  fraction of OS layer burned for each of 5 fire severity classes
 0.48
 0.54
 0.69
@@ -68,7 +71,7 @@
 0.10                                                   // r_retain_c: ratio of burning residue C (retained into soil) 
 0.10                                                   // r_retain_n: ratio of burning residue N (retained into soil)
 //===========================================================
-// CMT03 // CMT3 TEM Community - fire disturbance parameters
+// CMT03 // Boreal Deciduous Forest
 //PFT0      PFT1        PFT2         PFT3         PFT4         PFT5         PFT6         PFT7         PFT8         PFT9      // names: comments                  
 0.00         0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvcomb[5][10]: fraction of each PFT vegetation combusted for 5 severities
 0.15         0.15        0.15        0.15         0.80         0.80         0.80         1.00         1.00         0.00      // 
@@ -81,7 +84,7 @@
 0.64         0.64        0.64        0.64         0.00         0.00         0.00         0.00         0.00         0.00      // 
 0.64         0.64        0.64        0.64         0.00         0.00         0.00         0.00         0.00         0.00      // 
 // ground
-0.00                                                   // foslburn[5]:  fraction of OS layer burned for each of 5 fire severity classes                                                                                           
+0.00                                                   // foslburn[5]:  fraction of OS layer burned for each of 5 fire severity classes
 0.48
 0.54
 0.69
@@ -91,7 +94,7 @@
 0.10                                                   // r_retain_c: ratio of burning residue C (retained into soil) 
 0.10                                                   // r_retain_n: ratio of burning residue N (retained into soil)
 //===========================================================
-// CMT04 // Shrub Tundra - fire disturbance parameters
+// CMT04 // Shrub Tundra
 //Salix     Betula      Decid.       E.green      Sedges       Forbs        Grasses      Lichens      Feather      Misc1.       // names: comments
 0.00         0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvcomb[5][10]: fraction of each PFT vegetation combusted for 5 severities
 0.15         0.15        0.15        0.15         0.80         0.80         0.80         1.00         1.00         0.00      // 
@@ -104,7 +107,7 @@
 0.64         0.64        0.64        0.64         0.00         0.00         0.00         0.00         0.00         0.00      // 
 0.64         0.64        0.64        0.64         0.00         0.00         0.00         0.00         0.00         0.00      // 
 // ground
-0.00                                                   // foslburn[5]:  fraction of OS layer burned for each of 5 fire severity classes                                                                                           
+0.00                                                   // foslburn[5]:  fraction of OS layer burned for each of 5 fire severity classes
 0.48
 0.54
 0.69
@@ -114,7 +117,7 @@
 0.10                                                   // r_retain_c: ratio of burning residue C (retained into soil) 
 0.10                                                   // r_retain_n: ratio of burning residue N (retained into soil)
 //===========================================================
-// CMT05 // Tussock Tundra - fire disturbance parameters
+// CMT05 // Tussock Tundra
 //Betula     Decid.      E.green     Sedges       Forbs        Lichens      Feather.     Sphag.       Misc1.       Misc2.    // names: comments                  
 0.00         0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvcomb[5][10]: fraction of each PFT vegetation combusted for 5 severities
 0.15         0.15        0.15        0.15         0.15         0.70         0.70         0.80         0.00         0.00      // 
@@ -127,7 +130,7 @@
 0.64         0.64        0.64        0.64         0.64         0.00         0.00         0.00         0.00         0.00      // 
 0.64         0.64        0.64        0.64         0.64         0.00         0.00         0.00         0.00         0.00      // 
 // ground
-0.00                                                   // foslburn[5]:  fraction of OS layer burned for each of 5 fire severity classes                                                                                           
+0.00                                                   // foslburn[5]:  fraction of OS layer burned for each of 5 fire severity classes
 0.1
 0.3
 0.5
@@ -137,7 +140,7 @@
 0.10                                                   // r_retain_c: ratio of burning residue C (retained into soil) 
 0.10                                                   // r_retain_n: ratio of burning residue N (retained into soil)
 //===========================================================
-// CMT06 // Wet Sedge Tundra - fire disturbance parameters
+// CMT06 // Wet Sedge Tundra
 //Decid.     Sedges       Grasses    Forbs        Lichens      Feather      Sphag.       PFT7         PFT8         PFT9      // names: comments                  
 0.00         0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvcomb[5][10]: fraction of each PFT vegetation combusted for 5 severities
 0.15         0.15        0.15        0.15         0.15         0.70         0.70         0.80         1.00         0.00      // 
@@ -150,7 +153,7 @@
 0.64         0.64        0.64        0.64         0.64         0.00         0.00         0.00         0.00         0.00      // 
 0.64         0.64        0.64        0.64         0.64         0.00         0.00         0.00         0.00         0.00      // 
 // ground
-0.00                                                   // foslburn[5]:  fraction of OS layer burned for each of 5 fire severity classes                                                                                           
+0.00                                                   // foslburn[5]:  fraction of OS layer burned for each of 5 fire severity classes
 0.48
 0.54
 0.69
@@ -160,7 +163,7 @@
 0.10                                                   // r_retain_c: ratio of burning residue C (retained into soil) 
 0.10                                                   // r_retain_n: ratio of burning residue N (retained into soil)
 //===========================================================
-// CMT07 // Heath Tundra - fire disturbance parameters
+// CMT07 // Heath Tundra
 //Decid.     E.green     Forbs       Lichens      Grasses      Moss         Misc.        Misc.        Misc.        Misc.     // names: comments
 0.00         0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvcomb[5][10]: fraction of each PFT vegetation combusted for 5 severities
 0.15         0.15        0.15        0.15         0.15         0.70         0.70         0.80         1.00         0.00      // 
@@ -183,7 +186,7 @@
 0.10                                                   // r_retain_c: ratio of burning residue C (retained into soil) 
 0.10                                                   // r_retain_n: ratio of burning residue N (retained into soil)
 //===========================================================
-// CMT12 // Lowland Boreal Wet Shrubland - fire disturbance parameters
+// CMT12 // Lowland Boreal Wet Shrubland
 //DecShrub   EvrShrub     DecTree      EvrTree      Forbs        Gram         Feather      Lichen       Equisetum    Misc.     // names: comments 
 0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvcomb[5][10]: fraction of each PFT vegetation combusted for 5 severities
 0.15         0.15         0.15         0.15         0.15         0.70         0.70         0.80         1.00         0.00      // 
@@ -206,7 +209,7 @@
 0.10                                                   // r_retain_c: ratio of burning residue C (retained into soil) 
 0.10                                                   // r_retain_n: ratio of burning residue N (retained into soil)
 //===========================================================
-// CMT20 // EML Shrub Tundra - 
+// CMT20 // EML Shrub Tundra
 //Betnan     Carex       Ericoid      Feather     Lichen       OthMoss      Rubcha       Misc1        Misc2        Misc3     // names: comments
 0.00         0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvcomb[5][10]: fraction of each PFT vegetation combusted for 5 severities
 0.15         0.15        0.15        0.15         0.15         0.70         0.70         0.80         1.00         0.00      // 
@@ -229,7 +232,7 @@
 0.10                                                   // r_retain_c: ratio of burning residue C (retained into soil) 
 0.10                                                   // r_retain_n: ratio of burning residue N (retained into soil)
 //===========================================================
-// CMT21 // EML Tussock Tundra -
+// CMT21 // EML Tussock Tundra
 //Betnan     Carex       Ericoid     Erivag       Feather     Lichen      OtherMoss    Rubcha     Sphagnum        Misc.      // names: comments
 0.00         0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvcomb[5][10]: fraction of each PFT vegetation combusted for 5 severities
 0.15         0.15        0.15        0.15         0.15         0.70         0.70         0.80         1.00         0.00      // 
@@ -242,7 +245,7 @@
 0.64         0.64        0.64        0.64         0.64         0.00         0.00         0.00         0.00         0.00      // 
 0.64         0.64        0.64        0.64         0.64         0.00         0.00         0.00         0.00         0.00      // 
 // ground
-0.00                                                   // foslburn[5]:  fraction of OS layer burned for each of 5 fire severity classes                                                                                           
+0.00                                                   // foslburn[5]:  fraction of OS layer burned for each of 5 fire severity classes
 0.48
 0.54
 0.69
