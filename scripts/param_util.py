@@ -175,27 +175,53 @@ def detect_block_with_pft_info(cmtdatablock):
     return False
 
 
-def parse_header_line(datablock):
+def parse_header_line(linedata):
   '''Splits a header line into components: cmtkey, text name, comment.
 
   Assumes a CMT block header line looks like this:
   // CMT07 // Heath Tundra - (ma.....
 
+  or like this:
+  // CMT07 // Heath Tundra // some other comment...
+
+  Parameters
+  ----------
+  data : string
+    Assumed to be valid header line of a CMT datablock. 
+
+  Returns
+  -------
+  A tuple containing the (cmtkey, cmtname, cmtcomment)
   '''
 
-  # Assume header is first line
-  l0 = datablock[0]
+  header_components = filter(None, linedata.strip().split('//'))
+  clean_header_components = [i.strip() for i in header_components]
 
-  # Header line, e.g: 
-  header = l0.strip().strip("//").strip().split("//")
+  if len(clean_header_components) < 2:
+    print "ERROR! Could not find CMT name in ", clean_header_components
+    sys.exit(-1)
 
-  hdr_cmtkey = header[0].strip()
-  txtcmtname = header[1].strip().split('-')[0].strip()
-  if len(header[1].strip().split('-')) > 1:
-    hdrcomment = header[1].strip().split('-')[1].strip()
-  else:
-    hdrcomment = ''
-  return hdr_cmtkey, txtcmtname, hdrcomment
+  cmtkey = clean_header_components[0]
+
+  if len(clean_header_components) == 2:
+
+    # Check for old style comment (using - after name)
+    if len(clean_header_components[1].split('-')) > 1:
+      cmtname = clean_header_components[1].split('-')[0].strip()
+      cmtcomment = '-'.join(clean_header_components[1].split('-')[1:])
+
+    # No old comment provided
+    else:
+      cmtname = clean_header_components[1]
+      cmtcomment = ''
+
+  # There must be a comment following the name using // as a delimiter
+  if len(clean_header_components) > 2:
+    cmtname = clean_header_components[1]
+    cmtcomment = ' '.join(clean_header_components[2:])
+
+  return cmtkey, cmtname, cmtcomment
+
 
 def get_pft_verbose_name(cmtkey=None, pftkey=None, cmtnum=None, pftnum=None):
   path2params = os.path.join(os.path.split(os.path.dirname(os.path.realpath(__file__)))[0], 'parameters/')
@@ -238,7 +264,7 @@ def cmtdatablock2dict(cmtdatablock):
 
   pftblock = detect_block_with_pft_info(cmtdatablock)
 
-  hdr_cmtkey, txtcmtname, hdrcomment = parse_header_line(cmtdatablock)
+  hdr_cmtkey, txtcmtname, hdrcomment = parse_header_line(cmtdatablock[0])
   cmtdict['tag'] = hdr_cmtkey
   cmtdict['cmtname'] = txtcmtname
   cmtdict['comment'] = hdrcomment
@@ -312,7 +338,7 @@ def format_CMTdatadict(dd, refFile, format=None):
   ll = []
 
   # Work on formatting the first comment line
-  cmt, name, comment = parse_header_line(get_CMT_datablock(refFile, dd['tag']))
+  cmt, name, comment = parse_header_line(get_CMT_datablock(refFile, dd['tag'])[0])
   ll.append("// " + " // ".join((cmt, name, comment)))
 
   # Now work on formatting the second comment line, which may not exist, or
