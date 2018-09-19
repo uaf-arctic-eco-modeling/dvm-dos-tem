@@ -349,7 +349,7 @@
 1.0         0.0         0.0          0.7          0.8          0.5          0.00         0.00         0.00         0.00         // envlai[11]: monthly LAI for a year, used for static input of LAI
 //===========================================================
 // CMT12 // Lowland Boreal Wet Shrubland
-//DecShrub   EvrShrub     DecTree      EvrTree      Forbs        Gram         Feather      Lichen       Equisetum    Misc.        // names: comments 
+//DecShrub   EvrShrub     DecTree      EvrTree      Forbs        Gram        Feather      Lichen      Equisetum      PFT9         // pftnames:
 1.00         1.00         1.00         1.00         1.00         1.00         1.00         1.00         1.00         0            // vegfrac: vegetation coverage on land - 0 indicates that PFT does't exist
 1            1            1            1            0            0            0            0            0            0            // ifwoody: woody plants (1) or not (0)
 1            0            1            0            0            0            0            0            0            0            // ifdeciwoody: deciduous woodland (1) or not (0)

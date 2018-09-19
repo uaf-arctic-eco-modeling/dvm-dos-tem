@@ -293,7 +293,7 @@
 0.0          0.0          0.0          0.0          0.0          0.0        0.0          0.0          0.0          0.0            // initdeadn:
 //===========================================================
 // CMT12 // Lowland Boreal Wet Shrubland 
-//DecShrub   EvrShrub     DecTree     EvrTree       Forbs        Gram         Feather      Lichen       Equisetum    Misc.        // names: comments 
+//DecShrub   EvrShrub     DecTree      EvrTree      Forbs        Gram         Feather      Lichen       Equisetum    PFT9         // pftnames:
 400.0        400.0        400.0        400.0        400.0        400.0        400.0        400.0        400.0        0.0          // kc:
 75           75           75           75           75           75           75           75           75           0.0          // ki:
 -8.0         -8.0        -8.0         -8.0         -8.0         -8.0         -8.0         -8.0         -8.0          0.0          // tmin:
