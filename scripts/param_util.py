@@ -6,11 +6,35 @@
 import os
 import json
 import re
+import glob
+
+def error_exit(fname, msg, linenumber=None):
+  '''
+  Prints and error message and exits.
+
+  Parameters
+  ----------
+  fname : string, required
+    The path to the offending file.
+
+  msg : string, required
+    A message or note to tbe printed.
+
+  linenumber : int, optional
+    The problematic line in the offending file.
+  '''
+  print "ERROR! {} file: {}:{}".format(msg, fname, linenumber)
+  sys.exit(-1)
 
 
 def get_CMTs_in_file(aFile):
   '''
   Gets a list of the CMTs found in a file.
+
+  Looks at all lines in the file and considers any commented line with the 
+  'CMT' as the first non-whitespace charachters after the initial comment
+  symbol to be a CMT definition line. Parses this line and sets the following
+  keys in a dict: cmtkey, cmtnum, cmtname, cmtcomments
 
   Parameters
   ----------
@@ -19,17 +43,38 @@ def get_CMTs_in_file(aFile):
 
   Returns
   -------
-  A list of CMTs found in a file.
+  A list of dicts with info about the CMTs found in a file.
   '''
   data = read_paramfile(aFile)
 
-  cmtkey_list = []
-  for line in data:
-    if line.find('CMT') >= 0:
-        sidx = line.find('CMT')
-        cmtkey_list.append(line[sidx:sidx+5])
+  cmt_list = []
+  for i, line in enumerate(data):
+    # Looks for CMT at the beginning of a comment line.
+    # Will match:
+    # "// CMT06 ....", "  //   CMT06"
+    # but not
+    # '// some other text CMT06 '
+    line = line.strip().lstrip('//').strip()
+    if line.find('CMT') == 0:
+      components = line.split('//')
+      clean_components = [c.strip() for c in components]
+      clean_components = filter(None, clean_components) # Get rid of empty strings
 
-  return cmtkey_list
+      if len(clean_components) < 2:
+        error_exit(aFile, "Invalid CMT specification! Must have cmtkey AND name!", linenumber=i+1)
+
+      cmtkey = clean_components[0]
+      cmtnum = int(cmtkey[3:])
+      cmtname = clean_components[1]
+      cmtcomments = ' // '.join(clean_components[2:])
+      cmtdict = dict(cmtkey=cmtkey, cmtnum=cmtnum, cmtname=cmtname, cmtcomment=cmtcomments)
+      cmt_list.append(cmtdict)
+    elif line.find('CMT') > 0:
+      # Must be a comment line, and not the start of a valid CMT data block.
+      pass
+
+  return cmt_list
+
 
 def find_cmt_start_idx(data, cmtkey):
   '''
@@ -521,7 +566,8 @@ if __name__ == '__main__':
       f2 = os.path.join(infolder, f)
 
       cmts_in_file = get_CMTs_in_file(f2)
-      if cmtnum not in [int(i.strip().lstrip('CMT')) for i in cmts_in_file]:
+      cmt_numbers = [cmt['cmtnum'] for cmt in cmts_in_file]
+      if cmtnum not in cmt_numbers:
         print "{:>45s} {}".format(f2, "n/a")
       else:
         db = get_CMT_datablock(f2, cmtnum)
@@ -541,7 +587,8 @@ if __name__ == '__main__':
       f2 = os.path.join(infolder, f)
 
       cmts_in_file = get_CMTs_in_file(f2)
-      if cmtnum not in [int(i.strip().lstrip('CMT')) for i in cmts_in_file]:
+      cmt_numbers = [cmt['cmtnum'] for cmt in cmts_in_file]
+      if cmtnum not in cmt_numbers:
         print "{0:>45s} {1:>8s}   {1}".format(f2, "n/a")
 
       else:
