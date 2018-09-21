@@ -39,20 +39,6 @@ def modified_attribute_string(msg=''):
 
   return s
 
-def plot_mask_count_along_timeseries(dataset):
-  img = plt.imshow(
-        np.ma.masked_greater_equal(
-            np.apply_along_axis(np.count_nonzero, 0, dataset.mask),
-            len(dataset)),
-        interpolation='none',
-        vmin=0,
-        vmax=len(dataset))
-
-  plt.colorbar(img)
-
-  plt.tight_layout()
-  plt.show()
-
 def print_mask_count_along_timeseries(dataset):
   print "Masked items: {}".format(np.ma.count_masked(dataset))
   print "----------------"
@@ -77,13 +63,7 @@ def gapfill_along_timeseries(data, plot=False):
   '''
   datam = np.ma.MaskedArray(data)
 
-  #datam = np.ma.MaskedArray(pc.variables['precip'][:])
-
   print_mask_count_along_timeseries(datam)
-
-  #fig, (ax0, ax1, ax2) = plt.subplots(1,3)
-
-  #plot_mask_count_along_timeseries(datam)
 
   coords_to_process = zip(*np.nonzero(np.invert(np.ma.getmaskarray(datam[0]))))
 
@@ -100,7 +80,7 @@ def gapfill_along_timeseries(data, plot=False):
 
     for j, bp in enumerate(bad_points):
       tidx = bp[0]
-      print "datam[{},{},{}] is {} ({})".format(tidx, yc, xc, datam[tidx, yc, xc], datam[tidx, yc, xc].data)
+      #print "datam[{},{},{}] is {} ({})".format(tidx, yc, xc, datam[tidx, yc, xc], datam[tidx, yc, xc].data)
 
       # Don't bother with the ends of the timeseries
       if tidx >= 0 and tidx < len(timeseries):
@@ -156,7 +136,7 @@ if __name__ == '__main__':
 
 
 
-for climate_file in CLIMATE_FILES:
+  for climate_file in CLIMATE_FILES:
 
     file_path = os.path.join(args.input_folder, climate_file)
 
@@ -164,11 +144,11 @@ for climate_file in CLIMATE_FILES:
 
       for v in VARS:
 
-        print "Generating fill data"
+        print "Generating fill data for {}".format(file_path)
         filled = gapfill_along_timeseries(myFile.variables[v][:])
 
-        print myFile.source
-        print myFile.ncattrs()
+        print "Source: {}".format(myFile.source)
+        print "ncattrs: {}".format(myFile.ncattrs())
 
         if not (args.dry_run):
           print "Overwriting file...."
@@ -177,9 +157,6 @@ for climate_file in CLIMATE_FILES:
           myFile.variables[v].setncattr('modified', modified_attribute_string("Basic single point interpolation"))
 
 
-
-
-#from IPython import embed; embed()
 
 
 
