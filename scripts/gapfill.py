@@ -10,7 +10,6 @@ import textwrap
 
 import netCDF4 as nc
 import numpy as np
-import matplotlib.pyplot as plt
 
 
 def modified_attribute_string(msg=''):
@@ -39,21 +38,21 @@ def modified_attribute_string(msg=''):
 
   return s
 
-def print_mask_count_along_timeseries(dataset):
+def print_mask_count_along_timeseries(dataset, title='', nonewline=False):
+  '''Counts masked items along a sime axis and prints value for each pixel.'''
+  pass
   print "Masked items: {}".format(np.ma.count_masked(dataset))
-  print "----------------"
-  print np.apply_along_axis(np.count_nonzero, 0, np.ma.getmaskarray(dataset))
+  print "-- {} --".format(title)
+  print "{}".format(np.apply_along_axis(np.count_nonzero, 0, np.ma.getmaskarray(dataset)))
+  print ""
 
-def gapfill_along_timeseries(data, plot=False):
+def gapfill_along_timeseries(data, dataTag):
   '''
   Parameters
   ----------
   data : a 3D numpy array of data with dimensions (time, y, x)
     Will be converted to a masked array, and then have values modifed by
     the interpolation scheme.
-  plot : bool
-    Whether or not to generate images using matplotlib showing which pixels
-    get masked
 
   Returns
   -------
@@ -63,7 +62,7 @@ def gapfill_along_timeseries(data, plot=False):
   '''
   datam = np.ma.MaskedArray(data)
 
-  print_mask_count_along_timeseries(datam)
+  print_mask_count_along_timeseries(datam, title='{} (before)'.format(dataTag))
 
   coords_to_process = zip(*np.nonzero(np.invert(np.ma.getmaskarray(datam[0]))))
 
@@ -92,7 +91,7 @@ def gapfill_along_timeseries(data, plot=False):
       else:
         print "Can't operate on ends of timeseries! Passing..."
 
-  print_mask_count_along_timeseries(datam)
+  print_mask_count_along_timeseries(datam, title='{} (after)'.format(dataTag))
 
   return datam
 
@@ -145,7 +144,7 @@ if __name__ == '__main__':
       for v in VARS:
 
         print "Generating fill data for {}".format(file_path)
-        filled = gapfill_along_timeseries(myFile.variables[v][:])
+        filled = gapfill_along_timeseries(myFile.variables[v][:], dataTag='{}'.format(v))
 
         print "Source: {}".format(myFile.source)
         print "ncattrs: {}".format(myFile.ncattrs())
