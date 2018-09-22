@@ -263,6 +263,7 @@ def climate_ts_plot(args):
   # is usable even w/o matplotlib installed.
   import matplotlib.pyplot as plt
   import matplotlib.gridspec as gridspec
+  import matplotlib.ticker as ticker
 
   CLIMATE_FILES = ['historic-climate.nc', 'projected-climate.nc']
   VARS = ['tair', 'precip', 'nirr', 'vapor_press']
@@ -273,22 +274,61 @@ def climate_ts_plot(args):
 
   gs = gridspec.GridSpec(ROWS, COLS)
 
-  for i, v in enumerate(VARS):
-    ax = plt.subplot(gs[i,0])
-    with nc.Dataset(os.path.join(args.input_folder, CLIMATE_FILES[0])) as hds:
-      ax.plot(hds.variables[v][:,y, x])
-      ax.set_title(v)
-  plt.suptitle(os.path.join(args.input_folder, CLIMATE_FILES[0]))
-  plt.show(block=True)
+  if args.stitch:
 
-  plt.title(CLIMATE_FILES[1])
-  for i, v in enumerate(VARS):
-    ax = plt.subplot(gs[i,0])
-    with nc.Dataset(os.path.join(args.input_folder, CLIMATE_FILES[1])) as hds:
-      ax.plot(hds.variables[v][:,y, x])
+    hds = nc.Dataset(os.path.join(args.input_folder, CLIMATE_FILES[0]))
+    pds = nc.Dataset(os.path.join(args.input_folder, CLIMATE_FILES[1]))
+
+    axes = []
+    for i, v in enumerate(VARS):
+      full_ds = np.concatenate((hds.variables[v][:,y,x], pds.variables[v][:,y,x]), axis=0)
+      if i > 0:
+        ax = plt.subplot(gs[i,0], sharex=axes[0])
+        axes.append(ax)
+      else:
+        ax = plt.subplot(gs[i,0])
+        axes.append(ax)
+      F = 1.0
+      if v == 'nirr':
+        F = -1.0
+      ax.plot(full_ds[:]*F, marker='o')
       ax.set_title(v)
-  plt.suptitle(os.path.join(args.input_folder, CLIMATE_FILES[1]))
-  plt.show(block=True)
+
+    # Modify all axes to add annual grid...
+    try:
+      _ = (a for a in axes) # just check that axes is a list.
+      for ax in axes:
+        ax.xaxis.set_major_locator(ticker.MultipleLocator(12))
+        ax.grid()
+    except TypeError:
+      print axes, 'is not iterable; setting grid on single axes instance'
+      axes.xaxis.set_major_locator(ticker.MultipleLocator(12))
+      axes.grid()
+
+
+    plt.suptitle("{}: {},{}".format(args.input_folder, CLIMATE_FILES[0], CLIMATE_FILES[1]))
+    plt.show(block=True)
+
+    hds.close()
+    pds.close()
+
+  else:
+    for i, v in enumerate(VARS):
+      ax = plt.subplot(gs[i,0])
+      with nc.Dataset(os.path.join(args.input_folder, CLIMATE_FILES[0])) as hds:
+        ax.plot(hds.variables[v][:,y, x])
+        ax.set_title(v)
+    plt.suptitle(os.path.join(args.input_folder, CLIMATE_FILES[0]))
+    plt.show(block=True)
+
+    plt.title(CLIMATE_FILES[1])
+    for i, v in enumerate(VARS):
+      ax = plt.subplot(gs[i,0])
+      with nc.Dataset(os.path.join(args.input_folder, CLIMATE_FILES[1])) as hds:
+        ax.plot(hds.variables[v][:,y, x])
+        ax.set_title(v)
+    plt.suptitle(os.path.join(args.input_folder, CLIMATE_FILES[1]))
+    plt.show(block=True)
 
 
 
@@ -374,6 +414,7 @@ if __name__ == '__main__':
     '''))
   climate_ts_plot_parser.add_argument('--yx', type=int, nargs=2, required=True, help="The Y, X position of the pixel to plot")
   climate_ts_plot_parser.add_argument('input_folder', help="Path to a folder containing a set of dvmdostem inputs.")
+  climate_ts_plot_parser.add_argument('--stitch', action='store_true', help="Attempt to stitch together the historic and projected data along the time axis")
 
   climate_gap_count_plot_parser = subparsers.add_parser('climate-gap-plot',
     help=textwrap.dedent('''Generates an image plot for each variable in the 
@@ -432,7 +473,7 @@ if __name__ == '__main__':
       print('indices of closest match iy, ix (FROM UPPER left):', len(ncfile.dimensions['y'])-iy, ix)
       print('** NOTE: Use coords FROM UPPER LEFT to build/crop a new dataset with that pixel at the LOWER LEFT corner of the dataset!')
       ncfile.close()
-      #os.remove(TMP_NC_FILE)
+      os.remove(TMP_NC_FILE)
       exit()
 
 
