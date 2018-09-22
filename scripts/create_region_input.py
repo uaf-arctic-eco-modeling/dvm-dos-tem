@@ -17,9 +17,6 @@ import netCDF4
 
 import datetime as dt
 import numpy as np
-import pandas as pd
-
-from osgeo import gdal
 
 import glob
 
@@ -663,23 +660,39 @@ def fill_climate_file(start_yr, yrs, xo, yo, xs, ys,
 
         # Build up a vector of datetime stamps for the first day of each month
         try:
-          periods = f.dimensions['time'].size # only available in netCDF4 >1.2.2
+          num_months = f.dimensions['time'].size # only available in netCDF4 >1.2.2
         except AttributeError as e:
-          periods = len(f.dimensions['time'])
+          num_months = len(f.dimensions['time'])
 
-        month_starts = pd.date_range(
-            dt.datetime(year=start_yr, month=1, day=1),
-            periods=periods,
-            freq="MS" # <- MS is month start
-        )
+        # Gives an array of numpy datetime64 objects, which are monthly resolution
+        assert start_yr+num_months/12 == start_yr+yrs, "Date/time indexing bug!"
+        month_starts = np.arange('{}-01-01'.format(start_yr), '{}-01-01'.format(start_yr+yrs), dtype='datetime64[M]')
 
-        # Set the values for the time coordinate variable, using the
-        # helper function from netCDF4 library to get the proper offsets
-        tcV[:] = netCDF4.date2num(
-            month_starts.to_pydatetime(),
+        print "length of month_starts array: {}".format(len(month_starts))
+
+        # Using .tolist() to convert from numpy.datetime64 objects to python
+        # standard library datetime.datetime objects only works for some 
+        # of the available numpy.datetime units options! See here:
+        # https://stackoverflow.com/questions/46921593#46921593
+        assert month_starts[0].dtype == np.dtype('<M8[M]'), "Invalid type!"
+
+        # Convert to python datetime.date objects
+        month_starts_dateobjs = month_starts.tolist() 
+
+        # Convert to python datetime.datetime objects with time set at 0
+        month_starts_datetimeobjs = [dt.datetime.combine(i, dt.time()) for i in month_starts_dateobjs]
+        print month_starts_datetimeobjs
+        print len(month_starts_datetimeobjs)
+        # Convert to numeric offset using netCDF utility function, the units,
+        # and calendar.
+        tcV_vals = netCDF4.date2num(month_starts_datetimeobjs, 
             units="days since {}-01-01".format(start_yr),
             calendar="365_day"
         )
+
+        # Set the values for the time coordinate variable, using the
+        # values from the helper function that computed the proper offsets
+        tcV[:] = tcV_vals
 
 
 
