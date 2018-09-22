@@ -541,6 +541,10 @@ def fill_climate_file(start_yr, yrs, xo, yo, xs, ys,
   tmpfile = '/tmp/temporary-file-with-spatial-info.nc'
   smaller_tmpfile = '/tmp/smaller-temporary-file-with-spatial-info.nc'
   print "Creating a temporary file with LAT and LON variables: ", tmpfile
+  print "------------------------"
+  print type(sp_ref_file), type(tmpfile)
+  print sp_ref_file, tmpfile
+  print "------------------------"
   check_call([
       'gdal_translate', '-of', 'netCDF', '-co', 'WRITE_LONLAT=YES',
       sp_ref_file,
@@ -557,7 +561,7 @@ def fill_climate_file(start_yr, yrs, xo, yo, xs, ys,
   print "Finished creating the temporary subset...(cropping to our domain)"
 
   print "Copy the LAT/LON variables from the temporary file into our new dataset..."
-  # Open the 'temporary' dataset
+  # Open the temporary dataset
   temp_subset_with_lonlat = netCDF4.Dataset(smaller_tmpfile, mode='r')
 
   # Open the new file for appending
@@ -579,6 +583,7 @@ def fill_climate_file(start_yr, yrs, xo, yo, xs, ys,
   print "Done copying LON/LAT."
 
   print "Closing new dataset and temporary file."
+  print "masterOutFile time dimension size: {}".format(new_climatedataset.dimensions['time'].size)
   new_climatedataset.close()
   temp_subset_with_lonlat.close()
 
@@ -611,6 +616,9 @@ def fill_climate_file(start_yr, yrs, xo, yo, xs, ys,
 
   print "Done with year loop."
 
+  with netCDF4.Dataset(masterOutFile, 'r') as ds:
+    print "===> masterOutFile.dimensions: {}".format(ds.dimensions)
+
   print "Copy data from temporary per-variable files into master"
   for tFile, var in zip(tmpFiles, dataVarList):
     # Need to make a list of variables to exclude from the
@@ -618,7 +626,7 @@ def fill_climate_file(start_yr, yrs, xo, yo, xs, ys,
     masked_list = [i for i in dataVarList if var not in i]
 
     opt_str = "lat,lon," + ",".join(masked_list)
-    check_call(['ncks', '--append', '-x','-v',opt_str, tFile, masterOutFile])
+    check_call(['ncks', '--append', '-x','-v', opt_str, tFile, masterOutFile])
 
     os.remove(tFile)
 
@@ -988,6 +996,9 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
         "{var}_{units}_{origin_institute}_{version}_{starty}_{endy}".format(**a), 
         "{var}_{units}_{origin_institute}_{version}".format(**a))
 
+    print "=============="
+    print in_vapo_base
+    print "=============="
     # Use the the January file for the first year requested as a spatial reference
     sp_ref_file  = os.path.join(tif_dir, 
         "{var}_{units}_{origin_institute}_{version}_{starty}_{endy}".format(**a),
