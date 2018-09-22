@@ -5,6 +5,7 @@
 # Institute of Arctic Biology
 
 import os
+import sys
 import argparse
 import textwrap
 
@@ -131,7 +132,42 @@ if __name__ == '__main__':
   parser.add_argument('--dry-run', action='store_true',
       help=textwrap.dedent('''Read-only - don't overwrite the existing file.'''))
 
+  parser.add_argument('--fix-ar5-rcp85-nirr', action='store_true', help="need to write this...")
+
   args = parser.parse_args()
+
+  if args.fix_ar5_rcp85_nirr:
+    file_path = os.path.join(args.input_folder, 'historic-climate.nc')
+
+    with nc.Dataset(file_path, 'r') as histFile:
+      nirrV = histFile.variables['nirr']
+      nirrD = histFile.variables['nirr'][:]
+
+      from IPython import embed; embed()
+
+      T, Y, X = nirrD.shape
+
+      nirrD_i = nirrD * -1.0
+
+      peaks, _ = np.apply_along_axis(scipy.signal.find_peaks, 0, nirrD_i)
+
+      # Maybe this will work. Should be vectorized if it does...
+      for y in np.arange(0,Y):
+        for x in np.arange(0,X):
+          px_ts = nirrD_i[:,y,x]
+          for peakidx in peaks:
+            print peakidx # this is the coordinate along time axis
+            if peakidx == 0 or peakidx == T-1:
+              pass # Can't operate on ends!!
+            else:
+              peak_data = px_ts[peakidx]
+              prev = px_ts[peakidx-1]
+              next = px_ts[peakidx+1]
+              estimated_value = (prev + next) / 2.0
+              estimated_value = estimated_value * -1.0
+              nirrD[peakidx,y,x] = estimated_value
+
+    sys.exit(0)
 
 
 
