@@ -542,6 +542,11 @@ def fill_climate_file(start_yr, yrs, xo, yo, xs, ys,
   print type(sp_ref_file), type(tmpfile)
   print sp_ref_file, tmpfile
   print "------------------------"
+  if type(sp_ref_file) == tuple:
+    sp_ref_file = sp_ref_file[0]
+  elif type(sp_ref_file) == str:
+    pass # nothing to do...
+
   check_call([
       'gdal_translate', '-of', 'netCDF', '-co', 'WRITE_LONLAT=YES',
       sp_ref_file,
@@ -553,7 +558,7 @@ def fill_climate_file(start_yr, yrs, xo, yo, xs, ys,
   check_call(['gdal_translate', '-of', 'netCDF',
       '-co', 'WRITE_LONLAT=YES',
       '-srcwin', str(xo), str(yo), str(xs), str(ys),
-      tmpfile, smaller_tmpfile
+      'NETCDF:"{}":Band1'.format(tmpfile), smaller_tmpfile
     ])
   print "Finished creating the temporary subset...(cropping to our domain)"
 
@@ -601,7 +606,6 @@ def fill_climate_file(start_yr, yrs, xo, yo, xs, ys,
       basePathList = [in_tair_base, in_prec_base, in_rsds_base, in_vapo_base]
       baseFiles = [basePath + "_{:02d}_{:04d}.tif".format(month, year) for basePath in basePathList]
       tmpFiles = [os.path.join(out_dir, 'TEMP-{}-{}'.format(v, of_name)) for v in dataVarList]
-
       procs = []
       for tiffimage, tmpFileName, vName in zip(baseFiles, tmpFiles , dataVarList):
         proc = mp.Process(target=convert_and_subset, args=(tiffimage, tmpFileName, xo, yo, xs, ys, yridx, midx, vName))
@@ -987,49 +991,73 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
 
   if 'historic-climate' in files:
     of_name = "historic-climate.nc"
-    a = dict(origin_institute="iem_cru", version="TS31", starty=1901, endy=2009)
+
+    a = dict(origin_institute="iem_CRU", version="TS40", starty=1901, endy=2015)
+    #a = dict(origin_institute="iem_cru", version="TS31", starty=1901, endy=2009)
 
     a['var'] = 'tas_mean'; a['units'] = 'C'
+    a['origin_institute'] = 'iem_cru'
+    a['version'] = 'TS40'
     in_tair_base = os.path.join(tif_dir, 
         "{var}_{units}_{origin_institute}_{version}_{starty}_{endy}".format(**a), 
-        "{var}_{units}_{origin_institute}_{version}".format(**a))
+        "{var}_{units}_CRU_{version}_historical".format(**a))
+
 
     a['var'] = 'pr_total'; a['units'] = 'mm'
+    a['origin_institute'] = 'iem_cru'
+    a['version'] = 'TS40'
     in_prec_base = os.path.join(tif_dir, 
         "{var}_{units}_{origin_institute}_{version}_{starty}_{endy}".format(**a), 
-        "{var}_{units}_{origin_institute}_{version}".format(**a))
+        "{var}_{units}_CRU_{version}_historical".format(**a))
+
 
     a['var'] = 'rsds_mean'; a['units'] = 'MJ-m2-d1'
-    in_rsds_base = os.path.join(tif_dir, 
-        "{var}_{units}_{origin_institute}_{version}_{starty}_{endy}".format(**a), 
-        "{var}_{units}_{origin_institute}_{version}".format(**a))
+    a['origin_institute'] = 'CRU'
+    a['version'] = 'TS40'
+    in_rsds_base = os.path.join(tif_dir,
+        "{var}_{units}_{origin_institute}_{version}_historical_{starty}_{endy}".format(**a),
+        "rsds",
+        "{var}_{units}_{origin_institute}_{version}_historical".format(**a))
 
     a['var'] = 'vap_mean'; a['units'] = 'hPa'
+    a['origin_institute'] = 'iem_CRU'
+    a['version'] = 'TS40'
     in_vapo_base = os.path.join(tif_dir, 
-        "{var}_{units}_{origin_institute}_{version}_{starty}_{endy}".format(**a), 
-        "{var}_{units}_{origin_institute}_{version}".format(**a))
+        "{var}_{units}_{origin_institute}_{version}_historical_{starty}_{endy}".format(**a),
+        "vap",
+        "{var}_{units}_CRU_{version}_historical".format(**a))
 
     print "=============="
     print in_vapo_base
     print "=============="
+
     # Use the the January file for the first year requested as a spatial reference
-    sp_ref_file  = os.path.join(tif_dir, 
-        "{var}_{units}_{origin_institute}_{version}_{starty}_{endy}".format(**a),
-        "{var}_{units}_{origin_institute}_{version}_{month:02d}_{starty:04d}.tif".format(month=1, **a))
+    #  sp_ref_file  = os.path.join(tif_dir, 
+    #      "{var}_{units}_{origin_institute}_{version}_{starty}_{endy}".format(**a),
+    #      "{var}_{units}_{origin_institute}_{version}_{month:02d}_{starty:04d}.tif".format(month=1, **a))
+    sp_ref_file  = "{}_{month:02d}_{starty:04d}.tif".format(in_tair_base, month=1, **a),
 
 
     # Calculates number of years for running all. Values are different
     # for historic versus projected.
     hc_years = 0
     if years == -1:
-      filecount = len(glob.glob(os.path.join(tif_dir, "{var}_{units}_{origin_institute}_{version}_{starty}_{endy}/*.tif".format(**a))))
+      a['var'] = 'tas_mean'; a['units'] = 'C'
+      a['origin_institute'] = 'iem_cru'
+      a['version'] = 'TS40'
+      filecount = len(glob.glob(os.path.join(tif_dir, "{var}_{units}_{origin_institute}_{version}_{starty}_{endy}".format(**a), "*.tif".format(**a))))
+
       print "Found %s files..." % filecount
       hc_years = (filecount/12) - start_year
     else:
       hc_years = years
 
+    #print "filecount: {}".format(filecount)
+    print "hc_years: {}".format(hc_years)
+    print "a['starty']: {}    start_year: {}".format(a['starty'], start_year)
+
     # NOTE: Should make this smarter so that the starting year is picked from
-    # the input path strings specified above.
+      # the input path strings specified above.
     fill_climate_file(a['starty']+start_year, hc_years,
                       xo, yo, xs, ys,
                       out_dir, of_name, sp_ref_file,
@@ -1040,43 +1068,48 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
   if 'projected-climate' in files:
     of_name = "projected-climate.nc"
 
-    #   dict(model=ar5_MRI-CGCM3, scen=rcp85, starty=2006, endy=2100)
-    a = dict(model='iem_cccma_cgcm3_1', scen='sresa1b', starty=2001, endy=2100)
+    a = dict(model='ar5_MRI-CGCM3', scen='rcp85', starty=2006, endy=2100)
+    #a = dict(model='iem_cccma_cgcm3_1', scen='sresa1b', starty=2001, endy=2100)
 
     a['var'] = 'tas_mean'; a['units'] = 'C'
     in_tair_base = os.path.join(tif_dir, 
         "{var}_{units}_{model}_{scen}_{starty}_{endy}".format(**a),
-        "{var}_{units}_{model}_{scen}".format(**a))
+        "tas",
+        "{var}_{units}_iem_{model}_{scen}".format(**a))
 
     a['var'] = 'pr_total'; a['units'] = 'mm'
     in_prec_base = os.path.join(tif_dir, 
         "{var}_{units}_{model}_{scen}_{starty}_{endy}".format(**a),
-        "{var}_{units}_{model}_{scen}".format(**a))
+        "pr",
+        "{var}_{units}_iem_{model}_{scen}".format(**a))
 
     a['var'] = 'rsds_mean'; a['units'] = 'MJ-m2-d1'
     in_rsds_base = os.path.join(tif_dir, 
         "{var}_{units}_{model}_{scen}_{starty}_{endy}".format(**a),
-        "{var}_{units}_{model}_{scen}".format(**a))
+        "rsds",
+        "{var}_{units}_iem_{model}_{scen}".format(**a))
 
     a['var'] = 'vap_mean'; a['units'] = 'hPa'
     in_vapo_base = os.path.join(tif_dir, 
         "{var}_{units}_{model}_{scen}_{starty}_{endy}".format(**a),
-        "{var}_{units}_{model}_{scen}".format(**a))
+        "vap",
+        "{var}_{units}_iem_{model}_{scen}".format(**a))
 
 
     # Set back to using temperature for a few other general file checks
     a['var'] = 'tas_mean'; a['units'] = 'C'
 
     # Set the spatial reference file. Use the first month of the starting year
-    sp_ref_file =  os.path.join(tif_dir, 
-        "{var}_{units}_{model}_{scen}_{starty}_{endy}".format(**a),
-        "{var}_{units}_{model}_{scen}_{month:02d}_{starty:04d}.tif".format(month=1, **a))
+    # sp_ref_file =  os.path.join(tif_dir, 
+    #     "{var}_{units}_{model}_{scen}_{starty}_{endy}".format(**a),
+    #     "{var}_{units}_{model}_{scen}_{month:02d}_{starty:04d}.tif".format(month=1, **a))
+    sp_ref_file  = "{}_{month:02d}_{starty:04d}.tif".format(in_tair_base, month=1, **a),
 
     # Calculates number of years for running all. Values are different
     # for historic versus projected.
     pc_years = 0;
     if years == -1:
-      filecount = len(glob.glob(os.path.join(tif_dir, "{var}_{units}_{model}_{scen}_{starty}_{endy}/*.tif".format(**a))))
+      filecount = len(glob.glob(in_tair_base + "*.tif"))
       print "Found %s files..." % filecount
       pc_years = (filecount/12) - start_year
     else:
