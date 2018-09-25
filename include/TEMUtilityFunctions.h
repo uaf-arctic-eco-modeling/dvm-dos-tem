@@ -81,6 +81,16 @@ namespace temutil {
     return y;
   }
 
+  /** Quick 'n dirty pretty printer for vector of things
+  */
+  template <typename TYPE>
+  void ppv(const std::vector<TYPE> &v){
+    typename std::vector<TYPE>::const_iterator it;
+    for (it = v.begin(); it != v.end(); ++it) {
+      std::cout << *it << " ";
+    }
+    std::cout << "\n";
+  }
 
   bool AlmostEqualRelative(double A, double B);
 
