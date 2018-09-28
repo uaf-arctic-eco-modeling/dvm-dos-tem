@@ -942,6 +942,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     day_timestep += DINM[im];
   }
 
+  //For outputting subsets of driving data arrays
+  int doy = temutil::day_of_year(month, 0); 
+
   std::string file_stage_suffix;
   if(stage.find("eq")!=std::string::npos){
     file_stage_suffix = "_eq.nc";
@@ -2244,6 +2247,62 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
       temutil::nc( nc_close(ncid) ); 
     }//end critical(outputSNOWFALL)
   }//end SNOWFALL
+  map_itr = netcdf_outputs.end();
+
+
+  //DRIVINGSNOWFALL
+  map_itr = netcdf_outputs.find("DRIVINGSNOWFALL");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: DRIVINGSNOWFALL";
+    curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
+
+    #pragma omp critical(outputDRIVINGSNOWFALL)
+    {
+#ifdef WITHMPI
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
+#else
+      temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
+#endif
+      temutil::nc( nc_inq_varid(ncid, "DRIVINGSNOWFALL", &cv) );
+
+      if(curr_spec.daily){
+        start3[0] = day_timestep;
+        temutil::nc( nc_put_vara_float(ncid, cv, start3, count3, &cohort.climate.snow_d[doy]) );
+      }
+
+      temutil::nc( nc_close(ncid) ); 
+    }//end critical(outputDRIVINGSNOWFALL)
+  }//end DRIVINGSNOWFALL
+  map_itr = netcdf_outputs.end();
+
+
+  //DRIVINGRAINFALL
+  map_itr = netcdf_outputs.find("DRIVINGRAINFALL");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: DRIVINGRAINFALL";
+    curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
+
+    #pragma omp critical(outputDRIVINGRAINFALL)
+    {
+#ifdef WITHMPI
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
+#else
+      temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
+#endif
+      temutil::nc( nc_inq_varid(ncid, "DRIVINGRAINFALL", &cv) );
+
+      if(curr_spec.daily){
+        start3[0] = day_timestep;
+        temutil::nc( nc_put_vara_float(ncid, cv, start3, count3, &cohort.climate.rain_d[doy]) );
+      }
+
+      temutil::nc( nc_close(ncid) ); 
+    }//end critical(outputDRIVINGRAINFALL)
+  }//end DRIVINGRAINFALL
   map_itr = netcdf_outputs.end();
 
 
