@@ -962,7 +962,7 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
   #
   if 'vegetation' in files:
     of_name = os.path.join(out_dir, "vegetation.nc")
-    fill_veg_file(os.path.join(tif_dir,  "iem_ancillary_data/Landcover/LandCover_iem_TEM_2005.tif"), xo, yo, xs, ys, out_dir, of_name)
+    fill_veg_file(os.path.join(tif_dir,  "ancillary/land_cover/v_0_4/iem_vegetation_model_input_v0_4.tif"), xo, yo, xs, ys, out_dir, of_name)
 
   if 'drainage' in files:
     of_name = os.path.join(out_dir, "drainage.nc")
@@ -978,9 +978,11 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
 
   if 'topo' in files:
     of_name = os.path.join(out_dir, "topo.nc")
-    in_slope = os.path.join(tif_dir,  "iem_ancillary_data/Elevation/ALF_AK_CAN_prism_slope_1km.tif")
-    in_aspect = os.path.join(tif_dir,  "iem_ancillary_data/Elevation/ALF_AK_CAN_prism_aspect_1km.tif")
-    in_elev = os.path.join(tif_dir,  "iem_ancillary_data/Elevation/ALF_AK_CAN_prism_dem_1km.tif")
+
+    in_slope = os.path.join(tif_dir, "ancillary/slope/iem_prism_slope_1km.tif")
+    in_aspect = os.path.join(tif_dir, "ancillary/aspect/iem_prism_aspect_1km.tif")
+    in_elev = os.path.join(tif_dir, "ancillary/elevation/iem_prism_dem_1km.tif")
+
     fill_topo_file(in_slope, in_aspect, in_elev, xo,yo,xs,ys,out_dir, of_name)
 
   if 'run-mask' in files:
@@ -999,7 +1001,8 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
     a['origin_institute'] = 'iem_cru'
     a['version'] = 'TS40'
     in_tair_base = os.path.join(tif_dir, 
-        "{var}_{units}_{origin_institute}_{version}_{starty}_{endy}".format(**a), 
+        "{var}_{units}_{origin_institute}_{version}_{starty}_{endy}".format(**a),
+        "tas",
         "{var}_{units}_CRU_{version}_historical".format(**a))
 
 
