@@ -970,9 +970,9 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
 
   if 'soil-texture' in files:
     of_name = os.path.join(out_dir, "soil-texture.nc")
-    in_sand_base = os.path.join(tif_dir,  "iem_ancillary_data/soil_and_drainage/iem_domain_hayes_igbp_pct_sand.tif")
-    in_silt_base = os.path.join(tif_dir,  "iem_ancillary_data/soil_and_drainage/iem_domain_hayes_igbp_pct_silt.tif")
-    in_clay_base = os.path.join(tif_dir,  "iem_ancillary_data/soil_and_drainage/iem_domain_hayes_igbp_pct_clay.tif")
+    in_sand_base = os.path.join(tif_dir, "iem_ancillary_data/soil_and_drainage/iem_domain_hayes_igbp_pct_sand.tif")
+    in_silt_base = os.path.join(tif_dir, "iem_ancillary_data/soil_and_drainage/iem_domain_hayes_igbp_pct_silt.tif")
+    in_clay_base = os.path.join(tif_dir, "iem_ancillary_data/soil_and_drainage/iem_domain_hayes_igbp_pct_clay.tif")
 
     fill_soil_texture_file(in_sand_base, in_silt_base, in_clay_base, xo, yo, xs, ys, out_dir, of_name, rand=False)
 
