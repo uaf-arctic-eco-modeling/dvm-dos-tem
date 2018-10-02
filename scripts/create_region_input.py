@@ -621,6 +621,7 @@ def fill_climate_file(start_yr, yrs, xo, yo, xs, ys,
     print "===> masterOutFile.dimensions: {}".format(ds.dimensions)
 
   print "Copy data from temporary per-variable files into master"
+  tmpFiles = [os.path.join(out_dir, 'TEMP-{}-{}'.format(v, of_name)) for v in dataVarList]
   for tFile, var in zip(tmpFiles, dataVarList):
     # Need to make a list of variables to exclude from the
     # ncks append operation (all except the current variable)
@@ -1045,11 +1046,7 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
     # for historic versus projected.
     hc_years = 0
     if years == -1:
-      a['var'] = 'tas_mean'; a['units'] = 'C'
-      a['origin_institute'] = 'iem_cru'
-      a['version'] = 'TS40'
-      filecount = len(glob.glob(os.path.join(tif_dir, "{var}_{units}_{origin_institute}_{version}_{starty}_{endy}".format(**a), "*.tif".format(**a))))
-
+      filecount = len(glob.glob(in_tair_base + "*.tif"))
       print "Found %s files..." % filecount
       hc_years = (filecount/12) - start_year
     else:
