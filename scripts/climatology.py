@@ -170,6 +170,11 @@ def plot_monthly_averages(base_path, secondary_path, title, units):
 
 def plot_period_averages(periods, base_path, secondary_path, title=""):
   '''
+  Creates plots of averages over the given periods. Creates a multi-page pdf
+  document with one plot for each of the periods specified in the input args.
+  Along the way a number of GDAL VRT files are created in your working directory
+  that summarize the periods to be averaged.
+  
   periods : list of tuples with start and end year (not inclusive of end) to average over
   '''
   for i, (start, end) in enumerate(periods):
@@ -182,11 +187,11 @@ def plot_period_averages(periods, base_path, secondary_path, title=""):
       #print single_year_filelist
       filelist += single_year_filelist
     #print len(filelist)
-    create_vrt(filelist, "decade-{}-{}.vrt".format(start, end))
+    create_vrt(filelist, "period-{}-{}.vrt".format(start, end))
   
   period_averages = []
   for i, (start, end) in enumerate(periods):
-    period_averages.append(average_over_bands("decade-{}-{}.vrt".format(start, end), bands='all'))
+    period_averages.append(average_over_bands("period-{}-{}.vrt".format(start, end), bands='all'))
 
   import matplotlib.backends.backend_pdf
   pdf = matplotlib.backends.backend_pdf.PdfPages("output.pdf")
