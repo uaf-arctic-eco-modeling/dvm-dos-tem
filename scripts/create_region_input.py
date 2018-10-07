@@ -954,7 +954,7 @@ def fill_explicit_fire_file(if_name, yrs, xo, yo, xs, ys, out_dir, of_name):
  
 
 def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir, 
-         files=[], time_coord_var=False):
+         files=[], time_coord_var=False, clip_projected2match_historic=False):
 
   #
   # Make the veg file first, then run-mask, then climate, then fire.
@@ -1030,9 +1030,6 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
 
     #print "filecount: {}".format(filecount)
     print "hc_years: {}".format(hc_years)
-
-    # NOTE: Should make this smarter so that the starting year is picked from
-    # the input path strings specified above.
     fill_climate_file(first_avail_year+start_year, hc_years,
                       xo, yo, xs, ys,
                       out_dir, of_name, sp_ref_file,
@@ -1067,7 +1064,32 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
     in_rsds_base = os.path.join(tif_dir, 'rsds_mean_MJ-m2-d1_MRI-CGCM3_rcp85_2006_2100_fix/rsds/rsds_mean_MJ-m2-d1_iem_ar5_MRI-CGCM3_rcp85_')
     in_vapo_base = os.path.join(tif_dir, 'vap_mean_hPa_MRI-CGCM3_rcp85_2006_2100_fix/vap/vap_mean_hPa_iem_ar5_MRI-CGCM3_rcp85_')
 
-    # Pick starty based on last historic year?? Only if doing historic files too?
+    # Pick the starting year of the projected file to immediately follow the 
+    # last year in the historic file.
+    if ('projected-climate' in files) and ('historic-climate' in files):
+      if clip_projected2match_historic:
+
+        # Look up the last year that is in the historic data
+        # assumes that the historic file was just created, and so exists and 
+        # is reliable...
+        with netCDF4.Dataset(os.path.join(out_dir, 'historic-climate.nc'), 'r') as hds:
+          end_hist = netCDF4.num2date(hds.variables['time'][-1], hds.variables['time'].units, calendar=hds.variables['time'].calendar)
+        print "The historic dataset ends at {}".format(end_hist)
+
+        if (first_avail_year > end_hist.year+1):
+          print """==> WARNING! There will be a gap between the historic and 
+          projected climate files!! Ignoring --start-year offset and will 
+          start building at the beginning of the projected period ({})
+          """.format(first_avail_year)
+          start_year = 0
+        else:
+          # Override start_year
+          start_year = (end_hist.year - first_avail_year) + 1 
+          print """Setting start year for projected data to be immediately 
+          following the historic data. 
+          End historic: {} 
+          Beginning projected: {}
+          start_year offset: {}""".format(end_hist.year, first_avail_year + start_year, start_year)
 
     # Set the spatial reference file. Use the first month of the starting year
     sp_ref_file  = "{}{month:02d}_{starty:04d}.tif".format(in_tair_base, month=1, starty=first_avail_year),
@@ -1082,9 +1104,9 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
     else:
       pc_years = years
 
-    # NOTE: Should make this smarter so that the starting year is picked from
-    # the input path strings specified above.
-    fill_climate_file(first_avail_year+start_year, pc_years,
+    #print "filecount: {}".format(filecount)
+    print "pc_years: {}".format(pc_years)
+    fill_climate_file(first_avail_year + start_year, pc_years,
                       xo, yo, xs, ys, out_dir, of_name, sp_ref_file,
                       in_tair_base, in_prec_base, in_rsds_base, in_vapo_base,
                       time_coord_var, model=origin_institute, scen=version)
@@ -1204,10 +1226,30 @@ if __name__ == '__main__':
                         Allowed values: {:}. (default: %(default)s)
                         '''.format(', '.join(fileChoices+['all'])))
                       )
+  parser.add_argument('--clip-projected2match-historic', action='store_true',
+                      help=textwrap.dedent('''Instead of building the entire 
+                        projected dataset, start building it where the historic 
+                        data leaves off.'''))
 
-  print "Parsing command line arguments";
+  print "Parsing command line arguments"
   args = parser.parse_args()
   print "args: ", args
+
+  if args.clip_projected2match_historic:
+    if ('historic-climate' in args.which) and ('projected-climate' in args.which):
+      pass # everything fine...
+    else:
+      print "ERROR!: Can't clip the projected climate to start where the "
+      print "        historic data leaves off unless creating both historic "
+      print "        and projected files!"
+      exit(-1)
+    if (args.buildout_time_coord):
+      pass # evertthing fine..
+    else:
+      print "ERROR!: You MUST specify to the --buildout-time-coord option if you want to match historic and projected files!"
+      exit(-1)
+    if args.start_year > 0:
+      print "WARNING! The --start-year offset will be ignored for projected climate file!"
 
   years = args.years
   start_year = args.start_year
@@ -1246,7 +1288,8 @@ if __name__ == '__main__':
 
   main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
        files=which_files,
-       time_coord_var=args.buildout_time_coord)
+       time_coord_var=args.buildout_time_coord, 
+       clip_projected2match_historic=args.clip_projected2match_historic)
 
 
 
