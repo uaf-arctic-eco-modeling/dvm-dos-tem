@@ -604,7 +604,7 @@ def fill_climate_file(start_yr, yrs, xo, yo, xs, ys,
       print year, month
 
       basePathList = [in_tair_base, in_prec_base, in_rsds_base, in_vapo_base]
-      baseFiles = [basePath + "_{:02d}_{:04d}.tif".format(month, year) for basePath in basePathList]
+      baseFiles = [basePath + "{:02d}_{:04d}.tif".format(month, year) for basePath in basePathList]
       tmpFiles = [os.path.join(out_dir, 'TEMP-{}-{}'.format(v, of_name)) for v in dataVarList]
       procs = []
       for tiffimage, tmpFileName, vName in zip(baseFiles, tmpFiles , dataVarList):
@@ -686,8 +686,8 @@ def fill_climate_file(start_yr, yrs, xo, yo, xs, ys,
 
         # Convert to python datetime.datetime objects with time set at 0
         month_starts_datetimeobjs = [dt.datetime.combine(i, dt.time()) for i in month_starts_dateobjs]
-        print month_starts_datetimeobjs
-        print len(month_starts_datetimeobjs)
+        print "length of month_starts_datetimeobjs: {}".format(len(month_starts_datetimeobjs))
+
         # Convert to numeric offset using netCDF utility function, the units,
         # and calendar.
         tcV_vals = netCDF4.date2num(month_starts_datetimeobjs, 
@@ -994,53 +994,29 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
 
   if 'historic-climate' in files:
     of_name = "historic-climate.nc"
+    '''
+    # Available as of 10-5-2018 2:53pm 
+    # CR-TS40
+    rsds_mean_MJ-m2-d1_CRU-TS40_historical_1901_2015_fix/rsds/rsds_mean_MJ-m2-d1_CRU-TS40_historical_
+    tas_mean_C_iem_cru_TS40_1901_2015/tas/tas_mean_C_CRU_TS40_historical_
+    pr_total_mm_iem_cru_TS40_1901_2015/pr_total_mm_CRU_TS40_historical_
+    vap_mean_hPa_iem_CRU_TS40_historical_1901_2015/vap/vap_mean_hPa_CRU_TS40_historical_
+    '''
 
-    a = dict(origin_institute="iem_CRU", version="TS40", starty=1901, endy=2015)
-    #a = dict(origin_institute="iem_cru", version="TS31", starty=1901, endy=2009)
+    # Tried parsing this stuff automatically from the above paths,
+    # but the paths, names, directory structures, etc were not standardized
+    # enough to be worth it.
+    first_avail_year = 1901
+    last_avail_year = 2015
+    origin_institute, version = ('CRU', 'TS40')
 
-    a['var'] = 'tas_mean'; a['units'] = 'C'
-    a['origin_institute'] = 'iem_cru'
-    a['version'] = 'TS40'
-    in_tair_base = os.path.join(tif_dir, 
-        "{var}_{units}_{origin_institute}_{version}_{starty}_{endy}".format(**a),
-        "tas",
-        "{var}_{units}_CRU_{version}_historical".format(**a))
-
-
-    a['var'] = 'pr_total'; a['units'] = 'mm'
-    a['origin_institute'] = 'iem_cru'
-    a['version'] = 'TS40'
-    in_prec_base = os.path.join(tif_dir, 
-        "{var}_{units}_{origin_institute}_{version}_{starty}_{endy}".format(**a), 
-        "{var}_{units}_CRU_{version}_historical".format(**a))
-
-
-    a['var'] = 'rsds_mean'; a['units'] = 'MJ-m2-d1'
-    a['origin_institute'] = 'CRU'
-    a['version'] = 'TS40'
-    in_rsds_base = os.path.join(tif_dir,
-        "{var}_{units}_{origin_institute}_{version}_historical_{starty}_{endy}".format(**a),
-        "rsds",
-        "{var}_{units}_{origin_institute}_{version}_historical".format(**a))
-
-    a['var'] = 'vap_mean'; a['units'] = 'hPa'
-    a['origin_institute'] = 'iem_CRU'
-    a['version'] = 'TS40'
-    in_vapo_base = os.path.join(tif_dir, 
-        "{var}_{units}_{origin_institute}_{version}_historical_{starty}_{endy}".format(**a),
-        "vap",
-        "{var}_{units}_CRU_{version}_historical".format(**a))
-
-    print "=============="
-    print in_vapo_base
-    print "=============="
+    in_tair_base = os.path.join(tif_dir, 'tas_mean_C_iem_cru_TS40_1901_2015/tas/tas_mean_C_CRU_TS40_historical_')
+    in_prec_base = os.path.join(tif_dir, 'pr_total_mm_iem_cru_TS40_1901_2015/pr_total_mm_CRU_TS40_historical_')
+    in_rsds_base = os.path.join(tif_dir, 'rsds_mean_MJ-m2-d1_CRU-TS40_historical_1901_2015_fix/rsds/rsds_mean_MJ-m2-d1_CRU-TS40_historical_')
+    in_vapo_base = os.path.join(tif_dir, 'vap_mean_hPa_iem_CRU_TS40_historical_1901_2015/vap/vap_mean_hPa_CRU_TS40_historical_')
 
     # Use the the January file for the first year requested as a spatial reference
-    #  sp_ref_file  = os.path.join(tif_dir, 
-    #      "{var}_{units}_{origin_institute}_{version}_{starty}_{endy}".format(**a),
-    #      "{var}_{units}_{origin_institute}_{version}_{month:02d}_{starty:04d}.tif".format(month=1, **a))
-    sp_ref_file  = "{}_{month:02d}_{starty:04d}.tif".format(in_tair_base, month=1, **a),
-
+    sp_ref_file  = "{}{month:02d}_{starty:04d}.tif".format(in_tair_base, month=1, starty=first_avail_year),
 
     # Calculates number of years for running all. Values are different
     # for historic versus projected.
@@ -1054,56 +1030,47 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
 
     #print "filecount: {}".format(filecount)
     print "hc_years: {}".format(hc_years)
-    print "a['starty']: {}    start_year: {}".format(a['starty'], start_year)
 
     # NOTE: Should make this smarter so that the starting year is picked from
-      # the input path strings specified above.
-    fill_climate_file(a['starty']+start_year, hc_years,
+    # the input path strings specified above.
+    fill_climate_file(first_avail_year+start_year, hc_years,
                       xo, yo, xs, ys,
                       out_dir, of_name, sp_ref_file,
                       in_tair_base, in_prec_base, in_rsds_base, in_vapo_base,
-                      time_coord_var, model=a['origin_institute'], scen=a['version'])
+                      time_coord_var, model=origin_institute, scen=version)
 
 
   if 'projected-climate' in files:
     of_name = "projected-climate.nc"
+    ''' Available as of 10-5-2018 2:53pm
+    # MRI-CGCM3
+    rsds_mean_MJ-m2-d1_MRI-CGCM3_rcp85_2006_2100_fix/rsds/rsds_mean_MJ-m2-d1_iem_ar5_MRI-CGCM3_rcp85_
+    vap_mean_hPa_MRI-CGCM3_rcp85_2006_2100_fix/vap/vap_mean_hPa_iem_ar5_MRI-CGCM3_rcp85_
+    tas_mean_C_ar5_MRI-CGCM3_rcp85_2006_2100/tas/tas_mean_C_iem_ar5_MRI-CGCM3_rcp85_
+    pr_total_mm_ar5_MRI-CGCM3_rcp85_2006_2100/pr/pr_total_mm_iem_ar5_MRI-CGCM3_rcp85_
 
-    a = dict(model='ar5_MRI-CGCM3', scen='rcp85', starty=2006, endy=2100)
-    #a = dict(model='iem_cccma_cgcm3_1', scen='sresa1b', starty=2001, endy=2100)
+    # NCAR-CCSM4
+    # tas_mean_C_ar5_NCAR-CCSM4_rcp85_2006_2100.zip
+    # pr_total_mm_ar5_NCAR-CCSM4_rcp85_2006_2100.zip
+    vap_mean_hPa_NCAR-CCSM4_rcp85_2006_2100_fix/vap/vap_mean_hPa_iem_ar5_NCAR-CCSM4_rcp85_
+    rsds_mean_MJ-m2-d1_NCAR-CCSM4_rcp85_2006_2100_fix/rsds/rsds_mean_MJ-m2-d1_iem_ar5_NCAR-CCSM4_rcp85_
+    '''
 
-    a['var'] = 'tas_mean'; a['units'] = 'C'
-    in_tair_base = os.path.join(tif_dir, 
-        "{var}_{units}_{model}_{scen}_{starty}_{endy}".format(**a),
-        "tas",
-        "{var}_{units}_iem_{model}_{scen}".format(**a))
+    # Tried parsing this stuff automatically from the above paths,
+    # but the paths, names, directory structures, etc were not standardized
+    # enough to be worth it.
+    first_avail_year = 2006
+    last_avail_year = 2100
+    origin_institute, version = ('MRI-CGCM3', 'rcp85')
+    in_tair_base = os.path.join(tif_dir, 'tas_mean_C_ar5_MRI-CGCM3_rcp85_2006_2100/tas/tas_mean_C_iem_ar5_MRI-CGCM3_rcp85_')
+    in_prec_base = os.path.join(tif_dir, 'pr_total_mm_ar5_MRI-CGCM3_rcp85_2006_2100/pr/pr_total_mm_iem_ar5_MRI-CGCM3_rcp85_')
+    in_rsds_base = os.path.join(tif_dir, 'rsds_mean_MJ-m2-d1_MRI-CGCM3_rcp85_2006_2100_fix/rsds/rsds_mean_MJ-m2-d1_iem_ar5_MRI-CGCM3_rcp85_')
+    in_vapo_base = os.path.join(tif_dir, 'vap_mean_hPa_MRI-CGCM3_rcp85_2006_2100_fix/vap/vap_mean_hPa_iem_ar5_MRI-CGCM3_rcp85_')
 
-    a['var'] = 'pr_total'; a['units'] = 'mm'
-    in_prec_base = os.path.join(tif_dir, 
-        "{var}_{units}_{model}_{scen}_{starty}_{endy}".format(**a),
-        "pr",
-        "{var}_{units}_iem_{model}_{scen}".format(**a))
-
-    a['var'] = 'rsds_mean'; a['units'] = 'MJ-m2-d1'
-    in_rsds_base = os.path.join(tif_dir, 
-        "{var}_{units}_{model}_{scen}_{starty}_{endy}".format(**a),
-        "rsds",
-        "{var}_{units}_iem_{model}_{scen}".format(**a))
-
-    a['var'] = 'vap_mean'; a['units'] = 'hPa'
-    in_vapo_base = os.path.join(tif_dir, 
-        "{var}_{units}_{model}_{scen}_{starty}_{endy}".format(**a),
-        "vap",
-        "{var}_{units}_iem_{model}_{scen}".format(**a))
-
-
-    # Set back to using temperature for a few other general file checks
-    a['var'] = 'tas_mean'; a['units'] = 'C'
+    # Pick starty based on last historic year?? Only if doing historic files too?
 
     # Set the spatial reference file. Use the first month of the starting year
-    # sp_ref_file =  os.path.join(tif_dir, 
-    #     "{var}_{units}_{model}_{scen}_{starty}_{endy}".format(**a),
-    #     "{var}_{units}_{model}_{scen}_{month:02d}_{starty:04d}.tif".format(month=1, **a))
-    sp_ref_file  = "{}_{month:02d}_{starty:04d}.tif".format(in_tair_base, month=1, **a),
+    sp_ref_file  = "{}{month:02d}_{starty:04d}.tif".format(in_tair_base, month=1, starty=first_avail_year),
 
     # Calculates number of years for running all. Values are different
     # for historic versus projected.
@@ -1117,10 +1084,11 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
 
     # NOTE: Should make this smarter so that the starting year is picked from
     # the input path strings specified above.
-    fill_climate_file(a['starty']+start_year, pc_years,
+    fill_climate_file(first_avail_year+start_year, pc_years,
                       xo, yo, xs, ys, out_dir, of_name, sp_ref_file,
                       in_tair_base, in_prec_base, in_rsds_base, in_vapo_base,
-                      time_coord_var, model=a['model'], scen=a['scen'])
+                      time_coord_var, model=origin_institute, scen=version)
+
 
 
   if 'fri-fire' in files:
@@ -1152,8 +1120,8 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
       ----> CAVEATS:
        * Time coordiate starting point is hard-coded and assumed to match
          the input file series
-       * The input file series are from SNAP, use CRU3.1 for historic climate
-         and AR4 for the projected climate.
+       * The input file series are from SNAP, use CRU-TS40 for historic climate
+         and AR5 for the projected climate.
   '''))
 
   print "DONE"
@@ -1182,7 +1150,15 @@ if __name__ == '__main__':
 
         Assumes a certain layout for the source files. At this point, the 
         source files are generally .tifs that have been created for the IEM
-        project.
+        project. As of Oct 2018 the is desgined to work with the data on 
+        the atlas server:
+
+        atlas:/atlas_scratch/ALFRESCO/ALFRESCO_Master_Dataset_v2_1/ALFRESCO_Model_Input_Datasets/IEM_for_TEM_inputs/
+
+        It is expected that the user will modify the paths to the base input 
+        files if this script is to be run elsewhere. There are not command line
+        options to make these adjustments. The code in the main() function must
+        be changed.
         '''.format("\n                ".join([i+'.nc' for i in fileChoices]))),
 
       epilog=textwrap.dedent(''''''),
