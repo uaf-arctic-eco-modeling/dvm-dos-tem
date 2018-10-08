@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 
 
-# import os
+import sys
 import netCDF4 as nc
 import numpy as np
-import matplotlib as mpl
+import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 
@@ -20,25 +20,54 @@ if __name__ == '__main__':
   parser = argparse.ArgumentParser(
     formatter_class=argparse.RawDescriptionHelpFormatter,
     description=textwrap.dedent('''
-      Script for plotting a single dvm-dos-tem output netCDF file. It is hardcoded to cell 0,0 and determines variable name by any netCDF var that is not time.
+      Script for plotting a single dvm-dos-tem output netCDF file. 
+
+      Options are available for controlling which pixel to plot, which pft(s), 
+      which layer(s), and how closely the subplots should be linked for scale,
+      panning and zooming.
+
+      Determines variable name by any netCDF var that is not time.
     ''')
   )
 
   parser.add_argument('--file', nargs='?', metavar=('FILE'),
-    help = textwrap.dedent('''The output .nc file to operate on'''))
+    help = textwrap.dedent('''The output .nc file to operate on. (Output from 
+      dvmdostem, input to this script).'''))
+
+  parser.add_argument('--yx', type=int, nargs=2, required=False, default=[0,0],
+    metavar=('Y', 'X'), help=textwrap.dedent('''Select the pixel to plot'''))
 
   parser.add_argument('--pft', type=int,
     help = textwrap.dedent('''The PFT to plot when plotting by PFT and compartment'''))
 
-  parser.add_argument('--layers', type=int, required=False, nargs=2,
+  parser.add_argument('--layers', type=int, nargs=2, required=False, default=[0,3],
     metavar=('START', 'END'),
     help = textwrap.dedent('''The range of layers to plot.'''))
+
+  parser.add_argument('--layer-sum', action='store_true',
+    help=textwrap.dedent('''Adds a subplot at the top which is the sum of all
+      the other layers that are displayed.'''))
+
+  parser.add_argument('--hide-individual-layers', action='store_true',
+    help=textwrap.dedent('''Do not show subplots for all the individual layers'''))
 
   parser.add_argument('--timesteps', type=int, required=False, nargs=2,
     metavar=('START','END'),
     help = textwrap.dedent('''The range of timesteps to plot.'''))
 
+  parser.add_argument('--sharex', action='store_true',
+    help=textwrap.dedent('''All plots share an x axes for linked panning and zooming.'''))
+
+  parser.add_argument('--sharey', action='store_true',
+    help=textwrap.dedent('''All plots share a y axes for linked panning, zooming, and autoscaling.'''))
+
+  parser.add_argument('--annual-grid', action='store_true',
+    help=textwrap.dedent('''Display a vertial grid line every 12 months.
+      Generally this is too dense when viewing a long timeseries, but is helpful
+      if you plan to zoom in on the data.'''))
+
   args = parser.parse_args()
+  print args
 
   if args.file:
 
@@ -46,7 +75,7 @@ if __name__ == '__main__':
       nc_dims = [dim for dim in ncFile.dimensions]
       nc_vars = [var for var in ncFile.variables]
 
-      #Should be determined more neatly.
+      # Should be determined more neatly.
       for var in nc_vars:
         if var != 'time':
           plotting_var = var
@@ -56,67 +85,134 @@ if __name__ == '__main__':
         time_start = args.timesteps[0]
         time_end = args.timesteps[1]
         nc_data = ncFile.variables[plotting_var][time_start:time_end,:]
+        time_range = np.arange(time_start,time_end)
       else:
         nc_data = ncFile.variables[plotting_var][:,:]
+        time_range = np.arange(0, nc_data.shape[0])
 
-      if args.layers is not None:
-        layer_start = args.layers[0]
-        layer_end = args.layers[1]
-      else:
-        layer_start = 0 
-        layer_end = 3
+      layer_start, layer_end = args.layers
+
+      Y, X = args.yx
 
       dim_count = len(nc_dims)
 
+      print "pixel(Y,X): ({},{})".format(Y, X)
       print "dim count: " + str(dim_count) 
       print "dimensions: " + str(nc_dims)
       print "variables: " + str(nc_vars)
       print "shape: " + str(nc_data.shape)
+      print "selected time range size: {} start: {} end: {}".format(
+          len(time_range), time_range[0], time_range[-1])
 
-      mpl.rc('lines', linewidth=1, markersize=3, marker='o')
+      matplotlib.rc('lines', linewidth=1, markersize=3, marker='o')
+
+      if args.layer_sum and plotting_var not in ['SOC', 'RH']:
+        print "WARNING: The sum across layer plot has not been tested on other "
+        print "variables! The plot is only intended to work with variables that "
+        print "have non-negative values!"
+
+      if args.hide_individual_layers and not args.layer_sum:
+        print "WARNING! --hide-individual-layers is only applicable with --layer-sum"
 
 
-      #Variables by time only
-      #time, y?, x?
+      # Variables by time only
+      # time, y?, x?
       if(dim_count == 3):
-        data = nc_data[:,0,0]
-        fig, ax = plt.subplots(1,1)
-        ax.plot(data)
+        data = nc_data[:,Y,X]
+        fig, axes = plt.subplots(1,1, sharex=args.sharex, sharey=args.sharey)
+        axes.plot(time_range, data)
 
 
-      #Variables by PFT, Compartment, or Layer
-      #time, [section], y?, x?
+      # Variables by PFT, Compartment, or Layer
+      # time, [section], y?, x?
       if(dim_count == 4):
-        data = nc_data[:,:,0,0]
+        data = nc_data[:,:,Y,X]
 
-        #By PFT only
+        # By PFT only
         if 'pft' in nc_dims:
-          fig, ax = plt.subplots(10,1)
+          fig, axes = plt.subplots(10,1, sharex=args.sharex, sharey=args.sharey)
 
           for pft in range(0,10):
-            ax[pft].plot(data[:,pft])
-            ax[pft].set_ylabel("pft" + str(pft))
+            axes[pft].plot(time_range, data[:,pft])
+            axes[pft].set_ylabel("pft" + str(pft))
 
-        #By PFT compartment
+        # By PFT compartment
         if 'pftpart' in nc_dims:
-          fig, ax = plt.subplots(3,1)
+          fig, axes = plt.subplots(3,1, sharex=args.sharex, sharey=args.sharey)
 
           for pftpart in range(0,3):
-            ax[pftpart].plot(data[:,pftpart])
-            ax[pftpart].set_ylabel("pftpart " + str(pftpart))
+            axes[pftpart].plot(time_range, data[:,pftpart])
+            axes[pftpart].set_ylabel("pftpart " + str(pftpart))
 
-        #By soil layer
+        # By soil layer
         if 'layer' in nc_dims:
-          layer_count = layer_end - layer_start + 1
-          fig, ax = plt.subplots(layer_count,1)
+          if layer_end >= nc_data.shape[1]:
+            print "ERROR! layer_end={} is out of range. max value for layer_end is: {}".format(layer_end, nc_data.shape[1]-1)
+            sys.exit(-1)
 
-          for layer in range(layer_start, layer_end+1):
-            ax[layer-layer_start].plot(data[:,layer])
-            ax[layer-layer_start].set_ylabel("layer " + str(layer))
+          print "displaying layers {} -to-> {}".format(layer_start, layer_end)
+          layers = range(layer_start, layer_end + 1)
+
+          number_subplots = len(layers)
+          if args.layer_sum:
+            number_subplots +=1
+
+          if args.hide_individual_layers:
+            number_subplots = 1
 
 
-      #Variables by both PFT and Compartment
-      #time, pftpart, pft, y?, x?
+          fig, axes = plt.subplots(number_subplots, 1,  sharex=args.sharex, sharey=args.sharey)
+
+          # Use a dicrete map with one color for each layer
+          # Helpful to have it be a sequential map also so that you can 
+          # intuit layer depth from the color
+          custom_cmap = plt.cm.get_cmap('plasma_r', len(layers))
+
+          if args.layer_sum and not args.hide_individual_layers:
+            sum_ax = axes[0]
+            layer_axes = axes[1:]
+          elif args.layer_sum and args.hide_individual_layers:
+            sum_ax = axes
+            layer_axes = []
+          else:
+            sum_ax = None
+            layer_axes = axes
+
+          # plot the individual layer lines each on their own ax
+          if len(layers) != len(layer_axes):
+            print "WARNING! length(layers){} != len(layer_axes){}".format(len(layers), len(layer_axes))
+          if args.hide_individual_layers:
+            pass
+          else:
+            for i, (layer, ax) in enumerate(zip(layers, layer_axes)):
+              #ax.plot(data[:,layer], color=custom_cmap(i))
+              ax.fill_between(time_range, 0, data[:,layer], color=custom_cmap(i))
+              ax.set_ylabel("L{:2d}".format(layer))
+
+
+          if sum_ax is not None:
+            # plot the basic sum line on the top (sum) ax
+            sum_over_chosen_layers = data[:, layer_start:layer_end+1].sum(axis=1)
+            sum_ax.plot(time_range, sum_over_chosen_layers, label='sum', color='lightgray')
+
+            # plot the fill_betweens for layers on the top (sum) ax
+            for i, layer in enumerate(layers):
+              if layer == layer_end:
+                lower_bound = np.ma.masked_array(np.zeros(data.shape[0]))
+                upper_bound = data[:,layer:layer_end+1].sum(axis=1)
+              else:
+                lower_bound = data[:,layer+1:layer_end+1].sum(axis=1)
+                upper_bound = data[:,layer:layer_end+1].sum(axis=1)
+
+              clean_lower = np.where(lower_bound[:].mask, 0, lower_bound[:])
+              clean_upper = np.where(upper_bound[:].mask, 0, upper_bound[:])
+
+              #sum_ax.plot(time_range, clean_upper, color=custom_cmap(i))
+              sum_ax.fill_between(time_range, clean_upper, clean_lower, color=custom_cmap(i))
+
+
+      # Variables by both PFT and Compartment
+      # time, pftpart, pft, y?, x?
       if(dim_count == 5):
         if args.pft is not None:
           pft_choice = args.pft
@@ -125,16 +221,27 @@ if __name__ == '__main__':
 
         print "Plotting PFT: " + str(pft_choice)
 
-        data = nc_data[:,:,pft_choice,0,0]
+        data = nc_data[:,:,pft_choice,Y,X]
 
-        fig, ax = plt.subplots(3,1)
+        fig, axes = plt.subplots(3,1, sharex=args.sharex, sharey=args.sharey)
   
         for pftpart in range(0, 3):
-          ax[pftpart].plot(data[:,pftpart])
-          ax[pftpart].set_ylabel("pftpart " + str(pftpart))
+          axes[pftpart].plot(data[:,pftpart])
+          axes[pftpart].set_ylabel("pftpart " + str(pftpart))
+
+      if args.annual_grid:
+        try:
+          _ = (a for a in axes) # just check that axes is a list.
+          for ax in axes:
+            ax.xaxis.set_major_locator(matplotlib.ticker.MultipleLocator(12))
+            ax.grid()
+        except TypeError:
+          print axes, 'is not iterable; setting grid on single axes instance'
+          axes.xaxis.set_major_locator(matplotlib.ticker.MultipleLocator(12))
+          axes.grid()
 
 
-      #All variables share this section
+      # All variables share this section
       fig.canvas.set_window_title(plotting_var)
       plt.xlabel("time")
       plt.show()
