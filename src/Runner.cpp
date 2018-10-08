@@ -893,6 +893,13 @@ void Runner::output_netCDF_yearly(int year, std::string stage){
     output_netCDF(md.yearly_netcdf_outputs, year, 0, stage);
 }
 
+//The following two functions are the beginning of an attempt to
+// generalize the output of different variables. The end goal is
+// for the output_netCDF() function to be shorter, more readable,
+// and have fewer redundant pieces of code.
+//20181006 Currently there are only a few variables using these
+// general functions, but since they include the front outputs
+// we are merging this despite it being incomplete.
 void Runner::output_nc_soil_layer(int ncid, int cv, int *data, int max_var_count, int start_timestep, int timesteps){
 
   //timestep, layer, row, col
@@ -930,8 +937,6 @@ void Runner::output_nc_soil_layer(int ncid, int cv, double *data, int max_var_co
 
   temutil::nc( nc_put_vara_double(ncid, cv, soilstart, soilcount, data) );
 }
-
-
 
 
 void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, int year, int month, std::string stage){
