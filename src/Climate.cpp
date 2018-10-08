@@ -657,7 +657,8 @@ void Climate::prepare_daily_driving_data(int iy, const std::string& stage) {
       v = calculate_daily_prec(i, avgX_tair.at(i), avgX_prec.at(i));
     }
     else{//Spin-Up, Transient, Scenario
-      v = calculate_daily_prec(i, tair.at(i), prec.at(i));
+      int month_timestep = iy*12 + i;
+      v = calculate_daily_prec(i, tair.at(month_timestep), prec.at(month_timestep));
     }
 
     prec_d.insert( prec_d.end(), v.begin(), v.end() );
