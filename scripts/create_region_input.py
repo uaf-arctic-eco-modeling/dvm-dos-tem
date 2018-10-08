@@ -574,15 +574,37 @@ def fill_climate_file(start_yr, yrs, xo, yo, xs, ys,
   lon = new_climatedataset.variables['lon']
   lat[:] = temp_subset_with_lonlat.variables['lat'][:]
   lon[:] = temp_subset_with_lonlat.variables['lon'][:]
+  print "Done copying LON/LAT."
 
-  print "Write attribute with pixel offsets to file..."
-  print "Write attributes for model and scenario..."
   with custom_netcdf_attr_bug_wrapper(new_climatedataset) as f:
+
+    print "Write attribute with pixel offsets to file..."
     f.source = source_attr_string(xo=xo, yo=yo)
+
+    print "Write attributes for model and scenario..."
     f.model = model
     f.scenario = scen
 
-  print "Done copying LON/LAT."
+    print "Write attributes for each variable"
+    f.variables['lat'].standard_name = 'latitude'
+    f.variables['lat'].units = 'degree_north'
+
+    f.variables['lon'].standard_name = 'longitude'
+    f.variables['lon'].units = 'degree_east'
+
+    print "Double check that we picked the right CF name for nirr!"
+    f.variables['nirr'].standard_name = 'downwelling_shortwave_flux_in_air'
+    f.variables['nirr'].units = 'W m-2'
+
+    f.variables['precip'].standard_name = 'precipitation_amount'
+    f.variables['precip'].units = 'mm month-1'
+
+    f.variables['tair'].standard_name = 'air_temperature'
+    f.variables['tair'].units = 'celsius'
+
+    f.variables['vapor_press'].standard_name = 'water_vapor_pressure'
+    f.variables['vapor_press'].units = 'hPa'
+
 
   print "Closing new dataset and temporary file."
   print "masterOutFile time dimension size: {}".format(new_climatedataset.dimensions['time'].size)
