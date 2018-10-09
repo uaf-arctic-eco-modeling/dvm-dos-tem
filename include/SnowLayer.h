@@ -32,7 +32,7 @@ public:
 private:
 
   double getThermCond5Sturm();
-  double getThermCond5Jordan();
+  double getThermCond();
 
 };
 #endif /*SNOWLAYER_H_*/
