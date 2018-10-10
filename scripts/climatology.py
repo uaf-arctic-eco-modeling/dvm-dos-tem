@@ -255,6 +255,48 @@ def calculate_period_averages(periods, base_path, secondary_path, save_intermedi
   
   print "Returning period averages list..."
   return period_averages
+
+def calculate_monthly_averages(months, base_path, secondary_path, save_intermediates=False):
+  '''
+  '''
+  # Make sure there is a place to put our pickles and vrt files
+  intermediates_path = os.path.join(TMP_DATA, 'month-averages-pid{}'.format(os.getpid()))
+  try: 
+    os.makedirs(intermediates_path)
+  except OSError:
+    if not os.path.isdir(intermediates_path):
+      raise
+
+  # Build the vrt files
+  print "Creating monthly VRT files..."
+  for im, MONTH in enumerate(months[:]):
+    final_secondary_path = secondary_path.format(month="{:02d}", year="*").format(im+1)
+    filelist = sorted(glob.glob(os.path.join(base_path, final_secondary_path)))
+    if len(filelist) < 1:
+      print "ERROR! No files found in {}".format( os.path.join(base_path, final_secondary_path) )
+
+    vrt_path = os.path.join(intermediates_path,"month-{:02d}.vrt".format(im+1))
+    create_vrt(filelist, vrt_path)
+
+  print "Computing monthly averages from monthly VRT files..."
+  # make list of expected input vrt paths
+  ivp_list = [os.path.join(intermediates_path,"month-{:02d}.vrt".format(im)) for im in range(1, len(months)+1)]
+  monthly_averages = [average_over_bands(ivp, bands='all') for ivp in ivp_list]
+
+  if save_intermediates:
+    print "Saving pickles..."
+    for im, ma in enumerate(monthly_averages):
+      pp = os.path.join(intermediates_path, "month-{:02d}.pickle".format(im+1))
+      pickle.dump(ma, file(pp, 'wb'))
+    print "Done saving pickles..."
+
+  # Clean up any intermediate files.
+  if not save_intermediates:
+    mapath = os.path.join(TMP_DATA, 'month-averages-pid{}'.format(os.getpid())) 
+    for f in os.listdir(mapath):
+      os.remove(os.path.join(mapath, f))
+    os.rmdir(mapath)
+
  
 
 def get_monthlies_figure(base_path, secondary_path, title, units, 
@@ -265,36 +307,8 @@ def get_monthlies_figure(base_path, secondary_path, title, units,
   '''
   months = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec']
 
-  if save_intermediates:
-    # Make sure there is a place to put our pickles 
-    intermediates_path = os.path.join(TMP_DATA, 'month-averages-pid{}'.format(os.getpid()))
-    try: 
-      os.makedirs(intermediates_path)
-    except OSError:
-      if not os.path.isdir(intermediates_path):
-        raise
-
   if src == 'fresh':
-    # Build the vrt files
-    for im, MONTH in enumerate(months[:]):
-      final_secondary_path = secondary_path.format(month="{:02d}", year="*").format(im+1)
-      filelist = sorted(glob.glob(os.path.join(base_path, final_secondary_path)))
-      if len(filelist) < 1:
-        print "ERROR! No files found in {}".format( os.path.join(base_path, final_secondary_path) )
-
-      vrt_path = os.path.join(intermediates_path,"month-{:02d}.vrt".format(im+1))
-      create_vrt(filelist, vrt_path)
-
-    # make list of expected input vrt paths
-    ivp_list = [os.path.join(intermediates_path,"month-{:02d}.vrt".format(im)) for im in range(1, len(months)+1)]
-    monthly_averages = [average_over_bands(ivp, bands='all') for ivp in ivp_list]
-
-    if save_intermediates:
-      print "Saving pickles..."
-      for im, ma in enumerate(monthly_averages):
-        pp = os.path.join(intermediates_path, "month-{:02d}.pickle".format(im+1))
-        pickle.dump(ma, file(pp, 'wb'))
-      print "Done saving pickles..."
+    monthly_averages = calculate_monthly_averages(months, base_path, secondary_path, save_intermediates=save_intermediates)
 
   elif src == 'pickle':
     monthly_averages = read_monthly_pickles(months=range(1,13))
