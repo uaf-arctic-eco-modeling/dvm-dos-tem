@@ -17,8 +17,6 @@ import subprocess
 import glob
 import pickle
 
-#import multiprocessing as mp
-
 from osgeo import gdal
 
 import numpy as np
@@ -26,13 +24,15 @@ import matplotlib
 matplotlib.use('pdf')
 import matplotlib.pyplot as plt
 
+TMP_DATA = 'climatology-intermediate-data'
 
 def create_vrt(filelist, ofname):
   '''
   Creates a GDAL vrt (virtual file format) for a series of input files.
   Expects the each of the files in the filelist to be a single band GeoTiff.
-  The files will be combined into a .vrt file which may then be further 
-  manipulated with GDAL
+  The files will be combined into a single .vrt file with one Band for each
+  of the input files. The single VRT file may then be further manipulated with
+  GDAL (i.e take the average over all the bands).
   
   Parameters
   ----------
@@ -52,7 +52,7 @@ def create_vrt(filelist, ofname):
 
   basename = os.path.basename(ofname)
   basename_noext, ext =  os.path.splitext(basename)
-  temporary_filelist_file = os.path.join("/tmp/", "filelist-{}.txt".format(basename_noext))
+  temporary_filelist_file = os.path.join("/tmp/", "filelist-pid-{}-{}.txt".format(os.getpid(), basename_noext))
 
   with open(temporary_filelist_file, 'w') as f:
     f.write("\n".join(filelist))
@@ -67,22 +67,30 @@ def create_vrt(filelist, ofname):
 
   os.remove(temporary_filelist_file)
 
+
 def average_over_bands(ifname, bands='all'):
   '''
   Given an input file (`ifname`), this function computes the average over all
-  the bands and returns the result.
+  the bands and returns the result. Assumes the bands are named Band1, Band2,
+  etc.
   
   Parameters
   ----------
-  ifname : A multi-band file that can be opened and read with GDAL. Expects
-  that all bands have data and are the same spatial extents. Ignored data less
-  than -9999.
+  ifname : str
+    A multi-band file that can be opened and read with GDAL. Expects that all 
+    bands have data and are the same spatial extents. Ignored data less 
+    than -9999.
+
+  bands : str
+    One of 'all', 'first10', or 'first3'. Selects a subset of bands for faster
+    processing for testing and development.
   
   Returns
   -------
-  avg : numpy masked array which is the same shape as an individual band in the
-  input file, and with each pixel being the average of the pixel values in all
-  of the input file's bands.
+  avg : numpy masked array
+     Returned array is the same shape as an individual band in the input file,
+     and with each pixel being the average of the pixel values in all of the
+     input file's bands.
   '''
   ds = gdal.Open(ifname)
   print " [ DESCRIPTION ]: ", ds.GetDescription()
@@ -129,18 +137,124 @@ def average_over_bands(ifname, bands='all'):
   return avg
 
 
+def read_period_averages(periods):
+  '''
+  Reads pickled period average data from the TMP_DATA directory. Expects files
+  to be in a further sub-directory, period-averages, and have names
+  like: "pa-{start}-{end}.pickle".
+
+  Parameters
+  ----------
+  periods : list of tuples
+    Each tuple should have values (start, end) that are used to define the
+    period.
+
+  Returns
+  -------
+  period_averages : list
+    A list of (masked) numpy arrays that have been un-pickled from the TMP_DATA
+    directory. The pickles are expected to be the period averages built using
+    other routines in this script.
+  '''
+  print "Reading period average pickles into list..."
+  period_averages = []
+  for i, (start, end) in enumerate(periods):
+
+    path = os.path.join(TMP_DATA, 'period-averages-pid{}'.format(os.getpid()), 'pa-{}-{}.pickle'.format(start, end))
+    pa = pickle.load(file(path))
+    period_averages.append(pa)
+
+  print "Done reading period average pickles into list."
+  return period_averages
 
 
 def read_monthly_pickles(months=range(1,13)):
+
   print "reading monthly pickle files for months {}...".format(months)
   mavgs = []
   for m in months:
-    path = "month-{:02d}.pickle".format(m)
+    path = os.path.join(
+        TMP_DATA,
+        'month-averages-pid{}'.format(os.getpid()),
+        'month-{:02d}.pickle'.format(m)
+    )
     ma = pickle.load(file(path))
     mavgs.append(ma)
-  
   print "Returning monthly averages list.."
   return mavgs
+
+
+def calculate_period_averages(periods, base_path, secondary_path, save_pickle=False):
+  '''Given a stack of tif files, one file for each month, this routine will
+  calculate the averages for the supplied periods. Periods are expected to be
+  
+  Parameters
+  ----------
+  periods : list of tuples
+    each tuple has a start and end year for the period
+
+  base_path : str
+    path on the file system where files are located
+
+  secondary_path : str
+    remainder of path on file system where files will be found. The secondary
+    path string is expected to be somethign like this:
+        "ar5_MRI-CGCM3_rcp85_{month:}_{year:}.tif" 
+    with the one set of braces for the month one set of braces for the year.
+    This function will fill the braces to match any month and the years
+    specified in the periods tuples
+
+  save_pickle : bool
+    when true, period average array will be pickled for each period. Will be 
+    saved like so 'climatology/period-averages/pa-{}-{}.pickle'
+
+  Returns
+  -------
+  list of 2D masked numpy arrays
+  '''
+  # Ensure there is a place to put the vrt files 
+  path = os.path.join(TMP_DATA, 'period-averages-pid{}'.format(os.getpid()))
+  try: 
+    os.makedirs(path)
+  except OSError:
+    if not os.path.isdir(path):
+      raise
+  # Make the VRTs for the periods
+  for i, (start, end) in enumerate(periods):
+    print "[ period {} ] Making vrt for period {} to {} (range {})".format(i, start, end, range(start, end))
+    filelist = []
+    for year in range(start, end):
+      final_secondary_path = secondary_path.format(month="*", year="{:04d}")
+      print os.path.join(base_path, final_secondary_path.format(year))
+      single_year_filelist = sorted(glob.glob(os.path.join(base_path, final_secondary_path.format(year))))
+      print "Length of single year filelist {}".format(single_year_filelist)
+      filelist += single_year_filelist
+    print "Length of full filelist: {} ".format(len(filelist))
+    vrtp = os.path.join(TMP_DATA, 'period-averages-pid{}'.format(os.getpid()), "period-{}-{}.vrt".format(start, end))
+    create_vrt(filelist, vrtp)
+
+  period_averages = []
+  for i, (start, end) in enumerate(periods):
+  
+    # Find the average over the selected range
+    vrtp = os.path.join(TMP_DATA, 'period-averages-pid{}'.format(os.getpid()), "period-{}-{}.vrt".format(start, end))
+    pa = average_over_bands(vrtp, bands='all')
+    period_averages.append(pa)
+
+    if save_pickle:
+      # Make sure there is a place to put our pickles 
+      path = os.path.join(TMP_DATA, 'period-averages-pid{}'.format(os.getpid()))
+      try: 
+        os.makedirs(path)
+      except OSError:
+        if not os.path.isdir(path):
+          raise
+      print "Dumping pickle for period {} to {}".format(start, end)
+      pickle.dump(pa, file(os.path.join(path, "pa-{}-{}.pickle".format(start, end)), 'wb'))
+  
+  print "Returning period averages list..."
+  return period_averages
+ 
 
 def get_monthlies_figure(base_path, secondary_path, title, units, 
     src='fresh', save_intermediates=True, madata=None ):
@@ -149,7 +263,16 @@ def get_monthlies_figure(base_path, secondary_path, title, units,
   month across the timeseries.
   '''
   months = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec']
-  
+
+  if save_intermediates:
+    # Make sure there is a place to put our pickles 
+    intermediates_path = os.path.join(TMP_DATA, 'month-averages-pid{}'.format(os.getpid()))
+    try: 
+      os.makedirs(intermediates_path)
+    except OSError:
+      if not os.path.isdir(intermediates_path):
+        raise
+
   if src == 'fresh':
     # Build the vrt files
     for im, MONTH in enumerate(months[:]):
@@ -157,16 +280,19 @@ def get_monthlies_figure(base_path, secondary_path, title, units,
       filelist = sorted(glob.glob(os.path.join(base_path, final_secondary_path)))
       if len(filelist) < 1:
         print "ERROR! No files found in {}".format( os.path.join(base_path, final_secondary_path) )
-      create_vrt(filelist, "month-{:02d}.vrt".format(im+1))
 
-    # Get the averages from the VRT files.
-    monthly_averages = [average_over_bands("month-{:02d}.vrt".format(im+1), bands='all') for im, m in enumerate(months)]
+      vrt_path = os.path.join(intermediates_path,"month-{:02d}.vrt".format(im+1))
+      create_vrt(filelist, vrt_path)
+
+    # make list of expected input vrt paths
+    ivp_list = [os.path.join(intermediates_path,"month-{:02d}.vrt".format(im)) for im in range(1, len(months)+1)]
+    monthly_averages = [average_over_bands(ivp, bands='all') for ivp in ivp_list]
 
     if save_intermediates:
       print "Saving pickles..."
       for im, ma in enumerate(monthly_averages):
-        path = "month-{:02d}.pickle".format(im+1)
-        pickle.dump(ma, file(path, 'wb'))
+        pp = os.path.join(intermediates_path, "month-{:02d}.pickle".format(im+1))
+        pickle.dump(ma, file(pp, 'wb'))
       print "Done saving pickles..."
 
   elif src == 'pickle':
@@ -197,83 +323,6 @@ def get_monthlies_figure(base_path, secondary_path, title, units,
 
   print "Done creating monthlies figure." 
   return fig
-
-
-def calculate_period_averages(periods, base_path, secondary_path, save_pickle=False):
-  '''Given a stack of tif files, one file for each month, this routine will
-  calculate the averages for the supplied periods. Periods are expected to be
-  
-  Parameters
-  ----------
-  periods : list of tuples
-    each tuple has a start and end year for the period
-  
-  base_path : str
-    path on the file system where files are located
-  
-  secondary_path : str
-    remainder of path on file system where files will be found. The secondary
-    path string is expected to be somethign like this:
-        "ar5_MRI-CGCM3_rcp85_{month:}_{year:}.tif" 
-    with the one set of braces for the month one set of braces for the year.
-    This function will fill the braces to match any month and the years
-    specified in the periods tuples
-  
-  save_pickle : bool
-    when true, period average array will be pickled for each period. Will be 
-    saved like so 'climatology/period-averages/pa-{}-{}.pickle'
-
-  Returns
-  -------
-  list of 2D masked numpy arrays
-  '''
-
-  # Make the VRTs for the periods
-  for i, (start, end) in enumerate(periods):
-    print "[ period {} ] Making vrt for period {} to {} (range {})".format(i, start, end, range(start, end))
-    filelist = []
-    for year in range(start, end):
-      final_secondary_path = secondary_path.format(month="*", year="{:04d}")
-      print os.path.join(base_path, final_secondary_path.format(year))
-      single_year_filelist = sorted(glob.glob(os.path.join(base_path, final_secondary_path.format(year))))
-      print "Length of single year filelist {}".format(single_year_filelist)
-      filelist += single_year_filelist
-    print "Length of full filelist: {} ".format(len(filelist))
-    create_vrt(filelist, "period-{}-{}.vrt".format(start, end))
-
-  period_averages = []
-  for i, (start, end) in enumerate(periods):
-  
-    # Find the average over the selected range
-    pa = average_over_bands("period-{}-{}.vrt".format(start, end), bands='all')
-    period_averages.append(pa)
-
-    if save_pickle:
-      # Make sure there is a place to put our pickles 
-      path = 'climatology/period-averages'
-      try: 
-        os.makedirs(path)
-      except OSError:
-        if not os.path.isdir(path):
-          raise
-      print "Dumping pickle for period {} to {}".format(start, end)
-      pickle.dump(pa, file(os.path.join(path, "pa-{}-{}.pickle".format(start, end)), 'wb'))
-  
-  print "Returning period averages list..."
-  return period_averages
- 
-def read_period_averages(periods):
-
-  print "Reading period average pickles into list..."
-  period_averages = []
-  for i, (start, end) in enumerate(periods):
-
-    path = 'climatology/period-averages/pa-{}-{}.pickle'.format(start, end)
-    pa = pickle.load(file(path))
-    period_averages.append(pa)
-  
-  print "Done reading period average pickles into list."
-  return period_averages
 
 
 def get_overview_figure(periods, base_path, secondary_path, title='', 
@@ -331,6 +380,7 @@ def get_overview_figure(periods, base_path, secondary_path, title='',
 
   return overview_fig, period_averages
   
+
 def get_period_avg_figures(periods, base_path, secondary_path,
     title='', units='', src='fresh', save_intermediates=True, padata=None):
   '''
@@ -369,6 +419,7 @@ def get_period_avg_figures(periods, base_path, secondary_path,
     ind_figures.append(fig)
   
   return ind_figures, padata
+
 
 if __name__ == '__main__':
 
@@ -421,7 +472,7 @@ if __name__ == '__main__':
       base_path, secondary_path, 
       title='\n'.join((base_path, secondary_path)),
       units=units,
-      src='pickle',
+      src='fresh',
       save_intermediates=True,
       madata=None
   )
@@ -431,7 +482,7 @@ if __name__ == '__main__':
       base_path, secondary_path,
       title='\n'.join((base_path, secondary_path)),
       units=units,
-      src='pickle', # can be: fresh, pickle, or passed
+      src='fresh', # can be: fresh, pickle, or passed
       save_intermediates=True,
       padata=None
   )
