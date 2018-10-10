@@ -16,6 +16,7 @@ import os
 import subprocess
 import glob
 import pickle
+import multiprocessing
 
 from osgeo import gdal
 
@@ -25,6 +26,51 @@ matplotlib.use('pdf')
 import matplotlib.pyplot as plt
 
 TMP_DATA = 'climatology-intermediate-data'
+
+def worker_func(base_path, secondary_path, units):
+  print "worker function! pid:{}".format(os.getpid())
+  print "  [{}] {}".format(os.getpid(), base_path)
+  print "  [{}] {}".format(os.getpid(), secondary_path)
+  print "  [{}] {}".format(os.getpid(), units)
+  monthlies_figure = get_monthlies_figure(
+      base_path, secondary_path, 
+      title='\n'.join((base_path, secondary_path)),
+      units=units,
+      src='fresh',
+      save_intermediates=False,
+      madata=None
+  )
+
+  overveiw_figure, period_averages = get_overview_figure(
+      periods,
+      base_path, secondary_path,
+      title='\n'.join((base_path, secondary_path)),
+      units=units,
+      src='fresh', # can be: fresh, pickle, or passed
+      save_intermediates=False,
+      padata=None
+  )
+
+  individual_figs, _ = get_period_avg_figures(
+      periods,
+      base_path, secondary_path,
+      title=os.path.dirname(secondary_path),
+      units=units,
+      src='passed',
+      padata=period_averages
+  )
+
+  # Create multi-page pdf document
+  import matplotlib.backends.backend_pdf
+  ofname = "climatology_{}.pdf".format(secondary_path.split("/")[0])
+  print "Saving PDF: {}".format(ofname)
+  pdf = matplotlib.backends.backend_pdf.PdfPages(ofname)
+  pdf.savefig(monthlies_figure)
+  pdf.savefig(overveiw_figure)
+  for f in individual_figs:
+    pdf.savefig(f)
+  pdf.close()
+
 
 def create_vrt(filelist, ofname):
   '''
@@ -309,6 +355,7 @@ def calculate_monthly_averages(months, base_path, secondary_path, save_intermedi
   print "Returning monthly_averages list..."
   return monthly_averages
 
+
 def get_monthlies_figure(base_path, secondary_path, title, units, 
     src='fresh', save_intermediates=True, madata=None ):
   '''
@@ -470,68 +517,62 @@ if __name__ == '__main__':
   vap_mean_hPa_NCAR-CCSM4_rcp85_2006_2100_fix
   '''
 
-  #secondary_path = 'rsds_mean_MJ-m2-d1_CRU-TS40_historical_1901_2015_fix
-  #secondary_path = 'rsds_mean_MJ-m2-d1_MRI-CGCM3_rcp85_2006_2100_fix/rsds/rsds_mean_MJ-m2-d1_iem_ar5_MRI-CGCM3_rcp85_{month:}_{year:}.tif'
-  #secondary_path = 'rsds_mean_MJ-m2-d1_NCAR-CCSM4_rcp85_2006_2100_fix
-
-  secondary_path = 'vap_mean_hPa_iem_CRU-TS40_historical_1901_2015_fix/vap/vap_mean_hPa_iem_CRU-TS40_historical_{month:}_{year:}.tif'
-  #secondary_path = 'vap_mean_hPa_MRI-CGCM3_rcp85_2006_2100_fix/vap/vap_mean_hPa_iem_ar5_MRI-CGCM3_rcp85_{month:}_{year:}.tif'
-  #secondary_path = 'vap_mean_hPa_NCAR-CCSM4_rcp85_2006_2100_fix/vap/'
-
-  units = 'hPa'
-
   # Decades for projected, truncated first
-  # periods = [
-  #   (2006,2010),(2010,2020),(2020,2030),(2030,2040),(2040,2050),
-  #   (2050,2060),(2060,2070),(2070,2080),(2080,2090),(2090,2100)
-  # ]
+  fx_periods = [
+    (2006,2010),(2010,2020),(2020,2030),(2030,2040),(2040,2050),
+    (2050,2060),(2060,2070),(2070,2080),(2080,2090),(2090,2100)
+  ]
 
   # Decades for historic, truncated at end
-  periods = [
+  hist_periods = [
     (1901,1911),(1911,1921),(1921,1931),(1931,1941),(1941,1951),
     (1951,1961),(1961,1971),(1971,1981),(1981,1991),(1991,2001),
     (2001,2011),(2011,2015)
   ]
 
+  secondary_path_list = [
+    'pr_total_mm_iem_cru_TS40_1901_2015/pr_total_mm_CRU_TS40_historical_{month:}_{year:}.tif',
+    'tas_mean_C_iem_cru_TS40_1901_2015/tas/tas_mean_C_CRU_TS40_historical_{month:}_{year:}.tif',
 
-  monthlies_figure = get_monthlies_figure(
-      base_path, secondary_path, 
-      title='\n'.join((base_path, secondary_path)),
-      units=units,
-      src='fresh',
-      save_intermediates=False,
-      madata=None
-  )
+    'rsds_mean_MJ-m2-d1_iem_CRU-TS40_historical_1901_2015_fix/rsds/rsds_mean_MJ-m2-d1_iem_CRU-TS40_historical_{month:}_{year:}.tif',
+    'rsds_mean_MJ-m2-d1_ar5_MRI-CGCM3_rcp85_2006_2100_fix/rsds/rsds_mean_MJ-m2-d1_iem_ar5_MRI-CGCM3_rcp85_{month:}_{year:}.tif',
+    'rsds_mean_MJ-m2-d1_ar5_NCAR-CCSM4_rcp85_2006_2100_fix/rsds/rsds_mean_MJ-m2-d1_iem_ar5_NCAR-CCSM4_rcp85_{month:}_{year:}.tif',
 
-  overveiw_figure, period_averages = get_overview_figure(
-      periods,
-      base_path, secondary_path,
-      title='\n'.join((base_path, secondary_path)),
-      units=units,
-      src='fresh', # can be: fresh, pickle, or passed
-      save_intermediates=False,
-      padata=None
-  )
+    'vap_mean_hPa_iem_CRU-TS40_historical_1901_2015_fix/vap/vap_mean_hPa_iem_CRU-TS40_historical_{month:}_{year:}.tif',
+    'vap_mean_hPa_ar5_MRI-CGCM3_rcp85_2006_2100_fix/vap/vap_mean_hPa_iem_ar5_MRI-CGCM3_rcp85_{month:}_{year:}.tif',
+    'vap_mean_hPa_ar5_NCAR-CCSM4_rcp85_2006_2100_fix/vap/vap_mean_hPa_iem_ar5_NCAR-CCSM4_rcp85_{month:}_{year:}.tif',
+  ]
 
-  individual_figs, _ = get_period_avg_figures(
-      periods,
-      base_path, secondary_path,
-      title=os.path.dirname(secondary_path),
-      units=units,
-      src='passed',
-      padata=period_averages
-  )
+  procs = []
+  for i in secondary_path_list:
+    if 'pr_total' in i.lower():
+      units = 'mm month-1'
+    elif 'tas_mean' in i.lower():
+      units = 'degrees C'
+    elif 'vap_mean' in i.lower():
+      units = 'hPa'
+    elif 'rsds_mean' in i.lower():
+      units = 'MJ-m2-d1'
 
-  # Create multi-page pdf document
-  import matplotlib.backends.backend_pdf
-  ofname = "climatology_{}.pdf".format(secondary_path.split("/")[0])
-  print "Saving PDF: {}".format(ofname)
-  pdf = matplotlib.backends.backend_pdf.PdfPages(ofname)
-  pdf.savefig(monthlies_figure)
-  pdf.savefig(overveiw_figure)
-  for f in individual_figs:
-    pdf.savefig(f)
-  pdf.close()
+    if '_cru' in i.lower():
+      periods = hist_periods
+    elif '_mri' in i.lower():
+      periods = fx_periods
+    elif '_ncar' in i.lower():
+      periods = fx_periods
+
+    secondary_path = i
+
+    print "MAIN PROCESS! [{}] Starting worker...".format(os.getpid())
+    p = multiprocessing.Process(target=worker_func, args=(base_path, secondary_path, units))
+    procs.append(p)
+    p.start()
+
+  print "Done starting processes. Looping to set join on each process..."
+  for p in procs:
+    p.join()
+  print "DONE!"
+
 
 #plot_monthly_averages(base_path, secondary_path, 'rsds_mean_MJ-m2-d1_MRI-CGCM3_rcp85_2006_2100 monthly averages', 'MJ-m2-d1')
 # 
