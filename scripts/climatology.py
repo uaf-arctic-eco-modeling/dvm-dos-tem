@@ -15,12 +15,15 @@ anomolies.
 import os
 import subprocess
 import glob
+import pickle
 
 #import multiprocessing as mp
 
 from osgeo import gdal
 
 import numpy as np
+import matplotlib
+matplotlib.use('pdf')
 import matplotlib.pyplot as plt
 
 
@@ -55,7 +58,8 @@ def create_vrt(filelist, ofname):
     f.write("\n".join(filelist))
 
   result = subprocess.check_call([
-    'gdalbuildvrt', 
+    'gdalbuildvrt',
+    '-overwrite', 
     '-separate',
     ofname,
     '-input_file_list', temporary_filelist_file
@@ -125,34 +129,62 @@ def average_over_bands(ifname, bands='all'):
   return avg
 
 
-def plot_monthly_averages(base_path, secondary_path, title, units):
+
+
+def read_monthly_pickles(months=range(1,13)):
+  print "reading monthly pickle files for months {}...".format(months)
+  mavgs = []
+  for m in months:
+    path = "month-{:02d}.pickle".format(m)
+    ma = pickle.load(file(path))
+    mavgs.append(ma)
+  
+  print "Returning monthly averages list.."
+  return mavgs
+
+def get_monthlies_figure(base_path, secondary_path, title, units, 
+    src='fresh', save_intermediates=True, madata=None ):
   '''
   Creates a single figure with 12 subplots, each showing the average for that
   month across the timeseries.
   '''
   months = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec']
+  
+  if src == 'fresh':
+    # Build the vrt files
+    for im, MONTH in enumerate(months[:]):
+      final_secondary_path = secondary_path.format(month="{:02d}", year="*").format(im+1)
+      filelist = sorted(glob.glob(os.path.join(base_path, final_secondary_path)))
+      if len(filelist) < 1:
+        print "ERROR! No files found in {}".format( os.path.join(base_path, final_secondary_path) )
+      create_vrt(filelist, "month-{:02d}.vrt".format(im+1))
 
-  for im, MONTH in enumerate(months[0:]):
-    final_secondary_path = secondary_path.format("{:02d}", "*").format(im+1)
-    filelist = sorted(glob.glob(os.path.join(base_path, final_secondary_path)))
-    create_vrt(filelist, "month-{:02d}.vrt".format(im+1))
+    # Get the averages from the VRT files.
+    monthly_averages = [average_over_bands("month-{:02d}.vrt".format(im+1), bands='all') for im, m in enumerate(months)]
 
-  # pool = mp.Pool(processes=len(months))
-  # monthly_averages = pool.map(average_over_bands, 
-  # 
-  # procs = []
-  # for im, MONTH in enumerate(months[0:])
-  #   proc = mp.Process(target=average_over_bands, args=("month-{:02d}.vrt".format(im+1), bands='all'))
-  #   procs.append(proc)
-  #   proc.start()
-  # for proc in procs.join()
-    
-  monthly_averages = [average_over_bands("month-{:02d}.vrt".format(im+1), bands='all') for im, MONTH in enumerate(months[0:])]
+    if save_intermediates:
+      print "Saving pickles..."
+      for im, ma in enumerate(monthly_averages):
+        path = "month-{:02d}.pickle".format(im+1)
+        pickle.dump(ma, file(path, 'wb'))
+      print "Done saving pickles..."
+
+  elif src == 'pickle':
+    monthly_averages = read_monthly_pickles(months=range(1,13))
+
+  elif src == 'passed':
+    monthly_averages = madata 
+
+  else:
+    print "Invalid argument for src! '{}'".format(src)
+
 
   vmax = np.max([avg.max() for avg in monthly_averages])
   vmin = np.min([avg.min() for avg in monthly_averages])
   print "vmax: {}  vmin: {}".format(vmax, vmin)
-  fig, axes = plt.subplots(nrows=3, ncols=4, sharex=True, sharey=True)
+
+  print "Creating monthlies figure..."
+  fig, axes = plt.subplots(figsize=(11,8.5), nrows=3, ncols=4, sharex=True, sharey=True)
   imgs = []
   for ax, avg, month in zip(axes.flat, monthly_averages, months):
     im = ax.imshow(avg, vmin=vmin, vmax=vmax)
@@ -160,69 +192,296 @@ def plot_monthly_averages(base_path, secondary_path, title, units):
     ax.set_title(month)
 
   cbar = fig.colorbar(imgs[0], ax=axes.ravel().tolist())
-  #cbar.set_ticks(cbarlabels)
-  #cbar.set_ticklabels(cbarlabels)
   cbar.set_label(units)
   fig.suptitle(title)
 
-  plt.show(block=True)
+  print "Done creating monthlies figure." 
+  return fig
 
 
-def plot_period_averages(periods, base_path, secondary_path, title=""):
-  '''
-  Creates plots of averages over the given periods. Creates a multi-page pdf
-  document with one plot for each of the periods specified in the input args.
-  Along the way a number of GDAL VRT files are created in your working directory
-  that summarize the periods to be averaged.
+def calculate_period_averages(periods, base_path, secondary_path, save_pickle=False):
+  '''Given a stack of tif files, one file for each month, this routine will
+  calculate the averages for the supplied periods. Periods are expected to be
   
-  periods : list of tuples with start and end year (not inclusive of end) to average over
+  Parameters
+  ----------
+  periods : list of tuples
+    each tuple has a start and end year for the period
+  
+  base_path : str
+    path on the file system where files are located
+  
+  secondary_path : str
+    remainder of path on file system where files will be found. The secondary
+    path string is expected to be somethign like this:
+        "ar5_MRI-CGCM3_rcp85_{month:}_{year:}.tif" 
+    with the one set of braces for the month one set of braces for the year.
+    This function will fill the braces to match any month and the years
+    specified in the periods tuples
+  
+  save_pickle : bool
+    when true, period average array will be pickled for each period. Will be 
+    saved like so 'climatology/period-averages/pa-{}-{}.pickle'
+
+  Returns
+  -------
+  list of 2D masked numpy arrays
   '''
+
+  # Make the VRTs for the periods
   for i, (start, end) in enumerate(periods):
-    print i, start, end, range(start, end)
+    print "[ period {} ] Making vrt for period {} to {} (range {})".format(i, start, end, range(start, end))
     filelist = []
     for year in range(start, end):
-      final_secondary_path = secondary_path.format("*", "{:04d}")
-      #print os.path.join(base_path, final_secondary_path.format(year))
+      final_secondary_path = secondary_path.format(month="*", year="{:04d}")
+      print os.path.join(base_path, final_secondary_path.format(year))
       single_year_filelist = sorted(glob.glob(os.path.join(base_path, final_secondary_path.format(year))))
-      #print single_year_filelist
+      print "Length of single year filelist {}".format(single_year_filelist)
       filelist += single_year_filelist
-    #print len(filelist)
+    print "Length of full filelist: {} ".format(len(filelist))
     create_vrt(filelist, "period-{}-{}.vrt".format(start, end))
-  
+
   period_averages = []
   for i, (start, end) in enumerate(periods):
-    period_averages.append(average_over_bands("period-{}-{}.vrt".format(start, end), bands='all'))
+  
+    # Find the average over the selected range
+    pa = average_over_bands("period-{}-{}.vrt".format(start, end), bands='all')
+    period_averages.append(pa)
 
-  import matplotlib.backends.backend_pdf
-  pdf = matplotlib.backends.backend_pdf.PdfPages("output.pdf")
-  for i, ((start,end), periodavg) in enumerate(zip(periods, period_averages)):
+    if save_pickle:
+      # Make sure there is a place to put our pickles 
+      path = 'climatology/period-averages'
+      try: 
+        os.makedirs(path)
+      except OSError:
+        if not os.path.isdir(path):
+          raise
+      print "Dumping pickle for period {} to {}".format(start, end)
+      pickle.dump(pa, file(os.path.join(path, "pa-{}-{}.pickle".format(start, end)), 'wb'))
+  
+  print "Returning period averages list..."
+  return period_averages
+ 
+def read_period_averages(periods):
+
+  print "Reading period average pickles into list..."
+  period_averages = []
+  for i, (start, end) in enumerate(periods):
+
+    path = 'climatology/period-averages/pa-{}-{}.pickle'.format(start, end)
+    pa = pickle.load(file(path))
+    period_averages.append(pa)
+  
+  print "Done reading period average pickles into list."
+  return period_averages
+
+
+def get_overview_figure(periods, base_path, secondary_path, title='', 
+    units='', src='fresh', save_intermediates=True, padata=None):
+  '''
+  Creates and returns a matplotlib figure that has ??
+  
+  Parameters
+  ----------
+  
+  Returns
+  -------
+  fig : matplotlib figure instance
+  '''
+  if src == 'fresh':
+    period_averages = calculate_period_averages(periods, base_path, secondary_path, save_pickle=save_intermediates)
+  elif src == 'pickle':
+    period_averages = read_period_averages(periods)
+  elif src == 'passed':
+    period_averages = padata 
+  else:
+    print "Invalid argument for src! '{}'".format(src)
+    
+  print "Converting to stacked masked array..."
+  pa2 = np.ma.stack(period_averages)
+  vmax = pa2.max()
+  vmin = pa2.min()  
+  print "vmax: {}  vmin: {}".format(vmax, vmin)
+
+  NCOLS = 4     # fixed number of cols, may add more rows
+  NROWS = len(period_averages)/NCOLS
+  if (len(period_averages) % NCOLS) > 0:
+    NROWS += 1
+
+  if len(period_averages) < NCOLS:
+    NCOLS = len(period_averages)
+    NROWS = 1
+
+  overview_fig, axes = plt.subplots(nrows=NROWS, ncols=NCOLS, sharex=True, sharey=True)
+  overview_fig.set_size_inches((11, 8.5), forward=True)
+
+  imgs = []  # in case we need to manipulate the images all at once
+  for ax, avg, period in zip(axes.flat, period_averages, periods):
+    print "plotting image for period:", period
+
+    # Setting vmax and vmin normalized the colorbars across all images
+    im = ax.imshow(avg, vmin=vmin, vmax=vmax, cmap='rainbow')
+    ax.set_title('{} to {}'.format(period[0], period[1]))
+    imgs.append(im)
+  
+  # set a colorbar on the first axes
+  cbar = overview_fig.colorbar(imgs[0], ax=axes.ravel().tolist())
+  cbar.set_label(units)
+  overview_fig.suptitle(title) 
+
+  return overview_fig, period_averages
+  
+def get_period_avg_figures(periods, base_path, secondary_path,
+    title='', units='', src='fresh', save_intermediates=True, padata=None):
+  '''
+
+  Parameters
+  ----------
+
+  Returns
+  -------
+  '''
+  if src == 'fresh':
+    period_averages = calculate_period_averages(periods, base_path, secondary_path, save_pickle=save_intermediates)
+  elif src == 'pickle':
+    period_averages = read_period_averages(periods)
+  elif src == 'passed':
+    period_averages = padata 
+  else:
+    print "Invalid argument for src! '{}'".format(src)
+
+  print "Converting to stacked masked array..."
+  pa2 = np.ma.stack(period_averages)
+  vmax = pa2.max()
+  vmin = pa2.min()  
+  print "vmax: {}  vmin: {}".format(vmax, vmin)
+
+  ind_figures = []
+  for i, ((start,end), periodavg) in enumerate(zip(periods, pa2)):
     fig = plt.figure()
-    fig.suptitle("\n".join([title, "Period Average {} to {}".format(start, end)]), fontsize=8)
-    plt.imshow(periodavg)
-    plt.colorbar()
-    pdf.savefig(fig)
-  pdf.close()
+    fig.suptitle(title) #fontsize=8
+    im = plt.imshow(periodavg, vmin=vmin, vmax=vmax, cmap='rainbow')
+    ax = fig.axes[0]
+    ax.set_title('Average, {} to {}'.format(start, end))
+    cbar = plt.colorbar()
+    cbar.set_label(units)
 
-
+    ind_figures.append(fig)
+  
+  return ind_figures, padata
 
 if __name__ == '__main__':
 
   base_path = '/atlas_scratch/ALFRESCO/ALFRESCO_Master_Dataset_v2_1/ALFRESCO_Model_Input_Datasets/IEM_for_TEM_inputs/'
 
-  #secondary_path = 'rsds_mean_MJ-m2-d1_MRI-CGCM3_rcp85_2006_2100_fix/rsds/rsds_mean_MJ-m2-d1_iem_ar5_MRI-CGCM3_rcp85_{}_{}.tif'
-  secondary_path = 'vap_mean_hPa_MRI-CGCM3_rcp85_2006_2100_fix/vap/vap_mean_hPa_iem_ar5_MRI-CGCM3_rcp85_{}_{}.tif'
+  '''
+  pr_total_mm_iem_cru_TS40_1901_2015
+  pr_total_mm_ar5_MRI-CGCM3_rcp85_2006_2100
+  pr_total_mm_ar5_NCAR-CCSM4_rcp85_2006_2100.zip
 
-  #plot_monthly_averages(base_path, secondary_path, 'rsds_mean_MJ-m2-d1_MRI-CGCM3_rcp85_2006_2100 monthly averages', 'MJ-m2-d1')
+  tas_mean_C_iem_cru_TS40_1901_2015
+  tas_mean_C_ar5_MRI-CGCM3_rcp85_2006_2100
+  tas_mean_C_ar5_NCAR-CCSM4_rcp85_2006_2100.zip
 
+  hurs_mean_pct_CRU-TS40_historical_1901_2015_fix
+  hurs_mean_pct_MRI-CGCM3_rcp85_2006_2100_fix
+  hurs_mean_pct_NCAR-CCSM4_rcp85_2006_2100_fix
+
+  vap_mean_hPa_CRU-TS40_historical_1901_2015_fix
+  vap_mean_hPa_MRI-CGCM3_rcp85_2006_2100_fix
+  vap_mean_hPa_NCAR-CCSM4_rcp85_2006_2100_fix
+  '''
+
+  #secondary_path = 'rsds_mean_MJ-m2-d1_CRU-TS40_historical_1901_2015_fix
+  #secondary_path = 'rsds_mean_MJ-m2-d1_MRI-CGCM3_rcp85_2006_2100_fix/rsds/rsds_mean_MJ-m2-d1_iem_ar5_MRI-CGCM3_rcp85_{month:}_{year:}.tif'
+  #secondary_path = 'rsds_mean_MJ-m2-d1_NCAR-CCSM4_rcp85_2006_2100_fix
+
+  secondary_path = 'vap_mean_hPa_iem_CRU-TS40_historical_1901_2015_fix/vap/vap_mean_hPa_iem_CRU-TS40_historical_{month:}_{year:}.tif'
+  #secondary_path = 'vap_mean_hPa_CRU-TS40_historical_1901_2015_fix/vap/vap_mean_hPa_CRU-TS40_historical_{month:}_{year:}.tif'
+  #secondary_path = 'vap_mean_hPa_MRI-CGCM3_rcp85_2006_2100_fix/vap/vap_mean_hPa_iem_ar5_MRI-CGCM3_rcp85_{month:}_{year:}.tif'
+  #secondary_path = 'vap_mean_hPa_NCAR-CCSM4_rcp85_2006_2100_fix/vap/'
+
+  units = 'hPa'
+
+  # Decades for projected, truncated first
+  # periods = [
+  #   (2006,2010),(2010,2020),(2020,2030),(2030,2040),(2040,2050),
+  #   (2050,2060),(2060,2070),(2070,2080),(2080,2090),(2090,2100)
+  # ]
+
+  # Decades for historic, truncated at end
   periods = [
-    (2006,2010),(2010,2020),(2020,2030),(2030,2040),(2040,2050),
-    (2050,2060),(2060,2070),(2070,2080),(2080,2090),(2090,2100)
+    (1901,1911),(1911,1921),(1921,1931),(1931,1941),(1941,1951),
+    (1951,1961),(1961,1971),(1971,1981),(1981,1991),(1991,2001),
+    (2001,2011),(2011,2015)
   ]
-  plot_period_averages(periods, base_path, secondary_path, title="\n".join([base_path,secondary_path]))
-  
 
 
+  monthlies_figure = get_monthlies_figure(
+      base_path, secondary_path, 
+      title='\n'.join((base_path, secondary_path)),
+      units=units,
+      src='pickle',
+      save_intermediates=True,
+      madata=None
+  )
+
+  overveiw_figure, period_averages = get_overview_figure(
+      periods,
+      base_path, secondary_path,
+      title='\n'.join((base_path, secondary_path)),
+      units=units,
+      src='pickle', # can be: fresh, pickle, or passed
+      save_intermediates=True,
+      padata=None
+  )
+
+  individual_figs, _ = get_period_avg_figures(
+      periods,
+      base_path, secondary_path,
+      title=os.path.dirname(secondary_path),
+      units=units,
+      src='passed',
+      padata=period_averages
+  )
+
+  # Create multi-page pdf document
+  import matplotlib.backends.backend_pdf
+  pdf = matplotlib.backends.backend_pdf.PdfPages("output_{}_.pdf".format("sample"))
+  pdf.savefig(monthlies_figure)
+  pdf.savefig(overveiw_figure)
+  for f in individual_figs:
+    pdf.savefig(f)
+  pdf.close()
+
+#plot_monthly_averages(base_path, secondary_path, 'rsds_mean_MJ-m2-d1_MRI-CGCM3_rcp85_2006_2100 monthly averages', 'MJ-m2-d1')
+# 
+#   plot_period_averages(
+#       periods, 
+#       base_path, secondary_path, 
+#       title="\n".join([base_path,secondary_path]), 
+#       units=units, 
+#   )
   
+
+########
+# from multiprocessing import Pool
+# 
+# if __name__ == '__main__':
+# 
+#   bands = np.arange(1, 95)
+#   
+# 
+#     with Pool(5) as p:
+#         results = p.map(my_sum, [long_list[0:len(long_list)//2], long_list[len(long_list)//2:]))
+# 
+#     print(sum(results) / len(long_list)) # add subresults and divide by n
+#   
+#   
   
-  
-  
+    # Decades for historic period - works nicely, truncated at end
+#   FREQ = 10; START = 1901; END = 2015
+#   srange = range(START, END, FREQ)
+#   erange = range(START+FREQ, END, FREQ)
+#   periods = zip(srange, erange)
+#   periods.append( (erange[-1], END ) )
