@@ -264,6 +264,7 @@ def calculate_period_averages(periods, base_path, secondary_path, save_intermedi
   print "Returning period averages list..."
   return period_averages
 
+
 def calculate_monthly_averages(months, base_path, secondary_path, save_intermediates=False):
   '''
   '''
@@ -305,6 +306,8 @@ def calculate_monthly_averages(months, base_path, secondary_path, save_intermedi
       os.remove(os.path.join(mapath, f))
     os.rmdir(mapath)
 
+  print "Returning monthly_averages list..."
+  return monthly_averages
 
 def get_monthlies_figure(base_path, secondary_path, title, units, 
     src='fresh', save_intermediates=True, madata=None ):
@@ -444,6 +447,9 @@ def get_period_avg_figures(periods, base_path, secondary_path,
 
 if __name__ == '__main__':
 
+  print "PID: {}".format(os.getpid())
+  print "Temporary file storage: {}".format(TMP_DATA)
+
   base_path = '/atlas_scratch/ALFRESCO/ALFRESCO_Master_Dataset_v2_1/ALFRESCO_Model_Input_Datasets/IEM_for_TEM_inputs/'
 
   '''
@@ -469,7 +475,6 @@ if __name__ == '__main__':
   #secondary_path = 'rsds_mean_MJ-m2-d1_NCAR-CCSM4_rcp85_2006_2100_fix
 
   secondary_path = 'vap_mean_hPa_iem_CRU-TS40_historical_1901_2015_fix/vap/vap_mean_hPa_iem_CRU-TS40_historical_{month:}_{year:}.tif'
-  #secondary_path = 'vap_mean_hPa_CRU-TS40_historical_1901_2015_fix/vap/vap_mean_hPa_CRU-TS40_historical_{month:}_{year:}.tif'
   #secondary_path = 'vap_mean_hPa_MRI-CGCM3_rcp85_2006_2100_fix/vap/vap_mean_hPa_iem_ar5_MRI-CGCM3_rcp85_{month:}_{year:}.tif'
   #secondary_path = 'vap_mean_hPa_NCAR-CCSM4_rcp85_2006_2100_fix/vap/'
 
