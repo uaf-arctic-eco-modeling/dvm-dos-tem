@@ -184,9 +184,10 @@ def read_monthly_pickles(months=range(1,13)):
   return mavgs
 
 
-def calculate_period_averages(periods, base_path, secondary_path, save_pickle=False):
+def calculate_period_averages(periods, base_path, secondary_path, save_intermediates=False):
   '''Given a stack of tif files, one file for each month, this routine will
   calculate the averages for the supplied periods. Periods are expected to be
+  selections of years, i.e. 1901 to 1911.
   
   Parameters
   ----------
@@ -204,7 +205,7 @@ def calculate_period_averages(periods, base_path, secondary_path, save_pickle=Fa
     This function will fill the braces to match any month and the years
     specified in the periods tuples
 
-  save_pickle : bool
+  save_intermediates : bool
     when true, period average array will be pickled for each period. Will be 
     saved like so 'climatology/period-averages/pa-{}-{}.pickle'
 
@@ -241,7 +242,7 @@ def calculate_period_averages(periods, base_path, secondary_path, save_pickle=Fa
     pa = average_over_bands(vrtp, bands='all')
     period_averages.append(pa)
 
-    if save_pickle:
+    if save_intermediates:
       # Make sure there is a place to put our pickles 
       path = os.path.join(TMP_DATA, 'period-averages-pid{}'.format(os.getpid()))
       try: 
@@ -338,7 +339,7 @@ def get_overview_figure(periods, base_path, secondary_path, title='',
   fig : matplotlib figure instance
   '''
   if src == 'fresh':
-    period_averages = calculate_period_averages(periods, base_path, secondary_path, save_pickle=save_intermediates)
+    period_averages = calculate_period_averages(periods, base_path, secondary_path, save_intermediates=save_intermediates)
   elif src == 'pickle':
     period_averages = read_period_averages(periods)
   elif src == 'passed':
@@ -392,7 +393,7 @@ def get_period_avg_figures(periods, base_path, secondary_path,
   -------
   '''
   if src == 'fresh':
-    period_averages = calculate_period_averages(periods, base_path, secondary_path, save_pickle=save_intermediates)
+    period_averages = calculate_period_averages(periods, base_path, secondary_path, save_intermediates=save_intermediates)
   elif src == 'pickle':
     period_averages = read_period_averages(periods)
   elif src == 'passed':
