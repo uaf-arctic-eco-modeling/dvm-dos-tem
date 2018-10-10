@@ -226,14 +226,15 @@ def calculate_period_averages(periods, base_path, secondary_path, save_intermedi
     filelist = []
     for year in range(start, end):
       final_secondary_path = secondary_path.format(month="*", year="{:04d}")
-      print os.path.join(base_path, final_secondary_path.format(year))
+      #print os.path.join(base_path, final_secondary_path.format(year))
       single_year_filelist = sorted(glob.glob(os.path.join(base_path, final_secondary_path.format(year))))
-      print "Length of single year filelist {}".format(single_year_filelist)
+      #print "Length of single year filelist {}".format(len(single_year_filelist))
       filelist += single_year_filelist
     print "Length of full filelist: {} ".format(len(filelist))
     vrtp = os.path.join(TMP_DATA, 'period-averages-pid{}'.format(os.getpid()), "period-{}-{}.vrt".format(start, end))
     create_vrt(filelist, vrtp)
 
+  # Calculate the period averages from the VRT files
   period_averages = []
   for i, (start, end) in enumerate(periods):
   
@@ -253,6 +254,13 @@ def calculate_period_averages(periods, base_path, secondary_path, save_intermedi
       print "Dumping pickle for period {} to {}".format(start, end)
       pickle.dump(pa, file(os.path.join(path, "pa-{}-{}.pickle".format(start, end)), 'wb'))
   
+  # Clean up any intermediate files.
+  if not save_intermediates:
+    papath = os.path.join(TMP_DATA, 'period-averages-pid{}'.format(os.getpid()))
+    for f in os.listdir(papath):
+      os.remove(os.path.join(papath, f))
+    os.rmdir(papath)
+
   print "Returning period averages list..."
   return period_averages
 
@@ -297,7 +305,6 @@ def calculate_monthly_averages(months, base_path, secondary_path, save_intermedi
       os.remove(os.path.join(mapath, f))
     os.rmdir(mapath)
 
- 
 
 def get_monthlies_figure(base_path, secondary_path, title, units, 
     src='fresh', save_intermediates=True, madata=None ):
@@ -318,7 +325,6 @@ def get_monthlies_figure(base_path, secondary_path, title, units,
 
   else:
     print "Invalid argument for src! '{}'".format(src)
-
 
   vmax = np.max([avg.max() for avg in monthly_averages])
   vmin = np.min([avg.min() for avg in monthly_averages])
@@ -488,7 +494,7 @@ if __name__ == '__main__':
       title='\n'.join((base_path, secondary_path)),
       units=units,
       src='fresh',
-      save_intermediates=True,
+      save_intermediates=False,
       madata=None
   )
 
@@ -498,7 +504,7 @@ if __name__ == '__main__':
       title='\n'.join((base_path, secondary_path)),
       units=units,
       src='fresh', # can be: fresh, pickle, or passed
-      save_intermediates=True,
+      save_intermediates=False,
       padata=None
   )
 
@@ -513,7 +519,9 @@ if __name__ == '__main__':
 
   # Create multi-page pdf document
   import matplotlib.backends.backend_pdf
-  pdf = matplotlib.backends.backend_pdf.PdfPages("output_{}_.pdf".format("sample"))
+  ofname = "climatology_{}.pdf".format(secondary_path.split("/")[0])
+  print "Saving PDF: {}".format(ofname)
+  pdf = matplotlib.backends.backend_pdf.PdfPages(ofname)
   pdf.savefig(monthlies_figure)
   pdf.savefig(overveiw_figure)
   for f in individual_figs:
