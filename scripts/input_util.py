@@ -264,6 +264,9 @@ def climate_ts_plot(args):
   import matplotlib.pyplot as plt
   import matplotlib.gridspec as gridspec
   import matplotlib.ticker as ticker
+  import pandas as pd
+
+
 
   CLIMATE_FILES = ['historic-climate.nc', 'projected-climate.nc']
   VARS = ['tair', 'precip', 'nirr', 'vapor_press']
@@ -274,61 +277,135 @@ def climate_ts_plot(args):
 
   gs = gridspec.GridSpec(ROWS, COLS)
 
-  if args.stitch:
-
+  if args.type == 'annual-summary':
+    if args.stitch:
+      print "Warning: Ignoring command line argument --stitch"
     hds = nc.Dataset(os.path.join(args.input_folder, CLIMATE_FILES[0]))
     pds = nc.Dataset(os.path.join(args.input_folder, CLIMATE_FILES[1]))
 
+    end_hist = nc.num2date(hds.variables['time'][-1], hds.variables['time'].units, hds.variables['time'].calendar)
+
+    htcV = hds.variables['time']
+    ptcV = pds.variables['time']
+
+    hidx = pd.DatetimeIndex(
+        start=nc.num2date(htcV[0], htcV.units, htcV.calendar).strftime(),
+        end=nc.num2date(htcV[-1], htcV.units, htcV.calendar).strftime(),
+        freq='MS' # <-- month starts
+    )
+    pidx = pd.DatetimeIndex(
+        start=nc.num2date(ptcV[0], ptcV.units, ptcV.calendar).strftime(),
+        end=nc.num2date(ptcV[-1], ptcV.units, ptcV.calendar).strftime(),
+        freq='MS' # <-- month starts
+    )
+
+    full_index = pd.DatetimeIndex(
+        start=nc.num2date(htcV[0], htcV.units, htcV.calendar).strftime(),
+        end=nc.num2date(ptcV[-1], ptcV.units, ptcV.calendar).strftime(),
+        freq='MS' # <-- month starts
+    )
+
+    df = pd.DataFrame({}, index=full_index)
+    for var in VARS:
+      hS = pd.Series(hds.variables[var][:,y,x], index=hidx).reindex(full_index)
+      pS = pd.Series(pds.variables[var][:,y,x], index=pidx).reindex(full_index)
+      hckey = 'historic {}'.format(var)
+      pckey = 'projected {}'.format(var)
+      df[hckey] = hS
+      df[pckey] = pS
+
+    # Get annual stats
+    rsmpl_mean = df.resample('A').mean()
+    rsmpl_std = df.resample('A').std()
+    rsmpl_sum = df.resample('A').sum()
+
+    fig = plt.figure(figsize=(11,8.5))
+    plt_title = "\n".join(("Annual Averages", args.input_folder, ",".join(CLIMATE_FILES)))
+    fig.suptitle(plt_title) 
+
     axes = []
-    for i, v in enumerate(VARS):
-      full_ds = np.concatenate((hds.variables[v][:,y,x], pds.variables[v][:,y,x]), axis=0)
+    for i, var in enumerate(VARS):
       if i > 0:
         ax = plt.subplot(gs[i,0], sharex=axes[0])
         axes.append(ax)
       else:
         ax = plt.subplot(gs[i,0])
         axes.append(ax)
-      F = 1.0
-      if v == 'nirr':
-        F = -1.0
-      ax.plot(full_ds[:]*F, marker='o')
-      ax.set_title(v)
 
-    # Modify all axes to add annual grid...
-    try:
-      _ = (a for a in axes) # just check that axes is a list.
-      for ax in axes:
-        ax.xaxis.set_major_locator(ticker.MultipleLocator(12))
-        ax.grid()
-    except TypeError:
-      print axes, 'is not iterable; setting grid on single axes instance'
-      axes.xaxis.set_major_locator(ticker.MultipleLocator(12))
-      axes.grid()
+      hckey = 'historic {}'.format(var)
+      pckey = 'projected {}'.format(var)
 
+      ax.set_title(var)
+      ax.set_ylabel(hds.variables[var].units)
 
-    plt.suptitle("{}: {},{}".format(args.input_folder, CLIMATE_FILES[0], CLIMATE_FILES[1]))
+      if var == 'precip':
+        ax.plot(rsmpl_sum.index, rsmpl_sum[hckey])
+        ax.plot(rsmpl_sum.index, rsmpl_sum[pckey])
+        ax.set_ylabel(hds.variables[var].units.replace('month', 'year'))
+
+      else:
+        ax.plot(rsmpl_mean.index, rsmpl_mean[hckey])
+        ax.plot(rsmpl_mean.index, rsmpl_mean[pckey])
+
+    for i, ax in enumerate(axes):
+      if ax != axes[-1]:
+        plt.setp(ax.get_xticklabels(), visible=False)
     plt.show(block=True)
 
-    hds.close()
-    pds.close()
+  elif args.type == 'monthly':
 
-  else:
-    for i, v in enumerate(VARS):
-      ax = plt.subplot(gs[i,0])
-      with nc.Dataset(os.path.join(args.input_folder, CLIMATE_FILES[0])) as hds:
-        ax.plot(hds.variables[v][:,y, x])
+    if args.stitch:
+
+      hds = nc.Dataset(os.path.join(args.input_folder, CLIMATE_FILES[0]))
+      pds = nc.Dataset(os.path.join(args.input_folder, CLIMATE_FILES[1]))
+
+      axes = []
+      for i, v in enumerate(VARS):
+        full_ds = np.concatenate((hds.variables[v][:,y,x], pds.variables[v][:,y,x]), axis=0)
+        if i > 0:
+          ax = plt.subplot(gs[i,0], sharex=axes[0])
+          axes.append(ax)
+        else:
+          ax = plt.subplot(gs[i,0])
+          axes.append(ax)
+        ax.plot(full_ds[:], marker='o')
         ax.set_title(v)
-    plt.suptitle(os.path.join(args.input_folder, CLIMATE_FILES[0]))
-    plt.show(block=True)
 
-    plt.title(CLIMATE_FILES[1])
-    for i, v in enumerate(VARS):
-      ax = plt.subplot(gs[i,0])
-      with nc.Dataset(os.path.join(args.input_folder, CLIMATE_FILES[1])) as hds:
-        ax.plot(hds.variables[v][:,y, x])
-        ax.set_title(v)
-    plt.suptitle(os.path.join(args.input_folder, CLIMATE_FILES[1]))
-    plt.show(block=True)
+      # Modify all axes to add annual grid...
+      try:
+        _ = (a for a in axes) # just check that axes is a list.
+        for ax in axes:
+          ax.xaxis.set_major_locator(ticker.MultipleLocator(12))
+          ax.grid()
+      except TypeError:
+        print axes, 'is not iterable; setting grid on single axes instance'
+        axes.xaxis.set_major_locator(ticker.MultipleLocator(12))
+        axes.grid()
+
+
+      plt.suptitle("{}: {},{}".format(args.input_folder, CLIMATE_FILES[0], CLIMATE_FILES[1]))
+      plt.show(block=True)
+
+      hds.close()
+      pds.close()
+
+    else:
+      for i, v in enumerate(VARS):
+        ax = plt.subplot(gs[i,0])
+        with nc.Dataset(os.path.join(args.input_folder, CLIMATE_FILES[0])) as hds:
+          ax.plot(hds.variables[v][:,y, x])
+          ax.set_title(v)
+      plt.suptitle(os.path.join(args.input_folder, CLIMATE_FILES[0]))
+      plt.show(block=True)
+
+      plt.title(CLIMATE_FILES[1])
+      for i, v in enumerate(VARS):
+        ax = plt.subplot(gs[i,0])
+        with nc.Dataset(os.path.join(args.input_folder, CLIMATE_FILES[1])) as hds:
+          ax.plot(hds.variables[v][:,y, x])
+          ax.set_title(v)
+      plt.suptitle(os.path.join(args.input_folder, CLIMATE_FILES[1]))
+      plt.show(block=True)
 
 
 
@@ -412,9 +489,12 @@ if __name__ == '__main__':
     Quick 'n dirty time series plots of the 4 climate driver variables for a 
     single pixel. Makes 2 figures, one for historic, one for projected.
     '''))
+  climate_ts_plot_parser.add_argument('--type', choices=['annual-summary', 'monthly'], required=True, help="")
   climate_ts_plot_parser.add_argument('--yx', type=int, nargs=2, required=True, help="The Y, X position of the pixel to plot")
-  climate_ts_plot_parser.add_argument('input_folder', help="Path to a folder containing a set of dvmdostem inputs.")
   climate_ts_plot_parser.add_argument('--stitch', action='store_true', help="Attempt to stitch together the historic and projected data along the time axis")
+  #climate_ts_plot_parser.add_argument('--yrs-slice', type=?? help="")
+
+  climate_ts_plot_parser.add_argument('input_folder', help="Path to a folder containing a set of dvmdostem inputs.")
 
   climate_gap_count_plot_parser = subparsers.add_parser('climate-gap-plot',
     help=textwrap.dedent('''Generates an image plot for each variable in the 
