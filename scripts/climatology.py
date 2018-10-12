@@ -499,24 +499,6 @@ if __name__ == '__main__':
 
   base_path = '/atlas_scratch/ALFRESCO/ALFRESCO_Master_Dataset_v2_1/ALFRESCO_Model_Input_Datasets/IEM_for_TEM_inputs/'
 
-  '''
-  pr_total_mm_iem_cru_TS40_1901_2015
-  pr_total_mm_ar5_MRI-CGCM3_rcp85_2006_2100
-  pr_total_mm_ar5_NCAR-CCSM4_rcp85_2006_2100.zip
-
-  tas_mean_C_iem_cru_TS40_1901_2015
-  tas_mean_C_ar5_MRI-CGCM3_rcp85_2006_2100
-  tas_mean_C_ar5_NCAR-CCSM4_rcp85_2006_2100.zip
-
-  hurs_mean_pct_CRU-TS40_historical_1901_2015_fix
-  hurs_mean_pct_MRI-CGCM3_rcp85_2006_2100_fix
-  hurs_mean_pct_NCAR-CCSM4_rcp85_2006_2100_fix
-
-  vap_mean_hPa_CRU-TS40_historical_1901_2015_fix
-  vap_mean_hPa_MRI-CGCM3_rcp85_2006_2100_fix
-  vap_mean_hPa_NCAR-CCSM4_rcp85_2006_2100_fix
-  '''
-
   # Decades for projected, truncated first
   fx_periods = [
     (2006,2010),(2010,2020),(2020,2030),(2030,2040),(2040,2050),
@@ -531,16 +513,25 @@ if __name__ == '__main__':
   ]
 
   secondary_path_list = [
-    'pr_total_mm_iem_cru_TS40_1901_2015/pr_total_mm_CRU_TS40_historical_{month:}_{year:}.tif',
-    'tas_mean_C_iem_cru_TS40_1901_2015/tas/tas_mean_C_CRU_TS40_historical_{month:}_{year:}.tif',
+    #'pr_total_mm_iem_cru_TS40_1901_2015/pr_total_mm_CRU_TS40_historical_{month:}_{year:}.tif',
+    #'pr_total_mm_ar5_MRI-CGCM3_rcp85_2006_2100/pr/pr_total_mm_iem_ar5_MRI-CGCM3_rcp85_{month:}_{year:}.tif',
+    #'pr_total_mm_ar5_NCAR-CCSM4_rcp85_2006_2100/pr/pr_total_mm_iem_ar5_NCAR-CCSM4_rcp85_{month:}_{year:}.tif',
 
-    'rsds_mean_MJ-m2-d1_iem_CRU-TS40_historical_1901_2015_fix/rsds/rsds_mean_MJ-m2-d1_iem_CRU-TS40_historical_{month:}_{year:}.tif',
-    'rsds_mean_MJ-m2-d1_ar5_MRI-CGCM3_rcp85_2006_2100_fix/rsds/rsds_mean_MJ-m2-d1_iem_ar5_MRI-CGCM3_rcp85_{month:}_{year:}.tif',
-    'rsds_mean_MJ-m2-d1_ar5_NCAR-CCSM4_rcp85_2006_2100_fix/rsds/rsds_mean_MJ-m2-d1_iem_ar5_NCAR-CCSM4_rcp85_{month:}_{year:}.tif',
+    #'tas_mean_C_iem_cru_TS40_1901_2015/tas/tas_mean_C_CRU_TS40_historical_{month:}_{year:}.tif',
+    #'tas_mean_C_ar5_MRI-CGCM3_rcp85_2006_2100/tas/tas_mean_C_iem_ar5_MRI-CGCM3_rcp85_{month:}_{year:}.tif',
+    #'tas_mean_C_ar5_NCAR-CCSM4_rcp85_2006_2100/tas/tas_mean_C_iem_ar5_NCAR-CCSM4_rcp85_{month:}_{year:}.tif',
 
-    'vap_mean_hPa_iem_CRU-TS40_historical_1901_2015_fix/vap/vap_mean_hPa_iem_CRU-TS40_historical_{month:}_{year:}.tif',
-    'vap_mean_hPa_ar5_MRI-CGCM3_rcp85_2006_2100_fix/vap/vap_mean_hPa_iem_ar5_MRI-CGCM3_rcp85_{month:}_{year:}.tif',
-    'vap_mean_hPa_ar5_NCAR-CCSM4_rcp85_2006_2100_fix/vap/vap_mean_hPa_iem_ar5_NCAR-CCSM4_rcp85_{month:}_{year:}.tif',
+    'hurs_mean_pct_iem_CRU-TS40_historical_1901_2015_fix/hurs/hurs_mean_pct_iem_CRU-TS40_historical_{month:}_{year:}.tif',
+    'hurs_mean_pct_ar5_MRI-CGCM3_rcp85_2006_2100_fix/hurs/hurs_mean_pct_iem_ar5_MRI-CGCM3_rcp85_{month:}_{year:}.tif',
+    'hurs_mean_pct_ar5_NCAR-CCSM4_rcp85_2006_2100_fix/hurs/hurs_mean_pct_iem_ar5_NCAR-CCSM4_rcp85_{month:}_{year:}.tif',
+
+    #'rsds_mean_MJ-m2-d1_iem_CRU-TS40_historical_1901_2015_fix/rsds/rsds_mean_MJ-m2-d1_iem_CRU-TS40_historical_{month:}_{year:}.tif',
+    #'rsds_mean_MJ-m2-d1_ar5_MRI-CGCM3_rcp85_2006_2100_fix/rsds/rsds_mean_MJ-m2-d1_iem_ar5_MRI-CGCM3_rcp85_{month:}_{year:}.tif',
+    #'rsds_mean_MJ-m2-d1_ar5_NCAR-CCSM4_rcp85_2006_2100_fix/rsds/rsds_mean_MJ-m2-d1_iem_ar5_NCAR-CCSM4_rcp85_{month:}_{year:}.tif',
+
+    #'vap_mean_hPa_iem_CRU-TS40_historical_1901_2015_fix/vap/vap_mean_hPa_iem_CRU-TS40_historical_{month:}_{year:}.tif',
+    #'vap_mean_hPa_ar5_MRI-CGCM3_rcp85_2006_2100_fix/vap/vap_mean_hPa_iem_ar5_MRI-CGCM3_rcp85_{month:}_{year:}.tif',
+    #'vap_mean_hPa_ar5_NCAR-CCSM4_rcp85_2006_2100_fix/vap/vap_mean_hPa_iem_ar5_NCAR-CCSM4_rcp85_{month:}_{year:}.tif',
   ]
 
   procs = []
@@ -553,6 +544,11 @@ if __name__ == '__main__':
       units = 'hPa'
     elif 'rsds_mean' in i.lower():
       units = 'MJ-m2-d1'
+    elif 'hurs_mean' in i.lower():
+      units = 'percent'
+    else:
+      print "ERROR! hmmm can't find variable in {}".format(i)
+
 
     if '_cru' in i.lower():
       periods = hist_periods
@@ -574,32 +570,9 @@ if __name__ == '__main__':
   print "DONE!"
 
 
-#plot_monthly_averages(base_path, secondary_path, 'rsds_mean_MJ-m2-d1_MRI-CGCM3_rcp85_2006_2100 monthly averages', 'MJ-m2-d1')
-# 
-#   plot_period_averages(
-#       periods, 
-#       base_path, secondary_path, 
-#       title="\n".join([base_path,secondary_path]), 
-#       units=units, 
-#   )
-  
 
-########
-# from multiprocessing import Pool
-# 
-# if __name__ == '__main__':
-# 
-#   bands = np.arange(1, 95)
-#   
-# 
-#     with Pool(5) as p:
-#         results = p.map(my_sum, [long_list[0:len(long_list)//2], long_list[len(long_list)//2:]))
-# 
-#     print(sum(results) / len(long_list)) # add subresults and divide by n
-#   
-#   
-  
-    # Decades for historic period - works nicely, truncated at end
+
+# Decades for historic period - works nicely, truncated at end
 #   FREQ = 10; START = 1901; END = 2015
 #   srange = range(START, END, FREQ)
 #   erange = range(START+FREQ, END, FREQ)
