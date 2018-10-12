@@ -1025,22 +1025,27 @@ def fill_explicit_fire_file(yrs, xo, yo, xs, ys, out_dir, of_name, datasrc='', i
     with netCDF4.Dataset(guess_hcf, 'r') as ds:
       if ds.variables['time'].size / 12 == yrs:
         starting_date_str = (ds.variables['time'].units).replace('days', 'years')
+        end_date = netCDF4.num2date(ds.variables['time'][-1], ds.variables['time'].units, ds.variables['time'].calendar)
 
     with netCDF4.Dataset(guess_pcf, 'r') as ds:
       if ds.variables['time'].size / 12 == yrs:
         starting_date_str = (ds.variables['time'].units).replace('days', 'years')
+        end_date = netCDF4.num2date(ds.variables['time'][-1], ds.variables['time'].units, ds.variables['time'].calendar)
 
-    return starting_date_str  
+    # Convert from the funky netcdf time object to python datetime object
+    end_date = dt.datetime.strptime(end_date.strftime(), "%Y-%m-%d %H:%M:%S")
+
+    return starting_date_str, end_date 
 
 
-  guess_starting_date_string = figure_out_time_size(of_name, yrs)
+  guess_starting_date_string, end_date = figure_out_time_size(of_name, yrs)
 
   with netCDF4.Dataset(of_name, mode='a') as nfd:
     print "Write time coordinate variable attribute for time axis..."
     with custom_netcdf_attr_bug_wrapper(nfd) as f:
       tcV = f.createVariable("time", np.double, ('time'))
-      date = dt.datetime.strptime('T'.join(guess_starting_date_string.split(' ')[-2:]), '%Y-%m-%dT%H:%M:%S')
-      tcV[:] = np.arange(0, date.year)
+      start_date = dt.datetime.strptime('T'.join(guess_starting_date_string.split(' ')[-2:]), '%Y-%m-%dT%H:%M:%S')
+      tcV[:] = np.arange( 0, (end_date.year+1 - start_date.year) )
       tcV.setncatts({
         'long_name': 'time',
         'units': '{}'.format(guess_starting_date_string),
