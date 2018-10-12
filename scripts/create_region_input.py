@@ -1121,15 +1121,6 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
   config['topo aspect src'] = 'ancillary/aspect/iem_prism_aspect_1km.tif'
   config['topo elev src'] = 'ancillary/elevation/iem_prism_dem_1km.tif'
 
-
-  '''
-  # Available as of 10-5-2018 2:53pm 
-  # CR-TS40
-  rsds_mean_MJ-m2-d1_CRU-TS40_historical_1901_2015_fix/rsds/rsds_mean_MJ-m2-d1_CRU-TS40_historical_
-  tas_mean_C_iem_cru_TS40_1901_2015/tas/tas_mean_C_CRU_TS40_historical_
-  pr_total_mm_iem_cru_TS40_1901_2015/pr_total_mm_CRU_TS40_historical_
-  vap_mean_hPa_iem_CRU_TS40_historical_1901_2015/vap/vap_mean_hPa_CRU_TS40_historical_
-  '''
   config['h clim first yr'] = 1901
   config['h clim last yr'] = 2015
   config['h clim orig inst'] = 'CRU'
@@ -1139,27 +1130,20 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
   config['h clim rsds src'] = 'rsds_mean_MJ-m2-d1_iem_CRU-TS40_historical_1901_2015_fix/rsds/rsds_mean_MJ-m2-d1_iem_CRU-TS40_historical_'
   config['h clim vapo src'] = 'vap_mean_hPa_iem_CRU-TS40_historical_1901_2015_fix/vap/vap_mean_hPa_iem_CRU-TS40_historical_'
 
-  ''' Available as of 10-5-2018 2:53pm
-  # MRI-CGCM3
-  rsds_mean_MJ-m2-d1_MRI-CGCM3_rcp85_2006_2100_fix/rsds/rsds_mean_MJ-m2-d1_iem_ar5_MRI-CGCM3_rcp85_
-  vap_mean_hPa_MRI-CGCM3_rcp85_2006_2100_fix/vap/vap_mean_hPa_iem_ar5_MRI-CGCM3_rcp85_
-  tas_mean_C_ar5_MRI-CGCM3_rcp85_2006_2100/tas/tas_mean_C_iem_ar5_MRI-CGCM3_rcp85_
-  pr_total_mm_ar5_MRI-CGCM3_rcp85_2006_2100/pr/pr_total_mm_iem_ar5_MRI-CGCM3_rcp85_
-
-  # NCAR-CCSM4
-  # tas_mean_C_ar5_NCAR-CCSM4_rcp85_2006_2100.zip
-  # pr_total_mm_ar5_NCAR-CCSM4_rcp85_2006_2100.zip
-  vap_mean_hPa_NCAR-CCSM4_rcp85_2006_2100_fix/vap/vap_mean_hPa_iem_ar5_NCAR-CCSM4_rcp85_
-  rsds_mean_MJ-m2-d1_NCAR-CCSM4_rcp85_2006_2100_fix/rsds/rsds_mean_MJ-m2-d1_iem_ar5_NCAR-CCSM4_rcp85_
-  '''
   config['p clim first yr'] = 2006
   config['p clim last yr'] = 2100
-  config['p clim orig inst'] = 'MRI-CGCM3'
   config['p clim ver'] = 'rcp85'
+  config['p clim orig inst'] = 'MRI-CGCM3'
   config['p clim tair src'] = 'tas_mean_C_ar5_MRI-CGCM3_rcp85_2006_2100/tas/tas_mean_C_iem_ar5_MRI-CGCM3_rcp85_'
   config['p clim prec src'] = 'pr_total_mm_ar5_MRI-CGCM3_rcp85_2006_2100/pr/pr_total_mm_iem_ar5_MRI-CGCM3_rcp85_'
   config['p clim rsds src'] = 'rsds_mean_MJ-m2-d1_ar5_MRI-CGCM3_rcp85_2006_2100_fix/rsds/rsds_mean_MJ-m2-d1_iem_ar5_MRI-CGCM3_rcp85_'
   config['p clim vapo src'] = 'vap_mean_hPa_ar5_MRI-CGCM3_rcp85_2006_2100_fix/vap/vap_mean_hPa_iem_ar5_MRI-CGCM3_rcp85_'
+
+#   config['p clim orig inst'] = 'NCAR-CCSM4'
+#   config['p clim tair src'] = 'tas_mean_C_ar5_NCAR-CCSM4_rcp85_2006_2100/tas/tas_mean_C_iem_ar5_NCAR-CCSM4_rcp85_'
+#   config['p clim prec src'] = 'pr_total_mm_ar5_NCAR-CCSM4_rcp85_2006_2100/pr/pr_total_mm_iem_ar5_NCAR-CCSM4_rcp85_'
+#   config['p clim rsds src'] = 'rsds_mean_MJ-m2-d1_ar5_NCAR-CCSM4_rcp85_2006_2100_fix/rsds/rsds_mean_MJ-m2-d1_iem_ar5_NCAR-CCSM4_rcp85_'
+#   config['p clim vapo src'] = 'vap_mean_hPa_ar5_NCAR-CCSM4_rcp85_2006_2100_fix/vap/vap_mean_hPa_iem_ar5_NCAR-CCSM4_rcp85_'
 
   config['fire fri src'] = 'iem_ancillary_data/Fire/FRI.tif'
 
@@ -1440,6 +1424,8 @@ if __name__ == '__main__':
   if args.clip_projected2match_historic:
     if ('historic-climate' in args.which) and ('projected-climate' in args.which):
       pass # everything fine...
+    elif 'all' in args.which:
+      pass # everything ok...
     else:
       print "ERROR!: Can't clip the projected climate to start where the "
       print "        historic data leaves off unless creating both historic "
