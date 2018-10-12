@@ -837,12 +837,68 @@ def fill_drainage_file(if_name, xo, yo, xs, ys, out_dir, of_name, rand=False):
     with custom_netcdf_attr_bug_wrapper(drainage_class) as f:
       f.source = source_attr_string(xo=xo, yo=yo)
 
-def fill_fri_fire_file(if_name, xo, yo, xs, ys, out_dir, of_name, rand=True):
+def fill_fri_fire_file(xo, yo, xs, ys, out_dir, of_name, datasrc='', if_name=None):
+  '''
+  Parameters:
+  -----------
+  datasrc : str describing how and where to get the numbers used to fill the file
+    'random' will create files filled with random data
+    'no-fires' will create files such that no fires occur
+    'genet-greaves' will create files using H.Genet's and H.Greaves process   
+  '''
 
   create_template_fri_fire_file(of_name, sizey=ys, sizex=xs, rand=False)
 
-  if not rand:
+  if datasrc == 'random':
+    print "%%%%%%  WARNING  %%%%%%%%%%%%%%%%%"
+    print "GENERATING FAKE DATA!"
+    print "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+    cmt2fireprops = {
+      -1: {'fri':   -1, 'sev': -1, 'jdob':  -1, 'aob':  -1 }, # No data?
+      0: {'fri':   -1, 'sev': -1, 'jdob':  -1, 'aob':  -1 }, # rock/snow/water
+      1: {'fri':  100, 'sev':  3, 'jdob': 165, 'aob': 100 }, # black spruce
+      2: {'fri':  105, 'sev':  2, 'jdob': 175, 'aob': 225 }, # white spruce
+      3: {'fri':  400, 'sev':  3, 'jdob': 194, 'aob': 104 }, # boreal deciduous
+      4: {'fri': 2000, 'sev':  2, 'jdob': 200, 'aob': 350 }, # shrub tundra
+      5: {'fri': 2222, 'sev':  3, 'jdob': 187, 'aob': 210 }, # tussock tundra
+      6: {'fri': 1500, 'sev':  1, 'jdob': 203, 'aob': 130 }, # wet sedge tundra
+      7: {'fri': 1225, 'sev':  4, 'jdob': 174, 'aob': 250 }, # heath tundra
+      8: {'fri':  759, 'sev':  3, 'jdob': 182, 'aob': 156 }, # maritime forest
+    }
+    guess_vegfile = os.path.join(os.path.split(of_name)[0], 'vegetation.nc')
+    print "--> NOTE: Attempting to read: {:} and set fire properties based on community type...".format(guess_vegfile)
 
+    with netCDF4.Dataset(guess_vegfile ,'r') as vegFile:
+      vd = vegFile.variables['veg_class'][:]
+      fri = np.array([cmt2fireprops[i]['fri'] for i in vd.flatten()]).reshape(vd.shape)
+      sev = np.array([cmt2fireprops[i]['sev'] for i in vd.flatten()]).reshape(vd.shape)
+      jdob = np.array([cmt2fireprops[i]['jdob'] for i in vd.flatten()]).reshape(vd.shape)
+      aob = np.array([cmt2fireprops[i]['aob'] for i in vd.flatten()]).reshape(vd.shape)
+
+    with netCDF4.Dataset(of_name, mode='a') as nfd:
+      print "==> write data to new FRI based fire file..."
+      nfd.variables['fri'][:,:] = fri
+      nfd.variables['fri_severity'][:,:] = sev
+      nfd.variables['fri_jday_of_burn'][:,:] = jdob
+      nfd.variables['fri_area_of_burn'][:,:] = aob
+
+  elif datasrc == 'no-fires':
+    print "%%%%%%  WARNING  %%%%%%%%%%%%%%%%%"
+    print "GENERATING FRI FILE WITH NO FIRES!"
+    print "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+
+    with netCDF4.Dataset(of_name, mode='a') as nfd:
+      print "==> write zeros to FRI file..."
+      zeros = np.zeros((ys,xs))
+      nfd.variables['fri'][:,:] = zeros
+      nfd.variables['fri_severity'][:,:] = zeros
+      nfd.variables['fri_jday_of_burn'][:,:] = zeros
+      nfd.variables['fri_area_of_burn'][:,:] = zeros
+
+  elif datasrc == 'fri-from-file': # other variables fixed/hardcoded below
+    if not os.path.exists(if_name):
+      print "ERROR! Can't find file specified for FRI input!: {}".format(if_name) 
+      
     # Translate and subset to temporary location
     temporary = os.path.join('/tmp/', os.path.basename(of_name))
 
@@ -869,76 +925,131 @@ def fill_fri_fire_file(if_name, xo, yo, xs, ys, out_dir, of_name, rand=True):
           'note': "mean area of fire scar computed from statewide fire records 1950 to 1980"
         })
 
-      print "--> Copying lat/lon from temporary subset file into new file..."
-      new_fri.variables['lat'][:] = temp_fri.variables['lat'][:]
-      new_fri.variables['lon'][:] = temp_fri.variables['lon'][:]
+  else:
+    print "ERROR! Unrecognized value for 'datasrc' in function fill_fri_file(..)"
+     
 
-      with custom_netcdf_attr_bug_wrapper(new_fri) as f:
-        print "==> write global :source attribute to FRI fire file..."
-        f.source = source_attr_string(xo=xo, yo=yo)
+  # Now that primary data has been written, take care of some generic 
+  # stuff: lat, lon, atrributes, etc.
+  guess_vegfile = os.path.join(os.path.split(of_name)[0], 'vegetation.nc')
+  print "--> NOTE: Attempting to read: {:} to get lat/lon info".format(guess_vegfile)
 
-  else: # rand == True    
+  with netCDF4.Dataset(guess_vegfile ,'r') as vegFile:
+    latv = vegFile.variables['lat'][:]
+    lonv = vegFile.variables['lon'][:]
+
+
+  with netCDF4.Dataset(of_name, mode='a') as nfd:
+    print "Writing lat/lon from veg file..."
+    nfd.variables['lat'][:] = latv
+    nfd.variables['lon'][:] = lonv
+
+    with custom_netcdf_attr_bug_wrapper(nfd) as f:
+      print "==> write global :source attribute to FRI fire file..."
+      f.source = source_attr_string(xo=xo, yo=yo)
+
+
+
+
+
+
+def fill_explicit_fire_file(yrs, xo, yo, xs, ys, out_dir, of_name, datasrc='', if_name=None):
+
+  create_template_explicit_fire_file(of_name, sizey=ys, sizex=xs, rand=False)
+
+  if datasrc =='no-fires':
+    print "%%%%%%  WARNING  %%%%%%%%%%%%%%%%%%%%%%%%%%%"
+    print "GENERATING EXPLICIT FIRE FILE WITH NO FIRES!"
+    print "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+
+    with netCDF4.Dataset(of_name, mode='a') as nfd:
+
+        zeros = np.zeros((yrs,ys,xs))
+        nfd.variables['exp_burn_mask'][:] = zeros
+        nfd.variables['exp_jday_of_burn'][:] = zeros
+        nfd.variables['exp_fire_severity'][:] = zeros
+        nfd.variables['exp_area_of_burn'][:] = zeros
+
+  elif datasrc == 'random':
 
     print "%%%%%%  WARNING  %%%%%%%%%%%%%%%%%"
     print "GENERATING FAKE DATA!"
     print "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-    cmt2fireprops = {
-     -1: {'fri':   -1, 'sev': -1, 'jdob':  -1, 'aob':  -1 }, # No data?
-      0: {'fri':   -1, 'sev': -1, 'jdob':  -1, 'aob':  -1 }, # rock/snow/water
-      1: {'fri':  100, 'sev':  3, 'jdob': 165, 'aob': 100 }, # black spruce
-      2: {'fri':  105, 'sev':  2, 'jdob': 175, 'aob': 225 }, # white spruce
-      3: {'fri':  400, 'sev':  3, 'jdob': 194, 'aob': 104 }, # boreal deciduous
-      4: {'fri': 2000, 'sev':  2, 'jdob': 200, 'aob': 350 }, # shrub tundra
-      5: {'fri': 2222, 'sev':  3, 'jdob': 187, 'aob': 210 }, # tussock tundra
-      6: {'fri': 1500, 'sev':  1, 'jdob': 203, 'aob': 130 }, # wet sedge tundra
-      7: {'fri': 1225, 'sev':  4, 'jdob': 174, 'aob': 250 }, # heath tundra
-      8: {'fri':  759, 'sev':  3, 'jdob': 182, 'aob': 156 }, # maritime forest
-    }
-
-    guess_vegfile = os.path.join(os.path.split(of_name)[0], 'vegetation.nc')
-    print "--> NOTE: Attempting to read: {:} and set fire properties based on community type...".format(guess_vegfile)
-
-    with netCDF4.Dataset(guess_vegfile ,'r') as vegFile:
-      vd = vegFile.variables['veg_class'][:]
-      fri = np.array([cmt2fireprops[i]['fri'] for i in vd.flatten()]).reshape(vd.shape)
-      sev = np.array([cmt2fireprops[i]['sev'] for i in vd.flatten()]).reshape(vd.shape)
-      jdob = np.array([cmt2fireprops[i]['jdob'] for i in vd.flatten()]).reshape(vd.shape)
-      aob = np.array([cmt2fireprops[i]['aob'] for i in vd.flatten()]).reshape(vd.shape)
-      latv = vegFile.variables['lat'][:]
-      lonv = vegFile.variables['lon'][:]
+    never_burn = ([9],[9])
+    print "--> Never burn pixels: {}".format(zip(*never_burn))
 
     with netCDF4.Dataset(of_name, mode='a') as nfd:
-      print "==> write data to new FRI based fire file..."
-      nfd.variables['fri'][:,:] = fri
-      nfd.variables['fri_severity'][:,:] = sev
-      nfd.variables['fri_jday_of_burn'][:,:] = jdob
-      nfd.variables['fri_area_of_burn'][:,:] = aob
 
-      print "Writing lat/lon from veg file..."
-      nfd.variables['lat'][:] = latv
-      nfd.variables['lon'][:] = lonv
+      for yr in range(0, yrs):
 
-      with custom_netcdf_attr_bug_wrapper(nfd) as f:
-        print "==> write global :source attribute to FRI fire file..."
-        f.source = source_attr_string(xo=xo, yo=yo)
+        # Future: lookup from snap/alfresco .tif files...
+
+        # Generate indices a few random pixels to burn
+        flat_burn_indices = np.random.randint(0, (ys*xs), (ys*xs)*0.3)
+        burn_indices = np.unravel_index(flat_burn_indices, (ys,xs))
+
+        #print burn_indices
+        # Now set the other variables, but only for the burning pixels...
+        exp_bm = np.zeros((ys,xs))
+        exp_jdob = np.zeros((ys,xs))
+        exp_sev = np.zeros((ys,xs))
+        exp_aob = np.zeros((ys,xs))
+
+        exp_bm[burn_indices] = 1
+        exp_jdob[burn_indices] = np.random.randint(152, 244, len(flat_burn_indices))
+        exp_sev[burn_indices] = np.random.randint(0, 5, len(flat_burn_indices))
+        exp_aob[burn_indices] = np.random.randint(1, 20000, len(flat_burn_indices))
+
+        # Make sure far corner pixel never burns:
+        exp_bm[never_burn] = 0
+
+        nfd.variables['exp_burn_mask'][yr,:,:] = exp_bm
+        nfd.variables['exp_jday_of_burn'][yr,:,:] = exp_jdob
+        nfd.variables['exp_fire_severity'][yr,:,:] = exp_sev
+        nfd.variables['exp_area_of_burn'][yr,:,:] = exp_aob
+
+      print "Done filling out fire years..."
+
+  else:
+    print "ERROR! Unrecognized value for 'datasrc' in function fill_explicit_file(..)"
+
+  # Now that the primary data is taken care of, fill out all some other general 
+  # info for the file, lat, lon, attributes, etc
+
+  def figure_out_time_size(of_name, yrs):
+    guess_hcf = os.path.join(os.path.split(of_name)[0], 'historic-climate.nc')
+    guess_pcf = os.path.join(os.path.split(of_name)[0], 'projected-climate.nc')
+
+    starting_date_str = ''
+    with netCDF4.Dataset(guess_hcf, 'r') as ds:
+      if ds.variables['time'].size / 12 == yrs:
+        starting_date_str = (ds.variables['time'].units).replace('days', 'years')
+
+    with netCDF4.Dataset(guess_pcf, 'r') as ds:
+      if ds.variables['time'].size / 12 == yrs:
+        starting_date_str = (ds.variables['time'].units).replace('days', 'years')
+
+    return starting_date_str  
 
 
-def fill_explicit_fire_file(if_name, yrs, xo, yo, xs, ys, out_dir, of_name):
-  create_template_explicit_fire_file(of_name, sizey=ys, sizex=xs, rand=False)
+  guess_starting_date_string = figure_out_time_size(of_name, yrs)
 
-  print "%%%%%%  WARNING  %%%%%%%%%%%%%%%%%"
-  print "GENERATING FAKE DATA!"
-  print "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+  with netCDF4.Dataset(of_name, mode='a') as nfd:
+    print "Write time coordinate variable attribute for time axis..."
+    with custom_netcdf_attr_bug_wrapper(nfd) as f:
+      tcV = f.createVariable("time", np.double, ('time'))
+      date = dt.datetime.strptime('T'.join(guess_starting_date_string.split(' ')[-2:]), '%Y-%m-%dT%H:%M:%S')
+      tcV[:] = np.arange(0, date.year)
+      tcV.setncatts({
+        'long_name': 'time',
+        'units': '{}'.format(guess_starting_date_string),
+        'calendar': '365_day'
+      })
 
-  never_burn = ([9],[9])
-  print "--> Never burn pixels: {}".format(zip(*never_burn))
 
   guess_vegfile = os.path.join(os.path.split(of_name)[0], 'vegetation.nc')
-  print "--> NOTE: Attempting to read: {:} for lat/lon info...".format(guess_vegfile)
-  # print "    and set fire properties based on community type..."
-  # with netCDF4.Dataset(guess_vegfile ,'r') as vegFile:
-  #   vd = vegFile.variables['veg_class'][:]
+  print "--> NOTE: Attempting to read: {:} to get lat/lon info".format(guess_vegfile)
 
   with netCDF4.Dataset(of_name, mode='a') as nfd:
 
@@ -947,40 +1058,13 @@ def fill_explicit_fire_file(if_name, yrs, xo, yo, xs, ys, out_dir, of_name):
       nfd.variables['lat'][:] = vegFile.variables['lat'][:]
       nfd.variables['lon'][:] = vegFile.variables['lon'][:]
 
-    for yr in range(0, yrs):
+      print "Setting :source attribute on new explicit fire file..."
+      with custom_netcdf_attr_bug_wrapper(nfd) as f:
+        f.source = source_attr_string(xo=xo, yo=yo)
 
-      # Future: lookup from snap/alfresco .tif files...
 
-      # Generate indices a few random pixels to burn
-      flat_burn_indices = np.random.randint(0, (ys*xs), (ys*xs)*0.3)
-      burn_indices = np.unravel_index(flat_burn_indices, (ys,xs))
 
-      #print burn_indices
-      # Now set the other variables, but only for the burning pixels...
-      exp_bm = np.zeros((ys,xs))
-      exp_jdob = np.zeros((ys,xs))
-      exp_sev = np.zeros((ys,xs))
-      exp_aob = np.zeros((ys,xs))
 
-      exp_bm[burn_indices] = 1
-      exp_jdob[burn_indices] = np.random.randint(152, 244, len(flat_burn_indices))
-      exp_sev[burn_indices] = np.random.randint(0, 5, len(flat_burn_indices))
-      exp_aob[burn_indices] = np.random.randint(1, 20000, len(flat_burn_indices))
-
-      # Make sure far corner pixel never burns:
-      exp_bm[never_burn] = 0
-
-      nfd.variables['exp_burn_mask'][yr,:,:] = exp_bm
-      nfd.variables['exp_jday_of_burn'][yr,:,:] = exp_jdob
-      nfd.variables['exp_fire_severity'][yr,:,:] = exp_sev
-      nfd.variables['exp_area_of_burn'][yr,:,:] = exp_aob
-
-    print "Done filling out fire years..."
-
-    print "Setting :source attribute on new explicit fire file..."
-    with custom_netcdf_attr_bug_wrapper(nfd) as f:
-      f.source = source_attr_string(xo=xo, yo=yo)
- 
 
 def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir, 
          files=[], time_coord_var=False, clip_projected2match_historic=False):
@@ -1146,7 +1230,10 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
 
   if 'fri-fire' in files:
     of_name = os.path.join(out_dir, "fri-fire.nc")
-    fill_fri_fire_file(tif_dir + "iem_ancillary_data/Fire/FRI.tif", xo, yo, xs, ys, out_dir, of_name, rand=False)
+    fill_fri_fire_file(xo, yo, xs, ys, out_dir, of_name, 
+        datasrc='no-fires', 
+        if_name=None, # os.path.join(tif_dir,"iem_ancillary_data/Fire/FRI.tif")
+    )
 
   if 'historic-explicit-fire' in files:
     of_name = os.path.join(out_dir, "historic-explicit-fire.nc")
@@ -1156,7 +1243,7 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
     with netCDF4.Dataset(climate, 'r') as climate_dataset:
       years = len(climate_dataset.dimensions['time']) / 12
 
-    fill_explicit_fire_file(tif_dir + "iem_ancillary_data/Fire/", years, xo, yo, xs, ys, out_dir, of_name)
+    fill_explicit_fire_file(years, xo, yo, xs, ys, out_dir, of_name, datasrc='no-fires', if_name=None)
 
   if 'projected-explicit-fire' in files:
     of_name = os.path.join(out_dir, "projected-explicit-fire.nc")
@@ -1166,7 +1253,7 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
     with netCDF4.Dataset(climate, 'r') as climate_dataset:
       years = len(climate_dataset.dimensions['time']) / 12
 
-    fill_explicit_fire_file(tif_dir + "iem_ancillary_data/Fire/", years, xo, yo, xs, ys, out_dir, of_name)
+    fill_explicit_fire_file(years, xo, yo, xs, ys, out_dir, of_name, datasrc='no-fires', if_name=None)
 
   print(textwrap.dedent('''\
 
