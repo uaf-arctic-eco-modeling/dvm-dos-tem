@@ -521,7 +521,7 @@ def fill_veg_file(if_name, xo, yo, xs, ys, out_dir, of_name):
 def fill_climate_file(start_yr, yrs, xo, yo, xs, ys,
                       out_dir, of_name, sp_ref_file,
                       in_tair_base, in_prec_base, in_rsds_base, in_vapo_base,
-                      time_coord_var, model='', scen=''):
+                      time_coord_var, model='', scen='', cleanup_tmpfiles=True):
 
   # create short handle for output file
   masterOutFile = os.path.join(out_dir, of_name)
@@ -610,6 +610,12 @@ def fill_climate_file(start_yr, yrs, xo, yo, xs, ys,
   print "masterOutFile time dimension size: {}".format(new_climatedataset.dimensions['time'].size)
   new_climatedataset.close()
   temp_subset_with_lonlat.close()
+
+  if cleanup_tmpfiles:
+    print "Cleaning up temporary files: {} and {}".format(tmpfile, smaller_tmpfile)
+    os.remove(smaller_tmpfile)
+    os.remove(tmpfile)
+
 
   # Copy the master into a separate file for each variable
   for v in dataVarList:
