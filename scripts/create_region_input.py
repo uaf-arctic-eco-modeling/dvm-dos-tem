@@ -121,7 +121,7 @@ def make_co2_file(filename):
     
   # Data Variables
   co2 = new_ncfile.createVariable('co2', np.float32, ('year',))
-    
+
 
   print " --> NOTE: Hard-coding the values that were just ncdumped from the old file..."
   co2[:] = [ 296.311, 296.661, 297.04, 297.441, 297.86, 298.29, 298.726, 299.163,
@@ -730,6 +730,7 @@ def fill_climate_file(start_yr, yrs, xo, yo, xs, ys,
 
 
 def fill_soil_texture_file(if_sand_name, if_silt_name, if_clay_name, xo, yo, xs, ys, out_dir, of_name, rand=True):
+  
   create_template_soil_texture_nc_file(of_name, sizey=ys, sizex=xs)
 
   with netCDF4.Dataset(of_name, mode='a') as soil_tex:
@@ -993,15 +994,17 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
     of_name = os.path.join(out_dir, "vegetation.nc")
     fill_veg_file(os.path.join(tif_dir,  "ancillary/land_cover/v_0_4/iem_vegetation_model_input_v0_4.tif"), xo, yo, xs, ys, out_dir, of_name)
 
+
   if 'drainage' in files:
     of_name = os.path.join(out_dir, "drainage.nc")
-    fill_drainage_file(os.path.join(tif_dir,  "iem_ancillary_data/soil_and_drainage/Lowland_1km.tif"), xo, yo, xs, ys, out_dir, of_name)
+    fill_drainage_file(os.path.join(tif_dir,  "ancillary/drainage/Lowland_1km.tif"), xo, yo, xs, ys, out_dir, of_name)
 
   if 'soil-texture' in files:
     of_name = os.path.join(out_dir, "soil-texture.nc")
-    in_sand_base = os.path.join(tif_dir, "iem_ancillary_data/soil_and_drainage/iem_domain_hayes_igbp_pct_sand.tif")
-    in_silt_base = os.path.join(tif_dir, "iem_ancillary_data/soil_and_drainage/iem_domain_hayes_igbp_pct_silt.tif")
-    in_clay_base = os.path.join(tif_dir, "iem_ancillary_data/soil_and_drainage/iem_domain_hayes_igbp_pct_clay.tif")
+
+    in_clay_base = os.path.join(tif_dir, 'ancillary/BLISS_IEM/mu_claytotal_r_pct_0_25mineral_2_AK_CAN.img')
+    in_sand_base = os.path.join(tif_dir, 'ancillary/BLISS_IEM/mu_sandtotal_r_pct_0_25mineral_2_AK_CAN.img')
+    in_silt_base = os.path.join(tif_dir, 'ancillary/BLISS_IEM/mu_silttotal_r_pct_0_25mineral_2_AK_CAN.img')
 
     fill_soil_texture_file(in_sand_base, in_silt_base, in_clay_base, xo, yo, xs, ys, out_dir, of_name, rand=False)
 
