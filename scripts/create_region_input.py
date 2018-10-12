@@ -1063,11 +1063,102 @@ def fill_explicit_fire_file(yrs, xo, yo, xs, ys, out_dir, of_name, datasrc='', i
         f.source = source_attr_string(xo=xo, yo=yo)
 
 
+def verify_paths_in_config_dict(tif_dir, config):
+
+  def pretty_print_test_path(test_path, k):
+    if os.path.exists(test_path):
+      print "key {} is OK!".format(k)
+    else:
+      print "ERROR! Can't find config path!! key:{} test_path: {}".format(k, test_path)
+
+  for k, v in config.iteritems():
+
+    if 'src' in k:
+
+      # Check the climate stuff
+      if 'clim' in k:
+        if 'h clim' in k:
+          fy = config['h clim first yr']
+        elif 'p clim' in k:
+          fy = config['p clim first yr']
+        else:
+          pass #??
+
+        test_path = os.path.join(tif_dir,"{}01_{}.tif".format(v, fy))
+        pretty_print_test_path(test_path, k)
+
+      # Check the fire stuff
+      elif 'fire fri' in k:
+        test_path = os.path.join(tif_dir, v)
+        pretty_print_test_path(test_path, k)
+
+      # Check all the other src files...
+      else:
+        test_path = os.path.join(tif_dir, v)
+        pretty_print_test_path(test_path, k)
+
 
 
 
 def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir, 
          files=[], time_coord_var=False, clip_projected2match_historic=False):
+
+  config={}
+  config['veg src'] = 'ancillary/land_cover/v_0_4/iem_vegetation_model_input_v0_4.tif'
+
+  config['drainage src'] = 'ancillary/drainage/Lowland_1km.tif'
+
+  config['soil clay src'] = 'ancillary/BLISS_IEM/mu_claytotal_r_pct_0_25mineral_2_AK_CAN.img'
+  config['soil sand src'] = 'ancillary/BLISS_IEM/mu_sandtotal_r_pct_0_25mineral_2_AK_CAN.img'
+  config['soil silt src'] = 'ancillary/BLISS_IEM/mu_silttotal_r_pct_0_25mineral_2_AK_CAN.img'
+
+  config['topo slope src'] = 'ancillary/slope/iem_prism_slope_1km.tif'
+  config['topo aspect src'] = 'ancillary/aspect/iem_prism_aspect_1km.tif'
+  config['topo elev src'] = 'ancillary/elevation/iem_prism_dem_1km.tif'
+
+
+  '''
+  # Available as of 10-5-2018 2:53pm 
+  # CR-TS40
+  rsds_mean_MJ-m2-d1_CRU-TS40_historical_1901_2015_fix/rsds/rsds_mean_MJ-m2-d1_CRU-TS40_historical_
+  tas_mean_C_iem_cru_TS40_1901_2015/tas/tas_mean_C_CRU_TS40_historical_
+  pr_total_mm_iem_cru_TS40_1901_2015/pr_total_mm_CRU_TS40_historical_
+  vap_mean_hPa_iem_CRU_TS40_historical_1901_2015/vap/vap_mean_hPa_CRU_TS40_historical_
+  '''
+  config['h clim first yr'] = 1901
+  config['h clim last yr'] = 2015
+  config['h clim orig inst'] = 'CRU'
+  config['h clim ver'] = 'TS40'
+  config['h clim tair src'] = 'tas_mean_C_iem_cru_TS40_1901_2015/tas/tas_mean_C_CRU_TS40_historical_'
+  config['h clim prec src'] = 'pr_total_mm_iem_cru_TS40_1901_2015/pr_total_mm_CRU_TS40_historical_'
+  config['h clim rsds src'] = 'rsds_mean_MJ-m2-d1_iem_CRU-TS40_historical_1901_2015_fix/rsds/rsds_mean_MJ-m2-d1_iem_CRU-TS40_historical_'
+  config['h clim vapo src'] = 'vap_mean_hPa_iem_CRU-TS40_historical_1901_2015_fix/vap/vap_mean_hPa_iem_CRU-TS40_historical_'
+
+  ''' Available as of 10-5-2018 2:53pm
+  # MRI-CGCM3
+  rsds_mean_MJ-m2-d1_MRI-CGCM3_rcp85_2006_2100_fix/rsds/rsds_mean_MJ-m2-d1_iem_ar5_MRI-CGCM3_rcp85_
+  vap_mean_hPa_MRI-CGCM3_rcp85_2006_2100_fix/vap/vap_mean_hPa_iem_ar5_MRI-CGCM3_rcp85_
+  tas_mean_C_ar5_MRI-CGCM3_rcp85_2006_2100/tas/tas_mean_C_iem_ar5_MRI-CGCM3_rcp85_
+  pr_total_mm_ar5_MRI-CGCM3_rcp85_2006_2100/pr/pr_total_mm_iem_ar5_MRI-CGCM3_rcp85_
+
+  # NCAR-CCSM4
+  # tas_mean_C_ar5_NCAR-CCSM4_rcp85_2006_2100.zip
+  # pr_total_mm_ar5_NCAR-CCSM4_rcp85_2006_2100.zip
+  vap_mean_hPa_NCAR-CCSM4_rcp85_2006_2100_fix/vap/vap_mean_hPa_iem_ar5_NCAR-CCSM4_rcp85_
+  rsds_mean_MJ-m2-d1_NCAR-CCSM4_rcp85_2006_2100_fix/rsds/rsds_mean_MJ-m2-d1_iem_ar5_NCAR-CCSM4_rcp85_
+  '''
+  config['p clim first yr'] = 2006
+  config['p clim last yr'] = 2100
+  config['p clim orig inst'] = 'MRI-CGCM3'
+  config['p clim ver'] = 'rcp85'
+  config['p clim tair src'] = 'tas_mean_C_ar5_MRI-CGCM3_rcp85_2006_2100/tas/tas_mean_C_iem_ar5_MRI-CGCM3_rcp85_'
+  config['p clim prec src'] = 'pr_total_mm_ar5_MRI-CGCM3_rcp85_2006_2100/pr/pr_total_mm_iem_ar5_MRI-CGCM3_rcp85_'
+  config['p clim rsds src'] = 'rsds_mean_MJ-m2-d1_ar5_MRI-CGCM3_rcp85_2006_2100_fix/rsds/rsds_mean_MJ-m2-d1_iem_ar5_MRI-CGCM3_rcp85_'
+  config['p clim vapo src'] = 'vap_mean_hPa_ar5_MRI-CGCM3_rcp85_2006_2100_fix/vap/vap_mean_hPa_iem_ar5_MRI-CGCM3_rcp85_'
+
+  config['fire fri src'] = 'iem_ancillary_data/Fire/FRI.tif'
+
+  verify_paths_in_config_dict(tif_dir, config)
 
   #
   # Make the veg file first, then run-mask, then climate, then fire.
@@ -1076,28 +1167,28 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
   #
   if 'vegetation' in files:
     of_name = os.path.join(out_dir, "vegetation.nc")
-    fill_veg_file(os.path.join(tif_dir,  "ancillary/land_cover/v_0_4/iem_vegetation_model_input_v0_4.tif"), xo, yo, xs, ys, out_dir, of_name)
-
+    #fill_veg_file(os.path.join(tif_dir,  "ancillary/land_cover/v_0_4/iem_vegetation_model_input_v0_4.tif"), xo, yo, xs, ys, out_dir, of_name)
+    fill_veg_file(os.path.join(tif_dir, config['veg src']), xo, yo, xs, ys, out_dir, of_name)
 
   if 'drainage' in files:
     of_name = os.path.join(out_dir, "drainage.nc")
-    fill_drainage_file(os.path.join(tif_dir,  "ancillary/drainage/Lowland_1km.tif"), xo, yo, xs, ys, out_dir, of_name)
+    fill_drainage_file(os.path.join(tif_dir,  config['drainage src']), xo, yo, xs, ys, out_dir, of_name)
 
   if 'soil-texture' in files:
     of_name = os.path.join(out_dir, "soil-texture.nc")
 
-    in_clay_base = os.path.join(tif_dir, 'ancillary/BLISS_IEM/mu_claytotal_r_pct_0_25mineral_2_AK_CAN.img')
-    in_sand_base = os.path.join(tif_dir, 'ancillary/BLISS_IEM/mu_sandtotal_r_pct_0_25mineral_2_AK_CAN.img')
-    in_silt_base = os.path.join(tif_dir, 'ancillary/BLISS_IEM/mu_silttotal_r_pct_0_25mineral_2_AK_CAN.img')
+    in_clay_base = os.path.join(tif_dir, config['soil clay src'])
+    in_sand_base = os.path.join(tif_dir, config['soil sand src'])
+    in_silt_base = os.path.join(tif_dir, config['soil silt src'])
 
     fill_soil_texture_file(in_sand_base, in_silt_base, in_clay_base, xo, yo, xs, ys, out_dir, of_name, rand=False)
 
   if 'topo' in files:
     of_name = os.path.join(out_dir, "topo.nc")
 
-    in_slope = os.path.join(tif_dir, "ancillary/slope/iem_prism_slope_1km.tif")
-    in_aspect = os.path.join(tif_dir, "ancillary/aspect/iem_prism_aspect_1km.tif")
-    in_elev = os.path.join(tif_dir, "ancillary/elevation/iem_prism_dem_1km.tif")
+    in_slope = os.path.join(tif_dir, config['topo slope src'])
+    in_aspect = os.path.join(tif_dir, config['topo aspect src'])
+    in_elev = os.path.join(tif_dir, config['topo elev src'])
 
     fill_topo_file(in_slope, in_aspect, in_elev, xo,yo,xs,ys,out_dir, of_name)
 
@@ -1109,26 +1200,17 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
 
   if 'historic-climate' in files:
     of_name = "historic-climate.nc"
-    '''
-    # Available as of 10-5-2018 2:53pm 
-    # CR-TS40
-    rsds_mean_MJ-m2-d1_CRU-TS40_historical_1901_2015_fix/rsds/rsds_mean_MJ-m2-d1_CRU-TS40_historical_
-    tas_mean_C_iem_cru_TS40_1901_2015/tas/tas_mean_C_CRU_TS40_historical_
-    pr_total_mm_iem_cru_TS40_1901_2015/pr_total_mm_CRU_TS40_historical_
-    vap_mean_hPa_iem_CRU_TS40_historical_1901_2015/vap/vap_mean_hPa_CRU_TS40_historical_
-    '''
-
     # Tried parsing this stuff automatically from the above paths,
     # but the paths, names, directory structures, etc were not standardized
     # enough to be worth it.
-    first_avail_year = 1901
-    last_avail_year = 2015
-    origin_institute, version = ('CRU', 'TS40')
-
-    in_tair_base = os.path.join(tif_dir, 'tas_mean_C_iem_cru_TS40_1901_2015/tas/tas_mean_C_CRU_TS40_historical_')
-    in_prec_base = os.path.join(tif_dir, 'pr_total_mm_iem_cru_TS40_1901_2015/pr_total_mm_CRU_TS40_historical_')
-    in_rsds_base = os.path.join(tif_dir, 'rsds_mean_MJ-m2-d1_CRU-TS40_historical_1901_2015_fix/rsds/rsds_mean_MJ-m2-d1_CRU-TS40_historical_')
-    in_vapo_base = os.path.join(tif_dir, 'vap_mean_hPa_iem_CRU_TS40_historical_1901_2015/vap/vap_mean_hPa_CRU_TS40_historical_')
+    first_avail_year    = config['h clim first yr']
+    last_avail_year     = config['h clim last yr']
+    origin_institute    = config['h clim orig inst']
+    version             = config['h clim ver']
+    in_tair_base = os.path.join(tif_dir, config['h clim tair src'])
+    in_prec_base = os.path.join(tif_dir, config['h clim prec src'])
+    in_rsds_base = os.path.join(tif_dir, config['h clim rsds src'])
+    in_vapo_base = os.path.join(tif_dir, config['h clim vapo src'])
 
     # Use the the January file for the first year requested as a spatial reference
     sp_ref_file  = "{}{month:02d}_{starty:04d}.tif".format(in_tair_base, month=1, starty=first_avail_year),
@@ -1154,30 +1236,18 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
 
   if 'projected-climate' in files:
     of_name = "projected-climate.nc"
-    ''' Available as of 10-5-2018 2:53pm
-    # MRI-CGCM3
-    rsds_mean_MJ-m2-d1_MRI-CGCM3_rcp85_2006_2100_fix/rsds/rsds_mean_MJ-m2-d1_iem_ar5_MRI-CGCM3_rcp85_
-    vap_mean_hPa_MRI-CGCM3_rcp85_2006_2100_fix/vap/vap_mean_hPa_iem_ar5_MRI-CGCM3_rcp85_
-    tas_mean_C_ar5_MRI-CGCM3_rcp85_2006_2100/tas/tas_mean_C_iem_ar5_MRI-CGCM3_rcp85_
-    pr_total_mm_ar5_MRI-CGCM3_rcp85_2006_2100/pr/pr_total_mm_iem_ar5_MRI-CGCM3_rcp85_
-
-    # NCAR-CCSM4
-    # tas_mean_C_ar5_NCAR-CCSM4_rcp85_2006_2100.zip
-    # pr_total_mm_ar5_NCAR-CCSM4_rcp85_2006_2100.zip
-    vap_mean_hPa_NCAR-CCSM4_rcp85_2006_2100_fix/vap/vap_mean_hPa_iem_ar5_NCAR-CCSM4_rcp85_
-    rsds_mean_MJ-m2-d1_NCAR-CCSM4_rcp85_2006_2100_fix/rsds/rsds_mean_MJ-m2-d1_iem_ar5_NCAR-CCSM4_rcp85_
-    '''
 
     # Tried parsing this stuff automatically from the above paths,
     # but the paths, names, directory structures, etc were not standardized
     # enough to be worth it.
-    first_avail_year = 2006
-    last_avail_year = 2100
-    origin_institute, version = ('MRI-CGCM3', 'rcp85')
-    in_tair_base = os.path.join(tif_dir, 'tas_mean_C_ar5_MRI-CGCM3_rcp85_2006_2100/tas/tas_mean_C_iem_ar5_MRI-CGCM3_rcp85_')
-    in_prec_base = os.path.join(tif_dir, 'pr_total_mm_ar5_MRI-CGCM3_rcp85_2006_2100/pr/pr_total_mm_iem_ar5_MRI-CGCM3_rcp85_')
-    in_rsds_base = os.path.join(tif_dir, 'rsds_mean_MJ-m2-d1_MRI-CGCM3_rcp85_2006_2100_fix/rsds/rsds_mean_MJ-m2-d1_iem_ar5_MRI-CGCM3_rcp85_')
-    in_vapo_base = os.path.join(tif_dir, 'vap_mean_hPa_MRI-CGCM3_rcp85_2006_2100_fix/vap/vap_mean_hPa_iem_ar5_MRI-CGCM3_rcp85_')
+    first_avail_year    = config['p clim first yr']
+    last_avail_year     = config['p clim last yr']
+    origin_institute    = config['p clim orig inst']
+    version             = config['p clim ver']
+    in_tair_base = os.path.join(tif_dir, config['p clim tair src'])
+    in_prec_base = os.path.join(tif_dir, config['p clim prec src'])
+    in_rsds_base = os.path.join(tif_dir, config['p clim rsds src'])
+    in_vapo_base = os.path.join(tif_dir, config['p clim vapo src'])
 
     # Pick the starting year of the projected file to immediately follow the 
     # last year in the historic file.
@@ -1230,9 +1300,10 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
 
   if 'fri-fire' in files:
     of_name = os.path.join(out_dir, "fri-fire.nc")
-    fill_fri_fire_file(xo, yo, xs, ys, out_dir, of_name, 
+    fill_fri_fire_file(
+        xo, yo, xs, ys, out_dir, of_name, 
         datasrc='no-fires', 
-        if_name=None, # os.path.join(tif_dir,"iem_ancillary_data/Fire/FRI.tif")
+        if_name=None,
     )
 
   if 'historic-explicit-fire' in files:
@@ -1243,7 +1314,11 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
     with netCDF4.Dataset(climate, 'r') as climate_dataset:
       years = len(climate_dataset.dimensions['time']) / 12
 
-    fill_explicit_fire_file(years, xo, yo, xs, ys, out_dir, of_name, datasrc='no-fires', if_name=None)
+    fill_explicit_fire_file(
+        years, xo, yo, xs, ys, out_dir, of_name,
+        datasrc='no-fires',
+        if_name=None
+    )
 
   if 'projected-explicit-fire' in files:
     of_name = os.path.join(out_dir, "projected-explicit-fire.nc")
@@ -1253,7 +1328,11 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
     with netCDF4.Dataset(climate, 'r') as climate_dataset:
       years = len(climate_dataset.dimensions['time']) / 12
 
-    fill_explicit_fire_file(years, xo, yo, xs, ys, out_dir, of_name, datasrc='no-fires', if_name=None)
+    fill_explicit_fire_file(
+        years, xo, yo, xs, ys, out_dir, of_name,
+        datasrc='no-fires',
+        if_name=None
+    )
 
   print(textwrap.dedent('''\
 
