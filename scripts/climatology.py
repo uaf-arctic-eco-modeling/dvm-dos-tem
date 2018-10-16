@@ -18,16 +18,77 @@ import glob
 import pickle
 import multiprocessing
 
+import datetime as dt
+
 from osgeo import gdal
 
 import numpy as np
+import pandas as pd
+
 import matplotlib
 matplotlib.use('pdf')
 import matplotlib.pyplot as plt
+import matplotlib.gridspec as gridspec
+import matplotlib.ticker as ticker
+
 
 TMP_DATA = 'climatology-intermediate-data'
 
-def worker_func(base_path, secondary_path, units):
+
+def timeseries_summary_stats_and_plots(base_path, secondary_path_list):
+  '''
+  '''
+  # Decades for projected, truncated first
+  fx_periods = [
+    (2006,2010),(2010,2020),(2020,2030),(2030,2040),(2040,2050),
+    (2050,2060),(2060,2070),(2070,2080),(2080,2090),(2090,2100)
+  ]
+
+  # Decades for historic, truncated at end
+  hist_periods = [
+    (1901,1911),(1911,1921),(1921,1931),(1931,1941),(1941,1951),
+    (1951,1961),(1961,1971),(1971,1981),(1981,1991),(1991,2001),
+    (2001,2011),(2011,2015)
+  ]
+
+  procs = []
+  for i in secondary_path_list:
+    if 'pr_total' in i.lower():
+      units = 'mm month-1'
+    elif 'tas_mean' in i.lower():
+      units = 'degrees C'
+    elif 'vap_mean' in i.lower():
+      units = 'hPa'
+    elif 'rsds_mean' in i.lower():
+      units = 'MJ-m2-d1'
+    elif 'hurs_mean' in i.lower():
+      units = 'percent'
+    else:
+      print "ERROR! hmmm can't find variable in {}".format(i)
+
+
+    if '_cru' in i.lower():
+      periods = hist_periods
+    elif '_mri' in i.lower():
+      periods = fx_periods
+    elif '_ncar' in i.lower():
+      periods = fx_periods
+
+    secondary_path = i
+
+    print "MAIN PROCESS! [{}] Starting worker...".format(os.getpid())
+    p = multiprocessing.Process(target=worker_func, args=(base_path, secondary_path, units, periods))
+    procs.append(p)
+    p.start()
+
+  print "Done starting processes. Looping to set join on each process..."
+  for p in procs:
+    p.join()
+  print "DONE! Plots should be saved..."
+
+def worker_func(base_path, secondary_path, units, periods):
+  '''
+  '''
   print "worker function! pid:{}".format(os.getpid())
   print "  [{}] {}".format(os.getpid(), base_path)
   print "  [{}] {}".format(os.getpid(), secondary_path)
@@ -63,13 +124,14 @@ def worker_func(base_path, secondary_path, units):
   # Create multi-page pdf document
   import matplotlib.backends.backend_pdf
   ofname = "climatology_{}.pdf".format(secondary_path.split("/")[0])
-  print "Saving PDF: {}".format(ofname)
+  print "Building PDF with many images: {}".format(ofname)
   pdf = matplotlib.backends.backend_pdf.PdfPages(ofname)
   pdf.savefig(monthlies_figure)
   pdf.savefig(overveiw_figure)
   for f in individual_figs:
     pdf.savefig(f)
   pdf.close()
+  print "Done saving pdf: {}".format(ofname)
 
 
 def create_vrt(filelist, ofname):
@@ -384,7 +446,7 @@ def get_monthlies_figure(base_path, secondary_path, title, units,
   fig, axes = plt.subplots(figsize=(11,8.5), nrows=3, ncols=4, sharex=True, sharey=True)
   imgs = []
   for ax, avg, month in zip(axes.flat, monthly_averages, months):
-    im = ax.imshow(avg, vmin=vmin, vmax=vmax)
+    im = ax.imshow(avg, vmin=vmin, vmax=vmax, cmap='gist_ncar')
     imgs.append(im)
     ax.set_title(month)
 
@@ -440,7 +502,7 @@ def get_overview_figure(periods, base_path, secondary_path, title='',
     print "plotting image for period:", period
 
     # Setting vmax and vmin normalized the colorbars across all images
-    im = ax.imshow(avg, vmin=vmin, vmax=vmax, cmap='rainbow')
+    im = ax.imshow(avg, vmin=vmin, vmax=vmax, cmap='gist_ncar')
     ax.set_title('{} to {}'.format(period[0], period[1]))
     imgs.append(im)
   
@@ -481,7 +543,7 @@ def get_period_avg_figures(periods, base_path, secondary_path,
   for i, ((start,end), periodavg) in enumerate(zip(periods, pa2)):
     fig = plt.figure()
     fig.suptitle(title) #fontsize=8
-    im = plt.imshow(periodavg, vmin=vmin, vmax=vmax, cmap='rainbow')
+    im = plt.imshow(periodavg, vmin=vmin, vmax=vmax, cmap='gist_ncar')
     ax = fig.axes[0]
     ax.set_title('Average, {} to {}'.format(start, end))
     cbar = plt.colorbar()
@@ -492,84 +554,283 @@ def get_period_avg_figures(periods, base_path, secondary_path,
   return ind_figures, padata
 
 
+def worker_func2(f):
+  if f == 'file3':
+    time.sleep(1)
+  if f == 'file7':
+    time.sleep(5)
+  print "will open, read, average {}".format(f)
+  return f
+
+def worker_func3(in_file_path):
+  '''
+  '''
+  # Deduce month and year from file name
+  bname = os.path.basename(in_file_path)
+  n, ext = os.path.splitext(bname)
+  parts = n.split('_')
+  month, year = [int(p) for p in parts[-2:]]
+  date = dt.date(year=year, month=month, day=1)
+
+  # Open the file, get some stats
+  ds = gdal.Open(in_file_path)
+  ds_array = ds.ReadAsArray()
+  ds_m = np.ma.masked_less_equal(ds_array, -9999)
+
+  data_dict = dict(
+      fname=bname, 
+      date=date, 
+      statewide_mean=ds_m.mean(), 
+      statewide_min=ds_m.min(), 
+      statewide_max=ds_m.max(), 
+      statewide_std=ds_m.std()
+  )
+
+  return data_dict
+
+
+
+def generate_spatial_summary_stats(base_path, secondary_path):
+  '''
+  '''
+  # This produces a bunch of csv files with statewide averages
+  for sec_path in secondary_path_list[0:]:
+
+    files = sorted(glob.glob(os.path.join(base_path, sec_path.format(month='*', year='*'))))
+
+    p = multiprocessing.Pool()
+    results = p.map(worker_func3, files[0:])
+    p.close()
+    p.join()
+
+    s_results = sorted(results, key=lambda k: k['date'])
+
+    stats_path = "SPATIAL_SUMMARY_STATS_{}.csv".format(sec_path.split('/')[0])
+
+    import pandas as pd
+    df = pd.DataFrame(s_results)
+    df.to_csv(stats_path)
+
+def plot_timeseries_of_spatial_summary_stats():
+  '''
+  '''
+  # Build this automatically:
+  #   - look for SPATIAL_SUMMARY_STATS_*
+  ss_file_list = [
+    'SPATIAL_SUMMARY_STATS_hurs_mean_pct_ar5_MRI-CGCM3_rcp85_2006_2100_fix.csv',
+    'SPATIAL_SUMMARY_STATS_hurs_mean_pct_ar5_NCAR-CCSM4_rcp85_2006_2100_fix.csv',
+    'SPATIAL_SUMMARY_STATS_hurs_mean_pct_iem_CRU-TS40_historical_1901_2015_fix.csv',
+
+    'SPATIAL_SUMMARY_STATS_pr_total_mm_ar5_MRI-CGCM3_rcp85_2006_2100.csv',
+    'SPATIAL_SUMMARY_STATS_pr_total_mm_ar5_NCAR-CCSM4_rcp85_2006_2100.csv',
+    'SPATIAL_SUMMARY_STATS_pr_total_mm_iem_cru_TS40_1901_2015.csv',
+
+    'SPATIAL_SUMMARY_STATS_rsds_mean_MJ-m2-d1_ar5_MRI-CGCM3_rcp85_2006_2100_fix.csv',
+    'SPATIAL_SUMMARY_STATS_rsds_mean_MJ-m2-d1_ar5_NCAR-CCSM4_rcp85_2006_2100_fix.csv',
+    'SPATIAL_SUMMARY_STATS_rsds_mean_MJ-m2-d1_iem_CRU-TS40_historical_1901_2015_fix.csv',
+
+    'SPATIAL_SUMMARY_STATS_tas_mean_C_ar5_MRI-CGCM3_rcp85_2006_2100.csv',
+    'SPATIAL_SUMMARY_STATS_tas_mean_C_ar5_NCAR-CCSM4_rcp85_2006_2100.csv',
+    'SPATIAL_SUMMARY_STATS_tas_mean_C_iem_cru_TS40_1901_2015.csv',
+
+    'SPATIAL_SUMMARY_STATS_vap_mean_hPa_ar5_MRI-CGCM3_rcp85_2006_2100_fix.csv',
+    'SPATIAL_SUMMARY_STATS_vap_mean_hPa_ar5_NCAR-CCSM4_rcp85_2006_2100_fix.csv',
+    'SPATIAL_SUMMARY_STATS_vap_mean_hPa_iem_CRU-TS40_historical_1901_2015_fix.csv',
+  ]
+
+  # Create multi-page pdf document
+  import matplotlib.backends.backend_pdf
+  ofname = "climatology_statewide_averages.pdf".format()
+  print "Saving PDF: {}".format(ofname)
+  pdf = matplotlib.backends.backend_pdf.PdfPages(ofname)
+
+  var_list = ['tas_mean','pr_total','rsds_mean','vap_mean','hurs_mean']
+  unit_list = ['celsius', 'mm month-1', 'MJ-m2-d1','hPa', 'percent']
+  for var, units in zip(var_list, unit_list):
+
+    # Figure out the right files to work on
+    var_files = filter(lambda x: var in x.lower(), ss_file_list)
+    print var_files
+    print
+    h_file = filter(lambda x: 'cru' in x.lower(), var_files)
+    pmri_file = filter(lambda x: 'mri' in x.lower(), var_files)
+    pncar_file = filter(lambda x: 'ncar' in x.lower(), var_files)
+
+    # Filtering above should result in single item lists, unpack for convenience.
+    h_file = h_file[0]
+    pmri_file = pmri_file[0]
+    pncar_file = pncar_file[0]
+
+    print "var: ", var
+    print "hfile: ", h_file
+    print "pmri_file: ", pmri_file
+    print "pncar_file: ", pncar_file
+    print
+
+    # Read data into DataFrames
+    hdf = pd.read_csv( h_file )
+    hdf.set_index( pd.to_datetime(hdf['date']), inplace=True )
+
+    pmri_df = pd.read_csv( pmri_file )
+    pmri_df.set_index( pd.to_datetime(pmri_df['date']), inplace=True )
+
+    pncar_df = pd.read_csv( pncar_file )
+    pncar_df.set_index( pd.to_datetime(pncar_df['date']), inplace=True )
+
+    # build an index for the whole range, historic & projected
+    full_index = pd.DatetimeIndex(start=hdf.index[0], end=pncar_df.index[-1], freq="MS")
+
+    hdf_f = hdf.reindex(full_index)
+    pmri_df_f = pmri_df.reindex(full_index)
+    pncar_df_f = pncar_df.reindex(full_index)
+
+    rsmpl_mean_h = hdf_f.resample('A').mean()
+    rsmpl_std_h = hdf_f.resample('A').std()
+    rsmpl_sum_h = hdf_f.resample('A').sum()
+
+    rsmpl_mean_pncar = pncar_df_f.resample('A').mean()
+    rsmpl_std_pncar = pncar_df_f.resample('A').std()
+    rsmpl_sum_pncar = pncar_df_f.resample('A').sum()
+
+    rsmpl_mean_pmri = pmri_df_f.resample('A').mean()
+    rsmpl_std_pmri = pmri_df_f.resample('A').std()
+    rsmpl_sum_pmri = pmri_df_f.resample('A').sum()
+
+    fig = plt.figure(figsize=(11,8.5))
+    fig.suptitle( "\n".join((h_file, pmri_file, pncar_file)) )
+
+    plt.ylabel(units)
+
+    if var == 'pr_total':
+
+      # For precip, make sure to sum over the year instead of taking the mean.
+      # Also take care when plotting the standard deviation too as it is
+      # confusing which DataFrame and column to use.
+
+      plt.ylabel(units.replace('month', 'year'))
+
+      from IPython import embed; embed()
+
+      # Confusing here, but the following masks the zero sums...
+      plt.plot(rsmpl_sum_h['statewide_mean'][rsmpl_sum_h.statewide_mean>0], label='cru-ts40 +/-1 stdv')
+      plt.fill_between(
+          rsmpl_sum_h.index,
+          rsmpl_sum_h['statewide_mean']+rsmpl_mean_h['statewide_std'],
+          rsmpl_sum_h['statewide_mean']-rsmpl_mean_h['statewide_std'],
+          alpha=0.25
+      )
+
+      plt.plot(rsmpl_sum_pncar['statewide_mean'][rsmpl_sum_pncar.statewide_mean>0], label='ncar-ccsm4 +/-1 stdv')
+      plt.fill_between(
+          rsmpl_sum_pncar.index,
+          rsmpl_sum_pncar['statewide_mean']+rsmpl_mean_pncar['statewide_std'],
+          rsmpl_sum_pncar['statewide_mean']-rsmpl_mean_pncar['statewide_std'],
+          alpha=0.25
+      )
+
+      plt.plot(rsmpl_sum_pmri['statewide_mean'][rsmpl_sum_pmri.statewide_mean>0], label='mri-cgcm3 +/-1 stdv')
+      plt.fill_between(
+          rsmpl_sum_pmri.index,
+          rsmpl_sum_pmri['statewide_mean']+rsmpl_mean_pmri['statewide_std'],
+          rsmpl_sum_pmri['statewide_mean']-rsmpl_mean_pmri['statewide_std'],
+          alpha=0.25
+      )
+
+
+    else:
+      plt.plot(rsmpl_mean_h['statewide_mean'], label='cru-ts40 +/-1 stdv')
+      plt.fill_between(
+          rsmpl_mean_h.index,
+          rsmpl_mean_h['statewide_mean']+rsmpl_mean_h['statewide_std'],
+          rsmpl_mean_h['statewide_mean']-rsmpl_mean_h['statewide_std'],
+          alpha=0.25
+      )
+
+      plt.plot(rsmpl_mean_pncar['statewide_mean'], label='ncar-ccsm4 +/-1 stdv')
+      plt.fill_between(
+          rsmpl_mean_pncar.index,
+          rsmpl_mean_pncar['statewide_mean']+rsmpl_mean_pncar['statewide_std'],
+          rsmpl_mean_pncar['statewide_mean']-rsmpl_mean_pncar['statewide_std'],
+          alpha=0.25
+      )
+
+      plt.plot(rsmpl_mean_pmri['statewide_mean'], label='mri-cgcm3 +/-1 stdv')
+      plt.fill_between(
+          rsmpl_mean_pmri.index,
+          rsmpl_mean_pmri['statewide_mean']+rsmpl_mean_pmri['statewide_std'],
+          rsmpl_mean_pmri['statewide_mean']-rsmpl_mean_pmri['statewide_std'],
+          alpha=0.25
+      )
+
+    plt.legend()
+    #plt.show(block=True)    
+
+    print "Saving fig to pdf for {}".format(var)
+    pdf.savefig(fig)
+
+  print "Closing PDF: {}".format(ofname)
+  pdf.close()
+
+
+
 if __name__ == '__main__':
 
   print "PID: {}".format(os.getpid())
   print "Temporary file storage: {}".format(TMP_DATA)
 
+  print "For use with slurm (generating and saving multi-page pdfs) you have "
+  print "to import matplotlib and then set the backend explicitly, or you "
+  print "have issues with related to the DISPLAY environment variable. "
+  print "For interactive development use, comment those import lines out at "
+  print "the top of the file and use plt.show(block=True) instead of savefig() "
+  print "in the code."
+  
+
   base_path = '/atlas_scratch/ALFRESCO/ALFRESCO_Master_Dataset_v2_1/ALFRESCO_Model_Input_Datasets/IEM_for_TEM_inputs/'
 
-  # Decades for projected, truncated first
-  fx_periods = [
-    (2006,2010),(2010,2020),(2020,2030),(2030,2040),(2040,2050),
-    (2050,2060),(2060,2070),(2070,2080),(2080,2090),(2090,2100)
-  ]
-
-  # Decades for historic, truncated at end
-  hist_periods = [
-    (1901,1911),(1911,1921),(1921,1931),(1931,1941),(1941,1951),
-    (1951,1961),(1961,1971),(1971,1981),(1981,1991),(1991,2001),
-    (2001,2011),(2011,2015)
-  ]
-
   secondary_path_list = [
-    #'pr_total_mm_iem_cru_TS40_1901_2015/pr_total_mm_CRU_TS40_historical_{month:}_{year:}.tif',
-    #'pr_total_mm_ar5_MRI-CGCM3_rcp85_2006_2100/pr/pr_total_mm_iem_ar5_MRI-CGCM3_rcp85_{month:}_{year:}.tif',
-    #'pr_total_mm_ar5_NCAR-CCSM4_rcp85_2006_2100/pr/pr_total_mm_iem_ar5_NCAR-CCSM4_rcp85_{month:}_{year:}.tif',
+    'pr_total_mm_iem_cru_TS40_1901_2015/pr_total_mm_CRU_TS40_historical_{month:}_{year:}.tif',
+    'pr_total_mm_ar5_MRI-CGCM3_rcp85_2006_2100/pr/pr_total_mm_iem_ar5_MRI-CGCM3_rcp85_{month:}_{year:}.tif',
+    'pr_total_mm_ar5_NCAR-CCSM4_rcp85_2006_2100/pr/pr_total_mm_iem_ar5_NCAR-CCSM4_rcp85_{month:}_{year:}.tif',
 
-    #'tas_mean_C_iem_cru_TS40_1901_2015/tas/tas_mean_C_CRU_TS40_historical_{month:}_{year:}.tif',
-    #'tas_mean_C_ar5_MRI-CGCM3_rcp85_2006_2100/tas/tas_mean_C_iem_ar5_MRI-CGCM3_rcp85_{month:}_{year:}.tif',
-    #'tas_mean_C_ar5_NCAR-CCSM4_rcp85_2006_2100/tas/tas_mean_C_iem_ar5_NCAR-CCSM4_rcp85_{month:}_{year:}.tif',
+    'tas_mean_C_iem_cru_TS40_1901_2015/tas/tas_mean_C_CRU_TS40_historical_{month:}_{year:}.tif',
+    'tas_mean_C_ar5_MRI-CGCM3_rcp85_2006_2100/tas/tas_mean_C_iem_ar5_MRI-CGCM3_rcp85_{month:}_{year:}.tif',
+    'tas_mean_C_ar5_NCAR-CCSM4_rcp85_2006_2100/tas/tas_mean_C_iem_ar5_NCAR-CCSM4_rcp85_{month:}_{year:}.tif',
 
     'hurs_mean_pct_iem_CRU-TS40_historical_1901_2015_fix/hurs/hurs_mean_pct_iem_CRU-TS40_historical_{month:}_{year:}.tif',
     'hurs_mean_pct_ar5_MRI-CGCM3_rcp85_2006_2100_fix/hurs/hurs_mean_pct_iem_ar5_MRI-CGCM3_rcp85_{month:}_{year:}.tif',
     'hurs_mean_pct_ar5_NCAR-CCSM4_rcp85_2006_2100_fix/hurs/hurs_mean_pct_iem_ar5_NCAR-CCSM4_rcp85_{month:}_{year:}.tif',
 
-    #'rsds_mean_MJ-m2-d1_iem_CRU-TS40_historical_1901_2015_fix/rsds/rsds_mean_MJ-m2-d1_iem_CRU-TS40_historical_{month:}_{year:}.tif',
-    #'rsds_mean_MJ-m2-d1_ar5_MRI-CGCM3_rcp85_2006_2100_fix/rsds/rsds_mean_MJ-m2-d1_iem_ar5_MRI-CGCM3_rcp85_{month:}_{year:}.tif',
-    #'rsds_mean_MJ-m2-d1_ar5_NCAR-CCSM4_rcp85_2006_2100_fix/rsds/rsds_mean_MJ-m2-d1_iem_ar5_NCAR-CCSM4_rcp85_{month:}_{year:}.tif',
+    'rsds_mean_MJ-m2-d1_iem_CRU-TS40_historical_1901_2015_fix/rsds/rsds_mean_MJ-m2-d1_iem_CRU-TS40_historical_{month:}_{year:}.tif',
+    'rsds_mean_MJ-m2-d1_ar5_MRI-CGCM3_rcp85_2006_2100_fix/rsds/rsds_mean_MJ-m2-d1_iem_ar5_MRI-CGCM3_rcp85_{month:}_{year:}.tif',
+    'rsds_mean_MJ-m2-d1_ar5_NCAR-CCSM4_rcp85_2006_2100_fix/rsds/rsds_mean_MJ-m2-d1_iem_ar5_NCAR-CCSM4_rcp85_{month:}_{year:}.tif',
 
-    #'vap_mean_hPa_iem_CRU-TS40_historical_1901_2015_fix/vap/vap_mean_hPa_iem_CRU-TS40_historical_{month:}_{year:}.tif',
-    #'vap_mean_hPa_ar5_MRI-CGCM3_rcp85_2006_2100_fix/vap/vap_mean_hPa_iem_ar5_MRI-CGCM3_rcp85_{month:}_{year:}.tif',
-    #'vap_mean_hPa_ar5_NCAR-CCSM4_rcp85_2006_2100_fix/vap/vap_mean_hPa_iem_ar5_NCAR-CCSM4_rcp85_{month:}_{year:}.tif',
+    'vap_mean_hPa_iem_CRU-TS40_historical_1901_2015_fix/vap/vap_mean_hPa_iem_CRU-TS40_historical_{month:}_{year:}.tif',
+    'vap_mean_hPa_ar5_MRI-CGCM3_rcp85_2006_2100_fix/vap/vap_mean_hPa_iem_ar5_MRI-CGCM3_rcp85_{month:}_{year:}.tif',
+    'vap_mean_hPa_ar5_NCAR-CCSM4_rcp85_2006_2100_fix/vap/vap_mean_hPa_iem_ar5_NCAR-CCSM4_rcp85_{month:}_{year:}.tif',
   ]
 
-  procs = []
-  for i in secondary_path_list:
-    if 'pr_total' in i.lower():
-      units = 'mm month-1'
-    elif 'tas_mean' in i.lower():
-      units = 'degrees C'
-    elif 'vap_mean' in i.lower():
-      units = 'hPa'
-    elif 'rsds_mean' in i.lower():
-      units = 'MJ-m2-d1'
-    elif 'hurs_mean' in i.lower():
-      units = 'percent'
-    else:
-      print "ERROR! hmmm can't find variable in {}".format(i)
+  print "{} CPU Count: {}".format(os.getpid(), multiprocessing.cpu_count())
+  
+
+  # Builds maps and figures (multi-page pdfs) of monthly averages and or 
+  # decadal averages (or arbitrary time range).
+  # Uses multiprocessing.Process to get parallelism over each set of files
+  # (one of the items in the secondary_path_list) 
+  # Takes ~12 minutes on atlas
+  #timeseries_summary_stats_and_plots(base_path, secondary_path_list)
+
+  # Generate csv files with mean and other summary stats that are taken over
+  # the entire spatial domain (statewide). Uses multiprocessing.Pool to get 
+  # parallelism over all the individual files - could benefit from up to 1000
+  # cores (one for each file in the timeseries)
+  # Takes ~6 minutes on atlas
+  generate_spatial_summary_stats(base_path, secondary_path_list)
 
 
-    if '_cru' in i.lower():
-      periods = hist_periods
-    elif '_mri' in i.lower():
-      periods = fx_periods
-    elif '_ncar' in i.lower():
-      periods = fx_periods
-
-    secondary_path = i
-
-    print "MAIN PROCESS! [{}] Starting worker...".format(os.getpid())
-    p = multiprocessing.Process(target=worker_func, args=(base_path, secondary_path, units))
-    procs.append(p)
-    p.start()
-
-  print "Done starting processes. Looping to set join on each process..."
-  for p in procs:
-    p.join()
-  print "DONE!"
-
-
+  # Make plots of the summary stats file created in the previous function.
+  # Runs fast...
+  plot_timeseries_of_spatial_summary_stats()
 
 
 # Decades for historic period - works nicely, truncated at end
