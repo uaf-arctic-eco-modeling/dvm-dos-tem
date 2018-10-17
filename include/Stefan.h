@@ -30,15 +30,23 @@ private:
   Layer *botdrvl;
 
   void meltingSnowLayer(double const & tkfront, double & dse,
-                        double & sumresabv, const double & tdrv, Layer* currl);
+                        double & sumresabv, const double & tdrv,
+                        Layer* currl, const double & timestep);
 
+  //20180820 This function requires the timestep in order to
+  // modify the energy needed to thaw soil layers by adding the
+  // energy needed to raise the layer to 0 degrees.
   void processNewFrontSoilLayerDown(const int &frozenstate,
                                     double const & sumrescum,
                                     double const & tkfront, double & dse,
-                                    double & newfntdz, Layer* currl);
+                                    double & newfntdz, Layer* currl,
+                                    const double & timestep);
 
   void frontsDequeDown(const double & newfntz, const int & newfnttype);
 
+  //20180820 Unlike the downward process, the upward process does
+  // not need the timestep because layer temperature is already
+  // allowed for.
   void processNewFrontSoilLayerUp(const int &frozenstate,
                                   double const & sumrescum,
                                   double const & tkfront ,

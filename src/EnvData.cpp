@@ -189,6 +189,8 @@ void EnvData::grnd_beginOfYear() {
     y_soid.sws[il] = 0.;
     y_soid.aws[il] = 0.;
     y_soid.fbtran[il] = 0.;
+    y_soid.tcond[il] = 0;
+    y_soid.hcond[il] = 0;
   }
 
   y_soid.permafrost  = 1;
@@ -320,6 +322,8 @@ void EnvData::grnd_beginOfMonth() {
     m_soid.sws[il] = 0.;
     m_soid.aws[il] = 0.;
     m_soid.fbtran[il] = 0.;
+    m_soid.tcond[il] = 0;
+    m_soid.hcond[il] = 0;
   }
 
   m_soid.frasat = 0.;
@@ -401,6 +405,9 @@ void EnvData::veg_endOfDay(const int & dinm) {
 };
 
 void EnvData::grnd_endOfDay(const int & dinm, const int & doy) {
+  //Calculate day of the month for daily output storage
+  int dom = temutil::doy2dom(doy);
+
   // snow
   int numsnw = cd->d_snow.numsnwl;
 
@@ -661,30 +668,40 @@ void EnvData::grnd_endOfDay(const int & dinm, const int & doy) {
   m_soi2l.qdrain += d_soi2l.qdrain;
 
   //Storing daily data for NetCDF output at end of month
-  daily_tshlw[dinm] = d_soid.tshlw;
-  daily_tdeep[dinm] = d_soid.tdeep;
-  daily_tminea[dinm] = d_soid.tminea;
-  daily_tmineb[dinm] = d_soid.tmineb;
-  daily_tminec[dinm] = d_soid.tminec;
-  daily_vwcshlw[dinm] = d_soid.vwcshlw;
-  daily_vwcdeep[dinm] = d_soid.vwcdeep;
-  daily_vwcminea[dinm] = d_soid.vwcminea;
-  daily_vwcmineb[dinm] = d_soid.vwcmineb;
-  daily_vwcminec[dinm] = d_soid.vwcminec;
-  daily_tcshlw[dinm] = d_soid.tcshlw;
-  daily_tcdeep[dinm] = d_soid.tcdeep;
-  daily_tcminea[dinm] = d_soid.tcminea;
-  daily_tcmineb[dinm] = d_soid.tcmineb;
-  daily_tcminec[dinm] = d_soid.tcminec;
-  daily_hkshlw[dinm] = d_soid.hkshlw;
-  daily_hkdeep[dinm] = d_soid.hkdeep;
-  daily_hkminea[dinm] = d_soid.hkminea;
-  daily_hkmineb[dinm] = d_soid.hkmineb;
-  daily_hkminec[dinm] = d_soid.hkminec;
+  daily_tshlw[dom] = d_soid.tshlw;
+  daily_tdeep[dom] = d_soid.tdeep;
+  daily_tminea[dom] = d_soid.tminea;
+  daily_tmineb[dom] = d_soid.tmineb;
+  daily_tminec[dom] = d_soid.tminec;
+  daily_vwcshlw[dom] = d_soid.vwcshlw;
+  daily_vwcdeep[dom] = d_soid.vwcdeep;
+  daily_vwcminea[dom] = d_soid.vwcminea;
+  daily_vwcmineb[dom] = d_soid.vwcmineb;
+  daily_vwcminec[dom] = d_soid.vwcminec;
+  daily_tcshlw[dom] = d_soid.tcshlw;
+  daily_tcdeep[dom] = d_soid.tcdeep;
+  daily_tcminea[dom] = d_soid.tcminea;
+  daily_tcmineb[dom] = d_soid.tcmineb;
+  daily_tcminec[dom] = d_soid.tcminec;
+  daily_hkshlw[dom] = d_soid.hkshlw;
+  daily_hkdeep[dom] = d_soid.hkdeep;
+  daily_hkminea[dom] = d_soid.hkminea;
+  daily_hkmineb[dom] = d_soid.hkmineb;
+  daily_hkminec[dom] = d_soid.hkminec;
 
-  daily_watertab[dinm] = d_sois.watertab;
+  daily_watertab[dom] = d_sois.watertab;
 
-  daily_drainage[dinm] = d_soi2l.qdrain;
+  daily_drainage[dom] = d_soi2l.qdrain;
+
+  for(int il=0; il<MAX_SOI_LAY; il++){
+    daily_tlayer[dom][il] = d_sois.ts[il];
+  }
+
+  for(int fid=0; fid<MAX_NUM_FNT; fid++){
+    daily_frontsdepth[dom][fid] = d_sois.frontsz[fid];
+    daily_frontstype[dom][fid] = d_sois.frontstype[fid];
+  }
+
 };
 
 void EnvData::atm_endOfMonth() {

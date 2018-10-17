@@ -1,0 +1,52 @@
+diff --git a/src/TEMUtilityFunctions.cpp b/src/TEMUtilityFunctions.cpp
+index 113ef73..91583a9 100644
+--- a/src/TEMUtilityFunctions.cpp
++++ b/src/TEMUtilityFunctions.cpp
+@@ -201,28 +201,25 @@ namespace temutil {
+     BOOST_LOG_SEV(glg, debug) << "Read the control file ('" << filepath << "') into a string...";
+     std::string datastring = file2string(filepath.c_str());
+ 
+-    BOOST_LOG_SEV(glg, debug) << "Creating Json Value and Reader objects...";
+-    Json::Value root;   // will contain the root value after parsing
+-    Json::Reader reader;
+-
+-    BOOST_LOG_SEV(glg, debug) << "Trying to parse the json data string...";
+-
+-    bool parsingSuccessful = reader.parse( datastring, root );
+-
+-    BOOST_LOG_SEV(glg, debug) << "Parsing successful?: " << parsingSuccessful;
+-
+-    if ( !parsingSuccessful ) {
+-        BOOST_LOG_SEV(glg, fatal) << "Failed to parse configuration file: " << filepath;
+-        // 08/31/2017, Commented this function out.
+-        // In older version of jsoncpp, there was a typo and the function
+-        // call was missing a 't'. In more recent versions of jsoncpp, the
+-        // older (misspelled) funciton has been deprecated. We haven't been
+-        // having may errors parsing config files and trying to handle
+-        // compiling on different machines with different versions of jsoncpp
+-        // has been a pain, so for now we figure it will be easier to just not
+-        // use the offending function call.
+-        //BOOST_LOG_SEV(glg, fatal) << reader.getFormattedErrorMessages();
+-        exit(-1);
++    Json::Value root;  // will contain the root value after parsing
++
++    // Here, using a specialized Builder, we discard comments and
++    // record errors as we parse.
++    Json::CharReaderBuilder rbuilder;
++    rbuilder["collectComments"] = false;
++    std::string errs;
++
++    // seems that there is no longer a parse from string method, so
++    // we convert to a stream for parsing.
++    std::stringstream ss;
++    ss << datastring;
++
++    bool ok = Json::parseFromStream(rbuilder, ss, &root, &errs);
++
++    if (!ok) {
++       BOOST_LOG_SEV(glg, fatal) << "Problems with parsing json control file! " << errs;
++       BOOST_LOG_SEV(glg, fatal) << "Error: " << errs;
++       exit(-1);
+     }
+ 
+     return root;

@@ -140,6 +140,7 @@ private:
   void assignGroundEd2pfts_daily();
   void getSoilTransfactor4all_daily();
   void getEd4allveg_daily();
+  void getEd4allgrnd_daily();
   void getEd4land_daily();
 
   void assignSoilBd2pfts_monthly();

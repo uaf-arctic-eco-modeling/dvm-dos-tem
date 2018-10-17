@@ -62,11 +62,10 @@ ModelData::ModelData(Json::Value controldata):force_cmt(-1) {
 
   updatelai     = controldata["model_settings"]["dynamic_lai"].asInt(); // checked in Cohort::updateMonthly_DIMVeg
 
-
   // Unused (11/23/2015)
-  changeclimate = controldata["model_settings"]["dynamic_climate"].asInt();
-  changeco2     = controldata["model_settings"]["varied_co2"].asInt();
-  useseverity   = controldata["model_settings"]["fire_severity_as_input"].asInt();
+  //changeclimate = controldata["model_settings"]["dynamic_climate"].asInt();
+  //changeco2     = controldata["model_settings"]["varied_co2"].asInt();
+  //useseverity   = controldata["model_settings"]["fire_severity_as_input"].asInt();
 
 }
 
@@ -544,7 +543,7 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
       temutil::nc( nc_enddef(ncid) );
 
       /* Fill out the time coordinate variable */
-      if ((stage == "tr") || (stage == "sc") && timestep == "yearly") {
+      if ((stage == "tr" || stage == "sc") && timestep == "yearly") {
         BOOST_LOG_SEV(glg, debug) << "Time coordinate variable, tr or sc, yearly.";
 
         int tcV;

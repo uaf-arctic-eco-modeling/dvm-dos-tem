@@ -96,6 +96,7 @@ namespace temutil {
 
     int month;
 
+    //Note that doy is an index starting at 0
     if (doy < 31) {
       month = 0;
     }
@@ -115,6 +116,18 @@ namespace temutil {
 
     return month;
 
+  }
+
+  /** Given a day of the year, returns the day of the month it falls in.
+   *    - Does not handle leap years
+   *    - Assumes DOY and month are zero based
+   */
+  int doy2dom(const int doy){
+    assert( (doy >= 0 && doy <= 364) && "Invalid day of year! DOY must be >= 0 and <= 364");
+
+    int month = doy2month(doy);
+
+    return doy-DOYINDFST[month]; 
   }
 
   /** Length of day as a function of latitude (degrees) and day of year.

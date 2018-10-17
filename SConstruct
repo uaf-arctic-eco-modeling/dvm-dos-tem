@@ -97,7 +97,7 @@ if platform_name == 'Linux':
 
   platform_library_path = ['/home/vagrant/netcdf-4.4.1.1/netcdf/lib', '/home/vagrant/hdf5-1.8.19/hdf5/lib', '/home/UA/rarutter/downloads/netcdf-4.4.1.1/netcdf/lib', '/home/UA/rarutter/downloads/hdf5-1.8.19/hdf5/lib', '/usr/lib64', '~/usr/local/lib']
 
-  compiler_flags = '-Wno-error -ansi -g -fPIC -DBOOST_ALL_DYN_LINK -DGNU_FPE'
+  compiler_flags = '-Wno-error -ansi -g -fPIC -std=c++11 -DBOOST_ALL_DYN_LINK -DBOOST_NO_CXX11_SCOPED_ENUMS -DGNU_FPE'
   platform_libs = libs
 
 
@@ -119,7 +119,7 @@ elif platform_name == 'Darwin':
   platform_include_path = ['/usr/local/include']
   platform_library_path = ['/usr/local/lib']
 
-  compiler_flags = '-Werror -fpermissive -ansi -g -fPIC -DBOOST_ALL_DYN_LINK -DBSD_FPE'
+  compiler_flags = '-Werror -fpermissive -ansi -g -fPIC -std=c++11 -DBOOST_ALL_DYN_LINK -DBSD_FPE'
 
   # This is not really a Darwin-specific thing so much as the fact that
   # for Tobey, when he installed boost, he inadvertantly specified that

@@ -23,9 +23,11 @@ void ArgHandler::parse(int argc, char** argv) {
      ->default_value(-1),
      "Force the model to run with a particular CMT number. Without this flag, "
      "the model determines which CMT to use for a grid cell based on the input "
-     "vegetation map. The flag allows the user to force a grid cell to run "
-     "with a particular CMT regardless of what the input vegetation map holds. "
-     "Only works for single pixels ('site runs') when using calibration mode.")
+     "vegetation map (specified in the config file). This flag allows the user to "
+     "force a grid cell to run with a particular CMT regardless of what the input "
+     "vegetation map holds. If multiple grid cells are being run then all cells "
+     "will be forced to the same vegetation type." 
+    )
 
     ("max-output-volume", boost::program_options::value<std::string>(&max_output_volume)
      ->default_value("0.75 GB"),
@@ -165,11 +167,10 @@ void ArgHandler::verify() {
     BOOST_LOG_SEV(glg, warn) << "Invalid argument combination!: --inter-stage-pause is not effective without --cal-mode!";
   }
 
-  if ( (this->force_cmt >= 0) && (!this->cal_mode) ) {
-    BOOST_LOG_SEV(glg, fatal) << "Invalid argument combination!: You must use --cal-mode when forcing the community type!";
-    exit(-1);
+  if (this->force_cmt >= 0) {
+    BOOST_LOG_SEV(glg, warn) << "Forcing cmt number to " << this->force_cmt << "!";
   }
-  // Check that the value for --force-cmt is present in all input parameter files
+  // Check that the value for --force-cmt is present in all input parameter files?
 
 }
 

@@ -91,7 +91,8 @@ void Snow_Env::updateDailySurfFlux( Layer* toplayer, const double & tdrv) {
         double layicermv = fmin(sublim, currl->ice);
         actsub += layicermv;
         sublim -= layicermv;
-        currl->ice -= layicermv;
+        //layicermv used to be subtracted from currl->ice here, but
+        // that duplicates the removal in Ground::constructSnowLayers()
       } else {
         break;
       }
@@ -185,6 +186,7 @@ double  Snow_Env::meltSnowLayersAfterT(Layer* toplayer) {
 // assign double-linked snow horizon data to 'ed'
 void Snow_Env::updateSnowEd(Layer *toplayer) {
   ed->d_snws.swesum = 0.;
+  ed->d_snws.snowthick = 0.;
   Layer* currl=toplayer;
   int snowind = 0;
 
@@ -262,6 +264,7 @@ void Snow_Env::set_state_from_restartdata(const RestartData & rdata) {
   Layer* currl = ground->toplayer;
   int snind = -1;
   ed->d_snws.swesum = 0;
+  ed->d_snws.snowthick = 0;
 
   while(currl!=NULL) {
     if(currl->isSnow) {
@@ -285,17 +288,17 @@ void Snow_Env::set_state_from_restartdata(const RestartData & rdata) {
 
 double Snow_Env::getSublimation(double const & rn, double const & swe,
                                 double const & ta) {
-  // rn unit  W/m2,  radiation
-  // swe  snow water equivlent mm
-  // output sublimation mm/day
+  // rn: radiation. W/m2
+  // swe: snow water equivalent. mm
+  // LHVAP: latent heat of vaporization. J/kg
+  // LHFUS: latent heat of fusion. J/kg
+  // output sublimation. mm/day
   double sub = 0.;
-  double sabsorb =0.6;     // radiation asorbtivity of snow, Zhuang 0.6 ?
-  double lamdaw = 2.501e6; // latent heat of vaporization J/kg
-  double lf = 3.337e5 ;    // latent heat of fusion J/kg
+  double sabsorb =0.6;     // radiation absorptivity of snow, Zhuang 0.6 ?
   double rabs = rn * sabsorb; //W/m2
 
   if( swe>0. && ta<=-1) {
-    double psub= rabs*86400/(lamdaw + lf);
+    double psub= rabs*86400/(LHVAP + LHFUS);
 
     if(psub>swe) {
       sub = swe;
@@ -303,7 +306,7 @@ double Snow_Env::getSublimation(double const & rn, double const & swe,
       sub = psub;
     }
   } else if(swe>0. && ta>=-1) {
-    double pmelt= rabs*86400/(lf);
+    double pmelt= rabs*86400/(LHFUS);
 
     if(pmelt>swe) {
       sub = swe;

@@ -38,37 +38,6 @@ import glob
 #      a lot of redundant info, for now we are only storing spatial info
 #      with the climate files.
 
-# (0,0) pixel is hardcoded to the exact values from Toolik for testing.
-
-def tunnel_fast(latvar,lonvar,lat0,lon0):
-  '''
-  Find closest point in a set of (lat,lon) points to specified point
-  latvar - 2D latitude variable from an open netCDF dataset
-  lonvar - 2D longitude variable from an open netCDF dataset
-  lat0,lon0 - query point
-  Returns iy,ix such that the square of the tunnel distance
-  between (latval[it,ix],lonval[iy,ix]) and (lat0,lon0)
-  is minimum.
-  Code from Unidata's Python Workshop:
-  https://github.com/Unidata/unidata-python-workshop
-  '''
-  rad_factor = np.pi/180.0 # for trignometry, need angles in radians
-  # Read latitude and longitude from file into numpy arrays
-  latvals = latvar[:] * rad_factor
-  lonvals = lonvar[:] * rad_factor
-  ny,nx = latvals.shape
-  lat0_rad = lat0 * rad_factor
-  lon0_rad = lon0 * rad_factor
-  # Compute numpy arrays for all values, no loops
-  clat,clon = np.cos(latvals), np.cos(lonvals)
-  slat,slon = np.sin(latvals), np.sin(lonvals)
-  delX = np.cos(lat0_rad)*np.cos(lon0_rad) - clat*clon
-  delY = np.cos(lat0_rad)*np.sin(lon0_rad) - clat*slon
-  delZ = np.sin(lat0_rad) - slat;
-  dist_sq = delX**2 + delY**2 + delZ**2
-  minindex_1d = dist_sq.argmin()  # 1D index of minimum element
-  iy_min,ix_min = np.unravel_index(minindex_1d, latvals.shape)
-  return iy_min,ix_min
 
 def source_attr_string(ys='', xs='', yo='', xo='', msg=''):
   '''
@@ -555,7 +524,7 @@ def fill_veg_file(if_name, xo, yo, xs, ys, out_dir, of_name):
 def fill_climate_file(start_yr, yrs, xo, yo, xs, ys,
                       out_dir, of_name, sp_ref_file,
                       in_tair_base, in_prec_base, in_rsds_base, in_vapo_base,
-                      time_coord_var):
+                      time_coord_var, model='', scen=''):
 
   # create short handle for output file
   masterOutFile = os.path.join(out_dir, of_name)
@@ -601,8 +570,11 @@ def fill_climate_file(start_yr, yrs, xo, yo, xs, ys,
   lon[:] = temp_subset_with_lonlat.variables['lon'][:]
 
   print "Write attribute with pixel offsets to file..."
+  print "Write attributes for model and scenario..."
   with custom_netcdf_attr_bug_wrapper(new_climatedataset) as f:
     f.source = source_attr_string(xo=xo, yo=yo)
+    f.model = model
+    f.scenario = scen
 
   print "Done copying LON/LAT."
 
@@ -630,7 +602,7 @@ def fill_climate_file(start_yr, yrs, xo, yo, xs, ys,
 
       procs = []
       for tiffimage, tmpFileName, vName in zip(baseFiles, tmpFiles , dataVarList):
-        proc = mp.Process(target=convert_and_subset, args=(tiffimage, tmpFileName, xo, yo, xs, ys, yridx,midx,vName))
+        proc = mp.Process(target=convert_and_subset, args=(tiffimage, tmpFileName, xo, yo, xs, ys, yridx, midx, vName))
         procs.append(proc)
         proc.start()
 
@@ -680,10 +652,16 @@ def fill_climate_file(start_yr, yrs, xo, yo, xs, ys,
           'units': 'days since {}-1-1 0:0:0'.format(start_yr),
           'calendar': '365_day'
         })
+
         # Build up a vector of datetime stamps for the first day of each month
+        try:
+          periods = f.dimensions['time'].size # only available in netCDF4 >1.2.2
+        except AttributeError as e:
+          periods = len(f.dimensions['time'])
+
         month_starts = pd.date_range(
             dt.datetime(year=start_yr, month=1, day=1),
-            periods=f.dimensions['time'].size,
+            periods=periods,
             freq="MS" # <- MS is month start
         )
 
@@ -988,55 +966,104 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
 
   if 'historic-climate' in files:
     of_name = "historic-climate.nc"
-    sp_ref_file  = os.path.join(tif_dir,  "tas_mean_C_iem_cru_TS31_1901_2009/tas_mean_C_iem_cru_TS31_%02d_%04d.tif" % (1, 1901))
-    in_tair_base = os.path.join(tif_dir,  "tas_mean_C_iem_cru_TS31_1901_2009/tas_mean_C_iem_cru_TS31")
-    in_prec_base = os.path.join(tif_dir,  "pr_total_mm_iem_cru_TS31_1901_2009/pr_total_mm_iem_cru_TS31")
-    in_rsds_base = os.path.join(tif_dir,  "rsds_mean_MJ-m2-d1_iem_cru_TS31_1901_2009/rsds_mean_MJ-m2-d1_iem_cru_TS31")
-    in_vapo_base = os.path.join(tif_dir,  "vap_mean_hPa_iem_cru_TS31_1901_2009/vap_mean_hPa_iem_cru_TS31")
+    a = dict(origin_institute="iem_cru", version="TS31", starty=1901, endy=2009)
+
+    a['var'] = 'tas_mean'; a['units'] = 'C'
+    in_tair_base = os.path.join(tif_dir, 
+        "{var}_{units}_{origin_institute}_{version}_{starty}_{endy}".format(**a), 
+        "{var}_{units}_{origin_institute}_{version}".format(**a))
+
+    a['var'] = 'pr_total'; a['units'] = 'mm'
+    in_prec_base = os.path.join(tif_dir, 
+        "{var}_{units}_{origin_institute}_{version}_{starty}_{endy}".format(**a), 
+        "{var}_{units}_{origin_institute}_{version}".format(**a))
+
+    a['var'] = 'rsds_mean'; a['units'] = 'MJ-m2-d1'
+    in_rsds_base = os.path.join(tif_dir, 
+        "{var}_{units}_{origin_institute}_{version}_{starty}_{endy}".format(**a), 
+        "{var}_{units}_{origin_institute}_{version}".format(**a))
+
+    a['var'] = 'vap_mean'; a['units'] = 'hPa'
+    in_vapo_base = os.path.join(tif_dir, 
+        "{var}_{units}_{origin_institute}_{version}_{starty}_{endy}".format(**a), 
+        "{var}_{units}_{origin_institute}_{version}".format(**a))
+
+    # Use the the January file for the first year requested as a spatial reference
+    sp_ref_file  = os.path.join(tif_dir, 
+        "{var}_{units}_{origin_institute}_{version}_{starty}_{endy}".format(**a),
+        "{var}_{units}_{origin_institute}_{version}_{month:02d}_{starty:04d}.tif".format(month=1, **a))
+
 
     # Calculates number of years for running all. Values are different
     # for historic versus projected.
     hc_years = 0
     if years == -1:
-      filecount = len(glob.glob(os.path.join(tif_dir,  "tas_mean_C_iem_cru_TS31_1901_2009/*.tif")))
+      filecount = len(glob.glob(os.path.join(tif_dir, "{var}_{units}_{origin_institute}_{version}_{starty}_{endy}/*.tif".format(**a))))
       print "Found %s files..." % filecount
-      hc_years = filecount/12 
+      hc_years = (filecount/12) - start_year
     else:
       hc_years = years
 
     # NOTE: Should make this smarter so that the starting year is picked from
     # the input path strings specified above.
-    fill_climate_file(1901+start_year, hc_years,
+    fill_climate_file(a['starty']+start_year, hc_years,
                       xo, yo, xs, ys,
                       out_dir, of_name, sp_ref_file,
                       in_tair_base, in_prec_base, in_rsds_base, in_vapo_base,
-                      time_coord_var)
+                      time_coord_var, model=a['origin_institute'], scen=a['version'])
 
 
   if 'projected-climate' in files:
     of_name = "projected-climate.nc"
-    sp_ref_file  = os.path.join(tif_dir,  "tas_mean_C_iem_cccma_cgcm3_1_sresa1b_2001_2100/tas_mean_C_iem_cccma_cgcm3_1_sresa1b_%02d_%04d.tif" % (1, 2001))
-    in_tair_base = os.path.join(tif_dir,  "tas_mean_C_iem_cccma_cgcm3_1_sresa1b_2001_2100/tas_mean_C_iem_cccma_cgcm3_1_sresa1b")
-    in_prec_base = os.path.join(tif_dir,  "pr_total_mm_iem_cccma_cgcm3_1_sresa1b_2001_2100/pr_total_mm_iem_cccma_cgcm3_1_sresa1b")
-    in_rsds_base = os.path.join(tif_dir,  "rsds_mean_MJ-m2-d1_iem_cccma_cgcm3_1_sresa1b_2001_2100/rsds_mean_MJ-m2-d1_iem_cccma_cgcm3_1_sresa1b")
-    in_vapo_base = os.path.join(tif_dir,  "vap_mean_hPa_iem_cccma_cgcm3_1_sresa1b_2001_2100/vap_mean_hPa_iem_cccma_cgcm3_1_sresa1b")
+
+    #   dict(model=ar5_MRI-CGCM3, scen=rcp85, starty=2006, endy=2100)
+    a = dict(model='iem_cccma_cgcm3_1', scen='sresa1b', starty=2001, endy=2100)
+
+    a['var'] = 'tas_mean'; a['units'] = 'C'
+    in_tair_base = os.path.join(tif_dir, 
+        "{var}_{units}_{model}_{scen}_{starty}_{endy}".format(**a),
+        "{var}_{units}_{model}_{scen}".format(**a))
+
+    a['var'] = 'pr_total'; a['units'] = 'mm'
+    in_prec_base = os.path.join(tif_dir, 
+        "{var}_{units}_{model}_{scen}_{starty}_{endy}".format(**a),
+        "{var}_{units}_{model}_{scen}".format(**a))
+
+    a['var'] = 'rsds_mean'; a['units'] = 'MJ-m2-d1'
+    in_rsds_base = os.path.join(tif_dir, 
+        "{var}_{units}_{model}_{scen}_{starty}_{endy}".format(**a),
+        "{var}_{units}_{model}_{scen}".format(**a))
+
+    a['var'] = 'vap_mean'; a['units'] = 'hPa'
+    in_vapo_base = os.path.join(tif_dir, 
+        "{var}_{units}_{model}_{scen}_{starty}_{endy}".format(**a),
+        "{var}_{units}_{model}_{scen}".format(**a))
+
+
+    # Set back to using temperature for a few other general file checks
+    a['var'] = 'tas_mean'; a['units'] = 'C'
+
+    # Set the spatial reference file. Use the first month of the starting year
+    sp_ref_file =  os.path.join(tif_dir, 
+        "{var}_{units}_{model}_{scen}_{starty}_{endy}".format(**a),
+        "{var}_{units}_{model}_{scen}_{month:02d}_{starty:04d}.tif".format(month=1, **a))
 
     # Calculates number of years for running all. Values are different
     # for historic versus projected.
     pc_years = 0;
     if years == -1:
-      filecount = len(glob.glob(os.path.join(tif_dir, "tas_mean_C_iem_cccma_cgcm3_1_sresa1b_2001_2100/*.tif")))
+      filecount = len(glob.glob(os.path.join(tif_dir, "{var}_{units}_{model}_{scen}_{starty}_{endy}/*.tif".format(**a))))
       print "Found %s files..." % filecount
-      pc_years = filecount/12
+      pc_years = (filecount/12) - start_year
     else:
       pc_years = years
 
     # NOTE: Should make this smarter so that the starting year is picked from
     # the input path strings specified above.
-    fill_climate_file(2001+start_year, pc_years,
+    fill_climate_file(a['starty']+start_year, pc_years,
                       xo, yo, xs, ys, out_dir, of_name, sp_ref_file,
                       in_tair_base, in_prec_base, in_rsds_base, in_vapo_base,
-                      time_coord_var)
+                      time_coord_var, model=a['model'], scen=a['scen'])
 
 
   if 'fri-fire' in files:
@@ -1122,7 +1149,7 @@ if __name__ == '__main__':
                       help="An offset to use for making a climate dataset that doesn't start at the beginning of the historic (1901) or projected (2001) datasets.")
   parser.add_argument('--buildout-time-coord', action='store_true',
                       help=textwrap.dedent('''\
-                        "Add a time coordinate variable to the *-climate.nc 
+                        Add a time coordinate variable to the *-climate.nc 
                         files. Also populates the coordinate variable 
                         attributes.'''))
 
@@ -1145,34 +1172,9 @@ if __name__ == '__main__':
                         '''.format(', '.join(fileChoices+['all'])))
                       )
 
-
-
-  parser.add_argument('--iyix-from-latlon', default=None, nargs=2, type=float,
-                      help="Find closest pixel to provided lat and lon arguments.")
-
   print "Parsing command line arguments";
   args = parser.parse_args()
   print "args: ", args
-
-
-  if args.iyix_from_latlon:
-    ncfile = netCDF4.Dataset("../snap-data/temporary-veg-from-LandCover_iem_ALFRESCO_2005tif.nc", 'r')
-    latvar = ncfile.variables['lat']
-    lonvar = ncfile.variables['lon']
-
-    #toolik = {'lat':68.626480, 'lon':-149.594995}
-    #bnza_lter = {'lat':64.70138, 'lon':-148.31034}
-    #target = bnza_lter
-    target = {'lat':args.iyix_from_latlon[0], 'lon':args.iyix_from_latlon[1]}
-    iy,ix = tunnel_fast(latvar, lonvar, target['lat'], target['lon'])
-    print('Target lat, lon:', target['lat'], target['lon'])
-    print('Delta with target lat, lon:', target['lat'] - latvar[iy,ix], target['lon'] - lonvar[iy,ix])
-    print('lat, lon of closest match:', latvar[iy,ix], lonvar[iy,ix])
-    print('indices of closest match iy, ix (FROM LOWER left):', iy, ix)
-    print('indices of closest match iy, ix (FROM UPPER left):', len(ncfile.dimensions['y'])-iy, ix)
-    print('** NOTE: Use coords FROM UPPER LEFT to build/crop a new dataset with that pixel at the LOWER LEFT corner of the dataset!')
-    ncfile.close()
-    exit()
 
   years = args.years
   start_year = args.start_year

@@ -18,14 +18,15 @@ extern src::severity_logger< severity_level > glg;
 
 OutputEstimate::OutputEstimate(const ModelData& md, bool calmode) {
 
-  stage_output_estimates = boost::assign::list_of
+  stage_output_estimates = { 
       // Table of coefficients for bytes per year of run-time for
       // each stage and different types of json output (archive, daily, etc).
-      (StageOutputEstimate("pr", md.pr_yrs, 22000,  41000,  200000,  20000))
-      (StageOutputEstimate("eq", md.eq_yrs, 56000,  41000,  240000,  24000))
-      (StageOutputEstimate("sp", md.sp_yrs, 15000,  36000,  199000,  16000))
-      (StageOutputEstimate("tr", md.tr_yrs, 15000,  36000,  199000,  16000))
-      (StageOutputEstimate("sc", md.sc_yrs, 15000,  36000,  199000,  16000));
+      {StageOutputEstimate("pr", md.pr_yrs, 22000,  41000,  200000,  20000)},
+      {StageOutputEstimate("eq", md.eq_yrs, 56000,  41000,  240000,  24000)},
+      {StageOutputEstimate("sp", md.sp_yrs, 15000,  36000,  199000,  16000)},
+      {StageOutputEstimate("tr", md.tr_yrs, 15000,  36000,  199000,  16000)},
+      {StageOutputEstimate("sc", md.sc_yrs, 15000,  36000,  199000,  16000)},
+  };
 
   // Open the run mask (spatial mask) and count all the non-zero cells.
   std::vector< std::vector<int> > run_mask = temutil::read_run_mask(md.runmask_file);

@@ -421,21 +421,14 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
   //  2) Env-module calling is done for one PFT, so needs loop for vegetation-relevant processes
 
   // (i) the n factor for soil temperature calculation from Tair
-  edall->d_soid.nfactor = 1;
-  // Yuan: the following has temporarily commentted out - a lot of trouble
-  /*  if(currmind>=5 && currmind<=9){  //for warm season: Yuan: this will make a BIG jump of soil temperature at 5/9
-      if(cd.ifdeciwoody){      //deciduous woody community type
-        edall->d_soid.nfactor = 0.94;
-      }
-      if(cd.ifconiwoody) {
-        if(fd->ysf <veg.vegdimpar.matureagemx){
-          edall->d_soid.nfactor = 1.1 -(fd->ysf)/veg.vegdimpar.matureagemx * (1.1 -0.66);
-        }else{
-          edall->d_soid.nfactor =0.66;
-          }
-      }
-    }
-  */
+
+  //20180913
+  //Prior to this, there was an attempt to modify nfactor based on
+  //season and whether the pft was coniferous or deciduous. While that
+  //might be more accurate if done correctly, that code had been commented 
+  //out for years, and so was removed. 
+  //Value from Klene 2001 (summer values) and Kade 2006.
+  edall->d_soid.nfactor = 0.76;
 
   // (ii)Initialize the yearly/monthly accumulators, which are accumulating at the end of month/day in 'ed'
   for (int ip=0; ip<NUM_PFT; ip++) {
@@ -567,6 +560,10 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
 
     //assuming rock layer's temperature equal to that of lstsoill
     solprntenv.retrieveDailyTM(ground.lstsoill);
+
+    //Propogates some daily values (specifically Front data)
+    // into edall from each ed
+    getEd4allgrnd_daily();
 
     //sharing the 'ground' portion in 'edall' with each pft 'ed'
     assignGroundEd2pfts_daily();
@@ -990,6 +987,14 @@ void Cohort::getSoilTransfactor4all_daily() {
         edall->d_soid.fbtran[il] += ed[ip].d_soid.fbtran[il];
       }
     }
+  }
+}
+
+//TODO Check for other variables to be propogated to edall
+void Cohort::getEd4allgrnd_daily(){
+  for(int fid=0; fid<MAX_NUM_FNT; fid++){
+    edall->d_sois.frontsz[fid] = ground.frntz[fid];
+    edall->d_sois.frontstype[fid] = ground.frnttype[fid];
   }
 }
 
