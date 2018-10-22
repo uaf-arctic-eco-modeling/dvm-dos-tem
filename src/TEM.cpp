@@ -717,7 +717,7 @@ void advance_model(const int rowidx, const int colidx,
     runner.cohort.md->set_nfeed(true);
     runner.cohort.md->set_avlnflg(true);
     runner.cohort.md->set_baseline(true);
-    runner.cohort.md->set_dsbmodule(false);
+    runner.cohort.md->set_dsbmodule(true);
     runner.cohort.md->set_dslmodule(true);
     runner.cohort.md->set_dvmmodule(true);
 
