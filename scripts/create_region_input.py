@@ -9,6 +9,7 @@ import shutil
 
 import multiprocessing as mp
 
+import configobj
 import argparse
 import textwrap
 import os
@@ -124,6 +125,10 @@ def make_co2_file(filename):
 
 
   print " --> NOTE: Hard-coding the values that were just ncdumped from the old file..."
+  print " --> NOTE: Adding new values for 2010-2017. Using data from here:"
+  print "           https://www.esrl.noaa.gov/gmd/ccgg/trends/data.html"
+  print "           direct ftp link:"
+  print "           ftp://aftp.cmdl.noaa.gov/products/trends/co2/co2_annmean_mlo.txt"
   co2[:] = [ 296.311, 296.661, 297.04, 297.441, 297.86, 298.29, 298.726, 299.163,
     299.595, 300.016, 300.421, 300.804, 301.162, 301.501, 301.829, 302.154, 
     302.48, 302.808, 303.142, 303.482, 303.833, 304.195, 304.573, 304.966, 
@@ -137,7 +142,8 @@ def make_co2_file(filename):
     338.925, 340.065, 341.79, 343.33, 344.67, 346.075, 347.845, 350.055, 
     351.52, 352.785, 354.21, 355.225, 356.055, 357.55, 359.62, 361.69, 
     363.76, 365.83, 367.9, 368, 370.1, 372.2, 373.6943, 375.3507, 377.0071, 
-    378.6636, 380.5236, 382.3536, 384.1336 ]
+    378.6636, 380.5236, 382.3536, 384.1336, 389.90, 391.65, 393.85, 396.52,
+    398.65, 400.83, 404.24, 406.55 ]
 
   yearV[:] = [ 1901, 1902, 1903, 1904, 1905, 1906, 1907, 1908, 1909, 1910, 1911,
     1912, 1913, 1914, 1915, 1916, 1917, 1918, 1919, 1920, 1921, 1922, 1923, 
@@ -148,7 +154,7 @@ def make_co2_file(filename):
     1972, 1973, 1974, 1975, 1976, 1977, 1978, 1979, 1980, 1981, 1982, 1983, 
     1984, 1985, 1986, 1987, 1988, 1989, 1990, 1991, 1992, 1993, 1994, 1995, 
     1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 
-    2008, 2009 ]
+    2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017 ]
 
   new_ncfile.source = source_attr_string()
   new_ncfile.close()
@@ -1080,11 +1086,22 @@ def verify_paths_in_config_dict(tif_dir, config):
 
     if 'src' in k:
 
+      if 'soil' in k:
+        required_for = ['soil']
+      if 'drainage' in k:
+        required_for = ['drainage']
+      if 'top' in k:
+        required_for = ['topo']
+      if 'veg' in k:
+        required_for = ['vegetation']
+
       # Check the climate stuff
       if 'clim' in k:
         if 'h clim' in k:
+          required_for = ['historic-climate']
           fy = config['h clim first yr']
         elif 'p clim' in k:
+          required_for = ['projected-climate']
           fy = config['p clim first yr']
         else:
           pass #??
@@ -1103,51 +1120,8 @@ def verify_paths_in_config_dict(tif_dir, config):
         pretty_print_test_path(test_path, k)
 
 
-
-
 def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir, 
-         files=[], time_coord_var=False, clip_projected2match_historic=False):
-
-  config={}
-  config['veg src'] = 'ancillary/land_cover/v_0_4/iem_vegetation_model_input_v0_4.tif'
-
-  config['drainage src'] = 'ancillary/drainage/Lowland_1km.tif'
-
-  config['soil clay src'] = 'ancillary/BLISS_IEM/mu_claytotal_r_pct_0_25mineral_2_AK_CAN.img'
-  config['soil sand src'] = 'ancillary/BLISS_IEM/mu_sandtotal_r_pct_0_25mineral_2_AK_CAN.img'
-  config['soil silt src'] = 'ancillary/BLISS_IEM/mu_silttotal_r_pct_0_25mineral_2_AK_CAN.img'
-
-  config['topo slope src'] = 'ancillary/slope/iem_prism_slope_1km.tif'
-  config['topo aspect src'] = 'ancillary/aspect/iem_prism_aspect_1km.tif'
-  config['topo elev src'] = 'ancillary/elevation/iem_prism_dem_1km.tif'
-
-  config['h clim first yr'] = 1901
-  config['h clim last yr'] = 2015
-  config['h clim orig inst'] = 'CRU'
-  config['h clim ver'] = 'TS40'
-  config['h clim tair src'] = 'tas_mean_C_iem_cru_TS40_1901_2015/tas/tas_mean_C_CRU_TS40_historical_'
-  config['h clim prec src'] = 'pr_total_mm_iem_cru_TS40_1901_2015/pr_total_mm_CRU_TS40_historical_'
-  config['h clim rsds src'] = 'rsds_mean_MJ-m2-d1_iem_CRU-TS40_historical_1901_2015_fix/rsds/rsds_mean_MJ-m2-d1_iem_CRU-TS40_historical_'
-  config['h clim vapo src'] = 'vap_mean_hPa_iem_CRU-TS40_historical_1901_2015_fix/vap/vap_mean_hPa_iem_CRU-TS40_historical_'
-
-  config['p clim first yr'] = 2006
-  config['p clim last yr'] = 2100
-  config['p clim ver'] = 'rcp85'
-  config['p clim orig inst'] = 'MRI-CGCM3'
-  config['p clim tair src'] = 'tas_mean_C_ar5_MRI-CGCM3_rcp85_2006_2100/tas/tas_mean_C_iem_ar5_MRI-CGCM3_rcp85_'
-  config['p clim prec src'] = 'pr_total_mm_ar5_MRI-CGCM3_rcp85_2006_2100/pr/pr_total_mm_iem_ar5_MRI-CGCM3_rcp85_'
-  config['p clim rsds src'] = 'rsds_mean_MJ-m2-d1_ar5_MRI-CGCM3_rcp85_2006_2100_fix/rsds/rsds_mean_MJ-m2-d1_iem_ar5_MRI-CGCM3_rcp85_'
-  config['p clim vapo src'] = 'vap_mean_hPa_ar5_MRI-CGCM3_rcp85_2006_2100_fix/vap/vap_mean_hPa_iem_ar5_MRI-CGCM3_rcp85_'
-
-#   config['p clim orig inst'] = 'NCAR-CCSM4'
-#   config['p clim tair src'] = 'tas_mean_C_ar5_NCAR-CCSM4_rcp85_2006_2100/tas/tas_mean_C_iem_ar5_NCAR-CCSM4_rcp85_'
-#   config['p clim prec src'] = 'pr_total_mm_ar5_NCAR-CCSM4_rcp85_2006_2100/pr/pr_total_mm_iem_ar5_NCAR-CCSM4_rcp85_'
-#   config['p clim rsds src'] = 'rsds_mean_MJ-m2-d1_ar5_NCAR-CCSM4_rcp85_2006_2100_fix/rsds/rsds_mean_MJ-m2-d1_iem_ar5_NCAR-CCSM4_rcp85_'
-#   config['p clim vapo src'] = 'vap_mean_hPa_ar5_NCAR-CCSM4_rcp85_2006_2100_fix/vap/vap_mean_hPa_iem_ar5_NCAR-CCSM4_rcp85_'
-
-  config['fire fri src'] = 'iem_ancillary_data/Fire/FRI.tif'
-
-  verify_paths_in_config_dict(tif_dir, config)
+         files=[], config={}, time_coord_var=False, clip_projected2match_historic=False):
 
   #
   # Make the veg file first, then run-mask, then climate, then fire.
@@ -1192,8 +1166,8 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
     # Tried parsing this stuff automatically from the above paths,
     # but the paths, names, directory structures, etc were not standardized
     # enough to be worth it.
-    first_avail_year    = config['h clim first yr']
-    last_avail_year     = config['h clim last yr']
+    first_avail_year    = int(config['h clim first yr'])
+    last_avail_year     = int(config['h clim last yr'])
     origin_institute    = config['h clim orig inst']
     version             = config['h clim ver']
     in_tair_base = os.path.join(tif_dir, config['h clim tair src'])
@@ -1229,8 +1203,8 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
     # Tried parsing this stuff automatically from the above paths,
     # but the paths, names, directory structures, etc were not standardized
     # enough to be worth it.
-    first_avail_year    = config['p clim first yr']
-    last_avail_year     = config['p clim last yr']
+    first_avail_year    = int(config['p clim first yr'])
+    last_avail_year     = int(config['p clim last yr'])
     origin_institute    = config['p clim orig inst']
     version             = config['p clim ver']
     in_tair_base = os.path.join(tif_dir, config['p clim tair src'])
@@ -1326,8 +1300,6 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
   print(textwrap.dedent('''\
 
       ----> CAVEATS:
-       * Time coordiate starting point is hard-coded and assumed to match
-         the input file series
        * The input file series are from SNAP, use CRU-TS40 for historic climate
          and AR5 for the projected climate.
   '''))
@@ -1341,9 +1313,69 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
 
 if __name__ == '__main__':
 
+  base_ar5_rcp85_config = textwrap.dedent('''\
+    veg src = 'ancillary/land_cover/v_0_4/iem_vegetation_model_input_v0_4.tif'
+
+    drainage src = 'ancillary/drainage/Lowland_1km.tif'
+
+    soil clay src = 'ancillary/BLISS_IEM/mu_claytotal_r_pct_0_25mineral_2_AK_CAN.img'
+    soil sand src = 'ancillary/BLISS_IEM/mu_sandtotal_r_pct_0_25mineral_2_AK_CAN.img'
+    soil silt src = 'ancillary/BLISS_IEM/mu_silttotal_r_pct_0_25mineral_2_AK_CAN.img'
+
+    topo slope src = 'ancillary/slope/iem_prism_slope_1km.tif'
+    topo aspect src = 'ancillary/aspect/iem_prism_aspect_1km.tif'
+    topo elev src = 'ancillary/elevation/iem_prism_dem_1km.tif'
+
+    h clim first yr = 1901
+    h clim last yr = 2015
+    h clim orig inst = 'CRU'
+    h clim ver = 'TS40'
+    h clim tair src = 'tas_mean_C_iem_cru_TS40_1901_2015/tas/tas_mean_C_CRU_TS40_historical_'
+    h clim prec src = 'pr_total_mm_iem_cru_TS40_1901_2015/pr_total_mm_CRU_TS40_historical_'
+    h clim rsds src = 'rsds_mean_MJ-m2-d1_iem_CRU-TS40_historical_1901_2015_fix/rsds/rsds_mean_MJ-m2-d1_iem_CRU-TS40_historical_'
+    h clim vapo src = 'vap_mean_hPa_iem_CRU-TS40_historical_1901_2015_fix/vap/vap_mean_hPa_iem_CRU-TS40_historical_'
+
+    fire fri src = 'iem_ancillary_data/Fire/FRI.tif'
+  ''')
+
+  mri_cgcm3_ar5_rcp85_config = textwrap.dedent('''\
+    p clim first yr = 2006
+    p clim last yr = 2100
+    p clim ver = 'rcp85'
+
+    p clim orig inst = 'MRI-CGCM3'
+    p clim tair src = 'tas_mean_C_ar5_MRI-CGCM3_rcp85_2006_2100/tas/tas_mean_C_iem_ar5_MRI-CGCM3_rcp85_'
+    p clim prec src = 'pr_total_mm_ar5_MRI-CGCM3_rcp85_2006_2100/pr/pr_total_mm_iem_ar5_MRI-CGCM3_rcp85_'
+    p clim rsds src = 'rsds_mean_MJ-m2-d1_ar5_MRI-CGCM3_rcp85_2006_2100_fix/rsds/rsds_mean_MJ-m2-d1_iem_ar5_MRI-CGCM3_rcp85_'
+    p clim vapo src = 'vap_mean_hPa_ar5_MRI-CGCM3_rcp85_2006_2100_fix/vap/vap_mean_hPa_iem_ar5_MRI-CGCM3_rcp85_'
+  ''')
+
+  ncar_ccsm4_ar5_rcp85_config = textwrap.dedent('''\
+    p clim first yr = 2006
+    p clim last yr = 2100
+    p clim ver = 'rcp85'
+
+    p clim orig inst = 'NCAR-CCSM4'
+    p clim tair src = 'tas_mean_C_ar5_NCAR-CCSM4_rcp85_2006_2100/tas/tas_mean_C_iem_ar5_NCAR-CCSM4_rcp85_'
+    p clim prec src = 'pr_total_mm_ar5_NCAR-CCSM4_rcp85_2006_2100/pr/pr_total_mm_iem_ar5_NCAR-CCSM4_rcp85_'
+    p clim rsds src = 'rsds_mean_MJ-m2-d1_ar5_NCAR-CCSM4_rcp85_2006_2100_fix/rsds/rsds_mean_MJ-m2-d1_iem_ar5_NCAR-CCSM4_rcp85_'
+    p clim vapo src = 'vap_mean_hPa_ar5_NCAR-CCSM4_rcp85_2006_2100_fix/vap/vap_mean_hPa_iem_ar5_NCAR-CCSM4_rcp85_'
+  ''')
+
+
+
   fileChoices = ['run-mask', 'co2', 'vegetation', 'drainage', 'soil-texture', 'topo',
                  'fri-fire', 'historic-explicit-fire', 'projected-explicit-fire',
                  'historic-climate', 'projected-climate']
+
+  # maintain subsets of the file choices to ease argument combo verification  
+  temporal_file_choices = [
+    'co2',
+    'historic-explicit-fire','projected-explicit-fire',
+    'historic-climate','projected-climate'
+  ]
+  spatial_file_choices = [f for f in filter(lambda x: x not in ['co2'], fileChoices)]
+
 
   parser = argparse.ArgumentParser(
     formatter_class = argparse.RawDescriptionHelpFormatter,
@@ -1373,57 +1405,77 @@ if __name__ == '__main__':
   )
   
   parser.add_argument('--crtf-only', action="store_true",
-                      help="Only create the restart template file. Deprecated in favor of the built in capability in dvmdostem.")
+      help=textwrap.dedent("""(DEPRECATED - now built into dvmdostem) Only 
+        create the restart template file."""))
 
-  parser.add_argument('--tifs', default="../snap-data",
-                      help="Directory containing input TIF directories.")
+  parser.add_argument('--tifs', default="", required=True,
+      help=textwrap.dedent("""Directory containing input TIF directories. This
+        is used as a "base path", and it is assumed that all the requsite input
+        files exist somewhere within the directory specified by this option.
+        Using '/' as the --tifs argument allows absolute path specification in
+        the config object in cases where required input files are not all
+        contained within one directory. 
+        (default: '%(default)s')"""))
 
   parser.add_argument('--outdir', default="input-staging-area",
-                      help="Directory for netCDF output files. (default: %(default)s)")
+      help=textwrap.dedent("""Directory for netCDF output files. 
+        (default: '%(default)s')"""))
 
-  parser.add_argument('--tag', default="Toolik",
-                      help="A name for the dataset, used to name output directory. (default: %(default)s)")
+  parser.add_argument('--tag', required=True,
+      help=textwrap.dedent("""A name for the dataset, used to name output 
+        directory. (default: '%(default)s')"""))
 
-  parser.add_argument('--years', default=10, type=int, 
-                      help="The number of years of the climate data to process. (default: %(default)s). -1 to run for all input TIFs")
+  parser.add_argument('--years', type=int,
+      help=textwrap.dedent("""The number of years of the climate data to 
+        process. Use -1 to run for all TIFs found in input directory. 
+        (default: %(default)s)"""))
+
   parser.add_argument('--start-year', default=0, type=int,
-                      help="An offset to use for making a climate dataset that doesn't start at the beginning of the historic (1901) or projected (2001) datasets.")
+      help=textwrap.dedent("""An offset to use for making a climate dataset 
+        that doesn't start at the beginning of the historic (1901) or projected
+        (2001) datasets. Mostly deprecated in favor of --clip-projected2match-historic"""))
+
   parser.add_argument('--buildout-time-coord', action='store_true',
-                      help=textwrap.dedent('''\
-                        Add a time coordinate variable to the *-climate.nc 
-                        files. Also populates the coordinate variable 
-                        attributes.'''))
+      help=textwrap.dedent('''Add a time coordinate variable to the *-climate.nc 
+        files. Also populates the coordinate variable attributes.'''))
 
-  parser.add_argument('--xoff', default=915,
-                      help="source window offset for x axis (default: %(default)s)")
-  parser.add_argument('--yoff', default=292,
-                      help="source window offset for y axis (default: %(default)s)")
+  parser.add_argument('--xoff', type=int,
+      help="source window offset for x axis (default: %(default)s)")
+  parser.add_argument('--yoff', type=int,
+      help="source window offset for y axis (default: %(default)s)")
 
-  parser.add_argument('--xsize', default=5, type=int,
-                      help="source window x size (default: %(default)s)")
-  parser.add_argument('--ysize', default=5, type=int,
-                      help="source window y size (default: %(default)s)")
+  parser.add_argument('--xsize', type=int,
+      help="source window x size (default: %(default)s)")
+  parser.add_argument('--ysize', type=int,
+      help="source window y size (default: %(default)s)")
 
   parser.add_argument('--which', default=['all'], nargs='+',
-                      choices=fileChoices+['all'],
-                      metavar='FILE',
-                      help=textwrap.dedent('''\
-                        Space separated list of which files to create. 
-                        Allowed values: {:}. (default: %(default)s)
-                        '''.format(', '.join(fileChoices+['all'])))
-                      )
-  parser.add_argument('--clip-projected2match-historic', action='store_true',
-                      help=textwrap.dedent('''Instead of building the entire 
-                        projected dataset, start building it where the historic 
-                        data leaves off.'''))
+      choices=fileChoices+['all'], metavar='FILE',
+      help=textwrap.dedent('''Space separated list of which files to create. 
+        Allowed values: {:}. (default: %(default)s)'''.format(', '.join(fileChoices+['all']))))
 
-  print "Parsing command line arguments"
+  parser.add_argument('--clip-projected2match-historic', action='store_true',
+    help=textwrap.dedent('''Instead of building the entire projected dataset, 
+      start building it where the historic 
+      data leaves off.'''))
+
+
+  parser.add_argument('--projected-climate-config', nargs=1, choices=['ncar-ccsm4', 'mri-cgcm3'],
+      help=textwrap.dedent('''Choose a configuration to use for the projected 
+        climate data.'''))
+
+  print "Parsing command line arguments..."
   args = parser.parse_args()
   print "args: ", args
 
+  print "Reading config file..."
+  config = configobj.ConfigObj(base_ar5_rcp85_config.split("\n"))
+
+
+  # Verify argument combinations: time coordinate variables and files
   if args.clip_projected2match_historic:
     if ('historic-climate' in args.which) and ('projected-climate' in args.which):
-      pass # everything fine...
+      pass # everything ok...
     elif 'all' in args.which:
       pass # everything ok...
     else:
@@ -1432,12 +1484,59 @@ if __name__ == '__main__':
       print "        and projected files!"
       exit(-1)
     if (args.buildout_time_coord):
-      pass # evertthing fine..
+      pass # everything ok...
     else:
       print "ERROR!: You MUST specify to the --buildout-time-coord option if you want to match historic and projected files!"
       exit(-1)
     if args.start_year > 0:
       print "WARNING! The --start-year offset will be ignored for projected climate file!"
+
+
+  # Verify argument combinations: spatial and time dims, required paths 
+  # for source datafiles...
+  which_files = args.which
+  if 'all' in which_files:
+    print "Will generate ALL input files."
+    which_files = fileChoices
+
+  if any( [f in temporal_file_choices for f in which_files] ):
+    if not all([x is not None for x in [args.years, args.start_year]]):
+      print args
+      print args.which
+      print which_files
+      parser.error("Argument ERROR!: Must specify years and start year for temporal files!")
+
+  if any( [f in spatial_file_choices for f in which_files] ):
+    if not all([x is not None for x in [args.xoff, args.yoff, args.xsize, args.ysize]]):
+      print args
+      print args.which
+      print which_files
+      parser.error("Argument ERROR!: Must specify ALL sizes and offsets for spatial files!")
+
+  if any(f for f in which_files if f != 'co2'):
+    verify_paths_in_config_dict(args.tifs, config)
+
+  # Verify argument combos: project climate configuration specified when 
+  # asking to generate projected climate
+  if 'projected-climate' in which_files:
+    if args.projected_climate_config is not None:
+      pass # All ok - value is set and the choices are constrained above
+    else:
+      parser.error("Argument ERROR! Must specify a projecte climate configuration for the projected-climate file!")
+
+
+  # Pick up the user's config option for which projected climate to use 
+  # overwrite the section in the config object.
+  cmdline_config = configobj.ConfigObj()
+  if 'projected-climate' in which_files:
+    if 'ncar-ccsm4' in args.projected_climate_config:
+      cmdline_config = configobj.ConfigObj(ncar_ccsm4_ar5_rcp85_config.split("\n"))
+    elif 'mri-cgcm3' in args.projected_climate_config:
+      cmdline_config = configobj.ConfigObj(mri_cgcm3_ar5_rcp85_config.split("\n"))
+
+  config.merge(cmdline_config)
+
+  print "\n".join(config.write())
 
   years = args.years
   start_year = args.start_year
@@ -1468,14 +1567,11 @@ if __name__ == '__main__':
     exit()
 
 
-  which_files = args.which
 
-  if 'all' in which_files:
-    print "Will generate ALL input files."
-    which_files = fileChoices
-
+  print type(start_year), type(years)
   main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
        files=which_files,
+       config=config,
        time_coord_var=args.buildout_time_coord, 
        clip_projected2match_historic=args.clip_projected2match_historic)
 
