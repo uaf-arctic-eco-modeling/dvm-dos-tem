@@ -6,11 +6,35 @@
 import os
 import json
 import re
+import glob
+
+def error_exit(fname, msg, linenumber=None):
+  '''
+  Prints and error message and exits.
+
+  Parameters
+  ----------
+  fname : string, required
+    The path to the offending file.
+
+  msg : string, required
+    A message or note to tbe printed.
+
+  linenumber : int, optional
+    The problematic line in the offending file.
+  '''
+  print "ERROR! {} file: {}:{}".format(msg, fname, linenumber)
+  sys.exit(-1)
 
 
 def get_CMTs_in_file(aFile):
   '''
   Gets a list of the CMTs found in a file.
+
+  Looks at all lines in the file and considers any commented line with the 
+  'CMT' as the first non-whitespace charachters after the initial comment
+  symbol to be a CMT definition line. Parses this line and sets the following
+  keys in a dict: cmtkey, cmtnum, cmtname, cmtcomments
 
   Parameters
   ----------
@@ -19,17 +43,30 @@ def get_CMTs_in_file(aFile):
 
   Returns
   -------
-  A list of CMTs found in a file.
+  A list of dicts with info about the CMTs found in a file.
   '''
   data = read_paramfile(aFile)
 
-  cmtkey_list = []
-  for line in data:
-    if line.find('CMT') >= 0:
-        sidx = line.find('CMT')
-        cmtkey_list.append(line[sidx:sidx+5])
+  cmt_list = []
+  for i, line in enumerate(data):
+    # Looks for CMT at the beginning of a comment line.
+    # Will match:
+    # "// CMT06 ....", or "  //   CMT06 ..."
+    # but not
+    # '// some other text CMT06 '
+    line = line.strip().lstrip('//').strip()
+    if line.find('CMT') == 0:
+      cmtkey, cmtname, cmtcomments = parse_header_line(line)
+      cmtnum = int(cmtkey[3:])
+      cmtdict = dict(cmtkey=cmtkey, cmtnum=cmtnum, cmtname=cmtname, cmtcomment=cmtcomments)
+      cmt_list.append(cmtdict)
 
-  return cmtkey_list
+    elif line.find('CMT') > 0:
+      # Must be a comment line, and not the start of a valid CMT data block.
+      pass
+
+  return cmt_list
+
 
 def find_cmt_start_idx(data, cmtkey):
   '''
@@ -130,27 +167,53 @@ def detect_block_with_pft_info(cmtdatablock):
     return False
 
 
-def parse_header_line(datablock):
+def parse_header_line(linedata):
   '''Splits a header line into components: cmtkey, text name, comment.
 
   Assumes a CMT block header line looks like this:
   // CMT07 // Heath Tundra - (ma.....
 
+  or like this:
+  // CMT07 // Heath Tundra // some other comment...
+
+  Parameters
+  ----------
+  data : string
+    Assumed to be valid header line of a CMT datablock. 
+
+  Returns
+  -------
+  A tuple containing the (cmtkey, cmtname, cmtcomment)
   '''
 
-  # Assume header is first line
-  l0 = datablock[0]
+  header_components = filter(None, linedata.strip().split('//'))
+  clean_header_components = [i.strip() for i in header_components]
 
-  # Header line, e.g: 
-  header = l0.strip().strip("//").strip().split("//")
+  if len(clean_header_components) < 2:
+    print "ERROR! Could not find CMT name in ", clean_header_components
+    sys.exit(-1)
 
-  hdr_cmtkey = header[0].strip()
-  txtcmtname = header[1].strip().split('-')[0].strip()
-  if len(header[1].strip().split('-')) > 1:
-    hdrcomment = header[1].strip().split('-')[1].strip()
-  else:
-    hdrcomment = ''
-  return hdr_cmtkey, txtcmtname, hdrcomment
+  cmtkey = clean_header_components[0]
+
+  if len(clean_header_components) == 2:
+
+    # Check for old style comment (using - after name)
+    if len(clean_header_components[1].split('-')) > 1:
+      cmtname = clean_header_components[1].split('-')[0].strip()
+      cmtcomment = '-'.join(clean_header_components[1].split('-')[1:])
+
+    # No old comment provided
+    else:
+      cmtname = clean_header_components[1]
+      cmtcomment = ''
+
+  # There must be a comment following the name using // as a delimiter
+  if len(clean_header_components) > 2:
+    cmtname = clean_header_components[1]
+    cmtcomment = ' '.join(clean_header_components[2:])
+
+  return cmtkey, cmtname, cmtcomment
+
 
 def get_pft_verbose_name(cmtkey=None, pftkey=None, cmtnum=None, pftnum=None):
   path2params = os.path.join(os.path.split(os.path.dirname(os.path.realpath(__file__)))[0], 'parameters/')
@@ -193,7 +256,7 @@ def cmtdatablock2dict(cmtdatablock):
 
   pftblock = detect_block_with_pft_info(cmtdatablock)
 
-  hdr_cmtkey, txtcmtname, hdrcomment = parse_header_line(cmtdatablock)
+  hdr_cmtkey, txtcmtname, hdrcomment = parse_header_line(cmtdatablock[0])
   cmtdict['tag'] = hdr_cmtkey
   cmtdict['cmtname'] = txtcmtname
   cmtdict['comment'] = hdrcomment
@@ -267,7 +330,7 @@ def format_CMTdatadict(dd, refFile, format=None):
   ll = []
 
   # Work on formatting the first comment line
-  cmt, name, comment = parse_header_line(get_CMT_datablock(refFile, dd['tag']))
+  cmt, name, comment = parse_header_line(get_CMT_datablock(refFile, dd['tag'])[0])
   ll.append("// " + " // ".join((cmt, name, comment)))
 
   # Now work on formatting the second comment line, which may not exist, or
@@ -411,7 +474,7 @@ def enforce_initvegc_split(aFile, cmtnum):
   set in initvegc variables in a cmt_bgcvegetation.txt file.
 
   The initvegc(leaf, wood, root) variables in cmt_bgcvegetation.txt are the
-  measured values from literature. The cpar(leaf, wood, root) variables, which 
+  measured values from literature. The cpart(leaf, wood, root) variables, which 
   are in the same file, should be set to the fractional make up of the the
   components. So if the initvegc values for l, w, r are 100, 200, 300, then the 
   cpart values should be 0.166, 0.33, and 0.5. It is very easy for these values
@@ -475,12 +538,19 @@ if __name__ == '__main__':
       help=textwrap.dedent('''??'''))
 
   parser.add_argument('--enforce-initvegc', nargs=2, metavar=('FILE', 'CMT'),
-      help=textwrap.dedent('''??'''))
+      help=textwrap.dedent('''Reads data from cmt_bgcvegetation.txt file for
+        the specified community and adjusts the cpart compartment parmeters so 
+        as to match the proportions of the initvegc compartment parameters.
+        Re-formats the block of data and prints to stdout.'''))
 
   parser.add_argument('--dump-block-to-json', nargs=2, metavar=('FILE', 'CMT'),
       help=textwrap.dedent('''Extract the specific CMT data block from the
         specified data input file and print the contents to stdout as a json
         object (string).'''))
+
+  parser.add_argument('--dump-block', nargs=2, metavar=('FILE', 'CMT'),
+      help=textwrap.dedent('''Extract the specific CMT data block from the
+        specified input file and print the contents to stdout'''))
 
   parser.add_argument('--fmt-block-from-json', nargs=2, metavar=('INFILE', 'REFFILE'),
       help=textwrap.dedent('''Reads infile (assumed to be a well formed data
@@ -497,6 +567,11 @@ if __name__ == '__main__':
   parser.add_argument('--report-cmt-names', nargs=2, metavar=('INFOLDER', 'CMTNUM'),
       help=textwrap.dedent('''Prints the CMT number and name for each file.
         Prints na/ if the CMT does not exist in the file!'''))
+
+  parser.add_argument('--report-all-cmts', nargs=1, metavar=('FOLDER'),
+      help=textwrap.dedent('''Prints out a table with all the CMT names found
+        in each file found in the %(metavar)s. Only looks at files named like:
+        'cmt_*.txt' in the %(metavar)s.'''))
 
   args = parser.parse_args()
 
@@ -521,7 +596,8 @@ if __name__ == '__main__':
       f2 = os.path.join(infolder, f)
 
       cmts_in_file = get_CMTs_in_file(f2)
-      if cmtnum not in [int(i.strip().lstrip('CMT')) for i in cmts_in_file]:
+      cmt_numbers = [cmt['cmtnum'] for cmt in cmts_in_file]
+      if cmtnum not in cmt_numbers:
         print "{:>45s} {}".format(f2, "n/a")
       else:
         db = get_CMT_datablock(f2, cmtnum)
@@ -529,6 +605,22 @@ if __name__ == '__main__':
           print "{:>45s}: {}".format(f2, (db[1]).strip())
         else:
           pass #print "{} is not a pft file!".format(f)
+    sys.exit(0)
+
+  if args.report_all_cmts:
+
+    infolder = args.report_all_cmts[0]
+
+    all_files = glob.glob(os.path.join(args.report_all_cmts[0], 'cmt_*.txt'))
+
+    for f in all_files:
+      cmts = get_CMTs_in_file(f)
+      print f
+      print "{:>7} {:>5}   {:<50s} {}".format('key', 'num', 'name', 'comment')
+      for c in cmts:
+        print "{:>7} {:>5d}   {:50s} {}".format(c['cmtkey'], c['cmtnum'], c['cmtname'], c['cmtcomment'])
+      print ""
+
     sys.exit(0)
 
   if args.report_cmt_names:
@@ -541,7 +633,8 @@ if __name__ == '__main__':
       f2 = os.path.join(infolder, f)
 
       cmts_in_file = get_CMTs_in_file(f2)
-      if cmtnum not in [int(i.strip().lstrip('CMT')) for i in cmts_in_file]:
+      cmt_numbers = [cmt['cmtnum'] for cmt in cmts_in_file]
+      if cmtnum not in cmt_numbers:
         print "{0:>45s} {1:>8s}   {1}".format(f2, "n/a")
 
       else:
@@ -559,6 +652,13 @@ if __name__ == '__main__':
     lines = format_CMTdatadict(dd, refFile)
     for l in lines:
       print l
+    sys.exit(0)
+
+  if args.dump_block:
+    theFile = args.dump_block[0]
+    cmt = int(args.dump_block[1])
+    d = get_CMT_datablock(theFile, cmt)
+    print ''.join(d)
     sys.exit(0)
 
   if args.dump_block_to_json:

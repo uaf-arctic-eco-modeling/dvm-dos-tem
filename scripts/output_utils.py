@@ -8,6 +8,7 @@
 import os
 import glob
 import numpy as np
+import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import netCDF4 as nc
@@ -603,6 +604,143 @@ def plot_soil_layers():
   heights =  dz[time,:,Y,X]
   plt.barh(bottoms, widths, heights, color=colors)
 
+def plot_fronts(args):
+  '''
+  Makes a timeseries plot of all the fronts that are output. The X axis is time,
+  the Y axis is depth from surface (0 at the top of the plot). Each front will
+  have a line on the plot. 
+
+  Blue dots are used for FREEZING fronts (frozen above, warm below, values > 0)
+  Red is used for THAWING fronts (warm above, frozen below, value < 0)
+
+  # NOTE:
+  # In the model, there are two places that fronts info is stored: 
+  # a pair of deques and a pair of arrays. The arrays are set to have a max
+  # size of 10 (MAX_FRONTS or something like that) As the model runs, the
+  # values are written periodically from the dequees into the arrays. The 
+  # arrays are the structures that are output to the netcdf files. Our output
+  # netcdf files and output_spec files are not setup to deal with a "fronts" 
+  # dimension. So for now, since we know there will only be 
+  # 10 fronts, we'll store the stuff in files with a layer dimension, using the
+  # first 10 slots. After a little testing it looks like there are rarely more
+  # than 2 fronts, so this setup is not space efficient.
+  '''
+
+  time = args.timestep
+  Y, X = args.yx
+  od = args.outfolder
+  timeres = (args.timeres).lower()
+  stage = (args.stage).lower()
+
+  ftype, ftype_units = pull_data_wrapper(args, variable='FRONTSTYPE', required_dims=['time','layer','y','x'])
+  fdepth, fdepth_units = pull_data_wrapper(args, variable='FRONTSDEPTH', required_dims=['time','layer','y','x'])
+
+  if fdepth_units == '':
+    print "WARNING! Missing depth units! Assumed to be meters."
+    depthunits = 'm'
+  if ftype_units == '':
+    print "WARNING! Missing front type units! Assumed to be categorical."
+    dzunits = 'categorical'
+
+  # Setup the plotting
+  ROWS=1; COLS=1
+  gs = gridspec.GridSpec(ROWS, COLS)
+
+  fig = plt.figure()
+  ax0 = plt.subplot(gs[:])
+  ax0.set_ylabel("Depth ({})".format(fdepth_units))
+  ax0.set_xlabel("Time")
+  ax0.set_title("{}".format(od))
+
+  x = np.arange(0, fdepth.shape[0])
+
+  for fnt_idx in range(0,10):
+    front_thaw = ax0.scatter(x, np.ma.masked_where(ftype[:,fnt_idx,Y,X] > 0, fdepth[:,fnt_idx,Y,X]), color='orange', marker='o')
+    front_thaw_line = ax0.plot(np.ma.masked_where(ftype[:,fnt_idx,Y,X] > 0, fdepth[:,fnt_idx,Y,X]), label='thaw front {}'.format(fnt_idx), color='orange', alpha=0.5)
+
+    front_freeze = ax0.scatter(x ,np.ma.masked_where(ftype[:,fnt_idx,Y,X] < 0, fdepth[:,fnt_idx,Y,X]), color='blue', marker='o')
+    front_freeze_line = ax0.plot(np.ma.masked_where(ftype[:,fnt_idx,Y,X] < 0, fdepth[:,fnt_idx,Y,X]), label='freeze front {}'.format(fnt_idx), color='blue', alpha=0.5)
+
+  if args.show_layers:
+    layerdepth, layerdepth_units = pull_data_wrapper(args, variable="LAYERDEPTH", required_dims=['time','layer','y','x'])
+    layer_lines = []
+    for lidx in range(0,layerdepth.shape[1]):
+      layerline = ax0.plot(layerdepth[:,lidx,Y,X], color='gray', alpha=0.5, linewidth=0.5, marker='o', markersize=.75)
+      layer_lines.append(layerline)
+
+  if args.layer_colors:
+    ltype, ltype_units = pull_data_wrapper(args, "LAYERTYPE")
+    for il, l in enumerate(layer_lines):
+      if il == 0:
+        pass
+      else:
+        currl = l[0]
+        prevl = layer_lines[il-1][0]
+
+        # Make sure to grab the previous layer (il-1) for the layer type condition!
+        ax0.fill_between(x, currl.get_ydata(), prevl.get_ydata(), ltype[:,il-1,Y,X] == 0, color='xkcd:green', alpha=.5)
+        ax0.fill_between(x, currl.get_ydata(), prevl.get_ydata(), ltype[:,il-1,Y,X] == 1, color='xkcd:sand', alpha=.5)
+        ax0.fill_between(x, currl.get_ydata(), prevl.get_ydata(), ltype[:,il-1,Y,X] == 2, color='xkcd:coffee', alpha=.5)
+        ax0.fill_between(x, currl.get_ydata(), prevl.get_ydata(), ltype[:,il-1,Y,X] == 3, color='xkcd:silver', alpha=.5)
+
+
+  # This is super cluttered in the default view if there are many layers or if
+  # the time axis is long, but looks good when you zoom in.
+  ax0.xaxis.set_major_locator(matplotlib.ticker.MultipleLocator(12))
+  ax0.xaxis.set_minor_locator(matplotlib.ticker.MultipleLocator(6))
+  ax0.invert_yaxis()
+
+  plt.show(block=True)
+
+
+def pull_data_wrapper(args, variable=None, required_dims=None):
+  '''
+  Extracts data from an netcdf file.
+
+  `args` must be a dict with settings for outfolder, timeres, and stage.
+  `variable` must be a string with the variable name that is expected to be in
+  the netcdf file. The file is expected to be names like this:
+  "VARIABLE_TIMERES_STAGE.nc" and is expected to be present in the
+  args.outfolder.
+
+  If required_dims is passed, then the dimensions of the variable to extract
+  are checked against the list and a RuntimeError is thrown if there is a
+  a problem.
+
+  Returns a tuple (data, units), where data is a numpy array or masked array
+  and units is a string that is extracted from the attributs of the netcdf file.
+
+  '''
+
+  od = args.outfolder
+  timeres = (args.timeres).lower()
+  stage = (args.stage).lower()
+
+  def pull_data(the_var, required_dims):
+    '''Pulls data out of an nc file'''
+    fglob = os.path.join(od, "{}_{}_{}.nc".format(the_var, timeres, stage))
+    the_file = glob.glob(fglob)
+
+    if len(the_file) < 1:
+      raise RuntimeError("Can't find file for variable '{}' here: {}".format(the_var, fglob))
+    if len(the_file) > 1:
+      raise RuntimeError("Appears to be more than one file matching glob?: {}".format(fglob))
+
+    the_file = the_file[0]
+    print "Pulling data from ", the_file
+    with nc.Dataset(the_file, 'r') as ds:
+      if required_dims != None:
+        for rd in required_dims:
+          if rd not in ds.dimensions.keys():
+            raise RuntimeError("'{}' is a required dimension for this operation. File: {}".format(rd, the_file))
+
+      data = ds.variables[the_var][:]
+      units = ds.variables[the_var].units
+    return data, units
+
+  data, units = pull_data(variable, required_dims)
+
+  return data, units
 
 def plot_soil_layers2(args):
   '''
@@ -632,29 +770,9 @@ def plot_soil_layers2(args):
   timeres = (args.timeres).lower()
   stage = (args.stage).lower()
 
-  opt_vars = [v.upper() for v in args.vars]
-  # req_vars = ['LAYERDZ'] # req_vars is unused right now, might be good for error handling
-
-  def pull_data(the_var):
-    '''Pulls data out of an nc file'''
-    fglob = os.path.join(od, "{}_{}_{}.nc".format(the_var, timeres, stage))
-    the_file = glob.glob(fglob)
-
-    if len(the_file) < 1:
-      raise RuntimeError("Can't find file for variable '{}' here: {}".format(the_var, fglob))
-    if len(the_file) > 1:
-      raise RuntimeError("Appears to be more than one file matching glob?: {}".format(fglob))
-
-    the_file = the_file[0]
-    print "Pulling data from ", the_file
-    with nc.Dataset(the_file, 'r') as ds:
-      data = ds.variables[the_var][:]
-      units = ds.variables[the_var].units
-    return data, units
-
   # Need to specify units in output_spec files!!
-  depth, depthunits = pull_data('LAYERDEPTH')
-  dz, dzunits = pull_data('LAYERDZ')
+  depth, depthunits = pull_data_wrapper(args, 'LAYERDEPTH', required_dims=['time','layer','y','x'])
+  dz, dzunits = pull_data_wrapper(args, 'LAYERDZ', required_dims=['time','layer','y','x',])
 
   if depthunits == '':
     print "WARNING! Missing depth units! Assumed to be meters."
@@ -666,14 +784,14 @@ def plot_soil_layers2(args):
     print "WARNING! depthunits ({}) and dzunits ({}) are not the same!".format(depthunits, dzunits) 
 
   # Setup the plotting
-  ROWS=1; COLS=len(opt_vars)
+  ROWS=1; COLS=len([v.upper() for v in args.vars])
   gs = gridspec.GridSpec(ROWS, COLS)
 
   fig = plt.figure()
   ax0 = plt.subplot(gs[:,0])
   ax0.set_ylabel("Depth ({})".format(depthunits))
 
-  for i, v in enumerate(opt_vars):
+  for i, v in enumerate([v.upper() for v in args.vars]):
     if i == 0:
       ax0.set_title(v)
       ax0.invert_yaxis()
@@ -683,7 +801,7 @@ def plot_soil_layers2(args):
 
   for ax in fig.axes:
 
-    vardata, units = pull_data(ax.get_title())
+    vardata, units = pull_data_wrapper(args, ax.get_title())
 
     # Line plot, offset so markers are at the midpoint of layer.'''
     ax.plot(
@@ -840,10 +958,29 @@ if __name__ == '__main__':
   sp_parser = subparsers.add_parser('soil-profiles', 
       help=textwrap.dedent('''\
         Make plots of soil profiles variables (i.e. outputs that are specified 
-        to be by layer)'''))
+        to be by layer). NOTE: you must have outputs for the variables
+        LAYERDZ and LAYERTYPE in addition to the variables you'd like to
+        plot for these panles to work!'''))
   sp_parser.add_argument('--vars', nargs='*', default=['SOC'], help='The soil layer variables to plot')
   sp_parser.add_argument('--print-full-table', action='store_true', help="Prints a full table of all soil/layer variables to the console.")
   sp_parser.add_argument('outfolder', help="Path to a folder containing a set of dvmdostem outputs")
+
+
+  fronts_parser = subparsers.add_parser('fronts',
+    help=textwrap.dedent('''\
+      Make a plot of the fronts. Y axis depth with 0 at the surface, X axis is
+      time (tested with monthly data).
+      '''))
+  fronts_parser.add_argument('--show-layers', action='store_true',
+    help=textwrap.dedent('''Plot the layers. Assumes that file for LAYERDEPTH 
+      is available in the outfolder.'''))
+  fronts_parser.add_argument('--layer-colors', action='store_true',
+    help=textwrap.dedent('''Try to color the layers based on the LAYERTYPE.
+      Green for moss, sand for shallow soil, dark brown for deep soil, and gray
+      for mineral.'''))
+  fronts_parser.add_argument('outfolder', help=textwrap.dedent('''\
+    "Path to a folder containing a set of dvmdostem outputs, presumably with
+    files for FRONTSDEPTH and FRONTSTYPE'''))
 
   # sc for 'site compare'
   # ./output_util.py --stage tr --yx 0 0 --timeres monthly site-compare --save-name some/path/to/somefile.pdf /path/to/inputA /path/to/inputB /pathto.inpuC
@@ -874,6 +1011,8 @@ if __name__ == '__main__':
   args = parser.parse_args()
   print args
 
+  if args.command == 'fronts':
+    plot_fronts(args)
 
   if args.command == 'soil-profiles':
     if args.print_full_table:

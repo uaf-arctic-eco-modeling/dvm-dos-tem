@@ -1,5 +1,7 @@
+// dvmdostem parameter file
+// ground structure and dimensions
 //===========================================================
-// CMT00 // Default TEM Community - ground structure/dimension
+// CMT00 // BARE GROUND OPEN WATER ICE AND SNOW
 // Snow characteristics
 350                // snwdenmax:  max. snow density (kg/m3)
 120                // snwdennew:  new (min.) snow density (kg/m3)
@@ -19,7 +21,7 @@
 0.04025            // coefminea:
 0.0532             // coefmineb:
 //===========================================================
-// CMT01 // CMT1 TEM Community - ground structure/dimension
+// CMT01 // Black Spruce Forest // ### THESE ARE JUNK VALUES!!! ###
 // Snow characteristics
 350                // snwdenmax:  max. snow density (kg/m3)
 120                // snwdennew:  new (min.) snow density (kg/m3)
@@ -39,7 +41,7 @@
 0.04025            // coefminea:
 0.0532             // coefmineb:
 //===========================================================
-// CMT02 // CMT2 TEM Community - ground structure/dimension
+// CMT02 // White Spruce Forest
 // Snow characteristics
 350                // snwdenmax:  max. snow density (kg/m3)
 120                // snwdennew:  new (min.) snow density (kg/m3)
@@ -59,7 +61,7 @@
 0.04025            // coefminea:
 0.0532             // coefmineb:
 //===========================================================
-// CMT03 // CMT3 TEM Community - ground structure/dimension
+// CMT03 // Boreal Deciduous Forest
 // Snow characteristics
 350                // snwdenmax:  max. snow density (kg/m3)
 120                // snwdennew:  new (min.) snow density (kg/m3)
@@ -79,7 +81,7 @@
 0.03939            // coefminea:
 0.78               // coefmineb:
 //===========================================================
-// CMT04 // Shrub Tundra - ground structure/dimension (NOTE: Was listed as Tussock Tundra. 11/2015)
+// CMT04 // Shrub Tundra
 // Snow characteristics
 350                // snwdenmax:  max. snow density (kg/m3)
 120                // snwdennew:  new (min.) snow density (kg/m3)
@@ -99,7 +101,7 @@
 0.0966              // coefminea:
 0.7851              // coefmineb:
 //===========================================================
-// CMT05 // Tussock Tundra (updated 1/15/2016 JDC)- ground structure/dimension 
+// CMT05 // Tussock Tundra // (updated 1/15/2016 JDC)
 // Snow characteristics
 350                // snwdenmax:  max. snow density (kg/m3)
 120                // snwdennew:  new (min.) snow density (kg/m3)
@@ -119,7 +121,7 @@
 0.0966             // coefminea:
 0.8239             // coefmineb:
 //===========================================================
-// CMT06 // Wet Sedge Tundra - ground structure/dimension
+// CMT06 // Wet Sedge Tundra
 // Snow characteristics
 350                // snwdenmax:  max. snow density (kg/m3)
 120                // snwdennew:  new (min.) snow density (kg/m3)
@@ -139,7 +141,7 @@
 0.0966              // coefminea:
 0.8239              // coefmineb:
 //===========================================================
-// CMT07 // Heath Tundra - ground structure/dimension
+// CMT07 // Heath Tundra
 // Snow characteristics
 350                // snwdenmax:  max. snow density (kg/m3)
 120                // snwdennew:  new (min.) snow density (kg/m3)
@@ -159,7 +161,7 @@
 0.0966              // coefminea:
 0.781               // coefmineb:
 //===========================================================
-// CMT12 // Lowland Boreal Wet Shrubland - more comment?
+// CMT12 // Lowland Boreal Wet Shrubland 
 // Snow characteristics
 350                // snwdenmax:  max. snow density (kg/m3)
 120                // snwdennew:  new (min.) snow density (kg/m3)
@@ -179,7 +181,7 @@
 0.0996             // coefminea:
 0.6931             // coefmineb:
 //===========================================================
-// CMT20 // EML Shrub Tundra - 
+// CMT20 // EML Shrub Tundra
 // Snow characteristics
 350                // snwdenmax:  max. snow density (kg/m3)
 120                // snwdennew:  new (min.) snow density (kg/m3)
@@ -199,7 +201,7 @@
 0.0996             // coefminea:
 0.7810             // coefmineb:
 //===========================================================
-// CMT21 // EML Tussock Tundra -
+// CMT21 // EML Tussock Tundra
 // Snow characteristics
 350                // snwdenmax:  max. snow density (kg/m3)
 120                // snwdennew:  new (min.) snow density (kg/m3)

@@ -1,5 +1,10 @@
+// dvmdostem parameter file
+// Biophysical plant leaf characteristics and parameters
+// Maximum of 10 PFTs
+// PFT names should be CamelCase and must not have a period in them!
+//
 //===========================================================
-// CMT00 // Default TEM Community - (max. 10 PFTs) (Biophysical) plant leaf characteristics and parameters
+// CMT00 // Default TEM Community
 //PFT0      PFT1        PFT2         PFT3         PFT4         PFT5         PFT6         PFT7         PFT8         PFT9             // names: comments                  
 0.10        0.10        0.10         0.10         0.10         0.10         0.10         0.10         0.10         0.10             // albvisnir: canopy albedo
 0.5         0.5         0.5          0.5          0.5          0.5          0.5          0.5          0.5          0.5              // er: light extinction coefficient
@@ -14,7 +19,22 @@
 0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegwater: initial intercepted rain water in canopy
 0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegsnow: initial intercepted snow water in canopy
 //===========================================================
-// CMT01 // CMT1 TEM Community - (max. 10 PFTs) (Biophysical) plant leaf characteristics and parameters
+// CMT01 // Black Spruce Forest // ###THESE ARE JUNK VALUES!!!###
+//BlackSpr  Decid       DecidShrub   EGreen       Sphag        Feather      Moss         Lichen       Forbs        Sedge            // pftnames:
+0.10        0.10        0.10         0.10         0.10         0.10         0.10         0.10         0.10         0.10             // albvisnir: canopy albedo
+0.5         0.5         0.5          0.5          0.5          0.5          0.5          0.5          0.5          0.5              // er: light extinction coefficient
+0.041       0.041       0.041        0.041        0.041        0.041        0.041        0.041        0.041        0.041            // ircoef: rainfall interception 
+0.041       0.041       0.041        0.041        0.041        0.041        0.041        0.041        0.041        0.041            // iscoef: snow interception
+0.003       0.003       0.003        0.003        0.003        0.003        0.003        0.003        0.003        0.003            // glmax: max. canopy conductance (m/s)
+0.08        0.08        0.08         0.08         0.08         0.08         0.08         0.08         0.08         0.08             // gl_bl: boundary layer conductance
+0.00001     0.00001     0.00001      0.00001      0.00001      0.00001      0.00001      0.00001      0.00001      0.00001          // gl_c:  cuticular conductance
+930         930         930          930          930          930          930          930          930          930              // vpd_open:  vpd (pa) for leaf stomata fully openness
+4100        4100        4100         4100         4100         4100         4100         4100         4100         4100             // vpd_close: vpd (pa) for leaf stomata fully closure
+75          75          75           75           75           75           75           75           75           75               // ppfd50::
+0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegwater: initial intercepted rain water in canopy
+0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegsnow: initial intercepted snow water in canopy
+//===========================================================
+// CMT02 // White Spruce Forest
 //PFT0      PFT1        PFT2         PFT3         PFT4         PFT5         PFT6         PFT7         PFT8         PFT9             // names: comments                  
 0.10        0.10        0.10         0.10         0.10         0.10         0.10         0.10         0.10         0.10             // albvisnir: canopy albedo
 0.5         0.5         0.5          0.5          0.5          0.5          0.5          0.5          0.5          0.5              // er: light extinction coefficient
@@ -29,7 +49,7 @@
 0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegwater: initial intercepted rain water in canopy
 0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegsnow: initial intercepted snow water in canopy
 //===========================================================
-// CMT02 // CMT2 TEM Community - (max. 10 PFTs) (Biophysical) plant leaf characteristics and parameters
+// CMT03 // Boreal Deciduous Forest
 //PFT0      PFT1        PFT2         PFT3         PFT4         PFT5         PFT6         PFT7         PFT8         PFT9             // names: comments                  
 0.10        0.10        0.10         0.10         0.10         0.10         0.10         0.10         0.10         0.10             // albvisnir: canopy albedo
 0.5         0.5         0.5          0.5          0.5          0.5          0.5          0.5          0.5          0.5              // er: light extinction coefficient
@@ -44,8 +64,8 @@
 0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegwater: initial intercepted rain water in canopy
 0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegsnow: initial intercepted snow water in canopy
 //===========================================================
-// CMT03 // CMT3 TEM Community - (max. 10 PFTs) (Biophysical) plant leaf characteristics and parameters
-//PFT0      PFT1        PFT2         PFT3         PFT4         PFT5         PFT6         PFT7         PFT8         PFT9             // names: comments                  
+// CMT04 // Shrub Tundra
+//Salix     Betula      Decid        EGreen       Sedges       Forbs        Grasses      Lichens      Feather      PFT9             // pftnames:
 0.10        0.10        0.10         0.10         0.10         0.10         0.10         0.10         0.10         0.10             // albvisnir: canopy albedo
 0.5         0.5         0.5          0.5          0.5          0.5          0.5          0.5          0.5          0.5              // er: light extinction coefficient
 0.041       0.041       0.041        0.041        0.041        0.041        0.041        0.041        0.041        0.041            // ircoef: rainfall interception 
@@ -59,23 +79,8 @@
 0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegwater: initial intercepted rain water in canopy
 0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegsnow: initial intercepted snow water in canopy
 //===========================================================
-// CMT04 // Shrub Tundra - (max. 10 PFTs) (Biophysical) plant leaf characteristics and parameters
-//Salix     Betula      Decid.       E.green      Sedges       Forbs        Grasses      Lichens      Feather      Misc1.       // names: comments
-0.10        0.10        0.10         0.10         0.10         0.10         0.10         0.10         0.10         0.10             // albvisnir: canopy albedo
-0.5         0.5         0.5          0.5          0.5          0.5          0.5          0.5          0.5          0.5              // er: light extinction coefficient
-0.041       0.041       0.041        0.041        0.041        0.041        0.041        0.041        0.041        0.041            // ircoef: rainfall interception 
-0.041       0.041       0.041        0.041        0.041        0.041        0.041        0.041        0.041        0.041            // iscoef: snow interception
-0.003       0.003       0.003        0.003        0.003        0.003        0.003        0.003        0.003        0.003            // glmax: max. canopy conductance (m/s)
-0.08        0.08        0.08         0.08         0.08         0.08         0.08         0.08         0.08         0.08             // gl_bl: boundary layer conductance
-0.00001     0.00001     0.00001      0.00001      0.00001      0.00001      0.00001      0.00001      0.00001      0.00001          // gl_c:  cuticular conductance
-930         930         930          930          930          930          930          930          930          930              // vpd_open:  vpd (pa) for leaf stomata fully openness
-4100        4100        4100         4100         4100         4100         4100         4100         4100         4100             // vpd_close: vpd (pa) for leaf stomata fully closure
-75          75          75           75           75           75           75           75           75           75               // ppfd50::
-0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegwater: initial intercepted rain water in canopy
-0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegsnow: initial intercepted snow water in canopy
-//===========================================================
-// CMT05 // Tussock Tundra (updated 1/15/2016 JDC) - (max. 10 PFTs) (Biophysical) plant leaf characteristics and parameters
-//Betula    Decid.      E.green      Sedges       Forbs        Lichens      Feather.     Sphag.       Misc1.       Misc2.            // names: comments                  
+// CMT05 // Tussock Tundra // (updated 1/15/2016 JDC)
+//Betula    Decid       EGreen       Sedges       Forbs        Lichens      Feather      Sphag        PFT8         PFT9             // pftnames:
 0.10        0.10        0.10         0.10         0.10         0.10         0.10         0.10         0.10         0.10             // albvisnir: canopy albedo
 0.5         0.5         0.5          0.5          0.5          0.5          0.5          0.5          0.5          0.5              // er: light extinction coefficient
 0.041       0.041       0.041        0.041        0.041        0.041        0.041        0.041        0.041        0.041            // ircoef: rainfall interception 
@@ -89,8 +94,8 @@
 0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegwater: initial intercepted rain water in canopy
 0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegsnow: initial intercepted snow water in canopy
 //===========================================================
-// CMT06 // Wet Sedge Tundra - (max. 10 PFTs) (Biophysical) plant leaf characteristics and parameters
-//Decid.    Sedges      Grasses      Forbs        Lichens      Feather      Sphag.       PFT7         PFT8         PFT9         // names: comments
+// CMT06 // Wet Sedge Tundra
+//Decid     Sedges      Grasses      Forbs        Lichens      Feather      Sphag        PFT7         PFT8         PFT9             // pftnames
 0.10        0.10        0.10         0.10         0.10         0.10         0.10         0.10         0.10         0.10             // albvisnir: canopy albedo
 0.5         0.5         0.5          0.5          0.5          0.5          0.5          0.5          0.5          0.5              // er: light extinction coefficient
 0.041       0.041       0.041        0.041        0.041        0.041        0.041        0.041        0.041        0.041            // ircoef: rainfall interception 
@@ -104,8 +109,8 @@
 0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegwater: initial intercepted rain water in canopy
 0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegsnow: initial intercepted snow water in canopy
 //===========================================================
-// CMT07 // Heath Tundra - (max. 10 PFTs) (Biophysical) plant leaf characteristics and parameters
-//Decid.    E.green     Forbs        Lichens      Grasses      Moss         Misc.        Misc.        Misc.        Misc.            // names: comments
+// CMT07 // Heath Tundra
+//Decid     EGreen      Forbs        Lichens      Grasses      Moss         PFT6         PFT7         PFT8         PFT9             // pftnames:
 0.10        0.10        0.10         0.10         0.10         0.10         0.10         0.10         0.10         0.10             // albvisnir: canopy albedo
 0.5         0.5         0.5          0.5          0.5          0.5          0.5          0.5          0.5          0.5              // er: light extinction coefficient
 0.041       0.041       0.041        0.041        0.041        0.041        0.041        0.041        0.041        0.041            // ircoef: rainfall interception 
@@ -119,8 +124,8 @@
 0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegwater: initial intercepted rain water in canopy
 0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegsnow: initial intercepted snow water in canopy
 //===========================================================
-// CMT12 // Lowland Boreal Wet Shrubland - (max. 10 PFTs) (Biophysical) plant leaf characteristics and parameters
-//DecShrub   EvrShrub     DecTree     EvrTree       Forbs        Gram         Feather      Lichen       Equisetum    Misc.            // names: comments 
+// CMT12 // Lowland Boreal Wet Shrubland
+//DecShrub   EvrShrub     DecTree      EvrTree       Forbs       Gram       Feather       Lichen      Equisetum      PFT9             // pftnames:
 0.10         0.10         0.10         0.10         0.10         0.10         0.10         0.10         0.10         0.10             // albvisnir: canopy albedo
 0.5          0.5          0.5          0.5          0.5          0.5          0.5          0.5          0.5          0.5              // er: light extinction coefficient
 0.041        0.041        0.041        0.041        0.041        0.041        0.041        0.041        0.041        0.041            // ircoef: rainfall interception 
@@ -134,7 +139,7 @@
 0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegwater: initial intercepted rain water in canopy
 0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegsnow: initial intercepted snow water in canopy
 //===========================================================
-// CMT20 // EML Shrub Tundra - 
+// CMT20 // EML Shrub Tundra 
 //Betnan    Carex       Ericoid      Feather      Lichen       OthMoss      Rubcha       Misc1        Misc2        Misc3            // names: comments
 0.10        0.10        0.10         0.10         0.10         0.10         0.10         0.10         0.10         0.10             // albvisnir: canopy albedo
 0.5         0.5         0.5          0.5          0.5          0.5          0.5          0.5          0.5          0.5              // er: light extinction coefficient
@@ -149,8 +154,8 @@
 0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegwater: initial intercepted rain water in canopy
 0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegsnow: initial intercepted snow water in canopy
 //===========================================================
-// CMT21 // EML Tussock Tundra -
-//Betnan    Carex       Ericoid      Erivag       Feather      Lichen       OtherMoss    Rubcha       Sphagnum     Misc.            // names: comments
+// CMT21 // EML Tussock Tundra
+//Betnan    Carex       Ericoid      Erivag       Feather      Lichen       OtherMoss    Rubcha       Sphagnum     PFT9             // pftnames:
 0.10        0.10        0.10         0.10         0.10         0.10         0.10         0.10         0.10         0.10             // albvisnir: canopy albedo
 0.5         0.5         0.5          0.5          0.5          0.5          0.5          0.5          0.5          0.5              // er: light extinction coefficient
 0.041       0.041       0.041        0.041        0.041        0.041        0.041        0.041        0.041        0.041            // ircoef: rainfall interception 

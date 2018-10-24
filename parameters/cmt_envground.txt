@@ -1,5 +1,7 @@
+// dvmdostem parameter file
+// ground (snow and soil) biophysical properties and parameters
 //===========================================================
-// CMT00 // Default TEM Community - ground(snow-soil) (bio)physical properties and parameters
+// CMT00 // Default TEM Community
 0.8                // snwalbmax:
 0.4                // snwalbmin:
 -1.5e7             // psimax:
@@ -28,7 +30,7 @@
 0.20               // initvwc(8): initial soil volume water content at every 10 cm interval
 0.20               // initvwc(9): initial soil volume water content at every 10 cm interval
 //===========================================================
-// CMT01 // CMT1 TEM Community - ground(snow-soil) (bio)physical properties and parameters
+// CMT01 // Black Spruce Forest // ### THESE ARE JUNK VALUES!!! ###
 0.8                // snwalbmax:
 0.4                // snwalbmin:
 -1.5e7             // psimax:
@@ -57,7 +59,7 @@
 0.10               // initvwc(8): initial soil volume water content at every 10 cm interval
 0.10               // initvwc(9): initial soil volume water content at every 10 cm interval
 //===========================================================
-// CMT02 // CMT2 TEM Community - ground(snow-soil) (bio)physical properties and parameters
+// CMT02 // White Spruce Forest
 0.8                // snwalbmax:
 0.4                // snwalbmin:
 -1.5e7             // psimax:
@@ -86,7 +88,7 @@
 0.10               // initvwc(8): initial soil volume water content at every 10 cm interval
 0.10               // initvwc(9): initial soil volume water content at every 10 cm interval
 //===========================================================
-// CMT03 // CMT3 TEM Community - ground(snow-soil) (bio)physical properties and parameters
+// CMT03 // Boreal Deciduous Forest
 0.8                // snwalbmax:
 0.4                // snwalbmin:
 -1.5e7             // psimax:
@@ -115,7 +117,7 @@
 0.10               // initvwc(8): initial soil volume water content at every 10 cm interval
 0.10               // initvwc(9): initial soil volume water content at every 10 cm interval
 //===========================================================
-// CMT04 // Shrub Tundra - ground(snow-soil) (bio)physical properties and parameters
+// CMT04 // Shrub Tundra
 0.8                // snwalbmax:
 0.4                // snwalbmin:
 -1.5e7             // psimax:
@@ -144,7 +146,7 @@
 0.10               // initvwc(8): initial soil volume water content at every 10 cm interval
 0.10               // initvwc(9): initial soil volume water content at every 10 cm interval
 //===========================================================
-// CMT05 // Tussock Tundra (updated 1/15/2016 JDC) - ground(snow-soil) (bio)physical properties and parameters
+// CMT05 // Tussock Tundra // (updated 1/15/2016 JDC)
 0.8                // snwalbmax:
 0.4                // snwalbmin:
 -1.5e7             // psimax:
@@ -174,7 +176,7 @@
 0.10               // initvwc(9): initial soil volume water content at every 10 cm interval
 
 //===========================================================
-// CMT06 // Wet Sedge Tundra - ground(snow-soil) (bio)physical properties and parameters
+// CMT06 // Wet Sedge Tundra
 0.8                // snwalbmax:
 0.4                // snwalbmin:
 -1.5e7             // psimax:
@@ -203,7 +205,7 @@
 0.10               // initvwc(8): initial soil volume water content at every 10 cm interval
 0.10               // initvwc(9): initial soil volume water content at every 10 cm interval
 //===========================================================
-// CMT07 // Heath Tundra - ground(snow-soil) (bio)physical properties and parameters
+// CMT07 // Heath Tundra
 0.8                // snwalbmax:
 0.4                // snwalbmin:
 -1.5e7             // psimax:
@@ -232,7 +234,7 @@
 0.10               // initvwc(8): initial soil volume water content at every 10 cm interval
 0.10               // initvwc(9): initial soil volume water content at every 10 cm interval
 //===========================================================
-// CMT12 // Lowland Boreal Wet Shrubland - ground(snow-soil) (bio)physical properties and parameters
+// CMT12 // Lowland Boreal Wet Shrubland
 0.8                // snwalbmax:
 0.4                // snwalbmin:
 -1.5e7             // psimax:
@@ -261,7 +263,7 @@
 0.10               // initvwc(8): initial soil volume water content at every 10 cm interval
 0.10               // initvwc(9): initial soil volume water content at every 10 cm interval
 //===========================================================
-// CMT20 // EML Shrub Tundra - 
+// CMT20 // EML Shrub Tundra
 0.8                // snwalbmax:
 0.4                // snwalbmin:
 -1.5e7             // psimax:
@@ -290,7 +292,7 @@
 0.10               // initvwc(8): initial soil volume water content at every 10 cm interval
 0.10               // initvwc(9): initial soil volume water content at every 10 cm interval
 //===========================================================
-// CMT21 // EML Tussock Tundra -
+// CMT21 // EML Tussock Tundra
 0.8                // snwalbmax:
 0.4                // snwalbmin:
 -1.5e7             // psimax:
