@@ -101,7 +101,7 @@
 1843              // initsoln:
 3.93              // initavln:  was 0.68
 //===========================================================
-// CMT05 // Tussock Tundra // (updated 1/15/2016 JDC)
+// CMT05 // Tussock Tundra
 2.0               // rhq10:
 0.0               // moistmin:
 0.5               // moistopt:
@@ -117,7 +117,7 @@
 0.0               // fnloss:  fraction N leaching (0 - 1) when drainage occurs
 3000              // initshlwc:
 7700              // initdeepc:
-4300              // initminec:
+43000             // initminec:
 2200              // initsoln:
 8.9               // initavln:
 //===========================================================
