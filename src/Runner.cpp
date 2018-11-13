@@ -3013,27 +3013,20 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     {
 #ifdef WITHMPI
       temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
-      temutil::nc( nc_inq_varid(ncid, "VWCDEEP", &cv) );
       temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
-      temutil::nc( nc_inq_varid(ncid, "VWCDEEP", &cv) );
 #endif
+      temutil::nc( nc_inq_varid(ncid, "VWCDEEP", &cv) );
 
-      double vwcdeep;
       if(curr_spec.daily){
-        start3[0] = day_timestep;
-        temutil::nc( nc_put_vara_double(ncid, cv, start3, count3, &cohort.edall->daily_vwcdeep[0]) );
+        output_nc_soil_layer(ncid, cv, &cohort.edall->daily_vwcdeep[0], 1, day_timestep, dinm);
       }
       else if(curr_spec.monthly){
-        start3[0] = month_timestep;
-        vwcdeep = cohort.edall->m_soid.vwcdeep;
-        temutil::nc( nc_put_var1_double(ncid, cv, start3, &vwcdeep) );
+        output_nc_soil_layer(ncid, cv, &cohort.edall->m_soid.vwcdeep, 1, month_timestep, 1);
       }
       else if(curr_spec.yearly){
-        start3[0] = year;
-        vwcdeep = cohort.edall->y_soid.vwcdeep;
-        temutil::nc( nc_put_var1_double(ncid, cv, start3, &vwcdeep) );
+        output_nc_soil_layer(ncid, cv, &cohort.edall->y_soid.vwcdeep, 1, year, 1);
       }
       temutil::nc( nc_close(ncid) );
     }//end critical(outputVWCDEEP)
