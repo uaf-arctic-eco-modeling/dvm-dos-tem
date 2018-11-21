@@ -564,6 +564,11 @@ if __name__ == '__main__':
         to view the columns lined up appropriately! Prints n/a if the CMT
         does not exist in the file.'''))
 
+  parser.add_argument('--report-pft-stats', nargs=2, metavar=('INFOLDER', 'CMTNUM'),
+      help=textwrap.dedent('''Prints some summary info showing for example the 
+        amount of C allocated to each PFT and the percent contribution to the
+        ecosystem total.'''))
+
   parser.add_argument('--report-cmt-names', nargs=2, metavar=('INFOLDER', 'CMTNUM'),
       help=textwrap.dedent('''Prints the CMT number and name for each file.
         Prints na/ if the CMT does not exist in the file!'''))
@@ -585,6 +590,36 @@ if __name__ == '__main__':
     'cmt_envground.txt',
     'cmt_firepar.txt',
   ]
+
+  if args.report_pft_stats:
+    infolder = args.report_pft_stats[0]
+    cmtnum = int(args.report_pft_stats[1])
+
+    src_file = os.path.join(infolder, 'cmt_bgcvegetation.txt')
+
+    db = get_CMT_datablock(src_file, cmtnum)
+    dd = cmtdatablock2dict(db)
+
+    ecosystem_total_C = 0.0
+    for pft in get_datablock_pftkeys(dd):
+      ecosystem_total_C += dd[pft]['initvegcl']
+      ecosystem_total_C += dd[pft]['initvegcw']
+      ecosystem_total_C += dd[pft]['initvegcr']
+
+    print "Reading from file: {}".format(src_file)
+    print "{:<6} {:>12} {:>10} {:>12} {:>8} {:>8} {:>8}".format(' ','name','% veg C', 'C', 'leaf C', 'wood C', 'root C')
+    whole_plant_C = 0.0
+    for pft in get_datablock_pftkeys(dd):
+      whole_plant_C = (dd[pft]['initvegcl'] + dd[pft]['initvegcw'] + dd[pft]['initvegcr'])
+      frac_C = whole_plant_C / ecosystem_total_C
+      print "{:<6} {:>12} {:>10.2f} {:>12} {:>8} {:>8} {:>8}".format(
+          pft, dd[pft]['name'], frac_C*100, whole_plant_C,
+          dd[pft]['initvegcl'], dd[pft]['initvegcw'], dd[pft]['initvegcr']
+      )
+    print "{:<6} {:>12} {:>10} {:->12} {:>8} {:>8} {:>8}".format('','','','','','','')
+    print "{:>31} {:>11.2f}".format("Community Total Vegetation C:", ecosystem_total_C)
+    print ""
+    sys.exit(0)
 
   if args.report_pft_names:
 
