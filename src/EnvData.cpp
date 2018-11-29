@@ -691,7 +691,9 @@ void EnvData::grnd_endOfDay(const int & dinm, const int & doy) {
 
   daily_watertab[dom] = d_sois.watertab;
 
-  daily_drainage[dom] = d_soi2l.qdrain;
+  daily_qdrain[dom] = d_soi2l.qdrain;
+  daily_qinfl[dom] = d_soi2l.qinfl;
+  daily_qover[dom] = d_soi2l.qover;
 
   for(int il=0; il<MAX_SOI_LAY; il++){
     daily_tlayer[dom][il] = d_sois.ts[il];

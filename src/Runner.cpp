@@ -1771,24 +1771,22 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     {
 #ifdef WITHMPI
       temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
-      temutil::nc( nc_inq_varid(ncid, "QDRAINAGE", &cv) );
       temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
-      temutil::nc( nc_inq_varid(ncid, "QDRAINAGE", &cv) );
 #endif
+      temutil::nc( nc_inq_varid(ncid, "QDRAINAGE", &cv) );
 
       double qdrainage = 0;
-      if(curr_spec.monthly){
-        start3[0] = month_timestep;
-        qdrainage = cohort.edall->m_soi2l.qdrain; 
+      if(curr_spec.daily){
+        output_nc_soil_layer(ncid, cv, &cohort.edall->daily_qdrain[0], 1, day_timestep, dinm);
+      }
+      else if(curr_spec.monthly){
+        output_nc_soil_layer(ncid, cv, &cohort.edall->m_soi2l.qdrain, 1, month_timestep, 1);
       }
       else if(curr_spec.yearly){
-        start3[0] = year;
-        qdrainage = cohort.edall->y_soi2l.qdrain; 
+        output_nc_soil_layer(ncid, cv, &cohort.edall->y_soi2l.qdrain, 1, year, 1);
       }
-
-      temutil::nc( nc_put_var1_double(ncid, cv, start3, &qdrainage) );
       temutil::nc( nc_close(ncid) ); 
     }//end critical(outputQDRAINAGE)
   }//end QDRAINAGE 
@@ -1806,24 +1804,22 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     {
 #ifdef WITHMPI
       temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
-      temutil::nc( nc_inq_varid(ncid, "QINFILTRATION", &cv) );
       temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
-      temutil::nc( nc_inq_varid(ncid, "QINFILTRATION", &cv) );
 #endif
+      temutil::nc( nc_inq_varid(ncid, "QINFILTRATION", &cv) );
 
       double qinfil = 0;
-      if(curr_spec.monthly){
-        start3[0] = month_timestep;
-        qinfil = cohort.edall->m_soi2l.qinfl; 
+      if(curr_spec.daily){
+        output_nc_soil_layer(ncid, cv, &cohort.edall->daily_qinfl[0], 1, day_timestep, dinm);
+      }
+      else if(curr_spec.monthly){
+        output_nc_soil_layer(ncid, cv, &cohort.edall->m_soi2l.qinfl, 1, month_timestep, 1);
       }
       else if(curr_spec.yearly){
-        start3[0] = year;
-        qinfil = cohort.edall->y_soi2l.qinfl; 
+        output_nc_soil_layer(ncid, cv, &cohort.edall->y_soi2l.qinfl, 1, year, 1);
       }
-
-      temutil::nc( nc_put_var1_double(ncid, cv, start3, &qinfil) );
       temutil::nc( nc_close(ncid) ); 
     }//end critical(outputQINFILTRATION)
   }//end QINFILTRATION
@@ -1841,24 +1837,22 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     {
 #ifdef WITHMPI
       temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
-      temutil::nc( nc_inq_varid(ncid, "QRUNOFF", &cv) );
       temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
-      temutil::nc( nc_inq_varid(ncid, "QRUNOFF", &cv) );
 #endif
+      temutil::nc( nc_inq_varid(ncid, "QRUNOFF", &cv) );
 
       double qrunoff = 0;
-      if(curr_spec.monthly){
-        start3[0] = month_timestep;
-        qrunoff = cohort.edall->m_soi2l.qover; 
+      if(curr_spec.daily){
+        output_nc_soil_layer(ncid, cv, &cohort.edall->daily_qover[0], 1, day_timestep, dinm);
+      }
+      else if(curr_spec.monthly){
+        output_nc_soil_layer(ncid, cv, &cohort.edall->m_soi2l.qover, 1, month_timestep, 1);
       }
       else if(curr_spec.yearly){
-        start3[0] = year;
-        qrunoff = cohort.edall->y_soi2l.qover;
+        output_nc_soil_layer(ncid, cv, &cohort.edall->y_soi2l.qover, 1, year, 1);
       }
-
-      temutil::nc( nc_put_var1_double(ncid, cv, start3, &qrunoff) );
       temutil::nc( nc_close(ncid) ); 
     }//end critical(outputQRUNOFF)
   }//end QRUNOFF 
