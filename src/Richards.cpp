@@ -89,7 +89,8 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
       int ind = indx0al;
       qin[ind] = 0.0;
 
-      if (indx0al == fstsoill->solind) {
+      //if (indx0al == fstsoill->solind) {
+      if (ind == indx0sl) {
         qin[ind] = infil - evap;
       }
 
@@ -104,6 +105,7 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
         qout[ind] = trans[ind];
       }
 
+      liqld[ind] = effliq[ind];
       liqld[ind] += (qin[ind]-qout[ind]);
 
       if (ind == drainl->solind) {
