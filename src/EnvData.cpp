@@ -666,6 +666,7 @@ void EnvData::grnd_endOfDay(const int & dinm, const int & doy) {
   m_soi2a.evap_pet+= d_soi2a.evap_pet;
   m_soi2l.qover  += d_soi2l.qover;
   m_soi2l.qdrain += d_soi2l.qdrain;
+  m_soi2l.qinfl += d_soi2l.qinfl;
 
   //Storing daily data for NetCDF output at end of month
   daily_tshlw[dom] = d_soid.tshlw;
