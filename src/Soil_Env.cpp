@@ -681,7 +681,6 @@ double Soil_Env::getRunoff(Layer* toplayer, Layer* drainl,
   double s, dz, por;
   double  thetai;
   double  thetal;
-  double frasat = 0.;
   double sums=0.;
   double ztot=0.;
   int numl =0;
@@ -699,7 +698,6 @@ double Soil_Env::getRunoff(Layer* toplayer, Layer* drainl,
       s = fmin((double)s , 1.0);
       sums+=s * dz;
       ztot +=dz;
-      frasat +=s;
       currl=currl->nextl;
       numl++;
 
@@ -709,7 +707,13 @@ double Soil_Env::getRunoff(Layer* toplayer, Layer* drainl,
     }
 
     double avgs = sums/ztot;
-    frasat /=numl;
+
+    //Water table depth
+    double wtd = ztot - sums;
+    //Saturated fraction, from CLM3/Oleson 2004, equation 7.53
+    double frasat = WFACT * min(1.0,exp(-wtd));
+
+    //CLM3/Oleson 2004, equation 7.59.
     runoff = (frasat  + (1.-frasat)*pow((double)avgs, 4.) )
              * (rnth +melt); //So, unit same as "rainfall/snowmelt)"
   }
