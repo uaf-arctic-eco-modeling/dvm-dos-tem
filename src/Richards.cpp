@@ -105,8 +105,11 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
         qout[ind] = trans[ind];
       }
 
+      //effliq is in mm (kg/m^2)
       liqld[ind] = effliq[ind];
-      liqld[ind] += (qin[ind]-qout[ind]);
+      //qin and qout are mm/sec, but the amount of liquid added to
+      // liqld needs to be mm/day.
+      liqld[ind] += (qin[ind]-qout[ind]) * SEC_IN_DAY;
 
       if (ind == drainl->solind) {
         // bottom drainage: mm/day->mm/sec
