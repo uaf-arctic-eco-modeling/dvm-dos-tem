@@ -1771,24 +1771,22 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     {
 #ifdef WITHMPI
       temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
-      temutil::nc( nc_inq_varid(ncid, "QDRAINAGE", &cv) );
       temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
-      temutil::nc( nc_inq_varid(ncid, "QDRAINAGE", &cv) );
 #endif
+      temutil::nc( nc_inq_varid(ncid, "QDRAINAGE", &cv) );
 
       double qdrainage = 0;
-      if(curr_spec.monthly){
-        start3[0] = month_timestep;
-        qdrainage = cohort.edall->m_soi2l.qdrain; 
+      if(curr_spec.daily){
+        output_nc_soil_layer(ncid, cv, &cohort.edall->daily_qdrain[0], 1, day_timestep, dinm);
+      }
+      else if(curr_spec.monthly){
+        output_nc_soil_layer(ncid, cv, &cohort.edall->m_soi2l.qdrain, 1, month_timestep, 1);
       }
       else if(curr_spec.yearly){
-        start3[0] = year;
-        qdrainage = cohort.edall->y_soi2l.qdrain; 
+        output_nc_soil_layer(ncid, cv, &cohort.edall->y_soi2l.qdrain, 1, year, 1);
       }
-
-      temutil::nc( nc_put_var1_double(ncid, cv, start3, &qdrainage) );
       temutil::nc( nc_close(ncid) ); 
     }//end critical(outputQDRAINAGE)
   }//end QDRAINAGE 
@@ -1806,24 +1804,22 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     {
 #ifdef WITHMPI
       temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
-      temutil::nc( nc_inq_varid(ncid, "QINFILTRATION", &cv) );
       temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
-      temutil::nc( nc_inq_varid(ncid, "QINFILTRATION", &cv) );
 #endif
+      temutil::nc( nc_inq_varid(ncid, "QINFILTRATION", &cv) );
 
       double qinfil = 0;
-      if(curr_spec.monthly){
-        start3[0] = month_timestep;
-        qinfil = cohort.edall->m_soi2l.qinfl; 
+      if(curr_spec.daily){
+        output_nc_soil_layer(ncid, cv, &cohort.edall->daily_qinfl[0], 1, day_timestep, dinm);
+      }
+      else if(curr_spec.monthly){
+        output_nc_soil_layer(ncid, cv, &cohort.edall->m_soi2l.qinfl, 1, month_timestep, 1);
       }
       else if(curr_spec.yearly){
-        start3[0] = year;
-        qinfil = cohort.edall->y_soi2l.qinfl; 
+        output_nc_soil_layer(ncid, cv, &cohort.edall->y_soi2l.qinfl, 1, year, 1);
       }
-
-      temutil::nc( nc_put_var1_double(ncid, cv, start3, &qinfil) );
       temutil::nc( nc_close(ncid) ); 
     }//end critical(outputQINFILTRATION)
   }//end QINFILTRATION
@@ -1841,24 +1837,22 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     {
 #ifdef WITHMPI
       temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
-      temutil::nc( nc_inq_varid(ncid, "QRUNOFF", &cv) );
       temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
-      temutil::nc( nc_inq_varid(ncid, "QRUNOFF", &cv) );
 #endif
+      temutil::nc( nc_inq_varid(ncid, "QRUNOFF", &cv) );
 
       double qrunoff = 0;
-      if(curr_spec.monthly){
-        start3[0] = month_timestep;
-        qrunoff = cohort.edall->m_soi2l.qover; 
+      if(curr_spec.daily){
+        output_nc_soil_layer(ncid, cv, &cohort.edall->daily_qover[0], 1, day_timestep, dinm);
+      }
+      else if(curr_spec.monthly){
+        output_nc_soil_layer(ncid, cv, &cohort.edall->m_soi2l.qover, 1, month_timestep, 1);
       }
       else if(curr_spec.yearly){
-        start3[0] = year;
-        qrunoff = cohort.edall->y_soi2l.qover;
+        output_nc_soil_layer(ncid, cv, &cohort.edall->y_soi2l.qover, 1, year, 1);
       }
-
-      temutil::nc( nc_put_var1_double(ncid, cv, start3, &qrunoff) );
       temutil::nc( nc_close(ncid) ); 
     }//end critical(outputQRUNOFF)
   }//end QRUNOFF 
@@ -3013,27 +3007,20 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     {
 #ifdef WITHMPI
       temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
-      temutil::nc( nc_inq_varid(ncid, "VWCDEEP", &cv) );
       temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
-      temutil::nc( nc_inq_varid(ncid, "VWCDEEP", &cv) );
 #endif
+      temutil::nc( nc_inq_varid(ncid, "VWCDEEP", &cv) );
 
-      double vwcdeep;
       if(curr_spec.daily){
-        start3[0] = day_timestep;
-        temutil::nc( nc_put_vara_double(ncid, cv, start3, count3, &cohort.edall->daily_vwcdeep[0]) );
+        output_nc_soil_layer(ncid, cv, &cohort.edall->daily_vwcdeep[0], 1, day_timestep, dinm);
       }
       else if(curr_spec.monthly){
-        start3[0] = month_timestep;
-        vwcdeep = cohort.edall->m_soid.vwcdeep;
-        temutil::nc( nc_put_var1_double(ncid, cv, start3, &vwcdeep) );
+        output_nc_soil_layer(ncid, cv, &cohort.edall->m_soid.vwcdeep, 1, month_timestep, 1);
       }
       else if(curr_spec.yearly){
-        start3[0] = year;
-        vwcdeep = cohort.edall->y_soid.vwcdeep;
-        temutil::nc( nc_put_var1_double(ncid, cv, start3, &vwcdeep) );
+        output_nc_soil_layer(ncid, cv, &cohort.edall->y_soid.vwcdeep, 1, year, 1);
       }
       temutil::nc( nc_close(ncid) );
     }//end critical(outputVWCDEEP)
@@ -3052,25 +3039,84 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     {
 #ifdef WITHMPI
       temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
-      temutil::nc( nc_inq_varid(ncid, "VWCLAYER", &cv) );
       temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
 #else
       temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
-      temutil::nc( nc_inq_varid(ncid, "VWCLAYER", &cv) );
 #endif
+      temutil::nc( nc_inq_varid(ncid, "VWCLAYER", &cv) );
 
       if(curr_spec.monthly){
-        soilstart4[0] = month_timestep;
-        temutil::nc( nc_put_vara_double(ncid, cv, soilstart4, soilcount4, &cohort.edall->m_soid.vwc[0]) );
+        output_nc_soil_layer(ncid, cv, &cohort.edall->m_soid.vwc[0], MAX_SOI_LAY, month_timestep, 1);
       }
       else if(curr_spec.yearly){
-        soilstart4[0] = year;
-        temutil::nc( nc_put_vara_double(ncid, cv, soilstart4, soilcount4, &cohort.edall->y_soid.vwc[0]) );
+        output_nc_soil_layer(ncid, cv, &cohort.edall->y_soid.vwc[0], MAX_SOI_LAY, year, 1);
       }
 
       temutil::nc( nc_close(ncid) );
     }//end critical(outputVWCLAYER)
   }//end VWCLAYER
+  map_itr = netcdf_outputs.end();
+
+
+  //IWCLAYER
+  map_itr = netcdf_outputs.find("IWCLAYER");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: IWCLAYER";
+    curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
+
+    #pragma omp critical(outputIWCLAYER)
+    {
+#ifdef WITHMPI
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
+#else
+      temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
+#endif
+      temutil::nc( nc_inq_varid(ncid, "IWCLAYER", &cv) );
+
+      if(curr_spec.monthly){
+        output_nc_soil_layer(ncid, cv, &cohort.edall->m_soid.iwc[0], MAX_SOI_LAY, month_timestep, 1);
+      }
+      else if(curr_spec.yearly){
+        output_nc_soil_layer(ncid, cv, &cohort.edall->y_soid.iwc[0], MAX_SOI_LAY, year, 1);
+      }
+
+      temutil::nc( nc_close(ncid) );
+    }//end critical(outputIWCLAYER)
+  }//end IWCLAYER
+  map_itr = netcdf_outputs.end();
+
+
+  //LWCLAYER
+  map_itr = netcdf_outputs.find("LWCLAYER");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: LWCLAYER";
+    curr_spec = map_itr->second;
+    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
+
+    #pragma omp critical(outputLWCLAYER)
+    {
+#ifdef WITHMPI
+      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
+#else
+      temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
+#endif
+      temutil::nc( nc_inq_varid(ncid, "LWCLAYER", &cv) );
+
+      if(curr_spec.monthly){
+        soilstart4[0] = month_timestep;
+        temutil::nc( nc_put_vara_double(ncid, cv, soilstart4, soilcount4, &cohort.edall->m_soid.lwc[0]) );
+      }
+      else if(curr_spec.yearly){
+        soilstart4[0] = year;
+        temutil::nc( nc_put_vara_double(ncid, cv, soilstart4, soilcount4, &cohort.edall->y_soid.lwc[0]) );
+      }
+
+      temutil::nc( nc_close(ncid) );
+    }//end critical(outputLWCLAYER)
+  }//end LWCLAYER
   map_itr = netcdf_outputs.end();
 
 
