@@ -517,7 +517,61 @@ void Soil_Env::updateDailySM() {
     ed->d_soi2l.qover = 0.0;
   }
 
-  double infil = rnth+melt-ed->d_soi2l.qover;
+  //The following is duplicated (if reversed) from getRunoff().
+  // It should be replaced in both locations by a new function
+  // getUnoccupiedPorosity() or similar.
+  Layer * currl = fstsoill;
+  double empty_poro = 0.0;
+  double ztot = 0.0;
+  double sums = 0.0;
+  if(drainl != NULL){
+    while( currl != NULL && currl->solind <= drainl->solind){
+      double thetai = currl->getVolIce();
+      double thetal = currl->getVolLiq();
+      double s = (thetai + thetal)/currl->poro;
+      s = fmin((double)s, 1.0);
+      empty_poro += (1-s) * currl->dz;
+      ztot += currl->dz;
+      sums += s*currl->dz;
+      currl = currl->nextl;
+    }
+  }
+  //Converting m to mm for consistency in calculations
+  empty_poro *= 1000;
+
+  //fraction of saturation of the soil column
+  double avgs = sums/ztot;
+  //Water table depth (also duplicated, see above)
+  double wtd = ztot - sums;
+  //frasat, duplicated, see above
+  double frasat = WFACT * min(1.0,exp(-wtd));
+
+  //Calculate standard infiltration
+  double infil = rnth + melt - ed->d_soi2l.qover;
+
+  //Modify available pore space by the liquid that will be
+  // infiltrating.
+  empty_poro -= infil;
+
+  //Adding the melt portion of runoff (CLM3/Oleson 2004, modified eq 7.59)
+  // to the magic puddle instead
+  double melt_runoff = (frasat + (1-frasat)*pow(avgs,4)) * melt;
+  ed->d_soi2l.magic_puddle += melt_runoff;
+  //Subtracting the melt portion from runoff
+  ed->d_soi2l.qover -= melt_runoff;
+
+  //If there is space remaining in the soil, and water in
+  // the reserved puddle, transfer water from the puddle
+  // to the infiltration value.
+  if(empty_poro > 0.0 && ed->d_soi2l.magic_puddle > 0.0){
+    double puddle2grnd = min(empty_poro, ed->d_soi2l.magic_puddle);  
+    infil += puddle2grnd;
+    ed->d_soi2l.magic_puddle -= puddle2grnd;
+    if(ed->d_soi2l.magic_puddle < 0.0){
+      ed->d_soi2l.magic_puddle = 0.0;
+    }
+  }
+
   ed->d_soi2l.qinfl = infil;
 
   // 2) Then soil water dynamics at daily time step

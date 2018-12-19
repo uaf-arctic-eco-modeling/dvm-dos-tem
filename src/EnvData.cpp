@@ -215,6 +215,10 @@ void EnvData::grnd_beginOfYear() {
   y_soi2l.qover =0.;
   y_soi2l.qinfl =0.;
   y_soi2l.qdrain=0.;
+  //Clearing the daily value of magic_puddle here instead of in
+  // the daily prep function because it needs to maintain a value
+  // in between days (and possibly months).
+  d_soi2l.magic_puddle = 0.;
 }
 
 // initialize monthly accumulators before daily-processes start

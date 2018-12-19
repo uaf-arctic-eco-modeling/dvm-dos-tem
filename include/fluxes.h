@@ -202,7 +202,9 @@ struct soi2lnd_env {
   double qinfl; // infiltration water
   double qover;
   double qdrain;
-  soi2lnd_env(): qinfl(UIN_D), qover(UIN_D), qdrain(UIN_D) {}
+  double magic_puddle;//This is an artificial construct to prevent
+                      // losing too much water to runoff.
+  soi2lnd_env(): qinfl(UIN_D), qover(UIN_D), qdrain(UIN_D), magic_puddle(UIN_D) {}
 };
 
 struct soi2lnd_bgc {
