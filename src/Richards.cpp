@@ -89,7 +89,8 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
       int ind = indx0al;
       qin[ind] = 0.0;
 
-      if (indx0al == fstsoill->solind) {
+      //if (indx0al == fstsoill->solind) {
+      if (ind == indx0sl) {
         qin[ind] = infil - evap;
       }
 
@@ -104,7 +105,11 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
         qout[ind] = trans[ind];
       }
 
-      liqld[ind] += (qin[ind]-qout[ind]);
+      //effliq is in mm (kg/m^2)
+      liqld[ind] = effliq[ind];
+      //qin and qout are mm/sec, but the amount of liquid added to
+      // liqld needs to be mm/day.
+      liqld[ind] += (qin[ind]-qout[ind]) * SEC_IN_DAY;
 
       if (ind == drainl->solind) {
         // bottom drainage: mm/day->mm/sec
@@ -215,9 +220,36 @@ void Richards::prepareSoilNodes(Layer* currsoill, const double & draindepth) {
         double minvolliq = currl->minliq/DENLIQ/currl->dz;
         effporo[ind] = fmax(0., currl->poro-minvolliq);
         dzmm[ind] = currl->dz*1.e3*fmin(frntdzadj, drdzadj);
-        zmm[ind]  = (currl->z+frntzadj)*1.e3 + 0.5 *dzmm[ind]; // the node depth (middle point of a layer)
+
+        //The soil node in a partially frozen layer will be calculated
+        //differently if it's a thawing front vs a frozen front. If thawing,
+        //the frozen slice of the layer will be a the bottom of the layer,
+        //but if freezing, it will be at the top.
+        bool thawing = false;
+
+        //If there is no previous layer, determine status from next layer
+        if(currl->prevl == NULL){
+          //The layer below is frozen
+          if(currl->nextl->frozen==1){ thawing = true; }
+          //The layer below is thawed
+          else{ thawing = false; }
+        }
+        //If there is a previous layer, determine status from it
+        else{
+          //The layer above is thawed/partially thawed
+          if(currl->prevl->frozen <= 0){ thawing = true; }
+          //The layer above is frozen
+          else{ thawing = false; }
+        }
+
+        if(thawing){
+          zmm[ind] = ((currl->z+currl->dz) - frntzadj)*1.e3 - 0.5*dzmm[ind];
+        }
+        else{
+          zmm[ind]  = (currl->z+frntzadj)*1.e3 + 0.5 *dzmm[ind]; // the node depth (middle point of a layer)
+        }
         effminliq[ind] = currl->minliq*fmin(frntdzadj, drdzadj);
-        effmaxliq[ind] = (effporo[ind]*dzmm[ind])*fmin(frntdzadj, drdzadj);
+        effmaxliq[ind] = (effporo[ind]*dzmm[ind]);
         effliq[ind] = fmax(0.0, currl->liq*drdzadj-effminliq[ind]);
 
         if (effliq[ind]<0. || effminliq[ind]<0. || effmaxliq[ind]<0.) {

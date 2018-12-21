@@ -428,7 +428,7 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
   //might be more accurate if done correctly, that code had been commented 
   //out for years, and so was removed. 
   //Value from Klene 2001 (summer values) and Kade 2006.
-  edall->d_soid.nfactor = 0.76;
+  edall->d_soid.nfactor = 0.9;
 
   // (ii)Initialize the yearly/monthly accumulators, which are accumulating at the end of month/day in 'ed'
   for (int ip=0; ip<NUM_PFT; ip++) {
@@ -470,6 +470,13 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
                               << " doy=" << doy << ground.layer_report_string("depth thermal hydro ptr");
 
     daylength = temutil::length_of_day(this->lat, doy);
+
+    if(cd.d_snow.numsnwl > 0){
+      edall->d_soid.nfactor = 0.6;
+    }
+    else{
+      edall->d_soid.nfactor = 1.00;
+    }
 
     /* Daily processes for a Cohort, Environmental module...
        Have to use our Climate object to update our EnvData objects's daily
@@ -549,6 +556,10 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
     //Capture daily snow water equivalent and thickness for NetCDF output
     edall->daily_swesum[id] = edall->d_snws.swesum;
     edall->daily_snowthick[id] = edall->d_snws.snowthick;
+
+    //Force update of edall's water table so that the calculations
+    // in setDrainL are using today's data
+    edall->d_sois.watertab = soilenv.getWaterTable(ground.lstsoill);
     //get the new bottom drainage layer and its depth,
     //  which needed for soil moisture calculation
     ground.setDrainL(ground.lstsoill, edall->d_soid.ald,

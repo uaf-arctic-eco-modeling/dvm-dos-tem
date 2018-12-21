@@ -48,6 +48,8 @@ public:
 
   void retrieveDailyTM(Layer* toplayer, Layer* lstsoill);
 
+  double getWaterTable(Layer* fstsoil);
+
 private:
 
   Ground * ground;
@@ -65,7 +67,6 @@ private:
   double getEvaporation(const double & dayl, const double &rad);
   double getPenMonET(const double & ta, const double& vpd, const double &irad,
                      const double &rv, const double & rh);
-  double getWaterTable(Layer* fstsoil);
   double getRunoff(Layer* fstsoill, Layer* drainl,
                    const double & rnth,
                    const double & melt);

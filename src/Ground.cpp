@@ -1865,7 +1865,14 @@ void Ground::setDrainL(Layer* lstsoill, double & barrierdepth, double & watertab
     double laybot = currl->z+currl->dz;
 
     while(currl!=NULL) {
-      if(currl->isSoil) {
+      //This prevents hydrological processes from executing
+      // on moss layers. This mostly affects Richards, which
+      // shouldn't be handling moss anyway.
+      if(currl->isMoss){
+        drainl = NULL;
+        draindepth = 0.;
+      }
+      else if(currl->isSoil) {
         laytop = currl->z;
         laybot = currl->z+currl->dz;
 
