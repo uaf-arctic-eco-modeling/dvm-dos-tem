@@ -565,13 +565,14 @@ if __name__ == '__main__':
         does not exist in the file.'''))
 
   parser.add_argument('--report-pft-stats', nargs=2, metavar=('INFOLDER', 'CMTNUM'),
-      help=textwrap.dedent('''Prints some summary info showing for example the 
-        amount of C allocated to each PFT and the percent contribution to the
-        ecosystem total.'''))
+      help=textwrap.dedent('''Prints a tables summarizing the amount of C and N
+        allocated to each PFT and the percent contribution to the ecosystem totals
+        of C and N. Assumes that a file 'cmt_bgcvegetation.txt' exists in the
+        INFOLDER.'''))
 
   parser.add_argument('--report-cmt-names', nargs=2, metavar=('INFOLDER', 'CMTNUM'),
       help=textwrap.dedent('''Prints the CMT number and name for each file.
-        Prints na/ if the CMT does not exist in the file!'''))
+        Prints n/a if the CMT does not exist in the file!'''))
 
   parser.add_argument('--report-all-cmts', nargs=1, metavar=('FOLDER'),
       help=textwrap.dedent('''Prints out a table with all the CMT names found
@@ -619,6 +620,27 @@ if __name__ == '__main__':
     print "{:<6} {:>12} {:>10} {:->12} {:>8} {:>8} {:>8}".format('','','','','','','')
     print "{:>31} {:>11.2f}".format("Community Total Vegetation C:", ecosystem_total_C)
     print ""
+
+    ecosystem_total_N = 0.0
+    for pft in get_datablock_pftkeys(dd):
+      ecosystem_total_N += dd[pft]['initvegnl']
+      ecosystem_total_N += dd[pft]['initvegnw']
+      ecosystem_total_N += dd[pft]['initvegnr']
+
+    print "Reading from file: {}".format(src_file)
+    print "{:<6} {:>12} {:>10} {:>12} {:>8} {:>8} {:>8}".format(' ','name','% veg N', 'N', 'leaf N', 'wood N', 'root N')
+    whole_plant_N = 0.0
+    for pft in get_datablock_pftkeys(dd):
+      whole_plant_N = (dd[pft]['initvegnl'] + dd[pft]['initvegnw'] + dd[pft]['initvegnr'])
+      frac_N = whole_plant_N / ecosystem_total_N
+      print "{:<6} {:>12} {:>10.2f} {:>12} {:>8} {:>8} {:>8}".format(
+          pft, dd[pft]['name'], frac_N*100, whole_plant_N,
+          dd[pft]['initvegnl'], dd[pft]['initvegnw'], dd[pft]['initvegnr']
+      )
+    print "{:<6} {:>12} {:>10} {:->12} {:>8} {:>8} {:>8}".format('','','','','','','')
+    print "{:>31} {:>11.2f}".format("Community Total Vegetation N:", ecosystem_total_N)
+    print ""
+ 
     sys.exit(0)
 
   if args.report_pft_names:
