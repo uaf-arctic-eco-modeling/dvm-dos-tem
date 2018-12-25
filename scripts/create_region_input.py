@@ -1408,6 +1408,45 @@ def get_slurm_wrapper_string():
   return s
 
 
+def get_empty_config_object():
+  '''
+  Returns a configuration object with all the required keys, but no values.
+  '''
+  empty_config_string = textwrap.dedent('''\
+      veg src = ''
+
+      drainage src = ''
+
+      soil clay src = ''
+      soil sand src = ''
+      soil silt src = ''
+
+      topo slope src = ''
+      topo aspect src = ''
+      topo elev src = ''
+
+      h clim first yr = ''
+      h clim last yr = ''
+      h clim orig inst = ''
+      h clim ver = ''
+      h clim tair src = ''
+      h clim prec src = ''
+      h clim rsds src = ''
+      h clim vapo src = ''
+
+      p clim first yr = ''
+      p clim last yr = ''
+      p clim ver = ''
+      p clim orig inst = ''
+      p clim tair src = ''
+      p clim prec src = ''
+      p clim rsds src = ''
+      p clim vapo src = ''
+
+      fire fri src = ''
+    ''')
+  return configobj.ConfigObj(empty_config_string.split("\n"))
+
 
 
 
@@ -1569,6 +1608,9 @@ if __name__ == '__main__':
         script as needed (uncommenting the lines for the desired site and post
         processing steps that you want).'''))
 
+  parser.add_argument('--dump-empty-config', action='store_true',
+      help=textwrap.dedent('''Write out an empty config file with all the keys
+        that need to be filled in to make a functioning config object.'''))
 
   parser.add_argument('--projected-climate-config', nargs=1, choices=['ncar-ccsm4', 'mri-cgcm3'],
       help=textwrap.dedent('''Choose a configuration to use for the projected 
@@ -1589,6 +1631,16 @@ if __name__ == '__main__':
     with open(ofname, 'w') as f:
       f.write(get_slurm_wrapper_string())
     exit(0)
+
+  if args.dump_empty_config:
+    ofname = "EMPTY_CONFIG_create_region_input.txt"
+    print "Writing empty config file: {}".format(ofname)
+    ec = get_empty_config_object()
+    ec.filename = ofname
+    ec.write()
+    exit(0)
+
+
 
   # Verify argument combinations: time coordinate variables and files
   if args.clip_projected2match_historic:
