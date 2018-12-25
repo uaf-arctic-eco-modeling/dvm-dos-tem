@@ -1308,6 +1308,106 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
 
 
 
+def get_slurm_wrapper_string():
+  '''
+  When running this program (create_region_input.py) on atlas, it is best to
+  run under the control of the queue manager (slurm). This function is a place
+  to store a wrapper script that can be submitted to slurm.
+
+  Returns string with text for slurm script.
+  '''
+  s = textwrap.dedent('''\
+    #!/bin/bash
+
+    #SBATCH --cpus-per-task=4
+    #SABTCH --ntasks=1
+    #SBATCH -p main
+    ##SBATCH --reservation=snap_8  # Not needed anymore
+
+    # Offsets for new ar5/rcp85 datasets found in:
+    TIFDIR="/atlas_scratch/ALFRESCO/ALFRESCO_Master_Dataset_v2_1/ALFRESCO_Model_Input_Datasets/IEM_for_TEM_inputs/"
+
+    #PCLIM="mri-cgcm3"
+    PCLIM="ncar-ccsm4"
+
+    ###################
+    # 10x10 sites
+    ###################
+    #XSIZE=10
+    #YSIZE=10
+
+    #site=cru-ts40_ar5_rcp85_"$PCLIM"_Toolik; yoff=298; xoff=918
+    #site=cru-ts40_ar5_rcp85_"$PCLIM"_SouthBarrow; yoff=28; xoff=620 
+    #site=cru-ts40_ar5_rcp85_"$PCLIM"_SewardPeninsula; yoff=643; xoff=231 
+    #site=cru-ts40_ar5_rcp85_"$PCLIM"_Kougarok; yoff=649; xoff=233;
+
+    # Dalton Highway Sites with site at LOWER LEFT corner
+    #site=cru-ts40_ar5_rcp85_"$PCLIM"_dh_site_1; yoff=470 ; xoff=900
+    #site=cru-ts40_ar5_rcp85_"$PCLIM"_dh_site_2; yoff=429 ; xoff=906
+    #site=cru-ts40_ar5_rcp85_"$PCLIM"_dh_site_3; yoff=379 ; xoff=915
+    #site=cru-ts40_ar5_rcp85_"$PCLIM"_dh_site_4; yoff=246 ; xoff=947
+    #site=cru-ts40_ar5_rcp85_"$PCLIM"_dh_site_5; yoff=210 ; xoff=948
+
+    ####################
+    # 50x50 sites
+    ####################
+    XSIZE=50
+    YSIZE=50
+
+    site=cru-ts40_ar5_rcp85_"$PCLIM"_Toolik; yoff=250; xoff=919
+
+
+
+    # USE this to put the desired pixel at the center of the grid.
+    #echo "Original x and y offsets: $xoff $yoff"
+    #yoff=$(( $yoff + $(( $YSIZE / 2 )) ))
+    #xoff=$(( $xoff - $(( $XSIZE / 2 )) ))
+    #echo "New x and y offsets: $xoff $yoff"
+
+    echo $site
+
+    srun ./scripts/create_region_input.py \
+      --tifs $TIFDIR \
+      --tag $site \
+      --years -1 \
+      --buildout-time-coord \
+      --yoff $yoff --xoff $xoff --xsize $XSIZE --ysize $YSIZE \
+      --which all \
+      --projected-climate-config "$PCLIM" \
+      --clip-projected2match-historic
+
+    # Handle cropping if needed...
+    #mkdir -p input-staging-area/"$site"_"$YSIZE"x"$XSIZE"/output
+    #srun ./scripts/input_util.py crop --yx 0 0 --ysize 1 --xsize 1 input-staging-area/"$site"_"$YSIZE"x"$XSIZE"/
+
+    # Generate plots for double checking data... (Should this be submitted with srun too??)
+    #./scripts/input_util.py climate-ts-plot --type annual-summary --yx 0 0 input-staging-area/
+
+    # REMEMBER TO CHECK FOR GAPFILLING NEEDS!!!
+    srun ./scripts/gapfill.py --dry-run --input-folder input-staging-area/"$site"_"$YSIZE"x"$XSIZE"/
+    #srun ./scripts/gapfill.py --dry-run --input-folder input-staging-area/"$site"_1x1/
+
+    # Run script to swap all CMT 8 pixels to CMT 7
+    srun ./scripts/fix_vegetation_file_cmt08_to_cmt07.py input-staging-area/"$site"_"$YSIZE"x"$XSIZE"/vegetation.nc
+    #srun ./scripts/fix_vegetation_file_cmt08_to_cmt07.py input-staging-area/"$site"_1x1/vegetation.nc
+
+
+    # Old stuff...
+    #srun ./scripts/create_region_input.py --tifs /atlas_scratch/tem/snap-data/ --tag Kougarok --years -1 --start-year 9  --buildout-time-coord --xoff 230 --yoff 641 --xsize 10 --ysize 10 --which projected-climate
+    #srun ./scripts/create_region_input.py --tifs /atlas_scratch/tem/snap-data/ --tag Toolik --years -1 --start-year 9 --buildout-time-coord --xoff 1137 --yoff 239 --xsize 50 --ysize 50 --which projected-climate 
+
+    # Dalton Highway Sites for Ceci, 2018 summer REU work
+    # Offsets for ar4 (old) data in /atlas_scratch/tem/snap-data
+    #site=site_1; yoff=472; xoff=898
+    #site=site_2; yoff=431; xoff=903
+    #site=site_3; yoff=381; xoff=912
+    #site=site_4; yoff=248; xoff=944
+    #site=site_5; yoff=211; xoff=945
+
+  ''')
+  return s
+
+
 
 
 
@@ -1395,10 +1495,13 @@ if __name__ == '__main__':
 
         atlas:/atlas_scratch/ALFRESCO/ALFRESCO_Master_Dataset_v2_1/ALFRESCO_Model_Input_Datasets/IEM_for_TEM_inputs/
 
-        It is expected that the user will modify the paths to the base input 
-        files if this script is to be run elsewhere. There are not command line
-        options to make these adjustments. The code in the main() function must
-        be changed.
+        **THE PATHS IN THIS SCIRPT MUST BE EDITED BY HAND IF IT IS TO BE RUN ON
+        A DIFFERENT COMPUTER OR IF THE DIRECTORY LAYOUT ON ATLAS CHANGES!**
+
+        Running this script on atlas under Slurm it takes about 15 minutes to
+        create a complete input dataset for all historic and projected years.
+
+        There is a command line option to print an example slurm script.
         '''.format("\n                ".join([i+'.nc' for i in fileChoices]))),
 
       epilog=textwrap.dedent(''''''),
@@ -1459,6 +1562,13 @@ if __name__ == '__main__':
       start building it where the historic 
       data leaves off.'''))
 
+  parser.add_argument('--generate-slurm-wrapper', action='store_true',
+      help=textwrap.dedent('''Writes the file "CRI_slurm_wrapper.sh" and exits.
+        Submit CRI_slurm_wrapper.sh to slurm using sbatch. Expected workflow
+        is that you will generate the slurm wrapper script and then edit the
+        script as needed (uncommenting the lines for the desired site and post
+        processing steps that you want).'''))
+
 
   parser.add_argument('--projected-climate-config', nargs=1, choices=['ncar-ccsm4', 'mri-cgcm3'],
       help=textwrap.dedent('''Choose a configuration to use for the projected 
@@ -1471,6 +1581,14 @@ if __name__ == '__main__':
   print "Reading config file..."
   config = configobj.ConfigObj(base_ar5_rcp85_config.split("\n"))
 
+
+  if args.generate_slurm_wrapper:
+    ofname = 'CRI_slurm_wrapper.sh'
+    print "Writing wrapper file: {}".format(ofname)
+    print "Submit using sbatch."
+    with open(ofname, 'w') as f:
+      f.write(get_slurm_wrapper_string())
+    exit(0)
 
   # Verify argument combinations: time coordinate variables and files
   if args.clip_projected2match_historic:
