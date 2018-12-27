@@ -15,7 +15,7 @@ echo "Should not require sudo priviledges to run!"
 #
 
 #
-# add github's key to knownhosts
+# Add github's key to knownhosts
 #
 if [[ ! -f ~/.ssh/known_hosts ]]; then
   mkdir -p ~/.ssh
@@ -35,39 +35,57 @@ then
 fi
 cd dvm-dos-tem
 git remote rename origin upstream
+git checkout devel
+git pull --ff-only upstream devel:devel
 git checkout master
 git pull --ff-only upstream master:master
 cd ..
 
+
 #
-# setup various preference files (dotfiles)
+# Setup the input library mirror
 #
 
-# BASH preferences...
-echo "Setting up bashrc preferences file...."
-cat <<EOF > "$HOME"/.bashrc
-# .bashrc
+# This step is hard to automate securely, so here is the general idea:
+#
+#     # Make sure the output location exists
+#     mkdir -p /data/mirrors/atlas/dvmdostem-input-catalog/
+#    
+#     # Change into the dvmdostem repo, and run the updating script.
+#     # If you don't have ssh keys or ssh key agent forwarding setup
+#     # Then this will prompt you for your atlas username and password.
+#     cd $HOME/dvm-dos-tem
+#     DST="/home/vagrant/data/mirrors/atlas/dvmdostem-input-catalog" ./scripts/update-mirror.sh
 
-# Source global definitions
-if [ -f /etc/bashrc ]; then
-  . /etc/bashrc
-fi
 
-# Uncomment the following line if you don't like systemctl's auto-paging feature:
-# export SYSTEMD_PAGER=
+#
+# Setup various preference files (dotfiles)
+#
 
-# User specific aliases and functions
-
-# Add git branch to bash prompt...
-source /usr/share/git-core/contrib/completion/git-prompt.sh
-export PS1='[\u@\h \W$(declare -F __git_ps1 &>/dev/null && __git_ps1 " (%s)")]\$ '
-
-# set up some environment variables
-export SITE_SPECIFIC_INCLUDES=-I/usr/include/jsoncpp
-export PATH=$PATH:/usr/lib64/openmpi/bin
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib64/openmpi/lib
-
-EOF
+# Ubuntu bashrc file - Not sure how to manage this  automatically, so for now, 
+# here are the changes I (tbc) have made manually, to the bashrc file (8/10/18):
+#  - increase HISTSIZE, HISTFILESIZE
+#  - uncomment line with "force_color_prompt=yes"
+#  - add this at the bottom: 
+#    export SITE_SPECIFIC_INCLUDES=-I/usr/include/jsoncpp
+#  - enable git branch in prompt according to here:
+#    https://askubuntu.com/questions/730754/how-do-i-show-the-git-branch-with-colours-in-bash-prompt
+#    Place this in the .bashrc:
+#        parse_git_branch() {
+#          git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/'
+#        }
+#        if [ "$color_prompt" = yes ]; then
+#          PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[01;31m\] $(parse_git_branch)\[\033[00m\]\$ '
+#        else
+#          PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w$(parse_git_branch)\$ '
+#        fi
+#        # THE SIX LINES BELOW are the default prompt and the unset (which were in the original .bashrc)
+#        #if [ "$color_prompt" = yes ]; then
+#        #    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
+#        #else
+#        #    PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
+#        #fi
+#        #unset color_prompt force_color_prompt
 
 # VIM preferences...
 cat <<EOF >> "$HOME"/.vimrc
@@ -84,14 +102,6 @@ set tabstop=2          " use 2 spaces
 set shiftwidth=2       " how many columns to move with reindent operators (>>, <<)
 
 EOF
-
-# GIT prefs..?
-#  - email, editor, color etc??
-
-# Matplotlib prefs...?
-#   - might be able to source a file from a gist online?
-#   e.g. https://gist.github.com/huyng/816622
-
 
 
 echo "DONE setting up a dvm-dos-tem environment. You should be ready to go!"
