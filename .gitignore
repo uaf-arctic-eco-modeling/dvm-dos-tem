@@ -1,5 +1,5 @@
 # this ignores all the "restart" files that are generated at run-time
-DATA/*/output/*.nc
+demo-data/*/output/*.nc
 input-staging-area/*
 
 parameters-*/

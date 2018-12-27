@@ -200,8 +200,8 @@ def conform_mask_to_inputs(in_folder):
   ###########################################################
   # Handle the explicit fire
   ###########################################################
-  for file in ["historic-explicit-fire", "projected-explicit-fire"]:
-    ds = nc.Dataset("DATA/SouthBarrow_10x10/{}.nc".format(file))
+  for file in ["historic-explicit-fire.nc", "projected-explicit-fire.nc"]:
+    ds = nc.Dataset(os.path.join(in_folder, file))
     for v in ['exp_burn_mask', 'exp_jday_of_burn', 'exp_area_of_burn','exp_fire_severity']:
       print "[{}] Updating mask for variable {}...".format(file, v)
       v_m = np.ma.getmaskarray(np.ma.MaskedArray(ds.variables[v][:]))
@@ -259,7 +259,8 @@ if __name__ == '__main__':
       help=textwrap.dedent('''Operate on the run-mask and conform it to all the 
           input files in %(metavar)s. Makes sure that the run-mask will disable
           any pixel (set to 0) where any of the input files contain bad or 
-          missing data.'''))
+          missing data. NOTE!!: modifies run-mask.nc found in %(metavar)s, and
+          ignores the files specified 'FILE' argument!'''))
 
   parser.add_argument("--select-only-cmt", metavar=('FOLDER','CMT'), nargs=2,
     help=textwrap.dedent('''Select only pixels with a certain CMT number. This
