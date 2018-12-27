@@ -13,6 +13,7 @@ anomolies.
 '''
 
 import os
+import sys
 import subprocess
 import glob
 import pickle
@@ -774,6 +775,11 @@ def plot_timeseries_of_spatial_summary_stats():
 
 
 if __name__ == '__main__':
+
+  if len(sys.argv) > 1:
+    if '-h' in sys.argv or '--help' in sys.argv:
+      print "There is not a proper command line interface built for this script."
+      print "Read the code to figure out what it does!"
 
   print "PID: {}".format(os.getpid())
   print "Temporary file storage: {}".format(TMP_DATA)
