@@ -608,12 +608,37 @@ if __name__ == '__main__':
       #target = bnza_lter
       target = {'lat':args.iyix_from_latlon[0], 'lon':args.iyix_from_latlon[1]}
       iy,ix = tunnel_fast(latvar, lonvar, target['lat'], target['lon'])
+      iy_fUL = len(ncfile.dimensions['y'])-iy
       print('Target lat, lon:', target['lat'], target['lon'])
       print('Delta with target lat, lon:', target['lat'] - latvar[iy,ix], target['lon'] - lonvar[iy,ix])
       print('lat, lon of closest match:', latvar[iy,ix], lonvar[iy,ix])
       print('indices of closest match iy, ix (FROM LOWER left):', iy, ix)
-      print('indices of closest match iy, ix (FROM UPPER left):', len(ncfile.dimensions['y'])-iy, ix)
+      print('indices of closest match iy, ix (FROM UPPER left):', iy_fUL, ix)
       print('** NOTE: Use coords FROM UPPER LEFT to build/crop a new dataset with that pixel at the LOWER LEFT corner of the dataset!')
+      print('''
+
+      NOTE:
+      When gdal reads .tif files it uses the UPPER LEFT corner of the UPPER LEFT
+      pixel as the origin. So the 0,0 pixel is the UPPER LEFT corner.
+
+      When gdal_translate converts to netcdf, and the file is viewed with ncview
+      the (i,j) pixel offsets are from the LOWER LEFT of the image. 
+
+      When using the create_region_input.py script to select regions from the 
+      SNAP tif files, use the following table to figure out what offsets to pass.
+
+      Puts your "pixel of interest" at the desired place within the cropped region.
+      =============================================================================
+
+        @ UL of cropped region:                      iy={iy:}            ix={ix:}
+        @ LL of cropped region:                      iy=({iy:}-YSIZE)+1  ix={ix:}
+        @ LR of cropped region:                      iy=({iy:}-YSIZE)+1  ix=({ix:}-XSIZE)+1
+        @ UR of cropped region:                      iy={iy:}            ix=({ix:}-XSIZE)+1
+
+        @ approx center of cropped region:           iy={iy:}-(YSIZE/2)  ix={ix:}-(XSIZE/2)
+      '''.format(iy=iy_fUL, ix=ix))
+      print()
+
       ncfile.close()
       os.remove(TMP_NC_FILE)
       exit()
