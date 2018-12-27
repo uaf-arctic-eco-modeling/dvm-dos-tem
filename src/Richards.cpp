@@ -14,6 +14,38 @@ Richards::Richards() {
 Richards::~Richards() {
 };
 
+void clearRichardsArrays(){
+  for(int ii=0; ii<=MAX_SOI_LAY; ii++){
+    k[ii] = 0.0;
+    ksat[ii] = 0.0;
+    Bsw[ii] = 0.0;
+    deltak[ii] = 0.0;
+    deltapsi[ii] = 0.0;
+    deltatheta_liq[ii] = 0.0;
+    psi[ii] = 0.0;
+    psiE[ii] = 0.0;
+    psisat[ii] = 0.0;
+    theta[ii] = 0.0;
+    thetaE[ii] = 0.0;
+    thetasat[ii] = 0.0;
+    z_h[ii] = 0.0;
+
+    eq7117[ii] = 0.0;
+    eq7118[ii] = 0.0;
+    eq7119[ii] = 0.0;
+    eq7120[ii] = 0.0;
+
+    coeffA[ii] = 0.0;
+    coeffB[ii] = 0.0;
+    coeffC[ii] = 0.0;
+    coeffR[ii] = 0.0;
+    [ii] = 0.0;
+
+    [ii] = 0.0;
+  }
+};
+
+
 //
 void Richards::update(Layer *fstsoill, Layer* bdrainl,
                       const double & bdraindepth, const double & fbaseflow,
@@ -78,8 +110,19 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
   indx0sl = currl->solind;
   Layer* topsoill = currl;
 
+  //Start of attempt to convert to CLM 4.5
+
+  //Clear arrays before use
+  clearRichardsArrays();
+  //prepare soil column
+  prepareSoilColumn(topsoill, bdraindepth);//This needs writing 
 
   //For each active layer:
+
+  //This control statement is incorrect - should include drainl
+  while( (currl != NULL) && (currl != drainl) ){
+
+    int ind = currl->solind; // or solind-1? Need to check
 
   //CLM 4.5 page 157
   //Theta - volumetric soil water content mm^3 water/ mm^3 soil
@@ -92,19 +135,22 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
   //need to convert to volume - divide by dzmm?
   //dzmm allows for a partially thawed layer
 
-  //Equation 7.89 (ignoring ice)
-  //k - hydraulic conductivity
-  //The 0.5 values should cancel - leaving them in for easy comparison
-  //  with equations.
-  //this is for all but bottom layer
-  k[] = ksat[z_h_i]
-       * pow( (0.5*(theta_i + theta_iplus1))
-            / (0.5*(thetasat_i + thetasat_iplus1)), 2B_i+3 );
-  //bottom layer
-  k = ksat[z_h_i] * pow( theta_i/thetasat_i, 2B_i+3 );
-  //Bi is current layer bsw hornberger constant (by horizon type)
-  //hksat - constant by horizon type
-  //ksat is a layer property
+    //Equation 7.89 (ignoring ice)
+    //k: hydraulic conductivity
+    //The 0.5 values should cancel - leaving them in for easy comparison
+    //  with equations.
+    //this is for all but bottom soil layer
+    if(we are not the bottom layer){
+      k[ind] = ksat[z_h[ind]] // ksat[z_h_i]
+             * pow( (0.5*(theta[ind] + theta[ind+1]))
+                / (0.5*(thetasat[ind] + thetasat[ind+1])),
+                 (2 * Bsw[ind] + 3) );
+    }
+    else(we are the bottom layer){
+      //bottom layer
+      k[ind] = ksat[z_h[ind]] * pow( theta[ind]/thetasat[ind],
+                                     (2 * Bsw[ind] + 3) );
+    }
 
   //Equation 7.90
   //thetasat
@@ -112,127 +158,153 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
   //use poro layer property instead?
   //no, use effporo (but probably rename)
 
-  //Equation 7.94
-  //psi_i - soil matric potential (mm)
-  psisat_i * pow( (theta_i / thetasat_i), -B_i) >= -1 * 10^8
-  //restriction: 0.01 <= theta_i/thetasat_i <= 1
-  //psi_sat is a layer property
+    //Equation 7.94
+    //psi_i - soil matric potential (mm)
+    psi[ind] =  psisat[ind] * pow( (theta[ind] / thetasat[ind]),
+                                   -Bsw[ind]) >= -1 * 10^8
+    //restriction: 0.01 <= theta_i/thetasat_i <= 1
 
-  //Equation 7.115
-  //q_iminus1^n
-  -k[z_h_iminus1] * ( (psi_iminus1 - psi_i + psiE_i - psiE_iminus1)
-                      / (z_i - z_iminus1) )
+    //Equation 7.115
+    //q_iminus1^n
+    q_iminus1_n[ind] = -k[z_h[ind-1]]
+                     * ( (psi[ind-1] - psi[ind] + psiE[ind] - psiE[ind-1])
+                         / (z[ind] - z[ind-1]) );
 
-  //Equation 7.116
-  //q_i^n
-  -k[z_hi] * ( ((psi_i - psi_iplus1) + (psiE_iplus1 - psiE_i))
-               / (z_iplus1 - z_i))
+    //Equation 7.116
+    //q_i^n
+    q_i_n[ind] = -k[z_h[i]]
+               * ( (psi[ind] - psi[ind+1] + psiE[ind+1] - psiE[ind])
+                   / (z[ind+1] - z[ind]) );
 
-  //Equation 7.121
-  //deltapsi_iminus1 / deltatheta_liq_iminus1
-  -B_iminus1 * ( psi_iminus1 / theta_iminus1 )
+    //Equation 7.121
+    //deltapsi_iminus1 / deltatheta_liq_iminus1
+    eq7121[ind] = -Bsw[ind-1] * ( psi[ind-1] / theta[i-1] );
 
-  //Equation 7.122
-  //deltapsi_i / deltatheta_liq_i
-  -B_i * psi_i / theta_i
+    //Equation 7.122
+    //deltapsi_i / deltatheta_liq_i
+    eq7122[ind] = -Bsw[ind] * psi[ind] / theta[ind];
 
-  //Equation 7.123
-  //deltapsi_iplus1 / deltatheta_liq_iplus1
-  -B_iplus1 * psi_iplus1 / theta_iplus1
+    //Equation 7.123
+    //deltapsi_iplus1 / deltatheta_liq_iplus1
+    eq7123[ind] = -Bsw[ind+1] * psi[ind+1] / theta[ind+1]
 
-  //Equation 7.124
-  //deltak[z_h_iminus1] / deltatheta_liq_iminus1
-  //deltak[z_h_iminus1] / deltatheta_liq_i
-  (1 - (f_frz_iminus1 + f_frz_i)/2)
-  * (2B_iminus1 + 3) * ksat[z_h_iminus1]
-  * pow( (0.5*(theta_iminus1 + theta_i))
-       / (0.5*(thetasat_iminus1 + thetasat_i)), 2B_iminus1+2)
-  * ( 0.5 / (0.5*(thetasat_iminus1 + thetasat_i)) )
+    //Equation 7.124
+    //deltak[z_h_iminus1] / deltatheta_liq_iminus1
+    //deltak[z_h_iminus1] / deltatheta_liq_i
+    eq7124[ind] = (1 - (f_frz[ind-1] + f_frz[ind])/2)
+                * (2 * Bsw[ind-1] + 3) * ksat[z_h[ind-1]]
+                * pow( (0.5*(theta[ind-1] + theta[ind]))
+                       / (0.5*(thetasat[ind-1] + thetasat[ind])),
+                      (2 * Bsw[ind-1] + 2) )
+                * ( 0.5 / (0.5*(thetasat[ind-1] + thetasat[ind])) );
 
-  //Equation 7.125
-  //deltak[z_h_i] / deltatheta_liq_i
-  //deltak[z_h_i] / deltatheta_liq_iplus1
-  (1 - (f_frz_i + f_frz_iplus1)/2 )
-  * (2Bi + 3) * ksat[z_h,i]
-  * pow( (0.5*(theta_i + theta_iplus1))
-       / (0.5*(thetasat_i + thetasat_iplus1)), 2Bi+2 )
-  * ( 0.5 / (0.5*(thetasat_i + thetasat_iplus1)) );
+    //Equation 7.125
+    //deltak[z_h_i] / deltatheta_liq_i
+    //deltak[z_h_i] / deltatheta_liq_iplus1
+    eq7125[ind] = (1 - (f_frz[ind] + f_frz[ind+1])/2 )
+                * (2 * Bsw[ind] + 3) * ksat[z_h[ind]]
+                * pow( (0.5*(theta[ind] + theta[ind+1]))
+                       / (0.5*(thetasat[ind] + thetasat[ind+1])),
+                      (2 * Bsw[ind] + 2) )
+                * ( 0.5 / (0.5*(thetasat[ind] + thetasat[ind+1])) );
 
-  //Equation 7.129
-  //thetaE_i - layer-average equilibrium volumetric water content 
-  thetasat_i * psisat_i / ( (z_hi - z_himinus1) * (1 - 1/B_i) )
-  * (
-      pow( (psisat_i - z_watertab + z_hi)/psisat_i, 1-1/B_i )
-    - pow( (psisat_i - z_watertab + z_himinus1)/psisat_i, 1-1/B_i )
-    );
+    //Equation 7.129
+    //thetaE_i - layer-average equilibrium volumetric water content 
+    thetaE[ind] = thetasat[ind] * psisat[ind]
+                / ( (z_h[ind] - z_h[ind-1]) * (1 - 1 / Bsw[ind]) )
+                * (
+                   pow( (psisat[ind] - z_watertab + z_h[ind])/psisat[ind],
+                        (1-1/Bsw[ind]) )
+                   - pow( (psisat_i - z_watertab + z_himinus1)/psisat_i,
+                        (1-1/Bsw[ind]) )
+                  );
 
-  //Equation 7.134
-  //psiE_i - equilibrium soil matric potential
-  psisat_i * pow( thetaE_i/thetasat_i, -B_i ) >= -1*10^8
-  note: thetaE_i/thetasat_i >=0.01
-
-
-  //Equations 7.117-7.120 are not in numerical order because they
-  // require some of the higher-numbered equations.
-  //Equation 7.117
-  //deltaq_iminus1 / deltatheta_liq_iminus1
-  - ( (k[z_h_iminus1]/(z_i-z_iminus1))
-       * (deltapsi_iminus1/deltheta_liq_iminus1) )
-  - (deltak[z_h_iminus1]/deltatheta_liq_iminus1)
-    * ((psi_iminus1 - psi_i + psiE_i - psiE_iminus1)/(z_i-z_iminus1))
-
-  //Equation 7.118
- //deltaq_iminus1 / deltatheta_liq_i
-  ( (k[z_h_iminus1]/(z_i-z_iminus1))
-       * (deltapsi_i/deltheta_liq_i) )
-  - (deltak[z_h_iminus1]/deltatheta_liq_i)
-    * ((psi_iminus1 - psi_i + psiE_i - psiE_iminus1)/(z_i-z_iminus1))
-
-  //Equation 7.119
-  //deltaq_i / deltatheta_liq_i
-  - ( (k[z_h_i]/(z_iplus1 - z_i))
-      * (deltapsi_i / deltatheta_liq_i) )
-  - (deltak[z_h_i]/deltatheta_liq_i)
-    * ( (psi_i - psi_iplus1 + psiE_iplus1 - psiE_i)/(z_iplus1-z_i) )
-
-  //Equation 7.120
-  //deltaq_i / deltatheta_liq_iplus1
-  ( (k[z_h_i]/(z_iplus1 - z_i))
-      * (deltapsi_iplus1 / deltatheta_liq_iplus1) )
-  - (deltak[z_h_i]/deltatheta_liq_iplus1)
-    * ( (psi_i - psi_iplus1 + psiE_iplus1 - psiE_i)/(z_iplus1-z_i) )
+    //Equation 7.134
+    //psiE_i - equilibrium soil matric potential
+    psiE[ind] = psisat[ind] * pow( thetaE[ind]/thetasat[ind], -Bsw[ind] );
+    //>= -1*10^8
+    //note: thetaE_i/thetasat_i >=0.01
 
 
-  //prepare soil column
-  prepareSoilColumn(???, bdraindepth);//This needs writing 
+    //Equations 7.117-7.120 are not in numerical order because they
+    // require some of the higher-numbered equations.
+    //Equation 7.117
+    //deltaq_iminus1 / deltatheta_liq_iminus1
+    eq7117[ind] = - ( (k[z_h[ind-1]]/(z[ind]-z[ind-1]))
+                      * (deltapsi[ind-1]/deltatheta_liq[ind-1]) )
+                  - (deltak[z_h[ind-1]]/deltatheta_liq[ind-1])
+                  * ( psi[ind-1] - psi[ind] + psiE[ind] - psiE[ind-1]
+                      /(z[ind] - z[ind-1]) );
+
+    //Equation 7.118
+    //deltaq_iminus1 / deltatheta_liq_i
+    eq7118[ind] = ( (k[z_h[ind-1]]/(z[ind]-z[ind-1]))
+                    * (deltapsi[ind]/deltatheta_liq[ind]) )
+                - (deltak[z_h[ind-1]]/deltatheta_liq[ind])
+                * ( psi[ind-1] - psi[ind] + psiE[ind] - psiE[ind-1]
+                    /(z[ind] - z[ind-1]) );
+
+    //Equation 7.119
+    //deltaq_i / deltatheta_liq_i
+    eq7119[ind] = - ( (k[z_h[ind]]/(z[ind+1] - z[ind]))
+                      * (deltapsi[ind] / deltatheta_liq[ind]) )
+                  - (deltak[z_h[ind]]/deltatheta_liq[ind])
+                  * ( psi[ind] - psi[ind+1] + psiE[ind+1] - psiE[ind]
+                      /(z[ind+1] - z[ind]) );
+
+    //Equation 7.120
+    //deltaq_i / deltatheta_liq_iplus1
+    eq7120[ind] = ( (k[z_h[ind]]/(z[ind+1] - z[ind]))
+                    * (deltapsi[ind+1] / deltatheta_liq[ind+1]) )
+                - (deltak[z_h[ind]]/deltatheta_liq[ind+1])
+                * ( psi[ind] - psi[ind+1] + psiE[ind+1] - psiE[ind]
+                    /(z[ind+1] - z[ind]) );
 
 
-  double coeffA[NUM_SOI_LAY+1]; //coefficient a for tridiagonal calculation
-    //top layer (7.136): 0
-    //middle layers (7.140): 7.117
-    //last layer (7.144): 7.117  
-  double coeffB[]; //coefficient b for tridiagonal calculation
-    //top layer (7.137): 7.119
-    //middle layers (7.141): 7.119 and 7.118 
-    //last layer (7.145): 7.118 
-  double coeffC[]; //coefficient c for tridiagonal calculation
-    //top layer (7.138): 7.120 
-    //middle layers (7.142): 7.120 
-    //last layer (7.146): 0
-  double coeffR[]; //coefficient r for tridiagonal calculation
-    //top layer (7.139):
-    q_infl^nplus1  // this is incoming infiltration
-    - q_i^n //outflow
-    + e_i //transpiration, also an incoming parameter
-    //middle layers (7.143): 7.115, 7.116 
-    //last layer (7.147): 7.115 
-  //infiltration is an incoming parameter, but may need to be negative
+    if(we're the top layer){
 
-  //cn.tridiagonal();//water solver
+      coeffA[ind] = 0.0; //Equation 7.136
+
+      coeffB[ind] = eq7119[ind] - FINISH//Equation 7.137. Uses 7.119
+
+      coeffC[ind] = eq7120[ind]; //Equation 7.138. Uses 7.120
+
+      coeffR[ind] = FINISH infil - outflow + trans[ind??]; //Equation 7.139. Uses ??
+      //infiltration is an incoming parameter, but may need to be negative
+    }
+    else if(we're a middle layer){
+
+      coeffA[ind] = - eq7117[ind]; //Equation 7.140. Uses 7.117
+
+      coeffB[ind] = eq7119[ind] - eq7118[ind] - FINISH //Equation 7.141. Uses 7.119 and 7.118
+
+      coeffC[ind] = eq7120[ind]; //Equation 7.142. Uses 7.120
+
+      coeffR[ind] = q_iminus1_n[ind] - q_i_n[ind] + e[ind]; FINISH//Equation 7.143. Uses 7.115 and 7.116
+    }
+    else(we're the last layer){
+
+      coeffA[ind] = -eq7117[ind]; //Equation 7.144. Uses 7.117
+
+      coeffB[ind] = -eq7118[ind] - FINISH//Equation 7.145. Uses 7.118
+
+      coeffC[ind] = 0.0; //Equation 7.146.
+
+      coeffR[ind] = //Equation 7.147. Uses 7.115
+    }
+
+    currl = currl->nextl; //Move down the soil column
+  }
+
+  //output array for solution?
+  //index of first active layer, number of active layers
+  //four coefficients, then output array
+  cn.tridiagonal(indx0sl, ???, coeffA, coeffB, coeffC, coeffR, ???);//water solver
+  
 
 ////Old code:
 
-
+/*
   while ( (currl != NULL) && (currl->solind <= drainl->solind) ) {
     // prepare arrays for calling Richards Equation's solver
     // for one continuous section of unfrozen soil column:
@@ -244,7 +316,7 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
       int ind = indx0al;
       qin[ind] = 0.0;
 
-      //if (indx0al == fstsoill->solind) {
+      //if (indx0al == fstsoill->solind) 
       if (ind == indx0sl) {
         qin[ind] = infil - evap;
       }
@@ -287,7 +359,7 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
 
     for (int ind=indx0al; ind<indx0al+numal; ind++) {
       currl->liq = liqld[ind]+effminliq[ind];
-//*
+
       double minliq = effminliq[ind];
 
       if(currl->liq<minliq) {
@@ -300,7 +372,6 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
         currl->liq=maxliq;
       }
 
-//*/
       // for output of hydraulic conductivity at each layer
       SoilLayer* sl=dynamic_cast<SoilLayer*>(currl);
       double ss = sl->getVolLiq()/(sl->poro-sl->getVolIce());
@@ -317,6 +388,7 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
       currl=currl->nextl;
     }
   } // end of whole soil layers loop for unfrozen column sections
+*/
 
   // for layers above 'topsoill', e.g., 'moss',
   // if excluded from hydrological process
@@ -333,8 +405,8 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
   }
 };
 
-// this will generate a conintuous unfrozen column for soil water update
-void Richards::prepareSoilNodes(Layer* currsoill, const double & draindepth) {
+// this will generate a continuous unfrozen column for soil water update
+void Richards::prepareSoilColumn(Layer* currsoill, const double & draindepth) {
   // it is assumed that all layers in Richards will be unfrozen,
   // i.e., from unfrozen 'topsoill' to ''drainl'
   Layer* currl = currsoill; // the first soil layer is 'topsoill'
@@ -417,8 +489,8 @@ void Richards::prepareSoilNodes(Layer* currsoill, const double & draindepth) {
         }
 
         psisat[ind] = currl->psisat;
-        hksat[ind] = currl->hksat;
-        bsw[ind]   = currl->bsw;
+        ksat[ind] = currl->hksat;
+        Bsw[ind]   = currl->bsw;
       } else {
         break;
       }

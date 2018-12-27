@@ -38,7 +38,9 @@ public :
 
 private:
 
-  void prepareSoilNodes(Layer *currsoill, const double & draindepth);
+  //void prepareSoilNodes(Layer *currsoill, const double & draindepth);
+  void prepareSoilColumn(Layer *currsoill, const double & draindepth);
+  void clearRichardsArrays();
 
   void iterate(const double trans[], const double & evap,
                const double & infil, const double & fbaseflow);
@@ -53,29 +55,71 @@ private:
   //+1, is for easily match-up of soil layer index (starting from 1 in 'ground')
   double qtrans[MAX_SOI_LAY+1];
 
+
+  //CLM4.5 conversion attempt
+  //Incoming values. These already exist in the layers, and are
+  // copied to arrays simply so that the equations in Richards
+  // are easily comparable to the CLM paper.
+  double Bsw[MAX_SOI_LAY+1]; //bsw hornberger constant (by horizon type)
+  double k[MAX_SOI_LAY+1]; //Hydraulic conductivity
+  double ksat[MAX_SOI_LAY+1]; //Saturated hydraulic conductivity
+  double psisat[MAX_SOI_LAY+1];
+
+  //Beginning calculated values
+  double psi[MAX_SOI_LAY+1]; //Soil matric potential (mm)
+  double psiE[MAX_SOI_LAY+1]; //Equilibrium soil matric potential
+  double theta[MAX_SOI_LAY+1];
+  double thetasat[MAX_SOI_LAY+1];
+  double z_h[MAX_SOI_LAY+1]; //Depth of layer bottom in mm???
+
+
+  double deltapsi[MAX_SOI_LAY+1];
+  double deltatheta_liq[MAX_SOI_LAY+1];
+  double deltak[MAX_SOI_LAY+1];
+  double thetaE[MAX_SOI_LAY+1]; //Layer-average equilibrium volumetric water content
+
+  //Intermediate calculated values
+  double eq7121[MAX_SOI_LAY+1];
+  double eq7122[MAX_SOI_LAY+1];
+  double eq7123[MAX_SOI_LAY+1];
+  double eq7124[MAX_SOI_LAY+1];
+  double eq7125[MAX_SOI_LAY+1];
+
+  double eq7117[MAX_SOI_LAY+1]; //Results from equation 7.117
+  double eq7118[MAX_SOI_LAY+1]; //Results from equation 7.118
+  double eq7119[MAX_SOI_LAY+1]; //Results from equation 7.119
+  double eq7120[MAX_SOI_LAY+1]; //Results from equation 7.120
+
+  double coeffA[MAX_SOI_LAY+1]; //Coefficient A for tridiagonal calculation
+  double coeffB[MAX_SOI_LAY+1]; //Coefficient B for tridiagonal calculation
+  double coeffC[MAX_SOI_LAY+1]; //Coefficient C for tridiagonal calculation
+  double coeffR[MAX_SOI_LAY+1]; //Coefficient R for tridiagonal calculation
+  double [MAX_SOI_LAY+1]; //Results from tridiagonal calculation
+
+
+
   // var[0] will not used here
   double dzmm[MAX_SOI_LAY+1];      // layer thickness in mm
-  double zmm[MAX_SOI_LAY+1];       // layer top depth in mm
+  double zmm[MAX_SOI_LAY+1];       // layer center of thawed depth in mm
+  double laybotmm[MAX_SOI_LAY+1];        // depth of layer bottom in mm
+  double nodemm[MAX_SOI_LAY+1];       // in mm
   double effporo[MAX_SOI_LAY+1];   //effective porosity (minus minliq volume)
   double effliq[MAX_SOI_LAY+1];
   double effminliq[MAX_SOI_LAY+1];
   double effmaxliq[MAX_SOI_LAY+1];
-  double psisat[MAX_SOI_LAY+1];
-  double hksat[MAX_SOI_LAY+1];
-  double bsw[MAX_SOI_LAY+1];
 
-  double hk[MAX_SOI_LAY+1];
+  //double hk[MAX_SOI_LAY+1];
   double dhkdw[MAX_SOI_LAY+1];
   double smp[MAX_SOI_LAY+1];
   double dsmpdw[MAX_SOI_LAY+1];
   double qin[MAX_SOI_LAY+1];
   double qout[MAX_SOI_LAY+1];
 
-  double liqii[MAX_SOI_LAY+1];
-  double liqit[MAX_SOI_LAY+1];
-  double liqis[MAX_SOI_LAY+1];
-  double liqid[MAX_SOI_LAY+1];
-  double liqld[MAX_SOI_LAY+1];
+  //double liqii[MAX_SOI_LAY+1];
+  //double liqit[MAX_SOI_LAY+1];
+  //double liqis[MAX_SOI_LAY+1];
+  //double liqid[MAX_SOI_LAY+1];
+  //double liqld[MAX_SOI_LAY+1];
 
   double amx[MAX_SOI_LAY+1];
   double bmx[MAX_SOI_LAY+1];
