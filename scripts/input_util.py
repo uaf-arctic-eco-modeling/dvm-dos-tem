@@ -116,7 +116,7 @@ def crop_attr_string(ys='', xs='', yo='', xo='', msg=''):
 
 def crop_file(infile, outfile, y, x, ysize, xsize):
   '''
-  Creates a new `outfile` and copys data from the `infile` to the new outfile
+  Creates a new `outfile` and copies data from the `infile` to the new `outfile`
   according to `y`, `x`, and respective size parameters. Copys all attributes
   and adds a new attribute describing this crop step.
   '''
@@ -252,11 +252,21 @@ def climate_gap_count_plot(args):
 
 def climate_ts_plot(args):
   '''
-  Make time series plots of the 4 climate driver variables for a single pixel.
+  Make time series plots of the 4 climate driver variables.
 
-  Makes one figure for historic and one figure for projected climate file. 
-  Each figure will have 4 plots, one for each of the expected climate driver
-  variables.
+  There are 2 modes controlled by the value of `args.type`. In `raw` mode, 2 
+  figures are generated, one for historic and one for projected data (with the
+  `args.stitch` argument, the data is concatenated along the temporal 
+  dimension and only one figure is shown). Each figure has 4 subplots, one for 
+  each variable. The data on each plot is shown directly from the input files,
+  so it is monthly resolution. The plot is generally too dense to read without
+  zooming in, but ALL the data is shown, un-adultered.
+
+  In `spatial-temporal-summary` mode, one figure is created (the data is
+  automatically stitched along the temporal dimension) with one subplot for each
+  variable. The data that is shown is also averaged over the spatial dimensions
+  of the input files AND resampled to an annual resolution along the time
+  dimension.
   '''
 
   # Keep imports of graphic stuff here so that the rest of the script
@@ -265,8 +275,6 @@ def climate_ts_plot(args):
   import matplotlib.gridspec as gridspec
   import matplotlib.ticker as ticker
   import pandas as pd
-
-
 
   CLIMATE_FILES = ['historic-climate.nc', 'projected-climate.nc']
   VARS = ['tair', 'precip', 'nirr', 'vapor_press']
@@ -277,7 +285,8 @@ def climate_ts_plot(args):
 
   gs = gridspec.GridSpec(ROWS, COLS)
 
-  if args.type == 'annual-summary':
+  if args.type == 'spatial-temporal-summary':
+
     if args.stitch:
       print "Warning: Ignoring command line argument --stitch"
     hds = nc.Dataset(os.path.join(args.input_folder, CLIMATE_FILES[0]))
@@ -314,6 +323,51 @@ def climate_ts_plot(args):
       df[hckey] = hS
       df[pckey] = pS
 
+
+    # Take means across spatial dimensions. Results in one timeseries for each
+    # variable 
+    for v in VARS:
+      '''
+      >>> time,Y,X = (4,2,2)
+      >>> np.arange(time*Y*X).reshape((time,Y,X))
+      array([[[ 0,  1],
+              [ 2,  3]],
+
+             [[ 4,  5],
+              [ 6,  7]],
+
+             [[ 8,  9],
+              [10, 11]],
+
+             [[12, 13],
+              [14, 15]]])
+      >>> a.reshape((-1, Y*X))
+      array([[ 0,  1,  2,  3],
+             [ 4,  5,  6,  7],
+             [ 8,  9, 10, 11],
+             [12, 13, 14, 15]])
+      >>> np.average(a.reshape((-1, Y*X)), axis=1)
+      array([ 1.5,  5.5,  9.5, 13.5])
+      '''
+
+      hncV = hds.variables[v]
+      pncV = pds.variables[v]
+
+      spatial_flat_hncV = hncV[:].reshape( (-1, len(hds.variables['Y']) * len(hds.variables['X'])) )
+      spatial_flat_pncV = pncV[:].reshape( (-1, len(pds.variables['Y']) * len(pds.variables['X'])) )
+
+      avh = np.mean(spatial_flat_hncV, axis=1)
+      avp = np.mean(spatial_flat_pncV, axis=1)
+
+      hS = pd.Series(avh, index=hidx).reindex(full_index)
+      pS = pd.Series(avp, index=pidx).reindex(full_index)
+
+      hckey = 'h sp mean {}'.format(v)
+      pckey = 'p sp mean {}'.format(v)
+
+      df[hckey] = hS
+      df[pckey] = pS
+
     # Get annual stats
     rsmpl_mean = df.resample('A').mean()
     rsmpl_std = df.resample('A').std()
@@ -338,7 +392,7 @@ def climate_ts_plot(args):
       ax.set_title(var)
       ax.set_ylabel(hds.variables[var].units)
 
-      if var == 'precip':
+      if var == 'precip' or var == 'nirr':
         ax.plot(rsmpl_sum.index, rsmpl_sum[hckey])
         ax.plot(rsmpl_sum.index, rsmpl_sum[pckey])
         ax.set_ylabel(hds.variables[var].units.replace('month', 'year'))
@@ -347,12 +401,16 @@ def climate_ts_plot(args):
         ax.plot(rsmpl_mean.index, rsmpl_mean[hckey])
         ax.plot(rsmpl_mean.index, rsmpl_mean[pckey])
 
+      #ax.plot(rsmpl_mean.index, rsmpl_mean['h sp mean {}'.format(var)], color='red', linewidth=.5)
+      #ax.fill_between(rsmpl_std.index, rsmpl_std['h sp mean'], 
+
     for i, ax in enumerate(axes):
       if ax != axes[-1]:
         plt.setp(ax.get_xticklabels(), visible=False)
+
     plt.show(block=True)
 
-  elif args.type == 'monthly':
+  elif args.type == 'raw':
 
     if args.stitch:
 
@@ -382,7 +440,6 @@ def climate_ts_plot(args):
         axes.xaxis.set_major_locator(ticker.MultipleLocator(12))
         axes.grid()
 
-
       plt.suptitle("{}: {},{}".format(args.input_folder, CLIMATE_FILES[0], CLIMATE_FILES[1]))
       plt.show(block=True)
 
@@ -407,7 +464,8 @@ def climate_ts_plot(args):
       plt.suptitle(os.path.join(args.input_folder, CLIMATE_FILES[1]))
       plt.show(block=True)
 
-
+  else:
+    print "Cmd line arg should be checked such that you can't arrive here."
 
 
 def tunnel_fast(latvar,lonvar,lat0,lon0):
@@ -489,7 +547,7 @@ if __name__ == '__main__':
     Quick 'n dirty time series plots of the 4 climate driver variables for a 
     single pixel. Makes 2 figures, one for historic, one for projected.
     '''))
-  climate_ts_plot_parser.add_argument('--type', choices=['annual-summary', 'monthly'], required=True, help="")
+  climate_ts_plot_parser.add_argument('--type', choices=['spatial-temporal-summary', 'raw'], required=True, help="")
   climate_ts_plot_parser.add_argument('--yx', type=int, nargs=2, required=True, help="The Y, X position of the pixel to plot")
   climate_ts_plot_parser.add_argument('--stitch', action='store_true', help="Attempt to stitch together the historic and projected data along the time axis")
   #climate_ts_plot_parser.add_argument('--yrs-slice', type=?? help="")
