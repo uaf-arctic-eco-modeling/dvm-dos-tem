@@ -229,7 +229,11 @@ def climate_gap_count_plot(args):
         dataset = hds.variables[v][:] # Should be a 3D numpy array (time, y, x)
         if type(dataset) != np.ma.core.MaskedArray:
           dataset = np.ma.core.MaskedArray(dataset, np.zeros(dataset.shape, dtype = bool))
-
+        #from IPython import embed; embed()
+        #if dataset.mask == False:
+        if not (np.ma.is_masked(dataset)):
+          # No bad data, set mask to shape of first slice of dataset
+          dataset.mask = np.zeros(dataset.shape[1:], dtype=bool)
         img = ax.imshow(
             np.ma.masked_greater_equal(
                 np.apply_along_axis(np.count_nonzero, 0, dataset.mask),
