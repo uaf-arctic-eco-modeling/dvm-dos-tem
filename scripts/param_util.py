@@ -579,6 +579,12 @@ if __name__ == '__main__':
         in each file found in the %(metavar)s. Only looks at files named like:
         'cmt_*.txt' in the %(metavar)s.'''))
 
+  parser.add_argument('--plot-envlai', nargs=2, metavar=('INFOLDER','CMT'),
+      help=textwrap.dedent('''Makes plots of the envlai parameter. envlai is a
+        monthly value, so each PFT has 12 entries in the parameter file. The
+        plot shows the values over the year so you can check the seasonality.
+        Looks a 'cmt_dimvegetation.txt file in the INFOLDER.'''))
+
   args = parser.parse_args()
 
   required_param_files = [
@@ -641,6 +647,46 @@ if __name__ == '__main__':
     print "{:>31} {:>11.2f}".format("Community Total Vegetation N:", ecosystem_total_N)
     print ""
  
+    sys.exit(0)
+
+  if args.plot_envlai:
+    infolder = args.plot_envlai[0]
+    cmtnum = int(args.plot_envlai[1])
+
+    print infolder, cmtnum
+    print "Reading: {}".format(os.path.join(infolder, "cmt_dimvegetation.txt"))
+
+    db = get_CMT_datablock(os.path.join(infolder, "cmt_dimvegetation.txt"), cmtnum)
+    dd = cmtdatablock2dict(db)
+
+    # Print tabular report
+    print "{:>12}   jan   feb   mar   apr   may   jun   jul   aug   sep   oct   nov   dec".format(" ")
+    for key in sorted(filter(lambda x: 'pft' in x, dd.keys())):
+      pft = dd[key]
+      print "{:>12}".format(pft['name']),
+      envlai = [ pft['envlai[%s]'%m] for m in range(0,12) ]
+      print "{:.2f}  {:.2f}  {:.2f}  {:.2f}  {:.2f}  {:.2f}  {:.2f}  {:.2f}  {:.2f}  {:.2f}  {:.2f}  {:.2f}".format(*envlai)
+
+    # make plots, keep imports here so that other features of the script 
+    # can be used withough maplotlib installed.
+    import matplotlib.pyplot as plt
+
+    fig, axes = plt.subplots(len(filter(lambda x: 'pft' in x, dd.keys()))+1, 1, sharex=True)
+    for i, key in enumerate(sorted(filter(lambda x: 'pft' in x, dd.keys()))):
+      envlai = [ dd[key]['envlai[%s]'%m] for m in range(0,12) ]
+      l = axes[0].plot(range(0,12), envlai, label=dd[key]['name'])
+      axes[i+1].plot(range(0,12), envlai, label=dd[key]['name'], color=l[0].get_color(), marker='o')
+      axes[i+1].set_ylabel(dd[key]['name'], rotation=0, labelpad=35)
+
+    plt.suptitle("file: {}\n CMT: {}".format(
+        os.path.abspath(os.path.join(infolder, "cmt_dimvegetation.txt")),
+        cmtnum
+    ))
+    axes[-1].set_xticks(range(0,12))
+    axes[-1].set_xticklabels('jan,feb,mar,apr,may,jun,jul,aug,sep,oct,nov,dec'.split(','))
+    #from IPython import embed; embed()
+    plt.show(block=True)
+
     sys.exit(0)
 
   if args.report_pft_names:
