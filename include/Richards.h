@@ -52,6 +52,8 @@ private:
   double qinfil;
   double qevap;
 
+  double z_watertab; //Temporary var to hold the crudely calculated water table depth calculated in prepareSoilColumn. In mm.
+
   //+1, is for easily match-up of soil layer index (starting from 1 in 'ground')
   double qtrans[MAX_SOI_LAY+1];
 
@@ -61,24 +63,24 @@ private:
   // copied to arrays simply so that the equations in Richards
   // are easily comparable to the CLM paper.
   double Bsw[MAX_SOI_LAY+1]; //bsw hornberger constant (by horizon type)
-  double k[MAX_SOI_LAY+1]; //Hydraulic conductivity
   double ksat[MAX_SOI_LAY+1]; //Saturated hydraulic conductivity
   double psisat[MAX_SOI_LAY+1];
 
   //Beginning calculated values
+  //the layers have a hydraulic conductivity value, but we want to
+  // recalculate using CLM 4.5 equations
+  double k[MAX_SOI_LAY+1]; //Hydraulic conductivity
   double psi[MAX_SOI_LAY+1]; //Soil matric potential (mm)
   double psiE[MAX_SOI_LAY+1]; //Equilibrium soil matric potential
   double theta[MAX_SOI_LAY+1];
   double thetasat[MAX_SOI_LAY+1];
-  double z_h[MAX_SOI_LAY+1]; //Depth of layer bottom in mm???
-
-
-  double deltapsi[MAX_SOI_LAY+1];
-  double deltatheta_liq[MAX_SOI_LAY+1];
-  double deltak[MAX_SOI_LAY+1];
-  double thetaE[MAX_SOI_LAY+1]; //Layer-average equilibrium volumetric water content
+  //double z_mm[MAX_SOI_LAY+1];//Depth of top of layer in mm
+  double z_h[MAX_SOI_LAY+1]; //Depth of layer bottom in mm, named to match CLM paper
+  double thetaE[MAX_SOI_LAY+1]; //Layer-average equilibrium volumetric water content. Equation 7.129
 
   //Intermediate calculated values
+  double q_iminus1_n[MAX_SOI_LAY+1]; //Equation 7.115
+  double q_i_n[MAX_SOI_LAY+1]; //Equation 7.116
   double eq7121[MAX_SOI_LAY+1];
   double eq7122[MAX_SOI_LAY+1];
   double eq7123[MAX_SOI_LAY+1];
@@ -94,15 +96,15 @@ private:
   double coeffB[MAX_SOI_LAY+1]; //Coefficient B for tridiagonal calculation
   double coeffC[MAX_SOI_LAY+1]; //Coefficient C for tridiagonal calculation
   double coeffR[MAX_SOI_LAY+1]; //Coefficient R for tridiagonal calculation
-  double [MAX_SOI_LAY+1]; //Results from tridiagonal calculation
+  double deltathetaliq[MAX_SOI_LAY+1]; //Results from tridiagonal calculation
 
 
 
   // var[0] will not used here
   double dzmm[MAX_SOI_LAY+1];      // layer thickness in mm
-  double zmm[MAX_SOI_LAY+1];       // layer center of thawed depth in mm
-  double laybotmm[MAX_SOI_LAY+1];        // depth of layer bottom in mm
-  double nodemm[MAX_SOI_LAY+1];       // in mm
+  //double zmm[MAX_SOI_LAY+1];       // layer center of thawed depth in mm
+  //double laybotmm[MAX_SOI_LAY+1];        // depth of layer bottom in mm
+  double nodemm[MAX_SOI_LAY+1]; //depth of center of layer thawed portion in mm
   double effporo[MAX_SOI_LAY+1];   //effective porosity (minus minliq volume)
   double effliq[MAX_SOI_LAY+1];
   double effminliq[MAX_SOI_LAY+1];
@@ -121,22 +123,22 @@ private:
   //double liqid[MAX_SOI_LAY+1];
   //double liqld[MAX_SOI_LAY+1];
 
-  double amx[MAX_SOI_LAY+1];
-  double bmx[MAX_SOI_LAY+1];
-  double cmx[MAX_SOI_LAY+1];
-  double rmx[MAX_SOI_LAY+1];
-  double dwat[MAX_SOI_LAY+1];
+  //double amx[MAX_SOI_LAY+1];
+  //double bmx[MAX_SOI_LAY+1];
+  //double cmx[MAX_SOI_LAY+1];
+  //double rmx[MAX_SOI_LAY+1];
+  //double dwat[MAX_SOI_LAY+1];
 
-  double timestep;  // one timestep in seconds
-  double tleft; // the amount of time left for update (fraction of one timestep)
+  //double timestep;  // one timestep in seconds
+  //double tleft; // the amount of time left for update (fraction of one timestep)
 
-  bool tschanged; //whether the time step has been changed for
+  //bool tschanged; //whether the time step has been changed for
                   //  last factional time step
-  double tstep;     // actual fraction of one timestep for iteration
-  double LIQTOLE;   // tolerance of difference
-  double TSTEPMIN;  // min. fraction of one timestep
-  double TSTEPMAX;  // max. fraction of one timestep
-  double TSTEPORG;  // the original time step
+  //double tstep;     // actual fraction of one timestep for iteration
+  //double LIQTOLE;   // tolerance of difference
+  //double TSTEPMIN;  // min. fraction of one timestep
+  //double TSTEPMAX;  // max. fraction of one timestep
+  //double TSTEPORG;  // the original time step
 
   double mindzlay; //min. layer thickness (meters) for stable Richards' solution
 
