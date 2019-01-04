@@ -52,7 +52,15 @@ private:
   double qinfil;
   double qevap;
 
+  double mindzlay; //min. layer thickness (meters) for stable Richards' solution
+
   double z_watertab; //Temporary var to hold the crudely calculated water table depth calculated in prepareSoilColumn. In mm.
+
+  //The following arrays are made artificially large in order for the
+  // indexing in the calculations to make more sense. The layer indices
+  // (layer->solind) are 1-based.
+  // TODO this may also allow for 'fake' layers so that calculations
+  // that use prior and following layer values work correctly
 
   //+1, is for easily match-up of soil layer index (starting from 1 in 'ground')
   double qtrans[MAX_SOI_LAY+1];
@@ -67,14 +75,13 @@ private:
   double psisat[MAX_SOI_LAY+1];
 
   //Beginning calculated values
-  //the layers have a hydraulic conductivity value, but we want to
+  //The layers have a hydraulic conductivity value, but we want to
   // recalculate using CLM 4.5 equations
   double k[MAX_SOI_LAY+1]; //Hydraulic conductivity
   double psi[MAX_SOI_LAY+1]; //Soil matric potential (mm)
   double psiE[MAX_SOI_LAY+1]; //Equilibrium soil matric potential
   double theta[MAX_SOI_LAY+1];
   double thetasat[MAX_SOI_LAY+1];
-  //double z_mm[MAX_SOI_LAY+1];//Depth of top of layer in mm
   double z_h[MAX_SOI_LAY+1]; //Depth of layer bottom in mm, named to match CLM paper
   double thetaE[MAX_SOI_LAY+1]; //Layer-average equilibrium volumetric water content. Equation 7.129
 
@@ -102,19 +109,17 @@ private:
 
   // var[0] will not used here
   double dzmm[MAX_SOI_LAY+1];      // layer thickness in mm
-  //double zmm[MAX_SOI_LAY+1];       // layer center of thawed depth in mm
-  //double laybotmm[MAX_SOI_LAY+1];        // depth of layer bottom in mm
   double nodemm[MAX_SOI_LAY+1]; //depth of center of layer thawed portion in mm
-  double effporo[MAX_SOI_LAY+1];   //effective porosity (minus minliq volume)
+  //double effporo[MAX_SOI_LAY+1];   //effective porosity (minus minliq volume)
   double effliq[MAX_SOI_LAY+1];
   double effminliq[MAX_SOI_LAY+1];
   double effmaxliq[MAX_SOI_LAY+1];
 
   //double hk[MAX_SOI_LAY+1];
-  double dhkdw[MAX_SOI_LAY+1];
-  double smp[MAX_SOI_LAY+1];
-  double dsmpdw[MAX_SOI_LAY+1];
-  double qin[MAX_SOI_LAY+1];
+  //double dhkdw[MAX_SOI_LAY+1];
+  //double smp[MAX_SOI_LAY+1];
+  //double dsmpdw[MAX_SOI_LAY+1];
+  //double qin[MAX_SOI_LAY+1];
   double qout[MAX_SOI_LAY+1];
 
   //double liqii[MAX_SOI_LAY+1];
@@ -140,7 +145,6 @@ private:
   //double TSTEPMAX;  // max. fraction of one timestep
   //double TSTEPORG;  // the original time step
 
-  double mindzlay; //min. layer thickness (meters) for stable Richards' solution
 
 
 };

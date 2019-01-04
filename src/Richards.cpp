@@ -49,7 +49,17 @@ void Richards::clearRichardsArrays(){
     coeffB[ii] = 0.0;
     coeffC[ii] = 0.0;
     coeffR[ii] = 0.0;
+
+    //Solution
     deltathetaliq[ii] = 0.0;
+
+    //unsorted TODO
+    dzmm[ii] = 0.0;
+    nodemm[ii] = 0.0;
+    effliq[ii] = 0.0;
+    effminliq[ii] = 0.0;
+    effmaxliq[ii] = 0.0;
+    qout[ii] = 0.0;
   }
 };
 
@@ -61,6 +71,11 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
                       const double & infil, const double &ts) {
   //timestep = ts;
   drainl = bdrainl;
+
+  //bdraindepth is provided by Soil_Env, which copies it from
+  //ground->draindepth, which is set to the minimum of ald or watab
+  //in Ground::setDrainL(). This may not be what we want. TODO
+  z_watertab = bdraindepth;
 
   if (bdraindepth<=0.) {
     return; // the drainage occurs in the surface, no need to update the SM
@@ -76,32 +91,7 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
 
   // initializing the arrays for use below
 /*  for(int il=0; il<=MAX_SOI_LAY; il++) { // although starting 1, initialization from 0
-    dzmm[il]    = MISSING_D;
-    zmm[il]     = MISSING_D;
-    effporo[il] = MISSING_D;
-    effliq[il]  = MISSING_D;
-    effminliq[il]=MISSING_D;
-    effmaxliq[il]=MISSING_D;
-    psisat[il]  = MISSING_D;
-    hksat[il]   = MISSING_D;
-    bsw[il]     = MISSING_D;
-    hk[il]   = MISSING_D;
-    dhkdw[il]= MISSING_D;
-    smp[il]  = MISSING_D;
-    dsmpdw[il]=MISSING_D;
-    qin[il]  = MISSING_D;
-    qout[il] = MISSING_D;
-    liqii[il] = MISSING_D;
-    liqit[il] = MISSING_D;
-    liqis[il] = MISSING_D;
-    liqid[il] = MISSING_D;
-    liqld[il] = MISSING_D;
-    amx[il] = MISSING_D;
-    bmx[il] = MISSING_D;
-    cmx[il] = MISSING_D;
-    rmx[il] = MISSING_D;
-    dwat[il]= MISSING_D;
-  }*/
+ }*/
 
   qdrain = 0.;
   // loop for continuous unfrozen soil column section
@@ -115,11 +105,13 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
     currl = currl->nextl;
   }
 
+  //These are correct because the arrays are forced to 1-based indexing
   int topind = currl->solind;
-  Layer* topsoill = currl;
-  int drainind = drainl->solind; //TODO solind-1?
+  int drainind = drainl->solind;
 
-  //Start of attempt to convert to CLM 4.5
+  Layer* topsoill = currl;
+
+  //Start of conversion to CLM 4.5
 
   //For now we're using a full day as a timestep, but introducing
   // a local variable in case that changes.
@@ -134,22 +126,64 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
   prepareSoilColumn(topsoill, bdraindepth);
 
 
-  //TODO This control statement needs verifying/cleaning up
-  while( (currl != NULL) && (currl != drainl->nextl) ){
+  //For each thawed and partially thawed layer, run first round
+  // of calculations. The results of these are needed by the
+  // equations in the second round.
+  while( (currl != NULL) && (currl->solind <= drainl->solind) ){
 
-    int ind = currl->solind; // or solind-1? Need to check
+    int ind = currl->solind; //Correct because arrays are forced to 1-based
 
     //CLM 4.5 page 157
     //Theta - volumetric soil water content mm^3 water/ mm^3 soil
-    //theta = get volumetric ice/water/whatever functions;
-    //also needs to have the minimum liquid subtracted. effliq?
-    //theta_liq - volumetric soil liquid water
-    //
-    //what to do with a partially thawed layer.
-    //effliq is an absolute quantity
-    //need to convert to volume - divide by dzmm?
-    //dzmm allows for a partially thawed layer
-    theta[ind] = thetasat[ind] / dzmm[ind]; //TODO - verify with H&H
+    theta[ind] = effliq[ind] / DENLIQ / (currl->dz * 1.e3); //unitless
+
+    //Equation 7.94
+    //psi_i - soil matric potential (mm)
+    psi[ind] =  psisat[ind] * pow( (theta[ind] / thetasat[ind]),
+                                   -Bsw[ind]);
+    //Logging violations of the limits
+    if(theta[ind]/thetasat[ind] < 0.01 ||
+       theta[ind]/thetasat[ind] > 1.){
+      BOOST_LOG_SEV(glg, err)<<"theta_i/thetasat_i out of range";
+    }
+    if(psi[ind] < -1e8){
+      BOOST_LOG_SEV(glg, err)<<"psi["<<ind<<"] out of range: "<<psi[ind];
+    }
+
+    //Equation 7.129
+    //thetaE_i - layer-average equilibrium volumetric water content 
+    //This should only be used when the current layer and previous
+    // layer are both above the water table.
+    thetaE[ind] = thetasat[ind] * psisat[ind]
+                / ( (z_h[ind] - z_h[ind-1]) * (1 - 1 / Bsw[ind]) )
+                * (
+                   pow( (psisat[ind] - z_watertab + z_h[ind])/psisat[ind],
+                        (1-1/Bsw[ind]) )
+                   - pow( (psisat[ind] - z_watertab + z_h[ind-1])/psisat[ind],
+                        (1-1/Bsw[ind]) )
+                  );
+    //Separate equation for when that is not true.
+    //TODO write separate equation
+
+    //Equation 7.134
+    //psiE_i - equilibrium soil matric potential
+    psiE[ind] = psisat[ind] * pow( thetaE[ind]/thetasat[ind], -Bsw[ind] );
+    //Logging violations of the limits
+    if(thetaE[ind]/thetasat[ind] < 0.01){
+      BOOST_LOG_SEV(glg, err)<<"thetaE_i/thetasat_i out of range";
+    }
+    if(psiE[ind] < -1e8){
+      BOOST_LOG_SEV(glg, err)<<"psiE["<<ind<<"] out of range: "<<psiE[ind];
+    }
+
+    currl = currl->nextl; //Move down the soil column
+  }
+
+  //For each thawed and partially thawed layer, run second round
+  // of calculations.
+  while( (currl != NULL) && (currl->solind <= drainl->solind) ){
+
+    int ind = currl->solind; //Correct because arrays are forced to 1-based
 
     //Equation 7.89 (ignoring ice)
     //k: hydraulic conductivity
@@ -158,30 +192,21 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
     //Given the large range of ksat between horizon types, we might want
     // to average the values instead of taking the value at the bottom
     // of the upper layer.
-    //this is for all but bottom soil layer
+    //For all but drain layer
     if(ind<drainind){
-      k[ind] = ksat[ind] // ksat[z_h_i]
+      k[ind] = ksat[ind]
              * pow( (0.5*(theta[ind] + theta[ind+1]))
                   / (0.5*(thetasat[ind] + thetasat[ind+1])),
                    (2 * Bsw[ind] + 3) );
     }
+    //Drain layer
     else{
-      //bottom layer
-      //z_h[ind] - mm, bottom of layer ind
       k[ind] = ksat[ind] * pow( theta[ind]/thetasat[ind],
                                 (2 * Bsw[ind] + 3) );
     }
 
-    //Equation 7.94
-    //psi_i - soil matric potential (mm)
-    psi[ind] =  psisat[ind] * pow( (theta[ind] / thetasat[ind]),
-                                   -Bsw[ind]);
-    // >= -1 * 10^8
-    //restriction: 0.01 <= theta_i/thetasat_i <= 1 TODO
-
     //Equation 7.115
     //q_iminus1^n
-    //TODO verify with H&H selection of z
     q_iminus1_n[ind] = -k[ind-1]
                      * ( (psi[ind-1] - psi[ind] + psiE[ind] - psiE[ind-1])
                          / (nodemm[ind] - nodemm[ind-1]) );
@@ -204,18 +229,14 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
     //deltapsi_iplus1 / deltatheta_liq_iplus1
     eq7123[ind] = -Bsw[ind+1] * psi[ind+1] / theta[ind+1];
 
+    //The first element of the following two equations is actually:
+    //  (1 - (f_frz[ind-1] + f_frz[ind])/2)
+    //However, because we restrict the Richards calculations to unfrozen
+    // soil, this reduces to 1.
+
     //Equation 7.124
     //deltak[z_h_iminus1] / deltatheta_liq_iminus1
     //deltak[z_h_iminus1] / deltatheta_liq_i
-//    eq7124[ind] = (1 - (f_frz[ind-1] + f_frz[ind])/2)
-//                * (2 * Bsw[ind-1] + 3) * ksat[ind-1]
-//                * pow( (0.5*(theta[ind-1] + theta[ind]))
-//                       / (0.5*(thetasat[ind-1] + thetasat[ind])),
-//                      (2 * Bsw[ind-1] + 2) )
-//                * ( 0.5 / (0.5*(thetasat[ind-1] + thetasat[ind])) );
-
-    //We restrict Richards to unfrozen soil, so reduce to 1?
-    //TODO
     eq7124[ind] = 1
                 * (2 * Bsw[ind-1] + 3) * ksat[ind-1]
                 * pow( (0.5*(theta[ind-1] + theta[ind]))
@@ -226,13 +247,6 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
     //Equation 7.125
     //deltak[z_h_i] / deltatheta_liq_i
     //deltak[z_h_i] / deltatheta_liq_iplus1
-//    eq7125[ind] = (1 - (f_frz[ind] + f_frz[ind+1])/2 )
-//                * (2 * Bsw[ind] + 3) * ksat[ind]
-//                * pow( (0.5*(theta[ind] + theta[ind+1]))
-//                       / (0.5*(thetasat[ind] + thetasat[ind+1])),
-//                      (2 * Bsw[ind] + 2) )
-//                * ( 0.5 / (0.5*(thetasat[ind] + thetasat[ind+1])) );
-
     eq7125[ind] = 1
                 * (2 * Bsw[ind] + 3) * ksat[ind]
                 * pow( (0.5*(theta[ind] + theta[ind+1]))
@@ -240,30 +254,12 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
                       (2 * Bsw[ind] + 2) )
                 * ( 0.5 / (0.5*(thetasat[ind] + thetasat[ind+1])) );
 
-    //Equation 7.129
-    //thetaE_i - layer-average equilibrium volumetric water content 
-    thetaE[ind] = thetasat[ind] * psisat[ind]
-                / ( (z_h[ind] - z_h[ind-1]) * (1 - 1 / Bsw[ind]) )
-                * (
-                   pow( (psisat[ind] - z_watertab + z_h[ind])/psisat[ind],
-                        (1-1/Bsw[ind]) )
-                   - pow( (psisat[ind] - z_watertab + z_h[ind-1])/psisat[ind],
-                        (1-1/Bsw[ind]) )
-                  );
-
-    //Equation 7.134
-    //psiE_i - equilibrium soil matric potential
-    psiE[ind] = psisat[ind] * pow( thetaE[ind]/thetasat[ind], -Bsw[ind] );
-    //>= -1*10^8
-    //note: thetaE_i/thetasat_i >=0.01 TODO
-
 
     //Equations 7.117-7.120 are not in numerical order because they
     // require some of the higher-numbered equations.
     //They also have sections replaced by the equations above, and
     // so do not precisely match the text
     // (i.e. eq7121[] instead of deltapsi[]/deltatheta_liq[])
-    // TODO check indices of replacement equations!
     //Equation 7.117
     //deltaq_iminus1 / deltatheta_liq_iminus1
 //    eq7117[ind] = - ( (k[z_h[ind-1]]/(z[ind]-z[ind-1]))
@@ -272,6 +268,7 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
 //                  * ( psi[ind-1] - psi[ind] + psiE[ind] - psiE[ind-1]
 //                      /(z[ind] - z[ind-1]) );
 
+    //TODO explain why ind is not ind-1 (equation replacement)
     eq7117[ind] = - ( (k[ind-1]/(nodemm[ind]-nodemm[ind-1])) * eq7121[ind] )
                   - eq7124[ind] 
                   * ( psi[ind-1] - psi[ind] + psiE[ind] - psiE[ind-1]
@@ -326,7 +323,7 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
       //Equation 7.137. Uses 7.119
       coeffB[ind] = eq7119[ind] - dzmm[ind] / delta_t;
 
-      // TODO - verify with H&H
+      //TODO clean up commenting
       //c_i = eq 7.138 or 0 depending on drainage category. Mult by drainage
       //Modified equation 7.138. Uses 7.120
       //This assumes a binary drainage class - 0 or 1. If a more flexible
@@ -354,7 +351,8 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
       //Need to subtract evap here because we allow for it differently
       // than CLM. See section 7.3.3 for CLM approach. 
       // TODO verify the index modification - 1 or 2?
-      coeffR[ind] = infil - evap - q_i_n[ind] + trans[ind+1]; 
+      //The sign convention between CLM 4.5 and ddt are different
+      coeffR[ind] = infil - q_i_n[ind] + (evap + trans[ind+1]); 
     }
     //This is for the middle layers - neither top nor drain
     else if(ind>topind && ind<drainind){
@@ -514,7 +512,7 @@ void Richards::prepareSoilColumn(Layer* currsoill, const double & draindepth) {
   while(currl!=NULL && currl->isSoil) {
     if(currl->solind>=indx0sl) {
       double dzunfrozen = currl->dz*(1.0-currl->frozenfrac);
-
+      
       if (dzunfrozen>=mindzlay &&
           currl->solind <= drainl->solind) {// the last soil layer is 'drainl'
         if (indx0al<0) {
@@ -533,17 +531,17 @@ void Richards::prepareSoilColumn(Layer* currsoill, const double & draindepth) {
         double drdzadj = 1.;
 
         if (currl->frozen==0) {
-          frntdzadj=1.0-currl->frozenfrac; //fraction of unfrozen thickness for both top/bottom partially-frozen layers
+          //Unfrozen fraction of the layer
+          frntdzadj=1.0-currl->frozenfrac;
 
           if (currl->solind==indx0al || currl->solind==drainl->solind) {
-            frntzadj = fmax(0., currl->dz*currl->frozenfrac);// depth adding of unfrozen section of top partially-frozen layer
+            //Thickness of the frozen fraction of the layer
+            frntzadj = fmax(0., currl->dz*currl->frozenfrac);
           }
         } else if (currl->solind == drainl->solind) {  //unfrozen layer but drainl, indicates a watertable in the layer
-          //Thickness of the unsaturated portion. 
+          //Fraction of the unsaturated portion. 
           drdzadj = (draindepth-currl->z)/currl->dz; //if 'draindepth' is inside of 'drainl'
 
-          //Crude estimation of water table depth (for testing) TODO
-          z_watertab = currl->z*1.e3 + drdzadj;
         }
 
         double minvolliq = currl->minliq/DENLIQ/currl->dz;
@@ -580,9 +578,13 @@ void Richards::prepareSoilColumn(Layer* currsoill, const double & draindepth) {
           z_h[ind] = (currl->z + currl->dz)*1.e3;
           nodemm[ind]  = (currl->z+frntzadj)*1.e3 + 0.5 *dzmm[ind]; // the node depth (middle point of a layer)
         }
+ 
+        //This is a weird formulation, but works out?
         effminliq[ind] = currl->minliq*fmin(frntdzadj, drdzadj);
         //effmaxliq[ind] = (effporo[ind]*dzmm[ind]);
         effmaxliq[ind] = thetasat[ind] * dzmm[ind];
+
+        //This is also a weird formulation, but works out?
         effliq[ind] = fmax(0.0, currl->liq*drdzadj-effminliq[ind]);
 
         if (effliq[ind]<0. || effminliq[ind]<0. || effmaxliq[ind]<0.) {
