@@ -75,7 +75,7 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
   //bdraindepth is provided by Soil_Env, which copies it from
   //ground->draindepth, which is set to the minimum of ald or watab
   //in Ground::setDrainL(). This may not be what we want. TODO
-  z_watertab = bdraindepth;
+  z_watertab = bdraindepth * 1.e3;
 
   if (bdraindepth<=0.) {
     return; // the drainage occurs in the surface, no need to update the SM
@@ -135,7 +135,8 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
 
     //CLM 4.5 page 157
     //Theta - volumetric soil water content mm^3 water/ mm^3 soil
-    theta[ind] = effliq[ind] / DENLIQ / (currl->dz * 1.e3); //unitless
+    //theta[ind] = effliq[ind] / DENLIQ / (currl->dz * 1.e3); //unitless
+    theta[ind] = effliq[ind] / DENLIQ / (dzmm[ind]/1.e3); //unitless
 
     //Equation 7.94
     //psi_i - soil matric potential (mm)
@@ -178,6 +179,9 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
 
     currl = currl->nextl; //Move down the soil column
   }
+
+  //reset currl for the next round of calculations
+  currl = topsoill;
 
   //For each thawed and partially thawed layer, run second round
   // of calculations.
@@ -393,6 +397,34 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
   //in case of freezing front, first active layer is NOT indx0sl
   cn.tridiagonal(indx0al, numal, coeffA, coeffB, coeffC, coeffR, deltathetaliq);//water solver
   
+
+  //do the next section for only active layers TODO
+  currl = topsoill;
+  while(currl->solind<indx0al){
+    currl = currl->nextl;
+  } 
+
+  //Modify layer liquid by calculated change in liquid.
+  for(int il=indx0al; il<indx0al+numal; il++){
+    double minliq = effminliq[il];
+    double maxliq = effmaxliq[il];
+
+    currl->liq = deltathetaliq[il] + minliq;
+
+    //Restricting layer liquid to range defined by min and max
+    if(currl->liq<minliq){
+      currl->liq = minliq;
+    }
+
+    if(currl->liq>maxliq){
+      currl->liq = maxliq;
+    }
+
+    //Update hydraulic conductivity?
+    //TODO
+
+    currl = currl->nextl;
+  }
 
 ////Old code:
 
