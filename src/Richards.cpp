@@ -107,6 +107,7 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
 
   //These are correct because the arrays are forced to 1-based indexing
   int topind = currl->solind;
+  indx0sl = topind;//TODO
   int drainind = drainl->solind;
 
   Layer* topsoill = currl;
@@ -126,10 +127,16 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
   prepareSoilColumn(topsoill, bdraindepth);
 
 
+  //Move currl up the soil column in order to fill in necessary
+  // array elements
+  if(currl->prevl != NULL){
+    currl = currl->prevl;
+  }
+
   //For each thawed and partially thawed layer, run first round
   // of calculations. The results of these are needed by the
   // equations in the second round.
-  while( (currl != NULL) && (currl->solind <= drainl->solind) ){
+  while( (currl != NULL) && (currl->solind <= drainl->solind+1) ){
 
     int ind = currl->solind; //Correct because arrays are forced to 1-based
 
@@ -182,10 +189,13 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
 
   //reset currl for the next round of calculations
   currl = topsoill;
+  if(currl->prevl != NULL){
+    currl = currl->prevl;
+  }
 
   //For each thawed and partially thawed layer, run second round
   // of calculations.
-  while( (currl != NULL) && (currl->solind <= drainl->solind) ){
+  while( (currl != NULL) && (currl->solind <= drainl->solind+1) ){
 
     int ind = currl->solind; //Correct because arrays are forced to 1-based
 
@@ -334,7 +344,7 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
       // approach is introduced, this will need modification.
       coeffC[ind] = eq7120[ind] * fbaseflow;
       
-      coeffR[ind] = infil;
+      coeffR[ind] = infil + (evap + trans[ind+1]);
       //r_i = infl (should be zero if not the top soil layer). based on 7.139 and 7.147.   
 
     }
@@ -409,7 +419,7 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
     double minliq = effminliq[il];
     double maxliq = effmaxliq[il];
 
-    currl->liq = deltathetaliq[il] + minliq;
+    currl->liq += deltathetaliq[il] + minliq;
 
     //Restricting layer liquid to range defined by min and max
     if(currl->liq<minliq){
@@ -422,6 +432,11 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
 
     //Update hydraulic conductivity?
     //TODO
+
+    SoilLayer* sl = dynamic_cast<SoilLayer*>(currl);
+    double something = sl->getVolLiq() / (sl->poro - sl->getVolIce());
+    double hcond = sl->hksat * pow((double)something, 2.*sl->bsw+2);
+    currl->hcond = hcond*SEC_IN_DAY; //convert to mm/day
 
     currl = currl->nextl;
   }
@@ -534,52 +549,100 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
 // calculates basic values needed in the more complex equations later
 // in Richards.
 void Richards::prepareSoilColumn(Layer* currsoill, const double & draindepth) {
+  //TODO rename currsoill to topactivel or something?
+
   // it is assumed that all layers in Richards will be unfrozen,
   // i.e., from unfrozen 'topsoill' to ''drainl'
   Layer* currl = currsoill; // the first soil layer is 'topsoill'
+
+  //Backing up a layer in order to fill the array elements prior to
+  // the first active layer. Some of the calculations require this.
+  if(currl->prevl != NULL){
+    currl = currl->prevl;
+  }
+
   int ind = -1;
   indx0al = -1;
   numal = 0;
 
-  while(currl!=NULL && currl->isSoil) {
-    if(currl->solind>=indx0sl) {
-      double dzunfrozen = currl->dz*(1.0-currl->frozenfrac);
+  while(currl!=NULL && (currl->isSoil || currl->isMoss )) {
+//    if(currl->solind>=indx0sl) {
+//      double dzunfrozen = currl->dz*(1.0-currl->frozenfrac);
       
-      if (dzunfrozen>=mindzlay &&
-          currl->solind <= drainl->solind) {// the last soil layer is 'drainl'
+      //if (dzunfrozen>=mindzlay &&
+      if (currl->solind <= drainl->solind+1) {// the last soil layer is 'drainl'
+        //Why is this inside loop? TODO
         if (indx0al<0) {
-          indx0al=currl->solind;
+          indx0al=currsoill->solind;
         }
 
         ind = currl->solind;
-        numal++;
+
+        //Only increment number of active layers if we are in the
+        // active soil stack
+        if(ind >= indx0al && ind <= drainl->solind){
+          numal++;
+        }
+
         // if partially unfrozen layer: need to adjust 'dz',
         // 'z' for at top while not for bottom,
         // but not 'liq' (which always in unfrozen portion of layer)
-        double frntdzadj = 1.;
-        double frntzadj = 0.;
-        // if drainage layer with watertable in it, 'dz' and
-        // 'liq' need to be adjusted, but not 'z'
-        double drdzadj = 1.;
+        //Unfrozen fraction of the layer
+        //double frac_unfrozen = 1.;
+        double frac_unfrozen = 1.0-currl->frozenfrac;
 
-        if (currl->frozen==0) {
-          //Unfrozen fraction of the layer
-          frntdzadj=1.0-currl->frozenfrac;
+        //Thickness of the frozen fraction of the layer
+        double dz_frozen = fmax(0., currl->dz*currl->frozenfrac);
 
-          if (currl->solind==indx0al || currl->solind==drainl->solind) {
-            //Thickness of the frozen fraction of the layer
-            frntzadj = fmax(0., currl->dz*currl->frozenfrac);
-          }
-        } else if (currl->solind == drainl->solind) {  //unfrozen layer but drainl, indicates a watertable in the layer
-          //Fraction of the unsaturated portion. 
-          drdzadj = (draindepth-currl->z)/currl->dz; //if 'draindepth' is inside of 'drainl'
+        //Thickness of the unfrozen fraction of the layer
+        double dz_unfrozen = fmax(0., currl->dz*frac_unfrozen);
 
+        //Fraction of the saturation of the thawed portion of the layer
+        double frac_sat = 0.;
+        if(currl->frozen==1){
+          frac_sat = 0;
+        }
+        else {
+          //double frac_sat = (currl->liq-currl->minliq)/DENLIQ/(currl->dz*frac_unfrozen)/currl->poro;
+          frac_sat = (currl->liq-currl->minliq);
+          frac_sat /= DENLIQ;
+          frac_sat /= (currl->dz*frac_unfrozen);
+          frac_sat /= currl->poro;
         }
 
+        //Thickness of the saturated part of the layer
+        double dz_sat = frac_sat * dz_unfrozen;
+
+
+        //Fraction of the unsaturated portion
+        //thickness of unsaturated portion / thickness of layer
+        double frac_unsat;
+        if(ind == drainl->solind){
+          frac_unsat = (dz_unfrozen - dz_sat) / currl->dz;
+        }
+        else{
+          frac_unsat = 1;
+        }
+        //double frac_unsat = 1.;
+        //if(ind == drainl->solind){
+        //  frac_unsat = (draindepth-currl->z)/currl->dz; //if 'draindepth' is inside of 'drainl'
+        //}
+/*
+        if (currl->frozen==0) {
+          frac_unfrozen = 1.0-currl->frozenfrac;
+
+          if (currl->solind==indx0al || currl->solind==drainl->solind) {
+            dz_frozen = fmax(0., currl->dz*currl->frozenfrac);
+          }
+        } else if (currl->solind == drainl->solind) {  //unfrozen layer but drainl, indicates a watertable in the layer
+          frac_unsat = (draindepth-currl->z)/currl->dz; //if 'draindepth' is inside of 'drainl'
+
+        }
+*/
         double minvolliq = currl->minliq/DENLIQ/currl->dz;
         //effporo[ind] = fmax(0., currl->poro-minvolliq);
         thetasat[ind] = fmax(0., currl->poro-minvolliq);
-        dzmm[ind] = currl->dz*1.e3*fmin(frntdzadj, drdzadj);
+        dzmm[ind] = currl->dz*1.e3*fmin(frac_unfrozen, frac_unsat);
 
         //The soil node in a partially frozen layer will be calculated
         //differently if it's a thawing front vs a frozen front. If thawing,
@@ -590,7 +653,7 @@ void Richards::prepareSoilColumn(Layer* currsoill, const double & draindepth) {
         //If there is no previous layer, determine status from next layer
         if(currl->prevl == NULL){
           //The layer below is frozen
-          if(currl->nextl->frozen==1){ thawing = true; }
+          if(currl->nextl->frozen>=0){ thawing = true; }
           //The layer below is thawed
           else{ thawing = false; }
         }
@@ -603,21 +666,21 @@ void Richards::prepareSoilColumn(Layer* currsoill, const double & draindepth) {
         }
 
         if(thawing){
-          z_h[ind] = (currl->z + currl->dz - frntzadj)*1.e3;
-          nodemm[ind] = (currl->z + currl->dz - frntzadj)*1.e3 - 0.5*dzmm[ind];
+          z_h[ind] = (currl->z + currl->dz - dz_frozen)*1.e3;
+          nodemm[ind] = (currl->z + currl->dz - dz_frozen)*1.e3 - 0.5*dzmm[ind];
         }
         else{
           z_h[ind] = (currl->z + currl->dz)*1.e3;
-          nodemm[ind]  = (currl->z+frntzadj)*1.e3 + 0.5 *dzmm[ind]; // the node depth (middle point of a layer)
+          nodemm[ind]  = (currl->z+dz_frozen)*1.e3 + 0.5 *dzmm[ind]; // the node depth (middle point of a layer)
         }
  
         //This is a weird formulation, but works out?
-        effminliq[ind] = currl->minliq*fmin(frntdzadj, drdzadj);
+        effminliq[ind] = currl->minliq*fmin(frac_unfrozen, frac_unsat);
         //effmaxliq[ind] = (effporo[ind]*dzmm[ind]);
         effmaxliq[ind] = thetasat[ind] * dzmm[ind];
 
         //This is also a weird formulation, but works out?
-        effliq[ind] = fmax(0.0, currl->liq*drdzadj-effminliq[ind]);
+        effliq[ind] = fmax(0.0, currl->liq*frac_unsat-effminliq[ind]);
 
         if (effliq[ind]<0. || effminliq[ind]<0. || effmaxliq[ind]<0.) {
           BOOST_LOG_SEV(glg, warn) << "Richards::prepareSoilColumn(..) "
@@ -630,12 +693,16 @@ void Richards::prepareSoilColumn(Layer* currsoill, const double & draindepth) {
       } else {
         break;
       }
-    } else {
-      break;
-    }
+//    } else {
+//      break;
+//    }
 
     currl= currl->nextl;
   }
+
+//  if(rock){
+//  TODO
+//  }
 };
 
 /*

@@ -591,9 +591,11 @@ void Soil_Env::updateDailySM() {
     baseflow = 0.0;
   }
 
-  richards.update(fstsoill, drainl, draindepth, baseflow, trans,
-                  evap, infil, SEC_IN_DAY);
-  ed->d_soi2l.qdrain  += richards.qdrain;
+  if(drainl != NULL){
+    richards.update(fstsoill, drainl, draindepth, baseflow, trans,
+                    evap, infil, SEC_IN_DAY);
+    ed->d_soi2l.qdrain  += richards.qdrain;
+  }
   //
   ground->checkWaterValidity();
 };
