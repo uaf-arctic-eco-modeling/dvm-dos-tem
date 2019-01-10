@@ -764,9 +764,9 @@ void Cohort::updateMonthly_DIMveg(const int & currmind, const bool & dvmmodule) 
   //switch for using LAI read-in (false) or dynamically with vegC
   // the read-in LAI is through the 'chtlu->envlai[12]', i.e., a 12 monthly-LAI
   if (dvmmodule) {
-    veg.updateLAI5vegc = md->updatelai;
+    veg.update_LAI_from_vegc = md->updatelai;
   } else {
-    veg.updateLAI5vegc = false;
+    veg.update_LAI_from_vegc = false;
   }
 
   // vegetation standing age

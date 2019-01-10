@@ -233,7 +233,7 @@ void Vegetation::set_state_from_restartdata(const RestartData & rd) {
 void Vegetation::updateLai(const int &currmind) {
   for(int ip=0; ip<NUM_PFT; ip++) {
     if (cd->m_veg.vegcov[ip]>0.) {
-      if(!updateLAI5vegc) {
+      if(!update_LAI_from_vegc) {
         cd->m_veg.lai[ip] = chtlu->envlai[currmind][ip];//So, this will give a
                                                         //  portal for input LAI
       } else {
