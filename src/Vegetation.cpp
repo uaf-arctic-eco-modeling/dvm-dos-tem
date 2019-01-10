@@ -148,7 +148,7 @@ void Vegetation::initializeState() {
         cd->hasnonvascular = true;
       }
 
-      cd->m_veg.lai[i] = chtlu->lai[i];
+      cd->m_veg.lai[i] = chtlu->initial_lai[i];
 
       for (int il=0; il<MAX_ROT_LAY; il++) {
         cd->m_veg.frootfrac[il][i] = chtlu->frootfrac[il][i]/100.0; // chtlu - in %

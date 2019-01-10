@@ -58,7 +58,7 @@ public:
   double vegcov[NUM_PFT]; //actual veg. covered fraction, NOTE this is
                           //  different from 'fpc' - the former is for the
                           //  whole canopy, while the latter is for foliage
-  double lai[NUM_PFT]; //lai
+  double initial_lai[NUM_PFT]; // Starting LAI value
   int ifwoody[NUM_PFT]; //woody (1) or non-woody (0)
   int ifdeciwoody[NUM_PFT]; //deciduous (1) or evergreen (0)
                             //  woodland (forest or shrubland)
