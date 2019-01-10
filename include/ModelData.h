@@ -95,9 +95,9 @@ public:
   void set_bgcmodule(const std::string &s);
   void set_bgcmodule(const bool v);
 
-  bool get_dvmmodule();
-  void set_dvmmodule(const std::string &s);
-  void set_dvmmodule(const bool v);
+  bool get_dynamic_lai_module();
+  void set_dynamic_lai_module(const std::string &s);
+  void set_dynamic_lai_module(const bool v);
 
   bool get_dslmodule();
   void set_dslmodule(const std::string &s);
@@ -133,9 +133,9 @@ private:
   // adjusting c/n of soil - partial open N cycle
 
 
-  bool envmodule;  // (Bio?)physical module on/off
-  bool bgcmodule;  // BGC module on/off
-  bool dvmmodule;  // dynamic vegetation module on/off
+  bool envmodule;             // (Bio?)physical module on/off
+  bool bgcmodule;             // BGC module on/off
+  bool dynamic_lai_module;    // dynamic lai module on/off
 
   bool dslmodule;  // dynamic soil layer module on/off
   bool dsbmodule;  // disturbance module on/off

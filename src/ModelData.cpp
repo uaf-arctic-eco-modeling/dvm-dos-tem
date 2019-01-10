@@ -103,7 +103,7 @@ void ModelData::update(ArgHandler const * arghandler) {
 ModelData::ModelData():force_cmt(-1) {
   set_envmodule(false);
   set_bgcmodule(false);
-  set_dvmmodule(false);
+  set_dynamic_lai_module(false);
   set_dslmodule(false);
   set_dsbmodule(false);
 }
@@ -133,16 +133,16 @@ void ModelData::set_bgcmodule(const bool v) {
   this->bgcmodule = v;
 }
 
-bool ModelData::get_dvmmodule() {
-  return this->dvmmodule;
+bool ModelData::get_dynamic_lai_module() {
+  return this->dynamic_lai_module;
 }
-void ModelData::set_dvmmodule(const std::string &s) {
-  BOOST_LOG_SEV(glg, info) << "Setting dvmmodule to " << s;
-  this->dvmmodule = temutil::onoffstr2bool(s);
+void ModelData::set_dynamic_lai_module(const std::string &s) {
+  BOOST_LOG_SEV(glg, info) << "Setting dynamic_lai_module to " << s;
+  this->dynamic_lai_module = temutil::onoffstr2bool(s);
 }
-void ModelData::set_dvmmodule(const bool v) {
-  BOOST_LOG_SEV(glg, info) << "Setting dvmmodule to " << v;
-  this->dvmmodule = v;
+void ModelData::set_dynamic_lai_module(const bool v) {
+  BOOST_LOG_SEV(glg, info) << "Setting dynamic_lai_module to " << v;
+  this->dynamic_lai_module = v;
 }
 
 bool ModelData::get_dslmodule() {
@@ -207,14 +207,14 @@ void ModelData::set_baseline(const bool v) {
 
 std::string ModelData::describe_module_settings() {
   std::stringstream s;
-  s << table_row(15, "envmodule", this->get_envmodule());
-  s << table_row(15, "bgcmodule", this->get_bgcmodule());
-  s << table_row(15, "dvmmodule", this->get_dvmmodule());
-  s << table_row(15, "dslmodule", this->get_dslmodule());
-  s << table_row(15, "dsbmodule", this->get_dsbmodule());
-  s << table_row(15, "baseline", this->get_baseline());
-  s << table_row(15, "nfeed", this->get_nfeed());
-  s << table_row(15, "avlnflg", this->get_avlnflg());
+  s << table_row(22, "envmodule", this->get_envmodule());
+  s << table_row(22, "bgcmodule", this->get_bgcmodule());
+  s << table_row(22, "dynamic_lai_module", this->get_dynamic_lai_module());
+  s << table_row(22, "dslmodule", this->get_dslmodule());
+  s << table_row(22, "dsbmodule", this->get_dsbmodule());
+  s << table_row(22, "baseline", this->get_baseline());
+  s << table_row(22, "nfeed", this->get_nfeed());
+  s << table_row(22, "avlnflg", this->get_avlnflg());
   return s.str();
 }
 
