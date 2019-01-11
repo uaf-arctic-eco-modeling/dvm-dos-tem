@@ -703,43 +703,29 @@ double Soil_Env::getEvaporation(const double & dayl, const double &rad) {
 // of that layer's dz (corresponding to the fraction of filled pore space in the layer)
 // is included in saturated column height.
 double Soil_Env::getWaterTable(Layer* lstsoill) {
-  Layer* currl = lstsoill;
   double wtd = 0.0;
-  double s, dz, por;
-  double thetai, thetal;
-  bool bottomsat = true;   // Yuan: initialize the bottom layer as saturated
-  double sums = 0.0;
-  double ztot = 0.0;
-
-  while (currl != NULL) {
-
-      if(!currl->isRock) {
-      dz = currl->dz;
-      ztot += dz;
-      por = currl->poro;
-
-      if (bottomsat) {    // if we are on bottom layer or still working in saturated column
-        thetai = currl->getVolIce();
-        thetal = currl->getVolLiq();
-        thetal = fmin( por - thetai, thetal ); // Liq can't be > porosity remaining after ice
-        s = ( thetai + thetal ) / por; // s = saturated fraction of porosity
-        s = fmin((double)s , 1.0);
-
-        if ( s > 0.9999 ) {   // if ALL pore space is filled (layer is saturated)
-          sums = ztot;  // saturated column height = accumulated soil column height
-        } else {  // if this layer is not fully saturated (has empty space)
-            sums += s * dz;  // add saturated fraction of currl to accumlated saturated column
-            bottomsat = false; // top of saturated column is reached, skip remaining layers
-        }
-      }
-    } else {
-        if (currl->isSnow) {
-        break;
-      }
-    }
-    currl = currl->prevl;
+  if(ground->ststate==1){//soil column is completely frozen, no water table
+    return wtd;
   }
-  wtd = ztot - sums;  //the water table is measured from ground surface
+
+  Layer* currl = lstsoill; // default is to start at the bottom
+
+  if(ground->ststate== 0){ // if column is partly thawed, just start at the top active layer to avoid taliks
+    currl = ground->fstfntl;
+  }
+
+  while(currl!=NULL && currl->isSoil){
+    double dz_unfrozen = currl->dz * (1-currl->frozenfrac); // thickness of thawed part of layer
+    double volliq = currl->liq/DENLIQ/dz_unfrozen; // volumetric liquid of the thawed part
+    double saturation = fmin(volliq/currl->poro, 1.0); // saturation of the thawed part
+
+    if(saturation >= 0.90){ // CLM 4.5 suggests the watertable is at the depth where saturation reaches 0.90
+      currl = currl->prevl;// thawed part of this layer is fully saturated, move up to find watertable
+    } else { // saturation of this layer < 0.90, so watertable is below this layer
+      wtd = currl->z + dz_unfrozen; // wtd is either the top of the next layer or the top of the frozen part of this layer.
+      break;
+    }
+  }
   return wtd;
 }
 
