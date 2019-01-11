@@ -1847,47 +1847,24 @@ void Ground::getLayerFrozenstatusByFronts(Layer * soill) {
 
 
 void Ground::setDrainL(Layer* lstsoill, double & barrierdepth, double & watertab) {
-  double watab  = watertab; // water table depth (from surface)
-  double ald    = barrierdepth; //barrier depth, e.g. ALD or uppermost
-                                //  frozen depth (from surface)
-  draindepth    = watab;
 
-  if (ald!=MISSING_D && draindepth>=ald) {
-    draindepth = ald;  // the min. of watertable and barrierdepth
-  }
+  draindepth = 0.;
+  drainl = NULL;
 
-  if (draindepth<=0) {
-    drainl = NULL;
-  } else {
-    drainl = lstsoill;
-    Layer* currl = lstsoill;
-    double laytop = currl->z;
-    double laybot = currl->z+currl->dz;
-
-    while(currl!=NULL) {
-      //This prevents hydrological processes from executing
-      // on moss layers. This mostly affects Richards, which
-      // shouldn't be handling moss anyway.
-      if(currl->isMoss){
-        drainl = NULL;
-        draindepth = 0.;
-      }
-      else if(currl->isSoil) {
-        laytop = currl->z;
-        laybot = currl->z+currl->dz;
-
-        if(draindepth<=laybot && draindepth>laytop) {
-          drainl = currl;  //the drainage layer is the soil layer
-                           //  with drainage depth inside
-          break;
-        }
-      } else {
-        break;
-      }
-
-      currl = currl->prevl;
+  if(ststate == 0){
+    //check for existence of fronts
+    if(fstfntl != NULL && !fstfntl->isMoss){
+      draindepth = frntz[0];
+      drainl = fstfntl;
     }
   }
+  else if(ststate == -1){
+    //soil stack is completely thawed, so
+    //set drain depth to the top of the first rock layer
+    draindepth = lstminel->nextl->z;
+    drainl = lstminel->nextl;
+  }
+
 };
 
 ///save 'soil' information in double-linked layer into struct in 'cd'
