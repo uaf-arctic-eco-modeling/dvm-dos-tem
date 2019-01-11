@@ -591,10 +591,23 @@ void Soil_Env::updateDailySM() {
     baseflow = 0.0;
   }
 
-  if(drainl != NULL){
+  //This prevents Richards from executing in a talik. In the case of
+  // a closed talik, there should be no water exiting other than
+  // transpiration, and in the case of an open talik, ... TODO
+  if(fstsoill->frozen != 1){//drainl != NULL){
     richards.update(fstsoill, drainl, draindepth, baseflow, trans,
                     evap, infil, SEC_IN_DAY);
     ed->d_soi2l.qdrain  += richards.qdrain;
+  }
+  else{
+    //Simply subtract transpiration from each layer
+    currl = fstsoill;
+
+    while(currl!=NULL){
+      //solind is 1-based, and need to convert back to mm/day
+      currl->liq -= trans[currl->solind-1] / SEC_IN_DAY;
+      currl = currl->nextl;
+    }
   }
   //
   ground->checkWaterValidity();

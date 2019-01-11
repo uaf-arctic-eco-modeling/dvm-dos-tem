@@ -84,6 +84,7 @@ private:
   double thetasat[MAX_SOI_LAY+1];
   double z_h[MAX_SOI_LAY+1]; //Depth of layer bottom in mm, named to match CLM paper
   double thetaE[MAX_SOI_LAY+1]; //Layer-average equilibrium volumetric water content. Equation 7.129
+  double thetaE_unsat[MAX_SOI_LAY+1];
 
   //Intermediate calculated values
   double q_iminus1_n[MAX_SOI_LAY+1]; //Equation 7.115
