@@ -82,7 +82,7 @@ public:
 
   int changeclimate; // 0: default (up to run stage); 1: dynamical; -1: static
   int changeco2; // 0: default (up to run stage); 1: dynamical; -1: static
-  bool dynamic_LAI; // True: calculate LAI as a function of vegc, False: use envlai from CohortLookup 
+  bool dynamic_LAI; // True: calculate LAI as a function of vegc, False: use static_lai from CohortLookup 
   bool useseverity; // using fire severity inputs
 
   bool outSiteDay;

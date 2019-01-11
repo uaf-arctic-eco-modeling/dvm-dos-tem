@@ -66,7 +66,7 @@ public:
   int nonvascular[NUM_PFT]; //vascular plant (0), sphagnum (1),
                             //  feathermoss (2), lichen (3)
 
-  double envlai[12][NUM_PFT]; //input static monthly lai for a year
+  double static_lai[12][NUM_PFT]; // A year's worth of LAI values for use when dynamic LAI is turned off.
 
   // root distribution
   double frootfrac[MAX_ROT_LAY][NUM_PFT]; //percentage

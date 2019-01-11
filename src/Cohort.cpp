@@ -763,9 +763,9 @@ void Cohort::updateMonthly_DIMveg(const int & currmind, const bool & dynamic_lai
   BOOST_LOG_SEV(glg, debug) << "A sample log message in DVM ...";
 
   // Switch for using dynamic LAI (calculated on the fly as a function of vegc)
-  // or "static" LAI which is read in thru the CohortLookup::envlai parameter.
-  // The CohortLookup::envlai parameter is generally fed from the 
-  // cmt_dimvegetation.txt parameter file, with the 12 envlai values (monthly).
+  // or static LAI which is read in thru the CohortLookup::static_lai parameter.
+  // The CohortLookup::static_lai parameter is generally fed from the 
+  // cmt_dimvegetation.txt parameter file, with the 12 static_lai values (monthly).
   if (dynamic_lai_module) {
     // If the module in enabled, then use the value from the ModelData instance
     // the ModelData instance is set from the config file. So it would be
