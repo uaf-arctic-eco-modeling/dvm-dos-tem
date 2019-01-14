@@ -593,7 +593,8 @@ void Soil_Env::updateDailySM() {
 
   //This prevents Richards from executing in a talik. In the case of
   // a closed talik, there should be no water exiting other than
-  // transpiration, and in the case of an open talik, ... TODO
+  // transpiration, and in the case of an open talik, our equations
+  // may need modification. 
   if(fstsoill->frozen != 1){//drainl != NULL){
     richards.update(fstsoill, drainl, draindepth, baseflow, trans,
                     evap, infil, SEC_IN_DAY);

@@ -148,11 +148,13 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
       water_in = infil - evap;
     }
 
+    //Need to use trans[ind-1] because trans is zero based
+    // while layer solind is one based.
     if(ind == drainind){
-      water_out = k[ind] * fbaseflow + trans[ind];
+      water_out = k[ind] * fbaseflow + trans[ind-1];
     }
     else{
-      water_out = trans[ind];
+      water_out = trans[ind-1];
     }
 
     //deltathetaliq should not include effliq? Units? per day? per second? TODO
@@ -415,7 +417,7 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
         // than CLM. See section 7.3.3 for CLM approach. 
         // TODO verify the index modification - 1 or 2?
         //The sign convention between CLM 4.5 and ddt are different
-        coeffR[ind] = infil - q_i_n[ind] + (evap + trans[ind+1]); 
+        coeffR[ind] = infil - q_i_n[ind] + (evap + trans[ind-1]); 
       }
       //This is for the middle layers - neither top nor drain
       else if(ind>topind && ind<drainind){
@@ -471,12 +473,18 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
     currl = currl->nextl;
   } 
 
-  //Modify layer liquid by calculated change in liquid.
-  for(int il=indx0al; il<indx0al+numal; il++){
-    double minliq = effminliq[il];
-    double maxliq = effmaxliq[il];
+  //Modify layer liquid in each active layer by calculated change in liquid.
+  //for(int il=indx0al; il<indx0al+numal; il++){
+  while(currl->solind<=drainind){
 
-    currl->liq += deltathetaliq[il] + minliq;
+    double ind = currl->solind;
+
+    double minliq = effminliq[ind];
+    double maxliq = effmaxliq[ind];
+
+    //TODO - verify
+    currl->liq += currl->liq + dzmm[ind] * deltathetaliq[ind] + minliq;
+    //currl->liq += deltathetaliq[il] + minliq;
 
     //Restricting layer liquid to range defined by min and max
     if(currl->liq<minliq){
