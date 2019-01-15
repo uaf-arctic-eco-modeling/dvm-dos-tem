@@ -205,7 +205,7 @@
 0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[7]: fine root allocation percentage vertically in soils (every 10 cm)  
 0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[8]: fine root allocation percentage vertically in soils (every 10 cm) 
 0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[9]: fine root allocation percentage vertically in soils (every 10 cm)
-0.93        0.00        0.07         0.05         0.04         0.04         0.02         0.29         0.77         0.           // initial_lai: starting value for Leaf Area Index
+0.05        0.03        0.04         1.8          0.04         0.04         0.02         1.8          1.8          0.           // initial_lai: starting value for Leaf Area Index
 1.0         0.0         0.0          0.5          1.0          0.0          1.5          0.1          1.0          0            // static_lai[0]: monthly LAI for a year, used for static input of LAI
 1.1         0.0         0.0          0.3          1.5          0.0          1.5          0.2          1.5          0            // static_lai[1]:
 1.2         0.0         0.0          0.5          2.0          0.5          1.5          0.3          0.0          0            // static_lai[2]:
