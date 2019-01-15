@@ -291,7 +291,7 @@
 0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[7]:
 0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[8]:
 0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[9]:
-0.143       0.143       0.143        0.143        0.142        0.142        0.142        0.00         0.00         0.00         // initial_lai: starting value for Leaf Area Index
+0.01        0.03        0.02         0.01         2.0          1.9          2.1          0.00         0.00         0.00         // initial_lai: starting value for Leaf Area Index
 1.0         0.0         0.0          0.5          1.5          1.5          1.5          0.00         0.00         0.00         // static_lai[0]: monthly LAI for a year, used for static input of LAI
 1.1         0.0         0.0          0.3          1.5          1.5          1.5          0.00         0.00         0.00         // static_lai[1]:
 1.2         0.0         0.0          0.5          1.5          1.5          1.5          0.00         0.00         0.00         // static_lai[2]:
