@@ -90,10 +90,6 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
 //    qtrans[il] = trans[il-1]; // trans[] starting from 0, while here all arrays starting from 1
 //  }
 
-  // initializing the arrays for use below
-/*  for(int il=0; il<=MAX_SOI_LAY; il++) { // although starting 1, initialization from 0
- }*/
-
   qdrain = 0.;
   // loop for continuous unfrozen soil column section
   // in a soil profile, there may be a few or none
@@ -189,19 +185,19 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
 
       //Equation 7.94
       //psi_i - soil matric potential (mm)
-//      psi[ind] =  psisat[ind] * pow( (theta[ind] / thetasat[ind]),
-//                                     -Bsw[ind]);
-
       double theta_thetasat = theta[ind] / thetasat[ind];
-      if(theta_thetasat < 0.01) {theta_thetasat = 0.01;}
-      else if(theta_thetasat > 1.) {theta_thetasat = 1.;}
+      if(theta_thetasat < 0.01) {
+        BOOST_LOG_SEV(glg, debug)<<"theta_thetasat out of range: "
+                                 <<theta_thetasat;
+        theta_thetasat = 0.01;
+      }
+      else if(theta_thetasat > 1.) {
+        BOOST_LOG_SEV(glg, debug)<<"theta_thetasat out of range: "
+                                 <<theta_thetasat;
+        theta_thetasat = 1.;
+      }
       psi[ind] =  psisat[ind] * pow( theta_thetasat, -Bsw[ind]);
- 
-      //Logging violations of the limits
-//      if(theta[ind]/thetasat[ind] < 0.01 ||
-//         theta[ind]/thetasat[ind] > 1.){
-//        BOOST_LOG_SEV(glg, err)<<"theta_i/thetasat_i out of range";
-//      }
+      //logging psi out-of-range violations
       if(psi[ind] < -1e8){
         BOOST_LOG_SEV(glg, err)<<"psi["<<ind<<"] out of range: "<<psi[ind];
       }
@@ -347,12 +343,6 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
       // (i.e. eq7121[] instead of deltapsi[]/deltatheta_liq[])
       //Equation 7.117
       //deltaq_iminus1 / deltatheta_liq_iminus1
-//    eq7117[ind] = - ( (k[z_h[ind-1]]/(z[ind]-z[ind-1]))
-//                      * (deltapsi[ind-1]/deltatheta_liq[ind-1]) )
-//                  - (deltak[z_h[ind-1]]/deltatheta_liq[ind-1])
-//                  * ( psi[ind-1] - psi[ind] + psiE[ind] - psiE[ind-1]
-//                      /(z[ind] - z[ind-1]) );
-
       eq7117[ind] = - ( (k[ind-1]/(nodemm[ind]-nodemm[ind-1])) * eq7121[ind] )
                     - eq7124[ind] 
                     * ( psi[ind-1] - psi[ind] + psiE[ind] - psiE[ind-1]
@@ -360,12 +350,6 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
 
       //Equation 7.118
       //deltaq_iminus1 / deltatheta_liq_i
-//    eq7118[ind] = ( (k[z_h[ind-1]]/(z[ind]-z[ind-1]))
-//                    * (deltapsi[ind]/deltatheta_liq[ind]) )
-//                - (deltak[z_h[ind-1]]/deltatheta_liq[ind])
-//                * ( psi[ind-1] - psi[ind] + psiE[ind] - psiE[ind-1]
-//                    /(z[ind] - z[ind-1]) );
-
       eq7118[ind] = ( (k[ind-1]/(nodemm[ind]-nodemm[ind-1])) * eq7122[ind] )
                   - eq7124[ind] 
                   * ( psi[ind-1] - psi[ind] + psiE[ind] - psiE[ind-1]
@@ -373,12 +357,6 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
 
       //Equation 7.119
       //deltaq_i / deltatheta_liq_i
-//    eq7119[ind] = - ( (k[z_h[ind]]/(z[ind+1] - z[ind]))
-//                      * (deltapsi[ind] / deltatheta_liq[ind]) )
-//                  - (deltak[z_h[ind]]/deltatheta_liq[ind])
-//                  * ( psi[ind] - psi[ind+1] + psiE[ind+1] - psiE[ind]
-//                      /(z[ind+1] - z[ind]) );
-
       eq7119[ind] = - ( (k[ind]/(nodemm[ind+1] - nodemm[ind])) * eq7122[ind] )
                     - eq7125[ind] 
                     * ( psi[ind] - psi[ind+1] + psiE[ind+1] - psiE[ind]
@@ -386,16 +364,10 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
 
       //Equation 7.120
       //deltaq_i / deltatheta_liq_iplus1
-//    eq7120[ind] = ( (k[z_h[ind]]/(z[ind+1] - z[ind]))
-//                    * (deltapsi[ind+1] / deltatheta_liq[ind+1]) )
-//                - (deltak[z_h[ind]]/deltatheta_liq[ind+1])
-//                * ( psi[ind] - psi[ind+1] + psiE[ind+1] - psiE[ind]
-//                    /(z[ind+1] - z[ind]) );
-     //comment w/ explanation for equation replacement
-     eq7120[ind] = (k[ind]/(nodemm[ind+1] - nodemm[ind])) * eq7123[ind]
+      eq7120[ind] = (k[ind]/(nodemm[ind+1] - nodemm[ind])) * eq7123[ind]
                   - eq7125[ind]  
-                   * ( psi[ind] - psi[ind+1] + psiE[ind+1] - psiE[ind]
-                       /(nodemm[ind+1] - nodemm[ind]) );
+                  * ( psi[ind] - psi[ind+1] + psiE[ind+1] - psiE[ind]
+                      /(nodemm[ind+1] - nodemm[ind]) );
 
 
      //This is the top active layer
@@ -530,12 +502,6 @@ void Richards::prepareSoilColumn(Layer* currsoill, const double & draindepth) {
   // it is assumed that all layers in Richards will be unfrozen,
   // i.e., from unfrozen 'topsoill' to ''drainl'
   Layer* currl = currsoill; // the first soil layer is 'topsoill'
-
-  //Backing up a layer in order to fill the array elements prior to
-  // the first active layer. Some of the calculations require this.
-//  if(currl->prevl != NULL){
-  //  currl = currl->prevl;
-//  }
 
   int ind = -1;
   indx0al = currsoill->solind;
