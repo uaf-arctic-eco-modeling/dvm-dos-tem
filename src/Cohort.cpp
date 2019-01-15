@@ -50,6 +50,9 @@ Cohort::Cohort(int y, int x, ModelData* modeldatapointer):
     this->cd.cmttype = temutil::get_veg_class(modeldatapointer->veg_class_file, y, x);
   }
   this->cd.drainage_type = temutil::get_drainage_class(modeldatapointer->drainage_file, y, x);
+  this->cd.cell_slope = temutil::get_scalar<float>(modeldatapointer->topo_file, "slope", y, x);
+  this->cd.cell_aspect = temutil::get_scalar<float>(modeldatapointer->topo_file, "aspect", y, x);
+  this->cd.cell_elevation = temutil::get_scalar<float>(modeldatapointer->topo_file, "elevation", y, x);
 
   BOOST_LOG_SEV(glg, info) << "Next, we build a CohortLookup object, properly configured with parameter directory and community type.";
   this->chtlu = CohortLookup( modeldatapointer->parameter_dir, temutil::cmtnum2str(cd.cmttype) );
@@ -75,7 +78,8 @@ Cohort::Cohort(int y, int x, ModelData* modeldatapointer):
 
   BOOST_LOG_SEV(glg, debug) << "Setup the fire information, defaulting to HISTORIC explicit data.";
   this->fire = WildFire(modeldatapointer->fri_fire_file, 
-    modeldatapointer->hist_exp_fire_file, modeldatapointer->topo_file, y, x);
+    modeldatapointer->hist_exp_fire_file, this->cd.cell_slope, this->cd.cell_aspect, this->cd.cell_elevation, y, x);
+
 
   this->soilenv = Soil_Env();
   
