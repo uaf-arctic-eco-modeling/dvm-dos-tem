@@ -596,9 +596,11 @@ void Soil_Env::updateDailySM() {
   // transpiration, and in the case of an open talik, our equations
   // may need modification. 
   if(fstsoill->frozen != 1){//drainl != NULL){
-    richards.update(fstsoill, drainl, draindepth, baseflow, trans,
-                    evap, infil, SEC_IN_DAY);
-    ed->d_soi2l.qdrain  += richards.qdrain;
+    richards.update(fstsoill, drainl, draindepth, ed->d_sois.watertab,
+                    baseflow, trans, evap, infil, cd->cell_slope,
+                    SEC_IN_DAY);
+    ed->d_soi2l.qdrain += richards.qdrain;
+    ed->d_soi2l.qover += richards.excess_runoff;
   }
   else{
     //Simply subtract transpiration from each layer

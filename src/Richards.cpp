@@ -68,15 +68,14 @@ void Richards::clearRichardsArrays(){
 //
 void Richards::update(Layer *fstsoill, Layer* bdrainl,
                       const double & bdraindepth, const double & fbaseflow,
+                      const double & watertab,
                       double trans[], const double & evap,
-                      const double & infil, const double &ts) {
+                      const double & infil, const double & cell_slope,
+                      const double &ts) {
   //timestep = ts;
   drainl = bdrainl;
 
-  //bdraindepth is provided by Soil_Env, which copies it from
-  //ground->draindepth, which is set to the minimum of ald or watab
-  //in Ground::setDrainL(). This may not be what we want. TODO
-  z_watertab = bdraindepth * 1.e3;
+  z_watertab = watertab * 1.e3;
 
   if (bdraindepth<=0.) {
     return; // the drainage occurs in the surface, no need to update the SM
@@ -130,6 +129,7 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
 
     int ind = currl->solind;
     double water_in, water_out = 0.;
+    double water_change;
 
     //This duplicates some of the equations from below.
     theta[ind] = effliq[ind] / DENLIQ / (dzmm[ind]/1.e3);
@@ -140,25 +140,31 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
 
     //top of the soil stack or in the middle?
     //plus infil, minus trans[], minus evap
-    if(ind == topind){
-      water_in = infil - evap;
+    double avail_water = infil - evap;
+
+    //Calculate how much more liquid could fit in layer 
+    double space_for_liq = fmax(0.0, effmaxliq[ind] - currl->liq);
+
+    if(avail_water > space_for_liq){
+      water_in = space_for_liq;
+      excess_runoff = avail_water - space_for_liq;
+    }
+    else{
+      water_in = avail_water;
     }
 
     //Need to use trans[ind-1] because trans is zero based
     // while layer solind is one based.
-    if(ind == drainind){
-      water_out = k[ind] * fbaseflow + trans[ind-1];
-    }
-    else{
-      water_out = trans[ind-1];
-    }
+    //No percolation if single layer
+    water_out = trans[ind-1];
 
-    //deltathetaliq should not include effliq? Units? per day? per second? TODO
-    //deltathetaliq[ind] = effliq[ind] + (water_in - water_out) * delta_t;
-    deltathetaliq[ind] = (water_in - water_out) * delta_t;
-    //deltathetaliq[ind] = effliq[ind] + (water_in - water_out) * delta_t;
+    water_change = (water_in - water_out) * delta_t;
 
     //calculate qdrain?
+
+    currl->liq += water_change; 
+
+    currl->hcond = k[ind];
 
   }
 
@@ -430,50 +436,90 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
   // water solver.
   if(numal > 1){
     cn.tridiagonal(indx0al, numal, coeffA, coeffB, coeffC, coeffR, deltathetaliq);//water solver
-  }
-
-  //A NaN check for debugging purposes
-  for(int ii=0; ii<MAX_SOI_LAY; ii++){
-    if(deltathetaliq[ii] != deltathetaliq[ii]){
-      BOOST_LOG_SEV(glg, err) << "NaN in deltathetaliq";
+  
+    //A NaN check for debugging purposes
+    for(int ii=0; ii<MAX_SOI_LAY; ii++){
+      if(deltathetaliq[ii] != deltathetaliq[ii]){
+        BOOST_LOG_SEV(glg, err) << "NaN in deltathetaliq";
+      }
     }
-  }
+  
 
-  //do the next section for only active layers TODO
-  currl = topsoill;
-  while(currl->solind<indx0al){
-    currl = currl->nextl;
-  } 
+    //do the next section for only active layers TODO
+    currl = topsoill;
+    while(currl->solind<indx0al){
+      currl = currl->nextl;
+    } 
 
-  //Modify layer liquid in each active layer by calculated change in liquid.
-  //for(int il=indx0al; il<indx0al+numal; il++){
-  while(currl->solind<=drainind){
+    //Modify layer liquid in each active layer by calculated
+    // change in liquid.
+    while(currl->solind<=drainind){
 
-    double ind = currl->solind;
+      int ind = currl->solind;
 
-    double minliq = effminliq[ind];
-    double maxliq = effmaxliq[ind];
+      double minliq = effminliq[ind];
+      double maxliq = effmaxliq[ind];
 
-    //TODO - verify
-    currl->liq += currl->liq + dzmm[ind] * deltathetaliq[ind] + minliq;
-    //currl->liq += deltathetaliq[il] + minliq;
+      //TODO - verify
+      currl->liq += currl->liq + dzmm[ind]/1.e3 * deltathetaliq[ind];
+      //currl->liq += currl->liq + dzmm[ind] * deltathetaliq[ind] + minliq;
+      //currl->liq += deltathetaliq[il] + minliq;
 
     //Restricting layer liquid to range defined by min and max
-    if(currl->liq<minliq){
-      currl->liq = minliq;
+//    if(currl->liq<minliq){
+//      currl->liq = minliq;
+//    }
+
+//    if(currl->liq>maxliq){
+//      currl->liq = maxliq;
+//    }
+
+      currl->hcond = k[ind];
+
+      currl = currl->nextl;
+    }
+  }
+
+  //if there is at least one saturated layer:
+  if(bdraindepth*1.e3 - z_watertab >= 0){
+    double eq7167_num = 0.;
+    double eq7167_den = 0.;
+
+    //Pre-calculate sums for lateral drainage
+    //For any saturated layer
+    for(int ii=0; ii<MAX_SOI_LAY; ii++){
+      if(theta[ii] / thetasat[ii] >= 0.9){
+
+        eq7167_num += ksat[ii] * dzmm[ii];
+        eq7167_den += dzmm[ii];
+      }
     }
 
-    if(currl->liq>maxliq){
-      currl->liq = maxliq;
+    //Calculate lateral drainage
+    //Equation 7.167
+    //We do not allow Richards to run on frozen soil, so the ice parameter
+    // is ignored.
+    double slope_rads = cell_slope * PI / 180;//Converting to radians
+    double kdrain_perch = 10e-5 * sin(slope_rads)
+                        * (eq7167_num / eq7167_den);
+
+    //Equation 7.166, with base flow added
+    double qdrain_perch = kdrain_perch * (bdraindepth - z_watertab)
+                        * fbaseflow;
+    //need to check that zfrost - z_watertab != 0
+
+    currl = topsoill;
+    while(currl->solind <= drainind){
+      int ind = currl->solind;
+      //For any saturated layer
+      if(theta[ind] / thetasat[ind] >= 0.9){
+        double layer_drain = qdrain_perch * delta_t 
+                           * (dzmm[ind] / eq7167_den);
+        currl->liq -= layer_drain;
+      }
+      currl = currl->nextl;
     }
 
-    //SoilLayer* sl = dynamic_cast<SoilLayer*>(currl);
-    //double something = sl->getVolLiq() / (sl->poro - sl->getVolIce());
-    //double hcond = sl->hksat * pow((double)something, 2.*sl->bsw+2);
-    //currl->hcond = hcond*SEC_IN_DAY; //convert to mm/day
-    currl->hcond = k[ind];//TODO check. Convert units?
-
-    currl = currl->nextl;
   }
 
   // for layers above 'topsoill', e.g., 'moss',

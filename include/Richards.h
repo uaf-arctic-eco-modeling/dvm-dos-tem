@@ -26,10 +26,13 @@ public :
   int indx0al; // active layers' first layer index
   int numal;   // active layers' layer numbers
   double qdrain; // mm/day
+  double excess_runoff; //Runoff discovered in Richards (post getRunoff)
 
   void update(Layer *fstsoill, Layer* bdrainl, const double & bdraindepth,
-              const double & fbaseflow, double trans[MAX_SOI_LAY],
-              const double & evap, const double & infil, const double &ts);
+              const double & fbaseflow, const double & watertab,
+              double trans[MAX_SOI_LAY],
+              const double & evap, const double & infil,
+              const double & cell_slope, const double &ts);
 
   void setCohortData(CohortData* cdp);
   void setEnvData(EnvData* edp);
