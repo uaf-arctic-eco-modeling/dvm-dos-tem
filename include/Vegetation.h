@@ -25,7 +25,7 @@ public:
 
   vegpar_dim vegdimpar;
 
-  bool updateLAI5vegc;
+  bool update_LAI_from_vegc;
 
   void initializeParameter();
   void initializeState();

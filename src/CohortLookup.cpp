@@ -217,10 +217,10 @@ void CohortLookup::assignVegDimension(string &dircmt) {
     temutil::pfll2data_pft(l, frootfrac[i]);
   }
 
-  temutil::pfll2data_pft(l, lai);
+  temutil::pfll2data_pft(l, initial_lai);
 
   for (int im = 0; im < MINY; im++) {
-    temutil::pfll2data_pft( l, envlai[im]);
+    temutil::pfll2data_pft( l, static_lai[im]);
   }
 
 }

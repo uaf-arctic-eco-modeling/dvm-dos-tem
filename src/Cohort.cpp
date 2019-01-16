@@ -373,7 +373,7 @@ void Cohort::updateMonthly(const int & yrcnt, const int & currmind,
   }
 
   BOOST_LOG_SEV(glg, debug) << "Update the current dimension/structure of veg-snow/soil column (domain).";
-  updateMonthly_DIMveg(currmind, md->get_dvmmodule());
+  updateMonthly_DIMveg(currmind, md->get_dynamic_lai_module());
   updateMonthly_DIMgrd(currmind, md->get_dslmodule());
 
   if(md->get_bgcmodule()) {
@@ -758,15 +758,22 @@ void Cohort::updateMonthly_Fir(const int & year, const int & midx, std::string s
 }
 
 /** Dynamic Vegetation Module function. */
-void Cohort::updateMonthly_DIMveg(const int & currmind, const bool & dvmmodule) {
+void Cohort::updateMonthly_DIMveg(const int & currmind, const bool & dynamic_lai_module) {
   BOOST_LOG_NAMED_SCOPE("DIMveg");
   BOOST_LOG_SEV(glg, debug) << "A sample log message in DVM ...";
-  //switch for using LAI read-in (false) or dynamically with vegC
-  // the read-in LAI is through the 'chtlu->envlai[12]', i.e., a 12 monthly-LAI
-  if (dvmmodule) {
-    veg.updateLAI5vegc = md->updatelai;
+
+  // Switch for using dynamic LAI (calculated on the fly as a function of vegc)
+  // or static LAI which is read in thru the CohortLookup::static_lai parameter.
+  // The CohortLookup::static_lai parameter is generally fed from the 
+  // cmt_dimvegetation.txt parameter file, with the 12 static_lai values (monthly).
+  if (dynamic_lai_module) {
+    // If the module in enabled, then use the value from the ModelData instance
+    // the ModelData instance is set from the config file. So it would be
+    // possible to have the module enabled, but the user has set the config
+    // file to use static LAI. Seems funky.
+    veg.update_LAI_from_vegc = md->dynamic_LAI;
   } else {
-    veg.updateLAI5vegc = false;
+    veg.update_LAI_from_vegc = false;
   }
 
   // vegetation standing age

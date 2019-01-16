@@ -419,7 +419,7 @@ void Runner::output_caljson_monthly(int year, int month, std::string stage, boos
   data["Baseline"] = this->cohort.md->get_baseline();
   data["EnvModule"] = this->cohort.md->get_envmodule();
   data["BgcModule"] = this->cohort.md->get_bgcmodule();
-  data["DvmModule"] = this->cohort.md->get_dvmmodule();
+  data["DynLaiModule"] = this->cohort.md->get_dynamic_lai_module();
   data["DslModule"] = this->cohort.md->get_dslmodule();
   data["DsbModule"] = this->cohort.md->get_dsbmodule();
 
@@ -643,7 +643,7 @@ void Runner::output_caljson_yearly(int year, std::string stage, boost::filesyste
   data["Baseline"] = this->cohort.md->get_baseline();
   data["EnvModule"] = this->cohort.md->get_envmodule();
   data["BgcModule"] = this->cohort.md->get_bgcmodule();
-  data["DvmModule"] = this->cohort.md->get_dvmmodule();
+  data["DynLaiModule"] = this->cohort.md->get_dynamic_lai_module();
   data["DslModule"] = this->cohort.md->get_dslmodule();
   data["DsbModule"] = this->cohort.md->get_dsbmodule();
 

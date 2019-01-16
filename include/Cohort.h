@@ -119,7 +119,7 @@ private:
   Integrator solintegrator;
 
 
-  void updateMonthly_DIMveg(const int & currmind, const bool & dvmmodule);
+  void updateMonthly_DIMveg(const int & currmind, const bool & dynamic_lai_module);
   void updateMonthly_DIMgrd(const int & currmind, const bool & dslmodule);
 
   void updateMonthly_Env(const int & currmind, const int & dinmcurr);

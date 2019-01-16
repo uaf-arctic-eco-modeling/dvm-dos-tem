@@ -484,7 +484,7 @@ class ExpandingWindow(object):
             pfdata = json.load(pfile)
 
           for k in ["Nfeed", "AvlNFlag", "Baseline", "EnvModule", "BgcModule",
-                    "DvmModule", "DslModule", "DsbModule"]:
+                    "DynLaiModule", "DslModule", "DsbModule"]:
 
             cstate = fdata[k]
             pstate = pfdata[k]
@@ -538,7 +538,7 @@ class ExpandingWindow(object):
 
     # Then loop over the dictionary and plot a vertical line wherever necessary.
     # The module stage dictionary could looks something like this:
-    # { 12: ('DslModule', true), 54: ('DvmModule', false)}
+    # { 12: ('DslModule', true), 54: ('DynLaiModule', false)}
     for ax in self.axes:
       for k, val in module_state_dict.iteritems():
         ax.axvline(k, linestyle='--', linewidth=0.3, color='blue', label='__mscm')

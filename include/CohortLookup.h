@@ -58,7 +58,7 @@ public:
   double vegcov[NUM_PFT]; //actual veg. covered fraction, NOTE this is
                           //  different from 'fpc' - the former is for the
                           //  whole canopy, while the latter is for foliage
-  double lai[NUM_PFT]; //lai
+  double initial_lai[NUM_PFT]; // Starting LAI value
   int ifwoody[NUM_PFT]; //woody (1) or non-woody (0)
   int ifdeciwoody[NUM_PFT]; //deciduous (1) or evergreen (0)
                             //  woodland (forest or shrubland)
@@ -66,7 +66,7 @@ public:
   int nonvascular[NUM_PFT]; //vascular plant (0), sphagnum (1),
                             //  feathermoss (2), lichen (3)
 
-  double envlai[12][NUM_PFT]; //input static monthly lai for a year
+  double static_lai[12][NUM_PFT]; // A year's worth of LAI values for use when dynamic LAI is turned off.
 
   // root distribution
   double frootfrac[MAX_ROT_LAY][NUM_PFT]; //percentage
