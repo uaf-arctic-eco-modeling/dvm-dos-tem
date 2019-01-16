@@ -595,9 +595,10 @@ void Soil_Env::updateDailySM() {
   // a closed talik, there should be no water exiting other than
   // transpiration, and in the case of an open talik, our equations
   // may need modification. 
-  if(fstsoill->frozen != 1){//drainl != NULL){
-    richards.update(fstsoill, drainl, draindepth, ed->d_sois.watertab,
-                    baseflow, trans, evap, infil, cd->cell_slope,
+  if(ground->fstshlwl->frozen != 1){//drainl != NULL){
+    richards.update(fstsoill, drainl, draindepth, baseflow,
+                    ed->d_sois.watertab, trans, evap,
+                    infil, cd->cell_slope,
                     SEC_IN_DAY);
     ed->d_soi2l.qdrain += richards.qdrain;
     ed->d_soi2l.qover += richards.excess_runoff;

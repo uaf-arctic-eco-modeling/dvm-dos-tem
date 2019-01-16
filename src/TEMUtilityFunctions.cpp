@@ -478,6 +478,11 @@ namespace temutil {
       float data3;
       temutil::nc( nc_get_vara_float(ncid, scalar_var, start, count, &data3) );
       data2 = (DTYPE)data3;
+    } else if (the_type == NC_DOUBLE) {
+      BOOST_LOG_SEV(glg, debug) << "--> NC_DOUBLE";
+      double data3;
+      temutil::nc( nc_get_vara_double(ncid, scalar_var, start, count, &data3) );
+      data2 = (DTYPE)data3;
     } else {
       BOOST_LOG_SEV(glg, err) << "Unknown datatype: '" << the_type << "'. Returning empty vector.";
     }
@@ -927,6 +932,8 @@ namespace temutil {
   template int get_scalar(const std::string &filename,
       const std::string &var, const int y, const int x);
   template float get_scalar(const std::string &filename,
+      const std::string &var, const int y, const int x);
+  template double get_scalar(const std::string &filename,
       const std::string &var, const int y, const int x);
 
   template std::vector<int> get_timeseries<int>(const std::string &filename,
