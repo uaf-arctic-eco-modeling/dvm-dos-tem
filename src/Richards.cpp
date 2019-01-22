@@ -143,7 +143,7 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
     double avail_water = infil - evap;
 
     //Calculate how much more liquid could fit in layer 
-    double space_for_liq = fmax(0.0, effmaxliq[ind] - currl->liq);
+    double space_for_liq = fmax(0.0, effmaxliq[ind] - currl->liq) / delta_t;
 
     if(avail_water > space_for_liq){
       water_in = space_for_liq;
@@ -466,13 +466,13 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
       //currl->liq += deltathetaliq[il] + minliq;
 
     //Restricting layer liquid to range defined by min and max
-//    if(currl->liq<minliq){
-//      currl->liq = minliq;
-//    }
+    if(currl->liq<minliq){
+      currl->liq = minliq;
+    }
 
-//    if(currl->liq>maxliq){
-//      currl->liq = maxliq;
-//    }
+    if(currl->liq>maxliq){
+      currl->liq = maxliq;
+    }
 
       currl->hcond = k[ind];
 
@@ -480,7 +480,8 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
     }
   }
 
-  //if there is at least one saturated layer:
+  //If there is at least one saturated layer, we need to allow for
+  // lateral drainage.
   if(bdraindepth*1.e3 - z_watertab >= 0){
     double eq7167_num = 0.;
     double eq7167_den = 0.;
@@ -490,8 +491,8 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
     for(int ii=0; ii<MAX_SOI_LAY; ii++){
       if(theta[ii] / thetasat[ii] >= 0.9){
 
-        eq7167_num += ksat[ii] * dzmm[ii];
-        eq7167_den += dzmm[ii];
+        eq7167_num += ksat[ii] * dzmm[ii] / 1.e3;
+        eq7167_den += dzmm[ii] / 1.e3;
       }
     }
 
@@ -504,7 +505,7 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
                         * (eq7167_num / eq7167_den);
 
     //Equation 7.166, with base flow added
-    double qdrain_perch = kdrain_perch * (bdraindepth - z_watertab)
+    double qdrain_perch = kdrain_perch * (bdraindepth - watertab)
                         * fbaseflow;
     //need to check that zfrost - z_watertab != 0
 

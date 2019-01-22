@@ -596,7 +596,7 @@ void Soil_Env::updateDailySM() {
   // transpiration, and in the case of an open talik, our equations
   // may need modification. 
   if(ground->fstshlwl->frozen != 1){//drainl != NULL){
-    richards.update(fstsoill, drainl, draindepth, baseflow,
+    richards.update(ground->fstshlwl, drainl, draindepth, baseflow,
                     ed->d_sois.watertab, trans, evap,
                     infil, cd->cell_slope,
                     SEC_IN_DAY);
@@ -609,7 +609,7 @@ void Soil_Env::updateDailySM() {
 
     while(currl!=NULL){
       //solind is 1-based, and need to convert back to mm/day
-      currl->liq -= trans[currl->solind-1] / SEC_IN_DAY;
+      currl->liq -= trans[currl->solind-1] * SEC_IN_DAY;
       currl = currl->nextl;
     }
   }
