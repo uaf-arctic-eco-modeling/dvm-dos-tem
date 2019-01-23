@@ -504,7 +504,7 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
 
     for (int ip=0; ip<NUM_PFT; ip++) {
       if (cd.d_veg.vegcov[ip] > 0.0) {
-        if (cd.d_veg.nonvascular <= 0) {   // for vascular plants
+        if (cd.d_veg.nonvascular[ip] <= 0) {   // for vascular plants
           // get the soil moisture controling factor on plant transpiration
           double frootfr[MAX_SOI_LAY];
 
