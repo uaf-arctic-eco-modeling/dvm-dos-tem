@@ -708,28 +708,50 @@ double Soil_Env::getEvaporation(const double & dayl, const double &rad) {
 // is included in saturated column height.
 double Soil_Env::getWaterTable(Layer* lstsoill) {
   double wtd = 0.0;
-  if(ground->ststate==1){//soil column is completely frozen, no water table
+  if(ground->ststate==1){ //soil column is frozen, so no water table
     return wtd;
   }
-
   Layer* currl = lstsoill; // default is to start at the bottom
 
-  if(ground->ststate== 0){ // if column is partly thawed, just start at the top active layer to avoid taliks
+  //if column is partly thawed, just start at the top active layer
+  // to avoid taliks
+  if(ground->ststate== 0){ 
     currl = ground->fstfntl;
   }
 
   while(currl!=NULL && currl->isSoil){
-    double dz_unfrozen = currl->dz * (1-currl->frozenfrac); // thickness of thawed part of layer
-    double volliq = currl->liq/DENLIQ/dz_unfrozen; // volumetric liquid of the thawed part
-    double saturation = fmin(volliq/currl->poro, 1.0); // saturation of the thawed part
+    //thickness of thawed part of the layer
+    double dz_unfrozen = currl->dz * (1-currl->frozenfrac); 
+    //volumetric liquid of the thawed part
+    double volliq = currl->liq/DENLIQ/dz_unfrozen; 
+    //saturation of the thawed part
+    double saturation = fmin(volliq/currl->poro, 1.0); 
 
-    if(saturation >= 0.90){ // CLM 4.5 suggests the watertable is at the depth where saturation reaches 0.90
-      currl = currl->prevl;// thawed part of this layer is fully saturated, move up to find watertable
-    } else { // saturation of this layer < 0.90, so watertable is below this layer
-      wtd = currl->z + dz_unfrozen; // wtd is either the top of the next layer or the top of the frozen part of this layer.
-      break;
+    //CLM 4.5 suggests the watertable is at the depth where
+    // saturation reaches 0.90
+    if(saturation >= 0.90){ 
+      //thawed part of this layer is fully saturated - move up to
+      // find watertable
+      currl = currl->prevl;
+    } else { 
+      //saturation of this layer < 0.90, so watertable is below or in
+      // this layer
+      
+      //if the entire layer is thawed 
+      if((currl->z + dz_unfrozen) >= (currl->z + currl->dz)){
+        //place the wtd one mm below the bottom of this layer
+        // (to avoid boundary errors)
+        wtd = currl->z + dz_unfrozen + 0.001; 
+        break;        
+      }
+      else{ // this layer is partly frozen
+        //place the wtd one mm above the frozen front
+        wtd = currl->z + dz_unfrozen - 0.001; 
+        break;
+      }
     }
   }
+
   return wtd;
 }
 
