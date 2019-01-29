@@ -539,6 +539,10 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
 
     // integrating daily 'veg' portion in 'ed' of all PFTs for 'edall'
     getEd4allveg_daily();
+
+    //accumulating daily soil trans factor into edall
+    getSoilTransfactor4all_daily();
+
     /*
         if (cd.year==1 && doy==37){
           cout<<"checking";
