@@ -499,6 +499,9 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
     //Initialize some daily variables for 'ground'
     cd.beginOfDay();
     edall->grnd_beginOfDay();
+    for(int ip=0; ip<NUM_PFT; ip++){
+      ed[ip].grnd_beginOfDay();
+    }
     //'edall' in 'atm' must be assgined to that in 'ed' for each PFT
     assignAtmEd2pfts_daily();
 

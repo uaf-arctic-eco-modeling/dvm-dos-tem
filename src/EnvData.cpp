@@ -350,6 +350,10 @@ void EnvData::grnd_beginOfDay() {
   // need to set some diagnostic variables to zero
   d_snw2soi.melt =0.;
   d_soi2a.evap_pet = 0.0;
+
+  for(int il=0; il<MAX_SOI_LAY; il++){
+    d_soid.fbtran[il] = 0.0;
+  }
 };
 
 /////////////////////////////////////////////////////////////////////////
