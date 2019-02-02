@@ -515,13 +515,15 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
             frootfr[i] = cd.m_soil.frootfrac[i][ip];
           }
 
-          soilenv.getSoilTransFactor(ed[ip].d_soid.fbtran,
+          //d_vegd.btran and d_soid.r_e_ij are outputs
+          ed[ip].d_vegd.btran = soilenv.getSoilTransFactor(
+                                     ed[ip].d_soid.r_e_ij,
                                      ground.fstsoill, frootfr);
-          ed[ip].d_vegd.btran = 0.0;
+          //ed[ip].d_vegd.btran = 0.0;
 
-          for (int il=0; il<MAX_SOI_LAY; il++) {
-            ed[ip].d_vegd.btran += ed[ip].d_soid.fbtran[il];
-          }
+          //for (int il=0; il<MAX_SOI_LAY; il++) {
+          //  ed[ip].d_vegd.btran += ed[ip].d_soid.fbtran[il];
+          //}
 
         } else {
         // for NON-VASCULAR plants - needs further algorithm development
@@ -539,6 +541,47 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
         vegenv[ip].updateWaterBalance(daylength, cd.m_veg.lai[ip], cd.m_veg.fpc[ip]);
       }
     }
+
+    //CLM3 Equation 7.82
+    //Effective root fraction per layer as a weighted sum over PFTs
+    double eq782_num[MAX_SOI_LAY];
+    double eq782_den[MAX_SOI_LAY];
+    //il starts at one to skip the moss layer
+    for(int il=1; il<MAX_SOI_LAY; il++){
+      eq782_num[il] = 0.;
+      eq782_den[il] = 0.;
+      for(int ip=0; ip<NUM_PFT; ip++){
+
+        eq782_num[il] += ed[ip].d_soid.r_e_ij[il] * ed[ip].d_v2a.tran * cd.d_veg.fpc[ip];
+        eq782_den[il] += ed[ip].d_v2a.tran * cd.d_veg.fpc[ip];
+
+      }
+
+      if(eq782_den[il] == 0){
+        edall->d_soid.r_e_i[il] = 0;
+      }
+      else{
+        edall->d_soid.r_e_i[il] = eq782_num[il] / eq782_den[il];
+      }
+
+      if(edall->d_soid.r_e_i[il] != edall->d_soid.r_e_i[il]){
+        BOOST_LOG_SEV(glg, err) << "NaN in r_e_i";
+      }
+
+    }
+
+    //CLM3 Equation 7.81
+    double weighted_veg_tran = 0.;
+    for(int ip=0; ip<NUM_PFT; ip++){
+      weighted_veg_tran += ed[ip].d_v2a.tran * cd.d_veg.fpc[ip];
+    }
+    if(weighted_veg_tran != weighted_veg_tran){
+      BOOST_LOG_SEV(glg, err) << "weighted_veg_tran is NaN";
+    }
+
+    //CLM3 Equation 7.80
+    //
+    //updatesoilSM stuff. Do here or there?
 
     // integrating daily 'veg' portion in 'ed' of all PFTs for 'edall'
     getEd4allveg_daily();
@@ -575,7 +618,7 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
     //  which needed for soil moisture calculation
     ground.setDrainL(ground.lstsoill, edall->d_soid.ald,
                      edall->d_sois.watertab);
-    soilenv.updateDailySM();  //soil moisture
+    soilenv.updateDailySM(weighted_veg_tran);  //soil moisture
 
     // save the variables to daily 'edall' (Note: not PFT specified)
     soilenv.retrieveDailyTM(ground.toplayer, ground.lstsoill);
@@ -883,8 +926,8 @@ void Cohort::getSoilFineRootFrac_Monthly() {
                                                                 layerbot,
                                                                 cumrootfrac,
                                                                 ROOTTHICK);
-          cd.m_soil.frootfrac[il][ip] *= bd[ip].m_vegs.c[I_root];  // root C
-          totfrootc += cd.m_soil.frootfrac[il][ip];
+//          cd.m_soil.frootfrac[il][ip] *= bd[ip].m_vegs.c[I_root];  // root C
+//          totfrootc += cd.m_soil.frootfrac[il][ip];
         }
       } // end m_soil.numsl loop
     } // end veg.cov[ip] > 0.0
@@ -892,7 +935,7 @@ void Cohort::getSoilFineRootFrac_Monthly() {
 
   // soil fine root fraction - adjusted by both vertical distribution
   //   and root biomass of all PFTs
-  for (int ip=0; ip<NUM_PFT; ip++) {
+/*  for (int ip=0; ip<NUM_PFT; ip++) {
     if (cd.m_veg.vegcov[ip]>0.) {
       for (int il=0; il<cd.m_soil.numsl; il++) {
         if (cd.m_soil.type[il]>0 && cd.m_soil.frootfrac[il][ip]>0.) {// non-moss soil layers only
@@ -902,7 +945,7 @@ void Cohort::getSoilFineRootFrac_Monthly() {
         }
       }
     }
-  }
+  }*/
 }
 
 double Cohort::assignSoilLayerRootFrac(const double & topz, const double & botz,

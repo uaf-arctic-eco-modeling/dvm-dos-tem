@@ -41,10 +41,10 @@ public:
   void set_state_from_restartdata(const RestartData & rdata);
 
   void updateDailyGroundT(const double & tdrv, const double & dayl);
-  void updateDailySM();
+  void updateDailySM(double weighted_veg_tran);
 
-  void getSoilTransFactor(double btran[MAX_SOI_LAY], Layer* fstsoill,
-                          const double vrootfr[MAX_SOI_LAY]);
+  double getSoilTransFactor(double r_e_ij[MAX_SOI_LAY], Layer* fstsoill,
+                            const double vrootfr[MAX_SOI_LAY]);
 
   void retrieveDailyTM(Layer* toplayer, Layer* lstsoill);
 

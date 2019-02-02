@@ -31,6 +31,9 @@
 
 #include "../include/Soil_Env.h"
 
+#include "../include/TEMLogger.h"
+extern src::severity_logger< severity_level > glg;
+
 Soil_Env::Soil_Env() {
 };
 
@@ -482,7 +485,7 @@ void Soil_Env::retrieveDailyFronts() {
 };
 
 // soil moisture calculation
-void Soil_Env::updateDailySM() {
+void Soil_Env::updateDailySM(double weighted_veg_tran) {
   // define the soil water module's domain
   Layer * fstsoill = ground->fstsoill;
   Layer * lstsoill = ground->lstsoill;
@@ -491,11 +494,23 @@ void Soil_Env::updateDailySM() {
   // First, data connection
   double trans[MAX_SOI_LAY], melt, evap, rnth;
 
-  for (int i=0; i<MAX_SOI_LAY; i++) {
+  //CLM3 Equation 7.81
+//  double weighted_veg_tran = 0.;
+//  for(int ip=0; ip<NUM_PFT; ip++){
+//    weighted_veg_tran += ed->d_v2a.tran * cd->d_veg.fpc[ip];
+//  }
+
+  for (int il=0; il<MAX_SOI_LAY; il++) {
     // mm/day
     // summed for all vegetation?
     // or for all soil layers?
-    trans[i] = ed->d_v2a.tran * ed->d_soid.fbtran[i];
+    //CLM3 Equation 7.80
+    trans[il] = ed->d_soid.r_e_i[il] * weighted_veg_tran;// * ed->d_soid.fbtran[i];
+
+    if(trans[il] != trans[il]){
+      BOOST_LOG_SEV(glg, err) << "NaN in trans in updateDailySM";
+    }
+
   }
 
   evap  = ed->d_soi2a.evap; // mm/day: summed for soil evaporation
@@ -805,14 +820,29 @@ double Soil_Env::getRunoff(Layer* toplayer, Layer* drainl,
 /*! calculates the factor which provides controls from soil on transpiration
  *  Oleson, T. R., 2004
  *  */
-void Soil_Env::getSoilTransFactor(double btran[MAX_SOI_LAY], Layer* fstsoill,
+double Soil_Env::getSoilTransFactor(double r_e_ij[MAX_SOI_LAY],
+                                  Layer* fstsoill,
                                   const double rootfr[MAX_SOI_LAY]) {
+  //TODO rename function? btran is not the soil trans factor,
+  // r_e_i is
   double psimax, psi, psisat;
-  double rresis;
+  //double rresis;
+  double wilting_factor[MAX_SOI_LAY];
+  double betaT_elements[MAX_SOI_LAY];
+  for(int il=0; il<MAX_SOI_LAY; il++){
+    wilting_factor[il] = 0.;
+    betaT_elements[il] = 0.;
+  }
+  double betaT = 0.;
   psimax = envpar.psimax;
-  Layer * currl = fstsoill;
   int sind = -1;
-  double sumbtran = 0.;
+  //double sumbtran = 0.;
+
+  //Skipping moss layer(s)
+  Layer * currl = fstsoill;
+  while(currl->isMoss && currl->nextl != NULL){
+    currl = currl->nextl;
+  }
 
   while(currl!=NULL) {
     if(currl->isSoil) {
@@ -823,20 +853,55 @@ void Soil_Env::getSoilTransFactor(double btran[MAX_SOI_LAY], Layer* fstsoill,
         psi = dynamic_cast<SoilLayer*>(currl)->getMatricPotential();
         psi = fmax(psimax, psi);
         psi = fmin(psisat, psi);
-        rresis = (1.0 - psi/psimax)/(1.0 - psisat/psimax);
-        btran[sind] = rootfr[sind] * rresis;
-        sumbtran   += rootfr[sind] * rresis;
+        //CLM3 Equation 8.11
+        wilting_factor[sind] = (psimax - psi)/(psimax + psisat);
+        //rresis = (1.0 - psi/psimax)/(1.0 - psisat/psimax);
+        //btran_elements is the invididual pieces for the summation
+        // in CLM3 Equation 8.10
+        betaT_elements[sind] = rootfr[sind] * wilting_factor[sind];
+        //sumbtran   += rootfr[sind] * rresis;
+      }
+      else {
+        wilting_factor[sind] = 0;
+        betaT_elements[sind] = 0;
       }
     }
 
     currl=currl->nextl;
   }
 
-  if (sumbtran > 1.0) {
+  //Summing for CLM3 Equation 8.10
+  for(int il=0; il<MAX_SOI_LAY; il++){
+    betaT += betaT_elements[il];
+  }
+  //Logging limit violations
+  if(betaT < 0){//1.e-10){
+    BOOST_LOG_SEV(glg, err) << "BetaT is out of range";
+  }
+
+  //CLM3 Equation 7.83
+  //Effective root fraction per PFT per layer
+  for(int il=0; il<MAX_SOI_LAY; il++){
+
+    if(betaT > 0){
+      r_e_ij[il] = (rootfr[il] * wilting_factor[il]) / betaT;
+    }
+    else{
+      r_e_ij[il] = 0;
+    }
+
+    if(r_e_ij[il] != r_e_ij[il]){
+      BOOST_LOG_SEV(glg, err) << "NaN in r_e_ij";
+    }
+
+  }
+
+/*  if (sumbtran > 1.0) {
     for (int il=0; il<cd->d_soil.numsl; il++) {
       btran[sind] /= sumbtran;
     }
-  }
+  }*/
+  return betaT;
 }
 
 // refresh snow-soil 'ed' from double-linked layer matrix after

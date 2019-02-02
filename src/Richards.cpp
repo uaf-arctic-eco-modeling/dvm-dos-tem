@@ -94,9 +94,9 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
   // in a soil profile, there may be a few or none
   Layer* currl=fstsoill;
 
-  // excluding moss layer(s) for hydrological process due to
-  // hydraulic parameters not validated, which causes oscillation
-  // if no exclusion of moss layer, comment out this 'while' loop
+  //Excluding moss layer(s) due to the lack of validated
+  // hydraulic parameters.
+  //If no exclusion of moss layer, comment out this 'while' loop
   while (currl != NULL && currl->isMoss) {
     currl = currl->nextl;
   }
@@ -527,10 +527,10 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
   // if excluded from hydrological process
   currl = topsoill->prevl;
 
-  while (currl!=NULL && currl->nextl!=NULL) {
-    if (currl->indl<fstsoill->indl) {
-      break;  // if no layer excluded, the 'while' loop will break here
-    }
+  while (currl!=NULL && currl->nextl!=NULL && currl->isMoss) {
+//    if (currl->indl<fstsoill->indl) {
+//      break;  // if no layer excluded, the 'while' loop will break here
+///    }
 
     double lwc = currl->nextl->getVolLiq();
     currl->liq = currl->dz*(1.0-currl->frozenfrac)*lwc*DENLIQ; //assuming same 'VWC' in the unfrozen portion as below
