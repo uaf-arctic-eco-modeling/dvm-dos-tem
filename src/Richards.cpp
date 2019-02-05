@@ -222,6 +222,7 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
       //This should only be used when the current layer and previous
       // layer are both above the water table.
       //if water table below layer i
+      //if(z_watertab >= z_h[ind]){
       if(z_watertab > z_h[ind]){
         thetaE[ind] = thetasat[ind] * psisat[ind] 
                    / ( (z_h[ind] - z_h[ind-1]) * (1 - 1 / Bsw[ind]) ) 
@@ -233,6 +234,7 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
                       );
       }
       //else if water table is in layer i
+      //else if(z_watertab < z_h[ind] && z_watertab >= z_h[ind-1]){
       else if(z_watertab < z_h[ind] && z_watertab > z_h[ind-1]){
         //Equation 7.130
         //As noted in the paper, thetaE_sat_i = theta_sat_i
@@ -480,8 +482,52 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
     }
   }
 
-  //If there is at least one saturated layer, we need to allow for
-  // lateral drainage.
+  //Calculating lateral drainage (only for saturated layers)
+  double layer_drain[MAX_SOI_LAY];
+  double column_drain = 0;//Total lateral drainage, mm/day
+  double eq7167_num = 0.;
+  double eq7167_den = 0.;
+
+  for(int ii=0; ii<MAX_SOI_LAY; ii++){
+    //For any saturated layer
+    if(theta[ii] / thetasat[ii] >= 0.9){
+
+      eq7167_num += ksat[ii] * dzmm[ii] / 1.e3;
+      eq7167_den += dzmm[ii] / 1.e3;
+    }
+  }
+
+  //Equation 7.167
+  //We do not allow Richards to run on frozen soil, so the ice
+  // parameter is ignored.
+  double slope_rads = cell_slope * PI / 180;//Converting to radians
+  double kdrain_perch = 10e-5 * sin(slope_rads)
+                      * (eq7167_num / eq7167_den);
+
+  double qdrain_perch = kdrain_perch * (bdraindepth - watertab)
+                      * fbaseflow;
+
+  //Applying lateral drainage to saturated layers 
+  currl = topsoill;
+  while(currl->solind <= drainind){
+    //This will skip indices that are empty (from Richards arrays
+    // being 1-based)
+    int ind = currl->solind - topind;
+    double layer_max_drain = currl->liq - effminliq[ind];
+
+    double layer_calc_drain = qdrain_perch * delta_t 
+                            * ((dzmm[ind]/1.e3) / eq7167_den);
+
+    layer_drain[ind] = fmin(layer_max_drain, layer_calc_drain);
+
+    if(layer_drain[ind] > 0){
+      currl->liq -= layer_drain[ind];
+      column_drain += layer_drain[ind];
+    }
+    currl = currl->nextl;
+  }
+
+/*TODO cleanup
   if(bdraindepth*1.e3 - z_watertab >= 0){
     double eq7167_num = 0.;
     double eq7167_den = 0.;
@@ -521,7 +567,7 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
       currl = currl->nextl;
     }
 
-  }
+  }*/
 
   // for layers above 'topsoill', e.g., 'moss',
   // if excluded from hydrological process
