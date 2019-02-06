@@ -29,11 +29,31 @@ def print_line_dict(d, header=False):
   else:
     print "{Name:>20s} {Units:>20s} {Yearly:>12} {Monthly:>12} {Daily:>12} {PFT:>12} {Compartments:>12} {Layers:>12}     {Description}".format(**d)
 
+def list_yearly_vars(data):
+  for line in data:
+    if line['Yearly'] != 'invalid':
+      print_line_dict(line)
+
+def list_monthly_vars(data):
+  for line in data:
+    if line['Monthly'] != 'invalid':
+      print_line_dict(line)
+
+def list_daily_vars(data):
+  for line in data:
+    if line['Daily'] != 'invalid':
+      print_line_dict(line)
+
 def list_pft_vars(list_of_lines):
   print_line_dict({}, header=True)
   for i in list_of_lines:
     if i['PFT'] != 'invalid':
       print_line_dict(i)
+
+def list_compartment_vars(data):
+  for line in data:
+    if line['Compartments'] != 'invalid':
+      print_line_dict(line)
 
 def list_layer_vars(list_of_lines):
   print_line_dict({},header=True)
@@ -186,11 +206,23 @@ if __name__ == '__main__':
       metavar=('FILE'), 
       help=textwrap.dedent('''The file to analyze.'''))
 
+  parser.add_argument('--list-yearly-vars', action='store_true',
+      help=textwrap.dedent('''Print all variables available at yearly timestep.'''))
+
+  parser.add_argument('--list-monthly-vars', action='store_true',
+      help=textwrap.dedent('''Print all variables available at monthly timestep.'''))
+
+  parser.add_argument('--list-daily-vars', action='store_true',
+      help=textwrap.dedent('''Print all variables available at daily timestep.'''))
+
   parser.add_argument('--list-pft-vars', action='store_true',
-      help=textwrap.dedent(''''''))
+      help=textwrap.dedent('''Print all variables available by PFT.'''))
+
+  parser.add_argument('--list-compartment-vars', action='store_true',
+      help=textwrap.dedent('''Print all variables available by Compartment.'''))
 
   parser.add_argument('--list-layer-vars', action='store_true',
-      help=textwrap.dedent(''''''))
+      help=textwrap.dedent('''Print all variables available by Layer.'''))
 
   parser.add_argument('-s','--summary', action='store_true',
       help=textwrap.dedent('''---???---'''))
@@ -209,9 +241,25 @@ if __name__ == '__main__':
   args = parser.parse_args()
   print args
 
+  if args.list_yearly_vars:
+    data = csv_file_to_data_dict_list(args.file)
+    list_yearly_vars(data)
+
+  if args.list_monthly_vars:
+    data = csv_file_to_data_dict_list(args.file)
+    list_monthly_vars(data)
+
+  if args.list_daily_vars:
+    data = csv_file_to_data_dict_list(args.file)
+    list_daily_vars(data)
+
   if args.list_pft_vars:
     data = csv_file_to_data_dict_list(args.file)
     list_pft_vars(data)
+
+  if args.list_compartment_vars:
+    data = csv_file_to_data_dict_list(args.file)
+    list_compartment_vars(data)
 
   if args.list_layer_vars:
     data = csv_file_to_data_dict_list(args.file)
