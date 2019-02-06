@@ -67,12 +67,22 @@ def write_data_to_csv(data, fname):
 def toggle_off_variable(data, var):
   for line in data:
     if line['Name'] == var:
-      for key in "Compartments,Layers,Monthly,Daily,Yearly".split(","):
+      for key in "Compartments,PFT,Layers,Monthly,Daily,Yearly".split(","):
         if line[key] == 'invalid':
           pass
         else:
           line[key] = ''
           print "Turning {} off for {} resolution".format(var, key)
+  return data
+
+def all_vars_off(data):
+  for line in data:
+    for key in "Compartments,Layers,PFT,Monthly,Daily,Yearly".split(","):
+      if line[key] == 'invalid':
+        pass
+      else:
+        line[key] = ''
+        print "Turning {} off for {} resolution".format(line['Name'], key)
   return data
 
 def toggle_on_variable(data, var, res_spec):
@@ -241,7 +251,12 @@ if __name__ == '__main__':
 
     sys.exit()
 
+  if args.empty:
 
+    data = csv_file_to_data_dict_list(args.file)
+    data = all_vars_off(data)
+    write_data_to_csv(data, "some.csv")
+    sys.exit()
 
 
 
