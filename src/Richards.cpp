@@ -463,7 +463,7 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
       double maxliq = effmaxliq[ind];
 
       //TODO - verify
-      currl->liq += currl->liq + dzmm[ind]/1.e3 * deltathetaliq[ind];
+      currl->liq += dzmm[ind]/1.e3 * deltathetaliq[ind];
       //currl->liq += currl->liq + dzmm[ind] * deltathetaliq[ind] + minliq;
       //currl->liq += deltathetaliq[il] + minliq;
 
@@ -482,49 +482,63 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
     }
   }
 
+  //updating theta post percolation so lateral drainage is
+  // based on today's values
+  for(int il=0; il<MAX_SOI_LAY+1; il++){
+    if(dzmm[il]>0){
+      theta[il] = effliq[il] / DENLIQ / (dzmm[il]/1.e3); //unitless
+    }
+  }
+
   //Calculating lateral drainage (only for saturated layers)
-  double layer_drain[MAX_SOI_LAY];
+  double layer_drain[MAX_SOI_LAY+1] = {0};
   double column_drain = 0;//Total lateral drainage, mm/day
   double eq7167_num = 0.;
   double eq7167_den = 0.;
+  bool sat_soil = false;//If there is at least one saturated layer
 
   for(int ii=0; ii<MAX_SOI_LAY; ii++){
     //For any saturated layer
     if(theta[ii] / thetasat[ii] >= 0.9){
+      sat_soil = true;
 
       eq7167_num += ksat[ii] * dzmm[ii] / 1.e3;
       eq7167_den += dzmm[ii] / 1.e3;
     }
   }
 
-  //Equation 7.167
-  //We do not allow Richards to run on frozen soil, so the ice
-  // parameter is ignored.
-  double slope_rads = cell_slope * PI / 180;//Converting to radians
-  double kdrain_perch = 10e-5 * sin(slope_rads)
-                      * (eq7167_num / eq7167_den);
+  //If there is at least one saturated layer, apply lateral drainage
+  if(sat_soil){
+    //Equation 7.167
+    //We do not allow Richards to run on frozen soil, so the ice
+    // parameter is ignored.
+    double slope_rads = cell_slope * PI / 180;//Converting to radians
+    double kdrain_perch = 10e-5 * sin(slope_rads)
+                        * (eq7167_num / eq7167_den);
 
-  double qdrain_perch = kdrain_perch * (bdraindepth - watertab)
-                      * fbaseflow;
+    double qdrain_perch = kdrain_perch * (bdraindepth - watertab)
+                        * fbaseflow;
 
-  //Applying lateral drainage to saturated layers 
-  currl = topsoill;
-  while(currl->solind <= drainind){
-    //This will skip indices that are empty (from Richards arrays
-    // being 1-based)
-    int ind = currl->solind - topind;
-    double layer_max_drain = currl->liq - effminliq[ind];
+    //Applying lateral drainage to saturated layers 
+    currl = topsoill;
+    while(currl->solind <= drainind){
+      //This will skip indices that are empty (from Richards arrays
+      // being 1-based)
+      //int ind = currl->solind - topind;
+      int ind = currl->solind;
+      double layer_max_drain = currl->liq - effminliq[ind];
 
-    double layer_calc_drain = qdrain_perch * delta_t 
-                            * ((dzmm[ind]/1.e3) / eq7167_den);
+      double layer_calc_drain = qdrain_perch * delta_t 
+                              * ((dzmm[ind]/1.e3) / eq7167_den);
 
-    layer_drain[ind] = fmin(layer_max_drain, layer_calc_drain);
+      layer_drain[ind] = fmin(layer_max_drain, layer_calc_drain);
 
-    if(layer_drain[ind] > 0){
-      currl->liq -= layer_drain[ind];
-      column_drain += layer_drain[ind];
+      if(layer_drain[ind] > 0){
+        currl->liq -= layer_drain[ind];
+        column_drain += layer_drain[ind];
+      }
+      currl = currl->nextl;
     }
-    currl = currl->nextl;
   }
 
 /*TODO cleanup

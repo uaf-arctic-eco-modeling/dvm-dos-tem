@@ -827,15 +827,15 @@ double Soil_Env::getSoilTransFactor(double r_e_ij[MAX_SOI_LAY],
   // r_e_i is
   double psimax, psi, psisat;
   //double rresis;
-  double wilting_factor[MAX_SOI_LAY];
-  double betaT_elements[MAX_SOI_LAY];
-  for(int il=0; il<MAX_SOI_LAY; il++){
-    wilting_factor[il] = 0.;
-    betaT_elements[il] = 0.;
-  }
+  double wilting_factor[MAX_SOI_LAY] = {0};
+  double betaT_elements[MAX_SOI_LAY] = {0};
+//  for(int il=0; il<MAX_SOI_LAY; il++){
+//    wilting_factor[il] = 0.;
+//    betaT_elements[il] = 0.;
+//  }
   double betaT = 0.;
   psimax = envpar.psimax;
-  int sind = -1;
+  int layind = -1;
   //double sumbtran = 0.;
 
   //Skipping moss layer(s)
@@ -846,7 +846,7 @@ double Soil_Env::getSoilTransFactor(double r_e_ij[MAX_SOI_LAY],
 
   while(currl!=NULL) {
     if(currl->isSoil) {
-      sind++;
+      layind++;
 
       if(currl->tem>=0.01) {
         psisat = currl->psisat;
@@ -854,16 +854,18 @@ double Soil_Env::getSoilTransFactor(double r_e_ij[MAX_SOI_LAY],
         psi = fmax(psimax, psi);
         psi = fmin(psisat, psi);
         //CLM3 Equation 8.11
-        wilting_factor[sind] = (psimax - psi)/(psimax + psisat);
+        wilting_factor[layind] = (psimax - psi)/(psimax + psisat);
         //rresis = (1.0 - psi/psimax)/(1.0 - psisat/psimax);
-        //btran_elements is the invididual pieces for the summation
+        //btran_elements is the individual pieces for the summation
         // in CLM3 Equation 8.10
-        betaT_elements[sind] = rootfr[sind] * wilting_factor[sind];
+        //rootfr uses a modified index because element 0 is for
+        // the moss layer
+        betaT_elements[layind] = rootfr[layind+1] * wilting_factor[layind];
         //sumbtran   += rootfr[sind] * rresis;
       }
       else {
-        wilting_factor[sind] = 0;
-        betaT_elements[sind] = 0;
+        wilting_factor[layind] = 0;
+        betaT_elements[layind] = 0;
       }
     }
 
