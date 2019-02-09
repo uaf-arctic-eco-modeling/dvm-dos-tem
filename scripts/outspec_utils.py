@@ -29,6 +29,10 @@ def print_line_dict(d, header=False):
   else:
     print "{Name:>20s} {Units:>20s} {Yearly:>12} {Monthly:>12} {Daily:>12} {PFT:>12} {Compartments:>12} {Layers:>12}     {Description}".format(**d)
 
+def list_vars(data):
+  var_names = [line['Name'] for line in data]
+  return sorted(var_names)
+
 def show_yearly_vars(data):
   print_line_dict({}, header=True)
   for line in data:
@@ -89,6 +93,9 @@ def write_data_to_csv(data, fname):
       writer.writerows(data)
 
 def toggle_off_variable(data, var):
+  if var not in list_vars(data):
+    raise ValueError("Invalid variable! {} not found!".format(var))
+
   for line in data:
     if line['Name'] == var:
       for key in "Compartments,PFT,Layers,Monthly,Daily,Yearly".split(","):
@@ -110,6 +117,9 @@ def all_vars_off(data):
   return data
 
 def toggle_on_variable(data, var, res_spec):
+
+  if var not in list_vars(data):
+    raise ValueError("Invalid variable! {} not found!".format(var))
 
   for line in data:
     if 'Name' not in line.keys():
@@ -210,6 +220,9 @@ if __name__ == '__main__':
       metavar=('FILE'), 
       help=textwrap.dedent('''The file to analyze.'''))
 
+  parser.add_argument('--list-vars', action='store_true',
+      help=textwrap.dedent('''List all available variables.'''))
+
   parser.add_argument('--show-yearly-vars', action='store_true',
       help=textwrap.dedent('''Print all variables available at yearly timestep.'''))
 
@@ -244,6 +257,11 @@ if __name__ == '__main__':
 
   args = parser.parse_args()
   print args
+
+  if args.list_vars:
+    data = csv_file_to_data_dict_list(args.file)
+    print "\n".join(sorted(list_vars(data)))
+    sys.exit()
 
   if args.show_yearly_vars:
     data = csv_file_to_data_dict_list(args.file)
