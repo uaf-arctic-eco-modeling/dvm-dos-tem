@@ -97,7 +97,7 @@ def toggle_off_variable(data, var):
     raise ValueError("Invalid variable! {} not found!".format(var))
 
   for line in data:
-    if line['Name'] == var:
+    if line['Name'] == var.upper():
       for key in "Compartments,PFT,Layers,Monthly,Daily,Yearly".split(","):
         if line[key] == 'invalid':
           pass
@@ -123,17 +123,16 @@ def toggle_on_variable(data, var, res_spec):
 
   for line in data:
     if 'Name' not in line.keys():
-      print "ERROR!"
+      print "ERROR! Missing 'Name' field for row: {}".format(line)
       sys.exit()
 
-    if line['Name'] == var:
+    if line['Name'] == var.upper():
 
-      # print "BEFORE"
-      # print line
       def safe_set(data_dict, key, new):
         '''Modify dict in place. Pass by name python sementics.'''
         if data_dict[key] == 'invalid':
-          print "passing: {} at {} resolution is set to invalid, not setting to '{}'".format(data_dict['Name'], key, new)
+          #print "passing: {} at {} resolution is set to invalid, not setting to '{}'".format(data_dict['Name'], key, new)
+          pass
         else:
           data_dict[key] = new
 
@@ -168,29 +167,12 @@ def toggle_on_variable(data, var, res_spec):
       if any([r.lower() in ('l','layer','lay') for r in res_spec]):
         safe_set(line, 'Layers', 'l')
 
+      print_line_dict({}, header=True)
+      print_line_dict(line)
 
-      #from IPython import embed; embed()
-      if line['PFT'] == 'invalid' or line['PFT'] == '':
-        pass # Who cares..
-      else:
-        if all([x == 'invalid' or x == '' for x in [line['Yearly'], line['Monthly'], line['Daily']]]):
-          print "WARNING! Invalid setting detected! You might not get output for {}".format(line['Name'])
+      if all([x == 'invalid' or x == '' for x in [line['Yearly'], line['Monthly'], line['Daily']]]):
+        print "WARNING! Invalid TIME setting detected! You won't get output for {}".format(line['Name'])
 
-      if line['Compartments'] == 'invalid' or line['Compartments'] == '':
-        pass # Who cares..
-      else:
-        if all([x == 'invalid' or x == '' for x in [line['Yearly'], line['Monthly'], line['Daily']]]):
-          print "WARNING! Invalid setting detected! You might not get output for {}".format(line['Name'])
-
-      if line['Layers'] == 'invalid' or line['Layers'] == '':
-        pass # Who cares..
-      else:
-        if all([x == 'invalid' or x == '' for x in [line['Yearly'], line['Monthly'], line['Daily']]]):
-          print "WARNING! Invalid setting detected! You might not get output for {}".format(line['Name'])
-
-      # print "AFTER"
-      # print line
- 
   return data
 
 
@@ -242,11 +224,13 @@ if __name__ == '__main__':
       help=textwrap.dedent('''Print all variables available by Layer.'''))
 
   parser.add_argument('-s','--summary', action='store_true',
-      help=textwrap.dedent('''---???---'''))
+      help=textwrap.dedent('''Print out all the variables that are enabled in 
+        the file.'''))
 
   parser.add_argument('--on', 
       nargs='+', metavar=('VAR', 'RES',),
-      help=textwrap.dedent(''''''))
+      help=textwrap.dedent('''Turn the selected variable on at the selected
+        resolution. '''))
 
   parser.add_argument('--off', 
       nargs=1, metavar=('VAR'),
