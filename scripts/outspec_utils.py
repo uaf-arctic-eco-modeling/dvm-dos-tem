@@ -307,7 +307,7 @@ if __name__ == '__main__':
     
     data = toggle_on_variable(data, var, res_spec)
 
-    write_data_to_csv(data, "some.csv")
+    write_data_to_csv(data, args.file)
 
     sys.exit()
 
@@ -317,7 +317,7 @@ if __name__ == '__main__':
 
     data = toggle_off_variable(data, var)
 
-    write_data_to_csv(data, "some.csv")
+    write_data_to_csv(data, args.file)
 
     sys.exit()
 
@@ -325,7 +325,7 @@ if __name__ == '__main__':
 
     data = csv_file_to_data_dict_list(args.file)
     data = all_vars_off(data)
-    write_data_to_csv(data, "some.csv")
+    write_data_to_csv(data, args.file)
     sys.exit()
 
 
