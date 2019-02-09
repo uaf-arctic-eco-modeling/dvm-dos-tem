@@ -255,8 +255,13 @@ if __name__ == '__main__':
   parser.add_argument('--empty', action='store_true',
       help=textwrap.dedent('''---???---'''))
 
+  parser.add_argument('--DEBUG', action='store_true',
+      help=textwrap.dedent('''Print extra info for debugging.'''))
+
   args = parser.parse_args()
-  print args
+
+  if args.DEBUG:
+    print args
 
   if args.list_vars:
     data = csv_file_to_data_dict_list(args.file)
