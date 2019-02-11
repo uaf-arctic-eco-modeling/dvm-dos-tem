@@ -547,7 +547,7 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
     double eq782_num[MAX_SOI_LAY];
     double eq782_den[MAX_SOI_LAY];
     //il starts at one to skip the moss layer
-    for(int il=1; il<MAX_SOI_LAY; il++){
+    for(int il=0; il<MAX_SOI_LAY; il++){
       eq782_num[il] = 0.;
       eq782_den[il] = 0.;
       for(int ip=0; ip<NUM_PFT; ip++){

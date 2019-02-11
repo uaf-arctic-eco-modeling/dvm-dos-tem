@@ -492,7 +492,8 @@ void Soil_Env::updateDailySM(double weighted_veg_tran) {
   Layer * drainl    = ground->drainl;
   double draindepth = ground->draindepth;
   // First, data connection
-  double trans[MAX_SOI_LAY], melt, evap, rnth;
+  double trans[MAX_SOI_LAY+1] = {0};
+  double melt, evap, rnth;
 
   //CLM3 Equation 7.81
 //  double weighted_veg_tran = 0.;
@@ -500,7 +501,7 @@ void Soil_Env::updateDailySM(double weighted_veg_tran) {
 //    weighted_veg_tran += ed->d_v2a.tran * cd->d_veg.fpc[ip];
 //  }
 
-  for (int il=0; il<MAX_SOI_LAY; il++) {
+  for (int il=1; il<MAX_SOI_LAY+1; il++) {
     // mm/day
     // summed for all vegetation?
     // or for all soil layers?
@@ -591,7 +592,7 @@ void Soil_Env::updateDailySM(double weighted_veg_tran) {
 
   // 2) Then soil water dynamics at daily time step
 
-  for (int i=0; i<MAX_SOI_LAY; i++) {
+  for (int i=0; i<MAX_SOI_LAY+1; i++) {
     trans[i] /= SEC_IN_DAY; // mm/day to mm/s
   }
 
@@ -886,7 +887,7 @@ double Soil_Env::getSoilTransFactor(double r_e_ij[MAX_SOI_LAY],
   for(int il=0; il<MAX_SOI_LAY; il++){
 
     if(betaT > 0){
-      r_e_ij[il] = (rootfr[il] * wilting_factor[il]) / betaT;
+      r_e_ij[il] = (rootfr[il+1] * wilting_factor[il]) / betaT;
     }
     else{
       r_e_ij[il] = 0;
