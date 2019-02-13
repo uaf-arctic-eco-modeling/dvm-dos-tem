@@ -304,15 +304,25 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
 
       //Equation 7.115
       //q_iminus1^n
+//      q_iminus1_n[ind] = -k[ind-1]
+//                       * ( (psi[ind-1] - psi[ind] + psiE[ind] - psiE[ind-1])
+//                           / (nodemm[ind] - nodemm[ind-1]) );
+      //CLM5 Equation 7.74
       q_iminus1_n[ind] = -k[ind-1]
-                       * ( (psi[ind-1] - psi[ind] + psiE[ind] - psiE[ind-1])
+                       * ( (psi[ind-1] - psi[ind] + nodemm[ind] - nodemm[ind-1])
                            / (nodemm[ind] - nodemm[ind-1]) );
+
 
       //Equation 7.116
       //q_i^n
+//      q_i_n[ind] = -k[ind]
+//                 * ( (psi[ind] - psi[ind+1] + psiE[ind+1] - psiE[ind])
+//                     / (nodemm[ind+1] - nodemm[ind]) );
+      //CLM5 Equation 7.75
       q_i_n[ind] = -k[ind]
-                 * ( (psi[ind] - psi[ind+1] + psiE[ind+1] - psiE[ind])
+                 * ( (psi[ind] - psi[ind+1] + nodemm[ind+1] - nodemm[ind])
                      / (nodemm[ind+1] - nodemm[ind]) );
+
 
       //Equation 7.121
       //deltapsi_iminus1 / deltatheta_liq_iminus1
@@ -363,26 +373,50 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
                     - eq7124[ind] 
                     * ( psi[ind-1] - psi[ind] + psiE[ind] - psiE[ind-1]
                         /(nodemm[ind] - nodemm[ind-1]) );
+      //CLM5 Equation 7.76
+      eq7117[ind] = - ( (k[ind-1]/(nodemm[ind]-nodemm[ind-1])) * eq7121[ind] )
+                    - eq7124[ind] 
+                    * ( psi[ind-1] - psi[ind] + nodemm[ind] - nodemm[ind-1]
+                        /(nodemm[ind] - nodemm[ind-1]) );
+
 
       //Equation 7.118
       //deltaq_iminus1 / deltatheta_liq_i
+//      eq7118[ind] = ( (k[ind-1]/(nodemm[ind]-nodemm[ind-1])) * eq7122[ind] )
+//                  - eq7124[ind] 
+//                  * ( psi[ind-1] - psi[ind] + psiE[ind] - psiE[ind-1]
+//                      /(nodemm[ind] - nodemm[ind-1]) );
+      //CLM5 Equation 7.77
       eq7118[ind] = ( (k[ind-1]/(nodemm[ind]-nodemm[ind-1])) * eq7122[ind] )
                   - eq7124[ind] 
-                  * ( psi[ind-1] - psi[ind] + psiE[ind] - psiE[ind-1]
+                  * ( psi[ind-1] - psi[ind] + nodemm[ind] - nodemm[ind-1]
                       /(nodemm[ind] - nodemm[ind-1]) );
+
 
       //Equation 7.119
       //deltaq_i / deltatheta_liq_i
+//      eq7119[ind] = - ( (k[ind]/(nodemm[ind+1] - nodemm[ind])) * eq7122[ind] )
+//                    - eq7125[ind] 
+//                    * ( psi[ind] - psi[ind+1] + psiE[ind+1] - psiE[ind]
+//                        /(nodemm[ind+1] - nodemm[ind]) );
+      //CLM5 Equation 7.78
       eq7119[ind] = - ( (k[ind]/(nodemm[ind+1] - nodemm[ind])) * eq7122[ind] )
                     - eq7125[ind] 
-                    * ( psi[ind] - psi[ind+1] + psiE[ind+1] - psiE[ind]
+                    * ( psi[ind] - psi[ind+1] + nodemm[ind+1] - nodemm[ind]
                         /(nodemm[ind+1] - nodemm[ind]) );
+
+
 
       //Equation 7.120
       //deltaq_i / deltatheta_liq_iplus1
+//      eq7120[ind] = (k[ind]/(nodemm[ind+1] - nodemm[ind])) * eq7123[ind]
+//                  - eq7125[ind]  
+//                  * ( psi[ind] - psi[ind+1] + psiE[ind+1] - psiE[ind]
+//                      /(nodemm[ind+1] - nodemm[ind]) );
+      //CLM5 Equation 7.79
       eq7120[ind] = (k[ind]/(nodemm[ind+1] - nodemm[ind])) * eq7123[ind]
                   - eq7125[ind]  
-                  * ( psi[ind] - psi[ind+1] + psiE[ind+1] - psiE[ind]
+                  * ( psi[ind] - psi[ind+1] + nodemm[ind+1] - nodemm[ind]
                       /(nodemm[ind+1] - nodemm[ind]) );
 
 
@@ -508,8 +542,8 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
   //Calculating lateral drainage (only for saturated layers)
   double layer_drain[MAX_SOI_LAY+1] = {0};
   double column_drain = 0;//Total lateral drainage, mm/day
-  double eq7167_num = 0.;
-  double eq7167_den = 0.;
+  double eq7103_num = 0.;
+  double eq7103_den = 0.;
   bool sat_soil = false;//If there is at least one saturated layer
 
   for(int ii=0; ii<MAX_SOI_LAY; ii++){
@@ -517,19 +551,20 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
     if(theta[ii] / thetasat[ii] >= 0.9){
       sat_soil = true;
 
-      eq7167_num += ksat[ii] * dzmm[ii] / 1.e3;
-      eq7167_den += dzmm[ii] / 1.e3;
+      eq7103_num += ksat[ii] * dzmm[ii] / 1.e3;
+      eq7103_den += dzmm[ii] / 1.e3;
     }
   }
 
   //If there is at least one saturated layer, apply lateral drainage
   if(sat_soil){
-    //Equation 7.167
+    //CLM4.5 Equation 7.167
+    //CLM5 Equations 7.103 and 7.102
     //We do not allow Richards to run on frozen soil, so the ice
     // parameter is ignored.
     double slope_rads = cell_slope * PI / 180;//Converting to radians
     double kdrain_perch = 10e-5 * sin(slope_rads)
-                        * (eq7167_num / eq7167_den);
+                        * (eq7103_num / eq7103_den);
 
     double qdrain_perch = kdrain_perch * (bdraindepth - watertab)
                         * fbaseflow;
@@ -545,7 +580,7 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
         double layer_max_drain = currl->liq - effminliq[ind];
 
         double layer_calc_drain = qdrain_perch * delta_t 
-                                * ((dzmm[ind]/1.e3) / eq7167_den);
+                                * ((dzmm[ind]/1.e3) / eq7103_den);
 
         layer_drain[ind] = fmin(layer_max_drain, layer_calc_drain);
 
