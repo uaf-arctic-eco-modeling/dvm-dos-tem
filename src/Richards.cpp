@@ -122,6 +122,10 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
   // in the following (more complex) calculations.
   prepareSoilColumn(topsoill, bdraindepth);
 
+  //Re-index trans to match the other arrays used in Richards
+  for(int il=indx0al; il<MAX_SOI_LAY; il++){
+    qtrans[il] = trans[il-indx0al];
+  }
 
   //If there is only one active layer, the equations below are... TODO
   //calculate drain by something
@@ -156,7 +160,7 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
     //Need to use trans[ind-1] because trans is zero based
     // while layer solind is one based.
     //No percolation if single layer
-    water_out = trans[ind-1];
+    water_out = qtrans[ind];
 
     water_change = (water_in - water_out) * delta_t;
 
@@ -166,6 +170,9 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
 
     currl->hcond = k[ind];
 
+    //Re-calculate effliq so that theta can be recalculated for
+    // lateral drainage (below the multi-layer section)
+    effliq[ind] = fmax(0.0001, currl->liq-effminliq[ind]);
   }
 
   else{ //multiple active layers
@@ -206,6 +213,7 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
       //logging psi out-of-range violations
       if(psi[ind] < -1e8){
         BOOST_LOG_SEV(glg, err)<<"psi["<<ind<<"] out of range: "<<psi[ind];
+        psi[ind] = fmax(psi[ind], -1.e8);
       }
 
       //Equation 7.131
@@ -397,7 +405,7 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
         // than CLM. See section 7.3.3 for CLM approach. 
         // TODO verify the index modification - 1 or 2?
         //The sign convention between CLM 4.5 and ddt are different
-        coeffR[ind] = infil - q_i_n[ind] + (evap + trans[ind-1]); 
+        coeffR[ind] = -infil - q_i_n[ind] + (evap + qtrans[ind]); 
       }
       //This is for the middle layers - neither top nor drain
       else if(ind>topind && ind<drainind){
@@ -412,7 +420,7 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
         coeffC[ind] = eq7120[ind];
 
         //Equation 7.143. Uses 7.115 and 7.116
-        coeffR[ind] = q_iminus1_n[ind] - q_i_n[ind] + trans[ind];
+        coeffR[ind] = q_iminus1_n[ind] - q_i_n[ind] + qtrans[ind];
       }
       //This is the drain layer
       else if(ind==drainind){
@@ -427,7 +435,7 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
         coeffC[ind] = 0.0; 
 
         //Equation 7.147. Uses 7.115
-        coeffR[ind] = q_iminus1_n[ind] + trans[ind];
+        coeffR[ind] = q_iminus1_n[ind] + qtrans[ind];
       }
 
       currl = currl->nextl; //Move down the soil column
@@ -463,6 +471,7 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
       double maxliq = effmaxliq[ind];
 
       //TODO - verify
+      //currl->liq += dzmm[ind] * deltathetaliq[ind];
       currl->liq += dzmm[ind]/1.e3 * deltathetaliq[ind];
       //currl->liq += currl->liq + dzmm[ind] * deltathetaliq[ind] + minliq;
       //currl->liq += deltathetaliq[il] + minliq;
@@ -478,12 +487,18 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
 
       currl->hcond = k[ind];
 
+      //Re-calculate effliq so that theta can be recalculated for
+      // lateral drainage (below)
+      effliq[ind] = fmax(0.0001, currl->liq-effminliq[ind]);
+ 
       currl = currl->nextl;
     }
   }
 
-  //updating theta post percolation so lateral drainage is
+  //Updating theta post percolation so lateral drainage is
   // based on today's values
+  //Note that effliq is updated in two locations above (post layer
+  // water modification). 
   for(int il=0; il<MAX_SOI_LAY+1; il++){
     if(dzmm[il]>0){
       theta[il] = effliq[il] / DENLIQ / (dzmm[il]/1.e3); //unitless

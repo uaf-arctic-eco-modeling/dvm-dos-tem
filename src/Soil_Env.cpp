@@ -492,7 +492,7 @@ void Soil_Env::updateDailySM(double weighted_veg_tran) {
   Layer * drainl    = ground->drainl;
   double draindepth = ground->draindepth;
   // First, data connection
-  double trans[MAX_SOI_LAY+1] = {0};
+  double trans[MAX_SOI_LAY] = {0};
   double melt, evap, rnth;
 
   //CLM3 Equation 7.81
@@ -501,7 +501,7 @@ void Soil_Env::updateDailySM(double weighted_veg_tran) {
 //    weighted_veg_tran += ed->d_v2a.tran * cd->d_veg.fpc[ip];
 //  }
 
-  for (int il=1; il<MAX_SOI_LAY+1; il++) {
+  for (int il=0; il<MAX_SOI_LAY; il++) {
     // mm/day
     // summed for all vegetation?
     // or for all soil layers?
