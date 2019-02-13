@@ -526,16 +526,18 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
       // being 1-based)
       //int ind = currl->solind - topind;
       int ind = currl->solind;
-      double layer_max_drain = currl->liq - effminliq[ind];
+      if(theta[ind] / thetasat[ind] >= 0.9){
+        double layer_max_drain = currl->liq - effminliq[ind];
 
-      double layer_calc_drain = qdrain_perch * delta_t 
-                              * ((dzmm[ind]/1.e3) / eq7167_den);
+        double layer_calc_drain = qdrain_perch * delta_t 
+                                * ((dzmm[ind]/1.e3) / eq7167_den);
 
-      layer_drain[ind] = fmin(layer_max_drain, layer_calc_drain);
+        layer_drain[ind] = fmin(layer_max_drain, layer_calc_drain);
 
-      if(layer_drain[ind] > 0){
-        currl->liq -= layer_drain[ind];
-        column_drain += layer_drain[ind];
+        if(layer_drain[ind] > 0){
+          currl->liq -= layer_drain[ind];
+          column_drain += layer_drain[ind];
+        }
       }
       currl = currl->nextl;
     }
