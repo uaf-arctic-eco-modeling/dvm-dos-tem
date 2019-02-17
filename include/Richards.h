@@ -28,9 +28,14 @@ public :
   double qdrain; // mm/day
   double excess_runoff; //Runoff discovered in Richards (post getRunoff)
 
+  //Array to hold lateral drainage values for output to file.
+  double layer_drain[MAX_SOI_LAY];
+
+  double percolation[MAX_SOI_LAY];
+
   void update(Layer *fstsoill, Layer* bdrainl, const double & bdraindepth,
               const double & fbaseflow, const double & watertab,
-              double trans[MAX_SOI_LAY],
+              double root_water_up[MAX_SOI_LAY],
               const double & evap, const double & infil,
               const double & cell_slope, const double &ts);
 

@@ -61,6 +61,8 @@ void Richards::clearRichardsArrays(){
     effminliq[ii] = 0.0;
     effmaxliq[ii] = 0.0;
     qout[ii] = 0.0;
+    layer_drain[ii] = 0.0;
+    percolation[ii] = 0.0;
   }
 };
 
@@ -505,19 +507,21 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
       double maxliq = effmaxliq[ind];
 
       //TODO - verify
-      //currl->liq += dzmm[ind] * deltathetaliq[ind];
-      currl->liq += dzmm[ind]/1.e3 * deltathetaliq[ind];
+      double liquid_change = dzmm[ind] * deltathetaliq[ind];
+      currl->liq += liquid_change;
+      //currl->liq += dzmm[ind]/1.e3 * deltathetaliq[ind];
       //currl->liq += currl->liq + dzmm[ind] * deltathetaliq[ind] + minliq;
       //currl->liq += deltathetaliq[il] + minliq;
+      percolation[ind] = liquid_change;
 
-    //Restricting layer liquid to range defined by min and max
-    if(currl->liq<minliq){
-      currl->liq = minliq;
-    }
+      //Restricting layer liquid to range defined by min and max
+      if(currl->liq<minliq){
+        currl->liq = minliq;
+      }
 
-    if(currl->liq>maxliq){
-      currl->liq = maxliq;
-    }
+      if(currl->liq>maxliq){
+        currl->liq = maxliq;
+      }
 
       currl->hcond = k[ind];
 
@@ -540,8 +544,8 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
   }
 
   //Calculating lateral drainage (only for saturated layers)
-  double layer_drain[MAX_SOI_LAY+1] = {0};
-  double column_drain = 0;//Total lateral drainage, mm/day
+  double lateral_drain[MAX_SOI_LAY+1] = {0};
+  //double column_drain = 0;//Total lateral drainage, mm/day
   double eq7103_num = 0.;
   double eq7103_den = 0.;
   bool sat_soil = false;//If there is at least one saturated layer
@@ -586,7 +590,7 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
 
         if(layer_drain[ind] > 0){
           currl->liq -= layer_drain[ind];
-          column_drain += layer_drain[ind];
+          qdrain += layer_drain[ind];
         }
       }
       currl = currl->nextl;

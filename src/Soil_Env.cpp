@@ -492,7 +492,7 @@ void Soil_Env::updateDailySM(double weighted_veg_tran) {
   Layer * drainl    = ground->drainl;
   double draindepth = ground->draindepth;
   // First, data connection
-  double trans[MAX_SOI_LAY] = {0};
+  //trans[MAX_SOI_LAY] = {0};
   double melt, evap, rnth;
 
   //CLM3 Equation 7.81
@@ -506,10 +506,10 @@ void Soil_Env::updateDailySM(double weighted_veg_tran) {
     // summed for all vegetation?
     // or for all soil layers?
     //CLM3 Equation 7.80
-    trans[il] = ed->d_soid.r_e_i[il] * weighted_veg_tran;// * ed->d_soid.fbtran[i];
+    root_water_up[il] = ed->d_soid.r_e_i[il] * weighted_veg_tran;// * ed->d_soid.fbtran[i];
 
-    if(trans[il] != trans[il]){
-      BOOST_LOG_SEV(glg, err) << "NaN in trans in updateDailySM";
+    if(root_water_up[il] != root_water_up[il]){
+      BOOST_LOG_SEV(glg, err) << "NaN in root_water_up in updateDailySM";
     }
 
   }
@@ -593,7 +593,7 @@ void Soil_Env::updateDailySM(double weighted_veg_tran) {
   // 2) Then soil water dynamics at daily time step
 
   for (int i=0; i<MAX_SOI_LAY+1; i++) {
-    trans[i] /= SEC_IN_DAY; // mm/day to mm/s
+    root_water_up[i] /= SEC_IN_DAY; // mm/day to mm/s
   }
 
   infil /= SEC_IN_DAY; // mm/day to mm/s
@@ -613,11 +613,15 @@ void Soil_Env::updateDailySM(double weighted_veg_tran) {
   // may need modification. 
   if(ground->fstshlwl->frozen != 1){//drainl != NULL){
     richards.update(ground->fstshlwl, drainl, draindepth, baseflow,
-                    ed->d_sois.watertab, trans, evap,
+                    ed->d_sois.watertab, root_water_up, evap,
                     infil, cd->cell_slope,
                     SEC_IN_DAY);
     ed->d_soi2l.qdrain += richards.qdrain;
     ed->d_soi2l.qover += richards.excess_runoff;
+
+    for(int il=0; il<MAX_SOI_LAY; il++){
+      ed->d_soi2l.layer_drain[il] = richards.layer_drain[il];
+    }
   }
   else{
     //Simply subtract transpiration from each layer
@@ -625,10 +629,11 @@ void Soil_Env::updateDailySM(double weighted_veg_tran) {
 
     while(currl!=NULL){
       //solind is 1-based, and need to convert back to mm/day
-      currl->liq -= trans[currl->solind-1] * SEC_IN_DAY;
+      currl->liq -= root_water_up[currl->solind-1] * SEC_IN_DAY;
       currl = currl->nextl;
     }
   }
+
   //
   ground->checkWaterValidity();
 };

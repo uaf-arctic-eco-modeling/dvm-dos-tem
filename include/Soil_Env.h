@@ -25,6 +25,8 @@ public:
 
   soipar_env envpar;
 
+  double root_water_up[MAX_SOI_LAY];
+
   Richards richards;
   Stefan stefan;
   TemperatureUpdator tempupdator;

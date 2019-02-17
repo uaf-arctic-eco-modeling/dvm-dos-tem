@@ -619,6 +619,11 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
     ground.setDrainL(ground.lstsoill, edall->d_soid.ald,
                      edall->d_sois.watertab);
     soilenv.updateDailySM(weighted_veg_tran);  //soil moisture
+    //Copy daily water uptake values to storage array for output
+    for(int il=0; il<MAX_SOI_LAY; il++){
+      edall->daily_root_water_uptake[id][il] = soilenv.root_water_up[il];
+      edall->daily_percolation[id][il] = soilenv.richards.percolation[il];
+    }
 
     // save the variables to daily 'edall' (Note: not PFT specified)
     soilenv.retrieveDailyTM(ground.toplayer, ground.lstsoill);
