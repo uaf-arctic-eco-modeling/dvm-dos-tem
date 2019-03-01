@@ -351,6 +351,7 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
       // and filename during output.
       new_spec.file_path = output_base.string();
       new_spec.filename_prefix = name + "_" + timestep;
+      new_spec.var_name = name;
 
       // Temporary name for file creation.
       std::string creation_filename = name + "_" + timestep + "_" + stage + ".nc";

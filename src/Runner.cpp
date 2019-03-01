@@ -900,6 +900,41 @@ void Runner::output_netCDF_yearly(int year, std::string stage){
 //20181006 Currently there are only a few variables using these
 // general functions, but since they include the front outputs
 // we are merging this despite it being incomplete.
+template <typename PTYPE>
+void Runner::output_nc_test(OutputSpec* out_spec, std::string stage_suffix,
+                            PTYPE data, int max_var_count,
+                            int start_timestep, int timesteps){
+  //timestep, layer, row, col
+  size_t datastart[4];
+  datastart[0] = start_timestep;
+  datastart[1] = 0;
+  datastart[2] = this->y;
+  datastart[3] = this->x;
+
+  size_t datacount[4];
+  datacount[0] = timesteps;
+  datacount[1] = max_var_count;
+  datacount[2] = 1;
+  datacount[3] = 1;
+
+  int ncid, cv;
+  std::string output_filename = out_spec->file_path + out_spec->filename_prefix + stage_suffix;
+
+#ifdef WITHMPI
+  temutil::nc( nc_open_par(output_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
+  temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
+#else
+  temutil::nc( nc_open(output_filename.c_str(), NC_WRITE, &ncid) );
+#endif
+
+  temutil::nc( nc_inq_varid(ncid, out_spec->var_name.c_str(), &cv) );
+
+  temutil::nc( nc_put_vara(ncid, cv, datastart, datacount, data) );
+
+  temutil::nc( nc_close(ncid) );
+}
+
+
 void Runner::output_nc_soil_layer(int ncid, int cv, int *data, int max_var_count, int start_timestep, int timesteps){
 
   //timestep, layer, row, col
@@ -3213,26 +3248,15 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: IWCLAYER";
     curr_spec = map_itr->second;
-    curr_filename = curr_spec.file_path + curr_spec.filename_prefix + file_stage_suffix;
 
     #pragma omp critical(outputIWCLAYER)
     {
-#ifdef WITHMPI
-      temutil::nc( nc_open_par(curr_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
-      temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
-#else
-      temutil::nc( nc_open(curr_filename.c_str(), NC_WRITE, &ncid) );
-#endif
-      temutil::nc( nc_inq_varid(ncid, "IWCLAYER", &cv) );
-
       if(curr_spec.monthly){
-        output_nc_soil_layer(ncid, cv, &cohort.edall->m_soid.iwc[0], MAX_SOI_LAY, month_timestep, 1);
+        output_nc_test(&curr_spec, file_stage_suffix, &cohort.edall->m_soid.iwc[0], MAX_SOI_LAY, month_timestep, 1);
       }
       else if(curr_spec.yearly){
-        output_nc_soil_layer(ncid, cv, &cohort.edall->y_soid.iwc[0], MAX_SOI_LAY, year, 1);
+        output_nc_test(&curr_spec, file_stage_suffix, &cohort.edall->y_soid.iwc[0], MAX_SOI_LAY, year, 1);
       }
-
-      temutil::nc( nc_close(ncid) );
     }//end critical(outputIWCLAYER)
   }//end IWCLAYER
   map_itr = netcdf_outputs.end();

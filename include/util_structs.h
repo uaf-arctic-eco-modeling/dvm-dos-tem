@@ -8,6 +8,7 @@
 struct OutputSpec{
   std::string file_path; // Subjective file path, not including filename
   std::string filename_prefix; //example: ALD_monthly
+  std::string var_name; //example: "ALD"
   int dim_count;
 
   // Which dimensions to define

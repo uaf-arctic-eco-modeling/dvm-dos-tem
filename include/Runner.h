@@ -66,6 +66,10 @@ public:
   void output_netCDF(std::map<std::string, OutputSpec> &outputs, int year, int month, std::string stage);
 
   void output_nc_soil(int ncid, int cv, int *data, int max_var_count, int timestep);
+
+  template<typename PTYPE>
+  void output_nc_test(OutputSpec* out_spec, std::string stage_suffix, PTYPE data, int max_var_count, int start_timestep, int timesteps);
+
   void output_nc_soil_layer(int ncid, int cv, int *data, int max_var_count, int start_timestep, int timesteps);
   void output_nc_soil_layer(int ncid, int cv, double *data, int max_var_count, int start_timestep, int timesteps);
 
