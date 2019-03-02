@@ -2031,7 +2031,7 @@ void Ground::updateOslThickness5Carbon(Layer* fstsoil) {
 */
 double Ground::thicknessFromCarbon(const double carbon, const double coefA, const double coefB) {
   //assert ((coefB >= 1) && "Yi et al. 2009 says the b coefficient should be a fitted parameter constrained to >= 1!");
-  if (!(coefB >= 1)) BOOST_LOG_SEV(glg, warn) << "Yi et al. 2009 says the b coefficient should be a fitted parameter constrained to >= 1!";
+  //if (!(coefB >= 1)) BOOST_LOG_SEV(glg, warn) << "Yi et al. 2009 says the b coefficient should be a fitted parameter constrained to >= 1!";
 
   // T = (C/a)^(1/b)
   double T;
@@ -2051,7 +2051,7 @@ double Ground::thicknessFromCarbon(const double carbon, const double coefA, cons
 */
 double Ground::carbonFromThickness(const double thickness, const double coefA, const double coefB) {
   //assert ((coefB >= 1) && "Yi et al. 2009 says the b coefficient should be a fitted parameter constrained to >= 1!");
-  if (!(coefB >= 1)) BOOST_LOG_SEV(glg, warn) << "Yi et al. 2009 says the b coefficient should be a fitted parameter constrained to >= 1!";
+  //if (!(coefB >= 1)) BOOST_LOG_SEV(glg, warn) << "Yi et al. 2009 says the b coefficient should be a fitted parameter constrained to >= 1!";
 
   // C = aT^b
   double C;
@@ -2271,15 +2271,15 @@ void Ground::checkWaterValidity() {
       double maxwat = fmax(0.0, currl->maxliq-currl->getVolIce()*currl->dz*DENLIQ);
 
       if ((currl->liq-maxwat) > 1.e-6) {
-        BOOST_LOG_SEV(glg, warn) << "Layer " << currl->indl << " (soil) "
-                                << "is partially unfrozen and shall NOT have too much liquid water!";
+        //BOOST_LOG_SEV(glg, warn) << "Layer " << currl->indl << " (soil) "
+        //                        << "is partially unfrozen and shall NOT have too much liquid water!";
       }
 
       // adjust max. ice by liq occupied space
       maxwat = currl->maxice-currl->getVolLiq()*currl->dz*DENICE;
       if ((currl->ice-maxwat) > 1.e-6) {
-        BOOST_LOG_SEV(glg, warn) << "Layer " << currl->indl << " (soil) "
-                                << "is partially frozen and shall NOT have too much ice water!";
+        //BOOST_LOG_SEV(glg, warn) << "Layer " << currl->indl << " (soil) "
+        //                        << "is partially frozen and shall NOT have too much ice water!";
       }
     }
 
