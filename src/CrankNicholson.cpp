@@ -110,8 +110,6 @@ void CrankNicholson::cnBackward(const int & startind, const int & endind,
   tit[endind]= tii[endind];
 }
 
-
-
 void CrankNicholson::tridiagonal(const int ind, const int numsl, double a[],
                                  double b[], double c[],
                                  double r[], double u[]) {
@@ -119,43 +117,25 @@ void CrankNicholson::tridiagonal(const int ind, const int numsl, double a[],
    * input: ind, numsl: first layer index, and total number of layers
    * output: u: change in volumetric water content per layer
    */
-  //reindex coefficient arrays to simplify function indexing
-  if(ind > 0){
-    for(int ii = 0; ii < ind + numsl; ii++){
-      a[ii] = a[ii + ind];
-      b[ii] = b[ii + ind];
-      c[ii] = c[ii + ind];
-      r[ii] = r[ii + ind];
-    }
-  }
-  //placeholder for intermediate values; not used for 1st layer
-  double gamma[numsl];
+  //placeholder for intermediate values
+  double gamma[ind+numsl];
   //set beta for use in first and second layers
-  double beta_inv = 1/ b[0];
-  //first layer
-  u[0] = r[0] * beta_inv;
-  //remaining layers forward pass
-  for(int ii = 1; ii < numsl; ii++){
-    gamma[ii] = c[ii-1] * beta_inv;
-    beta_inv = 1 / (b[ii] - a[ii] * gamma[ii]); //reset beta_inv
-    u[ii] = (r[ii] - a[ii] * u[ii-1]) * beta_inv;
-  }
-  //backward pass, skip bottom layer
-  for(int ii = numsl-2; ii >= 0; --ii){
-    u[ii] -= gamma[ii+1] * u[ii+1];
-  }
-  //undo array reindexing
-  if(ind > 0){
-    for(int ii = (numsl + ind - 1); ii >= ind; --ii){
-      u[ii] = u[ii -2];
+  double beta = b[ind];
+  //forward pass
+  for(int ii = ind; ii < ind + numsl; ii++){
+    if(ii == ind){ //first layer
+      u[ii] = r[ii] / beta;
+    } else { //remaining layers
+      gamma[ii] = c[ii-1] / beta;
+      beta = b[ii] - a[ii] * gamma[ii]; //reset beta
+      u[ii] = (r[ii] - a[ii] * u[ii-1]) / beta;
     }
-    for(int ii = ind-1; ii >= 0; --ii){
-      u[ii] = 0;
-    }
+  }
+  //backward pass, skips bottom layer
+  for(int ii = ind + numsl - 2; ii >= ind; --ii){
+    u[ii] = u[ii] - gamma[ii+1] * u[ii+1];
   }
 }
-
-
 
 //void CrankNicholson::tridiagonal(const int ind, const int numsl, double a[],
 //                                 double b[], double c[],
