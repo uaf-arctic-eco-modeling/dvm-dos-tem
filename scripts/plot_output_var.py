@@ -166,7 +166,7 @@ if __name__ == '__main__':
           # Use a dicrete map with one color for each layer
           # Helpful to have it be a sequential map also so that you can 
           # intuit layer depth from the color
-          custom_cmap = plt.cm.get_cmap('plasma_r', len(layers))
+          # custom_cmap = plt.cm.get_cmap('plasma_r', len(layers))
 
           if args.layer_sum and not args.hide_individual_layers:
             sum_ax = axes[0]
@@ -186,7 +186,7 @@ if __name__ == '__main__':
           else:
             for i, (layer, ax) in enumerate(zip(layers, layer_axes)):
               #ax.plot(data[:,layer], color=custom_cmap(i))
-              ax.fill_between(time_range, 0, data[:,layer], color=custom_cmap(i))
+              ax.fill_between(time_range, 0, data[:,layer])
               ax.set_ylabel("L{:2d}".format(layer))
 
 
