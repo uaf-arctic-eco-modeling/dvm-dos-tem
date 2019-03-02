@@ -4,650 +4,215 @@
 extern src::severity_logger< severity_level > glg;
 
 Richards::Richards() {
-  //TSTEPMIN = 1.e-5;      //
-  //TSTEPMAX = 0.2;
-  //TSTEPORG = 0.1;
-  //LIQTOLE = 0.05;  // tolearance is in fraction of 'maxliq' in a layer
-  mindzlay = 0.005;
+  delta_t = SEC_IN_DAY;//Total time to incorporate; set to SEC_IN_DAY for no iteration
+  dtmin = 10; //min timestep (sec); set to SEC_IN_DAY for no iteration
+  toler_upper = 1.e-1;
+  toler_lower = 1.e-2;
+  e_ice = 6; //Ice impedance parameter. CLM5 uses 6, Lundin (1990) suggests 1.4 for loamy soils. Lower valus increase water flow.
 };
 
 Richards::~Richards() {
 };
-
-void Richards::clearRichardsArrays(){
-  for(int ii=0; ii<=MAX_SOI_LAY; ii++){
-
-    //Incoming values
-    Bsw[ii] = 0.0;
-    ksat[ii] = 0.0;
-    psisat[ii] = 0.0;
-
-    //First round of calculated values
-    k[ii] = 0.0;
-    psi[ii] = 0.0;
-    psiE[ii] = 0.0;
-    theta[ii] = 0.0;
-    thetasat[ii] = 0.0;
-    z_h[ii] = 0.0;
-    thetaE[ii] = 0.0;
-    thetaE_unsat[ii] = 0.0;
-
-    //Intermediate calculated values
-    q_iminus1_n[ii] = 0.0;
-    q_i_n[ii] = 0.0;
-    eq7121[ii] = 0.0;
-    eq7122[ii] = 0.0;
-    eq7123[ii] = 0.0;
-    eq7124[ii] = 0.0;
-    eq7125[ii] = 0.0;
-
-    eq7117[ii] = 0.0;
-    eq7118[ii] = 0.0;
-    eq7119[ii] = 0.0;
-    eq7120[ii] = 0.0;
-
-    coeffA[ii] = 0.0;
-    coeffB[ii] = 0.0;
-    coeffC[ii] = 0.0;
-    coeffR[ii] = 0.0;
-
-    //Solution
-    deltathetaliq[ii] = 0.0;
-
-    //unsorted TODO
-    dzmm[ii] = 0.0;
-    nodemm[ii] = 0.0;
-    effliq[ii] = 0.0;
-    effminliq[ii] = 0.0;
-    effmaxliq[ii] = 0.0;
-    qout[ii] = 0.0;
-    layer_drain[ii] = 0.0;
-    percolation[ii] = 0.0;
-  }
-};
-
-
-//
 void Richards::update(Layer *fstsoill, Layer* bdrainl,
                       const double & bdraindepth, const double & fbaseflow,
                       const double & watertab,
                       double trans[], const double & evap,
                       const double & infil, const double & cell_slope,
                       const double &ts) {
-  //timestep = ts;
-  drainl = bdrainl;
-
-  z_watertab = watertab * 1.e3;
-
   if (bdraindepth<=0.) {
     return; // the drainage occurs in the surface, no need to update the SM
   }
+  drainl = bdrainl;
+  z_watertab = watertab * 1.e3;
 
   //all fluxes already in mm/sec as input
   qinfil = infil;
   qevap  = evap;
-
-//  for(int il=1; il<=MAX_SOI_LAY; il++) {
-//    qtrans[il] = trans[il-1]; // trans[] starting from 0, while here all arrays starting from 1
-//  }
-
   qdrain = 0.;
-  // loop for continuous unfrozen soil column section
-  // in a soil profile, there may be a few or none
-  Layer* currl=fstsoill;
 
-  //Excluding moss layer(s) due to the lack of validated
-  // hydraulic parameters.
-  //If no exclusion of moss layer, comment out this 'while' loop
+  //Skip moss
+  Layer* currl=fstsoill;
   while (currl != NULL && currl->isMoss) {
     currl = currl->nextl;
   }
 
-  //These are correct because the arrays are forced to 1-based indexing
   int topind = currl->solind;
-  indx0sl = topind;//TODO
   int drainind = drainl->solind;
-
   Layer* topsoill = currl;
-
-  //Start of conversion to CLM 4.5
-
-  //For now we're using a full day as a timestep, but introducing
-  // a local variable in case that changes.
-  double delta_t = SEC_IN_DAY;
 
   //Clear arrays before use
   clearRichardsArrays();
 
-  //Prepare soil column - collect already known values into
-  // arrays for ease of use, calculate the basic values needed
-  // in the following (more complex) calculations.
-  prepareSoilColumn(topsoill, bdraindepth);
+  //Prepare soil column parameter arrays
+  prepareSoilColumn(topsoill, drainind);
 
   //Re-index trans to match the other arrays used in Richards
-  for(int il=indx0al; il<MAX_SOI_LAY; il++){
-    qtrans[il] = trans[il-indx0al];
+  for(int il=topind; il<MAX_SOI_LAY; il++){
+    qtrans[il] = trans[il-topind];
   }
+  //For testing: turn off trans and infil
+  //for(int il=topind; il<MAX_SOI_LAY; il++){
+  //  qtrans[il] = 0.0;
+  //}
+  //qinfil = 0.0;
 
-  //If there is only one active layer, the equations below are... TODO
-  //calculate drain by something
-  if(numal==1){
+  double n_substep = 0;
+  double dtsub = delta_t/24; //length of first substep (s)
+  double dtdone = 0.0; //time completed
+  bool continue_iterate = true;
 
-    int ind = currl->solind;
-    double water_in, water_out = 0.;
-    double water_change;
+  //Start of adaptive-length iteration substeps
+  //For testing: track the smallest substep used:
+  double min_dtsub = delta_t;
+  while(continue_iterate = true){
+    n_substep += 1;
 
-    //This duplicates some of the equations from below.
-    theta[ind] = effliq[ind] / DENLIQ / (dzmm[ind]/1.e3);
-    //Hydraulic conductivity, for drain layer only!
-    k[ind] = ksat[ind] * pow( theta[ind]/thetasat[ind],
-                              (2 * Bsw[ind] + 3) );
-
-
-    //top of the soil stack or in the middle?
-    //plus infil, minus trans[], minus evap
-    double avail_water = infil - evap;
-
-    //Calculate how much more liquid could fit in layer 
-    double space_for_liq = fmax(0.0, effmaxliq[ind] - currl->liq) / delta_t;
-
-    if(avail_water > space_for_liq){
-      water_in = space_for_liq;
-      excess_runoff = avail_water - space_for_liq;
-    }
-    else{
-      water_in = avail_water;
+    //(Re)calculate dt_dz and vol_liq
+    for(int ind = topind; ind <=drainind+1; ind++){
+      dt_dz[ind] = dtsub / dzmm[ind];
+      vol_liq[ind] = fmax(soi_liq[ind], 1.e-6) / (DENLIQ*(dzmm[ind]/1.e3));
+      vol_h2o[ind] = fmax(fmin(vol_liq[ind] + vol_ice[ind], 1.0), 0.0);
     }
 
-    //Need to use trans[ind-1] because trans is zero based
-    // while layer solind is one based.
-    //No percolation if single layer
-    water_out = qtrans[ind];
+    computeHydraulicProperties(topsoill, drainind);
 
-    water_change = (water_in - water_out) * delta_t;
+    computeMoistureFluxesAndDerivs(topsoill, topind, drainind);
 
-    //calculate qdrain?
+    //dtsub trial loop - find the best length for this dtsub substep
+    bool try_dtsub = true;
 
-    currl->liq += water_change; 
+    while(try_dtsub){
 
-    currl->hcond = k[ind];
+      computeLHS(topsoill, topind, drainind); //compute left hand side of tridiagonal matrix equation
+      computeRHS(topsoill, topind, drainind); //compute right hand side of the tridiagonal matrix equation
 
-    //Re-calculate effliq so that theta can be recalculated for
-    // lateral drainage (below the multi-layer section)
-    effliq[ind] = fmax(0.0001, currl->liq-effminliq[ind]);
-  }
+      cn.tridiagonal(topind, num_al, amx, bmx, cmx, rmx, deltathetaliq);
 
-  else{ //multiple active layers
-
-    //Move currl up the soil column in order to fill in necessary
-    // array elements
-    if(currl->prevl != NULL){
-  //    currl = currl->prevl;
-    }
-
-    //For each thawed and partially thawed layer, run first round
-    // of calculations. The results of these are needed by the
-    // equations in the second round.
-    //while( (currl != NULL) && (currl->solind <= drainl->solind+1) )
-    while( (currl != NULL) && (currl->solind <= drainl->solind) ){
-
-      int ind = currl->solind; //Correct because arrays are forced to 1-based
-
-      //CLM 4.5 page 157
-      //Theta - volumetric soil water content mm^3 water/ mm^3 soil
-      //theta[ind] = effliq[ind] / DENLIQ / (currl->dz * 1.e3); //unitless
-      theta[ind] = effliq[ind] / DENLIQ / (dzmm[ind]/1.e3); //unitless
-
-      //Equation 7.94
-      //psi_i - soil matric potential (mm)
-      double theta_thetasat = theta[ind] / thetasat[ind];
-      if(theta_thetasat < 0.01) {
-        BOOST_LOG_SEV(glg, debug)<<"theta_thetasat out of range: "
-                                 <<theta_thetasat;
-        theta_thetasat = 0.01;
+      max_tridiag_error = 0.0;
+      for(int ind = topind; ind <=drainind; ind++){
+        fluxNet0[ind] = deltathetaliq[ind]/dt_dz[ind];
+        fluxNet1[ind] = qin[ind] - qout[ind] - qtrans[ind];
+        tridiag_error[ind] = fabs(fluxNet1[ind] - fluxNet0[ind]) * dtsub * 0.5;
+        max_tridiag_error = fmax(max_tridiag_error, tridiag_error[ind]);
       }
-      else if(theta_thetasat > 1.) {
-        BOOST_LOG_SEV(glg, debug)<<"theta_thetasat out of range: "
-                                 <<theta_thetasat;
-        theta_thetasat = 1.;
+      if(max_tridiag_error > toler_upper && dtsub > dtmin){
+        dtsub = fmax(dtsub/2, dtmin);//solution no good, halve timestep and start again
       }
-      psi[ind] =  psisat[ind] * pow( theta_thetasat, -Bsw[ind]);
-      //logging psi out-of-range violations
-      if(psi[ind] < -1e8){
-        BOOST_LOG_SEV(glg, err)<<"psi["<<ind<<"] out of range: "<<psi[ind];
-        psi[ind] = fmax(psi[ind], -1.e8);
-      }
-
-      //Equation 7.131
-      //Unsaturated portion of ThetaE?
-      //Needed for Equation 7.130
-      thetaE_unsat[ind] = thetasat[ind] * psisat[ind]
-                        / ( (z_watertab - z_h[ind-1])
-                            * (1 - 1 / Bsw[ind]) )
-                        * ( 1 - pow( (psisat[ind] - z_watertab + z_h[ind-1])
-                                     / psisat[ind], (1 - 1 / Bsw[ind])) );
-
-      //thetaE_i - layer-average equilibrium volumetric water content 
-      //Equation 7.129
-      //This should only be used when the current layer and previous
-      // layer are both above the water table.
-      //if water table below layer i
-      //if(z_watertab >= z_h[ind]){
-      if(z_watertab > z_h[ind]){
-        thetaE[ind] = thetasat[ind] * psisat[ind] 
-                   / ( (z_h[ind] - z_h[ind-1]) * (1 - 1 / Bsw[ind]) ) 
-                     * ( 
-                       pow( (psisat[ind] - z_watertab + z_h[ind])/psisat[ind], 
-                            (1-1/Bsw[ind]) ) 
-                       - pow( (psisat[ind] - z_watertab + z_h[ind-1])/psisat[ind], 
-                            (1-1/Bsw[ind]) ) 
-                      );
-      }
-      //else if water table is in layer i
-      //else if(z_watertab < z_h[ind] && z_watertab >= z_h[ind-1]){
-      else if(z_watertab < z_h[ind] && z_watertab > z_h[ind-1]){
-        //Equation 7.130
-        //As noted in the paper, thetaE_sat_i = theta_sat_i
-        thetaE[ind] = thetasat[ind] * ( (z_h[ind] - z_watertab)
-                                       /(z_h[ind] - z_h[ind-1]) )
-                    + thetaE_unsat[ind] * ( (z_watertab - z_h[ind-1])
-                                           /(z_h[ind] - z_h[ind-1]) );
-      }
-      else{//water table above layer i
-        thetaE[ind] = thetasat[ind]; //per text following equation 7.131
-      }
-
-
-      //Equation 7.134
-      //psiE_i - equilibrium soil matric potential
-      psiE[ind] = psisat[ind] * pow( thetaE[ind]/thetasat[ind], -Bsw[ind] );
-      //Logging violations of the limits
-      if(thetaE[ind]/thetasat[ind] < 0.01){
-        BOOST_LOG_SEV(glg, err)<<"thetaE_i/thetasat_i out of range";
-      }
-      if(psiE[ind] < -1e8){
-        BOOST_LOG_SEV(glg, err)<<"psiE["<<ind<<"] out of range: "<<psiE[ind];
-      }
-
-      currl = currl->nextl; //Move down the soil column
-    }
-
-    //reset currl for the next round of calculations
-    currl = topsoill;
-    if(currl->prevl != NULL){
-//      currl = currl->prevl;
-    }
-
-    //For each thawed and partially thawed layer, run second round
-    // of calculations.
-    while( (currl != NULL) && (currl->solind <= drainl->solind) ){
-
-      int ind = currl->solind; //Correct because arrays are forced to 1-based
-
-      //Equation 7.89 (ignoring ice)
-      //k: hydraulic conductivity
-      //The 0.5 values should cancel - leaving them in for easy comparison
-      //  with equations.
-      //Given the large range of ksat between horizon types, we might want
-      // to average the values instead of taking the value at the bottom
-      // of the upper layer.
-      //For all but drain layer
-      if(ind<drainind){
-        k[ind] = ksat[ind]
-               * pow( (0.5*(theta[ind] + theta[ind+1]))
-                    / (0.5*(thetasat[ind] + thetasat[ind+1])),
-                     (2 * Bsw[ind] + 3) );
-      }
-      //Drain layer
-      else{
-        k[ind] = ksat[ind] * pow( theta[ind]/thetasat[ind],
-                                  (2 * Bsw[ind] + 3) );
-      }
-
-      //Equation 7.115
-      //q_iminus1^n
-//      q_iminus1_n[ind] = -k[ind-1]
-//                       * ( (psi[ind-1] - psi[ind] + psiE[ind] - psiE[ind-1])
-//                           / (nodemm[ind] - nodemm[ind-1]) );
-      //CLM5 Equation 7.74
-      q_iminus1_n[ind] = -k[ind-1]
-                       * ( (psi[ind-1] - psi[ind] + nodemm[ind] - nodemm[ind-1])
-                           / (nodemm[ind] - nodemm[ind-1]) );
-
-
-      //Equation 7.116
-      //q_i^n
-//      q_i_n[ind] = -k[ind]
-//                 * ( (psi[ind] - psi[ind+1] + psiE[ind+1] - psiE[ind])
-//                     / (nodemm[ind+1] - nodemm[ind]) );
-      //CLM5 Equation 7.75
-      q_i_n[ind] = -k[ind]
-                 * ( (psi[ind] - psi[ind+1] + nodemm[ind+1] - nodemm[ind])
-                     / (nodemm[ind+1] - nodemm[ind]) );
-
-
-      //Equation 7.121
-      //deltapsi_iminus1 / deltatheta_liq_iminus1
-      eq7121[ind] = -Bsw[ind-1] * ( psi[ind-1] / theta[ind-1] );
-
-      //Equation 7.122
-      //deltapsi_i / deltatheta_liq_i
-      eq7122[ind] = -Bsw[ind] * psi[ind] / theta[ind];
-
-      //Equation 7.123
-      //deltapsi_iplus1 / deltatheta_liq_iplus1
-      eq7123[ind] = -Bsw[ind+1] * psi[ind+1] / theta[ind+1];
-
-      //The first element of the following two equations is actually:
-      //  (1 - (f_frz[ind-1] + f_frz[ind])/2)
-      //However, because we restrict the Richards calculations to unfrozen
-      // soil, this reduces to 1.
-
-      //Equation 7.124
-      //deltak[z_h_iminus1] / deltatheta_liq_iminus1
-      //deltak[z_h_iminus1] / deltatheta_liq_i
-      eq7124[ind] = 1
-                  * (2 * Bsw[ind-1] + 3) * ksat[ind-1]
-                  * pow( (0.5*(theta[ind-1] + theta[ind]))
-                         / (0.5*(thetasat[ind-1] + thetasat[ind])),
-                        (2 * Bsw[ind-1] + 2) )
-                  * ( 0.5 / (0.5*(thetasat[ind-1] + thetasat[ind])) );
-
-      //Equation 7.125
-      //deltak[z_h_i] / deltatheta_liq_i
-      //deltak[z_h_i] / deltatheta_liq_iplus1
-      eq7125[ind] = 1
-                  * (2 * Bsw[ind] + 3) * ksat[ind]
-                  * pow( (0.5*(theta[ind] + theta[ind+1]))
-                         / (0.5*(thetasat[ind] + thetasat[ind+1])),
-                        (2 * Bsw[ind] + 2) )
-                  * ( 0.5 / (0.5*(thetasat[ind] + thetasat[ind+1])) );
-
-
-      //Equations 7.117-7.120 are not in numerical order because they
-      // require some of the higher-numbered equations.
-      //They also have sections replaced by the equations above, and
-      // so do not precisely match the text
-      // (i.e. eq7121[] instead of deltapsi[]/deltatheta_liq[])
-      //Equation 7.117
-      //deltaq_iminus1 / deltatheta_liq_iminus1
-      eq7117[ind] = - ( (k[ind-1]/(nodemm[ind]-nodemm[ind-1])) * eq7121[ind] )
-                    - eq7124[ind] 
-                    * ( psi[ind-1] - psi[ind] + psiE[ind] - psiE[ind-1]
-                        /(nodemm[ind] - nodemm[ind-1]) );
-      //CLM5 Equation 7.76
-      eq7117[ind] = - ( (k[ind-1]/(nodemm[ind]-nodemm[ind-1])) * eq7121[ind] )
-                    - eq7124[ind] 
-                    * ( psi[ind-1] - psi[ind] + nodemm[ind] - nodemm[ind-1]
-                        /(nodemm[ind] - nodemm[ind-1]) );
-
-
-      //Equation 7.118
-      //deltaq_iminus1 / deltatheta_liq_i
-//      eq7118[ind] = ( (k[ind-1]/(nodemm[ind]-nodemm[ind-1])) * eq7122[ind] )
-//                  - eq7124[ind] 
-//                  * ( psi[ind-1] - psi[ind] + psiE[ind] - psiE[ind-1]
-//                      /(nodemm[ind] - nodemm[ind-1]) );
-      //CLM5 Equation 7.77
-      eq7118[ind] = ( (k[ind-1]/(nodemm[ind]-nodemm[ind-1])) * eq7122[ind] )
-                  - eq7124[ind] 
-                  * ( psi[ind-1] - psi[ind] + nodemm[ind] - nodemm[ind-1]
-                      /(nodemm[ind] - nodemm[ind-1]) );
-
-
-      //Equation 7.119
-      //deltaq_i / deltatheta_liq_i
-//      eq7119[ind] = - ( (k[ind]/(nodemm[ind+1] - nodemm[ind])) * eq7122[ind] )
-//                    - eq7125[ind] 
-//                    * ( psi[ind] - psi[ind+1] + psiE[ind+1] - psiE[ind]
-//                        /(nodemm[ind+1] - nodemm[ind]) );
-      //CLM5 Equation 7.78
-      eq7119[ind] = - ( (k[ind]/(nodemm[ind+1] - nodemm[ind])) * eq7122[ind] )
-                    - eq7125[ind] 
-                    * ( psi[ind] - psi[ind+1] + nodemm[ind+1] - nodemm[ind]
-                        /(nodemm[ind+1] - nodemm[ind]) );
-
-
-
-      //Equation 7.120
-      //deltaq_i / deltatheta_liq_iplus1
-//      eq7120[ind] = (k[ind]/(nodemm[ind+1] - nodemm[ind])) * eq7123[ind]
-//                  - eq7125[ind]  
-//                  * ( psi[ind] - psi[ind+1] + psiE[ind+1] - psiE[ind]
-//                      /(nodemm[ind+1] - nodemm[ind]) );
-      //CLM5 Equation 7.79
-      eq7120[ind] = (k[ind]/(nodemm[ind+1] - nodemm[ind])) * eq7123[ind]
-                  - eq7125[ind]  
-                  * ( psi[ind] - psi[ind+1] + nodemm[ind+1] - nodemm[ind]
-                      /(nodemm[ind+1] - nodemm[ind]) );
-
-
-     //This is the top active layer
-      if(ind==topind){
-
-        //Equation 7.136
-        coeffA[ind] = 0.0; 
-
-        //deltaz_i / deltat = layer thickness / 86,400
-        // (because all data is in mm/s)
-        //Equation 7.137. Uses 7.119
-        coeffB[ind] = eq7119[ind] - dzmm[ind] / delta_t;
-
-        //Equation 7.138. Uses 7.120
-        coeffC[ind] = eq7120[ind];
-
-        //Equation 7.139. Uses 7.116
-        //Need to subtract evap here because we allow for it differently
-        // than CLM. See section 7.3.3 for CLM approach. 
-        // TODO verify the index modification - 1 or 2?
-        //The sign convention between CLM 4.5 and ddt are different
-        coeffR[ind] = -infil - q_i_n[ind] + (evap + qtrans[ind]); 
-      }
-      //This is for the middle layers - neither top nor drain
-      else if(ind>topind && ind<drainind){
-
-        //Equation 7.140. Uses 7.117
-        coeffA[ind] = - eq7117[ind];
-
-        //Equation 7.141. Uses 7.119 and 7.118
-        coeffB[ind] = eq7119[ind] - eq7118[ind] - dzmm[ind] / delta_t;
-
-        //Equation 7.142. Uses 7.120
-        coeffC[ind] = eq7120[ind];
-
-        //Equation 7.143. Uses 7.115 and 7.116
-        coeffR[ind] = q_iminus1_n[ind] - q_i_n[ind] + qtrans[ind];
-      }
-      //This is the drain layer
-      else if(ind==drainind){
-
-        //Equation 7.144. Uses 7.117
-        coeffA[ind] = -eq7117[ind];
-
-        //Equation 7.145. Uses 7.118
-        coeffB[ind] = -eq7118[ind] - dzmm[ind] / delta_t;
-
-        //Equation 7.146
-        coeffC[ind] = 0.0; 
-
-        //Equation 7.147. Uses 7.115
-        coeffR[ind] = q_iminus1_n[ind] + qtrans[ind];
-      }
-
-      currl = currl->nextl; //Move down the soil column
-    }
-  }//end of loop for multiple active layers
-
-  //If there are more than one active layers, we use the Crank Nicholson
-  // water solver.
-  if(numal > 1){
-    cn.tridiagonal(indx0al, numal, coeffA, coeffB, coeffC, coeffR, deltathetaliq);//water solver
-  
-    //A NaN check for debugging purposes
-    for(int ii=0; ii<MAX_SOI_LAY; ii++){
-      if(deltathetaliq[ii] != deltathetaliq[ii]){
-        BOOST_LOG_SEV(glg, err) << "NaN in deltathetaliq";
-      }
-    }
-  
-
-    //do the next section for only active layers TODO
-    currl = topsoill;
-    while(currl->solind<indx0al){
-      currl = currl->nextl;
-    } 
+      else{try_dtsub = false;}
+    } //end of trial timestep
 
     //Modify layer liquid in each active layer by calculated
-    // change in liquid.
-    while(currl->solind<=drainind){
+    //change in liquid.
+    currl = topsoill;
 
+    while(currl != NULL && currl->solind<=drainind){
       int ind = currl->solind;
-
-      double minliq = effminliq[ind];
-      double maxliq = effmaxliq[ind];
-
       //TODO - verify
       double liquid_change = dzmm[ind] * deltathetaliq[ind];
       currl->liq += liquid_change;
-      //currl->liq += dzmm[ind]/1.e3 * deltathetaliq[ind];
-      //currl->liq += currl->liq + dzmm[ind] * deltathetaliq[ind] + minliq;
-      //currl->liq += deltathetaliq[il] + minliq;
-      percolation[ind] = liquid_change;
+      percolation[ind] += liquid_change;
 
-      //Restricting layer liquid to range defined by min and max
-      if(currl->liq<minliq){
-        currl->liq = minliq;
-      }
+      //update soi_liq so that vol_liq can be recalculated for
+      // lateral drainage (below) and next iteration (above)
+      soi_liq[ind] = fmax(0.0001, currl->liq);
 
-      if(currl->liq>maxliq){
-        currl->liq = maxliq;
-      }
-
-      currl->hcond = k[ind];
-
-      //Re-calculate effliq so that theta can be recalculated for
-      // lateral drainage (below)
-      effliq[ind] = fmax(0.0001, currl->liq-effminliq[ind]);
- 
       currl = currl->nextl;
     }
-  }
+
+    dtdone += dtsub;
+
+    //For testing: track smallest dtsub used:
+    min_dtsub = fmin(min_dtsub, dtsub);
+
+    if(fabs(delta_t - dtdone) < 1.e-8){
+      continue_iterate = false;
+      break; //day complete
+    }
+
+
+    if(max_tridiag_error < toler_lower){
+      dtsub *= 2; //If the solution was very accurate, double the substep
+    }
+    dtsub = fmin(dtsub, delta_t - dtdone); //don't go over delta_t
+  } //End of substep loop
+  //End of iteration domain
 
   //Updating theta post percolation so lateral drainage is
   // based on today's values
-  //Note that effliq is updated in two locations above (post layer
-  // water modification). 
-  for(int il=0; il<MAX_SOI_LAY+1; il++){
-    if(dzmm[il]>0){
-      theta[il] = effliq[il] / DENLIQ / (dzmm[il]/1.e3); //unitless
+  //Note that soi_liq is updated above (post layer
+  // water modification).
+  for(int ind=topind; ind<=drainind+1; ind++){
+    if(dzmm[ind]>0){
+      vol_liq[ind] = soi_liq[ind] / (DENLIQ*(dzmm[ind]/1.e3));
+      vol_h2o[ind] = fmax(fmin(vol_liq[ind] + vol_ice[ind], 1.0), 0.0);
     }
   }
 
   //Calculating lateral drainage (only for saturated layers)
-  double lateral_drain[MAX_SOI_LAY+1] = {0};
-  //double column_drain = 0;//Total lateral drainage, mm/day
-  double eq7103_num = 0.;
-  double eq7103_den = 0.;
+  double eq7103_num = 0.0;
+  double eq7103_den = 0.0;
   bool sat_soil = false;//If there is at least one saturated layer
 
-  for(int ii=0; ii<MAX_SOI_LAY; ii++){
+  for(int ind=topind; ind<=drainind; ind++){
     //For any saturated layer
-    if(theta[ii] / thetasat[ii] >= 0.9){
+    if(vol_liq[ind] / liq_poro[ind] >= 0.9){
       sat_soil = true;
 
-      eq7103_num += ksat[ii] * dzmm[ii] / 1.e3;
-      eq7103_den += dzmm[ii] / 1.e3;
+      //originally eq7103_num is multiplied by impedance as well;
+      //removed to achieve sufficient drainage
+      eq7103_num += ksat[ind] * dzmm[ind]/1.e3;
+      eq7103_den += dzmm[ind]/1.e3;
     }
   }
 
   //If there is at least one saturated layer, apply lateral drainage
   if(sat_soil){
-    //CLM4.5 Equation 7.167
     //CLM5 Equations 7.103 and 7.102
-    //We do not allow Richards to run on frozen soil, so the ice
-    // parameter is ignored.
     double slope_rads = cell_slope * PI / 180;//Converting to radians
-    double kdrain_perch = 10e-5 * sin(slope_rads)
+    double kdrain_perch = 10.e0* sin(slope_rads) //original factor 10e-5; to be adjusted per S.Swenson
                         * (eq7103_num / eq7103_den);
-
     double qdrain_perch = kdrain_perch * (bdraindepth - watertab)
                         * fbaseflow;
 
-    //Applying lateral drainage to saturated layers 
+    //Calculated drainage from saturated layers
     currl = topsoill;
-    while(currl->solind <= drainind){
-      //This will skip indices that are empty (from Richards arrays
-      // being 1-based)
-      //int ind = currl->solind - topind;
+    while(currl != NULL && currl->solind <= drainind){
       int ind = currl->solind;
-      if(theta[ind] / thetasat[ind] >= 0.9){
+      if(vol_liq[ind] / liq_poro[ind] >= 0.9){
         double layer_max_drain = currl->liq - effminliq[ind];
-
-        double layer_calc_drain = qdrain_perch * delta_t 
+        double layer_calc_drain = qdrain_perch * SEC_IN_DAY
                                 * ((dzmm[ind]/1.e3) / eq7103_den);
-
         layer_drain[ind] = fmin(layer_max_drain, layer_calc_drain);
+        qdrain += layer_drain[ind]; //mm/day
 
-        if(layer_drain[ind] > 0){
-          currl->liq -= layer_drain[ind];
-          qdrain += layer_drain[ind];
-        }
       }
       currl = currl->nextl;
+    }
+    //Drainage is calculated from saturated layers (usually bottom layers);
+    //however, to avoid creating isolated unsaturated deep layers,
+    //remove the calculated drainage from the top down.
+    if(qdrain > 0){
+      double to_drain = qdrain;
+      currl = topsoill;
+      while(currl != NULL && currl->solind <= drainind && to_drain > 0){
+        int ind = currl->solind;
+        double avail_liq = currl->liq - effminliq[ind];
+        double take_liq = fmin(to_drain, avail_liq);
+        currl->liq -= take_liq;
+        to_drain -= take_liq;
+
+        currl = currl->nextl;
+      }
     }
   }
 
-/*TODO cleanup
-  if(bdraindepth*1.e3 - z_watertab >= 0){
-    double eq7167_num = 0.;
-    double eq7167_den = 0.;
-
-    //Pre-calculate sums for lateral drainage
-    //For any saturated layer
-    for(int ii=0; ii<MAX_SOI_LAY; ii++){
-      if(theta[ii] / thetasat[ii] >= 0.9){
-
-        eq7167_num += ksat[ii] * dzmm[ii] / 1.e3;
-        eq7167_den += dzmm[ii] / 1.e3;
-      }
-    }
-
-    //Calculate lateral drainage
-    //Equation 7.167
-    //We do not allow Richards to run on frozen soil, so the ice parameter
-    // is ignored.
-    double slope_rads = cell_slope * PI / 180;//Converting to radians
-    double kdrain_perch = 10e-5 * sin(slope_rads)
-                        * (eq7167_num / eq7167_den);
-
-    //Equation 7.166, with base flow added
-    double qdrain_perch = kdrain_perch * (bdraindepth - watertab)
-                        * fbaseflow;
-    //need to check that zfrost - z_watertab != 0
-
-    currl = topsoill;
-    while(currl->solind <= drainind){
-      int ind = currl->solind;
-      //For any saturated layer
-      if(theta[ind] / thetasat[ind] >= 0.9){
-        double layer_drain = qdrain_perch * delta_t 
-                           * (dzmm[ind] / eq7167_den);
-        currl->liq -= layer_drain;
-      }
-      currl = currl->nextl;
-    }
-
-  }*/
+  checkWaterValidity(topsoill, drainl, topind, drainind);
 
   // for layers above 'topsoill', e.g., 'moss',
   // if excluded from hydrological process
   currl = topsoill->prevl;
 
   while (currl!=NULL && currl->nextl!=NULL && currl->isMoss) {
-//    if (currl->indl<fstsoill->indl) {
-//      break;  // if no layer excluded, the 'while' loop will break here
-///    }
-
     double lwc = currl->nextl->getVolLiq();
     currl->liq = currl->dz*(1.0-currl->frozenfrac)*lwc*DENLIQ; //assuming same 'VWC' in the unfrozen portion as below
     currl=currl->prevl;
@@ -655,361 +220,310 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
 
 };
 
-//This works on the continuous unfrozen column
 //This collects already-known values into arrays for ease of use, and
 // calculates basic values needed in the more complex equations later
-// in Richards.
-void Richards::prepareSoilColumn(Layer* currsoill, const double & draindepth) {
-  //TODO rename currsoill to topactivel or something?
+void Richards::prepareSoilColumn(Layer* currsoill, int drainind) {
 
-  // it is assumed that all layers in Richards will be unfrozen,
-  // i.e., from unfrozen 'topsoill' to ''drainl'
   Layer* currl = currsoill; // the first soil layer is 'topsoill'
+  num_al = 0; // number of active layers
 
-  int ind = -1;
-  indx0al = currsoill->solind;
-  numal = 0;
+  while(currl != NULL && currl->solind <= drainind+1){
+    int ind = currl->solind;
 
-  //Determine if we're in spring or fall. This controls where
-  // in the layer the frozen section is (in spring it's at the bottom,
-  // in the fall it's at the top)
-
-  //The soil node in a partially frozen layer will be calculated
-  //differently if it's a thawing front vs a frozen front. If thawing,
-  //the frozen slice of the layer will be a the bottom of the layer,
-  //but if freezing, it will be at the top.
-  bool spring;
-
-  //If there is no previous layer, determine status from next layer
-  if(currl->prevl == NULL){
-    //The layer below is frozen
-    if(currl->nextl->frozen>=0){ spring = true; }
-    //The layer below is thawed
-    else{ spring = false; }
-  }
-  //If there is a previous layer, determine status from it
-  else{
-    //The layer above is thawed/partially thawed
-    if(currl->prevl->frozen <= 0){ spring = true; }
-    //The layer above is frozen
-    else{ spring = false; }
-  }
-
-
-  while(currl->solind <= drainl->solind){
-  //while(currl->solind <= drainl->solind+1){
-
-    ind = currl->solind;
-
-    //Only increment number of active layers if we are in the
-    // active soil stack
-    if(ind >= indx0al && ind <= drainl->solind){
-      numal++;
-    }
-
-    //Unfrozen fraction of the layer
-    double frac_unfrozen = 1.0-currl->frozenfrac;
-
-    //Thickness of the frozen fraction of the layer
-    double dz_frozen = fmax(0., currl->dz*currl->frozenfrac);
-
-    //Thickness of the unfrozen fraction of the layer
-    double dz_unfrozen = fmax(0., currl->dz*frac_unfrozen);
-
-    double minvolliq = currl->minliq/DENLIQ/currl->dz;
-    //effporo[ind] = fmax(0., currl->poro-minvolliq);
-    thetasat[ind] = fmax(0., currl->poro-minvolliq);
-    dzmm[ind] = currl->dz*1.e3*frac_unfrozen;//fmin(frac_unfrozen, frac_unsat);
-    if(dzmm[ind] <= 0){
-      BOOST_LOG_SEV(glg, err)<<"dzmm less than zero: "<<dzmm[ind];
-    }
-
-    //Calculate depth of each interface (i.e. the bottom of each layer)
-    // and the depth of each node (center of thawed section of each layer)
-    if(spring){
-      z_h[ind] = (currl->z + currl->dz - dz_frozen)*1.e3;
-      nodemm[ind] = (currl->z + currl->dz - dz_frozen)*1.e3 - 0.5*dzmm[ind];
-    }
-    else{
-      z_h[ind] = (currl->z + currl->dz)*1.e3;
-      nodemm[ind]  = (currl->z+dz_frozen)*1.e3 + 0.5 *dzmm[ind]; 
-    }
- 
-    //This is a weird formulation, but works out?
-    effminliq[ind] = currl->minliq * frac_unfrozen;//*fmin(frac_unfrozen, frac_unsat);
-    //effmaxliq[ind] = (effporo[ind]*dzmm[ind]);
-    //effmaxliq[ind] = thetasat[ind] * dzmm[ind];
+    soi_liq[ind] = fmax(0.0001, currl->liq);
+    vol_liq[ind] = fmax(soi_liq[ind], 1.e-6) / (currl->dz * DENLIQ);
+    vol_ice[ind] = currl->ice/(DENICE*currl->dz);
+    vol_h2o[ind] = fmax(fmin(vol_liq[ind] + vol_ice[ind], 1.0), 0.0);
+    vol_poro[ind] = fmax(0., currl->poro);
+    liq_poro[ind] = fmax(0., vol_poro[ind] - vol_ice[ind]);
+    ice_frac[ind] = vol_ice[ind]/vol_poro[ind];
+    dzmm[ind] = currl->dz*1.e3;
+    z_h[ind] = (currl->z + currl->dz)*1.e3;
+    nodemm[ind] = (currl->z + 0.5 * currl->dz)*1.e3;
+    double frac_unfrozen = 1.0 - currl->frozenfrac;
+    effminliq[ind] = currl->minliq * frac_unfrozen;
     effmaxliq[ind] = currl->maxliq * frac_unfrozen;
 
-    //This is also a weird formulation, but works out?
-    //effliq[ind] = fmax(0.0, currl->liq*frac_unsat-effminliq[ind]);
-    //effliq is held to a very small number instead of zero in order
-    // to avoid division by zero.
-    effliq[ind] = fmax(0.0001, currl->liq-effminliq[ind]);
-
-    if (effliq[ind]<0. || effminliq[ind]<0. || effmaxliq[ind]<0.) {
-      BOOST_LOG_SEV(glg, warn) << "Richards::prepareSoilColumn(..) "
-                               << "Effective liquid is less than zero!";
-    }
-
-    psisat[ind] = currl->psisat;
+    psisat[ind] = -currl->psisat; //made negative to match CLM5 code
     ksat[ind] = currl->hksat;
     Bsw[ind] = currl->bsw;
-
+    if(currl->frozen <=0){
+      num_al += 1;
+    }
     currl= currl->nextl;
   }
+}
 
-};
+void Richards::computeHydraulicProperties(Layer *topsoill, int drainind){
+  // compute the relative saturation at each layer first b/c
+  // it is used later in calculation of s1
+  Layer *currl = topsoill;
+  while(currl != NULL && currl->solind <=drainind+1){
+    int ind = currl->solind;
+    s2[ind] = vol_liq[ind]/liq_poro[ind];
+    // impose constraints on relative saturation at the layer node
+    s2[ind] = fmin(s2[ind], 1.0);
+    s2[ind] = fmax(0.01, s2[ind]);
 
-/*
-void Richards::iterate(const double trans[], const double & evap,
-                       const double & infil, const double & fbaseflow) {
-  //
-  tschanged = true;
-  itsum = 0;
-  tleft = 1.;    // at beginning of update, tleft is one timestep
-
-  if(infil>0.) {
-    TSTEPORG =TSTEPMAX/20.;
-  } else {
-    TSTEPORG =TSTEPMAX;
+    currl = currl->nextl;
   }
 
-  tstep = TSTEPORG;
-
-  for(int il=indx0al; il<indx0al+numal; il++) {
-    liqid[il] = effliq[il]; // liq at the begin of one day
-    liqld[il] = effliq[il]; // the last determined liq
-  }
-
-  qdrain = 0.;   // for accumulate bottom drainage (mm/day)
-
-  while(tleft>0.0) {
-    for(int il=indx0al; il<indx0al+numal; il++) {
-      liqis[il] = liqld[il];
+  currl = topsoill;
+  while(currl != NULL && currl->solind <=drainind+1){
+    int ind = currl->solind;
+    // s1 is interface value, s2 is node value
+    if(ind > drainind){
+      s1[ind] = s2[ind];
+      imped[ind] = pow(10.0, -e_ice * ice_frac[ind]);
     }
+    else{
+      s1[ind] = 0.5 * (s2[ind] + s2[ind+1]);
+      imped[ind] = pow(10.0, -e_ice * (0.5 * (ice_frac[ind] + ice_frac[ind+1])));
+    }
+    s1[ind] = fmin(s1[ind], 1.0);
+    s1[ind] = fmax(0.01, s1[ind]);
 
-    //find one solution for one fraction of timestep
-    int st = updateOnethTimeStep(fbaseflow);
+    hk[ind] = imped[ind] * ksat[ind] * pow(s1[ind], 2.0 * Bsw[ind] + 3);
+    dhkdw[ind] = (2.0* Bsw[ind] + 3.0) * hk[ind] / s1[ind];
+    smp[ind] = -psisat[ind] * pow(s2[ind], -Bsw[ind]);
+    dsmpdw[ind] = (-Bsw[ind] * smp[ind] / s2[ind]) / liq_poro[ind];
 
-    if(st==0 || (st!=0 && tstep<=TSTEPMIN)) {  //advance to next timestep
-      qdrain += qout[numal]*tstep*timestep; //unit: mm/s*secs
-      tleft -= tstep;
+    currl = currl->nextl;
+  }
+}
 
-      // find the proper timestep for rest period
-      if(!tschanged) { // if timestep has not been changed during last time step
-        if(tstep<TSTEPMAX) {
-          tstep = TSTEPORG;
-          tschanged = true;
+void Richards::computeMoistureFluxesAndDerivs(Layer *topsoill, int topind, int drainind){
+  Layer *currl = topsoill;
+  //top and inner layers (not bottom)
+  while(currl!= NULL && currl->solind <=drainind){
+    int ind = currl->solind;
+    if(ind == topind){//top layer
+      qin[ind] = qinfil;
+      dqidw1[ind] = 0.0;
+      double dhkds1 = 0.5 * dhkdw[ind] / liq_poro[ind]; // derivative w.r.t. volumetric liquid water in the upper layer
+      double dhkds2 = 0.5 * dhkdw[ind] / liq_poro[ind+1]; // derivative w.r.t. volumetric liquid water in the lower layer
+      double num = (smp[ind+1] - smp[ind]);
+      double den = nodemm[ind+1] - nodemm[ind];
+      if(ind == drainind){ //if this is the single active layer
+        qout[ind] = 0.0;
+        dqodw1[ind] = 0.0;
+      }
+      else{ //top layer and not the only active layer
+        qout[ind] = -hk[ind] * num / den + hk[ind];
+        dqodw1[ind] = (hk[ind] * dsmpdw[ind] - dhkds1 * num) / den + dhkds1;
+        dqodw2[ind] = (-hk[ind] * dsmpdw[ind+1] - dhkds2 * num) / den + dhkds2;
+      }
+    }
+    else{ //inner and bottom layers
+      qin[ind] = qout[ind-1];
+      dqidw0[ind] = dqodw1[ind-1];
+      dqidw1[ind] = dqodw2[ind-1];
+      double dhkds1 = 0.5 * dhkdw[ind] / liq_poro[ind]; // derivative w.r.t. volumetric liquid water in the upper layer
+      double dhkds2 = 0.5 * dhkdw[ind] / liq_poro[ind+1]; // derivative w.r.t. volumetric liquid water in the lower layer
+      double num = (smp[ind+1] - smp[ind]);
+      double den = nodemm[ind+1] - nodemm[ind];
+      if(ind == drainind){ //bottom layer
+        qout[ind] = 0.0;
+        dqodw1[ind] = 0.0;
+      }
+      else{ //inner layers
+        qout[ind] = -hk[ind] * num / den + hk[ind];
+        dqodw1[ind] = (hk[ind] * dsmpdw[ind] - dhkds1 * num) / den + dhkds1;
+        dqodw2[ind] = (-hk[ind] * dsmpdw[ind+1] - dhkds2 * num) / den + dhkds2;
+      }
+    }
+    currl = currl->nextl;
+  }
+}
+
+void Richards::computeLHS(Layer *topsoill, int topind, int drainind){
+  Layer *currl = topsoill;
+  while(currl!= NULL && currl->solind <=drainind){
+    int ind = currl->solind;
+    if(ind == topind){
+      //a coefficient top layer only
+      amx[ind] = 0.0;
+    }
+    else{
+      //a coefficient middle and bottom layers
+      amx[ind] = dqidw0[ind] * dt_dz[ind];
+    }
+    //b coefficient all layers
+    bmx[ind] = -1.0 - (-dqidw1[ind] + dqodw1[ind]) * dt_dz[ind];
+    if(ind == drainind){
+      //c coefficient bottom layer
+      cmx[ind] = 0.0;
+    }
+    else{
+      //c coefficient top and middle layers
+      cmx[ind] = -dqodw2[ind] * dt_dz[ind];
+    }
+    currl = currl->nextl;
+  }
+}
+
+void Richards::computeRHS(Layer *topsoill, int topind, int drainind){
+  double fluxNet = 0.0;
+  Layer *currl = topsoill;
+  while(currl != NULL && currl->solind<=drainind){
+    int ind = currl->solind;
+    if (ind == topind){
+      fluxNet = qinfil - qout[ind] - (qtrans[ind] + qevap);
+    }
+    else{
+      fluxNet = qin[ind] - qout[ind] - qtrans[ind];
+    }
+    rmx[ind] = -fluxNet*dt_dz[ind];
+
+    currl = currl->nextl;
+  }
+}
+
+void Richards::checkWaterValidity(Layer *topsoill, Layer *drainl, int topind, int drainind){
+  //Following logic from CLM 4.5 pg 176
+  //Upward pass: redistribute excess water to layers above,
+  //add column excess to qdrain (TODO add to magic puddle first).
+  Layer *currl = drainl;
+  double excess_liq = 0;
+  while(currl != NULL && currl->solind >= topind){
+    int ind = currl->solind;
+    if (currl->liq > effmaxliq[ind]){
+      excess_liq = currl->liq - effmaxliq[ind];
+      Layer *layer_above = currl->prevl;
+      while(layer_above != NULL && layer_above->solind >=topind && excess_liq > 0){
+        int ind2 = layer_above->solind;
+        if(layer_above->liq < effmaxliq[ind2]){
+          double space_for_liq = effmaxliq[ind2] - layer_above->liq;
+          double sink_liq = fmin(space_for_liq, excess_liq);
+          layer_above->liq += sink_liq;
+          currl->liq -= sink_liq;
+          excess_liq -= sink_liq;
         }
-      } else {
-        tschanged =false;
+        layer_above = layer_above->prevl;
       }
-
-      // make sure tleft is greater than zero
-      tstep = fmin(tleft, tstep);
-
-      if(tstep<=0) {  //starting the next iterative-interval
-        qdrain = 0.;
-      }
-    } else {
-      tstep = tstep/2.0;   // half the iterative-interval
-
-      if(tstep < TSTEPMIN) {
-        tstep = TSTEPMIN;
-      }
-
-      tschanged = true;
     }
-  } // end of while
-};
-*/
-/*
-int Richards::updateOnethTimeStep(const double &fbaseflow) {
-  int status =-1;
-
-  for(int i=indx0al; i<indx0al+numal; i++) {
-    liqii[i] = liqis[i];
+    //if that didn't work, dump excess to qover
+    //TODO dump to magic puddle first
+    if (currl->liq > effmaxliq[ind]){
+      double sink_liq = currl->liq - effmaxliq[ind];
+      currl->liq -= sink_liq;
+      excess_liq -= sink_liq;
+      excess_runoff += sink_liq;
+    }
+    currl = currl->prevl;
   }
 
-  status = updateOneIteration(fbaseflow);
-
-  if(status==0 || tstep<=TSTEPMIN) { // success OR at the min. tstep allowed
-    for(int i=indx0al; i<indx0al+numal; i++) {
-      liqld[i] = liqit[i];
-    }
-  }
-
-  return status;
-};
-*/
-/*
-int Richards::updateOneIteration(const double &fbaseflow) {
-  double effporo0;
-  double effporo2;
-  double volliq  = 0.;
-  double volliq2 = 0.;;
-  double s1;
-  double s2;
-  double s_node;
-  double wimp = 0.001; // mimumum pore for water to exchange between two layers
-  double smpmin = -1.e8;
-  double dt =tstep*timestep;
-  itsum++;
-
-  //Yuan: k-dk/dw-h relationships for all soil layers
-  for (int indx=indx0al; indx<indx0al+numal; indx++) {
-    effporo0 = effporo[indx];
-    volliq = fmax(0., liqii[indx]/dzmm[indx]);
-    volliq = fmin(volliq, effporo0);
-
-    if(indx==indx0al+numal-1) {
-      s1 = volliq/fmax(wimp, effporo0);
-      s2 = hksat[indx] * exp (-2.0*(zmm[indx]/1000.0))
-           * pow(s1, 2.0*bsw[indx]+2.0);
-      hk[indx] = s1*s2;
-      dhkdw[indx] = (2.0*bsw[indx]+3.0)*s2*0.5/fmax(wimp, effporo0);
-    } else {
-      effporo2 = effporo[indx+1];
-      volliq2 = fmax(0., liqii[indx+1]/dzmm[indx+1]);
-      volliq2 = fmin(volliq2, effporo2);
-
-      if(effporo0<wimp || effporo2<wimp) {
-        hk[indx] = 0.;
-        dhkdw[indx] = 0.;
-      } else {
-        s1 =(volliq2+volliq)/(effporo2+effporo0);
-        s2 = hksat[indx+1] * exp (-2.0*(zmm[indx+1]/1000.0))
-             * pow(s1, 2.0*bsw[indx+1]+2.0);
-        hk[indx] = s1*s2;
-        dhkdw[indx] = (2.*bsw[indx]+3.0)*s2*0.5/effporo2;
-      }
-    }
-
-    if (hk[indx]>=numeric_limits<double>::infinity()
-        || dhkdw[indx]>=numeric_limits<double>::infinity()) {
-      BOOST_LOG_SEV(glg, warn) << "'hk' or 'dhkdw' is out of bounds!";
-    }
-
-    if (volliq>1.0 || volliq2>1.0) {
-      BOOST_LOG_SEV(glg, warn) << "vwc is out of bounds! (volliq or volliq2 > 1.0)";
-    }
-
-    //
-    s_node = volliq/fmax(wimp, effporo0);
-    s_node = fmax(0.001, (double)s_node);
-    s_node = fmin(1.0, (double)s_node);
-    smp[indx] = psisat[indx]*pow(s_node, -bsw[indx]);
-    smp[indx] = fmax(smpmin, smp[indx]);
-    dsmpdw[indx]= -bsw[indx]*smp[indx]/(s_node*fmax(wimp,effporo0));
-
-    //
-    if (smp[indx]>=numeric_limits<double>::infinity()
-        || dsmpdw[indx]>=numeric_limits<double>::infinity()) {
-      BOOST_LOG_SEV(glg, warn) << "smp[<<"<<indx<<"] or dsmpdw["<<indx<<"] is infinity!";
-    }
-  }
-
-  // preparing matrice for solution
-  double den, num;
-  double dqodw1, dqodw2, dqidw0, dqidw1;
-  double sdamp =0.;
-  int ind=indx0al;
-
-  if(numal>=2) {
-    // layer 1
-    qin[ind] = 0.;
-
-    if (ind == indx0sl) {//for first soil layer: infiltration/evaporation occurs
-      qin[ind] = qinfil -qevap;
-    }
-
-    den = zmm[ind+1]-zmm[ind];
-    num = smp[ind+1]-smp[ind]-den;
-    qout[ind] = -hk[ind] * num/den;
-    dqodw1 = -(-hk[ind]*dsmpdw[ind] + num*dhkdw[ind])/den;
-    dqodw2 = -(hk[ind]*dsmpdw[ind+1] + num*dhkdw[ind])/den;
-    rmx[ind] = qin[ind] - qout[ind] - qtrans[ind];
-    amx[ind] = 0.;
-    bmx[ind] = dzmm[ind] *(sdamp +1/dt) + dqodw1;
-    cmx[ind] = dqodw2;
-
-    if (numal>2) {
-      for(ind=indx0al+1; ind<indx0al+numal-1; ind++) { // layer 2 ~ the second last bottom layer
-        den = zmm[ind]-zmm[ind-1];
-        num = smp[ind]-smp[ind-1] -den;
-        qin[ind] = -hk[ind-1]*num/den;
-        dqidw0 = -(-hk[ind-1]*dsmpdw[ind-1] + num* dhkdw[ind-1])/den;
-        dqidw1 = -(hk[ind-1]*dsmpdw[ind] + num* dhkdw[ind-1])/den;
-        den = zmm[ind+1]-zmm[ind];
-        num = smp[ind+1]-smp[ind] -den;
-        qout[ind] = -hk[ind] * num/den;
-        dqodw1 = -(-hk[ind]*dsmpdw[ind] + num* dhkdw[ind])/den;
-        dqodw2 = -(hk[ind]*dsmpdw[ind+1] + num* dhkdw[ind])/den;
-        rmx[ind] = qin[ind] -qout[ind] -qtrans[ind];
-        amx[ind] =-dqidw0;
-        bmx[ind] = dzmm[ind] /dt - dqidw1 + dqodw1;
-        cmx[ind] = dqodw2;
-
-        if (amx[ind] != amx[ind] || bmx[ind] != bmx[ind] ||
-            cmx[ind] != cmx[ind] || rmx[ind] != rmx[ind]) {
-          BOOST_LOG_SEV(glg, warn) << "amx, cmx, bmx, or rmx at index "
-                                   << ind << " is NaN!";
+  //Downward pass: bring layers up to minliq by pulling from below
+  currl = topsoill;
+  double needed_liq = 0;
+  while(currl != NULL && currl->solind <= drainind){
+    int ind = currl->solind;
+    if (currl->liq < effminliq[ind]){
+      needed_liq = effminliq[ind] - currl->liq;
+      Layer *layer_below = currl->nextl;
+      while(layer_below != NULL && layer_below->solind <= drainind && needed_liq >0){
+        int ind2 = layer_below->solind;
+        if(layer_below->liq > effminliq[ind2]){
+          double avail_liq = layer_below->liq - effminliq[ind2];
+          double take_liq = fmin(needed_liq, avail_liq);
+          layer_below->liq -= take_liq;
+          currl->liq += take_liq;
+          needed_liq -= take_liq;
         }
+        layer_below = layer_below->nextl;
       }
     }
-
-    //bottom layer
-    ind = indx0al+numal-1;
-    den = zmm[ind]-zmm[ind-1];
-    num = smp[ind]-smp[ind-1]-den;
-    qin[ind] = -hk[ind-1]*num/den;
-    dqidw0 = -(-hk[ind-1]*dsmpdw[ind-1] + num* dhkdw[ind-1])/den;
-    dqidw1 = -(hk[ind-1]*dsmpdw[ind] + num* dhkdw[ind-1])/den;
-    dqodw1 = dhkdw[ind];
-    qout[ind] = 0.;   //no drainage occurs if not in 'drainl'
-
-    if (ind==drainl->solind) {
-      qout[ind] = hk[ind]*fbaseflow;    //free bottom drainage assumed
+    //if that didn't work, pull excess from qdrain and qover if possible
+    //TODO pull from magic puddle before qover
+    if(currl->liq < effminliq[ind]){
+      needed_liq = effminliq[ind] - currl->liq;
+      //pull from qdrain
+      double take_liq = fmin(qdrain, needed_liq);
+      currl->liq += take_liq;
+      needed_liq -= take_liq;
+      qdrain -= take_liq;
+      //from qover (excess_runoff)
+      take_liq = fmin(excess_runoff, needed_liq);
+      currl->liq += take_liq;
+      needed_liq -= take_liq;
+      excess_runoff -= take_liq;
+      //if this doesn't work, it will be forced to min at the end of the check
     }
-
-    rmx[ind] = qin[ind] -qout[ind] -qtrans[ind];
-    amx[ind] = -dqidw0;
-    bmx[ind] = dzmm[ind]/dt - dqidw1 + dqodw1;
-    cmx[ind] = 0.;
+    currl = currl->nextl;
   }
 
-  cn.tridiagonal(indx0al, numal, amx, bmx,cmx,rmx, dwat);  //solution
-
-  // soil water for each layer after one iteration
-  for(int il=indx0al; il<indx0al+numal; il++) {
-    liqit[il] = liqii[il] + dzmm[il] * dwat[il];
-
-    if(liqit[il]!=liqit[il]) {
-      BOOST_LOG_SEV(glg, warn) << "Richards::updateOneIteration(..), water is NaN!";
+  //if it's still bad it's probably a float comparison issue.
+  //check, force it, log it if it's a real problem
+  currl = topsoill;
+  while (currl != NULL and currl->solind <= drainind){
+    int ind = currl->solind;
+    if (currl->liq < effminliq[ind] || currl->liq > effmaxliq[ind]){
+      if(currl->liq < effminliq[ind]){
+        if((effminliq[ind] - currl->liq) > 1.e-6){
+          //TODO raise error
+        }
+        currl->liq =effminliq[ind];
+      }
+      else{
+        //too much liq
+        if((currl->liq - effmaxliq[ind]) > 1.e-6){
+          //TODO raise error
+        }
+        currl->liq = effmaxliq[ind];
+      }
     }
-
-    if (liqit[il]>=numeric_limits<double>::infinity()) {
-      BOOST_LOG_SEV(glg, warn) << "liqit["<<il<<"] is greater than infinity.";
-    }
+    currl = currl->nextl;
   }
+}
 
-  //check the iteration result to determine if need to continue
-  for(int il=indx0al; il<indx0al+numal; il++) {
-    /* // the '-1' and '-2' status appear causing yearly unstablitity - so removed
-          if(liqit[il]<0.0){
-            return -1;    // apparently slow down the iteration very much during drying
-          }
-          if(liqit[il]>effmaxliq[il]){
-            return -2;    // apparently slow down the iteration very much during wetting
-          }
-    //
-    if(fabs((liqit[il]-liqii[il])/effmaxliq[il])>LIQTOLE) {
-      return -3;
-    }
+void Richards::clearRichardsArrays(){
+  for(int ii=0; ii<=MAX_SOI_LAY; ii++){
+
+    qtrans[ii] = 0.0;
+    tridiag_error[ii] = 0.0;
+    fluxNet0[ii] = 0.0;
+    fluxNet1[ii] = 0.0;
+    qin[ii] = 0.0;
+    qout[ii] = 0.0;
+    s1[ii] = 0.0;
+    s2[ii] = 0.0;
+    imped[ii] = 0.0;
+    hk[ii] = 0.0;
+    dhkdw[ii] = 0.0;
+    dsmpdw[ii] = 0.0;
+    smp[ii] = 0.0;
+    dqidw0[ii] = 0.0;
+    dqidw1[ii] = 0.0;
+    dqodw1[ii] = 0.0;
+    dqodw2[ii] = 0.0;
+
+    Bsw[ii] = 0.0; //bsw hornberger constant (by horizon type)
+    ksat[ii] = 0.0; //Saturated hydraulic conductivity (by horizon type)
+    psisat[ii] = 0.0;;//Saturated soil matric potential (by horizon type)
+
+    vol_liq[ii] = 0.0;//volumetric liquid water
+    vol_ice[ii] = 0.0;
+    vol_h2o[ii] = 0.0; //Total volumetric water (liq + ice)
+    vol_poro[ii] = 0.0; //Layer porosity
+    liq_poro[ii] = 0.0; //Porosity not filled by ice (= vol_poro - vol_ice)
+    soi_liq[ii] = 0.0; //Layer liquid
+    ice_frac[ii] = 0.0; //Fraction of porosity filled with ice
+    effminliq[ii] = 0.0;
+    effmaxliq[ii] = 0.0;
+    z_h[ii] = 0.0; //Depth of layer bottom in mm, named to match CLM paper
+    dzmm[ii] = 0.0; // layer thickness in mm
+    nodemm[ii] = 0.0; //depth of center of layer thawed portion in mm
+    dt_dz[ii] = 0.0;
+
+    deltathetaliq[ii] = 0.0;
+    amx[ii] = 0.0;
+    bmx[ii] = 0.0;
+    cmx[ii] = 0.0;
+    rmx[ii] = 0.0;
+
+    percolation[ii] = 0.0;
+    layer_drain[ii] = 0.0;
+
   }
-
-  return 0;
 };
-*/
 
