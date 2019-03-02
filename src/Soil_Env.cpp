@@ -515,6 +515,8 @@ void Soil_Env::updateDailySM(double weighted_veg_tran) {
   }
 
   evap  = ed->d_soi2a.evap; // mm/day: summed for soil evaporation
+  //Testing: turn off evap
+  //evap = 0.0;
 
   // mm/day note: rthfl and rdrip are already fpc adjusted
   rnth  = (ed->d_v2g.rthfl + ed->d_v2g.rdrip) +
@@ -611,7 +613,7 @@ void Soil_Env::updateDailySM(double weighted_veg_tran) {
   // a closed talik, there should be no water exiting other than
   // transpiration, and in the case of an open talik, our equations
   // may need modification. 
-  if(ground->fstshlwl->frozen != 1){//drainl != NULL){
+  if(ground->fstshlwl->frozen != 1 && ground->fstmossl->frozen != 1){//drainl != NULL){
     richards.update(ground->fstshlwl, drainl, draindepth, baseflow,
                     ed->d_sois.watertab, root_water_up, evap,
                     infil, cd->cell_slope,
