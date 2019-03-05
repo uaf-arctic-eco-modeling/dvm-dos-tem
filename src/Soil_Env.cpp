@@ -718,17 +718,9 @@ double Soil_Env::getEvaporation(const double & dayl, const double &rad) {
   return evap;
 };
 
-// Yuan: modified to set that from the bottom soil layer
-// this will eliminate the 'fake watertable' due to temporary water
-// saturation of upper
+//Heather March 2019 - new water table logic based on CLM5 documentation
+//and FORTRAN code
 
-// Heather Feb 2018: Original version did not consider a layer filled with ice
-// to be saturated, which seems odd. Also, if bottom layer was filled with ice,
-// no accumulation of saturation could occur. Edited so that ice and water are both
-// considered part of water table. Also removed arbitrary cutoff (0.6) for inclusion
-// of water from the first partially saturated layer encountered: now a fraction
-// of that layer's dz (corresponding to the fraction of filled pore space in the layer)
-// is included in saturated column height.
 double Soil_Env::getWaterTable(Layer* lstsoill) {
   double wtd = 0.0;
   if(ground->ststate==1){ //soil column is frozen, so no water table
@@ -736,48 +728,54 @@ double Soil_Env::getWaterTable(Layer* lstsoill) {
   }
   Layer* currl = lstsoill; // default is to start at the bottom
 
-  //if column is partly thawed, just start at the top active layer
+  //if column is partly thawed, just start at the lowest active layer
   // to avoid taliks
-  if(ground->ststate== 0){ 
+  if(ground->ststate== 0){
     currl = ground->fstfntl;
   }
 
   while(currl!=NULL && currl->isSoil){
     //thickness of thawed part of the layer
-    double dz_unfrozen = currl->dz * (1-currl->frozenfrac); 
+    double dz_unfrozen = currl->dz * (1-currl->frozenfrac);
+
     //volumetric liquid of the thawed part
-    double volliq = currl->liq/DENLIQ/dz_unfrozen; 
+    double volliq = currl->liq/DENLIQ/dz_unfrozen;
+
     //saturation of the thawed part
-    double saturation = fmin(volliq/currl->poro, 1.0); 
+    double saturation = fmin(volliq/currl->poro, 1.0);
 
     //CLM 4.5 suggests the watertable is at the depth where
-    // saturation reaches 0.90
-    if(saturation >= 0.90){ 
+    //saturation reaches 0.90
+    double sat_level = 0.90;
+    if(saturation >= sat_level){
       //thawed part of this layer is fully saturated - move up to
-      // find watertable
+      //find watertable
       currl = currl->prevl;
-    } else { 
-      //saturation of this layer < 0.90, so watertable is below or in
-      // this layer
-      
-      //if the entire layer is thawed 
-      if((currl->z + dz_unfrozen) >= (currl->z + currl->dz)){
-        //place the wtd one mm below the bottom of this layer
-        // (to avoid boundary errors)
-        wtd = currl->z + dz_unfrozen + 0.001; 
-        break;        
-      }
-      else{ // this layer is partly frozen
-        //place the wtd one mm above the frozen front
-        wtd = currl->z + dz_unfrozen - 0.001; 
-        break;
+    } else {
+      //saturation of this layer < 0.90, so watertable is below the
+      //top of this layer. Interpolate between currl and currl->nextl
+      //to find perched water table height.
+      double nextl_sat = 0.0;
+      double m, b;
+      if(currl->nextl != NULL){
+        double nextl_dz_unfrozen = currl->nextl->dz
+                * (1-currl->nextl->frozenfrac);
+        double nextl_volliq = currl->nextl->liq/DENLIQ/nextl_dz_unfrozen;
+        nextl_sat = fmin(nextl_volliq/currl->nextl->poro, 1.0);
+        m = (currl->nextl->z - currl->z)/(nextl_sat - saturation);
+        b = currl->nextl->z - m * nextl_sat;
+        wtd = fmax(m * sat_level + b, 0.0);
+        return wtd;
+      } else { //nextl is null, consider nextl_sat = 0
+          m = dz_unfrozen / -saturation;
+          b = currl->z + dz_unfrozen;
+          wtd = fmax(m * sat_level + b, 0.0);
+          return wtd;
       }
     }
   }
-
   return wtd;
 }
-
 
 double Soil_Env::getRunoff(Layer* toplayer, Layer* drainl,
                            const double & rnth,const double & melt) {
