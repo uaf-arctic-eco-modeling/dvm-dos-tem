@@ -2,6 +2,7 @@
 
 #include "../include/TEMLogger.h"
 extern src::severity_logger< severity_level > glg;
+#include "lapacke/lapacke.h"
 
 Richards::Richards() {
   delta_t = SEC_IN_DAY;//Total time to incorporate; set to SEC_IN_DAY for no iteration
@@ -60,6 +61,7 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
   double dtsub = delta_t/24; //length of first substep (s)
   double dtdone = 0.0; //time completed
   bool continue_iterate = true;
+  bool lapack_solver = true; //whether to use the newer LAPACK solver or the old Thomas algorithm
 
   //Start of adaptive-length iteration substeps
   //For testing: track the smallest substep used:
@@ -86,7 +88,34 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
       computeLHS(topsoill, topind, drainind); //compute left hand side of tridiagonal matrix equation
       computeRHS(topsoill, topind, drainind); //compute right hand side of the tridiagonal matrix equation
 
-      cn.tridiagonal(topind, num_al, amx, bmx, cmx, rmx, deltathetaliq);
+      if(lapack_solver && num_al >= 2){ //use the LAPACK solver
+
+        double sub_diagonal[num_al-1];
+        double diagonal[num_al];
+        double super_diagonal[num_al-1];
+        double result[num_al];
+
+        for(int ii=0; ii<num_al; ii++){
+          diagonal[ii] = bmx[ii+topind];
+          result[ii] = rmx[ii+topind];
+        }
+        for(int ii=0; ii<num_al-1; ii++){
+          sub_diagonal[ii] = amx[ii+topind+1];//amx n/a for top active layer
+          super_diagonal[ii] = cmx[ii+topind];//cmx n/a for bottom active layer
+        }
+        lapack_int ldb, num_layers, nrhs;
+        ldb = 1;
+        num_layers = num_al;
+        nrhs = 1;
+        LAPACKE_dgtsv(LAPACK_ROW_MAJOR, num_layers, nrhs, sub_diagonal, diagonal, super_diagonal, result, ldb);
+        //copy values from result into deltathetaliq
+        for(int ii=0; ii<num_al; ii++){
+          deltathetaliq[ii+topind] = result[ii];
+        }
+      }
+      else{ //use the old Thomas algorithm as solver
+        cn.tridiagonal(topind, num_al, amx, bmx, cmx, rmx, deltathetaliq);
+      }
 
       max_tridiag_error = 0.0;
       for(int ind = topind; ind <=drainind; ind++){
