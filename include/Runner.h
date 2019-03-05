@@ -67,8 +67,16 @@ public:
 
   void output_nc_soil(int ncid, int cv, int *data, int max_var_count, int timestep);
 
+
   template<typename PTYPE>
-  void output_nc_test(OutputSpec* out_spec, std::string stage_suffix, PTYPE data, int max_var_count, int start_timestep, int timesteps);
+  void output_nc_3dim(OutputSpec* out_spec, std::string stage_suffix, PTYPE data, int max_var_count, int start_timestep, int timesteps);
+
+  template<typename PTYPE>
+  void output_nc_4dim(OutputSpec* out_spec, std::string stage_suffix, PTYPE data, int max_var_count, int start_timestep, int timesteps);
+
+  template<typename PTYPE>
+  void output_nc_5dim(OutputSpec* out_spec, std::string stage_suffix, PTYPE data, int max_var_count_1, int max_var_count_2, int start_timestep, int timesteps);
+
 
   void output_nc_soil_layer(int ncid, int cv, int *data, int max_var_count, int start_timestep, int timesteps);
   void output_nc_soil_layer(int ncid, int cv, double *data, int max_var_count, int start_timestep, int timesteps);
