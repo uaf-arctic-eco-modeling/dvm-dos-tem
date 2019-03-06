@@ -3602,7 +3602,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
       //Total
       else if(!curr_spec.pft){
 
-        double m_lai, y_lai = 0.;
+        double m_lai = 0., y_lai = 0.;
         for(int ip=0; ip<NUM_PFT; ip++){
           if(cohort.cd.m_veg.vegcov[ip]>0.){
             m_lai += cohort.cd.m_veg.lai[ip];
@@ -3693,7 +3693,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
       //Neither PFT nor compartment - totals
       else if(!curr_spec.pft && !curr_spec.compartment){
 
-        double m_ltrfalc, y_ltrfalc = 0.;
+        double m_ltrfalc = 0., y_ltrfalc = 0.;
         for(int ip=0; ip<NUM_PFT; ip++){
           m_ltrfalc += cohort.bd[ip].m_v2soi.ltrfalcall;
           y_ltrfalc += cohort.bd[ip].y_v2soi.ltrfalcall;
@@ -3782,7 +3782,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
       //Neither PFT nor compartment - totals
       else if(!curr_spec.pft && !curr_spec.compartment){
 
-        double m_ltrfaln, y_ltrfaln = 0.;
+        double m_ltrfaln = 0., y_ltrfaln = 0.;
         for(int ip=0; ip<NUM_PFT; ip++){
           m_ltrfaln += cohort.bd[ip].m_v2soi.ltrfalnall;
           y_ltrfaln += cohort.bd[ip].y_v2soi.ltrfalnall;
@@ -4054,7 +4054,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
       else if(!curr_spec.pft && !curr_spec.compartment){
         //monthly
         if(curr_spec.monthly){
-          output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.bdall->y_soi2v.snuptakeall, 1, month_timestep, 1);
+          output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.bdall->m_soi2v.snuptakeall, 1, month_timestep, 1);
         }
         //yearly
         else if(curr_spec.yearly){
