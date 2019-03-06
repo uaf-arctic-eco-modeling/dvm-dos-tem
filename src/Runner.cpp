@@ -893,13 +893,7 @@ void Runner::output_netCDF_yearly(int year, std::string stage){
     output_netCDF(md.yearly_netcdf_outputs, year, 0, stage);
 }
 
-//The following two functions are the beginning of an attempt to
-// generalize the output of different variables. The end goal is
-// for the output_netCDF() function to be shorter, more readable,
-// and have fewer redundant pieces of code.
-//20181006 Currently there are only a few variables using these
-// general functions, but since they include the front outputs
-// we are merging this despite it being incomplete.
+
 template <typename PTYPE>
 void Runner::output_nc_3dim(OutputSpec* out_spec, std::string stage_suffix,
                             PTYPE data, int max_var_count,
@@ -1011,46 +1005,6 @@ void Runner::output_nc_5dim(OutputSpec* out_spec, std::string stage_suffix,
   temutil::nc( nc_close(ncid) );
 }
 
-
-void Runner::output_nc_soil_layer(int ncid, int cv, int *data, int max_var_count, int start_timestep, int timesteps){
-
-  //timestep, layer, row, col
-  size_t soilstart[4];
-  soilstart[0] = start_timestep;
-  soilstart[1] = 0;
-  soilstart[2] = this->y;
-  soilstart[3] = this->x;
-
-  size_t soilcount[4];
-  //soilcount[0] = 1;
-  soilcount[0] = timesteps;
-  soilcount[1] = max_var_count;
-  soilcount[2] = 1;
-  soilcount[3] = 1;
-
-  temutil::nc( nc_put_vara_int(ncid, cv, soilstart, soilcount, data) );
-}
-
-void Runner::output_nc_soil_layer(int ncid, int cv, double *data, int max_var_count, int start_timestep, int timesteps){
-
-  //timestep, layer, row, col
-  size_t soilstart[4];
-  soilstart[0] = start_timestep;
-  soilstart[1] = 0;
-  soilstart[2] = this->y;
-  soilstart[3] = this->x;
-
-  size_t soilcount[4];
-  //soilcount[0] = 1;
-  soilcount[0] = timesteps;
-  soilcount[1] = max_var_count;
-  soilcount[2] = 1;
-  soilcount[3] = 1;
-
-  temutil::nc( nc_put_vara_double(ncid, cv, soilstart, soilcount, data) );
-}
-
-
 void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, int year, int month, std::string stage){
   int month_timestep = year*12 + month;
 
@@ -1084,103 +1038,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
   int colidx = this->x;
 
   OutputSpec curr_spec;
-  int ncid;
-  int timeD; //unlimited dimension
-  int xD;
-  int yD;
-  int pftD;
-  int pftpartD;
-  int layerD;
-  int cv; //reusable variable handle
-
   std::map<std::string, OutputSpec>::iterator map_itr;
-
-  /*** 3D variables ***/
-  size_t start3[3];
-  //Index 0 is set later
-  start3[1] = rowidx;
-  start3[2] = colidx;
-
-  //For daily-level variables
-  size_t count3[3];
-  count3[0] = dinm;
-  count3[1] = 1;
-  count3[2] = 1;
-
-  /*** Soil Variables ***/
-  size_t soilstart4[4];
-  //Index 0 is set later
-  soilstart4[1] = 0;
-  soilstart4[2] = rowidx;
-  soilstart4[3] = colidx;
-
-  size_t soilcount4[4];
-  soilcount4[0] = 1;
-  soilcount4[1] = MAX_SOI_LAY;
-  soilcount4[2] = 1;
-  soilcount4[3] = 1;
-
-  /*** Fronts ***/
-  size_t frontcount4[4];
-  frontcount4[0] = 1; 
-  frontcount4[1] = MAX_NUM_FNT;
-  frontcount4[2] = 1;
-  frontcount4[3] = 1;
-
-  size_t frontstart5[5];
-  //Index 0 is set later
-  frontstart5[1] = 0;
-  frontstart5[2] = 0;
-  frontstart5[3] = rowidx;
-  frontstart5[4] = colidx;
-
-  size_t frontcount5[5];
-  frontcount5[0] = 1;
-  frontcount5[1] = dinm;
-  frontcount5[2] = MAX_NUM_FNT;
-  frontcount5[3] = 1;
-  frontcount5[4] = 1;
-
-  /*** PFT variables ***/
-  size_t PFTstart4[4];
-  //Index 0 is set later
-  PFTstart4[1] = 0;//PFT
-  PFTstart4[2] = rowidx;
-  PFTstart4[3] = colidx;
-
-  size_t PFTcount4[4];
-  PFTcount4[0] = 1;
-  PFTcount4[1] = NUM_PFT;
-  PFTcount4[2] = 1;
-  PFTcount4[3] = 1;
-
-  /*** Compartment variables ***/
-  size_t CompStart4[4];
-  //Index 0 is set later
-  CompStart4[1] = 0;//PFT compartment
-  CompStart4[2] = rowidx;
-  CompStart4[3] = colidx;
-
-  size_t CompCount4[4];
-  CompCount4[0] = 1;
-  CompCount4[1] = NUM_PFT_PART;
-  CompCount4[2] = 1;
-  CompCount4[3] = 1;
-
-  /*** PFT and PFT compartment variables ***/
-  size_t start5[5];
-  //Index 0 is set later
-  start5[1] = 0;//PFT Compartment
-  start5[2] = 0;//PFT
-  start5[3] = rowidx;
-  start5[4] = colidx;
-
-  size_t count5[5];
-  count5[0] = 1;
-  count5[1] = NUM_PFT_PART;
-  count5[2] = NUM_PFT;
-  count5[3] = 1;
-  count5[4] = 1;
 
 
   map_itr = netcdf_outputs.find("ALD");
@@ -3030,7 +2888,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
       //By layer
       if(curr_spec.layer){
 
-        double orgn[MAX_SOI_LAY];
+        double orgn[MAX_SOI_LAY] = {0};
         int il = 0;
         Layer* currL = this->cohort.ground.toplayer;
         while(currL != NULL){
@@ -4428,8 +4286,6 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
 
         //daily
         if(curr_spec.daily){
-//          PFTstart4[0] = day_timestep;
-//          PFTcount4[0] = dinm;
 
           double d_EET[dinm][NUM_PFT];
           for(int ip=0; ip<NUM_PFT; ip++){
@@ -4439,16 +4295,13 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
           }
 
           output_nc_4dim(&curr_spec, file_stage_suffix, &d_EET[0][0], NUM_PFT, day_timestep, dinm);
-//          temutil::nc( nc_put_vara_double(ncid, cv, PFTstart4, PFTcount4, &EET[0][0]) );
         }
         //monthly
         else if(curr_spec.monthly){
-//          temutil::nc( nc_put_vara_double(ncid, cv, PFTstart4, PFTcount4, &EET[0]) );
           output_nc_4dim(&curr_spec, file_stage_suffix, &m_EET[0], NUM_PFT, month_timestep, 1);
         }
         //yearly
         else if(curr_spec.yearly){
-//          temutil::nc( nc_put_vara_double(ncid, cv, PFTstart4, PFTcount4, &EET[0]) );
           output_nc_4dim(&curr_spec, file_stage_suffix, &y_EET[0], NUM_PFT, year, 1);
         }
       }
@@ -4456,7 +4309,6 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
       else if(!curr_spec.pft){
         //daily
         if(curr_spec.daily){
-//          start3[0] = day_timestep;
           double eet[31] = {0};
           for(int ii=0; ii<31; ii++){
             for(int ip=0; ip<NUM_PFT; ip++){
@@ -4464,7 +4316,6 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
             }
           }
           output_nc_3dim(&curr_spec, file_stage_suffix, &eet[0], 1, day_timestep, dinm);
-//          temutil::nc( nc_put_vara_double(ncid, cv, start3, count3, &eet[0]) );
         }
         //monthly
         else if(curr_spec.monthly){
@@ -4498,8 +4349,6 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
         }
         //daily
         if(curr_spec.daily){
-//          PFTstart4[0] = day_timestep;
-//          PFTcount4[0] = dinm;
 
           double d_PET[dinm][NUM_PFT];
           for(int ip=0; ip<NUM_PFT; ip++){
@@ -4509,7 +4358,6 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
           }
 
           output_nc_4dim(&curr_spec, file_stage_suffix, &d_PET[0], NUM_PFT, day_timestep, dinm);
-//          temutil::nc( nc_put_vara_double(ncid, cv, PFTstart4, PFTcount4, &PET[0][0]) );
         }
         //monthly
         else if(curr_spec.monthly){
@@ -4524,7 +4372,6 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
       else if(!curr_spec.pft){
 
         if(curr_spec.daily){
-//          start3[0] = day_timestep;
           double pet[31] = {0};
           for(int ii=0; ii<31; ii++){
             for(int ip=0; ip<NUM_PFT; ip++){
@@ -4532,7 +4379,6 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
             }
           }
           output_nc_3dim(&curr_spec, file_stage_suffix, &pet[0], 1, day_timestep, dinm);
-//          temutil::nc( nc_put_vara_double(ncid, cv, start3, count3, &pet[0]) );
         }
         //monthly
         else if(curr_spec.monthly){
