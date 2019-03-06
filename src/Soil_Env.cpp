@@ -487,7 +487,8 @@ void Soil_Env::retrieveDailyFronts() {
 // soil moisture calculation
 void Soil_Env::updateDailySM(double weighted_veg_tran) {
   // define the soil water module's domain
-  Layer * fstsoill = ground->fstsoill;
+  //Skip moss for all soil moisture calculations
+  Layer * fstsoill = ground->fstshlwl;
   Layer * lstsoill = ground->lstsoill;
   Layer * drainl    = ground->drainl;
   double draindepth = ground->draindepth;
@@ -524,65 +525,70 @@ void Soil_Env::updateDailySM(double weighted_veg_tran) {
 
   melt  = ed->d_snw2soi.melt; // mm/day
 
-  // 1) calculate the surface runoff and infiltration
+  //Calculate surface runoff
   ed->d_soi2l.qover  = 0.0;
   ed->d_soi2l.qdrain = 0.0;
+  //Update water table for runoff calculation
   ed->d_sois.watertab = getWaterTable(lstsoill);
-
   if( (rnth + melt) > 0 ) {
     ed->d_soi2l.qover = getRunoff(fstsoill, drainl, rnth, melt); // mm/day
   } else {
     ed->d_soi2l.qover = 0.0;
   }
 
-  //The following is duplicated (if reversed) from getRunoff().
-  // It should be replaced in both locations by a new function
-  // getUnoccupiedPorosity() or similar.
+  //Calculate infiltration (mm/day)
+  double infil = rnth + melt - ed->d_soi2l.qover;
+
+  //Get unsaturated space potentially available for liq infiltration (mm)
   Layer * currl = fstsoill;
-  double empty_poro = 0.0;
-  double ztot = 0.0;
-  double sums = 0.0;
+  double space_for_liq = 0.0;
   if(drainl != NULL){
-    while( currl != NULL && currl->solind <= drainl->solind){
+    while(currl != NULL && currl->solind <= drainl->solind){
       double thetai = currl->getVolIce();
       double thetal = currl->getVolLiq();
       double s = (thetai + thetal)/currl->poro;
-      s = fmin((double)s, 1.0);
-      empty_poro += (1-s) * currl->dz;
-      ztot += currl->dz;
-      sums += s*currl->dz;
+      s = fmax(fmin(s, 1.0),0.0);
+      space_for_liq += (1-s) * currl->dz *1.e3;
       currl = currl->nextl;
     }
   }
-  //Converting m to mm for consistency in calculations
-  empty_poro *= 1000;
-
-  //fraction of saturation of the soil column
-  double avgs = sums/ztot;
-  //Water table depth (also duplicated, see above)
-  double wtd = ztot - sums;
-  //frasat, duplicated, see above
-  double frasat = WFACT * min(1.0,exp(-wtd));
-
-  //Calculate standard infiltration
-  double infil = rnth + melt - ed->d_soi2l.qover;
 
   //Modify available pore space by the liquid that will be
   // infiltrating.
-  empty_poro -= infil;
+  space_for_liq -= infil;
 
-  //Adding the melt portion of runoff (CLM3/Oleson 2004, modified eq 7.59)
-  // to the magic puddle instead
-  double melt_runoff = (frasat + (1-frasat)*pow(avgs,4)) * melt;
-  ed->d_soi2l.magic_puddle += melt_runoff;
-  //Subtracting the melt portion from runoff
-  ed->d_soi2l.qover -= melt_runoff;
+  //Add runoff up to 10 mm to surface water storage (magic puddle)
+  double max_puddle_mm = 10.0;
+  double space_in_puddle = fmax(max_puddle_mm - ed->d_soi2l.magic_puddle, 0.0);
+  double add_to_puddle = fmax(fmin(ed->d_soi2l.qover, space_in_puddle), 0.0);
+  ed->d_soi2l.magic_puddle += add_to_puddle;
+  //Subtracting surface water storage from runoff
+  ed->d_soi2l.qover -= add_to_puddle;
 
   //If there is space remaining in the soil, and water in
   // the reserved puddle, transfer water from the puddle
   // to the infiltration value.
-  if(empty_poro > 0.0 && ed->d_soi2l.magic_puddle > 0.0){
-    double puddle2grnd = min(empty_poro, ed->d_soi2l.magic_puddle);  
+  if(space_for_liq > 0.0 && ed->d_soi2l.magic_puddle > 0.0){
+    //limit puddle contribution by max infiltration rate (CLM 5 eq 7.27)
+    //with fmax = 0.5, fover = 0.5 m-1
+    double fsat = 0.5 * pow(10.0, (-0.5 * 0.5 * ed->d_sois.watertab));
+    double qinmax_layer = 1.e3; //initiate large
+    currl = fstsoill;
+    //Following CLM FORTRAN code and CLM 5
+    //Use first three layers
+    while(currl != NULL && currl->solind < fstsoill->solind + 3){
+      double theta_ice = currl->getVolIce();
+      double frac_ice = theta_ice / currl->poro;
+      double imped_exp = -richards.e_ice * frac_ice;
+      qinmax_layer = fmin(pow(10.0, imped_exp) * currl->hksat, qinmax_layer);
+      currl = currl->nextl;
+    }
+    //CLM 5 eq 7.37:
+    double qinmax = (1.0 - fsat) * qinmax_layer;
+    qinmax *= SEC_IN_DAY; //convert to mm/day
+
+    double puddle2grnd = fmax(fmin(space_for_liq, ed->d_soi2l.magic_puddle), 0.0);
+    puddle2grnd = fmax(fmin(puddle2grnd, qinmax), 0.0);
     infil += puddle2grnd;
     ed->d_soi2l.magic_puddle -= puddle2grnd;
     if(ed->d_soi2l.magic_puddle < 0.0){
@@ -592,7 +598,7 @@ void Soil_Env::updateDailySM(double weighted_veg_tran) {
 
   ed->d_soi2l.qinfl = infil;
 
-  // 2) Then soil water dynamics at daily time step
+  //Soil water dynamics at daily time step
 
   for (int i=0; i<MAX_SOI_LAY+1; i++) {
     root_water_up[i] /= SEC_IN_DAY; // mm/day to mm/s
@@ -626,17 +632,23 @@ void Soil_Env::updateDailySM(double weighted_veg_tran) {
     }
   }
   else{
-    //Simply subtract transpiration from each layer
-    currl = fstsoill;
-
-    while(currl!=NULL){
-      //solind is 1-based, and need to convert back to mm/day
-      currl->liq -= root_water_up[currl->solind-1] * SEC_IN_DAY;
-      currl = currl->nextl;
+    if(weighted_veg_tran > 0){
+      //Subtract transpiration from each layer
+      currl = fstsoill;
+      while(currl!=NULL && currl->isSoil){
+        if(currl->frozen < 1){
+          double uptake = root_water_up[currl->solind-fstsoill->solind] * SEC_IN_DAY;
+          double effminliq = currl->minliq * (1-currl->frozenfrac);
+          double avail_liq = currl->liq - effminliq;
+          currl->liq -= fmin(uptake, avail_liq);
+        }
+        currl = currl->nextl;
+      }
     }
   }
 
-  //
+  //TODO allow talik transpiration to create negative liquid
+  //Correct by moving richards soil water check here.
   ground->checkWaterValidity();
 };
 
