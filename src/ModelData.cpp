@@ -290,7 +290,7 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
     new_spec.daily = false;
     new_spec.dim_count = 3; // All variables have time, y, x
 
-    for(int ii=0; ii<9; ii++){
+    for(int ii=0; ii<10; ii++){
       std::getline(ss, token, ',');
 
       if(ii==0){ // Variable name
@@ -339,6 +339,19 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
         if(token.length()>0 && token.compare(invalid_option) != 0){
           new_spec.layer = true;
           new_spec.dim_count++;
+        }
+      }
+      else if(ii==9){ // Data type
+        if(token.length()>0 && token.compare(invalid_option) != 0){
+          if(token.find("int")!=std::string::npos){
+            new_spec.data_type = NC_INT;
+          }
+          else if(token.find("float")!=std::string::npos){
+            new_spec.data_type = NC_FLOAT;
+          }
+          else{
+            new_spec.data_type = NC_DOUBLE;
+          }
         }
       }
     } // end looping over tokens (aka columns) in a line
@@ -400,7 +413,7 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
         vartype3D_dimids[1] = yD;
         vartype3D_dimids[2] = xD;
 
-        temutil::nc( nc_def_var(ncid, name.c_str(), NC_DOUBLE, 3, vartype3D_dimids, &Var) );
+        temutil::nc( nc_def_var(ncid, name.c_str(), new_spec.data_type, 3, vartype3D_dimids, &Var) );
 #ifdef WITHMPI
         //Instruct HDF5 to use independent parallel access for this variable
         temutil::nc( nc_var_par_access(ncid, Var, NC_INDEPENDENT) );
@@ -416,7 +429,7 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
         vartypeVeg4D_dimids[2] = yD;
         vartypeVeg4D_dimids[3] = xD;
 
-        temutil::nc( nc_def_var(ncid, name.c_str(), NC_DOUBLE, 4, vartypeVeg4D_dimids, &Var) );
+        temutil::nc( nc_def_var(ncid, name.c_str(), new_spec.data_type, 4, vartypeVeg4D_dimids, &Var) );
 #ifdef WITHMPI
         //Instruct HDF5 to use independent parallel access for this variable
         temutil::nc( nc_var_par_access(ncid, Var, NC_INDEPENDENT) );
@@ -432,7 +445,7 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
         vartypeVeg4D_dimids[2] = yD;
         vartypeVeg4D_dimids[3] = xD;
 
-        temutil::nc( nc_def_var(ncid, name.c_str(), NC_DOUBLE, 4, vartypeVeg4D_dimids, &Var) );
+        temutil::nc( nc_def_var(ncid, name.c_str(), new_spec.data_type, 4, vartypeVeg4D_dimids, &Var) );
 #ifdef WITHMPI
         //Instruct HDF5 to use independent parallel access for this variable
         temutil::nc( nc_var_par_access(ncid, Var, NC_INDEPENDENT) );
@@ -450,7 +463,7 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
         vartypeVeg5D_dimids[3] = yD;
         vartypeVeg5D_dimids[4] = xD;
 
-        temutil::nc( nc_def_var(ncid, name.c_str(), NC_DOUBLE, 5, vartypeVeg5D_dimids, &Var) );
+        temutil::nc( nc_def_var(ncid, name.c_str(), new_spec.data_type, 5, vartypeVeg5D_dimids, &Var) );
 #ifdef WITHMPI
         //Instruct HDF5 to use independent parallel access for this variable
         temutil::nc( nc_var_par_access(ncid, Var, NC_INDEPENDENT) );
@@ -466,7 +479,7 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
         vartypeSoil4D_dimids[2] = yD;
         vartypeSoil4D_dimids[3] = xD;
 
-        temutil::nc( nc_def_var(ncid, name.c_str(), NC_DOUBLE, 4, vartypeSoil4D_dimids, &Var) );
+        temutil::nc( nc_def_var(ncid, name.c_str(), new_spec.data_type, 4, vartypeSoil4D_dimids, &Var) );
 #ifdef WITHMPI
         //Instruct HDF5 to use independent parallel access for this variable
         temutil::nc( nc_var_par_access(ncid, Var, NC_INDEPENDENT) );
@@ -537,7 +550,16 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
       BOOST_LOG_SEV(glg, debug) << "Using units string: " << units.c_str();
       temutil::nc( nc_put_att_text(ncid, Var, "units", units.length(), units.c_str()) );
       temutil::nc( nc_put_att_text(ncid, Var, "long_name", desc.length(), desc.c_str()) );
-      temutil::nc( nc_put_att_double(ncid, Var, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
+
+      if(new_spec.data_type == NC_INT){
+        temutil::nc( nc_put_att_int(ncid, Var, "_FillValue", NC_INT, 1, &MISSING_I) );
+      }
+      if(new_spec.data_type == NC_FLOAT){
+        temutil::nc( nc_put_att_float(ncid, Var, "_FillValue", NC_FLOAT, 1, &MISSING_F) );
+      }
+      else if(new_spec.data_type == NC_DOUBLE){
+        temutil::nc( nc_put_att_double(ncid, Var, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
+      }
 
       /* End Define Mode (not strictly necessary for netcdf 4) */
       BOOST_LOG_SEV(glg, debug) << "Leaving 'define mode'...";
