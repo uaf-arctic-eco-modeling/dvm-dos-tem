@@ -99,8 +99,12 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
           diagonal[ii] = bmx[ii+topind];
           result[ii] = rmx[ii+topind];
         }
-        for(int ii=0; ii<num_al-1; ii++){
-          sub_diagonal[ii] = amx[ii+topind+1];//amx n/a for top active layer
+        //for(int ii=0; ii<num_al-1; ii++){
+        //  sub_diagonal[ii] = amx[ii+topind+1];//amx n/a for top active layer
+        //  super_diagonal[ii] = cmx[ii+topind];//cmx n/a for bottom active layer
+        //} //TODO test this difference - not sure if the shorter arrays are needed or not.
+        for(int ii=0; ii<num_al; ii++){
+          sub_diagonal[ii] = amx[ii+topind];//amx n/a for top active layer
           super_diagonal[ii] = cmx[ii+topind];//cmx n/a for bottom active layer
         }
         lapack_int ldb, num_layers, nrhs;
@@ -235,7 +239,7 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
     }
   }
 
-  checkWaterValidity(topsoill, drainl, topind, drainind);
+  checkPercolationValidity(topsoill, drainl, topind, drainind);
 
   // for layers above 'topsoill', e.g., 'moss',
   // if excluded from hydrological process
@@ -296,7 +300,6 @@ void Richards::computeHydraulicProperties(Layer *topsoill, int drainind){
 
     currl = currl->nextl;
   }
-
   currl = topsoill;
   while(currl != NULL && currl->solind <=drainind+1){
     int ind = currl->solind;
@@ -408,10 +411,9 @@ void Richards::computeRHS(Layer *topsoill, int topind, int drainind){
   }
 }
 
-void Richards::checkWaterValidity(Layer *topsoill, Layer *drainl, int topind, int drainind){
+void Richards::checkPercolationValidity(Layer *topsoill, Layer *drainl, int topind, int drainind){
   //Following logic from CLM 4.5 pg 176
-  //Upward pass: redistribute excess water to layers above,
-  //add column excess to qdrain (TODO add to magic puddle first).
+  //Upward pass: redistribute excess water to layers above
   Layer *currl = drainl;
   double excess_liq = 0;
   while(currl != NULL && currl->solind >= topind){
@@ -431,12 +433,14 @@ void Richards::checkWaterValidity(Layer *topsoill, Layer *drainl, int topind, in
         layer_above = layer_above->prevl;
       }
     }
-    //if that didn't work, dump excess to qover
-    //TODO dump to magic puddle first
+    //if that didn't work, dump excess to magic puddle or qover
     if (currl->liq > effmaxliq[ind]){
       double sink_liq = currl->liq - effmaxliq[ind];
       currl->liq -= sink_liq;
-      excess_liq -= sink_liq;
+      double space_in_puddle = 10 - ed.d_soi2l.magic_puddle; //TODO replace 10 with max_puddle_mm
+      double to_puddle = fmin(sink_liq, space_in_puddle);
+      ed.d_soi2l.magic_puddle += to_puddle;
+      sink_liq -= to_puddle;
       excess_runoff += sink_liq;
     }
     currl = currl->prevl;
@@ -462,16 +466,21 @@ void Richards::checkWaterValidity(Layer *topsoill, Layer *drainl, int topind, in
         layer_below = layer_below->nextl;
       }
     }
-    //if that didn't work, pull excess from qdrain and qover if possible
-    //TODO pull from magic puddle before qover
+    //if that didn't work, pull excess from qdrain, magic puddle, and/or
+    //qover if possible
     if(currl->liq < effminliq[ind]){
       needed_liq = effminliq[ind] - currl->liq;
+      //pull from magic puddle
+      double take_liq = fmin(ed.d_soi2l.magic_puddle, needed_liq);
+      currl->liq += take_liq;
+      needed_liq -= take_liq;
+      ed.d_soi2l.magic_puddle -= take_liq;
       //pull from qdrain
-      double take_liq = fmin(qdrain, needed_liq);
+      take_liq = fmin(qdrain, needed_liq);
       currl->liq += take_liq;
       needed_liq -= take_liq;
       qdrain -= take_liq;
-      //from qover (excess_runoff)
+      //pull from qover (excess_runoff)
       take_liq = fmin(excess_runoff, needed_liq);
       currl->liq += take_liq;
       needed_liq -= take_liq;
@@ -489,14 +498,14 @@ void Richards::checkWaterValidity(Layer *topsoill, Layer *drainl, int topind, in
     if (currl->liq < effminliq[ind] || currl->liq > effmaxliq[ind]){
       if(currl->liq < effminliq[ind]){
         if((effminliq[ind] - currl->liq) > 1.e-6){
-          //TODO raise error
+          BOOST_LOG_SEV(glg, err) << "Layer " << currl->indl << " forced up to minimum";
         }
         currl->liq =effminliq[ind];
       }
       else{
         //too much liq
         if((currl->liq - effmaxliq[ind]) > 1.e-6){
-          //TODO raise error
+          BOOST_LOG_SEV(glg, err) << "Layer " << currl->indl << " forced down to maximum";
         }
         currl->liq = effmaxliq[ind];
       }

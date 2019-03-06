@@ -25,6 +25,8 @@ public :
   double qinfil; // mm/day
   double qevap; // mm/day
   double excess_runoff; //Runoff discovered in Richards (post getRunoff)
+  double e_ice; //ice impedance factor (CLM5)
+
 
   //Array to hold lateral drainage values for output to file.
   double layer_drain[MAX_SOI_LAY];
@@ -43,13 +45,15 @@ public :
 
 private:
 
+  EnvData ed;
+
   void prepareSoilColumn(Layer *currsoill, int drainind);
   void clearRichardsArrays();
   void computeHydraulicProperties(Layer *topsoill, int drainind);
   void computeMoistureFluxesAndDerivs(Layer *topsoill, int topind, int drainind);
   void computeLHS(Layer *topsoill, int topind, int drainind);
   void computeRHS(Layer *topsoill, int topind, int drainind);
-  void checkWaterValidity(Layer *topsoill, Layer *drainl, int topind, int drainind);
+  void checkPercolationValidity(Layer *topsoill, Layer *drainl, int topind, int drainind);
 
   Layer * drainl;
   double z_watertab; //Temporary var to hold the crudely calculated water table depth calculated in prepareSoilColumn. In mm.
@@ -108,7 +112,6 @@ private:
   double dtmin;  // minimum timestep length (sec)
   double toler_upper;  // Tolerance to halve length of substep
   double toler_lower;  // Tolerance to double length of substep
-  double e_ice; //ice impedance factor (CLM5)
 
 };
 
