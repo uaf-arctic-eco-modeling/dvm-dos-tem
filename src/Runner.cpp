@@ -3372,7 +3372,8 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
       //Compartment only (4 dimensions)
       else if(!curr_spec.pft && curr_spec.compartment){
 
-        double m_gpp[NUM_PFT_PART], y_gpp[NUM_PFT_PART] = {0};
+        double m_gpp[NUM_PFT_PART] = {0};
+        double y_gpp[NUM_PFT_PART] = {0};
         for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
           for(int ip=0; ip<NUM_PFT; ip++){
 
@@ -4015,7 +4016,8 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
       }
       //PFT only (4 dimensions)
       else if(curr_spec.pft && !curr_spec.compartment){
-        double m_snuptake[NUM_PFT], y_snuptake[NUM_PFT] = {0};
+        double m_snuptake[NUM_PFT] = {0};
+        double y_snuptake[NUM_PFT] = {0};
 
         for(int ip=0; ip<NUM_PFT; ip++){
           m_snuptake[ip] = cohort.bd[ip].m_soi2v.snuptakeall;
@@ -4032,7 +4034,8 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
       }
       //Compartment only (4 dimensions)
       else if(!curr_spec.pft && curr_spec.compartment){
-        double m_snuptake[NUM_PFT_PART], y_snuptake[NUM_PFT_PART] = {0};
+        double m_snuptake[NUM_PFT_PART] = {0};
+        double y_snuptake[NUM_PFT_PART] = {0};
 
         for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
           for(int ip=0; ip<NUM_PFT; ip++){
@@ -4115,7 +4118,8 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
       //Compartment only (4 dimensions)
       else if(!curr_spec.pft && curr_spec.compartment){
 
-        double m_rg[NUM_PFT_PART], y_rg[NUM_PFT_PART] = {0};
+        double m_rg[NUM_PFT_PART] = {0};
+        double y_rg[NUM_PFT_PART] = {0};
 
         for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
           for(int ip=0; ip<NUM_PFT; ip++){
@@ -4196,7 +4200,8 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
       //Compartment only (4 dimensions)
       else if(!curr_spec.pft && curr_spec.compartment){
 
-        double m_rm[NUM_PFT_PART], y_rm[NUM_PFT_PART] = {0};
+        double m_rm[NUM_PFT_PART] = {0};
+        double y_rm[NUM_PFT_PART] = {0};
         for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
           for(int ip=0; ip<NUM_PFT; ip++){
             m_rm[ipp] += cohort.bd[ip].m_v2a.rm[ipp];
@@ -4261,7 +4266,8 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
       //PFT only
       else if(curr_spec.pft && !curr_spec.compartment){
 
-        double m_vegc[NUM_PFT], y_vegc[NUM_PFT] = {0};
+        double m_vegc[NUM_PFT] = {0};
+        double y_vegc[NUM_PFT] = {0};
         for(int ip=0; ip<NUM_PFT; ip++){
           if(cohort.cd.m_veg.vegcov[ip]>0.){//only check PFTs that exist
             m_vegc[ip] = cohort.bd[ip].m_vegs.call;
@@ -4280,7 +4286,8 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
       //Compartment only
       else if(!curr_spec.pft && curr_spec.compartment){
 
-        double m_vegc[NUM_PFT_PART], y_vegc[NUM_PFT_PART] = {0};
+        double m_vegc[NUM_PFT_PART] = {0};
+        double y_vegc[NUM_PFT_PART] = {0};
         for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
           for(int ip=0; ip<NUM_PFT; ip++){
             if(cohort.cd.m_veg.vegcov[ip]>0.){//only check PFTs that exist
@@ -4347,7 +4354,8 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
       //PFT only
       else if(curr_spec.pft && !curr_spec.compartment){
 
-        double m_vegn[NUM_PFT], y_vegn[NUM_PFT] = {0};
+        double m_vegn[NUM_PFT] = {0};
+        double y_vegn[NUM_PFT] = {0};
         for(int ip=0; ip<NUM_PFT; ip++){
           if(cohort.cd.m_veg.vegcov[ip]>0.){//only check PFTs that exist
             m_vegn[ip] = cohort.bd[ip].m_vegs.strnall;
@@ -4366,7 +4374,8 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
       //Compartment only
       else if(!curr_spec.pft && curr_spec.compartment){
 
-        double m_vegn[NUM_PFT_PART], y_vegn[NUM_PFT_PART] = {0};
+        double m_vegn[NUM_PFT_PART] = {0};
+        double y_vegn[NUM_PFT_PART] = {0};
         for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
           for(int ip=0; ip<NUM_PFT; ip++){
             if(cohort.cd.m_veg.vegcov[ip]>0.){//only check PFTs that exist
