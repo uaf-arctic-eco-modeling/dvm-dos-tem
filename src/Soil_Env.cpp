@@ -546,9 +546,8 @@ void Soil_Env::updateDailySM(double weighted_veg_tran) {
   while(currl != NULL && currl->solind <= drainind){
     double thetai = currl->getVolIce();
     double thetal = currl->getVolLiq();
-    double s = (thetai + thetal)/currl->poro;
-    s = fmax(fmin(s, 1.0),0.0);
-    space_for_liq += (1-s) * currl->dz *1.e3;
+    double avail_poro = fmax(fmin(currl->poro - thetai - thetal, currl->poro), 0.0);
+    space_for_liq += avail_poro * DENLIQ * currl->dz*1.e3;
     currl = currl->nextl;
   }
 
