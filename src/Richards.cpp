@@ -98,12 +98,8 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
           diagonal[ii] = bmx[ii+topind];
           result[ii] = rmx[ii+topind];
         }
-        //for(int ii=0; ii<num_al-1; ii++){
-        //  sub_diagonal[ii] = amx[ii+topind+1];//amx n/a for top active layer
-        //  super_diagonal[ii] = cmx[ii+topind];//cmx n/a for bottom active layer
-        //} //TODO test this difference - not sure if the shorter arrays are needed or not.
-        for(int ii=0; ii<num_al; ii++){
-          sub_diagonal[ii] = amx[ii+topind];//amx n/a for top active layer
+        for(int ii=0; ii<num_al-1; ii++){
+          sub_diagonal[ii] = amx[ii+topind+1];//amx n/a for top active layer
           super_diagonal[ii] = cmx[ii+topind];//cmx n/a for bottom active layer
         }
         lapack_int ldb, num_layers, nrhs;
