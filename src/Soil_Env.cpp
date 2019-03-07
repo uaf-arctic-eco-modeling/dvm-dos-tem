@@ -766,24 +766,34 @@ double Soil_Env::getWaterTable(Layer* lstsoill) {
       currl = currl->prevl;
     } else {
       //saturation of this layer < 0.90, so watertable is below the
-      //top of this layer. Interpolate between currl and currl->nextl
+      //top of this layer. Interpolate within the thawed part of this layer
+      //(for partly frozen layer) or between between currl and currl->nextl
       //to find perched water table height.
       double nextl_sat = 0.0;
       double m, b;
       if(currl->nextl != NULL){
-        double nextl_dz_unfrozen = currl->nextl->dz
-                * (1-currl->nextl->frozenfrac);
-        double nextl_volliq = currl->nextl->liq/DENLIQ/nextl_dz_unfrozen;
-        nextl_sat = fmin(nextl_volliq/currl->nextl->poro, 1.0);
-        m = (currl->nextl->z - currl->z)/(nextl_sat - saturation);
-        b = currl->nextl->z - m * nextl_sat;
-        wtd = fmax(m * sat_level + b, 0.0);
-        return wtd;
-      } else { //nextl is null, consider nextl_sat = 0
+        if(currl->frozen = 0 && currl->nextl->frozen == 1){
           m = dz_unfrozen / -saturation;
           b = currl->z + dz_unfrozen;
           wtd = fmax(m * sat_level + b, 0.0);
           return wtd;
+        }
+        else{
+          double nextl_dz_unfrozen = currl->nextl->dz
+              * (1-currl->nextl->frozenfrac);
+          double nextl_volliq = currl->nextl->liq/DENLIQ/nextl_dz_unfrozen;
+          nextl_sat = fmin(nextl_volliq/currl->nextl->poro, 1.0);
+          m = (currl->nextl->z - currl->z)/(nextl_sat - saturation);
+          b = currl->nextl->z - m * nextl_sat;
+          wtd = fmax(m * sat_level + b, 0.0);
+          return wtd;
+        }
+      }
+      else { //nextl is null, consider nextl_sat = 0
+        m = dz_unfrozen / -saturation;
+        b = currl->z + dz_unfrozen;
+        wtd = fmax(m * sat_level + b, 0.0);
+        return wtd;
       }
     }
   }
