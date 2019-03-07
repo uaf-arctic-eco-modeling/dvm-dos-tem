@@ -99,12 +99,8 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
           diagonal[ii] = bmx[ii+topind];
           result[ii] = rmx[ii+topind];
         }
-        //for(int ii=0; ii<num_al-1; ii++){
-        //  sub_diagonal[ii] = amx[ii+topind+1];//amx n/a for top active layer
-        //  super_diagonal[ii] = cmx[ii+topind];//cmx n/a for bottom active layer
-        //} //TODO test this difference - not sure if the shorter arrays are needed or not.
-        for(int ii=0; ii<num_al; ii++){
-          sub_diagonal[ii] = amx[ii+topind];//amx n/a for top active layer
+        for(int ii=0; ii<num_al-1; ii++){
+          sub_diagonal[ii] = amx[ii+topind+1];//amx n/a for top active layer
           super_diagonal[ii] = cmx[ii+topind];//cmx n/a for bottom active layer
         }
         lapack_int ldb, num_layers, nrhs;
@@ -497,14 +493,14 @@ void Richards::checkPercolationValidity(Layer *topsoill, Layer *drainl, int topi
     int ind = currl->solind;
     if (currl->liq < effminliq[ind] || currl->liq > effmaxliq[ind]){
       if(currl->liq < effminliq[ind]){
-        if((effminliq[ind] - currl->liq) > 1.e-6){
+        if((effminliq[ind] - currl->liq) > 1.e-3){
           BOOST_LOG_SEV(glg, err) << "Layer " << currl->indl << " forced up to minimum";
         }
         currl->liq =effminliq[ind];
       }
       else{
         //too much liq
-        if((currl->liq - effmaxliq[ind]) > 1.e-6){
+        if((currl->liq - effmaxliq[ind]) > 1.e-3){
           BOOST_LOG_SEV(glg, err) << "Layer " << currl->indl << " forced down to maximum";
         }
         currl->liq = effmaxliq[ind];
