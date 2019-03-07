@@ -27,7 +27,6 @@ public :
   double excess_runoff; //Runoff discovered in Richards (post getRunoff)
   double e_ice; //ice impedance factor (CLM5)
 
-
   //Array to hold lateral drainage values for output to file.
   double layer_drain[MAX_SOI_LAY];
   double percolation[MAX_SOI_LAY];
@@ -36,7 +35,7 @@ public :
               const double & fbaseflow, const double & watertab,
               double root_water_up[MAX_SOI_LAY],
               const double & evap, const double & infil,
-              const double & cell_slope, const double &ts);
+              const double & cell_slope);
 
   void setCohortData(CohortData* cdp);
   void setEnvData(EnvData* edp);
@@ -49,11 +48,10 @@ private:
 
   void prepareSoilColumn(Layer *currsoill, int drainind);
   void clearRichardsArrays();
-  void computeHydraulicProperties(Layer *topsoill, int drainind);
-  void computeMoistureFluxesAndDerivs(Layer *topsoill, int topind, int drainind);
-  void computeLHS(Layer *topsoill, int topind, int drainind);
-  void computeRHS(Layer *topsoill, int topind, int drainind);
-  void checkPercolationValidity(Layer *topsoill, Layer *drainl, int topind, int drainind);
+  void computeHydraulicProperties(Layer *fstsoill, int drainind);
+  void computeMoistureFluxesAndDerivs(Layer *fstsoill, int topind, int drainind);
+  void computeLHS(Layer *fstsoill, int topind, int drainind);
+  void computeRHS(Layer *fstsoill, int topind, int drainind);
 
   Layer * drainl;
   double z_watertab; //Temporary var to hold the crudely calculated water table depth calculated in prepareSoilColumn. In mm.
@@ -108,7 +106,7 @@ private:
   double rmx[MAX_SOI_LAY+1];
 
   double max_tridiag_error;
-  double delta_t = SEC_IN_DAY;
+  double delta_t;
   double dtmin;  // minimum timestep length (sec)
   double toler_upper;  // Tolerance to halve length of substep
   double toler_lower;  // Tolerance to double length of substep
