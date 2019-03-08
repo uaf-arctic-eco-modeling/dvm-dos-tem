@@ -494,7 +494,6 @@ void Soil_Env::updateDailySM(double weighted_veg_tran) {
   Layer * drainl = ground->drainl;
   double draindepth = ground->draindepth;
   int topind = fstsoill->solind;
-  int drainind = drainl->solind;
 
   // First, data connection
   //trans[MAX_SOI_LAY] = {0};
@@ -541,16 +540,18 @@ void Soil_Env::updateDailySM(double weighted_veg_tran) {
   double infil = rnth + melt - ed->d_soi2l.qover;
 
   //Get unsaturated space potentially available for liq infiltration (mm)
-  Layer * currl = fstsoill;
   double space_for_liq = 0.0;
-  while(currl != NULL && currl->solind <= drainind){
-    double thetai = currl->getVolIce();
-    double thetal = currl->getVolLiq();
-    double avail_poro = fmax(fmin(currl->poro - thetai - thetal, currl->poro), 0.0);
-    space_for_liq += avail_poro * DENLIQ * currl->dz*1.e3;
-    currl = currl->nextl;
+  Layer *currl = fstsoill;
+  if(drainl != NULL && ground->frnttype[0] != 1){//no infil if top of ground frozen
+    int drainind = drainl->solind;
+    while(currl != NULL && currl->solind <= drainind){
+      double thetai = currl->getVolIce();
+      double thetal = currl->getVolLiq();
+      double avail_poro = fmax(fmin(currl->poro - thetai - thetal, currl->poro), 0.0);
+      space_for_liq += avail_poro * DENLIQ * currl->dz;
+      currl = currl->nextl;
+    }
   }
-
   //Modify available pore space by the liquid that will be
   // infiltrating on this day.
   space_for_liq -= infil;
@@ -630,6 +631,17 @@ void Soil_Env::updateDailySM(double weighted_veg_tran) {
     checkSoilLiquidWaterValidity(fstsoill, topind);
   }
   else{
+    //No percolation. Add any infil back to ponding/qover
+    if(infil > 0.0){
+      infil *= SEC_IN_DAY;// -->mm/day
+      //Add to ponding
+      space_in_puddle = puddle_max_mm - ed->d_soi2l.magic_puddle;
+      add_to_puddle = fmin(space_in_puddle, infil);
+      ed->d_soi2l.magic_puddle += add_to_puddle;
+      infil -= add_to_puddle;
+      ed->d_soi2l.qover += infil;
+      ed->d_soi2l.qinfl = 0;
+    }
     if(weighted_veg_tran > 0){
       //Subtract transpiration from each layer
       currl = fstsoill;
@@ -810,7 +822,7 @@ double Soil_Env::getRunoff(Layer* toplayer, Layer* drainl,
   double ztot=0.;
   int numl =0;
   Layer* currl = toplayer;
-  if (currl->frozen == 1 || !toplayer->isSoil) {
+  if (drainl == NULL || !toplayer->isSoil) {
     runoff = rnth+melt;
   } else {
     while (currl!=NULL) {
@@ -839,7 +851,7 @@ double Soil_Env::getRunoff(Layer* toplayer, Layer* drainl,
              * (rnth +melt); //So, unit same as "rainfall/snowmelt)"
   }
   return runoff;
-};
+}
 
 /*! calculates the factor which provides controls from soil on transpiration
  *  Oleson, T. R., 2004
@@ -1034,15 +1046,18 @@ void Soil_Env::checkSoilLiquidWaterValidity(Layer *topsoill, int topind){
     int ind = currl->solind;
     if (currl->liq < effminliq[ind] || currl->liq > effmaxliq[ind]){
       if(currl->liq < effminliq[ind]){
-        if((effminliq[ind] - currl->liq) > 1.e-3){
-          BOOST_LOG_SEV(glg, err) << "Layer " << currl->indl << " liquid forced up to minimum";
+        //too little liq, enforce limits; if difference is more than 1mm, raise error
+        if((effminliq[ind] - currl->liq) > 1.0){
+          BOOST_LOG_SEV(glg, err) << "Layer " << currl->indl << " liquid forced up to minimum: difference "
+                                  << effminliq[ind] - currl->liq;
         }
         currl->liq =effminliq[ind];
       }
       else{
-        //too much liq
-        if((currl->liq - effmaxliq[ind]) > 1.e-3){
-          BOOST_LOG_SEV(glg, err) << "Layer " << currl->indl << " liquid forced down to maximum";
+        //too much liq, enforce limits; if difference is more than 1mm, raise error
+        if((currl->liq - effmaxliq[ind]) > 1.0){
+          BOOST_LOG_SEV(glg, err) << "Layer " << currl->indl << " liquid forced down to maximum: difference "
+                                  << currl->liq - effmaxliq[ind];
         }
         currl->liq = effmaxliq[ind];
       }
