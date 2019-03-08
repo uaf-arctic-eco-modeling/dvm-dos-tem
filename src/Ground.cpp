@@ -2249,8 +2249,15 @@ void Ground::checkWaterValidity() {
 
       // maybe from some mathematical round up? so '1.0e-3 is used as critical
       if ((currl->ice-currl->maxice) > 1.0e-3) {
-        BOOST_LOG_SEV(glg, warn) << "Layer " << currl->indl
-                                << " has too much ice";
+        if(currl->isSnow){
+          BOOST_LOG_SEV(glg, warn) << "Snow layer " << currl->indl
+                                   << " has too much ice";
+
+        }
+        else{
+          BOOST_LOG_SEV(glg, warn) << "Layer " << currl->indl
+                                   << " has too much ice";
+        }
       }
     }
 
