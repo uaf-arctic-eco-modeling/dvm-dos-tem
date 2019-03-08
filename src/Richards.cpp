@@ -19,16 +19,27 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
                       const double & watertab,
                       double trans[], const double & evap,
                       const double & infil, const double & cell_slope) {
-  if (bdraindepth<=0.) {
-    return; // the drainage occurs in the surface, no need to update the SM
-  }
-  drainl = bdrainl;
-  z_watertab = watertab * 1.e3;
 
   //all fluxes already in mm/sec as input
   qinfil = infil;
   qevap  = evap;
   qdrain = 0.;
+
+  if (bdraindepth <= fstsoill->z) {// no percolation
+    if(qinfil > 0.0){//add infil back to ponding/qover
+      qinfil *= SEC_IN_DAY;// -->mm/day
+      //Add to ponding TODO replace hardcoded 10.0mm with puddle_max_mm from soil env
+      double space_in_puddle = 10.0 - ed.d_soi2l.magic_puddle;
+      double add_to_puddle = fmin(space_in_puddle, qinfil);
+      ed.d_soi2l.magic_puddle += add_to_puddle;
+      qinfil -= add_to_puddle;
+      ed.d_soi2l.qover += infil;
+      ed.d_soi2l.qinfl = 0;
+    }
+    return;
+  }
+  drainl = bdrainl;
+  z_watertab = watertab * 1.e3;
 
   //Be sure we're skipping moss
   Layer* currl=fstsoill;
