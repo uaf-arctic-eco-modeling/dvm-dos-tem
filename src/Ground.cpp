@@ -1849,13 +1849,19 @@ void Ground::getLayerFrozenstatusByFronts(Layer * soill) {
 void Ground::setDrainL() {
 
   draindepth = 0.;
-  drainl = fstshlwl;
+  drainl = NULL;
 
   if(ststate == 0){
     //check for existence of fronts
     if(fstfntl != NULL && !fstfntl->isMoss){
-      draindepth = frntz[0];
       drainl = fstfntl;
+      if(frnttype[0] == 1){//top front is a freezing front
+        draindepth = fstfntl->z; //draindepth is top of layer
+      }
+      else {//top front is a thawing front
+        draindepth = frntz[0]; //draindepth is at front interface
+        drainl = fstfntl;
+      }
     }
   }
   else if(ststate == -1){
