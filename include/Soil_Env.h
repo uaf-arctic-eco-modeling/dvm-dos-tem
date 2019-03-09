@@ -49,6 +49,7 @@ public:
                             const double vrootfr[MAX_SOI_LAY]);
 
   void retrieveDailyTM(Layer* toplayer, Layer* lstsoill);
+  void checkSoilLiquidWaterValidity(Layer *topsoill, int topind);
 
   double getWaterTable(Layer* fstsoil);
 
@@ -58,6 +59,8 @@ private:
   CohortData * cd;
   EnvData * ed;
   CohortLookup* chtlu;
+
+  double puddle_max_mm;
 
   void updateDailySurfFlux(Layer* frontl, const double & dayl);
   void updateDailySoilThermal4Growth(Layer* fstsoill, const double &tsurface);

@@ -18,34 +18,44 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
                       const double & bdraindepth, const double & fbaseflow,
                       const double & watertab,
                       double trans[], const double & evap,
-                      const double & infil, const double & cell_slope,
-                      const double &ts) {
-  if (bdraindepth<=0.) {
-    return; // the drainage occurs in the surface, no need to update the SM
-  }
-  drainl = bdrainl;
-  z_watertab = watertab * 1.e3;
+                      const double & infil, const double & cell_slope) {
 
   //all fluxes already in mm/sec as input
   qinfil = infil;
   qevap  = evap;
   qdrain = 0.;
 
-  //Skip moss
+  if (bdraindepth <= fstsoill->z) {// no percolation
+    if(qinfil > 0.0){//add infil back to ponding/qover
+      qinfil *= SEC_IN_DAY;// -->mm/day
+      //Add to ponding TODO replace hardcoded 10.0mm with puddle_max_mm from soil env
+      double space_in_puddle = 10.0 - ed.d_soi2l.magic_puddle;
+      double add_to_puddle = fmin(space_in_puddle, qinfil);
+      ed.d_soi2l.magic_puddle += add_to_puddle;
+      qinfil -= add_to_puddle;
+      ed.d_soi2l.qover += infil;
+      ed.d_soi2l.qinfl = 0;
+    }
+    return;
+  }
+  drainl = bdrainl;
+  z_watertab = watertab * 1.e3;
+
+  //Be sure we're skipping moss
   Layer* currl=fstsoill;
   while (currl != NULL && currl->isMoss) {
     currl = currl->nextl;
   }
-
-  int topind = currl->solind;
+  fstsoill = currl;
+  int topind = fstsoill->solind;
   int drainind = drainl->solind;
-  Layer* topsoill = currl;
+
 
   //Clear arrays before use
   clearRichardsArrays();
 
   //Prepare soil column parameter arrays
-  prepareSoilColumn(topsoill, drainind);
+  prepareSoilColumn(fstsoill, drainind);
 
   //Re-index trans to match the other arrays used in Richards
   for(int il=topind; il<MAX_SOI_LAY; il++){
@@ -76,17 +86,17 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
       vol_h2o[ind] = fmax(fmin(vol_liq[ind] + vol_ice[ind], 1.0), 0.0);
     }
 
-    computeHydraulicProperties(topsoill, drainind);
+    computeHydraulicProperties(fstsoill, drainind);
 
-    computeMoistureFluxesAndDerivs(topsoill, topind, drainind);
+    computeMoistureFluxesAndDerivs(fstsoill, topind, drainind);
 
     //dtsub trial loop - find the best length for this dtsub substep
     bool try_dtsub = true;
 
     while(try_dtsub){
 
-      computeLHS(topsoill, topind, drainind); //compute left hand side of tridiagonal matrix equation
-      computeRHS(topsoill, topind, drainind); //compute right hand side of the tridiagonal matrix equation
+      computeLHS(fstsoill, topind, drainind); //compute left hand side of tridiagonal matrix equation
+      computeRHS(fstsoill, topind, drainind); //compute right hand side of the tridiagonal matrix equation
 
       if(lapack_solver && num_al >= 2){ //use the LAPACK solver
 
@@ -132,7 +142,7 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
 
     //Modify layer liquid in each active layer by calculated
     //change in liquid.
-    currl = topsoill;
+    currl = fstsoill;
 
     while(currl != NULL && currl->solind<=drainind){
       int ind = currl->solind;
@@ -158,7 +168,6 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
       break; //day complete
     }
 
-
     if(max_tridiag_error < toler_lower){
       dtsub *= 2; //If the solution was very accurate, double the substep
     }
@@ -166,7 +175,7 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
   } //End of substep loop
   //End of iteration domain
 
-  //Updating theta post percolation so lateral drainage is
+  //Update layer volumetric water post percolation so lateral drainage is
   // based on today's values
   //Note that soi_liq is updated above (post layer
   // water modification).
@@ -178,6 +187,7 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
   }
 
   //Calculating lateral drainage (only for saturated layers)
+  //CLM 5 eq 7.103
   double eq7103_num = 0.0;
   double eq7103_den = 0.0;
   bool sat_soil = false;//If there is at least one saturated layer
@@ -203,8 +213,8 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
     double qdrain_perch = kdrain_perch * (bdraindepth - watertab)
                         * fbaseflow;
 
-    //Calculated drainage from saturated layers
-    currl = topsoill;
+    //Calculate drainage from saturated layers
+    currl = fstsoill;
     while(currl != NULL && currl->solind <= drainind){
       int ind = currl->solind;
       if(vol_liq[ind] / liq_poro[ind] >= 0.9){
@@ -222,7 +232,7 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
     //remove the calculated drainage from the top down.
     if(qdrain > 0){
       double to_drain = qdrain;
-      currl = topsoill;
+      currl = fstsoill;
       while(currl != NULL && currl->solind <= drainind && to_drain > 0){
         int ind = currl->solind;
         double avail_liq = currl->liq - effminliq[ind];
@@ -234,26 +244,13 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
       }
     }
   }
-
-  checkPercolationValidity(topsoill, drainl, topind, drainind);
-
-  // for layers above 'topsoill', e.g., 'moss',
-  // if excluded from hydrological process
-  currl = topsoill->prevl;
-
-  while (currl!=NULL && currl->nextl!=NULL && currl->isMoss) {
-    double lwc = currl->nextl->getVolLiq();
-    currl->liq = currl->dz*(1.0-currl->frozenfrac)*lwc*DENLIQ; //assuming same 'VWC' in the unfrozen portion as below
-    currl=currl->prevl;
-  }
-
 };
 
 //This collects already-known values into arrays for ease of use, and
 // calculates basic values needed in the more complex equations later
-void Richards::prepareSoilColumn(Layer* currsoill, int drainind) {
+void Richards::prepareSoilColumn(Layer* fstsoill, int drainind) {
 
-  Layer* currl = currsoill; // the first soil layer is 'topsoill'
+  Layer* currl = fstsoill; // the first soil layer is 'fstsoill'
   num_al = 0; // number of active layers
 
   while(currl != NULL && currl->solind <= drainind+1){
@@ -283,10 +280,10 @@ void Richards::prepareSoilColumn(Layer* currsoill, int drainind) {
   }
 }
 
-void Richards::computeHydraulicProperties(Layer *topsoill, int drainind){
+void Richards::computeHydraulicProperties(Layer *fstsoill, int drainind){
   // compute the relative saturation at each layer first b/c
   // it is used later in calculation of s1
-  Layer *currl = topsoill;
+  Layer *currl = fstsoill;
   while(currl != NULL && currl->solind <=drainind+1){
     int ind = currl->solind;
     s2[ind] = vol_liq[ind]/liq_poro[ind];
@@ -296,7 +293,7 @@ void Richards::computeHydraulicProperties(Layer *topsoill, int drainind){
 
     currl = currl->nextl;
   }
-  currl = topsoill;
+  currl = fstsoill;
   while(currl != NULL && currl->solind <=drainind+1){
     int ind = currl->solind;
     // s1 is interface value, s2 is node value
@@ -320,8 +317,8 @@ void Richards::computeHydraulicProperties(Layer *topsoill, int drainind){
   }
 }
 
-void Richards::computeMoistureFluxesAndDerivs(Layer *topsoill, int topind, int drainind){
-  Layer *currl = topsoill;
+void Richards::computeMoistureFluxesAndDerivs(Layer *fstsoill, int topind, int drainind){
+  Layer *currl = fstsoill;
   //top and inner layers (not bottom)
   while(currl!= NULL && currl->solind <=drainind){
     int ind = currl->solind;
@@ -364,8 +361,8 @@ void Richards::computeMoistureFluxesAndDerivs(Layer *topsoill, int topind, int d
   }
 }
 
-void Richards::computeLHS(Layer *topsoill, int topind, int drainind){
-  Layer *currl = topsoill;
+void Richards::computeLHS(Layer *fstsoill, int topind, int drainind){
+  Layer *currl = fstsoill;
   while(currl!= NULL && currl->solind <=drainind){
     int ind = currl->solind;
     if(ind == topind){
@@ -390,9 +387,9 @@ void Richards::computeLHS(Layer *topsoill, int topind, int drainind){
   }
 }
 
-void Richards::computeRHS(Layer *topsoill, int topind, int drainind){
+void Richards::computeRHS(Layer *fstsoill, int topind, int drainind){
   double fluxNet = 0.0;
-  Layer *currl = topsoill;
+  Layer *currl = fstsoill;
   while(currl != NULL && currl->solind<=drainind){
     int ind = currl->solind;
     if (ind == topind){
@@ -407,108 +404,6 @@ void Richards::computeRHS(Layer *topsoill, int topind, int drainind){
   }
 }
 
-void Richards::checkPercolationValidity(Layer *topsoill, Layer *drainl, int topind, int drainind){
-  //Following logic from CLM 4.5 pg 176
-  //Upward pass: redistribute excess water to layers above
-  Layer *currl = drainl;
-  double excess_liq = 0;
-  while(currl != NULL && currl->solind >= topind){
-    int ind = currl->solind;
-    if (currl->liq > effmaxliq[ind]){
-      excess_liq = currl->liq - effmaxliq[ind];
-      Layer *layer_above = currl->prevl;
-      while(layer_above != NULL && layer_above->solind >=topind && excess_liq > 0){
-        int ind2 = layer_above->solind;
-        if(layer_above->liq < effmaxliq[ind2]){
-          double space_for_liq = effmaxliq[ind2] - layer_above->liq;
-          double sink_liq = fmin(space_for_liq, excess_liq);
-          layer_above->liq += sink_liq;
-          currl->liq -= sink_liq;
-          excess_liq -= sink_liq;
-        }
-        layer_above = layer_above->prevl;
-      }
-    }
-    //if that didn't work, dump excess to magic puddle or qover
-    if (currl->liq > effmaxliq[ind]){
-      double sink_liq = currl->liq - effmaxliq[ind];
-      currl->liq -= sink_liq;
-      double space_in_puddle = 10 - ed.d_soi2l.magic_puddle; //TODO replace 10 with max_puddle_mm
-      double to_puddle = fmin(sink_liq, space_in_puddle);
-      ed.d_soi2l.magic_puddle += to_puddle;
-      sink_liq -= to_puddle;
-      excess_runoff += sink_liq;
-    }
-    currl = currl->prevl;
-  }
-
-  //Downward pass: bring layers up to minliq by pulling from below
-  currl = topsoill;
-  double needed_liq = 0;
-  while(currl != NULL && currl->solind <= drainind){
-    int ind = currl->solind;
-    if (currl->liq < effminliq[ind]){
-      needed_liq = effminliq[ind] - currl->liq;
-      Layer *layer_below = currl->nextl;
-      while(layer_below != NULL && layer_below->solind <= drainind && needed_liq >0){
-        int ind2 = layer_below->solind;
-        if(layer_below->liq > effminliq[ind2]){
-          double avail_liq = layer_below->liq - effminliq[ind2];
-          double take_liq = fmin(needed_liq, avail_liq);
-          layer_below->liq -= take_liq;
-          currl->liq += take_liq;
-          needed_liq -= take_liq;
-        }
-        layer_below = layer_below->nextl;
-      }
-    }
-    //if that didn't work, pull excess from qdrain, magic puddle, and/or
-    //qover if possible
-    if(currl->liq < effminliq[ind]){
-      needed_liq = effminliq[ind] - currl->liq;
-      //pull from magic puddle
-      double take_liq = fmin(ed.d_soi2l.magic_puddle, needed_liq);
-      currl->liq += take_liq;
-      needed_liq -= take_liq;
-      ed.d_soi2l.magic_puddle -= take_liq;
-      //pull from qdrain
-      take_liq = fmin(qdrain, needed_liq);
-      currl->liq += take_liq;
-      needed_liq -= take_liq;
-      qdrain -= take_liq;
-      //pull from qover (excess_runoff)
-      take_liq = fmin(excess_runoff, needed_liq);
-      currl->liq += take_liq;
-      needed_liq -= take_liq;
-      excess_runoff -= take_liq;
-      //if this doesn't work, it will be forced to min at the end of the check
-    }
-    currl = currl->nextl;
-  }
-
-  //if it's still bad it's probably a float comparison issue.
-  //check, force it, log it if it's a real problem
-  currl = topsoill;
-  while (currl != NULL and currl->solind <= drainind){
-    int ind = currl->solind;
-    if (currl->liq < effminliq[ind] || currl->liq > effmaxliq[ind]){
-      if(currl->liq < effminliq[ind]){
-        if((effminliq[ind] - currl->liq) > 1.e-3){
-          BOOST_LOG_SEV(glg, err) << "Layer " << currl->indl << " forced up to minimum";
-        }
-        currl->liq =effminliq[ind];
-      }
-      else{
-        //too much liq
-        if((currl->liq - effmaxliq[ind]) > 1.e-3){
-          BOOST_LOG_SEV(glg, err) << "Layer " << currl->indl << " forced down to maximum";
-        }
-        currl->liq = effmaxliq[ind];
-      }
-    }
-    currl = currl->nextl;
-  }
-}
 
 void Richards::clearRichardsArrays(){
   for(int ii=0; ii<=MAX_SOI_LAY; ii++){
