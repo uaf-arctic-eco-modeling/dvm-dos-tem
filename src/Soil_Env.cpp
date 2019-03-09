@@ -571,7 +571,7 @@ void Soil_Env::updateDailySM(double weighted_veg_tran) {
     //limit puddle contribution by max infiltration rate (CLM 5 eq 7.27)
     //with fmax = 0.5, fover = 0.5 m-1
     double fsat = 0.5 * pow(10.0, (-0.5 * 0.5 * ed->d_sois.watertab));
-    double qinmax_layer = 1.e3; //initiate large & take min later
+    double qinmax_layer = 1.e3; //initiate large to take min later
     currl = fstsoill;
     //Following CLM FORTRAN code and CLM 5
     //Use first three layers
@@ -663,7 +663,10 @@ void Soil_Env::updateDailySM(double weighted_veg_tran) {
     currl->liq = currl->dz*(1.0-currl->frozenfrac) * lwc * DENLIQ;
     currl=currl->prevl;
   }
-};
+  if(ed->d_soi2l.qdrain < 0){
+   BOOST_LOG_SEV(glg, err) << "qdrain is negative!";
+  };
+}
 
 
 double Soil_Env::getPenMonET(const double & ta, const double& vpd,
@@ -781,32 +784,23 @@ double Soil_Env::getWaterTable(Layer* lstsoill) {
       //top of this layer. Interpolate within the thawed part of this layer
       //(for partly frozen layer) or between between currl and currl->nextl
       //to find perched water table height.
-      double nextl_sat = 0.0;
+      double nextl_sat = 1.0; //assume frozen or null layers act saturated
       double m, b;
-      if(currl->nextl != NULL){
-        if(currl->frozen = 0 && currl->nextl->frozen == 1){
-          m = dz_unfrozen / -saturation;
-          b = currl->z + dz_unfrozen;
-          wtd = fmax(m * sat_level + b, 0.0);
-          return wtd;
-        }
-        else{
-          double nextl_dz_unfrozen = currl->nextl->dz
-              * (1-currl->nextl->frozenfrac);
-          double nextl_volliq = currl->nextl->liq/DENLIQ/nextl_dz_unfrozen;
-          nextl_sat = fmin(nextl_volliq/currl->nextl->poro, 1.0);
-          m = (currl->nextl->z - currl->z)/(nextl_sat - saturation);
-          b = currl->nextl->z - m * nextl_sat;
-          wtd = fmax(m * sat_level + b, 0.0);
-          return wtd;
-        }
+      if(currl->nextl != NULL && currl->nextl->frozen < 1){
+        //determine saturation of next layer
+        double nextl_dz_unfrozen = currl->nextl->dz
+            * (1-currl->nextl->frozenfrac);
+        double nextl_volliq = currl->nextl->liq/DENLIQ/nextl_dz_unfrozen;
+        nextl_sat = fmin(nextl_volliq/currl->nextl->poro, 1.0);
+        m = (currl->nextl->z - currl->z)/(nextl_sat - saturation);
+        b = currl->nextl->z - m * nextl_sat;
       }
-      else { //nextl is null, consider nextl_sat = 0
-        m = dz_unfrozen / -saturation;
-        b = currl->z + dz_unfrozen;
-        wtd = fmax(m * sat_level + b, 0.0);
-        return wtd;
+      else{//current layer is partly frozen or next layer is null
+        m = (dz_unfrozen)/(nextl_sat - saturation);
+        b = currl->z + dz_unfrozen - m * nextl_sat;
       }
+      wtd = fmax(m * sat_level + b, 0.0);
+      return wtd;
     }
   }
   return wtd;
