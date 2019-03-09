@@ -212,6 +212,9 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
                         * (eq7103_num / eq7103_den);
     double qdrain_perch = kdrain_perch * (bdraindepth - watertab)
                         * fbaseflow;
+    if(qdrain_perch < 0.0){
+      BOOST_LOG_SEV(glg, err) << "qdrain_perch is negative";
+    }
 
     //Calculate drainage from saturated layers
     currl = fstsoill;
@@ -223,7 +226,6 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
                                 * ((dzmm[ind]/1.e3) / eq7103_den);
         layer_drain[ind] = fmin(layer_max_drain, layer_calc_drain);
         qdrain += layer_drain[ind]; //mm/day
-
       }
       currl = currl->nextl;
     }
