@@ -611,9 +611,6 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
     edall->daily_swesum[id] = edall->d_snws.swesum;
     edall->daily_snowthick[id] = edall->d_snws.snowthick;
 
-    //Force update of edall's water table so that the calculations
-    // in setDrainL are using today's data
-    edall->d_sois.watertab = soilenv.getWaterTable(ground.lstsoill);
     //get the new bottom drainage layer and its depth
     ground.setDrainL();
     soilenv.updateDailySM(weighted_veg_tran);  //soil moisture
