@@ -499,12 +499,6 @@ void Soil_Env::updateDailySM(double weighted_veg_tran) {
   //trans[MAX_SOI_LAY] = {0};
   double melt, evap, rnth;
 
-  //CLM3 Equation 7.81
-//  double weighted_veg_tran = 0.;
-//  for(int ip=0; ip<NUM_PFT; ip++){
-//    weighted_veg_tran += ed->d_v2a.tran * cd->d_veg.fpc[ip];
-//  }
-
   for (int il=0; il<MAX_SOI_LAY; il++) {
     // mm/day
     //CLM3 Equation 7.80
@@ -623,7 +617,6 @@ void Soil_Env::updateDailySM(double weighted_veg_tran) {
                     ed->d_sois.watertab, root_water_up, evap,
                     infil, cd->cell_slope);
     ed->d_soi2l.qdrain += richards.qdrain;
-    ed->d_soi2l.qover += richards.excess_runoff;
 
     for(int il=0; il<MAX_SOI_LAY; il++){
       ed->d_soi2l.layer_drain[il] = richards.layer_drain[il];

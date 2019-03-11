@@ -246,7 +246,7 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
       }
     }
   }
-};
+}
 
 //This collects already-known values into arrays for ease of use, and
 // calculates basic values needed in the more complex equations later

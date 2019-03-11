@@ -24,7 +24,6 @@ public :
   double qdrain; // mm/day
   double qinfil; // mm/day
   double qevap; // mm/day
-  double excess_runoff; //Runoff discovered in Richards (post getRunoff)
   double e_ice; //ice impedance factor (CLM5)
 
   //Array to hold lateral drainage values for output to file.
