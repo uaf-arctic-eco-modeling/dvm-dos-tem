@@ -208,7 +208,7 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
   if(sat_soil){
     //CLM5 Equations 7.103 and 7.102
     double slope_rads = cell_slope * PI / 180;//Converting to radians
-    double kdrain_perch = 10.e0* sin(slope_rads) //original factor 10e-5; to be adjusted per S.Swenson
+    double kdrain_perch = 10.e-5* sin(slope_rads) //original factor 10e-5; to be adjusted per S.Swenson
                         * (eq7103_num / eq7103_den);
     double qdrain_perch = kdrain_perch * (bdraindepth - watertab)
                         * fbaseflow;
