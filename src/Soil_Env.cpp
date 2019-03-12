@@ -1036,7 +1036,7 @@ void Soil_Env::checkSoilLiquidWaterValidity(Layer *topsoill, int topind){
         //too little liq, enforce limits; if difference is more than 1mm, raise error
         if((effminliq[ind] - currl->liq) > 1.0){
           BOOST_LOG_SEV(glg, err) << "Layer " << currl->indl << " liquid forced up to minimum: difference "
-                                  << effminliq[ind] - currl->liq;
+                                  << effminliq[ind] - currl->liq << " mm";
         }
         currl->liq =effminliq[ind];
       }
@@ -1044,7 +1044,7 @@ void Soil_Env::checkSoilLiquidWaterValidity(Layer *topsoill, int topind){
         //too much liq, enforce limits; if difference is more than 1mm, raise error
         if((currl->liq - effmaxliq[ind]) > 1.0){
           BOOST_LOG_SEV(glg, err) << "Layer " << currl->indl << " liquid forced down to maximum: difference "
-                                  << currl->liq - effmaxliq[ind];
+                                  << currl->liq - effmaxliq[ind] << " mm";
         }
         currl->liq = effmaxliq[ind];
       }
