@@ -52,61 +52,66 @@ private:
   void computeLHS(Layer *fstsoill, int topind, int drainind);
   void computeRHS(Layer *fstsoill, int topind, int drainind);
 
-  Layer * drainl;
-  double z_watertab; //Temporary var to hold the crudely calculated water table depth calculated in prepareSoilColumn. In mm.
+  Layer * drainl; //bottom active layer
+  double z_watertab; //water table depth in mm
 
-  //The following arrays are made artificially large in order for the
-  // indexing in the calculations to make more sense. The layer indices
-  // (layer->solind) are 1-based, with 1 being moss (skipped in soil water).
+  //Note that the Richards code uses arrays whose indices follow the 1-based indexing
+  //of soil layers. That is, element zero of these arrays will not be used. An extra
+  //element is added to the length of the arrays (MAX_SOI_LAY+1) to allow for this empty
+  //placeholder. Element 1 will generally represent a moss layer, which are not currently
+  //used in percolation and lateral drainage. Therefore, the first element of the arrays that
+  //is filled will usually be element 2, corresponding to the index of the first fibric organic layer.
 
-  double qtrans[MAX_SOI_LAY+1];
-  double tridiag_error[MAX_SOI_LAY+1];
-  double fluxNet0[MAX_SOI_LAY+1];
-  double fluxNet1[MAX_SOI_LAY+1];
-  double qin[MAX_SOI_LAY+1];
-  double qout[MAX_SOI_LAY+1];
-  double s1[MAX_SOI_LAY+1];
-  double s2[MAX_SOI_LAY+1];
-  double imped[MAX_SOI_LAY+1];
-  double hk[MAX_SOI_LAY+1];
-  double dhkdw[MAX_SOI_LAY+1];
-  double dsmpdw[MAX_SOI_LAY+1];
-  double smp[MAX_SOI_LAY+1];
-  double dqidw0[MAX_SOI_LAY+1];
-  double dqidw1[MAX_SOI_LAY+1];
-  double dqodw1[MAX_SOI_LAY+1];
-  double dqodw2[MAX_SOI_LAY+1];
+  //Hydraulic properties and water fluxes for calculation of percolation and lateral drainage
+  double qtrans[MAX_SOI_LAY+1]; //root water uptake (incoming) (mm/s)
+  double fluxNet0[MAX_SOI_LAY+1]; //column water flux based on solver solution; from CLM fortran code
+  double fluxNet1[MAX_SOI_LAY+1]; //estimated column water flux based on water qin/qout/trans/evap/infil; from CLM fortran code
+  double qin[MAX_SOI_LAY+1]; //water flux into soil layer (mm/s); see CLM 5 eq 7.74
+  double qout[MAX_SOI_LAY+1]; //water flux out of soil layer (mm/s); see CLM 5 eq 7.75
+  double s1[MAX_SOI_LAY+1]; //liquid saturation at the layer interface (unitless); from CLM fortran code
+  double s2[MAX_SOI_LAY+1]; //liquid saturation at the layer node (unitless); from CLM fortran code
+  double imped[MAX_SOI_LAY+1]; // ice impedance (unitless); see CLM 5 eq 7.48
+  double hk[MAX_SOI_LAY+1]; //hydraulic conductivity (mm/s); see CLM 5 eq 7.47
+  double dhkdw[MAX_SOI_LAY+1]; //d(hk)/d(vol_liq); see CLM 5 eqs 7.83-7.84
+  double dsmpdw[MAX_SOI_LAY+1]; //d(smp)/d(vol_liq); see CLM 5 eqs 7.80-7.82
+  double smp[MAX_SOI_LAY+1]; //soil matric potential (mm); see CLM 5 eq 7.53
+  double dqidw0[MAX_SOI_LAY+1]; //d(qin)/d(vol_liq(i-1)); see CLM 5 eq 7.76
+  double dqidw1[MAX_SOI_LAY+1]; //d(qin)/d(vol_liq(i)); see CLM 5 eq 7.77
+  double dqodw1[MAX_SOI_LAY+1]; //d(qout)/d(vol_liq(i)); see CLM 5 eq 7.78
+  double dqodw2[MAX_SOI_LAY+1]; //d(qout)/d(vol_liq(i+1)); see CLM 5 eq 7.79
 
-  //Incoming values. These already exist in the layers, and are
-  // copied to arrays simply so that the equations in Richards
-  // are easily comparable to the CLM paper.
-  double Bsw[MAX_SOI_LAY+1]; //bsw hornberger constant (by horizon type)
-  double ksat[MAX_SOI_LAY+1]; //Saturated hydraulic conductivity
-  double psisat[MAX_SOI_LAY+1];
+  //Incoming layer property values copied to arrays for convenience.
+  double Bsw[MAX_SOI_LAY+1]; //bsw hornberger constant (unitless) (by horizon type)
+  double ksat[MAX_SOI_LAY+1]; //saturated hydraulic conductivity (mm/s) (by horizon type)
+  double psisat[MAX_SOI_LAY+1]; //saturated soil matric potential (mm/s) (by horizon type)
 
-  double vol_liq[MAX_SOI_LAY+1];//volumetric liquid water
-  double vol_ice[MAX_SOI_LAY+1];
-  double vol_h2o[MAX_SOI_LAY+1]; //Total volumetric water (liq + ice)
-  double vol_poro[MAX_SOI_LAY+1];
-  double liq_poro[MAX_SOI_LAY+1];
-  double soi_liq[MAX_SOI_LAY+1];
-  double ice_frac[MAX_SOI_LAY+1];
-  double effminliq[MAX_SOI_LAY+1];
-  double effmaxliq[MAX_SOI_LAY+1];
-  double dt_dz[MAX_SOI_LAY+1];
-  double z_h[MAX_SOI_LAY+1]; //Depth of layer bottom in mm, named to match CLM paper
-  double dzmm[MAX_SOI_LAY+1];      // layer thickness in mm
-  double nodemm[MAX_SOI_LAY+1]; //depth of center of layer thawed portion in mm
+  //Physical values calculated and/or collected to arrays for convenience
+  double vol_liq[MAX_SOI_LAY+1];//volumetric liquid water (mm3 liquid water/mm3 soil)
+  double vol_ice[MAX_SOI_LAY+1];//volumetric ice (mm3 ice/mm3 soil)
+  double vol_h2o[MAX_SOI_LAY+1]; //total volumetric water (mm3 liq + mm3 ice)/mm3 soil)
+  double vol_poro[MAX_SOI_LAY+1]; //total layer porosity
+  double liq_poro[MAX_SOI_LAY+1]; //porosity available to be filled by liquid (vol_poro - vol_ice)
+  double soi_liq[MAX_SOI_LAY+1]; //layer liquid water (kg/m2 or mm)
+  double ice_frac[MAX_SOI_LAY+1]; //fraction of porosity filled by ice (vol_ice/vol_poro)
+  double effminliq[MAX_SOI_LAY+1]; //minimum layer liquid adjusted for frozen layer fraction (kg m-2 or mm)
+  double effmaxliq[MAX_SOI_LAY+1]; //maximum layer liquid adjusted for frozen layer fraction (kg m-2 or mm)
+  double z_h[MAX_SOI_LAY+1]; //depth of layer bottom interface in mm; see CLM 5 Figure 7.2
+  double dzmm[MAX_SOI_LAY+1]; // layer thickness in mm
+  double nodemm[MAX_SOI_LAY+1]; //depth of center of layer in mm; CLM 5 Figure 7.2 'z(i)'
 
+  //Arrays related to iteration and the tridiagonal matrix solution for richards percolation
   double deltathetaliq[MAX_SOI_LAY+1]; //Results from tridiagonal calculation
-  double amx[MAX_SOI_LAY+1];
-  double bmx[MAX_SOI_LAY+1];
-  double cmx[MAX_SOI_LAY+1];
-  double rmx[MAX_SOI_LAY+1];
+  double amx[MAX_SOI_LAY+1]; //left off-diagonal of tridiagonal matrix for richards solution
+  double bmx[MAX_SOI_LAY+1]; //diagonal of tridiagonal matrix input for richards solution
+  double cmx[MAX_SOI_LAY+1]; //right off-diagonal of tridiagonal matrix input for richards solution
+  double rmx[MAX_SOI_LAY+1]; //forcing term of input for tridiagonal richards solution
+  double dt_dz[MAX_SOI_LAY+1]; //temporary time/thickness variable used in iteration
+  double tridiag_error[MAX_SOI_LAY+1]; //layer-wise error in tridiagonal solver solution per iteration; from CLM 5 eq 7.98
 
-  double max_tridiag_error;
-  double delta_t;
-  double dtmin;  // minimum timestep length (sec)
+  //Values related to iteration and the tridiagonal matrix solution for richards percolation
+  double max_tridiag_error; //maximum layer-wise error in tridiagonal solver solution per iteration
+  double delta_t; //(seconds) total time to be completed during iteration (one day)
+  double dtmin;  // minimum timestep length (seconds). Shorter values may be more accurate but take longer for total iteration.
   double toler_upper;  // Tolerance to halve length of substep
   double toler_lower;  // Tolerance to double length of substep
 

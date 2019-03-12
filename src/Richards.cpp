@@ -14,6 +14,14 @@ Richards::Richards() {
 
 Richards::~Richards() {
 };
+
+// H Greaves March 2019 - NOTE - Richards::update and related functions have been completely re-written by
+// Heather Greaves, Ruth Rutter, and Helene Genet to update the code to reflect more current science
+// and to correct persistent problems with modeled soil water.
+// Please see Richards.h for variable units, definitions, and references to relevant equation sources.
+// The code was updated to follow theory from the CLM 5 tech note (Lawrence et al. 2018),
+// referred to here as 'CLM 5'. However, note that much of the coding logic and variable names
+// follow the CLM FORTRAN code available on GitHub (https://github.com/ESCOMP/ctsm)
 void Richards::update(Layer *fstsoill, Layer* bdrainl,
                       const double & bdraindepth, const double & fbaseflow,
                       const double & watertab,
@@ -23,12 +31,12 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
   //all fluxes already in mm/sec as input
   qinfil = infil;
   qevap  = evap;
-  qdrain = 0.;
+  qdrain = 0.0;
 
   if (bdraindepth <= fstsoill->z) {// no percolation
     if(qinfil > 0.0){//add infil back to ponding/qover
       qinfil *= SEC_IN_DAY;// -->mm/day
-      //Add to ponding TODO replace hardcoded 10.0mm with puddle_max_mm from soil env
+      //Add to ponding TODO replace hardcoded 10.0mm with puddle_max_mm from soil env?
       double space_in_puddle = 10.0 - ed.d_soi2l.magic_puddle;
       double add_to_puddle = fmin(space_in_puddle, qinfil);
       ed.d_soi2l.magic_puddle += add_to_puddle;
@@ -50,14 +58,14 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
   int topind = fstsoill->solind;
   int drainind = drainl->solind;
 
-
   //Clear arrays before use
   clearRichardsArrays();
 
   //Prepare soil column parameter arrays
   prepareSoilColumn(fstsoill, drainind);
 
-  //Re-index trans to match the other arrays used in Richards
+  //Re-index root uptake to match the other arrays used in Richards
+  //TODO rename qtrans to 'quptake' for reporting?
   for(int il=topind; il<MAX_SOI_LAY; il++){
     qtrans[il] = trans[il-topind];
   }
@@ -68,11 +76,12 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
   //qinfil = 0.0;
 
   double n_substep = 0;
-  double dtsub = delta_t/24; //length of first substep (s)
+  double dtsub = delta_t/24; //length of first substep (sec). This will be adaptively changed based on accuracy.
   double dtdone = 0.0; //time completed
   bool continue_iterate = true;
   bool lapack_solver = true; //whether to use the newer LAPACK solver or the old Thomas algorithm
 
+  //Begin iteration domain. Logic follows CLM fortran code.
   //Start of adaptive-length iteration substeps
   //For testing: track the smallest substep used:
   double min_dtsub = delta_t;
@@ -118,7 +127,7 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
         num_layers = num_al;
         nrhs = 1;
         LAPACKE_dgtsv(LAPACK_ROW_MAJOR, num_layers, nrhs, sub_diagonal, diagonal, super_diagonal, result, ldb);
-        //copy values from result into deltathetaliq
+        //copy values from result into deltathetaliq and re-index
         for(int ii=0; ii<num_al; ii++){
           deltathetaliq[ii+topind] = result[ii];
         }
@@ -146,19 +155,18 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
 
     while(currl != NULL && currl->solind<=drainind){
       int ind = currl->solind;
-      //TODO - verify
       double liquid_change = dzmm[ind] * deltathetaliq[ind];
       currl->liq += liquid_change;
       percolation[ind] += liquid_change;
 
       //update soi_liq so that vol_liq can be recalculated for
-      // lateral drainage (below) and next iteration (above)
+      //lateral drainage (below) or next iteration (above)
       soi_liq[ind] = fmax(0.0001, currl->liq);
 
       currl = currl->nextl;
     }
 
-    dtdone += dtsub;
+    dtdone += dtsub; //add substep to total completed time
 
     //For testing: track smallest dtsub used:
     min_dtsub = fmin(min_dtsub, dtsub);
@@ -198,13 +206,13 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
       sat_soil = true;
 
       //originally eq7103_num is multiplied by impedance as well;
-      //removed to achieve sufficient drainage
+      //but impedance was removed to achieve sufficient drainage
       eq7103_num += ksat[ind] * dzmm[ind]/1.e3;
       eq7103_den += dzmm[ind]/1.e3;
     }
   }
 
-  //If there is at least one saturated layer, apply lateral drainage
+  //If there is at least one saturated layer, calculate lateral drainage
   if(sat_soil){
     //CLM5 Equations 7.103 and 7.102
     double slope_rads = cell_slope * PI / 180;//Converting to radians
@@ -213,7 +221,7 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
     double qdrain_perch = kdrain_perch * (bdraindepth - watertab)
                         * fbaseflow;
     if(qdrain_perch < 0.0){
-      BOOST_LOG_SEV(glg, err) << "qdrain_perch is negative";
+      BOOST_LOG_SEV(glg, err) << "qdrain_perch is negative; is the water table below the thawing front?";
     }
 
     //Calculate drainage from saturated layers
@@ -229,7 +237,7 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
       }
       currl = currl->nextl;
     }
-    //Drainage is calculated from saturated layers (usually bottom layers);
+    //Drainage has been calculated from saturated layers (usually bottom layers);
     //however, to avoid creating isolated unsaturated deep layers,
     //remove the calculated drainage from the top down.
     if(qdrain > 0){
@@ -248,16 +256,19 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
   }
 }
 
+void Richards::prepareSoilColumn(Layer* fstsoill, int drainind) {
 //This collects already-known values into arrays for ease of use, and
 // calculates basic values needed in the more complex equations later
-void Richards::prepareSoilColumn(Layer* fstsoill, int drainind) {
 
-  Layer* currl = fstsoill; // the first soil layer is 'fstsoill'
+  Layer* currl = fstsoill; // first non-moss layer
   num_al = 0; // number of active layers
 
   while(currl != NULL && currl->solind <= drainind+1){
     int ind = currl->solind;
 
+    if(currl->frozen <=0){
+      num_al += 1;
+    }
     soi_liq[ind] = fmax(0.0001, currl->liq);
     vol_liq[ind] = fmax(soi_liq[ind], 1.e-6) / (currl->dz * DENLIQ);
     vol_ice[ind] = currl->ice/(DENICE*currl->dz);
@@ -272,24 +283,21 @@ void Richards::prepareSoilColumn(Layer* fstsoill, int drainind) {
     effminliq[ind] = currl->minliq * frac_unfrozen;
     effmaxliq[ind] = currl->maxliq * frac_unfrozen;
 
-    psisat[ind] = -currl->psisat; //made negative to match CLM5 code
+    psisat[ind] = -currl->psisat; //made negative to follow CLM fortran code
     ksat[ind] = currl->hksat;
     Bsw[ind] = currl->bsw;
-    if(currl->frozen <=0){
-      num_al += 1;
-    }
+
     currl= currl->nextl;
   }
 }
 
 void Richards::computeHydraulicProperties(Layer *fstsoill, int drainind){
-  // compute the relative saturation at each layer first b/c
+  // compute the relative saturation at each layer node first b/c
   // it is used later in calculation of s1
   Layer *currl = fstsoill;
   while(currl != NULL && currl->solind <=drainind+1){
     int ind = currl->solind;
-    s2[ind] = vol_liq[ind]/liq_poro[ind];
-    // impose constraints on relative saturation at the layer node
+    s2[ind] = vol_liq[ind]/liq_poro[ind]; //liquid saturation at node
     s2[ind] = fmin(s2[ind], 1.0);
     s2[ind] = fmax(0.01, s2[ind]);
 
@@ -298,22 +306,21 @@ void Richards::computeHydraulicProperties(Layer *fstsoill, int drainind){
   currl = fstsoill;
   while(currl != NULL && currl->solind <=drainind+1){
     int ind = currl->solind;
-    // s1 is interface value, s2 is node value
     if(ind > drainind){
-      s1[ind] = s2[ind];
-      imped[ind] = pow(10.0, -e_ice * ice_frac[ind]);
+      s1[ind] = s2[ind]; //liquid saturation at interface
+      imped[ind] = pow(10.0, -e_ice * ice_frac[ind]); //ice impedance
     }
     else{
-      s1[ind] = 0.5 * (s2[ind] + s2[ind+1]);
-      imped[ind] = pow(10.0, -e_ice * (0.5 * (ice_frac[ind] + ice_frac[ind+1])));
+      s1[ind] = 0.5 * (s2[ind] + s2[ind+1]);//liquid saturation at interface
+      imped[ind] = pow(10.0, -e_ice * (0.5 * (ice_frac[ind] + ice_frac[ind+1]))); //ice impedance
     }
     s1[ind] = fmin(s1[ind], 1.0);
     s1[ind] = fmax(0.01, s1[ind]);
 
-    hk[ind] = imped[ind] * ksat[ind] * pow(s1[ind], 2.0 * Bsw[ind] + 3);
-    dhkdw[ind] = (2.0* Bsw[ind] + 3.0) * hk[ind] / s1[ind];
-    smp[ind] = -psisat[ind] * pow(s2[ind], -Bsw[ind]);
-    dsmpdw[ind] = (-Bsw[ind] * smp[ind] / s2[ind]) / liq_poro[ind];
+    hk[ind] = imped[ind] * ksat[ind] * pow(s1[ind], 2.0 * Bsw[ind] + 3);//hydraulic conductivity, mm/s
+    dhkdw[ind] = (2.0* Bsw[ind] + 3.0) * hk[ind] / s1[ind];//d(hk)/d(vol_liq)
+    smp[ind] = -psisat[ind] * pow(s2[ind], -Bsw[ind]);//soil matric potential
+    dsmpdw[ind] = (-Bsw[ind] * smp[ind] / s2[ind]) / liq_poro[ind];//d(smp)/d(vol_liq)
 
     currl = currl->nextl;
   }
@@ -368,7 +375,7 @@ void Richards::computeLHS(Layer *fstsoill, int topind, int drainind){
   while(currl!= NULL && currl->solind <=drainind){
     int ind = currl->solind;
     if(ind == topind){
-      //a coefficient top layer only
+      //a coefficient zero for top layer only (no percolation flux in)
       amx[ind] = 0.0;
     }
     else{
@@ -378,7 +385,7 @@ void Richards::computeLHS(Layer *fstsoill, int topind, int drainind){
     //b coefficient all layers
     bmx[ind] = -1.0 - (-dqidw1[ind] + dqodw1[ind]) * dt_dz[ind];
     if(ind == drainind){
-      //c coefficient bottom layer
+      //c coefficient zero for bottom layer (no percolation flux out)
       cmx[ind] = 0.0;
     }
     else{
@@ -406,7 +413,6 @@ void Richards::computeRHS(Layer *fstsoill, int topind, int drainind){
   }
 }
 
-
 void Richards::clearRichardsArrays(){
   for(int ii=0; ii<=MAX_SOI_LAY; ii++){
 
@@ -428,22 +434,22 @@ void Richards::clearRichardsArrays(){
     dqodw1[ii] = 0.0;
     dqodw2[ii] = 0.0;
 
-    Bsw[ii] = 0.0; //bsw hornberger constant (by horizon type)
-    ksat[ii] = 0.0; //Saturated hydraulic conductivity (by horizon type)
-    psisat[ii] = 0.0;;//Saturated soil matric potential (by horizon type)
+    Bsw[ii] = 0.0;
+    ksat[ii] = 0.0;
+    psisat[ii] = 0.0;;
 
-    vol_liq[ii] = 0.0;//volumetric liquid water
+    vol_liq[ii] = 0.0;
     vol_ice[ii] = 0.0;
-    vol_h2o[ii] = 0.0; //Total volumetric water (liq + ice)
-    vol_poro[ii] = 0.0; //Layer porosity
-    liq_poro[ii] = 0.0; //Porosity not filled by ice (= vol_poro - vol_ice)
-    soi_liq[ii] = 0.0; //Layer liquid
-    ice_frac[ii] = 0.0; //Fraction of porosity filled with ice
+    vol_h2o[ii] = 0.0;
+    vol_poro[ii] = 0.0;
+    liq_poro[ii] = 0.0;
+    soi_liq[ii] = 0.0;
+    ice_frac[ii] = 0.0;
     effminliq[ii] = 0.0;
     effmaxliq[ii] = 0.0;
-    z_h[ii] = 0.0; //Depth of layer bottom in mm, named to match CLM paper
-    dzmm[ii] = 0.0; // layer thickness in mm
-    nodemm[ii] = 0.0; //depth of center of layer thawed portion in mm
+    z_h[ii] = 0.0;
+    dzmm[ii] = 0.0;
+    nodemm[ii] = 0.0;
     dt_dz[ii] = 0.0;
 
     deltathetaliq[ii] = 0.0;
@@ -454,7 +460,6 @@ void Richards::clearRichardsArrays(){
 
     percolation[ii] = 0.0;
     layer_drain[ii] = 0.0;
-
   }
-};
+}
 
