@@ -5,8 +5,8 @@
 
   "IO": {
     "parameter_dir":      "parameters/",
-    "hist_climate_file":  "/home/vagrant/data/mirrors/atlas/dvmdostem-input-catalog/siterun-validation-climate_Toolik/siterun-validation-historic-climate.nc",
-    "proj_climate_file":  "/home/vagrant/data/mirrors/atlas/dvmdostem-input-catalog/siterun-validation-climate_Toolik/siterun-validation-projected-climate.nc",
+    "hist_climate_file":  "DATA/Toolik_10x10/siterun-validation-historic-climate.nc",
+    "proj_climate_file":  "DATA/Toolik_10x10/siterun-validation-projected-climate.nc",
     "veg_class_file":     "/home/vagrant/data/mirrors/atlas/dvmdostem-input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_Toolik_10x10/vegetation.nc",
     "drainage_file":      "DATA/Toolik_10x10/drainage.nc",
     "soil_texture_file":  "/home/vagrant/data/mirrors/atlas/dvmdostem-input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_Toolik_10x10/soil-texture.nc",
@@ -20,7 +20,7 @@
     "output_dir":         "DATA/Toolik_10x10/output/",
     "output_spec_file":   "config/output_spec.csv",
     "output_monthly":     1, //JSON specific
-    "output_nc_eq":       1,
+    "output_nc_eq":       0,
     "output_nc_sp":       0,
     "output_nc_tr":       1,
     "output_nc_sc":       0 
