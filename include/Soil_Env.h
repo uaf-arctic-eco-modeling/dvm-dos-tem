@@ -60,7 +60,7 @@ private:
   EnvData * ed;
   CohortLookup* chtlu;
 
-  double puddle_max_mm;
+  double ponding_max_mm;//max ponding (surface water storage) (mm)
 
   void updateDailySurfFlux(Layer* frontl, const double & dayl);
   void updateDailySoilThermal4Growth(Layer* fstsoill, const double &tsurface);
