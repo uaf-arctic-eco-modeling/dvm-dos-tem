@@ -2129,6 +2129,57 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
   map_itr = netcdf_outputs.end();
 
 
+  //INNUPTAKE
+  map_itr = netcdf_outputs.find("INNUPTAKE");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: INNUPTAKE";
+    curr_spec = map_itr->second;
+
+    #pragma omp critical(outputINNUPTAKE)
+    {
+      //PFT and compartment
+      if(curr_spec.pft && curr_spec.compartment){
+        /*** STUB ***/
+        //Currently unavailable. N uptake will need to be made accessible
+        // by PFT compartment.
+      }
+      //PFT only (4 dimensions)
+      else if(curr_spec.pft && !curr_spec.compartment){
+        double m_innuptake[NUM_PFT], y_innuptake[NUM_PFT];
+
+        for(int ip=0; ip<NUM_PFT; ip++){
+          m_innuptake[ip] = cohort.bd[ip].m_soi2v.innuptake;
+          y_innuptake[ip] = cohort.bd[ip].y_soi2v.innuptake;
+        }
+        //monthly 
+        if(curr_spec.monthly){
+          output_nc_4dim(&curr_spec, file_stage_suffix, &m_innuptake[0], NUM_PFT, month_timestep, 1);
+        }
+        //yearly
+        else if(curr_spec.yearly){
+          output_nc_4dim(&curr_spec, file_stage_suffix, &y_innuptake[0], NUM_PFT, year, 1);
+        }
+      }
+      //Compartment only
+      else if(!curr_spec.pft && curr_spec.compartment){
+        /*** STUB ***/
+      }
+      //Neither PFT nor compartment
+      else if(!curr_spec.pft && !curr_spec.compartment){
+        //monthly
+        if(curr_spec.monthly){
+          output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.bdall->m_soi2v.innuptake, 1, month_timestep, 1);
+        }
+        //yearly
+        else if(curr_spec.yearly){
+          output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.bdall->y_soi2v.innuptake, 1, year, 1);
+        }
+      }
+    }//end critical(outputINNUPTAKE)
+  }//end INNUPTAKE
+  map_itr = netcdf_outputs.end();
+
+
   //IWCLAYER
   map_itr = netcdf_outputs.find("IWCLAYER");
   if(map_itr != netcdf_outputs.end()){
@@ -2807,57 +2858,6 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
       }
     }//end critical(outputNPP)
   }//end NPP
-  map_itr = netcdf_outputs.end();
-
-
-  //NUPTAKEIN
-  map_itr = netcdf_outputs.find("NUPTAKEIN");
-  if(map_itr != netcdf_outputs.end()){
-    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: NUPTAKEIN";
-    curr_spec = map_itr->second;
-
-    #pragma omp critical(outputNUPTAKEIN)
-    {
-      //PFT and compartment
-      if(curr_spec.pft && curr_spec.compartment){
-        /*** STUB ***/
-        //Currently unavailable. N uptake will need to be made accessible
-        // by PFT compartment.
-      }
-      //PFT only (4 dimensions)
-      else if(curr_spec.pft && !curr_spec.compartment){
-        double m_innuptake[NUM_PFT], y_innuptake[NUM_PFT];
-
-        for(int ip=0; ip<NUM_PFT; ip++){
-          m_innuptake[ip] = cohort.bd[ip].m_soi2v.innuptake;
-          y_innuptake[ip] = cohort.bd[ip].y_soi2v.innuptake;
-        }
-        //monthly 
-        if(curr_spec.monthly){
-          output_nc_4dim(&curr_spec, file_stage_suffix, &m_innuptake[0], NUM_PFT, month_timestep, 1);
-        }
-        //yearly
-        else if(curr_spec.yearly){
-          output_nc_4dim(&curr_spec, file_stage_suffix, &y_innuptake[0], NUM_PFT, year, 1);
-        }
-      }
-      //Compartment only
-      else if(!curr_spec.pft && curr_spec.compartment){
-        /*** STUB ***/
-      }
-      //Neither PFT nor compartment
-      else if(!curr_spec.pft && !curr_spec.compartment){
-        //monthly
-        if(curr_spec.monthly){
-          output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.bdall->m_soi2v.innuptake, 1, month_timestep, 1);
-        }
-        //yearly
-        else if(curr_spec.yearly){
-          output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.bdall->y_soi2v.innuptake, 1, year, 1);
-        }
-      }
-    }//end critical(outputNUPTAKEIN)
-  }//end NUPTAKEIN
   map_itr = netcdf_outputs.end();
 
 
