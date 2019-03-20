@@ -432,7 +432,7 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
   //might be more accurate if done correctly, that code had been commented 
   //out for years, and so was removed. 
   //Value from Klene 2001 (summer values) and Kade 2006.
-  edall->d_soid.nfactor = 0.9;
+  //edall->d_soid.nfactor = 0.9; //using seaonally dynamic nfactors (below)
 
   // (ii)Initialize the yearly/monthly accumulators, which are accumulating at the end of month/day in 'ed'
   for (int ip=0; ip<NUM_PFT; ip++) {
@@ -475,12 +475,23 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
 
     daylength = temutil::length_of_day(this->lat, doy);
 
-    if(cd.d_snow.numsnwl > 0){
-      edall->d_soid.nfactor = 0.6;
+    //Kade 2006 found summer nfactors of 1.17-1.24 for undisturbed tundra
+    // and winter nfactors ~0.38-0.57
+    // Karunaratne and Burn 2003 found that winter nfactors depend on
+    // snow thickness, especially for snow thickness < 60cm.
+    // This is a simplistic approach to replicate that effect.
+    double nfactor_summer_max = 2.0;
+    double nfactor_winter_max = 0.75;
+    double nfactor_winter_min = 0.3;
+    edall->d_soid.nfactor = nfactor_summer_max; //summer nfactor (max nfactor)
+    //If there's snow or it's freezing, adjust winter nfactor between max and min value
+    //based on snowthick
+    if(cd.d_snow.numsnwl > 0 || tdrv <= 0.0){
+      edall->d_soid.nfactor = fmin(fmax((nfactor_winter_min - nfactor_winter_max)
+                            * (ground.snow.thick / 0.60)
+                            + nfactor_winter_max, nfactor_winter_min), nfactor_winter_max);
     }
-    else{
-      edall->d_soid.nfactor = 1.00;
-    }
+
 
     /* Daily processes for a Cohort, Environmental module...
        Have to use our Climate object to update our EnvData objects's daily
