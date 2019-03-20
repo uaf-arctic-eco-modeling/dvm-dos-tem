@@ -36,8 +36,8 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
   if (bdraindepth <= fstsoill->z) {// no percolation
     if(qinfil > 0.0){//add infil back to ponding/qover
       qinfil *= SEC_IN_DAY;// -->mm/day
-      //Add to ponding TODO replace hardcoded 10.0mm with puddle_max_mm from soil env?
-      double space_in_puddle = 10.0 - ed.d_soi2l.magic_puddle;
+      //Add to ponding TODO replace hardcoded 100 mm with ponding_max_mm from soil env?
+      double space_in_puddle = 100.0 - ed.d_soi2l.magic_puddle;
       double add_to_puddle = fmin(space_in_puddle, qinfil);
       ed.d_soi2l.magic_puddle += add_to_puddle;
       qinfil -= add_to_puddle;
@@ -75,16 +75,29 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
   //}
   //qinfil = 0.0;
 
+  //For testing: get original column liquid (mm). Total end-of-iteration column liquid
+  // should equal original liquid + infil (mm/day) - evap (mm/day) - uptake (mm/day)
+  double original_liq = 0.0;
+  currl = fstsoill;
+  while(currl != NULL && currl->solind <= drainind){
+    original_liq += currl->liq;
+    currl = currl->nextl;
+  }
+  //Sum uptake over layers to get target
+  double all_uptake = 0.0;
+  for(int ind = topind; ind <= drainind; ind++){
+    all_uptake += (qtrans[ind] * SEC_IN_DAY);
+  }
+  double target_liq = original_liq + qinfil*SEC_IN_DAY - qevap*SEC_IN_DAY - all_uptake;
+
+  //Begin iteration domain. Logic follows CLM fortran code.
+  //Start of adaptive-length iteration substeps
   double n_substep = 0;
   double dtsub = delta_t/24; //length of first substep (sec). This will be adaptively changed based on accuracy.
   double dtdone = 0.0; //time completed
   bool continue_iterate = true;
   bool lapack_solver = true; //whether to use the newer LAPACK solver or the old Thomas algorithm
 
-  //Begin iteration domain. Logic follows CLM fortran code.
-  //Start of adaptive-length iteration substeps
-  //For testing: track the smallest substep used:
-  double min_dtsub = delta_t;
   while(continue_iterate = true){
     n_substep += 1;
 
@@ -101,6 +114,7 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
 
     //dtsub trial loop - find the best length for this dtsub substep
     bool try_dtsub = true;
+    max_tridiag_error = 0.0;
 
     while(try_dtsub){
 
@@ -136,7 +150,6 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
         cn.tridiagonal(topind, num_al, amx, bmx, cmx, rmx, deltathetaliq);
       }
 
-      max_tridiag_error = 0.0;
       for(int ind = topind; ind <=drainind; ind++){
         fluxNet0[ind] = deltathetaliq[ind]/dt_dz[ind];
         fluxNet1[ind] = qin[ind] - qout[ind] - qtrans[ind];
@@ -168,9 +181,6 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
 
     dtdone += dtsub; //add substep to total completed time
 
-    //For testing: track smallest dtsub used:
-    min_dtsub = fmin(min_dtsub, dtsub);
-
     if(fabs(delta_t - dtdone) < 1.e-8){
       continue_iterate = false;
       break; //day complete
@@ -182,7 +192,17 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
     dtsub = fmin(dtsub, delta_t - dtdone); //don't go over delta_t
   } //End of substep loop
   //End of iteration domain
-
+  //Check overall column liq results
+  double final_liq = 0.0;
+  currl = fstsoill;
+  while(currl != NULL && currl->solind <= drainind){
+    final_liq += currl->liq;
+    currl = currl->nextl;
+  }
+  if(fabs(final_liq - target_liq) > 5.0){
+    BOOST_LOG_SEV(glg, warn) << "Problem in Richards soil water solver: final column liquid - target column liquid = "
+                             << final_liq - target_liq << " mm";
+  }
   //Update layer volumetric water post percolation so lateral drainage is
   // based on today's values
   //Note that soi_liq is updated above (post layer
