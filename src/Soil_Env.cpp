@@ -35,7 +35,7 @@
 extern src::severity_logger< severity_level > glg;
 
 Soil_Env::Soil_Env() {
-  puddle_max_mm = 10.0;
+  ponding_max_mm = 100.0; //max ponding (surface water storage) (mm)
 };
 
 Soil_Env::~Soil_Env() {
@@ -552,7 +552,7 @@ void Soil_Env::updateDailySM(double weighted_veg_tran) {
   space_for_liq = fmax(space_for_liq, 0.0);
 
   //Add runoff (up to 10 mm) to surface water storage (magic puddle)
-  double space_in_puddle = puddle_max_mm - ed->d_soi2l.magic_puddle;
+  double space_in_puddle = ponding_max_mm - ed->d_soi2l.magic_puddle;
   double add_to_puddle = fmax(fmin(ed->d_soi2l.qover, space_in_puddle), 0.0);
   ed->d_soi2l.magic_puddle += add_to_puddle;
   //Subtracting surface water storage from runoff
@@ -563,8 +563,8 @@ void Soil_Env::updateDailySM(double weighted_veg_tran) {
   // to the infiltration value.
   if(space_for_liq > 0.0 && ed->d_soi2l.magic_puddle > 0.0){
     //limit puddle contribution by max infiltration rate (CLM 5 eq 7.27)
-    //with fmax = 0.5, fover = 0.5 m-1
-    double fsat = 0.5 * pow(10.0, (-0.5 * 0.5 * ed->d_sois.watertab));
+    //with fmax = 0.25, fover = 0.5 m-1
+    double fsat = 0.25 * pow(10.0, (-0.5 * 0.5 * ed->d_sois.watertab));
     double qinmax_layer = 1.e3; //initiate large to take min later
     currl = fstsoill;
     //Following CLM FORTRAN code and CLM 5
@@ -579,6 +579,7 @@ void Soil_Env::updateDailySM(double weighted_veg_tran) {
     //CLM 5 eq 7.37:
     double qinmax = (1.0 - fsat) * qinmax_layer;
     qinmax *= SEC_IN_DAY; //convert to mm/day
+    qinmax = fmax(qinmax, 0.5); //minimum of 0.5 mm/day
 
     double puddle2grnd = fmax(fmin(space_for_liq, ed->d_soi2l.magic_puddle), 0.0);
     puddle2grnd = fmax(fmin(puddle2grnd, qinmax), 0.0);
@@ -628,7 +629,7 @@ void Soil_Env::updateDailySM(double weighted_veg_tran) {
     if(infil > 0.0){
       infil *= SEC_IN_DAY;// -->mm/day
       //Add to ponding
-      space_in_puddle = puddle_max_mm - ed->d_soi2l.magic_puddle;
+      space_in_puddle = ponding_max_mm - ed->d_soi2l.magic_puddle;
       add_to_puddle = fmin(space_in_puddle, infil);
       ed->d_soi2l.magic_puddle += add_to_puddle;
       infil -= add_to_puddle;
@@ -793,6 +794,9 @@ double Soil_Env::getWaterTable(Layer* lstsoill) {
         b = currl->z + dz_unfrozen - m * nextl_sat;
       }
       wtd = fmax(m * sat_level + b, 0.0);
+      if(wtd > ground->frontsz[0] && ground->frontstype[0] == -1){
+        BOOST_LOG_SEV(glg, err) << "Water table depth is below thaw front";
+      }
       return wtd;
     }
   }
@@ -830,7 +834,7 @@ double Soil_Env::getRunoff(Layer* toplayer, Layer* drainl,
     }
     double avgs = sums/ztot;
     //Water table depth
-    double wtd = ztot - sums;
+    double wtd = getWaterTable(ground->lstsoill);
     //Saturated fraction, from CLM3/Oleson 2004, equation 7.53
     double frasat = WFACT * min(1.0,exp(-wtd));
     //CLM3/Oleson 2004, equation 7.59.
@@ -975,7 +979,7 @@ void Soil_Env::checkSoilLiquidWaterValidity(Layer *topsoill, int topind){
     if (currl->liq > effmaxliq[ind]){
       double sink_liq = currl->liq - effmaxliq[ind];
       currl->liq -= sink_liq;
-      double space_in_puddle = puddle_max_mm - ed->d_soi2l.magic_puddle;
+      double space_in_puddle = ponding_max_mm - ed->d_soi2l.magic_puddle;
       double to_puddle = fmin(sink_liq, space_in_puddle);
       ed->d_soi2l.magic_puddle += to_puddle;
       sink_liq -= to_puddle;
@@ -1025,6 +1029,46 @@ void Soil_Env::checkSoilLiquidWaterValidity(Layer *topsoill, int topind){
       ed->d_soi2l.qover -= take_liq;
     }
     currl = currl->nextl;
+  }
+
+  //Downward pass: bring bottom layer up to minliq by pulling from top down
+  currl = last_active_layer;
+  needed_liq = 0;
+  int ind = currl->solind;
+  if (currl->liq < effminliq[ind]){
+    needed_liq = effminliq[ind] - currl->liq;
+    Layer *layer_above = topsoill;
+    while(layer_above != NULL && layer_above->solind <= last_active_layer->solind && needed_liq >0){
+      int ind2 = layer_above->solind;
+      if(layer_above->liq > effminliq[ind2]){
+        double avail_liq = layer_above->liq - effminliq[ind2];
+        double take_liq = fmin(needed_liq, avail_liq);
+        layer_above->liq -= take_liq;
+        currl->liq += take_liq;
+        needed_liq -= take_liq;
+      }
+      layer_above = layer_above->nextl;
+    }
+  }
+  //if that didn't work, pull excess from qdrain, magic puddle, and/or
+  //qover if possible
+  if(currl->liq < effminliq[ind]){
+    needed_liq = effminliq[ind] - currl->liq;
+    //pull from magic puddle
+    double take_liq = fmin(ed->d_soi2l.magic_puddle, needed_liq);
+    currl->liq += take_liq;
+    needed_liq -= take_liq;
+    ed->d_soi2l.magic_puddle -= take_liq;
+    //pull from qdrain
+    take_liq = fmin(ed->d_soi2l.qdrain, needed_liq);
+    currl->liq += take_liq;
+    needed_liq -= take_liq;
+    ed->d_soi2l.qdrain -= take_liq;
+    //pull from qover
+    take_liq = fmin(ed->d_soi2l.qover, needed_liq);
+    currl->liq += take_liq;
+    needed_liq -= take_liq;
+    ed->d_soi2l.qover -= take_liq;
   }
 
   //Final check, force, and raise error
