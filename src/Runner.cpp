@@ -2861,6 +2861,90 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
   map_itr = netcdf_outputs.end();
 
 
+  //NRESORB
+  map_itr = netcdf_outputs.find("NRESORB");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: NRESORB";
+    curr_spec = map_itr->second;
+
+    #pragma omp critical(outputNRESORB)
+    {
+      //PFT and compartment
+      if(curr_spec.pft && curr_spec.compartment){
+
+        double m_nresorb[NUM_PFT_PART][NUM_PFT];
+        double y_nresorb[NUM_PFT_PART][NUM_PFT];
+        for(int ip=0; ip<NUM_PFT; ip++){
+          for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
+            m_nresorb[ipp][ip] = cohort.bd[ip].m_v2v.nresorb[ipp];
+            y_nresorb[ipp][ip] = cohort.bd[ip].y_v2v.nresorb[ipp];
+          }
+        }
+        //monthly
+        if(curr_spec.monthly){
+          output_nc_5dim(&curr_spec, file_stage_suffix, &m_nresorb[0][0], NUM_PFT_PART, NUM_PFT, month_timestep, 1);
+        }
+        //yearly
+        else if(curr_spec.yearly){
+          output_nc_5dim(&curr_spec, file_stage_suffix, &y_nresorb[0][0], NUM_PFT_PART, NUM_PFT, year, 1);
+        }
+      }
+      //PFT only
+      else if(curr_spec.pft && !curr_spec.compartment){
+
+        double m_nresorb[NUM_PFT], y_nresorb[NUM_PFT];
+
+        for(int ip=0; ip<NUM_PFT; ip++){
+          m_nresorb[ip] = cohort.bd[ip].m_v2v.nresorball;
+          y_nresorb[ip] = cohort.bd[ip].y_v2v.nresorball;
+        }
+        //monthly
+        if(curr_spec.monthly){
+          output_nc_4dim(&curr_spec, file_stage_suffix, &m_nresorb[0], NUM_PFT, month_timestep, 1);
+        }
+        //yearly
+        else if(curr_spec.yearly){
+          output_nc_4dim(&curr_spec, file_stage_suffix, &y_nresorb[0], NUM_PFT, year, 1);
+        }
+      }
+      //Compartment only
+      else if(!curr_spec.pft && curr_spec.compartment){
+
+        double m_nresorb[NUM_PFT_PART] = {0};
+        double y_nresorb[NUM_PFT_PART] = {0};
+
+        for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
+          for(int ip=0; ip<NUM_PFT; ip++){
+            m_nresorb[ipp] += cohort.bd[ip].m_v2v.nresorb[ipp];
+            y_nresorb[ipp] += cohort.bd[ip].y_v2v.nresorb[ipp];
+          }
+        }
+        //monthly 
+        if(curr_spec.monthly){
+          output_nc_4dim(&curr_spec, file_stage_suffix, &m_nresorb[0], NUM_PFT_PART, month_timestep, 1);
+        }
+        //yearly
+        else if(curr_spec.yearly){
+          output_nc_4dim(&curr_spec, file_stage_suffix, &y_nresorb[0], NUM_PFT_PART, year, 1);
+        }
+      }
+      //Total, instead of by PFT or compartment
+      else if(!curr_spec.pft && !curr_spec.compartment){
+        //monthly
+        if(curr_spec.monthly){
+          output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.bdall->m_v2v.nresorball, 1, month_timestep, 1);
+        }
+        //yearly
+        else if(curr_spec.yearly){
+          output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.bdall->y_v2v.nresorball, 1, year, 1);
+        }
+
+      }
+    }
+  }//end NRESORB
+  map_itr = netcdf_outputs.end();
+
+
   //NUPTAKELAB
   map_itr = netcdf_outputs.find("NUPTAKELAB");
   if(map_itr != netcdf_outputs.end()){
