@@ -19,10 +19,6 @@ libTEM.so
 # 
 docs/*
 
-# config and output files
-config/config.js
-config/*.csv
-
 # from profile testing
 *.svg
 
