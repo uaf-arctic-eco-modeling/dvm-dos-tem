@@ -33,6 +33,9 @@ public:
   int mthsdist; //months since last disturbance
   
   int drainage_type;
+  double cell_slope;
+  double cell_aspect;
+  double cell_elevation;
 
   bool hasnonvascular; //if exists non-vascular PFT(s) within the vegetation community
 

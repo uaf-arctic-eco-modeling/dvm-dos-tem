@@ -30,18 +30,20 @@ MossLayer::MossLayer(const double &pdz, const int & newmosstype) {
   vhcsolid=2.5e6; //J/m3K
 
   // hydraulic properties
+  //bsw should be 1, but is set to 1.01 in order
+  // to avoid NaNs in hydraulic calculations (see Richards)
   if(mosstype ==1) {
     hksat  = 0.15; //mm/s
     psisat = -10; // mm
-    bsw = 1;
+    bsw = 1.01;
   } else if(mosstype ==2) {
     hksat  = 0.15; //mm/s
     psisat = -120; // mm
-    bsw = 1;
+    bsw = 1.01;
   } else {
     hksat = 0.15; //mm/s
     psisat = -50; // mm
-    bsw = 1;
+    bsw = 1.01;
   }
 
   derivePhysicalProperty();
