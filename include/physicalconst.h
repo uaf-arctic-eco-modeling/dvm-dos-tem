@@ -27,4 +27,6 @@ const float BOLTZ    = 1.38e-23 ; // Boltzmann constant J/Kmolecule
 const float NA       = 6.02214e26 ; // mole/kmol
 const float KPA      = 0.4; // von karman constant -
 
+const float WFACT    = 0.3; //A parameter determined by the distribution of the topographic index. Source: CLM3/Oleson 2004.
+
 #endif /*PHYSICALCONST_H_*/

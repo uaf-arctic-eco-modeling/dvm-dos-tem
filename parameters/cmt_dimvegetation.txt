@@ -33,19 +33,19 @@
 0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[7]: fine root allocation percentage vertically in soils (every 10 cm)  
 0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[8]: fine root allocation percentage vertically in soils (every 10 cm) 
 0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[9]: fine root allocation percentage vertically in soils (every 10 cm)
-0.93        0.00        0.07         0.05         0.04         0.04         0.02         0.29         0.77         0.           // lai: initial LAI
-1.0         0.0         0.0          0.5          1.0          0.0          1.5          0.1          1.0          0            // envlai[0]: monthly LAI for a year, used for static input of LAI
-1.1         0.0         0.0          0.3          1.5          0.0          1.5          0.2          1.5          0            // envlai[1]: monthly LAI for a year, used for static input of LAI 
-1.2         0.0         0.0          0.5          2.0          0.5          1.5          0.3          0.0          0            // envlai[2]: monthly LAI for a year, used for static input of LAI 
-1.2         0.5         1.0          1.2          1.5          1.0          1.5          0.6          0.0          0            // envlai[3]: monthly LAI for a year, used for static input of LAI
-1.3         1.3         1.9          1.3          0.3          1.3          1.5          1.3          1.3          0            // envlai[4]: monthly LAI for a year, used for static input of LAI 
-1.9         1.9         2.5          1.9          0.0          1.9          1.5          1.9          1.9          0            // envlai[5]: monthly LAI for a year, used for static input of LAI  
-2.0         2.0         2.0          2.0          0.0          2.0          1.5          0.1          0.0          0            // envlai[6]: monthly LAI for a year, used for static input of LAI 
-2.0         2.0         2.0          2.0          0.0          2.0          1.5          0.2          0.0          0            // envlai[7]: monthly LAI for a year, used for static input of LAI
-1.5         0.5         1.5          1.5          0.0          1.5          1.5          0.5          1.5          0            // envlai[8]: monthly LAI for a year, used for static input of LAI  
-1.3         0.2         0.0          1.3          0.3          1.3          1.5          1.3          1.3          0            // envlai[9]: monthly LAI for a year, used for static input of LAI
-1.1         0.0         0.0          0.8          0.5          1.0          1.5          1.9          0.0          0            // envlai[10]: monthly LAI for a year, used for static input of LAI 
-1.0         0.0         0.0          0.7          0.8          0.5          1.5          2.1          1.1          0            // envlai[11]: monthly LAI for a year, used for static input of LAI
+0.93        0.00        0.07         0.05         0.04         0.04         0.02         0.29         0.77         0.           // initial_lai: starting value for Leaf Area Index
+1.0         0.0         0.0          0.5          1.0          0.0          1.5          0.1          1.0          0            // static_lai[0]: monthly LAI for a year, used for static input of LAI
+1.1         0.0         0.0          0.3          1.5          0.0          1.5          0.2          1.5          0            // static_lai[1]:
+1.2         0.0         0.0          0.5          2.0          0.5          1.5          0.3          0.0          0            // static_lai[2]:
+1.2         0.5         1.0          1.2          1.5          1.0          1.5          0.6          0.0          0            // static_lai[3]:
+1.3         1.3         1.9          1.3          0.3          1.3          1.5          1.3          1.3          0            // static_lai[4]:
+1.9         1.9         2.5          1.9          0.0          1.9          1.5          1.9          1.9          0            // static_lai[5]:
+2.0         2.0         2.0          2.0          0.0          2.0          1.5          0.1          0.0          0            // static_lai[6]:
+2.0         2.0         2.0          2.0          0.0          2.0          1.5          0.2          0.0          0            // static_lai[7]:
+1.5         0.5         1.5          1.5          0.0          1.5          1.5          0.5          1.5          0            // static_lai[8]:
+1.3         0.2         0.0          1.3          0.3          1.3          1.5          1.3          1.3          0            // static_lai[9]:
+1.1         0.0         0.0          0.8          0.5          1.0          1.5          1.9          0.0          0            // static_lai[10]:
+1.0         0.0         0.0          0.7          0.8          0.5          1.5          2.1          1.1          0            // static_lai[11]:
 //===========================================================
 // CMT01 // Black Spruce Forest //###THESE ARE JUNK VALUES!!!###
 //BlackSpr  Decid       DecidShrub   EGreen       Sphag      Feather        Moss         Lichen       Forbs        Sedge        // pftnames:
@@ -76,19 +76,19 @@
 0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[7]: fine root allocation percentage vertically in soils (every 10 cm)  
 0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[8]: fine root allocation percentage vertically in soils (every 10 cm) 
 0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[9]: fine root allocation percentage vertically in soils (every 10 cm)
-0.93        0.93        0.07         0.05         0.04         0.04         0.02         0.29         0.77         0.           // lai: initial LAI
-1.00        1.00        0.50         0.50         0.50         0.50         0.50         0.5          1.0          0            // envlai[0]: monthly LAI for a year, used for static input of LAI
-1.1         1.1         0.0          0.3          1.5          0.0          1.5          0.2          1.5          0            // envlai[1]: monthly LAI for a year, used for static input of LAI 
-1.2         1.2         0.0          0.5          2.0          0.5          1.5          0.3          0.0          0            // envlai[2]: monthly LAI for a year, used for static input of LAI 
-1.2         1.2         1.0          1.2          1.5          1.0          1.5          0.6          0.0          0            // envlai[3]: monthly LAI for a year, used for static input of LAI
-1.3         1.3         1.9          1.3          0.3          1.3          1.5          1.3          1.3          0            // envlai[4]: monthly LAI for a year, used for static input of LAI 
-1.9         1.9         2.5          1.9          0.0          1.9          1.5          1.9          1.9          0            // envlai[5]: monthly LAI for a year, used for static input of LAI  
-2.0         2.0         2.0          2.0          0.0          2.0          1.5          0.1          0.0          0            // envlai[6]: monthly LAI for a year, used for static input of LAI 
-2.0         2.0         2.0          2.0          0.0          2.0          1.5          0.2          0.0          0            // envlai[7]: monthly LAI for a year, used for static input of LAI
-1.5         1.5         1.5          1.5          0.0          1.5          1.5          0.5          1.5          0            // envlai[8]: monthly LAI for a year, used for static input of LAI  
-1.3         1.5         0.0          1.3          0.3          1.3          1.5          1.3          1.3          0            // envlai[9]: monthly LAI for a year, used for static input of LAI
-1.1         1.5         0.0          0.8          0.5          1.0          1.5          1.9          0.0          0            // envlai[10]: monthly LAI for a year, used for static input of LAI 
-1.0         1.5         0.0          0.7          0.8          0.5          1.5          2.1          1.1          0            // envlai[11]: monthly LAI for a year, used for static input of LAI
+0.93        0.93        0.07         0.05         0.04         0.04         0.02         0.29         0.77         0.           // initial_lai: starting value for Leaf Area Index
+1.00        1.00        0.50         0.50         0.50         0.50         0.50         0.5          1.0          0            // static_lai[0]: monthly LAI for a year, used for static input of LAI
+1.1         1.1         0.0          0.3          1.5          0.0          1.5          0.2          1.5          0            // static_lai[1]:
+1.2         1.2         0.0          0.5          2.0          0.5          1.5          0.3          0.0          0            // static_lai[2]:
+1.2         1.2         1.0          1.2          1.5          1.0          1.5          0.6          0.0          0            // static_lai[3]:
+1.3         1.3         1.9          1.3          0.3          1.3          1.5          1.3          1.3          0            // static_lai[4]:
+1.9         1.9         2.5          1.9          0.0          1.9          1.5          1.9          1.9          0            // static_lai[5]:
+2.0         2.0         2.0          2.0          0.0          2.0          1.5          0.1          0.0          0            // static_lai[6]:
+2.0         2.0         2.0          2.0          0.0          2.0          1.5          0.2          0.0          0            // static_lai[7]:
+1.5         1.5         1.5          1.5          0.0          1.5          1.5          0.5          1.5          0            // static_lai[8]:
+1.3         1.5         0.0          1.3          0.3          1.3          1.5          1.3          1.3          0            // static_lai[9]:
+1.1         1.5         0.0          0.8          0.5          1.0          1.5          1.9          0.0          0            // static_lai[10]:
+1.0         1.5         0.0          0.7          0.8          0.5          1.5          2.1          1.1          0            // static_lai[11]:
 //===========================================================
 // CMT02 // White Spruce Forest
 //PFT0      PFT1        PFT2         PFT3         PFT4         PFT5         PFT6         PFT7         PFT8         PFT9         // names: comments                  
@@ -119,19 +119,19 @@
 0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[7]: fine root allocation percentage vertically in soils (every 10 cm)  
 0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[8]: fine root allocation percentage vertically in soils (every 10 cm) 
 0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[9]: fine root allocation percentage vertically in soils (every 10 cm)
-0.93        0.00        0.07         0.05         0.04         0.04         0.02         0.29         0.77         0.           // lai: initial LAI
-1.0         0.0         0.0          0.5          1.0          0.0          1.5          0.1          1.0          0            // envlai[0]: monthly LAI for a year, used for static input of LAI
-1.1         0.0         0.0          0.3          1.5          0.0          1.5          0.2          1.5          0            // envlai[1]: monthly LAI for a year, used for static input of LAI 
-1.2         0.0         0.0          0.5          2.0          0.5          1.5          0.3          0.0          0            // envlai[2]: monthly LAI for a year, used for static input of LAI 
-1.2         0.5         1.0          1.2          1.5          1.0          1.5          0.6          0.0          0            // envlai[3]: monthly LAI for a year, used for static input of LAI
-1.3         1.3         1.9          1.3          0.3          1.3          1.5          1.3          1.3          0            // envlai[4]: monthly LAI for a year, used for static input of LAI 
-1.9         1.9         2.5          1.9          0.0          1.9          1.5          1.9          1.9          0            // envlai[5]: monthly LAI for a year, used for static input of LAI  
-2.0         2.0         2.0          2.0          0.0          2.0          1.5          0.1          0.0          0            // envlai[6]: monthly LAI for a year, used for static input of LAI 
-2.0         2.0         2.0          2.0          0.0          2.0          1.5          0.2          0.0          0            // envlai[7]: monthly LAI for a year, used for static input of LAI
-1.5         0.5         1.5          1.5          0.0          1.5          1.5          0.5          1.5          0            // envlai[8]: monthly LAI for a year, used for static input of LAI  
-1.3         0.2         0.0          1.3          0.3          1.3          1.5          1.3          1.3          0            // envlai[9]: monthly LAI for a year, used for static input of LAI
-1.1         0.0         0.0          0.8          0.5          1.0          1.5          1.9          0.0          0            // envlai[10]: monthly LAI for a year, used for static input of LAI 
-1.0         0.0         0.0          0.7          0.8          0.5          1.5          2.1          1.1          0            // envlai[11]: monthly LAI for a year, used for static input of LAI
+0.93        0.00        0.07         0.05         0.04         0.04         0.02         0.29         0.77         0.           // initial_lai: starting value for Leaf Area Index
+1.0         0.0         0.0          0.5          1.0          0.0          1.5          0.1          1.0          0            // static_lai[0]: monthly LAI for a year, used for static input of LAI
+1.1         0.0         0.0          0.3          1.5          0.0          1.5          0.2          1.5          0            // static_lai[1]:
+1.2         0.0         0.0          0.5          2.0          0.5          1.5          0.3          0.0          0            // static_lai[2]:
+1.2         0.5         1.0          1.2          1.5          1.0          1.5          0.6          0.0          0            // static_lai[3]:
+1.3         1.3         1.9          1.3          0.3          1.3          1.5          1.3          1.3          0            // static_lai[4]:
+1.9         1.9         2.5          1.9          0.0          1.9          1.5          1.9          1.9          0            // static_lai[5]:
+2.0         2.0         2.0          2.0          0.0          2.0          1.5          0.1          0.0          0            // static_lai[6]:
+2.0         2.0         2.0          2.0          0.0          2.0          1.5          0.2          0.0          0            // static_lai[7]:
+1.5         0.5         1.5          1.5          0.0          1.5          1.5          0.5          1.5          0            // static_lai[8]:
+1.3         0.2         0.0          1.3          0.3          1.3          1.5          1.3          1.3          0            // static_lai[9]:
+1.1         0.0         0.0          0.8          0.5          1.0          1.5          1.9          0.0          0            // static_lai[10]:
+1.0         0.0         0.0          0.7          0.8          0.5          1.5          2.1          1.1          0            // static_lai[11]:
 //===========================================================
 // CMT03 // Boreal Deciduous Forest
 //PFT0      PFT1        PFT2         PFT3         PFT4         PFT5         PFT6         PFT7         PFT8         PFT9         // names: comments                  
@@ -162,19 +162,19 @@
 0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[7]: fine root allocation percentage vertically in soils (every 10 cm)  
 0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[8]: fine root allocation percentage vertically in soils (every 10 cm) 
 0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[9]: fine root allocation percentage vertically in soils (every 10 cm)
-0.93        0.00        0.07         0.05         0.04         0.04         0.02         0.29         0.77         0.           // lai: initial LAI
-1.0         0.0         0.0          0.5          1.0          0.0          1.5          0.1          1.0          0            // envlai[0]: monthly LAI for a year, used for static input of LAI
-1.1         0.0         0.0          0.3          1.5          0.0          1.5          0.2          1.5          0            // envlai[1]: monthly LAI for a year, used for static input of LAI 
-1.2         0.0         0.0          0.5          2.0          0.5          1.5          0.3          0.0          0            // envlai[2]: monthly LAI for a year, used for static input of LAI 
-1.2         0.5         1.0          1.2          1.5          1.0          1.5          0.6          0.0          0            // envlai[3]: monthly LAI for a year, used for static input of LAI
-1.3         1.3         1.9          1.3          0.3          1.3          1.5          1.3          1.3          0            // envlai[4]: monthly LAI for a year, used for static input of LAI 
-1.9         1.9         2.5          1.9          0.0          1.9          1.5          1.9          1.9          0            // envlai[5]: monthly LAI for a year, used for static input of LAI  
-2.0         2.0         2.0          2.0          0.0          2.0          1.5          0.1          0.0          0            // envlai[6]: monthly LAI for a year, used for static input of LAI 
-2.0         2.0         2.0          2.0          0.0          2.0          1.5          0.2          0.0          0            // envlai[7]: monthly LAI for a year, used for static input of LAI
-1.5         0.5         1.5          1.5          0.0          1.5          1.5          0.5          1.5          0            // envlai[8]: monthly LAI for a year, used for static input of LAI  
-1.3         0.2         0.0          1.3          0.3          1.3          1.5          1.3          1.3          0            // envlai[9]: monthly LAI for a year, used for static input of LAI
-1.1         0.0         0.0          0.8          0.5          1.0          1.5          1.9          0.0          0            // envlai[10]: monthly LAI for a year, used for static input of LAI 
-1.0         0.0         0.0          0.7          0.8          0.5          1.5          2.1          1.1          0            // envlai[11]: monthly LAI for a year, used for static input of LAI
+0.93        0.00        0.07         0.05         0.04         0.04         0.02         0.29         0.77         0.           // initial_lai: starting value for Leaf Area Index
+1.0         0.0         0.0          0.5          1.0          0.0          1.5          0.1          1.0          0            // static_lai[0]: monthly LAI for a year, used for static input of LAI
+1.1         0.0         0.0          0.3          1.5          0.0          1.5          0.2          1.5          0            // static_lai[1]:
+1.2         0.0         0.0          0.5          2.0          0.5          1.5          0.3          0.0          0            // static_lai[2]:
+1.2         0.5         1.0          1.2          1.5          1.0          1.5          0.6          0.0          0            // static_lai[3]:
+1.3         1.3         1.9          1.3          0.3          1.3          1.5          1.3          1.3          0            // static_lai[4]:
+1.9         1.9         2.5          1.9          0.0          1.9          1.5          1.9          1.9          0            // static_lai[5]:
+2.0         2.0         2.0          2.0          0.0          2.0          1.5          0.1          0.0          0            // static_lai[6]:
+2.0         2.0         2.0          2.0          0.0          2.0          1.5          0.2          0.0          0            // static_lai[7]:
+1.5         0.5         1.5          1.5          0.0          1.5          1.5          0.5          1.5          0            // static_lai[8]:
+1.3         0.2         0.0          1.3          0.3          1.3          1.5          1.3          1.3          0            // static_lai[9]:
+1.1         0.0         0.0          0.8          0.5          1.0          1.5          1.9          0.0          0            // static_lai[10]:
+1.0         0.0         0.0          0.7          0.8          0.5          1.5          2.1          1.1          0            // static_lai[11]:
 //===========================================================
 // CMT04 // Shrub Tundra
 //Salix     Betula      Decid        EGreen       Sedges       Forbs        Grasses      Lichens      Feather      PFT9         // pftnames:
@@ -205,19 +205,19 @@
 0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[7]: fine root allocation percentage vertically in soils (every 10 cm)  
 0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[8]: fine root allocation percentage vertically in soils (every 10 cm) 
 0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[9]: fine root allocation percentage vertically in soils (every 10 cm)
-0.93        0.00        0.07         0.05         0.04         0.04         0.02         0.29         0.77         0.           // lai: initial LAI
-1.0         0.0         0.0          0.5          1.0          0.0          1.5          0.1          1.0          0            // envlai[0]: monthly LAI for a year, used for static input of LAI
-1.1         0.0         0.0          0.3          1.5          0.0          1.5          0.2          1.5          0            // envlai[1]: monthly LAI for a year, used for static input of LAI 
-1.2         0.0         0.0          0.5          2.0          0.5          1.5          0.3          0.0          0            // envlai[2]: monthly LAI for a year, used for static input of LAI 
-1.2         0.5         1.0          1.2          1.5          1.0          1.5          0.6          0.0          0            // envlai[3]: monthly LAI for a year, used for static input of LAI
-1.3         1.3         1.9          1.3          0.3          1.3          1.5          1.3          1.3          0            // envlai[4]: monthly LAI for a year, used for static input of LAI 
-1.9         1.9         2.5          1.9          0.0          1.9          1.5          1.9          1.9          0            // envlai[5]: monthly LAI for a year, used for static input of LAI  
-2.0         2.0         2.0          2.0          0.0          2.0          1.5          0.1          0.0          0            // envlai[6]: monthly LAI for a year, used for static input of LAI 
-2.0         2.0         2.0          2.0          0.0          2.0          1.5          0.2          0.0          0            // envlai[7]: monthly LAI for a year, used for static input of LAI
-1.5         0.5         1.5          1.5          0.0          1.5          1.5          0.5          1.5          0            // envlai[8]: monthly LAI for a year, used for static input of LAI  
-1.3         0.2         0.0          1.3          0.3          1.3          1.5          1.3          1.3          0            // envlai[9]: monthly LAI for a year, used for static input of LAI
-1.1         0.0         0.0          0.8          0.5          1.0          1.5          1.9          0.0          0            // envlai[10]: monthly LAI for a year, used for static input of LAI 
-1.0         0.0         0.0          0.7          0.8          0.5          1.5          2.1          1.1          0            // envlai[11]: monthly LAI for a year, used for static input of LAI
+0.05        0.03        0.04         1.8          0.04         0.04         0.02         1.8          1.8          0.           // initial_lai: starting value for Leaf Area Index
+1.0         0.0         0.0          0.5          1.0          0.0          1.5          0.1          1.0          0            // static_lai[0]: monthly LAI for a year, used for static input of LAI
+1.1         0.0         0.0          0.3          1.5          0.0          1.5          0.2          1.5          0            // static_lai[1]:
+1.2         0.0         0.0          0.5          2.0          0.5          1.5          0.3          0.0          0            // static_lai[2]:
+1.2         0.5         1.0          1.2          1.5          1.0          1.5          0.6          0.0          0            // static_lai[3]:
+1.3         1.3         1.9          1.3          0.3          1.3          1.5          1.3          1.3          0            // static_lai[4]:
+1.9         1.9         2.5          1.9          0.0          1.9          1.5          1.9          1.9          0            // static_lai[5]:
+2.0         2.0         2.0          2.0          0.0          2.0          1.5          0.1          0.0          0            // static_lai[6]:
+2.0         2.0         2.0          2.0          0.0          2.0          1.5          0.2          0.0          0            // static_lai[7]:
+1.5         0.5         1.5          1.5          0.0          1.5          1.5          0.5          1.5          0            // static_lai[8]:
+1.3         0.2         0.0          1.3          0.3          1.3          1.5          1.3          1.3          0            // static_lai[9]:
+1.1         0.0         0.0          0.8          0.5          1.0          1.5          1.9          0.0          0            // static_lai[10]:
+1.0         0.0         0.0          0.7          0.8          0.5          1.5          2.1          1.1          0            // static_lai[11]:
 //===========================================================
 // CMT05 // Tussock Tundra // (updated 1/15/2016 JDC)
 //Betula    Decid       EGreen       Sedges       Forbs        Lichens      Feather      Sphag        PFT8         PFT9         // pftnames:
@@ -248,19 +248,19 @@
 0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[7]:
 0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[8]:
 0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[9]:
-0.125       0.125       0.125        0.125        0.125        0.125        0.125        0.125        0.00         0.00         // lai: initial LAI
-0.0         0.0         0.5          0.0          0.0          2.00         2.00         2.00          0            0           // envlai[0]: monthly lai for a year, used for static input of LAI
-0.0         0.0         0.3          0.0          0.0          2.00         2.00         2.00          0            0           // envlai[1]:   
-0.0         0.0         0.5          0.0          0.5          2.00         2.00         2.00          0            0           // envlai[2]: 
-0.5         1.0         1.2          0.5          1.0          2.00         2.00         2.00          0            0           // envlai[3]:
-1.3         1.9         1.3          1.5          1.3          2.00         2.00         2.00          0            0           // envlai[4]:
-1.9         2.5         1.9          1.5          1.9          2.00         2.00         2.00          0            0           // envlai[5]:
-2.0         2.0         2.0          1.5          2.0          2.00         2.00         2.00          0            0           // envlai[6]:
-2.0         2.0         2.0          1.5          2.0          2.00         2.00         2.00          0            0           // envlai[7]:
-0.5         1.5         1.5          1.0          1.5          2.00         2.00         2.00          0            0           // envlai[8]:
-0.2         0.0         1.3          0.5          1.3          2.00         2.00         2.00          0            0           // envlai[9]:
-0.0         0.0         0.8          0.0          1.0          2.00         2.00         2.00          0            0           // envlai[10]:
-0.0         0.0         0.7          0.0          0.5          2.00         2.00         2.00          0            0           // envlai[11]:
+0.05        0.03        1.9          0.02         0.01         1.8          2.00         1.8          0.00         0.00         // initial_lai: starting value for Leaf Area Index
+0.0         0.0         0.5          0.0          0.0          2.00         2.00         2.00          0            0           // static_lai[0]: monthly lai for a year, used for static input of LAI
+0.0         0.0         0.3          0.0          0.0          2.00         2.00         2.00          0            0           // static_lai[1]:
+0.0         0.0         0.5          0.0          0.5          2.00         2.00         2.00          0            0           // static_lai[2]:
+0.5         1.0         1.2          0.5          1.0          2.00         2.00         2.00          0            0           // static_lai[3]:
+1.3         1.9         1.3          1.5          1.3          2.00         2.00         2.00          0            0           // static_lai[4]:
+1.9         2.5         1.9          1.5          1.9          2.00         2.00         2.00          0            0           // static_lai[5]:
+2.0         2.0         2.0          1.5          2.0          2.00         2.00         2.00          0            0           // static_lai[6]:
+2.0         2.0         2.0          1.5          2.0          2.00         2.00         2.00          0            0           // static_lai[7]:
+0.5         1.5         1.5          1.0          1.5          2.00         2.00         2.00          0            0           // static_lai[8]:
+0.2         0.0         1.3          0.5          1.3          2.00         2.00         2.00          0            0           // static_lai[9]:
+0.0         0.0         0.8          0.0          1.0          2.00         2.00         2.00          0            0           // static_lai[10]:
+0.0         0.0         0.7          0.0          0.5          2.00         2.00         2.00          0            0           // static_lai[11]:
 //===========================================================
 // CMT06 // Wet Sedge Tundra
 //Decid     Sedges      Grasses      Forbs        Lichens      Feather      Sphag        PFT7         PFT8         PFT9         // pftnames
@@ -291,19 +291,19 @@
 0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[7]:
 0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[8]:
 0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[9]:
-0.143       0.143       0.143        0.143        0.142        0.142        0.142        0.00         0.00         0.00         // lai: initial LAI
-1.0         0.0         0.0          0.5          1.5          1.5          1.5          0.00         0.00         0.00         // envlai[0]: monthly LAI for a year, used for static input of LAI
-1.1         0.0         0.0          0.3          1.5          1.5          1.5          0.00         0.00         0.00         // envlai[1]: monthly LAI for a year, used for static input of LAI 
-1.2         0.0         0.0          0.5          1.5          1.5          1.5          0.00         0.00         0.00         // envlai[2]: monthly LAI for a year, used for static input of LAI 
-1.2         0.5         1.0          1.2          1.5          1.5          1.5          0.00         0.00         0.00         // envlai[3]: monthly LAI for a year, used for static input of LAI
-1.3         1.3         1.9          1.3          1.5          1.5          1.5          0.00         0.00         0.00         // envlai[4]: monthly LAI for a year, used for static input of LAI 
-1.9         1.9         2.5          1.9          1.5          1.5          1.5          0.00         0.00         0.00         // envlai[5]: monthly LAI for a year, used for static input of LAI  
-2.0         2.0         2.0          2.0          1.5          1.5          1.5          0.00         0.00         0.00         // envlai[6]: monthly LAI for a year, used for static input of LAI 
-2.0         2.0         2.0          2.0          1.5          1.5          1.5          0.00         0.00         0.00         // envlai[7]: monthly LAI for a year, used for static input of LAI
-1.5         0.5         1.5          1.5          1.5          1.5          1.5          0.00         0.00         0.00         // envlai[8]: monthly LAI for a year, used for static input of LAI  
-1.3         0.2         0.0          1.3          1.5          1.5          1.5          0.00         0.00         0.00         // envlai[9]: monthly LAI for a year, used for static input of LAI
-1.1         0.0         0.0          0.8          1.5          1.5          1.5          0.00         0.00         0.00         // envlai[10]: monthly LAI for a year, used for static input of LAI 
-1.0         0.0         0.0          0.7          1.5          1.5          1.5          0.00         0.00         0.00         // envlai[11]: monthly LAI for a year, used for static input of LAI
+0.01        0.03        0.02         0.01         2.0          1.9          2.1          0.00         0.00         0.00         // initial_lai: starting value for Leaf Area Index
+1.0         0.0         0.0          0.5          1.5          1.5          1.5          0.00         0.00         0.00         // static_lai[0]: monthly LAI for a year, used for static input of LAI
+1.1         0.0         0.0          0.3          1.5          1.5          1.5          0.00         0.00         0.00         // static_lai[1]:
+1.2         0.0         0.0          0.5          1.5          1.5          1.5          0.00         0.00         0.00         // static_lai[2]:
+1.2         0.5         1.0          1.2          1.5          1.5          1.5          0.00         0.00         0.00         // static_lai[3]:
+1.3         1.3         1.9          1.3          1.5          1.5          1.5          0.00         0.00         0.00         // static_lai[4]:
+1.9         1.9         2.5          1.9          1.5          1.5          1.5          0.00         0.00         0.00         // static_lai[5]:
+2.0         2.0         2.0          2.0          1.5          1.5          1.5          0.00         0.00         0.00         // static_lai[6]:
+2.0         2.0         2.0          2.0          1.5          1.5          1.5          0.00         0.00         0.00         // static_lai[7]:
+1.5         0.5         1.5          1.5          1.5          1.5          1.5          0.00         0.00         0.00         // static_lai[8]:
+1.3         0.2         0.0          1.3          1.5          1.5          1.5          0.00         0.00         0.00         // static_lai[9]:
+1.1         0.0         0.0          0.8          1.5          1.5          1.5          0.00         0.00         0.00         // static_lai[10]:
+1.0         0.0         0.0          0.7          1.5          1.5          1.5          0.00         0.00         0.00         // static_lai[11]:
 //===========================================================
 // CMT07 // Heath Tundra
 //Decid     EGreen      Forbs        Lichens      Grasses      Moss         PFT6         PFT7         PFT8         PFT9         // pftnames:
@@ -334,19 +334,19 @@
 0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[7]:
 0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[8]:
 0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[9]:
-0.93        0.00        0.07         0.05         0.04         0.04         0.00         0.00         0.00         0.00         // lai: initial LAI
-1.0         0.0         0.0          0.5          1.0          0.0          0.00         0.00         0.00         0.00         // envlai[0]: monthly LAI for a year, used for static input of LAI
-1.1         0.0         0.0          0.3          1.5          0.0          0.00         0.00         0.00         0.00         // envlai[1]: monthly LAI for a year, used for static input of LAI 
-1.2         0.0         0.0          0.5          2.0          0.5          0.00         0.00         0.00         0.00         // envlai[2]: monthly LAI for a year, used for static input of LAI 
-1.2         0.5         1.0          1.2          1.5          1.0          0.00         0.00         0.00         0.00         // envlai[3]: monthly LAI for a year, used for static input of LAI
-1.3         1.3         1.9          1.3          0.3          1.3          0.00         0.00         0.00         0.00         // envlai[4]: monthly LAI for a year, used for static input of LAI 
-1.9         1.9         2.5          1.9          0.0          1.9          0.00         0.00         0.00         0.00         // envlai[5]: monthly LAI for a year, used for static input of LAI  
-2.0         2.0         2.0          2.0          0.0          2.0          0.00         0.00         0.00         0.00         // envlai[6]: monthly LAI for a year, used for static input of LAI 
-2.0         2.0         2.0          2.0          0.0          2.0          0.00         0.00         0.00         0.00         // envlai[7]: monthly LAI for a year, used for static input of LAI
-1.5         0.5         1.5          1.5          0.0          1.5          0.00         0.00         0.00         0.00         // envlai[8]: monthly LAI for a year, used for static input of LAI  
-1.3         0.2         0.0          1.3          0.3          1.3          0.00         0.00         0.00         0.00         // envlai[9]: monthly LAI for a year, used for static input of LAI
-1.1         0.0         0.0          0.8          0.5          1.0          0.00         0.00         0.00         0.00         // envlai[10]: monthly LAI for a year, used for static input of LAI 
-1.0         0.0         0.0          0.7          0.8          0.5          0.00         0.00         0.00         0.00         // envlai[11]: monthly LAI for a year, used for static input of LAI
+0.01        1.8         0.07         1.5          0.04         2.0          0.00         0.00         0.00         0.00         // initial_lai: starting value for Leaf Area Index
+1.0         0.0         0.0          0.5          1.0          0.0          0.00         0.00         0.00         0.00         // static_lai[0]: monthly LAI for a year, used for static input of LAI
+1.1         0.0         0.0          0.3          1.5          0.0          0.00         0.00         0.00         0.00         // static_lai[1]:
+1.2         0.0         0.0          0.5          2.0          0.5          0.00         0.00         0.00         0.00         // static_lai[2]:
+1.2         0.5         1.0          1.2          1.5          1.0          0.00         0.00         0.00         0.00         // static_lai[3]:
+1.3         1.3         1.9          1.3          0.3          1.3          0.00         0.00         0.00         0.00         // static_lai[4]:
+1.9         1.9         2.5          1.9          0.0          1.9          0.00         0.00         0.00         0.00         // static_lai[5]:
+2.0         2.0         2.0          2.0          0.0          2.0          0.00         0.00         0.00         0.00         // static_lai[6]:
+2.0         2.0         2.0          2.0          0.0          2.0          0.00         0.00         0.00         0.00         // static_lai[7]:
+1.5         0.5         1.5          1.5          0.0          1.5          0.00         0.00         0.00         0.00         // static_lai[8]:
+1.3         0.2         0.0          1.3          0.3          1.3          0.00         0.00         0.00         0.00         // static_lai[9]:
+1.1         0.0         0.0          0.8          0.5          1.0          0.00         0.00         0.00         0.00         // static_lai[10]:
+1.0         0.0         0.0          0.7          0.8          0.5          0.00         0.00         0.00         0.00         // static_lai[11]:
 //===========================================================
 // CMT12 // Lowland Boreal Wet Shrubland
 //DecShrub   EvrShrub     DecTree      EvrTree      Forbs        Gram        Feather      Lichen      Equisetum      PFT9         // pftnames:
@@ -377,19 +377,19 @@
 0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[7]:
 0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[8]:
 0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[9]:
-0.125        0.125        0.125        0.125        0.125        0.125        0.125        0.125        0.00         0.00         // lai: initial LAI
-0.0          0.5          0.0          0.5          0.0          0.0          2.00         2.00         0.0          0             // envlai[0]: monthly lai for a year, used for static input of LAI
-0.0          0.3          0.0          0.3          0.0          0.0          2.00         2.00         0.0          0             // envlai[1]:   
-0.0          0.5          0.0          0.5          0.5          0.0          2.00         2.00         0.5          0             // envlai[2]: 
-1.0          1.2          1.0          1.2          1.0          0.5          2.00         2.00         1.0          0             // envlai[3]:
-1.9          1.3          1.9          1.3          1.3          1.5          2.00         2.00         1.3          0             // envlai[4]:
-2.5          1.9          2.5          1.9          1.9          1.5          2.00         2.00         1.9          0             // envlai[5]:
-2.0          2.0          2.0          2.0          2.0          1.5          2.00         2.00         2.0          0             // envlai[6]:
-2.0          2.0          2.0          2.0          2.0          1.5          2.00         2.00         2.0          0           // envlai[7]:
-1.5          1.5          1.5          1.5          1.5          1.0          2.00         2.00         1.5          0           // envlai[8]:
-0.0          1.3          0.0          1.3          1.3          0.5          2.00         2.00         1.3          0           // envlai[9]:
-0.0          0.8          0.0          0.8          1.0          0.0          2.00         2.00         0.8          0           // envlai[10]:
-0.0          0.7          0.0          0.7          0.5          0.0          2.00         2.00         0.7          0           // envlai[11]:
+0.125        0.125        0.125        0.125        0.125        0.125        0.125        0.125        0.00         0.00         // initial_lai: starting value for Leaf Area Index
+0.0          0.5          0.0          0.5          0.0          0.0          2.00         2.00         0.0          0             // static_lai[0]: monthly lai for a year, used for static input of LAI
+0.0          0.3          0.0          0.3          0.0          0.0          2.00         2.00         0.0          0             // static_lai[1]:
+0.0          0.5          0.0          0.5          0.5          0.0          2.00         2.00         0.5          0             // static_lai[2]:
+1.0          1.2          1.0          1.2          1.0          0.5          2.00         2.00         1.0          0             // static_lai[3]:
+1.9          1.3          1.9          1.3          1.3          1.5          2.00         2.00         1.3          0             // static_lai[4]:
+2.5          1.9          2.5          1.9          1.9          1.5          2.00         2.00         1.9          0             // static_lai[5]:
+2.0          2.0          2.0          2.0          2.0          1.5          2.00         2.00         2.0          0             // static_lai[6]:
+2.0          2.0          2.0          2.0          2.0          1.5          2.00         2.00         2.0          0           // static_lai[7]:
+1.5          1.5          1.5          1.5          1.5          1.0          2.00         2.00         1.5          0           // static_lai[8]:
+0.0          1.3          0.0          1.3          1.3          0.5          2.00         2.00         1.3          0           // static_lai[9]:
+0.0          0.8          0.0          0.8          1.0          0.0          2.00         2.00         0.8          0           // static_lai[10]:
+0.0          0.7          0.0          0.7          0.5          0.0          2.00         2.00         0.7          0           // static_lai[11]:
 //===========================================================
 // CMT20 // EML Shrub Tundra
 //Betnan     Carex        Ericoid      Feather      Lichen      OthMoss       Rubcha       Misc1        Misc2        Misc3        // names: comments
@@ -420,19 +420,19 @@
 0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[7]:
 0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[8]:
 0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[9]:
-0.00         0.04         0.05         0.77         0.29         0.77         0.07         0.00         0.00         0.00         // lai: initial LAI
-0.0          1.0          0.5          1.0          0.1          1.0          0.0          0.0          0.0          0.0          // envlai[0]: monthly lai for a year, used for static input of LAI
-0.0          1.5          0.3          1.5          0.2          1.5          0.0          0.0          0.0          0.0          // envlai[1]:   
-0.0          2.0          0.5          0.0          0.3          0.0          0.0          0.0          0.0          0.0          // envlai[2]: 
-0.5          1.5          1.2          0.0          0.6          0.0          1.0          0.0          0.0          0.0          // envlai[3]:
-1.3          0.3          1.3          1.3          1.3          1.3          1.9          0.0          0.0          0.0          // envlai[4]:
-1.9          0.0          1.9          1.9          1.9          1.9          2.5          0.0          0.0          0.0          // envlai[5]:
-2.0          0.0          2.0          0.0          0.1          0.0          2.0          0.0          0.0          0.0          // envlai[6]:
-2.0          0.0          2.0          0.0          0.2          0.0          2.0          0.0          0.0          0.0          // envlai[7]:
-0.5          0.0          1.5          1.5          0.5          1.5          1.5          0.0          0.0          0.0          // envlai[8]:
-0.2          0.3          1.3          1.3          1.3          1.3          0.0          0.0          0.0          0.0          // envlai[9]:
-0.0          0.5          0.8          0.0          1.9          0.0          0.0          0.0          0.0          0.0          // envlai[10]:
-0.0          0.8          0.7          1.1          2.1          1.1          0.0          0.0          0.0          0.0          // envlai[11]:
+0.00         0.04         0.05         0.77         0.29         0.77         0.07         0.00         0.00         0.00         // initial_lai: starting value for Leaf Area Index
+0.0          1.0          0.5          1.0          0.1          1.0          0.0          0.0          0.0          0.0          // static_lai[0]: monthly lai for a year, used for static input of LAI
+0.0          1.5          0.3          1.5          0.2          1.5          0.0          0.0          0.0          0.0          // static_lai[1]:
+0.0          2.0          0.5          0.0          0.3          0.0          0.0          0.0          0.0          0.0          // static_lai[2]:
+0.5          1.5          1.2          0.0          0.6          0.0          1.0          0.0          0.0          0.0          // static_lai[3]:
+1.3          0.3          1.3          1.3          1.3          1.3          1.9          0.0          0.0          0.0          // static_lai[4]:
+1.9          0.0          1.9          1.9          1.9          1.9          2.5          0.0          0.0          0.0          // static_lai[5]:
+2.0          0.0          2.0          0.0          0.1          0.0          2.0          0.0          0.0          0.0          // static_lai[6]:
+2.0          0.0          2.0          0.0          0.2          0.0          2.0          0.0          0.0          0.0          // static_lai[7]:
+0.5          0.0          1.5          1.5          0.5          1.5          1.5          0.0          0.0          0.0          // static_lai[8]:
+0.2          0.3          1.3          1.3          1.3          1.3          0.0          0.0          0.0          0.0          // static_lai[9]:
+0.0          0.5          0.8          0.0          1.9          0.0          0.0          0.0          0.0          0.0          // static_lai[10]:
+0.0          0.8          0.7          1.1          2.1          1.1          0.0          0.0          0.0          0.0          // static_lai[11]:
 //===========================================================
 // CMT21 // EML Tussock Tundra
 //Betnan     Carex        Ericoid      Erivag       Feather     Lichen       OtherMoss    Rubcha      Sphagnum       PFT9         // pftnames:
@@ -463,16 +463,16 @@
 0.00         0.210        0.00         0.00         0.00         0.00         0.00         0.489        0.00         0.00         // frprod[7]:
 0.00         0.243        0.00         0.00         0.00         0.00         0.00         0.162        0.00         0.00         // frprod[8]:
 0.00         0.080        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[9]:
-0.125        0.125        0.125        0.125        0.125        0.125        0.125        0.125        0.125        0.00         // lai: initial LAI
-0.0          0.0          0.5          0.0          2.0          2.0          2.0          0.0          2.0          0.0          // envlai[0]: monthly lai for a year, used for static input of LAI
-0.0          0.0          0.3          0.0          2.0          2.0          2.0          0.0          2.0          0.0          // envlai[1]:   
-0.0          0.0          0.5          0.0          2.0          2.0          2.0          0.0          2.0          0.0          // envlai[2]: 
-0.5          0.5          1.2          0.5          2.0          2.0          2.0          1.0          2.0          0.0          // envlai[3]:
-1.3          1.5          1.3          1.5          2.0          2.0          2.0          1.9          2.0          0.0          // envlai[4]:
-1.9          1.5          1.9          1.5          2.0          2.0          2.0          2.5          2.0          0.0          // envlai[5]:
-2.0          1.5          2.0          1.5          2.0          2.0          2.0          2.0          2.0          0.0          // envlai[6]:
-2.0          1.5          2.0          1.5          2.0          2.0          2.0          2.0          2.0          0.0          // envlai[7]:
-0.5          1.0          1.5          1.0          2.0          2.0          2.0          1.5          2.0          0.0          // envlai[8]:
-0.2          0.5          1.3          0.5          2.0          2.0          2.0          0.0          2.0          0.0          // envlai[9]:
-0.0          0.0          0.8          0.0          2.0          2.0          2.0          0.0          2.0          0.0          // envlai[10]:
-0.0          0.0          0.7          0.0          2.0          2.0          2.0          0.0          2.0          0.0          // envlai[11]:
+0.125        0.125        0.125        0.125        0.125        0.125        0.125        0.125        0.125        0.00         // initial_lai: starting value for Leaf Area Index
+0.0          0.0          0.5          0.0          2.0          2.0          2.0          0.0          2.0          0.0          // static_lai[0]: monthly lai for a year, used for static input of LAI
+0.0          0.0          0.3          0.0          2.0          2.0          2.0          0.0          2.0          0.0          // static_lai[1]:
+0.0          0.0          0.5          0.0          2.0          2.0          2.0          0.0          2.0          0.0          // static_lai[2]:
+0.5          0.5          1.2          0.5          2.0          2.0          2.0          1.0          2.0          0.0          // static_lai[3]:
+1.3          1.5          1.3          1.5          2.0          2.0          2.0          1.9          2.0          0.0          // static_lai[4]:
+1.9          1.5          1.9          1.5          2.0          2.0          2.0          2.5          2.0          0.0          // static_lai[5]:
+2.0          1.5          2.0          1.5          2.0          2.0          2.0          2.0          2.0          0.0          // static_lai[6]:
+2.0          1.5          2.0          1.5          2.0          2.0          2.0          2.0          2.0          0.0          // static_lai[7]:
+0.5          1.0          1.5          1.0          2.0          2.0          2.0          1.5          2.0          0.0          // static_lai[8]:
+0.2          0.5          1.3          0.5          2.0          2.0          2.0          0.0          2.0          0.0          // static_lai[9]:
+0.0          0.0          0.8          0.0          2.0          2.0          2.0          0.0          2.0          0.0          // static_lai[10]:
+0.0          0.0          0.7          0.0          2.0          2.0          2.0          0.0          2.0          0.0          // static_lai[11]:

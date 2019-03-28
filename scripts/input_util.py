@@ -116,7 +116,7 @@ def crop_attr_string(ys='', xs='', yo='', xo='', msg=''):
 
 def crop_file(infile, outfile, y, x, ysize, xsize):
   '''
-  Creates a new `outfile` and copys data from the `infile` to the new outfile
+  Creates a new `outfile` and copies data from the `infile` to the new `outfile`
   according to `y`, `x`, and respective size parameters. Copys all attributes
   and adds a new attribute describing this crop step.
   '''
@@ -229,7 +229,11 @@ def climate_gap_count_plot(args):
         dataset = hds.variables[v][:] # Should be a 3D numpy array (time, y, x)
         if type(dataset) != np.ma.core.MaskedArray:
           dataset = np.ma.core.MaskedArray(dataset, np.zeros(dataset.shape, dtype = bool))
-
+        #from IPython import embed; embed()
+        #if dataset.mask == False:
+        if not (np.ma.is_masked(dataset)):
+          # No bad data, set mask to shape of first slice of dataset
+          dataset.mask = np.zeros(dataset.shape[1:], dtype=bool)
         img = ax.imshow(
             np.ma.masked_greater_equal(
                 np.apply_along_axis(np.count_nonzero, 0, dataset.mask),
@@ -252,17 +256,29 @@ def climate_gap_count_plot(args):
 
 def climate_ts_plot(args):
   '''
-  Make time series plots of the 4 climate driver variables for a single pixel.
+  Make time series plots of the 4 climate driver variables.
 
-  Makes one figure for historic and one figure for projected climate file. 
-  Each figure will have 4 plots, one for each of the expected climate driver
-  variables.
+  There are 2 modes controlled by the value of `args.type`. In `raw` mode, 2 
+  figures are generated, one for historic and one for projected data (with the
+  `args.stitch` argument, the data is concatenated along the temporal 
+  dimension and only one figure is shown). Each figure has 4 subplots, one for 
+  each variable. The data on each plot is shown directly from the input files,
+  so it is monthly resolution. The plot is generally too dense to read without
+  zooming in, but ALL the data is shown, un-adultered.
+
+  In `spatial-temporal-summary` mode, one figure is created (the data is
+  automatically stitched along the temporal dimension) with one subplot for each
+  variable. The data that is shown is also averaged over the spatial dimensions
+  of the input files AND resampled to an annual resolution along the time
+  dimension.
   '''
 
   # Keep imports of graphic stuff here so that the rest of the script
   # is usable even w/o matplotlib installed.
   import matplotlib.pyplot as plt
   import matplotlib.gridspec as gridspec
+  import matplotlib.ticker as ticker
+  import pandas as pd
 
   CLIMATE_FILES = ['historic-climate.nc', 'projected-climate.nc']
   VARS = ['tair', 'precip', 'nirr', 'vapor_press']
@@ -273,24 +289,187 @@ def climate_ts_plot(args):
 
   gs = gridspec.GridSpec(ROWS, COLS)
 
-  for i, v in enumerate(VARS):
-    ax = plt.subplot(gs[i,0])
-    with nc.Dataset(os.path.join(args.input_folder, CLIMATE_FILES[0])) as hds:
-      ax.plot(hds.variables[v][:,y, x])
-      ax.set_title(v)
-  plt.suptitle(os.path.join(args.input_folder, CLIMATE_FILES[0]))
-  plt.show(block=True)
+  if args.type == 'spatial-temporal-summary':
 
-  plt.title(CLIMATE_FILES[1])
-  for i, v in enumerate(VARS):
-    ax = plt.subplot(gs[i,0])
-    with nc.Dataset(os.path.join(args.input_folder, CLIMATE_FILES[1])) as hds:
-      ax.plot(hds.variables[v][:,y, x])
-      ax.set_title(v)
-  plt.suptitle(os.path.join(args.input_folder, CLIMATE_FILES[1]))
-  plt.show(block=True)
+    if args.stitch:
+      print "Warning: Ignoring command line argument --stitch"
+    hds = nc.Dataset(os.path.join(args.input_folder, CLIMATE_FILES[0]))
+    pds = nc.Dataset(os.path.join(args.input_folder, CLIMATE_FILES[1]))
+
+    end_hist = nc.num2date(hds.variables['time'][-1], hds.variables['time'].units, hds.variables['time'].calendar)
+
+    htcV = hds.variables['time']
+    ptcV = pds.variables['time']
+
+    hidx = pd.DatetimeIndex(
+        start=nc.num2date(htcV[0], htcV.units, htcV.calendar).strftime(),
+        end=nc.num2date(htcV[-1], htcV.units, htcV.calendar).strftime(),
+        freq='MS' # <-- month starts
+    )
+    pidx = pd.DatetimeIndex(
+        start=nc.num2date(ptcV[0], ptcV.units, ptcV.calendar).strftime(),
+        end=nc.num2date(ptcV[-1], ptcV.units, ptcV.calendar).strftime(),
+        freq='MS' # <-- month starts
+    )
+
+    full_index = pd.DatetimeIndex(
+        start=nc.num2date(htcV[0], htcV.units, htcV.calendar).strftime(),
+        end=nc.num2date(ptcV[-1], ptcV.units, ptcV.calendar).strftime(),
+        freq='MS' # <-- month starts
+    )
+
+    df = pd.DataFrame({}, index=full_index)
+    for var in VARS:
+      hS = pd.Series(hds.variables[var][:,y,x], index=hidx).reindex(full_index)
+      pS = pd.Series(pds.variables[var][:,y,x], index=pidx).reindex(full_index)
+      hckey = 'historic {}'.format(var)
+      pckey = 'projected {}'.format(var)
+      df[hckey] = hS
+      df[pckey] = pS
 
 
+    # Take means across spatial dimensions. Results in one timeseries for each
+    # variable 
+    for v in VARS:
+      '''
+      >>> time,Y,X = (4,2,2)
+      >>> np.arange(time*Y*X).reshape((time,Y,X))
+      array([[[ 0,  1],
+              [ 2,  3]],
+
+             [[ 4,  5],
+              [ 6,  7]],
+
+             [[ 8,  9],
+              [10, 11]],
+
+             [[12, 13],
+              [14, 15]]])
+      >>> a.reshape((-1, Y*X))
+      array([[ 0,  1,  2,  3],
+             [ 4,  5,  6,  7],
+             [ 8,  9, 10, 11],
+             [12, 13, 14, 15]])
+      >>> np.average(a.reshape((-1, Y*X)), axis=1)
+      array([ 1.5,  5.5,  9.5, 13.5])
+      '''
+
+      hncV = hds.variables[v]
+      pncV = pds.variables[v]
+
+      spatial_flat_hncV = hncV[:].reshape( (-1, len(hds.variables['Y']) * len(hds.variables['X'])) )
+      spatial_flat_pncV = pncV[:].reshape( (-1, len(pds.variables['Y']) * len(pds.variables['X'])) )
+
+      avh = np.mean(spatial_flat_hncV, axis=1)
+      avp = np.mean(spatial_flat_pncV, axis=1)
+
+      hS = pd.Series(avh, index=hidx).reindex(full_index)
+      pS = pd.Series(avp, index=pidx).reindex(full_index)
+
+      hckey = 'h sp mean {}'.format(v)
+      pckey = 'p sp mean {}'.format(v)
+
+      df[hckey] = hS
+      df[pckey] = pS
+
+    # Get annual stats
+    rsmpl_mean = df.resample('A').mean()
+    rsmpl_std = df.resample('A').std()
+    rsmpl_sum = df.resample('A').sum()
+
+    fig = plt.figure(figsize=(11,8.5))
+    plt_title = "\n".join(("Annual Averages", args.input_folder, ",".join(CLIMATE_FILES)))
+    fig.suptitle(plt_title) 
+
+    axes = []
+    for i, var in enumerate(VARS):
+      if i > 0:
+        ax = plt.subplot(gs[i,0], sharex=axes[0])
+        axes.append(ax)
+      else:
+        ax = plt.subplot(gs[i,0])
+        axes.append(ax)
+
+      hckey = 'historic {}'.format(var)
+      pckey = 'projected {}'.format(var)
+
+      ax.set_title(var)
+      ax.set_ylabel(hds.variables[var].units)
+
+      if var == 'precip' or var == 'nirr':
+        ax.plot(rsmpl_sum.index, rsmpl_sum[hckey])
+        ax.plot(rsmpl_sum.index, rsmpl_sum[pckey])
+        ax.set_ylabel(hds.variables[var].units.replace('month', 'year'))
+
+      else:
+        ax.plot(rsmpl_mean.index, rsmpl_mean[hckey])
+        ax.plot(rsmpl_mean.index, rsmpl_mean[pckey])
+
+      #ax.plot(rsmpl_mean.index, rsmpl_mean['h sp mean {}'.format(var)], color='red', linewidth=.5)
+      #ax.fill_between(rsmpl_std.index, rsmpl_std['h sp mean'], 
+
+    for i, ax in enumerate(axes):
+      if ax != axes[-1]:
+        plt.setp(ax.get_xticklabels(), visible=False)
+
+    plt.show(block=True)
+
+  elif args.type == 'raw':
+
+    if args.stitch:
+
+      hds = nc.Dataset(os.path.join(args.input_folder, CLIMATE_FILES[0]))
+      pds = nc.Dataset(os.path.join(args.input_folder, CLIMATE_FILES[1]))
+
+      axes = []
+      for i, v in enumerate(VARS):
+        full_ds = np.concatenate((hds.variables[v][:,y,x], pds.variables[v][:,y,x]), axis=0)
+        if i > 0:
+          ax = plt.subplot(gs[i,0], sharex=axes[0])
+          axes.append(ax)
+        else:
+          ax = plt.subplot(gs[i,0])
+          axes.append(ax)
+        ax.plot(full_ds[:], marker='o')
+        ax.set_title(v)
+
+      # Modify all axes to add annual grid...
+      try:
+        _ = (a for a in axes) # just check that axes is a list.
+        for ax in axes:
+          ax.xaxis.set_major_locator(ticker.MultipleLocator(12))
+          ax.grid()
+      except TypeError:
+        print axes, 'is not iterable; setting grid on single axes instance'
+        axes.xaxis.set_major_locator(ticker.MultipleLocator(12))
+        axes.grid()
+
+      plt.suptitle("{}: {},{}".format(args.input_folder, CLIMATE_FILES[0], CLIMATE_FILES[1]))
+      plt.show(block=True)
+
+      hds.close()
+      pds.close()
+
+    else:
+      for i, v in enumerate(VARS):
+        ax = plt.subplot(gs[i,0])
+        with nc.Dataset(os.path.join(args.input_folder, CLIMATE_FILES[0])) as hds:
+          ax.plot(hds.variables[v][:,y, x])
+          ax.set_title(v)
+      plt.suptitle(os.path.join(args.input_folder, CLIMATE_FILES[0]))
+      plt.show(block=True)
+
+      plt.title(CLIMATE_FILES[1])
+      for i, v in enumerate(VARS):
+        ax = plt.subplot(gs[i,0])
+        with nc.Dataset(os.path.join(args.input_folder, CLIMATE_FILES[1])) as hds:
+          ax.plot(hds.variables[v][:,y, x])
+          ax.set_title(v)
+      plt.suptitle(os.path.join(args.input_folder, CLIMATE_FILES[1]))
+      plt.show(block=True)
+
+  else:
+    print "Cmd line arg should be checked such that you can't arrive here."
 
 
 def tunnel_fast(latvar,lonvar,lat0,lon0):
@@ -366,13 +545,17 @@ if __name__ == '__main__':
   crop_parser.add_argument('input_folder', help="Path to a folder containing a set of dvmdostem inputs.")
 
   # EXAMPLES
-  # ./input_utils.py crop --yx 0 0 --ysize 1 --xsize 1 DATA/Toolik_10x10
+  # ./input_utils.py crop --yx 0 0 --ysize 1 --xsize 1 demo-data/cru-ts40_ar5_rcp85_mri-cgcm3_Toolik_10x10
 
   climate_ts_plot_parser = subparsers.add_parser('climate-ts-plot', help=textwrap.dedent('''\
     Quick 'n dirty time series plots of the 4 climate driver variables for a 
     single pixel. Makes 2 figures, one for historic, one for projected.
     '''))
+  climate_ts_plot_parser.add_argument('--type', choices=['spatial-temporal-summary', 'raw'], required=True, help="")
   climate_ts_plot_parser.add_argument('--yx', type=int, nargs=2, required=True, help="The Y, X position of the pixel to plot")
+  climate_ts_plot_parser.add_argument('--stitch', action='store_true', help="Attempt to stitch together the historic and projected data along the time axis")
+  #climate_ts_plot_parser.add_argument('--yrs-slice', type=?? help="")
+
   climate_ts_plot_parser.add_argument('input_folder', help="Path to a folder containing a set of dvmdostem inputs.")
 
   climate_gap_count_plot_parser = subparsers.add_parser('climate-gap-plot',
@@ -425,14 +608,39 @@ if __name__ == '__main__':
       #target = bnza_lter
       target = {'lat':args.iyix_from_latlon[0], 'lon':args.iyix_from_latlon[1]}
       iy,ix = tunnel_fast(latvar, lonvar, target['lat'], target['lon'])
+      iy_fUL = len(ncfile.dimensions['y'])-iy
       print('Target lat, lon:', target['lat'], target['lon'])
       print('Delta with target lat, lon:', target['lat'] - latvar[iy,ix], target['lon'] - lonvar[iy,ix])
       print('lat, lon of closest match:', latvar[iy,ix], lonvar[iy,ix])
       print('indices of closest match iy, ix (FROM LOWER left):', iy, ix)
-      print('indices of closest match iy, ix (FROM UPPER left):', len(ncfile.dimensions['y'])-iy, ix)
+      print('indices of closest match iy, ix (FROM UPPER left):', iy_fUL, ix)
       print('** NOTE: Use coords FROM UPPER LEFT to build/crop a new dataset with that pixel at the LOWER LEFT corner of the dataset!')
+      print('''
+
+      NOTE:
+      When gdal reads .tif files it uses the UPPER LEFT corner of the UPPER LEFT
+      pixel as the origin. So the 0,0 pixel is the UPPER LEFT corner.
+
+      When gdal_translate converts to netcdf, and the file is viewed with ncview
+      the (i,j) pixel offsets are from the LOWER LEFT of the image. 
+
+      When using the create_region_input.py script to select regions from the 
+      SNAP tif files, use the following table to figure out what offsets to pass.
+
+      Puts your "pixel of interest" at the desired place within the cropped region.
+      =============================================================================
+
+        @ UL of cropped region:                      iy={iy:}            ix={ix:}
+        @ LL of cropped region:                      iy=({iy:}-YSIZE)+1  ix={ix:}
+        @ LR of cropped region:                      iy=({iy:}-YSIZE)+1  ix=({ix:}-XSIZE)+1
+        @ UR of cropped region:                      iy={iy:}            ix=({ix:}-XSIZE)+1
+
+        @ approx center of cropped region:           iy={iy:}-(YSIZE/2)  ix={ix:}-(XSIZE/2)
+      '''.format(iy=iy_fUL, ix=ix))
+      print()
+
       ncfile.close()
-      #os.remove(TMP_NC_FILE)
+      os.remove(TMP_NC_FILE)
       exit()
 
 

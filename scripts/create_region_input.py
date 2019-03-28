@@ -9,6 +9,7 @@ import shutil
 
 import multiprocessing as mp
 
+import configobj
 import argparse
 import textwrap
 import os
@@ -17,9 +18,6 @@ import netCDF4
 
 import datetime as dt
 import numpy as np
-import pandas as pd
-
-from osgeo import gdal
 
 import glob
 
@@ -124,9 +122,13 @@ def make_co2_file(filename):
     
   # Data Variables
   co2 = new_ncfile.createVariable('co2', np.float32, ('year',))
-    
+
 
   print " --> NOTE: Hard-coding the values that were just ncdumped from the old file..."
+  print " --> NOTE: Adding new values for 2010-2017. Using data from here:"
+  print "           https://www.esrl.noaa.gov/gmd/ccgg/trends/data.html"
+  print "           direct ftp link:"
+  print "           ftp://aftp.cmdl.noaa.gov/products/trends/co2/co2_annmean_mlo.txt"
   co2[:] = [ 296.311, 296.661, 297.04, 297.441, 297.86, 298.29, 298.726, 299.163,
     299.595, 300.016, 300.421, 300.804, 301.162, 301.501, 301.829, 302.154, 
     302.48, 302.808, 303.142, 303.482, 303.833, 304.195, 304.573, 304.966, 
@@ -140,7 +142,8 @@ def make_co2_file(filename):
     338.925, 340.065, 341.79, 343.33, 344.67, 346.075, 347.845, 350.055, 
     351.52, 352.785, 354.21, 355.225, 356.055, 357.55, 359.62, 361.69, 
     363.76, 365.83, 367.9, 368, 370.1, 372.2, 373.6943, 375.3507, 377.0071, 
-    378.6636, 380.5236, 382.3536, 384.1336 ]
+    378.6636, 380.5236, 382.3536, 384.1336, 389.90, 391.65, 393.85, 396.52,
+    398.65, 400.83, 404.24, 406.55 ]
 
   yearV[:] = [ 1901, 1902, 1903, 1904, 1905, 1906, 1907, 1908, 1909, 1910, 1911,
     1912, 1913, 1914, 1915, 1916, 1917, 1918, 1919, 1920, 1921, 1922, 1923, 
@@ -151,7 +154,7 @@ def make_co2_file(filename):
     1972, 1973, 1974, 1975, 1976, 1977, 1978, 1979, 1980, 1981, 1982, 1983, 
     1984, 1985, 1986, 1987, 1988, 1989, 1990, 1991, 1992, 1993, 1994, 1995, 
     1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 
-    2008, 2009 ]
+    2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017 ]
 
   new_ncfile.source = source_attr_string()
   new_ncfile.close()
@@ -524,7 +527,7 @@ def fill_veg_file(if_name, xo, yo, xs, ys, out_dir, of_name):
 def fill_climate_file(start_yr, yrs, xo, yo, xs, ys,
                       out_dir, of_name, sp_ref_file,
                       in_tair_base, in_prec_base, in_rsds_base, in_vapo_base,
-                      time_coord_var, model='', scen=''):
+                      time_coord_var, model='', scen='', cleanup_tmpfiles=True):
 
   # create short handle for output file
   masterOutFile = os.path.join(out_dir, of_name)
@@ -541,6 +544,15 @@ def fill_climate_file(start_yr, yrs, xo, yo, xs, ys,
   tmpfile = '/tmp/temporary-file-with-spatial-info.nc'
   smaller_tmpfile = '/tmp/smaller-temporary-file-with-spatial-info.nc'
   print "Creating a temporary file with LAT and LON variables: ", tmpfile
+  print "------------------------"
+  print type(sp_ref_file), type(tmpfile)
+  print sp_ref_file, tmpfile
+  print "------------------------"
+  if type(sp_ref_file) == tuple:
+    sp_ref_file = sp_ref_file[0]
+  elif type(sp_ref_file) == str:
+    pass # nothing to do...
+
   check_call([
       'gdal_translate', '-of', 'netCDF', '-co', 'WRITE_LONLAT=YES',
       sp_ref_file,
@@ -552,12 +564,12 @@ def fill_climate_file(start_yr, yrs, xo, yo, xs, ys,
   check_call(['gdal_translate', '-of', 'netCDF',
       '-co', 'WRITE_LONLAT=YES',
       '-srcwin', str(xo), str(yo), str(xs), str(ys),
-      tmpfile, smaller_tmpfile
+      'NETCDF:"{}":Band1'.format(tmpfile), smaller_tmpfile
     ])
   print "Finished creating the temporary subset...(cropping to our domain)"
 
   print "Copy the LAT/LON variables from the temporary file into our new dataset..."
-  # Open the 'temporary' dataset
+  # Open the temporary dataset
   temp_subset_with_lonlat = netCDF4.Dataset(smaller_tmpfile, mode='r')
 
   # Open the new file for appending
@@ -568,19 +580,48 @@ def fill_climate_file(start_yr, yrs, xo, yo, xs, ys,
   lon = new_climatedataset.variables['lon']
   lat[:] = temp_subset_with_lonlat.variables['lat'][:]
   lon[:] = temp_subset_with_lonlat.variables['lon'][:]
+  print "Done copying LON/LAT."
 
-  print "Write attribute with pixel offsets to file..."
-  print "Write attributes for model and scenario..."
   with custom_netcdf_attr_bug_wrapper(new_climatedataset) as f:
+
+    print "Write attribute with pixel offsets to file..."
     f.source = source_attr_string(xo=xo, yo=yo)
+
+    print "Write attributes for model and scenario..."
     f.model = model
     f.scenario = scen
 
-  print "Done copying LON/LAT."
+    print "Write attributes for each variable"
+    f.variables['lat'].standard_name = 'latitude'
+    f.variables['lat'].units = 'degree_north'
+
+    f.variables['lon'].standard_name = 'longitude'
+    f.variables['lon'].units = 'degree_east'
+
+    print "Double check that we picked the right CF name for nirr!"
+    f.variables['nirr'].standard_name = 'downwelling_shortwave_flux_in_air'
+    f.variables['nirr'].units = 'W m-2'
+
+    f.variables['precip'].standard_name = 'precipitation_amount'
+    f.variables['precip'].units = 'mm month-1'
+
+    f.variables['tair'].standard_name = 'air_temperature'
+    f.variables['tair'].units = 'celsius'
+
+    f.variables['vapor_press'].standard_name = 'water_vapor_pressure'
+    f.variables['vapor_press'].units = 'hPa'
+
 
   print "Closing new dataset and temporary file."
+  print "masterOutFile time dimension size: {}".format(new_climatedataset.dimensions['time'].size)
   new_climatedataset.close()
   temp_subset_with_lonlat.close()
+
+  if cleanup_tmpfiles:
+    print "Cleaning up temporary files: {} and {}".format(tmpfile, smaller_tmpfile)
+    os.remove(smaller_tmpfile)
+    os.remove(tmpfile)
+
 
   # Copy the master into a separate file for each variable
   for v in dataVarList:
@@ -597,9 +638,8 @@ def fill_climate_file(start_yr, yrs, xo, yo, xs, ys,
       print year, month
 
       basePathList = [in_tair_base, in_prec_base, in_rsds_base, in_vapo_base]
-      baseFiles = [basePath + "_{:02d}_{:04d}.tif".format(month, year) for basePath in basePathList]
+      baseFiles = [basePath + "{:02d}_{:04d}.tif".format(month, year) for basePath in basePathList]
       tmpFiles = [os.path.join(out_dir, 'TEMP-{}-{}'.format(v, of_name)) for v in dataVarList]
-
       procs = []
       for tiffimage, tmpFileName, vName in zip(baseFiles, tmpFiles , dataVarList):
         proc = mp.Process(target=convert_and_subset, args=(tiffimage, tmpFileName, xo, yo, xs, ys, yridx, midx, vName))
@@ -611,14 +651,18 @@ def fill_climate_file(start_yr, yrs, xo, yo, xs, ys,
 
   print "Done with year loop."
 
+  with netCDF4.Dataset(masterOutFile, 'r') as ds:
+    print "===> masterOutFile.dimensions: {}".format(ds.dimensions)
+
   print "Copy data from temporary per-variable files into master"
+  tmpFiles = [os.path.join(out_dir, 'TEMP-{}-{}'.format(v, of_name)) for v in dataVarList]
   for tFile, var in zip(tmpFiles, dataVarList):
     # Need to make a list of variables to exclude from the
     # ncks append operation (all except the current variable)
     masked_list = [i for i in dataVarList if var not in i]
 
     opt_str = "lat,lon," + ",".join(masked_list)
-    check_call(['ncks', '--append', '-x','-v',opt_str, tFile, masterOutFile])
+    check_call(['ncks', '--append', '-x','-v', opt_str, tFile, masterOutFile])
 
     os.remove(tFile)
 
@@ -655,27 +699,44 @@ def fill_climate_file(start_yr, yrs, xo, yo, xs, ys,
 
         # Build up a vector of datetime stamps for the first day of each month
         try:
-          periods = f.dimensions['time'].size # only available in netCDF4 >1.2.2
+          num_months = f.dimensions['time'].size # only available in netCDF4 >1.2.2
         except AttributeError as e:
-          periods = len(f.dimensions['time'])
+          num_months = len(f.dimensions['time'])
 
-        month_starts = pd.date_range(
-            dt.datetime(year=start_yr, month=1, day=1),
-            periods=periods,
-            freq="MS" # <- MS is month start
-        )
+        # Gives an array of numpy datetime64 objects, which are monthly resolution
+        assert start_yr+num_months/12 == start_yr+yrs, "Date/time indexing bug!"
+        month_starts = np.arange('{}-01-01'.format(start_yr), '{}-01-01'.format(start_yr+yrs), dtype='datetime64[M]')
 
-        # Set the values for the time coordinate variable, using the
-        # helper function from netCDF4 library to get the proper offsets
-        tcV[:] = netCDF4.date2num(
-            month_starts.to_pydatetime(),
+        print "length of month_starts array: {}".format(len(month_starts))
+
+        # Using .tolist() to convert from numpy.datetime64 objects to python
+        # standard library datetime.datetime objects only works for some 
+        # of the available numpy.datetime units options! See here:
+        # https://stackoverflow.com/questions/46921593#46921593
+        assert month_starts[0].dtype == np.dtype('<M8[M]'), "Invalid type!"
+
+        # Convert to python datetime.date objects
+        month_starts_dateobjs = month_starts.tolist() 
+
+        # Convert to python datetime.datetime objects with time set at 0
+        month_starts_datetimeobjs = [dt.datetime.combine(i, dt.time()) for i in month_starts_dateobjs]
+        print "length of month_starts_datetimeobjs: {}".format(len(month_starts_datetimeobjs))
+
+        # Convert to numeric offset using netCDF utility function, the units,
+        # and calendar.
+        tcV_vals = netCDF4.date2num(month_starts_datetimeobjs, 
             units="days since {}-01-01".format(start_yr),
             calendar="365_day"
         )
 
+        # Set the values for the time coordinate variable, using the
+        # values from the helper function that computed the proper offsets
+        tcV[:] = tcV_vals
+
 
 
 def fill_soil_texture_file(if_sand_name, if_silt_name, if_clay_name, xo, yo, xs, ys, out_dir, of_name, rand=True):
+  
   create_template_soil_texture_nc_file(of_name, sizey=ys, sizex=xs)
 
   with netCDF4.Dataset(of_name, mode='a') as soil_tex:
@@ -782,12 +843,68 @@ def fill_drainage_file(if_name, xo, yo, xs, ys, out_dir, of_name, rand=False):
     with custom_netcdf_attr_bug_wrapper(drainage_class) as f:
       f.source = source_attr_string(xo=xo, yo=yo)
 
-def fill_fri_fire_file(if_name, xo, yo, xs, ys, out_dir, of_name, rand=True):
+def fill_fri_fire_file(xo, yo, xs, ys, out_dir, of_name, datasrc='', if_name=None):
+  '''
+  Parameters:
+  -----------
+  datasrc : str describing how and where to get the numbers used to fill the file
+    'random' will create files filled with random data
+    'no-fires' will create files such that no fires occur
+    'genet-greaves' will create files using H.Genet's and H.Greaves process   
+  '''
 
   create_template_fri_fire_file(of_name, sizey=ys, sizex=xs, rand=False)
 
-  if not rand:
+  if datasrc == 'random':
+    print "%%%%%%  WARNING  %%%%%%%%%%%%%%%%%"
+    print "GENERATING FAKE DATA!"
+    print "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+    cmt2fireprops = {
+      -1: {'fri':   -1, 'sev': -1, 'jdob':  -1, 'aob':  -1 }, # No data?
+      0: {'fri':   -1, 'sev': -1, 'jdob':  -1, 'aob':  -1 }, # rock/snow/water
+      1: {'fri':  100, 'sev':  3, 'jdob': 165, 'aob': 100 }, # black spruce
+      2: {'fri':  105, 'sev':  2, 'jdob': 175, 'aob': 225 }, # white spruce
+      3: {'fri':  400, 'sev':  3, 'jdob': 194, 'aob': 104 }, # boreal deciduous
+      4: {'fri': 2000, 'sev':  2, 'jdob': 200, 'aob': 350 }, # shrub tundra
+      5: {'fri': 2222, 'sev':  3, 'jdob': 187, 'aob': 210 }, # tussock tundra
+      6: {'fri': 1500, 'sev':  1, 'jdob': 203, 'aob': 130 }, # wet sedge tundra
+      7: {'fri': 1225, 'sev':  4, 'jdob': 174, 'aob': 250 }, # heath tundra
+      8: {'fri':  759, 'sev':  3, 'jdob': 182, 'aob': 156 }, # maritime forest
+    }
+    guess_vegfile = os.path.join(os.path.split(of_name)[0], 'vegetation.nc')
+    print "--> NOTE: Attempting to read: {:} and set fire properties based on community type...".format(guess_vegfile)
 
+    with netCDF4.Dataset(guess_vegfile ,'r') as vegFile:
+      vd = vegFile.variables['veg_class'][:]
+      fri = np.array([cmt2fireprops[i]['fri'] for i in vd.flatten()]).reshape(vd.shape)
+      sev = np.array([cmt2fireprops[i]['sev'] for i in vd.flatten()]).reshape(vd.shape)
+      jdob = np.array([cmt2fireprops[i]['jdob'] for i in vd.flatten()]).reshape(vd.shape)
+      aob = np.array([cmt2fireprops[i]['aob'] for i in vd.flatten()]).reshape(vd.shape)
+
+    with netCDF4.Dataset(of_name, mode='a') as nfd:
+      print "==> write data to new FRI based fire file..."
+      nfd.variables['fri'][:,:] = fri
+      nfd.variables['fri_severity'][:,:] = sev
+      nfd.variables['fri_jday_of_burn'][:,:] = jdob
+      nfd.variables['fri_area_of_burn'][:,:] = aob
+
+  elif datasrc == 'no-fires':
+    print "%%%%%%  WARNING  %%%%%%%%%%%%%%%%%"
+    print "GENERATING FRI FILE WITH NO FIRES!"
+    print "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+
+    with netCDF4.Dataset(of_name, mode='a') as nfd:
+      print "==> write zeros to FRI file..."
+      zeros = np.zeros((ys,xs))
+      nfd.variables['fri'][:,:] = zeros
+      nfd.variables['fri_severity'][:,:] = zeros
+      nfd.variables['fri_jday_of_burn'][:,:] = zeros
+      nfd.variables['fri_area_of_burn'][:,:] = zeros
+
+  elif datasrc == 'fri-from-file': # other variables fixed/hardcoded below
+    if not os.path.exists(if_name):
+      print "ERROR! Can't find file specified for FRI input!: {}".format(if_name) 
+      
     # Translate and subset to temporary location
     temporary = os.path.join('/tmp/', os.path.basename(of_name))
 
@@ -814,76 +931,136 @@ def fill_fri_fire_file(if_name, xo, yo, xs, ys, out_dir, of_name, rand=True):
           'note': "mean area of fire scar computed from statewide fire records 1950 to 1980"
         })
 
-      print "--> Copying lat/lon from temporary subset file into new file..."
-      new_fri.variables['lat'][:] = temp_fri.variables['lat'][:]
-      new_fri.variables['lon'][:] = temp_fri.variables['lon'][:]
+  else:
+    print "ERROR! Unrecognized value for 'datasrc' in function fill_fri_file(..)"
+     
 
-      with custom_netcdf_attr_bug_wrapper(new_fri) as f:
-        print "==> write global :source attribute to FRI fire file..."
-        f.source = source_attr_string(xo=xo, yo=yo)
+  # Now that primary data has been written, take care of some generic 
+  # stuff: lat, lon, atrributes, etc.
+  guess_vegfile = os.path.join(os.path.split(of_name)[0], 'vegetation.nc')
+  print "--> NOTE: Attempting to read: {:} to get lat/lon info".format(guess_vegfile)
 
-  else: # rand == True    
+  with netCDF4.Dataset(guess_vegfile ,'r') as vegFile:
+    latv = vegFile.variables['lat'][:]
+    lonv = vegFile.variables['lon'][:]
+
+
+  with netCDF4.Dataset(of_name, mode='a') as nfd:
+    print "Writing lat/lon from veg file..."
+    nfd.variables['lat'][:] = latv
+    nfd.variables['lon'][:] = lonv
+
+    with custom_netcdf_attr_bug_wrapper(nfd) as f:
+      print "==> write global :source attribute to FRI fire file..."
+      f.source = source_attr_string(xo=xo, yo=yo)
+
+
+
+
+
+
+def fill_explicit_fire_file(yrs, xo, yo, xs, ys, out_dir, of_name, datasrc='', if_name=None):
+
+  create_template_explicit_fire_file(of_name, sizey=ys, sizex=xs, rand=False)
+
+  if datasrc =='no-fires':
+    print "%%%%%%  WARNING  %%%%%%%%%%%%%%%%%%%%%%%%%%%"
+    print "GENERATING EXPLICIT FIRE FILE WITH NO FIRES!"
+    print "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+
+    with netCDF4.Dataset(of_name, mode='a') as nfd:
+
+        zeros = np.zeros((yrs,ys,xs))
+        nfd.variables['exp_burn_mask'][:] = zeros
+        nfd.variables['exp_jday_of_burn'][:] = zeros
+        nfd.variables['exp_fire_severity'][:] = zeros
+        nfd.variables['exp_area_of_burn'][:] = zeros
+
+  elif datasrc == 'random':
 
     print "%%%%%%  WARNING  %%%%%%%%%%%%%%%%%"
     print "GENERATING FAKE DATA!"
     print "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-    cmt2fireprops = {
-     -1: {'fri':   -1, 'sev': -1, 'jdob':  -1, 'aob':  -1 }, # No data?
-      0: {'fri':   -1, 'sev': -1, 'jdob':  -1, 'aob':  -1 }, # rock/snow/water
-      1: {'fri':  100, 'sev':  3, 'jdob': 165, 'aob': 100 }, # black spruce
-      2: {'fri':  105, 'sev':  2, 'jdob': 175, 'aob': 225 }, # white spruce
-      3: {'fri':  400, 'sev':  3, 'jdob': 194, 'aob': 104 }, # boreal deciduous
-      4: {'fri': 2000, 'sev':  2, 'jdob': 200, 'aob': 350 }, # shrub tundra
-      5: {'fri': 2222, 'sev':  3, 'jdob': 187, 'aob': 210 }, # tussock tundra
-      6: {'fri': 1500, 'sev':  1, 'jdob': 203, 'aob': 130 }, # wet sedge tundra
-      7: {'fri': 1225, 'sev':  4, 'jdob': 174, 'aob': 250 }, # heath tundra
-      8: {'fri':  759, 'sev':  3, 'jdob': 182, 'aob': 156 }, # maritime forest
-    }
-
-    guess_vegfile = os.path.join(os.path.split(of_name)[0], 'vegetation.nc')
-    print "--> NOTE: Attempting to read: {:} and set fire properties based on community type...".format(guess_vegfile)
-
-    with netCDF4.Dataset(guess_vegfile ,'r') as vegFile:
-      vd = vegFile.variables['veg_class'][:]
-      fri = np.array([cmt2fireprops[i]['fri'] for i in vd.flatten()]).reshape(vd.shape)
-      sev = np.array([cmt2fireprops[i]['sev'] for i in vd.flatten()]).reshape(vd.shape)
-      jdob = np.array([cmt2fireprops[i]['jdob'] for i in vd.flatten()]).reshape(vd.shape)
-      aob = np.array([cmt2fireprops[i]['aob'] for i in vd.flatten()]).reshape(vd.shape)
-      latv = vegFile.variables['lat'][:]
-      lonv = vegFile.variables['lon'][:]
+    never_burn = ([9],[9])
+    print "--> Never burn pixels: {}".format(zip(*never_burn))
 
     with netCDF4.Dataset(of_name, mode='a') as nfd:
-      print "==> write data to new FRI based fire file..."
-      nfd.variables['fri'][:,:] = fri
-      nfd.variables['fri_severity'][:,:] = sev
-      nfd.variables['fri_jday_of_burn'][:,:] = jdob
-      nfd.variables['fri_area_of_burn'][:,:] = aob
 
-      print "Writing lat/lon from veg file..."
-      nfd.variables['lat'][:] = latv
-      nfd.variables['lon'][:] = lonv
+      for yr in range(0, yrs):
 
-      with custom_netcdf_attr_bug_wrapper(nfd) as f:
-        print "==> write global :source attribute to FRI fire file..."
-        f.source = source_attr_string(xo=xo, yo=yo)
+        # Future: lookup from snap/alfresco .tif files...
+
+        # Generate indices a few random pixels to burn
+        flat_burn_indices = np.random.randint(0, (ys*xs), (ys*xs)*0.3)
+        burn_indices = np.unravel_index(flat_burn_indices, (ys,xs))
+
+        #print burn_indices
+        # Now set the other variables, but only for the burning pixels...
+        exp_bm = np.zeros((ys,xs))
+        exp_jdob = np.zeros((ys,xs))
+        exp_sev = np.zeros((ys,xs))
+        exp_aob = np.zeros((ys,xs))
+
+        exp_bm[burn_indices] = 1
+        exp_jdob[burn_indices] = np.random.randint(152, 244, len(flat_burn_indices))
+        exp_sev[burn_indices] = np.random.randint(0, 5, len(flat_burn_indices))
+        exp_aob[burn_indices] = np.random.randint(1, 20000, len(flat_burn_indices))
+
+        # Make sure far corner pixel never burns:
+        exp_bm[never_burn] = 0
+
+        nfd.variables['exp_burn_mask'][yr,:,:] = exp_bm
+        nfd.variables['exp_jday_of_burn'][yr,:,:] = exp_jdob
+        nfd.variables['exp_fire_severity'][yr,:,:] = exp_sev
+        nfd.variables['exp_area_of_burn'][yr,:,:] = exp_aob
+
+      print "Done filling out fire years..."
+
+  else:
+    print "ERROR! Unrecognized value for 'datasrc' in function fill_explicit_file(..)"
+
+  # Now that the primary data is taken care of, fill out all some other general 
+  # info for the file, lat, lon, attributes, etc
+
+  def figure_out_time_size(of_name, yrs):
+    guess_hcf = os.path.join(os.path.split(of_name)[0], 'historic-climate.nc')
+    guess_pcf = os.path.join(os.path.split(of_name)[0], 'projected-climate.nc')
+
+    starting_date_str = ''
+    with netCDF4.Dataset(guess_hcf, 'r') as ds:
+      if ds.variables['time'].size / 12 == yrs:
+        starting_date_str = (ds.variables['time'].units).replace('days', 'years')
+        end_date = netCDF4.num2date(ds.variables['time'][-1], ds.variables['time'].units, ds.variables['time'].calendar)
+
+    with netCDF4.Dataset(guess_pcf, 'r') as ds:
+      if ds.variables['time'].size / 12 == yrs:
+        starting_date_str = (ds.variables['time'].units).replace('days', 'years')
+        end_date = netCDF4.num2date(ds.variables['time'][-1], ds.variables['time'].units, ds.variables['time'].calendar)
+
+    # Convert from the funky netcdf time object to python datetime object
+    end_date = dt.datetime.strptime(end_date.strftime(), "%Y-%m-%d %H:%M:%S")
+
+    return starting_date_str, end_date 
 
 
-def fill_explicit_fire_file(if_name, yrs, xo, yo, xs, ys, out_dir, of_name):
-  create_template_explicit_fire_file(of_name, sizey=ys, sizex=xs, rand=False)
+  guess_starting_date_string, end_date = figure_out_time_size(of_name, yrs)
 
-  print "%%%%%%  WARNING  %%%%%%%%%%%%%%%%%"
-  print "GENERATING FAKE DATA!"
-  print "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+  with netCDF4.Dataset(of_name, mode='a') as nfd:
+    print "Write time coordinate variable attribute for time axis..."
+    with custom_netcdf_attr_bug_wrapper(nfd) as f:
+      tcV = f.createVariable("time", np.double, ('time'))
+      start_date = dt.datetime.strptime('T'.join(guess_starting_date_string.split(' ')[-2:]), '%Y-%m-%dT%H:%M:%S')
+      tcV[:] = np.arange( 0, (end_date.year+1 - start_date.year) )
+      tcV.setncatts({
+        'long_name': 'time',
+        'units': '{}'.format(guess_starting_date_string),
+        'calendar': '365_day'
+      })
 
-  never_burn = ([9],[9])
-  print "--> Never burn pixels: {}".format(zip(*never_burn))
 
   guess_vegfile = os.path.join(os.path.split(of_name)[0], 'vegetation.nc')
-  print "--> NOTE: Attempting to read: {:} for lat/lon info...".format(guess_vegfile)
-  # print "    and set fire properties based on community type..."
-  # with netCDF4.Dataset(guess_vegfile ,'r') as vegFile:
-  #   vd = vegFile.variables['veg_class'][:]
+  print "--> NOTE: Attempting to read: {:} to get lat/lon info".format(guess_vegfile)
 
   with netCDF4.Dataset(of_name, mode='a') as nfd:
 
@@ -892,43 +1069,59 @@ def fill_explicit_fire_file(if_name, yrs, xo, yo, xs, ys, out_dir, of_name):
       nfd.variables['lat'][:] = vegFile.variables['lat'][:]
       nfd.variables['lon'][:] = vegFile.variables['lon'][:]
 
-    for yr in range(0, yrs):
+      print "Setting :source attribute on new explicit fire file..."
+      with custom_netcdf_attr_bug_wrapper(nfd) as f:
+        f.source = source_attr_string(xo=xo, yo=yo)
 
-      # Future: lookup from snap/alfresco .tif files...
 
-      # Generate indices a few random pixels to burn
-      flat_burn_indices = np.random.randint(0, (ys*xs), (ys*xs)*0.3)
-      burn_indices = np.unravel_index(flat_burn_indices, (ys,xs))
+def verify_paths_in_config_dict(tif_dir, config):
 
-      #print burn_indices
-      # Now set the other variables, but only for the burning pixels...
-      exp_bm = np.zeros((ys,xs))
-      exp_jdob = np.zeros((ys,xs))
-      exp_sev = np.zeros((ys,xs))
-      exp_aob = np.zeros((ys,xs))
+  def pretty_print_test_path(test_path, k):
+    if os.path.exists(test_path):
+      print "key {} is OK!".format(k)
+    else:
+      print "ERROR! Can't find config path!! key:{} test_path: {}".format(k, test_path)
 
-      exp_bm[burn_indices] = 1
-      exp_jdob[burn_indices] = np.random.randint(152, 244, len(flat_burn_indices))
-      exp_sev[burn_indices] = np.random.randint(0, 5, len(flat_burn_indices))
-      exp_aob[burn_indices] = np.random.randint(1, 20000, len(flat_burn_indices))
+  for k, v in config.iteritems():
 
-      # Make sure far corner pixel never burns:
-      exp_bm[never_burn] = 0
+    if 'src' in k:
 
-      nfd.variables['exp_burn_mask'][yr,:,:] = exp_bm
-      nfd.variables['exp_jday_of_burn'][yr,:,:] = exp_jdob
-      nfd.variables['exp_fire_severity'][yr,:,:] = exp_sev
-      nfd.variables['exp_area_of_burn'][yr,:,:] = exp_aob
+      if 'soil' in k:
+        required_for = ['soil']
+      if 'drainage' in k:
+        required_for = ['drainage']
+      if 'top' in k:
+        required_for = ['topo']
+      if 'veg' in k:
+        required_for = ['vegetation']
 
-    print "Done filling out fire years..."
+      # Check the climate stuff
+      if 'clim' in k:
+        if 'h clim' in k:
+          required_for = ['historic-climate']
+          fy = config['h clim first yr']
+        elif 'p clim' in k:
+          required_for = ['projected-climate']
+          fy = config['p clim first yr']
+        else:
+          pass #??
 
-    print "Setting :source attribute on new explicit fire file..."
-    with custom_netcdf_attr_bug_wrapper(nfd) as f:
-      f.source = source_attr_string(xo=xo, yo=yo)
- 
+        test_path = os.path.join(tif_dir,"{}01_{}.tif".format(v, fy))
+        pretty_print_test_path(test_path, k)
+
+      # Check the fire stuff
+      elif 'fire fri' in k:
+        test_path = os.path.join(tif_dir, v)
+        pretty_print_test_path(test_path, k)
+
+      # Check all the other src files...
+      else:
+        test_path = os.path.join(tif_dir, v)
+        pretty_print_test_path(test_path, k)
+
 
 def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir, 
-         files=[], time_coord_var=False):
+         files=[], config={}, time_coord_var=False, clip_projected2match_historic=False):
 
   #
   # Make the veg file first, then run-mask, then climate, then fire.
@@ -937,25 +1130,29 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
   #
   if 'vegetation' in files:
     of_name = os.path.join(out_dir, "vegetation.nc")
-    fill_veg_file(os.path.join(tif_dir,  "iem_ancillary_data/Landcover/LandCover_iem_TEM_2005.tif"), xo, yo, xs, ys, out_dir, of_name)
+    #fill_veg_file(os.path.join(tif_dir,  "ancillary/land_cover/v_0_4/iem_vegetation_model_input_v0_4.tif"), xo, yo, xs, ys, out_dir, of_name)
+    fill_veg_file(os.path.join(tif_dir, config['veg src']), xo, yo, xs, ys, out_dir, of_name)
 
   if 'drainage' in files:
     of_name = os.path.join(out_dir, "drainage.nc")
-    fill_drainage_file(os.path.join(tif_dir,  "iem_ancillary_data/soil_and_drainage/Lowland_1km.tif"), xo, yo, xs, ys, out_dir, of_name)
+    fill_drainage_file(os.path.join(tif_dir,  config['drainage src']), xo, yo, xs, ys, out_dir, of_name)
 
   if 'soil-texture' in files:
     of_name = os.path.join(out_dir, "soil-texture.nc")
-    in_sand_base = os.path.join(tif_dir,  "iem_ancillary_data/soil_and_drainage/iem_domain_hayes_igbp_pct_sand.tif")
-    in_silt_base = os.path.join(tif_dir,  "iem_ancillary_data/soil_and_drainage/iem_domain_hayes_igbp_pct_silt.tif")
-    in_clay_base = os.path.join(tif_dir,  "iem_ancillary_data/soil_and_drainage/iem_domain_hayes_igbp_pct_clay.tif")
+
+    in_clay_base = os.path.join(tif_dir, config['soil clay src'])
+    in_sand_base = os.path.join(tif_dir, config['soil sand src'])
+    in_silt_base = os.path.join(tif_dir, config['soil silt src'])
 
     fill_soil_texture_file(in_sand_base, in_silt_base, in_clay_base, xo, yo, xs, ys, out_dir, of_name, rand=False)
 
   if 'topo' in files:
     of_name = os.path.join(out_dir, "topo.nc")
-    in_slope = os.path.join(tif_dir,  "iem_ancillary_data/Elevation/ALF_AK_CAN_prism_slope_1km.tif")
-    in_aspect = os.path.join(tif_dir,  "iem_ancillary_data/Elevation/ALF_AK_CAN_prism_aspect_1km.tif")
-    in_elev = os.path.join(tif_dir,  "iem_ancillary_data/Elevation/ALF_AK_CAN_prism_dem_1km.tif")
+
+    in_slope = os.path.join(tif_dir, config['topo slope src'])
+    in_aspect = os.path.join(tif_dir, config['topo aspect src'])
+    in_elev = os.path.join(tif_dir, config['topo elev src'])
+
     fill_topo_file(in_slope, in_aspect, in_elev, xo,yo,xs,ys,out_dir, of_name)
 
   if 'run-mask' in files:
@@ -966,109 +1163,111 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
 
   if 'historic-climate' in files:
     of_name = "historic-climate.nc"
-    a = dict(origin_institute="iem_cru", version="TS31", starty=1901, endy=2009)
-
-    a['var'] = 'tas_mean'; a['units'] = 'C'
-    in_tair_base = os.path.join(tif_dir, 
-        "{var}_{units}_{origin_institute}_{version}_{starty}_{endy}".format(**a), 
-        "{var}_{units}_{origin_institute}_{version}".format(**a))
-
-    a['var'] = 'pr_total'; a['units'] = 'mm'
-    in_prec_base = os.path.join(tif_dir, 
-        "{var}_{units}_{origin_institute}_{version}_{starty}_{endy}".format(**a), 
-        "{var}_{units}_{origin_institute}_{version}".format(**a))
-
-    a['var'] = 'rsds_mean'; a['units'] = 'MJ-m2-d1'
-    in_rsds_base = os.path.join(tif_dir, 
-        "{var}_{units}_{origin_institute}_{version}_{starty}_{endy}".format(**a), 
-        "{var}_{units}_{origin_institute}_{version}".format(**a))
-
-    a['var'] = 'vap_mean'; a['units'] = 'hPa'
-    in_vapo_base = os.path.join(tif_dir, 
-        "{var}_{units}_{origin_institute}_{version}_{starty}_{endy}".format(**a), 
-        "{var}_{units}_{origin_institute}_{version}".format(**a))
+    # Tried parsing this stuff automatically from the above paths,
+    # but the paths, names, directory structures, etc were not standardized
+    # enough to be worth it.
+    first_avail_year    = int(config['h clim first yr'])
+    last_avail_year     = int(config['h clim last yr'])
+    origin_institute    = config['h clim orig inst']
+    version             = config['h clim ver']
+    in_tair_base = os.path.join(tif_dir, config['h clim tair src'])
+    in_prec_base = os.path.join(tif_dir, config['h clim prec src'])
+    in_rsds_base = os.path.join(tif_dir, config['h clim rsds src'])
+    in_vapo_base = os.path.join(tif_dir, config['h clim vapo src'])
 
     # Use the the January file for the first year requested as a spatial reference
-    sp_ref_file  = os.path.join(tif_dir, 
-        "{var}_{units}_{origin_institute}_{version}_{starty}_{endy}".format(**a),
-        "{var}_{units}_{origin_institute}_{version}_{month:02d}_{starty:04d}.tif".format(month=1, **a))
-
+    sp_ref_file  = "{}{month:02d}_{starty:04d}.tif".format(in_tair_base, month=1, starty=first_avail_year),
 
     # Calculates number of years for running all. Values are different
     # for historic versus projected.
     hc_years = 0
     if years == -1:
-      filecount = len(glob.glob(os.path.join(tif_dir, "{var}_{units}_{origin_institute}_{version}_{starty}_{endy}/*.tif".format(**a))))
+      filecount = len(glob.glob(in_tair_base + "*.tif"))
       print "Found %s files..." % filecount
       hc_years = (filecount/12) - start_year
     else:
       hc_years = years
 
-    # NOTE: Should make this smarter so that the starting year is picked from
-    # the input path strings specified above.
-    fill_climate_file(a['starty']+start_year, hc_years,
+    #print "filecount: {}".format(filecount)
+    print "hc_years: {}".format(hc_years)
+    fill_climate_file(first_avail_year+start_year, hc_years,
                       xo, yo, xs, ys,
                       out_dir, of_name, sp_ref_file,
                       in_tair_base, in_prec_base, in_rsds_base, in_vapo_base,
-                      time_coord_var, model=a['origin_institute'], scen=a['version'])
+                      time_coord_var, model=origin_institute, scen=version)
 
 
   if 'projected-climate' in files:
     of_name = "projected-climate.nc"
 
-    #   dict(model=ar5_MRI-CGCM3, scen=rcp85, starty=2006, endy=2100)
-    a = dict(model='iem_cccma_cgcm3_1', scen='sresa1b', starty=2001, endy=2100)
+    # Tried parsing this stuff automatically from the above paths,
+    # but the paths, names, directory structures, etc were not standardized
+    # enough to be worth it.
+    first_avail_year    = int(config['p clim first yr'])
+    last_avail_year     = int(config['p clim last yr'])
+    origin_institute    = config['p clim orig inst']
+    version             = config['p clim ver']
+    in_tair_base = os.path.join(tif_dir, config['p clim tair src'])
+    in_prec_base = os.path.join(tif_dir, config['p clim prec src'])
+    in_rsds_base = os.path.join(tif_dir, config['p clim rsds src'])
+    in_vapo_base = os.path.join(tif_dir, config['p clim vapo src'])
 
-    a['var'] = 'tas_mean'; a['units'] = 'C'
-    in_tair_base = os.path.join(tif_dir, 
-        "{var}_{units}_{model}_{scen}_{starty}_{endy}".format(**a),
-        "{var}_{units}_{model}_{scen}".format(**a))
+    # Pick the starting year of the projected file to immediately follow the 
+    # last year in the historic file.
+    if ('projected-climate' in files) and ('historic-climate' in files):
+      if clip_projected2match_historic:
 
-    a['var'] = 'pr_total'; a['units'] = 'mm'
-    in_prec_base = os.path.join(tif_dir, 
-        "{var}_{units}_{model}_{scen}_{starty}_{endy}".format(**a),
-        "{var}_{units}_{model}_{scen}".format(**a))
+        # Look up the last year that is in the historic data
+        # assumes that the historic file was just created, and so exists and 
+        # is reliable...
+        with netCDF4.Dataset(os.path.join(out_dir, 'historic-climate.nc'), 'r') as hds:
+          end_hist = netCDF4.num2date(hds.variables['time'][-1], hds.variables['time'].units, calendar=hds.variables['time'].calendar)
+        print "The historic dataset ends at {}".format(end_hist)
 
-    a['var'] = 'rsds_mean'; a['units'] = 'MJ-m2-d1'
-    in_rsds_base = os.path.join(tif_dir, 
-        "{var}_{units}_{model}_{scen}_{starty}_{endy}".format(**a),
-        "{var}_{units}_{model}_{scen}".format(**a))
-
-    a['var'] = 'vap_mean'; a['units'] = 'hPa'
-    in_vapo_base = os.path.join(tif_dir, 
-        "{var}_{units}_{model}_{scen}_{starty}_{endy}".format(**a),
-        "{var}_{units}_{model}_{scen}".format(**a))
-
-
-    # Set back to using temperature for a few other general file checks
-    a['var'] = 'tas_mean'; a['units'] = 'C'
+        if (first_avail_year > end_hist.year+1):
+          print """==> WARNING! There will be a gap between the historic and 
+          projected climate files!! Ignoring --start-year offset and will 
+          start building at the beginning of the projected period ({})
+          """.format(first_avail_year)
+          start_year = 0
+        else:
+          # Override start_year
+          start_year = (end_hist.year - first_avail_year) + 1 
+          print """Setting start year for projected data to be immediately 
+          following the historic data. 
+          End historic: {} 
+          Beginning projected: {}
+          start_year offset: {}""".format(end_hist.year, first_avail_year + start_year, start_year)
 
     # Set the spatial reference file. Use the first month of the starting year
-    sp_ref_file =  os.path.join(tif_dir, 
-        "{var}_{units}_{model}_{scen}_{starty}_{endy}".format(**a),
-        "{var}_{units}_{model}_{scen}_{month:02d}_{starty:04d}.tif".format(month=1, **a))
+    sp_ref_file  = "{}{month:02d}_{starty:04d}.tif".format(in_tair_base, month=1, starty=first_avail_year),
 
     # Calculates number of years for running all. Values are different
     # for historic versus projected.
     pc_years = 0;
     if years == -1:
-      filecount = len(glob.glob(os.path.join(tif_dir, "{var}_{units}_{model}_{scen}_{starty}_{endy}/*.tif".format(**a))))
+      filecount = len(glob.glob(in_tair_base + "*.tif"))
       print "Found %s files..." % filecount
       pc_years = (filecount/12) - start_year
     else:
       pc_years = years
 
-    # NOTE: Should make this smarter so that the starting year is picked from
-    # the input path strings specified above.
-    fill_climate_file(a['starty']+start_year, pc_years,
+    #print "filecount: {}".format(filecount)
+    print "pc_years: {}".format(pc_years)
+    fill_climate_file(first_avail_year + start_year, pc_years,
                       xo, yo, xs, ys, out_dir, of_name, sp_ref_file,
                       in_tair_base, in_prec_base, in_rsds_base, in_vapo_base,
-                      time_coord_var, model=a['model'], scen=a['scen'])
+                      time_coord_var, model=origin_institute, scen=version)
+
 
 
   if 'fri-fire' in files:
     of_name = os.path.join(out_dir, "fri-fire.nc")
-    fill_fri_fire_file(tif_dir + "iem_ancillary_data/Fire/FRI.tif", xo, yo, xs, ys, out_dir, of_name, rand=False)
+    fill_fri_fire_file(
+        xo, yo, xs, ys, out_dir, of_name, 
+        datasrc='no-fires', 
+        if_name=None,
+    )
 
   if 'historic-explicit-fire' in files:
     of_name = os.path.join(out_dir, "historic-explicit-fire.nc")
@@ -1078,7 +1277,11 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
     with netCDF4.Dataset(climate, 'r') as climate_dataset:
       years = len(climate_dataset.dimensions['time']) / 12
 
-    fill_explicit_fire_file(tif_dir + "iem_ancillary_data/Fire/", years, xo, yo, xs, ys, out_dir, of_name)
+    fill_explicit_fire_file(
+        years, xo, yo, xs, ys, out_dir, of_name,
+        datasrc='no-fires',
+        if_name=None
+    )
 
   if 'projected-explicit-fire' in files:
     of_name = os.path.join(out_dir, "projected-explicit-fire.nc")
@@ -1088,29 +1291,230 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
     with netCDF4.Dataset(climate, 'r') as climate_dataset:
       years = len(climate_dataset.dimensions['time']) / 12
 
-    fill_explicit_fire_file(tif_dir + "iem_ancillary_data/Fire/", years, xo, yo, xs, ys, out_dir, of_name)
+    fill_explicit_fire_file(
+        years, xo, yo, xs, ys, out_dir, of_name,
+        datasrc='no-fires',
+        if_name=None
+    )
 
   print(textwrap.dedent('''\
 
       ----> CAVEATS:
-       * Time coordiate starting point is hard-coded and assumed to match
-         the input file series
-       * The input file series are from SNAP, use CRU3.1 for historic climate
-         and AR4 for the projected climate.
+       * The input file series are from SNAP, use CRU-TS40 for historic climate
+         and AR5 for the projected climate.
   '''))
 
   print "DONE"
 
 
 
+def get_slurm_wrapper_string():
+  '''
+  When running this program (create_region_input.py) on atlas, it is best to
+  run under the control of the queue manager (slurm). This function is a place
+  to store a wrapper script that can be submitted to slurm.
+
+  Returns string with text for slurm script.
+  '''
+  s = textwrap.dedent('''\
+    #!/bin/bash
+
+    #SBATCH --cpus-per-task=4
+    #SABTCH --ntasks=1
+    #SBATCH -p main
+    ##SBATCH --reservation=snap_8  # Not needed anymore
+
+    # Offsets for new ar5/rcp85 datasets found in:
+    TIFDIR="/atlas_scratch/ALFRESCO/ALFRESCO_Master_Dataset_v2_1/ALFRESCO_Model_Input_Datasets/IEM_for_TEM_inputs/"
+
+    #PCLIM="mri-cgcm3"
+    PCLIM="ncar-ccsm4"
+
+    ###################
+    # 10x10 sites
+    ###################
+    #XSIZE=10
+    #YSIZE=10
+
+    #site=cru-ts40_ar5_rcp85_"$PCLIM"_Toolik; yoff=298; xoff=918
+    #site=cru-ts40_ar5_rcp85_"$PCLIM"_SouthBarrow; yoff=28; xoff=620 
+    #site=cru-ts40_ar5_rcp85_"$PCLIM"_SewardPeninsula; yoff=643; xoff=231 
+    #site=cru-ts40_ar5_rcp85_"$PCLIM"_Kougarok; yoff=649; xoff=233;
+
+    # Dalton Highway Sites with site at LOWER LEFT corner
+    #site=cru-ts40_ar5_rcp85_"$PCLIM"_dh_site_1; yoff=470 ; xoff=900
+    #site=cru-ts40_ar5_rcp85_"$PCLIM"_dh_site_2; yoff=429 ; xoff=906
+    #site=cru-ts40_ar5_rcp85_"$PCLIM"_dh_site_3; yoff=379 ; xoff=915
+    #site=cru-ts40_ar5_rcp85_"$PCLIM"_dh_site_4; yoff=246 ; xoff=947
+    #site=cru-ts40_ar5_rcp85_"$PCLIM"_dh_site_5; yoff=210 ; xoff=948
+
+    ####################
+    # 50x50 sites
+    ####################
+    XSIZE=50
+    YSIZE=50
+
+    site=cru-ts40_ar5_rcp85_"$PCLIM"_Toolik; yoff=250; xoff=919
+
+
+
+    # USE this to put the desired pixel at the center of the grid.
+    #echo "Original x and y offsets: $xoff $yoff"
+    #yoff=$(( $yoff + $(( $YSIZE / 2 )) ))
+    #xoff=$(( $xoff - $(( $XSIZE / 2 )) ))
+    #echo "New x and y offsets: $xoff $yoff"
+
+    echo $site
+
+    srun ./scripts/create_region_input.py \
+      --tifs $TIFDIR \
+      --tag $site \
+      --years -1 \
+      --buildout-time-coord \
+      --yoff $yoff --xoff $xoff --xsize $XSIZE --ysize $YSIZE \
+      --which all \
+      --projected-climate-config "$PCLIM" \
+      --clip-projected2match-historic
+
+    # Handle cropping if needed...
+    #mkdir -p input-staging-area/"$site"_"$YSIZE"x"$XSIZE"/output
+    #srun ./scripts/input_util.py crop --yx 0 0 --ysize 1 --xsize 1 input-staging-area/"$site"_"$YSIZE"x"$XSIZE"/
+
+    # Generate plots for double checking data... (Should this be submitted with srun too??)
+    #./scripts/input_util.py climate-ts-plot --type annual-summary --yx 0 0 input-staging-area/
+
+    # REMEMBER TO CHECK FOR GAPFILLING NEEDS!!!
+    srun ./scripts/gapfill.py --dry-run --input-folder input-staging-area/"$site"_"$YSIZE"x"$XSIZE"/
+    #srun ./scripts/gapfill.py --dry-run --input-folder input-staging-area/"$site"_1x1/
+
+    # Run script to swap all CMT 8 pixels to CMT 7
+    srun ./scripts/fix_vegetation_file_cmt08_to_cmt07.py input-staging-area/"$site"_"$YSIZE"x"$XSIZE"/vegetation.nc
+    #srun ./scripts/fix_vegetation_file_cmt08_to_cmt07.py input-staging-area/"$site"_1x1/vegetation.nc
+
+
+    # Old stuff...
+    #srun ./scripts/create_region_input.py --tifs /atlas_scratch/tem/snap-data/ --tag Kougarok --years -1 --start-year 9  --buildout-time-coord --xoff 230 --yoff 641 --xsize 10 --ysize 10 --which projected-climate
+    #srun ./scripts/create_region_input.py --tifs /atlas_scratch/tem/snap-data/ --tag Toolik --years -1 --start-year 9 --buildout-time-coord --xoff 1137 --yoff 239 --xsize 50 --ysize 50 --which projected-climate 
+
+    # Dalton Highway Sites for Ceci, 2018 summer REU work
+    # Offsets for ar4 (old) data in /atlas_scratch/tem/snap-data
+    #site=site_1; yoff=472; xoff=898
+    #site=site_2; yoff=431; xoff=903
+    #site=site_3; yoff=381; xoff=912
+    #site=site_4; yoff=248; xoff=944
+    #site=site_5; yoff=211; xoff=945
+
+  ''')
+  return s
+
+
+def get_empty_config_object():
+  '''
+  Returns a configuration object with all the required keys, but no values.
+  '''
+  empty_config_string = textwrap.dedent('''\
+      veg src = ''
+
+      drainage src = ''
+
+      soil clay src = ''
+      soil sand src = ''
+      soil silt src = ''
+
+      topo slope src = ''
+      topo aspect src = ''
+      topo elev src = ''
+
+      h clim first yr = ''
+      h clim last yr = ''
+      h clim orig inst = ''
+      h clim ver = ''
+      h clim tair src = ''
+      h clim prec src = ''
+      h clim rsds src = ''
+      h clim vapo src = ''
+
+      p clim first yr = ''
+      p clim last yr = ''
+      p clim ver = ''
+      p clim orig inst = ''
+      p clim tair src = ''
+      p clim prec src = ''
+      p clim rsds src = ''
+      p clim vapo src = ''
+
+      fire fri src = ''
+    ''')
+  return configobj.ConfigObj(empty_config_string.split("\n"))
+
 
 
 
 if __name__ == '__main__':
 
+  base_ar5_rcp85_config = textwrap.dedent('''\
+    veg src = 'ancillary/land_cover/v_0_4/iem_vegetation_model_input_v0_4.tif'
+
+    drainage src = 'ancillary/drainage/Lowland_1km.tif'
+
+    soil clay src = 'ancillary/BLISS_IEM/mu_claytotal_r_pct_0_25mineral_2_AK_CAN.img'
+    soil sand src = 'ancillary/BLISS_IEM/mu_sandtotal_r_pct_0_25mineral_2_AK_CAN.img'
+    soil silt src = 'ancillary/BLISS_IEM/mu_silttotal_r_pct_0_25mineral_2_AK_CAN.img'
+
+    topo slope src = 'ancillary/slope/iem_prism_slope_1km.tif'
+    topo aspect src = 'ancillary/aspect/iem_prism_aspect_1km.tif'
+    topo elev src = 'ancillary/elevation/iem_prism_dem_1km.tif'
+
+    h clim first yr = 1901
+    h clim last yr = 2015
+    h clim orig inst = 'CRU'
+    h clim ver = 'TS40'
+    h clim tair src = 'tas_mean_C_iem_cru_TS40_1901_2015/tas/tas_mean_C_CRU_TS40_historical_'
+    h clim prec src = 'pr_total_mm_iem_cru_TS40_1901_2015/pr_total_mm_CRU_TS40_historical_'
+    h clim rsds src = 'rsds_mean_MJ-m2-d1_iem_CRU-TS40_historical_1901_2015_fix/rsds/rsds_mean_MJ-m2-d1_iem_CRU-TS40_historical_'
+    h clim vapo src = 'vap_mean_hPa_iem_CRU-TS40_historical_1901_2015_fix/vap/vap_mean_hPa_iem_CRU-TS40_historical_'
+
+    fire fri src = 'iem_ancillary_data/Fire/FRI.tif'
+  ''')
+
+  mri_cgcm3_ar5_rcp85_config = textwrap.dedent('''\
+    p clim first yr = 2006
+    p clim last yr = 2100
+    p clim ver = 'rcp85'
+
+    p clim orig inst = 'MRI-CGCM3'
+    p clim tair src = 'tas_mean_C_ar5_MRI-CGCM3_rcp85_2006_2100/tas/tas_mean_C_iem_ar5_MRI-CGCM3_rcp85_'
+    p clim prec src = 'pr_total_mm_ar5_MRI-CGCM3_rcp85_2006_2100/pr/pr_total_mm_iem_ar5_MRI-CGCM3_rcp85_'
+    p clim rsds src = 'rsds_mean_MJ-m2-d1_ar5_MRI-CGCM3_rcp85_2006_2100_fix/rsds/rsds_mean_MJ-m2-d1_iem_ar5_MRI-CGCM3_rcp85_'
+    p clim vapo src = 'vap_mean_hPa_ar5_MRI-CGCM3_rcp85_2006_2100_fix/vap/vap_mean_hPa_iem_ar5_MRI-CGCM3_rcp85_'
+  ''')
+
+  ncar_ccsm4_ar5_rcp85_config = textwrap.dedent('''\
+    p clim first yr = 2006
+    p clim last yr = 2100
+    p clim ver = 'rcp85'
+
+    p clim orig inst = 'NCAR-CCSM4'
+    p clim tair src = 'tas_mean_C_ar5_NCAR-CCSM4_rcp85_2006_2100/tas/tas_mean_C_iem_ar5_NCAR-CCSM4_rcp85_'
+    p clim prec src = 'pr_total_mm_ar5_NCAR-CCSM4_rcp85_2006_2100/pr/pr_total_mm_iem_ar5_NCAR-CCSM4_rcp85_'
+    p clim rsds src = 'rsds_mean_MJ-m2-d1_ar5_NCAR-CCSM4_rcp85_2006_2100_fix/rsds/rsds_mean_MJ-m2-d1_iem_ar5_NCAR-CCSM4_rcp85_'
+    p clim vapo src = 'vap_mean_hPa_ar5_NCAR-CCSM4_rcp85_2006_2100_fix/vap/vap_mean_hPa_iem_ar5_NCAR-CCSM4_rcp85_'
+  ''')
+
+
+
   fileChoices = ['run-mask', 'co2', 'vegetation', 'drainage', 'soil-texture', 'topo',
                  'fri-fire', 'historic-explicit-fire', 'projected-explicit-fire',
                  'historic-climate', 'projected-climate']
+
+  # maintain subsets of the file choices to ease argument combo verification  
+  temporal_file_choices = [
+    'co2',
+    'historic-explicit-fire','projected-explicit-fire',
+    'historic-climate','projected-climate'
+  ]
+  spatial_file_choices = [f for f in filter(lambda x: x not in ['co2'], fileChoices)]
+
 
   parser = argparse.ArgumentParser(
     formatter_class = argparse.RawDescriptionHelpFormatter,
@@ -1125,56 +1529,184 @@ if __name__ == '__main__':
 
         Assumes a certain layout for the source files. At this point, the 
         source files are generally .tifs that have been created for the IEM
-        project.
+        project. As of Oct 2018 the is desgined to work with the data on 
+        the atlas server:
+
+        atlas:/atlas_scratch/ALFRESCO/ALFRESCO_Master_Dataset_v2_1/ALFRESCO_Model_Input_Datasets/IEM_for_TEM_inputs/
+
+        **THE PATHS IN THIS SCIRPT MUST BE EDITED BY HAND IF IT IS TO BE RUN ON
+        A DIFFERENT COMPUTER OR IF THE DIRECTORY LAYOUT ON ATLAS CHANGES!**
+
+        Running this script on atlas under Slurm it takes about 15 minutes to
+        create a complete input dataset for all historic and projected years.
+
+        There is a command line option to print an example slurm script.
         '''.format("\n                ".join([i+'.nc' for i in fileChoices]))),
 
       epilog=textwrap.dedent(''''''),
   )
   
   parser.add_argument('--crtf-only', action="store_true",
-                      help="Only create the restart template file. Deprecated in favor of the built in capability in dvmdostem.")
+      help=textwrap.dedent("""(DEPRECATED - now built into dvmdostem) Only 
+        create the restart template file."""))
 
-  parser.add_argument('--tifs', default="../snap-data",
-                      help="Directory containing input TIF directories.")
+  parser.add_argument('--tifs', default="", required=True,
+      help=textwrap.dedent("""Directory containing input TIF directories. This
+        is used as a "base path", and it is assumed that all the requsite input
+        files exist somewhere within the directory specified by this option.
+        Using '/' as the --tifs argument allows absolute path specification in
+        the config object in cases where required input files are not all
+        contained within one directory. 
+        (default: '%(default)s')"""))
 
   parser.add_argument('--outdir', default="input-staging-area",
-                      help="Directory for netCDF output files. (default: %(default)s)")
+      help=textwrap.dedent("""Directory for netCDF output files. 
+        (default: '%(default)s')"""))
 
-  parser.add_argument('--tag', default="Toolik",
-                      help="A name for the dataset, used to name output directory. (default: %(default)s)")
+  parser.add_argument('--tag', required=True,
+      help=textwrap.dedent("""A name for the dataset, used to name output 
+        directory. (default: '%(default)s')"""))
 
-  parser.add_argument('--years', default=10, type=int, 
-                      help="The number of years of the climate data to process. (default: %(default)s). -1 to run for all input TIFs")
+  parser.add_argument('--years', type=int,
+      help=textwrap.dedent("""The number of years of the climate data to 
+        process. Use -1 to run for all TIFs found in input directory. 
+        (default: %(default)s)"""))
+
   parser.add_argument('--start-year', default=0, type=int,
-                      help="An offset to use for making a climate dataset that doesn't start at the beginning of the historic (1901) or projected (2001) datasets.")
+      help=textwrap.dedent("""An offset to use for making a climate dataset 
+        that doesn't start at the beginning of the historic (1901) or projected
+        (2001) datasets. Mostly deprecated in favor of --clip-projected2match-historic"""))
+
   parser.add_argument('--buildout-time-coord', action='store_true',
-                      help=textwrap.dedent('''\
-                        Add a time coordinate variable to the *-climate.nc 
-                        files. Also populates the coordinate variable 
-                        attributes.'''))
+      help=textwrap.dedent('''Add a time coordinate variable to the *-climate.nc 
+        files. Also populates the coordinate variable attributes.'''))
 
-  parser.add_argument('--xoff', default=915,
-                      help="source window offset for x axis (default: %(default)s)")
-  parser.add_argument('--yoff', default=292,
-                      help="source window offset for y axis (default: %(default)s)")
+  parser.add_argument('--xoff', type=int,
+      help="source window offset for x axis (default: %(default)s)")
+  parser.add_argument('--yoff', type=int,
+      help="source window offset for y axis (default: %(default)s)")
 
-  parser.add_argument('--xsize', default=5, type=int,
-                      help="source window x size (default: %(default)s)")
-  parser.add_argument('--ysize', default=5, type=int,
-                      help="source window y size (default: %(default)s)")
+  parser.add_argument('--xsize', type=int,
+      help="source window x size (default: %(default)s)")
+  parser.add_argument('--ysize', type=int,
+      help="source window y size (default: %(default)s)")
 
   parser.add_argument('--which', default=['all'], nargs='+',
-                      choices=fileChoices+['all'],
-                      metavar='FILE',
-                      help=textwrap.dedent('''\
-                        Space separated list of which files to create. 
-                        Allowed values: {:}. (default: %(default)s)
-                        '''.format(', '.join(fileChoices+['all'])))
-                      )
+      choices=fileChoices+['all'], metavar='FILE',
+      help=textwrap.dedent('''Space separated list of which files to create. 
+        Allowed values: {:}. (default: %(default)s)'''.format(', '.join(fileChoices+['all']))))
 
-  print "Parsing command line arguments";
+  parser.add_argument('--clip-projected2match-historic', action='store_true',
+    help=textwrap.dedent('''Instead of building the entire projected dataset, 
+      start building it where the historic 
+      data leaves off.'''))
+
+  parser.add_argument('--generate-slurm-wrapper', action='store_true',
+      help=textwrap.dedent('''Writes the file "CRI_slurm_wrapper.sh" and exits.
+        Submit CRI_slurm_wrapper.sh to slurm using sbatch. Expected workflow
+        is that you will generate the slurm wrapper script and then edit the
+        script as needed (uncommenting the lines for the desired site and post
+        processing steps that you want).'''))
+
+  parser.add_argument('--dump-empty-config', action='store_true',
+      help=textwrap.dedent('''Write out an empty config file with all the keys
+        that need to be filled in to make a functioning config object.'''))
+
+  parser.add_argument('--projected-climate-config', nargs=1, choices=['ncar-ccsm4', 'mri-cgcm3'],
+      help=textwrap.dedent('''Choose a configuration to use for the projected 
+        climate data.'''))
+
+  print "Parsing command line arguments..."
   args = parser.parse_args()
   print "args: ", args
+
+  print "Reading config file..."
+  config = configobj.ConfigObj(base_ar5_rcp85_config.split("\n"))
+
+
+  if args.generate_slurm_wrapper:
+    ofname = 'CRI_slurm_wrapper.sh'
+    print "Writing wrapper file: {}".format(ofname)
+    print "Submit using sbatch."
+    with open(ofname, 'w') as f:
+      f.write(get_slurm_wrapper_string())
+    exit(0)
+
+  if args.dump_empty_config:
+    ofname = "EMPTY_CONFIG_create_region_input.txt"
+    print "Writing empty config file: {}".format(ofname)
+    ec = get_empty_config_object()
+    ec.filename = ofname
+    ec.write()
+    exit(0)
+
+
+
+  # Verify argument combinations: time coordinate variables and files
+  if args.clip_projected2match_historic:
+    if ('historic-climate' in args.which) and ('projected-climate' in args.which):
+      pass # everything ok...
+    elif 'all' in args.which:
+      pass # everything ok...
+    else:
+      print "ERROR!: Can't clip the projected climate to start where the "
+      print "        historic data leaves off unless creating both historic "
+      print "        and projected files!"
+      exit(-1)
+    if (args.buildout_time_coord):
+      pass # everything ok...
+    else:
+      print "ERROR!: You MUST specify to the --buildout-time-coord option if you want to match historic and projected files!"
+      exit(-1)
+    if args.start_year > 0:
+      print "WARNING! The --start-year offset will be ignored for projected climate file!"
+
+
+  # Verify argument combinations: spatial and time dims, required paths 
+  # for source datafiles...
+  which_files = args.which
+  if 'all' in which_files:
+    print "Will generate ALL input files."
+    which_files = fileChoices
+
+  if any( [f in temporal_file_choices for f in which_files] ):
+    if not all([x is not None for x in [args.years, args.start_year]]):
+      print args
+      print args.which
+      print which_files
+      parser.error("Argument ERROR!: Must specify years and start year for temporal files!")
+
+  if any( [f in spatial_file_choices for f in which_files] ):
+    if not all([x is not None for x in [args.xoff, args.yoff, args.xsize, args.ysize]]):
+      print args
+      print args.which
+      print which_files
+      parser.error("Argument ERROR!: Must specify ALL sizes and offsets for spatial files!")
+
+  if any(f for f in which_files if f != 'co2'):
+    verify_paths_in_config_dict(args.tifs, config)
+
+  # Verify argument combos: project climate configuration specified when 
+  # asking to generate projected climate
+  if 'projected-climate' in which_files:
+    if args.projected_climate_config is not None:
+      pass # All ok - value is set and the choices are constrained above
+    else:
+      parser.error("Argument ERROR! Must specify a projecte climate configuration for the projected-climate file!")
+
+
+  # Pick up the user's config option for which projected climate to use 
+  # overwrite the section in the config object.
+  cmdline_config = configobj.ConfigObj()
+  if 'projected-climate' in which_files:
+    if 'ncar-ccsm4' in args.projected_climate_config:
+      cmdline_config = configobj.ConfigObj(ncar_ccsm4_ar5_rcp85_config.split("\n"))
+    elif 'mri-cgcm3' in args.projected_climate_config:
+      cmdline_config = configobj.ConfigObj(mri_cgcm3_ar5_rcp85_config.split("\n"))
+
+  config.merge(cmdline_config)
+
+  print "\n".join(config.write())
 
   years = args.years
   start_year = args.start_year
@@ -1205,15 +1737,13 @@ if __name__ == '__main__':
     exit()
 
 
-  which_files = args.which
 
-  if 'all' in which_files:
-    print "Will generate ALL input files."
-    which_files = fileChoices
-
+  print type(start_year), type(years)
   main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
        files=which_files,
-       time_coord_var=args.buildout_time_coord)
+       config=config,
+       time_coord_var=args.buildout_time_coord, 
+       clip_projected2match_historic=args.clip_projected2match_historic)
 
 
 

@@ -215,6 +215,10 @@ void EnvData::grnd_beginOfYear() {
   y_soi2l.qover =0.;
   y_soi2l.qinfl =0.;
   y_soi2l.qdrain=0.;
+  //Clearing the daily value of magic_puddle here instead of in
+  // the daily prep function because it needs to maintain a value
+  // in between days (and possibly months).
+  d_soi2l.magic_puddle = 0.;
 }
 
 // initialize monthly accumulators before daily-processes start
@@ -346,6 +350,10 @@ void EnvData::grnd_beginOfDay() {
   // need to set some diagnostic variables to zero
   d_snw2soi.melt =0.;
   d_soi2a.evap_pet = 0.0;
+
+  for(int il=0; il<MAX_SOI_LAY; il++){
+    d_soid.fbtran[il] = 0.0;
+  }
 };
 
 /////////////////////////////////////////////////////////////////////////
@@ -666,6 +674,7 @@ void EnvData::grnd_endOfDay(const int & dinm, const int & doy) {
   m_soi2a.evap_pet+= d_soi2a.evap_pet;
   m_soi2l.qover  += d_soi2l.qover;
   m_soi2l.qdrain += d_soi2l.qdrain;
+  m_soi2l.qinfl += d_soi2l.qinfl;
 
   //Storing daily data for NetCDF output at end of month
   daily_tshlw[dom] = d_soid.tshlw;
@@ -691,9 +700,12 @@ void EnvData::grnd_endOfDay(const int & dinm, const int & doy) {
 
   daily_watertab[dom] = d_sois.watertab;
 
-  daily_drainage[dom] = d_soi2l.qdrain;
+  daily_qdrain[dom] = d_soi2l.qdrain;
+  daily_qinfl[dom] = d_soi2l.qinfl;
+  daily_qover[dom] = d_soi2l.qover;
 
   for(int il=0; il<MAX_SOI_LAY; il++){
+    daily_layer_drain[dom][il] = d_soi2l.layer_drain[il];
     daily_tlayer[dom][il] = d_sois.ts[il];
   }
 

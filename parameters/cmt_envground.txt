@@ -164,16 +164,16 @@
 -1.0               // initts(7): initial soil temperature at 10 cm interval (oC)
 -1.0               // initts(8): initial soil temperature at 10 cm interval (oC)
 -1.0               // initts(9): initial soil temperature at 10 cm interval (oC)
-0.10               // initvwc(0): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(1): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(2): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(3): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(4): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(5): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(6): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(7): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(8): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(9): initial soil volume water content at every 10 cm interval
+1.0               // initvwc(0): initial soil volume water content at every 10 cm interval
+1.0               // initvwc(1): initial soil volume water content at every 10 cm interval
+1.0               // initvwc(2): initial soil volume water content at every 10 cm interval
+1.0               // initvwc(3): initial soil volume water content at every 10 cm interval
+1.0               // initvwc(4): initial soil volume water content at every 10 cm interval
+1.0               // initvwc(5): initial soil volume water content at every 10 cm interval
+1.0               // initvwc(6): initial soil volume water content at every 10 cm interval
+1.0               // initvwc(7): initial soil volume water content at every 10 cm interval
+1.0               // initvwc(8): initial soil volume water content at every 10 cm interval
+1.0               // initvwc(9): initial soil volume water content at every 10 cm interval
 
 //===========================================================
 // CMT06 // Wet Sedge Tundra

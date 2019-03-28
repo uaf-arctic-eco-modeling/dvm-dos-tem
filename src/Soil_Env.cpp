@@ -31,7 +31,11 @@
 
 #include "../include/Soil_Env.h"
 
+#include "../include/TEMLogger.h"
+extern src::severity_logger< severity_level > glg;
+
 Soil_Env::Soil_Env() {
+  ponding_max_mm = 100.0; //max ponding (surface water storage) (mm)
 };
 
 Soil_Env::~Soil_Env() {
@@ -482,23 +486,32 @@ void Soil_Env::retrieveDailyFronts() {
 };
 
 // soil moisture calculation
-void Soil_Env::updateDailySM() {
+void Soil_Env::updateDailySM(double weighted_veg_tran) {
   // define the soil water module's domain
-  Layer * fstsoill = ground->fstsoill;
+  //Skip moss for all soil moisture calculations
+  Layer * fstsoill = ground->fstshlwl;
   Layer * lstsoill = ground->lstsoill;
-  Layer * drainl    = ground->drainl;
+  Layer * drainl = ground->drainl;
   double draindepth = ground->draindepth;
-  // First, data connection
-  double trans[MAX_SOI_LAY], melt, evap, rnth;
+  int topind = fstsoill->solind;
 
-  for (int i=0; i<MAX_SOI_LAY; i++) {
+  // First, data connection
+  //trans[MAX_SOI_LAY] = {0};
+  double melt, evap, rnth;
+
+  for (int il=0; il<MAX_SOI_LAY; il++) {
     // mm/day
-    // summed for all vegetation?
-    // or for all soil layers?
-    trans[i] = ed->d_v2a.tran * ed->d_soid.fbtran[i];
+    //CLM3 Equation 7.80
+    root_water_up[il] = ed->d_soid.r_e_i[il] * weighted_veg_tran;
+
+    if(root_water_up[il] != root_water_up[il]){
+      BOOST_LOG_SEV(glg, err) << "NaN in root_water_up in updateDailySM";
+    }
   }
 
   evap  = ed->d_soi2a.evap; // mm/day: summed for soil evaporation
+  //Testing: turn off evap
+  //evap = 0.0;
 
   // mm/day note: rthfl and rdrip are already fpc adjusted
   rnth  = (ed->d_v2g.rthfl + ed->d_v2g.rdrip) +
@@ -506,24 +519,83 @@ void Soil_Env::updateDailySM() {
 
   melt  = ed->d_snw2soi.melt; // mm/day
 
-  // 1) calculate the surface runoff and infiltration
+  //Calculate surface runoff
   ed->d_soi2l.qover  = 0.0;
   ed->d_soi2l.qdrain = 0.0;
+  //Update water table for runoff calculation
   ed->d_sois.watertab = getWaterTable(lstsoill);
-
   if( (rnth + melt) > 0 ) {
     ed->d_soi2l.qover = getRunoff(fstsoill, drainl, rnth, melt); // mm/day
   } else {
     ed->d_soi2l.qover = 0.0;
   }
 
-  double infil = rnth+melt-ed->d_soi2l.qover;
+  //Calculate infiltration (mm/day)
+  double infil = rnth + melt - ed->d_soi2l.qover;
+
+  //Get unsaturated space potentially available for liq infiltration (mm)
+  double space_for_liq = 0.0;
+  Layer *currl = fstsoill;
+  if(drainl != NULL && ground->frnttype[0] != 1){//no infil if top of ground frozen
+    int drainind = drainl->solind;
+    while(currl != NULL && currl->solind <= drainind){
+      double thetai = currl->getVolIce();
+      double thetal = currl->getVolLiq();
+      double avail_poro = fmax(fmin(currl->poro - thetai - thetal, currl->poro), 0.0);
+      space_for_liq += avail_poro * DENLIQ * currl->dz;
+      currl = currl->nextl;
+    }
+  }
+  //Modify available pore space by the liquid that will be
+  // infiltrating on this day.
+  space_for_liq -= infil;
+  space_for_liq = fmax(space_for_liq, 0.0);
+
+  //Add runoff (up to 10 mm) to surface water storage (magic puddle)
+  double space_in_puddle = ponding_max_mm - ed->d_soi2l.magic_puddle;
+  double add_to_puddle = fmax(fmin(ed->d_soi2l.qover, space_in_puddle), 0.0);
+  ed->d_soi2l.magic_puddle += add_to_puddle;
+  //Subtracting surface water storage from runoff
+  ed->d_soi2l.qover -= add_to_puddle;
+
+  //If there is space remaining in the soil, and water in
+  // the puddle, transfer water from the puddle
+  // to the infiltration value.
+  if(space_for_liq > 0.0 && ed->d_soi2l.magic_puddle > 0.0){
+    //limit puddle contribution by max infiltration rate (CLM 5 eq 7.27)
+    //with fmax = 0.25, fover = 0.5 m-1
+    double fsat = 0.25 * pow(10.0, (-0.5 * 0.5 * ed->d_sois.watertab));
+    double qinmax_layer = 1.e3; //initiate large to take min later
+    currl = fstsoill;
+    //Following CLM FORTRAN code and CLM 5
+    //Use first three layers
+    while(currl != NULL && currl->solind < topind + 3){
+      double theta_ice = currl->getVolIce();
+      double frac_ice = theta_ice / currl->poro;
+      double imped_exp = -richards.e_ice * frac_ice;
+      qinmax_layer = fmin(pow(10.0, imped_exp) * currl->hksat, qinmax_layer);
+      currl = currl->nextl;
+    }
+    //CLM 5 eq 7.37:
+    double qinmax = (1.0 - fsat) * qinmax_layer;
+    qinmax *= SEC_IN_DAY; //convert to mm/day
+    qinmax = fmax(qinmax, 0.5); //minimum of 0.5 mm/day
+
+    double puddle2grnd = fmax(fmin(space_for_liq, ed->d_soi2l.magic_puddle), 0.0);
+    puddle2grnd = fmax(fmin(puddle2grnd, qinmax), 0.0);
+    infil += puddle2grnd;
+    ed->d_soi2l.magic_puddle -= puddle2grnd;
+    if(ed->d_soi2l.magic_puddle < 0.0){
+      ed->d_soi2l.magic_puddle = 0.0;
+    }
+  }
+
   ed->d_soi2l.qinfl = infil;
 
-  // 2) Then soil water dynamics at daily time step
+  //Soil water dynamics at daily time step
 
-  for (int i=0; i<MAX_SOI_LAY; i++) {
-    trans[i] /= SEC_IN_DAY; // mm/day to mm/s
+  for (int i=0; i<MAX_SOI_LAY+1; i++) {
+    root_water_up[i] /= SEC_IN_DAY; // mm/day to mm/s
   }
 
   infil /= SEC_IN_DAY; // mm/day to mm/s
@@ -537,12 +609,58 @@ void Soil_Env::updateDailySM() {
     baseflow = 0.0;
   }
 
-  richards.update(fstsoill, drainl, draindepth, baseflow, trans,
-                  evap, infil, SEC_IN_DAY);
-  ed->d_soi2l.qdrain  += richards.qdrain;
-  //
-  ground->checkWaterValidity();
-};
+  //This prevents Richards from executing in a talik. In the case of
+  // a closed talik, there should be no water exiting other than
+  // transpiration, and in the case of an open talik, our equations
+  // may need modification. 
+  if(ground->fstshlwl->frozen != 1 && ground->fstmossl->frozen != 1){
+    richards.update(ground->fstshlwl, drainl, draindepth, baseflow,
+                    ed->d_sois.watertab, root_water_up, evap,
+                    infil, cd->cell_slope);
+    ed->d_soi2l.qdrain += richards.qdrain;
+
+    for(int il=0; il<MAX_SOI_LAY; il++){
+      ed->d_soi2l.layer_drain[il] = richards.layer_drain[il];
+    }
+    checkSoilLiquidWaterValidity(fstsoill, topind);
+  }
+  else{
+    //No percolation. Add any infil back to ponding/qover
+    if(infil > 0.0){
+      infil *= SEC_IN_DAY;// -->mm/day
+      //Add to ponding
+      space_in_puddle = ponding_max_mm - ed->d_soi2l.magic_puddle;
+      add_to_puddle = fmin(space_in_puddle, infil);
+      ed->d_soi2l.magic_puddle += add_to_puddle;
+      infil -= add_to_puddle;
+      ed->d_soi2l.qover += infil;
+      ed->d_soi2l.qinfl = 0;
+    }
+    if(weighted_veg_tran > 0){
+      //Subtract transpiration from each layer
+      currl = fstsoill;
+      while(currl!=NULL && currl->isSoil){
+        if(currl->frozen < 1){
+          double uptake = root_water_up[currl->solind-topind] * SEC_IN_DAY;
+          currl->liq -= uptake;
+        }
+        currl = currl->nextl;
+      }
+      checkSoilLiquidWaterValidity(fstsoill, topind);
+    }
+  }
+  //for moss layers excluded from hydrological process, match
+  //water to first shallow layer.
+  currl = ground->fstshlwl->prevl;
+  while (currl!=NULL && currl->isMoss) {
+    double lwc = ground->fstshlwl->getVolLiq();
+    currl->liq = currl->dz*(1.0-currl->frozenfrac) * lwc * DENLIQ;
+    currl=currl->prevl;
+  }
+  if(ed->d_soi2l.qdrain < 0){
+   BOOST_LOG_SEV(glg, err) << "qdrain is negative!";
+  };
+}
 
 
 double Soil_Env::getPenMonET(const double & ta, const double& vpd,
@@ -622,58 +740,68 @@ double Soil_Env::getEvaporation(const double & dayl, const double &rad) {
   return evap;
 };
 
-// Yuan: modified to set that from the bottom soil layer
-// this will eliminate the 'fake watertable' due to temporary water
-// saturation of upper
+//Heather March 2019 - new water table logic based on CLM5 documentation
+//and FORTRAN code
 
-// Heather Feb 2018: Original version did not consider a layer filled with ice
-// to be saturated, which seems odd. Also, if bottom layer was filled with ice,
-// no accumulation of saturation could occur. Edited so that ice and water are both
-// considered part of water table. Also removed arbitrary cutoff (0.6) for inclusion
-// of water from the first partially saturated layer encountered: now a fraction
-// of that layer's dz (corresponding to the fraction of filled pore space in the layer)
-// is included in saturated column height.
 double Soil_Env::getWaterTable(Layer* lstsoill) {
-  Layer* currl = lstsoill;
   double wtd = 0.0;
-  double s, dz, por;
-  double thetai, thetal;
-  bool bottomsat = true;   // Yuan: initialize the bottom layer as saturated
-  double sums = 0.0;
-  double ztot = 0.0;
-
-  while (currl != NULL) {
-
-      if(!currl->isRock) {
-      dz = currl->dz;
-      ztot += dz;
-      por = currl->poro;
-
-      if (bottomsat) {    // if we are on bottom layer or still working in saturated column
-        thetai = currl->getVolIce();
-        thetal = currl->getVolLiq();
-        thetal = fmin( por - thetai, thetal ); // Liq can't be > porosity remaining after ice
-        s = ( thetai + thetal ) / por; // s = saturated fraction of porosity
-        s = fmin((double)s , 1.0);
-
-        if ( s > 0.9999 ) {   // if ALL pore space is filled (layer is saturated)
-          sums = ztot;  // saturated column height = accumulated soil column height
-        } else {  // if this layer is not fully saturated (has empty space)
-            sums += s * dz;  // add saturated fraction of currl to accumlated saturated column
-            bottomsat = false; // top of saturated column is reached, skip remaining layers
-        }
-      }
-    } else {
-        if (currl->isSnow) {
-        break;
-      }
-    }
-    currl = currl->prevl;
+  if(ground->ststate==1){ //soil column is frozen, so no water table
+    return wtd;
   }
-  wtd = ztot - sums;  //the water table is measured from ground surface
+  Layer* currl = lstsoill; // default is to start at the bottom
+
+  //if column is partly thawed, just start at the lowest active layer
+  // to avoid taliks
+  if(ground->ststate== 0){
+    currl = ground->fstfntl;
+  }
+
+  while(currl!=NULL && currl->isSoil){
+    //thickness of thawed part of the layer
+    double dz_unfrozen = currl->dz * (1-currl->frozenfrac);
+
+    //volumetric liquid of the thawed part
+    double volliq = currl->liq/DENLIQ/dz_unfrozen;
+
+    //saturation of the thawed part
+    double saturation = fmin(volliq/currl->poro, 1.0);
+
+    //CLM 4.5 suggests the watertable is at the depth where
+    //saturation reaches 0.90
+    double sat_level = 0.90;
+    if(saturation >= sat_level){
+      //thawed part of this layer is fully saturated - move up to
+      //find watertable
+      currl = currl->prevl;
+    } else {
+      //saturation of this layer < 0.90, so watertable is below the
+      //top of this layer. Interpolate within the thawed part of this layer
+      //(for partly frozen layer) or between between currl and currl->nextl
+      //to find perched water table height.
+      double nextl_sat = 1.0; //assume frozen or null layers act saturated
+      double m, b;
+      if(currl->nextl != NULL && currl->nextl->frozen < 1){
+        //determine saturation of next layer
+        double nextl_dz_unfrozen = currl->nextl->dz
+            * (1-currl->nextl->frozenfrac);
+        double nextl_volliq = currl->nextl->liq/DENLIQ/nextl_dz_unfrozen;
+        nextl_sat = fmin(nextl_volliq/currl->nextl->poro, 1.0);
+        m = (currl->nextl->z - currl->z)/(nextl_sat - saturation);
+        b = currl->nextl->z - m * nextl_sat;
+      }
+      else{//current layer is partly frozen or next layer is null
+        m = (dz_unfrozen)/(nextl_sat - saturation);
+        b = currl->z + dz_unfrozen - m * nextl_sat;
+      }
+      wtd = fmax(m * sat_level + b, 0.0);
+      if(wtd > ground->frontsz[0] && ground->frontstype[0] == -1){
+        BOOST_LOG_SEV(glg, err) << "Water table depth is below thaw front";
+      }
+      return wtd;
+    }
+  }
   return wtd;
 }
-
 
 double Soil_Env::getRunoff(Layer* toplayer, Layer* drainl,
                            const double & rnth,const double & melt) {
@@ -681,13 +809,11 @@ double Soil_Env::getRunoff(Layer* toplayer, Layer* drainl,
   double s, dz, por;
   double  thetai;
   double  thetal;
-  double frasat = 0.;
   double sums=0.;
   double ztot=0.;
   int numl =0;
   Layer* currl = toplayer;
-
-  if (drainl==NULL || !toplayer->isSoil) {
+  if (drainl == NULL || !toplayer->isSoil) {
     runoff = rnth+melt;
   } else {
     while (currl!=NULL) {
@@ -699,7 +825,6 @@ double Soil_Env::getRunoff(Layer* toplayer, Layer* drainl,
       s = fmin((double)s , 1.0);
       sums+=s * dz;
       ztot +=dz;
-      frasat +=s;
       currl=currl->nextl;
       numl++;
 
@@ -707,50 +832,268 @@ double Soil_Env::getRunoff(Layer* toplayer, Layer* drainl,
         break;
       }
     }
-
     double avgs = sums/ztot;
-    frasat /=numl;
+    //Water table depth
+    double wtd = getWaterTable(ground->lstsoill);
+    //Saturated fraction, from CLM3/Oleson 2004, equation 7.53
+    double frasat = WFACT * min(1.0,exp(-wtd));
+    //CLM3/Oleson 2004, equation 7.59.
     runoff = (frasat  + (1.-frasat)*pow((double)avgs, 4.) )
              * (rnth +melt); //So, unit same as "rainfall/snowmelt)"
   }
-
   return runoff;
-};
+}
 
 /*! calculates the factor which provides controls from soil on transpiration
  *  Oleson, T. R., 2004
  *  */
-void Soil_Env::getSoilTransFactor(double btran[MAX_SOI_LAY], Layer* fstsoill,
+double Soil_Env::getSoilTransFactor(double r_e_ij[MAX_SOI_LAY],
+                                  Layer* fstsoill,
                                   const double rootfr[MAX_SOI_LAY]) {
+  //TODO rename function? btran is not the soil trans factor,
+  // r_e_i is
   double psimax, psi, psisat;
-  double rresis;
+  //double rresis;
+  double wilting_factor[MAX_SOI_LAY] = {0};
+  double betaT_elements[MAX_SOI_LAY] = {0};
+//  for(int il=0; il<MAX_SOI_LAY; il++){
+//    wilting_factor[il] = 0.;
+//    betaT_elements[il] = 0.;
+//  }
+  double betaT = 0.;
   psimax = envpar.psimax;
+  int layind = -1;
+  //double sumbtran = 0.;
+
+  //Skipping moss layer(s)
   Layer * currl = fstsoill;
-  int sind = -1;
-  double sumbtran = 0.;
+  while(currl->isMoss && currl->nextl != NULL){
+    currl = currl->nextl;
+  }
 
   while(currl!=NULL) {
     if(currl->isSoil) {
-      sind++;
+      layind++;
 
       if(currl->tem>=0.01) {
         psisat = currl->psisat;
         psi = dynamic_cast<SoilLayer*>(currl)->getMatricPotential();
         psi = fmax(psimax, psi);
         psi = fmin(psisat, psi);
-        rresis = (1.0 - psi/psimax)/(1.0 - psisat/psimax);
-        btran[sind] = rootfr[sind] * rresis;
-        sumbtran   += rootfr[sind] * rresis;
+        //CLM3 Equation 8.11
+        wilting_factor[layind] = (psimax - psi)/(psimax + psisat);
+        //rresis = (1.0 - psi/psimax)/(1.0 - psisat/psimax);
+        //btran_elements is the individual pieces for the summation
+        // in CLM3 Equation 8.10
+        //rootfr uses a modified index because element 0 is for
+        // the moss layer
+        betaT_elements[layind] = rootfr[layind+1] * wilting_factor[layind];
+        //sumbtran   += rootfr[sind] * rresis;
+      }
+      else {
+        wilting_factor[layind] = 0;
+        betaT_elements[layind] = 0;
       }
     }
 
     currl=currl->nextl;
   }
 
-  if (sumbtran > 1.0) {
+  //Summing for CLM3 Equation 8.10
+  for(int il=0; il<MAX_SOI_LAY; il++){
+    betaT += betaT_elements[il];
+  }
+  //Logging limit violations
+  if(betaT < 0){//1.e-10){
+    BOOST_LOG_SEV(glg, err) << "BetaT is out of range";
+  }
+
+  //CLM3 Equation 7.83
+  //Effective root fraction per PFT per layer
+  for(int il=0; il<MAX_SOI_LAY; il++){
+
+    if(betaT > 0){
+      r_e_ij[il] = (rootfr[il+1] * wilting_factor[il]) / betaT;
+    }
+    else{
+      r_e_ij[il] = 0;
+    }
+
+    if(r_e_ij[il] != r_e_ij[il]){
+      BOOST_LOG_SEV(glg, err) << "NaN in r_e_ij";
+    }
+
+  }
+
+/*  if (sumbtran > 1.0) {
     for (int il=0; il<cd->d_soil.numsl; il++) {
       btran[sind] /= sumbtran;
     }
+  }*/
+  return betaT;
+}
+
+void Soil_Env::checkSoilLiquidWaterValidity(Layer *topsoill, int topind){
+  //Following logic from CLM 4.5 pg 176
+  //First fill needed arrays and determine lowest active layer
+  //(only active layers might have liquid water)
+  double effminliq[MAX_SOI_LAY] ={0};
+  double effmaxliq[MAX_SOI_LAY] = {0};
+  Layer *last_active_layer = topsoill;
+  Layer *currl = topsoill;
+  while(currl != NULL){
+    int ind = currl->solind;
+    if(currl->frozen == 1){
+      effminliq[ind] = 0.0;
+      effmaxliq[ind] = 0.0;
+      currl = currl->nextl;
+    }
+    else{
+      effminliq[ind] = currl->minliq * (1-currl->frozenfrac);
+      effmaxliq[ind] = currl->maxliq * (1-currl->frozenfrac);
+      last_active_layer = currl;
+      currl = currl->nextl;
+    }
+  }
+  //Upward pass: redistribute excess water to layers above
+  currl = last_active_layer;
+  double excess_liq = 0;
+  while(currl != NULL && currl->solind >= topind){
+    int ind = currl->solind;
+    if (currl->liq > effmaxliq[ind]){
+      excess_liq = currl->liq - effmaxliq[ind];
+      Layer *layer_above = currl->prevl;
+      while(layer_above != NULL && layer_above->solind >=topind && excess_liq > 0){
+        int ind2 = layer_above->solind;
+        if(layer_above->liq < effmaxliq[ind2]){
+          double space_for_liq = effmaxliq[ind2] - layer_above->liq;
+          double sink_liq = fmin(space_for_liq, excess_liq);
+          layer_above->liq += sink_liq;
+          currl->liq -= sink_liq;
+          excess_liq -= sink_liq;
+        }
+        layer_above = layer_above->prevl;
+      }
+    }
+    //if that didn't work, dump excess to magic puddle or qover
+    if (currl->liq > effmaxliq[ind]){
+      double sink_liq = currl->liq - effmaxliq[ind];
+      currl->liq -= sink_liq;
+      double space_in_puddle = ponding_max_mm - ed->d_soi2l.magic_puddle;
+      double to_puddle = fmin(sink_liq, space_in_puddle);
+      ed->d_soi2l.magic_puddle += to_puddle;
+      sink_liq -= to_puddle;
+      ed->d_soi2l.qover += sink_liq;
+    }
+    currl = currl->prevl;
+  }
+
+  //Downward pass: bring layers up to minliq by pulling from below
+  currl = topsoill;
+  double needed_liq = 0;
+  while(currl != NULL && currl->solind <= last_active_layer->solind){
+    int ind = currl->solind;
+    if (currl->liq < effminliq[ind]){
+      needed_liq = effminliq[ind] - currl->liq;
+      Layer *layer_below = currl->nextl;
+      while(layer_below != NULL && layer_below->solind <= last_active_layer->solind && needed_liq >0){
+        int ind2 = layer_below->solind;
+        if(layer_below->liq > effminliq[ind2]){
+          double avail_liq = layer_below->liq - effminliq[ind2];
+          double take_liq = fmin(needed_liq, avail_liq);
+          layer_below->liq -= take_liq;
+          currl->liq += take_liq;
+          needed_liq -= take_liq;
+        }
+        layer_below = layer_below->nextl;
+      }
+    }
+    //if that didn't work, pull excess from qdrain, magic puddle, and/or
+    //qover if possible
+    if(currl->liq < effminliq[ind]){
+      needed_liq = effminliq[ind] - currl->liq;
+      //pull from magic puddle
+      double take_liq = fmin(ed->d_soi2l.magic_puddle, needed_liq);
+      currl->liq += take_liq;
+      needed_liq -= take_liq;
+      ed->d_soi2l.magic_puddle -= take_liq;
+      //pull from qdrain
+      take_liq = fmin(ed->d_soi2l.qdrain, needed_liq);
+      currl->liq += take_liq;
+      needed_liq -= take_liq;
+      ed->d_soi2l.qdrain -= take_liq;
+      //pull from qover
+      take_liq = fmin(ed->d_soi2l.qover, needed_liq);
+      currl->liq += take_liq;
+      needed_liq -= take_liq;
+      ed->d_soi2l.qover -= take_liq;
+    }
+    currl = currl->nextl;
+  }
+
+  //Downward pass: bring bottom layer up to minliq by pulling from top down
+  currl = last_active_layer;
+  needed_liq = 0;
+  int ind = currl->solind;
+  if (currl->liq < effminliq[ind]){
+    needed_liq = effminliq[ind] - currl->liq;
+    Layer *layer_above = topsoill;
+    while(layer_above != NULL && layer_above->solind <= last_active_layer->solind && needed_liq >0){
+      int ind2 = layer_above->solind;
+      if(layer_above->liq > effminliq[ind2]){
+        double avail_liq = layer_above->liq - effminliq[ind2];
+        double take_liq = fmin(needed_liq, avail_liq);
+        layer_above->liq -= take_liq;
+        currl->liq += take_liq;
+        needed_liq -= take_liq;
+      }
+      layer_above = layer_above->nextl;
+    }
+  }
+  //if that didn't work, pull excess from qdrain, magic puddle, and/or
+  //qover if possible
+  if(currl->liq < effminliq[ind]){
+    needed_liq = effminliq[ind] - currl->liq;
+    //pull from magic puddle
+    double take_liq = fmin(ed->d_soi2l.magic_puddle, needed_liq);
+    currl->liq += take_liq;
+    needed_liq -= take_liq;
+    ed->d_soi2l.magic_puddle -= take_liq;
+    //pull from qdrain
+    take_liq = fmin(ed->d_soi2l.qdrain, needed_liq);
+    currl->liq += take_liq;
+    needed_liq -= take_liq;
+    ed->d_soi2l.qdrain -= take_liq;
+    //pull from qover
+    take_liq = fmin(ed->d_soi2l.qover, needed_liq);
+    currl->liq += take_liq;
+    needed_liq -= take_liq;
+    ed->d_soi2l.qover -= take_liq;
+  }
+
+  //Final check, force, and raise error
+  currl = topsoill;
+  while (currl != NULL and currl->solind <= last_active_layer->solind){
+    int ind = currl->solind;
+    if (currl->liq < effminliq[ind] || currl->liq > effmaxliq[ind]){
+      if(currl->liq < effminliq[ind]){
+        //too little liq, enforce limits; if difference is more than 1mm, raise error
+        if((effminliq[ind] - currl->liq) > 1.0){
+          BOOST_LOG_SEV(glg, err) << "Layer " << currl->indl << " liquid forced up to minimum: difference "
+                                  << effminliq[ind] - currl->liq << " mm";
+        }
+        currl->liq =effminliq[ind];
+      }
+      else{
+        //too much liq, enforce limits; if difference is more than 1mm, raise error
+        if((currl->liq - effmaxliq[ind]) > 1.0){
+          BOOST_LOG_SEV(glg, err) << "Layer " << currl->indl << " liquid forced down to maximum: difference "
+                                  << currl->liq - effmaxliq[ind] << " mm";
+        }
+        currl->liq = effmaxliq[ind];
+      }
+    }
+    currl = currl->nextl;
   }
 }
 

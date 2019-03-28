@@ -556,7 +556,7 @@ void advance_model(const int rowidx, const int colidx,
     runner.cohort.md->set_baseline(false);
     runner.cohort.md->set_dsbmodule(false);
     runner.cohort.md->set_dslmodule(false);
-    runner.cohort.md->set_dvmmodule(false);
+    runner.cohort.md->set_dynamic_lai_module(false);
 
     BOOST_LOG_SEV(glg, debug) << "Ground, right before 'pre-run'. "
                               << runner.cohort.ground.layer_report_string("depth thermal");
@@ -592,7 +592,7 @@ void advance_model(const int rowidx, const int colidx,
     }
 
     runner.cohort.md->set_envmodule(true);
-    runner.cohort.md->set_dvmmodule(true);
+    runner.cohort.md->set_dynamic_lai_module(true);
     runner.cohort.md->set_bgcmodule(true);
     runner.cohort.md->set_dslmodule(true);
 
@@ -665,7 +665,7 @@ void advance_model(const int rowidx, const int colidx,
     runner.cohort.md->set_baseline(true);
     runner.cohort.md->set_dsbmodule(false);
     runner.cohort.md->set_dslmodule(true);
-    runner.cohort.md->set_dvmmodule(true);
+    runner.cohort.md->set_dynamic_lai_module(true);
 
     runner.cohort.climate.monthlycontainers2log();
 
@@ -719,7 +719,7 @@ void advance_model(const int rowidx, const int colidx,
     runner.cohort.md->set_baseline(true);
     runner.cohort.md->set_dsbmodule(false);
     runner.cohort.md->set_dslmodule(true);
-    runner.cohort.md->set_dvmmodule(true);
+    runner.cohort.md->set_dynamic_lai_module(true);
 
     // update the cohort's restart data object
     BOOST_LOG_SEV(glg, debug) << "Loading RestartData from: " << sp_restart_fname;
@@ -769,7 +769,7 @@ void advance_model(const int rowidx, const int colidx,
     runner.cohort.md->set_baseline(true);
     runner.cohort.md->set_dsbmodule(false);
     runner.cohort.md->set_dslmodule(true);
-    runner.cohort.md->set_dvmmodule(true);
+    runner.cohort.md->set_dynamic_lai_module(true);
 
     // update the cohort's restart data object
     BOOST_LOG_SEV(glg, debug) << "Loading RestartData from: " << tr_restart_fname;

@@ -84,7 +84,7 @@ Vegetation::Vegetation(int cmtnum, const ModelData* mdp) {
 //  temutil::pfll2data_pft(l, vegdimpar.lai);
 //
 //  for (int im = 0; im < MINY; im++) {
-//    temutil::pfll2data_pft( l, vegdimpar.envlai[im]);
+//    temutil::pfll2data_pft( l, vegdimpar.static_lai[im]);
 //  }
 }
 
@@ -148,7 +148,7 @@ void Vegetation::initializeState() {
         cd->hasnonvascular = true;
       }
 
-      cd->m_veg.lai[i] = chtlu->lai[i];
+      cd->m_veg.lai[i] = chtlu->initial_lai[i];
 
       for (int il=0; il<MAX_ROT_LAY; il++) {
         cd->m_veg.frootfrac[il][i] = chtlu->frootfrac[il][i]/100.0; // chtlu - in %
@@ -233,21 +233,20 @@ void Vegetation::set_state_from_restartdata(const RestartData & rd) {
 void Vegetation::updateLai(const int &currmind) {
   for(int ip=0; ip<NUM_PFT; ip++) {
     if (cd->m_veg.vegcov[ip]>0.) {
-      if(!updateLAI5vegc) {
-        cd->m_veg.lai[ip] = chtlu->envlai[currmind][ip];//So, this will give a
-                                                        //  portal for input LAI
+      if(!update_LAI_from_vegc) {
+        cd->m_veg.lai[ip] = chtlu->static_lai[currmind][ip];
       } else {
-        if (bd[ip]->m_vegs.c[I_leaf] > 0.) {
+        if (bd[ip]->m_vegs.c[I_leaf] > 0.0) {
           cd->m_veg.lai[ip] = vegdimpar.sla[ip] * bd[ip]->m_vegs.c[I_leaf];
         } else {
           if (ed[ip]->m_soid.rtdpgrowstart>0 && ed[ip]->m_soid.rtdpgrowend<0) {
             cd->m_veg.lai[ip] = 0.001; // this is needed for leaf emerging
           }
         }
-      }
+      } 
     }
   }
-};
+}
 
 // sum of all PFTs' fpc must be not greater than 1.0
 void Vegetation::updateFpc() {
@@ -478,12 +477,13 @@ double Vegetation::getFfoliage(const int &ipft, const bool & ifwoody,
 
 // plant max. LAI function
 double Vegetation::getYearlyMaxLAI(const int &ipft) {
-  double laimax = 0.;
 
-  for (int im=0; im<12; im++) {//taking the max. of input 'envlai[12]'
+  double laimax = 0.0;
+
+  for (int im=0; im<12; im++) {//taking the max. of input 'static_lai[12]'
                                //  adjusted by 'vegcov'
-//    double covlai = chtlu->envlai[im][ipft]*cd->m_veg.vegcov[ipft];
-      double covlai = chtlu->envlai[im][ipft];
+//    double covlai = chtlu->static_lai[im][ipft]*cd->m_veg.vegcov[ipft];
+      double covlai = chtlu->static_lai[im][ipft];
     if (laimax <= covlai) {
       laimax = covlai;
     }

@@ -249,7 +249,7 @@ def cmtdatablock2dict(cmtdatablock):
   -------
   d : dict
     A multi-level dict mapping names (deduced from comments) to parameter 
-    values.holding parameter values.
+    values.
   '''
 
   cmtdict = {}
@@ -564,14 +564,26 @@ if __name__ == '__main__':
         to view the columns lined up appropriately! Prints n/a if the CMT
         does not exist in the file.'''))
 
+  parser.add_argument('--report-pft-stats', nargs=2, metavar=('INFOLDER', 'CMTNUM'),
+      help=textwrap.dedent('''Prints a tables summarizing the amount of C and N
+        allocated to each PFT and the percent contribution to the ecosystem totals
+        of C and N. Assumes that a file 'cmt_bgcvegetation.txt' exists in the
+        INFOLDER.'''))
+
   parser.add_argument('--report-cmt-names', nargs=2, metavar=('INFOLDER', 'CMTNUM'),
       help=textwrap.dedent('''Prints the CMT number and name for each file.
-        Prints na/ if the CMT does not exist in the file!'''))
+        Prints n/a if the CMT does not exist in the file!'''))
 
   parser.add_argument('--report-all-cmts', nargs=1, metavar=('FOLDER'),
       help=textwrap.dedent('''Prints out a table with all the CMT names found
         in each file found in the %(metavar)s. Only looks at files named like:
         'cmt_*.txt' in the %(metavar)s.'''))
+
+  parser.add_argument('--plot-static-lai', nargs=2, metavar=('INFOLDER','CMT'),
+      help=textwrap.dedent('''Makes plots of the static_lai parameter. static_lai
+        is a monthly value, so each PFT has 12 entries in the parameter file. 
+        The plot shows the values over the year so you can check the seasonality.
+        Looks a 'cmt_dimvegetation.txt file in the INFOLDER.'''))
 
   args = parser.parse_args()
 
@@ -585,6 +597,98 @@ if __name__ == '__main__':
     'cmt_envground.txt',
     'cmt_firepar.txt',
   ]
+
+  if args.report_pft_stats:
+    infolder = args.report_pft_stats[0]
+    cmtnum = int(args.report_pft_stats[1])
+
+    src_file = os.path.join(infolder, 'cmt_bgcvegetation.txt')
+
+    db = get_CMT_datablock(src_file, cmtnum)
+    dd = cmtdatablock2dict(db)
+
+    ecosystem_total_C = 0.0
+    for pft in get_datablock_pftkeys(dd):
+      ecosystem_total_C += dd[pft]['initvegcl']
+      ecosystem_total_C += dd[pft]['initvegcw']
+      ecosystem_total_C += dd[pft]['initvegcr']
+
+    print "Reading from file: {}".format(src_file)
+    print "{:<6} {:>12} {:>10} {:>12} {:>8} {:>8} {:>8}".format(' ','name','% veg C', 'C', 'leaf C', 'wood C', 'root C')
+    whole_plant_C = 0.0
+    for pft in get_datablock_pftkeys(dd):
+      whole_plant_C = (dd[pft]['initvegcl'] + dd[pft]['initvegcw'] + dd[pft]['initvegcr'])
+      frac_C = whole_plant_C / ecosystem_total_C
+      print "{:<6} {:>12} {:>10.2f} {:>12} {:>8} {:>8} {:>8}".format(
+          pft, dd[pft]['name'], frac_C*100, whole_plant_C,
+          dd[pft]['initvegcl'], dd[pft]['initvegcw'], dd[pft]['initvegcr']
+      )
+    print "{:<6} {:>12} {:>10} {:->12} {:>8} {:>8} {:>8}".format('','','','','','','')
+    print "{:>31} {:>11.2f}".format("Community Total Vegetation C:", ecosystem_total_C)
+    print ""
+
+    ecosystem_total_N = 0.0
+    for pft in get_datablock_pftkeys(dd):
+      ecosystem_total_N += dd[pft]['initvegnl']
+      ecosystem_total_N += dd[pft]['initvegnw']
+      ecosystem_total_N += dd[pft]['initvegnr']
+
+    print "Reading from file: {}".format(src_file)
+    print "{:<6} {:>12} {:>10} {:>12} {:>8} {:>8} {:>8}".format(' ','name','% veg N', 'N', 'leaf N', 'wood N', 'root N')
+    whole_plant_N = 0.0
+    for pft in get_datablock_pftkeys(dd):
+      whole_plant_N = (dd[pft]['initvegnl'] + dd[pft]['initvegnw'] + dd[pft]['initvegnr'])
+      frac_N = whole_plant_N / ecosystem_total_N
+      print "{:<6} {:>12} {:>10.2f} {:>12} {:>8} {:>8} {:>8}".format(
+          pft, dd[pft]['name'], frac_N*100, whole_plant_N,
+          dd[pft]['initvegnl'], dd[pft]['initvegnw'], dd[pft]['initvegnr']
+      )
+    print "{:<6} {:>12} {:>10} {:->12} {:>8} {:>8} {:>8}".format('','','','','','','')
+    print "{:>31} {:>11.2f}".format("Community Total Vegetation N:", ecosystem_total_N)
+    print ""
+ 
+    sys.exit(0)
+
+  if args.plot_static_lai:
+    infolder = args.plot_static_lai[0]
+    cmtnum = int(args.plot_static_lai[1])
+
+    print infolder, cmtnum
+    print "Reading: {}".format(os.path.join(infolder, "cmt_dimvegetation.txt"))
+
+    db = get_CMT_datablock(os.path.join(infolder, "cmt_dimvegetation.txt"), cmtnum)
+    dd = cmtdatablock2dict(db)
+
+    # Print tabular report
+    print "{:>12}   jan   feb   mar   apr   may   jun   jul   aug   sep   oct   nov   dec".format(" ")
+    for key in sorted(filter(lambda x: 'pft' in x, dd.keys())):
+      pft = dd[key]
+      print "{:>12}".format(pft['name']),
+      static_lai = [ pft['static_lai[%s]'%m] for m in range(0,12) ]
+      print "{:.2f}  {:.2f}  {:.2f}  {:.2f}  {:.2f}  {:.2f}  {:.2f}  {:.2f}  {:.2f}  {:.2f}  {:.2f}  {:.2f}".format(*static_lai)
+
+    # make plots, keep imports here so that other features of the script 
+    # can be used withough maplotlib installed.
+    import matplotlib.pyplot as plt
+
+    fig, axes = plt.subplots(len(filter(lambda x: 'pft' in x, dd.keys()))+1, 1, sharex=True)
+    for i, key in enumerate(sorted(filter(lambda x: 'pft' in x, dd.keys()))):
+      static_lai = [ dd[key]['static_lai[%s]'%m] for m in range(0,12) ]
+      l = axes[0].plot(range(0,12), static_lai, label=dd[key]['name'])
+      axes[i+1].plot(range(0,12), static_lai, label=dd[key]['name'], color=l[0].get_color(), marker='o')
+      axes[i+1].set_ylabel(dd[key]['name'], rotation=0, labelpad=35)
+      axes[i+1].scatter(0.5,dd[key]['initial_lai'], marker='x', color='black')
+
+    plt.suptitle("file: {}\n CMT: {}".format(
+        os.path.abspath(os.path.join(infolder, "cmt_dimvegetation.txt")),
+        cmtnum
+    ))
+    axes[-1].set_xticks(range(0,12))
+    axes[-1].set_xticklabels('jan,feb,mar,apr,may,jun,jul,aug,sep,oct,nov,dec'.split(','))
+    #from IPython import embed; embed()
+    plt.show(block=True)
+
+    sys.exit(0)
 
   if args.report_pft_names:
 

@@ -5,12 +5,12 @@
 # Institute of Arctic Biology
 
 import os
+import sys
 import argparse
 import textwrap
 
 import netCDF4 as nc
 import numpy as np
-import matplotlib.pyplot as plt
 
 
 def modified_attribute_string(msg=''):
@@ -39,35 +39,21 @@ def modified_attribute_string(msg=''):
 
   return s
 
-def plot_mask_count_along_timeseries(dataset):
-  img = plt.imshow(
-        np.ma.masked_greater_equal(
-            np.apply_along_axis(np.count_nonzero, 0, dataset.mask),
-            len(dataset)),
-        interpolation='none',
-        vmin=0,
-        vmax=len(dataset))
-
-  plt.colorbar(img)
-
-  plt.tight_layout()
-  plt.show()
-
-def print_mask_count_along_timeseries(dataset):
+def print_mask_count_along_timeseries(dataset, title='', nonewline=False):
+  '''Counts masked items along a sime axis and prints value for each pixel.'''
+  pass
   print "Masked items: {}".format(np.ma.count_masked(dataset))
-  print "----------------"
-  print np.apply_along_axis(np.count_nonzero, 0, np.ma.getmaskarray(dataset))
+  print "-- {} --".format(title)
+  print "{}".format(np.apply_along_axis(np.count_nonzero, 0, np.ma.getmaskarray(dataset)))
+  print ""
 
-def gapfill_along_timeseries(data, plot=False):
+def gapfill_along_timeseries(data, dataTag):
   '''
   Parameters
   ----------
   data : a 3D numpy array of data with dimensions (time, y, x)
     Will be converted to a masked array, and then have values modifed by
     the interpolation scheme.
-  plot : bool
-    Whether or not to generate images using matplotlib showing which pixels
-    get masked
 
   Returns
   -------
@@ -77,13 +63,7 @@ def gapfill_along_timeseries(data, plot=False):
   '''
   datam = np.ma.MaskedArray(data)
 
-  #datam = np.ma.MaskedArray(pc.variables['precip'][:])
-
-  print_mask_count_along_timeseries(datam)
-
-  #fig, (ax0, ax1, ax2) = plt.subplots(1,3)
-
-  #plot_mask_count_along_timeseries(datam)
+  print_mask_count_along_timeseries(datam, title='{} (before)'.format(dataTag))
 
   coords_to_process = zip(*np.nonzero(np.invert(np.ma.getmaskarray(datam[0]))))
 
@@ -100,7 +80,7 @@ def gapfill_along_timeseries(data, plot=False):
 
     for j, bp in enumerate(bad_points):
       tidx = bp[0]
-      print "datam[{},{},{}] is {} ({})".format(tidx, yc, xc, datam[tidx, yc, xc], datam[tidx, yc, xc].data)
+      #print "datam[{},{},{}] is {} ({})".format(tidx, yc, xc, datam[tidx, yc, xc], datam[tidx, yc, xc].data)
 
       # Don't bother with the ends of the timeseries
       if tidx >= 0 and tidx < len(timeseries):
@@ -112,7 +92,7 @@ def gapfill_along_timeseries(data, plot=False):
       else:
         print "Can't operate on ends of timeseries! Passing..."
 
-  print_mask_count_along_timeseries(datam)
+  print_mask_count_along_timeseries(datam, title='{} (after)'.format(dataTag))
 
   return datam
 
@@ -152,11 +132,46 @@ if __name__ == '__main__':
   parser.add_argument('--dry-run', action='store_true',
       help=textwrap.dedent('''Read-only - don't overwrite the existing file.'''))
 
+  parser.add_argument('--fix-ar5-rcp85-nirr', action='store_true', help="need to write this...")
+
   args = parser.parse_args()
 
+  if args.fix_ar5_rcp85_nirr:
+    file_path = os.path.join(args.input_folder, 'historic-climate.nc')
+
+    with nc.Dataset(file_path, 'r') as histFile:
+      nirrV = histFile.variables['nirr']
+      nirrD = histFile.variables['nirr'][:]
+
+      from IPython import embed; embed()
+
+      T, Y, X = nirrD.shape
+
+      nirrD_i = nirrD * -1.0
+
+      peaks, _ = np.apply_along_axis(scipy.signal.find_peaks, 0, nirrD_i)
+
+      # Maybe this will work. Should be vectorized if it does...
+      for y in np.arange(0,Y):
+        for x in np.arange(0,X):
+          px_ts = nirrD_i[:,y,x]
+          for peakidx in peaks:
+            print peakidx # this is the coordinate along time axis
+            if peakidx == 0 or peakidx == T-1:
+              pass # Can't operate on ends!!
+            else:
+              peak_data = px_ts[peakidx]
+              prev = px_ts[peakidx-1]
+              next = px_ts[peakidx+1]
+              estimated_value = (prev + next) / 2.0
+              estimated_value = estimated_value * -1.0
+              nirrD[peakidx,y,x] = estimated_value
+
+    sys.exit(0)
 
 
-for climate_file in CLIMATE_FILES:
+
+  for climate_file in CLIMATE_FILES:
 
     file_path = os.path.join(args.input_folder, climate_file)
 
@@ -164,11 +179,11 @@ for climate_file in CLIMATE_FILES:
 
       for v in VARS:
 
-        print "Generating fill data"
-        filled = gapfill_along_timeseries(myFile.variables[v][:])
+        print "Generating fill data for {}".format(file_path)
+        filled = gapfill_along_timeseries(myFile.variables[v][:], dataTag='{}'.format(v))
 
-        print myFile.source
-        print myFile.ncattrs()
+        print "Source: {}".format(myFile.source)
+        print "ncattrs: {}".format(myFile.ncattrs())
 
         if not (args.dry_run):
           print "Overwriting file...."
@@ -177,9 +192,6 @@ for climate_file in CLIMATE_FILES:
           myFile.variables[v].setncattr('modified', modified_attribute_string("Basic single point interpolation"))
 
 
-
-
-#from IPython import embed; embed()
 
 
 

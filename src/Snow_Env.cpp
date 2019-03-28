@@ -9,7 +9,8 @@ Snow_Env::~Snow_Env() {
 void Snow_Env::updateDailyM(const double & tdrv) {
   //update tsurface with nfactor
   double tsurface;
-  tsurface = tdrv *ed->d_soid.nfactor;
+//  tsurface = tdrv *ed->d_soid.nfactor;
+  tsurface = tdrv; // TESTING - try using tsurface for snow (snow nfactor = 1)
   //dsmass is the total snowfall during one timestep:
   double dsmass = ed->d_v2g.sthfl + ed->d_v2g.sdrip //these 2 items has already
                                                     //  been adjusted by FPC

@@ -5,19 +5,19 @@
 
   "IO": {
     "parameter_dir":      "parameters/",
-    "hist_climate_file":  "DATA/Toolik_10x10/historic-climate.nc",
-    "proj_climate_file":  "DATA/Toolik_10x10/projected-climate.nc",
-    "veg_class_file":     "DATA/Toolik_10x10/vegetation.nc",
-    "drainage_file":      "DATA/Toolik_10x10/drainage.nc",
-    "soil_texture_file":  "DATA/Toolik_10x10/soil-texture.nc",
-    "co2_file":           "DATA/Toolik_10x10/co2.nc",
-    "runmask_file":       "DATA/Toolik_10x10/run-mask.nc",
-    "topo_file":          "DATA/Toolik_10x10/topo.nc",
-    "fri_fire_file":      "DATA/Toolik_10x10/fri-fire.nc",
-    "hist_exp_fire_file": "DATA/Toolik_10x10/historic-explicit-fire.nc",
-    "proj_exp_fire_file": "DATA/Toolik_10x10/projected-explicit-fire.nc",
-    "topo_file":          "DATA/Toolik_10x10/topo.nc",
-    "output_dir":         "DATA/Toolik_10x10/output/",
+    "hist_climate_file":  "demo-data/cru-ts40_ar5_rcp85_mri-cgcm3_Toolik_10x10/historic-climate.nc",
+    "proj_climate_file":  "demo-data/cru-ts40_ar5_rcp85_mri-cgcm3_Toolik_10x10/projected-climate.nc",
+    "veg_class_file":     "demo-data/cru-ts40_ar5_rcp85_mri-cgcm3_Toolik_10x10/vegetation.nc",
+    "drainage_file":      "demo-data/cru-ts40_ar5_rcp85_mri-cgcm3_Toolik_10x10/drainage.nc",
+    "soil_texture_file":  "demo-data/cru-ts40_ar5_rcp85_mri-cgcm3_Toolik_10x10/soil-texture.nc",
+    "co2_file":           "demo-data/cru-ts40_ar5_rcp85_mri-cgcm3_Toolik_10x10/co2.nc",
+    "runmask_file":       "demo-data/cru-ts40_ar5_rcp85_mri-cgcm3_Toolik_10x10/run-mask.nc",
+    "topo_file":          "demo-data/cru-ts40_ar5_rcp85_mri-cgcm3_Toolik_10x10/topo.nc",
+    "fri_fire_file":      "demo-data/cru-ts40_ar5_rcp85_mri-cgcm3_Toolik_10x10/fri-fire.nc",
+    "hist_exp_fire_file": "demo-data/cru-ts40_ar5_rcp85_mri-cgcm3_Toolik_10x10/historic-explicit-fire.nc",
+    "proj_exp_fire_file": "demo-data/cru-ts40_ar5_rcp85_mri-cgcm3_Toolik_10x10/projected-explicit-fire.nc",
+    "topo_file":          "demo-data/cru-ts40_ar5_rcp85_mri-cgcm3_Toolik_10x10/topo.nc",
+    "output_dir":         "output/",
     "output_spec_file":   "config/output_spec.csv",
     "output_monthly":     1, //JSON specific
     "output_nc_eq":       0,
@@ -68,7 +68,7 @@
   },
 
   "model_settings": {
-    "dynamic_lai": 0               // from model (1) or from input (0)
+    "dynamic_lai": 1                    // from model (1) or from input (0)
 //    //"dynamic_climate": 0,
 //    //"varied_co2": 0,
 //    //"fire_severity_as_input": 0,    // fire sev. as input or ??
