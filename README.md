@@ -148,11 +148,15 @@ Running `dvmdostem` (operating the model) requires 3 types of "input" informatio
 2. Parameter values
 3. Configuration options (from command line or config file)
 
-Sample driving data is provided in the `DATA/` directory, sample parameters are 
-provided in the `parameters/` directory, and sample configuraiton options are 
-provided in the `config/` directory. More configuration options are available
-via options supplied on the command line when starting the program. The `--help`
-flag provides some info and shows the defaults:
+Some demonstration driving data is provided in the `demo-data/` directory.
+We maintain a library of driving inputs separately from the git repository
+that manages the `dvmdostem` code base. There is a script (`update-mirror.sh`)
+in the `scripts/` directory that you can use to maintain a mirror of the 
+input library. Sample parameters are provided in the `parameters/` directory, 
+and sample configuraiton options are provided in the `config/` directory. More 
+configuration options are available via options supplied on the command line
+when starting the program. The `--help` flag provides some info and shows the
+defaults:
 
     $ ./dvmdostem -h
       -c [ --cal-mode ]                     Switch for calibration mode. When this 

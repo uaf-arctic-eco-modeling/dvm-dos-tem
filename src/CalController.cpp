@@ -83,9 +83,9 @@ CalController::CalController(Cohort* cht_p):
             {"dsl",
               CalCommand("changes dsl module state",
                          boost::bind(&CalController::dsl_cmd, this, _1)) },
-            {"dvm",
-              CalCommand("changes dvm module state",
-                         boost::bind(&CalController::dvm_cmd, this, _1)) },
+            {"dynlai",
+              CalCommand("changes dynamic lai module state",
+                         boost::bind(&CalController::dynlai_cmd, this, _1)) },
             {"nfeed",
               CalCommand("changes nitrogen feedback setting",
                           boost::bind(&CalController::nfeed_cmd, this, _1)) },
@@ -725,8 +725,8 @@ void CalController::dsl_cmd(const std::string& s) {
   cmd_wrapper(&ModelData::set_dslmodule, "dsl", s);
 }
 
-void CalController::dvm_cmd(const std::string& s) {
-  cmd_wrapper(&ModelData::set_dvmmodule, "dvm", s);
+void CalController::dynlai_cmd(const std::string& s) {
+  cmd_wrapper(&ModelData::set_dynamic_lai_module, "dynlai", s);
 }
 
 void CalController::nfeed_cmd(const std::string& s) {

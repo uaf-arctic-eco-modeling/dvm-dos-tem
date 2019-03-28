@@ -40,6 +40,8 @@ void MineralLayer::updateProperty5Lookup() {
   // implementation which can be found here:
   // https://github.com/ua-snap/dos-tem/commit/4de04dacb8741aa3b8b0e9c348bc19cfb2b4fb3c
 
+  //CLM4.5, Oleson 2013
+  //We do not consider the effect of organic matter on porosity.
   poro =  0.489 - 0.00126 * this->pctsand;
 
   tcsolid = (8.8 * this->pctsand + 2.92 * this->pctclay) /

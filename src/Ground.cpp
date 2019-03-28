@@ -1846,41 +1846,31 @@ void Ground::getLayerFrozenstatusByFronts(Layer * soill) {
 }
 
 
-void Ground::setDrainL(Layer* lstsoill, double & barrierdepth, double & watertab) {
-  double watab  = watertab; // water table depth (from surface)
-  double ald    = barrierdepth; //barrier depth, e.g. ALD or uppermost
-                                //  frozen depth (from surface)
-  draindepth    = watab;
+void Ground::setDrainL() {
 
-  if (ald!=MISSING_D && draindepth>=ald) {
-    draindepth = ald;  // the min. of watertable and barrierdepth
-  }
+  draindepth = 0.;
+  drainl = NULL;
 
-  if (draindepth<=0) {
-    drainl = NULL;
-  } else {
-    drainl = lstsoill;
-    Layer* currl = lstsoill;
-    double laytop = currl->z;
-    double laybot = currl->z+currl->dz;
-
-    while(currl!=NULL) {
-      if(currl->isSoil) {
-        laytop = currl->z;
-        laybot = currl->z+currl->dz;
-
-        if(draindepth<=laybot && draindepth>laytop) {
-          drainl = currl;  //the drainage layer is the soil layer
-                           //  with drainage depth inside
-          break;
-        }
-      } else {
-        break;
+  if(ststate == 0){
+    //check for existence of fronts
+    if(fstfntl != NULL && !fstfntl->isMoss){
+      drainl = fstfntl;
+      if(frnttype[0] == 1){//top front is a freezing front
+        draindepth = fstfntl->z; //draindepth is top of layer
       }
-
-      currl = currl->prevl;
+      else {//top front is a thawing front
+        draindepth = frntz[0]; //draindepth is at front interface
+        drainl = fstfntl;
+      }
     }
   }
+  else if(ststate == -1){
+    //soil stack is completely thawed, so
+    //set drain depth to the top of the first rock layer
+    draindepth = lstminel->nextl->z;
+    drainl = lstminel->nextl;
+  }
+
 };
 
 ///save 'soil' information in double-linked layer into struct in 'cd'
@@ -2047,7 +2037,7 @@ void Ground::updateOslThickness5Carbon(Layer* fstsoil) {
 */
 double Ground::thicknessFromCarbon(const double carbon, const double coefA, const double coefB) {
   //assert ((coefB >= 1) && "Yi et al. 2009 says the b coefficient should be a fitted parameter constrained to >= 1!");
-  if (!(coefB >= 1)) BOOST_LOG_SEV(glg, warn) << "Yi et al. 2009 says the b coefficient should be a fitted parameter constrained to >= 1!";
+  //if (!(coefB >= 1)) BOOST_LOG_SEV(glg, warn) << "Yi et al. 2009 says the b coefficient should be a fitted parameter constrained to >= 1!";
 
   // T = (C/a)^(1/b)
   double T;
@@ -2067,7 +2057,7 @@ double Ground::thicknessFromCarbon(const double carbon, const double coefA, cons
 */
 double Ground::carbonFromThickness(const double thickness, const double coefA, const double coefB) {
   //assert ((coefB >= 1) && "Yi et al. 2009 says the b coefficient should be a fitted parameter constrained to >= 1!");
-  if (!(coefB >= 1)) BOOST_LOG_SEV(glg, warn) << "Yi et al. 2009 says the b coefficient should be a fitted parameter constrained to >= 1!";
+  //if (!(coefB >= 1)) BOOST_LOG_SEV(glg, warn) << "Yi et al. 2009 says the b coefficient should be a fitted parameter constrained to >= 1!";
 
   // C = aT^b
   double C;
@@ -2254,31 +2244,38 @@ void Ground::checkWaterValidity() {
 
     if (currl->ice < 0.0 || currl->liq < 0.0) {
       BOOST_LOG_SEV(glg, warn) << "Layer " << currl->indl
-                              << " shall NOT have negative ice or liq water!";
+                              << " has negative ice or negative liquid water";
     }
 
     if (currl->frozen == 1) {
       if (currl->liq > 0.0) {
         BOOST_LOG_SEV(glg, warn) << "Layer " << currl->indl
-                                << " is frozen and shall NOT have liquid water!";
+                                << " is fully frozen but has liquid water";
       }
 
       // maybe from some mathematical round up? so '1.0e-3 is used as critical
       if ((currl->ice-currl->maxice) > 1.0e-3) {
-        BOOST_LOG_SEV(glg, warn) << "Layer " << currl->indl
-                                << " is frozen and shall NOT have too much ice water!";
+        if(currl->isSnow){
+          BOOST_LOG_SEV(glg, warn) << "Snow layer " << currl->indl
+                                   << " has too much ice";
+
+        }
+        else{
+          BOOST_LOG_SEV(glg, warn) << "Layer " << currl->indl
+                                   << " has too much ice";
+        }
       }
     }
 
     if (currl->frozen == -1) {
       if (currl->ice > 0.0) {
         BOOST_LOG_SEV(glg, warn) << "Layer " << currl->indl
-                                << " is NOT frozen and shall NOT have ice!";
+                                << " is fully thawed but has ice";
       }
 
       if ((currl->liq-currl->maxliq)>1.e-6 && currl->isSoil) {
         BOOST_LOG_SEV(glg, warn) << "Layer " << currl->indl
-                                << " is NOT frozen and shall NOT have too much liquid water!";
+                                << " has too much liquid water";
       }
     }
 
@@ -2288,14 +2285,14 @@ void Ground::checkWaterValidity() {
 
       if ((currl->liq-maxwat) > 1.e-6) {
         BOOST_LOG_SEV(glg, warn) << "Layer " << currl->indl << " (soil) "
-                                << "is partially unfrozen and shall NOT have too much liquid water!";
+                                << "has too much liquid water";
       }
 
       // adjust max. ice by liq occupied space
       maxwat = currl->maxice-currl->getVolLiq()*currl->dz*DENICE;
       if ((currl->ice-maxwat) > 1.e-6) {
         BOOST_LOG_SEV(glg, warn) << "Layer " << currl->indl << " (soil) "
-                                << "is partially frozen and shall NOT have too much ice water!";
+                                << "has too much ice";
       }
     }
 

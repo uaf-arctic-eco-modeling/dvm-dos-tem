@@ -26,7 +26,9 @@ public:
 
   WildFire(const std::string& fri_fname,
            const std::string& exp_fname,
-           const std::string& topo_fname,
+           const double cell_slope,
+           const double cell_aspect,
+           const double cell_elevation,
            const int y, const int x);
   
   ~WildFire();

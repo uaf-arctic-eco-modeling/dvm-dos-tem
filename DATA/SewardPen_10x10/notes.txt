@@ -1,6 +1,0 @@
-03-30-2017
-----------
-
-SewardPen sample data offsets (using SNAP base data) x:228, y:635
-
-

@@ -50,6 +50,9 @@ Cohort::Cohort(int y, int x, ModelData* modeldatapointer):
     this->cd.cmttype = temutil::get_veg_class(modeldatapointer->veg_class_file, y, x);
   }
   this->cd.drainage_type = temutil::get_drainage_class(modeldatapointer->drainage_file, y, x);
+  this->cd.cell_slope = temutil::get_scalar<double>(modeldatapointer->topo_file, "slope", y, x);
+  this->cd.cell_aspect = temutil::get_scalar<double>(modeldatapointer->topo_file, "aspect", y, x);
+  this->cd.cell_elevation = temutil::get_scalar<double>(modeldatapointer->topo_file, "elevation", y, x);
 
   BOOST_LOG_SEV(glg, info) << "Next, we build a CohortLookup object, properly configured with parameter directory and community type.";
   this->chtlu = CohortLookup( modeldatapointer->parameter_dir, temutil::cmtnum2str(cd.cmttype) );
@@ -75,7 +78,8 @@ Cohort::Cohort(int y, int x, ModelData* modeldatapointer):
 
   BOOST_LOG_SEV(glg, debug) << "Setup the fire information, defaulting to HISTORIC explicit data.";
   this->fire = WildFire(modeldatapointer->fri_fire_file, 
-    modeldatapointer->hist_exp_fire_file, modeldatapointer->topo_file, y, x);
+    modeldatapointer->hist_exp_fire_file, this->cd.cell_slope, this->cd.cell_aspect, this->cd.cell_elevation, y, x);
+
 
   this->soilenv = Soil_Env();
   
@@ -373,7 +377,7 @@ void Cohort::updateMonthly(const int & yrcnt, const int & currmind,
   }
 
   BOOST_LOG_SEV(glg, debug) << "Update the current dimension/structure of veg-snow/soil column (domain).";
-  updateMonthly_DIMveg(currmind, md->get_dvmmodule());
+  updateMonthly_DIMveg(currmind, md->get_dynamic_lai_module());
   updateMonthly_DIMgrd(currmind, md->get_dslmodule());
 
   if(md->get_bgcmodule()) {
@@ -428,7 +432,7 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
   //might be more accurate if done correctly, that code had been commented 
   //out for years, and so was removed. 
   //Value from Klene 2001 (summer values) and Kade 2006.
-  edall->d_soid.nfactor = 0.76;
+  //edall->d_soid.nfactor = 0.9; //using seaonally dynamic nfactors (below)
 
   // (ii)Initialize the yearly/monthly accumulators, which are accumulating at the end of month/day in 'ed'
   for (int ip=0; ip<NUM_PFT; ip++) {
@@ -471,6 +475,24 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
 
     daylength = temutil::length_of_day(this->lat, doy);
 
+    //Kade 2006 found summer nfactors of 1.17-1.24 for undisturbed tundra
+    // and winter nfactors ~0.38-0.57
+    // Karunaratne and Burn 2003 found that winter nfactors depend on
+    // snow thickness, especially for snow thickness < 60cm.
+    // This is a simplistic approach to replicate that effect.
+    double nfactor_summer_max = 2.0;
+    double nfactor_winter_max = 0.75;
+    double nfactor_winter_min = 0.3;
+    edall->d_soid.nfactor = nfactor_summer_max; //summer nfactor (max nfactor)
+    //If there's snow or it's freezing, adjust winter nfactor between max and min value
+    //based on snowthick
+    if(cd.d_snow.numsnwl > 0 || tdrv <= 0.0){
+      edall->d_soid.nfactor = fmin(fmax((nfactor_winter_min - nfactor_winter_max)
+                            * (ground.snow.thick / 0.60)
+                            + nfactor_winter_max, nfactor_winter_min), nfactor_winter_max);
+    }
+
+
     /* Daily processes for a Cohort, Environmental module...
        Have to use our Climate object to update our EnvData objects's daily
        climate arrays.
@@ -488,12 +510,15 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
     //Initialize some daily variables for 'ground'
     cd.beginOfDay();
     edall->grnd_beginOfDay();
+    for(int ip=0; ip<NUM_PFT; ip++){
+      ed[ip].grnd_beginOfDay();
+    }
     //'edall' in 'atm' must be assgined to that in 'ed' for each PFT
     assignAtmEd2pfts_daily();
 
     for (int ip=0; ip<NUM_PFT; ip++) {
       if (cd.d_veg.vegcov[ip] > 0.0) {
-        if (cd.d_veg.nonvascular <= 0) {   // for vascular plants
+        if (cd.d_veg.nonvascular[ip] <= 0) {   // for vascular plants
           // get the soil moisture controling factor on plant transpiration
           double frootfr[MAX_SOI_LAY];
 
@@ -501,13 +526,15 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
             frootfr[i] = cd.m_soil.frootfrac[i][ip];
           }
 
-          soilenv.getSoilTransFactor(ed[ip].d_soid.fbtran,
+          //d_vegd.btran and d_soid.r_e_ij are outputs
+          ed[ip].d_vegd.btran = soilenv.getSoilTransFactor(
+                                     ed[ip].d_soid.r_e_ij,
                                      ground.fstsoill, frootfr);
-          ed[ip].d_vegd.btran = 0.0;
+          //ed[ip].d_vegd.btran = 0.0;
 
-          for (int il=0; il<MAX_SOI_LAY; il++) {
-            ed[ip].d_vegd.btran += ed[ip].d_soid.fbtran[il];
-          }
+          //for (int il=0; il<MAX_SOI_LAY; il++) {
+          //  ed[ip].d_vegd.btran += ed[ip].d_soid.fbtran[il];
+          //}
 
         } else {
         // for NON-VASCULAR plants - needs further algorithm development
@@ -526,8 +553,53 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
       }
     }
 
+    //CLM3 Equation 7.82
+    //Effective root fraction per layer as a weighted sum over PFTs
+    double eq782_num[MAX_SOI_LAY];
+    double eq782_den[MAX_SOI_LAY];
+    //il starts at one to skip the moss layer
+    for(int il=0; il<MAX_SOI_LAY; il++){
+      eq782_num[il] = 0.;
+      eq782_den[il] = 0.;
+      for(int ip=0; ip<NUM_PFT; ip++){
+
+        eq782_num[il] += ed[ip].d_soid.r_e_ij[il] * ed[ip].d_v2a.tran * cd.d_veg.fpc[ip];
+        eq782_den[il] += ed[ip].d_v2a.tran * cd.d_veg.fpc[ip];
+
+      }
+
+      if(eq782_den[il] == 0){
+        edall->d_soid.r_e_i[il] = 0;
+      }
+      else{
+        edall->d_soid.r_e_i[il] = eq782_num[il] / eq782_den[il];
+      }
+
+      if(edall->d_soid.r_e_i[il] != edall->d_soid.r_e_i[il]){
+        BOOST_LOG_SEV(glg, err) << "NaN in r_e_i";
+      }
+
+    }
+
+    //CLM3 Equation 7.81
+    double weighted_veg_tran = 0.;
+    for(int ip=0; ip<NUM_PFT; ip++){
+      weighted_veg_tran += ed[ip].d_v2a.tran * cd.d_veg.fpc[ip];
+    }
+    if(weighted_veg_tran != weighted_veg_tran){
+      BOOST_LOG_SEV(glg, err) << "weighted_veg_tran is NaN";
+    }
+
+    //CLM3 Equation 7.80
+    //
+    //updatesoilSM stuff. Do here or there?
+
     // integrating daily 'veg' portion in 'ed' of all PFTs for 'edall'
     getEd4allveg_daily();
+
+    //accumulating daily soil trans factor into edall
+    getSoilTransfactor4all_daily();
+
     /*
         if (cd.year==1 && doy==37){
           cout<<"checking";
@@ -549,11 +621,15 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
     //Capture daily snow water equivalent and thickness for NetCDF output
     edall->daily_swesum[id] = edall->d_snws.swesum;
     edall->daily_snowthick[id] = edall->d_snws.snowthick;
-    //get the new bottom drainage layer and its depth,
-    //  which needed for soil moisture calculation
-    ground.setDrainL(ground.lstsoill, edall->d_soid.ald,
-                     edall->d_sois.watertab);
-    soilenv.updateDailySM();  //soil moisture
+
+    //get the new bottom drainage layer and its depth
+    ground.setDrainL();
+    soilenv.updateDailySM(weighted_veg_tran);  //soil moisture
+    //Copy daily water uptake values to storage array for output
+    for(int il=0; il<MAX_SOI_LAY; il++){
+      edall->daily_root_water_uptake[id][il] = soilenv.root_water_up[il];
+      edall->daily_percolation[id][il] = soilenv.richards.percolation[il];
+    }
 
     // save the variables to daily 'edall' (Note: not PFT specified)
     soilenv.retrieveDailyTM(ground.toplayer, ground.lstsoill);
@@ -747,15 +823,22 @@ void Cohort::updateMonthly_Fir(const int & year, const int & midx, std::string s
 }
 
 /** Dynamic Vegetation Module function. */
-void Cohort::updateMonthly_DIMveg(const int & currmind, const bool & dvmmodule) {
+void Cohort::updateMonthly_DIMveg(const int & currmind, const bool & dynamic_lai_module) {
   BOOST_LOG_NAMED_SCOPE("DIMveg");
   BOOST_LOG_SEV(glg, debug) << "A sample log message in DVM ...";
-  //switch for using LAI read-in (false) or dynamically with vegC
-  // the read-in LAI is through the 'chtlu->envlai[12]', i.e., a 12 monthly-LAI
-  if (dvmmodule) {
-    veg.updateLAI5vegc = md->updatelai;
+
+  // Switch for using dynamic LAI (calculated on the fly as a function of vegc)
+  // or static LAI which is read in thru the CohortLookup::static_lai parameter.
+  // The CohortLookup::static_lai parameter is generally fed from the 
+  // cmt_dimvegetation.txt parameter file, with the 12 static_lai values (monthly).
+  if (dynamic_lai_module) {
+    // If the module in enabled, then use the value from the ModelData instance
+    // the ModelData instance is set from the config file. So it would be
+    // possible to have the module enabled, but the user has set the config
+    // file to use static LAI. Seems funky.
+    veg.update_LAI_from_vegc = md->dynamic_LAI;
   } else {
-    veg.updateLAI5vegc = false;
+    veg.update_LAI_from_vegc = false;
   }
 
   // vegetation standing age
@@ -861,8 +944,8 @@ void Cohort::getSoilFineRootFrac_Monthly() {
                                                                 layerbot,
                                                                 cumrootfrac,
                                                                 ROOTTHICK);
-          cd.m_soil.frootfrac[il][ip] *= bd[ip].m_vegs.c[I_root];  // root C
-          totfrootc += cd.m_soil.frootfrac[il][ip];
+//          cd.m_soil.frootfrac[il][ip] *= bd[ip].m_vegs.c[I_root];  // root C
+//          totfrootc += cd.m_soil.frootfrac[il][ip];
         }
       } // end m_soil.numsl loop
     } // end veg.cov[ip] > 0.0
@@ -870,7 +953,7 @@ void Cohort::getSoilFineRootFrac_Monthly() {
 
   // soil fine root fraction - adjusted by both vertical distribution
   //   and root biomass of all PFTs
-  for (int ip=0; ip<NUM_PFT; ip++) {
+/*  for (int ip=0; ip<NUM_PFT; ip++) {
     if (cd.m_veg.vegcov[ip]>0.) {
       for (int il=0; il<cd.m_soil.numsl; il++) {
         if (cd.m_soil.type[il]>0 && cd.m_soil.frootfrac[il][ip]>0.) {// non-moss soil layers only
@@ -880,7 +963,7 @@ void Cohort::getSoilFineRootFrac_Monthly() {
         }
       }
     }
-  }
+  }*/
 }
 
 double Cohort::assignSoilLayerRootFrac(const double & topz, const double & botz,

@@ -884,8 +884,12 @@ def print_soil_table(outdir, stage, timeres, Y, X, timestep):
   for f in allncfiles:
     with nc.Dataset(f) as ds:
       if 'layer' in ds.dimensions:
+        try:
+          numlayers = ds.dimensions['layer'].size # attribute only available in netCDF4 > 1.2.2
+        except AttributeError as e:
+          numlayers = len(ds.dimensions['layer'])
         soilfiles.append(f)
-        soillayerdimlengths.append(ds.dimensions['layer'].size)
+        soillayerdimlengths.append(numlayers)
 
   soillayerdimlengths = set(soillayerdimlengths)
   if len(soillayerdimlengths) > 1:
@@ -902,13 +906,19 @@ def print_soil_table(outdir, stage, timeres, Y, X, timestep):
 
   # This is probably not very effecient.
   for il in range(0, soillayerdimlengths.pop()):
+
     data = []
     for v, f in zip(varlist, soilfiles):
       with nc.Dataset(f) as ds:
-        if ds.variables[v][timestep,il,Y,X] is np.ma.masked:
+        if type(ds.variables[v][timestep,il,Y,X]) == 'str':
+          data.append(np.nan)
+        if ds.variables[v][timestep,il,Y,X] is np.ma.masked: # works in recent numpy versions
+          data.append(np.nan)
+        if np.ma.is_masked(ds.variables[v][timestep, il, Y,X]): # works numpy 1.11.1
           data.append(np.nan)
         else:
           data.append(ds.variables[v][timestep,il,Y,X])
+
     print row_fmt.format(*data)
 
 

@@ -114,7 +114,7 @@ private:
 
 
   void dsl_cmd(const std::string& s);
-  void dvm_cmd(const std::string& s);
+  void dynlai_cmd(const std::string& s);
   void nfeed_cmd(const std::string& s);
   void baseline_cmd(const std::string& s);
 
