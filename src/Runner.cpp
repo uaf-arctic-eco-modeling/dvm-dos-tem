@@ -1480,9 +1480,25 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
 
     #pragma omp critical(outputDRIVINGRAINFALL)
     {
-
+      //daily
       if(curr_spec.daily){
         output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.climate.rain_d[doy], 1, day_timestep, dinm);
+      }
+      //monthly
+      else if(curr_spec.monthly){
+        float m_d_rnfl = 0;
+        for(int id=0; id<dinm; id++){
+          m_d_rnfl += cohort.climate.rain_d[doy+id];
+        }
+        output_nc_3dim(&curr_spec, file_stage_suffix, &m_d_rnfl, 1, month_timestep, 1);
+      }
+      //yearly
+      else if(curr_spec.yearly){
+        float y_d_rnfl = 0;
+        for(int id=0; id<DINY; id++){
+          y_d_rnfl += cohort.climate.rain_d[id];
+        }
+        output_nc_3dim(&curr_spec, file_stage_suffix, &y_d_rnfl, 1, year, 1);
       }
     }//end critical(outputDRIVINGRAINFALL)
   }//end DRIVINGRAINFALL
@@ -1497,9 +1513,25 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
 
     #pragma omp critical(outputDRIVINGSNOWFALL)
     {
-
+      //daily
       if(curr_spec.daily){
         output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.climate.snow_d[doy], 1, day_timestep, dinm);
+      }
+      //monthly
+      else if(curr_spec.monthly){
+        float m_d_snfl = 0;
+        for(int id=0; id<dinm; id++){
+          m_d_snfl += cohort.climate.snow_d[doy+id];
+        }
+        output_nc_3dim(&curr_spec, file_stage_suffix, &m_d_snfl, 1, month_timestep, 1);
+      }
+      //yearly
+      else if(curr_spec.yearly){
+        float y_d_snfl = 0;
+        for(int id=0; id<DINY; id++){
+          y_d_snfl += cohort.climate.snow_d[id];
+        }
+        output_nc_3dim(&curr_spec, file_stage_suffix, &y_d_snfl, 1, year, 1);
       }
     }//end critical(outputDRIVINGSNOWFALL)
   }//end DRIVINGSNOWFALL
