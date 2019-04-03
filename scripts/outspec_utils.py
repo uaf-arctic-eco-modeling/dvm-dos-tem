@@ -200,6 +200,11 @@ if __name__ == '__main__':
     formatter_class=argparse.RawDescriptionHelpFormatter,
     description=textwrap.dedent('''
       Script for dealing with the output specification csv file.
+
+      Some of the command line options will simply print info about
+      the file to the screen, while others will modify the file. It
+      should be obvious from the names of the command line options
+      whether it is an "edit" or a "view" action.
     ''')
   )
   parser.add_argument('file', 
@@ -242,7 +247,7 @@ if __name__ == '__main__':
       help=textwrap.dedent(''''''))
 
   parser.add_argument('--empty', action='store_true',
-      help=textwrap.dedent('''---???---'''))
+      help=textwrap.dedent('''Turn off every variable in the file for all resolutions.'''))
 
   parser.add_argument('--DEBUG', action='store_true',
       help=textwrap.dedent('''Print extra info for debugging.'''))
