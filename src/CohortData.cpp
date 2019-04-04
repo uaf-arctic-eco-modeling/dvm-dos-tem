@@ -39,6 +39,9 @@ void CohortData::clear() {
   yrsdist = MISSING_I;
   mthsdist = MISSING_I;
   drainage_type = MISSING_I;
+  cell_slope = MISSING_D;
+  cell_aspect = MISSING_D;
+  cell_elevation = MISSING_D;
   hasnonvascular = false;
   fill_n(vegyear, MAX_VEG_SET, MISSING_I);
   fill_n(vegtype, MAX_VEG_SET, MISSING_I);

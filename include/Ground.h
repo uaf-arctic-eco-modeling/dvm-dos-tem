@@ -123,7 +123,7 @@ public :
                                   //  unfrozen(-1)/partially-frozen(0)
 
   // update water drainage layer and depth
-  void setDrainL(Layer* lstsoill, double & barrierdepth, double & watertab);
+  void setDrainL();
 
   // soil burning caused soil structure change
   double adjustSoilAfterburn();

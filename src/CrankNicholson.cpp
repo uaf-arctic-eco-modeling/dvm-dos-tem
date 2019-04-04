@@ -113,11 +113,38 @@ void CrankNicholson::cnBackward(const int & startind, const int & endind,
 void CrankNicholson::tridiagonal(const int ind, const int numsl, double a[],
                                  double b[], double c[],
                                  double r[], double u[]) {
+  /* input coefficient arrays: a, b, c
+   * input: ind, numsl: first layer index, and total number of layers
+   * output: u: change in volumetric water content per layer
+   */
+  //placeholder for intermediate values
+  double gamma[ind+numsl];
+  //set beta for use in first and second layers
+  double beta = b[ind];
+  //forward pass
+  for(int ii = ind; ii < ind + numsl; ii++){
+    if(ii == ind){ //first layer
+      u[ii] = r[ii] / beta;
+    } else { //remaining layers
+      gamma[ii] = c[ii-1] / beta;
+      beta = b[ii] - a[ii] * gamma[ii]; //reset beta
+      u[ii] = (r[ii] - a[ii] * u[ii-1]) / beta;
+    }
+  }
+  //backward pass, skips bottom layer
+  for(int ii = ind + numsl - 2; ii >= ind; --ii){
+    u[ii] = u[ii] - gamma[ii+1] * u[ii+1];
+  }
+}
+
+//void CrankNicholson::tridiagonal(const int ind, const int numsl, double a[],
+//                                 double b[], double c[],
+//                                 double r[], double u[]) {
   /* input: a, b, c
    * input: ind, numsl: first layer index, and total number of layers
    * output: u
    */
-  double gam[numsl];
+/*  double gam[numsl];
   double tempg;
   double bet = b[ind];
   //invert values to replace division with multiplication for speed
@@ -159,4 +186,4 @@ void CrankNicholson::tridiagonal(const int ind, const int numsl, double a[],
     u[il] = uil - g*uild;
   }
 }
-
+*/

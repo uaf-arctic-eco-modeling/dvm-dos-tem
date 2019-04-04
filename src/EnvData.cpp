@@ -350,6 +350,10 @@ void EnvData::grnd_beginOfDay() {
   // need to set some diagnostic variables to zero
   d_snw2soi.melt =0.;
   d_soi2a.evap_pet = 0.0;
+
+  for(int il=0; il<MAX_SOI_LAY; il++){
+    d_soid.fbtran[il] = 0.0;
+  }
 };
 
 /////////////////////////////////////////////////////////////////////////
@@ -701,6 +705,7 @@ void EnvData::grnd_endOfDay(const int & dinm, const int & doy) {
   daily_qover[dom] = d_soi2l.qover;
 
   for(int il=0; il<MAX_SOI_LAY; il++){
+    daily_layer_drain[dom][il] = d_soi2l.layer_drain[il];
     daily_tlayer[dom][il] = d_sois.ts[il];
   }
 

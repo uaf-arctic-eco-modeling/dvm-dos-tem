@@ -139,6 +139,11 @@ struct soidiag_env {
   double tcond[MAX_SOI_LAY];
   double hcond[MAX_SOI_LAY];
 
+  double r_e_i[MAX_SOI_LAY]; //Effective root fraction per layer
+  //Effective root fraction per layer, per PFT
+  // This array only has meaning in Soil_Env::getSoilTransFactor(),
+  // which is called by PFT TODO - clarify commenting
+  double r_e_ij[MAX_SOI_LAY];
   double fbtran[MAX_SOI_LAY]; //fraction of root water uptake (transpiration)
                               //  in each soil layer (total 1.0)
 
