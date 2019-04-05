@@ -10,13 +10,16 @@ junk/*
 
 calibration-plots/*
 
+# Outputs
+output/*
+
 # ingore the build directory and compiled binaries
 obj/*
 dvmdostem
 DVMDOSTEM
 libTEM.so
 
-# 
+# Generated documentation  
 docs/*
 
 # from profile testing
