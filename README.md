@@ -1,6 +1,8 @@
 README for dvm-dos-tem
 ===========================================
 
+[![Gitter](https://badges.gitter.im/ua-snap/dvm-dos-tem.svg)](https://gitter.im/ua-snap/dvm-dos-tem?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+
 Basic information is provided in this README file. For more details, see the 
 wiki: [](https://github.com/ua-snap/dvm-dos-tem/wiki)
 
