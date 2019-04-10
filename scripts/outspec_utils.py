@@ -99,6 +99,24 @@ def write_data_to_csv(data, fname):
       writer.writeheader()
       writer.writerows(data)
 
+
+def check_layer_vars(data):
+
+  def warn_layers_not_set(dd):
+    if all([x == 'invalid' or x == '' for x in [dd['Layers'],]]):
+      print "WARNING! output by Layers not set for {}".format(dd['Name'])
+
+  for line in data:
+    if 'LAYER' in line['Name'].upper():
+      if any([line['Yearly'].lower() in ('y','year','yr','yearly')]):
+        warn_layers_not_set(line)
+      if any([line['Monthly'].lower() in ('m','month','monthly')]):
+        warn_layers_not_set(line)
+      if any([line['Daily'].lower() in ('d','day','daily',)]):
+        warn_layers_not_set(line)
+
+
+
 def toggle_off_variable(data, var):
   if var not in list_vars(data):
     raise ValueError("Invalid variable! {} not found!".format(var))
@@ -178,6 +196,8 @@ def toggle_on_variable(data, var, res_spec):
 
       if all([x == 'invalid' or x == '' for x in [line['Yearly'], line['Monthly'], line['Daily']]]):
         print "WARNING! Invalid TIME setting detected! You won't get output for {}".format(line['Name'])
+
+  check_layer_vars(data)
 
   return data
 
@@ -304,6 +324,7 @@ if __name__ == '__main__':
         pass # Nothing turned on...
       else:
         print_line_dict(line)
+    check_layer_vars(data)
     sys.exit()
 
   if args.on:
