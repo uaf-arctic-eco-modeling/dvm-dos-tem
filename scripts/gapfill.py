@@ -67,6 +67,8 @@ def gapfill_along_timeseries(data, dataTag):
 
   coords_to_process = zip(*np.nonzero(np.invert(np.ma.getmaskarray(datam[0]))))
 
+  bad_points = None
+
   for i, px in enumerate( coords_to_process ):
     yc, xc = px
     timeseries = datam[:,yc,xc]
@@ -94,7 +96,7 @@ def gapfill_along_timeseries(data, dataTag):
 
   print_mask_count_along_timeseries(datam, title='{} (after)'.format(dataTag))
 
-  return datam
+  return (datam, bad_points)
 
 
 if __name__ == '__main__':
@@ -180,16 +182,19 @@ if __name__ == '__main__':
       for v in VARS:
 
         print "Generating fill data for {}".format(file_path)
-        filled = gapfill_along_timeseries(myFile.variables[v][:], dataTag='{}'.format(v))
+        filled, bad_points = gapfill_along_timeseries(myFile.variables[v][:], dataTag='{}'.format(v))
 
         print "Source: {}".format(myFile.source)
         print "ncattrs: {}".format(myFile.ncattrs())
 
-        if not (args.dry_run):
-          print "Overwriting file...."
-          myFile.variables[v][:] = filled
+        if len(bad_points) < 1:
+          print "VARIABLE {} ALL OK! NOTHING TO GAPFILL!".format(v)
+        else:
+          if not (args.dry_run):
+            print "Overwriting file...."
+            myFile.variables[v][:] = filled
 
-          myFile.variables[v].setncattr('modified', modified_attribute_string("Basic single point interpolation"))
+            myFile.variables[v].setncattr('modified', modified_attribute_string("Basic single point interpolation"))
 
 
 
