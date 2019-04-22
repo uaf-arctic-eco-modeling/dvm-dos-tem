@@ -2893,6 +2893,37 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
   map_itr = netcdf_outputs.end();
 
 
+  //NREQ
+  map_itr = netcdf_outputs.find("NREQ");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: NREQ";
+    curr_spec = map_itr->second;
+
+    #pragma omp critical(outputNREQ)
+    {
+    //By compartment
+    if(curr_spec.compartment){
+      double m_nreq[NUM_PFT][NUM_PFT_PART] = {0};
+     
+      for(int ip=0; ip<NUM_PFT; ip++){
+        for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
+          m_nreq[ip][ipp] = cohort.vegbgc[ip].tmp_vegs.nreq[ipp];
+        }
+      } 
+      output_nc_5dim(&curr_spec, file_stage_suffix, &m_nreq[0][0], NUM_PFT_PART, NUM_PFT, month_timestep, 1);
+    }
+    //Total
+    else{
+        //cohort.vegbgc[].tmp_vegs.nreqall;
+      double m_nreq[NUM_PFT] = {0};
+    }
+
+
+    }//end critical(outputNREQ)
+  }//end NREQ
+  map_itr = netcdf_outputs.end();
+
+
   //NRESORB
   map_itr = netcdf_outputs.find("NRESORB");
   if(map_itr != netcdf_outputs.end()){
