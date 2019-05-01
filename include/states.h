@@ -73,6 +73,9 @@ struct vegstate_bgc {
   double strnall;     //Yuan: total structural-N
   double strn[NUM_PFT_PART];    //Yuan: part structural-N
 
+  double nreqall;
+  double nreq[NUM_PFT_PART];
+
   double deadc;    //C in the dead vegetation
   double deadn;    //N in the dead vegetation
 

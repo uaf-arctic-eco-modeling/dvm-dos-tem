@@ -1,7 +1,7 @@
 #ifndef TIMECONST_H_
 #define TIMECONST_H_
 
-// (unused) const int DYINY =365;
+const int DINY = 365;
 const int MINY = 12;
 const int DINM[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 const int DOYINDFST[12] = {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334};
