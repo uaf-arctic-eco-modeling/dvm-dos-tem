@@ -3752,6 +3752,138 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
   map_itr = netcdf_outputs.end();
 
 
+  //SOMA - soil organic matter, active
+  map_itr = netcdf_outputs.find("SOMA");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: SOMA";
+    curr_spec = map_itr->second;
+
+    #pragma omp critical(outputSOMA)
+    {
+      //By layer
+      if(curr_spec.layer){
+
+        double soilc[MAX_SOI_LAY];
+        int il = 0;
+        Layer* currL = this->cohort.ground.toplayer;
+        while(currL != NULL){
+          soilc[il] = currL->soma;
+          il++;
+          currL = currL->nextl;
+        }
+
+        if(curr_spec.monthly){
+          output_nc_4dim(&curr_spec, file_stage_suffix, &soilc[0], MAX_SOI_LAY, month_timestep, 1);
+        }
+        else if(curr_spec.yearly){
+          output_nc_4dim(&curr_spec, file_stage_suffix, &soilc[0], MAX_SOI_LAY, year, 1);
+        }
+      }
+      //Total, instead of by layer
+      else if(!curr_spec.layer){
+        //monthly
+        if(curr_spec.monthly){
+          output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.bdall->m_soid.somasum, 1, month_timestep, 1);
+        }
+        //yearly
+        else if(curr_spec.yearly){
+          output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.bdall->y_soid.somasum, 1, year, 1);
+        }
+
+      }
+    }//end critical(outputSOMA)
+  }//end SOMA
+  map_itr = netcdf_outputs.end();
+
+
+  //SOMCR - soil organic matter, chemically resistant
+  map_itr = netcdf_outputs.find("SOMCR");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: SOMCR";
+    curr_spec = map_itr->second;
+
+    #pragma omp critical(outputSOMCR)
+    {
+      //By layer
+      if(curr_spec.layer){
+
+        double soilc[MAX_SOI_LAY];
+        int il = 0;
+        Layer* currL = this->cohort.ground.toplayer;
+        while(currL != NULL){
+          soilc[il] = currL->somcr;
+          il++;
+          currL = currL->nextl;
+        }
+
+        if(curr_spec.monthly){
+          output_nc_4dim(&curr_spec, file_stage_suffix, &soilc[0], MAX_SOI_LAY, month_timestep, 1);
+        }
+        else if(curr_spec.yearly){
+          output_nc_4dim(&curr_spec, file_stage_suffix, &soilc[0], MAX_SOI_LAY, year, 1);
+        }
+      }
+      //Total, instead of by layer
+      else if(!curr_spec.layer){
+        //monthly
+        if(curr_spec.monthly){
+          output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.bdall->m_soid.somcrsum, 1, month_timestep, 1);
+        }
+        //yearly
+        else if(curr_spec.yearly){
+          output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.bdall->y_soid.somcrsum, 1, year, 1);
+        }
+
+      }
+    }//end critical(outputSOMCR)
+  }//end SOMCR
+  map_itr = netcdf_outputs.end();
+
+
+  //SOMPR - soil organic matter, physically resistant
+  map_itr = netcdf_outputs.find("SOMPR");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: SOMPR";
+    curr_spec = map_itr->second;
+
+    #pragma omp critical(outputSOMPR)
+    {
+      //By layer
+      if(curr_spec.layer){
+
+        double soilc[MAX_SOI_LAY];
+        int il = 0;
+        Layer* currL = this->cohort.ground.toplayer;
+        while(currL != NULL){
+          soilc[il] = currL->sompr;
+          il++;
+          currL = currL->nextl;
+        }
+
+        if(curr_spec.monthly){
+          output_nc_4dim(&curr_spec, file_stage_suffix, &soilc[0], MAX_SOI_LAY, month_timestep, 1);
+        }
+        else if(curr_spec.yearly){
+          output_nc_4dim(&curr_spec, file_stage_suffix, &soilc[0], MAX_SOI_LAY, year, 1);
+        }
+      }
+      //Total, instead of by layer
+      else if(!curr_spec.layer){
+        //monthly
+        if(curr_spec.monthly){
+          output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.bdall->m_soid.somprsum, 1, month_timestep, 1);
+        }
+        //yearly
+        else if(curr_spec.yearly){
+          output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.bdall->y_soid.somprsum, 1, year, 1);
+        }
+
+      }
+    }//end critical(outputSOMPR)
+  }//end SOMPR
+  map_itr = netcdf_outputs.end();
+
+
   //SOMRAWC
   map_itr = netcdf_outputs.find("SOMRAWC");
   if(map_itr != netcdf_outputs.end()){
