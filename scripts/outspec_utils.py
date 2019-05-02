@@ -5,7 +5,7 @@
 # The output_spec files are expected to be a csv file with 
 # a header row and the following fields:
 
-# Name, Description, Units, Yearly, Monthly, Daily, PFT, Compartments, Layers, Placeholder
+# Name, Description, Units, Yearly, Monthly, Daily, PFT, Compartments, Layers, Data Type, Placeholder
 
 # An empty field means that variable is not specified (turned on) for output at
 # that particular resolution (timestep or PFT or layer, etc).
@@ -14,7 +14,7 @@
 # meaningless at that particular resolution.
 
 # A field containing anything other than "invalid" or an empty string is
-# considered to be on or active. While any charachter or string can be used, 
+# considered to be on or active. While any character or string can be used, 
 # generally we have been using the first letter of the resolution in 
 # question, i.e. 'y' in the field for 'Yearly'.
 
@@ -25,9 +25,9 @@ import textwrap
 
 def print_line_dict(d, header=False):
   if header:
-    print "{:>20s} {:>20s} {:>12} {:>12} {:>12} {:>12} {:>12} {:>12}     {:}".format('Name','Units','Yearly','Monthly','Daily','PFT','Compartments','Layers','Description')
+    print "{:>20s} {:>20s} {:>12} {:>12} {:>12} {:>12} {:>12} {:>12} {:>12}     {:}".format('Name','Units','Yearly','Monthly','Daily','PFT','Compartments','Layers','Description', 'Data Type')
   else:
-    print "{Name:>20s} {Units:>20s} {Yearly:>12} {Monthly:>12} {Daily:>12} {PFT:>12} {Compartments:>12} {Layers:>12}     {Description}".format(**d)
+    print "{Name:>20s} {Units:>20s} {Yearly:>12} {Monthly:>12} {Daily:>12} {PFT:>12} {Compartments:>12} {Layers:>12}     {Description}     {Data Type:>12}".format(**d)
 
 def list_vars(data):
   var_names = [line['Name'] for line in data]
@@ -71,8 +71,9 @@ def show_layer_vars(list_of_lines):
 
 def csv_file_to_data_dict_list(fname):
   
-  expected_cols_sorted = ['Compartments', 'Daily', 'Description', 'Layers',
-      'Monthly', 'Name', 'PFT', 'Placeholder', 'Units', 'Yearly']
+  expected_cols_sorted = ['Compartments', 'Daily', 'Data Type',
+      'Description', 'Layers', 'Monthly', 'Name', 'PFT', 'Placeholder',
+      'Units', 'Yearly']
 
   with open(fname, 'r') as f:
     s = f.readlines()
@@ -92,7 +93,7 @@ def csv_file_to_data_dict_list(fname):
 
 def write_data_to_csv(data, fname):
     with open(fname, 'w') as csvfile:
-      fieldnames = "Name,Description,Units,Yearly,Monthly,Daily,PFT,Compartments,Layers,Placeholder".split(",")
+      fieldnames = "Name,Description,Units,Yearly,Monthly,Daily,PFT,Compartments,Layers,Data Type,Placeholder".split(",")
       writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
       writer.writeheader()
       writer.writerows(data)
