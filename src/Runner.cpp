@@ -3752,13 +3752,13 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
   map_itr = netcdf_outputs.end();
 
 
-  //SOC
-  map_itr = netcdf_outputs.find("SOC");
+  //SOMRAWC
+  map_itr = netcdf_outputs.find("SOMRAWC");
   if(map_itr != netcdf_outputs.end()){
-    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: SOC";
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: SOMRAWC";
     curr_spec = map_itr->second;
 
-    #pragma omp critical(outputSOC)
+    #pragma omp critical(outputSOMRAWC)
     {
       //By layer
       if(curr_spec.layer){
@@ -3791,8 +3791,8 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
         }
 
       }
-    }//end critical(outputSOC)
-  }//end SOC
+    }//end critical(outputSOMRAWC)
+  }//end SOMRAWC
   map_itr = netcdf_outputs.end();
 
 
