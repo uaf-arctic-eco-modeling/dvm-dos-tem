@@ -34,7 +34,7 @@ calibration_targets = {
   "black spruce forest": {
     'cmtnumber': 1,
                                  #    pft0     pft1      pft2      pft3     pft4     pft5     pft6     pft7     pft8    pft9   
-                                 #  Spruce    Salix    Decid.   E.green   Sedges    Forbs  Grasses  Lichens  Feather.   Misc.
+                  'PFTNames':    ['BlackSpr', 'Decid', 'DecidShrub', 'EGreen', 'Sphag', 'Feather', 'Moss', 'Lichen', 'Forbs', 'Sedge'],
     'GPPAllIgnoringNitrogen':    [  468.74,   81.73,    27.51,    22.23,   29.85,   28.44,   11.29,    7.75,   42.18,   0.00 ], # ingpp     (gC/m2/year)   GPP without N limitation
     'NPPAllIgnoringNitrogen':    [  200.39,   61.30,    25.73,    20.79,   27.91,   26.59,   10.56,    7.25,   39.44,   0.00 ], # innpp     (gC/m2/year)   NPP without N limitation 
     'NPPAll':                    [  133.59,   40.87,    13.76,    11.12,   14.92,   14.22,    5.65,    3.87,   21.09,   0.00 ], # npp       (gC/m2/year)   NPP with N limitation
@@ -112,7 +112,7 @@ calibration_targets = {
   "shrub tundra": {
     'cmtnumber': 4,
                                  #    pft0     pft1      pft2     pft3     pft4     pft5      pft6      pft7      pft8     pft9   
-                                 #  Salix    Betula    Decid.   E.green   Sedges    Forbs   Grasses   Lichens   Feather.    Misc.
+                  'PFTNames':    ['Salix', 'Betula', 'Decid', 'EGreen', 'Sedges', 'Forbs', 'Grasses', 'Lichens', 'Feather', 'PFT9'],
     'GPPAllIgnoringNitrogen':    [  143.89,  288.65,   42.33,    9.03,    19.39,   28.44,    11.29,    16.45,     37.38,    0.00 ], # ingpp     (gC/m2/year)   GPP without N limitation
     'NPPAllIgnoringNitrogen':    [  107.92,  216.49,   39.57,    8.44,    18.13,   26.59,    10.56,     8.23,     18.69,    0.00 ], # innpp     (gC/m2/year)   NPP without N limitation 
     'NPPAll':                    [   71.95,  144.33,   21.16,    4.51,     9.69,   14.22,     5.65,     8.23,     18.69,    0.00 ], # npp       (gC/m2/year)   NPP with N limitation
@@ -140,7 +140,7 @@ calibration_targets = {
   "tussock tundra": {
     'cmtnumber': 5,
                                  #    pft0     pft1      pft2      pft3     pft4     pft5     pft6     pft7     pft8    pft9   
-                                 #  betula    decid     egreen    sedge    forb     lichen   feather   sphag    blank   blank
+                  'PFTNames':    ['Betula', 'Decid', 'EGreen', 'Sedges', 'Forbs', 'Lichens', 'Feather', 'Sphag', 'PFT8', 'PFT9'],
     'GPPAllIgnoringNitrogen':    [  106.20,   54.13,   208.50,   390.40,   7.016,  286.80,  191.80,   172.60,   0.00,   0.00 ], # ingpp     (gC/m2/year)   GPP without N limitation
     'NPPAllIgnoringNitrogen':    [   59.00,   27.06,   104.20,   195.20,   3.508,  136.60,   94.97,    85.42,   0.00,   0.00 ], # innpp     (gC/m2/year)   NPP without N limitation 
     'NPPAll':                    [   34.71,   14.47,    55.74,   104.40,   1.876,   68.29,   48.70,    43.81,   0.00,   0.00 ], # npp       (gC/m2/year)   NPP with N limitation
@@ -166,7 +166,7 @@ calibration_targets = {
   "wet sedge tundra": {
     'cmtnumber': 6,
                                  #    pft0     pft1      pft2      pft3     pft4     pft5     pft6     pft7     pft8    pft9   
-                           #  Dshrub(willow)  Sedge      Grass     Forb   Lichen    Feather  Sphag.     Misc.   Misc.   Misc.
+                  'PFTNames':    ['Decid', 'Sedges', 'Grasses', 'Forbs', 'Lichens', 'Feather', 'Sphag', 'PFT7', 'PFT8', 'PFT9'],
     'GPPAllIgnoringNitrogen':    [  11.833,  197.867,   42.987,   10.667,   3.375,  16.000,   6.000,    0.00,   0.00,   0.00 ], # ingpp     (gC/m2/year)   GPP without N limitation
     'NPPAllIgnoringNitrogen':    [  11.064,  187.005,   40.193,    9.973,   2.187,   8.000,   3.000,    0.00,   0.00,   0.00 ], # innpp     (gC/m2/year)   NPP without N limitation 
     'NPPAll':                    [   5.916,   98.933,   21.493,    5.333,   2.187,   8.000,   3.000,    0.00,   0.00,   0.00 ], # npp       (gC/m2/year)   NPP with N limitation
@@ -192,7 +192,7 @@ calibration_targets = {
   "heath tundra": {
     'cmtnumber': 7,
                                  #    pft0     pft1      pft2      pft3       pft4    pft5     pft6     pft7     pft8    pft9   
-                                 #  D.shrub   E.shrub    Forb      Lichen    Sedge    Moss      Misc.   Misc.    Misc.   Misc.
+                  'PFTNames':    ['Decid', 'EGreen', 'Forbs', 'Lichens', 'Grasses', 'Moss', 'PFT6', 'PFT7', 'PFT8', 'PFT9'],
     'GPPAllIgnoringNitrogen':    [   9.303,   31.494,    2.667,    37.000,   2.667,   12.000,    0.00,    0.00,    0.00,   0.00 ], # ingpp     (gC/m2/year)   GPP without N limitation
     'NPPAllIgnoringNitrogen':    [   8.698,   29.447,    2.493,    18.525,   2.493,   11.987,    0.00,    0.00,    0.00,   0.00 ], # innpp     (gC/m2/year)   NPP without N limitation 
     'NPPAll':                    [   4.539,   15.747,    1.333,    18.525,   1.333,    6.000,    0.00,    0.00,    0.00,   0.00 ], # npp       (gC/m2/year)   NPP with N limitation
@@ -218,7 +218,7 @@ calibration_targets = {
   "Shrubland": {
     'cmtnumber': 8,
                                  #      pft0      pft1      pft2      pft3     pft4     pft5     pft6     pft7      pft8    pft9   
-                                 #   D.Shrub    E.Shrub    D.Tree    E.Tree    Forbs    Gram    Feather  Lichen  Equisetum   Misc.   
+                 # 'PFTNames':    ['D.Shrub', 'E.Shrub', 'D.Tree', 'E.Tree', 'Forbs', 'Gram', 'Feather', 'Lichen', 'Equisetum', 'Misc.'],
     'GPPAllIgnoringNitrogen':    [    166.12,     50.78,   319.62,   634.91,  120.25, 1086.39,   44.93,    8.40,    38.93,   0.00 ], # ingpp     (gC/m2/year)   GPP without N limitation
     'NPPAllIgnoringNitrogen':    [     83.06,     25.39,   159.81,   317.45,   60.12,  543.19,   22.46,    4.20,    19.47,   0.00 ], # innpp     (gC/m2/year)   NPP without N limitation 
     'NPPAll':                    [     55.37,     16.93,    85.46,   169.76,   32.15,  290.48,   22.46,    4.20,    10.41,   0.00 ], # npp       (gC/m2/year)   NPP with N limitation
@@ -244,7 +244,7 @@ calibration_targets = {
   "Shrub tundra EML": {
     'cmtnumber': 9,
                                  #      pft0       pft1      pft2      pft3     pft4     pft5     pft6     pft7      pft8    pft9   
-                                 #    Betnan     Carex    Ericoid    Feather  Lichen  Othmoss    Rubcha    Misc.    Misc.   Misc.   
+                  #'PFTNames':    ['Betnan', 'Carex', 'Ericoid', 'Feather', 'Lichen', 'Othmoss', 'Rubcha', 'Misc.', 'Misc.', 'Misc.'],
     'GPPAllIgnoringNitrogen':    [   1112.72,    200.06,   725.94,   364.58,   52.96,   55.43,  129.52,    0.00,    0.00,   0.00 ], # ingpp     (gC/m2/year)   GPP without N limitation
     'NPPAllIgnoringNitrogen':    [    834.54,    150.04,   544.46,   273.44,   39.72,   41.57,   97.14,    0.00,    0.00,   0.00 ], # innpp     (gC/m2/year)   NPP without N limitation 
     'NPPAll':                    [    556.36,    100.03,   362.97,   182.29,   26.48,   27.71,   64.76,    0.00,    0.00,   0.00 ], # npp       (gC/m2/year)   NPP with N limitation
@@ -270,7 +270,7 @@ calibration_targets = {
   "Tussock tundra EML": {
     'cmtnumber': 10,
                                  #      pft0       pft1      pft2      pft3     pft4     pft5     pft6     pft7      pft8    pft9   
-                                 #    Betnan     Carex    Ericoid    Erivag  Feather  Lichen  Othmoss    Rubcha   Sphag.   Misc.   
+                  #'PFTNames':    ['Betnan', 'Carex', 'Ericoid', 'Erivag', 'Feather', 'Lichen', 'Othmoss', 'Rubcha', 'Sphag.', 'Misc.'],
     'GPPAllIgnoringNitrogen':    [     80.64,    300.26,   572.29,   657.57,   0.133,   46.58,  415.07,  154.58,    9.03,   0.00 ], # ingpp     (gC/m2/year)   GPP without N limitation
     'NPPAllIgnoringNitrogen':    [     60.48,    225.19,   429.22,   493.18,   0.100,   34.94,  311.31,  115.93,    6.77,   0.00 ], # innpp     (gC/m2/year)   NPP without N limitation 
     'NPPAll':                    [     40.32,    150.13,   286.14,   328.79,   0.066,   23.29,  207.54,   77.29,    4.51,   0.00 ], # npp       (gC/m2/year)   NPP with N limitation
