@@ -560,6 +560,10 @@ void Vegetation_Bgc::deltanfeed() {
     //N requirements if fully no N limitation
     double nrequireall = 0.0;
     double nrequire[NUM_PFT_PART];
+    tmp_vegs.nreqall = 0.0;
+    for (int ipp=0; ipp<NUM_PFT_PART; ipp++) {
+      tmp_vegs.nreq[ipp] = 0.0;
+    }
 
     for (int i=0; i<NUM_PFT_PART; i++) {
       if (del_a2v.innpp[i]>0.) {
@@ -568,6 +572,11 @@ void Vegetation_Bgc::deltanfeed() {
       } else {
         nrequire[i] = 0.;
       }
+    }
+
+    tmp_vegs.nreqall = nrequireall; 
+    for (int ipp=0; ipp<NUM_PFT_PART; ipp++) {
+      tmp_vegs.nreq[ipp] = nrequire[ipp];
     }
 
     // all N supply
