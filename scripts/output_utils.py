@@ -15,6 +15,24 @@ import netCDF4 as nc
 import collections
 
 
+def get_last_n_eq(var, timeres='yearly', fileprefix=''):
+  '''
+  Work in progress for getting the last few year of equlibrium stage for calibration.
+  '''
+  fname = os.path.join(fileprefix, '{}_{}_eq.nc'.format(var.upper(), timeres.lower()))
+
+  if not os.path.exists(fname):
+    raise RuntimeError("Can't find file: {}".format(fname))
+
+  with nc.Dataset(fname) as ds:
+    data = ds.variables[var.upper()][-10:]
+    info = [(name, dim.size) for name, dim in ds.dimensions.iteritems()]
+
+  return data, info
+
+
+
+
 def sum_monthly_flux_to_yearly(data):
   '''
   Expects `data` to be at least a 1D array, with the first axis being time.
