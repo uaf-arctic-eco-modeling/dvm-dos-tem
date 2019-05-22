@@ -75,6 +75,271 @@ void Soil_Bgc::assignCarbonBd2LayerMonthly() {
   // What about mineral C ??
 }
 
+
+void Soil_Bgc::CH4Flux(const int mind, const int id) {
+	const double ub = 0.076; //umol L-1 upper boundary ch4 concentration
+	const double diff_a = 720.0 / 10000.0; //m2 h-1 diffusion air
+	const double diff_w = 0.072 / 10000.0; //m2 h-1 diffusion water
+	const int m = 24; //n = 10 (number of dx), m = time
+
+	int il, j;
+	double *C, *D, *V, *diff, *r, *s;
+	double dt = 1.0 / m; //h = dx; k = dt; dx = 1.0 / n,
+	double SS, torty, torty_tmp, diff_tmp, tmp_flux, Flux2A = 0.0, Flux2A_m = 0.0;
+	double Prod=0.0, Ebul=0.0, Oxid=0.0, Plant=0.0;
+	double Ebul_m=0.0, Plant_m=0.0, totFlux_m=0.0, Oxid_m=0.0;
+	double kfastc, kslowc, klitrc, TResp;//, MResp;
+	double totPlant = 0.0, totEbul = 0.0, totPlant_m = 0.0, totEbul_m = 0.0, totOxid_m = 0.0, tottotEbul = 0.0, tottotEbul_m = 0.0; //lat two varables added by Y.Mi
+	double SB, SM, Pressure;
+	int wtbflag = 0;
+    
+    numsl = ed->m_soid.actual_num_soil;
+    
+    C = MallocM1d(numsl);
+	D = MallocM1d(numsl);
+	V = MallocM1d(numsl);
+	diff = MallocM1d(numsl);
+	r = MallocM1d(numsl);
+	s = MallocM1d(numsl);
+
+	if (ed->d_vegs.currLAI != bd->m_vegd.lai) {
+		ed->d_vegs.preLAI = ed->d_vegs.currLAI;
+		ed->d_vegs.currLAI = bd->m_vegd.lai;
+		ed->d_vegs.realLAI = ed->d_vegs.preLAI;
+	}
+	ed->d_vegs.realLAI = ed->d_vegs.realLAI + (ed->d_vegs.currLAI - ed->d_vegs.preLAI) / 30.0;
+
+	for (il = 0; il < numsl; il++)
+    {
+        
+        if (ed->d_soid.watertab - 0.075 > (ed->d_sois.z[il] + ed->d_sois.dz[il]*0.5)) //layer above water table
+            
+        {
+            torty_tmp = ed->m_sois.por[il] - ed->d_soid.alllwc[il]  - ed->d_soid.alliwc[il]; //air content
+            
+			if (torty_tmp < 0.05)
+				torty_tmp = 0.05;
+            
+            torty = 0.66 * torty_tmp * pow(torty_tmp / ed->m_sois.por[il], 3.0); //(12-m)/3, m=3
+            diff_tmp = diff_a;
+        }
+        
+        else //layer below water table
+            
+        {
+			
+            torty = 0.66 * ed->d_soid.alllwc[il] * pow(ed->d_soid.alllwc[il]/ (ed->m_sois.por[il] + ed->d_soid.alliwc[il]), 3.0);
+            
+            diff_tmp = diff_w;
+            
+        }
+        
+        //CH4 diffusion coefficient Dg, m2/h
+		diff[il] = diff_tmp * torty * pow((ed->d_sois.ts[il] + 273.15) / 293.15, 1.75);
+		s[il] = ed->m_sois.dz[il] * ed->m_sois.dz[il] / (diff[il] * dt);
+		r[il] = 2 + s[il];
+        
+	}
+    
+	for (il = 1; il < numsl; il++)
+    {
+		if (il == (numsl - 1))
+			D[il] = r[il] - 1.0;
+		else
+			D[il] = r[il];
+        
+		if (il == 1)
+			C[il] = -1.0 - ub;
+		else
+			C[il] = -1.0;
+	}
+
+	ed->d_soid.oxid = 0.0;
+
+	for (j = 1; j <= m; j++) //loop through time steps
+    {
+		 wtbflag = 0;
+        
+		for (il = numsl - 1; il > 0; il--) //loop through layers
+        {
+            
+            TResp = 0.0;
+            
+			klitrc = bd->m_soid.kdl_m[il]*0.5;
+			kfastc = bd->m_soid.kdr_m[il]*0.5;
+			kslowc = bd->m_soid.kdn_m[il]*0.5;
+            
+			Plant = bd->rp * ed->m_sois.rootfrac[il] * ed->d_soid.ch4[il] * bd->tveg * ed->d_vegs.realLAI * 0.5;
+
+            if (ed->d_soid.watertab - 0.075 > (ed->m_sois.z[il] + ed->m_sois.dz[il]*0.5)) //layer above water table
+            {
+                if (wtbflag == 0)
+                {
+					Prod = totEbul;
+					wtbflag = 1;
+                    totEbul = 0.0; //Y.Mi
+                    totEbul_m = 0.0; //Y.Mi
+
+				}
+                else
+                {
+					Prod = 0.0;
+                    totEbul = 0.0; //Y.Mi
+                    totEbul_m = 0.0; //Y.Mi
+				}
+                
+				tmp_flux = ed->m_sois.por[il] - ed->d_soid.alllwc[il] - ed->d_soid.alliwc[il];
+				if (tmp_flux < 0.05)
+                    tmp_flux = 0.05;
+                
+            	TResp = getRhq10(ed->d_sois.ts[il]-2.1);
+            	if (ed->d_sois.ts[il] >= -2.0 && ed->d_sois.ts[il] < 0.000001)
+                    TResp = getRhq10(-2.1) * 0.25;
+            	else if (ed->d_sois.ts[il] < -2.0)
+                    TResp = 0.0;
+                
+				Oxid = 5.0 * ed->d_soid.ch4[il] * TResp / (20.0 + ed->d_soid.ch4[il]);
+				Oxid_m = Oxid * tmp_flux * ed->m_sois.dz[il] * 12.0;
+                
+                if (ed->d_sois.ts[il] > 0.0)
+				Plant_m = Plant * tmp_flux * ed->m_sois.dz[il] * 1000.0;
+                else
+                Plant_m = 0.0;
+                
+                Ebul = 0.0; // added by Y.Mi, Jan 2015
+                Ebul_m = 0.0; //Y.Mi
+            }
+            
+            else //layer below water table
+                
+            {
+                TResp = getRhq10(ed->d_sois.ts[il]-6.0);
+                if (ed->d_sois.ts[il] >= -2.0 && ed->d_sois.ts[il] < 0.000001)
+                    TResp = getRhq10(-6.0) * 0.25;
+                else if (ed->d_sois.ts[il] < -2.0)
+                    TResp = 0.0;
+                
+                if (tmp_sois.reac[il] > 0.0)
+                    del_soi2a.rrh_m[il] = klitrc * tmp_sois.reac[il] * TResp;
+                else
+                    del_soi2a.rrh_m[il] = 0.0;
+                
+                if (tmp_sois.nonc[il] > 0)
+                {
+                    double rslowc = 0.0035 / 0.2045;
+                    del_soi2a.nrh_m[il] = (kfastc * (1.0 - rslowc) + kslowc * rslowc) * tmp_sois.nonc[il] * TResp;
+                }
+                else
+                    del_soi2a.nrh_m[il] = 0.0;
+                
+                Prod = 1000.0 * (del_soi2a.nrh_m[il] + del_soi2a.rrh_m[il]) / (ed->m_sois.dz[il] * ed->m_sois.por[il]) / 12.0;
+                
+                SB = 0.05708 - 0.001545 * ed->d_sois.ts[il] + 0.00002069 * ed->d_sois.ts[il] * ed->d_sois.ts[il]; //volume
+                Pressure = DENLIQ * G * (ed->m_sois.z[il] + ed->m_sois.dz[il] / 2.0) + Pstd;
+                SM = Pressure * SB / (GASR * (ed->d_sois.ts[il] + 273.15)); //mass, n=PV/RT
+                
+//                if (ed->d_sois.ts[il] > 1.0) Ebul = (ed->d_soid.ch4[il] - SM) * 1.0;
+//                else Ebul = 0.0;
+                
+                if (Ebul < 0.0000001)
+                    Ebul = 0.0;
+                
+                Ebul_m = Ebul * ed->d_soid.alllwc[il] * ed->m_sois.dz[il] * 1000.0;
+                
+                totEbul = totEbul + Ebul; //cumulated over 1 time step, 1 hour Y.MI
+                totEbul_m = totEbul_m + Ebul_m; //cumulated over 1 time step, 1 hour
+                
+                if (ed->d_sois.ts[0] < 0.0)
+                  totEbul_m = 0.0;
+                
+                Oxid = 0.0;
+                Oxid_m = 0.0;
+                
+                if (ed->d_sois.ts[il] > 0.0)
+                    Plant_m = Plant * ed->m_sois.por[il] * ed->m_sois.dz[il] * 1000.0;
+                else
+                    Plant_m = 0.0;//Plant * ed->d_soid.alllwc[il] * ed->m_sois.dz[il] * 1000.0;
+            }
+            
+            totPlant = totPlant + Plant; //cumulated over 1 day, 24 time steps, Y.MI
+            totPlant_m = totPlant_m + Plant_m; //cumulated over 1 day, 24 time steps, Y.MI
+            
+//            totEbul = totEbul + Ebul; //cumulated over 1 time step, 1 hour, Y.MI
+//            totEbul_m = totEbul_m + Ebul_m; //cumulated over 1 time step, 1 hour, Y.MI
+//            
+            tottotEbul = tottotEbul + Ebul; //cumulated over 1 day, 24 time steps, Y.MI
+            tottotEbul_m = tottotEbul_m + Ebul_m; //cumulated over 1 day, 24 time steps, Y.MI
+            
+            totOxid_m = totOxid_m + Oxid_m; //cumulated over 1 day, 24 time steps, Y.MI
+            ed->d_soid.oxid = totOxid_m;
+            
+            if (Oxid<0.000001)
+                Oxid = 0.0;
+            
+            if (Plant<0.000001)
+                Plant = 0.0;
+            
+            
+            SS = Prod - Ebul - Oxid - Plant;
+
+			if (il == (numsl - 1))
+                D[il] = r[il] - 1.0;
+			else D[il] = r[il];
+
+			V[il] = s[il] * ed->d_soid.ch4[il] + s[il] * dt * SS;
+            if (V[il] < 0.0000001) V[il] = 0.0;
+
+		} //end of layer looping
+ 
+		tri(numsl - 1, C, D, C, V, V);
+ 
+        for (il = 1; il < numsl; il++)
+            ed->d_soid.ch4[il] = V[il];
+       
+        tmp_flux = diff[1] * (ed->d_soid.ch4[1] - ub) / ed->m_sois.dz[1]; // flux of every time step, 1 hour, Y.MI
+        
+        if (tmp_flux < 0.000001)
+            tmp_flux = 0.0;
+        
+        Flux2A = Flux2A + tmp_flux; //flux cumulated over 1 day, 24 time steps, Y.MI
+
+	} // end of time steps looping
+    
+    tmp_flux = (ed->m_sois.por[1] - ed->d_soid.alllwc[1] - ed->d_soid.alliwc[1]);
+    if (tmp_flux < 0.05)
+        tmp_flux = 0.05;
+    
+    Flux2A_m = Flux2A * tmp_flux * ed->m_sois.dz[1] * 1000.0;
+    
+   
+
+    totFlux_m = 0.5 * totPlant_m + Flux2A_m + totEbul_m;//ebullitions counldn't reach the surface, eg. when water table is below the soil surface, are not included, Y.MI
+    
+    
+    Flux2A = 0.0; //Y.Mi
+    totPlant_m =0.0; //Y.Mi
+    totEbul_m = 0.0; //Y.Mi
+    
+	if (totFlux_m < 0.000001)
+    {
+        totFlux_m = 0.0;
+        ed->d_soid.dfratio = 0.0;
+    }
+    
+    else
+        ed->d_soid.dfratio = Flux2A_m / totFlux_m * 100.0;
+
+	ed->d_soid.ch4flux = 0.012 * totFlux_m;
+    
+	FreeM1d(C);
+	FreeM1d(D);
+	FreeM1d(V);
+	FreeM1d(diff);
+	FreeM1d(r);
+	FreeM1d(s);
+}
+
+
 /** Writes Carbon values from each of the Ground object's Layers into the bd 
     structure (BGC Data).
 */
