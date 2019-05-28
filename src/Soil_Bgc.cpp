@@ -88,14 +88,15 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
   double tottotEbul = 0.0, tottotEbul_m = 0.0; //Added by Y.Mi
   double SB, SM, Pressure;
   int wtbflag = 0;
-  //What is actual_num_soil supposed to be? soildim has them all.
-  numsl = ed->m_soid.actual_num_soil;
-  C = MallocM1d(numsl);
-  D = MallocM1d(numsl);
-  V = MallocM1d(numsl);
-  diff = MallocM1d(numsl);
-  r = MallocM1d(numsl);
-  s = MallocM1d(numsl);
+
+  int numsoill = cd->m_soil.numsl;
+
+  C = MallocM1d(numsoill);
+  D = MallocM1d(numsoill);
+  V = MallocM1d(numsoill);
+  diff = MallocM1d(numsoill);
+  r = MallocM1d(numsoill);
+  s = MallocM1d(numsoill);
 
   if (ed->d_vegs.currLAI != bd->m_vegd.lai) {
     ed->d_vegs.preLAI = ed->d_vegs.currLAI;
@@ -105,7 +106,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
   ed->d_vegs.realLAI = ed->d_vegs.realLAI + (ed->d_vegs.currLAI - ed->d_vegs.preLAI) / 30.0;
 
-  for (il = 0; il < numsl; il++) {
+  for (il = 0; il < numsoill; il++) {
     if (ed->d_soid.watertab - 0.075 > (ed->d_sois.z[il] + ed->d_sois.dz[il]*0.5)) { //layer above water table
       torty_tmp = ed->m_sois.por[il] - ed->d_soid.alllwc[il]  - ed->d_soid.alliwc[il]; //air content
 
@@ -126,8 +127,8 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
     r[il] = 2 + s[il];
   }
 
-  for (il = 1; il < numsl; il++) {
-    if (il == (numsl - 1)) {
+  for (il = 1; il < numsoill; il++) {
+    if (il == (numsoill - 1)) {
       D[il] = r[il] - 1.0;
     } else {
       D[il] = r[il];
@@ -145,7 +146,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
   for (j = 1; j <= m; j++) { //loop through time steps
     wtbflag = 0;
 
-    for (il = numsl - 1; il > 0; il--) { //loop through layers
+    for (il = numsoill - 1; il > 0; il--) { //loop through layers
       TResp = 0.0;
       klitrc = bd->m_soid.kdl_m[il]*0.5;
       kfastc = bd->m_soid.kdr_m[il]*0.5;
@@ -261,7 +262,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
       SS = Prod - Ebul - Oxid - Plant;
 
-      if (il == (numsl - 1)) {
+      if (il == (numsoill - 1)) {
         D[il] = r[il] - 1.0;
       } else {
         D[il] = r[il];
@@ -274,9 +275,9 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       }
     } //end of layer looping
 
-    tri(numsl - 1, C, D, C, V, V);
+    tri(numsoill - 1, C, D, C, V, V);
 
-    for (il = 1; il < numsl; il++) {
+    for (il = 1; il < numsoill; il++) {
       ed->d_soid.ch4[il] = V[il];
     }
 
