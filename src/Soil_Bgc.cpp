@@ -30,19 +30,16 @@ extern src::severity_logger< severity_level > glg;
 
 /** New constructor. Build it complete! Build it right! */
 Soil_Bgc::Soil_Bgc(): nfeed(false), avlnflg(false), baseline(false),
-                      d2wdebrisc(UIN_D), d2wdebrisn(UIN_D),
-                      mossdeathc(UIN_D), mossdeathn(UIN_D), kdshlw(UIN_D),
-                      kddeep(UIN_D), decay(UIN_D), nup(UIN_D), totdzliq(UIN_D),
-                      totdzavln(UIN_D), totnetnmin(UIN_D), totnextract(UIN_D) {
-
+  d2wdebrisc(UIN_D), d2wdebrisn(UIN_D),
+  mossdeathc(UIN_D), mossdeathn(UIN_D), kdshlw(UIN_D),
+  kddeep(UIN_D), decay(UIN_D), nup(UIN_D), totdzliq(UIN_D),
+  totdzavln(UIN_D), totnetnmin(UIN_D), totnextract(UIN_D) {
   // all structs are value initialized to -77777
-  
   for (int i = 0; i < MAX_SOI_LAY; ++i) {
     ltrflc[i] = UIN_D;
     ltrfln[i] = UIN_D;
     rtnextract[i] = UIN_D;
   }
-
 };
 
 
@@ -50,7 +47,7 @@ Soil_Bgc::Soil_Bgc(): nfeed(false), avlnflg(false), baseline(false),
 Soil_Bgc::~Soil_Bgc() {
 };
 
-/** Writes Carbon values from the bd structure (BGC Data) into each soil layer 
+/** Writes Carbon values from the bd structure (BGC Data) into each soil layer
     held in the Ground object.
 */
 void Soil_Bgc::assignCarbonBd2LayerMonthly() {
@@ -71,276 +68,257 @@ void Soil_Bgc::assignCarbonBd2LayerMonthly() {
 
   ground->organic.shlwc = bd->m_soid.shlwc;
   ground->organic.deepc = bd->m_soid.deepc;
-
   // What about mineral C ??
 }
 
 
 void Soil_Bgc::CH4Flux(const int mind, const int id) {
-	const double ub = 0.076; //umol L-1 upper boundary ch4 concentration
-	const double diff_a = 720.0 / 10000.0; //m2 h-1 diffusion air
-	const double diff_w = 0.072 / 10000.0; //m2 h-1 diffusion water
-	const int m = 24; //n = 10 (number of dx), m = time
+  const double ub = 0.076; //umol L-1 upper boundary ch4 concentration
+  const double diff_a = 720.0 / 10000.0; //m2 h-1 diffusion air
+  const double diff_w = 0.072 / 10000.0; //m2 h-1 diffusion water
+  const int m = 24; //n = 10 (number of dx), m = time
+  int il, j;
+  double *C, *D, *V, *diff, *r, *s;
+  double dt = 1.0 / m; //h = dx; k = dt; dx = 1.0 / n,
+  double SS, torty, torty_tmp, diff_tmp, tmp_flux, Flux2A = 0.0, Flux2A_m = 0.0;
+  double Prod=0.0, Ebul=0.0, Oxid=0.0, Plant=0.0;
+  double Ebul_m=0.0, Plant_m=0.0, totFlux_m=0.0, Oxid_m=0.0;
+  double kfastc, kslowc, klitrc, TResp;//, MResp;
+  double totPlant = 0.0, totEbul = 0.0, totPlant_m = 0.0, totEbul_m = 0.0, totOxid_m = 0.0;
+  double tottotEbul = 0.0, tottotEbul_m = 0.0; //Added by Y.Mi
+  double SB, SM, Pressure;
+  int wtbflag = 0;
+  //What is actual_num_soil supposed to be? soildim has them all.
+  numsl = ed->m_soid.actual_num_soil;
+  C = MallocM1d(numsl);
+  D = MallocM1d(numsl);
+  V = MallocM1d(numsl);
+  diff = MallocM1d(numsl);
+  r = MallocM1d(numsl);
+  s = MallocM1d(numsl);
 
-	int il, j;
-	double *C, *D, *V, *diff, *r, *s;
-	double dt = 1.0 / m; //h = dx; k = dt; dx = 1.0 / n,
-	double SS, torty, torty_tmp, diff_tmp, tmp_flux, Flux2A = 0.0, Flux2A_m = 0.0;
-	double Prod=0.0, Ebul=0.0, Oxid=0.0, Plant=0.0;
-	double Ebul_m=0.0, Plant_m=0.0, totFlux_m=0.0, Oxid_m=0.0;
-	double kfastc, kslowc, klitrc, TResp;//, MResp;
-	double totPlant = 0.0, totEbul = 0.0, totPlant_m = 0.0, totEbul_m = 0.0, totOxid_m = 0.0, tottotEbul = 0.0, tottotEbul_m = 0.0; //lat two varables added by Y.Mi
-	double SB, SM, Pressure;
-	int wtbflag = 0;
-    
-    numsl = ed->m_soid.actual_num_soil;
-    
-    C = MallocM1d(numsl);
-	D = MallocM1d(numsl);
-	V = MallocM1d(numsl);
-	diff = MallocM1d(numsl);
-	r = MallocM1d(numsl);
-	s = MallocM1d(numsl);
+  if (ed->d_vegs.currLAI != bd->m_vegd.lai) {
+    ed->d_vegs.preLAI = ed->d_vegs.currLAI;
+    ed->d_vegs.currLAI = bd->m_vegd.lai;
+    ed->d_vegs.realLAI = ed->d_vegs.preLAI;
+  }
 
-	if (ed->d_vegs.currLAI != bd->m_vegd.lai) {
-		ed->d_vegs.preLAI = ed->d_vegs.currLAI;
-		ed->d_vegs.currLAI = bd->m_vegd.lai;
-		ed->d_vegs.realLAI = ed->d_vegs.preLAI;
-	}
-	ed->d_vegs.realLAI = ed->d_vegs.realLAI + (ed->d_vegs.currLAI - ed->d_vegs.preLAI) / 30.0;
+  ed->d_vegs.realLAI = ed->d_vegs.realLAI + (ed->d_vegs.currLAI - ed->d_vegs.preLAI) / 30.0;
 
-	for (il = 0; il < numsl; il++)
-    {
-        
-        if (ed->d_soid.watertab - 0.075 > (ed->d_sois.z[il] + ed->d_sois.dz[il]*0.5)) //layer above water table
-            
-        {
-            torty_tmp = ed->m_sois.por[il] - ed->d_soid.alllwc[il]  - ed->d_soid.alliwc[il]; //air content
-            
-			if (torty_tmp < 0.05)
-				torty_tmp = 0.05;
-            
-            torty = 0.66 * torty_tmp * pow(torty_tmp / ed->m_sois.por[il], 3.0); //(12-m)/3, m=3
-            diff_tmp = diff_a;
+  for (il = 0; il < numsl; il++) {
+    if (ed->d_soid.watertab - 0.075 > (ed->d_sois.z[il] + ed->d_sois.dz[il]*0.5)) { //layer above water table
+      torty_tmp = ed->m_sois.por[il] - ed->d_soid.alllwc[il]  - ed->d_soid.alliwc[il]; //air content
+
+      if (torty_tmp < 0.05) {
+        torty_tmp = 0.05;
+      }
+
+      torty = 0.66 * torty_tmp * pow(torty_tmp / ed->m_sois.por[il], 3.0); //(12-m)/3, m=3
+      diff_tmp = diff_a;
+    } else { //layer below water table
+      torty = 0.66 * ed->d_soid.alllwc[il] * pow(ed->d_soid.alllwc[il]/ (ed->m_sois.por[il] + ed->d_soid.alliwc[il]), 3.0);
+      diff_tmp = diff_w;
+    }
+
+    //CH4 diffusion coefficient Dg, m2/h
+    diff[il] = diff_tmp * torty * pow((ed->d_sois.ts[il] + 273.15) / 293.15, 1.75);
+    s[il] = ed->m_sois.dz[il] * ed->m_sois.dz[il] / (diff[il] * dt);
+    r[il] = 2 + s[il];
+  }
+
+  for (il = 1; il < numsl; il++) {
+    if (il == (numsl - 1)) {
+      D[il] = r[il] - 1.0;
+    } else {
+      D[il] = r[il];
+    }
+
+    if (il == 1) {
+      C[il] = -1.0 - ub;
+    } else {
+      C[il] = -1.0;
+    }
+  }
+
+  ed->d_soid.oxid = 0.0;
+
+  for (j = 1; j <= m; j++) { //loop through time steps
+    wtbflag = 0;
+
+    for (il = numsl - 1; il > 0; il--) { //loop through layers
+      TResp = 0.0;
+      klitrc = bd->m_soid.kdl_m[il]*0.5;
+      kfastc = bd->m_soid.kdr_m[il]*0.5;
+      kslowc = bd->m_soid.kdn_m[il]*0.5;
+      Plant = bd->rp * ed->m_sois.rootfrac[il] * ed->d_soid.ch4[il] * bd->tveg * ed->d_vegs.realLAI * 0.5;
+
+      if (ed->d_soid.watertab - 0.075 > (ed->m_sois.z[il] + ed->m_sois.dz[il]*0.5)) { //layer above water table
+        if (wtbflag == 0) {
+          Prod = totEbul;
+          wtbflag = 1;
+          totEbul = 0.0; //Y.Mi
+          totEbul_m = 0.0; //Y.Mi
+        } else {
+          Prod = 0.0;
+          totEbul = 0.0; //Y.Mi
+          totEbul_m = 0.0; //Y.Mi
         }
-        
-        else //layer below water table
-            
-        {
-			
-            torty = 0.66 * ed->d_soid.alllwc[il] * pow(ed->d_soid.alllwc[il]/ (ed->m_sois.por[il] + ed->d_soid.alliwc[il]), 3.0);
-            
-            diff_tmp = diff_w;
-            
+
+        tmp_flux = ed->m_sois.por[il] - ed->d_soid.alllwc[il] - ed->d_soid.alliwc[il];
+
+        if (tmp_flux < 0.05) {
+          tmp_flux = 0.05;
         }
-        
-        //CH4 diffusion coefficient Dg, m2/h
-		diff[il] = diff_tmp * torty * pow((ed->d_sois.ts[il] + 273.15) / 293.15, 1.75);
-		s[il] = ed->m_sois.dz[il] * ed->m_sois.dz[il] / (diff[il] * dt);
-		r[il] = 2 + s[il];
-        
-	}
-    
-	for (il = 1; il < numsl; il++)
-    {
-		if (il == (numsl - 1))
-			D[il] = r[il] - 1.0;
-		else
-			D[il] = r[il];
-        
-		if (il == 1)
-			C[il] = -1.0 - ub;
-		else
-			C[il] = -1.0;
-	}
 
-	ed->d_soid.oxid = 0.0;
+        TResp = getRhq10(ed->d_sois.ts[il]-2.1);
 
-	for (j = 1; j <= m; j++) //loop through time steps
-    {
-		 wtbflag = 0;
-        
-		for (il = numsl - 1; il > 0; il--) //loop through layers
-        {
-            
-            TResp = 0.0;
-            
-			klitrc = bd->m_soid.kdl_m[il]*0.5;
-			kfastc = bd->m_soid.kdr_m[il]*0.5;
-			kslowc = bd->m_soid.kdn_m[il]*0.5;
-            
-			Plant = bd->rp * ed->m_sois.rootfrac[il] * ed->d_soid.ch4[il] * bd->tveg * ed->d_vegs.realLAI * 0.5;
+        if (ed->d_sois.ts[il] >= -2.0 && ed->d_sois.ts[il] < 0.000001) {
+          TResp = getRhq10(-2.1) * 0.25;
+        } else if (ed->d_sois.ts[il] < -2.0) {
+          TResp = 0.0;
+        }
 
-            if (ed->d_soid.watertab - 0.075 > (ed->m_sois.z[il] + ed->m_sois.dz[il]*0.5)) //layer above water table
-            {
-                if (wtbflag == 0)
-                {
-					Prod = totEbul;
-					wtbflag = 1;
-                    totEbul = 0.0; //Y.Mi
-                    totEbul_m = 0.0; //Y.Mi
+        Oxid = 5.0 * ed->d_soid.ch4[il] * TResp / (20.0 + ed->d_soid.ch4[il]);
+        Oxid_m = Oxid * tmp_flux * ed->m_sois.dz[il] * 12.0;
 
-				}
-                else
-                {
-					Prod = 0.0;
-                    totEbul = 0.0; //Y.Mi
-                    totEbul_m = 0.0; //Y.Mi
-				}
-                
-				tmp_flux = ed->m_sois.por[il] - ed->d_soid.alllwc[il] - ed->d_soid.alliwc[il];
-				if (tmp_flux < 0.05)
-                    tmp_flux = 0.05;
-                
-            	TResp = getRhq10(ed->d_sois.ts[il]-2.1);
-            	if (ed->d_sois.ts[il] >= -2.0 && ed->d_sois.ts[il] < 0.000001)
-                    TResp = getRhq10(-2.1) * 0.25;
-            	else if (ed->d_sois.ts[il] < -2.0)
-                    TResp = 0.0;
-                
-				Oxid = 5.0 * ed->d_soid.ch4[il] * TResp / (20.0 + ed->d_soid.ch4[il]);
-				Oxid_m = Oxid * tmp_flux * ed->m_sois.dz[il] * 12.0;
-                
-                if (ed->d_sois.ts[il] > 0.0)
-				Plant_m = Plant * tmp_flux * ed->m_sois.dz[il] * 1000.0;
-                else
-                Plant_m = 0.0;
-                
-                Ebul = 0.0; // added by Y.Mi, Jan 2015
-                Ebul_m = 0.0; //Y.Mi
-            }
-            
-            else //layer below water table
-                
-            {
-                TResp = getRhq10(ed->d_sois.ts[il]-6.0);
-                if (ed->d_sois.ts[il] >= -2.0 && ed->d_sois.ts[il] < 0.000001)
-                    TResp = getRhq10(-6.0) * 0.25;
-                else if (ed->d_sois.ts[il] < -2.0)
-                    TResp = 0.0;
-                
-                if (tmp_sois.reac[il] > 0.0)
-                    del_soi2a.rrh_m[il] = klitrc * tmp_sois.reac[il] * TResp;
-                else
-                    del_soi2a.rrh_m[il] = 0.0;
-                
-                if (tmp_sois.nonc[il] > 0)
-                {
-                    double rslowc = 0.0035 / 0.2045;
-                    del_soi2a.nrh_m[il] = (kfastc * (1.0 - rslowc) + kslowc * rslowc) * tmp_sois.nonc[il] * TResp;
-                }
-                else
-                    del_soi2a.nrh_m[il] = 0.0;
-                
-                Prod = 1000.0 * (del_soi2a.nrh_m[il] + del_soi2a.rrh_m[il]) / (ed->m_sois.dz[il] * ed->m_sois.por[il]) / 12.0;
-                
-                SB = 0.05708 - 0.001545 * ed->d_sois.ts[il] + 0.00002069 * ed->d_sois.ts[il] * ed->d_sois.ts[il]; //volume
-                Pressure = DENLIQ * G * (ed->m_sois.z[il] + ed->m_sois.dz[il] / 2.0) + Pstd;
-                SM = Pressure * SB / (GASR * (ed->d_sois.ts[il] + 273.15)); //mass, n=PV/RT
-                
+        if (ed->d_sois.ts[il] > 0.0) {
+          Plant_m = Plant * tmp_flux * ed->m_sois.dz[il] * 1000.0;
+        } else {
+          Plant_m = 0.0;
+        }
+
+        Ebul = 0.0; // added by Y.Mi, Jan 2015
+        Ebul_m = 0.0; //Y.Mi
+      } else { //layer below water table
+        TResp = getRhq10(ed->d_sois.ts[il]-6.0);
+
+        if (ed->d_sois.ts[il] >= -2.0 && ed->d_sois.ts[il] < 0.000001) {
+          TResp = getRhq10(-6.0) * 0.25;
+        } else if (ed->d_sois.ts[il] < -2.0) {
+          TResp = 0.0;
+        }
+
+        if (tmp_sois.reac[il] > 0.0) {
+          del_soi2a.rrh_m[il] = klitrc * tmp_sois.reac[il] * TResp;
+        } else {
+          del_soi2a.rrh_m[il] = 0.0;
+        }
+
+        if (tmp_sois.nonc[il] > 0) {
+          double rslowc = 0.0035 / 0.2045;
+          del_soi2a.nrh_m[il] = (kfastc * (1.0 - rslowc) + kslowc * rslowc) * tmp_sois.nonc[il] * TResp;
+        } else {
+          del_soi2a.nrh_m[il] = 0.0;
+        }
+
+        Prod = 1000.0 * (del_soi2a.nrh_m[il] + del_soi2a.rrh_m[il]) / (ed->m_sois.dz[il] * ed->m_sois.por[il]) / 12.0;
+        SB = 0.05708 - 0.001545 * ed->d_sois.ts[il] + 0.00002069 * ed->d_sois.ts[il] * ed->d_sois.ts[il]; //volume
+        Pressure = DENLIQ * G * (ed->m_sois.z[il] + ed->m_sois.dz[il] / 2.0) + Pstd;
+        SM = Pressure * SB / (GASR * (ed->d_sois.ts[il] + 273.15)); //mass, n=PV/RT
+
 //                if (ed->d_sois.ts[il] > 1.0) Ebul = (ed->d_soid.ch4[il] - SM) * 1.0;
 //                else Ebul = 0.0;
-                
-                if (Ebul < 0.0000001)
-                    Ebul = 0.0;
-                
-                Ebul_m = Ebul * ed->d_soid.alllwc[il] * ed->m_sois.dz[il] * 1000.0;
-                
-                totEbul = totEbul + Ebul; //cumulated over 1 time step, 1 hour Y.MI
-                totEbul_m = totEbul_m + Ebul_m; //cumulated over 1 time step, 1 hour
-                
-                if (ed->d_sois.ts[0] < 0.0)
-                  totEbul_m = 0.0;
-                
-                Oxid = 0.0;
-                Oxid_m = 0.0;
-                
-                if (ed->d_sois.ts[il] > 0.0)
-                    Plant_m = Plant * ed->m_sois.por[il] * ed->m_sois.dz[il] * 1000.0;
-                else
-                    Plant_m = 0.0;//Plant * ed->d_soid.alllwc[il] * ed->m_sois.dz[il] * 1000.0;
-            }
-            
-            totPlant = totPlant + Plant; //cumulated over 1 day, 24 time steps, Y.MI
-            totPlant_m = totPlant_m + Plant_m; //cumulated over 1 day, 24 time steps, Y.MI
-            
+
+        if (Ebul < 0.0000001) {
+          Ebul = 0.0;
+        }
+
+        Ebul_m = Ebul * ed->d_soid.alllwc[il] * ed->m_sois.dz[il] * 1000.0;
+        totEbul = totEbul + Ebul; //cumulated over 1 time step, 1 hour Y.MI
+        totEbul_m = totEbul_m + Ebul_m; //cumulated over 1 time step, 1 hour
+
+        if (ed->d_sois.ts[0] < 0.0) {
+          totEbul_m = 0.0;
+        }
+
+        Oxid = 0.0;
+        Oxid_m = 0.0;
+
+        if (ed->d_sois.ts[il] > 0.0) {
+          Plant_m = Plant * ed->m_sois.por[il] * ed->m_sois.dz[il] * 1000.0;
+        } else {
+          Plant_m = 0.0;  //Plant * ed->d_soid.alllwc[il] * ed->m_sois.dz[il] * 1000.0;
+        }
+      }
+
+      totPlant = totPlant + Plant; //cumulated over 1 day, 24 time steps, Y.MI
+      totPlant_m = totPlant_m + Plant_m; //cumulated over 1 day, 24 time steps, Y.MI
 //            totEbul = totEbul + Ebul; //cumulated over 1 time step, 1 hour, Y.MI
 //            totEbul_m = totEbul_m + Ebul_m; //cumulated over 1 time step, 1 hour, Y.MI
-//            
-            tottotEbul = tottotEbul + Ebul; //cumulated over 1 day, 24 time steps, Y.MI
-            tottotEbul_m = tottotEbul_m + Ebul_m; //cumulated over 1 day, 24 time steps, Y.MI
-            
-            totOxid_m = totOxid_m + Oxid_m; //cumulated over 1 day, 24 time steps, Y.MI
-            ed->d_soid.oxid = totOxid_m;
-            
-            if (Oxid<0.000001)
-                Oxid = 0.0;
-            
-            if (Plant<0.000001)
-                Plant = 0.0;
-            
-            
-            SS = Prod - Ebul - Oxid - Plant;
+//
+      tottotEbul = tottotEbul + Ebul; //cumulated over 1 day, 24 time steps, Y.MI
+      tottotEbul_m = tottotEbul_m + Ebul_m; //cumulated over 1 day, 24 time steps, Y.MI
+      totOxid_m = totOxid_m + Oxid_m; //cumulated over 1 day, 24 time steps, Y.MI
+      ed->d_soid.oxid = totOxid_m;
 
-			if (il == (numsl - 1))
-                D[il] = r[il] - 1.0;
-			else D[il] = r[il];
+      if (Oxid<0.000001) {
+        Oxid = 0.0;
+      }
 
-			V[il] = s[il] * ed->d_soid.ch4[il] + s[il] * dt * SS;
-            if (V[il] < 0.0000001) V[il] = 0.0;
+      if (Plant<0.000001) {
+        Plant = 0.0;
+      }
 
-		} //end of layer looping
- 
-		tri(numsl - 1, C, D, C, V, V);
- 
-        for (il = 1; il < numsl; il++)
-            ed->d_soid.ch4[il] = V[il];
-       
-        tmp_flux = diff[1] * (ed->d_soid.ch4[1] - ub) / ed->m_sois.dz[1]; // flux of every time step, 1 hour, Y.MI
-        
-        if (tmp_flux < 0.000001)
-            tmp_flux = 0.0;
-        
-        Flux2A = Flux2A + tmp_flux; //flux cumulated over 1 day, 24 time steps, Y.MI
+      SS = Prod - Ebul - Oxid - Plant;
 
-	} // end of time steps looping
-    
-    tmp_flux = (ed->m_sois.por[1] - ed->d_soid.alllwc[1] - ed->d_soid.alliwc[1]);
-    if (tmp_flux < 0.05)
-        tmp_flux = 0.05;
-    
-    Flux2A_m = Flux2A * tmp_flux * ed->m_sois.dz[1] * 1000.0;
-    
-   
+      if (il == (numsl - 1)) {
+        D[il] = r[il] - 1.0;
+      } else {
+        D[il] = r[il];
+      }
 
-    totFlux_m = 0.5 * totPlant_m + Flux2A_m + totEbul_m;//ebullitions counldn't reach the surface, eg. when water table is below the soil surface, are not included, Y.MI
-    
-    
-    Flux2A = 0.0; //Y.Mi
-    totPlant_m =0.0; //Y.Mi
-    totEbul_m = 0.0; //Y.Mi
-    
-	if (totFlux_m < 0.000001)
-    {
-        totFlux_m = 0.0;
-        ed->d_soid.dfratio = 0.0;
+      V[il] = s[il] * ed->d_soid.ch4[il] + s[il] * dt * SS;
+
+      if (V[il] < 0.0000001) {
+        V[il] = 0.0;
+      }
+    } //end of layer looping
+
+    tri(numsl - 1, C, D, C, V, V);
+
+    for (il = 1; il < numsl; il++) {
+      ed->d_soid.ch4[il] = V[il];
     }
-    
-    else
-        ed->d_soid.dfratio = Flux2A_m / totFlux_m * 100.0;
 
-	ed->d_soid.ch4flux = 0.012 * totFlux_m;
-    
-	FreeM1d(C);
-	FreeM1d(D);
-	FreeM1d(V);
-	FreeM1d(diff);
-	FreeM1d(r);
-	FreeM1d(s);
+    tmp_flux = diff[1] * (ed->d_soid.ch4[1] - ub) / ed->m_sois.dz[1]; // flux of every time step, 1 hour, Y.MI
+
+    if (tmp_flux < 0.000001) {
+      tmp_flux = 0.0;
+    }
+
+    Flux2A = Flux2A + tmp_flux; //flux cumulated over 1 day, 24 time steps, Y.MI
+  } // end of time steps looping
+
+  tmp_flux = (ed->m_sois.por[1] - ed->d_soid.alllwc[1] - ed->d_soid.alliwc[1]);
+
+  if (tmp_flux < 0.05) {
+    tmp_flux = 0.05;
+  }
+
+  Flux2A_m = Flux2A * tmp_flux * ed->m_sois.dz[1] * 1000.0;
+  totFlux_m = 0.5 * totPlant_m + Flux2A_m + totEbul_m;//ebullitions counldn't reach the surface, eg. when water table is below the soil surface, are not included, Y.MI
+  Flux2A = 0.0; //Y.Mi
+  totPlant_m =0.0; //Y.Mi
+  totEbul_m = 0.0; //Y.Mi
+
+  if (totFlux_m < 0.000001) {
+    totFlux_m = 0.0;
+    ed->d_soid.dfratio = 0.0;
+  } else {
+    ed->d_soid.dfratio = Flux2A_m / totFlux_m * 100.0;
+  }
+
+  ed->d_soid.ch4flux = 0.012 * totFlux_m;
+  FreeM1d(C);
+  FreeM1d(D);
+  FreeM1d(V);
+  FreeM1d(diff);
+  FreeM1d(r);
+  FreeM1d(s);
 }
 
 
-/** Writes Carbon values from each of the Ground object's Layers into the bd 
+/** Writes Carbon values from each of the Ground object's Layers into the bd
     structure (BGC Data).
 */
 void Soil_Bgc::assignCarbonLayer2BdMonthly() {
@@ -367,7 +345,6 @@ void Soil_Bgc::assignCarbonLayer2BdMonthly() {
     bd->m_sois.sompr[il] = 0.0;
     bd->m_sois.somcr[il] = 0.0;
   }
-
 }
 
 void Soil_Bgc::prepareIntegration(const bool &mdnfeedback,
@@ -376,11 +353,9 @@ void Soil_Bgc::prepareIntegration(const bool &mdnfeedback,
   this->set_nfeed(mdnfeedback);
   this->set_avlnflg(mdavlnflg);
   this->set_baseline(mdbaseline);
-
   // moss death rate if any (from Vegetation_bgc.cpp)
   mossdeathc    = bd->m_v2soi.mossdeathc;
   mossdeathn    = bd->m_v2soi.mossdeathn;
-
   // litter-fall C/N from Vegetation_bgc.cpp
   double blwlfc = bd->m_v2soi.ltrfalc[I_root];
   double abvlfc = fmax(0., bd->m_v2soi.ltrfalcall - blwlfc);
@@ -401,20 +376,17 @@ void Soil_Bgc::prepareIntegration(const bool &mdnfeedback,
     //else if fstshlwl==NULL and there is litterfall, ERROR
     //if (cd->m_soil.type[i]>0) { WRONG
     //soillayer sl = ground ;lksadjf; [i];
-
     if( (i==0 && cd->m_soil.type[i]==1) ||
         ((i>0 && cd->m_soil.type[i]==1) && (cd->m_soil.type[i-1]!=1)) ) {
       // always put the litterfall from vascular and moss in the
       // first non-moss soil layer
       ltrflc[i] = abvlfc + bd->m_v2soi.mossdeathc + bd->m_v2soi.rtlfalfrac[i] * blwlfc;
-
       ltrfln[i] = abvlfn + bd->m_v2soi.mossdeathn + bd->m_v2soi.rtlfalfrac[i] * blwlfn;
       abvlfc = 0.;
       abvlfn = 0.;
     } else if(cd->m_soil.type[i]>0) {
       // root death is directly put into each soil layer
       ltrflc[i] = bd->m_v2soi.rtlfalfrac[i] * blwlfc;
-
       ltrfln[i] = bd->m_v2soi.rtlfalfrac[i] * blwlfn;
     }
 
@@ -484,15 +456,13 @@ void Soil_Bgc::afterIntegration() {
   }
 };
 
-void Soil_Bgc::clear_del_structs(){
+void Soil_Bgc::clear_del_structs() {
   //soistate_bgc del_sois
   del_sois.wdebrisc = 0.0;
   del_sois.wdebrisn = 0.0;
-
   //soi2soi_bgc del_soi2soi
   del_soi2soi.netnminsum = 0.0;
   del_soi2soi.nimmobsum = 0.0;
-
   //soi2atm_bgc del_soi2a
   del_soi2a.rhwdeb = 0.0;
   del_soi2a.rhrawcsum = 0.0;
@@ -500,28 +470,24 @@ void Soil_Bgc::clear_del_structs(){
   del_soi2a.rhsomprsum = 0.0;
   del_soi2a.rhsomcrsum = 0.0;
   del_soi2a.rhtot = 0.0;
-
   //soi2lnd_bgc del_soi2l
   del_soi2l.doclost = 0.0;
   del_soi2l.avlnlost = 0.0;
   del_soi2l.orgnlost = 0.0;
-
   //atm2soi_bgc del_a2soi
   del_a2soi.orgcinput = 0.0;
   del_a2soi.orgninput = 0.0;
   del_a2soi.avlninput = 0.0;
 
-  for(int il=0; il<MAX_SOI_LAY; il++){
+  for(int il=0; il<MAX_SOI_LAY; il++) {
     del_sois.rawc[il] = 0.0;
     del_sois.soma[il] = 0.0;
     del_sois.sompr[il] = 0.0;
     del_sois.somcr[il] = 0.0;
     del_sois.orgn[il] = 0.0;
     del_sois.avln[il] = 0.0;
-
     del_soi2soi.netnmin[il] = 0.0;
     del_soi2soi.nimmob[il] = 0.0;
-
     del_soi2a.rhrawc[il] = 0.0;
     del_soi2a.rhsoma[il] = 0.0;
     del_soi2a.rhsompr[il] = 0.0;
@@ -530,17 +496,13 @@ void Soil_Bgc::clear_del_structs(){
 };
 
 void Soil_Bgc::initializeState() {
-
   // Set initiate state variable
   double shlwc = chtlu->initshlwc;
   double deepc = chtlu->initdeepc;
   double minec = chtlu->initminec;
-
   initSoilCarbon(shlwc, deepc, minec);
   assignCarbonLayer2BdMonthly();
-
   bd->m_sois.wdebrisc = 0;
-
   // Initial N based on input total and SOM C profile
   double sum_total_C = shlwc + deepc + minec;
 
@@ -549,20 +511,20 @@ void Soil_Bgc::initializeState() {
                              bd->m_sois.soma[il] +
                              bd->m_sois.sompr[il] +
                              bd->m_sois.somcr[il];
-
     // Available N should only be calculated where roots are actively
     // turning over (ie, root zone)
     bool root_presence = false;
     double sum_root_frac = 0.0;
+
     for (int ipft=0; ipft<NUM_PFT; ++ipft) {
       sum_root_frac += cd->m_soil.frootfrac[il][ipft];
     }
+
     if (sum_root_frac > 0.0) {
       root_presence = true;
     }
 
     if (total_monthly_C > 0.0 && sum_total_C > 0.0) {
-
       if (root_presence) {
         bd->m_sois.avln[il] = chtlu->initavln * total_monthly_C/sum_total_C;
       } else {
@@ -570,7 +532,6 @@ void Soil_Bgc::initializeState() {
       }
 
       bd->m_sois.orgn [il] = chtlu->initsoln * total_monthly_C/sum_total_C;
-
     } else {
       bd->m_sois.avln [il] = 0.0;
       bd->m_sois.orgn [il] = 0.0;
@@ -579,38 +540,41 @@ void Soil_Bgc::initializeState() {
 }
 
 void Soil_Bgc::set_state_from_restartdata(const RestartData & rdata) {
-  
   for (int il =0; il<MAX_SOI_LAY; il++) {
-    
-    if(rdata.rawc[il]>=0){
-		  bd->m_sois.rawc[il] = rdata.rawc[il];
-    } else { 
-		  bd->m_sois.rawc[il] = 0;
+    if(rdata.rawc[il]>=0) {
+      bd->m_sois.rawc[il] = rdata.rawc[il];
+    } else {
+      bd->m_sois.rawc[il] = 0;
     }
-    if(rdata.soma[il]>=0){    
-		  bd->m_sois.soma[il] = rdata.soma[il];
-    } else { 
-		  bd->m_sois.soma[il] = 0;
+
+    if(rdata.soma[il]>=0) {
+      bd->m_sois.soma[il] = rdata.soma[il];
+    } else {
+      bd->m_sois.soma[il] = 0;
     }
-    if(rdata.sompr[il]>=0){
-		  bd->m_sois.sompr[il]= rdata.sompr[il];
-    } else { 
-		  bd->m_sois.sompr[il] = 0;
+
+    if(rdata.sompr[il]>=0) {
+      bd->m_sois.sompr[il]= rdata.sompr[il];
+    } else {
+      bd->m_sois.sompr[il] = 0;
     }
-    if(rdata.somcr[il]>=0){
-		  bd->m_sois.somcr[il]= rdata.somcr[il];
-    } else { 
-		  bd->m_sois.somcr[il] = 0;
+
+    if(rdata.somcr[il]>=0) {
+      bd->m_sois.somcr[il]= rdata.somcr[il];
+    } else {
+      bd->m_sois.somcr[il] = 0;
     }
-    if(rdata.orgn[il]>=0){
-		  bd->m_sois.orgn[il] = rdata.orgn[il];
-    } else { 
-		  bd->m_sois.orgn[il] = 0;
+
+    if(rdata.orgn[il]>=0) {
+      bd->m_sois.orgn[il] = rdata.orgn[il];
+    } else {
+      bd->m_sois.orgn[il] = 0;
     }
-    if(rdata.avln[il]>=0){
-		  bd->m_sois.avln[il] = rdata.avln[il];
-    } else { 
-		  bd->m_sois.avln[il] = 0;
+
+    if(rdata.avln[il]>=0) {
+      bd->m_sois.avln[il] = rdata.avln[il];
+    } else {
+      bd->m_sois.avln[il] = 0;
     }
 
     for(int i=0; i<10; i++) {
@@ -648,7 +612,6 @@ void Soil_Bgc::initializeParameter() {
   bgcpar.propftos   = chtlu->propftos;
   bgcpar.fnloss     = chtlu->fnloss;
   bgcpar.nmincnsoil = chtlu->nmincnsoil;
-
   BOOST_LOG_SEV(glg, note) << "Calculating parameter in Soil_Bgc from Jenkinson and Rayner (1977).";
   // Alternatively these can be estimated from Ks calibrated.
   // Jenkinson and Rayner (1977):
@@ -658,7 +621,6 @@ void Soil_Bgc::initializeParameter() {
   bgcpar.eqsoma = 0.28 / (0.48 + 0.28 + 11.3 + 12.2);
   bgcpar.eqsompr = 11.3 / (0.48 + 0.28 + 11.3 + 12.2);
   bgcpar.eqsomcr = 12.2 / (0.48 + 0.28 + 11.3 + 12.2);
-
   BOOST_LOG_SEV(glg, note) << "Calculating decay in Soil_Bgc.";
   decay = 0.26299 +
           (1.14757 * bgcpar.propftos) -
@@ -727,14 +689,12 @@ void Soil_Bgc::initOslayerCarbon(double & shlwc, double & deepc) {
           currl->sompr = bgcpar.eqsompr * (cumcarbonbot - cumcarbontop);
           currl->somcr = bgcpar.eqsomcr * (cumcarbonbot - cumcarbontop);
         } else if (currl->isMoss) {
-
           // moss layers are not 'normal' soil organic layers, so contain
           // no C in the normal soil C pools
           currl->rawc  = 0.0;
           currl->soma  = 0.0;
           currl->sompr = 0.0;
           currl->somcr = 0.0;
-
         } else {
           currl->rawc  = 0.0;
           currl->soma  = 0.0;
@@ -863,6 +823,7 @@ void Soil_Bgc::deltac() {
                                            bgcpar.moistmax,
                                            bgcpar.moistopt );
     }
+
     bd->m_soid.rhq10[il] = getRhq10(ed->m_sois.ts[il]);
     krawc  = bgcpar.kdrawc[il];
     ksoma  = bgcpar.kdsoma[il];
@@ -930,21 +891,17 @@ void Soil_Bgc::deltan() {
                     tmp_sois.soma[i] +
                     tmp_sois.sompr[i] +
                     tmp_sois.somcr[i];
-
       double rhsum = del_soi2a.rhrawc[i] +
                      del_soi2a.rhsoma[i] +
                      del_soi2a.rhsompr[i]+
                      del_soi2a.rhsomcr[i];
-
       double nimmob = getNimmob(ed->m_sois.liq[i], totc,
                                 tmp_sois.orgn[i], tmp_sois.avln[i],
                                 bd->m_soid.knmoist[i], bgcpar.kn2);
-
       del_soi2soi.nimmob[i] = nimmob;
       del_soi2soi.netnmin[i] = getNetmin(nimmob, totc, tmp_sois.orgn[i],
                                          rhsum ,bgcpar.nmincnsoil,
                                          decay, calpar.micbnup);
-
       totnetnmin += del_soi2soi.netnmin[i];
     }
 
@@ -992,7 +949,7 @@ void Soil_Bgc::deltan() {
 
     if ( !this->baseline ) {
       del_soi2l.orgnlost = 0.0; // Dynamic Organic N lost - not yet done.
-                                // this is the portal for future development.
+      // this is the portal for future development.
     } else {
       // note: this will re-estimate the fire-emission re-deposition
       del_a2soi.orgninput = 0.;
@@ -1040,18 +997,14 @@ void Soil_Bgc::deltastate() {
                    del_soi2a.rhsompr[il] +
                    del_soi2a.rhsomcr[il];
 
-
     // Only calculate these pools for non-moss layers...
     if (cd->m_soil.type[il] > 0) {
       // So note that: root death is the reason for deep SOM increment
       del_sois.rawc[il] = ltrflc[il] - del_soi2a.rhrawc[il] * (1.0+somtoco2);
-
       del_sois.soma[il] = (rhsum * somtoco2 * fsoma) -
                           del_soi2a.rhsoma[il] * (1.0+somtoco2);
-
       del_sois.sompr[il] = (rhsum * somtoco2 * fsompr) -
                            del_soi2a.rhsompr[il] * (1.0+somtoco2);
-
       del_sois.somcr[il] = rhsum * somtoco2 * fsomcr -
                            del_soi2a.rhsomcr[il] * (1.0+somtoco2);
     }
@@ -1097,8 +1050,8 @@ void Soil_Bgc::deltastate() {
 
         if (totsomc > (s2dcarbon1 + s2dcarbon2)) {
           del_orgn[il] = - (s2dcarbon1+s2dcarbon2) / totsomc
-                          * tmp_sois.orgn[il]; //assuming C/N same for all
-                                               //  SOM components
+                         * tmp_sois.orgn[il]; //assuming C/N same for all
+          //  SOM components
         } else {
           del_orgn[il] = 0.0;
         }
@@ -1112,18 +1065,18 @@ void Soil_Bgc::deltastate() {
         // Should this been 'cd->m_soil.type[il+1] > 1'??
         // Also, not sure how this is supposed to work, since we are w/in the
         // fibric layer check - not sure how this code will ever execute...
-
         del_sois.sompr[il] += s2dcarbon1; // Let the humified SOM C staying
-                                          // in the last fibrous layer,
+        // in the last fibrous layer,
         del_sois.somcr[il] += s2dcarbon2; // Which later on, if greater than a
-                                          // min. value, will form a new
-                                          // humic layer
+        // min. value, will form a new
+        // humic layer
 
         if (this->nfeed == 1) {
           del_orgn[il] += s2dorgn;
         }
       }
-    // end soil type 0 or 1
+
+      // end soil type 0 or 1
     } else if (cd->m_soil.type[il]==2 && dlleft>0) {
       // Humic layers...
       // 2) s2dcarbon from above will move into the 'xtopdlthick';
@@ -1174,7 +1127,7 @@ void Soil_Bgc::deltastate() {
         }
       }
 
-    // end soil type 2 and 'dlleft>0'
+      // end soil type 2 and 'dlleft>0'
     } else if (cd->m_soil.type[il]==3) { // mineral layers...
       // 4) d2mcarbon from above will move into the 'xtopmlthick';
       thickadded = fmin(cd->m_soil.dz[il], mlleft);
@@ -1210,7 +1163,7 @@ void Soil_Bgc::deltastate() {
       del_sois.orgn[il] = ltrfln[il] - del_soi2soi.netnmin[il] + del_orgn[il];
 
       if (il==0) { //put the deposited orgn (here, mainly fire emitted
-                   //  or budget estimation) into the first soil layer
+        //  or budget estimation) into the first soil layer
         del_sois.orgn[il] += bd->m_a2soi.orgninput;
       }
 
@@ -1235,7 +1188,6 @@ void Soil_Bgc::deltastate() {
 //      // variable, then it might be appropriate to force the values to zero:
 //      // with something like this:
 //      //if (del_sois.orgn[il] < 0) { del_sois.orgn[il] = 0.0; }
-
       // Inorganic N pools
       double ninput = 0.;
 
@@ -1263,7 +1215,8 @@ void Soil_Bgc::deltastate() {
           }
         }
       }
-      if(bd->m_v2soi.rtlfalfrac[il] > 0.){
+
+      if(bd->m_v2soi.rtlfalfrac[il] > 0.) {
         del_sois.avln[il] = ninput + del_soi2soi.netnmin[il]
                             - ndrain - rtnextract[il];
       } else {
@@ -1271,7 +1224,6 @@ void Soil_Bgc::deltastate() {
         del_soi2soi.netnmin[il] = 0.0;
       }
     } // end of soil layer loop
-
 
     // wood debris
     if (tmp_sois.wdebrisc > 0.) {
@@ -1344,7 +1296,7 @@ void Soil_Bgc::updateKdyrly4all() {
   double kdsomcr = calpar.kdcsomcr;
 
   for(int il=0; il<cd->m_soil.numsl; il++) {
-    //adjust SOM component respiration rate (kdc) due to 
+    //adjust SOM component respiration rate (kdc) due to
     //  literfall C/N ratio changing
     if (this->nfeed == 1) {
       double ltrfalcn = 0.;
@@ -1373,7 +1325,6 @@ void Soil_Bgc::updateKdyrly4all() {
     bgcpar.kdsompr[il] = kdsompr;
     bgcpar.kdsomcr[il] = kdsomcr;
   }
-
 };
 
 double Soil_Bgc::getKdyrly(double & yrltrcn, const double lcclnc,

@@ -71,6 +71,8 @@ public:
   int get_baseline();
   void set_baseline(int);
 
+  void CH4Flux(const int mind, const int id);
+
 private:
 
   // NOTE: seems like these 3 variables are supposed to shadow the
