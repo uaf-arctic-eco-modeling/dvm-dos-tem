@@ -107,7 +107,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
   ed->d_vegs.realLAI = ed->d_vegs.realLAI + (ed->d_vegs.currLAI - ed->d_vegs.preLAI) / 30.0;
 
   for (il = 0; il < numsoill; il++) {
-    if (ed->d_soid.watertab - 0.075 > (ed->d_sois.z[il] + ed->d_sois.dz[il]*0.5)) { //layer above water table
+    if (ed->d_sois.watertab - 0.075 > (ed->d_sois.z[il] + ed->d_sois.dz[il]*0.5)) { //layer above water table
       torty_tmp = ed->m_sois.por[il] - ed->d_soid.alllwc[il]  - ed->d_soid.alliwc[il]; //air content
 
       if (torty_tmp < 0.05) {
@@ -153,7 +153,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       kslowc = bd->m_soid.kdn_m[il]*0.5;
       Plant = bd->rp * ed->m_sois.rootfrac[il] * ed->d_soid.ch4[il] * bd->tveg * ed->d_vegs.realLAI * 0.5;
 
-      if (ed->d_soid.watertab - 0.075 > (ed->m_sois.z[il] + ed->m_sois.dz[il]*0.5)) { //layer above water table
+      if (ed->d_sois.watertab - 0.075 > (ed->m_sois.z[il] + ed->m_sois.dz[il]*0.5)) { //layer above water table
         if (wtbflag == 0) {
           Prod = totEbul;
           wtbflag = 1;
