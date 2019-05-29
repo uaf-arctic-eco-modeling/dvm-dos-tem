@@ -113,26 +113,31 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
   ed->d_vegs.realLAI = ed->d_vegs.realLAI + (ed->d_vegs.currLAI - ed->d_vegs.preLAI) / 30.0;
 
-  for (il = 0; il < numsoill; il++) {
-    if (ed->d_sois.watertab - 0.075 > (cd->d_soil.z[il] + cd->d_soil.dz[il]*0.5)) { //layer above water table
-      torty_tmp = cd->m_soil.por[il] - ed->d_soid.alllwc[il]  - ed->d_soid.alliwc[il]; //air content
+
+  Layer *currl = ground->fstshlwl;
+  while(currl->isSoil){
+
+    if (ed->d_sois.watertab - 0.075 > (currl->z + currl->dz*0.5)) { //layer above water table
+      torty_tmp = currl->poro - currl->liq - currl->ice; //air content
 
       if (torty_tmp < 0.05) {
         torty_tmp = 0.05;
       }
 
-      torty = 0.66 * torty_tmp * pow(torty_tmp / cd->m_soil.por[il], 3.0); //(12-m)/3, m=3
+      torty = 0.66 * torty_tmp * pow(torty_tmp / currl->poro, 3.0); //(12-m)/3, m=3
       diff_tmp = diff_a;
     } else { //layer below water table
-      torty = 0.66 * ed->d_soid.alllwc[il] * pow(ed->d_soid.alllwc[il]/ (cd->m_soil.por[il] + ed->d_soid.alliwc[il]), 3.0);
+      torty = 0.66 * currl->liq * pow(currl->liq / (currl->poro + currl->ice), 3.0);
       diff_tmp = diff_w;
     }
 
     //CH4 diffusion coefficient Dg, m2/h
-    diff[il] = diff_tmp * torty * pow((ed->d_sois.ts[il] + 273.15) / 293.15, 1.75);
-    s[il] = cd->m_soil.dz[il] * cd->m_soil.dz[il] / (diff[il] * dt);
+    diff[il] = diff_tmp * torty * pow((currl->tem + 273.15) / 293.15, 1.75);
+    s[il] = currl->dz * currl->dz / (diff[il] * dt);
     r[il] = 2 + s[il];
-  }
+
+    currl = currl->nextl;
+  }//end loop-by-layer
 
   for (il = 1; il < numsoill; il++) {
     if (il == (numsoill - 1)) {
