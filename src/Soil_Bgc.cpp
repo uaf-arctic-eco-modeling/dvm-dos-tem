@@ -78,7 +78,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
   const double diff_w = 0.072 / 10000.0; //m2 h-1 diffusion water
   const int m = 24; //n = 10 (number of dx), m = time
   int il, j;
-  double *C, *D, *V, *diff, *r, *s;
+//  double *C, *D, *V, *diff, *r, *s;
   double dt = 1.0 / m; //h = dx; k = dt; dx = 1.0 / n,
   double SS, torty, torty_tmp, diff_tmp, tmp_flux, Flux2A = 0.0, Flux2A_m = 0.0;
   double Prod=0.0, Ebul=0.0, Oxid=0.0, Plant=0.0;
@@ -91,12 +91,19 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
   int numsoill = cd->m_soil.numsl;
 
-  C = MallocM1d(numsoill);
-  D = MallocM1d(numsoill);
-  V = MallocM1d(numsoill);
-  diff = MallocM1d(numsoill);
-  r = MallocM1d(numsoill);
-  s = MallocM1d(numsoill);
+  double C[numsoill];
+  double D[numsoill];
+  double V[numsoill];
+  double diff[numsoill];
+  double r[numsoill];
+  double s[numsoill];
+
+//  C = MallocM1d(numsoill);
+//  D = MallocM1d(numsoill);
+//  V = MallocM1d(numsoill);
+//  diff = MallocM1d(numsoill);
+//  r = MallocM1d(numsoill);
+//  s = MallocM1d(numsoill);
 
   if (ed->d_vegs.currLAI != bd->m_vegd.lai) {
     ed->d_vegs.preLAI = ed->d_vegs.currLAI;
@@ -275,7 +282,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       }
     } //end of layer looping
 
-    tri(numsoill - 1, C, D, C, V, V);
+    tri(numsoill - 1, &C, &D, &C, &V, &V);
 
     for (il = 1; il < numsoill; il++) {
       ed->d_soid.ch4[il] = V[il];
@@ -310,12 +317,12 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
   }
 
   ed->d_soid.ch4flux = 0.012 * totFlux_m;
-  FreeM1d(C);
-  FreeM1d(D);
-  FreeM1d(V);
-  FreeM1d(diff);
-  FreeM1d(r);
-  FreeM1d(s);
+//  FreeM1d(C);
+//  FreeM1d(D);
+//  FreeM1d(V);
+//  FreeM1d(diff);
+//  FreeM1d(r);
+//  FreeM1d(s);
 }
 
 
