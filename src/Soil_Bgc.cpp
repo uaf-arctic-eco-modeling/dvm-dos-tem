@@ -107,23 +107,23 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
   ed->d_vegs.realLAI = ed->d_vegs.realLAI + (ed->d_vegs.currLAI - ed->d_vegs.preLAI) / 30.0;
 
   for (il = 0; il < numsoill; il++) {
-    if (ed->d_sois.watertab - 0.075 > (ed->d_sois.z[il] + ed->d_sois.dz[il]*0.5)) { //layer above water table
-      torty_tmp = ed->m_sois.por[il] - ed->d_soid.alllwc[il]  - ed->d_soid.alliwc[il]; //air content
+    if (ed->d_sois.watertab - 0.075 > (cd->d_soil.z[il] + cd->d_soil.dz[il]*0.5)) { //layer above water table
+      torty_tmp = cd->m_soil.por[il] - ed->d_soid.alllwc[il]  - ed->d_soid.alliwc[il]; //air content
 
       if (torty_tmp < 0.05) {
         torty_tmp = 0.05;
       }
 
-      torty = 0.66 * torty_tmp * pow(torty_tmp / ed->m_sois.por[il], 3.0); //(12-m)/3, m=3
+      torty = 0.66 * torty_tmp * pow(torty_tmp / cd->m_soil.por[il], 3.0); //(12-m)/3, m=3
       diff_tmp = diff_a;
     } else { //layer below water table
-      torty = 0.66 * ed->d_soid.alllwc[il] * pow(ed->d_soid.alllwc[il]/ (ed->m_sois.por[il] + ed->d_soid.alliwc[il]), 3.0);
+      torty = 0.66 * ed->d_soid.alllwc[il] * pow(ed->d_soid.alllwc[il]/ (cd->m_soil.por[il] + ed->d_soid.alliwc[il]), 3.0);
       diff_tmp = diff_w;
     }
 
     //CH4 diffusion coefficient Dg, m2/h
     diff[il] = diff_tmp * torty * pow((ed->d_sois.ts[il] + 273.15) / 293.15, 1.75);
-    s[il] = ed->m_sois.dz[il] * ed->m_sois.dz[il] / (diff[il] * dt);
+    s[il] = cd->m_soil.dz[il] * cd->m_soil.dz[il] / (diff[il] * dt);
     r[il] = 2 + s[il];
   }
 
@@ -153,7 +153,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       kslowc = bd->m_soid.kdn_m[il]*0.5;
       Plant = bd->rp * ed->m_sois.rootfrac[il] * ed->d_soid.ch4[il] * bd->tveg * ed->d_vegs.realLAI * 0.5;
 
-      if (ed->d_sois.watertab - 0.075 > (ed->m_sois.z[il] + ed->m_sois.dz[il]*0.5)) { //layer above water table
+      if (ed->d_sois.watertab - 0.075 > (cd->m_soil.z[il] + cd->m_soil.dz[il]*0.5)) { //layer above water table
         if (wtbflag == 0) {
           Prod = totEbul;
           wtbflag = 1;
@@ -165,7 +165,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
           totEbul_m = 0.0; //Y.Mi
         }
 
-        tmp_flux = ed->m_sois.por[il] - ed->d_soid.alllwc[il] - ed->d_soid.alliwc[il];
+        tmp_flux = cd->m_soil.por[il] - ed->d_soid.alllwc[il] - ed->d_soid.alliwc[il];
 
         if (tmp_flux < 0.05) {
           tmp_flux = 0.05;
@@ -180,10 +180,10 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
         }
 
         Oxid = 5.0 * ed->d_soid.ch4[il] * TResp / (20.0 + ed->d_soid.ch4[il]);
-        Oxid_m = Oxid * tmp_flux * ed->m_sois.dz[il] * 12.0;
+        Oxid_m = Oxid * tmp_flux * cd->m_soil.dz[il] * 12.0;
 
         if (ed->d_sois.ts[il] > 0.0) {
-          Plant_m = Plant * tmp_flux * ed->m_sois.dz[il] * 1000.0;
+          Plant_m = Plant * tmp_flux * cd->m_soil.dz[il] * 1000.0;
         } else {
           Plant_m = 0.0;
         }
@@ -212,9 +212,9 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
           del_soi2a.nrh_m[il] = 0.0;
         }
 
-        Prod = 1000.0 * (del_soi2a.nrh_m[il] + del_soi2a.rrh_m[il]) / (ed->m_sois.dz[il] * ed->m_sois.por[il]) / 12.0;
+        Prod = 1000.0 * (del_soi2a.nrh_m[il] + del_soi2a.rrh_m[il]) / (cd->m_soil.dz[il] * cd->m_soil.por[il]) / 12.0;
         SB = 0.05708 - 0.001545 * ed->d_sois.ts[il] + 0.00002069 * ed->d_sois.ts[il] * ed->d_sois.ts[il]; //volume
-        Pressure = DENLIQ * G * (ed->m_sois.z[il] + ed->m_sois.dz[il] / 2.0) + Pstd;
+        Pressure = DENLIQ * G * (cd->m_soil.z[il] + cd->m_soil.dz[il] / 2.0) + Pstd;
         SM = Pressure * SB / (GASR * (ed->d_sois.ts[il] + 273.15)); //mass, n=PV/RT
 
 //                if (ed->d_sois.ts[il] > 1.0) Ebul = (ed->d_soid.ch4[il] - SM) * 1.0;
@@ -224,7 +224,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
           Ebul = 0.0;
         }
 
-        Ebul_m = Ebul * ed->d_soid.alllwc[il] * ed->m_sois.dz[il] * 1000.0;
+        Ebul_m = Ebul * ed->d_soid.alllwc[il] * cd->m_soil.dz[il] * 1000.0;
         totEbul = totEbul + Ebul; //cumulated over 1 time step, 1 hour Y.MI
         totEbul_m = totEbul_m + Ebul_m; //cumulated over 1 time step, 1 hour
 
@@ -236,7 +236,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
         Oxid_m = 0.0;
 
         if (ed->d_sois.ts[il] > 0.0) {
-          Plant_m = Plant * ed->m_sois.por[il] * ed->m_sois.dz[il] * 1000.0;
+          Plant_m = Plant * cd->m_soil.por[il] * cd->m_soil.dz[il] * 1000.0;
         } else {
           Plant_m = 0.0;  //Plant * ed->d_soid.alllwc[il] * ed->m_sois.dz[il] * 1000.0;
         }
@@ -281,7 +281,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       ed->d_soid.ch4[il] = V[il];
     }
 
-    tmp_flux = diff[1] * (ed->d_soid.ch4[1] - ub) / ed->m_sois.dz[1]; // flux of every time step, 1 hour, Y.MI
+    tmp_flux = diff[1] * (ed->d_soid.ch4[1] - ub) / cd->m_soil.dz[1]; // flux of every time step, 1 hour, Y.MI
 
     if (tmp_flux < 0.000001) {
       tmp_flux = 0.0;
@@ -290,13 +290,13 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
     Flux2A = Flux2A + tmp_flux; //flux cumulated over 1 day, 24 time steps, Y.MI
   } // end of time steps looping
 
-  tmp_flux = (ed->m_sois.por[1] - ed->d_soid.alllwc[1] - ed->d_soid.alliwc[1]);
+  tmp_flux = (cd->m_soil.por[1] - ed->d_soid.alllwc[1] - ed->d_soid.alliwc[1]);
 
   if (tmp_flux < 0.05) {
     tmp_flux = 0.05;
   }
 
-  Flux2A_m = Flux2A * tmp_flux * ed->m_sois.dz[1] * 1000.0;
+  Flux2A_m = Flux2A * tmp_flux * cd->m_soil.dz[1] * 1000.0;
   totFlux_m = 0.5 * totPlant_m + Flux2A_m + totEbul_m;//ebullitions counldn't reach the surface, eg. when water table is below the soil surface, are not included, Y.MI
   Flux2A = 0.0; //Y.Mi
   totPlant_m =0.0; //Y.Mi
