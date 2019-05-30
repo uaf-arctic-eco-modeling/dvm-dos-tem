@@ -72,6 +72,23 @@ void Soil_Bgc::assignCarbonBd2LayerMonthly() {
 }
 
 
+void Soil_Bgc::TriSolver(int matrix_size, double *A, double *D, double *C, double *B,double *X) {
+
+	int i;
+	double xmult;
+
+	for (i = 2; i <= matrix_size; i++) {
+		xmult = A[i - 1] / D[i - 1];
+		D[i] -= xmult * C[i - 1];
+		B[i] -= xmult * B[i - 1];
+	}
+
+	X[matrix_size] = B[matrix_size] / D[matrix_size];
+	for (i = matrix_size - 1; i >= 1; i--)
+		X[i] = (B[i] - C[i] * X[i + 1]) / D[i];
+}
+
+
 void Soil_Bgc::CH4Flux(const int mind, const int id) {
   const double ub = 0.076; //umol L-1 upper boundary ch4 concentration
   const double diff_a = 720.0 / 10000.0; //m2 h-1 diffusion air
@@ -287,7 +304,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       }
     } //end of layer looping
 
-    tri(numsoill - 1, &C, &D, &C, &V, &V);
+    TriSolver(numsoill - 1, C, D, C, V, V);
 
     for (il = 1; il < numsoill; il++) {
       ed->d_soid.ch4[il] = V[il];

@@ -115,6 +115,10 @@ private:
   CohortLookup * chtlu;
   Ground * ground;
 
+  //TODO This should likely be replaced with the same solver
+  //  used for soil moisture
+  void TriSolver(int matrix_size, double *A, double *D, double *C, double *B, double *X);
+
   void initSoilCarbon(double & initshlwc, double & initdeepc,
                       double & initminec);
   void initOslayerCarbon(double & shlwc, double & deepc);
