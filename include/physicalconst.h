@@ -26,6 +26,7 @@ const float STFBOLTZ = 5.67e-8 ;// Stefan-Boltzmann constant W/m2K4
 const float BOLTZ    = 1.38e-23 ; // Boltzmann constant J/Kmolecule
 const float NA       = 6.02214e26 ; // mole/kmol
 const float KPA      = 0.4; // von karman constant -
+const float GASR     = 8.3145; //m3 Pa K-1 mol-1 universal gas constant
 
 const float WFACT    = 0.75; //A parameter determined by the distribution of the topographic index. Source: CLM3/Oleson 2004.
 
