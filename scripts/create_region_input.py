@@ -482,6 +482,23 @@ def fill_topo_file(inSlope, inAspect, inElev, xo, yo, xs, ys, out_dir, of_name):
         new_topodataset.variables['lon'][:] = TF.variables['lon'][:]
 
 
+def copy_grid_mapping(srcfile, dstfile):
+  '''
+  This should deal with copying the spatial reference info from the input
+  files into our new output files. This should allow our inputs to be more
+  easily mapped. Maybe we don't need to carry the lat and lon variables thru if
+  we have the grid_mapping???
+  '''
+  with netCDF4.Dataset(srcfile) as src, netCDF4.Dataset(dstfile, mode='a') as dst:
+    if not any(['grid_mapping' in src.variables[v].ncattrs() for v in src.variables]):
+      print "WARNING! Source file does not have grid mapping info!!"
+    for v in src.variables:
+      if 'grid_mapping_name' in src.variables[v].ncattrs():
+        dst.createVariable(v, src.variables[v].datatype)
+        dst[v].setncatts(src[v].__dict__)
+      else:
+        pass
+
 
 @contextmanager
 def custom_netcdf_attr_bug_wrapper(ncid):
@@ -508,6 +525,9 @@ def fill_veg_file(if_name, xo, yo, xs, ys, out_dir, of_name):
                    '-co', 'WRITE_LONLAT=YES',
                    '-srcwin', str(xo), str(yo), str(xs), str(ys),
                    if_name, temporary])
+
+
+  copy_grid_mapping(temporary, of_name)
 
   # Copy from temporary location to into the placeholder file we just created
   with netCDF4.Dataset(temporary) as src, netCDF4.Dataset(of_name, mode='a') as new_vegdataset:
