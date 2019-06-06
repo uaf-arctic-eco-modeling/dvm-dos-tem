@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-
 from subprocess import call
 from subprocess import check_call
 import subprocess
@@ -8,6 +7,8 @@ import subprocess
 import shutil
 
 import multiprocessing as mp
+
+from contextlib import contextmanager
 
 import configobj
 import argparse
@@ -159,6 +160,7 @@ def make_co2_file(filename):
   new_ncfile.source = source_attr_string()
   new_ncfile.close()
 
+
 def create_template_topo_file(fname, sizey=10, sizex=10):
   '''Generate a template file for drainage classification.'''
   print "Creating an empty topography  file, %s by %s pixels. (%s)" % (sizey, sizex, os.path.basename(fname))
@@ -267,6 +269,7 @@ def create_template_restart_nc_file(filename, sizex=10, sizey=10):
   ncfile.source = source_attr_string()
   ncfile.close()
 
+
 def create_template_climate_nc_file(filename, sizey=10, sizex=10):
   '''Creates an empty climate file for dvmdostem; y,x grid, time unlimited.'''
 
@@ -373,6 +376,7 @@ def create_template_veg_nc_file(fname, sizey=10, sizex=10, rand=None):
   ncfile.source = source_attr_string()
   ncfile.close()
 
+
 def create_template_soil_texture_nc_file(fname, sizey=10, sizex=10):
   print "Creating a soil texture classification file, %s by %s pixels." % (sizey, sizex)
 
@@ -449,6 +453,7 @@ def convert_and_subset(in_file, master_output, xo, yo, xs, ys, yridx, midx, vari
 
   print "{:}: Done appending.".format(cpn)
 
+
 def fill_topo_file(inSlope, inAspect, inElev, xo, yo, xs, ys, out_dir, of_name):
   '''Read subset of data from various tifs into single netcdf file for dvmdostem'''
 
@@ -476,7 +481,7 @@ def fill_topo_file(inSlope, inAspect, inElev, xo, yo, xs, ys, out_dir, of_name):
         new_topodataset.variables['lat'][:] = TF.variables['lat'][:]
         new_topodataset.variables['lon'][:] = TF.variables['lon'][:]
 
-from contextlib import contextmanager
+
 
 @contextmanager
 def custom_netcdf_attr_bug_wrapper(ncid):
@@ -505,7 +510,7 @@ def fill_veg_file(if_name, xo, yo, xs, ys, out_dir, of_name):
                    if_name, temporary])
 
   # Copy from temporary location to into the placeholder file we just created
-  with netCDF4.Dataset(temporary) as t1, netCDF4.Dataset(of_name, mode='a') as new_vegdataset:
+  with netCDF4.Dataset(temporary) as src, netCDF4.Dataset(of_name, mode='a') as new_vegdataset:
     veg_class = new_vegdataset.variables['veg_class']
     lat = new_vegdataset.variables['lat']
     lon = new_vegdataset.variables['lon']
@@ -513,9 +518,10 @@ def fill_veg_file(if_name, xo, yo, xs, ys, out_dir, of_name):
     with custom_netcdf_attr_bug_wrapper(new_vegdataset) as f:
       f.source = source_attr_string(xo=xo, yo=yo)
 
-    veg_class[:] = t1.variables['Band1'][:].data 
-    lat[:] = t1.variables['lat'][:]
-    lon[:] = t1.variables['lon'][:]
+    veg_class[:] = src.variables['Band1'][:].data 
+    lat[:] = src.variables['lat'][:]
+    lon[:] = src.variables['lon'][:]
+
     # For some reason, some rows of the temporary file are numpy masked arrays
     # and if we don't directly access the data, then we get strange results '
     # (i.e. stuff that should be ocean shows up as CMT02??)
@@ -843,6 +849,7 @@ def fill_drainage_file(if_name, xo, yo, xs, ys, out_dir, of_name, rand=False):
     with custom_netcdf_attr_bug_wrapper(drainage_class) as f:
       f.source = source_attr_string(xo=xo, yo=yo)
 
+
 def fill_fri_fire_file(xo, yo, xs, ys, out_dir, of_name, datasrc='', if_name=None):
   '''
   Parameters:
@@ -953,10 +960,6 @@ def fill_fri_fire_file(xo, yo, xs, ys, out_dir, of_name, datasrc='', if_name=Non
     with custom_netcdf_attr_bug_wrapper(nfd) as f:
       print "==> write global :source attribute to FRI fire file..."
       f.source = source_attr_string(xo=xo, yo=yo)
-
-
-
-
 
 
 def fill_explicit_fire_file(yrs, xo, yo, xs, ys, out_dir, of_name, datasrc='', if_name=None):
