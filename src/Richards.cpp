@@ -1,8 +1,12 @@
 #include "../include/Richards.h"
 
 #include "../include/TEMLogger.h"
+
+// The order of this include with respect to boost 
+// seems to matter for certain installs!
+#include <lapacke.h>
+
 extern src::severity_logger< severity_level > glg;
-#include "lapacke/lapacke.h"
 
 Richards::Richards() {
   delta_t = SEC_IN_DAY;//Total time to incorporate; set to SEC_IN_DAY for no iteration
