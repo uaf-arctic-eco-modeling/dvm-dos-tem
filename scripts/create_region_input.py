@@ -725,6 +725,10 @@ def fill_climate_file(start_yr, yrs, xo, yo, xs, ys,
     Inputs: some-dvmdostem-inputs/SouthBarrow_10x10/TEMP-tair-historic-climate.nc
     '''
 
+  # Super strange - this has to happen ***AFTER*** the ncks step or ncks complains 
+  # about not being able to open the temporary file due to HDF Error...
+  copy_grid_mapping(smaller_tmpfile, masterOutFile)
+
   with netCDF4.Dataset(masterOutFile, mode='a') as new_climatedataset:
 
     print "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
