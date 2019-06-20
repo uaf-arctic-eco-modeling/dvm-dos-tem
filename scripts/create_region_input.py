@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
-from subprocess import call
-from subprocess import check_call
+import sys
+
 import subprocess
 
 import shutil
@@ -433,12 +433,12 @@ def convert_and_subset(in_file, master_output, xo, yo, xs, ys, yridx, midx, vari
       cpn, in_file, master_output, variablename)
 
   print "{:}: Converting tif --> netcdf...".format(cpn)
-  check_call(['gdal_translate', '-of', 'netCDF', in_file, tmpfile1])
+  call_external_wrapper(['gdal_translate', '-of', 'netCDF', in_file, tmpfile1])
 
   print "{:}: Subsetting...".format(cpn)
-  check_call(['gdal_translate', '-of', 'netCDF',
-              '-srcwin', str(xo), str(yo), str(xs), str(ys),
-              tmpfile1, tmpfile2])
+  call_external_wrapper(['gdal_translate', '-of', 'netCDF',
+                         '-srcwin', str(xo), str(yo), str(xs), str(ys),
+                         tmpfile1, tmpfile2])
 
   print "{:}: Writing subset's data to new file...".format(cpn)
 
@@ -482,6 +482,24 @@ def fill_topo_file(inSlope, inAspect, inElev, xo, yo, xs, ys, out_dir, of_name):
         new_topodataset.variables['lon'][:] = TF.variables['lon'][:]
 
   copy_grid_mapping(tmpSlope, of_name)
+
+def call_external_wrapper(call, ignore_failure=False):
+  '''
+  Wrapper around subprocess.check_output that allows us to print stdout
+  and stderr from the external command.
+  '''
+  print "Gearing up to call: ", call
+  try:
+    print "stdout/stderr from external command:", subprocess.check_output(call, stderr=subprocess.STDOUT)
+    success = True
+  except subprocess.CalledProcessError as e:
+    out = e.output.decode()
+    success = False
+    print "FAILURE! stdout/stderr from external command:", e.output.decode()
+
+  if not success:
+    if not ignore_failure:
+      sys.exit(-1)
 
 
 def copy_grid_mapping(srcfile, dstfile):
@@ -585,19 +603,17 @@ def fill_climate_file(start_yr, yrs, xo, yo, xs, ys,
   elif type(sp_ref_file) == str:
     pass # nothing to do...
 
-  check_call([
-      'gdal_translate', '-of', 'netCDF', '-co', 'WRITE_LONLAT=YES',
-      sp_ref_file,
-      tmpfile
-    ])
+  call_external_wrapper(['gdal_translate', '-of', 'netCDF', 
+      '-co', 'WRITE_LONLAT=YES',
+      sp_ref_file, tmpfile])
+
   print "Finished creating temporary file with spatial info."
 
   print "Make a subset of the temporary file with LAT and LON variables: ", smaller_tmpfile
-  check_call(['gdal_translate', '-of', 'netCDF',
+  call_external_wrapper(['gdal_translate', '-of', 'netCDF',
       '-co', 'WRITE_LONLAT=YES',
       '-srcwin', str(xo), str(yo), str(xs), str(ys),
-      'NETCDF:"{}":Band1'.format(tmpfile), smaller_tmpfile
-    ])
+      'NETCDF:"{}":Band1'.format(tmpfile), smaller_tmpfile])
   print "Finished creating the temporary subset...(cropping to our domain)"
 
   print "Copy the LAT/LON variables from the temporary file into our new dataset..."
@@ -694,8 +710,7 @@ def fill_climate_file(start_yr, yrs, xo, yo, xs, ys,
     masked_list = [i for i in dataVarList if var not in i]
 
     opt_str = "lat,lon," + ",".join(masked_list)
-    check_call(['ncks', '--append', '-x','-v', opt_str, tFile, masterOutFile])
-
+    call_external_wrapper(['ncks', '--append', '-x','-v', opt_str, tFile, masterOutFile])
     os.remove(tFile)
 
     # This fails. Looks to me like a bug in nco as it expand the option string
@@ -794,19 +809,19 @@ def fill_soil_texture_file(if_sand_name, if_silt_name, if_clay_name, xo, yo, xs,
       print "Filling with real data..."
 
       print "Subsetting TIF to netCDF"
-      subprocess.check_call(['gdal_translate','-of','netCDF',
+      call_external_wrapper(['gdal_translate','-of','netCDF',
                              '-co', 'WRITE_LONLAT=YES',
                              '-srcwin', str(xo), str(yo), str(xs), str(ys),
                              if_sand_name,
                              '/tmp/create_region_input_script_sand_texture.nc'])
 
-      subprocess.check_call(['gdal_translate','-of','netCDF',
+      call_external_wrapper(['gdal_translate','-of','netCDF',
                              '-co', 'WRITE_LONLAT=YES',
                              '-srcwin', str(xo), str(yo), str(xs), str(ys),
                              if_silt_name,
                              '/tmp/create_region_input_script_silt_texture.nc'])
 
-      subprocess.check_call(['gdal_translate','-of','netCDF',
+      call_external_wrapper(['gdal_translate','-of','netCDF',
                              '-co', 'WRITE_LONLAT=YES',
                              '-srcwin', str(xo), str(yo), str(xs), str(ys),
                              if_clay_name,
@@ -856,11 +871,11 @@ def fill_drainage_file(if_name, xo, yo, xs, ys, out_dir, of_name, rand=False):
       print "Filling with real data"
 
       print "Subsetting TIF to netCDF..."
-      check_call(['gdal_translate', '-of', 'netCDF',
-                  '-co', 'WRITE_LONLAT=YES',
-                  '-srcwin', str(xo), str(yo), str(xs), str(ys),
-                  if_name,
-                  tmpFile])
+      call_external_wrapper(['gdal_translate', '-of', 'netCDF',
+                             '-co', 'WRITE_LONLAT=YES',
+                             '-srcwin', str(xo), str(yo), str(xs), str(ys),
+                             if_name,
+                             tmpFile])
 
       with netCDF4.Dataset(tmpFile, mode='r') as temp_drainage:
         drain = drainage_class.variables['drainage_class']
