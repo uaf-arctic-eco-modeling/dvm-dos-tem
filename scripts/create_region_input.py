@@ -460,9 +460,9 @@ def fill_topo_file(inSlope, inAspect, inElev, xo, yo, xs, ys, out_dir, of_name):
   create_template_topo_file(of_name, sizey=ys, sizex=xs)
 
   # get a string for use as a file handle for each input file
-  tmpSlope = '/tmp/cri-{:}'.format(os.path.basename(inSlope))
-  tmpAspect = '/tmp/cri-{:}'.format(os.path.basename(inAspect))
-  tmpElev = '/tmp/cri-{:}'.format(os.path.basename(inElev))
+  tmpSlope = '/tmp/cri-{:}.nc'.format(os.path.splitext(os.path.basename(inSlope))[0])
+  tmpAspect = '/tmp/cri-{:}.nc'.format(os.path.splitext(os.path.basename(inAspect))[0])
+  tmpElev = '/tmp/cri-{:}.nc'.format(os.path.splitext(os.path.basename(inElev))[0])
 
   for inFile, tmpFile in zip([inSlope, inAspect, inElev], [tmpSlope, tmpAspect, tmpElev]):
     subprocess.call(['gdal_translate', '-of', 'netcdf',
