@@ -24,11 +24,8 @@ sed -e 's/-DBOOST_ALL_DYN_LINK -Werror/-DBOOST_ALL_DYN_LINK -DBOOST_NO_CXX11_SCO
 echo "Explicitly set the compiler..."
 sed -e 's:CC=g++:CC=/home/UA/tcarman2/.local/easybuild/software/GCCcore/4.9.3/bin/g++:' Makefile > Makefile.tmp && mv Makefile.tmp Makefile
 
-echo "Adding openblas library to link step..."
-sed -e 's/-lreadline/-lreadline -lopenblas/' Makefile > Makefile.tmp && mv Makefile.tmp Makefile
-
-echo "Update path to system library for lapacke..."
-sed -e 's:#include "lapacke/lapacke.h":#include <lapacke.h>:' src/Richards.cpp > src/Richards.cpp.tmp && mv src/Richards.cpp.tmp src/Richards.cpp
+echo "Using openblas to pickup lapacke headers..."
+sed -e 's/-llapacke/-lopenblas/' Makefile > Makefile.tmp && mv Makefile.tmp Makefile
 
 
 echo "NOTE: This file will NOT work if it is run as a script!"
