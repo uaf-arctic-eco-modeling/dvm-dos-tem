@@ -514,7 +514,7 @@ def copy_grid_mapping(srcfile, dstfile):
   print "dstfile={}".format(dstfile)
 
   with netCDF4.Dataset(srcfile) as src, netCDF4.Dataset(dstfile, mode='a') as dst:
-    if not any(['grid_mapping' in src.variables[v].ncattrs() for v in src.variables]):
+    if not any(['grid_mapping_name' in src.variables[v].ncattrs() for v in src.variables]):
       print "WARNING! Source file does not have grid mapping info!!"
     for v in src.variables:
       if 'grid_mapping_name' in src.variables[v].ncattrs():
@@ -999,6 +999,8 @@ def fill_fri_fire_file(xo, yo, xs, ys, out_dir, of_name, datasrc='', if_name=Non
   guess_vegfile = os.path.join(os.path.split(of_name)[0], 'vegetation.nc')
   print "--> NOTE: Attempting to read: {:} to get lat/lon info".format(guess_vegfile)
 
+  copy_grid_mapping(guess_vegfile, of_name)
+
   with netCDF4.Dataset(guess_vegfile ,'r') as vegFile:
     latv = vegFile.variables['lat'][:]
     lonv = vegFile.variables['lon'][:]
@@ -1116,6 +1118,8 @@ def fill_explicit_fire_file(yrs, xo, yo, xs, ys, out_dir, of_name, datasrc='', i
 
   guess_vegfile = os.path.join(os.path.split(of_name)[0], 'vegetation.nc')
   print "--> NOTE: Attempting to read: {:} to get lat/lon info".format(guess_vegfile)
+
+  copy_grid_mapping(guess_vegfile, of_name)
 
   with netCDF4.Dataset(of_name, mode='a') as nfd:
 
