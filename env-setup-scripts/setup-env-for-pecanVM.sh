@@ -12,6 +12,6 @@ export SITE_SPECIFIC_INCLUDES="-I/usr/include/jsoncpp"
 
 echo "NOTE: This file will NOT work if it is run as a script!"
 echo "      Instead use the 'source' command like this:"
-echo "      $ source env-setup-scripts/setup-env-for-atlas.sh"
+echo "      $ source env-setup-scripts/setup-env-for-pecanVM.sh"
 echo ""
 
