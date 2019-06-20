@@ -34,6 +34,9 @@ export SITE_SPECIFIC_LIBS="-L/home/UA/tcarman2/.local/easybuild/software/Boost/1
 echo "Adding special CFLAG variable for Boost, C++11 in Makefile..."
 sed -e 's/-DBOOST_ALL_DYN_LINK -Werror/-DBOOST_ALL_DYN_LINK -DBOOST_NO_CXX11_SCOPED_ENUMS -Werror/' Makefile > Makefile.tmp && mv Makefile.tmp Makefile
 
+echo "Using -lopenblas in order to pickup lapacke library..."
+sed -e 's/-llapacke/-lopenblas/' Makefile > Makefile.tmp && mv Makefile.tmp Makefile
+
 echo "NOTE: This file will NOT work if it is run as a script!"
 echo "      Instead use the 'source' command like this:"
 echo "      $ source env-setup-scripts/setup-env-for-atlas.sh"
