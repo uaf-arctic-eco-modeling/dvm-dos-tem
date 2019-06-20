@@ -481,14 +481,20 @@ def fill_topo_file(inSlope, inAspect, inElev, xo, yo, xs, ys, out_dir, of_name):
         new_topodataset.variables['lat'][:] = TF.variables['lat'][:]
         new_topodataset.variables['lon'][:] = TF.variables['lon'][:]
 
+  copy_grid_mapping(tmpSlope, of_name)
+
 
 def copy_grid_mapping(srcfile, dstfile):
   '''
+  Takes paths to a source file and a destination file.
   This should deal with copying the spatial reference info from the input
   files into our new output files. This should allow our inputs to be more
   easily mapped. Maybe we don't need to carry the lat and lon variables thru if
   we have the grid_mapping???
   '''
+  print "srcfile={}".format(srcfile)
+  print "dstfile={}".format(dstfile)
+
   with netCDF4.Dataset(srcfile) as src, netCDF4.Dataset(dstfile, mode='a') as dst:
     if not any(['grid_mapping' in src.variables[v].ncattrs() for v in src.variables]):
       print "WARNING! Source file does not have grid mapping info!!"
@@ -822,12 +828,17 @@ def fill_soil_texture_file(if_sand_name, if_silt_name, if_clay_name, xo, yo, xs,
       soil_tex.variables['lat'][:] = f.variables['lat'][:]
       soil_tex.variables['lon'][:] = f.variables['lon'][:]
 
+    # Same here...only copying the grid mapping from the sand file!
+    copy_grid_mapping('/tmp/create_region_input_script_sand_texture.nc', of_name)
+
     with custom_netcdf_attr_bug_wrapper(soil_tex) as f:
       f.source =  source_attr_string(xo=xo, yo=yo)
 
 
 def fill_drainage_file(if_name, xo, yo, xs, ys, out_dir, of_name, rand=False):
   create_template_drainage_file(of_name, sizey=ys, sizex=xs)
+
+  tmpFile = '/tmp/script-temp_drainage_subset.nc'
 
   with netCDF4.Dataset(of_name, mode='a') as drainage_class:
 
@@ -849,9 +860,9 @@ def fill_drainage_file(if_name, xo, yo, xs, ys, out_dir, of_name, rand=False):
                   '-co', 'WRITE_LONLAT=YES',
                   '-srcwin', str(xo), str(yo), str(xs), str(ys),
                   if_name,
-                  '/tmp/script-temp_drainage_subset.nc'])
+                  tmpFile])
 
-      with netCDF4.Dataset('/tmp/script-temp_drainage_subset.nc', mode='r') as temp_drainage:
+      with netCDF4.Dataset(tmpFile, mode='r') as temp_drainage:
         drain = drainage_class.variables['drainage_class']
 
         print "Thresholding: set data <= 200 to 0; set data > 200 to 1."
@@ -868,6 +879,8 @@ def fill_drainage_file(if_name, xo, yo, xs, ys, out_dir, of_name, rand=False):
 
     with custom_netcdf_attr_bug_wrapper(drainage_class) as f:
       f.source = source_attr_string(xo=xo, yo=yo)
+
+  copy_grid_mapping(tmpFile, of_name)
 
 
 def fill_fri_fire_file(xo, yo, xs, ys, out_dir, of_name, datasrc='', if_name=None):
