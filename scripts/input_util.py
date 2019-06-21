@@ -499,9 +499,9 @@ def climate_ts_plot(args):
 
 def tunnel_fast(latvar,lonvar,lat0,lon0):
   '''
-  Find closest point in a set of (lat,lon) points to specified point
-  latvar - 2D latitude variable from an open netCDF dataset
-  lonvar - 2D longitude variable from an open netCDF dataset
+  Find closest pair in a set of (lat,lon) pairs to specified query point.
+  latvar - 2D latitude data, usually from reading a netCDF dataset
+  lonvar - 2D longitude data, usually from reading a netCDF dataset
   lat0,lon0 - query point
   Returns iy,ix such that the square of the tunnel distance
   between (latval[it,ix],lonval[iy,ix]) and (lat0,lon0)
@@ -509,14 +509,17 @@ def tunnel_fast(latvar,lonvar,lat0,lon0):
   Code from Unidata's Python Workshop:
   https://github.com/Unidata/unidata-python-workshop
   '''
+
+  # convert to radians
   #from IPython import embed; embed()
   rad_factor = np.pi/180.0 # for trignometry, need angles in radians
-  # Read latitude and longitude from file into numpy arrays
-  latvals = latvar[:] * rad_factor
-  lonvals = lonvar[:] * rad_factor
-  ny,nx = latvals.shape
+  latvals = latvar * rad_factor
+  lonvals = lonvar * rad_factor
   lat0_rad = lat0 * rad_factor
   lon0_rad = lon0 * rad_factor
+
+  # ny,nx = latvals.shape # <-- not used??
+
   # Compute numpy arrays for all values, no loops
   clat,clon = np.cos(latvals), np.cos(lonvals)
   slat,slon = np.sin(latvals), np.sin(lonvals)
@@ -527,6 +530,9 @@ def tunnel_fast(latvar,lonvar,lat0,lon0):
   minindex_1d = dist_sq.argmin()  # 1D index of minimum element
   iy_min,ix_min = np.unravel_index(minindex_1d, latvals.shape)
   return iy_min,ix_min
+
+
+
 
 
 if __name__ == '__main__':
@@ -632,7 +638,7 @@ if __name__ == '__main__':
       #bnza_lter = {'lat':64.70138, 'lon':-148.31034}
       #target = bnza_lter
       target = {'lat':args.iyix_from_latlon[0], 'lon':args.iyix_from_latlon[1]}
-      iy,ix = tunnel_fast(latvar, lonvar, target['lat'], target['lon'])
+      iy,ix = tunnel_fast(latvar[:], lonvar[:], target['lat'], target['lon'])
       iy_fUL = len(ncfile.dimensions['y'])-iy
       print('Target lat, lon:', target['lat'], target['lon'])
       print('Delta with target lat, lon:', target['lat'] - latvar[iy,ix], target['lon'] - lonvar[iy,ix])
