@@ -162,7 +162,32 @@ def crop_file(infile, outfile, y, x, ysize, xsize):
         print "NOT SURE WHAT TO DO WITH VARIABLE: {} HAVING DIMS: {}".format(name, var.dimensions)
 
 
+def cropper(xo,yo,xs,ys,input_file="",output_file="/tmp/smaller.nc", write_lonlat=True):
+  '''
+  Very thin wrapper around gdal_translate.
 
+  Advantage: it will update the geo referencing info
+  Disadvantage: this may not create a valid 1x1 dataset
+  '''
+  if input_file == "":
+    raise RuntimeError("Must provide an input_file path to cropper(...) function!")
+
+  if xs <= 1 or ys == 1:
+    print "Probably not supported by GDAL!"
+
+  if write_lonlat:
+    write_ll='WRITE_LONLAT=YES' 
+  else:
+    write_ll='WRITE_LONLAT=NO'
+
+  print "Cropping..."
+  subprocess.call([
+    'gdal_translate','-of','netcdf',
+    '-co', write_ll,
+    '-srcwin',str(xo),str(yo),str(xs),str(ys),
+    input_file,
+    output_file
+  ])
 
 def crop_wrapper(args):
   '''
