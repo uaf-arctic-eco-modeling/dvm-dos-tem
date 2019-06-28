@@ -64,6 +64,9 @@ if __name__ == '__main__':
   shutil.copytree(os.path.join(ddt_dir, 'config'), os.path.join(args.new_directory, 'config'))
   shutil.copytree(os.path.join(ddt_dir, 'parameters'), os.path.join(args.new_directory, 'parameters'))
 
+  # Copy the run mask from the source data directory into the new working directory
+  shutil.copy(os.path.join(args.input_data_path, 'run-mask.nc'), os.path.join(args.new_directory, 'run-mask.nc'))
+
   # Make sure an output directory exists
   mkdir_p(os.path.join(args.new_directory, 'output'))
 
@@ -76,29 +79,33 @@ if __name__ == '__main__':
   # Make sure parameters and output are relative to the current working directory
   config['IO']['parameter_dir'] = 'parameters/'  # <-- trailing slash is important!!
   config['IO']['output_dir']    = 'output/'      # <-- trailing slash is important!!
+  config['IO']['runmask_file']  = 'run-mask.nc'
 
   # Set up the paths to the input data...
-  config['IO']['hist_climate_file']    = os.path.join(args.input_data_path, 'historic-climate.nc')
-  config['IO']['proj_climate_file']    = os.path.join(args.input_data_path, 'projected-climate.nc')
-  config['IO']['veg_class_file']       = os.path.join(args.input_data_path, 'vegetation.nc')
-  config['IO']['drainage_file']        = os.path.join(args.input_data_path, 'drainage.nc')
-  config['IO']['soil_texture_file']    = os.path.join(args.input_data_path, 'soil-texture.nc')
-  config['IO']['co2_file']             = os.path.join(args.input_data_path, 'co2.nc')
-  config['IO']['runmask_file']         = os.path.join(args.input_data_path, 'run-mask.nc')
-  config['IO']['topo_file']            = os.path.join(args.input_data_path, 'topo.nc')
-  config['IO']['fri_fire_file']        = os.path.join(args.input_data_path, 'fri-fire.nc')
-  config['IO']['hist_exp_fire_file']   = os.path.join(args.input_data_path, 'historic-explicit-fire.nc')
-  config['IO']['proj_exp_fire_file']   = os.path.join(args.input_data_path, 'projected-explicit-fire.nc')
+  config['IO']['hist_climate_file']    = os.path.join(os.path.abspath(args.input_data_path), 'historic-climate.nc')
+  config['IO']['proj_climate_file']    = os.path.join(os.path.abspath(args.input_data_path), 'projected-climate.nc')
+  config['IO']['veg_class_file']       = os.path.join(os.path.abspath(args.input_data_path), 'vegetation.nc')
+  config['IO']['drainage_file']        = os.path.join(os.path.abspath(args.input_data_path), 'drainage.nc')
+  config['IO']['soil_texture_file']    = os.path.join(os.path.abspath(args.input_data_path), 'soil-texture.nc')
+  config['IO']['co2_file']             = os.path.join(os.path.abspath(args.input_data_path), 'co2.nc')
+  config['IO']['topo_file']            = os.path.join(os.path.abspath(args.input_data_path), 'topo.nc')
+  config['IO']['fri_fire_file']        = os.path.join(os.path.abspath(args.input_data_path), 'fri-fire.nc')
+  config['IO']['hist_exp_fire_file']   = os.path.join(os.path.abspath(args.input_data_path), 'historic-explicit-fire.nc')
+  config['IO']['proj_exp_fire_file']   = os.path.join(os.path.abspath(args.input_data_path), 'projected-explicit-fire.nc')
 
   # Make sure calibration data ends up in a directory that is named the same
   # as your new working directory.
   # NOTE: Seems like when the user runs the calibration-viewer.py and specifies
   # --data-path, they for some reason have to include dvmdostem, like this:
   # --data-path /tmp/args.new_directory/dvmdostem
-  config['calibration-IO']['caldata_tree_loc'] = os.path.join('/tmp', args.new_directory)
+  if os.path.isabs(args.new_directory):
+    config['calibration-IO']['caldata_tree_loc'] = os.path.join('/tmp', args.new_directory.lstrip(os.path.sep))
+  else:
+    config['calibration-IO']['caldata_tree_loc'] = os.path.join('/tmp', args.new_directory)
   
 
-  # Match the default config file shipped with the code...
+  # Match the default config file shipped with the code, except we move runmask
+  # to the end of the file listings
   sort_order = [
     "parameter_dir",
 
@@ -108,12 +115,12 @@ if __name__ == '__main__':
     "drainage_file",
     "soil_texture_file",
     "co2_file",
-    "runmask_file",
     "topo_file",
     "fri_fire_file",
     "hist_exp_fire_file",
     "proj_exp_fire_file",
     "topo_file",
+    "runmask_file",
 
     "output_dir",
     "output_spec_file",
