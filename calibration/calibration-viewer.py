@@ -329,7 +329,7 @@ class ExpandingWindow(object):
   '''A set of expanding window plots that all share the x axis.'''
 
   def __init__(self, input_helper, traceslist, figtitle="Expanding Window Plot",
-      rows=2, cols=1, targets={}, no_show=False, extrainput=[]):
+      rows=2, cols=1, targets={}, no_show=False, extrainput=[], no_blit=False):
 
     logging.debug("Ctor for Expanding Window plot...")
 
@@ -344,6 +344,8 @@ class ExpandingWindow(object):
     self.targets = targets
 
     self.no_show = no_show
+
+    self.no_blit = no_blit
 
     self.fig = plt.figure(figsize=(6*1.3, 8*1.3))
     self.ewp_title = self.fig.suptitle(figtitle)
@@ -951,7 +953,7 @@ class ExpandingWindow(object):
     if dynamic:
       logging.info("Setup animation.")
       self.ani = animation.FuncAnimation(self.fig, self.update, interval=100,
-                                         init_func=self.init, blit=True)
+                                         init_func=self.init, blit=(not self.no_blit))
 
     if save_name != "":
       # the saved file will represent a snapshot of the state of the json
@@ -1036,6 +1038,12 @@ if __name__ == '__main__':
   parser.add_argument('--list-suites', action='store_true',
       help="print out configured suites")
 
+  parser.add_argument('--no-blit', action='store_true',
+      help=textwrap.dedent('''\
+        Some systems have difficulty with blitting which is a technique used to 
+        speed up animations. If blitting works, then you should use it; if you
+        are having problems then use this option to turn blitting off.
+        '''))
 
   targetgroup = parser.add_mutually_exclusive_group()
 
@@ -1154,8 +1162,8 @@ if __name__ == '__main__':
 
   logger.info("Starting main app...")
 
-  logging.info("Dynamic=%s Static=%s No-show=%s Save-name='%s'" %
-      (not args.static, args.static, args.no_show, args.save_name))
+  logging.info("Dynamic=%s Static=%s Blitting=%s No-show=%s Save-name='%s'" %
+      (not args.static, args.static, (not args.no_blit), args.no_show, args.save_name))
 
 
 
@@ -1259,7 +1267,8 @@ if __name__ == '__main__':
                           targets=caltargets,
                           figtitle="%s\nTargets Values for: %s" % (args.suite, target_title_tag),
                           no_show=args.no_show,
-                          extrainput=additional_input_helpers
+                          extrainput=additional_input_helpers,
+                          no_blit=args.no_blit,
                          )
 
     logging.info("Show the plot object...")
