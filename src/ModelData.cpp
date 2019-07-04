@@ -222,10 +222,14 @@ std::string ModelData::describe_module_settings() {
 /** Construct empty netCDF output files.
  *
  *  This function reads in output selections from a csv file specified
- *  in the config file. It creates an OutputSpec and an empty
- *  NetCDF file for each line.
+ *  in the config file. It creates an OutputSpec object and an empty
+ *  NetCDF file for each line in the output_spec.csv file.
+ *
+ *  In addition, this function can copy the grid mapping from the input
+ *  file(s)
 */
-void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::string& stage, int stage_year_count) {
+void ModelData::create_netCDF_output_files(int ysize, int xsize,
+    const std::string& stage, int stage_year_count, bool copy_grip_mapping) {
 
   boost::filesystem::path output_base = output_dir;
 
@@ -257,6 +261,7 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
   // NetCDF variable handle
   int Var;
   int tcVar; // time coordinate variable
+  int gmVar; // the grid mapping variable
 
   // 1D Coordinate
   int vartype1D_dimids[1];
@@ -533,7 +538,7 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
 
       BOOST_LOG_SEV(glg, debug) << "Adding variable-level attributes from output spec.";
 
-      // Swap out generic /time unit from output spec with appropriate
+      // Swap out generic 'time' unit from output spec file with appropriate
       // timestep denomination.
       if (units.find("time") != std::string::npos) {
         BOOST_LOG_SEV(glg, debug) << "Updating units string! ";
@@ -559,6 +564,30 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize, const std::stri
       }
       else if(new_spec.data_type == NC_DOUBLE){
         temutil::nc( nc_put_att_double(ncid, Var, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
+      }
+
+      if (copy_grip_mapping) {
+
+        // open the vegetation input file
+        int gmsrcid;
+        temutil::nc( nc_open(this->veg_class_file.c_str(), NC_NOWRITE, &gmsrcid) );
+
+        // Figure out which id is for grid mapping variable
+        int srcgmvid = -1;
+        srcgmvid = temutil::get_gridmapping_vid(gmsrcid);
+
+        if (srcgmvid >= 0) {
+
+          temutil::copy_var(gmsrcid, srcgmvid, ncid);
+
+        } else {
+          BOOST_LOG_SEV(glg, warn) << "A grid_mapping variable is not"
+                                   << " available for copying!! Your output"
+                                   << " files will not be spatially referenced!";
+        }
+
+        // close the file we were reading the grid mapping from
+        temutil::nc( nc_close(gmsrcid) );
       }
 
       /* End Define Mode (not strictly necessary for netcdf 4) */
