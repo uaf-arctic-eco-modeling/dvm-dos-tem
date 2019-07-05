@@ -490,12 +490,12 @@ def call_external_wrapper(call, ignore_failure=False):
   '''
   print "Gearing up to call: ", call
   try:
-    print "stdout/stderr from external command:", subprocess.check_output(call, stderr=subprocess.STDOUT)
+    print "  --> stdout/stderr from external command:", subprocess.check_output(call, stderr=subprocess.STDOUT)
     success = True
   except subprocess.CalledProcessError as e:
     out = e.output.decode()
     success = False
-    print "FAILURE! stdout/stderr from external command:", e.output.decode()
+    print "  --> stdout/stderr from external command:", e.output.decode()
 
   if not success:
     if not ignore_failure:
@@ -522,6 +522,7 @@ def copy_grid_mapping(srcfile, dstfile):
         dst[v].setncatts(src[v].__dict__)
       else:
         pass
+
 
 
 @contextmanager
@@ -630,6 +631,7 @@ def fill_climate_file(start_yr, yrs, xo, yo, xs, ys,
   lon[:] = temp_subset_with_lonlat.variables['lon'][:]
   print "Done copying LON/LAT."
 
+
   with custom_netcdf_attr_bug_wrapper(new_climatedataset) as f:
 
     print "Write attribute with pixel offsets to file..."
@@ -664,11 +666,6 @@ def fill_climate_file(start_yr, yrs, xo, yo, xs, ys,
   print "masterOutFile time dimension size: {}".format(new_climatedataset.dimensions['time'].size)
   new_climatedataset.close()
   temp_subset_with_lonlat.close()
-
-  if cleanup_tmpfiles:
-    print "Cleaning up temporary files: {} and {}".format(tmpfile, smaller_tmpfile)
-    os.remove(smaller_tmpfile)
-    os.remove(tmpfile)
 
 
   # Copy the master into a separate file for each variable
@@ -728,6 +725,11 @@ def fill_climate_file(start_yr, yrs, xo, yo, xs, ys,
   # Super strange - this has to happen ***AFTER*** the ncks step or ncks complains 
   # about not being able to open the temporary file due to HDF Error...
   copy_grid_mapping(smaller_tmpfile, masterOutFile)
+
+  if cleanup_tmpfiles:
+    print "Cleaning up temporary files: {} and {}".format(tmpfile, smaller_tmpfile)
+    os.remove(smaller_tmpfile)
+    os.remove(tmpfile)
 
   with netCDF4.Dataset(masterOutFile, mode='a') as new_climatedataset:
 
@@ -842,7 +844,6 @@ def fill_soil_texture_file(if_sand_name, if_silt_name, if_clay_name, xo, yo, xs,
     # While we went to the trouble of writing lat/lon to all the temporary
     # files, we are only going to use one of those files to get the 
     # data into the final file...
-
     with netCDF4.Dataset('/tmp/create_region_input_script_sand_texture.nc', mode='r') as f:
       soil_tex.variables['lat'][:] = f.variables['lat'][:]
       soil_tex.variables['lon'][:] = f.variables['lon'][:]
@@ -1100,7 +1101,7 @@ def fill_explicit_fire_file(yrs, xo, yo, xs, ys, out_dir, of_name, datasrc='', i
 
     return starting_date_str, end_date 
 
-
+  # NOTE: For this to work you must run with --buildout-time-coord !!!
   guess_starting_date_string, end_date = figure_out_time_size(of_name, yrs)
 
   with netCDF4.Dataset(of_name, mode='a') as nfd:
