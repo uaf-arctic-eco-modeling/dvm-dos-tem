@@ -788,9 +788,12 @@ namespace temutil {
     return drainage_class_value;
   }
 
-  /* Copy the attributes for variable ivar in group igrp to variable
-   * ovar in group ogrp.  Global (group) attributes are specified by
-   * using the varid NC_GLOBAL */
+  /* Copy the attributes for variable `ivar` in group `igrp` to variable
+   * `ovar` in group `ogrp`.  Global (group) attributes are specified by
+   * using the varid NC_GLOBAL 
+   * Adapted from the example programs "nccopy3.c" and "nccopy4.c" found here:
+   * https://www.unidata.ucar.edu/software/netcdf/examples/programs/
+   */
   void copy_atts(int igrp, int ivar, int ogrp, int ovar) {
       int natts;
       int iatt;
@@ -804,8 +807,13 @@ namespace temutil {
       }
   }
 
-  /** Copy the schema for a single variable in group 'srcgrp' to group 'dstgrp'.
-
+  /** Copy the schema (no data) for a single variable in group 'srcgrp' to
+   * group 'dstgrp'.
+   *
+   * Will put the destination file in and out of define mode as necessary.
+   *
+   * Adapted from the example programs "nccopy3.c" and "nccopy4.c" found here:
+   * https://www.unidata.ucar.edu/software/netcdf/examples/programs/
   */
   void copy_var(int srcgrp, int varid, int dstgrp) {
 
@@ -865,7 +873,7 @@ namespace temutil {
     }
   }
 
-  /** Given a handle to an (alread open) netcdf file, return the variable id 
+  /** Given a handle to an (already open) netcdf file, return the variable id 
   * for the grid mapping variable, or a negative number if no such variable
   * exists.
   */
