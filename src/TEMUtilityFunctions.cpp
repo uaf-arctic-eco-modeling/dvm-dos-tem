@@ -839,16 +839,29 @@ namespace temutil {
     } else {
 
       // Put in define mode...
-      temutil::nc( nc_redef(dstgrp) );
+      if (nc_redef(dstgrp) == NC_EINDEFINE) {
+        // Already in define mode...
+        /* define the output variable */
+        temutil::nc( nc_def_var(dstgrp, name, dst_typeid, ndims, dstdimids, &dst_varid) );
 
-      /* define the output variable */
-      temutil::nc( nc_def_var(dstgrp, name, dst_typeid, ndims, dstdimids, &dst_varid) );
+        /* attach the variable attributes to the output variable */
+        copy_atts(srcgrp, varid, dstgrp, dst_varid);
 
-      /* attach the variable attributes to the output variable */
-      copy_atts(srcgrp, varid, dstgrp, dst_varid);
+      } else {
 
-      // leave define mode...
-      temutil::nc( nc_enddef(dstgrp) );
+        // enter define mode...
+        temutil::nc( nc_redef(dstgrp) );
+
+        /* define the output variable */
+        temutil::nc( nc_def_var(dstgrp, name, dst_typeid, ndims, dstdimids, &dst_varid) );
+
+        /* attach the variable attributes to the output variable */
+        copy_atts(srcgrp, varid, dstgrp, dst_varid);
+
+        // leave define mode...
+        temutil::nc( nc_enddef(dstgrp) );
+
+      }
     }
   }
 
