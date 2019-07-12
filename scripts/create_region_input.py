@@ -516,11 +516,28 @@ def copy_grid_mapping(srcfile, dstfile):
   with netCDF4.Dataset(srcfile) as src, netCDF4.Dataset(dstfile, mode='a') as dst:
     if not any(['grid_mapping_name' in src.variables[v].ncattrs() for v in src.variables]):
       print "WARNING! Source file does not have grid mapping info!!"
+
+
     for v in src.variables:
       if 'grid_mapping_name' in src.variables[v].ncattrs():
+        print "Creating variable...", v, " of type ", src.variables[v].datatype
         dst.createVariable(v, src.variables[v].datatype)
-        dst[v].setncatts(src[v].__dict__)
+
+        # Setting en masse like this does not work, some attributes get
+        # a string type specified (conversion from python unicode) which messes
+        # up compatibility with downstream programs like gdal
+        # https://github.com/Unidata/netcdf4-python/issues/529
+        #dst[v].setncatts(src[v].__dict__)
+
+        # So we set each attribute individually.
+        for key, value in src[v].__dict__.iteritems():
+          if type(value) != unicode:
+            dst[v].setncattr(key, value)
+          else:
+            dst[v].setncattr(key, value.encode('ascii'))
+
       else:
+        print "Passing on v=", v
         pass
 
 
