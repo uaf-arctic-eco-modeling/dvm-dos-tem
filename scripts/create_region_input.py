@@ -1443,14 +1443,14 @@ def get_slurm_wrapper_string():
 
     echo $site
 
-    srun ./scripts/create_region_input.py \
-      --tifs $TIFDIR \
-      --tag $site \
-      --years -1 \
-      --buildout-time-coord \
-      --yoff $yoff --xoff $xoff --xsize $XSIZE --ysize $YSIZE \
-      --which all \
-      --projected-climate-config "$PCLIM" \
+    srun ./scripts/create_region_input.py \\
+      --tifs $TIFDIR \\
+      --tag $site \\
+      --years -1 \\
+      --buildout-time-coord \\
+      --yoff $yoff --xoff $xoff --xsize $XSIZE --ysize $YSIZE \\
+      --which all \\
+      --projected-climate-config "$PCLIM" \\
       --clip-projected2match-historic
 
     # Handle cropping if needed...
