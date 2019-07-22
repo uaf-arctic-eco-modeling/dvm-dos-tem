@@ -365,8 +365,8 @@ def create_template_veg_nc_file(fname, sizey=10, sizex=10, rand=None):
 
   ncfile = netCDF4.Dataset(fname, mode='w', format='NETCDF4')
 
-  y = ncfile.createDimension('y', sizey)
-  x = ncfile.createDimension('x', sizex)
+  Y = ncfile.createDimension('Y', sizey)
+  X = ncfile.createDimension('X', sizex)
 
 
   # Spatial Ref. variables
@@ -376,10 +376,10 @@ def create_template_veg_nc_file(fname, sizey=10, sizex=10, rand=None):
 
 
 
-  y = ncfile.createVariable('y', 'i4', ('y'))
-  x = ncfile.createVariable('x', 'i4', ('x'))
+  y = ncfile.createVariable('y', 'i4', ('Y'))
+  x = ncfile.createVariable('x', 'i4', ('X'))
 
-  veg_class = ncfile.createVariable('veg_class', 'i4', ('y', 'x',))
+  veg_class = ncfile.createVariable('veg_class', 'i4', ('Y', 'X',))
 
   y.standard_name = 'projection_y_coordinate'
   x.standard_name = 'projection_x_coordinate'
@@ -390,15 +390,12 @@ def create_template_veg_nc_file(fname, sizey=10, sizex=10, rand=None):
   y.long_name = 'y coordinate of projection'
   x.long_name = 'x coordinate of projection'
 
-
-
   if (rand):
     print " --> NOTE: Filling with random data!"
     veg_class[:] = np.random.uniform(low=1, high=7, size=(sizey,sizex))
 
   ncfile.Conventions = "CF-1.5"
   ncfile.source = source_attr_string()
-  print ncfile.variables
   ncfile.close()
 
 
@@ -601,7 +598,7 @@ def fill_veg_file(if_name, xo, yo, xs, ys, out_dir, of_name):
     os.makedirs(os.path.dirname(temporary))
 
   subprocess.call(['gdal_translate', '-of', 'netcdf',
-                   '-co', 'WRITE_LONLAT=YES',
+                   '-co', 'WRITE_LONLAT=NO',
                    '-srcwin', str(xo), str(yo), str(xs), str(ys),
                    if_name, temporary])
 
