@@ -358,22 +358,47 @@ def create_template_explicit_fire_file(fname, sizey=10, sizex=10, rand=None):
 def create_template_veg_nc_file(fname, sizey=10, sizex=10, rand=None):
   print "Creating a vegetation classification file, %s by %s pixels. Fill with random data?: %s" % (sizey, sizex, rand)
 
+  # Need to experiment more with:
+  #  - datatypes
+  #  - changing names of XY dims to lowecase
+  #  - removing lat/lon vars
+
   ncfile = netCDF4.Dataset(fname, mode='w', format='NETCDF4')
 
-  Y = ncfile.createDimension('Y', sizey)
-  X = ncfile.createDimension('X', sizex)
+  y = ncfile.createDimension('y', sizey)
+  x = ncfile.createDimension('x', sizex)
+
 
   # Spatial Ref. variables
-  lat = ncfile.createVariable('lat', np.float32, ('Y', 'X',))
-  lon = ncfile.createVariable('lon', np.float32, ('Y', 'X',))
+  #lat = ncfile.createVariable('lat', np.float32, ('Y', 'X',))
 
-  veg_class = ncfile.createVariable('veg_class', np.int, ('Y', 'X',))
+  #lon = ncfile.createVariable('lon', np.float32, ('Y', 'X',))
+
+
+
+  y = ncfile.createVariable('y', 'i4', ('y'))
+  x = ncfile.createVariable('x', 'i4', ('x'))
+
+  veg_class = ncfile.createVariable('veg_class', 'i4', ('y', 'x',))
+
+  y.standard_name = 'projection_y_coordinate'
+  x.standard_name = 'projection_x_coordinate'
+
+  y.units = 'm'
+  x.units = 'm'
+
+  y.long_name = 'y coordinate of projection'
+  x.long_name = 'x coordinate of projection'
+
+
 
   if (rand):
     print " --> NOTE: Filling with random data!"
     veg_class[:] = np.random.uniform(low=1, high=7, size=(sizey,sizex))
 
+  ncfile.Conventions = "CF-1.5"
   ncfile.source = source_attr_string()
+  print ncfile.variables
   ncfile.close()
 
 
@@ -540,6 +565,18 @@ def copy_grid_mapping(srcfile, dstfile):
         print "Passing on v=", v
         pass
 
+def get_gm_varname(ds):
+  '''Try to figure out which variable is the geo ref variable, return the name
+  of the grid mapping, or None if the file appears to have no mapping.'''
+  gm_var_name = None
+  for vname, v in ds.variables.iteritems():
+    if 'grid_mapping_name' in v.ncattrs():
+      if vname != v.grid_mapping_name:
+        print "ERROR!"
+      else:
+        gm_var_name = vname
+
+  return gm_var_name
 
 
 @contextmanager
@@ -574,15 +611,23 @@ def fill_veg_file(if_name, xo, yo, xs, ys, out_dir, of_name):
   # Copy from temporary location to into the placeholder file we just created
   with netCDF4.Dataset(temporary) as src, netCDF4.Dataset(of_name, mode='a') as new_vegdataset:
     veg_class = new_vegdataset.variables['veg_class']
-    lat = new_vegdataset.variables['lat']
-    lon = new_vegdataset.variables['lon']
+
+    if get_gm_varname(new_vegdataset):
+      new_vegdataset.variables['veg_class'].setncattr('grid_mapping', get_gm_varname(new_vegdataset).encode('ascii'))
+
+    #lat = new_vegdataset.variables['lat']
+    #lon = new_vegdataset.variables['lon']
+
 
     with custom_netcdf_attr_bug_wrapper(new_vegdataset) as f:
       f.source = source_attr_string(xo=xo, yo=yo)
 
     veg_class[:] = src.variables['Band1'][:].data 
-    lat[:] = src.variables['lat'][:]
-    lon[:] = src.variables['lon'][:]
+    #lat[:] = src.variables['lat'][:]
+    #lon[:] = src.variables['lon'][:]
+    new_vegdataset.variables['x'][:] = src.variables['x'][:]
+    new_vegdataset.variables['y'][:] = src.variables['y'][:]
+
 
     # For some reason, some rows of the temporary file are numpy masked arrays
     # and if we don't directly access the data, then we get strange results '
