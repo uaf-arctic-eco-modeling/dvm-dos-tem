@@ -579,6 +579,7 @@ def copy_grid_mapping(srcfile, dstfile):
   print "dstfile={}".format(dstfile)
 
   with netCDF4.Dataset(srcfile) as src, netCDF4.Dataset(dstfile, mode='a') as dst:
+
     if not any(['grid_mapping_name' in src.variables[v].ncattrs() for v in src.variables]):
       print "WARNING! Source file does not have grid mapping info!!"
 
@@ -604,6 +605,7 @@ def copy_grid_mapping(srcfile, dstfile):
       else:
         print "Passing on v=", v
         pass
+
 
 def get_gm_varname(ds):
   '''Try to figure out which variable is the geo ref variable, return the name
@@ -1488,7 +1490,7 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
 
 
 
-def get_slurm_wrapper_string():
+def get_slurm_wrapper_string(tif_directory):
   '''
   When running this program (create_region_input.py) on atlas, it is best to
   run under the control of the queue manager (slurm). This function is a place
@@ -1505,7 +1507,7 @@ def get_slurm_wrapper_string():
     ##SBATCH --reservation=snap_8  # Not needed anymore
 
     # Offsets for new ar5/rcp85 datasets found in:
-    TIFDIR="/atlas_scratch/ALFRESCO/ALFRESCO_Master_Dataset_v2_1/ALFRESCO_Model_Input_Datasets/IEM_for_TEM_inputs/"
+    TIFDIR="{}"
 
     #PCLIM="mri-cgcm3"
     PCLIM="ncar-ccsm4"
@@ -1584,7 +1586,7 @@ def get_slurm_wrapper_string():
     #site=site_4; yoff=248; xoff=944
     #site=site_5; yoff=211; xoff=945
 
-  ''')
+  '''.format(tif_directory))
   return s
 
 
@@ -1809,7 +1811,7 @@ if __name__ == '__main__':
     print "Writing wrapper file: {}".format(ofname)
     print "Submit using sbatch."
     with open(ofname, 'w') as f:
-      f.write(get_slurm_wrapper_string())
+      f.write(get_slurm_wrapper_string(args.tifs))
     exit(0)
 
   if args.dump_empty_config:
