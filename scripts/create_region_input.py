@@ -161,9 +161,15 @@ def make_co2_file(filename):
   new_ncfile.close()
 
 
-def create_template_topo_file(fname, sizey=10, sizex=10):
+def create_template_topo_file(fname, sizey=10, sizex=10, rand=None, withproj=None, withlatlon=None):
   '''Generate a template file for drainage classification.'''
-  print "Creating an empty topography  file, %s by %s pixels. (%s)" % (sizey, sizex, os.path.basename(fname))
+  print textwrap.dedent("""\
+    Creating file: {}
+        Shape: y:{} x:{}
+        Fill with random data?: {}
+        With projection?: {}
+        With Lat/Lon?: {}""".format(fname, sizey, sizex, rand, withproj, withlatlon))
+
   ncfile = netCDF4.Dataset(fname, mode='w', format='NETCDF4')
 
   Y = ncfile.createDimension('Y', sizey)
@@ -181,9 +187,15 @@ def create_template_topo_file(fname, sizey=10, sizex=10):
   ncfile.close()
 
 
-def create_template_drainage_file(fname, sizey=10, sizex=10):
+def create_template_drainage_file(fname, sizey=10, sizex=10, rand=None, withproj=None, withlatlon=None):
   '''Generate a template file for drainage classification.'''
-  print "Creating an empty drainage classification file, %s by %s pixels. (%s)" % (sizey, sizex, os.path.basename(fname))
+  print textwrap.dedent("""\
+    Creating file: {}
+        Shape: y:{} x:{}
+        Fill with random data?: {}
+        With projection?: {}
+        With Lat/Lon?: {}""".format(fname, sizey, sizex, rand, withproj, withlatlon))
+
   ncfile = netCDF4.Dataset(fname, mode='w', format='NETCDF4')
 
   Y = ncfile.createDimension('Y', sizey)
@@ -270,10 +282,15 @@ def create_template_restart_nc_file(filename, sizex=10, sizey=10):
   ncfile.close()
 
 
-def create_template_climate_nc_file(filename, sizey=10, sizex=10):
+def create_template_climate_nc_file(filename, sizey=10, sizex=10, rand=None, withproj=None, withlatlon=None):
   '''Creates an empty climate file for dvmdostem; y,x grid, time unlimited.'''
+  print textwrap.dedent("""\
+    Creating file: {}
+        Shape: y:{} x:{}
+        Fill with random data?: {}
+        With projection?: {}
+        With Lat/Lon?: {}""".format(fname, sizey, sizex, rand, withproj, withlatlon))
 
-  print "Creating an empty climate file..."
   ncfile = netCDF4.Dataset(filename, mode="w", format='NETCDF4')
 
   # Dimensions for the file.
@@ -302,9 +319,13 @@ def create_template_climate_nc_file(filename, sizey=10, sizex=10):
   ncfile.close()
 
 
-def create_template_fri_fire_file(fname, sizey=10, sizex=10, rand=None):
-  print "Creating an FRI fire file, %s by %s pixels. Fill with random data?: %s" % (sizey, sizex, rand)
-  print "Opening/Creating file: ", fname
+def create_template_fri_fire_file(fname, sizey=10, sizex=10, rand=None, withproj=None, withlatlon=None):
+  print textwrap.dedent("""\
+    Creating file: {}
+        Shape: y:{} x:{}
+        Fill with random data?: {}
+        With projection?: {}
+        With Lat/Lon?: {}""".format(fname, sizey, sizex, rand, withproj, withlatlon))
 
   ncfile = netCDF4.Dataset(fname, mode='w', format='NETCDF4')
 
@@ -329,9 +350,13 @@ def create_template_fri_fire_file(fname, sizey=10, sizex=10, rand=None):
   ncfile.close()
 
 
-def create_template_explicit_fire_file(fname, sizey=10, sizex=10, rand=None):
-  print "Creating a fire file, %s by %s pixels. Fill with random data?: %s" % (sizey, sizex, rand)
-  print "Opening/Creating file: ", fname
+def create_template_explicit_fire_file(fname, sizey=10, sizex=10, rand=None, withproj=None, withlatlon=None):
+  print textwrap.dedent("""\
+    Creating file: {}
+        Shape: y:{} x:{}
+        Fill with random data?: {}
+        With projection?: {}
+        With Lat/Lon?: {}""".format(fname, sizey, sizex, rand, withproj, withlatlon))
 
   ncfile = netCDF4.Dataset(fname, mode='w', format='NETCDF4')
 
@@ -357,12 +382,11 @@ def create_template_explicit_fire_file(fname, sizey=10, sizex=10, rand=None):
 
 def create_template_veg_nc_file(fname, sizey=10, sizex=10, rand=None, withproj=None, withlatlon=None):
   print textwrap.dedent("""\
-    Creating a vegetation classification file
-      Shape: y:{} x:{}
-      Fill with random data?: {}
-      With projection?: {}
-      With Lat/Lon?: {}""".format(sizey, sizex, rand, withproj, withlatlon))
-
+    Creating file: {}
+        Shape: y:{} x:{}
+        Fill with random data?: {}
+        With projection?: {}
+        With Lat/Lon?: {}""".format(fname, sizey, sizex, rand, withproj, withlatlon))
 
   ncfile = netCDF4.Dataset(fname, mode='w', format='NETCDF4')
 
@@ -398,8 +422,13 @@ def create_template_veg_nc_file(fname, sizey=10, sizex=10, rand=None, withproj=N
   ncfile.close()
 
 
-def create_template_soil_texture_nc_file(fname, sizey=10, sizex=10):
-  print "Creating a soil texture classification file, %s by %s pixels." % (sizey, sizex)
+def create_template_soil_texture_nc_file(fname, sizey=10, sizex=10, rand=None, withproj=None, withlatlon=None):
+  print textwrap.dedent("""\
+    Creating file: {}
+        Shape: y:{} x:{}
+        Fill with random data?: {}
+        With projection?: {}
+        With Lat/Lon?: {}""".format(fname, sizey, sizex, rand, withproj, withlatlon))
 
   ncfile = netCDF4.Dataset(fname, mode='w', format='NETCDF4')
 
