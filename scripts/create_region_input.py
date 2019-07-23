@@ -876,14 +876,38 @@ def fill_climate_file(start_yr, yrs, xo, yo, xs, ys,
 
 
 
-def fill_soil_texture_file(if_sand_name, if_silt_name, if_clay_name, xo, yo, xs, ys, out_dir, of_name, rand=True):
+def fill_soil_texture_file(if_sand_name, if_silt_name, if_clay_name, xo, yo, xs, ys, out_dir, of_name, rand=True, withlatlon=None, withproj=None):
   
-  create_template_soil_texture_nc_file(of_name, sizey=ys, sizex=xs)
+  create_template_soil_texture_nc_file(of_name, sizey=ys, sizex=xs, withlatlon=withlatlon, withproj=withproj)
 
-  with netCDF4.Dataset(of_name, mode='a') as soil_tex:
-    p_sand = soil_tex.variables['pct_sand']
-    p_silt = soil_tex.variables['pct_silt']
-    p_clay = soil_tex.variables['pct_clay']
+  print "Subsetting TIF to netCDF"
+  call_external_wrapper(['gdal_translate','-of','netCDF',
+                         '-co', 'WRITE_LONLAT={}'.format('YES' if withlatlon else 'NO'),
+                         '-srcwin', str(xo), str(yo), str(xs), str(ys),
+                         if_sand_name,
+                         '/tmp/create_region_input_script_sand_texture.nc'])
+
+  call_external_wrapper(['gdal_translate','-of','netCDF',
+                         '-co', 'WRITE_LONLAT={}'.format('YES' if withlatlon else 'NO'),
+                         '-srcwin', str(xo), str(yo), str(xs), str(ys),
+                         if_silt_name,
+                         '/tmp/create_region_input_script_silt_texture.nc'])
+
+  call_external_wrapper(['gdal_translate','-of','netCDF',
+                         '-co', 'WRITE_LONLAT={}'.format('YES' if withlatlon else 'NO'),
+                         '-srcwin', str(xo), str(yo), str(xs), str(ys),
+                         if_clay_name,
+                         '/tmp/create_region_input_script_clay_texture.nc'])
+
+
+  if withproj:
+    # arbitrarily pick one of the files to get the projection info from
+    copy_grid_mapping('/tmp/create_region_input_script_clay_texture.nc', of_name)
+
+  with netCDF4.Dataset(of_name, mode='a') as dst:
+    p_sand = dst.variables['pct_sand']
+    p_silt = dst.variables['pct_silt']
+    p_clay = dst.variables['pct_clay']
     
     if (rand):
       print "Filling file with random data."
@@ -902,25 +926,6 @@ def fill_soil_texture_file(if_sand_name, if_silt_name, if_clay_name, xo, yo, xs,
     else:
       print "Filling with real data..."
 
-      print "Subsetting TIF to netCDF"
-      call_external_wrapper(['gdal_translate','-of','netCDF',
-                             '-co', 'WRITE_LONLAT=YES',
-                             '-srcwin', str(xo), str(yo), str(xs), str(ys),
-                             if_sand_name,
-                             '/tmp/create_region_input_script_sand_texture.nc'])
-
-      call_external_wrapper(['gdal_translate','-of','netCDF',
-                             '-co', 'WRITE_LONLAT=YES',
-                             '-srcwin', str(xo), str(yo), str(xs), str(ys),
-                             if_silt_name,
-                             '/tmp/create_region_input_script_silt_texture.nc'])
-
-      call_external_wrapper(['gdal_translate','-of','netCDF',
-                             '-co', 'WRITE_LONLAT=YES',
-                             '-srcwin', str(xo), str(yo), str(xs), str(ys),
-                             if_clay_name,
-                             '/tmp/create_region_input_script_clay_texture.nc'])
-
       print "Writing subset's data to new files..."
       with netCDF4.Dataset('/tmp/create_region_input_script_sand_texture.nc', mode='r') as f:
         p_sand[:] = f.variables['Band1'][:]
@@ -929,18 +934,26 @@ def fill_soil_texture_file(if_sand_name, if_silt_name, if_clay_name, xo, yo, xs,
       with netCDF4.Dataset('/tmp/create_region_input_script_clay_texture.nc', mode='r') as f:
         p_clay[:] = f.variables['Band1'][:]
 
-    # While we went to the trouble of writing lat/lon to all the temporary
-    # files, we are only going to use one of those files to get the 
-    # data into the final file...
-    with netCDF4.Dataset('/tmp/create_region_input_script_sand_texture.nc', mode='r') as f:
-      soil_tex.variables['lat'][:] = f.variables['lat'][:]
-      soil_tex.variables['lon'][:] = f.variables['lon'][:]
+    if withlatlon:
+      # While we went to the trouble of writing lat/lon to all the temporary
+      # files, we are only going to use one of those files to get the 
+      # data into the final file...
+      with netCDF4.Dataset('/tmp/create_region_input_script_sand_texture.nc', mode='r') as src:
+        dst.variables['lat'][:] = src.variables['lat'][:]
+        dst.variables['lon'][:] = src.variables['lon'][:]
 
-    # Same here...only copying the grid mapping from the sand file!
-    copy_grid_mapping('/tmp/create_region_input_script_sand_texture.nc', of_name)
+    if withproj:
+      if get_gm_varname(dst):
+        p_sand.setncattr('grid_mapping', get_gm_varname(dst).encode('ascii'))
+        p_silt.setncattr('grid_mapping', get_gm_varname(dst).encode('ascii'))
+        p_clay.setncattr('grid_mapping', get_gm_varname(dst).encode('ascii'))
 
-    with custom_netcdf_attr_bug_wrapper(soil_tex) as f:
-      f.source =  source_attr_string(xo=xo, yo=yo)
+      with netCDF4.Dataset('/tmp/create_region_input_script_sand_texture.nc', mode='r') as src:
+        dst.variables['x'][:] = src.variables['x'][:]
+        dst.variables['y'][:] = src.variables['y'][:]
+
+    with custom_netcdf_attr_bug_wrapper(dst) as f:
+      f.source = source_attr_string(xo=xo, yo=yo)
 
 
 def fill_drainage_file(if_name, xo, yo, xs, ys, out_dir, of_name, rand=False, withproj=None, withlatlon=None):
