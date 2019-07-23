@@ -632,7 +632,6 @@ def fill_veg_file(if_name, xo, yo, xs, ys, out_dir, of_name, withlatlon=None, wi
                    '-srcwin', str(xo), str(yo), str(xs), str(ys),
                    if_name, temporary])
 
-
   if withproj:
     copy_grid_mapping(temporary, of_name)
 
@@ -643,10 +642,6 @@ def fill_veg_file(if_name, xo, yo, xs, ys, out_dir, of_name, withlatlon=None, wi
 
     veg_class[:] = src.variables['Band1'][:].data
 
-    if withproj:
-      if get_gm_varname(new_vegdataset):
-        veg_class.setncattr('grid_mapping', get_gm_varname(new_vegdataset).encode('ascii'))
-
     with custom_netcdf_attr_bug_wrapper(new_vegdataset) as f:
       f.source = source_attr_string(xo=xo, yo=yo)
 
@@ -655,6 +650,8 @@ def fill_veg_file(if_name, xo, yo, xs, ys, out_dir, of_name, withlatlon=None, wi
       new_vegdataset.variables['lon'][:] = src.variables['lon'][:]
 
     if withproj:
+      if get_gm_varname(new_vegdataset):
+        veg_class.setncattr('grid_mapping', get_gm_varname(new_vegdataset).encode('ascii'))
       new_vegdataset.variables['x'][:] = src.variables['x'][:]
       new_vegdataset.variables['y'][:] = src.variables['y'][:]
 
@@ -952,12 +949,15 @@ def fill_drainage_file(if_name, xo, yo, xs, ys, out_dir, of_name, rand=False, wi
 
   tmpFile = '/tmp/script-temp_drainage_subset.nc'
 
-  with netCDF4.Dataset(of_name, mode='a') as drainage_class:
+  if withproj:
+    copy_grid_mapping(tmpFile, of_name)
+
+  with netCDF4.Dataset(of_name, mode='a') as dst:
 
     '''Fill drainage template file'''
     if rand:
       print " --> NOTE: Filling with random data!"
-      drain = drainage_class.variables['drainage_class']
+      drain = dst.variables['drainage_class']
       drain[:] = np.random.randint(low=0, high=2, size=(ys, xs))
 
     else:
@@ -970,11 +970,11 @@ def fill_drainage_file(if_name, xo, yo, xs, ys, out_dir, of_name, rand=False, wi
                              if_name,
                              tmpFile])
 
-      with netCDF4.Dataset(tmpFile, mode='r') as temp_drainage:
-        drain = drainage_class.variables['drainage_class']
+      with netCDF4.Dataset(tmpFile, mode='r') as src:
+        drain = dst.variables['drainage_class']
 
         print "Thresholding: set data <= 200 to 0; set data > 200 to 1."
-        data = temp_drainage.variables['Band1'][:]
+        data = src.variables['Band1'][:]
         data[data <= 200] = 0
         data[data > 200] = 1
 
@@ -983,13 +983,16 @@ def fill_drainage_file(if_name, xo, yo, xs, ys, out_dir, of_name, rand=False, wi
 
         if withlatlon:
           print "Writing lat/lon data to new file..."
-          drainage_class.variables['lat'][:] = temp_drainage.variables['lat'][:]
-          drainage_class.variables['lon'][:] = temp_drainage.variables['lon'][:]
+          dst.variables['lat'][:] = src.variables['lat'][:]
+          dst.variables['lon'][:] = src.variables['lon'][:]
 
         if withproj:
-          copy_grid_mapping(tmpFile, of_name)
+          if get_gm_varname(dst):
+            drain.setncattr('grid_mapping', get_gm_varname(dst).encode('ascii'))
+          dst.variables['x'][:] = src.variables['x'][:]
+          dst.variables['y'][:] = src.variables['y'][:]
 
-    with custom_netcdf_attr_bug_wrapper(drainage_class) as f:
+    with custom_netcdf_attr_bug_wrapper(dst) as f:
       f.source = source_attr_string(xo=xo, yo=yo)
 
 
