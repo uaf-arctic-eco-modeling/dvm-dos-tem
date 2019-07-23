@@ -175,13 +175,27 @@ def create_template_topo_file(fname, sizey=10, sizex=10, rand=None, withproj=Non
   Y = ncfile.createDimension('Y', sizey)
   X = ncfile.createDimension('X', sizex)
 
-  # Spatial Ref. variables
-  lat = ncfile.createVariable('lat', np.float32, ('Y', 'X',))
-  lon = ncfile.createVariable('lon', np.float32, ('Y', 'X',))
-
   slope = ncfile.createVariable('slope', np.double, ('Y', 'X',))
   aspect = ncfile.createVariable('aspect', np.double, ('Y', 'X',))
   elevation = ncfile.createVariable('elevation', np.double, ('Y', 'X',))
+
+  if withlatlon:
+    lat = ncfile.createVariable('lat', np.float32, ('Y', 'X',))
+    lon = ncfile.createVariable('lon', np.float32, ('Y', 'X',))
+
+  if withproj:
+    y = ncfile.createVariable('y', 'i4', ('Y'))
+    x = ncfile.createVariable('x', 'i4', ('X'))
+
+    y.standard_name = 'projection_y_coordinate'
+    y.long_name = 'y coordinate of projection'
+    y.units = 'm'
+
+    x.standard_name = 'projection_x_coordinate'
+    x.long_name = 'x coordinate of projection'
+    x.units = 'm'
+
+    ncfile.Conventions = "CF-1.5"
 
   ncfile.source = source_attr_string()
   ncfile.close()
@@ -201,11 +215,25 @@ def create_template_drainage_file(fname, sizey=10, sizex=10, rand=None, withproj
   Y = ncfile.createDimension('Y', sizey)
   X = ncfile.createDimension('X', sizex)
 
-  # Spatial Ref. variables
-  lat = ncfile.createVariable('lat', np.float32, ('Y', 'X',))
-  lon = ncfile.createVariable('lon', np.float32, ('Y', 'X',))
-
   drainage_class = ncfile.createVariable('drainage_class', np.int, ('Y', 'X',))
+
+  if withlatlon:
+    lat = ncfile.createVariable('lat', np.float32, ('Y', 'X',))
+    lon = ncfile.createVariable('lon', np.float32, ('Y', 'X',))
+
+  if withproj:
+    y = ncfile.createVariable('y', 'i4', ('Y'))
+    x = ncfile.createVariable('x', 'i4', ('X'))
+
+    y.standard_name = 'projection_y_coordinate'
+    y.long_name = 'y coordinate of projection'
+    y.units = 'm'
+
+    x.standard_name = 'projection_x_coordinate'
+    x.long_name = 'x coordinate of projection'
+    x.units = 'm'
+
+    ncfile.Conventions = "CF-1.5"
 
   ncfile.source = source_attr_string()
   ncfile.close()
@@ -413,7 +441,6 @@ def create_template_veg_nc_file(fname, sizey=10, sizex=10, rand=None, withproj=N
 
     ncfile.Conventions = "CF-1.5"
 
-
   if (rand):
     print " --> NOTE: Filling with random data!"
     veg_class[:] = np.random.uniform(low=1, high=7, size=(sizey,sizex))
@@ -435,13 +462,27 @@ def create_template_soil_texture_nc_file(fname, sizey=10, sizex=10, rand=None, w
   Y = ncfile.createDimension('Y', sizey)
   X = ncfile.createDimension('X', sizex)
 
-  # Spatial Ref. variables
-  lat = ncfile.createVariable('lat', np.float32, ('Y', 'X',))
-  lon = ncfile.createVariable('lon', np.float32, ('Y', 'X',))
-
   pct_sand = ncfile.createVariable('pct_sand', np.float32, ('Y','X'))
   pct_silt = ncfile.createVariable('pct_silt', np.float32, ('Y','X'))
   pct_clay = ncfile.createVariable('pct_clay', np.float32, ('Y','X'))
+
+  if withlatlon:
+    lat = ncfile.createVariable('lat', np.float32, ('Y', 'X',))
+    lon = ncfile.createVariable('lon', np.float32, ('Y', 'X',))
+
+  if withproj:
+    y = ncfile.createVariable('y', 'i4', ('Y'))
+    x = ncfile.createVariable('x', 'i4', ('X'))
+
+    y.standard_name = 'projection_y_coordinate'
+    y.long_name = 'y coordinate of projection'
+    y.units = 'm'
+
+    x.standard_name = 'projection_x_coordinate'
+    x.long_name = 'x coordinate of projection'
+    x.units = 'm'
+
+    ncfile.Conventions = "CF-1.5"
 
   ncfile.source = source_attr_string()
   ncfile.close()
