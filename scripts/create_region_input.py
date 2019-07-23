@@ -506,19 +506,22 @@ def convert_and_subset(in_file, master_output, xo, yo, xs, ys, yridx, midx, vari
   print "{:}: Done appending.".format(cpn)
 
 
-def fill_topo_file(inSlope, inAspect, inElev, xo, yo, xs, ys, out_dir, of_name):
+def fill_topo_file(inSlope, inAspect, inElev, xo, yo, xs, ys, out_dir, of_name, withlatlon=None, withproj=None):
   '''Read subset of data from various tifs into single netcdf file for dvmdostem'''
 
-  create_template_topo_file(of_name, sizey=ys, sizex=xs)
+  create_template_topo_file(of_name, sizey=ys, sizex=xs, withlatlon=True, withproj=True)
 
   # get a string for use as a file handle for each input file
   tmpSlope = '/tmp/cri-{:}.nc'.format(os.path.splitext(os.path.basename(inSlope))[0])
   tmpAspect = '/tmp/cri-{:}.nc'.format(os.path.splitext(os.path.basename(inAspect))[0])
   tmpElev = '/tmp/cri-{:}.nc'.format(os.path.splitext(os.path.basename(inElev))[0])
 
+  if withproj:
+    copy_grid_mapping(tmpSlope, of_name)
+
   for inFile, tmpFile in zip([inSlope, inAspect, inElev], [tmpSlope, tmpAspect, tmpElev]):
     subprocess.call(['gdal_translate', '-of', 'netcdf',
-                     '-co', 'WRITE_LONLAT=YES',
+                     '-co', 'WRITE_LONLAT={}'.format('YES' if withlatlon else 'NO'),
                       '-srcwin', str(xo), str(yo), str(xs), str(ys),
                       inFile, tmpFile])
 
@@ -528,12 +531,22 @@ def fill_topo_file(inSlope, inAspect, inElev, xo, yo, xs, ys, out_dir, of_name):
         V = new_topodataset.variables[ncvar]
         V[:] = TF.variables['Band1'][:]
 
-  with netCDF4.Dataset(of_name, mode='a') as new_topodataset:
-    with netCDF4.Dataset(tmpSlope, 'r') as TF:
+  if withlatlon:
+    with netCDF4.Dataset(of_name, mode='a') as new_topodataset:
+      with netCDF4.Dataset(tmpSlope, 'r') as TF:
         new_topodataset.variables['lat'][:] = TF.variables['lat'][:]
         new_topodataset.variables['lon'][:] = TF.variables['lon'][:]
 
-  copy_grid_mapping(tmpSlope, of_name)
+  if withproj:
+    with netCDF4.Dataset(of_name, mode='a') as new_topodataset:
+      for v in ['slope','aspect','elevation']:
+        new_topodataset.variables[v].setncattr('grid_mapping', get_gm_varname(new_topodataset).encode('ascii'))
+
+      with netCDF4.Dataset(tmpSlope, 'r') as TF:
+        new_topodataset.variables['x'][:] = TF.variables['x'][:]
+        new_topodataset.variables['y'][:] = TF.variables['y'][:]
+
+
 
 def call_external_wrapper(call, ignore_failure=False):
   '''
@@ -1311,7 +1324,7 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
     in_sand_base = os.path.join(tif_dir, config['soil sand src'])
     in_silt_base = os.path.join(tif_dir, config['soil silt src'])
 
-    fill_soil_texture_file(in_sand_base, in_silt_base, in_clay_base, xo, yo, xs, ys, out_dir, of_name, rand=False)
+    fill_soil_texture_file(in_sand_base, in_silt_base, in_clay_base, xo, yo, xs, ys, out_dir, of_name, rand=False, withlatlon=True, withproj=True)
 
   if 'topo' in files:
     of_name = os.path.join(out_dir, "topo.nc")
@@ -1320,7 +1333,7 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
     in_aspect = os.path.join(tif_dir, config['topo aspect src'])
     in_elev = os.path.join(tif_dir, config['topo elev src'])
 
-    fill_topo_file(in_slope, in_aspect, in_elev, xo,yo,xs,ys,out_dir, of_name)
+    fill_topo_file(in_slope, in_aspect, in_elev, xo,yo,xs,ys,out_dir, of_name, withlatlon=True, withproj=True)
 
   if 'run-mask' in files:
     make_run_mask(os.path.join(out_dir, "run-mask.nc"), sizey=ys, sizex=xs, match2veg=True) #setpx='1,1')
