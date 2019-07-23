@@ -330,9 +330,7 @@ def create_template_fri_fire_file(fname, sizey=10, sizex=10, rand=None, withproj
 
   # Do we need time dimension??
 
-  # Spatial Ref. variables
-  lat = ncfile.createVariable('lat', np.float32, ('Y', 'X',))
-  lon = ncfile.createVariable('lon', np.float32, ('Y', 'X',))
+  spatial_decorate(ncfile, withlatlon=withlatlon, withproj=withproj)
 
   fri = ncfile.createVariable('fri', np.int32, ('Y','X',))
   sev = ncfile.createVariable('fri_severity', np.int32, ('Y','X'))
@@ -1025,7 +1023,7 @@ def fill_drainage_file(if_name, xo, yo, xs, ys, out_dir, of_name, rand=False, wi
 
 
 
-def fill_fri_fire_file(xo, yo, xs, ys, out_dir, of_name, datasrc='', if_name=None):
+def fill_fri_fire_file(xo, yo, xs, ys, out_dir, of_name, datasrc='', if_name=None, withlatlon=None, withproj=None):
   '''
   Parameters:
   -----------
@@ -1035,7 +1033,31 @@ def fill_fri_fire_file(xo, yo, xs, ys, out_dir, of_name, datasrc='', if_name=Non
     'genet-greaves' will create files using H.Genet's and H.Greaves process   
   '''
 
-  create_template_fri_fire_file(of_name, sizey=ys, sizex=xs, rand=False)
+  create_template_fri_fire_file(of_name, sizey=ys, sizex=xs, rand=False, withlatlon=withlatlon, withproj=withproj)
+
+  guess_vegfile = os.path.join(os.path.split(of_name)[0], 'vegetation.nc')
+  print "--> NOTE: Attempting to read: {:} to get projection and or lat/lon info".format(guess_vegfile)
+
+  if withproj:
+    copy_grid_mapping(guess_vegfile, of_name)
+    with netCDF4.Dataset(guess_vegfile ,'r') as src:
+      with netCDF4.Dataset(of_name, mode='a') as dst:
+        print "Writing projection x, y from veg file..."
+        dst.variables['x'][:] = src.variables['x'][:]
+        dst.variables['y'][:] = src.variables['y'][:]
+
+        if get_gm_varname(dst):
+          dst.variables['fri'].setncattr('grid_mapping', get_gm_varname(dst).encode('ascii'))
+          dst.variables['fri_severity'].setncattr('grid_mapping', get_gm_varname(dst).encode('ascii'))
+          dst.variables['fri_jday_of_burn'].setncattr('grid_mapping', get_gm_varname(dst).encode('ascii'))
+          dst.variables['fri_area_of_burn'].setncattr('grid_mapping', get_gm_varname(dst).encode('ascii'))
+
+  if withlatlon:
+    with netCDF4.Dataset(guess_vegfile ,'r') as src:
+      with netCDF4.Dataset(of_name, mode='a') as dst:
+        print "Writing lat/lon from veg file..."
+        dst.variables['lat'][:] = src.variables['lat'][:]
+        dst.variables['lon'][:] = src.variables['lon'][:]
 
   if datasrc == 'random':
     print "%%%%%%  WARNING  %%%%%%%%%%%%%%%%%"
@@ -1070,6 +1092,11 @@ def fill_fri_fire_file(xo, yo, xs, ys, out_dir, of_name, datasrc='', if_name=Non
       nfd.variables['fri_jday_of_burn'][:,:] = jdob
       nfd.variables['fri_area_of_burn'][:,:] = aob
 
+      with custom_netcdf_attr_bug_wrapper(nfd) as f:
+        print "==> write global :source attribute to FRI fire file..."
+        f.source = source_attr_string(xo=xo, yo=yo)
+
+
   elif datasrc == 'no-fires':
     print "%%%%%%  WARNING  %%%%%%%%%%%%%%%%%"
     print "GENERATING FRI FILE WITH NO FIRES!"
@@ -1083,6 +1110,11 @@ def fill_fri_fire_file(xo, yo, xs, ys, out_dir, of_name, datasrc='', if_name=Non
       nfd.variables['fri_jday_of_burn'][:,:] = zeros
       nfd.variables['fri_area_of_burn'][:,:] = zeros
 
+      with custom_netcdf_attr_bug_wrapper(nfd) as f:
+        print "==> write global :source attribute to FRI fire file..."
+        f.source = source_attr_string(xo=xo, yo=yo)
+
+
   elif datasrc == 'fri-from-file': # other variables fixed/hardcoded below
     if not os.path.exists(if_name):
       print "ERROR! Can't find file specified for FRI input!: {}".format(if_name) 
@@ -1094,7 +1126,7 @@ def fill_fri_fire_file(xo, yo, xs, ys, out_dir, of_name, datasrc='', if_name=Non
       os.makedirs(os.path.dirname(temporary))
 
     subprocess.call(['gdal_translate', '-of', 'netcdf',
-                     '-co', 'WRITE_LONLAT=YES',
+                     '-co', 'WRITE_LONLAT={}'.format('YES' if withlatlon else 'NO'),
                      '-srcwin', str(xo), str(yo), str(xs), str(ys),
                      if_name, temporary])
 
@@ -1113,30 +1145,13 @@ def fill_fri_fire_file(xo, yo, xs, ys, out_dir, of_name, datasrc='', if_name=Non
           'note': "mean area of fire scar computed from statewide fire records 1950 to 1980"
         })
 
+      with custom_netcdf_attr_bug_wrapper(new_fri) as f:
+        print "==> write global :source attribute to FRI fire file..."
+        f.source = source_attr_string(xo=xo, yo=yo)
+
   else:
     print "ERROR! Unrecognized value for 'datasrc' in function fill_fri_file(..)"
-     
 
-  # Now that primary data has been written, take care of some generic 
-  # stuff: lat, lon, atrributes, etc.
-  guess_vegfile = os.path.join(os.path.split(of_name)[0], 'vegetation.nc')
-  print "--> NOTE: Attempting to read: {:} to get lat/lon info".format(guess_vegfile)
-
-  copy_grid_mapping(guess_vegfile, of_name)
-
-  with netCDF4.Dataset(guess_vegfile ,'r') as vegFile:
-    latv = vegFile.variables['lat'][:]
-    lonv = vegFile.variables['lon'][:]
-
-
-  with netCDF4.Dataset(of_name, mode='a') as nfd:
-    print "Writing lat/lon from veg file..."
-    nfd.variables['lat'][:] = latv
-    nfd.variables['lon'][:] = lonv
-
-    with custom_netcdf_attr_bug_wrapper(nfd) as f:
-      print "==> write global :source attribute to FRI fire file..."
-      f.source = source_attr_string(xo=xo, yo=yo)
 
 
 def fill_explicit_fire_file(yrs, xo, yo, xs, ys, out_dir, of_name, datasrc='', if_name=None):
@@ -1449,6 +1464,7 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
         xo, yo, xs, ys, out_dir, of_name, 
         datasrc='no-fires', 
         if_name=None,
+        withlatlon=True, withproj=True
     )
 
   if 'historic-explicit-fire' in files:
