@@ -179,23 +179,7 @@ def create_template_topo_file(fname, sizey=10, sizex=10, rand=None, withproj=Non
   aspect = ncfile.createVariable('aspect', np.double, ('Y', 'X',))
   elevation = ncfile.createVariable('elevation', np.double, ('Y', 'X',))
 
-  if withlatlon:
-    lat = ncfile.createVariable('lat', np.float32, ('Y', 'X',))
-    lon = ncfile.createVariable('lon', np.float32, ('Y', 'X',))
-
-  if withproj:
-    y = ncfile.createVariable('y', 'i4', ('Y'))
-    x = ncfile.createVariable('x', 'i4', ('X'))
-
-    y.standard_name = 'projection_y_coordinate'
-    y.long_name = 'y coordinate of projection'
-    y.units = 'm'
-
-    x.standard_name = 'projection_x_coordinate'
-    x.long_name = 'x coordinate of projection'
-    x.units = 'm'
-
-    ncfile.Conventions = "CF-1.5"
+  spatial_decorate(ncfile, withproj=withproj, withlatlon=withlatlon)
 
   ncfile.source = source_attr_string()
   ncfile.close()
@@ -217,23 +201,7 @@ def create_template_drainage_file(fname, sizey=10, sizex=10, rand=None, withproj
 
   drainage_class = ncfile.createVariable('drainage_class', np.int, ('Y', 'X',))
 
-  if withlatlon:
-    lat = ncfile.createVariable('lat', np.float32, ('Y', 'X',))
-    lon = ncfile.createVariable('lon', np.float32, ('Y', 'X',))
-
-  if withproj:
-    y = ncfile.createVariable('y', 'i4', ('Y'))
-    x = ncfile.createVariable('x', 'i4', ('X'))
-
-    y.standard_name = 'projection_y_coordinate'
-    y.long_name = 'y coordinate of projection'
-    y.units = 'm'
-
-    x.standard_name = 'projection_x_coordinate'
-    x.long_name = 'x coordinate of projection'
-    x.units = 'm'
-
-    ncfile.Conventions = "CF-1.5"
+  spatial_decorate(ncfile, withproj=withproj, withlatlon=withlatlon)
 
   ncfile.source = source_attr_string()
   ncfile.close()
@@ -423,6 +391,22 @@ def create_template_veg_nc_file(fname, sizey=10, sizex=10, rand=None, withproj=N
 
   veg_class = ncfile.createVariable('veg_class', 'i4', ('Y', 'X',))
 
+  spatial_decorate(ncfile, withlatlon=withlatlon, withproj=withproj)
+
+  if (rand):
+    print " --> NOTE: Filling with random data!"
+    veg_class[:] = np.random.uniform(low=1, high=7, size=(sizey,sizex))
+
+  ncfile.source = source_attr_string()
+  ncfile.close()
+
+
+def spatial_decorate(ncfile, withproj=None, withlatlon=None):
+  '''
+  Adds spatial variables to `ncfile`. 
+
+  Assumes that `ncfile` is a valid netCDF dataset id, opened for r+
+  '''
   if withlatlon:
     lat = ncfile.createVariable('lat', np.float32, ('Y', 'X',))
     lon = ncfile.createVariable('lon', np.float32, ('Y', 'X',))
@@ -439,14 +423,7 @@ def create_template_veg_nc_file(fname, sizey=10, sizex=10, rand=None, withproj=N
     x.long_name = 'x coordinate of projection'
     x.units = 'm'
 
-    ncfile.Conventions = "CF-1.5"
-
-  if (rand):
-    print " --> NOTE: Filling with random data!"
-    veg_class[:] = np.random.uniform(low=1, high=7, size=(sizey,sizex))
-
-  ncfile.source = source_attr_string()
-  ncfile.close()
+    ncfile.Conventions = "CF-1.5"  
 
 
 def create_template_soil_texture_nc_file(fname, sizey=10, sizex=10, rand=None, withproj=None, withlatlon=None):
@@ -466,23 +443,7 @@ def create_template_soil_texture_nc_file(fname, sizey=10, sizex=10, rand=None, w
   pct_silt = ncfile.createVariable('pct_silt', np.float32, ('Y','X'))
   pct_clay = ncfile.createVariable('pct_clay', np.float32, ('Y','X'))
 
-  if withlatlon:
-    lat = ncfile.createVariable('lat', np.float32, ('Y', 'X',))
-    lon = ncfile.createVariable('lon', np.float32, ('Y', 'X',))
-
-  if withproj:
-    y = ncfile.createVariable('y', 'i4', ('Y'))
-    x = ncfile.createVariable('x', 'i4', ('X'))
-
-    y.standard_name = 'projection_y_coordinate'
-    y.long_name = 'y coordinate of projection'
-    y.units = 'm'
-
-    x.standard_name = 'projection_x_coordinate'
-    x.long_name = 'x coordinate of projection'
-    x.units = 'm'
-
-    ncfile.Conventions = "CF-1.5"
+  spatial_decorate(ncfile, withproj=withproj, withlatlon=withlatlon)
 
   ncfile.source = source_attr_string()
   ncfile.close()
@@ -688,7 +649,6 @@ def fill_veg_file(if_name, xo, yo, xs, ys, out_dir, of_name, withlatlon=None, wi
 
     with custom_netcdf_attr_bug_wrapper(new_vegdataset) as f:
       f.source = source_attr_string(xo=xo, yo=yo)
-
 
     if withlatlon:
       new_vegdataset.variables['lat'][:] = src.variables['lat'][:]
@@ -986,8 +946,9 @@ def fill_soil_texture_file(if_sand_name, if_silt_name, if_clay_name, xo, yo, xs,
       f.source =  source_attr_string(xo=xo, yo=yo)
 
 
-def fill_drainage_file(if_name, xo, yo, xs, ys, out_dir, of_name, rand=False):
-  create_template_drainage_file(of_name, sizey=ys, sizex=xs)
+def fill_drainage_file(if_name, xo, yo, xs, ys, out_dir, of_name, rand=False, withproj=None, withlatlon=None):
+
+  create_template_drainage_file(of_name, sizey=ys, sizex=xs, withproj=withproj, withlatlon=withlatlon)
 
   tmpFile = '/tmp/script-temp_drainage_subset.nc'
 
@@ -999,16 +960,12 @@ def fill_drainage_file(if_name, xo, yo, xs, ys, out_dir, of_name, rand=False):
       drain = drainage_class.variables['drainage_class']
       drain[:] = np.random.randint(low=0, high=2, size=(ys, xs))
 
-      #Hard-coding a Toolik value to try and stabilize plots
-      print " --> NOTE: Setting 0,0 pixel to 1! (poorly drained?)"
-      drain[0,0] = 1
-
     else:
       print "Filling with real data"
 
       print "Subsetting TIF to netCDF..."
       call_external_wrapper(['gdal_translate', '-of', 'netCDF',
-                             '-co', 'WRITE_LONLAT=YES',
+                             '-co', 'WRITE_LONLAT={}'.format('YES' if withlatlon else 'NO'),
                              '-srcwin', str(xo), str(yo), str(xs), str(ys),
                              if_name,
                              tmpFile])
@@ -1024,14 +981,17 @@ def fill_drainage_file(if_name, xo, yo, xs, ys, out_dir, of_name, rand=False):
         print "Writing subset data to new file"
         drain[:] = data
 
-        print "Writing lat/lon data to new file..."
-        drainage_class.variables['lat'][:] = temp_drainage.variables['lat'][:]
-        drainage_class.variables['lon'][:] = temp_drainage.variables['lon'][:]
+        if withlatlon:
+          print "Writing lat/lon data to new file..."
+          drainage_class.variables['lat'][:] = temp_drainage.variables['lat'][:]
+          drainage_class.variables['lon'][:] = temp_drainage.variables['lon'][:]
+
+        if withproj:
+          copy_grid_mapping(tmpFile, of_name)
 
     with custom_netcdf_attr_bug_wrapper(drainage_class) as f:
       f.source = source_attr_string(xo=xo, yo=yo)
 
-  copy_grid_mapping(tmpFile, of_name)
 
 
 def fill_fri_fire_file(xo, yo, xs, ys, out_dir, of_name, datasrc='', if_name=None):
@@ -1326,7 +1286,7 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
 
   if 'drainage' in files:
     of_name = os.path.join(out_dir, "drainage.nc")
-    fill_drainage_file(os.path.join(tif_dir,  config['drainage src']), xo, yo, xs, ys, out_dir, of_name)
+    fill_drainage_file(os.path.join(tif_dir,  config['drainage src']), xo, yo, xs, ys, out_dir, of_name, withlatlon=True, withproj=True)
 
   if 'soil-texture' in files:
     of_name = os.path.join(out_dir, "soil-texture.nc")
