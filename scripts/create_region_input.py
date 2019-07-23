@@ -355,46 +355,45 @@ def create_template_explicit_fire_file(fname, sizey=10, sizex=10, rand=None):
   ncfile.close()
 
 
-def create_template_veg_nc_file(fname, sizey=10, sizex=10, rand=None):
-  print "Creating a vegetation classification file, %s by %s pixels. Fill with random data?: %s" % (sizey, sizex, rand)
+def create_template_veg_nc_file(fname, sizey=10, sizex=10, rand=None, withproj=None, withlatlon=None):
+  print textwrap.dedent("""\
+    Creating a vegetation classification file
+      Shape: y:{} x:{}
+      Fill with random data?: {}
+      With projection?: {}
+      With Lat/Lon?: {}""".format(sizey, sizex, rand, withproj, withlatlon))
 
-  # Need to experiment more with:
-  #  - datatypes
-  #  - changing names of XY dims to lowecase
-  #  - removing lat/lon vars
 
   ncfile = netCDF4.Dataset(fname, mode='w', format='NETCDF4')
 
   Y = ncfile.createDimension('Y', sizey)
   X = ncfile.createDimension('X', sizex)
 
-
-  # Spatial Ref. variables
-  #lat = ncfile.createVariable('lat', np.float32, ('Y', 'X',))
-
-  #lon = ncfile.createVariable('lon', np.float32, ('Y', 'X',))
-
-
-
-  y = ncfile.createVariable('y', 'i4', ('Y'))
-  x = ncfile.createVariable('x', 'i4', ('X'))
-
   veg_class = ncfile.createVariable('veg_class', 'i4', ('Y', 'X',))
 
-  y.standard_name = 'projection_y_coordinate'
-  x.standard_name = 'projection_x_coordinate'
+  if withlatlon:
+    lat = ncfile.createVariable('lat', np.float32, ('Y', 'X',))
+    lon = ncfile.createVariable('lon', np.float32, ('Y', 'X',))
 
-  y.units = 'm'
-  x.units = 'm'
+  if withproj:
+    y = ncfile.createVariable('y', 'i4', ('Y'))
+    x = ncfile.createVariable('x', 'i4', ('X'))
 
-  y.long_name = 'y coordinate of projection'
-  x.long_name = 'x coordinate of projection'
+    y.standard_name = 'projection_y_coordinate'
+    y.long_name = 'y coordinate of projection'
+    y.units = 'm'
+
+    x.standard_name = 'projection_x_coordinate'
+    x.long_name = 'x coordinate of projection'
+    x.units = 'm'
+
+    ncfile.Conventions = "CF-1.5"
+
 
   if (rand):
     print " --> NOTE: Filling with random data!"
     veg_class[:] = np.random.uniform(low=1, high=7, size=(sizey,sizex))
 
-  ncfile.Conventions = "CF-1.5"
   ncfile.source = source_attr_string()
   ncfile.close()
 
@@ -583,13 +582,13 @@ def custom_netcdf_attr_bug_wrapper(ncid):
   yield ncid
   del ncid.junkattr
 
-def fill_veg_file(if_name, xo, yo, xs, ys, out_dir, of_name):
+def fill_veg_file(if_name, xo, yo, xs, ys, out_dir, of_name, withlatlon=None, withproj=None):
   '''Read subset of data from .tif into netcdf file for dvmdostem. '''
 
   of_stripped = os.path.basename(of_name)
 
   # Create place for data
-  create_template_veg_nc_file(of_name, sizey=ys, sizex=xs, rand=None)
+  create_template_veg_nc_file(of_name, sizey=ys, sizex=xs, rand=None, withlatlon=withlatlon, withproj=withproj)
 
   # Translate and subset to temporary location
   temporary = os.path.join('/tmp', of_stripped)
@@ -598,33 +597,36 @@ def fill_veg_file(if_name, xo, yo, xs, ys, out_dir, of_name):
     os.makedirs(os.path.dirname(temporary))
 
   subprocess.call(['gdal_translate', '-of', 'netcdf',
-                   '-co', 'WRITE_LONLAT=NO',
+                   '-co', 'WRITE_LONLAT={}'.format('YES' if withlatlon else 'NO'),
                    '-srcwin', str(xo), str(yo), str(xs), str(ys),
                    if_name, temporary])
 
 
-  copy_grid_mapping(temporary, of_name)
+  if withproj:
+    copy_grid_mapping(temporary, of_name)
 
   # Copy from temporary location to into the placeholder file we just created
   with netCDF4.Dataset(temporary) as src, netCDF4.Dataset(of_name, mode='a') as new_vegdataset:
+
     veg_class = new_vegdataset.variables['veg_class']
 
-    if get_gm_varname(new_vegdataset):
-      new_vegdataset.variables['veg_class'].setncattr('grid_mapping', get_gm_varname(new_vegdataset).encode('ascii'))
+    veg_class[:] = src.variables['Band1'][:].data
 
-    #lat = new_vegdataset.variables['lat']
-    #lon = new_vegdataset.variables['lon']
-
+    if withproj:
+      if get_gm_varname(new_vegdataset):
+        veg_class.setncattr('grid_mapping', get_gm_varname(new_vegdataset).encode('ascii'))
 
     with custom_netcdf_attr_bug_wrapper(new_vegdataset) as f:
       f.source = source_attr_string(xo=xo, yo=yo)
 
-    veg_class[:] = src.variables['Band1'][:].data 
-    #lat[:] = src.variables['lat'][:]
-    #lon[:] = src.variables['lon'][:]
-    new_vegdataset.variables['x'][:] = src.variables['x'][:]
-    new_vegdataset.variables['y'][:] = src.variables['y'][:]
 
+    if withlatlon:
+      new_vegdataset.variables['lat'][:] = src.variables['lat'][:]
+      new_vegdataset.variables['lon'][:] = src.variables['lon'][:]
+
+    if withproj:
+      new_vegdataset.variables['x'][:] = src.variables['x'][:]
+      new_vegdataset.variables['y'][:] = src.variables['y'][:]
 
     # For some reason, some rows of the temporary file are numpy masked arrays
     # and if we don't directly access the data, then we get strange results '
@@ -1250,7 +1252,7 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
   if 'vegetation' in files:
     of_name = os.path.join(out_dir, "vegetation.nc")
     #fill_veg_file(os.path.join(tif_dir,  "ancillary/land_cover/v_0_4/iem_vegetation_model_input_v0_4.tif"), xo, yo, xs, ys, out_dir, of_name)
-    fill_veg_file(os.path.join(tif_dir, config['veg src']), xo, yo, xs, ys, out_dir, of_name)
+    fill_veg_file(os.path.join(tif_dir, config['veg src']), xo, yo, xs, ys, out_dir, of_name, withlatlon=True, withproj=True)
 
   if 'drainage' in files:
     of_name = os.path.join(out_dir, "drainage.nc")
