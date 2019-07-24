@@ -530,9 +530,6 @@ def fill_topo_file(inSlope, inAspect, inElev, xo, yo, xs, ys, out_dir, of_name, 
   tmpAspect = os.path.join(out_dir, 'tmp_cri_{}.nc'.format(os.path.splitext(os.path.basename(inAspect))[0]))
   tmpElev   = os.path.join(out_dir, 'tmp_cri_{}.nc'.format(os.path.splitext(os.path.basename(inElev))[0]))
 
-  if withproj:
-    copy_grid_mapping(tmpSlope, of_name)
-
   for inFile, tmpFile in zip([inSlope, inAspect, inElev], [tmpSlope, tmpAspect, tmpElev]):
     subprocess.call(['gdal_translate', '-of', 'netcdf',
                      '-co', 'WRITE_LONLAT={}'.format('YES' if withlatlon else 'NO'),
@@ -552,6 +549,9 @@ def fill_topo_file(inSlope, inAspect, inElev, xo, yo, xs, ys, out_dir, of_name, 
         new_topodataset.variables['lon'][:] = TF.variables['lon'][:]
 
   if withproj:
+
+    copy_grid_mapping(tmpSlope, of_name)
+
     with netCDF4.Dataset(of_name, mode='a') as new_topodataset:
       for v in ['slope','aspect','elevation']:
         new_topodataset.variables[v].setncattr('grid_mapping', get_gm_varname(new_topodataset).encode('ascii'))
@@ -1045,8 +1045,9 @@ def fill_drainage_file(if_name, xo, yo, xs, ys, out_dir, of_name, rand=False, wi
     if withproj:
       if get_gm_varname(dst):
         drain.setncattr('grid_mapping', get_gm_varname(dst).encode('ascii'))
-      dst.variables['x'][:] = src.variables['x'][:]
-      dst.variables['y'][:] = src.variables['y'][:]
+      with netCDF4.Dataset(tmpFile, mode='r') as src:
+        dst.variables['x'][:] = src.variables['x'][:]
+        dst.variables['y'][:] = src.variables['y'][:]
 
 
 
