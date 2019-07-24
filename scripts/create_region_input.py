@@ -1360,7 +1360,7 @@ def verify_paths_in_config_dict(tif_dir, config):
 def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir, 
          files=[], config={}, time_coord_var=False,
          clip_projected2match_historic=False,
-         withlatlon=None, withproj=None):
+         withlatlon=None, withproj=None, cleanup=False):
 
   #
   # Make the veg file first, then run-mask, then climate, then fire.
@@ -1434,7 +1434,8 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
                       out_dir, of_name, sp_ref_file,
                       in_tair_base, in_prec_base, in_rsds_base, in_vapo_base,
                       time_coord_var, model=origin_institute, scen=version, 
-                      withlatlon=withlatlon, withproj=withproj)
+                      withlatlon=withlatlon, withproj=withproj,
+                      cleanup_tmpfiles=cleanup)
 
 
   if 'projected-climate' in files:
@@ -1498,7 +1499,8 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
                       xo, yo, xs, ys, out_dir, of_name, sp_ref_file,
                       in_tair_base, in_prec_base, in_rsds_base, in_vapo_base,
                       time_coord_var, model=origin_institute, scen=version,
-                      withlatlon=withlatlon, withproj=withproj)
+                      withlatlon=withlatlon, withproj=withproj,
+                      cleanup_tmpfiles=cleanup)
 
 
 
@@ -1538,6 +1540,15 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
         datasrc='no-fires',
         if_name=None, withlatlon=withlatlon, withproj=withproj,
     )
+
+  if cleanup:
+    tmp_files = glob.glob(os.path.join(out_dir, "tmp_*"))
+    print "Found {} temporary files in {}".format(len(tmp_files), out_dir)
+    for f in tmp_files:
+      print "Removing ", f
+      os.remove(f)
+
+
 
   print(textwrap.dedent('''\
 
@@ -1867,6 +1878,11 @@ if __name__ == '__main__':
     help=textwrap.dedent('''Generate latitude and longitude variables and
       include in the resultant netcdf files.'''))
 
+  parser.add_argument('--cleanup', action='store_true', 
+    help=textwrap.dedent('''Tries to clean up any temporary files created in 
+      the process. It can be useful to leave the files around for debugging
+      purposes.'''))
+
   parser.add_argument('--generate-slurm-wrapper', action='store_true',
       help=textwrap.dedent('''Writes the file "CRI_slurm_wrapper.sh" and exits.
         Submit CRI_slurm_wrapper.sh to slurm using sbatch. Expected workflow
@@ -2011,7 +2027,8 @@ if __name__ == '__main__':
        time_coord_var=args.buildout_time_coord, 
        clip_projected2match_historic=args.clip_projected2match_historic,
        withlatlon=args.withlatlon,
-       withproj=args.withproj)
+       withproj=args.withproj,
+       cleanup=args.cleanup)
 
 
 
