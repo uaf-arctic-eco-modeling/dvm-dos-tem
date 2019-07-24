@@ -357,9 +357,7 @@ def create_template_explicit_fire_file(fname, sizey=10, sizex=10, rand=None, wit
   X = ncfile.createDimension('X', sizex)
   time = ncfile.createDimension('time', None)
 
-  # Spatial Ref. variables
-  lat = ncfile.createVariable('lat', np.float32, ('Y', 'X',))
-  lon = ncfile.createVariable('lon', np.float32, ('Y', 'X',))
+  spatial_decorate(ncfile, withproj=withproj, withlatlon=withlatlon)
 
   exp_bm = ncfile.createVariable('exp_burn_mask', np.int32, ('time', 'Y', 'X',))
   exp_dob = ncfile.createVariable('exp_jday_of_burn', np.int32, ('time', 'Y', 'X',))
@@ -1162,9 +1160,9 @@ def fill_fri_fire_file(xo, yo, xs, ys, out_dir, of_name, datasrc='', if_name=Non
 
 
 
-def fill_explicit_fire_file(yrs, xo, yo, xs, ys, out_dir, of_name, datasrc='', if_name=None):
+def fill_explicit_fire_file(yrs, xo, yo, xs, ys, out_dir, of_name, datasrc='', if_name=None, withlatlon=None, withproj=None):
 
-  create_template_explicit_fire_file(of_name, sizey=ys, sizex=xs, rand=False)
+  create_template_explicit_fire_file(of_name, sizey=ys, sizex=xs, rand=False, withlatlon=withlatlon, withproj=withproj)
 
   if datasrc =='no-fires':
     print "%%%%%%  WARNING  %%%%%%%%%%%%%%%%%%%%%%%%%%%"
@@ -1265,18 +1263,29 @@ def fill_explicit_fire_file(yrs, xo, yo, xs, ys, out_dir, of_name, datasrc='', i
   guess_vegfile = os.path.join(os.path.split(of_name)[0], 'vegetation.nc')
   print "--> NOTE: Attempting to read: {:} to get lat/lon info".format(guess_vegfile)
 
-  copy_grid_mapping(guess_vegfile, of_name)
+  if withproj:
+    copy_grid_mapping(guess_vegfile, of_name)
+    with netCDF4.Dataset(of_name, mode='a') as dst:
+      if get_gm_varname(dst):
+        for v in ['exp_burn_mask','exp_jday_of_burn','exp_fire_severity','exp_area_of_burn']:
+          dst.variables[v].setncattr('grid_mapping', get_gm_varname(dst).encode('ascii'))
+      with netCDF4.Dataset(guess_vegfile, 'r') as src:
+        dst.variables['x'][:] = src.variables['x'][:]
+        dst.variables['y'][:] = src.variables['y'][:]
 
-  with netCDF4.Dataset(of_name, mode='a') as nfd:
+  if withlatlon:
+    with netCDF4.Dataset(of_name, mode='a') as nfd:
+      print "Writing lat/lon from veg file..."
+      with netCDF4.Dataset(guess_vegfile ,'r') as vegFile:
+        nfd.variables['lat'][:] = vegFile.variables['lat'][:]
+        nfd.variables['lon'][:] = vegFile.variables['lon'][:]
 
-    print "Writing lat/lon from veg file..."
-    with netCDF4.Dataset(guess_vegfile ,'r') as vegFile:
-      nfd.variables['lat'][:] = vegFile.variables['lat'][:]
-      nfd.variables['lon'][:] = vegFile.variables['lon'][:]
 
-      print "Setting :source attribute on new explicit fire file..."
-      with custom_netcdf_attr_bug_wrapper(nfd) as f:
-        f.source = source_attr_string(xo=xo, yo=yo)
+  print "Setting :source attribute on new explicit fire file..."
+  with netCDF4.Dataset(of_name, mode='a') as dst:
+    with custom_netcdf_attr_bug_wrapper(dst) as ds:
+      ds.source = source_attr_string(xo=xo, yo=yo)
+
 
 
 def verify_paths_in_config_dict(tif_dir, config):
@@ -1486,7 +1495,7 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
     fill_explicit_fire_file(
         years, xo, yo, xs, ys, out_dir, of_name,
         datasrc='no-fires',
-        if_name=None
+        if_name=None, withlatlon=True, withproj=True,
     )
 
   if 'projected-explicit-fire' in files:
@@ -1500,7 +1509,7 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
     fill_explicit_fire_file(
         years, xo, yo, xs, ys, out_dir, of_name,
         datasrc='no-fires',
-        if_name=None
+        if_name=None, withlatlon=True, withproj=True,
     )
 
   print(textwrap.dedent('''\
