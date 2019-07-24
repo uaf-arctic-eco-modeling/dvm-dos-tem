@@ -285,7 +285,7 @@ def create_template_climate_nc_file(filename, sizey=10, sizex=10, rand=None, wit
         Shape: y:{} x:{}
         Fill with random data?: {}
         With projection?: {}
-        With Lat/Lon?: {}""".format(fname, sizey, sizex, rand, withproj, withlatlon))
+        With Lat/Lon?: {}""".format(filename, sizey, sizex, rand, withproj, withlatlon))
 
   ncfile = netCDF4.Dataset(filename, mode="w", format='NETCDF4')
 
@@ -300,9 +300,8 @@ def create_template_climate_nc_file(filename, sizey=10, sizex=10, rand=None, wit
   Y[:] = np.arange(0, sizey)
   X[:] = np.arange(0, sizex)
 
-  # 'Spatial Refefence' variables (?)
-  lat = ncfile.createVariable('lat', np.float32, ('Y', 'X',))
-  lon = ncfile.createVariable('lon', np.float32, ('Y', 'X',))
+  spatial_decorate(ncfile, withlatlon=withlatlon, withproj=withproj)
+
 
   # Create data variables
   #co2 = ncfile.createVariable('co2', np.float32, ('time')) # actually year
@@ -403,7 +402,7 @@ def spatial_decorate(ncfile, withproj=None, withlatlon=None):
   '''
   Adds spatial variables to `ncfile`. 
 
-  Assumes that `ncfile` is a valid netCDF dataset id, opened for r+
+  Assumes that `ncfile` is a valid netCDF dataset id, opened in append mode
   '''
   if withlatlon:
     lat = ncfile.createVariable('lat', np.float32, ('Y', 'X',))
@@ -679,7 +678,8 @@ def fill_veg_file(if_name, xo, yo, xs, ys, out_dir, of_name, withlatlon=None, wi
 def fill_climate_file(start_yr, yrs, xo, yo, xs, ys,
                       out_dir, of_name, sp_ref_file,
                       in_tair_base, in_prec_base, in_rsds_base, in_vapo_base,
-                      time_coord_var, model='', scen='', cleanup_tmpfiles=True):
+                      time_coord_var, model='', scen='', cleanup_tmpfiles=True,
+                      withlatlon=None, withproj=None):
 
   # create short handle for output file
   masterOutFile = os.path.join(out_dir, of_name)
@@ -688,51 +688,52 @@ def fill_climate_file(start_yr, yrs, xo, yo, xs, ys,
 
   # Create empty file with all the correct dimensions. At the end data will
   # be copied into this file.
-  create_template_climate_nc_file(masterOutFile, sizey=ys, sizex=xs)
+  create_template_climate_nc_file(masterOutFile, sizey=ys, sizex=xs, 
+                                  withlatlon=withlatlon, withproj=withproj)
 
   # Start with setting up the spatial info (copying from input file)
   # Best do to this before the data so that we can catch bugs before waiting 
   # for all the data to copy.
   tmpfile = '/tmp/temporary-file-with-spatial-info.nc'
   smaller_tmpfile = '/tmp/smaller-temporary-file-with-spatial-info.nc'
+
   print "Creating a temporary file with LAT and LON variables: ", tmpfile
-  print "------------------------"
-  print type(sp_ref_file), type(tmpfile)
-  print sp_ref_file, tmpfile
-  print "------------------------"
   if type(sp_ref_file) == tuple:
     sp_ref_file = sp_ref_file[0]
   elif type(sp_ref_file) == str:
     pass # nothing to do...
 
+  print "Convert from tif to netcdf..."
   call_external_wrapper(['gdal_translate', '-of', 'netCDF', 
-      '-co', 'WRITE_LONLAT=YES',
+      '-co', 'WRITE_LONLAT={}'.format('YES' if withlatlon else 'NO'),
       sp_ref_file, tmpfile])
 
-  print "Finished creating temporary file with spatial info."
-
-  print "Make a subset of the temporary file with LAT and LON variables: ", smaller_tmpfile
+  print "Subset (crop) netcdf file..."
   call_external_wrapper(['gdal_translate', '-of', 'netCDF',
-      '-co', 'WRITE_LONLAT=YES',
+      '-co', 'WRITE_LONLAT={}'.format('YES' if withlatlon else 'NO'),
       '-srcwin', str(xo), str(yo), str(xs), str(ys),
       'NETCDF:"{}":Band1'.format(tmpfile), smaller_tmpfile])
-  print "Finished creating the temporary subset...(cropping to our domain)"
 
-  print "Copy the LAT/LON variables from the temporary file into our new dataset..."
-  # Open the temporary dataset
-  temp_subset_with_lonlat = netCDF4.Dataset(smaller_tmpfile, mode='r')
+  if withlatlon:
+    print "Working on copying lat/lon info..."
+    with netCDF4.Dataset(masterOutFile, mode='a') as dst:
+      with netCDF4.Dataset(smaller_tmpfile, mode='r') as src:
+        print "Copy the LAT/LON variables from the temporary file into our new dataset..."
+        dst.variables['lat'][:] = src.variables['lat'][:]
+        dst.variables['lon'][:] = src.variables['lon'][:]
 
-  # Open the new file for appending
+        dst.variables['lat'].standard_name = 'latitude'
+        dst.variables['lat'].units = 'degree_north'
+
+        dst.variables['lon'].standard_name = 'longitude'
+        dst.variables['lon'].units = 'degree_east'
+
+    print "Done copying LON/LAT."
+
+  print "Open new dataset for appending..."
   new_climatedataset = netCDF4.Dataset(masterOutFile, mode='a')
 
-  # Insert lat/lon from temp file into the new file
-  lat = new_climatedataset.variables['lat']
-  lon = new_climatedataset.variables['lon']
-  lat[:] = temp_subset_with_lonlat.variables['lat'][:]
-  lon[:] = temp_subset_with_lonlat.variables['lon'][:]
-  print "Done copying LON/LAT."
-
-
+  # Write general attributes (applicable regardless of lat/lon or projection)
   with custom_netcdf_attr_bug_wrapper(new_climatedataset) as f:
 
     print "Write attribute with pixel offsets to file..."
@@ -741,13 +742,6 @@ def fill_climate_file(start_yr, yrs, xo, yo, xs, ys,
     print "Write attributes for model and scenario..."
     f.model = model
     f.scenario = scen
-
-    print "Write attributes for each variable"
-    f.variables['lat'].standard_name = 'latitude'
-    f.variables['lat'].units = 'degree_north'
-
-    f.variables['lon'].standard_name = 'longitude'
-    f.variables['lon'].units = 'degree_east'
 
     print "Double check that we picked the right CF name for nirr!"
     f.variables['nirr'].standard_name = 'downwelling_shortwave_flux_in_air'
@@ -762,11 +756,9 @@ def fill_climate_file(start_yr, yrs, xo, yo, xs, ys,
     f.variables['vapor_press'].standard_name = 'water_vapor_pressure'
     f.variables['vapor_press'].units = 'hPa'
 
-
   print "Closing new dataset and temporary file."
   print "masterOutFile time dimension size: {}".format(new_climatedataset.dimensions['time'].size)
   new_climatedataset.close()
-  temp_subset_with_lonlat.close()
 
 
   # Copy the master into a separate file for each variable
@@ -823,9 +815,25 @@ def fill_climate_file(start_yr, yrs, xo, yo, xs, ys,
     Inputs: some-dvmdostem-inputs/SouthBarrow_10x10/TEMP-tair-historic-climate.nc
     '''
 
-  # Super strange - this has to happen ***AFTER*** the ncks step or ncks complains 
-  # about not being able to open the temporary file due to HDF Error...
-  copy_grid_mapping(smaller_tmpfile, masterOutFile)
+  if withproj:
+    # Super strange - this has to happen ***AFTER*** the ncks step or ncks complains 
+    # about not being able to open the temporary file due to HDF Error...
+
+    # Copy the grid mapping info
+    copy_grid_mapping(smaller_tmpfile, masterOutFile)
+
+    # set grid_mapping attribute on variables and copy y and x vars
+    with netCDF4.Dataset(masterOutFile, mode='a') as dst:
+      with netCDF4.Dataset(smaller_tmpfile, mode='r') as src:
+
+        if get_gm_varname(dst):
+          dst.variables['tair'].setncattr('grid_mapping', get_gm_varname(dst).encode('ascii'))
+          dst.variables['precip'].setncattr('grid_mapping', get_gm_varname(dst).encode('ascii'))
+          dst.variables['nirr'].setncattr('grid_mapping', get_gm_varname(dst).encode('ascii'))
+          dst.variables['vapor_press'].setncattr('grid_mapping', get_gm_varname(dst).encode('ascii'))
+
+        dst.variables['x'][:] = src.variables['x'][:]
+        dst.variables['y'][:] = src.variables['y'][:]
 
   if cleanup_tmpfiles:
     print "Cleaning up temporary files: {} and {}".format(tmpfile, smaller_tmpfile)
@@ -1391,7 +1399,7 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
                       xo, yo, xs, ys,
                       out_dir, of_name, sp_ref_file,
                       in_tair_base, in_prec_base, in_rsds_base, in_vapo_base,
-                      time_coord_var, model=origin_institute, scen=version)
+                      time_coord_var, model=origin_institute, scen=version, withlatlon=True, withproj=True)
 
 
   if 'projected-climate' in files:
@@ -1454,7 +1462,7 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
     fill_climate_file(first_avail_year + start_year, pc_years,
                       xo, yo, xs, ys, out_dir, of_name, sp_ref_file,
                       in_tair_base, in_prec_base, in_rsds_base, in_vapo_base,
-                      time_coord_var, model=origin_institute, scen=version)
+                      time_coord_var, model=origin_institute, scen=version, withlatlon=True, withproj=True)
 
 
 
