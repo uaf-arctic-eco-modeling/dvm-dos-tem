@@ -1554,7 +1554,7 @@ def get_slurm_wrapper_string(tif_directory):
     #!/bin/bash
 
     #SBATCH --cpus-per-task=4
-    #SABTCH --ntasks=1
+    #SBATCH --ntasks=1
     #SBATCH -p main
     ##SBATCH --reservation=snap_8  # Not needed anymore
 
@@ -1563,6 +1563,21 @@ def get_slurm_wrapper_string(tif_directory):
 
     #PCLIM="mri-cgcm3"
     PCLIM="ncar-ccsm4"
+
+    #########################
+    # Tundra Test Areas
+    #########################
+    #XSIZE=50;
+    #YSIZE=50;
+    #site=cru-ts40_ar5_rcp85_"$PCLIM"_Utqiagvik_a; yoff= 49;   xoff=604;                        # <-- original
+    #site=cru-ts40_ar5_rcp85_"$PCLIM"_Utqiagvik_b; yoff= 49;   xoff=629; XSIZE=25; YSIZE=50;   # <-- same ll, but only 25 px wide
+    #site=cru-ts40_ar5_rcp85_"$PCLIM"_Utqiagvik_c; yoff= 8;    xoff=581; XSIZE=100; YSIZE=75;  # <-- larger area, diff ll
+    #site=cru-ts40_ar5_rcp85_"$PCLIM"_Toolik;      yoff= 290;  xoff=882;
+    #site=cru-ts40_ar5_rcp85_"$PCLIM"_YKD_n;       yoff= 903;  xoff=189;
+    #site=cru-ts40_ar5_rcp85_"$PCLIM"_YKD_w;       yoff= 1028; xoff=112;
+    #site=cru-ts40_ar5_rcp85_"$PCLIM"_Kougarok_a;  yoff= 636;  xoff=196;                      # 
+    #site=cru-ts40_ar5_rcp85_"$PCLIM"_Kougarok_b;  yoff= 643;  xoff=202;                      # <-- slightly south and west of original
+
 
     ###################
     # 10x10 sites
@@ -1582,13 +1597,24 @@ def get_slurm_wrapper_string(tif_directory):
     #site=cru-ts40_ar5_rcp85_"$PCLIM"_dh_site_4; yoff=246 ; xoff=947
     #site=cru-ts40_ar5_rcp85_"$PCLIM"_dh_site_5; yoff=210 ; xoff=948
 
-    ####################
-    # 50x50 sites
-    ####################
-    XSIZE=50
-    YSIZE=50
-
-    site=cru-ts40_ar5_rcp85_"$PCLIM"_Toolik; yoff=250; xoff=919
+    # North Slope NOAA Snow Depth Validation Sites
+    #site=cru-ts40_ar5_rcp85_"$PCLIM"_ALPINE;                                 yoff=104;  xoff=855
+    #site=cru-ts40_ar5_rcp85_"$PCLIM"_ATIGUN_PASS;                            yoff=345;  xoff=927
+    #site=cru-ts40_ar5_rcp85_"$PCLIM"_BARROW_WEATHER_SERVICE_OFFICE_AIRPORT;  yoff=3;    xoff=636
+    #site=cru-ts40_ar5_rcp85_"$PCLIM"_CAPE_LISBURNE;                          yoff=225;  xoff=247
+    #site=cru-ts40_ar5_rcp85_"$PCLIM"_CAPE_LISBURNE_AFS;                      yoff=225;  xoff=247
+    #site=cru-ts40_ar5_rcp85_"$PCLIM"_CAPE_THOMPSON;                          yoff=311;  xoff=246
+    #site=cru-ts40_ar5_rcp85_"$PCLIM"_CHANDALAR_SHELF_DOT;                    yoff=351;  xoff=924
+    #site=cru-ts40_ar5_rcp85_"$PCLIM"_GALBRAITH;                              yoff=306;  xoff=924
+    #site=cru-ts40_ar5_rcp85_"$PCLIM"_IMNAVIAT_CREEK;                         yoff=290;  xoff=931
+    #site=cru-ts40_ar5_rcp85_"$PCLIM"_KUPARUK;                                yoff=104;  xoff=906
+    #site=cru-ts40_ar5_rcp85_"$PCLIM"_LONELY;                                 yoff=45;   xoff=766
+    #site=cru-ts40_ar5_rcp85_"$PCLIM"_POINT_LAY;                              yoff=151;  xoff=385
+    #site=cru-ts40_ar5_rcp85_"$PCLIM"_PRUDHOE_BAY;                            yoff=108;  xoff=955
+    #site=cru-ts40_ar5_rcp85_"$PCLIM"_SAGWON;                                 yoff=200;  xoff=949
+    #site=cru-ts40_ar5_rcp85_"$PCLIM"_TOOLIK_FIELD_STATION;                   yoff=290;  xoff=922
+    #site=cru-ts40_ar5_rcp85_"$PCLIM"_UMIAT_AIRPORT;                          yoff=213;  xoff=812
+    #site=cru-ts40_ar5_rcp85_"$PCLIM"_WAINWRIGHT_AIRPORT;                     yoff=65;   xoff=512
 
 
 
@@ -1618,25 +1644,12 @@ def get_slurm_wrapper_string(tif_directory):
     #./scripts/input_util.py climate-ts-plot --type annual-summary --yx 0 0 input-staging-area/
 
     # REMEMBER TO CHECK FOR GAPFILLING NEEDS!!!
-    srun ./scripts/gapfill.py --dry-run --input-folder input-staging-area/"$site"_"$YSIZE"x"$XSIZE"/
+    #srun ./scripts/gapfill.py --dry-run --input-folder input-staging-area/"$site"_"$YSIZE"x"$XSIZE"/
     #srun ./scripts/gapfill.py --dry-run --input-folder input-staging-area/"$site"_1x1/
 
     # Run script to swap all CMT 8 pixels to CMT 7
     srun ./scripts/fix_vegetation_file_cmt08_to_cmt07.py input-staging-area/"$site"_"$YSIZE"x"$XSIZE"/vegetation.nc
     #srun ./scripts/fix_vegetation_file_cmt08_to_cmt07.py input-staging-area/"$site"_1x1/vegetation.nc
-
-
-    # Old stuff...
-    #srun ./scripts/create_region_input.py --tifs /atlas_scratch/tem/snap-data/ --tag Kougarok --years -1 --start-year 9  --buildout-time-coord --xoff 230 --yoff 641 --xsize 10 --ysize 10 --which projected-climate
-    #srun ./scripts/create_region_input.py --tifs /atlas_scratch/tem/snap-data/ --tag Toolik --years -1 --start-year 9 --buildout-time-coord --xoff 1137 --yoff 239 --xsize 50 --ysize 50 --which projected-climate 
-
-    # Dalton Highway Sites for Ceci, 2018 summer REU work
-    # Offsets for ar4 (old) data in /atlas_scratch/tem/snap-data
-    #site=site_1; yoff=472; xoff=898
-    #site=site_2; yoff=431; xoff=903
-    #site=site_3; yoff=381; xoff=912
-    #site=site_4; yoff=248; xoff=944
-    #site=site_5; yoff=211; xoff=945
 
   '''.format(tif_directory))
   return s
