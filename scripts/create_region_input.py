@@ -492,8 +492,8 @@ def convert_and_subset(in_file, master_output, xo, yo, xs, ys, yridx, midx, vari
   '''
   cpn = mp.current_process().name
 
-  tmpfile1 = '/tmp/script-temporary_%s.nc' % variablename
-  tmpfile2 = '/tmp/script-temporary_%s-2.nc' % variablename
+  tmpfile1 = os.path.join(os.path.dirname(master_output), 'tmp_script_{}'.format(variablename))
+  tmpfile2 = os.path.join(os.path.dirname(master_output), 'tmp_script_{}_2.nc'.format(variablename))
 
   print "{:}: infile: {} master_output: {} vname: {}".format(
       cpn, in_file, master_output, variablename)
@@ -526,9 +526,9 @@ def fill_topo_file(inSlope, inAspect, inElev, xo, yo, xs, ys, out_dir, of_name, 
   create_template_topo_file(of_name, sizey=ys, sizex=xs, withlatlon=True, withproj=True)
 
   # get a string for use as a file handle for each input file
-  tmpSlope = '/tmp/cri-{:}.nc'.format(os.path.splitext(os.path.basename(inSlope))[0])
-  tmpAspect = '/tmp/cri-{:}.nc'.format(os.path.splitext(os.path.basename(inAspect))[0])
-  tmpElev = '/tmp/cri-{:}.nc'.format(os.path.splitext(os.path.basename(inElev))[0])
+  tmpSlope  = os.path.join(out_dir, 'tmp_cri_{}.nc'.format(os.path.splitext(os.path.basename(inSlope))[0]))
+  tmpAspect = os.path.join(out_dir, 'tmp_cri_{}.nc'.format(os.path.splitext(os.path.basename(inAspect))[0]))
+  tmpElev   = os.path.join(out_dir, 'tmp_cri_{}.nc'.format(os.path.splitext(os.path.basename(inElev))[0]))
 
   if withproj:
     copy_grid_mapping(tmpSlope, of_name)
@@ -645,13 +645,11 @@ def custom_netcdf_attr_bug_wrapper(ncid):
 def fill_veg_file(if_name, xo, yo, xs, ys, out_dir, of_name, withlatlon=None, withproj=None):
   '''Read subset of data from .tif into netcdf file for dvmdostem. '''
 
-  of_stripped = os.path.basename(of_name)
-
   # Create place for data
   create_template_veg_nc_file(of_name, sizey=ys, sizex=xs, rand=None, withlatlon=withlatlon, withproj=withproj)
 
   # Translate and subset to temporary location
-  temporary = os.path.join('/tmp', of_stripped)
+  temporary = os.path.join(out_dir, 'tmp_cri_{}'.format(os.path.basename(of_name)))
 
   if not os.path.exists( os.path.dirname(temporary) ):
     os.makedirs(os.path.dirname(temporary))
@@ -711,8 +709,8 @@ def fill_climate_file(start_yr, yrs, xo, yo, xs, ys,
   # Start with setting up the spatial info (copying from input file)
   # Best do to this before the data so that we can catch bugs before waiting 
   # for all the data to copy.
-  tmpfile = '/tmp/temporary-file-with-spatial-info.nc'
-  smaller_tmpfile = '/tmp/smaller-temporary-file-with-spatial-info.nc'
+  tmpfile =         os.path.join(out_dir, 'tmp_cri_file_with_spatial_info.nc'.format())
+  smaller_tmpfile = os.path.join(out_dir, 'tmp_cri_file_with_spatial_info_smaller.nc'.format())
 
   print "Creating a temporary file with LAT and LON variables: ", tmpfile
   if type(sp_ref_file) == tuple:
@@ -918,29 +916,30 @@ def fill_soil_texture_file(if_sand_name, if_silt_name, if_clay_name, xo, yo, xs,
   
   create_template_soil_texture_nc_file(of_name, sizey=ys, sizex=xs, withlatlon=withlatlon, withproj=withproj)
 
+  tmp_sand = os.path.join(out_dir, "tmp_cri_sand_tex.nc")
+  tmp_silt = os.path.join(out_dir, "tmp_cri_silt_tex.nc")
+  tmp_clay = os.path.join(out_dir, "tmp_cri_clay_tex.nc")
+
   print "Subsetting TIF to netCDF"
   call_external_wrapper(['gdal_translate','-of','netCDF',
                          '-co', 'WRITE_LONLAT={}'.format('YES' if withlatlon else 'NO'),
                          '-srcwin', str(xo), str(yo), str(xs), str(ys),
-                         if_sand_name,
-                         '/tmp/create_region_input_script_sand_texture.nc'])
+                         if_sand_name, tmp_sand])
 
   call_external_wrapper(['gdal_translate','-of','netCDF',
                          '-co', 'WRITE_LONLAT={}'.format('YES' if withlatlon else 'NO'),
                          '-srcwin', str(xo), str(yo), str(xs), str(ys),
-                         if_silt_name,
-                         '/tmp/create_region_input_script_silt_texture.nc'])
+                         if_silt_name, tmp_silt])
 
   call_external_wrapper(['gdal_translate','-of','netCDF',
                          '-co', 'WRITE_LONLAT={}'.format('YES' if withlatlon else 'NO'),
                          '-srcwin', str(xo), str(yo), str(xs), str(ys),
-                         if_clay_name,
-                         '/tmp/create_region_input_script_clay_texture.nc'])
+                         if_clay_name, tmp_clay])
 
 
   if withproj:
     # arbitrarily pick one of the files to get the projection info from
-    copy_grid_mapping('/tmp/create_region_input_script_clay_texture.nc', of_name)
+    copy_grid_mapping(tmp_clay, of_name)
 
   with netCDF4.Dataset(of_name, mode='a') as dst:
     p_sand = dst.variables['pct_sand']
@@ -965,18 +964,18 @@ def fill_soil_texture_file(if_sand_name, if_silt_name, if_clay_name, xo, yo, xs,
       print "Filling with real data..."
 
       print "Writing subset's data to new files..."
-      with netCDF4.Dataset('/tmp/create_region_input_script_sand_texture.nc', mode='r') as f:
+      with netCDF4.Dataset(tmp_sand, mode='r') as f:
         p_sand[:] = f.variables['Band1'][:]
-      with netCDF4.Dataset('/tmp/create_region_input_script_silt_texture.nc', mode='r') as f:
+      with netCDF4.Dataset(tmp_silt, mode='r') as f:
         p_silt[:] = f.variables['Band1'][:]
-      with netCDF4.Dataset('/tmp/create_region_input_script_clay_texture.nc', mode='r') as f:
+      with netCDF4.Dataset(tmp_clay, mode='r') as f:
         p_clay[:] = f.variables['Band1'][:]
 
     if withlatlon:
       # While we went to the trouble of writing lat/lon to all the temporary
       # files, we are only going to use one of those files to get the 
       # data into the final file...
-      with netCDF4.Dataset('/tmp/create_region_input_script_sand_texture.nc', mode='r') as src:
+      with netCDF4.Dataset(tmp_sand, mode='r') as src:
         dst.variables['lat'][:] = src.variables['lat'][:]
         dst.variables['lon'][:] = src.variables['lon'][:]
 
@@ -986,7 +985,7 @@ def fill_soil_texture_file(if_sand_name, if_silt_name, if_clay_name, xo, yo, xs,
         p_silt.setncattr('grid_mapping', get_gm_varname(dst).encode('ascii'))
         p_clay.setncattr('grid_mapping', get_gm_varname(dst).encode('ascii'))
 
-      with netCDF4.Dataset('/tmp/create_region_input_script_sand_texture.nc', mode='r') as src:
+      with netCDF4.Dataset(tmp_sand, mode='r') as src:
         dst.variables['x'][:] = src.variables['x'][:]
         dst.variables['y'][:] = src.variables['y'][:]
 
@@ -998,10 +997,7 @@ def fill_drainage_file(if_name, xo, yo, xs, ys, out_dir, of_name, rand=False, wi
 
   create_template_drainage_file(of_name, sizey=ys, sizex=xs, withproj=withproj, withlatlon=withlatlon)
 
-  tmpFile = '/tmp/script-temp_drainage_subset.nc'
-
-  if withproj:
-    copy_grid_mapping(tmpFile, of_name)
+  tmpFile = os.path.join(out_dir, 'tmp_cri_drainage.nc')
 
   with netCDF4.Dataset(of_name, mode='a') as dst:
 
@@ -1037,14 +1033,21 @@ def fill_drainage_file(if_name, xo, yo, xs, ys, out_dir, of_name, rand=False, wi
           dst.variables['lat'][:] = src.variables['lat'][:]
           dst.variables['lon'][:] = src.variables['lon'][:]
 
-        if withproj:
-          if get_gm_varname(dst):
-            drain.setncattr('grid_mapping', get_gm_varname(dst).encode('ascii'))
-          dst.variables['x'][:] = src.variables['x'][:]
-          dst.variables['y'][:] = src.variables['y'][:]
-
     with custom_netcdf_attr_bug_wrapper(dst) as f:
       f.source = source_attr_string(xo=xo, yo=yo)
+
+
+  with netCDF4.Dataset(of_name, mode='a') as dst:
+
+    if withproj:
+      copy_grid_mapping(tmpFile, of_name)
+
+    if withproj:
+      if get_gm_varname(dst):
+        drain.setncattr('grid_mapping', get_gm_varname(dst).encode('ascii'))
+      dst.variables['x'][:] = src.variables['x'][:]
+      dst.variables['y'][:] = src.variables['y'][:]
+
 
 
 
@@ -1145,7 +1148,7 @@ def fill_fri_fire_file(xo, yo, xs, ys, out_dir, of_name, datasrc='', if_name=Non
       print "ERROR! Can't find file specified for FRI input!: {}".format(if_name) 
       
     # Translate and subset to temporary location
-    temporary = os.path.join('/tmp/', os.path.basename(of_name))
+    temporary = os.path.join(out_dir, 'tmp_cri_{}'.format(os.path.basename(of_name)))
 
     if not os.path.exists( os.path.dirname(temporary) ):
       os.makedirs(os.path.dirname(temporary))
