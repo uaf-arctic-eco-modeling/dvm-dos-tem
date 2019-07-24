@@ -816,7 +816,7 @@ def fill_climate_file(start_yr, yrs, xo, yo, xs, ys,
     # ncks append operation (all except the current variable)
     masked_list = [i for i in dataVarList if var not in i]
 
-    opt_str = "lat,lon," + ",".join(masked_list)
+    opt_str = ("lat,lon," if withlatlon else "") + ",".join(masked_list)
     call_external_wrapper(['ncks', '--append', '-x','-v', opt_str, tFile, masterOutFile])
     os.remove(tFile)
 
@@ -1354,7 +1354,9 @@ def verify_paths_in_config_dict(tif_dir, config):
 
 
 def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir, 
-         files=[], config={}, time_coord_var=False, clip_projected2match_historic=False):
+         files=[], config={}, time_coord_var=False,
+         clip_projected2match_historic=False,
+         withlatlon=None, withproj=None):
 
   #
   # Make the veg file first, then run-mask, then climate, then fire.
@@ -1364,11 +1366,11 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
   if 'vegetation' in files:
     of_name = os.path.join(out_dir, "vegetation.nc")
     #fill_veg_file(os.path.join(tif_dir,  "ancillary/land_cover/v_0_4/iem_vegetation_model_input_v0_4.tif"), xo, yo, xs, ys, out_dir, of_name)
-    fill_veg_file(os.path.join(tif_dir, config['veg src']), xo, yo, xs, ys, out_dir, of_name, withlatlon=True, withproj=True)
+    fill_veg_file(os.path.join(tif_dir, config['veg src']), xo, yo, xs, ys, out_dir, of_name, withlatlon=withlatlon, withproj=withproj)
 
   if 'drainage' in files:
     of_name = os.path.join(out_dir, "drainage.nc")
-    fill_drainage_file(os.path.join(tif_dir,  config['drainage src']), xo, yo, xs, ys, out_dir, of_name, withlatlon=True, withproj=True)
+    fill_drainage_file(os.path.join(tif_dir,  config['drainage src']), xo, yo, xs, ys, out_dir, of_name, withlatlon=withlatlon, withproj=withproj)
 
   if 'soil-texture' in files:
     of_name = os.path.join(out_dir, "soil-texture.nc")
@@ -1377,7 +1379,7 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
     in_sand_base = os.path.join(tif_dir, config['soil sand src'])
     in_silt_base = os.path.join(tif_dir, config['soil silt src'])
 
-    fill_soil_texture_file(in_sand_base, in_silt_base, in_clay_base, xo, yo, xs, ys, out_dir, of_name, rand=False, withlatlon=True, withproj=True)
+    fill_soil_texture_file(in_sand_base, in_silt_base, in_clay_base, xo, yo, xs, ys, out_dir, of_name, rand=False, withlatlon=withlatlon, withproj=withproj)
 
   if 'topo' in files:
     of_name = os.path.join(out_dir, "topo.nc")
@@ -1386,10 +1388,10 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
     in_aspect = os.path.join(tif_dir, config['topo aspect src'])
     in_elev = os.path.join(tif_dir, config['topo elev src'])
 
-    fill_topo_file(in_slope, in_aspect, in_elev, xo,yo,xs,ys,out_dir, of_name, withlatlon=True, withproj=True)
+    fill_topo_file(in_slope, in_aspect, in_elev, xo,yo,xs,ys,out_dir, of_name, withlatlon=withlatlon, withproj=withproj)
 
   if 'run-mask' in files:
-    make_run_mask(os.path.join(out_dir, "run-mask.nc"), sizey=ys, sizex=xs, match2veg=True, withlatlon=True, withproj=True) #setpx='1,1')
+    make_run_mask(os.path.join(out_dir, "run-mask.nc"), sizey=ys, sizex=xs, match2veg=True, withlatlon=withlatlon, withproj=withproj) #setpx='1,1')
 
   if 'co2' in files:
     make_co2_file(os.path.join(out_dir, "co2.nc"))
@@ -1427,7 +1429,8 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
                       xo, yo, xs, ys,
                       out_dir, of_name, sp_ref_file,
                       in_tair_base, in_prec_base, in_rsds_base, in_vapo_base,
-                      time_coord_var, model=origin_institute, scen=version, withlatlon=True, withproj=True)
+                      time_coord_var, model=origin_institute, scen=version, 
+                      withlatlon=withlatlon, withproj=withproj)
 
 
   if 'projected-climate' in files:
@@ -1490,7 +1493,8 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
     fill_climate_file(first_avail_year + start_year, pc_years,
                       xo, yo, xs, ys, out_dir, of_name, sp_ref_file,
                       in_tair_base, in_prec_base, in_rsds_base, in_vapo_base,
-                      time_coord_var, model=origin_institute, scen=version, withlatlon=True, withproj=True)
+                      time_coord_var, model=origin_institute, scen=version,
+                      withlatlon=withlatlon, withproj=withproj)
 
 
 
@@ -1500,7 +1504,7 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
         xo, yo, xs, ys, out_dir, of_name, 
         datasrc='no-fires', 
         if_name=None,
-        withlatlon=True, withproj=True
+        withlatlon=withlatlon, withproj=withproj
     )
 
   if 'historic-explicit-fire' in files:
@@ -1514,7 +1518,7 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
     fill_explicit_fire_file(
         years, xo, yo, xs, ys, out_dir, of_name,
         datasrc='no-fires',
-        if_name=None, withlatlon=True, withproj=True,
+        if_name=None, withlatlon=withlatlon, withproj=withproj,
     )
 
   if 'projected-explicit-fire' in files:
@@ -1528,7 +1532,7 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
     fill_explicit_fire_file(
         years, xo, yo, xs, ys, out_dir, of_name,
         datasrc='no-fires',
-        if_name=None, withlatlon=True, withproj=True,
+        if_name=None, withlatlon=withlatlon, withproj=withproj,
     )
 
   print(textwrap.dedent('''\
@@ -1634,7 +1638,9 @@ def get_slurm_wrapper_string(tif_directory):
       --yoff $yoff --xoff $xoff --xsize $XSIZE --ysize $YSIZE \\
       --which all \\
       --projected-climate-config "$PCLIM" \\
-      --clip-projected2match-historic
+      --clip-projected2match-historic \\
+      --withlatlon \\
+      --withproj
 
     # Handle cropping if needed...
     #mkdir -p input-staging-area/"$site"_"$YSIZE"x"$XSIZE"/output
@@ -1848,6 +1854,15 @@ if __name__ == '__main__':
       start building it where the historic 
       data leaves off.'''))
 
+  parser.add_argument('--withproj', action='store_true',
+    help=textwrap.dedent('''Copy projection information into resultant netcdf
+      files. Included x and y projection variables as well as all available
+      projection information stored in netcdf attributes.'''))
+
+  parser.add_argument('--withlatlon', action='store_true',
+    help=textwrap.dedent('''Generate latitude and longitude variables and
+      include in the resultant netcdf files.'''))
+
   parser.add_argument('--generate-slurm-wrapper', action='store_true',
       help=textwrap.dedent('''Writes the file "CRI_slurm_wrapper.sh" and exits.
         Submit CRI_slurm_wrapper.sh to slurm using sbatch. Expected workflow
@@ -1990,7 +2005,9 @@ if __name__ == '__main__':
        files=which_files,
        config=config,
        time_coord_var=args.buildout_time_coord, 
-       clip_projected2match_historic=args.clip_projected2match_historic)
+       clip_projected2match_historic=args.clip_projected2match_historic,
+       withlatlon=args.withlatlon,
+       withproj=args.withproj)
 
 
 
