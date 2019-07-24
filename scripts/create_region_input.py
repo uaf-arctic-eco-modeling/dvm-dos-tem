@@ -1573,14 +1573,14 @@ def get_slurm_wrapper_string(tif_directory):
     #########################
     #XSIZE=50;
     #YSIZE=50;
-    #site=cru-ts40_ar5_rcp85_"$PCLIM"_Utqiagvik_a; yoff= 49;   xoff=604;                        # <-- original
-    #site=cru-ts40_ar5_rcp85_"$PCLIM"_Utqiagvik_b; yoff= 49;   xoff=629; XSIZE=25; YSIZE=50;   # <-- same ll, but only 25 px wide
-    #site=cru-ts40_ar5_rcp85_"$PCLIM"_Utqiagvik_c; yoff= 8;    xoff=581; XSIZE=100; YSIZE=75;  # <-- larger area, diff ll
-    #site=cru-ts40_ar5_rcp85_"$PCLIM"_Toolik;      yoff= 290;  xoff=882;
-    #site=cru-ts40_ar5_rcp85_"$PCLIM"_YKD_n;       yoff= 903;  xoff=189;
-    #site=cru-ts40_ar5_rcp85_"$PCLIM"_YKD_w;       yoff= 1028; xoff=112;
-    #site=cru-ts40_ar5_rcp85_"$PCLIM"_Kougarok_a;  yoff= 636;  xoff=196;                      # 
-    #site=cru-ts40_ar5_rcp85_"$PCLIM"_Kougarok_b;  yoff= 643;  xoff=202;                      # <-- slightly south and west of original
+    #site=cru-ts40_ar5_rcp85_"$PCLIM"_Utqiagvik_a; yoff=49;   xoff=604;                        # <-- original
+    #site=cru-ts40_ar5_rcp85_"$PCLIM"_Utqiagvik_b; yoff=49;   xoff=629; XSIZE=25; YSIZE=50;   # <-- same ll, but only 25 px wide
+    #site=cru-ts40_ar5_rcp85_"$PCLIM"_Utqiagvik_c; yoff=8;    xoff=581; XSIZE=100; YSIZE=75;  # <-- larger area, diff ll
+    #site=cru-ts40_ar5_rcp85_"$PCLIM"_Toolik;      yoff=290;  xoff=882;
+    #site=cru-ts40_ar5_rcp85_"$PCLIM"_YKD_n;       yoff=903;  xoff=189;
+    #site=cru-ts40_ar5_rcp85_"$PCLIM"_YKD_w;       yoff=1028; xoff=112;
+    #site=cru-ts40_ar5_rcp85_"$PCLIM"_Kougarok_a;  yoff=636;  xoff=196;                      # 
+    #site=cru-ts40_ar5_rcp85_"$PCLIM"_Kougarok_b;  yoff=643;  xoff=202;                      # <-- slightly south and west of original
 
 
     ###################
