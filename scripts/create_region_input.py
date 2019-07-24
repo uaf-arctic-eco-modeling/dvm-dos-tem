@@ -1655,7 +1655,8 @@ def get_slurm_wrapper_string(tif_directory):
       --projected-climate-config "$PCLIM" \\
       --clip-projected2match-historic \\
       --withlatlon \\
-      --withproj
+      --withproj \\
+      --cleanup
 
     # Handle cropping if needed...
     #mkdir -p input-staging-area/"$site"_"$YSIZE"x"$XSIZE"/output
