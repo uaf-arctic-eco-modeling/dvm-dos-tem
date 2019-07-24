@@ -78,8 +78,12 @@ def source_attr_string(ys='', xs='', yo='', xo='', msg=''):
   return s
 
 
-def make_run_mask(filename, sizey=10, sizex=10, setpx='', match2veg=False):
+def make_run_mask(filename, sizey=10, sizex=10, setpx='', match2veg=False, withlatlon=None, withproj=None):
   '''Generate a file representing the run mask'''
+
+  if (withlatlon or withproj) and not match2veg:
+    print "ERROR! If you want lat/lon or projection info in the run mask file you MUST specify 'match2veg=True'" 
+    sys.exit(-1)
 
   print "Creating a run_mask file, %s by %s pixels." % (sizey, sizex)
   ncfile = netCDF4.Dataset(filename, mode='w', format='NETCDF4')
@@ -87,6 +91,8 @@ def make_run_mask(filename, sizey=10, sizex=10, setpx='', match2veg=False):
   Y = ncfile.createDimension('Y', sizey)
   X = ncfile.createDimension('X', sizex)
   run = ncfile.createVariable('run', np.int, ('Y', 'X',))
+
+  spatial_decorate(ncfile, withlatlon=withlatlon, withproj=withproj)
 
   if setpx != '':
     y, x = setpx.split(",")
@@ -104,9 +110,22 @@ def make_run_mask(filename, sizey=10, sizex=10, setpx='', match2veg=False):
 
     run[:] = np.where(vd>0, 1, 0)
 
-
   ncfile.source = source_attr_string()
   ncfile.close()
+
+  if withlatlon:
+    with netCDF4.Dataset(filename, 'a') as dst:
+      with netCDF4.Dataset(guess_vegfile, 'r') as src:
+        dst.variables['lat'][:] = src.variables['lat'][:]
+        dst.variables['lon'][:] = src.variables['lon'][:]
+
+  if withproj:
+    copy_grid_mapping(guess_vegfile, filename)
+    with netCDF4.Dataset(filename, 'a') as dst:
+      if get_gm_varname(dst):
+        dst.variables['run'].setncattr('grid_mapping', get_gm_varname(dst).encode('ascii'))
+
+
 
 
 def make_co2_file(filename):
@@ -1370,7 +1389,7 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
     fill_topo_file(in_slope, in_aspect, in_elev, xo,yo,xs,ys,out_dir, of_name, withlatlon=True, withproj=True)
 
   if 'run-mask' in files:
-    make_run_mask(os.path.join(out_dir, "run-mask.nc"), sizey=ys, sizex=xs, match2veg=True) #setpx='1,1')
+    make_run_mask(os.path.join(out_dir, "run-mask.nc"), sizey=ys, sizex=xs, match2veg=True, withlatlon=True, withproj=True) #setpx='1,1')
 
   if 'co2' in files:
     make_co2_file(os.path.join(out_dir, "co2.nc"))
