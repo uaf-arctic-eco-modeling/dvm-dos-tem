@@ -94,7 +94,6 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
   const double diff_a = 720.0 / 10000.0; //m2 h-1 diffusion air
   const double diff_w = 0.072 / 10000.0; //m2 h-1 diffusion water
   const int m = 24; //n = 10 (number of dx), m = time
-  int il, j;
 //  double *C, *D, *V, *diff, *r, *s;
   double dt = 1.0 / m; //h = dx; k = dt; dx = 1.0 / n,
   double SS, torty, torty_tmp, diff_tmp, tmp_flux, Flux2A = 0.0, Flux2A_m = 0.0;
@@ -115,13 +114,6 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
   double r[numsoill];
   double s[numsoill];
 
-//  C = MallocM1d(numsoill);
-//  D = MallocM1d(numsoill);
-//  V = MallocM1d(numsoill);
-//  diff = MallocM1d(numsoill);
-//  r = MallocM1d(numsoill);
-//  s = MallocM1d(numsoill);
-
   if (ed->d_vegs.currLAI != bd->m_vegd.lai) {
     ed->d_vegs.preLAI = ed->d_vegs.currLAI;
     ed->d_vegs.currLAI = bd->m_vegd.lai;
@@ -132,6 +124,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
 
   Layer *currl = ground->fstshlwl;
+  int il = 0;//Manual layer index tracking
   while(currl->isSoil){
 
     if (ed->d_sois.watertab - 0.075 > (currl->z + currl->dz*0.5)) { //layer above water table
@@ -154,6 +147,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
     r[il] = 2 + s[il];
 
     currl = currl->nextl;
+    il++;//Manual layer index increment
   }//end loop-by-layer
 
   for (il = 1; il < numsoill; il++) {
@@ -172,17 +166,20 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
   ed->d_soid.oxid = 0.0;
 
-  for (j = 1; j <= m; j++) { //loop through time steps
+  for (int j = 1; j <= m; j++) { //loop through time steps
     wtbflag = 0;
 
-    for (il = numsoill - 1; il > 0; il--) { //loop through layers
+    currl = ground->fstshlwl; //reset currl to top of the soil stack
+    il = 0; //reset manual layer index tracker
+    while(currl->isSoil){
+//    for (il = numsoill - 1; il > 0; il--)  //loop through layers
       TResp = 0.0;
       klitrc = bd->m_soid.kdl_m[il]*0.5;
       kfastc = bd->m_soid.kdr_m[il]*0.5;
       kslowc = bd->m_soid.kdn_m[il]*0.5;
       Plant = bd->rp * ed->m_sois.rootfrac[il] * ed->d_soid.ch4[il] * bd->tveg * ed->d_vegs.realLAI * 0.5;
 
-      if (ed->d_sois.watertab - 0.075 > (cd->m_soil.z[il] + cd->m_soil.dz[il]*0.5)) { //layer above water table
+      if (ed->d_sois.watertab - 0.075 > (currl->z + currl->dz*0.5)) { //layer above water table
         if (wtbflag == 0) {
           Prod = totEbul;
           wtbflag = 1;
@@ -194,25 +191,25 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
           totEbul_m = 0.0; //Y.Mi
         }
 
-        tmp_flux = cd->m_soil.por[il] - ed->d_soid.alllwc[il] - ed->d_soid.alliwc[il];
+        tmp_flux = currl->poro - currl->liq - currl->ice;
 
         if (tmp_flux < 0.05) {
           tmp_flux = 0.05;
         }
 
-        TResp = getRhq10(ed->d_sois.ts[il]-2.1);
+        TResp = getRhq10(currl->tem-2.1);
 
-        if (ed->d_sois.ts[il] >= -2.0 && ed->d_sois.ts[il] < 0.000001) {
+        if (currl->tem >= -2.0 && currl->tem < 0.000001) {
           TResp = getRhq10(-2.1) * 0.25;
-        } else if (ed->d_sois.ts[il] < -2.0) {
+        } else if (currl->tem < -2.0) {
           TResp = 0.0;
         }
 
         Oxid = 5.0 * ed->d_soid.ch4[il] * TResp / (20.0 + ed->d_soid.ch4[il]);
-        Oxid_m = Oxid * tmp_flux * cd->m_soil.dz[il] * 12.0;
+        Oxid_m = Oxid * tmp_flux * currl->dz * 12.0;
 
         if (ed->d_sois.ts[il] > 0.0) {
-          Plant_m = Plant * tmp_flux * cd->m_soil.dz[il] * 1000.0;
+          Plant_m = Plant * tmp_flux * currl->dz * 1000.0;
         } else {
           Plant_m = 0.0;
         }
@@ -220,11 +217,11 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
         Ebul = 0.0; // added by Y.Mi, Jan 2015
         Ebul_m = 0.0; //Y.Mi
       } else { //layer below water table
-        TResp = getRhq10(ed->d_sois.ts[il]-6.0);
+        TResp = getRhq10(currl->tem-6.0);
 
-        if (ed->d_sois.ts[il] >= -2.0 && ed->d_sois.ts[il] < 0.000001) {
+        if (currl->tem >= -2.0 && currl->tem < 0.000001) {
           TResp = getRhq10(-6.0) * 0.25;
-        } else if (ed->d_sois.ts[il] < -2.0) {
+        } else if (currl->tem < -2.0) {
           TResp = 0.0;
         }
 
@@ -241,10 +238,10 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
           del_soi2a.nrh_m[il] = 0.0;
         }
 
-        Prod = 1000.0 * (del_soi2a.nrh_m[il] + del_soi2a.rrh_m[il]) / (cd->m_soil.dz[il] * cd->m_soil.por[il]) / 12.0;
-        SB = 0.05708 - 0.001545 * ed->d_sois.ts[il] + 0.00002069 * ed->d_sois.ts[il] * ed->d_sois.ts[il]; //volume
-        Pressure = DENLIQ * G * (cd->m_soil.z[il] + cd->m_soil.dz[il] / 2.0) + Pstd;
-        SM = Pressure * SB / (GASR * (ed->d_sois.ts[il] + 273.15)); //mass, n=PV/RT
+        Prod = 1000.0 * (del_soi2a.nrh_m[il] + del_soi2a.rrh_m[il]) / (currl->dz * currl->poro) / 12.0;
+        SB = 0.05708 - 0.001545 * currl->tem + 0.00002069 * currl->tem * currl->tem; //volume
+        Pressure = DENLIQ * G * (currl->z + currl->dz / 2.0) + Pstd;
+        SM = Pressure * SB / (GASR * (currl->tem + 273.15)); //mass, n=PV/RT
 
 //                if (ed->d_sois.ts[il] > 1.0) Ebul = (ed->d_soid.ch4[il] - SM) * 1.0;
 //                else Ebul = 0.0;
@@ -253,19 +250,19 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
           Ebul = 0.0;
         }
 
-        Ebul_m = Ebul * ed->d_soid.alllwc[il] * cd->m_soil.dz[il] * 1000.0;
+        Ebul_m = Ebul * currl->liq * currl->dz * 1000.0;
         totEbul = totEbul + Ebul; //cumulated over 1 time step, 1 hour Y.MI
         totEbul_m = totEbul_m + Ebul_m; //cumulated over 1 time step, 1 hour
 
-        if (ed->d_sois.ts[0] < 0.0) {
+        if (currl->tem < 0.0) {
           totEbul_m = 0.0;
         }
 
         Oxid = 0.0;
         Oxid_m = 0.0;
 
-        if (ed->d_sois.ts[il] > 0.0) {
-          Plant_m = Plant * cd->m_soil.por[il] * cd->m_soil.dz[il] * 1000.0;
+        if (currl->tem > 0.0) {
+          Plant_m = Plant * currl->poro * currl->dz * 1000.0;
         } else {
           Plant_m = 0.0;  //Plant * ed->d_soid.alllwc[il] * ed->m_sois.dz[il] * 1000.0;
         }
@@ -302,6 +299,9 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       if (V[il] < 0.0000001) {
         V[il] = 0.0;
       }
+
+      currl = currl->nextl;
+      il++; //Incrementing manual layer index tracker
     } //end of layer looping
 
     TriSolver(numsoill - 1, C, D, C, V, V);
@@ -339,12 +339,6 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
   }
 
   ed->d_soid.ch4flux = 0.012 * totFlux_m;
-//  FreeM1d(C);
-//  FreeM1d(D);
-//  FreeM1d(V);
-//  FreeM1d(diff);
-//  FreeM1d(r);
-//  FreeM1d(s);
 }
 
 
