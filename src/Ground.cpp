@@ -1497,7 +1497,9 @@ void Ground::splitOneSoilLayer(SoilLayer*usl, SoilLayer* lsl,
   //  frozen status below
   if(usl->nextl==NULL) {
     lsl->tem = usl->tem;
+    lsl->ch4 = usl->ch4;
   } else {
+    //temperature
     double ultem = usl->tem;
     double ulz = usl->z+0.5*(usl->dz+lsl->dz);//the original 'usl' mid-node
                                               //  depth (here, usl->dz
@@ -1516,6 +1518,11 @@ void Ground::splitOneSoilLayer(SoilLayer*usl, SoilLayer* lsl,
       gradient = (pltem - lsl->tem) / (plz - slz);
       usl->tem = (ulz-slz) * gradient + lsl->tem;
     }
+
+    //methane
+    double nxlch4 = usl->nextl->ch4;
+    double ch4_gradient = (usl->ch4 - nxlch4) / (-usl->dz - lsl->dz);
+    lsl->ch4 = (ulz-nxlz) * ch4_gradient + usl->ch4;
   }
 
   // after division, needs to update 'usl' and 'lsl'- 'frozen/frozenfrac'
@@ -1614,12 +1621,14 @@ void Ground::combineTwoSoilLayersU2L(SoilLayer* usl, SoilLayer* lsl) {
   lsl->tem *= (1.-upfrac);
   lsl->tem += usl->tem*upfrac;
   // update C content:
-  lsl->rawc +=usl->rawc;
-  lsl->soma +=usl->soma;
-  lsl->sompr+=usl->sompr;
-  lsl->somcr+=usl->somcr;
-  lsl->orgn +=usl->orgn;
-  lsl->avln +=usl->avln;
+  lsl->rawc += usl->rawc;
+  lsl->soma += usl->soma;
+  lsl->sompr += usl->sompr;
+  lsl->somcr += usl->somcr;
+  lsl->orgn += usl->orgn;
+  lsl->avln += usl->avln;
+  //update methane:
+  lsl->ch4 += usl->ch4;
   // after combination, needs to update 'lsl'- 'frozen' status based on
   //   'fronts' if given
   getLayerFrozenstatusByFronts(lsl);
@@ -1629,20 +1638,22 @@ void Ground::combineTwoSoilLayersU2L(SoilLayer* usl, SoilLayer* lsl) {
 
 void Ground::combineTwoSoilLayersL2U(SoilLayer* lsl, SoilLayer* usl) {
   // update water content
-  usl->dz  +=lsl->dz;
-  usl->liq +=lsl->liq;
-  usl->ice +=lsl->ice;
+  usl->dz  += lsl->dz;
+  usl->liq += lsl->liq;
+  usl->ice += lsl->ice;
   // update temperature
   double lsfrac = lsl->dz/usl->dz;
   usl->tem *= (1.-lsfrac);
   usl->tem += lsl->tem*lsfrac;
   // update C content:
-  usl->rawc +=lsl->rawc;
-  usl->soma +=lsl->soma;
-  usl->sompr+=lsl->sompr;
-  usl->somcr+=lsl->somcr;
-  usl->orgn +=lsl->orgn;
-  usl->avln =+lsl->avln;
+  usl->rawc += lsl->rawc;
+  usl->soma += lsl->soma;
+  usl->sompr += lsl->sompr;
+  usl->somcr += lsl->somcr;
+  usl->orgn += lsl->orgn;
+  usl->avln =+ lsl->avln;
+  //update methane:
+  usl->ch4 += lsl->ch4;
   // after combination, needs to update 'usl'- 'frozen' status based on
   //   'fronts' if given
   getLayerFrozenstatusByFronts(usl);

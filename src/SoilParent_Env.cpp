@@ -14,8 +14,10 @@ void SoilParent_Env::initializeState() {
 
       if(permf==0) {
         currl->tem=1;
+        currl->ch4 = 0.076;
       } else if(permf==1) {
         currl->tem=-1;
+        currl->ch4 = 0.076;
       }
     } else {
       break;

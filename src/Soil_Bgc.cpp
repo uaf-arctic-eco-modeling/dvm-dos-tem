@@ -177,7 +177,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       klitrc = bd->m_soid.kdl_m[il]*0.5;
       kfastc = bd->m_soid.kdr_m[il]*0.5;
       kslowc = bd->m_soid.kdn_m[il]*0.5;
-      Plant = bd->rp * ed->m_sois.rootfrac[il] * ed->d_soid.ch4[il] * bd->tveg * ed->d_vegs.realLAI * 0.5;
+      Plant = bd->rp * ed->m_sois.rootfrac[il] * currl->ch4 * bd->tveg * ed->d_vegs.realLAI * 0.5;
 
       if (ed->d_sois.watertab - 0.075 > (currl->z + currl->dz*0.5)) { //layer above water table
         if (wtbflag == 0) {
@@ -205,7 +205,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
           TResp = 0.0;
         }
 
-        Oxid = 5.0 * ed->d_soid.ch4[il] * TResp / (20.0 + ed->d_soid.ch4[il]);
+        Oxid = 5.0 * currl->ch4 * TResp / (20.0 + currl->ch4);
         Oxid_m = Oxid * tmp_flux * currl->dz * 12.0;
 
         if (ed->d_sois.ts[il] > 0.0) {
@@ -294,7 +294,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
         D[il] = r[il];
       }
 
-      V[il] = s[il] * ed->d_soid.ch4[il] + s[il] * dt * SS;
+      V[il] = s[il] * currl->ch4 + s[il] * dt * SS;
 
       if (V[il] < 0.0000001) {
         V[il] = 0.0;
@@ -306,11 +306,15 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
     TriSolver(numsoill - 1, C, D, C, V, V);
 
-    for (il = 1; il < numsoill; il++) {
-      ed->d_soid.ch4[il] = V[il];
+    currl = ground->fstshlwl; //reset currl to top of the soil stack
+    il = 0; //reset manual layer index tracker
+    while(currl->isSoil){
+      currl->ch4 = V[il];
+      currl = currl->nextl;
     }
 
-    tmp_flux = diff[1] * (ed->d_soid.ch4[1] - ub) / cd->m_soil.dz[1]; // flux of every time step, 1 hour, Y.MI
+    tmp_flux = diff[1] * (ground->fstshlwl->ch4 - ub) / ground->fstshlwl->dz; // flux of every time step, 1 hour, Y.MI
+    //tmp_flux = diff[1] * (ed->d_soid.ch4[1] - ub) / cd->m_soil.dz[1]; // flux of every time step, 1 hour, Y.MI
 
     if (tmp_flux < 0.000001) {
       tmp_flux = 0.0;
@@ -319,13 +323,15 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
     Flux2A = Flux2A + tmp_flux; //flux cumulated over 1 day, 24 time steps, Y.MI
   } // end of time steps looping
 
-  tmp_flux = (cd->m_soil.por[1] - ed->d_soid.alllwc[1] - ed->d_soid.alliwc[1]);
+  Layer* topsoil = ground->fstshlwl;
+  tmp_flux = (topsoil->poro - topsoil->liq - topsoil->ice);
+  //tmp_flux = (cd->m_soil.por[1] - ed->d_soid.alllwc[1] - ed->d_soid.alliwc[1]);
 
   if (tmp_flux < 0.05) {
     tmp_flux = 0.05;
   }
 
-  Flux2A_m = Flux2A * tmp_flux * cd->m_soil.dz[1] * 1000.0;
+  Flux2A_m = Flux2A * tmp_flux * topsoil->dz * 1000.0;
   totFlux_m = 0.5 * totPlant_m + Flux2A_m + totEbul_m;//ebullitions counldn't reach the surface, eg. when water table is below the soil surface, are not included, Y.MI
   Flux2A = 0.0; //Y.Mi
   totPlant_m =0.0; //Y.Mi
