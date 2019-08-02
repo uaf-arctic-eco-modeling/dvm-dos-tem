@@ -38,6 +38,37 @@ import glob
 #      with the climate files.
 
 
+
+def calc_pwin_str(x, y, xs=50, ys=50, poi_loc='lower-left'):
+  if poi_loc != 'lower-left':
+    print "ERROR! pixel of interest location selection only implemented for lower-left corner!"
+    exit(-1)
+  return [str(x), str(y+ys*1000), str(x+xs*1000), str(y)]
+         #  ulx             uly             lrx     lry
+
+
+def xform(lon, lat, in_srs='EPSG:4326', out_srs='EPSG:3338'):
+
+  print "lon, lat, as input to xform(..):", lon, lat
+
+  cmd = ['gdaltransform', '-s_srs', in_srs, '-t_srs', out_srs]
+  p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+  try:
+    stdout, stderr = p.communicate("{} {}".format(lon, lat))
+  except:
+    p.kill()
+    p.wait()
+    raise
+
+  if len(stderr) > 0:
+    raise subprocess.CalledProcessError(stderr, cmd, output=stdout)
+  else:
+    x, y, h = stdout.split(' ')
+
+  return float(x.strip()), float(y.strip()), float(h.strip())
+
+
 def source_attr_string(ys='', xs='', yo='', xo='', msg=''):
   '''
   Returns a string to be included as a netCDF global attribute named "source".
@@ -78,7 +109,7 @@ def source_attr_string(ys='', xs='', yo='', xo='', msg=''):
   return s
 
 
-def make_run_mask(filename, sizey=10, sizex=10, setpx='', match2veg=False, withlatlon=None, withproj=None):
+def make_run_mask(filename, sizey=10, sizex=10, setpx='', match2veg=False, withlatlon=None, withproj=None, projwin=None):
   '''Generate a file representing the run mask'''
 
   if (withlatlon or withproj) and not match2veg:
@@ -463,7 +494,7 @@ def create_template_soil_texture_nc_file(fname, sizey=10, sizex=10, rand=None, w
   ncfile.close()
 
 
-def convert_and_subset(in_file, master_output, xo, yo, xs, ys, yridx, midx, variablename):
+def convert_and_subset(in_file, master_output, xo, yo, xs, ys, yridx, midx, variablename, projwin):
   '''
   Convert a .tif to .nc file and subset it using pixel offsets.
 
@@ -501,10 +532,18 @@ def convert_and_subset(in_file, master_output, xo, yo, xs, ys, yridx, midx, vari
   print "{:}: Converting tif --> netcdf...".format(cpn)
   call_external_wrapper(['gdal_translate', '-of', 'netCDF', in_file, tmpfile1])
 
+  if projwin:
+    ulx, uly, lrx, lry = calc_pwin_str(xo,yo)
+    ex_call = ['gdal_translate', '-of', 'netCDF',
+                 '-projwin', ulx, uly, lrx, lry,
+                  tmpfile1, tmpfile2]
+  else:
+    ex_call = ['gdal_translate', '-of', 'netCDF',
+                 '-srcwin', str(xo), str(yo), str(xs), str(ys),
+                  tmpfile1, tmpfile2]
+
   print "{:}: Subsetting...".format(cpn)
-  call_external_wrapper(['gdal_translate', '-of', 'netCDF',
-                         '-srcwin', str(xo), str(yo), str(xs), str(ys),
-                         tmpfile1, tmpfile2])
+  call_external_wrapper(ex_call)
 
   print "{:}: Writing subset's data to new file...".format(cpn)
 
@@ -520,7 +559,7 @@ def convert_and_subset(in_file, master_output, xo, yo, xs, ys, yridx, midx, vari
   print "{:}: Done appending.".format(cpn)
 
 
-def fill_topo_file(inSlope, inAspect, inElev, xo, yo, xs, ys, out_dir, of_name, withlatlon=None, withproj=None):
+def fill_topo_file(inSlope, inAspect, inElev, xo, yo, xs, ys, out_dir, of_name, withlatlon=None, withproj=None, projwin=None):
   '''Read subset of data from various tifs into single netcdf file for dvmdostem'''
 
   create_template_topo_file(of_name, sizey=ys, sizex=xs, withlatlon=True, withproj=True)
@@ -530,11 +569,22 @@ def fill_topo_file(inSlope, inAspect, inElev, xo, yo, xs, ys, out_dir, of_name, 
   tmpAspect = os.path.join(out_dir, 'tmp_cri_{}.nc'.format(os.path.splitext(os.path.basename(inAspect))[0]))
   tmpElev   = os.path.join(out_dir, 'tmp_cri_{}.nc'.format(os.path.splitext(os.path.basename(inElev))[0]))
 
+
   for inFile, tmpFile in zip([inSlope, inAspect, inElev], [tmpSlope, tmpAspect, tmpElev]):
-    subprocess.call(['gdal_translate', '-of', 'netcdf',
-                     '-co', 'WRITE_LONLAT={}'.format('YES' if withlatlon else 'NO'),
-                      '-srcwin', str(xo), str(yo), str(xs), str(ys),
-                      inFile, tmpFile])
+
+    if projwin:
+      ulx, uly, lrx, lry = calc_pwin_str(xo,yo)
+      ex_call = ['gdal_translate', '-of', 'netcdf',
+                 '-co', 'WRITE_LONLAT={}'.format('YES' if withlatlon else 'NO'),
+                 '-projwin', ulx, uly, lrx, lry,
+                 inFile, tmpFile]
+    else:
+      ex_call = ['gdal_translate', '-of', 'netcdf',
+                 '-co', 'WRITE_LONLAT={}'.format('YES' if withlatlon else 'NO'),
+                 '-srcwin', str(xo), str(yo), str(xs), str(ys), 
+                 inFile, tmpFile]
+
+    subprocess.call(ex_call)
 
   with netCDF4.Dataset(of_name, mode='a') as new_topodataset:
     for ncvar, tmpFileName in zip(['slope','aspect','elevation'],[tmpSlope,tmpAspect,tmpElev]):
@@ -642,7 +692,7 @@ def custom_netcdf_attr_bug_wrapper(ncid):
   yield ncid
   del ncid.junkattr
 
-def fill_veg_file(if_name, xo, yo, xs, ys, out_dir, of_name, withlatlon=None, withproj=None):
+def fill_veg_file(if_name, xo, yo, xs, ys, out_dir, of_name, withlatlon=None, withproj=None, projwin=None):
   '''Read subset of data from .tif into netcdf file for dvmdostem. '''
 
   # Create place for data
@@ -654,10 +704,19 @@ def fill_veg_file(if_name, xo, yo, xs, ys, out_dir, of_name, withlatlon=None, wi
   if not os.path.exists( os.path.dirname(temporary) ):
     os.makedirs(os.path.dirname(temporary))
 
-  subprocess.call(['gdal_translate', '-of', 'netcdf',
-                   '-co', 'WRITE_LONLAT={}'.format('YES' if withlatlon else 'NO'),
-                   '-srcwin', str(xo), str(yo), str(xs), str(ys),
-                   if_name, temporary])
+  if projwin:
+    ulx, uly, lrx, lry = calc_pwin_str(xo, yo)
+    ex_call = ['gdal_translate', '-of', 'netcdf',
+     '-co', 'WRITE_LONLAT={}'.format('YES' if withlatlon else 'NO'),
+     '-projwin', ulx, uly, lrx, lry,
+     if_name, temporary]
+  else:
+    ex_call = ['gdal_translate', '-of', 'netcdf',
+     '-co', 'WRITE_LONLAT={}'.format('YES' if withlatlon else 'NO'),
+     '-srcwin', str(xo), str(yo), str(xs), str(ys),
+     if_name, temporary]
+
+  call_external_wrapper(ex_call)
 
   if withproj:
     copy_grid_mapping(temporary, of_name)
@@ -694,7 +753,7 @@ def fill_climate_file(start_yr, yrs, xo, yo, xs, ys,
                       out_dir, of_name, sp_ref_file,
                       in_tair_base, in_prec_base, in_rsds_base, in_vapo_base,
                       time_coord_var, model='', scen='', cleanup_tmpfiles=True,
-                      withlatlon=None, withproj=None):
+                      withlatlon=None, withproj=None, projwin=None):
 
   # create short handle for output file
   masterOutFile = os.path.join(out_dir, of_name)
@@ -723,11 +782,20 @@ def fill_climate_file(start_yr, yrs, xo, yo, xs, ys,
       '-co', 'WRITE_LONLAT={}'.format('YES' if withlatlon else 'NO'),
       sp_ref_file, tmpfile])
 
+  if projwin:
+    ulx, uly, lrx, lry = calc_pwin_str(xo, yo)
+    ex_call = ['gdal_translate', '-of', 'netCDF',
+        '-co', 'WRITE_LONLAT={}'.format('YES' if withlatlon else 'NO'),
+        '-projwin', ulx, uly, lrx, lry,
+        'NETCDF:"{}":Band1'.format(tmpfile), smaller_tmpfile]
+  else:
+    ex_call = ['gdal_translate', '-of', 'netCDF',
+        '-co', 'WRITE_LONLAT={}'.format('YES' if withlatlon else 'NO'),
+        '-srcwin', str(xo), str(yo), str(xs), str(ys),
+        'NETCDF:"{}":Band1'.format(tmpfile), smaller_tmpfile]
+
   print "Subset (crop) netcdf file..."
-  call_external_wrapper(['gdal_translate', '-of', 'netCDF',
-      '-co', 'WRITE_LONLAT={}'.format('YES' if withlatlon else 'NO'),
-      '-srcwin', str(xo), str(yo), str(xs), str(ys),
-      'NETCDF:"{}":Band1'.format(tmpfile), smaller_tmpfile])
+  call_external_wrapper(ex_call)
 
   if withlatlon:
     print "Working on copying lat/lon info..."
@@ -795,7 +863,7 @@ def fill_climate_file(start_yr, yrs, xo, yo, xs, ys,
       tmpFiles = [os.path.join(out_dir, 'TEMP-{}-{}'.format(v, of_name)) for v in dataVarList]
       procs = []
       for tiffimage, tmpFileName, vName in zip(baseFiles, tmpFiles , dataVarList):
-        proc = mp.Process(target=convert_and_subset, args=(tiffimage, tmpFileName, xo, yo, xs, ys, yridx, midx, vName))
+        proc = mp.Process(target=convert_and_subset, args=(tiffimage, tmpFileName, xo, yo, xs, ys, yridx, midx, vName, projwin))
         procs.append(proc)
         proc.start()
 
@@ -912,7 +980,8 @@ def fill_climate_file(start_yr, yrs, xo, yo, xs, ys,
 
 
 
-def fill_soil_texture_file(if_sand_name, if_silt_name, if_clay_name, xo, yo, xs, ys, out_dir, of_name, rand=True, withlatlon=None, withproj=None):
+def fill_soil_texture_file(if_sand_name, if_silt_name, if_clay_name, xo, yo, xs, ys, out_dir, of_name, 
+      rand=True, withlatlon=None, withproj=None, projwin=None):
   
   create_template_soil_texture_nc_file(of_name, sizey=ys, sizex=xs, withlatlon=withlatlon, withproj=withproj)
 
@@ -920,21 +989,22 @@ def fill_soil_texture_file(if_sand_name, if_silt_name, if_clay_name, xo, yo, xs,
   tmp_silt = os.path.join(out_dir, "tmp_cri_silt_tex.nc")
   tmp_clay = os.path.join(out_dir, "tmp_cri_clay_tex.nc")
 
+  if projwin:
+    ulx, uly, lrx, lry = calc_pwin_str(xo,yo)
+    ex_call = ['gdal_translate','-of','netCDF',
+               '-co', 'WRITE_LONLAT={}'.format('YES' if withlatlon else 'NO'),
+               '-projwin', ulx, uly, lrx, lry]
+  else:
+    ex_call = ['gdal_translate','-of','netCDF',
+               '-co', 'WRITE_LONLAT={}'.format('YES' if withlatlon else 'NO'),
+               '-srcwin', str(xo), str(yo), str(xs), str(ys)]
+
   print "Subsetting TIF to netCDF"
-  call_external_wrapper(['gdal_translate','-of','netCDF',
-                         '-co', 'WRITE_LONLAT={}'.format('YES' if withlatlon else 'NO'),
-                         '-srcwin', str(xo), str(yo), str(xs), str(ys),
-                         if_sand_name, tmp_sand])
+  call_external_wrapper(ex_call + [if_sand_name, tmp_sand])
 
-  call_external_wrapper(['gdal_translate','-of','netCDF',
-                         '-co', 'WRITE_LONLAT={}'.format('YES' if withlatlon else 'NO'),
-                         '-srcwin', str(xo), str(yo), str(xs), str(ys),
-                         if_silt_name, tmp_silt])
+  call_external_wrapper(ex_call + [if_silt_name, tmp_silt])
 
-  call_external_wrapper(['gdal_translate','-of','netCDF',
-                         '-co', 'WRITE_LONLAT={}'.format('YES' if withlatlon else 'NO'),
-                         '-srcwin', str(xo), str(yo), str(xs), str(ys),
-                         if_clay_name, tmp_clay])
+  call_external_wrapper(ex_call + [if_clay_name, tmp_clay])
 
 
   if withproj:
@@ -993,7 +1063,7 @@ def fill_soil_texture_file(if_sand_name, if_silt_name, if_clay_name, xo, yo, xs,
       f.source = source_attr_string(xo=xo, yo=yo)
 
 
-def fill_drainage_file(if_name, xo, yo, xs, ys, out_dir, of_name, rand=False, withproj=None, withlatlon=None):
+def fill_drainage_file(if_name, xo, yo, xs, ys, out_dir, of_name, rand=False, withproj=None, withlatlon=None, projwin=None):
 
   create_template_drainage_file(of_name, sizey=ys, sizex=xs, withproj=withproj, withlatlon=withlatlon)
 
@@ -1010,12 +1080,20 @@ def fill_drainage_file(if_name, xo, yo, xs, ys, out_dir, of_name, rand=False, wi
     else:
       print "Filling with real data"
 
+      if projwin:
+        ulx, uly, lrx, lry = calc_pwin_str(xo,yo)
+        ex_call = ['gdal_translate', '-of', 'netCDF',
+                   '-co', 'WRITE_LONLAT={}'.format('YES' if withlatlon else 'NO'),
+                   '-projwin', ulx, uly, lrx, lry,
+                   if_name, tmpFile]
+      else:
+        ex_call = ['gdal_translate', '-of', 'netCDF',
+                   '-co', 'WRITE_LONLAT={}'.format('YES' if withlatlon else 'NO'),
+                   '-srcwin', str(xo), str(yo), str(xs), str(ys),
+                   if_name, tmpFile]
+
       print "Subsetting TIF to netCDF..."
-      call_external_wrapper(['gdal_translate', '-of', 'netCDF',
-                             '-co', 'WRITE_LONLAT={}'.format('YES' if withlatlon else 'NO'),
-                             '-srcwin', str(xo), str(yo), str(xs), str(ys),
-                             if_name,
-                             tmpFile])
+      call_external_wrapper(ex_call)
 
       with netCDF4.Dataset(tmpFile, mode='r') as src:
         drain = dst.variables['drainage_class']
@@ -1052,7 +1130,7 @@ def fill_drainage_file(if_name, xo, yo, xs, ys, out_dir, of_name, rand=False, wi
 
 
 
-def fill_fri_fire_file(xo, yo, xs, ys, out_dir, of_name, datasrc='', if_name=None, withlatlon=None, withproj=None):
+def fill_fri_fire_file(xo, yo, xs, ys, out_dir, of_name, datasrc='', if_name=None, withlatlon=None, withproj=None, projwin=None):
   '''
   Parameters:
   -----------
@@ -1154,10 +1232,19 @@ def fill_fri_fire_file(xo, yo, xs, ys, out_dir, of_name, datasrc='', if_name=Non
     if not os.path.exists( os.path.dirname(temporary) ):
       os.makedirs(os.path.dirname(temporary))
 
-    subprocess.call(['gdal_translate', '-of', 'netcdf',
-                     '-co', 'WRITE_LONLAT={}'.format('YES' if withlatlon else 'NO'),
-                     '-srcwin', str(xo), str(yo), str(xs), str(ys),
-                     if_name, temporary])
+    if projwin:
+      ulx, uly, lrx, lry = calc_pwin_str(xo, yo)
+      ex_call = ['gdal_translate', '-of', 'netcdf',
+                 '-co', 'WRITE_LONLAT={}'.format('YES' if withlatlon else 'NO'),
+                 '-projwin', ulx, uly, lrx, lry,
+                 if_name, temporary]
+    else:
+      ex_call = ['gdal_translate', '-of', 'netcdf',
+                 '-co', 'WRITE_LONLAT={}'.format('YES' if withlatlon else 'NO'),
+                 '-srcwin', str(xo), str(yo), str(xs), str(ys),
+                 if_name, temporary]
+
+    subprocess.call(ex_call)
 
     with netCDF4.Dataset(temporary, mode='r') as temp_fri, netCDF4.Dataset(of_name, mode='a') as new_fri:
       print "--> Copying data from temporary subset file into new file..."
@@ -1183,7 +1270,7 @@ def fill_fri_fire_file(xo, yo, xs, ys, out_dir, of_name, datasrc='', if_name=Non
 
 
 
-def fill_explicit_fire_file(yrs, xo, yo, xs, ys, out_dir, of_name, datasrc='', if_name=None, withlatlon=None, withproj=None):
+def fill_explicit_fire_file(yrs, xo, yo, xs, ys, out_dir, of_name, datasrc='', if_name=None, withlatlon=None, withproj=None, projwin=None):
 
   create_template_explicit_fire_file(of_name, sizey=ys, sizex=xs, rand=False, withlatlon=withlatlon, withproj=withproj)
 
@@ -1360,7 +1447,7 @@ def verify_paths_in_config_dict(tif_dir, config):
 def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir, 
          files=[], config={}, time_coord_var=False,
          clip_projected2match_historic=False,
-         withlatlon=None, withproj=None, cleanup=False):
+         withlatlon=None, withproj=None, projwin=False, cleanup=False):
 
   #
   # Make the veg file first, then run-mask, then climate, then fire.
@@ -1370,11 +1457,11 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
   if 'vegetation' in files:
     of_name = os.path.join(out_dir, "vegetation.nc")
     #fill_veg_file(os.path.join(tif_dir,  "ancillary/land_cover/v_0_4/iem_vegetation_model_input_v0_4.tif"), xo, yo, xs, ys, out_dir, of_name)
-    fill_veg_file(os.path.join(tif_dir, config['veg src']), xo, yo, xs, ys, out_dir, of_name, withlatlon=withlatlon, withproj=withproj)
+    fill_veg_file(os.path.join(tif_dir, config['veg src']), xo, yo, xs, ys, out_dir, of_name, withlatlon=withlatlon, withproj=withproj, projwin=projwin)
 
   if 'drainage' in files:
     of_name = os.path.join(out_dir, "drainage.nc")
-    fill_drainage_file(os.path.join(tif_dir,  config['drainage src']), xo, yo, xs, ys, out_dir, of_name, withlatlon=withlatlon, withproj=withproj)
+    fill_drainage_file(os.path.join(tif_dir,  config['drainage src']), xo, yo, xs, ys, out_dir, of_name, withlatlon=withlatlon, withproj=withproj, projwin=projwin)
 
   if 'soil-texture' in files:
     of_name = os.path.join(out_dir, "soil-texture.nc")
@@ -1383,7 +1470,7 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
     in_sand_base = os.path.join(tif_dir, config['soil sand src'])
     in_silt_base = os.path.join(tif_dir, config['soil silt src'])
 
-    fill_soil_texture_file(in_sand_base, in_silt_base, in_clay_base, xo, yo, xs, ys, out_dir, of_name, rand=False, withlatlon=withlatlon, withproj=withproj)
+    fill_soil_texture_file(in_sand_base, in_silt_base, in_clay_base, xo, yo, xs, ys, out_dir, of_name, rand=False, withlatlon=withlatlon, withproj=withproj, projwin=projwin)
 
   if 'topo' in files:
     of_name = os.path.join(out_dir, "topo.nc")
@@ -1392,10 +1479,10 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
     in_aspect = os.path.join(tif_dir, config['topo aspect src'])
     in_elev = os.path.join(tif_dir, config['topo elev src'])
 
-    fill_topo_file(in_slope, in_aspect, in_elev, xo,yo,xs,ys,out_dir, of_name, withlatlon=withlatlon, withproj=withproj)
+    fill_topo_file(in_slope, in_aspect, in_elev, xo,yo,xs,ys,out_dir, of_name, withlatlon=withlatlon, withproj=withproj, projwin=projwin)
 
   if 'run-mask' in files:
-    make_run_mask(os.path.join(out_dir, "run-mask.nc"), sizey=ys, sizex=xs, match2veg=True, withlatlon=withlatlon, withproj=withproj) #setpx='1,1')
+    make_run_mask(os.path.join(out_dir, "run-mask.nc"), sizey=ys, sizex=xs, match2veg=True, withlatlon=withlatlon, withproj=withproj, projwin=projwin) #setpx='1,1')
 
   if 'co2' in files:
     make_co2_file(os.path.join(out_dir, "co2.nc"))
@@ -1435,7 +1522,7 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
                       in_tair_base, in_prec_base, in_rsds_base, in_vapo_base,
                       time_coord_var, model=origin_institute, scen=version, 
                       withlatlon=withlatlon, withproj=withproj,
-                      cleanup_tmpfiles=cleanup)
+                      cleanup_tmpfiles=cleanup, projwin=projwin)
 
 
   if 'projected-climate' in files:
@@ -1500,7 +1587,7 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
                       in_tair_base, in_prec_base, in_rsds_base, in_vapo_base,
                       time_coord_var, model=origin_institute, scen=version,
                       withlatlon=withlatlon, withproj=withproj,
-                      cleanup_tmpfiles=cleanup)
+                      cleanup_tmpfiles=cleanup, projwin=projwin)
 
 
 
@@ -1510,7 +1597,7 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
         xo, yo, xs, ys, out_dir, of_name, 
         datasrc='no-fires', 
         if_name=None,
-        withlatlon=withlatlon, withproj=withproj
+        withlatlon=withlatlon, withproj=withproj, projwin=projwin
     )
 
   if 'historic-explicit-fire' in files:
@@ -1524,7 +1611,7 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
     fill_explicit_fire_file(
         years, xo, yo, xs, ys, out_dir, of_name,
         datasrc='no-fires',
-        if_name=None, withlatlon=withlatlon, withproj=withproj,
+        if_name=None, withlatlon=withlatlon, withproj=withproj, projwin=projwin
     )
 
   if 'projected-explicit-fire' in files:
@@ -1538,7 +1625,7 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
     fill_explicit_fire_file(
         years, xo, yo, xs, ys, out_dir, of_name,
         datasrc='no-fires',
-        if_name=None, withlatlon=withlatlon, withproj=withproj,
+        if_name=None, withlatlon=withlatlon, withproj=withproj, projwin=projwin
     )
 
   if cleanup:
@@ -1850,15 +1937,26 @@ if __name__ == '__main__':
       help=textwrap.dedent('''Add a time coordinate variable to the *-climate.nc 
         files. Also populates the coordinate variable attributes.'''))
 
-  parser.add_argument('--xoff', type=int,
+  parser.add_argument('--xoff', type=float,
       help="source window offset for x axis (default: %(default)s)")
-  parser.add_argument('--yoff', type=int,
+  parser.add_argument('--yoff', type=float,
       help="source window offset for y axis (default: %(default)s)")
 
   parser.add_argument('--xsize', type=int,
       help="source window x size (default: %(default)s)")
   parser.add_argument('--ysize', type=int,
       help="source window y size (default: %(default)s)")
+
+  parser.add_argument('--lonlat', action='store_true',
+    help=textwrap.dedent('''When this is specified, the x and y offset values
+      are assumed to be in WGS84 longitude and latitude, i.e. -154.324 68.23
+      (Pixel/Line offsets are the default assumption). This option is mutually
+      exclusive with --projwin.'''))
+
+  parser.add_argument('--projwin', action='store_true',
+    help=textwrap.dedent('''When this is specified, the x and y offset values
+      are assumed to be in projection coordinates (Pixel/Line offsets are the
+      default assumption). This option is mutually exclusive with --lonlat.'''))
 
   parser.add_argument('--which', default=['all'], nargs='+',
       choices=fileChoices+['all'], metavar='FILE',
@@ -1902,6 +2000,10 @@ if __name__ == '__main__':
   print "Parsing command line arguments..."
   args = parser.parse_args()
   print "args: ", args
+
+
+  if args.lonlat and args.projwin:
+    parser.error("Argument ERROR!: Must specify only one of --projwin and --lonlat!")
 
   print "Reading config file..."
   config = configobj.ConfigObj(base_ar5_rcp85_config.split("\n"))
@@ -1994,8 +2096,14 @@ if __name__ == '__main__':
   years = args.years
   start_year = args.start_year
   
-  xo = args.xoff
-  yo = args.yoff
+  if args.lonlat:
+    xo, yo, _ = xform(args.xoff, args.yoff) # convert from lon, lat to x, y projection coordinates
+    coords_are_projection = True
+  else:  
+    xo = args.xoff
+    yo = args.yoff
+    coords_are_projection = False
+
   xs = args.xsize
   ys = args.ysize
 
@@ -2029,6 +2137,7 @@ if __name__ == '__main__':
        clip_projected2match_historic=args.clip_projected2match_historic,
        withlatlon=args.withlatlon,
        withproj=args.withproj,
+       projwin=coords_are_projection,
        cleanup=args.cleanup)
 
 
