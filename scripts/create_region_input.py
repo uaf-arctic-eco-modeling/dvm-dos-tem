@@ -1115,17 +1115,18 @@ def fill_drainage_file(if_name, xo, yo, xs, ys, out_dir, of_name, rand=False, wi
       f.source = source_attr_string(xo=xo, yo=yo)
 
 
-  with netCDF4.Dataset(of_name, mode='a') as dst:
 
     if withproj:
       copy_grid_mapping(tmpFile, of_name)
+  
+      with netCDF4.Dataset(of_name, mode='a') as dst:
 
-    if withproj:
-      if get_gm_varname(dst):
-        drain.setncattr('grid_mapping', get_gm_varname(dst).encode('ascii'))
-      with netCDF4.Dataset(tmpFile, mode='r') as src:
-        dst.variables['x'][:] = src.variables['x'][:]
-        dst.variables['y'][:] = src.variables['y'][:]
+        if get_gm_varname(dst):
+          dst.variables['drainage_class'].setncattr('grid_mapping', get_gm_varname(dst).encode('ascii'))
+
+        with netCDF4.Dataset(tmpFile, mode='r') as src:
+          dst.variables['x'][:] = src.variables['x'][:]
+          dst.variables['y'][:] = src.variables['y'][:]
 
 
 
