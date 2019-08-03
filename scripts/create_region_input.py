@@ -533,7 +533,7 @@ def convert_and_subset(in_file, master_output, xo, yo, xs, ys, yridx, midx, vari
   call_external_wrapper(['gdal_translate', '-of', 'netCDF', in_file, tmpfile1])
 
   if projwin:
-    ulx, uly, lrx, lry = calc_pwin_str(xo,yo)
+    ulx, uly, lrx, lry = calc_pwin_str(xo,yo,xs,ys)
     ex_call = ['gdal_translate', '-of', 'netCDF',
                  '-projwin', ulx, uly, lrx, lry,
                   tmpfile1, tmpfile2]
@@ -573,7 +573,7 @@ def fill_topo_file(inSlope, inAspect, inElev, xo, yo, xs, ys, out_dir, of_name, 
   for inFile, tmpFile in zip([inSlope, inAspect, inElev], [tmpSlope, tmpAspect, tmpElev]):
 
     if projwin:
-      ulx, uly, lrx, lry = calc_pwin_str(xo,yo)
+      ulx, uly, lrx, lry = calc_pwin_str(xo,yo,xs,ys)
       ex_call = ['gdal_translate', '-of', 'netcdf',
                  '-co', 'WRITE_LONLAT={}'.format('YES' if withlatlon else 'NO'),
                  '-projwin', ulx, uly, lrx, lry,
@@ -705,7 +705,7 @@ def fill_veg_file(if_name, xo, yo, xs, ys, out_dir, of_name, withlatlon=None, wi
     os.makedirs(os.path.dirname(temporary))
 
   if projwin:
-    ulx, uly, lrx, lry = calc_pwin_str(xo, yo)
+    ulx, uly, lrx, lry = calc_pwin_str(xo,yo,xs,ys)
     ex_call = ['gdal_translate', '-of', 'netcdf',
      '-co', 'WRITE_LONLAT={}'.format('YES' if withlatlon else 'NO'),
      '-projwin', ulx, uly, lrx, lry,
@@ -783,7 +783,7 @@ def fill_climate_file(start_yr, yrs, xo, yo, xs, ys,
       sp_ref_file, tmpfile])
 
   if projwin:
-    ulx, uly, lrx, lry = calc_pwin_str(xo, yo)
+    ulx, uly, lrx, lry = calc_pwin_str(xo,yo,xs,ys)
     ex_call = ['gdal_translate', '-of', 'netCDF',
         '-co', 'WRITE_LONLAT={}'.format('YES' if withlatlon else 'NO'),
         '-projwin', ulx, uly, lrx, lry,
@@ -990,7 +990,7 @@ def fill_soil_texture_file(if_sand_name, if_silt_name, if_clay_name, xo, yo, xs,
   tmp_clay = os.path.join(out_dir, "tmp_cri_clay_tex.nc")
 
   if projwin:
-    ulx, uly, lrx, lry = calc_pwin_str(xo,yo)
+    ulx, uly, lrx, lry = calc_pwin_str(xo,yo,xs,ys)
     ex_call = ['gdal_translate','-of','netCDF',
                '-co', 'WRITE_LONLAT={}'.format('YES' if withlatlon else 'NO'),
                '-projwin', ulx, uly, lrx, lry]
@@ -1081,7 +1081,7 @@ def fill_drainage_file(if_name, xo, yo, xs, ys, out_dir, of_name, rand=False, wi
       print "Filling with real data"
 
       if projwin:
-        ulx, uly, lrx, lry = calc_pwin_str(xo,yo)
+        ulx, uly, lrx, lry = calc_pwin_str(xo,yo,xs,ys)
         ex_call = ['gdal_translate', '-of', 'netCDF',
                    '-co', 'WRITE_LONLAT={}'.format('YES' if withlatlon else 'NO'),
                    '-projwin', ulx, uly, lrx, lry,
@@ -1233,7 +1233,7 @@ def fill_fri_fire_file(xo, yo, xs, ys, out_dir, of_name, datasrc='', if_name=Non
       os.makedirs(os.path.dirname(temporary))
 
     if projwin:
-      ulx, uly, lrx, lry = calc_pwin_str(xo, yo)
+      ulx, uly, lrx, lry = calc_pwin_str(xo,yo,xs,ys)
       ex_call = ['gdal_translate', '-of', 'netcdf',
                  '-co', 'WRITE_LONLAT={}'.format('YES' if withlatlon else 'NO'),
                  '-projwin', ulx, uly, lrx, lry,
