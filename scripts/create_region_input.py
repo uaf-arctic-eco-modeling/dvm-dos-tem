@@ -2098,7 +2098,13 @@ if __name__ == '__main__':
   start_year = args.start_year
   
   if args.lonlat:
-    xo, yo, _ = xform(args.xoff, args.yoff) # convert from lon, lat to x, y projection coordinates
+    # convert from lon, lat to x, y projection coordinates
+    xo, yo, _ = xform(args.xoff, args.yoff)
+    yo = yo - 500 # Not sure what is up with this, but if we don't 
+                  # take 500m off the y offset (projection coords) then we 
+                  # end up with the lon/lat point consistently in the pixel just
+                  # below the cropped area.
+
     coords_are_projection = True
   else:  
     xo = args.xoff
