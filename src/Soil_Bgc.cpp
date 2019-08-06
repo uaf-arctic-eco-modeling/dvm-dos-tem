@@ -114,14 +114,24 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
   double r[numsoill];
   double s[numsoill];
 
-  if (ed->d_vegs.currLAI != bd->m_vegd.lai) {
-    ed->d_vegs.preLAI = ed->d_vegs.currLAI;
-    ed->d_vegs.currLAI = bd->m_vegd.lai;
-    ed->d_vegs.realLAI = ed->d_vegs.preLAI;
+  //Calculate total LAI across PFTs
+  //TODO this should only include plant types that are good
+  // methane conduits.
+  double lai_from_cd = 0.0;
+  for(int ip=0; ip<NUM_PFT; ip++){
+    lai_from_cd += cd->m_veg.lai[ip];
   }
 
-  ed->d_vegs.realLAI = ed->d_vegs.realLAI + (ed->d_vegs.currLAI - ed->d_vegs.preLAI) / 30.0;
+  //Catch for if preLAI is still UIN_D
+  if(ed->d_vegs.preLAI < 0.0){
+    ed->d_vegs.preLAI = lai_from_cd;
+  }
 
+  double realLAI = ed->d_vegs.preLAI + (lai_from_cd - ed->d_vegs.preLAI) / 30.0;
+
+  //Storing current LAI value as 'pre' for the next time
+  // this function is called.
+  ed->d_vegs.preLAI = lai_from_cd;
 
   Layer *currl = ground->fstshlwl;
   int il = 0;//Manual layer index tracking
@@ -177,7 +187,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       klitrc = bd->m_soid.kdl_m[il]*0.5;
       kfastc = bd->m_soid.kdr_m[il]*0.5;
       kslowc = bd->m_soid.kdn_m[il]*0.5;
-      Plant = bd->rp * ed->m_sois.rootfrac[il] * currl->ch4 * bd->tveg * ed->d_vegs.realLAI * 0.5;
+      Plant = bd->rp * ed->m_sois.rootfrac[il] * currl->ch4 * bd->tveg * realLAI * 0.5;
 
       if (ed->d_sois.watertab - 0.075 > (currl->z + currl->dz*0.5)) { //layer above water table
         if (wtbflag == 0) {
