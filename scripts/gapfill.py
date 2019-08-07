@@ -40,7 +40,7 @@ def modified_attribute_string(msg=''):
   return s
 
 def print_mask_count_along_timeseries(dataset, title='', nonewline=False):
-  '''Counts masked items along a sime axis and prints value for each pixel.'''
+  '''Counts masked items along a time axis and prints value for each pixel.'''
   pass
   print "Masked items: {}".format(np.ma.count_masked(dataset))
   print "-- {} --".format(title)
@@ -175,6 +175,7 @@ if __name__ == '__main__':
 
     file_path = os.path.join(args.input_folder, climate_file)
 
+    print "Looking for path as src dataset:", file_path
     with nc.Dataset(file_path, 'r+') as myFile:
 
       for v in VARS:
