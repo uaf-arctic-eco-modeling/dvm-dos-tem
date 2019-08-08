@@ -1867,7 +1867,7 @@ if __name__ == '__main__':
       help=textwrap.dedent("""Directory for netCDF output files. 
         (default: '%(default)s')"""))
 
-  parser.add_argument('--tag', required=True,
+  parser.add_argument('--tag',
       help=textwrap.dedent("""A name for the dataset, used to name output 
         directory. (default: '%(default)s')"""))
 
@@ -2103,6 +2103,9 @@ if __name__ == '__main__':
 
   tif_dir = args.tifs;
   print "Will be looking for files in:      ", tif_dir
+
+  if args.tag is None:
+    parser.error("--tags must be defined inorder to proceed!")
 
   # Like this: somedirectory/sometag_NxM
   out_dir = os.path.join(args.outdir, "%s_%sx%s" % (args.tag, ys, xs))
