@@ -612,7 +612,7 @@ def fill_topo_file(inSlope, inAspect, inElev, xo, yo, xs, ys, out_dir, of_name, 
 
 
 
-def call_external_wrapper(call, ignore_failure=False):
+def call_external_wrapper(call):
   '''
   Wrapper around subprocess.check_output that allows us to print stdout
   and stderr from the external command.
@@ -624,11 +624,10 @@ def call_external_wrapper(call, ignore_failure=False):
   except subprocess.CalledProcessError as e:
     out = e.output.decode()
     success = False
-    print "  --> stdout/stderr from external command:", e.output.decode()
+    print "  --> ERROR! stdout/stderr from external command:", e.output.decode()
 
   if not success:
-    if not ignore_failure:
-      sys.exit(-1)
+    sys.exit(-1)
 
 
 def copy_grid_mapping(srcfile, dstfile):
@@ -2097,6 +2096,7 @@ if __name__ == '__main__':
   years = args.years
   start_year = args.start_year
   
+
   if args.lonlat:
     # convert from lon, lat to x, y projection coordinates
     xo, yo, _ = xform(args.xoff, args.yoff)
@@ -2106,6 +2106,12 @@ if __name__ == '__main__':
                   # below the cropped area.
 
     coords_are_projection = True
+
+  elif args.projwin:
+    xo = args.xoff
+    yo = args.yoff
+    coords_are_projection = True
+
   else:  
     xo = args.xoff
     yo = args.yoff
