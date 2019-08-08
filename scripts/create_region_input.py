@@ -14,6 +14,7 @@ import configobj
 import argparse
 import textwrap
 import os
+import csv
 
 import netCDF4
 
@@ -1648,95 +1649,43 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
 
 
 
-def get_slurm_wrapper_string(tif_directory):
+def get_slurm_wrapper_string(tifs, pclim='ncar-ccsm4', 
+    sitename='TOOLIK_FIELD_STATION', yoff=68.62854, xoff=-149.517149, 
+    xsize=10, ysize=10, coordtype="--lonlat \\"):
   '''
   When running this program (create_region_input.py) on atlas, it is best to
   run under the control of the queue manager (slurm). This function is a place
   to store a wrapper script that can be submitted to slurm.
 
-  Returns string with text for slurm script.
+  Returns string with text for slurm script. The wrapper script has named
+  template parameters that correspond to the named kwargs for this function.
+
+  The two backslashes (e.g for coordtype) are necessary for escaping optional
+  parameters in the command line passed to slurm's srun command.
   '''
-  s = textwrap.dedent('''\
+  
+  slurm_wrapper = textwrap.dedent('''\
     #!/bin/bash
 
     #SBATCH --cpus-per-task=4
     #SBATCH --ntasks=1
     #SBATCH -p main
-    ##SBATCH --reservation=snap_8  # Not needed anymore
 
     # Offsets for new ar5/rcp85 datasets found in:
-    TIFDIR="{}"
+    TIFDIR="{tifs}"
+    PCLIM="{pclim}"
+    NAME="{sitename}"
 
-    #PCLIM="mri-cgcm3"
-    PCLIM="ncar-ccsm4"
-
-    #########################
-    # Tundra Test Areas
-    #########################
-    #XSIZE=50;
-    #YSIZE=50;
-    #site=cru-ts40_ar5_rcp85_"$PCLIM"_Utqiagvik_a; yoff=49;   xoff=604;                        # <-- original
-    #site=cru-ts40_ar5_rcp85_"$PCLIM"_Utqiagvik_b; yoff=49;   xoff=629; XSIZE=25; YSIZE=50;   # <-- same ll, but only 25 px wide
-    #site=cru-ts40_ar5_rcp85_"$PCLIM"_Utqiagvik_c; yoff=8;    xoff=581; XSIZE=100; YSIZE=75;  # <-- larger area, diff ll
-    #site=cru-ts40_ar5_rcp85_"$PCLIM"_Toolik;      yoff=290;  xoff=882;
-    #site=cru-ts40_ar5_rcp85_"$PCLIM"_YKD_n;       yoff=903;  xoff=189;
-    #site=cru-ts40_ar5_rcp85_"$PCLIM"_YKD_w;       yoff=1028; xoff=112;
-    #site=cru-ts40_ar5_rcp85_"$PCLIM"_Kougarok_a;  yoff=636;  xoff=196;                      # 
-    #site=cru-ts40_ar5_rcp85_"$PCLIM"_Kougarok_b;  yoff=643;  xoff=202;                      # <-- slightly south and west of original
-
-
-    ###################
-    # 10x10 sites
-    ###################
-    #XSIZE=10
-    #YSIZE=10
-
-    #site=cru-ts40_ar5_rcp85_"$PCLIM"_Toolik; yoff=298; xoff=918
-    #site=cru-ts40_ar5_rcp85_"$PCLIM"_SouthBarrow; yoff=28; xoff=620 
-    #site=cru-ts40_ar5_rcp85_"$PCLIM"_SewardPeninsula; yoff=643; xoff=231 
-    #site=cru-ts40_ar5_rcp85_"$PCLIM"_Kougarok; yoff=649; xoff=233;
-
-    # Dalton Highway Sites with site at LOWER LEFT corner
-    #site=cru-ts40_ar5_rcp85_"$PCLIM"_dh_site_1; yoff=470 ; xoff=900
-    #site=cru-ts40_ar5_rcp85_"$PCLIM"_dh_site_2; yoff=429 ; xoff=906
-    #site=cru-ts40_ar5_rcp85_"$PCLIM"_dh_site_3; yoff=379 ; xoff=915
-    #site=cru-ts40_ar5_rcp85_"$PCLIM"_dh_site_4; yoff=246 ; xoff=947
-    #site=cru-ts40_ar5_rcp85_"$PCLIM"_dh_site_5; yoff=210 ; xoff=948
-
-    # North Slope NOAA Snow Depth Validation Sites
-    #site=cru-ts40_ar5_rcp85_"$PCLIM"_ALPINE;                                 yoff=104;  xoff=855
-    #site=cru-ts40_ar5_rcp85_"$PCLIM"_ATIGUN_PASS;                            yoff=345;  xoff=927
-    #site=cru-ts40_ar5_rcp85_"$PCLIM"_BARROW_WEATHER_SERVICE_OFFICE_AIRPORT;  yoff=3;    xoff=636
-    #site=cru-ts40_ar5_rcp85_"$PCLIM"_CAPE_LISBURNE;                          yoff=225;  xoff=247
-    #site=cru-ts40_ar5_rcp85_"$PCLIM"_CAPE_LISBURNE_AFS;                      yoff=225;  xoff=247
-    #site=cru-ts40_ar5_rcp85_"$PCLIM"_CAPE_THOMPSON;                          yoff=311;  xoff=246
-    #site=cru-ts40_ar5_rcp85_"$PCLIM"_CHANDALAR_SHELF_DOT;                    yoff=351;  xoff=924
-    #site=cru-ts40_ar5_rcp85_"$PCLIM"_GALBRAITH;                              yoff=306;  xoff=924
-    #site=cru-ts40_ar5_rcp85_"$PCLIM"_IMNAVIAT_CREEK;                         yoff=290;  xoff=931
-    #site=cru-ts40_ar5_rcp85_"$PCLIM"_KUPARUK;                                yoff=104;  xoff=906
-    #site=cru-ts40_ar5_rcp85_"$PCLIM"_LONELY;                                 yoff=45;   xoff=766
-    #site=cru-ts40_ar5_rcp85_"$PCLIM"_POINT_LAY;                              yoff=151;  xoff=385
-    #site=cru-ts40_ar5_rcp85_"$PCLIM"_PRUDHOE_BAY;                            yoff=108;  xoff=955
-    #site=cru-ts40_ar5_rcp85_"$PCLIM"_SAGWON;                                 yoff=200;  xoff=949
-    #site=cru-ts40_ar5_rcp85_"$PCLIM"_TOOLIK_FIELD_STATION;                   yoff=290;  xoff=922
-    #site=cru-ts40_ar5_rcp85_"$PCLIM"_UMIAT_AIRPORT;                          yoff=213;  xoff=812
-    #site=cru-ts40_ar5_rcp85_"$PCLIM"_WAINWRIGHT_AIRPORT;                     yoff=65;   xoff=512
-
-
-
-    # USE this to put the desired pixel at the center of the grid.
-    #echo "Original x and y offsets: $xoff $yoff"
-    #yoff=$(( $yoff + $(( $YSIZE / 2 )) ))
-    #xoff=$(( $xoff - $(( $XSIZE / 2 )) ))
-    #echo "New x and y offsets: $xoff $yoff"
-
-    echo $site
+    site=cru-ts40_ar5_rcp85_"$PCLIM"_"$NAME"
+    xoff={xoff}; yoff={yoff}
+    XSIZE={xsize}; YSIZE={ysize}
 
     srun ./scripts/create_region_input.py \\
       --tifs $TIFDIR \\
       --tag $site \\
       --years -1 \\
       --buildout-time-coord \\
+      {coordtype}
       --yoff $yoff --xoff $xoff --xsize $XSIZE --ysize $YSIZE \\
       --which all \\
       --projected-climate-config "$PCLIM" \\
@@ -1745,23 +1694,23 @@ def get_slurm_wrapper_string(tif_directory):
       --withproj \\
       --cleanup
 
-    # Handle cropping if needed...
-    #mkdir -p input-staging-area/"$site"_"$YSIZE"x"$XSIZE"/output
-    #srun ./scripts/input_util.py crop --yx 0 0 --ysize 1 --xsize 1 input-staging-area/"$site"_"$YSIZE"x"$XSIZE"/
+    # Add an output directory, some downstream processes assume it exists.
+    mkdir -p input-staging-area/"$site"_"$YSIZE"x"$XSIZE"/output
+
+    # Handle auxiliary steps, e.g. cropping, gapfilling, plotting
 
     # Generate plots for double checking data... (Should this be submitted with srun too??)
     #./scripts/input_util.py climate-ts-plot --type annual-summary --yx 0 0 input-staging-area/
 
     # REMEMBER TO CHECK FOR GAPFILLING NEEDS!!!
-    #srun ./scripts/gapfill.py --dry-run --input-folder input-staging-area/"$site"_"$YSIZE"x"$XSIZE"/
-    #srun ./scripts/gapfill.py --dry-run --input-folder input-staging-area/"$site"_1x1/
+    srun ./scripts/gapfill.py --dry-run --input-folder input-staging-area/"$site"_"$YSIZE"x"$XSIZE"/
 
     # Run script to swap all CMT 8 pixels to CMT 7
     srun ./scripts/fix_vegetation_file_cmt08_to_cmt07.py input-staging-area/"$site"_"$YSIZE"x"$XSIZE"/vegetation.nc
-    #srun ./scripts/fix_vegetation_file_cmt08_to_cmt07.py input-staging-area/"$site"_1x1/vegetation.nc
+    '''.format(tifs=tifs, pclim=pclim, sitename=sitename, xoff=xoff, yoff=yoff, 
+        xsize=xsize, ysize=ysize, coordtype=coordtype))
 
-  '''.format(tif_directory))
-  return s
+  return slurm_wrapper
 
 
 def get_empty_config_object():
@@ -1893,10 +1842,9 @@ if __name__ == '__main__':
         **THE PATHS IN THIS SCIRPT MUST BE EDITED BY HAND IF IT IS TO BE RUN ON
         A DIFFERENT COMPUTER OR IF THE DIRECTORY LAYOUT ON ATLAS CHANGES!**
 
-        Running this script on atlas under Slurm it takes about 15 minutes to
-        create a complete input dataset for all historic and projected years.
 
-        There is a command line option to print an example slurm script.
+        There is a command line option to print an example slurm script or
+        generate a set of slurm scripts from a csv file.
         '''.format("\n                ".join([i+'.nc' for i in fileChoices]))),
 
       epilog=textwrap.dedent(''''''),
@@ -1982,12 +1930,18 @@ if __name__ == '__main__':
       the process. It can be useful to leave the files around for debugging
       purposes.'''))
 
-  parser.add_argument('--generate-slurm-wrapper', action='store_true',
+  parser.add_argument('--slurm-wrapper', action='store_true',
       help=textwrap.dedent('''Writes the file "CRI_slurm_wrapper.sh" and exits.
         Submit CRI_slurm_wrapper.sh to slurm using sbatch. Expected workflow
         is that you will generate the slurm wrapper script and then edit the
         script as needed (uncommenting the lines for the desired site and post
-        processing steps that you want).'''))
+        processing steps that you want).''')) 
+
+  parser.add_argument('--slurm-wrappers-from-csv',
+    help=textwrap.dedent('''Generates a slurm wrapper script for every line in
+      a csv file. Assumes csv file has header line and fields: site, lon, lat.
+      Scripts will be named like: "cri_slurm_wrapper_NNNN.sh" with N
+      incrementing according to rows in the csv file.'''))
 
   parser.add_argument('--dump-empty-config', action='store_true',
       help=textwrap.dedent('''Write out an empty config file with all the keys
@@ -2009,13 +1963,40 @@ if __name__ == '__main__':
   config = configobj.ConfigObj(base_ar5_rcp85_config.split("\n"))
 
 
-  if args.generate_slurm_wrapper:
+  if args.slurm_wrapper:
     ofname = 'CRI_slurm_wrapper.sh'
     print "Writing wrapper file: {}".format(ofname)
     print "Submit using sbatch."
     with open(ofname, 'w') as f:
       f.write(get_slurm_wrapper_string(args.tifs))
     exit(0)
+
+  if args.slurm_wrappers_from_csv:
+
+    if not args.projected_climate_config:
+      parser.error("Argument ERROR!: Must specify projected climate when using --slurm-wrappers-from-csv!")
+
+    with open(args.slurm_wrappers_from_csv) as csvfile:
+      reader = csv.DictReader(csvfile)
+      sites = list(reader)
+
+    for i, site in enumerate(sites):
+
+      slurm_wrapper_string = get_slurm_wrapper_string(
+        tifs=args.tifs, 
+        pclim=args.projected_climate_config[0],
+        sitename=site['site'],
+        xoff=site['lon'], yoff=site['lat'],
+        xsize=10, ysize=10,
+        coordtype="--lonlat \\"
+        )
+
+      with open("cri_slurm_wrapper_{:04d}.sh".format(i), 'w') as outfile:
+        outfile.write(slurm_wrapper_string)
+
+    print "Now submit all your wrappers with a for loop! GOOD LUCK!"
+    exit(0)
+
 
   if args.dump_empty_config:
     ofname = "EMPTY_CONFIG_create_region_input.txt"
