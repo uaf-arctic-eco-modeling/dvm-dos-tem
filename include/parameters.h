@@ -148,6 +148,12 @@ struct soipar_cal {
                    //respiration rate (at 0oC)
   double kdcsomcr; // calibrated soil chemically-resistant SOM
                    // respiration rate (at 0oC)
+  //Methane related values
+  double kdcfib_m;
+  double kdchum_m;
+  double kdcmin_m;
+  double kdcslow_m;
+
   soipar_cal(): micbnup(UIN_D), kdcrawc(UIN_D), kdcsoma(UIN_D),
       kdcsompr(UIN_D), kdcsomcr(UIN_D) {}
 };
@@ -229,6 +235,11 @@ struct soipar_bgc {
   double kdsompr[MAX_SOI_LAY];
   double kdsomcr[MAX_SOI_LAY];
 
+  //Methane related values
+  double kdl_m[MAX_SOI_LAY];
+  double kdr_m[MAX_SOI_LAY];
+  double kdn_m[MAX_SOI_LAY];
+
   soipar_bgc(): kn2(UIN_D), moistmin(UIN_D), moistmax(UIN_D), moistopt(UIN_D),
                 rhq10(UIN_D), propftos(UIN_D), nmincnsoil(UIN_D), fnloss(UIN_D),
                 fsoma(UIN_D), fsompr(UIN_D), fsomcr(UIN_D), som2co2(UIN_D),
@@ -240,6 +251,9 @@ struct soipar_bgc {
       kdsoma[i] = UIN_D;
       kdsompr[i] = UIN_D;
       kdsomcr[i] = UIN_D;
+      kdl_m[i] = UIN_D;
+      kdr_m[i] = UIN_D;
+      kdn_m[i] = UIN_D;
     }
   }
 

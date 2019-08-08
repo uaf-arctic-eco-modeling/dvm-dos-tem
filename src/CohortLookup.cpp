@@ -149,6 +149,10 @@ std::string CohortLookup::calparbgc2str() {
   s << this->kdcsoma << " // kdcsoma:\n";
   s << this->kdcsompr << " // kdcsompr:\n";
   s << this->kdcsomcr << "// kdcsomcr:\n";
+  s << this->kdcfib_m << "// kdcfib_m:\n";
+  s << this->kdchum_m << "// kdchum_m:\n";
+  s << this->kdcmin_m << "// kdcmin_m:\n";
+  s << this->kdcslow_m << "// kdcslow_m:\n";
   return s.str();
 }
 
@@ -183,6 +187,10 @@ void CohortLookup::assignBgcCalpar(std::string & dircmt) {
   temutil::pfll2data(l, kdcsompr);
   temutil::pfll2data(l, kdcsomcr);
 
+  temutil::pfll2data(l, kdcfib_m);
+  temutil::pfll2data(l, kdchum_m);
+  temutil::pfll2data(l, kdcmin_m);
+  temutil::pfll2data(l, kdcslow_m);
 }
 
 /** Assign "veg dimension?" from parameter file. */

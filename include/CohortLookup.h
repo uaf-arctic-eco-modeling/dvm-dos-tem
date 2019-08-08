@@ -49,6 +49,11 @@ public:
                    //  SOM respiration rate (at 0oC)
   double kdcsomcr; //calibrated soil chemically-resistant
                    //  SOM respiration rate (at 0oC)
+  //Soil methane calibrated values
+  double kdcfib_m;
+  double kdchum_m;
+  double kdcmin_m;
+  double kdcslow_m;
 
   // canopy dimensions
   double sla[NUM_PFT]; //specific leaf area

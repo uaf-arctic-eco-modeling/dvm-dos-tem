@@ -184,9 +184,9 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
     while(currl->isSoil){
 //    for (il = numsoill - 1; il > 0; il--)  //loop through layers
       TResp = 0.0;
-      klitrc = bd->m_soid.kdl_m[il]*0.5;
-      kfastc = bd->m_soid.kdr_m[il]*0.5;
-      kslowc = bd->m_soid.kdn_m[il]*0.5;
+      klitrc = bgcpar.kdl_m[il]*0.5;
+      kfastc = bgcpar.kdr_m[il]*0.5;
+      kslowc = bgcpar.kdn_m[il]*0.5;
       Plant = bd->rp * ed->m_sois.rootfrac[il] * currl->ch4 * bd->tveg * realLAI * 0.5;
 
       if (ed->d_sois.watertab - 0.075 > (currl->z + currl->dz*0.5)) { //layer above water table
@@ -639,6 +639,10 @@ void Soil_Bgc::initializeParameter() {
   calpar.kdcsoma    = chtlu->kdcsoma;
   calpar.kdcsompr   = chtlu->kdcsompr;
   calpar.kdcsomcr   = chtlu->kdcsomcr;
+  calpar.kdcfib_m   = chtlu->kdcfib_m;
+  calpar.kdchum_m   = chtlu->kdchum_m;
+  calpar.kdcmin_m   = chtlu->kdcmin_m;
+  calpar.kdcslow_m  = chtlu->kdcslow_m;
   bgcpar.rhq10      = chtlu->rhq10;
   bgcpar.moistmin   = chtlu->moistmin;
   bgcpar.moistmax   = chtlu->moistmax;
@@ -1364,6 +1368,25 @@ void Soil_Bgc::updateKdyrly4all() {
     bgcpar.kdsoma[il]  = kdsoma;
     bgcpar.kdsompr[il] = kdsompr;
     bgcpar.kdsomcr[il] = kdsomcr;
+
+    if (cd->m_soil.type[il] == 0) { //moss
+      bgcpar.kdl_m[il] = 0.0;
+      bgcpar.kdr_m[il] = 0.0;
+      bgcpar.kdn_m[il] = 0.0;
+    } else if (cd->m_soil.type[il] == 1) { //fib
+      bgcpar.kdl_m[il] = calpar.kdcfib_m;
+      bgcpar.kdr_m[il] = calpar.kdchum_m;
+      bgcpar.kdn_m[il] = calpar.kdcslow_m;
+    } else if (cd->m_soil.type[il] == 2) { //humic
+      bgcpar.kdl_m[il] = calpar.kdcfib_m;
+      bgcpar.kdr_m[il] = calpar.kdchum_m;
+      bgcpar.kdn_m[il] = calpar.kdcslow_m;
+    } else if (cd->m_soil.type[il] == 3) { //mineral
+      bgcpar.kdl_m[il] = calpar.kdcfib_m;
+      bgcpar.kdr_m[il] = calpar.kdcmin_m;
+      bgcpar.kdn_m[il] = calpar.kdcslow_m;
+    }
+
   }
 };
 
