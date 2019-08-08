@@ -151,7 +151,7 @@ public:
   // accumulating/averaging yearly variables at the end of month
   void atm_endOfMonth();
   void veg_endOfMonth(const int & currmind);
-  void grnd_endOfMonth();
+  void grnd_endOfMonth(const int & currmind);
 
   void update_from_climate(const Climate& clm, const int mid, const int dayid);
 

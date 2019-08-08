@@ -671,7 +671,7 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
         if(id==dinmcurr-1) {
           ed[ip].atm_endOfMonth();
           ed[ip].veg_endOfMonth(currmind);
-          ed[ip].grnd_endOfMonth();
+          ed[ip].grnd_endOfMonth(currmind);
         }
       }
     }
@@ -685,7 +685,7 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
     if(id==dinmcurr-1) {
       edall->atm_endOfMonth();
       edall->veg_endOfMonth(currmind);
-      edall->grnd_endOfMonth();
+      edall->grnd_endOfMonth(currmind);
     }
 
   }} // end of day loop (and named scope)
