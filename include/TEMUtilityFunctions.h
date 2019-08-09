@@ -152,6 +152,17 @@ namespace temutil {
   // draft - reading in drainage for a single location
   int get_drainage_class(const std::string &filename, int y, int x);
 
+  // Copy a variable's attributes from one NetCDF file (group) to another.
+  void copy_atts(int igrp, int ivar, int ogrp, int ovar);
+
+  // Copy a netCDF variable schema (name, dimensons, attributes, etc, but no 
+  // actual data) from the src group (file) to the dest group (file).
+  void copy_var(int srcgrp, int varid, int dstgrp);
+
+  // Find the id of the grid_mapping variable in a netCDF file; 
+  // returns -1 if no such variable exists in the file.
+  int get_gridmapping_vid(int ncid);
+
   // draft - reading in fire information for a single location
   int get_fri(const std::string &filename, int y, int x);
   std::vector<int> get_fire_years(const std::string &filename, int y, int x);

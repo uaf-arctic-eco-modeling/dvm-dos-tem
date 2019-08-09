@@ -788,6 +788,149 @@ namespace temutil {
     return drainage_class_value;
   }
 
+  /* Copy the attributes for variable `ivar` in group `igrp` to variable
+   * `ovar` in group `ogrp`.  Global (group) attributes are specified by
+   * using the varid NC_GLOBAL 
+   * Adapted from the example programs "nccopy3.c" and "nccopy4.c" found here:
+   * https://www.unidata.ucar.edu/software/netcdf/examples/programs/
+   */
+  void copy_atts(int igrp, int ivar, int ogrp, int ovar) {
+      int natts;
+      int iatt;
+
+      temutil::nc( nc_inq_varnatts(igrp, ivar, &natts) );
+
+      for(iatt = 0; iatt < natts; iatt++) {
+        char name[NC_MAX_NAME];
+        temutil::nc( nc_inq_attname(igrp, ivar, iatt, name) );
+        temutil::nc( nc_copy_att(igrp, ivar, name, ogrp, ovar) );
+      }
+  }
+
+  /** Copy the schema (no data) for a single variable in group 'srcgrp' to
+   * group 'dstgrp'.
+   *
+   * Will put the destination file in and out of define mode as necessary.
+   *
+   * Adapted from the example programs "nccopy3.c" and "nccopy4.c" found here:
+   * https://www.unidata.ucar.edu/software/netcdf/examples/programs/
+  */
+  void copy_var(int srcgrp, int varid, int dstgrp) {
+
+    int ndims;
+    int srcdimids[NC_MAX_DIMS]; /* ids of dims for input variable */
+    int dstdimids[NC_MAX_DIMS]; /* ids of dims for output variable */
+    char name[NC_MAX_NAME];
+    nc_type src_typeid;
+    nc_type dst_typeid;
+    int natts;
+    int dst_varid;
+
+    temutil::nc( nc_inq_varndims(srcgrp, varid, &ndims) );
+    temutil::nc( nc_inq_var(srcgrp, varid, name, &src_typeid, &ndims, srcdimids, &natts) );
+
+    dst_typeid = src_typeid;
+
+    /* get the corresponding dimids in the output file */
+    for(int i = 0; i < ndims; i++) {
+      char dimname[NC_MAX_NAME];
+      temutil::nc( nc_inq_dimname(srcgrp, srcdimids[i], dimname) );
+      temutil::nc( nc_inq_dimid(dstgrp, dimname, &dstdimids[i]) );
+    }
+
+    int ofgmvid = -1;
+    ofgmvid = temutil::get_gridmapping_vid(dstgrp);
+    if (ofgmvid >= 0) {
+      BOOST_LOG_SEV(glg, warn) << "WARNING!! It appears that the output file ("
+                               << dstgrp << ") already has a grid_mapping"
+                               << " variable! Doing nothing...";
+    } else {
+
+      // Put in define mode...
+      if (nc_redef(dstgrp) == NC_EINDEFINE) {
+        // Already in define mode...
+        /* define the output variable */
+        temutil::nc( nc_def_var(dstgrp, name, dst_typeid, ndims, dstdimids, &dst_varid) );
+
+        /* attach the variable attributes to the output variable */
+        copy_atts(srcgrp, varid, dstgrp, dst_varid);
+
+      } else {
+
+        // enter define mode...
+        temutil::nc( nc_redef(dstgrp) );
+
+        /* define the output variable */
+        temutil::nc( nc_def_var(dstgrp, name, dst_typeid, ndims, dstdimids, &dst_varid) );
+
+        /* attach the variable attributes to the output variable */
+        copy_atts(srcgrp, varid, dstgrp, dst_varid);
+
+        // leave define mode...
+        temutil::nc( nc_enddef(dstgrp) );
+
+      }
+    }
+  }
+
+  /** Given a handle to an (already open) netcdf file, return the variable id 
+  * for the grid mapping variable, or a negative number if no such variable
+  * exists.
+  */
+  int get_gridmapping_vid(int ncid) {
+
+    int gmvid;
+
+    gmvid = -1;
+
+    // // General inquiry: number of variables, dims, global attrs, and which dim
+    // // is unlimited.
+    int n_vars;
+    int n_dims;
+    int n_gatts;
+    int ulim_dimid;
+    temutil::nc( nc_inq(ncid, &n_dims, &n_vars, &n_gatts, &ulim_dimid));
+
+
+    // Get ids (handles) to all the variables
+    int varids[n_vars];
+    temutil::nc( nc_inq_varids(ncid, &n_vars, varids) );
+
+    // Look at each variable  
+    for (int i = 0; i < n_vars; i++) {
+
+      // Get all the info about the variable
+      int vid;
+      vid = varids[i];
+      char vname[NC_MAX_NAME];
+      nc_type vtype;
+      int vndims;
+      int vdimids[NC_MAX_VAR_DIMS];
+      int vnatts;
+      temutil::nc( nc_inq_var(ncid, vid, vname, &vtype, &vndims, vdimids, &vnatts) );
+
+      //std::cout << "    vid: " << vid << " vname: " << vname << "\n";
+
+      // Loop over all the attributes for the variable
+      for (int a=0; a<vnatts; a++) {
+        char attname[NC_MAX_NAME];
+        temutil::nc( nc_inq_attname(ncid, vid, a, attname) );
+        if (0 == std::string(attname).compare("grid_mapping_name")) {
+          gmvid = vid;
+          //std::cout << "    vtype: " << vtype << std::endl;
+        }
+      }
+    }
+
+    if (gmvid < 0) {
+      BOOST_LOG_SEV(glg, warn) << "WARNING! No Grid Mapping found in file with"
+                               << " ncid: " << ncid;
+    }
+
+    return gmvid;
+  }
+
+
 
   /** Parses a string, looking for a community code.
    Reads the string, finds the first occurrence of the characters "CMT", and
