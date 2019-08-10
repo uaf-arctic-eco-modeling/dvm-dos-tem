@@ -16,8 +16,10 @@ void ArgHandler::parse(int argc, char** argv) {
     ("cal-mode,c", boost::program_options::bool_switch(&cal_mode),
      "Switch for calibration mode. When this flag is present, the program will "
      "be forced to run a single site and with '--loop-order=space-major'. The "
-     "program will generate yearly and monthly '.json' files in your /tmp "
-     "directory that are intended to be read by other programs or scripts.")
+     "program will generate yearly and monthly .json files (commonly somewhere "
+     "in your /tmp directory so that the operating system will periodically clean "
+     "them up). The location that the .json files will be written can be controlled "
+     "by the caldata_tree_loc configuration setting.")
 
     ("force-cmt", boost::program_options::value<int>(&force_cmt)
      ->default_value(-1),
@@ -59,10 +61,8 @@ void ArgHandler::parse(int argc, char** argv) {
      "When this flag is present, the calibration-json files will be bundled "
      "into a *-data.tar.gz archive at the end of each stage. The prefix for "
      "the archive will be a two letter code for the run-stage, (i.e. 'pr', "
-     "'eq', 'sp', 'tr', or 'sc'). The resulting archive will be in the "
-     "system's /tmp directory. It is up to the user to move or otherwise save "
-     "these archive files. Subsequent model runs will overwrite any existing "
-     "archive files.")
+     "'eq', 'sp', 'tr', or 'sc'). The resulting archive will be written to the "
+     "location specified in the output_dir configuration setting.")
 
     ("archive-all-json", boost::program_options::bool_switch(&archive_all_json),
      "DEPRECATED! Prefer --tar-caljson. "
