@@ -149,10 +149,10 @@ std::string CohortLookup::calparbgc2str() {
   s << this->kdcsoma << " // kdcsoma:\n";
   s << this->kdcsompr << " // kdcsompr:\n";
   s << this->kdcsomcr << "// kdcsomcr:\n";
-  s << this->kdcfib_m << "// kdcfib_m:\n";
-  s << this->kdchum_m << "// kdchum_m:\n";
-  s << this->kdcmin_m << "// kdcmin_m:\n";
-  s << this->kdcslow_m << "// kdcslow_m:\n";
+  s << this->kdcfib_m << "// kdcfib_ch4:\n";
+  s << this->kdchum_m << "// kdchum_ch4:\n";
+  s << this->kdcmin_m << "// kdcmin_ch4:\n";
+  s << this->kdcslow_m << "// kdcslow_ch4:\n";
   return s.str();
 }
 
