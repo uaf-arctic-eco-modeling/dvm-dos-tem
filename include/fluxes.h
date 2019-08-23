@@ -245,6 +245,11 @@ struct soi2atm_bgc {
   double rhsomcrsum;
 
   double rhtot;  //total rhs
+
+  double rhrawc_ch4[MAX_SOI_LAY];
+  double rhsoma_ch4[MAX_SOI_LAY];
+  double rhsompr_ch4[MAX_SOI_LAY];
+  double rhsomcr_ch4[MAX_SOI_LAY];
   
   soi2atm_bgc(): rhwdeb(UIN_D), rhrawcsum(UIN_D),
                  rhsomasum(UIN_D), rhsomprsum(UIN_D), rhsomcrsum(UIN_D) {
@@ -254,6 +259,10 @@ struct soi2atm_bgc {
       rhsoma[i] = UIN_D;
       rhsompr[i] = UIN_D;
       rhsomcr[i] = UIN_D;
+      rhrawc_ch4[i] = UIN_D;
+      rhsoma_ch4[i] = UIN_D;
+      rhsompr_ch4[i] = UIN_D;
+      rhsomcr_ch4[i] = UIN_D;
     }
   }
   

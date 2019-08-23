@@ -99,7 +99,6 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
   double SS, torty, torty_tmp, diff_tmp, tmp_flux, Flux2A = 0.0, Flux2A_m = 0.0;
   double Prod=0.0, Ebul=0.0, Oxid=0.0, Plant=0.0;
   double Ebul_m=0.0, Plant_m=0.0, totFlux_m=0.0, Oxid_m=0.0;
-  double kfastc, kslowc, klitrc, TResp;//, MResp;
   double totPlant = 0.0, totEbul = 0.0, totPlant_m = 0.0, totEbul_m = 0.0, totOxid_m = 0.0;
   double tottotEbul = 0.0, tottotEbul_m = 0.0; //Added by Y.Mi
   double SB, SM, Pressure;
@@ -181,15 +180,24 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
     currl = ground->fstshlwl; //reset currl to top of the soil stack
     il = 0; //reset manual layer index tracker
+
+    double krawc_ch4 = 0.0;
+    double ksoma_ch4 = 0.0;
+    double ksompr_ch4 = 0.0;
+    double ksomcr_ch4 = 0.0;
+    double TResp = 0.0;
+
     while(currl->isSoil){
 //    for (il = numsoill - 1; il > 0; il--)  //loop through layers
-      TResp = 0.0;
-      klitrc = bgcpar.kdl_m[il]*0.5;
-      kfastc = bgcpar.kdr_m[il]*0.5;
-      kslowc = bgcpar.kdn_m[il]*0.5;
+      krawc_ch4 = bgcpar.kdrawc_ch4[il];
+      ksoma_ch4 = bgcpar.kdsoma_ch4[il];
+      ksompr_ch4 = bgcpar.kdsompr_ch4[il];
+      ksomcr_ch4 = bgcpar.kdsomcr_ch4[il];
+
       Plant = bd->rp * ed->m_sois.rootfrac[il] * currl->ch4 * bd->tveg * realLAI * 0.5;
 
-      if (ed->d_sois.watertab - 0.075 > (currl->z + currl->dz*0.5)) { //layer above water table
+      //Layer above water table
+      if (ed->d_sois.watertab - 0.075 > (currl->z + currl->dz*0.5)) {
         if (wtbflag == 0) {
           Prod = totEbul;
           wtbflag = 1;
@@ -226,29 +234,48 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
         Ebul = 0.0; // added by Y.Mi, Jan 2015
         Ebul_m = 0.0; //Y.Mi
-      } else { //layer below water table
-        TResp = getRhq10(currl->tem-6.0);
+      }
+      //Layer below water table
+      else {
+        TResp = getRhq10(currl->tem - 6.0);
 
-        if (currl->tem >= -2.0 && currl->tem < 0.000001) {
+        //Equations from Helene Genet to replace the ones from peat-dos-tem
+        if(ed->d_sois.ts[il] >= -2.0 && ed->d_sois.ts[il] < 0.000001){
           TResp = getRhq10(-6.0) * 0.25;
-        } else if (currl->tem < -2.0) {
+        }
+        else if(ed->d_sois.ts[il] < -2.0){
           TResp = 0.0;
         }
 
-        if (tmp_sois.reac[il] > 0.0) {
-          del_soi2a.rrh_m[il] = klitrc * tmp_sois.reac[il] * TResp;
-        } else {
-          del_soi2a.rrh_m[il] = 0.0;
+        if(tmp_sois.rawc[il] > 0.0){
+          del_soi2a.rhrawc_ch4[il] = (krawc_ch4 * tmp_sois.rawc[il] * TResp);
+        }
+        else{
+          del_soi2a.rhrawc_ch4[il] = 0.0;
         }
 
-        if (tmp_sois.nonc[il] > 0) {
-          double rslowc = 0.0035 / 0.2045;
-          del_soi2a.nrh_m[il] = (kfastc * (1.0 - rslowc) + kslowc * rslowc) * tmp_sois.nonc[il] * TResp;
-        } else {
-          del_soi2a.nrh_m[il] = 0.0;
+        if(tmp_sois.soma[il] > 0.0){
+          del_soi2a.rhsoma_ch4[il] = (ksoma_ch4 * tmp_sois.soma[il] * TResp);
+        }
+        else{
+          del_soi2a.rhsoma_ch4[il] = 0.0;
         }
 
-        Prod = 1000.0 * (del_soi2a.nrh_m[il] + del_soi2a.rrh_m[il]) / (currl->dz * currl->poro) / 12.0;
+        if(tmp_sois.sompr[il] > 0.0){
+          del_soi2a.rhsompr_ch4[il] = (ksompr_ch4 * tmp_sois.sompr[il] * TResp);
+        }
+        else{
+          del_soi2a.rhsompr_ch4[il] = 0.0;
+        }
+
+        if(tmp_sois.somcr[il] > 0.0){
+          del_soi2a.rhsomcr_ch4[il] = (ksomcr_ch4 * tmp_sois.somcr[il] * TResp);
+        }
+        else{
+          del_soi2a.rhsomcr_ch4[il] = 0.0;
+        }
+ 
+        Prod = 1000.0 * (del_soi2a.rhrawc_ch4[il] + del_soi2a.rhsoma_ch4[il] + del_soi2a.rhsompr_ch4[il] + del_soi2a.rhsomcr_ch4[il]) / (currl->dz * currl->poro) / 12.0;
         SB = 0.05708 - 0.001545 * currl->tem + 0.00002069 * currl->tem * currl->tem; //volume
         Pressure = DENLIQ * G * (currl->z + currl->dz / 2.0) + Pstd;
         SM = Pressure * SB / (GASR * (currl->tem + 273.15)); //mass, n=PV/RT
@@ -639,10 +666,10 @@ void Soil_Bgc::initializeParameter() {
   calpar.kdcsoma    = chtlu->kdcsoma;
   calpar.kdcsompr   = chtlu->kdcsompr;
   calpar.kdcsomcr   = chtlu->kdcsomcr;
-  calpar.kdcfib_m   = chtlu->kdcfib_m;
-  calpar.kdchum_m   = chtlu->kdchum_m;
-  calpar.kdcmin_m   = chtlu->kdcmin_m;
-  calpar.kdcslow_m  = chtlu->kdcslow_m;
+  calpar.kdcrawc_ch4 = chtlu->kdcfib_m;
+  calpar.kdcsoma_ch4 = chtlu->kdchum_m;
+  calpar.kdcsompr_ch4 = chtlu->kdcmin_m;
+  calpar.kdcsomcr_ch4 = chtlu->kdcslow_m;
   bgcpar.rhq10      = chtlu->rhq10;
   bgcpar.moistmin   = chtlu->moistmin;
   bgcpar.moistmax   = chtlu->moistmax;
@@ -1370,21 +1397,16 @@ void Soil_Bgc::updateKdyrly4all() {
     bgcpar.kdsomcr[il] = kdsomcr;
 
     if (cd->m_soil.type[il] == 0) { //moss
-      bgcpar.kdl_m[il] = 0.0;
-      bgcpar.kdr_m[il] = 0.0;
-      bgcpar.kdn_m[il] = 0.0;
-    } else if (cd->m_soil.type[il] == 1) { //fib
-      bgcpar.kdl_m[il] = calpar.kdcfib_m;
-      bgcpar.kdr_m[il] = calpar.kdchum_m;
-      bgcpar.kdn_m[il] = calpar.kdcslow_m;
-    } else if (cd->m_soil.type[il] == 2) { //humic
-      bgcpar.kdl_m[il] = calpar.kdcfib_m;
-      bgcpar.kdr_m[il] = calpar.kdchum_m;
-      bgcpar.kdn_m[il] = calpar.kdcslow_m;
-    } else if (cd->m_soil.type[il] == 3) { //mineral
-      bgcpar.kdl_m[il] = calpar.kdcfib_m;
-      bgcpar.kdr_m[il] = calpar.kdcmin_m;
-      bgcpar.kdn_m[il] = calpar.kdcslow_m;
+      bgcpar.kdrawc_ch4[il] = 0.0;
+      bgcpar.kdsoma_ch4[il] = 0.0;
+      bgcpar.kdsompr_ch4[il] = 0.0;
+      bgcpar.kdsomcr_ch4[il] = 0.0;
+    }
+    else{
+      bgcpar.kdrawc_ch4[il] = calpar.kdcrawc_ch4;
+      bgcpar.kdsoma_ch4[il] = calpar.kdcsoma_ch4;
+      bgcpar.kdsompr_ch4[il] = calpar.kdcsompr_ch4;
+      bgcpar.kdsomcr_ch4[il] = calpar.kdcsomcr_ch4;
     }
 
   }
