@@ -143,6 +143,13 @@ std::string CohortLookup::calparbgc2str() {
   }
 
   s << "    kra[2] (fraction of available NPP (GPP after rm))\n";
+  
+  for (int i = 0; i < NUM_PFT; ++i){
+    s << std::setw(12) << std::setfill(' ') << this->transport_capacity[i];
+  }
+
+  s << "    efficiency of each PFT to passively transport CH4";
+
   s << "// soil calibrated parameters\n";
   s << this->micbnup << " // micbnup: parameter for soil microbial immobialization of N\n";
   s << this->kdcrawc << " // kdcrawc: raw-material (litter) C decompositin rates at reference condition\n";
@@ -162,7 +169,7 @@ void CohortLookup::assignBgcCalpar(std::string & dircmt) {
 
   // get a list of data for the cmt number
   std::list<std::string> l = temutil::parse_parameter_file(
-      dircmt + "cmt_calparbgc.txt", temutil::cmtcode2num(this->cmtcode), 22
+      dircmt + "cmt_calparbgc.txt", temutil::cmtcode2num(this->cmtcode), 23
   );
 
   // pop each line off the front of the list
@@ -180,6 +187,7 @@ void CohortLookup::assignBgcCalpar(std::string & dircmt) {
   temutil::pfll2data_pft(l, krb[I_stem]);
   temutil::pfll2data_pft(l, krb[I_root]);
   temutil::pfll2data_pft(l, frg);
+  temutil::pfll2data_pft(l, transport_capacity);
 
   temutil::pfll2data(l, micbnup);
   temutil::pfll2data(l, kdcrawc);

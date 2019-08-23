@@ -97,7 +97,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 //  double *C, *D, *V, *diff, *r, *s;
   double dt = 1.0 / m; //h = dx; k = dt; dx = 1.0 / n,
   double SS, torty, torty_tmp, diff_tmp, tmp_flux, Flux2A = 0.0, Flux2A_m = 0.0;
-  double Prod=0.0, Ebul=0.0, Oxid=0.0, Plant=0.0;
+  double Prod=0.0, Ebul=0.0, Oxid=0.0;//, Plant=0.0;
   double Ebul_m=0.0, Plant_m=0.0, totFlux_m=0.0, Oxid_m=0.0;
   double totPlant = 0.0, totEbul = 0.0, totPlant_m = 0.0, totEbul_m = 0.0, totOxid_m = 0.0;
   double tottotEbul = 0.0, tottotEbul_m = 0.0; //Added by Y.Mi
@@ -113,24 +113,24 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
   double r[numsoill];
   double s[numsoill];
 
-  //Calculate total LAI across PFTs
+
+  //Calculate LAI per PFT
   //TODO this should only include plant types that are good
   // methane conduits.
-  double lai_from_cd = 0.0;
+  double realLAI[NUM_PFT];
   for(int ip=0; ip<NUM_PFT; ip++){
-    lai_from_cd += cd->m_veg.lai[ip];
+    //Catch for if preLAI is still UIN_D
+    if(ed->d_vegs.preLAI[ip] < 0.0){
+      ed->d_vegs.preLAI[ip] = cd->m_veg.lai[ip];
+    }
+
+    realLAI[ip] = ed->d_vegs.preLAI[ip] + (cd->m_veg.lai[ip] - ed->d_vegs.preLAI[ip]) / 30.0;
+
+    //Storing current LAI value as 'pre' for the next time
+    // this function is called.
+    ed->d_vegs.preLAI[ip] = cd->m_veg.lai[ip];
   }
 
-  //Catch for if preLAI is still UIN_D
-  if(ed->d_vegs.preLAI < 0.0){
-    ed->d_vegs.preLAI = lai_from_cd;
-  }
-
-  double realLAI = ed->d_vegs.preLAI + (lai_from_cd - ed->d_vegs.preLAI) / 30.0;
-
-  //Storing current LAI value as 'pre' for the next time
-  // this function is called.
-  ed->d_vegs.preLAI = lai_from_cd;
 
   Layer *currl = ground->fstshlwl;
   int il = 0;//Manual layer index tracking
@@ -194,7 +194,17 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       ksompr_ch4 = bgcpar.kdsompr_ch4[il];
       ksomcr_ch4 = bgcpar.kdsomcr_ch4[il];
 
-      Plant = bd->rp * ed->m_sois.rootfrac[il] * currl->ch4 * bd->tveg * realLAI * 0.5;
+      double plant_ch4_movement[NUM_PFT] = {0};
+      double layer_froot = 0.0;
+      double plant_ch4_sum = 0.0;
+      for(int ip=0; ip<NUM_PFT; ip++){
+        layer_froot += cd->m_soil.frootfrac[il][ip];
+// tveg should be by pft
+        plant_ch4_movement[ip] = bd->rp * layer_froot * currl->ch4 * chtlu->transport_capacity[ip] * realLAI[ip] * 0.5;
+        plant_ch4_sum += plant_ch4_movement[ip];
+      }
+
+//      Plant = bd->rp * ed->m_sois.rootfrac[il] * currl->ch4 * bd->tveg * realLAI * 0.5;
 
       //Layer above water table
       if (ed->d_sois.watertab - 0.075 > (currl->z + currl->dz*0.5)) {
@@ -227,7 +237,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
         Oxid_m = Oxid * tmp_flux * currl->dz * 12.0;
 
         if (ed->d_sois.ts[il] > 0.0) {
-          Plant_m = Plant * tmp_flux * currl->dz * 1000.0;
+          Plant_m = plant_ch4_sum * tmp_flux * currl->dz * 1000.0;
         } else {
           Plant_m = 0.0;
         }
@@ -299,13 +309,13 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
         Oxid_m = 0.0;
 
         if (currl->tem > 0.0) {
-          Plant_m = Plant * currl->poro * currl->dz * 1000.0;
+          Plant_m = plant_ch4_sum * currl->poro * currl->dz * 1000.0;
         } else {
           Plant_m = 0.0;  //Plant * ed->d_soid.alllwc[il] * ed->m_sois.dz[il] * 1000.0;
         }
       }
 
-      totPlant = totPlant + Plant; //cumulated over 1 day, 24 time steps, Y.MI
+      totPlant = totPlant + plant_ch4_sum; //cumulated over 1 day, 24 time steps, Y.MI
       totPlant_m = totPlant_m + Plant_m; //cumulated over 1 day, 24 time steps, Y.MI
 //            totEbul = totEbul + Ebul; //cumulated over 1 time step, 1 hour, Y.MI
 //            totEbul_m = totEbul_m + Ebul_m; //cumulated over 1 time step, 1 hour, Y.MI
@@ -319,11 +329,11 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
         Oxid = 0.0;
       }
 
-      if (Plant<0.000001) {
-        Plant = 0.0;
+      if (plant_ch4_sum < 0.000001) {
+        plant_ch4_sum = 0.0;
       }
 
-      SS = Prod - Ebul - Oxid - Plant;
+      SS = Prod - Ebul - Oxid - plant_ch4_sum;
 
       if (il == (numsoill - 1)) {
         D[il] = r[il] - 1.0;

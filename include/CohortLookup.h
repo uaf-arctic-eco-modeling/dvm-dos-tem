@@ -39,6 +39,7 @@ public:
   double krb[NUM_PFT_PART][NUM_PFT]; // parameter for maintenance resp. (rm)
   double frg[NUM_PFT]; //fraction of available NPP (GPP after rm)
                        //  for growth respiration
+  double transport_capacity[NUM_PFT]; //efficiency of each PFT to passively transport CH4
 
   // soil
   double micbnup; //parameter related to N immoblization by soil microbial

@@ -19,6 +19,7 @@
 -8.20        -4.65        -4.65        -3.9         0.0          0.0          0.0          0.0          0.0          0.0          // krb(1): coeff(1) in maintenance resp.(stem)
 -10.2        -0.20        -0.20        -1.0         -0.20        -0.20        -0.20        0.0          0.0          0.0          // krb(2): coeff(1) in maintenance resp.(root)
 0.20         0.20         0.20         0.20         0.20         0.20         0.20         0.20         0.20         0.0          // frg: fraction of available NPP (GPP after rm) for growth resp.
+0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // transport capacity: efficiency of each PFT to passively transport CH4
 // soil calibrated parameters
 2.65253         // micbnup: parameter for soil microbial immobialization of N
 0.0507042       // kdcrawc: raw-material (litter) C decompositin rates at reference condition
@@ -45,6 +46,7 @@
 -4.88        -5.15        -6.65         0.00         0.0       0.0        0.0      0.0       0.0       0.0       // krb(1): coeff(1) in maintenance resp.(stem)
 -8.2         -6.20        -3.20         0.00         0.0       0.0        0.0      0.0       0.0       0.0       // krb(2): coeff(1) in maintenance resp.(root)
  0.11         0.11         0.11         0.11         0.0       0.0        0.0      0.0       0.0       0.0       // frg: fraction of available NPP (GPP after rm) for growth resp.
+0.00          0.00         0.00         0.00         0.00      0.00       0.00     0.00      0.00      0.00      // transport capacity: efficiency of each PFT to passively transport CH4
 // soil calibrated parameters
 0.4495     // micbnup: parameter for soil microbial immobialization of N   
 0.634      // kdcrawc: raw-material (litter) C decompositin rates at reference condition  .554
@@ -71,6 +73,7 @@
 -5.70        -8.15        -6.65         0.00         0.0       0.0        0.0      0.0       0.0       0.0       // krb(1): coeff(1) in maintenance resp.(stem)
 -8.2         -6.20        -4.20         0.00         0.0       0.0        0.0      0.0       0.0       0.0       // krb(2): coeff(1) in maintenance resp.(root)
  0.11         0.11         0.11         0.11         0.0       0.0        0.0      0.0       0.0       0.0       // frg: fraction of available NPP (GPP after rm) for growth resp.
+0.00          0.00         0.00         0.00         0.00      0.00       0.00     0.00      0.00      0.00      // transport capacity: efficiency of each PFT to passively transport CH4
 // soil calibrated parameters
 0.4495     // micbnup: parameter for soil microbial immobialization of N   
 0.624      // kdcrawc: raw-material (litter) C decompositin rates at reference condition .654
@@ -97,6 +100,7 @@
 -5.18        -4.45        -6.35         0.00         0.0     0.0      0.0     0.0     0.0      0.0     // krb(1): coeff(1) in maintenance resp.(stem)
 -8.2         -6.30        -5.50         0.00         0.0     0.0      0.0     0.0     0.0      0.0     // krb(2): coeff(1) in maintenance resp.(root)
  0.11         0.11         0.11         0.11         0.0     0.0      0.0     0.0     0.0      0.0     // frg: fraction of available NPP (GPP after rm) for growth resp.
+ 0.00         0.00         0.00         0.00         0.00    0.00     0.00    0.00    0.00     0.00    // transport capacity: efficiency of each PFT to passively transport CH4
 // soil calibrated parameters
 0.4495       // micbnup: parameter for soil microbial immobialization of N  .64 
 0.654      // kdcrawc: raw-material (litter) C decompositin rates at reference condition   .654
@@ -123,6 +127,7 @@
 -5.0100      -5.100      -4.50100     -5.1000       0.00000      0.0000      0.0000       0.00000     0.00000    0.0     // krb(1): coeff(1) in maintenance resp.(stem)
 -4.9000      -2.5500     -4.96000     -5.55000     -5.10000     -3.0000     -1.5000       0.00000     0.00000    0.0     // krb(2): coeff(1) in maintenance resp.(root)
  0.1000       0.1000      0.1000       0.1000       0.1000       0.1000      0.1000       0.10000     0.10000    0.0     // frg: frac of avail NPP (GPP after rm) for growth resp.
+ 0.20         0.20        0.20         0.20         0.80         0.50        0.80         0.00        0.20       0.0     // transport capacity: efficiency of each PFT to passively transport CH4
 // soil calibrated parameters
 0.51     // micbnup: parameter for soil microbial immobialization of N
 0.92     // kdcrawc: raw-material (litter) C decompositin rates at reference condition
@@ -201,6 +206,7 @@
 -4.80       -5.40         0.0          0.0          0.0          0.0        0.0         0.0        0.0          0.0          // krb(1): coeff(1) in maintenance resp.(stem)
 -4.20       -6.55        -1.9          0.0         -5.85         0.0        0.0         0.0        0.0          0.0          // krb(2): coeff(1) in maintenance resp.(root)
  0.20        0.20         0.20         0.20         0.20         0.2        0.0         0.0        0.0          0.0          // frg: fraction of available NPP (GPP after rm) for growth resp.
+ 0.20        0.20         0.50         0.00         0.80         0.20       0.0         0.0        0.0          0.0          // transport capacity: efficiency of each PFT to passively transport CH4
 // soil calibrated parameters
 0.61        // micbnup: parameter for soil microbial immobialization of N
 0.77       // kdcrawc: raw-material (litter) C decompositin rates at reference condition  was 0.47  
@@ -227,6 +233,7 @@
 -6.60        -2.00        -4.65        -3.40         0.00         0.00       0.0         0.0        0.0          0.0          // krb(1): coeff(1) in maintenance resp.(stem)
 -7.90        -1.40        -5.00        -2.50        -1.00        -1.00       0.0         0.0       -2.9          0.0          // krb(2): coeff(1) in maintenance resp.(root)
  0.20         0.20         0.20         0.20         0.20         0.00       0.0         0.0        0.0          0.0          // frg: fraction of available NPP (GPP after rm) for growth resp.
+ 0.20         0.20         0.20         0.20         0.50         0.80       0.20        0.00       0.80         0.0          // transport capacity: efficiency of each PFT to passively transport CH4
 // soil calibrated parameters
 0.8265        // micbnup: parameter for soil microbial immobialization of N
 0.077       // kdcrawc: raw-material (litter) C decompositin rates at reference condition
@@ -253,6 +260,7 @@
 -3.85       -4.00        -3.65         0.00         0.00        0.00      -3.5        0.0      0.0     0.0       // krb(1): coeff(1) in maintenance resp.(stem)
 -6.60       -3.00        -5.00         0.00         0.00        0.00      -2.0        0.0      0.0     0.0       // krb(2): coeff(1) in maintenance resp.(root)
  0.20        0.20         0.20         0.20         0.20        0.00       0.0        0.0      0.0     0.0       // frg: fraction of available NPP (GPP after rm) for growth resp.
+ 0.20        0.80         0.20         0.20         0.00        0.20       0.50       0.0      0.0     0.0       // transport capacity: efficiency of each PFT to passively transport CH4
 // soil calibrated parameters
 0.45        // micbnup: parameter for soil microbial immobialization of N
 0.91       // kdcrawc: raw-material (litter) C decompositin rates at reference condition
@@ -279,6 +287,7 @@
 -8.60      -9.80       -3.95      -3.40        0.00       0.00       0.0       -8.5        0.0        0.0      // krb(1): coeff(1) in maintenance resp.(stem)
 -9.90      -9.40       -5.00      -2.50        0.00       0.00       0.0       -9.5        0.0        0.0      // krb(2): coeff(1) in maintenance resp.(root)
  0.20       0.20        0.20       0.20        0.20       0.00       0.0        0.0        0.0        0.0      // frg: fraction of available NPP (GPP after rm) for growth resp.
+ 0.20       0.80        0.20       0.80        0.20       0.00       0.20       0.50       0.20       0.00     // transport capacity: efficiency of each PFT to passively transport CH4
 // soil calibrated parameters
 0.79       // micbnup: parameter for soil microbial immobialization of N
 0.95       // kdcrawc: raw-material (litter) C decompositin rates at reference condition
@@ -305,6 +314,7 @@
   0.000000   -3.500000   -4.500000    -3.750000     0.000000     0.000000  0.00     0.00     0.00     0.00     // krb(1): coeff(1) in maintenance resp.(stem)
   0.000000   -4.000000   -3.500000    -1.500000    -3.250000     0.000000  0.00     0.00     0.00     0.00     // krb(2): coeff(1) in maintenance resp.(root)
   0.200000    0.200000    0.200000     0.200000     0.200000     0.200000  0.00     0.00     0.00     0.00     // frg: fraction of available NPP (GPP after rm) for growth resp.
+  0.200000    0.800000    0.200000     0.200000     0.500000     0.200000  0.00     0.00     0.00     0.00     // transport capacity: efficiency of each PFT to passively transport CH4
 // soil calibrated parameters
 2.750000     // micbnup: parameter for soil microbial immobilization of N 
 0.500000     // kdcrawc: raw-material (litter) C decomposition rates at reference condition

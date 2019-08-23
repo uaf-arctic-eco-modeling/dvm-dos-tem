@@ -61,8 +61,14 @@ struct vegstate_dim {
 struct vegstate_env {
   double snow;   // snow on veg // mm (H2O)
   double rwater;  // rain water on veg // mm (H2O)
-  double preLAI; //Previous LAI, stored for use in CH4 flux calculation
-  vegstate_env():snow(UIN_D), rwater(UIN_D), preLAI(UIN_D) {}
+  double preLAI[NUM_PFT]; //Previous LAI, stored for use in CH4 flux calculation
+
+  vegstate_env():snow(UIN_D), rwater(UIN_D) {
+
+    for(int ip=0; ip<NUM_PFT; ip++){
+      preLAI[ip] = UIN_D;
+    }
+  }
 };
 
 struct vegstate_bgc {
