@@ -666,10 +666,10 @@ void Soil_Bgc::initializeParameter() {
   calpar.kdcsoma    = chtlu->kdcsoma;
   calpar.kdcsompr   = chtlu->kdcsompr;
   calpar.kdcsomcr   = chtlu->kdcsomcr;
-  calpar.kdcrawc_ch4 = chtlu->kdcfib_m;
-  calpar.kdcsoma_ch4 = chtlu->kdchum_m;
-  calpar.kdcsompr_ch4 = chtlu->kdcmin_m;
-  calpar.kdcsomcr_ch4 = chtlu->kdcslow_m;
+  calpar.kdcrawc_ch4 = chtlu->kdcrawc_ch4;
+  calpar.kdcsoma_ch4 = chtlu->kdcsoma_ch4;
+  calpar.kdcsompr_ch4 = chtlu->kdcsompr_ch4;
+  calpar.kdcsomcr_ch4 = chtlu->kdcsomcr_ch4;
   bgcpar.rhq10      = chtlu->rhq10;
   bgcpar.moistmin   = chtlu->moistmin;
   bgcpar.moistmax   = chtlu->moistmax;
