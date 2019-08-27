@@ -607,16 +607,18 @@ std::vector<float> Climate::interpolation_range(const std::vector<float>& data, 
 }
 
 
-/** Prepares a single year of daily driving data */ 
+/** Prepares a single year of daily driving data. 
+* 
+* iy is the run's index year, not the calendar year!
+* stage is a 2 letter code for the run stage, one of: pr, eq, sp, tr, sc.
+*/
 void Climate::prepare_daily_driving_data(int iy, const std::string& stage) {
-  // FIX rename iy to avoid confusion, since it isn't always the same
-  // as the iy in Runner (SP passes in a modded value).
 
   if( (stage.find("pre") != std::string::npos)
       || (stage.find("eq") != std::string::npos) ){
 
-    // Uses the same value of CO2 every day of the year.
-    // Pre-Run and EQ also use constant CO2 value for all years.
+    // Constant co2! Always use the first year in the input data, and use it
+    // for all days!
     co2_d = co2.at(0);
 
     // Create daily data by interpolating
