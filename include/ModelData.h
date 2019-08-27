@@ -58,6 +58,7 @@ public:
   string soil_texture_file;
   string drainage_file;
   string co2_file;
+  string proj_co2_file;
   string runmask_file;
   string output_dir;
   string output_spec_file;

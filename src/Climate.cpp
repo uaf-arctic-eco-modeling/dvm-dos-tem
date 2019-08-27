@@ -473,6 +473,10 @@ void Climate::load_proj_climate(const std::string& fname, int y, int x){
 
   this->load_from_file(fname, y, x);
 }
+void Climate::load_proj_co2(const std::string& fname){
+  BOOST_LOG_SEV(glg, note) << "CO2, loading projected data!";
+  this->co2 = temutil::get_timeseries(fname, "co2");
+}
 
 std::vector<float> Climate::avg_over(const std::vector<float> & var, const int window) {
 
