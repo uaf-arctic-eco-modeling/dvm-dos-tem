@@ -23,6 +23,24 @@ import numpy as np
 
 import glob
 
+'''
+About the co2 data:
+
+ - The "old" data are numbers that have been with dvmdostem for a long time and are
+probably from here: https://www.esrl.noaa.gov/gmd/ccgg/trends/data.html
+
+ - The RCP_85 ("new") data are from here: http://www.iiasa.ac.at/web-apps/tnt/RcpDb
+
+Use this to snippet to plot them next to eachother.
+    import pandas as pd
+    import matplotlib.pyplot as plt
+    odf = pd.DataFrame(dict(data=OLD_CO2_DATA, year=OLD_CO2_YEARS))
+    ndf = pd.DataFrame(dict(data=RCP_85_CO2_DATA, year=RCP_85_CO2_YEARS))
+    a = ndf.merge(odf, how='outer', on='year')
+    plt.plot(a.year, a.data_x)
+    plt.plot(a.year, a.data_y)
+    plt.show()
+'''
 OLD_CO2_DATA = [ 296.311, 296.661, 297.04, 297.441, 297.86, 298.29, 298.726, 299.163,
   299.595, 300.016, 300.421, 300.804, 301.162, 301.501, 301.829, 302.154, 
   302.48, 302.808, 303.142, 303.482, 303.833, 304.195, 304.573, 304.966, 
