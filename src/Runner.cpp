@@ -44,8 +44,7 @@ Runner::Runner(ModelData mdldata, bool cal_mode, int y, int x):
 }
 
 
-Runner::~Runner() {
-};
+Runner::~Runner() {};
 
 void Runner::run_years(int start_year, int end_year, const std::string& stage) {
 
