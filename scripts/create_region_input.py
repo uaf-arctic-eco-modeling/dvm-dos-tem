@@ -330,7 +330,7 @@ def make_run_mask(filename, sizey=10, sizex=10, setpx='', match2veg=False, withl
 
 
 
-def make_co2_file(filename):
+def make_co2_file(filename, start_year, years, projected=False):
   '''Generates a co2 file for dvmdostem from the old sample data'''
 
   print "Creating a co2 file..."
@@ -345,7 +345,29 @@ def make_co2_file(filename):
   # Data Variables
   co2 = new_ncfile.createVariable('co2', np.float32, ('year',))
 
+  if not projected:
+    print " --> NOTE: Hard-coding the values that were just ncdumped from the old file..."
+    print " --> NOTE: Adding new values for 2010-2017. Using data from here:"
+    print "           https://www.esrl.noaa.gov/gmd/ccgg/trends/data.html"
+    print "           direct ftp link:"
+    print "           ftp://aftp.cmdl.noaa.gov/products/trends/co2/co2_annmean_mlo.txt"
+    sidx = start_year
+    eidx = ((sidx+years) if years > 0 else None)
+    co2_data = OLD_CO2_DATA[sidx:eidx]
+    co2_years = OLD_CO2_YEARS[sidx:eidx]
+  else:
+    print "--> NOTE: Using **projected** data from here: http://www.iiasa.ac.at/web-apps/tnt/RcpDb/dsd?Action=htmlpage&page=download"
+    last_available_hist_yr = OLD_CO2_YEARS[-1]
+    sidx = RCP_85_CO2_YEARS.index(last_available_hist_yr+1) + start_year
+    eidx = ((sidx+years) if years > 0 else None)
+    co2_data = RCP_85_CO2_DATA[sidx:eidx]
+    co2_years = RCP_85_CO2_YEARS[sidx:eidx]
 
+    if (RCP_85_CO2_YEARS[sidx] != last_available_hist_yr + 1) or (years != -1) :
+      print "--> WARNING!! There may be a gap between the historic and projected CO2 data!"
+
+  co2[:] = co2_data
+  yearV[:] = co2_years
 
   new_ncfile.source = source_attr_string()
   new_ncfile.close()
@@ -1625,7 +1647,43 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
     make_run_mask(os.path.join(out_dir, "run-mask.nc"), sizey=ys, sizex=xs, match2veg=True, withlatlon=withlatlon, withproj=withproj, projwin=projwin) #setpx='1,1')
 
   if 'co2' in files:
-    make_co2_file(os.path.join(out_dir, "co2.nc"))
+    make_co2_file(os.path.join(out_dir, "co2.nc"), start_year=start_year, years=years, projected=False)
+
+  if 'projected-co2' in files:
+
+    if 'co2' in files and 'projected-co2' in files:
+      if clip_projected2match_historic:
+        # Look up the last year that is in the historic data
+        # assumes that the historic file was just created, and so exists and 
+        # is reliable...
+        with netCDF4.Dataset(os.path.join(out_dir, 'co2.nc'), 'r') as hds:
+          end_hist = netCDF4.num2date(hds.variables['time'][-1], hds.variables['time'].units, calendar=hds.variables['time'].calendar)
+        print "The historic co2 dataset ends at {}".format(end_hist)
+
+        if (2018 > end_hist.year+1):
+          print """==> WARNING! There will be a gap between the historic and 
+          projected co2 files!! Ignoring --start-year offset and will 
+          start building at the beginning of the projected period ({})
+          """.format(2018)
+          start_year = 0
+        else:
+          # Override start_year
+          start_year = (end_hist.year - 2018) + 1 
+          print """Setting start year for projected data to be immediately 
+          following the historic data. 
+          End historic: {} 
+          Beginning projected: {}
+          start_year offset: {}""".format(end_hist.year, 2018 + start_year, start_year)
+
+    make_co2_file(os.path.join(out_dir, "projected-co2.nc"), start_year=start_year, years=years, projected=True)
+
+
+
+
+
+
+
+
 
   if 'historic-climate' in files:
     of_name = "historic-climate.nc"
@@ -1947,17 +2005,17 @@ if __name__ == '__main__':
 
 
 
-  fileChoices = ['run-mask', 'co2', 'vegetation', 'drainage', 'soil-texture', 'topo',
+  fileChoices = ['run-mask', 'co2', 'projected-co2', 'vegetation', 'drainage', 'soil-texture', 'topo',
                  'fri-fire', 'historic-explicit-fire', 'projected-explicit-fire',
                  'historic-climate', 'projected-climate']
 
   # maintain subsets of the file choices to ease argument combo verification  
   temporal_file_choices = [
-    'co2',
+    'co2', 'projected-co2',
     'historic-explicit-fire','projected-explicit-fire',
     'historic-climate','projected-climate'
   ]
-  spatial_file_choices = [f for f in filter(lambda x: x not in ['co2'], fileChoices)]
+  spatial_file_choices = [f for f in filter(lambda x: x not in ['co2', 'projected-co2'], fileChoices)]
 
 
   parser = argparse.ArgumentParser(
@@ -1993,7 +2051,7 @@ if __name__ == '__main__':
       help=textwrap.dedent("""(DEPRECATED - now built into dvmdostem) Only 
         create the restart template file."""))
 
-  parser.add_argument('--tifs', default="", required=True,
+  parser.add_argument('--tifs', default="", required=False,
       help=textwrap.dedent("""Directory containing input TIF directories. This
         is used as a "base path", and it is assumed that all the requsite input
         files exist somewhere within the directory specified by this option.
@@ -2182,7 +2240,7 @@ if __name__ == '__main__':
       parser.error("Argument ERROR!: Must specify years and start year for temporal files!")
 
   if any( [f in spatial_file_choices for f in which_files] ):
-    if not all([x is not None for x in [args.xoff, args.yoff, args.xsize, args.ysize]]):
+    if not all([x is not None for x in [args.xoff, args.yoff, args.xsize, args.ysize, args.tifs]]):
       print args
       print args.which
       print which_files
