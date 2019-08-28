@@ -1670,40 +1670,11 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
     make_co2_file(os.path.join(out_dir, "co2.nc"), start_year=start_year, years=years, projected=False)
 
   if 'projected-co2' in files:
-
     if 'co2' in files and 'projected-co2' in files:
       if clip_projected2match_historic:
-        # Look up the last year that is in the historic data
-        # assumes that the historic file was just created, and so exists and 
-        # is reliable...
-        with netCDF4.Dataset(os.path.join(out_dir, 'co2.nc'), 'r') as hds:
-          end_hist = netCDF4.num2date(hds.variables['time'][-1], hds.variables['time'].units, calendar=hds.variables['time'].calendar)
-        print "The historic co2 dataset ends at {}".format(end_hist)
-
-        if (2018 > end_hist.year+1):
-          print """==> WARNING! There will be a gap between the historic and 
-          projected co2 files!! Ignoring --start-year offset and will 
-          start building at the beginning of the projected period ({})
-          """.format(2018)
-          start_year = 0
-        else:
-          # Override start_year
-          start_year = (end_hist.year - 2018) + 1 
-          print """Setting start year for projected data to be immediately 
-          following the historic data. 
-          End historic: {} 
-          Beginning projected: {}
-          start_year offset: {}""".format(end_hist.year, 2018 + start_year, start_year)
+        pass # Not handled the same way as the climate, see logic in make_co2_files funciton.
 
     make_co2_file(os.path.join(out_dir, "projected-co2.nc"), start_year=start_year, years=years, projected=True)
-
-
-
-
-
-
-
-
 
   if 'historic-climate' in files:
     of_name = "historic-climate.nc"
