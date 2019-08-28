@@ -351,6 +351,7 @@ def make_co2_file(filename, start_year, years, projected=False):
     print "           https://www.esrl.noaa.gov/gmd/ccgg/trends/data.html"
     print "           direct ftp link:"
     print "           ftp://aftp.cmdl.noaa.gov/products/trends/co2/co2_annmean_mlo.txt"
+    new_ncfile.data_source = "https://www.esrl.noaa.gov/gmd/ccgg/trends/data.html"
     sidx = start_year
     eidx = ((sidx+years) if years > 0 else None)
     co2_data = OLD_CO2_DATA[sidx:eidx]
@@ -362,6 +363,7 @@ def make_co2_file(filename, start_year, years, projected=False):
     eidx = ((sidx+years) if years > 0 else None)
     co2_data = RCP_85_CO2_DATA[sidx:eidx]
     co2_years = RCP_85_CO2_YEARS[sidx:eidx]
+    new_ncfile.data_source = "http://www.iiasa.ac.at/web-apps/tnt/RcpDb/dsd?Action=htmlpage&page=download"
 
     if (RCP_85_CO2_YEARS[sidx] != last_available_hist_yr + 1) or (years != -1) :
       print "--> WARNING!! There may be a gap between the historic and projected CO2 data!"
