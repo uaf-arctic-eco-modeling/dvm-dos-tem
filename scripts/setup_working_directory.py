@@ -88,6 +88,7 @@ if __name__ == '__main__':
   config['IO']['drainage_file']        = os.path.join(os.path.abspath(args.input_data_path), 'drainage.nc')
   config['IO']['soil_texture_file']    = os.path.join(os.path.abspath(args.input_data_path), 'soil-texture.nc')
   config['IO']['co2_file']             = os.path.join(os.path.abspath(args.input_data_path), 'co2.nc')
+  config['IO']['proj_co2_file']        = os.path.join(os.path.abspath(args.input_data_path), 'projected-co2.nc')
   config['IO']['topo_file']            = os.path.join(os.path.abspath(args.input_data_path), 'topo.nc')
   config['IO']['fri_fire_file']        = os.path.join(os.path.abspath(args.input_data_path), 'fri-fire.nc')
   config['IO']['hist_exp_fire_file']   = os.path.join(os.path.abspath(args.input_data_path), 'historic-explicit-fire.nc')
@@ -115,6 +116,7 @@ if __name__ == '__main__':
     "drainage_file",
     "soil_texture_file",
     "co2_file",
+    "proj_co2_file",
     "topo_file",
     "fri_fire_file",
     "hist_exp_fire_file",
