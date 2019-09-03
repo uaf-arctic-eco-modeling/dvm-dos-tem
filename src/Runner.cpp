@@ -1543,6 +1543,72 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
   } //end CMTNUM
   map_itr = netcdf_outputs.end();
 
+  //CH4FLUX
+  map_itr = netcdf_outputs.find("CH4FLUX");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: CH4FLUX";
+    curr_spec = map_itr->second;
+
+    #pragma omp critical(outputCH4FLUX)
+    {
+
+      if(curr_spec.monthly){
+        output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.edall->d_soid.ch4flux, 1, month_timestep, 1);
+      }
+      else if(curr_spec.yearly){
+//        output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.edall->d_soid.ch4flux, 1, year, 1);
+      }
+    }//end critical(outputCH4FLUX)
+  }//end CH4FLUX
+  map_itr = netcdf_outputs.end();
+
+
+  //CH4POOL
+  map_itr = netcdf_outputs.find("CH4POOL");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: CH4POOL";
+    curr_spec = map_itr->second;
+
+    #pragma omp critical(outputCH4POOL)
+    {
+
+      double ch4_output[MAX_SOI_LAY] = {0};
+      double ch4_sum = 0.0;
+      int il = 0;
+      Layer* currL = this->cohort.ground.toplayer;
+      while(currL != NULL){
+        ch4_output[il] = currL->ch4;
+        ch4_sum += currL->ch4;
+        il++;
+        currL = currL->nextl;
+      }
+
+      //By layer
+      if(curr_spec.layer){
+
+        if(curr_spec.monthly){
+          output_nc_4dim(&curr_spec, file_stage_suffix, &ch4_output[0], MAX_SOI_LAY, month_timestep, 1);
+        }
+        else if(curr_spec.yearly){
+          output_nc_4dim(&curr_spec, file_stage_suffix, &ch4_output[0], MAX_SOI_LAY, year, 1);
+        }
+      }
+      //Total, instead of by layer
+      else{
+
+        if(curr_spec.monthly){
+          output_nc_3dim(&curr_spec, file_stage_suffix, &ch4_sum, 1, month_timestep, 1);
+        }
+        else if(curr_spec.yearly){
+          output_nc_3dim(&curr_spec, file_stage_suffix, &ch4_sum, 1, year, 1);
+        }
+      }
+
+    }//end critical(outputCH4POOL)
+  }//end CH4POOL
+  map_itr = netcdf_outputs.end();
+
+
   //Standing dead C
   map_itr = netcdf_outputs.find("DEADC");
   if(map_itr != netcdf_outputs.end()){
