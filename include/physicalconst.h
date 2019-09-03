@@ -17,6 +17,8 @@ const float LHFUS  = 3.337e5 ; // latent heat of fusion  J/kg
 const float LHVAP  = 2.501e6 ; // latent heat of vaporization  J/kg
 const float LHSUB  = 2.8338e6 ; // latent heat of sublimation  J/kg
 
+const float KP     = 0.01; // rate constant related to methane. Unit/hr
+
 const float G        = 9.80616 ;  //  acceleration of gravity m/s2
 #ifndef PI
 const float PI       = 3.14159265358979; // pi -

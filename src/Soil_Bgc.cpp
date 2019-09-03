@@ -200,7 +200,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       for(int ip=0; ip<NUM_PFT; ip++){
         layer_froot += cd->m_soil.frootfrac[il][ip];
 // tveg should be by pft
-        plant_ch4_movement[ip] = bd->rp * layer_froot * currl->ch4 * chtlu->transport_capacity[ip] * realLAI[ip] * 0.5;
+        plant_ch4_movement[ip] = -KP * layer_froot * currl->ch4 * chtlu->transport_capacity[ip] * realLAI[ip];
         plant_ch4_sum += plant_ch4_movement[ip];
       }
 
