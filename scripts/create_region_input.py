@@ -348,7 +348,7 @@ def make_run_mask(filename, sizey=10, sizex=10, setpx='', match2veg=False, withl
 
 
 
-def make_co2_file(filename, start_year, years, projected=False):
+def make_co2_file(filename, start_idx, end_idx, projected=False):
   '''Generates a co2 file for dvmdostem from the old sample data'''
 
   print "Creating a co2 file..."
@@ -370,21 +370,13 @@ def make_co2_file(filename, start_year, years, projected=False):
     print "           direct ftp link:"
     print "           ftp://aftp.cmdl.noaa.gov/products/trends/co2/co2_annmean_mlo.txt"
     new_ncfile.data_source = "https://www.esrl.noaa.gov/gmd/ccgg/trends/data.html"
-    sidx = start_year
-    eidx = ((sidx+years) if years > 0 else None)
-    co2_data = OLD_CO2_DATA[sidx:eidx]
-    co2_years = OLD_CO2_YEARS[sidx:eidx]
+    co2_data = OLD_CO2_DATA[start_idx:end_idx]
+    co2_years = OLD_CO2_YEARS[start_idx:end_idx]
   else:
     print "--> NOTE: Using **projected** data from here: http://www.iiasa.ac.at/web-apps/tnt/RcpDb/dsd?Action=htmlpage&page=download"
-    last_available_hist_yr = OLD_CO2_YEARS[-1]
-    sidx = RCP_85_CO2_YEARS.index(last_available_hist_yr+1) + start_year
-    eidx = ((sidx+years) if years > 0 else None)
-    co2_data = RCP_85_CO2_DATA[sidx:eidx]
-    co2_years = RCP_85_CO2_YEARS[sidx:eidx]
     new_ncfile.data_source = "http://www.iiasa.ac.at/web-apps/tnt/RcpDb/dsd?Action=htmlpage&page=download"
-
-    if (RCP_85_CO2_YEARS[sidx] != last_available_hist_yr + 1) or (years != -1) :
-      print "--> WARNING!! There may be a gap between the historic and projected CO2 data!"
+    co2_data = RCP_85_CO2_DATA[start_idx:end_idx]
+    co2_years = RCP_85_CO2_YEARS[start_idx:end_idx]
 
   co2[:] = co2_data
   yearV[:] = co2_years
@@ -1667,14 +1659,20 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
     make_run_mask(os.path.join(out_dir, "run-mask.nc"), sizey=ys, sizex=xs, match2veg=True, withlatlon=withlatlon, withproj=withproj, projwin=projwin) #setpx='1,1')
 
   if 'co2' in files:
-    make_co2_file(os.path.join(out_dir, "co2.nc"), start_year=start_year, years=years, projected=False)
+    sidx = OLD_CO2_YEARS.index(int(config['h clim first yr']))
+    eidx = OLD_CO2_YEARS.index(int(config['h clim last yr']))+1
+    make_co2_file(os.path.join(out_dir, "co2.nc"), sidx, eidx, projected=False)
 
   if 'projected-co2' in files:
+    sidx = RCP_85_CO2_YEARS.index(int(config['p clim first yr']))
+    eidx = RCP_85_CO2_YEARS.index(int(config['p clim last yr'])) + 1
+    #eidx = None # Take it all!!
     if 'co2' in files and 'projected-co2' in files:
       if clip_projected2match_historic:
-        pass # Not handled the same way as the climate, see logic in make_co2_files funciton.
+        sidx = RCP_85_CO2_YEARS.index(int(config['h clim last yr'])) + 1
+        eidx = RCP_85_CO2_YEARS.index(int(config['p clim last yr'])) + 1
 
-    make_co2_file(os.path.join(out_dir, "projected-co2.nc"), start_year=start_year, years=years, projected=True)
+    make_co2_file(os.path.join(out_dir, "projected-co2.nc"), sidx, eidx, projected=True)
 
   if 'historic-climate' in files:
     of_name = "historic-climate.nc"
@@ -1779,6 +1777,9 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
                       cleanup_tmpfiles=cleanup, projwin=projwin)
 
 
+  # Conform CO2 to climate!!
+  if all([f in files for f in 'historic-climate','projected-climate','co2','projected-co2']):
+    pass
 
   if 'fri-fire' in files:
     of_name = os.path.join(out_dir, "fri-fire.nc")
@@ -1901,7 +1902,7 @@ def get_slurm_wrapper_string(tifs, pclim='ncar-ccsm4',
   return slurm_wrapper
 
 
-def get_empty_config_object():
+
   '''
   Returns a configuration object with all the required keys, but no values.
   '''
@@ -2002,7 +2003,7 @@ if __name__ == '__main__':
 
   # maintain subsets of the file choices to ease argument combo verification  
   temporal_file_choices = [
-    'co2', 'projected-co2',
+    #'co2', 'projected-co2',
     'historic-explicit-fire','projected-explicit-fire',
     'historic-climate','projected-climate'
   ]
@@ -2195,10 +2196,9 @@ if __name__ == '__main__':
     exit(0)
 
 
-
   # Verify argument combinations: time coordinate variables and files
   if args.clip_projected2match_historic:
-    if ('historic-climate' in args.which) and ('projected-climate' in args.which):
+    if (('historic-climate' in args.which) and ('projected-climate' in args.which)) or (('co2' in args.which) and ('projected-co2' in args.which)):
       pass # everything ok...
     elif 'all' in args.which:
       pass # everything ok...
@@ -2210,8 +2210,14 @@ if __name__ == '__main__':
     if (args.buildout_time_coord):
       pass # everything ok...
     else:
-      print "ERROR!: You MUST specify to the --buildout-time-coord option if you want to match historic and projected files!"
-      exit(-1)
+      if ('historic-climate' in args.which) and ('projected-climate' in args.which):
+        print "ERROR!: You MUST specify to the --buildout-time-coord option if you want to match historic and projected climate files!"
+        exit(-1)
+      elif ('co2' in args.which) and ('projected-co2' in args.which):
+        pass # No need for build out time coord for co2 files.
+      else:
+        print "ERROR?? Not sure what the problem is..."
+        exit(-1)
     if args.start_year > 0:
       print "WARNING! The --start-year offset will be ignored for projected climate file!"
 
@@ -2242,17 +2248,16 @@ if __name__ == '__main__':
 
   # Verify argument combos: project climate configuration specified when 
   # asking to generate projected climate
-  if 'projected-climate' in which_files:
+  if 'projected-climate' in which_files or 'projected-co2' in which_files:
     if args.projected_climate_config is not None:
       pass # All ok - value is set and the choices are constrained above
     else:
       parser.error("Argument ERROR! Must specify a projecte climate configuration for the projected-climate file!")
 
-
   # Pick up the user's config option for which projected climate to use 
   # overwrite the section in the config object.
   cmdline_config = configobj.ConfigObj()
-  if 'projected-climate' in which_files:
+  if 'projected-climate' in which_files or 'projected-co2' in which_files:
     if 'ncar-ccsm4' in args.projected_climate_config:
       cmdline_config = configobj.ConfigObj(ncar_ccsm4_ar5_rcp85_config.split("\n"))
     elif 'mri-cgcm3' in args.projected_climate_config:
