@@ -15,7 +15,7 @@ import netCDF4 as nc
 import collections
 
 
-def get_last_n_eq(var, timeres='yearly', fileprefix=''):
+def get_last_n_eq(var, timeres='yearly', fileprefix='', n=10):
   '''
   Work in progress for getting the last few year of equlibrium stage for calibration.
   '''
@@ -25,8 +25,9 @@ def get_last_n_eq(var, timeres='yearly', fileprefix=''):
     raise RuntimeError("Can't find file: {}".format(fname))
 
   with nc.Dataset(fname) as ds:
-    data = ds.variables[var.upper()][-10:]
-    info = [(name, dim.size) for name, dim in ds.dimensions.iteritems()]
+    data = ds.variables[var.upper()][-n:]
+    info = zip(data.shape, ds.dimensions.keys())
+    #info = [(name, dim.size) for name, dim in ds.dimensions.iteritems()]
 
   return data, info
 
