@@ -6,13 +6,26 @@ import logging
 import textwrap
 import tarfile        # for reading from tar.gz files
 import shutil         # for cleaning up a /tmp directory
-
+import numpy as np
 
 # Find the path to the this file so that we can look, relative to this file
 # up one directory and into the scripts/ directory
 sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../'))
 print sys.path
 import scripts.param_util as pu
+
+
+def yearly_files(tarfileobj):
+  '''Get the */yearly/*.json files...'''
+  for tarinfo in tarfileobj:
+    if 'yearly' in tarinfo.name:
+      yield tarinfo
+
+def monthly_files(tarfileobj):
+  '''Get the */monthly/*.json files...'''
+  for tarinfo in tarfileobj:
+    if 'monthly' in tarinfo.name:
+      yield tarinfo
 
 
 class InputHelper(object):

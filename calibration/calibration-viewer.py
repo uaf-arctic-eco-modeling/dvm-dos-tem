@@ -151,18 +151,6 @@ def do_nothing(signal_number, frame):
   print "Doing nothing with signal number: ", signal_number
 
 
-def yearly_files(tarfileobj):
-  '''Get the */yearly/*.json files...'''
-  for tarinfo in tarfileobj:
-    if 'yearly' in tarinfo.name:
-      yield tarinfo
-
-def monthly_files(tarfileobj):
-  '''Get the */monthly/*.json files...'''
-  for tarinfo in tarfileobj:
-    if 'monthly' in tarinfo.name:
-      yield tarinfo
-
 def worker(in_helper, the_suite, calib_targets, title, add_in_helpers, save_fname, save_fmt):
 
   logging.info("Build the plot object...")
