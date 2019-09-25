@@ -143,6 +143,7 @@ def all_vars_off(data):
   return data
 
 def toggle_on_variable(data, var, res_spec):
+
   if var not in list_vars(data):
     raise ValueError("Invalid variable! {} not found!".format(var))
 
@@ -164,32 +165,32 @@ def toggle_on_variable(data, var, res_spec):
       # Work from coarsest to finest so that if the user specifies
       # (for some reason) yearly *and* daily, the daily overwrites
       # the yearly setting.
-      if any([r.lower() in ('y','year','yr','yearly') for r in res_spec]):
+      if any([r.lower() in ('y','year','yr','yearly') for r in res_spec.split(' ')]):
         safe_set(line, 'Yearly', 'y')
         safe_set(line, 'Monthly', '')
         safe_set(line, 'Daily', '')
 
-      if any([r.lower() in ('m','month','monthly') for r in res_spec]):
+      if any([r.lower() in ('m','month','monthly') for r in res_spec.split(' ')]):
         safe_set(line, 'Yearly', 'y')
         safe_set(line, 'Monthly', 'm')
         safe_set(line, 'Daily', '')
 
-      if any([r.lower() in ('d','day','daily',) for r in res_spec]):
+      if any([r.lower() in ('d','day','daily',) for r in res_spec.split(' ')]):
         safe_set(line, 'Yearly', 'y')
         safe_set(line, 'Monthly', 'm')
         safe_set(line, 'Daily', 'd')
 
       # Same for PFTs, work from coarsest to finest
-      if any([r.lower() in ('p','pft',) for r in res_spec]):
+      if any([r.lower() in ('p','pft',) for r in res_spec.split(' ')]):
         safe_set(line, 'PFT', 'p')
         safe_set(line, 'Compartments', '')
 
-      if any([r.lower() in ('c','cpt','compartment','cmpt',) for r in res_spec]):
+      if any([r.lower() in ('c','cpt','compartment','cmpt',) for r in res_spec.split(' ')]):
         safe_set(line, 'PFT', 'p')
         safe_set(line, 'Compartments', 'c')
 
       # And finally the layers...
-      if any([r.lower() in ('l','layer','lay') for r in res_spec]):
+      if any([r.lower() in ('l','layer','lay') for r in res_spec.split(' ')]):
         safe_set(line, 'Layers', 'l')
 
       print_line_dict({}, header=True)
