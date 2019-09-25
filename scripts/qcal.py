@@ -88,6 +88,7 @@ def measure_calibration_quality_nc(output_directory_path):
     ('AvailableNitrogenSum','AVLN'),
   ]
 
+  final_data = []
   print "variable value target rank(abs)"
   for ctname, ncname in caltarget_to_ncname_map:
 
@@ -102,6 +103,7 @@ def measure_calibration_quality_nc(output_directory_path):
       truth = caltargets[cmtkey][ctname]
       value = data[:,0,0].mean()
       print ctname, value, truth, np.abs(qcal_rank(truth, value))
+
       # Unweighted Rank
       qcr += np.abs(qcal_rank(truth, value))
       qcr_2 += qcal_rank2(truth, value)
@@ -109,6 +111,11 @@ def measure_calibration_quality_nc(output_directory_path):
       # Weighted Rank
       w_qcr += np.abs(qcal_rank(truth, value)) * pec
       w_qcr_2 += qcal_rank2(truth, value) * pec
+
+      d = dict(ctname=ctname,value=value,truth=truth,qcr=np.abs(qcal_rank(truth, value)), qcr_w=np.abs(qcal_rank(truth, value)) * pec)
+      final_data.append(d)
+
+
 
     elif dnames == ('time','y','x','pft'):
       for pft in range(0,10):
@@ -124,6 +131,10 @@ def measure_calibration_quality_nc(output_directory_path):
           # Weighted Rank
           w_qcr += np.abs(qcal_rank(truth, value)) * pec
           w_qcr_2 += qcal_rank2(truth, value) * pec
+
+          d = dict(ctname=ctname,value=value,truth=truth,pft=pft,pec=pec,qcr=np.abs(qcal_rank(truth, value)),qcr_w=np.abs(qcal_rank(truth, value)) * pec)
+          final_data.append(d)
+
         else:
           pass
           #print "  -> Failed" # contributor test! Ignoring pft:{}, caltarget:{}, output:{}".format(pft, ctname, ncname)
@@ -145,6 +156,9 @@ def measure_calibration_quality_nc(output_directory_path):
             w_qcr += np.abs(qcal_rank(truth, value)) * pec
             w_qcr_2 += qcal_rank2(truth, value) * pec
 
+            d = dict(ctname=ctname,value=value,truth=truth,pft=pft,compartment=clu[cmprt],pec=pec,qcr=np.abs(qcal_rank(truth, value)),qcr_w=np.abs(qcal_rank(truth, value)) * pec)
+            final_data.append(d)
+
           else:
             pass
             #print "  -> Failed! "#contributor test! Ignoring pft:{}, compartment:{}, caltarget:{}, output:{}".format(pft, cmprt, ctname, ofname)
@@ -156,9 +170,9 @@ def measure_calibration_quality_nc(output_directory_path):
   print ""
   print "qcr: {}  qcr_2: {}".format(qcr, qcr_2)
   print "w_qcr: {}  w_qcr_2: {}".format(w_qcr, w_qcr_2)
-  pu.get_ecosystem_total_C('CMT04')
+  #pu.get_ecosystem_total_C('CMT04')
 
-  return "FUH YEAH"
+  return data
 
 class QCal(object):
   def __init__(self,jsondata_path="", ncdata_path="", targets_file="calibration/calibration_targets.py"):
@@ -190,6 +204,7 @@ def measure_calibration_quality_json(file_list):
     f1_data = json.load(f1)
     cmtkey = f1_data['CMT']
 
+  data = []
   print "CMT: ", cmtkey
   qcr_t = 0.0 # A variable for accumulating the total.
 
@@ -202,9 +217,12 @@ def measure_calibration_quality_json(file_list):
         jdata = json.load(fh)
       d += jdata[v]/float(len(file_list))
     qcr = np.abs(qcal_rank(caltargets[cmtkey][v], d))
+    qcr_w = qcr * pec
     qcr_t += qcr
     print v, d, caltargets[cmtkey][v], qcr
     #print "{:>25s} {:>5s} {:>8s} {:0.6f} {:0.3f}".format(v, '', '', pec, qcr)
+    d = dict(ctname=v, value=d, truth=caltargets[cmtkey][v], pec=pec, qcr=qcr, qcr_w=qcr_w)
+    data.append(d)
 
   # Now process all the PFT variables
   for ipft, pft in enumerate(['PFT{}'.format(i) for i in range(0,10)]):
@@ -217,8 +235,11 @@ def measure_calibration_quality_json(file_list):
             jdata = json.load(fh)
           d += jdata[pft][v]/float(len(file_list))
         qcr = np.abs(qcal_rank(caltargets[cmtkey][v][ipft], d))
+        qcr_w = qcr * pec
         qcr_t += qcr
         #print "{:>25s} {:>5d} {:>8s} {:0.6f} {:0.3f}".format(v, ipft, '', pec, qcr)
+        d = dict(ctname=v, pft=ipft, value=d, truth=caltargets[cmtkey][v][ipft], pec=pec, qcr=qcr, qcr_w=qcr_w)
+        data.append(d)
     else:
       pass #print "{:>25s} {:>5d}     --".format(v, ipft)
 
@@ -232,9 +253,13 @@ def measure_calibration_quality_json(file_list):
             with open(f) as fh:
               jdata = json.load(fh)
             d += jdata[pft][v][cmprt]/float(len(file_list))
+          truth = caltargets[cmtkey][v][cmprt][ipft],
           qcr = np.abs(qcal_rank(caltargets[cmtkey][v][cmprt][ipft], d))
           qcr_t += qcr
-        #print "{:>25s} {:>5d} {:>8s} {:0.6f} {:0.3f}".format(v, ipft, cmprt, pec, qcr)
+          qcr_w = qcr * pec
+          #print "{:>25s} {:>5d} {:>8s} {:0.6f} {:0.3f}".format(v, ipft, cmprt, pec, qcr)
+          d = dict(ctname=v, pft=ipft, compartment=cmprt, value=d,  truth=truth, pec=pec, qcr=qcr, qcr_w=qcr_w)
+          data.append(d)
 
       else:
         pass #print "{:>25s} {:>5d} {:>8s} {} {}     --".format(v, ipft, cmprt, '','')
@@ -242,8 +267,7 @@ def measure_calibration_quality_json(file_list):
 
   print "Total QCR: {}".format(qcr_t)
 
-
-  return "F YEAH"
+  return data
 
 
 def print_report(jdata, caltargets):
