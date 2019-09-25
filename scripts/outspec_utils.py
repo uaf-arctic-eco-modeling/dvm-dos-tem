@@ -262,6 +262,9 @@ if __name__ == '__main__':
       help=textwrap.dedent('''Print out all the variables that are enabled in 
         the file.'''))
 
+  parser.add_argument('--enable-cal-vars', action='store_true',
+    help=textwrap.dedent('''Enable netcdf outputs for all the calibration target variables.'''))
+
   parser.add_argument('--on', 
       nargs='+', metavar=('VAR', 'RES',),
       help=textwrap.dedent('''Turn the selected variable on at the selected
@@ -326,6 +329,41 @@ if __name__ == '__main__':
       else:
         print_line_dict(line)
     check_layer_vars(data)
+    sys.exit()
+
+  if args.enable_cal_vars:
+    caltargets2ncname_map = [
+      ('GPPAllIgnoringNitrogen','INGPP'),
+      ('NPPAllIgnoringNitrogen','INNPP'),
+      ('NPPAll','NPP'),
+      # ??? There are snuptake, lnuptake and innuptake (in the C++)
+      # and TotNitrogentUptake (in the cal targets) is the sum of sn and ln...
+      #('Nuptake','NUPTAKE'), 
+      ('VegCarbon','VEGC'),
+      ('VegStructuralNitrogen','VEGN'),
+      ('MossDeathC','MOSSDEATHC'),
+      ('CarbonShallow','SHLWC'),
+      ('CarbonDeep','DEEPC'),
+      ('CarbonMineralSum','MINEC'),
+      ('OrganicNitrogenSum','ORGN'),
+      ('AvailableNitrogenSum','AVLN'),
+      ]
+
+    data = csv_file_to_data_dict_list(args.file)
+
+    for v in "MOSSDEATHC SHLWC DEEPC MINEC ORGN AVLN".split():
+      data = toggle_on_variable(data, v, 'yearly')
+
+    for v in "INGPP INNPP NPP".split():
+      data = toggle_on_variable(data, v, 'yearly pft')
+
+    for v in "VEGC VEGN".split():
+      data = toggle_on_variable(data, v, 'yearly pft compartment')
+
+    write_data_to_csv(data, args.file)
+
+    print "NOTE: Make sure to enable 'eq' outputs in the config file!!!"
+
     sys.exit()
 
   if args.on:
