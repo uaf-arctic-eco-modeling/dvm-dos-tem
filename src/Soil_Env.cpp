@@ -538,7 +538,7 @@ void Soil_Env::updateDailySM(double weighted_veg_tran) {
   Layer *currl = fstsoill;
   if(drainl != NULL && ground->frnttype[0] != 1){//no infil if top of ground frozen
     int drainind = drainl->solind;
-    while(currl != NULL && currl->solind <= drainind){
+    while(currl != NULL && currl->solind <= drainind && currl->solind>=0){
       double thetai = currl->getVolIce();
       double thetal = currl->getVolLiq();
       double avail_poro = fmax(fmin(currl->poro - thetai - thetal, currl->poro), 0.0);
@@ -569,7 +569,7 @@ void Soil_Env::updateDailySM(double weighted_veg_tran) {
     currl = fstsoill;
     //Following CLM FORTRAN code and CLM 5
     //Use first three layers
-    while(currl != NULL && currl->solind < topind + 3){
+    while(currl != NULL && currl->solind < topind + 3 && currl->solind>=0){
       double theta_ice = currl->getVolIce();
       double frac_ice = theta_ice / currl->poro;
       double imped_exp = -richards.e_ice * frac_ice;
@@ -991,12 +991,12 @@ void Soil_Env::checkSoilLiquidWaterValidity(Layer *topsoill, int topind){
   //Downward pass: bring layers up to minliq by pulling from below
   currl = topsoill;
   double needed_liq = 0;
-  while(currl != NULL && currl->solind <= last_active_layer->solind){
+  while(currl != NULL && currl->solind <= last_active_layer->solind && currl->solind>=0){
     int ind = currl->solind;
     if (currl->liq < effminliq[ind]){
       needed_liq = effminliq[ind] - currl->liq;
       Layer *layer_below = currl->nextl;
-      while(layer_below != NULL && layer_below->solind <= last_active_layer->solind && needed_liq >0){
+      while(layer_below != NULL && layer_below->solind <= last_active_layer->solind && layer_below->solind>=0 && needed_liq >0){
         int ind2 = layer_below->solind;
         if(layer_below->liq > effminliq[ind2]){
           double avail_liq = layer_below->liq - effminliq[ind2];
@@ -1038,6 +1038,9 @@ void Soil_Env::checkSoilLiquidWaterValidity(Layer *topsoill, int topind){
   if (currl->liq < effminliq[ind]){
     needed_liq = effminliq[ind] - currl->liq;
     Layer *layer_above = topsoill;
+    //While modifying solind comparisons to avoid rock layer issues,
+    // we skipped this because layer_above should never be rock. TODO:
+    // check that this is reasonable to assume.
     while(layer_above != NULL && layer_above->solind <= last_active_layer->solind && needed_liq >0){
       int ind2 = layer_above->solind;
       if(layer_above->liq > effminliq[ind2]){
@@ -1073,7 +1076,7 @@ void Soil_Env::checkSoilLiquidWaterValidity(Layer *topsoill, int topind){
 
   //Final check, force, and raise error
   currl = topsoill;
-  while (currl != NULL and currl->solind <= last_active_layer->solind){
+  while (currl != NULL and currl->solind <= last_active_layer->solind && currl->solind>=0){
     int ind = currl->solind;
     if (currl->liq < effminliq[ind] || currl->liq > effmaxliq[ind]){
       if(currl->liq < effminliq[ind]){

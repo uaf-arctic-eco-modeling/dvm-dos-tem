@@ -737,9 +737,9 @@ void Ground::updateLayerIndex() {
 
     if(currl->isSoil) {
       sind++;
+      currl->solind = sind;
     }
 
-    currl->solind = sind;
     currl =currl->nextl;
   }
 };
