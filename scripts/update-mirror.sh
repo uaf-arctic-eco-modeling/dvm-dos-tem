@@ -15,6 +15,12 @@
 # for generating new dvmdostem inputs are functioning on atlas.
 SRC="atlas:/big_scratch/tem/dvmdostem-input-catalog/"
 
+# In some cases, it is useful to be able to pass more options
+# to ssh, or to use a specific ssh config file. In this case you
+# can set an additional environment variable, CUST_SSH_CONFIG
+# Which will be passed to rsync. Like this:
+#    $ CUST_SSH_CONFIG="-e ssh -F /home/admin/.ssh/config" DST="/home/vagrant/data/mirrors/atlas/dvmdostem-input-catalog" ./update-mirror.sh
+
 # USER SHOULD SET THE DESTINATION PATH!
 # This can be hard coded into this script or set from and enviornment
 # variable. If you hard-code the value in this script, you may have
@@ -34,5 +40,8 @@ then
   exit -1
 fi 
 
-echo "Updating data from atlas..."
-rsync -avz --delete --exclude='.DS_Store' --exclude="*/output/*" "$SRC" "$DST"
+echo "Updating data from $SRC"
+echo "Using custom config file: $CUST_SSH_CONFIG"
+
+rsync -avz "$CUST_SSH_CONFIG" --delete --exclude=".DS_Store" --exclude="*/output/*" "$SRC" "$DST"
+

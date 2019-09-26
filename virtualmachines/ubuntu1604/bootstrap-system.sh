@@ -24,6 +24,7 @@ apt-get install -y nvidia-367 # <- maybe this was for QTCreator??
 #apt-get install -y qtcreator 
 
 apt-get install -y libjsoncpp-dev libnetcdf-dev libboost-all-dev
+apt-get install -y liblapacke liblapacke-dev libopenblas-base libopenblas-dev
 
 # Note that in this script, pip is installed with sudo!
 apt-get install python-pip

@@ -68,6 +68,7 @@ public:
   void dailycontainers2log();
 
   void load_proj_climate(const std::string&, int, int);
+  void load_proj_co2(const std::string&);
 
 private:
 

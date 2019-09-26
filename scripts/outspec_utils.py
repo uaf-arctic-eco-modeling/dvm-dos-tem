@@ -5,7 +5,7 @@
 # The output_spec files are expected to be a csv file with 
 # a header row and the following fields:
 
-# Name, Description, Units, Yearly, Monthly, Daily, PFT, Compartments, Layers, Placeholder
+# Name, Description, Units, Yearly, Monthly, Daily, PFT, Compartments, Layers, Data Type, Placeholder
 
 # An empty field means that variable is not specified (turned on) for output at
 # that particular resolution (timestep or PFT or layer, etc).
@@ -14,7 +14,7 @@
 # meaningless at that particular resolution.
 
 # A field containing anything other than "invalid" or an empty string is
-# considered to be on or active. While any charachter or string can be used, 
+# considered to be on or active. While any character or string can be used, 
 # generally we have been using the first letter of the resolution in 
 # question, i.e. 'y' in the field for 'Yearly'.
 
@@ -25,12 +25,14 @@ import textwrap
 
 def print_line_dict(d, header=False):
   if header:
-    print "{:>20s} {:>20s} {:>12} {:>12} {:>12} {:>12} {:>12} {:>12}     {:}".format('Name','Units','Yearly','Monthly','Daily','PFT','Compartments','Layers','Description')
+    print "{:>20s} {:>20s} {:>12} {:>12} {:>12} {:>12} {:>12} {:>12} {:>12}     {:}".format('Name','Units','Yearly','Monthly','Daily','PFT','Compartments','Layers','Data Type', 'Description')
   else:
-    print "{Name:>20s} {Units:>20s} {Yearly:>12} {Monthly:>12} {Daily:>12} {PFT:>12} {Compartments:>12} {Layers:>12}     {Description}".format(**d)
+    print "{Name:>20s} {Units:>20s} {Yearly:>12} {Monthly:>12} {Daily:>12} {PFT:>12} {Compartments:>12} {Layers:>12} {Data Type:>12}     {Description}".format(**d)
 
-def list_vars(data):
+def list_vars(data, verbose=False):
   var_names = [line['Name'] for line in data]
+  if verbose:
+    var_names = ['{:<20} {:<}'.format(line['Name'], line['Description']) for line in data]
   return sorted(var_names)
 
 def show_yearly_vars(data):
@@ -71,8 +73,9 @@ def show_layer_vars(list_of_lines):
 
 def csv_file_to_data_dict_list(fname):
   
-  expected_cols_sorted = ['Compartments', 'Daily', 'Description', 'Layers',
-      'Monthly', 'Name', 'PFT', 'Placeholder', 'Units', 'Yearly']
+  expected_cols_sorted = ['Compartments', 'Daily', 'Data Type',
+      'Description', 'Layers', 'Monthly', 'Name', 'PFT', 'Placeholder',
+      'Units', 'Yearly']
 
   with open(fname, 'r') as f:
     s = f.readlines()
@@ -92,10 +95,28 @@ def csv_file_to_data_dict_list(fname):
 
 def write_data_to_csv(data, fname):
     with open(fname, 'w') as csvfile:
-      fieldnames = "Name,Description,Units,Yearly,Monthly,Daily,PFT,Compartments,Layers,Placeholder".split(",")
+      fieldnames = "Name,Description,Units,Yearly,Monthly,Daily,PFT,Compartments,Layers,Data Type,Placeholder".split(",")
       writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
       writer.writeheader()
       writer.writerows(data)
+
+
+def check_layer_vars(data):
+
+  def warn_layers_not_set(dd):
+    if all([x == 'invalid' or x == '' for x in [dd['Layers'],]]):
+      print "WARNING! output by Layers not set for {}".format(dd['Name'])
+
+  for line in data:
+    if 'LAYER' in line['Name'].upper():
+      if any([line['Yearly'].lower() in ('y','year','yr','yearly')]):
+        warn_layers_not_set(line)
+      if any([line['Monthly'].lower() in ('m','month','monthly')]):
+        warn_layers_not_set(line)
+      if any([line['Daily'].lower() in ('d','day','daily',)]):
+        warn_layers_not_set(line)
+
+
 
 def toggle_off_variable(data, var):
   if var not in list_vars(data):
@@ -122,7 +143,6 @@ def all_vars_off(data):
   return data
 
 def toggle_on_variable(data, var, res_spec):
-
   if var not in list_vars(data):
     raise ValueError("Invalid variable! {} not found!".format(var))
 
@@ -178,6 +198,8 @@ def toggle_on_variable(data, var, res_spec):
       if all([x == 'invalid' or x == '' for x in [line['Yearly'], line['Monthly'], line['Daily']]]):
         print "WARNING! Invalid TIME setting detected! You won't get output for {}".format(line['Name'])
 
+  check_layer_vars(data)
+
   return data
 
 
@@ -211,6 +233,9 @@ if __name__ == '__main__':
       #type=argparse.FileType('r'),
       metavar=('FILE'), 
       help=textwrap.dedent('''The file to analyze.'''))
+
+  parser.add_argument('--print-file', action='store_true',
+     help=textwrap.dedent('''Print a nicely formatted version of the file to the console.'''))
 
   parser.add_argument('--list-vars', action='store_true',
       help=textwrap.dedent('''List all available variables.'''))
@@ -257,9 +282,15 @@ if __name__ == '__main__':
   if args.DEBUG:
     print args
 
+  if args.print_file:
+    data = csv_file_to_data_dict_list(args.file)
+    print_line_dict(data[0], header=True)
+    for line in data:
+      print_line_dict(line)
+
   if args.list_vars:
     data = csv_file_to_data_dict_list(args.file)
-    print "\n".join(sorted(list_vars(data)))
+    print "\n".join(sorted(list_vars(data, verbose=True)))
     sys.exit()
 
   if args.show_yearly_vars:
@@ -294,6 +325,7 @@ if __name__ == '__main__':
         pass # Nothing turned on...
       else:
         print_line_dict(line)
+    check_layer_vars(data)
     sys.exit()
 
   if args.on:
@@ -326,6 +358,7 @@ if __name__ == '__main__':
     data = all_vars_off(data)
     write_data_to_csv(data, args.file)
     sys.exit()
+
 
 
 

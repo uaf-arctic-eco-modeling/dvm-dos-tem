@@ -31,7 +31,7 @@ chmod 600 "$HOME"/.ssh/known_hosts
 #
 if [ ! -d "$HOME"/dvm-dos-tem ]
 then
-  git clone git@github.com:ua-snap/dvm-dos-tem.git "$HOME"/dvm-dos-tem
+  git clone https://github.com/ua-snap/dvm-dos-tem.git "$HOME"/dvm-dos-tem  
 fi
 cd dvm-dos-tem
 git remote rename origin upstream

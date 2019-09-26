@@ -302,6 +302,28 @@ def plot_comp_sst():
 
 
 
+def plot_basic_timeseries(vars2plot, spatial_y, spatial_x, time_resolution, stages, folder):
+  '''
+  Make a basic timeseries plot, one subplot per variable.
+
+  Not sure yet how should handle summarizing over layers, pfts, etc.
+  '''
+
+  ROWS = len(vars2plot)
+  COLS = 1
+  gs = gridspec.GridSpec(ROWS, COLS)
+
+  for i, var in enumerate(vars2plot):
+    ax = plt.subplot(gs[i,:])
+    data, units = stitch_stages(var, time_resolution, stages, folder)
+    print data.shape
+    ax.plot(data[:,spatial_y, spatial_x], label=var)
+    ax.set_ylabel = units
+
+  plt.show()
+
+
+
 def plot_spatial_summary_timeseries(var, timestep, cmtnum, stages, ref_veg_map, ref_run_status, ax=None):
   '''
   Plots a single line with min/max shading representing the `var` averaged over
@@ -943,6 +965,7 @@ if __name__ == '__main__':
       epilog=textwrap.dedent(''''''),
   )
 
+  # Arguments that may apply to all sub commands
   parser.add_argument("--yx", nargs=2, type=int, default=[0, 0],
       help=textwrap.dedent('''The (Y,X) pixel coordinates to plot'''))
 
@@ -1011,6 +1034,22 @@ if __name__ == '__main__':
         Path to a folder containing dvmdostem outputs.
         '''))
 
+  # E.G.: ./output_util.py basic-ts --stitch eq,sp,tr,sc --yx 0 0 --vars VEGC,SOC,GPP --savename test.pdf /data/tcarman/ngee_dhs_runs/dhs_1_cmt04/out/2000121081/
+  bts_parser = subparsers.add_parser('basic-ts',
+      help=textwrap.dedent('''\
+          Make time-series of one or more various variables. Each variable gets
+          its own subplot. X axes will be linked.
+          '''))
+  bts_parser.add_argument('--stitch', nargs="+", help="comma separated list of stages to attempt to stitch together")
+  bts_parser.add_argument('--yx', nargs=2, type=int, default=[0, 0], help='The (Y,X) pixel coordinates to plot')
+  bts_parser.add_argument('--vars', nargs="+", help="comma or space separated list or variable names")
+  bts_parser.add_argument('--savename', default="dvmdostem-outpututils-basicts.pdf")
+  bts_parser.add_argument('output_folder', nargs='+', metavar="FOLDER",
+      help=textwrap.dedent('''\
+        Path to a folder containing dvmdostem outputs.
+        '''))
+
+
   # ss for 'spatial summary'
   ss_parser = subparsers.add_parser('spatial-summaries',
       help=textwrap.dedent('''\
@@ -1036,6 +1075,27 @@ if __name__ == '__main__':
   if args.command == 'site-compare':
     print "Not implemented yet..."
     print "Warn about conflicting arguments? Or about ignoring --yx argument??"
+
+  if args.command == 'basic-ts':
+
+    # just seeing if the right files are around.
+    for var in args.vars[0].split(','):
+      for stage in args.stitch:
+        ep = os.path.join(args.output_folder[0], "{}_{}_{}.nc".format(var, args.timeres, stage))
+        print "Looking for file: ", ep
+        if not os.path.exists(ep):
+          raise RuntimeError("Missing file!: {}".format(ep))
+        else:
+          data = nc.Dataset(ep)
+
+    # Make the plots...
+    plot_basic_timeseries(args.vars[0].split(','), args.yx[0], args.yx[1], args.timeres, args.stitch, args.output_folder[0]) 
+
+
+
+
+
+
 
 
 '''

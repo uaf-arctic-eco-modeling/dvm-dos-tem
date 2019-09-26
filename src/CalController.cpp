@@ -490,7 +490,10 @@ void CalController::clear_archived_json() {
 
 void CalController::tar_caljson_for_stage(const std::string& stage) {
 
-  std::string outfile = "/tmp/" + stage + "-data.tar.gz";
+  // Write the archived data from the calibration data tree
+  // location (which is often in /tmp) to the run's output
+  // directory to be saved.
+  std::string outfile = this->cohort_ptr->md->output_dir + "/" + stage + "-data.tar.gz";
 
   std::string system_call_string = "tar -czf " + outfile + " " + this->base_dir.c_str();
   BOOST_LOG_SEV(glg, info) << "Attempting system() call with this command: " << system_call_string;

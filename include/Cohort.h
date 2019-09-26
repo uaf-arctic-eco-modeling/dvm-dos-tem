@@ -111,7 +111,8 @@ public :
   void set_state_from_restartdata();
   void set_restartdata_from_state();
 
-  void load_proj_climate(const std::string&);//Provides data to Climate for loading proj data
+  void load_proj_climate(const std::string&); // Overwrites/fills containers with data from projected climate file
+  void load_proj_co2(const std::string& proj_co2_file); // Overwrites/fills co2 container with data from projected file
 
 private:
 

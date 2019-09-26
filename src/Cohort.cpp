@@ -130,6 +130,9 @@ void Cohort::load_proj_climate(const std::string& proj_climate_file){
 
   climate.load_proj_climate(proj_climate_file, y, x);
 }
+void Cohort::load_proj_co2(const std::string& proj_co2_file){
+  climate.load_proj_co2(proj_co2_file);
+}
 
 // initialization of pointers used in modules called here
 void Cohort::initialize_internal_pointers() {

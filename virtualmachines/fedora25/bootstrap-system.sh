@@ -18,6 +18,9 @@ echo "Installing software..."
 dnf install -y git gcc-c++ jsoncpp-devel readline-devel netcdf-devel boost-devel
 dnf install -y openmpi-devel
 
+echo "Will likely need to add install steps for lapacke (and maybe openblas)"
+echo "libraries. Not testing or adding at this time (06-18-2019)."
+
 # Need this to fix the "H5Pset_dxpl_mpio" error that otherwise comes when
 # running IPython and importing netCDF4
 dnf install -y hdf5-openmpi-devel
