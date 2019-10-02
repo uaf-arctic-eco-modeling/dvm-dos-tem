@@ -8,7 +8,11 @@ import sys
 import json
 import numpy as np
 
-sys.path.insert(0,"/home/vagrant/dvm-dos-tem/")
+# Add dvm-dos-tem directory to path so that we can import various scripts, 
+# classes from the calibration directory, and the calibration targets.
+# Assumes that this script, (qcal.py) is living in the dvm-dos-tem/scripts/
+# directory
+sys.path.insert(0, os.path.abspath(os.path.dirname(os.path.dirname(__file__))))
 
 import scripts.output_utils as ou
 import scripts.param_util as pu
@@ -35,12 +39,6 @@ def qcal_rank2(truth, value):
   '''Deviation from truth, expressed as distance squared (no sign).'''
   return (truth - value)**2
 
-
-data, i = ou.get_last_n_eq("DEEPC", 'yearly', '/home/vagrant/runmanager_rungroups/tem_00000000000/out/00000000000/')
-qcal_rank(caltargets['CMT04']['CarbonDeep'], data[:,0,0].mean())
-
-data, i = ou.get_last_n_eq("SHLWC", 'yearly', '/home/vagrant/runmanager_rungroups/tem_00000000000/out/00000000000/')
-qcal_rank(caltargets['CMT04']['CarbonShallow'], data[:,0,0].mean())
 
 
 mm = [
