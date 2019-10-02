@@ -42,12 +42,12 @@ def qcal_rank2(truth, value):
 
 def measure_calibration_quality_nc(output_directory_path):
 
-  print "************* WORKING WITH NETCDF FILES ***********"
-  print ""
-  print "WARNING !!! WARNING !!! WARNING !!! HARDCODED CMT NUMBER!!"
+  #print "************* WORKING WITH NETCDF FILES ***********"
+  #print ""
+  #print "WARNING !!! WARNING !!! WARNING !!! HARDCODED CMT NUMBER!!"
   cmtkey = 'CMT05'
 
-  print "CMT:", cmtkey
+  #print "CMT:", cmtkey
 
   qcr = 0.0
   qcr_2 = 0.0
@@ -70,7 +70,7 @@ def measure_calibration_quality_nc(output_directory_path):
   ]
 
   final_data = []
-  print "variable value target rank(abs)"
+  #print "variable value target rank(abs)"
   for ctname, ncname in caltarget_to_ncname_map:
 
     
@@ -147,10 +147,10 @@ def measure_calibration_quality_nc(output_directory_path):
     else:
       raise RuntimeError("SOMETHING IS WRONG?")
 
-  print ""
-  print ""
-  print "qcr: {}  qcr_2: {}".format(qcr, qcr_2)
-  print "w_qcr: {}  w_qcr_2: {}".format(w_qcr, w_qcr_2)
+  #print ""
+  #print ""
+  #print "qcr: {}  qcr_2: {}".format(qcr, qcr_2)
+  #print "w_qcr: {}  w_qcr_2: {}".format(w_qcr, w_qcr_2)
   #pu.get_ecosystem_total_C('CMT04')
 
   return data
