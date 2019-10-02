@@ -40,23 +40,6 @@ def qcal_rank2(truth, value):
   return (truth - value)**2
 
 
-
-mm = [
-('GPPAllIgnoringNitrogen','INGPP'),
-('NPPAllIgnoringNitrogen','INNPP'),
-('NPPAll','NPP'),
-#('Nuptake','NUPTAKE'), # ??? There are snuptake, lnuptake and innuptake... and TotNitrogentUptake is the sum of sn and ln...
-('VegCarbon','VEGC'),
-('VegStructuralNitrogen','VEGN'),
-('MossDeathC','MOSSDEATHC'),
-('CarbonShallow','SHLWC'),
-('CarbonDeep','DEEPC'),
-('CarbonMineralSum','MINEC'),
-('OrganicNitrogenSum','ORGN'),
-('AvailableNitrogenSum','AVLN'),
-]
-
-
 def measure_calibration_quality_nc(output_directory_path):
 
   print "************* WORKING WITH NETCDF FILES ***********"
@@ -302,25 +285,13 @@ def print_report(jdata, caltargets):
 # NOTE, TODO, need to figure out how to find CMT type!!
 
 
-#datapath = "output/eq-data.tar.gz"
-datapath = "output"
 
-if os.path.isdir(datapath):
-  # Assume this is a directory filled with NetCDF output files
 
-  #assert(os.path.splitext(file_list[0])[1] == ".nc")
 
-  cal_report = measure_calibration_quality_nc(datapath)
 
-elif "data.tar.gz" in datapath:
 
-  ih = InputHelper(datapath)
 
-  assert(os.path.splitext(ih.files()[0])[1] == ".json")
-  cal_report = measure_calibration_quality_json(ih.files()[-10:])
 
-else:
-  RuntimeError("Not sure what to do with this data: {}".format(datapath))
 
 
 print "========================================================================"
