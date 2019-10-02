@@ -292,35 +292,40 @@ def print_report(jdata, caltargets):
 
 
 
+def cal_folder_validator(arg_calfolder):
+  try:
+    files = os.listdir(arg_calfolder)
+  except OSError as e:
+    msg = "Invalid folder for calibration data! {}".format(e)
+    raise argparse.ArgumentTypeError(msg)
+  return arg_calfolder
 
 
-print "========================================================================"
-print 
 
-qcal = QCal(jsondata_path="output/eq-data.tar.gz", ncdata_path="output")
-qcal.json_qcal()
-qcal.nc_qcal()
-
-# if __name__ == '__main__':
+if __name__ == '__main__':
   
-#   import argparse
-#   import textwrap
+  import argparse
+  import textwrap
 
-#   parser = argparse.ArgumentParser(
-#     formatter_class = argparse.RawDescriptionHelpFormatter,
+  parser = argparse.ArgumentParser(
+    formatter_class = argparse.RawDescriptionHelpFormatter,
 
-#       description=textwrap.dedent('''\
-#         Still working on this...
-#         '''.format("")),
+      description=textwrap.dedent('''\
+        Still working on this...
+        '''.format("")),
 
-#       epilog=textwrap.dedent(''''''),
-#   )
+      epilog=textwrap.dedent(''''''),
+  )
 
-#   parser.add_argument("--plot", nargs=2, type=int, default=[0, 0],
-#       help=textwrap.dedent('''The (Y,X) pixel coordinates to plot'''))
+  parser.add_argument("calfolder", type=cal_folder_validator, 
+      help=textwrap.dedent('''The folder where the program should look for calibration outputs from dvm-dos-tem'''))
 
-#   args = parser.parse_args()
-#   if args.plot:
-#     from IPython import embed; embed()
+  args = parser.parse_args()
+  
+  qcal = QCal(jsondata_path=os.path.join(args.calfolder, "eq-data.tar.gz")) #, ncdata_path="/home/jclein/Desktop/cal-kougo-treelineWS/output/")
+
+  qcal.json_qcal()
+  #qcal.nc_qcal()
+
 
 
