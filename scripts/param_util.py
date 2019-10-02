@@ -586,7 +586,7 @@ def percent_ecosys_contribution(cmtstr, tname=None, pftnum=None, compartment=Non
 
     pec = dd[pftstr][c] / total_C
 
-  print "cmtstr: {}  tname: {}  pftnum: {}  compartment: {}  PEC: {}".format(cmtstr, tname, pftnum, compartment, pec)
+  #print "cmtstr: {}  tname: {}  pftnum: {}  compartment: {}  PEC: {}".format(cmtstr, tname, pftnum, compartment, pec)
   return pec
 
 def is_ecosys_contributor(cmtstr, pftnum=None, compartment=None):

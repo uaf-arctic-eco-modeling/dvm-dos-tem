@@ -83,7 +83,7 @@ def measure_calibration_quality_nc(output_directory_path):
       pec = pu.percent_ecosys_contribution(cmtkey, ctname)
       truth = caltargets[cmtkey][ctname]
       value = data[:,0,0].mean()
-      print ctname, value, truth, np.abs(qcal_rank(truth, value))
+      #print ctname, value, truth, np.abs(qcal_rank(truth, value))
 
       # Unweighted Rank
       qcr += np.abs(qcal_rank(truth, value))
@@ -178,7 +178,7 @@ class QCal(object):
 
 def measure_calibration_quality_json(file_list):
 
-  print "************* WORKING WITH JSON FILES ***********"
+  #print "************* WORKING WITH JSON FILES ***********"
   # Figure out which community type was run by looking at the first json file
   # in the list. Assume that ALL json files have the same CMT!
   with open(file_list[0]) as f1:
@@ -186,7 +186,7 @@ def measure_calibration_quality_json(file_list):
     cmtkey = f1_data['CMT']
 
   data = []
-  print "CMT: ", cmtkey
+  #print "CMT: ", cmtkey
   qcr_t = 0.0 # A variable for accumulating the total.
 
   # First process all the non-PFT variables
@@ -200,7 +200,7 @@ def measure_calibration_quality_json(file_list):
     qcr = np.abs(qcal_rank(caltargets[cmtkey][v], d))
     qcr_w = qcr * pec
     qcr_t += qcr
-    print v, d, caltargets[cmtkey][v], qcr
+    #print v, d, caltargets[cmtkey][v], qcr
     #print "{:>25s} {:>5s} {:>8s} {:0.6f} {:0.3f}".format(v, '', '', pec, qcr)
     d = dict(ctname=v, value=d, truth=caltargets[cmtkey][v], pec=pec, qcr=qcr, qcr_w=qcr_w)
     data.append(d)
@@ -246,7 +246,7 @@ def measure_calibration_quality_json(file_list):
         pass #print "{:>25s} {:>5d} {:>8s} {} {}     --".format(v, ipft, cmprt, '','')
         #print "dict(v='{}',ipft={},cmprt='{}',qcr='{}',pec='{}'')".format(v, ipft,cmprt,"--","--")
 
-  print "Total QCR: {}".format(qcr_t)
+  #print "Total QCR: {}".format(qcr_t)
 
   return data
 
