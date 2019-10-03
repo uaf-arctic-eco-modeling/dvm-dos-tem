@@ -93,7 +93,7 @@ def measure_calibration_quality_nc(output_directory_path):
       w_qcr += np.abs(qcal_rank(truth, value)) * pec
       w_qcr_2 += qcal_rank2(truth, value) * pec
 
-      d = dict(ctname=ctname,value=value,truth=truth,qcr=np.abs(qcal_rank(truth, value)), qcr_w=np.abs(qcal_rank(truth, value)) * pec)
+      d = dict(cmt=cmtkey, ctname=ctname,value=value,truth=truth,qcr=np.abs(qcal_rank(truth, value)), qcr_w=np.abs(qcal_rank(truth, value)) * pec)
       final_data.append(d)
 
 
@@ -113,7 +113,7 @@ def measure_calibration_quality_nc(output_directory_path):
           w_qcr += np.abs(qcal_rank(truth, value)) * pec
           w_qcr_2 += qcal_rank2(truth, value) * pec
 
-          d = dict(ctname=ctname,value=value,truth=truth,pft=pft,pec=pec,qcr=np.abs(qcal_rank(truth, value)),qcr_w=np.abs(qcal_rank(truth, value)) * pec)
+          d = dict(cmt=cmtkey, ctname=ctname,value=value,truth=truth,pft=pft,pec=pec,qcr=np.abs(qcal_rank(truth, value)),qcr_w=np.abs(qcal_rank(truth, value)) * pec)
           final_data.append(d)
 
         else:
@@ -137,7 +137,7 @@ def measure_calibration_quality_nc(output_directory_path):
             w_qcr += np.abs(qcal_rank(truth, value)) * pec
             w_qcr_2 += qcal_rank2(truth, value) * pec
 
-            d = dict(ctname=ctname,value=value,truth=truth,pft=pft,compartment=clu[cmprt],pec=pec,qcr=np.abs(qcal_rank(truth, value)),qcr_w=np.abs(qcal_rank(truth, value)) * pec)
+            d = dict(cmt=cmtkey, ctname=ctname,value=value,truth=truth,pft=pft,compartment=clu[cmprt],pec=pec,qcr=np.abs(qcal_rank(truth, value)),qcr_w=np.abs(qcal_rank(truth, value)) * pec)
             final_data.append(d)
 
           else:
@@ -202,7 +202,7 @@ def measure_calibration_quality_json(file_list):
     qcr_t += qcr
     #print v, d, caltargets[cmtkey][v], qcr
     #print "{:>25s} {:>5s} {:>8s} {:0.6f} {:0.3f}".format(v, '', '', pec, qcr)
-    d = dict(ctname=v, value=d, truth=caltargets[cmtkey][v], pec=pec, qcr=qcr, qcr_w=qcr_w)
+    d = dict(cmt=cmtkey, ctname=v, value=d, truth=caltargets[cmtkey][v], pec=pec, qcr=qcr, qcr_w=qcr_w)
     data.append(d)
 
   # Now process all the PFT variables
@@ -219,7 +219,7 @@ def measure_calibration_quality_json(file_list):
         qcr_w = qcr * pec
         qcr_t += qcr
         #print "{:>25s} {:>5d} {:>8s} {:0.6f} {:0.3f}".format(v, ipft, '', pec, qcr)
-        d = dict(ctname=v, pft=ipft, value=d, truth=caltargets[cmtkey][v][ipft], pec=pec, qcr=qcr, qcr_w=qcr_w)
+        d = dict(cmt=cmtkey, ctname=v, pft=ipft, value=d, truth=caltargets[cmtkey][v][ipft], pec=pec, qcr=qcr, qcr_w=qcr_w)
         data.append(d)
     else:
       pass #print "{:>25s} {:>5d}     --".format(v, ipft)
@@ -239,7 +239,7 @@ def measure_calibration_quality_json(file_list):
           qcr_t += qcr
           qcr_w = qcr * pec
           #print "{:>25s} {:>5d} {:>8s} {:0.6f} {:0.3f}".format(v, ipft, cmprt, pec, qcr)
-          d = dict(ctname=v, pft=ipft, compartment=cmprt, value=d,  truth=truth, pec=pec, qcr=qcr, qcr_w=qcr_w)
+          d = dict(cmt=cmtkey, ctname=v, pft=ipft, compartment=cmprt, value=d,  truth=truth, pec=pec, qcr=qcr, qcr_w=qcr_w)
           data.append(d)
 
       else:
