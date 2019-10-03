@@ -4,7 +4,7 @@
 
 // The order of this include with respect to boost 
 // seems to matter for certain installs!
-#include <lapacke.h>
+#include <lapacke/lapacke.h>
 
 extern src::severity_logger< severity_level > glg;
 
@@ -45,7 +45,7 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
       double add_to_puddle = fmin(space_in_puddle, qinfil);
       ed.d_soi2l.magic_puddle += add_to_puddle;
       qinfil -= add_to_puddle;
-      ed.d_soi2l.qover += infil;
+      ed.d_soi2l.qover += qinfil;
       ed.d_soi2l.qinfl = 0;
     }
     return;
@@ -59,8 +59,8 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
     currl = currl->nextl;
   }
   fstsoill = currl;
-  int topind = fstsoill->solind;
-  int drainind = drainl->solind;
+  int topind = fstsoill->indl;
+  int drainind = drainl->indl;
 
   //Clear arrays before use
   clearRichardsArrays();
@@ -83,7 +83,7 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
   // should equal original liquid + infil (mm/day) - evap (mm/day) - uptake (mm/day)
   double original_liq = 0.0;
   currl = fstsoill;
-  while(currl != NULL && currl->solind <= drainind && currl->solind >= 0){
+  while(currl != NULL && currl->indl <= drainind && currl->isSoil){
     original_liq += currl->liq;
     currl = currl->nextl;
   }
@@ -170,8 +170,8 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
     //change in liquid.
     currl = fstsoill;
 
-    while(currl != NULL && currl->solind<=drainind && currl->solind>=0){
-      int ind = currl->solind;
+    while(currl != NULL && currl->indl<=drainind && currl->isSoil){
+      int ind = currl->indl;
       double liquid_change = dzmm[ind] * deltathetaliq[ind];
       currl->liq += liquid_change;
       percolation[ind] += liquid_change;
@@ -199,7 +199,7 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
   //Check overall column liq results
   double final_liq = 0.0;
   currl = fstsoill;
-  while(currl != NULL && currl->solind<=drainind && currl->solind>=0){
+  while(currl != NULL && currl->indl<=drainind && currl->isSoil){
     final_liq += currl->liq;
     currl = currl->nextl;
   }
@@ -250,8 +250,8 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
 
     //Calculate drainage from saturated layers
     currl = fstsoill;
-    while(currl != NULL && currl->solind<=drainind && currl->solind>=0){
-      int ind = currl->solind;
+    while(currl != NULL && currl->indl<=drainind && currl->isSoil){
+      int ind = currl->indl;
       if(vol_liq[ind] / liq_poro[ind] >= 0.9){
         double layer_max_drain = currl->liq - effminliq[ind];
         double layer_calc_drain = qdrain_perch * SEC_IN_DAY
@@ -267,8 +267,8 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
     if(qdrain > 0){
       double to_drain = qdrain;
       currl = fstsoill;
-      while(currl != NULL && currl->solind <= drainind && to_drain > 0 && currl->solind>=0){
-        int ind = currl->solind;
+      while(currl != NULL && currl->indl <= drainind && to_drain > 0 && currl->isSoil){
+        int ind = currl->indl;
         double avail_liq = currl->liq - effminliq[ind];
         double take_liq = fmin(to_drain, avail_liq);
         currl->liq -= take_liq;
@@ -287,10 +287,9 @@ void Richards::prepareSoilColumn(Layer* fstsoill, int drainind) {
   Layer* currl = fstsoill; // first non-moss layer
   num_al = 0; // number of active layers
 
-  while(currl != NULL && currl->solind <= drainind+1 && currl->solind >= 0){
-    int ind = currl->solind;
-
-    if(currl->frozen <=0){
+  while(currl != NULL && currl->indl <= drainind+1){ //Note that drainind+1 may be rock.
+    int ind = currl->indl;
+    if(currl->frozen <=0 && currl->indl<=drainind){ // Don't count the layer below drainind as active even if part thawed.
       num_al += 1;
     }
     soi_liq[ind] = fmax(0.0001, currl->liq);
@@ -310,7 +309,15 @@ void Richards::prepareSoilColumn(Layer* fstsoill, int drainind) {
     psisat[ind] = -currl->psisat; //made negative to follow CLM fortran code
     ksat[ind] = currl->hksat;
     Bsw[ind] = currl->bsw;
-
+    if(currl->isRock){ //in case drainind+1 is rock layer
+      soi_liq[ind] = 0.0;
+      vol_liq[ind] = 0.0;
+      vol_ice[ind] = 0.0;
+      vol_poro[ind] = 1e-9; //try this to avoid divide by zero errors...
+      ice_frac[ind] = 0.0;
+      effminliq[ind] = 0.0;
+      effmaxliq[ind] = 0.0;
+    }
     currl= currl->nextl;
   }
 }
@@ -319,8 +326,8 @@ void Richards::computeHydraulicProperties(Layer *fstsoill, int drainind){
   // compute the relative saturation at each layer node first b/c
   // it is used later in calculation of s1
   Layer *currl = fstsoill;
-  while(currl != NULL && currl->solind <=drainind+1 && currl->solind >= 0){
-    int ind = currl->solind;
+  while(currl != NULL && currl->indl <=drainind+1){
+    int ind = currl->indl;
     s2[ind] = vol_liq[ind]/liq_poro[ind]; //liquid saturation at node
     s2[ind] = fmin(s2[ind], 1.0);
     s2[ind] = fmax(0.01, s2[ind]);
@@ -328,8 +335,8 @@ void Richards::computeHydraulicProperties(Layer *fstsoill, int drainind){
     currl = currl->nextl;
   }
   currl = fstsoill;
-  while(currl != NULL && currl->solind <=drainind+1 && currl->solind >= 0){
-    int ind = currl->solind;
+  while(currl != NULL && currl->indl <=drainind+1){
+    int ind = currl->indl;
     if(ind > drainind){
       s1[ind] = s2[ind]; //liquid saturation at interface
       imped[ind] = pow(10.0, -e_ice * ice_frac[ind]); //ice impedance
@@ -353,8 +360,8 @@ void Richards::computeHydraulicProperties(Layer *fstsoill, int drainind){
 void Richards::computeMoistureFluxesAndDerivs(Layer *fstsoill, int topind, int drainind){
   Layer *currl = fstsoill;
   //top and inner layers (not bottom)
-  while(currl!= NULL && currl->solind <=drainind && currl->solind >= 0){
-    int ind = currl->solind;
+  while(currl!= NULL && currl->indl <=drainind && currl->isSoil){
+    int ind = currl->indl;
     if(ind == topind){//top layer
       qin[ind] = qinfil;
       dqidw1[ind] = 0.0;
@@ -396,8 +403,8 @@ void Richards::computeMoistureFluxesAndDerivs(Layer *fstsoill, int topind, int d
 
 void Richards::computeLHS(Layer *fstsoill, int topind, int drainind){
   Layer *currl = fstsoill;
-  while(currl!= NULL && currl->solind <=drainind && currl->solind >= 0){
-    int ind = currl->solind;
+  while(currl!= NULL && currl->indl <=drainind && currl->isSoil){
+    int ind = currl->indl;
     if(ind == topind){
       //a coefficient zero for top layer only (no percolation flux in)
       amx[ind] = 0.0;
@@ -423,8 +430,8 @@ void Richards::computeLHS(Layer *fstsoill, int topind, int drainind){
 void Richards::computeRHS(Layer *fstsoill, int topind, int drainind){
   double fluxNet = 0.0;
   Layer *currl = fstsoill;
-  while(currl != NULL && currl->solind<=drainind && currl->solind >= 0){
-    int ind = currl->solind;
+  while(currl != NULL && currl->indl<=drainind && currl->isSoil){
+    int ind = currl->indl;
     if (ind == topind){
       fluxNet = qinfil - qout[ind] - (qtrans[ind] + qevap);
     }

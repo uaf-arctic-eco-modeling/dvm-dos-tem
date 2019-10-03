@@ -2274,8 +2274,8 @@ void Ground::checkWaterValidity() {
       }
 
       if ((currl->liq-currl->maxliq)>1.e-6 && currl->isSoil) {
-        BOOST_LOG_SEV(glg, warn) << "Layer " << currl->indl
-                                << " has too much liquid water";
+        BOOST_LOG_SEV(glg, warn) << "Layer " << currl->indl << " (soil) "
+                                << " has "<< currl->liq-currl->maxliq <<" mm too much liquid water";
       }
     }
 
@@ -2285,7 +2285,7 @@ void Ground::checkWaterValidity() {
 
       if ((currl->liq-maxwat) > 1.e-6) {
         BOOST_LOG_SEV(glg, warn) << "Layer " << currl->indl << " (soil) "
-                                << "has too much liquid water";
+                                << " has "<< currl->liq-maxwat <<" mm too much liquid water";
       }
 
       // adjust max. ice by liq occupied space

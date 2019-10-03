@@ -795,7 +795,8 @@ double Soil_Env::getWaterTable(Layer* lstsoill) {
       }
       wtd = fmax(m * sat_level + b, 0.0);
       if(wtd > ground->frontsz[0] && ground->frontstype[0] == -1){
-        BOOST_LOG_SEV(glg, err) << "Water table depth is below thaw front";
+        BOOST_LOG_SEV(glg, err) << "Water table depth is below thaw front; setting equal to thaw depth";
+        wtd = ground->frontsz[0];
       }
       return wtd;
     }
@@ -935,30 +936,46 @@ double Soil_Env::getSoilTransFactor(double r_e_ij[MAX_SOI_LAY],
 
 void Soil_Env::checkSoilLiquidWaterValidity(Layer *topsoill, int topind){
   //Following logic from CLM 4.5 pg 176
-  //First fill needed arrays and determine lowest active layer
+  //First determine lowest active layer and fill needed arrays
   //(only active layers might have liquid water)
   double effminliq[MAX_SOI_LAY] ={0};
   double effmaxliq[MAX_SOI_LAY] = {0};
-  Layer *last_active_layer = topsoill;
   Layer *currl = topsoill;
-  while(currl != NULL){
+  Layer *last_active_layer;
+  while(currl != NULL && currl->isSoil){
+    if (currl->frozen == 0){
+      last_active_layer = currl;
+      break;
+    };
+    currl = currl->nextl;
+  }
+  if(last_active_layer == NULL){ //if the whole column is thawed
+    last_active_layer = ground->lstsoill;
+  }
+  currl = topsoill;
+  while(currl != NULL && currl->isSoil && currl->solind <= last_active_layer->solind){
     int ind = currl->solind;
     if(currl->frozen == 1){
       effminliq[ind] = 0.0;
       effmaxliq[ind] = 0.0;
+      if (currl->liq != currl->liq){ // check for NaNs
+        BOOST_LOG_SEV(glg, err) << "Layer " << currl->indl << " liquid is nan";
+      }
       currl = currl->nextl;
     }
     else{
+      if (currl->liq != currl->liq){ // check for NaNs
+        BOOST_LOG_SEV(glg, err) << "Layer " << currl->indl << " liquid is nan";
+      }
       effminliq[ind] = currl->minliq * (1-currl->frozenfrac);
       effmaxliq[ind] = currl->maxliq * (1-currl->frozenfrac);
-      last_active_layer = currl;
       currl = currl->nextl;
     }
   }
   //Upward pass: redistribute excess water to layers above
   currl = last_active_layer;
   double excess_liq = 0;
-  while(currl != NULL && currl->solind >= topind){
+  while(currl != NULL && currl->solind >= topind && currl->isSoil){
     int ind = currl->solind;
     if (currl->liq > effmaxliq[ind]){
       excess_liq = currl->liq - effmaxliq[ind];
@@ -975,7 +992,7 @@ void Soil_Env::checkSoilLiquidWaterValidity(Layer *topsoill, int topind){
         layer_above = layer_above->prevl;
       }
     }
-    //if that didn't work, dump excess to magic puddle or qover
+    //if that didn't disperse all water, dump excess to magic puddle or qover
     if (currl->liq > effmaxliq[ind]){
       double sink_liq = currl->liq - effmaxliq[ind];
       currl->liq -= sink_liq;
@@ -991,7 +1008,7 @@ void Soil_Env::checkSoilLiquidWaterValidity(Layer *topsoill, int topind){
   //Downward pass: bring layers up to minliq by pulling from below
   currl = topsoill;
   double needed_liq = 0;
-  while(currl != NULL && currl->solind <= last_active_layer->solind && currl->solind>=0){
+  while(currl != NULL && currl->solind <= last_active_layer->solind && currl->isSoil && currl->nextl->isSoil){
     int ind = currl->solind;
     if (currl->liq < effminliq[ind]){
       needed_liq = effminliq[ind] - currl->liq;
@@ -1041,7 +1058,7 @@ void Soil_Env::checkSoilLiquidWaterValidity(Layer *topsoill, int topind){
     //While modifying solind comparisons to avoid rock layer issues,
     // we skipped this because layer_above should never be rock. TODO:
     // check that this is reasonable to assume.
-    while(layer_above != NULL && layer_above->solind <= last_active_layer->solind && needed_liq >0){
+    while(layer_above != NULL && layer_above->solind < last_active_layer->solind && needed_liq >0){
       int ind2 = layer_above->solind;
       if(layer_above->liq > effminliq[ind2]){
         double avail_liq = layer_above->liq - effminliq[ind2];
@@ -1076,8 +1093,11 @@ void Soil_Env::checkSoilLiquidWaterValidity(Layer *topsoill, int topind){
 
   //Final check, force, and raise error
   currl = topsoill;
-  while (currl != NULL and currl->solind <= last_active_layer->solind && currl->solind>=0){
+  while (currl != NULL and currl->solind <= last_active_layer->solind and currl->isSoil){
     int ind = currl->solind;
+    if (currl->liq != currl->liq){ // check for NaNs
+      BOOST_LOG_SEV(glg, err) << "Layer " << currl->indl << " liquid is nan";
+    }
     if (currl->liq < effminliq[ind] || currl->liq > effmaxliq[ind]){
       if(currl->liq < effminliq[ind]){
         //too little liq, enforce limits; if difference is more than 1mm, raise error

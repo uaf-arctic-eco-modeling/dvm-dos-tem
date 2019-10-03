@@ -182,12 +182,13 @@ void Stefan::processNewFrontSoilLayerDown(const int &freezing,
   if (dz<=0.0001*sl->dz) { //this will avoid 'front' exactly falling on the
                            //  boundary between layers that causes a lot of
                            //  mathematical issues
-    newfntz = sl->z;
-    return;
+    dz = 0.0001*sl->dz;
   }
 
   dsn = getDegSecNeeded(dz, volwat, tkfront, sumrescum);
-  dsn += abs(sl->tem)*timestep;
+  if(sl->tem < 0){ //if layer below 0, include energy needed to bring layer to 0 before thawing
+    dsn += abs(sl->tem)*timestep;
+  }
 
   if(dse>=dsn) {
     //whole layer will be frozen or unfrozen, and a new
@@ -273,7 +274,7 @@ void Stefan::processNewFrontSoilLayerDown(const int &freezing,
 // Put the new front in two 'deque', if moving downwardly
 void Stefan::frontsDequeDown(const double &newfntz, const int &newfnttype) {
   // new front deeper than column depth, it will sweep all fronts
-  if (newfntz>=ground->botlayer->z+ground->botlayer->dz) {
+  if (newfntz>=ground->lstminel->z+ground->lstminel->dz) {
     ground->frontstype.clear();
     ground->frontsz.clear();
     return;
