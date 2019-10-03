@@ -166,11 +166,14 @@ class QCal(object):
   def json_qcal(self):
     ih = InputHelper(self.jsondata_path)
     assert(os.path.splitext(ih.files()[0])[1] == ".json")
-    measure_calibration_quality_json(ih.files()[-10:])
+    result_list = measure_calibration_quality_json(ih.files()[-10:])
+    return result_list
+
 
   def nc_qcal(self):
     assert(os.path.splitext(os.listdir(self.ncdata_path)[0])[1] == ".nc")
-    measure_calibration_quality_nc(self.ncdata_path)
+    result_list = measure_calibration_quality_nc(self.ncdata_path)
+    return result_list
 
 
 
