@@ -745,7 +745,7 @@ double Soil_Env::getEvaporation(const double & dayl, const double &rad) {
 
 double Soil_Env::getWaterTable(Layer* lstsoill) {
   double wtd = 0.0;
-  if(ground->ststate==1){ //soil column is frozen, so no water table
+  if(ground->ststate==1 || ground->fstsoill->frozen==1){ //soil column is frozen, so no water table
     return wtd;
   }
   Layer* currl = lstsoill; // default is to start at the bottom
@@ -776,11 +776,11 @@ double Soil_Env::getWaterTable(Layer* lstsoill) {
     } else {
       //saturation of this layer < 0.90, so watertable is below the
       //top of this layer. Interpolate within the thawed part of this layer
-      //(for partly frozen layer) or between between currl and currl->nextl
-      //to find perched water table height.
-      double nextl_sat = 1.0; //assume frozen or null layers act saturated
+      //(for partly frozen or fully thawed bottom layer) or between between
+      //currl and currl->nextl to find perched water table height.
+      double nextl_sat = 1.0; //assume frozen or null or rock layers act saturated
       double m, b;
-      if(currl->nextl != NULL && currl->nextl->frozen < 1){
+      if(currl->nextl != NULL && !currl->nextl->isRock && currl->nextl->frozen < 1){
         //determine saturation of next layer
         double nextl_dz_unfrozen = currl->nextl->dz
             * (1-currl->nextl->frozenfrac);
@@ -789,14 +789,18 @@ double Soil_Env::getWaterTable(Layer* lstsoill) {
         m = (currl->nextl->z - currl->z)/(nextl_sat - saturation);
         b = currl->nextl->z - m * nextl_sat;
       }
-      else{//current layer is partly frozen or next layer is null
-        m = (dz_unfrozen)/(nextl_sat - saturation);
+      else{//current layer is partly frozen or next layer is null or rock
+        m = dz_unfrozen/(nextl_sat - saturation);
         b = currl->z + dz_unfrozen - m * nextl_sat;
       }
       wtd = fmax(m * sat_level + b, 0.0);
-      if(wtd > ground->frontsz[0] && ground->frontstype[0] == -1){
-        BOOST_LOG_SEV(glg, err) << "Water table depth is below thaw front; setting equal to thaw depth";
+      if(ground->fstfntl != NULL && wtd > ground->frontsz[0] && ground->frontstype[0] == -1){
+        BOOST_LOG_SEV(glg, warn) << "Water table depth is below thaw front; setting equal to thaw depth";
         wtd = ground->frontsz[0];
+      }
+      if(wtd > ground->lstsoill->z + ground->lstsoill->dz){ //wtd is in rock layer
+        BOOST_LOG_SEV(glg, warn) << "Water table depth is below soil column; setting equal to soil depth";
+        wtd = ground->lstsoill->z + ground->lstsoill->dz;
       }
       return wtd;
     }
@@ -959,13 +963,13 @@ void Soil_Env::checkSoilLiquidWaterValidity(Layer *topsoill, int topind){
       effminliq[ind] = 0.0;
       effmaxliq[ind] = 0.0;
       if (currl->liq != currl->liq){ // check for NaNs
-        BOOST_LOG_SEV(glg, err) << "Layer " << currl->indl << " liquid is nan";
+        BOOST_LOG_SEV(glg, err) << "Soil layer " << currl->indl << " liquid is nan";
       }
       currl = currl->nextl;
     }
     else{
       if (currl->liq != currl->liq){ // check for NaNs
-        BOOST_LOG_SEV(glg, err) << "Layer " << currl->indl << " liquid is nan";
+        BOOST_LOG_SEV(glg, err) << "Soil layer " << currl->indl << " liquid is nan";
       }
       effminliq[ind] = currl->minliq * (1-currl->frozenfrac);
       effmaxliq[ind] = currl->maxliq * (1-currl->frozenfrac);

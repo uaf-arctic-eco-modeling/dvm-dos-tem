@@ -1866,9 +1866,9 @@ void Ground::setDrainL() {
   }
   else if(ststate == -1){
     //soil stack is completely thawed, so
-    //set drain depth to the top of the first rock layer
-    draindepth = lstminel->nextl->z;
-    drainl = lstminel->nextl;
+    //set drain depth to the bottom of the soil stack
+    draindepth = lstsoill->z + lstsoill->dz;
+    drainl = lstsoill;
   }
 
 };
@@ -2256,8 +2256,8 @@ void Ground::checkWaterValidity() {
       // maybe from some mathematical round up? so '1.0e-3 is used as critical
       if ((currl->ice-currl->maxice) > 1.0e-3) {
         if(currl->isSnow){
-          BOOST_LOG_SEV(glg, warn) << "Snow layer " << currl->indl
-                                   << " has too much ice";
+          BOOST_LOG_SEV(glg, warn) << "Snow layer " << currl->indl << " has "
+                                   << currl->ice-currl->maxice << " kg/m2 too much ice";
 
         }
         else{
