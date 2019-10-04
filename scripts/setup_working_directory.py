@@ -99,11 +99,7 @@ if __name__ == '__main__':
   # NOTE: Seems like when the user runs the calibration-viewer.py and specifies
   # --data-path, they for some reason have to include dvmdostem, like this:
   # --data-path /tmp/args.new_directory/dvmdostem
-  if os.path.isabs(args.new_directory):
-    config['calibration-IO']['caldata_tree_loc'] = os.path.join('/tmp', args.new_directory.lstrip(os.path.sep))
-  else:
-    config['calibration-IO']['caldata_tree_loc'] = os.path.join('/tmp', args.new_directory)
-  
+  config['calibration-IO']['caldata_tree_loc'] = os.path.join('/tmp', os.path.basename(os.path.abspath(args.new_directory)))
 
   # Match the default config file shipped with the code, except we move runmask
   # to the end of the file listings

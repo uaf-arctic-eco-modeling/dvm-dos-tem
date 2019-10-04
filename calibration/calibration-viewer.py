@@ -347,6 +347,14 @@ class ExpandingWindow(object):
 
     self.no_blit = no_blit
 
+    # Setting controlling where this program will look for reference parameters 
+    # that are used for finding PFT names. The default setting is to look for 
+    # in a parameters/ directory relative to the current location (location 
+    # from which this calibration_viewer.py script was run). An alternate value 
+    # for this setting is 'relative_to_dvmdostem' in which this program will
+    # look for the parameters/ directory that ships with dvmdostem.
+    self.reference_param_loc = 'relative_to_curdir'
+
     self.fig = plt.figure(figsize=(6*1.3, 8*1.3))
     self.ewp_title = self.fig.suptitle(figtitle)
 
@@ -450,7 +458,6 @@ class ExpandingWindow(object):
 
     # ----- READ FIRST FILE FOR TITLE ------
     self.set_title_from_first_file(files)
-
     # for each trace, create a tmp y container the same size as x
     for trace in self.traces:
       trace['tmpy'] = x.copy() * np.nan
@@ -899,7 +906,7 @@ class ExpandingWindow(object):
           vname = ''
         else:
           cmtkey = t_line0[spos:spos+5]
-          vname = "(%s)" % pu.get_pft_verbose_name(pftkey=trace['pft'], cmtkey=cmtkey)
+          vname = "(%s)" % pu.get_pft_verbose_name(pftkey=trace['pft'], cmtkey=cmtkey, lookup_path=self.reference_param_loc)
         logger.debug("verbose PFT name is: %s" % vname)
 
         ax.text(
@@ -1090,9 +1097,8 @@ if __name__ == '__main__':
       help=textwrap.dedent('''Read and disply monthly json files instead of 
           yearly. NOTE: may be slow!!'''))
 
-  parser.add_argument('--data-path', default="/tmp/dvmdostem/",
-      help=textwrap.dedent('''Look for json files in the specified path
-          (instead of the default location)'''))
+  parser.add_argument('--data-path', default=None,
+      help=textwrap.dedent('''Look for json files in the specified path'''))
 
   parser.add_argument('--bulk', action='store_true',
       help=textwrap.dedent('''With this flag, the viewer will attempt to
@@ -1188,6 +1194,8 @@ if __name__ == '__main__':
   if args.from_archive:
     input_helper = InputHelper(path=args.from_archive, monthly=args.monthly)
   else:
+    if args.data_path is None:
+      parser.error("You must specify --data-path so the program knows which files to plot!")
     input_helper = InputHelper(path=args.data_path, monthly=args.monthly)
 
   #logging.info("from_archive=%s" % args.from_archive)

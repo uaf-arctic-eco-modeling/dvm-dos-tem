@@ -139,6 +139,8 @@ def get_CMT_datablock(afile, cmtnum):
     cmtkey = cmtnum
 
   startidx = find_cmt_start_idx(data, cmtkey)
+  if startidx is None:
+    raise RuntimeError("Can't find datablock for CMT: {} in {}".format(cmtkey, afile))
 
   end = None
 
@@ -215,11 +217,17 @@ def parse_header_line(linedata):
   return cmtkey, cmtname, cmtcomment
 
 
-def get_pft_verbose_name(cmtkey=None, pftkey=None, cmtnum=None, pftnum=None):
-  path2params = os.path.join(os.path.split(os.path.dirname(os.path.realpath(__file__)))[0], 'parameters/')
+def get_pft_verbose_name(cmtkey=None, pftkey=None, cmtnum=None, pftnum=None, lookup_path=None):
+  if lookup_path is "relative_to_dvmdostem":
+    path2params = os.path.join(os.path.split(os.path.dirname(os.path.realpath(__file__)))[0], 'parameters/')
+  elif lookup_path is "relative_to_curdir":
+    path2params = os.path.join(os.path.abspath(os.path.curdir), 'parameters/')
+  else:
+    msg = "ERROR!: lookup_path parameter must be one of 'relative_to_dvmdostem' or 'relative_to_curdir', not {}".format(lookup_path))
+    raise ValueError(msg)
 
   if cmtkey and cmtnum:
-    raise ValueError("you must provide only one of you cmtkey or cmtnumber")
+    raise ValueError("you must provide only one of cmtkey or cmtnumber")
 
   if pftkey and pftnum:
     raise ValueError("you must provide only one of pftkey or pftnumber")
