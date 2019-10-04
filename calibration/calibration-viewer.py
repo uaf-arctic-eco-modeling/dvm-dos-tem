@@ -1196,7 +1196,12 @@ if __name__ == '__main__':
   else:
     if args.data_path is None:
       parser.error("You must specify --data-path so the program knows which files to plot!")
-    input_helper = InputHelper(path=args.data_path, monthly=args.monthly)
+    if os.path.basename(args.data_path) != 'dvmdostem':
+      logging.info("Adding 'dvmdostem' to data path...")
+      dp = os.path.join(args.data_path, 'dvmdostem')
+    else:
+      dp = args.data_path
+    input_helper = InputHelper(path=dp, monthly=args.monthly)
 
   #logging.info("from_archive=%s" % args.from_archive)
   #logging.info("data_path=%s" % args.data_path)
