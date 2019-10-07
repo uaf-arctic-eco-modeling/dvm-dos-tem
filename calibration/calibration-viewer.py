@@ -1003,7 +1003,6 @@ class ExpandingWindow(object):
 if __name__ == '__main__':
 
   from configured_suites import configured_suites
-  import calibration_targets
   
   # Callback for SIGINT. Allows exit w/o printing stacktrace to users screen
   original_sigint = signal.getsignal(signal.SIGINT)
@@ -1064,6 +1063,12 @@ if __name__ == '__main__':
   parser.add_argument('--list-caltargets', action='store_true',
       help="print out a list of known calibration target communities")
 
+  parser.add_argument('--ref-targets', default=None,
+     help=textwrap.dedent('''Path to a calibration_targets.py file that will be
+      used for dsiplaying target lines. If this argument is not provided, then
+      the program will look for an use the calibration targets file that is
+      expected to live alongside this program (in dvm-dos-tem/calibration/
+      directory).''')) 
 
   parser.add_argument('-l', '--loglevel', default="warning",
       help="What logging level to use. (debug, info, warning, error, critical")
@@ -1212,6 +1217,7 @@ if __name__ == '__main__':
   if args.targets:
     logging.info("Setting up calibration target display...")
     if len(input_helper.files()) > 0:
+      # Figure out which CMT we are dealing with
       try:
         with open(input_helper.files()[0], 'r') as ff:
           fdata = json.load(ff)
@@ -1219,12 +1225,41 @@ if __name__ == '__main__':
       except (IOError, ValueError) as e:
         logging.error("Problem: '%s' reading file '%s'" % (e, f))
 
-      for cmtname, data in calibration_targets.calibration_targets.iteritems():
-        if cmtstr == 'CMT{:02d}'.format(data['cmtnumber']):
-          caltargets = data
-          target_title_tag = "CMT {} ({:})".format(data['cmtnumber'], cmtname)
-        else:
-          pass # wrong cmt
+      # Figure out where to find the targets.
+      found_targets = False
+      if args.ref_targets:
+        # May want to save path, clear it, add only the new target location
+        # and try the import. on success, print something... and show lines??
+        # if it fails then log message, and restore path, and continue
+        try:
+          print "Trying to look for targets here: {}".format(os.path.abspath(args.ref_targets))
+          orig_path = sys.path
+          sys.path = [os.path.abspath(args.ref_targets)]
+          import calibration_targets
+          sys.path = orig_path
+          found_targets = True
+          print "Restoring path..."
+        except (ImportError, NameError) as e:
+          logging.error("Can't display target lines!! Can't find targets! {}".format(e.message))
+
+      else:
+        try:
+          print "Trying to look for targets here: {}".format(os.path.abspath(args.ref_targets))
+          import calibration_targets
+          found_targets = True
+        except (ImportError, NameError) as e:
+          logging.error("Can't display target lines!! Can't find targets! {}".format(e.message))
+
+      if found_targets:
+        for cmtname, data in calibration_targets.calibration_targets.iteritems():
+          if cmtstr == 'CMT{:02d}'.format(data['cmtnumber']):
+            caltargets = data
+            target_title_tag = "CMT {} ({:})".format(data['cmtnumber'], cmtname)
+          else:
+            pass # wrong cmt
+      else:
+        caltargets = {}
+        target_title_tag = "--"
 
     else:
       print logging.warn("No files. Can't figure out which CMT to display targets for without files.")
