@@ -48,6 +48,10 @@ if __name__ == '__main__':
   parser.add_argument('--input-data-path', default="<placeholder>",
       help=textwrap.dedent("""Path to the input data"""))
 
+  parser.add_argument('--no-cal-targets', action='store_true',
+      help=textwrap.dedent("""Do NOT copy the calibration_targets.py file into
+        the new working directory."""))
+
   args = parser.parse_args()
   print args
 
@@ -59,7 +63,15 @@ if __name__ == '__main__':
   # like the config and parameters to come from.
   # Alternatively: os.path.split(os.path.dirname(os.path.realpath(__file__)))[0]
   ddt_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
- 
+
+  if args.no_cal_targets:
+    pass
+  else:
+    mkdir_p(os.path.join(args.new_directory, 'calibration'))
+    shutil.copy( os.path.join(ddt_dir, 'calibration', 'calibration_targets.py'), 
+                 os.path.join(args.new_directory, 'calibration'))
+
+
   # Copy over the config and parameters directories
   shutil.copytree(os.path.join(ddt_dir, 'config'), os.path.join(args.new_directory, 'config'))
   shutil.copytree(os.path.join(ddt_dir, 'parameters'), os.path.join(args.new_directory, 'parameters'))
@@ -88,6 +100,7 @@ if __name__ == '__main__':
   config['IO']['drainage_file']        = os.path.join(os.path.abspath(args.input_data_path), 'drainage.nc')
   config['IO']['soil_texture_file']    = os.path.join(os.path.abspath(args.input_data_path), 'soil-texture.nc')
   config['IO']['co2_file']             = os.path.join(os.path.abspath(args.input_data_path), 'co2.nc')
+  config['IO']['proj_co2_file']        = os.path.join(os.path.abspath(args.input_data_path), 'projected-co2.nc')
   config['IO']['topo_file']            = os.path.join(os.path.abspath(args.input_data_path), 'topo.nc')
   config['IO']['fri_fire_file']        = os.path.join(os.path.abspath(args.input_data_path), 'fri-fire.nc')
   config['IO']['hist_exp_fire_file']   = os.path.join(os.path.abspath(args.input_data_path), 'historic-explicit-fire.nc')
@@ -98,11 +111,7 @@ if __name__ == '__main__':
   # NOTE: Seems like when the user runs the calibration-viewer.py and specifies
   # --data-path, they for some reason have to include dvmdostem, like this:
   # --data-path /tmp/args.new_directory/dvmdostem
-  if os.path.isabs(args.new_directory):
-    config['calibration-IO']['caldata_tree_loc'] = os.path.join('/tmp', args.new_directory.lstrip(os.path.sep))
-  else:
-    config['calibration-IO']['caldata_tree_loc'] = os.path.join('/tmp', args.new_directory)
-  
+  config['calibration-IO']['caldata_tree_loc'] = os.path.join('/tmp', os.path.basename(os.path.abspath(args.new_directory)))
 
   # Match the default config file shipped with the code, except we move runmask
   # to the end of the file listings
@@ -115,6 +124,7 @@ if __name__ == '__main__':
     "drainage_file",
     "soil_texture_file",
     "co2_file",
+    "proj_co2_file",
     "topo_file",
     "fri_fire_file",
     "hist_exp_fire_file",

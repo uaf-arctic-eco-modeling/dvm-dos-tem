@@ -44,8 +44,7 @@ Runner::Runner(ModelData mdldata, bool cal_mode, int y, int x):
 }
 
 
-Runner::~Runner() {
-};
+Runner::~Runner() {};
 
 void Runner::run_years(int start_year, int end_year, const std::string& stage) {
 
@@ -515,7 +514,7 @@ void Runner::output_caljson_monthly(int year, int month, std::string stage, boos
   double parAbsorbSum = 0;
 
   for(int pft=0; pft<NUM_PFT; pft++) {
-    char pft_chars[5];
+    char pft_chars[10];
     sprintf(pft_chars, "%d", pft);
     std::string pft_str = std::string(pft_chars);
     // c++0x equivalent: std::string pftvalue = std::to_string(pft);
@@ -713,7 +712,7 @@ void Runner::output_caljson_yearly(int year, std::string stage, boost::filesyste
   double burnthick = 0.0, veg2airc = 0.0, veg2airn = 0.0, veg2soiabvvegc=0.0, veg2soiabvvegn = 0.0, veg2soiblwvegc = 0.0, veg2soiblwvegn = 0.0, veg2deadc = 0.0, veg2deadn = 0.0, soi2airc = 0.0, soi2airn = 0.0, air2soin = 0.0;
  
   for(int im=0; im<12; im++){
-    char mth_chars[2];
+    char mth_chars[10];
     sprintf(mth_chars, "%02d", im);
     std::string mth_str = std::string(mth_chars);
     data["Fire"][mth_str]["Burnthick"] = cohort.year_fd[im].fire_soid.burnthick;
@@ -762,7 +761,7 @@ void Runner::output_caljson_yearly(int year, std::string stage, boost::filesyste
   double litterfallNsum = 0;
 
   for(int pft=0; pft<NUM_PFT; pft++) { //NUM_PFT
-    char pft_chars[5];
+    char pft_chars[10];
     sprintf(pft_chars, "%d", pft);
     std::string pft_str = std::string(pft_chars);
     //c++0x equivalent: std::string pftvalue = std::to_string(pft);

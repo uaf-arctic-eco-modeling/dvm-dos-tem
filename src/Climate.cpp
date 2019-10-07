@@ -473,6 +473,10 @@ void Climate::load_proj_climate(const std::string& fname, int y, int x){
 
   this->load_from_file(fname, y, x);
 }
+void Climate::load_proj_co2(const std::string& fname){
+  BOOST_LOG_SEV(glg, note) << "CO2, loading projected data!";
+  this->co2 = temutil::get_timeseries(fname, "co2");
+}
 
 std::vector<float> Climate::avg_over(const std::vector<float> & var, const int window) {
 
@@ -603,43 +607,48 @@ std::vector<float> Climate::interpolation_range(const std::vector<float>& data, 
 }
 
 
-/** Prepares a single year of daily driving data */ 
+/** Prepares a single year of daily driving data. 
+* 
+* iy is the run's index year, not the calendar year!
+* stage is a 2 letter code for the run stage, one of: pr, eq, sp, tr, sc.
+*/
 void Climate::prepare_daily_driving_data(int iy, const std::string& stage) {
-  //FIX rename iy to avoid confusion, since it isn't always the same
-  //as the iy in Runner (SP passes in a modded value).
 
   if( (stage.find("pre") != std::string::npos)
       || (stage.find("eq") != std::string::npos) ){
-    //Uses the same value of CO2 every day of the year.
-    //Pre-Run and EQ also use constant CO2 value for all years.
+
+    // Constant co2! Always use the first year in the input data, and use it
+    // for all days!
     co2_d = co2.at(0);
 
-    //Create daily data by interpolating
+    // Create daily data by interpolating
     tair_d = monthly2daily(eq_range(avgX_tair));
     vapo_d = monthly2daily(eq_range(avgX_vapo));
     nirr_d = monthly2daily(eq_range(avgX_nirr));
 
-    //Not totally sure if this is right to interpolate (girr and par) 
+    // Not totally sure if this is right to interpolate (girr and par) 
     par_d = monthly2daily(eq_range(par));
-  }
-  else{//Spin-up, Transient, Scenario
-    //Uses the same value of CO2 every day of the year
+
+  } else {
+
+    // Spin-up, Transient, Scenario
+    // Uses the same value of CO2 every day of the year
     co2_d = co2.at(iy);
 
-    //Create daily data by interpolating
+    // Create daily data by interpolating
     // straight up interpolated....
     tair_d = monthly2daily(interpolation_range(tair, iy));
     vapo_d = monthly2daily(interpolation_range(vapo, iy));
     nirr_d = monthly2daily(interpolation_range(nirr, iy));
 
-    //Not totally sure if this is right to interpolate (girr and par) 
+    // Not totally sure if this is right to interpolate (girr and par) 
     par_d = monthly2daily(interpolation_range(par, iy));
   }
 
   //BOOST_LOG_SEV(glg, debug) << stage << " tair_d = [" << temutil::vec2csv(tair_d) << "]";
 
-  //Not totally sure if this is right to interpolate (girr and par)
-  //GIRR is passed to eq_range for all stages as it has only twelve values.
+  // Not totally sure if this is right to interpolate (girr and par)
+  // GIRR is passed to eq_range for all stages as it has only twelve values.
   girr_d = monthly2daily(eq_range(girr));
 
   // The interpolation is slightly broken, so it 'overshoots' when the
@@ -656,7 +665,7 @@ void Climate::prepare_daily_driving_data(int iy, const std::string& stage) {
         || (stage.find("eq") != std::string::npos) ){
       v = calculate_daily_prec(i, avgX_tair.at(i), avgX_prec.at(i));
     }
-    else{//Spin-Up, Transient, Scenario
+    else{// Spin-Up, Transient, Scenario
       int month_timestep = iy*12 + i;
       v = calculate_daily_prec(i, tair.at(month_timestep), prec.at(month_timestep));
     }

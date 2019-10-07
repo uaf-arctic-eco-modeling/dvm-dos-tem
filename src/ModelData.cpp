@@ -48,6 +48,7 @@ ModelData::ModelData(Json::Value controldata):force_cmt(-1) {
   drainage_file     = controldata["IO"]["drainage_file"].asString();
   soil_texture_file = controldata["IO"]["soil_texture_file"].asString();
   co2_file          = controldata["IO"]["co2_file"].asString();
+  proj_co2_file     = controldata["IO"]["proj_co2_file"].asString();
   runmask_file      = controldata["IO"]["runmask_file"].asString();
   output_dir        = controldata["IO"]["output_dir"].asString();
   output_spec_file  = controldata["IO"]["output_spec_file"].asString();

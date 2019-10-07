@@ -131,7 +131,7 @@ GIT_SHA := $(shell git describe --abbrev=6 --dirty --always --tags)
 TEMOBJ = obj/TEM.o
 
 dvm: $(SOURCES) $(TEMOBJ)
-	$(CC) -o $(APPNAME) $(INCLUDES) $(addprefix obj/, $(OBJECTS)) $(TEMOBJ) $(LIBDIR) $(LIBS) $(MPILFLAGS) $(OMPLFLAGS)
+	$(CC) $(SITE_SPECIFIC_LINK_FLAGS) -o $(APPNAME) $(INCLUDES) $(addprefix obj/, $(OBJECTS)) $(TEMOBJ) $(LIBDIR) $(LIBS) $(MPILFLAGS) $(OMPLFLAGS)
 
 
 lib: $(SOURCES) 
