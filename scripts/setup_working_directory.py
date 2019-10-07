@@ -48,6 +48,10 @@ if __name__ == '__main__':
   parser.add_argument('--input-data-path', default="<placeholder>",
       help=textwrap.dedent("""Path to the input data"""))
 
+  parser.add_argument('--no-cal-targets', action='store_true',
+      help=textwrap.dedent("""Do NOT copy the calibration_targets.py file into
+        the new working directory."""))
+
   args = parser.parse_args()
   print args
 
@@ -59,7 +63,15 @@ if __name__ == '__main__':
   # like the config and parameters to come from.
   # Alternatively: os.path.split(os.path.dirname(os.path.realpath(__file__)))[0]
   ddt_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
- 
+
+  if args.no_cal_targets:
+    pass
+  else:
+    mkdir_p(os.path.join(args.new_directory, 'calibration'))
+    shutil.copy( os.path.join(ddt_dir, 'calibration', 'calibration_targets.py'), 
+                 os.path.join(args.new_directory, 'calibration'))
+
+
   # Copy over the config and parameters directories
   shutil.copytree(os.path.join(ddt_dir, 'config'), os.path.join(args.new_directory, 'config'))
   shutil.copytree(os.path.join(ddt_dir, 'parameters'), os.path.join(args.new_directory, 'parameters'))
@@ -99,11 +111,7 @@ if __name__ == '__main__':
   # NOTE: Seems like when the user runs the calibration-viewer.py and specifies
   # --data-path, they for some reason have to include dvmdostem, like this:
   # --data-path /tmp/args.new_directory/dvmdostem
-  if os.path.isabs(args.new_directory):
-    config['calibration-IO']['caldata_tree_loc'] = os.path.join('/tmp', args.new_directory.lstrip(os.path.sep))
-  else:
-    config['calibration-IO']['caldata_tree_loc'] = os.path.join('/tmp', args.new_directory)
-  
+  config['calibration-IO']['caldata_tree_loc'] = os.path.join('/tmp', os.path.basename(os.path.abspath(args.new_directory)))
 
   # Match the default config file shipped with the code, except we move runmask
   # to the end of the file listings

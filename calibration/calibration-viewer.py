@@ -347,6 +347,14 @@ class ExpandingWindow(object):
 
     self.no_blit = no_blit
 
+    # Setting controlling where this program will look for reference parameters 
+    # that are used for finding PFT names. The default setting is to look for 
+    # in a parameters/ directory relative to the current location (location 
+    # from which this calibration_viewer.py script was run). An alternate value 
+    # for this setting is 'relative_to_dvmdostem' in which this program will
+    # look for the parameters/ directory that ships with dvmdostem.
+    self.reference_param_loc = 'relative_to_curdir'
+
     self.fig = plt.figure(figsize=(6*1.3, 8*1.3))
     self.ewp_title = self.fig.suptitle(figtitle)
 
@@ -450,7 +458,6 @@ class ExpandingWindow(object):
 
     # ----- READ FIRST FILE FOR TITLE ------
     self.set_title_from_first_file(files)
-
     # for each trace, create a tmp y container the same size as x
     for trace in self.traces:
       trace['tmpy'] = x.copy() * np.nan
@@ -899,7 +906,7 @@ class ExpandingWindow(object):
           vname = ''
         else:
           cmtkey = t_line0[spos:spos+5]
-          vname = "(%s)" % pu.get_pft_verbose_name(pftkey=trace['pft'], cmtkey=cmtkey)
+          vname = "(%s)" % pu.get_pft_verbose_name(pftkey=trace['pft'], cmtkey=cmtkey, lookup_path=self.reference_param_loc)
         logger.debug("verbose PFT name is: %s" % vname)
 
         ax.text(
@@ -996,7 +1003,6 @@ class ExpandingWindow(object):
 if __name__ == '__main__':
 
   from configured_suites import configured_suites
-  import calibration_targets
   
   # Callback for SIGINT. Allows exit w/o printing stacktrace to users screen
   original_sigint = signal.getsignal(signal.SIGINT)
@@ -1057,6 +1063,12 @@ if __name__ == '__main__':
   parser.add_argument('--list-caltargets', action='store_true',
       help="print out a list of known calibration target communities")
 
+  parser.add_argument('--ref-targets', default=None,
+     help=textwrap.dedent('''Path to a calibration_targets.py file that will be
+      used for dsiplaying target lines. If this argument is not provided, then
+      the program will look for an use the calibration targets file that is
+      expected to live alongside this program (in dvm-dos-tem/calibration/
+      directory).''')) 
 
   parser.add_argument('-l', '--loglevel', default="warning",
       help="What logging level to use. (debug, info, warning, error, critical")
@@ -1090,9 +1102,8 @@ if __name__ == '__main__':
       help=textwrap.dedent('''Read and disply monthly json files instead of 
           yearly. NOTE: may be slow!!'''))
 
-  parser.add_argument('--data-path', default="/tmp/dvmdostem/",
-      help=textwrap.dedent('''Look for json files in the specified path
-          (instead of the default location)'''))
+  parser.add_argument('--data-path', default=None,
+      help=textwrap.dedent('''Look for json files in the specified path'''))
 
   parser.add_argument('--bulk', action='store_true',
       help=textwrap.dedent('''With this flag, the viewer will attempt to
@@ -1188,7 +1199,14 @@ if __name__ == '__main__':
   if args.from_archive:
     input_helper = InputHelper(path=args.from_archive, monthly=args.monthly)
   else:
-    input_helper = InputHelper(path=args.data_path, monthly=args.monthly)
+    if args.data_path is None:
+      parser.error("You must specify --data-path so the program knows which files to plot!")
+    if os.path.basename(args.data_path) != 'dvmdostem':
+      logging.info("Adding 'dvmdostem' to data path...")
+      dp = os.path.join(args.data_path, 'dvmdostem')
+    else:
+      dp = args.data_path
+    input_helper = InputHelper(path=dp, monthly=args.monthly)
 
   #logging.info("from_archive=%s" % args.from_archive)
   #logging.info("data_path=%s" % args.data_path)
@@ -1199,6 +1217,7 @@ if __name__ == '__main__':
   if args.targets:
     logging.info("Setting up calibration target display...")
     if len(input_helper.files()) > 0:
+      # Figure out which CMT we are dealing with
       try:
         with open(input_helper.files()[0], 'r') as ff:
           fdata = json.load(ff)
@@ -1206,12 +1225,41 @@ if __name__ == '__main__':
       except (IOError, ValueError) as e:
         logging.error("Problem: '%s' reading file '%s'" % (e, f))
 
-      for cmtname, data in calibration_targets.calibration_targets.iteritems():
-        if cmtstr == 'CMT{:02d}'.format(data['cmtnumber']):
-          caltargets = data
-          target_title_tag = "CMT {} ({:})".format(data['cmtnumber'], cmtname)
-        else:
-          pass # wrong cmt
+      # Figure out where to find the targets.
+      found_targets = False
+      if args.ref_targets:
+        # May want to save path, clear it, add only the new target location
+        # and try the import. on success, print something... and show lines??
+        # if it fails then log message, and restore path, and continue
+        try:
+          print "Trying to look for targets here: {}".format(os.path.abspath(args.ref_targets))
+          orig_path = sys.path
+          sys.path = [os.path.abspath(args.ref_targets)]
+          import calibration_targets
+          sys.path = orig_path
+          found_targets = True
+          print "Restoring path..."
+        except (ImportError, NameError) as e:
+          logging.error("Can't display target lines!! Can't find targets! {}".format(e.message))
+
+      else:
+        try:
+          print "Trying to look for targets here: {}".format(os.path.abspath(args.ref_targets))
+          import calibration_targets
+          found_targets = True
+        except (ImportError, NameError) as e:
+          logging.error("Can't display target lines!! Can't find targets! {}".format(e.message))
+
+      if found_targets:
+        for cmtname, data in calibration_targets.calibration_targets.iteritems():
+          if cmtstr == 'CMT{:02d}'.format(data['cmtnumber']):
+            caltargets = data
+            target_title_tag = "CMT {} ({:})".format(data['cmtnumber'], cmtname)
+          else:
+            pass # wrong cmt
+      else:
+        caltargets = {}
+        target_title_tag = "--"
 
     else:
       print logging.warn("No files. Can't figure out which CMT to display targets for without files.")
