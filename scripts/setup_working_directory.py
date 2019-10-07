@@ -48,6 +48,10 @@ if __name__ == '__main__':
   parser.add_argument('--input-data-path', default="<placeholder>",
       help=textwrap.dedent("""Path to the input data"""))
 
+  parser.add_argument('--no-cal-targets', action='store_true',
+      help=textwrap.dedent("""Do NOT copy the calibration_targets.py file into
+        the new working directory."""))
+
   args = parser.parse_args()
   print args
 
@@ -59,7 +63,15 @@ if __name__ == '__main__':
   # like the config and parameters to come from.
   # Alternatively: os.path.split(os.path.dirname(os.path.realpath(__file__)))[0]
   ddt_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
- 
+
+  if args.no_cal_targets:
+    pass
+  else:
+    mkdir_p(os.path.join(args.new_directory, 'calibration'))
+    shutil.copy( os.path.join(ddt_dir, 'calibration', 'calibration_targets.py'), 
+                 os.path.join(args.new_directory, 'calibration'))
+
+
   # Copy over the config and parameters directories
   shutil.copytree(os.path.join(ddt_dir, 'config'), os.path.join(args.new_directory, 'config'))
   shutil.copytree(os.path.join(ddt_dir, 'parameters'), os.path.join(args.new_directory, 'parameters'))
