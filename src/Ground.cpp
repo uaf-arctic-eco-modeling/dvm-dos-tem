@@ -2231,7 +2231,7 @@ void Ground::checkFrontsValidity() {
 void Ground::checkWaterValidity() {
   BOOST_LOG_SEV(glg, debug) << "Checking water validity...";
 
-  Layer* currl = toplayer;
+  Layer* currl = this->toplayer;
 
   while (currl != NULL) {
     if (fabs(currl->ice) < 1.e-9) {
@@ -2296,11 +2296,12 @@ void Ground::checkWaterValidity() {
       }
     }
 
-    currl = currl->nextl;
-
     if(currl->isRock) {
       break;
     }
+
+    currl = currl->nextl;
+
   }
 }
 
