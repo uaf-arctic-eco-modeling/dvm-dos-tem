@@ -780,7 +780,7 @@ double Soil_Env::getWaterTable(Layer* lstsoill) {
       //currl and currl->nextl to find perched water table height.
       double nextl_sat = 1.0; //assume frozen or null or rock layers act saturated
       double m, b;
-      if(currl->nextl != NULL && !currl->nextl->isRock && currl->nextl->frozen < 1){
+      if(currl->nextl != NULL && !currl->nextl->isRock && currl->nextl->frozen == -1){
         //determine saturation of next layer
         double nextl_dz_unfrozen = currl->nextl->dz
             * (1-currl->nextl->frozenfrac);

@@ -210,7 +210,7 @@ void TemperatureUpdator::processAboveFronts(Layer* fstvalidl, Layer*fstfntl,
       break;
     }
 
-    ind++;
+    ind = currl->indl;
     dx[ind] = currl->dz;
     dx[ind] = temutil::NON_ZERO(dx[ind], 1);
 
@@ -234,7 +234,7 @@ void TemperatureUpdator::processAboveFronts(Layer* fstvalidl, Layer*fstfntl,
   // the upper portion of the first front layer
   double frntdz = ground->frontsz[0] - fstfntl->z;
   int frnttype = ground->frontstype[0];
-  ind++;
+  ind = currl->indl;
   t[ind] = fstfntl->tem;
   dx[ind] = frntdz;
 
