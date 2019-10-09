@@ -232,12 +232,28 @@ void TemperatureUpdator::processAboveFronts(Layer* fstvalidl, Layer*fstfntl,
   }
 
   // the upper portion of the first front layer
+  // bottom boundary layer - 'front' or 'frontl->nextl'
+  bool usefstfntl = usefntl;
+
+  if (fstfntl->nextl==NULL) {
+    usefstfntl=true;  //if there's no layer below 'fstfntl'
+  }
+
   double frntdz = ground->frontsz[0] - fstfntl->z;
   int frnttype = ground->frontstype[0];
-  ind = currl->indl;
-  t[ind] = fstfntl->tem;
-  dx[ind] = frntdz;
 
+  ind = fstfntl->indl;
+  if (usefstfntl) {
+    if (frnttype == 1) {  // 'freezing' front: above -, below +
+      t[ind] = -zerodegc;
+    } else {
+      t[ind] = zerodegc;
+    }
+  } else { // Hg note: with recent changes this probably doesn't make sense, delete?
+    t[ind] = fstfntl->nextl->tem;
+  }
+
+  dx[ind] = frntdz;
   if (dx[ind] < mindzlay) {
     dx[ind] = mindzlay;
   }
@@ -255,24 +271,6 @@ void TemperatureUpdator::processAboveFronts(Layer* fstvalidl, Layer*fstfntl,
   hca[ind] = (pce + hcap);
   cn[ind] = tca[ind]  / dx[ind];
   cap[ind] = hca[ind] * dx[ind];
-  // bottom boundary layer - 'front' or 'frontl->nextl'
-  bool usefstfntl = usefntl;
-
-  if (fstfntl->nextl==NULL) {
-    usefstfntl=true;  //if there's no layer below 'fstfntl'
-  }
-
-  ind++;
-
-  if (usefstfntl) {
-    if (frnttype == 1) {  // 'freezing' front: above -, below +
-      t[ind] = -zerodegc;
-    } else {
-      t[ind] = zerodegc;
-    }
-  } else {
-    t[ind] = fstfntl->nextl->tem;
-  }
 
   endind = ind;
   s[ind] = 0.;
@@ -329,7 +327,7 @@ void TemperatureUpdator::processBetweenFronts(Layer*fstfntl, Layer*lstfntl,
     usefstfntl=true;
   }
 
-  ind = fstfntl->indl-1;
+  ind = fstfntl->indl;
 
   if (usefstfntl) {
     if (frnttype1 == 1) {  // 'freezing' front: above -, below +
@@ -382,8 +380,7 @@ void TemperatureUpdator::processBetweenFronts(Layer*fstfntl, Layer*lstfntl,
     if (currl->indl >= lstfntl->indl) {
       break;
     }
-
-    ind++;
+    ind = currl->indl;
     t[ind] = currl->tem;
     dx[ind] = currl->dz;
     dx[ind] = temutil::NON_ZERO(dx[ind], 1);
@@ -429,15 +426,12 @@ void TemperatureUpdator::processBetweenFronts(Layer*fstfntl, Layer*lstfntl,
     cap[ind] = hca[ind] * dx[ind];
   }
 
-  t[ind] = lstfntl->tem;
   // bottom boundary layer - 'front' or 'frontl->nextl'
   bool uselstfntl = usefntl;
 
   if(lstfntl->nextl==NULL) {
     uselstfntl=true;
   }
-
-  ind++;
 
   if (uselstfntl) {
     if (frnttype2 == 1) {  // 'freezing' front: above -, below +
@@ -484,8 +478,7 @@ void TemperatureUpdator::processBetweenFronts(Layer*fstfntl, Layer*lstfntl,
     if (currl->indl >= lstfntl->indl) {
       break;  // temperature for layers in between two 'front' containing layers only
     }
-
-    ind++;
+    ind=currl->indl;
     currl->tem = tld[ind];
     currl = currl->nextl;
   }
@@ -544,7 +537,7 @@ void TemperatureUpdator::processBelowFronts(Layer* backl, Layer*lstfntl,
     uselstfntl=true;
   }
 
-  ind = lstfntl->indl-1;
+  ind = lstfntl->indl;
 
   if (uselstfntl) {
     if (frnttype == 1) {  // 'freezing' front: above -, below +
@@ -564,19 +557,17 @@ void TemperatureUpdator::processBelowFronts(Layer* backl, Layer*lstfntl,
   e[ind] = 0.;
   s[ind] = t[ind];
 
-  // bottom portion of 'lstfntl'
+  // bottom portion of 'lstfntl' //Hg note: this makes so little sense. Clean up, delete?
   if (!uselstfntl) {
     ind++;
     t[ind] = lstfntl->tem;
   }
 
-  dx[ind] = lstfntl->dz*frntdz;
+  dx[ind] = frntdz;
   if (dx[ind] < mindzlay) {
     dx[ind] = mindzlay;
   }
   dx[ind] = temutil::NON_ZERO(dx[ind], 1);
-
-
 
   if (frnttype == 1) {
     tca[ind] = lstfntl->getUnfThermCond();
@@ -594,7 +585,7 @@ void TemperatureUpdator::processBelowFronts(Layer* backl, Layer*lstfntl,
   Layer* currl = lstfntl->nextl;
 
   while (currl != NULL) {
-    ind++;
+    ind = currl->indl;
     t[ind] = currl->tem;
     dx[ind] = currl->dz;
     dx[ind] = temutil::NON_ZERO(dx[ind], 1);
