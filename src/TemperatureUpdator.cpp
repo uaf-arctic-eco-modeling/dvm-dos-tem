@@ -75,10 +75,12 @@ void TemperatureUpdator::updateTemps(const double & tdrv, Layer *fstvalidl,
 
   if (front_count == 0) {
     // no fronts in soil column
+    BOOST_LOG_SEV(glg, info) << "Adjusting temperatures in a soil stack with no fronts";
     processColumnNofront(fstvalidl, backl, tdrv, meltsnow);
     itsumall = itsum;
   }
   else if (front_count == 1) {
+    BOOST_LOG_SEV(glg, info) << "Adjusting temperatures in a soil stack with 1 front";
     processAboveFronts(fstvalidl, fstfntl, tdrv, meltsnow, usefntl); //ALWAYS NO adjusting the temperature in the 'fstfntl'
     itsumabv = itsum;
     processBelowFronts(backl, lstfntl, adjfntl, usefntl);
@@ -87,6 +89,7 @@ void TemperatureUpdator::updateTemps(const double & tdrv, Layer *fstvalidl,
   }
   else if (front_count == 2) {
     // there are two different layers which contain front(s)
+    BOOST_LOG_SEV(glg, info) << "Adjusting temperatures in a soil stack with 2 fronts";
     processAboveFronts(fstvalidl, fstfntl, tdrv, meltsnow, usefntl);
     itsumabv = itsum;
     processBelowFronts(backl, lstfntl, false, usefntl);  //'lstfntl' only partially updated, so cannot adjust it
@@ -94,27 +97,37 @@ void TemperatureUpdator::updateTemps(const double & tdrv, Layer *fstvalidl,
     processBetweenFronts(fstfntl, lstfntl, adjfntl, usefntl);
     itsumall = itsumabv + itsumblw;
   }
-  else if(front_count == 3){
-    //Need to find middle front layer. Cycle through layers,
+  else if(front_count > 2){
+    BOOST_LOG_SEV(glg, info) << "Adjusting temperatures in a soil stack with "
+                             << front_count << " fronts";
+    //Need to find middle fronts. Cycle through layers,
     // if frozen == 0, it's a front layer.
-    Layer *midfntl = fstfntl->nextl;
-    while(midfntl->indl < lstfntl->indl){
-      if(midfntl->frozen != 0){
-        midfntl = midfntl->nextl;
+    std::vector<Layer *> front_ptrs;
+
+    Layer *iter_lay = fstfntl;
+    while(iter_lay != NULL){
+
+      if(iter_lay->frozen == 0){
+        //Insert at end so the higher fronts are at the front of the vector
+        front_ptrs.push_back(iter_lay);
       }
-      else{
-        break;
-      }
+      iter_lay = iter_lay->nextl;
     }
 
-    processAboveFronts(fstvalidl, fstfntl, tdrv, meltsnow, usefntl);
+    //For the following function calls, we assume that the first pointer
+    // in front_ptrs is fstfntl, and that the last pointer is lstfntl
+    processAboveFronts(fstvalidl, front_ptrs.front(), tdrv, meltsnow, usefntl);
     itsumabv = itsum;
-    processBelowFronts(backl, lstfntl, false, usefntl);
+    processBelowFronts(backl, front_ptrs.back(), false, usefntl);
     itsumblw = itsum;
-    //between the upper two fronts
-    processBetweenFronts(fstfntl, midfntl, adjfntl, usefntl);
-    //between the bottom two fronts
-    processBetweenFronts(midfntl, lstfntl, adjfntl, usefntl);
+
+    //Between each pair of fronts in front_ptrs. The limit must be 
+    // size-1 so that it does not attempt to run with the last front
+    // and a non-existent front below it. 
+    for(int ii=0; ii<front_ptrs.size()-1; ii++){
+      processBetweenFronts(front_ptrs.at(ii), front_ptrs.at(ii+1), adjfntl, usefntl);
+    }
+
     itsumall = itsumabv + itsumblw;
   }
 
