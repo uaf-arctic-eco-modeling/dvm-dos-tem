@@ -71,23 +71,50 @@ void TemperatureUpdator::updateTemps(const double & tdrv, Layer *fstvalidl,
                        //  'frozenfrac' of the layer
   // after-testing note: not matter much
 
-  if (fstfntl == NULL && lstfntl == NULL) {
+  int front_count = ground->frontstype.size();
+
+  if (front_count == 0) {
     // no fronts in soil column
     processColumnNofront(fstvalidl, backl, tdrv, meltsnow);
     itsumall = itsum;
-  } else if (fstfntl->indl == lstfntl->indl) {
+  }
+  else if (front_count == 1) {
     processAboveFronts(fstvalidl, fstfntl, tdrv, meltsnow, usefntl); //ALWAYS NO adjusting the temperature in the 'fstfntl'
     itsumabv = itsum;
     processBelowFronts(backl, lstfntl, adjfntl, usefntl);
     itsumblw = itsum;
     itsumall = itsumabv + itsumblw;
-  } else if (fstfntl->indl != lstfntl->indl) {
+  }
+  else if (front_count == 2) {
     // there are two different layers which contain front(s)
     processAboveFronts(fstvalidl, fstfntl, tdrv, meltsnow, usefntl);
     itsumabv = itsum;
     processBelowFronts(backl, lstfntl, false, usefntl);  //'lstfntl' only partially updated, so cannot adjust it
     itsumblw = itsum;
     processBetweenFronts(fstfntl, lstfntl, adjfntl, usefntl);
+    itsumall = itsumabv + itsumblw;
+  }
+  else if(front_count == 3){
+    //Need to find middle front layer. Cycle through layers,
+    // if frozen == 0, it's a front layer.
+    Layer *midfntl = fstfntl->nextl;
+    while(midfntl->indl < lstfntl->indl){
+      if(midfntl->frozen != 0){
+        midfntl = midfntl->nextl;
+      }
+      else{
+        break;
+      }
+    }
+
+    processAboveFronts(fstvalidl, fstfntl, tdrv, meltsnow, usefntl);
+    itsumabv = itsum;
+    processBelowFronts(backl, lstfntl, false, usefntl);
+    itsumblw = itsum;
+    //between the upper two fronts
+    processBetweenFronts(fstfntl, midfntl, adjfntl, usefntl);
+    //between the bottom two fronts
+    processBetweenFronts(midfntl, lstfntl, adjfntl, usefntl);
     itsumall = itsumabv + itsumblw;
   }
 
