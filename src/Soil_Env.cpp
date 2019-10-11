@@ -1098,7 +1098,7 @@ void Soil_Env::checkSoilLiquidWaterValidity(Layer *topsoill, int topind){
   //Final check, force, and raise error
   currl = topsoill;
   while (currl != NULL and currl->solind <= last_active_layer->solind and currl->isSoil){
-    int ind = currl->solind;
+    ind = currl->solind;
     if (currl->liq != currl->liq){ // check for NaNs
       BOOST_LOG_SEV(glg, err) << "Layer " << currl->indl << " liquid is nan";
     }

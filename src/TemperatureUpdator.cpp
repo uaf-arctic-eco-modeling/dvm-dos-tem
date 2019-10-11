@@ -307,9 +307,9 @@ void TemperatureUpdator::processBetweenFronts(Layer*fstfntl, Layer*lstfntl,
 
   int startind, endind;
 
-  if (lstfntl->indl - fstfntl->indl < 2) {
-    double ffstfntl = fstfntl->dz/(fstfntl->dz+lstfntl->dz);
-    fstfntl->nextl->tem = ffstfntl*fstfntl->tem+(1.0-ffstfntl)*lstfntl->tem;  // at this point, both 'fst-/lstfntl->tem' already known
+  if (lstfntl->indl - fstfntl->indl <= 1) {
+    fstfntl->tem = -0.01 + (1-fstfntl->frozenfrac) * 0.02; //Scale temps between -0.01 and 0.01 based on frozenfrac
+    lstfntl->tem = -0.01 + (1-lstfntl->frozenfrac) * 0.02;
     return;
   }
 

@@ -94,7 +94,7 @@ void Stefan::updateFronts(const double & tdrv, const double &timestep) {
   combineExtraFronts(); //it is possible that there are too many fronts exist
                         //  to hold in 'ed's 'frontz' and 'fronttype', so
                         //  combine them if there are too many
-  updateLayerFrozenState(ground->toplayer); //this must be done before
+  updateLayerFrozenState(ground->toplayer, freezing1); //this must be done before
                                             //  the following call
   updateWaterAfterFront(ground->toplayer); //after fronts processed, need to
                                            //  update 'ice' and 'liq' water in
@@ -238,7 +238,7 @@ void Stefan::processNewFrontSoilLayerDown(const int &freezing,
         } else {
           // for the opposite type front
           if (partdleft<fntdz) {
-            newfntdz = fntdz+partdleft; //adding a new front before
+            newfntdz = partdleft; //adding a new front before
                                         //  the current front
             partdleft = 0.; // using up all left 'partd'
           } else {
@@ -652,7 +652,7 @@ void Stefan::combineExtraFronts() {
 //update frozen status and the fraction of frozen portion (thickness) for
 //  each layer in a column, based on two fronts deques: 'ground->frontsz'
 //  and 'ground->frontstype'
-void Stefan::updateLayerFrozenState(Layer * toplayer) {
+void Stefan::updateLayerFrozenState(Layer * toplayer, const int freezing1) {
   int fntnum = ground->frontsz.size();
   Layer *currl = toplayer;
 
@@ -714,12 +714,16 @@ void Stefan::updateLayerFrozenState(Layer * toplayer) {
           currl->frozen = -fntouttype;
         }
       } else { // no front at all
-        if (currl->tem>0.) {
-          currl->frozen = -1;
+        if (currl->frozen==0 && currl->isSoil){ //suggests that this was a front layer but fronts have been swept out
+          currl->frozen = freezing1; // in this case, assume the layer now matches overall forcing.
         }
-
-        if (currl->tem<=0.) {
+        else{
+          if (currl->tem>0.) {
+            currl->frozen = -1;
+          }
+          if (currl->tem<=0.) {
           currl->frozen = 1;
+          }
         }
       }
 
