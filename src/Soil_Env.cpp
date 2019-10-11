@@ -945,7 +945,7 @@ void Soil_Env::checkSoilLiquidWaterValidity(Layer *topsoill, int topind){
   double effminliq[MAX_SOI_LAY] ={0};
   double effmaxliq[MAX_SOI_LAY] = {0};
   Layer *currl = topsoill;
-  Layer *last_active_layer;
+  Layer *last_active_layer = NULL;
   while(currl != NULL && currl->isSoil){
     if (currl->frozen == 0){
       last_active_layer = currl;
