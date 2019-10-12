@@ -323,7 +323,7 @@ void TemperatureUpdator::processAboveFronts(Layer* fstvalidl, Layer*fstfntl,
   currl = fstvalidl;
 
   while (currl != NULL) {
-    if (ind>endind-1) {
+    if (ind>endind) {
       break;
     }
 

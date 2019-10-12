@@ -757,11 +757,16 @@ double Soil_Env::getWaterTable(Layer* lstsoill) {
   }
 
   while(currl!=NULL && currl->isSoil){
-    //thickness of thawed part of the layer
-    double dz_unfrozen = currl->dz * (1-currl->frozenfrac);
-
-    //volumetric liquid of the thawed part
-    double volliq = currl->liq/DENLIQ/dz_unfrozen;
+    double dz_unfrozen = 0.0;//thickness of thawed part of the layer
+    if(currl == ground->fstfntl){ //if top thaw front is in this layer, only use the dz above it
+      dz_unfrozen = ground->frontsz[0] - currl->z; //this gets the proper thickness even if the middle of the layer is frozen (i.e. it has two fronts)
+    }
+    else{
+      dz_unfrozen = currl->dz * (1-currl->frozenfrac);
+    }
+    //volumetric liquid of the relevant thawed part (only top thawed part if there are two fronts)
+    double effliq = currl->liq * (dz_unfrozen/(currl->dz*(1-currl->frozenfrac))); //get liq in this unfrozen part of layer
+    double volliq = effliq/DENLIQ/dz_unfrozen;
 
     //saturation of the thawed part
     double saturation = fmin(volliq/currl->poro, 1.0);
@@ -780,7 +785,7 @@ double Soil_Env::getWaterTable(Layer* lstsoill) {
       //currl and currl->nextl to find perched water table height.
       double nextl_sat = 1.0; //assume frozen or null or rock layers act saturated
       double m, b;
-      if(currl->nextl != NULL && !currl->nextl->isRock && currl->nextl->frozen == -1){
+      if(currl->nextl != NULL && currl->frozen == -1 && !currl->nextl->isRock){
         //determine saturation of next layer
         double nextl_dz_unfrozen = currl->nextl->dz
             * (1-currl->nextl->frozenfrac);
@@ -795,11 +800,11 @@ double Soil_Env::getWaterTable(Layer* lstsoill) {
       }
       wtd = fmax(m * sat_level + b, 0.0);
       if(ground->fstfntl != NULL && wtd > ground->frontsz[0] && ground->frontstype[0] == -1){
-        BOOST_LOG_SEV(glg, warn) << "Water table depth is below thaw front; setting equal to thaw depth";
+        BOOST_LOG_SEV(glg, info) << "Water table depth is below thaw front; setting equal to thaw depth";
         wtd = ground->frontsz[0];
       }
       if(wtd > ground->lstsoill->z + ground->lstsoill->dz){ //wtd is in rock layer
-        BOOST_LOG_SEV(glg, warn) << "Water table depth is below soil column; setting equal to soil depth";
+        BOOST_LOG_SEV(glg, info) << "Water table depth is below soil column; setting equal to soil depth";
         wtd = ground->lstsoill->z + ground->lstsoill->dz;
       }
       return wtd;
