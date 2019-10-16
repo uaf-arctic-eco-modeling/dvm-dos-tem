@@ -97,7 +97,7 @@ private:
                           const bool & meltsnow, const bool &usefntl);
   void processBelowFronts(Layer *backl, Layer*lstfntl,
                           const bool &adjfntl, const bool &usefntl);
-  void processBetweenFronts(Layer*fstfntl, Layer*lstfntl,
+  void processBetweenFronts(Layer*fstfntl, Layer*lstfntl, int fstfntindex,
                             const bool &adjfntl, const bool &usefntl);
 
   void iterate(const int &startind, const int &endind);

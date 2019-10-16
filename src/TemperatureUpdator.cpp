@@ -94,7 +94,7 @@ void TemperatureUpdator::updateTemps(const double & tdrv, Layer *fstvalidl,
     itsumabv = itsum;
     processBelowFronts(backl, lstfntl, false, usefntl);  //'lstfntl' only partially updated, so cannot adjust it
     itsumblw = itsum;
-    processBetweenFronts(fstfntl, lstfntl, adjfntl, usefntl);
+    processBetweenFronts(fstfntl, lstfntl, 0, adjfntl, usefntl);
     itsumall = itsumabv + itsumblw;
   }
   else if(front_count > 2){
@@ -125,7 +125,9 @@ void TemperatureUpdator::updateTemps(const double & tdrv, Layer *fstvalidl,
     // size-1 so that it does not attempt to run with the last front
     // and a non-existent front below it. 
     for(int ii=0; ii<front_ptrs.size()-1; ii++){
-      processBetweenFronts(front_ptrs.at(ii), front_ptrs.at(ii+1), adjfntl, usefntl);
+      //We include ii in the following call for accessing data in Ground
+      // that is not otherwise available.
+      processBetweenFronts(front_ptrs.at(ii), front_ptrs.at(ii+1), ii, adjfntl, usefntl);
     }
 
     itsumall = itsumabv + itsumblw;
@@ -341,6 +343,7 @@ void TemperatureUpdator::processAboveFronts(Layer* fstvalidl, Layer*fstfntl,
 }
 
 void TemperatureUpdator::processBetweenFronts(Layer*fstfntl, Layer*lstfntl,
+                                              int fstfntindex,
                                               const bool&adjfntl,
                                               const bool&usefntl) {
   BOOST_LOG_NAMED_SCOPE("TemperatureUpdator::processBetweenFronts"){
@@ -354,8 +357,8 @@ void TemperatureUpdator::processBetweenFronts(Layer*fstfntl, Layer*lstfntl,
   }
 
   // pre-iteration
-  double frntdz1 = (fstfntl->z+fstfntl->dz) - ground->frontsz[0];
-  int frnttype1 = ground->frontstype[0];
+  double frntdz1 = (fstfntl->z+fstfntl->dz) - ground->frontsz[fstfntindex];
+  int frnttype1 = ground->frontstype[fstfntindex];
   double hcap = 0.;
   double pce = 0.;
   pce = abs(fstfntl->pce_f-fstfntl->pce_t);
@@ -439,8 +442,8 @@ void TemperatureUpdator::processBetweenFronts(Layer*fstfntl, Layer*lstfntl,
   double frntdz2;
   int frnttype2;
   if (numfnt > 0 ) {
-    frntdz2 = ground->frontsz[numfnt-1] - lstfntl->z;   //the upper portion of the last front
-    frnttype2 = ground->frontstype[numfnt-1];
+    frntdz2 = ground->frontsz[fstfntindex+1] - lstfntl->z;   //the upper portion of the last front
+    frnttype2 = ground->frontstype[fstfntindex+1];
   } else {
     BOOST_LOG_SEV(glg, warn) << "Ground object has no fronts! Setting locals frntdz2 -> 0, fnrttype2 -> 0...";
     frntdz2 = 0;
