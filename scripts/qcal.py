@@ -17,7 +17,6 @@ sys.path.insert(0, os.path.abspath(os.path.dirname(os.path.dirname(__file__))))
 import scripts.output_utils as ou
 import scripts.param_util as pu
 
-from calibration.calibration_targets import calibration_targets as ct
 from calibration.InputHelper import InputHelper
 
 # Paste this into IPython to see log output
@@ -25,9 +24,6 @@ from calibration.InputHelper import InputHelper
 # logger = logging.getLogger()
 # logger.setLevel(logging.DEBUG)
 # logging.debug("test")
-
-# Re-shape the wat the calibration targets dict is structured (keyed)
-caltargets = {'CMT{:02d}'.format(v['cmtnumber']):v for k, v in ct.iteritems()}
 
 
 def qcal_rank(truth, value):
@@ -40,11 +36,11 @@ def qcal_rank2(truth, value):
   return (truth - value)**2
 
 
-def measure_calibration_quality_nc(output_directory_path):
+def measure_calibration_quality_nc(output_directory_path, ref_targets_dir, ref_param_file):
 
-  #print "************* WORKING WITH NETCDF FILES ***********"
-  #print ""
-  #print "WARNING !!! WARNING !!! WARNING !!! HARDCODED CMT NUMBER!!"
+  print "************* WORKING WITH NETCDF FILES ***********"
+  print ""
+  print "WARNING !!! WARNING !!! WARNING !!! HARDCODED CMT NUMBER!!"
   cmtkey = 'CMT05'
 
   #print "CMT:", cmtkey
@@ -80,7 +76,7 @@ def measure_calibration_quality_nc(output_directory_path):
     #print ctname, output_directory_path, ncname, dims, dnames, dsizes
 
     if dnames == ('time','y','x'):
-      pec = pu.percent_ecosys_contribution(cmtkey, ctname)
+      pec = pu.percent_ecosys_contribution(cmtkey, ctname, ref_param_file=ref_param_file)
       truth = caltargets[cmtkey][ctname]
       value = data[:,0,0].mean()
       #print ctname, value, truth, np.abs(qcal_rank(truth, value))
@@ -101,7 +97,7 @@ def measure_calibration_quality_nc(output_directory_path):
     elif dnames == ('time','y','x','pft'):
       for pft in range(0,10):
         if pu.is_ecosys_contributor(cmtkey, pft):
-          pec = pu.percent_ecosys_contribution(cmtkey, ctname, pftnum=pft)
+          pec = pu.percent_ecosys_contribution(cmtkey, ctname, pftnum=pft, ref_params_dir=ref_params_dir)
           truth = caltargets[cmtkey][ctname][pft]
           value = data[:,pft,0,0].mean()
 
@@ -126,7 +122,7 @@ def measure_calibration_quality_nc(output_directory_path):
         for cmprt in range(0,3):
           #print "analyzing... ctname {} (nc output: {}) for pft {} compartment {}".format(ctname, ncname, pft, cmprt),
           if pu.is_ecosys_contributor(cmtkey, pft, clu[cmprt]):
-            pec = pu.percent_ecosys_contribution(cmtkey, ctname, pftnum=pft, compartment=clu[cmprt])
+            pec = pu.percent_ecosys_contribution(cmtkey, ctname, pftnum=pft, compartment=clu[cmprt], ref_params_dir=ref_params_dir)
             truth = caltargets[cmtkey][ctname][clu[cmprt]][pft]
             value = data[:,cmprt,pft,0,0].mean()
             # Unweighted Rank
@@ -156,9 +152,25 @@ def measure_calibration_quality_nc(output_directory_path):
   return data
 
 class QCal(object):
-  def __init__(self,jsondata_path="", ncdata_path="", targets_file="calibration/calibration_targets.py"):
+  def __init__(self,jsondata_path="", ncdata_path="", ref_targets_dir="", ref_params_dir=""):
     #self.cmtkey = ?? # it is possible to lookup the CMT number in the json file, but not the netcdf file!
-    self.targets = caltargets # use the CMT to lookup the targets
+
+
+    # Load the targets
+    old_path = sys.path
+    sys.path = [os.path.abspath(ref_targets_dir)]
+    #ct.keys()
+    print "Loading calibration target values from: {}".format(sys.path)
+    from calibration.calibration_targets import calibration_targets as ct
+    ct.keys()
+    print "Restoring search path..."
+    sys.path = old_path
+
+    # Re-shape the way the calibration targets dict is structured (keyed)
+    caltargets = {'CMT{:02d}'.format(v['cmtnumber']):v for k, v in ct.iteritems()}
+    self.targets = caltargets
+
+
     self.jsondata_path = jsondata_path
     self.ncdata_path = ncdata_path
 
@@ -166,7 +178,7 @@ class QCal(object):
   def json_qcal(self):
     ih = InputHelper(self.jsondata_path)
     assert(os.path.splitext(ih.files()[0])[1] == ".json")
-    result_list = measure_calibration_quality_json(ih.files()[-10:])
+    result_list = measure_calibration_quality_json(ih.files()[-10:], ref_targets=self.targets)
     return result_list
 
 
@@ -179,7 +191,11 @@ class QCal(object):
 
 
 
-def measure_calibration_quality_json(file_list):
+def measure_calibration_quality_json(file_list, ref_params_dir='parameters/', ref_targets={}):
+
+  assert(type(ref_targets == dict))
+  assert(len(ref_targets.keys()) > 0)
+
 
   #print "************* WORKING WITH JSON FILES ***********"
   # Figure out which community type was run by looking at the first json file
@@ -194,51 +210,51 @@ def measure_calibration_quality_json(file_list):
 
   # First process all the non-PFT variables
   for v in 'MossDeathC,CarbonShallow,CarbonDeep,CarbonMineralSum,OrganicNitrogenSum,AvailableNitrogenSum'.split(','):
-    pec = pu.percent_ecosys_contribution(cmtkey, v)
+    pec = pu.percent_ecosys_contribution(cmtkey, v, ref_params_dir=ref_params_dir)
     d = 0.0
     for f in file_list:
       with open(f) as fh:
         jdata = json.load(fh)
       d += jdata[v]/float(len(file_list))
-    qcr = np.abs(qcal_rank(caltargets[cmtkey][v], d))
+    qcr = np.abs(qcal_rank(ref_targets[cmtkey][v], d))
     qcr_w = qcr * pec
     qcr_t += qcr
-    #print v, d, caltargets[cmtkey][v], qcr
+    #print v, d, ref_targets[cmtkey][v], qcr
     #print "{:>25s} {:>5s} {:>8s} {:0.6f} {:0.3f}".format(v, '', '', pec, qcr)
-    d = dict(cmt=cmtkey, ctname=v, value=d, truth=caltargets[cmtkey][v], pec=pec, qcr=qcr, qcr_w=qcr_w)
+    d = dict(cmt=cmtkey, ctname=v, value=d, truth=ref_targets[cmtkey][v], pec=pec, qcr=qcr, qcr_w=qcr_w)
     data.append(d)
 
   # Now process all the PFT variables
   for ipft, pft in enumerate(['PFT{}'.format(i) for i in range(0,10)]):
-    if pu.is_ecosys_contributor(cmtkey, ipft):
+    if pu.is_ecosys_contributor(cmtkey, ipft, ref_params_dir=ref_params_dir):
       for v in ['GPPAllIgnoringNitrogen','NPPAllIgnoringNitrogen','NPPAll']:
-        pec = pu.percent_ecosys_contribution(cmtkey, v, pftnum=ipft)
+        pec = pu.percent_ecosys_contribution(cmtkey, v, pftnum=ipft, ref_params_dir=ref_params_dir)
         d = 0.0
         for f in file_list:
           with open(f) as fh:
             jdata = json.load(fh)
           d += jdata[pft][v]/float(len(file_list))
-        qcr = np.abs(qcal_rank(caltargets[cmtkey][v][ipft], d))
+        qcr = np.abs(qcal_rank(ref_targets[cmtkey][v][ipft], d))
         qcr_w = qcr * pec
         qcr_t += qcr
         #print "{:>25s} {:>5d} {:>8s} {:0.6f} {:0.3f}".format(v, ipft, '', pec, qcr)
-        d = dict(cmt=cmtkey, ctname=v, pft=ipft, value=d, truth=caltargets[cmtkey][v][ipft], pec=pec, qcr=qcr, qcr_w=qcr_w)
+        d = dict(cmt=cmtkey, ctname=v, pft=ipft, value=d, truth=ref_targets[cmtkey][v][ipft], pec=pec, qcr=qcr, qcr_w=qcr_w)
         data.append(d)
     else:
       pass #print "{:>25s} {:>5d}     --".format(v, ipft)
 
     # And process all the PFT/Compartment variables
     for cmprt in ['Leaf','Stem','Root']:
-      if pu.is_ecosys_contributor(cmtkey, ipft, cmprt):
+      if pu.is_ecosys_contributor(cmtkey, ipft, cmprt, ref_params_dir=ref_params_dir):
         for v in ['VegCarbon', 'VegStructuralNitrogen']:
-          pec = pu.percent_ecosys_contribution(cmtkey, v, pftnum=ipft, compartment=cmprt)
+          pec = pu.percent_ecosys_contribution(cmtkey, v, pftnum=ipft, compartment=cmprt, ref_params_dir=ref_params_dir)
           d = 0.0
           for f in file_list:
             with open(f) as fh:
               jdata = json.load(fh)
             d += jdata[pft][v][cmprt]/float(len(file_list))
-          truth = caltargets[cmtkey][v][cmprt][ipft],
-          qcr = np.abs(qcal_rank(caltargets[cmtkey][v][cmprt][ipft], d))
+          truth = ref_targets[cmtkey][v][cmprt][ipft],
+          qcr = np.abs(qcal_rank(ref_targets[cmtkey][v][cmprt][ipft], d))
           qcr_t += qcr
           qcr_w = qcr * pec
           #print "{:>25s} {:>5d} {:>8s} {:0.6f} {:0.3f}".format(v, ipft, cmprt, pec, qcr)
@@ -259,14 +275,14 @@ def print_report(jdata, caltargets):
   cmtkey = jdata['CMT']
 
   for v in 'MossDeathC,CarbonShallow,CarbonDeep,CarbonMineralSum,OrganicNitrogenSum,AvailableNitrogenSum'.split(','):
-    pec = pu.percent_ecosys_contribution(cmtkey, v)
+    pec = pu.percent_ecosys_contribution(cmtkey, v, ref_params_dir=ref_params_dir)
     qcr = qcal_rank(caltargets[cmtkey][v], jdata[v])
     print "{} {}".format(pec, qcr)
 
   for ipft, pft in enumerate(['PFT{}'.format(i) for i in range(0,10)]):
     if pu.is_ecosys_contributor(cmtkey, ipft):
       for v in ['GPPAllIgnoringNitrogen','NPPAllIgnoringNitrogen','NPPAll']:
-        pec = pu.percent_ecosys_contribution(cmtkey, v, pftnum=ipft)
+        pec = pu.percent_ecosys_contribution(cmtkey, v, pftnum=ipft, ref_params_dir=ref_params_dir)
         qcr = qcal_rank(caltargets[cmtkey][v][ipft], jdata[pft][v])
 
         print "{} {}".format(pec, qcr)
@@ -276,7 +292,7 @@ def print_report(jdata, caltargets):
       if pu.is_ecosys_contributor(cmtkey, ipft, cmprt):
         for v in ['VegCarbon', 'VegStructuralNitrogen']:
 
-          pec = pu.percent_ecosys_contribution(cmtkey, v, pftnum=ipft, compartment=cmprt)
+          pec = pu.percent_ecosys_contribution(cmtkey, v, pftnum=ipft, compartment=cmprt, ref_params_dir=ref_params_dir)
           qcr = qcal_rank(caltargets[cmtkey][v][cmprt][ipft], jdata[pft][v][cmprt])
     
         print "{} {}".format(pec, qcr)
@@ -303,6 +319,12 @@ def cal_folder_validator(arg_calfolder):
     raise argparse.ArgumentTypeError(msg)
   return arg_calfolder
 
+def ref_targets_validator(arg_ref_targets_path):
+  return arg_ref_targets_path
+
+def ref_params_validator(arg_ref_params_path):
+  return arg_ref_params_path
+
 
 
 if __name__ == '__main__':
@@ -320,14 +342,32 @@ if __name__ == '__main__':
       epilog=textwrap.dedent(''''''),
   )
 
+  parser.add_argument("--ref-targets", type=ref_targets_validator, default=os.path.join('calibration/'),
+      help=textwrap.dedent('''Path to a folder containing a calibration_targets.py file.'''))
+
+  parser.add_argument("--ref-params", type=ref_params_validator, default=os.path.join('parameters/'),
+      help=textwrap.dedent('''Path to a folder of parameter files. (cmt_*.txt)'''))
+
   parser.add_argument("calfolder", type=cal_folder_validator, 
       help=textwrap.dedent('''The folder where the program should look for calibration outputs from dvm-dos-tem'''))
 
   args = parser.parse_args()
   
-  qcal = QCal(jsondata_path=os.path.join(args.calfolder, "eq-data.tar.gz")) #, ncdata_path="/home/jclein/Desktop/cal-kougo-treelineWS/output/")
 
-  qcal.json_qcal()
+  # Setup the parameters
+
+  if 'eq-data.tar.gz' not in os.listdir(args.calfolder):
+    print "Can't find enough json data to measure calibration quality!"
+
+  qcal = QCal(
+      jsondata_path=os.path.join(args.calfolder, "eq-data.tar.gz"),
+      #ncdata_path="/home/jclein/Desktop/cal-kougo-treelineWS/output/",
+      ref_targets_dir=args.ref_targets
+  )
+
+  r = qcal.json_qcal()
+
+  print r
   #qcal.nc_qcal()
 
 
