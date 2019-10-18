@@ -524,10 +524,14 @@ def enforce_initvegc_split(aFile, cmtnum):
 
   return dd
 
-def get_ecosystem_total_C(cmtstr):
+def get_ecosystem_total_C(cmtstr, ref_params_dir):
   
+
+  veg_param_file = os.path.join(os.path.abspath(ref_params_dir), 'cmt_bgcvegetation.txt')
+  soil_param_file = os.path.join(os.path.abspath(ref_params_dir), 'cmt_bgcsoil.txt')
+
   # First start with the vegetation numbers
-  d = get_CMT_datablock('parameters/cmt_bgcvegetation.txt', int(cmtstr.upper().lstrip('CMT')))
+  d = get_CMT_datablock(veg_param_file, int(cmtstr.upper().lstrip('CMT')))
   dd = cmtdatablock2dict(d)
 
   vegC = 0.0
@@ -543,7 +547,7 @@ def get_ecosystem_total_C(cmtstr):
       vegC += dd[pft]['initvegcr']
 
   # Now load up the soil numbers
-  d = get_CMT_datablock('parameters/cmt_bgcsoil.txt', int(cmtstr.upper().lstrip('CMT')))
+  d = get_CMT_datablock(soil_param_file, int(cmtstr.upper().lstrip('CMT')))
   dd = cmtdatablock2dict(d)
 
   soilC = 0.0
@@ -554,10 +558,12 @@ def get_ecosystem_total_C(cmtstr):
   return vegC + soilC
 
 
-def percent_ecosys_contribution(cmtstr, tname=None, pftnum=None, compartment=None):
+def percent_ecosys_contribution(cmtstr, tname=None, pftnum=None, compartment=None, ref_params_dir=None):
 
   pec = 1.0 # Start by assuming everythign has a contribution of 1
-  total_C = get_ecosystem_total_C(cmtstr)
+  total_C = get_ecosystem_total_C(cmtstr, ref_params_dir)
+
+  veg_param_ref_file = os.path.join(os.path.abspath(ref_params_dir), 'cmt_bgcvegetation.txt')
 
   if tname == 'OrganicNitrogenSum' or tname == 'AvailableNitrogenSum':
     # These parameters are in cmt_bgcsoil.txt as 'initsoln' and 'initavln'
@@ -569,7 +575,7 @@ def percent_ecosys_contribution(cmtstr, tname=None, pftnum=None, compartment=Non
 
   if pftnum is not None and compartment is None:
 
-    d = get_CMT_datablock('parameters/cmt_bgcvegetation.txt', int(cmtstr.upper().lstrip('CMT')))
+    d = get_CMT_datablock(veg_param_ref_file, int(cmtstr.upper().lstrip('CMT')))
     dd = cmtdatablock2dict(d)
 
     pftstr = 'pft{}'.format(pftnum)
@@ -577,9 +583,9 @@ def percent_ecosys_contribution(cmtstr, tname=None, pftnum=None, compartment=Non
     pec = pft_total_init_c / total_C
 
   if pftnum is not None and compartment is not None:
-    total = get_ecosystem_total_C(cmtstr)
+    total = get_ecosystem_total_C(cmtstr, ref_params_dir)
 
-    d = get_CMT_datablock('parameters/cmt_bgcvegetation.txt', int(cmtstr.upper().lstrip('CMT')))
+    d = get_CMT_datablock(veg_param_ref_file, int(cmtstr.upper().lstrip('CMT')))
     dd = cmtdatablock2dict(d)
     pftstr = 'pft{}'.format(pftnum)
 
@@ -597,11 +603,11 @@ def percent_ecosys_contribution(cmtstr, tname=None, pftnum=None, compartment=Non
   #print "cmtstr: {}  tname: {}  pftnum: {}  compartment: {}  PEC: {}".format(cmtstr, tname, pftnum, compartment, pec)
   return pec
 
-def is_ecosys_contributor(cmtstr, pftnum=None, compartment=None):
+def is_ecosys_contributor(cmtstr, pftnum=None, compartment=None, ref_params_dir=None):
 
   pftstr = 'pft{}'.format(pftnum)
 
-  d = get_CMT_datablock('parameters/cmt_bgcvegetation.txt', int(cmtstr.upper().lstrip('CMT')))
+  d = get_CMT_datablock(os.path.join(os.path.abspath(ref_params_dir), 'cmt_bgcvegetation.txt'), int(cmtstr.upper().lstrip('CMT')))
   dd = cmtdatablock2dict(d)
 
   is_contrib = True
