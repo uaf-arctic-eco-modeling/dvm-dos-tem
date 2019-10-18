@@ -223,7 +223,7 @@ def get_pft_verbose_name(cmtkey=None, pftkey=None, cmtnum=None, pftnum=None, loo
   elif lookup_path is "relative_to_curdir":
     path2params = os.path.join(os.path.abspath(os.path.curdir), 'parameters/')
   else:
-    msg = "ERROR!: lookup_path parameter must be one of 'relative_to_dvmdostem' or 'relative_to_curdir', not {}".format(lookup_path))
+    msg = "ERROR!: lookup_path parameter must be one of 'relative_to_dvmdostem' or 'relative_to_curdir', not {}".format(lookup_path)
     raise ValueError(msg)
 
   if cmtkey and cmtnum:
