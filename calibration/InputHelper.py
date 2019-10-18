@@ -51,7 +51,7 @@ class InputHelper(object):
 
       logging.info("Looking for input data files here: %s" % path)
 
-      DEFAULT_EXTRACTED_ARCHIVE_LOCATION = os.path.join('/tmp/extracted-calibration-archive', os.path.basename(path))
+      DEFAULT_EXTRACTED_ARCHIVE_LOCATION = os.path.join('/tmp', str(os.getuid()), 'extracted-calibration-archive', os.path.basename(path))
 
       logging.info("Extracting archive to '%s'..." %
           DEFAULT_EXTRACTED_ARCHIVE_LOCATION)
