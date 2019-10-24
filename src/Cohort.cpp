@@ -479,20 +479,21 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
     daylength = temutil::length_of_day(this->lat, doy);
 
     //Kade 2006 found summer nfactors of 1.17-1.24 for undisturbed tundra
-    // and winter nfactors ~0.38-0.57
+    // and winter nfactors ~0.38-0.57 (for soil, not snow)
     // Karunaratne and Burn 2003 found that winter nfactors depend on
     // snow thickness, especially for snow thickness < 60cm.
-    // This is a simplistic approach to replicate that effect.
+    // When there is snow cover in dvm-dos-tem, the nfactor determines the
+    // relationship between the air temp and the snow surface temp.
+    // Raleigh et al 2013 showed that dewpoint temperature is the best
+    // proxy for snow surface temperature. In the future we can bring in
+    // that calculation; for now, just use air surface temp (Raleigh shows
+    // it's well-correlated but air tends to be warmer by ~5 deg C).
     double nfactor_summer_max = 2.0;
-    double nfactor_winter_max = 0.75;
-    double nfactor_winter_min = 0.3;
+    double nfactor_winter = 1.0;
     edall->d_soid.nfactor = nfactor_summer_max; //summer nfactor (max nfactor)
-    //If there's snow or it's freezing, adjust winter nfactor between max and min value
-    //based on snowthick
+    //If there's snow or it's freezing, use winter nfactor
     if(cd.d_snow.numsnwl > 0 || tdrv <= 0.0){
-      edall->d_soid.nfactor = fmin(fmax((nfactor_winter_min - nfactor_winter_max)
-                            * (ground.snow.thick / 0.60)
-                            + nfactor_winter_max, nfactor_winter_min), nfactor_winter_max);
+      edall->d_soid.nfactor = nfactor_winter;
     }
 
 
