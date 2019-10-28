@@ -7,6 +7,16 @@ import os
 import json
 import re
 import glob
+import sys
+
+# This helps to more quickly diagnose errors that show up when
+# using older (typically system) versions of Python. Usually this
+# happens when a user forgets to activate a virtual environment or
+# load the correct modules.
+if float('%d.%d'%(sys.version_info[0:2])) < 2.7:
+ raise Exception("Must use Python version 2.7 or greater!")
+
+
 
 def error_exit(fname, msg, linenumber=None):
   '''
@@ -223,7 +233,7 @@ def get_pft_verbose_name(cmtkey=None, pftkey=None, cmtnum=None, pftnum=None, loo
   elif lookup_path is "relative_to_curdir":
     path2params = os.path.join(os.path.abspath(os.path.curdir), 'parameters/')
   else:
-    msg = "ERROR!: lookup_path parameter must be one of 'relative_to_dvmdostem' or 'relative_to_curdir', not {}".format(lookup_path))
+    msg = "ERROR!: lookup_path parameter must be one of 'relative_to_dvmdostem' or 'relative_to_curdir', not {}".format(lookup_path)
     raise ValueError(msg)
 
   if cmtkey and cmtnum:
