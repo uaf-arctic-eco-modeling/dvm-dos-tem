@@ -51,7 +51,7 @@ class InputHelper(object):
 
       logging.info("Looking for input data files here: %s" % path)
 
-      DEFAULT_EXTRACTED_ARCHIVE_LOCATION = os.path.join('/tmp', str(os.getuid()), 'extracted-calibration-archive', os.path.basename(path))
+      DEFAULT_EXTRACTED_ARCHIVE_LOCATION = os.path.join('/tmp', 'dvmdostem-user-{}'.format(str(os.getuid())), 'extracted-calibration-archive', os.path.basename(path))
 
       logging.info("Extracting archive to '%s'..." %
           DEFAULT_EXTRACTED_ARCHIVE_LOCATION)
@@ -65,25 +65,33 @@ class InputHelper(object):
 
       tf = tarfile.open(path)
 
-      if self._monthly:
-        tf.extractall(DEFAULT_EXTRACTED_ARCHIVE_LOCATION, members=monthly_files(tf))
-        self._path = '%s/tmp/dvmdostem/calibration/monthly/' % DEFAULT_EXTRACTED_ARCHIVE_LOCATION
-      else:
-        tf.extractall(DEFAULT_EXTRACTED_ARCHIVE_LOCATION, members=yearly_files(tf))
-        self._path = '%s/tmp/dvmdostem/calibration/yearly/' % DEFAULT_EXTRACTED_ARCHIVE_LOCATION
-
       # This is annoying, but when extracting the files, they end up in a
       # directory tree like this (depending on the directory structure of
       # the archive):
       #
-      #   /tmp/extracted-calibration-archive/tmp/dvmdostem/calibration/
+      #   {DEFAULT_EXTRACTED_ARCHIVE_LOCATION}/tmp/TESTME/dvmdostem/calibration/yearly/00000.json
+      #   {DEFAULT_EXTRACTED_ARCHIVE_LOCATION}/tmp/TESTME/dvmdostem/calibration/yearly/00001.json
+      #   ...
       #
+      # So the following cryptic lines attempt to figure out the common prefix
+      # of all the members of the TarFile and then use that to setup self._path
+      # Basically allows self._path to adapt and match whatever the user may have
+      # set for 'caldata_tree_loc' in the config file.
+      p1 = [i for i in tf.getmembers() if i.isdir()]
+      p2 = [i.name for i in p1]
+      p3 = os.path.commonprefix(p2)
+
+      if self._monthly:
+        self._path = os.path.join(DEFAULT_EXTRACTED_ARCHIVE_LOCATION, p3, 'monthly')
+        tf.extractall(DEFAULT_EXTRACTED_ARCHIVE_LOCATION, members=monthly_files(tf))
+      else:
+        self._path = os.path.join(DEFAULT_EXTRACTED_ARCHIVE_LOCATION, p3, 'yearly')
+        tf.extractall(DEFAULT_EXTRACTED_ARCHIVE_LOCATION, members=yearly_files(tf))
 
       tf.close()
     else:
       logging.error("Unable to find input data files at %s" % path)
       sys.exit(-1)
-
 
   def files(self):
     '''Returns a list of files, either in a directory or .tar.gz archive'''
