@@ -2253,8 +2253,8 @@ void Ground::checkWaterValidity() {
                                 << " is fully frozen but has liquid water";
       }
 
-      // maybe from some mathematical round up? so '1.0e-3 is used as critical
-      if ((currl->ice-currl->maxice) > 1.0e-3) {
+      // maybe from some mathematical round up or small disagreements btw density dz and melt/sublimation dz
+      if ((currl->ice-currl->maxice) > 0.01) {
         if(currl->isSnow){
           BOOST_LOG_SEV(glg, warn) << "Snow layer " << currl->indl << " has "
                                    << currl->ice-currl->maxice << " kg/m2 too much ice";
