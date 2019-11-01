@@ -33,7 +33,7 @@
 Here is a possible release note format:
 
     ```
-    # YY-MM-DD
+    # YY-MM-DD - v0.1.0
     
     General description
 
@@ -60,19 +60,24 @@ and it looks ok when printed using `git-tag`, (also unformatted) i.e.:
 
 ## Choosing a version number
 
-The project uses the following rules for incrementing the versions number:
- * The minor (farthest right) number will be incremented for changes 
+The project uses a three part version number: vMAJOR.MINOR.PATCH.
+
+We use the following rules for incrementing the version number:
+ * The PATCH number (farthest right) will be incremented for changes 
    that do not affect the general scientific concepts in the 
    software.
- * The middle number will be updated when changes have been made to science
-   concepts, major implementation changes for scienctifc aspects of the code or
-   new calibration numbers.
- * The major (left) number will be updated for major milestones. This will likely 
+ * The MINOR number (middle) will be updated when changes have been made 
+   to science concepts, major implementation changes for scienctifc aspects 
+   of the code or new calibration numbers.
+ * The MAJOR (left) number will be updated for major milestones. This will likely 
    be points where the model is run for "production" or major testing and
    validation steps are completed and documented.
 
 This project is not using traditional [Semantic Versioning](https://semver.org/spec/v2.0.0.html),
 however we have borrowed some concepts.
 
+Until the project reaches v1.0.0, we will not make any guarantees about backwards
+compatibility. Once the project reaches v1.0.0, we may decide to handle the rules
+for incrementing version numbers differently.
 
 
