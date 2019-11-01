@@ -4,8 +4,10 @@
 
 import os
 import glob
+import shutil
 import sys
 import json
+import errno
 import numpy as np
 
 # Add dvm-dos-tem directory to path so that we can import various scripts, 
@@ -24,6 +26,18 @@ from calibration.InputHelper import InputHelper
 # logger = logging.getLogger()
 # logger.setLevel(logging.DEBUG)
 # logging.debug("test")
+
+
+def mkdir_p(path):
+  '''poached from: https://stackoverflow.com/questions/600268/mkdir-p-functionality-in-python'''
+  try:
+    os.makedirs(path)
+  except OSError as exc:  # Python >2.5
+    if exc.errno == errno.EEXIST and os.path.isdir(path):
+      pass
+    else:
+      raise
+
 
 
 def qcal_rank(truth, value):
@@ -155,21 +169,55 @@ class QCal(object):
   def __init__(self,jsondata_path="", ncdata_path="", ref_targets_dir="", ref_params_dir=""):
     #self.cmtkey = ?? # it is possible to lookup the CMT number in the json file, but not the netcdf file!
 
+    # This is basically a complicated mechanism to make sure that importing 
+    # the targets file is possible, even in the case where the user is specifying
+    # that the reference targets file is in a directory that does not have
+    # an __init__.py. In the case that the calibration targets file is in a 
+    # different folder from this script and we are using python <3.3 I think, 
+    # then there must be an __init__.py file so that the containing folder is
+    # treated as a package and the calibration_targets.py module is importable.
+    # Basically if we can't find __init__.py, then we copy to /tmp where
+    # we can make the __init__.py file, then we import and clean up after ourselves.
+    # Hopefully this implentation will work on multiuser systems and allow for
+    # importing targets from another user's directory. This is probably some 
+    # awful gaping security hole, but we are going to ignore that for now...
+    if not os.path.isfile(os.path.join(ref_targets_dir,  'calibration_targets.py')):
+      print "ERROR: Can't find calibration_targets.py in {}".format(ref_targets_dir)
+      sys.exit(-1)
+    else:
+      if not os.path.isfile(os.path.join(ref_targets_dir, '__init__.py')):
+        print "WARNING: No __init__.py python package file present. Copying targets to a temporary location for facilitate import"
+        mkdir_p(os.path.join('/tmp/', 'dvmdostem-user-{}-tmp-cal'.format(os.getuid())))
+        shutil.copy(os.path.join(ref_targets_dir, 'calibration_targets.py'), os.path.join('/tmp/', 'dvmdostem-user-{}-tmp-cal'.format(os.getuid())))
+        with open(os.path.join('/tmp/','dvmdostem-user-{}-tmp-cal'.format(os.getuid()),'__init__.py'), 'w') as f:
+          f.writelines(["# nothing to see here..."]) 
 
-    # Load the targets
-    old_path = sys.path
-    sys.path = [os.path.abspath(ref_targets_dir)]
-    #ct.keys()
-    print "Loading calibration target values from: {}".format(sys.path)
-    from calibration.calibration_targets import calibration_targets as ct
-    ct.keys()
-    print "Restoring search path..."
-    sys.path = old_path
+        old_path = sys.path
+        sys.path = [os.path.join('/tmp/','dvmdostem-user-{}-tmp-cal'.format(os.getuid()))]
+        print "Loading calibration_targets from : {}".format(sys.path)
+        import calibration_targets as ct
+        caltargets = {'CMT{:02d}'.format(v['cmtnumber']):v for k, v in ct.calibration_targets.iteritems()}
+        del ct
 
-    # Re-shape the way the calibration targets dict is structured (keyed)
-    caltargets = {'CMT{:02d}'.format(v['cmtnumber']):v for k, v in ct.iteritems()}
+        print "Cleaning up temporary targets and __init__.py file used for import..."
+        shutil.rmtree(os.path.join('/tmp/','dvmdostem-user-{}-tmp-cal'.format(os.getuid())))
+        print "Resetting path..."
+        sys.path = old_path
+
+      else:
+        old_path = sys.path
+        sys.path = [os.path.join(ref_targets_dir, 'calibration')]
+        print "Loading calibration_targets from : {}".format(sys.path)
+        import calibration_targets as ct
+        caltargets = {'CMT{:02d}'.format(v['cmtnumber']):v for k, v in ct.calibration_targets.iteritems()}
+        del ct
+        print "Resetting path..."
+        sys.path = old_path
+
+
     self.targets = caltargets
-
+    self.targets_dir = ref_targets_dir
+    self.params_dir = ref_params_dir
 
     self.jsondata_path = jsondata_path
     self.ncdata_path = ncdata_path
@@ -178,7 +226,7 @@ class QCal(object):
   def json_qcal(self):
     ih = InputHelper(self.jsondata_path)
     assert(os.path.splitext(ih.files()[0])[1] == ".json")
-    result_list = measure_calibration_quality_json(ih.files()[-10:], ref_targets=self.targets)
+    result_list = measure_calibration_quality_json(ih.files()[-10:], ref_targets=self.targets, ref_params_dir=self.params_dir)
     return result_list
 
 
@@ -191,7 +239,7 @@ class QCal(object):
 
 
 
-def measure_calibration_quality_json(file_list, ref_params_dir='parameters/', ref_targets={}):
+def measure_calibration_quality_json(file_list, ref_params_dir=None, ref_targets={}):
 
   assert(type(ref_targets == dict))
   assert(len(ref_targets.keys()) > 0)
@@ -362,7 +410,8 @@ if __name__ == '__main__':
   qcal = QCal(
       jsondata_path=os.path.join(args.calfolder, "eq-data.tar.gz"),
       #ncdata_path="/home/jclein/Desktop/cal-kougo-treelineWS/output/",
-      ref_targets_dir=args.ref_targets
+      ref_targets_dir=args.ref_targets,
+      ref_params_dir=args.ref_params
   )
 
   r = qcal.json_qcal()
