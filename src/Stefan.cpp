@@ -672,9 +672,13 @@ void Stefan::updateLayerFrozenState(Layer * toplayer, const int freezing1) {
     double fntoutdz = MISSING_D;
 
     for (int i=0; i<fntnum; i++) {
-      double dz=ground->frontsz[i]-currl->z;
-
-      if (dz>0. && dz<=currl->dz) {
+      double dz; // distance from currl->z to front location, positive when front is below z.
+      if(currl->isSnow){
+        dz = ground->frontsz[i] + currl->z; // Because snow layer z is distance ABOVE ground surface
+      } else {
+        dz=ground->frontsz[i]-currl->z;
+      }
+      if (dz>0. && dz<=currl->dz && currl->isSoil) {
         fntintype.push_back(ground->frontstype[i]);
         fntindz.push_back(ground->frontsz[i]-currl->z);
       } else {
