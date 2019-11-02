@@ -1851,7 +1851,7 @@ void Ground::setDrainL() {
   draindepth = 0.;
   drainl = NULL;
 
-  if(ststate == 0){
+  if(ststate == 0 && fstsoill->frozen < 1){
     //check for existence of fronts
     if(fstfntl != NULL && !fstfntl->isMoss){
       drainl = fstfntl;
