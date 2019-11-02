@@ -48,7 +48,11 @@ void Stefan::updateFronts(const double & tdrv, const double &timestep) {
   // find the new front
   double newfntz1 = 0.;
   Layer * currl=NULL;
-  currl = toplayer;
+  if(ground->fstsoill->tem >0){ // if e.g. yesterday's tempupdater pushed the soil surface temp above zero
+    currl = ground->fstsoill; // skip any snow layers and force stefan to work in the soil
+  } else {
+    currl = toplayer; // otherwise, work in the snow layers (if any)
+  }
 
   while(currl!=NULL && dse>0.) {
     if(currl->isRock) {
