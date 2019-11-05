@@ -27,6 +27,49 @@
 #  }
 
 configured_suites = {
+  'Calibration': {
+    'desc': "Calibrated variables (variables for which we have targets values)",
+    'rows':8,
+    'cols':1, 
+    'traces': [
+
+      { 'jsontag': 'GPPAllIgnoringNitrogen', 'units': 'gC/m^2', 'axesnum': 0, 'pft': '', },
+      { 'jsontag': 'NPPAllIgnoringNitrogen', 'units': 'gC/m^2', 'axesnum': 0, 'pft': '', },
+
+      {'jsontag': 'NPPAll', 'axesnum': 1, 'units':'gC/m^','pft': '',},
+
+      # Targets file call for  "Nuptake", but that is not output in cal json files!
+      # Closest match might be InNitrogenUptakeAll
+      #{'jsontag': 'Nuptake', 'axesnum': 2, 'units':'gC/m^2','pft': '',},
+      #{'jsontag': 'InNitrogenUptakeAll', 'axesnum': 2, 'units': 'gN/m^2',},
+
+      {'jsontag': 'TotNitrogenUptake', 'axesnum': 2, 'units': 'gN/m^2', 'pft':'', },
+      {'jsontag': 'StNitrogenUptake', 'axesnum': 2, 'units': 'gN/m^2', 'pft': '', },
+      {'jsontag': 'LabNitrogenUptake', 'axesnum': 2, 'units': 'gN/m^2', 'pft': '', },
+
+
+      {'jsontag': 'VegCarbon', 'axesnum': 3, 'units': 'gC/m^2','pft': '', 'pftpart': 'Leaf'},
+      {'jsontag': 'VegCarbon', 'axesnum': 3, 'units': 'gC/m^2','pft': '', 'pftpart': 'Stem'},
+      {'jsontag': 'VegCarbon', 'axesnum': 3, 'units': 'gC/m^2','pft': '', 'pftpart': 'Root'},
+
+      {'jsontag': 'VegStructuralNitrogen', 'axesnum': 4, 'units': 'gN/m^2', 'pft': '', 'pftpart': 'Leaf'},
+      {'jsontag': 'VegStructuralNitrogen', 'axesnum': 4, 'units': 'gN/m^2', 'pft': '', 'pftpart': 'Stem'},
+      {'jsontag': 'VegStructuralNitrogen', 'axesnum': 4, 'units': 'gN/m^2', 'pft': '', 'pftpart': 'Root'},
+
+
+      {'jsontag': 'MossDeathC', 'axesnum': 5,},
+
+      {'jsontag': 'CarbonShallow', 'axesnum': 6,},
+      {'jsontag': 'CarbonDeep', 'axesnum': 6,},
+      {'jsontag': 'CarbonMineralSum', 'axesnum': 6,},
+
+      {'jsontag': 'OrganicNitrogenSum', 'axesnum': 7,},
+      {'jsontag': 'AvailableNitrogenSum', 'axesnum': 7,},
+
+    ]
+  },
+
+
   'Environment': {
     'desc': "Environmental variables plot (precip, temps, light, water)",
     'rows': 5,
