@@ -105,7 +105,7 @@ class FixedWindow(object):
               trace['data'][i] = new_data[trace['jsontag']]
               newvalues += 1
             except IOError as e:
-              print "file doesn't exist"
+              print("file doesn't exist")
 
             #extract PAR per PFT data. This may not be necessary for now.
             ################################
@@ -171,7 +171,7 @@ class FixedWindow(object):
                  trace['data'][max(0,i-self.viewport):i])
         #print str(i-self.viewport) + "    " + str(i)
       except RuntimeError as e:
-        print "x and y are different lengths"
+        print("x and y are different lengths")
         embed()
 
     for ax in self.axes:
@@ -267,7 +267,7 @@ if __name__ == '__main__':
   if args.end:
     jsonfiles = sorted(glob.glob(TMPDIR + "/*.json"))
     if len(jsonfiles) == 0:
-      print "Must have files"
+      print("Must have files")
     else:
       endidx = selutil.jfname2idx(os.path.splitext(os.path.basename(jsonfiles[-1]))[0])
       startidx = max(0,endidx-1212)
@@ -298,7 +298,7 @@ if __name__ == '__main__':
   selutil.check_dir("/tmp/year-cal-dvmdostem")
   selutil.check_dir("/tmp/cal-dvmdostem")
 
-  print "start index: %i"%startidx
+  print("start index: %i"%startidx)
   startyear = str(startidx/12)
   endyear = str(startidx/12+100)
 

@@ -33,7 +33,7 @@ def error_exit(fname, msg, linenumber=None):
   linenumber : int, optional
     The problematic line in the offending file.
   '''
-  print "ERROR! {} file: {}:{}".format(msg, fname, linenumber)
+  print("ERROR! {} file: {}:{}".format(msg, fname, linenumber))
   sys.exit(-1)
 
 
@@ -202,7 +202,7 @@ def parse_header_line(linedata):
   clean_header_components = [i.strip() for i in header_components]
 
   if len(clean_header_components) < 2:
-    print "ERROR! Could not find CMT name in ", clean_header_components
+    print("ERROR! Could not find CMT name in ", clean_header_components)
     sys.exit(-1)
 
   cmtkey = clean_header_components[0]
@@ -338,7 +338,7 @@ def format_CMTdatadict(dd, refFile, format=None):
 
   '''
   if format is not None:
-    print "NOT IMPLEMENTED YET!"
+    print("NOT IMPLEMENTED YET!")
     exit(-1)
 
   # Figure out which order to print the variables in.
@@ -371,7 +371,7 @@ def format_CMTdatadict(dd, refFile, format=None):
     if s.startswith("  "):
       s2 = "//" + s[2:]
     else:
-      print "ERROR!: initial PFT name is too long - no space for comment chars: ", s
+      print("ERROR!: initial PFT name is too long - no space for comment chars: ", s)
     ll.append(s2)
   else:
     pass # No need for second comment line
@@ -440,7 +440,7 @@ def generate_reference_order(aFile):
       tokens = t[1].strip().lstrip("//").strip().split(":")
       tag = tokens[0]
       desc = "".join(tokens[1:])
-      print "Found tag:", tag, " Desc: ", desc
+      print("Found tag:", tag, " Desc: ", desc)
       ref_order.append(tag)
 
   return ref_order
@@ -631,19 +631,19 @@ if __name__ == '__main__':
       ecosystem_total_C += dd[pft]['initvegcw']
       ecosystem_total_C += dd[pft]['initvegcr']
 
-    print "Reading from file: {}".format(src_file)
-    print "{:<6} {:>12} {:>10} {:>12} {:>8} {:>8} {:>8}".format(' ','name','% veg C', 'C', 'leaf C', 'wood C', 'root C')
+    print("Reading from file: {}".format(src_file))
+    print("{:<6} {:>12} {:>10} {:>12} {:>8} {:>8} {:>8}".format(' ','name','% veg C', 'C', 'leaf C', 'wood C', 'root C'))
     whole_plant_C = 0.0
     for pft in get_datablock_pftkeys(dd):
       whole_plant_C = (dd[pft]['initvegcl'] + dd[pft]['initvegcw'] + dd[pft]['initvegcr'])
       frac_C = whole_plant_C / ecosystem_total_C
-      print "{:<6} {:>12} {:>10.2f} {:>12} {:>8} {:>8} {:>8}".format(
+      print("{:<6} {:>12} {:>10.2f} {:>12} {:>8} {:>8} {:>8}".format(
           pft, dd[pft]['name'], frac_C*100, whole_plant_C,
           dd[pft]['initvegcl'], dd[pft]['initvegcw'], dd[pft]['initvegcr']
-      )
-    print "{:<6} {:>12} {:>10} {:->12} {:>8} {:>8} {:>8}".format('','','','','','','')
-    print "{:>31} {:>11.2f}".format("Community Total Vegetation C:", ecosystem_total_C)
-    print ""
+      ))
+    print("{:<6} {:>12} {:>10} {:->12} {:>8} {:>8} {:>8}".format('','','','','','',''))
+    print("{:>31} {:>11.2f}".format("Community Total Vegetation C:", ecosystem_total_C))
+    print("")
 
     ecosystem_total_N = 0.0
     for pft in get_datablock_pftkeys(dd):
@@ -651,19 +651,19 @@ if __name__ == '__main__':
       ecosystem_total_N += dd[pft]['initvegnw']
       ecosystem_total_N += dd[pft]['initvegnr']
 
-    print "Reading from file: {}".format(src_file)
-    print "{:<6} {:>12} {:>10} {:>12} {:>8} {:>8} {:>8}".format(' ','name','% veg N', 'N', 'leaf N', 'wood N', 'root N')
+    print("Reading from file: {}".format(src_file))
+    print("{:<6} {:>12} {:>10} {:>12} {:>8} {:>8} {:>8}".format(' ','name','% veg N', 'N', 'leaf N', 'wood N', 'root N'))
     whole_plant_N = 0.0
     for pft in get_datablock_pftkeys(dd):
       whole_plant_N = (dd[pft]['initvegnl'] + dd[pft]['initvegnw'] + dd[pft]['initvegnr'])
       frac_N = whole_plant_N / ecosystem_total_N
-      print "{:<6} {:>12} {:>10.2f} {:>12} {:>8} {:>8} {:>8}".format(
+      print("{:<6} {:>12} {:>10.2f} {:>12} {:>8} {:>8} {:>8}".format(
           pft, dd[pft]['name'], frac_N*100, whole_plant_N,
           dd[pft]['initvegnl'], dd[pft]['initvegnw'], dd[pft]['initvegnr']
-      )
-    print "{:<6} {:>12} {:>10} {:->12} {:>8} {:>8} {:>8}".format('','','','','','','')
-    print "{:>31} {:>11.2f}".format("Community Total Vegetation N:", ecosystem_total_N)
-    print ""
+      ))
+    print("{:<6} {:>12} {:>10} {:->12} {:>8} {:>8} {:>8}".format('','','','','','',''))
+    print("{:>31} {:>11.2f}".format("Community Total Vegetation N:", ecosystem_total_N))
+    print("")
  
     sys.exit(0)
 
@@ -671,19 +671,19 @@ if __name__ == '__main__':
     infolder = args.plot_static_lai[0]
     cmtnum = int(args.plot_static_lai[1])
 
-    print infolder, cmtnum
-    print "Reading: {}".format(os.path.join(infolder, "cmt_dimvegetation.txt"))
+    print(infolder, cmtnum)
+    print("Reading: {}".format(os.path.join(infolder, "cmt_dimvegetation.txt")))
 
     db = get_CMT_datablock(os.path.join(infolder, "cmt_dimvegetation.txt"), cmtnum)
     dd = cmtdatablock2dict(db)
 
     # Print tabular report
-    print "{:>12}   jan   feb   mar   apr   may   jun   jul   aug   sep   oct   nov   dec".format(" ")
+    print("{:>12}   jan   feb   mar   apr   may   jun   jul   aug   sep   oct   nov   dec".format(" "))
     for key in sorted(filter(lambda x: 'pft' in x, dd.keys())):
       pft = dd[key]
-      print "{:>12}".format(pft['name']),
+      print("{:>12}".format(pft['name']))
       static_lai = [ pft['static_lai[%s]'%m] for m in range(0,12) ]
-      print "{:.2f}  {:.2f}  {:.2f}  {:.2f}  {:.2f}  {:.2f}  {:.2f}  {:.2f}  {:.2f}  {:.2f}  {:.2f}  {:.2f}".format(*static_lai)
+      print("{:.2f}  {:.2f}  {:.2f}  {:.2f}  {:.2f}  {:.2f}  {:.2f}  {:.2f}  {:.2f}  {:.2f}  {:.2f}  {:.2f}".format(*static_lai))
 
     # make plots, keep imports here so that other features of the script 
     # can be used withough maplotlib installed.
@@ -713,18 +713,18 @@ if __name__ == '__main__':
     infolder = args.report_pft_names[0]
     cmtnum = int(args.report_pft_names[1])
 
-    print "Checking for {}".format(cmtnum)
+    print("Checking for {}".format(cmtnum))
     for f in required_param_files:
       f2 = os.path.join(infolder, f)
 
       cmts_in_file = get_CMTs_in_file(f2)
       cmt_numbers = [cmt['cmtnum'] for cmt in cmts_in_file]
       if cmtnum not in cmt_numbers:
-        print "{:>45s} {}".format(f2, "n/a")
+        print("{:>45s} {}".format(f2, "n/a"))
       else:
         db = get_CMT_datablock(f2, cmtnum)
         if detect_block_with_pft_info(db):
-          print "{:>45s}: {}".format(f2, (db[1]).strip())
+          print("{:>45s}: {}".format(f2, (db[1]).strip()))
         else:
           pass #print "{} is not a pft file!".format(f)
     sys.exit(0)
@@ -737,11 +737,11 @@ if __name__ == '__main__':
 
     for f in all_files:
       cmts = get_CMTs_in_file(f)
-      print f
-      print "{:>7} {:>5}   {:<50s} {}".format('key', 'num', 'name', 'comment')
+      print(f)
+      print("{:>7} {:>5}   {:<50s} {}".format('key', 'num', 'name', 'comment'))
       for c in cmts:
-        print "{:>7} {:>5d}   {:50s} {}".format(c['cmtkey'], c['cmtnum'], c['cmtname'], c['cmtcomment'])
-      print ""
+        print("{:>7} {:>5d}   {:50s} {}".format(c['cmtkey'], c['cmtnum'], c['cmtname'], c['cmtcomment']))
+      print("")
 
     sys.exit(0)
 
@@ -750,19 +750,19 @@ if __name__ == '__main__':
     infolder = args.report_cmt_names[0]
     cmtnum = int(args.report_cmt_names[1])
 
-    print "{:>45s} {:>8s}   {}".format("file name","cmt key","long name")
+    print("{:>45s} {:>8s}   {}".format("file name","cmt key","long name"))
     for f in required_param_files:
       f2 = os.path.join(infolder, f)
 
       cmts_in_file = get_CMTs_in_file(f2)
       cmt_numbers = [cmt['cmtnum'] for cmt in cmts_in_file]
       if cmtnum not in cmt_numbers:
-        print "{0:>45s} {1:>8s}   {1}".format(f2, "n/a")
+        print("{0:>45s} {1:>8s}   {1}".format(f2, "n/a"))
 
       else:
         db = get_CMT_datablock(f2, cmtnum)
         dd = cmtdatablock2dict(db)
-        print "{:>45s} {:>8s}   {}".format(f2, dd['tag'], dd['cmtname'])
+        print("{:>45s} {:>8s}   {}".format(f2, dd['tag'], dd['cmtname']))
     sys.exit(0)
 
 
@@ -773,14 +773,14 @@ if __name__ == '__main__':
       dd = json.load(data_file)
     lines = format_CMTdatadict(dd, refFile)
     for l in lines:
-      print l
+      print(l)
     sys.exit(0)
 
   if args.dump_block:
     theFile = args.dump_block[0]
     cmt = int(args.dump_block[1])
     d = get_CMT_datablock(theFile, cmt)
-    print ''.join(d)
+    print(''.join(d))
     sys.exit(0)
 
   if args.dump_block_to_json:
@@ -791,7 +791,7 @@ if __name__ == '__main__':
     # Dumping to a string (json.dumps()) before printing helps make sure
     # that only double quotes are used, wich is critical for valid json
     # and reading back in as a json object
-    print json.dumps(dd)
+    print(json.dumps(dd))
     sys.exit(0)
 
   if args.reformat_block:
@@ -801,7 +801,7 @@ if __name__ == '__main__':
     dd = cmtdatablock2dict(d)
     lines = format_CMTdatadict(dd, theFile)
     for l in lines:
-      print l
+      print(l)
     sys.exit(0)
 
   if args.enforce_initvegc:
@@ -810,7 +810,7 @@ if __name__ == '__main__':
     dd = enforce_initvegc_split(theFile, cmt)
     lines = format_CMTdatadict(dd, theFile)
     for l in lines:
-      print l
+      print(l)
     sys.exit(0)
 
 

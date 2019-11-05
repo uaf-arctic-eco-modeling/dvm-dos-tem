@@ -363,33 +363,33 @@ def toxl():
 
     r = nzr
     for key, data in cmtdata.iteritems():
-      print "OPERATING ON: %s" % key
+      print("OPERATING ON: %s" % key)
       if key == 'cmtnumber':
         pass
       else:
         ws.write(r, 1, key) # col 1, the main key
-        print "row: %s col: %s key: %s" % (r, 1, key)
+        print("row: %s col: %s key: %s" % (r, 1, key))
         if type(data) == list:
           for col, pftvalue in enumerate(data):
             ws.write(r, col + nzc, pftvalue)
-            print "row: %s col: %s pftvalue: %s" % (r, col + nzc, pftvalue)
+            print("row: %s col: %s pftvalue: %s" % (r, col + nzc, pftvalue))
 
           r = r + 1
             
         elif type(data) == dict:
           for compartment, pftvals in data.iteritems():
             ws.write(r, 2, compartment)
-            print "row: %s col: %s compartment: %s" % (r, 2, compartment)
+            print("row: %s col: %s compartment: %s" % (r, 2, compartment))
 
             for col, pftvalue in enumerate(pftvals):
               ws.write(r, col + nzc, pftvalue)
-              print "row: %s col: %s pftvalue: %s" % (r, col + nzc, pftvalue)
+              print("row: %s col: %s pftvalue: %s" % (r, col + nzc, pftvalue))
 
             r = r + 1
         elif type(data) == int or type(data) == float:
-          print "WTF"
+          print("WTF")
           ws.write(r, nzc, data)
-          print "row: %s col: %s data: %s" % (r, nzc, data)
+          print("row: %s col: %s data: %s" % (r, nzc, data))
           r = r + 1
 
 
@@ -400,10 +400,10 @@ def toxl():
 
 
 def frmxl():
-  print "NOT IMPLEMENTED"
+  print("NOT IMPLEMENTED")
 
 if __name__ == '__main__':
-  print "Nothing happening here yet..."
+  print("Nothing happening here yet...")
 
   # for testing:
   toxl()

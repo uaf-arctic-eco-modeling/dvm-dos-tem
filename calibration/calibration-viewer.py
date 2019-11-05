@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import os
 import time
@@ -30,7 +30,7 @@ import matplotlib.widgets
 # Find the path to the this file so that we can look, relative to this file
 # up one directory and into the scripts/ directory
 sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../'))
-print sys.path
+print(sys.path)
 import scripts.param_util as pu
 
 # Keep the detailed documentation here. Can be accessed via command
@@ -104,7 +104,7 @@ def generate_extened_help():
   I am sure we forgot to mention something?
   ''' % ())
 
-  print help_text
+  print(help_text)
 
 #
 # Disable some buttons on the default toobar that freeze the program.
@@ -147,7 +147,7 @@ def exit_gracefully(signum, frame):
   sys.exit(1)
 
 def do_nothing(signal_number, frame):
-  print "Doing nothing with signal number: ", signal_number
+  print("Doing nothing with signal number: ", signal_number)
 
 
 def yearly_files(tarfileobj):
@@ -1127,7 +1127,7 @@ if __name__ == '__main__':
           '''))
 
 
-  print "Parsing command line arguments..."
+  print("Parsing command line arguments...")
   args = parser.parse_args()
   #print args
 
@@ -1136,21 +1136,21 @@ if __name__ == '__main__':
   #
   if args.extended_help:
     parser.print_help()
-    print ""
-    print generate_extened_help()
+    print("")
+    print(generate_extened_help())
     sys.exit(0)
 
   if args.list_suites:
     # Print all the known suites to the console with descriptions and then quit.
     for key, value in configured_suites.iteritems():
       if 'desc' in value.keys():
-        print "{0:<12s} {1:<s}".format(key, value['desc'])
+        print("{0:<12s} {1:<s}".format(key, value['desc']))
       else:
-        print "{0:<12s} ?? no desc. text found...".format(key)
+        print("{0:<12s} ?? no desc. text found...".format(key))
     sys.exit()
 
   if args.list_caltargets:
-    print calibration_targets.caltargets2prettystring()
+    print(calibration_targets.caltargets2prettystring())
     sys.exit()
 
   #
@@ -1161,7 +1161,7 @@ if __name__ == '__main__':
   suite = configured_suites[args.suite]
   pft = args.pft
 
-  print "Setting up logging..."
+  print("Setting up logging...")
   LOG_FORMAT = '%(levelname)-7s %(name)-8s %(message)s'
   numeric_level = getattr(logging, loglevel.upper(), None)
   if not isinstance(numeric_level, int):
@@ -1271,7 +1271,7 @@ if __name__ == '__main__':
         target_title_tag = "--"
 
     else:
-      print logging.warn("No files. Can't figure out which CMT to display targets for without files.")
+      print(logging.warn("No files. Can't figure out which CMT to display targets for without files."))
       target_title_tag = "--"
 
   else:

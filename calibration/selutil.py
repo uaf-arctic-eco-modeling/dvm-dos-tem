@@ -59,7 +59,7 @@ def assert_continuity(file_list, log=True):
   return True
 
 if __name__ == '__main__':
-  print "Nothing happening here..."
+  print("Nothing happening here...")
 
 
 
