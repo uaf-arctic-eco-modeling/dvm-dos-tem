@@ -236,6 +236,28 @@ class QCal(object):
     return result_list
 
 
+  def report(self, which):
+    if which == 'json':
+      r = self.json_qcal()
+    elif which == 'nc':
+      r = self.nc_qcal()
+    else:
+      raise RuntimeError("You must specify which data source to use with the 'which' parameter")
+
+    cmt = set([i['cmt'] for i in r])
+    if len(cmt) != 1:
+      raise RuntimeError("Problem with QCal results! More than one CMT detected!! {}".format(cmt))
+
+    s = '''\
+        modeled data: {}
+        targets file: {}
+     parameter files: {}
+                 CMT: {}
+                 QCR: {}
+        Weighted QCR: {}
+    '''.format(self.jsondata_path, self.targets_dir, self.params_dir, cmt, np.sum([i['qcr'] for i in r]), np.sum([i['qcr_w'] for i in r]) )
+
+    return s
 
 
 
@@ -264,7 +286,13 @@ def measure_calibration_quality_json(file_list, ref_params_dir=None, ref_targets
       with open(f) as fh:
         jdata = json.load(fh)
       d += jdata[v]/float(len(file_list))
-    qcr = np.abs(qcal_rank(ref_targets[cmtkey][v], d))
+
+    if np.isclose(ref_targets[cmtkey][v], 0.0):
+      print "WARNING! Target value for {} is zero! Is this a problem???".format(v)
+      qcr = np.abs(0.0 + d)
+    else:
+      qcr = np.abs(qcal_rank(ref_targets[cmtkey][v], d))
+
     qcr_w = qcr * pec
     qcr_t += qcr
     #print v, d, ref_targets[cmtkey][v], qcr
@@ -414,9 +442,8 @@ if __name__ == '__main__':
       ref_params_dir=args.ref_params
   )
 
-  r = qcal.json_qcal()
+  print qcal.report(which='json')
 
-  print r
   #qcal.nc_qcal()
 
 
