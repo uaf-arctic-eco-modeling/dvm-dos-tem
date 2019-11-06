@@ -1241,19 +1241,19 @@ if __name__ == '__main__':
         # and try the import. on success, print something... and show lines??
         # if it fails then log message, and restore path, and continue
         try:
-          print "Trying to look for targets here: {}".format(os.path.abspath(args.ref_targets))
+          print("Trying to look for targets here: {}".format(os.path.abspath(args.ref_targets)))
           orig_path = sys.path
           sys.path = [os.path.abspath(args.ref_targets)]
           import calibration_targets
           sys.path = orig_path
           found_targets = True
-          print "Restoring path..."
+          print("Restoring path...")
         except (ImportError, NameError) as e:
           logging.error("Can't display target lines!! Can't find targets! {}".format(e.message))
 
       else:
         try:
-          print "Trying to look for targets here: {}".format(os.path.abspath(args.ref_targets))
+          print("Trying to look for targets here: {}".format(os.path.abspath(args.ref_targets)))
           import calibration_targets
           found_targets = True
         except (ImportError, NameError) as e:
