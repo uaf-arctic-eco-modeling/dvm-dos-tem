@@ -108,7 +108,7 @@ calibration_targets = {
     'OrganicNitrogenSum':      363.00,    #  soln
     'AvailableNitrogenSum':      0.76,    #  avln
   },
-  ## CMT04 - SHRUB TUNDRA - CALIBRATION SEWARD PENINSULA CLIMATE (COUNCIL)
+  ## CMT04 - SHRUB TUNDRA - CALIBRATION toolik CLIMATE, Betula for Toolik
   "shrub tundra": {
     'cmtnumber': 4,
                                  #    pft0     pft1      pft2     pft3     pft4     pft5      pft6      pft7      pft8     pft9   
