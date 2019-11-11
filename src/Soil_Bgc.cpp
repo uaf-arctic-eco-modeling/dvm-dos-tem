@@ -113,6 +113,14 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
   double r[numsoill];
   double s[numsoill];
 
+  for(int ii=0; ii<numsoill; ii++){
+    C[ii] = 0.0;
+    D[ii] = 0.0;
+    V[ii] = 0.0;
+    diff[ii] = 0.0;
+    r[ii] = 0.0;
+    s[ii] = 0.0;
+  }
 
   //Calculate LAI per PFT
   //TODO this should only include plant types that are good
@@ -134,7 +142,8 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
   Layer *currl = ground->fstshlwl;
   int il = 0;//Manual layer index tracking
-  while(currl->isSoil){
+  //If the layer is soil and is at most partially frozen
+  while(currl->isSoil && currl->frozen < 1){
 
     if (ed->d_sois.watertab - 0.075 > (currl->z + currl->dz*0.5)) { //layer above water table
       torty_tmp = currl->poro - currl->liq - currl->ice; //air content
