@@ -162,7 +162,7 @@ calibration_targets = {
     'OrganicNitrogenSum':     2206.00,    #  soln
     'AvailableNitrogenSum':      8.958,   #  avln
   },
-  ## CMT06 - WETSEDGE TUNDRA - CALIBRATION WITH SOUTH BARROW CLIMATE  Lichen gpp was 0.375, npp 0.187, feather 8.4 sphg 2.9, 1.45
+  ## CMT06 - WETSEDGE TUNDRA - CALIBRATION WITH toolik climate (also barrow climate)  Lichen gpp was 0.375, npp 0.187, feather 8.4 sphg 2.9, 1.45
   "wet sedge tundra": {
     'cmtnumber': 6,
                                  #    pft0     pft1      pft2      pft3     pft4     pft5     pft6     pft7     pft8    pft9   
