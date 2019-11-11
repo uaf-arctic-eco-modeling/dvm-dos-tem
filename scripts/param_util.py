@@ -120,6 +120,56 @@ def read_paramfile(thefile):
     data = f.readlines()
   return data
 
+def is_CMT_divider_line(line):
+  '''
+  Checks to see if a line is one of the comment lines we use to divide
+  CMT data blocks in parameter files, e.g. // ====== '''
+  return re.search('^//[ =]+', line.strip())
+
+def replace_CMT_data(origfile, newfile, cmtnum):
+  '''
+  Replaces the CMT datablock in `origfile` with the data block found in
+  `newfile` for the provided `cmtnum`.
+
+  Parameters
+  ----------
+  `origfile` : str
+    Path to a file with CMT data blocks.
+  `newfile` : str
+    Path to a file with CMT data blocks.
+  `cmtnum` : int
+    Number of the CMT to look for.
+
+  Returns
+  -------
+  None
+  '''
+  with open(origfile, 'r') as f:
+    data = f.readlines()
+
+  sidx = find_cmt_start_idx(data, 'CMT{:02d}'.format(cmtnum))
+
+  # What should happen if both files don't have the requested CMT?
+
+  orig_data = get_CMT_datablock(origfile, cmtnum)
+  if not is_CMT_divider_line(orig_data[-1]):
+    print "WARNING: last line of data block in original file is not as expected!"
+
+  data[sidx:(sidx+len(orig_data))] = []
+
+  new_data = get_CMT_datablock(newfile, cmtnum)
+
+  if not is_CMT_divider_line(new_data[-1]):
+    if is_CMT_divider_line(orig_data[-1]):
+      new_data.append(orig_data[-1])
+    else:
+      print "WARNING: last line of data block in original file is not as expected!"
+
+  data[sidx:sidx] = new_data
+
+  with open(origfile, 'w') as f:
+    f.writelines(data)
+
 def get_CMT_datablock(afile, cmtnum):
   '''
   Search file, returns the first block of data for one CMT as a list of strings.
@@ -561,6 +611,10 @@ if __name__ == '__main__':
         as to match the proportions of the initvegc compartment parameters.
         Re-formats the block of data and prints to stdout.'''))
 
+  parser.add_argument('--replace-cmt-block', nargs=3, metavar=('AFILE','BFILE','CMTNUM'),
+      help=textwrap.dedent('''Replaces the CMT datablock in AFILE with the 
+        contents CMT data in BFILE. Assumes that the CMTNUM exists in both files!'''))
+
   parser.add_argument('--dump-block-to-json', nargs=2, metavar=('FILE', 'CMT'),
       help=textwrap.dedent('''Extract the specific CMT data block from the
         specified data input file and print the contents to stdout as a json
@@ -707,6 +761,14 @@ if __name__ == '__main__':
     plt.show(block=True)
 
     sys.exit(0)
+
+
+  if args.replace_cmt_block:
+    A, B, cmtnum = args.replace_cmt_block
+    print "Replacing CMT {} data block in '{}'' with data block from '{}'".format(cmtnum, A, B)
+    replace_CMT_data(A, B, int(cmtnum))
+    sys.exit(0)
+
 
   if args.report_pft_names:
 
