@@ -126,10 +126,13 @@ def is_CMT_divider_line(line):
   CMT data blocks in parameter files, e.g. // ====== '''
   return re.search('^//[ =]+', line.strip())
 
-def replace_CMT_data(origfile, newfile, cmtnum):
+
+def replace_CMT_data(origfile, newfile, cmtnum, overwrite=False):
   '''
   Replaces the CMT datablock in `origfile` with the data block found in
-  `newfile` for the provided `cmtnum`.
+  `newfile` for the provided `cmtnum`. If `overwrite` is True, then `origfile`
+  is written with the new data. Returns a list of lines which can then be 
+  printed to stdout or otherwise redirected to a file.
 
   Parameters
   ----------
@@ -142,7 +145,7 @@ def replace_CMT_data(origfile, newfile, cmtnum):
 
   Returns
   -------
-  None
+  List of lines.
   '''
   with open(origfile, 'r') as f:
     data = f.readlines()
@@ -167,8 +170,14 @@ def replace_CMT_data(origfile, newfile, cmtnum):
 
   data[sidx:sidx] = new_data
 
-  with open(origfile, 'w') as f:
-    f.writelines(data)
+  if overwrite:
+    with open(origfile, 'w') as f:
+      f.writelines(data)
+  else:
+    pass
+
+  return data
+
 
 def get_CMT_datablock(afile, cmtnum):
   '''
@@ -765,8 +774,11 @@ if __name__ == '__main__':
 
   if args.replace_cmt_block:
     A, B, cmtnum = args.replace_cmt_block
-    print "Replacing CMT {} data block in '{}'' with data block from '{}'".format(cmtnum, A, B)
-    replace_CMT_data(A, B, int(cmtnum))
+    # Print the result to stdout, where it can be inspected and or 
+    # re-directed to a file
+    lines = replace_CMT_data(A, B, int(cmtnum))
+    for l in lines:
+      print l.rstrip("\n")
     sys.exit(0)
 
 
