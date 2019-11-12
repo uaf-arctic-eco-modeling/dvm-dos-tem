@@ -188,24 +188,24 @@ calibration_targets = {
     'OrganicNitrogenSum':     2698.00,    #  soln
     'AvailableNitrogenSum':      0.48,    #  avln
   },
-  ## CMT07 - HEATH TUNDRA - CALIBRATION TOOLIK CLIMATE   Lichen gpp 18.525, npp was 1/2, Miss 6.621, 6.19, 3.31
+  ## CMT07 - HEATH TUNDRA - CALIBRATION TOOLIK CLIMATE   New Values from Helene, input by Joy 8 16 2019, except Nuptake and soilC numbers and forb
   "heath tundra": {
     'cmtnumber': 7,
-                                 #    pft0     pft1      pft2      pft3       pft4    pft5     pft6     pft7     pft8    pft9   
+                                 #    pft0     pft1      pft2      pft3       pft4    pft5      pft6    pft7     pft8    pft9   
                                  #  D.shrub   E.shrub    Forb      Lichen    Sedge    Moss      Misc.   Misc.    Misc.   Misc.
-    'GPPAllIgnoringNitrogen':    [   9.303,   31.494,    2.667,    37.000,   2.667,   12.000,    0.00,    0.00,    0.00,   0.00 ], # ingpp     (gC/m2/year)   GPP without N limitation
-    'NPPAllIgnoringNitrogen':    [   8.698,   29.447,    2.493,    18.525,   2.493,   11.987,    0.00,    0.00,    0.00,   0.00 ], # innpp     (gC/m2/year)   NPP without N limitation 
-    'NPPAll':                    [   4.539,   15.747,    1.333,    18.525,   1.333,    6.000,    0.00,    0.00,    0.00,   0.00 ], # npp       (gC/m2/year)   NPP with N limitation
-    'Nuptake':                   [    0.09,    0.215,    0.165,     0.010,   0.080,    0.051,    0.00,    0.00,    0.00,   0.00 ], # nuptake   (gN/m2/year)
+    'GPPAllIgnoringNitrogen':    [  37.204,   69.055,    2.667,    72.760,   0.100,   0.744,    0.00,    0.00,    0.00,   0.00 ], # ingpp (gC/m2/year) GPP Wout N limitation
+    'NPPAllIgnoringNitrogen':    [  18.602,   34.528,    2.493,    36.380,   0.050,   0.372,    0.00,    0.00,    0.00,   0.00 ], # innpp (gC/m2/year) NPP Wout N limitation 
+    'NPPAll':                    [  12.401,   23.018,    1.333,    24.253,   0.033,   0.248,    0.00,    0.00,    0.00,   0.00 ], # npp   (gC/m2/year) NPP with N limitation
+    'Nuptake':                   [    0.09,    0.215,    0.165,     0.010,   0.080,   0.051,    0.00,    0.00,    0.00,   0.00 ], # nuptake   (gN/m2/year)
     'VegCarbon': {
-      'Leaf':                    [   2.650,   21.216,    1.100,   102.384,   1.100,    4.138,    0.00,    0.00,    0.00,   0.00 ], # vegcl     (gC/m2)
-      'Stem':                    [  35.642,   24.296,    0.000,     0.000,   0.000,    0.000,    0.00,    0.00,    0.00,   0.00 ], # vegcw     (gC/m2)
-      'Root':                    [   1.984,    2.776,    0.833,     0.000,   0.833,    0.000,    0.00,    0.00,    0.00,   0.00 ], # vegcr     (gC/m2)
+      'Leaf':                    [   6.908,   28.501,    1.100,    80.844,   1.029,   0.827,    0.00,    0.00,    0.00,   0.00 ], # vegcl     (gC/m2)
+      'Stem':                    [  30.483,   67.635,    0.000,     0.000,   0.000,   0.000,    0.00,    0.00,    0.00,   0.00 ], # vegcw     (gC/m2)
+      'Root':                    [  21.405,   43.189,    0.833,     0.000,   0.921,   0.000,    0.00,    0.00,    0.00,   0.00 ], # vegcr     (gC/m2)
     },
     'VegStructuralNitrogen': {
-      'Leaf':                    [   0.161,    0.161,    0.300,     1.200,   0.130,    0.810,    0.00,    0.00,    0.00,   0.00 ], # vegnl     (gN/m2)
-      'Stem':                    [   0.210,    0.210,    0.000,     0.000,   0.000,    0.000,    0.00,    0.00,    0.00,   0.00 ], # vegnw     (gN/m2)
-      'Root':                    [   0.414,    0.414,    0.030,     0.000,   0.030,    0.000,    0.00,    0.00,    0.00,   0.00 ], # vegnr     (gN/m2)
+      'Leaf':                    [   0.274,    0.736,    0.300,     1.708,   0.018,   0.028,    0.00,    0.00,    0.00,   0.00 ], # vegnl     (gN/m2)
+      'Stem':                    [   0.807,    1.414,    0.000,     0.000,   0.000,   0.000,    0.00,    0.00,    0.00,   0.00 ], # vegnw     (gN/m2)
+      'Root':                    [   0.362,    0.446,    0.030,     0.000,   0.011,   0.000,    0.00,    0.00,    0.00,   0.00 ], # vegnr     (gN/m2)
     },
     'MossDeathC':              178.00,    #  dmossc
     'CarbonShallow':          1065.00,    #  shlwc
