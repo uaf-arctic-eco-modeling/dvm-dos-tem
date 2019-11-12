@@ -91,7 +91,7 @@
 0.0020805       // kdcsompr:
 0.0000108       // kdcsomcr:
 //===========================================================
-// CMT04 // Shrub Tundra // Updated by Joy July 2019 //
+// CMT04 // Shrub Tundra // Calibrated for Toolik area. J.Clein updated, July 2019
 //Salix      Betula       Decid       EGreen       Sedges       Forbs       Grasses     Lichens      Feather    PFT9     // pftnames:
 210.00       340.00      62.00        13.45        27.00        58.00       110.00       30.50       67.00       0.0     // cmax:
  6.00         7.00        8.20         9.00         7.60         4.50        30.00        3.000       3.00       0.0     // nmax:

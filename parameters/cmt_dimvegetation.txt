@@ -176,7 +176,7 @@
 1.1         0.0         0.0          0.8          0.5          1.0          1.5          1.9          0.0          0            // static_lai[10]:
 1.0         0.0         0.0          0.7          0.8          0.5          1.5          2.1          1.1          0            // static_lai[11]:
 //===========================================================
-// CMT04 // Shrub Tundra
+// CMT04 // Shrub Tundra // Calibrated for Toolik area.
 //Salix     Betula      Decid        EGreen       Sedges       Forbs        Grasses      Lichens      Feather      PFT9         // pftnames:
 1.00        1.00        1.00         1.00         1.00         1.00         1.00         1.00         1.00         0.           // vegfrac: vegetation coverage on land - 0 indicates that PFT does't exist
 1           1           1            1            0            0            0            0            0            0            // ifwoody: woody plants (1) or not (0)

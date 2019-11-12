@@ -81,7 +81,7 @@
 0.03939            // coefminea:
 0.78               // coefmineb:
 //===========================================================
-// CMT04 // Shrub Tundra
+// CMT04 // Shrub Tundra // Calibrated for Toolik area.
 // Snow characteristics
 350                // snwdenmax:  max. snow density (kg/m3)
 120                // snwdennew:  new (min.) snow density (kg/m3)
