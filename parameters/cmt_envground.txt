@@ -176,7 +176,7 @@
 1.0               // initvwc(9): initial soil volume water content at every 10 cm interval
 
 //===========================================================
-// CMT06 // Wet Sedge Tundra
+// CMT06 // Wet Sedge Tundra // Calibrated for Toolik area.
 0.8                // snwalbmax:
 0.4                // snwalbmin:
 -1.5e7             // psimax:

@@ -135,7 +135,7 @@
 0.020800     // kdcsompr   was 0.009000 
 0.000005     // kdcsomcr  was 0.000005 
 //===========================================================
-// CMT06 // Wet Sedge Tundra //
+// CMT06 // Wet Sedge Tundra // Calibrated for Toolik area.
 //Decid      Sedges       Grasses      Forbs        Lichens      Feather      Sphag        PFT7     PFT8      PFT9      // pftnames
 22.80        250.6        65.0         38.5          7.8         21.00        36.3          0.0      0.0       0.0      // cmax:
  4.10         14.01        8.29         9.20         4.32         3.00         3.32         0.0      0.0       0.0      // nmax:
