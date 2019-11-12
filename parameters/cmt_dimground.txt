@@ -220,3 +220,23 @@
 0.9750             // coefdeepb:
 0.0996             // coefminea:
 0.8197             // coefmineb:
+//===========================================================
+// CMT44 // Shrub Tundra - Kougarok
+// Snow characteristics
+350                // snwdenmax:  max. snow density (kg/m3)
+120                // snwdennew:  new (min.) snow density (kg/m3)
+0.                 // initsnwthick: initial snow thickness (m)
+0.                 // initsnwdense: initial snow density (kg/m3)
+// moss characteristics
+0.035              // maxmossthick: max. moss thickness (m)
+0.005              // initdmossthick: initial dead moss thickness (m)
+1                  // mosstype: moss type (1: sphagnum; 2: furthermoss; 3: other)
+// soil characteristics
+0.05878             // initfibthick: meters
+0.11212             // inithumthick:
+0.0652              // coefshlwa:
+0.708               // coefshlwb:
+0.0545              // coefdeepa:
+0.975               // coefdeepb:
+0.0966              // coefminea:
+0.7851              // coefmineb:
