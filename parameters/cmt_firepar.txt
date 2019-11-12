@@ -96,7 +96,7 @@
 0.10                                                   // r_retain_c: ratio of burning residue C (retained into soil) 
 0.10                                                   // r_retain_n: ratio of burning residue N (retained into soil)
 //===========================================================
-// CMT04 // Shrub Tundra
+// CMT04 // Shrub Tundra // Calibrated for Toolik area.
 //Salix      Betula      Decid       EGreen       Sedges       Forbs        Grasses      Lichens      Feather      PFT9      // pftnames:
 0.00         0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvcomb[5][10]: fraction of each PFT vegetation combusted for 5 severities
 0.15         0.15        0.15        0.15         0.80         0.80         0.80         1.00         1.00         0.00      // 
@@ -142,7 +142,7 @@
 0.10                                                   // r_retain_c: ratio of burning residue C (retained into soil) 
 0.10                                                   // r_retain_n: ratio of burning residue N (retained into soil)
 //===========================================================
-// CMT06 // Wet Sedge Tundra
+// CMT06 // Wet Sedge Tundra // Calibrated for Toolik area.
 //Decid      Sedges      Grasses     Forbs        Lichens      Feather      Sphag        PFT7         PFT8         PFT9      // pftnames
 0.00         0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvcomb[5][10]: fraction of each PFT vegetation combusted for 5 severities
 0.15         0.15        0.15        0.15         0.15         0.70         0.70         0.80         1.00         0.00      // 
@@ -246,6 +246,29 @@
 0.60         0.60        0.60        0.60         0.60         0.00         0.00         0.00         0.00         0.00      // 
 0.64         0.64        0.64        0.64         0.64         0.00         0.00         0.00         0.00         0.00      // 
 0.64         0.64        0.64        0.64         0.64         0.00         0.00         0.00         0.00         0.00      // 
+// ground
+0.00                                                   // foslburn[5]:  fraction of OS layer burned for each of 5 fire severity classes
+0.48
+0.54
+0.69
+0.80
+// other
+0.50                                                   // vsmburn: volume soil moisture to define wet soil for prevent organic layer burning
+0.10                                                   // r_retain_c: ratio of burning residue C (retained into soil) 
+0.10                                                   // r_retain_n: ratio of burning residue N (retained into soil)
+//===========================================================
+// CMT44 // Shrub Tundra - Kougarok
+//Salix      Betula      Decid       EGreen       Sedges       Forbs        Grasses      Lichens      Feather      PFT9      // pftnames:
+0.00         0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvcomb[5][10]: fraction of each PFT vegetation combusted for 5 severities
+0.15         0.15        0.15        0.15         0.80         0.80         0.80         1.00         1.00         0.00      // 
+0.25         0.25        0.25        0.25         1.00         1.00         1.00         1.00         1.00         0.00      // 
+0.30         0.30        0.30        0.30         1.00         1.00         1.00         1.00         1.00         0.00      // 
+0.35         0.35        0.35        0.35         1.00         1.00         1.00         1.00         1.00         0.00      // 
+0.00         0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvdead[5][10]: fraction of each PFT vegetation killed for 5 severities 
+0.50         0.50        0.50        0.50         0.20         0.20         0.20         0.00         0.00         0.00      // 
+0.60         0.60        0.60        0.60         0.00         0.00         0.00         0.00         0.00         0.00      // 
+0.64         0.64        0.64        0.64         0.00         0.00         0.00         0.00         0.00         0.00      // 
+0.64         0.64        0.64        0.64         0.00         0.00         0.00         0.00         0.00         0.00      // 
 // ground
 0.00                                                   // foslburn[5]:  fraction of OS layer burned for each of 5 fire severity classes
 0.48

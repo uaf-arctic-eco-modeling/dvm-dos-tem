@@ -81,7 +81,7 @@
 363               // initsoln:
 0.76              // initavln:
 //===========================================================
-// CMT04 // Shrub Tundra
+// CMT04 // Shrub Tundra // Calibrated for Toolik area.
 2.0               // rhq10:
 0.0               // moistmin:
 0.5               // moistopt:
@@ -220,3 +220,24 @@
 43416.95          // initminec: was reduced from 43416.95  21708.50
 1998.37           // initsoln: reduced from 1998.37 based on C/N soil   715.98
 1.7               // initavln:
+//===========================================================
+// CMT44 // Shrub Tundra - Kougarok
+2.0               // rhq10:
+0.0               // moistmin:
+0.5               // moistopt:
+1.0               // moistmax: 
+47.60             // lcclnc:
+0.372             // fsoma:
+0.611             // fsompr:
+0.017             // fsomcr:
+0.346             // som2co2:
+0.0042            // kn2:
+29.73             // nmincnsoil:
+0.2               // propftos:
+0.0               // fnloss:  fraction N leaching (0 - 1) when drainage occurs
+2340              // initshlwc:
+5853              // initdeepc:
+37022             // initminec:
+1843              // initsoln:
+3.93              // initavln:  was 0.68
+

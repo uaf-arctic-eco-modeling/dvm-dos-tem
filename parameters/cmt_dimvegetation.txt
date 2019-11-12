@@ -176,7 +176,7 @@
 1.1         0.0         0.0          0.8          0.5          1.0          1.5          1.9          0.0          0            // static_lai[10]:
 1.0         0.0         0.0          0.7          0.8          0.5          1.5          2.1          1.1          0            // static_lai[11]:
 //===========================================================
-// CMT04 // Shrub Tundra
+// CMT04 // Shrub Tundra // Calibrated for Toolik area.
 //Salix     Betula      Decid        EGreen       Sedges       Forbs        Grasses      Lichens      Feather      PFT9         // pftnames:
 1.00        1.00        1.00         1.00         1.00         1.00         1.00         1.00         1.00         0.           // vegfrac: vegetation coverage on land - 0 indicates that PFT does't exist
 1           1           1            1            0            0            0            0            0            0            // ifwoody: woody plants (1) or not (0)
@@ -262,13 +262,13 @@
 0.0         0.0         0.8          0.0          1.0          2.00         2.00         2.00          0            0           // static_lai[10]:
 0.0         0.0         0.7          0.0          0.5          2.00         2.00         2.00          0            0           // static_lai[11]:
 //===========================================================
-// CMT06 // Wet Sedge Tundra
+// CMT06 // Wet Sedge Tundra  // Calibrated for Toolik area. (updated LAI for Decid 7-19-19 Joy)
 //Decid     Sedges      Grasses      Forbs        Lichens      Feather      Sphag        PFT7         PFT8         PFT9         // pftnames
 1.00        1.00        1.00         1.00         1.00         1.00         1.00         0.00         0.00         0.00         // vegfrac: vegetation coverage on land - 0 indicates that PFT does't exist
 1           1           1            1            0            0            0            0            0            0            // ifwoody: woody plants (1) or not (0)
 0           1           1            0            0            0            0            0            0            0            // ifdeciwoody: deciduous woodland (1) or not (0)
 1           1           1            1            0            0            1            0            0            0            // ifperenial: perenial (1) or not (0)
-0           0           0            0            0            0            0            0            0            0            // nonvascular type: vascular (0), sphagnum (1), feathermoss (2), lichen (3)
+0           0           0            0            3            2            0            0            0            0            // nonvascular type: vascular (0), sphagnum (1), feathermoss (2), lichen (3)
 0.0072      0.0072      0.0072       0.3546       0.0072       0.0072       0.0072       0.00         0.00         0.00         // sla: specific leaf area (m2/gC)
 0.255       2.2         0.1133       0.0537       0.1584       0.1133       0.1133       0.00         0.00         0.00         // klai: extinction coeff for conversion from lai to fpc
 0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.00         0.00         0.00         // minleaf: this and the following 4 parameters are for EET/PET controlled phenology - f(leaf)
@@ -291,27 +291,27 @@
 0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[7]:
 0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[8]:
 0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[9]:
-0.01        0.03        0.02         0.01         2.0          1.9          2.1          0.00         0.00         0.00         // initial_lai: starting value for Leaf Area Index
-1.0         0.0         0.0          0.5          1.5          1.5          1.5          0.00         0.00         0.00         // static_lai[0]: monthly LAI for a year, used for static input of LAI
-1.1         0.0         0.0          0.3          1.5          1.5          1.5          0.00         0.00         0.00         // static_lai[1]:
-1.2         0.0         0.0          0.5          1.5          1.5          1.5          0.00         0.00         0.00         // static_lai[2]:
-1.2         0.5         1.0          1.2          1.5          1.5          1.5          0.00         0.00         0.00         // static_lai[3]:
-1.3         1.3         1.9          1.3          1.5          1.5          1.5          0.00         0.00         0.00         // static_lai[4]:
-1.9         1.9         2.5          1.9          1.5          1.5          1.5          0.00         0.00         0.00         // static_lai[5]:
+0.03        0.03        0.02         0.01         2.0          1.9          2.1          0.00         0.00         0.00         // initial_lai: start value for Leaf Area Index
+0.0         0.0         0.0          0.5          1.5          1.5          1.5          0.00         0.00         0.00         // static_lai[0]: monthly LAI for a year, used for static input of LAI
+0.0         0.0         0.0          0.3          1.5          1.5          1.5          0.00         0.00         0.00         // static_lai[1]:
+0.0         0.0         0.0          0.5          1.5          1.5          1.5          0.00         0.00         0.00         // static_lai[2]:
+1.0         0.5         1.0          1.2          1.5          1.5          1.5          0.00         0.00         0.00         // static_lai[3]:
+1.9         1.3         1.9          1.3          1.5          1.5          1.5          0.00         0.00         0.00         // static_lai[4]:
+2.5         1.9         2.5          1.9          1.5          1.5          1.5          0.00         0.00         0.00         // static_lai[5]:
 2.0         2.0         2.0          2.0          1.5          1.5          1.5          0.00         0.00         0.00         // static_lai[6]:
 2.0         2.0         2.0          2.0          1.5          1.5          1.5          0.00         0.00         0.00         // static_lai[7]:
 1.5         0.5         1.5          1.5          1.5          1.5          1.5          0.00         0.00         0.00         // static_lai[8]:
-1.3         0.2         0.0          1.3          1.5          1.5          1.5          0.00         0.00         0.00         // static_lai[9]:
-1.1         0.0         0.0          0.8          1.5          1.5          1.5          0.00         0.00         0.00         // static_lai[10]:
-1.0         0.0         0.0          0.7          1.5          1.5          1.5          0.00         0.00         0.00         // static_lai[11]:
+0.0         0.2         0.0          1.3          1.5          1.5          1.5          0.00         0.00         0.00         // static_lai[9]:
+0.0         0.0         0.0          0.8          1.5          1.5          1.5          0.00         0.00         0.00         // static_lai[10]:
+0.0         0.0         0.0          0.7          1.5          1.5          1.5          0.00         0.00         0.00         // static_lai[11]:
 //===========================================================
-// CMT07 // Heath Tundra
+// CMT07 // Heath Tundra  (updated LAI 7-19-19 Joy)
 //Decid     EGreen      Forbs        Lichens      Grasses      Moss         PFT6         PFT7         PFT8         PFT9         // pftnames:
 1.00        1.00        1.00         1.00         1.00         1.00         0.00         0.00         0.00         0.00         // vegfrac: vegetation coverage on land - 0 indicates that PFT does't exist
 1           1           1            1            0            0            0            0            0            0            // ifwoody: woody plants (1) or not (0)
 0           1           1            0            0            0            0            0            0            0            // ifdeciwoody: deciduous woodland (1) or not (0)
 1           1           1            1            0            0            0            0            0            0            // ifperenial: perenial (1) or not (0)
-0           0           0            0            0            0            0            0            0            0            // nonvascular type: vascular (0), sphagnum (1), feathermoss (2), lichen (3)
+0           0           0            3            0            0            0            0            0            0            // nonvascular type: vascular (0), sphagnum (1), feathermoss (2), lichen (3)
 0.0072      0.0072      0.0072       0.0072       0.0072       0.0072       0.00         0.00         0.00         0.00         // sla: specific leaf area (m2/gC)
 0.25        0.25        0.1133       0.0537       0.1133       0.1584       0.00         0.00         0.00         0.00         // klai: extinction coeff for conversion from lai to fpc
 0.0         0.0         0.0          0.0          0.0          0.0          0.00         0.00         0.00         0.0          // minleaf: this and the following 4 parameters are for EET/PET controlled phenology - f(leaf)
@@ -324,7 +324,7 @@
 -0.3197     -0.3197     -0.3197      -0.3197      -0.3197      -0.3197      0.00         0.00         0.00         0.00         // m2
 0.0401      0.0401      0.0401       0.0401       0.0401       0.0401       0.00         0.00         0.00         0.00         // m3
 0.0001      0.0001      0.0001       0.0001       0.0001       0.0001       0.00         0.00         0.00         0.00         // m4
-30.0        30.0        30.0         0.00         50.00        0.00         0.00         0.00         0.00         0.00         // frprod[0]:
+30.0        30.0        30.0         1.00         50.00        1.00         0.00         0.00         0.00         0.00         // frprod[0]:
 50.0        50.0        50.0         0.00         50.00        0.00         0.00         0.00         0.00         0.00         // frprod[1]:
 20.0        20.0        20.0         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[2]:
 0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[3]:   
@@ -334,19 +334,19 @@
 0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[7]:
 0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[8]:
 0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[9]:
-0.01        1.8         0.07         1.5          0.04         2.0          0.00         0.00         0.00         0.00         // initial_lai: starting value for Leaf Area Index
-1.0         0.0         0.0          0.5          1.0          0.0          0.00         0.00         0.00         0.00         // static_lai[0]: monthly LAI for a year, used for static input of LAI
-1.1         0.0         0.0          0.3          1.5          0.0          0.00         0.00         0.00         0.00         // static_lai[1]:
-1.2         0.0         0.0          0.5          2.0          0.5          0.00         0.00         0.00         0.00         // static_lai[2]:
-1.2         0.5         1.0          1.2          1.5          1.0          0.00         0.00         0.00         0.00         // static_lai[3]:
-1.3         1.3         1.9          1.3          0.3          1.3          0.00         0.00         0.00         0.00         // static_lai[4]:
-1.9         1.9         2.5          1.9          0.0          1.9          0.00         0.00         0.00         0.00         // static_lai[5]:
-2.0         2.0         2.0          2.0          0.0          2.0          0.00         0.00         0.00         0.00         // static_lai[6]:
-2.0         2.0         2.0          2.0          0.0          2.0          0.00         0.00         0.00         0.00         // static_lai[7]:
-1.5         0.5         1.5          1.5          0.0          1.5          0.00         0.00         0.00         0.00         // static_lai[8]:
-1.3         0.2         0.0          1.3          0.3          1.3          0.00         0.00         0.00         0.00         // static_lai[9]:
-1.1         0.0         0.0          0.8          0.5          1.0          0.00         0.00         0.00         0.00         // static_lai[10]:
-1.0         0.0         0.0          0.7          0.8          0.5          0.00         0.00         0.00         0.00         // static_lai[11]:
+0.03        1.9         0.01         1.5          0.02         1.5          0.00         0.00         0.00         0.00         // initial_lai: start value for Leaf Area Index
+0.0         0.5         0.0          1.5          0.0          1.5          0.00         0.00         0.00         0.00         // static_lai[0]: monthly LAI for a year, used for static input of LAI
+0.0         0.3         0.0          1.5          0.0          1.5          0.00         0.00         0.00         0.00         // static_lai[1]:
+0.0         0.5         0.5          1.5          0.0          1.5          0.00         0.00         0.00         0.00         // static_lai[2]:
+1.0         1.2         1.0          1.5          0.5          1.5          0.00         0.00         0.00         0.00         // static_lai[3]:
+1.9         1.3         1.3          1.5          1.5          1.5          0.00         0.00         0.00         0.00         // static_lai[4]:
+2.5         1.9         1.9          1.5          1.5          1.5          0.00         0.00         0.00         0.00         // static_lai[5]:
+2.0         2.0         2.0          1.5          1.5          1.5          0.00         0.00         0.00         0.00         // static_lai[6]:
+2.0         2.0         2.0          1.5          1.5          1.5          0.00         0.00         0.00         0.00         // static_lai[7]:
+1.5         1.5         1.5          1.5          1.0          1.5          0.00         0.00         0.00         0.00         // static_lai[8]:
+0.0         1.3         1.3          1.5          0.5          1.5          0.00         0.00         0.00         0.00         // static_lai[9]:
+0.0         0.8         1.0          1.5          0.0          1.5          0.00         0.00         0.00         0.00         // static_lai[10]:
+0.0         0.7         0.5          1.5          0.0          1.5          0.00         0.00         0.00         0.00         // static_lai[11]:
 //===========================================================
 // CMT12 // Lowland Boreal Wet Shrubland
 //DecShrub   EvrShrub     DecTree      EvrTree      Forbs        Gram        Feather      Lichen      Equisetum      PFT9         // pftnames:
@@ -476,3 +476,46 @@
 0.2          0.5          1.3          0.5          2.0          2.0          2.0          0.0          2.0          0.0          // static_lai[9]:
 0.0          0.0          0.8          0.0          2.0          2.0          2.0          0.0          2.0          0.0          // static_lai[10]:
 0.0          0.0          0.7          0.0          2.0          2.0          2.0          0.0          2.0          0.0          // static_lai[11]:
+//===========================================================
+// CMT44 // Shrub Tundra - Kougarok  (LAI stuff updated 7-19-19 Joy)
+//Salix     Betula      Decid        EGreen       Sedges       Forbs        Grasses      Lichens      Feather      PFT9         // pftnames:
+1.00        1.00        1.00         1.00         1.00         1.00         1.00         1.00         1.00         0.           // vegfrac: vegetation coverage on land - 0 indicates that PFT does't exist
+1           1           1            1            0            0            0            0            0            0            // ifwoody: woody plants (1) or not (0)
+0           0           0            0            0            0            0            0            0            0            // ifdeciwoody: deciduous woodland (1) or not (0)
+1           1           1            1            1            1            1            1            1            0            // ifperenial: perenial (1) or not (0)
+0           0           0            0            0            0            0            3            2            0            // nonvascular type: vascular (0), sphagnum (1), feathermoss (2), lichen (3)
+0.012       0.014       0.014        0.0056       0.006        0.01         0.005        0.006        0.020        0.           // sla: specific leaf area (m2/gC)
+0.255       0.250       0.4564       0.1133       0.0537       0.158        0.149        0.25         0.25         0.           // klai: extinction coeff for conversion from lai to fpc
+0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          // minleaf: this and the following 4 parameters are for EET/PET controlled phenology - f(leaf)
+0.42893     0.42893     0.79640      0.79640      0.79640      0.79640      0.79640      0.79640      0.79640      0.79640      // aleaf
+0.33295     0.33295     0.46635      0.46635      0.46635      0.46635      0.46635      0.46635      0.46635      0.46635      // bleaf
+0.32228     0.32228    -0.02873     -0.02873     -0.02873     -0.02873     -0.02873     -0.02873     -0.02873     -0.02873      // cleaf
+1.6662      1.6662      1.6662       1.6662       1.6662       1.6662       1.6662       1.6662       1.6662       1.6662       // kfoliage: this and the following 1 parameters are for non-woody plant's f(foliage) 
+-0.0230    -0.0090      -0.107      -0.447       -0.527       -0.360        0.1422      -0.273       -0.057        0.001571     // cov
+15.206      15.206      15.206       15.206       15.206       15.206       15.206       15.206       15.206       15.206       // m1: this and the following 3 parameters are for woody plant's f(foliage)
+-0.3197     -0.3197     -0.3197     -0.3197      -0.3197      -0.3197      -0.3197      -0.3197      -0.3197      -0.3197       // m2
+0.0401      0.0401      0.0401       0.0401       0.0401       0.0401       0.0401       0.0401       0.0401       0.0401       // m3
+0.0001      0.0001      0.0001       0.0001       0.0001       0.0001       0.0001       0.0001       0.0001       0.0001       // m4
+30.0        30.0        30.0         35.0         30.0         65.0         25.0         1.00         1.00         0.00         // frprod[0]: fine root allocation percentage vertically in soils (every 10 cm)
+50.0        50.0        50.0         50.0         30.0         35.0         75.0         0.00         0.00         0.00         // frprod[1]:
+15.0        15.0        15.0         15.0         20.0         0.00         0.00         0.00         0.00         0.00         // frprod[2]:
+5.00        5.00        5.00         0.00         20.0         0.00         0.00         0.00         0.00         0.00         // frprod[3]:
+0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[4]:
+0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[5]:
+0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[6]:
+0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[7]:
+0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[8]:
+0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[9]:
+0.05        0.05        0.04         1.9          0.04         0.04         0.04         2.0          2.0          0.           // initial_lai: start value for Leaf Area Index
+0.0         0.0         0.0          0.5          0.0          0.0          0.0          2.0          2.0          0            // static_lai[0]: monthly LAI for a year, used for static input of LAI
+0.0         0.0         0.0          0.3          0.0          0.0          0.0          2.0          2.0          0            // static_lai[1]:
+0.0         0.0         0.0          0.5          0.0          0.5          0.0          2.0          2.0          0            // static_lai[2]:
+0.5         0.5         1.0          1.2          0.5          1.0          0.5          2.0          2.0          0            // static_lai[3]:
+1.3         1.3         1.9          1.3          1.5          1.3          1.5          2.0          2.0          0            // static_lai[4]:
+1.9         1.9         2.5          1.9          1.5          1.9          1.5          2.0          2.0          0            // static_lai[5]:
+2.0         2.0         2.0          2.0          1.5          2.0          1.5          2.0          2.0          0            // static_lai[6]:
+2.0         2.0         2.0          2.0          1.5          2.0          1.5          2.0          2.0          0            // static_lai[7]:
+0.5         0.5         1.5          1.5          1.0          1.5          1.0          2.0          2.0          0            // static_lai[8]:
+0.2         0.2         0.0          1.3          0.5          1.3          0.5          2.0          2.0          0            // static_lai[9]:
+0.0         0.0         0.0          0.8          0.0          1.0          0.0          2.0          2.0          0            // static_lai[10]:
+0.0         0.0         0.0          0.7          0.0          0.5          0.0          2.0          2.0          0            // static_lai[11]:

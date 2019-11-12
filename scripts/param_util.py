@@ -95,6 +95,10 @@ def find_cmt_start_idx(data, cmtkey):
     The first index in the list where the CMT key is found. If key is not found
     returns None.
   '''
+
+  # NOTE: Should probably rasie some kind of ERROR if CMTKEY is not 
+  # somethign like CMT00
+
   for i, line in enumerate(data):
     if cmtkey.upper() in line:
       return i
@@ -119,6 +123,113 @@ def read_paramfile(thefile):
   with open(thefile, 'r') as f:
     data = f.readlines()
   return data
+
+def compare_CMTs(fileA, cmtnumA, fileB, cmtnumB, ignore_formatting=True):
+  '''
+  Compares the specified CMT data blocks in each file line by line, prints
+  "Match" if the lines are the same, otherwise print the lines for visual 
+  comparison.
+
+  By running the datablocks thru the format function, we can compare on values
+  and ignore whitespace/formatting differences.
+
+  Parameters
+  ----------
+  fileA : str
+    Path to file for comparison.
+  cmtnumA : int
+    Number of CMT for comparison.
+  fileB : str
+    Path to file for comparison.
+  cmtnumB : int
+    Number of CMT for comparison.
+  ignore_formatting : bool
+    When True (default) it is easy to see how the numbers differ. When this 
+    setting is False, lines with different formatting will not match, i.e. 
+    0.0 and  0.000 will show up as different.
+
+  Returns
+  -------
+  None
+  '''
+  dataA = get_CMT_datablock(fileA, cmtnumA)
+  dataB = get_CMT_datablock(fileB, cmtnumB)
+
+  # Standardize whitespace and numeric format using the foratting function.
+  if ignore_formatting:
+    dataA = format_CMTdatadict(cmtdatablock2dict(dataA), fileA)
+    dataB = format_CMTdatadict(cmtdatablock2dict(dataB), fileB)
+  else:
+    pass
+
+  # Loop over the lines in the data block testing them
+  for i, (A, B) in enumerate(zip(dataA, dataB)):
+    if A == B:
+      print "LINE {} match!".format(i)
+    else:
+      print "LINE {} difference detected! ".format(i)
+      print "   A: {}".format(A)
+      print "   B: {}".format(B)
+      print ""
+
+def is_CMT_divider_line(line):
+  '''
+  Checks to see if a line is one of the comment lines we use to divide
+  CMT data blocks in parameter files, e.g. // ====== '''
+  return re.search('^//[ =]+', line.strip())
+
+
+def replace_CMT_data(origfile, newfile, cmtnum, overwrite=False):
+  '''
+  Replaces the CMT datablock in `origfile` with the data block found in
+  `newfile` for the provided `cmtnum`. If `overwrite` is True, then `origfile`
+  is written with the new data. Returns a list of lines which can then be 
+  printed to stdout or otherwise redirected to a file.
+
+  Parameters
+  ----------
+  `origfile` : str
+    Path to a file with CMT data blocks.
+  `newfile` : str
+    Path to a file with CMT data blocks.
+  `cmtnum` : int
+    Number of the CMT to look for.
+
+  Returns
+  -------
+  List of lines.
+  '''
+  with open(origfile, 'r') as f:
+    data = f.readlines()
+
+  sidx = find_cmt_start_idx(data, 'CMT{:02d}'.format(cmtnum))
+
+  # What should happen if both files don't have the requested CMT?
+
+  orig_data = get_CMT_datablock(origfile, cmtnum)
+  if not is_CMT_divider_line(orig_data[-1]):
+    print "WARNING: last line of data block in original file is not as expected!"
+
+  data[sidx:(sidx+len(orig_data))] = []
+
+  new_data = get_CMT_datablock(newfile, cmtnum)
+
+  if not is_CMT_divider_line(new_data[-1]):
+    if is_CMT_divider_line(orig_data[-1]):
+      new_data.append(orig_data[-1])
+    else:
+      print "WARNING: last line of data block in original file is not as expected!"
+
+  data[sidx:sidx] = new_data
+
+  if overwrite:
+    with open(origfile, 'w') as f:
+      f.writelines(data)
+  else:
+    pass
+
+  return data
+
 
 def get_CMT_datablock(afile, cmtnum):
   '''
@@ -561,6 +672,15 @@ if __name__ == '__main__':
         as to match the proportions of the initvegc compartment parameters.
         Re-formats the block of data and prints to stdout.'''))
 
+  parser.add_argument('--replace-cmt-block', nargs=3, metavar=('AFILE','BFILE','CMTNUM'),
+      help=textwrap.dedent('''Replaces the CMT datablock in AFILE with the 
+        contents CMT data in BFILE. Assumes that the CMTNUM exists in both files!'''))
+
+  parser.add_argument('--compare-cmtblocks', nargs=4, metavar=('AFILE','ANUM','BFILE','BNUM'),
+      help=textwrap.dedent('''Do a line by line comparison of the CMT data blocks
+        in FILEA and FILEB. The comparison ignores whitespace and numeric formatting.
+        prints report indicating which lines match.'''))
+
   parser.add_argument('--dump-block-to-json', nargs=2, metavar=('FILE', 'CMT'),
       help=textwrap.dedent('''Extract the specific CMT data block from the
         specified data input file and print the contents to stdout as a json
@@ -707,6 +827,27 @@ if __name__ == '__main__':
     plt.show(block=True)
 
     sys.exit(0)
+
+  if args.compare_cmtblocks:
+    fileA, numA, fileB, numB = args.compare_cmtblocks
+    numA = int(numA)
+    numB = int(numB)
+    print "Comparing:"
+    print "      CMT {} in {} ".format(fileA, numA)
+    print "      CMT {} in {} ".format(fileB, numB)
+
+    compare_CMTs(fileA, numA, fileB, numB)
+    sys.exit(0)
+
+  if args.replace_cmt_block:
+    A, B, cmtnum = args.replace_cmt_block
+    # Print the result to stdout, where it can be inspected and or 
+    # re-directed to a file
+    lines = replace_CMT_data(A, B, int(cmtnum))
+    for l in lines:
+      print l.rstrip("\n")
+    sys.exit(0)
+
 
   if args.report_pft_names:
 

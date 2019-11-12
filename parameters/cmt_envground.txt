@@ -117,7 +117,7 @@
 0.10               // initvwc(8): initial soil volume water content at every 10 cm interval
 0.10               // initvwc(9): initial soil volume water content at every 10 cm interval
 //===========================================================
-// CMT04 // Shrub Tundra
+// CMT04 // Shrub Tundra // Calibrated for Toolik area.
 0.8                // snwalbmax:
 0.4                // snwalbmin:
 -1.5e7             // psimax:
@@ -176,7 +176,7 @@
 1.0               // initvwc(9): initial soil volume water content at every 10 cm interval
 
 //===========================================================
-// CMT06 // Wet Sedge Tundra
+// CMT06 // Wet Sedge Tundra // Calibrated for Toolik area.
 0.8                // snwalbmax:
 0.4                // snwalbmin:
 -1.5e7             // psimax:
@@ -320,5 +320,32 @@
 0.10               // initvwc(7): initial soil volume water content at every 10 cm interval
 0.10               // initvwc(8): initial soil volume water content at every 10 cm interval
 0.10               // initvwc(9): initial soil volume water content at every 10 cm interval
-
-
+//===========================================================
+// CMT44 // Shrub Tundra - Kougarok
+0.8                // snwalbmax:
+0.4                // snwalbmin:
+-1.5e7             // psimax:
+0.08               // evapmin:
+0.04               // drainmax
+0.20               // rtdp4gdd: root depth for estimating growing degree day
+-1.0               // initsnwtem: initial snow temperature (oC)
+-1.0               // initts(0): initial soil temperature at 10 cm interval (oC)
+-1.0               // initts(1): initial soil temperature at 10 cm interval (oC)
+-1.0               // initts(2): initial soil temperature at 10 cm interval (oC)
+-1.0               // initts(3): initial soil temperature at 10 cm interval (oC)
+-1.0               // initts(4): initial soil temperature at 10 cm interval (oC)
+-1.0               // initts(5): initial soil temperature at 10 cm interval (oC)
+-1.0               // initts(6): initial soil temperature at 10 cm interval (oC)
+-1.0               // initts(7): initial soil temperature at 10 cm interval (oC)
+-1.0               // initts(8): initial soil temperature at 10 cm interval (oC)
+-1.0               // initts(9): initial soil temperature at 10 cm interval (oC)
+0.10               // initvwc(0): initial soil volume water content at every 10 cm interval
+0.10               // initvwc(1): initial soil volume water content at every 10 cm interval
+0.10               // initvwc(2): initial soil volume water content at every 10 cm interval
+0.10               // initvwc(3): initial soil volume water content at every 10 cm interval
+0.10               // initvwc(4): initial soil volume water content at every 10 cm interval
+0.10               // initvwc(5): initial soil volume water content at every 10 cm interval
+0.10               // initvwc(6): initial soil volume water content at every 10 cm interval
+0.10               // initvwc(7): initial soil volume water content at every 10 cm interval
+0.10               // initvwc(8): initial soil volume water content at every 10 cm interval
+0.10               // initvwc(9): initial soil volume water content at every 10 cm interval
