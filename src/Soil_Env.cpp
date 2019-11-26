@@ -35,7 +35,7 @@
 extern src::severity_logger< severity_level > glg;
 
 Soil_Env::Soil_Env() {
-  ponding_max_mm = 100.0; //max ponding (surface water storage) (mm)
+  ponding_max_mm = 4.0; //max ponding (surface water storage) (mm)
 };
 
 Soil_Env::~Soil_Env() {
