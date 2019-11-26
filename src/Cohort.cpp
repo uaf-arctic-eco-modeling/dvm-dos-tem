@@ -486,13 +486,13 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
     // relationship between the air temp and the snow surface temp.
     // Raleigh et al 2013 showed that dewpoint temperature is the best
     // proxy for snow surface temperature. In the future we can bring in
-    // that calculation; for now, just use air surface temp (Raleigh shows
-    // it's well-correlated but air tends to be warmer by ~5 deg C).
-    double nfactor_summer_max = 2.0;
+    // that calculation; for now, just use air surface temp in winter (Raleigh
+    // shows it's well-correlated but air tends to be warmer by ~5 deg C).
+    double nfactor_summer_max = 1.5;
     double nfactor_winter = 1.0;
     edall->d_soid.nfactor = nfactor_summer_max; //summer nfactor (max nfactor)
-    //If there's snow or it's freezing, use winter nfactor
-    if(cd.d_snow.numsnwl > 0 || tdrv <= 0.0){
+    //If airtemp is freezing, use winter nfactor
+    if(tdrv <= 0.0){
       edall->d_soid.nfactor = nfactor_winter;
     }
 
