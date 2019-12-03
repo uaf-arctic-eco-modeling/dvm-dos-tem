@@ -1508,7 +1508,14 @@ void Ground::splitOneSoilLayer(SoilLayer*usl, SoilLayer* lsl,
     double slz = lsl->z+0.5*lsl->dz;
     lsl->tem = (slz-nxlz) * gradient + nxltem;
     ulz = usl->z+0.5*usl->dz;
-    usl->tem = (ulz-nxlz) * gradient + nxltem;
+    if(usl->prevl == NULL){ //if no prevl, use same gradient
+      usl->tem = (ulz-nxlz) * gradient + nxltem;
+    } else { //otherwise incorporate prevl temp
+      double pltem = usl->prevl->tem;
+      double plz = usl->prevl->z + 0.5 * usl->prevl->dz;
+      gradient = (pltem - lsl->tem) / (plz - slz);
+      usl->tem = (ulz-slz) * gradient + lsl->tem;
+    }
   }
 
   // after division, needs to update 'usl' and 'lsl'- 'frozen/frozenfrac'
