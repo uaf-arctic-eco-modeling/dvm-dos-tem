@@ -4,7 +4,7 @@
 
 // The order of this include with respect to boost 
 // seems to matter for certain installs!
-#include <lapacke/lapacke.h>
+#include <lapacke.h>
 
 extern src::severity_logger< severity_level > glg;
 
