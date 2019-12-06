@@ -27,7 +27,7 @@ TemperatureUpdator::TemperatureUpdator() {
   TSTEPORG = 0.5;
   ttole = 0.01;
   mindzlay = 0.01;
-  zerodegc = 0.001; //a constant to represent temperature near zero in degree C
+  zerodegc = 0.01; //a constant to represent temperature near zero in degree C
 }
 
 TemperatureUpdator::~TemperatureUpdator() {
@@ -60,34 +60,68 @@ void TemperatureUpdator::updateTemps(const double & tdrv, Layer *fstvalidl,
     tit[i] = MISSING_D;
   }
 
-  //the following 'bool' are used to how we are dealing with the
-  //  'frontl' and their boundaries
-  bool usefntl = true; //use 'frontl' as boundary (suggested!!!), otherwise
-                       //  use the above/below layer of 'frontl'
-  //after-testing note: 'true' is correct, otherwise 'temperature' profile
-  //  will not match with 'stefan' algorithm estimation of 'fronts'
-
-  bool adjfntl = true; //adjusting 'frontl' temperature by weighting
+  bool setfntl = true; //set frontlayer temperature by weighting
                        //  'frozenfrac' of the layer
-  // after-testing note: not matter much
 
-  if (fstfntl == NULL && lstfntl == NULL) {
+  int front_count = ground->frontstype.size();
+
+  if (front_count == 0) {
     // no fronts in soil column
-    processColumnNofront(fstvalidl, backl, tdrv, meltsnow);
+    BOOST_LOG_SEV(glg, info) << "Adjusting temperatures in a soil stack with no fronts";
+    processColumnNofront(fstvalidl, tdrv, meltsnow);
     itsumall = itsum;
-  } else if (fstfntl->indl == lstfntl->indl) {
-    processAboveFronts(fstvalidl, fstfntl, tdrv, meltsnow, usefntl); //ALWAYS NO adjusting the temperature in the 'fstfntl'
+  }
+  else if (front_count == 1) {
+    BOOST_LOG_SEV(glg, info) << "Adjusting temperatures in a soil stack with 1 front";
+    processAboveFronts(fstvalidl, fstfntl, tdrv, meltsnow);
     itsumabv = itsum;
-    processBelowFronts(backl, lstfntl, adjfntl, usefntl);
+    processBelowFronts(lstfntl, false); //setfntl false because frontlayer temp set in processAboveFronts
     itsumblw = itsum;
     itsumall = itsumabv + itsumblw;
-  } else if (fstfntl->indl != lstfntl->indl) {
+  }
+  else if (front_count == 2) {
     // there are two different layers which contain front(s)
-    processAboveFronts(fstvalidl, fstfntl, tdrv, meltsnow, usefntl);
+    BOOST_LOG_SEV(glg, info) << "Adjusting temperatures in a soil stack with 2 fronts";
+    processAboveFronts(fstvalidl, fstfntl, tdrv, meltsnow);
     itsumabv = itsum;
-    processBelowFronts(backl, lstfntl, false, usefntl);  //'lstfntl' only partially updated, so cannot adjust it
+    processBelowFronts(lstfntl, setfntl);
     itsumblw = itsum;
-    processBetweenFronts(fstfntl, lstfntl, adjfntl, usefntl);
+    processBetweenFronts(fstfntl, lstfntl, 0, false); //setfntl false because frontlayers' temps set in processAboveFronts and processBelowFronts
+    itsumall = itsumabv + itsumblw;
+  }
+  else if(front_count > 2){
+    BOOST_LOG_SEV(glg, info) << "Adjusting temperatures in a soil stack with "
+                             << front_count << " fronts";
+    //Need to find middle fronts. Cycle through layers,
+    // if frozen == 0, it's a frontlayer.
+    std::vector<Layer *> front_ptrs;
+
+    Layer *iter_lay = fstfntl;
+    while(iter_lay != NULL){
+
+      if(iter_lay->frozen == 0){
+        //Insert at end so the higher fronts are at the front of the vector
+        front_ptrs.push_back(iter_lay);
+      }
+      iter_lay = iter_lay->nextl;
+    }
+
+    //For the following function calls, we assume that the first pointer
+    // in front_ptrs is fstfntl, and that the last pointer is lstfntl
+    processAboveFronts(fstvalidl, front_ptrs.front(), tdrv, meltsnow);
+    itsumabv = itsum;
+    processBelowFronts(front_ptrs.back(), false); //setfntl false because last frontlayer temp will be set in processBetweenFronts
+    itsumblw = itsum;
+
+    //Between each pair of fronts in front_ptrs. The limit must be 
+    // size-1 so that it does not attempt to run with the last front
+    // and a non-existent front below it. 
+    for(int ii=0; ii<front_ptrs.size()-1; ii++){
+      //We include ii in the following call for accessing data in Ground
+      // that is not otherwise available.
+      processBetweenFronts(front_ptrs.at(ii), front_ptrs.at(ii+1), ii, setfntl); //sets frontlayer temp for lower frontlayers
+    }
+
     itsumall = itsumabv + itsumblw;
   }
 
@@ -95,154 +129,132 @@ void TemperatureUpdator::updateTemps(const double & tdrv, Layer *fstvalidl,
 }
 
 
-void TemperatureUpdator::processColumnNofront(Layer* fstvalidl, Layer *backl, const double & tdrv, const bool & meltsnow) {
+void TemperatureUpdator::processColumnNofront(Layer* fstvalidl, const double & tdrv, const bool & meltsnow) {
   BOOST_LOG_NAMED_SCOPE("TemperatureUpdator::processColumnNofront"){
 
   int startind, endind;
-
-  // The boundary of 'fstvalidl' as a virtual layer,
-  // serving as boundary condition
+  // The top boundary layer is an extra, virtual layer.
+  // Fill solver arrays for this virtual layer:
   int ind = fstvalidl->indl - 1;
   startind = ind;
 
   if (meltsnow) {
     t[ind] = 0.0;
   } else {
-    t[ind] = tdrv;
+    t[ind] = tdrv; // This tdrv has been modified by nfactor
   }
-
   e[ind]  = t[ind];
   s[ind]  = 0.0;
   cn[ind] = 1.0e2; //assume very big thermal conductivity for this virtual
                    //  layer (Reason for osicillation!!! from e20 to e2)
   cap[ind]= 0.0; // assume no heat capacity for this virtual layer
-  // actual layers, above 'frontl', invovling thermal process
-  Layer* currl = fstvalidl;
-  double hcap;
-  double pce;
 
+  // Fill solver arrays for regular layers
+  Layer* currl = fstvalidl;
   while (currl != NULL) {
-    ind++;
+    ind = currl->indl;
     dx[ind] = currl->dz;
     dx[ind] = temutil::NON_ZERO(dx[ind], 1);
-    
-    //std::cout << "Layer["<< ind <<"] currl->tem is " << currl->tem << std::endl;;
-    t[ind] = currl->tem; // THIS IS A PROBLEM IF LAYER has not been intialized!
-
-    if (currl->isSnow) {
-      type[ind] = 1;
-    } else {
-      type[ind] = 0;
-    }
-
+    t[ind] = currl->tem;
     tca[ind] = currl->getThermalConductivity();
-    hcap = currl->getHeatCapacity();
-    pce = abs(currl->pce_f - currl->pce_t);
+    double hcap = currl->getHeatCapacity();
+    double pce = abs(currl->pce_f - currl->pce_t);
     hca[ind] = (pce + hcap);
     cn[ind] = tca[ind] / dx[ind];
     cap[ind] = hca[ind] * dx[ind];
     currl = currl->nextl;
   }
 
-  // bottom boundary 'virtual' layer
+  // The bottom boundary layer is an extra, virtual layer
+  // Fill solver arrays for this virtual layer:
   ind++;
-  endind = ind;
   double gflx = 0.0;  // no bottom heat flux assumed
   t[ind] = t[ind-1] + gflx/(tca[ind-1]) * dx[ind-1];
   s[ind] = 0.;
   e[ind] = t[ind];
-  // iteration-solover
+  endind = ind;
+
+  // Run the solver for all layers
   iterate(startind, endind);
 
-  // post-iteration
-  //check whether is nan
+  // Post-iteration
+  // Check for nans in solver results array (tld)
   for (int il = startind; il <= endind; il++) {
     warn_bad_tld(il);
   }
 
-
-  // pass the data to double-linked structure
-  ind = startind+1; //0 is a virtual layer for top boundary condition,
-                    //1 is the first layer
+  // Update layers from solver results array, skipping extra boundary layers
   currl = fstvalidl;
-
   while (currl != NULL) {
+    ind = currl->indl;
     currl->tem = tld[ind];
     currl = currl->nextl;
-    ind++;
-
-    if (ind>endind-1) {
-      ind=endind-1;  // endind is a virtual layer for bottom boundary
-    }
   }
   }// Closes BOOST named scope
 }
 
 void TemperatureUpdator::processAboveFronts(Layer* fstvalidl, Layer*fstfntl,
                                             const double & tdrv,
-                                            const bool & meltsnow,
-                                            const bool &usefntl) {
+                                            const bool & meltsnow) {
   BOOST_LOG_NAMED_SCOPE("TemperatureUpdator::processAboveFronts"){
 
-  double hcap;
-  int startind, endind;
-  //the boundary of 'fstvalidl' as a virtual layer,
-  //  serving as boundary condition
-  int ind = fstvalidl->indl - 1;
+  if(fstfntl == fstvalidl){ // Front is in the top layer, so nothing to iterate. Just set frontlayer temp.
+    //Scale frontlayer temp between -zerodegc and zerodegc based on frozenfrac
+    fstfntl->tem = -zerodegc + (1.0-fstfntl->frozenfrac) * (2.0* zerodegc);
+    return;
+  }
+
+  // The top boundary layer is an extra, virtual layer
+  // Fill solver arrays for the virtual layer:
+  int ind,startind, endind;
+  ind = fstvalidl->indl - 1;
   startind = ind;
 
   if (meltsnow) {
     t[ind] = 0.0;
   } else {
-    t[ind] = tdrv;
+    t[ind] = tdrv; // This tdrv has been modified by nfactor
   }
-
   e[ind]  = t[ind];
   s[ind]  = 0.;
   cn[ind] = 1.0e2; //assume very big thermal conductivity for this virtual layer
   cap[ind]= 0.; //assume no heat capacity for this virtual layer
-  // actual layers, above 'frontl', involving thermal process
-  Layer* currl = fstvalidl;
-  double pce = 0.;
 
+  // Fill solver arrays for regular layers above first frontlayer
+  Layer* currl = fstvalidl;
   while (currl != NULL) {
     if (currl->indl >= fstfntl->indl) {
       break;
     }
-
-    ind++;
+    ind = currl->indl;
     dx[ind] = currl->dz;
     dx[ind] = temutil::NON_ZERO(dx[ind], 1);
-
     t[ind] = currl->tem;
-
-    if (currl->isSnow) {
-      type[ind] = 1;
-    } else {
-      type[ind] = 0;
-    }
-
     tca[ind] = currl->getThermalConductivity();
-    hcap = currl->getHeatCapacity();
-    pce = abs(currl->pce_f - currl->pce_t);
+    double hcap = currl->getHeatCapacity();
+    double pce = abs(currl->pce_f - currl->pce_t);
     hca[ind] = (pce + hcap);
     cn[ind] = tca[ind] / dx[ind];
     cap[ind] = hca[ind] * dx[ind];
     currl = currl->nextl;
   }
 
-  // the upper portion of the first front layer
-  double frntdz = ground->frontsz[0] - fstfntl->z;
+  // Bottom boundary: the upper portion of the first frontlayer
+  // Fill arrays for this frontlayer
+  ind = fstfntl->indl;
   int frnttype = ground->frontstype[0];
-  ind++;
-  t[ind] = fstfntl->tem;
+  if (frnttype == 1) { // Assume that the frontlayer temp is near zero
+    t[ind] = -zerodegc;  // freezing front, so top of layer < 0
+  } else {
+    t[ind] = zerodegc;  // thawing front, so top of layer > 0
+  }
+  double frntdz = ground->frontsz[0] - fstfntl->z; // Thickness of portion of layer above the front
   dx[ind] = frntdz;
-
   if (dx[ind] < mindzlay) {
     dx[ind] = mindzlay;
   }
   dx[ind] = temutil::NON_ZERO(dx[ind], 1);
-  
+  double hcap;
   if (frnttype == 1) {
     tca[ind] = fstfntl->getFrzThermCond();
     hcap = fstfntl->getFrzVolHeatCapa();
@@ -250,140 +262,91 @@ void TemperatureUpdator::processAboveFronts(Layer* fstvalidl, Layer*fstfntl,
     tca[ind] = fstfntl->getUnfThermCond();
     hcap = fstfntl->getUnfVolHeatCapa();
   }
-
-  pce = abs(fstfntl->pce_f-fstfntl->pce_t);
+  double pce = abs(fstfntl->pce_f-fstfntl->pce_t);
   hca[ind] = (pce + hcap);
   cn[ind] = tca[ind]  / dx[ind];
   cap[ind] = hca[ind] * dx[ind];
-  // bottom boundary layer - 'front' or 'frontl->nextl'
-  bool usefstfntl = usefntl;
-
-  if (fstfntl->nextl==NULL) {
-    usefstfntl=true;  //if there's no layer below 'fstfntl'
-  }
-
-  ind++;
-
-  if (usefstfntl) {
-    if (frnttype == 1) {  // 'freezing' front: above -, below +
-      t[ind] = -zerodegc;
-    } else {
-      t[ind] = zerodegc;
-    }
-  } else {
-    t[ind] = fstfntl->nextl->tem;
-  }
-
-  endind = ind;
   s[ind] = 0.;
   e[ind] = t[ind];
-  // iteration
+  endind = ind;
+
+  // Run the solver for these layers:
   iterate(startind, endind);
-  // pass the data to double-linked structure
-  ind = startind+1; //0 is a virtual layer for top boundary condition,
-                    //1 is the first layer
-  currl = fstvalidl;
 
-  while (currl != NULL) {
-    if (ind>endind-1) {
-      break;
-    }
-
-    currl->tem = tld[ind];
-    currl = currl->nextl;
-    ind++;
-  }
-
-  // checking
+  // Post-iteration: check for nans in the solver results array (tld)
   for (int il = startind; il <= endind; il++) {
     warn_bad_tld(il);
   }
+
+  // Update regular layers from solver results array, skipping extra virtual layer and frontlayer
+  currl = fstvalidl;
+  while (currl != NULL) {
+    if (currl->indl >= fstfntl->indl) {
+      break;
+    }
+    ind = currl->indl;
+    currl->tem = tld[ind];
+    currl = currl->nextl;
+  }
+
+  // Set the frontlayer temp based on zerodegc and frozenfrac
+  fstfntl->tem = -zerodegc + (1.0-fstfntl->frozenfrac) * (2.0* zerodegc); //Scale temp between -zerodegc and zerodegc based on frozenfrac
 
   }// Closes BOOST named scope
 }
 
 void TemperatureUpdator::processBetweenFronts(Layer*fstfntl, Layer*lstfntl,
-                                              const bool&adjfntl,
-                                              const bool&usefntl) {
+                                              int fstfntindex,
+                                              const bool&setfntl) {
   BOOST_LOG_NAMED_SCOPE("TemperatureUpdator::processBetweenFronts"){
 
-  int startind, endind;
-
-  if (lstfntl->indl - fstfntl->indl < 2) {
-    double ffstfntl = fstfntl->dz/(fstfntl->dz+lstfntl->dz);
-    fstfntl->nextl->tem = ffstfntl*fstfntl->tem+(1.0-ffstfntl)*lstfntl->tem;  // at this point, both 'fst-/lstfntl->tem' already known
+  if (lstfntl->indl - fstfntl->indl <= 1) { // Fronts are in adjacent layers or in the same layer; i.e. no layers between frontlayers
+    fstfntl->tem = -zerodegc + (1.0-fstfntl->frozenfrac) * (2.0* zerodegc); //Scale temps between -zerodegc and zerodegc based on frozenfrac
+    lstfntl->tem = -zerodegc + (1.0-lstfntl->frozenfrac) * (2.0* zerodegc);
     return;
   }
 
-  // pre-iteration
-  double frntdz1 = (fstfntl->z+fstfntl->dz) - ground->frontsz[0];
-  int frnttype1 = ground->frontstype[0];
-  double hcap = 0.;
-  double pce = 0.;
-  pce = abs(fstfntl->pce_f-fstfntl->pce_t);
-  // top boundary: a 'virtual' layer
-  int ind;
-  bool usefstfntl = usefntl;
-
-  if (fstfntl->prevl==NULL) {
-    usefstfntl=true;
-  }
-
-  ind = fstfntl->indl-1;
-
-  if (usefstfntl) {
-    if (frnttype1 == 1) {  // 'freezing' front: above -, below +
-      t[ind] = zerodegc;
-    } else {
-      t[ind] = -zerodegc;
-    }
-  } else {
-    Layer *prevl = fstfntl; //->prevl;
-    t[ind]  = prevl->tem;
-    cn[ind] = 1.0e2f; //assume very big thermal conductivity for
-                      //  this virtual layer
-    cap[ind]= 0.; // assume no heat capacity for this virtual layer
-  }
+  // Top boundary is the bottom part of the upper frontlayer
+  // Fill solver arrays for this frontlayer
+  int ind, startind, endind;
+  ind = fstfntl->indl;
 
   startind = ind;
+  int frnttype1 = ground->frontstype[fstfntindex];
+  if (frnttype1 == 1) {  // Assume that the frontlayer temp is near zero
+    t[ind] = zerodegc; // Freezing front: bottom of layer is > 0
+  } else {
+    t[ind] = -zerodegc; // Thawing front: bottom of layer is < 0
+  }
   e[ind] = t[ind];
   s[ind] = 0.;
-
-  // the bottom portion of the first front
-  if (!usefstfntl) {
-    ind++;
-    t[ind] = fstfntl->tem;
-  }
-
-  dx[ind] = frntdz1;
-
+  double frntdz1 = (fstfntl->z+fstfntl->dz) - ground->frontsz[fstfntindex];
+  dx[ind] = frntdz1; // Thickness of the portion of layer below the front
   if (dx[ind] < mindzlay) {
     dx[ind] = mindzlay;
   }
   dx[ind] = temutil::NON_ZERO(dx[ind], 1);
-
+  double hcap;
   if (frnttype1 == 1) {
-    tca[ind] = fstfntl->getUnfThermCond(); //freezing front's bottom
-                                           //  is 'Unfrozen'
-    cn[ind] = tca[ind] / dx[ind];
-    hca[ind] = (pce + fstfntl->getUnfVolHeatCapa());
-    cap[ind] = hca[ind] * dx[ind];
-  } else {      // thawing front's bottom is 'Frozen'
+    tca[ind] = fstfntl->getUnfThermCond();
+    hcap = fstfntl->getUnfVolHeatCapa();
+  } else {
     tca[ind] = fstfntl->getFrzThermCond();
-    cn[ind] = tca[ind] / dx[ind];
-    hca[ind] = (pce + fstfntl->getFrzVolHeatCapa());
-    cap[ind] = hca[ind] * dx[ind];
+    hcap = fstfntl->getFrzVolHeatCapa();
   }
+  double pce = abs(fstfntl->pce_f-fstfntl->pce_t);
+  hca[ind] = (pce + hcap);
+  cn[ind] = tca[ind]  / dx[ind];
+  cap[ind] = hca[ind] * dx[ind];
 
-  // layers of non-front containing, if any
+  // Middle layers:
+  // Fill solver arrays for regular layers between frontlayers
   Layer* currl = fstfntl->nextl;
-
   while (currl != NULL) {
     if (currl->indl >= lstfntl->indl) {
       break;
     }
-
-    ind++;
+    ind = currl->indl;
     t[ind] = currl->tem;
     dx[ind] = currl->dz;
     dx[ind] = temutil::NON_ZERO(dx[ind], 1);
@@ -396,281 +359,162 @@ void TemperatureUpdator::processBetweenFronts(Layer*fstfntl, Layer*lstfntl,
     currl = currl->nextl;
   }
 
-  // the upper portion of 'lstfntl'
+  // Bottom boundary is the top part of the lower frontlayer
+  // Fill solver arrays for this frontlayer
   ind++;
-  int numfnt = ground->frontstype.size();
-  double frntdz2;
-  int frnttype2;
-  if (numfnt > 0 ) {
-    frntdz2 = ground->frontsz[numfnt-1] - lstfntl->z;   //the upper portion of the last front
-    frnttype2 = ground->frontstype[numfnt-1];
+  int frnttype2 = ground->frontstype[fstfntindex+1];
+  if (frnttype2 == 1) {  // 'freezing' front: above < 0, below >0
+    t[ind] = -zerodegc;
   } else {
-    BOOST_LOG_SEV(glg, warn) << "Ground object has no fronts! Setting locals frntdz2 -> 0, fnrttype2 -> 0...";
-    frntdz2 = 0;
-    frnttype2 = 0;
+    t[ind] = zerodegc;
   }
-
-  dx[ind] = frntdz2;
-
+  double frntdz2 = ground->frontsz[fstfntindex+1] - lstfntl->z;
+  dx[ind] = frntdz2; // Thickness of the portion of layer above the front
   if (dx[ind] < mindzlay) {
     dx[ind] = mindzlay;
   }
   dx[ind] = temutil::NON_ZERO(dx[ind], 1);
-
   if (frnttype2 == 1) {
-    tca[ind] = lstfntl->getFrzThermCond(); //freezing front's above is 'Frozen'
-    cn[ind] = tca[ind] / dx[ind];
-    hca[ind] = (pce + lstfntl->getFrzVolHeatCapa());
-    cap[ind] = hca[ind] * dx[ind];
-  } else {  //thawing front's above is 'Unfrozen'
-    tca[ind] = lstfntl->getUnfThermCond();
-    cn[ind] = tca[ind] / dx[ind];
-    hca[ind] = (pce + lstfntl->getUnfVolHeatCapa());
-    cap[ind] = hca[ind] * dx[ind];
-  }
-
-  t[ind] = lstfntl->tem;
-  // bottom boundary layer - 'front' or 'frontl->nextl'
-  bool uselstfntl = usefntl;
-
-  if(lstfntl->nextl==NULL) {
-    uselstfntl=true;
-  }
-
-  ind++;
-
-  if (uselstfntl) {
-    if (frnttype2 == 1) {  // 'freezing' front: above -, below +
-      t[ind] = -zerodegc;
-    } else {
-      t[ind] = zerodegc;
-    }
+    tca[ind] = lstfntl->getFrzThermCond();
+    hcap = lstfntl->getFrzVolHeatCapa();
   } else {
-    t[ind] = lstfntl->nextl->tem;
+    tca[ind] = lstfntl->getUnfThermCond();
+    hcap = lstfntl->getUnfVolHeatCapa();
   }
-  endind = ind;
+  pce = abs(lstfntl->pce_f-lstfntl->pce_t);
+  hca[ind] = (pce + hcap);
+  cn[ind] = tca[ind]  / dx[ind];
+  cap[ind] = hca[ind] * dx[ind];
   s[ind] = 0.;
   e[ind] = t[ind];
-  //iteration
+  endind = ind;
+
+  // Run the solver for these layers:
   iterate(startind, endind);
 
-  // post-iteration
-  if (!usefstfntl) {
-    ind = startind+1; //'startind' is for top boundary,
-                      //  so exclusively for actual layers
-  } else {
-    ind = startind;
-  }
-
-  currl = fstfntl;
-
-  if (adjfntl) {
-    //'fstfntl' upper portion has already temporarily assigned
-    //  to the whole layer by this moment in 'processAboveFronts()'
-    if (frnttype1==1) {
-      currl->tem *= currl->frozenfrac;
-      currl->tem += tld[ind]*(1.-currl->frozenfrac);  // frozen/unfrozen fraction weighted for the 'fstfntl'
-    } else if (frnttype1==-1) {
-      currl->tem *= (1.0-currl->frozenfrac);
-      currl->tem += tld[ind]*currl->frozenfrac;  // frozen/unfrozen fraction weighted for the 'fstfntl'
-    }
-  } else {
-    currl->tem = tld[ind];
-  }
-
-  currl = fstfntl->nextl;
-
-  while (currl != NULL) {
-    if (currl->indl >= lstfntl->indl) {
-      break;  // temperature for layers in between two 'front' containing layers only
-    }
-
-    ind++;
-    currl->tem = tld[ind];
-    currl = currl->nextl;
-  }
-
-  currl = lstfntl;
-  ind++; //if above 'ind' counts well, no need to use
-         //  'lstfntl->indl' to avoid array boundary issue
-
-  if (adjfntl) {
-    //'lstfntl' bottom portion has already temporarily assigned
-    //  to the whole layer by this moment in 'processBelowFronts()'
-    if (frnttype2==1) {   //freezing front: upper portion is frozen
-      currl->tem *= currl->frozenfrac;
-      currl->tem += tld[ind]*(1.-currl->frozenfrac);  // frozen/unfrozen fraction weighted for the 'lstfntl'
-    } else if (frnttype2==-1) {
-      currl->tem *= (1.0-currl->frozenfrac);
-      currl->tem += tld[ind]*currl->frozenfrac;  // frozen/unfrozen fraction weighted for the 'lstfntl'
-    }
-  } else {
-    currl->tem = tld[ind];
-  }
-
+  // Post-iteration: check for nans in the solver results array (tld)
   for (int il = startind; il <= endind; il++) {
     warn_bad_tld(il);
   }
 
+  // Update layer temperatures from solver results array.
+  // Note that upper frontlayer tem has already been updated by either
+  // processAboveFronts or by a previous pass of processBetweenFronts
+  // so it is not updated here.
+
+  // Update temps of regular middle layers between frontlayers
+  currl = fstfntl->nextl;
+  while (currl != NULL) {
+    if (currl->indl >= lstfntl->indl) {
+      break;
+    }
+    ind = currl->indl;
+    currl->tem = tld[ind];
+    currl = currl->nextl;
+  }
+
+  // Set lstfntl->tem based on frozenfrac
+  // If setfntl is false, frontlayer temp was already updated by processBelowFronts.
+  if (setfntl) {
+    currl = lstfntl;
+    currl->tem = -zerodegc + (1.0-currl->frozenfrac) * (2.0* zerodegc); //Scale temps between -zerodegc and zerodegc based on frozenfrac
+  }
   }// Closes BOOST named scope
 }
 
-void TemperatureUpdator::processBelowFronts(Layer* backl, Layer*lstfntl,
-                                            const bool &adjfntl,
-                                            const bool &usefntl) {
+void TemperatureUpdator::processBelowFronts(Layer*lstfntl,
+                                            const bool &setfntl) {
   BOOST_LOG_NAMED_SCOPE("TemperatureUpdator::processBelowFronts"){
 
-  int startind, endind;
-  // pre-iteration
-  int numfnt = ground->frontsz.size();
-  double frntdz;
-  int frnttype;
-  if (numfnt > 0 ) {
-    frntdz = (lstfntl->z+lstfntl->dz) - ground->frontsz[numfnt-1];
-    frnttype = ground->frontstype[numfnt-1];
-  } else {
-    BOOST_LOG_SEV(glg, warn) << "Ground object has no fronts! Setting locals frntdz -> 0, fnrttype -> 0...";
-    frntdz = 0;
-    frnttype = 0;
-  }
-  double hcap = 0.;
-  double pce = 0.;
-  pce = abs(lstfntl->pce_f-lstfntl->pce_t);
-  // top boundary: a 'virtual' layer
-  int ind;
-  bool uselstfntl = usefntl;
-
-  if (lstfntl->prevl==NULL) {
-    uselstfntl=true;
+  if(lstfntl == ground->lstsoill){ // Front is in the bottom layer, so nothing to iterate. Just set frontlayer temp.
+    //Scale frontlayer temp between -zerodegc and zerodegc based on frozenfrac
+    lstfntl->tem = -zerodegc + (1.0-lstfntl->frozenfrac) * (2.0* zerodegc);
+    return;
   }
 
-  ind = lstfntl->indl-1;
-
-  if (uselstfntl) {
-    if (frnttype == 1) {  // 'freezing' front: above -, below +
-      t[ind] = zerodegc;
-    } else {
-      t[ind] = -zerodegc;
-    }
-  } else {
-    Layer *prevl = lstfntl; //->prevl;
-    t[ind]   = prevl->tem;
-    cn[ind] = 1.0e2; //assume very big thermal conductivity
-                     //  for this virtual layer
-    cap[ind]= 0.; //assume no heat capacity for this virtual layer
-  }
+  // Top boundary is the bottom part of the lowest frontlayer
+  // Fill solver arrays for this layer
+  int ind, startind, endind;
+  ind = lstfntl->indl;
 
   startind = ind;
-  e[ind] = 0.;
-  s[ind] = t[ind];
-
-  // bottom portion of 'lstfntl'
-  if (!uselstfntl) {
-    ind++;
-    t[ind] = lstfntl->tem;
+  int numfnt = ground->frontsz.size();
+  int frnttype = ground->frontstype[numfnt-1];
+  if (frnttype == 1) {  // Assume that the frontlayer temp is near zero
+    t[ind] = zerodegc; // Freezing front: bottom of layer is > 0
+  } else {
+    t[ind] = -zerodegc; // Thawing front: bottom of layer is < 0
   }
-
-  dx[ind] = lstfntl->dz*frntdz;
+  e[ind] = t[ind];
+  s[ind] = 0.;
+  double frntdz = (lstfntl->z+lstfntl->dz) - ground->frontsz[numfnt-1];
+  dx[ind] = frntdz; // Thickness of the portion of layer below the front
   if (dx[ind] < mindzlay) {
     dx[ind] = mindzlay;
   }
   dx[ind] = temutil::NON_ZERO(dx[ind], 1);
-
-
-
+  double hcap;
   if (frnttype == 1) {
     tca[ind] = lstfntl->getUnfThermCond();
-    cn[ind] = tca[ind] / dx[ind];
-    hca[ind] = (pce + lstfntl->getUnfVolHeatCapa());
-    cap[ind] = hca[ind] * dx[ind];
-  } else if (frnttype == -1) {
+    hcap = lstfntl->getUnfVolHeatCapa();
+  } else {
     tca[ind] = lstfntl->getFrzThermCond();
-    cn[ind] = tca[ind] / dx[ind];
-    hca[ind] = (pce + lstfntl->getFrzVolHeatCapa());
-    cap[ind] = hca[ind] * dx[ind];
+    hcap = lstfntl->getFrzVolHeatCapa();
   }
+  double pce = abs(lstfntl->pce_f-lstfntl->pce_t);
+  hca[ind] = (pce + hcap);
+  cn[ind] = tca[ind] / dx[ind];
+  cap[ind] = hca[ind] * dx[ind];
 
-  // non-front containing layer(s), if any
+  // Lower layers:
+  // Fill solver arrays for regular layers below frontlayer
   Layer* currl = lstfntl->nextl;
-
   while (currl != NULL) {
-    ind++;
+    ind = currl->indl;
     t[ind] = currl->tem;
     dx[ind] = currl->dz;
     dx[ind] = temutil::NON_ZERO(dx[ind], 1);
-
     tca[ind] = currl->getThermalConductivity();
     hcap = currl->getHeatCapacity();
     pce = abs(currl->pce_f - currl->pce_t);
     hca[ind] = pce + hcap;
-    cn[ind] = tca[ind] / dx[ind];
+    cn[ind] = tca[ind]/dx[ind];
     cap[ind] = hca[ind] * dx[ind];
     currl = currl->nextl;
   }
 
-  // bottom boundary 'virtual' layer
+  // The bottom boundary layer is an extra, virtual layer
+  // Fill solver arrays for this layer:
   ind++;
-  endind = ind;
   double gflx = 0.0;  // no bottom heat flux assumed
   t[ind] = t[ind-1] + gflx/(tca[ind-1]) * dx[ind-1];
   s[ind] = 0.;
   e[ind] = t[ind];
-  //iteration
+  endind = ind;
+
+  // Run these layers in the solver
   iterate(startind, endind);
 
-  // post-iteration process
-  if (!uselstfntl) {
-    ind = startind+1; //'startind' is for top boundary,
-                      //  so exclusively for actual layers
-  } else {
-    ind = startind;
-  }
-
-  currl = lstfntl;
-
-  if (adjfntl) {
-    //'lstfntl' upper portion has already temporarily assigned
-    //  to the whole layer by this moment in 'processAboveFronts'
-    //ONLY if 'fstfntl' and 'lstfntl' are exactly one layer, so be
-    //  cautious when input 'adjfntl'
-    int frntnum = ground->frontstype.size();
-
-    if (frntnum > 0) {
-      if (ground->frontstype[frntnum-1]==1) { //freezing front: upper portion is frozen
-        currl->tem *= currl->frozenfrac;
-        currl->tem += tld[ind]*(1.-currl->frozenfrac); //frozen/unfrozen fraction weighted for the 'lstfntl'
-      } else if (ground->frontstype[frntnum-1]==-1) {
-        currl->tem *= (1.0-currl->frozenfrac);
-        currl->tem += tld[ind]*currl->frozenfrac;  //frozen/unfrozen fraction weighted for the 'lstfntl'
-      }
-    } else {
-      BOOST_LOG_SEV(glg, warn) << "Nothing to do! !(ground->frontstype.size() > 0) so no fronts to handle...";
-    }
-
-  } else {
-    currl->tem = tld[ind];
-  }
-
-  ind++;
-  currl = lstfntl->nextl;
-
-  while (currl != NULL) {
-    currl->tem = tld[ind];
-    currl = currl->nextl;
-    ind++;
-
-    if (ind>endind-1) {
-      ind=endind-1; //endind is a virtual layer for bottom boundary,
-                    // so any layer below just taking the
-                    // 'tld[ending-1]' all the ime
-    }
-  }
-
-  // checking
+  // Post-iteration: check for nans in the solver results array
   for (int il = startind; il <= endind; il++) {
     warn_bad_tld(il);
   }
 
+  // Update layer temperatures from solver results array.
+  // First, set lstfntl->tem based on frozenfrac
+  // If setnftl is false, the frontlayer temp was already updated
+  // by processAboveFronts or processBetweenFronts.
+  if (setfntl) {
+    currl = lstfntl;
+    currl->tem = -zerodegc + (1.0-currl->frozenfrac) * (2.0* zerodegc); //Scale temps between -zerodegc and zerodegc based on frozenfrac
+  }
+  // Update temps of regular layers below frontlayer
+  currl = lstfntl->nextl;
+  while (currl != NULL) {
+    ind = currl->indl;
+    currl->tem = tld[ind];
+    currl = currl->nextl;
+  }
   }// Closes BOOST named scope
 }
 

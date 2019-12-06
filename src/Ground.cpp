@@ -737,9 +737,9 @@ void Ground::updateLayerIndex() {
 
     if(currl->isSoil) {
       sind++;
+      currl->solind = sind;
     }
 
-    currl->solind = sind;
     currl =currl->nextl;
   }
 };
@@ -1508,7 +1508,14 @@ void Ground::splitOneSoilLayer(SoilLayer*usl, SoilLayer* lsl,
     double slz = lsl->z+0.5*lsl->dz;
     lsl->tem = (slz-nxlz) * gradient + nxltem;
     ulz = usl->z+0.5*usl->dz;
-    usl->tem = (ulz-nxlz) * gradient + nxltem;
+    if(usl->prevl == NULL){ //if no prevl, use same gradient
+      usl->tem = (ulz-nxlz) * gradient + nxltem;
+    } else { //otherwise incorporate prevl temp
+      double pltem = usl->prevl->tem;
+      double plz = usl->prevl->z + 0.5 * usl->prevl->dz;
+      gradient = (pltem - lsl->tem) / (plz - slz);
+      usl->tem = (ulz-slz) * gradient + lsl->tem;
+    }
   }
 
   // after division, needs to update 'usl' and 'lsl'- 'frozen/frozenfrac'
@@ -1783,12 +1790,8 @@ void Ground::getLayerFrozenstatusByFronts(Layer * soill) {
   if (soill==NULL) {
     return;
   }
-
   int fntnum = frontsz.size();
-
-  if (fntnum<=0                         // no front, OR,
-      || (soill->z > frontsz.back())    // all fronts above the 'soill', OR,
-      || ((soill->z+soill->dz) <= frontsz.front())) {// all fronts below the 'soill'
+  if (fntnum<=0) { // no fronts exist, use temp to assign frozen status
     if (soill->tem > 0.) {
       soill->frozen = -1;
       soill->frozenfrac = 0.;
@@ -1796,53 +1799,61 @@ void Ground::getLayerFrozenstatusByFronts(Layer * soill) {
       soill->frozen = 1;
       soill->frozenfrac = 1.;
     }
-  } else { // possible to have front(s) within 'soill'
-    double fracfrozen = 0.;
-    double dzabvfnt   = 0.;
-    int fntind = 0;
-
-    while (fntind<fntnum) {
-      double fntz = frontsz[fntind];
-      int fnttype = frontstype[fntind];
-
-      if (fntz>soill->z && fntz<=soill->z+soill->dz) {
-        soill->frozen = 0;
-        double dzfnt = fntz-soill->z; //the distance of the 'fntind'th front
-                                      //  from the 'currl->z'
-
-        if (fnttype==1) { //freezing front: from this front up to the neibored
-                          //  previous front IS frozen portion
-          fracfrozen += (dzfnt - dzabvfnt);
-
-        } else if (fnttype==-1  //thawing front without following freezing
-                                //  front in the 'currl'
-                   && ( (fntind==fntnum-1) //thawing front already the last
-                                           //  one in the deque
-                   || (fntind<fntnum-1
-                       && frontsz[fntind+1]>(soill->z+soill->dz)))) { // the following (freezing) front out of 'currl'
-          fracfrozen += soill->dz - dzfnt;
-        }
-
-        dzabvfnt = dzfnt; //update the upper front 'dz' for following front
-      } else {
-        if (fntz<=soill->z) {
-          soill->frozen = -fnttype;
-
+    return;
+  }
+  else { // fronts exist somewhere in the soil column
+    bool hasfront = false;
+    for (int ii=0; ii<fntnum; ii++){ // check for fronts in this layer
+      if(frontsz[ii] >= soill->z && frontsz[ii] <= soill->z + soill->dz){
+        hasfront = true;
+        break;
+      }
+    }
+    if (!hasfront){ // no fronts in this layer
+      for (int fntind=0; fntind<fntnum; fntind++){
+        if (frontsz[fntind]<=soill->z) { // cycle through any fronts above layer; the lowest one will give the correct status
+          soill->frozen = -frontstype[fntind];
           if (soill->frozen==1) {
-            fracfrozen = soill->dz;
+            soill->frozenfrac = 1.0;
+          } else {
+            soill->frozenfrac = 0.0;
           }
         }
-
-        if (fntz>soill->z+soill->dz) {
-          break;
+        if (frontsz[fntind]>soill->z+soill->dz) { // for any fronts below layer
+          soill->frozen = frontstype[fntind];
+          if (soill->frozen==1){
+            soill->frozenfrac = 1.0;
+          } else {
+            soill->frozenfrac = 0.0;
+          }
+          break; // only check the highest front below the layer since others will give incorrect status
         }
       }
-
-      fntind++;
-    } // end of loop 'frontsz' deque
-
-    soill->frozenfrac = fracfrozen/soill->dz;
-  } // end of possible front existing in the 'soill'
+    }
+    else { // one or more fronts are in this soil layer
+      double fracfrozen = 0.;
+      double dzabvfnt = 0.;
+      for (int fntind=0; fntind<fntnum; fntind++){
+        double fntz = frontsz[fntind];
+        int fnttype = frontstype[fntind];
+        if(fntz > soill->z && fntz <= (soill->z + soill->dz)){ // if this front in this layer
+          soill->frozen = 0;
+          double dzfnt = fntz-soill->z; //the distance of the 'fntind'th front from the soill->z
+          if (fnttype==1) { // freezing front: from this front up to the neighboring
+                            //  previous front IS frozen portion
+            fracfrozen += (dzfnt - dzabvfnt);
+          } else if (fnttype==-1  //thawing front and
+                     && ( (fntind==fntnum-1) // it's the last front in the deque
+                       || (fntind<fntnum-1 // or it's not the last front in the deque but
+                         && frontsz[fntind+1]>(soill->z+soill->dz)))) { // the following front isn't in this layer
+              fracfrozen += soill->dz - dzfnt;
+          }
+          dzabvfnt = dzfnt; //update the upper front 'dz' for following front
+          soill->frozenfrac = fracfrozen/soill->dz; // update soill frozenfrac
+        }
+      } // end loop through fronts
+    } // end else fronts exist in this layer
+  } // end else fronts exist in column
 }
 
 
@@ -1851,7 +1862,7 @@ void Ground::setDrainL() {
   draindepth = 0.;
   drainl = NULL;
 
-  if(ststate == 0){
+  if(ststate == 0 && fstsoill->frozen < 1){
     //check for existence of fronts
     if(fstfntl != NULL && !fstfntl->isMoss){
       drainl = fstfntl;
@@ -1866,9 +1877,9 @@ void Ground::setDrainL() {
   }
   else if(ststate == -1){
     //soil stack is completely thawed, so
-    //set drain depth to the top of the first rock layer
-    draindepth = lstminel->nextl->z;
-    drainl = lstminel->nextl;
+    //set drain depth to the bottom of the soil stack
+    draindepth = lstsoill->z + lstsoill->dz;
+    drainl = lstsoill;
   }
 
 };
@@ -2253,11 +2264,11 @@ void Ground::checkWaterValidity() {
                                 << " is fully frozen but has liquid water";
       }
 
-      // maybe from some mathematical round up? so '1.0e-3 is used as critical
-      if ((currl->ice-currl->maxice) > 1.0e-3) {
+      // maybe from some mathematical round up or small disagreements btw density dz and melt/sublimation dz
+      if ((currl->ice-currl->maxice) > 0.01) {
         if(currl->isSnow){
-          BOOST_LOG_SEV(glg, warn) << "Snow layer " << currl->indl
-                                   << " has too much ice";
+          BOOST_LOG_SEV(glg, warn) << "Snow layer " << currl->indl << " has "
+                                   << currl->ice-currl->maxice << " kg/m2 too much ice";
 
         }
         else{
@@ -2274,8 +2285,8 @@ void Ground::checkWaterValidity() {
       }
 
       if ((currl->liq-currl->maxliq)>1.e-6 && currl->isSoil) {
-        BOOST_LOG_SEV(glg, warn) << "Layer " << currl->indl
-                                << " has too much liquid water";
+        BOOST_LOG_SEV(glg, warn) << "Layer " << currl->indl << " (soil) "
+                                << " has "<< currl->liq-currl->maxliq <<" mm too much liquid water";
       }
     }
 
@@ -2285,7 +2296,7 @@ void Ground::checkWaterValidity() {
 
       if ((currl->liq-maxwat) > 1.e-6) {
         BOOST_LOG_SEV(glg, warn) << "Layer " << currl->indl << " (soil) "
-                                << "has too much liquid water";
+                                << " has "<< currl->liq-maxwat <<" mm too much liquid water";
       }
 
       // adjust max. ice by liq occupied space

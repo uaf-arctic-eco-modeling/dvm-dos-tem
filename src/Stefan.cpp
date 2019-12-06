@@ -48,7 +48,11 @@ void Stefan::updateFronts(const double & tdrv, const double &timestep) {
   // find the new front
   double newfntz1 = 0.;
   Layer * currl=NULL;
-  currl = toplayer;
+  if(ground->fstsoill->tem >0){ // if e.g. yesterday's tempupdater pushed the soil surface temp above zero
+    currl = ground->fstsoill; // skip any snow layers and force stefan to work in the soil
+  } else {
+    currl = toplayer; // otherwise, work in the snow layers (if any)
+  }
 
   while(currl!=NULL && dse>0.) {
     if(currl->isRock) {
@@ -94,7 +98,7 @@ void Stefan::updateFronts(const double & tdrv, const double &timestep) {
   combineExtraFronts(); //it is possible that there are too many fronts exist
                         //  to hold in 'ed's 'frontz' and 'fronttype', so
                         //  combine them if there are too many
-  updateLayerFrozenState(ground->toplayer); //this must be done before
+  updateLayerFrozenState(ground->toplayer, freezing1); //this must be done before
                                             //  the following call
   updateWaterAfterFront(ground->toplayer); //after fronts processed, need to
                                            //  update 'ice' and 'liq' water in
@@ -182,12 +186,13 @@ void Stefan::processNewFrontSoilLayerDown(const int &freezing,
   if (dz<=0.0001*sl->dz) { //this will avoid 'front' exactly falling on the
                            //  boundary between layers that causes a lot of
                            //  mathematical issues
-    newfntz = sl->z;
-    return;
+    dz = 0.0001*sl->dz;
   }
 
   dsn = getDegSecNeeded(dz, volwat, tkfront, sumrescum);
-  dsn += abs(sl->tem)*timestep;
+  if(sl->tem < 0){ //if layer below 0, include energy needed to bring layer to 0 before thawing
+    dsn += abs(sl->tem)*timestep;
+  }
 
   if(dse>=dsn) {
     //whole layer will be frozen or unfrozen, and a new
@@ -237,7 +242,7 @@ void Stefan::processNewFrontSoilLayerDown(const int &freezing,
         } else {
           // for the opposite type front
           if (partdleft<fntdz) {
-            newfntdz = fntdz+partdleft; //adding a new front before
+            newfntdz = partdleft; //adding a new front before
                                         //  the current front
             partdleft = 0.; // using up all left 'partd'
           } else {
@@ -273,7 +278,7 @@ void Stefan::processNewFrontSoilLayerDown(const int &freezing,
 // Put the new front in two 'deque', if moving downwardly
 void Stefan::frontsDequeDown(const double &newfntz, const int &newfnttype) {
   // new front deeper than column depth, it will sweep all fronts
-  if (newfntz>=ground->botlayer->z+ground->botlayer->dz) {
+  if (newfntz>=ground->lstminel->z+ground->lstminel->dz) {
     ground->frontstype.clear();
     ground->frontsz.clear();
     return;
@@ -651,7 +656,7 @@ void Stefan::combineExtraFronts() {
 //update frozen status and the fraction of frozen portion (thickness) for
 //  each layer in a column, based on two fronts deques: 'ground->frontsz'
 //  and 'ground->frontstype'
-void Stefan::updateLayerFrozenState(Layer * toplayer) {
+void Stefan::updateLayerFrozenState(Layer * toplayer, const int freezing1) {
   int fntnum = ground->frontsz.size();
   Layer *currl = toplayer;
 
@@ -667,9 +672,13 @@ void Stefan::updateLayerFrozenState(Layer * toplayer) {
     double fntoutdz = MISSING_D;
 
     for (int i=0; i<fntnum; i++) {
-      double dz=ground->frontsz[i]-currl->z;
-
-      if (dz>0. && dz<=currl->dz) {
+      double dz; // distance from currl->z to front location, positive when front is below z.
+      if(currl->isSnow){
+        dz = ground->frontsz[i] + currl->z; // Because snow layer z is distance ABOVE ground surface
+      } else {
+        dz=ground->frontsz[i]-currl->z;
+      }
+      if (dz>0. && dz<=currl->dz && currl->isSoil) {
         fntintype.push_back(ground->frontstype[i]);
         fntindz.push_back(ground->frontsz[i]-currl->z);
       } else {
@@ -713,12 +722,16 @@ void Stefan::updateLayerFrozenState(Layer * toplayer) {
           currl->frozen = -fntouttype;
         }
       } else { // no front at all
-        if (currl->tem>0.) {
-          currl->frozen = -1;
+        if (currl->frozen==0 && currl->isSoil){ //suggests that this was a front layer but fronts have been swept out
+          currl->frozen = freezing1; // in this case, assume the layer now matches overall forcing.
         }
-
-        if (currl->tem<=0.) {
+        else{
+          if (currl->tem>0.) {
+            currl->frozen = -1;
+          }
+          if (currl->tem<=0.) {
           currl->frozen = 1;
+          }
         }
       }
 

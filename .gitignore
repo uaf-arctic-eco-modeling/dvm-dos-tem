@@ -44,6 +44,7 @@ Debug/*
 .sconsign.dblite
 
 # Ignore hidden vagrant directory
+
 .vagrant/*
 
 # assorted temporary stuff

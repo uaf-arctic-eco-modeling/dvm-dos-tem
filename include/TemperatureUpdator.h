@@ -90,15 +90,15 @@ private:
   void warn_bad_tld(const int idx);
 
 
-  void processColumnNofront(Layer* frontl, Layer *backl,
+  void processColumnNofront(Layer* frontl,
                             const double & tdrv, const bool & meltsnow);
 
   void processAboveFronts(Layer* frontl, Layer*fstfntl, const double & tdrv,
-                          const bool & meltsnow, const bool &usefntl);
-  void processBelowFronts(Layer *backl, Layer*lstfntl,
-                          const bool &adjfntl, const bool &usefntl);
-  void processBetweenFronts(Layer*fstfntl, Layer*lstfntl,
-                            const bool &adjfntl, const bool &usefntl);
+                          const bool & meltsnow);
+  void processBelowFronts(Layer*lstfntl,
+                          const bool &setfntl);
+  void processBetweenFronts(Layer*fstfntl, Layer*lstfntl, int fstfntindex,
+                            const bool &setfntl);
 
   void iterate(const int &startind, const int &endind);
   int updateOneTimeStep(const int &startind, const int & endind);
