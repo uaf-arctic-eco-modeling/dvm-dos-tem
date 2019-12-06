@@ -645,6 +645,114 @@ def enforce_initvegc_split(aFile, cmtnum):
 
   return dd
 
+def get_ecosystem_total_C(cmtstr, ref_params_dir):
+  
+
+  veg_param_file = os.path.join(os.path.abspath(ref_params_dir), 'cmt_bgcvegetation.txt')
+  soil_param_file = os.path.join(os.path.abspath(ref_params_dir), 'cmt_bgcsoil.txt')
+
+  # First start with the vegetation numbers
+  d = get_CMT_datablock(veg_param_file, int(cmtstr.upper().lstrip('CMT')))
+  dd = cmtdatablock2dict(d)
+
+  vegC = 0.0
+  for pft in ['pft{}'.format(i) for i in range(0,10)]:
+    
+    if dd[pft]['name'].lower() in 'none,misc,misc.,pft0,pft1,pft2,pft3,pft4,pft5,pft6,pft7,pft8,pft9'.split(","):
+      pass # This PFT is not defined for this community
+      # This is probably unnecessary because generally un-defined PFTs have all 
+      # zero values...
+    else:
+      vegC += dd[pft]['initvegcl']
+      vegC += dd[pft]['initvegcw']
+      vegC += dd[pft]['initvegcr']
+
+  # Now load up the soil numbers
+  d = get_CMT_datablock(soil_param_file, int(cmtstr.upper().lstrip('CMT')))
+  dd = cmtdatablock2dict(d)
+
+  soilC = 0.0
+  soilC += dd['initshlwc']
+  soilC += dd['initdeepc']
+  soilC += dd['initminec']
+
+  return vegC + soilC
+
+
+def percent_ecosys_contribution(cmtstr, tname=None, pftnum=None, compartment=None, ref_params_dir=None):
+
+  pec = 1.0 # Start by assuming everythign has a contribution of 1
+  total_C = get_ecosystem_total_C(cmtstr, ref_params_dir)
+
+  veg_param_ref_file = os.path.join(os.path.abspath(ref_params_dir), 'cmt_bgcvegetation.txt')
+
+  if tname == 'OrganicNitrogenSum' or tname == 'AvailableNitrogenSum':
+    # These parameters are in cmt_bgcsoil.txt as 'initsoln' and 'initavln'
+    # but I am not sure what to do with them yet...
+    pec = 1.0
+
+  if tname in ['MossDeathC','CarbonShallow','CarbonDeep','CarbonMineralSum']:
+    pec = 1.0
+
+  if pftnum is not None and compartment is None:
+
+    d = get_CMT_datablock(veg_param_ref_file, int(cmtstr.upper().lstrip('CMT')))
+    dd = cmtdatablock2dict(d)
+
+    pftstr = 'pft{}'.format(pftnum)
+    pft_total_init_c = dd[pftstr]['initvegcl'] + dd[pftstr]['initvegcw'] + dd[pftstr]['initvegcr']
+    pec = pft_total_init_c / total_C
+
+  if pftnum is not None and compartment is not None:
+    total = get_ecosystem_total_C(cmtstr, ref_params_dir)
+
+    d = get_CMT_datablock(veg_param_ref_file, int(cmtstr.upper().lstrip('CMT')))
+    dd = cmtdatablock2dict(d)
+    pftstr = 'pft{}'.format(pftnum)
+
+    if compartment == 'Leaf':
+      c = 'initvegcl'
+    elif compartment == 'Stem':
+      c = 'initvegcw'
+    elif compartment == 'Root':
+      c = 'initvegcr'
+    else:
+      raise RuntimeError("Invalid compartment specification: {}! Must be one of Leaf, Stem Root".format(compartment)) 
+
+    pec = dd[pftstr][c] / total_C
+
+  #print "cmtstr: {}  tname: {}  pftnum: {}  compartment: {}  PEC: {}".format(cmtstr, tname, pftnum, compartment, pec)
+  return pec
+
+def is_ecosys_contributor(cmtstr, pftnum=None, compartment=None, ref_params_dir=None):
+
+  pftstr = 'pft{}'.format(pftnum)
+
+  d = get_CMT_datablock(os.path.join(os.path.abspath(ref_params_dir), 'cmt_bgcvegetation.txt'), int(cmtstr.upper().lstrip('CMT')))
+  dd = cmtdatablock2dict(d)
+
+  is_contrib = True
+
+  if pftnum is not None:
+
+    if dd[pftstr]['name'].lower() in 'none,misc,misc.,pft0,pft1,pft2,pft3,pft4,pft5,pft6,pft7,pft8,pft9'.split(","):
+      is_contrib = False
+    else:
+      
+      if compartment is not None:
+        if compartment == 'Leaf':
+          c = 'initvegcl'
+        elif compartment == 'Stem':
+          c = 'initvegcw'
+        elif compartment == 'Root':
+          c = 'initvegcr'
+        else:
+          raise RuntimeError("Invalid compartment specification: {}! Must be one of Leaf, Stem Root".format(compartment))    
+
+        if dd[pftstr][c] <= 0.0:
+          is_contrib = False
+
+  return is_contrib
 
 
 
