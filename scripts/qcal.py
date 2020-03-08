@@ -52,9 +52,9 @@ def qcal_rank2(truth, value):
 
 def measure_calibration_quality_nc(output_directory_path, ref_targets_dir, ref_param_file):
 
-  print "************* WORKING WITH NETCDF FILES ***********"
-  print ""
-  print "WARNING !!! WARNING !!! WARNING !!! HARDCODED CMT NUMBER!!"
+  print("************* WORKING WITH NETCDF FILES ***********")
+  print("")
+  print("WARNING !!! WARNING !!! WARNING !!! HARDCODED CMT NUMBER!!")
   cmtkey = 'CMT05'
 
   #print "CMT:", cmtkey
@@ -85,7 +85,7 @@ def measure_calibration_quality_nc(output_directory_path, ref_targets_dir, ref_p
 
     
     data, dims = ou.get_last_n_eq(ncname, 'yearly', output_directory_path)
-    dsizes, dnames = zip(*dims)
+    dsizes, dnames = list(zip(*dims))
 
     #print ctname, output_directory_path, ncname, dims, dnames, dsizes
 
@@ -182,11 +182,11 @@ class QCal(object):
     # importing targets from another user's directory. This is probably some 
     # awful gaping security hole, but we are going to ignore that for now...
     if not os.path.isfile(os.path.join(ref_targets_dir,  'calibration_targets.py')):
-      print "ERROR: Can't find calibration_targets.py in {}".format(ref_targets_dir)
+      print("ERROR: Can't find calibration_targets.py in {}".format(ref_targets_dir))
       sys.exit(-1)
     else:
       if not os.path.isfile(os.path.join(ref_targets_dir, '__init__.py')):
-        print "WARNING: No __init__.py python package file present. Copying targets to a temporary location for facilitate import"
+        print("WARNING: No __init__.py python package file present. Copying targets to a temporary location for facilitate import")
         mkdir_p(os.path.join('/tmp/', 'dvmdostem-user-{}-tmp-cal'.format(os.getuid())))
         shutil.copy(os.path.join(ref_targets_dir, 'calibration_targets.py'), os.path.join('/tmp/', 'dvmdostem-user-{}-tmp-cal'.format(os.getuid())))
         with open(os.path.join('/tmp/','dvmdostem-user-{}-tmp-cal'.format(os.getuid()),'__init__.py'), 'w') as f:
@@ -194,24 +194,24 @@ class QCal(object):
 
         old_path = sys.path
         sys.path = [os.path.join('/tmp/','dvmdostem-user-{}-tmp-cal'.format(os.getuid()))]
-        print "Loading calibration_targets from : {}".format(sys.path)
+        print("Loading calibration_targets from : {}".format(sys.path))
         import calibration_targets as ct
-        caltargets = {'CMT{:02d}'.format(v['cmtnumber']):v for k, v in ct.calibration_targets.iteritems()}
+        caltargets = {'CMT{:02d}'.format(v['cmtnumber']):v for k, v in iter(ct.calibration_targets.items())}
         del ct
 
-        print "Cleaning up temporary targets and __init__.py file used for import..."
+        print("Cleaning up temporary targets and __init__.py file used for import...")
         shutil.rmtree(os.path.join('/tmp/','dvmdostem-user-{}-tmp-cal'.format(os.getuid())))
-        print "Resetting path..."
+        print("Resetting path...")
         sys.path = old_path
 
       else:
         old_path = sys.path
         sys.path = [os.path.join(ref_targets_dir, 'calibration')]
-        print "Loading calibration_targets from : {}".format(sys.path)
+        print("Loading calibration_targets from : {}".format(sys.path))
         import calibration_targets as ct
-        caltargets = {'CMT{:02d}'.format(v['cmtnumber']):v for k, v in ct.calibration_targets.iteritems()}
+        caltargets = {'CMT{:02d}'.format(v['cmtnumber']):v for k, v in iter(ct.calibration_targets.items())}
         del ct
-        print "Resetting path..."
+        print("Resetting path...")
         sys.path = old_path
 
 
@@ -264,7 +264,7 @@ class QCal(object):
 def measure_calibration_quality_json(file_list, ref_params_dir=None, ref_targets={}):
 
   assert(type(ref_targets == dict))
-  assert(len(ref_targets.keys()) > 0)
+  assert(len(list(ref_targets.keys())) > 0)
 
 
   #print "************* WORKING WITH JSON FILES ***********"
@@ -288,7 +288,7 @@ def measure_calibration_quality_json(file_list, ref_params_dir=None, ref_targets
       d += jdata[v]/float(len(file_list))
 
     if np.isclose(ref_targets[cmtkey][v], 0.0):
-      print "WARNING! Target value for {} is zero! Is this a problem???".format(v)
+      print("WARNING! Target value for {} is zero! Is this a problem???".format(v))
       qcr = np.abs(0.0 + d)
     else:
       qcr = np.abs(qcal_rank(ref_targets[cmtkey][v], d))
@@ -353,7 +353,7 @@ def print_report(jdata, caltargets):
   for v in 'MossDeathC,CarbonShallow,CarbonDeep,CarbonMineralSum,OrganicNitrogenSum,AvailableNitrogenSum'.split(','):
     pec = pu.percent_ecosys_contribution(cmtkey, v, ref_params_dir=ref_params_dir)
     qcr = qcal_rank(caltargets[cmtkey][v], jdata[v])
-    print "{} {}".format(pec, qcr)
+    print("{} {}".format(pec, qcr))
 
   for ipft, pft in enumerate(['PFT{}'.format(i) for i in range(0,10)]):
     if pu.is_ecosys_contributor(cmtkey, ipft):
@@ -361,7 +361,7 @@ def print_report(jdata, caltargets):
         pec = pu.percent_ecosys_contribution(cmtkey, v, pftnum=ipft, ref_params_dir=ref_params_dir)
         qcr = qcal_rank(caltargets[cmtkey][v][ipft], jdata[pft][v])
 
-        print "{} {}".format(pec, qcr)
+        print("{} {}".format(pec, qcr))
 
     for cmprt in ['Leaf','Stem','Root']:
 
@@ -371,10 +371,10 @@ def print_report(jdata, caltargets):
           pec = pu.percent_ecosys_contribution(cmtkey, v, pftnum=ipft, compartment=cmprt, ref_params_dir=ref_params_dir)
           qcr = qcal_rank(caltargets[cmtkey][v][cmprt][ipft], jdata[pft][v][cmprt])
     
-        print "{} {}".format(pec, qcr)
+        print("{} {}".format(pec, qcr))
 
       else:
-        print "--"
+        print("--")
 
 
 # NOTE, TODO, need to figure out how to find CMT type!!
@@ -433,7 +433,7 @@ if __name__ == '__main__':
   # Setup the parameters
 
   if 'eq-data.tar.gz' not in os.listdir(args.calfolder):
-    print "Can't find enough json data to measure calibration quality!"
+    print("Can't find enough json data to measure calibration quality!")
 
   qcal = QCal(
       jsondata_path=os.path.join(args.calfolder, "eq-data.tar.gz"),
@@ -442,7 +442,7 @@ if __name__ == '__main__':
       ref_params_dir=args.ref_params
   )
 
-  print qcal.report(which='json')
+  print(qcal.report(which='json'))
 
   #qcal.nc_qcal()
 
