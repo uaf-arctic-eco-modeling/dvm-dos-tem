@@ -25,9 +25,9 @@ import textwrap
 
 def print_line_dict(d, header=False):
   if header:
-    print "{:>20s} {:>20s} {:>12} {:>12} {:>12} {:>12} {:>12} {:>12} {:>12}     {:}".format('Name','Units','Yearly','Monthly','Daily','PFT','Compartments','Layers','Data Type', 'Description')
+    print("{:>20s} {:>20s} {:>12} {:>12} {:>12} {:>12} {:>12} {:>12} {:>12}     {:}".format('Name','Units','Yearly','Monthly','Daily','PFT','Compartments','Layers','Data Type', 'Description'))
   else:
-    print "{Name:>20s} {Units:>20s} {Yearly:>12} {Monthly:>12} {Daily:>12} {PFT:>12} {Compartments:>12} {Layers:>12} {Data Type:>12}     {Description}".format(**d)
+    print("{Name:>20s} {Units:>20s} {Yearly:>12} {Monthly:>12} {Daily:>12} {PFT:>12} {Compartments:>12} {Layers:>12} {Data Type:>12}     {Description}".format(**d))
 
 def list_vars(data, verbose=False):
   var_names = [line['Name'] for line in data]
@@ -83,11 +83,11 @@ def csv_file_to_data_dict_list(fname):
   data = []  
   for r in csv.DictReader(s):
     if sorted(r.keys()) != expected_cols_sorted:
-      print "PROBLEM WITH KEYS: ", sorted(r.keys())
-      if 'Name' in r.keys():
-        print "Problem with variable ", r['Name']
+      print("PROBLEM WITH KEYS: ", sorted(r.keys()))
+      if 'Name' in list(r.keys()):
+        print("Problem with variable ", r['Name'])
       else:
-        print "Missing the Name column??"
+        print("Missing the Name column??")
       raise RuntimeError("Bad output spec file!")
     data.append(r)
 
@@ -105,7 +105,7 @@ def check_layer_vars(data):
 
   def warn_layers_not_set(dd):
     if all([x == 'invalid' or x == '' for x in [dd['Layers'],]]):
-      print "WARNING! output by Layers not set for {}".format(dd['Name'])
+      print("WARNING! output by Layers not set for {}".format(dd['Name']))
 
   for line in data:
     if 'LAYER' in line['Name'].upper():
@@ -129,7 +129,7 @@ def toggle_off_variable(data, var):
           pass
         else:
           line[key] = ''
-          print "Turning {} off for {} resolution".format(var, key)
+          print("Turning {} off for {} resolution".format(var, key))
   return data
 
 def all_vars_off(data):
@@ -139,7 +139,7 @@ def all_vars_off(data):
         pass
       else:
         line[key] = ''
-        print "Turning {} off for {} resolution".format(line['Name'], key)
+        print("Turning {} off for {} resolution".format(line['Name'], key))
   return data
 
 def toggle_on_variable(data, var, res_spec):
@@ -148,8 +148,8 @@ def toggle_on_variable(data, var, res_spec):
     raise ValueError("Invalid variable! {} not found!".format(var))
 
   for line in data:
-    if 'Name' not in line.keys():
-      print "ERROR! Missing 'Name' field for row: {}".format(line)
+    if 'Name' not in list(line.keys()):
+      print("ERROR! Missing 'Name' field for row: {}".format(line))
       sys.exit()
 
     if line['Name'] == var.upper():
@@ -197,7 +197,7 @@ def toggle_on_variable(data, var, res_spec):
       print_line_dict(line)
 
       if all([x == 'invalid' or x == '' for x in [line['Yearly'], line['Monthly'], line['Daily']]]):
-        print "WARNING! Invalid TIME setting detected! You won't get output for {}".format(line['Name'])
+        print("WARNING! Invalid TIME setting detected! You won't get output for {}".format(line['Name']))
 
   check_layer_vars(data)
 
@@ -284,7 +284,7 @@ if __name__ == '__main__':
   args = parser.parse_args()
 
   if args.DEBUG:
-    print args
+    print(args)
 
   if args.print_file:
     data = csv_file_to_data_dict_list(args.file)
@@ -294,7 +294,7 @@ if __name__ == '__main__':
 
   if args.list_vars:
     data = csv_file_to_data_dict_list(args.file)
-    print "\n".join(sorted(list_vars(data, verbose=True)))
+    print("\n".join(sorted(list_vars(data, verbose=True))))
     sys.exit()
 
   if args.show_yearly_vars:
@@ -363,7 +363,7 @@ if __name__ == '__main__':
 
     write_data_to_csv(data, args.file)
 
-    print "NOTE: Make sure to enable 'eq' outputs in the config file!!!"
+    print("NOTE: Make sure to enable 'eq' outputs in the config file!!!")
 
     sys.exit()
 
