@@ -701,6 +701,9 @@ namespace temutil {
     
     std::vector<int> fy = ??
 */
+    std::vector<int> JUNK(10,-34567);
+    BOOST_LOG_SEV(glg, err) << "THIS IS JUNK DATA! NOT IMPLEMENTED YET!!";
+    return JUNK;
   }
 
   /** rough draft for reading a single location's list of 'fire sizes'. 
@@ -710,6 +713,9 @@ namespace temutil {
   */
   std::vector<int> get_fire_sizes(const std::string &filename, int y, int x){
     // FIX: implement this!
+    std::vector<int> JUNK(10,-2432);
+    BOOST_LOG_SEV(glg, err) << "THIS IS JUNK DATA! NOT IMPLEMENTED YET!!";
+    return JUNK;
   }
 
   /** rough draft for reading a single location, veg classification
