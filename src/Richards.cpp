@@ -102,7 +102,7 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
   bool continue_iterate = true;
   bool lapack_solver = true; //whether to use the newer LAPACK solver or the old Thomas algorithm
 
-  while(continue_iterate = true){
+  while(continue_iterate == true){
     n_substep += 1;
 
     //(Re)calculate dt_dz and vol_liq
