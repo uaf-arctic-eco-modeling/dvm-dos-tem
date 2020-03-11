@@ -65,7 +65,7 @@ def timeseries_summary_stats_and_plots(base_path, secondary_path_list):
     elif 'hurs_mean' in i.lower():
       units = 'percent'
     else:
-      print "ERROR! hmmm can't find variable in {}".format(i)
+      print("ERROR! hmmm can't find variable in {}".format(i))
 
 
     if '_cru' in i.lower():
@@ -77,23 +77,23 @@ def timeseries_summary_stats_and_plots(base_path, secondary_path_list):
 
     secondary_path = i
 
-    print "MAIN PROCESS! [{}] Starting worker...".format(os.getpid())
+    print("MAIN PROCESS! [{}] Starting worker...".format(os.getpid()))
     p = multiprocessing.Process(target=worker_func, args=(base_path, secondary_path, units, periods))
     procs.append(p)
     p.start()
 
-  print "Done starting processes. Looping to set join on each process..."
+  print("Done starting processes. Looping to set join on each process...")
   for p in procs:
     p.join()
-  print "DONE! Plots should be saved..."
+  print("DONE! Plots should be saved...")
 
 def worker_func(base_path, secondary_path, units, periods):
   '''
   '''
-  print "worker function! pid:{}".format(os.getpid())
-  print "  [{}] {}".format(os.getpid(), base_path)
-  print "  [{}] {}".format(os.getpid(), secondary_path)
-  print "  [{}] {}".format(os.getpid(), units)
+  print("worker function! pid:{}".format(os.getpid()))
+  print("  [{}] {}".format(os.getpid(), base_path))
+  print("  [{}] {}".format(os.getpid(), secondary_path))
+  print("  [{}] {}".format(os.getpid(), units))
   monthlies_figure = get_monthlies_figure(
       base_path, secondary_path, 
       title='\n'.join((base_path, secondary_path)),
@@ -125,14 +125,14 @@ def worker_func(base_path, secondary_path, units, periods):
   # Create multi-page pdf document
   import matplotlib.backends.backend_pdf
   ofname = "climatology_{}.pdf".format(secondary_path.split("/")[0])
-  print "Building PDF with many images: {}".format(ofname)
+  print("Building PDF with many images: {}".format(ofname))
   pdf = matplotlib.backends.backend_pdf.PdfPages(ofname)
   pdf.savefig(monthlies_figure)
   pdf.savefig(overveiw_figure)
   for f in individual_figs:
     pdf.savefig(f)
   pdf.close()
-  print "Done saving pdf: {}".format(ofname)
+  print("Done saving pdf: {}".format(ofname))
 
 
 def create_vrt(filelist, ofname):
@@ -202,22 +202,22 @@ def average_over_bands(ifname, bands='all'):
      input file's bands.
   '''
   ds = gdal.Open(ifname)
-  print " [ DESCRIPTION ]: ", ds.GetDescription()
+  print(" [ DESCRIPTION ]: ", ds.GetDescription())
 
-  print " [ RASTER BAND COUNT ]: ", ds.RasterCount
-  print " [ RASTER Y SIZE ]: ", ds.RasterYSize
-  print " [ RASTER X SIZE ]: ", ds.RasterXSize
+  print(" [ RASTER BAND COUNT ]: ", ds.RasterCount)
+  print(" [ RASTER Y SIZE ]: ", ds.RasterYSize)
+  print(" [ RASTER X SIZE ]: ", ds.RasterXSize)
 
   if bands == 'all':
-    band_range = range(1, ds.RasterCount+1)
+    band_range = list(range(1, ds.RasterCount+1))
   elif bands == 'first10':
-    band_range = range(1, 10+1)
+    band_range = list(range(1, 10+1))
   elif bands == 'first3':
-    band_range = range(1, 3+1)
+    band_range = list(range(1, 3+1))
 
-  print " [ AVERAGE OVER BANDS ]: {}".format(len(band_range))
-  print " [ START BAND ]: {}".format(band_range[0])
-  print " [ END BAND ]: {}".format(band_range[-1])
+  print(" [ AVERAGE OVER BANDS ]: {}".format(len(band_range)))
+  print(" [ START BAND ]: {}".format(band_range[0]))
+  print(" [ END BAND ]: {}".format(band_range[-1]))
 
   # allocate a storage location
   running_sum = np.ma.masked_less_equal(np.zeros((ds.RasterYSize, ds.RasterXSize)), -9999)
@@ -225,17 +225,17 @@ def average_over_bands(ifname, bands='all'):
   for band in band_range:
     dsb = ds.GetRasterBand(band)
     if dsb is None:
-      print "huh??"
+      print("huh??")
       # continue (? as per example here: https://pcjericks.github.io/py-gdalogr-cookbook/raster_layers.html)
     
     masked_data = np.ma.masked_less_equal(dsb.ReadAsArray(), -9999)
 
     running_sum += masked_data
-    print "adding band: {} band min/max: {}/{} running_sum min/max: {}/{}".format(
+    print("adding band: {} band min/max: {}/{} running_sum min/max: {}/{}".format(
         band,
         masked_data.min(), masked_data.max(),
         running_sum.min(), running_sum.max()
-    )
+    ))
 
   # Compute average
   avg = running_sum / float(len(band_range)+1)
@@ -265,7 +265,7 @@ def read_period_averages(periods):
     directory. The pickles are expected to be the period averages built using
     other routines in this script.
   '''
-  print "Reading period average pickles into list..."
+  print("Reading period average pickles into list...")
   period_averages = []
   for i, (start, end) in enumerate(periods):
 
@@ -273,13 +273,13 @@ def read_period_averages(periods):
     pa = pickle.load(file(path))
     period_averages.append(pa)
 
-  print "Done reading period average pickles into list."
+  print("Done reading period average pickles into list.")
   return period_averages
 
 
-def read_monthly_pickles(months=range(1,13)):
+def read_monthly_pickles(months=list(range(1,13))):
 
-  print "reading monthly pickle files for months {}...".format(months)
+  print("reading monthly pickle files for months {}...".format(months))
   mavgs = []
   for m in months:
     path = os.path.join(
@@ -289,7 +289,7 @@ def read_monthly_pickles(months=range(1,13)):
     )
     ma = pickle.load(file(path))
     mavgs.append(ma)
-  print "Returning monthly averages list.."
+  print("Returning monthly averages list..")
   return mavgs
 
 
@@ -331,7 +331,7 @@ def calculate_period_averages(periods, base_path, secondary_path, save_intermedi
       raise
   # Make the VRTs for the periods
   for i, (start, end) in enumerate(periods):
-    print "[ period {} ] Making vrt for period {} to {} (range {})".format(i, start, end, range(start, end))
+    print("[ period {} ] Making vrt for period {} to {} (range {})".format(i, start, end, list(range(start, end))))
     filelist = []
     for year in range(start, end):
       final_secondary_path = secondary_path.format(month="*", year="{:04d}")
@@ -339,7 +339,7 @@ def calculate_period_averages(periods, base_path, secondary_path, save_intermedi
       single_year_filelist = sorted(glob.glob(os.path.join(base_path, final_secondary_path.format(year))))
       #print "Length of single year filelist {}".format(len(single_year_filelist))
       filelist += single_year_filelist
-    print "Length of full filelist: {} ".format(len(filelist))
+    print("Length of full filelist: {} ".format(len(filelist)))
     vrtp = os.path.join(TMP_DATA, 'period-averages-pid{}'.format(os.getpid()), "period-{}-{}.vrt".format(start, end))
     create_vrt(filelist, vrtp)
 
@@ -360,7 +360,7 @@ def calculate_period_averages(periods, base_path, secondary_path, save_intermedi
       except OSError:
         if not os.path.isdir(path):
           raise
-      print "Dumping pickle for period {} to {}".format(start, end)
+      print("Dumping pickle for period {} to {}".format(start, end))
       pickle.dump(pa, file(os.path.join(path, "pa-{}-{}.pickle".format(start, end)), 'wb'))
   
   # Clean up any intermediate files.
@@ -370,7 +370,7 @@ def calculate_period_averages(periods, base_path, secondary_path, save_intermedi
       os.remove(os.path.join(papath, f))
     os.rmdir(papath)
 
-  print "Returning period averages list..."
+  print("Returning period averages list...")
   return period_averages
 
 
@@ -386,27 +386,27 @@ def calculate_monthly_averages(months, base_path, secondary_path, save_intermedi
       raise
 
   # Build the vrt files
-  print "Creating monthly VRT files..."
+  print("Creating monthly VRT files...")
   for im, MONTH in enumerate(months[:]):
     final_secondary_path = secondary_path.format(month="{:02d}", year="*").format(im+1)
     filelist = sorted(glob.glob(os.path.join(base_path, final_secondary_path)))
     if len(filelist) < 1:
-      print "ERROR! No files found in {}".format( os.path.join(base_path, final_secondary_path) )
+      print("ERROR! No files found in {}".format( os.path.join(base_path, final_secondary_path) ))
 
     vrt_path = os.path.join(intermediates_path,"month-{:02d}.vrt".format(im+1))
     create_vrt(filelist, vrt_path)
 
-  print "Computing monthly averages from monthly VRT files..."
+  print("Computing monthly averages from monthly VRT files...")
   # make list of expected input vrt paths
   ivp_list = [os.path.join(intermediates_path,"month-{:02d}.vrt".format(im)) for im in range(1, len(months)+1)]
   monthly_averages = [average_over_bands(ivp, bands='all') for ivp in ivp_list]
 
   if save_intermediates:
-    print "Saving pickles..."
+    print("Saving pickles...")
     for im, ma in enumerate(monthly_averages):
       pp = os.path.join(intermediates_path, "month-{:02d}.pickle".format(im+1))
       pickle.dump(ma, file(pp, 'wb'))
-    print "Done saving pickles..."
+    print("Done saving pickles...")
 
   # Clean up any intermediate files.
   if not save_intermediates:
@@ -415,7 +415,7 @@ def calculate_monthly_averages(months, base_path, secondary_path, save_intermedi
       os.remove(os.path.join(mapath, f))
     os.rmdir(mapath)
 
-  print "Returning monthly_averages list..."
+  print("Returning monthly_averages list...")
   return monthly_averages
 
 
@@ -431,19 +431,19 @@ def get_monthlies_figure(base_path, secondary_path, title, units,
     monthly_averages = calculate_monthly_averages(months, base_path, secondary_path, save_intermediates=save_intermediates)
 
   elif src == 'pickle':
-    monthly_averages = read_monthly_pickles(months=range(1,13))
+    monthly_averages = read_monthly_pickles(months=list(range(1,13)))
 
   elif src == 'passed':
     monthly_averages = madata 
 
   else:
-    print "Invalid argument for src! '{}'".format(src)
+    print("Invalid argument for src! '{}'".format(src))
 
   vmax = np.max([avg.max() for avg in monthly_averages])
   vmin = np.min([avg.min() for avg in monthly_averages])
-  print "vmax: {}  vmin: {}".format(vmax, vmin)
+  print("vmax: {}  vmin: {}".format(vmax, vmin))
 
-  print "Creating monthlies figure..."
+  print("Creating monthlies figure...")
   fig, axes = plt.subplots(figsize=(11,8.5), nrows=3, ncols=4, sharex=True, sharey=True)
   imgs = []
   for ax, avg, month in zip(axes.flat, monthly_averages, months):
@@ -455,7 +455,7 @@ def get_monthlies_figure(base_path, secondary_path, title, units,
   cbar.set_label(units)
   fig.suptitle(title)
 
-  print "Done creating monthlies figure." 
+  print("Done creating monthlies figure.") 
   return fig
 
 
@@ -478,13 +478,13 @@ def get_overview_figure(periods, base_path, secondary_path, title='',
   elif src == 'passed':
     period_averages = padata 
   else:
-    print "Invalid argument for src! '{}'".format(src)
+    print("Invalid argument for src! '{}'".format(src))
     
-  print "Converting to stacked masked array..."
+  print("Converting to stacked masked array...")
   pa2 = np.ma.stack(period_averages)
   vmax = pa2.max()
   vmin = pa2.min()  
-  print "vmax: {}  vmin: {}".format(vmax, vmin)
+  print("vmax: {}  vmin: {}".format(vmax, vmin))
 
   NCOLS = 4     # fixed number of cols, may add more rows
   NROWS = len(period_averages)/NCOLS
@@ -500,7 +500,7 @@ def get_overview_figure(periods, base_path, secondary_path, title='',
 
   imgs = []  # in case we need to manipulate the images all at once
   for ax, avg, period in zip(axes.flat, period_averages, periods):
-    print "plotting image for period:", period
+    print("plotting image for period:", period)
 
     # Setting vmax and vmin normalized the colorbars across all images
     im = ax.imshow(avg, vmin=vmin, vmax=vmax, cmap='gist_ncar')
@@ -532,13 +532,13 @@ def get_period_avg_figures(periods, base_path, secondary_path,
   elif src == 'passed':
     period_averages = padata 
   else:
-    print "Invalid argument for src! '{}'".format(src)
+    print("Invalid argument for src! '{}'".format(src))
 
-  print "Converting to stacked masked array..."
+  print("Converting to stacked masked array...")
   pa2 = np.ma.stack(period_averages)
   vmax = pa2.max()
   vmin = pa2.min()  
-  print "vmax: {}  vmin: {}".format(vmax, vmin)
+  print("vmax: {}  vmin: {}".format(vmax, vmin))
 
   ind_figures = []
   for i, ((start,end), periodavg) in enumerate(zip(periods, pa2)):
@@ -560,7 +560,7 @@ def worker_func2(f):
     time.sleep(1)
   if f == 'file7':
     time.sleep(5)
-  print "will open, read, average {}".format(f)
+  print("will open, read, average {}".format(f))
   return f
 
 def worker_func3(in_file_path):
@@ -642,7 +642,7 @@ def plot_timeseries_of_spatial_summary_stats():
   # Create multi-page pdf document
   import matplotlib.backends.backend_pdf
   ofname = "climatology_statewide_averages.pdf".format()
-  print "Saving PDF: {}".format(ofname)
+  print("Saving PDF: {}".format(ofname))
   pdf = matplotlib.backends.backend_pdf.PdfPages(ofname)
 
   var_list = ['tas_mean','pr_total','rsds_mean','vap_mean','hurs_mean']
@@ -650,23 +650,23 @@ def plot_timeseries_of_spatial_summary_stats():
   for var, units in zip(var_list, unit_list):
 
     # Figure out the right files to work on
-    var_files = filter(lambda x: var in x.lower(), ss_file_list)
-    print var_files
-    print
-    h_file = filter(lambda x: 'cru' in x.lower(), var_files)
-    pmri_file = filter(lambda x: 'mri' in x.lower(), var_files)
-    pncar_file = filter(lambda x: 'ncar' in x.lower(), var_files)
+    var_files = [x for x in ss_file_list if var in x.lower()]
+    print(var_files)
+    print()
+    h_file = [x for x in var_files if 'cru' in x.lower()]
+    pmri_file = [x for x in var_files if 'mri' in x.lower()]
+    pncar_file = [x for x in var_files if 'ncar' in x.lower()]
 
     # Filtering above should result in single item lists, unpack for convenience.
     h_file = h_file[0]
     pmri_file = pmri_file[0]
     pncar_file = pncar_file[0]
 
-    print "var: ", var
-    print "hfile: ", h_file
-    print "pmri_file: ", pmri_file
-    print "pncar_file: ", pncar_file
-    print
+    print("var: ", var)
+    print("hfile: ", h_file)
+    print("pmri_file: ", pmri_file)
+    print("pncar_file: ", pncar_file)
+    print()
 
     # Read data into DataFrames
     hdf = pd.read_csv( h_file )
@@ -766,10 +766,10 @@ def plot_timeseries_of_spatial_summary_stats():
     plt.legend()
     #plt.show(block=True)    
 
-    print "Saving fig to pdf for {}".format(var)
+    print("Saving fig to pdf for {}".format(var))
     pdf.savefig(fig)
 
-  print "Closing PDF: {}".format(ofname)
+  print("Closing PDF: {}".format(ofname))
   pdf.close()
 
 
@@ -778,18 +778,18 @@ if __name__ == '__main__':
 
   if len(sys.argv) > 1:
     if '-h' in sys.argv or '--help' in sys.argv:
-      print "There is not a proper command line interface built for this script."
-      print "Read the code to figure out what it does!"
+      print("There is not a proper command line interface built for this script.")
+      print("Read the code to figure out what it does!")
 
-  print "PID: {}".format(os.getpid())
-  print "Temporary file storage: {}".format(TMP_DATA)
+  print("PID: {}".format(os.getpid()))
+  print("Temporary file storage: {}".format(TMP_DATA))
 
-  print "For use with slurm (generating and saving multi-page pdfs) you have "
-  print "to import matplotlib and then set the backend explicitly, or you "
-  print "have issues with related to the DISPLAY environment variable. "
-  print "For interactive development use, comment those import lines out at "
-  print "the top of the file and use plt.show(block=True) instead of savefig() "
-  print "in the code."
+  print("For use with slurm (generating and saving multi-page pdfs) you have ")
+  print("to import matplotlib and then set the backend explicitly, or you ")
+  print("have issues with related to the DISPLAY environment variable. ")
+  print("For interactive development use, comment those import lines out at ")
+  print("the top of the file and use plt.show(block=True) instead of savefig() ")
+  print("in the code.")
   
 
   base_path = '/atlas_scratch/ALFRESCO/ALFRESCO_Master_Dataset_v2_1/ALFRESCO_Model_Input_Datasets/IEM_for_TEM_inputs/'
@@ -816,7 +816,7 @@ if __name__ == '__main__':
     'vap_mean_hPa_ar5_NCAR-CCSM4_rcp85_2006_2100_fix/vap/vap_mean_hPa_iem_ar5_NCAR-CCSM4_rcp85_{month:}_{year:}.tif',
   ]
 
-  print "{} CPU Count: {}".format(os.getpid(), multiprocessing.cpu_count())
+  print("{} CPU Count: {}".format(os.getpid(), multiprocessing.cpu_count()))
   
 
   # Builds maps and figures (multi-page pdfs) of monthly averages and or 
