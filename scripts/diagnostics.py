@@ -19,14 +19,14 @@ import matplotlib.pyplot as plt   # general plotting
 
 import sys
 if sys.version_info[0] < 3:
-    from StringIO import StringIO
+    from io import StringIO
 else:
     from io import StringIO
 
 
 def exit_gracefully(signum, frame):
   '''A function for quitting w/o leaving a stacktrace on the users console.'''
-  print "Caught signal='%s', frame='%s'. Quitting - gracefully." % (signum, frame)
+  print("Caught signal='%s', frame='%s'. Quitting - gracefully." % (signum, frame))
   sys.exit(1)
 
 # Generator function for extracting specific files from a tar archive
@@ -105,7 +105,7 @@ def file_loader(**kwargs):
       slice_string = kwargs['fileslice']
       # parse string into slice object
       # https://stackoverflow.com/questions/680826/python-create-slice-object-from-string/681949#681949
-      custom_slice = slice(*map(lambda x: int(x.strip()) if x.strip() else None, slice_string.split(':')))
+      custom_slice = slice(*[int(x.strip()) if x.strip() else None for x in slice_string.split(':')])
   else:
       custom_slice = slice(None,None,None)
 
@@ -116,18 +116,18 @@ def file_loader(**kwargs):
     TMP_EXTRACT_LOCATION = '/tmp/com.iab.dvmdostem.diagnostics.23f23f2' # <-- could be a checksum of the tar?
 
     if ( os.path.isdir(TMP_EXTRACT_LOCATION) or os.path.isfile(TMP_EXTRACT_LOCATION) ):
-      print "Cleaning up the temporary location: ", TMP_EXTRACT_LOCATION
+      print("Cleaning up the temporary location: ", TMP_EXTRACT_LOCATION)
       shutil.rmtree(TMP_EXTRACT_LOCATION)
     tf.extractall(TMP_EXTRACT_LOCATION, members=monthly_files(tf))
     full_glob = os.path.join(TMP_EXTRACT_LOCATION, "tmp/dvmdostem/calibration/monthly/*.json")
-    print "Matching this pattern: ", full_glob
+    print("Matching this pattern: ", full_glob)
     jfiles = glob.glob(full_glob)
   else:
     pattern_string = "/tmp/dvmdostem/calibration/monthly/*.json"
-    print "Looking for json files matching pattern:", pattern_string
+    print("Looking for json files matching pattern:", pattern_string)
     jfiles = glob.glob(pattern_string)
 
-  print "Custom file slice:", custom_slice
+  print("Custom file slice:", custom_slice)
   jfiles = jfiles[custom_slice]
 
   return jfiles
@@ -138,14 +138,14 @@ def onclick(event):
     i_edx = np.rint(event.xdata)
     cax = event.inaxes
     caximg = cax.images[0]
-    print "Axes: %s" % (cax.get_title().replace("\n", " "))
-    print "Data coordinates (y, x): ", "(%s,%s)"%(event.ydata, event.xdata)
-    print "Data coords as int: ", "(%s,%s)"%(i_edy, i_edx)
-    print "Data at[%s, %s]: %s" % (i_edy, i_edx, caximg.get_array()[i_edy, i_edx])
-    print
+    print("Axes: %s" % (cax.get_title().replace("\n", " ")))
+    print("Data coordinates (y, x): ", "(%s,%s)"%(event.ydata, event.xdata))
+    print("Data coords as int: ", "(%s,%s)"%(i_edy, i_edx))
+    print("Data at[%s, %s]: %s" % (i_edy, i_edx, caximg.get_array()[i_edy, i_edx]))
+    print()
 
   if event.key == 'ctrl+c':
-    print "Captured Ctrl-C. Quit nicely."
+    print("Captured Ctrl-C. Quit nicely.")
     exit_gracefully(event.key, None) # <-- need to pass something for frame ??
 
 
@@ -255,7 +255,7 @@ def image_plot(imgarrays, plotlist, title='', save=False, format='pdf', savetag=
   fig, axar = plt.subplots(1, len(imgarrays), sharex=True, sharey=True)
 
   #fig.set_tight_layout(True)
-  print "Making room for title..."
+  print("Making room for title...")
   plt.subplots_adjust(top=0.9, bottom=0.16)
   fig.suptitle(title, fontsize=16)
 
@@ -264,30 +264,30 @@ def image_plot(imgarrays, plotlist, title='', save=False, format='pdf', savetag=
 
   for axidx, (ax, data, plotname) in enumerate(zip(axar, imgarrays, plotlist)):
 
-    print "%s plot. axar[%s] '%s' data shape: %s" % (title, axidx, plotname, data.shape)
-    print "---------------------------------------------------------------"
+    print("%s plot. axar[%s] '%s' data shape: %s" % (title, axidx, plotname, data.shape))
+    print("---------------------------------------------------------------")
     # We are going to use a divergent color scheme centered around zero,
     # so we need to find largest absolute value of the data and use that
     # as the endpoints for the color-scaling.
-    print "min/max ignoring nans: %s %s" % (np.nanmin(data), np.nanmax(data))
+    print("min/max ignoring nans: %s %s" % (np.nanmin(data), np.nanmax(data)))
     xval = np.nanmax(np.abs(data))
-    print "Color map range for ax[%s]: %s" % (axidx, xval)
+    print("Color map range for ax[%s]: %s" % (axidx, xval))
 
     # It is also handy to mask out the values that are zero (no error)
     # or riduculously close to zero (effectively zero)
-    print "Number of non nan values: ", np.count_nonzero(~np.isnan(data))
+    print("Number of non nan values: ", np.count_nonzero(~np.isnan(data)))
 
     data = np.ma.masked_equal(data, 0)
-    print "Number of values after masking values equal to zero:", data.count()
+    print("Number of values after masking values equal to zero:", data.count())
 
     maskclose = np.isclose(data, np.zeros(data.shape))
     data = np.ma.masked_array(data, mask=maskclose)
-    print "Number of values after masking values close to zero:", data.count()
+    print("Number of values after masking values close to zero:", data.count())
 
     data = np.ma.masked_invalid(data)
-    print "Remaining data after masking invalid data: ", data.count()
+    print("Remaining data after masking invalid data: ", data.count())
 
-    print "min/max values in data array:", data.min(), data.max()
+    print("min/max values in data array:", data.min(), data.max())
 
     # Transform data to 2D shape for showing as an image
     data = data.reshape(len(data)/12, 12)
@@ -343,7 +343,7 @@ def image_plot(imgarrays, plotlist, title='', save=False, format='pdf', savetag=
     ax.tick_params(axis='x', direction='in', length=3, width=.5, colors='k')
 
     # end of loop over axes/images
-    print ""
+    print("")
 
   # Turn the y axis on for the leftmost plot
   axar[0].yaxis.set_visible(True)
@@ -355,7 +355,7 @@ def image_plot(imgarrays, plotlist, title='', save=False, format='pdf', savetag=
   assert len(axar) == len(plotlist) # zip silently trucates longer list
   for x in zip(axar, plotlist):
     if len(x[1].split(' ')) > 3:
-      print x[1].split(' ')
+      print(x[1].split(' '))
       l1 = ' '.join(x[1].split(' ')[0:3])
       l2 = ' '.join(x[1].split(' ')[3:])
       newX1 = "\n".join([l1, l2])
@@ -365,7 +365,7 @@ def image_plot(imgarrays, plotlist, title='', save=False, format='pdf', savetag=
 
   if save:
     file_name = os.path.join(SAVE_DIR, title + "_" + savetag + "_diagnostic." + format)
-    print "saving file: %s" % file_name
+    print("saving file: %s" % file_name)
     plt.savefig(file_name)
   else:
     plt.show(block=True)
@@ -377,20 +377,20 @@ def plot_tests(test_list, **kwargs):
     data = compile_table_by_year(t, **kwargs)
 
     np.loadtxt(StringIO(data), skiprows=1)
-    filter(None,data.split("\n")[0].split(" "))
+    [_f for _f in data.split("\n")[0].split(" ") if _f]
     df = pd.DataFrame(
             np.loadtxt(StringIO(data), skiprows=1),
-            columns=filter(None,data.split("\n")[0].split(" "))
+            columns=[_f for _f in data.split("\n")[0].split(" ") if _f]
         )
 
     # fails to read some columns with many zeros - whole
     # column ends up NaN. May need to update pandas version
     #df = pd.read_csv(StringIO(data), header=0, delim_whitespace=True, na_values='NULL')
 
-    print "plotting dataframe..."
+    print("plotting dataframe...")
     dfp = df.plot(subplots=True)#, grid=False)
 
-    print "using matplotlib show..."
+    print("using matplotlib show...")
     plt.show(block=True)
 
 def run_tests(test_list, **kwargs):
@@ -411,7 +411,7 @@ def run_tests(test_list, **kwargs):
                 if not os.path.isdir(folder):
                     raise
 
-        print "clearing output file: ", outfile
+        print("clearing output file: ", outfile)
         with open(outfile, 'w') as f:
             f.write("")
 
@@ -422,11 +422,11 @@ def run_tests(test_list, **kwargs):
 
         # print to console (p2c)
         if 'p2c' in kwargs and kwargs['p2c'] == True:
-            print title
-            print data
+            print(title)
+            print(data)
         if outfile != None:
             with open(outfile, 'a') as f:
-                print "appending to file: ", outfile
+                print("appending to file: ", outfile)
                 f.write(title); f.write("\n")
                 f.write(data)
 
@@ -508,12 +508,12 @@ def sum_across(key, jdata, xsec):
   }
 
   CMT = int(jdata['CMT'].lstrip('CMT')) # reduce from string like 'CMT01'
-  if CMT not in CMTLU.keys():
-    print "%% ERROR! {:%>65s}".format('%')
-    print " YOU MIGHT BE THE FIRST TO WORK WITH THIS COMMUNITY TYPE!"
-    print " ADD THE VASCULAR/NON-VASCULAR SPLIT TO THE LOOKUP TABLE"
-    print " IN THE sum_across() FUNCTION."
-    print "%%%%%%%%%%{:%>65s}".format('%')
+  if CMT not in list(CMTLU.keys()):
+    print("%% ERROR! {:%>65s}".format('%'))
+    print(" YOU MIGHT BE THE FIRST TO WORK WITH THIS COMMUNITY TYPE!")
+    print(" ADD THE VASCULAR/NON-VASCULAR SPLIT TO THE LOOKUP TABLE")
+    print(" IN THE sum_across() FUNCTION.")
+    print("%%%%%%%%%%{:%>65s}".format('%'))
     sys.exit(-1)
 
   pfts = CMTLU[CMT][xsec]
@@ -525,7 +525,7 @@ def sum_across(key, jdata, xsec):
         if len(jdata[pft][key]) == 3:
           total += jdata[pft][key]["Leaf"] + jdata[pft][key]["Stem"] + jdata[pft][key]["Root"]
         else:
-          print "Error?: incorrect number of compartments..."
+          print("Error?: incorrect number of compartments...")
       else:
         total += jdata[pft][key]
 
@@ -865,9 +865,9 @@ def Check_C_cycle_veg_balance(idx, header=False, jd=None, pjd=None):
 def Check_C_cycle_veg_vascular_balance(idx, header=False, jd=None, pjd=None):
     '''Should duplicate Vegetation_Bgc::deltastate()'''
 
-    print "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-    print "DEPRECATED! Proof-read before trusting!"
-    print "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+    print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+    print("DEPRECATED! Proof-read before trusting!")
+    print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
 
     # vascular PFT list (CMT05)
     vascular = [0,1,2,3,4]
@@ -895,9 +895,9 @@ def Check_C_cycle_veg_vascular_balance(idx, header=False, jd=None, pjd=None):
 def Check_C_cycle_veg_nonvascular_balance(idx, header=False, jd=None, pjd=None):
     '''Should duplicate Vegetation_Bgc::deltastate()'''
 
-    print "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-    print "DEPRECATED! Proof-read before trusting!"
-    print "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+    print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+    print("DEPRECATED! Proof-read before trusting!")
+    print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
 
     # non-vascular PFT list (CMT05)
     non_vasc = [5,6,7]
@@ -951,7 +951,7 @@ if __name__ == '__main__':
   ]
 
   # Make a table listing options for the help text
-  t = itertools.izip_longest(error_image_choices, tab_reports_and_timeseries_choices)
+  t = itertools.zip_longest(error_image_choices, tab_reports_and_timeseries_choices)
   option_table = "\n".join(["{:>30} {:>30}".format(r[0], r[1]) for r in t])
   option_table = "\n" + option_table
 
@@ -1049,11 +1049,11 @@ if __name__ == '__main__':
       choices=['pdf', 'png', 'jpg'],
       help="Choose a file format to use for saving plots.")
 
-  print "Parsing command line arguments..."
+  print("Parsing command line arguments...")
   args = parser.parse_args()
-  print "Command line argument settings:"
-  for k, v in vars(args).iteritems():
-    print "  %s = %s" % (k, v)
+  print("Command line argument settings:")
+  for k, v in vars(args).items():
+    print("  %s = %s" % (k, v))
 
   slstr = args.slice
   archive = args.from_archive
@@ -1071,23 +1071,23 @@ if __name__ == '__main__':
   if save:
     # Clean up old plots,
     if os.path.isdir(SAVE_DIR) or os.path.isfile(SAVE_DIR):
-      print "Cleaning up existing plots (in %s)..." % SAVE_DIR
+      print("Cleaning up existing plots (in %s)..." % SAVE_DIR)
       shutil.rmtree(SAVE_DIR)
 
-    print "Making an empty directory to save plots in..."
+    print("Making an empty directory to save plots in...")
     os.makedirs(SAVE_DIR)
 
 
   if args.error_image:
-    print "Creating error image plots..."
+    print("Creating error image plots...")
     error_image(plotlist=errimgs, fileslice=slstr, save_plots=save, save_format=imgformat, fromarchive=archive, savetag=savetag)
 
   if args.plot_timeseries:
-    print "Creating timeseries plots..."
+    print("Creating timeseries plots...")
     plot_tests(args.plot_timeseries, fileslice=slstr)
 
   if args.tab_reports:
-    print "Creating tabular reports..."
+    print("Creating tabular reports...")
     run_tests(args.tab_reports, fileslice=slstr, p2c=True)
 
 
