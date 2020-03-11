@@ -6,10 +6,10 @@ from arcpy.sa import *
 arcpy.CheckOutExtension("Spatial")
 
 #Set the mask of the IEM area
-iem = "C:\Users\Helene\Desktop\FIRE\iem01.tif"
+iem = "C:\\Users\Helene\Desktop\FIRE\iem01.tif"
 
 #Set the workspace, and the extent and snap area so the rasters aline with the IEM grid
-env.workspace = env.scratchWorkspace = "C:\Users\Helene\Desktop\FIRE"
+env.workspace = env.scratchWorkspace = "C:\\Users\Helene\Desktop\FIRE"
 arcpy.env.snapRaster = "iem01.tif"
 arcpy.env.extent = "iem01.tif"
 arcpy.env.nodata = "PROMOTION"
@@ -43,7 +43,7 @@ for i in range (1950 , 2017):
 for i in range (1950 , 1980):
 	year = format(i, '04d')
 	inraster = "Z:\Downloads\IEM_Input\Y%s_year.tif" % (year)
-	outraster = "C:\Users\Helene\Desktop\FIRE\TMP\Y%s_tmp.tif" % (year)
+	outraster = "C:\\Users\Helene\Desktop\FIRE\TMP\Y%s_tmp.tif" % (year)
 	ras = Raster(inraster)
 	#Conditional statement to replace year value by 1
 	out = Con(ras >= 1900, 1,0)
@@ -56,11 +56,11 @@ rasterList  = arcpy.ListRasters("*")
 #Execute CellStatistics  to sum up all the binary rasters
 outCellStatistics = CellStatistics(rasterList, "SUM", "DATA")  
 #Save the output   
-outCellStatistics.save("C:\Users\Helene\Desktop\FIRE\sumRast.tif")  
+outCellStatistics.save("C:\\Users\Helene\Desktop\FIRE\sumRast.tif")  
 
 
 #Conduct the focal analysis to sum all pixels that burned between 1950 and 1979 included across a block of 100 km centered on evert pixel
-env.workspace = env.scratchWorkspace = "C:\Users\Helene\Desktop\FIRE"
+env.workspace = env.scratchWorkspace = "C:\\Users\Helene\Desktop\FIRE"
 inrst = Raster("sumRast.tif")
 #Size of the rectangle the FRI will be computed from
 block = NbrRectangle(50, 50, "CELL")
