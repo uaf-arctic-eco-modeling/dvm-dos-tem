@@ -30,8 +30,7 @@ from InputHelper import InputHelper
 
 # Find the path to the this file so that we can look, relative to this file
 # up one directory and into the scripts/ directory
-sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../'))
-print sys.path
+sys.path.insert(0, os.path.abspath(os.path.dirname(os.path.dirname(__file__))))
 import scripts.param_util as pu
 
 # Keep the detailed documentation here. Can be accessed via command
@@ -105,7 +104,7 @@ def generate_extened_help():
   I am sure we forgot to mention something?
   ''' % ())
 
-  print help_text
+  print(help_text)
 
 #
 # Disable some buttons on the default toobar that freeze the program.
@@ -148,7 +147,7 @@ def exit_gracefully(signum, frame):
   sys.exit(1)
 
 def do_nothing(signal_number, frame):
-  print "Doing nothing with signal number: ", signal_number
+  print("Doing nothing with signal number: ", signal_number)
 
 
 def worker(in_helper, the_suite, calib_targets, title, add_in_helpers, save_fname, save_fmt):
@@ -213,7 +212,7 @@ class ExpandingWindow(object):
 
       # figure out the index of the button that should be selected
       # this is horribly ugly, but seems to work...
-      idx = [i for i,v in enumerate([configured_suites[k]['traces']==traceslist for k,v in configured_suites.iteritems()]) if v]
+      idx = [i for i,v in enumerate([configured_suites[k]['traces']==traceslist for k,v in configured_suites.items()]) if v]
       active_idx = idx[0]
 
       # SUITE Selection
@@ -221,7 +220,7 @@ class ExpandingWindow(object):
       self.suiteradioax = plt.subplot(self.gs[0:2, -1])
       self.suiteradio = matplotlib.widgets.RadioButtons(
           self.suiteradioax,
-          [ k for k, v in configured_suites.iteritems() ],
+          [ k for k, v in configured_suites.items() ],
           active=active_idx
       )
       self.suiteradio.on_clicked(self.suite_changer)
@@ -230,7 +229,7 @@ class ExpandingWindow(object):
       # PFT Selection
       pfttraces = []
       for trace in self.traces:
-        if 'pft' in trace.keys():
+        if 'pft' in list(trace.keys()):
           pfttraces.append(trace['jsontag'])
 
       if ( (len(pfttraces) > 0) ):
@@ -322,9 +321,9 @@ class ExpandingWindow(object):
 
         for trace in self.traces:
           # set the trace's tmpy[idx] to file's data
-          if 'pft' in trace.keys():
+          if 'pft' in list(trace.keys()):
             pftdata = fdata[trace['pft']]
-            if 'pftpart' in trace.keys():
+            if 'pftpart' in list(trace.keys()):
               trace['tmpy'][idx] = pftdata[trace['jsontag']][trace['pftpart']]
             else:
               trace['tmpy'][idx] = pftdata[trace['jsontag']]
@@ -357,7 +356,7 @@ class ExpandingWindow(object):
         # set the line's data to x, and the trace's tmp data
         if line.get_label() == trace['jsontag']:
           line.set_data(x, trace['tmpy'])
-        elif 'pftpart' in trace.keys():
+        elif 'pftpart' in list(trace.keys()):
           if line.get_label() == ('%s %s' % (trace['jsontag'], trace['pftpart'])):
             line.set_data(x, trace['tmpy'])
         else:
@@ -394,7 +393,7 @@ class ExpandingWindow(object):
     # The module stage dictionary could looks something like this:
     # { 12: ('DslModule', true), 54: ('DynLaiModule', false)}
     for ax in self.axes:
-      for k, val in module_state_dict.iteritems():
+      for k, val in module_state_dict.items():
         ax.axvline(k, linestyle='--', linewidth=0.3, color='blue', label='__mscm')
 
     # ------ FORMAT AXES --------------
@@ -481,7 +480,7 @@ class ExpandingWindow(object):
     logging.debug("Setting up empty x,y data for every trace...")
     for trace in self.traces:
       ax = self.axes[ trace['axesnum'] ]
-      if 'pftpart' in trace.keys():
+      if 'pftpart' in list(trace.keys()):
         lbl = '%s %s' % (trace['jsontag'], trace['pftpart'])
         trace['artists'] = ax.plot(x,y,label=lbl)
       else:
@@ -496,7 +495,7 @@ class ExpandingWindow(object):
     for i, ax in enumerate(self.axes):
       for trace in self.traces:
         if trace['axesnum'] == i:
-          if 'units' in trace.keys():
+          if 'units' in list(trace.keys()):
             ax.set_ylabel("%s" % trace['units'])
           else:
             logging.debug("No units are set in this trace!!")
@@ -512,7 +511,7 @@ class ExpandingWindow(object):
 
     logging.info("Changing to view the %s plot suite." % suite)
     # get the index of the selected button
-    keys = [k for k, v in configured_suites.iteritems()]
+    keys = [k for k, v in configured_suites.items()]
     for i, k in enumerate(keys):
       if k == suite:
         n = i
@@ -541,7 +540,7 @@ class ExpandingWindow(object):
     self.suiteradioax = plt.subplot(self.gs[0:2, -1]) # just a few rows, last column
     self.suiteradio = matplotlib.widgets.RadioButtons(
         self.suiteradioax,
-        [ k for k, v in configured_suites.iteritems() ],
+        [ k for k, v in configured_suites.items() ],
         active=n
     )
     self.suiteradio.on_clicked(self.suite_changer)
@@ -553,7 +552,7 @@ class ExpandingWindow(object):
     # build a list of the pft specific traces
     pfttraces = []
     for trace in self.traces:
-      if 'pft' in trace.keys():
+      if 'pft' in list(trace.keys()):
         pfttraces.append(trace['jsontag'])
 
     if ( (len(pfttraces) > 0) ):
@@ -618,7 +617,7 @@ class ExpandingWindow(object):
       # could add while true here to force user to
       # enter some kind of valid input?
       try:
-        ws = int(raw_input("Window Size (years)?: "))
+        ws = int(input("Window Size (years)?: "))
         self.window_size_yrs = ws
         logging.info("Changed to 'fixed window' (window size: %s)" % ws)
       except ValueError as e:
@@ -630,7 +629,7 @@ class ExpandingWindow(object):
 
     if event.key == 'alt+p':
       try:
-        n = int(raw_input("PFT NUMBER?> "))
+        n = int(input("PFT NUMBER?> "))
         self.set_pft_number(n)
         self.clear_bg_pft_txt()
         self.set_bg_pft_txt()
@@ -681,7 +680,7 @@ class ExpandingWindow(object):
 
         # Get a handle to the appropriate line on the plot
         # and get the color of the line.
-        if 'pftpart' in trace.keys():
+        if 'pftpart' in list(trace.keys()):
           lbl = '%s %s' % (trace['jsontag'], trace['pftpart'])
         else:
           lbl = trace['jsontag']
@@ -723,7 +722,7 @@ class ExpandingWindow(object):
   def set_pft_number(self, pftnumber):
     logger.info("Set the pft number in any trace that has the 'pft' as a key")
     for trace in self.traces:
-      if 'pft' in trace.keys():
+      if 'pft' in list(trace.keys()):
         trace['pft'] = 'PFT%i' % pftnumber
 
   def set_bg_pft_txt(self):
@@ -737,7 +736,7 @@ class ExpandingWindow(object):
             }
 
     for trace in self.traces:
-      if 'pft' in trace.keys():
+      if 'pft' in list(trace.keys()):
         ax = self.axes[trace['axesnum']]
 
         logger.debug("Setting the verbose name for the PFT!")
@@ -769,7 +768,7 @@ class ExpandingWindow(object):
     '''return the current pft. currently assumes that all traces have the same pft'''
     pft = None
     for trace in self.traces:
-      if 'pft' in trace.keys():
+      if 'pft' in list(trace.keys()):
         return trace['pft']
 
   def relim_autoscale_draw(self):
@@ -883,7 +882,7 @@ if __name__ == '__main__':
       help="Which pft to display")
   
   parser.add_argument('--suite', default='Vegetation',
-      choices=[k for k in configured_suites.keys()],
+      choices=[k for k in list(configured_suites.keys())],
       help="Which suite of variables/plot configurations to show.")
 
   parser.add_argument('--list-suites', action='store_true',
@@ -963,7 +962,7 @@ if __name__ == '__main__':
           '''))
 
 
-  print "Parsing command line arguments..."
+  print("Parsing command line arguments...")
   args = parser.parse_args()
   #print args
 
@@ -972,21 +971,21 @@ if __name__ == '__main__':
   #
   if args.extended_help:
     parser.print_help()
-    print ""
-    print generate_extened_help()
+    print("")
+    print(generate_extened_help())
     sys.exit(0)
 
   if args.list_suites:
     # Print all the known suites to the console with descriptions and then quit.
-    for key, value in configured_suites.iteritems():
-      if 'desc' in value.keys():
-        print "{0:<12s} {1:<s}".format(key, value['desc'])
+    for key, value in configured_suites.items():
+      if 'desc' in list(value.keys()):
+        print("{0:<12s} {1:<s}".format(key, value['desc']))
       else:
-        print "{0:<12s} ?? no desc. text found...".format(key)
+        print("{0:<12s} ?? no desc. text found...".format(key))
     sys.exit()
 
   if args.list_caltargets:
-    print calibration_targets.caltargets2prettystring()
+    print(calibration_targets.caltargets2prettystring())
     sys.exit()
 
   #
@@ -997,7 +996,7 @@ if __name__ == '__main__':
   suite = configured_suites[args.suite]
   pft = args.pft
 
-  print "Setting up logging..."
+  print("Setting up logging...")
   LOG_FORMAT = '%(levelname)-7s %(name)-8s %(message)s'
   numeric_level = getattr(logging, loglevel.upper(), None)
   if not isinstance(numeric_level, int):
@@ -1007,12 +1006,12 @@ if __name__ == '__main__':
 
   logger.info("Set the right pft in the suite's traces list..")
   for trace in suite['traces']:
-    if 'pft' in trace.keys():
+    if 'pft' in list(trace.keys()):
       trace['pft'] = 'PFT%i' % pft
 
-  if args.save_format not in plt.gcf().canvas.get_supported_filetypes().keys():
+  if args.save_format not in list(plt.gcf().canvas.get_supported_filetypes().keys()):
     logging.error("%s' is not a supported format for saving plots!" % args.save_format)
-    logging.error("Please use one of: %s" % (' '.join(plt.gcf().canvas.get_supported_filetypes().keys())))
+    logging.error("Please use one of: %s" % (' '.join(list(plt.gcf().canvas.get_supported_filetypes().keys()))))
     sys.exit(-1)
 
 
@@ -1077,26 +1076,26 @@ if __name__ == '__main__':
         # and try the import. on success, print something... and show lines??
         # if it fails then log message, and restore path, and continue
         try:
-          print "Trying to look for targets here: {}".format(os.path.abspath(args.ref_targets))
+          print("Trying to look for targets here: {}".format(os.path.abspath(args.ref_targets)))
           orig_path = sys.path
           sys.path = [os.path.abspath(args.ref_targets)]
-          import calibration_targets
+          from . import calibration_targets
           sys.path = orig_path
           found_targets = True
-          print "Restoring path..."
+          print("Restoring path...")
         except (ImportError, NameError) as e:
           logging.error("Can't display target lines!! Can't find targets! {}".format(e.message))
 
       else:
         try:
-          print "Trying to look for targets here: {}".format(os.path.abspath(args.ref_targets))
-          import calibration_targets
+          print("Trying to look for targets here: {}".format(os.path.abspath(args.ref_targets)))
+          from . import calibration_targets
           found_targets = True
         except (ImportError, NameError) as e:
           logging.error("Can't display target lines!! Can't find targets! {}".format(e.message))
 
       if found_targets:
-        for cmtname, data in calibration_targets.calibration_targets.iteritems():
+        for cmtname, data in calibration_targets.calibration_targets.items():
           if cmtstr == 'CMT{:02d}'.format(data['cmtnumber']):
             caltargets = data
             target_title_tag = "CMT {} ({:})".format(data['cmtnumber'], cmtname)
@@ -1107,7 +1106,7 @@ if __name__ == '__main__':
         target_title_tag = "--"
 
     else:
-      print logging.warn("No files. Can't figure out which CMT to display targets for without files.")
+      print(logging.warn("No files. Can't figure out which CMT to display targets for without files."))
       target_title_tag = "--"
 
   else:
@@ -1126,11 +1125,11 @@ if __name__ == '__main__':
 
     for PFT in range(0,10):
 
-      for k, S in configured_suites.iteritems():
+      for k, S in configured_suites.items():
 
         logger.info("Set the right pft in the suite's traces list..")
         for trace in S['traces']:
-          if 'pft' in trace.keys():
+          if 'pft' in list(trace.keys()):
             trace['pft'] = 'PFT%i' % PFT
 
         # SETUP THE WORKER PROCESS
