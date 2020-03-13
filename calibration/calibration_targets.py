@@ -323,16 +323,16 @@ calibration_targets = {
 
 def cmtnames():
   '''returns a list of community names'''
-  return [key for key in calibration_targets.keys()]
+  return [key for key in list(calibration_targets.keys())]
 
 def cmtnumbers():
   '''returns the cmt number for each known commnunity'''
-  return [data['cmtnumber'] for k, data in calibration_targets.iteritems()]
+  return [data['cmtnumber'] for k, data in calibration_targets.items()]
 
 def caltargets2prettystring():
   '''returns a formatted string with one cmt name/number pair per line'''
   s = ''
-  for key, value in calibration_targets.iteritems():
+  for key, value in calibration_targets.items():
     s += "{1:02d} {0:}\n".format(key, value['cmtnumber'])
   s = s[0:-1] # trim the last new line
   return s
@@ -342,7 +342,7 @@ def caltargets2prettystring2():
   l = [
       '%s - %s' % (data['cmtnumber'], k)
       for k, data in
-        calibration_targets.iteritems()
+        calibration_targets.items()
   ]
 
   sl = sorted(l)
@@ -353,7 +353,7 @@ def caltargets2prettystring3():
   l = [
       '(%s)%s' % (data['cmtnumber'], k)
       for k, data in
-        calibration_targets.iteritems()
+        calibration_targets.items()
   ]
 
   sl = sorted(l)
@@ -381,7 +381,7 @@ def toxl():
   nzc = 5
 
 
-  for community, cmtdata in calibration_targets.iteritems():
+  for community, cmtdata in calibration_targets.items():
     ws = wb.add_sheet(community)
 
     #        r  c
@@ -389,34 +389,34 @@ def toxl():
     ws.write(0, 1, cmtdata['cmtnumber'])
 
     r = nzr
-    for key, data in cmtdata.iteritems():
-      print "OPERATING ON: %s" % key
+    for key, data in cmtdata.items():
+      print("OPERATING ON: %s" % key)
       if key == 'cmtnumber':
         pass
       else:
         ws.write(r, 1, key) # col 1, the main key
-        print "row: %s col: %s key: %s" % (r, 1, key)
+        print("row: %s col: %s key: %s" % (r, 1, key))
         if type(data) == list:
           for col, pftvalue in enumerate(data):
             ws.write(r, col + nzc, pftvalue)
-            print "row: %s col: %s pftvalue: %s" % (r, col + nzc, pftvalue)
+            print("row: %s col: %s pftvalue: %s" % (r, col + nzc, pftvalue))
 
           r = r + 1
             
         elif type(data) == dict:
-          for compartment, pftvals in data.iteritems():
+          for compartment, pftvals in data.items():
             ws.write(r, 2, compartment)
-            print "row: %s col: %s compartment: %s" % (r, 2, compartment)
+            print("row: %s col: %s compartment: %s" % (r, 2, compartment))
 
             for col, pftvalue in enumerate(pftvals):
               ws.write(r, col + nzc, pftvalue)
-              print "row: %s col: %s pftvalue: %s" % (r, col + nzc, pftvalue)
+              print("row: %s col: %s pftvalue: %s" % (r, col + nzc, pftvalue))
 
             r = r + 1
         elif type(data) == int or type(data) == float:
-          print "WTF"
+          print("WTF")
           ws.write(r, nzc, data)
-          print "row: %s col: %s data: %s" % (r, nzc, data)
+          print("row: %s col: %s data: %s" % (r, nzc, data))
           r = r + 1
 
 
@@ -427,10 +427,10 @@ def toxl():
 
 
 def frmxl():
-  print "NOT IMPLEMENTED"
+  print("NOT IMPLEMENTED")
 
 if __name__ == '__main__':
-  print "Nothing happening here yet..."
+  print("Nothing happening here yet...")
 
   # for testing:
   toxl()
