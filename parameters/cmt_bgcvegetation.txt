@@ -39,6 +39,7 @@
 3.52         0.06         0.06         0.01         0.19         0.17         0.07         0.0          0.0          0.0          // initvegnr:
 0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          // initdeadc:
 0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          // initdeadn:
+0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // transport capacity: efficiency of each PFT to passively transport CH4
 //===========================================================
 // CMT01 // Boreal Black Spruce // 6/18/20 JSC   based on Melvin et al. 2015 and Ruess et al. 1996. Calibrated for Murphy Dome.
 //EverTree   DecidShrub   DecidTree    Moss         PFT4  PFT5   PFT6   PFT7   PFT8   PFT9   // pftnames:
@@ -75,6 +76,7 @@
 0.16998      0.00484      0.02599      0.0          0.0    0.0    0.0    0.0    0.0    0.0   // initvegnr:
 0.0          0.0          0.0          0.0          0.0    0.0    0.0    0.0    0.0    0.0   // initdeadc:
 0.0          0.0          0.0          0.0          0.0    0.0    0.0    0.0    0.0    0.0   // initdeadn:
+0.00         0.00         0.00         0.00         0.00   0.00   0.00   0.00   0.00   0.00  // transport capacity: efficiency of each PFT to passively transport CH4
 //===========================================================
 // CMT02 // Boreal White Spruce Forest // 1/22/21 JSC   based on Melvin et al. 2015 and Ruess et al. 1996. Calibrated with Bonanza Creek climate.
 //EverTree   DecidShrub   DecidTree    Moss         PFT4  PFT5   PFT6   PFT7   PFT8   PFT9   // pftnames:
@@ -111,6 +113,7 @@
 9.20         0.20         3.57         0.0          0.0    0.0    0.0    0.0    0.0    0.0   // initvegnr:
 0.0          0.0          0.0          0.0          0.0    0.0    0.0    0.0    0.0    0.0   // initdeadc:
 0.0          0.0          0.0          0.0          0.0    0.0    0.0    0.0    0.0    0.0   // initdeadn:
+0.00         0.00         0.00         0.00         0.00   0.00   0.00   0.00   0.00   0.00  // transport capacity: efficiency of each PFT to passively transport CH4
 //===========================================================
 // CMT03 // Boreal Deciduous Forest // 7/7/20 JSC  based on Melvin et al. 2015 and Ruess et al. 1996. Calibrated for Murphy Dome.
 //EverTree   DecidShrub   DecidTree    Moss         PFT4  PFT5   PFT6   PFT7   PFT8   PFT9   // pftnames:
@@ -147,6 +150,7 @@
 0.00037      0.11320      1.08868      0.0          0.0    0.0    0.0    0.0    0.0    0.0   // initvegnr:
 0.0          0.0          0.0          0.0          0.0    0.0    0.0    0.0    0.0    0.0   // initdeadc:
 0.0          0.0          0.0          0.0          0.0    0.0    0.0    0.0    0.0    0.0   // initdeadn:
+0.00         0.00         0.00         0.00         0.00   0.00   0.00   0.00   0.00   0.00  // transport capacity: efficiency of each PFT to passively transport CH4
 //===========================================================
 // CMT04 // Shrub Tundra // Calibrated for Toolik area.
 //Salix      Betula       Decid        EGreen       Sedges       Forbs        Grasses      Lichens      Feather      PFT9         // pftnames:
@@ -183,6 +187,7 @@
 0.08         0.56         0.04         0.01         0.12         0.17         0.07         0.0          0.0          0.0          // initvegnr:
 0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          // initdeadc:
 0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          // initdeadn:
+0.20         0.20         0.20         0.20         0.80         0.50         0.80         0.00         0.20         0.0          // transport capacity: efficiency of each PFT to passively transport CH4
 //==========================================================
 // CMT05 // Tussock Tundra // (updated 1/15/2016 JDC)
 //Betula     Decid        EGreen       Sedges       Forbs        Lichens      Feather      Sphag        PFT8         PFT9         // pftnames:
@@ -219,6 +224,7 @@
 1.02         1.21         1.77         7.48         1.81         0.00         0.0          0.0          0.0          0.0          // initvegnr:
 0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          // initdeadc:
 0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          // initdeadn:
+0.20         0.20         0.20         0.80         0.50         0.0          0.20         0.20         0.0          0.0          // transport capacity: efficiency of each PFT to passively transport CH4
 //===========================================================
 // CMT06 // Wet Sedge Tundra // Calibrated for Toolik area.
 //Decid      Sedges       Grasses      Forbs        Lichens      Feather      Sphag        PFT7         PFT8         PFT9         // pftnames
@@ -255,6 +261,7 @@
 0.069        2.776        0.603        0.130        0.000        0.000        0.000        0.00         0.00         0.00         // initvegnr:
 0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          // initdeadc:
 0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          // initdeadn:
+0.20         0.80         0.80         0.50         0.0          0.2          0.20         0.0          0.0          0.0          // transport capacity: efficiency of each PFT to passively transport CH4
 //===========================================================
 // CMT07 // Heath Tundra // updated cparts and initcneven and initvegc and n JSC 8 14 2019
 //Decid      EGreen       Forbs        Lichens      Grasses      Moss       PFT6         PFT7         PFT8         PFT9           // pftnames:
@@ -291,6 +298,7 @@
 0.362        0.446        0.030        0.000        0.030        0.000      0.00         0.00         0.00         0.00           // initvegnr:
 0.0          0.0          0.0          0.0          0.0          0.0        0.0          0.0          0.0          0.0            // initdeadc:
 0.0          0.0          0.0          0.0          0.0          0.0        0.0          0.0          0.0          0.0            // initdeadn:
+0.20         0.20         0.50         0.00         0.80         0.20       0.0          0.0          0.0          0.0            // transport capacity: efficiency of each PFT to passively transport CH4
 //===========================================================
 // CMT12 // Lowland Boreal Wet Shrubland 
 //DecShrub   EvrShrub     DecTree      EvrTree      Forbs        Gram         Feather      Lichen       Equisetum    PFT9         // pftnames:
@@ -327,6 +335,7 @@
 0.84         0.25         4.19         1.69         0.85         8.61         0.00         0.00         0.17         0.00         // initvegnr:
 0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          // initdeadc:
 0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          // initdeadn:
+0.20         0.20         0.20         0.20         0.50         0.80         0.20         0.00         0.20         0.0          // transport capacity: efficiency of each PFT to passively transport CH4
 //===========================================================
 // CMT20 // EML Shrub Tundra
 //Betnan     Carex       Ericoid      Feather       Lichen      OthMoss     Rubcha       Misc1        Misc2        Misc3          // names: comments
@@ -363,6 +372,7 @@
 3.331        0.919        2.469        0.00         0.00         0.00        1.272       0.0          0.0          0.0            // initvegnr:
 0.0          0.0          0.0          0.0          0.0          0.0         0.0         0.0          0.0          0.0            // initdeadc:
 0.0          0.0          0.0          0.0          0.0          0.0         0.0         0.0          0.0          0.0            // initdeadn:
+0.20        0.80          0.20         0.20         0.00         0.20        0.50        0.0          0.0          0.0            // transport capacity: efficiency of each PFT to passively transport CH4
 //===========================================================
 // CMT21 // EML Tussock Tundra
 //Betnan     Carex        Ericoid      Erivag       Feather     Lichen      OtherMoss    Rubcha     Sphagnum       PFT9           // pftnames:
@@ -399,6 +409,7 @@
 0.338        1.517        1.769        0.650        0.00         0.00        0.00        1.085       0.0           0.0            // initvegnr:
 0.0          0.0          0.0          0.0          0.0          0.0         0.0         0.0         0.0           0.0            // initdeadc:
 0.0          0.0          0.0          0.0          0.0          0.0         0.0         0.0         0.0           0.0            // initdeadn:
+0.20         0.80         0.20         0.20         0.20         0.00        0.20        0.50        0.20          0.00           // transport capacity: efficiency of each PFT to passively transport CH4
 //===========================================================
 // CMT31 // Boreal Bog
 //PFT0       PFT1         PFT2         PFT3         PFT4         PFT5         PFT6         PFT7         PFT8         PFT9         // names: comments                  
@@ -436,6 +447,7 @@
 0.0          1.618        0.168        1.754        1.485        0.00         0.00         0.00         0.00         0.00        // initvegnr: UPDATED 
 0.0          0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00        // initdeadc: IGNORE
 0.0          0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00        // initdeadn: IGNORE
+0.200000     0.800000     0.200000     0.200000     0.500000     0.200000     0.00         0.00         0.00         0.00        // transport capacity: efficiency of each PFT to passively transport CH4
 //===========================================================
 // CMT44 // Shrub Tundra Kougarok
 //Salix      Betula       Decid        EGreen       Sedges       Forbs        Grasses      Lichens      Feather      PFT9         // pftnames:
@@ -472,3 +484,4 @@
 0.08         0.33         0.04         0.01         0.12         0.17         0.07         0.0          0.0          0.0          // initvegnr:
 0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          // initdeadc:
 0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          // initdeadn:
+0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // transport capacity: efficiency of each PFT to passively transport CH4

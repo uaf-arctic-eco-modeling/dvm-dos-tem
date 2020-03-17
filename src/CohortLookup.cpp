@@ -169,7 +169,7 @@ void CohortLookup::assignBgcCalpar(std::string & dircmt) {
 
   // get a list of data for the cmt number
   std::list<std::string> l = temutil::parse_parameter_file(
-      dircmt + "cmt_calparbgc.txt", temutil::cmtcode2num(this->cmtcode), 23
+      dircmt + "cmt_calparbgc.txt", temutil::cmtcode2num(this->cmtcode), 22
   );
 
   // pop each line off the front of the list
@@ -187,7 +187,6 @@ void CohortLookup::assignBgcCalpar(std::string & dircmt) {
   temutil::pfll2data_pft(l, krb[I_stem]);
   temutil::pfll2data_pft(l, krb[I_root]);
   temutil::pfll2data_pft(l, frg);
-  temutil::pfll2data_pft(l, transport_capacity);
 
   temutil::pfll2data(l, micbnup);
   temutil::pfll2data(l, kdcrawc);
@@ -316,7 +315,7 @@ void CohortLookup::assignBgc4Vegetation(string & dircmt) {
   
   // get a list of data for the cmt number
   std::list<std::string> l = temutil::parse_parameter_file(
-      dircmt + "cmt_bgcvegetation.txt", temutil::cmtcode2num(this->cmtcode), 33
+      dircmt + "cmt_bgcvegetation.txt", temutil::cmtcode2num(this->cmtcode), 34
   );
 
   // pop each line off the front of the list
@@ -354,6 +353,7 @@ void CohortLookup::assignBgc4Vegetation(string & dircmt) {
   temutil::pfll2data_pft(l, initvegn[I_root]);
   temutil::pfll2data_pft(l, initdeadc);
   temutil::pfll2data_pft(l, initdeadn);
+  temutil::pfll2data_pft(l, transport_capacity);
 
 
   // Makes sure that the 'cpart' compartment variables match the proportions
