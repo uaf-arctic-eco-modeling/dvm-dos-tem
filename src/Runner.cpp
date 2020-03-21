@@ -1586,6 +1586,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
       //By layer
       if(curr_spec.layer){
 
+        if(curr_spec.daily){
+          output_nc_4dim(&curr_spec, file_stage_suffix, &cohort.edall->daily_ch4_pool[0][0], MAX_SOI_LAY, day_timestep, dinm);
+        }
         if(curr_spec.monthly){
           output_nc_4dim(&curr_spec, file_stage_suffix, &ch4_output[0], MAX_SOI_LAY, month_timestep, 1);
         }

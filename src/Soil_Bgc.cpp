@@ -379,6 +379,14 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
     Flux2A = Flux2A + tmp_flux; //flux cumulated over 1 day, 24 time steps, Y.MI
   } // end of time steps looping
 
+  currl = ground->fstshlwl; //reset currl to top of the soil stack
+  il = 0; //reset manual layer index tracker
+  while(currl->isSoil){
+    ed->daily_ch4_pool[id][il] = currl->ch4;
+    il++;
+    currl = currl->nextl;
+  }
+
   Layer* topsoil = ground->fstshlwl;
   tmp_flux = (topsoil->poro - topsoil->liq - topsoil->ice);
   //tmp_flux = (cd->m_soil.por[1] - ed->d_soid.alllwc[1] - ed->d_soid.alliwc[1]);
