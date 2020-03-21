@@ -139,11 +139,9 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
     ed->d_vegs.preLAI[ip] = cd->m_veg.lai[ip];
   }
 
-
   Layer *currl = ground->fstshlwl;
   int il = 0;//Manual layer index tracking
-  //If the layer is soil and is at most partially frozen
-  while(currl->isSoil && currl->frozen < 1){
+  while(currl->isSoil){
 
     if (ed->d_sois.watertab - 0.075 > (currl->z + currl->dz*0.5)) { //layer above water table
       torty_tmp = currl->poro - currl->liq - currl->ice; //air content
@@ -160,8 +158,17 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
     }
 
     //CH4 diffusion coefficient Dg, m2/h
+    //Fan 2013 Eq. 11
     diff[il] = diff_tmp * torty * pow((currl->tem + 273.15) / 293.15, 1.75);
-    s[il] = currl->dz * currl->dz / (diff[il] * dt);
+
+    //In order to prevent NaNs in the calculation of s[]
+    if(diff[il] == 0){
+      s[il] = 0;
+    }
+    else{
+      s[il] = currl->dz * currl->dz / (diff[il] * dt);
+    }
+
     r[il] = 2 + s[il];
 
     currl = currl->nextl;
@@ -216,6 +223,8 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 //      Plant = bd->rp * ed->m_sois.rootfrac[il] * currl->ch4 * bd->tveg * realLAI * 0.5;
 
       //Layer above water table
+      //The origin of the -0.075 is unknown.
+      //Helene checked Fan 2013, but not Walter & Heimann 2000.
       if (ed->d_sois.watertab - 0.075 > (currl->z + currl->dz*0.5)) {
         if (wtbflag == 0) {
           Prod = totEbul;
@@ -293,6 +302,8 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
         else{
           del_soi2a.rhsomcr_ch4[il] = 0.0;
         }
+
+        //The following equations follow Fan's paper
  
         Prod = 1000.0 * (del_soi2a.rhrawc_ch4[il] + del_soi2a.rhsoma_ch4[il] + del_soi2a.rhsompr_ch4[il] + del_soi2a.rhsomcr_ch4[il]) / (currl->dz * currl->poro) / 12.0;
         SB = 0.05708 - 0.001545 * currl->tem + 0.00002069 * currl->tem * currl->tem; //volume
@@ -342,6 +353,9 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
         plant_ch4_sum = 0.0;
       }
 
+      //Fan Eq. 8 (mostly?)
+      //change of CH4 conc./time = CH4 production rate - diffusion transport/soil depth
+      // - Ebullition - Oxidation - CH4 emitted through plant process
       SS = Prod - Ebul - Oxid - plant_ch4_sum;
 
       if (il == (numsoill - 1)) {
