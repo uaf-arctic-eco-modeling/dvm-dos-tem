@@ -1612,6 +1612,29 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
   map_itr = netcdf_outputs.end();
 
 
+  //CH4TRANSPORT
+  map_itr = netcdf_outputs.find("CH4TRANSPORT");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: CH4TRANSPORT";
+    curr_spec = map_itr->second;
+
+    #pragma omp critical(outputCH4TRANSPORT)
+    {
+
+      if(curr_spec.daily){
+        output_nc_4dim(&curr_spec, file_stage_suffix, &cohort.edall->daily_total_plant_ch4[0], 1, day_timestep, dinm);
+      }
+      else if(curr_spec.monthly){
+//        output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.edall->, 1, month_timestep, 1);
+      }
+      else if(curr_spec.yearly){
+//        output_nc_3dim(&curr_spec, file_stage_suffix, &, 1, year, );
+      }
+    }//end critical(outputCH4TRANSPORT)
+  }//end CH4TRANSPORT
+  map_itr = netcdf_outputs.end();
+
+
   //Standing dead C
   map_itr = netcdf_outputs.find("DEADC");
   if(map_itr != netcdf_outputs.end()){

@@ -125,6 +125,7 @@ public:
   double daily_root_water_uptake[31][MAX_SOI_LAY];
   double daily_percolation[31][MAX_SOI_LAY];
   double daily_ch4_pool[31][MAX_SOI_LAY];
+  double daily_total_plant_ch4[31];
 
   double monthsfrozen;      // months since bottom soil frozen started -
                             //   24 months is the criterion for permafrost

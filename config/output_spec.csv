@@ -15,6 +15,7 @@ BURNVEG2SOIBLWC,Burned vegetation C to soil below,g/m2/time,,,invalid,invalid,in
 BURNVEG2SOIBLWN,Burned vegetation N to soil below,g/m2/time,,,invalid,invalid,invalid,invalid,double,
 CH4FLUX,,??,,m,invalid,invalid,invalid,invalid,double,
 CH4POOL,Methane pool,??,,m,d,invalid,invalid,l,double,
+CH4TRANSPORT,Transport of methane by vegetation,??,,,d,,invalid,,double,
 CMTNUM,Community Type Number,m,,invalid,invalid,invalid,invalid,invalid,int,
 DEADC,Standing dead C,g/m2/time,,,invalid,invalid,invalid,invalid,double,
 DEADN,Standing dead N,g/m2/time,,,invalid,invalid,invalid,invalid,double,

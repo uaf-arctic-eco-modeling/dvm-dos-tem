@@ -411,6 +411,10 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
   Flux2A_m = Flux2A * tmp_flux * topsoil->dz * 1000.0;
   totFlux_m = 0.5 * totPlant_m + Flux2A_m + totEbul_m;//ebullitions counldn't reach the surface, eg. when water table is below the soil surface, are not included, Y.MI
+
+  //Store ebullition and veg flux values (mostly for output)
+  ed->daily_total_plant_ch4[id] = totPlant_m;
+
   Flux2A = 0.0; //Y.Mi
   totPlant_m =0.0; //Y.Mi
   totEbul_m = 0.0; //Y.Mi
