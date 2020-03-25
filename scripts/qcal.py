@@ -50,7 +50,20 @@ def qcal_rank2(truth, value):
   return (truth - value)**2
 
 
-def measure_calibration_quality_nc(output_directory_path, ref_targets_dir, ref_param_file):
+def measure_calibration_quality_nc(output_directory_path, ref_targets_dir, ref_param_dir):
+  '''
+  Parameters
+  ----------
+  output_directory_path : str
+    Path to a folder that must have all the necessary calibration outputs
+    in netcdf format.
+  ref_targets_dir : str
+    Path to a directory that must have a calibration targets file to use
+    for reference.
+  ref_param_dir : str
+    Path to a directory that must have a cmt_bgcvegetation.txt file in it
+    to use for looking up the percent ecosystem contribution.
+  '''
 
   print "************* WORKING WITH NETCDF FILES ***********"
   print ""
@@ -80,17 +93,16 @@ def measure_calibration_quality_nc(output_directory_path, ref_targets_dir, ref_p
   ]
 
   final_data = []
-  #print "variable value target rank(abs)"
+  #print("variable value target rank(abs)")
   for ctname, ncname in caltarget_to_ncname_map:
 
-    
     data, dims = ou.get_last_n_eq(ncname, 'yearly', output_directory_path)
     dsizes, dnames = zip(*dims)
 
     #print ctname, output_directory_path, ncname, dims, dnames, dsizes
 
     if dnames == ('time','y','x'):
-      pec = pu.percent_ecosys_contribution(cmtkey, ctname, ref_param_file=ref_param_file)
+      pec = pu.percent_ecosys_contribution(cmtkey, ctname, ref_params_dir=ref_param_dir)
       truth = caltargets[cmtkey][ctname]
       value = data[:,0,0].mean()
       #print ctname, value, truth, np.abs(qcal_rank(truth, value))
@@ -166,7 +178,7 @@ def measure_calibration_quality_nc(output_directory_path, ref_targets_dir, ref_p
   return data
 
 class QCal(object):
-  def __init__(self,jsondata_path="", ncdata_path="", ref_targets_dir="", ref_params_dir=""):
+  def __init__(self,jsondata_path="", ncdata_path="", ref_targets_dir="", ref_params_dir="", ref_runmask_dir=""):
     #self.cmtkey = ?? # it is possible to lookup the CMT number in the json file, but not the netcdf file!
 
     # This is basically a complicated mechanism to make sure that importing 
@@ -218,6 +230,7 @@ class QCal(object):
     self.targets = caltargets
     self.targets_dir = ref_targets_dir
     self.params_dir = ref_params_dir
+    self.runmask_dir = ref_runmask_dir
 
     self.jsondata_path = jsondata_path
     self.ncdata_path = ncdata_path
@@ -232,7 +245,7 @@ class QCal(object):
 
   def nc_qcal(self):
     assert(os.path.splitext(os.listdir(self.ncdata_path)[0])[1] == ".nc")
-    result_list = measure_calibration_quality_nc(self.ncdata_path)
+    result_list = measure_calibration_quality_nc(self.ncdata_path, ref_targets_dir=self.targets, ref_param_dir=self.params_dir, ref_runmask_dir=self.runmask_dir)
     return result_list
 
 
@@ -242,7 +255,7 @@ class QCal(object):
     elif which == 'nc':
       r = self.nc_qcal()
     else:
-      raise RuntimeError("You must specify which data source to use with the 'which' parameter")
+      raise RuntimeError("You must specify which data source to use with the 'which' parameter. Must be one of 'json' or 'nc'")
 
     cmt = set([i['cmt'] for i in r])
     if len(cmt) != 1:
@@ -388,6 +401,7 @@ def print_report(jdata, caltargets):
 
 
 def cal_folder_validator(arg_calfolder):
+  '''Make sure that the directory exists and has files...'''
   try:
     files = os.listdir(arg_calfolder)
   except OSError as e:
@@ -396,10 +410,16 @@ def cal_folder_validator(arg_calfolder):
   return arg_calfolder
 
 def ref_targets_validator(arg_ref_targets_path):
+  '''Not implemented yet...'''
   return arg_ref_targets_path
 
 def ref_params_validator(arg_ref_params_path):
+  '''Not implemented yet...'''
   return arg_ref_params_path
+
+def ref_runmask_validator(arg_ref_runmask_path):
+  '''Not implemented yet...'''
+  return arg_ref_runmask_path
 
 
 
@@ -423,6 +443,9 @@ if __name__ == '__main__':
 
   parser.add_argument("--ref-params", type=ref_params_validator, default=os.path.join('parameters/'),
       help=textwrap.dedent('''Path to a folder of parameter files. (cmt_*.txt)'''))
+  
+  parser.add_argument("--ref-runmask", type=ref_runmask_validator, default=os.path.join('.'),
+      help=textwrap.dedent('''Path to a folder with a run-mask.nc file in it.'''))
 
   parser.add_argument("calfolder", type=cal_folder_validator, 
       help=textwrap.dedent('''The folder where the program should look for calibration outputs from dvm-dos-tem'''))
@@ -437,12 +460,14 @@ if __name__ == '__main__':
 
   qcal = QCal(
       jsondata_path=os.path.join(args.calfolder, "eq-data.tar.gz"),
-      #ncdata_path="/home/jclein/Desktop/cal-kougo-treelineWS/output/",
+      ncdata_path=os.path.join(args.calfolder),
       ref_targets_dir=args.ref_targets,
-      ref_params_dir=args.ref_params
+      ref_params_dir=args.ref_params,
+      ref_runmask_dir=args.ref_runmask
   )
 
   print qcal.report(which='json')
+  print qcal.report(which='nc')
 
   #qcal.nc_qcal()
 
