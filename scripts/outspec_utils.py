@@ -361,6 +361,8 @@ if __name__ == '__main__':
     for v in "VEGC VEGN".split():
       data = toggle_on_variable(data, v, 'yearly pft compartment')
 
+    data = toggle_on_variable(data, 'CMTNUM', 'yearly')
+
     write_data_to_csv(data, args.file)
 
     print "NOTE: Make sure to enable 'eq' outputs in the config file!!!"

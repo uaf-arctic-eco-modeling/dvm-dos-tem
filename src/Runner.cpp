@@ -1369,6 +1369,22 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
   }//end BURNVEG2SOIBLWN
   map_itr = netcdf_outputs.end();
 
+  //Community Type Code (CMT NUMBER)
+  map_itr = netcdf_outputs.find("CMTNUM");
+  if(map_itr != netcdf_outputs.end()) {
+    BOOST_LOG_SEV(glg, debug) << "NetCDF output: CMTNUM";
+    curr_spec = map_itr->second;
+    #pragma omp critical(outputCMTNUM)
+    {
+
+      int cmtnum;
+      cmtnum = temutil::cmtcode2num(this->cohort.chtlu.cmtcode);
+
+      output_nc_3dim(&curr_spec, file_stage_suffix, &cmtnum, 1, year, 1);
+
+    } //end critical(outputCMTNUM)
+  } //end CMTNUM
+  map_itr = netcdf_outputs.end();
 
   //Standing dead C
   map_itr = netcdf_outputs.find("DEADC");

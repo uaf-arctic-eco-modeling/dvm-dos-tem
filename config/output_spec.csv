@@ -13,6 +13,7 @@ BURNVEG2SOIABVC,Burned vegetation C to soil above,g/m2/time,,,invalid,invalid,in
 BURNVEG2SOIABVN,Burned vegetation N to soil above,g/m2/time,,,invalid,invalid,invalid,invalid,double,
 BURNVEG2SOIBLWC,Burned vegetation C to soil below,g/m2/time,,,invalid,invalid,invalid,invalid,double,
 BURNVEG2SOIBLWN,Burned vegetation N to soil below,g/m2/time,,,invalid,invalid,invalid,invalid,double,
+CMTNUM,Community Type Number,m,,invalid,invalid,invalid,invalid,invalid,int,
 DEADC,Standing dead C,g/m2/time,,,invalid,invalid,invalid,invalid,double,
 DEADN,Standing dead N,g/m2/time,,,invalid,invalid,invalid,invalid,double,
 DEEPC,Amorphous SOM C,g/m2,,,invalid,invalid,invalid,invalid,double,

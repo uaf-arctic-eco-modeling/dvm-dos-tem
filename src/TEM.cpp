@@ -294,6 +294,21 @@ int main(int argc, char* argv[]){
     modeldata.create_netCDF_output_files(num_rows, num_cols, "sc", modeldata.sc_yrs, copy_gm);
   }
 
+  // Warn if CMTNUM output is not enabled.
+  bool cmtoutput_enabled = false;
+  boost::filesystem::directory_iterator end;
+  for (boost::filesystem::directory_iterator fsdi(boost::filesystem::path(modeldata.output_dir)); fsdi != end; ++fsdi) {
+    if ((*fsdi).path().string().find("CMTNUM") != std::string::npos) {
+      BOOST_LOG_SEV(glg, info) << "Looks good, CMTNUM output is enabled: " << *fsdi;
+      cmtoutput_enabled = true;
+      break;
+    }
+  }
+  if (!cmtoutput_enabled) {
+    BOOST_LOG_SEV(glg, err) << "Looks like CMTNUM output is NOT enabled."
+                            << " Strongly recommended to enable this output!"
+                            << " Use outspec_utils.py to turn on the CMTNUM output!";
+  }
 
   // Work on checking that the particular configuration will not result in too
   // much output.
