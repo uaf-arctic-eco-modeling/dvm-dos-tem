@@ -179,9 +179,7 @@ def measure_calibration_quality_nc(output_directory_path, ref_param_dir, ref_tar
   return final_data
 
 class QCal(object):
-  def __init__(self,jsondata_path="", ncdata_path="", ref_targets_dir="", ref_params_dir=""):
-    #self.cmtkey = ?? # it is possible to lookup the CMT number in the json file, but not the netcdf file!
-
+  def __init__(self,jsondata_path="", ncdata_path="", ref_targets_dir="", ref_params_dir="", y=None, x=None):
     # This is basically a complicated mechanism to make sure that importing 
     # the targets file is possible, even in the case where the user is specifying
     # that the reference targets file is in a directory that does not have
@@ -227,13 +225,18 @@ class QCal(object):
         print "Resetting path..."
         sys.path = old_path
 
-
     self.targets = caltargets
     self.targets_dir = ref_targets_dir
     self.params_dir = ref_params_dir
 
     self.jsondata_path = jsondata_path
     self.ncdata_path = ncdata_path
+    if self.ncdata_path != "":
+      if y is None or x is None:
+        raise RuntimeError("If you supply an path to nc data files you must also specify the (Y,X) pixel coordinates to analyze.")
+      self.Y = y
+      self.X = x
+
 
 
   def json_qcal(self):
@@ -253,9 +256,11 @@ class QCal(object):
     if which == 'json':
       r = self.json_qcal()
       modeled_data = self.jsondata_path
+      y = 'n/a'; x = 'n/a'
     elif which == 'nc':
       r = self.nc_qcal()
       modeled_data = self.ncdata_path
+      y = self.Y; x = self.X
     else:
       raise RuntimeError("You must specify which data source to use with the 'which' parameter. Must be one of 'json' or 'nc'")
 
@@ -263,15 +268,16 @@ class QCal(object):
     cmt = set([i['cmt'] for i in r])
     if len(cmt) != 1:
       raise RuntimeError("Problem with QCal results! More than one CMT detected!! {}".format(cmt))
-
+    from IPython import embed; embed()
     s = '''\
         modeled data: {}
+          pixel(y,x): ({},{})
         targets file: {}
      parameter files: {}
                  CMT: {}
                  QCR: {}
         Weighted QCR: {}
-    '''.format(modeled_data, self.targets_dir, self.params_dir, cmt, np.sum([i['qcr'] for i in r]), np.sum([i['qcr_w'] for i in r]) )
+    '''.format(modeled_data, y, x, self.targets_dir, self.params_dir, cmt, np.sum([i['qcr'] for i in r]), np.sum([i['qcr_w'] for i in r]) )
 
     return s
 
@@ -464,6 +470,7 @@ if __name__ == '__main__':
   qcal = QCal(
       jsondata_path=os.path.join(args.calfolder, "eq-data.tar.gz"),
       ncdata_path=os.path.join(args.calfolder),
+      y=0, x=0,
       ref_targets_dir=args.ref_targets,
       ref_params_dir=args.ref_params
   )
