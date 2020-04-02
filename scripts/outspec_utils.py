@@ -375,7 +375,7 @@ if __name__ == '__main__':
     res_spec = args.on[1:]
     data = csv_file_to_data_dict_list(args.file)
     
-    data = toggle_on_variable(data, var, res_spec)
+    data = toggle_on_variable(data, var, ' '.join(res_spec))
 
     write_data_to_csv(data, args.file)
 

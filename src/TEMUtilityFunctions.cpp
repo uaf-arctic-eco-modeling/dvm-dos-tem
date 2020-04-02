@@ -215,29 +215,24 @@ namespace temutil {
     std::string datastring = file2string(filepath.c_str());
 
     BOOST_LOG_SEV(glg, debug) << "Creating Json Value and Reader objects...";
-    Json::Value root;   // will contain the root value after parsing
-    Json::Reader reader;
+    Json::Value root;
+    Json::CharReaderBuilder rbuilder;
+    // March 2020, updated to work with newer jsoncpp (~1.9.x) where
+    // the Reader class has been deprecated in favor of CharReader.
+    // Not sure the exact version where this will break, but we had previously
+    // been using jsoncpp 1.8.3 and 1.8.1 successfully without CharReaderBuilder.
+    std::string errs;
+    std::stringstream ss;
+    ss << datastring;
 
     BOOST_LOG_SEV(glg, debug) << "Trying to parse the json data string...";
-
-    bool parsingSuccessful = reader.parse( datastring, root );
+    bool parsingSuccessful = Json::parseFromStream(rbuilder, ss, &root, &errs);
 
     BOOST_LOG_SEV(glg, debug) << "Parsing successful?: " << parsingSuccessful;
-
-    if ( !parsingSuccessful ) {
-        BOOST_LOG_SEV(glg, fatal) << "Failed to parse configuration file: " << filepath;
-        // 08/31/2017, Commented this function out.
-        // In older version of jsoncpp, there was a typo and the function
-        // call was missing a 't'. In more recent versions of jsoncpp, the
-        // older (misspelled) funciton has been deprecated. We haven't been
-        // having may errors parsing config files and trying to handle
-        // compiling on different machines with different versions of jsoncpp
-        // has been a pain, so for now we figure it will be easier to just not
-        // use the offending function call.
-        //BOOST_LOG_SEV(glg, fatal) << reader.getFormattedErrorMessages();
-        exit(-1);
+    if (!parsingSuccessful) {
+      BOOST_LOG_SEV(glg, fatal) << "Error parsing json file! " << errs; 
+      exit(-1);
     }
-
     return root;
   }
 
@@ -706,6 +701,9 @@ namespace temutil {
     
     std::vector<int> fy = ??
 */
+    std::vector<int> JUNK(10,-34567);
+    BOOST_LOG_SEV(glg, err) << "THIS IS JUNK DATA! NOT IMPLEMENTED YET!!";
+    return JUNK;
   }
 
   /** rough draft for reading a single location's list of 'fire sizes'. 
@@ -715,6 +713,9 @@ namespace temutil {
   */
   std::vector<int> get_fire_sizes(const std::string &filename, int y, int x){
     // FIX: implement this!
+    std::vector<int> JUNK(10,-2432);
+    BOOST_LOG_SEV(glg, err) << "THIS IS JUNK DATA! NOT IMPLEMENTED YET!!";
+    return JUNK;
   }
 
   /** rough draft for reading a single location, veg classification

@@ -75,9 +75,12 @@ if __name__ == '__main__':
       nc_dims = [dim for dim in ncFile.dimensions]
       nc_vars = [var for var in ncFile.variables]
 
+
       # Should be determined more neatly.
       for var in nc_vars:
-        if var != 'time':
+        if var == 'time' or 'grid_mapping_name' in ncFile[var].ncattrs():
+          pass # Can't plot these...
+        else:
           plotting_var = var
           print "plotting var: " + plotting_var
 

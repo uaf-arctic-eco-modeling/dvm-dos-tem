@@ -275,7 +275,7 @@ double OutputEstimate::hsize2bytes(std::string sizestr) {
   }
 
   int i = 0;
-  while ( !(hrunit.compare(units[i])) == 0 && (i < units.size()) )  {
+  while ( (!(hrunit.compare(units[i]))) == 0 && (i < units.size()) )  {
     size *= 1024;
     i++;
   }

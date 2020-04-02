@@ -137,9 +137,9 @@ void Soil_Bgc::prepareIntegration(const bool &mdnfeedback,
     //if (cd->m_soil.type[i]>0) { WRONG
     //soillayer sl = ground ;lksadjf; [i];
 
-    if(i==0 && cd->m_soil.type[i]==1
-       || i>0 && cd->m_soil.type[i]==1 && cd->m_soil.type[i-1]!=1){
-      //always put the litterfall from vascular and moss in the
+    if( (i==0 && cd->m_soil.type[i]==1) ||
+        ((i>0 && cd->m_soil.type[i]==1) && (cd->m_soil.type[i-1]!=1)) ) {
+      // always put the litterfall from vascular and moss in the
       // first non-moss soil layer
       ltrflc[i] = abvlfc + bd->m_v2soi.mossdeathc + bd->m_v2soi.rtlfalfrac[i] * blwlfc;
 
