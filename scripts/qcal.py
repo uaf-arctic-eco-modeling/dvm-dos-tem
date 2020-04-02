@@ -9,6 +9,7 @@ import sys
 import json
 import errno
 import numpy as np
+import netCDF4 as nc
 
 # Add dvm-dos-tem directory to path so that we can import various scripts, 
 # classes from the calibration directory, and the calibration targets.
@@ -50,14 +51,35 @@ def qcal_rank2(truth, value):
   return (truth - value)**2
 
 
-def measure_calibration_quality_nc(output_directory_path, ref_targets_dir, ref_param_file):
+def measure_calibration_quality_nc(output_directory_path, ref_param_dir, ref_targets={}):
+  '''
+  Parameters
+  ----------
+  output_directory_path : str
+    Path to a folder that must have all the necessary calibration outputs
+    in netcdf format.
+  ref_targets_dir : str
+    Path to a directory that must have a calibration targets file to use
+    for reference.
+  ref_param_dir : str
+    Path to a directory that must have a cmt_bgcvegetation.txt file in it
+    to use for looking up the percent ecosystem contribution.
+  '''
 
-  print "************* WORKING WITH NETCDF FILES ***********"
-  print ""
-  print "WARNING !!! WARNING !!! WARNING !!! HARDCODED CMT NUMBER!!"
-  cmtkey = 'CMT05'
+  # There are two ways we could treat a netcdf dataset:
+  # 1) only measure one pixel
+  # 2) average over all the pixels of the same (specified) CMT in a dataset
+  # For now starting with the simple case of just considering one pixel.
 
-  #print "CMT:", cmtkey
+  Y = 0
+  X = 0
+  last_N_yrs = 10
+
+  with nc.Dataset(os.path.join(output_directory_path, 'CMTNUM_yearly_eq.nc'), 'r') as ds:
+    data = ds.variables['CMTNUM'][-last_N_yrs:,Y,X]
+
+  assert(data.min() == data.max()) # should be the same CMT for the whole time frame
+  cmtkey = 'CMT{:02d}'.format(data[0])
 
   qcr = 0.0
   qcr_2 = 0.0
@@ -80,19 +102,18 @@ def measure_calibration_quality_nc(output_directory_path, ref_targets_dir, ref_p
   ]
 
   final_data = []
-  #print "variable value target rank(abs)"
+  #print("variable value target rank(abs)")
   for ctname, ncname in caltarget_to_ncname_map:
 
-    
-    data, dims = ou.get_last_n_eq(ncname, 'yearly', output_directory_path)
-    dsizes, dnames = zip(*dims)
+    data, dims = ou.get_last_n_eq(ncname, 'yearly', output_directory_path, n=last_N_yrs )
+    dsizes, dnames = list(zip(*dims))
 
-    #print ctname, output_directory_path, ncname, dims, dnames, dsizes
+    #print(ctname, output_directory_path, ncname, dims, dnames, dsizes)
 
     if dnames == ('time','y','x'):
-      pec = pu.percent_ecosys_contribution(cmtkey, ctname, ref_param_file=ref_param_file)
-      truth = caltargets[cmtkey][ctname]
-      value = data[:,0,0].mean()
+      pec = pu.percent_ecosys_contribution(cmtkey, ctname, ref_params_dir=ref_param_dir)
+      truth = ref_targets[cmtkey][ctname]
+      value = data[:,Y,X].mean()
       #print ctname, value, truth, np.abs(qcal_rank(truth, value))
 
       # Unweighted Rank
@@ -106,14 +127,12 @@ def measure_calibration_quality_nc(output_directory_path, ref_targets_dir, ref_p
       d = dict(cmt=cmtkey, ctname=ctname,value=value,truth=truth,qcr=np.abs(qcal_rank(truth, value)), qcr_w=np.abs(qcal_rank(truth, value)) * pec)
       final_data.append(d)
 
-
-
     elif dnames == ('time','y','x','pft'):
       for pft in range(0,10):
-        if pu.is_ecosys_contributor(cmtkey, pft):
-          pec = pu.percent_ecosys_contribution(cmtkey, ctname, pftnum=pft, ref_params_dir=ref_params_dir)
-          truth = caltargets[cmtkey][ctname][pft]
-          value = data[:,pft,0,0].mean()
+        if pu.is_ecosys_contributor(cmtkey, pft, ref_params_dir=ref_param_dir):
+          pec = pu.percent_ecosys_contribution(cmtkey, ctname, pftnum=pft, ref_params_dir=ref_param_dir)
+          truth = ref_targets[cmtkey][ctname][pft]
+          value = data[:,pft,Y,X].mean()
 
           # Unweighted Rank
           qcr += np.abs(qcal_rank(truth, value))
@@ -135,10 +154,10 @@ def measure_calibration_quality_nc(output_directory_path, ref_targets_dir, ref_p
         clu = {0:'Leaf', 1:'Stem', 2:'Root'}
         for cmprt in range(0,3):
           #print "analyzing... ctname {} (nc output: {}) for pft {} compartment {}".format(ctname, ncname, pft, cmprt),
-          if pu.is_ecosys_contributor(cmtkey, pft, clu[cmprt]):
-            pec = pu.percent_ecosys_contribution(cmtkey, ctname, pftnum=pft, compartment=clu[cmprt], ref_params_dir=ref_params_dir)
-            truth = caltargets[cmtkey][ctname][clu[cmprt]][pft]
-            value = data[:,cmprt,pft,0,0].mean()
+          if pu.is_ecosys_contributor(cmtkey, pft, clu[cmprt], ref_params_dir=ref_param_dir):
+            pec = pu.percent_ecosys_contribution(cmtkey, ctname, pftnum=pft, compartment=clu[cmprt], ref_params_dir=ref_param_dir)
+            truth = ref_targets[cmtkey][ctname][clu[cmprt]][pft]
+            value = data[:,cmprt,pft,Y,X].mean()
             # Unweighted Rank
             qcr += np.abs(qcal_rank(truth, value))
             qcr_2 += qcal_rank2(truth, value)
@@ -157,18 +176,10 @@ def measure_calibration_quality_nc(output_directory_path, ref_targets_dir, ref_p
     else:
       raise RuntimeError("SOMETHING IS WRONG?")
 
-  #print ""
-  #print ""
-  #print "qcr: {}  qcr_2: {}".format(qcr, qcr_2)
-  #print "w_qcr: {}  w_qcr_2: {}".format(w_qcr, w_qcr_2)
-  #pu.get_ecosystem_total_C('CMT04')
-
-  return data
+  return final_data
 
 class QCal(object):
-  def __init__(self,jsondata_path="", ncdata_path="", ref_targets_dir="", ref_params_dir=""):
-    #self.cmtkey = ?? # it is possible to lookup the CMT number in the json file, but not the netcdf file!
-
+  def __init__(self,jsondata_path="", ncdata_path="", ref_targets_dir="", ref_params_dir="", y=None, x=None):
     # This is basically a complicated mechanism to make sure that importing 
     # the targets file is possible, even in the case where the user is specifying
     # that the reference targets file is in a directory that does not have
@@ -214,13 +225,18 @@ class QCal(object):
         print "Resetting path..."
         sys.path = old_path
 
-
     self.targets = caltargets
     self.targets_dir = ref_targets_dir
     self.params_dir = ref_params_dir
 
     self.jsondata_path = jsondata_path
     self.ncdata_path = ncdata_path
+    if self.ncdata_path != "":
+      if y is None or x is None:
+        raise RuntimeError("If you supply an path to nc data files you must also specify the (Y,X) pixel coordinates to analyze.")
+      self.Y = y
+      self.X = x
+
 
 
   def json_qcal(self):
@@ -232,30 +248,36 @@ class QCal(object):
 
   def nc_qcal(self):
     assert(os.path.splitext(os.listdir(self.ncdata_path)[0])[1] == ".nc")
-    result_list = measure_calibration_quality_nc(self.ncdata_path)
+    result_list = measure_calibration_quality_nc(self.ncdata_path, ref_targets=self.targets, ref_param_dir=self.params_dir)
     return result_list
 
 
   def report(self, which):
     if which == 'json':
       r = self.json_qcal()
+      modeled_data = self.jsondata_path
+      y = 'n/a'; x = 'n/a'
     elif which == 'nc':
       r = self.nc_qcal()
+      modeled_data = self.ncdata_path
+      y = self.Y; x = self.X
     else:
-      raise RuntimeError("You must specify which data source to use with the 'which' parameter")
+      raise RuntimeError("You must specify which data source to use with the 'which' parameter. Must be one of 'json' or 'nc'")
 
+    #from IPython import embed; embed()
     cmt = set([i['cmt'] for i in r])
     if len(cmt) != 1:
       raise RuntimeError("Problem with QCal results! More than one CMT detected!! {}".format(cmt))
-
+    from IPython import embed; embed()
     s = '''\
         modeled data: {}
+          pixel(y,x): ({},{})
         targets file: {}
      parameter files: {}
                  CMT: {}
                  QCR: {}
         Weighted QCR: {}
-    '''.format(self.jsondata_path, self.targets_dir, self.params_dir, cmt, np.sum([i['qcr'] for i in r]), np.sum([i['qcr_w'] for i in r]) )
+    '''.format(modeled_data, y, x, self.targets_dir, self.params_dir, cmt, np.sum([i['qcr'] for i in r]), np.sum([i['qcr_w'] for i in r]) )
 
     return s
 
@@ -388,6 +410,7 @@ def print_report(jdata, caltargets):
 
 
 def cal_folder_validator(arg_calfolder):
+  '''Make sure that the directory exists and has files...'''
   try:
     files = os.listdir(arg_calfolder)
   except OSError as e:
@@ -396,10 +419,16 @@ def cal_folder_validator(arg_calfolder):
   return arg_calfolder
 
 def ref_targets_validator(arg_ref_targets_path):
+  '''Not implemented yet...'''
   return arg_ref_targets_path
 
 def ref_params_validator(arg_ref_params_path):
+  '''Not implemented yet...'''
   return arg_ref_params_path
+
+def ref_runmask_validator(arg_ref_runmask_path):
+  '''Not implemented yet...'''
+  return arg_ref_runmask_path
 
 
 
@@ -423,6 +452,9 @@ if __name__ == '__main__':
 
   parser.add_argument("--ref-params", type=ref_params_validator, default=os.path.join('parameters/'),
       help=textwrap.dedent('''Path to a folder of parameter files. (cmt_*.txt)'''))
+  
+  parser.add_argument("--ref-runmask", type=ref_runmask_validator, default=os.path.join('.'),
+      help=textwrap.dedent('''Path to a folder with a run-mask.nc file in it.'''))
 
   parser.add_argument("calfolder", type=cal_folder_validator, 
       help=textwrap.dedent('''The folder where the program should look for calibration outputs from dvm-dos-tem'''))
@@ -437,12 +469,14 @@ if __name__ == '__main__':
 
   qcal = QCal(
       jsondata_path=os.path.join(args.calfolder, "eq-data.tar.gz"),
-      #ncdata_path="/home/jclein/Desktop/cal-kougo-treelineWS/output/",
+      ncdata_path=os.path.join(args.calfolder),
+      y=0, x=0,
       ref_targets_dir=args.ref_targets,
       ref_params_dir=args.ref_params
   )
 
   print qcal.report(which='json')
+  print qcal.report(which='nc')
 
   #qcal.nc_qcal()
 
