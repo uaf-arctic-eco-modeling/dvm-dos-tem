@@ -33,7 +33,7 @@
 Here is a possible release note format:
 
     ```
-    # YY-MM-DD - v0.1.0
+    # v0.1.0 - YYYY-MM-DD
     
     General description
 
