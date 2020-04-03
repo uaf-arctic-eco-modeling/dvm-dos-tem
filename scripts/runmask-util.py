@@ -37,9 +37,9 @@ def report(taglist, masklist):
   #             masked 
   # run mask      1308
   # veg             24
-  print "{:>20}".format('# masked')
+  print("{:>20}".format('# masked'))
   for tag, mask in zip(taglist, masklist):
-    print "{:10}{:>10}".format(tag, np.count_nonzero(mask))
+    print("{:10}{:>10}".format(tag, np.count_nonzero(mask)))
 
   # Other ideas for interesting stuff to report...
   # # Set of all masked coords in topo file and run-mask
@@ -78,8 +78,8 @@ def conform_mask_timeseries(rm_m, data):
     prev = np.copy(rm_m)
     rm_m = ( rm_m | m )
     modcoords = np.nonzero(np.logical_xor(rm_m, prev))
-    if len(zip(*modcoords)) > 0:
-      print "At timestep {} modify mask at coords: {}".format(tidx, zip(*modcoords))
+    if len(list(zip(*modcoords))) > 0:
+      print("At timestep {} modify mask at coords: {}".format(tidx, list(zip(*modcoords))))
 
   # mc = np.nonzero(np.logical_xor(original_rm_m, rm_m).astype(int))
   # print "Summary of modified coords:"
@@ -177,7 +177,7 @@ def conform_mask_to_inputs(in_folder):
   ###########################################################
   # Handle FRI fire...
   ###########################################################
-  print "Handling FRI fire..."
+  print("Handling FRI fire...")
   ff = nc.Dataset(os.path.join(in_folder, "fri-fire.nc"), 'r')
   frim = np.ma.getmaskarray(ff.variables['fri'][:])
   friaobm = np.ma.getmaskarray(ff.variables['fri_area_of_burn'][:])
@@ -193,7 +193,7 @@ def conform_mask_to_inputs(in_folder):
   for file in ["historic-climate", "projected-climate"]:
     ds = nc.Dataset( os.path.join(in_folder,"{}.nc".format(file)) )
     for v in ['tair', 'precip', 'nirr', 'vapor_press']:
-      print "[{}] Updating mask for variable {}...".format(file, v)
+      print("[{}] Updating mask for variable {}...".format(file, v))
       v_m = np.ma.MaskedArray(ds.variables[v][:])
       rm_m = conform_mask_timeseries(rm_m, v_m)
 
@@ -203,14 +203,14 @@ def conform_mask_to_inputs(in_folder):
   for file in ["historic-explicit-fire.nc", "projected-explicit-fire.nc"]:
     ds = nc.Dataset(os.path.join(in_folder, file))
     for v in ['exp_burn_mask', 'exp_jday_of_burn', 'exp_area_of_burn','exp_fire_severity']:
-      print "[{}] Updating mask for variable {}...".format(file, v)
+      print("[{}] Updating mask for variable {}...".format(file, v))
       v_m = np.ma.getmaskarray(np.ma.MaskedArray(ds.variables[v][:]))
       rm_m = conform_mask_timeseries(rm_m, v_m)
 
-  print "FINAL MASK"
-  print rm_m.astype(int)
-  print "Inverted to match the style we use with dvmdostem:"
-  print np.invert(rm_m.astype(bool)).astype(int)
+  print("FINAL MASK")
+  print(rm_m.astype(int))
+  print("Inverted to match the style we use with dvmdostem:")
+  print(np.invert(rm_m.astype(bool)).astype(int))
 
   return rm_m
 
@@ -219,15 +219,15 @@ def conform_mask_to_inputs(in_folder):
 
 def show_mask(file, note):
   with nc.Dataset(file, 'r') as mask:
-    print "========== %s ==================================" % (note)
-    print "** Keep in mind that in this display the origin is the upper "
-    print "** left of the grid! This is opposite of the way that ncdump "
-    print "** and ncview display data (origin is lower left)!!"
-    print ""
-    print "'%s'" % (file)
-    print mask.variables['run']
-    print mask.variables['run'][:]
-    print ""
+    print("========== %s ==================================" % (note))
+    print("** Keep in mind that in this display the origin is the upper ")
+    print("** left of the grid! This is opposite of the way that ncdump ")
+    print("** and ncview display data (origin is lower left)!!")
+    print("")
+    print("'%s'" % (file))
+    print(mask.variables['run'])
+    print(mask.variables['run'][:])
+    print("")
 
 if __name__ == '__main__':
 
@@ -320,21 +320,21 @@ if __name__ == '__main__':
   with nc.Dataset(args.file, 'a') as mask:
 
     if args.reset:
-      print "Setting all pixels in runmask to '0' (OFF)."
+      print("Setting all pixels in runmask to '0' (OFF).")
       mask.variables['run'][:] = 0
 
     if args.yx:
       Y,X = args.yx
-      print "Turning pixel(y,x) ({},{}) to '1', (ON).".format(Y,X)
+      print("Turning pixel(y,x) ({},{}) to '1', (ON).".format(Y,X))
       mask.variables['run'][Y,X] = 1
 
     if args.all_on:
-      print "Setting all pixels in runmask to '1' (ON)."
+      print("Setting all pixels in runmask to '1' (ON).")
       mask.variables['run'][:] = 1
 
     if args.yx_off:
       Y, X = args.yx_off
-      print "Setting pixel (y, x) ({},{}) to '0', (OFF).".format(Y,X)
+      print("Setting pixel (y, x) ({},{}) to '0', (OFF).".format(Y,X))
       mask.variables['run'][Y,X] = 0
 
   # Show the after state

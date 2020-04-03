@@ -10,8 +10,8 @@ import numpy as np
 
 # Find the path to the this file so that we can look, relative to this file
 # up one directory and into the scripts/ directory
-sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../'))
-print sys.path
+sys.path.insert(0, os.path.abspath(os.path.dirname(os.path.dirname(__file__))))
+
 import scripts.param_util as pu
 
 

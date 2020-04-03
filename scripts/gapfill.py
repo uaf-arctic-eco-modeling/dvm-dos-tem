@@ -42,10 +42,10 @@ def modified_attribute_string(msg=''):
 def print_mask_count_along_timeseries(dataset, title='', nonewline=False):
   '''Counts masked items along a time axis and prints value for each pixel.'''
   pass
-  print "Masked items: {}".format(np.ma.count_masked(dataset))
-  print "-- {} --".format(title)
-  print "{}".format(np.apply_along_axis(np.count_nonzero, 0, np.ma.getmaskarray(dataset)))
-  print ""
+  print("Masked items: {}".format(np.ma.count_masked(dataset)))
+  print("-- {} --".format(title))
+  print("{}".format(np.apply_along_axis(np.count_nonzero, 0, np.ma.getmaskarray(dataset))))
+  print("")
 
 def gapfill_along_timeseries(data, dataTag):
   '''
@@ -65,7 +65,7 @@ def gapfill_along_timeseries(data, dataTag):
 
   print_mask_count_along_timeseries(datam, title='{} (before)'.format(dataTag))
 
-  coords_to_process = zip(*np.nonzero(np.invert(np.ma.getmaskarray(datam[0]))))
+  coords_to_process = list(zip(*np.nonzero(np.invert(np.ma.getmaskarray(datam[0])))))
 
   bad_points = None
 
@@ -75,7 +75,7 @@ def gapfill_along_timeseries(data, dataTag):
 
     # list of arrays, one array for each dimension,
     # so we unzip into a single list
-    bad_points = zip(*np.nonzero(timeseries.mask))
+    bad_points = list(zip(*np.nonzero(timeseries.mask)))
     if len(bad_points) > 0:
       pass
       #print "Got some bad data for px ({},{}): bad_points={}".format(yc, xc, bad_points)
@@ -92,7 +92,7 @@ def gapfill_along_timeseries(data, dataTag):
         #print "Setting datam[{},{},{}] = {}".format(tidx, yc, xc, new_value)
         datam[tidx, yc, xc] = new_value
       else:
-        print "Can't operate on ends of timeseries! Passing..."
+        print("Can't operate on ends of timeseries! Passing...")
 
   print_mask_count_along_timeseries(datam, title='{} (after)'.format(dataTag))
 
@@ -158,7 +158,7 @@ if __name__ == '__main__':
         for x in np.arange(0,X):
           px_ts = nirrD_i[:,y,x]
           for peakidx in peaks:
-            print peakidx # this is the coordinate along time axis
+            print(peakidx) # this is the coordinate along time axis
             if peakidx == 0 or peakidx == T-1:
               pass # Can't operate on ends!!
             else:
@@ -177,22 +177,22 @@ if __name__ == '__main__':
 
     file_path = os.path.join(args.input_folder, climate_file)
 
-    print "Looking for path as src dataset:", file_path
+    print("Looking for path as src dataset:", file_path)
     with nc.Dataset(file_path, 'r+') as myFile:
 
       for v in VARS:
 
-        print "Generating fill data for {}".format(file_path)
+        print("Generating fill data for {}".format(file_path))
         filled, bad_points = gapfill_along_timeseries(myFile.variables[v][:], dataTag='{}'.format(v))
 
-        print "Source: {}".format(myFile.source)
-        print "ncattrs: {}".format(myFile.ncattrs())
+        print("Source: {}".format(myFile.source))
+        print("ncattrs: {}".format(myFile.ncattrs()))
 
         if len(bad_points) < 1:
-          print "VARIABLE {} ALL OK! NOTHING TO GAPFILL!".format(v)
+          print("VARIABLE {} ALL OK! NOTHING TO GAPFILL!".format(v))
         else:
           if not (args.dry_run):
-            print "Overwriting file...."
+            print("Overwriting file....")
             myFile.variables[v][:] = filled
 
             myFile.variables[v].setncattr('modified', modified_attribute_string("Basic single point interpolation"))

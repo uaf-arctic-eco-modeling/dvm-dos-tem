@@ -53,7 +53,7 @@ if __name__ == '__main__':
         the new working directory."""))
 
   args = parser.parse_args()
-  print args
+  print(args)
 
   # Make the new main working directory
   mkdir_p(args.new_directory)
@@ -142,7 +142,7 @@ if __name__ == '__main__':
   ] 
 
   # Sort the keys in the IO section.
-  config['IO'] = collections.OrderedDict(sorted(config['IO'].iteritems(), key=lambda (k,v): sort_order.index(k)))
+  config['IO'] = collections.OrderedDict(sorted(iter(config['IO'].items()), key=lambda k_v: sort_order.index(k_v[0])))
 
   with open(os.path.join(args.new_directory, 'config/config.js'), 'w') as fp:
     commentjson.dump(config, fp, indent=2, sort_keys=False) # sorting messes up previous sorting!

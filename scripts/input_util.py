@@ -65,7 +65,7 @@ def verify_input_files(in_folder):
   #print "Symetric difference: ", files.symmetric_difference(required_files)
   
   if len(files.difference(required_files)) > 0:
-    print "WARNING: extra files present: ", files.difference(required_files)
+    print("WARNING: extra files present: ", files.difference(required_files))
 
   if len(required_files.difference(files)):
     msg = "Missing files: {}".format(required_files.difference(files))
@@ -130,7 +130,7 @@ def crop_file(infile, outfile, y, x, ysize, xsize):
     dst.crop = crop_attr_string(yo=y, xo=x, ys=ysize, xs=xsize)
 
     # next, create dimensions in the new file, mirroring the old dims
-    for name, dimension in src.dimensions.items():
+    for name, dimension in list(src.dimensions.items()):
       if name == 'X':
         dst.createDimension(name, xsize)
       elif name == 'Y':
@@ -138,8 +138,8 @@ def crop_file(infile, outfile, y, x, ysize, xsize):
       else:
         dst.createDimension(name, (len(dimension) if not dimension.isunlimited() else None))
 
-    for name, var in src.variables.items():
-      print "  copying variable {} with dimensions {}".format(name, var.dimensions)
+    for name, var in list(src.variables.items()):
+      print("  copying variable {} with dimensions {}".format(name, var.dimensions))
       newvar = dst.createVariable(name, var.datatype, var.dimensions)
 
       # Copy all attributes for the variable over
@@ -159,7 +159,7 @@ def crop_file(infile, outfile, y, x, ysize, xsize):
       elif 'year' in var.dimensions and len(var.dimensions) == 1:
         newvar[:] = var[:]
       else:
-        print "NOT SURE WHAT TO DO WITH VARIABLE: {} HAVING DIMS: {}".format(name, var.dimensions)
+        print("NOT SURE WHAT TO DO WITH VARIABLE: {} HAVING DIMS: {}".format(name, var.dimensions))
 
 
 def cropper(xo,yo,xs,ys,input_file="",output_file="/tmp/smaller.nc", write_lonlat=True):
@@ -173,14 +173,14 @@ def cropper(xo,yo,xs,ys,input_file="",output_file="/tmp/smaller.nc", write_lonla
     raise RuntimeError("Must provide an input_file path to cropper(...) function!")
 
   if xs <= 1 or ys == 1:
-    print "Probably not supported by GDAL!"
+    print("Probably not supported by GDAL!")
 
   if write_lonlat:
     write_ll='WRITE_LONLAT=YES' 
   else:
     write_ll='WRITE_LONLAT=NO'
 
-  print "Cropping..."
+  print("Cropping...")
   subprocess.call([
     'gdal_translate','-of','netcdf',
     '-co', write_ll,
@@ -206,13 +206,13 @@ def crop_wrapper(args):
   tag = '_'.join(os.path.basename(os.path.normpath(infolder)).split('_')[0:-1])
   outfolder = os.path.join(os.path.dirname(os.path.normpath(infolder)), "{}_{}x{}".format(tag, args.ysize, args.xsize))
 
-  print "Creating output folder: ", outfolder
+  print("Creating output folder: ", outfolder)
   mkdir_p(outfolder)
 
   for srcfile in filelist:
     infile = srcfile
     outfile = os.path.join(outfolder, os.path.basename(srcfile))
-    print "input file: {}  -->  output file: {}".format(infile, outfile)
+    print("input file: {}  -->  output file: {}".format(infile, outfile))
     y, x = args.yx
     crop_file(infile, outfile, y, x, args.ysize, args.xsize)
 
@@ -317,7 +317,7 @@ def climate_ts_plot(args):
   if args.type == 'spatial-temporal-summary':
 
     if args.stitch:
-      print "Warning: Ignoring command line argument --stitch"
+      print("Warning: Ignoring command line argument --stitch")
     hds = nc.Dataset(os.path.join(args.input_folder, CLIMATE_FILES[0]))
     pds = nc.Dataset(os.path.join(args.input_folder, CLIMATE_FILES[1]))
 
@@ -465,7 +465,7 @@ def climate_ts_plot(args):
           ax.xaxis.set_major_locator(ticker.MultipleLocator(12))
           ax.grid()
       except TypeError:
-        print axes, 'is not iterable; setting grid on single axes instance'
+        print(axes, 'is not iterable; setting grid on single axes instance')
         axes.xaxis.set_major_locator(ticker.MultipleLocator(12))
         axes.grid()
 
@@ -494,7 +494,7 @@ def climate_ts_plot(args):
       plt.show(block=True)
 
   else:
-    print "Cmd line arg should be checked such that you can't arrive here."
+    print("Cmd line arg should be checked such that you can't arrive here.")
 
 
 def tunnel_fast(latvar,lonvar,lat0,lon0):
@@ -599,7 +599,7 @@ if __name__ == '__main__':
 
   args = parser.parse_args()
 
-  print args
+  print(args)
 
   if args.command == 'crop':
     verify_input_files(args.input_folder)
@@ -640,13 +640,13 @@ if __name__ == '__main__':
       target = {'lat':args.iyix_from_latlon[0], 'lon':args.iyix_from_latlon[1]}
       iy,ix = tunnel_fast(latvar[:], lonvar[:], target['lat'], target['lon'])
       iy_fUL = len(ncfile.dimensions['y'])-iy
-      print('Target lat, lon:', target['lat'], target['lon'])
-      print('Delta with target lat, lon:', target['lat'] - latvar[iy,ix], target['lon'] - lonvar[iy,ix])
-      print('lat, lon of closest match:', latvar[iy,ix], lonvar[iy,ix])
-      print('indices of closest match iy, ix (FROM LOWER left):', iy, ix)
-      print('indices of closest match iy, ix (FROM UPPER left):', iy_fUL, ix)
+      print(('Target lat, lon:', target['lat'], target['lon']))
+      print(('Delta with target lat, lon:', target['lat'] - latvar[iy,ix], target['lon'] - lonvar[iy,ix]))
+      print(('lat, lon of closest match:', latvar[iy,ix], lonvar[iy,ix]))
+      print(('indices of closest match iy, ix (FROM LOWER left):', iy, ix))
+      print(('indices of closest match iy, ix (FROM UPPER left):', iy_fUL, ix))
       print('** NOTE: Use coords FROM UPPER LEFT to build/crop a new dataset with that pixel at the LOWER LEFT corner of the dataset!')
-      print('''
+      print(('''
 
       NOTE:
       When gdal reads .tif files it uses the UPPER LEFT corner of the UPPER LEFT
@@ -667,7 +667,7 @@ if __name__ == '__main__':
         @ UR of cropped region:                      iy={iy:}            ix=({ix:}-XSIZE)+1
 
         @ approx center of cropped region:           iy={iy:}-(YSIZE/2)  ix={ix:}-(XSIZE/2)
-      '''.format(iy=iy_fUL, ix=ix))
+      '''.format(iy=iy_fUL, ix=ix)))
       print()
 
       ncfile.close()

@@ -57,7 +57,7 @@ def cat_array_driver_script():
         #  -l    tag lines in stdout and err with step id? can't be used with -u
         srun -u --nodes=1 python dvm-dos-tem/scripts/detrend-climate-drivers.py "$MONTH" "$INDIR" "$OUTDIR"
     ''')
-  print text
+  print(text)
 
 def print_mask_report(data):
   '''Print some info about a masked array'''
@@ -65,7 +65,7 @@ def print_mask_report(data):
   sz = data.size
   mv = np.count_nonzero(data.mask)
   pcnt = 100.0 * mv/sz
-  print "Shape: %s Total size: %s Masked values: %s. Percent Masked: %0.7f" % (str(shape), sz, mv, pcnt)
+  print("Shape: %s Total size: %s Masked values: %s. Percent Masked: %0.7f" % (str(shape), sz, mv, pcnt))
 
 
 def guess_from_filename(f):
@@ -123,8 +123,8 @@ def setup_output_directory(orig_file_list):
 def print_memory_report():
   # NOTE: Not sure if the percentage calculation is correct!
   #       It seems to work on my OSX computer, but gives funky results on Atlas.
-  print "Currently Available Memory (GB) ", psutil.virtual_memory().available/1024.0/1024.0/1024.0
-  print "Peak memory usage by this program(GB):", resource.getrusage(resource.RUSAGE_SELF).ru_maxrss/1024.0/1024.0/1024.0
+  print("Currently Available Memory (GB) ", psutil.virtual_memory().available/1024.0/1024.0/1024.0)
+  print("Peak memory usage by this program(GB):", resource.getrusage(resource.RUSAGE_SELF).ru_maxrss/1024.0/1024.0/1024.0)
 
 
 def main(args):
@@ -133,7 +133,7 @@ def main(args):
 
   # Make a list with paths to all the correct input files.
   # In this case, one month, all years.
-  print "Listing and sorting all files for a month from the input directory..."
+  print("Listing and sorting all files for a month from the input directory...")
   monthfiles = sorted(glob.glob("%s/*_%02d_*.tif" % (args.infiledir, args.month)))
   
   TMP_MONTHLISTFILE = 'month-%02d-file-list.txt' % args.month
@@ -146,7 +146,7 @@ def main(args):
       f.write("\n")
 
   # Call gdalbuildvrt with the list file...
-  print "Build a .vrt file with a band for each timestep in the %s file..." % TMP_MONTHLISTFILE
+  print("Build a .vrt file with a band for each timestep in the %s file..." % TMP_MONTHLISTFILE)
   rc = subprocess.call([
       'gdalbuildvrt',
       '-separate',
@@ -155,41 +155,41 @@ def main(args):
       VRTFILE
     ], stderr=subprocess.STDOUT)
 
-  print "Return code from subprocess:", rc
+  print("Return code from subprocess:", rc)
   if rc != 0:
-    print "Warning! There was an error in calling gdalbuildvrt!"
+    print("Warning! There was an error in calling gdalbuildvrt!")
     if rc == -6:
-      print "We think it may be safe to continue..."
+      print("We think it may be safe to continue...")
     else:
-      print "Not sure what is going on. Stopping."
+      print("Not sure what is going on. Stopping.")
       exit()  
 
-  print "Cleaning up temporary month list file..."
+  print("Cleaning up temporary month list file...")
   os.remove(TMP_MONTHLISTFILE)
 
   # NOTE: should we check for enough memory?? 
   print_memory_report()
 
-  print "Opening %s file..." % VRTFILE
+  print("Opening %s file..." % VRTFILE)
   monthdatafile = rasterio.open(VRTFILE)
-  print "File has %s bands." % (monthdatafile.count)
+  print("File has %s bands." % (monthdatafile.count))
 
   # NOTE: one based indexing...seems to be a rasterio thing?
   # or gdalvrt numbers bands starting at 1? Not sure....
   # Also, when not debugging, we want to read all the bands
   # (by not passing any arguments to the read() function. BUT 
   # this can result in a whole lot of memory usage!
-  print "Reading the vrt file into memory..."
+  print("Reading the vrt file into memory...")
   if args.ss != None:
     ss = [int(v) for v in args.ss.split(':')]
     # should really verify/validate this elsewhere..
     if len(ss) != 2:
-      print "Error with --ss argument!: %s" % args.ss
+      print("Error with --ss argument!: %s" % args.ss)
       exit(-1)
-    print "Reading bands (start, stop): %s" % (str(ss))
-    data = monthdatafile.read(range(ss[0],ss[1]))
+    print("Reading bands (start, stop): %s" % (str(ss)))
+    data = monthdatafile.read(list(range(ss[0],ss[1])))
   else:
-    print "Reading all bands...."
+    print("Reading all bands....")
     data = monthdatafile.read() #<-- empty to read all bands 
 
   # Make sure the mask is set 
@@ -198,7 +198,7 @@ def main(args):
   #       over all the masked points too. But the mask
   #       is key for displaying the data and having the auto-
   #       scaling work correctly...
-  print "Masking extreme data..."
+  print("Masking extreme data...")
   data = np.ma.masked_outside(data, -100000, 100000, copy=False)
   print_mask_report(data)
 
@@ -208,27 +208,27 @@ def main(args):
   # when operating on the fill values which are usually very
   # large or very small. These large or small numbers get squared
   # in the detrending fuction and we end up with overflow errors. 
-  print "Detrend along time axis..."
+  print("Detrend along time axis...")
   detrended_data = scipy.signal.detrend(data, axis=0)
 
   # Now make sure to add the offset back into the data
-  print "Add offset to data..."
+  print("Add offset to data...")
   detrended_data[:,:,:] += (data[0,:,:] - detrended_data[0,:,:])
 
-  print "Mask extreme values..."
-  print "(apparently previous mask not respected by scipy.signal.detrend and the '+=' operator)"
+  print("Mask extreme values...")
+  print("(apparently previous mask not respected by scipy.signal.detrend and the '+=' operator)")
   detrended_data = np.ma.masked_outside(detrended_data, -100000, 100000)
   print_mask_report(detrended_data)
 
   # Apply the most aggressive mask to every timeslice.
-  print "Apply the the 'any mask' from along time axis to each timestep/image..."
+  print("Apply the the 'any mask' from along time axis to each timestep/image...")
   for i, img in enumerate(data[:]):
       detrended_data.mask[i,:,:] = detrended_data.mask.any(0)
 
   print_mask_report(detrended_data)
 
   # Write out the data to a new series of .tif or .nc files
-  print "Setup for file writing..."
+  print("Setup for file writing...")
 
   # guess some things about the data from the naming of the first
   # input file...
@@ -241,14 +241,14 @@ def main(args):
 
   # Clean up any files that exist in the output directory (only for the month we are working on)
   existing_file_list = sorted(glob.glob("%s/*_%02d_*.nc" % (outputdir, args.month)))
-  print "Clean up %i existing output files for this month..." % len(existing_file_list)
+  print("Clean up %i existing output files for this month..." % len(existing_file_list))
   for f in existing_file_list:
-    print "removing %s" % f
+    print("removing %s" % f)
     os.remove(f)
 
 
   # USING PYTHON'S netCDF4 package to write out the output files.
-  print "Write each timestep out to its own file in %s" % outputdir
+  print("Write each timestep out to its own file in %s" % outputdir)
   for i, timestep in enumerate(detrended_data[:]):
     # tag each file name with the timestep info (month and year)
     newfname = bname + ("_%02d_%04d.nc" % (args.month, int(year)+i))
@@ -303,7 +303,7 @@ def main(args):
   #       dst.write_band(1, timestep.astype(rasterio.float32))
 
 
-  print "Done writing timesteps to files."
+  print("Done writing timesteps to files.")
   print_memory_report()
 
 
@@ -351,7 +351,7 @@ if __name__ == '__main__':
       bands to read. 1 based! Bands in this case are timesteps, so years, because
       the list of files should be about 100 (years) long for a single month.'''))
 
-  parser.add_argument('month', choices=range(1,13), type=int, metavar='month',
+  parser.add_argument('month', choices=list(range(1,13)), type=int, metavar='month',
     help="Which month to process"
   )
 

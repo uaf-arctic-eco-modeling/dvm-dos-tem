@@ -16,18 +16,18 @@ from mpl_toolkits.basemap import Basemap
 import rasterio
 import pyproj
 
-import input_util as iu
+from . import input_util as iu
 
 def pretty_print_crs(crs):
-  print crs.is_projected
-  print crs.data
-  print crs.to_proj4()
-  print crs.to_wkt()
-  print "-->", tif_crs.to_epsg()
-  print crs.keys()
-  print crs.is_projected
-  print crs.values()
-  print meta
+  print(crs.is_projected)
+  print(crs.data)
+  print(crs.to_proj4())
+  print(crs.to_wkt())
+  print("-->", tif_crs.to_epsg())
+  print(list(crs.keys()))
+  print(crs.is_projected)
+  print(list(crs.values()))
+  print(meta)
 
 
 sites = []
@@ -48,7 +48,7 @@ with rasterio.open(veg_tiff) as src:
 
 # Convert tif to netcdf
 if os.path.exists(veg_nc):
-    print "NOTE: Overwriting ", veg_nc
+    print("NOTE: Overwriting ", veg_nc)
 subprocess.call([ 'gdal_translate', '-of','netcdf','-co','WRITE_LONLAT=YES', veg_tiff, veg_nc])
 
 
@@ -81,7 +81,7 @@ ymin = ymax - map_height
 llproj = (xmin, ymin)
 urproj = (xmax, ymax)
 extent = [xmin, xmax, ymin, ymax] # [left, right, bottom, top]
-print llproj
+print(llproj)
 
 
 # Instantiate projection class and compute longlat coordinates of
@@ -93,9 +93,9 @@ urll = p(*urproj, inverse=True)
 
 
 # Set up the color map...
-print tif_colormap
-a = np.array([v for k, v in tif_colormap.iteritems()])
-print a.shape, a.max(), a.min()
+print(tif_colormap)
+a = np.array([v for k, v in tif_colormap.items()])
+print(a.shape, a.max(), a.min())
 a = a/255.0
 cm = matplotlib.colors.ListedColormap(a[0:13])#
 
@@ -130,7 +130,7 @@ def overlay_subregion(fpath, map_inst):
     meta = nc_rds.meta
     data = nc_rds.read(1)
 
-  print data.shape
+  print(data.shape)
   with nc.Dataset(fpath, 'r') as ds:
     latv = ds.variables['lat'][:]
     lonv = ds.variables['lon'][:]
@@ -147,12 +147,12 @@ def overlay_subregion(fpath, map_inst):
   urproj = (xmax, ymax)
   extent = [xmin, xmax, ymin, ymax] # [left, right, bottom, top]
 
-  print map_width,map_height
-  print xmin, xmax
-  print ymin, ymax
-  print llproj
-  print urproj
-  print extent
+  print(map_width,map_height)
+  print(xmin, xmax)
+  print(ymin, ymax)
+  print(llproj)
+  print(urproj)
+  print(extent)
 
   # Instantiate projection class and compute longlat coordinates of
   # the raster's ll and ur corners
@@ -160,8 +160,8 @@ def overlay_subregion(fpath, map_inst):
   p = pyproj.Proj(**crs)
   llll = p(*llproj, inverse=True)
   urll = p(*urproj, inverse=True)
-  print "sro ll: ", llll
-  print "sro ur:", urll
+  print("sro ll: ", llll)
+  print("sro ur:", urll)
 
   xi,yi = map_inst(lonv,latv)
   sro = map_inst.scatter(xi,yi[::-1], zorder=5001, c=data, cmap=cm, alpha=1.0)  ### <---- ?????? reversing the y coords makes it all look right??
@@ -196,7 +196,7 @@ m = Basemap(llcrnrlon=llll[0], llcrnrlat=llll[1], urcrnrlon=urll[0], urcrnrlat=u
             # There might be other parameters to set depending on your crs
 
 
-print "Lower left (ll) = ????", m(llproj, urproj, inverse=True) # Get lat, lon in decimal degrees from projected coords
+print("Lower left (ll) = ????", m(llproj, urproj, inverse=True)) # Get lat, lon in decimal degrees from projected coords
 
 # Get the sites in projected coords from the lon/lat in decimal degrees
 #sitex_projmapcoords, sitey_projmapcoords = m([float(d['lon']) for d in sites], [float(d['lat']) for d in sites])
@@ -229,7 +229,7 @@ cbar = m.colorbar(iem_vegclass_img)
 
 tick_locs = (np.arange(len(CMTs)) + 0.5)*(len(CMTs)-1)/len(CMTs)
 cbar.set_ticks(tick_locs)
-cbar.set_ticklabels(zip(*CMTs)[1])
+cbar.set_ticklabels(list(zip(*CMTs))[1])
 
 
 # Plot the sites of interest
@@ -262,24 +262,24 @@ m.drawmeridians(meridians,labels=[False,False,False,True], zorder=1000)
 
 #@debug_view.capture(clear_output=True)
 def onpick0(event):
-  print event
-  print vars(event)
+  print(event)
+  print(vars(event))
 
   if len(event.ind) > 1:
-    print "YOU HIT MORE THAN ONE POINT!!"
+    print("YOU HIT MORE THAN ONE POINT!!")
 
   SIZE = 25
 
-  print "{:>10s} {:>7s} {:>9s} {:>7s} {:>7s}   {:>7s} {:>7s}".format('event.ind', 'lat', 'lon', 'iy' , 'ix', 'iy_alt', 'ix')
+  print("{:>10s} {:>7s} {:>9s} {:>7s} {:>7s}   {:>7s} {:>7s}".format('event.ind', 'lat', 'lon', 'iy' , 'ix', 'iy_alt', 'ix'))
   for (ei, lat, lon) in zip(event.ind, np.array(site_lat)[event.ind], np.array(site_lon)[event.ind]):
 
     iy, ix = iu.tunnel_fast(nc_latv, nc_lonv, lat, lon)
 
     iy_alt = (nc_meta['height'] - iy) - SIZE
 
-    print "{:>10d} {:>2.4f} {:>4.4f} {:>7d} {:>7d}   {:>7d} {:>7d}".format(ei, lat,lon, iy,ix, iy_alt,ix)
+    print("{:>10d} {:>2.4f} {:>4.4f} {:>7d} {:>7d}   {:>7d} {:>7d}".format(ei, lat,lon, iy,ix, iy_alt,ix))
 
-  print ""
+  print("")
 
 
   #from IPython import embed; embed()
@@ -307,27 +307,27 @@ plt.show()
 #plt.savefig('figure_name.png',dpi=100, transparent=True)
 
 
-  '''
+'''
       fig_coords    map_proj_coords      lonlat
   x:         235      45334534534.3      -147.2
   y:         123      43534534511.5      63.2
 
-  '''
+'''
 
-  '''
+'''
                      X       Y
        fig_coords   235
   map_proj_coords  
       data_coords
     lonlat_coords
-  '''
+'''
 
 
-  '''
+'''
   site,lon,lat,mpcoords_x,mpcoords_y,figcoords_x,figcoords_y,
 
 
-  '''
+'''
   #from IPython import embed; embed()
 
   # header = "{:>10}{:>6}{:>6}{:>14}{:>14}{:>14}{:>14}".format(*('site,lon,lat,mpcoords_x,mpcoords_y,figcoords_x,figcoords_y'.split(',')))

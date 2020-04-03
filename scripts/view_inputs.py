@@ -25,7 +25,7 @@ def dms2dd(degrees, minutes, seconds, direction):
 def parse_dms(dms):
   #parts = re.split('[°\'"]+', dms)
   parts = dms.strip().split(' ')
-  print parts
+  print(parts)
   return parts
 
 
@@ -96,7 +96,7 @@ if __name__ == '__main__':
   points = m.scatter(x, y, marker='o', color='r')
 
 
-  if 'veg_class' in d.variables.keys():
+  if 'veg_class' in list(d.variables.keys()):
     CMTNAMES = [ 
       "Bare Ground Rock Water",
       "Black Spruce",
@@ -116,25 +116,25 @@ if __name__ == '__main__':
     data2show = d.variables['veg_class']
     color_map = discrete_cmap(N, 'Set1')
 
-  if 'tair' in d.variables.keys():
+  if 'tair' in list(d.variables.keys()):
     data2show = d.variables['tair'][0]
     color_map = plt.cm.get_cmap('Reds')
 
 
 
   ax1.set_title("Area of Interest")
-  print data2show.shape
+  print(data2show.shape)
   img = ax1.imshow(data2show[:,:], 
                    origin='lower', interpolation='none', 
                    cmap=color_map)
   img.set_clim(-0.5, N-0.5)
 
-  if 'veg_class' in d.variables.keys():
+  if 'veg_class' in list(d.variables.keys()):
     cbar = fig.colorbar(img, ax=ax1)
-    cbar.set_ticks(range(len(CMTNAMES)))
+    cbar.set_ticks(list(range(len(CMTNAMES))))
     cbar.set_ticklabels(CMTNAMES)
 
-  if 'tair' in d.variables.keys():
+  if 'tair' in list(d.variables.keys()):
     pass
 
 

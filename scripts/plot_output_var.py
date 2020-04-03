@@ -67,7 +67,7 @@ if __name__ == '__main__':
       if you plan to zoom in on the data.'''))
 
   args = parser.parse_args()
-  print args
+  print(args)
 
   if args.file:
 
@@ -82,7 +82,7 @@ if __name__ == '__main__':
           pass # Can't plot these...
         else:
           plotting_var = var
-          print "plotting var: " + plotting_var
+          print("plotting var: " + plotting_var)
 
       if args.timesteps is not None:
         time_start = args.timesteps[0]
@@ -99,23 +99,23 @@ if __name__ == '__main__':
 
       dim_count = len(nc_dims)
 
-      print "pixel(Y,X): ({},{})".format(Y, X)
-      print "dim count: " + str(dim_count) 
-      print "dimensions: " + str(nc_dims)
-      print "variables: " + str(nc_vars)
-      print "shape: " + str(nc_data.shape)
-      print "selected time range size: {} start: {} end: {}".format(
-          len(time_range), time_range[0], time_range[-1])
+      print("pixel(Y,X): ({},{})".format(Y, X))
+      print("dim count: " + str(dim_count)) 
+      print("dimensions: " + str(nc_dims))
+      print("variables: " + str(nc_vars))
+      print("shape: " + str(nc_data.shape))
+      print("selected time range size: {} start: {} end: {}".format(
+          len(time_range), time_range[0], time_range[-1]))
 
       matplotlib.rc('lines', linewidth=1, markersize=3, marker='o')
 
       if args.layer_sum and plotting_var not in ['SOC', 'RH']:
-        print "WARNING: The sum across layer plot has not been tested on other "
-        print "variables! The plot is only intended to work with variables that "
-        print "have non-negative values!"
+        print("WARNING: The sum across layer plot has not been tested on other ")
+        print("variables! The plot is only intended to work with variables that ")
+        print("have non-negative values!")
 
       if args.hide_individual_layers and not args.layer_sum:
-        print "WARNING! --hide-individual-layers is only applicable with --layer-sum"
+        print("WARNING! --hide-individual-layers is only applicable with --layer-sum")
 
 
       # Variables by time only
@@ -150,11 +150,11 @@ if __name__ == '__main__':
         # By soil layer
         if 'layer' in nc_dims:
           if layer_end >= nc_data.shape[1]:
-            print "ERROR! layer_end={} is out of range. max value for layer_end is: {}".format(layer_end, nc_data.shape[1]-1)
+            print("ERROR! layer_end={} is out of range. max value for layer_end is: {}".format(layer_end, nc_data.shape[1]-1))
             sys.exit(-1)
 
-          print "displaying layers {} -to-> {}".format(layer_start, layer_end)
-          layers = range(layer_start, layer_end + 1)
+          print("displaying layers {} -to-> {}".format(layer_start, layer_end))
+          layers = list(range(layer_start, layer_end + 1))
 
           number_subplots = len(layers)
           if args.layer_sum:
@@ -183,7 +183,7 @@ if __name__ == '__main__':
 
           # plot the individual layer lines each on their own ax
           if len(layers) != len(layer_axes):
-            print "WARNING! length(layers){} != len(layer_axes){}".format(len(layers), len(layer_axes))
+            print("WARNING! length(layers){} != len(layer_axes){}".format(len(layers), len(layer_axes)))
           if args.hide_individual_layers:
             pass
           else:
@@ -222,7 +222,7 @@ if __name__ == '__main__':
         else:
           pft_choice = 0 
 
-        print "Plotting PFT: " + str(pft_choice)
+        print("Plotting PFT: " + str(pft_choice))
 
         data = nc_data[:,:,pft_choice,Y,X]
 
@@ -239,7 +239,7 @@ if __name__ == '__main__':
             ax.xaxis.set_major_locator(matplotlib.ticker.MultipleLocator(12))
             ax.grid()
         except TypeError:
-          print axes, 'is not iterable; setting grid on single axes instance'
+          print(axes, 'is not iterable; setting grid on single axes instance')
           axes.xaxis.set_major_locator(matplotlib.ticker.MultipleLocator(12))
           axes.grid()
 

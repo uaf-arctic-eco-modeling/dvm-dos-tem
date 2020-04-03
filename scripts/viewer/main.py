@@ -31,15 +31,17 @@ from bokeh.plotting import figure
 import os
 import glob
 import sys
-sys.path.insert(0,"/home/vagrant/dvm-dos-tem/")
+sys.path.insert(0,"/Users/tobeycarman/sandbox/dvm-dos-tem/")
 import scripts.output_utils as ou
 
+DATA_DIR ="/Users/tobeycarman/sandbox/better-gl_c/output"
+
 def list_available_variables():
-  a = os.listdir('/home/vagrant/runmanager_rungroups/tem_00000000000/out/00000000000/')
+  a = os.listdir(DATA_DIR)
 
   # three fields (variable name, timeres, stage)
   # separated by underscore
-  a = filter(lambda x: len(x.split("_")) == 3, a )
+  a = [x for x in a if len(x.split("_")) == 3]
 
 
 #########################
@@ -49,7 +51,7 @@ def list_available_variables():
   full_ds = np.array([])
   units_str = ''
   for i, exp_file in enumerate(expected_file_names):
-    print "Trying to open: ", exp_file
+    print("Trying to open: ", exp_file)
     with nc.Dataset(exp_file, 'r') as f:
       #print f.variables[var].units
       if i == 0:
@@ -69,14 +71,14 @@ def list_available_variables():
 def get_data(variable="", stages=['eq','sp','tr','sc'], timeres='yearly', pixel=(0,0)):
   y, x = pixel
 
-  d, units = ou.stitch_stages(variable, timeres, stages, fileprefix='/home/vagrant/runmanager_rungroups/tem_00000000000/out/00000000000/')
+  d, units = ou.stitch_stages(variable, timeres, stages, fileprefix=DATA_DIR)
   if len(d.shape) == 5:
     d = ou.sum_across_compartments(d)
   else:
     pass
   d = d[:,y,x]
 
-  # with nc.Dataset('/home/vagrant/runmanager_rungroups/tem_00000000000/out/00000000000/{}_{}_{}.nc'.format(variable, timeres, stage)) as ds:
+  # with nc.Dataset(DATA_DIR + '/{}_{}_{}.nc'.format(variable, timeres, stage)) as ds:
   #   print ds
   #   if all(i in ds.dimensions.keys() for i in ['time','y','x','pft','pftpart']):
   #     d = ds.variables[variable]
@@ -102,7 +104,7 @@ def DD():
 
 
 def get_variable_info(vname):
-  files = glob.glob(os.path.join('/home/vagrant/runmanager_rungroups/tem_00000000000/out/00000000000/', '{}_*_*.nc'.format(vname.upper())))
+  files = glob.glob(os.path.join(DATA_DIR, '{}_*_*.nc'.format(vname.upper())))
   for f in files:
     with nc.Dataset(f) as ds:
       if 'time' in ds.variables:
@@ -116,7 +118,7 @@ def get_variable_info(vname):
 
 
 def update(attr, old, new, selected=None):
-  print "attr, old, new, selected: ", attr, old, new, selected
+  print("attr, old, new, selected: ", attr, old, new, selected)
   # Maybe loop over all widgets, collecting state values?
   #for widget in widget_collection:
 
@@ -136,7 +138,7 @@ def update(attr, old, new, selected=None):
 
   
   # Then get the data
-  data = get_data(variable=variable_dropdown.value)
+  data = get_data(variable=variable_dropdown.value, stages=['tr', 'sc'])
   variable_dropdown.label = variable_dropdown.value
 
 
@@ -147,7 +149,7 @@ def update(attr, old, new, selected=None):
   
 
 
-menu = filter( lambda x: len(x.split("_")) == 3, os.listdir('/home/vagrant/runmanager_rungroups/tem_00000000000/out/00000000000/') )
+menu = [x for x in os.listdir(DATA_DIR) if len(x.split("_")) == 3]
 menu = set([(i.split("_")[0], i.split("_")[0]) for i in menu]) # get rid of duplicates that come from different stages, (i.e. NPP_monthly_eq.nc NPP_monthly_sp.nc)
 menu = [i for i in menu] # Make sure its a list
 

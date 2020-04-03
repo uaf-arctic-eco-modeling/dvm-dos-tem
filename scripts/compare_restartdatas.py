@@ -16,7 +16,7 @@ for eq_line in eq_f:
     sp_value = sp_line[sp_loc+2:]
 
     if eq_value != sp_value:
-      print "Unequal: " + eq_value + " " + sp_value
+      print("Unequal: " + eq_value + " " + sp_value)
     #print eq_value
     #print sp_value
 

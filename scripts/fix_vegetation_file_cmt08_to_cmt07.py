@@ -19,28 +19,28 @@ veg_file = os.path.abspath(veg_file)
 
 #from IPython import embed; embed()
 
-print "Opening {}".format(veg_file)
+print("Opening {}".format(veg_file))
 with nc.Dataset(veg_file, 'r') as vds:
   original = vds.variables['veg_class'][:]
 
-print "Copying data..."
+print("Copying data...")
 fixed_version = original.copy()
 
-print "Replacing data..."
+print("Replacing data...")
 fixed_version[fixed_version==8]=7
 
-print "Displaying difference..."
-print np.abs(original-fixed_version)
+print("Displaying difference...")
+print(np.abs(original-fixed_version))
 
-print "Copying original file..."
+print("Copying original file...")
 backup_file_name = os.path.join(os.path.dirname(veg_file), "original-{}".format(os.path.basename(veg_file)))
 shutil.copyfile(veg_file, backup_file_name)
 
-print "Writing new data back to original file..."
+print("Writing new data back to original file...")
 with nc.Dataset(veg_file, 'a') as vds:
   vds.variables['veg_class'][:] = fixed_version
 
-print "Writing notes file..."
+print("Writing notes file...")
 os.path.join(os.path.dirname(veg_file), "notes.txt")
 with open(os.path.join(os.path.dirname(veg_file), "notes.txt"), 'a') as f:
   msg_string = textwrap.dedent('''\

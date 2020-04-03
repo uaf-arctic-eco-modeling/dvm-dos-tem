@@ -26,7 +26,7 @@ def get_last_n_eq(var, timeres='yearly', fileprefix='', n=10):
 
   with nc.Dataset(fname) as ds:
     data = ds.variables[var.upper()][-n:]
-    info = zip(data.shape, ds.dimensions.keys())
+    info = list(zip(data.shape, list(ds.dimensions.keys())))
     #info = [(name, dim.size) for name, dim in ds.dimensions.iteritems()]
 
   return data, info
@@ -185,7 +185,7 @@ def stitch_stages(var, timestep, stages, fileprefix=''):
   full_ds = np.array([])
   units_str = ''
   for i, exp_file in enumerate(expected_file_names):
-    print "Trying to open: ", exp_file
+    print("Trying to open: ", exp_file)
     with nc.Dataset(exp_file, 'r') as f:
       #print f.variables[var].units
       if i == 0:
@@ -220,7 +220,7 @@ def check_files(fnames):
       with nc.Dataset(afile, 'r') as f:
         dims = f.variables[var].dimensions
     except RuntimeError as e:
-      print "RuntimeError! Problem opening/reading: {} message: {}".format(afile, e.message)
+      print("RuntimeError! Problem opening/reading: {} message: {}".format(afile, e.message))
       dims = None
 
     return dims
@@ -228,17 +228,17 @@ def check_files(fnames):
   dims_for_each_file = [get_dims(f) for f in fnames]
 
   if len(set(dims_for_each_file)) > 1:
-    print "Warning! Not all files have the same dims!"
+    print("Warning! Not all files have the same dims!")
 
   if set(dims_for_each_file).pop() is None:
-    print "Warning! At least one file doesn't even have dimensions!"
+    print("Warning! At least one file doesn't even have dimensions!")
 
   if len(set(dims_for_each_file).pop()) > 0:
     first_item = set(dims_for_each_file).pop()
     if first_item[0].lower() != 'time':
-      print "Warning! It appears that the first dimension is not time!"  
+      print("Warning! It appears that the first dimension is not time!")  
   else: 
-    print "Warning! No dimensions, can't check for time as first dimension!"
+    print("Warning! No dimensions, can't check for time as first dimension!")
 
 
 def mask_by_cmt(data, cmtnum, vegmap_filepath):
@@ -335,7 +335,7 @@ def plot_basic_timeseries(vars2plot, spatial_y, spatial_x, time_resolution, stag
   for i, var in enumerate(vars2plot):
     ax = plt.subplot(gs[i,:])
     data, units = stitch_stages(var, time_resolution, stages, folder)
-    print data.shape
+    print(data.shape)
     ax.plot(data[:,spatial_y, spatial_x], label=var)
     ax.set_ylabel = units
 
@@ -378,13 +378,13 @@ def plot_spatial_summary_timeseries(var, timestep, cmtnum, stages, ref_veg_map, 
   Returns `None`
   '''
   data, units = stitch_stages(var, timestep, stages)
-  print "data size:", data.size
+  print("data size:", data.size)
 
   data = mask_by_cmt(data, cmtnum, ref_veg_map)
-  print "data count after masking cmt:", data.count()
+  print("data count after masking cmt:", data.count())
 
   data = mask_by_failed_run_status(data, ref_run_status)
-  print "data count after masking run status:", data.count()
+  print("data count after masking run status:", data.count())
 
   if len(data.shape) == 5: # assume (time, pftpart, pft, y, x)
     data = sum_across_compartments(data)
@@ -419,7 +419,7 @@ def workhorse_spatial_summary_plot(data, cmtnum, yunits, varname, stages, ax=Non
   Returns `None`
   '''
   if ax is not None:
-    print "Plotting on existing ax instance..."
+    print("Plotting on existing ax instance...")
     ax.plot(np.ma.average(data, axis=(1,2)), linewidth=0.5, label="CMT {}".format(cmtnum))
     ax.fill_between(
         np.arange(0, len(data)),
@@ -432,7 +432,7 @@ def workhorse_spatial_summary_plot(data, cmtnum, yunits, varname, stages, ax=Non
     #plt.show(block=True)
 
   else:
-    print "Plotting on new ax, figure..."
+    print("Plotting on new ax, figure...")
     plt.plot(np.ma.average(data, axis=(1,2)), linewidth=0.5, label="CMT {}".format(cmtnum))
     plt.fill_between(
         np.arange(0, len(data)),
@@ -528,13 +528,13 @@ def boxplot_monthlies(var, stages, cmtnum, ref_veg_map, ref_run_status, facecolo
   '''
 
   data, units = stitch_stages(var, 'monthly', stages)
-  print "data size:", data.size
+  print("data size:", data.size)
 
   data = mask_by_cmt(data, cmtnum, ref_veg_map)
-  print "data count after masking cmt:", data.count()
+  print("data count after masking cmt:", data.count())
 
   data = mask_by_failed_run_status(data, ref_run_status)
-  print "data count after masking run status:", data.count()
+  print("data count after masking run status:", data.count())
 
 
   # list of months
@@ -548,11 +548,11 @@ def boxplot_monthlies(var, stages, cmtnum, ref_veg_map, ref_run_status, facecolo
       b0 = data[i::12,:,:]
       monthstr2data[m] = data[i::12,:,:]
 
-  data2 = [np.ma.average(i, axis=(1,2)) for i in monthstr2data.values()]
+  data2 = [np.ma.average(i, axis=(1,2)) for i in list(monthstr2data.values())]
 
   bp = plt.boxplot(
       data2,
-      labels=monthstr2data.keys(),
+      labels=list(monthstr2data.keys()),
       #notch=True,
       whis='range', # force whiskers to min/max range instead of quartiles
       showfliers=False,
@@ -572,18 +572,18 @@ def boxplot_by_pft(var, timestep, cmtnum, stages, ref_veg_map, ref_run_status):
   '''
 
   data, units = stitch_stages(var, timestep, stages)
-  print "data size:", data.size
-  print data.shape
+  print("data size:", data.size)
+  print(data.shape)
 
   d2 = data
   # d2 = sum_across_compartments(data)
   # print "data size after summing compartments:", d2.size
 
   d3 = mask_by_cmt(d2, cmtnum, ref_veg_map)
-  print "data size after masking cmt:", d3.count()
+  print("data size after masking cmt:", d3.count())
 
   d3 = mask_by_failed_run_status(d3, ref_run_status)
-  print "data count after masking run status:", d3.count()
+  print("data count after masking run status:", d3.count())
 
   pft0avg = np.ma.average(d3, axis=(2,3))
   #plt.plot(pft0avg) # Line plot
@@ -639,7 +639,7 @@ def plot_soil_layers():
     else:
       return c[int(x)]
 
-  colors = map(cmapper, lt[time,:,Y,X])
+  colors = list(map(cmapper, lt[time,:,Y,X]))
   bottoms = np.cumsum(dz[time,:,Y,X]) * -1  # <-- reverses y axis!
   widths = soc[time,:,Y,X]
   heights =  dz[time,:,Y,X]
@@ -677,10 +677,10 @@ def plot_fronts(args):
   fdepth, fdepth_units = pull_data_wrapper(args, variable='FRONTSDEPTH', required_dims=['time','layer','y','x'])
 
   if fdepth_units == '':
-    print "WARNING! Missing depth units! Assumed to be meters."
+    print("WARNING! Missing depth units! Assumed to be meters.")
     depthunits = 'm'
   if ftype_units == '':
-    print "WARNING! Missing front type units! Assumed to be categorical."
+    print("WARNING! Missing front type units! Assumed to be categorical.")
     dzunits = 'categorical'
 
   # Setup the plotting
@@ -768,11 +768,11 @@ def pull_data_wrapper(args, variable=None, required_dims=None):
       raise RuntimeError("Appears to be more than one file matching glob?: {}".format(fglob))
 
     the_file = the_file[0]
-    print "Pulling data from ", the_file
+    print("Pulling data from ", the_file)
     with nc.Dataset(the_file, 'r') as ds:
       if required_dims != None:
         for rd in required_dims:
-          if rd not in ds.dimensions.keys():
+          if rd not in list(ds.dimensions.keys()):
             raise RuntimeError("'{}' is a required dimension for this operation. File: {}".format(rd, the_file))
 
       data = ds.variables[the_var][:]
@@ -816,13 +816,13 @@ def plot_soil_layers2(args):
   dz, dzunits = pull_data_wrapper(args, 'LAYERDZ', required_dims=['time','layer','y','x',])
 
   if depthunits == '':
-    print "WARNING! Missing depth units! Assumed to be meters."
+    print("WARNING! Missing depth units! Assumed to be meters.")
     depthunits = 'm'
   if dzunits == '':
-    print "WARNING! Missing dz units! Assumed to be meters."
+    print("WARNING! Missing dz units! Assumed to be meters.")
     dzunits = 'm'
   if dzunits != depthunits:
-    print "WARNING! depthunits ({}) and dzunits ({}) are not the same!".format(depthunits, dzunits) 
+    print("WARNING! depthunits ({}) and dzunits ({}) are not the same!".format(depthunits, dzunits)) 
 
   # Setup the plotting
   ROWS=1; COLS=len([v.upper() for v in args.vars])
@@ -940,10 +940,10 @@ def print_soil_table(outdir, stage, timeres, Y, X, timestep):
   row_fmt = "{:>15.3f} " * len(soilfiles)
 
   varlist = [get_var_name(f) for f in soilfiles]
-  print "---- Soil Profile ----"
-  print "  output directory: {}".format(outdir)
-  print "  {} files stage: {} pixel(y,x): ({},{}) timestep: {}".format(timeres.upper(), stage.upper(), Y, X, timestep)
-  print header_fmt.format(*varlist)
+  print("---- Soil Profile ----")
+  print("  output directory: {}".format(outdir))
+  print("  {} files stage: {} pixel(y,x): ({},{}) timestep: {}".format(timeres.upper(), stage.upper(), Y, X, timestep))
+  print(header_fmt.format(*varlist))
 
   # This is probably not very effecient.
   for il in range(0, soillayerdimlengths.pop()):
@@ -960,7 +960,7 @@ def print_soil_table(outdir, stage, timeres, Y, X, timestep):
         else:
           data.append(ds.variables[v][timestep,il,Y,X])
 
-    print row_fmt.format(*data)
+    print(row_fmt.format(*data))
 
 
 if __name__ == '__main__':
@@ -1077,7 +1077,7 @@ if __name__ == '__main__':
   #ss_parser.add_argument()
 
   args = parser.parse_args()
-  print args
+  print(args)
 
   if args.command == 'fronts':
     plot_fronts(args)
@@ -1088,12 +1088,12 @@ if __name__ == '__main__':
     plot_soil_layers2(args)
 
   if args.command == 'spatial-summaries':
-    print "Not implemented yet. Or rather, the command line interface is not "
-    print "implemented yet - many of the plot functions are done!"
+    print("Not implemented yet. Or rather, the command line interface is not ")
+    print("implemented yet - many of the plot functions are done!")
 
   if args.command == 'site-compare':
-    print "Not implemented yet..."
-    print "Warn about conflicting arguments? Or about ignoring --yx argument??"
+    print("Not implemented yet...")
+    print("Warn about conflicting arguments? Or about ignoring --yx argument??")
 
   if args.command == 'basic-ts':
 
@@ -1101,7 +1101,7 @@ if __name__ == '__main__':
     for var in args.vars[0].split(','):
       for stage in args.stitch:
         ep = os.path.join(args.output_folder[0], "{}_{}_{}.nc".format(var, args.timeres, stage))
-        print "Looking for file: ", ep
+        print("Looking for file: ", ep)
         if not os.path.exists(ep):
           raise RuntimeError("Missing file!: {}".format(ep))
         else:

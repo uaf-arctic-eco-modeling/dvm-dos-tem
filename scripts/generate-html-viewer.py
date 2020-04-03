@@ -297,10 +297,10 @@ def build_new_page(left_path, center_path, right_path, autoshow=False):
         pngs += [os.path.join(root, filename) for filename in fnmatch.filter(files, "*.png")]
         txts += [os.path.join(root, filename) for filename in fnmatch.filter(files, "*.txt")]
 
-    print "%s" % path
-    print "  pdfs: %8i" % len(pdfs)
-    print "  pngs: %8i" % len(pngs)
-    print "  txts: %8i" % len(txts)
+    print("%s" % path)
+    print("  pdfs: %8i" % len(pdfs))
+    print("  pngs: %8i" % len(pngs))
+    print("  txts: %8i" % len(txts))
     images = pdfs + pngs + txts
 
     return images
@@ -313,8 +313,8 @@ def build_new_page(left_path, center_path, right_path, autoshow=False):
   # Figure out what rows we need - one row for every category, that shows up in 
   # any of the three lists.
   categories = sorted(set(map(classify, left_img_list+center_img_list+right_img_list)))
-  print "Found %i categories: %s" % (len(categories), ' '.join(categories))
-  print ""
+  print("Found %i categories: %s" % (len(categories), ' '.join(categories)))
+  print("")
 
   # Build up this dict mapping 'categories' of plots to lists of file paths
   # for each column that can be passed to the template...
@@ -337,12 +337,12 @@ def build_new_page(left_path, center_path, right_path, autoshow=False):
   with open(newFileName, 'w') as f:
     f.write( ns )
 
-  print "Created file: %s" % (newFileName)
-  print "Open this file in a web-browser: file://%s" % (os.path.join(os.getcwd(), newFileName)) 
+  print("Created file: %s" % (newFileName))
+  print("Open this file in a web-browser: file://%s" % (os.path.join(os.getcwd(), newFileName))) 
   if autoshow:
-    print "Trying to auto-show in browser (doesn't work on all platforms)..."
+    print("Trying to auto-show in browser (doesn't work on all platforms)...")
     webbrowser.open("file://{}".format(os.path.join(os.getcwd(), newFileName)), new=0, autoraise=True)
-  print ""
+  print("")
 
 
 
@@ -370,13 +370,13 @@ def generate_col_div(imglist, tag_type):
     HTML += '''</div>\n'''
 
   else:
-    print "Error: unrecognized tag type!"
+    print("Error: unrecognized tag type!")
 
   # pass the string back
   return HTML
 
 def generate_page(left_img_list=[], center_img_list=[], right_img_list=[], titlelist=[], tag_type='img'):
-  print tag_type
+  print(tag_type)
   '''Generates a page of html, returns it as a string'''
 
   page = textwrap.dedent('''
@@ -424,7 +424,7 @@ def generate_version_1_html(args):
   def build_list_imgs_in_category(category, image_list):
     list_of_imgs_in_category = []
     for image in image_list:
-      print classify(image)
+      print(classify(image))
       if classify(image) == category:
         list_of_imgs_in_category.append(image)
 
@@ -490,7 +490,7 @@ if __name__ == '__main__':
   build_new_page(args.left, args.center, args.right, autoshow=args.show)
 
   if args.create_bundle:
-    print "NOT IMPLEMENTED YET..."
+    print("NOT IMPLEMENTED YET...")
 
 
 

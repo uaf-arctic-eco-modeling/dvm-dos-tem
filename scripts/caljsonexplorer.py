@@ -57,7 +57,7 @@ def eco_total(key, alljsondata):
 if __name__ == '__main__':
 
     filelist = glob.glob("/tmp/dvmdostem/calibration/monthly/*.json")
-    print len(filelist)
+    print(len(filelist))
 
 
     # data is an iterable thing, like a list, so can be passed
@@ -68,10 +68,10 @@ if __name__ == '__main__':
     # objects (data) and for each item in data it will find the
     # ecosystem total across all PFTs for the give key
     for t in eco_total('PARAbsorb', data):
-        print "ecosystem PARAbsorb: ", t
+        print("ecosystem PARAbsorb: ", t)
     
 
-    print "=======> el fin."
+    print("=======> el fin.")
 
 
 
