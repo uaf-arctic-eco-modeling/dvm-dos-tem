@@ -140,7 +140,9 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
   }
 
   Layer *currl = ground->fstshlwl;
-  int il = 0;//Manual layer index tracking
+  //Manual layer index tracking.
+  // Starting from 1 to allow for adding the moss layer later if wanted
+  int il = 1;
   while(currl->isSoil){
 
     if (ed->d_sois.watertab - 0.075 > (currl->z + currl->dz*0.5)) { //layer above water table
@@ -195,7 +197,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
     wtbflag = 0;
 
     currl = ground->fstshlwl; //reset currl to top of the soil stack
-    il = 0; //reset manual layer index tracker
+    il = 1; //reset manual layer index tracker. From 1 to allow future moss layer inclusion
 
     double krawc_ch4 = 0.0;
     double ksoma_ch4 = 0.0;
@@ -377,10 +379,11 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
     TriSolver(numsoill - 1, C, D, C, V, V);
 
     currl = ground->fstshlwl; //reset currl to top of the soil stack
-    il = 0; //reset manual layer index tracker
+    il = 1; //Reset manual layer index tracker. From 1 to allow moss layer in future
     while(currl->isSoil){
       currl->ch4 = V[il];
       currl = currl->nextl;
+      il++;
     }
 
     tmp_flux = diff[1] * (ground->fstshlwl->ch4 - ub) / ground->fstshlwl->dz; // flux of every time step, 1 hour, Y.MI
@@ -393,8 +396,10 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
     Flux2A = Flux2A + tmp_flux; //flux cumulated over 1 day, 24 time steps, Y.MI
   } // end of time steps looping
 
+  //If the moss layer is considered for CH4 in the future, the following will need
+  // to be modified to start at the moss layer and il should be set to 0.
   currl = ground->fstshlwl; //reset currl to top of the soil stack
-  il = 0; //reset manual layer index tracker
+  il = 1; //reset manual layer index tracker.
   while(currl->isSoil){
     ed->daily_ch4_pool[id][il] = currl->ch4;
     il++;
