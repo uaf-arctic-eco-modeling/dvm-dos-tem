@@ -213,13 +213,16 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       ksomcr_ch4 = bgcpar.kdsomcr_ch4[il];
 
       double plant_ch4_movement[NUM_PFT] = {0};
-      double layer_froot = 0.0;
       double plant_ch4_sum = 0.0;
+
       for(int ip=0; ip<NUM_PFT; ip++){
-        layer_froot += cd->m_soil.frootfrac[il][ip];
-// tveg should be by pft
-        plant_ch4_movement[ip] = -KP * layer_froot * currl->ch4 * chtlu->transport_capacity[ip] * realLAI[ip];
+        double layer_pft_froot = cd->m_soil.frootfrac[il][ip];
+
+        //Fan 2013, Eq 19
+        plant_ch4_movement[ip] = KP * layer_pft_froot * currl->ch4 * chtlu->transport_capacity[ip] * realLAI[ip];
         plant_ch4_sum += plant_ch4_movement[ip];
+        //Storing plant transport values for output
+        ed->output_ch4_transport[il][ip] = plant_ch4_movement[ip];
       }
 
 //      Plant = bd->rp * ed->m_sois.rootfrac[il] * currl->ch4 * bd->tveg * realLAI * 0.5;
