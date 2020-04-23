@@ -123,6 +123,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
   }
 
   //Calculate LAI per PFT
+  //Should be by Fan Eq. 20
   //TODO this should only include plant types that are good
   // methane conduits.
   double realLAI[NUM_PFT];
@@ -152,9 +153,11 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
         torty_tmp = 0.05;
       }
 
+      //Fan 2013 Eq. 12 for layers above the water table
       torty = 0.66 * torty_tmp * pow(torty_tmp / currl->poro, 3.0); //(12-m)/3, m=3
       diff_tmp = diff_a;
     } else { //layer below water table
+      //Fan 2013 Eq. 12 for layers below the water table
       torty = 0.66 * currl->liq * pow(currl->liq / (currl->poro + currl->ice), 3.0);
       diff_tmp = diff_w;
     }
@@ -256,6 +259,9 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
           TResp = 0.0;
         }
 
+        //Fan 2013 Eq 18 for layers above the water table
+        //From paper: V max and k m are the Michaelis-Menten kinetics parameter and
+        //  set to 5 µmol L^-1 h^-1 and 20 µmol L^-1 (Walter & Heimann, 2000), respectively.
         Oxid = 5.0 * currl->ch4 * TResp / (20.0 + currl->ch4);
         Oxid_m = Oxid * tmp_flux * currl->dz * 12.0;
 
@@ -265,6 +271,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
           Plant_m = 0.0;
         }
 
+        //Fan 2013 Eq. 17 if layers are above the water table
         Ebul = 0.0; // added by Y.Mi, Jan 2015
         Ebul_m = 0.0; //Y.Mi
       }
@@ -308,12 +315,36 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
           del_soi2a.rhsomcr_ch4[il] = 0.0;
         }
 
-        //The following equations follow Fan's paper
- 
+        //Fan 2013 Eq. 9 for layers below the water table 
+        //Use liquid water, not porosity in the denominator
+        //The f(Tc,i) and Cs,i are included in the _ch4 values - calculated prior
+        //dz is in meters
+        //The /12 is from the conversion from grams to mol. 1 mol C = 12g
+        //We actually want micro-mols (10^6 micro-mol)
+        //Also converts m^3 to liters (10^-3 m^3)
+        //U (unit conversion) = (1/12) * 10^6 * 10^-3
+        //This rhrawc_ch4 has different units than the corresponding CO2.
+        //rhrawc doesn't make sense for this - it's not heterotrophic respiration
+        //this is the rate, but modified by temperature and carbon content
+        //it is hourly
         Prod = 1000.0 * (del_soi2a.rhrawc_ch4[il] + del_soi2a.rhsoma_ch4[il] + del_soi2a.rhsompr_ch4[il] + del_soi2a.rhsomcr_ch4[il]) / (currl->dz * currl->poro) / 12.0;
+
+        //Fan 2013 Eq. 15. Bunsen solubility coefficient
         SB = 0.05708 - 0.001545 * currl->tem + 0.00002069 * currl->tem * currl->tem; //volume
         Pressure = DENLIQ * G * (currl->z + currl->dz / 2.0) + Pstd;
+
+        //Fan 2013 Eq. 16. Mass-based Bunsen solubility coefficient
         SM = Pressure * SB / (GASR * (currl->tem + 273.15)); //mass, n=PV/RT
+
+        //This should be Fan 2013 Eq. 17 for if layers are below the water table
+        //Fan does not explicitly limit it to layers with temp greater than 1 (at least
+        // not at the equation).
+        if(currl->tem > 1.0){
+          Ebul = (currl->ch4 - SM) * 1.0;
+        }
+        else{
+          Ebul = 0.0;
+        }
 
 //                if (ed->d_sois.ts[il] > 1.0) Ebul = (ed->d_soid.ch4[il] - SM) * 1.0;
 //                else Ebul = 0.0;
@@ -330,6 +361,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
           totEbul_m = 0.0;
         }
 
+        //Fan 2013 Eq 18 for layers below the water table
         Oxid = 0.0;
         Oxid_m = 0.0;
 
