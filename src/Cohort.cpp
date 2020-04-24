@@ -391,7 +391,7 @@ void Cohort::updateMonthly(const int & yrcnt, const int & currmind,
   if(md->get_bgcmodule()) {
     BOOST_LOG_SEV(glg, debug) << "Run the BGC processes to get the C/N fluxes.";
     BOOST_LOG_SEV(glg, debug) << "RIGHT BEFORE updateMonthly_Bgc()" << ground.layer_report_string("depth CN");
-    updateMonthly_Bgc(currmind);
+    updateMonthly_Bgc(currmind, dinmcurr);
     BOOST_LOG_SEV(glg, debug) << "RIGHT AFTER updateMonthly_Bgc()" << ground.layer_report_string("depth CN");
 
   }
@@ -639,7 +639,6 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
       edall->daily_percolation[id][il] = soilenv.richards.percolation[il];
     }
 
-    soilbgc.CH4Flux(currmind, id);
 
     // save the variables to daily 'edall' (Note: not PFT specified)
     soilenv.retrieveDailyTM(ground.toplayer, ground.lstsoill);
@@ -696,7 +695,7 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
 ///////////////////////////////////////////////////////////////////////////////////////////
 // Biogeochemical Module Calling at monthly timestep
 ///////////////////////////////////////////////////////////////////////////////////////////
-void Cohort::updateMonthly_Bgc(const int & currmind) {
+void Cohort::updateMonthly_Bgc(const int & currmind, const int & dinmcurr) {
   BOOST_LOG_NAMED_SCOPE("bgc");
   //
   if(currmind==0) {
@@ -744,6 +743,12 @@ void Cohort::updateMonthly_Bgc(const int & currmind) {
   soilbgc.clear_del_structs();
   solintegrator.updateMonthlySbgc(MAX_SOI_LAY);
   soilbgc.afterIntegration();
+
+  //daily soil bgc processes
+  for(int id=0; id<dinmcurr; id++){
+    soilbgc.CH4Flux(currmind, id);
+  }
+
   bdall->soil_endOfMonth(currmind);   // yearly data accumulation
   bdall->land_endOfMonth();
 
