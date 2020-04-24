@@ -451,6 +451,24 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize,
 #endif
       }
 
+      // PFT and layer
+      else if(new_spec.pft && new_spec.layer){
+        temutil::nc( nc_def_dim(ncid, "pft", NUM_PFT, &pftD) );
+        temutil::nc( nc_def_dim(ncid, "layer", MAX_SOI_LAY, &layerD) );
+
+        vartypeVeg5D_dimids[0] = timeD;
+        vartypeVeg5D_dimids[1] = layerD;
+        vartypeVeg5D_dimids[2] = pftD;
+        vartypeVeg5D_dimids[3] = yD;
+        vartypeVeg5D_dimids[4] = xD;
+
+        temutil::nc( nc_def_var(ncid, name.c_str(), new_spec.data_type, 5, vartypeVeg5D_dimids, &Var) );
+#ifdef WITHMPI
+        //Instruct HDF5 to use independent parallel access for this variable
+        temutil::nc( nc_var_par_access(ncid, Var, NC_INDEPENDENT) );
+#endif
+      }
+
       // PFT specific dimensions
       else if(new_spec.pft && !new_spec.compartment){
         temutil::nc( nc_def_dim(ncid, "pft", NUM_PFT, &pftD) );
