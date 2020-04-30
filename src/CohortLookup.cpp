@@ -238,6 +238,22 @@ void CohortLookup::assignVegDimension(string &dircmt) {
     temutil::pfll2data_pft( l, static_lai[im]);
   }
 
+  //Storing the max and min static LAI
+  for (int ip = 0; ip<NUM_PFT; ip++){
+    double max_pft_lai = static_lai[0][ip];
+    double min_pft_lai = static_lai[0][ip];
+    for(int im = 0; im < MINY; im++){
+      if(static_lai[im][ip] > max_pft_lai){
+        max_pft_lai = static_lai[im][ip];
+      }
+      if(static_lai[im][ip] < min_pft_lai){
+        min_pft_lai = static_lai[im][ip];
+      }
+    }
+    static_lai_max[ip] = max_pft_lai;
+    static_lai_min[ip] = min_pft_lai;
+  }
+
 }
 
 /** Assigns "ground dimension?" parameters from file */

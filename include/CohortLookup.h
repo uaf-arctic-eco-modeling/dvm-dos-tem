@@ -73,6 +73,8 @@ public:
                             //  feathermoss (2), lichen (3)
 
   double static_lai[12][NUM_PFT]; // A year's worth of LAI values for use when dynamic LAI is turned off.
+  double static_lai_max[NUM_PFT]; // Max static LAI per PFT
+  double static_lai_min[NUM_PFT]; // Min static LAI per PFT
 
   // root distribution
   double frootfrac[MAX_ROT_LAY][NUM_PFT]; //percentage
