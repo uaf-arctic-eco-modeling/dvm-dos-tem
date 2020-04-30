@@ -478,8 +478,7 @@
 0.0          0.0          0.7          0.0          2.0          2.0          2.0          0.0          2.0          0.0          // static_lai[11]:
 //===========================================================
 // CMT31 // Boreal Bog
-//PFT0      PFT1         PFT2         PFT3         PFT4         PFT5        PFT6         PFT7         PFT8        PFT9         // names: comments                  
-//Sphagnum  Sedge        DecShrub     EvrShrub     Forbs        Moss        NotUsed      NotUsed      NotUsed     NotUsed     // names: comments                  
+//Sphagnum  Sedge        DecShrub     EvrShrub     Forbs        Moss        PFT6         PFT7         PFT8        PFT9        // pftnames:
 1.00        1.00         1.00         1.00         1.00         1.00        0.00         0.00         0.00        0.00        // vegfrac: vegetation coverage on land - 0 indicates that PFT does't exist
 0           0            1            1            0            0           0.00         0.00         0.00        0.00        // ifwoody: woody plants (1) or not (0)
 0           0            1            0            0            0           0.00         0.00         0.00        0.00        // ifdeciwoody: deciduous woodland (1) or not (0)
@@ -498,28 +497,28 @@
 0.0401      0.0401       0.0401       0.0401       0.0401       0.0401      0.00         0.00         0.00        0.00        // m3
 0.0001      0.0001       0.0001       0.0001       0.0001       0.0001      0.00         0.00         0.00        0.00        // m4
 0.00        28.0         38.0         38.0         28.0         0.00        0.00         0.00         0.00        0.00        // frprod[0]: fine root allocation percentage vertically in soils (every 10 cm)
-0.00        38.0         28.0         28.0         38.0         0.00        0.00         0.00         0.00        0.00        // frprod[1]: fine root allocation percentage vertically in soils (every 10 cm)
-0.00        15.0         15.0         15.0         15.0         0.00        0.00         0.00         0.00        0.00        // frprod[2]: fine root allocation percentage vertically in soils (every 10 cm)
-0.00        12.0         12.0         12.0         12.0         0.00        0.00         0.00         0.00        0.00        // frprod[3]: fine root allocation percentage vertically in soils (every 10 cm) 
-0.00        6.00         6.00         6.00         6.00         0.00        0.00         0.00         0.00        0.00        // frprod[4]: fine root allocation percentage vertically in soils (every 10 cm)
-0.00        1.00         1.00         1.00         1.00         0.00        0.00         0.00         0.00        0.00        // frprod[5]: fine root allocation percentage vertically in soils (every 10 cm) 
-0.00        0.00         0.00         0.00         0.00         0.00        0.00         0.00         0.00        0.00        // frprod[6]: fine root allocation percentage vertically in soils (every 10 cm)
-0.00        0.00         0.00         0.00         0.00         0.00        0.00         0.00         0.00        0.00        // frprod[7]: fine root allocation percentage vertically in soils (every 10 cm)  
-0.00        0.00         0.00         0.00         0.00         0.00        0.00         0.00         0.00        0.00        // frprod[8]: fine root allocation percentage vertically in soils (every 10 cm) 
-0.00        0.00         0.00         0.00         0.00         0.00        0.00         0.00         0.00        0.00        // frprod[9]: fine root allocation percentage vertically in soils (every 10 cm)
-5.024       0.00         0.00         0.019        0.00         0.483       0.00         0.00         0.00        0.00        // lai: initial LAI
-5.024       0.00         0.00         0.019        0.00         0.483       0.00         0.00         0.00        0.00        // envlai[0]: monthly LAI for a year, used for static input of LAI
-5.024       0.00         0.00         0.014        0.00         0.483       0.00         0.00         0.00        0.00        // envlai[1]: monthly LAI for a year, used for static input of LAI 
-5.024       0.00         0.00         0.026        0.010        0.483       0.00         0.00         0.00        0.00        // envlai[2]: monthly LAI for a year, used for static input of LAI 
-5.024       0.100        0.003        0.035        0.025        0.483       0.00         0.00         0.00        0.00        // envlai[3]: monthly LAI for a year, used for static input of LAI
-5.024       0.205        0.005        0.058        0.040        0.483       0.00         0.00         0.00        0.00        // envlai[4]: monthly LAI for a year, used for static input of LAI 
-5.024       0.205        0.007        0.080        0.060        0.483       0.00         0.00         0.00        0.00        // envlai[5]: monthly LAI for a year, used for static input of LAI  
-5.024       0.205        0.008        0.090        0.100        0.483       0.00         0.00         0.00        0.00        // envlai[6]: monthly LAI for a year, used for static input of LAI 
-5.024       0.205        0.008        0.090        0.100        0.483       0.00         0.00         0.00        0.00        // envlai[7]: monthly LAI for a year, used for static input of LAI
-5.024       0.150        0.004        0.058        0.075        0.483       0.00         0.00         0.00        0.00        // envlai[8]: monthly LAI for a year, used for static input of LAI  
-5.024       0.100        0.002        0.036        0.060        0.483       0.00         0.00         0.00        0.00        // envlai[9]: monthly LAI for a year, used for static input of LAI
-5.024       0.00         0.00         0.025        0.050        0.483       0.00         0.00         0.00        0.00        // envlai[10]: monthly LAI for a year, used for static input of LAI 
-5.024       0.00         0.00         0.020        0.00         0.483       0.00         0.00         0.00        0.00        // envlai[11]: monthly LAI for a year, used for static input of LAI
+0.00        38.0         28.0         28.0         38.0         0.00        0.00         0.00         0.00        0.00        // frprod[1]:
+0.00        15.0         15.0         15.0         15.0         0.00        0.00         0.00         0.00        0.00        // frprod[2]:
+0.00        12.0         12.0         12.0         12.0         0.00        0.00         0.00         0.00        0.00        // frprod[3]: 
+0.00        6.00         6.00         6.00         6.00         0.00        0.00         0.00         0.00        0.00        // frprod[4]:
+0.00        1.00         1.00         1.00         1.00         0.00        0.00         0.00         0.00        0.00        // frprod[5]: 
+0.00        0.00         0.00         0.00         0.00         0.00        0.00         0.00         0.00        0.00        // frprod[6]:
+0.00        0.00         0.00         0.00         0.00         0.00        0.00         0.00         0.00        0.00        // frprod[7]:  
+0.00        0.00         0.00         0.00         0.00         0.00        0.00         0.00         0.00        0.00        // frprod[8]: 
+0.00        0.00         0.00         0.00         0.00         0.00        0.00         0.00         0.00        0.00        // frprod[9]:
+5.024       0.00         0.00         0.019        0.00         0.483       0.00         0.00         0.00        0.00        // initial_lai: starting value for Leaf Area Index
+5.024       0.00         0.00         0.019        0.00         0.483       0.00         0.00         0.00        0.00        // static_lai[0]: monthly LAI for a year, used for static input of LAI
+5.024       0.00         0.00         0.014        0.00         0.483       0.00         0.00         0.00        0.00        // static_lai[1]: 
+5.024       0.00         0.00         0.026        0.010        0.483       0.00         0.00         0.00        0.00        // static_lai[2]: 
+5.024       0.100        0.003        0.035        0.025        0.483       0.00         0.00         0.00        0.00        // static_lai[3]:
+5.024       0.205        0.005        0.058        0.040        0.483       0.00         0.00         0.00        0.00        // static_lai[4]: 
+5.024       0.205        0.007        0.080        0.060        0.483       0.00         0.00         0.00        0.00        // static_lai[5]:  
+5.024       0.205        0.008        0.090        0.100        0.483       0.00         0.00         0.00        0.00        // static_lai[6]: 
+5.024       0.205        0.008        0.090        0.100        0.483       0.00         0.00         0.00        0.00        // static_lai[7]:
+5.024       0.150        0.004        0.058        0.075        0.483       0.00         0.00         0.00        0.00        // static_lai[8]: 
+5.024       0.100        0.002        0.036        0.060        0.483       0.00         0.00         0.00        0.00        // static_lai[9]:
+5.024       0.00         0.00         0.025        0.050        0.483       0.00         0.00         0.00        0.00        // static_lai[10]: 
+5.024       0.00         0.00         0.020        0.00         0.483       0.00         0.00         0.00        0.00        // static_lai[11]:
 //===========================================================
 // CMT44 // Shrub Tundra Kougarok // (LAI stuff updated 7-19-19 Joy)
 //Salix     Betula      Decid        EGreen       Sedges       Forbs        Grasses      Lichens      Feather      PFT9         // pftnames:
