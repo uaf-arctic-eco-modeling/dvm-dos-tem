@@ -180,14 +180,14 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
     il++;//Manual layer index increment
   }//end loop-by-layer
 
-  for (il = 1; il < numsoill; il++) {
+  for (il = 0; il < numsoill; il++) {
     if (il == (numsoill - 1)) {
       D[il] = r[il] - 1.0;
     } else {
       D[il] = r[il];
     }
 
-    if (il == 1) {
+    if (il == 0) {
       C[il] = -1.0 - ub;
     } else {
       C[il] = -1.0;
@@ -199,8 +199,8 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
   for (int j = 1; j <= m; j++) { //loop through time steps
     wtbflag = 0;
 
-    currl = ground->fstshlwl; //reset currl to top of the soil stack
-    il = 1; //reset manual layer index tracker. From 1 to allow future moss layer inclusion
+    currl = ground->lstsoill; //reset currl to bottom of the soil stack
+    il = numsoill-1; //reset manual layer index tracker. From 1 to allow future moss layer inclusion
 
     double krawc_ch4 = 0.0;
     double ksoma_ch4 = 0.0;
@@ -208,7 +208,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
     double ksomcr_ch4 = 0.0;
     double TResp = 0.0;
 
-    while(currl->isSoil){
+    while(!currl->isMoss){
 //    for (il = numsoill - 1; il > 0; il--)  //loop through layers
       krawc_ch4 = bgcpar.kdrawc_ch4[il];
       ksoma_ch4 = bgcpar.kdsoma_ch4[il];
@@ -407,8 +407,8 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
         V[il] = 0.0;
       }
 
-      currl = currl->nextl;
-      il++; //Incrementing manual layer index tracker
+      currl = currl->prevl;
+      il--; //Incrementing manual layer index tracker
     } //end of layer looping
 
     TriSolver(numsoill - 1, C, D, C, V, V);
