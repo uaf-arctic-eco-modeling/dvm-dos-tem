@@ -331,9 +331,9 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
         //Fan 2013 Eq. 15. Bunsen solubility coefficient
         SB = 0.05708 - 0.001545 * currl->tem + 0.00002069 * currl->tem * currl->tem; //volume
-        Pressure = DENLIQ * G * (currl->z + currl->dz / 2.0) + Pstd;
 
         //Fan 2013 Eq. 16. Mass-based Bunsen solubility coefficient
+        Pressure = DENLIQ * G * (currl->z + currl->dz / 2.0) + Pstd;
         SM = Pressure * SB / (GASR * (currl->tem + 273.15)); //mass, n=PV/RT
 
         //This should be Fan 2013 Eq. 17 for if layers are below the water table
@@ -353,9 +353,14 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
           Ebul = 0.0;
         }
 
+        //Ebul units are umol L^-1 hr^-1 (the hour is implicit since
+        //  we're in a time loop)
+        //currl->liq units are kg m^-2
+        //currl->dz units are m
+        //Ebul_m units are then mmol m^-1 hr^-1 (again hour is implicit)
         Ebul_m = Ebul * currl->liq * currl->dz * 1000.0;
         totEbul = totEbul + Ebul; //cumulated over 1 time step, 1 hour Y.MI
-        totEbul_m = totEbul_m + Ebul_m; //cumulated over 1 time step, 1 hour
+        totEbul_m += Ebul_m; //cumulated over 1 time step, 1 hour
 
         if (currl->tem < 0.0) {
           totEbul_m = 0.0;
@@ -370,10 +375,11 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
         } else {
           Plant_m = 0.0;  //Plant * ed->d_soid.alllwc[il] * ed->m_sois.dz[il] * 1000.0;
         }
-      }
+      }//End of layer below water table
+
 
       totPlant = totPlant + plant_ch4_sum; //cumulated over 1 day, 24 time steps, Y.MI
-      totPlant_m = totPlant_m + Plant_m; //cumulated over 1 day, 24 time steps, Y.MI
+      totPlant_m += Plant_m; //cumulated over 1 day, 24 time steps, Y.MI
 //            totEbul = totEbul + Ebul; //cumulated over 1 time step, 1 hour, Y.MI
 //            totEbul_m = totEbul_m + Ebul_m; //cumulated over 1 time step, 1 hour, Y.MI
 //
@@ -393,6 +399,8 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       //Fan Eq. 8 (mostly?)
       //change of CH4 conc./time = CH4 production rate - diffusion transport/soil depth
       // - Ebullition - Oxidation - CH4 emitted through plant process
+      //This does not specifically include diff[] right now - see
+      // calculation of V[] below
       SS = Prod - Ebul - Oxid - plant_ch4_sum;
 
       if (il == (numsoill - 1)) {
@@ -401,6 +409,8 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
         D[il] = r[il];
       }
 
+      //First member of this includes diffusion
+      //Second member includes the other elements of methane leaving
       V[il] = s[il] * currl->ch4 + s[il] * dt * SS;
 
       if (V[il] < 0.0000001) {
@@ -449,6 +459,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
     tmp_flux = 0.05;
   }
 
+  //Fan Eq. 21
   Flux2A_m = Flux2A * tmp_flux * topsoil->dz * 1000.0;
   totFlux_m = 0.5 * totPlant_m + Flux2A_m + totEbul_m;//ebullitions counldn't reach the surface, eg. when water table is below the soil surface, are not included, Y.MI
 
@@ -466,6 +477,8 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
     ed->d_soid.dfratio = Flux2A_m / totFlux_m * 100.0;
   }
 
+  // The 0.012 is to convert umol to grams
+  // TODO check: should probably be 0.000012
   ed->d_soid.ch4flux = 0.012 * totFlux_m;
 }
 
