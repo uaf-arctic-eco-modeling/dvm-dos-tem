@@ -20,7 +20,7 @@ def diff_and_avg(dirA, dirB, outdir):
 
   for filename in os.listdir(dirA):
 
-    if 'restart' in filename or 'status' in filename or 'LAYER' in filename:
+    if 'restart' in filename or 'status' in filename:
       continue
 
     with nc.Dataset(dirA + filename) as ncFile:
@@ -138,12 +138,26 @@ def produce_heatmap_plot(outdir):
 
   plot_data_np = np.array(sc_plot_data)
 
-  xval = np.nanmax(np.abs(plot_data_np))
+#  xval = np.nanmax(np.abs(plot_data_np))
 
-  plot_data_np = np.ma.masked_invalid(plot_data_np)
+#  plot_data_np = np.ma.masked_invalid(plot_data_np)
+  plot_data_np = np.ma.masked_less(plot_data_np, -1000)
+  plot_data_np = np.ma.masked_greater(plot_data_np, 1000)
+
 
   fig, ax = plt.subplots()
-  im = ax.imshow(plot_data_np)
+
+  ax.set_yticks(np.arange(len(sc_plot_data)))
+
+  ax.set_yticklabels(var_names)
+  ax.set_xticklabels(np.arange(0,len(sc_plot_data),10))
+
+
+  im = ax.imshow(plot_data_np,
+                 vmin=-np.nanmax(np.abs(plot_data_np)),
+                 vmax=np.nanmax(np.abs(plot_data_np)))
+
+  cbar = ax.figure.colorbar(im, ax=ax, cmap="YlGn")
 
   fig.tight_layout()
   plt.show()
