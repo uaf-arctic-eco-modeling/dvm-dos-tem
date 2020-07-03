@@ -106,8 +106,10 @@ def diff_and_avg(dirA, dirB, outdir):
 def produce_heatmap_plot(outdir):
 
   avg_files = glob.glob(outdir + "/avg_diff*")
+  avg_files.sort()
 
-  var_names = []
+  tr_var_names = []
+  sc_var_names = []
   sc_plot_data = []
   tr_plot_data = []
 
@@ -126,13 +128,15 @@ def produce_heatmap_plot(outdir):
         else:
           data_var = var
 
-      var_names.append(data_var)
+#      var_names.append(data_var)
       var_data = avg_ncFile.variables[data_var][:]
       print(len(var_data))
 
       if len(var_data) <= 100:
+        sc_var_names.append(data_var)
         sc_plot_data.append(avg_ncFile.variables[data_var][:])
       elif len(var_data) > 100:
+        tr_var_names.append(data_var)
         tr_plot_data.append(avg_ncFile.variables[data_var][:])
 
 
@@ -149,15 +153,21 @@ def produce_heatmap_plot(outdir):
 
   ax.set_yticks(np.arange(len(sc_plot_data)))
 
-  ax.set_yticklabels(var_names)
+  ax.set_yticklabels(sc_var_names)
   ax.set_xticklabels(np.arange(0,len(sc_plot_data),10))
 
 
-  im = ax.imshow(plot_data_np,
+  cm1 = plt.cm.coolwarm
+
+  im = ax.imshow(plot_data_np, cmap=cm1,
                  vmin=-np.nanmax(np.abs(plot_data_np)),
                  vmax=np.nanmax(np.abs(plot_data_np)))
 
-  cbar = ax.figure.colorbar(im, ax=ax, cmap="YlGn")
+
+#  cbar = ax.figure.colorbar(im, ax=ax, cmap="YlGn")
+#  cbar.ax.set_ylabel("Difference", rotation=-90, va="bottom")
+
+  cbar = plt.colorbar(im, ax=ax, orientation='vertical')
 
   fig.tight_layout()
   plt.show()
