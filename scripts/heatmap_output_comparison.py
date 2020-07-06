@@ -23,18 +23,12 @@ def diff_and_avg(dirA, dirB, outdir):
     if 'restart' in filename or 'status' in filename:
       continue
 
+    if 'ALD' not in filename:
+      continue
+
     with nc.Dataset(dirA + filename) as ncFile:
       nc_dims = [dim for dim in ncFile.dimensions]
       nc_vars = [var for var in ncFile.variables]
-  
-      by_pft = by_pftpart = by_layer = False
-  
-      if "pft" in nc_dims:
-        by_pft = True
-      if "pftpart" in nc_dims:
-        by_pftpart = True
-      if "layer" in nc_dims:
-        by_layer = True
   
       #Get variable name
       for var in nc_vars:
@@ -48,13 +42,98 @@ def diff_and_avg(dirA, dirB, outdir):
       diff_filename = outdir + "/diff_" + filename 
       fileA = dirA + "/" + filename
       fileB = dirB + "/" + filename
-  
+
+      #Diff files  
       process = subprocess.run(['ncdiff', fileA, fileB, diff_filename],
                                stdout=subprocess.PIPE,
                                universal_newlines=True)
   
   
-      if "monthly" in filename:
+def percent_diff(dirA, outdir):
+
+  diff_files = glob.glob(outdir + "/diff_*")
+#  diff_files.sort()
+
+  for file in diff_files:
+
+    original_filename = os.path.basename(file)[5:]
+    print(original_filename)
+
+    #Copy the original output files, since the append would modify them 
+    subprocess.run(['cp', dirA + '/' + original_filename, outdir],
+                   stdout=subprocess.PIPE)
+    data_file_copy = outdir + '/' + original_filename
+
+    with nc.Dataset(file) as diff_ncFile:
+
+      nc_vars = [var for var in diff_ncFile.variables]
+      #Get variable name
+      for var in nc_vars:
+        if var == 'time' or var == 'albers_conical_equal_area':
+          continue
+        else:
+          data_var = var
+
+
+    #Rename the variables in the diff files so the append works
+    #It appears to rename any variable that contains 'data_var',
+    # and if called multiple times will prepend 'diff_' as many
+    # times as called.
+    names_string = data_var + ",diff_" + data_var
+    subprocess.run(['ncrename', '-v', names_string, file],
+                   stdout=subprocess.PIPE)
+
+
+    #Concatenate the diffed values onto the copy of the original file
+    subprocess.run(['ncks', '-A', file, data_file_copy],
+                   stdout=subprocess.PIPE)
+
+
+    #Calculate ratio between diff values and original values
+    #ncap -O -h -s 'reldiff = 100 * (diff/value)'
+    reldiff_filename = outdir + '/rel_diff_' + original_filename 
+    reldiff_str = 'reldiff=100*(diff_' + data_var + '/' + data_var + ')'
+    subprocess.run(['ncap2', '-O', '-h', '-s', reldiff_str,
+                    data_file_copy, reldiff_filename],
+                   stdout=subprocess.PIPE)
+
+    #Delete the copy of the original file to save space 
+    subprocess.run(['rm', data_file_copy],
+                   stdout=subprocess.PIPE)
+ 
+
+
+def average_files(outdir, glob_descriptor, output_prefix):
+
+  diff_files = glob.glob(outdir + glob_descriptor)
+
+  #stripping out the prefixes for naming output files
+  descriptor_length = len(glob_descriptor) - 2
+
+  for diff_filename in diff_files:
+    original_filename = os.path.basename(diff_filename)[descriptor_length:]
+
+    with nc.Dataset(diff_filename) as diff_ncFile:
+      nc_dims = [dim for dim in diff_ncFile.dimensions]
+      nc_vars = [var for var in diff_ncFile.variables]
+
+      #Get variable name
+      for var in nc_vars:
+        if var == 'time' or var == 'albers_conical_equal_area':
+          continue
+        else:
+          data_var = var
+  
+      by_pft = by_pftpart = by_layer = False
+  
+      if "pft" in nc_dims:
+        by_pft = True
+      if "pftpart" in nc_dims:
+        by_pftpart = True
+      if "layer" in nc_dims:
+        by_layer = True
+  
+      if "monthly" in diff_filename:
         #sum across time
         print(data_var + ": summing monthly diffs")
         subprocess.run(['ncks', '-O', '-h', '--mk_rec_dmn', 'time',
@@ -66,9 +145,12 @@ def diff_and_avg(dirA, dirB, outdir):
                         diff_filename, diff_filename],
                        stdout=subprocess.PIPE) 
   
-  
+
+      #Default to the diff filename, unless the file requires
+      # summing across dimensions below, in which case the
+      # name will be overwritten
       file_to_average = diff_filename
-      avg_filename = outdir + "/avg_diff_" + filename
+      avg_filename = outdir + '/' + output_prefix + original_filename
   
       if by_layer:
         print(data_var + ": averaging across layers")
@@ -85,7 +167,7 @@ def diff_and_avg(dirA, dirB, outdir):
                         diff_filename, avg_filename],
                        stdout=subprocess.PIPE)
         file_to_average = avg_filename
-  
+ 
       elif by_pft and by_pftpart:
         print(data_var + ": averaging across PFT and PFT parts")
         subprocess.run(['ncwa', '-O', '-h', '-v', data_var,
@@ -101,11 +183,12 @@ def diff_and_avg(dirA, dirB, outdir):
       subprocess.run(['ncwa', '-O', '-h', '-v', data_var, '-a', 'x,y',
                       '-y', 'avg', file_to_average, avg_filename],
                      stdout=subprocess.PIPE)
-  
 
-def produce_heatmap_plot(outdir):
 
-  avg_files = glob.glob(outdir + "/avg_diff*")
+
+def produce_heatmap_plot(outdir, glob_descriptor):
+
+  avg_files = glob.glob(outdir + glob_descriptor)
   avg_files.sort()
 
   tr_var_names = []
@@ -115,7 +198,7 @@ def produce_heatmap_plot(outdir):
 
 
   for avg_filename in avg_files:
-    print(avg_filename)
+#    print(avg_filename)
 
     #Load data from the averaged diff files for plotting
     with nc.Dataset(avg_filename) as avg_ncFile:
@@ -130,7 +213,7 @@ def produce_heatmap_plot(outdir):
 
 #      var_names.append(data_var)
       var_data = avg_ncFile.variables[data_var][:]
-      print(len(var_data))
+#      print(len(var_data))
 
       if len(var_data) <= 100:
         sc_var_names.append(data_var)
@@ -181,11 +264,20 @@ if __name__ == '__main__':
   dirB = "/vagrant/202006_mri/"
   outdir = "heatmapping_diffs"
 
+  testdir = "/home/vagrant/dvm-dos-tem/testdir/"
+
+
 #  os.mkdir(outdir)
 
 #  diff_and_avg(dirA, dirB, outdir)
 
-  produce_heatmap_plot(outdir)
+#  percent_diff(dirA, outdir)
+#  percent_diff(dirA, testdir)
+
+#  average_files(outdir, "/rel_diff*", "avg_rel_diff")
+
+# "/avg_diff*"
+  produce_heatmap_plot(outdir, "/avg_rel_diff*")
  
 
 
