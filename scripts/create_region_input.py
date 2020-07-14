@@ -2170,15 +2170,30 @@ if __name__ == '__main__':
       sites = list(reader)
 
     for i, site in enumerate(sites):
+      #print(site) 
+      if 'xsize' in site.keys():
+        xsize = site['xsize']
+      elif args.xsize:
+        xsize = site['xsize']
+      else:
+        10
+
+      if 'ysize' in site.keys():
+        ysize = site['ysize']
+      elif args.ysize:
+        ysize = site['ysize']
+      else:
+        10
 
       slurm_wrapper_string = get_slurm_wrapper_string(
         tifs=args.tifs, 
         pclim=args.projected_climate_config[0],
         sitename=site['site'],
         xoff=site['lon'], yoff=site['lat'],
-        xsize=10, ysize=10,
+        xsize=xsize, #(args.xsize if args.xsize else 10), 
+        ysize=ysize, #(args.ysize if args.ysize else 10),
         coordtype="--lonlat \\"
-        )
+      )
 
       with open("cri_slurm_wrapper_{:04d}.sh".format(i), 'w') as outfile:
         outfile.write(slurm_wrapper_string)
