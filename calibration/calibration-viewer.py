@@ -1069,45 +1069,42 @@ if __name__ == '__main__':
       except (IOError, ValueError) as e:
         logging.error("Problem: '%s' reading file '%s'" % (e, f))
 
-      # Figure out where to find the targets.
-      found_targets = False
-      if args.ref_targets:
-        # May want to save path, clear it, add only the new target location
-        # and try the import. on success, print something... and show lines??
-        # if it fails then log message, and restore path, and continue
+      def load_targets(the_path):
+        found_targets = False
         try:
-          print("Trying to look for targets here: {}".format(os.path.abspath(args.ref_targets)))
+          print("Trying to look for targets here: {}".format(os.path.abspath(the_path)))
           orig_path = sys.path
-          sys.path = [os.path.abspath(args.ref_targets)]
-          from . import calibration_targets
+          sys.path = [os.path.abspath(the_path)]
+          import calibration_targets
           sys.path = orig_path
-          found_targets = True
           print("Restoring path...")
         except (ImportError, NameError) as e:
-          logging.error("Can't display target lines!! Can't find targets! {}".format(e.message))
+          logging.error("Can't find calibration targets data!!")
+          logging.error("Restoring path...")
+          sys.path = orig_path
 
-      else:
-        try:
-          print("Trying to look for targets here: {}".format(os.path.abspath(args.ref_targets)))
-          from . import calibration_targets
-          found_targets = True
-        except (ImportError, NameError) as e:
-          logging.error("Can't display target lines!! Can't find targets! {}".format(e.message))
+        if found_targets:
+          for cmtname, data in calibration_targets.calibration_targets.items():
+            if cmtstr == 'CMT{:02d}'.format(data['cmtnumber']):
+              caltargets = data
+              target_title_tag = "CMT {} ({:})".format(data['cmtnumber'], cmtname)
+            else:
+              pass # wrong cmt
+        else:
+          caltargets = {}
+          target_title_tag = "--"
 
-      if found_targets:
-        for cmtname, data in calibration_targets.calibration_targets.items():
-          if cmtstr == 'CMT{:02d}'.format(data['cmtnumber']):
-            caltargets = data
-            target_title_tag = "CMT {} ({:})".format(data['cmtnumber'], cmtname)
-          else:
-            pass # wrong cmt
+        return caltargets, target_title_tag
+
+      if args.ref_targets:
+        caltargets, target_title_tag = load_targets(os.path.abspath(args.ref_targets))
       else:
-        caltargets = {}
-        target_title_tag = "--"
+        caltargets, target_title_tag = load_targets(os.path.join(os.path.realpath(__file__), 'calibration'))
 
     else:
       print(logging.warn("No files. Can't figure out which CMT to display targets for without files."))
       target_title_tag = "--"
+
 
   else:
     target_title_tag = "--"
