@@ -746,7 +746,7 @@ class ExpandingWindow(object):
         t_line0 = self.ewp_title.get_text().split('\n')[0]
         spos = t_line0.find('CMT')
         if spos < 0: # did not find the CMT code yet in the title...
-          logger.warn("Did not find CMT text in title - can't lookup PFT verbose name!")
+          logger.warning("Did not find CMT text in title - can't lookup PFT verbose name!")
           vname = ''
         else:
           cmtkey = t_line0[spos:spos+5]
