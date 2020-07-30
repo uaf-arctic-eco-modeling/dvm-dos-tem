@@ -1077,7 +1077,8 @@ if __name__ == '__main__':
           sys.path = [os.path.abspath(the_path)]
           import calibration_targets
           sys.path = orig_path
-          print("Restoring path...")
+          logging.info("Restoring path...")
+          found_targets = True
         except (ImportError, NameError) as e:
           logging.error("Can't find calibration targets data!!")
           logging.error("Restoring path...")
@@ -1091,6 +1092,7 @@ if __name__ == '__main__':
             else:
               pass # wrong cmt
         else:
+          logging.warning("Couldn't find targets!")
           caltargets = {}
           target_title_tag = "--"
 
