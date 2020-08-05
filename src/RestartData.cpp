@@ -637,6 +637,8 @@ void RestartData::read_px_pft_vars(const std::string& fname, const int rowidx, c
   temutil::nc( nc_inq_varid(ncid, "vegage", &cv) );
   temutil::nc( nc_get_vara_int(ncid, cv, start, count, &vegage[0]) );
   
+  temutil::nc( nc_inq_varid(ncid, "vegcov", &cv) );
+  temutil::nc( nc_get_vara_double(ncid, cv, start, count, &vegcov[0]) );
   temutil::nc( nc_inq_varid(ncid, "lai", &cv) );
   temutil::nc( nc_get_vara_double(ncid, cv, start, count, &lai[0]) );
   temutil::nc( nc_inq_varid(ncid, "vegwater", &cv) );
@@ -790,6 +792,8 @@ void RestartData::read_px_soil_vars(const std::string& fname, const int rowidx, 
   temutil::nc( nc_get_vara_double(ncid, cv, start, count, &TSsoil[0]) );
   temutil::nc( nc_inq_varid(ncid, "LIQsoil", &cv) );
   temutil::nc( nc_get_vara_double(ncid, cv, start, count, &LIQsoil[0]) );
+  temutil::nc( nc_inq_varid(ncid, "ICEsoil", &cv) );
+  temutil::nc( nc_get_vara_double(ncid, cv, start, count, &ICEsoil[0]) );
   temutil::nc( nc_inq_varid(ncid, "FROZENFRACsoil", &cv) );
   temutil::nc( nc_get_vara_double(ncid, cv, start, count, &FROZENFRACsoil[0]) );
   temutil::nc( nc_inq_varid(ncid, "rawc", &cv) );
@@ -1265,6 +1269,8 @@ void RestartData::write_px_pft_vars(const std::string& fname, const int rowidx, 
   temutil::nc( nc_inq_varid(ncid, "vegage", &cv) );
   temutil::nc( nc_put_vara_int(ncid, cv, start, count, &vegage[0]) );
   
+  temutil::nc( nc_inq_varid(ncid, "vegcov", &cv) );
+  temutil::nc( nc_put_vara_double(ncid, cv, start, count, &vegcov[0]) );
   temutil::nc( nc_inq_varid(ncid, "lai", &cv) );
   temutil::nc( nc_put_vara_double(ncid, cv, start, count, &lai[0]) );
   temutil::nc( nc_inq_varid(ncid, "vegwater", &cv) );
@@ -1438,6 +1444,8 @@ void RestartData::write_px_soil_vars(const std::string& fname, const int rowidx,
   temutil::nc( nc_put_vara_double(ncid, cv, start, count, &TSsoil[0]) );
   temutil::nc( nc_inq_varid(ncid, "LIQsoil", &cv) );
   temutil::nc( nc_put_vara_double(ncid, cv, start, count, &LIQsoil[0]) );
+  temutil::nc( nc_inq_varid(ncid, "ICEsoil", &cv) );
+  temutil::nc( nc_put_vara_double(ncid, cv, start, count, &ICEsoil[0]) );
   temutil::nc( nc_inq_varid(ncid, "FROZENFRACsoil", &cv) );
   temutil::nc( nc_put_vara_double(ncid, cv, start, count, &FROZENFRACsoil[0]) );
   temutil::nc( nc_inq_varid(ncid, "rawc", &cv) );
