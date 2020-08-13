@@ -26,6 +26,8 @@ def cat_array_driver_script():
         #  NOTES:
         #  =======================
         #  - Will read and write data on /big_scratch!
+        #    ALERT: As of August 2020, /big_scratch is not a good place for this. Choose
+        #    Best to revise this script to work on a different drive, perhaps /workspace/Shared/Tech_Projects
         #  - Assumes certain directory layout in order to call the correct script(s).
         #  - Change the INDIR, OUTDIR, and the path to the script in the final srun call
         #    to suit your needs.

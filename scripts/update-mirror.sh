@@ -13,7 +13,7 @@
 # We are maintaining the primary input catalog on the atlas
 # server at UAF, in part because the scripts and source data
 # for generating new dvmdostem inputs are functioning on atlas.
-SRC="atlas:/big_scratch/tem/dvmdostem-input-catalog/"
+SRC="atlas:/workspace/Shared/Tech_Projects/dvmdostem/input-catalog/"
 
 # In some cases, it is useful to be able to pass more options
 # to ssh, or to use a specific ssh config file. In this case you
