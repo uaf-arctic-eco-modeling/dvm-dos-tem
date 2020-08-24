@@ -94,7 +94,7 @@ def average_file(outdir, filename, data_name, input_prefix, output_prefix):
                    stdout=subprocess.PIPE)
   
     subprocess.run(['ncra', '--mro', '-O', '-d', 'time,0,,12,12', '-y',
-                    'avg', '-v', var_to_avg,
+                    'avg', '-v', data_name,
                     filecopy, filecopy],
                    stdout=subprocess.PIPE) 
   
@@ -177,33 +177,48 @@ def produce_heatmap_plot(outdir, glob_descriptor):
         tr_plot_data.append(avg_ncFile.variables[data_var][:])
 
 
-  plot_data_np = np.array(sc_plot_data)
 
-#  xval = np.nanmax(np.abs(plot_data_np))
+  plot_data_np_tr = np.array(tr_plot_data)
+  plot_data_np_tr = np.ma.masked_invalid(plot_data_np_tr)
+  plot_data_np_tr = np.ma.masked_less(plot_data_np_tr, -1000)
+  plot_data_np_tr = np.ma.masked_greater(plot_data_np_tr, 1000)
 
-  plot_data_np = np.ma.masked_invalid(plot_data_np)
-  plot_data_np = np.ma.masked_less(plot_data_np, -1000)
-  plot_data_np = np.ma.masked_greater(plot_data_np, 1000)
+  plot_data_np_sc = np.array(sc_plot_data)
+  plot_data_np_sc = np.ma.masked_invalid(plot_data_np_sc)
+  plot_data_np_sc = np.ma.masked_less(plot_data_np_sc, -1000)
+  plot_data_np_sc = np.ma.masked_greater(plot_data_np_sc, 1000)
 
-
-  fig, ax = plt.subplots()
-
-  ax.set_yticks(np.arange(len(sc_plot_data)))
-
-  ax.set_yticklabels(sc_var_names)
-  ax.set_xticklabels(np.arange(0,len(sc_plot_data),10))
-
-
+  fig, axes = plt.subplots(nrows=2, ncols=1)
   cm1 = plt.cm.coolwarm
 
-  im = ax.imshow(plot_data_np, cmap=cm1,
-                 vmin=-np.nanmax(np.abs(plot_data_np)),
-                 vmax=np.nanmax(np.abs(plot_data_np)))
+  #Set up TR plot
+  TR_data_len = len(plot_data_np_tr[0])
+  axes[0].set_title('Transient (TR)')
+  axes[0].set_yticks(np.arange(len(plot_data_np_tr)))
+  axes[0].set_yticklabels(tr_var_names)
+  axes[0].set_xticks(np.arange(0,TR_data_len,10))
+  axes[0].set_xticklabels(np.arange(0,TR_data_len,10))
 
-#  cbar = ax.figure.colorbar(im, ax=ax, cmap="YlGn")
-#  cbar.ax.set_ylabel("Difference", rotation=-90, va="bottom")
+  im = axes[0].imshow(plot_data_np_tr, cmap=cm1,
+                 vmin=-np.nanmax(np.abs(plot_data_np_tr)),
+                 vmax=np.nanmax(np.abs(plot_data_np_tr)))
 
-  cbar = plt.colorbar(im, ax=ax, orientation='vertical')
+  cbar = plt.colorbar(im, ax=axes[0], orientation='vertical')
+
+
+  #Set up SC plot
+  SC_data_len = len(plot_data_np_sc[0])
+  axes[1].set_title('Scenario (SC)')
+  axes[1].set_yticks(np.arange(len(sc_plot_data)))
+  axes[1].set_yticklabels(sc_var_names)
+  axes[1].set_xticks(np.arange(0,SC_data_len,10))
+  axes[1].set_xticklabels(np.arange(0,SC_data_len,10))
+
+  im = axes[1].imshow(plot_data_np_sc, cmap=cm1,
+                 vmin=-np.nanmax(np.abs(plot_data_np_sc)),
+                 vmax=np.nanmax(np.abs(plot_data_np_sc)))
+
+  cbar = plt.colorbar(im, ax=axes[1], orientation='vertical')
 
   fig.tight_layout()
   plt.show()
