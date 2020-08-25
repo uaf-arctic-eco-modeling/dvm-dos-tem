@@ -204,7 +204,7 @@ def produce_heatmap_plot(outdir, glob_descriptor):
                  vmax=np.nanmax(np.abs(plot_data_np_tr)))
 
   cbar = plt.colorbar(im, ax=axes[0], orientation='vertical')
-
+  im.set_clim(-100, 100)
 
   #Set up SC plot
   SC_data_len = len(plot_data_np_sc[0])
@@ -219,6 +219,7 @@ def produce_heatmap_plot(outdir, glob_descriptor):
                  vmax=np.nanmax(np.abs(plot_data_np_sc)))
 
   cbar = plt.colorbar(im, ax=axes[1], orientation='vertical')
+  im.set_clim(-100, 100)
 
   fig.tight_layout()
   plt.show()
