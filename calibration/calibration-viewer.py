@@ -200,7 +200,16 @@ class ExpandingWindow(object):
     self.reference_param_loc = 'relative_to_curdir'
 
     self.fig = plt.figure(figsize=(6*1.3, 8*1.3))
+    self.fig.set_label("CAL FIGURE")
     self.ewp_title = self.fig.suptitle(figtitle)
+
+    # Not sure exactly where it comes from, but somehow 2 figure windows end up 
+    # getting created. The first one ("Figure 1") is always empty. So this snippet 
+    # closes any figure that does not have the right label.
+    for i, l in zip(plt.get_figlabels(), plt.get_fignums()):
+      if "CAL FIGURE" not in i:
+        logging.info("Closing extraneous figure {}, {}".format(i, l))
+        plt.close(i)
 
     if no_show:
       # NO NEED FOR ANY SPACE FOR VARIOUS RADIO BUTTONS
