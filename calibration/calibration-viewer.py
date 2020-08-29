@@ -254,6 +254,14 @@ class ExpandingWindow(object):
     return [trace['artists'][0] for trace in self.traces]
 
 
+  def log_xtickinfo(self, desc):
+    '''Print message to log for each axis with tick locations, labels, and description tag.'''
+    for ax in self.axes:
+      locs = ax.get_xticks()
+      labels = ax.get_xticklabels()
+      logging.debug("[{}] locs: {}    labels: {}".format(desc, locs, labels))
+
+
   def load_data2plot(self, relim, autoscale):
     log = logging.getLogger('dataloader')
 
@@ -401,6 +409,8 @@ class ExpandingWindow(object):
     for ax in self.axes:
       ax.ticklabel_format(useOffset=False, style='plain')
 
+    self.log_xtickinfo('LOAD')
+
     # ----- RELIMIT and SCALE ----------
     if relim:
       log.info("Recomputing data limits based on artist data")
@@ -471,6 +481,8 @@ class ExpandingWindow(object):
     plt.setp(self.axes[-1].get_xticklabels(), visible=True)
                                          # L     B     W     H
     self.gs.tight_layout(self.fig, rect=[0.05, 0.00, 1.00, 0.95])
+
+    self.log_xtickinfo('SETUP')
 
     self.fig.canvas.mpl_connect('key_press_event', self.key_press_event)
 
@@ -777,6 +789,9 @@ class ExpandingWindow(object):
     for ax in self.axes:
       ax.relim()
       ax.autoscale(enable=True, axis='both', tight=False)
+
+    self.log_xtickinfo("RELIM_AUTOSCALE_DRAW")
+
     logging.info("Redraw plot")
     try:
       plt.draw()
@@ -796,7 +811,6 @@ class ExpandingWindow(object):
 
   def show(self, save_name="", dynamic=True, format="pdf"):
     '''Show the figure. If dynamic=True, then setup an animation.'''
-
     logging.info("Displaying plot: dynamic=%s, no_show=%s, save_name=%s, format=%s" % (dynamic, self.no_show, save_name, format))
     if (dynamic and self.no_show):
       logging.warn("no_show=%s implies static. Generating static file only." % (self.no_show))
