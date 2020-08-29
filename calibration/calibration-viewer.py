@@ -478,8 +478,12 @@ class ExpandingWindow(object):
       self.axes.append(plt.subplot(self.gs[r, 0], sharex=self.axes[0]))
 
     # Turn off all tick labels on x axis
-    for r in range(self.gs.get_geometry()[0]):
-      plt.setp(self.axes[r].get_xticklabels(), visible=False)
+    # In older matplotlib, (<3.x?) we first turned off all axes
+    # and then turned the last one back on. For some reason in newer
+    # matplotlib, once we turn all axis lables off, it refuses to turn
+    # the last one back on.
+    for r in range(self.gs.get_geometry()[0] - 1):
+       plt.setp(self.axes[r].get_xticklabels(), visible=False)
 
     # Set the x label and ticks for the last (lowest) subplot
     if self.input_helper.monthly():
@@ -487,7 +491,6 @@ class ExpandingWindow(object):
     else:
       self.axes[-1].set_xlabel("Years")
 
-    plt.setp(self.axes[-1].get_xticklabels(), visible=True)
                                          # L     B     W     H
     self.gs.tight_layout(self.fig, rect=[0.05, 0.00, 1.00, 0.95])
 
