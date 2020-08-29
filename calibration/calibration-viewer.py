@@ -12,10 +12,10 @@ import signal         # for a graceful exit
 
 import multiprocessing
 
-if (sys.platform == 'darwin') and (os.name == 'posix'):
-  # TkAgg is the only one that seems to work on Mac OSX with animation...
-  import matplotlib
-  matplotlib.use('TkAgg') # <-- MUST BE SIMPLY 'Agg' to work with multi-processing!
+#if (sys.platform == 'darwin') and (os.name == 'posix'):
+#  # TkAgg is the only one that seems to work on Mac OSX with animation...
+#  import matplotlib
+#  matplotlib.use('TkAgg') # <-- MUST BE SIMPLY 'Agg' to work with multi-processing!
 
 import numpy as np
 import matplotlib.pyplot as plt
