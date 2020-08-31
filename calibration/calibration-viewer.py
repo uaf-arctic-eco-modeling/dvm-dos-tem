@@ -12,10 +12,10 @@ import signal         # for a graceful exit
 
 import multiprocessing
 
-if (sys.platform == 'darwin') and (os.name == 'posix'):
-  # TkAgg is the only one that seems to work on Mac OSX with animation...
-  import matplotlib
-  matplotlib.use('TkAgg') # <-- MUST BE SIMPLY 'Agg' to work with multi-processing!
+#if (sys.platform == 'darwin') and (os.name == 'posix'):
+#  # TkAgg is the only one that seems to work on Mac OSX with animation...
+#  import matplotlib
+#  matplotlib.use('TkAgg') # <-- MUST BE SIMPLY 'Agg' to work with multi-processing!
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -200,7 +200,16 @@ class ExpandingWindow(object):
     self.reference_param_loc = 'relative_to_curdir'
 
     self.fig = plt.figure(figsize=(6*1.3, 8*1.3))
+    self.fig.set_label("CAL FIGURE")
     self.ewp_title = self.fig.suptitle(figtitle)
+
+    # Not sure exactly where it comes from, but somehow 2 figure windows end up 
+    # getting created. The first one ("Figure 1") is always empty. So this snippet 
+    # closes any figure that does not have the right label.
+    for i, l in zip(plt.get_figlabels(), plt.get_fignums()):
+      if "CAL FIGURE" not in i:
+        logging.info("Closing extraneous figure {}, {}".format(i, l))
+        plt.close(i)
 
     if no_show:
       # NO NEED FOR ANY SPACE FOR VARIOUS RADIO BUTTONS
@@ -252,6 +261,14 @@ class ExpandingWindow(object):
     logging.info("Init function for animation")
 
     return [trace['artists'][0] for trace in self.traces]
+
+
+  def log_xtickinfo(self, desc):
+    '''Print message to log for each axis with tick locations, labels, and description tag.'''
+    for ax in self.axes:
+      locs = ax.get_xticks()
+      labels = ax.get_xticklabels()
+      logging.debug("[{}] locs: {}    labels: {}".format(desc, locs, labels))
 
 
   def load_data2plot(self, relim, autoscale):
@@ -401,6 +418,8 @@ class ExpandingWindow(object):
     for ax in self.axes:
       ax.ticklabel_format(useOffset=False, style='plain')
 
+    self.log_xtickinfo('LOAD')
+
     # ----- RELIMIT and SCALE ----------
     if relim:
       log.info("Recomputing data limits based on artist data")
@@ -459,8 +478,12 @@ class ExpandingWindow(object):
       self.axes.append(plt.subplot(self.gs[r, 0], sharex=self.axes[0]))
 
     # Turn off all tick labels on x axis
-    for r in range(self.gs.get_geometry()[0]):
-      plt.setp(self.axes[r].get_xticklabels(), visible=False)
+    # In older matplotlib, (<3.x?) we first turned off all axes
+    # and then turned the last one back on. For some reason in newer
+    # matplotlib, once we turn all axis lables off, it refuses to turn
+    # the last one back on.
+    for r in range(self.gs.get_geometry()[0] - 1):
+       plt.setp(self.axes[r].get_xticklabels(), visible=False)
 
     # Set the x label and ticks for the last (lowest) subplot
     if self.input_helper.monthly():
@@ -468,9 +491,10 @@ class ExpandingWindow(object):
     else:
       self.axes[-1].set_xlabel("Years")
 
-    plt.setp(self.axes[-1].get_xticklabels(), visible=True)
                                          # L     B     W     H
     self.gs.tight_layout(self.fig, rect=[0.05, 0.00, 1.00, 0.95])
+
+    self.log_xtickinfo('SETUP')
 
     self.fig.canvas.mpl_connect('key_press_event', self.key_press_event)
 
@@ -777,6 +801,9 @@ class ExpandingWindow(object):
     for ax in self.axes:
       ax.relim()
       ax.autoscale(enable=True, axis='both', tight=False)
+
+    self.log_xtickinfo("RELIM_AUTOSCALE_DRAW")
+
     logging.info("Redraw plot")
     try:
       plt.draw()
@@ -796,7 +823,6 @@ class ExpandingWindow(object):
 
   def show(self, save_name="", dynamic=True, format="pdf"):
     '''Show the figure. If dynamic=True, then setup an animation.'''
-
     logging.info("Displaying plot: dynamic=%s, no_show=%s, save_name=%s, format=%s" % (dynamic, self.no_show, save_name, format))
     if (dynamic and self.no_show):
       logging.warn("no_show=%s implies static. Generating static file only." % (self.no_show))
