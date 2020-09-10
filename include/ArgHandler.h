@@ -32,6 +32,7 @@ class ArgHandler {
 
   std::string max_output_volume;
   bool no_output_cleanup;
+  bool restart_run;
 
   std::string pid_tag;
 
@@ -73,6 +74,7 @@ public:
 
   inline const std::string get_max_output_volume(){return max_output_volume;};
   inline const bool get_no_output_cleanup(){return no_output_cleanup;};
+  inline const bool get_restart_run(){return restart_run;};
 
   inline const std::string get_log_level(){return log_level;};
   inline const std::string get_log_scope(){return log_scope;};
