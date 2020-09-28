@@ -82,6 +82,27 @@ namespace temutil {
 
   }
 
+  /** Determines if a string is composed only of whitespace characters. */
+  bool all_whitespace(const std::string &s){
+
+    const char *cstr = s.c_str();
+    int ws_count = 0;
+    int ii = 0;
+
+    while(cstr[ii]){
+      if(isspace(cstr[ii])){
+        ws_count += 1;
+      }
+      ii++;
+    }
+
+    if(ws_count == s.length()){
+      return true;
+    }
+
+    return false;
+  }
+
   /** Return the day of year based on month and day, everything is zero based. */
   int day_of_year(int month, int day) {
     return DOYINDFST[month] + day;
