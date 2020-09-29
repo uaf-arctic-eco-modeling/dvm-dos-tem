@@ -98,6 +98,8 @@ namespace temutil {
 
   double NON_ZERO(const double val, const int sign);
 
+  bool all_whitespace(const std::string &s);
+
   int doy2month(const int doy);
   int doy2dom(const int doy);
 

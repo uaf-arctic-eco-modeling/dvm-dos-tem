@@ -299,6 +299,17 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize,
     for(int ii=0; ii<10; ii++){
       std::getline(ss, token, ',');
 
+      //If the token is the string that indicates an invalid option in
+      //  the output_spec file, skip it.
+      if(token.compare(invalid_option) == 0){
+        continue;
+      }
+      //If the token is completely whitespace, we assume an erroneous
+      //  entry in the output_spec file and skip it.
+      if(temutil::all_whitespace(token)){
+        continue;
+      }
+
       if(ii==0){ // Variable name
         name = token; 
       }
@@ -309,20 +320,20 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize,
         units = token;
       }
       else if(ii==3){//Yearly
-        if(token.length()>0 && token.compare(invalid_option) != 0){
+        if(token.length()>0){
           timestep = "yearly";
           new_spec.yearly = true;
         }
       }
       else if(ii==4){ // Monthly
-        if(token.length()>0 && token.compare(invalid_option) != 0){
+        if(token.length()>0){
           timestep = "monthly";
           new_spec.monthly = true;
           new_spec.yearly = false;
         }
       }
       else if(ii==5){ // Daily
-        if(token.length()>0 && token.compare(invalid_option) != 0){
+        if(token.length()>0){
           timestep = "daily";
           new_spec.daily = true;
           new_spec.monthly = false;
@@ -330,25 +341,25 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize,
         }
       }
       else if(ii==6){ // PFT
-        if(token.length()>0 && token.compare(invalid_option) != 0){
+        if(token.length()>0){
           new_spec.pft = true;
           new_spec.dim_count++;
         }
       }
       else if(ii==7){ // Compartment
-        if(token.length()>0 && token.compare(invalid_option) != 0){
+        if(token.length()>0){
           new_spec.compartment = true;
           new_spec.dim_count++;
         }
       }
       else if(ii==8){ // Layer
-        if(token.length()>0 && token.compare(invalid_option) != 0){
+        if(token.length()>0){
           new_spec.layer = true;
           new_spec.dim_count++;
         }
       }
       else if(ii==9){ // Data type
-        if(token.length()>0 && token.compare(invalid_option) != 0){
+        if(token.length()>0){
           if(token.find("int")!=std::string::npos){
             new_spec.data_type = NC_INT;
           }
