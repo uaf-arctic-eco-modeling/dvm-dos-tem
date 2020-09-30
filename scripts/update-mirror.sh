@@ -1,5 +1,19 @@
 #!/bin/bash 
 
+echo "--- PLEASE NOTE: ---"
+echo "This script is really intended to maintain an exact copy of the data catalog"
+echo "on the atlas computer. It uses the --delete flag for rsync with which it is"
+echo "easy to inadvertently delete local data. An alternate method for getting the" 
+echo "input data catalog is to copy it from the lab computer in room 418. The lab"
+echo "computer uses this mirroring script to stay up to date. Here is an example:"
+echo "of copying data from the lab computer:" 
+echo ""
+echo "    $ rsync -rv iocatalog@137.229.65.115:/data/mirrors/atlas/dvmdostem-input-catalog/ /some/local/path"
+echo ""
+echo "The above command will copy the entire catalog. Contact Tobey Carman or"
+echo "Ruth Rutter for the password"
+
+
 # Using this script will be easiest if you have setup ssh
 # keys that allow access to the remote (source) system.
 # Also assumed that you have something like the following 
