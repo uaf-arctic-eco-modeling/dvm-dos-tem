@@ -244,7 +244,7 @@ def xform(lon, lat, in_srs='EPSG:4326', out_srs='EPSG:3338'):
   p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
   try:
-    stdout, stderr = p.communicate("{} {}".format(lon, lat))
+    stdout, stderr = p.communicate(bytes('{} {}'.format(lon, lat), 'utf-8'))
   except:
     p.kill()
     p.wait()
@@ -253,7 +253,7 @@ def xform(lon, lat, in_srs='EPSG:4326', out_srs='EPSG:3338'):
   if len(stderr) > 0:
     raise subprocess.CalledProcessError(stderr, cmd, output=stdout)
   else:
-    x, y, h = stdout.split(' ')
+    x, y, h = stdout.decode('utf-8').split(' ')
 
   return float(x.strip()), float(y.strip()), float(h.strip())
 
