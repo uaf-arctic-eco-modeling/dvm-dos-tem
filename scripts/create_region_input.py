@@ -1800,7 +1800,10 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
     print("--> NOTE: Guessing length of time dimension from: {:}".format(climate))
     with netCDF4.Dataset(climate, 'r') as climate_dataset:
       years = len(climate_dataset.dimensions['time']) / 12
-
+      if len(climate_dataset.dimensions['time']) % 12 != 0:
+        print("WARNING: 'time' dimensions of historic-climate file is not an even number of years!")
+    print("Casting 'years' to int which may result in dataloss if historic-climate file does not contain an even number of years!")
+    years = int(years)
     fill_explicit_fire_file(
         years, xo, yo, xs, ys, out_dir, of_name,
         datasrc='no-fires',
@@ -1814,7 +1817,10 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
     print("--> NOTE: Guessing length of time dimension from: {:}".format(climate))
     with netCDF4.Dataset(climate, 'r') as climate_dataset:
       years = len(climate_dataset.dimensions['time']) / 12
-
+      if len(climate_dataset.dimensions['time']) % 12 != 0:
+         print("WARNING: 'time' dimensions of historic-climate file is not an even number of years!")
+    print("Casting 'years' to int which may result in dataloss if historic-climate file does not contain an even number of years!")
+    years = int(years)
     fill_explicit_fire_file(
         years, xo, yo, xs, ys, out_dir, of_name,
         datasrc='no-fires',
