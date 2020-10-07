@@ -928,6 +928,9 @@ def fill_climate_file(start_yr, yrs, xo, yo, xs, ys,
                       time_coord_var, model='', scen='', cleanup_tmpfiles=True,
                       withlatlon=None, withproj=None, projwin=None):
 
+  start_yr = int(start_yr)
+  yrs = int(yrs)
+
   # create short handle for output file
   masterOutFile = os.path.join(out_dir, of_name)
 
