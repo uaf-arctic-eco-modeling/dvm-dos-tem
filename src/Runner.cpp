@@ -2300,23 +2300,6 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
   map_itr = netcdf_outputs.end();
 
 
-  //LATERALDRAINAGE
-  map_itr = netcdf_outputs.find("LATERALDRAINAGE");
-  if(map_itr != netcdf_outputs.end()){
-    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: LATERALDRAINAGE";
-    curr_spec = map_itr->second;
-
-    #pragma omp critical(outputLATERALDRAINAGE)
-    {
-      //daily
-      if(curr_spec.daily){
-        output_nc_4dim(&curr_spec, file_stage_suffix, &cohort.edall->daily_layer_drain[0][0], MAX_SOI_LAY, day_timestep, dinm);
-      }
-    }//end critical(outputLATERALDRAINAGE)
-  }//end LATERALDRAINAGE 
-  map_itr = netcdf_outputs.end();
-
-
   //LAYERDEPTH
   map_itr = netcdf_outputs.find("LAYERDEPTH");
   if(map_itr != netcdf_outputs.end()){
@@ -3324,6 +3307,23 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
       }
     }//end critical(outputQDRAINAGE)
   }//end QDRAINAGE 
+  map_itr = netcdf_outputs.end();
+
+
+  //QDRAINLAYER
+  map_itr = netcdf_outputs.find("QDRAINLAYER");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: QDRAINLAYER";
+    curr_spec = map_itr->second;
+
+    #pragma omp critical(outputQDRAINLAYER)
+    {
+      //daily
+      if(curr_spec.daily){
+        output_nc_4dim(&curr_spec, file_stage_suffix, &cohort.edall->daily_layer_drain[0][0], MAX_SOI_LAY, day_timestep, dinm);
+      }
+    }//end critical(outputQDRAINLAYER)
+  }//end QDRAINLAYER
   map_itr = netcdf_outputs.end();
 
 
