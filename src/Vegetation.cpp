@@ -362,8 +362,19 @@ void Vegetation::phenology(const int &currmind) {
 
         if (cd->m_vegd.unnormleafmx[ip] < tempunnormleaf) {
           cd->m_vegd.unnormleafmx[ip] = tempunnormleaf;
-          // it's updating monthly for current year and then update the 'deque',
-          // but not used in 'GPP' estimation
+
+          /// The optimum temperature is set to be the month of maximum leaf area, 
+          /// to allow for local adaptation/acclimation of photosynthesis. This allows the
+          /// vegetation to optimize the temperature response of photosynthesis for each 
+          /// grid cell based on the month of maximum leaf area for that grid cell. 
+          /// A.D. McGuire thinks we first introduced this into TEM 4.0, but it wasn't 
+          /// fully described until the publication of an application of TEM 4.1 in 
+          /// Tian et al. (1999). See the paragraph that spans pages 445-446  in the 
+          /// appendix of that paper. 
+          /// Ref: H. Tian, J. M. Melillo, D. W. Kicklighter, A. D. McGuire & J. Helfrich (1999)
+          /// The sensitivity of terrestrial carbon storage to historical climate variability and 
+          /// atmospheric CO2 in the United States, Tellus B: Chemical and Physical Meteorology, 51:2, 414-452, 
+          /// DOI: 10.3402/tellusb.v51i2.16318
           cd->m_vegd.topt[ip] = ed[ip]->m_atms.ta;
         }
 
