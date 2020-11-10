@@ -4,6 +4,8 @@ import subprocess
 import netCDF4 as nc
 import matplotlib
 import matplotlib.pyplot as plt
+import numpy as np
+import numpy.ma as ma
 
 matplotlib.use('TkAgg')
 
@@ -27,37 +29,127 @@ matplotlib.use('TkAgg')
 #./ncar/NPP_monthly_sc.nc
 
 var_name = "NPP"
+
+mri_directory = "mri/"
+ncar_directory = "ncar/"
+
+#Example:
+byPFT = False
+byPFTCompartment = False
+Monthly = True
+Yearly = False
+
+#Setting timestep to the right string so we can open the appropriate file
+if Monthly:
+  timestep = "monthly"
+elif Yearly:
+  timestep = "yearly"
+
 hist_filename = "mri/NPP_monthly_tr.nc"
 mri_filename = "mri/NPP_monthly_sc.nc"
 ncar_filename = "ncar/NPP_monthly_sc.nc"
+veg_filename = "vegetation-mri.nc"
 
-#Example:
-byPFT = True
-byPFTCompartment = False
-Monthly = True
+#Load vegtype data for masking
+with nc.Dataset(veg_filename, 'r') as ncFile:
+  vegtype = np.array(ncFile.variables['veg_class'][:])
 
-#Make 'time' a record dimension
-#subprocess.run(['ncks', '-O', '-h', '--mk_rec_dmn', 'time',
-#                ??_filename, ??_filename],
-#               stdout=subprocess.PIPE)
+#Load data from output files
+with nc.Dataset("mri/yearly_NPP_tr.nc", 'r') as ncFile:
+  NPP_hist = np.array(ncFile.variables[var_name][:])
+
+with nc.Dataset(mri_filename, 'r') as ncFile:
+  NPP_mri = np.array(ncFile.variables[var_name][:])
+
+with nc.Dataset(ncar_filename, 'r') as ncFile:
+  NPP_ncar = np.array(ncFile.variables[var_name][:])
+
+
+#Masking out values less than -5000 (mostly the fill value from the nc file)
+NPP_hist = ma.masked_less(NPP_hist, -5000)
+NPP_mri = ma.masked_less(NPP_mri, -5000)
+NPP_ncar = ma.masked_less(NPP_ncar, -5000)
+
+
+###Mask out unwanted CMT types
+#An array per selected CMT
+#Need to be able to do this for a specific veg type, which isn't
+# simple in NCOs. One plot per specified veg type
+# Same y range
+
+CMTs_to_plot = [4, 5]
+for cmt in CMTs_to_plot:
+  #make a mask
+
+
+#If monthly, sum across time to make it yearly
+if Monthly:
+  months_per_year = 12
+
+  temp_array = NPP_hist.reshape(??, months_per_year, NPP_hist.shape[???])
+  NPP_hist = NPP_hist[]
 #
-##Sum across time
-#subprocess.run(['ncra', '--mro', '-O', '-d', 'time,0,,12,12', '-y',
-#                'ttl', '-v', var_name, ??_filename, ??_filename],
-#               stdout=subprocess.PIPE)
 #
 #
-#
+
+
+#Calculate the mean per year
+NPP_hist_avg = np.mean(NPP_hist, axis=(1,2))
+NPP_mri_avg = np.mean(NPP_mri, axis=(1,2))
+NPP_ncar_avg = np.mean(NPP_ncar, axis=(1,2))
+
+#Calculate standard deviation per timestep
+NPP_hist_stddev = np.std(NPP_hist, axis=(1,2))
+NPP_mri_stddev = np.std(NPP_mri, axis=(1,2))
+NPP_ncar_stddev = np.std(NPP_ncar, axis=(1,2))
+
+#Length of data set (for plotting)
+hist_len = len(NPP_hist)
+print(hist_len)
+
+
+#Calculating the upper and lower bounds for the standard deviation
+# "envelope" around the plotted line
+hist_lower_bound = [a_i - b_i for a_i, b_i in zip(NPP_hist_avg, NPP_hist_stddev)]
+hist_upper_bound = [a_i + b_i for a_i, b_i in zip(NPP_hist_avg, NPP_hist_stddev)]
+
+#Plot the average line
+plt.plot(range(hist_len), NPP_hist_avg)
+
+#Plot the "envelope" plus and minus standard deviation
+plt.fill_between(range(hist_len), hist_lower_bound, hist_upper_bound, alpha=0.5)
+
+
+plt.show()
+
+
+exit()
+
+
+
+with nc.Dataset("mri/yearly_NPP_tr.nc", 'r') as ncFile:
+  NPP_yearly = ncFile.variables[var_name][:]
+
+NPP_yearly = np.array(NPP_yearly)
+print(NPP_yearly)
+print(NPP_yearly.shape)
+
+#Masking out very small values (fill value from the nc file)
+NPP_valid_values = ma.masked_less(NPP_yearly, -5000)
+
+#Length of data set (for plotting)
+hist_len = len(NPP_avg)
+#print(hist_len)
+
+
+
+
 ##calculate spatial mean
 #subprocess.run(['ncwa', '-O', '-v', var_name, '-a', 'y,x', in.nc, out.nc],
 #               stdout=subprocess.PIPE)
 # Add '-y' option to make sure it does what is correct (avg)
 ##Ex: ncwa -O -v NPP -a y,x yearly_NPP_sc.nc spatial_mean_NPP_yearly_sc.nc
 #
-
-#Need to be able to do this for a specific veg type, which isn't
-# simple in NCOs. One plot per specified veg type
-# Same y range
 
 ##Calculate the deviations wrt the mean
 #subprocess.run(['ncbo', '-O', '-v', var_name, in.nc, out.nc, out.nc],
@@ -134,6 +226,21 @@ plt.show()
 #with nc.Dataset("ncar/NPP_monthly_sc.nc") as ncar_file:
 #  ncar_data = ncar_file.variables[var_name][:]
 
+
+### *******IF the summed-to-yearly file does not exist:
+#if Monthly:
+
+#  for filename in NPP_filenames:
+    #Make 'time' a record dimension
+#    subprocess.run(['ncks', '-O', '-h', '--mk_rec_dmn', 'time',
+#                   filename, ??_filename],
+#                 stdout=subprocess.PIPE)
+
+
+    #Sum across time
+#    subprocess.run(['ncra', '--mro', '-O', '-d', 'time,0,,12,12', '-y',
+#                    'ttl', '-v', var_name, ??_filename, ??_filename],
+#                   stdout=subprocess.PIPE)
 
 
 
