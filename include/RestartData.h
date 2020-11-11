@@ -74,6 +74,7 @@ public :
   double vegc[NUM_PFT_PART][NUM_PFT]; // - 'vegs_bgc'
   double labn[NUM_PFT];
   double strn[NUM_PFT_PART][NUM_PFT];
+  double vegC2N[NUM_PFT_PART][NUM_PFT];
   double deadc[NUM_PFT];
   double deadn[NUM_PFT];
 

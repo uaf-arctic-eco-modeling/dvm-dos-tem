@@ -148,6 +148,7 @@ void Vegetation_Bgc::set_state_from_restartdata(const RestartData & rdata) {
   for (int i=0; i<NUM_PFT_PART; i++) {
     bd->m_vegs.c[i]    = rdata.vegc[i][ipft];
     bd->m_vegs.strn[i] = rdata.strn[i][ipft];
+    bgcpar.c2neven[i] = rdata.vegC2N[i][ipft];
   }
 
   bd->m_vegs.labn = rdata.labn[ipft];

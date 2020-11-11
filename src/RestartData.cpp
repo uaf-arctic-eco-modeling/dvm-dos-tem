@@ -65,6 +65,8 @@ MPI_Datatype RestartData::register_mpi_datatype() {
     NUM_PFT, // double labn[NUM_PFT];
     
     NUM_PFT_PART * NUM_PFT, // double strn[NUM_PFT_PART][NUM_PFT];
+
+    NUM_PFT_PART * NUM_PFT, // double vegC2N[NUM_PFT_PART][NUM_PFT];
     
     NUM_PFT, // double deadc[NUM_PFT];
     NUM_PFT, // double deadn[NUM_PFT];
@@ -142,6 +144,7 @@ MPI_Datatype RestartData::register_mpi_datatype() {
     MPI_DOUBLE, // double vegc[NUM_PFT_PART][NUM_PFT];
     MPI_DOUBLE, // double labn[NUM_PFT];
     MPI_DOUBLE, // double strn[NUM_PFT_PART][NUM_PFT];
+    MPI_DOUBLE, // double vegC2N[NUM_PFT_PART][NUM_PFT];
     MPI_DOUBLE, // double deadc[NUM_PFT];
     MPI_DOUBLE, // double deadn[NUM_PFT];
     MPI_DOUBLE, // double topt[NUM_PFT];
@@ -207,6 +210,7 @@ MPI_Datatype RestartData::register_mpi_datatype() {
     offsetof(RestartData, vegc),
     offsetof(RestartData, labn),
     offsetof(RestartData, strn),
+    offsetof(RestartData, vegC2N),
     offsetof(RestartData, deadc),
     offsetof(RestartData, deadn),
     offsetof(RestartData, topt),
@@ -295,6 +299,7 @@ void RestartData::reinitValue() {
     for (int i=0; i<NUM_PFT_PART; i++) {
       vegc[i][ip] = MISSING_D;
       strn[i][ip] = MISSING_D;
+      vegC2N[i][ip] = MISSING_D;
     }
 
     labn[ip]      = MISSING_D;
@@ -484,6 +489,7 @@ void RestartData::verify_logical_values(){
     for(int jj=0; jj<NUM_PFT_PART; jj++){
       check_bounds("vegc", vegc[jj][ii]);
       check_bounds("strn", strn[jj][ii]);
+      check_bounds("vegC2N", vegC2N[jj][ii]);
     }
     for(int jj=0; jj<MAX_ROT_LAY; jj++){
       check_bounds("rootfrac", rootfrac[jj][ii]);
@@ -691,6 +697,9 @@ void RestartData::read_px_pftpart_pft_vars(const std::string& fname, const int r
   
   temutil::nc( nc_inq_varid(ncid, "strn", &cv) );
   temutil::nc( nc_get_vara_double(ncid, cv, start, count, &strn[0][0]) );
+
+  temutil::nc( nc_inq_varid(ncid, "vegC2N", &cv) );
+  temutil::nc( nc_get_vara_double(ncid, cv, start, count, &vegC2N[0][0]) );
   
   temutil::nc( nc_close(ncid) );
 
@@ -1038,8 +1047,10 @@ void RestartData::create_empty_file(const std::string& fname,
   // Setup 4D vars, double
   int vegcV;
   int strnV;
+  int vegC2NV;
   temutil::nc( nc_def_var(ncid, "vegc", NC_DOUBLE, 4, vartype4D_dimids, &vegcV) );
   temutil::nc( nc_def_var(ncid, "strn", NC_DOUBLE, 4, vartype4D_dimids, &strnV) );
+  temutil::nc( nc_def_var(ncid, "vegC2N", NC_DOUBLE, 4, vartype4D_dimids, &vegC2NV) );
 
   // re-arrange dims in vartype
   vartype3D_dimids[0] = yD;
@@ -1327,7 +1338,10 @@ void RestartData::write_px_pftpart_pft_vars(const std::string& fname, const int 
   temutil::nc( nc_put_vara_double(ncid, cv, start, count, &vegc[0][0]) );
   
   temutil::nc( nc_inq_varid(ncid, "strn", &cv) );
-  temutil::nc( nc_put_vara_double(ncid, cv, start, count, &strn[0][0]) );
+  temutil::nc( nc_put_vara_double(ncid, cv, start, count, &strn[0][0]) ); 
+
+  temutil::nc( nc_inq_varid(ncid, "vegC2N", &cv) );
+  temutil::nc( nc_put_vara_double(ncid, cv, start, count, &vegC2N[0][0]) );
   
   temutil::nc( nc_close(ncid) );
 
@@ -1615,6 +1629,7 @@ void RestartData::restartdata_to_log(){
     for(int jj=0; jj<NUM_PFT_PART; jj++){
       BOOST_LOG_SEV(glg, debug) << "vegc[" << jj << "][" << ii << "]: " << vegc[jj][ii];
       BOOST_LOG_SEV(glg, debug) << "strn[" << jj << "][" << ii << "]: " << strn[jj][ii];
+      BOOST_LOG_SEV(glg, debug) << "vegC2N[" << jj << "][" << ii << "]: " << vegC2N[jj][ii];
     }
 
     for(int jj=0; jj<10; jj++){
