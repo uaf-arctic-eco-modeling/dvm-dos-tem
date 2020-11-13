@@ -55,7 +55,8 @@ with nc.Dataset(veg_filename, 'r') as ncFile:
   vegtype = np.array(ncFile.variables['veg_class'][:])
 
 #Load data from output files
-with nc.Dataset("mri/yearly_NPP_tr.nc", 'r') as ncFile:
+#with nc.Dataset("mri/yearly_NPP_tr.nc", 'r') as ncFile:
+with nc.Dataset("mri/NPP_monthly_tr.nc", 'r') as ncFile:
   NPP_hist = np.array(ncFile.variables[var_name][:])
 
 with nc.Dataset(mri_filename, 'r') as ncFile:
@@ -71,35 +72,55 @@ NPP_mri = ma.masked_less(NPP_mri, -5000)
 NPP_ncar = ma.masked_less(NPP_ncar, -5000)
 
 
-###Mask out unwanted CMT types
-#An array per selected CMT
-#Need to be able to do this for a specific veg type, which isn't
-# simple in NCOs. One plot per specified veg type
-# Same y range
-
-CMTs_to_plot = [4, 5]
-for cmt in CMTs_to_plot:
-  #make a mask
-
-
 #If monthly, sum across time to make it yearly
 if Monthly:
   months_per_year = 12
 
-  temp_array = NPP_hist.reshape(??, months_per_year, NPP_hist.shape[???])
-  NPP_hist = NPP_hist[]
-#
-#
-#
+  #Split the array with a stride of 12, to isolate each year's
+  # monthly values
+  yearly_index = np.arange(12,1380,months_per_year)
+  yearly_split = np.array(np.split(NPP_hist, yearly_index, axis=0))
+#  print(yearly_split.shape)
 
+  #Sum along axis index 1, to end up with a 3D array with dimensions
+  # years, x, and y
+  NPP_hist = yearly_split.sum(axis=1)
+
+  #temp_array = NPP_hist.reshape(??, months_per_year, NPP_hist.shape[???])
+
+
+#One plot (historic, mri, ncar) per selected CMT
+# Same y range
+all_CMTs,CMT_cell_count = np.unique(vegtype, return_counts=True)
+all_CMTs = list(zip(all_CMTs, CMT_cell_count))
+
+CMTs_to_plot = np.array([cmt for cmt in all_CMTs if cmt[0] != 0])
+print(CMTs_to_plot)
+
+
+#Make a masked array per CMT plot wanted
+#This does a single CMT for experimentation
+cmt_masked = ma.masked_where(vegtype != 5, vegtype)
+print(cmt_masked)
+broadcast_cmt_mask = np.broadcast_to(cmt_masked.mask, NPP_hist.shape)
+NPP_hist = np.ma.array(NPP_hist, mask=broadcast_cmt_mask)
+print("NPP_hist shape: " + str(NPP_hist.shape))
+print(NPP_hist[0])
 
 #Calculate the mean per year
-NPP_hist_avg = np.mean(NPP_hist, axis=(1,2))
+NPP_hist_avg = np.ma.mean(NPP_hist, axis=(1,2))
+print("NPP_hist_avg[0]: ")
+print(NPP_hist_avg[0])
+
 NPP_mri_avg = np.mean(NPP_mri, axis=(1,2))
 NPP_ncar_avg = np.mean(NPP_ncar, axis=(1,2))
 
 #Calculate standard deviation per timestep
-NPP_hist_stddev = np.std(NPP_hist, axis=(1,2))
+NPP_hist_stddev = np.ma.std(NPP_hist, axis=(1,2))
+print("NPP_hist_stddev: ")
+print(NPP_hist_stddev)
+#print(NPP_hist.mask)
+
 NPP_mri_stddev = np.std(NPP_mri, axis=(1,2))
 NPP_ncar_stddev = np.std(NPP_ncar, axis=(1,2))
 
