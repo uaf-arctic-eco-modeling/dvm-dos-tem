@@ -13,7 +13,7 @@ model that focuses on C and N dynamics as well as soil thermal dynamics in high
 latitude ecosystems.
 
 > Whats with the name? `dvm-dos-tem` is short for 
-"Dynamic Vegetation \[Model\] Dynamic Organic Soil Terrestrial Ecosystem Model"
+"Dynamic Vegetation \[Model\] Dynamic Organic Soil Terrestrial Ecosystem Model".
 Orignally the model was simply "TEM", and as more logic and capabilities have 
 been added, the name has grown. We still frequently use simply "TEM" because it 
 is less cumbersome for writing and typing.
