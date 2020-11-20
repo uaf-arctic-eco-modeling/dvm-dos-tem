@@ -17,13 +17,9 @@ matplotlib.use('TkAgg')
 #y is average annual NPP, gC/m2/year
 #"envelope" of +- stand deviation based on pixels
 
-#load three files:
-# transient from one of the runs
-# scenario from mri
-# scenario from ncar
-#./??/NPP_monthly_tr.nc
-#./mri/NPP_monthly_sc.nc
-#./ncar/NPP_monthly_sc.nc
+#In theory the historical output files should be the same between the mri
+# and ncar runs. However, the output directories are separate. This
+# script uses the historical and vegetation files from the mri directory.
 
 var_name = "NPP"
 
@@ -51,6 +47,8 @@ mri_filename = "mri/NPP_monthly_sc.nc"
 ncar_filename = "ncar/NPP_monthly_sc.nc"
 veg_filename = "vegetation-mri.nc"
 
+test_hist_filename = mri_directory + var_name + "_" + timestep + "_tr.nc"
+print(test_hist_filename)
 
 #Load vegtype data for masking by CMT
 with nc.Dataset(veg_filename, 'r') as ncFile:
@@ -74,6 +72,10 @@ for cmt in CMTs_to_plot:
 #Load data from output files
 with nc.Dataset(hist_filename, 'r') as ncFile:
   data_hist = np.array(ncFile.variables[var_name][:])
+  try:
+    data_units = ncFile.variables[var_name].getncattr('units') 
+  except KeyError:
+    print("No units variable attribute found")
 
 with nc.Dataset(mri_filename, 'r') as ncFile:
   data_mri = np.array(ncFile.variables[var_name][:])
@@ -114,28 +116,51 @@ data_mri = ma.masked_less(data_mri, -5000)
 data_ncar = ma.masked_less(data_ncar, -5000)
 
 
-#Length of data sets (for plotting)
+#Length of data sets (for length of x axis when plotting)
 hist_len = len(data_hist)
 proj_len = len(data_mri)
 
 
-#One plot (historic, mri, ncar) per selected CMT
-# Same y range
+#One sub plot per selected CMT
+#All sub plots will share a y axis scale
+#Each sub plot will have three lines: transient, mri, and ncar, each
+# with a shaded envelope around them +- standard deviation
 
 fig = plt.figure()
+fig.canvas.set_window_title(var_name)
 num_rows = len(CMTs_to_plot)
 num_columns = 1
 
-print(CMTs_to_plot)
+#x ticks will be every 10 x units, starting from 0 and running to
+# the length of transient and scenario plus ten 
+#The associated labels will be the year value for each tick, starting
+# at 1900 and ending ten years after the length of both transient
+# and scenario stages (to force another tick for clarity)
+xticks = np.arange(0, hist_len+proj_len+10, 10)
+xticklabels = np.arange(1900, 1900+hist_len+proj_len+10, 10)
+
+print(f'Plotting CMTs: {CMTs_to_plot}')
 for cmt in CMTs_to_plot:
-  print("Plotting cmt: " + str(cmt))
+  #Finding an index so that we can identify different subplots
   CMT_index = CMTs_to_plot.index(cmt)
+  #The index() function above returns a 0-based index, but the subplot
+  # system uses a 1-based indexing scheme so we increment by 1.
   subplot_index = CMT_index + 1
+
+  #Add a subplot for the current CMT, using the subplot_index to move
+  # to the new subplot
   ax = fig.add_subplot(num_rows, num_columns, subplot_index, label=cmt, title="CMT "+str(cmt))
 
+  #Setting x ticks and labels to the values defined above
+  ax.set_xticks(xticks)
+  ax.set_xticklabels(xticklabels)
+
+  #Set each subplot to use the same y axis as the first subplot
   allaxes = fig.get_axes()
   allaxes[0].get_shared_y_axes().join(allaxes[0], allaxes[CMT_index])
 
+  #Create a mask based on the current CMT - mask out all cells
+  # where the vegtype does not match.
   cmt_masked = ma.masked_where(vegtype != cmt, vegtype)
   broadcast_cmt_mask = np.broadcast_to(cmt_masked.mask, data_hist.shape)
   data_hist_cmt_masked = np.ma.array(data_hist, mask=broadcast_cmt_mask)
@@ -179,7 +204,6 @@ for cmt in CMTs_to_plot:
   ax.plot(range(hist_len, hist_len+proj_len), data_mri_avg)
   ax.fill_between(range(hist_len, hist_len+proj_len), mri_up_bound, mri_low_bound, alpha=0.3)
 
-
   #Repeating for ncar
   ncar_low_bound = [a_i - b_i for a_i, b_i in zip(data_ncar_avg, data_ncar_stddev)]
   ncar_up_bound = [a_i + b_i for a_i, b_i in zip(data_ncar_avg, data_ncar_stddev)]
@@ -187,6 +211,17 @@ for cmt in CMTs_to_plot:
   ax.plot(range(hist_len, hist_len+proj_len), data_ncar_avg)
   ax.fill_between(range(hist_len, hist_len+proj_len), ncar_up_bound, ncar_low_bound, alpha=0.3)
 
+#plt.setp(allaxes[-1], xlabel='Years since 1900')
+#plt.setp(allaxes[:], ylabel=f'argh')
+
+x_label = 'Year'
+y_label = f'{data_units} (if monthly summed to yearly)'
+
+fig.text(0.5, 0.04, x_label, ha='center', va='center', fontsize=18)
+fig.text(0.06, 0.5, y_label, ha='center', va='center', fontsize=18, rotation='vertical')
+
+#plt.xlabel('Years since 1900')
+#plt.ylabel(y_label)
 
 #Display the plot
 plt.show()
