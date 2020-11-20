@@ -39,6 +39,8 @@ byPFTCompartment = False
 Monthly = True
 Yearly = False
 
+CMTs_to_plot = np.array([5,6])
+
 #Setting timestep to the right string so we can open the appropriate file
 if Monthly:
   timestep = "monthly"
@@ -50,13 +52,16 @@ mri_filename = "mri/NPP_monthly_sc.nc"
 ncar_filename = "ncar/NPP_monthly_sc.nc"
 veg_filename = "vegetation-mri.nc"
 
+#hist_filename = "toolik/NPP_monthly_tr.nc"
+#veg_filename = "toolik/vegetation.nc"
+
 #Load vegtype data for masking
 with nc.Dataset(veg_filename, 'r') as ncFile:
   vegtype = np.array(ncFile.variables['veg_class'][:])
 
 #Load data from output files
 #with nc.Dataset("mri/yearly_NPP_tr.nc", 'r') as ncFile:
-with nc.Dataset("mri/NPP_monthly_tr.nc", 'r') as ncFile:
+with nc.Dataset(hist_filename, 'r') as ncFile:
   NPP_hist = np.array(ncFile.variables[var_name][:])
 
 with nc.Dataset(mri_filename, 'r') as ncFile:
@@ -64,12 +69,6 @@ with nc.Dataset(mri_filename, 'r') as ncFile:
 
 with nc.Dataset(ncar_filename, 'r') as ncFile:
   NPP_ncar = np.array(ncFile.variables[var_name][:])
-
-
-#Masking out values less than -5000 (mostly the fill value from the nc file)
-NPP_hist = ma.masked_less(NPP_hist, -5000)
-NPP_mri = ma.masked_less(NPP_mri, -5000)
-NPP_ncar = ma.masked_less(NPP_ncar, -5000)
 
 
 #If monthly, sum across time to make it yearly
@@ -84,49 +83,72 @@ if Monthly:
 
   #Sum along axis index 1, to end up with a 3D array with dimensions
   # years, x, and y
-  NPP_hist = yearly_split.sum(axis=1)
+  NPP_hist = np.ma.sum(yearly_split, axis=1)
 
-  #temp_array = NPP_hist.reshape(??, months_per_year, NPP_hist.shape[???])
+  #Repeat the process for projected data
+  yearly_index = np.arange(12,1020,months_per_year)
+  #mri
+  yearly_split = np.array(np.split(NPP_mri, yearly_index, axis=0))
+  NPP_mri = np.ma.sum(yearly_split, axis=1)
+  #ncar
+  yearly_split = np.array(np.split(NPP_ncar, yearly_index, axis=0))
+  NPP_ncar = np.ma.sum(yearly_split, axis=1)
+
+
+#Masking out values less than -5000 
+# (mostly to catch the fill value from the nc file)
+NPP_hist = ma.masked_less(NPP_hist, -5000)
+NPP_mri = ma.masked_less(NPP_mri, -5000)
+NPP_ncar = ma.masked_less(NPP_ncar, -5000)
 
 
 #One plot (historic, mri, ncar) per selected CMT
 # Same y range
-all_CMTs,CMT_cell_count = np.unique(vegtype, return_counts=True)
-all_CMTs = list(zip(all_CMTs, CMT_cell_count))
+#all_CMTs,CMT_cell_count = np.unique(vegtype, return_counts=True)
+#all_CMTs = list(zip(all_CMTs, CMT_cell_count))
 
-CMTs_to_plot = np.array([cmt for cmt in all_CMTs if cmt[0] != 0])
-print(CMTs_to_plot)
+#CMTs_to_plot = np.array([cmt for cmt in all_CMTs if cmt[0] != 0])
+#print(CMTs_to_plot)
 
 
 #Make a masked array per CMT plot wanted
 #This does a single CMT for experimentation
 cmt_masked = ma.masked_where(vegtype != 5, vegtype)
-print(cmt_masked)
+#print(cmt_masked)
 broadcast_cmt_mask = np.broadcast_to(cmt_masked.mask, NPP_hist.shape)
 NPP_hist = np.ma.array(NPP_hist, mask=broadcast_cmt_mask)
-print("NPP_hist shape: " + str(NPP_hist.shape))
-print(NPP_hist[0])
+
+broadcast_cmt_mask = np.broadcast_to(cmt_masked.mask, NPP_mri.shape)
+NPP_mri = np.ma.array(NPP_mri, mask=broadcast_cmt_mask)
+NPP_ncar = np.ma.array(NPP_ncar, mask=broadcast_cmt_mask)
+#print("broadcast mask:")
+#print(broadcast_cmt_mask[0][0:5][0])
+#print("NPP_hist : ")
+#print(NPP_hist.mask[0][0:5][0])
+#print(NPP_hist[0][0:5][0])
+
+#print("sum of npp hist[0]: " + str(np.sum(NPP_hist[0])))
+#print("shape of npp hist: " + str(NPP_hist.shape))
+#print("unmasked count, axis 1,2: " + str(NPP_hist.count(axis=(1,2))))
 
 #Calculate the mean per year
 NPP_hist_avg = np.ma.mean(NPP_hist, axis=(1,2))
-print("NPP_hist_avg[0]: ")
-print(NPP_hist_avg[0])
-
+#print("NPP_hist_avg sample: ")
+#print(NPP_hist_avg[0:4])
 NPP_mri_avg = np.mean(NPP_mri, axis=(1,2))
 NPP_ncar_avg = np.mean(NPP_ncar, axis=(1,2))
 
 #Calculate standard deviation per timestep
 NPP_hist_stddev = np.ma.std(NPP_hist, axis=(1,2))
-print("NPP_hist_stddev: ")
-print(NPP_hist_stddev)
+#print("NPP_hist_stddev: ")
+#print(NPP_hist_stddev[0:4])
 #print(NPP_hist.mask)
+NPP_mri_stddev = np.ma.std(NPP_mri, axis=(1,2))
+NPP_ncar_stddev = np.ma.std(NPP_ncar, axis=(1,2))
 
-NPP_mri_stddev = np.std(NPP_mri, axis=(1,2))
-NPP_ncar_stddev = np.std(NPP_ncar, axis=(1,2))
-
-#Length of data set (for plotting)
+#Length of data sets
 hist_len = len(NPP_hist)
-print(hist_len)
+proj_len = len(NPP_mri)
 
 
 #Calculating the upper and lower bounds for the standard deviation
@@ -141,6 +163,23 @@ plt.plot(range(hist_len), NPP_hist_avg)
 plt.fill_between(range(hist_len), hist_lower_bound, hist_upper_bound, alpha=0.5)
 
 
+#Repeating for mri
+mri_low_bound = [a_i - b_i for a_i, b_i in zip(NPP_mri_avg, NPP_mri_stddev)]
+mri_up_bound = [a_i + b_i for a_i, b_i in zip(NPP_mri_avg, NPP_mri_stddev)]
+
+plt.plot(range(hist_len, hist_len+proj_len), NPP_mri_avg)
+plt.fill_between(range(hist_len, hist_len+proj_len), mri_up_bound, mri_low_bound, alpha=0.3)
+
+
+#Repeating for ncar
+ncar_low_bound = [a_i - b_i for a_i, b_i in zip(NPP_ncar_avg, NPP_ncar_stddev)]
+ncar_up_bound = [a_i + b_i for a_i, b_i in zip(NPP_ncar_avg, NPP_ncar_stddev)]
+
+plt.plot(range(hist_len, hist_len+proj_len), NPP_ncar_avg)
+plt.fill_between(range(hist_len, hist_len+proj_len), ncar_up_bound, ncar_low_bound, alpha=0.3)
+
+
+#Display the plot
 plt.show()
 
 
