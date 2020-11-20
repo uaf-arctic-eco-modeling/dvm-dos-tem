@@ -1,7 +1,7 @@
 README for dvm-dos-tem
 ===========================================
 
-[![Slack](https://img.shields.io/badge/slack-login-green.svg)](https://arctic-eco-modeling.slack.com) 
+[![Slack](https://img.shields.io/badge/slack-login-green.svg)(https://arctic-eco-modeling.slack.com) 
 [![Slack](https://img.shields.io/badge/slack-join_chat-green.svg)]
 [![DOI](https://zenodo.org/badge/4579979.svg)](https://zenodo.org/badge/latestdoi/4579979)
 
