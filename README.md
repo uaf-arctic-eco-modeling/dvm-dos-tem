@@ -5,12 +5,19 @@ README for dvm-dos-tem
 [![Slack](https://img.shields.io/badge/slack-login-green.svg)](https://arctic-eco-modeling.slack.com) 
 
 
+Basic information is provided in this README file.
+For more details, see the [wiki](https://github.com/ua-snap/dvm-dos-tem/wiki).
 
-Basic information is provided in this README file. For more details, see the 
-wiki: [](https://github.com/ua-snap/dvm-dos-tem/wiki)
+The dvm-dos-tem (`dvmdostem`) model is a process based bio-geo-chemical ecosystem 
+model that focuses on C and N dynamics as well as soil thermal dynamics in high 
+latitude ecosystems.
 
-The dvm-dos-tem (`dvmdostem`) is a process based bio-geo-chemical ecosystem 
-model.
+> Whats with the name? `dvm-dos-tem` is short for 
+"Dynamic Vegetation \[Model\] Dynamic Organic Soil Terrestrial Ecosystem Model"
+Orignally the model was simply "TEM", and as more logic and capabilities have 
+been added, the name has grown. We still frequently use simply "TEM" because it 
+is less cumbersome for writing and typing.
+
 
 There are two primary ways in which you might interact with `dvmdostem`: 
 performing an _extrapolation_, or performing a _calibration_. 
