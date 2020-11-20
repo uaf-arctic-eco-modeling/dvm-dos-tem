@@ -1,0 +1,10 @@
+FROM python:3
+
+WORKDIR /usr/src/ddtemscripts
+
+COPY requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY scripts/ .
+
+CMD [ "python3", "./docker-entrypoint.py" ]
