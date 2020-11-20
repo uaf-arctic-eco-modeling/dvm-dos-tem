@@ -1,7 +1,9 @@
 README for dvm-dos-tem
 ===========================================
 
-[![Gitter](https://badges.gitter.im/ua-snap/dvm-dos-tem.svg)](https://gitter.im/ua-snap/dvm-dos-tem?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+[![Slack](https://img.shields.io/badge/slack-login-green.svg)](https://arctic-eco-modeling.slack.com) 
+[![Slack](https://img.shields.io/badge/slack-join_chat-green.svg)]
+[![DOI](https://zenodo.org/badge/4579979.svg)](https://zenodo.org/badge/latestdoi/4579979)
 
 Basic information is provided in this README file. For more details, see the 
 wiki: [](https://github.com/ua-snap/dvm-dos-tem/wiki)
