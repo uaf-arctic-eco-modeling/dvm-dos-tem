@@ -39,7 +39,9 @@ byPFTCompartment = False
 Monthly = True
 Yearly = False
 
-CMTs_to_plot = [5,6] 
+CMTs_to_plot = [2,5,7] 
+hist_years = 115
+proj_years = 85
 
 #Setting timestep to the right string so we can open the appropriate file
 if Monthly:
@@ -52,12 +54,23 @@ mri_filename = "mri/NPP_monthly_sc.nc"
 ncar_filename = "ncar/NPP_monthly_sc.nc"
 veg_filename = "vegetation-mri.nc"
 
-#hist_filename = "toolik/NPP_monthly_tr.nc"
-#veg_filename = "toolik/vegetation.nc"
 
-#Load vegtype data for masking
+#Load vegtype data for masking by CMT
 with nc.Dataset(veg_filename, 'r') as ncFile:
   vegtype = np.array(ncFile.variables['veg_class'][:])
+#CMT types and counts, just for curiosity
+all_CMTs,CMT_cell_count = np.unique(vegtype, return_counts=True)
+all_CMTs = list(zip(all_CMTs, CMT_cell_count))
+valid_CMTs = np.array([cmt for cmt in all_CMTs if cmt[0] != 0])
+print(valid_CMTs)
+
+#Compare specified CMTs to the CMTS that actually appear in the
+# data set and remove the ones that do not
+for cmt in CMTs_to_plot:
+  if not cmt in valid_CMTs:
+    print(f'Specified CMT {cmt} not found, removing from list')
+    CMTs_to_plot.remove(cmt) 
+    continue
 
 #Load data from output files
 #with nc.Dataset("mri/yearly_NPP_tr.nc", 'r') as ncFile:
@@ -74,19 +87,20 @@ with nc.Dataset(ncar_filename, 'r') as ncFile:
 #If monthly, sum across time to make it yearly
 if Monthly:
   months_per_year = 12
+  hist_months = hist_years * 12
+  proj_months = proj_years * 12
 
   #Split the array with a stride of 12, to isolate each year's
   # monthly values
-  yearly_index = np.arange(12,1380,months_per_year)
+  yearly_index = np.arange(12, hist_months, months_per_year)
   yearly_split = np.array(np.split(NPP_hist, yearly_index, axis=0))
-#  print(yearly_split.shape)
 
   #Sum along axis index 1, to end up with a 3D array with dimensions
   # years, x, and y
   NPP_hist = np.ma.sum(yearly_split, axis=1)
 
   #Repeat the process for projected data
-  yearly_index = np.arange(12,1020,months_per_year)
+  yearly_index = np.arange(12, proj_months, months_per_year)
   #mri
   yearly_split = np.array(np.split(NPP_mri, yearly_index, axis=0))
   NPP_mri = np.ma.sum(yearly_split, axis=1)
@@ -102,32 +116,27 @@ NPP_mri = ma.masked_less(NPP_mri, -5000)
 NPP_ncar = ma.masked_less(NPP_ncar, -5000)
 
 
-#One plot (historic, mri, ncar) per selected CMT
-# Same y range
-#all_CMTs,CMT_cell_count = np.unique(vegtype, return_counts=True)
-#all_CMTs = list(zip(all_CMTs, CMT_cell_count))
-
-#CMTs_to_plot = np.array([cmt for cmt in all_CMTs if cmt[0] != 0])
-#print(CMTs_to_plot)
-
-
 #Length of data sets (for plotting)
 hist_len = len(NPP_hist)
 proj_len = len(NPP_mri)
 
 
+#One plot (historic, mri, ncar) per selected CMT
+# Same y range
 
-#Make a masked array per CMT plot wanted
-#This does a single CMT for experimentation
-
-CMT_count = len(CMTs_to_plot)
-#fig, axes = plt.subplots(nrows=CMT_count, ncols=1)
 fig = plt.figure()
+num_rows = len(CMTs_to_plot)
+num_columns = 1
 
+print(CMTs_to_plot)
 for cmt in CMTs_to_plot:
   print("Plotting cmt: " + str(cmt))
-  num_columns = 1
-  ax = fig.add_subplot(CMT_count, num_columns, cmt-4, label=cmt, title=str(cmt))
+  CMT_index = CMTs_to_plot.index(cmt)
+  subplot_index = CMT_index + 1
+  ax = fig.add_subplot(num_rows, num_columns, subplot_index, label=cmt, title="CMT "+str(cmt))
+
+  allaxes = fig.get_axes()
+  allaxes[0].get_shared_y_axes().join(allaxes[0], allaxes[CMT_index])
 
   cmt_masked = ma.masked_where(vegtype != cmt, vegtype)
   broadcast_cmt_mask = np.broadcast_to(cmt_masked.mask, NPP_hist.shape)
