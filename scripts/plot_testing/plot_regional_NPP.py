@@ -39,7 +39,7 @@ byPFTCompartment = False
 Monthly = True
 Yearly = False
 
-CMTs_to_plot = np.array([5,6])
+CMTs_to_plot = [5,6] 
 
 #Setting timestep to the right string so we can open the appropriate file
 if Monthly:
@@ -111,72 +111,74 @@ NPP_ncar = ma.masked_less(NPP_ncar, -5000)
 #print(CMTs_to_plot)
 
 
-#Make a masked array per CMT plot wanted
-#This does a single CMT for experimentation
-cmt_masked = ma.masked_where(vegtype != 5, vegtype)
-#print(cmt_masked)
-broadcast_cmt_mask = np.broadcast_to(cmt_masked.mask, NPP_hist.shape)
-NPP_hist = np.ma.array(NPP_hist, mask=broadcast_cmt_mask)
-
-broadcast_cmt_mask = np.broadcast_to(cmt_masked.mask, NPP_mri.shape)
-NPP_mri = np.ma.array(NPP_mri, mask=broadcast_cmt_mask)
-NPP_ncar = np.ma.array(NPP_ncar, mask=broadcast_cmt_mask)
-#print("broadcast mask:")
-#print(broadcast_cmt_mask[0][0:5][0])
-#print("NPP_hist : ")
-#print(NPP_hist.mask[0][0:5][0])
-#print(NPP_hist[0][0:5][0])
-
-#print("sum of npp hist[0]: " + str(np.sum(NPP_hist[0])))
-#print("shape of npp hist: " + str(NPP_hist.shape))
-#print("unmasked count, axis 1,2: " + str(NPP_hist.count(axis=(1,2))))
-
-#Calculate the mean per year
-NPP_hist_avg = np.ma.mean(NPP_hist, axis=(1,2))
-#print("NPP_hist_avg sample: ")
-#print(NPP_hist_avg[0:4])
-NPP_mri_avg = np.mean(NPP_mri, axis=(1,2))
-NPP_ncar_avg = np.mean(NPP_ncar, axis=(1,2))
-
-#Calculate standard deviation per timestep
-NPP_hist_stddev = np.ma.std(NPP_hist, axis=(1,2))
-#print("NPP_hist_stddev: ")
-#print(NPP_hist_stddev[0:4])
-#print(NPP_hist.mask)
-NPP_mri_stddev = np.ma.std(NPP_mri, axis=(1,2))
-NPP_ncar_stddev = np.ma.std(NPP_ncar, axis=(1,2))
-
-#Length of data sets
+#Length of data sets (for plotting)
 hist_len = len(NPP_hist)
 proj_len = len(NPP_mri)
 
 
-#Calculating the upper and lower bounds for the standard deviation
-# "envelope" around the plotted line
-hist_lower_bound = [a_i - b_i for a_i, b_i in zip(NPP_hist_avg, NPP_hist_stddev)]
-hist_upper_bound = [a_i + b_i for a_i, b_i in zip(NPP_hist_avg, NPP_hist_stddev)]
 
-#Plot the average line
-plt.plot(range(hist_len), NPP_hist_avg)
+#Make a masked array per CMT plot wanted
+#This does a single CMT for experimentation
 
-#Plot the "envelope" plus and minus standard deviation
-plt.fill_between(range(hist_len), hist_lower_bound, hist_upper_bound, alpha=0.5)
+CMT_count = len(CMTs_to_plot)
+#fig, axes = plt.subplots(nrows=CMT_count, ncols=1)
+fig = plt.figure()
+
+for cmt in CMTs_to_plot:
+  print("Plotting cmt: " + str(cmt))
+  num_columns = 1
+  ax = fig.add_subplot(CMT_count, num_columns, cmt-4, label=cmt, title=str(cmt))
+
+  cmt_masked = ma.masked_where(vegtype != cmt, vegtype)
+  broadcast_cmt_mask = np.broadcast_to(cmt_masked.mask, NPP_hist.shape)
+  NPP_hist_cmt_masked = np.ma.array(NPP_hist, mask=broadcast_cmt_mask)
+  #Repeat for mri and ncar
+  broadcast_cmt_mask = np.broadcast_to(cmt_masked.mask, NPP_mri.shape)
+  NPP_mri_cmt_masked = np.ma.array(NPP_mri, mask=broadcast_cmt_mask)
+  NPP_ncar_cmt_masked = np.ma.array(NPP_ncar, mask=broadcast_cmt_mask)
+
+  #Calculate the mean per year
+  NPP_hist_avg = np.ma.mean(NPP_hist_cmt_masked, axis=(1,2))
+  #print("NPP_hist_avg sample: ")
+  #print(NPP_hist_avg[0:4])
+  NPP_mri_avg = np.mean(NPP_mri_cmt_masked, axis=(1,2))
+  NPP_ncar_avg = np.mean(NPP_ncar_cmt_masked, axis=(1,2))
+
+  #Calculate standard deviation per timestep
+  NPP_hist_stddev = np.ma.std(NPP_hist_cmt_masked, axis=(1,2))
+  #print("NPP_hist_stddev: ")
+  #print(NPP_hist_stddev[0:4])
+  #print(NPP_hist.mask)
+  NPP_mri_stddev = np.ma.std(NPP_mri_cmt_masked, axis=(1,2))
+  NPP_ncar_stddev = np.ma.std(NPP_ncar_cmt_masked, axis=(1,2))
 
 
-#Repeating for mri
-mri_low_bound = [a_i - b_i for a_i, b_i in zip(NPP_mri_avg, NPP_mri_stddev)]
-mri_up_bound = [a_i + b_i for a_i, b_i in zip(NPP_mri_avg, NPP_mri_stddev)]
+  #Calculating the upper and lower bounds for the standard deviation
+  # "envelope" around the plotted line
+  hist_lower_bound = [a_i - b_i for a_i, b_i in zip(NPP_hist_avg, NPP_hist_stddev)]
+  hist_upper_bound = [a_i + b_i for a_i, b_i in zip(NPP_hist_avg, NPP_hist_stddev)]
 
-plt.plot(range(hist_len, hist_len+proj_len), NPP_mri_avg)
-plt.fill_between(range(hist_len, hist_len+proj_len), mri_up_bound, mri_low_bound, alpha=0.3)
+  #Plot the average line
+  ax.plot(range(hist_len), NPP_hist_avg)
+
+  #Plot the "envelope" plus and minus standard deviation
+  ax.fill_between(range(hist_len), hist_lower_bound, hist_upper_bound, alpha=0.5)
 
 
-#Repeating for ncar
-ncar_low_bound = [a_i - b_i for a_i, b_i in zip(NPP_ncar_avg, NPP_ncar_stddev)]
-ncar_up_bound = [a_i + b_i for a_i, b_i in zip(NPP_ncar_avg, NPP_ncar_stddev)]
+  #Repeating for mri
+  mri_low_bound = [a_i - b_i for a_i, b_i in zip(NPP_mri_avg, NPP_mri_stddev)]
+  mri_up_bound = [a_i + b_i for a_i, b_i in zip(NPP_mri_avg, NPP_mri_stddev)]
 
-plt.plot(range(hist_len, hist_len+proj_len), NPP_ncar_avg)
-plt.fill_between(range(hist_len, hist_len+proj_len), ncar_up_bound, ncar_low_bound, alpha=0.3)
+  ax.plot(range(hist_len, hist_len+proj_len), NPP_mri_avg)
+  ax.fill_between(range(hist_len, hist_len+proj_len), mri_up_bound, mri_low_bound, alpha=0.3)
+
+
+  #Repeating for ncar
+  ncar_low_bound = [a_i - b_i for a_i, b_i in zip(NPP_ncar_avg, NPP_ncar_stddev)]
+  ncar_up_bound = [a_i + b_i for a_i, b_i in zip(NPP_ncar_avg, NPP_ncar_stddev)]
+
+  ax.plot(range(hist_len, hist_len+proj_len), NPP_ncar_avg)
+  ax.fill_between(range(hist_len, hist_len+proj_len), ncar_up_bound, ncar_low_bound, alpha=0.3)
 
 
 #Display the plot
