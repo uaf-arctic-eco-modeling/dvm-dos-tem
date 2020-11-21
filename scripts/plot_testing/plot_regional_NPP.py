@@ -21,20 +21,25 @@ matplotlib.use('TkAgg')
 # and ncar runs. However, the output directories are separate. This
 # script uses the historical and vegetation files from the mri directory.
 
+# Set the values in the following section
+#################################################
 var_name = "NPP"
 
 mri_directory = "mri/"
 ncar_directory = "ncar/"
+veg_filename = "./vegetation-mri.nc"
 
-#Example:
 byPFT = False
 byPFTCompartment = False
 Monthly = True
 Yearly = False
-
-CMTs_to_plot = [2,5,7] 
 hist_years = 115
 proj_years = 85
+
+CMTs_to_plot = [2,5,7] 
+
+#################################################
+# Everything below here should be left as-is
 
 #Setting timestep to the right string so we can open the appropriate file
 if Monthly:
@@ -42,13 +47,18 @@ if Monthly:
 elif Yearly:
   timestep = "yearly"
 
-hist_filename = "mri/NPP_monthly_tr.nc"
-mri_filename = "mri/NPP_monthly_sc.nc"
-ncar_filename = "ncar/NPP_monthly_sc.nc"
-veg_filename = "vegetation-mri.nc"
+#hist_filename = "mri/NPP_monthly_tr.nc"
+#mri_filename = "mri/NPP_monthly_sc.nc"
+#ncar_filename = "ncar/NPP_monthly_sc.nc"
 
-test_hist_filename = mri_directory + var_name + "_" + timestep + "_tr.nc"
-print(test_hist_filename)
+hist_filename = mri_directory + var_name + "_" + timestep + "_tr.nc"
+mri_filename = mri_directory + var_name + "_" + timestep + "_sc.nc"
+ncar_filename = ncar_directory + var_name + "_" + timestep + "_sc.nc"
+
+print(f'Vegetation file: {veg_filename}')
+print(f'Transient file: {hist_filename}')
+print(f'mri file: {mri_filename}')
+print(f'ncar file: {ncar_filename}')
 
 #Load vegtype data for masking by CMT
 with nc.Dataset(veg_filename, 'r') as ncFile:
