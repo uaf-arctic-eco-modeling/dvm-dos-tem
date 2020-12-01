@@ -97,6 +97,21 @@ with nc.Dataset(mri_filename, 'r') as ncFile:
 with nc.Dataset(ncar_filename, 'r') as ncFile:
   data_ncar = np.array(ncFile.variables[var_name][:])
 
+#The following sum calls assume the following order of dimensions:
+# time, pftpart, pft, y, x
+# This should be assured by dvmdostem's output
+
+#If output is by PFT compartment, sum to by PFT or total
+if byPFTCompartment:
+  data_hist = np.ma.sum(data_hist, axis=1)
+  data_mri = np.ma.sum(data_mri, axis=1)
+  data_ncar = np.ma.sum(data_ncar, axis=1)
+
+#If output is by PFT, sum to total
+if byPFT:
+  data_hist = np.ma.sum(data_hist, axis=1)
+  data_mri = np.ma.sum(data_mri, axis=1)
+  data_ncar = np.ma.sum(data_ncar, axis=1)
 
 #If monthly, sum across time to make it yearly
 if Monthly:
