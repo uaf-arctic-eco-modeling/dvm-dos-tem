@@ -23,21 +23,29 @@ matplotlib.use('TkAgg')
 
 # Set the values in the following section
 #################################################
+#################################################
 var_name = "NPP"
 
-mri_directory = "mri/"
-ncar_directory = "ncar/"
-veg_filename = "./vegetation-mri.nc"
+#The data filenames will be generated automatically, so just
+# put the directory here. The trailing slash is necessary.
+mri_directory = "toolik_PFTPART/"
+ncar_directory = "toolik_PFTPART/"
+#The vegetation file needs to be specified in full (not just
+# the directory)
+veg_filename = "toolik_PFTPART/vegetation.nc"
 
-byPFT = False
-byPFTCompartment = False
+byPFT = True
+byPFTCompartment = True
 Monthly = True
 Yearly = False
 hist_years = 115
 proj_years = 85
 
-CMTs_to_plot = [2,5,7] 
+#Specify which CMTs you want plotted. If they do not appear in the
+# data set they will be skipped.
+CMTs_to_plot = [4,5,6] 
 
+#################################################
 #################################################
 # Everything below here should be left as-is
 
@@ -47,10 +55,7 @@ if Monthly:
 elif Yearly:
   timestep = "yearly"
 
-#hist_filename = "mri/NPP_monthly_tr.nc"
-#mri_filename = "mri/NPP_monthly_sc.nc"
-#ncar_filename = "ncar/NPP_monthly_sc.nc"
-
+#Construct data filenames
 hist_filename = mri_directory + var_name + "_" + timestep + "_tr.nc"
 mri_filename = mri_directory + var_name + "_" + timestep + "_sc.nc"
 ncar_filename = ncar_directory + var_name + "_" + timestep + "_sc.nc"
@@ -71,8 +76,7 @@ all_CMTs = list(zip(all_CMTs, CMT_cell_count))
 valid_CMTs = np.array([cmt for cmt in all_CMTs if cmt[0] != 0])
 print(valid_CMTs)
 
-#Compare specified CMTs to the CMTS that actually appear in the
-# data set and remove the ones that do not
+#Remove specified CMTs that do not appear in the data set
 for cmt in CMTs_to_plot:
   if not cmt in valid_CMTs:
     print(f'Specified CMT {cmt} not found, removing from list')
