@@ -1,5 +1,10 @@
 #! /usr/bin/env python
 
+#This script will plot the historical, mri, and ncar outputs
+# for a single vegetation variable from a regional run. Each specified
+# PFT will have a subplot, and the standard deviation will be displayed as
+# a translucent range around the average (mean) line.
+
 import subprocess
 import netCDF4 as nc
 import matplotlib
@@ -9,13 +14,6 @@ import numpy.ma as ma
 
 matplotlib.use('TkAgg')
 
-#Timeseries of average annual NPP
-#Sum monthly fluxes to years
-#Produce graph from 1901-2100
-#Historical to 2015, then two scenario lines to 2100
-#x is time
-#y is average annual NPP, gC/m2/year
-#"envelope" of +- stand deviation based on pixels
 
 #In theory the historical output files should be the same between the mri
 # and ncar runs. However, the output directories are separate. This
@@ -28,14 +26,15 @@ var_name = "NPP"
 
 #The data filenames will be generated automatically, so just
 # put the directory here. The trailing slash is necessary.
-mri_directory = "toolik_PFTPART/"
-ncar_directory = "toolik_PFTPART/"
+mri_directory = "YKD/mri/"
+ncar_directory = "YKD/ncar/"
 #The vegetation file needs to be specified in full (not just
 # the directory)
-veg_filename = "toolik_PFTPART/vegetation.nc"
+veg_filename = "YKD/mri/vegetation.nc"
 
-byPFT = True
-byPFTCompartment = True
+#Set these based on the data:
+byPFT = False
+byPFTCompartment = False
 Monthly = True
 Yearly = False
 hist_years = 115
@@ -200,16 +199,11 @@ for cmt in CMTs_to_plot:
 
   #Calculate the mean per year
   data_hist_avg = np.ma.mean(data_hist_cmt_masked, axis=(1,2))
-  #print("data_hist_avg sample: ")
-  #print(data_hist_avg[0:4])
   data_mri_avg = np.mean(data_mri_cmt_masked, axis=(1,2))
   data_ncar_avg = np.mean(data_ncar_cmt_masked, axis=(1,2))
 
   #Calculate standard deviation per timestep
   data_hist_stddev = np.ma.std(data_hist_cmt_masked, axis=(1,2))
-  #print("data_hist_stddev: ")
-  #print(data_hist_stddev[0:4])
-  #print(data_hist.mask)
   data_mri_stddev = np.ma.std(data_mri_cmt_masked, axis=(1,2))
   data_ncar_stddev = np.ma.std(data_ncar_cmt_masked, axis=(1,2))
 
@@ -240,8 +234,6 @@ for cmt in CMTs_to_plot:
   ax.plot(range(hist_len, hist_len+proj_len), data_ncar_avg)
   ax.fill_between(range(hist_len, hist_len+proj_len), ncar_up_bound, ncar_low_bound, alpha=0.3)
 
-#plt.setp(allaxes[-1], xlabel='Years since 1900')
-#plt.setp(allaxes[:], ylabel=f'argh')
 
 x_label = 'Year'
 y_label = f'{data_units} (if monthly summed to yearly)'
@@ -249,8 +241,6 @@ y_label = f'{data_units} (if monthly summed to yearly)'
 fig.text(0.5, 0.04, x_label, ha='center', va='center', fontsize=18)
 fig.text(0.06, 0.5, y_label, ha='center', va='center', fontsize=18, rotation='vertical')
 
-#plt.xlabel('Years since 1900')
-#plt.ylabel(y_label)
 
 #Display the plot
 plt.show()
