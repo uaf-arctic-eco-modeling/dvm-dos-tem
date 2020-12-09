@@ -225,6 +225,12 @@ def produce_heatmap_plot(outdir, glob_descriptor):
   plt.show()
 
 
+def delete_file(filename):
+  subprocess.run(['rm', filename],
+                 stdout=subprocess.PIPE)
+ 
+
+
 if __name__ == '__main__':
 
   parser = argparse.ArgumentParser(
@@ -268,14 +274,6 @@ if __name__ == '__main__':
       if 'restart' in filename or 'status' in filename:
         continue
 
-#      if 'ALD' not in filename:
-#        continue
-
-      if 'NUPTAKEST' in filename:
-        continue
-
-      if 'yearly' not in filename:
-        continue
 
       with nc.Dataset(dirA + filename) as ncFile:
         nc_dims = [dim for dim in ncFile.dimensions]
@@ -318,10 +316,13 @@ if __name__ == '__main__':
       diff_prefix = "diff_"
       percent_diff(outdir, filename, data_name, comp_prefix, diff_prefix)
 
-      #delete intermediate files
+      #Delete the intermediate files to save space 
+      delete_file(filecopy_A)
+      delete_file(filecopy_B)
+      delete_file(f"{outdir}/{avg_A_prefix}{filename}")
+      delete_file(f"{outdir}/{avg_B_prefix}{filename}")
+      delete_file(f"{outdir}/{diff_prefix}{filename}")
 
   produce_heatmap_plot(outdir, "/rel_diff*")
  
-
-
 
