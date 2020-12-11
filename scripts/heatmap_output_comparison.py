@@ -34,12 +34,6 @@ def percent_diff(outdir, filename, data_name, comp_prefix, diff_prefix):
   diff_file = outdir + '/' + diff_prefix + filename
   comp_file = outdir + '/' + comp_prefix + filename
 
-  #Copy the original output files, since the append would modify them 
-#  subprocess.run(['cp', dirA + '/' + filename, outdir],
-#                 stdout=subprocess.PIPE)
-#  data_file_copy = outdir + '/' + filename
-
-
   #Rename the variables in the diff files so the append works
   #It appears to rename any variable that contains 'data_var',
   # and if called multiple times will prepend 'diff_' as many
@@ -57,7 +51,7 @@ def percent_diff(outdir, filename, data_name, comp_prefix, diff_prefix):
   #Calculate ratio between diff values and original values
   #ncap -O -h -s 'reldiff = 100 * (diff/value)'
   reldiff_filename = outdir + '/rel_diff_' + filename 
-  reldiff_str = data_name + '_reldiff=100*(diff_' + data_name + '/' + data_name + ')'
+  reldiff_str = data_name + '_rel_diff=100*(diff_' + data_name + '/' + data_name + ')'
   subprocess.run(['ncap2', '-O', '-h', '-s', reldiff_str,
                   comp_file, reldiff_filename],
                  stdout=subprocess.PIPE)
@@ -69,8 +63,6 @@ def percent_diff(outdir, filename, data_name, comp_prefix, diff_prefix):
 
 
 def average_file(outdir, filename, data_name, input_prefix, output_prefix):
-
-  output_prefix = "avg_"
 
   filecopy = outdir + '/' + input_prefix + filename
 
@@ -138,7 +130,9 @@ def average_file(outdir, filename, data_name, input_prefix, output_prefix):
                  stdout=subprocess.PIPE)
 
 
-def produce_heatmap_plot(outdir, glob_descriptor):
+def produce_heatmap_plot(outdir, reldiff_prefix):
+
+  glob_descriptor = f"/{reldiff_prefix}*"
 
   avg_files = glob.glob(outdir + glob_descriptor)
   avg_files.sort()
@@ -158,24 +152,24 @@ def produce_heatmap_plot(outdir, glob_descriptor):
       nc_vars = [var for var in avg_ncFile.variables]
       #Get variable name
       for var in nc_vars:
-        if 'reldiff' in var:
+        if reldiff_prefix in var:
           data_var = var
-#        if var == 'time' or var == 'albers_conical_equal_area':
-#          continue
-#        else:
-#          data_var = var
 
-#      var_names.append(data_var)
       var_data = avg_ncFile.variables[data_var][:]
-#      print(len(var_data))
 
       if len(var_data) <= 100:
         sc_var_names.append(data_var)
-        sc_plot_data.append(avg_ncFile.variables[data_var][:])
+        sc_plot_data.append(var_data)
       elif len(var_data) > 100:
         tr_var_names.append(data_var)
-        tr_plot_data.append(avg_ncFile.variables[data_var][:])
+        tr_plot_data.append(var_data)
 
+    #Print min/max percentage diffs, for quick reference when
+    # a small number of variables are skewing the color scale
+    #print(data_var + "percent diff min, max: {0:1.4g}, {1:1.4g}".format(min(var_data), max(var_data)) )
+    min_data = min(var_data)
+    max_data = max(var_data)
+    #print(f"{data_var} percent diff min, max: {min_data}, {max_data}" )
 
 
   plot_data_np_tr = np.array(tr_plot_data)
@@ -323,6 +317,6 @@ if __name__ == '__main__':
       delete_file(f"{outdir}/{avg_B_prefix}{filename}")
       delete_file(f"{outdir}/{diff_prefix}{filename}")
 
-  produce_heatmap_plot(outdir, "/rel_diff*")
+  produce_heatmap_plot(outdir, "rel_diff")
  
 
