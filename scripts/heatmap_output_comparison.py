@@ -229,7 +229,7 @@ if __name__ == '__main__':
 
   parser = argparse.ArgumentParser(
     formatter_class = argparse.RawDescriptionHelpFormatter,
-      description=textwrap.dedent('''test description'''.format()),
+      description=textwrap.dedent('''This compares two sets of regional output data and presents the results as a pair of heatmap plots, one for transient and one for scenario. If the sets have already been compared, it can be used just to produce the plots.'''.format()),
 
       epilog=textwrap.dedent(''''''),
   )
