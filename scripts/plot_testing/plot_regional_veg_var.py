@@ -214,7 +214,7 @@ for cmt in CMTs_to_plot:
   hist_upper_bound = [a_i + b_i for a_i, b_i in zip(data_hist_avg, data_hist_stddev)]
 
   #Plot the average line
-  ax.plot(range(hist_len), data_hist_avg)
+  ax.plot(range(hist_len), data_hist_avg, label='Transient')
 
   #Plot the "envelope" plus and minus standard deviation
   ax.fill_between(range(hist_len), hist_lower_bound, hist_upper_bound, alpha=0.5)
@@ -224,16 +224,17 @@ for cmt in CMTs_to_plot:
   mri_low_bound = [a_i - b_i for a_i, b_i in zip(data_mri_avg, data_mri_stddev)]
   mri_up_bound = [a_i + b_i for a_i, b_i in zip(data_mri_avg, data_mri_stddev)]
 
-  ax.plot(range(hist_len, hist_len+proj_len), data_mri_avg)
+  ax.plot(range(hist_len, hist_len+proj_len), data_mri_avg, label='mri')
   ax.fill_between(range(hist_len, hist_len+proj_len), mri_up_bound, mri_low_bound, alpha=0.3)
 
   #Repeating for ncar
   ncar_low_bound = [a_i - b_i for a_i, b_i in zip(data_ncar_avg, data_ncar_stddev)]
   ncar_up_bound = [a_i + b_i for a_i, b_i in zip(data_ncar_avg, data_ncar_stddev)]
 
-  ax.plot(range(hist_len, hist_len+proj_len), data_ncar_avg)
+  ax.plot(range(hist_len, hist_len+proj_len), data_ncar_avg, label='ncar')
   ax.fill_between(range(hist_len, hist_len+proj_len), ncar_up_bound, ncar_low_bound, alpha=0.3)
 
+  ax.legend()
 
 x_label = 'Year'
 y_label = f'{data_units} (if monthly summed to yearly)'
