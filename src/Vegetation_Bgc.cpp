@@ -183,21 +183,37 @@ void Vegetation_Bgc::prepareIntegration(const bool &nfeedback) {
 
   double eet = ed->m_l2a.eet;    //
   bd->m_vegd.gv = getGV(eet,  pet);
-  // previous 'topt' is the average of previous 10 years
-  // which is used as Topt in GPP tfactor AND updated every year in 'phenology'
-  double prvtopt = 0.;
+
+  /// Calculate the average of the 10 previous optimum temperatures. The optimum 
+  /// temperature is used to find the scalar factor in the GPP calculation.
+  /// The optimun temperature should be updated in the phenology function.
+  ///
+  /// The optimum temperature is set to be the month of maximum leaf area, and is used to 
+  /// allow for local adaptation/acclimation of photosynthesis. This allows the vegetation
+  /// to optimize the temperature response of photosynthesis for each grid cell based on the 
+  /// month of maximum leaf area for that grid cell. A.D. McGuire thinks we first introduced
+  /// this into TEM 4.0, but it wasn't fully described until the publication of an application
+  /// of TEM 4.1 in Tian et al. (1999). See the paragraph that spans pages 445-446 
+  /// in the appendix of that paper.
+  /// 
+  /// Ref:
+  /// H. Tian, J. M. Melillo, D. W. Kicklighter, A. D. McGuire & J. Helfrich (1999) 
+  /// The sensitivity of terrestrial carbon storage to historical climate variability and 
+  /// atmospheric CO2 in the United States, Tellus B: Chemical and Physical Meteorology, 51:2,
+  /// 414-452, DOI: 10.3402/tellusb.v51i2.16318
+
+  double prvtopt = 0.0;
   deque<double> toptdeque = cd->toptque[ipft];
   int recnum=toptdeque.size();
-
   if (recnum>0) {
     for(int i=0; i<recnum; i++) {
       prvtopt += toptdeque[i]/recnum;
     }
-  } else {  //no previous year 'topt'
+  } else {  // no previous year 'topt'
     prvtopt = (bgcpar.tmin+bgcpar.tmax)/2.;
   }
 
-  // temperature factor for GPP
+  // Now that we have the average of the previous optimum temps, get the factor.
   bd->m_vegd.ftemp = getTempFactor4GPP(ed->m_atms.ta, prvtopt);
 
   // temperature factor for plant respiration
@@ -829,7 +845,7 @@ double  Vegetation_Bgc::getGPP(const double &co2, const double &par,
   // co2:             should be ppm
   // leaf:
   // foliage:
-  // ftemp:
+  // ftemp:           scaling factor for GPP based on air temperature and optimum temp for the PFT
   // gv:
 
   // ci:
@@ -897,33 +913,38 @@ double Vegetation_Bgc::getGV(const double & eet,const double & pet ) {
   return gv;
 };
 
-double Vegetation_Bgc::getTempFactor4GPP(const double & tair,
-                                         const double &tgppopt) {
-  double ftemp = 0.;
-  double tmin = bgcpar.tmin;
-  double toptmax = bgcpar.toptmax;
-  double tmax = bgcpar.tmax;
+double Vegetation_Bgc::getTempFactor4GPP(const double &tair,
+                                         const double &prev_topt) {
+/** Calculates GPP temperature factor based on air temp and previous optimum temperature.
+ * 
+ * For a plot of the ftemp fuction, see the scripts directory: plot_gpp_temp_func.py
+ * 
+ * @param tair The current air temperature.
+ * @param prev_topt The previous optimum temperature for photosynthesis.
+ * 
+ * @return ftemp, the GPP temperature scaling factor.
+ */
 
-  if ( tair <=tmin|| tair >=tmax ) {
+  double ftemp = 0.0;
+
+  if ( tair <= bgcpar.tmin || tair >= bgcpar.tmax ) {
     ftemp = 0.0;
   } else {
-    if ( tair >= tgppopt && tair <= toptmax ) {
+    if ( tair >= prev_topt && tair <= bgcpar.toptmax ) {
       ftemp = 1.0;
     } else {
-      if (tair >tmin && tair< tgppopt ) {
-        ftemp = (tair-tmin)*(tair-tmax)
-                /((tair-tmin)*(tair-tmax)
-                  - pow( (tair-tgppopt),2.0 ));
+      double base;
+      if (tair > bgcpar.tmin && tair < prev_topt ) {
+        base = tair - prev_topt;
       } else {
-        ftemp = (tair-tmin)*(tair-tmax)
-                /((tair-tmin)*(tair-tmax)
-                  - pow( (tair-toptmax),2.0 ));
+        base = tair - bgcpar.toptmax;
       }
+      ftemp = (tair-bgcpar.tmin)*(tair-bgcpar.tmax) / 
+              ((tair-bgcpar.tmin)*(tair-bgcpar.tmax) - pow(base ,2.0 ));
     }
   }
-
   return ftemp;
-};
+}
 
 // the maintainence respiration constant
 double Vegetation_Bgc::getKr(const double & vegc, const int & ipart) {
