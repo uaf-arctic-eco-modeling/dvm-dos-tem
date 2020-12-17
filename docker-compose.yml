@@ -1,0 +1,35 @@
+version: '3.2'
+
+services:
+  support:
+    image: dvmdostem-support:0.1.0
+    volumes:
+      - input_catalog:/data/input_catalog
+
+  run:
+    image: dvmdostem-run:0.1.0
+    volumes:
+      - code:/
+      - input_catalog:/data/input_catalog
+      - work_dir:/run
+
+volumes:
+  sourcecode:/src/dvm
+    device: '${PWD}'
+    type: none
+    o: bind
+  input_catalog:
+  work_dir:
+
+
+#docker run --rm -ti \
+#  --volume ~/volumes/temio/testrun1/:/run \
+#  dvmdostem-support:0.1.0 \ what image to run
+#  /usr/src/ddtemscripts/outspec_utils.py --help # what file to run
+#usage: outspec_utils.py [-h] [--print-file] [--list-vars] [--show-yearly-vars] [--show-
+
+#docker run --rm -ti \
+# --volume ~/volumes/temio/testrun1/:/run \
+# --volume /Users/tobeycarman/Documents/SEL/dvmdostem-input-catalog:/data  \
+# dvmdostem-run:0.1.0 \
+# /src/dvm-dos-tem/dvmdostem -f /run/config/config.js -p 5 -e 5 -s 5 -t 5 -n 5 -l debug
