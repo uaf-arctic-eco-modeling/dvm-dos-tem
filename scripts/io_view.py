@@ -137,6 +137,7 @@ def build_feature_collection(folder_list):
 
 
 def build_geojson(feature_collection, method='A', proj='epsg:3857'):
+  '''Not really using this function...should probably get rid of it...'''
   if method == 'A':
     # Write sample data to file
     ff = "/tmp/junk.geojson"
@@ -190,21 +191,11 @@ print("bounds in wgs84: ", geodf.total_bounds)
 geodf = geodf.to_crs(epsg=3857) # web mercator.
 print("bounds in web mercator: ", geodf.total_bounds)
 
+# Add a name column...
+geodf['name'] = [os.path.dirname(i['properties']['name']).split('/')[-1] for i in vgj.features]
+
 xmin,ymin,xmax,ymax=geodf.total_bounds
 
-######  OLD
-# # some kind of geopandas object
-# my_geojson = build_geojson(feature_collection) 
-# my_geojson = my_geojson.fillna('') 
-# print("my_geojson: {}".format(type(my_geojson)))
-
-# # Discover bounds
-# xmin, ymin, xmax,ymax=my_geojson.total_bounds
-
-# # Conver to Bokeh friendly object
-# geosource = GeoJSONDataSource(geojson=my_geojson.to_json())
-# print("geosource: {}".format(type(geosource)))
-######
 geosource = GeoJSONDataSource(geojson=geodf.to_json())
 
 print("HERE?")
