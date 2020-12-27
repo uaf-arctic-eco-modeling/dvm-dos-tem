@@ -28,7 +28,7 @@ from bokeh.tile_providers import get_provider, Vendors
 def get_corner_coords(file_path):
   '''
   Given a file path to a vegetation.nc dvmdostem input file, this function
-  figured out the corner coordinates in WGS84. Assumes that the vegetation.nc
+  figures out the corner coordinates in WGS84. Assumes that the vegetation.nc
   file is projected and has all the spatial reference info.
   Returns coordinate pairs for lr, ll, ul, ur.
   '''
@@ -49,6 +49,8 @@ def get_corner_coords(file_path):
   sourceSR = osr.SpatialReference(wkt=ds.GetProjectionRef())
   coordTrans = osr.CoordinateTransformation(sourceSR,targetSR)
 
+  # For some reason this seems to return (Y/lat, X/lon) instead of X,Y.
+  # I don't understand quite what is going on....
   return [coordTrans.TransformPoint(X, Y) for X,Y in zip((lrx,llx,ulx,urx),(lry,lly,uly,ury))]
 
 
@@ -77,12 +79,16 @@ def site_table(folder_list):
     f = os.path.join(f, 'vegetation.nc')
     
     lr,ll,ul,ur = get_corner_coords(f)
+    # CAUTION: For some reason get_corner_coords(..) is returning
+    # (Y,X) instead of (X,Y). Doesn't make sense to me with regards
+    # to the documentation for osr.CoordinateTransformation.TransformPoint(..)
+
     print("{},{:0.4f},{:0.4f},{:0.4f},{:0.4f},{:0.4f},{:0.4f},{:0.4f},{:0.4f}".format(
         os.path.basename(os.path.dirname(f)),
-        lr[0], lr[1],
-        ll[0], ll[1],
-        ul[0], ul[1],
-        ur[0], ur[1],
+        lr[1], lr[0], # <-- note swapped order!
+        ll[1], ll[0],
+        ul[1], ul[0],
+        ur[1], ur[0],
       )
     )
 
@@ -103,6 +109,13 @@ def build_feature_collection(folder_list):
     f = os.path.join(folder, 'vegetation.nc')
     
     lr,ll,ul,ur = get_corner_coords(f)
+
+    # CAUTION: For some reason get_corner_coords(..) is returning
+    # (Y,X) instead of (X,Y). Doesn't make sense to me with regards
+    # to the documentation for osr.CoordinateTransformation.TransformPoint(..)
+    # So here, we swap the order of the coordinates, and things seem to work
+    # downstream for plotting....
+    lr,ll,ul,ur = [(x[1],x[0],x[2]) for x in (lr,ll,ul,ur)]
 
     geojson_obj['features'].append(
       dict(
@@ -161,14 +174,23 @@ folders = get_io_folder_listing("/Users/tobeycarman/Documents/SEL/dvmdostem-inpu
 feature_collection = build_feature_collection(folders)
 print("feature_collection: {}".format(type(feature_collection)))
 
+# GEOJson is assumed to be un-projected, WGS84
 vgj = geojson.loads(geojson.dumps(feature_collection))
 
-geoms = [shapely.geometry.shape(i['geometry']) for i in vgj['features']]
-
+# Have to explicitly extract the geometries so the column can be set 
+# for the geopandas GeoDataFrame
 geoms = [shapely.geometry.shape(i['geometry']) for i in vgj['features']]
 geodf = geopandas.GeoDataFrame(vgj,geometry=geoms)
-geodf.crs="EPSG:3857"
-xmin, ymin, xmax,ymax=geodf.total_bounds
+
+# tell geopandas what the CRS is for the data
+geodf = geodf.set_crs(epsg=4326) # WGS84
+print("bounds in wgs84: ", geodf.total_bounds)
+
+# now re-project to web mercator (use by tiling service)
+geodf = geodf.to_crs(epsg=3857) # web mercator.
+print("bounds in web mercator: ", geodf.total_bounds)
+
+xmin,ymin,xmax,ymax=geodf.total_bounds
 
 ######  OLD
 # # some kind of geopandas object
@@ -195,7 +217,6 @@ p = figure(x_range=(xmin, xmax), y_range=(ymin, ymax),
 # Add tiles
 tile_provider = get_provider(Vendors.CARTODBPOSITRON)
 p.add_tile(tile_provider)
-
 print("HERE?")
 
 # Have to add the patches after the tiles
