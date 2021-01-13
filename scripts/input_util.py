@@ -326,21 +326,21 @@ def climate_ts_plot(args):
     htcV = hds.variables['time']
     ptcV = pds.variables['time']
 
-    hidx = pd.DatetimeIndex(
+    hidx = pd.DatetimeIndex(pd.date_range(
         start=nc.num2date(htcV[0], htcV.units, htcV.calendar).strftime(),
         end=nc.num2date(htcV[-1], htcV.units, htcV.calendar).strftime(),
-        freq='MS' # <-- month starts
+        freq='MS') # <-- month starts)
     )
-    pidx = pd.DatetimeIndex(
+    pidx = pd.DatetimeIndex(pd.date_range(
         start=nc.num2date(ptcV[0], ptcV.units, ptcV.calendar).strftime(),
         end=nc.num2date(ptcV[-1], ptcV.units, ptcV.calendar).strftime(),
-        freq='MS' # <-- month starts
+        freq='MS') # <-- month starts
     )
 
-    full_index = pd.DatetimeIndex(
+    full_index = pd.DatetimeIndex(pd.date_range(
         start=nc.num2date(htcV[0], htcV.units, htcV.calendar).strftime(),
         end=nc.num2date(ptcV[-1], ptcV.units, ptcV.calendar).strftime(),
-        freq='MS' # <-- month starts
+        freq='MS') # <-- month starts
     )
 
     df = pd.DataFrame({}, index=full_index)
