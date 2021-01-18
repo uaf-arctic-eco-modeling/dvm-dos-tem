@@ -169,7 +169,9 @@ def tapselect_handler(attr, old, new):
 
 #### Prepare data
 
-folders = get_io_folder_listing("/Users/tobeycarman/Documents/SEL/dvmdostem-input-catalog", pattern="*")
+#folders = get_io_folder_listing("/Users/tobeycarman/Documents/SEL/dvmdostem-input-catalog", pattern="*")
+folders = get_io_folder_listing("/iodata", pattern="*")
+
 
 # hand built dict trying to be valid geojson
 feature_collection = build_feature_collection(folders)
@@ -239,7 +241,7 @@ print("HERE?")
 
 #save(p)
 
-show(p)
+#show(p)
 
 
 
