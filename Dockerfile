@@ -1,3 +1,17 @@
+# Dockerfile for dvmdostem project.
+#
+# Uses a multi-stage build. If you want to only create one of the
+# intermediate stages, then run something like:
+#
+#    $ docker build --target cpp-dev --tag cpp-dev:0.0.1 .
+#
+# If you simply docker build the entire file, or one of the 
+# later stages you will end up with several un-named, un-tagged 
+# images from the preceeding stages (i.e. <none>:<none> in the output 
+# docker image ls). For this reason, it might
+# be nicer to build and tag each stage successively,
+#
+
 # General dev tools compilers, etc
 FROM ubuntu:focal as cpp-dev
 ENV DEBIAN_FRONTEND=noninteractive
@@ -8,7 +22,8 @@ RUN apt-get install -y build-essential git gdb gdbserver doxygen
 # docker build --target cpp-dev --tag cpp-dev:0.0.1 .
 
 
-# More specific build stuff for dvmdostem 
+# More specific build stuff for compiling dvmdostem and
+# running python scripts
 FROM cpp-dev:0.0.1 as dvmdostem-build
 # dvmdostem dependencies
 RUN apt-get install -y libjsoncpp-dev libnetcdf-dev libboost-all-dev libreadline-dev liblapacke liblapacke-dev
@@ -50,7 +65,9 @@ RUN pip install ipython
 # docker build --target dvmdostem-build --tag dvmdostem-build:0.0.1 .
 
 
-# The final image that we will run as a container
+# The final image that we will run as a container. At some point 
+# we could trim this down and selectively copy out only the 
+# required shared libraries needed for running.
 FROM dvmdostem-build:0.0.1 as dvmdostem-run
 WORKDIR /work
 ENV SITE_SPECIFIC_INCLUDES="-I/usr/include/jsoncpp"
@@ -65,14 +82,8 @@ ENV PATH="/work:$PATH"
 # docker run --rm -it --volume $(pwd):/work dvmdostem-run:0.0.1 bash
 # docker run --rm -it --volume $(pwd):/work dvmdostem-run:0.0.1 make
 # docker run --rm -it --volume $(pwd):/work dvmdostem-run:0.0.1 /work/dvmdostem --help
-
-
-#RUN make
-#ENTRYPOINT ["dvmdostem"]
-#CMD ["--help"]
-#CMD ["./dvmdostem --help"]
-
-
+#INCATALOG="/Users/tobeycarman/Documents/SEL/dvmdostem-input-catalog"
+#docker run -it --rm -p 5006:5006 --volume $(pwd):/work --volume $INCATALOG:/data/dvmdostem-input-catalog dvmdostem-run:0.0.1
 
 # A helper image that runs
 

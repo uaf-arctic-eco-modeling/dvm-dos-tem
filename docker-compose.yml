@@ -1,25 +1,91 @@
 version: '3.2'
 
 services:
-  support:
-    image: dvmdostem-support:0.1.0
+  cpp-dev:
+    build: .
+    image: cpp-dev:0.0.1
+  dvmdostem-build:
+    build: .
+    image: dvmdostem-build:0.0.1
     volumes:
-      - input_catalog:/data/input_catalog
-
-  run:
-    image: dvmdostem-run:0.1.0
+      - sourcecode:/work
+  dvmdostem-run:
+    build: .
+    image: dvmdostem-run:0.0.1
     volumes:
-      - code:/
-      - input_catalog:/data/input_catalog
-      - work_dir:/run
+      - sourcecode:/work
+      - inputcatalog:/data/input-catalog
+  dvmdostem-mapping-support:
+    build: .
+    image: dvmdostem-mapping-support:0.0.1
+    volumes:
+      - sourcecode:/work
+      - inputcatalog:/data/input-catalog
 
 volumes:
-  sourcecode:/src/dvm
-    device: '${PWD}'
-    type: none
-    o: bind
-  input_catalog:
-  work_dir:
+  sourcecode:
+    driver_opts:
+      type: none
+      device: '${PWD}'
+      o: bind
+  inputcatalog:
+    driver_opts:
+      type: none
+      device: '/Users/tobeycarman/Documents/SEL/dvmdostem-input-catalog'
+      o: bind
+
+# runs the model in the service. Service is not a
+# constant running process, so container starts, runs, 
+# and exits. Doesn't handle Ctrl-C
+# docker-compose run dvmdostem-run dvmdostem --help
+
+# Runs a basic ls in the service
+# docker-compose run dvmdostem-run ls /data/input-catalog
+
+# docker-compose run make
+
+# volumes:
+#   - sourcecode:/src/dvm-dos-tem
+#   - input_catalog:/data/input-catalog
+#   - work_dir:/run
+
+
+#   support:
+#   image: dvmdostem-support:0.1.0
+#   volumes:
+#     - input_catalog
+# run:
+#   image: dvmdostem-run:0.1.0
+#   volumes:
+#     - code:/
+#     - input_catalog
+#     - work_dir:/run
+
+
+
+# - "${PWD}:/src/dvm-dos-tem"
+# input_catalog:
+#   name: /Users/tobeycarman/Documents/SEL/dvmdostem-input-catalog:/data/input-catalog
+# work_dir:
+
+
+
+# version: '2'
+# services:
+#   ##### the develop image you've build
+#   ### don't forget to open ports for your app
+#   dev-image:
+#     image: your-company/your-project/develop
+#     ports:
+#       - "2000:2000"
+#       - "50010:50010"
+#     privileged: true
+#     container_name: devenv
+# # mapping your project folder (.) to /home/develop/project    
+#     volumes:
+#       - "./:/home/develop/project"
+
+
 
 
 #docker run --rm -ti \
