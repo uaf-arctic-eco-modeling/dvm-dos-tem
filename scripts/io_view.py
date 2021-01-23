@@ -171,6 +171,7 @@ def tapselect_handler(attr, old, new):
 
 #folders = get_io_folder_listing("/Users/tobeycarman/Documents/SEL/dvmdostem-input-catalog", pattern="*")
 folders = get_io_folder_listing("/iodata", pattern="*")
+folders = get_io_folder_listing("/data/input-catalog", pattern="*")
 
 
 # hand built dict trying to be valid geojson

@@ -10,14 +10,18 @@ services:
     volumes:
       - sourcecode:/work
   dvmdostem-run:
+    tty: true
     build: .
     image: dvmdostem-run:0.0.1
     volumes:
       - sourcecode:/work
       - inputcatalog:/data/input-catalog
   dvmdostem-mapping-support:
+    tty: true
     build: .
     image: dvmdostem-mapping-support:0.0.1
+    ports: 
+      - "5006:5006"
     volumes:
       - sourcecode:/work
       - inputcatalog:/data/input-catalog
