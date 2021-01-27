@@ -83,7 +83,7 @@ if __name__ == '__main__':
   shutil.copytree(os.path.join(ddt_dir, 'parameters'), os.path.join(args.new_directory, 'parameters'))
 
   if args.copy_inputs:
-    shutil.copytree(args.input_data_path, os.path.join(args.new_directory, 'inputs'))
+    shutil.copytree(args.input_data_path, os.path.join(args.new_directory, 'inputs', os.path.basename(args.input_data_path)))
   else:
     # Copy the run mask from the source data directory into the new working directory
     shutil.copy(os.path.join(args.input_data_path, 'run-mask.nc'), os.path.join(args.new_directory, 'run-mask.nc'))
@@ -103,7 +103,10 @@ if __name__ == '__main__':
   config['IO']['runmask_file']  = 'run-mask.nc'
 
   if args.copy_inputs:
-    input_data_path = 'inputs'
+    input_data_path = os.path.join('inputs', os.path.basename(args.input_data_path))
+    # leave run mask where it is, set path
+    config['IO']['runmask_file']  = os.path.join(input_data_path,'run-mask.nc')
+
   else:
     input_data_path = os.path.join(os.path.abspath(args.input_data_path))
  
