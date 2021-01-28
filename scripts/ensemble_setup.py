@@ -12,6 +12,15 @@ import subprocess
 import json
 import numpy as np
 
+def setup_for_driver_adjust(exe_path, N=5):
+  '''
+  Work in progress...
+  Idea is to setup working directories with copies of the input data so it can be
+  modified...but this is not an ideal solution because it will be so heavy in terms
+  of duplicate data...
+  hmmm...
+  '''
+  print("pass...nothing here yet...still thinking...")
 
 def setup_for_parameter_adjust_ensemble(exe_path, PFT='pft0', N=5, PARAM='albvisnir'):
   '''
@@ -35,13 +44,10 @@ def setup_for_parameter_adjust_ensemble(exe_path, PFT='pft0', N=5, PARAM='albvis
   #plt.scatter(np.arange(0,N),np.random.normal(loc=.5,scale=.1,size=N))
   #plt.show()
 
-
-
   for i, pv in enumerate(PARAM_VALS):
 
     # add leading zeros, so like this: ens_000000, ens_000001, etc
     run_dir = 'ens_{:06d}'.format(i)
-
 
     # 1. Setup the run directory
     s = "{}/setup_working_directory.py --input-data-path ../dvmdostem-input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_CALM_Kougarok_10x10/ {}".format(exe_path, run_dir)
@@ -100,5 +106,10 @@ if __name__ == '__main__':
   
   if args.driver_adjust:
     print("setup for driver adjust")
+    setup_for_driver_adjust(exe_path)
     sys.exit(0)
+  
+  if not (args.driver_adjust or args.param_adjust):
+    print("Error: must provide one of the options.")
+    parser.print_help()
     
