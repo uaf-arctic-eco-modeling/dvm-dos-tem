@@ -4,6 +4,7 @@
 
 # A quick stab at setting up an ensemble of runs.
 
+import os
 import argparse
 import textwrap
 import sys
@@ -12,12 +13,15 @@ import json
 import numpy as np
 
 
-def setup_for_parameter_adjust_ensemble(PFT='pft0', N=5, PARAM='albvisnir'):
+def setup_for_parameter_adjust_ensemble(exe_path, PFT='pft0', N=5, PARAM='albvisnir'):
   '''
   Work in progress...bunch of hard coded stuff, not very flexible at the moment.
 
   Parameters
   ----------
+  exe_path : str, the path to the directory where this (ensemble_setup.py) script is.
+    Assumes that other dvmdostem supporting scripts are in the same directory as this
+    script.
   N : integer, number of members of the ensemble.
   PARAM : str, which parameter to adjust, must exist in one of the parameter files.
   PFT : str, which pft to adjust parameter for, e.g. 'pft0'
@@ -31,8 +35,7 @@ def setup_for_parameter_adjust_ensemble(PFT='pft0', N=5, PARAM='albvisnir'):
   #plt.scatter(np.arange(0,N),np.random.normal(loc=.5,scale=.1,size=N))
   #plt.show()
 
-  PARAM = 'albvisnir'
-  PFT = 'pft0'
+
 
   for i, pv in enumerate(PARAM_VALS):
 
@@ -41,7 +44,7 @@ def setup_for_parameter_adjust_ensemble(PFT='pft0', N=5, PARAM='albvisnir'):
 
 
     # 1. Setup the run directory
-    s = "../dvm-dos-tem/scripts/setup_working_directory.py --input-data-path ../dvmdostem-input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_CALM_Kougarok_10x10/ {}".format(run_dir)
+    s = "{}/setup_working_directory.py --input-data-path ../dvmdostem-input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_CALM_Kougarok_10x10/ {}".format(exe_path, run_dir)
     result = subprocess.run(s.split(' '), capture_output=True)
     # Note that we could avoid the subprocess by importing the setup-working-directory.py into 
     # this script and using the appropriate functions...
@@ -54,13 +57,13 @@ def setup_for_parameter_adjust_ensemble(PFT='pft0', N=5, PARAM='albvisnir'):
     #    d) convert json file to "block" of data formatted as required for 
     #       our parameter files, again using param_util.py
     #    e) capture output of previous step and overwrite the parameter file
-    s = "../dvm-dos-tem/scripts/param_util.py --dump-block-to-json {}/parameters/cmt_envcanopy.txt 4".format(run_dir)
+    s = "{}/param_util.py --dump-block-to-json {}/parameters/cmt_envcanopy.txt 4".format(exe_path, run_dir)
     result = subprocess.run(s.split(' '), capture_output=True)
     jd = json.loads(result.stdout.decode('utf-8'))
     jd[PFT][PARAM] = pv
     with open('/tmp/data.json', 'w') as f:
       f.write(json.dumps(jd))
-    s = "../dvm-dos-tem/scripts/param_util.py --fmt-block-from-json /tmp/data.json {}/parameters/cmt_envcanopy.txt".format(run_dir)
+    s = "{}/param_util.py --fmt-block-from-json /tmp/data.json {}/parameters/cmt_envcanopy.txt".format(exe_path, run_dir)
     result = subprocess.run(s.split(' '), capture_output=True)
     with open("{}/parameters/cmt_envcanopy.txt".format(run_dir), 'w') as f:
       f.write(result.stdout.decode('utf-8'))
@@ -88,9 +91,11 @@ if __name__ == '__main__':
 
   args = parser.parse_args()
 
+  exe_path = os.path.dirname(os.path.abspath(sys.argv[0]))
+
   if args.param_adjust:
     print("setup for parameter adjust")
-    setup_for_parameter_adjust_ensemble()
+    setup_for_parameter_adjust_ensemble(exe_path)
     sys.exit(0)
   
   if args.driver_adjust:
