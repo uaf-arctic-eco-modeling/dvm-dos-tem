@@ -51,7 +51,7 @@ def setup_for_parameter_adjust_ensemble(exe_path, PFT='pft0', N=5, PARAM='albvis
 
     # 1. Setup the run directory
     s = "{}/setup_working_directory.py --input-data-path ../dvmdostem-input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_CALM_Kougarok_10x10/ {}".format(exe_path, run_dir)
-    result = subprocess.run(s.split(' '), capture_output=True)
+    result = subprocess.run(s.split(' '), stdout=subprocess.PIPE, stderr=subprocess.PIPE) #capture_output=True)
     # Note that we could avoid the subprocess by importing the setup-working-directory.py into 
     # this script and using the appropriate functions...
 
@@ -64,13 +64,13 @@ def setup_for_parameter_adjust_ensemble(exe_path, PFT='pft0', N=5, PARAM='albvis
     #       our parameter files, again using param_util.py
     #    e) capture output of previous step and overwrite the parameter file
     s = "{}/param_util.py --dump-block-to-json {}/parameters/cmt_envcanopy.txt 4".format(exe_path, run_dir)
-    result = subprocess.run(s.split(' '), capture_output=True)
+    result = subprocess.run(s.split(' '), stdout=subprocess.PIPE, stderr=subprocess.PIPE) #, capture_output=True)
     jd = json.loads(result.stdout.decode('utf-8'))
     jd[PFT][PARAM] = pv
     with open('/tmp/data.json', 'w') as f:
       f.write(json.dumps(jd))
     s = "{}/param_util.py --fmt-block-from-json /tmp/data.json {}/parameters/cmt_envcanopy.txt".format(exe_path, run_dir)
-    result = subprocess.run(s.split(' '), capture_output=True)
+    result = subprocess.run(s.split(' '), stdout=subprocess.PIPE, stderr=subprocess.PIPE) #, capture_output=True)
     with open("{}/parameters/cmt_envcanopy.txt".format(run_dir), 'w') as f:
       f.write(result.stdout.decode('utf-8'))
 
