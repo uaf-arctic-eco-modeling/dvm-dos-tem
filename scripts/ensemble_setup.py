@@ -4,6 +4,9 @@
 
 # A quick stab at setting up an ensemble of runs.
 
+import argparse
+import textwrap
+import sys
 import subprocess
 import json
 import numpy as np
@@ -52,3 +55,35 @@ for i, pv in enumerate(PARAM_VALS):
   result = subprocess.run(s.split(' '), capture_output=True)
   with open("{}/parameters/cmt_envcanopy.txt".format(run_dir), 'w') as f:
     f.write(result.stdout.decode('utf-8'))
+
+if __name__ == '__main__':
+
+  parser = argparse.ArgumentParser(
+    formatter_class=argparse.RawDescriptionHelpFormatter,
+      description=textwrap.dedent('''\
+        Helper script for setting up an ensemble of dvmdostem runs.
+        '''),
+      epilog=textwrap.dedent('''\
+        epilog text...''')
+  )
+
+  parser.add_argument('--param-adjust', action='store_true',
+    help=textwrap.dedent('''\
+      Setup for a series of runs where parameter(s) are adjusted between runs.
+    '''))
+
+  parser.add_argument('--driver-adjust', action='store_true',
+    help=textwrap.dedent('''\
+      Setup for a series of runs where the drivers are adjusted between runs.
+    '''))
+
+  args = parser.parse_args()
+
+  if args.param_adjust:
+    print("setup for parameter adjust")
+    sys.exit(0)
+  
+  if args.driver_adjust:
+    print("setup for driver adjust")
+    sys.exit(0)
+    
