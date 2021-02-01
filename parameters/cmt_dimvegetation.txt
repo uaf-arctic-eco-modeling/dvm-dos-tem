@@ -50,10 +50,10 @@
 // CMT01 // Boreal Black Spruce // 6/18/20 JSC based on Melvin et al. 2015 and Ruess et al. 1996. Calibrated for Murphy Dome.
 //EverTree  DecidShrub  DecidTree     Moss          PFT4  PFT5   PFT6   PFT7   PFT8   PFT9   // names: comments                  
 1            1            1            1            0.0    0.0    0.0    0.0    0.0    0.0   // vegfrac: vegetation coverage on land - 0 indicates that PFT does't exist
-1            1            1            0            0.0    0.0    0.0    0.0    0.0    0.0   // ifwoody: woody plants (1) or not (0)
-0            1            1            0            0.0    0.0    0.0    0.0    0.0    0.0   // ifdeciwoody: deciduous woodland (1) or not (0)
-1            1            1            0            0.0    0.0    0.0    0.0    0.0    0.0   // ifperenial: perenial (1) or not (0)
-0            0            0            1            0.0    0.0    0.0    0.0    0.0    0.0   // nonvascular type: vascular (0), sphagnum (1), feathermoss (2), lichen (3)
+1            1            1            0            0      0      0      0      0      0     // ifwoody: woody plants (1) or not (0)
+0            1            1            0            0      0      0      0      0      0     // ifdeciwoody: deciduous woodland (1) or not (0)
+1            1            1            0            0      0      0      0      0      0     // ifperenial: perenial (1) or not (0)
+0            0            0            1            0      0      0      0      0      0     // nonvascular type: vascular (0), sphagnum (1), feathermoss (2), lichen (3)
 0.004843     0.0144425    0.01848      0.026855     0.0    0.0    0.0    0.0    0.0    0.0   // sla: specific leaf area (m2/gC)
 0.55         0.35         0.45         0.1          0.0    0.0    0.0    0.0    0.0    0.0   // klai: extinction coeff for conversion from lai to fpc
 0.5          0.5          0.5          0.5          0.0    0.0    0.0    0.0    0.0    0.0   // minleaf: this and the following 4 parameters are for EET/PET controlled phenology - f(leaf)
@@ -93,10 +93,10 @@
 // CMT02 // Boreal White Spruce Forest // 1/22/21 JSC based on Melvin et al. 2015 and Ruess et al. 1996. Calibrated with Bonanza Creek climate.
 //EverTree  DecidShrub  DecidTree     Moss          PFT4  PFT5   PFT6   PFT7   PFT8   PFT9   // names: comments                  
 1            1            1            1            0.0    0.0    0.0    0.0    0.0    0.0   // vegfrac: vegetation coverage on land - 0 indicates that PFT does't exist
-1            1            1            0            0.0    0.0    0.0    0.0    0.0    0.0   // ifwoody: woody plants (1) or not (0)
-0            1            1            0            0.0    0.0    0.0    0.0    0.0    0.0   // ifdeciwoody: deciduous woodland (1) or not (0)
-1            1            1            0            0.0    0.0    0.0    0.0    0.0    0.0   // ifperenial: perenial (1) or not (0)
-0            0            0            1            0.0    0.0    0.0    0.0    0.0    0.0   // nonvascular type: vascular (0), sphagnum (1), feathermoss (2), lichen (3)
+1            1            1            0            0      0      0      0      0      0     // ifwoody: woody plants (1) or not (0)
+0            1            1            0            0      0      0      0      0      0     // ifdeciwoody: deciduous woodland (1) or not (0)
+1            1            1            0            0      0      0      0      0      0     // ifperenial: perenial (1) or not (0)
+0            0            0            1            0      0      0      0      0      0     // nonvascular type: vascular (0), sphagnum (1), feathermoss (2), lichen (3)
 0.004843     0.0144425    0.01848      0.026855     0.0    0.0    0.0    0.0    0.0    0.0   // sla: specific leaf area (m2/gC)
 0.55         0.35         0.45         0.1          0.0    0.0    0.0    0.0    0.0    0.0   // klai: extinction coeff for conversion from lai to fpc
 0.5          0.5          0.5          0.5          0.0    0.0    0.0    0.0    0.0    0.0   // minleaf: this and the following 4 parameters are for EET/PET controlled phenology - f(leaf)
@@ -136,10 +136,10 @@
 // CMT03 // Boreal Deciduous Forest // 7/7/20 JSC   based on Melvin et al. 2015 and Ruess et al. 1996. Calibrated for Murphy Dome.
 //EverTree  DecidShrub  DecidTree     Moss         PFT4  PFT5   PFT6   PFT7   PFT8   PFT9  // names: comments                  
 1            1            1            1           0.0    0.0    0.0    0.0    0.0    0.0  // vegfrac: vegetation coverage on land - 0 indicates that PFT does't exist
-1            1            1            0           0.0    0.0    0.0    0.0    0.0    0.0  // ifwoody: woody plants (1) or not (0)
-0            1            1            0           0.0    0.0    0.0    0.0    0.0    0.0  // ifdeciwoody: deciduous woodland (1) or not (0)
-1            1            1            0           0.0    0.0    0.0    0.0    0.0    0.0  // ifperenial: perenial (1) or not (0)
-0            0            0            1           0.0    0.0    0.0    0.0    0.0    0.0  // nonvascular type: vascular (0), sphagnum (1), feathermoss (2), lichen (3)
+1            1            1            0           0      0      0      0      0      0    // ifwoody: woody plants (1) or not (0)
+0            1            1            0           0      0      0      0      0      0    // ifdeciwoody: deciduous woodland (1) or not (0)
+1            1            1            0           0      0      0      0      0      0    // ifperenial: perenial (1) or not (0)
+0            0            0            1           0      0      0      0      0      0    // nonvascular type: vascular (0), sphagnum (1), feathermoss (2), lichen (3)
 0.004843     0.0144425    0.01848      0.026855    0.0    0.0    0.0    0.0    0.0    0.0  // sla: specific leaf area (m2/gC)
 0.55         0.35         0.45         0.1         0.0    0.0    0.0    0.0    0.0    0.0  // klai: extinction coeff for conversion from lai to fpc
 0.5          0.5          0.5          0.5         0.0    0.0    0.0    0.0    0.0    0.0  // minleaf: this and the following 4 parameters are for EET/PET controlled phenology - f(leaf)
