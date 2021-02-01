@@ -268,6 +268,10 @@ if __name__ == '__main__':
           you should probably conform the mask to the inputs before running the
           script again with this option to select only certain CMTs.'''))
 
+  parser.add_argument("--mask-out-cmt", metavar=('FOLDER','CMT'), nargs=2,
+    help=textwrap.dedent('''Mask out pixels with a certain CMT. This will
+         maintain any pixels already masked.'''))
+
   args = parser.parse_args()
 
   if args.select_only_cmt:
@@ -276,6 +280,30 @@ if __name__ == '__main__':
 
     with nc.Dataset(os.path.join(input_folder_path, 'vegetation.nc')) as vm:
       cmt_mask = np.ma.masked_not_equal(vm.variables['veg_class'][:], cmt)
+
+    with nc.Dataset(os.path.join(input_folder_path, 'run-mask.nc')) as runmask:
+      rm = runmask.variables['run'][:]
+
+    # At this point, rm is a 2D array with '1's as "yes, run this pixel"
+    # This is opposite of how numpy masked arrays works, where a mask value 
+    # of '1' (True) means "yes mask the value" or "no, don't run the pixel"
+    # So to make future operations easier, we flip the run mask so it matches
+    # the numpy mask concept.
+    rm_m = np.invert(rm.astype(bool)).astype(int)
+
+    with nc.Dataset(os.path.join(input_folder_path, 'run-mask.nc'), 'r+') as runmask:
+      runmask.variables['run'][:] = np.invert((rm_m | cmt_mask.mask).astype(bool)).astype(int)
+
+    show_mask(os.path.join(input_folder_path, "run-mask.nc"), "New mask file showing only cmt {}".format(cmt))
+    exit(0)
+
+
+  if args.mask_out_cmt:
+    input_folder_path = args.mask_out_cmt[0]
+    cmt = int(args.mask_out_cmt[1])
+
+    with nc.Dataset(os.path.join(input_folder_path, 'vegetation.nc')) as vm:
+      cmt_mask = np.ma.masked_equal(vm.variables['veg_class'][:], cmt)
 
     with nc.Dataset(os.path.join(input_folder_path, 'run-mask.nc')) as runmask:
       rm = runmask.variables['run'][:]
