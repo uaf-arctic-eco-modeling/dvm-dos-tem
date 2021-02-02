@@ -27,74 +27,74 @@
 0.10                                                   // r_retain_c: ratio of burning residue C (retained into soil) 
 0.10                                                   // r_retain_n: ratio of burning residue N (retained into soil)
 //===========================================================
-// CMT01 // Black Spruce Forest // ###THESE ARE JUNK VALUES!!!###
-//BlackSpr   Decid       DecidShrub  EGreen       Sphag        Feather      Moss         Lichen       Forbs        Sedge     // pftnames:
+// CMT01 // Boreal Black Spruce // Calibrated for Murphy Dome.
+//EverTree  DecShrub    DecTree      Moss         PFT4         PFT5         PFT6         PFT7         PFT8         PFT9      // names: comments                  
 0.00         0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvcomb[5][10]: fraction of each PFT vegetation combusted for 5 severities
-0.15         0.15        0.15        0.15         0.80         0.80         0.80         1.00         1.00         0.00      // 
-0.25         0.25        0.25        0.25         1.00         1.00         1.00         1.00         1.00         0.00      // 
-0.30         0.30        0.30        0.30         1.00         1.00         1.00         1.00         1.00         0.00      // 
-0.35         0.35        0.35        0.35         1.00         1.00         1.00         1.00         1.00         0.00      // 
+0.15         0.15        0.15        0.15         0.00         0.00         0.00         0.00         0.00         0.00      // 
+0.25         0.25        0.25        0.25         0.00         0.00         0.00         0.00         0.00         0.00      // 
+0.30         0.30        0.30        0.30         0.00         0.00         0.00         0.00         0.00         0.00      // 
+0.35         0.35        0.35        0.35         0.00         0.00         0.00         0.00         0.00         0.00      // 
 0.00         0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvdead[5][10]: fraction of each PFT vegetation killed for 5 severities 
-0.50         0.50        0.50        0.50         0.20         0.20         0.20         0.00         0.00         0.00      // 
+0.50         0.50        0.50        0.50         0.00         0.00         0.00         0.00         0.00         0.00      // 
 0.60         0.60        0.60        0.60         0.00         0.00         0.00         0.00         0.00         0.00      // 
 0.64         0.64        0.64        0.64         0.00         0.00         0.00         0.00         0.00         0.00      // 
 0.64         0.64        0.64        0.64         0.00         0.00         0.00         0.00         0.00         0.00      // 
 // ground
-0.00                                                   // foslburn[5]:  fraction of OS layer burned for each of 5 fire severity classes
+0.00                                           // foslburn[5]:  fraction of OS layer burned for each of 5 fire severity classes
 0.48
 0.54
 0.69
 0.80
 // other
-0.50                                                   // vsmburn: volume soil moisture to define wet soil for prevent organic layer burning
-0.10                                                   // r_retain_c: ratio of burning residue C (retained into soil) 
-0.10                                                   // r_retain_n: ratio of burning residue N (retained into soil)
+0.50                                            // vsmburn: volume soil moisture to define wet soil for prevent organic layer burning
+0.10                                            // r_retain_c: ratio of burning residue C (retained into soil) 
+0.10                                            // r_retain_n: ratio of burning residue N (retained into soil)
 //===========================================================
-// CMT02 // White Spruce Forest
-//PFT0      PFT1        PFT2         PFT3         PFT4         PFT5         PFT6         PFT7         PFT8         PFT9      // names: comments                  
+// CMT02 // Boreal White Spruce Forest // Calibrated with Bonanza Creek climate.
+//EverTree  DecShrub    DecTree      Moss         PFT4         PFT5         PFT6         PFT7         PFT8         PFT9      // names: comments                  
 0.00         0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvcomb[5][10]: fraction of each PFT vegetation combusted for 5 severities
-0.15         0.15        0.15        0.15         0.80         0.80         0.80         1.00         1.00         0.00      // 
-0.25         0.25        0.25        0.25         1.00         1.00         1.00         1.00         1.00         0.00      // 
-0.30         0.30        0.30        0.30         1.00         1.00         1.00         1.00         1.00         0.00      // 
-0.35         0.35        0.35        0.35         1.00         1.00         1.00         1.00         1.00         0.00      // 
+0.15         0.15        0.15        0.15         0.00         0.00         0.00         0.00         0.00         0.00      // 
+0.25         0.25        0.25        0.25         0.00         0.00         0.00         0.00         0.00         0.00      // 
+0.30         0.30        0.30        0.30         0.00         0.00         0.00         0.00         0.00         0.00      // 
+0.35         0.35        0.35        0.35         0.00         0.00         0.00         0.00         0.00         0.00      // 
 0.00         0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvdead[5][10]: fraction of each PFT vegetation killed for 5 severities 
-0.50         0.50        0.50        0.50         0.20         0.20         0.20         0.00         0.00         0.00      // 
+0.50         0.50        0.50        0.50         0.00         0.00         0.00         0.00         0.00         0.00      // 
 0.60         0.60        0.60        0.60         0.00         0.00         0.00         0.00         0.00         0.00      // 
 0.64         0.64        0.64        0.64         0.00         0.00         0.00         0.00         0.00         0.00      // 
 0.64         0.64        0.64        0.64         0.00         0.00         0.00         0.00         0.00         0.00      // 
 // ground
-0.00                                                   // foslburn[5]:  fraction of OS layer burned for each of 5 fire severity classes
+0.00                                           // foslburn[5]:  fraction of OS layer burned for each of 5 fire severity classes
 0.48
 0.54
 0.69
 0.80
 // other
-0.50                                                   // vsmburn: volume soil moisture to define wet soil for prevent organic layer burning
-0.10                                                   // r_retain_c: ratio of burning residue C (retained into soil) 
-0.10                                                   // r_retain_n: ratio of burning residue N (retained into soil)
+0.50                                            // vsmburn: volume soil moisture to define wet soil for prevent organic layer burning
+0.10                                            // r_retain_c: ratio of burning residue C (retained into soil) 
+0.10                                            // r_retain_n: ratio of burning residue N (retained into soil)
 //===========================================================
-// CMT03 // Boreal Deciduous Forest
-//PFT0      PFT1        PFT2         PFT3         PFT4         PFT5         PFT6         PFT7         PFT8         PFT9      // names: comments                  
+// CMT03 // Boreal Deciduous Forest // Calibrated for Murphy Dome.
+//EverTree  DecShrub    DecTree      Moss         PFT4         PFT5         PFT6         PFT7         PFT8         PFT9      // names: comments                  
 0.00         0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvcomb[5][10]: fraction of each PFT vegetation combusted for 5 severities
-0.15         0.15        0.15        0.15         0.80         0.80         0.80         1.00         1.00         0.00      // 
-0.25         0.25        0.25        0.25         1.00         1.00         1.00         1.00         1.00         0.00      // 
-0.30         0.30        0.30        0.30         1.00         1.00         1.00         1.00         1.00         0.00      // 
-0.35         0.35        0.35        0.35         1.00         1.00         1.00         1.00         1.00         0.00      // 
+0.15         0.15        0.15        0.15         0.00         0.00         0.00         0.00         0.00         0.00      // 
+0.25         0.25        0.25        0.25         0.00         0.00         0.00         0.00         0.00         0.00      // 
+0.30         0.30        0.30        0.30         0.00         0.00         0.00         0.00         0.00         0.00      // 
+0.35         0.35        0.35        0.35         0.00         0.00         0.00         0.00         0.00         0.00      // 
 0.00         0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvdead[5][10]: fraction of each PFT vegetation killed for 5 severities 
-0.50         0.50        0.50        0.50         0.20         0.20         0.20         0.00         0.00         0.00      // 
+0.50         0.50        0.50        0.50         0.00         0.00         0.00         0.00         0.00         0.00      // 
 0.60         0.60        0.60        0.60         0.00         0.00         0.00         0.00         0.00         0.00      // 
 0.64         0.64        0.64        0.64         0.00         0.00         0.00         0.00         0.00         0.00      // 
 0.64         0.64        0.64        0.64         0.00         0.00         0.00         0.00         0.00         0.00      // 
 // ground
-0.00                                                   // foslburn[5]:  fraction of OS layer burned for each of 5 fire severity classes
+0.00                                           // foslburn[5]:  fraction of OS layer burned for each of 5 fire severity classes
 0.48
 0.54
 0.69
 0.80
 // other
-0.50                                                   // vsmburn: volume soil moisture to define wet soil for prevent organic layer burning
-0.10                                                   // r_retain_c: ratio of burning residue C (retained into soil) 
-0.10                                                   // r_retain_n: ratio of burning residue N (retained into soil)
+0.50                                            // vsmburn: volume soil moisture to define wet soil for prevent organic layer burning
+0.10                                            // r_retain_c: ratio of burning residue C (retained into soil) 
+0.10                                            // r_retain_n: ratio of burning residue N (retained into soil)
 //===========================================================
 // CMT04 // Shrub Tundra // Calibrated for Toolik area.
 //Salix      Betula      Decid       EGreen       Sedges       Forbs        Grasses      Lichens      Feather      PFT9      // pftnames:

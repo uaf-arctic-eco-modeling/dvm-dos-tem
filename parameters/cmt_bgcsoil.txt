@@ -21,65 +21,65 @@
 363               // initsoln:
 0.76              // initavln:
 //===========================================================
-// CMT01 // Black Spruce Forest // ###THESE ARE JUNK VALUES!!!###
+// CMT01 // Boreal Black Spruce // JSC 6/18/20   JSC based Melvin et al. 2015 and Ruess et al. 1996. Calibrated for Murphy Dome
 2.0               // rhq10:
 0.0               // moistmin:
 0.5               // moistopt:
 1.0               // moistmax:
-84.44             // lcclnc:
-0.372             // fsoma:
-0.611             // fsompr:
-0.017             // fsomcr:
-0.346             // som2co2:
+70.1              // lcclnc:
+0.3717            // fsoma:
+0.6112            // fsompr:
+0.0171            // fsomcr:
+0.2571            // som2co2:
 0.0042            // kn2:
-29.73             // nmincnsoil:
+21.99             // nmincnsoil:
 0.2               // propftos:
 0.0               // fnloss:  fraction N leaching (0 - 1) when drainage occurs
-1783              // initshlwc:
-5021              // initdeepc:
-9000              // initminec:
-363               // initsoln:
-0.76              // initavln:
+888.9             // initshlwc:
+3174.5            // initdeepc:
+19821.5           // initminec:
+1086.3            // initsoln:
+0.75              // initavln:
 //===========================================================
-// CMT02 // White Spruce Forest
+// CMT02 // Boreal White Spruce Forest // JSC 1/22/21   JSC based Melvin et al. 2015 and Ruess et al. 1996. Calibrated with Bonanza Creek climate.
 2.0               // rhq10:
 0.0               // moistmin:
 0.5               // moistopt:
 1.0               // moistmax:
-84.44             // lcclnc:
-0.372             // fsoma:
-0.611             // fsompr:
-0.017             // fsomcr:
-0.346             // som2co2:
+70.1              // lcclnc:
+0.3717            // fsoma:
+0.6112            // fsompr:
+0.0171            // fsomcr:
+0.2571            // som2co2:
 0.0042            // kn2:
-29.73             // nmincnsoil:
+21.99             // nmincnsoil:
 0.2               // propftos:
 0.0               // fnloss:  fraction N leaching (0 - 1) when drainage occurs
-1783              // initshlwc:
-5021              // initdeepc:
-9000              // initminec:
-363               // initsoln:
-0.76              // initavln:
+1156              // initshlwc:
+4254              // initdeepc:
+11005             // initminec:
+699.8             // initsoln:
+1.69              // initavln:
 //===========================================================
-// CMT03 // Boreal Deciduous Forest
+// CMT03 // Boreal Deciduous Forest // JSC 6/20/20 JSC based Melvin et al. 2015 and Ruess et al. 1996. Calibrated for Murphy Dome.
 2.0               // rhq10:
 0.0               // moistmin:
 0.5               // moistopt:
 1.0               // moistmax:
-84.44             // lcclnc:
-0.372             // fsoma:
-0.611             // fsompr:
-0.017             // fsomcr:
-0.346             // som2co2:
+54.46             // lcclnc:
+0.3717            // fsoma:
+0.6112            // fsompr:
+0.0171            // fsomcr:
+0.2571            // som2co2:
 0.0042            // kn2:
-29.73             // nmincnsoil:
+19.37             // nmincnsoil:
 0.2               // propftos:
 0.0               // fnloss:  fraction N leaching (0 - 1) when drainage occurs
-1783              // initshlwc:
-5021              // initdeepc:
-9000              // initminec:
-363               // initsoln:
-0.76              // initavln:
+534.2             // initshlwc:
+2017.9            // initdeepc:
+11004.9           // initminec:
+699.9             // initsoln:
+3.5               // initavln:
 //===========================================================
 // CMT04 // Shrub Tundra // Calibrated for Toolik area.
 2.0               // rhq10:

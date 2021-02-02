@@ -25,71 +25,71 @@
 0.0020805       // kdcsompr:
 0.0000108       // kdcsomcr:
 //===========================================================
-// CMT01 // Black Spruce Forest // ###THESE ARE JUNK VALUES!!!###
-//BlackSpr   Decid        DecidShrub   EGreen       Sphag      Feather        Moss         Lichen        Forbs       Sedge        // pftnames:
-2200         2200.0       1250.0         83.0       50.0         27.0         28.0         260.0         250.0       0.0          // cmax:
-3.3          3.3          2.5          0.80         1.4          1.5          2.2          1.1          2.1          0.0          // nmax:
-0.018        0.018        0.03        0.110        0.083        0.083        0.083        0.001        0.018         0.0          // cfall(0): leave
-0.003        0.003        0.004        0.009        0.0          0.0          0.0          0.0          0.0          0.0          // cfall(1): stem
-0.013        0.013        0.022        0.128        0.083        0.083        0.083        0.0          0.0          0.0          // cfall(2): root
-0.014        0.014        0.028        0.075        0.042        0.042        0.042        0.001        0.009        0.0          // nfall(0): leave
-0.001        0.001        0.001        0.007        0.0          0.0          0.0          0.0          0.0          0.0          // nfall(1): stem
-0.011        0.011        0.008        0.095        0.042        0.042        0.042        0.0          0.0          0.0          // nfall(2): root
--8.06e-05    -8.06e-05    -8.06e-05    -8.06e-05    -8.06e-05    -8.06e-05    -8.06e-05    -8.06e-05    -8.06e-05    -8.06e-05    // kra:    maintenance resp.
--3.50        -3.50        -2.35        -7.50        -2.40        -2.12        -2.35        -2.35        -2.15        0.0          // krb(0): maintenance resp.(leave)
--8.20        -8.20        -4.65        -3.9         0.0          0.0          0.0          0.0          0.0          0.0          // krb(1): maintenance resp.(stem)
--10.2        -10.2        -0.20        -1.0         -0.20        -0.20        -0.20        0.0          0.0          0.0          // krb(2): maintenance resp.(root)
-0.20         0.20         0.20         0.20         0.20         0.20         0.20         0.20         0.20         0.0          // frg: NPP fraction for growth resp.
+// CMT01 // Boreal Black Spruce // 6/29/20 boreal black spruce with Murphy Dome climate
+//EverTree  DecidShrub   DecidTree     Moss         PFT4       PFT5      PFT6     PFT7       PFT8     PFT9       // pftnames:
+385.0       115.00       201.00        95.00         0.0       0.0        0.0      0.0       0.0       0.0       // cmax:
+ 3.1          2.50         2.50         2.1          0.0       0.0        0.0      0.0       0.0       0.0       // nmax:
+ 0.0018       0.0650       0.0740       0.0140       0.0       0.0        0.0      0.0       0.0       0.0       // cfall(0): leaf
+ 0.0045       0.0033       0.0040       0.0000       0.0       0.0        0.0      0.0       0.0       0.0       // cfall(1): stem
+ 0.0130       0.0029       0.0230       0.0000       0.0       0.0        0.0      0.0       0.0       0.0       // cfall(2): root
+ 0.0110       0.0280       0.0280       0.0090       0.0       0.0        0.0      0.0       0.0       0.0       // nfall(0): leaf
+ 0.0010       0.0010       0.0060       0.0000       0.0       0.0        0.0      0.0       0.0       0.0       // nfall(1): stem
+ 0.0110       0.0080       0.0080       0.0000       0.0       0.0        0.0      0.0       0.0       0.0       // nfall(2): root
+-8.06e-05    -8.06e-05    -8.06e-05    -8.06e-05     0.0       0.0        0.0      0.0       0.0       0.0       // kra:    coeff(0) in maintenance resp.
+-6.00        -3.45        -2.95        -4.65         0.0       0.0        0.0      0.0       0.0       0.0       // krb(0): coeff(1) in maintenance resp.(leave)
+-4.88        -5.15        -6.65         0.00         0.0       0.0        0.0      0.0       0.0       0.0       // krb(1): coeff(1) in maintenance resp.(stem)
+-8.2         -6.20        -3.20         0.00         0.0       0.0        0.0      0.0       0.0       0.0       // krb(2): coeff(1) in maintenance resp.(root)
+ 0.11         0.11         0.11         0.11         0.0       0.0        0.0      0.0       0.0       0.0       // frg: fraction of available NPP (GPP after rm) for growth resp.
 // soil calibrated parameters
-2.65253         // micbnup: parameter for soil microbial immobialization of N
-0.0507042       // kdcrawc: raw-material (litter) C decompositin rates at reference condition
-0.0108046       // kdcsoma:
-0.0020805       // kdcsompr:
-0.0000108       // kdcsomcr:
+0.4495     // micbnup: parameter for soil microbial immobialization of N   
+0.634      // kdcrawc: raw-material (litter) C decompositin rates at reference condition  .554
+0.54       // kdcsoma:     .58
+0.002       // kdcsompr:     .003
+0.00007   // kdcsomcr: 0.000025  0.00025 bad
 //===========================================================
-// CMT02 // White Spruce Forest // ###THESE ARE JUNK VALUES!!!###
-//PFT0       PFT1        PFT2         PFT3         PFT4         PFT5         PFT6         PFT7         PFT8         PFT9         // names: comments
-939.0        255.0        50.0         83.0         50.0         27.0         28.0         26.0         25.0         0.0          // cmax:
-3.1          2.5          2.5          0.80         1.4          1.5          2.2          1.1          2.1          0.0          // nmax:
-0.018        0.083        0.083        0.110        0.083        0.083        0.083        0.001        0.018        0.0          // cfall(0): leave
-0.003        0.017        0.004        0.009        0.0          0.0          0.0          0.0          0.0          0.0          // cfall(1): stem
-0.013        0.023        0.022        0.128        0.083        0.083        0.083        0.0          0.0          0.0          // cfall(2): root
-0.014        0.028        0.028        0.075        0.042        0.042        0.042        0.001        0.009        0.0          // nfall(0): leave
-0.001        0.006        0.001        0.007        0.0          0.0          0.0          0.0          0.0          0.0          // nfall(1): stem
-0.011        0.008        0.008        0.095        0.042        0.042        0.042        0.0          0.0          0.0          // nfall(2): root
--8.06e-05    -8.06e-05    -8.06e-05    -8.06e-05    -8.06e-05    -8.06e-05    -8.06e-05    -8.06e-05    -8.06e-05    -8.06e-05    // kra:    coeff(0) in maintenance resp.
--3.50        -2.35        -2.35        -7.50        -2.40        -2.12        -2.35        -2.35        -2.15        0.0          // krb(0): coeff(1) in maintenance resp.(leave)
--8.20        -4.65        -4.65        -3.9         0.0          0.0          0.0          0.0          0.0          0.0          // krb(1): coeff(1) in maintenance resp.(stem)
--10.2        -0.20        -0.20        -1.0         -0.20        -0.20        -0.20        0.0          0.0          0.0          // krb(2): coeff(1) in maintenance resp.(root)
-0.20         0.20         0.20         0.20         0.20         0.20         0.20         0.20         0.20         0.0          // frg: fraction of available NPP (GPP after rm) for growth resp.
+// CMT02 // Boreal White Spruce Forest // 1/22/21 boreal white spruce with Bonanza Creek climate
+//EverTree  DecidShrub   DecidTree     Moss         PFT4       PFT5      PFT6     PFT7       PFT8     PFT9       // pftnames:
+645.0        52.00       644.00        95.00         0.0       0.0        0.0      0.0       0.0       0.0       // cmax:
+ 3.1          2.50         2.50         2.1          0.0       0.0        0.0      0.0       0.0       0.0       // nmax:
+ 0.0018       0.0500       0.0540       0.0140       0.0       0.0        0.0      0.0       0.0       0.0       // cfall(0): leaf
+ 0.0034       0.0011       0.0025       0.0000       0.0       0.0        0.0      0.0       0.0       0.0       // cfall(1): stem
+ 0.0060       0.0029       0.0030       0.0000       0.0       0.0        0.0      0.0       0.0       0.0       // cfall(2): root
+ 0.0110       0.0280       0.0280       0.0090       0.0       0.0        0.0      0.0       0.0       0.0       // nfall(0): leaf
+ 0.0010       0.0010       0.0060       0.0000       0.0       0.0        0.0      0.0       0.0       0.0       // nfall(1): stem
+ 0.0110       0.0080       0.0080       0.0000       0.0       0.0        0.0      0.0       0.0       0.0       // nfall(2): root
+-8.06e-05    -8.06e-05    -8.06e-05    -8.06e-05     0.0       0.0        0.0      0.0       0.0       0.0       // kra:    coeff(0) in maintenance resp.
+-6.00        -3.45        -2.95        -4.65         0.0       0.0        0.0      0.0       0.0       0.0       // krb(0): coeff(1) in maintenance resp.(leave)
+-5.70        -8.15        -6.65         0.00         0.0       0.0        0.0      0.0       0.0       0.0       // krb(1): coeff(1) in maintenance resp.(stem)
+-8.2         -6.20        -4.20         0.00         0.0       0.0        0.0      0.0       0.0       0.0       // krb(2): coeff(1) in maintenance resp.(root)
+ 0.11         0.11         0.11         0.11         0.0       0.0        0.0      0.0       0.0       0.0       // frg: fraction of available NPP (GPP after rm) for growth resp.
 // soil calibrated parameters
-2.65253         // micbnup: parameter for soil microbial immobialization of N
-0.0507042       // kdcrawc: raw-material (litter) C decompositin rates at reference condition
-0.0108046       // kdcsoma:
-0.0020805       // kdcsompr:
-0.0000108       // kdcsomcr:
+0.4495     // micbnup: parameter for soil microbial immobialization of N   
+0.624      // kdcrawc: raw-material (litter) C decompositin rates at reference condition .654
+0.48       // kdcsoma:    .48
+0.0048       // kdcsompr:   .0028  
+0.000025   // kdcsomcr: 
 //===========================================================
-//CMT03 // Boreal Deciduous Forest // ###THESE ARE JUNK VALUES!!!###
-//PFT0       PFT1        PFT2         PFT3         PFT4         PFT5         PFT6         PFT7         PFT8         PFT9         // names: comments
-939.0        255.0        50.0         83.0         50.0         27.0         28.0         26.0         25.0         0.0          // cmax:
-3.1          2.5          2.5          0.80         1.4          1.5          2.2          1.1          2.1          0.0          // nmax:
-0.018        0.083        0.083        0.110        0.083        0.083        0.083        0.001        0.018        0.0          // cfall(0): leave
-0.003        0.017        0.004        0.009        0.0          0.0          0.0          0.0          0.0          0.0          // cfall(1): stem
-0.013        0.023        0.022        0.128        0.083        0.083        0.083        0.0          0.0          0.0          // cfall(2): root
-0.014        0.028        0.028        0.075        0.042        0.042        0.042        0.001        0.009        0.0          // nfall(0): leave
-0.001        0.006        0.001        0.007        0.0          0.0          0.0          0.0          0.0          0.0          // nfall(1): stem
-0.011        0.008        0.008        0.095        0.042        0.042        0.042        0.0          0.0          0.0          // nfall(2): root
--8.06e-05    -8.06e-05    -8.06e-05    -8.06e-05    -8.06e-05    -8.06e-05    -8.06e-05    -8.06e-05    -8.06e-05    -8.06e-05    // kra:    coeff(0) in maintenance resp.
--3.50        -2.35        -2.35        -7.50        -2.40        -2.12        -2.35        -2.35        -2.15        0.0          // krb(0): coeff(1) in maintenance resp.(leave)
--8.20        -4.65        -4.65        -3.9         0.0          0.0          0.0          0.0          0.0          0.0          // krb(1): coeff(1) in maintenance resp.(stem)
--10.2        -0.20        -0.20        -1.0         -0.20        -0.20        -0.20        0.0          0.0          0.0          // krb(2): coeff(1) in maintenance resp.(root)
-0.20         0.20         0.20         0.20         0.20         0.20         0.20         0.20         0.20         0.0          // frg: fraction of available NPP (GPP after rm) for growth resp.
+// CMT03 // Boreal Deciduous Forest // 7/7/20 boreal deciduous forest with Murphy Dome climate
+//EverTree  DecidShrub   DecidTree      Moss        PFT4     PFT5    PFT6    PFT7     PFT8     PFT9    // pftnames:
+ 7.3        208.00      1055.00         1.25         0.0     0.0      0.0     0.0     0.0      0.0     // cmax:
+ 3.1          2.50         7.00         1.1          0.0     0.0      0.0     0.0     0.0      0.0     // nmax:
+ 0.0018       0.0550       0.0640       0.0055       0.0     0.0      0.0     0.0     0.0      0.0     // cfall(0): leaf
+ 0.0055       0.0075       0.0013       0.0000       0.0     0.0      0.0     0.0     0.0      0.0     // cfall(1): stem
+ 0.0070       0.0085       0.0012       0.0000       0.0     0.0      0.0     0.0     0.0      0.0     // cfall(2): root
+ 0.0110       0.0280       0.0080       0.0000       0.0     0.0      0.0     0.0     0.0      0.0     // nfall(0): leaf
+ 0.0010       0.0010       0.0080       0.0000       0.0     0.0      0.0     0.0     0.0      0.0     // nfall(1): stem
+ 0.0110       0.0080       0.0080       0.0000       0.0     0.0      0.0     0.0     0.0      0.0     // nfall(2): root
+-8.06e-05    -8.06e-05    -8.06e-05    -8.06e-05     0.0     0.0      0.0     0.0     0.0      0.0     // kra:    coeff(0) in maintenance resp.
+-6.20        -3.45        -3.45        -5.05         0.0     0.0      0.0     0.0     0.0      0.0     // krb(0): coeff(1) in maintenance resp.(leaf)
+-5.18        -4.45        -6.35         0.00         0.0     0.0      0.0     0.0     0.0      0.0     // krb(1): coeff(1) in maintenance resp.(stem)
+-8.2         -6.30        -5.50         0.00         0.0     0.0      0.0     0.0     0.0      0.0     // krb(2): coeff(1) in maintenance resp.(root)
+ 0.11         0.11         0.11         0.11         0.0     0.0      0.0     0.0     0.0      0.0     // frg: fraction of available NPP (GPP after rm) for growth resp.
 // soil calibrated parameters
-2.65253         // micbnup: parameter for soil microbial immobialization of N
-0.0507042       // kdcrawc: raw-material (litter) C decompositin rates at reference condition
-0.0108046       // kdcsoma:
-0.0020805       // kdcsompr:
-0.0000108       // kdcsomcr:
+0.4495       // micbnup: parameter for soil microbial immobialization of N  .64 
+0.654      // kdcrawc: raw-material (litter) C decompositin rates at reference condition   .654
+0.58       // kdcsoma:   0.58
+0.003     // kdcsompr:   
+0.000025   // kdcsomcr:
 //===========================================================
 // CMT04 // Shrub Tundra // Calibrated for Toolik area. J.Clein updated, July 2019
 //Salix      Betula       Decid       EGreen       Sedges       Forbs       Grasses     Lichens      Feather    PFT9     // pftnames:

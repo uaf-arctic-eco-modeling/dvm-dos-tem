@@ -30,13 +30,13 @@
 0.20               // initvwc(8): initial soil volume water content at every 10 cm interval
 0.20               // initvwc(9): initial soil volume water content at every 10 cm interval
 //===========================================================
-// CMT01 // Black Spruce Forest // ### THESE ARE JUNK VALUES!!! ###
+// CMT01 // Boreal Black Spruce // JSC 6/18/20  JSC based Melvin et al. 2015 and Ruess et al. 1996. Calibrated for Murphy Dome.
 0.8                // snwalbmax:
 0.4                // snwalbmin:
 -1.5e7             // psimax:
 0.08               // evapmin:
 0.04               // drainmax
-0.20               // rtdp4gdd: root depth for estimating growing degree day
+0.2                // rtdp4gdd: root depth for estimating growing degree day
 -1.0               // initsnwtem: initial snow temperature (oC)
 -1.0               // initts(0): initial soil temperature at 10 cm interval (oC)
 -1.0               // initts(1): initial soil temperature at 10 cm interval (oC)
@@ -48,24 +48,24 @@
 -1.0               // initts(7): initial soil temperature at 10 cm interval (oC)
 -1.0               // initts(8): initial soil temperature at 10 cm interval (oC)
 -1.0               // initts(9): initial soil temperature at 10 cm interval (oC)
-0.10               // initvwc(0): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(1): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(2): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(3): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(4): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(5): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(6): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(7): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(8): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(9): initial soil volume water content at every 10 cm interval
+0.2               // initvwc(0): initial soil volume water content at every 10 cm interval
+0.2               // initvwc(1): initial soil volume water content at every 10 cm interval
+0.2               // initvwc(2): initial soil volume water content at every 10 cm interval
+0.2               // initvwc(3): initial soil volume water content at every 10 cm interval
+0.2               // initvwc(4): initial soil volume water content at every 10 cm interval
+0.2               // initvwc(5): initial soil volume water content at every 10 cm interval
+0.2               // initvwc(6): initial soil volume water content at every 10 cm interval
+0.2               // initvwc(7): initial soil volume water content at every 10 cm interval
+0.2               // initvwc(8): initial soil volume water content at every 10 cm interval
+0.2               // initvwc(9): initial soil volume water content at every 10 cm interval
 //===========================================================
-// CMT02 // White Spruce Forest
+// CMT02 // Boreal White Spruce Forest // JSC 1/22/21  JSC based Melvin et al. 2015 and Ruess et al. 1996. Calibrated with Bonanza Creek climate.
 0.8                // snwalbmax:
 0.4                // snwalbmin:
 -1.5e7             // psimax:
 0.08               // evapmin:
 0.04               // drainmax
-0.20               // rtdp4gdd: root depth for estimating growing degree day
+0.2                // rtdp4gdd: root depth for estimating growing degree day
 -1.0               // initsnwtem: initial snow temperature (oC)
 -1.0               // initts(0): initial soil temperature at 10 cm interval (oC)
 -1.0               // initts(1): initial soil temperature at 10 cm interval (oC)
@@ -77,24 +77,24 @@
 -1.0               // initts(7): initial soil temperature at 10 cm interval (oC)
 -1.0               // initts(8): initial soil temperature at 10 cm interval (oC)
 -1.0               // initts(9): initial soil temperature at 10 cm interval (oC)
-0.10               // initvwc(0): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(1): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(2): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(3): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(4): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(5): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(6): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(7): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(8): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(9): initial soil volume water content at every 10 cm interval
+0.2               // initvwc(0): initial soil volume water content at every 10 cm interval
+0.2               // initvwc(1): initial soil volume water content at every 10 cm interval
+0.2               // initvwc(2): initial soil volume water content at every 10 cm interval
+0.2               // initvwc(3): initial soil volume water content at every 10 cm interval
+0.2               // initvwc(4): initial soil volume water content at every 10 cm interval
+0.2               // initvwc(5): initial soil volume water content at every 10 cm interval
+0.2               // initvwc(6): initial soil volume water content at every 10 cm interval
+0.2               // initvwc(7): initial soil volume water content at every 10 cm interval
+0.2               // initvwc(8): initial soil volume water content at every 10 cm interval
+0.2               // initvwc(9): initial soil volume water content at every 10 cm interval
 //===========================================================
-// CMT03 // Boreal Deciduous Forest
+// CMT03 // Boreal Deciduous Forest // JSC 6/20/20  JSC based on Melvin et al. 2015 and Ruess et al. 1996. Calibrated for Murphy Dome.
 0.8                // snwalbmax:
 0.4                // snwalbmin:
--1.5e7             // psimax:
+-1.50e7             // psimax:
 0.08               // evapmin:
 0.04               // drainmax
-0.20               // rtdp4gdd: root depth for estimating growing degree day
+0.2                // rtdp4gdd: root depth for estimating growing degree day
 -1.0               // initsnwtem: initial snow temperature (oC)
 -1.0               // initts(0): initial soil temperature at 10 cm interval (oC)
 -1.0               // initts(1): initial soil temperature at 10 cm interval (oC)
@@ -106,16 +106,16 @@
 -1.0               // initts(7): initial soil temperature at 10 cm interval (oC)
 -1.0               // initts(8): initial soil temperature at 10 cm interval (oC)
 -1.0               // initts(9): initial soil temperature at 10 cm interval (oC)
-0.10               // initvwc(0): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(1): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(2): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(3): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(4): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(5): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(6): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(7): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(8): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(9): initial soil volume water content at every 10 cm interval
+0.2               // initvwc(0): initial soil volume water content at every 10 cm interval
+0.2               // initvwc(1): initial soil volume water content at every 10 cm interval
+0.2               // initvwc(2): initial soil volume water content at every 10 cm interval
+0.2               // initvwc(3): initial soil volume water content at every 10 cm interval
+0.2               // initvwc(4): initial soil volume water content at every 10 cm interval
+0.2               // initvwc(5): initial soil volume water content at every 10 cm interval
+0.2               // initvwc(6): initial soil volume water content at every 10 cm interval
+0.2               // initvwc(7): initial soil volume water content at every 10 cm interval
+0.2               // initvwc(8): initial soil volume water content at every 10 cm interval
+0.2               // initvwc(9): initial soil volume water content at every 10 cm interval
 //===========================================================
 // CMT04 // Shrub Tundra // Calibrated for Toolik area.
 0.8                // snwalbmax:

@@ -21,65 +21,65 @@
 0.04025            // coefminea:
 0.0532             // coefmineb:
 //===========================================================
-// CMT01 // Black Spruce Forest // ### THESE ARE JUNK VALUES!!! ###
+// CMT01 // Boreal Black Spruce // JSC 6/18/20  JSC based Melvin et al. 2015 and Ruess et al. 1996. Calibrated for Murphy Dome.
 // Snow characteristics
 250                // snwdenmax:  max. snow density (kg/m3)
-50                 // snwdennew:  new (min.) snow density (kg/m3)
+120                // snwdennew:  new (min.) snow density (kg/m3)
 0.                 // initsnwthick: initial snow thickness (m)
 0.                 // initsnwdense: initial snow density (kg/m3)
 // moss characteristics
-0.035              // maxmossthick: max. moss thickness (m)
-0.005              // initdmossthick: initial dead moss thickness (m)
-1                  // mosstype: moss type (1: sphagnum; 2: furthermoss; 3: other)
+0.035              // maxmossthick: max. dead moss thickness (m)
+0.02               // initdmossthick: initial dead moss thickness (m)
+1                  // mosstype: moss type (1: sphagnum; 2: feathermoss; 3: other)
 // soil characteristics
-0.1                // initfibthick: meters
-0.1                // inithumthick:
-0.01               // coefshlwa:
-1.3574             // coefshlwb:
-0.03               // coefdeepa:
-1.2389371          // coefdeepb:
-0.04025            // coefminea:
-0.0532             // coefmineb:
+5.4578             // initfibthick: meters
+10.9156            // inithumthick:
+0.012              // coefshlwa:
+1.18               // coefshlwb:
+0.008              // coefdeepa:
+1.54               // coefdeepb:
+0.1505             // coefminea:
+0.5598             // coefmineb:
 //===========================================================
-// CMT02 // White Spruce Forest
+// CMT02 // Boreal White Spruce Forest // JSC 1/22/21  JSC based Melvin et al. 2015 and Ruess et al. 1996. Calibrated with Bonanza Creek climate.
 // Snow characteristics
 250                // snwdenmax:  max. snow density (kg/m3)
-50                 // snwdennew:  new (min.) snow density (kg/m3)
+120                // snwdennew:  new (min.) snow density (kg/m3)
 0.                 // initsnwthick: initial snow thickness (m)
 0.                 // initsnwdense: initial snow density (kg/m3)
 // moss characteristics
-0.035              // maxmossthick: max. moss thickness (m)
-0.005              // initdmossthick: initial dead moss thickness (m)
-1                  // mosstype: moss type (1: sphagnum; 2: furthermoss; 3: other)
+0.035              // maxmossthick: max. dead moss thickness (m)
+0.02               // initdmossthick: initial dead moss thickness (m)
+1                  // mosstype: moss type (1: sphagnum; 2: feathermoss; 3: other)
 // soil characteristics
-0.1                // initfibthick: meters
-0.1                // inithumthick:
-0.01               // coefshlwa:
-1.3574             // coefshlwb:
-0.03               // coefdeepa:
-1.2389371          // coefdeepb:
-0.04025            // coefminea:
-0.0532             // coefmineb:
-//===========================================================
-// CMT03 // Boreal Deciduous Forest
-// Snow characteristics
-250                // snwdenmax:  max. snow density (kg/m3)
-50                 // snwdennew:  new (min.) snow density (kg/m3)
-0.                 // initsnwthick: initial snow thickness (m)
-0.                 // initsnwdense: initial snow density (kg/m3)
-// moss characteristics
-0.035              // maxmossthick: max. moss thickness (m)
-0.005              // initdmossthick: initial dead moss thickness (m)
-1                  // mosstype: moss type (1: sphagnum; 2: furthermoss; 3: other)
-// soil characteristics
-0.1                // initfibthick: meters
-0.1                // inithumthick:
-0.02               // coefshlwa:
-1.1247             // coefshlwb:
-0.03               // coefdeepa:
+4.98               // initfibthick: meters
+8.352              // inithumthick:
+0.019              // coefshlwa:
+1.125              // coefshlwb:
+0.0292             // coefdeepa:
 1.2622             // coefdeepb:
-0.03939            // coefminea:
-0.78               // coefmineb:
+0.1317             // coefminea:
+0.461              // coefmineb:
+//===========================================================
+// CMT03 // Boreal Deciduous Forest // JSC 6/20/20  JSC based Melvin et al. 2015 and Ruess et al. 1996. Calibrated for Murphy Dome.
+// Snow characteristics
+250                // snwdenmax:  max. snow density (kg/m3)
+120                // snwdennew:  new (min.) snow density (kg/m3)
+0.                 // initsnwthick: initial snow thickness (m)
+0.                 // initsnwdense: initial snow density (kg/m3)
+// moss characteristics
+0.035              // maxmossthick: max. dead moss thickness (m)
+0.02               // initdmossthick: initial dead moss thickness (m)
+1                  // mosstype: moss type (1: sphagnum; 2: feathermoss; 3: other)
+// soil characteristics
+2.538              // initfibthick: meters
+5.076              // inithumthick:
+0.019              // coefshlwa:
+1.11               // coefshlwb:
+0.0292             // coefdeepa:
+1.19               // coefdeepb:
+0.1317             // coefminea:
+0.461              // coefmineb:
 //===========================================================
 // CMT04 // Shrub Tundra // Calibrated for Toolik area.
 // Snow characteristics
