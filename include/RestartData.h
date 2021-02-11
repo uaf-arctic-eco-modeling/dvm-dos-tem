@@ -80,6 +80,7 @@ public :
 
   double topt[NUM_PFT]; // yearly-evolved 'topt'
   double eetmx[NUM_PFT]; // yearly max. month 'eet'
+  double unnormleaf[NUM_PFT];
   double unnormleafmx[NUM_PFT]; // yearly max. unnormalized 'fleaf'
   double growingttime[NUM_PFT]; // yearly growthing t-time
 
