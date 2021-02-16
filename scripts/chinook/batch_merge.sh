@@ -63,6 +63,22 @@ do
   fi
 done
 
+# Next handle the restart files
+for stage in $STAGES
+  do
+    filename="restart-$stage.nc"
+    echo "  --> stage: $stage"
+
+    filelist=$(find $BATCH_DIR -maxdepth 4 -type f -name $filename)
+    echo "THE FILE LIST IS: $filelist"
+
+  if [ ! -z "$filelist" ] ; then
+    ncea -O -h -y max $filelist "$FINAL_DIR/$filename"
+  else
+    echo "nothing to do - no restart files for stage $stage found?"
+  fi
+done
+
 # Next handle the run_status file
 filelist=$(find $BATCH_DIR -maxdepth 4 -type f -name "run_status.nc")
 echo "THE FILE LIST IS: $filelist"
