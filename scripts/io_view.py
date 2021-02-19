@@ -109,6 +109,8 @@ def build_feature_collection(folder_list):
     f = os.path.join(folder, 'vegetation.nc')
     
     lr,ll,ul,ur = get_corner_coords(f)
+    if "Koug" in folder:
+      print(lr,ll,ul,ur, "    ",folder)
 
     # CAUTION: For some reason get_corner_coords(..) is returning
     # (Y,X) instead of (X,Y). Doesn't make sense to me with regards
@@ -173,7 +175,7 @@ def tapselect_handler(attr, old, new):
 folders = get_io_folder_listing("/iodata", pattern="*")
 folders = get_io_folder_listing("/data/input-catalog", pattern="*")
 
-
+print(folders)
 # hand built dict trying to be valid geojson
 feature_collection = build_feature_collection(folders)
 print("feature_collection: {}".format(type(feature_collection)))
@@ -201,7 +203,7 @@ xmin,ymin,xmax,ymax=geodf.total_bounds
 
 geosource = GeoJSONDataSource(geojson=geodf.to_json())
 
-print("HERE?")
+print(geodf.head())
 ##### Plot
 #output_file("geojson.html")
 
@@ -214,7 +216,7 @@ p.add_tile(tile_provider)
 print("HERE?")
 
 # Have to add the patches after the tiles
-input_areas = p.patches('xs','ys', source=geosource, fill_color='Red', line_color='gray', line_width=0.25, fill_alpha=.3)
+input_areas = p.patches('xs','ys', source=geosource, fill_color='red', line_color='gray', line_width=0.25, fill_alpha=.3)
 
 taptool = TapTool(renderers = [input_areas])
 hovertool = HoverTool(renderers = [input_areas],
@@ -226,6 +228,7 @@ selected_patches = Patches(fill_color="yellow", fill_alpha=.8, line_width=1, lin
 input_areas.selection_glyph = selected_patches
 
 geosource.selected.on_change('indices', tapselect_handler)
+
 
 print("HERE?")
 

@@ -36,12 +36,18 @@ RUN pip install -r requirements.txt
 # # # https://github.com/ipython/ipython/issues/12740
 # RUN pip install jedi==0.17.2
 
+#USER root
+#RUN apt-get update
+#RUN apt-get install bash-completion
+
+#USER develop
 WORKDIR /work
 
 #CMD bokeh serve scripts
 
 
-# docker build --target dvmdostem-mapping-support --tag dvmdostem-mapping-support:0.0.1 .
+
+# docker build --tag dvmdostem-mapping-support:0.0.1 -f Dockerfile-mapping-support .
 #INCATALOG=
 # docker run -it --rm -p 5006:5006 --volume $(pwd):/work --volume $INCATALOG:/data/dvmdostem-input-catalog dvmdostem-mapping-support:0.0.1
 
