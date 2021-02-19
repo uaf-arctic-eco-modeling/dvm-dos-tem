@@ -135,7 +135,7 @@ def get_pftnames(data):
   csvreader = csv.reader(data, dialect='excel', strict=True, skipinitialspace=True)
   for row in csvreader:
     if 'pft name' in row:
-      if row.index('pft name') is not 0:
+      if row.index('pft name') != 0:
         print("WARNING! pft name column not in the proper place. Returned PFT names might be incorrect.")
       if len(row[1:]) > 10:
         print("WARNING! appears there are too many PFT columns!")
@@ -166,7 +166,7 @@ def find_section_starts(data):
   sections = []
   for i, row in enumerate(csvreader):
     if all(x == '' for x in row[1:]):
-      if row[0] is not '':
+      if row[0] != '':
         if row[0].isupper():
           #print(i, row)
           starts.append(i)
@@ -571,9 +571,9 @@ def parse_header_line(linedata):
 
 
 def get_pft_verbose_name(cmtkey=None, pftkey=None, cmtnum=None, pftnum=None, lookup_path=None):
-  if lookup_path is "relative_to_dvmdostem":
+  if lookup_path == "relative_to_dvmdostem":
     path2params = os.path.join(os.path.split(os.path.dirname(os.path.realpath(__file__)))[0], 'parameters/')
-  elif lookup_path is "relative_to_curdir":
+  elif lookup_path == "relative_to_curdir":
     path2params = os.path.join(os.path.abspath(os.path.curdir), 'parameters/')
   else:
     msg = "ERROR!: lookup_path parameter must be one of 'relative_to_dvmdostem' or 'relative_to_curdir', not {}".format(lookup_path)
