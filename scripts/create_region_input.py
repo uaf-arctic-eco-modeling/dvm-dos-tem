@@ -1849,7 +1849,7 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
 
 def get_slurm_wrapper_string(tifs, pclim='ncar-ccsm4', 
     sitename='TOOLIK_FIELD_STATION', yoff=68.62854, xoff=-149.517149, 
-    xsize=10, ysize=10, coordtype="--lonlat \\"):
+    xsize=10, ysize=10, coordtype="--lonlat \\", custom_config="\\"):
   '''
   When running this program (create_region_input.py) on atlas, it is best to
   run under the control of the queue manager (slurm). This function is a place
@@ -1890,6 +1890,7 @@ def get_slurm_wrapper_string(tifs, pclim='ncar-ccsm4',
       --clip-projected2match-historic \\
       --withlatlon \\
       --withproj \\
+      {custom_config} \\
       --cleanup
 
     # Add an output directory, some downstream processes assume it exists.
@@ -1906,12 +1907,12 @@ def get_slurm_wrapper_string(tifs, pclim='ncar-ccsm4',
     # Run script to swap all CMT 8 pixels to CMT 7
     srun ./scripts/fix_vegetation_file_cmt08_to_cmt07.py input-staging-area/"$site"_"$YSIZE"x"$XSIZE"/vegetation.nc
     '''.format(tifs=tifs, pclim=pclim, sitename=sitename, xoff=xoff, yoff=yoff, 
-        xsize=xsize, ysize=ysize, coordtype=coordtype))
+        xsize=xsize, ysize=ysize, coordtype=coordtype, custom_config=custom_config))
 
   return slurm_wrapper
 
 
-
+def get_empty_config_object():
   '''
   Returns a configuration object with all the required keys, but no values.
   '''
@@ -1950,8 +1951,10 @@ def get_slurm_wrapper_string(tifs, pclim='ncar-ccsm4',
     ''')
   return configobj.ConfigObj(empty_config_string.split("\n"))
 
-
-
+def config_file_validator(arg_custom_config):
+  if not os.path.exists(arg_custom_config):
+    raise argparse.ArgumentTypeError("Must be a valid path to custom config file")
+  return arg_custom_config
 
 if __name__ == '__main__':
 
@@ -2004,6 +2007,16 @@ if __name__ == '__main__':
     p clim vapo src = 'vap_mean_hPa_ar5_NCAR-CCSM4_rcp85_2006_2100_fix/vap/vap_mean_hPa_iem_ar5_NCAR-CCSM4_rcp85_'
   ''')
 
+  gfdl_cm3_ar5_rcp85_config = textwrap.dedent('''\
+    p clim first yr = 2006
+    p clim last yr = 2100
+
+    p clim orig inst = 'GFDL-CM3'
+    p clim tair src = 'tas_mean_C_alf_ar5_GFDL-CM3_rcp85_'
+    p clim prec src = 'pr_total_mm_alf_ar5_GFDL-CM3_rcp85_'
+    p clim rsds src = 'rsds_mean_MJ-m2-d1_alf_ar5_GFDL-CM3_rcp85_'
+    p clim vapo src = 'vap_mean_hPa_alf_ar5_GFDL-CM3_rcp85_'
+  ''')
 
 
   fileChoices = ['run-mask', 'co2', 'projected-co2', 'vegetation', 'drainage', 'soil-texture', 'topo',
@@ -2145,7 +2158,21 @@ if __name__ == '__main__':
       help=textwrap.dedent('''Write out an empty config file with all the keys
         that need to be filled in to make a functioning config object.'''))
 
-  parser.add_argument('--projected-climate-config', nargs=1, choices=['ncar-ccsm4', 'mri-cgcm3'],
+  parser.add_argument('--custom-config', type=config_file_validator, default=None,
+      help=textwrap.dedent('''Path for a custom config file. There are several
+        configurations that are available by default with this script, setup to
+        use the paths that we've been using on atlas. This option allows you to
+        choose a different configuration, in the cases that your input source files
+        are not all in the same location, or you have different files from those
+        we've been using. This option (--custom-config) is designed to be by first
+        running the --dump-empty-config option, then filling out that file with
+        your custom paths and then running again, using your custom config file
+        as the argument for this option. Also likely that you will set "--tifs=/"
+        when using a custom config and using all absolute paths in your custom
+        config file.
+        '''))
+
+  parser.add_argument('--projected-climate-config', nargs=1, choices=['ncar-ccsm4', 'mri-cgcm3', 'gfdl-cm3'],
       help=textwrap.dedent('''Choose a configuration to use for the projected 
         climate data.'''))
 
@@ -2178,6 +2205,11 @@ if __name__ == '__main__':
       reader = csv.DictReader(csvfile)
       sites = list(reader)
 
+    if args.custom_config:
+      custom_config = "--custom-config {}".format(args.custom_config)
+    else:
+      custom_config = "" 
+
     for i, site in enumerate(sites):
       #print(site) 
       if 'xsize' in site.keys():
@@ -2201,7 +2233,8 @@ if __name__ == '__main__':
         xoff=site['lon'], yoff=site['lat'],
         xsize=xsize, #(args.xsize if args.xsize else 10), 
         ysize=ysize, #(args.ysize if args.ysize else 10),
-        coordtype="--lonlat \\"
+        coordtype="--lonlat \\",
+        custom_config=custom_config
       )
 
       with open("cri_slurm_wrapper_{:04d}.sh".format(i), 'w') as outfile:
@@ -2286,9 +2319,14 @@ if __name__ == '__main__':
       cmdline_config = configobj.ConfigObj(ncar_ccsm4_ar5_rcp85_config.split("\n"))
     elif 'mri-cgcm3' in args.projected_climate_config:
       cmdline_config = configobj.ConfigObj(mri_cgcm3_ar5_rcp85_config.split("\n"))
+    elif 'gfdl-cm3' in args.projected_climate_config:
+      cmdline_config = configobj.ConfigObj(gfdl_cm3_ar5_rcp85_config.split("\n"))
 
-  config.merge(cmdline_config)
-
+  if args.custom_config:
+    cust_config = configobj.ConfigObj(args.custom_config)
+    config.merge(cust_config)
+  else:
+    config.merge(cmdline_config)
   print("\n".join(config.write()))
 
   years = args.years
