@@ -18,21 +18,21 @@ import argparse
 #from pandas import ExcelWriter
 
 
-runfolders = os.listdir('/home/hannah/dvmdostem-workflows2')
-#print(runfolders)
+def basic_time_series_plot(runfolders=None):
+  #runfolders = os.listdir('/home/hannah/dvmdostem-workflows2')
+  #print(runfolders)
 
-GPP = xr.Dataset()
-for i, folder in enumerate(runfolders):
-  ds = xr.open_dataset('%s/output/GPP_yearly_sp.nc'%folder)
-  GPP= xr.concat([GPP, ds], dim='folder')
+  GPP = xr.Dataset()
+  for i, folder in enumerate(runfolders):
+    ds = xr.open_dataset('%s/output/GPP_yearly_sp.nc'%folder)
+    GPP= xr.concat([GPP, ds], dim='folder')
 
-GPP['folder'] = runfolders # here assigning the name of the runfolder for identification 
-print(GPP)
+  GPP['folder'] = runfolders # here assigning the name of the runfolder for identification 
+  print(GPP)
 
-fig = plt.figure()
-GPP.folder[1].where((GPP.x==1)&(GPP.y==1)).plot(fig=fig)
-fig.savefig('foo.png')
-
+  fig = plt.figure()
+  GPP.folder[1].where((GPP.x==1)&(GPP.y==1)).plot(fig=fig)
+  fig.savefig('foo.png')
 
 
 
