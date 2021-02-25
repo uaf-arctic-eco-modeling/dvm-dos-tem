@@ -17,7 +17,7 @@ import xarray as xr
 #from pandas import ExcelWriter
 
 
-runfolders= os.listdir('/home/hannah/dvmdostem-workflows2')
+runfolders = os.listdir('/home/hannah/dvmdostem-workflows2')
 #print(runfolders)
 
 GPP = xr.Dataset()
@@ -39,81 +39,12 @@ fig.savefig('foo.png')
 #GPP.folder[1].
 #plt.savefig('foo.png')
 
-
-
-
-
 #for i, folder in enumerate(runfolders):
 #  globals()["GPP_"+str(folder)]= xr.open_dataset('%s/output/GPP_yearly_sp.nc'%folder)
 
 #print(GPP_ens_000001)
 
-
 #GPP_ens_000001.
 #plt.savefig('foo.png')
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
