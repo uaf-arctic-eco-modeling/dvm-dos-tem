@@ -2,17 +2,17 @@
 
 # Hannah 01.27.2021 
 
-import sys
-import subprocess
-import json
-import numpy as np
-import os 
-import pandas as pd
+#import sys
+#import subprocess
+#import json
+#import numpy as np
+#import os 
+#import pandas as pd
 import matplotlib.pyplot as plt
 #import cartopy.crs as ccrs
 import xarray as xr
-import glob
-import netCDF4 as nc
+#import glob
+#import netCDF4 as nc
 #import scipy.stats as ss
 #from pandas import ExcelWriter
 
