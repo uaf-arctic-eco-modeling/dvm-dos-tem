@@ -20,7 +20,7 @@ import textwrap
 
 
 def basic_time_series_plot(runfolders=None):
-  #runfolders = os.listdir('/home/hannah/dvmdostem-workflows2')
+  runfolders = os.listdir(runfolders)
   #print(runfolders)
 
   GPP = xr.Dataset()
@@ -54,7 +54,9 @@ if __name__ == '__main__':
   args = parser.parse_args()
   print(args)
 
-  basic_time_series_plot(runfolders=args.data)
+  datafolder = os.path.abspath(args.data)
+  print(datafolder)
+  basic_time_series_plot(runfolders=datafolder)
 
 # Ideas for command line interface
 
