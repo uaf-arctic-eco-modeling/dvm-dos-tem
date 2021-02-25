@@ -53,6 +53,7 @@ if __name__ == '__main__':
   args = parser.parse_args()
   print(args)
 
+  basic_time_series_plot(runfolders=args.data)
 
 # Ideas for command line interface
 
