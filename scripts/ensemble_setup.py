@@ -12,15 +12,23 @@ import subprocess
 import json
 import numpy as np
 
-def setup_for_driver_adjust(exe_path, N=5):
+def setup_for_driver_adjust(exe_path, input_data_path, N=5):
   '''
   Work in progress...
-  Idea is to setup working directories with copies of the input data so it can be
-  modified...but this is not an ideal solution because it will be so heavy in terms
-  of duplicate data...
-  hmmm...
   '''
-  print("pass...nothing here yet...still thinking...")
+  # Build the ensemble member directories
+  for i in range(N):
+    run_dir = 'ens_{:06d}'.format(i)
+
+    # Note the --copy-inputs argument! Might want to verify that it is
+    # single site inputs or space consumption might be a problem...
+    # If space is a problem, could get fancier and only copy the input file
+    # that is going to be modified....
+    s = "{}/setup_working_directory.py --copy-inputs --input-data-path {} {}".format(exe_path, input_data_path, run_dir)
+    result = subprocess.run(s.split(' '), stdout=subprocess.PIPE, stderr=subprocess.PIPE) #capture_output=True)
+    if len(result.stderr) > 0:
+      print(result)
+
 
 def setup_for_parameter_adjust_ensemble(exe_path, input_data_path, PFT='pft0', N=5, PARAM='albvisnir'):
   '''
@@ -119,7 +127,7 @@ if __name__ == '__main__':
   
   if args.driver_adjust:
     print("setup for driver adjust")
-    setup_for_driver_adjust(exe_path)
+    setup_for_driver_adjust(exe_path, input_data_path=args.input_data)
     sys.exit(0)
   
   if not (args.driver_adjust or args.param_adjust):
