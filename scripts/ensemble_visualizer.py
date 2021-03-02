@@ -2,24 +2,28 @@
 
 # Hannah 01.27.2021 
 
-#import sys
-#import subprocess
-#import json
-#import numpy as np
 import os
-#import pandas as pd
 import matplotlib.pyplot as plt
-#import cartopy.crs as ccrs
 import xarray as xr
-#import glob
-#import netCDF4 as nc
 import argparse
 import textwrap
-#import scipy.stats as ss
-#from pandas import ExcelWriter
 
 
 def basic_time_series_plot(data_directory=None, var=None):
+  '''
+  Outputs/saves a basic time series plot of one dvmdostem output variable.
+
+  Parameters
+  ----------
+  data_directory : str
+    Path to a folder containing one subfolder for each ensemble member.
+  var : str
+    The variable to plot.
+
+  Returns
+  -------
+  None
+  '''
   runfolders = os.listdir(data_directory)
   runfolders = [i for i in runfolders if ".DS_Store" not in i]
   # Filter out non directories.
@@ -78,7 +82,7 @@ if __name__ == '__main__':
 
 # Ideas for command line interface
 
-# $ ./ensemble_visualizer.py --data /path/to/folder/of/ens/runs --var GPP --yx --stage sp
+# $ ./ensemble_visualizer.py --data /path/to/folder/of/ens/runs --var GPP --yx 0 0 --stage sp
 
 
 
