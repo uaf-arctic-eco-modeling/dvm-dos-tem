@@ -23,17 +23,18 @@ def basic_time_series_plot(runfolders=None):
   runfolders = os.listdir(runfolders)
   #print(runfolders)
 
-  GPP = xr.Dataset()
-  for i, folder in enumerate(runfolders):
-    ds = xr.open_dataset('%s/output/GPP_yearly_sp.nc'%folder)
-    GPP= xr.concat([GPP, ds], dim='folder')
+  fig, ax = plt.subplots(figsize=(10, 7))
 
-  GPP['folder'] = runfolders # here assigning the name of the runfolder for identification 
-  print(GPP)
+  for folder in runfolders:
+    gpp = xr.open_dataset('%s/output/GPP_yearly_sp.nc'%folder).GPP  # DataArray
+    ax.plot(gpp.time, gpp.loc[:,0,0], label='%s'%folder)
 
-  fig = plt.figure()
-  GPP.folder[1].where((GPP.x==1)&(GPP.y==1)).plot(fig=fig)
-  fig.savefig('foo.png')
+  ax.legend()
+  ax.set_xlabel('Time after equilibrium [years]')
+  ax.set_ylabel('GPP [g/m$^2$]')
+  ax.set_title('GPP variation over time at Kougarok site for varying envcanopy')
+  ax.set_xlim(left=0)
+  fig.savefig('plot.png', dpi=300, bbox_inches='tight')
 
 
 
