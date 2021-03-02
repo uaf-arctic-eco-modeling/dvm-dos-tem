@@ -80,16 +80,6 @@ if __name__ == '__main__':
 
 # $ ./ensemble_visualizer.py --data /path/to/folder/of/ens/runs --var GPP --yx --stage sp
 
-#GPP.folder[1].plot.scatter(time, )
-#GPP.folder[1].
-#plt.savefig('foo.png')
 
-#for i, folder in enumerate(runfolders):
-#  globals()["GPP_"+str(folder)]= xr.open_dataset('%s/output/GPP_yearly_sp.nc'%folder)
-
-#print(GPP_ens_000001)
-
-#GPP_ens_000001.
-#plt.savefig('foo.png')
 
 
