@@ -19,9 +19,8 @@ import textwrap
 #from pandas import ExcelWriter
 
 
-def basic_time_series_plot(runfolders=None, var=None):
-  runfolders = os.listdir(runfolders)
-  #print(runfolders)
+def basic_time_series_plot(data_directory=None, var=None):
+  runfolders = os.listdir(data_directory)
   runfolders = [i for i in runfolders if ".DS_Store" not in i]
 
   fig, ax = plt.subplots(figsize=(10, 7))
@@ -59,7 +58,7 @@ if __name__ == '__main__':
 
   datafolder = os.path.abspath(args.data)
   print(datafolder)
-  basic_time_series_plot(runfolders=datafolder, var=args.var)
+  basic_time_series_plot(data_directory=datafolder, var=args.var)
 
 # Ideas for command line interface
 
