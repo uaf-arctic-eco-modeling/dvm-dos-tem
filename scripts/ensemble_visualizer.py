@@ -22,6 +22,7 @@ import textwrap
 def basic_time_series_plot(runfolders=None):
   runfolders = os.listdir(runfolders)
   #print(runfolders)
+  runfolders = [i for i in runfolders if ".DS_Store" not in i]
 
   fig, ax = plt.subplots(figsize=(10, 7))
 
@@ -43,7 +44,7 @@ if __name__ == '__main__':
   parser = argparse.ArgumentParser(
       description='''Plotting for ensembles of dvmdostem runs.''')
 
-  parser.add_argument('--data',
+  parser.add_argument('--data', required=True,
     help=textwrap.dedent('''\
       Path to folder of data, assumes folder has subfolders,
       ens_*, one subfolder for each ensemble member'''))
