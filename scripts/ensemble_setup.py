@@ -22,7 +22,7 @@ def setup_for_driver_adjust(exe_path, N=5):
   '''
   print("pass...nothing here yet...still thinking...")
 
-def setup_for_parameter_adjust_ensemble(exe_path, PFT='pft0', N=5, PARAM='albvisnir'):
+def setup_for_parameter_adjust_ensemble(exe_path, input_data_path, PFT='pft0', N=5, PARAM='albvisnir'):
   '''
   Work in progress...bunch of hard coded stuff, not very flexible at the moment.
 
@@ -50,8 +50,10 @@ def setup_for_parameter_adjust_ensemble(exe_path, PFT='pft0', N=5, PARAM='albvis
     run_dir = 'ens_{:06d}'.format(i)
 
     # 1. Setup the run directory
-    s = "{}/setup_working_directory.py --input-data-path ../dvmdostem-input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_CALM_Kougarok_10x10/ {}".format(exe_path, run_dir)
+    s = "{}/setup_working_directory.py --input-data-path {} {}".format(exe_path, input_data_path, run_dir)
     result = subprocess.run(s.split(' '), stdout=subprocess.PIPE, stderr=subprocess.PIPE) #capture_output=True)
+    if len(result.stderr) > 0:
+      print(result)
     # Note that we could avoid the subprocess by importing the setup-working-directory.py into 
     # this script and using the appropriate functions...
 
@@ -65,6 +67,8 @@ def setup_for_parameter_adjust_ensemble(exe_path, PFT='pft0', N=5, PARAM='albvis
     #    e) capture output of previous step and overwrite the parameter file
     s = "{}/param_util.py --dump-block-to-json {}/parameters/cmt_envcanopy.txt 4".format(exe_path, run_dir)
     result = subprocess.run(s.split(' '), stdout=subprocess.PIPE, stderr=subprocess.PIPE) #, capture_output=True)
+    if len(result.stderr) > 0:
+      print(result)
     jd = json.loads(result.stdout.decode('utf-8'))
     jd[PFT][PARAM] = pv
     with open('/tmp/data.json', 'w') as f:
@@ -90,6 +94,9 @@ if __name__ == '__main__':
       Setup for a series of runs where parameter(s) are adjusted between runs.
     '''))
 
+  parser.add_argument('--input-data',
+      help="Path to the driving data (i.e. something in the input data catalog...")
+
   parser.add_argument('--driver-adjust', action='store_true',
     help=textwrap.dedent('''\
       Setup for a series of runs where the drivers are adjusted between runs.
@@ -101,7 +108,7 @@ if __name__ == '__main__':
 
   if args.param_adjust:
     print("setup for parameter adjust")
-    setup_for_parameter_adjust_ensemble(exe_path)
+    setup_for_parameter_adjust_ensemble(exe_path, args.input_data)
     sys.exit(0)
   
   if args.driver_adjust:
