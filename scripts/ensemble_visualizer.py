@@ -23,6 +23,20 @@ def basic_time_series_plot(data_directory=None, var=None):
   runfolders = os.listdir(data_directory)
   runfolders = [i for i in runfolders if ".DS_Store" not in i]
 
+  # Open the first file so we can grab some metadata and check a few things
+  ds = xr.open_dataset('{}/output/{}_yearly_sp.nc'.format(runfolders[0], var))
+
+  # Make a few assertions, sanity checking the data...the idea here
+  # is that this will fail when we try to read a file with more 
+  # dimensions, i.e. something output by layer or by PFT. When this
+  # happens, we can add some more code here to deal with it...
+  assert len(ds.variables[var].dims) == 3, "Incorrect number of dimensions for variable in file!"
+  assert 'units' in ds.variables[var].attrs, "Can't find units attribute in file!"
+
+  # Grab units from first file, assume all the rest are the same...
+  unit_str = ds.variables[var].attrs['units']
+
+  # Now get down to some plotting...
   fig, ax = plt.subplots(figsize=(10, 7))
 
   for folder in runfolders:
@@ -32,8 +46,8 @@ def basic_time_series_plot(data_directory=None, var=None):
 
   ax.legend()
   ax.set_xlabel('Time after equilibrium [years]')
-  ax.set_ylabel('{} [g/m$^2$]'.format(var))
-  ax.set_title('GPP variation over time at Kougarok site for varying envcanopy')
+  ax.set_ylabel('{} {}'.format(var, unit_str))
+  ax.set_title('{} variation over time at Kougarok site for varying envcanopy'.format(var))
   ax.set_xlim(left=0)
   fig.savefig('plot.png', dpi=300, bbox_inches='tight')
 
