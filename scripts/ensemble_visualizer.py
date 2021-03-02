@@ -2,6 +2,7 @@
 
 # Hannah 01.27.2021 
 
+import sys
 import os
 import matplotlib.pyplot as plt
 import xarray as xr
@@ -57,6 +58,23 @@ def basic_time_series_plot(data_directory=None, var=None):
   ax.set_xlim(left=0)
   fig.savefig('plot.png', dpi=300, bbox_inches='tight')
 
+def utility_verify_adjusted_drivers(run_dir):
+  '''
+  Might want a plotting funciton to be able to check on what the adjusted drivers look like...
+  Really rough stab here with a bunch of hard coded assumptions...
+  '''
+  runfolders = os.listdir(run_dir)
+  runfolders = [i for i in runfolders if ".DS_Store" not in i]
+  # Filter out non directories.
+  runfolders = [i for i in filter(os.path.isdir, runfolders)]
+
+  fig, ax = plt.subplots(1,1,figsize=(10,7))
+
+  for i, folder in enumerate(runfolders):
+    ds = xr.open_dataset('{}/inputs/SITE_cru-ts40_ar5_rcp85__MRI-CGCM3/historic-climate.nc'.format(folder))
+    ax.plot(ds.variables['tair'][:,0,0])
+
+  fig.savefig('driverplot.png')
 
 
 if __name__ == '__main__':
@@ -73,8 +91,19 @@ if __name__ == '__main__':
     help=textwrap.dedent('''\
       Which variable to plot.'''))
 
+  parser.add_argument('--view-drivers', action='store_true',
+    help=textwrap.dedent('''\
+      A helper function for viewing what the adjusted drivers look like...
+    '''))
+
+
   args = parser.parse_args()
   print(args)
+
+  if args.view_drivers:
+    utility_verify_adjusted_drivers(args.data)
+    sys.exit(0)
+
 
   datafolder = os.path.abspath(args.data)
   print(datafolder)
