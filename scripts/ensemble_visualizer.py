@@ -22,6 +22,8 @@ import textwrap
 def basic_time_series_plot(data_directory=None, var=None):
   runfolders = os.listdir(data_directory)
   runfolders = [i for i in runfolders if ".DS_Store" not in i]
+  # Filter out non directories.
+  runfolders = [i for i in filter(os.path.isdir, runfolders)]
 
   # Open the first file so we can grab some metadata and check a few things
   ds = xr.open_dataset('{}/output/{}_yearly_sp.nc'.format(runfolders[0], var))
