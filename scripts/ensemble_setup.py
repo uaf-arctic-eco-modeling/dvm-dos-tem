@@ -84,6 +84,12 @@ if __name__ == '__main__':
     formatter_class=argparse.RawDescriptionHelpFormatter,
       description=textwrap.dedent('''\
         Helper script for setting up an ensemble of dvmdostem runs.
+
+        Work in progress. For now assumes that the working directory
+        from which you run this script will be where you want your 
+        ensemble sub folders to be built. So you frequently will 
+        end up running this script with a relative path, i.e.:
+        ../dvm-dos-tem/scripts/ensemble_setup.py --param-adjust --input-data ../some/path
         '''),
       epilog=textwrap.dedent('''\
         epilog text...''')
