@@ -11,6 +11,7 @@ import sys
 import subprocess
 import json
 import numpy as np
+import netCDF4 as nc
 
 def setup_for_driver_adjust(exe_path, input_data_path, N=5):
   '''
@@ -28,6 +29,26 @@ def setup_for_driver_adjust(exe_path, input_data_path, N=5):
     result = subprocess.run(s.split(' '), stdout=subprocess.PIPE, stderr=subprocess.PIPE) #capture_output=True)
     if len(result.stderr) > 0:
       print(result)
+
+
+  # Now loop over the directories and modify the driver(s) in each
+  for i in range(N):
+    run_dir = 'ens_{:06d}'.format(i)
+    ds = nc.Dataset('{}/inputs/{}/historic-climate.nc'.format(run_dir, os.path.basename(input_data_path)))
+    air_temp_timeseries = ds.variables['tair'][:,0,0]
+
+    # Now add some variation here....
+    #air_temp_mod = ?????
+    #
+    # This sorta works but would be horribly inefficient...
+    #   for i, value in enumerate(air_temp_timeseries):
+    #     variation = np.random.normal(value, .1, 1)[0]
+    #     print(i, value, variation, value + variation)
+    #
+    # And write it back to the file here...
+    #ds.variables['tair'][:,0,0] = air_temp_mod
+
+    ds.close()
 
 
 def setup_for_parameter_adjust_ensemble(exe_path, input_data_path, PFT='pft0', N=5, PARAM='albvisnir'):
