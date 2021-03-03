@@ -54,6 +54,20 @@ volumes:
 # Runs a basic ls in the service
 # docker-compose run dvmdostem-run ls /data/input-catalog
 
+# Run in existing container (using exec as opposed to run does this)
+# docker-compose exec dvmdostem-run dvmdostem --help
+
+# Several ways to compile
+# 1) the parallel options seems very finnicky...Mac Docker desktop seems to freeze a lot
+# $ docker-compose exec dvmdostem-run make
+# $ docker-compose exec dvmdostem-run make -j2
+
+# 2)
+# $ docker-compose exec dvmdostem-run bash    
+# $ develop@256519d33e7c:/work$ make
+
+
+
 # docker-compose run make
 
 # volumes:
