@@ -34,11 +34,14 @@ def setup_for_driver_adjust(exe_path, input_data_path, N=5):
   # Now loop over the directories and modify the driver(s) in each
   for i in range(N):
     run_dir = 'ens_{:06d}'.format(i)
-    ds = nc.Dataset('{}/inputs/{}/historic-climate.nc'.format(run_dir, os.path.basename(input_data_path)))
+    #ds = nc.Dataset('{}/inputs/{}/historic-climate.nc'.format(run_dir, os.path.basename(input_data_path)))
+    ds = nc.Dataset('{}/inputs/{}/historic-climate.nc'.format(run_dir, os.path.basename(input_data_path)), 'a')
     air_temp_timeseries = ds.variables['tair'][:,0,0]
+    print(type(air_temp_timeseries))
     d=1
     variation = np.random.normal(0, d, len(air_temp_timeseries))
-    air_temp_mod = air_temp_timeseries + variation
+    air_temp_mod = (air_temp_timeseries + variation)
+    print(type(air_temp_mod))
     ds.variables['tair'][:,0,0] = air_temp_mod 
 
     # Now add some variation here....
