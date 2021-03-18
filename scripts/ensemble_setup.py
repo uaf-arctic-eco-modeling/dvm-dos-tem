@@ -36,6 +36,10 @@ def setup_for_driver_adjust(exe_path, input_data_path, N=5):
     run_dir = 'ens_{:06d}'.format(i)
     ds = nc.Dataset('{}/inputs/{}/historic-climate.nc'.format(run_dir, os.path.basename(input_data_path)))
     air_temp_timeseries = ds.variables['tair'][:,0,0]
+    d=1
+    variation = np.random.normal(0, d, len(air_temp_timeseries))
+    air_temp_mod = air_temp_timeseries + variation
+    ds.variables['tair'][:,0,0] = air_temp_mod 
 
     # Now add some variation here....
     #air_temp_mod = ?????
@@ -47,7 +51,6 @@ def setup_for_driver_adjust(exe_path, input_data_path, N=5):
     #
     # And write it back to the file here...
     #ds.variables['tair'][:,0,0] = air_temp_mod
-
     ds.close()
 
 
