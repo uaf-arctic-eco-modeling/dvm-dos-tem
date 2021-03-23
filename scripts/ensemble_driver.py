@@ -7,14 +7,21 @@ import subprocess
 import json
 import numpy as np
 import os 
+import pathlib
 
-def adjust_mask(ens_folder_list, exe_path):
-  for i, folder in enumerate(ens_folder_list):
-    print("Changing runmask for {}".format(folder))
-    s = "{}/runmask-util.py --reset --yx 0 0 {}/inputs/run-mask.nc".format(exe_path, folder) 
+def adjust_mask(workflows_dir, exe_path):
+
+  # build a list of all the run masks to adjust
+  filelist = sorted(pathlib.Path(workflows_dir).rglob('*run-mask.nc'))
+
+  # loop over the list adjusting masks. 
+  for i, mask_file in enumerate(filelist):
+    print("Changing runmask for {}".format(mask_file))
+    s = "{}/runmask-util.py --reset --yx 0 0 {}".format(exe_path, mask_file) 
     result = subprocess.run(s.split(' '), stdout=subprocess.PIPE, stderr=subprocess.PIPE) #, capture_output=True)
     if len(result.stderr) > 0:
       print(result)
+
 
 def adjust_outvars(ens_folder_list, exe_path):
   ''' add code here to use the outspec_utils.py script '''
@@ -47,13 +54,12 @@ if __name__ == '__main__':
 
   exe_path = os.path.dirname(os.path.abspath(sys.argv[0]))
 
-  runfolders = os.listdir('/home/hannah/dvmdostem-workflows')
-  #runfolders = os.listdir('/Users/tobeycarman/Documents/SEL/dvmdostem-workflows')
-  #runfolders = os.listdir('/home/UA/tcarman2/dvmdostem-workflows')
-  #runfolders = os.listdir('/data/workflows')
-  runfolders = [i for i in runfolders if '.DS_Store' not in i]
+  #WORKFLOWS_DIR = os.listdir('/home/hannah/dvmdostem-workflows')
+  #WORKFLOWS_DIR = os.listdir('/Users/tobeycarman/Documents/SEL/dvmdostem-workflows')
+  #WORKFLOWS_DIR = os.listdir('/home/UA/tcarman2/dvmdostem-workflows')
+  WORKFLOWS_DIR = '/data/workflows'
 
-  adjust_mask(runfolders, exe_path)
+  adjust_mask(WORKFLOWS_DIR, exe_path)
 
   run(runfolders, exe_path)
 
