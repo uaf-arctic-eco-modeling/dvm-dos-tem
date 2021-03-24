@@ -27,9 +27,13 @@ def adjust_outvars(ens_folder_list, exe_path):
   ''' add code here to use the outspec_utils.py script '''
   pass
 
-def run(ens_folder_list, exe_path):
-  print(ens_folder_list)
-  for i, folder in enumerate(ens_folder_list):
+def run(workflows_dir, exe_path):
+  run_folder_list = [pathlib.Path(workflows_dir, i) for i in os.listdir(workflows_dir)]
+  run_folder_list = [i for i in run_folder_list if os.path.isdir(i)]
+  run_folder_list = [i for i in run_folder_list if '.DS_Store' not in i.parts]
+
+  print(run_folder_list)
+  for i, folder in enumerate(run_folder_list):
     print(i, folder)
     os.chdir(folder)
     print("Current working directory: ", os.getcwd())
@@ -61,7 +65,7 @@ if __name__ == '__main__':
 
   adjust_mask(WORKFLOWS_DIR, exe_path)
 
-  run(runfolders, exe_path)
+  run(WORKFLOWS_DIR, exe_path)
 
 
 
