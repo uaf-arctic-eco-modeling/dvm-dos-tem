@@ -26,36 +26,52 @@ def basic_time_series_plot(data_directory=None, var=None):
   -------
   None
   '''
-  runfolders = os.listdir(data_directory)
-  runfolders = [i for i in runfolders if ".DS_Store" not in i]
-  # Filter out non directories.
-  runfolders = [i for i in filter(os.path.isdir, runfolders)]
+  stage = 'sp' # For future...
 
-  # Open the first file so we can grab some metadata and check a few things
-  ds = xr.open_dataset('{}/output/{}_yearly_sp.nc'.format(runfolders[0], var))
+  # Make a list of all the output data files to plot
+  files = sorted(pathlib.Path(data_directory).rglob("{}_yearly_{}.nc".format(var, stage)))
 
-  # Make a few assertions, sanity checking the data...the idea here
-  # is that this will fail when we try to read a file with more 
-  # dimensions, i.e. something output by layer or by PFT. When this
-  # happens, we can add some more code here to deal with it...
-  assert len(ds.variables[var].dims) == 3, "Incorrect number of dimensions for variable in file!"
-  assert 'units' in ds.variables[var].attrs, "Can't find units attribute in file!"
+  # Open all the files as xarray Datasets.
+  member_datasets = [xr.open_dataset(f) for f in files]
 
-  # Grab units from first file, assume all the rest are the same...
-  unit_str = ds.variables[var].attrs['units']
+  # This combines all the xrarray.Datasets into one Dataset that has 
+  # an new dimension, 'ens'.
+  data = xr.concat([m[dict(time=slice(None,None),x=0,y=0)] for m in member_datasets], dim='ens')
+
+  # Print some basic stats
+  print("Ensemble Mean:     ", data.mean('ens'))
+  print("Std Dev.:          ", data.std('ens'))
 
   # Now get down to some plotting...
   fig, ax = plt.subplots(figsize=(10, 7))
 
-  for folder in runfolders:
-    ds = xr.open_dataset('{}/output/{}_yearly_sp.nc'.format(folder, var)) # X array dataset
-    dataV = ds.variables[var]
-    ax.plot(ds.time, dataV[:,0,0], label='%s'%folder)
+  # Shade an area +/- one std deviation...
+  # plt.fill_between(
+  #     data['time'], 
+  #     data.median('ens')[var]+data.std('ens')[var], 
+  #     data.median('ens')[var]-data.std('ens')[var],
+  #     alpha=0.5, color='gray', linewidth=0,
+  # )
 
-  ax.legend()
-  ax.set_xlabel('Time after equilibrium [years]')
-  ax.set_ylabel('{} {}'.format(var, unit_str))
-  ax.set_title('{} variation over time at Kougarok site for varying envcanopy'.format(var))
+  # Shade area between 2.5% and 97.5% quantiles...
+  plt.fill_between(
+      data['time'],
+      data[var].quantile(.025, dim='ens'),
+      data[var].quantile(.975, dim='ens'),
+      alpha=0.25, color='gray', linewidth=0,
+  )
+
+  # Plot one line for each ensemble member...
+  for i, vdata in enumerate(data[var]):
+    plt.plot(vdata, label='ens_{}'.format(i), linewidth=.5, alpha=.5)
+
+  # Make a fat median line...
+  plt.plot(data.median('ens')[var], linewidth=1.5, color='red')
+
+  #ax.legend()
+  ax.set_xlabel('Time {} years'.format(stage))
+  ax.set_ylabel('{} {}'.format(var, data[var].units))
+  # ax.set_title('{} variation over time at Kougarok site for varying envcanopy'.format(var))
   ax.set_xlim(left=0)
   fig.savefig('plot.png', dpi=300, bbox_inches='tight')
 
