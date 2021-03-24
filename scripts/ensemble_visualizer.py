@@ -2,6 +2,7 @@
 
 # Hannah 01.27.2021 
 
+import pathlib
 import sys
 import os
 import matplotlib.pyplot as plt
@@ -58,20 +59,19 @@ def basic_time_series_plot(data_directory=None, var=None):
   ax.set_xlim(left=0)
   fig.savefig('plot.png', dpi=300, bbox_inches='tight')
 
-def utility_verify_adjusted_drivers(run_dir):
+def utility_verify_adjusted_drivers(workflows_dir):
   '''
-  Might want a plotting funciton to be able to check on what the adjusted drivers look like...
+  Might want a plotting function to be able to check on what the adjusted drivers look like...
   Really rough stab here with a bunch of hard coded assumptions...
   '''
-  runfolders = os.listdir(run_dir)
-  runfolders = [i for i in runfolders if ".DS_Store" not in i]
-  # Filter out non directories.
-  runfolders = [i for i in filter(os.path.isdir, runfolders)]
+
+  filelist = sorted(pathlib.Path(workflows_dir).rglob('*historic-climate.nc'))
+  #print("filelist:",  filelist)
 
   fig, ax = plt.subplots(1,1,figsize=(10,7))
 
-  for i, folder in enumerate(runfolders):
-    ds = xr.open_dataset('{}/inputs/SITE_cru-ts40_ar5_rcp85__MRI-CGCM3/historic-climate.nc'.format(folder))
+  for i, historic_climate in enumerate(filelist):
+    ds = xr.open_dataset(historic_climate)
     ax.plot(ds.variables['tair'][:,0,0])
 
   fig.savefig('driverplot.png')
@@ -94,6 +94,8 @@ if __name__ == '__main__':
   parser.add_argument('--view-drivers', action='store_true',
     help=textwrap.dedent('''\
       A helper function for viewing what the adjusted drivers look like...
+      Assumes that the each ensemble member directory has an historic-climate.nc
+      file in it.
     '''))
 
 
