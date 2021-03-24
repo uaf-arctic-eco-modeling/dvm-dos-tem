@@ -51,6 +51,33 @@ def adjust_outvars(ens_folder_list, exe_path):
   pass
 
 def run(workflows_dir, exe_path):
+  '''
+  Function for launching a bunch of ensemble members.
+
+  Assumes that each ensemble has a directory in `workflows_dir` and that
+  the directory is setup with config file, run mask, parameters etc for a
+  self contained run.
+
+  stdout and stderr from the dvmdostem program are directed to files 
+  that are written in the ensemble's folder. 
+
+  Parameters
+  ----------
+  workflows_dir : str (path)
+    A path to a directory assumed to contain a bunch of ensemble run
+    directories (one directory for each ensemble member).
+
+  exe_path : str (path)
+    The path to the directory containing this script; allows finding
+    the dvmdostem binary, which is assumed to reside next to
+    this script. Passing in the exe_path allows this ensemble_driver.py
+    script to be called from arbitrary location and still locate the
+    dvmdostem binary.
+
+  Returns
+  -------
+  None
+  '''
   run_folder_list = [pathlib.Path(workflows_dir, i) for i in os.listdir(workflows_dir)]
   run_folder_list = [i for i in run_folder_list if os.path.isdir(i)]
   run_folder_list = [i for i in run_folder_list if '.DS_Store' not in i.parts]
