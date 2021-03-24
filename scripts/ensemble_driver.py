@@ -10,7 +10,30 @@ import os
 import pathlib
 
 def adjust_mask(workflows_dir, exe_path):
+  '''
+  Function for modifying the run-mask for ensemble members.
 
+  Assumes that there is a directory in `workflows_dir` for each 
+  ensemble member, and that each member's directory has a run-mask.nc file.
+  Also assumes that the pixel to be enabled is (0,0).
+
+  Parameters
+  ----------
+  workflows_dir : str (path)
+    A path to a directory assumed to contain a bunch of ensemble run
+    directories (one directory for each ensemble member).
+
+  exe_path : str (path)
+    The path to the directory containing this script; allows finding
+    the runmask-util.py script, which is assumed to reside next to
+    this script. Passing in the exe_path allows this ensemble_driver.py
+    script to be called from arbitrary location and still locate the
+    runmask-util.py script.
+
+  Returns
+  -------
+  None
+  '''
   # build a list of all the run masks to adjust
   filelist = sorted(pathlib.Path(workflows_dir).rglob('*run-mask.nc'))
 
