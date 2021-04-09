@@ -1017,44 +1017,49 @@ void Soil_Env::checkSoilLiquidWaterValidity(Layer *topsoill, int topind){
   //Downward pass: bring layers up to minliq by pulling from below
   currl = topsoill;
   double needed_liq = 0;
-  while(currl != NULL && currl->solind <= last_active_layer->solind && currl->isSoil && currl->nextl->isSoil){
-    int ind = currl->solind;
-    if (currl->liq < effminliq[ind]){
-      needed_liq = effminliq[ind] - currl->liq;
-      Layer *layer_below = currl->nextl;
-      while(layer_below != NULL && layer_below->solind <= last_active_layer->solind && layer_below->solind>=0 && needed_liq >0){
-        int ind2 = layer_below->solind;
-        if(layer_below->liq > effminliq[ind2]){
-          double avail_liq = layer_below->liq - effminliq[ind2];
-          double take_liq = fmin(needed_liq, avail_liq);
-          layer_below->liq -= take_liq;
+  while(currl != NULL && currl->solind <= last_active_layer->solind && currl->isSoil){
+    if (currl->nextl != NULL) {
+      if (currl->nextl->isSoil) {
+        int ind = currl->solind;
+        if (currl->liq < effminliq[ind]){
+          needed_liq = effminliq[ind] - currl->liq;
+          Layer *layer_below = currl->nextl;
+          while(layer_below != NULL && layer_below->solind <= last_active_layer->solind && layer_below->solind>=0 && needed_liq >0){
+            int ind2 = layer_below->solind;
+            if(layer_below->liq > effminliq[ind2]){
+              double avail_liq = layer_below->liq - effminliq[ind2];
+              double take_liq = fmin(needed_liq, avail_liq);
+              layer_below->liq -= take_liq;
+              currl->liq += take_liq;
+              needed_liq -= take_liq;
+            }
+            layer_below = layer_below->nextl;
+          }
+        }
+        //if that didn't work, pull excess from qdrain, magic puddle, and/or
+        //qover if possible
+        if(currl->liq < effminliq[ind]){
+          needed_liq = effminliq[ind] - currl->liq;
+          //pull from magic puddle
+          double take_liq = fmin(ed->d_soi2l.magic_puddle, needed_liq);
           currl->liq += take_liq;
           needed_liq -= take_liq;
+          ed->d_soi2l.magic_puddle -= take_liq;
+          //pull from qdrain
+          take_liq = fmin(ed->d_soi2l.qdrain, needed_liq);
+          currl->liq += take_liq;
+          needed_liq -= take_liq;
+          ed->d_soi2l.qdrain -= take_liq;
+          //pull from qover
+          take_liq = fmin(ed->d_soi2l.qover, needed_liq);
+          currl->liq += take_liq;
+          needed_liq -= take_liq;
+          ed->d_soi2l.qover -= take_liq;
         }
-        layer_below = layer_below->nextl;
-      }
-    }
-    //if that didn't work, pull excess from qdrain, magic puddle, and/or
-    //qover if possible
-    if(currl->liq < effminliq[ind]){
-      needed_liq = effminliq[ind] - currl->liq;
-      //pull from magic puddle
-      double take_liq = fmin(ed->d_soi2l.magic_puddle, needed_liq);
-      currl->liq += take_liq;
-      needed_liq -= take_liq;
-      ed->d_soi2l.magic_puddle -= take_liq;
-      //pull from qdrain
-      take_liq = fmin(ed->d_soi2l.qdrain, needed_liq);
-      currl->liq += take_liq;
-      needed_liq -= take_liq;
-      ed->d_soi2l.qdrain -= take_liq;
-      //pull from qover
-      take_liq = fmin(ed->d_soi2l.qover, needed_liq);
-      currl->liq += take_liq;
-      needed_liq -= take_liq;
-      ed->d_soi2l.qover -= take_liq;
-    }
+      } // end nextl->isSoil
+    } // end nextl != NULL
     currl = currl->nextl;
+
   }
 
   //Downward pass: bring bottom layer up to minliq by pulling from top down
