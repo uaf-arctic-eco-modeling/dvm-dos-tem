@@ -31,6 +31,8 @@ def basic_time_series_plot(data_directory=None, var=None):
   # Make a list of all the output data files to plot
   files = sorted(pathlib.Path(data_directory).rglob("{}_yearly_{}.nc".format(var, stage)))
 
+  assert len(files) > 0 , "Error! Can't find any data files! Check that you are providing the correct path to the directory containing your ensemble runs!"
+
   # Open all the files as xarray Datasets.
   member_datasets = [xr.open_dataset(f) for f in files]
 
