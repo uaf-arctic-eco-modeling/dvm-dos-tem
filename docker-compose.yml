@@ -1,5 +1,19 @@
 version: '3.2'
 
+# Docker Compose file for coordinating several dvmdostem containers.
+#
+# First you should build your images using the commands in the Dockerfiles.
+#
+# Next create a .env file where you set the following variables:
+#   $ echo "DDT_INPUT_CATALOG=/some/path/to/your/input-catalog" >> .env
+#   $ echo "DDT_WORKFLOWS=/some/path/to/your/workflows" >> .env
+#
+# Next start the containers:
+#   $ docker compose up -d to start the containers
+#
+# Then you can run various program inside the containers.
+# See Examples below
+
 services:
   cpp-dev:
     build: .
@@ -38,12 +52,12 @@ volumes:
   inputcatalog:
     driver_opts:
       type: none
-      device: '/Users/tobeycarman/Documents/SEL/dvmdostem-input-catalog'
+      device: '${DDT_INPUT_CATALOG}'
       o: bind
   workflows:
     driver_opts:
       type: none
-      device: '/Users/tobeycarman/Documents/SEL/dvmdostem-workflows'
+      device: '${DDT_WORKFLOWS}'
       o: bind
 
 # runs the model in the service. Service is not a
