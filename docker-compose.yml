@@ -60,82 +60,34 @@ volumes:
       device: '${DDT_WORKFLOWS}'
       o: bind
 
-# runs the model in the service. Service is not a
+## EXAMPLES
+
+# In general there are 2 ways you can operate:
+# 1) run a specific command in the docker container
+#
+# 2) start a bash terminal in the container and work with an interactive prompt 
+#    in the container
+
+# Runs the model in the service. Service is not a
 # constant running process, so container starts, runs, 
 # and exits. Doesn't handle Ctrl-C
-# docker-compose run dvmdostem-run dvmdostem --help
+#   $ docker-compose run dvmdostem-run dvmdostem --help
 
 # Runs a basic ls in the service
-# docker-compose run dvmdostem-run ls /data/input-catalog
+#   $ docker-compose run dvmdostem-run ls /data/input-catalog
 
 # Run in existing container (using exec as opposed to run does this)
-# docker-compose exec dvmdostem-run dvmdostem --help
+#   $ docker-compose exec dvmdostem-run dvmdostem --help
 
 # Several ways to compile
-# 1) the parallel options seems very finnicky...Mac Docker desktop seems to freeze a lot
-# $ docker-compose exec dvmdostem-run make
-# $ docker-compose exec dvmdostem-run make -j2
+# 1) The parallel options seems very finnicky...
+#    Mac Docker desktop seems to freeze a lot
+#    $ docker-compose exec dvmdostem-run make -j2
+#
+# 2) Sign into interactive session and run make
+#    $ docker-compose exec dvmdostem-run bash    
+#    $ develop@256519d33e7c:/work$ make
 
-# 2)
-# $ docker-compose exec dvmdostem-run bash    
-# $ develop@256519d33e7c:/work$ make
+# Run the io-view tool:
+#   $ docker compose exec dvmdostem-mapping-support bokeh serve scripts/io_view.py
 
-
-
-# docker-compose run make
-
-# volumes:
-#   - sourcecode:/src/dvm-dos-tem
-#   - input_catalog:/data/input-catalog
-#   - work_dir:/run
-
-
-#   support:
-#   image: dvmdostem-support:0.1.0
-#   volumes:
-#     - input_catalog
-# run:
-#   image: dvmdostem-run:0.1.0
-#   volumes:
-#     - code:/
-#     - input_catalog
-#     - work_dir:/run
-
-
-
-# - "${PWD}:/src/dvm-dos-tem"
-# input_catalog:
-#   name: /Users/tobeycarman/Documents/SEL/dvmdostem-input-catalog:/data/input-catalog
-# work_dir:
-
-
-
-# version: '2'
-# services:
-#   ##### the develop image you've build
-#   ### don't forget to open ports for your app
-#   dev-image:
-#     image: your-company/your-project/develop
-#     ports:
-#       - "2000:2000"
-#       - "50010:50010"
-#     privileged: true
-#     container_name: devenv
-# # mapping your project folder (.) to /home/develop/project    
-#     volumes:
-#       - "./:/home/develop/project"
-
-
-
-
-#docker run --rm -ti \
-#  --volume ~/volumes/temio/testrun1/:/run \
-#  dvmdostem-support:0.1.0 \ what image to run
-#  /usr/src/ddtemscripts/outspec_utils.py --help # what file to run
-#usage: outspec_utils.py [-h] [--print-file] [--list-vars] [--show-yearly-vars] [--show-
-
-#docker run --rm -ti \
-# --volume ~/volumes/temio/testrun1/:/run \
-# --volume /Users/tobeycarman/Documents/SEL/dvmdostem-input-catalog:/data  \
-# dvmdostem-run:0.1.0 \
-# /src/dvm-dos-tem/dvmdostem -f /run/config/config.js -p 5 -e 5 -s 5 -t 5 -n 5 -l debug
