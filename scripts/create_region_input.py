@@ -229,6 +229,13 @@ RCP_85_CO2_DATA = [
 
 
 def calc_pwin_str(x, y, xs=50, ys=50, poi_loc='lower-left'):
+  '''
+  Convert from lower left corner and size specification to a string
+  that gdal_translate likes, which is 
+  (upper left, upper left x, upper left y, lower right x, lower right y)
+
+  Currently assumes pixel size to be 1000
+  '''
   if poi_loc != 'lower-left':
     print("ERROR! pixel of interest location selection only implemented for lower-left corner!")
     exit(-1)
@@ -1451,6 +1458,96 @@ def fill_explicit_fire_file(yrs, xo, yo, xs, ys, out_dir, of_name, datasrc='', i
 
   create_template_explicit_fire_file(of_name, sizey=ys, sizex=xs, rand=False, withlatlon=withlatlon, withproj=withproj)
 
+  if datasrc == 'genet':
+    #from IPython import embed; embed()
+
+    # Test cases
+    startyr = 1901; endyr = None; yrs = 10
+    startyr = 1901; endyr = 1910; yrs = 10
+    startyr = 1901; endyr = 2000; yrs = None
+
+    assert bool(yrs) != bool(endyr), "Must define either yrs or endyr, but not both!"
+
+    if yrs is not None:
+      endyr = startyr + yrs
+    elif endyr is not None:
+      yrs = endyr - startyr
+
+    print(startyr, endyr, yrs)
+    assert ((startyr >= 1901) and (startyr <= 2100)), "startyr must be within 1901-2100"
+    assert yrs >= 0 and yrs <= 200, "yrs must be greater than 0 and less than 200"
+    assert endyr >= 1901 and endyr <= 2101, "endyr must be within 1901 and 2101" # 
+
+    tifs = '/Users/tobeycarman/Documents/SEL/snap-data-2019/'
+    other = 'fire_stuff/BestRep/'
+    src = 'NCAR-CCSM4_rcp85_CRU3/'
+    # #variable = 'BurnSeverity_26_{}.tif'.format()
+
+
+    # extract sub region to netcdf
+    for iy, yr in enumerate(range(startyr, endyr)):
+      # if yr < 1950:  
+      #   pass # use ALF modeled, any scenario...
+      # if yr >= 1950 and yr <= 2020:
+      #   pass # use historic
+      # if yr > 2020:
+      #   pass # use ALF modeled, for selected scenario 
+
+      if_fs_name = tifs + other + src + 'FireScar_26_{}.tif'.format(yr)
+      if_bs_name = tifs + other + src + 'BurnSeverity_26_{}.tif'.format(yr)
+
+      tmp_fs_file = "tmp_FireScar_{}.nc".format(yr)
+      tmp_bs_file = "tmp_BurnSeverity_{}.nc".format(yr)
+
+      for inFile, tmpFile in zip([if_fs_name, if_bs_name], [tmp_fs_file, tmp_bs_file]):
+        if projwin:
+          ulx, uly, lrx, lry = calc_pwin_str(xo,yo,xs,ys)
+          ex_call = ['gdal_translate', '-of', 'netCDF',
+                    '-co', 'WRITE_LONLAT={}'.format('YES' if withlatlon else 'NO'),
+                    '-projwin', ulx, uly, lrx, lry,
+                    inFile, tmpFile]
+        else:
+          ex_call = ['gdal_translate', '-of', 'netCDF',
+                    '-co', 'WRITE_LONLAT={}'.format('YES' if withlatlon else 'NO'),
+                    '-srcwin', str(xo), str(yo), str(xs), str(ys),
+                    inFile, tmpFile]
+
+        print("Subsetting TIF to netCDF...")
+        call_external_wrapper(ex_call)
+
+      # Get fire scar dataset
+      with netCDF4.Dataset(tmp_fs_file, 'r') as fs_ds:
+        fs_d = fs_ds.variables['Band2'][:]
+
+      # figure out the map of scar number --> area of burn
+      scarnum2area_map = {}
+      for i in set(fs_d[np.nonzero(fs_d)]):
+        scarnum2area_map[i] = np.count_nonzero(fs_d==i)
+
+      def lookup_AOB(x):
+        if x in scarnum2area_map.keys():
+          return scarnum2area_map[x]
+        else:
+          return 0
+
+      lookup_AOB_v = np.vectorize(lookup_AOB)
+
+      aob = lookup_AOB_v(fs_d)
+
+      # Now get the burn severity
+      with netCDF4.Dataset(tmp_bs_file, 'r') as bs_ds:
+        bs_d = bs_ds.variables['Band1'][:]
+
+      # Write AOB and Burn Severity to output file...
+      with netCDF4.Dataset(of_name, 'a') as ds:
+        ds.variables['exp_area_of_burn'][iy,:] = aob
+        ds.variables['exp_fire_severity'][iy,:] = bs_d
+        ds.variables['exp_jday_of_burn'][iy,:] = np.zeros(bs_d.shape)
+        ds.variables['exp_burn_mask'][iy,:] = np.logical_not(aob.mask)
+
+    from IPython import embed; embed()
+
+
   if datasrc =='no-fires':
     print("%%%%%%  WARNING  %%%%%%%%%%%%%%%%%%%%%%%%%%%")
     print("GENERATING EXPLICIT FIRE FILE WITH NO FIRES!")
@@ -1546,7 +1643,6 @@ def fill_explicit_fire_file(yrs, xo, yo, xs, ys, out_dir, of_name, datasrc='', i
         'calendar': '365_day'
       })
 
-
   guess_vegfile = os.path.join(os.path.split(of_name)[0], 'vegetation.nc')
   print("--> NOTE: Attempting to read: {:} to get lat/lon info".format(guess_vegfile))
 
@@ -1566,7 +1662,6 @@ def fill_explicit_fire_file(yrs, xo, yo, xs, ys, out_dir, of_name, datasrc='', i
       with netCDF4.Dataset(guess_vegfile ,'r') as vegFile:
         nfd.variables['lat'][:] = vegFile.variables['lat'][:]
         nfd.variables['lon'][:] = vegFile.variables['lon'][:]
-
 
   print("Setting :source attribute on new explicit fire file...")
   with netCDF4.Dataset(of_name, mode='a') as dst:
@@ -1804,9 +1899,12 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
         print("WARNING: 'time' dimensions of historic-climate file is not an even number of years!")
     print("Casting 'years' to int which may result in dataloss if historic-climate file does not contain an even number of years!")
     years = int(years)
+
+
+
     fill_explicit_fire_file(
         years, xo, yo, xs, ys, out_dir, of_name,
-        datasrc='no-fires',
+        datasrc='genet',
         if_name=None, withlatlon=withlatlon, withproj=withproj, projwin=projwin
     )
 
@@ -1823,7 +1921,7 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
     years = int(years)
     fill_explicit_fire_file(
         years, xo, yo, xs, ys, out_dir, of_name,
-        datasrc='no-fires',
+        datasrc='genet',
         if_name=None, withlatlon=withlatlon, withproj=withproj, projwin=projwin
     )
 
@@ -2168,7 +2266,7 @@ if __name__ == '__main__':
         running the --dump-empty-config option, then filling out that file with
         your custom paths and then running again, using your custom config file
         as the argument for this option. Also likely that you will set "--tifs=/"
-        when using a custom config and using all absolute paths in your custom
+        when using a custom config and use all absolute paths in your custom
         config file.
         '''))
 
