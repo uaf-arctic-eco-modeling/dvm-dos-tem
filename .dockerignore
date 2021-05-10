@@ -1,0 +1,4 @@
+virtualmachines/*
+auto-post-process/*
+input-staging-area/*
+#.git
