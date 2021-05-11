@@ -127,6 +127,7 @@ void Runner::monthly_output(const int year, const int month, const std::string& 
      || (runstage.find("tr")!=std::string::npos && md.nc_tr)
      || (runstage.find("sc")!=std::string::npos && md.nc_sc) ){
     BOOST_LOG_SEV(glg, debug) << "Monthly NetCDF output function call, runstage: "<<runstage<<" year: "<<year<<" month: "<<month;
+    this->monthly_storage(month);
     output_netCDF_monthly(year, month, runstage);
   }
 
@@ -1013,6 +1014,51 @@ void Runner::output_nc_5dim(OutputSpec* out_spec, std::string stage_suffix,
   temutil::nc( nc_close(ncid) );
 }
 
+void Runner::monthly_storage(int im){
+  std::cout<<"monthly storage, month: "<<im<<"\n";
+
+  //EET
+  std::array<double, NUM_PFT> m_EET_arr;
+  std::vector<double> m_EET;
+  for(int ip=0; ip<NUM_PFT; ip++){
+    m_EET.push_back(cohort.ed[ip].m_l2a.eet);
+    m_EET_arr[ip] = cohort.ed[ip].m_l2a.eet;
+//    std::cout<<m_EET[ip]<<" ";
+  }
+  std::cout<<std::endl;
+  outhold.eet_for_output.push_back(m_EET);
+  outhold.eet_test_vector.push_back(m_EET_arr);
+
+//  for(int ii=0; ii<outhold.eet_for_output.size(); ii++){
+//    for(int ip=0; ip<NUM_PFT; ip++){
+//      std::cout<<outhold.eet_for_output[ii][ip]<<" ";
+//      std::cout<<outhold.eet_test_vector[ii][ip]<<" ";
+//    }
+//    std::cout<<std::endl;
+//  }
+//  std::cout<<std::endl;
+//  temutil::ppva(outhold.eet_for_output, NUM_PFT);
+
+
+  //GPP
+  std::array<std::array<double, NUM_PFT_PART>, NUM_PFT> m_GPP;
+  for(int ip=0; ip<NUM_PFT; ip++){
+    for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
+      m_GPP[ip][ipp] = cohort.bd[ip].m_a2v.gpp[ipp];
+      std::cout<<m_GPP[ip][ipp]<<" ";
+    }
+  }
+  outhold.gpp_for_output.push_back(m_GPP);
+ 
+  //TLAYER
+  std::array<double, MAX_SOI_LAY> m_TLAYER;
+  for(int il=0; il<MAX_SOI_LAY; il++){\
+    m_TLAYER[il] = cohort.edall->m_sois.ts[il];
+  }
+  outhold.tlayer_for_output.push_back(m_TLAYER);
+ 
+}
+
 void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, int year, int month, std::string stage){
   int month_timestep = year*12 + month;
 
@@ -1669,13 +1715,48 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
         }
         //monthly
         else if(curr_spec.monthly){
-          output_nc_4dim(&curr_spec, file_stage_suffix, &m_EET[0], NUM_PFT, month_timestep, 1);
+          //This will be called monthly for now, even if monthly data
+          // is to be held for batch output.
+          if(!md.hold_monthly_output){
+            output_nc_4dim(&curr_spec, file_stage_suffix, &m_EET[0], NUM_PFT, month_timestep, 1);
+          }
+
+
+          else if(md.hold_monthly_output && ((month_timestep+1)%12==0)){
+            //For calculating the actual index in the file
+            int hist_month_idx = month_timestep-11;
+
+            //Converting the vector into an array so that it is
+            // contiguous data for a single write to file.
+            //cont_eet[outhold.eet_for_output.size()][NUM_PFT];
+
+            for(int iv=0; iv<outhold.eet_for_output.size(); iv++){
+              std::cout<<"month timestep: "<<month_timestep<<std::endl;
+              std::cout<<"historical idx: "<<hist_month_idx<<std::endl;
+              output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.eet_for_output[iv][0], NUM_PFT, hist_month_idx, 1);
+              hist_month_idx++;
+            }
+            outhold.eet_for_output.clear();
+          }
+
+          //mock-up for if it was stored in a queue not a vector
+          else if(md.hold_monthly_output && (())){
+            int hist_month_idx = month_timestep-11;
+            while(!outhold.eet_for_output.empty()){
+              output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.eet_for_output.front()[0], NUM_PFT, hist_month_idx, 1);
+              outhold.eet_for_output.pop_front();
+              hist_month_idx++;
+            }
+          }
+
+
         }
         //yearly
         else if(curr_spec.yearly){
           output_nc_4dim(&curr_spec, file_stage_suffix, &y_EET[0], NUM_PFT, year, 1);
         }
       }
+
       //Total, instead of by PFT
       else if(!curr_spec.pft){
         //daily

@@ -28,6 +28,7 @@
 #include "CalController.h"
 #include "ArgHandler.h"
 #include "util_structs.h"
+#include "OutputHolder.h"
 
 using namespace std;
 
@@ -95,6 +96,9 @@ private:
 
   deque<RestartData> mlyres;
 
+  OutputHolder outhold;
+
+  void monthly_storage(const int im);
   void monthly_output(const int year, const int month, const std::string& runstage);
   void yearly_output(const int year, const std::string& stage, const int startyr, const int endyr);
 
