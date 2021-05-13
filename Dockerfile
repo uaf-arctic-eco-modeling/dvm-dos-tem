@@ -30,12 +30,15 @@ FROM cpp-dev:0.0.1 as dvmdostem-build
 # dvmdostem dependencies
 RUN apt-get install -y libjsoncpp-dev libnetcdf-dev libboost-all-dev libreadline-dev liblapacke liblapacke-dev
 
+# Various command line netcdf tools
+RUN apt-get install -y nco netcdf-bin
+
 # Make a developer user so as not to always be root
 RUN useradd -ms /bin/bash develop
 RUN echo "develop   ALL=(ALL:ALL) ALL" >> /etc/sudoers
 USER develop
 
-# Pyenv dependencies
+# Pyenv dependencies for building full Python with all extensions.
 USER root
 RUN apt-get update
 RUN apt-get install -y --fix-missing build-essential libssl-dev zlib1g-dev libbz2-dev \
@@ -69,7 +72,7 @@ RUN pip install -U pip pipenv
 RUN pip install matplotlib numpy pandas bokeh netCDF4 commentjson
 RUN pip install ipython
 #RUN pip install gdal ## Doesn't work...
-#RUN pip install GDAL
+#RUN pip install GDAL ## Doesn't work...
 # docker build --target dvmdostem-build --tag dvmdostem-build:0.0.1 .
 
 # The final image that we will run as a container.
@@ -78,6 +81,7 @@ WORKDIR /work
 ENV SITE_SPECIFIC_INCLUDES="-I/usr/include/jsoncpp"
 ENV SITE_SPECIFIC_LIBS="-I/usr/lib"
 ENV PATH="/work:$PATH"
+ENV PATH="/work/scripts:$PATH"
 # docker build --target dvmdostem-run --tag dvmdostem-run:0.0.1 .
 
 # A production ready container...

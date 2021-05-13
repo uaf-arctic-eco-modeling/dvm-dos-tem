@@ -107,7 +107,7 @@ if __name__ == '__main__':
       print("selected time range size: {} start: {} end: {}".format(
           len(time_range), time_range[0], time_range[-1]))
 
-      matplotlib.rc('lines', linewidth=1, markersize=3, marker='o')
+      matplotlib.rc('lines', linewidth=1, markersize=0, marker='o')
 
       if args.layer_sum and plotting_var not in ['SOC', 'RH']:
         print("WARNING: The sum across layer plot has not been tested on other ")
@@ -245,8 +245,10 @@ if __name__ == '__main__':
 
 
       # All variables share this section
-      fig.canvas.set_window_title(plotting_var)
+      manager = plt.get_current_fig_manager()
+      manager.set_window_title(plotting_var)
       plt.xlabel("time")
+      plt.savefig("SAMPLE_plot_output_var.png")
       plt.show()
 
 
