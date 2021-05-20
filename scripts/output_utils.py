@@ -339,7 +339,9 @@ def plot_basic_timeseries(vars2plot, spatial_y, spatial_x, time_resolution, stag
     ax.plot(data[:,spatial_y, spatial_x], label=var)
     ax.set_ylabel = units
 
+  plt.savefig("plot_basic_timeseries.png")
   plt.show()
+
 
 
 
