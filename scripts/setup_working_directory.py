@@ -48,6 +48,12 @@ if __name__ == '__main__':
   parser.add_argument('--input-data-path', default="<placeholder>",
       help=textwrap.dedent("""Path to the input data"""))
 
+  parser.add_argument('--copy-inputs', action='store_true',
+      help=textwrap.dedent("""Copy the inputs from the location specified 
+        in --input-data-path to the new working directory that is being setup.
+        If this option is present, then the paths in the config file will be
+        set to use the copied inputs."""))
+
   parser.add_argument('--no-cal-targets', action='store_true',
       help=textwrap.dedent("""Do NOT copy the calibration_targets.py file into
         the new working directory."""))
@@ -76,8 +82,11 @@ if __name__ == '__main__':
   shutil.copytree(os.path.join(ddt_dir, 'config'), os.path.join(args.new_directory, 'config'))
   shutil.copytree(os.path.join(ddt_dir, 'parameters'), os.path.join(args.new_directory, 'parameters'))
 
-  # Copy the run mask from the source data directory into the new working directory
-  shutil.copy(os.path.join(args.input_data_path, 'run-mask.nc'), os.path.join(args.new_directory, 'run-mask.nc'))
+  if args.copy_inputs:
+    shutil.copytree(args.input_data_path, os.path.join(args.new_directory, 'inputs', os.path.basename(args.input_data_path)))
+  else:
+    # Copy the run mask from the source data directory into the new working directory
+    shutil.copy(os.path.join(args.input_data_path, 'run-mask.nc'), os.path.join(args.new_directory, 'run-mask.nc'))
 
   # Make sure an output directory exists
   mkdir_p(os.path.join(args.new_directory, 'output'))
@@ -93,18 +102,26 @@ if __name__ == '__main__':
   config['IO']['output_dir']    = 'output/'      # <-- trailing slash is important!!
   config['IO']['runmask_file']  = 'run-mask.nc'
 
+  if args.copy_inputs:
+    input_data_path = os.path.join('inputs', os.path.basename(args.input_data_path))
+    # leave run mask where it is, set path
+    config['IO']['runmask_file']  = os.path.join(input_data_path,'run-mask.nc')
+
+  else:
+    input_data_path = os.path.join(os.path.abspath(args.input_data_path))
+ 
   # Set up the paths to the input data...
-  config['IO']['hist_climate_file']    = os.path.join(os.path.abspath(args.input_data_path), 'historic-climate.nc')
-  config['IO']['proj_climate_file']    = os.path.join(os.path.abspath(args.input_data_path), 'projected-climate.nc')
-  config['IO']['veg_class_file']       = os.path.join(os.path.abspath(args.input_data_path), 'vegetation.nc')
-  config['IO']['drainage_file']        = os.path.join(os.path.abspath(args.input_data_path), 'drainage.nc')
-  config['IO']['soil_texture_file']    = os.path.join(os.path.abspath(args.input_data_path), 'soil-texture.nc')
-  config['IO']['co2_file']             = os.path.join(os.path.abspath(args.input_data_path), 'co2.nc')
-  config['IO']['proj_co2_file']        = os.path.join(os.path.abspath(args.input_data_path), 'projected-co2.nc')
-  config['IO']['topo_file']            = os.path.join(os.path.abspath(args.input_data_path), 'topo.nc')
-  config['IO']['fri_fire_file']        = os.path.join(os.path.abspath(args.input_data_path), 'fri-fire.nc')
-  config['IO']['hist_exp_fire_file']   = os.path.join(os.path.abspath(args.input_data_path), 'historic-explicit-fire.nc')
-  config['IO']['proj_exp_fire_file']   = os.path.join(os.path.abspath(args.input_data_path), 'projected-explicit-fire.nc')
+  config['IO']['hist_climate_file']    = os.path.join(input_data_path, 'historic-climate.nc')
+  config['IO']['proj_climate_file']    = os.path.join(input_data_path, 'projected-climate.nc')
+  config['IO']['veg_class_file']       = os.path.join(input_data_path, 'vegetation.nc')
+  config['IO']['drainage_file']        = os.path.join(input_data_path, 'drainage.nc')
+  config['IO']['soil_texture_file']    = os.path.join(input_data_path, 'soil-texture.nc')
+  config['IO']['co2_file']             = os.path.join(input_data_path, 'co2.nc')
+  config['IO']['proj_co2_file']        = os.path.join(input_data_path, 'projected-co2.nc')
+  config['IO']['topo_file']            = os.path.join(input_data_path, 'topo.nc')
+  config['IO']['fri_fire_file']        = os.path.join(input_data_path, 'fri-fire.nc')
+  config['IO']['hist_exp_fire_file']   = os.path.join(input_data_path, 'historic-explicit-fire.nc')
+  config['IO']['proj_exp_fire_file']   = os.path.join(input_data_path, 'projected-explicit-fire.nc')
 
   # Make sure calibration data ends up in a directory that is named the same
   # as your new working directory.
