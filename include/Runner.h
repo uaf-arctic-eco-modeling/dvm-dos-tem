@@ -99,7 +99,7 @@ private:
   OutputHolder outhold;
 
   void monthly_storage(const int im);
-  void monthly_output(const int year, const int month, const std::string& runstage);
+  void monthly_output(const int year, const int month, const std::string& runstage, int endyr);
   void yearly_output(const int year, const std::string& stage, const int startyr, const int endyr);
 
 };

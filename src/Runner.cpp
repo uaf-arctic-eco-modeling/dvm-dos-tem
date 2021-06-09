@@ -1064,14 +1064,45 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
   int month_timestep = year*12 + month;
 
   int day_timestep = year*365;
-  for(int im=0; im<month; im++){
-    day_timestep += DINM[im];
-  }
+//This was needed when we output daily data on a monthly basis.
+//It should likely be removed.
+//  for(int im=0; im<month; im++){
+//    day_timestep += DINM[im];
+//  }
 
   //For outputting subsets of driving data arrays
   int doy = temutil::day_of_year(month, 0); 
 
   int output_interval = md.output_interval;//years
+
+  int yearcount = year+1;//To differentiate from year index
+
+  bool output_this_timestep = false;
+  int years_to_output;
+  int months_to_output;
+
+  //This does not currently need to be a variable, but it might
+  // be useful in the future.
+  bool end_of_year = false;
+  if((month_timestep+1)%12==0){
+    end_of_year = true;
+  }
+
+  //At the end of an output interval and end of the year
+  if((yearcount%output_interval==0) && end_of_year){
+    output_this_timestep = true;
+    years_to_output = output_interval;
+    months_to_output = output_interval*12;
+  }
+  //For when the years in a stage are not evenly divisible
+  // by the output interval
+  else if((yearcount==endyr) && end_of_year){
+    output_this_timestep = true;
+    years_to_output = yearcount%output_interval;
+    months_to_output = years_to_output*12;
+  }
+  int year_start_idx = yearcount-years_to_output;
+  int month_start_idx = month_timestep-months_to_output+1;
 
   std::string file_stage_suffix;
   if(stage.find("eq")!=std::string::npos){
@@ -1103,10 +1134,17 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: ALD";
     curr_spec = map_itr->second;
 
-    #pragma omp critical(outputALD)
-    {
-      output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.edall->y_soid.ald, 1, year, 1);
-    }//end critical(outputALD)
+    //Store data intended for output
+    outhold.ald_for_output.push_back(cohort.edall->y_soid.ald);
+
+    //If set to output this timestep, do so
+    if(output_this_timestep){
+      #pragma omp critical(outputALD)
+      {
+        output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.ald_for_output[0], 1, yearcount-output_interval, output_interval);
+        outhold.ald_for_output.clear();
+      }//end critical(outputALD)
+    }
   }//end ALD
   map_itr = netcdf_outputs.end();
 
@@ -3314,54 +3352,89 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
 
     #pragma omp critical(outputPET)
     {
-      //By PFT
+      //by PFT
       if(curr_spec.pft){
+        std::array<double, NUM_PFT> pet_arr;
 
-        double m_PET[NUM_PFT], y_PET[NUM_PFT];
-        for(int ip=0; ip<NUM_PFT; ip++){
-          m_PET[ip] = cohort.ed[ip].m_l2a.pet;
-          y_PET[ip] = cohort.ed[ip].y_l2a.pet;
-        }
         //daily
         if(curr_spec.daily){
 
-          double d_PET[dinm][NUM_PFT];
-          for(int ip=0; ip<NUM_PFT; ip++){
-            for(int id=0; id<dinm; id++){
-              d_PET[id][ip] = cohort.ed[ip].daily_pet[id];
+          for(int id=0; id<DINM[month]; id++){
+            for(int ip=0; ip<NUM_PFT; ip++){
+              pet_arr[ip] = cohort.ed[ip].daily_pet[id];
             }
+            outhold.pet_for_output.push_back(pet_arr);
           }
 
-          output_nc_4dim(&curr_spec, file_stage_suffix, &d_PET[0], NUM_PFT, day_timestep, dinm);
+          if(end_of_year){
+            output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.pet_for_output[0][0], NUM_PFT, day_timestep, DINY);
+            outhold.pet_for_output.clear();
+          }
         }
         //monthly
         else if(curr_spec.monthly){
-          output_nc_4dim(&curr_spec, file_stage_suffix, &m_PET[0], NUM_PFT, month_timestep, 1);
+          for(int ip=0; ip<NUM_PFT; ip++){
+            pet_arr[ip] = cohort.ed[ip].m_l2a.pet;
+          }
+          outhold.pet_for_output.push_back(pet_arr);
+
+          if(output_this_timestep){
+            std::cout<<"outputting monthly PET\n";
+            output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.pet_for_output[0][0], NUM_PFT, month_start_idx, months_to_output);
+            outhold.pet_for_output.clear();
+          }
         }
         //yearly
         else if(curr_spec.yearly){
-          output_nc_4dim(&curr_spec, file_stage_suffix, &y_PET[0], NUM_PFT, year, 1);
+          for(int ip=0; ip<NUM_PFT; ip++){
+            pet_arr[ip] = cohort.ed[ip].y_l2a.pet;
+          }
+          outhold.pet_for_output.push_back(pet_arr);
+
+          if(output_this_timestep){
+            std::cout<<"outputting yearly PET\n";
+            output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.pet_for_output[0][0], NUM_PFT, year_start_idx, years_to_output);
+            outhold.pet_for_output.clear();
+          }
         }
       }
       //Total, instead of by PFT
       else if(!curr_spec.pft){
 
+        //daily
         if(curr_spec.daily){
-          double pet[31] = {0};
-          for(int ii=0; ii<31; ii++){
+
+          for(int id=0; id<DINM[month]; id++){
+            double daily_pet_tot = 0.;
             for(int ip=0; ip<NUM_PFT; ip++){
-              pet[ii] += cohort.ed[ip].daily_pet[ii];
+              daily_pet_tot += cohort.ed[ip].daily_pet[id];
             }
+            outhold.pet_tot_for_output.push_back(daily_pet_tot);
           }
-          output_nc_3dim(&curr_spec, file_stage_suffix, &pet[0], 1, day_timestep, dinm);
+
+          if(end_of_year){
+            output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.pet_tot_for_output[0], 1, day_timestep, DINY);
+            outhold.pet_tot_for_output.clear();
+          }
         }
         //monthly
         else if(curr_spec.monthly){
-          output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.edall->m_l2a.pet, 1, month_timestep, 1);
+
+          outhold.pet_tot_for_output.push_back(cohort.edall->m_l2a.pet);
+          if(output_this_timestep){
+            output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.pet_tot_for_output[0], 1, month_start_idx, months_to_output);
+            outhold.pet_tot_for_output.clear();
+          }
         }
         //yearly
         else if(curr_spec.yearly){
-          output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.edall->y_l2a.pet, 1, year, 1);
+          std::cout<<"storing yearly PET total. Month: "<<month<<std::endl;
+          outhold.pet_tot_for_output.push_back(cohort.edall->y_l2a.pet);
+          if(output_this_timestep){
+            std::cout<<"outputting yeary PET, total\n";
+            output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.pet_tot_for_output[0], 1, year_start_idx, years_to_output);
+            outhold.pet_tot_for_output.clear();
+          }
         }
       }
     }//end critical(outputPET)
