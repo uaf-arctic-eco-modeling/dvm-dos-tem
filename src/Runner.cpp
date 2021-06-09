@@ -1070,6 +1070,8 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
   //For outputting subsets of driving data arrays
   int doy = temutil::day_of_year(month, 0); 
 
+  int output_interval = md.output_interval;//years
+
   std::string file_stage_suffix;
   if(stage.find("eq")!=std::string::npos){
     file_stage_suffix = "_eq.nc";

@@ -57,6 +57,7 @@ ModelData::ModelData(Json::Value controldata):force_cmt(-1) {
   nc_sp             = controldata["IO"]["output_nc_sp"].asBool();
   nc_tr             = controldata["IO"]["output_nc_tr"].asBool();
   nc_sc             = controldata["IO"]["output_nc_sc"].asBool();
+  output_interval   = controldata["IO"]["output_interval"].asInt();
 
   pid_tag           = controldata["calibration-IO"]["pid_tag"].asString();
   caldata_tree_loc  = controldata["calibration-IO"]["caldata_tree_loc"].asString();

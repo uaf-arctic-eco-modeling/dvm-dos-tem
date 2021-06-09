@@ -24,7 +24,8 @@
     "output_nc_eq":       0,
     "output_nc_sp":       1,
     "output_nc_tr":       1,
-    "output_nc_sc":       1 
+    "output_nc_sc":       1, 
+    "output_interval":    1 
   },
 
   // Define storage locations for json files generated and used
