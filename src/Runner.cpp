@@ -92,7 +92,7 @@ void Runner::run_years(int start_year, int end_year, const std::string& stage) {
 
         this->cohort.updateMonthly(iy, im, DINM[im], stage);
 
-        this->monthly_output(iy, im, stage);
+        this->monthly_output(iy, im, stage, end_year);
 
       } // end month loop
     } // end named scope
@@ -106,7 +106,7 @@ void Runner::run_years(int start_year, int end_year, const std::string& stage) {
   }} // end year loop (and named scope
 }
 
-void Runner::monthly_output(const int year, const int month, const std::string& runstage) {
+void Runner::monthly_output(const int year, const int month, const std::string& runstage, int endyr) {
 
   if (md.output_monthly) {
 
@@ -128,7 +128,7 @@ void Runner::monthly_output(const int year, const int month, const std::string& 
      || (runstage.find("sc")!=std::string::npos && md.nc_sc) ){
     BOOST_LOG_SEV(glg, debug) << "Monthly NetCDF output function call, runstage: "<<runstage<<" year: "<<year<<" month: "<<month;
     this->monthly_storage(month);
-    output_netCDF_monthly(year, month, runstage);
+    output_netCDF_monthly(year, month, runstage, endyr);
   }
 
 }
@@ -152,7 +152,7 @@ void Runner::yearly_output(const int year, const std::string& stage,
      || (stage.find("tr")!=std::string::npos && md.nc_tr)
      || (stage.find("sc")!=std::string::npos && md.nc_sc) ){
     BOOST_LOG_SEV(glg, debug) << "Yearly NetCDF output function call, runstage: "<<stage<<" year: "<<year;
-    output_netCDF_yearly(year, stage);
+    output_netCDF_yearly(year, stage, endyr);
   }
 
 
@@ -880,17 +880,18 @@ void Runner::output_debug_daily_drivers(int iy, boost::filesystem::path p) {
 }
 
 
-void Runner::output_netCDF_monthly(int year, int month, std::string stage){
+void Runner::output_netCDF_monthly(int year, int month, std::string stage, int endyr){
+
     BOOST_LOG_SEV(glg, debug)<<"NetCDF monthly output, year: "<<year<<" month: "<<month;
-    output_netCDF(md.monthly_netcdf_outputs, year, month, stage);
+    output_netCDF(md.monthly_netcdf_outputs, year, month, stage, endyr);
 
     BOOST_LOG_SEV(glg, debug)<<"Outputting accumulated daily data on the monthly timestep";
-    output_netCDF(md.daily_netcdf_outputs, year, month, stage);
+    output_netCDF(md.daily_netcdf_outputs, year, month, stage, endyr);
 }
 
-void Runner::output_netCDF_yearly(int year, std::string stage){
+void Runner::output_netCDF_yearly(int year, std::string stage, int endyr){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF yearly output, year: "<<year;
-    output_netCDF(md.yearly_netcdf_outputs, year, 0, stage);
+    output_netCDF(md.yearly_netcdf_outputs, year, 11, stage, endyr);
 }
 
 
@@ -1059,7 +1060,7 @@ void Runner::monthly_storage(int im){
  
 }
 
-void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, int year, int month, std::string stage){
+void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, int year, int month, std::string stage, int endyr){
   int month_timestep = year*12 + month;
 
   int day_timestep = year*365;

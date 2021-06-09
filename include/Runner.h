@@ -62,9 +62,9 @@ public:
   void output_debug_daily_drivers(int iy, boost::filesystem::path p);
 
   //void output_netCDF(int year, boost::filesystem::path p);
-  void output_netCDF_monthly(int year, int month, std::string stage);
-  void output_netCDF_yearly(int year, std::string stage);
-  void output_netCDF(std::map<std::string, OutputSpec> &outputs, int year, int month, std::string stage);
+  void output_netCDF_monthly(int year, int month, std::string stage, int endyr);
+  void output_netCDF_yearly(int year, std::string stage, int endyr);
+  void output_netCDF(std::map<std::string, OutputSpec> &outputs, int year, int month, std::string stage, int endyr);
 
 
   template<typename PTYPE>
