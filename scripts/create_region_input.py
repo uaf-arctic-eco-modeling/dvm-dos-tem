@@ -2120,6 +2120,43 @@ if __name__ == '__main__':
     p clim vapo src = 'vap_mean_hPa_alf_ar5_GFDL-CM3_rcp85_'
   ''')
 
+  fire_config = textwrap.dedent('''\
+    h exp fire modeled fy = 1901
+    h exp fire modeled ly = 1949
+
+    h exp fire observed fy = 1950
+    h exp fire observed ly = 2020
+
+    p exp fire predicted fy = 2021
+    p exp fire predicted ly = 2100
+
+    h exp fire modeled path = 'fire_stuff/BestRep/NCAR-CCSM4_rcp85_CRU3/'
+    h exp fire observed path = 'fire_stuff/AlaskaFireHistory_Polygons_1940_2020/AlaskaFireHistory_Polygons.gdb'
+    p exp fire predicted path = 'fire_stuff/BestRep/'
+  ''')
+
+  # --> note that with fire the recent observations are readily available, up to 
+  # the most recent fire year, whereas climate lags behind, so the historic/projected
+  # split will not fall at the same year
+  #
+  # --> note that for projected, the scenario is only in the path, and not the file
+  # name so it will be easy to parameterize later, and we don;t have to keep a full separate config
+  # block for all the different data from different models and institutions.
+  #
+
+  #   1901 -thru-> 1949: fire_stuff/BestRep/NCAR-CCSM4_rcp85_CRU3/BurnSeverity_26_{}.tif, FireScar_26_{}.tif
+  #   1950 -thru-> 2020: fire_stuff/AlaskaFireHistory_Polygons_1940_2020/AlaskaFireHistory_Polygons.gdb
+  #   2021 -thru-> 2100: fire_stuff/BestRep/{}/BurnSeverity_26_{}.tif, FireScar_26_{}.tif
+
+  # uses GCM modeled historic climate
+  # GFDL-CM3_rcp85
+  # GISS-E2-R_rcp85
+  # IPSL-CM5A-LR_rcp85
+  # MRI-CGCM3_rcp85
+  # NCAR-CCSM4_rcp85
+
+  # uses cru historic climate
+  # NCAR-CCSM4_rcp85_CRU3 
 
   fileChoices = ['run-mask', 'co2', 'projected-co2', 'vegetation', 'drainage', 'soil-texture', 'topo',
                  'fri-fire', 'historic-explicit-fire', 'projected-explicit-fire',
@@ -2423,6 +2460,15 @@ if __name__ == '__main__':
       cmdline_config = configobj.ConfigObj(mri_cgcm3_ar5_rcp85_config.split("\n"))
     elif 'gfdl-cm3' in args.projected_climate_config:
       cmdline_config = configobj.ConfigObj(gfdl_cm3_ar5_rcp85_config.split("\n"))
+
+  if 'historic-explicit-fire' in which_files or 'projected-explicit-fire' in which_files:
+    # MODEL_INST = 'GFDL-CM3_rcp85'
+    # MODEL_INST = 'GISS-E2-R_rcp85'
+    # MODEL_INST = 'IPSL-CM5A-LR_rcp85'
+    # MODEL_INST = 'MRI-CGCM3_rcp85'
+    # MODEL_INST = 'NCAR-CCSM4_rcp85'
+    MODEL_INST = 'NCAR-CCSM4_rcp85_CRU3'
+    config.merge(configobj.ConfigObj(fire_config.split("\n")))
 
   if args.custom_config:
     cust_config = configobj.ConfigObj(args.custom_config)
