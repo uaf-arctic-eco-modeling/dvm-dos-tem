@@ -1458,101 +1458,168 @@ def fill_fri_fire_file(xo, yo, xs, ys, out_dir, of_name, datasrc='', if_name=Non
 
 
 
-def fill_explicit_fire_file(yrs, xo, yo, xs, ys, out_dir, of_name, datasrc='', if_name=None, withlatlon=None, withproj=None, projwin=None):
+def fill_explicit_fire_file(startyr, yrs, xo, yo, xs, ys, out_dir, of_name, config=None, datasrc='', if_name=None, withlatlon=None, withproj=None, projwin=None):
 
   create_template_explicit_fire_file(of_name, sizey=ys, sizex=xs, rand=False, withlatlon=withlatlon, withproj=withproj)
 
   if datasrc == 'genet':
-    #from IPython import embed; embed()
+    assert config is not None, "Must pass config object to fill_explicit_fire_files(...)"
 
-    # Test cases
-    startyr = 1901; endyr = None; yrs = 10
-    startyr = 1901; endyr = 1910; yrs = 10
-    startyr = 1901; endyr = 2000; yrs = None
 
-    assert bool(yrs) != bool(endyr), "Must define either yrs or endyr, but not both!"
+    TIFS = '/Users/tobeycarman/Documents/SEL/snap-data-2019/'
 
+    startyr = int(startyr)
+    yrs = int(yrs)
     if yrs is not None:
       endyr = startyr + yrs
     elif endyr is not None:
       yrs = endyr - startyr
 
-    print(startyr, endyr, yrs)
-    assert ((startyr >= 1901) and (startyr <= 2100)), "startyr must be within 1901-2100"
-    assert yrs >= 0 and yrs <= 200, "yrs must be greater than 0 and less than 200"
-    assert endyr >= 1901 and endyr <= 2101, "endyr must be within 1901 and 2101" # 
 
-    tifs = '/Users/tobeycarman/Documents/SEL/snap-data-2019/'
-    other = 'fire_stuff/BestRep/'
-    src = 'NCAR-CCSM4_rcp85_CRU3/'
-    # #variable = 'BurnSeverity_26_{}.tif'.format()
+    print("HERE???\n\n")
+    #from IPython import embed; embed()
 
+    # Test cases
+    # startyr = 1901; endyr = None; yrs = 10
+    # startyr = 1901; endyr = 1910; yrs = 10
+    # startyr = 1901; endyr = 2000; yrs = None
+    # assert bool(yrs) != bool(endyr), "Must define either yrs or endyr, but not both!"
+
+    # print(startyr, endyr, yrs)
+    # assert ((startyr >= 1901) and (startyr <= 2100)), "startyr must be within 1901-2100"
+    # assert yrs >= 0 and yrs <= 200, "yrs must be greater than 0 and less than 200"
+    # assert endyr >= 1901 and endyr <= 2101, "endyr must be within 1901 and 2101" # 
+
+    # tifs = '/Users/tobeycarman/Documents/SEL/snap-data-2019/'
+    # other = 'fire_stuff/BestRep/'
+    # src = 'NCAR-CCSM4_rcp85_CRU3/'
+    # # #variable = 'BurnSeverity_26_{}.tif'.format()
+
+
+    import geopandas as gpd
+    import fiona
 
     # extract sub region to netcdf
     for iy, yr in enumerate(range(startyr, endyr)):
-      # if yr < 1950:  
-      #   pass # use ALF modeled, any scenario...
-      # if yr >= 1950 and yr <= 2020:
-      #   pass # use historic
-      # if yr > 2020:
-      #   pass # use ALF modeled, for selected scenario 
+      actual_year = yr + int(config['h exp fire modeled fy'])
+      if actual_year < 1950:
+        # use ALF modeled, any scenario...
+        PATH = TIFS + config['h exp fire modeled path']
+      if actual_year >= 1950 and yr <= 2020:
+        # use historic
+        PATH = TIFS + config['h exp fire observed path']
+      if actual_year > 2020:
+        # use ALF modeled, for selected scenario
+        PATH = TIFS + config['p exp fire projected path']
 
-      if_fs_name = tifs + other + src + 'FireScar_26_{}.tif'.format(yr)
-      if_bs_name = tifs + other + src + 'BurnSeverity_26_{}.tif'.format(yr)
+      if actual_year  >= 1950 and actual_year <= 2020:
+        # Read from shape file containing actual fire scars
 
-      tmp_fs_file = "tmp_FireScar_{}.nc".format(yr)
-      tmp_bs_file = "tmp_BurnSeverity_{}.nc".format(yr)
+        bbox = (xo, yo, xo+xs*1000, yo+ys*1000)
+        geopandas_vec_data_bb = gpd.read_file(PATH, bbox=bbox)
+        #geopandas_vec_data = gpd.read_file(PATH)
+        #geopandas_vec_data_bb = geopandas_vec_data.cx[bbox[0]:bbox[2],bbox[1]:bbox[3]]
 
-      for inFile, tmpFile in zip([if_fs_name, if_bs_name], [tmp_fs_file, tmp_bs_file]):
-        if projwin:
-          ulx, uly, lrx, lry = calc_pwin_str(xo,yo,xs,ys)
-          ex_call = ['gdal_translate', '-of', 'netCDF',
-                    '-co', 'WRITE_LONLAT={}'.format('YES' if withlatlon else 'NO'),
-                    '-projwin', ulx, uly, lrx, lry,
-                    inFile, tmpFile]
+        this_years_fires = geopandas_vec_data_bb[geopandas_vec_data_bb['FIREYEAR']==str(actual_year)]
+        print("Year: {}  Fires this year: {}".format(actual_year, this_years_fires.shape))
+        if len(this_years_fires) > 0:
+          print("phew, have something to do!")
+          #from IPython import embed; embed()
+          import rasterio
+          from rasterio import features
+
+          #import fire_test_snippets as fts
+
+          # Open a tif file with projection info so we can scrape the transformation
+          # matrix. Then use the matrix with the rasterize() function to geo-reference
+          # the feactures...
+          rmeta = rasterio.open('tmp_BurnSeverity_1903.nc')
+          shapes = [(geom, value) for geom, value in zip(this_years_fires.geometry, this_years_fires.Shape_Area)]
+
+          aob = features.rasterize(shapes, out_shape=(xs,ys), transform=rmeta.transform)
+          severity = np.greater(aob,0) * 2 # Sets any pixel with area of burn > 0 to severity of 2
+          jday = np.greater(aob,0) * 212
+          mask = np.greater(aob,0)
         else:
-          ex_call = ['gdal_translate', '-of', 'netCDF',
-                    '-co', 'WRITE_LONLAT={}'.format('YES' if withlatlon else 'NO'),
-                    '-srcwin', str(xo), str(yo), str(xs), str(ys),
-                    inFile, tmpFile]
-
-        print("Subsetting TIF to netCDF...")
-        call_external_wrapper(ex_call)
-
-      # Get fire scar dataset
-      with netCDF4.Dataset(tmp_fs_file, 'r') as fs_ds:
-        fs_d = fs_ds.variables['Band2'][:]
-
-      # figure out the map of scar number --> area of burn
-      scarnum2area_map = {}
-      for i in set(fs_d[np.nonzero(fs_d)]):
-        scarnum2area_map[i] = np.count_nonzero(fs_d==i)
-
-      def lookup_AOB(x):
-        if x in scarnum2area_map.keys():
-          return scarnum2area_map[x]
-        else:
-          return 0
-
-      lookup_AOB_v = np.vectorize(lookup_AOB)
-
-      aob = lookup_AOB_v(fs_d)
-
-      # Now get the burn severity
-      with netCDF4.Dataset(tmp_bs_file, 'r') as bs_ds:
-        bs_d = bs_ds.variables['Band1'][:]
-
-      # Write AOB and Burn Severity to output file...
-      with netCDF4.Dataset(of_name, 'a') as ds:
-        ds.variables['exp_area_of_burn'][iy,:] = aob
-        ds.variables['exp_fire_severity'][iy,:] = bs_d
-        ds.variables['exp_jday_of_burn'][iy,:] = np.zeros(bs_d.shape)
-        ds.variables['exp_burn_mask'][iy,:] = np.logical_not(aob.mask)
-
-    from IPython import embed; embed()
+          aob = np.zeros((xs,ys))
+          severity = np.zeros((xs,ys))
+          mask = np.zeros((xs,ys))
+          jday = np.zeros((xs,ys)) * np.nan
 
 
-  if datasrc =='no-fires':
+        # Write AOB and Burn Severity to output file...
+        with netCDF4.Dataset(of_name, 'a') as ds:
+          ds.variables['exp_area_of_burn'][iy,:] = aob
+          ds.variables['exp_fire_severity'][iy,:] = severity
+          print(actual_year, jday)
+          ds.variables['exp_jday_of_burn'][iy,:] = jday
+          ds.variables['exp_burn_mask'][iy,:] = mask
+
+        # ax = geopandas_vec_data.plot()
+        # ax.plot(xo,yo,marker='o', markersize=1, color='red',zorder=1000)
+        # ax.plot(xo+xs*1000,yo,marker='o', markersize=1, color='red',zorder=1000)
+        # ax.plot(xo+xs*1000,yo+ys*1000,marker='o', markersize=1, color='red',zorder=1000)
+        # ax.plot(xo,yo+ys*1000,marker='o', markersize=1, color='red',zorder=1000)
+        # ax.add_patch(matplotlib.patches.Rectangle([xo,yo],xs*1000,ys*1000, alpha=.5, color='yellow', zorder=50000))
+
+        # Read severity and AOB from polygon attributes in the (vector) fire history file
+
+      else:
+        # Read severity from BurnSeverity file, calculate AOB by counting pixels with 
+        # the same FireScar number.
+        if_fs_name = PATH + 'FireScar_26_{}.tif'.format(actual_year)
+        if_bs_name = PATH + 'BurnSeverity_26_{}.tif'.format(actual_year)
+
+        tmp_fs_file = "tmp_FireScar_{}.nc".format(actual_year)
+        tmp_bs_file = "tmp_BurnSeverity_{}.nc".format(actual_year)
+
+        for inFile, tmpFile in zip([if_fs_name, if_bs_name], [tmp_fs_file, tmp_bs_file]):
+          if projwin:
+            ulx, uly, lrx, lry = calc_pwin_str(xo,yo,xs,ys)
+            ex_call = ['gdal_translate', '-of', 'netCDF',
+                      '-co', 'WRITE_LONLAT={}'.format('YES' if withlatlon else 'NO'),
+                      '-projwin', ulx, uly, lrx, lry,
+                      inFile, tmpFile]
+          else:
+            ex_call = ['gdal_translate', '-of', 'netCDF',
+                      '-co', 'WRITE_LONLAT={}'.format('YES' if withlatlon else 'NO'),
+                      '-srcwin', str(xo), str(yo), str(xs), str(ys),
+                      inFile, tmpFile]
+
+          print("Subsetting TIF to netCDF...")
+          call_external_wrapper(ex_call)
+
+        # Get fire scar dataset
+        with netCDF4.Dataset(tmp_fs_file, 'r') as fs_ds:
+          fs_d = fs_ds.variables['Band2'][:]
+
+        # figure out the map of scar number --> area of burn
+        scarnum2area_map = {}
+        for i in set(fs_d[np.nonzero(fs_d)]):
+          scarnum2area_map[i] = np.count_nonzero(fs_d==i)
+
+        def lookup_AOB(x):
+          if x in scarnum2area_map.keys():
+            return scarnum2area_map[x]
+          else:
+            return 0
+
+        lookup_AOB_v = np.vectorize(lookup_AOB)
+
+        aob = lookup_AOB_v(fs_d)
+
+        # Now get the burn severity
+        with netCDF4.Dataset(tmp_bs_file, 'r') as bs_ds:
+          severity = bs_ds.variables['Band1'][:]
+
+        # Write AOB and Burn Severity to output file...
+        with netCDF4.Dataset(of_name, 'a') as ds:
+          ds.variables['exp_area_of_burn'][iy,:] = aob
+          ds.variables['exp_fire_severity'][iy,:] = severity
+          ds.variables['exp_jday_of_burn'][iy,:] = np.greater(aob,0) * 212 # July 31 2021
+          ds.variables['exp_burn_mask'][iy,:] = np.logical_not(aob.mask)
+
+  elif datasrc =='no-fires':
     print("%%%%%%  WARNING  %%%%%%%%%%%%%%%%%%%%%%%%%%%")
     print("GENERATING EXPLICIT FIRE FILE WITH NO FIRES!")
     print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
@@ -1905,10 +1972,12 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
     years = int(years)
 
 
-
+    from IPython import embed; embed()
     fill_explicit_fire_file(
+        start_year,
         years, xo, yo, xs, ys, out_dir, of_name,
         datasrc='genet',
+        config=config,
         if_name=None, withlatlon=withlatlon, withproj=withproj, projwin=projwin
     )
 
@@ -1924,6 +1993,7 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
     print("Casting 'years' to int which may result in dataloss if historic-climate file does not contain an even number of years!")
     years = int(years)
     fill_explicit_fire_file(
+      start_year,
         years, xo, yo, xs, ys, out_dir, of_name,
         datasrc='genet',
         if_name=None, withlatlon=withlatlon, withproj=withproj, projwin=projwin
@@ -2157,6 +2227,13 @@ if __name__ == '__main__':
 
   # uses cru historic climate
   # NCAR-CCSM4_rcp85_CRU3 
+
+
+    # tifs = '/Users/tobeycarman/Documents/SEL/snap-data-2019/'
+    # other = 'fire_stuff/BestRep/'
+    # src = 'NCAR-CCSM4_rcp85_CRU3/'
+    # # #variable = 'BurnSeverity_26_{}.tif'.format()
+
 
   fileChoices = ['run-mask', 'co2', 'projected-co2', 'vegetation', 'drainage', 'soil-texture', 'topo',
                  'fri-fire', 'historic-explicit-fire', 'projected-explicit-fire',
