@@ -243,15 +243,19 @@ def calc_pwin_str(x, y, xs=50, ys=50, poi_loc='lower-left'):
          #  ulx             uly             lrx     lry
 
 
-def xform(lon, lat, in_srs='EPSG:4326', out_srs='EPSG:3338'):
+def xform(xcoord, ycoord, in_srs='EPSG:4326', out_srs='EPSG:3338'):
+  '''
+  Wrapper around gdaltransform.
 
-  print("lon, lat, as input to xform(..):", lon, lat)
+  Defaults: EPSG:4326 (wgs84), EPSG:3338 (Alaska Albers)
+  '''
+  print("xcoord, ycoord, as input to xform(..):", xcoord, ycoord)
 
   cmd = ['gdaltransform', '-s_srs', in_srs, '-t_srs', out_srs]
   p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
   try:
-    stdout, stderr = p.communicate(bytes('{} {}'.format(lon, lat), 'utf-8'))
+    stdout, stderr = p.communicate(bytes('{} {}'.format(xcoord, ycoord), 'utf-8'))
   except:
     p.kill()
     p.wait()
