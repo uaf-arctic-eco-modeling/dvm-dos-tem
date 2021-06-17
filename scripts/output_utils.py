@@ -44,7 +44,7 @@ def sum_monthly_flux_to_yearly(data):
   if (data.shape[0] % 12) != 0:
     raise RuntimeError('data size for dimension 0 (time) must be an even multiple of 12')
 
-  newshape = [data.shape[0]/12]
+  newshape = [data.shape[0] // 12]
   for i in data.shape[1:]:
     newshape.append(i)
 
