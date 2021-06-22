@@ -1458,15 +1458,12 @@ def fill_fri_fire_file(xo, yo, xs, ys, out_dir, of_name, datasrc='', if_name=Non
 
 
 
-def fill_explicit_fire_file(startyr, yrs, xo, yo, xs, ys, out_dir, of_name, config=None, datasrc='', if_name=None, withlatlon=None, withproj=None, projwin=None):
+def fill_explicit_fire_file(startyr, yrs, xo, yo, xs, ys, out_dir, of_name, tiffs, config=None, datasrc='', if_name=None, withlatlon=None, withproj=None, projwin=None):
 
   create_template_explicit_fire_file(of_name, sizey=ys, sizex=xs, rand=False, withlatlon=withlatlon, withproj=withproj)
 
   if datasrc == 'genet':
     assert config is not None, "Must pass config object to fill_explicit_fire_files(...)"
-
-
-    TIFS = '/Users/tobeycarman/Documents/SEL/snap-data-2019/'
 
     startyr = int(startyr)
     yrs = int(yrs)
@@ -1504,13 +1501,13 @@ def fill_explicit_fire_file(startyr, yrs, xo, yo, xs, ys, out_dir, of_name, conf
       actual_year = yr + int(config['h exp fire modeled fy'])
       if actual_year < 1950:
         # use ALF modeled, any scenario...
-        PATH = TIFS + config['h exp fire modeled path']
+        PATH = os.path.join(tiffs, config['h exp fire modeled path'])
       if actual_year >= 1950 and yr <= 2020:
         # use historic
-        PATH = TIFS + config['h exp fire observed path']
+        PATH = os.path.join(tiffs, config['h exp fire observed path'])
       if actual_year > 2020:
         # use ALF modeled, for selected scenario
-        PATH = TIFS + config['p exp fire projected path']
+        PATH = os.path.join(tiffs, config['p exp fire projected path'])
 
       if actual_year  >= 1950 and actual_year <= 2020:
         # Read from shape file containing actual fire scars
@@ -1975,7 +1972,7 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
     from IPython import embed; embed()
     fill_explicit_fire_file(
         start_year,
-        years, xo, yo, xs, ys, out_dir, of_name,
+        years, xo, yo, xs, ys, out_dir, of_name, tif_dir,
         datasrc='genet',
         config=config,
         if_name=None, withlatlon=withlatlon, withproj=withproj, projwin=projwin
@@ -1994,7 +1991,7 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
     years = int(years)
     fill_explicit_fire_file(
       start_year,
-        years, xo, yo, xs, ys, out_dir, of_name,
+        years, xo, yo, xs, ys, out_dir, of_name, tif_dir,
         datasrc='genet',
         if_name=None, withlatlon=withlatlon, withproj=withproj, projwin=projwin
     )
