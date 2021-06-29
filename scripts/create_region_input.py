@@ -1498,26 +1498,6 @@ def fill_explicit_fire_file(startyr, yrs, xo, yo, xs, ys, out_dir, of_name, tiff
       yrs = endyr - startyr
 
 
-    print("HERE???\n\n")
-    #from IPython import embed; embed()
-
-    # Test cases
-    # startyr = 1901; endyr = None; yrs = 10
-    # startyr = 1901; endyr = 1910; yrs = 10
-    # startyr = 1901; endyr = 2000; yrs = None
-    # assert bool(yrs) != bool(endyr), "Must define either yrs or endyr, but not both!"
-
-    # print(startyr, endyr, yrs)
-    # assert ((startyr >= 1901) and (startyr <= 2100)), "startyr must be within 1901-2100"
-    # assert yrs >= 0 and yrs <= 200, "yrs must be greater than 0 and less than 200"
-    # assert endyr >= 1901 and endyr <= 2101, "endyr must be within 1901 and 2101" # 
-
-    # tifs = '/Users/tobeycarman/Documents/SEL/snap-data-2019/'
-    # other = 'fire_stuff/BestRep/'
-    # src = 'NCAR-CCSM4_rcp85_CRU3/'
-    # # #variable = 'BurnSeverity_26_{}.tif'.format()
-
-
     import geopandas as gpd
     import fiona
 
@@ -1546,7 +1526,6 @@ def fill_explicit_fire_file(startyr, yrs, xo, yo, xs, ys, out_dir, of_name, tiff
         print("Year: {}  Fires this year: {}".format(actual_year, this_years_fires.shape))
         if len(this_years_fires) > 0:
           print("phew, have something to do!")
-          #from IPython import embed; embed()
           import rasterio
           from rasterio import features
 
@@ -1700,29 +1679,6 @@ def fill_explicit_fire_file(startyr, yrs, xo, yo, xs, ys, out_dir, of_name, tiff
 
   # Now that the primary data is taken care of, fill out all some other general 
   # info for the file, lat, lon, attributes, etc
-
-  def figure_out_time_size(of_name, yrs):
-    guess_hcf = os.path.join(os.path.split(of_name)[0], 'historic-climate.nc')
-    guess_pcf = os.path.join(os.path.split(of_name)[0], 'projected-climate.nc')
-
-    starting_date_str = ''
-    with netCDF4.Dataset(guess_hcf, 'r') as ds:
-      if ds.variables['time'].size / 12 == yrs:
-        starting_date_str = (ds.variables['time'].units).replace('days', 'years')
-        end_date = netCDF4.num2date(ds.variables['time'][-1], ds.variables['time'].units, ds.variables['time'].calendar)
-
-    with netCDF4.Dataset(guess_pcf, 'r') as ds:
-      if ds.variables['time'].size / 12 == yrs:
-        starting_date_str = (ds.variables['time'].units).replace('days', 'years')
-        end_date = netCDF4.num2date(ds.variables['time'][-1], ds.variables['time'].units, ds.variables['time'].calendar)
-
-    # Convert from the funky netcdf time object to python datetime object
-    end_date = dt.datetime.strptime(end_date.strftime(), "%Y-%m-%d %H:%M:%S")
-
-    return starting_date_str, end_date 
-
-  # NOTE: For this to work you must run with --buildout-time-coord !!!
-  guess_starting_date_string, end_date = figure_out_time_size(of_name, yrs)
 
   with netCDF4.Dataset(of_name, mode='a') as nfd:
     print("Write time coordinate variable attribute for time axis...")
