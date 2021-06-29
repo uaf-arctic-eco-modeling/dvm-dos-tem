@@ -127,7 +127,7 @@ void Runner::monthly_output(const int year, const int month, const std::string& 
      || (runstage.find("tr")!=std::string::npos && md.nc_tr)
      || (runstage.find("sc")!=std::string::npos && md.nc_sc) ){
     BOOST_LOG_SEV(glg, debug) << "Monthly NetCDF output function call, runstage: "<<runstage<<" year: "<<year<<" month: "<<month;
-    this->monthly_storage(month);
+
     output_netCDF_monthly(year, month, runstage, endyr);
   }
 
@@ -1015,6 +1015,7 @@ void Runner::output_nc_5dim(OutputSpec* out_spec, std::string stage_suffix,
   temutil::nc( nc_close(ncid) );
 }
 
+/*
 void Runner::monthly_storage(int im){
   std::cout<<"monthly storage, month: "<<im<<"\n";
 
@@ -1026,7 +1027,6 @@ void Runner::monthly_storage(int im){
     m_EET_arr[ip] = cohort.ed[ip].m_l2a.eet;
 //    std::cout<<m_EET[ip]<<" ";
   }
-  std::cout<<std::endl;
   outhold.eet_for_output.push_back(m_EET);
   outhold.eet_test_vector.push_back(m_EET_arr);
 
@@ -1046,7 +1046,6 @@ void Runner::monthly_storage(int im){
   for(int ip=0; ip<NUM_PFT; ip++){
     for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
       m_GPP[ip][ipp] = cohort.bd[ip].m_a2v.gpp[ipp];
-      std::cout<<m_GPP[ip][ipp]<<" ";
     }
   }
   outhold.gpp_for_output.push_back(m_GPP);
@@ -1059,6 +1058,7 @@ void Runner::monthly_storage(int im){
   outhold.tlayer_for_output.push_back(m_TLAYER);
  
 }
+*/
 
 void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, int year, int month, std::string stage, int endyr){
   int month_timestep = year*12 + month;
@@ -1141,7 +1141,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     if(output_this_timestep){
       #pragma omp critical(outputALD)
       {
-        output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.ald_for_output[0], 1, yearcount-output_interval, output_interval);
+        output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.ald_for_output[0], 1, year_start_idx, years_to_output);
         outhold.ald_for_output.clear();
       }//end critical(outputALD)
     }
@@ -1733,92 +1733,170 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
 
     #pragma omp critical(outputEET)
     {
-      //By PFT
+      //by PFT
       if(curr_spec.pft){
-
-        double m_EET[NUM_PFT], y_EET[NUM_PFT];
-        for(int ip=0; ip<NUM_PFT; ip++){
-          m_EET[ip] = cohort.ed[ip].m_l2a.eet;
-          y_EET[ip] = cohort.ed[ip].y_l2a.eet;
-        }
+        std::array<double, NUM_PFT> eet_arr;
 
         //daily
         if(curr_spec.daily){
 
-          double d_EET[dinm][NUM_PFT];
-          for(int ip=0; ip<NUM_PFT; ip++){
-            for(int id=0; id<dinm; id++){
-              d_EET[id][ip] = cohort.ed[ip].daily_eet[id];
+          for(int id=0; id<DINM[month]; id++){
+            for(int ip=0; ip<NUM_PFT; ip++){
+              eet_arr[ip] = cohort.ed[ip].daily_eet[id];
             }
+            outhold.eet_for_output.push_back(eet_arr);
           }
 
-          output_nc_4dim(&curr_spec, file_stage_suffix, &d_EET[0][0], NUM_PFT, day_timestep, dinm);
-        }
-        //monthly
-        else if(curr_spec.monthly){
-          //This will be called monthly for now, even if monthly data
-          // is to be held for batch output.
-          if(!md.hold_monthly_output){
-            output_nc_4dim(&curr_spec, file_stage_suffix, &m_EET[0], NUM_PFT, month_timestep, 1);
-          }
-
-
-          else if(md.hold_monthly_output && ((month_timestep+1)%12==0)){
-            //For calculating the actual index in the file
-            int hist_month_idx = month_timestep-11;
-
-            //Converting the vector into an array so that it is
-            // contiguous data for a single write to file.
-            //cont_eet[outhold.eet_for_output.size()][NUM_PFT];
-
-            for(int iv=0; iv<outhold.eet_for_output.size(); iv++){
-              std::cout<<"month timestep: "<<month_timestep<<std::endl;
-              std::cout<<"historical idx: "<<hist_month_idx<<std::endl;
-              output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.eet_for_output[iv][0], NUM_PFT, hist_month_idx, 1);
-              hist_month_idx++;
-            }
+          if(end_of_year){
+            output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.eet_for_output[0][0], NUM_PFT, day_timestep, DINY);
             outhold.eet_for_output.clear();
           }
-
-          //mock-up for if it was stored in a queue not a vector
-          else if(md.hold_monthly_output && (())){
-            int hist_month_idx = month_timestep-11;
-            while(!outhold.eet_for_output.empty()){
-              output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.eet_for_output.front()[0], NUM_PFT, hist_month_idx, 1);
-              outhold.eet_for_output.pop_front();
-              hist_month_idx++;
-            }
-          }
-
-
-        }
-        //yearly
-        else if(curr_spec.yearly){
-          output_nc_4dim(&curr_spec, file_stage_suffix, &y_EET[0], NUM_PFT, year, 1);
-        }
-      }
-
-      //Total, instead of by PFT
-      else if(!curr_spec.pft){
-        //daily
-        if(curr_spec.daily){
-          double eet[31] = {0};
-          for(int ii=0; ii<31; ii++){
-            for(int ip=0; ip<NUM_PFT; ip++){
-              eet[ii] += cohort.ed[ip].daily_eet[ii];
-            }
-          }
-          output_nc_3dim(&curr_spec, file_stage_suffix, &eet[0], 1, day_timestep, dinm);
         }
         //monthly
         else if(curr_spec.monthly){
-          output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.edall->m_l2a.eet, 1, month_timestep, 1);
+          for(int ip=0; ip<NUM_PFT; ip++){
+            eet_arr[ip] = cohort.ed[ip].m_l2a.eet;
+          }
+          outhold.eet_for_output.push_back(eet_arr);
+
+          if(output_this_timestep){
+            output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.eet_for_output[0][0], NUM_PFT, month_start_idx, months_to_output);
+            outhold.eet_for_output.clear();
+          }
         }
         //yearly
         else if(curr_spec.yearly){
-          output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.edall->y_l2a.eet, 1, year, 1);
+          for(int ip=0; ip<NUM_PFT; ip++){
+            eet_arr[ip] = cohort.ed[ip].y_l2a.eet;
+          }
+          outhold.eet_for_output.push_back(eet_arr);
+
+          if(output_this_timestep){
+            output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.eet_for_output[0][0], NUM_PFT, year_start_idx, years_to_output);
+            outhold.eet_for_output.clear();
+          }
         }
       }
+      //Total, instead of by PFT
+      else if(!curr_spec.pft){
+
+        //daily
+        if(curr_spec.daily){
+
+          for(int id=0; id<DINM[month]; id++){
+            double daily_eet_tot = 0.;
+            for(int ip=0; ip<NUM_PFT; ip++){
+              daily_eet_tot += cohort.ed[ip].daily_eet[id];
+            }
+            outhold.eet_tot_for_output.push_back(daily_eet_tot);
+          }
+
+          if(end_of_year){
+            output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.eet_tot_for_output[0], 1, day_timestep, DINY);
+            outhold.eet_tot_for_output.clear();
+          }
+        }
+        //monthly
+        else if(curr_spec.monthly){
+
+          outhold.eet_tot_for_output.push_back(cohort.edall->m_l2a.eet);
+          if(output_this_timestep){
+            output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.eet_tot_for_output[0], 1, month_start_idx, months_to_output);
+            outhold.eet_tot_for_output.clear();
+          }
+        }
+        //yearly
+        else if(curr_spec.yearly){
+          outhold.eet_tot_for_output.push_back(cohort.edall->y_l2a.eet);
+          if(output_this_timestep){
+            output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.eet_tot_for_output[0], 1, year_start_idx, years_to_output);
+            outhold.eet_tot_for_output.clear();
+          }
+        }
+      }
+ 
+
+//      //By PFT
+//      if(curr_spec.pft){
+//
+//        double m_EET[NUM_PFT], y_EET[NUM_PFT];
+//        for(int ip=0; ip<NUM_PFT; ip++){
+//          m_EET[ip] = cohort.ed[ip].m_l2a.eet;
+//          y_EET[ip] = cohort.ed[ip].y_l2a.eet;
+//        }
+//
+//        //daily
+//        if(curr_spec.daily){
+//
+//          double d_EET[dinm][NUM_PFT];
+//          for(int ip=0; ip<NUM_PFT; ip++){
+//            for(int id=0; id<dinm; id++){
+//              d_EET[id][ip] = cohort.ed[ip].daily_eet[id];
+//            }
+//          }
+//
+//          output_nc_4dim(&curr_spec, file_stage_suffix, &d_EET[0][0], NUM_PFT, day_timestep, dinm);
+//        }
+//        //monthly
+//        else if(curr_spec.monthly){
+//
+//
+//          //This will be called monthly for now, even if monthly data
+//          // is to be held for batch output.
+//          if(!md.hold_monthly_output){
+//            output_nc_4dim(&curr_spec, file_stage_suffix, &m_EET[0], NUM_PFT, month_timestep, 1);
+//          }
+//
+//          else if(md.hold_monthly_output && ((month_timestep+1)%12==0)){
+//            //For calculating the actual index in the file
+//            int hist_month_idx = month_timestep-11;
+//
+//            for(int iv=0; iv<outhold.eet_for_output.size(); iv++){
+//              output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.eet_for_output[iv][0], NUM_PFT, hist_month_idx, 1);
+//              hist_month_idx++;
+//            }
+//            outhold.eet_for_output.clear();
+//          }
+//
+//          //mock-up for if it was stored in a queue not a vector
+////          else if(md.hold_monthly_output && (())){
+////            int hist_month_idx = month_timestep-11;
+////            while(!outhold.eet_for_output.empty()){
+////              output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.eet_for_output.front()[0], NUM_PFT, hist_month_idx, 1);
+////              outhold.eet_for_output.pop_front();
+////              hist_month_idx++;
+////            }
+////          }
+//
+//
+//        }
+//        //yearly
+//        else if(curr_spec.yearly){
+//          output_nc_4dim(&curr_spec, file_stage_suffix, &y_EET[0], NUM_PFT, year, 1);
+//        }
+//      }
+//
+//      //Total, instead of by PFT
+//      else if(!curr_spec.pft){
+//        //daily
+//        if(curr_spec.daily){
+//          double eet[31] = {0};
+//          for(int ii=0; ii<31; ii++){
+//            for(int ip=0; ip<NUM_PFT; ip++){
+//              eet[ii] += cohort.ed[ip].daily_eet[ii];
+//            }
+//          }
+//          output_nc_3dim(&curr_spec, file_stage_suffix, &eet[0], 1, day_timestep, dinm);
+//        }
+//        //monthly
+//        else if(curr_spec.monthly){
+//          output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.edall->m_l2a.eet, 1, month_timestep, 1);
+//        }
+//        //yearly
+//        else if(curr_spec.yearly){
+//          output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.edall->y_l2a.eet, 1, year, 1);
+//        }
+//      }
     }//end critical(outputEET)
   }//end EET
   map_itr = netcdf_outputs.end();
@@ -1888,28 +1966,42 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     {
       //PFT and compartment (5 dimensions)
       if(curr_spec.pft && curr_spec.compartment){
+        std::array<std::array<double, NUM_PFT_PART>, NUM_PFT> m_gpp{};
+        std::array<std::array<double, NUM_PFT_PART>, NUM_PFT> y_gpp{};
 
-        double m_gpp[NUM_PFT_PART][NUM_PFT];
-        double y_gpp[NUM_PFT_PART][NUM_PFT];
+//        double m_gpp[NUM_PFT_PART][NUM_PFT];
+//        double y_gpp[NUM_PFT_PART][NUM_PFT];
         for(int ip=0; ip<NUM_PFT; ip++){
           for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
-            m_gpp[ipp][ip] = cohort.bd[ip].m_a2v.gpp[ipp];
-            y_gpp[ipp][ip] = cohort.bd[ip].y_a2v.gpp[ipp];
+            m_gpp[ip][ipp] = cohort.bd[ip].m_a2v.gpp[ipp];
+            y_gpp[ip][ipp] = cohort.bd[ip].y_a2v.gpp[ipp];
           }
         }
         //monthly
         if(curr_spec.monthly){
-          output_nc_5dim(&curr_spec, file_stage_suffix, &m_gpp[0][0], NUM_PFT_PART, NUM_PFT, month_timestep, 1);
+          outhold.gpp_for_output.push_back(m_gpp);
+          if(output_this_timestep){
+            output_nc_5dim(&curr_spec, file_stage_suffix, &outhold.gpp_for_output[0][0], NUM_PFT_PART, NUM_PFT, month_start_idx, months_to_output);
+            outhold.gpp_for_output.clear();
+          }
         }
         //yearly
         else if(curr_spec.yearly){
-          output_nc_5dim(&curr_spec, file_stage_suffix, &y_gpp[0][0], NUM_PFT_PART, NUM_PFT, year, 1);
+          outhold.gpp_for_output.push_back(y_gpp);
+          if(output_this_timestep){
+            output_nc_5dim(&curr_spec, file_stage_suffix, &outhold.gpp_for_output[0][0], NUM_PFT_PART, NUM_PFT, year_start_idx, years_to_output);
+            outhold.gpp_for_output.clear();
+          }
         }
       }
+
+
+
       //PFT only (4 dimensions)
       else if(curr_spec.pft && !curr_spec.compartment){
+        std::array<double, NUM_PFT> m_gpp{};
+        std::array<double, NUM_PFT> y_gpp{};
 
-        double m_gpp[NUM_PFT], y_gpp[NUM_PFT];
         for(int ip=0; ip<NUM_PFT; ip++){
           m_gpp[ip] = cohort.bd[ip].m_a2v.gppall;
           y_gpp[ip] = cohort.bd[ip].y_a2v.gppall;
@@ -1917,18 +2009,28 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
 
         //monthly
         if(curr_spec.monthly){
-          output_nc_4dim(&curr_spec, file_stage_suffix, &m_gpp[0], NUM_PFT, month_timestep, 1);
+          outhold.gpp_pft_for_output.push_back(m_gpp);
+          if(output_this_timestep){
+            output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.gpp_pft_for_output[0], NUM_PFT, month_start_idx, months_to_output);
+            outhold.gpp_pft_for_output.clear();
+          }
         }
         //yearly
         else if(curr_spec.yearly){
-          output_nc_4dim(&curr_spec, file_stage_suffix, &y_gpp[0], NUM_PFT, year, 1);
+          outhold.gpp_pft_for_output.push_back(y_gpp);
+          if(output_this_timestep){
+            output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.gpp_pft_for_output[0], NUM_PFT, year_start_idx, years_to_output);
+            outhold.gpp_pft_for_output.clear();
+          }
         }
       }
+
+
       //Compartment only (4 dimensions)
       else if(!curr_spec.pft && curr_spec.compartment){
+        std::array<double, NUM_PFT_PART> m_gpp{};
+        std::array<double, NUM_PFT_PART> y_gpp{};
 
-        double m_gpp[NUM_PFT_PART] = {0};
-        double y_gpp[NUM_PFT_PART] = {0};
         for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
           for(int ip=0; ip<NUM_PFT; ip++){
 
@@ -1938,22 +2040,39 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
         }
         //monthly
         if(curr_spec.monthly){
-          output_nc_4dim(&curr_spec, file_stage_suffix, &m_gpp[0], NUM_PFT_PART, month_timestep, 1);
+          outhold.gpp_part_for_output.push_back(m_gpp);
+          if(output_this_timestep){
+            output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.gpp_part_for_output[0], NUM_PFT_PART, month_start_idx, months_to_output);
+            outhold.gpp_part_for_output.clear();
+          }
         }
         //yearly
         else if(curr_spec.yearly){
-          output_nc_4dim(&curr_spec, file_stage_suffix, &y_gpp[0], NUM_PFT_PART, year, 1);
+          outhold.gpp_part_for_output.push_back(y_gpp);
+          if(output_this_timestep){
+            output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.gpp_part_for_output[0], NUM_PFT_PART, year_start_idx, years_to_output);
+            outhold.gpp_part_for_output.clear();
+          }
         }
       }
+
       //Neither PFT nor Compartment - total instead (3 dimensions)
       else if(!curr_spec.pft && !curr_spec.compartment){
         //monthly
         if(curr_spec.monthly){
-          output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.bdall->m_a2v.gppall, 1, month_timestep, 1);
+          outhold.gpp_tot_for_output.push_back(cohort.bdall->m_a2v.gppall);
+          if(output_this_timestep){
+            output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.gpp_tot_for_output[0], 1, month_start_idx, months_to_output);
+            outhold.gpp_tot_for_output.clear();
+          }
         }
         //yearly
         else if(curr_spec.yearly){
-          output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.bdall->y_a2v.gppall, 1, year, 1);
+          outhold.gpp_tot_for_output.push_back(cohort.bdall->y_a2v.gppall);
+          if(output_this_timestep){
+            output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.gpp_tot_for_output[0], 1, year_start_idx, years_to_output);
+            outhold.gpp_tot_for_output.clear();
+          }
         }
       }
     }//end critical(outputGPP)
@@ -4313,17 +4432,45 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
 
     #pragma omp critical(outputTLAYER)
     {
+      std::array<double, MAX_SOI_LAY> tlayer_arr;
+
       //daily
       if(curr_spec.daily){
-        output_nc_4dim(&curr_spec, file_stage_suffix, &cohort.edall->daily_tlayer[0][0], MAX_SOI_LAY, day_timestep, dinm);
+        for(int id=0; id<DINM[month]; id++){
+          for(int il=0; il<MAX_SOI_LAY; il++){
+            tlayer_arr[il] = cohort.edall->daily_tlayer[id][il];
+          }
+          outhold.tlayer_for_output.push_back(tlayer_arr);
+        }
+        if(end_of_year){
+          output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.tlayer_for_output[0], MAX_SOI_LAY, day_timestep, DINY);
+          outhold.tlayer_for_output.clear();
+        }
       }
+
       //monthly
       else if(curr_spec.monthly){
-        output_nc_4dim(&curr_spec, file_stage_suffix, &cohort.edall->m_sois.ts[0], MAX_SOI_LAY, month_timestep, 1);
+        for(int il=0; il<MAX_SOI_LAY; il++){
+          tlayer_arr[il] = cohort.edall->m_sois.ts[il];
+        }
+        outhold.tlayer_for_output.push_back(tlayer_arr);
+
+        if(output_this_timestep){
+          output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.tlayer_for_output[0], MAX_SOI_LAY, month_start_idx, months_to_output);
+          outhold.tlayer_for_output.clear();
+        }
       }
       //yearly
       else if(curr_spec.yearly){
-        output_nc_4dim(&curr_spec, file_stage_suffix, &cohort.edall->y_sois.ts[0], MAX_SOI_LAY, year, 1);
+        for(int il=0; il<MAX_SOI_LAY; il++){
+          tlayer_arr[il] = cohort.edall->y_sois.ts[il];
+        }
+        outhold.tlayer_for_output.push_back(tlayer_arr);
+
+        if(output_this_timestep){
+          output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.tlayer_for_output[0], MAX_SOI_LAY, year_start_idx, years_to_output);
+          outhold.tlayer_for_output.clear();
+        }
       }
     }//end critical(outputTLAYER)
   }//end TLAYER

@@ -23,8 +23,9 @@ public:
 //  std::vector<double> trans_for_output;
 //  std::vector<double> watertab_for_output;
 
-  std::vector<std::vector<double>> eet_for_output;
-  std::vector<std::array<double, NUM_PFT>> eet_test_vector;
+  std::vector<double> eet_tot_for_output;
+  std::vector<std::array<double, NUM_PFT>> eet_for_output;
+//  std::vector<std::array<double, NUM_PFT>> eet_test_vector;
 
   std::vector<double> pet_tot_for_output;
   std::vector<std::array<double, NUM_PFT>> pet_for_output;
@@ -32,6 +33,10 @@ public:
   std::vector<std::array<double, MAX_SOI_LAY>> tlayer_for_output;
 //  std::vector<std::array<double, MAX_SOI_LAY>> vwclayer_for_output;
 
+  //Variables by PFT and Compartment both
+  std::vector<double> gpp_tot_for_output;
+  std::vector<std::array<double, NUM_PFT_PART>> gpp_part_for_output;
+  std::vector<std::array<double, NUM_PFT>> gpp_pft_for_output;
   std::vector<std::array<std::array<double, NUM_PFT_PART>, NUM_PFT>> gpp_for_output; 
 
 };
