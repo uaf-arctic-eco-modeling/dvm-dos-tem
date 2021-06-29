@@ -21,6 +21,10 @@ import netCDF4
 import datetime as dt
 import numpy as np
 
+import geopandas as gpd
+import fiona
+import pandas as pd
+
 import glob
 
 '''
@@ -1498,9 +1502,6 @@ def fill_explicit_fire_file(startyr, yrs, xo, yo, xs, ys, out_dir, of_name, tiff
       yrs = endyr - startyr
 
 
-    import geopandas as gpd
-    import fiona
-
     # extract sub region to netcdf
     for iy, yr in enumerate(range(startyr, endyr)):
       actual_year = yr + int(config['h exp fire modeled fy'])
@@ -1997,7 +1998,7 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
 
 
 
-def get_slurm_wrapper_string(tifs, pclim='ncar-ccsm4', 
+def get_slurm_wrapper_string(tifs, pclim='ncar-ccsm4', pfire=None,
     sitename='TOOLIK_FIELD_STATION', yoff=68.62854, xoff=-149.517149, 
     xsize=10, ysize=10, coordtype="--lonlat \\", custom_config="\\"):
   '''
@@ -2010,6 +2011,10 @@ def get_slurm_wrapper_string(tifs, pclim='ncar-ccsm4',
 
   The two backslashes (e.g for coordtype) are necessary for escaping optional
   parameters in the command line passed to slurm's srun command.
+
+  Caution here regarding the projected fire and projected climate! The tag/directory
+  name is built off the climate projection, and may not reflect the fire 
+  projection that is used!
   '''
   
   slurm_wrapper = textwrap.dedent('''\
@@ -2037,6 +2042,7 @@ def get_slurm_wrapper_string(tifs, pclim='ncar-ccsm4',
       --yoff $yoff --xoff $xoff --xsize $XSIZE --ysize $YSIZE \\
       --which all \\
       --projected-climate-config "$PCLIM" \\
+      --projected-fire-config {} \\
       --clip-projected2match-historic \\
       --withlatlon \\
       --withproj \\
@@ -2056,7 +2062,7 @@ def get_slurm_wrapper_string(tifs, pclim='ncar-ccsm4',
 
     # Run script to swap all CMT 8 pixels to CMT 7
     srun ./scripts/fix_vegetation_file_cmt08_to_cmt07.py input-staging-area/"$site"_"$YSIZE"x"$XSIZE"/vegetation.nc
-    '''.format(tifs=tifs, pclim=pclim, sitename=sitename, xoff=xoff, yoff=yoff, 
+    '''.format(tifs=tifs, pclim=pclim, pfire=pfire, sitename=sitename, xoff=xoff, yoff=yoff, 
         xsize=xsize, ysize=ysize, coordtype=coordtype, custom_config=custom_config))
 
   return slurm_wrapper
@@ -2370,6 +2376,12 @@ if __name__ == '__main__':
       help=textwrap.dedent('''Choose a configuration to use for the projected 
         climate data.'''))
 
+  parser.add_argument('--projected-fire-config', nargs=1, 
+      choices=['GFDL-CM3_rcp85','GISS-E2-R_rcp85','IPSL-CM5A-LR_rcp85',
+               'MRI-CGCM3_rcp85','NCAR-CCSM4_rcp85','NCAR-CCSM4_rcp85_CRU3'],
+      help=textwrap.dedent('''Choose a configuration to use for the projected 
+        fire data.'''))
+
   print("Parsing command line arguments...")
   args = parser.parse_args()
   print("args: ", args)
@@ -2394,6 +2406,10 @@ if __name__ == '__main__':
 
     if not args.projected_climate_config:
       parser.error("Argument ERROR!: Must specify projected climate when using --slurm-wrappers-from-csv!")
+
+    if not args.projected_fire_config:
+      parser.error("Argument ERROR!: Must specify projected fire when using --slurm-wrappers-from-csv!")
+
 
     with open(args.slurm_wrappers_from_csv) as csvfile:
       reader = csv.DictReader(csvfile)
@@ -2423,6 +2439,7 @@ if __name__ == '__main__':
       slurm_wrapper_string = get_slurm_wrapper_string(
         tifs=args.tifs, 
         pclim=args.projected_climate_config[0],
+        pfire=args.projected_fire_config[0],
         sitename=site['site'],
         xoff=site['lon'], yoff=site['lat'],
         xsize=xsize, #(args.xsize if args.xsize else 10), 
@@ -2503,7 +2520,13 @@ if __name__ == '__main__':
     if args.projected_climate_config is not None:
       pass # All ok - value is set and the choices are constrained above
     else:
-      parser.error("Argument ERROR! Must specify a projecte climate configuration for the projected-climate file!")
+      parser.error("Argument ERROR! Must specify a projected climate configuration for the projected-climate file!")
+
+  if 'projected-explicit-fire' in which_files:
+    if args.projected_fire_config is not None:
+      pass # All ok - value is set and choices are constrained above
+    else:
+      parser.error("Argument ERROR! Must specify a projected fire configuration for the projected explicit fire file!")
 
   # Pick up the user's config option for which projected climate to use 
   # overwrite the section in the config object.
@@ -2522,8 +2545,11 @@ if __name__ == '__main__':
     # MODEL_INST = 'IPSL-CM5A-LR_rcp85'
     # MODEL_INST = 'MRI-CGCM3_rcp85'
     # MODEL_INST = 'NCAR-CCSM4_rcp85'
-    MODEL_INST = 'NCAR-CCSM4_rcp85_CRU3'
+    # MODEL_INST = 'NCAR-CCSM4_rcp85_CRU3'
     config.merge(configobj.ConfigObj(fire_config.split("\n")))
+
+  if 'projected-explicit-fire' in which_files:
+    config['p exp fire predicted path'] = os.path.join(config['p exp fire predicted path'], args.projected_fire_config[0])
 
   if args.custom_config:
     cust_config = configobj.ConfigObj(args.custom_config)
