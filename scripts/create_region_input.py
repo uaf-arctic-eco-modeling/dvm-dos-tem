@@ -1504,7 +1504,13 @@ def fill_explicit_fire_file(startyr, yrs, xo, yo, xs, ys, out_dir, of_name, tiff
 
     # extract sub region to netcdf
     for iy, yr in enumerate(range(startyr, endyr)):
-      actual_year = yr + int(config['h exp fire modeled fy'])
+      if yr < 1901:
+        # Must be working on historic
+        actual_year = yr + int(config['h exp fire modeled fy'])
+      else:
+        # must be working on projected
+        actual_year = yr
+
       if actual_year < 1950:
         # use ALF modeled, any scenario...
         PATH = os.path.join(tiffs, config['h exp fire modeled path'])
@@ -1513,7 +1519,7 @@ def fill_explicit_fire_file(startyr, yrs, xo, yo, xs, ys, out_dir, of_name, tiff
         PATH = os.path.join(tiffs, config['h exp fire observed path'])
       if actual_year > 2020:
         # use ALF modeled, for selected scenario
-        PATH = os.path.join(tiffs, config['p exp fire projected path'])
+        PATH = os.path.join(tiffs, config['p exp fire predicted path'], )
 
       if actual_year  >= 1950 and actual_year <= 2020:
         # Read from shape file containing actual fire scars
@@ -1569,8 +1575,8 @@ def fill_explicit_fire_file(startyr, yrs, xo, yo, xs, ys, out_dir, of_name, tiff
       else:
         # Read severity from BurnSeverity file, calculate AOB by counting pixels with 
         # the same FireScar number.
-        if_fs_name = PATH + 'FireScar_26_{}.tif'.format(actual_year)
-        if_bs_name = PATH + 'BurnSeverity_26_{}.tif'.format(actual_year)
+        if_fs_name = os.path.join(PATH, 'FireScar_26_{}.tif'.format(actual_year))
+        if_bs_name = os.path.join(PATH, 'BurnSeverity_26_{}.tif'.format(actual_year))
 
         tmp_fs_file = "tmp_FireScar_{}.nc".format(actual_year)
         tmp_bs_file = "tmp_BurnSeverity_{}.nc".format(actual_year)
@@ -1599,6 +1605,9 @@ def fill_explicit_fire_file(startyr, yrs, xo, yo, xs, ys, out_dir, of_name, tiff
         scarnum2area_map = {}
         for i in set(fs_d[np.nonzero(fs_d)]):
           scarnum2area_map[i] = np.count_nonzero(fs_d==i)
+        # CHECK THIS!! Need to verify that this is getting the correct AOB and not 
+        # getting confused due to working on a spatial subset!! 
+
 
         def lookup_AOB(x):
           if x in scarnum2area_map.keys():
@@ -1678,20 +1687,33 @@ def fill_explicit_fire_file(startyr, yrs, xo, yo, xs, ys, out_dir, of_name, tiff
   else:
     print("ERROR! Unrecognized value for 'datasrc' in function fill_explicit_file(..)")
 
+  #    NEED TO SOMEHOW DETECT PROJECTED AND GET DIFFERENT TIME DATA
+  # This is such a hack....
+  if startyr < 1901:
+    guess_cf = os.path.join(os.path.split(of_name)[0], 'historic-climate.nc')
+  else:
+    guess_cf = os.path.join(os.path.split(of_name)[0], 'projected-climate.nc')
+
   # Now that the primary data is taken care of, fill out all some other general 
   # info for the file, lat, lon, attributes, etc
+  with netCDF4.Dataset(guess_cf, 'r') as ds:
+    start = netCDF4.num2date(ds.variables['time'][0], ds.variables['time'].units, ds.variables['time'].calendar)
+    end = netCDF4.num2date(ds.variables['time'][-1], ds.variables['time'].units, ds.variables['time'].calendar)
+    dates = pd.date_range(start.isoformat(), end.isoformat(), freq='YS')
+    timeCV = netCDF4.date2num(dates.to_pydatetime(), ds.variables['time'].units, calendar=ds.variables['time'].calendar)
+    units = ds.variables['time'].units
 
   with netCDF4.Dataset(of_name, mode='a') as nfd:
-    print("Write time coordinate variable attribute for time axis...")
+    print(nfd.variables)
+    print("Build time coordinate variable...")
+    tcV = nfd.createVariable("time", np.double, ('time'))
     with custom_netcdf_attr_bug_wrapper(nfd) as f:
-      tcV = f.createVariable("time", np.double, ('time'))
-      start_date = dt.datetime.strptime('T'.join(guess_starting_date_string.split(' ')[-2:]), '%Y-%m-%dT%H:%M:%S')
-      tcV[:] = np.arange( 0, (end_date.year+1 - start_date.year) )
+      tcV[:] = timeCV
       tcV.setncatts({
         'long_name': 'time',
-        'units': '{}'.format(guess_starting_date_string),
+        'units': units,
         'calendar': '365_day'
-      })
+      }) 
 
   guess_vegfile = os.path.join(os.path.split(of_name)[0], 'vegetation.nc')
   print("--> NOTE: Attempting to read: {:} to get lat/lon info".format(guess_vegfile))
@@ -1950,8 +1972,6 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
     print("Casting 'years' to int which may result in dataloss if historic-climate file does not contain an even number of years!")
     years = int(years)
 
-
-    from IPython import embed; embed()
     fill_explicit_fire_file(
         start_year,
         years, xo, yo, xs, ys, out_dir, of_name, tif_dir,
@@ -1971,10 +1991,24 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
          print("WARNING: 'time' dimensions of historic-climate file is not an even number of years!")
     print("Casting 'years' to int which may result in dataloss if historic-climate file does not contain an even number of years!")
     years = int(years)
+
+    with netCDF4.Dataset(os.path.join(out_dir, 'historic-climate.nc'), 'r') as hds:
+      end_hist_clm = netCDF4.num2date(hds.variables['time'][-1], hds.variables['time'].units, calendar=hds.variables['time'].calendar)
+    print("The historic dataset ends at {}".format(end_hist_clm))
+    with netCDF4.Dataset(os.path.join(out_dir, 'historic-explicit-fire.nc'), 'r') as hds:
+      end_hist_expfire = netCDF4.num2date(hds.variables['time'][-1], hds.variables['time'].units, calendar=hds.variables['time'].calendar)
+    print("The historic explicit fire dataset ends at {}".format(end_hist_expfire))
+    if end_hist_expfire.year != end_hist_clm.year:
+      print("ERROR! Careful, your climate and fire files do not end on the same year!!")
+
+    #end_hist_expfire.replace(year=end_hist_expfire.year+1)
+    start_year = end_hist_clm.year + 1
+
     fill_explicit_fire_file(
       start_year,
         years, xo, yo, xs, ys, out_dir, of_name, tif_dir,
         datasrc='genet',
+        config=config,
         if_name=None, withlatlon=withlatlon, withproj=withproj, projwin=projwin
     )
 
