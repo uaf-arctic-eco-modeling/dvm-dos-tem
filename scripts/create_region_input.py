@@ -25,6 +25,10 @@ import geopandas as gpd
 import fiona
 import pandas as pd
 
+import rasterio
+from rasterio import features
+
+
 import glob
 
 '''
@@ -1533,9 +1537,6 @@ def fill_explicit_fire_file(startyr, yrs, xo, yo, xs, ys, out_dir, of_name, tiff
         print("Year: {}  Fires this year: {}".format(actual_year, this_years_fires.shape))
         if len(this_years_fires) > 0:
           print("phew, have something to do!")
-          import rasterio
-          from rasterio import features
-
           #import fire_test_snippets as fts
 
           # Open a tif file with projection info so we can scrape the transformation
