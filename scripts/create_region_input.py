@@ -1566,12 +1566,12 @@ def fill_explicit_fire_file(startyr, yrs, xo, yo, xs, ys, out_dir, of_name, tiff
           severity = np.greater(aob,0) * 2 # Sets any pixel with area of burn > 0 to severity of 2
           jday = np.greater(aob,0) * 212
           mask = np.greater(aob,0)
+
         else:
           aob = np.zeros((xs,ys))
           severity = np.zeros((xs,ys))
           mask = np.zeros((xs,ys))
-          jday = np.zeros((xs,ys)) * np.nan
-
+          jday = np.zeros((xs,ys))
 
         # Write AOB and Burn Severity to output file...
         with netCDF4.Dataset(of_name, 'a') as ds:
