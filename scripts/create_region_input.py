@@ -1539,10 +1539,27 @@ def fill_explicit_fire_file(startyr, yrs, xo, yo, xs, ys, out_dir, of_name, tiff
         print("Year: {}  Fires this year: {}".format(actual_year, this_years_fires.shape))
         if len(this_years_fires) > 0:
 
-          # Open a tif file with projection info so we can scrape the transformation
-          # matrix. Then use the matrix with the rasterize() function to geo-reference
-          # the feactures...
-          rmeta = rasterio.open('tmp_BurnSeverity_1903.nc')
+          # Subset one of the inputs so that we can get the transformation matrix.
+          # There might be a faster way to do this. Additionally, if all the inputs
+          # have the same spatial reference/extent, then there is no need to do this
+          # for every single year.
+          tmpFile = 'tmp_hist_fire_for_georef.tif'
+          inFile = os.path.join(tiffs, config['h exp fire modeled path'],'FireScar_26_{}.tif'.format(actual_year))
+
+          if projwin:
+            ulx, uly, lrx, lry = calc_pwin_str(xo,yo,xs,ys)
+            ex_call = ['gdal_translate', '-of', 'GTiff', '-projwin', ulx, uly, lrx, lry,
+                      inFile, tmpFile]
+          else:
+            ex_call = ['gdal_translate', '-of', 'GTiff',
+                      '-srcwin', str(xo), str(yo), str(xs), str(ys),
+                      inFile, tmpFile]
+          print("Converting and subsetting: {} ---> {}".format(inFile, tmpFile))
+          call_external_wrapper(ex_call)
+
+          # Open the temporary file and read the transformation matrix. Use this
+          # matrix with the rasterize function to geo-reference the features.
+          rmeta = rasterio.open(tmpFile)
           shapes = [(geom, value) for geom, value in zip(this_years_fires.geometry, this_years_fires.Shape_Area)]
 
           aob = features.rasterize(shapes, out_shape=(xs,ys), transform=rmeta.transform)
