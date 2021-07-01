@@ -15,6 +15,7 @@ import argparse
 import textwrap
 import os
 import csv
+import fnmatch
 
 import netCDF4
 
@@ -1491,7 +1492,7 @@ def ensure_contiguous_climates(climates):
 
 
 
-def fill_explicit_fire_file(startyr, yrs, xo, yo, xs, ys, out_dir, of_name, tiffs, config=None, datasrc='', if_name=None, withlatlon=None, withproj=None, projwin=None):
+def fill_explicit_fire_file(startyr, yrs, xo, yo, xs, ys, out_dir, of_name, tiffs, config=None, datasrc='', if_name=None, withlatlon=None, withproj=None, projwin=None, cleanup_tmpfiles=True):
 
   create_template_explicit_fire_file(of_name, sizey=ys, sizex=xs, rand=False, withlatlon=withlatlon, withproj=withproj)
 
@@ -1683,6 +1684,12 @@ def fill_explicit_fire_file(startyr, yrs, xo, yo, xs, ys, out_dir, of_name, tiff
           ds.variables['exp_fire_severity'][iy,:] = severity
           ds.variables['exp_jday_of_burn'][iy,:] = np.greater(aob,0) * 212 # July 31 2021
           ds.variables['exp_burn_mask'][iy,:] = np.logical_not(aob.mask)
+
+      if cleanup_tmpfiles:
+        for i in fnmatch.filter(os.listdir('.'), 'tmp_*'):
+          os.remove(i)
+
+    # End scope: looping over years
 
   elif datasrc =='no-fires':
     print("%%%%%%  WARNING  %%%%%%%%%%%%%%%%%%%%%%%%%%%")
@@ -2031,7 +2038,7 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
         years, xo, yo, xs, ys, out_dir, of_name, tif_dir,
         datasrc='genet',
         config=config,
-        if_name=None, withlatlon=withlatlon, withproj=withproj, projwin=projwin
+        if_name=None, withlatlon=withlatlon, withproj=withproj, projwin=projwin, cleanup_tmpfiles=cleanup
     )
 
   if 'projected-explicit-fire' in files:
@@ -2063,7 +2070,7 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
         years, xo, yo, xs, ys, out_dir, of_name, tif_dir,
         datasrc='genet',
         config=config,
-        if_name=None, withlatlon=withlatlon, withproj=withproj, projwin=projwin
+        if_name=None, withlatlon=withlatlon, withproj=withproj, projwin=projwin, cleanup_tmpfiles=cleanup
     )
 
   if cleanup:
