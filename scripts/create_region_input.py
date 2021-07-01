@@ -1663,6 +1663,8 @@ def fill_explicit_fire_file(startyr, yrs, xo, yo, xs, ys, out_dir, of_name, tiff
         with netCDF4.Dataset(tmp_fs_file, 'r') as fs_ds:
           fs_d = fs_ds.variables['Band2'][:]
 
+        print("Fire scar IDs: {}".format(set(fs_d[np.nonzero(fs_d)])))
+
         # speed up the lookup function
         lookup_AOB_v = np.vectorize(lookup_AOB)
 
@@ -1800,6 +1802,7 @@ def fill_explicit_fire_file(startyr, yrs, xo, yo, xs, ys, out_dir, of_name, tiff
   with netCDF4.Dataset(of_name, mode='a') as dst:
     with custom_netcdf_attr_bug_wrapper(dst) as ds:
       ds.source = source_attr_string(xo=xo, yo=yo)
+      ds.variables['exp_area_of_burn'].units = "km-2"
 
 
 
