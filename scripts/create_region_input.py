@@ -1601,12 +1601,47 @@ def fill_explicit_fire_file(startyr, yrs, xo, yo, xs, ys, out_dir, of_name, tiff
 
       # HISTORIC MODELED, and FUTURE MODELED, read from Alfresco Tifs
       else:
+        #print("stub for {}".format(actual_year))
+
+        # Read severity from BurnSeverity file. Calculate AOB by counting pixels with 
+        # the same FireScar number. For each year, we have to build a structure
+        # mapping the fire scar number/ID to the area of burn (AOB). This map needs
+        # to be built over the whole spatial domain, so that fires not entirely 
+        # within the user's selected spatial bounds are counted correctly.
         if_fs_name = os.path.join(PATH, 'FireScar_26_{}.tif'.format(actual_year))
         if_bs_name = os.path.join(PATH, 'BurnSeverity_26_{}.tif'.format(actual_year))
 
-        tmp_fs_file = "tmp_FireScar_{}.nc".format(actual_year)
-        tmp_bs_file = "tmp_BurnSeverity_{}.nc".format(actual_year)
+        tmp_fs_file = "tmp_spatial_subset_FireScar_{}.nc".format(actual_year)
+        tmp_bs_file = "tmp_spatial_subset_BurnSeverity_{}.nc".format(actual_year)
+        tmp_fs_spatial_full = "tmp_spatial_full_FireScar_{}.nc".format(actual_year)
 
+        print("Convert full spatial fire scar file to netcdf: {}".format(tmp_fs_spatial_full))
+        ex_call = ['gdal_translate', '-of', 'netCDF',
+                  '-co', 'WRITE_LONLAT={}'.format('NO'),
+                  if_fs_name, tmp_fs_spatial_full]
+        call_external_wrapper(ex_call)
+
+        print("Building scarnum2area_map based on full spatial domain...")
+        # make a set of all the FIREIDs in the file, then map to the count of
+        # the pixels (1km pixels) that share FIREID
+        scarnum2area_map = {}
+        with netCDF4.Dataset(tmp_fs_spatial_full) as ds:
+          fs_data = ds.variables['Band2'][:]
+          for scar_num in set(fs_data[np.nonzero(fs_data)]):
+            scarnum2area_map[scar_num] = np.count_nonzero(fs_data==scar_num)
+
+        def lookup_AOB(x):
+          '''
+          Helper function that returns 0 if x is not in the scarnum2area map.
+
+          Needed because not all years have all fire IDs.
+          '''
+          if x in scarnum2area_map.keys():
+            return scarnum2area_map[x]
+          else:
+            return 0
+
+        # Do the spatial cropping
         for inFile, tmpFile in zip([if_fs_name, if_bs_name], [tmp_fs_file, tmp_bs_file]):
           if projwin:
             ulx, uly, lrx, lry = calc_pwin_str(xo,yo,xs,ys)
@@ -1623,31 +1658,19 @@ def fill_explicit_fire_file(startyr, yrs, xo, yo, xs, ys, out_dir, of_name, tiff
           print("Subsetting TIF to netCDF...")
           call_external_wrapper(ex_call)
 
-        # Get fire scar dataset
+        # Get fire scar dataset - spatial subset
         with netCDF4.Dataset(tmp_fs_file, 'r') as fs_ds:
           fs_d = fs_ds.variables['Band2'][:]
 
-        # figure out the map of scar number --> area of burn
-        scarnum2area_map = {}
-        for i in set(fs_d[np.nonzero(fs_d)]):
-          scarnum2area_map[i] = np.count_nonzero(fs_d==i)
-        # CHECK THIS!! Need to verify that this is getting the correct AOB and not 
-        # getting confused due to working on a spatial subset!! 
-
-
-        def lookup_AOB(x):
-          '''
-          Helper function that returns 0 if x is not in the scarnum2area map.
-
-          Needed because not all years have all fire IDs.
-          '''
-          if x in scarnum2area_map.keys():
-            return scarnum2area_map[x]
-          else:
-            return 0
-
+        # speed up the lookup function
         lookup_AOB_v = np.vectorize(lookup_AOB)
 
+        # Do the lookup, uses the map that we built earlier
+        # that reflects the full spatial domain. So that if a fire
+        # scar does not fall entirely in the bounds that the user is
+        # selecting for this dvmdostem dataset, then the AOB will be
+        # correct. I.e. 2 pixels (2 km-2) of a 100 pixel (100 km-2) burn 
+        # fall in the users selected area --> AOB will be 100 for each pixel.
         aob = lookup_AOB_v(fs_d)
 
         # Now get the burn severity
