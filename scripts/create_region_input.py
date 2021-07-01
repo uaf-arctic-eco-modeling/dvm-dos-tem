@@ -1525,19 +1525,19 @@ def fill_explicit_fire_file(startyr, yrs, xo, yo, xs, ys, out_dir, of_name, tiff
         # use ALF modeled, for selected scenario
         PATH = os.path.join(tiffs, config['p exp fire predicted path'], )
 
+      # HISTORIC OBSERVED, read from shape file containing actual fire scars
       if actual_year  >= 1950 and actual_year <= 2020:
-        # Read from shape file containing actual fire scars
 
         bbox = (xo, yo, xo+xs*1000, yo+ys*1000)
-        geopandas_vec_data_bb = gpd.read_file(PATH, bbox=bbox)
+        geopandas_vec_data_bb = gpd.read_file(PATH, bbox=bbox) # Only read data w/in client specified AOI
+
+        # Alternately we can read the whole file and subset afterwards. Slower I think.
         #geopandas_vec_data = gpd.read_file(PATH)
         #geopandas_vec_data_bb = geopandas_vec_data.cx[bbox[0]:bbox[2],bbox[1]:bbox[3]]
 
         this_years_fires = geopandas_vec_data_bb[geopandas_vec_data_bb['FIREYEAR']==str(actual_year)]
         print("Year: {}  Fires this year: {}".format(actual_year, this_years_fires.shape))
         if len(this_years_fires) > 0:
-          print("phew, have something to do!")
-          #import fire_test_snippets as fts
 
           # Open a tif file with projection info so we can scrape the transformation
           # matrix. Then use the matrix with the rasterize() function to geo-reference
@@ -1558,9 +1558,18 @@ def fill_explicit_fire_file(startyr, yrs, xo, yo, xs, ys, out_dir, of_name, tiff
 
         # Write AOB and Burn Severity to output file...
         with netCDF4.Dataset(of_name, 'a') as ds:
+          print("""Writing fire data to file for actual_year: {}  
+              non zero mask px: {} 
+              non zero jday px: {} 
+              non zero  aob px: {}
+              non zero  sev px: {}""".format(actual_year, 
+                np.count_nonzero(mask), 
+                np.count_nonzero(jday), 
+                np.count_nonzero(aob), 
+                np.count_nonzero(severity))
+          )
           ds.variables['exp_area_of_burn'][iy,:] = aob
           ds.variables['exp_fire_severity'][iy,:] = severity
-          print(actual_year, jday)
           ds.variables['exp_jday_of_burn'][iy,:] = jday
           ds.variables['exp_burn_mask'][iy,:] = mask
 
@@ -1573,9 +1582,8 @@ def fill_explicit_fire_file(startyr, yrs, xo, yo, xs, ys, out_dir, of_name, tiff
 
         # Read severity and AOB from polygon attributes in the (vector) fire history file
 
+      # HISTORIC MODELED, and FUTURE MODELED, read from Alfresco Tifs
       else:
-        # Read severity from BurnSeverity file, calculate AOB by counting pixels with 
-        # the same FireScar number.
         if_fs_name = os.path.join(PATH, 'FireScar_26_{}.tif'.format(actual_year))
         if_bs_name = os.path.join(PATH, 'BurnSeverity_26_{}.tif'.format(actual_year))
 
@@ -1611,6 +1619,11 @@ def fill_explicit_fire_file(startyr, yrs, xo, yo, xs, ys, out_dir, of_name, tiff
 
 
         def lookup_AOB(x):
+          '''
+          Helper function that returns 0 if x is not in the scarnum2area map.
+
+          Needed because not all years have all fire IDs.
+          '''
           if x in scarnum2area_map.keys():
             return scarnum2area_map[x]
           else:
