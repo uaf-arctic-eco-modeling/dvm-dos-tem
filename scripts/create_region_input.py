@@ -1563,7 +1563,7 @@ def fill_explicit_fire_file(startyr, yrs, xo, yo, xs, ys, out_dir, of_name, tiff
           rmeta = rasterio.open(tmpFile)
           shapes = [(geom, value) for geom, value in zip(this_years_fires.geometry, this_years_fires.Shape_Area)]
 
-          aob = features.rasterize(shapes, out_shape=(xs,ys), transform=rmeta.transform)
+          aob = features.rasterize(shapes, out_shape=(ys,xs), transform=rmeta.transform)
           severity = np.greater(aob,0) * 2 # Sets any pixel with area of burn > 0 to severity of 2
           jday = np.greater(aob,0) * 212
           mask = np.greater(aob,0)
@@ -1798,7 +1798,7 @@ def fill_explicit_fire_file(startyr, yrs, xo, yo, xs, ys, out_dir, of_name, tiff
         nfd.variables['lat'][:] = vegFile.variables['lat'][:]
         nfd.variables['lon'][:] = vegFile.variables['lon'][:]
 
-  print("Setting :source attribute on new explicit fire file...")
+  print("Setting attributes on new explicit fire file...")
   with netCDF4.Dataset(of_name, mode='a') as dst:
     with custom_netcdf_attr_bug_wrapper(dst) as ds:
       ds.source = source_attr_string(xo=xo, yo=yo)
