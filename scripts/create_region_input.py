@@ -606,7 +606,7 @@ def create_template_explicit_fire_file(fname, sizey=10, sizex=10, rand=None, wit
   exp_bm = ncfile.createVariable('exp_burn_mask', np.int32, ('time', 'Y', 'X',))
   exp_dob = ncfile.createVariable('exp_jday_of_burn', np.int32, ('time', 'Y', 'X',))
   exp_sev = ncfile.createVariable('exp_fire_severity', np.int32, ('time', 'Y','X'))
-  exp_aob = ncfile.createVariable('exp_area_of_burn', np.int32, ('time', 'Y','X'))
+  exp_aob = ncfile.createVariable('exp_area_of_burn', np.int64, ('time', 'Y','X'))
 
   if rand:
     print("Fill EXPLICIT fire file with random data NOT IMPLEMENTED HERE! See fill function.")
@@ -1561,6 +1561,7 @@ def fill_explicit_fire_file(startyr, yrs, xo, yo, xs, ys, out_dir, of_name, tiff
           # Open the temporary file and read the transformation matrix. Use this
           # matrix with the rasterize function to geo-reference the features.
           rmeta = rasterio.open(tmpFile)
+          # NOTE THAT THE AREA HERE IS IN m^2, not km^2 !!!
           shapes = [(geom, value) for geom, value in zip(this_years_fires.geometry, this_years_fires.Shape_Area)]
 
           aob = features.rasterize(shapes, out_shape=(ys,xs), transform=rmeta.transform)
@@ -1675,6 +1676,7 @@ def fill_explicit_fire_file(startyr, yrs, xo, yo, xs, ys, out_dir, of_name, tiff
         # correct. I.e. 2 pixels (2 km-2) of a 100 pixel (100 km-2) burn 
         # fall in the users selected area --> AOB will be 100 for each pixel.
         aob = lookup_AOB_v(fs_d)
+        aob = aob * 1000 * 1000 # Convert from square kilometers to square meters
 
         # Now get the burn severity
         with netCDF4.Dataset(tmp_bs_file, 'r') as bs_ds:
@@ -1802,7 +1804,7 @@ def fill_explicit_fire_file(startyr, yrs, xo, yo, xs, ys, out_dir, of_name, tiff
   with netCDF4.Dataset(of_name, mode='a') as dst:
     with custom_netcdf_attr_bug_wrapper(dst) as ds:
       ds.source = source_attr_string(xo=xo, yo=yo)
-      ds.variables['exp_area_of_burn'].units = "km-2"
+      ds.variables['exp_area_of_burn'].units = "m-2"
 
 
 
