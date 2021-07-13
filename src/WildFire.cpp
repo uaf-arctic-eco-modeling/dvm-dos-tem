@@ -55,7 +55,7 @@ WildFire::WildFire(const std::string& fri_fname,
     this->exp_burn_mask = temutil::get_timeseries<int>(exp_fname, "exp_burn_mask", y, x);
     this->exp_fire_severity = temutil::get_timeseries<int>(exp_fname, "exp_fire_severity", y, x);
     this->exp_jday_of_burn = temutil::get_timeseries<int>(exp_fname, "exp_jday_of_burn", y, x);
-    this->exp_area_of_burn = temutil::get_timeseries<int>(exp_fname, "exp_area_of_burn", y, x);
+    this->exp_area_of_burn = temutil::get_timeseries<int64_t>(exp_fname, "exp_area_of_burn", y, x);
   }//End critical(exp_fir) 
 
   this->slope = cell_slope;

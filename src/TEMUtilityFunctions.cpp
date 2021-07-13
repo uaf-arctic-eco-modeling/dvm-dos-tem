@@ -563,11 +563,16 @@ namespace temutil {
     std::vector<DTYPE> data2;
 
     BOOST_LOG_SEV(glg, debug) << "Grab the data from the netCDF file...";
-    if (the_type == NC_INT64 || NC_INT) {
+    if (the_type == NC_INT) {
       int dataI[timeD_len];
       temutil::nc( nc_get_vara_int(ncid, timeseries_var, start, count, &dataI[0]) );
       unsigned dataArraySize = sizeof(dataI) / sizeof(DTYPE);
       data2.insert(data2.end(), &dataI[0], &dataI[dataArraySize]);
+    } else if (the_type == NC_INT64) {
+      int64_t dataI64[timeD_len];
+      temutil::nc( nc_get_vara(ncid, timeseries_var, start, count, &dataI64[0]) );
+      unsigned dataArraySize = sizeof(dataI64) / sizeof(DTYPE);
+      data2.insert(data2.end(), &dataI64[0], &dataI64[dataArraySize]);
     } else if (the_type == NC_FLOAT) {
       float dataF[timeD_len];
       temutil::nc( nc_get_vara_float(ncid, timeseries_var, start, count, &dataF[0]) );
@@ -1102,6 +1107,8 @@ namespace temutil {
       const std::string &var, const int y, const int x);
 
   template std::vector<int> get_timeseries<int>(const std::string &filename,
+      const std::string &var, const int y, const int x);
+  template std::vector<int64_t> get_timeseries<int64_t>(const std::string &filename,
       const std::string &var, const int y, const int x);
   template std::vector<float> get_timeseries<float>(const std::string &filename,
       const std::string &var, const int y, const int x);
