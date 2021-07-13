@@ -67,6 +67,14 @@ WildFire::WildFire(const std::string& fri_fname,
 
 }
 
+void WildFire::load_projected_explicit_data(const std::string& exp_fname, int y, int x) {
+    BOOST_LOG_SEV(glg, info) << "Setting up explicit fire data...";
+    this->exp_burn_mask = temutil::get_timeseries<int>(exp_fname, "exp_burn_mask", y, x);
+    this->exp_fire_severity = temutil::get_timeseries<int>(exp_fname, "exp_fire_severity", y, x);
+    this->exp_jday_of_burn = temutil::get_timeseries<int>(exp_fname, "exp_jday_of_burn", y, x);
+    this->exp_area_of_burn = temutil::get_timeseries<int64_t>(exp_fname, "exp_area_of_burn", y, x);
+}
+
 /** Assemble and return a string with a bunch of data from this class */
 std::string WildFire::report_fire_inputs() {
 

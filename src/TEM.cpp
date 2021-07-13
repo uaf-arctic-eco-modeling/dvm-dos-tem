@@ -799,6 +799,7 @@ void advance_model(const int rowidx, const int colidx,
     // Loading projected data instead of historic. FIX?
     runner.cohort.load_proj_climate(modeldata.proj_climate_file);
     runner.cohort.load_proj_co2(modeldata.proj_co2_file);
+    runner.cohort.load_proj_explicit_fire(modeldata.proj_exp_fire_file);
 
     BOOST_LOG_SEV(glg,err) << "MAKE SURE YOUR FIRE INPUTS ARE SETUP CORRECTLY!";
 

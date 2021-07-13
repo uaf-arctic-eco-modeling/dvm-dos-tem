@@ -115,6 +115,8 @@ public :
   void load_proj_climate(const std::string&);
   // Overwrites/fills co2 container with data from projected co2 input file
   void load_proj_co2(const std::string& proj_co2_file);
+  // Overwrites/fills explicit fire data containers with data from the projected fire input file.
+  void load_proj_explicit_fire(const std::string& proj_exp_fire_file);
 private:
 
   Integrator vegintegrator[NUM_PFT];

@@ -33,6 +33,8 @@ public:
   
   ~WildFire();
 
+  void load_projected_explicit_data(const std::string& exp_fname, int y, int x);
+
   int getFRI();
  
   void setCohortData(CohortData* cdp);
