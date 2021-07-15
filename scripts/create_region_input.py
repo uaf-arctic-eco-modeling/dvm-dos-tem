@@ -15,11 +15,20 @@ import argparse
 import textwrap
 import os
 import csv
+import fnmatch
 
 import netCDF4
 
 import datetime as dt
 import numpy as np
+
+import geopandas as gpd
+import fiona
+import pandas as pd
+
+import rasterio
+from rasterio import features
+
 
 import glob
 
@@ -229,6 +238,13 @@ RCP_85_CO2_DATA = [
 
 
 def calc_pwin_str(x, y, xs=50, ys=50, poi_loc='lower-left'):
+  '''
+  Convert from lower left corner and size specification to a string
+  that gdal_translate likes, which is 
+  (upper left, upper left x, upper left y, lower right x, lower right y)
+
+  Currently assumes pixel size to be 1000
+  '''
   if poi_loc != 'lower-left':
     print("ERROR! pixel of interest location selection only implemented for lower-left corner!")
     exit(-1)
@@ -236,15 +252,19 @@ def calc_pwin_str(x, y, xs=50, ys=50, poi_loc='lower-left'):
          #  ulx             uly             lrx     lry
 
 
-def xform(lon, lat, in_srs='EPSG:4326', out_srs='EPSG:3338'):
+def xform(xcoord, ycoord, in_srs='EPSG:4326', out_srs='EPSG:3338'):
+  '''
+  Wrapper around gdaltransform.
 
-  print("lon, lat, as input to xform(..):", lon, lat)
+  Defaults: EPSG:4326 (wgs84), EPSG:3338 (Alaska Albers)
+  '''
+  print("xcoord, ycoord, as input to xform(..):", xcoord, ycoord)
 
   cmd = ['gdaltransform', '-s_srs', in_srs, '-t_srs', out_srs]
   p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
   try:
-    stdout, stderr = p.communicate(bytes('{} {}'.format(lon, lat), 'utf-8'))
+    stdout, stderr = p.communicate(bytes('{} {}'.format(xcoord, ycoord), 'utf-8'))
   except:
     p.kill()
     p.wait()
@@ -586,7 +606,7 @@ def create_template_explicit_fire_file(fname, sizey=10, sizex=10, rand=None, wit
   exp_bm = ncfile.createVariable('exp_burn_mask', np.int32, ('time', 'Y', 'X',))
   exp_dob = ncfile.createVariable('exp_jday_of_burn', np.int32, ('time', 'Y', 'X',))
   exp_sev = ncfile.createVariable('exp_fire_severity', np.int32, ('time', 'Y','X'))
-  exp_aob = ncfile.createVariable('exp_area_of_burn', np.int32, ('time', 'Y','X'))
+  exp_aob = ncfile.createVariable('exp_area_of_burn', np.int64, ('time', 'Y','X'))
 
   if rand:
     print("Fill EXPLICIT fire file with random data NOT IMPLEMENTED HERE! See fill function.")
@@ -1446,12 +1466,236 @@ def fill_fri_fire_file(xo, yo, xs, ys, out_dir, of_name, datasrc='', if_name=Non
     print("ERROR! Unrecognized value for 'datasrc' in function fill_fri_file(..)")
 
 
+def ensure_contiguous_climates(climates):
 
-def fill_explicit_fire_file(yrs, xo, yo, xs, ys, out_dir, of_name, datasrc='', if_name=None, withlatlon=None, withproj=None, projwin=None):
+  def get_time_index(nc_dataset):
+    tV = nc_dataset.variables['time']
+    idx = pd.DatetimeIndex(pd.date_range(
+      start=nc.num2date(tV[0], tV.units, tV.calendar).strftime(),
+      end=nc.num2date(tV[-1], tV.units, tV.calendar).strftime(),
+      freq='MS') # <-- month starts)
+    )
+    return idx
+
+  for i, c in enumerate(climates):
+    if i == len(climates) - 1:
+      pass # end of list, nothing to do
+    else:
+      ds = nc.Dataset(c)
+      idx = get_time_index(ds)
+      idx2 = get_time_index(nc.Dataset(climates[i+1]))
+      if (idx[-1] + 1) == idx2[0]:
+        print("ALL OK: No gaps or overlaps in time axis!")
+      else:
+        print("Gap or overlap in time axis as specified by time variable units in files!")
+
+
+
+
+def fill_explicit_fire_file(startyr, yrs, xo, yo, xs, ys, out_dir, of_name, tiffs, config=None, datasrc='', if_name=None, withlatlon=None, withproj=None, projwin=None, cleanup_tmpfiles=True):
 
   create_template_explicit_fire_file(of_name, sizey=ys, sizex=xs, rand=False, withlatlon=withlatlon, withproj=withproj)
 
-  if datasrc =='no-fires':
+  if datasrc == 'genet':
+    assert config is not None, "Must pass config object to fill_explicit_fire_files(...)"
+
+    startyr = int(startyr)
+    yrs = int(yrs)
+    if yrs is not None:
+      endyr = startyr + yrs
+    elif endyr is not None:
+      yrs = endyr - startyr
+
+
+    # extract sub region to netcdf
+    for iy, yr in enumerate(range(startyr, endyr)):
+      if yr < 1901:
+        # Must be working on historic
+        actual_year = yr + int(config['h exp fire modeled fy'])
+      else:
+        # must be working on projected
+        actual_year = yr
+
+      if actual_year < 1950:
+        # use ALF modeled, any scenario...
+        PATH = os.path.join(tiffs, config['h exp fire modeled path'])
+      if actual_year >= 1950 and yr <= 2020:
+        # use historic
+        PATH = os.path.join(tiffs, config['h exp fire observed path'])
+      if actual_year > 2020:
+        # use ALF modeled, for selected scenario
+        PATH = os.path.join(tiffs, config['p exp fire predicted path'], )
+
+      # HISTORIC OBSERVED, read from shape file containing actual fire scars
+      if actual_year  >= 1950 and actual_year <= 2020:
+
+        bbox = (xo, yo, xo+xs*1000, yo+ys*1000)
+        geopandas_vec_data_bb = gpd.read_file(PATH, bbox=bbox) # Only read data w/in client specified AOI
+
+        # Alternately we can read the whole file and subset afterwards. Slower I think.
+        #geopandas_vec_data = gpd.read_file(PATH)
+        #geopandas_vec_data_bb = geopandas_vec_data.cx[bbox[0]:bbox[2],bbox[1]:bbox[3]]
+
+        this_years_fires = geopandas_vec_data_bb[geopandas_vec_data_bb['FIREYEAR']==str(actual_year)]
+        print("Year: {}  Fires this year: {}".format(actual_year, this_years_fires.shape))
+        if len(this_years_fires) > 0:
+
+          # Subset one of the inputs so that we can get the transformation matrix.
+          # There might be a faster way to do this. Additionally, if all the inputs
+          # have the same spatial reference/extent, then there is no need to do this
+          # for every single year.
+          tmpFile = 'tmp_hist_fire_for_georef.tif'
+          inFile = os.path.join(tiffs, config['h exp fire modeled path'],'FireScar_26_{}.tif'.format(actual_year))
+
+          if projwin:
+            ulx, uly, lrx, lry = calc_pwin_str(xo,yo,xs,ys)
+            ex_call = ['gdal_translate', '-of', 'GTiff', '-projwin', ulx, uly, lrx, lry,
+                      inFile, tmpFile]
+          else:
+            ex_call = ['gdal_translate', '-of', 'GTiff',
+                      '-srcwin', str(xo), str(yo), str(xs), str(ys),
+                      inFile, tmpFile]
+          print("Converting and subsetting: {} ---> {}".format(inFile, tmpFile))
+          call_external_wrapper(ex_call)
+
+          # Open the temporary file and read the transformation matrix. Use this
+          # matrix with the rasterize function to geo-reference the features.
+          rmeta = rasterio.open(tmpFile)
+          # NOTE THAT THE AREA HERE IS IN m^2, not km^2 !!!
+          shapes = [(geom, value) for geom, value in zip(this_years_fires.geometry, this_years_fires.Shape_Area)]
+
+          aob = features.rasterize(shapes, out_shape=(ys,xs), transform=rmeta.transform)
+          severity = np.greater(aob,0) * 2 # Sets any pixel with area of burn > 0 to severity of 2
+          jday = np.greater(aob,0) * 212
+          mask = np.greater(aob,0)
+
+        else:
+          aob = np.zeros((xs,ys))
+          severity = np.zeros((xs,ys))
+          mask = np.zeros((xs,ys))
+          jday = np.zeros((xs,ys))
+
+        # Write AOB and Burn Severity to output file...
+        with netCDF4.Dataset(of_name, 'a') as ds:
+          print("""Writing fire data to file for actual_year: {}  
+              non zero mask px: {} 
+              non zero jday px: {} 
+              non zero  aob px: {}
+              non zero  sev px: {}""".format(actual_year, 
+                np.count_nonzero(mask), 
+                np.count_nonzero(jday), 
+                np.count_nonzero(aob), 
+                np.count_nonzero(severity))
+          )
+          ds.variables['exp_area_of_burn'][iy,:] = aob
+          ds.variables['exp_fire_severity'][iy,:] = severity
+          ds.variables['exp_jday_of_burn'][iy,:] = jday
+          ds.variables['exp_burn_mask'][iy,:] = mask
+
+        # ax = geopandas_vec_data.plot()
+        # ax.plot(xo,yo,marker='o', markersize=1, color='red',zorder=1000)
+        # ax.plot(xo+xs*1000,yo,marker='o', markersize=1, color='red',zorder=1000)
+        # ax.plot(xo+xs*1000,yo+ys*1000,marker='o', markersize=1, color='red',zorder=1000)
+        # ax.plot(xo,yo+ys*1000,marker='o', markersize=1, color='red',zorder=1000)
+        # ax.add_patch(matplotlib.patches.Rectangle([xo,yo],xs*1000,ys*1000, alpha=.5, color='yellow', zorder=50000))
+
+        # Read severity and AOB from polygon attributes in the (vector) fire history file
+
+      # HISTORIC MODELED, and FUTURE MODELED, read from Alfresco Tifs
+      else:
+        #print("stub for {}".format(actual_year))
+
+        # Read severity from BurnSeverity file. Calculate AOB by counting pixels with 
+        # the same FireScar number. For each year, we have to build a structure
+        # mapping the fire scar number/ID to the area of burn (AOB). This map needs
+        # to be built over the whole spatial domain, so that fires not entirely 
+        # within the user's selected spatial bounds are counted correctly.
+        if_fs_name = os.path.join(PATH, 'FireScar_26_{}.tif'.format(actual_year))
+        if_bs_name = os.path.join(PATH, 'BurnSeverity_26_{}.tif'.format(actual_year))
+
+        tmp_fs_file = "tmp_spatial_subset_FireScar_{}.nc".format(actual_year)
+        tmp_bs_file = "tmp_spatial_subset_BurnSeverity_{}.nc".format(actual_year)
+        tmp_fs_spatial_full = "tmp_spatial_full_FireScar_{}.nc".format(actual_year)
+
+        print("Convert full spatial fire scar file to netcdf: {}".format(tmp_fs_spatial_full))
+        ex_call = ['gdal_translate', '-of', 'netCDF',
+                  '-co', 'WRITE_LONLAT={}'.format('NO'),
+                  if_fs_name, tmp_fs_spatial_full]
+        call_external_wrapper(ex_call)
+
+        print("Building scarnum2area_map based on full spatial domain...")
+        # make a set of all the FIREIDs in the file, then map to the count of
+        # the pixels (1km pixels) that share FIREID
+        scarnum2area_map = {}
+        with netCDF4.Dataset(tmp_fs_spatial_full) as ds:
+          fs_data = ds.variables['Band2'][:]
+          for scar_num in set(fs_data[np.nonzero(fs_data)]):
+            scarnum2area_map[scar_num] = np.count_nonzero(fs_data==scar_num)
+
+        def lookup_AOB(x):
+          '''
+          Helper function that returns 0 if x is not in the scarnum2area map.
+
+          Needed because not all years have all fire IDs.
+          '''
+          if x in scarnum2area_map.keys():
+            return scarnum2area_map[x]
+          else:
+            return 0
+
+        # Do the spatial cropping
+        for inFile, tmpFile in zip([if_fs_name, if_bs_name], [tmp_fs_file, tmp_bs_file]):
+          if projwin:
+            ulx, uly, lrx, lry = calc_pwin_str(xo,yo,xs,ys)
+            ex_call = ['gdal_translate', '-of', 'netCDF',
+                      '-co', 'WRITE_LONLAT={}'.format('YES' if withlatlon else 'NO'),
+                      '-projwin', ulx, uly, lrx, lry,
+                      inFile, tmpFile]
+          else:
+            ex_call = ['gdal_translate', '-of', 'netCDF',
+                      '-co', 'WRITE_LONLAT={}'.format('YES' if withlatlon else 'NO'),
+                      '-srcwin', str(xo), str(yo), str(xs), str(ys),
+                      inFile, tmpFile]
+
+          print("Subsetting TIF to netCDF...")
+          call_external_wrapper(ex_call)
+
+        # Get fire scar dataset - spatial subset
+        with netCDF4.Dataset(tmp_fs_file, 'r') as fs_ds:
+          fs_d = fs_ds.variables['Band2'][:]
+
+        print("Fire scar IDs: {}".format(set(fs_d[np.nonzero(fs_d)])))
+
+        # speed up the lookup function
+        lookup_AOB_v = np.vectorize(lookup_AOB)
+
+        # Do the lookup, uses the map that we built earlier
+        # that reflects the full spatial domain. So that if a fire
+        # scar does not fall entirely in the bounds that the user is
+        # selecting for this dvmdostem dataset, then the AOB will be
+        # correct. I.e. 2 pixels (2 km-2) of a 100 pixel (100 km-2) burn 
+        # fall in the users selected area --> AOB will be 100 for each pixel.
+        aob = lookup_AOB_v(fs_d)
+        aob = aob * 1000 * 1000 # Convert from square kilometers to square meters
+
+        # Now get the burn severity
+        with netCDF4.Dataset(tmp_bs_file, 'r') as bs_ds:
+          severity = bs_ds.variables['Band1'][:]
+
+        # Write AOB and Burn Severity to output file...
+        with netCDF4.Dataset(of_name, 'a') as ds:
+          ds.variables['exp_area_of_burn'][iy,:] = aob
+          ds.variables['exp_fire_severity'][iy,:] = severity
+          ds.variables['exp_jday_of_burn'][iy,:] = np.greater(aob,0) * 212 # July 31 2021
+          ds.variables['exp_burn_mask'][iy,:] = np.logical_not(aob.mask)
+
+      if cleanup_tmpfiles:
+        for i in fnmatch.filter(os.listdir('.'), 'tmp_*'):
+          os.remove(i)
+
+    # End scope: looping over years
+
+  elif datasrc =='no-fires':
     print("%%%%%%  WARNING  %%%%%%%%%%%%%%%%%%%%%%%%%%%")
     print("GENERATING EXPLICIT FIRE FILE WITH NO FIRES!")
     print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
@@ -1508,44 +1752,33 @@ def fill_explicit_fire_file(yrs, xo, yo, xs, ys, out_dir, of_name, datasrc='', i
   else:
     print("ERROR! Unrecognized value for 'datasrc' in function fill_explicit_file(..)")
 
+  #    NEED TO SOMEHOW DETECT PROJECTED AND GET DIFFERENT TIME DATA
+  # This is such a hack....
+  if startyr < 1901:
+    guess_cf = os.path.join(os.path.split(of_name)[0], 'historic-climate.nc')
+  else:
+    guess_cf = os.path.join(os.path.split(of_name)[0], 'projected-climate.nc')
+
   # Now that the primary data is taken care of, fill out all some other general 
   # info for the file, lat, lon, attributes, etc
-
-  def figure_out_time_size(of_name, yrs):
-    guess_hcf = os.path.join(os.path.split(of_name)[0], 'historic-climate.nc')
-    guess_pcf = os.path.join(os.path.split(of_name)[0], 'projected-climate.nc')
-
-    starting_date_str = ''
-    with netCDF4.Dataset(guess_hcf, 'r') as ds:
-      if ds.variables['time'].size / 12 == yrs:
-        starting_date_str = (ds.variables['time'].units).replace('days', 'years')
-        end_date = netCDF4.num2date(ds.variables['time'][-1], ds.variables['time'].units, ds.variables['time'].calendar)
-
-    with netCDF4.Dataset(guess_pcf, 'r') as ds:
-      if ds.variables['time'].size / 12 == yrs:
-        starting_date_str = (ds.variables['time'].units).replace('days', 'years')
-        end_date = netCDF4.num2date(ds.variables['time'][-1], ds.variables['time'].units, ds.variables['time'].calendar)
-
-    # Convert from the funky netcdf time object to python datetime object
-    end_date = dt.datetime.strptime(end_date.strftime(), "%Y-%m-%d %H:%M:%S")
-
-    return starting_date_str, end_date 
-
-  # NOTE: For this to work you must run with --buildout-time-coord !!!
-  guess_starting_date_string, end_date = figure_out_time_size(of_name, yrs)
+  with netCDF4.Dataset(guess_cf, 'r') as ds:
+    start = netCDF4.num2date(ds.variables['time'][0], ds.variables['time'].units, ds.variables['time'].calendar)
+    end = netCDF4.num2date(ds.variables['time'][-1], ds.variables['time'].units, ds.variables['time'].calendar)
+    dates = pd.date_range(start.isoformat(), end.isoformat(), freq='YS')
+    timeCV = netCDF4.date2num(dates.to_pydatetime(), ds.variables['time'].units, calendar=ds.variables['time'].calendar)
+    units = ds.variables['time'].units
 
   with netCDF4.Dataset(of_name, mode='a') as nfd:
-    print("Write time coordinate variable attribute for time axis...")
+    print(nfd.variables)
+    print("Build time coordinate variable...")
+    tcV = nfd.createVariable("time", np.double, ('time'))
     with custom_netcdf_attr_bug_wrapper(nfd) as f:
-      tcV = f.createVariable("time", np.double, ('time'))
-      start_date = dt.datetime.strptime('T'.join(guess_starting_date_string.split(' ')[-2:]), '%Y-%m-%dT%H:%M:%S')
-      tcV[:] = np.arange( 0, (end_date.year+1 - start_date.year) )
+      tcV[:] = timeCV
       tcV.setncatts({
         'long_name': 'time',
-        'units': '{}'.format(guess_starting_date_string),
+        'units': units,
         'calendar': '365_day'
-      })
-
+      }) 
 
   guess_vegfile = os.path.join(os.path.split(of_name)[0], 'vegetation.nc')
   print("--> NOTE: Attempting to read: {:} to get lat/lon info".format(guess_vegfile))
@@ -1567,11 +1800,11 @@ def fill_explicit_fire_file(yrs, xo, yo, xs, ys, out_dir, of_name, datasrc='', i
         nfd.variables['lat'][:] = vegFile.variables['lat'][:]
         nfd.variables['lon'][:] = vegFile.variables['lon'][:]
 
-
-  print("Setting :source attribute on new explicit fire file...")
+  print("Setting attributes on new explicit fire file...")
   with netCDF4.Dataset(of_name, mode='a') as dst:
     with custom_netcdf_attr_bug_wrapper(dst) as ds:
       ds.source = source_attr_string(xo=xo, yo=yo)
+      ds.variables['exp_area_of_burn'].units = "m-2"
 
 
 
@@ -1804,10 +2037,13 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
         print("WARNING: 'time' dimensions of historic-climate file is not an even number of years!")
     print("Casting 'years' to int which may result in dataloss if historic-climate file does not contain an even number of years!")
     years = int(years)
+
     fill_explicit_fire_file(
-        years, xo, yo, xs, ys, out_dir, of_name,
-        datasrc='no-fires',
-        if_name=None, withlatlon=withlatlon, withproj=withproj, projwin=projwin
+        start_year,
+        years, xo, yo, xs, ys, out_dir, of_name, tif_dir,
+        datasrc='genet',
+        config=config,
+        if_name=None, withlatlon=withlatlon, withproj=withproj, projwin=projwin, cleanup_tmpfiles=cleanup
     )
 
   if 'projected-explicit-fire' in files:
@@ -1821,10 +2057,25 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
          print("WARNING: 'time' dimensions of historic-climate file is not an even number of years!")
     print("Casting 'years' to int which may result in dataloss if historic-climate file does not contain an even number of years!")
     years = int(years)
+
+    with netCDF4.Dataset(os.path.join(out_dir, 'historic-climate.nc'), 'r') as hds:
+      end_hist_clm = netCDF4.num2date(hds.variables['time'][-1], hds.variables['time'].units, calendar=hds.variables['time'].calendar)
+    print("The historic dataset ends at {}".format(end_hist_clm))
+    with netCDF4.Dataset(os.path.join(out_dir, 'historic-explicit-fire.nc'), 'r') as hds:
+      end_hist_expfire = netCDF4.num2date(hds.variables['time'][-1], hds.variables['time'].units, calendar=hds.variables['time'].calendar)
+    print("The historic explicit fire dataset ends at {}".format(end_hist_expfire))
+    if end_hist_expfire.year != end_hist_clm.year:
+      print("ERROR! Careful, your climate and fire files do not end on the same year!!")
+
+    #end_hist_expfire.replace(year=end_hist_expfire.year+1)
+    start_year = end_hist_clm.year + 1
+
     fill_explicit_fire_file(
-        years, xo, yo, xs, ys, out_dir, of_name,
-        datasrc='no-fires',
-        if_name=None, withlatlon=withlatlon, withproj=withproj, projwin=projwin
+      start_year,
+        years, xo, yo, xs, ys, out_dir, of_name, tif_dir,
+        datasrc='genet',
+        config=config,
+        if_name=None, withlatlon=withlatlon, withproj=withproj, projwin=projwin, cleanup_tmpfiles=cleanup
     )
 
   if cleanup:
@@ -1847,7 +2098,7 @@ def main(start_year, years, xo, yo, xs, ys, tif_dir, out_dir,
 
 
 
-def get_slurm_wrapper_string(tifs, pclim='ncar-ccsm4', 
+def get_slurm_wrapper_string(tifs, pclim='ncar-ccsm4', pfire=None,
     sitename='TOOLIK_FIELD_STATION', yoff=68.62854, xoff=-149.517149, 
     xsize=10, ysize=10, coordtype="--lonlat \\", custom_config="\\"):
   '''
@@ -1860,6 +2111,10 @@ def get_slurm_wrapper_string(tifs, pclim='ncar-ccsm4',
 
   The two backslashes (e.g for coordtype) are necessary for escaping optional
   parameters in the command line passed to slurm's srun command.
+
+  Caution here regarding the projected fire and projected climate! The tag/directory
+  name is built off the climate projection, and may not reflect the fire 
+  projection that is used!
   '''
   
   slurm_wrapper = textwrap.dedent('''\
@@ -1887,6 +2142,7 @@ def get_slurm_wrapper_string(tifs, pclim='ncar-ccsm4',
       --yoff $yoff --xoff $xoff --xsize $XSIZE --ysize $YSIZE \\
       --which all \\
       --projected-climate-config "$PCLIM" \\
+      --projected-fire-config {} \\
       --clip-projected2match-historic \\
       --withlatlon \\
       --withproj \\
@@ -1906,7 +2162,7 @@ def get_slurm_wrapper_string(tifs, pclim='ncar-ccsm4',
 
     # Run script to swap all CMT 8 pixels to CMT 7
     srun ./scripts/fix_vegetation_file_cmt08_to_cmt07.py input-staging-area/"$site"_"$YSIZE"x"$XSIZE"/vegetation.nc
-    '''.format(tifs=tifs, pclim=pclim, sitename=sitename, xoff=xoff, yoff=yoff, 
+    '''.format(tifs=tifs, pclim=pclim, pfire=pfire, sitename=sitename, xoff=xoff, yoff=yoff, 
         xsize=xsize, ysize=ysize, coordtype=coordtype, custom_config=custom_config))
 
   return slurm_wrapper
@@ -2017,6 +2273,50 @@ if __name__ == '__main__':
     p clim rsds src = 'rsds_mean_MJ-m2-d1_alf_ar5_GFDL-CM3_rcp85_'
     p clim vapo src = 'vap_mean_hPa_alf_ar5_GFDL-CM3_rcp85_'
   ''')
+
+  fire_config = textwrap.dedent('''\
+    h exp fire modeled fy = 1901
+    h exp fire modeled ly = 1949
+
+    h exp fire observed fy = 1950
+    h exp fire observed ly = 2020
+
+    p exp fire predicted fy = 2021
+    p exp fire predicted ly = 2100
+
+    h exp fire modeled path = 'fire_stuff/BestRep/NCAR-CCSM4_rcp85_CRU3/'
+    h exp fire observed path = 'fire_stuff/AlaskaFireHistory_Polygons_1940_2020/AlaskaFireHistory_Polygons.gdb'
+    p exp fire predicted path = 'fire_stuff/BestRep/'
+  ''')
+
+  # --> note that with fire the recent observations are readily available, up to 
+  # the most recent fire year, whereas climate lags behind, so the historic/projected
+  # split will not fall at the same year
+  #
+  # --> note that for projected, the scenario is only in the path, and not the file
+  # name so it will be easy to parameterize later, and we don;t have to keep a full separate config
+  # block for all the different data from different models and institutions.
+  #
+
+  #   1901 -thru-> 1949: fire_stuff/BestRep/NCAR-CCSM4_rcp85_CRU3/BurnSeverity_26_{}.tif, FireScar_26_{}.tif
+  #   1950 -thru-> 2020: fire_stuff/AlaskaFireHistory_Polygons_1940_2020/AlaskaFireHistory_Polygons.gdb
+  #   2021 -thru-> 2100: fire_stuff/BestRep/{}/BurnSeverity_26_{}.tif, FireScar_26_{}.tif
+
+  # uses GCM modeled historic climate
+  # GFDL-CM3_rcp85
+  # GISS-E2-R_rcp85
+  # IPSL-CM5A-LR_rcp85
+  # MRI-CGCM3_rcp85
+  # NCAR-CCSM4_rcp85
+
+  # uses cru historic climate
+  # NCAR-CCSM4_rcp85_CRU3 
+
+
+    # tifs = '/Users/tobeycarman/Documents/SEL/snap-data-2019/'
+    # other = 'fire_stuff/BestRep/'
+    # src = 'NCAR-CCSM4_rcp85_CRU3/'
+    # # #variable = 'BurnSeverity_26_{}.tif'.format()
 
 
   fileChoices = ['run-mask', 'co2', 'projected-co2', 'vegetation', 'drainage', 'soil-texture', 'topo',
@@ -2168,13 +2468,19 @@ if __name__ == '__main__':
         running the --dump-empty-config option, then filling out that file with
         your custom paths and then running again, using your custom config file
         as the argument for this option. Also likely that you will set "--tifs=/"
-        when using a custom config and using all absolute paths in your custom
+        when using a custom config and use all absolute paths in your custom
         config file.
         '''))
 
   parser.add_argument('--projected-climate-config', nargs=1, choices=['ncar-ccsm4', 'mri-cgcm3', 'gfdl-cm3'],
       help=textwrap.dedent('''Choose a configuration to use for the projected 
         climate data.'''))
+
+  parser.add_argument('--projected-fire-config', nargs=1, 
+      choices=['GFDL-CM3_rcp85','GISS-E2-R_rcp85','IPSL-CM5A-LR_rcp85',
+               'MRI-CGCM3_rcp85','NCAR-CCSM4_rcp85','NCAR-CCSM4_rcp85_CRU3'],
+      help=textwrap.dedent('''Choose a configuration to use for the projected 
+        fire data.'''))
 
   print("Parsing command line arguments...")
   args = parser.parse_args()
@@ -2200,6 +2506,10 @@ if __name__ == '__main__':
 
     if not args.projected_climate_config:
       parser.error("Argument ERROR!: Must specify projected climate when using --slurm-wrappers-from-csv!")
+
+    if not args.projected_fire_config:
+      parser.error("Argument ERROR!: Must specify projected fire when using --slurm-wrappers-from-csv!")
+
 
     with open(args.slurm_wrappers_from_csv) as csvfile:
       reader = csv.DictReader(csvfile)
@@ -2229,6 +2539,7 @@ if __name__ == '__main__':
       slurm_wrapper_string = get_slurm_wrapper_string(
         tifs=args.tifs, 
         pclim=args.projected_climate_config[0],
+        pfire=args.projected_fire_config[0],
         sitename=site['site'],
         xoff=site['lon'], yoff=site['lat'],
         xsize=xsize, #(args.xsize if args.xsize else 10), 
@@ -2309,7 +2620,13 @@ if __name__ == '__main__':
     if args.projected_climate_config is not None:
       pass # All ok - value is set and the choices are constrained above
     else:
-      parser.error("Argument ERROR! Must specify a projecte climate configuration for the projected-climate file!")
+      parser.error("Argument ERROR! Must specify a projected climate configuration for the projected-climate file!")
+
+  if 'projected-explicit-fire' in which_files:
+    if args.projected_fire_config is not None:
+      pass # All ok - value is set and choices are constrained above
+    else:
+      parser.error("Argument ERROR! Must specify a projected fire configuration for the projected explicit fire file!")
 
   # Pick up the user's config option for which projected climate to use 
   # overwrite the section in the config object.
@@ -2321,6 +2638,18 @@ if __name__ == '__main__':
       cmdline_config = configobj.ConfigObj(mri_cgcm3_ar5_rcp85_config.split("\n"))
     elif 'gfdl-cm3' in args.projected_climate_config:
       cmdline_config = configobj.ConfigObj(gfdl_cm3_ar5_rcp85_config.split("\n"))
+
+  if 'historic-explicit-fire' in which_files or 'projected-explicit-fire' in which_files:
+    # MODEL_INST = 'GFDL-CM3_rcp85'
+    # MODEL_INST = 'GISS-E2-R_rcp85'
+    # MODEL_INST = 'IPSL-CM5A-LR_rcp85'
+    # MODEL_INST = 'MRI-CGCM3_rcp85'
+    # MODEL_INST = 'NCAR-CCSM4_rcp85'
+    # MODEL_INST = 'NCAR-CCSM4_rcp85_CRU3'
+    config.merge(configobj.ConfigObj(fire_config.split("\n")))
+
+  if 'projected-explicit-fire' in which_files:
+    config['p exp fire predicted path'] = os.path.join(config['p exp fire predicted path'], args.projected_fire_config[0])
 
   if args.custom_config:
     cust_config = configobj.ConfigObj(args.custom_config)

@@ -125,11 +125,16 @@ Cohort::Cohort(int y, int x, ModelData* modeldatapointer):
 Cohort::~Cohort() {
 };
 
+/** Loads data from the projected explicit fire input file into internal datastructures. */
+void Cohort::load_proj_explicit_fire(const std::string& proj_exp_fire_file){
+  fire.load_projected_explicit_data(proj_exp_fire_file, y, x);
+}
+
 /** Provides necessary data to Climate for loading projected climate data*/
 void Cohort::load_proj_climate(const std::string& proj_climate_file){
-
   climate.load_proj_climate(proj_climate_file, y, x);
 }
+
 void Cohort::load_proj_co2(const std::string& proj_co2_file){
   climate.load_proj_co2(proj_co2_file);
 }

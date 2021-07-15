@@ -799,6 +799,7 @@ void advance_model(const int rowidx, const int colidx,
     // Loading projected data instead of historic. FIX?
     runner.cohort.load_proj_climate(modeldata.proj_climate_file);
     runner.cohort.load_proj_co2(modeldata.proj_co2_file);
+    runner.cohort.load_proj_explicit_fire(modeldata.proj_exp_fire_file);
 
     BOOST_LOG_SEV(glg,err) << "MAKE SURE YOUR FIRE INPUTS ARE SETUP CORRECTLY!";
 
@@ -953,7 +954,7 @@ void write_status(const std::string fname, int row, int col, int statusCode) {
   temutil::nc( nc_inq_varid(ncid, "run_status", &statusV) );
   
   // Write data
-  BOOST_LOG_SEV(glg, note) << "WRITING FOR OUTPUT STATUS FOR (row, col): " << row << ", " << col << "\n";
+  BOOST_LOG_SEV(glg, note) << "WRITING OUTPUT STATUS FOR (row, col): " << row << ", " << col << "\n";
   temutil::nc( nc_put_var1_int(ncid, statusV, start, &statusCode) );
 
   /* Close the netcdf file. */

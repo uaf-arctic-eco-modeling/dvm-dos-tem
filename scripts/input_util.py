@@ -314,6 +314,35 @@ def climate_ts_plot(args):
 
   gs = gridspec.GridSpec(ROWS, COLS)
 
+  def try_infer_time_axis(nc_dataset):
+    '''
+    Tries to build a DatetimeIndex using the 'time' variable 
+    and units of the nc_dataset.
+
+    Parameters
+    ==========
+    nc_dataset : an open netCDF4 dataset. 
+
+    Returns
+    =======
+    idx : a pandas.DatetimeIndex or simple list index starting at 0
+    '''
+  
+    try:
+      tV = nc_dataset.variables['time']
+      idx = pd.DatetimeIndex(pd.date_range(
+        start=nc.num2date(tV[0], tV.units, tV.calendar).strftime(),
+        end=nc.num2date(tV[-1], tV.units, tV.calendar).strftime(),
+        freq='MS') # <-- month starts)
+      )
+
+    except RuntimeError as e:
+      print(e)
+      print("Unable to figure out time axis values. Defaulting to basic range index.")
+      idx = np.arange(0, len(nc_dataset))
+
+    return idx
+
   if args.type == 'spatial-temporal-summary':
 
     if args.stitch:
@@ -446,9 +475,14 @@ def climate_ts_plot(args):
       hds = nc.Dataset(os.path.join(args.input_folder, CLIMATE_FILES[0]))
       pds = nc.Dataset(os.path.join(args.input_folder, CLIMATE_FILES[1]))
 
+      h_timeidx = try_infer_time_axis(hds)
+      p_timeidx = try_infer_time_axis(pds)
+
       axes = []
       for i, v in enumerate(VARS):
         full_ds = np.concatenate((hds.variables[v][:,y,x], pds.variables[v][:,y,x]), axis=0)
+        full_idx = h_timeidx.append(p_timeidx).to_pydatetime()
+
         if i > 0:
           ax = plt.subplot(gs[i,0], sharex=axes[0])
           axes.append(ax)
@@ -479,7 +513,8 @@ def climate_ts_plot(args):
       for i, v in enumerate(VARS):
         ax = plt.subplot(gs[i,0])
         with nc.Dataset(os.path.join(args.input_folder, CLIMATE_FILES[0])) as hds:
-          ax.plot(hds.variables[v][:,y, x])
+          hidx = try_infer_time_axis(hds)
+          ax.plot(hidx, hds.variables[v][:,y, x])
           ax.set_title(v)
       plt.suptitle(os.path.join(args.input_folder, CLIMATE_FILES[0]))
       plt.show(block=True)
@@ -487,14 +522,16 @@ def climate_ts_plot(args):
       plt.title(CLIMATE_FILES[1])
       for i, v in enumerate(VARS):
         ax = plt.subplot(gs[i,0])
-        with nc.Dataset(os.path.join(args.input_folder, CLIMATE_FILES[1])) as hds:
-          ax.plot(hds.variables[v][:,y, x])
+        with nc.Dataset(os.path.join(args.input_folder, CLIMATE_FILES[1])) as pds:
+          pidx = try_infer_time_axis(pds)
+          ax.plot(pidx, pds.variables[v][:,y, x])
           ax.set_title(v)
       plt.suptitle(os.path.join(args.input_folder, CLIMATE_FILES[1]))
       plt.show(block=True)
 
   else:
     print("Cmd line arg should be checked such that you can't arrive here.")
+    exit(-1)
 
 
 def tunnel_fast(latvar,lonvar,lat0,lon0):
