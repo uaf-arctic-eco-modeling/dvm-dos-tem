@@ -578,6 +578,7 @@ double WildFire::getBurnOrgSoilthick(const int year) {
   double burn_thickness = 0.0;
 
   //  For now, severity class is based on ALFRESCO:
+  //  NOTE, this may be incorrect, it looks like ALFRESCO might use 1 for no burn.
   //  0 - no burning
   //  1 - low
   //  2 - moderate

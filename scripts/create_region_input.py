@@ -1565,7 +1565,7 @@ def fill_explicit_fire_file(startyr, yrs, xo, yo, xs, ys, out_dir, of_name, tiff
           # expressed in m^2. We convert it here to km^2 as required by dvmdostem.
           shapes = [(geom, value) for geom, value in zip(this_years_fires.geometry, this_years_fires.Shape_Area/1000.0/1000.0)]
           aob = features.rasterize(shapes, out_shape=(ys,xs), transform=rmeta.transform)
-          severity = np.greater(aob,0) * 2 # Sets any pixel with area of burn > 0 to severity of 2
+          severity = np.greater(aob,0) * 3 # default to burn severity of 3
           jday = np.greater(aob,0) * 212
           mask = np.greater(aob,0)
 
@@ -1685,6 +1685,7 @@ def fill_explicit_fire_file(startyr, yrs, xo, yo, xs, ys, out_dir, of_name, tiff
         # Write AOB and Burn Severity to output file...
         with netCDF4.Dataset(of_name, 'a') as ds:
           ds.variables['exp_area_of_burn'][iy,:] = aob
+          ds.variables['exp_fire_severity'].missing_value = 255
           ds.variables['exp_fire_severity'][iy,:] = severity
           ds.variables['exp_jday_of_burn'][iy,:] = np.greater(aob,0) * 212 # July 31 2021
           ds.variables['exp_burn_mask'][iy,:] = np.logical_not(aob.mask)
