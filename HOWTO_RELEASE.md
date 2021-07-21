@@ -26,7 +26,23 @@
 
 5. Push tag to github: `$ git push upstream v0.2.3`
 
-6. Optionally edit the info on the github website release page.
+6. **Important!** Create the release on Github so that the Zenodo integration works.
+Basically Zendo is tied to the release event notification coming from Github
+and while pushed annotated tags show up in the "Releases" list on Github, the
+event does not trigger unless an actual release is drafted and published.
+There is probably an automated way to do this, but I haven't figured 
+it out yet. So:
+   * Go to https://github.com/ua-snap/dvm-dos-tem/releases.
+   * Click the button for "Draft new release" (upper right).
+   * Choose the Tag version in the tag box.
+   * Put the version number and date in the title box (first line of your release note).
+   * Paste your markdown release message into the descriotion box.
+   * Check the preview.
+   * Click the Publish button.
+
+7. Optionally edit the info on the github website release page. Editing 
+does not trigger a new release notification and does not break the Zenodo
+integration.
 
 ## Release note format
 
