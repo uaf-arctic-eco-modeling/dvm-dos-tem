@@ -1226,14 +1226,24 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
       else if(!curr_spec.layer){
         //monthly
         if(curr_spec.monthly){
-          output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.year_fd[month].fire_soi2a.orgc, 1, month_timestep, 1);
+          outhold.burnsoic_for_output.push_back(cohort.year_fd[month].fire_soi2a.orgc);
+
+          if(output_this_timestep){
+            output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.burnsoic_for_output[0], 1, month_start_idx, months_to_output);
+            outhold.burnsoic_for_output.clear();
+          }
         }
         else if(curr_spec.yearly){
           double burnsoilC = 0.;
           for(int im=0; im<12; im++){
             burnsoilC += cohort.year_fd[im].fire_soi2a.orgc;
           }
-          output_nc_3dim(&curr_spec, file_stage_suffix, &burnsoilC, 1, year, 1);
+          outhold.burnsoic_for_output.push_back(burnsoilC);
+
+          if(output_this_timestep){
+            output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.burnsoic_for_output[0], 1, year_start_idx, years_to_output);
+            outhold.burnsoic_for_output.clear();
+          }
         }
       }
     }//end critical(outputBURNSOIC)
@@ -1316,11 +1326,21 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     {
       //monthly
       if(curr_spec.monthly){
-        output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.year_fd[month].fire_v2a.orgc, 1, month_timestep, 1);
+        outhold.burnveg2airc_for_output.push_back(cohort.year_fd[month].fire_v2a.orgc);
+
+        if(output_this_timestep){
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.burnveg2airc_for_output[0], 1, month_start_idx, months_to_output);
+          outhold.burnveg2airc_for_output.clear();
+        }
       }
       //yearly
       else if(curr_spec.yearly){
-        output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.fd->fire_v2a.orgc, 1, year, 1);
+        outhold.burnveg2airc_for_output.push_back(cohort.fd->fire_v2a.orgc);
+
+        if(output_this_timestep){
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.burnveg2airc_for_output[0], 1, year_start_idx, years_to_output);
+          outhold.burnveg2airc_for_output.clear();
+        }
       }
     }//end critical(outputBURNVEG2AIRC)
   }//end BURNVEG2AIRC
@@ -1358,11 +1378,21 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     {
       //monthly
       if(curr_spec.monthly){
-        output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.year_fd[month].fire_v2dead.vegC, 1, month_timestep, 1);
+        outhold.burnveg2deadc_for_output.push_back(cohort.year_fd[month].fire_v2dead.vegC);
+
+        if(output_this_timestep){
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.burnveg2deadc_for_output[0], 1, month_start_idx, months_to_output);
+          outhold.burnveg2deadc_for_output.clear();
+        }
       }
       //yearly
       else if(curr_spec.yearly){
-        output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.fd->fire_v2dead.vegC, 1, year, 1);
+        outhold.burnveg2deadc_for_output.push_back(cohort.fd->fire_v2dead.vegC);
+
+        if(output_this_timestep){
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.burnveg2deadc_for_output[0], 1, year_start_idx, years_to_output);
+          outhold.burnveg2deadc_for_output.clear();
+        }
       }
     }//end critical(outputBURNVEG2DEADC)
   }//end BURNVEG2DEADC
@@ -1400,11 +1430,21 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     {
       //monthly
       if(curr_spec.monthly){
-        output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.year_fd[month].fire_v2soi.abvc, 1, month_timestep, 1);
+        outhold.burnveg2soiabvc_for_output.push_back(cohort.year_fd[month].fire_v2soi.abvc);
+
+        if(output_this_timestep){
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.burnveg2soiabvc_for_output[0], 1, month_start_idx, months_to_output);
+          outhold.burnveg2soiabvc_for_output.clear();
+        }
       }
       //yearly
       else if(curr_spec.yearly){
-        output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.fd->fire_v2soi.abvc, 1, year, 1);
+        outhold.burnveg2soiabvc_for_output.push_back(cohort.fd->fire_v2soi.abvc);
+
+        if(output_this_timestep){
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.burnveg2soiabvc_for_output[0], 1, year_start_idx, years_to_output);
+          outhold.burnveg2soiabvc_for_output.clear();
+        }
       }
     }//end critical(outputBURNVEG2SOIABVC)
   }//end BURNVEG2SOIABVC
@@ -1442,11 +1482,21 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     {
       //monthly
       if(curr_spec.monthly){
-        output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.year_fd[month].fire_v2soi.blwc, 1, month_timestep, 1);
+        outhold.burnveg2soiblwc_for_output.push_back(cohort.year_fd[month].fire_v2soi.blwc);
+
+        if(output_this_timestep){
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.burnveg2soiblwc_for_output[0], 1, month_start_idx, months_to_output);
+          outhold.burnveg2soiblwc_for_output.clear();
+        }
       }
       //yearly
       else if(curr_spec.yearly){
-        output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.fd->fire_v2soi.blwc, 1, year, 1);
+        outhold.burnveg2soiblwc_for_output.push_back(cohort.fd->fire_v2soi.blwc);
+
+        if(output_this_timestep){
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.burnveg2soiblwc_for_output[0], 1, year_start_idx, years_to_output);
+          outhold.burnveg2soiblwc_for_output.clear();
+        }
       }
     }//end critical(outputBURNVEG2SOIBLWC)
   }//end BURNVEG2SOIBLWC
@@ -1500,11 +1550,21 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     {
       //monthly
       if(curr_spec.monthly){
-        output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.bdall->m_vegs.deadc, 1, month_timestep, 1);
+        outhold.deadc_for_output.push_back(cohort.bdall->m_vegs.deadc);
+
+        if(output_this_timestep){
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.deadc_for_output[0], 1, month_start_idx, months_to_output);
+          outhold.deadc_for_output.clear();
+        }
       }
       //yearly
       else if(curr_spec.yearly){
-        output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.bdall->y_vegs.deadc, 1, year, 1);
+        outhold.deadc_for_output.push_back(cohort.bdall->y_vegs.deadc);
+
+        if(output_this_timestep){
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.deadc_for_output[0], 1, year_start_idx, years_to_output);
+          outhold.deadc_for_output.clear();
+        }
       }
     }//end critical(outputDEADC)
   }//end DEADC
@@ -1542,11 +1602,21 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     {
       //monthly
       if(curr_spec.monthly){
-        output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.bdall->m_soid.deepc, 1, month_timestep, 1);
+        outhold.deepc_for_output.push_back(cohort.bdall->m_soid.deepc);
+
+        if(output_this_timestep){
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.deepc_for_output[0], 1, month_start_idx, months_to_output);
+          outhold.deepc_for_output.clear();
+        }
       }
       //yearly
       else if(curr_spec.yearly){
-        output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.bdall->y_soid.deepc, 1, year, 1);
+        outhold.deepc_for_output.push_back(cohort.bdall->y_soid.deepc);
+
+        if(output_this_timestep){
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.deepc_for_output[0], 1, year_start_idx, years_to_output);
+          outhold.deepc_for_output.clear();
+        }
       }
     }//end critical(outputDEEPC)
   }//end DEEPC
@@ -1701,11 +1771,21 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     {
       //monthly
       if(curr_spec.monthly){
-        output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.bdall->m_sois.wdebrisc, 1, month_timestep, 1);
+        outhold.dwdc_for_output.push_back(cohort.bdall->m_sois.wdebrisc);
+
+        if(output_this_timestep){
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.dwdc_for_output[0], 1, month_start_idx, months_to_output);
+          outhold.dwdc_for_output.clear();
+        }
       }
       //yearly
       else if(curr_spec.yearly){
-        output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.bdall->y_sois.wdebrisc, 1, year, 1);
+        outhold.dwdc_for_output.push_back(cohort.bdall->y_sois.wdebrisc);
+
+        if(output_this_timestep){
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.dwdc_for_output[0], 1, year_start_idx, years_to_output);
+          outhold.dwdc_for_output.clear();
+        }
       }
     }//end critical(outputDWDC)
   }//end DWDC
@@ -2618,9 +2698,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     {
       //PFT and compartment
       if(curr_spec.pft && curr_spec.compartment){
+        std::array<std::array<double, NUM_PFT>, NUM_PFT_PART> m_ltrfalc{};
+        std::array<std::array<double, NUM_PFT>, NUM_PFT_PART> y_ltrfalc{};
 
-        double m_ltrfalc[NUM_PFT_PART][NUM_PFT];
-        double y_ltrfalc[NUM_PFT_PART][NUM_PFT];
         for(int ip=0; ip<NUM_PFT; ip++){
           for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
             m_ltrfalc[ipp][ip] = cohort.bd[ip].m_v2soi.ltrfalc[ipp];
@@ -2629,17 +2709,27 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
         }
         //monthly
         if(curr_spec.monthly){
-          output_nc_5dim(&curr_spec, file_stage_suffix, &m_ltrfalc[0][0], NUM_PFT_PART, NUM_PFT, month_timestep, 1);
+          outhold.ltrfalc_for_output.push_back(m_ltrfalc);
+
+          if(output_this_timestep){
+            output_nc_5dim(&curr_spec, file_stage_suffix, &outhold.ltrfalc_for_output[0][0], NUM_PFT_PART, NUM_PFT, month_start_idx, months_to_output);
+            outhold.ltrfalc_for_output.clear();
+          }
         }
         //yearly
         else if(curr_spec.yearly){
-          output_nc_5dim(&curr_spec, file_stage_suffix, &y_ltrfalc[0][0], NUM_PFT_PART, NUM_PFT, year, 1);
+          outhold.ltrfalc_for_output.push_back(y_ltrfalc);
+
+          if(output_this_timestep){
+            output_nc_5dim(&curr_spec, file_stage_suffix, &outhold.ltrfalc_for_output[0][0], NUM_PFT_PART, NUM_PFT, year_start_idx, years_to_output);
+            outhold.ltrfalc_for_output.clear();
+          }
         }
       }
       //PFT only (4 dimensions)
       else if(curr_spec.pft && !curr_spec.compartment){
-
-        double y_ltrfalc[NUM_PFT], m_ltrfalc[NUM_PFT];
+        std::array<double, NUM_PFT> m_ltrfalc{};
+        std::array<double, NUM_PFT> y_ltrfalc{};
 
         for(int ip=0; ip<NUM_PFT; ip++){
           m_ltrfalc[ip] = cohort.bd[ip].m_v2soi.ltrfalcall;
@@ -2647,18 +2737,27 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
         }
         //monthly
         if(curr_spec.monthly){
-          output_nc_4dim(&curr_spec, file_stage_suffix, &m_ltrfalc[0], NUM_PFT, month_timestep, 1);
+          outhold.ltrfalc_pft_for_output.push_back(m_ltrfalc);
+
+          if(output_this_timestep){
+            output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.ltrfalc_pft_for_output[0], NUM_PFT, month_start_idx, months_to_output);
+            outhold.ltrfalc_pft_for_output.clear();
+          }
         }
         //yearly
         else if(curr_spec.yearly){
-          output_nc_4dim(&curr_spec, file_stage_suffix, &y_ltrfalc[0], NUM_PFT, year, 1);
+          outhold.ltrfalc_pft_for_output.push_back(y_ltrfalc);
+
+          if(output_this_timestep){
+            output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.ltrfalc_pft_for_output[0], NUM_PFT, year_start_idx, years_to_output);
+            outhold.ltrfalc_pft_for_output.clear();
+          }
         }
       }
       //Compartment only (4 dimensions)
       else if(!curr_spec.pft && curr_spec.compartment){
-
-        double y_ltrfalc[NUM_PFT_PART] = {0};
-        double m_ltrfalc[NUM_PFT_PART] = {0};
+        std::array<double, NUM_PFT_PART> m_ltrfalc{};
+        std::array<double, NUM_PFT_PART> y_ltrfalc{};
 
         for(int ip=0; ip<NUM_PFT; ip++){
           for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
@@ -2668,28 +2767,48 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
         }
         //monthly
         if(curr_spec.monthly){
-          output_nc_4dim(&curr_spec, file_stage_suffix, &m_ltrfalc[0], NUM_PFT_PART, month_timestep, 1);
+          outhold.ltrfalc_part_for_output.push_back(m_ltrfalc);
+
+          if(output_this_timestep){
+            output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.ltrfalc_part_for_output[0], NUM_PFT_PART, month_start_idx, months_to_output);
+            outhold.ltrfalc_part_for_output.clear();
+          }
         }
         //yearly
         else if(curr_spec.yearly){
-          output_nc_4dim(&curr_spec, file_stage_suffix, &y_ltrfalc[0], NUM_PFT_PART, year, 1);
+          outhold.ltrfalc_part_for_output.push_back(y_ltrfalc);
+
+          if(output_this_timestep){
+            output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.ltrfalc_part_for_output[0], NUM_PFT_PART, year_start_idx, years_to_output);
+            outhold.ltrfalc_part_for_output.clear();
+          }
         }
       }
       //Neither PFT nor compartment - totals
       else if(!curr_spec.pft && !curr_spec.compartment){
-
         double m_ltrfalc = 0., y_ltrfalc = 0.;
+
         for(int ip=0; ip<NUM_PFT; ip++){
           m_ltrfalc += cohort.bd[ip].m_v2soi.ltrfalcall;
           y_ltrfalc += cohort.bd[ip].y_v2soi.ltrfalcall;
         }
         //monthly
         if(curr_spec.monthly){
-          output_nc_3dim(&curr_spec, file_stage_suffix, &m_ltrfalc, 1, month_timestep, 1);
+          outhold.ltrfalc_tot_for_output.push_back(m_ltrfalc);
+
+          if(output_this_timestep){
+            output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.ltrfalc_tot_for_output[0], 1, month_start_idx, months_to_output);
+            outhold.ltrfalc_tot_for_output.clear();
+          }
         }
         //yearly
         else if(curr_spec.yearly){
-          output_nc_3dim(&curr_spec, file_stage_suffix, &y_ltrfalc, 1, year, 1);
+          outhold.ltrfalc_tot_for_output.push_back(y_ltrfalc);
+
+          if(output_this_timestep){
+            output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.ltrfalc_tot_for_output[0], 1, year_start_idx, years_to_output);
+            outhold.ltrfalc_tot_for_output.clear();
+          }
         }
       }
     }//end critical(outputLTRFALC)
@@ -2818,14 +2937,24 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
         minec = cohort.bdall->m_soid.mineac
                 + cohort.bdall->m_soid.minebc
                 + cohort.bdall->m_soid.minecc;
-        output_nc_3dim(&curr_spec, file_stage_suffix, &minec, 1, month_timestep, 1);
+        outhold.minec_for_output.push_back(minec);
+
+        if(output_this_timestep){
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.minec_for_output[0], 1, month_start_idx, months_to_output);
+          outhold.minec_for_output.clear();
+        }
       }
       //yearly
       else if(curr_spec.yearly){
         minec = cohort.bdall->y_soid.mineac
                 + cohort.bdall->y_soid.minebc
                 + cohort.bdall->y_soid.minecc;
-        output_nc_3dim(&curr_spec, file_stage_suffix, &minec, 1, year, 1);
+        outhold.minec_for_output.push_back(minec);
+
+        if(output_this_timestep){
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.minec_for_output[0], 1, year_start_idx, years_to_output);
+          outhold.minec_for_output.clear();
+        }
       }
     }//end critical(outputMINEC)
   }//end MINEC
@@ -3072,9 +3201,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     {
       //PFT and compartment
       if(curr_spec.pft && curr_spec.compartment){
+        std::array<std::array<double, NUM_PFT>, NUM_PFT_PART> m_npp{};
+        std::array<std::array<double, NUM_PFT>, NUM_PFT_PART> y_npp{};
 
-        double m_npp[NUM_PFT_PART][NUM_PFT];
-        double y_npp[NUM_PFT_PART][NUM_PFT];
         for(int ip=0; ip<NUM_PFT; ip++){
           for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
             m_npp[ipp][ip] = cohort.bd[ip].m_a2v.npp[ipp];
@@ -3083,11 +3212,21 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
         }
         //monthly
         if(curr_spec.monthly){
-          output_nc_5dim(&curr_spec, file_stage_suffix, &m_npp[0][0], NUM_PFT_PART, NUM_PFT, month_timestep, 1);
+          outhold.npp_for_output.push_back(m_npp);
+
+          if(output_this_timestep){
+            output_nc_5dim(&curr_spec, file_stage_suffix, &outhold.npp_for_output[0][0], NUM_PFT_PART, NUM_PFT, month_start_idx, months_to_output);
+            outhold.npp_for_output.clear();
+          }
         }
         //yearly
         else if(curr_spec.yearly){
-          output_nc_5dim(&curr_spec, file_stage_suffix, &y_npp[0][0], NUM_PFT_PART, NUM_PFT, year, 1);
+          outhold.npp_for_output.push_back(y_npp);
+
+          if(output_this_timestep){
+            output_nc_5dim(&curr_spec, file_stage_suffix, &outhold.npp_for_output[0][0], NUM_PFT_PART, NUM_PFT, year_start_idx, years_to_output);
+            outhold.npp_for_output.clear();
+          }
         }
       }
       //PFT only (4 dimensions)
@@ -3532,7 +3671,6 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
           outhold.pet_for_output.push_back(pet_arr);
 
           if(output_this_timestep){
-            std::cout<<"outputting monthly PET\n";
             output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.pet_for_output[0][0], NUM_PFT, month_start_idx, months_to_output);
             outhold.pet_for_output.clear();
           }
@@ -3545,7 +3683,6 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
           outhold.pet_for_output.push_back(pet_arr);
 
           if(output_this_timestep){
-            std::cout<<"outputting yearly PET\n";
             output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.pet_for_output[0][0], NUM_PFT, year_start_idx, years_to_output);
             outhold.pet_for_output.clear();
           }
@@ -3581,10 +3718,8 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
         }
         //yearly
         else if(curr_spec.yearly){
-          std::cout<<"storing yearly PET total. Month: "<<month<<std::endl;
           outhold.pet_tot_for_output.push_back(cohort.edall->y_l2a.pet);
           if(output_this_timestep){
-            std::cout<<"outputting yeary PET, total\n";
             output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.pet_tot_for_output[0], 1, year_start_idx, years_to_output);
             outhold.pet_tot_for_output.clear();
           }
@@ -4042,11 +4177,21 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     {
       //monthly
       if(curr_spec.monthly){
-        output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.bdall->m_soid.shlwc, 1, month_timestep, 1);
+        outhold.shlwc_for_output.push_back(cohort.bdall->m_soid.shlwc);
+
+        if(output_this_timestep){
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.shlwc_for_output[0], 1, month_start_idx, months_to_output);
+          outhold.shlwc_for_output.clear();
+        }
       }
       //yearly
       else if(curr_spec.yearly){
-        output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.bdall->y_soid.shlwc, 1, year, 1);
+        outhold.shlwc_for_output.push_back(cohort.bdall->y_soid.shlwc);
+
+        if(output_this_timestep){
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.shlwc_for_output[0], 1, year_start_idx, years_to_output);
+          outhold.shlwc_for_output.clear();
+        }
       }
     }//end critical(outputSHLWC)
   }//end SHLWC 
@@ -4809,8 +4954,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     {
       //PFT and compartment
       if(curr_spec.pft && curr_spec.compartment){
-        double m_vegc[NUM_PFT_PART][NUM_PFT];
-        double y_vegc[NUM_PFT_PART][NUM_PFT];
+        std::array<std::array<double, NUM_PFT>, NUM_PFT_PART> m_vegc{};
+        std::array<std::array<double, NUM_PFT>, NUM_PFT_PART> y_vegc{};
+
         for(int ip=0; ip<NUM_PFT; ip++){
           if(cohort.cd.m_veg.vegcov[ip]>0.){//only check PFTs that exist
 
@@ -4822,18 +4968,28 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
         }
         //monthly
         if(curr_spec.monthly){
-          output_nc_5dim(&curr_spec, file_stage_suffix, &m_vegc[0][0], NUM_PFT_PART, NUM_PFT, month_timestep, 1);
+          outhold.vegc_for_output.push_back(m_vegc);
+
+          if(output_this_timestep){
+            output_nc_5dim(&curr_spec, file_stage_suffix, &outhold.vegc_for_output[0][0], NUM_PFT_PART, NUM_PFT, month_start_idx, months_to_output);
+            outhold.vegc_for_output.clear();
+          }
         }
         //yearly
         else if(curr_spec.yearly){
-          output_nc_5dim(&curr_spec, file_stage_suffix, &y_vegc[0][0], NUM_PFT_PART, NUM_PFT, year, 1);
+          outhold.vegc_for_output.push_back(y_vegc);
+
+          if(output_this_timestep){
+            output_nc_5dim(&curr_spec, file_stage_suffix, &outhold.vegc_for_output[0][0], NUM_PFT_PART, NUM_PFT, year_start_idx, years_to_output);
+            outhold.vegc_for_output.clear();
+          }
         }
       }
       //PFT only
       else if(curr_spec.pft && !curr_spec.compartment){
+        std::array<double, NUM_PFT> m_vegc{};
+        std::array<double, NUM_PFT> y_vegc{};
 
-        double m_vegc[NUM_PFT] = {0};
-        double y_vegc[NUM_PFT] = {0};
         for(int ip=0; ip<NUM_PFT; ip++){
           if(cohort.cd.m_veg.vegcov[ip]>0.){//only check PFTs that exist
             m_vegc[ip] = cohort.bd[ip].m_vegs.call;
@@ -4842,18 +4998,28 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
         }
         //monthly
         if(curr_spec.monthly){
-          output_nc_4dim(&curr_spec, file_stage_suffix, &m_vegc[0], NUM_PFT, month_timestep, 1);
+          outhold.vegc_pft_for_output.push_back(m_vegc);
+
+          if(output_this_timestep){
+            output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.vegc_pft_for_output[0], NUM_PFT, month_start_idx, months_to_output);
+            outhold.vegc_pft_for_output.clear();
+          }
         }
         //yearly
         else if(curr_spec.yearly){
-          output_nc_4dim(&curr_spec, file_stage_suffix, &y_vegc[0], NUM_PFT, year, 1);
+          outhold.vegc_pft_for_output.push_back(y_vegc);
+
+          if(output_this_timestep){
+            output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.vegc_pft_for_output[0], NUM_PFT, year_start_idx, years_to_output);
+            outhold.vegc_pft_for_output.clear();
+          }
         }
       }
       //Compartment only
       else if(!curr_spec.pft && curr_spec.compartment){
+        std::array<double, NUM_PFT_PART> m_vegc{};
+        std::array<double, NUM_PFT_PART> y_vegc{};
 
-        double m_vegc[NUM_PFT_PART] = {0};
-        double y_vegc[NUM_PFT_PART] = {0};
         for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
           for(int ip=0; ip<NUM_PFT; ip++){
             if(cohort.cd.m_veg.vegcov[ip]>0.){//only check PFTs that exist
@@ -4864,22 +5030,42 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
         }
         //monthly
         if(curr_spec.monthly){
-          output_nc_4dim(&curr_spec, file_stage_suffix, &m_vegc[0], NUM_PFT_PART, month_timestep, 1);
+          outhold.vegc_part_for_output.push_back(m_vegc);
+
+          if(output_this_timestep){
+            output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.vegc_part_for_output[0], NUM_PFT_PART, month_start_idx, months_to_output);
+            outhold.vegc_part_for_output.clear();
+          }
         }
         //yearly
         else if(curr_spec.yearly){
-          output_nc_4dim(&curr_spec, file_stage_suffix, &y_vegc[0], NUM_PFT_PART, year, 1);
+          outhold.vegc_part_for_output.push_back(y_vegc);
+
+          if(output_this_timestep){
+            output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.vegc_part_for_output[0], NUM_PFT_PART, year_start_idx, years_to_output);
+            outhold.vegc_part_for_output.clear();
+          }
         }
       }
       //Neither PFT nor compartment
       else if(!curr_spec.pft && !curr_spec.compartment){
         //monthly
         if(curr_spec.monthly){
-          output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.bdall->m_vegs.call, 1, month_timestep, 1);
+          outhold.vegc_tot_for_output.push_back(cohort.bdall->m_vegs.call);
+
+          if(output_this_timestep){
+            output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.vegc_tot_for_output[0], 1, month_start_idx, months_to_output);
+            outhold.vegc_tot_for_output.clear();
+          }
         }
         //yearly
         else if(curr_spec.yearly){
-          output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.bdall->y_vegs.call, 1, year, 1);
+          outhold.vegc_tot_for_output.push_back(cohort.bdall->y_vegs.call);
+
+          if(output_this_timestep){
+            output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.vegc_tot_for_output[0], 1, year_start_idx, years_to_output);
+            outhold.vegc_tot_for_output.clear();
+          }
         }
       }
     }//end critical(outputVEGC)
