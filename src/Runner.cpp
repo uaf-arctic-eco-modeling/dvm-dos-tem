@@ -1015,50 +1015,6 @@ void Runner::output_nc_5dim(OutputSpec* out_spec, std::string stage_suffix,
   temutil::nc( nc_close(ncid) );
 }
 
-/*
-void Runner::monthly_storage(int im){
-  std::cout<<"monthly storage, month: "<<im<<"\n";
-
-  //EET
-  std::array<double, NUM_PFT> m_EET_arr;
-  std::vector<double> m_EET;
-  for(int ip=0; ip<NUM_PFT; ip++){
-    m_EET.push_back(cohort.ed[ip].m_l2a.eet);
-    m_EET_arr[ip] = cohort.ed[ip].m_l2a.eet;
-//    std::cout<<m_EET[ip]<<" ";
-  }
-  outhold.eet_for_output.push_back(m_EET);
-  outhold.eet_test_vector.push_back(m_EET_arr);
-
-//  for(int ii=0; ii<outhold.eet_for_output.size(); ii++){
-//    for(int ip=0; ip<NUM_PFT; ip++){
-//      std::cout<<outhold.eet_for_output[ii][ip]<<" ";
-//      std::cout<<outhold.eet_test_vector[ii][ip]<<" ";
-//    }
-//    std::cout<<std::endl;
-//  }
-//  std::cout<<std::endl;
-//  temutil::ppva(outhold.eet_for_output, NUM_PFT);
-
-
-  //GPP
-  std::array<std::array<double, NUM_PFT_PART>, NUM_PFT> m_GPP;
-  for(int ip=0; ip<NUM_PFT; ip++){
-    for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
-      m_GPP[ip][ipp] = cohort.bd[ip].m_a2v.gpp[ipp];
-    }
-  }
-  outhold.gpp_for_output.push_back(m_GPP);
- 
-  //TLAYER
-  std::array<double, MAX_SOI_LAY> m_TLAYER;
-  for(int il=0; il<MAX_SOI_LAY; il++){\
-    m_TLAYER[il] = cohort.edall->m_sois.ts[il];
-  }
-  outhold.tlayer_for_output.push_back(m_TLAYER);
- 
-}
-*/
 
 void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, int year, int month, std::string stage, int endyr){
   int month_timestep = year*12 + month;
