@@ -28,6 +28,7 @@ public:
   std::vector<double> deadc_for_output;
   std::vector<double> deepc_for_output;
   std::vector<double> dwdc_for_output;
+  std::vector<double> dwdrh_for_output;
   std::vector<double> minec_for_output;
   std::vector<double> qdrain_for_output;
   std::vector<double> qinfil_for_output;

@@ -1813,6 +1813,37 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
   map_itr = netcdf_outputs.end();
 
 
+  //Dead woody debris RH
+  map_itr = netcdf_outputs.find("DWDRH");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, debug)<<"DWDRH";
+    curr_spec = map_itr->second;
+
+    #pragma omp critical(outputDWDRH)
+    {
+      //monthly
+      if(curr_spec.monthly){
+        outhold.dwdrh_for_output.push_back(cohort.bdall->m_soi2a.rhwdeb);
+
+        if(output_this_timestep){
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.dwdrh_for_output[0], 1, month_start_idx, months_to_output);
+          outhold.dwdrh_for_output.clear();
+        }
+      }
+      //yearly
+      else if(curr_spec.yearly){
+        outhold.dwdrh_for_output.push_back(cohort.bdall->y_soi2a.rhwdeb);
+
+        if(output_this_timestep){
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.dwdrh_for_output[0], 1, year_start_idx, years_to_output);
+          outhold.dwdrh_for_output.clear();
+        }
+      }
+    }//end critical(outputDWDRH)
+  }//end DWDRH
+  map_itr = netcdf_outputs.end();
+
+
   //EET
   map_itr = netcdf_outputs.find("EET");
   if(map_itr != netcdf_outputs.end()){
@@ -5359,27 +5390,6 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
       }
     }//end critical(outputWATERTAB)
   }//end WATERTAB
-  map_itr = netcdf_outputs.end();
-
-
-  //Woody debris RH
-  map_itr = netcdf_outputs.find("WDRH");
-  if(map_itr != netcdf_outputs.end()){
-    BOOST_LOG_SEV(glg, debug)<<"WDRH";
-    curr_spec = map_itr->second;
-
-    #pragma omp critical(outputWDRH)
-    {
-      //monthly
-      if(curr_spec.monthly){
-        output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.bdall->m_soi2a.rhwdeb, 1, month_timestep, 1);
-      }
-      //yearly
-      else if(curr_spec.yearly){
-        output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.bdall->y_soi2a.rhwdeb, 1, year, 1);
-      }
-    }//end critical(outputWDRH)
-  }//end WDRH
   map_itr = netcdf_outputs.end();
 
 
