@@ -62,7 +62,7 @@ BASE_OUTDIR = j['IO']['output_dir']
 # This is somewhat restricted by how cells are assigned to processes.
 with nc.Dataset(BASE_RUNMASK, 'r') as runmask:
   TOTAL_CELLS_TO_RUN = np.count_nonzero(runmask.variables['run'])  
-  print "Total cells to run: {}".format(TOTAL_CELLS_TO_RUN)
+  print("Total cells to run: {}".format(TOTAL_CELLS_TO_RUN))
   runmasklist = runmask.variables["run"][:,:].flatten()
   runmaskreversed = runmasklist[::-1]
   last_cell_index = len(runmaskreversed) - np.argmax(runmaskreversed) - 1
@@ -74,10 +74,10 @@ with nc.Dataset(BASE_RUNMASK, 'r') as runmask:
 nbatches = padded_cell_count / IDEAL_CELLS_PER_BATCH
 # If there are extra cells, or fewer cells than IDEAL_CELLS_PER_BATCH
 if (padded_cell_count % IDEAL_CELLS_PER_BATCH != 0):
-  print "Adding another batch to pick up stragglers!"
+  print("Adding another batch to pick up stragglers!")
   nbatches += 1
    
-print "NUMBER OF BATCHES: ", nbatches
+print("NUMBER OF BATCHES: ", nbatches)
 
 # Utility function
 def mkdir_p(path):
@@ -93,22 +93,22 @@ def mkdir_p(path):
 #
 # SETUP DIRECTORIES
 #
-print "Removing any existing staging or batch run directories"
+print("Removing any existing staging or batch run directories")
 if os.path.isdir(BASE_OUTDIR + '/batch-run'):
   shutil.rmtree(BASE_OUTDIR + '/batch-run')
 
 for batch_id in range(0, nbatches):
 
-  print "Making directories for batch {}".format(batch_id)
+  print("Making directories for batch {}".format(batch_id))
   mkdir_p(BASE_OUTDIR + '/batch-run/batch-{}'.format(batch_id))
 
   work_dir = BASE_OUTDIR + '/batch-run/'
     
-  print "Copy run mask, config file, etc for batch {}".format(batch_id)
+  print("Copy run mask, config file, etc for batch {}".format(batch_id))
   shutil.copy(BASE_RUNMASK, work_dir + '/batch-{}/'.format(batch_id))
   shutil.copy('config/config.js', work_dir + '/batch-{}/'.format(batch_id))
   
-  print "Reset the run mask for batch {}".format(batch_id)
+  print("Reset the run mask for batch {}".format(batch_id))
   with nc.Dataset(work_dir + '/batch-{}/run-mask.nc'.format(batch_id), 'a') as runmask:
     runmask.variables['run'][:] = np.zeros(runmask.variables['run'].shape)
   
@@ -122,7 +122,7 @@ with nc.Dataset(BASE_RUNMASK, 'r') as runmask:
 # For every cell that is turned on in the main run-mask, we assign this cell
 # to a batch to be run, and turn on the corresponding cell in the batch's
 # run mask.
-print "Turning on pixels in each batch's run mask..."
+print("Turning on pixels in each batch's run mask...")
 batch = 0
 cells_in_sublist = 0
 coord_list = zip(nz_ycoords, nz_xcoords)
@@ -133,7 +133,7 @@ for i, cell in enumerate(coord_list):
     cells_in_sublist += 1
 
   if (cells_in_sublist == IDEAL_CELLS_PER_BATCH) or (i == len(coord_list)-1):
-    print "Group {} will run {} cells...".format(batch, cells_in_sublist)
+    print("Group {} will run {} cells...".format(batch, cells_in_sublist))
     batch += 1
     cells_in_sublist = 0 
 
@@ -143,12 +143,12 @@ for i, cell in enumerate(coord_list):
 #
 number_batches = batch
 assert (nbatches == number_batches), "PROBLEM: Something is wrong with the batch numbers: {} vs {}".format(nbatches, number_batches)
-print "Split cells into {} batches...".format(number_batches)
+print("Split cells into {} batches...".format(number_batches))
 
 #
 # MODIFY THE CONFIG FILE FOR EACH BATCH
 #
-print "Modifying each batch's config file; changing path to run mask and to output directory..."
+print("Modifying each batch's config file; changing path to run mask and to output directory...")
 for batch_num in range(0, number_batches):
 
   with open(work_dir + '/batch-{}/config.js'.format(batch_num), 'r') as f:
@@ -205,7 +205,7 @@ for batch in range(0, number_batches):
   mpirun ./dvmdostem -f {2}/batch-{0}/config.js -l disabled --max-output-volume=-1 -p 100 -e 1000 -s 250 -t 115 -n 85 
 
   '''.format(batch, cells_in_batch, work_dir))
-  print "Writing sbatch script for batch {}".format(batch)
+  print("Writing sbatch script for batch {}".format(batch))
   with open(work_dir + "/batch-{}/slurm_runner.sh".format(batch), 'w') as f:
     f.write(slurm_runner_scriptlet)
   
