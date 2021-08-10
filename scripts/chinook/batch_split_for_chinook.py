@@ -71,9 +71,11 @@ with nc.Dataset(BASE_RUNMASK, 'r') as runmask:
   #  rigid in the model
   padded_cell_count = last_cell_index + 1
 
-nbatches = padded_cell_count / IDEAL_CELLS_PER_BATCH
+#nbatches = padded_cell_count / IDEAL_CELLS_PER_BATCH
+nbatches = TOTAL_CELLS_TO_RUN / IDEAL_CELLS_PER_BATCH
 # If there are extra cells, or fewer cells than IDEAL_CELLS_PER_BATCH
-if (padded_cell_count % IDEAL_CELLS_PER_BATCH != 0):
+#if (padded_cell_count % IDEAL_CELLS_PER_BATCH != 0):
+if (TOTAL_CELLS_TO_RUN % IDEAL_CELLS_PER_BATCH != 0):
   print("Adding another batch to pick up stragglers!")
   nbatches += 1
    
@@ -142,7 +144,7 @@ for i, cell in enumerate(coord_list):
 # SUMMARIZE
 #
 number_batches = batch
-assert (nbatches == number_batches), "PROBLEM: Something is wrong with the batch numbers: {} vs {}".format(nbatches, number_batches)
+#assert (nbatches == number_batches), "PROBLEM: Something is wrong with the batch numbers: {} vs {}".format(nbatches, number_batches)
 print("Split cells into {} batches...".format(number_batches))
 
 #
