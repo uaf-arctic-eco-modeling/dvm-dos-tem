@@ -9,6 +9,7 @@
 OUTPUT_DIR_PREFIX="/center1/AKINTMDL/rarutter/Toolik_50x50_ncarprodrun_20181204_0"
 OUTPUT_SPEC_PATH="./config/output_spec_production.csv"
 STAGES="eq sp tr sc"
+RES_STAGES="pr eq sp tr sc"
 TIMESTEPS="daily monthly yearly"
 BATCH_DIR="${OUTPUT_DIR_PREFIX}/batch-run"
 FINAL_DIR="${OUTPUT_DIR_PREFIX}/all-merged"
@@ -60,6 +61,22 @@ do
         fi
       done
     done
+  fi
+done
+
+# Next handle the restart files
+for stage in $RES_STAGES
+  do
+    filename="restart-$stage.nc"
+    echo "  --> stage: $stage"
+
+    filelist=$(find $BATCH_DIR -maxdepth 4 -type f -name $filename)
+    echo "THE FILE LIST IS: $filelist"
+
+  if [ ! -z "$filelist" ] ; then
+    ncea -O -h -y max $filelist "$FINAL_DIR/$filename"
+  else
+    echo "nothing to do - no restart files for stage $stage found?"
   fi
 done
 
