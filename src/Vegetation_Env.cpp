@@ -345,6 +345,8 @@ double Vegetation_Env::getRainInterception(const double & rain,
   // input: rain mm/day
   double rinter;
   double raincm = rain/10.; // convert to cm
+  //20200930 We do not have a citation for these equations
+  // and do not know why ircoef from the parameter files is not used.
   double max_int = raincm - ((raincm*0.77-0.05)+0.02 * raincm);
   // may need to add LAI adjustment?
   //

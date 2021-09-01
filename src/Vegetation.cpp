@@ -176,6 +176,7 @@ void Vegetation::set_state_from_restartdata(const RestartData & rd) {
     }
 
     cd->m_vegd.eetmx[ip]        = rd.eetmx[ip];
+    cd->m_vegd.unnormleaf[ip]   = rd.unnormleaf[ip];
     cd->m_vegd.unnormleafmx[ip] = rd.unnormleafmx[ip];
     cd->m_vegd.growingttime[ip] = rd.growingttime[ip];
     cd->m_vegd.topt[ip]         = rd.topt[ip];

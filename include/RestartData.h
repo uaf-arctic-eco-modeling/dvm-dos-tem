@@ -74,11 +74,13 @@ public :
   double vegc[NUM_PFT_PART][NUM_PFT]; // - 'vegs_bgc'
   double labn[NUM_PFT];
   double strn[NUM_PFT_PART][NUM_PFT];
+  double vegC2N[NUM_PFT_PART][NUM_PFT];
   double deadc[NUM_PFT];
   double deadn[NUM_PFT];
 
   double topt[NUM_PFT]; // yearly-evolved 'topt'
   double eetmx[NUM_PFT]; // yearly max. month 'eet'
+  double unnormleaf[NUM_PFT];
   double unnormleafmx[NUM_PFT]; // yearly max. unnormalized 'fleaf'
   double growingttime[NUM_PFT]; // yearly growthing t-time
 

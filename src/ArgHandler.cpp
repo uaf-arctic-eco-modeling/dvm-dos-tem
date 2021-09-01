@@ -44,6 +44,10 @@ void ArgHandler::parse(int argc, char** argv) {
      "such as PEcAn that makes assumptions about the presence of an output "
      "directory and may perform its own cleanup.")
 
+    ("restart-run", boost::program_options::bool_switch(&restart_run),
+     "This run will use a restart file - do not create new files that"
+     "would overwrite the files needed.")
+
     ("inter-stage-pause", boost::program_options::bool_switch(&inter_stage_pause),
      "With this flag, (and when in calibration mode), the model will pause and "
      "wait for user input at the end of each run-stage.")

@@ -148,6 +148,7 @@ void Vegetation_Bgc::set_state_from_restartdata(const RestartData & rdata) {
   for (int i=0; i<NUM_PFT_PART; i++) {
     bd->m_vegs.c[i]    = rdata.vegc[i][ipft];
     bd->m_vegs.strn[i] = rdata.strn[i][ipft];
+    bgcpar.c2neven[i] = rdata.vegC2N[i][ipft];
   }
 
   bd->m_vegs.labn = rdata.labn[ipft];
@@ -997,25 +998,26 @@ void Vegetation_Bgc::adapt_c2n_ratio_with_co2(
   }
 }
 
+//20201028 This function is an unused duplicate of the function
+// above (adapt_c2n_ratio_with_co2).
+//void Vegetation_Bgc::updateCNeven(const double & yreet, const double & yrpet,
+//                                  const double & initco2,
+//                                  const double & currentco2 ) {
+//  for (int i=0; i<NUM_PFT_PART; i++) {
+//    if (yrpet > 0.0) {
+//      bgcpar.c2neven[i] = bgcpar.c2nb[i] + bgcpar.c2na*(yreet/yrpet);
+//    } else {
+//      bgcpar.c2neven[i] = bgcpar.c2nb[i];
+//    }
 //
-void Vegetation_Bgc::updateCNeven(const double & yreet, const double & yrpet,
-                                  const double & initco2,
-                                  const double & currentco2 ) {
-  for (int i=0; i<NUM_PFT_PART; i++) {
-    if (yrpet > 0.0) {
-      bgcpar.c2neven[i] = bgcpar.c2nb[i] + bgcpar.c2na*(yreet/yrpet);
-    } else {
-      bgcpar.c2neven[i] = bgcpar.c2nb[i];
-    }
-
-    if (bgcpar.c2neven[i] < bgcpar.c2nmin[i]) {
-      bgcpar.c2neven[i] = bgcpar.c2nmin[i];
-    }
-
-    double adjc2n = 1.0 + (bgcpar.dc2n * (currentco2 - initco2));
-    bgcpar.c2neven[i] *= adjc2n;
-  }
-};
+//    if (bgcpar.c2neven[i] < bgcpar.c2nmin[i]) {
+//      bgcpar.c2neven[i] = bgcpar.c2nmin[i];
+//    }
+//
+//    double adjc2n = 1.0 + (bgcpar.dc2n * (currentco2 - initco2));
+//    bgcpar.c2neven[i] *= adjc2n;
+//  }
+//};
 
 // modified to reflect N uptake upon layered soil N, water content, and root distribution
 double Vegetation_Bgc::getNuptake(const double & foliage, const double & raq10,

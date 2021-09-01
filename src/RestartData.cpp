@@ -65,11 +65,14 @@ MPI_Datatype RestartData::register_mpi_datatype() {
     NUM_PFT, // double labn[NUM_PFT];
     
     NUM_PFT_PART * NUM_PFT, // double strn[NUM_PFT_PART][NUM_PFT];
+
+    NUM_PFT_PART * NUM_PFT, // double vegC2N[NUM_PFT_PART][NUM_PFT];
     
     NUM_PFT, // double deadc[NUM_PFT];
     NUM_PFT, // double deadn[NUM_PFT];
     NUM_PFT, // double topt[NUM_PFT];            // yearly-evolved 'topt'
     NUM_PFT, // double eetmx[NUM_PFT];           // yearly max. month 'eet'
+    NUM_PFT, // double unnormleaf[NUM_PFT];
     NUM_PFT, // double unnormleafmx[NUM_PFT];    // yearly max. unnormalized 'fleaf'
     NUM_PFT, // double growingttime[NUM_PFT];    // yearly growthing t-time
     NUM_PFT, // double foliagemx[NUM_PFT];        // this is for f(foliage) in GPP to be sure f(foliage) not going down
@@ -142,10 +145,12 @@ MPI_Datatype RestartData::register_mpi_datatype() {
     MPI_DOUBLE, // double vegc[NUM_PFT_PART][NUM_PFT];
     MPI_DOUBLE, // double labn[NUM_PFT];
     MPI_DOUBLE, // double strn[NUM_PFT_PART][NUM_PFT];
+    MPI_DOUBLE, // double vegC2N[NUM_PFT_PART][NUM_PFT];
     MPI_DOUBLE, // double deadc[NUM_PFT];
     MPI_DOUBLE, // double deadn[NUM_PFT];
     MPI_DOUBLE, // double topt[NUM_PFT];
     MPI_DOUBLE, // double eetmx[NUM_PFT];
+    MPI_DOUBLE, // double unnormleaf[NUM_PFT];
     MPI_DOUBLE, // double unnormleafmx[NUM_PFT];
     MPI_DOUBLE, // double growingttime[NUM_PFT];
     MPI_DOUBLE, // double foliagemx[NUM_PFT];
@@ -207,10 +212,12 @@ MPI_Datatype RestartData::register_mpi_datatype() {
     offsetof(RestartData, vegc),
     offsetof(RestartData, labn),
     offsetof(RestartData, strn),
+    offsetof(RestartData, vegC2N),
     offsetof(RestartData, deadc),
     offsetof(RestartData, deadn),
     offsetof(RestartData, topt),
     offsetof(RestartData, eetmx),
+    offsetof(RestartData, unnormleaf),
     offsetof(RestartData, unnormleafmx),
     offsetof(RestartData, growingttime),
     offsetof(RestartData, foliagemx),
@@ -295,6 +302,7 @@ void RestartData::reinitValue() {
     for (int i=0; i<NUM_PFT_PART; i++) {
       vegc[i][ip] = MISSING_D;
       strn[i][ip] = MISSING_D;
+      vegC2N[i][ip] = MISSING_D;
     }
 
     labn[ip]      = MISSING_D;
@@ -302,6 +310,7 @@ void RestartData::reinitValue() {
     deadn[ip]     = MISSING_D;
     topt[ip]  = MISSING_D;
     eetmx[ip] = MISSING_D;
+    unnormleaf[ip] = MISSING_D;
     unnormleafmx[ip] = MISSING_D;
     growingttime[ip] = MISSING_D;
     foliagemx[ip]    = MISSING_D;
@@ -477,13 +486,15 @@ void RestartData::verify_logical_values(){
     check_bounds("deadc", deadc[ii]);
     check_bounds("deadn", deadn[ii]);
     check_bounds("topt", topt[ii]);
-    check_bounds("eetmx", topt[ii]);
+    check_bounds("eetmx", eetmx[ii]);
+    check_bounds("unnormleaf", unnormleaf[ii]);
     check_bounds("unnormleafmx", unnormleafmx[ii]);
     check_bounds("growingttime", growingttime[ii]);
     check_bounds("foliagemx", foliagemx[ii]);
     for(int jj=0; jj<NUM_PFT_PART; jj++){
       check_bounds("vegc", vegc[jj][ii]);
       check_bounds("strn", strn[jj][ii]);
+      check_bounds("vegC2N", vegC2N[jj][ii]);
     }
     for(int jj=0; jj<MAX_ROT_LAY; jj++){
       check_bounds("rootfrac", rootfrac[jj][ii]);
@@ -637,6 +648,8 @@ void RestartData::read_px_pft_vars(const std::string& fname, const int rowidx, c
   temutil::nc( nc_inq_varid(ncid, "vegage", &cv) );
   temutil::nc( nc_get_vara_int(ncid, cv, start, count, &vegage[0]) );
   
+  temutil::nc( nc_inq_varid(ncid, "vegcov", &cv) );
+  temutil::nc( nc_get_vara_double(ncid, cv, start, count, &vegcov[0]) );
   temutil::nc( nc_inq_varid(ncid, "lai", &cv) );
   temutil::nc( nc_get_vara_double(ncid, cv, start, count, &lai[0]) );
   temutil::nc( nc_inq_varid(ncid, "vegwater", &cv) );
@@ -653,6 +666,8 @@ void RestartData::read_px_pft_vars(const std::string& fname, const int rowidx, c
   temutil::nc( nc_get_vara_double(ncid, cv, start, count, &topt[0]) );
   temutil::nc( nc_inq_varid(ncid, "eetmx", &cv) );
   temutil::nc( nc_get_vara_double(ncid, cv, start, count, &eetmx[0]) );
+  temutil::nc( nc_inq_varid(ncid, "unnormleaf", &cv) );
+  temutil::nc( nc_get_vara_double(ncid, cv, start, count, &unnormleaf[0]) );
   temutil::nc( nc_inq_varid(ncid, "unnormleafmx", &cv) );
   temutil::nc( nc_get_vara_double(ncid, cv, start, count, &unnormleafmx[0]) );
   temutil::nc( nc_inq_varid(ncid, "growingttime", &cv) );
@@ -689,6 +704,9 @@ void RestartData::read_px_pftpart_pft_vars(const std::string& fname, const int r
   
   temutil::nc( nc_inq_varid(ncid, "strn", &cv) );
   temutil::nc( nc_get_vara_double(ncid, cv, start, count, &strn[0][0]) );
+
+  temutil::nc( nc_inq_varid(ncid, "vegC2N", &cv) );
+  temutil::nc( nc_get_vara_double(ncid, cv, start, count, &vegC2N[0][0]) );
   
   temutil::nc( nc_close(ncid) );
 
@@ -790,6 +808,8 @@ void RestartData::read_px_soil_vars(const std::string& fname, const int rowidx, 
   temutil::nc( nc_get_vara_double(ncid, cv, start, count, &TSsoil[0]) );
   temutil::nc( nc_inq_varid(ncid, "LIQsoil", &cv) );
   temutil::nc( nc_get_vara_double(ncid, cv, start, count, &LIQsoil[0]) );
+  temutil::nc( nc_inq_varid(ncid, "ICEsoil", &cv) );
+  temutil::nc( nc_get_vara_double(ncid, cv, start, count, &ICEsoil[0]) );
   temutil::nc( nc_inq_varid(ncid, "FROZENFRACsoil", &cv) );
   temutil::nc( nc_get_vara_double(ncid, cv, start, count, &FROZENFRACsoil[0]) );
   temutil::nc( nc_inq_varid(ncid, "rawc", &cv) );
@@ -1015,6 +1035,7 @@ void RestartData::create_empty_file(const std::string& fname,
   int deadnV;
   int toptV;
   int eetmxV;
+  int unnormleafV;
   int unnormleafmxV;
   int growingttimeV;
   int foliagemxV;
@@ -1027,6 +1048,7 @@ void RestartData::create_empty_file(const std::string& fname,
   temutil::nc( nc_def_var(ncid, "deadn", NC_DOUBLE, 3, vartype3D_dimids, &deadnV) );
   temutil::nc( nc_def_var(ncid, "topt", NC_DOUBLE, 3, vartype3D_dimids, &toptV) );
   temutil::nc( nc_def_var(ncid, "eetmx", NC_DOUBLE, 3, vartype3D_dimids, &eetmxV) );
+  temutil::nc( nc_def_var(ncid, "unnormleaf", NC_DOUBLE, 3, vartype3D_dimids, &unnormleafV) );
   temutil::nc( nc_def_var(ncid, "unnormleafmx", NC_DOUBLE, 3, vartype3D_dimids, &unnormleafmxV) );
   temutil::nc( nc_def_var(ncid, "growingttime", NC_DOUBLE, 3, vartype3D_dimids, &growingttimeV) );
   temutil::nc( nc_def_var(ncid, "foliagemx", NC_DOUBLE, 3, vartype3D_dimids, &foliagemxV) );
@@ -1034,8 +1056,10 @@ void RestartData::create_empty_file(const std::string& fname,
   // Setup 4D vars, double
   int vegcV;
   int strnV;
+  int vegC2NV;
   temutil::nc( nc_def_var(ncid, "vegc", NC_DOUBLE, 4, vartype4D_dimids, &vegcV) );
   temutil::nc( nc_def_var(ncid, "strn", NC_DOUBLE, 4, vartype4D_dimids, &strnV) );
+  temutil::nc( nc_def_var(ncid, "vegC2N", NC_DOUBLE, 4, vartype4D_dimids, &vegC2NV) );
 
   // re-arrange dims in vartype
   vartype3D_dimids[0] = yD;
@@ -1265,6 +1289,8 @@ void RestartData::write_px_pft_vars(const std::string& fname, const int rowidx, 
   temutil::nc( nc_inq_varid(ncid, "vegage", &cv) );
   temutil::nc( nc_put_vara_int(ncid, cv, start, count, &vegage[0]) );
   
+  temutil::nc( nc_inq_varid(ncid, "vegcov", &cv) );
+  temutil::nc( nc_put_vara_double(ncid, cv, start, count, &vegcov[0]) );
   temutil::nc( nc_inq_varid(ncid, "lai", &cv) );
   temutil::nc( nc_put_vara_double(ncid, cv, start, count, &lai[0]) );
   temutil::nc( nc_inq_varid(ncid, "vegwater", &cv) );
@@ -1281,6 +1307,8 @@ void RestartData::write_px_pft_vars(const std::string& fname, const int rowidx, 
   temutil::nc( nc_put_vara_double(ncid, cv, start, count, &topt[0]) );
   temutil::nc( nc_inq_varid(ncid, "eetmx", &cv) );
   temutil::nc( nc_put_vara_double(ncid, cv, start, count, &eetmx[0]) );
+  temutil::nc( nc_inq_varid(ncid, "unnormleaf", &cv) );
+  temutil::nc( nc_put_vara_double(ncid, cv, start, count, &unnormleaf[0]) );
   temutil::nc( nc_inq_varid(ncid, "unnormleafmx", &cv) );
   temutil::nc( nc_put_vara_double(ncid, cv, start, count, &unnormleafmx[0]) );
   temutil::nc( nc_inq_varid(ncid, "growingttime", &cv) );
@@ -1321,7 +1349,10 @@ void RestartData::write_px_pftpart_pft_vars(const std::string& fname, const int 
   temutil::nc( nc_put_vara_double(ncid, cv, start, count, &vegc[0][0]) );
   
   temutil::nc( nc_inq_varid(ncid, "strn", &cv) );
-  temutil::nc( nc_put_vara_double(ncid, cv, start, count, &strn[0][0]) );
+  temutil::nc( nc_put_vara_double(ncid, cv, start, count, &strn[0][0]) ); 
+
+  temutil::nc( nc_inq_varid(ncid, "vegC2N", &cv) );
+  temutil::nc( nc_put_vara_double(ncid, cv, start, count, &vegC2N[0][0]) );
   
   temutil::nc( nc_close(ncid) );
 
@@ -1438,6 +1469,8 @@ void RestartData::write_px_soil_vars(const std::string& fname, const int rowidx,
   temutil::nc( nc_put_vara_double(ncid, cv, start, count, &TSsoil[0]) );
   temutil::nc( nc_inq_varid(ncid, "LIQsoil", &cv) );
   temutil::nc( nc_put_vara_double(ncid, cv, start, count, &LIQsoil[0]) );
+  temutil::nc( nc_inq_varid(ncid, "ICEsoil", &cv) );
+  temutil::nc( nc_put_vara_double(ncid, cv, start, count, &ICEsoil[0]) );
   temutil::nc( nc_inq_varid(ncid, "FROZENFRACsoil", &cv) );
   temutil::nc( nc_put_vara_double(ncid, cv, start, count, &FROZENFRACsoil[0]) );
   temutil::nc( nc_inq_varid(ncid, "rawc", &cv) );
@@ -1596,6 +1629,7 @@ void RestartData::restartdata_to_log(){
     BOOST_LOG_SEV(glg, debug) << "deadn[" << ii << "]: " << deadn[ii];
     BOOST_LOG_SEV(glg, debug) << "topt[" << ii << "]: " << topt[ii];
     BOOST_LOG_SEV(glg, debug) << "eetmx[" << ii << "]: " << eetmx[ii];
+    BOOST_LOG_SEV(glg, debug) << "unnormleaf[" << ii << "]: " << unnormleaf[ii];
     BOOST_LOG_SEV(glg, debug) << "unnormleafmx[" << ii << "]: " << unnormleafmx[ii];
     BOOST_LOG_SEV(glg, debug) << "growingttime[" << ii << "]: " << growingttime[ii];
     BOOST_LOG_SEV(glg, debug) << "foliagemx[" << ii << "]: " << foliagemx[ii];
@@ -1607,6 +1641,7 @@ void RestartData::restartdata_to_log(){
     for(int jj=0; jj<NUM_PFT_PART; jj++){
       BOOST_LOG_SEV(glg, debug) << "vegc[" << jj << "][" << ii << "]: " << vegc[jj][ii];
       BOOST_LOG_SEV(glg, debug) << "strn[" << jj << "][" << ii << "]: " << strn[jj][ii];
+      BOOST_LOG_SEV(glg, debug) << "vegC2N[" << jj << "][" << ii << "]: " << vegC2N[jj][ii];
     }
 
     for(int jj=0; jj<10; jj++){
