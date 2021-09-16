@@ -30,6 +30,8 @@ jobs:
         run: echo "Hello, world!"
       - name: Run thing
         run: echo $(pwd)
+      - name: test docker build
+        run: docker build --target cpp-dev --tag cpp-dev:0.0.1 .
       - name: Run my custom command
         run: git describe
       #- name: print pre defined env var
