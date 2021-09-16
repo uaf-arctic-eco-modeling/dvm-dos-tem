@@ -6,7 +6,7 @@ name: CI
 on:
   # Triggers the workflow on push or pull request events but only for the master branch
   push:
-    branches: [ master ]
+    branches: [ test-gh-actions ]
   pull_request:
     branches: [ master ]
 
@@ -31,11 +31,7 @@ jobs:
       - name: Run thing
         run: echo $(pwd)
       - name: test docker build
-        run: docker build --target cpp-dev --tag cpp-dev:0.0.1 .
-      - name: Run my custom command
-        run: git describe
-      #- name: print pre defined env var
-      #  run: echo "$MY_TAG" 
+        run: docker build --target cpp-dev --tag cpp-dev:0.0.1 . 
 
       # Runs a set of commands using the runners shell
       - name: Run a multi-line script
