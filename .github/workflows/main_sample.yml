@@ -28,8 +28,10 @@ jobs:
       # Runs a single command using the runners shell
       - name: Run a one-line script
         run: echo "Hello, world!"
+      - name: Run my custom command
         run: MY_TAG=$(git describe)
-        run: echo "$MY_TAG"
+      - name: print pre defined env var
+        run: echo "$MY_TAG" 
 
       # Runs a set of commands using the runners shell
       - name: Run a multi-line script
