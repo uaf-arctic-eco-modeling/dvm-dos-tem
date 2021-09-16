@@ -28,6 +28,8 @@ jobs:
       # Runs a single command using the runners shell
       - name: Run a one-line script
         run: echo "Hello, world!"
+      - name: Run thing
+        run: echo $(pwd)
       - name: Run my custom command
         run: git describe
       #- name: print pre defined env var
