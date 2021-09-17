@@ -90,6 +90,22 @@ class Sensitivity:
         with open(CONFIG_FILE, 'w') as f:
             json.dump(config, f, indent=2)
             
+        # Backup default params. The defaults will be static, and 
+        # in each run, the parameters in the parameters/ directory
+        # will be modified...
+        print('Backup default params...')
+        get_ipython().system('cp -r {self.work_dir}/parameters {self.work_dir}/default_parameters')
+        print()
+        print('---')
+
+        # Make an empty file for storing our sensitivity data
+        # and put the header in the file.
+        print("Create empty file for accumulating sensitivity results...")
+        with open('{}/sensitivity.csv'.format(self.work_dir), 'w') as f:
+            f.write('{:},{:}\n'.format('pvalue','output'))
+        print()
+        print('---')
+
     def update_param(self,new_value):
         # reading dvmdostem param file and puts it in the json format
         data = get_ipython().getoutput('param_util.py --dump-block-to-json {self.work_dir}/default_parameters/cmt_calparbgc.txt {self.CMTNUM}')
@@ -128,25 +144,23 @@ class Sensitivity:
     def run_model(self):
         command_line = '/work/dvmdostem'
         #options = '-p 50 -e 200 -s 0 -t 0 -n 0 -l err --force-cmt {}'.format(CMTNUM)
-        options = '-p 5 -e 5 -s 5 -t 5 -n 5 -l err --force-cmt {}'.format(self.CMTNUM)
+        ctrl_file = os.path.join(self.work_dir, 'config','config.js')
+        options = '-p 5 -e 5 -s 5 -t 5 -n 5 -l err --force-cmt {} --ctrl-file {}'.format(self.CMTNUM, ctrl_file)
         command_line = command_line + ' ' + options
         print (command_line)
         status=subprocess.call(command_line, shell=True)
 
 
-x=Sensitivity()
+x = Sensitivity()
 x.setup()
 
-# Backup default params
-get_ipython().system('cp -r {x.work_dir}/parameters {x.work_dir}/default_parameters')
-# Make a file for storing our sensitivity data
-# and put the header in the file.
-with open('{}/sensitivity.csv'.format(x.work_dir), 'w') as f:
-    f.write('{:},{:}\n'.format('pvalue','output'))
 
-os.chdir(x.work_dir)
+
+
+
 x.run_model()
 x.collect_outputs()
+
 
 for i in x.samples:
     print("adjust_param({:}) --> run_model() --> collect_outputs()".format(i))
