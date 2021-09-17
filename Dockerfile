@@ -71,6 +71,7 @@ RUN python --version
 RUN pip install -U pip pipenv
 RUN pip install matplotlib numpy pandas bokeh netCDF4 commentjson
 RUN pip install ipython
+RUN pip install jupyter
 #RUN pip install gdal ## Doesn't work...
 #RUN pip install GDAL ## Doesn't work...
 # docker build --target dvmdostem-build --tag dvmdostem-build:0.0.1 .
