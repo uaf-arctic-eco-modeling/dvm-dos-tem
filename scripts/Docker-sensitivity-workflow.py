@@ -1,3 +1,25 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# # The first prototype of the sensitivity analysis workflow. 
+# 
+# The workflow is designed to run from the inside of the docker container and assumes a specific folder layout.  
+# 
+# Authors: Tobey Carman and Elchin Jafarov
+
+# ## Working with the docker 
+# Assuming that docker was successfully installed, navigate to your local dvmdostem folder:
+# 
+# 1. Strat the containers <br/>
+# `$ docker compose up -d` <br/>
+# 2. Enter to the container <br/>
+# `$ docker compose exec dvmdostem-run bash` <br/>
+# 3. Start jupyter notebook inside the /work folder <br/>
+# `$ jupyter notebook --ip 0.0.0.0 --no-browser --allow-root` <br/>
+# 4. Copy the url into your browser. <br/>
+# 5. When done. Shut down container <br/>
+# `$ docker compose down` <br/>
+
 import netCDF4 as nc
 import matplotlib.pyplot as plt
 import numpy as np
@@ -7,8 +29,9 @@ import output_utils as ou
 import os
 import subprocess
 
+
 class Sensitivity:
-    """Sensitivity analysis class """
+    """Sensitivity analysis class."""
 
     def __init__(self):
         self.PARAM = 'cmax'
@@ -32,28 +55,24 @@ class Sensitivity:
         #copies config files and params directory
         #copy input data files to the D_RUNFOLDER folder
         print('Copy input files into the new_folder')
-        %run -i setup_working_directory.py \
-        --input-data-path {self.input_cat} {self.work_dir}
+        get_ipython().run_line_magic('run', '-i setup_working_directory.py         --input-data-path {self.input_cat} {self.work_dir}')
         print()
         print('---')
         
         print('Apply the mask')
-        %run -i runmask-util.py \
-        --reset --yx {self.PXy} {self.PXx} {self.work_dir}/run-mask.nc
+        get_ipython().run_line_magic('run', '-i runmask-util.py         --reset --yx {self.PXy} {self.PXx} {self.work_dir}/run-mask.nc')
         print()
         print('---')
         
         # Outputs: GPP, monthly and pft resolution
         print('Setup output variable temporal resolution')
-        %run -i outspec_utils.py \
-        {self.work_dir}/config/output_spec.csv --on GPP m p
+        get_ipython().run_line_magic('run', '-i outspec_utils.py         {self.work_dir}/config/output_spec.csv --on GPP m p')
         print()
         print('---')
         
         #Turn on the CMT output only yearly resolution
         print('Turn on the CMT output only yearly resolution')
-        %run -i outspec_utils.py \
-        {self.work_dir}/config/output_spec.csv --on CMTNUM y
+        get_ipython().run_line_magic('run', '-i outspec_utils.py         {self.work_dir}/config/output_spec.csv --on CMTNUM y')
         print()
         print('---')
         
@@ -73,7 +92,7 @@ class Sensitivity:
             
     def update_param(self,new_value):
         # reading dvmdostem param file and puts it in the json format
-        data = !param_util.py --dump-block-to-json {self.work_dir}/default_parameters/cmt_calparbgc.txt {self.CMTNUM}
+        data = get_ipython().getoutput('param_util.py --dump-block-to-json {self.work_dir}/default_parameters/cmt_calparbgc.txt {self.CMTNUM}')
         jdata = json.loads(data[0])
 
         pft = 'pft{}'.format(self.PFTNUM)
@@ -82,7 +101,7 @@ class Sensitivity:
         with open("tmp_json.json", 'w') as f:
             json.dump(jdata, f)
 
-        new_data = !param_util.py --fmt-block-from-json tmp_json.json {self.work_dir}/default_parameters/cmt_calparbgc.txt
+        new_data = get_ipython().getoutput('param_util.py --fmt-block-from-json tmp_json.json {self.work_dir}/default_parameters/cmt_calparbgc.txt')
 
         with open('{:}/parameters/cmt_calparbgc.txt'.format(self.work_dir), 'w') as f:
             # make sure to add newlines!
@@ -97,7 +116,7 @@ class Sensitivity:
         output_data = yr_gpp[-1:,self.PFTNUM,self.PXy,self.PXx]
 
         # Get the parameter value for the run
-        paramdata = !param_util.py --dump-block-to-json {self.work_dir}/parameters/cmt_calparbgc.txt {self.CMTNUM}
+        paramdata = get_ipython().getoutput('param_util.py --dump-block-to-json {self.work_dir}/parameters/cmt_calparbgc.txt {self.CMTNUM}')
         jparamdata = json.loads(paramdata[0])
         pft = 'pft{}'.format(self.PFTNUM)
         run_param_value = jparamdata[pft][self.PARAM]
@@ -114,13 +133,12 @@ class Sensitivity:
         print (command_line)
         status=subprocess.call(command_line, shell=True)
 
-#-----main-----
 
 x=Sensitivity()
 x.setup()
 
 # Backup default params
-!cp -r {x.work_dir}/parameters {x.work_dir}/default_parameters
+get_ipython().system('cp -r {x.work_dir}/parameters {x.work_dir}/default_parameters')
 # Make a file for storing our sensitivity data
 # and put the header in the file.
 with open('{}/sensitivity.csv'.format(x.work_dir), 'w') as f:
@@ -136,9 +154,17 @@ for i in x.samples:
     x.run_model()
     x.collect_outputs()
 
-#---visualize results
+
 df = pd.read_csv('{:}/sensitivity.csv'.format(x.work_dir))
-#df.head(4)
+df.head(4)
+
+
 df.plot()
+
+
 sens_df = pd.DataFrame(dict(pvalue=df.pvalue[1:], sensitivity=abs(df.output[0] - df.output[1:])/abs(df.output[0])))
 axes = sens_df.plot('pvalue', 'sensitivity', kind='line', ylabel='% error from default')
+
+
+
+
