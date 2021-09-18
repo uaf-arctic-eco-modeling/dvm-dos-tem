@@ -54,29 +54,32 @@ class Sensitivity:
     def setup(self):
         os.chdir('/work/scripts')
 
+        print("Cleaning up...")
+        print('----------')
         if os.path.exists(self.work_dir):
             os.system('rm -r {}'.format(self.work_dir))
+        print()
 
-        # copies config files and params directory
         print('Copy params, config files into the new_folder, adjust paths in config')
+        print('----------')
         program = '/work/scripts/setup_working_directory.py'
         opt_str = '--input-data-path {} {}'.format(self.input_cat, self.work_dir)
         cmdline = program + ' ' + opt_str
         print("Running setup:", cmdline)
         comp_proc = subprocess.run(cmdline, shell=True, check=True, capture_output=True) 
         print()
-        print('---')
 
         print('Apply the mask')
+        print('----------')
         program = '/work/scripts/runmask-util.py'
         options = '--reset --yx {} {} {}/run-mask.nc'.format(self.PXy, self.PXx, self.work_dir)
         cmdline = program + ' ' + options
         print("Running:", cmdline)
         comp_proc = subprocess.run(cmdline, shell=True, check=True, capture_output=True)
         print()
-        print('---')
         
         print('Enable output variables in outspec.csv file...')
+        print('----------')
         for v in self.output_vars:
             program = '/work/scripts/outspec_utils.py'
             options = '{}/config/output_spec.csv --on {} m p'.format(self.work_dir, v)
@@ -84,25 +87,24 @@ class Sensitivity:
             print("Running:", cmdline)
             comp_proc = subprocess.run(cmdline, shell=True, capture_output=True, check=True)
         print()
-        print('---')
 
-        #Turn on the CMT output only yearly resolution
         print('Turn on the CMT output only yearly resolution')
+        print('----------')
         program = '/work/scripts/outspec_utils.py'
         options = '{}/config/output_spec.csv --on CMTNUM y'.format(self.work_dir)
         cmdline = program + ' ' + options
         print("Running:", cmdline)
         comp_proc = subprocess.run(cmdline, shell=True, check=True, capture_output=True)
         print()
-        print('---')
         
-        # Config, enable eq outputs
+        print("Modify config file to enable equlibrium outputs...")
+        print('----------')
         CONFIG_FILE = self.work_dir + '/config/config.js'
         # Read the existing data into memory
         with open(CONFIG_FILE, 'r') as f:
             config = json.load(f)
             
-        # Modify it
+        # Modify value...
         config['IO']['output_nc_eq'] = 1
 
         # Write it back..
@@ -114,17 +116,17 @@ class Sensitivity:
         # in each run, the parameters in the parameters/ directory
         # will be modified...
         print('Backup default params...')
+        print('----------')
         get_ipython().system('cp -r {self.work_dir}/parameters {self.work_dir}/default_parameters')
         print()
-        print('---')
 
         # Make an empty file for storing our sensitivity data
         # and put the header in the file.
         print("Create empty file for accumulating sensitivity results...")
+        print('----------')
         with open('{}/sensitivity.csv'.format(self.work_dir), 'w') as f:
             f.write('{:},{:}\n'.format('pvalue','output'))
         print()
-        print('---')
 
     def update_param(self,new_value):
         # reading dvmdostem param file and puts it in the json format
@@ -144,6 +146,12 @@ class Sensitivity:
             f.write('\n'.join(new_data))
     
     def collect_outputs(self):
+
+        # Next step will be trying to loop over the self.output_vars...
+        # not sure how to handle sum over fluxes for pool vars??
+        # need more complicated data structure for self.output_vars that 
+        # can describe what the vars are??
+
         # Get the model output
         ds = nc.Dataset('{}/output/GPP_monthly_eq.nc'.format(self.work_dir))
         gpp = ds.variables['GPP'][:]
