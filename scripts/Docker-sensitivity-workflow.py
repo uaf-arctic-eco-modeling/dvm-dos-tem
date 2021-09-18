@@ -54,23 +54,20 @@ class Sensitivity:
     def setup(self):
         os.chdir('/work/scripts')
 
-        print("Cleaning up...")
-        print('----------')
+        print('---> Cleaning up...')
         if os.path.exists(self.work_dir):
             os.system('rm -r {}'.format(self.work_dir))
         print()
 
-        print('Copy params, config files into the new_folder, adjust paths in config')
-        print('----------')
+        print('---> Copy params, config files into the new_folder, adjust paths in config...')
         program = '/work/scripts/setup_working_directory.py'
         opt_str = '--input-data-path {} {}'.format(self.input_cat, self.work_dir)
         cmdline = program + ' ' + opt_str
-        print("Running setup:", cmdline)
+        print('Running setup:', cmdline)
         comp_proc = subprocess.run(cmdline, shell=True, check=True, capture_output=True) 
         print()
 
-        print('Apply the mask')
-        print('----------')
+        print('---> Apply the mask...')
         program = '/work/scripts/runmask-util.py'
         options = '--reset --yx {} {} {}/run-mask.nc'.format(self.PXy, self.PXx, self.work_dir)
         cmdline = program + ' ' + options
@@ -78,8 +75,7 @@ class Sensitivity:
         comp_proc = subprocess.run(cmdline, shell=True, check=True, capture_output=True)
         print()
         
-        print('Enable output variables in outspec.csv file...')
-        print('----------')
+        print('---> Enable output variables in outspec.csv file...')
         for v in self.output_vars:
             program = '/work/scripts/outspec_utils.py'
             options = '{}/config/output_spec.csv --on {} m p'.format(self.work_dir, v)
@@ -88,8 +84,7 @@ class Sensitivity:
             comp_proc = subprocess.run(cmdline, shell=True, capture_output=True, check=True)
         print()
 
-        print('Turn on the CMT output only yearly resolution')
-        print('----------')
+        print('---> Turn on the CMT output only yearly resolution...')
         program = '/work/scripts/outspec_utils.py'
         options = '{}/config/output_spec.csv --on CMTNUM y'.format(self.work_dir)
         cmdline = program + ' ' + options
@@ -97,8 +92,7 @@ class Sensitivity:
         comp_proc = subprocess.run(cmdline, shell=True, check=True, capture_output=True)
         print()
         
-        print("Modify config file to enable equlibrium outputs...")
-        print('----------')
+        print('---> Modify config file to enable equlibrium outputs...')
         CONFIG_FILE = self.work_dir + '/config/config.js'
         # Read the existing data into memory
         with open(CONFIG_FILE, 'r') as f:
@@ -111,19 +105,18 @@ class Sensitivity:
         print('CONFIG_FILE:',CONFIG_FILE,'was modified!')
         with open(CONFIG_FILE, 'w') as f:
             json.dump(config, f, indent=2)
+        print()
             
         # Backup default params. The defaults will be static, and 
         # in each run, the parameters in the parameters/ directory
         # will be modified...
-        print('Backup default params...')
-        print('----------')
+        print('---> Backup default params...')
         get_ipython().system('cp -r {self.work_dir}/parameters {self.work_dir}/default_parameters')
         print()
 
         # Make an empty file for storing our sensitivity data
         # and put the header in the file.
-        print("Create empty file for accumulating sensitivity results...")
-        print('----------')
+        print('---> Create empty file for accumulating sensitivity results...')
         with open('{}/sensitivity.csv'.format(self.work_dir), 'w') as f:
             f.write('{:},{:}\n'.format('pvalue','output'))
         print()
