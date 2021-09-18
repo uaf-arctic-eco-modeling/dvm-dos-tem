@@ -57,13 +57,16 @@ class Sensitivity:
         if os.path.exists(self.work_dir):
             os.system('rm -r {}'.format(self.work_dir))
 
-        #copies config files and params directory
-        #copy input data files to the D_RUNFOLDER folder
-        print('Copy input files into the new_folder')
-        get_ipython().run_line_magic('run', '-i setup_working_directory.py         --input-data-path {self.input_cat} {self.work_dir}')
+        # copies config files and params directory
+        print('Copy params, config files into the new_folder, adjust paths in config')
+        program = '/work/scripts/setup_working_directory.py'
+        opt_str = '--input-data-path {} {}'.format(self.input_cat, self.work_dir)
+        cmdline = program + ' ' + opt_str
+        print("Running setup:", cmdline)
+        comp_proc = subprocess.run(cmdline, shell=True, check=True, capture_output=True) 
         print()
         print('---')
-        
+
         print('Apply the mask')
         get_ipython().run_line_magic('run', '-i runmask-util.py         --reset --yx {self.PXy} {self.PXx} {self.work_dir}/run-mask.nc')
         print()
