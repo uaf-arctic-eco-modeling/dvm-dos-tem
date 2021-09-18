@@ -137,7 +137,7 @@ class Sensitivity:
         # and put the header in the file.
         print('---> Create empty file for accumulating sensitivity results...')
         with open('{}/sensitivity.csv'.format(self.work_dir), 'w') as f:
-            f.write('{:},{:}\n'.format('pvalue','output'))
+            f.write('{:},{:},{:}\n'.format('pvalue','output_gpp','output_vegc'))
         print()
 
     def update_param(self,new_value):
@@ -163,13 +163,17 @@ class Sensitivity:
         # not sure how to handle sum over fluxes for pool vars??
         # need more complicated data structure for self.output_vars that 
         # can describe what the vars are??
+        ds = nc.Dataset('{}/output/VEGC_monthly_eq.nc'.format(self.work_dir))
+        vegc = ds.variables['VEGC'][:]
+        yr_vegc = ou.average_monthly_pool_to_yearly(vegc)
+        out_vegc = yr_vegc[-1:,self.PFTNUM, self.PXy,self.PXx]
 
         # Get the model output
         ds = nc.Dataset('{}/output/GPP_monthly_eq.nc'.format(self.work_dir))
         gpp = ds.variables['GPP'][:]
         yr_gpp = ou.sum_monthly_flux_to_yearly(gpp)
         # grab the last time step
-        output_data = yr_gpp[-1:,self.PFTNUM,self.PXy,self.PXx]
+        out_gpp = yr_gpp[-1:,self.PFTNUM,self.PXy,self.PXx]
 
         # Get the parameter value for the run
         paramdata = get_ipython().getoutput('param_util.py --dump-block-to-json {self.work_dir}/parameters/cmt_calparbgc.txt {self.CMTNUM}')
@@ -178,8 +182,9 @@ class Sensitivity:
         run_param_value = jparamdata[pft][self.PARAM]
 
         #need to modify if we want to save timeseries output
+        # Need to syncronize this with setting up header!!
         with open('{}/sensitivity.csv'.format(self.work_dir), 'a') as f:
-            f.write('{:},{:}\n'.format(run_param_value, output_data[0]))
+            f.write('{:},{:},{:}\n'.format(run_param_value, out_gpp[0], out_vegc[0]))
 
     def run_model(self):
         m = "Running model..."
@@ -222,11 +227,18 @@ df = pd.read_csv('{:}/sensitivity.csv'.format(x.work_dir))
 df.head(4)
 
 
-df.plot()
+df.plot('pvalue','output_gpp')
+df.plot('pvalue','output_vegc')
 
 
-sens_df = pd.DataFrame(dict(pvalue=df.pvalue[1:], sensitivity=abs(df.output[0] - df.output[1:])/abs(df.output[0])))
-axes = sens_df.plot('pvalue', 'sensitivity', kind='line', ylabel='% error from default')
+gpp_sens_df = pd.DataFrame(dict(pvalue=df.pvalue[1:], sensitivity=abs(df.output_gpp[0] - df.output_gpp[1:])/abs(df.output_gpp[0])))
+vegc_sens_df = pd.DataFrame(dict(pvalue=df.pvalue[1:], sensitivity=abs(df.output_vegc[0] - df.output_vegc[1:])/abs(df.output_vegc[0])))
+
+axes = gpp_sens_df.plot('pvalue', 'sensitivity', kind='line', ylabel='% error from default')
+axes = vegc_sens_df.plot('pvalue', 'sensitivity', kind='line', ylabel='% error from default')
+
+
+
 
 
 
