@@ -77,14 +77,18 @@ class Sensitivity:
             program = '/work/scripts/outspec_utils.py'
             options = '{}/config/output_spec.csv --on {} m p'.format(self.work_dir, v)
             cmdline = program + ' ' + options
-            print(cmdline)
-            status = subprocess.call(cmdline, shell=True)
+            print("Running:", cmdline)
+            comp_proc = subprocess.run(cmdline, shell=True, capture_output=True, check=True)
         print()
         print('---')
 
         #Turn on the CMT output only yearly resolution
         print('Turn on the CMT output only yearly resolution')
-        get_ipython().run_line_magic('run', '-i outspec_utils.py         {self.work_dir}/config/output_spec.csv --on CMTNUM y')
+        program = '/work/scripts/outspec_utils.py'
+        options = '{}/config/output_spec.csv --on CMTNUM y'.format(self.work_dir)
+        cmdline = program + ' ' + options
+        print("Running:", cmdline)
+        comp_proc = subprocess.run(cmdline, shell=True, check=True, capture_output=True)
         print()
         print('---')
         
