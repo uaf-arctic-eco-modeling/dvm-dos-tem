@@ -28,7 +28,22 @@ import json
 import output_utils as ou
 import os
 import subprocess
+from contextlib import contextmanager
 
+
+
+
+
+
+
+
+@contextmanager
+def log_wrapper(message,tag=''):
+    print('[SA:{}] {}'.format(tag, message))
+    try:
+        yield
+    finally:
+        print()
 
 class Sensitivity:
     """Sensitivity analysis class."""
@@ -51,21 +66,25 @@ class Sensitivity:
         # the sample distribution range (in this case vcmax in [vcmax_min,vcmax_max])
         self.samples = np.linspace(start=100, stop=700, num=20)
 
+
     def setup(self):
+        '''Sequence of steps necessary to commence sensitvity analysis.'''
+
         os.chdir('/work/scripts')
 
-        print('---> Cleaning up...')
-        if os.path.exists(self.work_dir):
-            os.system('rm -r {}'.format(self.work_dir))
-        print()
+        with log_wrapper('Cleaning up...',tag='setup') as lw:
+            if os.path.exists(self.work_dir):
+                os.system('rm -r {}'.format(self.work_dir))
 
-        print('---> Copy params, config files into the new_folder, adjust paths in config...')
-        program = '/work/scripts/setup_working_directory.py'
-        opt_str = '--input-data-path {} {}'.format(self.input_cat, self.work_dir)
-        cmdline = program + ' ' + opt_str
-        print('Running setup:', cmdline)
-        comp_proc = subprocess.run(cmdline, shell=True, check=True, capture_output=True) 
-        print()
+        m = 'Copy params, config files into the new_folder, adjust paths in config...'
+        with log_wrapper(m,tag='setup') as lw:
+            program = '/work/scripts/setup_working_directory.py'
+            opt_str = '--input-data-path {} {}'.format(self.input_cat, self.work_dir)
+            cmdline = program + ' ' + opt_str
+            print('Running setup:', cmdline)
+            comp_proc = subprocess.run(cmdline, shell=True, check=True, capture_output=True) 
+            #print()
+
 
         print('---> Apply the mask...')
         program = '/work/scripts/runmask-util.py'
@@ -163,17 +182,19 @@ class Sensitivity:
             f.write('{:},{:}\n'.format(run_param_value, output_data[0]))
 
     def run_model(self):
-        program = '/work/dvmdostem'
-        ctrl_file = os.path.join(self.work_dir, 'config','config.js')
-        opt_str = '-p 5 -e 5 -s 5 -t 5 -n 5 -l err --force-cmt {} --ctrl-file {}'.format(self.CMTNUM, ctrl_file)
-        command_line = program + ' ' + opt_str
-        print("Running model: ", command_line)
-        completed_process = subprocess.run(
-            command_line,        # The program + options 
-            shell=True,          # must be used if passing options as str and not list
-            check=True,          # raise CalledProcessError on failure
-            capture_output=True, # collect stdout and stderr
-            cwd=self.work_dir)   # control context
+        m = "Running model..."
+        with log_wrapper(m, tag='run') as lw:
+            program = '/work/dvmdostem'
+            ctrl_file = os.path.join(self.work_dir, 'config','config.js')
+            opt_str = '-p 5 -e 5 -s 5 -t 5 -n 5 -l err --force-cmt {} --ctrl-file {}'.format(self.CMTNUM, ctrl_file)
+            command_line = program + ' ' + opt_str
+            print("Running command: ", command_line)
+            completed_process = subprocess.run(
+                command_line,        # The program + options 
+                shell=True,          # must be used if passing options as str and not list
+                check=True,          # raise CalledProcessError on failure
+                capture_output=True, # collect stdout and stderr
+                cwd=self.work_dir)   # control context
 
 
 x = Sensitivity()
