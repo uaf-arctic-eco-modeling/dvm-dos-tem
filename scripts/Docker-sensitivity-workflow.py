@@ -69,7 +69,6 @@ class Sensitivity:
         print()
         print('---')
         
-        # Outputs: GPP, monthly and pft resolution
         print('Enable output variables in outspec.csv file...')
         for v in self.output_vars:
             program = '/work/scripts/outspec_utils.py'
@@ -152,13 +151,12 @@ class Sensitivity:
             f.write('{:},{:}\n'.format(run_param_value, output_data[0]))
 
     def run_model(self):
-        command_line = '/work/dvmdostem'
-        #options = '-p 50 -e 200 -s 0 -t 0 -n 0 -l err --force-cmt {}'.format(CMTNUM)
+        program = '/work/dvmdostem'
         ctrl_file = os.path.join(self.work_dir, 'config','config.js')
-        options = '-p 5 -e 5 -s 5 -t 5 -n 5 -l err --force-cmt {} --ctrl-file {}'.format(self.CMTNUM, ctrl_file)
-        command_line = command_line + ' ' + options
-        print("Calling to run model: ", command_line)
-        status=subprocess.call(command_line, shell=True, cwd=self.work_dir)
+        opt_str = '-p 5 -e 5 -s 5 -t 5 -n 5 -l err --force-cmt {} --ctrl-file {}'.format(self.CMTNUM, ctrl_file)
+        command_line = program + ' ' + opt_str
+        print("Running model: ", command_line)
+        completed_process = subprocess.run(command_line, shell=True, check=True, capture_output=True, cwd=self.work_dir)
 
 
 x = Sensitivity()
