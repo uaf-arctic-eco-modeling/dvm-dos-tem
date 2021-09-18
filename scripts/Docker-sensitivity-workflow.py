@@ -37,9 +37,14 @@ class Sensitivity:
         self.PARAM = 'cmax'
         self.PFTNUM = 1 #plant functional type
         self.CMTNUM = 4 #community type
+
         # row and columns location of the point/site
-        self.PXx = 0; 
-        self.PXy = 0 
+        self.PXx = 0
+        self.PXy = 0
+
+        # output variables to use...
+        self.output_vars = ('GPP','VEGC','VEGN')
+
         # the variable corresponds to the path where we will run the analysis
         self.work_dir = '/data/workflows/sensitivity_analysis'
         self.input_cat = '/data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_CALM_Toolik_LTER_10x10/'
@@ -65,11 +70,16 @@ class Sensitivity:
         print('---')
         
         # Outputs: GPP, monthly and pft resolution
-        print('Setup output variable temporal resolution')
-        get_ipython().run_line_magic('run', '-i outspec_utils.py         {self.work_dir}/config/output_spec.csv --on GPP m p')
+        print('Enable output variables in outspec.csv file...')
+        for v in self.output_vars:
+            program = '/work/scripts/outspec_utils.py'
+            options = '{}/config/output_spec.csv --on {} m p'.format(self.work_dir, v)
+            cmdline = program + ' ' + options
+            print(cmdline)
+            status = subprocess.call(cmdline, shell=True)
         print()
         print('---')
-        
+
         #Turn on the CMT output only yearly resolution
         print('Turn on the CMT output only yearly resolution')
         get_ipython().run_line_magic('run', '-i outspec_utils.py         {self.work_dir}/config/output_spec.csv --on CMTNUM y')
@@ -160,6 +170,9 @@ x.setup()
 
 x.run_model()
 x.collect_outputs()
+
+
+
 
 
 for i in x.samples:
