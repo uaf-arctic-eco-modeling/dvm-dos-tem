@@ -68,7 +68,11 @@ class Sensitivity:
         print('---')
 
         print('Apply the mask')
-        get_ipython().run_line_magic('run', '-i runmask-util.py         --reset --yx {self.PXy} {self.PXx} {self.work_dir}/run-mask.nc')
+        program = '/work/scripts/runmask-util.py'
+        options = '--reset --yx {} {} {}/run-mask.nc'.format(self.PXy, self.PXx, self.work_dir)
+        cmdline = program + ' ' + options
+        print("Running:", cmdline)
+        comp_proc = subprocess.run(cmdline, shell=True, check=True, capture_output=True)
         print()
         print('---')
         
