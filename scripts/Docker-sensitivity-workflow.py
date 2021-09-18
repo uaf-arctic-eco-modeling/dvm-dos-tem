@@ -156,7 +156,12 @@ class Sensitivity:
         opt_str = '-p 5 -e 5 -s 5 -t 5 -n 5 -l err --force-cmt {} --ctrl-file {}'.format(self.CMTNUM, ctrl_file)
         command_line = program + ' ' + opt_str
         print("Running model: ", command_line)
-        completed_process = subprocess.run(command_line, shell=True, check=True, capture_output=True, cwd=self.work_dir)
+        completed_process = subprocess.run(
+            command_line,        # The program + options 
+            shell=True,          # must be used if passing options as str and not list
+            check=True,          # raise CalledProcessError on failure
+            capture_output=True, # collect stdout and stderr
+            cwd=self.work_dir)   # control context
 
 
 x = Sensitivity()
