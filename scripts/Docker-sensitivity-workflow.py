@@ -147,8 +147,8 @@ class Sensitivity:
         ctrl_file = os.path.join(self.work_dir, 'config','config.js')
         options = '-p 5 -e 5 -s 5 -t 5 -n 5 -l err --force-cmt {} --ctrl-file {}'.format(self.CMTNUM, ctrl_file)
         command_line = command_line + ' ' + options
-        print (command_line)
-        status=subprocess.call(command_line, shell=True)
+        print("Calling to run model: ", command_line)
+        status=subprocess.call(command_line, shell=True, cwd=self.work_dir)
 
 
 x = Sensitivity()
