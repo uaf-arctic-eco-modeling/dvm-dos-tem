@@ -989,12 +989,13 @@ def is_ecosys_contributor(cmtstr, pftnum=None, compartment=None, ref_params_dir=
 
   return is_contrib
 
-def which_file(pdir, pname, lookup_struct):
+def which_file(pdir, pname):
   '''
   Searches thru provided lookup structure (see build_param_lookiup)
   for parameter. 
   Returns filename if found, othewise raises RuntimeError!
   '''
+  lookup_struct = build_param_lookup(pdir)
   for fname, lu in lookup_struct.items():
     if pname in lu['non_pft_params']:
         return fname
@@ -1042,7 +1043,7 @@ def update_inplace(new_value, param_dir, pname, cmtnum, pftnum=None):
   #pu.update_inplace(1.2334, '{}/parameters/'.format(x.work_dir), 'cmax', 4, pft=0)
   #pu.update_inplace(87.456, '{}/parameters/'.format(x.work_dir), 'rhq10', 4, pft=None)
 
-  f = which_file(param_dir, pname, build_param_lookup(param_dir))
+  f = which_file(param_dir, pname)
   
   cmt_dict = cmtdatablock2dict(get_CMT_datablock(f, cmtnum))
 
