@@ -44,17 +44,17 @@ class Sensitivity:
     """Sensitivity analysis class."""
 
     def __init__(self):
-        self.PARAM = 'cmax'
-        self.PFTNUM = 1 #plant functional type
-        self.CMTNUM = 4 #community type
 
         # row and columns location of the point/site
         self.PXx = 0
         self.PXy = 0
 
-        # output variables to use...
-        self.output_vars = ('GPP','VEGC','VEGN')
+        # workspace location, input location
+        self.work_dir = '/data/workflows/sensitivity_analysis'
+        self.input_cat = '/data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_CALM_Toolik_LTER_10x10/'
 
+
+        # output variables to use...
         self.outputs = [
             {
                 'name':'GPP',
@@ -67,27 +67,62 @@ class Sensitivity:
             {
                 'name':'VEGN',
                 'type':'pool'
-            }
+            },
+
 
         ]
-        # the variable corresponds to the path where we will run the analysis
-        self.work_dir = '/data/workflows/sensitivity_analysis'
-        self.input_cat = '/data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_CALM_Toolik_LTER_10x10/'
-        # the sample distribution range (in this case vcmax in [vcmax_min,vcmax_max])
-        self.samples = np.linspace(start=100, stop=700, num=5)
 
         self.params = [
             {
                 'name': 'cmax',
-                'file': 'cmt_calparbgc.txt',
+                'cmtnum': 4,
+                'pftnum': 1,
                 'samples': np.linspace(start=100, stop=700, num=5)
             },
             {
                 'name': 'rhq10',
-                'file': 'cmt_bgcsoil.txt',
+                'cmtnum': 4,
+                'pftnum': None,
                 'samples': np.linspace(start=0.01, stop=5, num=5) 
             }
         ]
+
+    def PFTNUM(self):
+        '''Not sure what to do with this one...
+        should the pft that the outputs look at be the same as the param pfts?
+        what about non-pft outputs?
+        '''
+        pft_nums = set([item['pftnum'] for item in self.params])
+        pft_nums.discard(None) # Get rid of None from soil (non-pft) params...
+        if not (len(pft_nums) == 1):
+            raise RuntimeError("Problem!! You must have consistent PFT NUMBERS in parameter specification!")
+        return pft_nums.pop()
+
+    def CMTNUM(self):
+        '''
+        Look at the param dictionary, extract the CMT 
+        numbers specified, make sure they are consistent,
+        and return the number.
+
+        Returns
+        -------
+        cmtnum : int
+          the cmtnumber specified in the param dictionaries
+
+        Raises
+        ------
+        RuntimeError :
+          if there is an inconsistency in cmtnumber
+          amongst the parameter specifications
+        '''
+        cmt_nums = set([item['cmtnum'] for item in self.params])
+
+        if not (len(cmt_nums) == 1):
+            raise RuntimeError("Problem!! You must have consistent CMT NUMBERS in parameter specification!")
+
+        return cmt_nums.pop()
+
+
 
     def setup(self):
         '''Sequence of steps necessary to commence sensitvity analysis.'''
@@ -117,9 +152,9 @@ class Sensitivity:
         print()
 
         print('---> Enable output variables in outspec.csv file...')
-        for v in self.output_vars:
+        for output_spec in self.outputs:
             program = '/work/scripts/outspec_utils.py'
-            options = '{}/config/output_spec.csv --on {} m p'.format(self.work_dir, v)
+            options = '{}/config/output_spec.csv --on {} m p'.format(self.work_dir, output_spec['name'])
             cmdline = program + ' ' + options
             print("Running:", cmdline)
             comp_proc = subprocess.run(cmdline, shell=True, capture_output=True, check=True)
@@ -167,6 +202,10 @@ class Sensitivity:
             f.write('{:},{:},{:},{:}\n'.format('pname','pvalue','output_gpp','output_vegc'))
         print()
     
+    def update_param(self, new_value, pname):
+        pftnum = [i['pftnum'] for i in self.params if i['name']==pname]
+        pu.update_inplace(new_value, '{}/parameters/'.format(x.work_dir), pname, self.CMTNUM(), pftnum[0])
+
     def collect_outputs(self, param_dict=None):
 
         # Next step will be trying to loop over the self.output_vars...
@@ -176,28 +215,30 @@ class Sensitivity:
         ds = nc.Dataset('{}/output/VEGC_monthly_eq.nc'.format(self.work_dir))
         vegc = ds.variables['VEGC'][:]
         yr_vegc = ou.average_monthly_pool_to_yearly(vegc)
-        out_vegc = yr_vegc[-1:,self.PFTNUM, self.PXy,self.PXx]
+        out_vegc = yr_vegc[-1:,self.PFTNUM(), self.PXy,self.PXx]
 
         # Get the model output
         ds = nc.Dataset('{}/output/GPP_monthly_eq.nc'.format(self.work_dir))
         gpp = ds.variables['GPP'][:]
         yr_gpp = ou.sum_monthly_flux_to_yearly(gpp)
         # grab the last time step
-        out_gpp = yr_gpp[-1:,self.PFTNUM,self.PXy,self.PXx]
+        out_gpp = yr_gpp[-1:,self.PFTNUM(),self.PXy,self.PXx]
 
         if param_dict['name'] == 'default':
             with open('{}/sensitivity_{}.csv'.format(self.work_dir, param_dict['name']), 'a') as f:
                 f.write('{:},{:},{:},{:}\n'.format(param_dict['name'], '', out_gpp[0], out_vegc[0]))
 
         else:
-            paramdata = get_ipython().getoutput("param_util.py --dump-block-to-json {self.work_dir}/parameters/{param_dict['file']} {self.CMTNUM}")
+            CMT = self.CMTNUM()
+            f = pu.which_file(self.work_dir + '/parameters', param_dict['name'])
+            paramdata = get_ipython().getoutput('param_util.py --dump-block-to-json {f} {CMT}')
             jparamdata = json.loads(paramdata[0])
             #print(jparamdata)
             #print()
             if param_dict['name'] in jparamdata.keys():
                 run_param_value = jparamdata[param_dict['name']]
             else:
-                pft = 'pft{}'.format(self.PFTNUM)
+                pft = 'pft{}'.format(self.PFTNUM())
                 run_param_value = jparamdata[pft][param_dict['name']]
 
             # Need to modify if we want to save timeseries output!!
@@ -212,7 +253,7 @@ class Sensitivity:
         with log_wrapper(m, tag='run') as lw:
             program = '/work/dvmdostem'
             ctrl_file = os.path.join(self.work_dir, 'config','config.js')
-            opt_str = '-p 5 -e 5 -s 5 -t 5 -n 5 -l err --force-cmt {} --ctrl-file {}'.format(self.CMTNUM, ctrl_file)
+            opt_str = '-p 5 -e 5 -s 5 -t 5 -n 5 -l err --force-cmt {} --ctrl-file {}'.format(self.CMTNUM(), ctrl_file)
             command_line = program + ' ' + opt_str
             print("Running command: ", command_line)
             completed_process = subprocess.run(
@@ -230,8 +271,31 @@ x.setup()
 get_ipython().system('ls /data/workflows/sensitivity_analysis/')
 
 
+x.params
+
+
 x.run_model()
+# x.write_defaults()
+# x.params
+
+#sensitivity_defaults.csv
+# pname,pvalue,output_gpp,output_vegc
+# cmax,100,164.25517511367798,443.6672061284383
+# rhq10,0.5,164.25517511367798,443.6672061284383
+# vcmax,200,164.25517511367798,443.6672061284383
+
+# sensitivity_default.csv
+# output_gpp, output_vegc
+#x.write_param_dict()
+
 x.collect_outputs({'name':'default','file':''})
+
+
+#!cat /data/workflows/sensitivity_analysis/default_param_values.csv
+print()
+# pname,default_value
+# cmax,100
+# rhq10,0.5
 
 
 get_ipython().system('cat /data/workflows/sensitivity_analysis/sensitivity_default.csv')
@@ -247,10 +311,7 @@ get_ipython().system('cat /data/workflows/sensitivity_analysis/sensitivity_rhq10
 # Work in progress....
 for param_dict in x.params:
     for sample in param_dict['samples']:
-        
-        # Maybe should wrap this in class method...
-        pu.update_inplace(sample, '{}/parameters/'.format(x.work_dir), param_dict['name'], x.CMTNUM, x.PFTNUM)
-        
+        x.update_param(sample, param_dict['name'])
         x.run_model()
         x.collect_outputs(param_dict)
 
