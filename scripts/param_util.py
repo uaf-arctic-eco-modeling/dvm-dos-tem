@@ -765,10 +765,13 @@ def generate_reference_order(aFile):
     in the order they appear in the input file.
   '''
 
-  cmt_calparbgc = []
-  db = get_CMT_datablock(aFile, 0)
+  available_cmts = get_CMTs_in_file(aFile)
+  if not (len(available_cmts) > 0):
+    raise RuntimeError("Invalid file! Can't find any CMT data blocks!")
+  print("Using CMT{} as reference...".format(available_cmts[0]['cmtnum']))
+  db = get_CMT_datablock(aFile, available_cmts[0]['cmtnum'])
 
-  pftblock = detect_block_with_pft_info(db)
+  #pftblock = detect_block_with_pft_info(db)
 
   ref_order = []
 
