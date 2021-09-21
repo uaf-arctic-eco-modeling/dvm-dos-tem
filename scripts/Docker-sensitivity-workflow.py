@@ -26,15 +26,10 @@ import numpy as np
 import pandas as pd
 import json
 import output_utils as ou
+import param_util as pu
 import os
 import subprocess
 from contextlib import contextmanager
-
-
-
-
-
-
 
 
 @contextmanager
@@ -79,18 +74,18 @@ class Sensitivity:
         self.work_dir = '/data/workflows/sensitivity_analysis'
         self.input_cat = '/data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_CALM_Toolik_LTER_10x10/'
         # the sample distribution range (in this case vcmax in [vcmax_min,vcmax_max])
-        self.samples = np.linspace(start=100, stop=700, num=20)
+        self.samples = np.linspace(start=100, stop=700, num=5)
 
         self.params = [
             {
                 'name': 'cmax',
                 'file': 'cmt_calparbgc.txt',
-                'samples': np.linspace(start=100, stop=700, num=20)
+                'samples': np.linspace(start=100, stop=700, num=5)
             },
             {
                 'name': 'rhq10',
                 'file': 'cmt_bgcsoil.txt',
-                'samples': np.linspace(start=0.01, stop=5, num=20) 
+                'samples': np.linspace(start=0.01, stop=5, num=5) 
             }
         ]
 
@@ -120,7 +115,7 @@ class Sensitivity:
         print("Running:", cmdline)
         comp_proc = subprocess.run(cmdline, shell=True, check=True, capture_output=True)
         print()
-        
+
         print('---> Enable output variables in outspec.csv file...')
         for v in self.output_vars:
             program = '/work/scripts/outspec_utils.py'
@@ -160,64 +155,19 @@ class Sensitivity:
         get_ipython().system('cp -r {self.work_dir}/parameters {self.work_dir}/default_parameters')
         print()
 
+        for p in self.params:
+            with open('{}/sensitivity_{}.csv'.format(self.work_dir, p['name']), 'w') as f:
+                f.write('{:},{:},{:},{:}\n'.format('pname','pvalue','output_gpp','output_vegc'))
+            print()
+            
         # Make an empty file for storing our sensitivity data
         # and put the header in the file.
         print('---> Create empty file for accumulating sensitivity results...')
-        with open('{}/sensitivity.csv'.format(self.work_dir), 'w') as f:
-            f.write('{:},{:},{:}\n'.format('pvalue','output_gpp','output_vegc'))
+        with open('{}/sensitivity_{}.csv'.format(self.work_dir, 'default'), 'w') as f:
+            f.write('{:},{:},{:},{:}\n'.format('pname','pvalue','output_gpp','output_vegc'))
         print()
-
-    def update(self, pdict, new_value):
-        '''Figure out which parameter (file) to modify and modify it...'''
-        print(pdict['name'], pdict['file'], new_value)
-        program = '/work/scripts/param_util.py'
-        pfile = os.path.join(self.work_dir, 'default_parameters/', pdict['file'])
-        options = '--dump-block-to-json {} {}'.format(pfile, self.CMTNUM)
-        cmdline = program + ' ' + options
-        print("Running:", cmdline)
-        comp_proc = subprocess.run(cmdline, shell=True, check=True, capture_output=True)
-        #print(comp_proc)
-        data = comp_proc.stdout.decode('utf-8')
-        jdata = json.loads(data)
-
-        # Need to decide if the param is a pft param!
-        if pdict['name'] in jdata.keys():
-            # Not a PFT parameter...
-            jdata[pdict['name']] = new_value
-        else:
-            pft = 'pft{}'.format(self.PFTNUM)
-            jdata[pft][pdict['name']] = new_value
-
-        with open("tmp_json.json", 'w') as f:
-            json.dump(jdata, f)
-
-        new_data = get_ipython().getoutput("param_util.py --fmt-block-from-json tmp_json.json {self.work_dir}/default_parameters/{pdict['file']}")
-        with open('{:}/parameters/{:}'.format(self.work_dir, pdict['file']), 'w') as f:
-            # make sure to add newlines!
-            f.write('\n'.join(new_data))
-
-        get_ipython().system("grep {pdict['name']} {self.work_dir}/parameters/{pdict['file']}")
-
-
-
-    def update_param(self,new_value):
-        # reading dvmdostem param file and puts it in the json format
-        data = get_ipython().getoutput('param_util.py --dump-block-to-json {self.work_dir}/default_parameters/cmt_calparbgc.txt {self.CMTNUM}')
-        jdata = json.loads(data[0])
-
-        pft = 'pft{}'.format(self.PFTNUM)
-        jdata[pft][self.PARAM] = new_value
-
-        with open("tmp_json.json", 'w') as f:
-            json.dump(jdata, f)
-
-        new_data = get_ipython().getoutput('param_util.py --fmt-block-from-json tmp_json.json {self.work_dir}/default_parameters/cmt_calparbgc.txt')
-
-        with open('{:}/parameters/cmt_calparbgc.txt'.format(self.work_dir), 'w') as f:
-            # make sure to add newlines!
-            f.write('\n'.join(new_data))
     
-    def collect_outputs(self):
+    def collect_outputs(self, param_dict=None):
 
         # Next step will be trying to loop over the self.output_vars...
         # not sure how to handle sum over fluxes for pool vars??
@@ -235,16 +185,27 @@ class Sensitivity:
         # grab the last time step
         out_gpp = yr_gpp[-1:,self.PFTNUM,self.PXy,self.PXx]
 
-        # Get the parameter value for the run
-        paramdata = get_ipython().getoutput('param_util.py --dump-block-to-json {self.work_dir}/parameters/cmt_calparbgc.txt {self.CMTNUM}')
-        jparamdata = json.loads(paramdata[0])
-        pft = 'pft{}'.format(self.PFTNUM)
-        run_param_value = jparamdata[pft][self.PARAM]
+        if param_dict['name'] == 'default':
+            with open('{}/sensitivity_{}.csv'.format(self.work_dir, param_dict['name']), 'a') as f:
+                f.write('{:},{:},{:},{:}\n'.format(param_dict['name'], '', out_gpp[0], out_vegc[0]))
 
-        #need to modify if we want to save timeseries output
-        # Need to syncronize this with setting up header!!
-        with open('{}/sensitivity.csv'.format(self.work_dir), 'a') as f:
-            f.write('{:},{:},{:}\n'.format(run_param_value, out_gpp[0], out_vegc[0]))
+        else:
+            paramdata = get_ipython().getoutput("param_util.py --dump-block-to-json {self.work_dir}/parameters/{param_dict['file']} {self.CMTNUM}")
+            jparamdata = json.loads(paramdata[0])
+            #print(jparamdata)
+            #print()
+            if param_dict['name'] in jparamdata.keys():
+                run_param_value = jparamdata[param_dict['name']]
+            else:
+                pft = 'pft{}'.format(self.PFTNUM)
+                run_param_value = jparamdata[pft][param_dict['name']]
+
+            # Need to modify if we want to save timeseries output!!
+            # Need to syncronize this with setting up header!!
+            with open('{}/sensitivity_{}.csv'.format(self.work_dir,param_dict['name']), 'a') as f:
+                f.write('{:},{:},{:},{:}\n'.format(param_dict['name'], run_param_value, out_gpp[0], out_vegc[0]))
+
+
 
     def run_model(self):
         m = "Running model..."
@@ -266,11 +227,18 @@ x = Sensitivity()
 x.setup()
 
 
-
+get_ipython().system('ls /data/workflows/sensitivity_analysis/')
 
 
 x.run_model()
-x.collect_outputs()
+x.collect_outputs({'name':'default','file':''})
+
+
+get_ipython().system('cat /data/workflows/sensitivity_analysis/sensitivity_default.csv')
+print()
+get_ipython().system('cat /data/workflows/sensitivity_analysis/sensitivity_cmax.csv')
+print()
+get_ipython().system('cat /data/workflows/sensitivity_analysis/sensitivity_rhq10.csv')
 
 
 
@@ -279,33 +247,48 @@ x.collect_outputs()
 # Work in progress....
 for param_dict in x.params:
     for sample in param_dict['samples']:
-        x.update(param_dict, sample)
+        
+        # Maybe should wrap this in class method...
+        pu.update_inplace(sample, '{}/parameters/'.format(x.work_dir), param_dict['name'], x.CMTNUM, x.PFTNUM)
+        
         x.run_model()
-        x.collect_outputs()
+        x.collect_outputs(param_dict)
 
 
-get_ipython().system('ls /data/workflows/sensitivity_analysis/')
-get_ipython().system('cat /data/workflows/sensitivity_analysis/sensitivity.csv')
+get_ipython().system('cat /data/workflows/sensitivity_analysis/sensitivity_default.csv')
+print()
+get_ipython().system('cat /data/workflows/sensitivity_analysis/sensitivity_cmax.csv')
+print()
+get_ipython().system('cat /data/workflows/sensitivity_analysis/sensitivity_rhq10.csv')
 
 
-# for i in x.samples:
-#     print("adjust_param({:}) --> run_model() --> collect_outputs()".format(i))
-#     x.update_param(i)
-#     x.run_model()
-#     x.collect_outputs()
 
 
-df = pd.read_csv('{:}/sensitivity.csv'.format(x.work_dir))
-df.head(4)
+
+df_cmax = pd.read_csv('{:}/sensitivity_cmax.csv'.format(x.work_dir))
+df_rhq10 = pd.read_csv('{}/sensitivity_rhq10.csv'.format(x.work_dir))
+df_default = pd.read_csv('{}/sensitivity_default.csv'.format(x.work_dir))
+print(df_cmax.head())
+print(df_rhq10.head())
+print(df_default.head())
 
 
-fig, axes = plt.subplots(2, sharex=True)
-axes[0].plot(df.pvalue[1:], df.output_gpp[1:])
-axes[0].plot(df.pvalue[0], df.output_gpp[0], marker='^', color='red')
+
+
+
+fig, axes = plt.subplots(2,2)
+axes[0,0].plot(df_cmax.pvalue, df_cmax.output_gpp)
+axes[1,0].plot(df_cmax.pvalue, df_cmax.output_vegc)
+
+axes[0,1].plot(df_rhq10.pvalue, df_rhq10.output_gpp)
+axes[1,1].plot(df_rhq10.pvalue, df_rhq10.output_vegc)
+
+#axes[0].plot(df.pvalue[1:], df.output_gpp[1:])
+#axes[0].plot(df.pvalue[0], df.output_gpp[0], marker='^', color='red')
 #axes[0].plot(df.pvalue[1:], df.output_vegc[1:])
 
-axes[1].plot(df.pvalue[1:], df.output_vegc[1:])
-axes[1].plot(df.pvalue[0], df.output_vegc[0], marker='^', color='red')
+#axes[1].plot(df.pvalue[1:], df.output_vegc[1:])
+#axes[1].plot(df.pvalue[0], df.output_vegc[0], marker='^', color='red')
 
 #df.plot('pvalue','output_gpp', 'output_vegc')
 #df.plot('pvalue','output_vegc')
