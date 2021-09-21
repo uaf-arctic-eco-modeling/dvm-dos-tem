@@ -1,8 +1,11 @@
 #!/usr/bin/env python
 
 import numpy as np
+import netCDF4 as nc
+
 import json
 import os
+import shutil
 import subprocess
 from contextlib import contextmanager
 
@@ -163,7 +166,9 @@ class Sensitivity:
     # in each run, the parameters in the parameters/ directory
     # will be modified...
     print('---> Backup default params...')
-    #!cp -r {self.work_dir}/parameters {self.work_dir}/default_parameters
+    shutil.copytree(
+        os.path.join(self.work_dir, 'parameters'),
+        os.path.join(self.work_dir, 'default_parameters'))
     print()
 
     for p in self.params:
@@ -180,7 +185,7 @@ class Sensitivity:
   
   def update_param(self, new_value, pname):
     pftnum = [i['pftnum'] for i in self.params if i['name']==pname]
-    pu.update_inplace(new_value, '{}/parameters/'.format(x.work_dir), pname, self.CMTNUM(), pftnum[0])
+    pu.update_inplace(new_value, '{}/parameters/'.format(self.work_dir), pname, self.CMTNUM(), pftnum[0])
 
   def collect_outputs(self, param_dict=None):
 
@@ -205,17 +210,15 @@ class Sensitivity:
         f.write('{:},{:},{:},{:}\n'.format(param_dict['name'], '', out_gpp[0], out_vegc[0]))
 
     else:
-      CMT = self.CMTNUM()
-      f = pu.which_file(self.work_dir + '/parameters', param_dict['name'])
-      paramdata = ""#!param_util.py --dump-block-to-json {f} {CMT}
-      jparamdata = json.loads(paramdata[0])
-      #print(jparamdata)
-      #print()
-      if param_dict['name'] in jparamdata.keys():
-        run_param_value = jparamdata[param_dict['name']]
+      f = pu.which_file(os.path.join(self.work_dir, 'parameters'), param_dict['name'])
+      d = pu.get_CMT_datablock(f,  self.CMTNUM())
+      datablock_dict = pu.cmtdatablock2dict(d)
+
+      if param_dict['name'] in datablock_dict.keys():
+        run_param_value = datablock_dict[param_dict['name']]
       else:
         pft = 'pft{}'.format(self.PFTNUM())
-        run_param_value = jparamdata[pft][param_dict['name']]
+        run_param_value = datablock_dict[pft][param_dict['name']]
 
       # Need to modify if we want to save timeseries output!!
       # Need to syncronize this with setting up header!!
