@@ -765,10 +765,13 @@ def generate_reference_order(aFile):
     in the order they appear in the input file.
   '''
 
-  cmt_calparbgc = []
-  db = get_CMT_datablock(aFile, 0)
+  available_cmts = get_CMTs_in_file(aFile)
+  if not (len(available_cmts) > 0):
+    raise RuntimeError("Invalid file! Can't find any CMT data blocks!")
+  print("Using CMT{} as reference...".format(available_cmts[0]['cmtnum']))
+  db = get_CMT_datablock(aFile, available_cmts[0]['cmtnum'])
 
-  pftblock = detect_block_with_pft_info(db)
+  #pftblock = detect_block_with_pft_info(db)
 
   ref_order = []
 
@@ -986,6 +989,74 @@ def is_ecosys_contributor(cmtstr, pftnum=None, compartment=None, ref_params_dir=
 
   return is_contrib
 
+def which_file(pdir, pname, lookup_struct):
+  '''
+  Searches thru provided lookup structure (see build_param_lookiup)
+  for parameter. 
+  Returns filename if found, othewise raises RuntimeError!
+  '''
+  for fname, lu in lookup_struct.items():
+    if pname in lu['non_pft_params']:
+        return fname
+    elif pname in lu['pft_params']:
+        return fname
+    else:
+        pass
+  raise RuntimeError("Parameter not found!")
+
+def build_param_lookup(pdir):
+  '''
+  Builds a lookup table, mapping file names to lists of 
+  parameters (separate lists for PFT and non PFT params).
+  '''
+  lu = {}
+  for f in os.listdir(pdir):
+    f = os.path.join(pdir, f) # Maybe this should be abspath(..)?
+    cmts = get_CMTs_in_file(f)
+    #print(f, len(data))
+    pft_params = set()
+    non_pft_params = set()
+    for cmt in cmts:
+      db = get_CMT_datablock(f, cmt['cmtnum'])
+      db_dict = cmtdatablock2dict(db)
+      if detect_block_with_pft_info(db):
+        for pft in get_datablock_pftkeys(db_dict):
+          plist = [k for k in db_dict[pft] if k not in ['name']]
+          [pft_params.add(p) for p in plist]
+
+        not_params = ['tag','cmtname','comment'] + ['pft{}'.format(x) for x in range(0,10)]
+        non_pft_plist = [k for k in db_dict if k not in not_params]
+        [non_pft_params.add(x) for x in non_pft_plist]
+        #print(db_dict.keys())
+      else:
+        not_params = ['tag', 'name', 'comment', 'cmtname']
+        plist = [k for k in db_dict.keys() if k not in not_params]
+        [non_pft_params.add(p) for p in plist]
+
+    lu[f] = {'non_pft_params':non_pft_params,'pft_params':pft_params}
+  return lu
+
+def update_inplace(new_value, param_dir, pname, cmtnum, pftnum=None):
+  '''Modifies parameter value in file.'''
+  '''Figure out which parameter (file) to modify and modify it...'''
+  #pu.update_inplace(1.2334, '{}/parameters/'.format(x.work_dir), 'cmax', 4, pft=0)
+  #pu.update_inplace(87.456, '{}/parameters/'.format(x.work_dir), 'rhq10', 4, pft=None)
+
+  f = which_file(param_dir, pname, build_param_lookup(param_dir))
+  
+  cmt_dict = cmtdatablock2dict(get_CMT_datablock(f, cmtnum))
+
+  if pname in cmt_dict.keys():
+    # Not a PFT parameter...
+    cmt_dict[pname] = new_value
+  else:
+    pftkey = 'pft{}'.format(pftnum)
+    cmt_dict[pftkey][pname] = new_value
+
+  formatted = format_CMTdatadict(cmt_dict, f)
+
+  with open(f, 'w') as updated_file:
+    updated_file.write('\n'.join(formatted))  
 
 
 

@@ -27,6 +27,8 @@ services:
     tty: true
     build: .
     image: dvmdostem-run:0.0.1
+    ports:
+      - "8888:8888"
     volumes:
       - sourcecode:/work
       - inputcatalog:/data/input-catalog
