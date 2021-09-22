@@ -34,12 +34,11 @@ class SensitivityDriver(object):
   Parameters
   ----------
   param_specs : list of dicts describing parameters to use
-      Each of the dicts is assumed to have the following keys: 
-      'name','cmtnum','pftnum','bounds','enabled'
-  sample_matrix : pandas.DataFrame
-      One row for each sample, one column for each parameter.
-      Assumes parameter names match those found in dvmdostem
-      parameter files. 
+    Each of the dicts is assumed to have the following keys: 
+    'name','cmtnum','pftnum','bounds','enabled'
+  sample_N : int
+    The number of samples to generate for the `self.sample_matrix`.
+    Also controls how many runs there will be (one per sample row).
 
   See Also
   --------
@@ -52,20 +51,15 @@ class SensitivityDriver(object):
   {'name':'rhq10', 'cmtnum':4, 'pftnum':None, 'bounds':[0.1,5],'enabled':True },
   {'name':'micbnup', 'cmtnum':4, 'pftnum':None, 'bounds':[0.1,10],'enabled':True }]
 
-  Sample Matrix:
-  >>> sm_df = pd.DataFrame({'cmax':[100.0,166.66],
-                            'rhq10': [0.1,0.64],
-                            'micbnup': [0.1,1.20]})
-  >>> sm_df
-       cmax  rhq10  micbnup
-  0  100.00   0.10      0.1
-  1  166.66   0.64      1.2
-
   SensitivityDriver:
-  >>> sd = SensitivityDriver(param_specs, sm_df)
+  >>> sd = SensitivityDriver(param_specs, sample_N=3)
   >>> sd.pftnum()
   3
-
+  >>> sd.sample_matrix
+      cmax  rhq10  micbnup
+  0  100.0   0.10     0.10
+  1  400.0   2.55     5.05
+  2  700.0   5.00    10.00
   '''
   def __init__(self, param_specs, sample_N=10):
     '''Constructor'''
@@ -92,7 +86,11 @@ class SensitivityDriver(object):
     pass
 
   def generate_sample_matrix(self, N, method='uniform'):
-
+    '''
+    One row for each sample, one column for each parameter.
+    Assumes parameter names match those found in dvmdostem
+    parameter files.
+    '''
     if not method == 'uniform':
       raise RuntimeError("Not implemented yet!")
 
@@ -233,8 +231,6 @@ class SensitivityDriver(object):
     with multiprocessing.Pool(processes=(os.cpu_count()-1)) as pool:
       results = pool.map(self.run_model, folders)
     print()
-
-
 
   def run_model(self, rundirectory):
     program = '/work/dvmdostem'
