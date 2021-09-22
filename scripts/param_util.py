@@ -989,7 +989,8 @@ def is_ecosys_contributor(cmtstr, pftnum=None, compartment=None, ref_params_dir=
 
   return is_contrib
 
-def which_file(pdir, pname):
+
+def which_file(pdir, pname, lookup_struct=None):
   '''
   Given a parameter directory and parameter name, searches the
   files to find which file the parameter is defined in.
@@ -1000,6 +1001,11 @@ def which_file(pdir, pname):
     A path to a directort of parameter files.
   pname : str
     Name of the parameter to lookup.
+  lookup_struct : dict, default=None
+    Mapping from filenames to parameter lists. This optional
+    parameter allows passing in the lookup table which will be
+    more efficient if `which_file(...)` is called inside a loop
+    and the `lookup_struct` doesn't need to be rebuilt each time.
 
   Returns
   -------
@@ -1009,7 +1015,9 @@ def which_file(pdir, pname):
   ------
   RuntimeError : when parameter is not found in any of the files in the directory.
   '''
-  lookup_struct = build_param_lookup(pdir)
+  if not lookup_struct:
+    lookup_struct = build_param_lookup(pdir)
+
   for fname, lu in lookup_struct.items():
     if pname in lu['non_pft_params']:
         return fname
