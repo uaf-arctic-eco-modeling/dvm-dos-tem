@@ -44,39 +44,16 @@ param_specs = [
 ]
 
 
-def generate_sample_matrix(pspecs, N, method='uniform'):
-    
-    if not method == 'uniform':
-        raise RuntimeError("Not implemented yet!")
-    
-    sample_matrix = {}
-    for i, p in enumerate(filter(lambda x: x['enabled'], param_specs)):
-        samples = np.linspace(p['bounds'][0], p['bounds'][1], N)
-        sample_matrix[p['name']] = samples
-
-    return pd.DataFrame(sample_matrix)
 
 
 
+driver = Sensitivity.SensitivityDriver(param_specs, sample_N=7)
 
 
+driver.params
 
 
-
-
-
-
-
-
-
-sample_matrix = generate_sample_matrix(param_specs, 10)
-sample_matrix.head()
-
-
-
-
-
-driver = Sensitivity.SensitivityDriver(param_specs, sample_matrix)
+driver.sample_matrix
 
 
 get_ipython().run_line_magic('time', 'driver.setup_multi()')
@@ -98,8 +75,10 @@ import glob
 file_list = glob.glob('/data/workflows/sensitivity_analysis/**/*sensitivity.csv', recursive=True)
 df = pd.concat( map(pd.read_csv, file_list), ignore_index=True)
 df = df.sort_values('p_cmax')
-corr = df.corr()
+print(df)
+print()
 
+corr = df.corr()
 print(corr)
 
 

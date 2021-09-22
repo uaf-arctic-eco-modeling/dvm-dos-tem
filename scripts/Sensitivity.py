@@ -2,6 +2,7 @@
 
 import numpy as np
 import netCDF4 as nc
+import pandas as pd
 import multiprocessing
 
 import json
@@ -66,10 +67,10 @@ class SensitivityDriver(object):
   3
 
   '''
-  def __init__(self, param_specs, sample_matrix):
+  def __init__(self, param_specs, sample_N=10):
     '''Constructor'''
     self.params = param_specs
-    self.sample_matrix = sample_matrix
+    self.sample_matrix = self.generate_sample_matrix(N=sample_N)
 
     self.work_dir = '/data/workflows/sensitivity_analysis'
     self.site = '/data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_CALM_Toolik_LTER_10x10/'
@@ -89,6 +90,19 @@ class SensitivityDriver(object):
     Conduct all runs in one directory by modifying the params,
     running, and saving the outputs to a csv file.'''
     pass
+
+  def generate_sample_matrix(self, N, method='uniform'):
+
+    if not method == 'uniform':
+      raise RuntimeError("Not implemented yet!")
+
+    sample_matrix = {}
+    for i, p in enumerate(filter(lambda x: x['enabled'], self.params)):
+      samples = np.linspace(p['bounds'][0], p['bounds'][1], N)
+      sample_matrix[p['name']] = samples
+
+    self.sample_matrix = sample_matrix
+    return pd.DataFrame(sample_matrix)
 
   def core_setup(self, row, idx):
     '''...'''
