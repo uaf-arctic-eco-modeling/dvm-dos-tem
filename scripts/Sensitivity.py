@@ -2,6 +2,7 @@
 
 import numpy as np
 import netCDF4 as nc
+import multiprocessing
 
 import json
 import os
@@ -89,9 +90,60 @@ class SensitivityDriver(object):
     running, and saving the outputs to a csv file.'''
     pass
 
-  def core_setup(self):
-    '''Shared stuff between setup_single and setup_multi...'''
-    pass
+  def core_setup(self, row, idx):
+    '''...'''
+    print("PROC:{}  ".format(multiprocessing.current_process()), row)
+    sample_specific_folder = os.path.join(self.work_dir, 'sample_{:09d}'.format(idx))
+
+    program = '/work/scripts/setup_working_directory.py'
+    opt_str = '--input-data-path {} {}'.format(self.site, sample_specific_folder)
+    cmdline = program + ' ' + opt_str
+    with log_wrapper(cmdline, tag='setup') as lw:
+        comp_proc = subprocess.run(cmdline, shell=True, check=True, capture_output=True) 
+
+    program = '/work/scripts/runmask-util.py'
+    opt_str = '--reset --yx {} {} {}/run-mask.nc'.format(self.PXy, self.PXx, sample_specific_folder)
+    cmdline = program + ' ' + opt_str 
+    with log_wrapper(cmdline, tag='setup') as lw:
+      comp_proc = subprocess.run(cmdline, shell=True, check=True, capture_output=True)
+
+    for output_spec in self.outputs:
+      program = '/work/scripts/outspec_utils.py'
+      opt_str = '{}/config/output_spec.csv --on {} m p'.format(sample_specific_folder, output_spec['name'])
+      cmdline = program + ' ' + opt_str
+      with log_wrapper(cmdline, tag='setup') as lw:
+        comp_proc = subprocess.run(cmdline, shell=True, capture_output=True, check=True)
+
+    program = '/work/scripts/outspec_utils.py'
+    opt_str = '{}/config/output_spec.csv --on CMTNUM y'.format(sample_specific_folder)
+    cmdline = program + ' ' + opt_str
+    with log_wrapper(cmdline, tag='setup') as lw:
+      comp_proc = subprocess.run(cmdline, shell=True, capture_output=True, check=True)
+
+    CONFIG_FILE = os.path.join(sample_specific_folder, 'config/config.js')
+    # Read the existing data into memory
+    with open(CONFIG_FILE, 'r') as f:
+      config = json.load(f)
+    
+    config['IO']['output_nc_eq'] = 1 # Modify value...
+
+    # Write it back..
+    with open(CONFIG_FILE, 'w') as f:
+      json.dump(config, f, indent=2)
+
+    # modify parameters according to sample_matrix (param values)
+    # and the  param_spec (cmtnum, pftnum)
+    # Iterating over sample_matrix, which is a pandas.DataFrame, we use
+    # itertuples() which coughs up a named tuple. So here we get the
+    # name, and the sample value outof the named tuple for use in 
+    # calling param_utils update function.
+    for pname, pval in row.items():
+    #for pname, pval in zip(row._fields[1:], row[1:]):
+      pdict = list(filter(lambda x: x['name'] == pname, self.params))[0]
+      pu.update_inplace(
+          pval, os.path.join(sample_specific_folder, 'parameters'), 
+          pname, pdict['cmtnum'], pdict['pftnum']
+      )
 
   def setup_multi(self):
     '''
@@ -101,61 +153,11 @@ class SensitivityDriver(object):
     # Start fresh...
     self.clean()
 
-    # Make one run folder for each row in sample matrix        
-    for i, row in enumerate(self.sample_matrix.itertuples()):
+    with multiprocessing.Pool(processes=(os.cpu_count()-1)) as pool:
+      results = pool.starmap(self.core_setup, zip(self.sample_matrix.to_dict(orient='records'),range(0,len(self.sample_matrix))))
+    print(results)
 
-      sample_specific_folder = os.path.join(self.work_dir, 'sample_{:09d}'.format(i))
-
-      program = '/work/scripts/setup_working_directory.py'
-      opt_str = '--input-data-path {} {}'.format(self.site, sample_specific_folder)
-      cmdline = program + ' ' + opt_str
-      with log_wrapper(cmdline, tag='setup') as lw:
-          comp_proc = subprocess.run(cmdline, shell=True, check=True, capture_output=True) 
-
-      program = '/work/scripts/runmask-util.py'
-      opt_str = '--reset --yx {} {} {}/run-mask.nc'.format(self.PXy, self.PXx, sample_specific_folder)
-      cmdline = program + ' ' + opt_str 
-      with log_wrapper(cmdline, tag='setup') as lw:
-        comp_proc = subprocess.run(cmdline, shell=True, check=True, capture_output=True)
-
-      for output_spec in self.outputs:
-        program = '/work/scripts/outspec_utils.py'
-        opt_str = '{}/config/output_spec.csv --on {} m p'.format(sample_specific_folder, output_spec['name'])
-        cmdline = program + ' ' + opt_str
-        with log_wrapper(cmdline, tag='setup') as lw:
-          comp_proc = subprocess.run(cmdline, shell=True, capture_output=True, check=True)
-
-      program = '/work/scripts/outspec_utils.py'
-      opt_str = '{}/config/output_spec.csv --on CMTNUM y'.format(sample_specific_folder)
-      cmdline = program + ' ' + opt_str
-      with log_wrapper(cmdline, tag='setup') as lw:
-        comp_proc = subprocess.run(cmdline, shell=True, capture_output=True, check=True)
-
-      CONFIG_FILE = os.path.join(sample_specific_folder, 'config/config.js')
-      # Read the existing data into memory
-      with open(CONFIG_FILE, 'r') as f:
-        config = json.load(f)
-      
-      config['IO']['output_nc_eq'] = 1 # Modify value...
-
-      # Write it back..
-      with open(CONFIG_FILE, 'w') as f:
-        json.dump(config, f, indent=2)
-
-      # modify parameters according to sample_matrix (param values)
-      # and the  param_spec (cmtnum, pftnum)
-      # Iterating over sample_matrix, which is a pandas.DataFrame, we use
-      # itertuples() which coughs up a named tuple. So here we get the
-      # name, and the sample value outof the named tuple for use in 
-      # calling param_utils update function.
-      for pname, pval in zip(row._fields[1:], row[1:]):
-        pdict = list(filter(lambda x: x['name'] == pname, self.params))[0]
-        pu.update_inplace(
-            pval, os.path.join(sample_specific_folder, 'parameters'), 
-            pname, pdict['cmtnum'], pdict['pftnum']
-        )
-
-    # Make a directory for default case
+    # Still need to make a directory for default case
 
   def cmtnum(self):
     '''
@@ -203,10 +205,22 @@ class SensitivityDriver(object):
       # For now 
       raise RuntimeError("Invalid pftnum specificaiton in params dictionary!")
 
+  def ssrf_name(self, idx):
+    '''generate the Sample Specific Run Folder name.'''
+    return os.path.join(self.work_dir, 'sample_{:09d}'.format(idx))
+
+  def ssrf_names(self):
+    return [self.ssrf_name(i) for i in range(0,len(self.sample_matrix))]
+
   def run_all_samples(self):
-    for i, row in enumerate(self.sample_matrix.itertuples()):
-      sample_specific_folder = os.path.join(self.work_dir, 'sample_{:09d}'.format(i))
-      self.run_model(sample_specific_folder)
+
+    folders = self.ssrf_names()
+
+    with multiprocessing.Pool(processes=(os.cpu_count()-1)) as pool:
+      results = pool.map(self.run_model, folders)
+    print()
+
+
 
   def run_model(self, rundirectory):
     program = '/work/dvmdostem'

@@ -60,17 +60,32 @@ def generate_sample_matrix(pspecs, N, method='uniform'):
 
 
 
+
+
+
+
+
+
+
+
+
 sample_matrix = generate_sample_matrix(param_specs, 10)
-sample_matrix
+sample_matrix.head()
+
+
+
 
 
 driver = Sensitivity.SensitivityDriver(param_specs, sample_matrix)
 
 
-driver.setup_multi()
+get_ipython().run_line_magic('time', 'driver.setup_multi()')
 
 
-driver.run_all_samples()
+
+
+
+get_ipython().run_line_magic('time', 'driver.run_all_samples()')
 
 
 
@@ -85,10 +100,10 @@ df = pd.concat( map(pd.read_csv, file_list), ignore_index=True)
 df = df.sort_values('p_cmax')
 corr = df.corr()
 
+print(corr)
 
 
-
-
+corr.plot()
 
 
 
