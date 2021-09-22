@@ -21,6 +21,103 @@ def log_wrapper(message,tag=''):
   finally:
     print()
 
+class SensitivityDriver:
+  """Sensitivity analysis Driver class."""
+
+  def __init__(self, param_specs, sample_matrix):
+    self.params = param_specs
+    self.sample_matrix = sample_matrix
+
+    self.work_dir = '/data/workflows/sensitivity_analysis'
+    self.site = '/data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_CALM_Toolik_LTER_10x10/'
+    self.PXx = 0
+    self.PXy = 0
+    self.outputs = [
+      { 'name': 'GPP', 'type': 'flux' },
+      { 'name': 'VEGC','type': 'pool' },
+    ]
+
+  def clean(self):
+    shutil.rmtree(self.work_dir, ignore_errors=True)
+
+  def setup_single(self):
+    '''
+    Conduct all runs in one directory by modifying the params,
+    running, and saving the outputs to a csv file.'''
+    pass
+
+  def core_setup(self):
+    pass
+
+  def setup_multi(self):
+    '''
+    One directory for each run (row in sample matrix) plus
+    one for the initial conditions.
+    '''
+    # Start fresh...
+    self.clean()
+
+    # Make one run folder for each row in sample matrix        
+    for i, row in enumerate(self.sample_matrix.iterrows()):
+
+      sample_specific_folder = os.path.join(self.work_dir, 'sample_{:09d}'.format(i))
+
+      program = '/work/scripts/setup_working_directory.py'
+      opt_str = '--input-data-path {} {}'.format(self.site, sample_specific_folder)
+      cmdline = program + ' ' + opt_str
+      with log_wrapper(cmdline, tag='setup') as lw:
+          comp_proc = subprocess.run(cmdline, shell=True, check=True, capture_output=True) 
+
+      program = '/work/scripts/runmask-util.py'
+      opt_str = '--reset --yx {} {} {}/run-mask.nc'.format(self.PXy, self.PXx, sample_specific_folder)
+      cmdline = program + ' ' + opt_str 
+      with log_wrapper(cmdline, tag='setup') as lw:
+        comp_proc = subprocess.run(cmdline, shell=True, check=True, capture_output=True)
+
+      for output_spec in self.outputs:
+        program = '/work/scripts/outspec_utils.py'
+        opt_str = '{}/config/output_spec.csv --on {} m p'.format(sample_specific_folder, output_spec['name'])
+        cmdline = program + ' ' + opt_str
+        with log_wrapper(cmdline, tag='setup') as lw:
+          comp_proc = subprocess.run(cmdline, shell=True, capture_output=True, check=True)
+
+      program = '/work/scripts/outspec_utils.py'
+      opt_str = '{}/config/output_spec.csv --on CMTNUM y'.format(sample_specific_folder)
+      cmdline = program + ' ' + opt_str
+      with log_wrapper(cmdline, tag='setup') as lw:
+        comp_proc = subprocess.run(cmdline, shell=True, capture_output=True, check=True)
+
+      CONFIG_FILE = os.path.join(sample_specific_folder, 'config/config.js')
+      # Read the existing data into memory
+      with open(CONFIG_FILE, 'r') as f:
+        config = json.load(f)
+      
+      config['IO']['output_nc_eq'] = 1 # Modify value...
+
+      # Write it back..
+      print('CONFIG_FILE:',CONFIG_FILE,'was modified!')
+      with open(CONFIG_FILE, 'w') as f:
+        json.dump(config, f, indent=2)
+      print()
+
+  
+
+
+
+        # - create empty csv file for sensitivity outputs
+        # - modify parameters
+
+    # Make a directory for default case
+
+  
+  def run_model(self):
+    pass
+
+  def collect_outputs(self):
+    pass
+
+
+
 class Sensitivity:
   """Sensitivity analysis class."""
 
