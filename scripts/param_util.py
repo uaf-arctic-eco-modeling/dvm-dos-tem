@@ -989,12 +989,35 @@ def is_ecosys_contributor(cmtstr, pftnum=None, compartment=None, ref_params_dir=
 
   return is_contrib
 
-def which_file(pdir, pname, lookup_struct):
+
+def which_file(pdir, pname, lookup_struct=None):
   '''
-  Searches thru provided lookup structure (see build_param_lookiup)
-  for parameter. 
-  Returns filename if found, othewise raises RuntimeError!
+  Given a parameter directory and parameter name, searches the
+  files to find which file the parameter is defined in.
+
+  Parameters
+  ----------
+  pdir : str
+    A path to a directort of parameter files.
+  pname : str
+    Name of the parameter to lookup.
+  lookup_struct : dict, default=None
+    Mapping from filenames to parameter lists. This optional
+    parameter allows passing in the lookup table which will be
+    more efficient if `which_file(...)` is called inside a loop
+    and the `lookup_struct` doesn't need to be rebuilt each time.
+
+  Returns
+  -------
+  filename : if found, othewise raises RuntimeError!
+
+  Raises
+  ------
+  RuntimeError : when parameter is not found in any of the files in the directory.
   '''
+  if not lookup_struct:
+    lookup_struct = build_param_lookup(pdir)
+
   for fname, lu in lookup_struct.items():
     if pname in lu['non_pft_params']:
         return fname
@@ -1008,6 +1031,24 @@ def build_param_lookup(pdir):
   '''
   Builds a lookup table, mapping file names to lists of 
   parameters (separate lists for PFT and non PFT params).
+
+  Parameters
+  ----------
+  pdir : str Path to a folder of parameter files.
+
+  Returns
+  -------
+  lu : dict 
+    A dictionary mapping file names to lists of parameters (pft and non-pft)
+    e.g. 
+    lu = { 
+      'cmt_calparbgc.txt': { 
+        'non_pft_params':['kdcsoma', ...], 'pft_params':['cmax', ...] 
+      },
+      'cmt_bgcsoil.txt': { 
+        'non_pft_params':['kdcsoma', ...], 'pft_params':[] 
+      },
+    }
   '''
   lu = {}
   for f in os.listdir(pdir):
@@ -1037,12 +1078,30 @@ def build_param_lookup(pdir):
   return lu
 
 def update_inplace(new_value, param_dir, pname, cmtnum, pftnum=None):
-  '''Modifies parameter value in file.'''
-  '''Figure out which parameter (file) to modify and modify it...'''
-  #pu.update_inplace(1.2334, '{}/parameters/'.format(x.work_dir), 'cmax', 4, pft=0)
-  #pu.update_inplace(87.456, '{}/parameters/'.format(x.work_dir), 'rhq10', 4, pft=None)
+  '''
+  Updates a parameter value in a parameter file. This will overwrite the
+  existing parameter file! Also note that it will remove all other CMTs
+  in the file.
 
-  f = which_file(param_dir, pname, build_param_lookup(param_dir))
+  Parameters
+  ----------
+  new_value : float
+    The new parameter value.
+  param_dir : str
+    The directory of parameter files that should be updated.
+  pname : str
+    The name of the parameter to modify.
+  cmtnum : int
+    The number of the CMT (community type) where the parameter should be modifed
+  pftnum : int
+    The number of the PFT that should be modified - only applicable 
+    for PFT specific parameters! Otherwise leave as None.
+
+  Returns
+  -------
+  None
+  '''
+  f = which_file(param_dir, pname)
   
   cmt_dict = cmtdatablock2dict(get_CMT_datablock(f, cmtnum))
 
