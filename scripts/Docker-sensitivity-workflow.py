@@ -220,6 +220,15 @@ driver.make_cool_plot_2()
 
 
 
+# Below here is some old code, leaving here for reference. WIll remove in another commit or so.
+# 
+# Elchin: 
+# 
+# 1. `get_CMT_params()` function is now implemented in `SensitivityDriver::design_experiment()`. 
+# 2. `create_a_sample_matrix()` function is now implemented directly in the Sensitivity module. If you followed the code above, you will see how to use it. It needs some comments as found myself unable to describe the maths.
+# 
+# I used the "design_experiment" for the function name after looking into the `pyDOE` package as an alternate way to do the LHC sampling. See here: https://pythonhosted.org/pyDOE/
+# 
 
 # In[ ]:
 
