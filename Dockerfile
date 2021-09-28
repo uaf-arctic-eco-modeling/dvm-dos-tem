@@ -72,6 +72,7 @@ RUN pip install -U pip pipenv
 RUN pip install matplotlib numpy pandas bokeh netCDF4 commentjson
 RUN pip install ipython
 RUN pip install jupyter
+RUN pip install lhsmdu
 COPY --chown=develop:develop special_configurations/jupyter_notebook_config.py /home/develop/.jupyter/jupyter_notebook_config.py
 
 #RUN pip install gdal ## Doesn't work...
