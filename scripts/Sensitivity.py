@@ -4,7 +4,11 @@ import numpy as np
 import netCDF4 as nc
 import pandas as pd
 import multiprocessing
+import textwrap
+import matplotlib.pyplot as plt
 
+import lhsmdu
+import glob
 import json
 import os
 import shutil
@@ -17,11 +21,106 @@ import output_utils as ou
 
 @contextmanager
 def log_wrapper(message,tag=''):
+  '''
+  Likely will abandon or repurpose this function.
+  Not super helpful as a log printer.'''
   print('[SA:{}] {}'.format(tag, message))
   try:
     yield
   finally:
     print()
+
+def generate_uniform(N, param_props):
+  '''
+  Generate sample matrix using uniform method.
+
+  Sample matrix will have one row for each "sample" of the
+  parameters. There will be one column for each parameter in
+  the `param_props` list.
+
+  Parameters
+  ----------
+  N : int
+    number of samples (rows) to create
+
+  param_props : list of dicts
+    Each item in `param_props` list will be a dictionary
+    with at least the following:
+    >>> param_props = {
+      pname: 'name',               # name in dvmdostem parameter file (cmt_*.txt)
+      bounds: [float, float],      # the min and max values the parameter can have
+    }
+
+  Returns
+  -------
+  df : pandas.DataFrame, shape (N, len(param_props))
+    There will be one column for each parameter in the
+    `param_props` list and N rows (samples).
+  '''
+  print(param_props)
+  l = np.random.uniform(size=(N, len(param_props)))
+
+  # Generate bounds, based on specification in params list
+  lows = np.array([p['bounds'][0] for p in param_props])
+  highs = np.array([p['bounds'][1] for p in param_props])
+
+  # Figure out the spread, or difference between bounds
+  spreads = highs - lows
+
+  sm = l * spreads + lows
+
+  return pd.DataFrame(sm, columns=[p['name'] for p in param_props])
+
+
+def generate_lhc(N, param_props):
+  '''
+  Generate sample matrix using Latin Hyper Cube method.
+
+  Sample matrix will have one row for each "sample" of the
+  parameters. There will be one column for each parameter in
+  the `param_props` list.
+
+  Parameters
+  ----------
+  N : int
+    number of samples (rows) to create
+
+  param_props : list of dicts
+    Each item in `param_props` list will be a dictionary
+    with at least the following:
+    >>> param_props = {
+      pname: 'name',               # name in dvmdostem parameter file (cmt_*.txt)
+      bounds: [float, float],      # the min and max values the parameter can have
+    }
+
+  Returns
+  -------
+  df : pandas.DataFrame, shape (N, len(param_props))
+    There will be one column for each parameter in the
+    `param_props` list and N rows (samples).
+  '''
+
+  # Generate bounds, based on specification in params list
+  lo_bounds = np.array([p['bounds'][0] for p in param_props])
+  hi_bounds = np.array([p['bounds'][1] for p in param_props])
+
+  # Figure out the spread, or difference between bounds
+  spreads = hi_bounds - lo_bounds
+
+  # ??
+  l = lhsmdu.sample(len(param_props), N)
+  
+  # ??
+  l = lhsmdu.resample().T
+
+  # ??
+  mat_diff = np.diag(spreads)
+
+  # ??
+  sample_matrix = l * mat_diff + lo_bounds
+
+  return pd.DataFrame(sample_matrix, columns=[p['name'] for p in param_props])
+
 
 
 class SensitivityDriver(object):
@@ -31,41 +130,37 @@ class SensitivityDriver(object):
   Driver class for conducting dvmdostem SensitivityAnalysis.
   Methods for cleaning, setup, running model, collecting outputs.
 
+  Basic overview of use is like this:
+   1. Instantiate driver object.
+   2. Setup/design the experiment (parameters, to use, 
+      number of samples, etc)
+   3. Use driver object to setup the run folders.
+   4. Use driver object to carry out model runs.
+   5. Use driver object to summarize/collect outputs.
+   6. Use driver object to make plots, do analysys.
+
   Parameters
   ----------
-  param_specs : list of dicts describing parameters to use
-    Each of the dicts is assumed to have the following keys: 
-    'name','cmtnum','pftnum','bounds','enabled'
-  sample_N : int
-    The number of samples to generate for the `self.sample_matrix`.
-    Also controls how many runs there will be (one per sample row).
 
   See Also
   --------
 
   Examples
   --------
-  Parameter specification:
-  >>> param_specs = [
-  {'name':'cmax', 'cmtnum':4, 'pftnum':3, 'bounds':[100,700],'enabled':True },
-  {'name':'rhq10', 'cmtnum':4, 'pftnum':None, 'bounds':[0.1,5],'enabled':True },
-  {'name':'micbnup', 'cmtnum':4, 'pftnum':None, 'bounds':[0.1,10],'enabled':True }]
+  Instantiate object, sets pixel, outputs, working directory, 
+  site selection (input data path)
+  >>> driver = Sensitivity.SensitivityDriver()
 
-  SensitivityDriver:
-  >>> sd = SensitivityDriver(param_specs, sample_N=3)
-  >>> sd.pftnum()
-  3
-  >>> sd.sample_matrix
-      cmax  rhq10  micbnup
-  0  100.0   0.10     0.10
-  1  400.0   2.55     5.05
-  2  700.0   5.00    10.00
+  Show info about the driver object:
+  >>> print(driver.info())
+
   '''
-  def __init__(self, param_specs, sample_N=10):
-    '''Constructor'''
-    self.params = param_specs
-    self.sample_matrix = self.generate_sample_matrix(N=sample_N)
-
+  def __init__(self):
+    '''
+    Constructor
+    Hard code a bunch of stuff for now...
+    '''
+    self.__initial_params = '/work/parameters'
     self.work_dir = '/data/workflows/sensitivity_analysis'
     self.site = '/data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_CALM_Toolik_LTER_10x10/'
     self.PXx = 0
@@ -75,62 +170,217 @@ class SensitivityDriver(object):
       { 'name': 'VEGC','type': 'pool',},
     ]
 
+  def design_experiment(self, Nsamples, cmtnum, params, pftnums, 
+      percent_diffs=None, sampling_method='lhc'):
+    '''
+    Builds bounds based on initial values found in dvmdostem parameter 
+    files (cmt_*.txt files) and the `percent_diffs` array. 
+    The `percent_diffs` array gets used to figure out how far
+    the bounds should be from the initial value. Defaults to initial 
+    value +/-10%.
+
+    Sets instance values for `self.params` and `self.sample_matrix`.
+
+    Parameters
+    ----------
+    Nsamples : int
+      How many samples to draw. One sample equates to one run to be done with 
+      the parameter values in the sample.
+    
+    cmtnum : int
+      Which community type number to use for initial parameter values, for
+      doing runs and analyzing outputs.
+    
+    params : list of strings
+      List of parameter names to use in the experiment. Each name must be
+      in one of the dvmdostem parameter files (cmt_*.txt).
+    
+    pftnums : list of ints
+      List of PFT numbers, one number for each parameter in `params`. Use
+      `None` in the list for any non-pft parameter (i.e. a soil parameter).
+    
+    percent_diffs: list of floats
+      List values, one for each parameter in `params`. The value is used to
+      the bounds with respect to the intial parameter value. I.e. passing
+      a value in the percent_diff array of .3 would mean that bounds should
+      be +/-30% of the initial value of the parameter.
+
+    Returns
+    -------
+    None
+    '''
+    if not percent_diffs:
+      percent_diffs = np.ones(len(params)) * 0.1 # use 10% for default perturbation
+
+    assert len(params) == len(pftnums), "params list and pftnums list must be same length!"
+    assert len(params) == len(percent_diffs), "params list and percent_diffs list must be same length"
+
+    self.params = []
+    plu = pu.build_param_lookup(self.__initial_params)
+
+    for pname, pftnum, perturbation in zip(params, pftnums, percent_diffs):
+      original_pdata_file = pu.which_file(self.__initial_params, pname, lookup_struct=plu)
+
+      p_db = pu.get_CMT_datablock(original_pdata_file, cmtnum)
+      p_dd = pu.cmtdatablock2dict(p_db)
+
+      if pname in p_dd.keys():
+        p_initial = p_dd[pname]
+      else:
+        p_initial = p_dd['pft{}'.format(pftnum)][pname]
+
+      p_bounds = [p_initial - (p_initial*perturbation), p_initial + (p_initial*perturbation)]
+
+      self.params.append(dict(name=pname, bounds=p_bounds, initial=p_initial, cmtnum=cmtnum, pftnum=pftnum))
+
+    if sampling_method == 'lhc':
+      self.sample_matrix = generate_lhc(Nsamples, self.params)
+    elif sampling_method == 'uniform':
+      self.sample_matrix = self.generate_uniform(Nsamples, self.params)
+
+  def save_experiment(self, name):
+    '''Write the parameter properties and sensitivity matrix to files.'''
+    # Maybe these should go in self.work_dir??
+    sm_fname = "{}_sample_matrix.csv".format(name) 
+    pp_fname = '{}_param_props.csv'.format(name)
+    print("Saving {}".format(sm_fname))
+    self.sample_matrix.to_csv(sm_fname, index=False)
+    print("Saving {}".format(pp_fname))
+    pd.DataFrame(self.params).to_csv(pp_fname, index=False)
+
+  def load_experiment(self, param_props_path, sample_matrix_path):
+    '''Load parameter properties and sample matrix from files.'''
+    self.sample_matrix = pd.read_csv(sample_matrix_path)
+    self.params = pd.read_csv(param_props_path, dtype={'name':'S10','cmtnum':np.int32})
+    self.params = self.params.to_dict(orient='records')
+
   def clean(self):
-    ''''''
+    '''
+    Remove the entire tree at `self.work_dir`.
+    
+    This function is careful, so be careful using it!
+    '''
     shutil.rmtree(self.work_dir, ignore_errors=True)
 
-  def setup_single(self):
+  def get_sensitivity_csvs(self):
     '''
-    Conduct all runs in one directory by modifying the params,
-    running, and saving the outputs to a csv file.'''
-    pass
+    Looks for all the sensitivity.csv files that are present in
+    the run directories. The sensitivity.csv files are created
+    using the extract_data_for_sensitivity_analysis(..) funciton.
 
-  def generate_sample_matrix(self, N, method='uniform'):
+    Returns
+    -------
+    file_list : list of strings
+      list of paths to sensitivity.csv files, one for each file run folder
     '''
-    One row for each sample, one column for each parameter.
-    Assumes parameter names match those found in dvmdostem
-    parameter files.
+    pattern = '{}/*/sensitivity.csv'.format(self.work_dir)
+    file_list = sorted(glob.glob(pattern, recursive=True))
+    return file_list
+
+  def info(self):
     '''
-    if not method == 'uniform':
-      raise RuntimeError("Not implemented yet!")
+    Print some summary info about the SensitivityDriver object.
 
-    sample_matrix = {}
-    for i, p in enumerate(filter(lambda x: x['enabled'], self.params)):
-      samples = np.linspace(p['bounds'][0], p['bounds'][1], N)
-      sample_matrix[p['name']] = samples
+    Not sure how to best handle the summary of outputs yet. Maybe
+    a separate method. The problem is that existing outputs may 
+    be leftover from prior runs and thus may not match the existing
+    params and sample_matrix data. But I don't want to be too
+    aggressive in cleaning up old outputs incase they are expensive 
+    to re-create.
 
-    self.sample_matrix = sample_matrix
-    return pd.DataFrame(sample_matrix)
+    Returns
+    -------
+    None
+    '''
+
+    info_str = textwrap.dedent('''
+      work_dir: {}
+      site: {}
+      pixel(y,x): ({},{})
+      cmtnum: {}
+      found {} existing sensitivity csv files.
+        > NOTE - these may be leftover from a prior run!\n''').format(
+        self.work_dir, self.site, self.PXy, self.PXx, self.cmtnum(),
+        len(self.get_sensitivity_csvs())
+      )
+
+    # Not all class attributes might be initialize, so if an 
+    # attribute is not set, then print empty string.
+    try:
+      ps = pd.DataFrame(self.params).head() # DataFrame prints nicely
+    except AttributeError:
+      ps = ""
+
+    try:
+      #sms = self.sample_matrix.head()
+      sms = self.sample_matrix.shape
+    except AttributeError:
+      sms = ""    
+
+    if len(ps) > 0:
+      info_str += '''params:\n{}'''.format(ps)
+    else:
+      info_str += 'params:'
+
+    if len(sms) > 0:
+      info_str += '''\nsample_matrix shape: {}'''.format(sms)
+    else:
+      info_str += '\nsample_matrix shape:'
+
+    return info_str
 
   def core_setup(self, row, idx):
-    '''...'''
+    '''
+    Do all the work to setup and configure a model run.
+    Uses the `row` parameter (one row of the sample matrix) to
+    set the parameter values for the run by calling.
+
+    Currently relies on command line API for various dvmdostem
+    helper scripts. WOuld be nice to transition to using a Python
+    API.
+
+    Parameters
+    ----------
+    row : dict
+      One row of the sample matrix, in dict form. So like this:
+        `{'cmax': 108.2, 'rhq10': 34.24}`
+      with one key for each parameter name.
+
+    idx : int
+      The row index of the `sample_matrix` being worked on. Gets
+      used to set the run specific folder name, i.e. sample_000001.
+
+    Returns
+    -------
+    None
+    '''
     print("PROC:{}  ".format(multiprocessing.current_process()), row)
-    sample_specific_folder = os.path.join(self.work_dir, 'sample_{:09d}'.format(idx))
+    sample_specific_folder = self._ssrf_name(idx)
 
     program = '/work/scripts/setup_working_directory.py'
     opt_str = '--input-data-path {} {}'.format(self.site, sample_specific_folder)
     cmdline = program + ' ' + opt_str
     with log_wrapper(cmdline, tag='setup') as lw:
-        comp_proc = subprocess.run(cmdline, shell=True, check=True, capture_output=True) 
+        comp_proc = subprocess.run(cmdline, shell=True, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT) 
 
     program = '/work/scripts/runmask-util.py'
     opt_str = '--reset --yx {} {} {}/run-mask.nc'.format(self.PXy, self.PXx, sample_specific_folder)
     cmdline = program + ' ' + opt_str 
     with log_wrapper(cmdline, tag='setup') as lw:
-      comp_proc = subprocess.run(cmdline, shell=True, check=True, capture_output=True)
+      comp_proc = subprocess.run(cmdline, shell=True, check=True)
 
     for output_spec in self.outputs:
       program = '/work/scripts/outspec_utils.py'
       opt_str = '{}/config/output_spec.csv --on {} m p'.format(sample_specific_folder, output_spec['name'])
       cmdline = program + ' ' + opt_str
       with log_wrapper(cmdline, tag='setup') as lw:
-        comp_proc = subprocess.run(cmdline, shell=True, capture_output=True, check=True)
+        comp_proc = subprocess.run(cmdline, shell=True, check=True)
 
     program = '/work/scripts/outspec_utils.py'
     opt_str = '{}/config/output_spec.csv --on CMTNUM y'.format(sample_specific_folder)
     cmdline = program + ' ' + opt_str
     with log_wrapper(cmdline, tag='setup') as lw:
-      comp_proc = subprocess.run(cmdline, shell=True, capture_output=True, check=True)
+      comp_proc = subprocess.run(cmdline, shell=True, check=True)
 
     CONFIG_FILE = os.path.join(sample_specific_folder, 'config/config.js')
     # Read the existing data into memory
@@ -159,14 +409,22 @@ class SensitivityDriver(object):
 
   def setup_multi(self):
     '''
-    One directory for each run (row in sample matrix) plus
-    one for the initial conditions.
+    Makes one run directory for each row in sample matrix.
+
+    This is essentially a wrapper around `core_setup(..)` 
+    that allows for parallelization.
+    
+    Returns
+    -------
+    None
     '''
     # Start fresh...
     self.clean()
 
+    args = zip(self.sample_matrix.to_dict(orient='records'),range(0,len(self.sample_matrix)))
+    print(args)
     with multiprocessing.Pool(processes=(os.cpu_count()-1)) as pool:
-      results = pool.starmap(self.core_setup, zip(self.sample_matrix.to_dict(orient='records'),range(0,len(self.sample_matrix))))
+      results = pool.starmap(self.core_setup, args)
     print(results)
 
     # Still need to make a directory for default case
@@ -174,22 +432,29 @@ class SensitivityDriver(object):
   def cmtnum(self):
     '''
     Enforces that there is only one cmtnum specified
-    amongst all the param specificaitons in `self.params`.
+    amongst all the param specifications in `self.params`.
 
     Returns
     -------
-    cmtnum : int 
-      The cmtnum specified.
+    cmtnum : int or None
+      The cmtnum specified, or None if cmt not set.
     
     Raises
     ------
     RuntimeError - if there in valid specification of
     cmtnum in the params list.
     '''
-    c = set([x['cmtnum'] for x in self.params])
-    if not (len(c) == 1):
-      raise RuntimeError("Problem with cmt specification in param_spec!")
-    return c.pop()
+    try:
+      c = set([x['cmtnum'] for x in self.params])
+      if not (len(c) == 1):
+        raise RuntimeError("Problem with cmt specification in param_spec!")
+      c = c.pop()
+    except AttributeError:
+      c = None
+    except KeyError:
+      c = None
+    
+    return c
   
   def pftnum(self):
     '''
@@ -217,22 +482,37 @@ class SensitivityDriver(object):
       # For now 
       raise RuntimeError("Invalid pftnum specificaiton in params dictionary!")
 
-  def ssrf_name(self, idx):
+  def _ssrf_name(self, idx):
     '''generate the Sample Specific Run Folder name.'''
     return os.path.join(self.work_dir, 'sample_{:09d}'.format(idx))
 
-  def ssrf_names(self):
-    return [self.ssrf_name(i) for i in range(0,len(self.sample_matrix))]
+  def _ssrf_names(self):
+    '''Generate a list of Sample Specific Run Folder names.'''
+    return [self._ssrf_name(i) for i in range(0,len(self.sample_matrix))]
 
   def run_all_samples(self):
+    '''
+    Starts run in each Sample Specific Run Folder.
 
-    folders = self.ssrf_names()
+    Wrapper around `run_model(..)` that allows for parallelization.
+    '''
+
+    folders = self._ssrf_names()
 
     with multiprocessing.Pool(processes=(os.cpu_count()-1)) as pool:
       results = pool.map(self.run_model, folders)
     print()
 
   def run_model(self, rundirectory):
+    '''
+    Run the model. 
+    
+    Assumes everything is setup in a "Sample Specific Run Folder".
+    
+    Returns
+    -------
+    None
+    '''
     program = '/work/dvmdostem'
     ctrl_file = os.path.join(rundirectory, 'config','config.js')
     opt_str = '-p 5 -e 5 -s 5 -t 5 -n 5 -l err --force-cmt {} --ctrl-file {}'.format(self.cmtnum(), ctrl_file)
@@ -242,22 +522,128 @@ class SensitivityDriver(object):
         cmdline,             # The program + options 
         shell=True,          # must be used if passing options as str and not list
         check=True,          # raise CalledProcessError on failure
-        capture_output=True, # collect stdout and stderr
-        cwd=rundirectory)   # control context
+        #capture_output=True,# collect stdout and stderr; causes memory problems I think
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        cwd=rundirectory)    # control context
       if not completed_process.returncode == 0:
         print(completed_process.stdout)
         print(completed_process.stderr)
 
-  def collect_outputs(self, posthoc=True, multi=True):
+  def first_steps_sensitivity_analysis(self):
+    '''
+    Grab the summarized sensitivity csvs and glue them
+    together, then make correlation matrix. When glued together, 
+    the data will look like this, with one row for each sample, 
+    and one column for each parameter followed by one column for
+    each output:
+    p_cmax,  p_rhq10,   p_micbnup,   o_GPP,  o_VEGC
+    1.215,   2.108,     0.432,       0.533,  5.112
+    1.315,   3.208,     0.632,       0.721,  8.325
+    1.295,   1.949,     0.468,       0.560,  5.201
+    1.189,   2.076,     0.420,       0.592,  5.310
+    1.138,   2.035,     0.441,       0.537,  5.132
+    1.156,   1.911,     0.433,       0.557,  5.192
+    
+    Return
+    ------
+    None
+    '''
+    # pattern = '{}/*/sensitivity.csv'.format(self.work_dir)
+    # file_list = sorted(glob.glob(pattern, recursive=True))
+    file_list = self.get_sensitivity_csvs()
+    df = pd.concat( map(pd.read_csv, file_list), ignore_index=True)
+    #df = df.sort_values('p_cmax')
+    #print(df)
+    #print()
+    corr = df.corr()
+    print(corr)
+    print("Make some cool plot here....")
+
+  def make_cool_plot_2(self):
+    '''
+    stitches all run stages together and plots one 
+    line for each sample run.
+
+    Return
+    ------
+    None
+    '''
+    fig, axes = plt.subplots(len(self.outputs))
+
+    for r in os.listdir(self.work_dir):
+      for i, o in enumerate(self.outputs):
+        pattern = os.path.join(self.work_dir, r, 'output', '{}_monthly_*.nc'.format(o['name']))
+        results = glob.glob(pattern, recursive=True)
+
+        all_data = pd.DataFrame({}, columns=[o['name']])
+        def sort_stage(x):
+          STAGE_ORDER = {'pr':0, 'eq':1, 'sp':2, 'tr':3, 'sc':4}
+          stg = os.path.splitext(os.path.basename(x))[0][-2:]
+          return STAGE_ORDER[stg]
+
+        for f in sorted(results, key=sort_stage):
+          stg_data = nc.Dataset(f, 'r')
+          d = stg_data.variables[o['name']][:]
+          # if o['type'] == 'pool':
+          #   d = ou.average_monthly_pool_to_yearly(d)
+          # elif o['type'] == 'flux':
+          #   d = ou.sum_monthly_flux_to_yearly(d)
+          d = pd.DataFrame(d[:,self.pftnum(),self.PXy,self.PXx], columns=[o['name']])
+          all_data = all_data.append(d, ignore_index=True)
+
+        axes[i].plot(all_data)
+        axes[i].set_ylabel(o['name'])
+
+  def extract_data_for_sensitivity_analysis(self, posthoc=True, multi=True):
+    '''
+    Creates a csv file in each run directory that summarizes
+    the run's parameters and outut. The csv file will look 
+    something like this:
+
+    p_cmax,  p_rhq10,   p_micbnup,   o_GPP,  o_VEGC
+    1.215,   2.108,     0.432,       0.533,  5.112
+
+    with one columns for each parameter and one column for 
+    each output. The
+
+    For each row in the sensitivity matrix (and corresponding 
+    run folder), 
+      For each variable specified in self.outputs:
+          - opens the NetCDF files that were output from
+            dvmdostem
+          - grabs the last datapoint
+          - writes it to the sensitivity.csv file
+
+    
+
+    Parameters
+    ----------
+    posthoc : bool (Not implemented yet)
+      Flag for controlling whether this step should be run after the
+      model run or as part of the model run
+    
+    multi : bool (Not impolemented yet)
+      Flag for if the runs are done all in one directory or each in 
+      its own directory. If all runs are done in one directory
+      then paralleization is harder and this step of collating the
+      output data must be done at the end of the run before the next run
+      overwrites it.
+      
+
+    Returns
+    -------
+    None
+    '''
     
     for row in self.sample_matrix.itertuples():
-      sample_specific_folder = os.path.join(self.work_dir, 'sample_{:09d}'.format(row.Index))
+      sample_specific_folder = self._ssrf_name(row.Index)
       sensitivity_outfile = os.path.join(sample_specific_folder, 'sensitivity.csv')
 
       # Not sure if this is how we want to set things up...
       # Seems like each of these files will have only one row, but the 
       # advantage of having a sensitivity file per sample directory is that
-      # we can leverage the same parallelism for running collect_outputs
+      # we can leverage the same parallelism for running this function
       # Then we'll need another step to collect all the csv files into one
       # at the end.
       pstr = ','.join(['p_{}'.format(p['name']) for p in self.params]) 
@@ -286,3 +672,24 @@ class SensitivityDriver(object):
       with open(sensitivity_outfile, 'a') as f:
         f.write(pstr + ',' + ostr + '\n')
 
+  def plot_sensitivity_matrix(self):
+    '''
+    Make a quick plot showing the properties of the sensitivity matrix.
+    
+    One row for each parameter:
+      Left column is sample values with bounds marked in red.
+      Middle column is histogram of sample values.
+      Right column is boxplot of sample values
+
+    '''
+    fig, axes = plt.subplots(len(self.params),3)
+
+    for i, (p, ax) in enumerate(zip(self.params, axes)):
+      ax[0].plot(self.sample_matrix.iloc[:, i], marker='.', linewidth=0)
+      ax[0].set_ylabel(p['name'])
+      ax[0].hlines(p['bounds'], 0, len(self.sample_matrix)-1, linestyles='dotted', colors='red')
+      ax[1].hist(self.sample_matrix.iloc[:, i], range=p['bounds'], orientation='horizontal', alpha=0.75, rwidth=0.8)
+      ax[2].boxplot(self.sample_matrix.iloc[:, i])
+      ax[2].set_ylim(ax[0].get_ylim())
+      
+    plt.tight_layout()
