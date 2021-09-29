@@ -237,7 +237,7 @@ if __name__ == '__main__':
       Helper script for modifying a dvm-dos-tem runmask netcdf file.
     ''')
   )
-  parser.add_argument('file', nargs='?', metavar=('FILE'), 
+  parser.add_argument('file', nargs='?', metavar=('FILE'),
       help=textwrap.dedent('''The runmask.nc file to operate on.'''))
 
   parser.add_argument('--reset', action='store_true', 
@@ -273,6 +273,9 @@ if __name__ == '__main__':
          maintain any pixels already masked.'''))
 
   args = parser.parse_args()
+
+  if (args.file is None) or (not os.path.isfile(args.file)):
+    parser.error("'{}' is an invalid path to a run mask file!".format(args.file))
 
   if args.select_only_cmt:
     input_folder_path = args.select_only_cmt[0]

@@ -786,7 +786,7 @@ def generate_reference_order(aFile):
       tokens = t[1].strip().lstrip("//").strip().split(":")
       tag = tokens[0]
       desc = "".join(tokens[1:])
-      print("Found tag:", tag, " Desc: ", desc)
+      #print("Found tag:", tag, " Desc: ", desc)
       ref_order.append(tag)
 
   return ref_order
