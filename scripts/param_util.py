@@ -991,6 +991,44 @@ def is_ecosys_contributor(cmtstr, pftnum=None, compartment=None, ref_params_dir=
 
   return is_contrib
 
+class ParamUtilSpeedHelper(object):
+  '''
+  Experimenting with having an object oriented API so that we can 
+  cache some data in the object. Will save lots of time for various
+  look up type functionality.
+  '''
+  def __init__(self, pdir):
+    self.__pdir = pdir
+    self.lu = build_param_lookup(self.__pdir)
+
+  def get_value(self, pname=None, cmtnum=None, pftnum=None, with_metadata=False):
+    f = which_file(self.__pdir, pname, lookup_struct=self.lu)
+    cmt_dict = cmtdatablock2dict(get_CMT_datablock(f, cmtnum))
+    rv = None
+    if pname in cmt_dict.keys():
+      # Not a PFT parameter...
+      rv =  cmt_dict[pname]
+    else:
+      pftkey = 'pft{}'.format(pftnum)
+      rv = cmt_dict[pftkey][pname]
+
+    return rv
+
+  def list_params(self, cmtnum=None, pftnum=None):
+    assert cmtnum is not None, "Must pass cmtnum!"
+    pvn = get_pft_verbose_name(cmtnum=cmtnum, pftnum=pftnum,lookup_path=self.__pdir)
+    s = ''
+    for fname, pdict in self.lu.items():
+      s += '{} CMT{} PFT{} {}\n'.format(fname, cmtnum, pftnum, pvn)
+      for ptype, plist in pdict.items():
+        s += "  {}\n".format(ptype)
+        for pname in plist:
+          val = self.get_value(pname=pname, cmtnum=cmtnum, pftnum=pftnum)
+          s += "   {:>15s} {:>12.4f}\n".format(pname, val)
+
+    return s
+
+
 
 def which_file(pdir, pname, lookup_struct=None):
   '''
