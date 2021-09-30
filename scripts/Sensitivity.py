@@ -137,7 +137,7 @@ class SensitivityDriver(object):
    3. Use driver object to setup the run folders.
    4. Use driver object to carry out model runs.
    5. Use driver object to summarize/collect outputs.
-   6. Use driver object to make plots, do analysys.
+   6. Use driver object to make plots, do analysis.
 
   Parameters
   ----------
@@ -160,7 +160,11 @@ class SensitivityDriver(object):
     Constructor
     Hard code a bunch of stuff for now...
     '''
+
+    # Made this one private because I don't want it to get confused with 
+    # the later params directories that will be created in each run folder.
     self.__initial_params = '/work/parameters'
+
     self.work_dir = '/data/workflows/sensitivity_analysis'
     self.site = '/data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_CALM_Toolik_LTER_10x10/'
     self.PXx = 0
@@ -169,6 +173,10 @@ class SensitivityDriver(object):
       { 'name': 'GPP', 'type': 'flux',},
       { 'name': 'VEGC','type': 'pool',},
     ]
+
+  def get_initial_params_dir(self):
+    '''Read only accessor to private member variable.'''
+    return self.__initial_params
 
   def design_experiment(self, Nsamples, cmtnum, params, pftnums, 
       percent_diffs=None, sampling_method='lhc'):
