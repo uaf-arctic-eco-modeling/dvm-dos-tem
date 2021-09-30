@@ -996,12 +996,60 @@ class ParamUtilSpeedHelper(object):
   Experimenting with having an object oriented API so that we can 
   cache some data in the object. Will save lots of time for various
   look up type functionality.
+
+  With param_util.py in general the idea has been to have it be flexible
+  with repsect to the location of the parameter files. But that makes 
+  some operations expensive because the code is constantly having to 
+  re-build lookup datastructures to find parameter names or files.
+
+  With this object the idea is to set the parameter directory upon
+  instantiation, and build the lookup data structure. Then future
+  operations can use that cached structure.
+
+  Examples
+  --------
+  >>> import param_util as pu
+  >>> psh = pu.ParamUtilSpeedHelper("/work/parameters")
+  >>> psh.get_value(pname='cmax', cmtnum=4, pftnum=3, with_metadata=False)
+
   '''
   def __init__(self, pdir):
+    '''
+    Sets parameter directory, build lookup structure.
+
+    Parameters
+    ----------
+    `pdir` is path to a directory of dvmdostem parameter files.
+    '''
     self.__pdir = pdir
     self.lu = build_param_lookup(self.__pdir)
 
   def get_value(self, pname=None, cmtnum=None, pftnum=None, with_metadata=False):
+    '''
+    Look up the parameter value by name for given CMT and PFT.
+
+    Parameters
+    ----------
+    pname : str
+      Name of parameter as found in dvmdostem parameter files.
+
+    cmtnum : int
+      The number of the community type to grab data from.
+
+    pftnum : int
+      The PFT of the data to grab (for PFT parameters), None (default)
+      for non-pft parameters.
+
+    with_metadata : bool
+      (not implemented yet) flag for returning just the raw data or
+      a package with more metadata (e.g. param directory, filename, etc)
+
+    Returns
+    -------
+    v : float
+      The parameter value, or if `with_metadata=True`, a dict with more
+      info.
+    '''
     f = which_file(self.__pdir, pname, lookup_struct=self.lu)
     cmt_dict = cmtdatablock2dict(get_CMT_datablock(f, cmtnum))
     rv = None
@@ -1015,6 +1063,23 @@ class ParamUtilSpeedHelper(object):
     return rv
 
   def list_params(self, cmtnum=None, pftnum=None):
+    '''
+    Builds and returns a formatted string listing all the 
+    parameters for a given CMT and PFT.
+
+    Parameters
+    ----------
+    cmtnum : int
+      The community type number to list parameters for.
+
+    pftnum : int
+      The PFT number to list parameters for.
+
+    Returns
+    -------
+    s : string
+      A formatted string listing all the parameters for a given CMT and PFT.
+    '''
     assert cmtnum is not None, "Must pass cmtnum!"
     pvn = get_pft_verbose_name(cmtnum=cmtnum, pftnum=pftnum,lookup_path=self.__pdir)
     s = ''
