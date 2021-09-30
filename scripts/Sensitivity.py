@@ -122,6 +122,8 @@ def generate_lhc(N, param_props):
   return pd.DataFrame(sample_matrix, columns=[p['name'] for p in param_props])
 
 
+  
+
 
 class SensitivityDriver(object):
   '''
@@ -300,40 +302,58 @@ class SensitivityDriver(object):
     -------
     None
     '''
-
-    info_str = textwrap.dedent('''
-      work_dir: {}
-      site: {}
-      pixel(y,x): ({},{})
-      cmtnum: {}
-      found {} existing sensitivity csv files.
-        > NOTE - these may be leftover from a prior run!\n''').format(
-        self.work_dir, self.site, self.PXy, self.PXx, self.cmtnum(),
-        len(self.get_sensitivity_csvs())
-      )
+    pft_verbose_name = pu.get_pft_verbose_name(
+      cmtnum=self.cmtnum(), pftnum=self.pftnum(), 
+      lookup_path=self.get_initial_params_dir()
+    )
 
     # Not all class attributes might be initialize, so if an 
     # attribute is not set, then print empty string.
     try:
-      ps = pd.DataFrame(self.params).head() # DataFrame prints nicely
+      # DataFrame prints nicely
+      df = pd.DataFrame(self.params)[['name','initial','bounds']]
+      ps = df.to_string()
     except AttributeError:
-      ps = ""
+      ps = "[not set]"
 
     try:
       #sms = self.sample_matrix.head()
       sms = self.sample_matrix.shape
     except AttributeError:
-      sms = ""    
+      sms = "[not set]"    
 
-    if len(ps) > 0:
-      info_str += '''params:\n{}'''.format(ps)
-    else:
-      info_str += 'params:'
+    info_str = textwrap.dedent('''\
+      --- Setup ---
+      work_dir: {}
+      site: {}
+      pixel(y,x): ({},{})
+      cmtnum: {}
+      pftnum: {} ({})
 
-    if len(sms) > 0:
-      info_str += '''\nsample_matrix shape: {}'''.format(sms)
-    else:
-      info_str += '\nsample_matrix shape:'
+      '''.format(
+        self.work_dir, self.site, self.PXy, self.PXx, self.cmtnum(),
+        self.pftnum(), pft_verbose_name))
+
+    info_str += textwrap.dedent('''\
+      --- Parameters ---
+      '''.format())
+    info_str += '{}\n\n'.format(ps)
+
+
+    info_str += textwrap.dedent('''\
+      --- Sample Matrix ---
+      sample_matrix shape: {}
+
+      '''.format(sms))
+
+    info_str += textwrap.dedent('''\
+      --- Outputs ---
+      > NOTE - these may be leftover from a prior run!
+      found {} existing sensitivity csv files.
+
+      '''.format(len(self.get_sensitivity_csvs())))
+
+
 
     return info_str
 
