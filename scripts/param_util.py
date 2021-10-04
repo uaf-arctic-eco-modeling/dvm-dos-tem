@@ -594,6 +594,9 @@ def get_pft_verbose_name(cmtkey=None, pftkey=None, cmtnum=None, pftnum=None, loo
   if pftnum is not None: # convert to key
     pftkey = 'pft%i' % pftnum
 
+  if not (pftnum or pftkey):
+    raise ValueError("you must provide a pft number or key!")
+
   data = get_CMT_datablock(os.path.join(path2params, 'cmt_calparbgc.txt'), cmtnum)
   dd = cmtdatablock2dict(data)
 
