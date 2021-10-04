@@ -151,10 +151,10 @@ class SensitivityDriver(object):
   --------
   Instantiate object, sets pixel, outputs, working directory, 
   site selection (input data path)
-  >>> driver = Sensitivity.SensitivityDriver()
+  >>> driver = SensitivityDriver()
 
   Show info about the driver object:
-  >>> print(driver.info())
+  >>> driver.info()
 
   '''
   def __init__(self):
@@ -739,3 +739,7 @@ class SensitivityDriver(object):
       ax[2].set_ylim(ax[0].get_ylim())
       
     plt.tight_layout()
+
+if __name__ == '__main__':
+  import doctest
+  doctest.testmod()
