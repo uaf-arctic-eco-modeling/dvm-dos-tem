@@ -305,12 +305,15 @@ class SensitivityDriver(object):
     -------
     None
     '''
-    pft_verbose_name = pu.get_pft_verbose_name(
-      cmtnum=self.cmtnum(), pftnum=self.pftnum(), 
-      lookup_path=self.get_initial_params_dir()
-    )
+    try:
+      pft_verbose_name = pu.get_pft_verbose_name(
+        cmtnum=self.cmtnum(), pftnum=self.pftnum(), 
+        lookup_path=self.get_initial_params_dir()
+      )
+    except AttributeError:
+      pft_verbose_name = ''
 
-    # Not all class attributes might be initialize, so if an 
+    # Not all class attributes might be initialized, so if an 
     # attribute is not set, then print empty string.
     try:
       # DataFrame prints nicely
