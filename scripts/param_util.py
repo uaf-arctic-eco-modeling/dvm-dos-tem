@@ -1062,6 +1062,29 @@ class ParamUtilSpeedHelper(object):
 
     return rv
 
+  def list_non_pft_params(self, cmtnum=None):
+    '''
+    Gets a listing of all non-PFT parameters.
+
+    Parameters
+    ----------
+    cmtnum : int
+      The CMT number to read from.
+
+    Returns
+    -------
+    s : str
+      A formatted string of all non-PFT parameters, (i.e. soil params)
+    '''
+    s = ''
+    for fname, pdict in self.lu.items():
+      s += '{}:\n'.format(fname)
+      for p in pdict['non_pft_params']:
+        s += '    {}\n'.format(p)
+    return s
+
+
+
   def list_params(self, cmtnum=None, pftnum=None):
     '''
     Builds and returns a formatted string listing all the 
