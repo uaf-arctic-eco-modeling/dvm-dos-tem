@@ -54,6 +54,26 @@ driver = Sensitivity.SensitivityDriver()
 print(driver.info())
 
 
+# OK, well now we have a `SensitivityDriver` object, but what can we do with it?? Well we can modify any parameter that exists for `dvmdostem`. How do we find these parameters? There are some helper functions in the `param_util` module for working with parameter files.
+# > Note: Why in the world do we need a special `ParamUtilSpeedHelper` object here? Well the param_util.py file is written to be used in a wide varietly of circumstances and does not by default have any kind of cache or lookup structure for mapping files to parameter names. So we use a special object here, that builds such a cache and uses it, which is much faster than running the file-->parameter name look everytime.
+
+# In[4]:
+
+
+psh = pu.ParamUtilSpeedHelper(driver.get_initial_params_dir())
+print(psh.list_params(cmtnum=4, pftnum=0))
+
+
+# There are a lot of dvmdostem parameters! There is also a function that can show just the non-pft parameters:
+# 
+# > Note: Why do we have to print the result? We made the design decision to return the value and let the client decide what to do with it instead of printing within the function. This is awkward in some situations (needing to add `print(...)` all the time), and really helpful in other situations.
+
+# In[16]:
+
+
+print(psh.list_non_pft_params())
+
+
 # The `SensitivtyDriver` object is designed to help setup and conduct a sensitivity analysis. At the present time there are some hard-coded assumptions in the driver object (which pixel to run, the input dataset/site to use, the source of the initial parameter values, which outputs to process and the location of the working directory). The driver object is configurable with respect to the parameters to be used in the sensitivity analysis, the bounds for the parameters, which PFT to analyze, and which CMT (community type) to run.
 # 
 # Now we have a few ways we can setup our `SensitivityDriver` object. 
@@ -65,7 +85,7 @@ print(driver.info())
 # 
 # > Need a better name for `percent_diffs` - these are the % range that the bounds will be set around the initial value. Right now it defaults to +/-10% if the `percent_diffs` array is not passed.
 
-# In[4]:
+# In[5]:
 
 
 driver.design_experiment(50, 4, params=['cmax','rhq10'], pftnums=[0,None], percent_diffs=[.6, .2])
@@ -74,7 +94,7 @@ print(driver.info())
 
 # We can also make some plots to see how our samples look with respect to the bounds and the distribution.
 
-# In[5]:
+# In[6]:
 
 
 driver.plot_sensitivity_matrix()
@@ -82,22 +102,23 @@ driver.plot_sensitivity_matrix()
 
 # ### Option 2
 # Simply build the parameter specification by hand. The bounds are set totally manually.
-# > Note that a `cmtnum` is not set. This is not a problem for generating the sensitivity matrix. However it will be necessary to set a `cmtnum` before conducting runs - so that the driver knows which parameters to modify and the model knows which community type to run. Knowing the community type that was used for the run will also be necessary for processing the outputs.
+# > Note that a `cmtnum` and `pftnums` are not set! This is not a problem for generating the sensitivity matrix. However it will be necessary to set a `cmtnum` and `pftnums` before conducting runs - so that the driver knows which parameters to modify and the model knows which community type to run. Knowing the community type that was used for the run will also be necessary for processing the outputs.
 
-# In[6]:
+# In[7]:
 
 
 names=['cmax','rhq10','micbnup']
-pfts=[3, None, None]
-bounds=[[0.,1.],[25.,60.],[.1, .4]]
-driver.params = [{'name':name, 'bounds':bound, 'pft':pft} for name, bound, pft in zip(names,bounds,pfts)]
+#pfts=[3, None, None] # meaningless w/o cmt number too!
+bounds=[[0.0,1.0], [25.0,60.0], [0.1, 0.4]]
+initials=[0.5, 40.0, 0.3]
+driver.params = [{'name':name, 'bounds':bound, 'initial':init} for name, bound, init in zip(names,bounds,initials)]
 driver.sample_matrix = Sensitivity.generate_lhc(15, driver.params)
 print(driver.info())
 
 
 # Additionally, there is a way to save the experiment. This will output 2 files, one for the parameters, and one of the sample matrix.
 
-# In[7]:
+# In[8]:
 
 
 driver.save_experiment("/tmp/test_001")
@@ -108,7 +129,7 @@ get_ipython().system('cat /tmp/test_001_sample_matrix.csv')
 # And there is a way to load an experiment design from the text files. 
 # > Note that the path handling could probably be improved
 
-# In[8]:
+# In[9]:
 
 
 driver.load_experiment("/tmp/test_001_param_props.csv","/tmp/test_001_sample_matrix.csv")
@@ -121,7 +142,7 @@ print(driver.info())
 # 
 # For this toy experiment, we are going to draw 10 sample sets across 3 parameters (2 soil parameter and one PFT parameter). We are going to use the default `percent_diffs` for generating the sample matrix: +/-10%. And we are going to be analyzing CMT 5 (Tussock Tundra).
 
-# In[11]:
+# In[10]:
 
 
 # Instantiate object, sets pixel, outputs, working directory, site selection (input data path)
@@ -139,7 +160,7 @@ driver.plot_sensitivity_matrix()
 #  - adjusting the config file, and 
 #  - injecting the parameter values from our `sample_matrix`.
 
-# In[13]:
+# In[11]:
 
 
 # makes directories, sets config files, input data, etc for each run
@@ -148,7 +169,7 @@ driver.setup_multi()
 
 # And once the setup is complete, now we can carry out the runs. 
 
-# In[14]:
+# In[12]:
 
 
 # carry out the run and do initial output collection
@@ -157,7 +178,7 @@ driver.run_all_samples()
 
 # ## Process, analyze, and plot data after runs
 
-# In[15]:
+# In[13]:
 
 
 driver.extract_data_for_sensitivity_analysis()
@@ -165,7 +186,7 @@ driver.extract_data_for_sensitivity_analysis()
 driver.first_steps_sensitivity_analysis()
 
 
-# In[16]:
+# In[14]:
 
 
 driver.make_cool_plot_2()
@@ -211,11 +232,6 @@ driver.make_cool_plot_2()
 
 # In[ ]:
 
-
-
-
-
-# In[ ]:
 
 
 
