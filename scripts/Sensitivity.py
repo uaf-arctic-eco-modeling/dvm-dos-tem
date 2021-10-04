@@ -262,6 +262,9 @@ class SensitivityDriver(object):
     '''Load parameter properties and sample matrix from files.'''
     self.sample_matrix = pd.read_csv(sample_matrix_path)
     self.params = pd.read_csv(param_props_path, dtype={'name':'S10','cmtnum':np.int32})
+    # set None and nan to empty string so user does not 
+    # get confused when printing dataframe.
+    self.params = self.params.where(self.params.notnull(), '')
     self.params = self.params.to_dict(orient='records')
 
   def clean(self):
@@ -311,7 +314,12 @@ class SensitivityDriver(object):
     # attribute is not set, then print empty string.
     try:
       # DataFrame prints nicely
-      df = pd.DataFrame(self.params)[['name','initial','bounds']]
+      df = pd.DataFrame(self.params)
+      # prevents printing nan
+      # Might want to make this more specific to PFT column, 
+      # in case there somehow ends up being bad data in one of the 
+      # number columns that buggers things farther along?
+      df = df.where(df.notna(), '')
       ps = df.to_string()
     except AttributeError:
       ps = "[not set]"
@@ -500,8 +508,15 @@ class SensitivityDriver(object):
     Not sure how to handle a case where we have parameters adjusted 
     for several PFTs??? What outputs would we want??
     '''
-    pftnums = set([x['pftnum'] for x in self.params])
-    pftnums.discard(None)
+    try:
+      pftnums = set([x['pftnum'] for x in self.params])
+      pftnums.discard(None)
+    except (AttributeError, KeyError) as e:
+      # AttributeError occurs when params attribute not set yet
+      # KeyError occurs if params does not have a column for pfts
+      # Not sure what the use case is for this...
+      pftnums = ''
+
     if len(pftnums) == 1:
       return pftnums.pop()
     elif len(pftnums) == 0:
