@@ -1107,6 +1107,8 @@ class ParamUtilSpeedHelper(object):
       A formatted string listing all the parameters for a given CMT and PFT.
     '''
     assert cmtnum is not None, "Must pass cmtnum!"
+    assert pftnum is not None, "Must pass pftnum!"
+
     pvn = get_pft_verbose_name(cmtnum=cmtnum, pftnum=pftnum,lookup_path=self.__pdir)
     s = ''
     for fname, pdict in self.lu.items():
@@ -1186,6 +1188,7 @@ def build_param_lookup(pdir):
     f = os.path.join(pdir, f) # Maybe this should be abspath(..)?
     cmts = get_CMTs_in_file(f)
     #print(f, len(data))
+    # Using a set here, otherwise we get duplicates (one per PFT).
     pft_params = set()
     non_pft_params = set()
     for cmt in cmts:
