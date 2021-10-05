@@ -310,7 +310,7 @@ class SensitivityDriver(object):
         cmtnum=self.cmtnum(), pftnum=self.pftnum(), 
         lookup_path=self.get_initial_params_dir()
       )
-    except AttributeError:
+    except (AttributeError, ValueError) as e:
       pft_verbose_name = ''
 
     # Not all class attributes might be initialized, so if an 
