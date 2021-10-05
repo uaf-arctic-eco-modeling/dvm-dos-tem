@@ -595,6 +595,12 @@ class SensitivityDriver(object):
     ------
     None
     '''
+
+    # Elchin: please improve or comment on this function. 
+    # Feel free to change the name of the function as you see fit!
+    # Is there more we need to do to collect the data in a meaningful
+    # way?
+
     # pattern = '{}/*/sensitivity.csv'.format(self.work_dir)
     # file_list = sorted(glob.glob(pattern, recursive=True))
     file_list = self.get_sensitivity_csvs()
@@ -615,6 +621,11 @@ class SensitivityDriver(object):
     ------
     None
     '''
+
+    # Elchin please improve or comment on this plot!
+    # It is meant mostly as an exmaple of how you might
+    # access and process the dvmdostem output data.
+ 
     fig, axes = plt.subplots(len(self.outputs))
 
     for r in os.listdir(self.work_dir):
@@ -728,6 +739,11 @@ class SensitivityDriver(object):
       Right column is boxplot of sample values
 
     '''
+
+    # Elchin: please improve or comment on this plot. I am not sure
+    # what the standard, meaningful ways to visualize the sample matrix
+    # data are!
+
     fig, axes = plt.subplots(len(self.params),3)
 
     for i, (p, ax) in enumerate(zip(self.params, axes)):
