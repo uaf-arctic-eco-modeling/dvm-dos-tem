@@ -986,6 +986,40 @@ def is_ecosys_contributor(cmtstr, pftnum=None, compartment=None, ref_params_dir=
 
   return is_contrib
 
+def get_available_CMTs(pdir):
+  '''
+  Return list of available CMT numbers in directory.
+
+  Only returns CMTs that are defined in all files.
+
+  Assumptions:
+   - nothing else in `pdir`
+   - parameter files in `pdir` are valid
+   - CMTs not defined twice in one file
+
+  Parameters
+  ----------
+  pdir : str
+    Path to directory of dvmdostem parameter files.
+
+  Returns
+  -------
+  x : list of ints
+    A list of all the CMTs available in `pdir`. 
+  '''
+
+  all_cmts = set()
+  files = os.listdir(pdir)
+  for f in files:
+    file_cmts = []
+    data = get_CMTs_in_file(os.path.join(pdir, f))
+    for cmt in data:
+      file_cmts.append((cmt['cmtkey'], cmt['cmtnum'], cmt['cmtname'], f))
+    file_cmt_set = set([x[1] for x in file_cmts])
+    assert len([x[1] for x in file_cmts]) == len(file_cmt_set), "Must not have redundant cmt definitions in a file!: {}".format(f)
+    all_cmts = all_cmts.union(file_cmt_set)
+
+  return list(all_cmts)
 
 
 
