@@ -122,6 +122,8 @@ def generate_lhc(N, param_props):
   return pd.DataFrame(sample_matrix, columns=[p['name'] for p in param_props])
 
 
+  
+
 
 class SensitivityDriver(object):
   '''
@@ -137,7 +139,7 @@ class SensitivityDriver(object):
    3. Use driver object to setup the run folders.
    4. Use driver object to carry out model runs.
    5. Use driver object to summarize/collect outputs.
-   6. Use driver object to make plots, do analysys.
+   6. Use driver object to make plots, do analysis.
 
   Parameters
   ----------
@@ -149,10 +151,10 @@ class SensitivityDriver(object):
   --------
   Instantiate object, sets pixel, outputs, working directory, 
   site selection (input data path)
-  >>> driver = Sensitivity.SensitivityDriver()
+  >>> driver = SensitivityDriver()
 
   Show info about the driver object:
-  >>> print(driver.info())
+  >>> driver.info()
 
   '''
   def __init__(self):
@@ -160,7 +162,11 @@ class SensitivityDriver(object):
     Constructor
     Hard code a bunch of stuff for now...
     '''
+
+    # Made this one private because I don't want it to get confused with 
+    # the later params directories that will be created in each run folder.
     self.__initial_params = '/work/parameters'
+
     self.work_dir = '/data/workflows/sensitivity_analysis'
     self.site = '/data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_CALM_Toolik_LTER_10x10/'
     self.PXx = 0
@@ -169,6 +175,10 @@ class SensitivityDriver(object):
       { 'name': 'GPP', 'type': 'flux',},
       { 'name': 'VEGC','type': 'pool',},
     ]
+
+  def get_initial_params_dir(self):
+    '''Read only accessor to private member variable.'''
+    return self.__initial_params
 
   def design_experiment(self, Nsamples, cmtnum, params, pftnums, 
       percent_diffs=None, sampling_method='lhc'):
@@ -252,6 +262,9 @@ class SensitivityDriver(object):
     '''Load parameter properties and sample matrix from files.'''
     self.sample_matrix = pd.read_csv(sample_matrix_path)
     self.params = pd.read_csv(param_props_path, dtype={'name':'S10','cmtnum':np.int32})
+    # set None and nan to empty string so user does not 
+    # get confused when printing dataframe.
+    self.params = self.params.where(self.params.notnull(), '')
     self.params = self.params.to_dict(orient='records')
 
   def clean(self):
@@ -292,40 +305,66 @@ class SensitivityDriver(object):
     -------
     None
     '''
-
-    info_str = textwrap.dedent('''
-      work_dir: {}
-      site: {}
-      pixel(y,x): ({},{})
-      cmtnum: {}
-      found {} existing sensitivity csv files.
-        > NOTE - these may be leftover from a prior run!\n''').format(
-        self.work_dir, self.site, self.PXy, self.PXx, self.cmtnum(),
-        len(self.get_sensitivity_csvs())
+    try:
+      pft_verbose_name = pu.get_pft_verbose_name(
+        cmtnum=self.cmtnum(), pftnum=self.pftnum(), 
+        lookup_path=self.get_initial_params_dir()
       )
+    except AttributeError:
+      pft_verbose_name = ''
 
-    # Not all class attributes might be initialize, so if an 
+    # Not all class attributes might be initialized, so if an 
     # attribute is not set, then print empty string.
     try:
-      ps = pd.DataFrame(self.params).head() # DataFrame prints nicely
+      # DataFrame prints nicely
+      df = pd.DataFrame(self.params)
+      # prevents printing nan
+      # Might want to make this more specific to PFT column, 
+      # in case there somehow ends up being bad data in one of the 
+      # number columns that buggers things farther along?
+      df = df.where(df.notna(), '')
+      ps = df.to_string()
     except AttributeError:
-      ps = ""
+      ps = "[not set]"
 
     try:
       #sms = self.sample_matrix.head()
       sms = self.sample_matrix.shape
     except AttributeError:
-      sms = ""    
+      sms = "[not set]"    
 
-    if len(ps) > 0:
-      info_str += '''params:\n{}'''.format(ps)
-    else:
-      info_str += 'params:'
+    info_str = textwrap.dedent('''\
+      --- Setup ---
+      work_dir: {}
+      site: {}
+      pixel(y,x): ({},{})
+      cmtnum: {}
+      pftnum: {} ({})
 
-    if len(sms) > 0:
-      info_str += '''\nsample_matrix shape: {}'''.format(sms)
-    else:
-      info_str += '\nsample_matrix shape:'
+      '''.format(
+        self.work_dir, self.site, self.PXy, self.PXx, self.cmtnum(),
+        self.pftnum(), pft_verbose_name))
+
+    info_str += textwrap.dedent('''\
+      --- Parameters ---
+      '''.format())
+    info_str += '{}\n\n'.format(ps)
+
+
+    info_str += textwrap.dedent('''\
+      --- Sample Matrix ---
+      sample_matrix shape: {}
+
+      '''.format(sms))
+
+    info_str += textwrap.dedent('''\
+      --- Outputs ---
+      > NOTE - these may be leftover from a prior run!
+      found {} existing sensitivity csv files.
+
+      '''.format(len(self.get_sensitivity_csvs())))
+
+
 
     return info_str
 
@@ -472,8 +511,15 @@ class SensitivityDriver(object):
     Not sure how to handle a case where we have parameters adjusted 
     for several PFTs??? What outputs would we want??
     '''
-    pftnums = set([x['pftnum'] for x in self.params])
-    pftnums.discard(None)
+    try:
+      pftnums = set([x['pftnum'] for x in self.params])
+      pftnums.discard(None)
+    except (AttributeError, KeyError) as e:
+      # AttributeError occurs when params attribute not set yet
+      # KeyError occurs if params does not have a column for pfts
+      # Not sure what the use case is for this...
+      pftnums = ''
+
     if len(pftnums) == 1:
       return pftnums.pop()
     elif len(pftnums) == 0:
@@ -549,6 +595,12 @@ class SensitivityDriver(object):
     ------
     None
     '''
+
+    # Elchin: please improve or comment on this function. 
+    # Feel free to change the name of the function as you see fit!
+    # Is there more we need to do to collect the data in a meaningful
+    # way?
+
     # pattern = '{}/*/sensitivity.csv'.format(self.work_dir)
     # file_list = sorted(glob.glob(pattern, recursive=True))
     file_list = self.get_sensitivity_csvs()
@@ -569,6 +621,11 @@ class SensitivityDriver(object):
     ------
     None
     '''
+
+    # Elchin please improve or comment on this plot!
+    # It is meant mostly as an exmaple of how you might
+    # access and process the dvmdostem output data.
+ 
     fig, axes = plt.subplots(len(self.outputs))
 
     for r in os.listdir(self.work_dir):
@@ -682,6 +739,11 @@ class SensitivityDriver(object):
       Right column is boxplot of sample values
 
     '''
+
+    # Elchin: please improve or comment on this plot. I am not sure
+    # what the standard, meaningful ways to visualize the sample matrix
+    # data are!
+
     fig, axes = plt.subplots(len(self.params),3)
 
     for i, (p, ax) in enumerate(zip(self.params, axes)):
@@ -693,3 +755,7 @@ class SensitivityDriver(object):
       ax[2].set_ylim(ax[0].get_ylim())
       
     plt.tight_layout()
+
+if __name__ == '__main__':
+  import doctest
+  doctest.testmod()
