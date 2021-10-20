@@ -11,6 +11,7 @@ import lhsmdu
 import glob
 import json
 import os
+import ast
 import shutil
 import subprocess
 from contextlib import contextmanager
@@ -262,24 +263,32 @@ class SensitivityDriver(object):
     else:
       sm_fname = "{}_sample_matrix.csv".format(name) 
       pp_fname = '{}_param_props.csv'.format(name)
-    print("Saving {}".format(sm_fname))
+
     self.sample_matrix.to_csv(sm_fname, index=False)
-    print("Saving {}".format(pp_fname))
+
     pd.DataFrame(self.params).to_csv(pp_fname, index=False)
 
   def load_experiment(self, param_props_path, sample_matrix_path):
     '''Load parameter properties and sample matrix from files.'''
 
     self.sample_matrix = pd.read_csv(sample_matrix_path)
-    self.params = pd.read_csv(param_props_path, dtype={'name':'S10','cmtnum':np.int32})
+    self.params = pd.read_csv(param_props_path, 
+        dtype={'name':'S10','cmtnum':np.int32,}, 
+        converters={'bounds': ast.literal_eval}
+    )
 
     self.params = self.params.to_dict(orient='records')
 
     # nan to None so that self.pftnum() function works later 
     for x in self.params:
+      if 'name' in x.keys():
+        x['name'] = x['name'].decode('utf-8')
       if 'pftnum' in x.keys():
         if pd.isna(x['pftnum']): # could try np.isnan
           x['pftnum'] = None
+        else:
+          x['pftnum'] = int(x['pftnum'])
+
 
   def clean(self):
     '''
