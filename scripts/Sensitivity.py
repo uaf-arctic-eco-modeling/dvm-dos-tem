@@ -157,7 +157,7 @@ class SensitivityDriver(object):
   >>> driver.info()
 
   '''
-  def __init__(self):
+  def __init__(self, clean=False):
     '''
     Constructor
     Hard code a bunch of stuff for now...
@@ -175,6 +175,12 @@ class SensitivityDriver(object):
       { 'name': 'GPP', 'type': 'flux',},
       { 'name': 'VEGC','type': 'pool',},
     ]
+
+    if not os.path.isdir(self.work_dir):
+      os.mkdir(self.work_dir)
+
+    if clean:
+      self.clean()
 
   def get_initial_params_dir(self):
     '''Read only accessor to private member variable.'''
