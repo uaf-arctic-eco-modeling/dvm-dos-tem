@@ -269,12 +269,17 @@ class SensitivityDriver(object):
 
   def load_experiment(self, param_props_path, sample_matrix_path):
     '''Load parameter properties and sample matrix from files.'''
+
     self.sample_matrix = pd.read_csv(sample_matrix_path)
     self.params = pd.read_csv(param_props_path, dtype={'name':'S10','cmtnum':np.int32})
-    # set None and nan to empty string so user does not 
-    # get confused when printing dataframe.
-    self.params = self.params.where(self.params.notnull(), '')
+
     self.params = self.params.to_dict(orient='records')
+
+    # nan to None so that self.pftnum() function works later 
+    for x in self.params:
+      if 'pftnum' in x.keys():
+        if pd.isna(x['pftnum']): # could try np.isnan
+          x['pftnum'] = None
 
   def clean(self):
     '''
