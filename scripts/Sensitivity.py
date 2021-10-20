@@ -368,7 +368,7 @@ class SensitivityDriver(object):
 
     return info_str
 
-  def core_setup(self, row, idx):
+  def core_setup(self, row, idx, initial=False):
     '''
     Do all the work to setup and configure a model run.
     Uses the `row` parameter (one row of the sample matrix) to
@@ -394,7 +394,17 @@ class SensitivityDriver(object):
     None
     '''
     print("PROC:{}  ".format(multiprocessing.current_process()), row)
-    sample_specific_folder = self._ssrf_name(idx)
+
+    if initial:
+      print("Ignoring idx, it is not really relevant here.")
+      print("Ignoring row dict, not really relevant here.")
+      # Build our own row dict, based on initial values in params
+      row = {x['name']:x['initial'] for x in self.params}
+      sample_specific_folder = os.path.join(self.work_dir, 'inital_value_run')
+      if os.path.isdir(sample_specific_folder):
+        shutil.rmtree(sample_specific_folder)
+    else:
+      sample_specific_folder = self._ssrf_name(idx)
 
     program = '/work/scripts/setup_working_directory.py'
     opt_str = '--input-data-path {} {}'.format(self.site, sample_specific_folder)
@@ -460,8 +470,12 @@ class SensitivityDriver(object):
     # Start fresh...
     self.clean()
 
+    # Make a special directory for the "initial values" run.
+    # row and idx args are ignored when setting up initial value run. 
+    self.core_setup(row={'ignore this and idx':None}, idx=324234, initial=True)
+
     args = zip(self.sample_matrix.to_dict(orient='records'),range(0,len(self.sample_matrix)))
-    print(args)
+    print(list(args))
     with multiprocessing.Pool(processes=(os.cpu_count()-1)) as pool:
       results = pool.starmap(self.core_setup, args)
     print(results)
