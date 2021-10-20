@@ -248,11 +248,14 @@ class SensitivityDriver(object):
     elif sampling_method == 'uniform':
       self.sample_matrix = self.generate_uniform(Nsamples, self.params)
 
-  def save_experiment(self, name):
+  def save_experiment(self, name=''):
     '''Write the parameter properties and sensitivity matrix to files.'''
-    # Maybe these should go in self.work_dir??
-    sm_fname = "{}_sample_matrix.csv".format(name) 
-    pp_fname = '{}_param_props.csv'.format(name)
+    if name == '':
+      sm_fname = os.path.join(self.work_dir, 'sample_matrix.csv')
+      pp_fname = os.path.join(self.work_dir, 'param_props.csv')
+    else:
+      sm_fname = "{}_sample_matrix.csv".format(name) 
+      pp_fname = '{}_param_props.csv'.format(name)
     print("Saving {}".format(sm_fname))
     self.sample_matrix.to_csv(sm_fname, index=False)
     print("Saving {}".format(pp_fname))
