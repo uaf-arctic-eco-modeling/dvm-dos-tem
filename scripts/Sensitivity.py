@@ -48,9 +48,9 @@ def generate_uniform(N, param_props):
     Each item in `param_props` list will be a dictionary
     with at least the following:
     >>> param_props = {
-      pname: 'name',               # name in dvmdostem parameter file (cmt_*.txt)
-      bounds: [float, float],      # the min and max values the parameter can have
-    }
+    ...   'name': 'rhq10',        # name in dvmdostem parameter file (cmt_*.txt)
+    ...   'bounds': [5.2, 6.4],   # the min and max values the parameter can have
+    ... }
 
   Returns
   -------
@@ -90,9 +90,9 @@ def generate_lhc(N, param_props):
     Each item in `param_props` list will be a dictionary
     with at least the following:
     >>> param_props = {
-      pname: 'name',               # name in dvmdostem parameter file (cmt_*.txt)
-      bounds: [float, float],      # the min and max values the parameter can have
-    }
+    ...   'name': 'cmax',               # name in dvmdostem parameter file (cmt_*.txt)
+    ...   'bounds': [100.1, 105.1],     # the min and max values the parameter can have
+    ... }
 
   Returns
   -------
@@ -155,7 +155,14 @@ class SensitivityDriver(object):
   >>> driver = SensitivityDriver()
 
   Show info about the driver object:
-  >>> driver.info()
+  >>> driver.design_experiment(5, 4, params=['cmax','rhq10','nfall(1)'], pftnums=[2,None,2])
+  >>> driver.sample_matrix
+          cmax     rhq10  nfall(1)
+  0  63.536594  1.919504  0.000162
+  1  62.528847  2.161819  0.000159
+  2  67.606747  1.834203  0.000145
+  3  59.671967  2.042034  0.000171
+  4  57.711999  1.968631  0.000155
 
   '''
   def __init__(self, clean=False):
