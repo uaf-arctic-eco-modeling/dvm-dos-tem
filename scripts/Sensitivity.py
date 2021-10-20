@@ -271,7 +271,7 @@ class SensitivityDriver(object):
     '''
     Remove the entire tree at `self.work_dir`.
     
-    This function is careful, so be careful using it!
+    This function is not careful, so be careful using it!
     '''
     shutil.rmtree(self.work_dir, ignore_errors=True)
 
@@ -372,11 +372,11 @@ class SensitivityDriver(object):
     '''
     Do all the work to setup and configure a model run.
     Uses the `row` parameter (one row of the sample matrix) to
-    set the parameter values for the run by calling.
+    set the parameter values for the run.
 
     Currently relies on command line API for various dvmdostem
-    helper scripts. WOuld be nice to transition to using a Python
-    API.
+    helper scripts. Would be nice to transition to using a Python
+    API for all these helper scripts (modules).
 
     Parameters
     ----------
