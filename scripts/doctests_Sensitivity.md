@@ -1,5 +1,7 @@
 # Basic testing of Sensitivity.py module
 
+## Basic SA run
+
 Load the library
 
     >>> import Sensitivity
@@ -8,11 +10,11 @@ Instantiate an object
 
     >>> sd = Sensitivity.SensitivityDriver()
 
-Setup an experiment, with pft and non-pft params
+Setup an experiment, with pft and non-pft params. Since 'rhq10' is a non-pft parameter we assign 'None' to its pftnum.
     
     >>> sd.design_experiment(nsamples=5, pftnum=4, 
                              params=['cmax','rhq10','nmax'],
-                             pftnums=[2,None,2]
+                             pftnums=[0,None,0]
                              percent_diffs=[.5, .2, 0.1],
                              sampling_method='lhc')
 
@@ -40,6 +42,25 @@ Check the info
     > NOTE - these may be leftover from a prior run!
     found 1 existing sensitivity csv files.
 
+Save parameters and sampling matrix in the workflows folder
+
+    >>> driver.save_experiment('/data/workflows/')
+
+Makes directories, sets config files, input data, etc for each run
+    
+    >>> driver.setup_multi()
+
+Carry out the run and do initial output collection
+
+    >>> driver.run_all_samples()
+
+Process the data (creates the sensitivity.csv files)
+
+    >>> driver.extract_data_for_sensitivity_analysis()
+    >>> print('')
+    >>> print('SUCCESS! Sensitivity analysis is finished!')
+
+## Additional functionality
 
 Retrieve the pft and cmt being used for this driver 
 
@@ -63,6 +84,8 @@ See what we got:
     >>> os.listdir(sd.work_dir)
     ['sample_matrix.csv', 'param_props.csv']
 
+## Retrive previous SA run for further analysis
+
 Now see if we can load the experiment again into a new driver:
 
     >>> sd2 = Sensitivity.SensitivityDriver()
@@ -77,4 +100,10 @@ And make sure the new object has the same stuff as the original object:
     >>> sd.sample_matrix.round(9).equals(sd2.sample_matrix.round(9))
     True
 
-    
+Get the SA matrix using last time step. This function will get the sample matrix.
+
+    >>> inout = sd.get_SA_correlation_matrix()
+
+Get the SA time-series matrix for a desired output variable. This function will not get the sample matrix.
+
+    >>> res = sd.get_SA_time_series('VEGC')
