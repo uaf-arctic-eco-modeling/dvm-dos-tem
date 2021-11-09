@@ -52,4 +52,7 @@ And make sure the new object has the same stuff as the original object:
     >>> sd.sample_matrix.round(9).equals(sd2.sample_matrix.round(9))
     True
 
+Next steps will be testing the `sd.setup_multi()` function but right
+now this will fail because the function has lots of stdout that is not
+suppressed and therefore messes with the doctests module.
     
