@@ -504,8 +504,10 @@ class SensitivityDriver(object):
     # row and idx args are ignored when setting up initial value run. 
     self.core_setup(row={'ignore this and idx':None}, idx=324234, initial=True)
 
-    args = zip(self.sample_matrix.to_dict(orient='records'),range(0,len(self.sample_matrix)))
-    print(list(args))
+    args = list(zip(self.sample_matrix.to_dict(orient='records'),
+               range(0,len(self.sample_matrix)), 
+               np.zeros(len(self.sample_matrix), dtype=bool)))
+
     with multiprocessing.Pool(processes=(os.cpu_count()-1)) as pool:
       results = pool.starmap(self.core_setup, args)
     print(results)
