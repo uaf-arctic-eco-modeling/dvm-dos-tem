@@ -24,6 +24,11 @@ See where the experiment is being stored:
     >>> sd.work_dir
     '/data/workflows/sensitivity_analysis'
 
+Clean the working directory of any existing data so that the next tests
+have predictable output.
+
+    >>> sd.clean()
+
 Save an experiment. This
 
     >>> sd.save_experiment()

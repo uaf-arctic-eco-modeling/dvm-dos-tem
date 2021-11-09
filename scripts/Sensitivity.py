@@ -304,6 +304,7 @@ class SensitivityDriver(object):
     This function is not careful, so be careful using it!
     '''
     shutil.rmtree(self.work_dir, ignore_errors=True)
+    os.makedirs(self.work_dir)
 
   def get_sensitivity_csvs(self):
     '''
