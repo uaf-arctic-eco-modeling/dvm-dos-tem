@@ -20,6 +20,7 @@ services:
     image: cpp-dev:0.0.1
   dvmdostem-build:
     build: .
+    command: tail -F anything # keeps container running
     image: dvmdostem-build:0.0.1
     volumes:
       - sourcecode:/work
