@@ -142,10 +142,10 @@ def average_monthly_pool_to_yearly(data):
     raise RuntimeError('data input parameter must be a numpy masked array!')
 
   original_dims = list(data.shape)
-  new_time = original_dims[0] / 12
+  new_time = original_dims[0] // 12
   new_dims = original_dims
   new_dims[0] = new_time
-
+  new_dims = [round(x) for x in new_dims]
   output = np.ones(new_dims) * np.nan
   for i in range(0, new_time):
     yr_start = i * 12

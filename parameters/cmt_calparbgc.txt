@@ -131,9 +131,9 @@
 // soil calibrated parameters
 0.750000     // micbnup: parameter for soil microbial immobilization -8.06e-05of N
 0.091946     // kdcrawc: raw-material (litter) C decompositin rates at reference condition  was 0.068946
-0.0230919    // kdcsoma  was 0.094519
-0.020800     // kdcsompr   was 0.009000 
-0.000005     // kdcsomcr  was 0.000005 
+0.0230919    // kdcsoma:  was 0.094519
+0.020800     // kdcsompr:   was 0.009000 
+0.000005     // kdcsomcr:  was 0.000005 
 //===========================================================
 // CMT06 // Wet Sedge Tundra // Calibrated for Toolik area.
 //Decid      Sedges       Grasses      Forbs        Lichens      Feather      Sphag        PFT7     PFT8      PFT9      // pftnames

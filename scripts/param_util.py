@@ -19,6 +19,135 @@ if float('%d.%d'%(sys.version_info[0:2])) < 2.7:
  raise Exception("Must use Python version 2.7 or greater!")
 
 
+class ParamUtilSpeedHelper(object):
+  '''
+  Experimenting with having an object oriented API so that we can 
+  cache some data in the object. Will save lots of time for various
+  look up type functionality.
+
+  With param_util.py in general the idea has been to have it be flexible
+  with repsect to the location of the parameter files. But that makes 
+  some operations expensive because the code is constantly having to 
+  re-build lookup datastructures to find parameter names or files.
+
+  With this object the idea is to set the parameter directory upon
+  instantiation, and build the lookup data structure. Then future
+  operations can use that cached structure.
+
+  Examples
+  --------
+  >>> import param_util as pu
+  >>> psh = pu.ParamUtilSpeedHelper("/work/parameters")
+  >>> psh.get_value(pname='cmax', cmtnum=4, pftnum=3, with_metadata=False)
+
+  '''
+  def __init__(self, pdir):
+    '''
+    Sets parameter directory, build lookup structure.
+
+    Parameters
+    ----------
+    `pdir` is path to a directory of dvmdostem parameter files.
+    '''
+    self.__pdir = pdir
+    self.lu = build_param_lookup(self.__pdir)
+
+  def get_value(self, pname=None, cmtnum=None, pftnum=None, with_metadata=False):
+    '''
+    Look up the parameter value by name for given CMT and PFT.
+
+    Parameters
+    ----------
+    pname : str
+      Name of parameter as found in dvmdostem parameter files.
+
+    cmtnum : int
+      The number of the community type to grab data from.
+
+    pftnum : int
+      The PFT of the data to grab (for PFT parameters), None (default)
+      for non-pft parameters.
+
+    with_metadata : bool
+      (not implemented yet) flag for returning just the raw data or
+      a package with more metadata (e.g. param directory, filename, etc)
+
+    Returns
+    -------
+    v : float
+      The parameter value, or if `with_metadata=True`, a dict with more
+      info.
+    '''
+    f = which_file(self.__pdir, pname, lookup_struct=self.lu)
+    cmt_dict = cmtdatablock2dict(get_CMT_datablock(f, cmtnum))
+    rv = None
+    if pname in cmt_dict.keys():
+      # Not a PFT parameter...
+      rv =  cmt_dict[pname]
+    else:
+      pftkey = 'pft{}'.format(pftnum)
+      rv = cmt_dict[pftkey][pname]
+
+    return rv
+
+  def list_non_pft_params(self, cmtnum=None):
+    '''
+    Gets a listing of all non-PFT parameters.
+
+    Parameters
+    ----------
+    cmtnum : int
+      The CMT number to read from.
+
+    Returns
+    -------
+    s : str
+      A formatted string of all non-PFT parameters, (i.e. soil params)
+    '''
+    s = ''
+    for fname, pdict in self.lu.items():
+      s += '{}:\n'.format(fname)
+      for p in pdict['non_pft_params']:
+        s += '    {}\n'.format(p)
+    return s
+
+
+
+  def list_params(self, cmtnum=None, pftnum=None):
+    '''
+    Builds and returns a formatted string listing all the 
+    parameters for a given CMT and PFT.
+
+    Parameters
+    ----------
+    cmtnum : int
+      The community type number to list parameters for.
+
+    pftnum : int
+      The PFT number to list parameters for.
+
+    Returns
+    -------
+    s : string
+      A formatted string listing all the parameters for a given CMT and PFT.
+    '''
+    assert cmtnum is not None, "Must pass cmtnum!"
+    assert pftnum is not None, "Must pass pftnum!"
+
+    pvn = get_pft_verbose_name(cmtnum=cmtnum, pftnum=pftnum,lookup_path=self.__pdir)
+    s = ''
+    for fname, pdict in self.lu.items():
+      s += '{} CMT{} PFT{} {}\n'.format(fname, cmtnum, pftnum, pvn)
+      for ptype, plist in pdict.items():
+        s += "  {}\n".format(ptype)
+        for pname in plist:
+          val = self.get_value(pname=pname, cmtnum=cmtnum, pftnum=pftnum)
+          s += "   {:>15s} {:>12.4f}\n".format(pname, val)
+
+    return s
+
+
+
 
 def error_exit(fname, msg, linenumber=None):
   '''
@@ -570,11 +699,14 @@ def parse_header_line(linedata):
   return cmtkey, cmtname, cmtcomment
 
 
+
 def get_pft_verbose_name(cmtkey=None, pftkey=None, cmtnum=None, pftnum=None, lookup_path=None):
   if lookup_path == "relative_to_dvmdostem":
     path2params = os.path.join(os.path.split(os.path.dirname(os.path.realpath(__file__)))[0], 'parameters/')
   elif lookup_path == "relative_to_curdir":
     path2params = os.path.join(os.path.abspath(os.path.curdir), 'parameters/')
+  elif os.path.isdir(lookup_path):
+    path2params = lookup_path
   else:
     msg = "ERROR!: lookup_path parameter must be one of 'relative_to_dvmdostem' or 'relative_to_curdir', not {}".format(lookup_path)
     raise ValueError(msg)
@@ -585,15 +717,17 @@ def get_pft_verbose_name(cmtkey=None, pftkey=None, cmtnum=None, pftnum=None, loo
   if pftkey and pftnum:
     raise ValueError("you must provide only one of pftkey or pftnumber")
 
-  if cmtkey: # convert to number
+  if cmtkey is not None: # convert to number
     cmtnum = int(cmtkey.lstrip('CMT'))
 
-  if pftnum: # convert to key
+  if pftnum is not None: # convert to key
     pftkey = 'pft%i' % pftnum
+
+  if not (pftnum or pftkey):
+    raise ValueError("you must provide a pft number or key!")
 
   data = get_CMT_datablock(os.path.join(path2params, 'cmt_calparbgc.txt'), cmtnum)
   dd = cmtdatablock2dict(data)
-
 
   return dd[pftkey.lower()]['name']
 
@@ -765,10 +899,13 @@ def generate_reference_order(aFile):
     in the order they appear in the input file.
   '''
 
-  cmt_calparbgc = []
-  db = get_CMT_datablock(aFile, 0)
+  available_cmts = get_CMTs_in_file(aFile)
+  if not (len(available_cmts) > 0):
+    raise RuntimeError("Invalid file! Can't find any CMT data blocks!")
+  print("Using CMT{} as reference...".format(available_cmts[0]['cmtnum']))
+  db = get_CMT_datablock(aFile, available_cmts[0]['cmtnum'])
 
-  pftblock = detect_block_with_pft_info(db)
+  #pftblock = detect_block_with_pft_info(db)
 
   ref_order = []
 
@@ -783,7 +920,7 @@ def generate_reference_order(aFile):
       tokens = t[1].strip().lstrip("//").strip().split(":")
       tag = tokens[0]
       desc = "".join(tokens[1:])
-      print("Found tag:", tag, " Desc: ", desc)
+      #print("Found tag:", tag, " Desc: ", desc)
       ref_order.append(tag)
 
   return ref_order
@@ -1020,6 +1157,134 @@ def get_available_CMTs(pdir):
     all_cmts = all_cmts.union(file_cmt_set)
 
   return list(all_cmts)
+
+def which_file(pdir, pname, lookup_struct=None):
+  '''
+  Given a parameter directory and parameter name, searches the
+  files to find which file the parameter is defined in.
+
+  Parameters
+  ----------
+  pdir : str
+    A path to a directort of parameter files.
+  pname : str
+    Name of the parameter to lookup.
+  lookup_struct : dict, default=None
+    Mapping from filenames to parameter lists. This optional
+    parameter allows passing in the lookup table which will be
+    more efficient if `which_file(...)` is called inside a loop
+    and the `lookup_struct` doesn't need to be rebuilt each time.
+
+  Returns
+  -------
+  filename : if found, othewise raises RuntimeError!
+
+  Raises
+  ------
+  RuntimeError : when parameter is not found in any of the files in the directory.
+  '''
+  if not lookup_struct:
+    lookup_struct = build_param_lookup(pdir)
+
+  for fname, lu in lookup_struct.items():
+    if pname in lu['non_pft_params']:
+        return fname
+    elif pname in lu['pft_params']:
+        return fname
+    else:
+        pass
+  raise RuntimeError("Parameter not found!")
+
+def build_param_lookup(pdir):
+  '''
+  Builds a lookup table, mapping file names to lists of 
+  parameters (separate lists for PFT and non PFT params).
+
+  Parameters
+  ----------
+  pdir : str Path to a folder of parameter files.
+
+  Returns
+  -------
+  lu : dict 
+    A dictionary mapping file names to lists of parameters (pft and non-pft)
+    e.g. 
+    lu = { 
+      'cmt_calparbgc.txt': { 
+        'non_pft_params':['kdcsoma', ...], 'pft_params':['cmax', ...] 
+      },
+      'cmt_bgcsoil.txt': { 
+        'non_pft_params':['kdcsoma', ...], 'pft_params':[] 
+      },
+    }
+  '''
+  lu = {}
+  for f in os.listdir(pdir):
+    f = os.path.join(pdir, f) # Maybe this should be abspath(..)?
+    cmts = get_CMTs_in_file(f)
+    #print(f, len(data))
+    # Using a set here, otherwise we get duplicates (one per PFT).
+    pft_params = set()
+    non_pft_params = set()
+    for cmt in cmts:
+      db = get_CMT_datablock(f, cmt['cmtnum'])
+      db_dict = cmtdatablock2dict(db)
+      if detect_block_with_pft_info(db):
+        for pft in get_datablock_pftkeys(db_dict):
+          plist = [k for k in db_dict[pft] if k not in ['name']]
+          [pft_params.add(p) for p in plist]
+
+        not_params = ['tag','cmtname','comment'] + ['pft{}'.format(x) for x in range(0,10)]
+        non_pft_plist = [k for k in db_dict if k not in not_params]
+        [non_pft_params.add(x) for x in non_pft_plist]
+        #print(db_dict.keys())
+      else:
+        not_params = ['tag', 'name', 'comment', 'cmtname']
+        plist = [k for k in db_dict.keys() if k not in not_params]
+        [non_pft_params.add(p) for p in plist]
+
+    lu[f] = {'non_pft_params':non_pft_params,'pft_params':pft_params}
+  return lu
+
+def update_inplace(new_value, param_dir, pname, cmtnum, pftnum=None):
+  '''
+  Updates a parameter value in a parameter file. This will overwrite the
+  existing parameter file! Also note that it will remove all other CMTs
+  in the file.
+
+  Parameters
+  ----------
+  new_value : float
+    The new parameter value.
+  param_dir : str
+    The directory of parameter files that should be updated.
+  pname : str
+    The name of the parameter to modify.
+  cmtnum : int
+    The number of the CMT (community type) where the parameter should be modifed
+  pftnum : int
+    The number of the PFT that should be modified - only applicable 
+    for PFT specific parameters! Otherwise leave as None.
+
+  Returns
+  -------
+  None
+  '''
+  f = which_file(param_dir, pname)
+  
+  cmt_dict = cmtdatablock2dict(get_CMT_datablock(f, cmtnum))
+
+  if pname in cmt_dict.keys():
+    # Not a PFT parameter...
+    cmt_dict[pname] = new_value
+  else:
+    pftkey = 'pft{}'.format(pftnum)
+    cmt_dict[pftkey][pname] = new_value
+
+  formatted = format_CMTdatadict(cmt_dict, f)
+
+  with open(f, 'w') as updated_file:
+    updated_file.write('\n'.join(formatted))  
 
 
 
