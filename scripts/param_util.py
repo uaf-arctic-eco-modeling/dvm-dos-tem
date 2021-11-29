@@ -19,6 +19,135 @@ if float('%d.%d'%(sys.version_info[0:2])) < 2.7:
  raise Exception("Must use Python version 2.7 or greater!")
 
 
+class ParamUtilSpeedHelper(object):
+  '''
+  Experimenting with having an object oriented API so that we can 
+  cache some data in the object. Will save lots of time for various
+  look up type functionality.
+
+  With param_util.py in general the idea has been to have it be flexible
+  with repsect to the location of the parameter files. But that makes 
+  some operations expensive because the code is constantly having to 
+  re-build lookup datastructures to find parameter names or files.
+
+  With this object the idea is to set the parameter directory upon
+  instantiation, and build the lookup data structure. Then future
+  operations can use that cached structure.
+
+  Examples
+  --------
+  >>> import param_util as pu
+  >>> psh = pu.ParamUtilSpeedHelper("/work/parameters")
+  >>> psh.get_value(pname='cmax', cmtnum=4, pftnum=3, with_metadata=False)
+
+  '''
+  def __init__(self, pdir):
+    '''
+    Sets parameter directory, build lookup structure.
+
+    Parameters
+    ----------
+    `pdir` is path to a directory of dvmdostem parameter files.
+    '''
+    self.__pdir = pdir
+    self.lu = build_param_lookup(self.__pdir)
+
+  def get_value(self, pname=None, cmtnum=None, pftnum=None, with_metadata=False):
+    '''
+    Look up the parameter value by name for given CMT and PFT.
+
+    Parameters
+    ----------
+    pname : str
+      Name of parameter as found in dvmdostem parameter files.
+
+    cmtnum : int
+      The number of the community type to grab data from.
+
+    pftnum : int
+      The PFT of the data to grab (for PFT parameters), None (default)
+      for non-pft parameters.
+
+    with_metadata : bool
+      (not implemented yet) flag for returning just the raw data or
+      a package with more metadata (e.g. param directory, filename, etc)
+
+    Returns
+    -------
+    v : float
+      The parameter value, or if `with_metadata=True`, a dict with more
+      info.
+    '''
+    f = which_file(self.__pdir, pname, lookup_struct=self.lu)
+    cmt_dict = cmtdatablock2dict(get_CMT_datablock(f, cmtnum))
+    rv = None
+    if pname in cmt_dict.keys():
+      # Not a PFT parameter...
+      rv =  cmt_dict[pname]
+    else:
+      pftkey = 'pft{}'.format(pftnum)
+      rv = cmt_dict[pftkey][pname]
+
+    return rv
+
+  def list_non_pft_params(self, cmtnum=None):
+    '''
+    Gets a listing of all non-PFT parameters.
+
+    Parameters
+    ----------
+    cmtnum : int
+      The CMT number to read from.
+
+    Returns
+    -------
+    s : str
+      A formatted string of all non-PFT parameters, (i.e. soil params)
+    '''
+    s = ''
+    for fname, pdict in self.lu.items():
+      s += '{}:\n'.format(fname)
+      for p in pdict['non_pft_params']:
+        s += '    {}\n'.format(p)
+    return s
+
+
+
+  def list_params(self, cmtnum=None, pftnum=None):
+    '''
+    Builds and returns a formatted string listing all the 
+    parameters for a given CMT and PFT.
+
+    Parameters
+    ----------
+    cmtnum : int
+      The community type number to list parameters for.
+
+    pftnum : int
+      The PFT number to list parameters for.
+
+    Returns
+    -------
+    s : string
+      A formatted string listing all the parameters for a given CMT and PFT.
+    '''
+    assert cmtnum is not None, "Must pass cmtnum!"
+    assert pftnum is not None, "Must pass pftnum!"
+
+    pvn = get_pft_verbose_name(cmtnum=cmtnum, pftnum=pftnum,lookup_path=self.__pdir)
+    s = ''
+    for fname, pdict in self.lu.items():
+      s += '{} CMT{} PFT{} {}\n'.format(fname, cmtnum, pftnum, pvn)
+      for ptype, plist in pdict.items():
+        s += "  {}\n".format(ptype)
+        for pname in plist:
+          val = self.get_value(pname=pname, cmtnum=cmtnum, pftnum=pftnum)
+          s += "   {:>15s} {:>12.4f}\n".format(pname, val)
+
+    return s
+
+
+
 
 def error_exit(fname, msg, linenumber=None):
   '''
@@ -993,134 +1122,6 @@ def is_ecosys_contributor(cmtstr, pftnum=None, compartment=None, ref_params_dir=
           is_contrib = False
 
   return is_contrib
-
-class ParamUtilSpeedHelper(object):
-  '''
-  Experimenting with having an object oriented API so that we can 
-  cache some data in the object. Will save lots of time for various
-  look up type functionality.
-
-  With param_util.py in general the idea has been to have it be flexible
-  with repsect to the location of the parameter files. But that makes 
-  some operations expensive because the code is constantly having to 
-  re-build lookup datastructures to find parameter names or files.
-
-  With this object the idea is to set the parameter directory upon
-  instantiation, and build the lookup data structure. Then future
-  operations can use that cached structure.
-
-  Examples
-  --------
-  >>> import param_util as pu
-  >>> psh = pu.ParamUtilSpeedHelper("/work/parameters")
-  >>> psh.get_value(pname='cmax', cmtnum=4, pftnum=3, with_metadata=False)
-
-  '''
-  def __init__(self, pdir):
-    '''
-    Sets parameter directory, build lookup structure.
-
-    Parameters
-    ----------
-    `pdir` is path to a directory of dvmdostem parameter files.
-    '''
-    self.__pdir = pdir
-    self.lu = build_param_lookup(self.__pdir)
-
-  def get_value(self, pname=None, cmtnum=None, pftnum=None, with_metadata=False):
-    '''
-    Look up the parameter value by name for given CMT and PFT.
-
-    Parameters
-    ----------
-    pname : str
-      Name of parameter as found in dvmdostem parameter files.
-
-    cmtnum : int
-      The number of the community type to grab data from.
-
-    pftnum : int
-      The PFT of the data to grab (for PFT parameters), None (default)
-      for non-pft parameters.
-
-    with_metadata : bool
-      (not implemented yet) flag for returning just the raw data or
-      a package with more metadata (e.g. param directory, filename, etc)
-
-    Returns
-    -------
-    v : float
-      The parameter value, or if `with_metadata=True`, a dict with more
-      info.
-    '''
-    f = which_file(self.__pdir, pname, lookup_struct=self.lu)
-    cmt_dict = cmtdatablock2dict(get_CMT_datablock(f, cmtnum))
-    rv = None
-    if pname in cmt_dict.keys():
-      # Not a PFT parameter...
-      rv =  cmt_dict[pname]
-    else:
-      pftkey = 'pft{}'.format(pftnum)
-      rv = cmt_dict[pftkey][pname]
-
-    return rv
-
-  def list_non_pft_params(self, cmtnum=None):
-    '''
-    Gets a listing of all non-PFT parameters.
-
-    Parameters
-    ----------
-    cmtnum : int
-      The CMT number to read from.
-
-    Returns
-    -------
-    s : str
-      A formatted string of all non-PFT parameters, (i.e. soil params)
-    '''
-    s = ''
-    for fname, pdict in self.lu.items():
-      s += '{}:\n'.format(fname)
-      for p in pdict['non_pft_params']:
-        s += '    {}\n'.format(p)
-    return s
-
-
-
-  def list_params(self, cmtnum=None, pftnum=None):
-    '''
-    Builds and returns a formatted string listing all the 
-    parameters for a given CMT and PFT.
-
-    Parameters
-    ----------
-    cmtnum : int
-      The community type number to list parameters for.
-
-    pftnum : int
-      The PFT number to list parameters for.
-
-    Returns
-    -------
-    s : string
-      A formatted string listing all the parameters for a given CMT and PFT.
-    '''
-    assert cmtnum is not None, "Must pass cmtnum!"
-    assert pftnum is not None, "Must pass pftnum!"
-
-    pvn = get_pft_verbose_name(cmtnum=cmtnum, pftnum=pftnum,lookup_path=self.__pdir)
-    s = ''
-    for fname, pdict in self.lu.items():
-      s += '{} CMT{} PFT{} {}\n'.format(fname, cmtnum, pftnum, pvn)
-      for ptype, plist in pdict.items():
-        s += "  {}\n".format(ptype)
-        for pname in plist:
-          val = self.get_value(pname=pname, cmtnum=cmtnum, pftnum=pftnum)
-          s += "   {:>15s} {:>12.4f}\n".format(pname, val)
-
-    return s
-
 
 
 def which_file(pdir, pname, lookup_struct=None):
