@@ -36,7 +36,7 @@ it out yet. So:
    * Click the button for "Draft new release" (upper right).
    * Choose the Tag version in the tag box.
    * Put the version number and date in the title box (first line of your release note).
-   * Paste your markdown release message into the descriotion box.
+   * Paste your markdown release message into the description box.
    * Check the preview.
    * Click the Publish button.
 
@@ -84,7 +84,7 @@ We use the following rules for incrementing the version number:
    software.
  * The MINOR number (middle) will be updated when changes have been made 
    to science concepts, major implementation changes for scienctifc aspects 
-   of the code or new calibration numbers.
+   of the code calibration numbers are updated, or large new features are added.
  * The MAJOR (left) number will be updated for major milestones. This will likely 
    be points where the model is run for "production" or major testing and
    validation steps are completed and documented.
