@@ -1561,11 +1561,11 @@ def fill_explicit_fire_file(startyr, yrs, xo, yo, xs, ys, out_dir, of_name, tiff
           # Open the temporary file and read the transformation matrix. Use this
           # matrix with the rasterize function to geo-reference the features.
           rmeta = rasterio.open(tmpFile)
-          # NOTE THAT THE AREA HERE IS IN m^2, not km^2 !!!
-          shapes = [(geom, value) for geom, value in zip(this_years_fires.geometry, this_years_fires.Shape_Area)]
-
+          # NOTE: Area of Burn stored in the shape file from the BLM is
+          # expressed in m^2. We convert it here to km^2 as required by dvmdostem.
+          shapes = [(geom, value) for geom, value in zip(this_years_fires.geometry, this_years_fires.Shape_Area/1000.0/1000.0)]
           aob = features.rasterize(shapes, out_shape=(ys,xs), transform=rmeta.transform)
-          severity = np.greater(aob,0) * 2 # Sets any pixel with area of burn > 0 to severity of 2
+          severity = np.greater(aob,0) * 3 # default to burn severity of 3
           jday = np.greater(aob,0) * 212
           mask = np.greater(aob,0)
 
@@ -1625,7 +1625,8 @@ def fill_explicit_fire_file(startyr, yrs, xo, yo, xs, ys, out_dir, of_name, tiff
 
         print("Building scarnum2area_map based on full spatial domain...")
         # make a set of all the FIREIDs in the file, then map to the count of
-        # the pixels (1km pixels) that share FIREID
+        # the pixels (1km pixels) that share FIREID. The result is that the
+        # area is expressed here as km^2.
         scarnum2area_map = {}
         with netCDF4.Dataset(tmp_fs_spatial_full) as ds:
           fs_data = ds.variables['Band2'][:]
@@ -1676,7 +1677,6 @@ def fill_explicit_fire_file(startyr, yrs, xo, yo, xs, ys, out_dir, of_name, tiff
         # correct. I.e. 2 pixels (2 km-2) of a 100 pixel (100 km-2) burn 
         # fall in the users selected area --> AOB will be 100 for each pixel.
         aob = lookup_AOB_v(fs_d)
-        aob = aob * 1000 * 1000 # Convert from square kilometers to square meters
 
         # Now get the burn severity
         with netCDF4.Dataset(tmp_bs_file, 'r') as bs_ds:
@@ -1685,6 +1685,7 @@ def fill_explicit_fire_file(startyr, yrs, xo, yo, xs, ys, out_dir, of_name, tiff
         # Write AOB and Burn Severity to output file...
         with netCDF4.Dataset(of_name, 'a') as ds:
           ds.variables['exp_area_of_burn'][iy,:] = aob
+          ds.variables['exp_fire_severity'].missing_value = 255
           ds.variables['exp_fire_severity'][iy,:] = severity
           ds.variables['exp_jday_of_burn'][iy,:] = np.greater(aob,0) * 212 # July 31 2021
           ds.variables['exp_burn_mask'][iy,:] = np.logical_not(aob.mask)
