@@ -1,4 +1,13 @@
 
+/* When running a region with many concurrent batches, outputting at every
+ * year timestep creates a bottleneck in the run. Output at the monthly
+ * timestep is correspondingly worse.
+ *
+ * This class is a basic repository for output data to be held until
+ * outputting is triggered based on the user's specifications.
+ * */
+
+
 #ifndef OUTPUTHOLDER_H
 #define OUTPUTHOLDER_H
 

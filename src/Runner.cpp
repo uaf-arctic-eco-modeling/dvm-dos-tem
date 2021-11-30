@@ -1016,6 +1016,11 @@ void Runner::output_nc_5dim(OutputSpec* out_spec, std::string stage_suffix,
 }
 
 
+/* Some of the following outputs are written out at the timesteps
+ * they have specified in the output_spec file, but some have
+ * been converted to write to an OutputHolder in order to reduce
+ * the amount of file I/O that occurs during a large run. The period
+ * of time to hold data is specified in the config file. */
 void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, int year, int month, std::string stage, int endyr){
   int month_timestep = year*12 + month;
 
