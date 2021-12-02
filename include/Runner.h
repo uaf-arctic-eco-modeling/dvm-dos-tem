@@ -28,6 +28,7 @@
 #include "CalController.h"
 #include "ArgHandler.h"
 #include "util_structs.h"
+#include "OutputHolder.h"
 
 using namespace std;
 
@@ -61,9 +62,9 @@ public:
   void output_debug_daily_drivers(int iy, boost::filesystem::path p);
 
   //void output_netCDF(int year, boost::filesystem::path p);
-  void output_netCDF_monthly(int year, int month, std::string stage);
-  void output_netCDF_yearly(int year, std::string stage);
-  void output_netCDF(std::map<std::string, OutputSpec> &outputs, int year, int month, std::string stage);
+  void output_netCDF_monthly(int year, int month, std::string stage, int endyr);
+  void output_netCDF_yearly(int year, std::string stage, int endyr);
+  void output_netCDF(std::map<std::string, OutputSpec> &outputs, int year, int month, std::string stage, int endyr);
 
 
   template<typename PTYPE>
@@ -95,7 +96,9 @@ private:
 
   deque<RestartData> mlyres;
 
-  void monthly_output(const int year, const int month, const std::string& runstage);
+  OutputHolder outhold;
+
+  void monthly_output(const int year, const int month, const std::string& runstage, int endyr);
   void yearly_output(const int year, const std::string& stage, const int startyr, const int endyr);
 
 };
