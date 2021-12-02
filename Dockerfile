@@ -26,7 +26,7 @@ RUN apt-get install -y build-essential git gdb gdbserver doxygen vim
 
 # More specific build stuff for compiling dvmdostem and
 # running python scripts
-FROM cpp-dev:0.0.1 as dvmdostem-build
+FROM cpp-dev:0.0.1 as dvmdostem-dev
 # dvmdostem dependencies
 RUN apt-get update --fix-missing
 RUN apt-get install -y --fix-missing netcdf-bin
@@ -87,90 +87,103 @@ ENV PATH="/work/scripts:$PATH"
 WORKDIR /work
 # or use command
 #ENTRYPOINT [ "tail", "-f", "/dev/null" ]
-# docker build --target dvmdostem-build --tag dvmdostem-build:0.0.1 .
+# docker build --target dvmdostem-dev --tag dvmdostem-dev:0.0.1 .
 
 
-FROM dvmdostem-build:0.0.1 as dvmdostem-dev
+##############
+# FROM dvmdostem-dev:0.0.1 as dvmdostem-build
+# COPY . /work
+# USER root
+# RUN make
+# # Use this to keep container going when doing docker compose up
+# CMD ["tail -f /dev/null"]
+# #docker build --target dvmdostem-build --tag dvmdostem-build:0.0.1 .
+##########
 
-#docker build --target dvmdostem-dev --tag dvmdostem-dev:0.0.1 .
+
 
 # This is designed to be a production image, lightweight in size, and with 
 # minimal tools. Only the dvmdostem and required shared libraries are installed
 # on top of a bare ubuntu installation. No tools (git, make, etc) are included.
 # No source code. Just the compiled dvmdostem application.
+#
+# To create this image, it is assumed that you will run the dvmdostem-dev 
+# container with a volume (your copy of the dvmdostem repo) mounted at the
+# path "/work" inside the container. Then you will have used the container to 
+# compile dvmdostem; due to the volume mount the compiled binary is left as
+# and artifact in your host's directory. When building the dvmdoste-run 
+# image, it is assumed that you have a correctly compiled binary in your 
+# current working directory (the build context).
 # 
 # A container run from this images will need to have data supplied (i.e. one or 
-# more mounted volumes) in order to run dvmdostem. To create this image, it
-# is assumed that you will run the dvmdostem-build container with a volume 
-# (your copy of the dvmdostem repo) mounted as a volume at /work. Then you will
-# have used the container to compile dvmdostem. When 
-# and only the necessary shared libraries installed. And the dvmdostem executable.
-# But none of the tools to compile the executable. The expectation is that you have
+# more mounted volumes) in order to run dvmdostem.
+#
 FROM ubuntu:focal as dvmdostem-run
-#FROM dvmdostem-build:0.0.1 as dvmdostem-run
 
+WORKDIR /work
 
-COPY --from=dvmdostem-build /lib/x86_64-linux-gnu/libboost_filesystem.so.1.71.0  /lib/x86_64-linux-gnu/libboost_filesystem.so.1.71.0
-COPY --from=dvmdostem-build /lib/x86_64-linux-gnu/libboost_program_options.so.1.71.0 /lib/x86_64-linux-gnu/libboost_program_options.so.1.71.0
-COPY --from=dvmdostem-build /lib/x86_64-linux-gnu/libboost_thread.so.1.71.0 /lib/x86_64-linux-gnu/libboost_thread.so.1.71.0
-COPY --from=dvmdostem-build /lib/x86_64-linux-gnu/libboost_log.so.1.71.0 /lib/x86_64-linux-gnu/libboost_log.so.1.71.0
-COPY --from=dvmdostem-build /lib/x86_64-linux-gnu/libjsoncpp.so.1 /lib/x86_64-linux-gnu/libjsoncpp.so.1
-COPY --from=dvmdostem-build /lib/x86_64-linux-gnu/liblapacke.so.3 /lib/x86_64-linux-gnu/liblapacke.so.3
-COPY --from=dvmdostem-build /lib/x86_64-linux-gnu/libtmglib.so.3 /lib/x86_64-linux-gnu/libtmglib.so.3
-COPY --from=dvmdostem-build /lib/x86_64-linux-gnu/libhdf5_serial_hl.so.100 /lib/x86_64-linux-gnu/libhdf5_serial_hl.so.100
-COPY --from=dvmdostem-build /lib/x86_64-linux-gnu/libhdf5_serial.so.103 /lib/x86_64-linux-gnu/libhdf5_serial.so.103
-COPY --from=dvmdostem-build /lib/x86_64-linux-gnu/libcurl-gnutls.so.4 /lib/x86_64-linux-gnu/libcurl-gnutls.so.4
-COPY --from=dvmdostem-build /lib/x86_64-linux-gnu/libgfortran.so.5 /lib/x86_64-linux-gnu/libgfortran.so.5
-COPY --from=dvmdostem-build /lib/x86_64-linux-gnu/libnetcdf.so.15 /lib/x86_64-linux-gnu/libnetcdf.so.15
-COPY --from=dvmdostem-build /lib/x86_64-linux-gnu/libreadline.so.8 /lib/x86_64-linux-gnu/libreadline.so.8
-COPY --from=dvmdostem-build /lib/x86_64-linux-gnu/libblas.so.3 /lib/x86_64-linux-gnu/libblas.so.3
-COPY --from=dvmdostem-build /lib/x86_64-linux-gnu/liblapack.so.3 /lib/x86_64-linux-gnu/liblapack.so.3
-COPY --from=dvmdostem-build /lib/x86_64-linux-gnu/libblas.so.3 /lib/x86_64-linux-gnu/libblas.so.3
-COPY --from=dvmdostem-build /lib/x86_64-linux-gnu/liblapack.so.3 /lib/x86_64-linux-gnu/liblapack.so.3
-COPY --from=dvmdostem-build /lib/x86_64-linux-gnu/libsz.so.2 /lib/x86_64-linux-gnu/libsz.so.2
-COPY --from=dvmdostem-build /lib/x86_64-linux-gnu/libnghttp2.so.14 /lib/x86_64-linux-gnu/libnghttp2.so.14
-COPY --from=dvmdostem-build /lib/x86_64-linux-gnu/librtmp.so.1 /lib/x86_64-linux-gnu/librtmp.so.1
-COPY --from=dvmdostem-build /lib/x86_64-linux-gnu/libssh.so.4 /lib/x86_64-linux-gnu/libssh.so.4
-COPY --from=dvmdostem-build /lib/x86_64-linux-gnu/libpsl.so.5 /lib/x86_64-linux-gnu/libpsl.so.5
-COPY --from=dvmdostem-build /lib/x86_64-linux-gnu/libgssapi_krb5.so.2 /lib/x86_64-linux-gnu/libgssapi_krb5.so.2
-COPY --from=dvmdostem-build /lib/x86_64-linux-gnu/libldap_r-2.4.so.2 libldap_r-2./lib/x86_64-linux-gnu/4.so.2
-COPY --from=dvmdostem-build /lib/x86_64-linux-gnu/liblber-2.4.so.2 liblber-2./lib/x86_64-linux-gnu/4.so.2
-COPY --from=dvmdostem-build /lib/x86_64-linux-gnu/libbrotlidec.so.1 /lib/x86_64-linux-gnu/libbrotlidec.so.1
-COPY --from=dvmdostem-build /lib/x86_64-linux-gnu/libquadmath.so.0 /lib/x86_64-linux-gnu/libquadmath.so.0
-COPY --from=dvmdostem-build /lib/x86_64-linux-gnu/libldap_r-2.4.so.2 /lib/x86_64-linux-gnu/libldap_r-2.4.so.2
-COPY --from=dvmdostem-build /lib/x86_64-linux-gnu/liblber-2.4.so.2 /lib/x86_64-linux-gnu/liblber-2.4.so.2
-COPY --from=dvmdostem-build /lib/x86_64-linux-gnu/libaec.so.0 /lib/x86_64-linux-gnu/libaec.so.0
-COPY --from=dvmdostem-build /lib/x86_64-linux-gnu/libcrypto.so.1.1 /lib/x86_64-linux-gnu/libcrypto.so.1.1
-COPY --from=dvmdostem-build /lib/x86_64-linux-gnu/libkrb5.so.3 /lib/x86_64-linux-gnu/libkrb5.so.3
-COPY --from=dvmdostem-build /lib/x86_64-linux-gnu/libk5crypto.so.3 /lib/x86_64-linux-gnu/libk5crypto.so.3
-COPY --from=dvmdostem-build /lib/x86_64-linux-gnu/libkrb5support.so.0 /lib/x86_64-linux-gnu/libkrb5support.so.0
-COPY --from=dvmdostem-build /lib/x86_64-linux-gnu/libbrotlicommon.so.1 /lib/x86_64-linux-gnu/libbrotlicommon.so.1
-COPY --from=dvmdostem-build /lib/x86_64-linux-gnu/libsasl2.so.2 /lib/x86_64-linux-gnu/libsasl2.so.2
-COPY --from=dvmdostem-build /lib/x86_64-linux-gnu/libgssapi.so.3 /lib/x86_64-linux-gnu/libgssapi.so.3
-COPY --from=dvmdostem-build /lib/x86_64-linux-gnu/libkeyutils.so.1 /lib/x86_64-linux-gnu/libkeyutils.so.1
-COPY --from=dvmdostem-build /lib/x86_64-linux-gnu/libheimntlm.so.0 /lib/x86_64-linux-gnu/libheimntlm.so.0
-COPY --from=dvmdostem-build /lib/x86_64-linux-gnu/libkrb5.so.26 /lib/x86_64-linux-gnu/libkrb5.so.26
-COPY --from=dvmdostem-build /lib/x86_64-linux-gnu/libasn1.so.8 /lib/x86_64-linux-gnu/libasn1.so.8
-COPY --from=dvmdostem-build /lib/x86_64-linux-gnu/libhcrypto.so.4 /lib/x86_64-linux-gnu/libhcrypto.so.4
-COPY --from=dvmdostem-build /lib/x86_64-linux-gnu/libroken.so.18 /lib/x86_64-linux-gnu/libroken.so.18
-COPY --from=dvmdostem-build /lib/x86_64-linux-gnu/libwind.so.0 /lib/x86_64-linux-gnu/libwind.so.0
-COPY --from=dvmdostem-build /lib/x86_64-linux-gnu/libwind.so.0 /lib/x86_64-linux-gnu/libwind.so.0
-COPY --from=dvmdostem-build /lib/x86_64-linux-gnu/libheimbase.so.1 /lib/x86_64-linux-gnu/libheimbase.so.1
-COPY --from=dvmdostem-build /lib/x86_64-linux-gnu/libhx509.so.5 /lib/x86_64-linux-gnu/libhx509.so.5
-COPY --from=dvmdostem-build /lib/x86_64-linux-gnu/libsqlite3.so.0 /lib/x86_64-linux-gnu/libsqlite3.so.0
-COPY --from=dvmdostem-build /lib/x86_64-linux-gnu/libheimbase.so.1 /lib/x86_64-linux-gnu/libheimbase.so.1
+COPY dvmdostem /work/dvmdostem
+COPY scripts /work/scripts
 
-#WORKDIR custom-binaries
-#COPY --from=dvmdostem-build /work/dvmdostem /custom-binaries/dvmdostem
+# Discovered by using ldd on compiled binary in testing environment
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libboost_filesystem.so.1.71.0  /lib/x86_64-linux-gnu/libboost_filesystem.so.1.71.0
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libboost_program_options.so.1.71.0 /lib/x86_64-linux-gnu/libboost_program_options.so.1.71.0
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libboost_thread.so.1.71.0 /lib/x86_64-linux-gnu/libboost_thread.so.1.71.0
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libboost_log.so.1.71.0 /lib/x86_64-linux-gnu/libboost_log.so.1.71.0
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libjsoncpp.so.1 /lib/x86_64-linux-gnu/libjsoncpp.so.1
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/liblapacke.so.3 /lib/x86_64-linux-gnu/liblapacke.so.3
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libtmglib.so.3 /lib/x86_64-linux-gnu/libtmglib.so.3
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libhdf5_serial_hl.so.100 /lib/x86_64-linux-gnu/libhdf5_serial_hl.so.100
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libhdf5_serial.so.103 /lib/x86_64-linux-gnu/libhdf5_serial.so.103
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libcurl-gnutls.so.4 /lib/x86_64-linux-gnu/libcurl-gnutls.so.4
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libgfortran.so.5 /lib/x86_64-linux-gnu/libgfortran.so.5
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libnetcdf.so.15 /lib/x86_64-linux-gnu/libnetcdf.so.15
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libreadline.so.8 /lib/x86_64-linux-gnu/libreadline.so.8
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libblas.so.3 /lib/x86_64-linux-gnu/libblas.so.3
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/liblapack.so.3 /lib/x86_64-linux-gnu/liblapack.so.3
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libblas.so.3 /lib/x86_64-linux-gnu/libblas.so.3
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/liblapack.so.3 /lib/x86_64-linux-gnu/liblapack.so.3
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libsz.so.2 /lib/x86_64-linux-gnu/libsz.so.2
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libnghttp2.so.14 /lib/x86_64-linux-gnu/libnghttp2.so.14
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/librtmp.so.1 /lib/x86_64-linux-gnu/librtmp.so.1
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libssh.so.4 /lib/x86_64-linux-gnu/libssh.so.4
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libpsl.so.5 /lib/x86_64-linux-gnu/libpsl.so.5
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libgssapi_krb5.so.2 /lib/x86_64-linux-gnu/libgssapi_krb5.so.2
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libldap_r-2.4.so.2 libldap_r-2./lib/x86_64-linux-gnu/4.so.2
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/liblber-2.4.so.2 liblber-2./lib/x86_64-linux-gnu/4.so.2
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libbrotlidec.so.1 /lib/x86_64-linux-gnu/libbrotlidec.so.1
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libquadmath.so.0 /lib/x86_64-linux-gnu/libquadmath.so.0
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libldap_r-2.4.so.2 /lib/x86_64-linux-gnu/libldap_r-2.4.so.2
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/liblber-2.4.so.2 /lib/x86_64-linux-gnu/liblber-2.4.so.2
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libaec.so.0 /lib/x86_64-linux-gnu/libaec.so.0
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libcrypto.so.1.1 /lib/x86_64-linux-gnu/libcrypto.so.1.1
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libkrb5.so.3 /lib/x86_64-linux-gnu/libkrb5.so.3
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libk5crypto.so.3 /lib/x86_64-linux-gnu/libk5crypto.so.3
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libkrb5support.so.0 /lib/x86_64-linux-gnu/libkrb5support.so.0
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libbrotlicommon.so.1 /lib/x86_64-linux-gnu/libbrotlicommon.so.1
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libsasl2.so.2 /lib/x86_64-linux-gnu/libsasl2.so.2
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libgssapi.so.3 /lib/x86_64-linux-gnu/libgssapi.so.3
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libkeyutils.so.1 /lib/x86_64-linux-gnu/libkeyutils.so.1
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libheimntlm.so.0 /lib/x86_64-linux-gnu/libheimntlm.so.0
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libkrb5.so.26 /lib/x86_64-linux-gnu/libkrb5.so.26
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libasn1.so.8 /lib/x86_64-linux-gnu/libasn1.so.8
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libhcrypto.so.4 /lib/x86_64-linux-gnu/libhcrypto.so.4
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libroken.so.18 /lib/x86_64-linux-gnu/libroken.so.18
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libwind.so.0 /lib/x86_64-linux-gnu/libwind.so.0
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libwind.so.0 /lib/x86_64-linux-gnu/libwind.so.0
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libheimbase.so.1 /lib/x86_64-linux-gnu/libheimbase.so.1
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libhx509.so.5 /lib/x86_64-linux-gnu/libhx509.so.5
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libsqlite3.so.0 /lib/x86_64-linux-gnu/libsqlite3.so.0
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libheimbase.so.1 /lib/x86_64-linux-gnu/libheimbase.so.1
 
 # Make a developer user so as not to always be root
 RUN useradd -ms /bin/bash develop
 RUN echo "develop   ALL=(ALL:ALL) ALL" >> /etc/sudoers
 USER develop
 
+# Should deal with python so utilities are available as well.
 
-ENV SITE_SPECIFIC_INCLUDES="-I/usr/include/jsoncpp"
-ENV SITE_SPECIFIC_LIBS="-I/usr/lib"
+# Set a few environemnt variables for ease of use...
 ENV PATH="/work:$PATH"
 ENV PATH="/work/scripts:$PATH"
 
