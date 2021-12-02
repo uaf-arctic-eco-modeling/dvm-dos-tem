@@ -90,15 +90,16 @@ WORKDIR /work
 # docker build --target dvmdostem-dev --tag dvmdostem-dev:0.0.1 .
 
 
-##############
-# FROM dvmdostem-dev:0.0.1 as dvmdostem-build
-# COPY . /work
-# USER root
-# RUN make
-# # Use this to keep container going when doing docker compose up
-# CMD ["tail -f /dev/null"]
-# #docker build --target dvmdostem-build --tag dvmdostem-build:0.0.1 .
-##########
+#############
+FROM dvmdostem-dev:0.0.1 as dvmdostem-build
+COPY . /work
+USER root
+RUN make
+USER develop
+# Use this to keep container going when doing docker compose up
+CMD ["tail -f /dev/null"]
+#docker build --target dvmdostem-build --tag dvmdostem-build:0.0.1 .
+#########
 
 
 
@@ -122,8 +123,8 @@ FROM ubuntu:focal as dvmdostem-run
 
 WORKDIR /work
 
-COPY dvmdostem /work/dvmdostem
-COPY scripts /work/scripts
+COPY --from=dvmdostem-build /work/dvmdostem ./
+COPY --from=dvmdostem-build /work/scripts ./scripts
 
 # Discovered by using ldd on compiled binary in testing environment
 COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libboost_filesystem.so.1.71.0  /lib/x86_64-linux-gnu/libboost_filesystem.so.1.71.0
