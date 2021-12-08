@@ -155,7 +155,8 @@ if __name__ == '__main__':
     "output_nc_eq",
     "output_nc_sp",
     "output_nc_tr",
-    "output_nc_sc"
+    "output_nc_sc",
+    "output_interval",
   ] 
 
   # Sort the keys in the IO section.
