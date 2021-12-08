@@ -28,12 +28,12 @@ RUN apt-get install -y build-essential git gdb gdbserver doxygen vim
 # running python scripts
 FROM cpp-dev:0.0.1 as dvmdostem-dev
 # dvmdostem dependencies
-RUN apt-get update --fix-missing
-RUN apt-get install -y --fix-missing netcdf-bin
+RUN apt-get update  -y --fix-missing
 RUN apt-get install -y libjsoncpp-dev libnetcdf-dev libboost-all-dev libreadline-dev liblapacke liblapacke-dev
 
 # Various command line netcdf tools
-RUN apt-get install -y nco netcdf-bin
+RUN apt-get install -y netcdf-bin nco
+
 
 # Make a developer user so as not to always be root
 RUN useradd -ms /bin/bash develop
