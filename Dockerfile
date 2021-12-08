@@ -90,14 +90,26 @@ WORKDIR /work
 # docker build --target dvmdostem-dev --tag dvmdostem-dev:0.0.1 .
 
 
-#############
+# Need to deal with getting GIT_SHA passed into the
+# build environment...
 FROM dvmdostem-dev:0.0.1 as dvmdostem-build
-COPY . /work
+COPY src/ /work/src
+COPY Makefile /work/Makefile
+COPY include/ /work/include
+
+COPY scripts/ /work/scripts
+COPY calibration/ /work/calibration
+COPY parameters/ /work/parameters
+COPY config/ /work/config
 USER root
-RUN make
+
+# This is for faster testing. ultimately should comment this out and un-comment RUN make
+COPY dvmdostem /work/dvmdostem
+#RUN make
+
 USER develop
 # Use this to keep container going when doing docker compose up
-CMD ["tail -f /dev/null"]
+# CMD ["tail -f /dev/null"]
 #docker build --target dvmdostem-build --tag dvmdostem-build:0.0.1 .
 #########
 
@@ -108,13 +120,8 @@ CMD ["tail -f /dev/null"]
 # on top of a bare ubuntu installation. No tools (git, make, etc) are included.
 # No source code. Just the compiled dvmdostem application.
 #
-# To create this image, it is assumed that you will run the dvmdostem-dev 
-# container with a volume (your copy of the dvmdostem repo) mounted at the
-# path "/work" inside the container. Then you will have used the container to 
-# compile dvmdostem; due to the volume mount the compiled binary is left as
-# and artifact in your host's directory. When building the dvmdoste-run 
-# image, it is assumed that you have a correctly compiled binary in your 
-# current working directory (the build context).
+# Use the dvmdostem-build image to create a container that can compile
+# dvmdostem, which is then copied into this image
 # 
 # A container run from this images will need to have data supplied (i.e. one or 
 # more mounted volumes) in order to run dvmdostem.
@@ -124,7 +131,17 @@ FROM ubuntu:focal as dvmdostem-run
 WORKDIR /work
 
 COPY --from=dvmdostem-build /work/dvmdostem ./
+
 COPY --from=dvmdostem-build /work/scripts ./scripts
+COPY --from=dvmdostem-build /work/calibration ./calibration
+COPY --from=dvmdostem-build /work/parameters ./parameters
+COPY --from=dvmdostem-build /work/config ./config
+
+# This seems to gets the whole python install, although I expect at some
+# point when an extension is needed, will have to find that shared lib and 
+# copy it in... 
+#  ~ 800 MB
+COPY --from=dvmdostem-build /home/develop/.pyenv /home/develop/.pyenv
 
 # Discovered by using ldd on compiled binary in testing environment
 COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libboost_filesystem.so.1.71.0  /lib/x86_64-linux-gnu/libboost_filesystem.so.1.71.0
@@ -181,14 +198,28 @@ COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libheimbase.so.1 /lib/x86_64-lin
 RUN useradd -ms /bin/bash develop
 RUN echo "develop   ALL=(ALL:ALL) ALL" >> /etc/sudoers
 USER develop
+ENV HOME=/home/develop
+ENV PYENV_ROOT=$HOME/.pyenv
+ENV PATH=$PYENV_ROOT/shims:$PYENV_ROOT/bin:$PATH
 
-# Should deal with python so utilities are available as well.
+
+#RUN git clone https://github.com/pyenv/pyenv-virtualenv.git $(pyenv root)/plugins/pyenv-virtualenv
+# RUN pyenv install 3.8.6
+# RUN pyenv global 3.8.6
+# RUN pyenv rehash
+# RUN python --version
+# RUN pip install -U pip pipenv
+# RUN pip install matplotlib numpy pandas bokeh netCDF4 commentjson
+# RUN pip install ipython
+# RUN pip install jupyter
+# RUN pip install lhsmdu
+#COPY --chown=develop:develop special_configurations/jupyter_notebook_config.py /home/develop/.jupyter/jupyter_notebook_config.py
 
 # Set a few environemnt variables for ease of use...
 ENV PATH="/work:$PATH"
 ENV PATH="/work/scripts:$PATH"
 
-
+# docker build --target dvmdostem-run --tag dvmdostem-run:0.0.1 .
 
 
 

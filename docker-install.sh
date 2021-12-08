@@ -10,10 +10,16 @@ docker build --target cpp-dev --tag cpp-dev:0.0.1 .
 # Makes the specific dvmdostem development image with dvmdostem
 # specific dependencies installed, e.g:
 # boost, netcdf, jsoncpp, etc
+# Intention is that your host machine's repo will be mounted 
+# as a volume at /work, and you can use this container as 
+# a compile time and run time environment.
 docker build --target dvmdostem-dev --tag dvmdostem-dev:0.0.1 .
 
 # An image with the compiled dvmdostem binary program inside it
-#docker build --target dvmdostem-build --tag dvmdostem-build:0.0.1 .
+# Intention is to use this purely as a compile time environment
+# used to create the dvmdostem binary so that it can be copied into
+# the lean run image.
+docker build --target dvmdostem-build --tag dvmdostem-build:0.0.1 .
 
 # A lean images with only the bare minimum stuff to run dvmdostem
 # Does NOT have development tools, compilers, editors, etc
@@ -21,7 +27,7 @@ docker build --target dvmdostem-dev --tag dvmdostem-dev:0.0.1 .
 # with a volume mount, so that the resulting binary ends up in our 
 # local directory on this host. Then when building the run image, we
 # copy the binary from local host into the image.
-docker run --rm --volume $(pwd):/work dvmdostem-dev:0.0.1 make
+#docker run --rm --volume $(pwd):/work dvmdostem-dev:0.0.1 make
 docker build --target dvmdostem-run --tag dvmdostem-run:0.0.1 .
 
 

@@ -15,31 +15,52 @@ version: '3.2'
 # See Examples below
 
 services:
+  # Some general dev tools - not expected to be used directly
   cpp-dev:
     build: .
     image: cpp-dev:0.0.1
-  dvmdostem-dev:
-    build: .
-    image: dvmdostem-dev:0.0.1
-  dvmdostem-build:
-    build: .
-    command: tail -F /dev/null # keeps container running
-    image: dvmdostem-build:0.0.1
 
-  dvmdostem-run:
-    tty: true
+  # The general dvmdostem dev enviorment. Intented to be used for 
+  # most development work by mounting volumes of source code into 
+  # the resulting container - essentially sharing the source code
+  # folders from the host to the container so they can be edited 
+  # on the host and used w/in the container run-time.
+  dvmdostem-dev:
+    image: dvmdostem-dev:0.0.1
     build: .
+    tty: true
+    volumes:
+       - sourcecode:/work
+       - inputcatalog:/data/input-catalog
+       - workflows:/data/workflows
+
+  # This is more of a stand-alone image, just meant to serve as a
+  # compile time environment for creating the lean run image.
+  # Copies source code into the image so that it doesn't need
+  # volumes to run container and run make. Then once the dvmdostem
+  # binary exists in this image, it can be copied into the lean 
+  # run image.
+  dvmdostem-build:
+    image: dvmdostem-build:0.0.1
+    build: .
+    #command: tail -F /dev/null # keeps container running
+
+  # The lean production image
+  dvmdostem-run:
     image: dvmdostem-run:0.0.1
+    build: .
+    tty: true
     ports:
       - "8888:8888"
     volumes:
       - inputcatalog:/data/input-catalog
       - workflows:/data/workflows
       
+  # Auxillary stuff; not sure what to do with it...
   dvmdostem-mapping-support:
-    tty: true
-    build: .
     image: dvmdostem-mapping-support:0.0.1
+    build: .
+    tty: true
     ports: 
       - "5006:5006"
     volumes:
