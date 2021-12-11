@@ -28,11 +28,9 @@ def make_fake_testing_csv():
   data.to_csv('test.csv', header=True, columns=['year','month','value'], index=False)
 
 
-def main():
+def main(inpath, outpath, option):
 	#### INFORMATION REQUIRED
 
-	### PATH TO ORIGINAL INPUT DIRECTORY
-	inpath = "/Users/helene/Helene/TEM/DVMDOSTEM/dvmdostem-input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_CALM_Betty_Pingo_MNT_10x10/"
 
 	### VARIABLE OF INTEREST
 	vmod = "tair"
@@ -43,7 +41,6 @@ def main():
 
 
 	### SELECT THE MODIFICATION OPTION (1,2,3): 1- YOU HAVE AN OBSERVED TIME SERIES TO REPLACE FROM ORIGINAL DATA, 2- YOU WANT TO INCREASE/DECREASE MONTHLY VALUES BY ABSOLUTE CHANGE, 3- YOU WANT TO INCREASE/DECREASE MONTHLY VALUES BY RELATIVE CHANGE (IN PERCENT)
-	option = 2
 
 	## First month (1=january ...) and year of the modified time series
 	start_month = 1
@@ -247,4 +244,8 @@ if __name__ == '__main__':
   parser.add_argument('--outpath', 
     help='''path where you want your modified file written to, i.e. /data/workflows/workshop-lab2/modified-opt-1''')
 
-  main()
+  args = parser.parse_args()
+
+  main(inpath=args.inpath, outpath=args.outpath, option=args.opt)
+
+  
