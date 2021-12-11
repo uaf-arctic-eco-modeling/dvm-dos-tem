@@ -45,3 +45,43 @@ done
 # the Input_exp.py file...so the config modificaiton is over there 
 # for now...not sure what the best plan is...
 
+# 3) tweak run mask
+cd /data/workflows/workshop-lab2
+for i in $(ls);
+do 
+  /work/scripts/runmask-util.py --reset --yx 0 0 $i/run-mask.nc;
+done
+
+# 4) Adjust outspecs
+cd /data/workflows/workshop-lab2
+for i in $(ls);
+do
+  /work/scripts/outspec_utils.py $i/config/output_spec.csv --empty
+  /work/scripts/outspec_utils.py $i/config/output_spec.csv --on DRIVINGTAIR d
+  /work/scripts/outspec_utils.py $i/config/output_spec.csv --on NPP m
+done
+
+# further adjust config, output settings
+cd /data/workflows/workshop-lab2
+for i in $(ls);
+do
+python <<EOP
+import json
+with open('$i/config/config.js') as f:
+  jd = json.load(f)
+jd['IO']['output_nc_sp'] = 0
+with open('$i/config/config.js', 'w') as f:
+  json.dump(jd, f, indent=2)
+EOP
+done
+
+# run the model
+cd /data/workflows/workshop-lab2
+for i in $(ls);
+do
+  cd $i
+  dvmdostem -p 25 -e 150 -s 50 -t 115 -n 0
+  cd ..
+done
+
+# Now run the plotting options in Input_exp.py
