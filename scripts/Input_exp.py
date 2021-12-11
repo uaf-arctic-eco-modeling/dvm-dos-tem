@@ -56,7 +56,7 @@ def main(inpath, outpath, option):
 
 	if option == 1:
 		# path to the modified time series: a csv file with the following headers - year, month, value. Year and month will not be used but are helpful to the user to prepare, read and check the data.
-		modts = "/Users/helene/Helene/QCF/test.csv"
+		modts = "test.csv"
 	elif option == 2:
 		# monthly values of absolute change
 		series = [0,0,0,0,0,0,900,0,0,0,0,0]
@@ -249,6 +249,9 @@ if __name__ == '__main__':
     help='''path where you want your modified file written to, i.e. /data/workflows/workshop-lab2/modified-opt-1''')
 
   args = parser.parse_args()
+
+  if args.opt == 1:
+    make_fake_testing_csv()
 
   main(inpath=args.inpath, outpath=args.outpath, option=args.opt)
 
