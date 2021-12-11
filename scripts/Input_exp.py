@@ -12,7 +12,6 @@ import xarray as xr
 
 
 
-
 #### INFORMATION REQUIRED
 
 ### PATH TO ORIGINAL INPUT DIRECTORY
@@ -220,7 +219,4 @@ if option == 3:
 	#ds[vmod][1254, ymod, xmod]
 	### export the new modified data
 	ds.to_netcdf(os.path.join(inpath + modin)) 
-
-
-
 
