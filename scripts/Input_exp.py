@@ -9,7 +9,7 @@ import netCDF4 as nc
 import pandas as pd
 import numpy as np
 import xarray as xr
-
+import argparse
 
 
 #### INFORMATION REQUIRED
@@ -220,3 +220,18 @@ if option == 3:
 	### export the new modified data
 	ds.to_netcdf(os.path.join(inpath + modin)) 
 
+if __name__ == '__main__':
+
+  parser = argparse.ArgumentParser(
+    description='''workshop, lab 2''',
+    epilog='''epilog text...'''
+  )
+
+  parser.add_argument('--opt', type=int, choices=[1,2,3], 
+    help='''which modification scheme to pursue''')
+
+  parser.add_argument('--inpath', 
+    help='''path to the input folder, i.e. /data/input-catalog/cru_...''')
+
+  parser.add_argument('--outpath', 
+    help='''path where you want your modified file written to, i.e. /data/workflows/workshop-lab2/modified-opt-1''')
