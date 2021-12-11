@@ -40,3 +40,8 @@ done
 # Alternatively, if you have a functioning python environment outside of
 # the docker container, you can work there.
 
+# Could move config adjustment here...but then need to know the filename
+# of the modified file...which is set as a constant in the begining of
+# the Input_exp.py file...so the config modificaiton is over there 
+# for now...not sure what the best plan is...
+

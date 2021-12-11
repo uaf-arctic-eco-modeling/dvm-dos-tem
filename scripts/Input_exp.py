@@ -10,6 +10,7 @@ from os.path import exists
 import netCDF4 as nc
 import pandas as pd
 import numpy as np
+import json
 import xarray as xr
 import argparse
 import matplotlib.pyplot as plt
@@ -39,6 +40,20 @@ def make_fake_testing_csv():
   fake_data = np.random.normal(0,10,len(tr))
   data = pd.DataFrame(dict(year=[i.year for i in tr],month=[i.month for i in tr], value=fake_data))
   data.to_csv('test.csv', header=True, columns=['year','month','value'], index=False)
+
+def fix_config(workdir, modified_file_name):
+  '''Changes config path to be relative so as to use the modified file.'''
+  cfgfile = os.path.join(workdir, 'config/config.js')
+  if not os.path.exists(cfgfile):
+    print("No config file to adjust. Nothing to do.")
+    return None
+  else:
+    with open(cfgfile) as f:
+      jd = json.load(f)
+    jd['IO']['hist_climate_file'] = modified_file_name
+    with open(cfgfile, 'w') as f:
+      json.dump(jd, f, indent=2)
+
 
 
 def main(inpath, outpath, option):
@@ -244,6 +259,18 @@ def main(inpath, outpath, option):
 		#ds[vmod][1254, ymod, xmod]
 		### export the new modified data
 		ds.to_netcdf(os.path.join(outpath, modin)) 
+
+	# Done with modifications (whatever option user chose), so 
+	# now adjust the config file for the model run to point to the 
+	# modified file.
+	# >> NOTE this is assumes that you have already setup your 
+	# working directory (i.e. using setup_working_directory.py) 
+	# and that you have a config.js file to modify. If you are 
+	# using the Input_exp_driver.sh, then this is the case, but
+	# is is possible to use this script w/o a config file. So this
+	# fix config function tries to be smart and just won't do 
+	# anything if there is not config.js file to be found in outpath.
+	fix_config(outpath, modin)
 
 if __name__ == '__main__':
 
