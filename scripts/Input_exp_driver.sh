@@ -25,3 +25,18 @@ do
   --inpath /data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_CALM_Betty_Pingo_MNT_10x10/ \
   --outpath /data/workflows/workshop-lab2/modopt$i
 done
+
+# Now you might want to run the Input_exp.py --plot-inputs option to 
+# to see what you've got! **Beaware** that if you have
+# been working inside a docker container up to this point, and you want
+# to run the plotting script inside the docker container, you will want
+# to change the plt.show() call in the plot function to 
+# plt.save_fig('your file.png') with an appropriate file name.
+# Also you will likely want to adjust the plot so it is only showing
+# the data of interest.  When you run with plt.show() and get the
+# interactive viewer you can zoom as needed, but it is hard to get the
+# interactive viewer to show up from w/in a docker container. So save a
+# figure instead. 
+# Alternatively, if you have a functioning python environment outside of
+# the docker container, you can work there.
+
