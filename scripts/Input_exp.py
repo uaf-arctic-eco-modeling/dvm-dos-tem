@@ -13,6 +13,13 @@ import numpy as np
 import xarray as xr
 import argparse
 
+# Some constants...
+### NAME OF THE INPUT FILE
+orgin = "historic-climate.nc"
+
+### NAME OF THE MODIFIED INPUT FILE
+modin = "historic-climate-mod.nc"
+
 def make_fake_testing_csv():
   # Generate fake sample input to test with 
   tr = pd.date_range('2004-01-01','2006-01-01',freq='M')
@@ -26,12 +33,6 @@ def main():
 
 	### PATH TO ORIGINAL INPUT DIRECTORY
 	inpath = "/Users/helene/Helene/TEM/DVMDOSTEM/dvmdostem-input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_CALM_Betty_Pingo_MNT_10x10/"
-
-	### NAME OF THE INPUT FILE
-	orgin = "historic-climate.nc"
-
-	### NAME OF THE MODIFIED INPUT FILE
-	modin = "historic-climate-mod.nc"
 
 	### VARIABLE OF INTEREST
 	vmod = "tair"
