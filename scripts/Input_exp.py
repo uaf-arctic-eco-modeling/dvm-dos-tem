@@ -11,6 +11,14 @@ import numpy as np
 import xarray as xr
 import argparse
 
+def make_fake_testing_csv():
+  # Generate fake sample input to test with 
+  tr = pd.date_range('2004-01-01','2006-01-01',freq='M')
+  fake_data = np.random.normal(0,10,len(tr))
+  data = pd.DataFrame(dict(year=[i.year for i in tr],month=[i.month for i in tr], value=fake_data))
+  data.to_csv('test.csv', header=True, columns=['year','month','value'], index=False)
+
+
 def main():
 	#### INFORMATION REQUIRED
 
