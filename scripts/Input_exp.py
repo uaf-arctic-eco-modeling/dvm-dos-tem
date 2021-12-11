@@ -14,6 +14,7 @@ import json
 import xarray as xr
 import argparse
 import matplotlib.pyplot as plt
+import datetime
 
 
 # Some constants...
@@ -23,6 +24,41 @@ orgin = "historic-climate.nc"
 ### NAME OF THE MODIFIED INPUT FILE
 modin = "historic-climate-mod.nc"
 
+def plot_outputs(outpath):
+  '''
+  Hack together a quick plot. Bunch of hard-coded stuff:
+  variables to plot time slices, etc.
+
+  But is shold work as a proof of concept. Makes one plot for
+  each modificaton case (1, 2, 3), one plot for the "base case"
+  and one plot that shows them all together.
+  '''
+  os.chdir(outpath)
+
+  plt.close()
+  fig, axes = plt.subplots(5)
+
+  VAR = 'NPP'
+  START = 1200
+
+  for ax in axes[0:4]:
+    ax.sharex(axes[4])
+
+  runcases = os.listdir('.')
+  runcases = sorted([x for x in runcases if '.DS' not in x])
+  #runcases = 'basecase,modopt1,modopt2,modopt3'.split(',')
+  for i, (CASE, color) in enumerate(zip(runcases,'red,black,green,orange'.split(','))):
+      data = nc.Dataset('{}/output/{}_monthly_tr.nc'.format(CASE, VAR))
+      times = nc.num2date(data.variables['time'], data.variables['time'].units)
+      t2 = [datetime.datetime.fromisoformat(x.isoformat()) for x in times]
+      axes[4].set_ylabel('{} {}'.format(VAR, data.variables[VAR].units))
+      axes[4].plot(t2[START:], data.variables[VAR][START:,0,0], color=color, label=CASE)
+      axes[i].plot(t2[START:], data.variables[VAR][START:,0,0], color=color, label=CASE)
+
+  for ax in axes:
+    ax.legend(loc='upper right', fontsize='x-small')
+  
+  plt.show(block=True)
 
 def plot_inputs(inpath, outpath, orgin, modin):
   original = nc.Dataset(os.path.join(inpath, orgin))
@@ -291,6 +327,9 @@ if __name__ == '__main__':
   parser.add_argument('--plot-inputs', action='store_true',
     help='''plot the modified data vs original data''')
 
+  parser.add_argument('--plot-outputs', action='store_true',
+    help='''plot the data after the runs. --outpath in this case should be to the directory containing all the "modified cases"''')
+
   args = parser.parse_args()
 
   if args.opt == 1:
@@ -300,5 +339,10 @@ if __name__ == '__main__':
     plot_inputs(args.inpath, args.outpath, orgin, modin)
     exit()
 
-  main(inpath=args.inpath, outpath=args.outpath, option=args.opt)
+  if args.plot_outputs:
+    plot_outputs(args.outpath)
+    exit()
+
+  else:
+    main(inpath=args.inpath, outpath=args.outpath, option=args.opt)
 

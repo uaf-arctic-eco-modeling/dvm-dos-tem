@@ -84,4 +84,5 @@ do
   cd ..
 done
 
-# Now run the plotting options in Input_exp.py
+# Now run the plotting options in Input_exp.py !! Same caveats as 
+# above re: docker, plt.show, etc
