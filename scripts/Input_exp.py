@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 # Author: Helene Genet, UAF
 # Creation date: Dec. 9 2021
 # Purpose: this script generates modified input files for DVM-DOS-TEM simulations, following three options (see bellow comments for details)
