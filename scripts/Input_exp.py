@@ -75,7 +75,7 @@ def main(inpath, outpath, option):
 		print ("Input directory not found")
 		break
 
-	while exists(os.path.join(inpath + orgin)) != True:
+	while exists(os.path.join(inpath, orgin)) != True:
 		print ("Original input file not found")
 		break
 
@@ -169,14 +169,14 @@ def main(inpath, outpath, option):
 		#result.loc[[start-2]]
 		#### INTEGRATE THE OBSERVED DATA IN THE INPUT FILE
 		### re-read and replace
-		ds=xr.open_dataset(os.path.join(inpath + orgin))
+		ds=xr.open_dataset(os.path.join(inpath, orgin))
 		ds[vmod][:, ymod, xmod]=result['final']
 		### test the changes
 		#ds[vmod][start+2, ymod, xmod]
 		#ds[vmod][start-2, ymod, xmod]
 		#ds[vmod][start+2, ymod+1, xmod]
 		### export
-		ds.to_netcdf(os.path.join(inpath + modin)) 
+		ds.to_netcdf(os.path.join(outpath, modin)) 
 
 
 
@@ -187,7 +187,7 @@ def main(inpath, outpath, option):
 
 	if option == 2:
 		### Read the original input data
-		ds=xr.open_dataset(os.path.join(inpath + orgin))
+		ds=xr.open_dataset(os.path.join(inpath, orgin))
 		### Loop through the twelve months and check that change is required, if not, then pass
 		for i in range(0,12):
 			if series[i] ==0 :
@@ -203,7 +203,7 @@ def main(inpath, outpath, option):
 		#ds[vmod][1242, ymod, xmod]
 		#ds[vmod][1254, ymod, xmod]
 		### export the new modified data
-		ds.to_netcdf(os.path.join(inpath + modin)) 
+		ds.to_netcdf(os.path.join(outpath, modin)) 
 
 
 
@@ -214,7 +214,7 @@ def main(inpath, outpath, option):
 
 	if option == 3:
 		### Read the original input data
-		ds=xr.open_dataset(os.path.join(inpath + orgin))
+		ds=xr.open_dataset(os.path.join(inpath, orgin))
 		### Loop through the twelve months and check that change is required, if not, then pass
 		for i in range(0,12):
 			if series[i] ==0 :
@@ -230,7 +230,7 @@ def main(inpath, outpath, option):
 		#ds[vmod][1242, ymod, xmod]
 		#ds[vmod][1254, ymod, xmod]
 		### export the new modified data
-		ds.to_netcdf(os.path.join(inpath + modin)) 
+		ds.to_netcdf(os.path.join(outpath, modin)) 
 
 if __name__ == '__main__':
 
@@ -252,4 +252,3 @@ if __name__ == '__main__':
 
   main(inpath=args.inpath, outpath=args.outpath, option=args.opt)
 
-  
