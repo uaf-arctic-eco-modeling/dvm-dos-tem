@@ -12,6 +12,8 @@ import pandas as pd
 import numpy as np
 import xarray as xr
 import argparse
+import matplotlib.pyplot as plt
+
 
 # Some constants...
 ### NAME OF THE INPUT FILE
@@ -19,6 +21,17 @@ orgin = "historic-climate.nc"
 
 ### NAME OF THE MODIFIED INPUT FILE
 modin = "historic-climate-mod.nc"
+
+
+def plot_inputs(inpath, outpath, orgin, modin):
+  original = nc.Dataset(os.path.join(inpath, orgin))
+  modified = nc.Dataset(os.path.join(outpath, modin))
+
+  plt.plot(original.variables['tair'][:,0,0], label='original')
+  plt.plot(modified.variables['tair'][:,0,0], label='modified')
+  plt.legend()
+  plt.show(block=True)
+  #plt.savefig("test.png")
 
 def make_fake_testing_csv():
   # Generate fake sample input to test with 
@@ -248,10 +261,17 @@ if __name__ == '__main__':
   parser.add_argument('--outpath', 
     help='''path where you want your modified file written to, i.e. /data/workflows/workshop-lab2/modified-opt-1''')
 
+  parser.add_argument('--plot-inputs', action='store_true',
+    help='''plot the modified data vs original data''')
+
   args = parser.parse_args()
 
   if args.opt == 1:
     make_fake_testing_csv()
+
+  if args.plot_inputs:
+    plot_inputs(args.inpath, args.outpath, orgin, modin)
+    exit()
 
   main(inpath=args.inpath, outpath=args.outpath, option=args.opt)
 
