@@ -117,8 +117,8 @@ def main(inpath, outpath, option):
 	#### IMPORT & EXPLORE ORIGINAL DATA
 
 	### Import the input datafile
-	#org = nc.Dataset(os.path.join(inpath + orgin))
-	org=xr.open_dataset(os.path.join(inpath + orgin))
+	#org = nc.Dataset(os.path.join(inpath, orgin))
+	org=xr.open_dataset(os.path.join(inpath, orgin))
 
 	### Explore the input datafile dimensions and variables
 	#for dim in org.dimensions.values():
