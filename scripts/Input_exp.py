@@ -220,6 +220,7 @@ def main(inpath, outpath, option,usercsv=''):
 
   if option == 1:
     #read the modified time series ( again, should be a csv with year, month and values in that order of headers)
+    # NOTE there may be a bug with reading the last year of the modified data
     ts = pd.read_csv(modts)
     # rename the headeers to make sure they match the format used below
     ts = ts.rename(columns={ts.columns[0]: "year", ts.columns[1]: "month", ts.columns[2]: "value"})
