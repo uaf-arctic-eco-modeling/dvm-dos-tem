@@ -64,9 +64,10 @@ def plot_outputs(outpath):
 def plot_inputs(inpath, outpath, orgin, modin):
   original = nc.Dataset(os.path.join(inpath, orgin))
   modified = nc.Dataset(os.path.join(outpath, modin))
-
-  plt.plot(original.variables['tair'][:,0,0], label='original')
-  plt.plot(modified.variables['tair'][:,0,0], label='modified')
+  print(original.variables['tair'])
+  print(modified.variables['tair'])
+  plt.plot(original.variables['tair'][:,0,0], label='original',marker='o',alpha=.5)
+  plt.plot(modified.variables['tair'][:,0,0], label='modified',marker='^',alpha=.5)
   plt.legend()
   
   #plt.show(block=True)
@@ -338,7 +339,10 @@ if __name__ == '__main__':
 
   parser.add_argument('--plot-outputs', action='store_true',
     help='''plot the data after the runs. --outpath in this case should be to the directory containing all the "modified cases"''')
-
+    
+  parser.add_argument('--usercsv',
+    help='''path to users modified observational data, if left blank defaults to fake test data''')
+    
   args = parser.parse_args()
 
   if args.opt == 1:
@@ -354,5 +358,5 @@ if __name__ == '__main__':
     exit()
 
   else:
-    main(inpath=args.inpath, outpath=args.outpath, option=args.opt,usercsv='/data/input-catalog/ak_eml_cipehr_tair_test_2004_2019.csv')
+    main(inpath=args.inpath, outpath=args.outpath, option=args.opt,usercsv=args.usercsv)
 
