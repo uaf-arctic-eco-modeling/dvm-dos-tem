@@ -19,10 +19,10 @@ import datetime
 
 # Some constants...
 ### NAME OF THE INPUT FILE
-orgin = "historic-climate.nc"
+ORGIN = "historic-climate.nc"
 
 ### NAME OF THE MODIFIED INPUT FILE
-modin = "historic-climate-mod.nc"
+MODIN = "historic-climate-mod.nc"
 
 def plot_outputs(outpath):
   '''
@@ -61,9 +61,9 @@ def plot_outputs(outpath):
   
   plt.show(block=True)
 
-def plot_inputs(inpath, outpath, orgin, modin):
-  original = nc.Dataset(os.path.join(inpath, orgin))
-  modified = nc.Dataset(os.path.join(outpath, modin))
+def plot_inputs(inpath, outpath, ORGIN, MODIN):
+  original = nc.Dataset(os.path.join(inpath, ORGIN))
+  modified = nc.Dataset(os.path.join(outpath, MODIN))
   print(original.variables['tair'])
   print(modified.variables['tair'])
   plt.plot(original.variables['tair'][:,0,0], label='original',marker='o',alpha=.5)
@@ -149,27 +149,27 @@ def main(inpath, outpath, option,usercsv=''):
     print ("Input directory not found")
     break
 
-  while exists(os.path.join(inpath, orgin)) != True:
+  while exists(os.path.join(inpath, ORGIN)) != True:
     print ("Original input file not found")
     break
 
   ### Check the time ranges for modification fit within the time series of the input file
-  if "historic" in orgin:
+  if "historic" in ORGIN:
     while start_year > 2015 or start_year < 1901:
       print ("Correction needed: the starting year is outside the range of the historical time series")
       break
 
-  if "projected" in orgin:
+  if "projected" in ORGIN:
     while start_year > 2100 or start_year < 2015:
       print ("Correction needed: the starting year is outside the range of the projected time series")
       break
 
-  if "historic" in orgin:
+  if "historic" in ORGIN:
     while end_year > 2015 or end_year < 1901:
       print ("Correction needed: the ending year is outside the range of the historical time series")
       break
 
-  if "projected" in orgin:
+  if "projected" in ORGIN:
     while end_year > 2100 or end_year < 2015:
       print ("Correction needed: the ending year is outside the range of the projected time series")
       break
@@ -178,11 +178,11 @@ def main(inpath, outpath, option,usercsv=''):
 
   #### GET START AND END YEARS OF THE ENTIRE ORIGINAL TIME SERIES 
 
-  if "historic" in orgin:
+  if "historic" in ORGIN:
     start_org = 1901
     end_org = 2015
 
-  if "projected" in orgin:
+  if "projected" in ORGIN:
     start_org = 2016
     end_org = 2100
 
@@ -191,8 +191,8 @@ def main(inpath, outpath, option,usercsv=''):
   #### IMPORT & EXPLORE ORIGINAL DATA
 
   ### Import the input datafile
-  #org = nc.Dataset(os.path.join(inpath, orgin))
-  org=xr.open_dataset(os.path.join(inpath, orgin))
+  #org = nc.Dataset(os.path.join(inpath, ORGIN))
+  org=xr.open_dataset(os.path.join(inpath, ORGIN))
 
   ### Explore the input datafile dimensions and variables
   #for dim in org.dimensions.values():
@@ -244,14 +244,14 @@ def main(inpath, outpath, option,usercsv=''):
     #result.loc[[start-2]]
     #### INTEGRATE THE OBSERVED DATA IN THE INPUT FILE
     ### re-read and replace
-    ds=xr.open_dataset(os.path.join(inpath, orgin))
+    ds=xr.open_dataset(os.path.join(inpath, ORGIN))
     ds[vmod][:, ymod, xmod]=result['final']
     ### test the changes
     #ds[vmod][start+2, ymod, xmod]
     #ds[vmod][start-2, ymod, xmod]
     #ds[vmod][start+2, ymod+1, xmod]
     ### export
-    ds.to_netcdf(os.path.join(outpath, modin)) 
+    ds.to_netcdf(os.path.join(outpath, MODIN)) 
 
 
 
@@ -262,7 +262,7 @@ def main(inpath, outpath, option,usercsv=''):
 
   if option == 2:
     ### Read the original input data
-    ds=xr.open_dataset(os.path.join(inpath, orgin))
+    ds=xr.open_dataset(os.path.join(inpath, ORGIN))
     ### Loop through the twelve months and check that change is required, if not, then pass
     for i in range(0,12):
       if series[i] ==0 :
@@ -278,7 +278,7 @@ def main(inpath, outpath, option,usercsv=''):
     #ds[vmod][1242, ymod, xmod]
     #ds[vmod][1254, ymod, xmod]
     ### export the new modified data
-    ds.to_netcdf(os.path.join(outpath, modin)) 
+    ds.to_netcdf(os.path.join(outpath, MODIN)) 
 
 
 
@@ -289,7 +289,7 @@ def main(inpath, outpath, option,usercsv=''):
 
   if option == 3:
     ### Read the original input data
-    ds=xr.open_dataset(os.path.join(inpath, orgin))
+    ds=xr.open_dataset(os.path.join(inpath, ORGIN))
     ### Loop through the twelve months and check that change is required, if not, then pass
     for i in range(0,12):
       if series[i] ==0 :
@@ -305,7 +305,7 @@ def main(inpath, outpath, option,usercsv=''):
     #ds[vmod][1242, ymod, xmod]
     #ds[vmod][1254, ymod, xmod]
     ### export the new modified data
-    ds.to_netcdf(os.path.join(outpath, modin)) 
+    ds.to_netcdf(os.path.join(outpath, MODIN)) 
 
   # Done with modifications (whatever option user chose), so 
   # now adjust the config file for the model run to point to the 
@@ -317,7 +317,7 @@ def main(inpath, outpath, option,usercsv=''):
   # is is possible to use this script w/o a config file. So this
   # fix config function tries to be smart and just won't do 
   # anything if there is not config.js file to be found in outpath.
-  fix_config(outpath, modin)
+  fix_config(outpath, MODIN)
 
 if __name__ == '__main__':
 
@@ -351,7 +351,7 @@ if __name__ == '__main__':
 
 
   if args.plot_inputs:
-    plot_inputs(args.inpath, args.outpath, orgin, modin)
+    plot_inputs(args.inpath, args.outpath, ORGIN, MODIN)
     exit()
 
   if args.plot_outputs:
