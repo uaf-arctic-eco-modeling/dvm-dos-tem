@@ -80,7 +80,7 @@ cd /data/workflows/workshop-lab2
 for i in $(ls);
 do
   cd $i
-  dvmdostem -p 25 -e 150 -s 50 -t 115 -n 0
+  dvmdostem -p 25 -e 150 -s 50 -t 115 -n 0 -l err 
   cd ..
 done
 
