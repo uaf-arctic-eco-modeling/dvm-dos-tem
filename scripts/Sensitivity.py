@@ -11,7 +11,6 @@ import lhsmdu
 import glob
 import json
 import os
-import ast
 import shutil
 import subprocess
 from contextlib import contextmanager
@@ -48,9 +47,9 @@ def generate_uniform(N, param_props):
     Each item in `param_props` list will be a dictionary
     with at least the following:
     >>> param_props = {
-    ...   'name': 'rhq10',        # name in dvmdostem parameter file (cmt_*.txt)
-    ...   'bounds': [5.2, 6.4],   # the min and max values the parameter can have
-    ... }
+      pname: 'name',               # name in dvmdostem parameter file (cmt_*.txt)
+      bounds: [float, float],      # the min and max values the parameter can have
+    }
 
   Returns
   -------
@@ -90,9 +89,9 @@ def generate_lhc(N, param_props):
     Each item in `param_props` list will be a dictionary
     with at least the following:
     >>> param_props = {
-    ...   'name': 'cmax',               # name in dvmdostem parameter file (cmt_*.txt)
-    ...   'bounds': [100.1, 105.1],     # the min and max values the parameter can have
-    ... }
+      pname: 'name',               # name in dvmdostem parameter file (cmt_*.txt)
+      bounds: [float, float],      # the min and max values the parameter can have
+    }
 
   Returns
   -------
@@ -155,17 +154,10 @@ class SensitivityDriver(object):
   >>> driver = SensitivityDriver()
 
   Show info about the driver object:
-  >>> driver.design_experiment(5, 4, params=['cmax','rhq10','nfall(1)'], pftnums=[2,None,2])
-  >>> driver.sample_matrix
-          cmax     rhq10  nfall(1)
-  0  63.536594  1.919504  0.000162
-  1  62.528847  2.161819  0.000159
-  2  67.606747  1.834203  0.000145
-  3  59.671967  2.042034  0.000171
-  4  57.711999  1.968631  0.000155
+  >>> driver.info()
 
   '''
-  def __init__(self, clean=False):
+  def __init__(self):
     '''
     Constructor
     Hard code a bunch of stuff for now...
@@ -183,12 +175,7 @@ class SensitivityDriver(object):
       { 'name': 'GPP', 'type': 'flux',},
       { 'name': 'VEGC','type': 'pool',},
     ]
-
-    if not os.path.isdir(self.work_dir):
-      os.mkdir(self.work_dir)
-
-    if clean:
-      self.clean()
+    self.opt_run_setup = '-p 5 -e 5 -s 5 -t 5 -n 5'
 
   def get_initial_params_dir(self):
     '''Read only accessor to private member variable.'''
@@ -256,55 +243,39 @@ class SensitivityDriver(object):
       p_bounds = [p_initial - (p_initial*perturbation), p_initial + (p_initial*perturbation)]
 
       self.params.append(dict(name=pname, bounds=p_bounds, initial=p_initial, cmtnum=cmtnum, pftnum=pftnum))
-
+      
+    print('Sampling method:', sampling_method)
     if sampling_method == 'lhc':
       self.sample_matrix = generate_lhc(Nsamples, self.params)
     elif sampling_method == 'uniform':
-      self.sample_matrix = self.generate_uniform(Nsamples, self.params)
+      self.sample_matrix = generate_uniform(Nsamples, self.params)
 
-  def save_experiment(self, name=''):
+  def save_experiment(self, name):
     '''Write the parameter properties and sensitivity matrix to files.'''
-    if name == '':
-      sm_fname = os.path.join(self.work_dir, 'sample_matrix.csv')
-      pp_fname = os.path.join(self.work_dir, 'param_props.csv')
-    else:
-      sm_fname = "{}_sample_matrix.csv".format(name) 
-      pp_fname = '{}_param_props.csv'.format(name)
-
+    # Maybe these should go in self.work_dir??
+    sm_fname = "{}_sample_matrix.csv".format(name) 
+    pp_fname = '{}_param_props.csv'.format(name)
+    print("Saving {}".format(sm_fname))
     self.sample_matrix.to_csv(sm_fname, index=False)
-
+    print("Saving {}".format(pp_fname))
     pd.DataFrame(self.params).to_csv(pp_fname, index=False)
 
   def load_experiment(self, param_props_path, sample_matrix_path):
     '''Load parameter properties and sample matrix from files.'''
-
     self.sample_matrix = pd.read_csv(sample_matrix_path)
-    self.params = pd.read_csv(param_props_path, 
-        dtype={'name':'S10','cmtnum':np.int32,}, 
-        converters={'bounds': ast.literal_eval}
-    )
-
+    self.params = pd.read_csv(param_props_path, dtype={'name':'S10','cmtnum':np.int32})
+    # set None and nan to empty string so user does not 
+    # get confused when printing dataframe.
+    self.params = self.params.where(self.params.notnull(), '')
     self.params = self.params.to_dict(orient='records')
-
-    # nan to None so that self.pftnum() function works later 
-    for x in self.params:
-      if 'name' in x.keys():
-        x['name'] = x['name'].decode('utf-8')
-      if 'pftnum' in x.keys():
-        if pd.isna(x['pftnum']): # could try np.isnan
-          x['pftnum'] = None
-        else:
-          x['pftnum'] = int(x['pftnum'])
-
 
   def clean(self):
     '''
     Remove the entire tree at `self.work_dir`.
     
-    This function is not careful, so be careful using it!
+    This function is careful, so be careful using it!
     '''
     shutil.rmtree(self.work_dir, ignore_errors=True)
-    os.makedirs(self.work_dir)
 
   def get_sensitivity_csvs(self):
     '''
@@ -371,10 +342,11 @@ class SensitivityDriver(object):
       pixel(y,x): ({},{})
       cmtnum: {}
       pftnum: {} ({})
+      setup : {}
 
       '''.format(
         self.work_dir, self.site, self.PXy, self.PXx, self.cmtnum(),
-        self.pftnum(), pft_verbose_name))
+        self.pftnum(), pft_verbose_name, self.opt_run_setup))
 
     info_str += textwrap.dedent('''\
       --- Parameters ---
@@ -399,15 +371,15 @@ class SensitivityDriver(object):
 
     return info_str
 
-  def core_setup(self, row, idx, initial=False):
+  def core_setup(self, row, idx):
     '''
     Do all the work to setup and configure a model run.
     Uses the `row` parameter (one row of the sample matrix) to
-    set the parameter values for the run.
+    set the parameter values for the run by calling.
 
     Currently relies on command line API for various dvmdostem
-    helper scripts. Would be nice to transition to using a Python
-    API for all these helper scripts (modules).
+    helper scripts. WOuld be nice to transition to using a Python
+    API.
 
     Parameters
     ----------
@@ -425,17 +397,7 @@ class SensitivityDriver(object):
     None
     '''
     print("PROC:{}  ".format(multiprocessing.current_process()), row)
-
-    if initial:
-      print("Ignoring idx, it is not really relevant here.")
-      print("Ignoring row dict, not really relevant here.")
-      # Build our own row dict, based on initial values in params
-      row = {x['name']:x['initial'] for x in self.params}
-      sample_specific_folder = os.path.join(self.work_dir, 'inital_value_run')
-      if os.path.isdir(sample_specific_folder):
-        shutil.rmtree(sample_specific_folder)
-    else:
-      sample_specific_folder = self._ssrf_name(idx)
+    sample_specific_folder = self._ssrf_name(idx)
 
     program = '/work/scripts/setup_working_directory.py'
     opt_str = '--input-data-path {} {}'.format(self.site, sample_specific_folder)
@@ -451,7 +413,11 @@ class SensitivityDriver(object):
 
     for output_spec in self.outputs:
       program = '/work/scripts/outspec_utils.py'
-      opt_str = '{}/config/output_spec.csv --on {} m p'.format(sample_specific_folder, output_spec['name'])
+      #Elchin added layer component 
+      if output_spec['type']=='layer':
+        opt_str = '{}/config/output_spec.csv --on {} m p l'.format(sample_specific_folder, output_spec['name'])
+      else:
+        opt_str = '{}/config/output_spec.csv --on {} m p'.format(sample_specific_folder, output_spec['name'])
       cmdline = program + ' ' + opt_str
       with log_wrapper(cmdline, tag='setup') as lw:
         comp_proc = subprocess.run(cmdline, shell=True, check=True)
@@ -501,14 +467,8 @@ class SensitivityDriver(object):
     # Start fresh...
     self.clean()
 
-    # Make a special directory for the "initial values" run.
-    # row and idx args are ignored when setting up initial value run. 
-    self.core_setup(row={'ignore this and idx':None}, idx=324234, initial=True)
-
-    args = list(zip(self.sample_matrix.to_dict(orient='records'),
-               range(0,len(self.sample_matrix)), 
-               np.zeros(len(self.sample_matrix), dtype=bool)))
-
+    args = zip(self.sample_matrix.to_dict(orient='records'),range(0,len(self.sample_matrix)))
+    print(args)
     with multiprocessing.Pool(processes=(os.cpu_count()-1)) as pool:
       results = pool.starmap(self.core_setup, args)
     print(results)
@@ -608,8 +568,16 @@ class SensitivityDriver(object):
     '''
     program = '/work/dvmdostem'
     ctrl_file = os.path.join(rundirectory, 'config','config.js')
-    opt_str = '-p 5 -e 5 -s 5 -t 5 -n 5 -l err --force-cmt {} --ctrl-file {}'.format(self.cmtnum(), ctrl_file)
-    cmdline = program + ' ' + opt_str
+    #transient starts with 1900-2015
+    #scenario 2016-2100
+    # first time
+    #opt_str = '-p 100 -e 1000 -s 250 -t 115 -n 85 -l err --force-cmt {} --ctrl-file {}'.format(self.cmtnum(), ctrl_file)
+    opt_str = ' -l err --force-cmt {} --ctrl-file {}'.format(self.cmtnum(), ctrl_file)
+    
+    # restart from exsiting eqil files
+    #opt_str = '-p 0 -e 0 -s 0 -t 115 -n 85 -l err --force-cmt {} --ctrl-file {} --no-output-cleanup --restart-run'.format(self.cmtnum(), ctrl_file)
+       
+    cmdline = program + ' ' + self.opt_run_setup + opt_str
     with log_wrapper(cmdline, tag='run') as lw:
       completed_process = subprocess.run(
         cmdline,             # The program + options 
@@ -658,6 +626,8 @@ class SensitivityDriver(object):
     corr = df.corr()
     print(corr)
     print("Make some cool plot here....")
+    
+    return corr
 
   def make_cool_plot_2(self):
     '''
@@ -772,9 +742,14 @@ class SensitivityDriver(object):
         ostr += '{:2.3f},'.format(data_y[-1,self.pftnum(),self.PXy,self.PXx])
 
       ostr = ostr.rstrip(',') # remove trailing comma...
+      try:
+        with open(sensitivity_outfile, 'a') as f:
+          f.write(pstr + ',' + ostr + '\n')
+        print(sensitivity_outfile,' successfully created!')
+      except:
+        print('Error ',sensitivity_outfile,' was not created!')
  
-      with open(sensitivity_outfile, 'a') as f:
-        f.write(pstr + ',' + ostr + '\n')
+      
 
   def plot_sensitivity_matrix(self):
     '''
@@ -806,4 +781,3 @@ class SensitivityDriver(object):
 if __name__ == '__main__':
   import doctest
   doctest.testmod()
-  doctest.testfile("doctests_Sensitivity.md")
