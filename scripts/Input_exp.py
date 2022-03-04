@@ -122,7 +122,7 @@ def main(inpath, outpath, option,usercsv=''):
   start_year = 2004
   ## Last month (1=january ...) and year of the modified time series
   end_month = 12
-  end_year = 2005
+  end_year = 2015
 
 
   if option == 1:
@@ -133,10 +133,10 @@ def main(inpath, outpath, option,usercsv=''):
        modts = usercsv
   elif option == 2:
     # monthly values of absolute change
-    series = [0,0,0,0,0,0,900,0,0,0,0,0]
+    series = [0,0,0,0,0,0,0,0,0,0,0,0]
   elif option == 3:
     # monthly values of relative change (in precent)
-    series = [0,0,0,0,0,50,0,0,0,0,0,0]
+    series = [0,0,0,0,0,0,0,0,0,0,0,0]
 
 
 
