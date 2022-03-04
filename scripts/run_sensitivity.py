@@ -30,16 +30,9 @@ driver.design_experiment(Nsamples=10, cmtnum=4, params=['cmax','rhq10','nmax'],
                          sampling_method='lhc')
 print(driver.info())
 
-#setup outputs
+#setup outputs, these will change depending on what the user wants to ouput
 print('Setting up the outputs...')
 driver.outputs.append({'name': 'ALD', 'type': 'xxx'})
-driver.outputs.append({'name': 'NPP', 'type': 'xxx'})
-driver.outputs.append({'name': 'RAINFALL', 'type': 'xxx'})
-driver.outputs.append({'name': 'SNOWTHICK', 'type': 'xxx'})
-driver.outputs.append({'name': 'VEGN', 'type': 'xxx'})
-driver.outputs.append({'name': 'VWCLAYER', 'type': 'layer'})
-driver.outputs.append({'name': 'WATERTAB', 'type': 'xxx'})
-driver.outputs.append({'name': 'TLAYER', 'type': 'layer'})
 print(driver.outputs)
 
 try:
