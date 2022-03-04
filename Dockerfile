@@ -20,7 +20,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Might combine these two using &&, somwewhere I read that is better
 RUN apt-get update
 # general tools and dependencies for development
-RUN apt-get install -y build-essential git gdb gdbserver doxygen
+RUN apt-get install -y build-essential git gdb gdbserver doxygen vim
 # docker build --target cpp-dev --tag cpp-dev:0.0.1 .
 
 
