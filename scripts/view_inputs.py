@@ -146,7 +146,7 @@ if __name__ == '__main__':
 
 
 
-# Offset info
+# Offset info - Trevor was here 2022-03-04
 # ===========
 
 # ncview - (0,0) is lower left
