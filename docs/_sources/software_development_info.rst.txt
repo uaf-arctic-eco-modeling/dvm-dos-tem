@@ -1,0 +1,30 @@
+#########################
+Software Development Info
+#########################
+This chapter
+
+=============================
+Languages, Software Structure
+=============================
+
+=============================
+Documentation
+=============================
+The docs are ....
+
+-----------------------------
+Considerations for new system
+-----------------------------
+there are a lot of things...
+
+==================
+Version Management
+==================
+
+---------------------------
+Version Control and Hosting
+---------------------------
+
+----------------------------
+Version Control and Hosting2
+----------------------------

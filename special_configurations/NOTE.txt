@@ -1,0 +1,9 @@
+# NOTES
+
+This directory is for configuraiton files that can be 
+copied into Docker images. Keeping files here prevents
+the need to use things like HEREDOCS in Dockerfiles,
+which as of 2021, was only recently introduced.
+
+Examples of files that might be useful are:
+.bashrc, jupyter and ipython config files, .vimrc, etc

@@ -1,0 +1,14 @@
+// Use this file to automate certain aspects of the calibration process.
+// By default all the directives are commented out and are simply provided
+// as examples for what/how you are able to control the calibration process
+// with this file.
+{
+  "calibration_autorun_settings": {
+    // Examples:
+    //"quitat": 1500,
+    //"530": ["dsl on", "nfeed on", "dsb on"],
+
+    // NOTE: The trailing comma is only necessary
+    // if you have more than one directive line!
+  }
+}

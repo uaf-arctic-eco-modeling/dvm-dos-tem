@@ -1,0 +1,95 @@
+version: '3.2'
+
+# Docker Compose file for coordinating several dvmdostem containers.
+#
+# First you should build your images using the commands in the Dockerfiles.
+#
+# Next create a .env file where you set the following variables:
+#   $ echo "DDT_INPUT_CATALOG=/some/path/to/your/input-catalog" >> .env
+#   $ echo "DDT_WORKFLOWS=/some/path/to/your/workflows" >> .env
+#
+# Next start the containers:
+#   $ docker compose up -d to start the containers
+#
+# Then you can run various program inside the containers.
+# See Examples below
+
+services:
+  cpp-dev:
+    build: .
+    image: cpp-dev:0.0.1
+  dvmdostem-build:
+    build: .
+    image: dvmdostem-build:0.0.1
+    volumes:
+      - sourcecode:/work
+  dvmdostem-run:
+    tty: true
+    build: .
+    image: dvmdostem-run:0.0.1
+    ports:
+      - "8888:8888"
+    volumes:
+      - sourcecode:/work
+      - inputcatalog:/data/input-catalog
+      - workflows:/data/workflows
+  dvmdostem-mapping-support:
+    tty: true
+    build: .
+    image: dvmdostem-mapping-support:0.0.1
+    ports: 
+      - "5006:5006"
+    volumes:
+      - sourcecode:/work
+      - inputcatalog:/data/input-catalog
+      - workflows:/data/workflows
+
+
+volumes:
+  sourcecode:
+    driver_opts:
+      type: none
+      device: '${PWD}'
+      o: bind
+  inputcatalog:
+    driver_opts:
+      type: none
+      device: '${DDT_INPUT_CATALOG}'
+      o: bind
+  workflows:
+    driver_opts:
+      type: none
+      device: '${DDT_WORKFLOWS}'
+      o: bind
+
+## EXAMPLES
+
+# In general there are 2 ways you can operate:
+# 1) run a specific command in the docker container
+#
+# 2) start a bash terminal in the container and work with an interactive prompt 
+#    in the container
+
+# Runs the model in the service. Service is not a
+# constant running process, so container starts, runs, 
+# and exits. Doesn't handle Ctrl-C
+#   $ docker-compose run dvmdostem-run dvmdostem --help
+
+# Runs a basic ls in the service
+#   $ docker-compose run dvmdostem-run ls /data/input-catalog
+
+# Run in existing container (using exec as opposed to run does this)
+#   $ docker-compose exec dvmdostem-run dvmdostem --help
+
+# Several ways to compile
+# 1) The parallel options seems very finnicky...
+#    Mac Docker desktop seems to freeze a lot
+#    $ docker-compose exec dvmdostem-run make -j2
+#
+# 2) Sign into interactive session and run make
+#    $ docker-compose exec dvmdostem-run bash    
+#    $ develop@256519d33e7c:/work$ make
+
+# Run the io-view tool:
+#   $ docker compose exec dvmdostem-mapping-support bokeh serve scripts/io_view.py
+
