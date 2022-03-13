@@ -26,7 +26,7 @@ docs_src/doxygen/dvm-dos-tem/html/*
 
 # built docs from one of the tools can then be copied
 # into this directory which can then be published to github pages
-docs/*
+#docs/*
 
 
 # from profile testing
