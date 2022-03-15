@@ -21,8 +21,9 @@ libTEM.so
 
 # Generated documentation is held by default in a 
 # build dirctory for the particular doc tool 
-docs_src/sphinx/build/*
-docs_src/doxygen/dvm-dos-tem/html/*
+#docs_src/sphinx/build/*
+doc_src/*
+#docs_src/doxygen/dvm-dos-tem/html/*
 
 # built docs from one of the tools can then be copied
 # into this directory which can then be published to github pages
