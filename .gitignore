@@ -22,6 +22,9 @@ libTEM.so
 # Generated documentation  
 docs/*
 
+docs_src/sphinx/build/*
+docs_src/doxygen/html/*
+
 # from profile testing
 *.svg
 
