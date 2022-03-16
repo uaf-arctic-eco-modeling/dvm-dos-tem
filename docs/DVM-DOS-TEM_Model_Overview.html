@@ -1,0 +1,185 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>dvmdostem Model Overview &#8212; dvmdostem v0.5.6 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Software Development Info" href="software_development_info.html" />
+    <link rel="prev" title="Welcome to dvmdostem’s documentation!" href="index.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="dvmdostem-model-overview">
+<h1><code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code> Model Overview<a class="headerlink" href="#dvmdostem-model-overview" title="Permalink to this headline">¶</a></h1>
+<section id="structure">
+<h2>Structure<a class="headerlink" href="#structure" title="Permalink to this headline">¶</a></h2>
+<p><cite>dvmdostem</cite> is multi-dimensional.</p>
+<section id="spatial">
+<h3>Spatial<a class="headerlink" href="#spatial" title="Permalink to this headline">¶</a></h3>
+<p>TEM is a spatially explicit model. The run domain is divided into grid cells,
+or pixels. There is no communication between the grid cells. TEM itself is
+agnostic to the spatial resolution - the resolution is controlled by the
+input files provided. Recent work has been done with 1km spatial resolution.</p>
+</section>
+<section id="temporal">
+<h3>Temporal<a class="headerlink" href="#temporal" title="Permalink to this headline">¶</a></h3>
+<p>TEM is a temporal model in the sense that a run operates processes at consecutive
+time-steps. In addition, with TEM, the concept of a “run stage” is used to run
+the model over different climatic periods of generally increasing complexity.
+There are 5 possible “run stages”:</p>
+<ul class="simple">
+<li><p>Pre-run (pr)</p></li>
+<li><p>Equilibrium (eq)</p></li>
+<li><p>Spinup (sp)</p></li>
+<li><p>Transient (tr)</p></li>
+<li><p>Scenario (sn)</p></li>
+</ul>
+<p>The primary difference between the run stages is the nature of the input climate
+dataset, and specifically whether there is annual variability in the driving
+climate data that the model uses. A complete, future-projecting, simulation is
+usually only made after advancing the model through several of the previous run
+stages to stabilize the system. Typically the ending state from each stage is
+used as the beginning state for each subsequent stage.</p>
+<section id="pre-run-pr">
+<h4>pre-run (pr)<a class="headerlink" href="#pre-run-pr" title="Permalink to this headline">¶</a></h4>
+<blockquote>
+<div><p>WRITE THIS</p>
+</div></blockquote>
+</section>
+<section id="equilibrium-eq">
+<h4>equilibrium (eq)<a class="headerlink" href="#equilibrium-eq" title="Permalink to this headline">¶</a></h4>
+<p>In the equilibrium stage, the climate is fixed. That is, the climate does not
+vary from year to year. There will be intra-annual variability to represent the
+seasons, but from year to year the calculations will be carried out using the
+same annual cycles. Equilibrium run stage is used in the calibration mode,
+and is typically the first stage run for any complete simulation. During the
+eq stage, the annual climate inputs used are actually calculated as the mean
+of the first 30 years of the historic climate dataset, so the mean of the
+values from 1901-1930.</p>
+<blockquote>
+<div><p>Special Note: automatic equilibrium detection
+TEM does not have an internal test for whether or not equilibrium has
+been reached. In other words, if you specify <code class="docutils literal notranslate"><span class="pre">--max-eq=20000</span></code>, the model
+will run for 20,000 years no matter what internal state it reached. It
+appears that some of the variable and constant names and the command
+line flag <code class="docutils literal notranslate"><span class="pre">--max-eq</span></code> are vestigial remains of an attempt at “automatic
+equilibrium detection”.</p>
+</div></blockquote>
+</section>
+<section id="spinup-sp">
+<h4>spinup (sp)<a class="headerlink" href="#spinup-sp" title="Permalink to this headline">¶</a></h4>
+<p>In the spinup stage, the climate is not fixed. In the sp stage, the driving climate is used from the first 30 years of the historic climate dataset. Should the spstage be set to run longer than 30 years, the 30 year climate period is re-used. Another difference between eq and sp stages is that the sp stage is set to run for a fixed number of years, regardless of the internal state that the model reaches. In the sp stage the fire date is fixed, occuring at an interval equal to the Fire Recurrence Interval (FRI).</p>
+</section>
+<section id="transient-tr">
+<h4>transient (tr)<a class="headerlink" href="#transient-tr" title="Permalink to this headline">¶</a></h4>
+<p>In the transient stage, the climate varies from year to year. The tr stage is used to run the model over the period of historical record. The input climate data for the tr stage should be the historic climate. This is typically the climate data for the 20th century, so roughly 1901-2009.
+scenario (sc)
+In the scenario stage, the climate also varies from year to year, but rather than observed variability, a predicted climate scenario is used.</p>
+<p>A complete run utilizes all 5 stages. It is possible to work with any subset of the stages.</p>
+</section>
+</section>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">dvmdostem</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code> Model Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#structure">Structure</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#spatial">Spatial</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#temporal">Temporal</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="software_development_info.html">Software Development Info</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">Welcome to <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code>’s documentation!</a></li>
+      <li>Next: <a href="software_development_info.html" title="next chapter">Software Development Info</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2022, Tobey Carman, Ruth Rutter, Helene Genet, Eugenie Euskirchen.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/DVM-DOS-TEM_Model_Overview.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
