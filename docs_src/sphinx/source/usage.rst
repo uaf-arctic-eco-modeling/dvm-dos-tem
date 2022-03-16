@@ -1,13 +1,13 @@
-Usage
-=====
+.. Usage
+.. =====
 
-.. _installation:
+.. .. _installation:
 
-Installation
-------------
+.. Installation
+.. ------------
 
-To use Lumache, first install it using pip:
+.. To use Lumache, first install it using pip:
 
-.. code-block:: console
+.. .. code-block:: console
 
-   (.venv) $ pip install lumache
+..    (.venv) $ pip install lumache
