@@ -124,7 +124,7 @@ void Snow_Env::updateDailySurfFlux( Layer* toplayer, const double & tdrv) {
   */
 };
 
-// get albedo of visible radition on snow
+// get albedo of visible radiation on snow
 double Snow_Env::getAlbedoVis(const double & tem) {
   double vis;
 
@@ -140,7 +140,7 @@ double Snow_Env::getAlbedoVis(const double & tem) {
   return vis;
 };
 
-// get albedo of invisible radition
+// get albedo of invisible radiation
 double Snow_Env::getAlbedoNir(const double & tem) {
   double nir;
   nir = getAlbedoVis(tem);
