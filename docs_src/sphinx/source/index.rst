@@ -17,8 +17,8 @@ Welcome to ``dvmdostem``'s documentation!
    DVM-DOS-TEM_Model_Overview
    software_development_info
 
-Slides
--------
+Slides and other stuff
+-----------------------
 :download:`Workshop 2022 Lab 5 <slides/WS2022_Lab5.pdf>`
 
 ..  
