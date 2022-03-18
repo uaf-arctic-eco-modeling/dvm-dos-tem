@@ -11,11 +11,13 @@ Welcome to ``dvmdostem``'s documentation!
   
 
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 2
    :caption: Contents
    
    DVM-DOS-TEM_Model_Overview
    software_development_info
+   Running_dvmdostem
+   SA_UQ
 
 Slides and other stuff
 -----------------------

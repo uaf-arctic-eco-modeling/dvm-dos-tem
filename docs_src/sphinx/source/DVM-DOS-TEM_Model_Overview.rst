@@ -85,5 +85,87 @@ In the scenario stage, the climate also varies from year to year, but rather tha
 
 A complete run utilizes all 5 stages. It is possible to work with any subset of the stages.
 
+=======================
+Community Types (CMTs)
+=======================
+    WRITE THIS...
 
+=======================
+Vegetation Types (PFTs)
+=======================
+    WRITE THIS...
 
+=======================
+Soil (Layers)
+=======================
+    WRITE THIS...
+
+***********
+Processes
+***********
+    WRITE THIS...
+
+==========
+Carbon
+==========
+    WRITE THIS...
+
+==========
+Water
+==========
+    WRITE THIS...
+
+==========
+Nitrogen
+==========
+    WRITE THIS...
+
+=================
+Energy Balance
+=================
+    WRITE THIS...
+
+==========
+Permafrost
+==========
+    WRITE THIS...
+
+==============
+Disturbance
+==============
+    WRITE THIS...
+
+==========
+Methane
+==========
+    WRITE THIS...
+
+*********************
+Inputs/Outputs (IO)
+*********************
+    WRITE THIS...
+
+==========
+Inputs
+==========
+    WRITE THIS...
+
+==========
+Outputs
+==========
+    WRITE THIS...
+
+------------------
+Output Selection
+------------------
+    WRITE THIS...
+
+-------------
+Process
+-------------
+    WRITE THIS...
+
+------------------------------
+Variable Output Combinations
+------------------------------
+    WRITE THIS...
