@@ -10,6 +10,7 @@
 #########################
 Software Development Info
 #########################
+    WRITE THIS...
 
 ******************************
 Languages, Software Structure
@@ -27,7 +28,12 @@ Documentation
 ==================
 Note about images
 ==================
-  WRITE THIS....
+    WRITE THIS....
+
+------------------------------
+Considerations for new system
+------------------------------
+    WRITE THIS...
 
 =========================
 Note about this document
@@ -36,7 +42,52 @@ Note about this document
 *****************************
 Software Development Patterns
 *****************************
-  WRITE THIS...
+    WRITE THIS...
+
+=============================================
+Read Eval Print Loop (REPL, shell, terminal)
+=============================================
+    WRITE THIS...
+
+=============================================
+GUI Application
+=============================================
+    WRITE THIS...
+
+=============================================
+Interpreted Program (script)
+=============================================
+    WRITE THIS...
+
+=============================================
+Compiled Program (binary)
+=============================================
+    WRITE THIS...
+
+=============================================
+Integrated Development Environment (IDE)
+=============================================
+    WRITE THIS...
+
+=============================================
+IPython
+=============================================
+    WRITE THIS...
+
+=============================================
+Basic IDE
+=============================================
+    WRITE THIS...
+
+=============================================
+Jupyter Notebook
+=============================================
+    WRITE THIS...
+
+=============================================
+Virtual Machine
+=============================================
+    WRITE THIS...
 
 *****************************
 Version Management
@@ -90,9 +141,9 @@ sections below for more details.
 .. [#] As of December 2021, this is true; we anticipate moving to a new 
        Github Organization in the next 6 months or so. 
 
-
+--------------
 Getting Help
-------------
+--------------
 General Git help is beyond the scope of this document. Here a few key concepts that
 this document assumes you are familiar with:
 
@@ -126,28 +177,56 @@ Here are several recommendations for general Git help:
    * the implications of making merges in an environment with multiple 
      developers.
 
-
+-------
 Tools
 -------
+    WRITE THIS...
 
+-------
 Setup
 -------
+    WRITE THIS...
 
 
 ==================
 Branching Model
 ==================
+    WRITE THIS...
 
 ===========
 Workflow
 ===========
+    WRITE THIS...
 
 =================================
 Releases and Version Management
 =================================
+    WRITE THIS...
 
 
-===================
-Automated Testing
-===================
+==================================
+Automated Testing and Deployment
+==================================
+    WRITE THIS...
+
+*******************************
+Setting up a dev environment
+*******************************
+    WRITE THIS...
+
+===============================
+Setting up with Vagrant
+===============================
+    WRITE THIS...
+
+===============================
+Setting up with Docker
+===============================
+    WRITE THIS...
+
+===============================
+Setting up with Ubuntu
+===============================
+    WRITE THIS...
+
 

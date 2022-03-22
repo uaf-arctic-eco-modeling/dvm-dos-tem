@@ -38,39 +38,50 @@
 <p class="admonition-title">Note</p>
 <p>This project is under active development.</p>
 </div>
+<p>DVM-DOS-TEM is a process based bio-geo-chemical terrestrial biosphere
+model. It operates on spatially explicit grid cells or pixels and can
+advance each grid cell or pixel through a variety of processes and
+time-steps.</p>
+<a class="reference internal image-reference" href="_images/dvmdostem-overview_fromhg.png"><img alt="dvmdostem overview drawing" src="_images/dvmdostem-overview_fromhg.png" style="width: 600px;" /></a>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>What’s with the name?
+Sometimes we write dvmdostem, sometimes we write dvm-dos-tem and
+sometimes we write DVM-DOS-TEM. These are all the same thing.
+The order is always the same, but sometimes we use capitals and
+sometimes lower case, sometimes with hyphens and sometimes without.
+This is a fluke of history. In some cases it looks better capitalized,
+sometimes it looks better lower case. The repository ended up with
+hyphens in the name, but the compiled binary executable does not
+have hyphens.</p>
+</div>
 <div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="DVM-DOS-TEM_Model_Overview.html"><code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code> Model Overview</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="DVM-DOS-TEM_Model_Overview.html#structure">Structure</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="DVM-DOS-TEM_Model_Overview.html#spatial">Spatial</a></li>
-<li class="toctree-l3"><a class="reference internal" href="DVM-DOS-TEM_Model_Overview.html#temporal">Temporal</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="DVM-DOS-TEM_Model_Overview.html#structure">Structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="DVM-DOS-TEM_Model_Overview.html#processes">Processes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="DVM-DOS-TEM_Model_Overview.html#inputs-outputs-io">Inputs/Outputs (IO)</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="software_development_info.html">Software Development Info</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="software_development_info.html#languages-software-structure">Languages, Software Structure</a></li>
-<li class="toctree-l2"><a class="reference internal" href="software_development_info.html#documentation">Documentation</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="software_development_info.html#note-about-images">Note about images</a></li>
-<li class="toctree-l3"><a class="reference internal" href="software_development_info.html#note-about-this-document">Note about this document</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="software_development_info.html#documentation">Documentation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="software_development_info.html#software-development-patterns">Software Development Patterns</a></li>
-<li class="toctree-l2"><a class="reference internal" href="software_development_info.html#version-management">Version Management</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="software_development_info.html#version-control-and-hosting">Version Control and Hosting</a></li>
-<li class="toctree-l3"><a class="reference internal" href="software_development_info.html#branching-model">Branching Model</a></li>
-<li class="toctree-l3"><a class="reference internal" href="software_development_info.html#workflow">Workflow</a></li>
-<li class="toctree-l3"><a class="reference internal" href="software_development_info.html#releases-and-version-management">Releases and Version Management</a></li>
-<li class="toctree-l3"><a class="reference internal" href="software_development_info.html#automated-testing">Automated Testing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="software_development_info.html#version-management">Version Management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="software_development_info.html#setting-up-a-dev-environment">Setting up a dev environment</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="Running_dvmdostem.html">Running <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="Running_dvmdostem.html#modeling-method-and-workflow">Modeling Method and Workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Running_dvmdostem.html#practical">Practical</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="SA_UQ.html">Sensitivity Analysis and Uncertainty Quantification</a></li>
 </ul>
 </div>
-<section id="slides">
-<h2>Slides<a class="headerlink" href="#slides" title="Permalink to this headline">¶</a></h2>
+<section id="slides-and-other-stuff">
+<h2>Slides and other stuff<a class="headerlink" href="#slides-and-other-stuff" title="Permalink to this headline">¶</a></h2>
 <p><a class="reference download internal" download="" href="_downloads/308c9564a8ba1e4aed3bdd425f1da7da/WS2022_Lab5.pdf"><code class="xref download docutils literal notranslate"><span class="pre">Workshop</span> <span class="pre">2022</span> <span class="pre">Lab</span> <span class="pre">5</span></code></a></p>
 </section>
 </section>
@@ -96,6 +107,8 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="DVM-DOS-TEM_Model_Overview.html"><code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code> Model Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="software_development_info.html">Software Development Info</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Running_dvmdostem.html">Running <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="SA_UQ.html">Sensitivity Analysis and Uncertainty Quantification</a></li>
 </ul>
 
 <div class="relations">
