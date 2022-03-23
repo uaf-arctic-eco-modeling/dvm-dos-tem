@@ -42,7 +42,7 @@ There are 5 possible “run stages”:
 * Equilibrium (eq)
 * Spinup (sp)
 * Transient (tr)
-* Scenario (sn)
+* Scenario (sc)
 
 The primary difference between the run stages is the nature of the input climate
 dataset, and specifically whether there is annual variability in the driving 
