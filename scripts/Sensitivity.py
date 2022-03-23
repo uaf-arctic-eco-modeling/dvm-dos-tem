@@ -253,12 +253,13 @@ class SensitivityDriver(object):
   def save_experiment(self, name):
     '''Write the parameter properties and sensitivity matrix to files.'''
     # Maybe these should go in self.work_dir??
-    sm_fname = "{}_sample_matrix.csv".format(name) 
-    pp_fname = '{}_param_props.csv'.format(name)
-    print("Saving {}".format(sm_fname))
-    self.sample_matrix.to_csv(sm_fname, index=False)
-    print("Saving {}".format(pp_fname))
-    pd.DataFrame(self.params).to_csv(pp_fname, index=False)
+    if os.path.isdir(self.work_dir):
+        sm_fname = self.work_dir+"/{}_sample_matrix.csv".format(name) 
+        pp_fname = self.work_dir+'/{}_param_props.csv'.format(name)
+        print("Saving {}".format(sm_fname))
+        self.sample_matrix.to_csv(sm_fname, index=False)
+        print("Saving {}".format(pp_fname))
+        pd.DataFrame(self.params).to_csv(pp_fname, index=False)
 
   def load_experiment(self, param_props_path, sample_matrix_path):
     '''Load parameter properties and sample matrix from files.'''
