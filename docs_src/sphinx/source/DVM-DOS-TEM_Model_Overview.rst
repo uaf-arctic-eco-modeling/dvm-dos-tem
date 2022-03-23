@@ -58,7 +58,10 @@ the stages.
 pre-run (pr)
 ------------
 
-    WRITE THIS
+The pre-run is an equilibrium run for the physical variables of the model. It is
+typically 100 years, uses constant climate (typically monthly average computed
+from the [1901-1930] period). 
+
 
 ----------------
 equilibrium (eq)
