@@ -15,6 +15,15 @@ Modeling Method and Workflow
 *****************************
     WRITE THIS...
 
+The modeling process is multifaceted and can be approached in a number of ways
+and for different reasons. A schematic overview of the entire process is given
+in the following image:
+
+.. raw:: html
+  
+    <!-- This is an embed link to a Google Drawing created by Tobey Carman --> 
+    <img src="https://docs.google.com/drawings/d/e/2PACX-1vQc-OuFaMSpaMA05Q_ah9q_Rm5of7cF3uuPRjQ7-d7bJofkahwQ5VLRFYk69KnuoooKl8kWM1xW6t6e/pub?w=720&amp;h=540">
+
 ===============
 Develop goals
 ===============
