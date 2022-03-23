@@ -42,95 +42,303 @@
 <h2>Languages, Software Structure<a class="headerlink" href="#languages-software-structure" title="Permalink to this headline">¶</a></h2>
 <blockquote>
 <div><p>WRITE THIS</p>
-<p>Core is C++, utils python,Tutorial are ipynb, shell scripts for some utils, make, etc
+<p>Core is C++, utils python,Tutorial are ipynb, shell scripts for some utils,
+make, etc
 Write this section…</p>
 </div></blockquote>
 </section>
 <section id="documentation">
 <h2>Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h2>
+<p>There are several places that you will find information about <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code>:</p>
 <blockquote>
-<div><p>WRITE THIS…</p>
+<div><ul class="simple">
+<li><p>README file(s)</p></li>
+<li><p>This document (which is the formatted output of the <code class="docutils literal notranslate"><span class="pre">.rst</span></code> source files).
+It is likely that you are reading this document where it has been published
+online; if you build the documentation locally, then by default, the output
+ends up in <code class="docutils literal notranslate"><span class="pre">docs_src/sphinx/build/html</span></code>.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">--help</span></code> flag for dvmdostem and many of the scripts in the <code class="docutils literal notranslate"><span class="pre">scripts/</span></code>
+directory.</p></li>
+<li><p>Comments in the code.</p></li>
+<li><p>Github wiki (hopefully deprecated soon).</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">docs_src/*/html</span></code> folders after running Doxygen or Sphinx.</p></li>
+</ul>
 </div></blockquote>
+<p>Each of these locations has a different sort of information you might find
+there:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>README files are overviews of a repository or project. Used as a rough
+introduction, installation instructions and links to other resources.</p></li>
+<li><dl class="simple">
+<dt>This document which has several chapters:</dt><dd><ul>
+<li><dl class="simple">
+<dt><a class="reference internal" href="DVM-DOS-TEM_Model_Overview.html#structure"><span class="std std-ref">DVM-DOS-TEM_Model_Overview</span></a></dt><dd><p>which is a  narrative, scientific description of the <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code>
+model.</p>
+</dd>
+</dl>
+</li>
+<li><p><a class="reference internal" href="#documentation"><span class="std std-ref">Software Development Info</span></a>
+(this chapter) which contains all the other programming, usage and
+workflow information for hands on work with the model.</p></li>
+<li><p>Running <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code> with info and examples for hands on use of the
+model.</p></li>
+<li><p>Several other chapters, available in the table of contents.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">--help</span></code> flags generally have usage information for software at hand.</p></li>
+</ul>
+</div></blockquote>
+<p>In a perfect world most of the comments in the code will eventually be
+formatted in such a way that they can be picked up by tools such as Doxygen
+(for C++) and Sphinx (for Python). But because that is a work in progress it is
+still helpful to browse the code especially for implementation details about
+the code.</p>
+<p>We used the Github Wiki for several years, but we are trying to move away
+from it towards a more robust, fully featured platform that integrates better
+with CI/CD tooling. Github Wiki might be a good place to keep certain
+tutorial-like information.</p>
+<p>In the current implementation with Sphinx (used to format this document), we
+have a <code class="docutils literal notranslate"><span class="pre">docs_src</span></code> folder within which is a subdirectory for each
+documentation tool (presently Doxygen and Sphinx). Each tool is setup to put
+its outputs in its own directory. To publish outputs, the contents are copied
+to the <code class="docutils literal notranslate"><span class="pre">docs/</span></code> directory in the root of the repo and then pushed to the
+<code class="docutils literal notranslate"><span class="pre">gh-pages</span></code> branch of the upstream repo.</p>
 <section id="note-about-images">
 <h3>Note about images<a class="headerlink" href="#note-about-images" title="Permalink to this headline">¶</a></h3>
+<p>Including images in documentation presents similar challenges for raw,
+rendered, and word processing systems. One choice is whether to embed the
+image directly or provide a link to it. And another choice has to do with how
+to version control the image and make it easy to update in the future.</p>
+<p>The simplest solution is to simply not worry about it and commit the <code class="docutils literal notranslate"><span class="pre">.png</span></code>
+or <code class="docutils literal notranslate"><span class="pre">.jpg</span></code> files directly to the repo. This certainly works, but imagine a
+scenario where you need to update the image, say to fix a typo. If you were
+the original creator, then you open the drawing file (e.g. Photoshop, Visio,
+Open Office Draw; whatever you used to create the image) edit the image,
+export it, move it into the documentation structure, overwriting the original,
+and commit the result to version control. This assumes that you have the
+original image. If you don’t (either because you lost it, or perhaps you were
+not the original creator, then you must completely redraw the image from
+scratch, which is ridiculous in many cases.</p>
+<p>One way to solve this is to commit the original image file to version
+control (e.g. the <code class="docutils literal notranslate"><span class="pre">.ps</span></code> or <code class="docutils literal notranslate"><span class="pre">.dwg</span></code> file) alongside the exported image that
+will be included in the documentation. This is essentially the same dilemma
+as with the raw → generated text documentation. However drawing files
+typically don’t read well with file diffs, so it is hard to tell what changed
+with the images, making it important to have good commit messages and keep
+the exported files as well. And keeping all these binary files uses quite a
+bit more space than plain text files, so it is easy for the size of the
+repository to get out of control.</p>
+<p>A novel solution that we discovered for this problem is to use linked
+Google Drawing documents roughly as follows:</p>
 <blockquote>
-<div><p>WRITE THIS….</p>
+<div><ol class="arabic simple">
+<li><p>Make a Google Drawing and save it (with a name)</p></li>
+<li><p>Click the Share button</p></li>
+<li><p>Edit the preferences so that the drawing is viewable to anybody with
+the link</p></li>
+<li><p>Under File menu select “Publish to Web”</p></li>
+<li><p>Select “Embed”</p></li>
+<li><p>Copy the embed link</p></li>
+<li><p>Paste the link into the appropriate place in your document</p></li>
+</ol>
 </div></blockquote>
-<section id="considerations-for-new-system">
-<h4>Considerations for new system<a class="headerlink" href="#considerations-for-new-system" title="Permalink to this headline">¶</a></h4>
+<p>For each type of document there might be a different way to render the link,
+and this may not be possible in all languages/environments. In the Github
+wiki, which uses, Markdown, including something like this will allow the
+image to render, directly from Google Docs when someone loads the page:</p>
+<div class="highlight-html notranslate"><div class="highlight"><pre><span></span><span class="c">&lt;!-- From Tobey Carman&#39;s google drawing &quot;dvmdostem-general-idea-science&quot;--&gt;</span>
+<span class="p">&lt;</span><span class="nt">img</span> <span class="na">src</span><span class="o">=</span><span class="s">&quot;https://docs.google.com/drawings/d/17AWgyjGv3fWRLhEPX7ayJKSZt3AXcBILXN2S-FGQHeY/pub?w=960&amp;amp;h=720&quot;</span><span class="p">&gt;</span>
+</pre></div>
+</div>
+<p>If the original Google Drawing is updated, then the drawing seen in the wiki
+will be updated too. Take caution with the permissions granted for editing
+on the original drawing!</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Soure drawings for this document should probably be stored in the
+Shared Google Drive so that they are not tied to an individual’s account.</p>
+</div>
+<p>In Google Docs, there is a way to insert a Google Drawing from a menu:
+Insert &gt; Drawing &gt; From Drive.</p>
+<p>With Sphinx, use the <code class="docutils literal notranslate"><span class="pre">:raw::</span> <span class="pre">html</span></code> directive. The Sphinx documentation warns
+against abusing the <code class="docutils literal notranslate"><span class="pre">:raw::</span></code> directive, so this might not be a good long
+term solution but it could be useful for creating a bunch of the drawings
+while they are in draft stages.</p>
+<p>We have not tested this approach with a system such as Doxygen but assume it
+should work. This solution is not perfect, downsides include:</p>
 <blockquote>
-<div><p>WRITE THIS…</p>
+<div><ul class="simple">
+<li><p>Drawing is not strictly version controlled along with other content
+(Google Drawings offers some version control but this would not be
+linked to the <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code> git repository).</p></li>
+<li><p>The end user must have web connectivity to see the drawings.</p></li>
+</ul>
 </div></blockquote>
-</section>
-</section>
-<section id="note-about-this-document">
-<h3>Note about this document<a class="headerlink" href="#note-about-this-document" title="Permalink to this headline">¶</a></h3>
 </section>
 </section>
 <section id="software-development-patterns">
 <h2>Software Development Patterns<a class="headerlink" href="#software-development-patterns" title="Permalink to this headline">¶</a></h2>
-<blockquote>
-<div><p>WRITE THIS…</p>
-</div></blockquote>
+<p>At the highest level, the process of software development is simply “write
+some code (instructions) and get a machine to carry out the instructions”.
+At the end of the day, this is all we are trying to accomplish. However the
+situation is never simple and there are an infinite number of ways to
+accomplish such a seemingly simple task. When a computer programmer talks
+about toolchains and environment they are talking about the setup for the
+process of “write code and make a machine run it”. There is no single best
+way to set up your environment, and each person has their own needs and
+preferences. Sometimes there are constraints due to hardware (i.e. working
+on a High Performance Computing system or a tiny embedded microprocessor),
+sometimes the constraints come from available software tools or the skills
+of the people writing the code. You will encounter a variety of patterns for
+the environments and toolchains used in this project. Understanding these
+patterns will help you select the best way to perform your work and have
+it mesh with the existing project.</p>
+<p>Usually when you start writing some code you are in a purely exploratory
+and experimental mode and you reach for whatever environment and toolchain
+is comfortable and close at hand. Once your code has matured and you want to
+make it available to someone else, you need to put some thought into the
+environment and toolchain for working with the code. Also as your code
+grows in complexity, different environments make certain operations
+easier or harder.</p>
+<p>The majority of the dvmdostem code is designed to be run via command line
+interface (CLI), meaning it is expected that you have a terminal (presumably
+bash or something similar) on an Ubuntu-like operating system. You are
+expected to interact with the programs by running the scripts or compiled
+binaries from the command line (REPL).</p>
+<p>Following is a brief overview of a variety of different programming
+environments and toolchain patterns.</p>
 <section id="read-eval-print-loop-repl-shell-terminal">
 <h3>Read Eval Print Loop (REPL, shell, terminal)<a class="headerlink" href="#read-eval-print-loop-repl-shell-terminal" title="Permalink to this headline">¶</a></h3>
-<blockquote>
-<div><p>WRITE THIS…</p>
-</div></blockquote>
+<p>REPL stands for “<strong>R</strong>ead <strong>E</strong>val <strong>P</strong>rint <strong>L</strong>oop”. The REPL can
+be written in nearly any language and can be designed to interpret nearly
+any language. Users may be familiar with a number of REPL implementations
+including the basic Python interpreterprompt (<code class="docutils literal notranslate"><span class="pre">&gt;&gt;&gt;</span></code>), the IPython
+interpreter prompt (<code class="docutils literal notranslate"><span class="pre">[In</span> <span class="pre">0]:</span></code>), and R prompt (<code class="docutils literal notranslate"><span class="pre">&gt;</span></code>) orsimply the
+terminal prompt in their shell of choice (commonly bash). A REPL typically
+ingests one line of text, follows the instructions, and returns the user
+to the prompt. This is handy for prototyping, but quickly becomes tedious
+to type if you have multi-line instructions (code). For this reason there
+is the concept of a script which provides a means for submitting multiple
+lines of code to a REPL</p>
 </section>
 <section id="gui-application">
 <h3>GUI Application<a class="headerlink" href="#gui-application" title="Permalink to this headline">¶</a></h3>
-<blockquote>
-<div><p>WRITE THIS…</p>
-</div></blockquote>
+<p>Common, intuitive for exploration. User uses a mouse and keyboard to click
+buttons and interact with the software. May be written in a wide variety
+of languages, but typically requires a “framework” of existing code that
+helps with common patterns. Frameworks you might hear of are: Tcl/Tkinter,
+QT, Cocoa, Swing, SWT, Delphi.</p>
 </section>
 <section id="interpreted-program-script">
 <h3>Interpreted Program (script)<a class="headerlink" href="#interpreted-program-script" title="Permalink to this headline">¶</a></h3>
-<blockquote>
-<div><p>WRITE THIS…</p>
-</div></blockquote>
+<p>An interpreted programming language is translated from human-written
+code (instructions) into computer instructions (machine language)
+on-the-fly. Python is an interpreted language meaning that there is not
+an explicit compile step required to run the program. You simply submit
+the script (your Python code) to the Python interpreter and it is
+translated into machine code on the fly.</p>
 </section>
 <section id="compiled-program-binary">
 <h3>Compiled Program (binary)<a class="headerlink" href="#compiled-program-binary" title="Permalink to this headline">¶</a></h3>
-<blockquote>
-<div><p>WRITE THIS…</p>
-</div></blockquote>
+<p>A compiled programming language required a dedicated “build step” to translate
+the human-written code (instructions) into machine code. The result of the build
+step is an object file or a “compiled binary”. The main dvmdostem binary is a
+compiled C++ program. When the source code is modified, you must run make to
+re-compile the project and create a new binary object file before running it.</p>
 </section>
 <section id="integrated-development-environment-ide">
 <h3>Integrated Development Environment (IDE)<a class="headerlink" href="#integrated-development-environment-ide" title="Permalink to this headline">¶</a></h3>
+<p>Typically this is a GUI application that bundles together a bunch of handing
+tools into one package. In general the tools are:</p>
 <blockquote>
-<div><p>WRITE THIS…</p>
+<div><ul class="simple">
+<li><p>Text editor</p></li>
+<li><p>REPL</p></li>
+<li><p>Debugger</p></li>
+<li><p>Build tools</p></li>
+<li><p>File browser</p></li>
+</ul>
 </div></blockquote>
+<p>There are many different IDEs each with their own advantages and disadvantages.
+Often IDEs are particularly suited to a certain language (i.e. PyCharm for
+Python, Eclipse for C/C++, etc).</p>
 </section>
 <section id="ipython">
 <h3>IPython<a class="headerlink" href="#ipython" title="Permalink to this headline">¶</a></h3>
-<blockquote>
-<div><p>WRITE THIS…</p>
-</div></blockquote>
+<p>IPython is simply an enhanced REPL for Python. It comes with heaps of extra
+features that make life easier, including support for multi-line statements,
+built-in help, auto-complete features, and much more.</p>
 </section>
 <section id="basic-ide">
 <h3>Basic IDE<a class="headerlink" href="#basic-ide" title="Permalink to this headline">¶</a></h3>
-<blockquote>
-<div><p>WRITE THIS…</p>
-</div></blockquote>
+<p>All you really need for writing compiled or interpreted programs are a text
+editor and a terminal that will let you compile the program (if necessary)
+and execute it.</p>
 </section>
 <section id="jupyter-notebook">
 <h3>Jupyter Notebook<a class="headerlink" href="#jupyter-notebook" title="Permalink to this headline">¶</a></h3>
+<p>This is a novel addition to the traditional programming toolset. Jupyter
+Notebooks combine features of:</p>
 <blockquote>
-<div><p>WRITE THIS…</p>
+<div><ul class="simple">
+<li><p>an advanced (enhanced) REPL,</p></li>
+<li><p>an IDE,</p></li>
+<li><p>formatted writing/documentation system and,</p></li>
+<li><p>run-time for the program.</p></li>
+</ul>
 </div></blockquote>
+<p>This is accomplished using a client server architecture. In order to execute
+the code in a Jupyter Notebook, you must also run (or connect to) a
+“Notebook Server” which is a python environment and run-time. One advantage
+of this is that the client portion can be an interactive web page that is
+viewable for anyone with a standard web browser - provided they can make
+requests to a functioning backend server which provides the Python run-time.</p>
+<p>The server can actually run a variety of languages, so it is possible to
+use R or Julia or a number of other languages as the notebook code cell
+language.</p>
+<dl class="simple">
+<dt>Notebooks are great for:</dt><dd><ul class="simple">
+<li><p>Intermingling code and documentation or explanations (formatted text)</p></li>
+<li><p>Experimenting with small code snippets</p></li>
+<li><p>Presenting interactive plots from remote servers without needing an
+XWindow or other <code class="docutils literal notranslate"><span class="pre">DISPLAY</span></code> forwarding system</p></li>
+<li><p>Developing and prototyping code</p></li>
+</ul>
+</dd>
+<dt>Notebooks are challenging for:</dt><dd><ul class="simple">
+<li><p>Version control</p></li>
+<li><p>Writing code that is easy to run in a non-notebook environment
+(library code)</p></li>
+<li><p>Groups that do not have the bandwidth or abilities for running individual
+notebook servers or to run and maintain a central notebook server</p></li>
+<li><p>Debugging certain types of process</p></li>
+</ul>
+</dd>
+</dl>
 </section>
 <section id="virtual-machine">
 <h3>Virtual Machine<a class="headerlink" href="#virtual-machine" title="Permalink to this headline">¶</a></h3>
-<blockquote>
-<div><p>WRITE THIS…</p>
-</div></blockquote>
+<p>In order to wrap up an environment such that you can preserve it or pass it
+to someone else, people have devised the concept of a Virtual Machine (VM).
+In 2022, there are innumerable ways to run a VM (VMware, Parallels,
+Multipass, Docker, etc), each with its own tradeoffs. The important thing
+to remember is that a Virtual Machine attempts to encapsulate an environment.
+Each of the items in the above list (Notebook, IPython, IDE, etc) might be
+able to run inside a virtual machine. If you are not provided with a
+perfectly functioning environment it is often up to you to understand what
+you need for an execution context and set it up for yourself; a VM of some
+variety frequently provides some way to achieve this.</p>
 </section>
 </section>
 <section id="version-management">
 <h2>Version Management<a class="headerlink" href="#version-management" title="Permalink to this headline">¶</a></h2>
-<p>The primary reasons for using a version management system for  <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code> are:</p>
-<ul class="simple">
+<p>The primary reasons for using a version management system for  <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code>
+are:</p>
+<blockquote>
+<div><ul class="simple">
 <li><p>To maintain a meaningful history of the codebase so that the provenance
 of the code is not in question.</p></li>
 <li><p>To facilitate the addition or modification of code by many developers.</p></li>
@@ -138,64 +346,72 @@ of the code is not in question.</p></li>
 history of the codebase. This may be for the purpose of duplicating prior
 work, or to recover a lost behavior of the software, or both.</p></li>
 </ul>
+</div></blockquote>
 <p>There are two (related) parts to fulfilling the above goals:</p>
-<ul class="simple">
+<blockquote>
+<div><ul class="simple">
 <li><p>Making the commits (file diffs) easy to read and understand.</p></li>
 <li><p>Having a strategy or pattern for bringing different lines of development
 together.</p></li>
 </ul>
+</div></blockquote>
 <p>If the file diffs are unreadable or the lines of development are not brought
 together in an organized fashion, then the project history is harder to trust
 which brings into question the provenance of the code, and makes it harder for
 people to contribute.</p>
 <section id="version-control-and-hosting">
 <h3>Version Control and Hosting<a class="headerlink" href="#version-control-and-hosting" title="Permalink to this headline">¶</a></h3>
-<p>This project is using Git for version control and Github for hosting. The primary
-fork of the code (referred to as “upstream”) is currently hosted under the ua-snap
-organization <a class="footnote-reference brackets" href="#id2" id="id1">1</a>, so the primary (upstream) repository address is:
+<p>This project is using Git for version control and Github for hosting. The
+primary fork of the code (referred to as “upstream”) is currently hosted under
+the ua-snap organization <a class="footnote-reference brackets" href="#id2" id="id1">1</a>, so the primary (upstream) repository address is:
 <a class="reference external" href="https://github.com/ua-snap/dvm-dos-tem">https://github.com/ua-snap/dvm-dos-tem</a>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <ul class="simple">
-<li><p>The Source Control Management (SCM) or Version Control software is named <code class="docutils literal notranslate"><span class="pre">git</span></code>.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">git</span></code> is really a general tool for managing a certain type of data structure
-(Directed Acyclic Graph or DAG for the curious). As such, there are many ways it
-can be used correctly and it is up to each group to find a pattern that works
-for the project.</p></li>
+<li><p>The Source Control Management (SCM) or Version Control software is
+named <code class="docutils literal notranslate"><span class="pre">git</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">git</span></code> is really a general tool for managing a certain type of data
+structure (Directed Acyclic Graph or DAG for the curious). As such, there
+are many ways it can be used correctly and it is up to each group to find
+a pattern that works for the project.</p></li>
 <li><p>Github is a website that uses git and provides web hosting as well as other
 features such as access management, wikis, issue tracking, and support for
 automated workflow and actions.</p></li>
 </ul>
 </div>
-<p>The dvmdostem code is open source and the repository is publicly available and can
-be cloned by any interested party. However write access to the upstream repository
-is only granted to trusted collaborators. We gladly accept contributions to the code
-via pull request from anyone, but the pull request will have to be merged by a
-collaborator with write access to the upstream repo. See the branching and workflow
-sections below for more details.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code> code is open source and the repository is publicly available
+and can be cloned by any interested party. However write access to the
+upstream repository is only granted to trusted collaborators. We gladly
+accept contributions to the code via pull request from anyone, but the pull
+request will have to be merged by a collaborator with write access to the
+upstream repo. See the branching and workflow sections below for more details.</p>
 <dl class="footnote brackets">
 <dt class="label" id="id2"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
-<dd><p>As of December 2021, this is true; we anticipate moving to a new
+<dd><p>As of April 2022, this is true; we anticipate moving to a new
 Github Organization in the next 6 months or so.</p>
 </dd>
 </dl>
 <section id="getting-help">
 <h4>Getting Help<a class="headerlink" href="#getting-help" title="Permalink to this headline">¶</a></h4>
-<p>General Git help is beyond the scope of this document. Here a few key concepts that
-this document assumes you are familiar with:</p>
-<ul class="simple">
+<p>General Git help is beyond the scope of this document. Here a few key concepts
+that this document assumes you are familiar with:</p>
+<blockquote>
+<div><ul class="simple">
 <li><p>What is a commit.</p></li>
 <li><p>What is a SHA id.</p></li>
 <li><p>Difference between a fork and a clone.</p></li>
 <li><p>Difference between git push, pull, fetch, and pull request (PR).</p></li>
 <li><p>Difference between git branch, merge and rebase.</p></li>
 </ul>
+</div></blockquote>
 <p>Here are several recommendations for general Git help:</p>
-<ul class="simple">
+<blockquote>
+<div><ul class="simple">
 <li><p><a class="reference external" href="https://git-scm.com/book/en/v2">https://git-scm.com/book/en/v2</a></p></li>
 <li><p><a class="reference external" href="https://www.atlassian.com/git">https://www.atlassian.com/git</a></p></li>
 <li><p><a class="reference external" href="http://sethrobertson.github.io/GitBestPractices">http://sethrobertson.github.io/GitBestPractices</a></p></li>
 </ul>
+</div></blockquote>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>It is important to make commits that are concise, organized, and readable,
@@ -218,28 +434,186 @@ developers.</p></li>
 </section>
 <section id="tools">
 <h4>Tools<a class="headerlink" href="#tools" title="Permalink to this headline">¶</a></h4>
+<p>It is possible to use <code class="docutils literal notranslate"><span class="pre">git</span></code> purely from the command line, and in many
+cases this is the easiest way to go. However for some people and some
+situations a Graphical User Interface (GUI) is really helpful. Find a solution
+that works for you and your computing platform! There are generally two major
+functions of the Git GUIs, sometimes bundled in one application, and
+sometimes not:</p>
 <blockquote>
-<div><p>WRITE THIS…</p>
+<div><ul class="simple">
+<li><p>Viewing the project history.</p></li>
+<li><p>Adding to the project history (making commits, pushing, pulling,
+merging, rebasing).</p></li>
+</ul>
 </div></blockquote>
+<p>In 2022 there are many many graphical front ends to Git, and many text
+editors and IDEs have built in support for at least some Git features. You
+will need to find a tool that works for you. Although the interfaces look
+antiquated, you might find that the programs Gitk (history viewer) and
+Git Gui (for making commits) are perfectly sufficient, and these are
+readily available on most systems. At the end of the day you are likely to
+use a combination of the command line interface and a graphical frontend tool.</p>
 </section>
 <section id="setup">
 <h4>Setup<a class="headerlink" href="#setup" title="Permalink to this headline">¶</a></h4>
-<blockquote>
-<div><p>WRITE THIS…</p>
-</div></blockquote>
+<p>Your Git remote repositories should be appropriately named. This document
+assumes that you are using the following convention:</p>
+<ul class="simple">
+<li><p>The remote named origin should generally point to your fork of the
+codebase, so the URL will look something like:
+<code class="docutils literal notranslate"><span class="pre">https://github.com/&lt;your</span> <span class="pre">user</span> <span class="pre">name&gt;/dvm-dos-tem</span></code>.</p></li>
+<li><p>The remote named <code class="docutils literal notranslate"><span class="pre">upstream</span></code> should generally point to
+<code class="docutils literal notranslate"><span class="pre">https://github.com/ua-snap/dvm-dos-tem</span></code> or
+<code class="docutils literal notranslate"><span class="pre">git&#64;github.com:ua-snap/dvm-dos-tem.git</span></code> if you will be contributing.</p></li>
+</ul>
+<p>It is strongly encouraged that you go to the effort of making sure your current
+git branch is displayed in your terminal shell prompt. There are many examples
+floating around online of how to achieve this for all major operating systems
+and shells; one example <a class="reference external" href="https://stackoverflow.com/questions/15883416/adding-git-branch-on-the-bash-command-prompt">here</a></p>
 </section>
 </section>
 <section id="branching-model">
 <h3>Branching Model<a class="headerlink" href="#branching-model" title="Permalink to this headline">¶</a></h3>
+<p>A generalized view of our branching model can be seen in the diagram:</p>
+<!--From Google Drawing in
+Shared Drive > DVM-DOS-TEM Documentation > drawings > branching_model
+-->
+<img src="https://docs.google.com/drawings/d/e/2PACX-1vRnnwNqLaMeWfcvUPI1BK47KVBAYJSGnOWoD_0fqoBwx27oRM1idQvZ0sS1Yaebr6bl7AcmNB1oAAjw/pub?w=960&amp;h=720"><p>The image shows one long-running branch (red commits; <code class="docutils literal notranslate"><span class="pre">master</span></code>), three topic
+branches (green commits; <code class="docutils literal notranslate"><span class="pre">issue-47</span></code>, <code class="docutils literal notranslate"><span class="pre">modify-dvm</span></code>, and <code class="docutils literal notranslate"><span class="pre">bugfix-4</span></code>) and
+three “experiment branches’’ (gray commits; <code class="docutils literal notranslate"><span class="pre">exp-iem-0</span></code>, <code class="docutils literal notranslate"><span class="pre">exp-akyrb-0</span></code>,
+<code class="docutils literal notranslate"><span class="pre">exp-QCF-SA</span></code>).</p>
+<p>Two of the topic branches have been merged (blue arrows). One of the topic
+branches (<code class="docutils literal notranslate"><span class="pre">modify-dvm</span></code>) will be merged in the future (dotted blue arrow). The
+dark red commits on the master branch have been tagged to make an official
+release of the code. The gray commits are for “experiment branches” which are
+used to track a specific model run or set of model runs. Often the changes on
+these branches are only to config and parameter files, but some experiments
+might require code changes as well.</p>
+<p>This diagram does not explicitly show interaction between multiple developers;
+assume that each commit in the drawing could be made by any of the trusted
+collaborators with push access to the upstream repository.</p>
+<p>As a basic safety feature we have placed a restriction on the master branch of
+the upstream repository such that only the administrators (<a class="reference external" href="mailto:tcarman2&#37;&#52;&#48;alaska&#46;edu">tcarman2<span>&#64;</span>alaska<span>&#46;</span>edu</a>
+and <a class="reference external" href="mailto:rarutter&#37;&#52;&#48;alaska&#46;edu">rarutter<span>&#64;</span>alaska<span>&#46;</span>edu</a> ) are allowed push access. This restriction makes it
+unlikely that a trusted collaborator can accidentally push something that breaks
+the master branch. The best way for trusted collaborators to get code into the
+<code class="docutils literal notranslate"><span class="pre">upstream/master</span></code> is to open a pull request from their topic branch (e.g.
+<code class="docutils literal notranslate"><span class="pre">upstream/topic-foo-bar</span></code>) into <code class="docutils literal notranslate"><span class="pre">upstream/master</span></code> using the Github web
+interface for pull requests. All interested parties then have an opportunity to
+review the code, comment on Github, and push new commits to the topic branch (if
+necessary). Only the administrators can merge the pull request.</p>
+<p>As a general practice we try to have most work done in topic branches and merged
+into master using Github pull requests. For some small changes (usually for
+details that were inadvertently excluded from a recent pull request) we will
+make commits directly on the master branch without using the topic branch/pull
+request process. Using the topic branch/pull request process helps to organize
+work and will provide a convenient place to run Github Actions, for example an
+action to run the test suite before green-lighting a pull request for merging.</p>
+<p>Recently (2022 and the several years prior) we have been using a single
+long-running branch (<code class="docutils literal notranslate"><span class="pre">master</span></code>) and have been able to manage all contributions
+by periodically merging topic branches. If the need arises we can switch back to
+using an additional long-running branch. This would allow different levels of
+stability as described in the <a class="reference external" href="https://git-scm.com/book/en/v2/Git-Branching-Branching-Workflows">Git Book Branching Workflows
+section</a>.</p>
+<p>In the event that you need work from <code class="docutils literal notranslate"><span class="pre">upstream/master</span></code> in order to continue
+the work on your topic branch, you can periodically merge <code class="docutils literal notranslate"><span class="pre">upstream/master</span></code>
+into your topic branch. However please only use this when absolutely necessary
+as it can make the history harder to read and the pull requests harder to
+review. See this <a class="reference internal" href="#merge-or-rebase"><span class="std std-ref">Note</span></a> for a description of one
+potential problem with merges.</p>
+<div class="admonition note" id="merge-or-rebase">
+<p class="admonition-title">Note</p>
+<p>One problem with casually using merges in a workflow as opposed to using
+rebase is that the default merge messages can:</p>
 <blockquote>
-<div><p>WRITE THIS…</p>
+<div><ul class="simple">
+<li><p>Clutter the history.</p></li>
+<li><p>Be very confusing if you end up changing a branch name at a later date.</p></li>
+</ul>
 </div></blockquote>
+<p>For instance if you have a long-running branch with a large feature you are
+working on and you need to get updates from upstream, if you choose to merge
+into your “long-running-branch”:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ git checkout long-running-branch
+<span class="o">(</span>long-running-branch<span class="o">)</span>$ git pull upstream master
+</pre></div>
+</div>
+<p>Then you will get a merge message by default that starts with something like this:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>Merge branch <span class="s1">&#39;master&#39;</span> from github.com:ua-snap/dvm-dos-tem into <span class="s1">&#39;long-running-branch&#39;</span>
+</pre></div>
+</div>
+<p>All well and good, but later, once you work has evolved, you may decide to
+change the name of long-running-branch to something more relevant:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="o">(</span>long-running-branch<span class="o">)</span>$ git checkout -b more-descriptive-name
+<span class="o">(</span>more-descriptive-name<span class="o">)</span>$ git branch -D long-running-branch
+</pre></div>
+</div>
+<p>While renaming the branch is not a problem in and of itself, the merge commit
+title will contain “…into ‘long-running-branch’”. The long- running-branch no
+longer exists! So the merge commit message will be confusing to anyone who was
+not involved with long-running-branch or forgot about it. Without good commit
+messages, it is harder to understand the history and without a good
+understanding of the history it is easy to lose control of the project. So
+please learn to use rebase and merge appropriately!</p>
+</div>
 </section>
 <section id="workflow">
 <h3>Workflow<a class="headerlink" href="#workflow" title="Permalink to this headline">¶</a></h3>
+<p>We are primarily using the “Centralized Workflow” described in the Git Book
+<a class="reference external" href="https://git-scm.com/book/en/v2/Distributed-Git-Distributed-Workflows">Distributed Workflows</a>. We have
+a number of trusted developers at collaborating institutions and we grant them
+write (push) access to the upstream repository. With this model, each developer
+can push directly from their local repository to the upstream repository -
+developers do not need to maintain their personal forks on Github (but are free
+to do so if they wish).</p>
+<p>If you are not one of our trusted collaborators and have contributions to make,
+then you will need to follow the Git Book “Integration Manager Workflow”. You
+will simply fork the upstream repository on Github, clone to your computer and
+push changes back to your fork. You can then make a pull request from your fork
+into the <code class="docutils literal notranslate"><span class="pre">upstream/master</span></code>.</p>
+<p>When two or more developers want or need to work contemporaneously on a topic
+branch, it is up to the developers to communicate and make sure that they do not
+step on each other’s toes. In practice this simply amounts to communicating with
+other folks via email, the Arctic Eco Modeling Slack Workspace, or Github Issues
+and remembering to run <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">pull</span> <span class="pre">--rebase</span></code>. Using <code class="docutils literal notranslate"><span class="pre">--rebase</span></code> prevents
+unnecessary merge commits that can make the history confusing and harder to
+trust.</p>
+<div class="admonition note" id="what-not-to-track">
+<p class="admonition-title">Note</p>
+<p>A big part of maintaining a low friction workflow revolves around
+understanding what types of files or information should not be included in
+version control and figuring out how to exclude these files. The general
+idea is that you don’t want to keep generated files (e.g.: <code class="docutils literal notranslate"><span class="pre">*.o</span></code>, or
+Doxygen output), but you do want to track code that can generate certain
+outputs. If you need the outputs, then you run the generating code to
+produce it. The general rule is don’t track files that you can generate,
+track the code to generate them.</p>
+</div>
+<div class="admonition note" id="personal-settings">
+<p class="admonition-title">Note</p>
+<p>Another common sticking point is figuring out how to track host specific
+settings, such as specific environment variables, build settings, or the
+project settings files generated by many IDEs. You may need to devise your
+own way to track these settings locally on an individual developer or
+workstation level without pushing them to the central shared repository.</p>
+</div>
+<div class="admonition note" id="git-stash">
+<p class="admonition-title">Note</p>
+<p>Learn to use <code class="docutils literal notranslate"><span class="pre">git-stash</span></code>, it is very handy for setting aside work before
+pulling or rebasing from upstream so as to prevent unnecessary merge
+commits!</p>
+</div>
+<div class="admonition note" id="git-pull-with-rebase">
+<p class="admonition-title">Note</p>
+<p>See the following helpful discussions:</p>
 <blockquote>
-<div><p>WRITE THIS…</p>
+<div><ul class="simple">
+<li><p><a class="reference external" href="https://stackoverflow.com/questions/13193787/why-would-i-want-to-do-git-rebase">https://stackoverflow.com/questions/13193787/why-would-i-want-to-do-git-rebase</a></p></li>
+<li><p><a class="reference external" href="https://blog.sourcetreeapp.com/2012/08/21/merge-or-rebase/">https://blog.sourcetreeapp.com/2012/08/21/merge-or-rebase/</a></p></li>
+</ul>
 </div></blockquote>
+</div>
 </section>
 <section id="releases-and-version-management">
 <h3>Releases and Version Management<a class="headerlink" href="#releases-and-version-management" title="Permalink to this headline">¶</a></h3>
@@ -268,7 +642,13 @@ developers.</p></li>
 <section id="setting-up-with-docker">
 <h3>Setting up with Docker<a class="headerlink" href="#setting-up-with-docker" title="Permalink to this headline">¶</a></h3>
 <blockquote>
-<div><p>WRITE THIS…</p>
+<div><p>WRITE THIS…
+Install docker desktop
+Make sure you have docker and docker compose available on the command line
+Find a place on your computer for:
+Your dvmdostem repo
+Your catalog of inputs
+Your catalog of “workflows”</p>
 </div></blockquote>
 </section>
 <section id="setting-up-with-ubuntu">
