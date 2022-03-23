@@ -1,5 +1,6 @@
 # Basic testing of Sensitivity.py module
 
+NOTE: it should run inside the docker 
 Load the library
    
     >>> import Sensitivity
