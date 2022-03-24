@@ -29,7 +29,9 @@ have predictable output.
 
     >>> sd.clean()
 
-Save an experiment. This
+Save an experiment. This function writes two `.csv` files to the
+`SensitivityDriver.work_dir` folder. One file describes the `param_props`
+dictionary, and the other file holds the sample matrix data.
 
     >>> sd.save_experiment()
 
@@ -53,6 +55,6 @@ And make sure the new object has the same stuff as the original object:
     True
 
 Next steps will be testing the `sd.setup_multi()` function but right
-now this will fail because the function has lots of stdout that is not
+now this will fail because the function has lots of `stdout` that is not
 suppressed and therefore messes with the doctests module.
     
