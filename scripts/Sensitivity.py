@@ -39,6 +39,16 @@ def generate_uniform(N, param_props):
   parameters. There will be one column for each parameter in
   the `param_props` list.
 
+  For example:
+    >>> generate_uniform(3,
+    ...   [ {"name": "rhq10", "bounds": [0, 5]},
+    ...     {"name": "cmax", "bounds": [10, 20]} ])
+          rhq10       cmax
+    0  2.513395  10.514788
+    1  1.393232  19.082659
+    2  1.197809  11.448949
+
+
   Parameters
   ----------
   N : int
@@ -58,7 +68,7 @@ def generate_uniform(N, param_props):
     There will be one column for each parameter in the
     `param_props` list and N rows (samples).
   '''
-  print(param_props)
+  #print(param_props)
   l = np.random.uniform(size=(N, len(param_props)))
 
   # Generate bounds, based on specification in params list
@@ -80,6 +90,15 @@ def generate_lhc(N, param_props):
   Sample matrix will have one row for each "sample" of the
   parameters. There will be one column for each parameter in
   the `param_props` list.
+
+  For example:
+    >>> generate_lhc(3, 
+    ...   [ {"name": "rhq10", "bounds": [0, 5]},
+    ...     {"name": "cmax", "bounds": [10, 20]} ])
+          rhq10       cmax
+    0  0.419637  10.949468
+    1  4.162081  13.456290
+    2  2.168131  18.698548
 
   Parameters
   ----------
