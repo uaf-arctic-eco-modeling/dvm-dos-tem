@@ -240,6 +240,8 @@ def main(argv=None):
   parser.add_argument('file', nargs='?', metavar=('FILE'),
       help=textwrap.dedent('''The runmask.nc file to operate on.'''))
 
+  parser.add_argument('--verbose', action='store_true')
+
   parser.add_argument('--reset', action='store_true', 
       help=textwrap.dedent('''Set all pixels to zero (don't run).'''))
 
