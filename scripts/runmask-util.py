@@ -3,6 +3,7 @@
 # Tobey Carman
 # Dec 2016
 
+import sys
 import netCDF4 as nc
 import argparse
 import textwrap
@@ -229,8 +230,7 @@ def show_mask(file, note):
     print(mask.variables['run'][:])
     print("")
 
-if __name__ == '__main__':
-
+def main(argv=None):
   parser = argparse.ArgumentParser(
     formatter_class=argparse.RawDescriptionHelpFormatter,
     description=textwrap.dedent('''
@@ -297,8 +297,9 @@ if __name__ == '__main__':
     with nc.Dataset(os.path.join(input_folder_path, 'run-mask.nc'), 'r+') as runmask:
       runmask.variables['run'][:] = np.invert((rm_m | cmt_mask.mask).astype(bool)).astype(int)
 
+
     show_mask(os.path.join(input_folder_path, "run-mask.nc"), "New mask file showing only cmt {}".format(cmt))
-    exit(0)
+    return 0
 
 
   if args.mask_out_cmt:
@@ -322,7 +323,7 @@ if __name__ == '__main__':
       runmask.variables['run'][:] = np.invert((rm_m | cmt_mask.mask).astype(bool)).astype(int)
 
     show_mask(os.path.join(input_folder_path, "run-mask.nc"), "New mask file showing only cmt {}".format(cmt))
-    exit(0)
+    return 0
 
 
   if args.conform_mask_to_inputs:
@@ -342,7 +343,7 @@ if __name__ == '__main__':
       run[:] = np.invert(new_mask.astype(bool))
 
     show_mask(os.path.join(input_folder_path, "run-mask.nc"), "New, conforming mask file")
-    exit(0)
+    return 0
 
 
   if args.show:
@@ -373,3 +374,6 @@ if __name__ == '__main__':
     show_mask(args.file, "AFTER")
 
 
+
+if __name__ == '__main__':
+  sys.exit(main())
