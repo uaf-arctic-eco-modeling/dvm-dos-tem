@@ -19,7 +19,7 @@ Run the tool on some arguments. Lets try working ones first.
 See what we got:
 
     >>> print(args)
-    Namespace(copy_inputs=False, input_data_path='../demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10', new_directory='/tmp/test-setup_working_directory', no_cal_targets=False)
+    Namespace(copy_inputs=False, force=False, input_data_path='../demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10', new_directory='/tmp/test-setup_working_directory', no_cal_targets=False)
 
 Now that we've parsed them, lets run the setup functionality:
 

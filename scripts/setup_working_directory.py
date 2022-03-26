@@ -48,6 +48,10 @@ def cmdline_parse(argv=None):
   parser.add_argument('new_directory',
       help=textwrap.dedent("""The new working directory to setup."""))
 
+  parser.add_argument('--force', action='store_true',
+      help=textwrap.dedent("""Force create new directory, overwriting existing 
+        data."""))
+
   parser.add_argument('--input-data-path', default="<placeholder>",
       help=textwrap.dedent("""Path to the input data"""))
 
@@ -72,6 +76,9 @@ def cmdline_run(args):
   '''
     # Make the new main working directory
   mkdir_p(args.new_directory)
+
+  if args.force:
+    shutil.rmtree(args.new_directory)
 
   # Figure out the path of the dvm-dos-tem repo that is being used
   # to run this script. This is presumably where the user would 
