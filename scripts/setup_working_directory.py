@@ -23,8 +23,11 @@ def mkdir_p(path):
       raise
 
 
-if __name__ == '__main__':
-  
+def cmdline_parse(argv=None):
+  '''
+  Define command line interface and parse incoming arguments.
+  When argv is None, parses sys.argv[1:], otherwise parses argv.
+  '''
   parser = argparse.ArgumentParser(
     formatter_class = argparse.RawDescriptionHelpFormatter,
 
@@ -58,10 +61,16 @@ if __name__ == '__main__':
       help=textwrap.dedent("""Do NOT copy the calibration_targets.py file into
         the new working directory."""))
 
-  args = parser.parse_args()
-  print(args)
+  args = parser.parse_args(argv) # uses sys.argv[1:] when argv is None
 
-  # Make the new main working directory
+  return args
+
+
+def cmdline_run(args):
+  '''
+  The work of setting up a new working directory.
+  '''
+    # Make the new main working directory
   mkdir_p(args.new_directory)
 
   # Figure out the path of the dvm-dos-tem repo that is being used
@@ -164,6 +173,19 @@ if __name__ == '__main__':
 
   with open(os.path.join(args.new_directory, 'config/config.js'), 'w') as fp:
     commentjson.dump(config, fp, indent=2, sort_keys=False) # sorting messes up previous sorting!
+
+
+def cmdline_entry(argv=None):
+  '''
+  Wrapper allowing for easier testing of the cmdline run and parse functions.
+  '''
+  args = cmdline_parse(argv)
+  return cmdline_run(args)
+
+
+if __name__ == '__main__':
+  sys.exit(cmdline_entry())
+  
 
 
 
