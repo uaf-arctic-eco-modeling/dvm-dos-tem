@@ -203,6 +203,17 @@ def toggle_on_variable(data, var, res_spec):
 
   return data
 
+def cmdline_parse(argv=None):
+  return args
+
+def cmdline_run(args):
+  pass
+
+def cmdline_entry(argv=None):
+  args = cmdline_parse(argv)
+  return cmdline_run(args)
+
+
 
 if __name__ == '__main__':
 
