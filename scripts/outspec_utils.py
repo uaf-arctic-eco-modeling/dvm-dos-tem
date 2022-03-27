@@ -204,19 +204,6 @@ def toggle_on_variable(data, var, res_spec):
   return data
 
 def cmdline_parse(argv=None):
-  return args
-
-def cmdline_run(args):
-  pass
-
-def cmdline_entry(argv=None):
-  args = cmdline_parse(argv)
-  return cmdline_run(args)
-
-
-
-if __name__ == '__main__':
-
   '''
   Example API
   ./outputspec_utils.py --list-pft-vars PATH/TO/FILE
@@ -292,8 +279,12 @@ if __name__ == '__main__':
   parser.add_argument('--DEBUG', action='store_true',
       help=textwrap.dedent('''Print extra info for debugging.'''))
 
-  args = parser.parse_args()
+  args = parser.parse_args(argv)
 
+  return args
+
+
+def cmdline_run(args):
   if args.DEBUG:
     print(args)
 
@@ -412,5 +403,11 @@ if __name__ == '__main__':
     sys.exit()
 
 
+def cmdline_entry(argv=None):
+  args = cmdline_parse(argv)
+  return cmdline_run(args)
 
 
+
+if __name__ == '__main__':
+  sys.exit(cmdline_entry())
