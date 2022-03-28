@@ -447,11 +447,11 @@ class SensitivityDriver(object):
     -------
     None
     '''
-    print("PROC:{}  ".format(multiprocessing.current_process()), row)
+    #print("PROC:{}  ".format(multiprocessing.current_process()), row)
 
     if initial:
-      print("Ignoring idx, it is not really relevant here.")
-      print("Ignoring row dict, not really relevant here.")
+      #print("Ignoring idx, it is not really relevant here.")
+      #print("Ignoring row dict, not really relevant here.")
       # Build our own row dict, based on initial values in params
       row = {x['name']:x['initial'] for x in self.params}
       sample_specific_folder = os.path.join(self.work_dir, 'inital_value_run')
@@ -536,7 +536,7 @@ class SensitivityDriver(object):
 
     with multiprocessing.Pool(processes=(os.cpu_count()-1)) as pool:
       results = pool.starmap(self.core_setup, args)
-    print(results)
+    #print(results)
 
     # Still need to make a directory for default case
 
