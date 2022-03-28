@@ -1403,7 +1403,7 @@ def cmdline_run(args):
   
   if args.csv_specification:
     print(csv_specification.__doc__)
-    sys.exit(0)
+    return 0
 
   if args.csv2cmtdatablocks:
     inputcsv = args.csv2cmtdatablocks[0]
@@ -1417,7 +1417,7 @@ def cmdline_run(args):
       print(format_section(get_section(data, start), data))
       print("")
 
-    sys.exit(0)
+    return 0
 
   if args.report_pft_stats:
     infolder = args.report_pft_stats[0]
@@ -1468,7 +1468,7 @@ def cmdline_run(args):
     print("{:>31} {:>11.2f}".format("Community Total Vegetation N:", ecosystem_total_N))
     print("")
  
-    sys.exit(0)
+    return 0
 
   if args.plot_static_lai:
     infolder = args.plot_static_lai[0]
@@ -1509,7 +1509,7 @@ def cmdline_run(args):
     #from IPython import embed; embed()
     plt.show(block=True)
 
-    sys.exit(0)
+    return 0
 
   if args.compare_cmtblocks:
     fileA, numA, fileB, numB = args.compare_cmtblocks
@@ -1520,7 +1520,7 @@ def cmdline_run(args):
     print("      CMT {} in {} ".format(fileB, numB))
 
     compare_CMTs(fileA, numA, fileB, numB)
-    sys.exit(0)
+    return 0
 
   if args.replace_cmt_block:
     A, B, cmtnum = args.replace_cmt_block
@@ -1529,7 +1529,7 @@ def cmdline_run(args):
     lines = replace_CMT_data(A, B, int(cmtnum))
     for l in lines:
       print(l.rstrip("\n"))
-    sys.exit(0)
+    return 0
 
   if args.report_pft_names:
 
@@ -1550,7 +1550,7 @@ def cmdline_run(args):
           print("{:>45s}: {}".format(f2, (db[1]).strip()))
         else:
           pass #print "{} is not a pft file!".format(f)
-    sys.exit(0)
+    return 0
 
   if args.report_all_cmts:
 
@@ -1566,7 +1566,7 @@ def cmdline_run(args):
         print("{:>7} {:>5d}   {:50s} {}".format(c['cmtkey'], c['cmtnum'], c['cmtname'], c['cmtcomment']))
       print("")
 
-    sys.exit(0)
+    return 0
 
   if args.report_cmt_names:
 
@@ -1586,7 +1586,7 @@ def cmdline_run(args):
         db = get_CMT_datablock(f2, cmtnum)
         dd = cmtdatablock2dict(db)
         print("{:>45s} {:>8s}   {}".format(f2, dd['tag'], dd['cmtname']))
-    sys.exit(0)
+    return 0
 
   if args.fmt_block_from_json:
     inFile = args.fmt_block_from_json[0]
@@ -1596,14 +1596,14 @@ def cmdline_run(args):
     lines = format_CMTdatadict(dd, refFile)
     for l in lines:
       print(l)
-    sys.exit(0)
+    return 0
 
   if args.dump_block:
     theFile = args.dump_block[0]
     cmt = int(args.dump_block[1])
     d = get_CMT_datablock(theFile, cmt)
     print(''.join(d))
-    sys.exit(0)
+    return 0
 
   if args.dump_block_to_json:
     theFile = args.dump_block_to_json[0]
@@ -1614,7 +1614,7 @@ def cmdline_run(args):
     # that only double quotes are used, wich is critical for valid json
     # and reading back in as a json object
     print(json.dumps(dd))
-    sys.exit(0)
+    return 0
 
   if args.reformat_block:
     theFile = args.reformat_block[0]
@@ -1624,7 +1624,7 @@ def cmdline_run(args):
     lines = format_CMTdatadict(dd, theFile)
     for l in lines:
       print(l)
-    sys.exit(0)
+    return 0
 
   if args.enforce_initvegc:
     theFile = args.enforce_initvegc[0]
@@ -1633,7 +1633,7 @@ def cmdline_run(args):
     lines = format_CMTdatadict(dd, theFile)
     for l in lines:
       print(l)
-    sys.exit(0)
+    return 0
 
 
 
