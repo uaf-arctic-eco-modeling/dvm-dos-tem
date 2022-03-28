@@ -19,6 +19,10 @@ from contextlib import contextmanager
 import param_util as pu
 import output_utils as ou
 
+import setup_working_directory
+import importlib
+runmask_util = importlib.import_module("runmask-util")
+import outspec_utils
 
 @contextmanager
 def log_wrapper(message,tag=''):
@@ -456,31 +460,33 @@ class SensitivityDriver(object):
     else:
       sample_specific_folder = self._ssrf_name(idx)
 
-    program = '/work/scripts/setup_working_directory.py'
-    opt_str = '--input-data-path {} {}'.format(self.site, sample_specific_folder)
-    cmdline = program + ' ' + opt_str
-    with log_wrapper(cmdline, tag='setup') as lw:
-        comp_proc = subprocess.run(cmdline, shell=True, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT) 
+    # Make the working directory
+    setup_working_directory.cmdline_entry([
+      '--input-data-path', self.site, 
+      sample_specific_folder
+    ])
 
-    program = '/work/scripts/runmask-util.py'
-    opt_str = '--reset --yx {} {} {}/run-mask.nc'.format(self.PXy, self.PXx, sample_specific_folder)
-    cmdline = program + ' ' + opt_str 
-    with log_wrapper(cmdline, tag='setup') as lw:
-      comp_proc = subprocess.run(cmdline, shell=True, check=True)
+    # Adjust run mask for appropriate pixel
+    runmask_util.cmdline_entry([
+      '--reset',
+      '--yx',self.PXy, self.PXx,
+      '{}/run-mask.nc'.format(sample_specific_folder)
+    ])
 
+    # Enable outputs as specified
     for output_spec in self.outputs:
-      program = '/work/scripts/outspec_utils.py'
-      opt_str = '{}/config/output_spec.csv --on {} m p'.format(sample_specific_folder, output_spec['name'])
-      cmdline = program + ' ' + opt_str
-      with log_wrapper(cmdline, tag='setup') as lw:
-        comp_proc = subprocess.run(cmdline, shell=True, check=True)
+      outspec_utils.cmdline_entry([
+        '{}/config/output_spec.csv'.format(sample_specific_folder),
+        '--on', output_spec['name'], 'month', 'pft'
+      ])
 
-    program = '/work/scripts/outspec_utils.py'
-    opt_str = '{}/config/output_spec.csv --on CMTNUM y'.format(sample_specific_folder)
-    cmdline = program + ' ' + opt_str
-    with log_wrapper(cmdline, tag='setup') as lw:
-      comp_proc = subprocess.run(cmdline, shell=True, check=True)
+    # Make sure CMTNUM output is on
+    outspec_utils.cmdline_entry([
+      '{}/config/output_spec.csv'.format(sample_specific_folder),
+      '--on','CMTNUM','y'
+    ])
 
+    # Adjust the config file
     CONFIG_FILE = os.path.join(sample_specific_folder, 'config/config.js')
     # Read the existing data into memory
     with open(CONFIG_FILE, 'r') as f:
@@ -496,7 +502,7 @@ class SensitivityDriver(object):
     # and the  param_spec (cmtnum, pftnum)
     # Iterating over sample_matrix, which is a pandas.DataFrame, we use
     # itertuples() which coughs up a named tuple. So here we get the
-    # name, and the sample value outof the named tuple for use in 
+    # name, and the sample value out of the named tuple for use in 
     # calling param_utils update function.
     for pname, pval in row.items():
     #for pname, pval in zip(row._fields[1:], row[1:]):
