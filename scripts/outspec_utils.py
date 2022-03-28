@@ -152,7 +152,7 @@ def toggle_on_variable(data, var, res_spec, verbose=False):
   for line in data:
     if 'Name' not in list(line.keys()):
       print("ERROR! Missing 'Name' field for row: {}".format(line))
-      sys.exit()
+      return -1
 
     if line['Name'] == var.upper():
 
@@ -300,7 +300,7 @@ def cmdline_run(args):
   if args.list_vars:
     data = csv_file_to_data_dict_list(args.file)
     print("\n".join(sorted(list_vars(data, verbose=True))))
-    sys.exit()
+    return 0
 
   if args.show_yearly_vars:
     data = csv_file_to_data_dict_list(args.file)
@@ -335,7 +335,7 @@ def cmdline_run(args):
       else:
         print_line_dict(line)
     check_layer_vars(data)
-    sys.exit()
+    return 0
 
   if args.enable_cal_vars:
     caltargets2ncname_map = [
@@ -372,7 +372,7 @@ def cmdline_run(args):
 
     print("NOTE: Make sure to enable 'eq' outputs in the config file!!!")
 
-    sys.exit()
+    return 0
 
   if args.on:
     if len(args.on) < 2:
@@ -386,7 +386,7 @@ def cmdline_run(args):
 
     write_data_to_csv(data, args.file)
 
-    sys.exit()
+    return 0
 
   if args.off:
     var = args.off[0].upper()
@@ -396,15 +396,15 @@ def cmdline_run(args):
 
     write_data_to_csv(data, args.file)
 
-    sys.exit()
+    return 0
 
   if args.empty:
 
     data = csv_file_to_data_dict_list(args.file)
     data = all_vars_off(data, verbose=args.DEBUG)
     write_data_to_csv(data, args.file)
-    sys.exit()
 
+    return 0
 
 def cmdline_entry(argv=None):
   args = cmdline_parse(argv)
