@@ -118,7 +118,7 @@ def check_layer_vars(data):
 
 
 
-def toggle_off_variable(data, var):
+def toggle_off_variable(data, var, verbose=False):
   if var not in list_vars(data):
     raise ValueError("Invalid variable! {} not found!".format(var))
 
@@ -128,21 +128,23 @@ def toggle_off_variable(data, var):
         if line[key] == 'invalid':
           pass
         else:
+          if verbose:
+            print("Turning {} off for {} resolution".format(var, key))
           line[key] = ''
-          print("Turning {} off for {} resolution".format(var, key))
   return data
 
-def all_vars_off(data):
+def all_vars_off(data, verbose=False):
   for line in data:
     for key in "Compartments,Layers,PFT,Monthly,Daily,Yearly".split(","):
       if line[key] == 'invalid':
         pass
       else:
         line[key] = ''
-        print("Turning {} off for {} resolution".format(line['Name'], key))
+        if verbose:
+          print("Turning {} off for {} resolution".format(line['Name'], key))
   return data
 
-def toggle_on_variable(data, var, res_spec):
+def toggle_on_variable(data, var, res_spec, verbose=False):
 
   if var not in list_vars(data):
     raise ValueError("Invalid variable! {} not found!".format(var))
@@ -193,8 +195,9 @@ def toggle_on_variable(data, var, res_spec):
       if any([r.lower() in ('l','layer','lay') for r in res_spec.split(' ')]):
         safe_set(line, 'Layers', 'l')
 
-      print_line_dict({}, header=True)
-      print_line_dict(line)
+      if verbose:
+        print_line_dict({}, header=True)
+        print_line_dict(line)
 
       if all([x == 'invalid' or x == '' for x in [line['Yearly'], line['Monthly'], line['Daily']]]):
         print("WARNING! Invalid TIME setting detected! You won't get output for {}".format(line['Name']))
@@ -355,15 +358,15 @@ def cmdline_run(args):
     data = csv_file_to_data_dict_list(args.file)
 
     for v in "MOSSDEATHC SHLWC DEEPC MINEC ORGN AVLN".split():
-      data = toggle_on_variable(data, v, 'yearly')
+      data = toggle_on_variable(data, v, 'yearly', verbose=args.DEBUG)
 
     for v in "INGPP INNPP NPP".split():
-      data = toggle_on_variable(data, v, 'yearly pft')
+      data = toggle_on_variable(data, v, 'yearly pft', verbose=args.DEBUG)
 
     for v in "VEGC VEGN".split():
-      data = toggle_on_variable(data, v, 'yearly pft compartment')
+      data = toggle_on_variable(data, v, 'yearly pft compartment', verbose=args.DEBUG)
 
-    data = toggle_on_variable(data, 'CMTNUM', 'yearly')
+    data = toggle_on_variable(data, 'CMTNUM', 'yearly', verbose=args.DEBUG)
 
     write_data_to_csv(data, args.file)
 
@@ -379,7 +382,7 @@ def cmdline_run(args):
     res_spec = args.on[1:]
     data = csv_file_to_data_dict_list(args.file)
     
-    data = toggle_on_variable(data, var, ' '.join(res_spec))
+    data = toggle_on_variable(data, var, ' '.join(res_spec), verbose=args.DEBUG)
 
     write_data_to_csv(data, args.file)
 
@@ -389,7 +392,7 @@ def cmdline_run(args):
     var = args.off[0].upper()
     data = csv_file_to_data_dict_list(args.file)
 
-    data = toggle_off_variable(data, var)
+    data = toggle_off_variable(data, var, verbose=args.DEBUG)
 
     write_data_to_csv(data, args.file)
 
@@ -398,7 +401,7 @@ def cmdline_run(args):
   if args.empty:
 
     data = csv_file_to_data_dict_list(args.file)
-    data = all_vars_off(data)
+    data = all_vars_off(data, verbose=args.DEBUG)
     write_data_to_csv(data, args.file)
     sys.exit()
 
