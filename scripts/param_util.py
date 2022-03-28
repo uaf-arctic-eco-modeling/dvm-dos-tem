@@ -11,6 +11,12 @@ import sys
 import csv
 import itertools
 
+# For command line interface
+import sys
+import argparse
+import textwrap
+
+
 # This helps to more quickly diagnose errors that show up when
 # using older (typically system) versions of Python. Usually this
 # happens when a user forgets to activate a virtual environment or
@@ -1287,12 +1293,17 @@ def update_inplace(new_value, param_dir, pname, cmtnum, pftnum=None):
     updated_file.write('\n'.join(formatted))  
 
 
+def cmdline_parse(argv=None):
+  '''
+  Define and parse the command line interface.
 
-if __name__ == '__main__':
-  import sys
-  import argparse
-  import textwrap
+  When argv is None, the parser will evaluate sys.argv[1:]
 
+  Return
+  ------
+  args : Namespace
+    A Namespace object with all the argument and associated values.
+  '''
   parser = argparse.ArgumentParser(
     formatter_class=argparse.RawDescriptionHelpFormatter,
     description=textwrap.dedent('''
@@ -1372,7 +1383,12 @@ if __name__ == '__main__':
   parser.add_argument('--csv-specification', action='store_true',
       help='''Print the specification for supported csv files.''')
 
-  args = parser.parse_args()
+  args = parser.parse_args(argv)
+
+  return args
+
+
+def cmdline_run(args):
 
   required_param_files = [
     'cmt_bgcsoil.txt',
@@ -1621,3 +1637,14 @@ if __name__ == '__main__':
 
 
 
+
+
+
+
+def cmdline_entry(argv=None):
+  args = cmdline_parse(argv)
+  return cmdline_run(args)
+
+
+if __name__ == '__main__':
+  sys.exit(cmdline_entry())
