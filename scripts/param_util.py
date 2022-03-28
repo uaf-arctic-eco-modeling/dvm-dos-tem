@@ -45,6 +45,7 @@ class ParamUtilSpeedHelper(object):
   >>> import param_util as pu
   >>> psh = pu.ParamUtilSpeedHelper("/work/parameters")
   >>> psh.get_value(pname='cmax', cmtnum=4, pftnum=3, with_metadata=False)
+  13.45
 
   '''
   def __init__(self, pdir):
