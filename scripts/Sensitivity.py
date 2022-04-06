@@ -246,11 +246,15 @@ class SensitivityDriver(object):
       List of PFT numbers, one number for each parameter in `params`. Use
       `None` in the list for any non-pft parameter (i.e. a soil parameter).
     
-    percent_diffs: list of floats
+    percent_diffs : list of floats
       List values, one for each parameter in `params`. The value is used to
       the bounds with respect to the intial parameter value. I.e. passing
       a value in the percent_diff array of .3 would mean that bounds should
       be +/-30% of the initial value of the parameter.
+    
+    sampling_method : str
+      A string indicating which sampling method to use for getting values for
+      the sample matrix. Currently the options are 'lhc' or 'uniform'. 
 
     Returns
     -------

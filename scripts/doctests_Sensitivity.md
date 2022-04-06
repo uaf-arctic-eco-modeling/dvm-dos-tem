@@ -44,7 +44,8 @@ See what we got:
 Now see if we can load the experiment again into a new driver:
 
     >>> sd2 = Sensitivity.SensitivityDriver()
-    >>> sd2.load_experiment(os.path.join(sd2.work_dir, 'param_props.csv'), os.path.join(sd2.work_dir, 'sample_matrix.csv'))
+    >>> sd2.load_experiment(os.path.join(sd2.work_dir, 'param_props.csv'), 
+    ...                     os.path.join(sd2.work_dir, 'sample_matrix.csv'))
 
 And make sure the new object has the same stuff as the original object:
 
@@ -54,7 +55,11 @@ And make sure the new object has the same stuff as the original object:
     >>> sd.sample_matrix.round(9).equals(sd2.sample_matrix.round(9))
     True
 
-Next steps will be testing the `sd.setup_multi()` function but right
-now this will fail because the function has lots of `stdout` that is not
-suppressed and therefore messes with the doctests module.
-    
+Next steps will be testing the `sd.setup_multi()` function but right now this
+will fail because the function has lots of `stdout` that is not suppressed and
+therefore messes with the doctests module.
+
+
+After running the multi setup, we should inspect the working directory and make
+sure that we have a folder for each sample case (row in the sample matrix) and a
+folder for the intial value run.
