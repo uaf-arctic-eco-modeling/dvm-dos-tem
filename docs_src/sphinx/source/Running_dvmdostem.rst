@@ -102,7 +102,38 @@ Running multiple sites
 =============================
 Running from restart files
 =============================
-    WRITE THIS...
+``Dvmdostem`` can be stopped at and restarted from any inter-stage pause. The
+most useful point to do so will be after either EQ or SP, so the bulk of the
+computing does not need to be repeated and experimental TR+SC runs can be
+completed quickly.
+
+The files needed to do this are automatically created and named after the stage
+that they hold data from: ``restart-[stage].nc``.
+
+------
+Set up
+------
+Complete an initial run through to the point you wish to restart from. If you
+want the outputs from later stages for comparison purposes, running those as
+well will not disrupt the process.
+
+If you produced output files in your initial run that you want to retain, you
+will need to manually move them elsewhere. Leave the restart files in the output
+directory.
+
+-------
+Restart
+-------
+Two flags are necessary in order to restart: ``--no-output-cleanup`` and
+``--restart-run``. The first keeps dvmdostem from re-creating the output
+directory (and therefore deleting its contents) and the second prevents it from
+creating new ``restart-[stage].nc`` files that would overwrite the ones needed
+to restart.
+
+Where to restart from is controlled by how many years are specified per stage.
+If 0, a stage is skipped and dvmdostem attempts to continue from the next stage.
+For example, to restart after spinup and only run transient and scenario, the
+year counts would be something like this: ``-p 0 -e 0 -s 0 -t 115 -n 85``
 
 ==================================
 Running a Sensitivity Analysis
