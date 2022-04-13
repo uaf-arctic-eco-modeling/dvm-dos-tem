@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import pathlib
 import numpy as np
 import netCDF4 as nc
 import pandas as pd
@@ -188,17 +189,24 @@ class SensitivityDriver(object):
   4  57.711999  1.968631  0.000155
 
   '''
-  def __init__(self, clean=False):
+  def __init__(self, work_dir=None, sampling_method=None, clean=False):
     '''
     Constructor
     Hard code a bunch of stuff for now...
+
+    Parameters
+    ----------
+    work_dir : 
+
+    clean : bool
+      CAREFUL! - this will forecfully remove the entrire tree rooted at `work_dir`.
     '''
 
     # Made this one private because I don't want it to get confused with 
     # the later params directories that will be created in each run folder.
     self.__initial_params = '/work/parameters'
 
-    self.work_dir = '/data/workflows/sensitivity_analysis'
+    self.work_dir = work_dir 
     self.site = '/data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_CALM_Toolik_LTER_10x10/'
     self.PXx = 0
     self.PXy = 0
@@ -206,11 +214,12 @@ class SensitivityDriver(object):
       { 'name': 'GPP', 'type': 'flux',},
       { 'name': 'VEGC','type': 'pool',},
     ]
+    self.sampling_method = sampling_method
+    if self.work_dir is not None:
+      if not os.path.isdir(self.work_dir):
+        os.mkdir(self.work_dir)
 
-    if not os.path.isdir(self.work_dir):
-      os.mkdir(self.work_dir)
-
-    if clean:
+    if clean and work_dir is not None:
       self.clean()
 
   def get_initial_params_dir(self):
@@ -260,6 +269,12 @@ class SensitivityDriver(object):
     -------
     None
     '''
+    self.sampling_method = sampling_method
+
+    if os.path.isdir(self.work_dir):
+      if len(os.listdir(self.work_dir)) > 0:
+        raise RuntimeError("SensitivityDriver.work_dir is not empty! You must run SensitivityDriver.clean() before designing an experiment.")
+
     if not percent_diffs:
       percent_diffs = np.ones(len(params)) * 0.1 # use 10% for default perturbation
 
@@ -284,7 +299,7 @@ class SensitivityDriver(object):
 
       self.params.append(dict(name=pname, bounds=p_bounds, initial=p_initial, cmtnum=cmtnum, pftnum=pftnum))
 
-    if sampling_method == 'lhc':
+    if self.sampling_method == 'lhc':
       self.sample_matrix = generate_lhc(Nsamples, self.params)
     elif sampling_method == 'uniform':
       self.sample_matrix = self.generate_uniform(Nsamples, self.params)
@@ -294,16 +309,30 @@ class SensitivityDriver(object):
     if name == '':
       sm_fname = os.path.join(self.work_dir, 'sample_matrix.csv')
       pp_fname = os.path.join(self.work_dir, 'param_props.csv')
+      info_fname = os.path.join(self.work_dir, 'info.txt')
     else:
       sm_fname = "{}_sample_matrix.csv".format(name) 
       pp_fname = '{}_param_props.csv'.format(name)
+      info_fname = '{}_info.txt'.format(name)
+
+    for p in [sm_fname, pp_fname, info_fname]:
+      if not os.path.exists(os.path.dirname(p)):
+        pathlib.Path(os.path.dirname(p)).mkdir(parents=True, exist_ok=True)
 
     self.sample_matrix.to_csv(sm_fname, index=False)
-
     pd.DataFrame(self.params).to_csv(pp_fname, index=False)
+    with open(info_fname, 'w') as f:
+      f.write("sampling_method: {}".format(self.sampling_method))
 
-  def load_experiment(self, param_props_path, sample_matrix_path):
+  def load_experiment(self, param_props_path, sample_matrix_path, info_path):
     '''Load parameter properties and sample matrix from files.'''
+
+    with open(info_path) as f:
+      data = f.readlines()
+
+    for l in data:
+      if 'sampling_method' in l:
+        self.sampling_method = l.split(':')[1].strip()
 
     self.sample_matrix = pd.read_csv(sample_matrix_path)
     self.params = pd.read_csv(param_props_path, 
@@ -328,7 +357,7 @@ class SensitivityDriver(object):
     '''
     Remove the entire tree at `self.work_dir`.
     
-    This function is not careful, so be careful using it!
+    This function is NOT CAREFUL, so be careful using it!
     '''
     shutil.rmtree(self.work_dir, ignore_errors=True)
     os.makedirs(self.work_dir)
@@ -398,10 +427,11 @@ class SensitivityDriver(object):
       pixel(y,x): ({},{})
       cmtnum: {}
       pftnum: {} ({})
+      sampling_method: {}
 
       '''.format(
         self.work_dir, self.site, self.PXy, self.PXx, self.cmtnum(),
-        self.pftnum(), pft_verbose_name))
+        self.pftnum(), pft_verbose_name, self.sampling_method))
 
     info_str += textwrap.dedent('''\
       --- Parameters ---
@@ -458,7 +488,7 @@ class SensitivityDriver(object):
       #print("Ignoring row dict, not really relevant here.")
       # Build our own row dict, based on initial values in params
       row = {x['name']:x['initial'] for x in self.params}
-      sample_specific_folder = os.path.join(self.work_dir, 'inital_value_run')
+      sample_specific_folder = os.path.join(self.work_dir, 'initial_value_run')
       if os.path.isdir(sample_specific_folder):
         shutil.rmtree(sample_specific_folder)
     else:
@@ -516,7 +546,7 @@ class SensitivityDriver(object):
           pname, pdict['cmtnum'], pdict['pftnum']
       )
 
-  def setup_multi(self):
+  def setup_multi(self, force=False):
     '''
     Makes one run directory for each row in sample matrix.
 
@@ -527,22 +557,29 @@ class SensitivityDriver(object):
     -------
     None
     '''
+    if not force:
+      if any(os.scandir(self.work_dir)):
+        raise RuntimeError('''SensitivityDriver.work_dir is not empty! You must run SensitivityDriver.clean() before designing an experiment.''')
+
     # Start fresh...
     self.clean()
+
+    # Save the metadata type stuff
+    self.save_experiment()
 
     # Make a special directory for the "initial values" run.
     # row and idx args are ignored when setting up initial value run. 
     self.core_setup(row={'ignore this and idx':None}, idx=324234, initial=True)
 
+    # Make the individial sample directories
     args = list(zip(self.sample_matrix.to_dict(orient='records'),
                range(0,len(self.sample_matrix)), 
                np.zeros(len(self.sample_matrix), dtype=bool)))
 
     with multiprocessing.Pool(processes=(os.cpu_count()-1)) as pool:
       results = pool.starmap(self.core_setup, args)
-    #print(results)
 
-    # Still need to make a directory for default case
+
 
   def cmtnum(self):
     '''
