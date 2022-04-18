@@ -4,7 +4,7 @@
 // PFT names should be CamelCase and must not have a period in them!
 //
 //===========================================================
-// CMT00 // Default TEM Community
+// CMT00 // BARE GROUND OPEN WATER SNOW AND ICE
 //PFT0      PFT1        PFT2         PFT3         PFT4         PFT5         PFT6         PFT7         PFT8         PFT9             // names: comments                  
 0.10        0.10        0.10         0.10         0.10         0.10         0.10         0.10         0.10         0.10             // albvisnir: canopy albedo
 0.5         0.5         0.5          0.5          0.5          0.5          0.5          0.5          0.5          0.5              // er: light extinction coefficient

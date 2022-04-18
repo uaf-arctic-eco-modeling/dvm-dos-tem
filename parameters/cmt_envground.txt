@@ -1,7 +1,7 @@
 // dvmdostem parameter file
 // ground (snow and soil) biophysical properties and parameters
 //===========================================================
-// CMT00 // Default TEM Community
+// CMT00 // BARE GROUND OPEN WATER SNOW AND ICE
 0.8                // snwalbmax:
 0.4                // snwalbmin:
 -1.5e7             // psimax:
