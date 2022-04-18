@@ -256,7 +256,7 @@
 0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          // initdeadc:
 0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          // initdeadn:
 //===========================================================
-// CMT07 // Heath Tundra (updated cparts and initcneven and initvegc and n JSC 8 14 2019)
+// CMT07 // Heath Tundra // updated cparts and initcneven and initvegc and n JSC 8 14 2019
 //Decid      EGreen       Forbs        Lichens      Grasses      Moss       PFT6         PFT7         PFT8         PFT9           // pftnames:
 400.0        400.0        400.0        400.0        400.0        400.0      0.0          0.0          0.0          0.0            // kc:
 75           75           75           75           75           75         0.0          0.0          0.0          0.0            // ki:
