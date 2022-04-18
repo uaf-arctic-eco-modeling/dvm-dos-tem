@@ -477,7 +477,7 @@
 0.0          0.0          0.8          0.0          2.0          2.0          2.0          0.0          2.0          0.0          // static_lai[10]:
 0.0          0.0          0.7          0.0          2.0          2.0          2.0          0.0          2.0          0.0          // static_lai[11]:
 //===========================================================
-// CMT44 // Shrub Tundra - Kougarok  (LAI stuff updated 7-19-19 Joy)
+// CMT44 // Shrub Tundra Kougarok // (LAI stuff updated 7-19-19 Joy)
 //Salix     Betula      Decid        EGreen       Sedges       Forbs        Grasses      Lichens      Feather      PFT9         // pftnames:
 1.00        1.00        1.00         1.00         1.00         1.00         1.00         1.00         1.00         0.           // vegfrac: vegetation coverage on land - 0 indicates that PFT does't exist
 1           1           1            1            0            0            0            0            0            0            // ifwoody: woody plants (1) or not (0)

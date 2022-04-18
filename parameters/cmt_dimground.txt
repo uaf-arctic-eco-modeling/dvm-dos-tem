@@ -221,7 +221,7 @@
 0.0996             // coefminea:
 0.8197             // coefmineb:
 //===========================================================
-// CMT44 // Shrub Tundra - Kougarok
+// CMT44 // Shrub Tundra Kougarok
 // Snow characteristics
 350                // snwdenmax:  max. snow density (kg/m3)
 120                // snwdennew:  new (min.) snow density (kg/m3)

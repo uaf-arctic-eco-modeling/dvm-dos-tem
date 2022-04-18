@@ -400,7 +400,7 @@
 0.0          0.0          0.0          0.0          0.0          0.0         0.0         0.0         0.0           0.0            // initdeadc:
 0.0          0.0          0.0          0.0          0.0          0.0         0.0         0.0         0.0           0.0            // initdeadn:
 //===========================================================
-// CMT44 // Shrub Tundra - Kougarok
+// CMT44 // Shrub Tundra Kougarok
 //Salix      Betula       Decid        EGreen       Sedges       Forbs        Grasses      Lichens      Feather      PFT9         // pftnames:
 400.0        400.0        400.0        400.0        400.0        400.0        400.0        400.0        400.0        0.0          // kc:
 75           75           75           75           75           75           75           75           75           0.0          // ki:

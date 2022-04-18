@@ -43,7 +43,7 @@ which we can print the name and number of each CMT.
     12 Lowland Boreal Wet Shrubland
     20 EML Shrub Tundra
     21 EML Tussock Tundra
-    44 Shrub Tundra - Kougarok
+    44 Shrub Tundra Kougarok
 
 Build a lookup table, mapping file names to lists of available parameters
 

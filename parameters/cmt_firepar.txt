@@ -257,7 +257,7 @@
 0.10                                                   // r_retain_c: ratio of burning residue C (retained into soil) 
 0.10                                                   // r_retain_n: ratio of burning residue N (retained into soil)
 //===========================================================
-// CMT44 // Shrub Tundra - Kougarok
+// CMT44 // Shrub Tundra Kougarok
 //Salix      Betula      Decid       EGreen       Sedges       Forbs        Grasses      Lichens      Feather      PFT9      // pftnames:
 0.00         0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvcomb[5][10]: fraction of each PFT vegetation combusted for 5 severities
 0.15         0.15        0.15        0.15         0.80         0.80         0.80         1.00         1.00         0.00      // 
