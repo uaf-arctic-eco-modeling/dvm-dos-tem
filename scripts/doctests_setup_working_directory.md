@@ -1,12 +1,15 @@
 Load the tools
 
     >>> import shutil
+    >>> import os
 
     >>> import setup_working_directory as swd
   
 Cleanup
 
-    >>> shutil.rmtree("/tmp/test-setup_working_directory")
+    >>> tmp_dir = "/tmp/test-setup_working_directory"
+    >>> if(os.path.isdir(tmp_dir)):
+    ...   shutil.rmtree(tmp_dir)
 
 Run the tool on some arguments. Lets try working ones first.
 

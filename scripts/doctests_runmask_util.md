@@ -9,7 +9,11 @@ Next, make a copy of the demo input files so we can modify it without damaging
 the original.
 
     >>> import shutil
-    >>> shutil.rmtree("/tmp/test")
+    >>> import os
+    >>> tmp_dir = "/tmp/test"
+    >>> if(os.path.isdir(tmp_dir)):
+    ...   shutil.rmtree(tmp_dir)
+
     >>> shutil.copytree(
     ...   "../demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10",
     ...   "/tmp/test"
