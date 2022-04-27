@@ -153,6 +153,9 @@
 0.08               // evapmin:
 0.04               // drainmax
 0.20               // rtdp4gdd: root depth for estimating growing degree day
+0.25               // tcsolid(m): Soil thermal conductivity for moss (W/mK)
+0.25               // tcsolid(f): Soil thermal conductivity for fibric (W/mK)
+0.25               // tcsolid(h): Soil thermal conductivity for humic (W/mK)
 -1.0               // initsnwtem: initial snow temperature (oC)
 -1.0               // initts(0): initial soil temperature at 10 cm interval (oC)
 -1.0               // initts(1): initial soil temperature at 10 cm interval (oC)

@@ -6,7 +6,7 @@
 #include "../include/TEMLogger.h"
 extern src::severity_logger< severity_level > glg;
 
-OrganicLayer::OrganicLayer(const double & pdz, const int & type) {
+OrganicLayer::OrganicLayer(const double & pdz, const int & type, const CohortLookup* chtlu) {
   BOOST_LOG_SEV(glg, debug) << "==> ==> Creating an OrganicLayer object...";
   isMoss    = false;
   isMineral = false;
@@ -24,7 +24,8 @@ OrganicLayer::OrganicLayer(const double & pdz, const int & type) {
     albsatnir = 0.15;
     albdryvis = 0.15;
     albdrynir = 0.3;
-    tcsolid = 0.25;
+    tcsolid = chtlu->tcsolid_f;
+    //tcsolid = 0.25;
     vhcsolid= 2.5e6; //J/m3K
     hksat = 0.28;
     bsw=2.7;

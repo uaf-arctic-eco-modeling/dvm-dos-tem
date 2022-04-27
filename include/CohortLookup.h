@@ -133,6 +133,9 @@ public:
   // parameter for soil drainage
   double drainmax;
 
+  // Solid thermal conductivity parameters
+  double tcsolid_moss, tcsolid_f, tcsolid_h;
+
   // inital thermal/water states of snow/soil
   double initsnwtem; //1 snow input: initial snow temperature
                      //  (note: initial water of snow can be from

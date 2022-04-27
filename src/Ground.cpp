@@ -374,12 +374,12 @@ void Ground::initSnowSoilLayers() {
   // but for insertion of layers into the double-linked matrix, do the
   //   deep organic first
   for(int il = organic.deepnum-1; il >=  0; il--) {
-    OrganicLayer* pl = new OrganicLayer(organic.deepdz[il], 2); //2 means deep organic
+    OrganicLayer* pl = new OrganicLayer(organic.deepdz[il], 2, chtlu); //2 means deep organic
     insertFront(pl);
   }
 
   for(int il = organic.shlwnum-1; il >= 0; il--) {
-    OrganicLayer* pl = new OrganicLayer(organic.shlwdz[il], 1); //1 means shallow organic
+    OrganicLayer* pl = new OrganicLayer(organic.shlwdz[il], 1, chtlu); //1 means shallow organic
     insertFront(pl);
   }
 
@@ -477,7 +477,7 @@ void Ground::set_state_from_restartdata(snwstate_dim *snowdim,
   organic.assignDeepThicknesses(soiltype, dzsoil, MAX_SOI_LAY);
 
   for(int il = organic.deepnum-1; il>=0; il--) {
-    OrganicLayer* pl = new OrganicLayer(organic.deepdz[il], 2); //2 means deep organic
+    OrganicLayer* pl = new OrganicLayer(organic.deepdz[il], 2, chtlu); //2 means deep organic
     pl->age = soilage[il];
     pl->frozen = frozen[il];
     insertFront(pl);
@@ -486,7 +486,7 @@ void Ground::set_state_from_restartdata(snwstate_dim *snowdim,
   organic.assignShlwThicknesses(soiltype, dzsoil, MAX_SOI_LAY);
 
   for(int il =organic.shlwnum-1; il>=0; il--) {
-    OrganicLayer* pl = new OrganicLayer(organic.shlwdz[il], 1);//1 means shallow organic
+    OrganicLayer* pl = new OrganicLayer(organic.shlwdz[il], 1, chtlu);//1 means shallow organic
     pl->age = soilage[il];
     pl->frozen = frozen[il];
     insertFront(pl);
@@ -1272,7 +1272,7 @@ COMBINEBEGIN:
       OrganicLayer* plnew;
 
       for (int i=organic.shlwnum-1; i>0; i--) {
-        plnew = new OrganicLayer(organic.shlwdz[i], 1);
+        plnew = new OrganicLayer(organic.shlwdz[i], 1, chtlu);
         SoilLayer* shlwsl = dynamic_cast<SoilLayer*>(fstshlwl);
         //split 'plnew' from bottom of 'shlwsl'
         splitOneSoilLayer(shlwsl, plnew, 0., organic.shlwdz[i]);
@@ -1314,7 +1314,7 @@ COMBINEBEGIN:
       double thick = thicknessFromCarbon(abvgfallC, soildimpar.coefshlwa, soildimpar.coefshlwb);
       //organic.ShlwThickScheme(MINSLWTHICK);
       organic.ShlwThickScheme(thick);
-      OrganicLayer* plnew = new OrganicLayer(organic.shlwdz[0], 1);
+      OrganicLayer* plnew = new OrganicLayer(organic.shlwdz[0], 1, chtlu);
       //plnew->dz= MINSLWTHICK;
       plnew->dz= thick;
       //double frac = MINSLWTHICK/nextsl->dz;
@@ -1419,7 +1419,7 @@ void Ground::redivideDeepLayers() {
       OrganicLayer* plnew;
 
       for (int i=organic.deepnum-1; i>0; i--) {
-        plnew = new OrganicLayer(organic.deepdz[i], 2);
+        plnew = new OrganicLayer(organic.deepdz[i], 2, chtlu);
         SoilLayer* deepsl = dynamic_cast<SoilLayer*>(fstdeepl);
         // split 'plnew' from bottom of 'deepsl'
         splitOneSoilLayer(deepsl, plnew, 0., organic.deepdz[i]);
@@ -1444,7 +1444,7 @@ void Ground::redivideDeepLayers() {
 
     if (somc>=deepcmin) {
       organic.DeepThickScheme(MINDEPTHICK);
-      OrganicLayer* plnew = new OrganicLayer(organic.deepdz[0], 2);
+      OrganicLayer* plnew = new OrganicLayer(organic.deepdz[0], 2, chtlu);
       double frac = plnew->dz/lfibl->dz;
       // assign properties for the new-created 'deep' layer
       plnew->ice = lfibl->ice*frac;
