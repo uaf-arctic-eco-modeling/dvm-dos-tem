@@ -136,6 +136,15 @@ public:
   // Solid thermal conductivity parameters
   double tcsolid_moss, tcsolid_f, tcsolid_h;
 
+  // Layer porosity parameters
+  double poro_moss, poro_f, poro_h;
+
+  // Soil bulk density parameters
+  double bulkden_moss, bulkden_f, bulkden_h;
+
+  // Hydraulic conductivity at saturation parameters
+  double hksat_moss, hksat_f, hksat_h;
+
   // inital thermal/water states of snow/soil
   double initsnwtem; //1 snow input: initial snow temperature
                      //  (note: initial water of snow can be from
