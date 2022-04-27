@@ -25,7 +25,6 @@ OrganicLayer::OrganicLayer(const double & pdz, const int & type, const CohortLoo
     albdryvis = 0.15;
     albdrynir = 0.3;
     tcsolid = chtlu->tcsolid_f;
-    //tcsolid = 0.25;
     vhcsolid= 2.5e6; //J/m3K
     hksat = 0.28;
     bsw=2.7;
@@ -40,7 +39,7 @@ OrganicLayer::OrganicLayer(const double & pdz, const int & type, const CohortLoo
     albsatnir = 0.15;
     albdryvis = 0.15;
     albdrynir = 0.3;
-    tcsolid = 0.25;
+    tcsolid = chtlu->tcsolid_h;
     vhcsolid= 2.5e6; //J/m3K
     bsw=8;
     hksat  =0.002;
@@ -55,7 +54,7 @@ OrganicLayer::~OrganicLayer(){
   BOOST_LOG_SEV(glg, debug) << "--> --> Deleting an OrganicLayer object...";
 }
 
-void OrganicLayer::humify() {
+void OrganicLayer::humify(const CohortLookup* chtlu) {
   tkey=I_HUM;
   isHumic =true;
   isFibric=false;
@@ -65,7 +64,7 @@ void OrganicLayer::humify() {
   albsatnir = 0.15;
   albdryvis = 0.15;
   albdrynir = 0.3;
-  tcsolid = 0.25;
+  tcsolid = chtlu->tcsolid_h;
   vhcsolid= 2.5e6; //J/m3K
   bsw=8;
   hksat  =0.002;

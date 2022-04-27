@@ -6,7 +6,7 @@
 #include "../include/TEMLogger.h"
 extern src::severity_logger< severity_level > glg;
 
-MossLayer::MossLayer(const double &pdz, const int & newmosstype) {
+MossLayer::MossLayer(const double &pdz, const int & newmosstype, const CohortLookup* chtlu) {
   BOOST_LOG_SEV(glg, debug) << "==> ==> Creating a MossLayer...";
   tkey=I_MOSS;
   isMoss    = true;
@@ -26,7 +26,7 @@ MossLayer::MossLayer(const double &pdz, const int & newmosstype) {
   albdryvis = 0.18;
   albdrynir = 0.36;
   // thermal properties
-  tcsolid = 0.25;
+  tcsolid = chtlu->tcsolid_moss;
   vhcsolid=2.5e6; //J/m3K
 
   // hydraulic properties

@@ -405,7 +405,7 @@ void Ground::initSnowSoilLayers() {
 
       for(int il = moss.num-1; il >= 0; il--) {
         // moss type (1- sphagnum, 2- feathermoss), which needs input
-        MossLayer* ml = new MossLayer(moss.dz[il], moss.type);
+        MossLayer* ml = new MossLayer(moss.dz[il], moss.type, chtlu);
         insertFront(ml);
       }
     }
@@ -495,7 +495,7 @@ void Ground::set_state_from_restartdata(snwstate_dim *snowdim,
   moss.setThicknesses(soiltype, dzsoil, MAX_SOI_LAY);
 
   for(int il = moss.num-1; il>=0; il--) {
-    MossLayer* ml = new MossLayer(moss.dz[il], moss.type);
+    MossLayer* ml = new MossLayer(moss.dz[il], moss.type, chtlu);
     ml->age = soilage[il];
     ml->frozen = frozen[il];
     insertFront(ml);
@@ -1182,7 +1182,7 @@ void  Ground::redivideMossLayers(const int &mosstype) {
     //Create live moss
     moss.thick = 0.01;
     BOOST_LOG_SEV(glg, debug)<<"Creating new moss layer, type: "<<moss.type<<", thickness: "<<moss.thick;
-    MossLayer* ml = new MossLayer(moss.thick, moss.type);
+    MossLayer* ml = new MossLayer(moss.thick, moss.type, chtlu);
     moss.num = 1;
     ml->tem = fstsoill->tem;
     ml->z = 0.0;
@@ -1711,7 +1711,7 @@ double Ground::adjustSoilAfterburn() {
   while (currl!=NULL) {
     if(currl->isFibric) {
       OrganicLayer * pl = dynamic_cast<OrganicLayer*>(currl);
-      pl->humify(); //here only update 'physical' properties, but not states
+      pl->humify(chtlu); //here only update 'physical' properties, but not states
                     //  (will do below when adjusting 'dz'
       pl->somcr += pl->rawc; //assuming all 'raw material' converted into
                              //  'chemically-resistant' SOM

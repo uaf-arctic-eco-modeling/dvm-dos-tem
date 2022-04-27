@@ -15,7 +15,7 @@ public:
 
   OrganicLayer(const double & pdz, const int & type, const CohortLookup * chtlu);
   ~OrganicLayer();
-  void humify();
+  void humify(const CohortLookup * chtlu);
 
 };
 #endif /*ORGANICLAYER_H_*/
