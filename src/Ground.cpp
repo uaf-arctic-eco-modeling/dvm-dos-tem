@@ -910,7 +910,7 @@ bool Ground::constructSnowLayers(const double & dsmass, const double & tdrv) {
                             //      snow-melting/sublimating when calling
                             //      this function
 
-  if(snow.extramass>0) { // accumlate
+  if(snow.extramass>0) { // accumulate
     double density = snowdimpar.newden;
     double thick = snow.extramass/density;
 
@@ -1112,7 +1112,7 @@ void Ground::updateSnowLayerPropertiesDaily() {
   while(currl!= NULL) {
     if(currl->isSnow) {
       currl->advanceOneDay();
-      dynamic_cast<SnowLayer*>(currl)->updateDensity(&snowdimpar);   // this will compact snow layer basd on snowlayer age
+      dynamic_cast<SnowLayer*>(currl)->updateDensity(&snowdimpar);   // this will compact snow layer based on snowlayer age
       dynamic_cast<SnowLayer*>(currl)->updateThick();
     } else {
       break;
@@ -1159,8 +1159,8 @@ void Ground::retrieveSnowDimension(snwstate_dim * snowdim) {
 ////////////////////////////////////////////////////////////////////////////////
 // Basically, here will not do thickness change, which will carry out in
 // 'updateOslThickness5Carbon', therefore, any new layer creation, will have
-// to originate from neibouring layer, otherwise mathematic error will occur
-// execept for create new moss/fibrous organic layer from none.
+// to originate from neighbouring layer, otherwise mathematic error will occur
+// except for create new moss/fibrous organic layer from none.
 void  Ground::redivideSoilLayers() {
   redivideMossLayers(moss.type);
   redivideShlwLayers();
@@ -1234,7 +1234,7 @@ void Ground::redivideShlwLayers() {
     SoilLayer* upsl ;
     SoilLayer* lwsl;
     organic.shlwchanged =true;
-    // first, comine all layer into one
+    // first, combine all layers into one
 COMBINEBEGIN:
     currl =fstshlwl;
 
@@ -1363,7 +1363,7 @@ void Ground::redivideDeepLayers() {
   ////////// IF there exists 'deep' layer(s) ////////////////
   if(fstdeepl != NULL) {
     Layer * currl = fstdeepl;
-    // Adjusting the OS horion's layer division/combination
+    // Adjusting the OS horizon's layer division/combination
     SoilLayer* upsl ;
     SoilLayer* lwsl;
 
@@ -1976,7 +1976,7 @@ void Ground::updateWholeFrozenStatus() {
   if(fstfntl==NULL && lstfntl==NULL) {
     ststate = fstsoill->frozen;
   } else {
-    ststate = 0; // partitally frozen
+    ststate = 0; // partially frozen
   }
 
   checkFrontsValidity();
