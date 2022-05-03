@@ -43,6 +43,7 @@ snow cover or canopy development.
    software_development_info
    Running_dvmdostem
    SA_UQ
+   command_cheat_sheet
 
 Slides and other stuff
 -----------------------
@@ -51,7 +52,7 @@ Slides and other stuff
 ..  
   Indices and tables
   ==================
-  
+
   * :ref:`genindex`
   * :ref:`modindex`
   * :ref:`search``vv
