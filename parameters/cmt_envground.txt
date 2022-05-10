@@ -165,6 +165,8 @@
 0.15               // hksat(m): hydraulic conductivity at saturation for moss (mm/s?)
 0.28               // hksat(f): hydraulic conductivity at saturation for fibric
 0.002              // hksat(h): hydraulic conductivity at saturation for humic
+1.5                // nfactor(s): Summer nfactor
+1.0                // nfactor(w): Winter nfactor
 -1.0               // initsnwtem: initial snow temperature (oC)
 -1.0               // initts(0): initial soil temperature at 10 cm interval (oC)
 -1.0               // initts(1): initial soil temperature at 10 cm interval (oC)

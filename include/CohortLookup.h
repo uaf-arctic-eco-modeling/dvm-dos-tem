@@ -136,6 +136,9 @@ public:
   // Solid thermal conductivity parameters
   double tcsolid_moss, tcsolid_f, tcsolid_h;
 
+  // Summer and winter nfactor
+  double nfactor_s, nfactor_w;
+
   // Layer porosity parameters
   double poro_moss, poro_f, poro_h;
 
