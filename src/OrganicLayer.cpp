@@ -6,7 +6,7 @@
 #include "../include/TEMLogger.h"
 extern src::severity_logger< severity_level > glg;
 
-OrganicLayer::OrganicLayer(const double & pdz, const int & type, const CohortLookup* chtlu) {
+OrganicLayer::OrganicLayer(const double & pdz, const int & type) {
   BOOST_LOG_SEV(glg, debug) << "==> ==> Creating an OrganicLayer object...";
   isMoss    = false;
   isMineral = false;
@@ -18,31 +18,31 @@ OrganicLayer::OrganicLayer(const double & pdz, const int & type, const CohortLoo
   if(type==1) {
     tkey=I_FIB;
     isFibric =true;
-    poro = chtlu->poro_f;
-    bulkden = chtlu->bulkden_f; // g/m3
+    poro = 0.95;
+    bulkden = 51000; // g/m3
     albsatvis = 0.075;
     albsatnir = 0.15;
     albdryvis = 0.15;
     albdrynir = 0.3;
-    tcsolid = chtlu->tcsolid_f;
+    tcsolid = 0.25;
     vhcsolid= 2.5e6; //J/m3K
-    hksat = chtlu->hksat_f;
+    hksat = 0.28;
     bsw=2.7;
     psisat =-10.0;
     cfrac = 44.2; // %
   } else if (type==2) {
     tkey=I_HUM;
     isHumic =true;
-    poro = chtlu->poro_h;
-    bulkden = chtlu->bulkden_h; // g/m3
+    poro = 0.8;
+    bulkden = 176000; // g/m3
     albsatvis = 0.075;
     albsatnir = 0.15;
     albdryvis = 0.15;
     albdrynir = 0.3;
-    tcsolid = chtlu->tcsolid_h;
+    tcsolid = 0.25;
     vhcsolid= 2.5e6; //J/m3K
     bsw=8;
-    hksat = chtlu->hksat_h;
+    hksat  =0.002;
     psisat =-12;
     cfrac = 35.2; // %
   }
@@ -54,20 +54,20 @@ OrganicLayer::~OrganicLayer(){
   BOOST_LOG_SEV(glg, debug) << "--> --> Deleting an OrganicLayer object...";
 }
 
-void OrganicLayer::humify(const CohortLookup* chtlu) {
+void OrganicLayer::humify() {
   tkey=I_HUM;
   isHumic =true;
   isFibric=false;
-  poro = chtlu->poro_h;
-  bulkden = chtlu->bulkden_h; // g/m3
+  poro = 0.8;
+  bulkden = 176000; // g/m3
   albsatvis = 0.075;
   albsatnir = 0.15;
   albdryvis = 0.15;
   albdrynir = 0.3;
-  tcsolid = chtlu->tcsolid_h;
+  tcsolid = 0.25;
   vhcsolid= 2.5e6; //J/m3K
   bsw=8;
-  hksat  = chtlu->hksat_h;
+  hksat  =0.002;
   psisat =-12;
   cfrac = 35.2; // %
   derivePhysicalProperty();
