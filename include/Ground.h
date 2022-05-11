@@ -62,10 +62,10 @@ public :
   Layer* fstmossl; // first moss layer
   Layer* lstmossl; // last moss layer
   Layer* fstshlwl; // first fibric os layer
-  Layer* lstshlwl; // last firbric os layer
+  Layer* lstshlwl; // last fibric os layer
   Layer* fstdeepl; // first amorphous os layer
   Layer* lstdeepl; // last amorphous os layer
-  Layer* fstminel; // first mineral layer*/
+  Layer* fstminel; // first mineral layer
   Layer* lstminel; // last mineral layer
 
   // freezing/thawing fronts
@@ -76,10 +76,10 @@ public :
   deque<int> frontstype; //fronts type in order as above:
                          //  1 = freezing front - front with upper
                          //    frozen/lower unfrozen,
-                         //  -1 = thawing front - frotn with upper
+                         //  -1 = thawing front - front with upper
                          //    unfrozen/lower frozen.
   // SO freezing/thawing fronts are alternatively in order,
-  // i.e., a freezing front must be followed by a thawign front, or vice versa
+  // i.e., a freezing front must be followed by a thawing front, or vice versa
 
   Layer* fstfntl; /*! first snow/soil layer containing phase change front */
   Layer* lstfntl; /*! last snow/soil layer containing phase change front */

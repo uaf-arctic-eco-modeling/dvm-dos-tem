@@ -57,9 +57,9 @@ public:
   double tcsatunf; //< saturated unfrozen soil thermal conductivity
   double vhcsolid; //< solid volumetric heat capacity
 
-  double albdryvis;  //< visiable light albedo at dry
+  double albdryvis;  //< visible light albedo at dry
   double albdrynir;  //< nir light albedo at dry
-  double albsatvis;  //< visiable light albedo at saturation
+  double albsatvis;  //< visible light albedo at saturation
   double albsatnir;  //< nir light albedo at saturation
 
   double minliq; //< minimum liq water content
@@ -68,7 +68,7 @@ public:
 
   double psisat; //< saturated matric potential
   double hksat;  //< saturated matric potential
-  double bsw;    //< Clap and Hornberger consant
+  double bsw;    //< Clap and Hornberger constant
 
   // thermal status
   int frozen;        //< thermal state of a layer, 0: partially frozen, 1: frozen, -1: unfrozen
