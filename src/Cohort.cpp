@@ -440,7 +440,7 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
   //might be more accurate if done correctly, that code had been commented 
   //out for years, and so was removed. 
   //Value from Klene 2001 (summer values) and Kade 2006.
-  //edall->d_soid.nfactor = 0.9; //using seasonally dynamic nfactors (below)
+  //edall->d_soid.nfactor = 0.9; //using seaonally dynamic nfactors (below)
 
   // (ii)Initialize the yearly/monthly accumulators, which are accumulating at the end of month/day in 'ed'
   for (int ip=0; ip<NUM_PFT; ip++) {
@@ -493,11 +493,12 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
     // proxy for snow surface temperature. In the future we can bring in
     // that calculation; for now, just use air surface temp in winter (Raleigh
     // shows it's well-correlated but air tends to be warmer by ~5 deg C).
-
-    edall->d_soid.nfactor = soilenv.envpar.nfactor_s; //summer nfactor (max nfactor)
+    double nfactor_summer_max = 1.5;
+    double nfactor_winter = 1.0;
+    edall->d_soid.nfactor = nfactor_summer_max; //summer nfactor (max nfactor)
     //If airtemp is freezing, use winter nfactor
     if(tdrv <= 0.0){
-      edall->d_soid.nfactor = soilenv.envpar.nfactor_w;
+      edall->d_soid.nfactor = nfactor_winter;
     }
 
 
