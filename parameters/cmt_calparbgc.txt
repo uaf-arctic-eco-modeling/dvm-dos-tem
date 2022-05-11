@@ -245,7 +245,7 @@
 0.85       // kdcsompr:
 0.00025   // kdcsomcr:
 //===========================================================
-// CMT44 // Shrub Tundra - Kougarok // Updated by Joy July 2019 // FOR KOUGARAK SHRUB
+// CMT44 // Shrub Tundra Kougarok // Updated by Joy July 2019 // FOR KOUGARAK SHRUB
 //Salix      Betula       Decid       EGreen       Sedges       Forbs       Grasses     Lichens      Feather    PFT9     // pftnames:
 170.00       236.00      62.00        11.45        23.00        58.00        90.00       28.00       61.00       0.0     // cmax:
  6.00         7.00        8.20         9.00         7.60         4.50        30.00        3.000       3.00       0.0     // nmax:

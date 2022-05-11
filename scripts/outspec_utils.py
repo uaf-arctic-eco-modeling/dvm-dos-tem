@@ -118,7 +118,7 @@ def check_layer_vars(data):
 
 
 
-def toggle_off_variable(data, var):
+def toggle_off_variable(data, var, verbose=False):
   if var not in list_vars(data):
     raise ValueError("Invalid variable! {} not found!".format(var))
 
@@ -128,21 +128,23 @@ def toggle_off_variable(data, var):
         if line[key] == 'invalid':
           pass
         else:
+          if verbose:
+            print("Turning {} off for {} resolution".format(var, key))
           line[key] = ''
-          print("Turning {} off for {} resolution".format(var, key))
   return data
 
-def all_vars_off(data):
+def all_vars_off(data, verbose=False):
   for line in data:
     for key in "Compartments,Layers,PFT,Monthly,Daily,Yearly".split(","):
       if line[key] == 'invalid':
         pass
       else:
         line[key] = ''
-        print("Turning {} off for {} resolution".format(line['Name'], key))
+        if verbose:
+          print("Turning {} off for {} resolution".format(line['Name'], key))
   return data
 
-def toggle_on_variable(data, var, res_spec):
+def toggle_on_variable(data, var, res_spec, verbose=False):
 
   if var not in list_vars(data):
     raise ValueError("Invalid variable! {} not found!".format(var))
@@ -150,7 +152,7 @@ def toggle_on_variable(data, var, res_spec):
   for line in data:
     if 'Name' not in list(line.keys()):
       print("ERROR! Missing 'Name' field for row: {}".format(line))
-      sys.exit()
+      return -1
 
     if line['Name'] == var.upper():
 
@@ -193,8 +195,9 @@ def toggle_on_variable(data, var, res_spec):
       if any([r.lower() in ('l','layer','lay') for r in res_spec.split(' ')]):
         safe_set(line, 'Layers', 'l')
 
-      print_line_dict({}, header=True)
-      print_line_dict(line)
+      if verbose:
+        print_line_dict({}, header=True)
+        print_line_dict(line)
 
       if all([x == 'invalid' or x == '' for x in [line['Yearly'], line['Monthly'], line['Daily']]]):
         print("WARNING! Invalid TIME setting detected! You won't get output for {}".format(line['Name']))
@@ -203,9 +206,7 @@ def toggle_on_variable(data, var, res_spec):
 
   return data
 
-
-if __name__ == '__main__':
-
+def cmdline_parse(argv=None):
   '''
   Example API
   ./outputspec_utils.py --list-pft-vars PATH/TO/FILE
@@ -281,8 +282,12 @@ if __name__ == '__main__':
   parser.add_argument('--DEBUG', action='store_true',
       help=textwrap.dedent('''Print extra info for debugging.'''))
 
-  args = parser.parse_args()
+  args = parser.parse_args(argv)
 
+  return args
+
+
+def cmdline_run(args):
   if args.DEBUG:
     print(args)
 
@@ -295,7 +300,7 @@ if __name__ == '__main__':
   if args.list_vars:
     data = csv_file_to_data_dict_list(args.file)
     print("\n".join(sorted(list_vars(data, verbose=True))))
-    sys.exit()
+    return 0
 
   if args.show_yearly_vars:
     data = csv_file_to_data_dict_list(args.file)
@@ -330,7 +335,7 @@ if __name__ == '__main__':
       else:
         print_line_dict(line)
     check_layer_vars(data)
-    sys.exit()
+    return 0
 
   if args.enable_cal_vars:
     caltargets2ncname_map = [
@@ -353,21 +358,21 @@ if __name__ == '__main__':
     data = csv_file_to_data_dict_list(args.file)
 
     for v in "MOSSDEATHC SHLWC DEEPC MINEC ORGN AVLN".split():
-      data = toggle_on_variable(data, v, 'yearly')
+      data = toggle_on_variable(data, v, 'yearly', verbose=args.DEBUG)
 
     for v in "INGPP INNPP NPP".split():
-      data = toggle_on_variable(data, v, 'yearly pft')
+      data = toggle_on_variable(data, v, 'yearly pft', verbose=args.DEBUG)
 
     for v in "VEGC VEGN".split():
-      data = toggle_on_variable(data, v, 'yearly pft compartment')
+      data = toggle_on_variable(data, v, 'yearly pft compartment', verbose=args.DEBUG)
 
-    data = toggle_on_variable(data, 'CMTNUM', 'yearly')
+    data = toggle_on_variable(data, 'CMTNUM', 'yearly', verbose=args.DEBUG)
 
     write_data_to_csv(data, args.file)
 
     print("NOTE: Make sure to enable 'eq' outputs in the config file!!!")
 
-    sys.exit()
+    return 0
 
   if args.on:
     if len(args.on) < 2:
@@ -377,29 +382,35 @@ if __name__ == '__main__':
     res_spec = args.on[1:]
     data = csv_file_to_data_dict_list(args.file)
     
-    data = toggle_on_variable(data, var, ' '.join(res_spec))
+    data = toggle_on_variable(data, var, ' '.join(res_spec), verbose=args.DEBUG)
 
     write_data_to_csv(data, args.file)
 
-    sys.exit()
+    return 0
 
   if args.off:
     var = args.off[0].upper()
     data = csv_file_to_data_dict_list(args.file)
 
-    data = toggle_off_variable(data, var)
+    data = toggle_off_variable(data, var, verbose=args.DEBUG)
 
     write_data_to_csv(data, args.file)
 
-    sys.exit()
+    return 0
 
   if args.empty:
 
     data = csv_file_to_data_dict_list(args.file)
-    data = all_vars_off(data)
+    data = all_vars_off(data, verbose=args.DEBUG)
     write_data_to_csv(data, args.file)
-    sys.exit()
+
+    return 0
+
+def cmdline_entry(argv=None):
+  args = cmdline_parse(argv)
+  return cmdline_run(args)
 
 
 
-
+if __name__ == '__main__':
+  sys.exit(cmdline_entry())

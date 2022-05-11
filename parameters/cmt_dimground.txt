@@ -1,7 +1,7 @@
 // dvmdostem parameter file
 // ground structure and dimensions
 //===========================================================
-// CMT00 // BARE GROUND OPEN WATER ICE AND SNOW
+// CMT00 // BARE GROUND OPEN WATER SNOW AND ICE
 // Snow characteristics
 250                // snwdenmax:  max. snow density (kg/m3)
 50                 // snwdennew:  new (min.) snow density (kg/m3)
@@ -221,7 +221,7 @@
 0.0996             // coefminea:
 0.8197             // coefmineb:
 //===========================================================
-// CMT44 // Shrub Tundra - Kougarok
+// CMT44 // Shrub Tundra Kougarok
 // Snow characteristics
 350                // snwdenmax:  max. snow density (kg/m3)
 120                // snwdennew:  new (min.) snow density (kg/m3)

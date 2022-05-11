@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import pathlib
 import numpy as np
 import netCDF4 as nc
 import pandas as pd
@@ -19,6 +20,10 @@ from contextlib import contextmanager
 import param_util as pu
 import output_utils as ou
 
+import setup_working_directory
+import importlib
+runmask_util = importlib.import_module("runmask-util")
+import outspec_utils
 
 @contextmanager
 def log_wrapper(message,tag=''):
@@ -39,6 +44,16 @@ def generate_uniform(N, param_props):
   parameters. There will be one column for each parameter in
   the `param_props` list.
 
+  For example:
+    >>> generate_uniform(3,
+    ...   [ {"name": "rhq10", "bounds": [0, 5]},
+    ...     {"name": "cmax", "bounds": [10, 20]} ])
+          rhq10       cmax
+    0  2.513395  10.514788
+    1  1.393232  19.082659
+    2  1.197809  11.448949
+
+
   Parameters
   ----------
   N : int
@@ -58,7 +73,7 @@ def generate_uniform(N, param_props):
     There will be one column for each parameter in the
     `param_props` list and N rows (samples).
   '''
-  print(param_props)
+  #print(param_props)
   l = np.random.uniform(size=(N, len(param_props)))
 
   # Generate bounds, based on specification in params list
@@ -80,6 +95,15 @@ def generate_lhc(N, param_props):
   Sample matrix will have one row for each "sample" of the
   parameters. There will be one column for each parameter in
   the `param_props` list.
+
+  For example:
+    >>> generate_lhc(3, 
+    ...   [ {"name": "rhq10", "bounds": [0, 5]},
+    ...     {"name": "cmax", "bounds": [10, 20]} ])
+          rhq10       cmax
+    0  0.419637  10.949468
+    1  4.162081  13.456290
+    2  2.168131  18.698548
 
   Parameters
   ----------
@@ -154,6 +178,10 @@ class SensitivityDriver(object):
   site selection (input data path)
   >>> driver = SensitivityDriver()
 
+  Set the working directory for the driver (using something temporary for this
+  test case).
+  >>> driver.work_dir = '/tmp/Sensitivity-inline-test'
+
   Show info about the driver object:
   >>> driver.design_experiment(5, 4, params=['cmax','rhq10','nfall(1)'], pftnums=[2,None,2])
   >>> driver.sample_matrix
@@ -165,17 +193,24 @@ class SensitivityDriver(object):
   4  57.711999  1.968631  0.000155
 
   '''
-  def __init__(self, clean=False):
+  def __init__(self, work_dir=None, sampling_method=None, clean=False):
     '''
     Constructor
     Hard code a bunch of stuff for now...
+
+    Parameters
+    ----------
+    work_dir : 
+
+    clean : bool
+      CAREFUL! - this will forecfully remove the entrire tree rooted at `work_dir`.
     '''
 
     # Made this one private because I don't want it to get confused with 
     # the later params directories that will be created in each run folder.
     self.__initial_params = '/work/parameters'
 
-    self.work_dir = '/data/workflows/sensitivity_analysis'
+    self.work_dir = work_dir 
     self.site = '/data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_CALM_Toolik_LTER_10x10/'
     self.PXx = 0
     self.PXy = 0
@@ -183,11 +218,12 @@ class SensitivityDriver(object):
       { 'name': 'GPP', 'type': 'flux',},
       { 'name': 'VEGC','type': 'pool',},
     ]
+    self.sampling_method = sampling_method
+    if self.work_dir is not None:
+      if not os.path.isdir(self.work_dir):
+        os.mkdir(self.work_dir)
 
-    if not os.path.isdir(self.work_dir):
-      os.mkdir(self.work_dir)
-
-    if clean:
+    if clean and work_dir is not None:
       self.clean()
 
   def get_initial_params_dir(self):
@@ -223,16 +259,26 @@ class SensitivityDriver(object):
       List of PFT numbers, one number for each parameter in `params`. Use
       `None` in the list for any non-pft parameter (i.e. a soil parameter).
     
-    percent_diffs: list of floats
+    percent_diffs : list of floats
       List values, one for each parameter in `params`. The value is used to
       the bounds with respect to the intial parameter value. I.e. passing
       a value in the percent_diff array of .3 would mean that bounds should
       be +/-30% of the initial value of the parameter.
+    
+    sampling_method : str
+      A string indicating which sampling method to use for getting values for
+      the sample matrix. Currently the options are 'lhc' or 'uniform'. 
 
     Returns
     -------
     None
     '''
+    self.sampling_method = sampling_method
+
+    if os.path.isdir(self.work_dir):
+      if len(os.listdir(self.work_dir)) > 0:
+        raise RuntimeError("SensitivityDriver.work_dir is not empty! You must run SensitivityDriver.clean() before designing an experiment.")
+
     if not percent_diffs:
       percent_diffs = np.ones(len(params)) * 0.1 # use 10% for default perturbation
 
@@ -257,7 +303,7 @@ class SensitivityDriver(object):
 
       self.params.append(dict(name=pname, bounds=p_bounds, initial=p_initial, cmtnum=cmtnum, pftnum=pftnum))
 
-    if sampling_method == 'lhc':
+    if self.sampling_method == 'lhc':
       self.sample_matrix = generate_lhc(Nsamples, self.params)
     elif sampling_method == 'uniform':
       self.sample_matrix = self.generate_uniform(Nsamples, self.params)
@@ -267,16 +313,30 @@ class SensitivityDriver(object):
     if name == '':
       sm_fname = os.path.join(self.work_dir, 'sample_matrix.csv')
       pp_fname = os.path.join(self.work_dir, 'param_props.csv')
+      info_fname = os.path.join(self.work_dir, 'info.txt')
     else:
       sm_fname = "{}_sample_matrix.csv".format(name) 
       pp_fname = '{}_param_props.csv'.format(name)
+      info_fname = '{}_info.txt'.format(name)
+
+    for p in [sm_fname, pp_fname, info_fname]:
+      if not os.path.exists(os.path.dirname(p)):
+        pathlib.Path(os.path.dirname(p)).mkdir(parents=True, exist_ok=True)
 
     self.sample_matrix.to_csv(sm_fname, index=False)
-
     pd.DataFrame(self.params).to_csv(pp_fname, index=False)
+    with open(info_fname, 'w') as f:
+      f.write("sampling_method: {}".format(self.sampling_method))
 
-  def load_experiment(self, param_props_path, sample_matrix_path):
+  def load_experiment(self, param_props_path, sample_matrix_path, info_path):
     '''Load parameter properties and sample matrix from files.'''
+
+    with open(info_path) as f:
+      data = f.readlines()
+
+    for l in data:
+      if 'sampling_method' in l:
+        self.sampling_method = l.split(':')[1].strip()
 
     self.sample_matrix = pd.read_csv(sample_matrix_path)
     self.params = pd.read_csv(param_props_path, 
@@ -301,7 +361,7 @@ class SensitivityDriver(object):
     '''
     Remove the entire tree at `self.work_dir`.
     
-    This function is not careful, so be careful using it!
+    This function is NOT CAREFUL, so be careful using it!
     '''
     shutil.rmtree(self.work_dir, ignore_errors=True)
     os.makedirs(self.work_dir)
@@ -371,10 +431,11 @@ class SensitivityDriver(object):
       pixel(y,x): ({},{})
       cmtnum: {}
       pftnum: {} ({})
+      sampling_method: {}
 
       '''.format(
         self.work_dir, self.site, self.PXy, self.PXx, self.cmtnum(),
-        self.pftnum(), pft_verbose_name))
+        self.pftnum(), pft_verbose_name, self.sampling_method))
 
     info_str += textwrap.dedent('''\
       --- Parameters ---
@@ -424,44 +485,46 @@ class SensitivityDriver(object):
     -------
     None
     '''
-    print("PROC:{}  ".format(multiprocessing.current_process()), row)
+    #print("PROC:{}  ".format(multiprocessing.current_process()), row)
 
     if initial:
-      print("Ignoring idx, it is not really relevant here.")
-      print("Ignoring row dict, not really relevant here.")
+      #print("Ignoring idx, it is not really relevant here.")
+      #print("Ignoring row dict, not really relevant here.")
       # Build our own row dict, based on initial values in params
       row = {x['name']:x['initial'] for x in self.params}
-      sample_specific_folder = os.path.join(self.work_dir, 'inital_value_run')
+      sample_specific_folder = os.path.join(self.work_dir, 'initial_value_run')
       if os.path.isdir(sample_specific_folder):
         shutil.rmtree(sample_specific_folder)
     else:
       sample_specific_folder = self._ssrf_name(idx)
 
-    program = '/work/scripts/setup_working_directory.py'
-    opt_str = '--input-data-path {} {}'.format(self.site, sample_specific_folder)
-    cmdline = program + ' ' + opt_str
-    with log_wrapper(cmdline, tag='setup') as lw:
-        comp_proc = subprocess.run(cmdline, shell=True, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT) 
+    # Make the working directory
+    setup_working_directory.cmdline_entry([
+      '--input-data-path', self.site, 
+      sample_specific_folder
+    ])
 
-    program = '/work/scripts/runmask-util.py'
-    opt_str = '--reset --yx {} {} {}/run-mask.nc'.format(self.PXy, self.PXx, sample_specific_folder)
-    cmdline = program + ' ' + opt_str 
-    with log_wrapper(cmdline, tag='setup') as lw:
-      comp_proc = subprocess.run(cmdline, shell=True, check=True)
+    # Adjust run mask for appropriate pixel
+    runmask_util.cmdline_entry([
+      '--reset',
+      '--yx',self.PXy, self.PXx,
+      '{}/run-mask.nc'.format(sample_specific_folder)
+    ])
 
+    # Enable outputs as specified
     for output_spec in self.outputs:
-      program = '/work/scripts/outspec_utils.py'
-      opt_str = '{}/config/output_spec.csv --on {} m p'.format(sample_specific_folder, output_spec['name'])
-      cmdline = program + ' ' + opt_str
-      with log_wrapper(cmdline, tag='setup') as lw:
-        comp_proc = subprocess.run(cmdline, shell=True, check=True)
+      outspec_utils.cmdline_entry([
+        '{}/config/output_spec.csv'.format(sample_specific_folder),
+        '--on', output_spec['name'], 'month', 'pft'
+      ])
 
-    program = '/work/scripts/outspec_utils.py'
-    opt_str = '{}/config/output_spec.csv --on CMTNUM y'.format(sample_specific_folder)
-    cmdline = program + ' ' + opt_str
-    with log_wrapper(cmdline, tag='setup') as lw:
-      comp_proc = subprocess.run(cmdline, shell=True, check=True)
+    # Make sure CMTNUM output is on
+    outspec_utils.cmdline_entry([
+      '{}/config/output_spec.csv'.format(sample_specific_folder),
+      '--on','CMTNUM','y'
+    ])
 
+    # Adjust the config file
     CONFIG_FILE = os.path.join(sample_specific_folder, 'config/config.js')
     # Read the existing data into memory
     with open(CONFIG_FILE, 'r') as f:
@@ -477,7 +540,7 @@ class SensitivityDriver(object):
     # and the  param_spec (cmtnum, pftnum)
     # Iterating over sample_matrix, which is a pandas.DataFrame, we use
     # itertuples() which coughs up a named tuple. So here we get the
-    # name, and the sample value outof the named tuple for use in 
+    # name, and the sample value out of the named tuple for use in 
     # calling param_utils update function.
     for pname, pval in row.items():
     #for pname, pval in zip(row._fields[1:], row[1:]):
@@ -487,7 +550,7 @@ class SensitivityDriver(object):
           pname, pdict['cmtnum'], pdict['pftnum']
       )
 
-  def setup_multi(self):
+  def setup_multi(self, force=False):
     '''
     Makes one run directory for each row in sample matrix.
 
@@ -498,22 +561,29 @@ class SensitivityDriver(object):
     -------
     None
     '''
+    if not force:
+      if any(os.scandir(self.work_dir)):
+        raise RuntimeError('''SensitivityDriver.work_dir is not empty! You must run SensitivityDriver.clean() before designing an experiment.''')
+
     # Start fresh...
     self.clean()
+
+    # Save the metadata type stuff
+    self.save_experiment()
 
     # Make a special directory for the "initial values" run.
     # row and idx args are ignored when setting up initial value run. 
     self.core_setup(row={'ignore this and idx':None}, idx=324234, initial=True)
 
+    # Make the individial sample directories
     args = list(zip(self.sample_matrix.to_dict(orient='records'),
                range(0,len(self.sample_matrix)), 
                np.zeros(len(self.sample_matrix), dtype=bool)))
 
     with multiprocessing.Pool(processes=(os.cpu_count()-1)) as pool:
       results = pool.starmap(self.core_setup, args)
-    print(results)
 
-    # Still need to make a directory for default case
+
 
   def cmtnum(self):
     '''
@@ -806,4 +876,13 @@ class SensitivityDriver(object):
 if __name__ == '__main__':
   import doctest
   doctest.testmod()
-  doctest.testfile("doctests_Sensitivity.md")
+  
+  # For some reason if the exteral testfile is run here as well as the testmod()
+  # function, the external test file fails! The external testfile runs fine on
+  # its own, (e.g.: python -m doctest doctests_Sensitivity.py) and if you run 
+  # the external testfile here by itself (without also calling 
+  # doctest.testmod()) then it works. But if you run both of them here, then 
+  # a couple of the tests in the external testfile fail??? So commenting out
+  # for now.
+  #doctest.testfile("doctests_Sensitivity.md")
+    
