@@ -4,12 +4,13 @@
 #ifndef MOSSLAYER_H_
 #define MOSSLAYER_H_
 #include "SoilLayer.h"
+#include "CohortLookup.h"
 #include "cohortconst.h"
 
 using namespace std;
 class MossLayer: public SoilLayer {
 public:
-  MossLayer(const double &pdz, const int & mosstype);
+  MossLayer(const double &pdz, const int & mosstype, const CohortLookup * chtlu);
   ~MossLayer();
 
   int mosstype;  // moss types: 1: sphagnum; 2: feathermoss; 3: other (including lichen)
