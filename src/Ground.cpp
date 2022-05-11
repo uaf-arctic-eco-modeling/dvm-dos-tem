@@ -374,12 +374,12 @@ void Ground::initSnowSoilLayers() {
   // but for insertion of layers into the double-linked matrix, do the
   //   deep organic first
   for(int il = organic.deepnum-1; il >=  0; il--) {
-    OrganicLayer* pl = new OrganicLayer(organic.deepdz[il], 2); //2 means deep organic
+    OrganicLayer* pl = new OrganicLayer(organic.deepdz[il], 2, chtlu); //2 means deep organic
     insertFront(pl);
   }
 
   for(int il = organic.shlwnum-1; il >= 0; il--) {
-    OrganicLayer* pl = new OrganicLayer(organic.shlwdz[il], 1); //1 means shallow organic
+    OrganicLayer* pl = new OrganicLayer(organic.shlwdz[il], 1, chtlu); //1 means shallow organic
     insertFront(pl);
   }
 
@@ -405,7 +405,7 @@ void Ground::initSnowSoilLayers() {
 
       for(int il = moss.num-1; il >= 0; il--) {
         // moss type (1- sphagnum, 2- feathermoss), which needs input
-        MossLayer* ml = new MossLayer(moss.dz[il], moss.type);
+        MossLayer* ml = new MossLayer(moss.dz[il], moss.type, chtlu);
         insertFront(ml);
       }
     }
@@ -477,7 +477,7 @@ void Ground::set_state_from_restartdata(snwstate_dim *snowdim,
   organic.assignDeepThicknesses(soiltype, dzsoil, MAX_SOI_LAY);
 
   for(int il = organic.deepnum-1; il>=0; il--) {
-    OrganicLayer* pl = new OrganicLayer(organic.deepdz[il], 2); //2 means deep organic
+    OrganicLayer* pl = new OrganicLayer(organic.deepdz[il], 2, chtlu); //2 means deep organic
     pl->age = soilage[il];
     pl->frozen = frozen[il];
     insertFront(pl);
@@ -486,7 +486,7 @@ void Ground::set_state_from_restartdata(snwstate_dim *snowdim,
   organic.assignShlwThicknesses(soiltype, dzsoil, MAX_SOI_LAY);
 
   for(int il =organic.shlwnum-1; il>=0; il--) {
-    OrganicLayer* pl = new OrganicLayer(organic.shlwdz[il], 1);//1 means shallow organic
+    OrganicLayer* pl = new OrganicLayer(organic.shlwdz[il], 1, chtlu);//1 means shallow organic
     pl->age = soilage[il];
     pl->frozen = frozen[il];
     insertFront(pl);
@@ -495,7 +495,7 @@ void Ground::set_state_from_restartdata(snwstate_dim *snowdim,
   moss.setThicknesses(soiltype, dzsoil, MAX_SOI_LAY);
 
   for(int il = moss.num-1; il>=0; il--) {
-    MossLayer* ml = new MossLayer(moss.dz[il], moss.type);
+    MossLayer* ml = new MossLayer(moss.dz[il], moss.type, chtlu);
     ml->age = soilage[il];
     ml->frozen = frozen[il];
     insertFront(ml);
@@ -910,7 +910,7 @@ bool Ground::constructSnowLayers(const double & dsmass, const double & tdrv) {
                             //      snow-melting/sublimating when calling
                             //      this function
 
-  if(snow.extramass>0) { // accumlate
+  if(snow.extramass>0) { // accumulate
     double density = snowdimpar.newden;
     double thick = snow.extramass/density;
 
@@ -1112,7 +1112,7 @@ void Ground::updateSnowLayerPropertiesDaily() {
   while(currl!= NULL) {
     if(currl->isSnow) {
       currl->advanceOneDay();
-      dynamic_cast<SnowLayer*>(currl)->updateDensity(&snowdimpar);   // this will compact snow layer basd on snowlayer age
+      dynamic_cast<SnowLayer*>(currl)->updateDensity(&snowdimpar);   // this will compact snow layer based on snowlayer age
       dynamic_cast<SnowLayer*>(currl)->updateThick();
     } else {
       break;
@@ -1159,8 +1159,8 @@ void Ground::retrieveSnowDimension(snwstate_dim * snowdim) {
 ////////////////////////////////////////////////////////////////////////////////
 // Basically, here will not do thickness change, which will carry out in
 // 'updateOslThickness5Carbon', therefore, any new layer creation, will have
-// to originate from neibouring layer, otherwise mathematic error will occur
-// execept for create new moss/fibrous organic layer from none.
+// to originate from neighbouring layer, otherwise mathematic error will occur
+// except for create new moss/fibrous organic layer from none.
 void  Ground::redivideSoilLayers() {
   redivideMossLayers(moss.type);
   redivideShlwLayers();
@@ -1182,7 +1182,7 @@ void  Ground::redivideMossLayers(const int &mosstype) {
     //Create live moss
     moss.thick = 0.01;
     BOOST_LOG_SEV(glg, debug)<<"Creating new moss layer, type: "<<moss.type<<", thickness: "<<moss.thick;
-    MossLayer* ml = new MossLayer(moss.thick, moss.type);
+    MossLayer* ml = new MossLayer(moss.thick, moss.type, chtlu);
     moss.num = 1;
     ml->tem = fstsoill->tem;
     ml->z = 0.0;
@@ -1234,7 +1234,7 @@ void Ground::redivideShlwLayers() {
     SoilLayer* upsl ;
     SoilLayer* lwsl;
     organic.shlwchanged =true;
-    // first, comine all layer into one
+    // first, combine all layers into one
 COMBINEBEGIN:
     currl =fstshlwl;
 
@@ -1272,7 +1272,7 @@ COMBINEBEGIN:
       OrganicLayer* plnew;
 
       for (int i=organic.shlwnum-1; i>0; i--) {
-        plnew = new OrganicLayer(organic.shlwdz[i], 1);
+        plnew = new OrganicLayer(organic.shlwdz[i], 1, chtlu);
         SoilLayer* shlwsl = dynamic_cast<SoilLayer*>(fstshlwl);
         //split 'plnew' from bottom of 'shlwsl'
         splitOneSoilLayer(shlwsl, plnew, 0., organic.shlwdz[i]);
@@ -1314,7 +1314,7 @@ COMBINEBEGIN:
       double thick = thicknessFromCarbon(abvgfallC, soildimpar.coefshlwa, soildimpar.coefshlwb);
       //organic.ShlwThickScheme(MINSLWTHICK);
       organic.ShlwThickScheme(thick);
-      OrganicLayer* plnew = new OrganicLayer(organic.shlwdz[0], 1);
+      OrganicLayer* plnew = new OrganicLayer(organic.shlwdz[0], 1, chtlu);
       //plnew->dz= MINSLWTHICK;
       plnew->dz= thick;
       //double frac = MINSLWTHICK/nextsl->dz;
@@ -1363,7 +1363,7 @@ void Ground::redivideDeepLayers() {
   ////////// IF there exists 'deep' layer(s) ////////////////
   if(fstdeepl != NULL) {
     Layer * currl = fstdeepl;
-    // Adjusting the OS horion's layer division/combination
+    // Adjusting the OS horizon's layer division/combination
     SoilLayer* upsl ;
     SoilLayer* lwsl;
 
@@ -1419,7 +1419,7 @@ void Ground::redivideDeepLayers() {
       OrganicLayer* plnew;
 
       for (int i=organic.deepnum-1; i>0; i--) {
-        plnew = new OrganicLayer(organic.deepdz[i], 2);
+        plnew = new OrganicLayer(organic.deepdz[i], 2, chtlu);
         SoilLayer* deepsl = dynamic_cast<SoilLayer*>(fstdeepl);
         // split 'plnew' from bottom of 'deepsl'
         splitOneSoilLayer(deepsl, plnew, 0., organic.deepdz[i]);
@@ -1444,7 +1444,7 @@ void Ground::redivideDeepLayers() {
 
     if (somc>=deepcmin) {
       organic.DeepThickScheme(MINDEPTHICK);
-      OrganicLayer* plnew = new OrganicLayer(organic.deepdz[0], 2);
+      OrganicLayer* plnew = new OrganicLayer(organic.deepdz[0], 2, chtlu);
       double frac = plnew->dz/lfibl->dz;
       // assign properties for the new-created 'deep' layer
       plnew->ice = lfibl->ice*frac;
@@ -1711,7 +1711,7 @@ double Ground::adjustSoilAfterburn() {
   while (currl!=NULL) {
     if(currl->isFibric) {
       OrganicLayer * pl = dynamic_cast<OrganicLayer*>(currl);
-      pl->humify(); //here only update 'physical' properties, but not states
+      pl->humify(chtlu); //here only update 'physical' properties, but not states
                     //  (will do below when adjusting 'dz'
       pl->somcr += pl->rawc; //assuming all 'raw material' converted into
                              //  'chemically-resistant' SOM
@@ -1976,7 +1976,7 @@ void Ground::updateWholeFrozenStatus() {
   if(fstfntl==NULL && lstfntl==NULL) {
     ststate = fstsoill->frozen;
   } else {
-    ststate = 0; // partitally frozen
+    ststate = 0; // partially frozen
   }
 
   checkFrontsValidity();
