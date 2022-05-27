@@ -106,3 +106,47 @@ Check on one of the command line reporting fuctions:
                     ../parameters/cmt_firepar.txt    CMT05   Tussock Tundra
     Out[8]: 0
 
+Run the functionality that pulls out a single CMT from all files.
+
+    >>> pu.cmdline_entry(["--extract-cmt", "../parameters", "cmt04"])
+    0
+
+When the above is complete, there should be a new folder in the parameters directory, named with the CMT key with a bunch of files in it.
+
+    >>> 'CMT04' in os.listdir('../parameters')
+    True
+
+Check that the CMT exists in each new file:
+
+    In [16]: pu.cmdline_entry(['--report-cmt-names', '../parameters/CMT04', '4'])
+                                        file name  cmt key   long name
+              ../parameters/CMT04/cmt_bgcsoil.txt    CMT04   Shrub Tundra
+        ../parameters/CMT04/cmt_bgcvegetation.txt    CMT04   Shrub Tundra
+            ../parameters/CMT04/cmt_calparbgc.txt    CMT04   Shrub Tundra
+            ../parameters/CMT04/cmt_dimground.txt    CMT04   Shrub Tundra
+        ../parameters/CMT04/cmt_dimvegetation.txt    CMT04   Shrub Tundra
+            ../parameters/CMT04/cmt_envcanopy.txt    CMT04   Shrub Tundra
+            ../parameters/CMT04/cmt_envground.txt    CMT04   Shrub Tundra
+              ../parameters/CMT04/cmt_firepar.txt    CMT04   Shrub Tundra
+    Out[16]: 0
+
+And that some of the other CMTs don't exist:
+
+    In [18]: pu.cmdline_entry(['--report-cmt-names', '../parameters/CMT04', '1'])
+                                        file name  cmt key   long name
+              ../parameters/CMT04/cmt_bgcsoil.txt      n/a   n/a
+        ../parameters/CMT04/cmt_bgcvegetation.txt      n/a   n/a
+            ../parameters/CMT04/cmt_calparbgc.txt      n/a   n/a
+            ../parameters/CMT04/cmt_dimground.txt      n/a   n/a
+        ../parameters/CMT04/cmt_dimvegetation.txt      n/a   n/a
+            ../parameters/CMT04/cmt_envcanopy.txt      n/a   n/a
+            ../parameters/CMT04/cmt_envground.txt      n/a   n/a
+              ../parameters/CMT04/cmt_firepar.txt      n/a   n/a
+    Out[18]: 0
+
+Cleanup:
+
+    >>> import shutil
+    >>> shutil.rmtree('../parameters/CMT04')
+
+
