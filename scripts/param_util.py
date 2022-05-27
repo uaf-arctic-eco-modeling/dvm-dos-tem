@@ -599,6 +599,65 @@ def replace_CMT_data(origfile, newfile, cmtnum, overwrite=False):
   return data
 
 
+
+def isParamFile(x):
+  '''
+  Check to see if a file is likely a dvmdostem parameter file.
+  '''
+  if os.path.isfile(x):
+    try:
+      cmts = get_CMTs_in_file(x)
+    except UnicodeDecodeError:
+      return False
+
+    if len(cmts) > 0:
+      return True
+
+  return False
+
+
+def isCMTkey(x):
+  '''
+  Function for testing validity of a CMT key specifier.
+
+  Examples:
+  =========
+  >>> [isCMTkey(x) for x in ('cmt04', 'cmt999', 'CMt56', 'CMT4y6', 'CMT00')]
+  [True, False, True, False, True]
+
+  >>> [isCMTkey(x) for x in ('cmt00', 'cmt1234', 'c mtx', ' cmt09', 'cmt04 ',)]
+  [True, False, False, True, True]
+
+  >>> [isCMTkey(x) for x in ('cmt 23', '4', '04', '0004', 'cmt4')]
+  [True, False, False, False, False]
+  '''
+
+  if type(x) != str:
+    return False #, "Not a string."
+
+  x = x.strip()
+  x = x.replace(' ','')
+
+  if not x.isalnum():
+    return False #, "Not an alphanumeric string"
+
+  a = x[0:3]
+  b = x[3:]
+  if not b.isnumeric():
+    return False #, End of specifier not a number
+
+  if int(b) < 0 or int(b) > 99:
+    return False #, Number out of range
+
+  if x[0:3].upper() != 'CMT':
+    return False #, "first 3 chars not CMT"
+
+  if not x[-2:].isnumeric():
+    return False #, "Last 2 chars not numeric"
+
+  return True
+
+
 def get_CMT_datablock(afile, cmtnum):
   '''
   Search file, returns the first block of data for one CMT as a list of strings.
@@ -1384,6 +1443,12 @@ def cmdline_parse(argv=None):
   parser.add_argument('--csv-specification', action='store_true',
       help='''Print the specification for supported csv files.''')
 
+  parser.add_argument('--extract-cmt', nargs=2, metavar=('INFOLDER','CMTKEY'),
+      help=textwrap.dedent('''Given a folder of parameter files, and a CMT
+        number, this will open each file, copy the block of data for the CMT 
+        and paste that block in to a new file named CMTKEY_cmt_*.txt, 
+        i.e: CMT04_cmt_calparbgc.txt'''))
+
   args = parser.parse_args(argv)
 
   return args
@@ -1402,6 +1467,33 @@ def cmdline_run(args):
     'cmt_firepar.txt',
   ]
   
+  if args.extract_cmt:
+    folder, cmtkey = args.extract_cmt
+
+    if not isCMTkey(cmtkey):
+      print("Invalid CMT key! Aborting.")
+      return -1
+
+    param_files = os.listdir(folder)
+    param_files = [os.path.join(folder, f) for f in param_files]
+
+    if len(param_files) < 1:
+      print("No files in specified folder! Aborting.")
+      return -1
+
+    for f in param_files:
+      if isParamFile(f):
+        db = get_CMT_datablock(f, int(cmtkey[3:]))
+        new_fname = os.path.join(os.path.dirname(f), cmtkey.upper(), '{}'.format(os.path.basename(f)))
+        if not os.path.exists(os.path.dirname(new_fname)):
+          os.makedirs(os.path.dirname(new_fname))
+        with open(new_fname, 'w') as fp:
+           fp.writelines(db)
+      else:
+        pass # nothing do do with non-parameter files...
+
+    return 0
+
   if args.csv_specification:
     print(csv_specification.__doc__)
     return 0
