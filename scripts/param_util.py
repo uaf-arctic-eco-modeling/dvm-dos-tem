@@ -154,6 +154,83 @@ class ParamUtilSpeedHelper(object):
     return s
 
 
+def fwt2csv(param_dir):
+    '''
+    Convert from fixed width text (fwt) format to CSV (comma separated values).
+
+    ../parameters/cmt_bgcvegetation.txt,pftnum,pft0,pft1
+    ../parameters/cmt_bgcvegetation.txt,pftname,Salix,Betula,
+
+
+    file:../parameters/cmt_bgcvegetation.txt param:kc pft0:401.000 pft1:400.000 pft2:400.00
+
+
+
+    '''
+
+    cmts = get_available_CMTs(param_dir)
+
+    for cmt in cmts:
+      print("Working on CMT {}...".format(cmt))
+      meta = []
+      pftdata = []
+      nonpftdata = []
+
+      meta.append('file,tag,cmtname,comment\n')
+
+
+      for f in os.listdir(param_dir):
+        pfile = os.path.join(param_dir, f)
+        if isParamFile(pfile):
+          db = get_CMT_datablock(pfile, cmt)
+          dd = cmtdatablock2dict(db)
+          if detect_block_with_pft_info(db):
+
+            s = ''
+
+            # Add line for pft numbers
+            s += '{},pftkey,'.format(pfile)
+            for pft in sorted(get_datablock_pftkeys(dd)):
+              s += "{},".format(pft)
+            s += '\n'
+
+            # Add line for pft verbose names
+            s += '{},pftname,'.format(pfile)
+            for pft in sorted(get_datablock_pftkeys(dd)):
+              s += "{},".format(dd[pft]['name'])
+            s += '\n'
+
+            # add line for each variable
+            vnames = [x for x in dd['pft0'].keys() if x != 'name']  # <---IMPROVE THIS!
+            vnames = [x for x in vnames if 'comment_' not in x]
+            for v in vnames:
+              s += "{},{},".format(pfile, v)
+              for pft in sorted(get_datablock_pftkeys(dd)):
+                s += "{:0.3f},".format(dd[pft][v])
+              s+= '"{}"'.format(dd[pft]['comment_{}'.format(v)])
+              s += '\n'
+            pftdata.append(s)
+
+          nonpftvars = [x for x in dd.keys() if x not in ['tag','cmtname','comment']]
+          nonpftvars = [x for x in nonpftvars if 'pft' not in x]
+          nonpftvars = [x for x in nonpftvars if 'comment_' not in x]
+          s += '{},{},{},"{}"\n'.format('file','pname','pvalue','comment')
+          for i in nonpftvars:
+            dataline = '{},{},{},"{}"\n'.format(pfile, i, dd[i],dd['comment_{}'.format(i)])
+            nonpftdata.append(dataline)
+
+          meta.append('{},{},{},"{}"\n'.format(pfile, dd['tag'], dd['cmtname'], dd['comment']))
+
+        else:
+          pass # nothing to do for non-param files
+
+      with open("SAMPLE_CMT_{:03d}.csv".format(cmt), 'w') as f:
+        f.writelines(meta)
+        f.writelines("\n\n")
+        f.writelines(pftdata)
+        f.writelines("\n\n")
+        f.writelines(nonpftdata)
+
 
 
 def error_exit(fname, msg, linenumber=None):
@@ -842,15 +919,22 @@ def cmtdatablock2dict(cmtdatablock):
       dline = line.strip().split("//")
       values = dline[0].split()
       if len(dline) > 1:
-        comment = dline[1].strip().strip("//").split(':')[0]
+        vname = dline[1].strip().strip("//").split(':')[0]
+        if len(dline[1].strip().strip("//").split(':')[1:]) > 0:
+          vcomment = dline[1].strip().strip("//").split(':')[1:][0].strip()
+        else:
+          vcomment = ''
       else:
-        comment = ''
+        vname = ''
+        vcomment = ''
 
       if len(values) >= 5: # <--ARBITRARY! likely a pft data line?
         for i, value in enumerate(values):
-          cmtdict['pft%i'%i][comment] = float(value)
+          cmtdict['pft%i'%i][vname] = float(value)
+          cmtdict['pft%i'%i]['comment_{}'.format(vname)] = vcomment
       else:
-        cmtdict[comment] = float(values[0])
+        cmtdict[vname] = float(values[0])
+        cmtdict['comment_{}'.format(vname)] = vcomment
 
   return cmtdict
 
