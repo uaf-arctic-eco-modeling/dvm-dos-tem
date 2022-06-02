@@ -250,7 +250,7 @@ def standardize_pftnames(names):
   return list(map(fix, names))
 
 
-def get_pftnames(data):
+def csv_get_pftnames_csv(data):
   '''
   Retrieves PFT names from a specially formatted csv file.
   
@@ -278,7 +278,7 @@ def get_pftnames(data):
       return row[1:]
 
 
-def find_section_starts(data):
+def csv_find_section_starts(data):
   '''
   Gets the starting index and name for sections of data in a specially formatted csv file.
 
@@ -301,8 +301,8 @@ def find_section_starts(data):
   starts = []
   sections = []
   for i, row in enumerate(csvreader):
-    if all(x == '' for x in row[1:]):
-      if row[0] != '':
+    if all(x == '' for x in row[1:]): # found a blank line
+      if len(row) > 0 and row[0] != '': # found a
         if row[0].isupper():
           #print(i, row)
           starts.append(i)
@@ -311,7 +311,7 @@ def find_section_starts(data):
   return results
 
 
-def get_section(data, start):
+def csv_get_section(data, start):
   '''
   Extracts a section of block of data from a specially formatted csv file.
 
@@ -1469,7 +1469,6 @@ def cmdline_run(args):
   
   if args.extract_cmt:
     folder, cmtkey = args.extract_cmt
-
     if not isCMTkey(cmtkey):
       print("Invalid CMT key! Aborting.")
       return -1
@@ -1727,11 +1726,6 @@ def cmdline_run(args):
     for l in lines:
       print(l)
     return 0
-
-
-
-
-
 
 
 def cmdline_entry(argv=None):
