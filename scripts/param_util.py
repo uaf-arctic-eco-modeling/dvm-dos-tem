@@ -975,6 +975,8 @@ def format_CMTdatadict(dd, refFile, format=None):
   ll = []
 
   # Work on formatting the first comment line
+  # should produce something like this:
+  # // CMT04 // Shrub Tundra // comment...
   cmt, name, comment = parse_header_line(get_CMT_datablock(refFile, dd['tag'])[0])
   ll.append("// " + " // ".join((cmt, name, comment)))
 
