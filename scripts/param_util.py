@@ -846,6 +846,48 @@ def replace_CMT_data(origfile, newfile, cmtnum, overwrite=False):
   return data
 
 
+def keyFnum(x):
+  '''
+  Given a number
+  
+  Examples:
+
+  >>> keyFnum(4)
+  'CMT04'
+
+  >>> keyFnum(0)
+  'CMT00'
+
+  >>> keyFnum('4')
+  'CMT04'
+
+  >>> keyFnum('000')
+  'CMT00'
+
+  >>> keyFnum('101')
+  Traceback (most recent call last):
+    ...
+  RuntimeError: Out of range 0 <= x <= 99
+
+  >>> keyFnum(101)
+  Traceback (most recent call last):
+    ...
+  RuntimeError: Out of range 0 <= x <= 99
+  
+  >>> keyFnum('  5 ')
+  'CMT05'
+  
+  >>> keyFnum('50 0')
+  Traceback (most recent call last):
+    ...
+  ValueError: invalid literal for int() with base 10: '50 0'
+  '''
+  num = int(x)
+  if num < 0 or num > 99:
+    raise RuntimeError("Out of range 0 <= x <= 99")
+  
+  return 'CMT{:02}'.format(num)
+
 
 def isParamFile(x):
   '''
