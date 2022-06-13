@@ -265,6 +265,108 @@ def fwt2csv(param_dir, req_cmts='all'):
         f.writelines(nonpftdata)
 
 
+def csv2fwt(csv_file, ref_directory='../parameters'):
+  '''
+  Convert from csv parameter files to fixed width text format.
+
+  ...Write more here...
+  '''
+
+  sections = csv_find_section_indices(csv_file)
+
+  with open(csv_file, 'r') as f:
+    data = f.readlines()
+
+  pft_data = csv_read_section(data, start=sections['pft'][0], end=sections['pft'][1])
+  nonpft_data = csv_read_section(data, start=sections['nonpft'][0], end=sections['nonpft'][1])
+  meta = csv_read_section(data, start=sections['meta'][0], end=sections['meta'][1])
+
+  for reffile in os.listdir(ref_directory):
+    print(reffile)
+    if 'firepar' in reffile:
+      print("SKIP THIS ... ref file is broken...")
+    else:
+
+      relevant_pft_vars = list(filter(lambda x: reffile in x['file'], pft_data))
+      relevant_nonpft_vars = list(filter(lambda x: reffile in x['file'], nonpft_data))
+      relevant_meta = list(filter(lambda x: reffile in x['file'], meta))
+
+      # Handle the datablock header
+      full_string = '//==========================================================\n'
+      full_string += '// {} // {} // {}\n'.format(relevant_meta[0]['cmtkey'], relevant_meta[0]['cmtname'], relevant_meta[0]['comment'])
+
+      # Handle the PFT header line
+      if len(list(filter(lambda x: x['name'] == 'pftname', relevant_pft_vars))) > 0:
+        s = ''
+        k = [x for x in relevant_pft_vars if x['name'] == 'pftname']
+        for i in range(0,10):
+          s += '{:>12} '.format(k[0][str(i)])
+        s += '\n'
+        full_string += s
+
+      # Handle the data
+      order = generate_reference_order(os.path.join(ref_directory, reffile))
+      for v in order:
+        p = list(filter(lambda x: x['name'] == v, relevant_pft_vars))
+        n = list(filter(lambda x: x['name'] == v, relevant_nonpft_vars))
+
+        if len(p) > 0 and len(n) > 0:
+          raise RuntimeError("Something is wrong...")
+
+        if len(p) > 0:
+
+          p = p[0]
+          # it is a pft variable...
+          s = ''
+          for i in range(0,10):
+            s += '{:12.4f} '.format(float(p[str(i)]))
+          s += '// {}: {} {} {}\n'.format(p['name'], p['description'], p['units'], p['comment'])
+          full_string += s
+
+        elif len(n) > 0:
+          n = n[0]
+          # is is a non-pft variable...
+          s = '{:<12.4f} // {}: {} {} {}\n'.format(float(n['value']), n['name'], n['description'], n['units'], n['comment'])
+          full_string += s
+
+      print(full_string)
+      print()
+      print()
+
+  return 0
+
+
+def csv_find_section_indices(csv_file):
+
+  sections = {}
+
+  with open(csv_file, 'r') as f:
+    data = f.readlines()
+
+  for i, line in enumerate(data):
+    if len(line) > 0 and line[0] == '#':
+      pass # skipping comments...
+    elif 'file,cmtkey,cmtname,comment' in line:
+      sections['meta'] = [i, None]
+    elif 'file,name,0,1,2,3,4,5,6,7,8,9,units,description,comment,refs' in line:
+      sections['pft'] = [i, None]
+    elif 'file,name,value,units,description,comment,refs' in line:
+      sections['nonpft'] = [i,None]
+
+  for section, (start, end) in sections.items():
+    for i, line in enumerate(data[start:]):
+      ldata = [x.strip() for x in line.split(',')]
+      if len(ldata) == 0 or ldata[0] == '':
+        sections[section][1] = sections[section][0] + i
+        break
+
+  return sections
+
+
+def csv_read_section(data, start, end):
+  csvreader = csv.DictReader(data[start:end], dialect='excel')
+  return [row for row in csvreader]
+
 
 def error_exit(fname, msg, linenumber=None):
   '''
