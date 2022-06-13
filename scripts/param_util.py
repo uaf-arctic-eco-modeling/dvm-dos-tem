@@ -1803,9 +1803,9 @@ def cmdline_run(args):
     with open(inputcsv) as f:
       data = f.readlines()
 
-    for (start, section_name) in find_section_starts(data):
+    for (start, section_name) in csv_find_section_starts(data):
       print(" ----  {}  ----  CMT {}  ----".format(section_name, cmtname))
-      print(format_section(get_section(data, start), data))
+      print(format_section(csv_get_section(data, start), data))
       print("")
 
     return 0
