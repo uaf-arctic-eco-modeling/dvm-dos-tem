@@ -302,29 +302,7 @@ def csv_specification():
   pass
 
 
-def standardize_pftnames(names):
   '''
-  Replaces any spaces, dots, underscores or dashes with CamelCase.
-  
-  Parameters
-  ----------
-  names : list, required
-    A list of strings, with PFT names.
-
-  Returns
-  -------
-    A list of strings with each item changed to CamelCase.
-
-  Example
-  -------
-      >>> standardize_pftnames(['Test 1','Test-32','test_6','test.34.helper'])
-      ['Test1', 'Test32', 'Test6', 'Test34Helper']
-  '''
-  def fix(x):
-    # look for common separators, have to escape the period
-    x = re.sub(r"(_|-| |\.)+", "$",x).title().replace("$",'')
-    return x
-  return list(map(fix, names))
 
 
 def csv_get_pftnames_csv(data):
@@ -622,6 +600,31 @@ def is_CMT_divider_line(line):
   Checks to see if a line is one of the comment lines we use to divide
   CMT data blocks in parameter files, e.g. // ====== '''
   return re.search('^//[ =]+', line.strip())
+
+
+def standardize_pftnames(names):
+  '''
+  Replaces any spaces, dots, underscores or dashes with CamelCase.
+  
+  Parameters
+  ----------
+  names : list, required
+    A list of strings, with PFT names.
+
+  Returns
+  -------
+    A list of strings with each item changed to CamelCase.
+
+  Example
+  -------
+      >>> standardize_pftnames(['Test 1','Test-32','test_6','test.34.helper'])
+      ['Test1', 'Test32', 'Test6', 'Test34Helper']
+  '''
+  def fix(x):
+    # look for common separators, have to escape the period
+    x = re.sub(r"(_|-| |\.)+", "$",x).title().replace("$",'')
+    return x
+  return list(map(fix, names))
 
 
 def replace_CMT_data(origfile, newfile, cmtnum, overwrite=False):
