@@ -10,6 +10,7 @@ import glob
 import sys
 import csv
 import itertools
+import subprocess
 
 # For command line interface
 import sys
@@ -154,30 +155,32 @@ class ParamUtilSpeedHelper(object):
     return s
 
 
-def fwt2csv(param_dir):
+def fwt2csv(param_dir, req_cmts='all'):
     '''
     Convert from fixed width text (fwt) format to CSV (comma separated values).
 
-    ../parameters/cmt_bgcvegetation.txt,pftnum,pft0,pft1
-    ../parameters/cmt_bgcvegetation.txt,pftname,Salix,Betula,
-
-
-    file:../parameters/cmt_bgcvegetation.txt param:kc pft0:401.000 pft1:400.000 pft2:400.00
-
-
-
+    ...Write more here...
     '''
+    # NOTE: currently there is no mechanism for storing reference data in the 
+    # fixed width text files....
 
-    cmts = get_available_CMTs(param_dir)
+    avail_cmts = get_available_CMTs(param_dir)
 
-    for cmt in cmts:
+    if req_cmts == 'all':
+      cmts = avail_cmts
+    
+    if not all([i in avail_cmts for i in req_cmts]):      
+      raise RuntimeError("One of the requested cmts is not available! Requested: {}".format(req_cmts))
+
+    for cmt in req_cmts:
       print("Working on CMT {}...".format(cmt))
       meta = []
       pftdata = []
       nonpftdata = []
 
-      meta.append('file,tag,cmtname,comment\n')
-
+      meta.append('file,cmtkey,cmtname,comment\n')
+      pftdata.append('file,name,0,1,2,3,4,5,6,7,8,9,units,description,comment,refs\n')
+      nonpftdata.append('file,name,value,units,description,comment,refs\n')
 
       for f in os.listdir(param_dir):
         pfile = os.path.join(param_dir, f)
@@ -187,7 +190,6 @@ def fwt2csv(param_dir):
           if detect_block_with_pft_info(db):
 
             s = ''
-
             # Add line for pft numbers
             s += '{},pftkey,'.format(pfile)
             for pft in sorted(get_datablock_pftkeys(dd)):
@@ -207,16 +209,18 @@ def fwt2csv(param_dir):
               s += "{},{},".format(pfile, v)
               for pft in sorted(get_datablock_pftkeys(dd)):
                 s += "{:0.3f},".format(dd[pft][v])
+              s += ',,'
               s+= '"{}"'.format(dd[pft]['comment_{}'.format(v)])
               s += '\n'
             pftdata.append(s)
 
+          s = ''
           nonpftvars = [x for x in dd.keys() if x not in ['tag','cmtname','comment']]
           nonpftvars = [x for x in nonpftvars if 'pft' not in x]
           nonpftvars = [x for x in nonpftvars if 'comment_' not in x]
-          s += '{},{},{},"{}"\n'.format('file','pname','pvalue','comment')
+          #s += '{},{},{},"{}"\n'.format('file','pname','pvalue','comment')
           for i in nonpftvars:
-            dataline = '{},{},{},"{}"\n'.format(pfile, i, dd[i],dd['comment_{}'.format(i)])
+            dataline = '{},{},{},{},"{}","{}"\n'.format(pfile, i, dd[i],'','',dd['comment_{}'.format(i)])
             nonpftdata.append(dataline)
 
           meta.append('{},{},{},"{}"\n'.format(pfile, dd['tag'], dd['cmtname'], dd['comment']))
@@ -224,7 +228,36 @@ def fwt2csv(param_dir):
         else:
           pass # nothing to do for non-param files
 
-      with open("SAMPLE_CMT_{:03d}.csv".format(cmt), 'w') as f:
+      with open("SAMPLE_CMT_{:02d}.csv".format(cmt), 'w') as f:
+        label = subprocess.check_output(["git", "describe"],).strip().decode('utf-8')
+        cmtname = '??' 
+        desc = 'A long winded description. Spaces? Quotes? Special charachters?'
+        site = 'The site specification. Make a standard for coords?'
+        notes = 'Any other notes, date of calibration, calibrator? references?'
+        ref_file = 'refs.bib'
+        hdr = ''
+        hdr += textwrap.dedent('''\
+        #
+        # dvmdostem parameters: {}
+        # cmtnumber: {}
+        # cmtname: {}
+        # cmtdescription: "{}"
+        # calibration site: "{}"
+        # calibration notes: "{}"
+        # references file: {}
+        #
+        # This file was generated using the param_util.fwt2csv function.
+        # There are columns here (comments, units, description, references)
+        # that are not represented in a standard way in the 
+        # fixed width text parameter files.
+        # 
+        # To convert this file back to fixed width text for use with dvmdostem,
+        # see the param_util.csv2fwt() function. 
+        # 
+        '''.format(label, cmt, cmtname, desc, site, notes, ref_file))
+
+        f.writelines(hdr)
+
         f.writelines(meta)
         f.writelines("\n\n")
         f.writelines(pftdata)
