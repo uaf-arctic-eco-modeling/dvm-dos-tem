@@ -336,6 +336,38 @@ def csv2fwt(csv_file, ref_directory='../parameters'):
   return 0
 
 
+def csv_specification_v1():
+  '''
+  Specification for the 2nd version of csv files for holding parameter data.
+
+  Each csv file will hold the data for one Community Type (CMT). As such the csv
+  file will be broken into sections to accomodate the different number of
+  columns in different sections. The sections of the file will be: 
+   - a metadata section,
+   - a section for PFT specific parameters, and
+   - a section for non-PFT parameters.
+
+  Each section will begin with a header line that describes the columns.
+  
+  The header for the metadata will be: 
+  file,cmtkey,cmtname,comment
+
+  The header for the PFT section will be:
+  file,name,0,1,2,3,4,5,6,7,8,9,units,description,comment
+
+  The header for the non-PFT section will be:
+  file,name,value,units,description,comment
+
+
+  The metadata seciton will have... The PFT data section will have... The
+  non-PFT data section will have...
+
+  Each section will end with two consecutive blank lines.
+
+  ... WRITE MORE HERE ...
+  '''
+
+
 def csv_find_section_indices(csv_file):
 
   sections = {}
