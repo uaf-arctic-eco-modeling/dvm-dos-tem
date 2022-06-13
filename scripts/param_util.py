@@ -469,9 +469,6 @@ def csv_specification_v0():
   pass
 
 
-  '''
-
-
 def csv_get_pftnames(data):
   '''
   Retrieves PFT names from a specially formatted csv file.
@@ -687,7 +684,7 @@ def find_cmt_start_idx(data, cmtkey):
   '''
 
   # NOTE: Should probably rasie some kind of ERROR if CMTKEY is not 
-  # somethign like CMT00
+  # something like CMT00
 
   for i, line in enumerate(data):
     if cmtkey.upper() in line:
@@ -695,6 +692,7 @@ def find_cmt_start_idx(data, cmtkey):
 
   # Key not found
   return None
+
 
 def read_paramfile(thefile):
   '''
@@ -713,6 +711,7 @@ def read_paramfile(thefile):
   with open(thefile, 'r') as f:
     data = f.readlines()
   return data
+
 
 def compare_CMTs(fileA, cmtnumA, fileB, cmtnumB, ignore_formatting=True):
   '''
@@ -761,6 +760,7 @@ def compare_CMTs(fileA, cmtnumA, fileB, cmtnumB, ignore_formatting=True):
       print("   A: {}".format(A))
       print("   B: {}".format(B))
       print("")
+
 
 def is_CMT_divider_line(line):
   '''
@@ -954,6 +954,7 @@ def get_CMT_datablock(afile, cmtnum):
 
   return data[startidx:end]
 
+
 def detect_block_with_pft_info(cmtdatablock):
   # Perhaps should look at all lines??
   secondline = cmtdatablock[1].strip("//").split()
@@ -1012,7 +1013,6 @@ def parse_header_line(linedata):
   return cmtkey, cmtname, cmtcomment
 
 
-
 def get_pft_verbose_name(cmtkey=None, pftkey=None, cmtnum=None, pftnum=None, lookup_path=None):
   if lookup_path == "relative_to_dvmdostem":
     path2params = os.path.join(os.path.split(os.path.dirname(os.path.realpath(__file__)))[0], 'parameters/')
@@ -1043,6 +1043,7 @@ def get_pft_verbose_name(cmtkey=None, pftkey=None, cmtnum=None, pftnum=None, loo
   dd = cmtdatablock2dict(data)
 
   return dd[pftkey.lower()]['name']
+
 
 def cmtdatablock2dict(cmtdatablock):
   '''
@@ -1722,7 +1723,7 @@ def cmdline_run(args):
     'cmt_envground.txt',
     'cmt_firepar.txt',
   ]
-  
+
   if args.extract_cmt:
     folder, cmtkey = args.extract_cmt
     if not isCMTkey(cmtkey):
