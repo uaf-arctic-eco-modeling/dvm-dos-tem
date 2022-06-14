@@ -1748,6 +1748,10 @@ def cmdline_parse(argv=None):
         and paste that block in to a new file named CMTKEY_cmt_*.txt, 
         i.e: CMT04_cmt_calparbgc.txt'''))
 
+  parser.add_argument('--params2csv-v0', nargs=2, metavar=('PARAMFOLDER','CMTKEY'),
+      help=textwrap.dedent('''Dumps a parameter file to csv format.'''))
+
+
   args = parser.parse_args(argv)
 
   return args
@@ -1765,6 +1769,96 @@ def cmdline_run(args):
     'cmt_envground.txt',
     'cmt_firepar.txt',
   ]
+
+  if args.params2csv_v0:
+    folder = args.params2csv_v0[0]
+    cmtkey = args.params2csv_v0[1]
+
+    if not isCMTkey(cmtkey):
+      print("Invalid CMT key! Aborting.")
+      return -1
+
+    param_files = os.listdir(folder)
+    param_files = [os.path.join(folder, f) for f in param_files]
+
+    if len(param_files) < 1:
+      print("No files in specified folder! Aborting.")
+      return -1
+
+    lines = []
+    for f in param_files:
+      if isParamFile(f):
+
+        # use the incoming file as a reference
+        ref_order = generate_reference_order(f)
+
+        # A line for the file name
+        lines.append('{}'.format(f).upper())
+
+        # get data from the fixed width formatted file...
+        dd = cmtdatablock2dict(get_CMT_datablock(f, int(cmtkey[3:])))
+
+        # Work on formatting the first comment line
+        # should produce something like this:
+        # // CMT04 // Shrub Tundra // comment...
+        cmt, name, comment = parse_header_line(get_CMT_datablock(f, dd['tag'])[0])
+        lines.append("// " + " // ".join((cmt, name, comment)))
+        
+        # Now work on formatting the second comment line, which may not exist, or
+        # may need to have PFT names as column headers. Look at the keys in the
+        # data dict to figure out what to do...
+        pftnamelist = []
+        for k in sorted(dd.keys()):
+          # regular expression matching pft and a digit
+          # need this 'cuz cmt_bgcsoil.txt has a parameter named 'propftos'
+          # when there is a match, the result is a regular expression object
+          # otherwise it is None.
+          result = re.match('pft\d', k)
+          if result:
+            pftnamelist.append(dd[k]['name'])
+          else:
+            pass # not a PFT key
+
+        if len(pftnamelist) > 0:
+          s = ",".join(["{}".format(i) for i in pftnamelist])
+          lines.append(s)
+
+        def is_pft_var(v):
+          '''Function for testing if a variable is PFT specific or not.'''
+          if v not in list(dd.keys()) and v in list(dd['pft0'].keys()):
+            return True
+          else:
+            return False
+
+        # First take care of the PFT variables
+        for var in ref_order:
+          if not is_pft_var(var):
+            pass
+          else:
+            # get each item from dict, append to line
+            linestring = ''
+            for pft in get_datablock_pftkeys(dd):
+              linestring += "{:0.6f},".format(dd[pft][var])
+            linestring += ('{}'.format(var))
+            lines.append(linestring)
+
+        
+        # Then take care of the non-pft vars.
+        for var in ref_order:
+          if is_pft_var(var):
+            pass # Nothing to do; already did pft stuff
+          else:
+            # get item from dict, append to line
+            lines.append('{:0.6f},{}'.format(dd[var], var))
+
+      else:
+        pass # nothing to do with non-param files
+      
+      lines.append('')
+      lines.append('')
+
+      for l in lines:
+        print(l)
 
   if args.extract_cmt:
     folder, cmtkey = args.extract_cmt
