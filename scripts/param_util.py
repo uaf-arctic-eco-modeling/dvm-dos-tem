@@ -166,13 +166,15 @@ def fwt2csv(param_dir, req_cmts='all'):
 
     avail_cmts = get_available_CMTs(param_dir)
 
-    if req_cmts == 'all':
-      cmts = avail_cmts
-    
     if not all([i in avail_cmts for i in req_cmts]):      
       raise RuntimeError("One of the requested cmts is not available! Requested: {}".format(req_cmts))
 
-    for cmt in req_cmts:
+    if req_cmts == 'all':
+      cmts = avail_cmts
+    else:
+      cmts = req_cmts
+
+    for cmt in cmts:
       print("Working on CMT {}...".format(cmt))
       meta = []
       pftdata = []
@@ -182,11 +184,77 @@ def fwt2csv(param_dir, req_cmts='all'):
       pftdata.append('file,name,0,1,2,3,4,5,6,7,8,9,units,description,comment,refs\n')
       nonpftdata.append('file,name,value,units,description,comment,refs\n')
 
+      if targets_path:
+        # Try importing parameter data
+        if os.path.exists(targets_path):
+          try:
+            sys.path.append(os.path.dirname(targets_path))
+            from calibration_targets import calibration_targets as targets
+          except:
+            print("Problem importing calibration targets!")
+        else:
+          raise RuntimeError("Can't find targets file!")
+
+
+      for cmtname, tvals in targets.items():
+        if cmtname == 'meta':
+          pass
+        else:
+          if 'PFTNames' not in targets[cmtname].keys():
+            print("WARNING! NO PFT NAMES SET IN calibration_targets!")
+
+          if targets[cmtname]['cmtnumber'] in cmts:
+            for k,v in targets[cmtname].items():
+              if k in ['cmtnumber', 'meta']:
+                pass
+              else:
+                if k == 'PFTNames':
+                  s = '{},PFTNames,'.format(targets_path)
+                  for i in range(0,10):
+                    s += "{},".format(v[i])
+                  s += '"{}","{}","{}","{}"\n'.format("units", "desc","comment", "ref")
+                  pftdata.append(s)
+
+                if isinstance(v, (int, float)) and not isinstance(v, bool):
+                  print("--->", k, v)
+                  units = targets['meta'][k]['units']
+                  desc = targets['meta'][k]['desc']
+                  comment = targets['meta'][k]['comment']
+                  ref = targets['meta'][k]['ref']
+                  nonpftdata.append('{},{},{},"{}","{}","{}","{}"\n'.format(targets_path, k, v, units, desc, comment, ref))
+
+                if isinstance(v, (list)):
+                  units = targets['meta'][k]['units']
+                  desc = targets['meta'][k]['desc']
+                  comment = targets['meta'][k]['comment']
+                  ref = targets['meta'][k]['ref']
+                  s = ''
+                  s += '{},{},'.format(targets_path, k)
+                  for i in range(0,10):
+                    s += '{:0.3f},'.format(v[i])
+                  s += '"{}","{}","{}","{}"\n'.format(units, desc, comment, ref)
+                  pftdata.append(s)
+
+                if isinstance(v, (dict)):
+                  s = ''
+                  for cmpt, data in v.items():
+                    units = targets['meta'][k][cmpt]['units']
+                    desc = targets['meta'][k][cmpt]['desc']
+                    comment = targets['meta'][k][cmpt]['comment']
+                    s += '{},'.format(targets_path)
+                    s += '{}:{},'.format(k,cmpt)
+                    for i in range(0,10):
+                      s += '{:0.3f},'.format(data[i])
+                    s += '"{}","{}","{}","{}"\n'.format(units, desc, comment, ref)
+                  pftdata.append(s)
+
+
       for f in os.listdir(param_dir):
         pfile = os.path.join(param_dir, f)
         if isParamFile(pfile):
           db = get_CMT_datablock(pfile, cmt)
           dd = cmtdatablock2dict(db)
+
           if detect_block_with_pft_info(db):
 
             s = ''

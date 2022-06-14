@@ -4,6 +4,32 @@
 # contents of an excel file...? or just plain csv?
 
 calibration_targets = {
+  # Added this data structure to support comments, units, references etc that
+  # can be handled in the fixed width text parameter files as well as the csv
+  # parameter files.
+  "meta": {
+    'GPPAllIgnoringNitrogen': {'units': 'gC/m2/year', 'desc': 'GPP without N limitation', 'comment': 'ingpp', 'ref': ''},
+    'NPPAllIgnoringNitrogen': {'units': 'gC/m2/year', 'desc': 'NPP without N limitation', 'comment': 'innpp', 'ref': ''},
+    'NPPAll': {'units': 'gC/m2/year', 'desc': 'NPP with N limitation', 'comment': 'npp', 'ref': ''},
+    'Nuptake': {'units': 'gN/m2/year', 'desc': '', 'comment': 'nuptake', 'ref': ''},
+    'VegCarbon': {
+      'Leaf': {'units': 'gC/m2', 'desc': '', 'comment': 'vegcl', 'ref': ''},
+      'Stem': {'units': 'gC/m2', 'desc': '', 'comment': 'vegcw', 'ref': ''},
+      'Root': {'units': 'gC/m2', 'desc': '', 'comment': 'vegcr', 'ref': ''},
+    },
+    'VegStructuralNitrogen': {
+      'Leaf': {'units': 'gN/m2', 'desc': '', 'comment': 'vegnl', 'ref': ''},
+      'Stem': {'units': 'gN/m2', 'desc': '', 'comment': 'vegnw', 'ref': ''},
+      'Root': {'units': 'gN/m2', 'desc': '', 'comment': 'vegnr', 'ref': ''},
+    },
+    'MossDeathC': {'units': '', 'desc': '', 'comment': 'dmossc', 'ref': ''},
+    'CarbonShallow': {'units': '', 'desc': '', 'comment': 'shlwc', 'ref': ''},
+    'CarbonDeep': {'units': '', 'desc': '', 'comment': 'deep', 'ref': ''},
+    'CarbonMineralSum': {'units': '', 'desc': '', 'comment': 'minec', 'ref': ''},
+    'OrganicNitrogenSum': {'units': '', 'desc': '', 'comment': 'soln', 'ref': ''},
+    'AvailableNitrogenSum': {'units': '', 'desc': '', 'comment': 'avln', 'ref': ''},
+  },
+
   ## WARNING: JUNK, PLACEHOLDER VALUES! USE AT YOUR OWN RISK!
   "BLANK": {
     'cmtnumber': 0,
