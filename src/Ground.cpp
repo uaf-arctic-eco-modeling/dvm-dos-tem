@@ -274,7 +274,7 @@ void Ground::initParameter() {
   soildimpar.minshlwthick = 0.010;   // meters
   soildimpar.coefshlwa  = chtlu->coefshlwa;
   soildimpar.coefshlwb  = chtlu->coefshlwb;
-  soildimpar.minshlwthick = 0.005;   // meters
+  soildimpar.mindeepthick = 0.005;   // meters
   soildimpar.coefdeepa  = chtlu->coefdeepa;
   soildimpar.coefdeepb  = chtlu->coefdeepb;
   soildimpar.coefminea  = chtlu->coefminea;
