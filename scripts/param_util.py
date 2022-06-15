@@ -155,7 +155,7 @@ class ParamUtilSpeedHelper(object):
     return s
 
 
-def fwt2csv(param_dir, req_cmts='all'):
+def fwt2csv(param_dir, req_cmts='all', targets_path=None):
     '''
     Convert from fixed width text (fwt) format to CSV (comma separated values).
 
@@ -196,34 +196,35 @@ def fwt2csv(param_dir, req_cmts='all'):
           raise RuntimeError("Can't find targets file!")
 
 
-      for cmtname, tvals in targets.items():
-        if cmtname == 'meta':
-          pass
-        else:
-          if 'PFTNames' not in targets[cmtname].keys():
-            print("WARNING! NO PFT NAMES SET IN calibration_targets!")
+        for cmtname, tvals in targets.items():
+          if cmtname == 'meta':
+            pass # nothing to do here...
+          else:
+            if targets[cmtname]['cmtnumber'] in cmts:
+              for k,v in targets[cmtname].items():
 
-          if targets[cmtname]['cmtnumber'] in cmts:
-            for k,v in targets[cmtname].items():
-              if k in ['cmtnumber', 'meta']:
-                pass
-              else:
-                if k == 'PFTNames':
+                if k in ['meta']:
+                  pass
+
+                elif k == 'cmtnumber':
+                  meta.append('{},{},{},"{}"\n'.format(targets_path, targets[cmtname]['cmtnumber'], cmtname, "comment"))
+
+                elif k == 'PFTNames':
                   s = '{},PFTNames,'.format(targets_path)
                   for i in range(0,10):
                     s += "{},".format(v[i])
                   s += '"{}","{}","{}","{}"\n'.format("units", "desc","comment", "ref")
                   pftdata.append(s)
 
-                if isinstance(v, (int, float)) and not isinstance(v, bool):
-                  print("--->", k, v)
+                elif isinstance(v, (int, float)) and not isinstance(v, bool):
+                  #print("--->", k, v)
                   units = targets['meta'][k]['units']
                   desc = targets['meta'][k]['desc']
                   comment = targets['meta'][k]['comment']
                   ref = targets['meta'][k]['ref']
                   nonpftdata.append('{},{},{},"{}","{}","{}","{}"\n'.format(targets_path, k, v, units, desc, comment, ref))
 
-                if isinstance(v, (list)):
+                elif isinstance(v, (list)):
                   units = targets['meta'][k]['units']
                   desc = targets['meta'][k]['desc']
                   comment = targets['meta'][k]['comment']
@@ -235,7 +236,7 @@ def fwt2csv(param_dir, req_cmts='all'):
                   s += '"{}","{}","{}","{}"\n'.format(units, desc, comment, ref)
                   pftdata.append(s)
 
-                if isinstance(v, (dict)):
+                elif isinstance(v, (dict)):
                   s = ''
                   for cmpt, data in v.items():
                     units = targets['meta'][k][cmpt]['units']
@@ -247,6 +248,9 @@ def fwt2csv(param_dir, req_cmts='all'):
                       s += '{:0.3f},'.format(data[i])
                     s += '"{}","{}","{}","{}"\n'.format(units, desc, comment, ref)
                   pftdata.append(s)
+
+                else:
+                  print("Here?? ")
 
 
       for f in os.listdir(param_dir):
@@ -283,7 +287,7 @@ def fwt2csv(param_dir, req_cmts='all'):
             pftdata.append(s)
 
           s = ''
-          nonpftvars = [x for x in dd.keys() if x not in ['tag','cmtname','comment']]
+          nonpftvars = [x for x in dd.keys() if x not in ['tag','cmtname','comment']] # Alternate formulation? filter(lambda x: x not in ['tag','cmtname','comment'], dd.keys())
           nonpftvars = [x for x in nonpftvars if 'pft' not in x]
           nonpftvars = [x for x in nonpftvars if 'comment_' not in x]
           #s += '{},{},{},"{}"\n'.format('file','pname','pvalue','comment')
