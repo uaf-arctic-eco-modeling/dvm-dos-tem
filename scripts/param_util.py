@@ -337,7 +337,7 @@ def fwt2csv(param_dir, req_cmts='all', targets_path=None):
         f.writelines(nonpftdata)
 
 
-def csv2fwt(csv_file, ref_directory='../parameters'):
+def csv2fwt(csv_file, ref_directory='../parameters', ref_targets=None):
   '''
   Convert from csv parameter files to fixed width text format.
 
@@ -352,6 +352,64 @@ def csv2fwt(csv_file, ref_directory='../parameters'):
   pft_data = csv_read_section(data, start=sections['pft'][0], end=sections['pft'][1])
   nonpft_data = csv_read_section(data, start=sections['nonpft'][0], end=sections['nonpft'][1])
   meta = csv_read_section(data, start=sections['meta'][0], end=sections['meta'][1])
+
+  if ref_targets:
+    # Take care of the targets data - this is formatted differently from
+    # the other parameters. While the other parameters are the fixed width
+    # text format, the calibration targets are stored in a python object.
+    # So here we print the object out
+    if not(os.path.exists(ref_targets)):
+      print("ERROR - targets ({}) don't exist, quitting.".format(ref_targets))
+      exit(-1)
+
+    print(ref_targets)
+
+    relevant_pft_vars = list(filter(lambda x: ref_targets in x['file'], pft_data))
+    relevant_nonpft_vars = list(filter(lambda x: ref_targets in x['file'], nonpft_data))
+    relevant_meta = list(filter(lambda x: ref_targets in x['file'], meta))
+
+    new_targs = {}
+
+    for i in relevant_nonpft_vars:
+      new_targs[i['name']] = i['value']
+
+    for i in relevant_pft_vars:
+      l = []
+      for pftnum in range(0,10):
+        if i['name'] == 'PFTNames':
+          l.append(i[str(pftnum)])
+        else:
+          l.append(float(i[str(pftnum)]))
+
+      if ':' in i['name']:
+        a, b = i['name'].split(':')
+        if a not in new_targs:
+          new_targs[a] = dict()
+        new_targs[a][b] = l
+      else:
+        new_targs[i['name']] = l
+
+    # Print it out in some kind of semi-reasonable format...
+    new_targs['cmtnumber'] = relevant_meta[0]['cmtkey']
+    #print(new_targs)
+    for k, v in new_targs.items():
+      if isinstance(v, list):
+        if k == 'PFTNames':
+          print('{}:  {},'.format(k, v))
+        else:
+          u = ['{:0.3f}, ' for i in v]
+          s = "".join(u).format(*v)
+          print('{}:  {},'.format(k, s))
+      elif isinstance(v, dict):
+        print("{}: {{".format(k))
+        for kk, vv in v.items():
+          u = ['{:0.3f}, ' for i in vv]
+          s = "".join(u).format(*vv)
+          print("  {} : {},".format(kk, s))
+        print("},")
+      else:
+        print("{}: {},".format(k, v))
+    print()
 
   for reffile in os.listdir(ref_directory):
     print(reffile)
