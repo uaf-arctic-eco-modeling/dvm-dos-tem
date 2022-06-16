@@ -364,6 +364,7 @@ def csv2fwt(csv_file, ref_directory='../parameters', ref_targets=None):
 
     print(ref_targets)
 
+    # filter by column with the file name/path in it
     relevant_pft_vars = list(filter(lambda x: ref_targets in x['file'], pft_data))
     relevant_nonpft_vars = list(filter(lambda x: ref_targets in x['file'], nonpft_data))
     relevant_meta = list(filter(lambda x: ref_targets in x['file'], meta))
@@ -392,25 +393,28 @@ def csv2fwt(csv_file, ref_directory='../parameters', ref_targets=None):
     # Print it out in some kind of semi-reasonable format...
     new_targs['cmtnumber'] = relevant_meta[0]['cmtkey']
     #print(new_targs)
+    print("?? = {")
     for k, v in new_targs.items():
       if isinstance(v, list):
         if k == 'PFTNames':
-          print('{}:  {},'.format(k, v))
+          print("  '{}':  {},".format(k, v))
         else:
           u = ['{:0.3f}, ' for i in v]
           s = "".join(u).format(*v)
-          print('{}:  {},'.format(k, s))
+          print("  '{}':  [{}],".format(k, s))
       elif isinstance(v, dict):
-        print("{}: {{".format(k))
+        print("  '{}': {{".format(k))
         for kk, vv in v.items():
           u = ['{:0.3f}, ' for i in vv]
           s = "".join(u).format(*vv)
-          print("  {} : {},".format(kk, s))
-        print("},")
+          print("    '{}' : [{}],".format(kk, s))
+        print("  },")
       else:
-        print("{}: {},".format(k, v))
+        print("  '{}': {},".format(k, v))
+    print("}")
     print()
 
+  ## All other parameters (not calibration targets)
   for reffile in os.listdir(ref_directory):
     print(reffile)
     if 'firepar' in reffile:
