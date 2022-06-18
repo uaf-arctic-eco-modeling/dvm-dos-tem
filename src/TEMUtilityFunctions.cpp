@@ -12,6 +12,7 @@
 #include <cerrno>
 #include <sstream>
 #include <limits>
+#include <regex>
 
 #include <json/reader.h>
 #include <json/value.h>
@@ -618,6 +619,44 @@ namespace temutil {
     temutil::nc( nc_get_vara_float(ncid, timeseries_var, start, count, &data[0]) );
 
     return data;
+  }
+
+  /** Return the calendar start year of a timeseries netcdf file. 
+  * Usually this will be a climate file, but it should function with
+  * any file that has a time variable with a units attribute
+  * based on time since a specific year. 
+  */
+  int get_timeseries_start_year(const std::string& fname){
+
+    int ncid;
+    temutil::nc( nc_open(fname.c_str(), NC_NOWRITE, &ncid) );
+
+    int timeV;
+    temutil::nc( nc_inq_varid(ncid, "time", &timeV) );
+
+    size_t timeUnitsLen;
+    temutil::nc( nc_inq_attlen(ncid, timeV, "units", &timeUnitsLen) );
+
+    char timeAttUnits[timeUnitsLen];
+    temutil::nc( nc_get_att_text(ncid, timeV, "units", timeAttUnits) );
+    std::string timeAttUnits_s(timeAttUnits);
+
+    temutil::nc( nc_close(ncid) );
+
+    //Pattern match the year value out of timeAttUnits
+    //Example attribute units string: "days since 2016-1-1 0:0:0"
+    std::regex year_exp("[0-9][0-9][0-9][0-9]");
+
+    std::smatch sm;
+    std::regex_search(timeAttUnits_s, sm, year_exp);
+
+    //Convert from string to int
+    std::stringstream ss;
+    int start_year;
+    ss << sm[0];
+    ss >> start_year;
+
+    return start_year;
   }
 
   /** rough draft - look up lon/lat in nc file from y,x coordinates. 

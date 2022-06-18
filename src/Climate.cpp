@@ -403,6 +403,9 @@ void Climate::load_from_file(const std::string& fname, int y, int x) {
     vapo = temutil::get_timeseries<float>(fname, "vapor_press", y, x);
     prec = temutil::get_timeseries<float>(fname, "precip", y, x);
     nirr = temutil::get_timeseries<float>(fname, "nirr", y, x);
+
+    tseries_start_year = temutil::get_timeseries_start_year(fname);
+
   }//End critical(load_climate)
 
   // Report on sizes...

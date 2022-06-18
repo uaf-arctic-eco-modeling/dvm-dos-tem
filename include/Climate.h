@@ -10,6 +10,11 @@ public:
   Climate();
   Climate(const std::string& fname, const std::string& co2fname, int y, int x);
 
+  // misc climate variables
+  // This value will change during a run when switching from
+  //  historic to projected climate data
+  int tseries_start_year;
+
   // driving variables
   std::vector<float> co2;
   std::vector<float> tair;
