@@ -454,13 +454,13 @@ def csv2fwt(csv_file, ref_directory='../parameters', ref_targets=None):
           s = ''
           for i in range(0,10):
             s += '{:12.4f} '.format(float(p[str(i)]))
-          s += '// {}: {} {} {}\n'.format(p['name'], p['description'], p['units'], p['comment'])
+          s += '// {}: {} // {} // {} // {}\n'.format(p['name'], p['units'], p['description'], p['comment'], p['refs'])
           full_string += s
 
         elif len(n) > 0:
           n = n[0]
           # is is a non-pft variable...
-          s = '{:<12.4f} // {}: {} {} {}\n'.format(float(n['value']), n['name'], n['description'], n['units'], n['comment'])
+          s = '{:<12.4f} // {}: {} // {} // {} // {}\n'.format(float(n['value']), n['name'], n['units'], n['description'], n['comment'], n['refs'])
           full_string += s
 
       print(full_string)
