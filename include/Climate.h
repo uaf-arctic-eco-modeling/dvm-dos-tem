@@ -81,7 +81,7 @@ private:
 
   void split_precip();
 
-  std::vector<float> avg_over(const std::vector<float> & var, const int window);
+  std::vector<float> avg_over(const std::vector<float> & var, const int start_yr, const int end_yr);
   std::vector<float> rpt_years(const std::vector<float> &, const int);
 
   std::vector<float> interpolate_daily(const std::vector<float> & var);
