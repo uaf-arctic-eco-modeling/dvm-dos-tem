@@ -392,27 +392,27 @@ def csv2fwt(csv_file, ref_directory='../parameters', ref_targets=None):
 
     # Print it out in some kind of semi-reasonable format...
     new_targs['cmtnumber'] = relevant_meta[0]['cmtkey']
-    #print(new_targs)
-    print("'{}' = {{".format(relevant_meta[0]['cmtname']))
+    full_string = ''
+    full_string += "'{}' = {{\n".format(relevant_meta[0]['cmtname'])
     for k, v in new_targs.items():
       if isinstance(v, list):
         if k == 'PFTNames':
-          print("  '{}':  {},".format(k, v))
+          full_string += "  '{}':  {},\n".format(k, v)
         else:
           u = ['{:0.3f}, ' for i in v]
           s = "".join(u).format(*v)
-          print("  '{}':  [{}],".format(k, s))
+          full_string += "  '{}':  [{}],\n".format(k, s)
       elif isinstance(v, dict):
-        print("  '{}': {{".format(k))
+        full_string += "  '{}': {{\n".format(k)
         for kk, vv in v.items():
           u = ['{:0.3f}, ' for i in vv]
           s = "".join(u).format(*vv)
-          print("    '{}' : [{}],".format(kk, s))
-        print("  },")
+          full_string += "    '{}' : [{}],\n".format(kk, s)
+        full_string += "  },\n"
       else:
-        print("  '{}': {},".format(k, v))
-    print("}")
-    print()
+        full_string += "  '{}': {},\n".format(k, v)
+    full_string += "}\n"
+    print(full_string)
 
   ## All other parameters (not calibration targets)
   for reffile in os.listdir(ref_directory):
