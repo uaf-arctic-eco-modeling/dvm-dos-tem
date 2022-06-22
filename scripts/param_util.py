@@ -435,7 +435,7 @@ def csv2fwt(csv_file, ref_directory='../parameters', ref_targets=None):
         k = [x for x in relevant_pft_vars if x['name'] == 'pftname']
         for i in range(0,10):
           s += '{:>12} '.format(k[0][str(i)])
-        s += '\n'
+        s += '// name: units // description // comment // refs\n'
         full_string += s
 
       # Handle the data
