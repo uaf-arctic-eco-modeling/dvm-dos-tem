@@ -11,6 +11,7 @@ import sys
 import csv
 import itertools
 import subprocess
+import tempfile
 
 # For command line interface
 import sys
@@ -337,7 +338,8 @@ def fwt2csv(param_dir, req_cmts='all', targets_path=None):
         f.writelines(nonpftdata)
 
 
-def csv2fwt(csv_file, ref_directory='../parameters', ref_targets=None):
+def csv2fwt(csv_file, ref_directory='../parameters', 
+            overwrite_files=None, ref_targets=None):
   '''
   Convert from csv parameter files to fixed width text format.
 
@@ -462,10 +464,15 @@ def csv2fwt(csv_file, ref_directory='../parameters', ref_targets=None):
           # is is a non-pft variable...
           s = '{:<12.4f} // {}: {} // {} // {} // {}\n'.format(float(n['value']), n['name'], n['units'], n['description'], n['comment'], n['refs'])
           full_string += s
-
-      print(full_string)
-      print()
-      print()
+      if overwrite_files:
+        with tempfile.NamedTemporaryFile(mode='w+t') as temp:
+          temp.writelines(full_string)
+          temp.flush()
+          replace_CMT_data(os.path.join(ref_directory, reffile), temp.name, 0, overwrite=True)
+      else:
+        print(full_string)
+        print()
+        print()
 
   return 0
 
