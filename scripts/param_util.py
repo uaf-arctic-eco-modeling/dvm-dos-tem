@@ -503,6 +503,17 @@ def csv_v1_specification():
 
 
 def csv_find_section_indices(csv_file):
+  '''
+  Parses a specially formatted csv file and returns the starting and ending
+  indices for each section in the file.
+
+  Returns
+  =======
+  sections : dict
+    Mapping of section names to a pair of ints representing the start and end
+    indices of the section, for example: 
+    {'meta':(0,5), 'pft':(8,25), 'nonpft':(25,35)}
+  '''
 
   sections = {}
 
@@ -530,6 +541,22 @@ def csv_find_section_indices(csv_file):
 
 
 def csv_read_section(data, start, end):
+  '''
+  Write this...
+
+  Parameters
+  ==========
+  data : list
+    The list of lines of a specially formatted csv file.
+  start : int
+    The starting index of the section to read from the csv file.
+  end : int
+    The ending index (not inclusive) of the section to read from the csv file.
+
+  Returns
+  =======
+  A list of dicts produced by csv.DictReader, one key for each column name.
+  '''
   csvreader = csv.DictReader(data[start:end], dialect='excel')
   return [row for row in csvreader]
 
