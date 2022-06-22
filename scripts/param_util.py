@@ -393,7 +393,7 @@ def csv2fwt(csv_file, ref_directory='../parameters', ref_targets=None):
     # Print it out in some kind of semi-reasonable format...
     new_targs['cmtnumber'] = relevant_meta[0]['cmtkey']
     #print(new_targs)
-    print("?? = {")
+    print("'{}' = {{".format(relevant_meta[0]['cmtname']))
     for k, v in new_targs.items():
       if isinstance(v, list):
         if k == 'PFTNames':
