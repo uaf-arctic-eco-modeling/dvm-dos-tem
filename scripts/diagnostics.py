@@ -290,7 +290,7 @@ def image_plot(imgarrays, plotlist, title='', save=False, format='pdf', savetag=
     print("min/max values in data array:", data.min(), data.max())
 
     # Transform data to 2D shape for showing as an image
-    data = data.reshape(len(data)/12, 12)
+    data = data.reshape(int(len(data)/12), 12)
 
     # Not totally sure how this part works, but it seems to help make room
     # for the colorbar axes
