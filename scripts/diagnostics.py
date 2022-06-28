@@ -963,7 +963,7 @@ if __name__ == '__main__':
 
   # Make a table listing options for the help text
   t = itertools.zip_longest(error_image_choices, tab_reports_and_timeseries_choices)
-  option_table = "\n".join(["{:>30} {:>30}".format(str(r[0] or ''), str(r[1] or '')) for r in t])
+  option_table = "\n".join(["{:>30} {:>30}".format(str(r[0]), str(r[1])) for r in t])
   option_table = "\n" + option_table
 
   #
