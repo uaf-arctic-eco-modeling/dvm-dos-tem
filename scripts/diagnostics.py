@@ -371,7 +371,7 @@ def image_plot(imgarrays, plotlist, title='', save=False, format='pdf', savetag=
     plt.show(block=True)
 
 
-def plot_tests(test_list, **kwargs):
+def plot_tests(test_list, save_plots=False, **kwargs):
   #title =  "------  %s  ------" % t
   for t in test_list:
     data = compile_table_by_year(t, **kwargs)
@@ -387,11 +387,22 @@ def plot_tests(test_list, **kwargs):
     # column ends up NaN. May need to update pandas version
     #df = pd.read_csv(StringIO(data), header=0, delim_whitespace=True, na_values='NULL')
 
+    # THIS ALL RUNS, NOT SURE YET IF IT IS CORRECT. ALL THE PLOTS 
+    # GENERATED ARE IDENTICAL??
     print("plotting dataframe...")
-    dfp = df.plot(subplots=True)#, grid=False)
+    from IPython import embed; embed()
+    dfa = df.plot(subplots=True)#, grid=False)
+    for i, x in enumerate(dfa):
+      fig = dfa[i].get_figure()
 
-    print("using matplotlib show...")
-    plt.show(block=True)
+      if save_plots:
+        SAVE_DIR = 'diagnostics-plots'
+        file_name = os.path.join(SAVE_DIR, "{}_{}_diag_timeseries_pft{:02d}.{}".format(t, savetag, i, 'png'))
+        print("saving file: %s" % file_name)
+        fig.savefig(file_name)
+      else:
+        print("using matplotlib show...")
+        plt.show(block=True)
 
 def run_tests(test_list, **kwargs):
 
@@ -1084,7 +1095,7 @@ if __name__ == '__main__':
 
   if args.plot_timeseries:
     print("Creating timeseries plots...")
-    plot_tests(args.plot_timeseries, fileslice=slstr)
+    plot_tests(args.plot_timeseries, fileslice=slstr, save_plots=save)
 
   if args.tab_reports:
     print("Creating tabular reports...")
