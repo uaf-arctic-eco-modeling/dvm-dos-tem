@@ -432,7 +432,7 @@ def run_tests(test_list, **kwargs):
 
 def compile_table_by_year(test_case, **kwargs):
 
-    jfiles = file_loader(**kwargs)
+    jfiles = sorted(file_loader(**kwargs))
 
     # map 'test case' strings to various test and 
     # reporting functions we have written in the module.
