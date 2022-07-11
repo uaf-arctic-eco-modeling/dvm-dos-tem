@@ -455,14 +455,16 @@ def csv2fwt(csv_file, ref_directory='../parameters',
           # it is a pft variable...
           s = ''
           for i in range(0,10):
-            s += '{:12.4f} '.format(float(p[str(i)]))
+            s += smart_format(p[str(i)])
           s += '// {}: {} // {} // {} // {}\n'.format(p['name'], p['units'], p['description'], p['comment'], p['refs'])
           full_string += s
 
         elif len(n) > 0:
           n = n[0]
           # is is a non-pft variable...
-          s = '{:<12.4f} // {}: {} // {} // {} // {}\n'.format(float(n['value']), n['name'], n['units'], n['description'], n['comment'], n['refs'])
+          s = '{val} // {name}: {units} // {desc} // {comment} // {refs}\n'
+          s.format(val=smart_format(n['value']), name=n['name'], units=n['units'],
+            desc=n['description'], desc=n['comment'],desc=n['refs'])
           full_string += s
       if overwrite_files:
         with tempfile.NamedTemporaryFile(mode='w+t') as temp:
@@ -476,6 +478,37 @@ def csv2fwt(csv_file, ref_directory='../parameters',
 
   return 0
 
+def smart_format(x, n=6, basefmt='{:12.4f} ', toolongfmt='{:12.3e} '):
+  '''
+  Provides a flexible method for printing different number formats.
+
+  Tries to assess the length of the string version of x and apply different
+  formats based on the length. While the formats are flexible using 
+  keyword arguments, the defauts are generally for fixed decimal notation for
+  shorter numbers and scientific notation for longer numbers.
+
+  Parameters
+  ----------
+  x : anything that can cast to a float
+    The value to format.
+
+  n : int
+    The length at which the function switches between basefmt and toolongfmt.
+
+  basefmt :  a format string
+    The format to use for x if string representation of x is shorter than n.
+
+  toolongfmt : a format string
+    The format to use for x if string representation of x is longer than n.
+
+  Returns
+  -------
+  String (formatted version of x).
+  '''
+  if len(str(x)) > n:
+    return toolongfmt.format(float(x))
+  else:
+    return basefmt.format(float(x))
 
 def csv_v1_specification():
   '''
