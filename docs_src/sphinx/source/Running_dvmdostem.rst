@@ -100,7 +100,7 @@ Running multiple sites
     WRITE THIS...
 
 =============================
-Running from restart files
+Running from Restart Files
 =============================
 ``Dvmdostem`` can be stopped at and restarted from any inter-stage pause. The
 most useful point to do so will be after either EQ or SP, so the bulk of the
@@ -109,6 +109,11 @@ completed quickly.
 
 The files needed to do this are automatically created and named after the stage
 that they hold data from: ``restart-[stage].nc``.
+
+.. raw:: html
+
+    <!-- This is an embed link to a Google Drawing created by Ruth Rutter and Tobey Carman -->
+    <img src="https://docs.google.com/drawings/d/e/2PACX-1vSL4SJun4GptQWQqkKoTxc1RhiDZcdjz7E8Gkk1bL-pldPu8L0jYC1z2UlrwW-pvE-oH3TTKaQDKS-x/pub?w=963&amp;h=513">
 
 ------
 Set up
