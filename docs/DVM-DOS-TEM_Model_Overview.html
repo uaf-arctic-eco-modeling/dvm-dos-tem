@@ -58,7 +58,7 @@ There are 5 possible “run stages”:</p>
 <li><p>Equilibrium (eq)</p></li>
 <li><p>Spinup (sp)</p></li>
 <li><p>Transient (tr)</p></li>
-<li><p>Scenario (sn)</p></li>
+<li><p>Scenario (sc)</p></li>
 </ul>
 <p>The primary difference between the run stages is the nature of the input climate
 dataset, and specifically whether there is annual variability in the driving
@@ -70,9 +70,9 @@ used as the beginning state for each subsequent stage.</p>
 the stages.</p>
 <section id="pre-run-pr">
 <h4>pre-run (pr)<a class="headerlink" href="#pre-run-pr" title="Permalink to this headline">¶</a></h4>
-<blockquote>
-<div><p>WRITE THIS</p>
-</div></blockquote>
+<p>The pre-run is an equilibrium run for the physical variables of the model. It is
+typically 100 years, uses constant climate (typically monthly average computed
+from the [1901-1930] period).</p>
 </section>
 <section id="equilibrium-eq">
 <h4>equilibrium (eq)<a class="headerlink" href="#equilibrium-eq" title="Permalink to this headline">¶</a></h4>
@@ -565,6 +565,7 @@ like standard variables. Automation will need to be added in the future.</p>
 <li class="toctree-l1"><a class="reference internal" href="software_development_info.html">Software Development Info</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Running_dvmdostem.html">Running <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="SA_UQ.html">Sensitivity Analysis and Uncertainty Quantification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="command_cheat_sheet.html">Command Cheat Sheet</a></li>
 </ul>
 
 <div class="relations">
@@ -602,7 +603,7 @@ like standard variables. Automation will need to be added in the future.</p>
       &copy;2022, Tobey Carman, Ruth Rutter, Helene Genet, Eugenie Euskirchen.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.3.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.5.0</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
