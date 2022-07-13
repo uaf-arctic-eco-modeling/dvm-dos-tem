@@ -444,7 +444,7 @@ def csv2fwt(csv_file, ref_directory='../parameters',
 
       # Handle the PFT header line
       if len(list(filter(lambda x: x['name'] == 'pftname', relevant_pft_vars))) > 0:
-        s = ''
+        s = '//' # Comment out the header line for PFT Names
         k = [x for x in relevant_pft_vars if x['name'] == 'pftname']
         for i in range(0,10):
           s += '{:>12} '.format(k[0][str(i)])
@@ -464,7 +464,9 @@ def csv2fwt(csv_file, ref_directory='../parameters',
 
           p = p[0]
           # it is a pft variable...
-          s = ''
+          # start with 2 spaces so that columns line up with commented PFT name
+          # line above...
+          s = '  '
           for i in range(0,10):
             s += smart_format(p[str(i)])
           s += '// {}: {} // {} // {} // {}\n'.format(p['name'], p['units'], p['description'], p['comment'], p['refs'])
