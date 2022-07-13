@@ -277,23 +277,34 @@ def fwt2csv(param_dir, req_cmts='all', targets_path=None):
 
             # add line for each variable
             vnames = [x for x in dd['pft0'].keys() if x != 'name']  # <---IMPROVE THIS!
-            vnames = [x for x in vnames if 'comment_' not in x]
+            vnames = [x for x in vnames if '_' not in x]
+
             for v in vnames:
               s += "{},{},".format(pfile, v)
               for pft in sorted(get_datablock_pftkeys(dd)):
-                s += "{:0.3f},".format(dd[pft][v])
-              s += ',,'
-              s+= '"{}"'.format(dd[pft]['comment_{}'.format(v)])
+                #s += "{:0.3f},".format(dd[pft][v])
+                s += '{},'.format(smart_format(dd[pft][v]))
+              s += '{},'.format(dd[pft]['units_{}'.format(v)])
+              s += '"{}",'.format(dd[pft]['desc_{}'.format(v)])
+              s += '"{}",'.format(dd[pft]['comment_{}'.format(v)])
+              s += '"{}"'.format(dd[pft]['refs_{}'.format(v)])
               s += '\n'
             pftdata.append(s)
 
           s = ''
           nonpftvars = [x for x in dd.keys() if x not in ['tag','cmtname','comment']] # Alternate formulation? filter(lambda x: x not in ['tag','cmtname','comment'], dd.keys())
           nonpftvars = [x for x in nonpftvars if 'pft' not in x]
-          nonpftvars = [x for x in nonpftvars if 'comment_' not in x]
+          nonpftvars = [x for x in nonpftvars if '_' not in x]
           #s += '{},{},{},"{}"\n'.format('file','pname','pvalue','comment')
           for i in nonpftvars:
-            dataline = '{},{},{},{},"{}","{}"\n'.format(pfile, i, dd[i],'','',dd['comment_{}'.format(i)])
+            #file,name,value,units,description,comment,refs
+            dataline = '{},{},{},{},"{}","{}","{}"\n'.format(
+              pfile, i, dd[i],
+              dd['units_{}'.format(i)], 
+              dd['desc_{}'.format(i)], 
+              dd['comment_{}'.format(i)],
+              dd['refs_{}'.format(i)]
+            )
             nonpftdata.append(dataline)
 
           meta.append('{},{},{},"{}"\n'.format(pfile, dd['tag'], dd['cmtname'], dd['comment']))
@@ -464,7 +475,7 @@ def csv2fwt(csv_file, ref_directory='../parameters',
           # is is a non-pft variable...
           s = '{val} // {name}: {units} // {desc} // {comment} // {refs}\n'
           s.format(val=smart_format(n['value']), name=n['name'], units=n['units'],
-            desc=n['description'], desc=n['comment'],desc=n['refs'])
+            desc=n['description'], comment=n['comment'], refs=n['refs'])
           full_string += s
       if overwrite_files:
         with tempfile.NamedTemporaryFile(mode='w+t') as temp:
@@ -1326,29 +1337,48 @@ def cmtdatablock2dict(cmtdatablock):
 
   for i, line in enumerate(cmtdatablock):
     if line.strip()[0:2] == "//":
-      #print "passing line", i
       continue # Nothing to do...commented line
+    else:
+      data, *meta = line.strip().split('//')
 
-    else: # normal data line
-      dline = line.strip().split("//")
-      values = dline[0].split()
-      if len(dline) > 1:
-        vname = dline[1].strip().strip("//").split(':')[0]
-        if len(dline[1].strip().strip("//").split(':')[1:]) > 0:
-          vcomment = dline[1].strip().strip("//").split(':')[1:][0].strip()
-        else:
-          vcomment = ''
-      else:
-        vname = ''
-        vcomment = ''
+      data = data.strip().split()
 
-      if len(values) >= 5: # <--ARBITRARY! likely a pft data line?
-        for i, value in enumerate(values):
+      vname = units = desc = comment = refs = ''
+
+      if len(meta) < 1:
+        raise RuntimeError("Invalid file - must have metadata for variable!")
+
+      if len(meta) >= 1:
+        if len(meta[0].strip().split(':')) != 2:
+          raise RuntimeError("Problem with foratting of name:units for {}".format(meta))
+        vname, units = meta[0].strip().split(':')
+
+      if len(meta) >= 2:
+        # must have the name/units and desc fields
+        desc = meta[1].strip()
+
+      if len(meta) >= 3:
+        # must have the name/units, desc, and comment
+        comment = meta[2].strip()
+
+      if len(meta) >= 4:
+        # must have the name/units, desc, comment, and refs field
+        refs = meta[3].strip()
+
+      if len(data) > 1: # A PFT line should have more than one data value
+        for i, value in enumerate(data):
           cmtdict['pft%i'%i][vname] = float(value)
-          cmtdict['pft%i'%i]['comment_{}'.format(vname)] = vcomment
+          cmtdict['pft%i'%i]['units_{}'.format(vname)] = units
+          cmtdict['pft%i'%i]['desc_{}'.format(vname)] = desc
+          cmtdict['pft%i'%i]['comment_{}'.format(vname)] = comment
+          cmtdict['pft%i'%i]['refs_{}'.format(vname)] = refs
+
       else:
-        cmtdict[vname] = float(values[0])
-        cmtdict['comment_{}'.format(vname)] = vcomment
+        cmtdict[vname] = float(data[0])
+        cmtdict['units_{}'.format(vname)] = units
+        cmtdict['desc_{}'.format(vname)] = desc
+        cmtdict['comment_{}'.format(vname)] = comment
+        cmtdict['refs_{}'.format(vname)] = refs
 
   return cmtdict
 

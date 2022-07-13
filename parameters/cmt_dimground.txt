@@ -10,7 +10,7 @@
 // moss characteristics
 0.035              // maxmossthick: max. dead moss thickness (m)
 0.005              // initdmossthick: initial dead moss thickness (m)
-1                  // mosstype: moss type (1: sphagnum; 2: furthermoss; 3: other)
+1                  // mosstype: // moss type (1: sphagnum; 2: furthermoss; 3: other)
 // soil characteristics
 0.1                // initfibthick: meters
 0.1                // inithumthick:
