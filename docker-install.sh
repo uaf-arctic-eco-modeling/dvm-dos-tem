@@ -3,6 +3,9 @@
 # This script will build the docker images for the dvmdostem project.
 # Note: Some steps may take a while, please be patient.
 
+# Note: You may try --no-cache with the docker build commands if they
+# fail with various errors reccomending --fix-missing errors.
+
 # Makes a general development image with various dev tools installed:
 # e.g. compiler, make, gdb, etc
 docker build --target cpp-dev --tag cpp-dev:0.0.1 .
