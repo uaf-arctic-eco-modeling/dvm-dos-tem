@@ -476,7 +476,7 @@ def csv2fwt(csv_file, ref_directory='../parameters',
           n = n[0]
           # is is a non-pft variable...
           s = '{val} // {name}: {units} // {desc} // {comment} // {refs}\n'
-          s.format(val=smart_format(n['value']), name=n['name'], units=n['units'],
+          s = s.format(val=smart_format(n['value']), name=n['name'], units=n['units'],
             desc=n['description'], comment=n['comment'], refs=n['refs'])
           full_string += s
       if overwrite_files:
