@@ -39,16 +39,14 @@
 0.60         0.60        0.60        0.60         0.00         0.00         0.00         0.00         0.00         0.00      // 
 0.64         0.64        0.64        0.64         0.00         0.00         0.00         0.00         0.00         0.00      // 
 0.64         0.64        0.64        0.64         0.00         0.00         0.00         0.00         0.00         0.00      // 
-// ground
-0.00                                           // foslburn[5]:  fraction of OS layer burned for each of 5 fire severity classes
-0.48
-0.54
-0.69
-0.80
-// other
-0.50                                            // vsmburn: volume soil moisture to define wet soil for prevent organic layer burning
-0.10                                            // r_retain_c: ratio of burning residue C (retained into soil) 
-0.10                                            // r_retain_n: ratio of burning residue N (retained into soil)
+0.00   // foslburn_sev1:  //  // fraction of OS layer burned for severity 1 // 
+0.48   // foslburn_sev2:  //  // fraction of OS layer burned for severity 2 // 
+0.54   // foslburn_sev3:  //  // fraction of OS layer burned for severity 3 // 
+0.69   // foslburn_sev4:  //  // fraction of OS layer burned for severity 4 // 
+0.80   // foslburn_sev5:  //  // fraction of OS layer burned for severity 5 // 
+0.50   // vsmburn:  //  // volume soil moisture to define wet soil for prevent organic layer burning // 
+0.10   // r_retain_c:  //  // ratio of burning residue C (retained into soil) // 
+0.10   // r_retain_n:  //  // ratio of burning residue N (retained into soil) // 
 //===========================================================
 // CMT02 // Boreal White Spruce Forest // Calibrated with Bonanza Creek climate.
 //EverTree  DecShrub    DecTree      Moss         PFT4         PFT5         PFT6         PFT7         PFT8         PFT9      // names: comments                  
@@ -62,16 +60,14 @@
 0.60         0.60        0.60        0.60         0.00         0.00         0.00         0.00         0.00         0.00      // 
 0.64         0.64        0.64        0.64         0.00         0.00         0.00         0.00         0.00         0.00      // 
 0.64         0.64        0.64        0.64         0.00         0.00         0.00         0.00         0.00         0.00      // 
-// ground
-0.00                                           // foslburn[5]:  fraction of OS layer burned for each of 5 fire severity classes
-0.48
-0.54
-0.69
-0.80
-// other
-0.50                                            // vsmburn: volume soil moisture to define wet soil for prevent organic layer burning
-0.10                                            // r_retain_c: ratio of burning residue C (retained into soil) 
-0.10                                            // r_retain_n: ratio of burning residue N (retained into soil)
+0.00   // foslburn_sev1:  //  // fraction of OS layer burned for severity 1 //  
+0.48   // foslburn_sev2:  //  // fraction of OS layer burned for severity 2 // 
+0.54   // foslburn_sev3:  //  // fraction of OS layer burned for severity 3 // 
+0.69   // foslburn_sev4:  //  // fraction of OS layer burned for severity 4 // 
+0.80    // foslburn_sev5:  //  // fraction of OS layer burned for severity 5 // 
+0.50   // vsmburn:  //  // volume soil moisture to define wet soil for prevent organic layer burning //  
+0.10   // r_retain_c:  //  // ratio of burning residue C (retained into soil) //  
+0.10   // r_retain_n:  //  // ratio of burning residue N (retained into soil) //  
 //===========================================================
 // CMT03 // Boreal Deciduous Forest // Calibrated for Murphy Dome.
 //EverTree  DecShrub    DecTree      Moss         PFT4         PFT5         PFT6         PFT7         PFT8         PFT9      // names: comments                  
@@ -85,16 +81,14 @@
 0.60         0.60        0.60        0.60         0.00         0.00         0.00         0.00         0.00         0.00      // 
 0.64         0.64        0.64        0.64         0.00         0.00         0.00         0.00         0.00         0.00      // 
 0.64         0.64        0.64        0.64         0.00         0.00         0.00         0.00         0.00         0.00      // 
-// ground
-0.00                                           // foslburn[5]:  fraction of OS layer burned for each of 5 fire severity classes
-0.48
-0.54
-0.69
-0.80
-// other
-0.50                                            // vsmburn: volume soil moisture to define wet soil for prevent organic layer burning
-0.10                                            // r_retain_c: ratio of burning residue C (retained into soil) 
-0.10                                            // r_retain_n: ratio of burning residue N (retained into soil)
+0.00   // foslburn_sev1:  //  // fraction of OS layer burned for severity 1 // 
+0.48   // foslburn_sev2:  //  // fraction of OS layer burned for severity 2 // 
+0.54   // foslburn_sev3:  //  // fraction of OS layer burned for severity 3 // 
+0.69   // foslburn_sev4:  //  // fraction of OS layer burned for severity 4 // 
+0.80   // foslburn_sev5:  //  // fraction of OS layer burned for severity 5 // 
+0.50   // vsmburn:  //  // volume soil moisture to define wet soil for prevent organic layer burning // 
+0.10   // r_retain_c:  //  // ratio of burning residue C (retained into soil) // 
+0.10   // r_retain_n:  //  // ratio of burning residue N (retained into soil) // 
 //===========================================================
 // CMT04 // Shrub Tundra // Calibrated for Toolik area.
 //Salix      Betula      Decid       EGreen       Sedges       Forbs        Grasses      Lichens      Feather      PFT9      // pftnames:
@@ -108,16 +102,14 @@
 0.60         0.60        0.60        0.60         0.00         0.00         0.00         0.00         0.00         0.00      // 
 0.64         0.64        0.64        0.64         0.00         0.00         0.00         0.00         0.00         0.00      // 
 0.64         0.64        0.64        0.64         0.00         0.00         0.00         0.00         0.00         0.00      // 
-// ground
-0.00                                                   // foslburn[5]:  fraction of OS layer burned for each of 5 fire severity classes
-0.48
-0.54
-0.69
-0.80
-// other
-0.50                                                   // vsmburn: volume soil moisture to define wet soil for prevent organic layer burning
-0.10                                                   // r_retain_c: ratio of burning residue C (retained into soil) 
-0.10                                                   // r_retain_n: ratio of burning residue N (retained into soil)
+0.00   // foslburn_sev1:  //  // fraction of OS layer burned for severity 1 //    
+0.48   // foslburn_sev2:  //  // fraction of OS layer burned for severity 2 // 
+0.54   // foslburn_sev3:  //  // fraction of OS layer burned for severity 3 // 
+0.69   // foslburn_sev4:  //  // fraction of OS layer burned for severity 4 // 
+0.80   // foslburn_sev5:  //  // fraction of OS layer burned for severity 5 // 
+0.50   // vsmburn:  //  // volume soil moisture to define wet soil for prevent organic layer burning //    
+0.10   // r_retain_c:  //  // ratio of burning residue C (retained into soil) //    
+0.10   // r_retain_n:  //  // ratio of burning residue N (retained into soil) //    
 //===========================================================
 // CMT05 // Tussock Tundra
 //Betula     Decid       EGreen      Sedges       Forbs        Lichens      Feather      Sphag        PFT8         PFT9      // pftnames:
@@ -131,16 +123,14 @@
 0.60         0.60        0.60        0.60         0.60         0.00         0.00         0.00         0.00         0.00      // 
 0.64         0.64        0.64        0.64         0.64         0.00         0.00         0.00         0.00         0.00      // 
 0.64         0.64        0.64        0.64         0.64         0.00         0.00         0.00         0.00         0.00      // 
-// ground
-0.00                                                   // foslburn[5]:  fraction of OS layer burned for each of 5 fire severity classes
-0.1
-0.3
-0.5
-0.80
-// other
-0.50                                                   // vsmburn: volume soil moisture to define wet soil for prevent organic layer burning
-0.10                                                   // r_retain_c: ratio of burning residue C (retained into soil) 
-0.10                                                   // r_retain_n: ratio of burning residue N (retained into soil)
+0.00   // foslburn_sev1:  //  // fraction of OS layer burned for severity 1 //    
+0.1    // foslburn_sev2:  //  // fraction of OS layer burned for severity 2 //  
+0.3    // foslburn_sev3:  //  // fraction of OS layer burned for severity 3 //  
+0.5    // foslburn_sev4:  //  // fraction of OS layer burned for severity 4 //  
+0.80   // foslburn_sev5:  //  // fraction of OS layer burned for severity 5 // 
+0.50   // vsmburn:  //  // volume soil moisture to define wet soil for prevent organic layer burning //    
+0.10   // r_retain_c:  //  // ratio of burning residue C (retained into soil) //    
+0.10   // r_retain_n:  //  // ratio of burning residue N (retained into soil) //    
 //===========================================================
 // CMT06 // Wet Sedge Tundra // Calibrated for Toolik area.
 //Decid      Sedges      Grasses     Forbs        Lichens      Feather      Sphag        PFT7         PFT8         PFT9      // pftnames
@@ -154,16 +144,14 @@
 0.60         0.60        0.60        0.60         0.60         0.00         0.00         0.00         0.00         0.00      // 
 0.64         0.64        0.64        0.64         0.64         0.00         0.00         0.00         0.00         0.00      // 
 0.64         0.64        0.64        0.64         0.64         0.00         0.00         0.00         0.00         0.00      // 
-// ground
-0.00                                                   // foslburn[5]:  fraction of OS layer burned for each of 5 fire severity classes
-0.48
-0.54
-0.69
-0.80
-// other
-0.50                                                   // vsmburn: volume soil moisture to define wet soil for prevent organic layer burning
-0.10                                                   // r_retain_c: ratio of burning residue C (retained into soil) 
-0.10                                                   // r_retain_n: ratio of burning residue N (retained into soil)
+0.00   // foslburn_sev1:  //  // fraction of OS layer burned for severity 1 //   
+0.48   // foslburn_sev2:  //  // fraction of OS layer burned for severity 2 // 
+0.54   // foslburn_sev3:  //  // fraction of OS layer burned for severity 3 // 
+0.69   // foslburn_sev4:  //  // fraction of OS layer burned for severity 4 // 
+0.80   // foslburn_sev5:  //  // fraction of OS layer burned for severity 5 // 
+0.50   // vsmburn:  //  // volume soil moisture to define wet soil for prevent organic layer burning //   
+0.10   // r_retain_c:  //  // ratio of burning residue C (retained into soil) //   
+0.10   // r_retain_n:  //  // ratio of burning residue N (retained into soil) //   
 //===========================================================
 // CMT07 // Heath Tundra
 //Decid      EGreen      Forbs       Lichens      Grasses      Moss         PFT6         PFT7         PFT8         PFT9      // pftnames:
@@ -177,16 +165,14 @@
 0.60         0.60        0.60        0.60         0.60         0.00         0.00         0.00         0.00         0.00      // 
 0.64         0.64        0.64        0.64         0.64         0.00         0.00         0.00         0.00         0.00      // 
 0.64         0.64        0.64        0.64         0.64         0.00         0.00         0.00         0.00         0.00      // 
-// ground
-0.00                                                   // foslburn[5]:  fraction of OS layer burned for each of 5 fire severity classes
-0.48
-0.54
-0.69
-0.80
-// other
-0.50                                                   // vsmburn: volume soil moisture to define wet soil for prevent organic layer burning
-0.10                                                   // r_retain_c: ratio of burning residue C (retained into soil) 
-0.10                                                   // r_retain_n: ratio of burning residue N (retained into soil)
+0.00   // foslburn_sev1:  //  // fraction of OS layer burned for severity 1 //   
+0.48   // foslburn_sev2:  //  // fraction of OS layer burned for severity 2 // 
+0.54   // foslburn_sev3:  //  // fraction of OS layer burned for severity 3 // 
+0.69   // foslburn_sev4:  //  // fraction of OS layer burned for severity 4 // 
+0.80   // foslburn_sev5:  //  // fraction of OS layer burned for severity 5 // 
+0.50   // vsmburn:  //  // volume soil moisture to define wet soil for prevent organic layer burning //   
+0.10   // r_retain_c:  //  // ratio of burning residue C (retained into soil) //   
+0.10   // r_retain_n:  //  // ratio of burning residue N (retained into soil) //   
 //===========================================================
 // CMT12 // Lowland Boreal Wet Shrubland
 //DecShrub   EvrShrub     DecTree      EvrTree      Forbs        Gram      Feather        Lichen    Equisetum        PFT9      // pftnames:
@@ -200,16 +186,14 @@
 0.60         0.60         0.60         0.60         0.60         0.00         0.00         0.00         0.00         0.00      // 
 0.64         0.64         0.64         0.64         0.64         0.00         0.00         0.00         0.00         0.00      // 
 0.64         0.64         0.64         0.64         0.64         0.00         0.00         0.00         0.00         0.00      // 
-// ground
-0.00                                                   // foslburn[5]:  fraction of OS layer burned for each of 5 fire severity classes
-0.48
-0.54
-0.69
-0.80
-// other
-0.50                                                   // vsmburn: volume soil moisture to define wet soil for prevent organic layer burning
-0.10                                                   // r_retain_c: ratio of burning residue C (retained into soil) 
-0.10                                                   // r_retain_n: ratio of burning residue N (retained into soil)
+0.00   // foslburn_sev1:  //  // fraction of OS layer burned for severity 1 // 
+0.48   // foslburn_sev2:  //  // fraction of OS layer burned for severity 2 // 
+0.54   // foslburn_sev3:  //  // fraction of OS layer burned for severity 3 // 
+0.69   // foslburn_sev4:  //  // fraction of OS layer burned for severity 4 // 
+0.80   // foslburn_sev5:  //  // fraction of OS layer burned for severity 5 // 
+0.50   // vsmburn:  //  // volume soil moisture to define wet soil for prevent organic layer burning // 
+0.10   // r_retain_c:  //  // ratio of burning residue C (retained into soil) // 
+0.10   // r_retain_n:  //  // ratio of burning residue N (retained into soil) // 
 //===========================================================
 // CMT20 // EML Shrub Tundra
 //Betnan     Carex       Ericoid      Feather     Lichen       OthMoss      Rubcha       Misc1        Misc2        Misc3     // names: comments
@@ -223,16 +207,14 @@
 0.60         0.60        0.60        0.60         0.60         0.00         0.00         0.00         0.00         0.00      // 
 0.64         0.64        0.64        0.64         0.64         0.00         0.00         0.00         0.00         0.00      // 
 0.64         0.64        0.64        0.64         0.64         0.00         0.00         0.00         0.00         0.00      // 
-// ground
-0.00                                                   // foslburn[5]:  fraction of OS layer burned for each of 5 fire severity classes
-0.48
-0.54
-0.69
-0.80
-// other
-0.50                                                   // vsmburn: volume soil moisture to define wet soil for prevent organic layer burning
-0.10                                                   // r_retain_c: ratio of burning residue C (retained into soil) 
-0.10                                                   // r_retain_n: ratio of burning residue N (retained into soil)
+0.00   // foslburn_sev1:  //  // fraction of OS layer burned for severity 1 //   
+0.48   // foslburn_sev2:  //  // fraction of OS layer burned for severity 2 // 
+0.54   // foslburn_sev3:  //  // fraction of OS layer burned for severity 3 // 
+0.69   // foslburn_sev4:  //  // fraction of OS layer burned for severity 4 // 
+0.80   // foslburn_sev5:  //  // fraction of OS layer burned for severity 5 // 
+0.50   // vsmburn:  //  // volume soil moisture to define wet soil for prevent organic layer burning //   
+0.10   // r_retain_c:  //  // ratio of burning residue C (retained into soil) //   
+0.10   // r_retain_n:  //  // ratio of burning residue N (retained into soil) //   
 //===========================================================
 // CMT21 // EML Tussock Tundra
 //Betnan     Carex       Ericoid     Erivag       Feather     Lichen      OtherMoss    Rubcha     Sphagnum         PFT9      // pftnames:
@@ -246,16 +228,14 @@
 0.60         0.60        0.60        0.60         0.60         0.00         0.00         0.00         0.00         0.00      // 
 0.64         0.64        0.64        0.64         0.64         0.00         0.00         0.00         0.00         0.00      // 
 0.64         0.64        0.64        0.64         0.64         0.00         0.00         0.00         0.00         0.00      // 
-// ground
-0.00                                                   // foslburn[5]:  fraction of OS layer burned for each of 5 fire severity classes
-0.48
-0.54
-0.69
-0.80
-// other
-0.50                                                   // vsmburn: volume soil moisture to define wet soil for prevent organic layer burning
-0.10                                                   // r_retain_c: ratio of burning residue C (retained into soil) 
-0.10                                                   // r_retain_n: ratio of burning residue N (retained into soil)
+0.00   // foslburn_sev1:  //  // fraction of OS layer burned for severity 1 //   
+0.48   // foslburn_sev2:  //  // fraction of OS layer burned for severity 2 // 
+0.54   // foslburn_sev3:  //  // fraction of OS layer burned for severity 3 // 
+0.69   // foslburn_sev4:  //  // fraction of OS layer burned for severity 4 // 
+0.80   // foslburn_sev5:  //  // fraction of OS layer burned for severity 5 // 
+0.50   // vsmburn:  //  // volume soil moisture to define wet soil for prevent organic layer burning //   
+0.10   // r_retain_c:  //  // ratio of burning residue C (retained into soil) //   
+0.10   // r_retain_n:  //  // ratio of burning residue N (retained into soil) //   
 //===========================================================
 // CMT44 // Shrub Tundra Kougarok
 //Salix      Betula      Decid       EGreen       Sedges       Forbs        Grasses      Lichens      Feather      PFT9      // pftnames:
@@ -269,13 +249,11 @@
 0.60         0.60        0.60        0.60         0.00         0.00         0.00         0.00         0.00         0.00      // 
 0.64         0.64        0.64        0.64         0.00         0.00         0.00         0.00         0.00         0.00      // 
 0.64         0.64        0.64        0.64         0.00         0.00         0.00         0.00         0.00         0.00      // 
-// ground
-0.00                                                   // foslburn[5]:  fraction of OS layer burned for each of 5 fire severity classes
-0.48
-0.54
-0.69
-0.80
-// other
-0.50                                                   // vsmburn: volume soil moisture to define wet soil for prevent organic layer burning
-0.10                                                   // r_retain_c: ratio of burning residue C (retained into soil) 
-0.10                                                   // r_retain_n: ratio of burning residue N (retained into soil)
+0.00   // foslburn_sev1:  //  // fraction of OS layer burned for severity 1 //   
+0.48   // foslburn_sev2:  //  // fraction of OS layer burned for severity 2 // 
+0.54   // foslburn_sev3:  //  // fraction of OS layer burned for severity 3 // 
+0.69   // foslburn_sev4:  //  // fraction of OS layer burned for severity 4 // 
+0.80   // foslburn_sev5:  //  // fraction of OS layer burned for severity 5 // 
+0.50   // vsmburn:  //  // volume soil moisture to define wet soil for prevent organic layer burning //   
+0.10   // r_retain_c:  //  // ratio of burning residue C (retained into soil) //   
+0.10   // r_retain_n:  //  // ratio of burning residue N (retained into soil) //   
