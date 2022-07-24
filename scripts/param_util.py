@@ -958,7 +958,7 @@ def compare_CMTs(fileA, cmtnumA, fileB, cmtnumB, ignore_formatting=True):
   dataA = get_CMT_datablock(fileA, cmtnumA)
   dataB = get_CMT_datablock(fileB, cmtnumB)
 
-  # Standardize whitespace and numeric format using the foratting function.
+  # Standardize whitespace and numeric format using the formatting function.
   if ignore_formatting:
     dataA = format_CMTdatadict(cmtdatablock2dict(dataA), fileA)
     dataB = format_CMTdatadict(cmtdatablock2dict(dataB), fileB)
@@ -1352,7 +1352,7 @@ def cmtdatablock2dict(cmtdatablock):
 
       if len(meta) >= 1:
         if len(meta[0].strip().split(':')) != 2:
-          raise RuntimeError("Problem with foratting of name:units for {}".format(meta))
+          raise RuntimeError("Problem with formatting of name:units for {} (line: {})".format(meta, line))
         vname, units = meta[0].strip().split(':')
 
       if len(meta) >= 2:
