@@ -58,7 +58,7 @@
 0.55         0.35         0.45         0.1          0.0    0.0    0.0    0.0    0.0    0.0   // klai: extinction coeff for conversion from lai to fpc
 0.5          0.5          0.5          0.5          0.0    0.0    0.0    0.0    0.0    0.0   // minleaf: this and the following 4 parameters are for EET/PET controlled phenology - f(leaf)
 0.42893      0.42893      0.42893      0.42893      0.0    0.0    0.0    0.0    0.0    0.0   // aleaf:
-0.33295      0.33295      0.33295      0.33295      0.0    0.0    0.0    0.0    0.0    0.0   // bleaf
+0.33295      0.33295      0.33295      0.33295      0.0    0.0    0.0    0.0    0.0    0.0   // bleaf:
 0.32228      0.32228      0.32228      0.32228      0.0    0.0    0.0    0.0    0.0    0.0   // cleaf
 1.6662       1.6662       1.6662       1.6662       0.0    0.0    0.0    0.0    0.0    0.0   // kfoliage: this and the following 1 parameters are for non-woody plant's f(foliage) 
 -0.001571   -0.000292    -0.000292    -0.023        0.0    0.0    0.0    0.0    0.0    0.0   // cov
@@ -101,7 +101,7 @@
 0.55         0.35         0.45         0.1          0.0    0.0    0.0    0.0    0.0    0.0   // klai: extinction coeff for conversion from lai to fpc
 0.5          0.5          0.5          0.5          0.0    0.0    0.0    0.0    0.0    0.0   // minleaf: this and the following 4 parameters are for EET/PET controlled phenology - f(leaf)
 0.42893      0.42893      0.42893      0.42893      0.0    0.0    0.0    0.0    0.0    0.0   // aleaf:
-0.33295      0.33295      0.33295      0.33295      0.0    0.0    0.0    0.0    0.0    0.0   // bleaf
+0.33295      0.33295      0.33295      0.33295      0.0    0.0    0.0    0.0    0.0    0.0   // bleaf:
 0.32228      0.32228      0.32228      0.32228      0.0    0.0    0.0    0.0    0.0    0.0   // cleaf
 1.6662       1.6662       1.6662       1.6662       0.0    0.0    0.0    0.0    0.0    0.0   // kfoliage: this and the following 1 parameters are for non-woody plant's f(foliage) 
 -0.001571   -0.000292    -0.000292    -0.023        0.0    0.0    0.0    0.0    0.0    0.0   // cov
@@ -144,7 +144,7 @@
 0.55         0.35         0.45         0.1         0.0    0.0    0.0    0.0    0.0    0.0  // klai: extinction coeff for conversion from lai to fpc
 0.5          0.5          0.5          0.5         0.0    0.0    0.0    0.0    0.0    0.0  // minleaf: this and the following 4 parameters are for EET/PET controlled phenology - f(leaf)
 0.42893      0.42893      0.42893      0.42893     0.0    0.0    0.0    0.0    0.0    0.0  // aleaf:
-0.33295      0.33295      0.33295      0.33295     0.0    0.0    0.0    0.0    0.0    0.0  // bleaf
+0.33295      0.33295      0.33295      0.33295     0.0    0.0    0.0    0.0    0.0    0.0  // bleaf:
 0.32228      0.32228      0.32228      0.32228     0.0    0.0    0.0    0.0    0.0    0.0  // cleaf
 1.6662       1.6662       1.6662       1.6662      0.0    0.0    0.0    0.0    0.0    0.0  // kfoliage: this and the following 1 parameters are for non-woody plant's f(foliage) 
 -0.001571   -0.000292    -0.000292    -0.023       0.0    0.0    0.0    0.0    0.0    0.0  // cov
@@ -187,7 +187,7 @@
 0.255       0.250       0.4564       0.1133       0.0537       0.158        0.149        0.25         0.25         0.           // klai: extinction coeff for conversion from lai to fpc
 0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          // minleaf: this and the following 4 parameters are for EET/PET controlled phenology - f(leaf)
 0.42893     0.42893     0.79640      0.79640      0.79640      0.79640      0.79640      0.79640      0.79640      0.79640      // aleaf:
-0.33295     0.33295     0.46635      0.46635      0.46635      0.46635      0.46635      0.46635      0.46635      0.46635      // bleaf
+0.33295     0.33295     0.46635      0.46635      0.46635      0.46635      0.46635      0.46635      0.46635      0.46635      // bleaf:
 0.32228     0.32228    -0.02873     -0.02873     -0.02873     -0.02873     -0.02873     -0.02873     -0.02873     -0.02873      // cleaf
 1.6662      1.6662      1.6662       1.6662       1.6662       1.6662       1.6662       1.6662       1.6662       1.6662       // kfoliage: this and the following 1 parameters are for non-woody plant's f(foliage) 
 -0.0230    -0.0090      -0.107      -0.447       -0.527       -0.360        0.1422      -0.273       -0.057        0.001571     // cov
@@ -230,7 +230,7 @@
 0.45        0.35        0.35         0.15         0.15         0.15         0.15         0.15         0.           0.           // klai: extinction coeff for conversion from lai to fpc
 0.001       0.001       0.001        0.001        0.001        0.001        0.001        0.001        0.0          0.0          // minleaf: this and the following 4 parameters are for EET/PET controlled phenology - f(leaf)
 0.42893     0.42893     0.42893      0.42893      0.42893      0.79640      0.79640      0.79640      0.0          0.0          // aleaf:
-0.33295     0.33295     0.33295      0.33295      0.33295      0.46635      0.46635      0.46635      0.0          0.0          // bleaf
+0.33295     0.33295     0.33295      0.33295      0.33295      0.46635      0.46635      0.46635      0.0          0.0          // bleaf:
 0.32228     0.32228     0.32228      0.32228      0.32228     -0.02873     -0.02873     -0.02873      0.0          0.0          // cleaf
 1.6662      1.6662      1.6662       1.6662       1.6662       1.6662       1.6662       1.6662       0.0          0.0          // kfoliage: this and the following 1 parameters are for non-woody plant's f(foliage) 
 -2.75300   -0.273000   -0.247000    -0.480000    -1.721000    -0.063000    -0.162000    -0.069000     0.0          0.0          // cov
@@ -273,7 +273,7 @@
 0.255       2.2         0.1133       0.0537       0.1584       0.1133       0.1133       0.00         0.00         0.00         // klai: extinction coeff for conversion from lai to fpc
 0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.00         0.00         0.00         // minleaf: this and the following 4 parameters are for EET/PET controlled phenology - f(leaf)
 0.42893     0.079640    0.79640      0.42893      0.79640      0.079640     0.079640     0.00         0.00         0.00         // aleaf:
-0.33295     0.46635     0.46635      0.33295      0.46635      0.46635      0.46635      0.00         0.00         0.00         // bleaf
+0.33295     0.46635     0.46635      0.33295      0.46635      0.46635      0.46635      0.00         0.00         0.00         // bleaf:
 0.32228     -0.02873    -0.02873     0.32228      -0.02873     -0.02873     -0.02873     0.00         0.00         0.00         // cleaf
 1.6662      1.6662      8.141        1.6662       1.6662       1.6662       1.6662       0.00         0.00         0.00         // kfoliage: this and the following 1 parameters are for non-woody plant's f(foliage) 
 -0.850      -0.138      -0.633       -0.050       -2.553       -0.232       -0.232       0.00         0.00         0.00         // cov
@@ -316,7 +316,7 @@
 0.25        0.25        0.1133       0.0537       0.1133       0.1584       0.00         0.00         0.00         0.00         // klai: extinction coeff for conversion from lai to fpc
 0.0         0.0         0.0          0.0          0.0          0.0          0.00         0.00         0.00         0.0          // minleaf: this and the following 4 parameters are for EET/PET controlled phenology - f(leaf)
 0.42893     0.42893     0.79640      0.42983      0.79640      0.42893      0.00         0.00         0.00         0.00         // aleaf:
-0.33295     0.33295     0.46635      0.33295      0.46635      0.33295      0.00         0.00         0.00         0.00         // bleaf
+0.33295     0.33295     0.46635      0.33295      0.46635      0.33295      0.00         0.00         0.00         0.00         // bleaf:
 0.32228     0.32228     -0.02873     0.32228      -0.02873     0.32228      0.00         0.00         0.00         0.00         // cleaf
 1.6662      1.6662      1.6662       1.6662       1.6662       1.6662       0.00         0.00         0.00         0.00         // kfoliage: this and the following 1 parameters are for non-woody plant's f(foliage) 
 -0.138      -0.112       0.000563    -0.063       -0.633       -0.162       0.00         0.00         0.00         0.00         // cov
@@ -359,7 +359,7 @@
 0.250        0.113        0.455        0.550        0.054        0.158        0.250        0.250        0.100        0            // klai: extinction coeff for conversion from lai to fpc
 0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0            // minleaf: this and the following 4 parameters are for EET/PET controlled phenology - f(leaf)
 0.42893      0.79640      0.42893      0.79640      0.79640      0.79640      0.79640      0.79640      0.79640      0            // aleaf:
-0.33295      0.46635      0.33295      0.46635      0.46635      0.46635      0.46635      0.46635      0.46635      0            // bleaf
+0.33295      0.46635      0.33295      0.46635      0.46635      0.46635      0.46635      0.46635      0.46635      0            // bleaf:
 0.32228     -0.02873      0.32228     -0.02873     -0.02873     -0.02873     -0.02873     -0.02873     -0.02873      0            // cleaf
 1.6662       1.6662       1.6662       1.6662       1.6662       1.6662       1.6662       1.6662       1.6662       0            // kfoliage: this and the following 1 parameters are for non-woody plant's f(foliage) 
 -0.029      -0.083       -0.004       -0.005       -0.100       -0.007       -0.076       -1.149       -0.430        0            // cov
@@ -402,7 +402,7 @@
 0.250        0.0537       0.1133       0.250        0.250        0.250        0.4564       0            0            0            // klai: extinction coeff for conversion from lai to fpc
 0.0          0.0          0.0          0.0          0.0          0.0          0.0          0            0            0            // minleaf: this and the following 4 parameters are for EET/PET controlled phenology - f(leaf)
 0.42893      0.79640      0.79640      0.79640      0.79640      0.79640      0.79640      0            0            0            // aleaf:
-0.33295      0.46635      0.46635      0.46635      0.46635      0.46635      0.46635      0            0            0            // bleaf
+0.33295      0.46635      0.46635      0.46635      0.46635      0.46635      0.46635      0            0            0            // bleaf:
 0.32228     -0.02873     -0.02873     -0.02873     -0.02873     -0.02873     -0.02873      0            0            0            // cleaf
 1.6662       1.6662       1.6662       1.6662       1.6662       1.6662       1.6662       0            0            0            // kfoliage: this and the following 1 parameters are for non-woody plant's f(foliage) 
 -0.009      -0.527       -0.447       -0.057       -0.273       -0.057       -0.107        0            0            0            // cov
@@ -445,7 +445,7 @@
 0.450        0.150        0.35         0.150        0.150        0.150        0.150        0.35         0.150        0            // klai: extinction coeff for conversion from lai to fpc
 0.001        0.001        0.001        0.001        0.001        0.001        0.001        0.001        0.001        0            // minleaf: this and the following 4 parameters are for EET/PET controlled phenology - f(leaf)
 0.42893      0.42893      0.42893      0.42893      0.79640      0.79640      0.79640      0.42893      0.79640      0            // aleaf:
-0.33295      0.33295      0.33295      0.33295      0.46635      0.46635      0.46635      0.33295      0.46635      0            // bleaf
+0.33295      0.33295      0.33295      0.33295      0.46635      0.46635      0.46635      0.33295      0.46635      0            // bleaf:
 0.32228      0.32228      0.32228      0.32228     -0.02873     -0.02873     -0.02873      0.32228     -0.02873      0            // cleaf
 1.6662       1.6662       1.6662       1.6662       1.6662       1.6662       1.6662       1.6662       1.6662       0            // kfoliage: this and the following 1 parameters are for non-woody plant's f(foliage) 
 -2.753      -0.480       -0.247       -0.480       -0.162       -0.063       -0.162       -0.273       -0.069        0            // cov
@@ -488,7 +488,7 @@
 0.255       0.250       0.4564       0.1133       0.0537       0.158        0.149        0.25         0.25         0.           // klai: extinction coeff for conversion from lai to fpc
 0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          // minleaf: this and the following 4 parameters are for EET/PET controlled phenology - f(leaf)
 0.42893     0.42893     0.79640      0.79640      0.79640      0.79640      0.79640      0.79640      0.79640      0.79640      // aleaf:
-0.33295     0.33295     0.46635      0.46635      0.46635      0.46635      0.46635      0.46635      0.46635      0.46635      // bleaf
+0.33295     0.33295     0.46635      0.46635      0.46635      0.46635      0.46635      0.46635      0.46635      0.46635      // bleaf:
 0.32228     0.32228    -0.02873     -0.02873     -0.02873     -0.02873     -0.02873     -0.02873     -0.02873     -0.02873      // cleaf
 1.6662      1.6662      1.6662       1.6662       1.6662       1.6662       1.6662       1.6662       1.6662       1.6662       // kfoliage: this and the following 1 parameters are for non-woody plant's f(foliage) 
 -0.0230    -0.0090      -0.107      -0.447       -0.527       -0.360        0.1422      -0.273       -0.057        0.001571     // cov
