@@ -30,7 +30,7 @@
 // moss characteristics
 0.035              // maxmossthick: max. dead moss thickness (m)
 0.02               // initdmossthick: initial dead moss thickness (m)
-1                  // mosstype: moss type (1: sphagnum; 2: feathermoss; 3: other)
+1                  // mosstype: // moss type (1: sphagnum; 2: feathermoss; 3: other)
 // soil characteristics
 5.4578             // initfibthick: meters
 10.9156            // inithumthick:
@@ -50,7 +50,7 @@
 // moss characteristics
 0.035              // maxmossthick: max. dead moss thickness (m)
 0.02               // initdmossthick: initial dead moss thickness (m)
-1                  // mosstype: moss type (1: sphagnum; 2: feathermoss; 3: other)
+1                  // mosstype: // moss type (1: sphagnum; 2: feathermoss; 3: other)
 // soil characteristics
 4.98               // initfibthick: meters
 8.352              // inithumthick:
@@ -70,7 +70,7 @@
 // moss characteristics
 0.035              // maxmossthick: max. dead moss thickness (m)
 0.02               // initdmossthick: initial dead moss thickness (m)
-1                  // mosstype: moss type (1: sphagnum; 2: feathermoss; 3: other)
+1                  // mosstype: // moss type (1: sphagnum; 2: feathermoss; 3: other)
 // soil characteristics
 2.538              // initfibthick: meters
 5.076              // inithumthick:
@@ -90,7 +90,7 @@
 // moss characteristics
 0.035              // maxmossthick: max. moss thickness (m)
 0.005              // initdmossthick: initial dead moss thickness (m)
-1                  // mosstype: moss type (1: sphagnum; 2: furthermoss; 3: other)
+1                  // mosstype: // moss type (1: sphagnum; 2: furthermoss; 3: other)
 // soil characteristics
 0.05878             // initfibthick: meters
 0.11212             // inithumthick:
@@ -110,7 +110,7 @@
 // moss characteristics
 0.30               // maxmossthick: max. moss thickness (m)
 0.10               // initdmossthick: initial dead moss thickness (m) MUST MATCH initdmossc in cmt_bgcsoil.txt!!!
-1                  // mosstype: moss type (1: sphagnum; 2: furthermoss; 3: other)
+1                  // mosstype: // moss type (1: sphagnum; 2: furthermoss; 3: other)
 // soil characteristics
 0.0667             // initfibthick: meters
 0.145              // inithumthick:
@@ -130,7 +130,7 @@
 // moss characteristics
 0.035              // maxmossthick: max. moss thickness (m)
 0.005              // initdmossthick: initial dead moss thickness (m)
-1                  // mosstype: moss type (1: sphagnum; 2: furthermoss; 3: other)
+1                  // mosstype: // moss type (1: sphagnum; 2: furthermoss; 3: other)
 // soil characteristics
 0.10125             // initfibthick: meters
 0.16535             // inithumthick:
@@ -150,7 +150,7 @@
 // moss characteristics
 0.035              // maxmossthick: max. moss thickness (m)
 0.005              // initdmossthick: initial dead moss thickness (m)
-1                  // mosstype: moss type (1: sphagnum; 2: furthermoss; 3: other)
+1                  // mosstype: // moss type (1: sphagnum; 2: furthermoss; 3: other)
 // soil characteristics
 0.02                // initfibthick: meters
 0.02                // inithumthick:
@@ -170,7 +170,7 @@
 // moss characteristics
 0.035              // maxmossthick: max. moss thickness (m)
 0.005              // initdmossthick: initial dead moss thickness (m)
-2                  // mosstype: moss type (1: sphagnum; 2: furthermoss; 3: other)
+2                  // mosstype: // moss type (1: sphagnum; 2: furthermoss; 3: other)
 // soil characteristics
 0.118              // initfibthick: meters
 0.151              // inithumthick:
@@ -190,7 +190,7 @@
 // moss characteristics
 0.035              // maxmossthick: max. moss thickness (m)
 0.005              // initdmossthick: initial dead moss thickness (m)
-2                  // mosstype: moss type (1: sphagnum; 2: furthermoss; 3: other)
+2                  // mosstype: // moss type (1: sphagnum; 2: furthermoss; 3: other)
 // soil characteristics
 0.147              // initfibthick: meters
 0.255              // inithumthick:
@@ -210,7 +210,7 @@
 // moss characteristics
 0.035              // maxmossthick: max. moss thickness (m)
 0.005              // initdmossthick: initial dead moss thickness (m)
-2                  // mosstype: moss type (1: sphagnum; 2: furthermoss; 3: other)
+2                  // mosstype: // moss type (1: sphagnum; 2: furthermoss; 3: other)
 // soil characteristics
 0.147              // initfibthick: meters
 0.255              // inithumthick:
@@ -230,7 +230,7 @@
 // moss characteristics
 0.035              // maxmossthick: max. moss thickness (m)
 0.005              // initdmossthick: initial dead moss thickness (m)
-1                  // mosstype: moss type (1: sphagnum; 2: furthermoss; 3: other)
+1                  // mosstype: // moss type (1: sphagnum; 2: furthermoss; 3: other)
 // soil characteristics
 0.05878             // initfibthick: meters
 0.11212             // inithumthick:
