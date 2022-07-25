@@ -514,9 +514,13 @@ def smart_format(x, n=6, basefmt='{:12.4f} ', toolongfmt='{:12.3e} '):
 
   Returns
   -------
-  String (formatted version of x).
+  str : formatted version of x
   '''
-  if len(str(x)) > n:
+  if type(x) == str:
+    x = x.strip()
+    x = x.strip('0')
+
+  if len(str(x).strip()) > n:
     return toolongfmt.format(float(x))
   else:
     return basefmt.format(float(x))

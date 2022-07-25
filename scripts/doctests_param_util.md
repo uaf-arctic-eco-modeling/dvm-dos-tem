@@ -149,4 +149,18 @@ Cleanup:
     >>> import shutil
     >>> shutil.rmtree('../parameters/CMT04')
 
+Work with the smartformat() function. This function is used to try and control
+the way things are formatted when printing the fixed width text parameter files.
 
+    >>> pu.smart_format('   34.56')
+    '     34.5600 '
+    >>> pu.smart_format('  0.00000000056')
+    '   5.600e-10 '
+    >>> pu.smart_format(' 40.0000000')
+    '     40.0000 '
+    >>> pu.smart_format('  04000.00000')
+    '   4000.0000 '
+    >>> pu.smart_format(00000050.23)
+    '     50.2300 '
+    >>> pu.smart_format('  0000050.340500', n=7)
+    '     50.3405 '
