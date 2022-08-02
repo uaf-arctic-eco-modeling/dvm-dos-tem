@@ -71,10 +71,10 @@ RUN pyenv global 3.8.6
 RUN pyenv rehash
 RUN python --version
 RUN pip install -U pip pipenv
-RUN pip install matplotlib numpy pandas bokeh netCDF4 commentjson
-RUN pip install ipython
-RUN pip install jupyter
-RUN pip install lhsmdu
+COPY requirements_general_dev.txt .
+RUN pip install -r requirements_general_dev.txt
+
+
 COPY --chown=develop:develop special_configurations/jupyter_notebook_config.py /home/develop/.jupyter/jupyter_notebook_config.py
 
 #RUN pip install gdal ## Doesn't work...

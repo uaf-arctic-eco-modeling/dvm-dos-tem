@@ -39,9 +39,8 @@ RUN pyenv global 3.8.6
 RUN pyenv rehash
 RUN python --version
 RUN pip install -U pip pipenv
-COPY requirements.txt .
-RUN pip install -r requirements.txt
-RUN pip install configobj
+COPY requirements_mapping.txt .
+RUN pip install -r requirements_mapping.txt
 
 # or use this if not wanting to use requirements.txt...
 # Bug with ipython 7.19.0, so need to downgrade and pin jedi verison
