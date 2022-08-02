@@ -65,7 +65,6 @@ RUN pip install -r requirements_mapping.txt
 #RUN pip install jedi==0.17.2
 
 WORKDIR /work
-# docker build --tag dvmdostem-mapping-support:0.0.1 -f Dockerfile-mapping-support .
 
 
 ## EXAMPLES

@@ -1,11 +1,21 @@
 # Dockerfile for dvmdostem project.
 #
+# This Dockerfile specifies several images that are useful for the 
+# dvmdostem project. The primary reason for multiple images is to allow for  
+# a development environment and a stripped down run time environemnt.
+# A container started from one of the development images will have all 
+# the development tools available, while a container started from a run
+# focused image should be smaller and leaner but won't necessarily have 
+# development tooling.
+#
+# For more info see the docker_build_wrapper.sh script.
+#
 # Uses a multi-stage build. If you want to only create one of the
 # intermediate stages, then run something like:
 #
-#    $ docker build --target cpp-dev --tag cpp-dev:0.0.1 .
+#    $ docker build --target cpp-dev --tag cpp-dev:$(git describe) .
 #
-#    Note trailing '.' specifying build context as current directory!
+#    NOTE trailing '.' specifying build context as current directory!
 #
 # If you simply docker build the entire file, or one of the 
 # later stages you will end up with several un-named, un-tagged 
@@ -14,7 +24,8 @@
 # be nicer to build and tag each stage successively,
 #
 
-# General dev tools compilers, etc
+# IMAGE FOR GENERAL C++ DEVELOPMENT.
+# General development tools, compilers, text editors, etc
 FROM ubuntu:focal as cpp-dev
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update -y --fix-missing && apt-get install -y \
@@ -25,11 +36,11 @@ RUN apt-get update -y --fix-missing && apt-get install -y \
     git \
     vim \
   && rm -rf /var/lib/apt/lists/*
-# docker build --target cpp-dev --tag cpp-dev:0.0.1 .
 
 
-# More specific build stuff for compiling dvmdostem and
-# running python scripts
+# IMAGE FOR GENERAL DVMDOSTEM DEVELOPMENT.
+# More specific build stuff for compiling dvmdostem and running 
+# python scripts
 FROM cpp-dev:0.0.1 as dvmdostem-dev
 # dvmdostem dependencies
 RUN apt-get update -y --fix-missing && apt-get install -y \
@@ -46,7 +57,6 @@ RUN apt-get update -y --fix-missing && apt-get install -y \
     nco \
     netcdf-bin \
   && rm -rf /var/lib/apt/lists/*
-
 
 # Make a developer user so as not to always be root
 RUN useradd -ms /bin/bash develop
@@ -101,11 +111,7 @@ RUN pip install -U pip pipenv
 COPY requirements_general_dev.txt .
 RUN pip install -r requirements_general_dev.txt
 
-
 COPY --chown=develop:develop special_configurations/jupyter_notebook_config.py /home/develop/.jupyter/jupyter_notebook_config.py
-
-#RUN pip install gdal ## Doesn't work...
-#RUN pip install GDAL ## Doesn't work...
 
 ENV SITE_SPECIFIC_INCLUDES="-I/usr/include/jsoncpp"
 ENV SITE_SPECIFIC_LIBS="-I/usr/lib"
@@ -114,11 +120,10 @@ ENV PATH="/work/scripts:$PATH"
 WORKDIR /work
 # or use command
 #ENTRYPOINT [ "tail", "-f", "/dev/null" ]
-# docker build --target dvmdostem-dev --tag dvmdostem-dev:0.0.1 .
 
 
-# Need to deal with getting GIT_SHA passed into the
-# build environment...
+# IMAGE FOR BUILDING (COMPILING) DVMDOSTEM.
+# Need to deal with getting GIT_SHA passed into the build environment??
 FROM dvmdostem-dev:0.0.1 as dvmdostem-build
 COPY src/ /work/src
 COPY Makefile /work/Makefile
@@ -137,11 +142,9 @@ COPY dvmdostem /work/dvmdostem
 USER develop
 # Use this to keep container going when doing docker compose up
 # CMD ["tail -f /dev/null"]
-#docker build --target dvmdostem-build --tag dvmdostem-build:0.0.1 .
-#########
 
 
-
+# IMAGE FOR RUNNING (NOT DEVELOPING) DVMDOSTEM.
 # This is designed to be a production image, lightweight in size, and with 
 # minimal tools. Only the dvmdostem and required shared libraries are installed
 # on top of a bare ubuntu installation. No tools (git, make, etc) are included.
@@ -229,41 +232,9 @@ ENV HOME=/home/develop
 ENV PYENV_ROOT=$HOME/.pyenv
 ENV PATH=$PYENV_ROOT/shims:$PYENV_ROOT/bin:$PATH
 
-
-#RUN git clone https://github.com/pyenv/pyenv-virtualenv.git $(pyenv root)/plugins/pyenv-virtualenv
-# RUN pyenv install 3.8.6
-# RUN pyenv global 3.8.6
-# RUN pyenv rehash
-# RUN python --version
-# RUN pip install -U pip pipenv
-# RUN pip install matplotlib numpy pandas bokeh netCDF4 commentjson
-# RUN pip install ipython
-# RUN pip install jupyter
-# RUN pip install lhsmdu
-#COPY --chown=develop:develop special_configurations/jupyter_notebook_config.py /home/develop/.jupyter/jupyter_notebook_config.py
-
 # Set a few environemnt variables for ease of use...
 ENV PATH="/work:$PATH"
 ENV PATH="/work/scripts:$PATH"
-
-# docker build --target dvmdostem-run --tag dvmdostem-run:0.0.1 .
-
-
-
-
-
-
-
-
-
-
-#CMD bash
-# docker build --target dvmdostem-run --tag dvmdostem-run:0.0.1 .
-
-# A production ready container...
-# At some point we could trim down and selectively copy out only the 
-# required shared libraries needed for running dvmdostem...
-#FROM dvmdostem-run as dvmdostem-lean
 
 
 
