@@ -290,7 +290,7 @@ def image_plot(imgarrays, plotlist, title='', save=False, format='pdf', savetag=
     print("min/max values in data array:", data.min(), data.max())
 
     # Transform data to 2D shape for showing as an image
-    data = data.reshape(len(data)/12, 12)
+    data = data.reshape(int(len(data)/12), 12)
 
     # Not totally sure how this part works, but it seems to help make room
     # for the colorbar axes
@@ -371,7 +371,7 @@ def image_plot(imgarrays, plotlist, title='', save=False, format='pdf', savetag=
     plt.show(block=True)
 
 
-def plot_tests(test_list, **kwargs):
+def plot_tests(test_list, save_plots=False, **kwargs):
   #title =  "------  %s  ------" % t
   for t in test_list:
     data = compile_table_by_year(t, **kwargs)
@@ -387,11 +387,22 @@ def plot_tests(test_list, **kwargs):
     # column ends up NaN. May need to update pandas version
     #df = pd.read_csv(StringIO(data), header=0, delim_whitespace=True, na_values='NULL')
 
+    # THIS ALL RUNS, NOT SURE YET IF IT IS CORRECT. ALL THE PLOTS 
+    # GENERATED ARE IDENTICAL??
     print("plotting dataframe...")
-    dfp = df.plot(subplots=True)#, grid=False)
+    from IPython import embed; embed()
+    dfa = df.plot(subplots=True)#, grid=False)
+    for i, x in enumerate(dfa):
+      fig = dfa[i].get_figure()
 
-    print("using matplotlib show...")
-    plt.show(block=True)
+      if save_plots:
+        SAVE_DIR = 'diagnostics-plots'
+        file_name = os.path.join(SAVE_DIR, "{}_{}_diag_timeseries_pft{:02d}.{}".format(t, savetag, i, 'png'))
+        print("saving file: %s" % file_name)
+        fig.savefig(file_name)
+      else:
+        print("using matplotlib show...")
+        plt.show(block=True)
 
 def run_tests(test_list, **kwargs):
 
@@ -432,7 +443,7 @@ def run_tests(test_list, **kwargs):
 
 def compile_table_by_year(test_case, **kwargs):
 
-    jfiles = file_loader(**kwargs)
+    jfiles = sorted(file_loader(**kwargs))
 
     # map 'test case' strings to various test and 
     # reporting functions we have written in the module.
@@ -952,7 +963,7 @@ if __name__ == '__main__':
 
   # Make a table listing options for the help text
   t = itertools.zip_longest(error_image_choices, tab_reports_and_timeseries_choices)
-  option_table = "\n".join(["{:>30} {:>30}".format(r[0], r[1]) for r in t])
+  option_table = "\n".join(["{:>30} {:>30}".format(str(r[0]), str(r[1])) for r in t])
   option_table = "\n" + option_table
 
   #
@@ -1084,7 +1095,7 @@ if __name__ == '__main__':
 
   if args.plot_timeseries:
     print("Creating timeseries plots...")
-    plot_tests(args.plot_timeseries, fileslice=slstr)
+    plot_tests(args.plot_timeseries, fileslice=slstr, save_plots=save)
 
   if args.tab_reports:
     print("Creating tabular reports...")
