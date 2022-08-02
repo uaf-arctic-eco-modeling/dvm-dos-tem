@@ -321,6 +321,32 @@ calibration_targets = {
 
 }
 
+def cmtbynumber(cmtnum):
+  '''
+  Find target values for a single CMT based on the number only.
+
+  Parameters
+  ----------
+  cmtnumber : int
+    The integer value for the CMT to return data for.
+
+  Returns
+  -------
+  data : dict
+    A multi-level dict structure with calibration target data for a single CMT.
+
+  Raises
+  ------
+  RuntimeError if the cmtnum is not found anywhere in the calibration_targets
+  data structure.
+  '''
+  for k, v in calibration_targets.items():
+    if 'cmtnumber' in v.keys():
+      if v['cmtnumber'] == cmtnum:
+        return {k:v}
+  raise RuntimeError("Can't find cmtnumber: {}".format(cmtnum))
+
+
 def cmtnames():
   '''returns a list of community names'''
   return [key for key in list(calibration_targets.keys())]
