@@ -18,7 +18,7 @@ services:
   # Some general dev tools - not expected to be used directly
   cpp-dev:
     build: .
-    image: cpp-dev:0.0.1
+    image: cpp-dev:${V_TAG}
 
   # The general dvmdostem dev enviorment. Intented to be used for 
   # most development work by mounting volumes of source code into 
@@ -26,7 +26,7 @@ services:
   # folders from the host to the container so they can be edited 
   # on the host and used w/in the container run-time.
   dvmdostem-dev:
-    image: dvmdostem-dev:0.0.1
+    image: dvmdostem-dev:${V_TAG}
     build: .
     tty: true
     volumes:
@@ -41,13 +41,13 @@ services:
   # binary exists in this image, it can be copied into the lean 
   # run image.
   dvmdostem-build:
-    image: dvmdostem-build:0.0.1
+    image: dvmdostem-build:${V_TAG}
     build: .
     #command: tail -F /dev/null # keeps container running
 
   # The lean production image
   dvmdostem-run:
-    image: dvmdostem-run:0.0.1
+    image: dvmdostem-run:${V_TAG}
     build: .
     tty: true
     ports:
@@ -58,7 +58,7 @@ services:
       
   # Auxillary stuff; not sure what to do with it...
   dvmdostem-mapping-support:
-    image: dvmdostem-mapping-support:0.0.1
+    image: dvmdostem-mapping-support:${V_TAG}
     build: .
     tty: true
     ports: 
