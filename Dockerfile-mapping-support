@@ -20,10 +20,25 @@ USER develop
 
 # Pyenv dependencies
 USER root
-RUN apt-get update --fix-missing
-RUN apt-get install -y --fix-missing build-essential libssl-dev zlib1g-dev libbz2-dev \
-libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev libncursesw5-dev \
-xz-utils tk-dev libffi-dev liblzma-dev python-openssl git
+RUN apt-get update --fix-missing && apt-get install -y \
+    build-essential \
+    curl \
+    git \
+    libbz2-dev \
+    libffi-dev \
+    liblzma-dev \
+    libncurses5-dev \
+    libncursesw5-dev \
+    libreadline-dev \
+    libsqlite3-dev \
+    libssl-dev \
+    llvm \
+    python-openssl \
+    tk-dev \
+    wget \
+    xz-utils \
+    zlib1g-dev \
+  && rm -rf /var/lib/apt/lists/*
 
 # Pyenv seems to work well for overall python versioning and packagemanagement.
 # Not sure how to best manage pip requirements.txt yet between this mapping

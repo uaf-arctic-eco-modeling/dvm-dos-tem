@@ -17,10 +17,14 @@
 # General dev tools compilers, etc
 FROM ubuntu:focal as cpp-dev
 ENV DEBIAN_FRONTEND=noninteractive
-# Might combine these two using &&, somwewhere I read that is better
-RUN apt-get update --fix-missing
-# general tools and dependencies for development
-RUN apt-get install -y build-essential git gdb gdbserver doxygen vim
+RUN apt-get update -y --fix-missing && apt-get install -y \
+    build-essential \
+    doxygen \
+    gdb \
+    gdbserver \
+    git \
+    vim \
+  && rm -rf /var/lib/apt/lists/*
 # docker build --target cpp-dev --tag cpp-dev:0.0.1 .
 
 
@@ -28,11 +32,20 @@ RUN apt-get install -y build-essential git gdb gdbserver doxygen vim
 # running python scripts
 FROM cpp-dev:0.0.1 as dvmdostem-dev
 # dvmdostem dependencies
-RUN apt-get update  -y --fix-missing
-RUN apt-get install -y libjsoncpp-dev libnetcdf-dev libboost-all-dev libreadline-dev liblapacke liblapacke-dev
+RUN apt-get update -y --fix-missing && apt-get install -y \
+    libboost-all-dev \
+    libjsoncpp-dev \
+    liblapacke \
+    liblapacke-dev \
+    libnetcdf-dev \
+    libreadline-dev \
+  && rm -rf /var/lib/apt/lists/*
 
 # Various command line netcdf tools
-RUN apt-get install -y netcdf-bin nco
+RUN apt-get update -y --fix-missing && apt-get install -y \
+    nco \
+    netcdf-bin \
+  && rm -rf /var/lib/apt/lists/*
 
 
 # Make a developer user so as not to always be root
@@ -42,11 +55,25 @@ USER develop
 
 # Pyenv dependencies for building full Python with all extensions.
 USER root
-RUN apt-get update
-RUN apt-get install -y --fix-missing build-essential libssl-dev zlib1g-dev libbz2-dev \
-libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev libncursesw5-dev \
-xz-utils tk-dev libffi-dev liblzma-dev python-openssl git
-
+RUN apt-get update --fix-missing -y && apt-get install -y \ 
+    build-essential \
+    curl \
+    git \
+    libffi-dev \
+    libssl-dev \
+    libbz2-dev \
+    liblzma-dev \
+    libncurses5-dev \
+    libncursesw5-dev \
+    libreadline-dev \
+    libsqlite3-dev \
+    llvm \
+    python-openssl \
+    tk-dev \
+    wget \
+    xz-utils \
+    zlib1g-dev \
+  && rm -rf /var/lib/apt/lists/*
 
 # Bare bones python approach might be to use system provided python, which in 
 # ubuntu focal (20.4) means python3 and pip3, or installing python-is-python3
