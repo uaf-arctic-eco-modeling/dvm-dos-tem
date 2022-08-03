@@ -24,6 +24,8 @@
 # be nicer to build and tag each stage successively,
 #
 
+ARG GIT_VERSION=latest
+
 # IMAGE FOR GENERAL C++ DEVELOPMENT.
 # General development tools, compilers, text editors, etc
 FROM ubuntu:focal as cpp-dev
@@ -41,7 +43,7 @@ RUN apt-get update -y --fix-missing && apt-get install -y \
 # IMAGE FOR GENERAL DVMDOSTEM DEVELOPMENT.
 # More specific build stuff for compiling dvmdostem and running 
 # python scripts
-FROM cpp-dev:0.0.1 as dvmdostem-dev
+FROM cpp-dev:$GIT_VERSION as dvmdostem-dev
 # dvmdostem dependencies
 RUN apt-get update -y --fix-missing && apt-get install -y \
     libboost-all-dev \
@@ -123,14 +125,13 @@ WORKDIR /work
 
 
 # IMAGE FOR BUILDING (COMPILING) DVMDOSTEM.
-# Need to deal with getting GIT_SHA passed into the build environment??
-FROM dvmdostem-dev:0.0.1 as dvmdostem-build
 # This is for a stand-alone container that can be used to compile the
 # dvmdostem binary without needing to mount volumes when the container
 # is started. The required files are copied directly to the image.
 # In the dev image, the source code is not present in the image and must be
 # made available to the image (usually by mounting a volume) at the time the 
 # container is started from the image.
+FROM dvmdostem-dev:${GIT_VERSION} as dvmdostem-build
 COPY src/ /work/src
 COPY Makefile /work/Makefile
 COPY include/ /work/include
