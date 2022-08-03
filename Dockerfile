@@ -125,6 +125,12 @@ WORKDIR /work
 # IMAGE FOR BUILDING (COMPILING) DVMDOSTEM.
 # Need to deal with getting GIT_SHA passed into the build environment??
 FROM dvmdostem-dev:0.0.1 as dvmdostem-build
+# This is for a stand-alone container that can be used to compile the
+# dvmdostem binary without needing to mount volumes when the container
+# is started. The required files are copied directly to the image.
+# In the dev image, the source code is not present in the image and must be
+# made available to the image (usually by mounting a volume) at the time the 
+# container is started from the image.
 COPY src/ /work/src
 COPY Makefile /work/Makefile
 COPY include/ /work/include
@@ -135,9 +141,9 @@ COPY parameters/ /work/parameters
 COPY config/ /work/config
 USER root
 
-# This is for faster testing. ultimately should comment this out and un-comment RUN make
-COPY dvmdostem /work/dvmdostem
-#RUN make
+# During development, it can be faster to test by copying in the binary
+#COPY dvmdostem /work/dvmdostem
+RUN make
 
 USER develop
 # Use this to keep container going when doing docker compose up
