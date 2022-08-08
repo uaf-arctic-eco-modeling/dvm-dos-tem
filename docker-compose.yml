@@ -2,17 +2,18 @@ version: '3.2'
 
 # Docker Compose file for coordinating several dvmdostem containers.
 #
-# First you should build your images using the commands in the Dockerfiles.
+# First you should build your images. This can be done individually or you can 
+# use the docker-build-wrapper.sh script.
 #
 # Next create a .env file where you set the following variables:
 #   $ echo "DDT_INPUT_CATALOG=/some/path/to/your/input-catalog" >> .env
 #   $ echo "DDT_WORKFLOWS=/some/path/to/your/workflows" >> .env
+#   $ echo "V_TAG=$(git describe)" >> .env
 #
 # Next start the containers:
 #   $ docker compose up -d to start the containers
 #
-# Then you can run various program inside the containers.
-# See Examples below
+# Then you can run various programs inside the containers, see examples below.
 
 services:
   # Some general dev tools - not expected to be used directly
@@ -56,7 +57,8 @@ services:
       - inputcatalog:/data/input-catalog
       - workflows:/data/workflows
       
-  # Auxillary stuff; not sure what to do with it...
+  # Auxillary stuff that can't run on other container/images due to difficult
+  # build dependencies (GDAL mainly).
   dvmdostem-mapping-support:
     image: dvmdostem-mapping-support:${V_TAG}
     build: .

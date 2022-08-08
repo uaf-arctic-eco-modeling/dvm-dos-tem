@@ -1,32 +1,43 @@
 # Dockerfile for dvmdostem project.
 #
-# This Dockerfile specifies several images that are useful for the 
-# dvmdostem project. The primary reason for multiple images is to allow for  
-# a development environment and a stripped down run time environemnt.
-# A container started from one of the development images will have all 
-# the development tools available, while a container started from a run
-# focused image should be smaller and leaner but won't necessarily have 
-# development tooling.
+# This file contains specifications for images that are useful for the dvmdostem
+# project. The images described in this file are:
 #
-# For more info see the docker_build_wrapper.sh script.
+#  * cpp-dev                 general purpose C, C++ compilers, libraries, etc
+#  * dvmdostem-dev           libraries, tools for developing dvmdostem
+#  * dvmdostem-build         a standalone compile environment for dvmdostem
+#  * dvmdostem-run           a standalone run-time environemnt for dvmdostem
 #
-# Uses a multi-stage build. If you want to only create one of the
-# intermediate stages, then run something like:
+# There is an additional image for the project, dvmdostem-mapping-support, which
+# has its own Dockerfile.
+#
+# The intention is that most (all?) development and testing work will be done in
+# containers based on the -dev image. The -build and -run images are intended
+# for deployment of dvmdostem on a cloud system or within another system, such
+# as PEcAn.
+#
+# This Dockerfile uses a multi-stage build. If you want to only create one of
+# the intermediate stages, then run something like:
 #
 #    $ docker build --target cpp-dev --tag cpp-dev:$(git describe) .
 #
-#    NOTE trailing '.' specifying build context as current directory!
+#    NOTE: trailing '.' specifying build context as current directory!
 #
-# If you simply docker build the entire file, or one of the 
-# later stages you will end up with several un-named, un-tagged 
-# images from the preceeding stages (i.e. <none>:<none> in the output 
-# docker image ls). For this reason, it might
-# be nicer to build and tag each stage successively,
+# If you simply docker build the entire file, or one of the later stages you
+# will end up with several un-named, un-tagged images from the preceeding stages
+# (i.e. <none>:<none> in the output from docker image ls). For this reason, it
+# might be nicer to build and tag each stage successively.
+#
+# See docker-build-wrapper.sh for more info and ideas about building and and
+# tagging images.
 #
 
+# This is used for tagging images. In most cases, this value will be overridden
+# by passing a --build-arg when running docker build to create your images. See
+# docker-build-wrapper.sh for examples of this pattern in use.
 ARG GIT_VERSION=latest
 
-# IMAGE FOR GENERAL C++ DEVELOPMENT.
+# === IMAGE FOR GENERAL C++ DEVELOPMENT =======================================
 # General development tools, compilers, text editors, etc
 FROM ubuntu:focal as cpp-dev
 ENV DEBIAN_FRONTEND=noninteractive
@@ -40,9 +51,9 @@ RUN apt-get update -y --fix-missing && apt-get install -y \
   && rm -rf /var/lib/apt/lists/*
 
 
-# IMAGE FOR GENERAL DVMDOSTEM DEVELOPMENT.
-# More specific build stuff for compiling dvmdostem and running 
-# python scripts
+# === IMAGE FOR GENERAL DVMDOSTEM DEVELOPMENT =================================
+# More specific build stuff for compiling dvmdostem and running the project's
+# associated python scripts. 
 FROM cpp-dev:$GIT_VERSION as dvmdostem-dev
 # dvmdostem dependencies
 RUN apt-get update -y --fix-missing && apt-get install -y \
@@ -124,13 +135,12 @@ WORKDIR /work
 #ENTRYPOINT [ "tail", "-f", "/dev/null" ]
 
 
-# IMAGE FOR BUILDING (COMPILING) DVMDOSTEM.
-# This is for a stand-alone container that can be used to compile the
-# dvmdostem binary without needing to mount volumes when the container
-# is started. The required files are copied directly to the image.
-# In the dev image, the source code is not present in the image and must be
-# made available to the image (usually by mounting a volume) at the time the 
-# container is started from the image.
+# === IMAGE FOR BUILDING (COMPILING) DVMDOSTEM ================================
+# A stand-alone container that can be used to compile the dvmdostem binary
+# without needing to mount volumes when the container is started. Here the
+# required source files are copied directly to the image. This is in constrast
+# to the dev image, where there is no source code present in the imag instead it
+# must be provided by mounting a volume at container run-time.
 FROM dvmdostem-dev:${GIT_VERSION} as dvmdostem-build
 COPY src/ /work/src
 COPY Makefile /work/Makefile
@@ -149,7 +159,8 @@ COPY parameters/ /work/parameters
 COPY config/ /work/config
 USER root
 
-# During development, it can be faster to test by copying in the binary
+# During development, it can be faster to test by copying in the binary rather
+# than waiting for it to build each time
 #COPY dvmdostem /work/dvmdostem
 RUN make
 
@@ -158,16 +169,16 @@ USER develop
 # CMD ["tail -f /dev/null"]
 
 
-# IMAGE FOR RUNNING (NOT DEVELOPING) DVMDOSTEM.
-# This is designed to be a production image, lightweight in size, and with 
-# minimal tools. Only the dvmdostem and required shared libraries are installed
-# on top of a bare ubuntu installation. No tools (git, make, etc) are included.
-# No source code. Just the compiled dvmdostem application.
+# === IMAGE FOR RUNNING (NOT DEVELOPING) DVMDOSTEM ============================
+# This is designed to be a production image: lightweight in size, and with
+# minimal tools. Only the dvmdostem binary and required shared libraries, and
+# python install are installed on top of a bare ubuntu installation. No tools
+# (git, make, etc) are included. No source code. Just the compiled dvmdostem
+# application and supporting libriaries are included.
 #
-# Use the dvmdostem-build image to create a container that can compile
-# dvmdostem, which is then copied into this image
-# 
-# A container run from this images will need to have data supplied (i.e. one or 
+# Note that excluding python could significantly reduce the image size!
+#
+# A container run from this images will need to have data supplied (i.e. one or
 # more mounted volumes) in order to run dvmdostem.
 #
 FROM ubuntu:focal as dvmdostem-run
@@ -184,7 +195,7 @@ COPY --from=dvmdostem-build /work/config ./config
 # This seems to gets the whole python install, although I expect at some
 # point when an extension is needed, will have to find that shared lib and 
 # copy it in... 
-#  ~ 800 MB
+#  ~800MB
 COPY --from=dvmdostem-build /home/develop/.pyenv /home/develop/.pyenv
 
 # Discovered by using ldd on compiled binary in testing environment
