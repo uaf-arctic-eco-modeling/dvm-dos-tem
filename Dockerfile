@@ -136,6 +136,13 @@ COPY src/ /work/src
 COPY Makefile /work/Makefile
 COPY include/ /work/include
 
+# Needed for running git describe w/in the Makefile. Without the config setting
+# git gives an error about trusted directories. Possible security concern?
+# There is probably a better way to handle this situation. Maybe pass the git
+# version to the Makefile as an argument?
+COPY .git /work/.git
+RUN git config --global --add safe.directory /work
+
 COPY scripts/ /work/scripts
 COPY calibration/ /work/calibration
 COPY parameters/ /work/parameters

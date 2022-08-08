@@ -27,12 +27,6 @@ docker build --build-arg GIT_VERSION=$GIT_VERSION --target dvmdostem-build --tag
 
 # A lean images with only the bare minimum stuff to run dvmdostem
 # Does NOT have development tools, compilers, editors, etc
-# First we run a container from the dev image, use it to compile the code
-# with a volume mount, so that the resulting binary ends up in our 
-# local directory on this host. Then when building the run image, we
-# copy the binary from local host into the image.
-docker run --rm --volume $(pwd):/work dvmdostem-dev:$(git describe) make
-
 docker build --build-arg GIT_VERSION=$GIT_VERSION --target dvmdostem-run --tag dvmdostem-run:$GIT_VERSION .
 
 
