@@ -4,7 +4,7 @@
 # GDAL and Python working well together.
 
 # need this for netCDF
-FROM osgeo/gdal:ubuntu-full-latest 
+FROM osgeo/gdal:ubuntu-full-3.2.2
 
 # Might want this if workflow includes running interactive shell on 
 # the container resulting from this image...
