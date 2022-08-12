@@ -1,37 +1,75 @@
 # Dockerfile for dvmdostem project.
 #
-# Uses a multi-stage build. If you want to only create one of the
-# intermediate stages, then run something like:
+# This file contains specifications for images that are useful for the dvmdostem
+# project. The images described in this file are:
 #
-#    $ docker build --target cpp-dev --tag cpp-dev:0.0.1 .
+#  * cpp-dev                 general purpose C, C++ compilers, libraries, etc
+#  * dvmdostem-dev           libraries, tools for developing dvmdostem
+#  * dvmdostem-build         a standalone compile environment for dvmdostem
+#  * dvmdostem-run           a standalone run-time environemnt for dvmdostem
 #
-#    Note trailing '.' specifying build context as current directory!
+# There is an additional image for the project, dvmdostem-mapping-support, which
+# has its own Dockerfile.
 #
-# If you simply docker build the entire file, or one of the 
-# later stages you will end up with several un-named, un-tagged 
-# images from the preceeding stages (i.e. <none>:<none> in the output 
-# docker image ls). For this reason, it might
-# be nicer to build and tag each stage successively,
+# The intention is that most (all?) development and testing work will be done in
+# containers based on the -dev image. The -build and -run images are intended
+# for deployment of dvmdostem on a cloud system or within another system, such
+# as PEcAn.
+#
+# This Dockerfile uses a multi-stage build. If you want to only create one of
+# the intermediate stages, then run something like:
+#
+#    $ docker build --target cpp-dev --tag cpp-dev:$(git describe) .
+#
+#    NOTE: trailing '.' specifying build context as current directory!
+#
+# If you simply docker build the entire file, or one of the later stages you
+# will end up with several un-named, un-tagged images from the preceeding stages
+# (i.e. <none>:<none> in the output from docker image ls). For this reason, it
+# might be nicer to build and tag each stage successively.
+#
+# See docker-build-wrapper.sh for more info and ideas about building and and
+# tagging images.
 #
 
-# General dev tools compilers, etc
+# This is used for tagging images. In most cases, this value will be overridden
+# by passing a --build-arg when running docker build to create your images. See
+# docker-build-wrapper.sh for examples of this pattern in use.
+ARG GIT_VERSION=latest
+
+# === IMAGE FOR GENERAL C++ DEVELOPMENT =======================================
+# General development tools, compilers, text editors, etc
 FROM ubuntu:focal as cpp-dev
 ENV DEBIAN_FRONTEND=noninteractive
-# Might combine these two using &&, somwewhere I read that is better
-RUN apt-get update
-# general tools and dependencies for development
-RUN apt-get install -y build-essential git gdb gdbserver doxygen vim
-# docker build --target cpp-dev --tag cpp-dev:0.0.1 .
+RUN apt-get update -y --fix-missing && apt-get install -y \
+    build-essential \
+    doxygen \
+    gdb \
+    gdbserver \
+    git \
+    vim \
+  && rm -rf /var/lib/apt/lists/*
 
 
-# More specific build stuff for compiling dvmdostem and
-# running python scripts
-FROM cpp-dev:0.0.1 as dvmdostem-build
+# === IMAGE FOR GENERAL DVMDOSTEM DEVELOPMENT =================================
+# More specific build stuff for compiling dvmdostem and running the project's
+# associated python scripts. 
+FROM cpp-dev:$GIT_VERSION as dvmdostem-dev
 # dvmdostem dependencies
-RUN apt-get install -y libjsoncpp-dev libnetcdf-dev libboost-all-dev libreadline-dev liblapacke liblapacke-dev
+RUN apt-get update -y --fix-missing && apt-get install -y \
+    libboost-all-dev \
+    libjsoncpp-dev \
+    liblapacke \
+    liblapacke-dev \
+    libnetcdf-dev \
+    libreadline-dev \
+  && rm -rf /var/lib/apt/lists/*
 
 # Various command line netcdf tools
-RUN apt-get install -y nco netcdf-bin
+RUN apt-get update -y --fix-missing && apt-get install -y \
+    nco \
+    netcdf-bin \
+  && rm -rf /var/lib/apt/lists/*
 
 # Make a developer user so as not to always be root
 RUN useradd -ms /bin/bash develop
@@ -40,11 +78,25 @@ USER develop
 
 # Pyenv dependencies for building full Python with all extensions.
 USER root
-RUN apt-get update
-RUN apt-get install -y --fix-missing build-essential libssl-dev zlib1g-dev libbz2-dev \
-libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev libncursesw5-dev \
-xz-utils tk-dev libffi-dev liblzma-dev python-openssl git
-
+RUN apt-get update --fix-missing -y && apt-get install -y \ 
+    build-essential \
+    curl \
+    git \
+    libffi-dev \
+    libssl-dev \
+    libbz2-dev \
+    liblzma-dev \
+    libncurses5-dev \
+    libncursesw5-dev \
+    libreadline-dev \
+    libsqlite3-dev \
+    llvm \
+    python-openssl \
+    tk-dev \
+    wget \
+    xz-utils \
+    zlib1g-dev \
+  && rm -rf /var/lib/apt/lists/*
 
 # Bare bones python approach might be to use system provided python, which in 
 # ubuntu focal (20.4) means python3 and pip3, or installing python-is-python3
@@ -57,7 +109,7 @@ xz-utils tk-dev libffi-dev liblzma-dev python-openssl git
 # but never got it to work. Decided to use a separate image with gdal support
 # but pyenv might be useful for other packages in the future and is a nice
 # unified way to package and version manage our tooling that has been working
-# well across macOS, Ubunut, CentOS, etc. 
+# well across macOS, Ubuntu, CentOS, etc. 
 USER develop
 ENV HOME=/home/develop
 RUN git clone https://github.com/pyenv/pyenv.git $HOME/.pyenv
@@ -69,29 +121,145 @@ RUN pyenv global 3.8.6
 RUN pyenv rehash
 RUN python --version
 RUN pip install -U pip pipenv
-RUN pip install matplotlib numpy pandas bokeh netCDF4 commentjson
-RUN pip install ipython
-RUN pip install jupyter
-RUN pip install lhsmdu
+COPY requirements_general_dev.txt .
+RUN pip install -r requirements_general_dev.txt
+
 COPY --chown=develop:develop special_configurations/jupyter_notebook_config.py /home/develop/.jupyter/jupyter_notebook_config.py
 
-#RUN pip install gdal ## Doesn't work...
-#RUN pip install GDAL ## Doesn't work...
-# docker build --target dvmdostem-build --tag dvmdostem-build:0.0.1 .
-
-# The final image that we will run as a container.
-FROM dvmdostem-build:0.0.1 as dvmdostem-run
-WORKDIR /work
 ENV SITE_SPECIFIC_INCLUDES="-I/usr/include/jsoncpp"
 ENV SITE_SPECIFIC_LIBS="-I/usr/lib"
 ENV PATH="/work:$PATH"
 ENV PATH="/work/scripts:$PATH"
-# docker build --target dvmdostem-run --tag dvmdostem-run:0.0.1 .
+WORKDIR /work
+# or use command
+#ENTRYPOINT [ "tail", "-f", "/dev/null" ]
 
-# A production ready container...
-# At some point we could trim down and selectively copy out only the 
-# required shared libraries needed for running dvmdostem...
-#FROM dvmdostem-run as dvmdostem-lean
+
+# === IMAGE FOR BUILDING (COMPILING) DVMDOSTEM ================================
+# A stand-alone container that can be used to compile the dvmdostem binary
+# without needing to mount volumes when the container is started. Here the
+# required source files are copied directly to the image. This is in constrast
+# to the dev image, where there is no source code present in the imag instead it
+# must be provided by mounting a volume at container run-time.
+FROM dvmdostem-dev:${GIT_VERSION} as dvmdostem-build
+COPY src/ /work/src
+COPY Makefile /work/Makefile
+COPY include/ /work/include
+
+# Needed for running git describe w/in the Makefile. Without the config setting
+# git gives an error about trusted directories. Possible security concern?
+# There is probably a better way to handle this situation. Maybe pass the git
+# version to the Makefile as an argument?
+COPY .git /work/.git
+RUN git config --global --add safe.directory /work
+
+COPY scripts/ /work/scripts
+COPY calibration/ /work/calibration
+COPY parameters/ /work/parameters
+COPY config/ /work/config
+USER root
+
+# During development, it can be faster to test by copying in the binary rather
+# than waiting for it to build each time
+#COPY dvmdostem /work/dvmdostem
+RUN make
+
+USER develop
+# Use this to keep container going when doing docker compose up
+# CMD ["tail -f /dev/null"]
+
+
+# === IMAGE FOR RUNNING (NOT DEVELOPING) DVMDOSTEM ============================
+# This is designed to be a production image: lightweight in size, and with
+# minimal tools. Only the dvmdostem binary and required shared libraries, and
+# python install are installed on top of a bare ubuntu installation. No tools
+# (git, make, etc) are included. No source code. Just the compiled dvmdostem
+# application and supporting libriaries are included.
+#
+# Note that excluding python could significantly reduce the image size!
+#
+# A container run from this images will need to have data supplied (i.e. one or
+# more mounted volumes) in order to run dvmdostem.
+#
+FROM ubuntu:focal as dvmdostem-run
+
+WORKDIR /work
+
+COPY --from=dvmdostem-build /work/dvmdostem ./
+
+COPY --from=dvmdostem-build /work/scripts ./scripts
+COPY --from=dvmdostem-build /work/calibration ./calibration
+COPY --from=dvmdostem-build /work/parameters ./parameters
+COPY --from=dvmdostem-build /work/config ./config
+
+# This seems to gets the whole python install, although I expect at some
+# point when an extension is needed, will have to find that shared lib and 
+# copy it in... 
+#  ~800MB
+COPY --from=dvmdostem-build /home/develop/.pyenv /home/develop/.pyenv
+
+# Discovered by using ldd on compiled binary in testing environment
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libboost_filesystem.so.1.71.0  /lib/x86_64-linux-gnu/libboost_filesystem.so.1.71.0
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libboost_program_options.so.1.71.0 /lib/x86_64-linux-gnu/libboost_program_options.so.1.71.0
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libboost_thread.so.1.71.0 /lib/x86_64-linux-gnu/libboost_thread.so.1.71.0
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libboost_log.so.1.71.0 /lib/x86_64-linux-gnu/libboost_log.so.1.71.0
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libjsoncpp.so.1 /lib/x86_64-linux-gnu/libjsoncpp.so.1
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/liblapacke.so.3 /lib/x86_64-linux-gnu/liblapacke.so.3
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libtmglib.so.3 /lib/x86_64-linux-gnu/libtmglib.so.3
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libhdf5_serial_hl.so.100 /lib/x86_64-linux-gnu/libhdf5_serial_hl.so.100
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libhdf5_serial.so.103 /lib/x86_64-linux-gnu/libhdf5_serial.so.103
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libcurl-gnutls.so.4 /lib/x86_64-linux-gnu/libcurl-gnutls.so.4
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libgfortran.so.5 /lib/x86_64-linux-gnu/libgfortran.so.5
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libnetcdf.so.15 /lib/x86_64-linux-gnu/libnetcdf.so.15
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libreadline.so.8 /lib/x86_64-linux-gnu/libreadline.so.8
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libblas.so.3 /lib/x86_64-linux-gnu/libblas.so.3
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/liblapack.so.3 /lib/x86_64-linux-gnu/liblapack.so.3
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libblas.so.3 /lib/x86_64-linux-gnu/libblas.so.3
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/liblapack.so.3 /lib/x86_64-linux-gnu/liblapack.so.3
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libsz.so.2 /lib/x86_64-linux-gnu/libsz.so.2
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libnghttp2.so.14 /lib/x86_64-linux-gnu/libnghttp2.so.14
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/librtmp.so.1 /lib/x86_64-linux-gnu/librtmp.so.1
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libssh.so.4 /lib/x86_64-linux-gnu/libssh.so.4
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libpsl.so.5 /lib/x86_64-linux-gnu/libpsl.so.5
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libgssapi_krb5.so.2 /lib/x86_64-linux-gnu/libgssapi_krb5.so.2
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libldap_r-2.4.so.2 libldap_r-2./lib/x86_64-linux-gnu/4.so.2
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/liblber-2.4.so.2 liblber-2./lib/x86_64-linux-gnu/4.so.2
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libbrotlidec.so.1 /lib/x86_64-linux-gnu/libbrotlidec.so.1
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libquadmath.so.0 /lib/x86_64-linux-gnu/libquadmath.so.0
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libldap_r-2.4.so.2 /lib/x86_64-linux-gnu/libldap_r-2.4.so.2
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/liblber-2.4.so.2 /lib/x86_64-linux-gnu/liblber-2.4.so.2
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libaec.so.0 /lib/x86_64-linux-gnu/libaec.so.0
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libcrypto.so.1.1 /lib/x86_64-linux-gnu/libcrypto.so.1.1
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libkrb5.so.3 /lib/x86_64-linux-gnu/libkrb5.so.3
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libk5crypto.so.3 /lib/x86_64-linux-gnu/libk5crypto.so.3
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libkrb5support.so.0 /lib/x86_64-linux-gnu/libkrb5support.so.0
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libbrotlicommon.so.1 /lib/x86_64-linux-gnu/libbrotlicommon.so.1
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libsasl2.so.2 /lib/x86_64-linux-gnu/libsasl2.so.2
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libgssapi.so.3 /lib/x86_64-linux-gnu/libgssapi.so.3
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libkeyutils.so.1 /lib/x86_64-linux-gnu/libkeyutils.so.1
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libheimntlm.so.0 /lib/x86_64-linux-gnu/libheimntlm.so.0
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libkrb5.so.26 /lib/x86_64-linux-gnu/libkrb5.so.26
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libasn1.so.8 /lib/x86_64-linux-gnu/libasn1.so.8
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libhcrypto.so.4 /lib/x86_64-linux-gnu/libhcrypto.so.4
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libroken.so.18 /lib/x86_64-linux-gnu/libroken.so.18
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libwind.so.0 /lib/x86_64-linux-gnu/libwind.so.0
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libwind.so.0 /lib/x86_64-linux-gnu/libwind.so.0
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libheimbase.so.1 /lib/x86_64-linux-gnu/libheimbase.so.1
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libhx509.so.5 /lib/x86_64-linux-gnu/libhx509.so.5
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libsqlite3.so.0 /lib/x86_64-linux-gnu/libsqlite3.so.0
+COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libheimbase.so.1 /lib/x86_64-linux-gnu/libheimbase.so.1
+
+# Make a developer user so as not to always be root
+RUN useradd -ms /bin/bash develop
+RUN echo "develop   ALL=(ALL:ALL) ALL" >> /etc/sudoers
+USER develop
+ENV HOME=/home/develop
+ENV PYENV_ROOT=$HOME/.pyenv
+ENV PATH=$PYENV_ROOT/shims:$PYENV_ROOT/bin:$PATH
+
+# Set a few environemnt variables for ease of use...
+ENV PATH="/work:$PATH"
+ENV PATH="/work/scripts:$PATH"
 
 
 
