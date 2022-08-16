@@ -4,7 +4,7 @@
 # GDAL and Python working well together.
 
 # need this for netCDF
-FROM osgeo/gdal:ubuntu-full-latest 
+FROM osgeo/gdal:ubuntu-full-3.2.2
 
 # Might want this if workflow includes running interactive shell on 
 # the container resulting from this image...
@@ -20,10 +20,25 @@ USER develop
 
 # Pyenv dependencies
 USER root
-RUN apt-get update
-RUN apt-get install -y --fix-missing build-essential libssl-dev zlib1g-dev libbz2-dev \
-libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev libncursesw5-dev \
-xz-utils tk-dev libffi-dev liblzma-dev python-openssl git
+RUN apt-get update --fix-missing && apt-get install -y \
+    build-essential \
+    curl \
+    git \
+    libbz2-dev \
+    libffi-dev \
+    liblzma-dev \
+    libncurses5-dev \
+    libncursesw5-dev \
+    libreadline-dev \
+    libsqlite3-dev \
+    libssl-dev \
+    llvm \
+    python-openssl \
+    tk-dev \
+    wget \
+    xz-utils \
+    zlib1g-dev \
+  && rm -rf /var/lib/apt/lists/*
 
 # Pyenv seems to work well for overall python versioning and packagemanagement.
 # Not sure how to best manage pip requirements.txt yet between this mapping
@@ -39,8 +54,8 @@ RUN pyenv global 3.8.6
 RUN pyenv rehash
 RUN python --version
 RUN pip install -U pip pipenv
-COPY requirements.txt .
-RUN pip install -r requirements.txt
+COPY requirements_mapping.txt .
+RUN pip install -r requirements_mapping.txt
 
 # or use this if not wanting to use requirements.txt...
 # Bug with ipython 7.19.0, so need to downgrade and pin jedi verison
@@ -50,7 +65,6 @@ RUN pip install -r requirements.txt
 #RUN pip install jedi==0.17.2
 
 WORKDIR /work
-# docker build --tag dvmdostem-mapping-support:0.0.1 -f Dockerfile-mapping-support .
 
 
 ## EXAMPLES

@@ -11,6 +11,12 @@ import sys
 import csv
 import itertools
 
+# For command line interface
+import sys
+import argparse
+import textwrap
+
+
 # This helps to more quickly diagnose errors that show up when
 # using older (typically system) versions of Python. Usually this
 # happens when a user forgets to activate a virtual environment or
@@ -39,6 +45,7 @@ class ParamUtilSpeedHelper(object):
   >>> import param_util as pu
   >>> psh = pu.ParamUtilSpeedHelper("/work/parameters")
   >>> psh.get_value(pname='cmax', cmtnum=4, pftnum=3, with_metadata=False)
+  13.45
 
   '''
   def __init__(self, pdir):
@@ -902,7 +909,7 @@ def generate_reference_order(aFile):
   available_cmts = get_CMTs_in_file(aFile)
   if not (len(available_cmts) > 0):
     raise RuntimeError("Invalid file! Can't find any CMT data blocks!")
-  print("Using CMT{} as reference...".format(available_cmts[0]['cmtnum']))
+  #print("Using CMT{} as reference...".format(available_cmts[0]['cmtnum']))
   db = get_CMT_datablock(aFile, available_cmts[0]['cmtnum'])
 
   #pftblock = detect_block_with_pft_info(db)
@@ -1287,12 +1294,17 @@ def update_inplace(new_value, param_dir, pname, cmtnum, pftnum=None):
     updated_file.write('\n'.join(formatted))  
 
 
+def cmdline_parse(argv=None):
+  '''
+  Define and parse the command line interface.
 
-if __name__ == '__main__':
-  import sys
-  import argparse
-  import textwrap
+  When argv is None, the parser will evaluate sys.argv[1:]
 
+  Return
+  ------
+  args : Namespace
+    A Namespace object with all the argument and associated values.
+  '''
   parser = argparse.ArgumentParser(
     formatter_class=argparse.RawDescriptionHelpFormatter,
     description=textwrap.dedent('''
@@ -1372,7 +1384,12 @@ if __name__ == '__main__':
   parser.add_argument('--csv-specification', action='store_true',
       help='''Print the specification for supported csv files.''')
 
-  args = parser.parse_args()
+  args = parser.parse_args(argv)
+
+  return args
+
+
+def cmdline_run(args):
 
   required_param_files = [
     'cmt_bgcsoil.txt',
@@ -1387,7 +1404,7 @@ if __name__ == '__main__':
   
   if args.csv_specification:
     print(csv_specification.__doc__)
-    sys.exit(0)
+    return 0
 
   if args.csv2cmtdatablocks:
     inputcsv = args.csv2cmtdatablocks[0]
@@ -1401,7 +1418,7 @@ if __name__ == '__main__':
       print(format_section(get_section(data, start), data))
       print("")
 
-    sys.exit(0)
+    return 0
 
   if args.report_pft_stats:
     infolder = args.report_pft_stats[0]
@@ -1452,7 +1469,7 @@ if __name__ == '__main__':
     print("{:>31} {:>11.2f}".format("Community Total Vegetation N:", ecosystem_total_N))
     print("")
  
-    sys.exit(0)
+    return 0
 
   if args.plot_static_lai:
     infolder = args.plot_static_lai[0]
@@ -1493,7 +1510,7 @@ if __name__ == '__main__':
     #from IPython import embed; embed()
     plt.show(block=True)
 
-    sys.exit(0)
+    return 0
 
   if args.compare_cmtblocks:
     fileA, numA, fileB, numB = args.compare_cmtblocks
@@ -1504,7 +1521,7 @@ if __name__ == '__main__':
     print("      CMT {} in {} ".format(fileB, numB))
 
     compare_CMTs(fileA, numA, fileB, numB)
-    sys.exit(0)
+    return 0
 
   if args.replace_cmt_block:
     A, B, cmtnum = args.replace_cmt_block
@@ -1513,7 +1530,7 @@ if __name__ == '__main__':
     lines = replace_CMT_data(A, B, int(cmtnum))
     for l in lines:
       print(l.rstrip("\n"))
-    sys.exit(0)
+    return 0
 
   if args.report_pft_names:
 
@@ -1534,7 +1551,7 @@ if __name__ == '__main__':
           print("{:>45s}: {}".format(f2, (db[1]).strip()))
         else:
           pass #print "{} is not a pft file!".format(f)
-    sys.exit(0)
+    return 0
 
   if args.report_all_cmts:
 
@@ -1550,7 +1567,7 @@ if __name__ == '__main__':
         print("{:>7} {:>5d}   {:50s} {}".format(c['cmtkey'], c['cmtnum'], c['cmtname'], c['cmtcomment']))
       print("")
 
-    sys.exit(0)
+    return 0
 
   if args.report_cmt_names:
 
@@ -1570,7 +1587,7 @@ if __name__ == '__main__':
         db = get_CMT_datablock(f2, cmtnum)
         dd = cmtdatablock2dict(db)
         print("{:>45s} {:>8s}   {}".format(f2, dd['tag'], dd['cmtname']))
-    sys.exit(0)
+    return 0
 
   if args.fmt_block_from_json:
     inFile = args.fmt_block_from_json[0]
@@ -1580,14 +1597,14 @@ if __name__ == '__main__':
     lines = format_CMTdatadict(dd, refFile)
     for l in lines:
       print(l)
-    sys.exit(0)
+    return 0
 
   if args.dump_block:
     theFile = args.dump_block[0]
     cmt = int(args.dump_block[1])
     d = get_CMT_datablock(theFile, cmt)
     print(''.join(d))
-    sys.exit(0)
+    return 0
 
   if args.dump_block_to_json:
     theFile = args.dump_block_to_json[0]
@@ -1598,7 +1615,7 @@ if __name__ == '__main__':
     # that only double quotes are used, wich is critical for valid json
     # and reading back in as a json object
     print(json.dumps(dd))
-    sys.exit(0)
+    return 0
 
   if args.reformat_block:
     theFile = args.reformat_block[0]
@@ -1608,7 +1625,7 @@ if __name__ == '__main__':
     lines = format_CMTdatadict(dd, theFile)
     for l in lines:
       print(l)
-    sys.exit(0)
+    return 0
 
   if args.enforce_initvegc:
     theFile = args.enforce_initvegc[0]
@@ -1617,7 +1634,18 @@ if __name__ == '__main__':
     lines = format_CMTdatadict(dd, theFile)
     for l in lines:
       print(l)
-    sys.exit(0)
+    return 0
 
 
 
+
+
+
+
+def cmdline_entry(argv=None):
+  args = cmdline_parse(argv)
+  return cmdline_run(args)
+
+
+if __name__ == '__main__':
+  sys.exit(cmdline_entry())

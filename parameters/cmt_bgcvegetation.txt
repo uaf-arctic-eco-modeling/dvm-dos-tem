@@ -4,7 +4,7 @@
 // PFT names should be CamelCase and must not have a period in them!
 //
 //===========================================================
-// CMT00 // Bare/Open Water/Snow and Ice?  // ##JUNK VALUES!!!###
+// CMT00 // BARE GROUND OPEN WATER SNOW AND ICE  // ##JUNK VALUES!!!###
 //PFT0       PFT1         PFT2         PFT3         PFT4         PFT5         PFT6         PFT7         PFT8         PFT9         // names: comments                  
 400.0        400.0        400.0        400.0        400.0        400.0        400.0        400.0        400.0        400.0        // kc:
 75           75           75           75           75           75           75           75           75           75           // ki:
@@ -256,7 +256,7 @@
 0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          // initdeadc:
 0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          // initdeadn:
 //===========================================================
-// CMT07 // Heath Tundra (updated cparts and initcneven and initvegc and n JSC 8 14 2019)
+// CMT07 // Heath Tundra // updated cparts and initcneven and initvegc and n JSC 8 14 2019
 //Decid      EGreen       Forbs        Lichens      Grasses      Moss       PFT6         PFT7         PFT8         PFT9           // pftnames:
 400.0        400.0        400.0        400.0        400.0        400.0      0.0          0.0          0.0          0.0            // kc:
 75           75           75           75           75           75         0.0          0.0          0.0          0.0            // ki:
@@ -400,7 +400,7 @@
 0.0          0.0          0.0          0.0          0.0          0.0         0.0         0.0         0.0           0.0            // initdeadc:
 0.0          0.0          0.0          0.0          0.0          0.0         0.0         0.0         0.0           0.0            // initdeadn:
 //===========================================================
-// CMT44 // Shrub Tundra - Kougarok
+// CMT44 // Shrub Tundra Kougarok
 //Salix      Betula       Decid        EGreen       Sedges       Forbs        Grasses      Lichens      Feather      PFT9         // pftnames:
 400.0        400.0        400.0        400.0        400.0        400.0        400.0        400.0        400.0        0.0          // kc:
 75           75           75           75           75           75           75           75           75           0.0          // ki:

@@ -292,8 +292,8 @@ calibration_targets = {
     'OrganicNitrogenSum':     1998.37,    #  soln
     'AvailableNitrogenSum':      1.70,    #  avln
   },
-  ## CMT44 - SHRUB TUNDRA - CALIBRATION SEWARD PENINSULA CLIMATE (COUNCIL)   JOY Aug 17 2019 changed BETULA for Kougaruk  
-  "shrub tundra": {
+  ## CMT44 - SHRUB TUNDRA - CALIBRATION SEWARD PENINSULA CLIMATE (COUNCIL)   JOY Aug 17 2019 changed BETULA for Kougarok
+  "shrub tundra kougarok": {
     'cmtnumber': 44,
                                  #    pft0     pft1      pft2     pft3     pft4     pft5      pft6      pft7      pft8     pft9   
                   'PFTNames':    [ 'Salix', 'Betula', 'Decid.', 'E.green','Sedges','Forbs','Grasses','Lichens','Feather.', 'Misc.'],
@@ -320,6 +320,32 @@ calibration_targets = {
   },
 
 }
+
+def cmtbynumber(cmtnum):
+  '''
+  Find target values for a single CMT based on the number only.
+
+  Parameters
+  ----------
+  cmtnumber : int
+    The integer value for the CMT to return data for.
+
+  Returns
+  -------
+  data : dict
+    A multi-level dict structure with calibration target data for a single CMT.
+
+  Raises
+  ------
+  RuntimeError if the cmtnum is not found anywhere in the calibration_targets
+  data structure.
+  '''
+  for k, v in calibration_targets.items():
+    if 'cmtnumber' in v.keys():
+      if v['cmtnumber'] == cmtnum:
+        return {k:v}
+  raise RuntimeError("Can't find cmtnumber: {}".format(cmtnum))
+
 
 def cmtnames():
   '''returns a list of community names'''

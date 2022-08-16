@@ -221,7 +221,7 @@
 1998.37           // initsoln: reduced from 1998.37 based on C/N soil   715.98
 1.7               // initavln:
 //===========================================================
-// CMT44 // Shrub Tundra - Kougarok
+// CMT44 // Shrub Tundra Kougarok
 2.0               // rhq10:
 0.0               // moistmin:
 0.5               // moistopt:
