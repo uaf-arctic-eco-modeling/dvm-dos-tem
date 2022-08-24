@@ -29,7 +29,7 @@
 configured_suites = {
   'Calibration': {
     'desc': "Calibrated variables (variables for which we have targets values)",
-    'rows':8,
+    'rows':9,
     'cols':1, 
     'traces': [
 
@@ -56,7 +56,6 @@ configured_suites = {
       {'jsontag': 'VegStructuralNitrogen', 'axesnum': 4, 'units': 'gN/m^2', 'pft': '', 'pftpart': 'Stem'},
       {'jsontag': 'VegStructuralNitrogen', 'axesnum': 4, 'units': 'gN/m^2', 'pft': '', 'pftpart': 'Root'},
 
-
       {'jsontag': 'MossDeathC', 'axesnum': 5,},
 
       {'jsontag': 'CarbonShallow', 'axesnum': 6,},
@@ -65,6 +64,8 @@ configured_suites = {
 
       {'jsontag': 'OrganicNitrogenSum', 'axesnum': 7,},
       {'jsontag': 'AvailableNitrogenSum', 'axesnum': 7,},
+
+      {'jsontag': 'RE', 'axesnum': 8, 'units': 'gC/m^2', },
 
     ]
   },
