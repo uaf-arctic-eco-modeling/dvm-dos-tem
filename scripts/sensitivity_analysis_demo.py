@@ -51,15 +51,15 @@ samples = np.linspace(start=100, stop=700, num=20)
 get_ipython().system('rm -r {H_RUNFOLDER}')
 
 # Place to work
-get_ipython().system('docker compose exec dvmdostem-run setup_working_directory.py --input-data-path /data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_CALM_Toolik_LTER_10x10/ {D_RUNFOLDER}')
+get_ipython().system('docker compose exec dvmdostem-dev setup_working_directory.py --input-data-path /data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_CALM_Toolik_LTER_10x10/ {D_RUNFOLDER}')
 
 # Run mask
-get_ipython().system('docker compose exec dvmdostem-run runmask-util.py --reset --yx {PXy} {PXx} {D_RUNFOLDER}/run-mask.nc')
+get_ipython().system('docker compose exec dvmdostem-dev runmask-util.py --reset --yx {PXy} {PXx} {D_RUNFOLDER}/run-mask.nc')
 
 # Outputs
-get_ipython().system('docker compose exec dvmdostem-run outspec_utils.py {D_RUNFOLDER}/config/output_spec.csv --on GPP m p')
+get_ipython().system('docker compose exec dvmdostem-dev outspec_utils.py {D_RUNFOLDER}/config/output_spec.csv --on GPP m p')
 
-get_ipython().system('docker compose exec dvmdostem-run outspec_utils.py {D_RUNFOLDER}/config/output_spec.csv --on CMTNUM y')
+get_ipython().system('docker compose exec dvmdostem-dev outspec_utils.py {D_RUNFOLDER}/config/output_spec.csv --on CMTNUM y')
 
 
 # Config, enable eq outputs
@@ -102,7 +102,7 @@ def adjust_param(new_value):
 
 
 def run_model():
-    get_ipython().system('docker compose exec --workdir {D_RUNFOLDER} dvmdostem-run     dvmdostem -p 50 -e 200 -s 0 -t 0 -n 0 -l err --force-cmt {CMTNUM}')
+    get_ipython().system('docker compose exec --workdir {D_RUNFOLDER} dvmdostem-dev     dvmdostem -p 50 -e 200 -s 0 -t 0 -n 0 -l err --force-cmt {CMTNUM}')
 
 def collect_outputs():
     # Get the model output

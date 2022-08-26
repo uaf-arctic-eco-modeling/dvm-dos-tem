@@ -160,7 +160,7 @@ get_ipython().system('docker compose exec --workdir /data/workflows/testcase_000
 # In[18]:
 
 
-get_ipython().system('docker compose exec dvmdostem-run ls /data/workflows/testcase_0001/output')
+get_ipython().system('docker compose exec dvmdostem-dev ls /data/workflows/testcase_0001/output')
 
 
 # In[19]:
