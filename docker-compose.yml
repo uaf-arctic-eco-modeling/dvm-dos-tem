@@ -30,6 +30,8 @@ services:
     image: dvmdostem-dev:${V_TAG}
     build: .
     tty: true
+    ports:
+      - "7001:7001"
     volumes:
        - sourcecode:/work
        - inputcatalog:/data/input-catalog
@@ -52,7 +54,7 @@ services:
     build: .
     tty: true
     ports:
-      - "8888:8888"
+      - "7002:7002"
     volumes:
       - inputcatalog:/data/input-catalog
       - workflows:/data/workflows
@@ -64,7 +66,7 @@ services:
     build: .
     tty: true
     ports: 
-      - "5006:5006"
+      - "7003:7003"
     volumes:
       - sourcecode:/work
       - inputcatalog:/data/input-catalog
