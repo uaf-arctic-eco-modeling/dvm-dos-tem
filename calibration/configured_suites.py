@@ -107,25 +107,28 @@ configured_suites = {
     'rows': 6,
     'cols': 1,
     'traces': [
-      { 'jsontag': 'LitterfallNitrogenPFT', 'axesnum': 0, 'units': 'gN/m^2', 'pft': '', },
-      { 'jsontag': 'TotNitrogenUptake', 'axesnum': 0, 'units': 'gN/m^2', 'pft': '', },
+      # { 'jsontag': 'LitterfallNitrogenPFT', 'axesnum': 0, 'units': 'gN/m^2', 'pft': '', },
+      # { 'jsontag': 'TotNitrogenUptake', 'axesnum': 0, 'units': 'gN/m^2', 'pft': '', },
 
-      { 'jsontag': 'CarbonShallow', 'axesnum': 1, 'units': 'gC/m^2', },
-      { 'jsontag': 'CarbonDeep', 'axesnum': 1, 'units': 'gC/m^2', },
+      { 'jsontag': 'CarbonShallow', 'axesnum': 0, 'units': 'gC/m^2', },
+      { 'jsontag': 'CarbonDeep', 'axesnum': 0, 'units': 'gC/m^2', },
 
-      { 'jsontag': 'CarbonMineralSum', 'axesnum': 2, 'units': 'gC/m^2', },
+      { 'jsontag': 'CarbonMineralSum', 'axesnum': 1, 'units': 'gC/m^2', },
 
-      { 'jsontag': 'OrganicNitrogenSum', 'axesnum':3, 'units': 'gN/m^2', },
+      { 'jsontag': 'OrganicNitrogenSum', 'axesnum':2, 'units': 'gN/m^2', },
 
-      { 'jsontag': 'AvailableNitrogenSum', 'axesnum':4, 'units': 'gN/m^2', },
-      { 'jsontag': 'StNitrogenUptakeAll', 'axesnum': 4, 'units': 'gN/m^2', },
-      { 'jsontag': 'InNitrogenUptakeAll', 'axesnum': 4, 'units': 'gN/m^2', },
+      { 'jsontag': 'AvailableNitrogenSum', 'axesnum':3, 'units': 'gN/m^2', },
+      { 'jsontag': 'StNitrogenUptakeAll', 'axesnum': 3, 'units': 'gN/m^2', },
+      { 'jsontag': 'InNitrogenUptakeAll', 'axesnum': 3, 'units': 'gN/m^2', },
 
-      { 'jsontag': 'RH', 'axesnum': 5, 'units': 'gC/m^2',},
-      { 'jsontag': 'RHraw', 'axesnum': 5, 'units': 'gC/m^2',},
-      { 'jsontag': 'RHsoma', 'axesnum': 5, 'units': 'gC/m^2',},
-      { 'jsontag': 'RHsomcr', 'axesnum': 5, 'units': 'gC/m^2',},
-      { 'jsontag': 'RHsompr', 'axesnum': 5, 'units': 'gC/m^2',}, 
+      { 'jsontag': 'RH', 'axesnum': 4, 'units': 'gC/m^2',},
+      { 'jsontag': 'RHraw', 'axesnum': 4, 'units': 'gC/m^2',},
+      { 'jsontag': 'RHsoma', 'axesnum': 4, 'units': 'gC/m^2',},
+      { 'jsontag': 'RHsomcr', 'axesnum': 4, 'units': 'gC/m^2',},
+      { 'jsontag': 'RHsompr', 'axesnum': 4, 'units': 'gC/m^2',}, 
+
+      { 'jsontag': 'RE', 'axesnum': 5, 'units': 'gC/m^2',}, 
+
     ]
   },
   'Vegetation':{
@@ -148,8 +151,7 @@ configured_suites = {
       { 'jsontag': 'VegStructuralNitrogen', 'axesnum': 3, 'units': 'gN/m^2', 'pft': '', 'pftpart': 'Stem'},
       { 'jsontag': 'VegStructuralNitrogen', 'axesnum': 3, 'units': 'gN/m^2', 'pft': '', 'pftpart': 'Root'},
 
-      { 'jsontag': 'LitterfallNitrogenPFT', 'axesnum': 4, 'units': 'gN/m^2', 'pft': '', },
-      { 'jsontag': 'TotNitrogenUptake', 'axesnum': 4, 'units': 'gN/m^2', 'pft': '', }
+      { 'jsontag': 'NEE', 'axesnum': 4, 'units': 'gC/m^2',},
     ] 
   },
   'VegExtra':{
