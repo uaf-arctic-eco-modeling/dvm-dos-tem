@@ -9,7 +9,7 @@
 # * You have the volumes setup as specified in the project's `docker-compose.yml` file and you can access the files both from your host computer and from within the docker container(s).
 # * You have installed the Jupyter package and can run jupyter notebooks, specifically an `IPython` notebook.
 # 
-# > Note about packages and environments: the demo here shows a mixture of running dvm-dos-tem's supporting Python scripts "natively" (i.e. on your host computer, not in a Docker container) and running dvm-dos-tem's supporting Python scripts inside the Docker container. For the most consistent Python environment, it is best to run everyting through (inside) the Docker containers. However sometimes the extra typing required is onerous (`docker compose exec dvmdostem-run ...`), and there is a little extra overhead involved in interacting with the containers. So if you have the appropriate packages installed on your host machine you can run some of the scripts on your host as it shown here. This takes a little care to keep the paths straight for each command, i.e. whether you are referncing the path inside the guest/container, or on your host machine.
+# > Note about packages and environments: the demo here shows a mixture of running dvm-dos-tem's supporting Python scripts "natively" (i.e. on your host computer, not in a Docker container) and running dvm-dos-tem's supporting Python scripts inside the Docker container. For the most consistent Python environment, it is best to run everyting through (inside) the Docker containers. However sometimes the extra typing required is onerous (`docker compose exec dvmdostem-dev ...`), and there is a little extra overhead involved in interacting with the containers. So if you have the appropriate packages installed on your host machine you can run some of the scripts on your host as it shown here. This takes a little care to keep the paths straight for each command, i.e. whether you are referncing the path inside the guest/container, or on your host machine.
 # 
 # > Note that while `dmvdostem`'s supporting scripts are largely written in Python, for the most part there is not an exposed Python API. Instead the scripts are generally provided with a command line interface. So much of this tutorial, while running inside an IPython notebook, could easily be run directly from your shell.
 # 
@@ -56,13 +56,13 @@
 
 
 # Cleanup:
-get_ipython().system('docker compose exec dvmdostem-run rm -r /data/workflows/testcase_0001')
+get_ipython().system('docker compose exec dvmdostem-dev rm -r /data/workflows/testcase_0001')
 
 
 # In[9]:
 
 
-get_ipython().system('docker compose exec dvmdostem-run scripts/setup_working_directory.py --input-data-path /data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_TOOLIK_FIELD_STATION_10x10/ /data/workflows/testcase_0001')
+get_ipython().system('docker compose exec dvmdostem-dev scripts/setup_working_directory.py --input-data-path /data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_TOOLIK_FIELD_STATION_10x10/ /data/workflows/testcase_0001')
 
 
 # Now note that if you investigate **from your host** (i.e. not inside the docker container) you can see the new directory you just created (in my case, I keep the workflows up two directories from my dvm-dos-tem repo; your paths might be different):
@@ -78,7 +78,7 @@ get_ipython().system('ls ../dvmdostem-workflows/testcase_0001/')
 # In[11]:
 
 
-get_ipython().system('docker compose exec dvmdostem-run ls /data/workflows/testcase_0001')
+get_ipython().system('docker compose exec dvmdostem-dev ls /data/workflows/testcase_0001')
 
 
 # ## Adjust spatial mask
@@ -87,7 +87,7 @@ get_ipython().system('docker compose exec dvmdostem-run ls /data/workflows/testc
 # In[12]:
 
 
-get_ipython().system('docker compose exec dvmdostem-run runmask-util.py --reset --yx 0 0 --show /data/workflows/testcase_0001/run-mask.nc')
+get_ipython().system('docker compose exec dvmdostem-dev runmask-util.py --reset --yx 0 0 --show /data/workflows/testcase_0001/run-mask.nc')
 
 
 # ## Choose output variables
@@ -97,7 +97,7 @@ get_ipython().system('docker compose exec dvmdostem-run runmask-util.py --reset 
 # In[13]:
 
 
-get_ipython().system('docker compose exec dvmdostem-run outspec_utils.py -s /data/workflows/testcase_0001/config/output_spec.csv')
+get_ipython().system('docker compose exec dvmdostem-dev outspec_utils.py -s /data/workflows/testcase_0001/config/output_spec.csv')
 
 
 # This is super annoying because it needs a wider screen to display this table nicely. But we can use `pandas` to display nicely in this notebook.
@@ -115,9 +115,9 @@ outspec.head(15)
 # In[15]:
 
 
-get_ipython().system('docker compose exec dvmdostem-run outspec_utils.py /data/workflows/testcase_0001/config/output_spec.csv --on GPP p m')
+get_ipython().system('docker compose exec dvmdostem-dev outspec_utils.py /data/workflows/testcase_0001/config/output_spec.csv --on GPP p m')
 
-get_ipython().system('docker compose exec dvmdostem-run outspec_utils.py /data/workflows/testcase_0001/config/output_spec.csv --on CMTNUM y')
+get_ipython().system('docker compose exec dvmdostem-dev outspec_utils.py /data/workflows/testcase_0001/config/output_spec.csv --on CMTNUM y')
 
 
 # ## Adjust other settings
@@ -152,7 +152,7 @@ with open(CONFIG_FILE, 'w') as f:
 # In[17]:
 
 
-get_ipython().system('docker compose exec --workdir /data/workflows/testcase_0001 dvmdostem-run dvmdostem -p 50 -e 200 -s 0 -t 0 -n 0 -l err --force-cmt 4')
+get_ipython().system('docker compose exec --workdir /data/workflows/testcase_0001 dvmdostem-dev dvmdostem -p 50 -e 200 -s 0 -t 0 -n 0 -l err --force-cmt 4')
 
 
 # Thats it! If we look in the output directory, we expect to see one output file for the equlibrium stage, GPP:
