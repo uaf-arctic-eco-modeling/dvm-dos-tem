@@ -155,6 +155,8 @@ calibration_targets = {
       'Stem':                    [    1.13,    0.49,     2.06,     0.00,    0.00,     0.00,    0.00,    0.00,   0.00,   0.00 ], # vegnw     (gN/m2)
       'Root':                    [    1.02,    1.21,     1.77,     7.48,    1.81,     0.00,    0.00,    0.00,   0.00,   0.00 ], # vegnr     (gN/m2)
     },
+    'RE':                       25.00,    #  Respiration_ecosystem  ** JUNK VALUE FOR TESTING! **
+    'NEE':                      10.00,     #  Net Ecosystem Exchange ** JUNK VALUE FOR TESTING! **
     'MossDeathC':              178.00,    #  dmossc
     'CarbonShallow':          3079.00,    #  shlwc
     'CarbonDeep':             7703.00,    #  deepc
