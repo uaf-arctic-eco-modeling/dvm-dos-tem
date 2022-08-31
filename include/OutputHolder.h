@@ -51,6 +51,8 @@ public:
   std::vector<double> rh_tot_for_output;
   std::vector<std::array<double, MAX_SOI_LAY>> rh_for_output;
 
+  std::vector<std::array<double, MAX_SOI_LAY>> layerdepth_for_output;
+  std::vector<std::array<double, MAX_SOI_LAY>> layerdz_for_output;
   std::vector<std::array<double, MAX_SOI_LAY>> tlayer_for_output;
   std::vector<std::array<double, MAX_SOI_LAY>> vwclayer_for_output;
 
