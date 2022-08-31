@@ -403,6 +403,9 @@ void Climate::load_from_file(const std::string& fname, int y, int x) {
     vapo = temutil::get_timeseries<float>(fname, "vapor_press", y, x);
     prec = temutil::get_timeseries<float>(fname, "precip", y, x);
     nirr = temutil::get_timeseries<float>(fname, "nirr", y, x);
+
+    tseries_start_year = temutil::get_timeseries_start_year(fname);
+
   }//End critical(load_climate)
 
   // Report on sizes...
@@ -450,12 +453,16 @@ void Climate::load_from_file(const std::string& fname, int y, int x) {
   }
   BOOST_LOG_SEV(glg, debug) << "par = [" << temutil::vec2csv(par) << "]";
 
-  // create the simplified climate by averaging the first X years of data
-  avgX_tair = avg_over(tair, 30);
-  avgX_prec = avg_over(prec, 30);
-  avgX_nirr = avg_over(nirr, 30);
-  avgX_vapo = avg_over(vapo, 30);
- 
+  // Create a simplified historic climate for EQ by averaging input data
+  // over a year range specified here. The year choices should be exposed
+  // in the config file eventually. TODO
+  if(fname.find("historic") != std::string::npos){
+    avgX_tair = avg_over(tair, 1901, 1931);
+    avgX_prec = avg_over(prec, 1901, 1931);
+    avgX_nirr = avg_over(nirr, 1901, 1931);
+    avgX_vapo = avg_over(vapo, 1901, 1931);
+  }
+
   // Do we need simplified 'avgX_' values for par, and cld??
   // ===> YES: the derived variables should probably be based off the avgX
   //      containers...
@@ -478,28 +485,33 @@ void Climate::load_proj_co2(const std::string& fname){
   this->co2 = temutil::get_timeseries(fname, "co2");
 }
 
-std::vector<float> Climate::avg_over(const std::vector<float> & var, const int window) {
+std::vector<float> Climate::avg_over(const std::vector<float> & var, const int start_yr, const int end_yr) {
+
+  int window_length = end_yr - start_yr;
+
+  int start_idx = start_yr - tseries_start_year;
+  int end_idx = end_yr - tseries_start_year;
 
   assert(var.size() % 12 == 0 && "The data vector is the wrong size! var.size() should be an even multiple of 12.");
-  assert(var.size() >= 12*window && "The data vector is too short to average over the window!");
+  assert(var.size() >= 12*window_length && "The data vector is too short to average over the window!");
 
   // make space for the result - one number for each month
   std::vector<float> result(12, 0);
 
   for (int im = 0; im < 12; ++im) {
     // make space for a month's data over the averaging window
-    std::vector<float> mdata(window, 0);
+    std::vector<float> mdata(window_length, 0);
 
     // gather up the data for this month over the averaging window
-    for (int iy = 0; iy < window; ++iy) {
-      mdata[iy] = var[iy*12 + im];
+    for (int iy = start_idx; iy < end_idx; ++iy) {
+      mdata[iy-start_idx] = var[iy*12 + im];
     }
 
     // average the data for the month
     float sum = std::accumulate(mdata.begin(), mdata.end(), 0.0);
 
     // put the value in the result vector for this month
-    result[im] = sum / window; // ?? should window be a float??
+    result[im] = sum / window_length; // ?? should window be a float??
 
     //BOOST_LOG_SEV(glg, debug) << "result = [" << temutil::vec2csv(result) << "]";
 

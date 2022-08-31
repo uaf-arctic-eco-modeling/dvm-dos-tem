@@ -2,41 +2,67 @@ version: '3.2'
 
 # Docker Compose file for coordinating several dvmdostem containers.
 #
-# First you should build your images using the commands in the Dockerfiles.
+# First you should build your images. This can be done individually or you can 
+# use the docker-build-wrapper.sh script.
 #
 # Next create a .env file where you set the following variables:
 #   $ echo "DDT_INPUT_CATALOG=/some/path/to/your/input-catalog" >> .env
 #   $ echo "DDT_WORKFLOWS=/some/path/to/your/workflows" >> .env
+#   $ echo "V_TAG=$(git describe)" >> .env
 #
 # Next start the containers:
 #   $ docker compose up -d to start the containers
 #
-# Then you can run various program inside the containers.
-# See Examples below
+# Then you can run various programs inside the containers, see examples below.
 
 services:
+  # Some general dev tools - not expected to be used directly
   cpp-dev:
     build: .
-    image: cpp-dev:0.0.1
-  dvmdostem-build:
+    image: cpp-dev:${V_TAG}
+
+  # The general dvmdostem dev enviorment. Intented to be used for 
+  # most development work by mounting volumes of source code into 
+  # the resulting container - essentially sharing the source code
+  # folders from the host to the container so they can be edited 
+  # on the host and used w/in the container run-time.
+  dvmdostem-dev:
+    image: dvmdostem-dev:${V_TAG}
     build: .
-    image: dvmdostem-build:0.0.1
-    volumes:
-      - sourcecode:/work
-  dvmdostem-run:
     tty: true
+    volumes:
+       - sourcecode:/work
+       - inputcatalog:/data/input-catalog
+       - workflows:/data/workflows
+
+  # This is more of a stand-alone image, just meant to serve as a
+  # compile time environment for creating the lean run image.
+  # Copies source code into the image so that it doesn't need
+  # volumes to run container and run make. Then once the dvmdostem
+  # binary exists in this image, it can be copied into the lean 
+  # run image.
+  dvmdostem-build:
+    image: dvmdostem-build:${V_TAG}
     build: .
-    image: dvmdostem-run:0.0.1
+    #command: tail -F /dev/null # keeps container running
+
+  # The lean production image
+  dvmdostem-run:
+    image: dvmdostem-run:${V_TAG}
+    build: .
+    tty: true
     ports:
       - "8888:8888"
     volumes:
-      - sourcecode:/work
       - inputcatalog:/data/input-catalog
       - workflows:/data/workflows
+      
+  # Auxillary stuff that can't run on other container/images due to difficult
+  # build dependencies (GDAL mainly).
   dvmdostem-mapping-support:
-    tty: true
+    image: dvmdostem-mapping-support:${V_TAG}
     build: .
-    image: dvmdostem-mapping-support:0.0.1
+    tty: true
     ports: 
       - "5006:5006"
     volumes:
