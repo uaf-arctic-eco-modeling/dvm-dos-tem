@@ -2703,13 +2703,31 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
 
     #pragma omp critical(outputLAYERTYPE)
     {
+      std::array<int, MAX_SOI_LAY> layertype_arr;
+
       //monthly
       if(curr_spec.monthly){
-        output_nc_4dim(&curr_spec, file_stage_suffix, &cohort.cd.m_soil.type[0], MAX_SOI_LAY, month_timestep, 1);
+        for(int il=0; il<MAX_SOI_LAY; il++){
+          layertype_arr[il] = cohort.cd.m_soil.type[il];
+        }
+        outhold.layertype_for_output.push_back(layertype_arr);
+
+        if(output_this_timestep){
+          output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.layertype_for_output[0], MAX_SOI_LAY, month_start_idx, months_to_output);
+          outhold.layertype_for_output.clear();
+        }
       }
       //yearly
       else if(curr_spec.yearly){
-        output_nc_4dim(&curr_spec, file_stage_suffix, &cohort.cd.y_soil.type[0], MAX_SOI_LAY, year, 1);
+        for(int il=0; il<MAX_SOI_LAY; il++){
+          layertype_arr[il] = cohort.cd.y_soil.type[il];
+        }
+        outhold.layertype_for_output.push_back(layertype_arr);
+
+        if(output_this_timestep){
+          output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.layertype_for_output[0], MAX_SOI_LAY, year_start_idx, years_to_output);
+          outhold.layertype_for_output.clear();
+        }
       }
     }//end critical(outputLAYERTYPE)
   }//end LAYERTYPE 
