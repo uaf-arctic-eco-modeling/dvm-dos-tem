@@ -374,6 +374,17 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize,
       }
     } // end looping over tokens (aka columns) in a line
 
+    //Ensure that the by-layer option is set for variables that exist only
+    // by layer (LAYERDZ, TLAYER, etc)
+    if(name.find("LAYER") != std::string::npos){
+
+      BOOST_LOG_SEV(glg, note)<<"Forcing the by-layer option for " << name;
+      if(new_spec.layer != true){
+        new_spec.layer = true;
+	new_spec.dim_count++;
+      }
+    }
+
     // Only create a file if a timestep is specified for the variable.
     // Otherwise, assume the user does not want that variable output.
     if(new_spec.yearly || new_spec.monthly || new_spec.daily){
