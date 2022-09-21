@@ -334,7 +334,7 @@ def fwt2csv(param_dir, req_cmts='all', targets_path=None):
         # references file: {}
         #
         # This file was generated using the param_util.fwt2csv function.
-        # There are columns here (comments, units, description, references)
+        # There are columns here (comment units desc refs)
         # that are not represented in a standard way in the 
         # fixed width text parameter files.
         # 
