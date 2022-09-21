@@ -277,7 +277,10 @@ def fwt2csv(param_dir, req_cmts='all', targets_path=None):
 
             # add line for each variable
             vnames = [x for x in dd['pft0'].keys() if x != 'name']  # <---IMPROVE THIS!
-            vnames = [x for x in vnames if '_' not in x]
+            vnames = [x for x in vnames if 'units_' not in x]
+            vnames = [x for x in vnames if 'desc_' not in x]
+            vnames = [x for x in vnames if 'comment_' not in x]
+            vnames = [x for x in vnames if 'refs_' not in x]
 
             for v in vnames:
               s += "{},{},".format(pfile, v)
