@@ -164,3 +164,5 @@ the way things are formatted when printing the fixed width text parameter files.
     '     50.2300 '
     >>> pu.smart_format('  0000050.340500', n=7)
     '     50.3405 '
+    >>> pu.smart_format('0')
+    '      0.0000 '
