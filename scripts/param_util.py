@@ -61,6 +61,7 @@ class ParamUtilSpeedHelper(object):
     self.__pdir = pdir
     self.lu = build_param_lookup(self.__pdir)
 
+
   def get_value(self, pname=None, cmtnum=None, pftnum=None, with_metadata=False):
     '''
     Look up the parameter value by name for given CMT and PFT.
@@ -99,6 +100,7 @@ class ParamUtilSpeedHelper(object):
 
     return rv
 
+
   def list_non_pft_params(self, cmtnum=None):
     '''
     Gets a listing of all non-PFT parameters.
@@ -119,7 +121,6 @@ class ParamUtilSpeedHelper(object):
       for p in pdict['non_pft_params']:
         s += '    {}\n'.format(p)
     return s
-
 
 
   def list_params(self, cmtnum=None, pftnum=None):
@@ -494,7 +495,6 @@ def csv2fwt(csv_file, ref_directory='../parameters',
         raise RuntimeError("Something is wrong...")
 
       if len(p) > 0:
-
         p = p[0]
         # it is a pft variable...
         # start with 2 spaces so that columns line up with commented PFT name
@@ -523,6 +523,7 @@ def csv2fwt(csv_file, ref_directory='../parameters',
       print()
 
   return 0
+
 
 def smart_format(x, n=6, basefmt='{:12.4f} ', toolongfmt='{:12.3e} '):
   '''
@@ -562,6 +563,7 @@ def smart_format(x, n=6, basefmt='{:12.4f} ', toolongfmt='{:12.3e} '):
     return toolongfmt.format(float(x))
   else:
     return basefmt.format(float(x))
+
 
 def csv_v1_specification():
   '''
@@ -1559,8 +1561,6 @@ def format_CMTdatadict(dd, refFile, format=None):
   return ll
 
 
-
-
 def generate_reference_order(aFile):
   '''
   Lists order that variables should be in in a parameter file based on CMT 0.
@@ -1644,6 +1644,7 @@ def get_datablock_pftkeys(dd):
   '''
   return sorted([i for i in list(dd.keys()) if 'pft' in i])
 
+
 def enforce_initvegc_split(aFile, cmtnum):
   '''
   Makes sure that the 'cpart' compartments variables match the proportions
@@ -1691,6 +1692,7 @@ def enforce_initvegc_split(aFile, cmtnum):
       dd[pft]['cpartr'] = 0.0
 
   return dd
+
 
 def get_ecosystem_total_C(cmtstr, ref_params_dir):
   
@@ -1771,6 +1773,7 @@ def percent_ecosys_contribution(cmtstr, tname=None, pftnum=None, compartment=Non
   #print "cmtstr: {}  tname: {}  pftnum: {}  compartment: {}  PEC: {}".format(cmtstr, tname, pftnum, compartment, pec)
   return pec
 
+
 def is_ecosys_contributor(cmtstr, pftnum=None, compartment=None, ref_params_dir=None):
 
   pftstr = 'pft{}'.format(pftnum)
@@ -1800,6 +1803,7 @@ def is_ecosys_contributor(cmtstr, pftnum=None, compartment=None, ref_params_dir=
           is_contrib = False
 
   return is_contrib
+
 
 def get_available_CMTs(pdir):
   '''
@@ -1835,6 +1839,7 @@ def get_available_CMTs(pdir):
     all_cmts = all_cmts.union(file_cmt_set)
 
   return list(all_cmts)
+
 
 def which_file(pdir, pname, lookup_struct=None):
   '''
@@ -1872,6 +1877,7 @@ def which_file(pdir, pname, lookup_struct=None):
     else:
         pass
   raise RuntimeError("Parameter not found!")
+
 
 def build_param_lookup(pdir):
   '''
@@ -1923,6 +1929,7 @@ def build_param_lookup(pdir):
 
     lu[f] = {'non_pft_params':non_pft_params,'pft_params':pft_params}
   return lu
+
 
 def update_inplace(new_value, param_dir, pname, cmtnum, pftnum=None):
   '''
