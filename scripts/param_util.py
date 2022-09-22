@@ -2042,10 +2042,11 @@ def cmdline_parse(argv=None):
         'cmt_*.txt' in the %(metavar)s.'''))
 
   parser.add_argument('--plot-static-lai', nargs=2, metavar=('INFOLDER','CMT'),
-      help=textwrap.dedent('''Makes plots of the static_lai parameter. static_lai
-        is a monthly value, so each PFT has 12 entries in the parameter file. 
-        The plot shows the values over the year so you can check the seasonality.
-        Looks a 'cmt_dimvegetation.txt file in the INFOLDER.'''))
+      help=textwrap.dedent('''Makes plots of the static_lai parameter. 
+        static_lai is a monthly value, so each PFT has 12 entries in the
+        parameter file. The plot shows the values over the year so you can check
+        the seasonality. Looks a 'cmt_dimvegetation.txt file in the
+        INFOLDER.'''))
  
   parser.add_argument('--csv-v0-2cmtdatablocks', nargs=2,
       metavar=('CSVFILE', 'CMTNAME'),
