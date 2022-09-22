@@ -492,8 +492,6 @@ def csv2fwt_v1(csv_file, ref_directory='../parameters',
     for v in order:
       p = list(filter(lambda x: x['name'] == v, relevant_pft_vars))
       n = list(filter(lambda x: x['name'] == v, relevant_nonpft_vars))
-      if v == 'kc':
-        from IPython import embed; embed()
       if len(p) > 0 and len(n) > 0:
         raise RuntimeError("Something is wrong...")
 
