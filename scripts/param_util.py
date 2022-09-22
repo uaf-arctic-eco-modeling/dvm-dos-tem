@@ -2086,6 +2086,16 @@ def cmdline_parse(argv=None):
       file will be v1, and will have the targets included as found in the
       TARGETS file.'''))
 
+  parser.add_argument('--csv2fwt-v1', nargs=3,
+        metavar=('CSV','REFPARAMS','REFTARGETS'),
+        help=textwrap.dedent('''Converts the input CSV file into the standard 
+        dvmdostem Fixed Width Text parameter format. The CSV file must conform
+        to the v1 specification and must have all info present! Prints the
+        resulting data to stdout in a format that can be copied into new or
+        existing dvmdostem parameter files. Also prints the targets data such
+        that if can be copied into an existing targets file, although the key
+        order may not match the hand-formatted targets.'''))
+
   parser.add_argument('--csv-v0-2cmtdatablocks', nargs=2,
       metavar=('CSVFILE', 'CMTNAME'),
       help=textwrap.dedent('''(BETA) Reads data from csv file and prints CMT 
@@ -2134,6 +2144,12 @@ def cmdline_run(args):
     fwt2csv_v1(pdir, req_cmts, targets)
     return 0
 
+  if args.csv2fwt_v1:
+    csvfile = args.csv2fwt_v1[0]
+    ref_params = args.csv2fwt_v1[1]
+    ref_targets = args.csv2fwt_v1[2]
+    csv2fwt_v1(csvfile, ref_directory=ref_params, ref_targets=ref_targets)
+    return 0
 
   if args.params2csv_v0:
     folder = args.params2csv_v0[0]
