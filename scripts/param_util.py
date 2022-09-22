@@ -357,7 +357,39 @@ def csv2fwt(csv_file, ref_directory='../parameters',
   '''
   Convert from csv parameter files to fixed width text format.
 
-  ...Write more here...
+  Uses csv_v1_specification().
+
+  Unrefined function that depends on the csv file being
+  appropriately formatted in a variety of ways, including at least:
+   - consistent pft names
+   - all variables present
+   - calibration targets variables for leaf/stem/roots being named as follows
+     - VegCarbon:Leaf, etc
+     - VegStructuralNitrogen:Leaf, etc
+   - PFT names <= 12 characters long
+   - consistent CMT names
+  
+  Parameters
+  ==========
+  csv_file : string, path
+    Path to an input csv file to convert.
+
+  ref_directory : string, path
+    Path to a folder containing parameter files to be used as reference for
+    formatting the resulting fixed width data.
+  
+  ref_targets : string, path
+    Path to a calibration_targets.py file that will be used for reference in
+    formatting the resulting data.
+  
+  overwrite_files : bool
+    (experimental) Flag for determining whether to print results to stdout
+    (default) or to overwrite the data in the reference files. May not work if
+    the CMT number in the csv file is not present in the reference files.
+
+  Return
+  ======
+  Zero.
   '''
 
   sections = csv_find_section_indices(csv_file)
@@ -533,7 +565,7 @@ def smart_format(x, n=6, basefmt='{:12.4f} ', toolongfmt='{:12.3e} '):
 
 def csv_v1_specification():
   '''
-  Specification for the 2nd version of csv files for holding parameter data.
+  Specification for v1 csv files for holding parameter data.
 
   Each csv file will hold the data for one Community Type (CMT). As such the csv
   file will be broken into sections to accomodate the different number of
@@ -548,25 +580,63 @@ def csv_v1_specification():
   file,cmtkey,cmtname,comment
 
   The header for the PFT section will be:
-  file,name,0,1,2,3,4,5,6,7,8,9,units,description,comment
+  file,name,0,1,2,3,4,5,6,7,8,9,units,description,comment,refs
 
   The header for the non-PFT section will be:
-  file,name,value,units,description,comment
-
-
-  The metadata seciton will have... The PFT data section will have... The
-  non-PFT data section will have...
+  file,name,value,units,description,comment,refs
 
   Each section will end with two consecutive blank lines.
 
-  ... WRITE MORE HERE ...
+  Note that csv files prepared from different spreadsheet programs may have
+  different treatment regarding blank lines and rows with varying numbers of
+  columns. Many programs will produce files with lots of extra commas 
+  deliniating empty columns. Most of these extraneous commas have been omitted 
+  in the sample below.
+
+  Example data:
+
+  # dvmdostem parameters: v0.5.6-178-g4cdb7c34
+  # cmtnumber: 22
+  # cmtname: Single PFT Alpine Tussock Tundra
+  # cmtdescription: alpine tussock tundra for Interior Alaska ....
+  # calibration site: The sentinel site used ....
+  # calibration notes: Calibration conducted manually by Joy ... 
+  # references file: refs.bib
+  #
+  # This file was generated using the param_util.fwt2csv function.
+  # There are columns here (comment units desc refs)
+  # that are not represented in a standard way in the
+  # fixed width text parameter files.
+  # 
+  # To convert this file back to fixed width text for use with dvmdostem
+  # see the param_util.csv2fwt() function.
+  #
+  file,cmtkey,cmtname,comment,,,,,,,,,,,,
+  ../parameters/cmt_bgcvegetation.txt,CMT22,Single PFT Alpine Tussock Tundra,,,,,,,,,,,,,
+  ../parameters/cmt_dimvegetation.txt,CMT22,Single PFT Alpine Tussock Tundra,,,,,,,,,,,,,
+  ,,,,,,,,,,,,,,,
+  ,,,,,,,,,,,,,,,
+  file,name,0,1,2,3,4,5,6,7,8,9,units,description,comment,refs
+  ../calibration/calibration_targets.py,PFTNames,ecosystem,pft1,pft2,pft3,pft4,pft5,pft6,pft7,pft8,pft9,,,,
+  ../calibration/calibration_targets.py,VegCarbon:Leaf,320.2073015,0,0,0,0,0,0,0,0,0,,,,
+  ../calibration/calibration_targets.py,VegCarbon:Root,480.9949012,0,0,0,0,0,0,0,0,0,,,,
+  ,,,,,,,,,,,,,,,
+  ,,,,,,,,,,,,,,,
+  file,name,value,units,description,comment,refs,,,,,,,,,
+  ../calibration/calibration_targets.py,AvailableNitrogenSum,1.7,,,,,,,,,,,,,
+  ../calibration/calibration_targets.py,MossDeathC,0,,,,,,,,,,,,,
+  ../parameters/cmt_bgcsoil.txt,fnloss,0,,  fraction N leaching (0 - 1) when drainage occurs,,,,,,,,,,,
+  ../parameters/cmt_bgcsoil.txt,fsompr,0.611,,,,,,,,,,,,,
   '''
+  pass # Do nothing, simply a docstring function!
 
 
 def csv_find_section_indices(csv_file):
   '''
-  Parses a specially formatted csv file and returns the starting and ending
-  indices for each section in the file.
+  Parses a csv file and returns the starting and ending indices for each 
+  section in the file.
+
+  Uses csv_v1_specification().
 
   Returns
   =======
@@ -604,6 +674,8 @@ def csv_find_section_indices(csv_file):
 def csv_read_section(data, start, end):
   '''
   Write this...
+
+  Uses csv_v1_specification().
 
   Parameters
   ==========
@@ -694,7 +766,7 @@ def csv_v0_specification():
 def csv_get_pftnames(data):
   '''
   Retrieves PFT names from a specially formatted csv file.
-  
+
   Assumes that `data` is a list of lines read from a csv file that
   is formatted according to the csv_v0_specification. See help for the
   csv_v0_specification() function.
@@ -1902,7 +1974,7 @@ def cmdline_parse(argv=None):
   Return
   ------
   args : Namespace
-    A Namespace object with all the argument and associated values.
+    A Namespace object with all the arguments and associated values.
   '''
   parser = argparse.ArgumentParser(
     formatter_class=argparse.RawDescriptionHelpFormatter,
