@@ -393,14 +393,14 @@ def csv2fwt(csv_file, ref_directory='../parameters',
   Zero.
   '''
 
-  sections = csv_find_section_indices(csv_file)
+  sections = csv_v1_find_section_indices(csv_file)
 
   with open(csv_file, 'r') as f:
     data = f.readlines()
 
-  pft_data = csv_read_section(data, start=sections['pft'][0], end=sections['pft'][1])
-  nonpft_data = csv_read_section(data, start=sections['nonpft'][0], end=sections['nonpft'][1])
-  meta = csv_read_section(data, start=sections['meta'][0], end=sections['meta'][1])
+  pft_data = csv_v1_read_section(data, start=sections['pft'][0], end=sections['pft'][1])
+  nonpft_data = csv_v1_read_section(data, start=sections['nonpft'][0], end=sections['nonpft'][1])
+  meta = csv_v1_read_section(data, start=sections['meta'][0], end=sections['meta'][1])
 
   if ref_targets:
     # Take care of the targets data - this is formatted differently from
@@ -633,7 +633,7 @@ def csv_v1_specification():
   pass # Do nothing, simply a docstring function!
 
 
-def csv_find_section_indices(csv_file):
+def csv_v1_find_section_indices(csv_file):
   '''
   Parses a csv file and returns the starting and ending indices for each 
   section in the file.
@@ -673,7 +673,7 @@ def csv_find_section_indices(csv_file):
   return sections
 
 
-def csv_read_section(data, start, end):
+def csv_v1_read_section(data, start, end):
   '''
   Write this...
 
@@ -765,7 +765,7 @@ def csv_v0_specification():
   pass
 
 
-def csv_get_pftnames(data):
+def csv_v0_get_pftnames(data):
   '''
   Retrieves PFT names from a specially formatted csv file.
 
@@ -793,7 +793,7 @@ def csv_get_pftnames(data):
       return row[1:]
 
 
-def csv_find_section_starts(data):
+def csv_v0_find_section_starts(data):
   '''
   Gets the starting index and name for sections of data in a specially formatted csv file.
 
@@ -826,7 +826,7 @@ def csv_find_section_starts(data):
   return results
 
 
-def csv_get_section(data, start):
+def csv_v0_get_section(data, start):
   '''
   Extracts a section of block of data from a specially formatted csv file.
 
@@ -878,7 +878,7 @@ def converter(x):
   return x
 
 
-def format_section(section_data, full_data):
+def format_section_csv_v0(section_data, full_data):
   '''
   Prints data (presumably from csv file) to dvmdostem space delimited parameter format.
 
@@ -2217,9 +2217,9 @@ def cmdline_run(args):
     with open(inputcsv) as f:
       data = f.readlines()
 
-    for (start, section_name) in csv_find_section_starts(data):
+    for (start, section_name) in csv_v0_find_section_starts(data):
       print(" ----  {}  ----  CMT {}  ----".format(section_name, cmtname))
-      print(format_section(csv_get_section(data, start), data))
+      print(format_section_csv_v0(csv_v0_get_section(data, start), data))
       print("")
 
     return 0
