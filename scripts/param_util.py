@@ -36,7 +36,7 @@ class ParamUtilSpeedHelper(object):
   With param_util.py in general the idea has been to have it be flexible
   with repsect to the location of the parameter files. But that makes 
   some operations expensive because the code is constantly having to 
-  re-build lookup datastructures to find parameter names or files.
+  re-build lookup data structures to find parameter names or files.
 
   With this object the idea is to set the parameter directory upon
   instantiation, and build the lookup data structure. Then future
@@ -592,7 +592,7 @@ def csv_v1_specification():
   Note that csv files prepared from different spreadsheet programs may have
   different treatment regarding blank lines and rows with varying numbers of
   columns. Many programs will produce files with lots of extra commas 
-  deliniating empty columns. Most of these extraneous commas have been omitted 
+  deliniating empty columns. Some of these extraneous commas have been omitted 
   in the sample below.
 
   Example data:
@@ -605,11 +605,6 @@ def csv_v1_specification():
   # calibration notes: Calibration conducted manually by Joy ... 
   # references file: refs.bib
   #
-  # This file was generated using the param_util.fwt2csv function.
-  # There are columns here (comment units desc refs)
-  # that are not represented in a standard way in the
-  # fixed width text parameter files.
-  # 
   # To convert this file back to fixed width text for use with dvmdostem
   # see the param_util.csv2fwt() function.
   #
