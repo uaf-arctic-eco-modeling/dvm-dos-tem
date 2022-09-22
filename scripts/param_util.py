@@ -2050,7 +2050,13 @@ def cmdline_parse(argv=None):
         parameter file. The plot shows the values over the year so you can check
         the seasonality. Looks a 'cmt_dimvegetation.txt file in the
         INFOLDER.'''))
- 
+
+  parser.add_argument('--extract-cmt', nargs=2, metavar=('INFOLDER','CMTKEY'),
+      help=textwrap.dedent('''Given a folder of parameter files, and a CMT
+        number, this will open each file, copy the block of data for the CMT 
+        and paste that block in to a new file named CMTKEY_cmt_*.txt, 
+        i.e: CMT04_cmt_calparbgc.txt'''))
+
   parser.add_argument('--csv-v0-2cmtdatablocks', nargs=2,
       metavar=('CSVFILE', 'CMTNAME'),
       help=textwrap.dedent('''(BETA) Reads data from csv file and prints CMT 
@@ -2065,14 +2071,6 @@ def cmdline_parse(argv=None):
 
   parser.add_argument('--params2csv-v0', nargs=2, metavar=('PARAMFOLDER','CMTKEY'),
       help=textwrap.dedent('''Dumps a parameter file to csv format.'''))
-
-  parser.add_argument('--extract-cmt', nargs=2, metavar=('INFOLDER','CMTKEY'),
-      help=textwrap.dedent('''Given a folder of parameter files, and a CMT
-        number, this will open each file, copy the block of data for the CMT 
-        and paste that block in to a new file named CMTKEY_cmt_*.txt, 
-        i.e: CMT04_cmt_calparbgc.txt'''))
- 
-
 
   args = parser.parse_args(argv)
 
