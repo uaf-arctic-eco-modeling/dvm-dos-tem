@@ -2057,6 +2057,9 @@ def cmdline_parse(argv=None):
         and paste that block in to a new file named CMTKEY_cmt_*.txt, 
         i.e: CMT04_cmt_calparbgc.txt'''))
 
+  parser.add_argument('--csv-v1-spec', action='store_true',
+      help='Print the specification for the supported csv files, v1.')
+
   parser.add_argument('--csv-v0-2cmtdatablocks', nargs=2,
       metavar=('CSVFILE', 'CMTNAME'),
       help=textwrap.dedent('''(BETA) Reads data from csv file and prints CMT 
@@ -2066,8 +2069,8 @@ def cmdline_parse(argv=None):
         pasted into the standard dvmdostem space delimited text files that are
         used for parameters.'''))
 
-  parser.add_argument('--csv-v0-specification', action='store_true',
-      help='''Print the specification for supported csv files.''')
+  parser.add_argument('--csv-v0-spec', action='store_true',
+      help='''Print the specification for supported csv files, v0.''')
 
   parser.add_argument('--params2csv-v0', nargs=2, metavar=('PARAMFOLDER','CMTKEY'),
       help=textwrap.dedent('''Dumps a parameter file to csv format.'''))
@@ -2089,6 +2092,10 @@ def cmdline_run(args):
     'cmt_envground.txt',
     'cmt_firepar.txt',
   ]
+
+  if args.csv_v1_spec:
+    print(csv_v1_specification.__doc__)
+    return(0)
 
   if args.params2csv_v0:
     folder = args.params2csv_v0[0]
@@ -2206,7 +2213,7 @@ def cmdline_run(args):
 
     return 0
 
-  if args.csv_v0_specification:
+  if args.csv_v0_spec:
     print(csv_v0_specification.__doc__)
     return 0
 
