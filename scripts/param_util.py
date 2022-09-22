@@ -257,6 +257,7 @@ def fwt2csv_v1(param_dir, req_cmts='all', targets_path=None):
 
       for f in os.listdir(param_dir):
         pfile = os.path.join(param_dir, f)
+        print(pfile)
         if isParamFile(pfile):
           db = get_CMT_datablock(pfile, cmt)
           dd = cmtdatablock2dict(db)
@@ -314,6 +315,7 @@ def fwt2csv_v1(param_dir, req_cmts='all', targets_path=None):
           meta.append('{},{},{},"{}"\n'.format(pfile, dd['tag'], dd['cmtname'], dd['comment']))
 
         else:
+          print(" ********* deemed {} as non parameter file, skipping!  *********\n".format(pfile))
           pass # nothing to do for non-param files
 
       with open("SAMPLE_CMT_{:02d}.csv".format(cmt), 'w') as f:
