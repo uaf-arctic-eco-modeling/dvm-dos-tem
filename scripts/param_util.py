@@ -159,9 +159,27 @@ class ParamUtilSpeedHelper(object):
 
 def fwt2csv_v1(param_dir, req_cmts='all', targets_path=None):
     '''
-    Convert from fixed width text (fwt) format to CSV (comma separated values).
+    Convert from dvmdostem fixed width text (fwt) format to CSV (comma separated
+    values), version 1.
 
-    ...Write more here...
+    Writes one file for each CMT, with all parameters from the fixed width
+    files. The output files will be named like "SAMPLE_CMT_01.csv", etc and 
+    will be written in your current working directory.
+    
+    Parameters
+    ==========
+    param_dir : string, path
+      Path to a directory of parameter files to convert.
+
+    req_cmts : list of ints or string
+      A list of the requested CMTs (numbers) or the string 'all'.
+
+    targets_path : string, path
+      Path to a targets file to convert.
+
+    Returns
+    =======
+    None
     '''
     # NOTE: currently there is no mechanism for storing reference data in the 
     # fixed width text files....
