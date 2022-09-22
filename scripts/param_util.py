@@ -2078,6 +2078,14 @@ def cmdline_parse(argv=None):
   parser.add_argument('--csv-v1-spec', action='store_true',
       help='Print the specification for the supported csv files, v1.')
 
+  parser.add_argument('--fwt2csv-v1', nargs=3, 
+      metavar=('PARAMDIR','REQ_CMTS','TARGETS'),
+      help=textwrap.dedent('''Converts all the parameters found in the files in
+      PARAMDIR into csv format, creating one csv file for each requested CMT.
+      REQ_CMTs should be a comma separatedlist of CMT numbers. The resulting csv
+      file will be v1, and will have the targets included as found in the
+      TARGETS file.'''))
+
   parser.add_argument('--csv-v0-2cmtdatablocks', nargs=2,
       metavar=('CSVFILE', 'CMTNAME'),
       help=textwrap.dedent('''(BETA) Reads data from csv file and prints CMT 
@@ -2114,6 +2122,18 @@ def cmdline_run(args):
   if args.csv_v1_spec:
     print(csv_v1_specification.__doc__)
     return(0)
+
+  if args.fwt2csv_v1:
+    pdir = args.fwt2csv_v1[0]
+    req_cmts = args.fwt2csv_v1[1].split(',')
+    targets = args.fwt2csv_v1[2]
+    if len(req_cmts) == 1 and 'all' in req_cmts:
+      req_cmts = 'all'
+    else:
+      req_cmts = [int(x) for x in req_cmts]
+    fwt2csv_v1(pdir, req_cmts, targets)
+    return 0
+
 
   if args.params2csv_v0:
     folder = args.params2csv_v0[0]
