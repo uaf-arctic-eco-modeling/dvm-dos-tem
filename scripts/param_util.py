@@ -418,6 +418,9 @@ def csv2fwt_v1(csv_file, ref_directory='../parameters',
     relevant_nonpft_vars = list(filter(lambda x: ref_targets in x['file'], nonpft_data))
     relevant_meta = list(filter(lambda x: ref_targets in x['file'], meta))
 
+    if all(map(lambda x: len(x)<1, [relevant_pft_vars, relevant_meta, relevant_nonpft_vars])):
+      raise RuntimeError("Invalid ref_targets file! Can't find appropriate data.")
+
     new_targs = {}
 
     for i in relevant_nonpft_vars:
