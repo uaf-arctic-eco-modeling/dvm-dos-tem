@@ -157,7 +157,7 @@ class ParamUtilSpeedHelper(object):
     return s
 
 
-def fwt2csv(param_dir, req_cmts='all', targets_path=None):
+def fwt2csv_v1(param_dir, req_cmts='all', targets_path=None):
     '''
     Convert from fixed width text (fwt) format to CSV (comma separated values).
 
@@ -334,13 +334,13 @@ def fwt2csv(param_dir, req_cmts='all', targets_path=None):
         # calibration notes: "{}"
         # references file: {}
         #
-        # This file was generated using the param_util.fwt2csv function.
+        # This file was generated using the param_util.fwt2csv_v1(...) function.
         # There are columns here (comment units desc refs)
         # that are not represented in a standard way in the 
         # fixed width text parameter files.
         # 
         # To convert this file back to fixed width text for use with dvmdostem,
-        # see the param_util.csv2fwt() function. 
+        # see the param_util.csv2fwt_v1() function. 
         # 
         '''.format(label, cmt, cmtname, desc, site, notes, ref_file))
 
@@ -353,7 +353,7 @@ def fwt2csv(param_dir, req_cmts='all', targets_path=None):
         f.writelines(nonpftdata)
 
 
-def csv2fwt(csv_file, ref_directory='../parameters', 
+def csv2fwt_v1(csv_file, ref_directory='../parameters', 
             overwrite_files=None, ref_targets=None):
   '''
   Convert from csv parameter files to fixed width text format.
@@ -606,7 +606,7 @@ def csv_v1_specification():
   # references file: refs.bib
   #
   # To convert this file back to fixed width text for use with dvmdostem
-  # see the param_util.csv2fwt() function.
+  # see the param_util.csv2fwt_v1() function.
   #
   file,cmtkey,cmtname,comment,,,,,,,,,,,,
   ../parameters/cmt_bgcvegetation.txt,CMT22,Single PFT Alpine Tussock Tundra,,,,,,,,,,,,,
@@ -2047,24 +2047,27 @@ def cmdline_parse(argv=None):
         The plot shows the values over the year so you can check the seasonality.
         Looks a 'cmt_dimvegetation.txt file in the INFOLDER.'''))
  
-  parser.add_argument('--csv2cmtdatablocks', nargs=2, metavar=('CSVFILE', 'CMTNAME'),
+  parser.add_argument('--csv-v0-2cmtdatablocks', nargs=2,
+      metavar=('CSVFILE', 'CMTNAME'),
       help=textwrap.dedent('''(BETA) Reads data from csv file and prints CMT 
-        datablocks to stdout. Expected workflow is that user starts with a spreadsheet
-        that is exported to csv, then use this feature is used to parse the csv and 
-        print formatted sections of data to stdout that can be pasted into the standard
-        dvmdostem space delimited text files that are used for parameters.'''))
+        datablocks to stdout. Expected workflow is that user starts with a
+        spreadsheet that is exported to csv, then use this feature is used to
+        parse the csv and print formatted sections of data to stdout that can be
+        pasted into the standard dvmdostem space delimited text files that are
+        used for parameters.'''))
 
-  parser.add_argument('--csv-specification', action='store_true',
+  parser.add_argument('--csv-v0-specification', action='store_true',
       help='''Print the specification for supported csv files.''')
+
+  parser.add_argument('--params2csv-v0', nargs=2, metavar=('PARAMFOLDER','CMTKEY'),
+      help=textwrap.dedent('''Dumps a parameter file to csv format.'''))
 
   parser.add_argument('--extract-cmt', nargs=2, metavar=('INFOLDER','CMTKEY'),
       help=textwrap.dedent('''Given a folder of parameter files, and a CMT
         number, this will open each file, copy the block of data for the CMT 
         and paste that block in to a new file named CMTKEY_cmt_*.txt, 
         i.e: CMT04_cmt_calparbgc.txt'''))
-
-  parser.add_argument('--params2csv-v0', nargs=2, metavar=('PARAMFOLDER','CMTKEY'),
-      help=textwrap.dedent('''Dumps a parameter file to csv format.'''))
+ 
 
 
   args = parser.parse_args(argv)
@@ -2201,13 +2204,13 @@ def cmdline_run(args):
 
     return 0
 
-  if args.csv_specification:
+  if args.csv_v0_specification:
     print(csv_v0_specification.__doc__)
     return 0
 
-  if args.csv2cmtdatablocks:
-    inputcsv = args.csv2cmtdatablocks[0]
-    cmtname = args.csv2cmtdatablocks[1]
+  if args.csv_v0_2cmtdatablocks:
+    inputcsv = args.csv_v0_2cmtdatablocks[0]
+    cmtname = args.csv_v0_2cmtdatablocks[1]
 
     with open(inputcsv) as f:
       data = f.readlines()
