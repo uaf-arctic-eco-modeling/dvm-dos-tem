@@ -186,13 +186,13 @@ def fwt2csv_v1(param_dir, req_cmts='all', targets_path=None):
 
     avail_cmts = get_available_CMTs(param_dir)
 
-    if not all([i in avail_cmts for i in req_cmts]):      
-      raise RuntimeError("One of the requested cmts is not available! Requested: {}".format(req_cmts))
-
     if req_cmts == 'all':
       cmts = avail_cmts
     else:
       cmts = req_cmts
+
+    if not all([i in avail_cmts for i in cmts]):
+      raise RuntimeError("One of the requested cmts is not available! Requested: {}".format(req_cmts))
 
     for cmt in cmts:
       print("Working on CMT {}...".format(cmt))
