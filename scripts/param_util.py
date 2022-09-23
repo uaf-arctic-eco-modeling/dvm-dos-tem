@@ -1630,7 +1630,7 @@ def format_CMTdatadict(dd, refFile, format=None):
       pass # Nothing to do; already did pft stuff
     else:
       # get item from dict, append to line
-      ll.append('{:<12.6f} // {}'.format(dd[var], var))
+      ll.append('{:<12.6f} // {}: '.format(dd[var], var))
 
   return ll
 
