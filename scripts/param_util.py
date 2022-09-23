@@ -422,6 +422,24 @@ def csv2fwt_v1(csv_file, ref_directory='../parameters',
   nonpft_data = csv_v1_read_section(data, bounds=sections['nonpft'])
   meta = csv_v1_read_section(data, bounds=sections['meta'])
 
+  # The csv_v1_read_section function doesn't work well for the header comments
+  # as the data is not csv and doesn't parse easily using csv.reader.
+  # So we can parse it manually here. Goal is to pull out all the relevant 
+  # metadata, strip off extraneous charachters (#, \n, etc) and print the data
+  # in comment lines in the fixed width text files.
+  commentstr = ''
+  s, e = sections['headercomments']
+  for i, line in enumerate(data[s:e]):
+    l2 = line.split(':')
+    if len(l2) > 1:
+      k = l2[0].strip().strip('#').strip('"').strip('#')
+      v = ''.join(l2[1:]).strip().strip(',')
+      if k.strip() == 'cmtnumber' or k.strip() == 'cmtname':
+        pass
+      else:
+        commentstr += "// {} // {}\n".format(k, v)
+  # Will use this commentstr later in the fucntion when assembling the output.
+
   if ref_targets:
     # Take care of the targets data - this is formatted differently from
     # the other parameters. While the other parameters are the fixed width
@@ -497,6 +515,7 @@ def csv2fwt_v1(csv_file, ref_directory='../parameters',
     # Handle the datablock header
     full_string = '//==========================================================\n'
     full_string += '// {} // {} // {}\n'.format(relevant_meta[0]['cmtkey'], relevant_meta[0]['cmtname'], relevant_meta[0]['comment'])
+    full_string += commentstr # This was built up earlier when parsing the file.
 
     # Handle the PFT header line
     if len(list(filter(lambda x: x['name'] == 'pftname', relevant_pft_vars))) > 0:
@@ -685,6 +704,10 @@ def csv_v1_find_section_indices(csv_file):
       if len(ldata) == 0 or ldata[0] == '':
         sections[section][1] = sections[section][0] + i
         break
+
+  # The header comments are assumed to run from the start of the file
+  # to the line right before the meta section starts.
+  sections['headercomments'] = [0, sections['meta'][0]-1]
 
   return sections
 
