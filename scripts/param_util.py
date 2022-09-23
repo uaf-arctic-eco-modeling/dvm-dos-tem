@@ -418,9 +418,9 @@ def csv2fwt_v1(csv_file, ref_directory='../parameters',
   with open(csv_file, 'r') as f:
     data = f.readlines()
 
-  pft_data = csv_v1_read_section(data, start=sections['pft'][0], end=sections['pft'][1])
-  nonpft_data = csv_v1_read_section(data, start=sections['nonpft'][0], end=sections['nonpft'][1])
-  meta = csv_v1_read_section(data, start=sections['meta'][0], end=sections['meta'][1])
+  pft_data = csv_v1_read_section(data, bounds=sections['pft'])
+  nonpft_data = csv_v1_read_section(data, bounds=sections['nonpft'])
+  meta = csv_v1_read_section(data, bounds=sections['meta'])
 
   if ref_targets:
     # Take care of the targets data - this is formatted differently from
@@ -689,7 +689,7 @@ def csv_v1_find_section_indices(csv_file):
   return sections
 
 
-def csv_v1_read_section(data, start, end):
+def csv_v1_read_section(data, bounds):
   '''
   Write this...
 
@@ -699,15 +699,15 @@ def csv_v1_read_section(data, start, end):
   ==========
   data : list
     The list of lines of a specially formatted csv file.
-  start : int
-    The starting index of the section to read from the csv file.
-  end : int
-    The ending index (not inclusive) of the section to read from the csv file.
+  bounds : tuple
+    Pair of ints representing the starting and ending indices of a section.
 
   Returns
   =======
   A list of dicts produced by csv.DictReader, one key for each column name.
   '''
+  start = bounds[0]
+  end = bounds[1]
   csvreader = csv.DictReader(data[start:end], dialect='excel')
   return [row for row in csvreader]
 
