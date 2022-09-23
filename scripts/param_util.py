@@ -1333,13 +1333,37 @@ def get_CMT_datablock(afile, cmtnum):
 
 
 def detect_block_with_pft_info(cmtdatablock):
-  # Perhaps should look at all lines??
-  secondline = cmtdatablock[1].strip("//").split()
-  if len(secondline) >= 9:
-    #print "Looks like a PFT header line!"
+  '''
+  Inspects a block of CMT data and trys to figure out if it is PFT data or not.
+
+  Parameters
+  ----------
+  cmtdatablock : list of strings
+    A list of strings representing a datablock of dvmdostem parameter data.
+
+  Return
+  ------
+  result : bool
+  '''
+  # Find the end of the comment lines.
+  for i, line in enumerate(cmtdatablock):
+    cl = line.strip()
+    if cl[0:2] == '//':
+      pass # comment line
+    else:
+      idx_first_data = i
+      idx_last_comment = i-1
+      break
+
+  d = cmtdatablock[idx_first_data]
+
+  # Pull off any leading spaces, then split into data and comments.
+  # The data is then space separated, and when split should be 10 fields
+  # if it is PFT data...
+  if len(d.strip().split('//')[0].split()) == 10:
     return True
   else:
-    return False
+    return False  
 
 
 def parse_header_line(linedata):
@@ -1448,11 +1472,22 @@ def cmtdatablock2dict(cmtdatablock):
   cmtdict['comment'] = hdrcomment
 
   if pftblock:
-    # Look at the second line for something like this:
-    # PFT name line, like: "//Decid.     E.green      ...."
-    pftlist = cmtdatablock[1].strip("//").strip().split()
-    pftnames = pftlist[0:10]
+    for i, line in enumerate(cmtdatablock):
+      cl = line.strip()
+      if cl[0:2] == '//':
+        pass # comment line
+      else:
+        idx_first_data = i
+        idx_last_comment = i-1 # The last comment line should hold PFT names.
+        break
     
+    lcl = cmtdatablock[idx_last_comment]
+    # pull off the leading comment, split on comments (to discard the trailing
+    # metadata), then split on spaces.
+    # Example:
+    #   '// ecosystem    pft1    ...  // name: units // description // comment // refs\n'
+    pftnames = lcl.strip('//').split('//')[0].split()
+
     for i, pftname in enumerate(pftnames):
       cmtdict['pft%i'%i] = {}
       cmtdict['pft%i'%i]['name'] = pftname
