@@ -2,6 +2,7 @@
 // ground structure and dimensions
 //===========================================================
 // CMT00 // BARE GROUND OPEN WATER SNOW AND ICE
+// Extra comment lines are allowed between the community type key and the data.
 // Snow characteristics
 250                // snwdenmax:  max. snow density (kg/m3)
 50                 // snwdennew:  new (min.) snow density (kg/m3)

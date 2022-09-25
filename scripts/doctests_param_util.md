@@ -166,3 +166,41 @@ the way things are formatted when printing the fixed width text parameter files.
     '     50.3405 '
     >>> pu.smart_format('0')
     '      0.0000 '
+
+Test that cmt datablocks can be read with and without multiple comment lines.
+CMT00 in `cmt_calparbgc.txt` has an extra comment line added to it.
+
+> Note that the extra comment lines are **not** correctly parsed and included in
+> the `comment` key in the resulting cmt data dictionary!
+
+> Note that the string 'CMT' is not allowed in the extra comment lines!
+
+    >>> dd = pu.cmtdatablock2dict(pu.get_CMT_datablock('../parameters/cmt_calparbgc.txt', 0))
+    >>> dd['cmtname']
+    'BARE GROUND OPEN WATER SNOW AND ICE'
+    >>> dd['comment']
+    '##THESE ARE JUNK VALUES###'
+
+While CMT01 does not:
+
+    >>> dd = pu.cmtdatablock2dict(pu.get_CMT_datablock('../parameters/cmt_calparbgc.txt', 1))
+    >>> dd['cmtname']
+    'Boreal Black Spruce'
+    >>> dd['comment']
+    '6/29/20 boreal black spruce with Murphy Dome climate'
+
+Try the same thing, but on a non-PFT file:
+
+    >>> dd = pu.cmtdatablock2dict(pu.get_CMT_datablock('../parameters/cmt_dimground.txt', 0))
+    >>> dd['cmtname']
+    'BARE GROUND OPEN WATER SNOW AND ICE'
+    >>> dd['comment']
+    ''
+
+    >>> dd = pu.cmtdatablock2dict(pu.get_CMT_datablock('../parameters/cmt_dimground.txt', 1))
+    >>> dd['cmtname']
+    'Boreal Black Spruce'
+    >>> dd['comment']
+    'JSC 6/18/20  JSC based Melvin et al. 2015 and Ruess et al. 1996. Calibrated for Murphy Dome.'
+
+
