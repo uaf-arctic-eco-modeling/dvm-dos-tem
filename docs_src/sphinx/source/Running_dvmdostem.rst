@@ -5,9 +5,9 @@
    ^, for subsubsections
    ", for paragraphs
 
-######################
-Running ``dvmdostem``
-######################
+#######
+Running
+#######
     WRITE THIS...
 
 *****************************
@@ -153,9 +153,9 @@ When you run the script it will create a subdirectory for each batch in the
 specified output directory. Each subdirectory will have a copy of the config.js
 file and customized run-mask.nc and slurm_runner.sh files.
 
-^^^^^^^
-Running
-^^^^^^^
+^^^^^^^^^^^^^^
+Starting a run
+^^^^^^^^^^^^^^
 By default the batch running script runs a set of batches from an inclusive
 range defined by values provided in the call. Example call to run batches 0-9:
 

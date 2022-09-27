@@ -7,9 +7,9 @@
    ", for paragraphs
 
 
-#########################
-Software Development Info
-#########################
+########
+Dev Info
+########
     WRITE THIS...
 
 ******************************
@@ -44,7 +44,7 @@ there:
  * README files are overviews of a repository or project. Used as a rough 
    introduction, installation instructions and links to other resources.
  * This document which has several chapters: 
-      - :ref:`DVM-DOS-TEM_Model_Overview<dvm-dos-tem_model_overview:Structure>`
+      - :ref:`model_overview<model_overview:Structure>`
          which is a  narrative, scientific description of the ``dvmdostem`` 
          model.
       - :ref:`Software Development Info<software_development_info:Documentation>`

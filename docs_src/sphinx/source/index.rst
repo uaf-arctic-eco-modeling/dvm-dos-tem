@@ -39,9 +39,9 @@ snow cover or canopy development.
    :maxdepth: 5
    :caption: Contents
    
-   DVM-DOS-TEM_Model_Overview
+   model_overview
    software_development_info
-   Running_dvmdostem
+   running_dvmdostem
    SA_UQ
    command_cheat_sheet
 
