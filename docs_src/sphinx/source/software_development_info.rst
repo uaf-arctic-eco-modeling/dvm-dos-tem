@@ -216,12 +216,12 @@ environments and toolchain patterns.
   the script (your Python code) to the Python interpreter and it is 
   translated into machine code on the fly.
 
-* Compiled Program (binary)
-  A compiled programming language required a dedicated “build step” to translate
-  the human-written code (instructions) into machine code. The result of the build
-  step is an object file or a “compiled binary”. The main dvmdostem binary is a
-  compiled C++ program. When the source code is modified, you must run make to
-  re-compile the project and create a new binary object file before running it.
+* Compiled Program (binary) A compiled programming language required a dedicated
+  “build step” to translate the human-written code (instructions) into machine
+  code. The result of the build step is an object file or a “compiled binary”.
+  The main dvmdostem binary is a compiled C++ program. When the source code is
+  modified, you must run make to re-compile the project and create a new binary
+  object file before running it.
 
 * Integrated Development Environment (IDE)
   Typically this is a GUI application that bundles together a bunch of handing 
