@@ -36,7 +36,7 @@ snow cover or canopy development.
 
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 5
    :caption: Contents
    
    DVM-DOS-TEM_Model_Overview
