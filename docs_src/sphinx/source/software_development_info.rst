@@ -103,6 +103,7 @@ Automated publishing (e.g. for each release) is still a work in progress.
 ==================
 Note about images
 ==================
+
 Including images in documentation presents similar challenges for raw, 
 rendered, and word processing systems. One choice is whether to embed the 
 image directly or provide a link to it. And another choice has to do with how 
@@ -302,6 +303,7 @@ environments and toolchain patterns.
     * Developing and prototyping code
 
   Notebooks are challenging for:
+
     * Version control
     * Writing code that is easy to run in a non-notebook environment (library code)
     * Groups that do not have the bandwidth or abilities for running individual notebook servers or to run and maintain a central notebook server
@@ -309,6 +311,7 @@ environments and toolchain patterns.
 
 
 * Virtual Machine
+
   In order to wrap up an environment such that you can preserve it or pass it to
   someone else, people have devised the concept of a Virtual Machine (VM). In
   2022, there are innumerable ways to run a VM (VMware, Parallels, Multipass,
@@ -370,7 +373,7 @@ accept contributions to the code via pull request from anyone, but the pull
 request will have to be merged by a collaborator with write access to the 
 upstream repo. See the branching and workflow sections below for more details.
 
-.. [#] As of April 2022, this is true; we anticipate moving to a new 
+.. [#] As of September 2022, this is true; we anticipate moving to a new 
        Github Organization in the next 6 months or so. 
 
 --------------
@@ -556,6 +559,7 @@ potential problem with merges.
 ===========
 Workflow
 ===========
+
 We are primarily using the “Centralized Workflow” described in the Git Book
 `Distributed Workflows
 <https://git-scm.com/book/en/v2/Distributed-Git-Distributed-Workflows>`_. We have
@@ -616,10 +620,41 @@ trust.
      * https://blog.sourcetreeapp.com/2012/08/21/merge-or-rebase/
 
 
-=================================
-Releases and Version Management
-=================================
-    WRITE THIS...
+==============================
+Releases and Version Numbering
+==============================
+
+Begining in 2021, we started using the "Releases" feature of Github to package
+and distribute specific versions of ``dvmdostem``. We would like to make this a
+fully or nearly fully automated process but for the time being it is rather
+manual.
+
+As described in the ``HOWTO_RELEASE.md`` document in the repo, the project uses
+a three part version number: vMAJOR.MINOR.PATCH.
+
+We use the following rules for incrementing the version number:
+ * The PATCH number (farthest right) will be incremented for changes 
+   that do not affect the general scientific concepts in the 
+   software.
+ * The MINOR number (middle) will be updated when changes have been made 
+   to science concepts, major implementation changes for scienctifc aspects 
+   of the code calibration numbers are updated, or large new features are added.
+ * The MAJOR (left) number will be updated for major milestones. This will
+   likely be points where the model is run for "production" or major testing and
+   validation steps are completed and documented.
+
+This project is not using traditional `Semantic Versioning`_, however we have
+borrowed some concepts.
+
+Until the project reaches ``v1.0.0``, we will not make any guarantees about
+backwards compatibility. Once the project reaches ``v1.0.0``, we may decide to
+handle the rules for incrementing version numbers differently.
+
+Releases are currently made on an as-needed basis by tcarman2@alaska.edu or
+rarutter@alaska.edu. 
+
+The steps are described in the ``HOWTO_RELEASE.md`` document and the result is 
+that release is visible here: https://github.com/ua-snap/dvm-dos-tem/releases
 
 
 ==================================
@@ -657,3 +692,4 @@ Setting up with Ubuntu
 
 .. _Arctic Eco Modeling Slack: https://arctic-eco-modeling.slack.com
 .. _Github Issues: https://github.com/ua-snap/dvm-dos-tem/issues
+.. _Semantic Versioning: https://semver.org
