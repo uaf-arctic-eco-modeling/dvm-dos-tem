@@ -10,50 +10,51 @@
 ########
 Dev Info
 ########
-    WRITE THIS...
+
+This chapter should include all the useful information that you will need to
+make contributions to the ``dvmdostem`` project.
 
 ******************************
 Languages, Software Structure
 ******************************
-    WRITE THIS
 
-    Core is C++, utils python,Tutorial are ipynb, shell scripts for some utils, 
-    make, etc
-    Write this section...
+The core model (``dvmdostem``) is written in C++, while most of the supporting
+tooling is written in Python. There are also an assortment of bash scripts, R
+code, and IPython Notebooks floating around for various tasks.
+
+The core code is compiled with a basic Makefile. This documentation is written 
+in reStrutured Text and Sphinx and is also compiled with a Makefile.
 
 *************
 Documentation
 *************
 
-There are several places that you will find information about ``dvmdostem``:
+There are several places that you will find information about ``dvmdostem``,
+each with a different type of info:
 
- * README file(s)
+ * README file(s) - overviews of a repository or project. Used as a rough 
+   introduction, installation instructions and links to other resources.
  * This document (which is the formatted output of the ``.rst`` source files).
+   The document is split into several chapters:
+
+    - :ref:`"Model Overview"<model_overview:Structure>` - narrative, scientific
+      description of the ``dvmdostem`` model.
+    - :ref:`"Running"<Running_dvmdostem:Practical>`- info and examples for hands
+      on use of the model.
+    - :ref:`"Dev Info"<software_development_info:Documentation>` - (this
+      chapter) which contains all the other programming, usage and workflow
+      information for hands on work with the model.
+    - Several other chapters, available in the table of contents.
+
    It is likely that you are reading this document where it has been published 
    online; if you build the documentation locally, then by default, the output
    ends up in ``docs_src/sphinx/build/html``.
- * The ``--help`` flag for dvmdostem and many of the scripts in the ``scripts/``
-   directory.
- * Comments in the code.
- * Github wiki (hopefully deprecated soon).
- * The ``docs_src/*/html`` folders after running Doxygen or Sphinx.
-
-Each of these locations has a different sort of information you might find 
-there:
-
- * README files are overviews of a repository or project. Used as a rough 
-   introduction, installation instructions and links to other resources.
- * This document which has several chapters: 
-      - :ref:`model_overview<model_overview:Structure>`
-         which is a  narrative, scientific description of the ``dvmdostem`` 
-         model.
-      - :ref:`Software Development Info<software_development_info:Documentation>`
-        (this chapter) which contains all the other programming, usage and 
-        workflow information for hands on work with the model.
-      - :ref:`Running dvmdostem<Running_dvmdostem:Practical>` with info and
-        examples for hands on use of the model.
-      - Several other chapters, available in the table of contents.
- * The ``--help`` flags generally have usage information for software at hand.
+ * The ``--help`` flag for ``dvmdostem`` and many of the scripts in the
+   ``scripts/`` directory. This info is generally specific usage information for
+   the given tool.
+ * Comments in the code are helpful for implementation details.
+ * Github wiki (hopefully deprecated soon). This may end up being a home for 
+   assorted tutorials and examples.
 
 In a perfect world most of the comments in the code will eventually be 
 formatted in such a way that they can be picked up by tools such as Doxygen 
@@ -66,12 +67,38 @@ from it towards a more robust, fully featured platform that integrates better
 with CI/CD tooling. Github Wiki might be a good place to keep certain 
 tutorial-like information.
 
-In the current implementation with Sphinx (used to format this document), we 
-have a ``docs_src`` folder within which is a subdirectory for each 
-documentation tool (presently Doxygen and Sphinx). Each tool is setup to put 
-its outputs in its own directory. To publish outputs, the contents are copied 
-to the ``docs/`` directory in the root of the repo and then pushed to the 
-``gh-pages`` branch of the upstream repo.
+======================
+Editing / Contributing
+======================
+
+The writing and editing process for this docuemtation ends up looking
+essentially like the general coding or programing process:
+
+ * setup a development environment of your choice
+ * clone the repository to your development environment
+ * edit the source files (``docs_src/sphinx/*.rst``)
+ * process the ``.rst`` files: ``cd docs_src/sphinx && make clean && make html``
+ * preview the results in your browser
+   (``file:///path/to/your/repo/docs_src/sphinx/build/html``)
+ * commit your changes
+ * push commits upstream and make pull request
+
+For more information on this process, see the `Workflow`_ section.
+
+
+==========
+Publishing
+==========
+
+In the current implementation with Sphinx (used to format this document), we
+have a ``docs_src`` folder within which is a subdirectory for each documentation
+tool (presently Doxygen and Sphinx). Each tool is setup to put its outputs in
+its own directory. To publish outputs, the contents are copied to the ``docs/``
+directory in the root of the repo and then pushed to the ``gh-pages`` branch of
+the upstream repo. Pushing to the ``gh-pages`` branch leverages the free
+publishing available from Github and is a simple way to make the documentation
+publicly available. See the ``publish_github_pages.sh`` for more details.
+Automated publishing (e.g. for each release) is still a work in progress.
 
 ==================
 Note about images
