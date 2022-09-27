@@ -40,8 +40,8 @@ snow cover or canopy development.
    :caption: Contents
    
    model_overview
-   software_development_info
    running_dvmdostem
+   software_development_info
    SA_UQ
    command_cheat_sheet
 
