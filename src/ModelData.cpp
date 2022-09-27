@@ -376,7 +376,9 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize,
 
     //Ensure that the by-layer option is set for variables that exist only
     // by layer (LAYERDZ, TLAYER, etc)
-    if(name.find("LAYER") != std::string::npos){
+    if(name.find("LAYER") != std::string::npos ||
+       name.find("PERCOLATION") != std::string::npos ||
+       name.find("ROOTWATERUPTAKE") != std::string::npos){
 
       BOOST_LOG_SEV(glg, note)<<"Forcing the by-layer option for " << name;
       if(new_spec.layer != true){
