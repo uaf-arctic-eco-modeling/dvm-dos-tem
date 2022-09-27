@@ -50,8 +50,8 @@ there:
       - :ref:`Software Development Info<software_development_info:Documentation>`
         (this chapter) which contains all the other programming, usage and 
         workflow information for hands on work with the model.
-      - Running ``dvmdostem`` with info and examples for hands on use of the 
-        model.
+      - :ref:`Running dvmdostem<Running_dvmdostem:Practical>` with info and
+        examples for hands on use of the model.
       - Several other chapters, available in the table of contents.
  * The ``--help`` flags generally have usage information for software at hand.
 
@@ -435,10 +435,10 @@ assumes that you are using the following convention:
   ``https://github.com/ua-snap/dvm-dos-tem`` or
   ``git@github.com:ua-snap/dvm-dos-tem.git`` if you will be contributing.
 
-It is strongly encouraged that you go to the effort of making sure your current
-git branch is displayed in your terminal shell prompt. There are many examples
-floating around online of how to achieve this for all major operating systems
-and shells; one example `here
+It is **strongly encouraged** that you go to the effort of making sure your
+current git branch is displayed in your terminal shell prompt. There are many
+examples floating around online of how to achieve this for all major operating
+systems and shells; one example `here
 <https://stackoverflow.com/questions/15883416/adding-git-branch-on-the-bash-command-prompt>`_ 
 
 
@@ -566,8 +566,8 @@ into the ``upstream/master``.
 When two or more developers want or need to work contemporaneously on a topic
 branch, it is up to the developers to communicate and make sure that they do not
 step on each other's toes. In practice this simply amounts to communicating with
-other folks via email, the Arctic Eco Modeling Slack Workspace, or Github Issues
-and remembering to run ``git pull --rebase``. Using ``--rebase`` prevents
+other folks via email, the `Arctic Eco Modeling Slack`_, or `Github Issues`_ and
+remembering to run ``git pull --rebase``. Using ``--rebase`` prevents
 unnecessary merge commits that can make the history confusing and harder to
 trust. 
 
@@ -647,3 +647,5 @@ Setting up with Ubuntu
     WRITE THIS...
 
 
+.. _Arctic Eco Modeling Slack: https://arctic-eco-modeling.slack.com
+.. _Github Issues: https://github.com/ua-snap/dvm-dos-tem/issues
