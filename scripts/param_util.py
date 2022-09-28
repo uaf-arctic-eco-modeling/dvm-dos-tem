@@ -758,6 +758,8 @@ def csv_v0_specification():
   '''
   Specification for csv files that hold parameter data.
   
+  (DEPRECATED!!)
+
   This csv format is intended to be used as a bridge between Excel
   and the dvmdostem space delimited parameter files. Expected usage: A user
   maintains or develops a spreadsheet with parameter data. Then user exports
@@ -808,6 +810,8 @@ def csv_v0_get_pftnames(data):
   '''
   Retrieves PFT names from a specially formatted csv file.
 
+  (DEPRECATED!!)
+
   Assumes that `data` is a list of lines read from a csv file that
   is formatted according to the csv_v0_specification. See help for the
   csv_v0_specification() function.
@@ -835,6 +839,8 @@ def csv_v0_get_pftnames(data):
 def csv_v0_find_section_starts(data):
   '''
   Gets the starting index and name for sections of data in a specially formatted csv file.
+
+  (DEPRECATED!!)
 
   Assumes that `data` is a list of lines read from a csv file. See help
   (docstring) for csv_v0_specification().
@@ -868,6 +874,8 @@ def csv_v0_find_section_starts(data):
 def csv_v0_get_section(data, start):
   '''
   Extracts a section of block of data from a specially formatted csv file.
+
+  (DEPRECATED!!)
 
   Assumes that `data` is a list of lines read from a csv file. See help 
   (the docstring) for the csv_v0_specification() function to get more details
@@ -920,6 +928,8 @@ def converter(x):
 def format_section_csv_v0(section_data, full_data):
   '''
   Prints data (presumably from csv file) to dvmdostem space delimited parameter format.
+
+  (DEPRECATED!!)
 
   No effort is made to standardize the variable names or comments in the resulting
   block. Used a fixed width column, space delimited.
@@ -2156,18 +2166,18 @@ def cmdline_parse(argv=None):
 
   parser.add_argument('--csv-v0-2cmtdatablocks', nargs=2,
       metavar=('CSVFILE', 'CMTNAME'),
-      help=textwrap.dedent('''(BETA) Reads data from csv file and prints CMT 
-        datablocks to stdout. Expected workflow is that user starts with a
+      help=textwrap.dedent('''(DEPRECATED!!) Reads data from csv file and prints
+        CMT datablocks to stdout. Expected workflow is that user starts with a
         spreadsheet that is exported to csv, then use this feature is used to
         parse the csv and print formatted sections of data to stdout that can be
         pasted into the standard dvmdostem space delimited text files that are
         used for parameters.'''))
 
   parser.add_argument('--csv-v0-spec', action='store_true',
-      help='''Print the specification for supported csv files, v0.''')
+      help='''(DEPRECATED!!) Print the specification for supported csv files, v0.''')
 
   parser.add_argument('--params2csv-v0', nargs=2, metavar=('PARAMFOLDER','CMTKEY'),
-      help=textwrap.dedent('''Dumps a parameter file to csv format.'''))
+      help=textwrap.dedent('''(DEPRECATED!!) Dumps a parameter file to csv format.'''))
 
   args = parser.parse_args(argv)
 
