@@ -49,6 +49,11 @@ each with a different type of info:
    It is likely that you are reading this document where it has been published 
    online; if you build the documentation locally, then by default, the output
    ends up in ``docs_src/sphinx/build/html``.
+ * Doxygen output. Similar to Sphinx, Doxygen is a documentation processing tool
+   that scans source files and can create a variety of output formats. Doxygen
+   for this project is configured to analyze the C++ source files and generate
+   an interactive html page with detailed call graphs and text parsed from the
+   C++ files.
  * The ``--help`` flag for ``dvmdostem`` and many of the scripts in the
    ``scripts/`` directory. This info is generally specific usage information for
    the given tool.
@@ -66,6 +71,27 @@ We used the Github Wiki for several years, but we are trying to move away
 from it towards a more robust, fully featured platform that integrates better 
 with CI/CD tooling. Github Wiki might be a good place to keep certain 
 tutorial-like information.
+
+To build the Sphinx documentation (this document) locally, then do the following:
+
+.. code:: shell
+
+    $ cd docs_src/sphinx
+    $ make clean && make html
+
+The resulting files are in the ``docs_src/sphinx/build/html`` directory and can
+be viewed locally with a web browser.
+
+To build the Doxygen documentation locally, then do the following:
+
+.. code:: shell
+
+    $ cd docs_src/doxygen
+    $ doxygen
+
+The resulting files are in the ``docs_src/doxygen/doxygen_build`` directory and 
+can be viewed locally with a web browser.
+
 
 ======================
 Editing / Contributing
@@ -98,7 +124,10 @@ directory in the root of the repo and then pushed to the ``gh-pages`` branch of
 the upstream repo. Pushing to the ``gh-pages`` branch leverages the free
 publishing available from Github and is a simple way to make the documentation
 publicly available. See the ``publish_github_pages.sh`` for more details.
-Automated publishing (e.g. for each release) is still a work in progress.
+Automated publishing (e.g. for each release) is still a work in progress. 
+
+Currently the Sphinx documentation is designed to be published to Github
+Pagesand the Doxygen documentation is only intended for local use.
 
 ==================
 Note about images

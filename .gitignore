@@ -23,7 +23,7 @@ libTEM.so
 docs/*
 
 docs_src/sphinx/build/*
-docs_src/doxygen/html/*
+docs_src/doxygen/doxygen_build/*
 
 # from profile testing
 *.svg

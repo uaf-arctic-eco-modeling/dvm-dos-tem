@@ -44,6 +44,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update -y --fix-missing && apt-get install -y \
     build-essential \
     doxygen \
+    graphviz \
     gdb \
     gdbserver \
     git \
