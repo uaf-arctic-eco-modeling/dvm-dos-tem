@@ -657,10 +657,65 @@ The steps are described in the ``HOWTO_RELEASE.md`` document and the result is
 that release is visible here: https://github.com/ua-snap/dvm-dos-tem/releases
 
 
-==================================
-Automated Testing and Deployment
-==================================
-    WRITE THIS...
+======================
+Testing and Deployment
+======================
+
+There is currently (Sept 2022) a very limited set of tests and their execution
+is not automated. It is a goal to increase the test coverage and automate the
+test exectution in the near future. We are hoping to setup a CI/CD pipeline
+using Github Actions that can automatically test and deploy the ``dvmdostem``
+model and supporting tooling.
+
+Testing is currently implemented for some of the Python scripts in the
+``scripts/`` directory using the Python ``doctest`` module. The style and
+structure of tests reflects the challenges we have had getting testing intgrated
+into this project. The ``doctest`` module has a nice feature that allows tests
+to be written in a literate fashion with much explanatory text. This allows us
+to hit several goals with one set of testing material:
+ 
+ - explanations and examples of code/script usage 
+ - testing across a wide range of encapsulation; for example some of the tests
+   are very granular unit tests of single functions in the script files, while
+   others test comprehensive behavior of entire modules and command line
+   interfaces
+ - basic regression testing.
+
+There are two primary places that the ``doctests`` will show up:
+ 
+ #. In the ``__docstring__`` of a given Python script or function.
+ #. In a standalone markdown file with specially formatted test code.
+
+The tests that are in the docstrings of a given file or function should be very
+narrow in their scope and should only check the functionality of that specific
+function, independant from everything else, whereas tests in a standalone file
+can be much broader and more flexible in their design. 
+
+At present we have had much more luck writing the broader tests (that also serve
+as examples of usage) in stand alone files named with the following pattern:
+``scripts/doctests_*.md``. The files are markdown formatted with embedded code
+that is executed by the ``doctest`` module. The execution context and other
+``doctest`` particulars are described here:
+https://docs.python.org/3/library/doctest.html#what-s-the-execution-context
+
+To run the tests that are in ``__docstring__`` s of a function or file:
+
+.. code:: shell
+
+    $ cd scripts
+    $ python -m doctest param_util.py   # <-- script name!
+
+To run the tests that are in an independent file:
+
+.. code:: shell
+
+    $ cd scripts
+    $ python -m doctest doctests_param_util.md  # <-- test file name!
+
+In either case, if all the tests execute successfully, then the command exits
+silently. If there errors, the ``doctest`` package tried to point you towards
+the tests that fail.
+
 
 *******************************
 Setting up a dev environment
