@@ -745,6 +745,10 @@ In either case, if all the tests execute successfully, then the command exits
 silently. If there errors, the ``doctest`` package tried to point you towards
 the tests that fail.
 
+.. warning::
+
+  You must change into the ``scripts/`` directory for the tests to work!
+
 
 *******************************
 Setting up a dev environment
