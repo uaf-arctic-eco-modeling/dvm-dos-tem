@@ -1,0 +1,801 @@
+
+.. # with overline, for parts
+   * with overline, for chapters
+   =, for sections
+   -, for subsections
+   ^, for subsubsections
+   ", for paragraphs
+
+
+########
+Dev Info
+########
+
+This chapter should include all the useful information that you will need to
+make contributions to the ``dvmdostem`` project.
+
+******************************
+Languages, Software Structure
+******************************
+
+The core model (``dvmdostem``) is written in C++, while most of the supporting
+tooling is written in Python. There are also an assortment of bash scripts, R
+code, and IPython Notebooks floating around for various tasks.
+
+The core code is compiled with a basic Makefile. This documentation is written 
+in reStrutured Text and Sphinx and is also compiled with a Makefile.
+
+*************
+Documentation
+*************
+
+There are several places that you will find information about ``dvmdostem``,
+each with a different type of info:
+
+ * README file(s) - overviews of a repository or project. Used as a rough 
+   introduction, installation instructions and links to other resources.
+ * This document (which is the formatted output of the ``.rst`` source files).
+   The document is split into several chapters:
+
+    - :ref:`"Model Overview"<model_overview:Structure>` - narrative, scientific
+      description of the ``dvmdostem`` model.
+    - :ref:`"Running"<Running_dvmdostem:Practical>`- info and examples for hands
+      on use of the model.
+    - :ref:`"Dev Info"<software_development_info:Documentation>` - (this
+      chapter) which contains all the other programming, usage and workflow
+      information for hands on work with the model.
+    - Several other chapters, available in the table of contents.
+
+   It is likely that you are reading this document where it has been published 
+   online; if you build the documentation locally, then by default, the output
+   ends up in ``docs_src/sphinx/build/html``.
+ * Doxygen output. Similar to Sphinx, Doxygen is a documentation processing tool
+   that scans source files and can create a variety of output formats. Doxygen
+   for this project is configured to analyze the C++ source files and generate
+   an interactive html page with detailed call graphs and text parsed from the
+   C++ files.
+ * The ``--help`` flag for ``dvmdostem`` and many of the scripts in the
+   ``scripts/`` directory. This info is generally specific usage information for
+   the given tool.
+ * Comments in the code are helpful for implementation details.
+ * Github wiki (hopefully deprecated soon). This may end up being a home for 
+   assorted tutorials and examples.
+
+In a perfect world most of the comments in the code will eventually be 
+formatted in such a way that they can be picked up by tools such as Doxygen 
+(for C++) and Sphinx (for Python). But because that is a work in progress it is
+still helpful to browse the code especially for implementation details about 
+the code.
+
+We used the Github Wiki for several years, but we are trying to move away 
+from it towards a more robust, fully featured platform that integrates better 
+with CI/CD tooling. Github Wiki might be a good place to keep certain 
+tutorial-like information.
+
+To build the Sphinx documentation (this document) locally, then do the following:
+
+.. code:: shell
+
+    $ cd docs_src/sphinx
+    $ make clean && make html
+
+The resulting files are in the ``docs_src/sphinx/build/html`` directory and can
+be viewed locally with a web browser.
+
+To build the Doxygen documentation locally, then do the following:
+
+.. code:: shell
+
+    $ cd docs_src/doxygen
+    $ doxygen
+
+The resulting files are in the ``docs_src/doxygen/doxygen_build`` directory and 
+can be viewed locally with a web browser.
+
+
+======================
+Editing / Contributing
+======================
+
+The writing and editing process for this docuemtation ends up looking
+essentially like the general coding or programing process:
+
+ * setup a development environment of your choice
+ * clone the repository to your development environment
+ * edit the source files (``docs_src/sphinx/*.rst``)
+ * process the ``.rst`` files: ``cd docs_src/sphinx && make clean && make html``
+ * preview the results in your browser
+   (``file:///path/to/your/repo/docs_src/sphinx/build/html``)
+ * commit your changes
+ * push commits upstream and make pull request
+
+For more details about the coding process see the `Workflow`_ section.
+
+---------------------------------
+Project Standards and Conventions
+---------------------------------
+
+ * Please hard wrap lines at 80 charachters before comiting. Many text editors
+   have settings or extensions that can help with this tedium.
+ * 
+
+==========
+Publishing
+==========
+
+In the current implementation with Sphinx (used to format this document), we
+have a ``docs_src`` folder within which is a subdirectory for each documentation
+tool (presently Doxygen and Sphinx). Each tool is setup to put its outputs in
+its own directory. To publish outputs, the contents are copied to the ``docs/``
+directory in the root of the repo and then pushed to the ``gh-pages`` branch of
+the upstream repo. Pushing to the ``gh-pages`` branch leverages the free
+publishing available from Github and is a simple way to make the documentation
+publicly available. See the ``publish_github_pages.sh`` for more details.
+Automated publishing (e.g. for each release) is still a work in progress. 
+
+Currently the Sphinx documentation is designed to be published to Github
+Pagesand the Doxygen documentation is only intended for local use.
+
+==================
+Note about images
+==================
+
+Including images in documentation presents similar challenges for raw, 
+rendered, and word processing systems. One choice is whether to embed the 
+image directly or provide a link to it. And another choice has to do with how 
+to version control the image and make it easy to update in the future.
+
+The simplest solution is to simply not worry about it and commit the ``.png`` 
+or ``.jpg`` files directly to the repo. This certainly works, but imagine a 
+scenario where you need to update the image, say to fix a typo. If you were
+the original creator, then you open the drawing file (e.g. Photoshop, Visio, 
+Open Office Draw; whatever you used to create the image) edit the image, 
+export it, move it into the documentation structure, overwriting the original, 
+and commit the result to version control. This assumes that you have the 
+original image. If you don’t (either because you lost it, or perhaps you were 
+not the original creator, then you must completely redraw the image from 
+scratch, which is ridiculous in many cases.
+
+One way to solve this is to commit the original image file to version 
+control (e.g. the ``.ps`` or ``.dwg`` file) alongside the exported image that
+will be included in the documentation. This is essentially the same dilemma 
+as with the raw → generated text documentation. However drawing files 
+typically don’t read well with file diffs, so it is hard to tell what changed
+with the images, making it important to have good commit messages and keep 
+the exported files as well. And keeping all these binary files uses quite a 
+bit more space than plain text files, so it is easy for the size of the 
+repository to get out of control.
+
+A novel solution that we discovered for this problem is to use linked 
+Google Drawing documents roughly as follows:
+
+ #. Make a Google Drawing and save it (with a name)
+ #. Click the Share button
+ #. Edit the preferences so that the drawing is viewable to anybody with 
+    the link
+ #. Under File menu select "Publish to Web"
+ #. Select "Embed"
+ #. Copy the embed link 
+ #. Paste the link into the appropriate place in your document
+
+For each type of document there might be a different way to render the link, 
+and this may not be possible in all languages/environments. In the Github 
+wiki, which uses, Markdown, including something like this will allow the 
+image to render, directly from Google Docs when someone loads the page:
+
+.. code:: html
+
+   <!-- From Tobey Carman's google drawing "dvmdostem-general-idea-science"-->
+   <img src="https://docs.google.com/drawings/d/17AWgyjGv3fWRLhEPX7ayJKSZt3AXcBILXN2S-FGQHeY/pub?w=960&amp;h=720">
+
+If the original Google Drawing is updated, then the drawing seen in the wiki 
+will be updated too. Take caution with the permissions granted for editing 
+on the original drawing!
+
+.. warning:: 
+   
+   Soure drawings for this document should probably be stored in the 
+   Shared Google Drive so that they are not tied to an individual's account.
+
+In Google Docs, there is a way to insert a Google Drawing from a menu: 
+Insert > Drawing > From Drive.
+
+With Sphinx, use the ``:raw:: html`` directive. The Sphinx documentation warns
+against abusing the ``:raw::`` directive, so this might not be a good long 
+term solution but it could be useful for creating a bunch of the drawings 
+while they are in draft stages. 
+
+We have not tested this approach with a system such as Doxygen but assume it 
+should work. This solution is not perfect, downsides include:
+
+ * Drawing is not strictly version controlled along with other content 
+   (Google Drawings offers some version control but this would not be 
+   linked to the ``dvmdostem`` git repository).
+ * The end user must have web connectivity to see the drawings.
+
+
+*****************************
+Software Development Patterns
+*****************************
+At the highest level, the process of software development is simply “write 
+some code (instructions) and get a machine to carry out the instructions”. 
+At the end of the day, this is all we are trying to accomplish. However the 
+situation is never simple and there are an infinite number of ways to 
+accomplish such a seemingly simple task. When a computer programmer talks 
+about toolchains and environment they are talking about the setup for the 
+process of “write code and make a machine run it”. There is no single best 
+way to set up your environment, and each person has their own needs and 
+preferences. Sometimes there are constraints due to hardware (i.e. working 
+on a High Performance Computing system or a tiny embedded microprocessor), 
+sometimes the constraints come from available software tools or the skills 
+of the people writing the code. You will encounter a variety of patterns for 
+the environments and toolchains used in this project. Understanding these 
+patterns will help you select the best way to perform your work and have 
+it mesh with the existing project.
+
+Usually when you start writing some code you are in a purely exploratory 
+and experimental mode and you reach for whatever environment and toolchain 
+is comfortable and close at hand. Once your code has matured and you want to 
+make it available to someone else, you need to put some thought into the 
+environment and toolchain for working with the code. Also as your code 
+grows in complexity, different environments make certain operations 
+easier or harder.
+
+The majority of the dvmdostem code is designed to be run via command line 
+interface (CLI), meaning it is expected that you have a terminal (presumably 
+bash or something similar) on an Ubuntu-like operating system. You are 
+expected to interact with the programs by running the scripts or compiled 
+binaries from the command line (REPL).
+
+Following is a brief overview of a variety of different programming 
+environments and toolchain patterns.
+
+
+* Read Eval Print Loop (REPL, shell, terminal)
+  REPL stands for "**R**\ ead **E**\ val **P**\ rint **L**\ oop". The REPL can 
+  be written in nearly any language and can be designed to interpret nearly 
+  any language. Users may be familiar with a number of REPL implementations 
+  including the basic Python interpreterprompt (``>>>``), the IPython 
+  interpreter prompt (``[In 0]:``), and R prompt (``>``) orsimply the 
+  terminal prompt in their shell of choice (commonly bash). A REPL typically 
+  ingests one line of text, follows the instructions, and returns the user 
+  to the prompt. This is handy for prototyping, but quickly becomes tedious 
+  to type if you have multi-line instructions (code). For this reason there 
+  is the concept of a script which provides a means for submitting multiple 
+  lines of code to a REPL
+
+
+* GUI Application
+  Common, intuitive for exploration. User uses a mouse and keyboard to click 
+  buttons and interact with the software. May be written in a wide variety 
+  of languages, but typically requires a “framework” of existing code that 
+  helps with common patterns. Frameworks you might hear of are: Tcl/Tkinter, 
+  QT, Cocoa, Swing, SWT, Delphi.
+
+* Interpreted Program (script)
+  An interpreted programming language is translated from human-written 
+  code (instructions) into computer instructions (machine language) 
+  on-the-fly. Python is an interpreted language meaning that there is not 
+  an explicit compile step required to run the program. You simply submit 
+  the script (your Python code) to the Python interpreter and it is 
+  translated into machine code on the fly.
+
+* Compiled Program (binary) A compiled programming language required a dedicated
+  “build step” to translate the human-written code (instructions) into machine
+  code. The result of the build step is an object file or a “compiled binary”.
+  The main dvmdostem binary is a compiled C++ program. When the source code is
+  modified, you must run make to re-compile the project and create a new binary
+  object file before running it.
+
+* Integrated Development Environment (IDE)
+  Typically this is a GUI application that bundles together a bunch of handing 
+  tools into one package. In general the tools are:
+
+    * Text editor
+    * REPL
+    * Debugger
+    * Build tools
+    * File browser
+
+  There are many different IDEs each with their own advantages and disadvantages. 
+  Often IDEs are particularly suited to a certain language (i.e. PyCharm for 
+  Python, Eclipse for C/C++, etc).
+
+* IPython
+  IPython is simply an enhanced REPL for Python. It comes with heaps of extra 
+  features that make life easier, including support for multi-line statements, 
+  built-in help, auto-complete features, and much more.
+
+* Basic IDE
+  All you really need for writing compiled or interpreted programs are a text 
+  editor and a terminal that will let you compile the program (if necessary) 
+  and execute it.
+
+* Jupyter Notebook
+  This is a novel addition to the traditional programming toolset. Jupyter 
+  Notebooks combine features of:
+
+    * an advanced (enhanced) REPL, 
+    * an IDE,
+    * formatted writing/documentation system and,
+    * run-time for the program.
+
+  This is accomplished using a client server architecture. In order to execute 
+  the code in a Jupyter Notebook, you must also run (or connect to) a 
+  “Notebook Server” which is a python environment and run-time. One advantage 
+  of this is that the client portion can be an interactive web page that is 
+  viewable for anyone with a standard web browser - provided they can make 
+  requests to a functioning backend server which provides the Python run-time.
+
+  The server can actually run a variety of languages, so it is possible to 
+  use R or Julia or a number of other languages as the notebook code cell 
+  language.
+
+  Notebooks are great for:
+
+    * Intermingling code and documentation or explanations (formatted text)
+    * Experimenting with small code snippets
+    * Presenting interactive plots from remote servers without needing an XWindow or other ``DISPLAY`` forwarding system
+    * Developing and prototyping code
+
+  Notebooks are challenging for:
+
+    * Version control
+    * Writing code that is easy to run in a non-notebook environment (library code)
+    * Groups that do not have the bandwidth or abilities for running individual notebook servers or to run and maintain a central notebook server
+    * Debugging certain types of process
+
+
+* Virtual Machine
+
+  In order to wrap up an environment such that you can preserve it or pass it to
+  someone else, people have devised the concept of a Virtual Machine (VM). In
+  2022, there are innumerable ways to run a VM (VMware, Parallels, Multipass,
+  Docker, etc), each with its own tradeoffs. The important thing to remember is
+  that a Virtual Machine attempts to encapsulate an environment. Each of the
+  items in the above list (Notebook, IPython, IDE, etc) might be able to run
+  inside a virtual machine. If you are not provided with a perfectly functioning
+  environment it is often up to you to understand what you need for an execution
+  context and set it up for yourself; a VM of some variety frequently provides
+  some way to achieve this.
+
+*****************************
+Version Management
+*****************************
+The primary reasons for using a version management system for  ``dvmdostem`` 
+are:
+
+ * To maintain a meaningful history of the codebase so that the provenance
+   of the code is not in question.
+ * To facilitate the addition or modification of code by many developers.
+ * To maintain the ability to revert to or recover specific points in the 
+   history of the codebase. This may be for the purpose of duplicating prior
+   work, or to recover a lost behavior of the software, or both.
+
+There are two (related) parts to fulfilling the above goals:
+
+ * Making the commits (file diffs) easy to read and understand.
+ * Having a strategy or pattern for bringing different lines of development
+   together.
+
+If the file diffs are unreadable or the lines of development are not brought 
+together in an organized fashion, then the project history is harder to trust
+which brings into question the provenance of the code, and makes it harder for
+people to contribute.
+
+===========================
+Version Control and Hosting
+===========================
+This project is using Git for version control and Github for hosting. The 
+primary fork of the code (referred to as “upstream”) is currently hosted under 
+the ua-snap organization [#]_, so the primary (upstream) repository address is: 
+https://github.com/ua-snap/dvm-dos-tem.
+
+.. note::
+   * The Source Control Management (SCM) or Version Control software is 
+     named ``git``.
+   * ``git`` is really a general tool for managing a certain type of data 
+     structure (Directed Acyclic Graph or DAG for the curious). As such, there 
+     are many ways it can be used correctly and it is up to each group to find
+     a pattern that works for the project.
+   * Github is a website that uses git and provides web hosting as well as other 
+     features such as access management, wikis, issue tracking, and support for 
+     automated workflow and actions.
+
+The ``dvmdostem`` code is open source and the repository is publicly available 
+and can be cloned by any interested party. However write access to the 
+upstream repository is only granted to trusted collaborators. We gladly 
+accept contributions to the code via pull request from anyone, but the pull 
+request will have to be merged by a collaborator with write access to the 
+upstream repo. See the branching and workflow sections below for more details.
+
+.. [#] As of September 2022, this is true; we anticipate moving to a new 
+       Github Organization in the next 6 months or so. 
+
+--------------
+Getting Help
+--------------
+General Git help is beyond the scope of this document. Here a few key concepts
+that this document assumes you are familiar with:
+
+ * What is a commit.
+ * What is a SHA id.
+ * Difference between a fork and a clone.
+ * Difference between git push, pull, fetch, and pull request (PR).
+ * Difference between git branch, merge and rebase.
+
+Here are several recommendations for general Git help:
+
+ * https://git-scm.com/book/en/v2
+ * https://www.atlassian.com/git
+ * http://sethrobertson.github.io/GitBestPractices
+
+.. note::
+   It is important to make commits that are concise, organized, and readable, 
+   thus fulfilling the goals of using a version control system. This comes 
+   down to using git on a day-to-day basis and learning:
+  
+   * what is a commit,
+   * how to write a good commit message,
+   * how to separate different concerns into different commits,
+   * how to fine tune a commit (interactive rebase, amend and when 
+     to use it),
+   * understanding what types of files or information should not be kept 
+   * under version control,
+   * how to use branches,
+   * how to merge branches, and
+   * the implications of making merges in an environment with multiple 
+     developers.
+
+-------
+Tools
+-------
+It is possible to use ``git`` purely from the command line, and in many 
+cases this is the easiest way to go. However for some people and some 
+situations a Graphical User Interface (GUI) is really helpful. Find a solution 
+that works for you and your computing platform! There are generally two major 
+functions of the Git GUIs, sometimes bundled in one application, and 
+sometimes not:
+
+ * Viewing the project history.
+ * Adding to the project history (making commits, pushing, pulling, 
+   merging, rebasing).
+
+In 2022 there are many many graphical front ends to Git, and many text 
+editors and IDEs have built in support for at least some Git features. You 
+will need to find a tool that works for you. Although the interfaces look 
+antiquated, you might find that the programs Gitk (history viewer) and 
+Git Gui (for making commits) are perfectly sufficient, and these are 
+readily available on most systems. At the end of the day you are likely to 
+use a combination of the command line interface and a graphical frontend tool.
+
+-------
+Setup
+-------
+Your Git remote repositories should be appropriately named. This document 
+assumes that you are using the following convention:
+
+* The remote named origin should generally point to your fork of the 
+  codebase, so the URL will look something like: 
+  ``https://github.com/<your user name>/dvm-dos-tem``.
+* The remote named ``upstream`` should generally point to
+  ``https://github.com/ua-snap/dvm-dos-tem`` or
+  ``git@github.com:ua-snap/dvm-dos-tem.git`` if you will be contributing.
+
+It is **strongly encouraged** that you go to the effort of making sure your
+current git branch is displayed in your terminal shell prompt. There are many
+examples floating around online of how to achieve this for all major operating
+systems and shells; one example `here
+<https://stackoverflow.com/questions/15883416/adding-git-branch-on-the-bash-command-prompt>`_ 
+
+
+==================
+Branching Model
+==================
+
+A generalized view of our branching model can be seen in the diagram:
+
+.. raw:: html
+
+    <!--From Google Drawing in
+    Shared Drive > DVM-DOS-TEM Documentation > drawings > branching_model
+    -->
+    <img src="https://docs.google.com/drawings/d/e/2PACX-1vRnnwNqLaMeWfcvUPI1BK47KVBAYJSGnOWoD_0fqoBwx27oRM1idQvZ0sS1Yaebr6bl7AcmNB1oAAjw/pub?w=960&amp;h=720">
+
+The image shows one long-running branch (red commits; ``master``), three topic
+branches (green commits; ``issue-47``, ``modify-dvm``, and ``bugfix-4``) and
+three “experiment branches'' (gray commits; ``exp-iem-0``, ``exp-akyrb-0``,
+``exp-QCF-SA``). 
+
+Two of the topic branches have been merged (blue arrows). One of the topic
+branches (``modify-dvm``) will be merged in the future (dotted blue arrow). The
+dark red commits on the master branch have been tagged to make an official
+release of the code. The gray commits are for “experiment branches” which are
+used to track a specific model run or set of model runs. Often the changes on
+these branches are only to config and parameter files, but some experiments
+might require code changes as well.
+
+This diagram does not explicitly show interaction between multiple developers;
+assume that each commit in the drawing could be made by any of the trusted
+collaborators with push access to the upstream repository.
+
+As a basic safety feature we have placed a restriction on the master branch of
+the upstream repository such that only the administrators (tcarman2@alaska.edu
+and rarutter@alaska.edu ) are allowed push access. This restriction makes it
+unlikely that a trusted collaborator can accidentally push something that breaks
+the master branch. The best way for trusted collaborators to get code into the
+``upstream/master`` is to open a pull request from their topic branch (e.g.
+``upstream/topic-foo-bar``) into ``upstream/master`` using the Github web
+interface for pull requests. All interested parties then have an opportunity to
+review the code, comment on Github, and push new commits to the topic branch (if
+necessary). Only the administrators can merge the pull request. 
+
+As a general practice we try to have most work done in topic branches and merged
+into master using Github pull requests. For some small changes (usually for
+details that were inadvertently excluded from a recent pull request) we will
+make commits directly on the master branch without using the topic branch/pull
+request process. Using the topic branch/pull request process helps to organize
+work and will provide a convenient place to run Github Actions, for example an
+action to run the test suite before green-lighting a pull request for merging.
+
+Recently (2022 and the several years prior) we have been using a single
+long-running branch (``master``) and have been able to manage all contributions
+by periodically merging topic branches. If the need arises we can switch back to
+using an additional long-running branch. This would allow different levels of
+stability as described in the `Git Book Branching Workflows
+section <https://git-scm.com/book/en/v2/Git-Branching-Branching-Workflows>`_.
+
+In the event that you need work from ``upstream/master`` in order to continue
+the work on your topic branch, you can periodically merge ``upstream/master``
+into your topic branch. However please only use this when absolutely necessary
+as it can make the history harder to read and the pull requests harder to
+review. See this :ref:`Note <merge or rebase>` for a description of one
+potential problem with merges.
+
+.. _merge or rebase:
+.. note:: 
+    One problem with casually using merges in a workflow as opposed to using
+    rebase is that the default merge messages can: 
+
+     * Clutter the history.
+     * Be very confusing if you end up changing a branch name at a later date.
+
+    For instance if you have a long-running branch with a large feature you are
+    working on and you need to get updates from upstream, if you choose to merge
+    into your "long-running-branch": 
+
+    .. code:: shell
+        
+        $ git checkout long-running-branch
+        (long-running-branch)$ git pull upstream master
+
+    Then you will get a merge message by default that starts with something like this:
+
+    .. code:: shell
+
+        Merge branch 'master' from github.com:ua-snap/dvm-dos-tem into 'long-running-branch'
+
+    All well and good, but later, once you work has evolved, you may decide to
+    change the name of long-running-branch to something more relevant:
+
+    .. code:: shell
+        
+        (long-running-branch)$ git checkout -b more-descriptive-name
+        (more-descriptive-name)$ git branch -D long-running-branch
+
+    While renaming the branch is not a problem in and of itself, the merge commit
+    title will contain "...into 'long-running-branch'". The long- running-branch no
+    longer exists! So the merge commit message will be confusing to anyone who was
+    not involved with long-running-branch or forgot about it. Without good commit
+    messages, it is harder to understand the history and without a good
+    understanding of the history it is easy to lose control of the project. So
+    please learn to use rebase and merge appropriately!
+
+
+===========
+Workflow
+===========
+
+We are primarily using the “Centralized Workflow” described in the Git Book
+`Distributed Workflows
+<https://git-scm.com/book/en/v2/Distributed-Git-Distributed-Workflows>`_. We have
+a number of trusted developers at collaborating institutions and we grant them
+write (push) access to the upstream repository. With this model, each developer
+can push directly from their local repository to the upstream repository -
+developers do not need to maintain their personal forks on Github (but are free
+to do so if they wish).
+
+If you are not one of our trusted collaborators and have contributions to make,
+then you will need to follow the Git Book “Integration Manager Workflow”. You
+will simply fork the upstream repository on Github, clone to your computer and
+push changes back to your fork. You can then make a pull request from your fork
+into the ``upstream/master``.
+
+When two or more developers want or need to work contemporaneously on a topic
+branch, it is up to the developers to communicate and make sure that they do not
+step on each other's toes. In practice this simply amounts to communicating with
+other folks via email, the `Arctic Eco Modeling Slack`_, or `Github Issues`_ and
+remembering to run ``git pull --rebase``. Using ``--rebase`` prevents
+unnecessary merge commits that can make the history confusing and harder to
+trust. 
+
+.. _What not to track:
+.. note::
+    A big part of maintaining a low friction workflow revolves around
+    understanding what types of files or information should not be included in
+    version control and figuring out how to exclude these files. The general
+    idea is that you don't want to keep generated files (e.g.: ``*.o``, or
+    Doxygen output), but you do want to track code that can generate certain
+    outputs. If you need the outputs, then you run the generating code to
+    produce it. The general rule is don’t track files that you can generate,
+    track the code to generate them.
+
+
+.. _Personal settings:
+.. note::
+    Another common sticking point is figuring out how to track host specific
+    settings, such as specific environment variables, build settings, or the
+    project settings files generated by many IDEs. You may need to devise your
+    own way to track these settings locally on an individual developer or
+    workstation level without pushing them to the central shared repository.
+
+
+.. _git stash:
+.. note::
+    Learn to use ``git-stash``, it is very handy for setting aside work before 
+    pulling or rebasing from upstream so as to prevent unnecessary merge 
+    commits!
+
+
+.. _git pull with rebase:
+.. note:: 
+
+    See the following helpful discussions:
+     
+     * https://stackoverflow.com/questions/13193787/why-would-i-want-to-do-git-rebase
+     * https://blog.sourcetreeapp.com/2012/08/21/merge-or-rebase/
+
+
+==============================
+Releases and Version Numbering
+==============================
+
+Begining in 2021, we started using the "Releases" feature of Github to package
+and distribute specific versions of ``dvmdostem``. We would like to make this a
+fully or nearly fully automated process but for the time being it is rather
+manual.
+
+As described in the ``HOWTO_RELEASE.md`` document in the repo, the project uses
+a three part version number: vMAJOR.MINOR.PATCH.
+
+We use the following rules for incrementing the version number:
+ * The PATCH number (farthest right) will be incremented for changes 
+   that do not affect the general scientific concepts in the 
+   software.
+ * The MINOR number (middle) will be updated when changes have been made 
+   to science concepts, major implementation changes for scienctifc aspects 
+   of the code calibration numbers are updated, or large new features are added.
+ * The MAJOR (left) number will be updated for major milestones. This will
+   likely be points where the model is run for "production" or major testing and
+   validation steps are completed and documented.
+
+This project is not using traditional `Semantic Versioning`_, however we have
+borrowed some concepts.
+
+Until the project reaches ``v1.0.0``, we will not make any guarantees about
+backwards compatibility. Once the project reaches ``v1.0.0``, we may decide to
+handle the rules for incrementing version numbers differently.
+
+Releases are currently made on an as-needed basis by tcarman2@alaska.edu or
+rarutter@alaska.edu. 
+
+The steps are described in the ``HOWTO_RELEASE.md`` document and the result is 
+that release is visible here: https://github.com/ua-snap/dvm-dos-tem/releases
+
+
+======================
+Testing and Deployment
+======================
+
+There is currently (Sept 2022) a very limited set of tests and their execution
+is not automated. It is a goal to increase the test coverage and automate the
+test exectution in the near future. We are hoping to setup a CI/CD pipeline
+using Github Actions that can automatically test and deploy the ``dvmdostem``
+model and supporting tooling.
+
+Testing is currently implemented for some of the Python scripts in the
+``scripts/`` directory using the Python ``doctest`` module. The style and
+structure of tests reflects the challenges we have had getting testing intgrated
+into this project. The ``doctest`` module has a nice feature that allows tests
+to be written in a literate fashion with much explanatory text. This allows us
+to hit several goals with one set of testing material:
+ 
+ - explanations and examples of code/script usage 
+ - testing across a wide range of encapsulation; for example some of the tests
+   are very granular unit tests of single functions in the script files, while
+   others test comprehensive behavior of entire modules and command line
+   interfaces
+ - basic regression testing.
+
+There are two primary places that the ``doctests`` will show up:
+ 
+ #. In the ``__docstring__`` of a given Python script or function.
+ #. In a standalone markdown file with specially formatted test code.
+
+The tests that are in the docstrings of a given file or function should be very
+narrow in their scope and should only check the functionality of that specific
+function, independant from everything else, whereas tests in a standalone file
+can be much broader and more flexible in their design. 
+
+At present we have had much more luck writing the broader tests (that also serve
+as examples of usage) in stand alone files named with the following pattern:
+``scripts/doctests_*.md``. The files are markdown formatted with embedded code
+that is executed by the ``doctest`` module. The execution context and other
+``doctest`` particulars are described here:
+https://docs.python.org/3/library/doctest.html#what-s-the-execution-context
+
+To run the tests that are in ``__docstring__`` s of a function or file:
+
+.. code:: shell
+
+    $ cd scripts
+    $ python -m doctest param_util.py   # <-- script name!
+
+To run the tests that are in an independent file:
+
+.. code:: shell
+
+    $ cd scripts
+    $ python -m doctest doctests_param_util.md  # <-- test file name!
+
+In either case, if all the tests execute successfully, then the command exits
+silently. If there errors, the ``doctest`` package tried to point you towards
+the tests that fail.
+
+.. warning::
+
+  You must change into the ``scripts/`` directory for the tests to work!
+
+
+*******************************
+Setting up a dev environment
+*******************************
+
+There are many paths to setting up a development environment and the specific
+path you choose will depend on your experience and needs. Over the years we have
+tried all of the following:
+
+ * Local installation.
+ * Hand managed Virtual Box VM.
+ * Vagrant managed VM.
+ * Docker container stack.
+
+The current (2022) preference is generally for the Docker container stack,
+although on some systems a local installation is still preferable.
+
+===============================
+Setting up with Vagrant
+===============================
+    WRITE THIS...
+
+===============================
+Setting up with Docker
+===============================
+    WRITE THIS...
+    Install docker desktop 
+    Make sure you have docker and docker compose available on the command line
+    Find a place on your computer for:
+    Your dvmdostem repo
+    Your catalog of inputs
+    Your catalog of “workflows”
+
+
+===============================
+Setting up with Ubuntu
+===============================
+    WRITE THIS...
+
+
+.. _Arctic Eco Modeling Slack: https://arctic-eco-modeling.slack.com
+.. _Github Issues: https://github.com/ua-snap/dvm-dos-tem/issues
+.. _Semantic Versioning: https://semver.org
