@@ -191,6 +191,16 @@ An abbreviated demonstration example of PFT specific data from
 =================
 Running the Model
 =================
+
+----------------
+Setting up a run
+----------------
+Each run should take place in its own workign directory. This directory should
+have a variety of configuration files, parameter files, and output directory and
+optionally calibration and input files. See the script
+``setup_working_directory.py`` which is a helper tool for intitializing a run
+directory.
+
 ------------
 Spatial Size
 ------------
