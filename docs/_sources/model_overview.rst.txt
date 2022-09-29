@@ -6,9 +6,9 @@
    ", for paragraphs
 
 
-#############################
-``dvmdostem`` Model Overview
-#############################
+##############
+Model Overview
+##############
 
 .. raw:: html
 
@@ -203,18 +203,19 @@ Generally TEM requires several types of inputs:
     <!-- From Shared Drives/DVM-DOS-TEM Documentation/drawings/input -->
     <img src="https://docs.google.com/drawings/d/e/2PACX-1vRErkgxPAPvzMTDOM-sOOQ3fPjmU4itFQvmklp1Q3-qcdFUnrYkl1B3pqSAtMT2Ze57yKq_IYXy9hTN/pub?w=960&amp;h=720">
  
-The dvmdostem code is neither particularly smart nor picky about the input files.
-There is minimal built-in error or validity checking and the program will happily 
-run with garbage input data or fail to run because of an invalid attribute or 
-missing input data value. It is up to the user to properly prepare and validate 
-their input data. There is a 
-:ref:`helper program<Running_dvmdostem:From ERA5>` specifically for generating 
-inputs from data provided by `SNAP <http://snap.uaf.edu>`_. This data was 
-prepared as part of the `Alaska IEM <https://akcasc.org/project/iem-project/>`_
-project (more info here). It remains an open project to generate input data 
-from another source, e.g.
-`ERA5 <https://www.ecmwf.int/en/forecasts/datasets/reanalysis-datasets/era5>`_ or 
-a different soil database, etc. 
+The ``dvmdostem`` code is neither particularly smart nor picky about the input
+files. There is minimal built-in error or validity checking and the program will
+happily run with garbage input data or fail to run because of an invalid
+attribute or missing input data value. It is up to the user to properly prepare
+and validate their input data. There is a :ref:`helper
+program<Running_dvmdostem:From ERA5>` specifically for generating inputs from
+data provided by `SNAP <http://snap.uaf.edu>`_. This data was prepared as part
+of the `Alaska IEM <https://akcasc.org/project/iem-project/>`_ project (more
+info `here
+<https://uaf-snap.org/project/iem-an-integrated-ecosystem-model-for-alaska-and-northwest-canada/>`_).
+It remains an open project to generate input data from another source, e.g.
+`ERA5 <https://www.ecmwf.int/en/forecasts/datasets/reanalysis-datasets/era5>`_
+or a different soil database, etc. 
 
 Here some things that are generally **assumed** (program will likely run; results will 
 likely be invalid) or **expected** (program unlikely to run if condition not met) of 

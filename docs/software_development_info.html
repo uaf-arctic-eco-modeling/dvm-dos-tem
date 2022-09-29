@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>Software Development Info &#8212; dvmdostem v0.5.6 documentation</title>
+    <title>Dev Info &#8212; dvmdostem v0.6.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
@@ -15,8 +15,8 @@
     <script src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Running dvmdostem" href="Running_dvmdostem.html" />
-    <link rel="prev" title="dvmdostem Model Overview" href="DVM-DOS-TEM_Model_Overview.html" />
+    <link rel="next" title="SA and UQ" href="SA_UQ.html" />
+    <link rel="prev" title="Running" href="running_dvmdostem.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -33,62 +33,55 @@
 
           <div class="body" role="main">
             
-  <section id="software-development-info">
-<h1>Software Development Info<a class="headerlink" href="#software-development-info" title="Permalink to this headline">¶</a></h1>
-<blockquote>
-<div><p>WRITE THIS…</p>
-</div></blockquote>
+  <section id="dev-info">
+<h1>Dev Info<a class="headerlink" href="#dev-info" title="Permalink to this headline">¶</a></h1>
+<p>This chapter should include all the useful information that you will need to
+make contributions to the <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code> project.</p>
 <section id="languages-software-structure">
 <h2>Languages, Software Structure<a class="headerlink" href="#languages-software-structure" title="Permalink to this headline">¶</a></h2>
-<blockquote>
-<div><p>WRITE THIS</p>
-<p>Core is C++, utils python,Tutorial are ipynb, shell scripts for some utils,
-make, etc
-Write this section…</p>
-</div></blockquote>
+<p>The core model (<code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code>) is written in C++, while most of the supporting
+tooling is written in Python. There are also an assortment of bash scripts, R
+code, and IPython Notebooks floating around for various tasks.</p>
+<p>The core code is compiled with a basic Makefile. This documentation is written
+in reStrutured Text and Sphinx and is also compiled with a Makefile.</p>
 </section>
 <section id="documentation">
 <h2>Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h2>
-<p>There are several places that you will find information about <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code>:</p>
+<p>There are several places that you will find information about <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code>,
+each with a different type of info:</p>
 <blockquote>
-<div><ul class="simple">
-<li><p>README file(s)</p></li>
-<li><p>This document (which is the formatted output of the <code class="docutils literal notranslate"><span class="pre">.rst</span></code> source files).
-It is likely that you are reading this document where it has been published
-online; if you build the documentation locally, then by default, the output
-ends up in <code class="docutils literal notranslate"><span class="pre">docs_src/sphinx/build/html</span></code>.</p></li>
-<li><p>The <code class="docutils literal notranslate"><span class="pre">--help</span></code> flag for dvmdostem and many of the scripts in the <code class="docutils literal notranslate"><span class="pre">scripts/</span></code>
-directory.</p></li>
-<li><p>Comments in the code.</p></li>
-<li><p>Github wiki (hopefully deprecated soon).</p></li>
-<li><p>The <code class="docutils literal notranslate"><span class="pre">docs_src/*/html</span></code> folders after running Doxygen or Sphinx.</p></li>
-</ul>
-</div></blockquote>
-<p>Each of these locations has a different sort of information you might find
-there:</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>README files are overviews of a repository or project. Used as a rough
+<div><ul>
+<li><p>README file(s) - overviews of a repository or project. Used as a rough
 introduction, installation instructions and links to other resources.</p></li>
-<li><dl class="simple">
-<dt>This document which has several chapters:</dt><dd><ul>
-<li><dl class="simple">
-<dt><a class="reference internal" href="DVM-DOS-TEM_Model_Overview.html#structure"><span class="std std-ref">DVM-DOS-TEM_Model_Overview</span></a></dt><dd><p>which is a  narrative, scientific description of the <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code>
-model.</p>
-</dd>
-</dl>
-</li>
-<li><p><a class="reference internal" href="#documentation"><span class="std std-ref">Software Development Info</span></a>
-(this chapter) which contains all the other programming, usage and
-workflow information for hands on work with the model.</p></li>
-<li><p>Running <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code> with info and examples for hands on use of the
-model.</p></li>
+<li><p>This document (which is the formatted output of the <code class="docutils literal notranslate"><span class="pre">.rst</span></code> source files).
+The document is split into several chapters:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><a class="reference internal" href="model_overview.html#structure"><span class="std std-ref">“Model Overview”</span></a> - narrative, scientific
+description of the <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code> model.</p></li>
+<li><p><a class="reference internal" href="running_dvmdostem.html#practical"><span class="std std-ref">“Running”</span></a>- info and examples for hands
+on use of the model.</p></li>
+<li><p><a class="reference internal" href="#documentation"><span class="std std-ref">“Dev Info”</span></a> - (this
+chapter) which contains all the other programming, usage and workflow
+information for hands on work with the model.</p></li>
 <li><p>Several other chapters, available in the table of contents.</p></li>
 </ul>
-</dd>
-</dl>
+</div></blockquote>
+<p>It is likely that you are reading this document where it has been published
+online; if you build the documentation locally, then by default, the output
+ends up in <code class="docutils literal notranslate"><span class="pre">docs_src/sphinx/build/html</span></code>.</p>
 </li>
-<li><p>The <code class="docutils literal notranslate"><span class="pre">--help</span></code> flags generally have usage information for software at hand.</p></li>
+<li><p>Doxygen output. Similar to Sphinx, Doxygen is a documentation processing tool
+that scans source files and can create a variety of output formats. Doxygen
+for this project is configured to analyze the C++ source files and generate
+an interactive html page with detailed call graphs and text parsed from the
+C++ files.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">--help</span></code> flag for <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code> and many of the scripts in the
+<code class="docutils literal notranslate"><span class="pre">scripts/</span></code> directory. This info is generally specific usage information for
+the given tool.</p></li>
+<li><p>Comments in the code are helpful for implementation details.</p></li>
+<li><p>Github wiki (hopefully deprecated soon). This may end up being a home for
+assorted tutorials and examples.</p></li>
 </ul>
 </div></blockquote>
 <p>In a perfect world most of the comments in the code will eventually be
@@ -100,12 +93,62 @@ the code.</p>
 from it towards a more robust, fully featured platform that integrates better
 with CI/CD tooling. Github Wiki might be a good place to keep certain
 tutorial-like information.</p>
+<p>To build the Sphinx documentation (this document) locally, then do the following:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ <span class="nb">cd</span> docs_src/sphinx
+$ make clean <span class="o">&amp;&amp;</span> make html
+</pre></div>
+</div>
+<p>The resulting files are in the <code class="docutils literal notranslate"><span class="pre">docs_src/sphinx/build/html</span></code> directory and can
+be viewed locally with a web browser.</p>
+<p>To build the Doxygen documentation locally, then do the following:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ <span class="nb">cd</span> docs_src/doxygen
+$ doxygen
+</pre></div>
+</div>
+<p>The resulting files are in the <code class="docutils literal notranslate"><span class="pre">docs_src/doxygen/doxygen_build</span></code> directory and
+can be viewed locally with a web browser.</p>
+<section id="editing-contributing">
+<h3>Editing / Contributing<a class="headerlink" href="#editing-contributing" title="Permalink to this headline">¶</a></h3>
+<p>The writing and editing process for this docuemtation ends up looking
+essentially like the general coding or programing process:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>setup a development environment of your choice</p></li>
+<li><p>clone the repository to your development environment</p></li>
+<li><p>edit the source files (<code class="docutils literal notranslate"><span class="pre">docs_src/sphinx/*.rst</span></code>)</p></li>
+<li><p>process the <code class="docutils literal notranslate"><span class="pre">.rst</span></code> files: <code class="docutils literal notranslate"><span class="pre">cd</span> <span class="pre">docs_src/sphinx</span> <span class="pre">&amp;&amp;</span> <span class="pre">make</span> <span class="pre">clean</span> <span class="pre">&amp;&amp;</span> <span class="pre">make</span> <span class="pre">html</span></code></p></li>
+<li><p>preview the results in your browser
+(<code class="docutils literal notranslate"><span class="pre">file:///path/to/your/repo/docs_src/sphinx/build/html</span></code>)</p></li>
+<li><p>commit your changes</p></li>
+<li><p>push commits upstream and make pull request</p></li>
+</ul>
+</div></blockquote>
+<p>For more details about the coding process see the <a class="reference internal" href="#workflow">Workflow</a> section.</p>
+<section id="project-standards-and-conventions">
+<h4>Project Standards and Conventions<a class="headerlink" href="#project-standards-and-conventions" title="Permalink to this headline">¶</a></h4>
+<blockquote>
+<div><ul class="simple">
+<li><p>Please hard wrap lines at 80 charachters before comiting. Many text editors
+have settings or extensions that can help with this tedium.</p></li>
+<li></li>
+</ul>
+</div></blockquote>
+</section>
+</section>
+<section id="publishing">
+<h3>Publishing<a class="headerlink" href="#publishing" title="Permalink to this headline">¶</a></h3>
 <p>In the current implementation with Sphinx (used to format this document), we
-have a <code class="docutils literal notranslate"><span class="pre">docs_src</span></code> folder within which is a subdirectory for each
-documentation tool (presently Doxygen and Sphinx). Each tool is setup to put
-its outputs in its own directory. To publish outputs, the contents are copied
-to the <code class="docutils literal notranslate"><span class="pre">docs/</span></code> directory in the root of the repo and then pushed to the
-<code class="docutils literal notranslate"><span class="pre">gh-pages</span></code> branch of the upstream repo.</p>
+have a <code class="docutils literal notranslate"><span class="pre">docs_src</span></code> folder within which is a subdirectory for each documentation
+tool (presently Doxygen and Sphinx). Each tool is setup to put its outputs in
+its own directory. To publish outputs, the contents are copied to the <code class="docutils literal notranslate"><span class="pre">docs/</span></code>
+directory in the root of the repo and then pushed to the <code class="docutils literal notranslate"><span class="pre">gh-pages</span></code> branch of
+the upstream repo. Pushing to the <code class="docutils literal notranslate"><span class="pre">gh-pages</span></code> branch leverages the free
+publishing available from Github and is a simple way to make the documentation
+publicly available. See the <code class="docutils literal notranslate"><span class="pre">publish_github_pages.sh</span></code> for more details.
+Automated publishing (e.g. for each release) is still a work in progress.</p>
+<p>Currently the Sphinx documentation is designed to be published to Github
+Pagesand the Doxygen documentation is only intended for local use.</p>
+</section>
 <section id="note-about-images">
 <h3>Note about images<a class="headerlink" href="#note-about-images" title="Permalink to this headline">¶</a></h3>
 <p>Including images in documentation presents similar challenges for raw,
@@ -149,7 +192,7 @@ the link</p></li>
 and this may not be possible in all languages/environments. In the Github
 wiki, which uses, Markdown, including something like this will allow the
 image to render, directly from Google Docs when someone loads the page:</p>
-<div class="highlight-html notranslate"><div class="highlight"><pre><span></span><span class="cm">&lt;!-- From Tobey Carman&#39;s google drawing &quot;dvmdostem-general-idea-science&quot;--&gt;</span>
+<div class="highlight-html notranslate"><div class="highlight"><pre><span></span><span class="c">&lt;!-- From Tobey Carman&#39;s google drawing &quot;dvmdostem-general-idea-science&quot;--&gt;</span>
 <span class="p">&lt;</span><span class="nt">img</span> <span class="na">src</span><span class="o">=</span><span class="s">&quot;https://docs.google.com/drawings/d/17AWgyjGv3fWRLhEPX7ayJKSZt3AXcBILXN2S-FGQHeY/pub?w=960&amp;amp;h=720&quot;</span><span class="p">&gt;</span>
 </pre></div>
 </div>
@@ -210,9 +253,9 @@ expected to interact with the programs by running the scripts or compiled
 binaries from the command line (REPL).</p>
 <p>Following is a brief overview of a variety of different programming
 environments and toolchain patterns.</p>
-<section id="read-eval-print-loop-repl-shell-terminal">
-<h3>Read Eval Print Loop (REPL, shell, terminal)<a class="headerlink" href="#read-eval-print-loop-repl-shell-terminal" title="Permalink to this headline">¶</a></h3>
-<p>REPL stands for “<strong>R</strong>ead <strong>E</strong>val <strong>P</strong>rint <strong>L</strong>oop”. The REPL can
+<ul>
+<li><p>Read Eval Print Loop (REPL, shell, terminal)
+REPL stands for “<strong>R</strong>ead <strong>E</strong>val <strong>P</strong>rint <strong>L</strong>oop”. The REPL can
 be written in nearly any language and can be designed to interpret nearly
 any language. Users may be familiar with a number of REPL implementations
 including the basic Python interpreterprompt (<code class="docutils literal notranslate"><span class="pre">&gt;&gt;&gt;</span></code>), the IPython
@@ -222,36 +265,28 @@ ingests one line of text, follows the instructions, and returns the user
 to the prompt. This is handy for prototyping, but quickly becomes tedious
 to type if you have multi-line instructions (code). For this reason there
 is the concept of a script which provides a means for submitting multiple
-lines of code to a REPL</p>
-</section>
-<section id="gui-application">
-<h3>GUI Application<a class="headerlink" href="#gui-application" title="Permalink to this headline">¶</a></h3>
-<p>Common, intuitive for exploration. User uses a mouse and keyboard to click
+lines of code to a REPL</p></li>
+<li><p>GUI Application
+Common, intuitive for exploration. User uses a mouse and keyboard to click
 buttons and interact with the software. May be written in a wide variety
 of languages, but typically requires a “framework” of existing code that
 helps with common patterns. Frameworks you might hear of are: Tcl/Tkinter,
-QT, Cocoa, Swing, SWT, Delphi.</p>
-</section>
-<section id="interpreted-program-script">
-<h3>Interpreted Program (script)<a class="headerlink" href="#interpreted-program-script" title="Permalink to this headline">¶</a></h3>
-<p>An interpreted programming language is translated from human-written
+QT, Cocoa, Swing, SWT, Delphi.</p></li>
+<li><p>Interpreted Program (script)
+An interpreted programming language is translated from human-written
 code (instructions) into computer instructions (machine language)
 on-the-fly. Python is an interpreted language meaning that there is not
 an explicit compile step required to run the program. You simply submit
 the script (your Python code) to the Python interpreter and it is
-translated into machine code on the fly.</p>
-</section>
-<section id="compiled-program-binary">
-<h3>Compiled Program (binary)<a class="headerlink" href="#compiled-program-binary" title="Permalink to this headline">¶</a></h3>
-<p>A compiled programming language required a dedicated “build step” to translate
-the human-written code (instructions) into machine code. The result of the build
-step is an object file or a “compiled binary”. The main dvmdostem binary is a
-compiled C++ program. When the source code is modified, you must run make to
-re-compile the project and create a new binary object file before running it.</p>
-</section>
-<section id="integrated-development-environment-ide">
-<h3>Integrated Development Environment (IDE)<a class="headerlink" href="#integrated-development-environment-ide" title="Permalink to this headline">¶</a></h3>
-<p>Typically this is a GUI application that bundles together a bunch of handing
+translated into machine code on the fly.</p></li>
+<li><p>Compiled Program (binary) A compiled programming language required a dedicated
+“build step” to translate the human-written code (instructions) into machine
+code. The result of the build step is an object file or a “compiled binary”.
+The main dvmdostem binary is a compiled C++ program. When the source code is
+modified, you must run make to re-compile the project and create a new binary
+object file before running it.</p></li>
+<li><p>Integrated Development Environment (IDE)
+Typically this is a GUI application that bundles together a bunch of handing
 tools into one package. In general the tools are:</p>
 <blockquote>
 <div><ul class="simple">
@@ -265,22 +300,17 @@ tools into one package. In general the tools are:</p>
 <p>There are many different IDEs each with their own advantages and disadvantages.
 Often IDEs are particularly suited to a certain language (i.e. PyCharm for
 Python, Eclipse for C/C++, etc).</p>
-</section>
-<section id="ipython">
-<h3>IPython<a class="headerlink" href="#ipython" title="Permalink to this headline">¶</a></h3>
-<p>IPython is simply an enhanced REPL for Python. It comes with heaps of extra
+</li>
+<li><p>IPython
+IPython is simply an enhanced REPL for Python. It comes with heaps of extra
 features that make life easier, including support for multi-line statements,
-built-in help, auto-complete features, and much more.</p>
-</section>
-<section id="basic-ide">
-<h3>Basic IDE<a class="headerlink" href="#basic-ide" title="Permalink to this headline">¶</a></h3>
-<p>All you really need for writing compiled or interpreted programs are a text
+built-in help, auto-complete features, and much more.</p></li>
+<li><p>Basic IDE
+All you really need for writing compiled or interpreted programs are a text
 editor and a terminal that will let you compile the program (if necessary)
-and execute it.</p>
-</section>
-<section id="jupyter-notebook">
-<h3>Jupyter Notebook<a class="headerlink" href="#jupyter-notebook" title="Permalink to this headline">¶</a></h3>
-<p>This is a novel addition to the traditional programming toolset. Jupyter
+and execute it.</p></li>
+<li><p>Jupyter Notebook
+This is a novel addition to the traditional programming toolset. Jupyter
 Notebooks combine features of:</p>
 <blockquote>
 <div><ul class="simple">
@@ -299,39 +329,38 @@ requests to a functioning backend server which provides the Python run-time.</p>
 <p>The server can actually run a variety of languages, so it is possible to
 use R or Julia or a number of other languages as the notebook code cell
 language.</p>
-<dl class="simple">
-<dt>Notebooks are great for:</dt><dd><ul class="simple">
+<p>Notebooks are great for:</p>
+<blockquote>
+<div><ul class="simple">
 <li><p>Intermingling code and documentation or explanations (formatted text)</p></li>
 <li><p>Experimenting with small code snippets</p></li>
-<li><p>Presenting interactive plots from remote servers without needing an
-XWindow or other <code class="docutils literal notranslate"><span class="pre">DISPLAY</span></code> forwarding system</p></li>
+<li><p>Presenting interactive plots from remote servers without needing an XWindow or other <code class="docutils literal notranslate"><span class="pre">DISPLAY</span></code> forwarding system</p></li>
 <li><p>Developing and prototyping code</p></li>
 </ul>
-</dd>
-<dt>Notebooks are challenging for:</dt><dd><ul class="simple">
+</div></blockquote>
+<p>Notebooks are challenging for:</p>
+<blockquote>
+<div><ul class="simple">
 <li><p>Version control</p></li>
-<li><p>Writing code that is easy to run in a non-notebook environment
-(library code)</p></li>
-<li><p>Groups that do not have the bandwidth or abilities for running individual
-notebook servers or to run and maintain a central notebook server</p></li>
+<li><p>Writing code that is easy to run in a non-notebook environment (library code)</p></li>
+<li><p>Groups that do not have the bandwidth or abilities for running individual notebook servers or to run and maintain a central notebook server</p></li>
 <li><p>Debugging certain types of process</p></li>
 </ul>
-</dd>
-</dl>
-</section>
-<section id="virtual-machine">
-<h3>Virtual Machine<a class="headerlink" href="#virtual-machine" title="Permalink to this headline">¶</a></h3>
-<p>In order to wrap up an environment such that you can preserve it or pass it
-to someone else, people have devised the concept of a Virtual Machine (VM).
-In 2022, there are innumerable ways to run a VM (VMware, Parallels,
-Multipass, Docker, etc), each with its own tradeoffs. The important thing
-to remember is that a Virtual Machine attempts to encapsulate an environment.
-Each of the items in the above list (Notebook, IPython, IDE, etc) might be
-able to run inside a virtual machine. If you are not provided with a
-perfectly functioning environment it is often up to you to understand what
-you need for an execution context and set it up for yourself; a VM of some
-variety frequently provides some way to achieve this.</p>
-</section>
+</div></blockquote>
+</li>
+<li><p>Virtual Machine</p>
+<p>In order to wrap up an environment such that you can preserve it or pass it to
+someone else, people have devised the concept of a Virtual Machine (VM). In
+2022, there are innumerable ways to run a VM (VMware, Parallels, Multipass,
+Docker, etc), each with its own tradeoffs. The important thing to remember is
+that a Virtual Machine attempts to encapsulate an environment. Each of the
+items in the above list (Notebook, IPython, IDE, etc) might be able to run
+inside a virtual machine. If you are not provided with a perfectly functioning
+environment it is often up to you to understand what you need for an execution
+context and set it up for yourself; a VM of some variety frequently provides
+some way to achieve this.</p>
+</li>
+</ul>
 </section>
 <section id="version-management">
 <h2>Version Management<a class="headerlink" href="#version-management" title="Permalink to this headline">¶</a></h2>
@@ -387,7 +416,7 @@ request will have to be merged by a collaborator with write access to the
 upstream repo. See the branching and workflow sections below for more details.</p>
 <dl class="footnote brackets">
 <dt class="label" id="id2"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
-<dd><p>As of April 2022, this is true; we anticipate moving to a new
+<dd><p>As of September 2022, this is true; we anticipate moving to a new
 Github Organization in the next 6 months or so.</p>
 </dd>
 </dl>
@@ -467,10 +496,10 @@ codebase, so the URL will look something like:
 <code class="docutils literal notranslate"><span class="pre">https://github.com/ua-snap/dvm-dos-tem</span></code> or
 <code class="docutils literal notranslate"><span class="pre">git&#64;github.com:ua-snap/dvm-dos-tem.git</span></code> if you will be contributing.</p></li>
 </ul>
-<p>It is strongly encouraged that you go to the effort of making sure your current
-git branch is displayed in your terminal shell prompt. There are many examples
-floating around online of how to achieve this for all major operating systems
-and shells; one example <a class="reference external" href="https://stackoverflow.com/questions/15883416/adding-git-branch-on-the-bash-command-prompt">here</a></p>
+<p>It is <strong>strongly encouraged</strong> that you go to the effort of making sure your
+current git branch is displayed in your terminal shell prompt. There are many
+examples floating around online of how to achieve this for all major operating
+systems and shells; one example <a class="reference external" href="https://stackoverflow.com/questions/15883416/adding-git-branch-on-the-bash-command-prompt">here</a></p>
 </section>
 </section>
 <section id="branching-model">
@@ -575,8 +604,8 @@ into the <code class="docutils literal notranslate"><span class="pre">upstream/m
 <p>When two or more developers want or need to work contemporaneously on a topic
 branch, it is up to the developers to communicate and make sure that they do not
 step on each other’s toes. In practice this simply amounts to communicating with
-other folks via email, the Arctic Eco Modeling Slack Workspace, or Github Issues
-and remembering to run <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">pull</span> <span class="pre">--rebase</span></code>. Using <code class="docutils literal notranslate"><span class="pre">--rebase</span></code> prevents
+other folks via email, the <a class="reference external" href="https://arctic-eco-modeling.slack.com">Arctic Eco Modeling Slack</a>, or <a class="reference external" href="https://github.com/ua-snap/dvm-dos-tem/issues">Github Issues</a> and
+remembering to run <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">pull</span> <span class="pre">--rebase</span></code>. Using <code class="docutils literal notranslate"><span class="pre">--rebase</span></code> prevents
 unnecessary merge commits that can make the history confusing and harder to
 trust.</p>
 <div class="admonition note" id="what-not-to-track">
@@ -615,24 +644,112 @@ commits!</p>
 </div></blockquote>
 </div>
 </section>
-<section id="releases-and-version-management">
-<h3>Releases and Version Management<a class="headerlink" href="#releases-and-version-management" title="Permalink to this headline">¶</a></h3>
-<blockquote>
-<div><p>WRITE THIS…</p>
-</div></blockquote>
+<section id="releases-and-version-numbering">
+<h3>Releases and Version Numbering<a class="headerlink" href="#releases-and-version-numbering" title="Permalink to this headline">¶</a></h3>
+<p>Begining in 2021, we started using the “Releases” feature of Github to package
+and distribute specific versions of <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code>. We would like to make this a
+fully or nearly fully automated process but for the time being it is rather
+manual.</p>
+<p>As described in the <code class="docutils literal notranslate"><span class="pre">HOWTO_RELEASE.md</span></code> document in the repo, the project uses
+a three part version number: vMAJOR.MINOR.PATCH.</p>
+<dl class="simple">
+<dt>We use the following rules for incrementing the version number:</dt><dd><ul class="simple">
+<li><p>The PATCH number (farthest right) will be incremented for changes
+that do not affect the general scientific concepts in the
+software.</p></li>
+<li><p>The MINOR number (middle) will be updated when changes have been made
+to science concepts, major implementation changes for scienctifc aspects
+of the code calibration numbers are updated, or large new features are added.</p></li>
+<li><p>The MAJOR (left) number will be updated for major milestones. This will
+likely be points where the model is run for “production” or major testing and
+validation steps are completed and documented.</p></li>
+</ul>
+</dd>
+</dl>
+<p>This project is not using traditional <a class="reference external" href="https://semver.org">Semantic Versioning</a>, however we have
+borrowed some concepts.</p>
+<p>Until the project reaches <code class="docutils literal notranslate"><span class="pre">v1.0.0</span></code>, we will not make any guarantees about
+backwards compatibility. Once the project reaches <code class="docutils literal notranslate"><span class="pre">v1.0.0</span></code>, we may decide to
+handle the rules for incrementing version numbers differently.</p>
+<p>Releases are currently made on an as-needed basis by <a class="reference external" href="mailto:tcarman2&#37;&#52;&#48;alaska&#46;edu">tcarman2<span>&#64;</span>alaska<span>&#46;</span>edu</a> or
+<a class="reference external" href="mailto:rarutter&#37;&#52;&#48;alaska&#46;edu">rarutter<span>&#64;</span>alaska<span>&#46;</span>edu</a>.</p>
+<p>The steps are described in the <code class="docutils literal notranslate"><span class="pre">HOWTO_RELEASE.md</span></code> document and the result is
+that release is visible here: <a class="reference external" href="https://github.com/ua-snap/dvm-dos-tem/releases">https://github.com/ua-snap/dvm-dos-tem/releases</a></p>
 </section>
-<section id="automated-testing-and-deployment">
-<h3>Automated Testing and Deployment<a class="headerlink" href="#automated-testing-and-deployment" title="Permalink to this headline">¶</a></h3>
+<section id="testing-and-deployment">
+<h3>Testing and Deployment<a class="headerlink" href="#testing-and-deployment" title="Permalink to this headline">¶</a></h3>
+<p>There is currently (Sept 2022) a very limited set of tests and their execution
+is not automated. It is a goal to increase the test coverage and automate the
+test exectution in the near future. We are hoping to setup a CI/CD pipeline
+using Github Actions that can automatically test and deploy the <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code>
+model and supporting tooling.</p>
+<p>Testing is currently implemented for some of the Python scripts in the
+<code class="docutils literal notranslate"><span class="pre">scripts/</span></code> directory using the Python <code class="docutils literal notranslate"><span class="pre">doctest</span></code> module. The style and
+structure of tests reflects the challenges we have had getting testing intgrated
+into this project. The <code class="docutils literal notranslate"><span class="pre">doctest</span></code> module has a nice feature that allows tests
+to be written in a literate fashion with much explanatory text. This allows us
+to hit several goals with one set of testing material:</p>
 <blockquote>
-<div><p>WRITE THIS…</p>
+<div><ul class="simple">
+<li><p>explanations and examples of code/script usage</p></li>
+<li><p>testing across a wide range of encapsulation; for example some of the tests
+are very granular unit tests of single functions in the script files, while
+others test comprehensive behavior of entire modules and command line
+interfaces</p></li>
+<li><p>basic regression testing.</p></li>
+</ul>
 </div></blockquote>
+<p>There are two primary places that the <code class="docutils literal notranslate"><span class="pre">doctests</span></code> will show up:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>In the <code class="docutils literal notranslate"><span class="pre">__docstring__</span></code> of a given Python script or function.</p></li>
+<li><p>In a standalone markdown file with specially formatted test code.</p></li>
+</ol>
+</div></blockquote>
+<p>The tests that are in the docstrings of a given file or function should be very
+narrow in their scope and should only check the functionality of that specific
+function, independant from everything else, whereas tests in a standalone file
+can be much broader and more flexible in their design.</p>
+<p>At present we have had much more luck writing the broader tests (that also serve
+as examples of usage) in stand alone files named with the following pattern:
+<code class="docutils literal notranslate"><span class="pre">scripts/doctests_*.md</span></code>. The files are markdown formatted with embedded code
+that is executed by the <code class="docutils literal notranslate"><span class="pre">doctest</span></code> module. The execution context and other
+<code class="docutils literal notranslate"><span class="pre">doctest</span></code> particulars are described here:
+<a class="reference external" href="https://docs.python.org/3/library/doctest.html#what-s-the-execution-context">https://docs.python.org/3/library/doctest.html#what-s-the-execution-context</a></p>
+<p>To run the tests that are in <code class="docutils literal notranslate"><span class="pre">__docstring__</span></code> s of a function or file:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ <span class="nb">cd</span> scripts
+$ python -m doctest param_util.py   <span class="c1"># &lt;-- script name!</span>
+</pre></div>
+</div>
+<p>To run the tests that are in an independent file:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ <span class="nb">cd</span> scripts
+$ python -m doctest doctests_param_util.md  <span class="c1"># &lt;-- test file name!</span>
+</pre></div>
+</div>
+<p>In either case, if all the tests execute successfully, then the command exits
+silently. If there errors, the <code class="docutils literal notranslate"><span class="pre">doctest</span></code> package tried to point you towards
+the tests that fail.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>You must change into the <code class="docutils literal notranslate"><span class="pre">scripts/</span></code> directory for the tests to work!</p>
+</div>
 </section>
 </section>
 <section id="setting-up-a-dev-environment">
 <h2>Setting up a dev environment<a class="headerlink" href="#setting-up-a-dev-environment" title="Permalink to this headline">¶</a></h2>
+<p>There are many paths to setting up a development environment and the specific
+path you choose will depend on your experience and needs. Over the years we have
+tried all of the following:</p>
 <blockquote>
-<div><p>WRITE THIS…</p>
+<div><ul class="simple">
+<li><p>Local installation.</p></li>
+<li><p>Hand managed Virtual Box VM.</p></li>
+<li><p>Vagrant managed VM.</p></li>
+<li><p>Docker container stack.</p></li>
+</ul>
 </div></blockquote>
+<p>The current (2022) preference is generally for the Docker container stack,
+although on some systems a local installation is still preferable.</p>
 <section id="setting-up-with-vagrant">
 <h3>Setting up with Vagrant<a class="headerlink" href="#setting-up-with-vagrant" title="Permalink to this headline">¶</a></h3>
 <blockquote>
@@ -679,17 +796,42 @@ Your catalog of “workflows”</p>
 <h3>Navigation</h3>
 <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="DVM-DOS-TEM_Model_Overview.html"><code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code> Model Overview</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Software Development Info</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="model_overview.html">Model Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="running_dvmdostem.html">Running</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Dev Info</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#languages-software-structure">Languages, Software Structure</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#documentation">Documentation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#software-development-patterns">Software Development Patterns</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#version-management">Version Management</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#setting-up-a-dev-environment">Setting up a dev environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#documentation">Documentation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#editing-contributing">Editing / Contributing</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#project-standards-and-conventions">Project Standards and Conventions</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="Running_dvmdostem.html">Running <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code></a></li>
-<li class="toctree-l1"><a class="reference internal" href="SA_UQ.html">Sensitivity Analysis and Uncertainty Quantification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#publishing">Publishing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#note-about-images">Note about images</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#software-development-patterns">Software Development Patterns</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#version-management">Version Management</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#version-control-and-hosting">Version Control and Hosting</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#getting-help">Getting Help</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tools">Tools</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#setup">Setup</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#branching-model">Branching Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#workflow">Workflow</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#releases-and-version-numbering">Releases and Version Numbering</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#testing-and-deployment">Testing and Deployment</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#setting-up-a-dev-environment">Setting up a dev environment</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#setting-up-with-vagrant">Setting up with Vagrant</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#setting-up-with-docker">Setting up with Docker</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#setting-up-with-ubuntu">Setting up with Ubuntu</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="SA_UQ.html">SA and UQ</a></li>
 <li class="toctree-l1"><a class="reference internal" href="command_cheat_sheet.html">Command Cheat Sheet</a></li>
 </ul>
 
@@ -697,8 +839,8 @@ Your catalog of “workflows”</p>
 <h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
-      <li>Previous: <a href="DVM-DOS-TEM_Model_Overview.html" title="previous chapter"><code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code> Model Overview</a></li>
-      <li>Next: <a href="Running_dvmdostem.html" title="next chapter">Running <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code></a></li>
+      <li>Previous: <a href="running_dvmdostem.html" title="previous chapter">Running</a></li>
+      <li>Next: <a href="SA_UQ.html" title="next chapter">SA and UQ</a></li>
   </ul></li>
 </ul>
 </div>
@@ -728,7 +870,7 @@ Your catalog of “workflows”</p>
       &copy;2022, Tobey Carman, Ruth Rutter, Helene Genet, Eugenie Euskirchen.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.5.0</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.3.0</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
