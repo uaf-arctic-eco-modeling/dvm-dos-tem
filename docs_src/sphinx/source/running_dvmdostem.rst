@@ -87,7 +87,105 @@ Configuration
 --------------
 Parameters
 --------------
-    WRITE THIS...
+
+``dvmdostem`` is designed to be highly configurable with regards to parameters.
+This means that many parameters have been factored out so that their values can
+be set in text files which allows the operation of the model to be changed
+without re-compiling. But this flexibility results in **lots** of parameters,
+and managing them can be cumbersome.
+
+``dvmdostem`` ingests parameters that are stored in a custom space delimited,
+fixed width text format. The format is a compromise that allows:
+ 
+ * Storing parameters for multiple Community Types (CMTs) in one file.
+ * Human readable text format (space delimted columns).
+ * Easily editable on a small scale (adjusting a couple parameters).
+
+at the expense of:
+
+ * Easy editing on a large scale.
+ * Standardizaton/portability to other tools (e.g. spreadsheet, or database).
+ * Easy handling of metadata such as CMT names, PFT names, parameter names, 
+   units, comments, and references
+
+The ``param_util.py`` script has many functions to help manipulate ``dvmdostem``
+parameter files. Included in ``param_util.py`` are functions that can help
+convert from the custom fixed width text (fwt) format to Command Separated Value
+(csv) and back. Certain edits (such as adding and updating metadata) are much
+easier to accomplish in a spreadhsheet program. The metadata in the existing FWT
+files is incomplete and the assumption is that this will improve over time as
+users convert to CSV, work on the files, updating values (i.e. through
+calibration, new observations or further literature review), and updating
+metadata and then convert the files back to FWT before comitting to the repository.
+
+``param_utils.py`` also has facilities for converting from FWT to json and back.
+These functions had thus far been most useful in integrating ``dvmdostem`` with 
+other software such as `PEcAn`_
+
+
+Example parameter files can be found in the ``parameters/`` directory. The 
+general structural constraints are enumerated here:
+
+ * The parameters are grouped into different files by rough theme.
+ * Each file can have 1 or more "blocks" of CMT data, (CMT blocks).
+ * Within one file the CMT blocks must contain identical lists of parameters (by
+   name).
+ * Comments in the file are accomplished with ``//``.
+ * Each CMT block starts with a line containing the CMT code, e.g. an 
+   alpha numeric code consisting of the letters ``CMT`` followed by two 
+   digits, for example ``CMT05``
+ * There may be any number of comment lines (beginning with ``//``) present
+   between the beginning of block and the data as long as they do not contain
+   the string ``CMT``
+ * Each parameter will be stored on a line. The value of the parameter will be
+   followed by a comment containing the parameter name and optionally units, 
+   description, comments and references, formatted like so:
+
+   .. code:: text
+       
+       1.0 // param_name: units // description // comment // refs
+
+   The parameter name (followed by ``:`` ) is required, all other fields are
+   optional.
+ * For PFT specific data, the data block will have space delimited columns, with
+   one column for each PFT. 
+ * For PFT specific data, the last comment line before the data begins will hold
+   the PFT names, i.e. "BlackSpruce" or "Moss".
+ * For CMTs that don't define all 10 PFTs, the undefined PFTs will have a name 
+   like 'Misc' or 'PFT' or 'pft'
+ * The CMT and PFT names are not used in the C++ code but many of the pre- and
+   post-processing Python tools expect the CMT and PFT names to be present.
+
+An abbreviated example of non-PFT data from ``cmt_bgcsoil.txt``:
+
+ .. code:: text
+
+    //===========================================================
+    // CMT04 // Shrub Tundra // Calibrated for Toolik area.
+    2.0               // rhq10:
+    ....
+    0.2               // propftos:
+    0.0               // fnloss:  fraction N leaching (0 - 1) when drainage occurs
+    .....
+    3.93              // initavln:  was 0.68
+
+An abbreviated demonstration example of PFT specific data from
+``cmt_envcanopy.txt``:
+
+  .. code:: text
+
+    //===========================================================
+    // CMT89 // Demo Example // more comments...
+    // extra comment line...
+    //Spruce    Decid       PFT2    ...    PFT9   // names: comments                  
+    0.10        0.10        0.10    ...    0.10   // albvisnir: canopy albedo
+    ...
+    0.003       0.003       0.003   ...    0.003  // glmax: m/2 // max. canopy conductance
+    ...
+    0.0         0.0         0.0     ...    0.0    // initvegsnow: initial intercepted snow water in canopy
+
+
+
 
 
 =================
@@ -258,3 +356,6 @@ From IEM/SNAP data
 From ERA5
 -----------
     WRITE THIS...
+
+.. links 
+.. _PEcAn: https://pecanproject.github.io
