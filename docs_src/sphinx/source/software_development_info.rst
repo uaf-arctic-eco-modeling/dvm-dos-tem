@@ -109,8 +109,15 @@ essentially like the general coding or programing process:
  * commit your changes
  * push commits upstream and make pull request
 
-For more information on this process, see the `Workflow`_ section.
+For more details about the coding process see the `Workflow`_ section.
 
+---------------------------------
+Project Standards and Conventions
+---------------------------------
+
+ * Please hard wrap lines at 80 charachters before comiting. Many text editors
+   have settings or extensions that can help with this tedium.
+ * 
 
 ==========
 Publishing
