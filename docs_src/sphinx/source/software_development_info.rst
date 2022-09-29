@@ -760,7 +760,18 @@ the tests that fail.
 *******************************
 Setting up a dev environment
 *******************************
-    WRITE THIS...
+
+There are many paths to setting up a development environment and the specific
+path you choose will depend on your experience and needs. Over the years we have
+tried all of the following:
+
+ * Local installation.
+ * Hand managed Virtual Box VM.
+ * Vagrant managed VM.
+ * Docker container stack.
+
+The current (2022) preference is generally for the Docker container stack,
+although on some systems a local installation is still preferable.
 
 ===============================
 Setting up with Vagrant
