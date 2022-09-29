@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>Running dvmdostem &#8212; dvmdostem v0.5.6 documentation</title>
+    <title>Running &#8212; dvmdostem v0.6.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
@@ -15,8 +15,8 @@
     <script src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Sensitivity Analysis and Uncertainty Quantification" href="SA_UQ.html" />
-    <link rel="prev" title="Software Development Info" href="software_development_info.html" />
+    <link rel="next" title="Dev Info" href="software_development_info.html" />
+    <link rel="prev" title="Model Overview" href="model_overview.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -33,8 +33,8 @@
 
           <div class="body" role="main">
             
-  <section id="running-dvmdostem">
-<h1>Running <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code><a class="headerlink" href="#running-dvmdostem" title="Permalink to this headline">¶</a></h1>
+  <section id="running">
+<h1>Running<a class="headerlink" href="#running" title="Permalink to this headline">¶</a></h1>
 <blockquote>
 <div><p>WRITE THIS…</p>
 </div></blockquote>
@@ -120,13 +120,115 @@ in the following image:</p>
 </section>
 <section id="parameters">
 <h4>Parameters<a class="headerlink" href="#parameters" title="Permalink to this headline">¶</a></h4>
+<p><code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code> is designed to be highly configurable with regards to parameters.
+This means that many parameters have been factored out so that their values can
+be set in text files which allows the operation of the model to be changed
+without re-compiling. But this flexibility results in <strong>lots</strong> of parameters,
+and managing them can be cumbersome.</p>
+<p><code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code> ingests parameters that are stored in a custom space delimited,
+fixed width text format. The format is a compromise that allows:</p>
 <blockquote>
-<div><p>WRITE THIS…</p>
+<div><ul class="simple">
+<li><p>Storing parameters for multiple Community Types (CMTs) in one file.</p></li>
+<li><p>Human readable text format (space delimted columns).</p></li>
+<li><p>Easily editable on a small scale (adjusting a couple parameters).</p></li>
+</ul>
+</div></blockquote>
+<p>at the expense of:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Easy editing on a large scale.</p></li>
+<li><p>Standardizaton/portability to other tools (e.g. spreadsheet, or database).</p></li>
+<li><p>Easy handling of metadata such as CMT names, PFT names, parameter names,
+units, comments, and references</p></li>
+</ul>
+</div></blockquote>
+<p>The <code class="docutils literal notranslate"><span class="pre">param_util.py</span></code> script has many functions to help manipulate <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code>
+parameter files. Included in <code class="docutils literal notranslate"><span class="pre">param_util.py</span></code> are functions that can help
+convert from the custom fixed width text (fwt) format to Command Separated Value
+(csv) and back. Certain edits (such as adding and updating metadata) are much
+easier to accomplish in a spreadhsheet program. The metadata in the existing FWT
+files is incomplete and the assumption is that this will improve over time as
+users convert to CSV, work on the files, updating values (i.e. through
+calibration, new observations or further literature review), and updating
+metadata and then convert the files back to FWT before comitting to the repository.</p>
+<p><code class="docutils literal notranslate"><span class="pre">param_utils.py</span></code> also has facilities for converting from FWT to json and back.
+These functions had thus far been most useful in integrating <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code> with
+other software such as <a class="reference external" href="https://pecanproject.github.io">PEcAn</a></p>
+<p>Example parameter files can be found in the <code class="docutils literal notranslate"><span class="pre">parameters/</span></code> directory. The
+general structural constraints are enumerated here:</p>
+<blockquote>
+<div><ul>
+<li><p>The parameters are grouped into different files by rough theme.</p></li>
+<li><p>Each file can have 1 or more “blocks” of CMT data, (CMT blocks).</p></li>
+<li><p>Within one file the CMT blocks must contain identical lists of parameters (by
+name).</p></li>
+<li><p>Comments in the file are accomplished with <code class="docutils literal notranslate"><span class="pre">//</span></code>.</p></li>
+<li><p>Each CMT block starts with a line containing the CMT code, e.g. an
+alpha numeric code consisting of the letters <code class="docutils literal notranslate"><span class="pre">CMT</span></code> followed by two
+digits, for example <code class="docutils literal notranslate"><span class="pre">CMT05</span></code></p></li>
+<li><p>There may be any number of comment lines (beginning with <code class="docutils literal notranslate"><span class="pre">//</span></code>) present
+between the beginning of block and the data as long as they do not contain
+the string <code class="docutils literal notranslate"><span class="pre">CMT</span></code></p></li>
+<li><p>Each parameter will be stored on a line. The value of the parameter will be
+followed by a comment containing the parameter name and optionally units,
+description, comments and references, formatted like so:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>1.0 // param_name: units // description // comment // refs
+</pre></div>
+</div>
+<p>The parameter name (followed by <code class="docutils literal notranslate"><span class="pre">:</span></code> ) is required, all other fields are
+optional.</p>
+</li>
+<li><p>For PFT specific data, the data block will have space delimited columns, with
+one column for each PFT.</p></li>
+<li><p>For PFT specific data, the last comment line before the data begins will hold
+the PFT names, i.e. “BlackSpruce” or “Moss”.</p></li>
+<li><p>For CMTs that don’t define all 10 PFTs, the undefined PFTs will have a name
+like ‘Misc’ or ‘PFT’ or ‘pft’</p></li>
+<li><p>The CMT and PFT names are not used in the C++ code but many of the pre- and
+post-processing Python tools expect the CMT and PFT names to be present.</p></li>
+</ul>
+</div></blockquote>
+<p>An abbreviated example of non-PFT data from <code class="docutils literal notranslate"><span class="pre">cmt_bgcsoil.txt</span></code>:</p>
+<blockquote>
+<div><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>//===========================================================
+// CMT04 // Shrub Tundra // Calibrated for Toolik area.
+2.0               // rhq10:
+....
+0.2               // propftos:
+0.0               // fnloss:  fraction N leaching (0 - 1) when drainage occurs
+.....
+3.93              // initavln:  was 0.68
+</pre></div>
+</div>
+</div></blockquote>
+<p>An abbreviated demonstration example of PFT specific data from
+<code class="docutils literal notranslate"><span class="pre">cmt_envcanopy.txt</span></code>:</p>
+<blockquote>
+<div><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>//===========================================================
+// CMT89 // Demo Example // more comments...
+// extra comment line...
+//Spruce    Decid       PFT2    ...    PFT9   // names: comments
+0.10        0.10        0.10    ...    0.10   // albvisnir: canopy albedo
+...
+0.003       0.003       0.003   ...    0.003  // glmax: m/2 // max. canopy conductance
+...
+0.0         0.0         0.0     ...    0.0    // initvegsnow: initial intercepted snow water in canopy
+</pre></div>
+</div>
 </div></blockquote>
 </section>
 </section>
 <section id="running-the-model">
 <h3>Running the Model<a class="headerlink" href="#running-the-model" title="Permalink to this headline">¶</a></h3>
+<section id="setting-up-a-run">
+<h4>Setting up a run<a class="headerlink" href="#setting-up-a-run" title="Permalink to this headline">¶</a></h4>
+<p>Each run should take place in its own workign directory. This directory should
+have a variety of configuration files, parameter files, and output directory and
+optionally calibration and input files. See the script
+<code class="docutils literal notranslate"><span class="pre">setup_working_directory.py</span></code> which is a helper tool for intitializing a run
+directory.</p>
+</section>
 <section id="spatial-size">
 <h4>Spatial Size<a class="headerlink" href="#spatial-size" title="Permalink to this headline">¶</a></h4>
 <p>The size of your run is controlled by the dimensions of your input set and
@@ -181,8 +283,8 @@ settings, including:</p>
 specified output directory. Each subdirectory will have a copy of the config.js
 file and customized run-mask.nc and slurm_runner.sh files.</p>
 </section>
-<section id="running">
-<h5>Running<a class="headerlink" href="#running" title="Permalink to this headline">¶</a></h5>
+<section id="starting-a-run">
+<h5>Starting a run<a class="headerlink" href="#starting-a-run" title="Permalink to this headline">¶</a></h5>
 <p>By default the batch running script runs a set of batches from an inclusive
 range defined by values provided in the call. Example call to run batches 0-9:</p>
 <p><code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">./scripts/chinook/batch_run_on_chinook.sh</span> <span class="pre">[path</span> <span class="pre">to</span> <span class="pre">batch</span> <span class="pre">dir]</span> <span class="pre">0</span> <span class="pre">9</span></code></p>
@@ -300,14 +402,58 @@ year counts would be something like this: <code class="docutils literal notransl
 <h3>Navigation</h3>
 <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="DVM-DOS-TEM_Model_Overview.html"><code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code> Model Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="software_development_info.html">Software Development Info</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Running <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code></a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#modeling-method-and-workflow">Modeling Method and Workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#practical">Practical</a></li>
+<li class="toctree-l1"><a class="reference internal" href="model_overview.html">Model Overview</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Running</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#modeling-method-and-workflow">Modeling Method and Workflow</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#develop-goals">Develop goals</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#conceptualization">Conceptualization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#formulation">Formulation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#implementation">Implementation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#parameterization">Parameterization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#model-testing">Model Testing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#model-analysis">Model Analysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pre-and-post-processing">Pre- and Post- Processing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="SA_UQ.html">Sensitivity Analysis and Uncertainty Quantification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#practical">Practical</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#control-options">Control Options</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#command-line">Command line</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#configuration">Configuration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#parameters">Parameters</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#running-the-model">Running the Model</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#setting-up-a-run">Setting up a run</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#spatial-size">Spatial Size</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#single-site-or-small-regions">Single Site or Small Regions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#large-regions-hpc">Large Regions (HPC)</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#requirements">Requirements</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#splitting">Splitting</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#starting-a-run">Starting a run</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#merging">Merging</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#running-from-restart-files">Running from Restart Files</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#set-up">Set up</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#restart">Restart</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#running-a-sensitivity-analysis">Running a Sensitivity Analysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#parallel-options">Parallel Options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#processing-outputs">Processing Outputs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#processing-inputs">Processing Inputs</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#from-iem-snap-data">From IEM/SNAP data</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#from-era5">From ERA5</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="software_development_info.html">Dev Info</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SA_UQ.html">SA and UQ</a></li>
 <li class="toctree-l1"><a class="reference internal" href="command_cheat_sheet.html">Command Cheat Sheet</a></li>
 </ul>
 
@@ -315,8 +461,8 @@ year counts would be something like this: <code class="docutils literal notransl
 <h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
-      <li>Previous: <a href="software_development_info.html" title="previous chapter">Software Development Info</a></li>
-      <li>Next: <a href="SA_UQ.html" title="next chapter">Sensitivity Analysis and Uncertainty Quantification</a></li>
+      <li>Previous: <a href="model_overview.html" title="previous chapter">Model Overview</a></li>
+      <li>Next: <a href="software_development_info.html" title="next chapter">Dev Info</a></li>
   </ul></li>
 </ul>
 </div>
@@ -346,11 +492,11 @@ year counts would be something like this: <code class="docutils literal notransl
       &copy;2022, Tobey Carman, Ruth Rutter, Helene Genet, Eugenie Euskirchen.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.5.0</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.3.0</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
-      <a href="_sources/Running_dvmdostem.rst.txt"
+      <a href="_sources/running_dvmdostem.rst.txt"
           rel="nofollow">Page source</a>
     </div>
 
