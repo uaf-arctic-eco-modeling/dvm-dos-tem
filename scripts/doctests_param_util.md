@@ -166,6 +166,12 @@ the way things are formatted when printing the fixed width text parameter files.
     '     50.3405 '
     >>> pu.smart_format('0')
     '      0.0000 '
+    >>> pu.smart_format('0.00not a number0')
+    Traceback (most recent call last):
+      ...
+    ValueError: could not convert string to float: '0.00not a number0'
+    >>> pu.smart_format('0.000')
+    '      0.0000 '
 
 Test that cmt datablocks can be read with and without multiple comment lines.
 CMT00 in `cmt_calparbgc.txt` has an extra comment line added to it.
