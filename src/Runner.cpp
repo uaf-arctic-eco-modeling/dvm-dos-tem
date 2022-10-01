@@ -487,6 +487,27 @@ void Runner::output_caljson_monthly(int year, int month, std::string stage, boos
   data["RHwdeb"] = cohort.bdall->m_soi2a.rhwdeb;
   data["RH"] = cohort.bdall->m_soi2a.rhtot;
 
+  // Add up Respiration_maintenance and Respiration_growth for all PFTs
+  double rh_veg;
+  double gpp_all_veg;
+  rh_veg = 0;
+  gpp_all_veg = 0;
+  for(int pft=0; pft<NUM_PFT; pft++) {
+    rh_veg += cohort.bd[pft].m_v2a.rg[I_leaf];
+    rh_veg += cohort.bd[pft].m_v2a.rg[I_stem];
+    rh_veg += cohort.bd[pft].m_v2a.rg[I_root];
+    rh_veg += cohort.bd[pft].m_v2a.rm[I_leaf];
+    rh_veg += cohort.bd[pft].m_v2a.rm[I_stem];
+    rh_veg += cohort.bd[pft].m_v2a.rm[I_root];
+
+    gpp_all_veg += cohort.bd[pft].m_a2v.gppall;
+  }
+  // RE, aka Respiration_ecosystem or Ecosystem Respiration or ER
+  data["RE"] = cohort.bdall->m_soi2a.rhtot + rh_veg;
+
+  // NEE, aka Net Ecosystem Exchange
+  data["NEE"] = gpp_all_veg - (cohort.bdall->m_soi2a.rhtot + rh_veg);
+
   data["YearsSinceDisturb"] = cohort.cd.yrsdist;
   data["Burnthick"] = cohort.year_fd[month].fire_soid.burnthick;
   data["BurnVeg2AirC"] = cohort.year_fd[month].fire_v2a.orgc;
@@ -709,6 +730,27 @@ void Runner::output_caljson_yearly(int year, std::string stage, boost::filesyste
   data["RHsomcr"] = cohort.bdall->y_soi2a.rhsomcrsum;
   data["RH"] = cohort.bdall->y_soi2a.rhtot;
  
+  // Add up Respiration_maintenance and Respiration_growth for all PFTs
+  double rh_veg;
+  double gpp_all_veg;
+  rh_veg = 0;
+  gpp_all_veg = 0;
+  for(int pft=0; pft<NUM_PFT; pft++) {
+    rh_veg += cohort.bd[pft].y_v2a.rg[I_leaf];
+    rh_veg += cohort.bd[pft].y_v2a.rg[I_stem];
+    rh_veg += cohort.bd[pft].y_v2a.rg[I_root];
+    rh_veg += cohort.bd[pft].y_v2a.rm[I_leaf];
+    rh_veg += cohort.bd[pft].y_v2a.rm[I_stem];
+    rh_veg += cohort.bd[pft].y_v2a.rm[I_root];
+
+    gpp_all_veg += cohort.bd[pft].y_a2v.gppall;
+  }
+  // RE, aka Respiration_ecosystem or Ecosystem Respiration or ER
+  data["RE"] = cohort.bdall->y_soi2a.rhtot + rh_veg;
+
+  // NEE, aka Net Ecosystem Exchange
+  data["NEE"] = gpp_all_veg - (cohort.bdall->y_soi2a.rhtot + rh_veg);
+
   //Placeholders for summing fire variables for the entire year
   double burnthick = 0.0, veg2airc = 0.0, veg2airn = 0.0, veg2soiabvvegc=0.0, veg2soiabvvegn = 0.0, veg2soiblwvegc = 0.0, veg2soiblwvegn = 0.0, veg2deadc = 0.0, veg2deadn = 0.0, soi2airc = 0.0, soi2airn = 0.0, air2soin = 0.0;
  

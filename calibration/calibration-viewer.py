@@ -337,15 +337,20 @@ class ExpandingWindow(object):
         idx = fnum
 
         for trace in self.traces:
-          # set the trace's tmpy[idx] to file's data
-          if 'pft' in list(trace.keys()):
-            pftdata = fdata[trace['pft']]
-            if 'pftpart' in list(trace.keys()):
-              trace['tmpy'][idx] = pftdata[trace['jsontag']][trace['pftpart']]
+
+          try:
+            # set the trace's tmpy[idx] to file's data
+            if 'pft' in list(trace.keys()):
+              pftdata = fdata[trace['pft']]
+              if 'pftpart' in list(trace.keys()):
+                trace['tmpy'][idx] = pftdata[trace['jsontag']][trace['pftpart']]
+              else:
+                trace['tmpy'][idx] = pftdata[trace['jsontag']]
             else:
-              trace['tmpy'][idx] = pftdata[trace['jsontag']]
-          else:
-            trace['tmpy'][idx] = fdata[trace['jsontag']]
+              trace['tmpy'][idx] = fdata[trace['jsontag']]
+          except KeyError as e:
+            logging.error("Can't find key in json file for {}!".format(trace['jsontag']))
+
 
         # Look at the previous file and see if the state of any
         # modules or flags has changed...
