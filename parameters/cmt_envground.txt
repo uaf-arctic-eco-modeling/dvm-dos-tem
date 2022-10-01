@@ -6,7 +6,7 @@
 0.4                // snwalbmin:
 -1.5e7             // psimax:
 0.08               // evapmin:
-0.04               // drainmax
+0.04               // drainmax:
 0.20               // rtdp4gdd: root depth for estimating growing degree day
 0.25               // tcsolid(m): Soil thermal conductivity for moss (W/mK)
 0.25               // tcsolid(f): Soil thermal conductivity for fibric (W/mK)
@@ -49,7 +49,7 @@
 0.4                // snwalbmin:
 -1.5e7             // psimax:
 0.08               // evapmin:
-0.04               // drainmax
+0.04               // drainmax:
 0.2                // rtdp4gdd: root depth for estimating growing degree day
 0.25               // tcsolid(m): Soil thermal conductivity for moss (W/mK)
 0.25               // tcsolid(f): Soil thermal conductivity for fibric (W/mK)
@@ -92,7 +92,7 @@
 0.4                // snwalbmin:
 -1.5e7             // psimax:
 0.08               // evapmin:
-0.04               // drainmax
+0.04               // drainmax:
 0.2                // rtdp4gdd: root depth for estimating growing degree day
 0.25               // tcsolid(m): Soil thermal conductivity for moss (W/mK)
 0.25               // tcsolid(f): Soil thermal conductivity for fibric (W/mK)
@@ -135,7 +135,7 @@
 0.4                // snwalbmin:
 -1.50e7             // psimax:
 0.08               // evapmin:
-0.04               // drainmax
+0.04               // drainmax:
 0.2                // rtdp4gdd: root depth for estimating growing degree day
 0.25               // tcsolid(m): Soil thermal conductivity for moss (W/mK)
 0.25               // tcsolid(f): Soil thermal conductivity for fibric (W/mK)
@@ -178,7 +178,7 @@
 0.4                // snwalbmin:
 -1.5e7             // psimax:
 0.08               // evapmin:
-0.04               // drainmax
+0.04               // drainmax:
 0.20               // rtdp4gdd: root depth for estimating growing degree day
 0.25               // tcsolid(m): Soil thermal conductivity for moss (W/mK)
 0.25               // tcsolid(f): Soil thermal conductivity for fibric (W/mK)
@@ -221,7 +221,7 @@
 0.4                // snwalbmin:
 -1.5e7             // psimax:
 0.08               // evapmin:
-0.04               // drainmax
+0.04               // drainmax:
 0.20               // rtdp4gdd: root depth for estimating growing degree day
 0.25               // tcsolid(m): Soil thermal conductivity for moss (W/mK)
 0.25               // tcsolid(f): Soil thermal conductivity for fibric (W/mK)
@@ -265,7 +265,7 @@
 0.4                // snwalbmin:
 -1.5e7             // psimax:
 0.08               // evapmin:
-0.04               // drainmax
+0.04               // drainmax:
 0.20               // rtdp4gdd: root depth for estimating growing degree day
 0.25               // tcsolid(m): Soil thermal conductivity for moss (W/mK)
 0.25               // tcsolid(f): Soil thermal conductivity for fibric (W/mK)
@@ -308,7 +308,7 @@
 0.4                // snwalbmin:
 -1.5e7             // psimax:
 0.08               // evapmin:
-0.04               // drainmax
+0.04               // drainmax:
 0.20               // rtdp4gdd: root depth for estimating growing degree day
 0.25               // tcsolid(m): Soil thermal conductivity for moss (W/mK)
 0.25               // tcsolid(f): Soil thermal conductivity for fibric (W/mK)
@@ -351,7 +351,7 @@
 0.4                // snwalbmin:
 -1.5e7             // psimax:
 0.08               // evapmin:
-0.04               // drainmax
+0.04               // drainmax:
 0.20               // rtdp4gdd: root depth for estimating growing degree day
 0.25               // tcsolid(m): Soil thermal conductivity for moss (W/mK)
 0.25               // tcsolid(f): Soil thermal conductivity for fibric (W/mK)
@@ -394,7 +394,7 @@
 0.4                // snwalbmin:
 -1.5e7             // psimax:
 0.08               // evapmin:
-0.04               // drainmax
+0.04               // drainmax:
 0.20               // rtdp4gdd: root depth for estimating growing degree day
 0.25               // tcsolid(m): Soil thermal conductivity for moss (W/mK)
 0.25               // tcsolid(f): Soil thermal conductivity for fibric (W/mK)
@@ -437,7 +437,7 @@
 0.4                // snwalbmin:
 -1.5e7             // psimax:
 0.08               // evapmin:
-0.04               // drainmax
+0.04               // drainmax:
 0.20               // rtdp4gdd: root depth for estimating growing degree day
 0.25               // tcsolid(m): Soil thermal conductivity for moss (W/mK)
 0.25               // tcsolid(f): Soil thermal conductivity for fibric (W/mK)
@@ -480,7 +480,7 @@
 0.4                // snwalbmin:
 -1.5e7             // psimax:
 0.08               // evapmin:
-0.04               // drainmax
+0.04               // drainmax:
 0.20               // rtdp4gdd: root depth for estimating growing degree day
 0.25               // tcsolid(m): Soil thermal conductivity for moss (W/mK)
 0.25               // tcsolid(f): Soil thermal conductivity for fibric (W/mK)

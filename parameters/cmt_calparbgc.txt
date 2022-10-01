@@ -4,6 +4,7 @@
 //
 //===========================================================
 // CMT00 // BARE GROUND OPEN WATER SNOW AND ICE // ##THESE ARE JUNK VALUES###
+// Multiple comment lines are allowed between the community type key and the line with PFT names.
 //PFT0      PFT1        PFT2         PFT3         PFT4         PFT5         PFT6         PFT7         PFT8         PFT9         // names: comments
 939.0       1255.0        50.0         83.0         50.0         27.0         28.0         26.0         25.0         0.0          // cmax:
 3.1          2.5          2.5          0.80         1.4          1.5          2.2          1.1          2.1          0.0          // nmax:

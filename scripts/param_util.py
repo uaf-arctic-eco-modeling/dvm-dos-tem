@@ -10,6 +10,8 @@ import glob
 import sys
 import csv
 import itertools
+import subprocess
+import tempfile
 
 # For command line interface
 import sys
@@ -34,7 +36,7 @@ class ParamUtilSpeedHelper(object):
   With param_util.py in general the idea has been to have it be flexible
   with repsect to the location of the parameter files. But that makes 
   some operations expensive because the code is constantly having to 
-  re-build lookup datastructures to find parameter names or files.
+  re-build lookup data structures to find parameter names or files.
 
   With this object the idea is to set the parameter directory upon
   instantiation, and build the lookup data structure. Then future
@@ -58,6 +60,7 @@ class ParamUtilSpeedHelper(object):
     '''
     self.__pdir = pdir
     self.lu = build_param_lookup(self.__pdir)
+
 
   def get_value(self, pname=None, cmtnum=None, pftnum=None, with_metadata=False):
     '''
@@ -97,6 +100,7 @@ class ParamUtilSpeedHelper(object):
 
     return rv
 
+
   def list_non_pft_params(self, cmtnum=None):
     '''
     Gets a listing of all non-PFT parameters.
@@ -117,7 +121,6 @@ class ParamUtilSpeedHelper(object):
       for p in pdict['non_pft_params']:
         s += '    {}\n'.format(p)
     return s
-
 
 
   def list_params(self, cmtnum=None, pftnum=None):
@@ -154,6 +157,578 @@ class ParamUtilSpeedHelper(object):
     return s
 
 
+def fwt2csv_v1(param_dir, req_cmts='all', targets_path=None):
+    '''
+    Convert from dvmdostem fixed width text (fwt) format to CSV (comma separated
+    values), version 1.
+
+    Writes one file for each CMT, with all parameters from the fixed width
+    files. The output files will be named like "SAMPLE_CMT_01.csv", etc and 
+    will be written in your current working directory.
+    
+    Parameters
+    ==========
+    param_dir : string, path
+      Path to a directory of parameter files to convert.
+
+    req_cmts : list of ints or string
+      A list of the requested CMTs (numbers) or the string 'all'.
+
+    targets_path : string, path
+      Path to a targets file to convert.
+
+    Returns
+    =======
+    None
+    '''
+    # NOTE: currently there is no mechanism for storing reference data in the 
+    # fixed width text files....
+
+    avail_cmts = get_available_CMTs(param_dir)
+
+    if req_cmts == 'all':
+      cmts = avail_cmts
+    else:
+      cmts = req_cmts
+
+    if not all([i in avail_cmts for i in cmts]):
+      raise RuntimeError("One of the requested cmts is not available! Requested: {}".format(req_cmts))
+
+    for cmt in cmts:
+      print("Working on CMT {}...".format(cmt))
+      meta = []
+      pftdata = []
+      nonpftdata = []
+
+      meta.append('file,cmtkey,cmtname,comment\n')
+      pftdata.append('file,name,0,1,2,3,4,5,6,7,8,9,units,description,comment,refs\n')
+      nonpftdata.append('file,name,value,units,description,comment,refs\n')
+
+      if targets_path:
+        # Try importing parameter data
+        if os.path.exists(targets_path):
+          try:
+            sys.path.append(os.path.dirname(targets_path))
+            from calibration_targets import calibration_targets as targets
+          except:
+            print("Problem importing calibration targets!")
+        else:
+          raise RuntimeError("Can't find targets file!")
+
+
+        for cmtname, tvals in targets.items():
+          if cmtname == 'meta':
+            pass # nothing to do here...
+          else:
+            if targets[cmtname]['cmtnumber'] in cmts:
+              for k,v in targets[cmtname].items():
+
+                if k in ['meta']:
+                  pass
+
+                elif k == 'cmtnumber':
+                  meta.append('{},{},{},"{}"\n'.format(targets_path, targets[cmtname]['cmtnumber'], cmtname, "comment"))
+
+                elif k == 'PFTNames':
+                  s = '{},PFTNames,'.format(targets_path)
+                  for i in range(0,10):
+                    s += "{},".format(v[i])
+                  s += '"{}","{}","{}","{}"\n'.format("units", "desc","comment", "ref")
+                  pftdata.append(s)
+
+                elif isinstance(v, (int, float)) and not isinstance(v, bool):
+                  #print("--->", k, v)
+                  units = targets['meta'][k]['units']
+                  desc = targets['meta'][k]['desc']
+                  comment = targets['meta'][k]['comment']
+                  ref = targets['meta'][k]['ref']
+                  nonpftdata.append('{},{},{},"{}","{}","{}","{}"\n'.format(targets_path, k, v, units, desc, comment, ref))
+
+                elif isinstance(v, (list)):
+                  units = targets['meta'][k]['units']
+                  desc = targets['meta'][k]['desc']
+                  comment = targets['meta'][k]['comment']
+                  ref = targets['meta'][k]['ref']
+                  s = ''
+                  s += '{},{},'.format(targets_path, k)
+                  for i in range(0,10):
+                    s += '{:0.3f},'.format(v[i])
+                  s += '"{}","{}","{}","{}"\n'.format(units, desc, comment, ref)
+                  pftdata.append(s)
+
+                elif isinstance(v, (dict)):
+                  s = ''
+                  for cmpt, data in v.items():
+                    units = targets['meta'][k][cmpt]['units']
+                    desc = targets['meta'][k][cmpt]['desc']
+                    comment = targets['meta'][k][cmpt]['comment']
+                    s += '{},'.format(targets_path)
+                    s += '{}:{},'.format(k,cmpt)
+                    for i in range(0,10):
+                      s += '{:0.3f},'.format(data[i])
+                    s += '"{}","{}","{}","{}"\n'.format(units, desc, comment, ref)
+                  pftdata.append(s)
+
+                else:
+                  print("Here?? ")
+
+
+      for f in os.listdir(param_dir):
+        pfile = os.path.join(param_dir, f)
+        print(pfile)
+        if isParamFile(pfile):
+          db = get_CMT_datablock(pfile, cmt)
+          dd = cmtdatablock2dict(db)
+
+          if detect_block_with_pft_info(db):
+
+            s = ''
+            # Add line for pft numbers
+            s += '{},pftkey,'.format(pfile)
+            for pft in sorted(get_datablock_pftkeys(dd)):
+              s += "{},".format(pft)
+            s += '\n'
+
+            # Add line for pft verbose names
+            s += '{},pftname,'.format(pfile)
+            for pft in sorted(get_datablock_pftkeys(dd)):
+              s += "{},".format(dd[pft]['name'])
+            s += '\n'
+
+            # add line for each variable
+            vnames = [x for x in dd['pft0'].keys() if x != 'name']  # <---IMPROVE THIS!
+            vnames = [x for x in vnames if 'units_' not in x]
+            vnames = [x for x in vnames if 'desc_' not in x]
+            vnames = [x for x in vnames if 'comment_' not in x]
+            vnames = [x for x in vnames if 'refs_' not in x]
+
+            for v in vnames:
+              s += "{},{},".format(pfile, v)
+              for pft in sorted(get_datablock_pftkeys(dd)):
+                #s += "{:0.3f},".format(dd[pft][v])
+                s += '{},'.format(smart_format(dd[pft][v]))
+              s += '{},'.format(dd[pft]['units_{}'.format(v)])
+              s += '"{}",'.format(dd[pft]['desc_{}'.format(v)])
+              s += '"{}",'.format(dd[pft]['comment_{}'.format(v)])
+              s += '"{}"'.format(dd[pft]['refs_{}'.format(v)])
+              s += '\n'
+            pftdata.append(s)
+
+          s = ''
+          nonpftvars = [x for x in dd.keys() if x not in ['tag','cmtname','comment']] # Alternate formulation? filter(lambda x: x not in ['tag','cmtname','comment'], dd.keys())
+          nonpftvars = [x for x in nonpftvars if 'pft' not in x]
+          nonpftvars = [x for x in nonpftvars if '_' not in x]
+          #s += '{},{},{},"{}"\n'.format('file','pname','pvalue','comment')
+          for i in nonpftvars:
+            #file,name,value,units,description,comment,refs
+            dataline = '{},{},{},{},"{}","{}","{}"\n'.format(
+              pfile, i, dd[i],
+              dd['units_{}'.format(i)], 
+              dd['desc_{}'.format(i)], 
+              dd['comment_{}'.format(i)],
+              dd['refs_{}'.format(i)]
+            )
+            nonpftdata.append(dataline)
+
+          meta.append('{},{},{},"{}"\n'.format(pfile, dd['tag'], dd['cmtname'], dd['comment']))
+
+        else:
+          print(" ********* deemed {} as non parameter file, skipping!  *********\n".format(pfile))
+          pass # nothing to do for non-param files
+
+      with open("SAMPLE_CMT_{:02d}.csv".format(cmt), 'w') as f:
+        label = subprocess.check_output(["git", "describe"],).strip().decode('utf-8')
+        cmtname = '??' 
+        desc = 'A long winded description. Spaces? Quotes? Special charachters?'
+        site = 'The site specification. Make a standard for coords?'
+        notes = 'Any other notes, date of calibration, calibrator? references?'
+        ref_file = 'refs.bib'
+        hdr = ''
+        hdr += textwrap.dedent('''\
+        #
+        # dvmdostem parameters: {}
+        # cmtnumber: {}
+        # cmtname: {}
+        # cmtdescription: "{}"
+        # calibration site: "{}"
+        # calibration notes: "{}"
+        # references file: {}
+        #
+        # This file was generated using the param_util.fwt2csv_v1(...) function.
+        # There are columns here (comment units desc refs)
+        # that are not represented in a standard way in the 
+        # fixed width text parameter files.
+        # 
+        # To convert this file back to fixed width text for use with dvmdostem,
+        # see the param_util.csv2fwt_v1() function. 
+        # 
+        '''.format(label, cmt, cmtname, desc, site, notes, ref_file))
+
+        f.writelines(hdr)
+
+        f.writelines(meta)
+        f.writelines("\n\n")
+        f.writelines(pftdata)
+        f.writelines("\n\n")
+        f.writelines(nonpftdata)
+
+
+def csv2fwt_v1(csv_file, ref_directory='../parameters', 
+            overwrite_files=None, ref_targets=None):
+  '''
+  Convert from csv parameter files to fixed width text format.
+
+  Uses csv_v1_specification().
+
+  Unrefined function that depends on the csv file being
+  appropriately formatted in a variety of ways, including at least:
+   - consistent pft names
+   - all variables present
+   - calibration targets variables for leaf/stem/roots being named as follows
+     - VegCarbon:Leaf, etc
+     - VegStructuralNitrogen:Leaf, etc
+   - PFT names <= 12 characters long
+   - consistent CMT names
+  
+  Parameters
+  ==========
+  csv_file : string, path
+    Path to an input csv file to convert.
+
+  ref_directory : string, path
+    Path to a folder containing parameter files to be used as reference for
+    formatting the resulting fixed width data.
+  
+  ref_targets : string, path
+    Path to a calibration_targets.py file that will be used for reference in
+    formatting the resulting data.
+  
+  overwrite_files : bool
+    (experimental) Flag for determining whether to print results to stdout
+    (default) or to overwrite the data in the reference files. May not work if
+    the CMT number in the csv file is not present in the reference files.
+
+  Return
+  ======
+  Zero.
+  '''
+
+  sections = csv_v1_find_section_indices(csv_file)
+
+  with open(csv_file, 'r') as f:
+    data = f.readlines()
+
+  pft_data = csv_v1_read_section(data, bounds=sections['pft'])
+  nonpft_data = csv_v1_read_section(data, bounds=sections['nonpft'])
+  meta = csv_v1_read_section(data, bounds=sections['meta'])
+
+  # The csv_v1_read_section function doesn't work well for the header comments
+  # as the data is not csv and doesn't parse easily using csv.reader.
+  # So we can parse it manually here. Goal is to pull out all the relevant 
+  # metadata, strip off extraneous charachters (#, \n, etc) and print the data
+  # in comment lines in the fixed width text files.
+  commentstr = ''
+  s, e = sections['headercomments']
+  for i, line in enumerate(data[s:e]):
+    l2 = line.split(':')
+    if len(l2) > 1:
+      k = l2[0].strip().strip('#').strip('"').strip('#')
+      v = ''.join(l2[1:]).strip().strip(',')
+      if k.strip() == 'cmtnumber' or k.strip() == 'cmtname':
+        pass
+      else:
+        commentstr += "// {} // {}\n".format(k, v)
+  # Will use this commentstr later in the fucntion when assembling the output.
+
+  if ref_targets:
+    # Take care of the targets data - this is formatted differently from
+    # the other parameters. While the other parameters are the fixed width
+    # text format, the calibration targets are stored in a python object.
+    # So here we print the object out
+    if not(os.path.exists(ref_targets)):
+      print("ERROR - targets ({}) don't exist, quitting.".format(ref_targets))
+      exit(-1)
+
+    print(ref_targets)
+
+    # filter by column with the file name/path in it
+    relevant_pft_vars = list(filter(lambda x: ref_targets in x['file'], pft_data))
+    relevant_nonpft_vars = list(filter(lambda x: ref_targets in x['file'], nonpft_data))
+    relevant_meta = list(filter(lambda x: ref_targets in x['file'], meta))
+
+    if all(map(lambda x: len(x)<1, [relevant_pft_vars, relevant_meta, relevant_nonpft_vars])):
+      raise RuntimeError("Invalid ref_targets file! Can't find appropriate data.")
+
+    new_targs = {}
+
+    for i in relevant_nonpft_vars:
+      new_targs[i['name']] = i['value']
+
+    for i in relevant_pft_vars:
+      l = []
+      for pftnum in range(0,10):
+        if i['name'] == 'PFTNames':
+          l.append(i[str(pftnum)])
+        else:
+          l.append(float(i[str(pftnum)]))
+
+      if ':' in i['name']:
+        a, b = i['name'].split(':')
+        if a not in new_targs:
+          new_targs[a] = dict()
+        new_targs[a][b] = l
+      else:
+        new_targs[i['name']] = l
+
+    # Print it out in some kind of semi-reasonable format...
+    new_targs['cmtnumber'] = relevant_meta[0]['cmtkey']
+    full_string = ''
+    full_string += "'{}' : {{\n".format(relevant_meta[0]['cmtname'])
+    for k, v in new_targs.items():
+      if isinstance(v, list):
+        if k == 'PFTNames':
+          full_string += "  '{}':  {},\n".format(k, v)
+        else:
+          u = ['{:0.3f}, ' for i in v]
+          s = "".join(u).format(*v)
+          full_string += "  '{}':  [{}],\n".format(k, s)
+      elif isinstance(v, dict):
+        full_string += "  '{}': {{\n".format(k)
+        for kk, vv in v.items():
+          u = ['{:0.3f}, ' for i in vv]
+          s = "".join(u).format(*vv)
+          full_string += "    '{}' : [{}],\n".format(kk, s)
+        full_string += "  },\n"
+      else:
+        full_string += "  '{}': {},\n".format(k, v)
+    full_string += "}\n"
+    print(full_string)
+
+  ## All other parameters (not calibration targets)
+  for reffile in os.listdir(ref_directory):
+    print(reffile)
+
+    relevant_pft_vars = list(filter(lambda x: reffile in x['file'], pft_data))
+    relevant_nonpft_vars = list(filter(lambda x: reffile in x['file'], nonpft_data))
+    relevant_meta = list(filter(lambda x: reffile in x['file'], meta))
+
+    # Handle the datablock header
+    full_string = '//==========================================================\n'
+    full_string += '// {} // {} // {}\n'.format(relevant_meta[0]['cmtkey'], relevant_meta[0]['cmtname'], relevant_meta[0]['comment'])
+    full_string += commentstr # This was built up earlier when parsing the file.
+
+    # Handle the PFT header line
+    if len(list(filter(lambda x: x['name'] == 'pftname', relevant_pft_vars))) > 0:
+      s = '//' # Comment out the header line for PFT Names
+      k = [x for x in relevant_pft_vars if x['name'] == 'pftname']
+      for i in range(0,10):
+        s += '{:>12} '.format(k[0][str(i)])
+      s += '// name: units // description // comment // refs\n'
+      full_string += s
+
+    # Handle the data
+    order = generate_reference_order(os.path.join(ref_directory, reffile))
+    for v in order:
+      p = list(filter(lambda x: x['name'] == v, relevant_pft_vars))
+      n = list(filter(lambda x: x['name'] == v, relevant_nonpft_vars))
+      if len(p) > 0 and len(n) > 0:
+        raise RuntimeError("Something is wrong...")
+
+      if len(p) > 0:
+        p = p[0]
+        # it is a pft variable...
+        # start with 2 spaces so that columns line up with commented PFT name
+        # line above...
+        s = '  '
+        for i in range(0,10):
+          s += smart_format(p[str(i)])
+        s += '// {}: {} // {} // {} // {}\n'.format(p['name'], p['units'], p['description'], p['comment'], p['refs'])
+        full_string += s
+
+      elif len(n) > 0:
+        n = n[0]
+        # is is a non-pft variable...
+        s = '{val} // {name}: {units} // {desc} // {comment} // {refs}\n'
+        s = s.format(val=smart_format(n['value']), name=n['name'], units=n['units'],
+          desc=n['description'], comment=n['comment'], refs=n['refs'])
+        full_string += s
+    if overwrite_files:
+      with tempfile.NamedTemporaryFile(mode='w+t') as temp:
+        temp.writelines(full_string)
+        temp.flush()
+        replace_CMT_data(os.path.join(ref_directory, reffile), temp.name, 0, overwrite=True)
+    else:
+      print(full_string)
+      print()
+      print()
+
+  return 0
+
+
+def smart_format(x, n=6, basefmt='{:12.4f} ', toolongfmt='{:12.3e} '):
+  '''
+  Provides a flexible method for printing different number formats.
+
+  Tries to assess the length of the string version of x and apply different
+  formats based on the length. While the formats are flexible using 
+  keyword arguments, the defauts are generally for fixed decimal notation for
+  shorter numbers and scientific notation for longer numbers.
+
+  Parameters
+  ----------
+  x : anything that can cast to a float
+    The value to format.
+
+  n : int
+    The length at which the function switches between basefmt and toolongfmt.
+
+  basefmt :  a format string
+    The format to use for x if string representation of x is shorter than n.
+
+  toolongfmt : a format string
+    The format to use for x if string representation of x is longer than n.
+
+  Returns
+  -------
+  str : formatted version of x
+  '''
+  if type(x) == str:
+    x = float(x)
+
+  if len(str(x).strip()) > n:
+    return toolongfmt.format(float(x))
+  else:
+    return basefmt.format(float(x))
+
+
+def csv_v1_specification():
+  '''
+  Specification for v1 csv files for holding parameter data.
+
+  Each csv file will hold the data for one Community Type (CMT). As such the csv
+  file will be broken into sections to accomodate the different number of
+  columns in different sections. The sections of the file will be: 
+   - a metadata section,
+   - a section for PFT specific parameters, and
+   - a section for non-PFT parameters.
+
+  Each section will begin with a header line that describes the columns.
+  
+  The header for the metadata will be: 
+  file,cmtkey,cmtname,comment
+
+  The header for the PFT section will be:
+  file,name,0,1,2,3,4,5,6,7,8,9,units,description,comment,refs
+
+  The header for the non-PFT section will be:
+  file,name,value,units,description,comment,refs
+
+  Each section will end with two consecutive blank lines.
+
+  Note that csv files prepared from different spreadsheet programs may have
+  different treatment regarding blank lines and rows with varying numbers of
+  columns. Many programs will produce files with lots of extra commas 
+  deliniating empty columns. Some of these extraneous commas have been omitted 
+  in the sample below.
+
+  Example data:
+
+  # dvmdostem parameters: v0.5.6-178-g4cdb7c34
+  # cmtnumber: 22
+  # cmtname: Single PFT Alpine Tussock Tundra
+  # cmtdescription: alpine tussock tundra for Interior Alaska ....
+  # calibration site: The sentinel site used ....
+  # calibration notes: Calibration conducted manually by Joy ... 
+  # references file: refs.bib
+  #
+  # To convert this file back to fixed width text for use with dvmdostem
+  # see the param_util.csv2fwt_v1() function.
+  #
+  file,cmtkey,cmtname,comment,,,,,,,,,,,,
+  ../parameters/cmt_bgcvegetation.txt,CMT22,Single PFT Alpine Tussock Tundra,,,,,,,,,,,,,
+  ../parameters/cmt_dimvegetation.txt,CMT22,Single PFT Alpine Tussock Tundra,,,,,,,,,,,,,
+  ,,,,,,,,,,,,,,,
+  ,,,,,,,,,,,,,,,
+  file,name,0,1,2,3,4,5,6,7,8,9,units,description,comment,refs
+  ../calibration/calibration_targets.py,PFTNames,ecosystem,pft1,pft2,pft3,pft4,pft5,pft6,pft7,pft8,pft9,,,,
+  ../calibration/calibration_targets.py,VegCarbon:Leaf,320.2073015,0,0,0,0,0,0,0,0,0,,,,
+  ../calibration/calibration_targets.py,VegCarbon:Root,480.9949012,0,0,0,0,0,0,0,0,0,,,,
+  ,,,,,,,,,,,,,,,
+  ,,,,,,,,,,,,,,,
+  file,name,value,units,description,comment,refs,,,,,,,,,
+  ../calibration/calibration_targets.py,AvailableNitrogenSum,1.7,,,,,,,,,,,,,
+  ../calibration/calibration_targets.py,MossDeathC,0,,,,,,,,,,,,,
+  ../parameters/cmt_bgcsoil.txt,fnloss,0,,  fraction N leaching (0 - 1) when drainage occurs,,,,,,,,,,,
+  ../parameters/cmt_bgcsoil.txt,fsompr,0.611,,,,,,,,,,,,,
+  '''
+  pass # Do nothing, simply a docstring function!
+
+
+def csv_v1_find_section_indices(csv_file):
+  '''
+  Parses a csv file and returns the starting and ending indices for each 
+  section in the file.
+
+  Uses csv_v1_specification().
+
+  Returns
+  =======
+  sections : dict
+    Mapping of section names to a pair of ints representing the start and end
+    indices of the section, for example: 
+    {'meta':(0,5), 'pft':(8,25), 'nonpft':(25,35)}
+  '''
+
+  sections = {}
+
+  with open(csv_file, 'r') as f:
+    data = f.readlines()
+
+  for i, line in enumerate(data):
+    if len(line) > 0 and line[0] == '#':
+      pass # skipping comments...
+    elif 'file,cmtkey,cmtname,comment' in line:
+      sections['meta'] = [i, None]
+    elif 'file,name,0,1,2,3,4,5,6,7,8,9,units,description,comment,refs' in line:
+      sections['pft'] = [i, None]
+    elif 'file,name,value,units,description,comment,refs' in line:
+      sections['nonpft'] = [i,None]
+
+  for section, (start, end) in sections.items():
+    for i, line in enumerate(data[start:]):
+      ldata = [x.strip() for x in line.split(',')]
+      if len(ldata) == 0 or ldata[0] == '':
+        sections[section][1] = sections[section][0] + i
+        break
+
+  # The header comments are assumed to run from the start of the file
+  # to the line right before the meta section starts.
+  sections['headercomments'] = [0, sections['meta'][0]-1]
+
+  return sections
+
+
+def csv_v1_read_section(data, bounds):
+  '''
+  Write this...
+
+  Uses csv_v1_specification().
+
+  Parameters
+  ==========
+  data : list
+    The list of lines of a specially formatted csv file.
+  bounds : tuple
+    Pair of ints representing the starting and ending indices of a section.
+
+  Returns
+  =======
+  A list of dicts produced by csv.DictReader, one key for each column name.
+  '''
+  start = bounds[0]
+  end = bounds[1]
+  csvreader = csv.DictReader(data[start:end], dialect='excel')
+  return [row for row in csvreader]
 
 
 def error_exit(fname, msg, linenumber=None):
@@ -175,10 +750,12 @@ def error_exit(fname, msg, linenumber=None):
   sys.exit(-1)
 
 
-def csv_specification():
+def csv_v0_specification():
   '''
   Specification for csv files that hold parameter data.
   
+  (DEPRECATED!!)
+
   This csv format is intended to be used as a bridge between Excel
   and the dvmdostem space delimited parameter files. Expected usage: A user
   maintains or develops a spreadsheet with parameter data. Then user exports
@@ -225,38 +802,15 @@ def csv_specification():
   pass
 
 
-def standardize_pftnames(names):
-  '''
-  Replaces any spaces, dots, underscores or dashes with CamelCase.
-  
-  Parameters
-  ----------
-  names : list, required
-    A list of strings, with PFT names.
-
-  Returns
-  -------
-    A list of strings with each item changed to CamelCase.
-
-  Example
-  -------
-      >>> standardize_pftnames(['Test 1','Test-32','test_6','test.34.helper'])
-      ['Test1', 'Test32', 'Test6', 'Test34Helper']
-  '''
-  def fix(x):
-    # look for common separators, have to escape the period
-    x = re.sub(r"(_|-| |\.)+", "$",x).title().replace("$",'')
-    return x
-  return list(map(fix, names))
-
-
-def get_pftnames(data):
+def csv_v0_get_pftnames(data):
   '''
   Retrieves PFT names from a specially formatted csv file.
-  
+
+  (DEPRECATED!!)
+
   Assumes that `data` is a list of lines read from a csv file that
-  is formatted according to the csv_specification. See help for the
-  csv_specification() function.
+  is formatted according to the csv_v0_specification. See help for the
+  csv_v0_specification() function.
 
   Parameters
   ----------
@@ -278,18 +832,20 @@ def get_pftnames(data):
       return row[1:]
 
 
-def find_section_starts(data):
+def csv_v0_find_section_starts(data):
   '''
   Gets the starting index and name for sections of data in a specially formatted csv file.
 
+  (DEPRECATED!!)
+
   Assumes that `data` is a list of lines read from a csv file. See help
-  (docstring) for csv_specification().
+  (docstring) for csv_v0_specification().
 
   Parameters
   ----------
   data : list of strings, required
     Assumed to be a list generated by reading a csv file that is
-    formatted as in csv_specification.
+    formatted as in csv_v0_specification.
 
   Returns
   -------
@@ -301,8 +857,8 @@ def find_section_starts(data):
   starts = []
   sections = []
   for i, row in enumerate(csvreader):
-    if all(x == '' for x in row[1:]):
-      if row[0] != '':
+    if all(x == '' for x in row[1:]): # found a blank line
+      if len(row) > 0 and row[0] != '': # found a
         if row[0].isupper():
           #print(i, row)
           starts.append(i)
@@ -311,19 +867,21 @@ def find_section_starts(data):
   return results
 
 
-def get_section(data, start):
+def csv_v0_get_section(data, start):
   '''
   Extracts a section of block of data from a specially formatted csv file.
 
+  (DEPRECATED!!)
+
   Assumes that `data` is a list of lines read from a csv file. See help 
-  (the docstring) for the csv_specification() function to get more details
+  (the docstring) for the csv_v0_specification() function to get more details
   on how the csv file should be setup.
 
   Parameters
   ----------
   data : list of strings, required
     Assumed to be a list generated by reading a csv file that is formatted as 
-    described in the docstring for csv_specification()
+    described in the docstring for csv_v0_specification()
   start:
     The index in the `data` list where the section starts.
 
@@ -363,25 +921,27 @@ def converter(x):
   return x
 
 
-def format_section(section_data, full_data):
+def format_section_csv_v0(section_data, full_data):
   '''
   Prints data (presumably from csv file) to dvmdostem space delimited parameter format.
+
+  (DEPRECATED!!)
 
   No effort is made to standardize the variable names or comments in the resulting
   block. Used a fixed width column, space delimited.
 
-  See the help for csv_specification() function to find more info on how the
+  See the help for csv_v0_specification() function to find more info on how the
   csv file should be formatted.
 
   Parameters
   ----------
   section_data : list
     Assumed to be a list of lines for one section of data read from a csv file. The csv 
-    file must be formatted as described in the docstring for csv_specification().
+    file must be formatted as described in the docstring for csv_v0_specification().
     
   full_data : list
     Assumed to be a list of lines of all the data read from a csv file. The csv 
-    file must be formatted as described in the docstring for csv_specification().
+    file must be formatted as described in the docstring for csv_v0_specification().
 
   Returns
   -------
@@ -465,7 +1025,7 @@ def find_cmt_start_idx(data, cmtkey):
   '''
 
   # NOTE: Should probably rasie some kind of ERROR if CMTKEY is not 
-  # somethign like CMT00
+  # something like CMT00
 
   for i, line in enumerate(data):
     if cmtkey.upper() in line:
@@ -473,6 +1033,7 @@ def find_cmt_start_idx(data, cmtkey):
 
   # Key not found
   return None
+
 
 def read_paramfile(thefile):
   '''
@@ -491,6 +1052,7 @@ def read_paramfile(thefile):
   with open(thefile, 'r') as f:
     data = f.readlines()
   return data
+
 
 def compare_CMTs(fileA, cmtnumA, fileB, cmtnumB, ignore_formatting=True):
   '''
@@ -523,7 +1085,7 @@ def compare_CMTs(fileA, cmtnumA, fileB, cmtnumB, ignore_formatting=True):
   dataA = get_CMT_datablock(fileA, cmtnumA)
   dataB = get_CMT_datablock(fileB, cmtnumB)
 
-  # Standardize whitespace and numeric format using the foratting function.
+  # Standardize whitespace and numeric format using the formatting function.
   if ignore_formatting:
     dataA = format_CMTdatadict(cmtdatablock2dict(dataA), fileA)
     dataB = format_CMTdatadict(cmtdatablock2dict(dataB), fileB)
@@ -540,11 +1102,37 @@ def compare_CMTs(fileA, cmtnumA, fileB, cmtnumB, ignore_formatting=True):
       print("   B: {}".format(B))
       print("")
 
+
 def is_CMT_divider_line(line):
   '''
   Checks to see if a line is one of the comment lines we use to divide
   CMT data blocks in parameter files, e.g. // ====== '''
   return re.search('^//[ =]+', line.strip())
+
+
+def standardize_pftnames(names):
+  '''
+  Replaces any spaces, dots, underscores or dashes with CamelCase.
+  
+  Parameters
+  ----------
+  names : list, required
+    A list of strings, with PFT names.
+
+  Returns
+  -------
+    A list of strings with each item changed to CamelCase.
+
+  Example
+  -------
+      >>> standardize_pftnames(['Test 1','Test-32','test_6','test.34.helper'])
+      ['Test1', 'Test32', 'Test6', 'Test34Helper']
+  '''
+  def fix(x):
+    # look for common separators, have to escape the period
+    x = re.sub(r"(_|-| |\.)+", "$",x).title().replace("$",'')
+    return x
+  return list(map(fix, names))
 
 
 def replace_CMT_data(origfile, newfile, cmtnum, overwrite=False):
@@ -599,6 +1187,107 @@ def replace_CMT_data(origfile, newfile, cmtnum, overwrite=False):
   return data
 
 
+def keyFnum(x):
+  '''
+  Given a number
+  
+  Examples:
+
+  >>> keyFnum(4)
+  'CMT04'
+
+  >>> keyFnum(0)
+  'CMT00'
+
+  >>> keyFnum('4')
+  'CMT04'
+
+  >>> keyFnum('000')
+  'CMT00'
+
+  >>> keyFnum('101')
+  Traceback (most recent call last):
+    ...
+  RuntimeError: Out of range 0 <= x <= 99
+
+  >>> keyFnum(101)
+  Traceback (most recent call last):
+    ...
+  RuntimeError: Out of range 0 <= x <= 99
+  
+  >>> keyFnum('  5 ')
+  'CMT05'
+  
+  >>> keyFnum('50 0')
+  Traceback (most recent call last):
+    ...
+  ValueError: invalid literal for int() with base 10: '50 0'
+  '''
+  num = int(x)
+  if num < 0 or num > 99:
+    raise RuntimeError("Out of range 0 <= x <= 99")
+  
+  return 'CMT{:02}'.format(num)
+
+
+def isParamFile(x):
+  '''
+  Check to see if a file is likely a dvmdostem parameter file.
+  '''
+  if os.path.isfile(x):
+    try:
+      cmts = get_CMTs_in_file(x)
+    except UnicodeDecodeError:
+      return False
+
+    if len(cmts) > 0:
+      return True
+
+  return False
+
+
+def isCMTkey(x):
+  '''
+  Function for testing validity of a CMT key specifier.
+
+  Examples:
+  =========
+  >>> [isCMTkey(x) for x in ('cmt04', 'cmt999', 'CMt56', 'CMT4y6', 'CMT00')]
+  [True, False, True, False, True]
+
+  >>> [isCMTkey(x) for x in ('cmt00', 'cmt1234', 'c mtx', ' cmt09', 'cmt04 ',)]
+  [True, False, False, True, True]
+
+  >>> [isCMTkey(x) for x in ('cmt 23', '4', '04', '0004', 'cmt4')]
+  [True, False, False, False, False]
+  '''
+
+  if type(x) != str:
+    return False #, "Not a string."
+
+  x = x.strip()
+  x = x.replace(' ','')
+
+  if not x.isalnum():
+    return False #, "Not an alphanumeric string"
+
+  a = x[0:3]
+  b = x[3:]
+  if not b.isnumeric():
+    return False #, End of specifier not a number
+
+  if int(b) < 0 or int(b) > 99:
+    return False #, Number out of range
+
+  if x[0:3].upper() != 'CMT':
+    return False #, "first 3 chars not CMT"
+
+  if not x[-2:].isnumeric():
+    return False #, "Last 2 chars not numeric"
+
+  return True
+
+
 def get_CMT_datablock(afile, cmtnum):
   '''
   Search file, returns the first block of data for one CMT as a list of strings.
@@ -648,14 +1337,39 @@ def get_CMT_datablock(afile, cmtnum):
 
   return data[startidx:end]
 
+
 def detect_block_with_pft_info(cmtdatablock):
-  # Perhaps should look at all lines??
-  secondline = cmtdatablock[1].strip("//").split()
-  if len(secondline) >= 9:
-    #print "Looks like a PFT header line!"
+  '''
+  Inspects a block of CMT data and trys to figure out if it is PFT data or not.
+
+  Parameters
+  ----------
+  cmtdatablock : list of strings
+    A list of strings representing a datablock of dvmdostem parameter data.
+
+  Return
+  ------
+  result : bool
+  '''
+  # Find the end of the comment lines.
+  for i, line in enumerate(cmtdatablock):
+    cl = line.strip()
+    if cl[0:2] == '//':
+      pass # comment line
+    else:
+      idx_first_data = i
+      idx_last_comment = i-1
+      break
+
+  d = cmtdatablock[idx_first_data]
+
+  # Pull off any leading spaces, then split into data and comments.
+  # The data is then space separated, and when split should be 10 fields
+  # if it is PFT data...
+  if len(d.strip().split('//')[0].split()) == 10:
     return True
   else:
-    return False
+    return False  
 
 
 def parse_header_line(linedata):
@@ -706,7 +1420,6 @@ def parse_header_line(linedata):
   return cmtkey, cmtname, cmtcomment
 
 
-
 def get_pft_verbose_name(cmtkey=None, pftkey=None, cmtnum=None, pftnum=None, lookup_path=None):
   if lookup_path == "relative_to_dvmdostem":
     path2params = os.path.join(os.path.split(os.path.dirname(os.path.realpath(__file__)))[0], 'parameters/')
@@ -738,6 +1451,7 @@ def get_pft_verbose_name(cmtkey=None, pftkey=None, cmtnum=None, pftnum=None, loo
 
   return dd[pftkey.lower()]['name']
 
+
 def cmtdatablock2dict(cmtdatablock):
   '''
   Converts a "CMT datablock" (list of strings) into a dict structure.
@@ -764,11 +1478,22 @@ def cmtdatablock2dict(cmtdatablock):
   cmtdict['comment'] = hdrcomment
 
   if pftblock:
-    # Look at the second line for something like this:
-    # PFT name line, like: "//Decid.     E.green      ...."
-    pftlist = cmtdatablock[1].strip("//").strip().split()
-    pftnames = pftlist[0:10]
+    for i, line in enumerate(cmtdatablock):
+      cl = line.strip()
+      if cl[0:2] == '//':
+        pass # comment line
+      else:
+        idx_first_data = i
+        idx_last_comment = i-1 # The last comment line should hold PFT names.
+        break
     
+    lcl = cmtdatablock[idx_last_comment]
+    # pull off the leading comment, split on comments (to discard the trailing
+    # metadata), then split on spaces.
+    # Example:
+    #   '// ecosystem    pft1    ...  // name: units // description // comment // refs\n'
+    pftnames = lcl.strip('//').split('//')[0].split()
+
     for i, pftname in enumerate(pftnames):
       cmtdict['pft%i'%i] = {}
       cmtdict['pft%i'%i]['name'] = pftname
@@ -776,22 +1501,48 @@ def cmtdatablock2dict(cmtdatablock):
 
   for i, line in enumerate(cmtdatablock):
     if line.strip()[0:2] == "//":
-      #print "passing line", i
       continue # Nothing to do...commented line
+    else:
+      data, *meta = line.strip().split('//')
 
-    else: # normal data line
-      dline = line.strip().split("//")
-      values = dline[0].split()
-      if len(dline) > 1:
-        comment = dline[1].strip().strip("//").split(':')[0]
-      else:
-        comment = ''
+      data = data.strip().split()
 
-      if len(values) >= 5: # <--ARBITRARY! likely a pft data line?
-        for i, value in enumerate(values):
-          cmtdict['pft%i'%i][comment] = float(value)
+      vname = units = desc = comment = refs = ''
+
+      if len(meta) < 1:
+        raise RuntimeError("Invalid file - must have metadata for variable!")
+
+      if len(meta) >= 1:
+        if len(meta[0].strip().split(':')) != 2:
+          raise RuntimeError("Problem with formatting of name:units for {} (line: {})".format(meta, line))
+        vname, units = meta[0].strip().split(':')
+
+      if len(meta) >= 2:
+        # must have the name/units and desc fields
+        desc = meta[1].strip()
+
+      if len(meta) >= 3:
+        # must have the name/units, desc, and comment
+        comment = meta[2].strip()
+
+      if len(meta) >= 4:
+        # must have the name/units, desc, comment, and refs field
+        refs = meta[3].strip()
+
+      if len(data) > 1: # A PFT line should have more than one data value
+        for i, value in enumerate(data):
+          cmtdict['pft%i'%i][vname] = float(value)
+          cmtdict['pft%i'%i]['units_{}'.format(vname)] = units
+          cmtdict['pft%i'%i]['desc_{}'.format(vname)] = desc
+          cmtdict['pft%i'%i]['comment_{}'.format(vname)] = comment
+          cmtdict['pft%i'%i]['refs_{}'.format(vname)] = refs
+
       else:
-        cmtdict[comment] = float(values[0])
+        cmtdict[vname] = float(data[0])
+        cmtdict['units_{}'.format(vname)] = units
+        cmtdict['desc_{}'.format(vname)] = desc
+        cmtdict['comment_{}'.format(vname)] = comment
+        cmtdict['refs_{}'.format(vname)] = refs
 
   return cmtdict
 
@@ -832,6 +1583,8 @@ def format_CMTdatadict(dd, refFile, format=None):
   ll = []
 
   # Work on formatting the first comment line
+  # should produce something like this:
+  # // CMT04 // Shrub Tundra // comment...
   cmt, name, comment = parse_header_line(get_CMT_datablock(refFile, dd['tag'])[0])
   ll.append("// " + " // ".join((cmt, name, comment)))
 
@@ -883,11 +1636,9 @@ def format_CMTdatadict(dd, refFile, format=None):
       pass # Nothing to do; already did pft stuff
     else:
       # get item from dict, append to line
-      ll.append('{:<12.6f} // {}'.format(dd[var], var))
+      ll.append('{:<12.6f} // {}: '.format(dd[var], var))
 
   return ll
-
-
 
 
 def generate_reference_order(aFile):
@@ -973,6 +1724,7 @@ def get_datablock_pftkeys(dd):
   '''
   return sorted([i for i in list(dd.keys()) if 'pft' in i])
 
+
 def enforce_initvegc_split(aFile, cmtnum):
   '''
   Makes sure that the 'cpart' compartments variables match the proportions
@@ -1020,6 +1772,7 @@ def enforce_initvegc_split(aFile, cmtnum):
       dd[pft]['cpartr'] = 0.0
 
   return dd
+
 
 def get_ecosystem_total_C(cmtstr, ref_params_dir):
   
@@ -1100,6 +1853,7 @@ def percent_ecosys_contribution(cmtstr, tname=None, pftnum=None, compartment=Non
   #print "cmtstr: {}  tname: {}  pftnum: {}  compartment: {}  PEC: {}".format(cmtstr, tname, pftnum, compartment, pec)
   return pec
 
+
 def is_ecosys_contributor(cmtstr, pftnum=None, compartment=None, ref_params_dir=None):
 
   pftstr = 'pft{}'.format(pftnum)
@@ -1129,6 +1883,7 @@ def is_ecosys_contributor(cmtstr, pftnum=None, compartment=None, ref_params_dir=
           is_contrib = False
 
   return is_contrib
+
 
 def get_available_CMTs(pdir):
   '''
@@ -1164,6 +1919,7 @@ def get_available_CMTs(pdir):
     all_cmts = all_cmts.union(file_cmt_set)
 
   return list(all_cmts)
+
 
 def which_file(pdir, pname, lookup_struct=None):
   '''
@@ -1201,6 +1957,7 @@ def which_file(pdir, pname, lookup_struct=None):
     else:
         pass
   raise RuntimeError("Parameter not found!")
+
 
 def build_param_lookup(pdir):
   '''
@@ -1253,6 +2010,7 @@ def build_param_lookup(pdir):
     lu[f] = {'non_pft_params':non_pft_params,'pft_params':pft_params}
   return lu
 
+
 def update_inplace(new_value, param_dir, pname, cmtnum, pftnum=None):
   '''
   Updates a parameter value in a parameter file. This will overwrite the
@@ -1303,7 +2061,7 @@ def cmdline_parse(argv=None):
   Return
   ------
   args : Namespace
-    A Namespace object with all the argument and associated values.
+    A Namespace object with all the arguments and associated values.
   '''
   parser = argparse.ArgumentParser(
     formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -1369,20 +2127,53 @@ def cmdline_parse(argv=None):
         'cmt_*.txt' in the %(metavar)s.'''))
 
   parser.add_argument('--plot-static-lai', nargs=2, metavar=('INFOLDER','CMT'),
-      help=textwrap.dedent('''Makes plots of the static_lai parameter. static_lai
-        is a monthly value, so each PFT has 12 entries in the parameter file. 
-        The plot shows the values over the year so you can check the seasonality.
-        Looks a 'cmt_dimvegetation.txt file in the INFOLDER.'''))
- 
-  parser.add_argument('--csv2cmtdatablocks', nargs=2, metavar=('CSVFILE', 'CMTNAME'),
-      help=textwrap.dedent('''(BETA) Reads data from csv file and prints CMT 
-        datablocks to stdout. Expected workflow is that user starts with a spreadsheet
-        that is exported to csv, then use this feature is used to parse the csv and 
-        print formatted sections of data to stdout that can be pasted into the standard
-        dvmdostem space delimited text files that are used for parameters.'''))
+      help=textwrap.dedent('''Makes plots of the static_lai parameter. 
+        static_lai is a monthly value, so each PFT has 12 entries in the
+        parameter file. The plot shows the values over the year so you can check
+        the seasonality. Looks a 'cmt_dimvegetation.txt file in the
+        INFOLDER.'''))
 
-  parser.add_argument('--csv-specification', action='store_true',
-      help='''Print the specification for supported csv files.''')
+  parser.add_argument('--extract-cmt', nargs=2, metavar=('INFOLDER','CMTKEY'),
+      help=textwrap.dedent('''Given a folder of parameter files, and a CMT
+        number, this will open each file, copy the block of data for the CMT 
+        and paste that block in to a new file named CMTKEY_cmt_*.txt, 
+        i.e: CMT04_cmt_calparbgc.txt'''))
+
+  parser.add_argument('--csv-v1-spec', action='store_true',
+      help='Print the specification for the supported csv files, v1.')
+
+  parser.add_argument('--fwt2csv-v1', nargs=3, 
+      metavar=('PARAMDIR','REQ_CMTS','TARGETS'),
+      help=textwrap.dedent('''Converts all the parameters found in the files in
+      PARAMDIR into csv format, creating one csv file for each requested CMT.
+      REQ_CMTs should be a comma separatedlist of CMT numbers. The resulting csv
+      file will be v1, and will have the targets included as found in the
+      TARGETS file.'''))
+
+  parser.add_argument('--csv2fwt-v1', nargs=3,
+        metavar=('CSV','REFPARAMS','REFTARGETS'),
+        help=textwrap.dedent('''Converts the input CSV file into the standard 
+        dvmdostem Fixed Width Text parameter format. The CSV file must conform
+        to the v1 specification and must have all info present! Prints the
+        resulting data to stdout in a format that can be copied into new or
+        existing dvmdostem parameter files. Also prints the targets data such
+        that if can be copied into an existing targets file, although the key
+        order may not match the hand-formatted targets.'''))
+
+  parser.add_argument('--csv-v0-2cmtdatablocks', nargs=2,
+      metavar=('CSVFILE', 'CMTNAME'),
+      help=textwrap.dedent('''(DEPRECATED!!) Reads data from csv file and prints
+        CMT datablocks to stdout. Expected workflow is that user starts with a
+        spreadsheet that is exported to csv, then use this feature is used to
+        parse the csv and print formatted sections of data to stdout that can be
+        pasted into the standard dvmdostem space delimited text files that are
+        used for parameters.'''))
+
+  parser.add_argument('--csv-v0-spec', action='store_true',
+      help='''(DEPRECATED!!) Print the specification for supported csv files, v0.''')
+
+  parser.add_argument('--params2csv-v0', nargs=2, metavar=('PARAMFOLDER','CMTKEY'),
+      help=textwrap.dedent('''(DEPRECATED!!) Dumps a parameter file to csv format.'''))
 
   args = parser.parse_args(argv)
 
@@ -1401,21 +2192,159 @@ def cmdline_run(args):
     'cmt_envground.txt',
     'cmt_firepar.txt',
   ]
-  
-  if args.csv_specification:
-    print(csv_specification.__doc__)
+
+  if args.csv_v1_spec:
+    print(csv_v1_specification.__doc__)
+    return(0)
+
+  if args.fwt2csv_v1:
+    pdir = args.fwt2csv_v1[0]
+    req_cmts = args.fwt2csv_v1[1].split(',')
+    targets = args.fwt2csv_v1[2]
+    if len(req_cmts) == 1 and 'all' in req_cmts:
+      req_cmts = 'all'
+    else:
+      req_cmts = [int(x) for x in req_cmts]
+    fwt2csv_v1(pdir, req_cmts, targets)
     return 0
 
-  if args.csv2cmtdatablocks:
-    inputcsv = args.csv2cmtdatablocks[0]
-    cmtname = args.csv2cmtdatablocks[1]
+  if args.csv2fwt_v1:
+    csvfile = args.csv2fwt_v1[0]
+    ref_params = args.csv2fwt_v1[1]
+    ref_targets = args.csv2fwt_v1[2]
+    csv2fwt_v1(csvfile, ref_directory=ref_params, ref_targets=ref_targets)
+    return 0
+
+  if args.params2csv_v0:
+    folder = args.params2csv_v0[0]
+    cmtkey = args.params2csv_v0[1]
+
+    if not isCMTkey(cmtkey):
+      print("Invalid CMT key! Aborting.")
+      return -1
+
+    param_files = os.listdir(folder)
+    param_files = [os.path.join(folder, f) for f in param_files]
+
+    if len(param_files) < 1:
+      print("No files in specified folder! Aborting.")
+      return -1
+
+    lines = []
+    for f in param_files:
+      if isParamFile(f):
+
+        # use the incoming file as a reference
+        ref_order = generate_reference_order(f)
+
+        # A line for the file name
+        lines.append('{}'.format(f).upper())
+
+        # get data from the fixed width formatted file...
+        dd = cmtdatablock2dict(get_CMT_datablock(f, int(cmtkey[3:])))
+
+        # Work on formatting the first comment line
+        # should produce something like this:
+        # // CMT04 // Shrub Tundra // comment...
+        cmt, name, comment = parse_header_line(get_CMT_datablock(f, dd['tag'])[0])
+        lines.append("// " + " // ".join((cmt, name, comment)))
+        
+        # Now work on formatting the second comment line, which may not exist, or
+        # may need to have PFT names as column headers. Look at the keys in the
+        # data dict to figure out what to do...
+        pftnamelist = []
+        for k in sorted(dd.keys()):
+          # regular expression matching pft and a digit
+          # need this 'cuz cmt_bgcsoil.txt has a parameter named 'propftos'
+          # when there is a match, the result is a regular expression object
+          # otherwise it is None.
+          result = re.match('pft\d', k)
+          if result:
+            pftnamelist.append(dd[k]['name'])
+          else:
+            pass # not a PFT key
+
+        if len(pftnamelist) > 0:
+          s = ",".join(["{}".format(i) for i in pftnamelist])
+          lines.append(s)
+
+        def is_pft_var(v):
+          '''Function for testing if a variable is PFT specific or not.'''
+          if v not in list(dd.keys()) and v in list(dd['pft0'].keys()):
+            return True
+          else:
+            return False
+
+        # First take care of the PFT variables
+        for var in ref_order:
+          if not is_pft_var(var):
+            pass
+          else:
+            # get each item from dict, append to line
+            linestring = ''
+            for pft in get_datablock_pftkeys(dd):
+              linestring += "{:0.6f},".format(dd[pft][var])
+            linestring += ('{}'.format(var))
+            lines.append(linestring)
+
+        
+        # Then take care of the non-pft vars.
+        for var in ref_order:
+          if is_pft_var(var):
+            pass # Nothing to do; already did pft stuff
+          else:
+            # get item from dict, append to line
+            lines.append('{:0.6f},{}'.format(dd[var], var))
+
+      else:
+        pass # nothing to do with non-param files
+      
+      lines.append('')
+      lines.append('')
+
+      for l in lines:
+        print(l)
+
+  if args.extract_cmt:
+    folder, cmtkey = args.extract_cmt
+    if not isCMTkey(cmtkey):
+      print("Invalid CMT key! Aborting.")
+      return -1
+
+    param_files = os.listdir(folder)
+    param_files = [os.path.join(folder, f) for f in param_files]
+
+    if len(param_files) < 1:
+      print("No files in specified folder! Aborting.")
+      return -1
+
+    for f in param_files:
+      if isParamFile(f):
+        db = get_CMT_datablock(f, int(cmtkey[3:]))
+        new_fname = os.path.join(os.path.dirname(f), cmtkey.upper(), '{}'.format(os.path.basename(f)))
+        if not os.path.exists(os.path.dirname(new_fname)):
+          os.makedirs(os.path.dirname(new_fname))
+        with open(new_fname, 'w') as fp:
+           fp.writelines(db)
+      else:
+        pass # nothing do do with non-parameter files...
+
+    return 0
+
+  if args.csv_v0_spec:
+    print(csv_v0_specification.__doc__)
+    return 0
+
+  if args.csv_v0_2cmtdatablocks:
+    inputcsv = args.csv_v0_2cmtdatablocks[0]
+    cmtname = args.csv_v0_2cmtdatablocks[1]
 
     with open(inputcsv) as f:
       data = f.readlines()
 
-    for (start, section_name) in find_section_starts(data):
+    for (start, section_name) in csv_v0_find_section_starts(data):
       print(" ----  {}  ----  CMT {}  ----".format(section_name, cmtname))
-      print(format_section(get_section(data, start), data))
+      print(format_section_csv_v0(csv_v0_get_section(data, start), data))
       print("")
 
     return 0
@@ -1635,11 +2564,6 @@ def cmdline_run(args):
     for l in lines:
       print(l)
     return 0
-
-
-
-
-
 
 
 def cmdline_entry(argv=None):

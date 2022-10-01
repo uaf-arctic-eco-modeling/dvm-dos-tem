@@ -106,3 +106,107 @@ Check on one of the command line reporting fuctions:
                     ../parameters/cmt_firepar.txt    CMT05   Tussock Tundra
     Out[8]: 0
 
+Run the functionality that pulls out a single CMT from all files.
+
+    >>> pu.cmdline_entry(["--extract-cmt", "../parameters", "cmt04"])
+    0
+
+When the above is complete, there should be a new folder in the parameters directory, named with the CMT key with a bunch of files in it.
+
+    >>> 'CMT04' in os.listdir('../parameters')
+    True
+
+Check that the CMT exists in each new file:
+
+    In [16]: pu.cmdline_entry(['--report-cmt-names', '../parameters/CMT04', '4'])
+                                        file name  cmt key   long name
+              ../parameters/CMT04/cmt_bgcsoil.txt    CMT04   Shrub Tundra
+        ../parameters/CMT04/cmt_bgcvegetation.txt    CMT04   Shrub Tundra
+            ../parameters/CMT04/cmt_calparbgc.txt    CMT04   Shrub Tundra
+            ../parameters/CMT04/cmt_dimground.txt    CMT04   Shrub Tundra
+        ../parameters/CMT04/cmt_dimvegetation.txt    CMT04   Shrub Tundra
+            ../parameters/CMT04/cmt_envcanopy.txt    CMT04   Shrub Tundra
+            ../parameters/CMT04/cmt_envground.txt    CMT04   Shrub Tundra
+              ../parameters/CMT04/cmt_firepar.txt    CMT04   Shrub Tundra
+    Out[16]: 0
+
+And that some of the other CMTs don't exist:
+
+    In [18]: pu.cmdline_entry(['--report-cmt-names', '../parameters/CMT04', '1'])
+                                        file name  cmt key   long name
+              ../parameters/CMT04/cmt_bgcsoil.txt      n/a   n/a
+        ../parameters/CMT04/cmt_bgcvegetation.txt      n/a   n/a
+            ../parameters/CMT04/cmt_calparbgc.txt      n/a   n/a
+            ../parameters/CMT04/cmt_dimground.txt      n/a   n/a
+        ../parameters/CMT04/cmt_dimvegetation.txt      n/a   n/a
+            ../parameters/CMT04/cmt_envcanopy.txt      n/a   n/a
+            ../parameters/CMT04/cmt_envground.txt      n/a   n/a
+              ../parameters/CMT04/cmt_firepar.txt      n/a   n/a
+    Out[18]: 0
+
+Cleanup:
+
+    >>> import shutil
+    >>> shutil.rmtree('../parameters/CMT04')
+
+Work with the smartformat() function. This function is used to try and control
+the way things are formatted when printing the fixed width text parameter files.
+
+    >>> pu.smart_format('   34.56')
+    '     34.5600 '
+    >>> pu.smart_format('  0.00000000056')
+    '   5.600e-10 '
+    >>> pu.smart_format(' 40.0000000')
+    '     40.0000 '
+    >>> pu.smart_format('  04000.00000')
+    '   4000.0000 '
+    >>> pu.smart_format(00000050.23)
+    '     50.2300 '
+    >>> pu.smart_format('  0000050.340500', n=7)
+    '     50.3405 '
+    >>> pu.smart_format('0')
+    '      0.0000 '
+    >>> pu.smart_format('0.00not a number0')
+    Traceback (most recent call last):
+      ...
+    ValueError: could not convert string to float: '0.00not a number0'
+    >>> pu.smart_format('0.000')
+    '      0.0000 '
+
+Test that cmt datablocks can be read with and without multiple comment lines.
+CMT00 in `cmt_calparbgc.txt` has an extra comment line added to it.
+
+> Note that the extra comment lines are **not** correctly parsed and included in
+> the `comment` key in the resulting cmt data dictionary!
+
+> Note that the string 'CMT' is not allowed in the extra comment lines!
+
+    >>> dd = pu.cmtdatablock2dict(pu.get_CMT_datablock('../parameters/cmt_calparbgc.txt', 0))
+    >>> dd['cmtname']
+    'BARE GROUND OPEN WATER SNOW AND ICE'
+    >>> dd['comment']
+    '##THESE ARE JUNK VALUES###'
+
+While CMT01 does not:
+
+    >>> dd = pu.cmtdatablock2dict(pu.get_CMT_datablock('../parameters/cmt_calparbgc.txt', 1))
+    >>> dd['cmtname']
+    'Boreal Black Spruce'
+    >>> dd['comment']
+    '6/29/20 boreal black spruce with Murphy Dome climate'
+
+Try the same thing, but on a non-PFT file:
+
+    >>> dd = pu.cmtdatablock2dict(pu.get_CMT_datablock('../parameters/cmt_dimground.txt', 0))
+    >>> dd['cmtname']
+    'BARE GROUND OPEN WATER SNOW AND ICE'
+    >>> dd['comment']
+    ''
+
+    >>> dd = pu.cmtdatablock2dict(pu.get_CMT_datablock('../parameters/cmt_dimground.txt', 1))
+    >>> dd['cmtname']
+    'Boreal Black Spruce'
+    >>> dd['comment']
+    'JSC 6/18/20  JSC based Melvin et al. 2015 and Ruess et al. 1996. Calibrated for Murphy Dome.'
+
+

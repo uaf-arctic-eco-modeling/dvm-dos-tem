@@ -4,11 +4,36 @@
 # contents of an excel file...? or just plain csv?
 
 calibration_targets = {
+  # Added this data structure to support comments, units, references etc that
+  # can be handled in the fixed width text parameter files as well as the csv
+  # parameter files.
+  "meta": {
+    'GPPAllIgnoringNitrogen': {'units': 'g/m2/year', 'desc': 'GPP without N limitation', 'comment': 'ingpp', 'ref': ''},
+    'NPPAllIgnoringNitrogen': {'units': 'g/m2/year', 'desc': 'NPP without N limitation', 'comment': 'innpp', 'ref': ''},
+    'NPPAll': {'units': 'g/m2/year', 'desc': 'NPP with N limitation', 'comment': 'npp', 'ref': ''},
+    'Nuptake': {'units': 'g/m2/year', 'desc': '', 'comment': 'nuptake', 'ref': ''},
+    'VegCarbon': {
+      'Leaf': {'units': 'g/m2', 'desc': '', 'comment': 'vegcl', 'ref': ''},
+      'Stem': {'units': 'g/m2', 'desc': '', 'comment': 'vegcw', 'ref': ''},
+      'Root': {'units': 'g/m2', 'desc': '', 'comment': 'vegcr', 'ref': ''},
+    },
+    'VegStructuralNitrogen': {
+      'Leaf': {'units': 'g/m2', 'desc': '', 'comment': 'vegnl', 'ref': ''},
+      'Stem': {'units': 'g/m2', 'desc': '', 'comment': 'vegnw', 'ref': ''},
+      'Root': {'units': 'g/m2', 'desc': '', 'comment': 'vegnr', 'ref': ''},
+    },
+    'MossDeathC': {'units': '', 'desc': '', 'comment': 'dmossc', 'ref': ''},
+    'CarbonShallow': {'units': '', 'desc': '', 'comment': 'shlwc', 'ref': ''},
+    'CarbonDeep': {'units': '', 'desc': '', 'comment': 'deep', 'ref': ''},
+    'CarbonMineralSum': {'units': '', 'desc': '', 'comment': 'minec', 'ref': ''},
+    'OrganicNitrogenSum': {'units': '', 'desc': '', 'comment': 'soln', 'ref': ''},
+    'AvailableNitrogenSum': {'units': '', 'desc': '', 'comment': 'avln', 'ref': ''},
+  },
+
   ## WARNING: JUNK, PLACEHOLDER VALUES! USE AT YOUR OWN RISK!
   "BLANK": {
     'cmtnumber': 0,
-                                 #    pft0     pft1      pft2      pft3     pft4     pft5     pft6     pft7     pft8    pft9   
-                                 #    Misc.    Misc.     Misc.     Misc.    Misc.    Misc.    Misc.    Misc.    Misc.   Misc.
+    'PFTNames':                  [  'PFT0',  'PFT1',   'PFT2',   'PFT3',  'PFT4',  'PFT5',  'PFT6',  'PFT7',  'PFT0', 'PFT9'],
     'GPPAllIgnoringNitrogen':    [     0.0,     0.0,      0.0,      0.0,     0.0,     0.0,     0.0,     0.0,     0.0,    0.0 ], # ingpp     (gC/m2/year)   GPP without N limitation
     'NPPAllIgnoringNitrogen':    [     0.0,     0.0,      0.0,      0.0,     0.0,     0.0,     0.0,     0.0,     0.0,    0.0 ], # innpp     (gC/m2/year)   NPP without N limitation 
     'NPPAll':                    [     0.0,     0.0,      0.0,      0.0,     0.0,     0.0,     0.0,     0.0,     0.0,    0.0 ], # npp       (gC/m2/year)   NPP with N limitation
