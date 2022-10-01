@@ -24,7 +24,7 @@
    end up as you expect! So you can ask git not to touch the message 
    contents with the `--cleanup=verbatim` flag.
 
-5. Push tag to github: `$ git push upstream v0.2.3`
+5. **Important** Push tag to github: `$ git push upstream v0.2.3`
 
 6. **Important!** Create the release on Github so that the Zenodo integration works.
 Basically Zendo is tied to the release event notification coming from Github
@@ -43,6 +43,8 @@ it out yet. So:
 7. Optionally edit the info on the github website release page. Editing 
 does not trigger a new release notification and does not break the Zenodo
 integration.
+
+8. Update published documentation, use `publish_github_pages.sh`.
 
 ## Release note format
 
