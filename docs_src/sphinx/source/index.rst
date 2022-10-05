@@ -40,6 +40,7 @@ snow cover or canopy development.
    SA_UQ
    command_cheat_sheet
    common_acronyms
+   workshop_march_2022/lab1_basic_model_run
 
 Slides and other stuff
 -----------------------
