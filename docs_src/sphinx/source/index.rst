@@ -39,6 +39,7 @@ snow cover or canopy development.
    software_development_info
    SA_UQ
    command_cheat_sheet
+   common_acronyms
 
 Slides and other stuff
 -----------------------
