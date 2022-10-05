@@ -41,6 +41,7 @@ snow cover or canopy development.
    command_cheat_sheet
    common_acronyms
    workshop_march_2022/lab1_basic_model_run
+   workshop_march_2022/lab5_make_contribution
 
 Slides and other stuff
 -----------------------
