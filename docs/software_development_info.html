@@ -1,44 +1,116 @@
-
 <!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
-    <title>Dev Info &#8212; dvmdostem v0.6.0 documentation</title>
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
-    <script src="_static/doctools.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dev Info &mdash; dvmdostem v0.6.0 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="SA and UQ" href="SA_UQ.html" />
-    <link rel="prev" title="Running" href="running_dvmdostem.html" />
-   
-  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
-  
-  
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+    <link rel="prev" title="Running" href="running_dvmdostem.html" /> 
+</head>
 
-  </head><body>
-  
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> dvmdostem
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="model_overview.html">Model Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="running_dvmdostem.html">Running</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Dev Info</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#languages-software-structure">Languages, Software Structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#documentation">Documentation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#editing-contributing">Editing / Contributing</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#project-standards-and-conventions">Project Standards and Conventions</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#publishing">Publishing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#note-about-images">Note about images</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#software-development-patterns">Software Development Patterns</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#version-management">Version Management</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#version-control-and-hosting">Version Control and Hosting</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#getting-help">Getting Help</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tools">Tools</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#setup">Setup</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#branching-model">Branching Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#workflow">Workflow</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#releases-and-version-numbering">Releases and Version Numbering</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#testing-and-deployment">Testing and Deployment</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#setting-up-a-dev-environment">Setting up a dev environment</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#setting-up-with-vagrant">Setting up with Vagrant</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#setting-up-with-docker">Setting up with Docker</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#setting-up-with-ubuntu">Setting up with Ubuntu</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="SA_UQ.html">SA and UQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="command_cheat_sheet.html">Command Cheat Sheet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="common_acronyms.html">Common Project Acronyms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workshop_march_2022/lab1_basic_model_run.html">March 2022 Workshop Lab 1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workshop_march_2022/lab5_make_contribution.html">March 2022 Workshop Lab 5</a></li>
+</ul>
 
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          
+        </div>
+      </div>
+    </nav>
 
-          <div class="body" role="main">
-            
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">dvmdostem</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Dev Info</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/software_development_info.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
   <section id="dev-info">
-<h1>Dev Info<a class="headerlink" href="#dev-info" title="Permalink to this headline">¶</a></h1>
+<h1>Dev Info<a class="headerlink" href="#dev-info" title="Permalink to this headline"></a></h1>
 <p>This chapter should include all the useful information that you will need to
 make contributions to the <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code> project.</p>
 <section id="languages-software-structure">
-<h2>Languages, Software Structure<a class="headerlink" href="#languages-software-structure" title="Permalink to this headline">¶</a></h2>
+<h2>Languages, Software Structure<a class="headerlink" href="#languages-software-structure" title="Permalink to this headline"></a></h2>
 <p>The core model (<code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code>) is written in C++, while most of the supporting
 tooling is written in Python. There are also an assortment of bash scripts, R
 code, and IPython Notebooks floating around for various tasks.</p>
@@ -46,7 +118,7 @@ code, and IPython Notebooks floating around for various tasks.</p>
 in reStrutured Text and Sphinx and is also compiled with a Makefile.</p>
 </section>
 <section id="documentation">
-<h2>Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h2>
+<h2>Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline"></a></h2>
 <p>There are several places that you will find information about <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code>,
 each with a different type of info:</p>
 <blockquote>
@@ -108,7 +180,7 @@ $ doxygen
 <p>The resulting files are in the <code class="docutils literal notranslate"><span class="pre">docs_src/doxygen/doxygen_build</span></code> directory and
 can be viewed locally with a web browser.</p>
 <section id="editing-contributing">
-<h3>Editing / Contributing<a class="headerlink" href="#editing-contributing" title="Permalink to this headline">¶</a></h3>
+<h3>Editing / Contributing<a class="headerlink" href="#editing-contributing" title="Permalink to this headline"></a></h3>
 <p>The writing and editing process for this docuemtation ends up looking
 essentially like the general coding or programing process:</p>
 <blockquote>
@@ -125,7 +197,7 @@ essentially like the general coding or programing process:</p>
 </div></blockquote>
 <p>For more details about the coding process see the <a class="reference internal" href="#workflow">Workflow</a> section.</p>
 <section id="project-standards-and-conventions">
-<h4>Project Standards and Conventions<a class="headerlink" href="#project-standards-and-conventions" title="Permalink to this headline">¶</a></h4>
+<h4>Project Standards and Conventions<a class="headerlink" href="#project-standards-and-conventions" title="Permalink to this headline"></a></h4>
 <blockquote>
 <div><ul class="simple">
 <li><p>Please hard wrap lines at 80 charachters before comiting. Many text editors
@@ -136,7 +208,7 @@ have settings or extensions that can help with this tedium.</p></li>
 </section>
 </section>
 <section id="publishing">
-<h3>Publishing<a class="headerlink" href="#publishing" title="Permalink to this headline">¶</a></h3>
+<h3>Publishing<a class="headerlink" href="#publishing" title="Permalink to this headline"></a></h3>
 <p>In the current implementation with Sphinx (used to format this document), we
 have a <code class="docutils literal notranslate"><span class="pre">docs_src</span></code> folder within which is a subdirectory for each documentation
 tool (presently Doxygen and Sphinx). Each tool is setup to put its outputs in
@@ -150,7 +222,7 @@ Automated publishing (e.g. for each release) is still a work in progress.</p>
 Pagesand the Doxygen documentation is only intended for local use.</p>
 </section>
 <section id="note-about-images">
-<h3>Note about images<a class="headerlink" href="#note-about-images" title="Permalink to this headline">¶</a></h3>
+<h3>Note about images<a class="headerlink" href="#note-about-images" title="Permalink to this headline"></a></h3>
 <p>Including images in documentation presents similar challenges for raw,
 rendered, and word processing systems. One choice is whether to embed the
 image directly or provide a link to it. And another choice has to do with how
@@ -223,7 +295,7 @@ linked to the <code class="docutils literal notranslate"><span class="pre">dvmdo
 </section>
 </section>
 <section id="software-development-patterns">
-<h2>Software Development Patterns<a class="headerlink" href="#software-development-patterns" title="Permalink to this headline">¶</a></h2>
+<h2>Software Development Patterns<a class="headerlink" href="#software-development-patterns" title="Permalink to this headline"></a></h2>
 <p>At the highest level, the process of software development is simply “write
 some code (instructions) and get a machine to carry out the instructions”.
 At the end of the day, this is all we are trying to accomplish. However the
@@ -363,7 +435,7 @@ some way to achieve this.</p>
 </ul>
 </section>
 <section id="version-management">
-<h2>Version Management<a class="headerlink" href="#version-management" title="Permalink to this headline">¶</a></h2>
+<h2>Version Management<a class="headerlink" href="#version-management" title="Permalink to this headline"></a></h2>
 <p>The primary reasons for using a version management system for  <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code>
 are:</p>
 <blockquote>
@@ -389,7 +461,7 @@ together in an organized fashion, then the project history is harder to trust
 which brings into question the provenance of the code, and makes it harder for
 people to contribute.</p>
 <section id="version-control-and-hosting">
-<h3>Version Control and Hosting<a class="headerlink" href="#version-control-and-hosting" title="Permalink to this headline">¶</a></h3>
+<h3>Version Control and Hosting<a class="headerlink" href="#version-control-and-hosting" title="Permalink to this headline"></a></h3>
 <p>This project is using Git for version control and Github for hosting. The
 primary fork of the code (referred to as “upstream”) is currently hosted under
 the ua-snap organization <a class="footnote-reference brackets" href="#id2" id="id1">1</a>, so the primary (upstream) repository address is:
@@ -421,7 +493,7 @@ Github Organization in the next 6 months or so.</p>
 </dd>
 </dl>
 <section id="getting-help">
-<h4>Getting Help<a class="headerlink" href="#getting-help" title="Permalink to this headline">¶</a></h4>
+<h4>Getting Help<a class="headerlink" href="#getting-help" title="Permalink to this headline"></a></h4>
 <p>General Git help is beyond the scope of this document. Here a few key concepts
 that this document assumes you are familiar with:</p>
 <blockquote>
@@ -462,7 +534,7 @@ developers.</p></li>
 </div>
 </section>
 <section id="tools">
-<h4>Tools<a class="headerlink" href="#tools" title="Permalink to this headline">¶</a></h4>
+<h4>Tools<a class="headerlink" href="#tools" title="Permalink to this headline"></a></h4>
 <p>It is possible to use <code class="docutils literal notranslate"><span class="pre">git</span></code> purely from the command line, and in many
 cases this is the easiest way to go. However for some people and some
 situations a Graphical User Interface (GUI) is really helpful. Find a solution
@@ -485,7 +557,7 @@ readily available on most systems. At the end of the day you are likely to
 use a combination of the command line interface and a graphical frontend tool.</p>
 </section>
 <section id="setup">
-<h4>Setup<a class="headerlink" href="#setup" title="Permalink to this headline">¶</a></h4>
+<h4>Setup<a class="headerlink" href="#setup" title="Permalink to this headline"></a></h4>
 <p>Your Git remote repositories should be appropriately named. This document
 assumes that you are using the following convention:</p>
 <ul class="simple">
@@ -503,7 +575,7 @@ systems and shells; one example <a class="reference external" href="https://stac
 </section>
 </section>
 <section id="branching-model">
-<h3>Branching Model<a class="headerlink" href="#branching-model" title="Permalink to this headline">¶</a></h3>
+<h3>Branching Model<a class="headerlink" href="#branching-model" title="Permalink to this headline"></a></h3>
 <p>A generalized view of our branching model can be seen in the diagram:</p>
 <!--From Google Drawing in
 Shared Drive > DVM-DOS-TEM Documentation > drawings > branching_model
@@ -588,7 +660,7 @@ please learn to use rebase and merge appropriately!</p>
 </div>
 </section>
 <section id="workflow">
-<h3>Workflow<a class="headerlink" href="#workflow" title="Permalink to this headline">¶</a></h3>
+<h3>Workflow<a class="headerlink" href="#workflow" title="Permalink to this headline"></a></h3>
 <p>We are primarily using the “Centralized Workflow” described in the Git Book
 <a class="reference external" href="https://git-scm.com/book/en/v2/Distributed-Git-Distributed-Workflows">Distributed Workflows</a>. We have
 a number of trusted developers at collaborating institutions and we grant them
@@ -645,7 +717,7 @@ commits!</p>
 </div>
 </section>
 <section id="releases-and-version-numbering">
-<h3>Releases and Version Numbering<a class="headerlink" href="#releases-and-version-numbering" title="Permalink to this headline">¶</a></h3>
+<h3>Releases and Version Numbering<a class="headerlink" href="#releases-and-version-numbering" title="Permalink to this headline"></a></h3>
 <p>Begining in 2021, we started using the “Releases” feature of Github to package
 and distribute specific versions of <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code>. We would like to make this a
 fully or nearly fully automated process but for the time being it is rather
@@ -677,7 +749,7 @@ handle the rules for incrementing version numbers differently.</p>
 that release is visible here: <a class="reference external" href="https://github.com/ua-snap/dvm-dos-tem/releases">https://github.com/ua-snap/dvm-dos-tem/releases</a></p>
 </section>
 <section id="testing-and-deployment">
-<h3>Testing and Deployment<a class="headerlink" href="#testing-and-deployment" title="Permalink to this headline">¶</a></h3>
+<h3>Testing and Deployment<a class="headerlink" href="#testing-and-deployment" title="Permalink to this headline"></a></h3>
 <p>There is currently (Sept 2022) a very limited set of tests and their execution
 is not automated. It is a goal to increase the test coverage and automate the
 test exectution in the near future. We are hoping to setup a CI/CD pipeline
@@ -736,7 +808,7 @@ the tests that fail.</p>
 </section>
 </section>
 <section id="setting-up-a-dev-environment">
-<h2>Setting up a dev environment<a class="headerlink" href="#setting-up-a-dev-environment" title="Permalink to this headline">¶</a></h2>
+<h2>Setting up a dev environment<a class="headerlink" href="#setting-up-a-dev-environment" title="Permalink to this headline"></a></h2>
 <p>There are many paths to setting up a development environment and the specific
 path you choose will depend on your experience and needs. Over the years we have
 tried all of the following:</p>
@@ -751,13 +823,13 @@ tried all of the following:</p>
 <p>The current (2022) preference is generally for the Docker container stack,
 although on some systems a local installation is still preferable.</p>
 <section id="setting-up-with-vagrant">
-<h3>Setting up with Vagrant<a class="headerlink" href="#setting-up-with-vagrant" title="Permalink to this headline">¶</a></h3>
+<h3>Setting up with Vagrant<a class="headerlink" href="#setting-up-with-vagrant" title="Permalink to this headline"></a></h3>
 <blockquote>
 <div><p>WRITE THIS…</p>
 </div></blockquote>
 </section>
 <section id="setting-up-with-docker">
-<h3>Setting up with Docker<a class="headerlink" href="#setting-up-with-docker" title="Permalink to this headline">¶</a></h3>
+<h3>Setting up with Docker<a class="headerlink" href="#setting-up-with-docker" title="Permalink to this headline"></a></h3>
 <blockquote>
 <div><p>WRITE THIS…
 Install docker desktop
@@ -769,7 +841,7 @@ Your catalog of “workflows”</p>
 </div></blockquote>
 </section>
 <section id="setting-up-with-ubuntu">
-<h3>Setting up with Ubuntu<a class="headerlink" href="#setting-up-with-ubuntu" title="Permalink to this headline">¶</a></h3>
+<h3>Setting up with Ubuntu<a class="headerlink" href="#setting-up-with-ubuntu" title="Permalink to this headline"></a></h3>
 <blockquote>
 <div><p>WRITE THIS…</p>
 </div></blockquote>
@@ -778,108 +850,34 @@ Your catalog of “workflows”</p>
 </section>
 
 
+           </div>
           </div>
-          
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="running_dvmdostem.html" class="btn btn-neutral float-left" title="Running" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="SA_UQ.html" class="btn btn-neutral float-right" title="SA and UQ" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Tobey Carman, Ruth Rutter, Helene Genet, Eugenie Euskirchen.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-<h1 class="logo"><a href="index.html">dvmdostem</a></h1>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
 
-
-
-
-
-
-
-
-<h3>Navigation</h3>
-<p class="caption" role="heading"><span class="caption-text">Contents</span></p>
-<ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="model_overview.html">Model Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="running_dvmdostem.html">Running</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Dev Info</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#languages-software-structure">Languages, Software Structure</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#documentation">Documentation</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#editing-contributing">Editing / Contributing</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#project-standards-and-conventions">Project Standards and Conventions</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#publishing">Publishing</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#note-about-images">Note about images</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#software-development-patterns">Software Development Patterns</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#version-management">Version Management</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#version-control-and-hosting">Version Control and Hosting</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#getting-help">Getting Help</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#tools">Tools</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#setup">Setup</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#branching-model">Branching Model</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#workflow">Workflow</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#releases-and-version-numbering">Releases and Version Numbering</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#testing-and-deployment">Testing and Deployment</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#setting-up-a-dev-environment">Setting up a dev environment</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#setting-up-with-vagrant">Setting up with Vagrant</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#setting-up-with-docker">Setting up with Docker</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#setting-up-with-ubuntu">Setting up with Ubuntu</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="SA_UQ.html">SA and UQ</a></li>
-<li class="toctree-l1"><a class="reference internal" href="command_cheat_sheet.html">Command Cheat Sheet</a></li>
-</ul>
-
-<div class="relations">
-<h3>Related Topics</h3>
-<ul>
-  <li><a href="index.html">Documentation overview</a><ul>
-      <li>Previous: <a href="running_dvmdostem.html" title="previous chapter">Running</a></li>
-      <li>Next: <a href="SA_UQ.html" title="next chapter">SA and UQ</a></li>
-  </ul></li>
-</ul>
-</div>
-<div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
-      <input type="submit" value="Go" />
-    </form>
-    </div>
-</div>
-<script>$('#searchbox').show(0);</script>
-
-
-
-
-
-
-
-
-        </div>
-      </div>
-      <div class="clearer"></div>
-    </div>
-    <div class="footer">
-      &copy;2022, Tobey Carman, Ruth Rutter, Helene Genet, Eugenie Euskirchen.
-      
-      |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.3.0</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
-      
-      |
-      <a href="_sources/software_development_info.rst.txt"
-          rel="nofollow">Page source</a>
-    </div>
-
-    
-
-    
-  </body>
+</body>
 </html>
