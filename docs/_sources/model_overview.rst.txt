@@ -180,9 +180,9 @@ Inputs/Outputs (IO)
 *********************
 
 
-==========
+========
 Inputs
-==========
+========
 
 Generally TEM requires several types of inputs:
 
