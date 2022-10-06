@@ -604,8 +604,8 @@ specification file.
   they wish by using the ``run-mask.nc`` file.
 
 For this totally arbitrary run, let’s turn on outputs for all run-stages (except
-pre-run). For more information on what “run stages” are, see `here
-<../../model_overview:Temporal>`_. So open the ``config/config.js`` file and
+pre-run). For more information on what “run stages” are, see :ref:`here
+<model_overview:Temporal>`. So open the ``config/config.js`` file and
 make sure that the following are all set to 1. You can do this with an editor on
 your host machine or using ``vim`` from inside the container:
 
@@ -684,8 +684,8 @@ Launch the dvmdostem run
 
 Finally we are set to run the model! There are a number of command line options
 available for ``dvmdostem`` which you can investigate with the ``--help`` flag. The
-options used here are for setting the length of the `run-stages
-<../../model_overview:run stages>`_, for controlling the log level output, and
+options used here are for setting the length of the :ref:`run-stages
+<model_overview:Temporal>`, for controlling the log level output, and
 for forcing the model to run as a particular community type.
 
 In a real run ``--eq-yrs`` might be something like 1500 and ``--sp-yrs`` something like
@@ -703,8 +703,8 @@ corresponds to the CMT numbers in the parameter files. Frequently for single
 pixel runs the user wants to ignore the ``vegetation.nc`` map and force the
 pixel to run as a particular CMT. In this case we want to force our pixel to run
 as CMT 4 simply because we know that the parameters for CMT 4 have been
-calibrated. For more discussion about community types in dvmdostem see `the CMT
-section <../../model_overview:Community Types (CMTs)>`_. 
+calibrated. For more discussion about community types in dvmdostem see :ref:`the CMT
+section <model_overview:Community Types (CMTs)>`. 
 
 The ``--log-level`` command line option controls the amount of information that is
 printed to the console during the model run. There are 5 levels to choose from:
