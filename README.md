@@ -9,12 +9,12 @@ model that focuses on C and N dynamics as well as soil thermal dynamics in high
 latitude ecosystems.
 
 For complete documentation of the latest release, see the website:
-https://ua-snap.github.io/dvm-dos-tem/index.html
+https://uaf-arctic-eco-modeling.github.io/dvm-dos-tem/index.html
 
 > NOTE: Sept 2022, we are in the process of updating the entire documentation
 system. There is still info scattered across this README, the wiki, a Google Doc
 and the Sphinx system (published here:
-http://ua-snap.github.io/dvm-dos-tem/index.html), but we are working on
+http://auf-arctic-eco-modeling.github.io/dvm-dos-tem/index.html), but we are working on
 consolidating the info into primarily the Sphinx system.
 
 > Whats with the name? `dvm-dos-tem` is short for 
