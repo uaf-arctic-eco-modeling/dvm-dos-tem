@@ -9,7 +9,7 @@ model that focuses on C and N dynamics as well as soil thermal dynamics in high
 latitude ecosystems.
 
 For complete documentation of the latest release, see the website:
-http://ua-snap.github.io/dvm-dos-tem/index.html
+https://ua-snap.github.io/dvm-dos-tem/index.html
 
 > NOTE: Sept 2022, we are in the process of updating the entire documentation
 system. There is still info scattered across this README, the wiki, a Google Doc
