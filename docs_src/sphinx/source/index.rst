@@ -39,10 +39,10 @@ snow cover or canopy development.
    software_development_info
    SA_UQ
    command_cheat_sheet
+   common_acronyms
+   workshop_march_2022/lab1_basic_model_run
+   workshop_march_2022/lab5_make_contribution
 
-Slides and other stuff
------------------------
-:download:`Workshop 2022 Lab 5 <slides/WS2022_Lab5.pdf>`
 
 ..  
   Indices and tables
