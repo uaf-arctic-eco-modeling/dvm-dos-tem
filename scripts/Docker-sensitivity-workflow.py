@@ -13,7 +13,7 @@
 # 1. Strat the containers <br/>
 # `$ docker compose up -d` <br/>
 # 2. Enter to the container <br/>
-# `$ docker compose exec dvmdostem-run bash` <br/>
+# `$ docker compose exec dvmdostem-dev bash` <br/>
 # 3. Start jupyter notebook inside the /work folder <br/>
 # `$ jupyter notebook --ip 0.0.0.0 --no-browser --allow-root` <br/>
 # 4. Copy the url into your browser. <br/>
