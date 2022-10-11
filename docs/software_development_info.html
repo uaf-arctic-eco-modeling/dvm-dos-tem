@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dev Info &mdash; dvmdostem v0.6.0 documentation</title>
+  <title>Dev Info &mdash; dvmdostem v0.6.1 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -14,6 +14,7 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -30,7 +31,7 @@
             <a href="index.html" class="icon icon-home"> dvmdostem
           </a>
               <div class="version">
-                0.6.0
+                v0.6.1
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -109,11 +110,11 @@
            <div itemprop="articleBody">
              
   <section id="dev-info">
-<h1>Dev Info<a class="headerlink" href="#dev-info" title="Permalink to this headline"></a></h1>
+<h1>Dev Info<a class="headerlink" href="#dev-info" title="Permalink to this heading"></a></h1>
 <p>This chapter should include all the useful information that you will need to
 make contributions to the <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code> project.</p>
 <section id="languages-software-structure">
-<h2>Languages, Software Structure<a class="headerlink" href="#languages-software-structure" title="Permalink to this headline"></a></h2>
+<h2>Languages, Software Structure<a class="headerlink" href="#languages-software-structure" title="Permalink to this heading"></a></h2>
 <p>The core model (<code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code>) is written in C++, while most of the supporting
 tooling is written in Python. There are also an assortment of bash scripts, R
 code, and IPython Notebooks floating around for various tasks.</p>
@@ -121,7 +122,7 @@ code, and IPython Notebooks floating around for various tasks.</p>
 in reStrutured Text and Sphinx and is also compiled with a Makefile.</p>
 </section>
 <section id="documentation">
-<h2>Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline"></a></h2>
+<h2>Documentation<a class="headerlink" href="#documentation" title="Permalink to this heading"></a></h2>
 <p>There are several places that you will find information about <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code>,
 each with a different type of info:</p>
 <blockquote>
@@ -183,7 +184,7 @@ $ doxygen
 <p>The resulting files are in the <code class="docutils literal notranslate"><span class="pre">docs_src/doxygen/doxygen_build</span></code> directory and
 can be viewed locally with a web browser.</p>
 <section id="editing-contributing">
-<h3>Editing / Contributing<a class="headerlink" href="#editing-contributing" title="Permalink to this headline"></a></h3>
+<h3>Editing / Contributing<a class="headerlink" href="#editing-contributing" title="Permalink to this heading"></a></h3>
 <p>The writing and editing process for this docuemtation ends up looking
 essentially like the general coding or programing process:</p>
 <blockquote>
@@ -200,7 +201,7 @@ essentially like the general coding or programing process:</p>
 </div></blockquote>
 <p>For more details about the coding process see the <a class="reference internal" href="#workflow">Workflow</a> section.</p>
 <section id="project-standards-and-conventions">
-<h4>Project Standards and Conventions<a class="headerlink" href="#project-standards-and-conventions" title="Permalink to this headline"></a></h4>
+<h4>Project Standards and Conventions<a class="headerlink" href="#project-standards-and-conventions" title="Permalink to this heading"></a></h4>
 <blockquote>
 <div><ul class="simple">
 <li><p>Please hard wrap lines at 80 charachters before comiting. Many text editors
@@ -211,7 +212,7 @@ have settings or extensions that can help with this tedium.</p></li>
 </section>
 </section>
 <section id="publishing">
-<h3>Publishing<a class="headerlink" href="#publishing" title="Permalink to this headline"></a></h3>
+<h3>Publishing<a class="headerlink" href="#publishing" title="Permalink to this heading"></a></h3>
 <p>In the current implementation with Sphinx (used to format this document), we
 have a <code class="docutils literal notranslate"><span class="pre">docs_src</span></code> folder within which is a subdirectory for each documentation
 tool (presently Doxygen and Sphinx). Each tool is setup to put its outputs in
@@ -225,7 +226,7 @@ Automated publishing (e.g. for each release) is still a work in progress.</p>
 Pagesand the Doxygen documentation is only intended for local use.</p>
 </section>
 <section id="note-about-images">
-<h3>Note about images<a class="headerlink" href="#note-about-images" title="Permalink to this headline"></a></h3>
+<h3>Note about images<a class="headerlink" href="#note-about-images" title="Permalink to this heading"></a></h3>
 <p>Including images in documentation presents similar challenges for raw,
 rendered, and word processing systems. One choice is whether to embed the
 image directly or provide a link to it. And another choice has to do with how
@@ -267,7 +268,7 @@ the link</p></li>
 and this may not be possible in all languages/environments. In the Github
 wiki, which uses, Markdown, including something like this will allow the
 image to render, directly from Google Docs when someone loads the page:</p>
-<div class="highlight-html notranslate"><div class="highlight"><pre><span></span><span class="c">&lt;!-- From Tobey Carman&#39;s google drawing &quot;dvmdostem-general-idea-science&quot;--&gt;</span>
+<div class="highlight-html notranslate"><div class="highlight"><pre><span></span><span class="cm">&lt;!-- From Tobey Carman&#39;s google drawing &quot;dvmdostem-general-idea-science&quot;--&gt;</span>
 <span class="p">&lt;</span><span class="nt">img</span> <span class="na">src</span><span class="o">=</span><span class="s">&quot;https://docs.google.com/drawings/d/17AWgyjGv3fWRLhEPX7ayJKSZt3AXcBILXN2S-FGQHeY/pub?w=960&amp;amp;h=720&quot;</span><span class="p">&gt;</span>
 </pre></div>
 </div>
@@ -298,7 +299,7 @@ linked to the <code class="docutils literal notranslate"><span class="pre">dvmdo
 </section>
 </section>
 <section id="software-development-patterns">
-<h2>Software Development Patterns<a class="headerlink" href="#software-development-patterns" title="Permalink to this headline"></a></h2>
+<h2>Software Development Patterns<a class="headerlink" href="#software-development-patterns" title="Permalink to this heading"></a></h2>
 <p>At the highest level, the process of software development is simply “write
 some code (instructions) and get a machine to carry out the instructions”.
 At the end of the day, this is all we are trying to accomplish. However the
@@ -438,7 +439,7 @@ some way to achieve this.</p>
 </ul>
 </section>
 <section id="version-management">
-<h2>Version Management<a class="headerlink" href="#version-management" title="Permalink to this headline"></a></h2>
+<h2>Version Management<a class="headerlink" href="#version-management" title="Permalink to this heading"></a></h2>
 <p>The primary reasons for using a version management system for  <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code>
 are:</p>
 <blockquote>
@@ -464,7 +465,7 @@ together in an organized fashion, then the project history is harder to trust
 which brings into question the provenance of the code, and makes it harder for
 people to contribute.</p>
 <section id="version-control-and-hosting">
-<h3>Version Control and Hosting<a class="headerlink" href="#version-control-and-hosting" title="Permalink to this headline"></a></h3>
+<h3>Version Control and Hosting<a class="headerlink" href="#version-control-and-hosting" title="Permalink to this heading"></a></h3>
 <p>This project is using Git for version control and Github for hosting. The
 primary fork of the code (referred to as “upstream”) is currently hosted under
 the ua-snap organization <a class="footnote-reference brackets" href="#id2" id="id1">1</a>, so the primary (upstream) repository address is:
@@ -496,7 +497,7 @@ Github Organization in the next 6 months or so.</p>
 </dd>
 </dl>
 <section id="getting-help">
-<h4>Getting Help<a class="headerlink" href="#getting-help" title="Permalink to this headline"></a></h4>
+<h4>Getting Help<a class="headerlink" href="#getting-help" title="Permalink to this heading"></a></h4>
 <p>General Git help is beyond the scope of this document. Here a few key concepts
 that this document assumes you are familiar with:</p>
 <blockquote>
@@ -537,7 +538,7 @@ developers.</p></li>
 </div>
 </section>
 <section id="tools">
-<h4>Tools<a class="headerlink" href="#tools" title="Permalink to this headline"></a></h4>
+<h4>Tools<a class="headerlink" href="#tools" title="Permalink to this heading"></a></h4>
 <p>It is possible to use <code class="docutils literal notranslate"><span class="pre">git</span></code> purely from the command line, and in many
 cases this is the easiest way to go. However for some people and some
 situations a Graphical User Interface (GUI) is really helpful. Find a solution
@@ -560,7 +561,7 @@ readily available on most systems. At the end of the day you are likely to
 use a combination of the command line interface and a graphical frontend tool.</p>
 </section>
 <section id="setup">
-<h4>Setup<a class="headerlink" href="#setup" title="Permalink to this headline"></a></h4>
+<h4>Setup<a class="headerlink" href="#setup" title="Permalink to this heading"></a></h4>
 <p>Your Git remote repositories should be appropriately named. This document
 assumes that you are using the following convention:</p>
 <ul class="simple">
@@ -578,7 +579,7 @@ systems and shells; one example <a class="reference external" href="https://stac
 </section>
 </section>
 <section id="branching-model">
-<h3>Branching Model<a class="headerlink" href="#branching-model" title="Permalink to this headline"></a></h3>
+<h3>Branching Model<a class="headerlink" href="#branching-model" title="Permalink to this heading"></a></h3>
 <p>A generalized view of our branching model can be seen in the diagram:</p>
 <!--From Google Drawing in
 Shared Drive > DVM-DOS-TEM Documentation > drawings > branching_model
@@ -663,7 +664,7 @@ please learn to use rebase and merge appropriately!</p>
 </div>
 </section>
 <section id="workflow">
-<h3>Workflow<a class="headerlink" href="#workflow" title="Permalink to this headline"></a></h3>
+<h3>Workflow<a class="headerlink" href="#workflow" title="Permalink to this heading"></a></h3>
 <p>We are primarily using the “Centralized Workflow” described in the Git Book
 <a class="reference external" href="https://git-scm.com/book/en/v2/Distributed-Git-Distributed-Workflows">Distributed Workflows</a>. We have
 a number of trusted developers at collaborating institutions and we grant them
@@ -720,7 +721,7 @@ commits!</p>
 </div>
 </section>
 <section id="releases-and-version-numbering">
-<h3>Releases and Version Numbering<a class="headerlink" href="#releases-and-version-numbering" title="Permalink to this headline"></a></h3>
+<h3>Releases and Version Numbering<a class="headerlink" href="#releases-and-version-numbering" title="Permalink to this heading"></a></h3>
 <p>Begining in 2021, we started using the “Releases” feature of Github to package
 and distribute specific versions of <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code>. We would like to make this a
 fully or nearly fully automated process but for the time being it is rather
@@ -752,7 +753,7 @@ handle the rules for incrementing version numbers differently.</p>
 that release is visible here: <a class="reference external" href="https://github.com/ua-snap/dvm-dos-tem/releases">https://github.com/ua-snap/dvm-dos-tem/releases</a></p>
 </section>
 <section id="testing-and-deployment">
-<h3>Testing and Deployment<a class="headerlink" href="#testing-and-deployment" title="Permalink to this headline"></a></h3>
+<h3>Testing and Deployment<a class="headerlink" href="#testing-and-deployment" title="Permalink to this heading"></a></h3>
 <p>There is currently (Sept 2022) a very limited set of tests and their execution
 is not automated. It is a goal to increase the test coverage and automate the
 test exectution in the near future. We are hoping to setup a CI/CD pipeline
@@ -811,7 +812,7 @@ the tests that fail.</p>
 </section>
 </section>
 <section id="setting-up-a-dev-environment">
-<h2>Setting up a dev environment<a class="headerlink" href="#setting-up-a-dev-environment" title="Permalink to this headline"></a></h2>
+<h2>Setting up a dev environment<a class="headerlink" href="#setting-up-a-dev-environment" title="Permalink to this heading"></a></h2>
 <p>There are many paths to setting up a development environment and the specific
 path you choose will depend on your experience and needs. Over the years we have
 tried all of the following:</p>
@@ -826,13 +827,13 @@ tried all of the following:</p>
 <p>The current (2022) preference is generally for the Docker container stack,
 although on some systems a local installation is still preferable.</p>
 <section id="setting-up-with-vagrant">
-<h3>Setting up with Vagrant<a class="headerlink" href="#setting-up-with-vagrant" title="Permalink to this headline"></a></h3>
+<h3>Setting up with Vagrant<a class="headerlink" href="#setting-up-with-vagrant" title="Permalink to this heading"></a></h3>
 <blockquote>
 <div><p>WRITE THIS…</p>
 </div></blockquote>
 </section>
 <section id="setting-up-with-docker">
-<h3>Setting up with Docker<a class="headerlink" href="#setting-up-with-docker" title="Permalink to this headline"></a></h3>
+<h3>Setting up with Docker<a class="headerlink" href="#setting-up-with-docker" title="Permalink to this heading"></a></h3>
 <blockquote>
 <div><p>WRITE THIS…
 Install docker desktop
@@ -844,7 +845,7 @@ Your catalog of “workflows”</p>
 </div></blockquote>
 </section>
 <section id="setting-up-with-ubuntu">
-<h3>Setting up with Ubuntu<a class="headerlink" href="#setting-up-with-ubuntu" title="Permalink to this headline"></a></h3>
+<h3>Setting up with Ubuntu<a class="headerlink" href="#setting-up-with-ubuntu" title="Permalink to this heading"></a></h3>
 <blockquote>
 <div><p>WRITE THIS…</p>
 </div></blockquote>

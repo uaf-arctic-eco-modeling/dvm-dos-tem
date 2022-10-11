@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Model Overview &mdash; dvmdostem v0.6.0 documentation</title>
+  <title>Model Overview &mdash; dvmdostem v0.6.1 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -14,6 +14,7 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -30,7 +31,7 @@
             <a href="index.html" class="icon icon-home"> dvmdostem
           </a>
               <div class="version">
-                0.6.0
+                v0.6.1
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -113,21 +114,21 @@
            <div itemprop="articleBody">
              
   <section id="model-overview">
-<h1>Model Overview<a class="headerlink" href="#model-overview" title="Permalink to this headline"></a></h1>
+<h1>Model Overview<a class="headerlink" href="#model-overview" title="Permalink to this heading"></a></h1>
 <!-- From Tobey Carman's google drawing "dvmdostem-general-idea-science"-->
 <img src="https://docs.google.com/drawings/d/17AWgyjGv3fWRLhEPX7ayJKSZt3AXcBILXN2S-FGQHeY/pub?w=960&amp;h=720"><section id="structure">
-<h2>Structure<a class="headerlink" href="#structure" title="Permalink to this headline"></a></h2>
+<h2>Structure<a class="headerlink" href="#structure" title="Permalink to this heading"></a></h2>
 <p><cite>dvmdostem</cite> is multi-dimensional. It operates across spatial and temporal
 dimensions, soil layers, and plant functional types.</p>
 <section id="spatial">
-<h3>Spatial<a class="headerlink" href="#spatial" title="Permalink to this headline"></a></h3>
+<h3>Spatial<a class="headerlink" href="#spatial" title="Permalink to this heading"></a></h3>
 <p>TEM is a spatially explicit model. The run domain is divided into grid cells,
 or pixels. There is no communication between the grid cells. TEM itself is
 agnostic to the spatial resolution - the resolution is controlled by the
 input files provided. Recent work has been done with 1km spatial resolution.</p>
 </section>
 <section id="temporal">
-<h3>Temporal<a class="headerlink" href="#temporal" title="Permalink to this headline"></a></h3>
+<h3>Temporal<a class="headerlink" href="#temporal" title="Permalink to this heading"></a></h3>
 <p>TEM is a temporal model in the sense that a run operates processes at consecutive
 time-steps. In addition, with TEM, the concept of a “run stage” is used to run
 the model over different climatic periods of generally increasing complexity.
@@ -148,13 +149,13 @@ used as the beginning state for each subsequent stage.</p>
 <p>A complete run utilizes all 5 stages. It is possible to work with any subset of
 the stages.</p>
 <section id="pre-run-pr">
-<h4>pre-run (pr)<a class="headerlink" href="#pre-run-pr" title="Permalink to this headline"></a></h4>
+<h4>pre-run (pr)<a class="headerlink" href="#pre-run-pr" title="Permalink to this heading"></a></h4>
 <p>The pre-run is an equilibrium run for the physical variables of the model. It is
 typically 100 years, uses constant climate (typically monthly average computed
 from the [1901-1930] period).</p>
 </section>
 <section id="equilibrium-eq">
-<h4>equilibrium (eq)<a class="headerlink" href="#equilibrium-eq" title="Permalink to this headline"></a></h4>
+<h4>equilibrium (eq)<a class="headerlink" href="#equilibrium-eq" title="Permalink to this heading"></a></h4>
 <p>In the equilibrium stage, the climate is fixed. That is, the climate does not
 vary from year to year. There will be intra-annual variability to represent the
 seasons, but from year to year the calculations will be carried out using the
@@ -175,7 +176,7 @@ equilibrium detection”.</p>
 </div>
 </section>
 <section id="spinup-sp">
-<h4>spinup (sp)<a class="headerlink" href="#spinup-sp" title="Permalink to this headline"></a></h4>
+<h4>spinup (sp)<a class="headerlink" href="#spinup-sp" title="Permalink to this heading"></a></h4>
 <p>In the spinup stage, the climate is not fixed. In the sp stage, the driving
 climate is used from the first 30 years of the historic climate dataset. Should
 the spstage be set to run longer than 30 years, the 30 year climate period is
@@ -185,7 +186,7 @@ model reaches. In the sp stage the fire date is fixed, occuring at an interval
 equal to the Fire Recurrence Interval (FRI).</p>
 </section>
 <section id="transient-tr">
-<h4>transient (tr)<a class="headerlink" href="#transient-tr" title="Permalink to this headline"></a></h4>
+<h4>transient (tr)<a class="headerlink" href="#transient-tr" title="Permalink to this heading"></a></h4>
 <p>In the transient stage, the climate varies from year to year. The tr stage is
 used to run the model over the period of historical record. The input climate
 data for the tr stage should be the historic climate. This is typically the
@@ -196,20 +197,20 @@ than observed variability, a predicted climate scenario is used.</p>
 </section>
 </section>
 <section id="community-types-cmts">
-<h3>Community Types (CMTs)<a class="headerlink" href="#community-types-cmts" title="Permalink to this headline"></a></h3>
+<h3>Community Types (CMTs)<a class="headerlink" href="#community-types-cmts" title="Permalink to this heading"></a></h3>
 <p>Each TEM grid cell can be assigned one “community type” (CMT). A community
 type is essentially a parameterization that specifies many properties for
 vegetation, and soil.</p>
 </section>
 <section id="vegetation-types-pfts">
-<h3>Vegetation Types (PFTs)<a class="headerlink" href="#vegetation-types-pfts" title="Permalink to this headline"></a></h3>
+<h3>Vegetation Types (PFTs)<a class="headerlink" href="#vegetation-types-pfts" title="Permalink to this heading"></a></h3>
 <blockquote>
 <div><p>WRITE THIS…</p>
 </div></blockquote>
 <!-- From Tobey Carman's google drawing "dvmdostem-general-idea-pft"-->
 <img src="https://docs.google.com/drawings/d/14vNsPCuorCy3PuE6ucgAmerAks42SxZCtWr4vV5p4Pg/pub?w=960&amp;h=720"></section>
 <section id="soil-layers">
-<h3>Soil (Layers)<a class="headerlink" href="#soil-layers" title="Permalink to this headline"></a></h3>
+<h3>Soil (Layers)<a class="headerlink" href="#soil-layers" title="Permalink to this heading"></a></h3>
 <blockquote>
 <div><p>WRITE THIS…</p>
 </div></blockquote>
@@ -220,57 +221,57 @@ vegetation, and soil.</p>
 <img src="https://docs.google.com/drawings/d/1TPZNC_DazpOpkxSKkTJ3oMQlLvzBjUaY6DmBW9LR9cY/pub?w=1005&amp;h=746"></section>
 </section>
 <section id="processes">
-<h2>Processes<a class="headerlink" href="#processes" title="Permalink to this headline"></a></h2>
+<h2>Processes<a class="headerlink" href="#processes" title="Permalink to this heading"></a></h2>
 <blockquote>
 <div><p>WRITE THIS…</p>
 </div></blockquote>
 <section id="carbon">
-<h3>Carbon<a class="headerlink" href="#carbon" title="Permalink to this headline"></a></h3>
+<h3>Carbon<a class="headerlink" href="#carbon" title="Permalink to this heading"></a></h3>
 <blockquote>
 <div><p>WRITE THIS…</p>
 </div></blockquote>
 </section>
 <section id="water">
-<h3>Water<a class="headerlink" href="#water" title="Permalink to this headline"></a></h3>
+<h3>Water<a class="headerlink" href="#water" title="Permalink to this heading"></a></h3>
 <blockquote>
 <div><p>WRITE THIS…</p>
 </div></blockquote>
 </section>
 <section id="nitrogen">
-<h3>Nitrogen<a class="headerlink" href="#nitrogen" title="Permalink to this headline"></a></h3>
+<h3>Nitrogen<a class="headerlink" href="#nitrogen" title="Permalink to this heading"></a></h3>
 <blockquote>
 <div><p>WRITE THIS…</p>
 </div></blockquote>
 </section>
 <section id="energy-balance">
-<h3>Energy Balance<a class="headerlink" href="#energy-balance" title="Permalink to this headline"></a></h3>
+<h3>Energy Balance<a class="headerlink" href="#energy-balance" title="Permalink to this heading"></a></h3>
 <blockquote>
 <div><p>WRITE THIS…</p>
 </div></blockquote>
 </section>
 <section id="permafrost">
-<h3>Permafrost<a class="headerlink" href="#permafrost" title="Permalink to this headline"></a></h3>
+<h3>Permafrost<a class="headerlink" href="#permafrost" title="Permalink to this heading"></a></h3>
 <blockquote>
 <div><p>WRITE THIS…</p>
 </div></blockquote>
 </section>
 <section id="disturbance">
-<h3>Disturbance<a class="headerlink" href="#disturbance" title="Permalink to this headline"></a></h3>
+<h3>Disturbance<a class="headerlink" href="#disturbance" title="Permalink to this heading"></a></h3>
 <blockquote>
 <div><p>WRITE THIS…</p>
 </div></blockquote>
 </section>
 <section id="methane">
-<h3>Methane<a class="headerlink" href="#methane" title="Permalink to this headline"></a></h3>
+<h3>Methane<a class="headerlink" href="#methane" title="Permalink to this heading"></a></h3>
 <blockquote>
 <div><p>WRITE THIS…</p>
 </div></blockquote>
 </section>
 </section>
 <section id="inputs-outputs-io">
-<h2>Inputs/Outputs (IO)<a class="headerlink" href="#inputs-outputs-io" title="Permalink to this headline"></a></h2>
+<h2>Inputs/Outputs (IO)<a class="headerlink" href="#inputs-outputs-io" title="Permalink to this heading"></a></h2>
 <section id="inputs">
-<h3>Inputs<a class="headerlink" href="#inputs" title="Permalink to this headline"></a></h3>
+<h3>Inputs<a class="headerlink" href="#inputs" title="Permalink to this heading"></a></h3>
 <p>Generally TEM requires several types of inputs:</p>
 <ul class="simple">
 <li><dl class="simple">
@@ -542,12 +543,12 @@ HH:MM:SS</p></td>
 </div>
 </section>
 <section id="outputs">
-<h3>Outputs<a class="headerlink" href="#outputs" title="Permalink to this headline"></a></h3>
+<h3>Outputs<a class="headerlink" href="#outputs" title="Permalink to this heading"></a></h3>
 <blockquote>
 <div><p>WRITE THIS…</p>
 </div></blockquote>
 <section id="output-selection">
-<h4>Output Selection<a class="headerlink" href="#output-selection" title="Permalink to this headline"></a></h4>
+<h4>Output Selection<a class="headerlink" href="#output-selection" title="Permalink to this heading"></a></h4>
 <blockquote>
 <div><p>WRITE THIS…</p>
 </div></blockquote>
@@ -576,7 +577,7 @@ dimension bound errors.</p>
 </div>
 </section>
 <section id="process">
-<h4>Process<a class="headerlink" href="#process" title="Permalink to this headline"></a></h4>
+<h4>Process<a class="headerlink" href="#process" title="Permalink to this heading"></a></h4>
 <blockquote>
 <div><p>WRITE THIS…</p>
 </div></blockquote>
@@ -596,7 +597,7 @@ monthly vs. yearly string comparisons.</p>
 </div>
 </section>
 <section id="variable-output-combinations">
-<h4>Variable Output Combinations<a class="headerlink" href="#variable-output-combinations" title="Permalink to this headline"></a></h4>
+<h4>Variable Output Combinations<a class="headerlink" href="#variable-output-combinations" title="Permalink to this heading"></a></h4>
 <blockquote>
 <div><p>WRITE THIS…</p>
 </div></blockquote>
