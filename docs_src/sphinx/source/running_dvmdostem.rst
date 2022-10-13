@@ -15,7 +15,81 @@ running the model and the other covering the more conceptual aspects.
 *************
 Practical
 *************
-    WRITE THIS...
+
+The following sections will outline the steps you need to take and commands
+will need to run the software and associated pre and post processing tools.
+
+================
+Getting Started
+================
+
+-------------
+Download
+-------------
+
+Download the source code from Github:
+https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem.git or clone the code
+using git:
+
+.. code::
+
+    git clone git@github.com:uaf-arctic-eco-modeling/dvm-dos-tem.git
+
+It is also possible to download just the code for a specific release from the 
+`Releases`_ page on Github.
+
+
+-------------
+Dependencies
+-------------
+
+To see the list of libraries that must be installed for ``dvmdostem`` to compile
+and run, look at the install commands in the project's ``Dockerfile`` s.
+
+While the supporting scripts don't need compilation, they require a bunch of
+supporting libraries and software to be installed. Again looking at the install
+commands and comments in the ``Dockerfile`` s will show the dependencies.
+
+---------
+Compile
+---------
+
+The ``dvmdostem`` program must be compiled from C++ source code. If you have the
+dependencies installed and accessible on your ``PATH``, then you can install
+using ``make``, executed from the root of the project. There is also a
+`SCons`_ file and the command ``scons`` can be used to compile.
+
+The majority, if not all, of the supporting scripts and tools are written in
+interpreted languages and don't need compilation.
+
+
+-----------
+Install
+-----------
+
+There is not an explicit installation step for ``dvmdostem``. You can add the
+directory where you keep the code (named ``dvm-dos-tem`` by default when you
+clone the repository), to your ``$PATH`` variable, or you can reference the 
+scripts and other programs by their absolute path.
+
+While the ``$PATH`` variable is setup in the development docker container:
+
+.. code:: 
+
+    develop@d146768bfaac:/data/workflows$ runmask-util.py -h
+    usage: runmask-util.py [-h] [--verbose] [--reset] [--all-on] ...
+                        [FILE]
+
+
+many of the examples still show things using the absolute path:
+
+.. code::
+
+    develop@d146768bfaac:/data/workflows$ /work/scripts/runmask-util.py --help
+    usage: runmask-util.py [-h] [--verbose] [--reset] [--all-on] ...
+                        [FILE]
+
+
 
 ==================
 Control Options
@@ -371,3 +445,5 @@ Pre- and Post- Processing
 
 .. links 
 .. _PEcAn: https://pecanproject.github.io
+.. _Releases: https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem/releases
+.. _SCons: https://scons.org
