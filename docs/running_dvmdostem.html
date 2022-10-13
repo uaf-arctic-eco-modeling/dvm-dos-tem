@@ -14,9 +14,7 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/slideshow.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -128,17 +126,17 @@
            <div itemprop="articleBody">
              
   <section id="running">
-<h1>Running<a class="headerlink" href="#running" title="Permalink to this heading"></a></h1>
+<h1>Running<a class="headerlink" href="#running" title="Permalink to this headline"></a></h1>
 <p>This chapter is split into two sections, one covering the practical aspects of
 running the model and the other covering the more conceptual aspects.</p>
 <section id="practical">
-<h2>Practical<a class="headerlink" href="#practical" title="Permalink to this heading"></a></h2>
+<h2>Practical<a class="headerlink" href="#practical" title="Permalink to this headline"></a></h2>
 <p>The following sections will outline the steps you need to take and commands
 will need to run the software and associated pre and post processing tools.</p>
 <section id="getting-started">
-<h3>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this heading"></a></h3>
+<h3>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this headline"></a></h3>
 <section id="download">
-<h4>Download<a class="headerlink" href="#download" title="Permalink to this heading"></a></h4>
+<h4>Download<a class="headerlink" href="#download" title="Permalink to this headline"></a></h4>
 <p>Download the source code from Github:
 <a class="reference external" href="https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem.git">https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem.git</a> or clone the code
 using git:</p>
@@ -149,7 +147,7 @@ using git:</p>
 <a class="reference external" href="https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem/releases">Releases</a> page on Github.</p>
 </section>
 <section id="dependencies">
-<h4>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this heading"></a></h4>
+<h4>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this headline"></a></h4>
 <p>To see the list of libraries that must be installed for <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code> to compile
 and run, look at the install commands in the project’s <code class="docutils literal notranslate"><span class="pre">Dockerfile</span></code> s.</p>
 <p>While the supporting scripts don’t need compilation, they require a bunch of
@@ -157,7 +155,7 @@ supporting libraries and software to be installed. Again looking at the install
 commands and comments in the <code class="docutils literal notranslate"><span class="pre">Dockerfile</span></code> s will show the dependencies.</p>
 </section>
 <section id="compile">
-<h4>Compile<a class="headerlink" href="#compile" title="Permalink to this heading"></a></h4>
+<h4>Compile<a class="headerlink" href="#compile" title="Permalink to this headline"></a></h4>
 <p>The <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code> program must be compiled from C++ source code. If you have the
 dependencies installed and accessible on your <code class="docutils literal notranslate"><span class="pre">PATH</span></code>, then you can install
 using <code class="docutils literal notranslate"><span class="pre">make</span></code>, executed from the root of the project. There is also a
@@ -166,7 +164,7 @@ using <code class="docutils literal notranslate"><span class="pre">make</span></
 interpreted languages and don’t need compilation.</p>
 </section>
 <section id="install">
-<h4>Install<a class="headerlink" href="#install" title="Permalink to this heading"></a></h4>
+<h4>Install<a class="headerlink" href="#install" title="Permalink to this headline"></a></h4>
 <p>There is not an explicit installation step for <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code>. You can add the
 directory where you keep the code (named <code class="docutils literal notranslate"><span class="pre">dvm-dos-tem</span></code> by default when you
 clone the repository), to your <code class="docutils literal notranslate"><span class="pre">$PATH</span></code> variable, or you can reference the
@@ -186,24 +184,24 @@ usage: runmask-util.py [-h] [--verbose] [--reset] [--all-on] ...
 </section>
 </section>
 <section id="control-options">
-<h3>Control Options<a class="headerlink" href="#control-options" title="Permalink to this heading"></a></h3>
+<h3>Control Options<a class="headerlink" href="#control-options" title="Permalink to this headline"></a></h3>
 <blockquote>
 <div><p>WRITE THIS…</p>
 </div></blockquote>
 <section id="command-line">
-<h4>Command line<a class="headerlink" href="#command-line" title="Permalink to this heading"></a></h4>
+<h4>Command line<a class="headerlink" href="#command-line" title="Permalink to this headline"></a></h4>
 <blockquote>
 <div><p>WRITE THIS…</p>
 </div></blockquote>
 </section>
 <section id="configuration">
-<h4>Configuration<a class="headerlink" href="#configuration" title="Permalink to this heading"></a></h4>
+<h4>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline"></a></h4>
 <blockquote>
 <div><p>WRITE THIS…</p>
 </div></blockquote>
 </section>
 <section id="parameters">
-<h4>Parameters<a class="headerlink" href="#parameters" title="Permalink to this heading"></a></h4>
+<h4>Parameters<a class="headerlink" href="#parameters" title="Permalink to this headline"></a></h4>
 <p><code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code> is designed to be highly configurable with regards to parameters.
 This means that many parameters have been factored out so that their values can
 be set in text files which allows the operation of the model to be changed
@@ -304,9 +302,9 @@ post-processing Python tools expect the CMT and PFT names to be present.</p></li
 </section>
 </section>
 <section id="running-the-model">
-<h3>Running the Model<a class="headerlink" href="#running-the-model" title="Permalink to this heading"></a></h3>
+<h3>Running the Model<a class="headerlink" href="#running-the-model" title="Permalink to this headline"></a></h3>
 <section id="setting-up-a-run">
-<h4>Setting up a run<a class="headerlink" href="#setting-up-a-run" title="Permalink to this heading"></a></h4>
+<h4>Setting up a run<a class="headerlink" href="#setting-up-a-run" title="Permalink to this headline"></a></h4>
 <p>Each run should take place in its own workign directory. This directory should
 have a variety of configuration files, parameter files, and output directory and
 optionally calibration and input files. See the script
@@ -314,21 +312,21 @@ optionally calibration and input files. See the script
 directory.</p>
 </section>
 <section id="spatial-size">
-<h4>Spatial Size<a class="headerlink" href="#spatial-size" title="Permalink to this heading"></a></h4>
+<h4>Spatial Size<a class="headerlink" href="#spatial-size" title="Permalink to this headline"></a></h4>
 <p>The size of your run is controlled by the dimensions of your input set and
 the contents of the <code class="docutils literal notranslate"><span class="pre">run-mask.nc</span></code> file. If your input set is larger than
 1x1, simply mark the cells you’re interested in as active in the
 <code class="docutils literal notranslate"><span class="pre">run-mask.nc</span></code> file and the model will run them, by default sequentially.</p>
 </section>
 <section id="single-site-or-small-regions">
-<h4>Single Site or Small Regions<a class="headerlink" href="#single-site-or-small-regions" title="Permalink to this heading"></a></h4>
+<h4>Single Site or Small Regions<a class="headerlink" href="#single-site-or-small-regions" title="Permalink to this headline"></a></h4>
 <p>Smaller regions, perhaps no more than a couple dozen cells, can be reasonably
 run on a standard workstation. Sequentially would be easiest, although it
 could be run in parallel using MPI if the NetCDF output file accesses were
 modified to be per-cell and not parallel.</p>
 </section>
 <section id="large-regions-hpc">
-<h4>Large Regions (HPC)<a class="headerlink" href="#large-regions-hpc" title="Permalink to this heading"></a></h4>
+<h4>Large Regions (HPC)<a class="headerlink" href="#large-regions-hpc" title="Permalink to this headline"></a></h4>
 <p>For larger regional areas we utilize an HPC cluster and OpenMPI.</p>
 <p>Due to space limitations, we break regional runs into ‘batches’, which are
 subsets of the region with a specified number of cells marked in the run
@@ -339,7 +337,7 @@ adapted to run in another environment.</p>
 in that batch. This means that currently running with MPI requires a file
 system that supports parallel file access.</p>
 <section id="requirements">
-<h5>Requirements<a class="headerlink" href="#requirements" title="Permalink to this heading"></a></h5>
+<h5>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline"></a></h5>
 <ul class="simple">
 <li><p>Boost 1.55 built with mpi</p></li>
 <li><p>jsoncpp 0.5.0</p></li>
@@ -352,7 +350,7 @@ system that supports parallel file access.</p>
 </ul>
 </section>
 <section id="splitting">
-<h5>Splitting<a class="headerlink" href="#splitting" title="Permalink to this heading"></a></h5>
+<h5>Splitting<a class="headerlink" href="#splitting" title="Permalink to this headline"></a></h5>
 <p>The batch splitting script pulls from the <code class="docutils literal notranslate"><span class="pre">config/config.js</span></code> file, so make
 sure that is set up before running. Active cells per batch is set in the
 splitting script itself - for a smaller regional run (50x50), we usually do 25
@@ -368,7 +366,7 @@ specified output directory. Each subdirectory will have a copy of the config.js
 file and customized run-mask.nc and slurm_runner.sh files.</p>
 </section>
 <section id="starting-a-run">
-<h5>Starting a run<a class="headerlink" href="#starting-a-run" title="Permalink to this heading"></a></h5>
+<h5>Starting a run<a class="headerlink" href="#starting-a-run" title="Permalink to this headline"></a></h5>
 <p>By default the batch running script runs a set of batches from an inclusive
 range defined by values provided in the call. Example call to run batches 0-9:</p>
 <p><code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">./scripts/chinook/batch_run_on_chinook.sh</span> <span class="pre">[path</span> <span class="pre">to</span> <span class="pre">batch</span> <span class="pre">dir]</span> <span class="pre">0</span> <span class="pre">9</span></code></p>
@@ -379,7 +377,7 @@ the SLURM queue in the following statement:</p>
 <p><code class="docutils literal notranslate"><span class="pre">while</span> <span class="pre">[</span> <span class="pre">$(squeue</span> <span class="pre">|</span> <span class="pre">grep</span> <span class="pre">-c</span> <span class="pre">[username])</span> <span class="pre">-ge</span> <span class="pre">3</span> <span class="pre">];</span></code></p>
 </section>
 <section id="merging">
-<h5>Merging<a class="headerlink" href="#merging" title="Permalink to this heading"></a></h5>
+<h5>Merging<a class="headerlink" href="#merging" title="Permalink to this headline"></a></h5>
 <p>The merging script will attempt to merge all files matching the output file name
 format (e.g. GPP_monthly_sc.nc) for each variable in the output_spec file, from
 the specified directory and several subdirectory levels below.</p>
@@ -398,7 +396,7 @@ can be re-run for a single variable at a time.</p>
 </section>
 </section>
 <section id="running-from-restart-files">
-<h3>Running from Restart Files<a class="headerlink" href="#running-from-restart-files" title="Permalink to this heading"></a></h3>
+<h3>Running from Restart Files<a class="headerlink" href="#running-from-restart-files" title="Permalink to this headline"></a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">Dvmdostem</span></code> can be stopped at and restarted from any inter-stage pause. The
 most useful point to do so will be after either EQ or SP, so the bulk of the
 computing does not need to be repeated and experimental TR+SC runs can be
@@ -407,7 +405,7 @@ completed quickly.</p>
 that they hold data from: <code class="docutils literal notranslate"><span class="pre">restart-[stage].nc</span></code>.</p>
 <!-- This is an embed link to a Google Drawing created by Ruth Rutter and Tobey Carman -->
 <img src="https://docs.google.com/drawings/d/e/2PACX-1vSL4SJun4GptQWQqkKoTxc1RhiDZcdjz7E8Gkk1bL-pldPu8L0jYC1z2UlrwW-pvE-oH3TTKaQDKS-x/pub?w=963&amp;h=513"><section id="set-up">
-<h4>Set up<a class="headerlink" href="#set-up" title="Permalink to this heading"></a></h4>
+<h4>Set up<a class="headerlink" href="#set-up" title="Permalink to this headline"></a></h4>
 <p>Complete an initial run through to the point you wish to restart from. If you
 want the outputs from later stages for comparison purposes, running those as
 well will not disrupt the process.</p>
@@ -416,7 +414,7 @@ will need to manually move them elsewhere. Leave the restart files in the output
 directory.</p>
 </section>
 <section id="restart">
-<h4>Restart<a class="headerlink" href="#restart" title="Permalink to this heading"></a></h4>
+<h4>Restart<a class="headerlink" href="#restart" title="Permalink to this headline"></a></h4>
 <p>Two flags are necessary in order to restart: <code class="docutils literal notranslate"><span class="pre">--no-output-cleanup</span></code> and
 <code class="docutils literal notranslate"><span class="pre">--restart-run</span></code>. The first keeps dvmdostem from re-creating the output
 directory (and therefore deleting its contents) and the second prevents it from
@@ -429,36 +427,36 @@ year counts would be something like this: <code class="docutils literal notransl
 </section>
 </section>
 <section id="running-a-sensitivity-analysis">
-<h3>Running a Sensitivity Analysis<a class="headerlink" href="#running-a-sensitivity-analysis" title="Permalink to this heading"></a></h3>
+<h3>Running a Sensitivity Analysis<a class="headerlink" href="#running-a-sensitivity-analysis" title="Permalink to this headline"></a></h3>
 <blockquote>
 <div><p>WRITE THIS…</p>
 </div></blockquote>
 </section>
 <section id="parallel-options">
-<h3>Parallel Options<a class="headerlink" href="#parallel-options" title="Permalink to this heading"></a></h3>
+<h3>Parallel Options<a class="headerlink" href="#parallel-options" title="Permalink to this headline"></a></h3>
 <blockquote>
 <div><p>WRITE THIS…</p>
 </div></blockquote>
 </section>
 <section id="processing-outputs">
-<h3>Processing Outputs<a class="headerlink" href="#processing-outputs" title="Permalink to this heading"></a></h3>
+<h3>Processing Outputs<a class="headerlink" href="#processing-outputs" title="Permalink to this headline"></a></h3>
 <blockquote>
 <div><p>WRITE THIS…</p>
 </div></blockquote>
 </section>
 <section id="processing-inputs">
-<h3>Processing Inputs<a class="headerlink" href="#processing-inputs" title="Permalink to this heading"></a></h3>
+<h3>Processing Inputs<a class="headerlink" href="#processing-inputs" title="Permalink to this headline"></a></h3>
 <blockquote>
 <div><p>WRITE THIS…</p>
 </div></blockquote>
 <section id="from-iem-snap-data">
-<h4>From IEM/SNAP data<a class="headerlink" href="#from-iem-snap-data" title="Permalink to this heading"></a></h4>
+<h4>From IEM/SNAP data<a class="headerlink" href="#from-iem-snap-data" title="Permalink to this headline"></a></h4>
 <blockquote>
 <div><p>WRITE THIS…</p>
 </div></blockquote>
 </section>
 <section id="from-era5">
-<h4>From ERA5<a class="headerlink" href="#from-era5" title="Permalink to this heading"></a></h4>
+<h4>From ERA5<a class="headerlink" href="#from-era5" title="Permalink to this headline"></a></h4>
 <blockquote>
 <div><p>WRITE THIS…</p>
 </div></blockquote>
@@ -466,7 +464,7 @@ year counts would be something like this: <code class="docutils literal notransl
 </section>
 </section>
 <section id="conceptural-modeling-method-and-workflow">
-<h2>Conceptural Modeling Method and Workflow<a class="headerlink" href="#conceptural-modeling-method-and-workflow" title="Permalink to this heading"></a></h2>
+<h2>Conceptural Modeling Method and Workflow<a class="headerlink" href="#conceptural-modeling-method-and-workflow" title="Permalink to this headline"></a></h2>
 <blockquote>
 <div><p>WRITE THIS…</p>
 </div></blockquote>
@@ -475,49 +473,49 @@ and for different reasons. A schematic overview of the entire process is given
 in the following image:</p>
 <!-- This is an embed link to a Google Drawing created by Tobey Carman -->
 <img src="https://docs.google.com/drawings/d/e/2PACX-1vQc-OuFaMSpaMA05Q_ah9q_Rm5of7cF3uuPRjQ7-d7bJofkahwQ5VLRFYk69KnuoooKl8kWM1xW6t6e/pub?w=720&amp;h=540"><section id="develop-goals">
-<h3>Develop goals<a class="headerlink" href="#develop-goals" title="Permalink to this heading"></a></h3>
+<h3>Develop goals<a class="headerlink" href="#develop-goals" title="Permalink to this headline"></a></h3>
 <blockquote>
 <div><p>WRITE THIS…</p>
 </div></blockquote>
 </section>
 <section id="conceptualization">
-<h3>Conceptualization<a class="headerlink" href="#conceptualization" title="Permalink to this heading"></a></h3>
+<h3>Conceptualization<a class="headerlink" href="#conceptualization" title="Permalink to this headline"></a></h3>
 <blockquote>
 <div><p>WRITE THIS…</p>
 </div></blockquote>
 </section>
 <section id="formulation">
-<h3>Formulation<a class="headerlink" href="#formulation" title="Permalink to this heading"></a></h3>
+<h3>Formulation<a class="headerlink" href="#formulation" title="Permalink to this headline"></a></h3>
 <blockquote>
 <div><p>WRITE THIS…</p>
 </div></blockquote>
 </section>
 <section id="implementation">
-<h3>Implementation<a class="headerlink" href="#implementation" title="Permalink to this heading"></a></h3>
+<h3>Implementation<a class="headerlink" href="#implementation" title="Permalink to this headline"></a></h3>
 <blockquote>
 <div><p>WRITE THIS…</p>
 </div></blockquote>
 </section>
 <section id="parameterization">
-<h3>Parameterization<a class="headerlink" href="#parameterization" title="Permalink to this heading"></a></h3>
+<h3>Parameterization<a class="headerlink" href="#parameterization" title="Permalink to this headline"></a></h3>
 <blockquote>
 <div><p>WRITE THIS…</p>
 </div></blockquote>
 </section>
 <section id="model-testing">
-<h3>Model Testing<a class="headerlink" href="#model-testing" title="Permalink to this heading"></a></h3>
+<h3>Model Testing<a class="headerlink" href="#model-testing" title="Permalink to this headline"></a></h3>
 <blockquote>
 <div><p>WRITE THIS…</p>
 </div></blockquote>
 </section>
 <section id="model-analysis">
-<h3>Model Analysis<a class="headerlink" href="#model-analysis" title="Permalink to this heading"></a></h3>
+<h3>Model Analysis<a class="headerlink" href="#model-analysis" title="Permalink to this headline"></a></h3>
 <blockquote>
 <div><p>WRITE THIS…</p>
 </div></blockquote>
 </section>
 <section id="pre-and-post-processing">
-<h3>Pre- and Post- Processing<a class="headerlink" href="#pre-and-post-processing" title="Permalink to this heading"></a></h3>
+<h3>Pre- and Post- Processing<a class="headerlink" href="#pre-and-post-processing" title="Permalink to this headline"></a></h3>
 <blockquote>
 <div><p>WRITE THIS…</p>
 </div></blockquote>

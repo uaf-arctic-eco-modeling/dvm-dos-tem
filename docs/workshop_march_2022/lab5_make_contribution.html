@@ -14,9 +14,7 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
-        <script src="../_static/slideshow.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -89,7 +87,7 @@
            <div itemprop="articleBody">
              
   <section id="march-2022-workshop-lab-5">
-<h1>March 2022 Workshop Lab 5<a class="headerlink" href="#march-2022-workshop-lab-5" title="Permalink to this heading"></a></h1>
+<h1>March 2022 Workshop Lab 5<a class="headerlink" href="#march-2022-workshop-lab-5" title="Permalink to this headline"></a></h1>
 <p>This lab takes you through one possible workflow using Git and Github to make a
 modification to the codebase and have it included upstream. This is a somewhat
 simplified case and does not cover every situation you will run into. This is
@@ -120,7 +118,7 @@ remote repositories, and Git vs Github.</p></li>
 <p>Begin by reading the <a class="reference internal" href="../software_development_info.html#version-management"><span class="std std-ref">Version Management</span></a> section of this document for an overview of how the <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code>
 project uses Git and Github.</p>
 <section id="why-use-version-control">
-<h2>Why use version control?<a class="headerlink" href="#why-use-version-control" title="Permalink to this heading"></a></h2>
+<h2>Why use version control?<a class="headerlink" href="#why-use-version-control" title="Permalink to this headline"></a></h2>
 <p>As mentioned in the <a class="reference internal" href="../software_development_info.html#version-management"><span class="std std-ref">Version Management</span></a> section, using version control in a project really serves several
 purposes:</p>
 <blockquote>
@@ -149,7 +147,7 @@ history (commit graph) to look when you are finished. With the idea of the
 history you want to achieve in mind, you can then find a path forward.</p>
 </section>
 <section id="general-workflow-loops">
-<h2>General Workflow Loops<a class="headerlink" href="#general-workflow-loops" title="Permalink to this heading"></a></h2>
+<h2>General Workflow Loops<a class="headerlink" href="#general-workflow-loops" title="Permalink to this headline"></a></h2>
 <p>According to the IEEE, Software Engineering is the systematic, disciplined,
 quantifiable approach to the design, development and maintenance of software
 systems. As such software engineers are frequently obsessed with processes -
@@ -158,7 +156,7 @@ is one key to achieving the systematic, disciplined, and quantifiable approach
 that is called for.</p>
 <p>Below we cover several core processes before assembling them to a full workflow.</p>
 <section id="core-development-process-loop">
-<h3>Core Development Process Loop<a class="headerlink" href="#core-development-process-loop" title="Permalink to this heading"></a></h3>
+<h3>Core Development Process Loop<a class="headerlink" href="#core-development-process-loop" title="Permalink to this headline"></a></h3>
 <p>The core development process loop is shown in the diagram.</p>
 <img alt="../_images/edit-compile-run-check.png" src="../_images/edit-compile-run-check.png" />
 <p>These four steps are at the heart of any software work. In different
@@ -168,7 +166,7 @@ straightforward. The individual may elect to add additional steps such as
 “backup work” or “publish finished code”.</p>
 </section>
 <section id="loop-with-individual-version-control">
-<h3>Loop with individual version control<a class="headerlink" href="#loop-with-individual-version-control" title="Permalink to this heading"></a></h3>
+<h3>Loop with individual version control<a class="headerlink" href="#loop-with-individual-version-control" title="Permalink to this headline"></a></h3>
 <p>The most basic version control process loop is simply: edit, stage, commit.</p>
 <a class="reference internal image-reference" href="../_images/edit-stage-commit.png"><img alt="core process loop with individual version control" src="../_images/edit-stage-commit.png" style="width: 200px;" /></a>
 <p>By itself this loop is not particularly useful - it doesn’t even involve running
@@ -192,7 +190,7 @@ cycle through the edit → compile → run → check loop many times before
 committing.</p>
 </section>
 <section id="incorporating-more-people">
-<h3>Incorporating more people<a class="headerlink" href="#incorporating-more-people" title="Permalink to this heading"></a></h3>
+<h3>Incorporating more people<a class="headerlink" href="#incorporating-more-people" title="Permalink to this headline"></a></h3>
 <p>When multiple people are involved their efforts must be synchronized so that
 their changes to the system are compatible and so the people do not interfere
 with each other. Git does not specify exactly how this should be done and leaves
@@ -221,7 +219,7 @@ mechanics of the following Git fundamentals:</p>
 </section>
 </section>
 <section id="single-person-topic-branch-and-pull-request-process">
-<h2>Single person topic branch and pull request process<a class="headerlink" href="#single-person-topic-branch-and-pull-request-process" title="Permalink to this heading"></a></h2>
+<h2>Single person topic branch and pull request process<a class="headerlink" href="#single-person-topic-branch-and-pull-request-process" title="Permalink to this headline"></a></h2>
 <p>This part of the tutorial is designed to walk you through a basic case of making
 a small modification to the code and getting that change merged into the
 upstream codebase. Understand that in the “real world” as you are working on
@@ -296,7 +294,7 @@ the changes: <code class="docutils literal notranslate"><span class="pre">git</s
 </div></blockquote>
 </section>
 <section id="multi-person-topic-branch-process">
-<h2>Multi-person topic branch process<a class="headerlink" href="#multi-person-topic-branch-process" title="Permalink to this heading"></a></h2>
+<h2>Multi-person topic branch process<a class="headerlink" href="#multi-person-topic-branch-process" title="Permalink to this headline"></a></h2>
 <p>Lets have two people: Y and Z who are both working on the project, and in fact
 they both need to work on the same topic branch. This example is harder to write
 prescriptive steps for, so instead an example sequence will be enumerated and it
