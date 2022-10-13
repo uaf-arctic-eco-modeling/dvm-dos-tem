@@ -16,6 +16,7 @@
         <script src="_static/underscore.js"></script>
         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/slideshow.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -51,6 +52,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#equilibrium-eq">equilibrium (eq)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spinup-sp">spinup (sp)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#transient-tr">transient (tr)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#scenario-sc">scenario (sc)</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#community-types-cmts">Community Types (CMTs)</a></li>
@@ -190,10 +192,14 @@ equal to the Fire Recurrence Interval (FRI).</p>
 <p>In the transient stage, the climate varies from year to year. The tr stage is
 used to run the model over the period of historical record. The input climate
 data for the tr stage should be the historic climate. This is typically the
-climate data for the 20th century, so roughly 1901-2009.
-scenario (sc)
-In the scenario stage, the climate also varies from year to year, but rather
+climate data for the 20th century, so roughly 1901-2009.</p>
+</section>
+<section id="scenario-sc">
+<h4>scenario (sc)<a class="headerlink" href="#scenario-sc" title="Permalink to this heading"></a></h4>
+<p>In the scenario stage, the climate also varies from year to year, but rather
 than observed variability, a predicted climate scenario is used.</p>
+<p>A complete run utilizes all 5 stages. It is possible to work with any subset of
+the stages</p>
 </section>
 </section>
 <section id="community-types-cmts">

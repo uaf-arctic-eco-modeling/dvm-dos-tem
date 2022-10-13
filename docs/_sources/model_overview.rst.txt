@@ -101,9 +101,16 @@ In the transient stage, the climate varies from year to year. The tr stage is
 used to run the model over the period of historical record. The input climate 
 data for the tr stage should be the historic climate. This is typically the 
 climate data for the 20th century, so roughly 1901-2009.
+
+--------------
 scenario (sc)
-In the scenario stage, the climate also varies from year to year, but rather 
+--------------
+In the scenario stage, the climate also varies from year to year, but rather
 than observed variability, a predicted climate scenario is used.
+
+A complete run utilizes all 5 stages. It is possible to work with any subset of
+the stages
+
 
 =======================
 Community Types (CMTs)

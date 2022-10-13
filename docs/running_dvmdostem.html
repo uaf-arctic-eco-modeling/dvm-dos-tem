@@ -16,6 +16,7 @@
         <script src="_static/underscore.js"></script>
         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/slideshow.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -46,6 +47,13 @@
 <li class="toctree-l1"><a class="reference internal" href="model_overview.html">Model Overview</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Running</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#practical">Practical</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#getting-started">Getting Started</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#download">Download</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#dependencies">Dependencies</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#compile">Compile</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#install">Install</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="#control-options">Control Options</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#command-line">Command line</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#configuration">Configuration</a></li>
@@ -125,9 +133,58 @@
 running the model and the other covering the more conceptual aspects.</p>
 <section id="practical">
 <h2>Practical<a class="headerlink" href="#practical" title="Permalink to this heading"></a></h2>
-<blockquote>
-<div><p>WRITE THIS…</p>
-</div></blockquote>
+<p>The following sections will outline the steps you need to take and commands
+will need to run the software and associated pre and post processing tools.</p>
+<section id="getting-started">
+<h3>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this heading"></a></h3>
+<section id="download">
+<h4>Download<a class="headerlink" href="#download" title="Permalink to this heading"></a></h4>
+<p>Download the source code from Github:
+<a class="reference external" href="https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem.git">https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem.git</a> or clone the code
+using git:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">git</span><span class="nd">@github</span><span class="o">.</span><span class="n">com</span><span class="p">:</span><span class="n">uaf</span><span class="o">-</span><span class="n">arctic</span><span class="o">-</span><span class="n">eco</span><span class="o">-</span><span class="n">modeling</span><span class="o">/</span><span class="n">dvm</span><span class="o">-</span><span class="n">dos</span><span class="o">-</span><span class="n">tem</span><span class="o">.</span><span class="n">git</span>
+</pre></div>
+</div>
+<p>It is also possible to download just the code for a specific release from the
+<a class="reference external" href="https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem/releases">Releases</a> page on Github.</p>
+</section>
+<section id="dependencies">
+<h4>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this heading"></a></h4>
+<p>To see the list of libraries that must be installed for <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code> to compile
+and run, look at the install commands in the project’s <code class="docutils literal notranslate"><span class="pre">Dockerfile</span></code> s.</p>
+<p>While the supporting scripts don’t need compilation, they require a bunch of
+supporting libraries and software to be installed. Again looking at the install
+commands and comments in the <code class="docutils literal notranslate"><span class="pre">Dockerfile</span></code> s will show the dependencies.</p>
+</section>
+<section id="compile">
+<h4>Compile<a class="headerlink" href="#compile" title="Permalink to this heading"></a></h4>
+<p>The <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code> program must be compiled from C++ source code. If you have the
+dependencies installed and accessible on your <code class="docutils literal notranslate"><span class="pre">PATH</span></code>, then you can install
+using <code class="docutils literal notranslate"><span class="pre">make</span></code>, executed from the root of the project. There is also a
+<a class="reference external" href="https://scons.org">SCons</a> file and the command <code class="docutils literal notranslate"><span class="pre">scons</span></code> can be used to compile.</p>
+<p>The majority, if not all, of the supporting scripts and tools are written in
+interpreted languages and don’t need compilation.</p>
+</section>
+<section id="install">
+<h4>Install<a class="headerlink" href="#install" title="Permalink to this heading"></a></h4>
+<p>There is not an explicit installation step for <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code>. You can add the
+directory where you keep the code (named <code class="docutils literal notranslate"><span class="pre">dvm-dos-tem</span></code> by default when you
+clone the repository), to your <code class="docutils literal notranslate"><span class="pre">$PATH</span></code> variable, or you can reference the
+scripts and other programs by their absolute path.</p>
+<p>While the <code class="docutils literal notranslate"><span class="pre">$PATH</span></code> variable is setup in the development docker container:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>develop@d146768bfaac:/data/workflows$ runmask-util.py -h
+usage: runmask-util.py [-h] [--verbose] [--reset] [--all-on] ...
+                    [FILE]
+</pre></div>
+</div>
+<p>many of the examples still show things using the absolute path:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>develop@d146768bfaac:/data/workflows$ /work/scripts/runmask-util.py --help
+usage: runmask-util.py [-h] [--verbose] [--reset] [--all-on] ...
+                    [FILE]
+</pre></div>
+</div>
+</section>
+</section>
 <section id="control-options">
 <h3>Control Options<a class="headerlink" href="#control-options" title="Permalink to this heading"></a></h3>
 <blockquote>

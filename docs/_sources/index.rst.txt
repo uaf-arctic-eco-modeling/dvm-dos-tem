@@ -12,6 +12,8 @@ seasonal (i.e. monthly) to centennial scales by climate, disturbances and
 biophysical processes such as permafrost, soil thermal and hydrological regimes,
 snow cover or canopy development.
 
+The code is available on Github: https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem
+
 .. image:: images/dvmdostem-overview_fromhg.png
    :width: 600
    :alt: dvmdostem overview drawing
