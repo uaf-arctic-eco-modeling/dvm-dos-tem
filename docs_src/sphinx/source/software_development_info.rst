@@ -656,9 +656,9 @@ trust.
      * https://blog.sourcetreeapp.com/2012/08/21/merge-or-rebase/
 
 
-==============================
+*******************************
 Releases and Version Numbering
-==============================
+*******************************
 
 Begining in 2021, we started using the "Releases" feature of Github to package
 and distribute specific versions of ``dvmdostem``. We would like to make this a
@@ -693,9 +693,9 @@ The steps are described in the ``HOWTO_RELEASE.md`` document and the result is
 that release is visible here: https://github.com/ua-snap/dvm-dos-tem/releases
 
 
-======================
+*******************************
 Testing and Deployment
-======================
+*******************************
 
 There is currently (Sept 2022) a very limited set of tests and their execution
 is not automated. It is a goal to increase the test coverage and automate the
