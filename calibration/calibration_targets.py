@@ -319,6 +319,32 @@ calibration_targets = {
     'OrganicNitrogenSum':     1998.37,    #  soln
     'AvailableNitrogenSum':      1.70,    #  avln
   },
+  ## Prepared from EML??  Need Nuptake   created from excel file sent by Helene August 2022
+  "Tussock tundra EML": {
+    'cmtnumber': 21,
+                                 #   pft0       pft1      pft2     pft3     pft4     pft5     pft6     pft7      pft8    pft9   
+                  'PFTNames':    ['Decidsh','Egreensh', 'Sedge', 'Forbs', 'Lichen', 'Omoss', 'Sphag',  'PFT7', 'PFT8', 'PFT9'],
+    'GPPAllIgnoringNitrogen':    [  21.831,  132.247,   301.40,    1.792,  15.469,  49.072,   26.139,    0.00,   0.00,   0.00 ], # ingpp    (gC/m2/year)  GPP without N limitation
+    'NPPAllIgnoringNitrogen':    [  10.915,   66.124,   150.70,    0.896,   7.735,  24.536,   13.070,    0.00,   0.00,   0.00 ], # innpp    (gC/m2/year)  NPP without N limitation 
+    'NPPAll':                    [   7.277,   44.082,   100.47,    0.598,   5.156,  16.357,    8.713,    0.00,   0.00,   0.00 ], # npp       (gC/m2/year)  NPP with N limitation
+    'Nuptake':                   [   0.043,    0.429,    0.930,    0.011,   0.040,   0.126,    0.086,    0.00,   0.00,   0.00 ], # nuptake   (gN/m2/year)  
+    'VegCarbon': {
+      'Leaf':                    [   2.464,   33.925,   118.20,    0.165,   24.75,  133.78,    7.088,    0.00,   0.00,   0.00 ], # vegcl     (gC/m2)
+      'Stem':                    [  71.674,  230.388,     0.00,    0.000,    0.00,    0.00,     0.00,    0.00,   0.00,   0.00 ], # vegcw     (gC/m2)
+      'Root':                    [ 105.495,  169.930,   205.57,    2.599,    0.00,    0.00,     0.00,    0.00,   0.00,   0.00 ], # vegcr     (gC/m2)
+    },
+    'VegStructuralNitrogen': {
+      'Leaf':                    [   0.044,    0.660,    2.189,    0.006,    0.19,   2.065,    0.139,    0.00,   0.00,   0.00 ], # vegnl     (gN/m2)
+      'Stem':                    [   0.892,    1.861,    0.000,    0.000,    0.00,    0.00,    0.000,    0.00,   0.00,   0.00 ], # vegnw     (gN/m2)
+      'Root':                    [   1.271,    1.609,    3.180,    0.092,    0.00,    0.00,    0.000,    0.00,   0.00,   0.00 ], # vegnr     (gN/m2)
+    },
+    'MossDeathC':                0.00,    #  dmossc
+    'CarbonShallow':          4365.66,    #  shlwc
+    'CarbonDeep':            12814.11,    #  deepc
+    'CarbonMineralSum':      43416.95,    #  minec
+    'OrganicNitrogenSum':     1998.37,    #  soln
+    'AvailableNitrogenSum':      1.70,    #  avln
+  },
   ## CMT44 - SHRUB TUNDRA - CALIBRATION SEWARD PENINSULA CLIMATE (COUNCIL)   JOY Aug 17 2019 changed BETULA for Kougarok
   "shrub tundra kougarok": {
     'cmtnumber': 44,
