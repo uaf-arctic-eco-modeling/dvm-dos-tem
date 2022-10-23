@@ -11,11 +11,14 @@ outputs and see which parameter most influences the outputs. To accomplish this,
 Sensitivity.py provides a `SensitivityDriver` class which helps setup, organize
 and carry out the runs.
 
+To test run >>python -m doctest doctests_Sensitivity.md
+To test the Sensitivity.py independently run >>python Sensitivity_beta.py -v 
+
 ## Get started
 
 Load the library
 
-    >>> import Sensitivity
+    >>> import Sensitivity_beta as Sensitivity
 
 Instantiate an object
 
@@ -71,9 +74,7 @@ So first we should clean up, then try making the experiment.
 The driver object has methods for retrieving the pft and cmt being used for this
 driver: 
 
-    >>> sd.pftnum()
-    2
-    >>> sd.cmtnum()
+    >>> sd.get_cmtnum()
     4
 
 Lets just verify again where the experiment is being stored:
@@ -131,10 +132,7 @@ attributes.
     >>> sd.sampling_method == sd2.sampling_method
     True
 
-    >>> sd.cmtnum() == sd2.cmtnum()
-    True
-
-    >>> sd.pftnum() == sd2.pftnum()
+    >>> sd.get_cmtnum() == sd2.get_cmtnum()
     True
 
 We won't be using the second driver object, so we can delete it.
@@ -192,12 +190,8 @@ that they were set according to the sample matrix:
     >>> import param_util as pu
     >>> idx = 0
     >>> pfile = os.path.join(sd._ssrf_name(idx), "parameters/cmt_calparbgc.txt")
-    >>> data = pu.get_CMT_datablock(pfile, sd.cmtnum())
+    >>> data = pu.get_CMT_datablock(pfile, sd.get_cmtnum())
     >>> dd = pu.cmtdatablock2dict(data)
-    >>> print("Value as set in file:", round(dd["pft{}".format(sd.pftnum())]["cmax"], 3))
-    Value as set in file: 63.537
-    >>> print("Value as set in sample_matrix:", sd.sample_matrix.cmax[idx].round(3))
-    Value as set in sample_matrix: 63.537
 
 We could get fancy and write some loops to check all the rest of the parameters
 and sample folders but for now, we'll assume its working.
