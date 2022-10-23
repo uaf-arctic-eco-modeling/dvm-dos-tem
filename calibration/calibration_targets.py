@@ -4,36 +4,11 @@
 # contents of an excel file...? or just plain csv?
 
 calibration_targets = {
-  # Added this data structure to support comments, units, references etc that
-  # can be handled in the fixed width text parameter files as well as the csv
-  # parameter files.
-  "meta": {
-    'GPPAllIgnoringNitrogen': {'units': 'g/m2/year', 'desc': 'GPP without N limitation', 'comment': 'ingpp', 'ref': ''},
-    'NPPAllIgnoringNitrogen': {'units': 'g/m2/year', 'desc': 'NPP without N limitation', 'comment': 'innpp', 'ref': ''},
-    'NPPAll': {'units': 'g/m2/year', 'desc': 'NPP with N limitation', 'comment': 'npp', 'ref': ''},
-    'Nuptake': {'units': 'g/m2/year', 'desc': '', 'comment': 'nuptake', 'ref': ''},
-    'VegCarbon': {
-      'Leaf': {'units': 'g/m2', 'desc': '', 'comment': 'vegcl', 'ref': ''},
-      'Stem': {'units': 'g/m2', 'desc': '', 'comment': 'vegcw', 'ref': ''},
-      'Root': {'units': 'g/m2', 'desc': '', 'comment': 'vegcr', 'ref': ''},
-    },
-    'VegStructuralNitrogen': {
-      'Leaf': {'units': 'g/m2', 'desc': '', 'comment': 'vegnl', 'ref': ''},
-      'Stem': {'units': 'g/m2', 'desc': '', 'comment': 'vegnw', 'ref': ''},
-      'Root': {'units': 'g/m2', 'desc': '', 'comment': 'vegnr', 'ref': ''},
-    },
-    'MossDeathC': {'units': '', 'desc': '', 'comment': 'dmossc', 'ref': ''},
-    'CarbonShallow': {'units': '', 'desc': '', 'comment': 'shlwc', 'ref': ''},
-    'CarbonDeep': {'units': '', 'desc': '', 'comment': 'deep', 'ref': ''},
-    'CarbonMineralSum': {'units': '', 'desc': '', 'comment': 'minec', 'ref': ''},
-    'OrganicNitrogenSum': {'units': '', 'desc': '', 'comment': 'soln', 'ref': ''},
-    'AvailableNitrogenSum': {'units': '', 'desc': '', 'comment': 'avln', 'ref': ''},
-  },
-
   ## WARNING: JUNK, PLACEHOLDER VALUES! USE AT YOUR OWN RISK!
   "BLANK": {
     'cmtnumber': 0,
-    'PFTNames':                  [  'PFT0',  'PFT1',   'PFT2',   'PFT3',  'PFT4',  'PFT5',  'PFT6',  'PFT7',  'PFT0', 'PFT9'],
+                                 #    pft0     pft1      pft2      pft3     pft4     pft5     pft6     pft7     pft8    pft9   
+                                 #    Misc.    Misc.     Misc.     Misc.    Misc.    Misc.    Misc.    Misc.    Misc.   Misc.
     'GPPAllIgnoringNitrogen':    [     0.0,     0.0,      0.0,      0.0,     0.0,     0.0,     0.0,     0.0,     0.0,    0.0 ], # ingpp     (gC/m2/year)   GPP without N limitation
     'NPPAllIgnoringNitrogen':    [     0.0,     0.0,      0.0,      0.0,     0.0,     0.0,     0.0,     0.0,     0.0,    0.0 ], # innpp     (gC/m2/year)   NPP without N limitation 
     'NPPAll':                    [     0.0,     0.0,      0.0,      0.0,     0.0,     0.0,     0.0,     0.0,     0.0,    0.0 ], # npp       (gC/m2/year)   NPP with N limitation
@@ -166,28 +141,27 @@ calibration_targets = {
     'cmtnumber': 5,
                                  #    pft0     pft1      pft2      pft3     pft4     pft5     pft6     pft7     pft8    pft9   
                   'PFTNames':    ['Betula', 'Decid', 'EGreen', 'Sedges', 'Forbs', 'Lichens', 'Feather', 'Sphag', 'PFT8', 'PFT9'],
-    'GPPAllIgnoringNitrogen':    [  106.20,   54.13,   208.50,   390.40,   7.016,  286.80,  191.80,   172.60,   0.00,   0.00 ], # ingpp     (gC/m2/year)   GPP without N limitation
+    'GPPAllIgnoringNitrogen':    [   46.08,    1.33,   113.44,	 201.1,	   1.03,   8.88,    28.18,    15.0,    0.00,   0.00 ], # ingpp     (gC/m2/year)   GPP without N limitation
     'NPPAllIgnoringNitrogen':    [   59.00,   27.06,   104.20,   195.20,   3.508,  136.60,   94.97,    85.42,   0.00,   0.00 ], # innpp     (gC/m2/year)   NPP without N limitation 
-    'NPPAll':                    [   34.71,   14.47,    55.74,   104.40,   1.876,   68.29,   48.70,    43.81,   0.00,   0.00 ], # npp       (gC/m2/year)   NPP with N limitation
+    'GPPAll':                    [   30.71,    0.89,    75.63,   134.04,   0.686,   5.92,   18.79,    10.01,   0.00,   0.00 ], # npp       (gC/m2/year)   NPP with N limitation
+    'NPPAll':                    [   15.35,    0.44,    37.81,    67.02,   0.343,   2.96,    9.39,     5.00,   0.00,   0.00 ], # npp       (gC/m2/year)   NPP with N limitation
     'Nuptake':                   [   0.197,   0.082,    0.418,    0.731,   0.009,   0.074,   0.487,    0.376,   0.00,   0.00 ], # nuptake   (gN/m2/year)
     'VegCarbon': {
-      'Leaf':                    [    4.14,   15.01,    74.61,   105.25,    0.85,    42.70,   37.22,   86.84,   0.00,   0.00 ], # vegcl     (gC/m2)
-      'Stem':                    [   69.78,   30.42,   127.74,     0.00,    0.00,     0.00,    0.00,    0.00,   0.00,   0.00 ], # vegcw     (gC/m2)
-      'Root':                    [    4.54,    5.41,    11.84,   166.51,   11.71,     0.00,    0.00,    0.00,   0.00,   0.00 ], # vegcr     (gC/m2)
+      'Leaf':                    [   12.01,    0.35,    42.42,    32.16,    0.16,    32.93,   57.26,   80.55,   0.00,   0.00 ], # vegcl     (gC/m2)
+      'Stem':                    [  462.96,    3.72,   224.49,     0.00,    0.00,     0.00,    0.00,    0.00,   0.00,   0.00 ], # vegcw     (gC/m2)
+      'Root':                    [  147.94,    1.19,   143.47,   147.65,    2.60,     0.00,    0.00,    0.00,   0.00,   0.00 ], # vegcr     (gC/m2)
     },
     'VegStructuralNitrogen': {
-      'Leaf':                    [    0.13,    0.47,     1.58,     4.72,    0.03,     0.69,    0.56,    1.49,   0.00,   0.00 ], # vegnl     (gN/m2)
-      'Stem':                    [    1.13,    0.49,     2.06,     0.00,    0.00,     0.00,    0.00,    0.00,   0.00,   0.00 ], # vegnw     (gN/m2)
-      'Root':                    [    1.02,    1.21,     1.77,     7.48,    1.81,     0.00,    0.00,    0.00,   0.00,   0.00 ], # vegnr     (gN/m2)
+      'Leaf':                    [    0.36,    0.007,    1.01,     0.82,    0.006,    0.69,    1.33,    1.21,   0.00,   0.00 ], # vegnl     (gN/m2)
+      'Stem':                    [    7.75,    0.06,     2.57,     0.00,    0.00,     0.00,    0.00,    0.00,   0.00,   0.00 ], # vegnw     (gN/m2)
+      'Root':                    [    3.07,    0.02,     2.01,     3.03,    0.009,    0.00,    0.00,    0.00,   0.00,   0.00 ], # vegnr     (gN/m2)
     },
-    'RE':                       25.00,    #  Respiration_ecosystem  ** JUNK VALUE FOR TESTING! **
-    'NEE':                      10.00,     #  Net Ecosystem Exchange ** JUNK VALUE FOR TESTING! **
-    'MossDeathC':              178.00,    #  dmossc
+    'MossDeathC':              178.00,    #  dmossc remove from the list of targets
     'CarbonShallow':          3079.00,    #  shlwc
     'CarbonDeep':             7703.00,    #  deepc
     'CarbonMineralSum':      43404.00,    #  minec
     'OrganicNitrogenSum':     2206.00,    #  soln
-    'AvailableNitrogenSum':      8.958,   #  avln
+    'AvailableNitrogenSum':      0.8,   #  avln
   },
   ## CMT06 - WETSEDGE TUNDRA - CALIBRATION WITH toolik climate (also barrow climate)  Lichen gpp was 0.375, npp 0.187, feather 8.4 sphg 2.9, 1.45
   "wet sedge tundra": {
@@ -319,8 +293,8 @@ calibration_targets = {
     'OrganicNitrogenSum':     1998.37,    #  soln
     'AvailableNitrogenSum':      1.70,    #  avln
   },
-  ## CMT44 - SHRUB TUNDRA - CALIBRATION SEWARD PENINSULA CLIMATE (COUNCIL)   JOY Aug 17 2019 changed BETULA for Kougarok
-  "shrub tundra kougarok": {
+  ## CMT44 - SHRUB TUNDRA - CALIBRATION SEWARD PENINSULA CLIMATE (COUNCIL)   JOY Aug 17 2019 changed BETULA for Kougaruk  
+  "shrub tundra": {
     'cmtnumber': 44,
                                  #    pft0     pft1      pft2     pft3     pft4     pft5      pft6      pft7      pft8     pft9   
                   'PFTNames':    [ 'Salix', 'Betula', 'Decid.', 'E.green','Sedges','Forbs','Grasses','Lichens','Feather.', 'Misc.'],
@@ -347,32 +321,6 @@ calibration_targets = {
   },
 
 }
-
-def cmtbynumber(cmtnum):
-  '''
-  Find target values for a single CMT based on the number only.
-
-  Parameters
-  ----------
-  cmtnumber : int
-    The integer value for the CMT to return data for.
-
-  Returns
-  -------
-  data : dict
-    A multi-level dict structure with calibration target data for a single CMT.
-
-  Raises
-  ------
-  RuntimeError if the cmtnum is not found anywhere in the calibration_targets
-  data structure.
-  '''
-  for k, v in calibration_targets.items():
-    if 'cmtnumber' in v.keys():
-      if v['cmtnumber'] == cmtnum:
-        return {k:v}
-  raise RuntimeError("Can't find cmtnumber: {}".format(cmtnum))
-
 
 def cmtnames():
   '''returns a list of community names'''
