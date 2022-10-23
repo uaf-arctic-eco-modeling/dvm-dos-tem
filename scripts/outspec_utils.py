@@ -341,6 +341,7 @@ def cmdline_run(args):
     caltargets2ncname_map = [
       ('GPPAllIgnoringNitrogen','INGPP'),
       ('NPPAllIgnoringNitrogen','INNPP'),
+      ('GPPAll','GPP'),  
       ('NPPAll','NPP'),
       # ??? There are snuptake, lnuptake and innuptake (in the C++)
       # and TotNitrogentUptake (in the cal targets) is the sum of sn and ln...
@@ -360,7 +361,7 @@ def cmdline_run(args):
     for v in "MOSSDEATHC SHLWC DEEPC MINEC ORGN AVLN".split():
       data = toggle_on_variable(data, v, 'yearly', verbose=args.DEBUG)
 
-    for v in "INGPP INNPP NPP".split():
+    for v in "INGPP INNPP NPP GPP".split():
       data = toggle_on_variable(data, v, 'yearly pft', verbose=args.DEBUG)
 
     for v in "VEGC VEGN".split():
