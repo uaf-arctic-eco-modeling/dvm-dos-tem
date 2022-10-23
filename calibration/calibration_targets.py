@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # could add code here to load up calibration_targets variable from the
-# contents of an excel file...? or just plain csv?
+# contents of an excel file...? or just plain csv? Elchin's copy
 
 calibration_targets = {
   ## WARNING: JUNK, PLACEHOLDER VALUES! USE AT YOUR OWN RISK!
