@@ -58,4 +58,4 @@ Mads.plotmatches(md, calib_param)
 calib_param, calib_information = Mads.calibrate(md, tolOF=0.01, tolOFcount=4)
 
 Mads.plotmatches(md, calib_param, 
-    xtitle="# of observations", ytitle="NPP",filename="NPP_Step2_matchplot.png")
+    xtitle="# of observations", ytitle="NPP(Step2)",filename="Step2_matchplot.png")

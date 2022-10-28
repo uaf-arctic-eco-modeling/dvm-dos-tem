@@ -54,4 +54,4 @@ Mads.showobservations(md)
 calib_param, calib_information = Mads.calibrate(md, tolOF=0.01, tolOFcount=4)
 
 Mads.plotmatches(md, calib_param, 
-    xtitle="# of observations", ytitle="CSOIL",filename="CSOIL_matchplot.png")
+    xtitle="# of observations", ytitle="GPP(Step1)",filename="STEP1_matchplot.png")
