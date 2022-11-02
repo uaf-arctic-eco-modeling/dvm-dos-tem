@@ -1,4 +1,4 @@
-#STEP4
+#STEP4-1
 # parameters: cmax, cfall, krb, nfall
 # targets: GPPAll, NPPAll, VegCarbon(Leaf,Stem,Root), VegStructuralNitrogen(Leaf,Stem,Root)
 
@@ -63,7 +63,7 @@ initial_guess=[92.0, 3.01, 227.74, 388.18, 2.34, 21.93, 61.34, 32.27,
                 0.000001, 0.000159, 0.000017,
                 0.00001, 0.010048, 0.000008, 0.00688, 0.000013]
 
-y_init=PyCall.py"run_TEM"()
+y_init=PyCall.py"run_TEM"(initial_guess)
 
 function TEM_pycall(parameters::AbstractVector)
         predictions = PyCall.py"run_TEM"(parameters)
@@ -100,7 +100,7 @@ md = Mads.createproblem(initial_guess, obs, TEM_pycall;
         "Uniform(1e-7, 0.09)"],
     obstime=obs_time,
     paramlog=[falses(8); trues(16); falses(16); trues(16)],
-    problemname="Calibration_STEP3-2")
+    problemname="Calibration_STEP4-1")
 
 Mads.showparameters(md)
 Mads.showobservations(md)

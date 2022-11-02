@@ -43,7 +43,6 @@ obs_time=1:length(obs)
 #DEEPC = 7703.00
 #MINEC = 43404.00
 #AVLN = 0.8
-obs
 
 md = Mads.createproblem(initial_guess, obs, TEM_pycall;
     paramkey=["micbnup", "kdcrawc", "kdcsoma", "kdcsompr", "kdcsomcr"],
@@ -55,18 +54,15 @@ md = Mads.createproblem(initial_guess, obs, TEM_pycall;
     problemname="Calibration_SOIL")
 
 #micbnup  	0.750000   	[0.1 to 2.0]  	target = AVLN    
-#kdcrawc		0.091946	    	[0.01 to 0.99]	target = SHLWC 
-#kdcsoma 		0.0230919    	[0.005 to 0.50]	target = SHLWC primarily and DEEPC secondary
+#kdcrawc	0.09194	 	[0.01 to 0.99]	target = SHLWC 
+#kdcsoma 	0.0230919    	[0.005 to 0.50]	target = SHLWC primarily and DEEPC secondary
 #kdcsompr 	0.020800    	[0.001 to 0.25	target = DEEPC primarily and SHLWC and MINEC secondary
 #kdcsomcr 	0.000005    	[0.000001 to 0.00001] 	target = MINEC 
 
 Mads.showparameters(md)
 Mads.showobservations(md)
 
-#localsa = Mads.localsa(md; filename="model_diagnostics.png", par=initial_guess)
-
 calib_param, calib_information = Mads.calibrate(md, tolOF=0.01, tolOFcount=4)
 
-Mads.plotmatches(md, calib_param, xtitle="# of observations", ytitle="CSOIL")
-
-
+Mads.plotmatches(md, calib_param, 
+                     xtitle="# of observations", ytitle="CSOIL", filename="STEP5_matchplot.png")
