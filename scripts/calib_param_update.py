@@ -47,7 +47,7 @@ def copy_params(filename):
         CMTNUM = 5
         print("Updating file in {} for CMT {} for parameter {} of PFT {} with new value {}".format(
         param_directory, CMTNUM, pname, pftnum, v ))
-        #pu.update_inplace(v, param_directory, pname, CMTNUM, pftnum)
+        pu.update_inplace(float(v), param_directory, pname, CMTNUM, pftnum)
 
     return
 
