@@ -223,7 +223,7 @@ class TEM_model:
         ctrl_file = os.path.join(self.work_dir, 'config','config.js')
         opt_str = ' -l fatal --force-cmt {} --ctrl-file {}'.format(self.get_cmtnum(), ctrl_file)
         if calib:
-            opt_str = ' --cal-mode --log-level err --tar-caljson --ctrl-file {}'.format(ctrl_file)
+            opt_str = ' --cal-mode --log-level err --ctrl-file {}'.format(ctrl_file)
         cmdline = program + ' ' + self.opt_run_setup + opt_str
         
         self.checkifexists(ctrl_file)
