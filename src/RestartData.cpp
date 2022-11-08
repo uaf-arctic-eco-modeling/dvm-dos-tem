@@ -993,11 +993,17 @@ void RestartData::create_empty_file(const std::string& fname,
   int rtunfrozendaysV;
   int yrsdistV;
   temutil::nc( nc_def_var(ncid, "dsr", NC_INT, 2, vartype2D_dimids, &dsrV) );
+  temutil::nc( nc_put_att_int(ncid, dsrV, "_FillValue", NC_INT, 1, &MISSING_I) );
   temutil::nc( nc_def_var(ncid, "numsl", NC_INT, 2, vartype2D_dimids, &numslV) );
+  temutil::nc( nc_put_att_int(ncid, numslV, "_FillValue", NC_INT, 1, &MISSING_I) );
   temutil::nc( nc_def_var(ncid, "numsnwl", NC_INT, 2, vartype2D_dimids, &numsnwlV) );
+  temutil::nc( nc_put_att_int(ncid, numsnwlV, "_FillValue", NC_INT, 1, &MISSING_I) );
   temutil::nc( nc_def_var(ncid, "rtfrozendays", NC_INT, 2, vartype2D_dimids, &rtfrozendaysV) );
+  temutil::nc( nc_put_att_int(ncid, rtfrozendaysV, "_FillValue", NC_INT, 1, &MISSING_I) );
   temutil::nc( nc_def_var(ncid, "rtunfrozendays", NC_INT, 2, vartype2D_dimids, &rtunfrozendaysV) );
+  temutil::nc( nc_put_att_int(ncid, rtunfrozendaysV, "_FillValue", NC_INT, 1, &MISSING_I) );
   temutil::nc( nc_def_var(ncid, "yrsdist", NC_INT, 2, vartype2D_dimids, &yrsdistV) );
+  temutil::nc( nc_put_att_int(ncid, yrsdistV, "_FillValue", NC_INT, 1, &MISSING_I) );
 
   // Setup 2D vars, double
   int firea2sorgnV;
@@ -1007,11 +1013,17 @@ void RestartData::create_empty_file(const std::string& fname,
   int wdebriscV;
   int wdebrisnV;
   temutil::nc( nc_def_var(ncid, "firea2sorgn", NC_DOUBLE, 2, vartype2D_dimids, &firea2sorgnV) );
+  temutil::nc( nc_put_att_double(ncid, firea2sorgnV, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
   temutil::nc( nc_def_var(ncid, "snwextramass", NC_DOUBLE, 2, vartype2D_dimids, &snwextramasV) );
+  temutil::nc( nc_put_att_double(ncid, snwextramasV, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
   temutil::nc( nc_def_var(ncid, "monthsfrozen", NC_DOUBLE, 2, vartype2D_dimids, &monthsfrozenV) );
+  temutil::nc( nc_put_att_double(ncid, monthsfrozenV, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
   temutil::nc( nc_def_var(ncid, "watertab", NC_DOUBLE, 2, vartype2D_dimids, &watertabV) );
+  temutil::nc( nc_put_att_double(ncid, watertabV, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
   temutil::nc( nc_def_var(ncid, "wdebrisc", NC_DOUBLE, 2, vartype2D_dimids, &wdebriscV) );
+  temutil::nc( nc_put_att_double(ncid, wdebriscV, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
   temutil::nc( nc_def_var(ncid, "wdebrisn", NC_DOUBLE, 2, vartype2D_dimids, &wdebrisnV) );
+  temutil::nc( nc_put_att_double(ncid, wdebrisnV, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
 
   // Setup 3D vars, integer
   int ifwoodyV;
@@ -1020,10 +1032,15 @@ void RestartData::create_empty_file(const std::string& fname,
   int nonvascularV;
   int vegageV;
   temutil::nc( nc_def_var(ncid, "ifwoody", NC_INT, 3, vartype3D_dimids, &ifwoodyV) );
+  temutil::nc( nc_put_att_int(ncid, ifwoodyV, "_FillValue", NC_INT, 1, &MISSING_I) );
   temutil::nc( nc_def_var(ncid, "ifdeciwoody", NC_INT, 3, vartype3D_dimids, &ifdeciwoodyV) );
+  temutil::nc( nc_put_att_int(ncid, ifdeciwoodyV, "_FillValue", NC_INT, 1, &MISSING_I) );
   temutil::nc( nc_def_var(ncid, "ifperenial", NC_INT, 3, vartype3D_dimids, &ifperenialV) );
+  temutil::nc( nc_put_att_int(ncid, ifperenialV, "_FillValue", NC_INT, 1, &MISSING_I) );
   temutil::nc( nc_def_var(ncid, "nonvascular", NC_INT, 3, vartype3D_dimids, &nonvascularV) );
+  temutil::nc( nc_put_att_int(ncid, nonvascularV, "_FillValue", NC_INT, 1, &MISSING_I) );
   temutil::nc( nc_def_var(ncid, "vegage", NC_INT, 3, vartype3D_dimids, &vegageV) );
+  temutil::nc( nc_put_att_int(ncid, vegageV, "_FillValue", NC_INT, 1, &MISSING_I) );
 
   // Setup 3D vars, double
   int vegcovV;
@@ -1040,26 +1057,42 @@ void RestartData::create_empty_file(const std::string& fname,
   int growingttimeV;
   int foliagemxV;
   temutil::nc( nc_def_var(ncid, "vegcov", NC_DOUBLE, 3, vartype3D_dimids, &vegcovV) );
+  temutil::nc( nc_put_att_double(ncid, vegcovV, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
   temutil::nc( nc_def_var(ncid, "lai", NC_DOUBLE, 3, vartype3D_dimids, &laiV) );
+  temutil::nc( nc_put_att_double(ncid, laiV, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
   temutil::nc( nc_def_var(ncid, "vegwater", NC_DOUBLE, 3, vartype3D_dimids, &vegwaterV) );
+  temutil::nc( nc_put_att_double(ncid, vegwaterV, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
   temutil::nc( nc_def_var(ncid, "vegsnow", NC_DOUBLE, 3, vartype3D_dimids, &vegsnowV) );
+  temutil::nc( nc_put_att_double(ncid, vegsnowV, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
   temutil::nc( nc_def_var(ncid, "labn", NC_DOUBLE, 3, vartype3D_dimids, &labnV) );
+  temutil::nc( nc_put_att_double(ncid, labnV, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
   temutil::nc( nc_def_var(ncid, "deadc", NC_DOUBLE, 3, vartype3D_dimids, &deadcV) );
+  temutil::nc( nc_put_att_double(ncid, deadcV, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
   temutil::nc( nc_def_var(ncid, "deadn", NC_DOUBLE, 3, vartype3D_dimids, &deadnV) );
+  temutil::nc( nc_put_att_double(ncid, deadnV, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
   temutil::nc( nc_def_var(ncid, "topt", NC_DOUBLE, 3, vartype3D_dimids, &toptV) );
+  temutil::nc( nc_put_att_double(ncid, toptV, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
   temutil::nc( nc_def_var(ncid, "eetmx", NC_DOUBLE, 3, vartype3D_dimids, &eetmxV) );
+  temutil::nc( nc_put_att_double(ncid, eetmxV, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
   temutil::nc( nc_def_var(ncid, "unnormleaf", NC_DOUBLE, 3, vartype3D_dimids, &unnormleafV) );
+  temutil::nc( nc_put_att_double(ncid, unnormleafV, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
   temutil::nc( nc_def_var(ncid, "unnormleafmx", NC_DOUBLE, 3, vartype3D_dimids, &unnormleafmxV) );
+  temutil::nc( nc_put_att_double(ncid, unnormleafmxV, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
   temutil::nc( nc_def_var(ncid, "growingttime", NC_DOUBLE, 3, vartype3D_dimids, &growingttimeV) );
+  temutil::nc( nc_put_att_double(ncid, growingttimeV, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
   temutil::nc( nc_def_var(ncid, "foliagemx", NC_DOUBLE, 3, vartype3D_dimids, &foliagemxV) );
+  temutil::nc( nc_put_att_double(ncid, foliagemxV, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
 
   // Setup 4D vars, double
   int vegcV;
   int strnV;
   int vegC2NV;
   temutil::nc( nc_def_var(ncid, "vegc", NC_DOUBLE, 4, vartype4D_dimids, &vegcV) );
+  temutil::nc( nc_put_att_double(ncid, vegcV, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
   temutil::nc( nc_def_var(ncid, "strn", NC_DOUBLE, 4, vartype4D_dimids, &strnV) );
+  temutil::nc( nc_put_att_double(ncid, strnV, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
   temutil::nc( nc_def_var(ncid, "vegC2N", NC_DOUBLE, 4, vartype4D_dimids, &vegC2NV) );
+  temutil::nc( nc_put_att_double(ncid, vegC2NV, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
 
   // re-arrange dims in vartype
   vartype3D_dimids[0] = yD;
@@ -1072,9 +1105,13 @@ void RestartData::create_empty_file(const std::string& fname,
   int TYPEsoilV;
   int AGEsoilV;
   temutil::nc( nc_def_var(ncid, "TEXTUREsoil", NC_INT, 3, vartype3D_dimids, &TEXTUREsoilV) );
+  temutil::nc( nc_put_att_int(ncid, TEXTUREsoilV, "_FillValue", NC_INT, 1, &MISSING_I) );
   temutil::nc( nc_def_var(ncid, "FROZENsoil", NC_INT, 3, vartype3D_dimids, &FROZENsoilV) );
+  temutil::nc( nc_put_att_int(ncid, FROZENsoilV, "_FillValue", NC_INT, 1, &MISSING_I) );
   temutil::nc( nc_def_var(ncid, "TYPEsoil", NC_INT, 3, vartype3D_dimids, &TYPEsoilV) );
+  temutil::nc( nc_put_att_int(ncid, TYPEsoilV, "_FillValue", NC_INT, 1, &MISSING_I) );
   temutil::nc( nc_def_var(ncid, "AGEsoil", NC_INT, 3, vartype3D_dimids, &AGEsoilV) );
+  temutil::nc( nc_put_att_int(ncid, AGEsoilV, "_FillValue", NC_INT, 1, &MISSING_I) );
 
   // Setup 3D vars, double
   int TSsoilV;
@@ -1089,16 +1126,27 @@ void RestartData::create_empty_file(const std::string& fname,
   int orgnV;
   int avlnV;
   temutil::nc( nc_def_var(ncid, "TSsoil", NC_DOUBLE, 3, vartype3D_dimids, &TSsoilV) );
+  temutil::nc( nc_put_att_double(ncid, TSsoilV, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
   temutil::nc( nc_def_var(ncid, "DZsoil", NC_DOUBLE, 3, vartype3D_dimids, &DZsoilV) );
+  temutil::nc( nc_put_att_double(ncid, DZsoilV, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
   temutil::nc( nc_def_var(ncid, "LIQsoil", NC_DOUBLE, 3, vartype3D_dimids, &LIQsoilV) );
+  temutil::nc( nc_put_att_double(ncid, LIQsoilV, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
   temutil::nc( nc_def_var(ncid, "ICEsoil", NC_DOUBLE, 3, vartype3D_dimids, &ICEsoilV) );
+  temutil::nc( nc_put_att_double(ncid, ICEsoilV, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
   temutil::nc( nc_def_var(ncid, "FROZENFRACsoil", NC_DOUBLE, 3, vartype3D_dimids, &FROZENFRACsoilV) );
+  temutil::nc( nc_put_att_double(ncid, FROZENFRACsoilV, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
   temutil::nc( nc_def_var(ncid, "rawc", NC_DOUBLE, 3, vartype3D_dimids, &rawcV) );
+  temutil::nc( nc_put_att_double(ncid, rawcV, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
   temutil::nc( nc_def_var(ncid, "soma", NC_DOUBLE, 3, vartype3D_dimids, &somaV) );
+  temutil::nc( nc_put_att_double(ncid, somaV, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
   temutil::nc( nc_def_var(ncid, "sompr", NC_DOUBLE, 3, vartype3D_dimids, &somprV) );
+  temutil::nc( nc_put_att_double(ncid, somprV, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
   temutil::nc( nc_def_var(ncid, "somcr", NC_DOUBLE, 3, vartype3D_dimids, &somcrV) );
+  temutil::nc( nc_put_att_double(ncid, somcrV, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
   temutil::nc( nc_def_var(ncid, "orgn", NC_DOUBLE, 3, vartype3D_dimids, &orgnV) );
+  temutil::nc( nc_put_att_double(ncid, orgnV, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
   temutil::nc( nc_def_var(ncid, "avln", NC_DOUBLE, 3, vartype3D_dimids, &avlnV) );
+  temutil::nc( nc_put_att_double(ncid, avlnV, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
 
   // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   // NOTE: Seems odd, that these variables are defined in terms of soillayer
@@ -1117,11 +1165,17 @@ void RestartData::create_empty_file(const std::string& fname,
   int ICEsnowV;
   int AGEsnowV;
   temutil::nc( nc_def_var(ncid, "TSsnow", NC_DOUBLE, 3, vartype3D_dimids, &TSsnowV) );
+  temutil::nc( nc_put_att_double(ncid, TSsnowV, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
   temutil::nc( nc_def_var(ncid, "DZsnow", NC_DOUBLE, 3, vartype3D_dimids, &DZsnowV) );
+  temutil::nc( nc_put_att_double(ncid, DZsnowV, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
   temutil::nc( nc_def_var(ncid, "LIQsnow", NC_DOUBLE, 3, vartype3D_dimids, &LIQsnowV) );
+  temutil::nc( nc_put_att_double(ncid, LIQsnowV, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
   temutil::nc( nc_def_var(ncid, "RHOsnow", NC_DOUBLE, 3, vartype3D_dimids, &RHOsnowV) );
+  temutil::nc( nc_put_att_double(ncid, RHOsnowV, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
   temutil::nc( nc_def_var(ncid, "ICEsnow", NC_DOUBLE, 3, vartype3D_dimids, &ICEsnowV) );
+  temutil::nc( nc_put_att_double(ncid, ICEsnowV, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
   temutil::nc( nc_def_var(ncid, "AGEsnow", NC_DOUBLE, 3, vartype3D_dimids, &AGEsnowV) );
+  temutil::nc( nc_put_att_double(ncid, AGEsnowV, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
 
   // re-arrange dims in vartype
   vartype3D_dimids[0] = yD;
@@ -1131,7 +1185,9 @@ void RestartData::create_empty_file(const std::string& fname,
   int TSrockV;
   int DZrockV;
   temutil::nc( nc_def_var(ncid, "TSrock", NC_DOUBLE, 3, vartype3D_dimids, &TSrockV) );
+  temutil::nc( nc_put_att_double(ncid, TSrockV, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
   temutil::nc( nc_def_var(ncid, "DZrock", NC_DOUBLE, 3, vartype3D_dimids, &DZrockV) );
+  temutil::nc( nc_put_att_double(ncid, DZrockV, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
 
 
   // re-arrange dims in vartype
@@ -1142,7 +1198,9 @@ void RestartData::create_empty_file(const std::string& fname,
   int frontFTV;
   int frontZV;
   temutil::nc( nc_def_var(ncid, "frontFT", NC_INT, 3, vartype3D_dimids, &frontFTV) );
+  temutil::nc( nc_put_att_int(ncid, frontFTV, "_FillValue", NC_INT, 1, &MISSING_I) );
   temutil::nc( nc_def_var(ncid, "frontZ", NC_DOUBLE, 3, vartype3D_dimids, &frontZV) );
+  temutil::nc( nc_put_att_double(ncid, frontZV, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
 
   // re-arrange dims in vartype
   vartype4D_dimids[0] = yD;
@@ -1152,6 +1210,7 @@ void RestartData::create_empty_file(const std::string& fname,
 
   int rootfracV;
   temutil::nc( nc_def_var(ncid, "rootfrac", NC_DOUBLE, 4, vartype4D_dimids, &rootfracV) );
+  temutil::nc( nc_put_att_double(ncid, rootfracV, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
 
 
   // re-arrange dims in vartype
@@ -1165,9 +1224,13 @@ void RestartData::create_empty_file(const std::string& fname,
   int unnormleafmxAV;
   int growingttimeAV;
   temutil::nc( nc_def_var(ncid, "toptA", NC_DOUBLE, 4, vartype4D_dimids, &toptAV) );
+  temutil::nc( nc_put_att_double(ncid, toptAV, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
   temutil::nc( nc_def_var(ncid, "eetmxA", NC_DOUBLE, 4, vartype4D_dimids, &eetmxAV) );
+  temutil::nc( nc_put_att_double(ncid, eetmxAV, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
   temutil::nc( nc_def_var(ncid, "unnormleafmxA", NC_DOUBLE, 4, vartype4D_dimids, &unnormleafmxAV) );
+  temutil::nc( nc_put_att_double(ncid, unnormleafmxAV, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
   temutil::nc( nc_def_var(ncid, "growingttimeA", NC_DOUBLE, 4, vartype4D_dimids, &growingttimeAV) );
+  temutil::nc( nc_put_att_double(ncid, growingttimeAV, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
 
   // re-arrange dims in vartype
   vartype4D_dimids[0] = yD;
@@ -1177,6 +1240,7 @@ void RestartData::create_empty_file(const std::string& fname,
 
   int prvltrfcnAV;
   temutil::nc( nc_def_var(ncid, "prvltrfcnA", NC_DOUBLE, 4, vartype4D_dimids, &prvltrfcnAV) );
+  temutil::nc( nc_put_att_double(ncid, prvltrfcnAV, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
 
   /* Create Attributes?? */
 
