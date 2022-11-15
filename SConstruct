@@ -149,6 +149,27 @@ if comp_name == 'aeshna':
   platform_include_path.append('/home/tobey/usr/local/include')
   platform_library_path.append('/home/tobey/usr/local/lib')
 
+
+if 'chinook' in comp_name:
+  compiler_flags = compiler_flags.replace('c++11', 'c++0x')
+
+  platform_libs[:] = [lib for lib in platform_libs if not lib == 'jsoncpp']
+  platform_libs.append('json_linux-gcc-4.4.7_libmt')
+
+  platform_include_path.insert(0, homedir + '/custom_software/openmpi-4.1.0/include')
+  platform_include_path.insert(0, homedir + '/custom_software/jsoncpp/include')
+  platform_include_path.insert(0, homedir + '/custom_software/boost_1_55_0/include')
+  platform_include_path.insert(0, homedir + '/custom_software/netcdf-4.4.1.1/netcdf/include')
+  platform_include_path.insert(0, homedir + '/custom_software/lapack-3.8.0/LAPACKE/include')
+
+  platform_library_path.insert(0, homedir + '/custom_software/jsoncpp/libs/linux-gcc-4.4.7')
+  platform_library_path.insert(0, homedir + '/custom_software/boost_1_55_0/lib')
+  platform_library_path.insert(0, homedir + '/custom_software/hdf5-1.8.19/hdf5/lib')
+  platform_library_path.insert(0, homedir + '/custom_software/netcdf-4.4.1.1/netcdf/lib')
+  platform_library_path.insert(0, homedir + '/custom_software/openmpi-4.1.0/lib')
+  platform_library_path.insert(0, homedir + '/custom_software/lapack-3.8.0')
+
+
 if comp_name == 'atlas.snap.uaf.edu':
   platform_libs[:] = [lib for lib in platform_libs if not lib == 'jsoncpp']
   platform_libs.append('json_linux-gcc-4.4.7_libmt')
