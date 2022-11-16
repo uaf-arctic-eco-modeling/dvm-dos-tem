@@ -65,6 +65,7 @@ do
 done
 
 # Next handle the restart files
+RES_STAGES="pr eq sp tr sc"
 for stage in $RES_STAGES
   do
     filename="restart-$stage.nc"
@@ -74,7 +75,7 @@ for stage in $RES_STAGES
     echo "THE FILE LIST IS: $filelist"
 
   if [ ! -z "$filelist" ] ; then
-    ncea -O -h -y max $filelist "$FINAL_DIR/$filename"
+    ncea -O -h -y avg $filelist "$FINAL_DIR/$filename"
   else
     echo "nothing to do - no restart files for stage $stage found?"
   fi
