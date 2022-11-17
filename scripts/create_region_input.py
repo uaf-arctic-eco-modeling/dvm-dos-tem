@@ -2472,6 +2472,10 @@ if __name__ == '__main__':
         config file.
         '''))
 
+  parser.add_argument('--show-configs', action='store_true',
+      help=textwrap.dedent('''Print all the known path configuraitons to stdout.
+        '''))
+
   parser.add_argument('--projected-climate-config', nargs=1, choices=['ncar-ccsm4', 'mri-cgcm3', 'gfdl-cm3'],
       help=textwrap.dedent('''Choose a configuration to use for the projected 
         climate data.'''))
@@ -2486,6 +2490,18 @@ if __name__ == '__main__':
   args = parser.parse_args()
   print("args: ", args)
 
+  if args.show_configs:
+    cfigs = [ base_ar5_rcp85_config, mri_cgcm3_ar5_rcp85_config, 
+              ncar_ccsm4_ar5_rcp85_config, gfdl_cm3_ar5_rcp85_config, 
+              fire_config ]
+    cfignames = ['base_ar5_rcp85_config', 'mri_cgcm3_ar5_rcp85_config',
+                 'ncar_ccsm4_ar5_rcp85_config', 'gfdl_cm3_ar5_rcp85_config', 
+                 'fire_config']
+    for c, n in zip(cfigs, cfignames):
+      print( "---  {}  ---".format(n))
+      print(c)
+      print()
+    exit(0)
 
   if args.lonlat and args.projwin:
     parser.error("Argument ERROR!: Must specify only one of --projwin and --lonlat!")
