@@ -259,7 +259,6 @@ def xform(xcoord, ycoord, in_srs='EPSG:4326', out_srs='EPSG:3338'):
   Defaults: EPSG:4326 (wgs84), EPSG:3338 (Alaska Albers)
   '''
   print("xcoord, ycoord, as input to xform(..):", xcoord, ycoord)
-
   cmd = ['gdaltransform', '-s_srs', in_srs, '-t_srs', out_srs]
   p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
@@ -330,7 +329,7 @@ def make_run_mask(filename, sizey=10, sizex=10, setpx='', match2veg=False, withl
 
   Y = ncfile.createDimension('Y', sizey)
   X = ncfile.createDimension('X', sizex)
-  run = ncfile.createVariable('run', np.int, ('Y', 'X',))
+  run = ncfile.createVariable('run', np.int32, ('Y', 'X',))
 
   spatial_decorate(ncfile, withlatlon=withlatlon, withproj=withproj)
 
@@ -378,7 +377,7 @@ def make_co2_file(filename, start_idx, end_idx, projected=False):
   yearD = new_ncfile.createDimension('year', None) # append along time axis
     
   # Coordinate Variable
-  yearV = new_ncfile.createVariable('year', np.int, ('year',))
+  yearV = new_ncfile.createVariable('year', np.int32, ('year',))
     
   # Data Variables
   co2 = new_ncfile.createVariable('co2', np.float32, ('year',))
@@ -443,7 +442,7 @@ def create_template_drainage_file(fname, sizey=10, sizex=10, rand=None, withproj
   Y = ncfile.createDimension('Y', sizey)
   X = ncfile.createDimension('X', sizex)
 
-  drainage_class = ncfile.createVariable('drainage_class', np.int, ('Y', 'X',))
+  drainage_class = ncfile.createVariable('drainage_class', np.int32, ('Y', 'X',))
 
   spatial_decorate(ncfile, withproj=withproj, withlatlon=withlatlon)
 
@@ -480,13 +479,13 @@ def create_template_restart_nc_file(filename, sizex=10, sizey=10):
 
   # Create variables...
   for v in ['dsr', 'numsnwl', 'numsl', 'rtfrozendays', 'rtunfrozendays', 'yrsdist']:
-    ncfile.createVariable(v, np.int, ('Y', 'X'))
+    ncfile.createVariable(v, np.int32, ('Y', 'X'))
 
   for v in ['firea2sorgn', 'snwextramass', 'monthsfrozen', 'watertab', 'wdebrisc', 'wdebrisn', 'dmossc', 'dmossn']:
     ncfile.createVariable(v, np.double, ('Y', 'X'))
 
   for v in ['ifwoody', 'ifdeciwoody', 'ifperenial', 'nonvascular', 'vegage']:
-    ncfile.createVariable(v, np.int, ('Y','X','pft'))
+    ncfile.createVariable(v, np.int32, ('Y','X','pft'))
 
   for v in ['vegcov', 'lai', 'vegwater', 'vegsnow', 'labn', 'deadc', 'deadn', 'topt', 'eetmx', 'unnormleafmx', 'growingttime', 'foliagemx']:
     ncfile.createVariable(v, np.double, ('Y','X','pft'))
@@ -495,7 +494,7 @@ def create_template_restart_nc_file(filename, sizex=10, sizey=10):
     ncfile.createVariable(v, np.double, ('Y','X','pftpart', 'pft'))
 
   for v in ['TEXTUREsoil', 'FROZENsoil', 'TYPEsoil', 'AGEsoil',]:
-    ncfile.createVariable(v, np.int, ('Y','X','soillayer'))
+    ncfile.createVariable(v, np.int32, ('Y','X','soillayer'))
 
   for v in ['TSsoil', 'DZsoil', 'LIQsoil', 'ICEsoil', 'FROZENFRACsoil', 'rawc', 'soma', 'sompr', 'somcr', 'orgn', 'avln']:
     ncfile.createVariable(v, np.double, ('Y','X','soillayer'))
@@ -507,7 +506,7 @@ def create_template_restart_nc_file(filename, sizex=10, sizey=10):
     ncfile.createVariable(v, np.double, ('Y','X', 'rocklayer'))
 
 
-  ncfile.createVariable('frontFT', np.int, ('Y','X', 'fronts'))
+  ncfile.createVariable('frontFT', np.int32, ('Y','X', 'fronts'))
   ncfile.createVariable('frontZ', np.double, ('Y','X', 'fronts'))
 
   ncfile.createVariable('rootfrac', np.double, ('Y','X','rootlayer','pft'))
@@ -539,8 +538,8 @@ def create_template_climate_nc_file(filename, sizey=10, sizex=10, rand=None, wit
   X = ncfile.createDimension('X', sizex)
 
   # Coordinate Variables
-  Y = ncfile.createVariable('Y', np.int, ('Y',))
-  X = ncfile.createVariable('X', np.int, ('X',))
+  Y = ncfile.createVariable('Y', np.int32, ('Y',))
+  X = ncfile.createVariable('X', np.int32, ('X',))
   Y[:] = np.arange(0, sizey)
   X[:] = np.arange(0, sizex)
 
