@@ -15,7 +15,7 @@ What is calibration for ``dvmdostem``?
 
     Calibration is defined as the estimation and adjustment of model parameters
     and constants to improve the agreement between model output and a data set
-    (Rykiel et al. 1996).
+    [Rykiel_1996]_.
 
 Being originally a biogeochemical model, ``dvmdostem`` calibration is mainly
 focused on the carbon (C) and nitrogen (N) cycle. Rate-limiting parameters for
@@ -45,7 +45,7 @@ When to conduct a calibration?
 Calibrations are typically conducted for every vegetation community type the
 model is parameterized for. However, recent studies have shown that parameter
 uncertainty may not only vary between community type, but also in space within
-the same community type (Euskirchen et al. 2021). Therefore, multiple
+the same community type [Euskirchen_2021]_. Therefore, multiple
 calibrations can be developed for the same community type but different
 eco-climatic regions.
 
@@ -91,7 +91,7 @@ values are averaged across multi-year observations. These two variables should
 have target values for every PFT. Partitioning between PFT can be done based on
 aboveground NPP estimated from biomass quantification.
 
-**Nup:sub:`veg`** is the rate of nitrogen uptake by the vegetation. As for the
+**NUPTAKE** is the rate of nitrogen uptake by the vegetation. As for the
 carbon fluxes, this flux should be partitioned by plant functional type. This
 target value is usually set from literature review.
 
@@ -181,16 +181,7 @@ vegetation compartment: leaf, stem and root.
 Soil parameters
 ---------------
 
-.. **:math:`Nup_{mic}`**
-
-.. warning:: 
-
-  This is super confusing, isn't this called ``micbnup`` in the parameter
-  files?? In fact I think that a big effort shoudl be made to make the names
-  referred to here consistent across the diagram, the text, and the parameter
-  files. Or have a table showing all the variants? For example on the diagram it
-  shows "Litter C", but in the text it is variously referred to as "carbon
-  litterfall" and "Cltr"
+.. **:math:`Nup_{mic}`** reStructuredText can't do super/sub inside bold.
 
 :math:`Nup_{mic}` is the limiting rate of microbial nitrogen uptake per unit of
 detrital carbon respired (g/g). :math:`Nup_{mic}` directly influences nitrogen
@@ -262,7 +253,9 @@ Calibrate soil parameters
 Reference
 ***********
 
-Rykiel, E. J., Jr. 1996. Testing ecological models: the meaning of
-validation. *Ecological Modeling*, 90: 229–244.
-https://doi.org/10.1016/0304-3800(95)00152-2
+.. [Euskirchen_2021] Euskirchen, Eugénie S. et al. 2021 Assessing dynamic
+ vegetation model parameter uncertainty across Alaskan arctic tundra plant
+ communities. *Ecological Applications* 32 : n. pag.
 
+.. [Rykiel_1996] Rykiel, E. J., Jr. 1996. Testing ecological models: the meaning
+ of validation. *Ecological Modeling*, 90: 229–244. https://doi.org/10.1016/0304-3800(95)00152-2
