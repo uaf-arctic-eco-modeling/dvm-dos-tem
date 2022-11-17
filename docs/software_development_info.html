@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dev Info &mdash; dvmdostem v0.6.1 documentation</title>
+  <title>Dev Info &mdash; dvmdostem v0.6.0 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -30,7 +30,7 @@
             <a href="index.html" class="icon icon-home"> dvmdostem
           </a>
               <div class="version">
-                v0.6.1
+                0.6.0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -65,10 +65,10 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#branching-model">Branching Model</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#workflow">Workflow</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#releases-and-version-numbering">Releases and Version Numbering</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#testing-and-deployment">Testing and Deployment</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#releases-and-version-numbering">Releases and Version Numbering</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#testing-and-deployment">Testing and Deployment</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#setting-up-a-dev-environment">Setting up a dev environment</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#setting-up-with-vagrant">Setting up with Vagrant</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#setting-up-with-docker">Setting up with Docker</a></li>
@@ -80,6 +80,7 @@
 <li class="toctree-l1"><a class="reference internal" href="SA_UQ.html">SA and UQ</a></li>
 <li class="toctree-l1"><a class="reference internal" href="command_cheat_sheet.html">Command Cheat Sheet</a></li>
 <li class="toctree-l1"><a class="reference internal" href="common_acronyms.html">Common Project Acronyms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">Manual Calibration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="workshop_march_2022/lab1_basic_model_run.html">March 2022 Workshop Lab 1</a></li>
 <li class="toctree-l1"><a class="reference internal" href="workshop_march_2022/lab5_make_contribution.html">March 2022 Workshop Lab 5</a></li>
 </ul>
@@ -719,9 +720,8 @@ commits!</p>
 </div></blockquote>
 </div>
 </section>
-</section>
 <section id="releases-and-version-numbering">
-<h2>Releases and Version Numbering<a class="headerlink" href="#releases-and-version-numbering" title="Permalink to this headline"></a></h2>
+<h3>Releases and Version Numbering<a class="headerlink" href="#releases-and-version-numbering" title="Permalink to this headline"></a></h3>
 <p>Begining in 2021, we started using the “Releases” feature of Github to package
 and distribute specific versions of <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code>. We would like to make this a
 fully or nearly fully automated process but for the time being it is rather
@@ -753,7 +753,7 @@ handle the rules for incrementing version numbers differently.</p>
 that release is visible here: <a class="reference external" href="https://github.com/ua-snap/dvm-dos-tem/releases">https://github.com/ua-snap/dvm-dos-tem/releases</a></p>
 </section>
 <section id="testing-and-deployment">
-<h2>Testing and Deployment<a class="headerlink" href="#testing-and-deployment" title="Permalink to this headline"></a></h2>
+<h3>Testing and Deployment<a class="headerlink" href="#testing-and-deployment" title="Permalink to this headline"></a></h3>
 <p>There is currently (Sept 2022) a very limited set of tests and their execution
 is not automated. It is a goal to increase the test coverage and automate the
 test exectution in the near future. We are hoping to setup a CI/CD pipeline
@@ -809,6 +809,7 @@ the tests that fail.</p>
 <p class="admonition-title">Warning</p>
 <p>You must change into the <code class="docutils literal notranslate"><span class="pre">scripts/</span></code> directory for the tests to work!</p>
 </div>
+</section>
 </section>
 <section id="setting-up-a-dev-environment">
 <h2>Setting up a dev environment<a class="headerlink" href="#setting-up-a-dev-environment" title="Permalink to this headline"></a></h2>

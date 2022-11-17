@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manual Calibration &mdash; dvmdostem v0.6.0 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="March 2022 Workshop Lab 1" href="workshop_march_2022/lab1_basic_model_run.html" />
+    <link rel="prev" title="Common Project Acronyms" href="common_acronyms.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> dvmdostem
+          </a>
+              <div class="version">
+                0.6.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="model_overview.html">Model Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="running_dvmdostem.html">Running</a></li>
+<li class="toctree-l1"><a class="reference internal" href="software_development_info.html">Dev Info</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SA_UQ.html">SA and UQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="command_cheat_sheet.html">Command Cheat Sheet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="common_acronyms.html">Common Project Acronyms</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Manual Calibration</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#what-is-calibration-for-dvmdostem">What is calibration for <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code>?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#when-to-conduct-a-calibration">When to conduct a calibration?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#how-to-conduct-a-calibration">How to conduct a calibration?</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#calibration-targets">Calibration targets</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#vegetation-targets">Vegetation Targets</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#soil-targets">Soil Targets</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#calibration-parameters">Calibration parameters</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#vegetation-parameters">Vegetation parameters</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#soil-parameters">Soil parameters</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#calibration-process">Calibration Process</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#calibrate-vegetation-parameters-without-n-limitation">Calibrate vegetation parameters <strong>without</strong> N limitation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#calibrate-vegetation-parameters-with-n-limitation">Calibrate vegetation parameters <strong>with</strong> N limitation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#calibrate-soil-parameters">Calibrate soil parameters</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#reference">Reference</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="workshop_march_2022/lab1_basic_model_run.html">March 2022 Workshop Lab 1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workshop_march_2022/lab5_make_contribution.html">March 2022 Workshop Lab 5</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">dvmdostem</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Manual Calibration</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/calibration.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="manual-calibration">
+<h1>Manual Calibration<a class="headerlink" href="#manual-calibration" title="Permalink to this headline"></a></h1>
+<section id="what-is-calibration-for-dvmdostem">
+<h2>What is calibration for <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code>?<a class="headerlink" href="#what-is-calibration-for-dvmdostem" title="Permalink to this headline"></a></h2>
+<blockquote>
+<div><p>Calibration is defined as the estimation and adjustment of model parameters
+and constants to improve the agreement between model output and a data set
+<a class="reference internal" href="#rykiel-1996" id="id1"><span>[Rykiel_1996]</span></a>.</p>
+</div></blockquote>
+<p>Being originally a biogeochemical model, <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code> calibration is mainly
+focused on the carbon (C) and nitrogen (N) cycle. Rate-limiting parameters for
+GPP (Cmax), autotrophic respiration (Kr), heterotrophic respiration (Kd),
+maximum plant N uptake (Nmax), C and N in litter production (Cfall and Nfall),
+and soil C and N immobilization are adjusted until model values of C and N
+fluxes and stocks match field-based estimates or observations, which we refer to
+as “<strong>target values</strong>”. For this reason, calibrations are conducted at the site
+level, using sentinel sites representing typical mature ecosystems, well
+characterized and monitored over long periods of time.</p>
+<p>The selection of parameters for calibration is based on:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>The sensitivity of the model carbon and nitrogen stocks and fluxes to these
+parameters.</p></li>
+<li><p>The uncertainty of the parameter values.</p></li>
+</ol>
+</div></blockquote>
+<!-- From google drawing: TEM UAF Only Records > Documentation Embed Images > calibration_schematic -->
+<img src="https://docs.google.com/drawings/d/e/2PACX-1vRSmEzkC53GiG8p7xrtPbvFnjOxkKcDaIJjiWb4d9JSi3Oqz9dfGDf5G4rJyTkWrVcVoW0uD8imkJJQ/pub?w=449&amp;h=249"></section>
+<section id="when-to-conduct-a-calibration">
+<h2>When to conduct a calibration?<a class="headerlink" href="#when-to-conduct-a-calibration" title="Permalink to this headline"></a></h2>
+<p>Calibrations are typically conducted for every vegetation community type the
+model is parameterized for. However, recent studies have shown that parameter
+uncertainty may not only vary between community type, but also in space within
+the same community type <a class="reference internal" href="#euskirchen-2021" id="id2"><span>[Euskirchen_2021]</span></a>. Therefore, multiple
+calibrations can be developed for the same community type but different
+eco-climatic regions.</p>
+</section>
+<section id="how-to-conduct-a-calibration">
+<h2>How to conduct a calibration?<a class="headerlink" href="#how-to-conduct-a-calibration" title="Permalink to this headline"></a></h2>
+<p>The comparison between model outputs and target values are done at equilibrium,
+i.e. a simulation under constant environment (climate, atmospheric CO2, and
+vegetation), when all fluxes and stocks have reach a steady state.</p>
+<section id="calibration-targets">
+<h3>Calibration targets<a class="headerlink" href="#calibration-targets" title="Permalink to this headline"></a></h3>
+<p>As mentioned above, target values are based on field observations for the main
+carbon and nitrogen fluxes and stocks targeted for the calibration. Target
+values are representing the “typical” state of a mature ecosystem for the
+vegetation community for which the calibration is developed.</p>
+<p>For this reason, as often as possible, target values are computed from
+observations collected across <strong>multiple years, at the sentinel site</strong> where the
+calibration is developed. In this case, a target value will be computed as the
+mean of a multi-year time series. The standard deviation is also important to
+compute and store as it can inform a subsequent uncertainty analysis at the
+sentinel site.</p>
+<p>Target values are stored in the text file named <cite>calibration_target.py</cite> in the
+calibration directory.</p>
+<section id="vegetation-targets">
+<h4>Vegetation Targets<a class="headerlink" href="#vegetation-targets" title="Permalink to this headline"></a></h4>
+<p><strong>INGPP, INNPP</strong> are target values for gross and net primary productivity
+reached by vegetation not limited by nutrient availability. These target values
+are typically assessed from fertilization experiments. When fertilization
+experiment is not available at the sentinel site where calibration is developed,
+fertilization factor can be calculated from literature review of fertilization
+experiment in similar ecosystem. This fertilization factor is computed as the
+ratio between GPP or NPP in control and fertilized plots. These two variables
+should have target values for every PFT.</p>
+<p><strong>GPP, NPP</strong> are target values for gross and net primary productivity reached by
+mature vegetation under natural conditions. When data is available, these target
+values are averaged across multi-year observations. These two variables should
+have target values for every PFT. Partitioning between PFT can be done based on
+aboveground NPP estimated from biomass quantification.</p>
+<p><strong>NUPTAKE</strong> is the rate of nitrogen uptake by the vegetation. As for the
+carbon fluxes, this flux should be partitioned by plant functional type. This
+target value is usually set from literature review.</p>
+<p><strong>VEGC</strong> is the target value for vegetation carbon pools. VEGC should be
+indicated for every compartment (i.e. leaf, stem, and root) of every plant
+functional type. Target values are based on biomass estimations. If biomass
+estimates are not available for all compartments (e.g. root) or all PFT (e.g.
+green mosses), partitioning information should be estimated from literature
+review.</p>
+<p><strong>VEGN</strong> is the target value for vegetation nitrogen pools. VEGN should be
+indicated for every compartment (i.e. leaf, stem, and root) of every plant
+functional type. Target values are based on biomass estimations and C:N ratios.
+If biomass pr C:N estimates are not available for all compartments (e.g. root)
+or all PFT (e.g. green mosses), partitioning information should be estimated
+from literature review.</p>
+</section>
+<section id="soil-targets">
+<h4>Soil Targets<a class="headerlink" href="#soil-targets" title="Permalink to this headline"></a></h4>
+<p><strong>SOILC</strong> is the target value for soil carbon pools. It is estimated separately
+for the fibric layer, the humic layer and the top 1-m of the mineral layer.</p>
+<p><strong>ORGN</strong> is the target value of the soil nitrogen pool. In contract to SOILC,
+ORGN is estimated for the organic layer <em>and</em> the top 1-m mineral soil. It is
+usually estimated from the soil carbons pools and estimated C:N ratios.</p>
+<p><strong>AVLN</strong> is the target value for soil available nitrogen. By definition, this
+pool is estimated across the rooting depth only (indicated in the parameter file
+cmt_dimvegetation.txt).</p>
+</section>
+</section>
+<section id="calibration-parameters">
+<h3>Calibration parameters<a class="headerlink" href="#calibration-parameters" title="Permalink to this headline"></a></h3>
+<p>Calibrated parameters are stored in the text file named <cite>cmt_calparbgc.txt</cite> in
+the parameter directory.</p>
+<section id="vegetation-parameters">
+<h4>Vegetation parameters<a class="headerlink" href="#vegetation-parameters" title="Permalink to this headline"></a></h4>
+<p><strong>Cmax</strong> is the maximum rate of carbon assimilation. It is defined by plant
+functional type. Maximum assimilation is reached when plants are exposed to no
+significant limitation in nutrient availability. For this reason, Cmax is
+calibrated with nitrogen feedback off. Cmax is adjusted so that model GPP is
+equal to observed GPP estimates from fertilization experiments. When
+fertilization experiments are not available for the community/region of
+interest, it is estimated by applying a multiplicative factor to observed GPP in
+control (not manipulated) plots. Based on literature, this fertilization factor
+can vary from 1.25 to 1.5.</p>
+<p><strong>Kr</strong> is the limiting rate of maintenance respiration (Rm) at <span class="math notranslate nohighlight">\(0^oC\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[Rm = Kr * VEGC\]</div>
+<p>where VEGC is vegetation carbon pool. Kr is itself a function of vegetation
+carbon pool:</p>
+<div class="math notranslate nohighlight">
+\[Kr = e^{(Kr_a * VEGC) + Kr_b}\]</div>
+<p><span class="math notranslate nohighlight">\(Kr_a\)</span> is usually set to <span class="math notranslate nohighlight">\(-8.06e10^5\)</span>, and <span class="math notranslate nohighlight">\(Kr_b\)</span> is
+calibrated for every vegetation compartment: leaf, stem and root. Because the
+relationship between biomass and maintenance respiration is not linear and
+decreases as biomass increases, <span class="math notranslate nohighlight">\(Kr_b\)</span> should be negative.</p>
+<p><strong>Cfall</strong> is the limiting rate of carbon litterfall (Cltr):</p>
+<div class="math notranslate nohighlight">
+\[Cltr = Cfall * VEGC\]</div>
+<p>where VEGC is the vegetation carbon pool. Cfall is calibrated for every
+vegetation compartment: leaf, stem and root.</p>
+<p><strong>Nmax</strong> is the maximum rate of plant nitrogen uptake. Maximum vegetation
+nitrogen uptake is reached when plants productivity is at its maximum, and there
+are no significant limitation from low temperature.</p>
+<p><strong>Nfall</strong> is the limiting rate of nitrogen litterfall (Nltr):</p>
+<div class="math notranslate nohighlight">
+\[Nltr = Nfall * VEGN\]</div>
+<p>where VEGN is the vegetation nitrogen pool. Nfall is calibrated for every
+vegetation compartment: leaf, stem and root.</p>
+</section>
+<section id="soil-parameters">
+<h4>Soil parameters<a class="headerlink" href="#soil-parameters" title="Permalink to this headline"></a></h4>
+<p><span class="math notranslate nohighlight">\(Nup_{mic}\)</span> is the limiting rate of microbial nitrogen uptake per unit of
+detrital carbon respired (g/g). <span class="math notranslate nohighlight">\(Nup_{mic}\)</span> directly influences nitrogen
+immobilization by decomposers, and net mineralization which is the amount of
+inorganic nitrogen produced during the decomposition of the soil organic matter
+minus that immobilized by decomposers.</p>
+<p><strong>Kdc</strong> is the limiting rate of soil carbon decomposition. Kdc is calibrated for
+the four soil carbon pools: litter/raw pool, active, physically and chemically
+resistant pools. The higher the value of this rate is, the faster the turnover
+is. Therefore:</p>
+<div class="math notranslate nohighlight">
+\[Kdc_{raw} &gt; Kdc_{active} &gt; Kdc_{pr} &gt; Kdc_{cr}\]</div>
+</section>
+</section>
+</section>
+<section id="calibration-process">
+<h2>Calibration Process<a class="headerlink" href="#calibration-process" title="Permalink to this headline"></a></h2>
+<p>Calibration is done in equilibrium simulation and in calibration mode. Because
+biogeochemical turn-overs in the vegetation are faster than in the soil,
+vegetation-related variables reach equilibrium sooner than soil-related
+variables. Therefore, the length of the equilibrium run can be set to shorter
+time when vegetation-related parameters are calibrated (e.g. 200 to 500 years),
+whereas soil calibration typically requires several thousand years to reach
+equilibrium.</p>
+<section id="calibrate-vegetation-parameters-without-n-limitation">
+<h3>Calibrate vegetation parameters <strong>without</strong> N limitation<a class="headerlink" href="#calibrate-vegetation-parameters-without-n-limitation" title="Permalink to this headline"></a></h3>
+<ol class="arabic simple">
+<li><p>Set <code class="docutils literal notranslate"><span class="pre">NFEED=OFF</span></code> and <code class="docutils literal notranslate"><span class="pre">AVLN=OFF</span></code>.</p></li>
+<li><p>Adjust Cmax until INGPP (GPP without N limitation) matches target for every
+plant functional type. Increasing Cmax increases GPP.</p></li>
+</ol>
+</section>
+<section id="calibrate-vegetation-parameters-with-n-limitation">
+<h3>Calibrate vegetation parameters <strong>with</strong> N limitation<a class="headerlink" href="#calibrate-vegetation-parameters-with-n-limitation" title="Permalink to this headline"></a></h3>
+<ol class="arabic simple">
+<li><p>Set <code class="docutils literal notranslate"><span class="pre">NFEED=ON</span></code> and <code class="docutils literal notranslate"><span class="pre">AVLN=ON</span></code>.</p></li>
+<li><p>Set the level of N limitation with Nmax and Nup<sub>mic</sub> so that actual
+GPP, and AVLN matche the target values. Increasing Nmax should increase GPP,
+and increasing Nup<sub>mic</sub> should decrease both GPP and AVLN.</p></li>
+<li><p>Set the ratio between GPP and NPP with Krb. Krb influencing maintenance
+respiration, it will also affect the ratio between GPP and NPP. Increasing
+Krb will increase respiration and decrease NPP. Krb should therefore be
+calibrated targeting NPP.</p></li>
+<li><p>Calibrate Cfall targeting VEGC. Change in vegetation is a result of NPP
+(input) and Litterfall (output). Therefore, VEGC pools will be influenced
+both by Krb and Cfall parameters. Because Krb has been adjusted in step 3,
+the focus here should be on adjusting Cfall with minimal adjustment to Krb.</p></li>
+<li><p>Calibrate Nfall targeting VEGN. Vegetation nitrogen pool is a result of
+vegetation nitrogen uptake (input) and litterfall (output).</p></li>
+</ol>
+</section>
+<section id="calibrate-soil-parameters">
+<h3>Calibrate soil parameters<a class="headerlink" href="#calibrate-soil-parameters" title="Permalink to this headline"></a></h3>
+<ol class="arabic simple">
+<li><p>Calibrate decomposition rate limiting parameters targeting soil carbon
+stocks. The fibric layer is dominated by raw and active carbon pools. The
+humic layer is dominated active and physically resistant pools. Finally, the
+mineral layer is dominated by pools of slower turnover. Therefore, Kdc for
+the raw material should be adjusted targeting soil C stock in the fibric
+layer. Kdc for the active organic matter will affect primarily fibric and
+humic carbon pools. Kdc for the physically resistant pool will affect
+primarily the humic and mineral pools.</p></li>
+</ol>
+</section>
+</section>
+<section id="reference">
+<h2>Reference<a class="headerlink" href="#reference" title="Permalink to this headline"></a></h2>
+<dl class="citation">
+<dt class="label" id="euskirchen-2021"><span class="brackets"><a class="fn-backref" href="#id2">Euskirchen_2021</a></span></dt>
+<dd><p>Euskirchen, Eugénie S. et al. 2021 Assessing dynamic
+vegetation model parameter uncertainty across Alaskan arctic tundra plant
+communities. <em>Ecological Applications</em> 32 : n. pag.</p>
+</dd>
+<dt class="label" id="rykiel-1996"><span class="brackets"><a class="fn-backref" href="#id1">Rykiel_1996</a></span></dt>
+<dd><p>Rykiel, E. J., Jr. 1996. Testing ecological models: the meaning
+of validation. <em>Ecological Modeling</em>, 90: 229–244. <a class="reference external" href="https://doi.org/10.1016/0304-3800(95)00152-2">https://doi.org/10.1016/0304-3800(95)00152-2</a></p>
+</dd>
+</dl>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="common_acronyms.html" class="btn btn-neutral float-left" title="Common Project Acronyms" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="workshop_march_2022/lab1_basic_model_run.html" class="btn btn-neutral float-right" title="March 2022 Workshop Lab 1" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Tobey Carman, Ruth Rutter, Helene Genet, Eugenie Euskirchen.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
