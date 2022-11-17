@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Welcome to dvmdostem’s documentation! &mdash; dvmdostem v0.6.1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Model Overview" href="model_overview.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="#" class="icon icon-home"> dvmdostem
+          </a>
+              <div class="version">
+                v0.6.1
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="model_overview.html">Model Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="running_dvmdostem.html">Running</a></li>
+<li class="toctree-l1"><a class="reference internal" href="software_development_info.html">Dev Info</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SA_UQ.html">SA and UQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="command_cheat_sheet.html">Command Cheat Sheet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="common_acronyms.html">Common Project Acronyms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">Manual Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workshop_march_2022/lab1_basic_model_run.html">March 2022 Workshop Lab 1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workshop_march_2022/lab5_make_contribution.html">March 2022 Workshop Lab 5</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">dvmdostem</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="#" class="icon icon-home"></a> &raquo;</li>
+      <li>Welcome to <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code>’s documentation!</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="welcome-to-dvmdostem-s-documentation">
+<h1>Welcome to <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code>’s documentation!<a class="headerlink" href="#welcome-to-dvmdostem-s-documentation" title="Permalink to this headline"></a></h1>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This project is under active development.</p>
+</div>
+<p>DVM-DOS-TEM is a process-based biosphere model, designed to simulate biophysical
+and biogeochemical processes between the soil, the vegetation and the
+atmosphere. The model is spatially explicit and focuses on representing carbon
+and nitrogen cycles in high latitude ecosystems and how they are affected at
+seasonal (i.e. monthly) to centennial scales by climate, disturbances and
+biophysical processes such as permafrost, soil thermal and hydrological regimes,
+snow cover or canopy development.</p>
+<p>The code is available on Github: <a class="reference external" href="https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem">https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem</a></p>
+<a class="reference internal image-reference" href="_images/dvmdostem-overview_fromhg.png"><img alt="dvmdostem overview drawing" src="_images/dvmdostem-overview_fromhg.png" style="width: 600px;" /></a>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>What’s with the name?
+DVM-DOS-TEM is the acronym for the Terrestrial Ecosystem Model (TEM) with
+Dynamic Vegetation Model (DVM) and Dynamic Organic Soil Model (DOS).
+Sometimes we write dvmdostem, sometimes we write dvm-dos-tem and sometimes we
+write DVM-DOS-TEM. These are all the same thing. The order is always the
+same, but sometimes we use capitals and sometimes lower case, sometimes with
+hyphens and sometimes without. This is a fluke of history. In some cases it
+looks better capitalized, sometimes it looks better lower case. The
+repository ended up with hyphens in the name, but the compiled binary
+executable does not have hyphens.</p>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="model_overview.html">Model Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="model_overview.html#structure">Structure</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="model_overview.html#spatial">Spatial</a></li>
+<li class="toctree-l3"><a class="reference internal" href="model_overview.html#temporal">Temporal</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="model_overview.html#pre-run-pr">pre-run (pr)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="model_overview.html#equilibrium-eq">equilibrium (eq)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="model_overview.html#spinup-sp">spinup (sp)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="model_overview.html#transient-tr">transient (tr)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="model_overview.html#scenario-sc">scenario (sc)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="model_overview.html#community-types-cmts">Community Types (CMTs)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="model_overview.html#vegetation-types-pfts">Vegetation Types (PFTs)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="model_overview.html#soil-layers">Soil (Layers)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="model_overview.html#processes">Processes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="model_overview.html#carbon">Carbon</a></li>
+<li class="toctree-l3"><a class="reference internal" href="model_overview.html#water">Water</a></li>
+<li class="toctree-l3"><a class="reference internal" href="model_overview.html#nitrogen">Nitrogen</a></li>
+<li class="toctree-l3"><a class="reference internal" href="model_overview.html#energy-balance">Energy Balance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="model_overview.html#permafrost">Permafrost</a></li>
+<li class="toctree-l3"><a class="reference internal" href="model_overview.html#disturbance">Disturbance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="model_overview.html#methane">Methane</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="model_overview.html#inputs-outputs-io">Inputs/Outputs (IO)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="model_overview.html#inputs">Inputs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="model_overview.html#outputs">Outputs</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="model_overview.html#output-selection">Output Selection</a></li>
+<li class="toctree-l4"><a class="reference internal" href="model_overview.html#process">Process</a></li>
+<li class="toctree-l4"><a class="reference internal" href="model_overview.html#variable-output-combinations">Variable Output Combinations</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="running_dvmdostem.html">Running</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="running_dvmdostem.html#practical">Practical</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="running_dvmdostem.html#getting-started">Getting Started</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="running_dvmdostem.html#download">Download</a></li>
+<li class="toctree-l4"><a class="reference internal" href="running_dvmdostem.html#dependencies">Dependencies</a></li>
+<li class="toctree-l4"><a class="reference internal" href="running_dvmdostem.html#compile">Compile</a></li>
+<li class="toctree-l4"><a class="reference internal" href="running_dvmdostem.html#install">Install</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="running_dvmdostem.html#control-options">Control Options</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="running_dvmdostem.html#command-line">Command line</a></li>
+<li class="toctree-l4"><a class="reference internal" href="running_dvmdostem.html#configuration">Configuration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="running_dvmdostem.html#parameters">Parameters</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="running_dvmdostem.html#running-the-model">Running the Model</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="running_dvmdostem.html#setting-up-a-run">Setting up a run</a></li>
+<li class="toctree-l4"><a class="reference internal" href="running_dvmdostem.html#spatial-size">Spatial Size</a></li>
+<li class="toctree-l4"><a class="reference internal" href="running_dvmdostem.html#single-site-or-small-regions">Single Site or Small Regions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="running_dvmdostem.html#large-regions-hpc">Large Regions (HPC)</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="running_dvmdostem.html#requirements">Requirements</a></li>
+<li class="toctree-l5"><a class="reference internal" href="running_dvmdostem.html#splitting">Splitting</a></li>
+<li class="toctree-l5"><a class="reference internal" href="running_dvmdostem.html#starting-a-run">Starting a run</a></li>
+<li class="toctree-l5"><a class="reference internal" href="running_dvmdostem.html#merging">Merging</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="running_dvmdostem.html#running-from-restart-files">Running from Restart Files</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="running_dvmdostem.html#set-up">Set up</a></li>
+<li class="toctree-l4"><a class="reference internal" href="running_dvmdostem.html#restart">Restart</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="running_dvmdostem.html#running-a-sensitivity-analysis">Running a Sensitivity Analysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="running_dvmdostem.html#parallel-options">Parallel Options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="running_dvmdostem.html#processing-outputs">Processing Outputs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="running_dvmdostem.html#processing-inputs">Processing Inputs</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="running_dvmdostem.html#from-iem-snap-data">From IEM/SNAP data</a></li>
+<li class="toctree-l4"><a class="reference internal" href="running_dvmdostem.html#from-era5">From ERA5</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="running_dvmdostem.html#conceptural-modeling-method-and-workflow">Conceptural Modeling Method and Workflow</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="running_dvmdostem.html#develop-goals">Develop goals</a></li>
+<li class="toctree-l3"><a class="reference internal" href="running_dvmdostem.html#conceptualization">Conceptualization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="running_dvmdostem.html#formulation">Formulation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="running_dvmdostem.html#implementation">Implementation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="running_dvmdostem.html#parameterization">Parameterization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="running_dvmdostem.html#model-testing">Model Testing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="running_dvmdostem.html#model-analysis">Model Analysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="running_dvmdostem.html#pre-and-post-processing">Pre- and Post- Processing</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="software_development_info.html">Dev Info</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="software_development_info.html#languages-software-structure">Languages, Software Structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="software_development_info.html#documentation">Documentation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="software_development_info.html#editing-contributing">Editing / Contributing</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="software_development_info.html#project-standards-and-conventions">Project Standards and Conventions</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="software_development_info.html#publishing">Publishing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="software_development_info.html#note-about-images">Note about images</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="software_development_info.html#software-development-patterns">Software Development Patterns</a></li>
+<li class="toctree-l2"><a class="reference internal" href="software_development_info.html#version-management">Version Management</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="software_development_info.html#version-control-and-hosting">Version Control and Hosting</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="software_development_info.html#getting-help">Getting Help</a></li>
+<li class="toctree-l4"><a class="reference internal" href="software_development_info.html#tools">Tools</a></li>
+<li class="toctree-l4"><a class="reference internal" href="software_development_info.html#setup">Setup</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="software_development_info.html#branching-model">Branching Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="software_development_info.html#workflow">Workflow</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="software_development_info.html#releases-and-version-numbering">Releases and Version Numbering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="software_development_info.html#testing-and-deployment">Testing and Deployment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="software_development_info.html#setting-up-a-dev-environment">Setting up a dev environment</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="software_development_info.html#setting-up-with-vagrant">Setting up with Vagrant</a></li>
+<li class="toctree-l3"><a class="reference internal" href="software_development_info.html#setting-up-with-docker">Setting up with Docker</a></li>
+<li class="toctree-l3"><a class="reference internal" href="software_development_info.html#setting-up-with-ubuntu">Setting up with Ubuntu</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="SA_UQ.html">SA and UQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="command_cheat_sheet.html">Command Cheat Sheet</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="command_cheat_sheet.html#git">Git</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="command_cheat_sheet.html#status">Status</a></li>
+<li class="toctree-l3"><a class="reference internal" href="command_cheat_sheet.html#branch-management">Branch Management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="command_cheat_sheet.html#code-management">Code Management</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="command_cheat_sheet.html#docker">Docker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="command_cheat_sheet.html#dvmdostem">dvmdostem</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="common_acronyms.html">Common Project Acronyms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">Manual Calibration</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="calibration.html#what-is-calibration-for-dvmdostem">What is calibration for <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code>?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="calibration.html#when-to-conduct-a-calibration">When to conduct a calibration?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="calibration.html#how-to-conduct-a-calibration">How to conduct a calibration?</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="calibration.html#calibration-targets">Calibration targets</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="calibration.html#vegetation-targets">Vegetation Targets</a></li>
+<li class="toctree-l4"><a class="reference internal" href="calibration.html#soil-targets">Soil Targets</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="calibration.html#calibration-parameters">Calibration parameters</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="calibration.html#vegetation-parameters">Vegetation parameters</a></li>
+<li class="toctree-l4"><a class="reference internal" href="calibration.html#soil-parameters">Soil parameters</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="calibration.html#calibration-process">Calibration Process</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="calibration.html#calibrate-vegetation-parameters-without-n-limitation">Calibrate vegetation parameters <strong>without</strong> N limitation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="calibration.html#calibrate-vegetation-parameters-with-n-limitation">Calibrate vegetation parameters <strong>with</strong> N limitation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="calibration.html#calibrate-soil-parameters">Calibrate soil parameters</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="calibration.html#reference">Reference</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="workshop_march_2022/lab1_basic_model_run.html">March 2022 Workshop Lab 1</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="workshop_march_2022/lab1_basic_model_run.html#install-tools">Install tools</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="workshop_march_2022/lab1_basic_model_run.html#version-control">Version control</a></li>
+<li class="toctree-l3"><a class="reference internal" href="workshop_march_2022/lab1_basic_model_run.html#run-time-environment-and-virtualization-with-docker">Run time environment and virtualization with Docker</a></li>
+<li class="toctree-l3"><a class="reference internal" href="workshop_march_2022/lab1_basic_model_run.html#text-editors-and-terminal-emulator">Text editors and terminal emulator</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="workshop_march_2022/lab1_basic_model_run.html#get-the-code">Get the code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="workshop_march_2022/lab1_basic_model_run.html#build-docker-images">Build Docker images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="workshop_march_2022/lab1_basic_model_run.html#start-and-run-docker-containers">Start and run Docker containers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="workshop_march_2022/lab1_basic_model_run.html#setting-up-a-dvmdostem-run">Setting up a dvmdostem run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="workshop_march_2022/lab1_basic_model_run.html#launch-the-dvmdostem-run">Launch the dvmdostem run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="workshop_march_2022/lab1_basic_model_run.html#plotting-outputs">Plotting outputs</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="workshop_march_2022/lab5_make_contribution.html">March 2022 Workshop Lab 5</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="workshop_march_2022/lab5_make_contribution.html#why-use-version-control">Why use version control?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="workshop_march_2022/lab5_make_contribution.html#general-workflow-loops">General Workflow Loops</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="workshop_march_2022/lab5_make_contribution.html#core-development-process-loop">Core Development Process Loop</a></li>
+<li class="toctree-l3"><a class="reference internal" href="workshop_march_2022/lab5_make_contribution.html#loop-with-individual-version-control">Loop with individual version control</a></li>
+<li class="toctree-l3"><a class="reference internal" href="workshop_march_2022/lab5_make_contribution.html#incorporating-more-people">Incorporating more people</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="workshop_march_2022/lab5_make_contribution.html#single-person-topic-branch-and-pull-request-process">Single person topic branch and pull request process</a></li>
+<li class="toctree-l2"><a class="reference internal" href="workshop_march_2022/lab5_make_contribution.html#multi-person-topic-branch-process">Multi-person topic branch process</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="model_overview.html" class="btn btn-neutral float-right" title="Model Overview" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Tobey Carman, Ruth Rutter, Helene Genet, Eugenie Euskirchen.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
