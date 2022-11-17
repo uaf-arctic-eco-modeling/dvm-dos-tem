@@ -22,9 +22,9 @@ focused on the carbon (C) and nitrogen (N) cycle. Rate-limiting parameters for
 GPP (Cmax), autotrophic respiration (Kr), heterotrophic respiration (Kd),
 maximum plant N uptake (Nmax), C and N in litter production (Cfall and Nfall),
 and soil C and N immobilization are adjusted until model values of C and N
-fluxes and stocks match field-based estimates or observations, which we refer
-to as "**target values**". For this reason, calibrations are conducted at the
-site level, using sentinel sites representing typical mature ecosystems, well
+fluxes and stocks match field-based estimates or observations, which we refer to
+as "**target values**". For this reason, calibrations are conducted at the site
+level, using sentinel sites representing typical mature ecosystems, well
 characterized and monitored over long periods of time.
 
 The selection of parameters for calibration is based on:
@@ -76,57 +76,52 @@ calibration directory.
 Vegetation Targets
 ------------------
 
-**INGPP, INNPP** are target values for gross and net primary
-productivity reached by vegetation not limited by nutrient availability.
-These target values are typically assessed from fertilization
-experiments. When fertilization experiment is not available at the
-sentinel site where calibration is developed, fertilization factor can
-be calculated from literature review of fertilization experiment in
-similar ecosystem. This fertilization factor is computed as the ratio
-between GPP or NPP in control and fertilized plots. These two variables
+**INGPP, INNPP** are target values for gross and net primary productivity
+reached by vegetation not limited by nutrient availability. These target values
+are typically assessed from fertilization experiments. When fertilization
+experiment is not available at the sentinel site where calibration is developed,
+fertilization factor can be calculated from literature review of fertilization
+experiment in similar ecosystem. This fertilization factor is computed as the
+ratio between GPP or NPP in control and fertilized plots. These two variables
 should have target values for every PFT.
 
-**GPP, NPP** are target values for gross and net primary productivity
-reached by mature vegetation under natural conditions. When data is
-available, these target values are averaged across multi-year
-observations. These two variables should have target values for every
-PFT. Partitioning between PFT can be done based on aboveground NPP
-estimated from biomass quantification.
+**GPP, NPP** are target values for gross and net primary productivity reached by
+mature vegetation under natural conditions. When data is available, these target
+values are averaged across multi-year observations. These two variables should
+have target values for every PFT. Partitioning between PFT can be done based on
+aboveground NPP estimated from biomass quantification.
 
-**Nup:sub:`veg`** is the rate of nitrogen uptake by the vegetation. As
-for the carbon fluxes, this flux should be partitioned by plant
-functional type. This target value is usually set from literature
-review.
+**Nup:sub:`veg`** is the rate of nitrogen uptake by the vegetation. As for the
+carbon fluxes, this flux should be partitioned by plant functional type. This
+target value is usually set from literature review.
 
 **VEGC** is the target value for vegetation carbon pools. VEGC should be
-indicated for every compartment (i.e. leaf, stem, and root) of every
-plant functional type. Target values are based on biomass estimations.
-If biomass estimates are not available for all compartments (e.g. root)
-or all PFT (e.g. green mosses), partitioning information should be
-estimated from literature review.
+indicated for every compartment (i.e. leaf, stem, and root) of every plant
+functional type. Target values are based on biomass estimations. If biomass
+estimates are not available for all compartments (e.g. root) or all PFT (e.g.
+green mosses), partitioning information should be estimated from literature
+review.
 
-**VEGN** is the target value for vegetation nitrogen pools. VEGN should
-be indicated for every compartment (i.e. leaf, stem, and root) of every
-plant functional type. Target values are based on biomass estimations
-and C:N ratios. If biomass pr C:N estimates are not available for all
-compartments (e.g. root) or all PFT (e.g. green mosses), partitioning
-information should be estimated from literature review.
+**VEGN** is the target value for vegetation nitrogen pools. VEGN should be
+indicated for every compartment (i.e. leaf, stem, and root) of every plant
+functional type. Target values are based on biomass estimations and C:N ratios.
+If biomass pr C:N estimates are not available for all compartments (e.g. root)
+or all PFT (e.g. green mosses), partitioning information should be estimated
+from literature review.
 
 Soil Targets
 ------------
 
-**SOILC** is the target value for soil carbon pools. It is estimated
-separately for the fibric layer, the humic layer and the top 1-m of the
-mineral layer.
+**SOILC** is the target value for soil carbon pools. It is estimated separately
+for the fibric layer, the humic layer and the top 1-m of the mineral layer.
 
-**ORGN** is the target value of the soil nitrogen pool. In contract to
-SOILC, ORGN is estimated for the organic layer *and* the top 1-m mineral
-soil. It is usually estimated from the soil carbons pools and estimated
-C:N ratios.
+**ORGN** is the target value of the soil nitrogen pool. In contract to SOILC,
+ORGN is estimated for the organic layer *and* the top 1-m mineral soil. It is
+usually estimated from the soil carbons pools and estimated C:N ratios.
 
-**AVLN** is the target value for soil available nitrogen. By definition,
-this pool is estimated across the rooting depth only (indicated in the
-parameter file cmt\_dimvegetation.txt).
+**AVLN** is the target value for soil available nitrogen. By definition, this
+pool is estimated across the rooting depth only (indicated in the parameter file
+cmt\_dimvegetation.txt).
 
 
 Calibration parameters 
@@ -172,9 +167,9 @@ decreases as biomass increases, :math:`Kr_b` should be negative.
 where VEGC is the vegetation carbon pool. Cfall is calibrated for every
 vegetation compartment: leaf, stem and root.
 
-**Nmax** is the maximum rate of plant nitrogen uptake. Maximum
-vegetation nitrogen uptake is reached when plants productivity is at its
-maximum, and there are no significant limitation from low temperature.
+**Nmax** is the maximum rate of plant nitrogen uptake. Maximum vegetation
+nitrogen uptake is reached when plants productivity is at its maximum, and there
+are no significant limitation from low temperature.
 
 **Nfall** is the limiting rate of nitrogen litterfall (Nltr):
 
@@ -197,17 +192,16 @@ Soil parameters
   shows "Litter C", but in the text it is variously referred to as "carbon
   litterfall" and "Cltr"
 
-:math:`Nup_{mic}` is the limiting rate of microbial nitrogen uptake
-per unit of detrital carbon respired (g/g). :math:`Nup_{mic}` directly
-influences nitrogen immobilization by decomposers, and net
-mineralization which is the amount of inorganic nitrogen produced during
-the decomposition of the soil organic matter minus that immobilized by
-decomposers.
+:math:`Nup_{mic}` is the limiting rate of microbial nitrogen uptake per unit of
+detrital carbon respired (g/g). :math:`Nup_{mic}` directly influences nitrogen
+immobilization by decomposers, and net mineralization which is the amount of
+inorganic nitrogen produced during the decomposition of the soil organic matter
+minus that immobilized by decomposers.
 
-**Kdc** is the limiting rate of soil carbon decomposition. Kdc is
-calibrated for the four soil carbon pools: litter/raw pool, active,
-physically and chemically resistant pools. The higher the value of this
-rate is, the faster the turnover is. Therefore:
+**Kdc** is the limiting rate of soil carbon decomposition. Kdc is calibrated for
+the four soil carbon pools: litter/raw pool, active, physically and chemically
+resistant pools. The higher the value of this rate is, the faster the turnover
+is. Therefore:
 
 .. math:: Kdc_{raw} > Kdc_{active} > Kdc_{pr} > Kdc_{cr} 
 
@@ -235,37 +229,34 @@ Calibrate vegetation parameters **with** N limitation
 
 #. Set ``NFEED=ON`` and ``AVLN=ON``.
 
-#. Set the level of N limitation with Nmax and Nup\ :sub:`mic` so that
-   actual GPP, and AVLN matche the target values. Increasing Nmax should
-   increase GPP, and increasing Nup\ :sub:`mic` should decrease both GPP
-   and AVLN.
+#. Set the level of N limitation with Nmax and Nup\ :sub:`mic` so that actual
+   GPP, and AVLN matche the target values. Increasing Nmax should increase GPP,
+   and increasing Nup\ :sub:`mic` should decrease both GPP and AVLN.
 
-#. Set the ratio between GPP and NPP with Krb. Krb influencing
-   maintenance respiration, it will also affect the ratio between GPP
-   and NPP. Increasing Krb will increase respiration and decrease NPP.
-   Krb should therefore be calibrated targeting NPP.
+#. Set the ratio between GPP and NPP with Krb. Krb influencing maintenance
+   respiration, it will also affect the ratio between GPP and NPP. Increasing
+   Krb will increase respiration and decrease NPP. Krb should therefore be
+   calibrated targeting NPP.
 
-#. Calibrate Cfall targeting VEGC. Change in vegetation is a result of
-   NPP (input) and Litterfall (output). Therefore, VEGC pools will be
-   influenced both by Krb and Cfall parameters. Because Krb has been
-   adjusted in step 3, the focus here should be on adjusting Cfall with
-   minimal adjustment to Krb.
+#. Calibrate Cfall targeting VEGC. Change in vegetation is a result of NPP
+   (input) and Litterfall (output). Therefore, VEGC pools will be influenced
+   both by Krb and Cfall parameters. Because Krb has been adjusted in step 3,
+   the focus here should be on adjusting Cfall with minimal adjustment to Krb.
 
-#. Calibrate Nfall targeting VEGN. Vegetation nitrogen pool is a result
-   of vegetation nitrogen uptake (input) and litterfall (output).
+#. Calibrate Nfall targeting VEGN. Vegetation nitrogen pool is a result of
+   vegetation nitrogen uptake (input) and litterfall (output).
 
 Calibrate soil parameters
 =========================
 
-#. Calibrate decomposition rate limiting parameters targeting soil
-   carbon stocks. The fibric layer is dominated by raw and active carbon
-   pools. The humic layer is dominated active and physically resistant
-   pools. Finally, the mineral layer is dominated by pools of slower
-   turnover. Therefore, Kdc for the raw material should be adjusted
-   targeting soil C stock in the fibric layer. Kdc for the active
-   organic matter will affect primarily fibric and humic carbon pools.
-   Kdc for the physically resistant pool will affect primarily the humic
-   and mineral pools.
+#. Calibrate decomposition rate limiting parameters targeting soil carbon
+   stocks. The fibric layer is dominated by raw and active carbon pools. The
+   humic layer is dominated active and physically resistant pools. Finally, the
+   mineral layer is dominated by pools of slower turnover. Therefore, Kdc for
+   the raw material should be adjusted targeting soil C stock in the fibric
+   layer. Kdc for the active organic matter will affect primarily fibric and
+   humic carbon pools. Kdc for the physically resistant pool will affect
+   primarily the humic and mineral pools.
 
 ***********
 Reference
@@ -275,6 +266,3 @@ Rykiel, E. J., Jr. 1996. Testing ecological models: the meaning of
 validation. *Ecological Modeling*, 90: 229–244.
 https://doi.org/10.1016/0304-3800(95)00152-2
 
-.. |image0| image:: media/image1.png
-   :width: 4.18681in
-   :height: 2.83683in
