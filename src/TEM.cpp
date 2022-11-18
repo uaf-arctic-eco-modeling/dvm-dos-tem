@@ -213,8 +213,10 @@ int main(int argc, char* argv[]){
   // are currently unnecessary.
   MPI_Init(NULL, NULL);
 
-  int id = MPI::COMM_WORLD.Get_rank();
-  int ntasks = MPI::COMM_WORLD.Get_size();
+  int id, ntasks;
+  MPI_Comm_rank(MPI_COMM_WORLD, &id);
+  MPI_Comm_size(MPI_COMM_WORLD, &ntasks);
+
 #else
   //
   int id = 0;
@@ -242,12 +244,12 @@ int main(int argc, char* argv[]){
 
 #ifdef WITHMPI
 
-    MPI_Barrier(MPI::COMM_WORLD);
+    MPI_Barrier(MPI_COMM_WORLD);
   } // End of single-process setup
   else{
     // Block all processes until process 0 has completed output
     // directory setup.
-    MPI_Barrier(MPI::COMM_WORLD);
+    MPI_Barrier(MPI_COMM_WORLD);
   }
 #else
   } // Nothing to do; only one process, id will equal 0.
@@ -382,8 +384,9 @@ int main(int argc, char* argv[]){
 #ifdef WITHMPI
     BOOST_LOG_SEV(glg, info) << "Beginning MPI parallel section";
 
-    int id = MPI::COMM_WORLD.Get_rank();
-    int ntasks = MPI::COMM_WORLD.Get_size();
+    int id, ntasks;
+    MPI_Comm_rank(MPI_COMM_WORLD, &id);
+    MPI_Comm_size(MPI_COMM_WORLD, &ntasks);
 
     int total_cells = num_rows*num_cols;
 
@@ -877,8 +880,9 @@ void create_empty_run_status_file(const std::string& fname,
 
 #ifdef WITHMPI
 
-  int id = MPI::COMM_WORLD.Get_rank();
-  int ntasks = MPI::COMM_WORLD.Get_size();
+  int id, ntasks;
+  MPI_Comm_rank(MPI_COMM_WORLD, &id);
+  MPI_Comm_size(MPI_COMM_WORLD, &ntasks);
 
                             // path            c mode               mpi comm obj     mpi info netcdfid
   temutil::nc( nc_create_par(fname.c_str(), NC_CLOBBER|NC_NETCDF4|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
@@ -942,8 +946,9 @@ void write_status(const std::string fname, int row, int col, int statusCode) {
 #ifdef WITHMPI
 
   // These are for logging identification only.
-  int id = MPI::COMM_WORLD.Get_rank();
-  int ntasks = MPI::COMM_WORLD.Get_size();
+  int id, ntasks;
+  MPI_Comm_rank(MPI_COMM_WORLD, &id);
+  MPI_Comm_size(MPI_COMM_WORLD, &ntasks);
 
   // Open dataset
   temutil::nc( nc_open_par(fname.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
