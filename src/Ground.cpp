@@ -2056,7 +2056,10 @@ double Ground::thicknessFromCarbon(const double carbon, const double coefA, cons
   T = T / 100.0;                           // convert thickness from cm to m
 
   if( !(T >= 0) ) {
-    throw std::runtime_error("It doesn't make sense to have a negative thickness!");
+    BOOST_LOG_SEV(glg,fatal)<<"Negative layer thickness when calculating from carbon. T = "<<T;
+    BOOST_LOG_SEV(glg,fatal)<<"Carbon: "<<carbon<<" CoefA: "<<coefA<<" CoefB: "<<coefB;
+    BOOST_LOG_SEV(glg,fatal)<<"Forcing layer thickness to 0.0001";
+    T = 0.0001;
   }
 
   return T;

@@ -64,6 +64,12 @@ void BgcData::veg_beginOfMonth() {
 void BgcData::veg_endOfMonth(const int currmind) {
   BOOST_LOG_SEV(glg, info) << "End of month function for veg..(BGC data).";
 
+  for(int ic=0; ic<NUM_PFT_PART; ic++){
+    if(m_vegs.c[ic] != m_vegs.c[ic]){
+      BOOST_LOG_SEV(glg,fatal)<<"Carbon in PFT compartment "<<ic<<" is NaN. Setting to 0.";
+      m_vegs.c[ic] = 0;
+    }
+  }
 
   if (currmind==11) {
     // average yearly status variables
