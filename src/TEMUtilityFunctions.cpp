@@ -238,21 +238,21 @@ namespace temutil {
 
     BOOST_LOG_SEV(glg, debug) << "Creating Json Value and Reader objects...";
     Json::Value root;
-    Json::CharReaderBuilder rbuilder;
+    Json::Reader reader;
     // March 2020, updated to work with newer jsoncpp (~1.9.x) where
     // the Reader class has been deprecated in favor of CharReader.
     // Not sure the exact version where this will break, but we had previously
     // been using jsoncpp 1.8.3 and 1.8.1 successfully without CharReaderBuilder.
-    std::string errs;
-    std::stringstream ss;
-    ss << datastring;
+    //std::string errs;
+    //std::stringstream ss;
+    //ss << datastring;
 
     BOOST_LOG_SEV(glg, debug) << "Trying to parse the json data string...";
-    bool parsingSuccessful = Json::parseFromStream(rbuilder, ss, &root, &errs);
+    bool parsingSuccessful = reader.parse(datastring, root);
 
     BOOST_LOG_SEV(glg, debug) << "Parsing successful?: " << parsingSuccessful;
     if (!parsingSuccessful) {
-      BOOST_LOG_SEV(glg, fatal) << "Error parsing json file! " << errs; 
+      BOOST_LOG_SEV(glg, fatal) << "Error parsing json file! " << filepath;
       exit(-1);
     }
     return root;
