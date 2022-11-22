@@ -2157,7 +2157,7 @@ def get_slurm_wrapper_string(tifs, pclim='ncar-ccsm4', pfire=None,
       --yoff $yoff --xoff $xoff --xsize $XSIZE --ysize $YSIZE \\
       --which all \\
       --projected-climate-config "$PCLIM" \\
-      --projected-fire-config {} \\
+      --projected-fire-config {pfire} \\
       --clip-projected2match-historic \\
       --withlatlon \\
       --withproj \\
