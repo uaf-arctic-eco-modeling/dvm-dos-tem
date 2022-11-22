@@ -235,7 +235,7 @@ def time_slider_handler(attr, old, new, foo):
 def tap_callback(event):
     print('User clicked', event)
     print(event.x, event.y)
-    update_table(0, y=event.y, x=event.x)
+    update_table(time_slider.value, y=event.y, x=event.x)
 
 ### Register events and callbacks ###
 
