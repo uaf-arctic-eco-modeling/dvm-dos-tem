@@ -21,6 +21,8 @@ libs = Split("""jsoncpp
                 boost_filesystem
                 boost_program_options
                 boost_thread
+                boost_mpi
+                boost_serialization
                 boost_log
                 lapacke
                 lapack
@@ -89,7 +91,12 @@ compiler = distutils.spawn.find_executable('g++')
 print(compiler)
 
 # Determine platform and modify libraries and paths accordingly
+# This should only be general linux paths. Machine-specific paths
+#   are added below.
 if platform_name == 'Linux':
+  homedir = os.path.expanduser('~')
+  print("homedir: " + homedir)
+  print(comp_name)
   platform_include_path = ['/home/UA/rarutter/downloads/hdf5-1.8.19/hdf5/include',
                            '/home/UA/rarutter/downloads/netcdf-4.4.1.1/netcdf/include',
                            '/usr/include',
@@ -99,7 +106,7 @@ if platform_name == 'Linux':
                            '/home/vagrant/netcdf-4.4.1.1/netcdf/include',
                            '~/usr/local/include']
 
-  platform_library_path = ['/home/vagrant/netcdf-4.4.1.1/netcdf/lib', '/home/vagrant/hdf5-1.8.19/hdf5/lib', '/home/UA/rarutter/downloads/netcdf-4.4.1.1/netcdf/lib', '/home/UA/rarutter/downloads/hdf5-1.8.19/hdf5/lib', '/usr/lib64', '~/usr/local/lib']
+  platform_library_path = ['/u1/uaf/rarutter/custom_software/boost_1_55_0/lib', '/home/vagrant/netcdf-4.4.1.1/netcdf/lib', '/home/vagrant/hdf5-1.8.19/hdf5/lib', '/home/UA/rarutter/downloads/netcdf-4.4.1.1/netcdf/lib', '/home/UA/rarutter/downloads/hdf5-1.8.19/hdf5/lib', '/usr/lib64', '~/usr/local/lib']
 
   compiler_flags = '-Wno-error -ansi -g -fPIC -std=c++11 -DBOOST_ALL_DYN_LINK -DBOOST_NO_CXX11_SCOPED_ENUMS -DGNU_FPE'
   platform_libs = libs
@@ -198,8 +205,9 @@ if(USEMPI):
 
   compiler_flags = compiler_flags + ' -m64 -DWITHMPI'
 
-  libs.append(Split("""mpi_cxx
-                       mpi"""))
+#  libs.append(Split("""mpi_cxx
+#                       mpi"""))
+  libs.append("mpi")
 
 
 #VariantDir('scons_obj','src', duplicate=0)
