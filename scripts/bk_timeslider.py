@@ -18,9 +18,12 @@ import bokeh.layouts as bkl
 # atlas
 #ff = "input-staging-area/cru-ts40_ar5_rcp85_gfdl-cm3_moose_basin_v2022_11_17_29x36/historic-explicit-fire.nc"
 
+# docker
+ff = '/data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_CALM_Circle_10x10/historic-explicit-fire.nc'
+
 # MacOS
 # scp -r atlas:/home/UA/tcarman2/dvm-dos-tem/input-staging-area/cru-ts40_ar5_rcp85_gfdl-cm3_moose_basin_v2022_11_17_29x36/ ~/Downloads 
-ff = '/Users/tobeycarman/Downloads/cru-ts40_ar5_rcp85_gfdl-cm3_moose_basin_v2022_11_17_29x36/historic-explicit-fire.nc'
+#ff = '/Users/tobeycarman/Downloads/cru-ts40_ar5_rcp85_gfdl-cm3_moose_basin_v2022_11_17_29x36/historic-explicit-fire.nc'
 
 #ff = "input-staging-area/cru-ts40_ar5_rcp85_mri-cgcm3_GoodP_basin_74x93/historic-explicit-fire.nc"
 #ff = 'demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10/historic-explicit-fire.nc'
