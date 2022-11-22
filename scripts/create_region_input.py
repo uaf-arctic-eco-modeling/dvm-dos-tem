@@ -962,38 +962,30 @@ def fill_climate_file(start_yr, yrs, xo, yo, xs, ys,
   create_template_climate_nc_file(masterOutFile, sizey=ys, sizex=xs, 
                                   withlatlon=withlatlon, withproj=withproj)
 
-  # Start with setting up the spatial info (copying from input file)
-  # Best do to this before the data so that we can catch bugs before waiting 
-  # for all the data to copy.
-  tmpfile =         os.path.join(out_dir, 'tmp_cri_file_with_spatial_info.nc'.format())
-  smaller_tmpfile = os.path.join(out_dir, 'tmp_cri_file_with_spatial_info_smaller.nc'.format())
-
-  print("Creating a temporary file with LAT and LON variables: ", tmpfile)
   if type(sp_ref_file) == tuple:
     sp_ref_file = sp_ref_file[0]
   elif type(sp_ref_file) == str:
     pass # nothing to do...
 
-  print("Convert from tif to netcdf...")
-  call_external_wrapper(['gdal_translate', '-of', 'netCDF', 
-      '-co', 'WRITE_LONLAT={}'.format('YES' if withlatlon else 'NO'),
-      sp_ref_file, tmpfile])
+  smaller_tmpfile = os.path.join(out_dir, 'tmp_cri_file_with_spatial_info_smaller.nc'.format())
 
   if projwin:
     ulx, uly, lrx, lry = calc_pwin_str(xo,yo,xs,ys)
     ex_call = ['gdal_translate', '-of', 'netCDF',
-        '-co', 'WRITE_LONLAT={}'.format('YES' if withlatlon else 'NO'),
-        '-projwin', ulx, uly, lrx, lry,
-        'NETCDF:"{}":Band1'.format(tmpfile), smaller_tmpfile]
+               '-co', 'WRITE_LONLAT={}'.format('YES' if withlatlon else 'NO'),
+               '-projwin', ulx, uly, lrx, lry,
+               sp_ref_file, smaller_tmpfile]
   else:
     ex_call = ['gdal_translate', '-of', 'netCDF',
-        '-co', 'WRITE_LONLAT={}'.format('YES' if withlatlon else 'NO'),
-        '-srcwin', str(xo), str(yo), str(xs), str(ys),
-        'NETCDF:"{}":Band1'.format(tmpfile), smaller_tmpfile]
+               '-co', 'WRITE_LONLAT={}'.format('YES' if withlatlon else 'NO'),
+               '-srcwin', str(xo), str(yo), str(xs), str(ys),
+               sp_ref_file, smaller_tmpfile]
 
   print("Subset (crop) netcdf file...")
   call_external_wrapper(ex_call)
 
+  # Now 'smaller_tmpfile' should have all spatial ref info.
+ 
   if withlatlon:
     print("Working on copying lat/lon info...")
     with netCDF4.Dataset(masterOutFile, mode='a') as dst:
@@ -1116,9 +1108,9 @@ def fill_climate_file(start_yr, yrs, xo, yo, xs, ys,
         dst.variables['y'][:] = src.variables['y'][:]
 
   if cleanup_tmpfiles:
-    print("Cleaning up temporary files: {} and {}".format(tmpfile, smaller_tmpfile))
+    print("Cleaning up temporary files: {} and {}".format("(deprecated)", smaller_tmpfile))
     os.remove(smaller_tmpfile)
-    os.remove(tmpfile)
+    #os.remove(tmpfile)
 
   with netCDF4.Dataset(masterOutFile, mode='a') as new_climatedataset:
 
