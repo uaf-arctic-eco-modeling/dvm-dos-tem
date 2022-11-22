@@ -810,7 +810,9 @@ def call_external_wrapper(call):
   Wrapper around subprocess.check_output that allows us to print stdout
   and stderr from the external command.
   '''
-  print("Gearing up to call: ", call)
+  print("Gearing up to call: ")
+  print("   ", " ".join(call))
+  print("")
   try:
     print("  --> stdout/stderr from external command:", subprocess.check_output(call, stderr=subprocess.STDOUT))
     success = True
