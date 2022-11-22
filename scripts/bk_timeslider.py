@@ -109,6 +109,8 @@ jdob.add_layout(jdob_cb, 'right')
 # File input
 #file_input = bkm.FileInput(accept=".nc")
 
+# Show current file
+current_file = bkm.Paragraph(text=f"{ff}", width=400)
 
 # Time Controls
 #time_slider = bkm.Slider(start=0, end=exp_burn_mask.time.shape[0], step=1, title='time axis idx')
@@ -127,6 +129,13 @@ columns = [
     ]
 data_table = bkm.DataTable(columns=columns, width=400, height=50)
 
+table_help_txt = bkm.Paragraph(text=f"Click image to update the table.", width=400)
+
+# Not sure how to get this to work.
+#table_tooltip = bkm.Tooltip(content="Click image to update table.", position="right", target=data_table)
+
+
+# Attempt puting file-wide statistics in a table...
 # columns = [
 #         bkm.TableColumn(field="var", title="var"),
 #         bkm.TableColumn(field="min", title="min"),
@@ -245,7 +254,7 @@ time_slider.on_change("value_throttled", functools.partial(time_slider_handler, 
 # Put everything in a layout
 layout = bkl.layout(
     children=[
-      [ burn_mask, aob, [time_slider, time_spinner, data_table] ],
+      [ burn_mask, aob, [current_file, time_slider, time_spinner, data_table, table_help_txt] ],
       [ fire_sev, jdob, yr_count],
     ],
     sizing_mode='fixed'
