@@ -1487,6 +1487,9 @@ def ensure_contiguous_climates(climates):
 
 def fill_explicit_fire_file(startyr, yrs, xo, yo, xs, ys, out_dir, of_name, tiffs, config=None, datasrc='', if_name=None, withlatlon=None, withproj=None, projwin=None, cleanup_tmpfiles=True):
 
+  print("================")
+  print(f'{startyr=}, {yrs=}, {xo=}, {yo=}, {xs=}, {ys=}, {out_dir=}, {of_name=}, {datasrc=}, {if_name=}, {withlatlon=}, {withproj=}, {projwin=}, {cleanup_tmpfiles=}')
+  print("----------------")
   create_template_explicit_fire_file(of_name, sizey=ys, sizex=xs, rand=False, withlatlon=withlatlon, withproj=withproj)
 
   if datasrc == 'genet':
@@ -1523,11 +1526,29 @@ def fill_explicit_fire_file(startyr, yrs, xo, yo, xs, ys, out_dir, of_name, tiff
       if actual_year  >= 1950 and actual_year <= 2020:
 
         bbox = (xo, yo, xo+xs*1000, yo+ys*1000)
-        geopandas_vec_data_bb = gpd.read_file(PATH, bbox=bbox) # Only read data w/in client specified AOI
+        print(bbox)
+        #geopandas_vec_data_bb = gpd.read_file(PATH, bbox=bbox) # Only read data w/in client specified AOI
+
+        # Found this bug when trying to read with bounding box:
+        # https://github.com/geopandas/geopandas/issues/2253
+
+        # import matplotlib.pyplot as plt
+        # import geopandas as gpd
+
+        # This seems to work. Read the whole thing, plot it, then plot selected subset on same plot
+        # ds = gpd.read_file('/atlas_scratch/ALFRESCO/ALFRESCO_Master_Dataset_v2_1/ALFRESCO_Model_Input_Datasets/IEM_for_TEM_inputs/tbc_11_14_2022_fire_stuff/AlaskaFireHistory_Polygons_1940_2020/AlaskaFireHistory_Polygons.gdb')
+        # bbox = (373781.145970919, 1604121.28673908, 427781.145970919, 1644121.28673908)
+        # a = ds.plot()
+        # ds.cx[bbox[0]:bbox[2],bbox[1]:bbox[3]].plot(color='red', alpha=.5, ax=a)
+        # ds.cx[bbox[0]:bbox[2],bbox[1]:bbox[3]]['FIREYEAR']
+
+        # # This produces nothing!
+        # dss = gpd.read_file('/atlas_scratch/ALFRESCO/ALFRESCO_Master_Dataset_v2_1/ALFRESCO_Model_Input_Datasets/IEM_for_TEM_inputs/tbc_11_14_2022_fire_stuff/AlaskaFireHistory_Polygons_1940_2020/AlaskaFireHistory_Polygons.gdb', bbox=bbox)
+        # dss
 
         # Alternately we can read the whole file and subset afterwards. Slower I think.
-        #geopandas_vec_data = gpd.read_file(PATH)
-        #geopandas_vec_data_bb = geopandas_vec_data.cx[bbox[0]:bbox[2],bbox[1]:bbox[3]]
+        geopandas_vec_data = gpd.read_file(PATH)
+        geopandas_vec_data_bb = geopandas_vec_data.cx[bbox[0]:bbox[2],bbox[1]:bbox[3]]
 
         this_years_fires = geopandas_vec_data_bb[geopandas_vec_data_bb['FIREYEAR']==str(actual_year)]
         print("Year: {}  Fires this year: {}".format(actual_year, this_years_fires.shape))
