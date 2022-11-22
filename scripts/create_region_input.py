@@ -2299,10 +2299,29 @@ if __name__ == '__main__':
     p exp fire predicted fy = 2021
     p exp fire predicted ly = 2100
 
-    h exp fire modeled path = 'fire_stuff/BestRep/NCAR-CCSM4_rcp85_CRU3/'
-    h exp fire observed path = 'fire_stuff/AlaskaFireHistory_Polygons_1940_2020/AlaskaFireHistory_Polygons.gdb'
-    p exp fire predicted path = 'fire_stuff/BestRep/'
+    h exp fire modeled path = 'tbc_11_14_2022_fire_stuff/BestRep/NCAR-CCSM4_rcp85_CRU3/'
+    h exp fire observed path = 'tbc_11_14_2022_fire_stuff/AlaskaFireHistory_Polygons_1940_2020/AlaskaFireHistory_Polygons.gdb'
+    p exp fire predicted path = 'tbc_11_14_2022_fire_stuff/BestRep/'
   ''')
+
+  # These paths work on tbc OSX host
+  #h exp fire modeled path = 'fire_stuff/BestRep/NCAR-CCSM4_rcp85_CRU3/'
+  #h exp fire observed path = 'fire_stuff/AlaskaFireHistory_Polygons_1940_2020/AlaskaFireHistory_Polygons.gdb'
+  #p exp fire predicted path = 'fire_stuff/BestRep/'
+
+  # These paths work as of Nov 2022 on atlas.
+  # Note that they are absolute! So hard to mix with a non-custom (fully absolute) config
+  # Another solution could be on atlas to make symlinks in the 
+  # /atlas_scratch/ALFRESCO/ALFRESCO_Master_Dataset_v2_1/ALFRESCO_Model_Input_Datasets/IEM_for_TEM_inputs
+  # folder to the data in `/workspace/Shared/Tech_Proj...`
+  # and then we could pretend that everything is in the `/atlas_scratch/ALF...` folder and
+  # use the relative path configs here...
+  # Or maybe making the code smarter so that when parsing a config string if a path is 
+  # absolute, we don't try to the the --tifs path in front of it...
+  #
+  #h exp fire modeled path = '/workspace/Shared/Tech_Projects/Alaska_IEM/project_data/Final_runs/IEM_AR5/BestRep/NCAR-CCSM4_rcp85_CRU3/'
+  #h exp fire observed path = '/atlas_scratch/ALFRESCO/ALFRESCO_Master_Dataset_v2_1/ALFRESCO_Model_Input_Datasets/IEM_for_TEM_inputs/tbc_11_14_2022_fire_stuff/AlaskaFireHistory_Polygons_1940_2020/AlaskaFireHistory_Polygons.gdb'
+  #p exp fire predicted path = '/workspace/Shared/Tech_Projects/Alaska_IEM/project_data/Final_runs/IEM_AR5/BestRep/NCAR-CCSM4_rcp85_CRU3/'
 
   # --> note that with fire the recent observations are readily available, up to 
   # the most recent fire year, whereas climate lags behind, so the historic/projected
@@ -2328,10 +2347,10 @@ if __name__ == '__main__':
   # NCAR-CCSM4_rcp85_CRU3 
 
 
-    # tifs = '/Users/tobeycarman/Documents/SEL/snap-data-2019/'
-    # other = 'fire_stuff/BestRep/'
-    # src = 'NCAR-CCSM4_rcp85_CRU3/'
-    # # #variable = 'BurnSeverity_26_{}.tif'.format()
+  # tifs = '/Users/tobeycarman/Documents/SEL/snap-data-2019/'
+  # other = 'fire_stuff/BestRep/'
+  # src = 'NCAR-CCSM4_rcp85_CRU3/'
+  # # #variable = 'BurnSeverity_26_{}.tif'.format()
 
 
   fileChoices = ['run-mask', 'co2', 'projected-co2', 'vegetation', 'drainage', 'soil-texture', 'topo',
