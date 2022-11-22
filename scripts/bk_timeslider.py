@@ -3,7 +3,6 @@
 # T. Carman, 2022 Nov
 
 import numpy as np
-import pandas as pd
 import netCDF4 as nc
 import xarray as xr
 
@@ -16,12 +15,16 @@ import bokeh.plotting as bkp
 import bokeh.layouts as bkl
 
 
-
+# atlas
 #ff = "input-staging-area/cru-ts40_ar5_rcp85_gfdl-cm3_moose_basin_v2022_11_17_29x36/historic-explicit-fire.nc"
+
 # MacOS
-ff = "input-staging-area/cru-ts40_ar5_rcp85_mri-cgcm3_GoodP_basin_74x93/historic-explicit-fire.nc"
-ff = 'demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10/historic-explicit-fire.nc'
-ff = 'input-staging-area/cru-ts40_ar5_rcp85_ncar-ccsm4_Chat_basin_104x150/historic-explicit-fire.nc'
+# scp -r atlas:/home/UA/tcarman2/dvm-dos-tem/input-staging-area/cru-ts40_ar5_rcp85_gfdl-cm3_moose_basin_v2022_11_17_29x36/ ~/Downloads 
+ff = '/Users/tobeycarman/Downloads/cru-ts40_ar5_rcp85_gfdl-cm3_moose_basin_v2022_11_17_29x36/historic-explicit-fire.nc'
+
+#ff = "input-staging-area/cru-ts40_ar5_rcp85_mri-cgcm3_GoodP_basin_74x93/historic-explicit-fire.nc"
+#ff = 'demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10/historic-explicit-fire.nc'
+#ff = 'input-staging-area/cru-ts40_ar5_rcp85_ncar-ccsm4_Chat_basin_104x150/historic-explicit-fire.nc'
 
 ds = nc.Dataset(ff)
 xds = xr.open_dataset(ff, decode_cf=False)
@@ -40,59 +43,44 @@ DW = exp_burn_mask.shape[2]
 DH = exp_burn_mask.shape[1]
 
 
+# Setup all the color maps and ranges
 mask_cm = bkm.LinearColorMapper(palette="Greys9", low=0, high=1, 
                            low_color="darkgrey", high_color="red")
-mask_cb = bkm.ColorBar(color_mapper=mask_cm, padding=5)# ticker=p.xaxis.ticker, formatter=p.xaxis.formatter)
+mask_cb = bkm.ColorBar(color_mapper=mask_cm, padding=5)
 
 aob_cm = bkm.LogColorMapper(palette="Viridis256", low=1, high=float(exp_aob.max()),
                             low_color='lightgrey', high_color='darkgrey')
-aob_cb = bkm.ColorBar(color_mapper=aob_cm, padding=5)# ticker=p.xaxis.ticker, formatter=p.xaxis.formatter)
+aob_cb = bkm.ColorBar(color_mapper=aob_cm, padding=5)
 
 sev_cm = bkm.LinearColorMapper(palette="Inferno5", low=0, high=5,
                            low_color="pink", high_color="blue", nan_color="lightgrey")
-sev_cb = bkm.ColorBar(color_mapper=sev_cm, padding=5)# ticker=p.xaxis.ticker, formatter=p.xaxis.formatter)
+sev_cb = bkm.ColorBar(color_mapper=sev_cm, padding=5)
 
 jdob_cm = bkm.LinearColorMapper(palette="Viridis256", low=0, high=365,
                            low_color="lightgrey", high_color="darkgrey", nan_color="green")
-jdob_cb = bkm.ColorBar(color_mapper=jdob_cm, padding=5)# ticker=p.xaxis.ticker, formatter=p.xaxis.formatter)
+jdob_cb = bkm.ColorBar(color_mapper=jdob_cm, padding=5)
 
 count_cm = bkm.LinearColorMapper(palette=bokeh.palettes.viridis(F.max()+1), low=0, high=F.max(), 
                           low_color="darkgrey", high_color="red")
 count_cb = bkm.ColorBar(color_mapper=count_cm, padding=5)
 
-
-#nbins = np.count_nonzero(F)
-#mapper = bkm.CategoricalColorMapper(palette=["red", "blue"], factors=["foo", "bar"])
-
-# print(f'F.min={F.min()}, F.max={F.max()}, F.std={F.std()}')
-# print()
-# print(f'exp_aob.min={exp_aob.min()} exp_aob.max={exp_aob.max()} exp_aob.max={exp_aob.max()}')
-#print(np.count_nonzero(F).min(), np.count_nonzero(F).max(), np.count_nonzero(F).std())
-
-# print(f'factors={factors}')
-# print(bokeh.palettes.YlGn3)
-
-
 TOOLTIPS = [
-    #('index', '$index'), # the index of the image passed to Figure.image(...)
-    ("(x,y)", "($x, $y)"), # works
+    ("(x,y)", "($x, $y)"),
     ("timeidx", "@timeidx"),
     ("Mask", "@mask"),
     ("AOB", "@aob"),
     ("Sev", "@sev"),
     ("JDOB","@jdob"),
     ("# yrs burned","@count_time_axis"),
-
 ]
 
 #bkio.output_file("SAMPLE.html")
-
 
 # Crosshairs
 width_span = bkm.Span(dimension="width", line_dash="dotted", line_width=1, line_color='red')
 height_span = bkm.Span(dimension="height", line_dash="dotted", line_width=1, line_color='red')
 
-# Images
+# Image plots
 yr_count = bkp.figure(title="# yrs burned", width=400, height=400, tools='hover', toolbar_location='left', tooltips=TOOLTIPS)
 yr_count.x_range.range_padding = yr_count.y_range.range_padding = 0
 yr_count.add_tools(bkm.CrosshairTool(overlay=[width_span, height_span]))
@@ -119,11 +107,10 @@ jdob.add_tools(bkm.CrosshairTool(overlay=[width_span, height_span]))
 jdob.add_layout(jdob_cb, 'right')
 
 # File input
-#from bokeh.models import FileInput
+#file_input = bkm.FileInput(accept=".nc")
 
-file_input = bkm.FileInput(accept=".nc")
 
-# Controls
+# Time Controls
 #time_slider = bkm.Slider(start=0, end=exp_burn_mask.time.shape[0], step=1, title='time axis idx')
 #time_slider = bkm.DateSlider(start=exp_burn_mask.time.values[0], end=exp_burn_mask.time.values[-1], value=exp_burn_mask.time[0], step=1, title="time axis index")
 time_slider = bkm.Slider(start=0, end=115, value=0, step=1, title='time axis idx')
@@ -170,6 +157,10 @@ data_table = bkm.DataTable(columns=columns, width=400, height=50)
 
 def update_imgs(time_idx):
   '''Build a ColumnDataSource for a specific time_idx and plot all images.'''
+  # While it works to plot directly w/o CDS, e.g:
+  # burn_mask.image(image=[exp_burn_mask[time_idx].values], x=0, y=0, dw=DW, dh=DH, )
+  # doing so prevents accessing data from other images in HoverTool...
+
   data = bkm.ColumnDataSource(
       data=dict(
         mask=[exp_burn_mask[time_idx].values],
@@ -187,34 +178,31 @@ def update_imgs(time_idx):
   fire_sev.image(source=data,   image='sev',             x=0, y=0, dh=DH, dw=DW, color_mapper=sev_cm) 
   jdob.image(source=data,       image='jdob',            x=0, y=0, dh=DH, dw=DW, color_mapper=jdob_cm)
 
-  # This pattern works w/o CDS, but can't access data from other images in HoverTool...
-  # burn_mask.image(image=[exp_burn_mask[time_idx].values], x=0, y=0, dw=DW, dh=DH, )
-  # aob.image(image=[exp_aob[time_idx].values], x=0, y=0, dh=DH, dw=DW, color_mapper=aob_cm)
-  # fire_sev.image(image=[exp_sev[time_idx].values], x=0, y=0, dh=DH, dw=DW, palette='Inferno5')
-  # jdob.image(image=[exp_jdob[time_idx].values], x=0, y=0, dh=DH, dw=DW,  palette='Viridis8')
-
 
 def update_table(time_idx, y=None, x=None):
+  
+  # This allows update_table to be called before any points have been 
+  # clicked, i.e. when x and y are None.
   if y and x:
-
     Y = int(y)
     X = int(x)
     data = dict(
-          xy=[(X,Y)], # <---- Note for display, NOT for indexing!
-          mask=[exp_burn_mask[time_idx,Y,X].values],
-          aob=[exp_aob[time_idx,Y,X].values],
-          sev=[exp_sev[time_idx,Y,X].values],
-          jdob=[exp_jdob[time_idx,Y,X].values],
-          timeidx=[time_idx],
-          count_time_axis=[F[Y,X]],
-        )
+        xy=[(X,Y)], # <---- Note order is for display, NOT for indexing!
+        mask=[exp_burn_mask[time_idx,Y,X].values],
+        aob=[exp_aob[time_idx,Y,X].values],
+        sev=[exp_sev[time_idx,Y,X].values],
+        jdob=[exp_jdob[time_idx,Y,X].values],
+        timeidx=[time_idx],
+        count_time_axis=[F[Y,X]],
+    )
 
     data_table.source.data = data
 
-
+# Run the update functions to get everything setup
 update_imgs(0)
 update_table(0)
 
+# Define all the callback functions...
 def load_file(attr, old, new, foo):
   print(f'attr={attr}, old={old}, new={new}, foo={foo}')
   print("DUMMY FUNCTION! Need to work in loading files!")
@@ -235,11 +223,12 @@ def time_slider_handler(attr, old, new, foo):
   update_imgs(new)
   update_table(new)
 
-
 def tap_callback(event):
     print('User clicked', event)
     print(event.x, event.y)
     update_table(0, y=event.y, x=event.x)
+
+### Register events and callbacks ###
 
 # Tap event on plots - update data table
 burn_mask.on_event(bokeh.events.Tap, tap_callback)
@@ -251,11 +240,12 @@ yr_count.on_event(bokeh.events.Tap, tap_callback)
 # update control events
 time_spinner.on_change("value_throttled", functools.partial(time_spinner_handler, foo="sample"))
 time_slider.on_change("value_throttled", functools.partial(time_slider_handler, foo="test!"))
-file_input.on_change("filename", functools.partial(load_file, foo="extra args..."))
+#file_input.on_change("filename", functools.partial(load_file, foo="extra args..."))
 
+# Put everything in a layout
 layout = bkl.layout(
     children=[
-      [ burn_mask, aob, [file_input, time_slider, time_spinner, data_table] ],
+      [ burn_mask, aob, [time_slider, time_spinner, data_table] ],
       [ fire_sev, jdob, yr_count],
     ],
     sizing_mode='fixed'
