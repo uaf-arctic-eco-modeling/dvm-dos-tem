@@ -5,16 +5,26 @@
 # Interactive viewer for mapping collections of dvm-dos-tem input datasets.
 
 
-import gdal  # does not work on vagrant, or osx python 2.7x, works on atlas, and modex I think and OSX python 3.7
-import osr
+#import gdal  # does not work on vagrant, or osx python 2.7x, works on atlas, and modex I think and OSX python 3.7
+
+from osgeo import gdal
+# Don't import rasterio too - they compete for some 
+# underlying GDAL.so global objects!
+from osgeo import osr
+
 import os
 
 import shapely
 
 import geojson
-import geopandas
 import json
 import glob
+
+import bokeh
+import bokeh.io as bkio
+import bokeh.models as bkm
+import bokeh.plotting as bkp
+import bokeh.layouts as bkl
 
 from bokeh.io import output_file, show, curdoc, save
 from bokeh.models.sources import GeoJSONDataSource
@@ -24,6 +34,10 @@ from bokeh.plotting import figure
 
 from bokeh.tile_providers import get_provider, Vendors
 
+import geopandas
+
+# import nest_asyncio
+# nest_asyncio.apply()
 
 def get_corner_coords(file_path):
   '''
@@ -106,36 +120,44 @@ def build_feature_collection(folder_list):
   geojson_obj = dict(type="FeatureCollection",features=[])
 
   for folder in folder_list:
-    f = os.path.join(folder, 'vegetation.nc')
     
-    lr,ll,ul,ur = get_corner_coords(f)
-    if "Koug" in folder:
-      print(lr,ll,ul,ur, "    ",folder)
+    f = os.path.join(folder, 'vegetation.nc')
 
-    # CAUTION: For some reason get_corner_coords(..) is returning
-    # (Y,X) instead of (X,Y). Doesn't make sense to me with regards
-    # to the documentation for osr.CoordinateTransformation.TransformPoint(..)
-    # So here, we swap the order of the coordinates, and things seem to work
-    # downstream for plotting....
-    lr,ll,ul,ur = [(x[1],x[0],x[2]) for x in (lr,ll,ul,ur)]
+    if not os.path.exists(f):
+      print("ERROR! Can't find file: {}".format(f))
+    else:
 
-    geojson_obj['features'].append(
-      dict(
-        type="Feature", 
-        geometry=dict(
-          type="Polygon", 
-          # must be list of lists so as to accomodate holes
-          coordinates=[[list(lr),list(ur),list(ul),list(ll),list(lr)]]  # CCW for exterior rings
-          #coordinates=[[list(lr),list(ll),list(ul),list(ur),list(lr)]]
-          
-        ), 
-        properties=dict(
-          name=f
+
+      lr,ll,ul,ur = get_corner_coords(f)
+      if "Koug" in folder:
+        print(lr,ll,ul,ur, "    ",folder)
+
+      # CAUTION: For some reason get_corner_coords(..) is returning
+      # (Y,X) instead of (X,Y). Doesn't make sense to me with regards
+      # to the documentation for osr.CoordinateTransformation.TransformPoint(..)
+      # So here, we swap the order of the coordinates, and things seem to work
+      # downstream for plotting....
+      lr,ll,ul,ur = [(x[1],x[0],x[2]) for x in (lr,ll,ul,ur)]
+
+      geojson_obj['features'].append(
+        dict(
+          type="Feature", 
+          geometry=dict(
+            type="Polygon", 
+            # must be list of lists so as to accomodate holes
+            coordinates=[[list(lr),list(ur),list(ul),list(ll),list(lr)]]  # CCW for exterior rings
+            #coordinates=[[list(lr),list(ll),list(ul),list(ur),list(lr)]]
+            
+          ), 
+          properties=dict(
+            name=f
+          )
         )
       )
-    )
 
   return geojson_obj
+
+
 
 
 def build_geojson(feature_collection, method='A', proj='epsg:3857'):
@@ -170,12 +192,23 @@ def tapselect_handler(attr, old, new):
   #import pdb; pdb.set_trace()
 
 #### Prepare data
-
+#from IPython import embed; embed()
 #folders = get_io_folder_listing("/Users/tobeycarman/Documents/SEL/dvmdostem-input-catalog", pattern="*")
-folders = get_io_folder_listing("/iodata", pattern="*")
-folders = get_io_folder_listing("/data/input-catalog", pattern="*")
+folders = get_io_folder_listing("/home/UA/tcarman2/dvm-dos-tem/input-staging-area", pattern="*")
+#folders = get_io_folder_listing("/workspace/Shared/Tech_Projects/dvmdostem/input-catalog/", pattern="*")
+#folders = get_io_folder_listing("/iodata", pattern="*")
+#folders = get_io_folder_listing("/data/input-catalog", pattern="*")
 
-print(folders)
+print("Looking in the following folders for datasets to map:")
+if len(folders) > 10:
+  for x in folders[0:3]:
+    print("    {}".format(x))
+  print("    ... {} total folders ...".format(len(folders)))  
+  for x in folders[-3:]:
+    print("    {}".format(x))
+else:
+  print(folders)
+
 # hand built dict trying to be valid geojson
 feature_collection = build_feature_collection(folders)
 print("feature_collection: {}".format(type(feature_collection)))
@@ -190,14 +223,22 @@ geodf = geopandas.GeoDataFrame(vgj,geometry=geoms)
 
 # tell geopandas what the CRS is for the data
 geodf = geodf.set_crs(epsg=4326) # WGS84
-print("bounds in wgs84: ", geodf.total_bounds)
+print("feature collecton bounds in wgs84: ", geodf.total_bounds)
 
 # now re-project to web mercator (use by tiling service)
 geodf = geodf.to_crs(epsg=3857) # web mercator.
-print("bounds in web mercator: ", geodf.total_bounds)
+print("feature collection bounds in web mercator: ", geodf.total_bounds)
 
 # Add a name column...
 geodf['name'] = [os.path.dirname(i['properties']['name']).split('/')[-1] for i in vgj.features]
+
+print("---- geodf columns -----")
+print(geodf.columns)
+
+print(geodf.type[0:3])
+print(geodf.features[0:3])
+print(geodf.geometry[0:3])
+print(geodf.name[0:3])
 
 xmin,ymin,xmax,ymax=geodf.total_bounds
 
@@ -207,16 +248,50 @@ print(geodf.head())
 ##### Plot
 #output_file("geojson.html")
 
-p = figure(x_range=(xmin, xmax), y_range=(ymin, ymax),
-           x_axis_type="mercator", y_axis_type="mercator")
+
+
+map_plot = figure(x_range=(xmin, xmax), y_range=(ymin, ymax),
+                  x_axis_type="mercator", y_axis_type="mercator")
 
 # Add tiles
 tile_provider = get_provider(Vendors.CARTODBPOSITRON)
-p.add_tile(tile_provider)
-print("HERE?")
+map_plot.add_tile(tile_provider)
 
 # Have to add the patches after the tiles
-input_areas = p.patches('xs','ys', source=geosource, fill_color='red', line_color='gray', line_width=0.25, fill_alpha=.3)
+input_areas = map_plot.patches('xs','ys', source=geosource, fill_color='red', line_color='gray', line_width=0.25, fill_alpha=.3)
+
+
+width_span = bkm.Span(dimension="width", line_dash="dotted", line_width=1, line_color='red')
+height_span = bkm.Span(dimension="height", line_dash="dotted", line_width=1, line_color='red')
+map_plot.add_tools(bkm.CrosshairTool(overlay=[width_span, height_span]))
+
+def dot_plot(lat, lon):
+
+  print(f"Trying to place dot at lat={lat}, lon={lon}")
+  map_plot.circle([lon],[lat], size=20, color='pink', alpha=0.5)
+
+
+def dot_plot_coords_update(attr, old, new):
+  print(f"attr={attr}, old={old}, new={new}")
+  lat = dot_plot_input_lat.value
+  lon = dot_plot_input_lon.value
+  dot_plot(lat, lon)
+
+
+
+# def dot_plot_lat_update(attr, new, old):
+#   print(f'attr={}, old={}, new={}')
+#   print()"NOW WHAT??")
+
+dot_plot_input_lat = bkm.TextInput(placeholder='LAT')
+dot_plot_input_lon = bkm.TextInput(placeholder='LON')
+
+dot_plot_input_lon.on_change('value', dot_plot_coords_update)
+dot_plot_input_lat.on_change('value', dot_plot_coords_update)
+
+
+print("HERE?")
+
 
 taptool = TapTool(renderers = [input_areas])
 hovertool = HoverTool(renderers = [input_areas],
@@ -238,14 +313,27 @@ print("HERE?")
 # """)
 
 # Create hover tool
-p.add_tools(taptool, hovertool)
+map_plot.add_tools(taptool, hovertool)
 
-curdoc().add_root(p)
+# Put everything in a layout
+layout = bkl.layout(
+    children=[
+      [map_plot, [dot_plot_input_lat, dot_plot_input_lon] ],
+    ],
+    sizing_mode='fixed'
+)
+
+
+
+curdoc().add_root(layout)
+
+
 print("HERE?")
 
 #save(p)
 
 #show(p)
+
 
 
 
