@@ -108,18 +108,44 @@
 <h2>What is calibration for <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code>?<a class="headerlink" href="#what-is-calibration-for-dvmdostem" title="Permalink to this headline"></a></h2>
 <blockquote>
 <div><p>Calibration is defined as the estimation and adjustment of model parameters
-and constants to improve the agreement between model output and a data set
-<a class="reference internal" href="#rykiel-1996" id="id1"><span>[Rykiel_1996]</span></a>.</p>
+and constants to improve the agreement between model output and a data set.
+<a class="reference internal" href="#rykiel-1996" id="id1"><span>[Rykiel_1996]</span></a></p>
 </div></blockquote>
 <p>Being originally a biogeochemical model, <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code> calibration is mainly
 focused on the carbon (C) and nitrogen (N) cycle. Rate-limiting parameters for
-GPP (Cmax), autotrophic respiration (Kr), heterotrophic respiration (Kd),
-maximum plant N uptake (Nmax), C and N in litter production (Cfall and Nfall),
-and soil C and N immobilization are adjusted until model values of C and N
-fluxes and stocks match field-based estimates or observations, which we refer to
-as “<strong>target values</strong>”. For this reason, calibrations are conducted at the site
-level, using sentinel sites representing typical mature ecosystems, well
-characterized and monitored over long periods of time.</p>
+various processes are adjusted until model values of C and N fluxes and stocks
+match field-based estimates or observations, which we refer to as “target
+values”. Below is a table of variables or processes and their corresponding rate
+limiting parameters:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 42%" />
+<col style="width: 58%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p>Gross Primary Productivity (GPP)</p></td>
+<td><p>Cmax</p></td>
+</tr>
+<tr class="row-even"><td><p>Autotrophic Respiration (Ra)</p></td>
+<td><p>Kr</p></td>
+</tr>
+<tr class="row-odd"><td><p>Heterotrophic Respiration (Rh)</p></td>
+<td><p>Kd</p></td>
+</tr>
+<tr class="row-even"><td><p>maximum plant N uptake</p></td>
+<td><p>Nmax</p></td>
+</tr>
+<tr class="row-odd"><td><p>C and N litter production</p></td>
+<td><p>Cfall, Nfall</p></td>
+</tr>
+<tr class="row-even"><td><p>soil C and N immobilization</p></td>
+<td><p>micbnup, kdcrawc, kdscoma, kdcsomapr, kdcsomcr</p></td>
+</tr>
+</tbody>
+</table>
+<p>For this reason, calibrations are conducted at the site level, using sentinel
+sites representing typical mature ecosystems, well characterized and monitored
+over long periods of time.</p>
 <p>The selection of parameters for calibration is based on:</p>
 <blockquote>
 <div><ol class="arabic simple">
@@ -151,12 +177,12 @@ carbon and nitrogen fluxes and stocks targeted for the calibration. Target
 values are representing the “typical” state of a mature ecosystem for the
 vegetation community for which the calibration is developed.</p>
 <p>For this reason, as often as possible, target values are computed from
-observations collected across <strong>multiple years, at the sentinel site</strong> where the
+observations collected across multiple years, at the sentinel site where the
 calibration is developed. In this case, a target value will be computed as the
 mean of a multi-year time series. The standard deviation is also important to
 compute and store as it can inform a subsequent uncertainty analysis at the
 sentinel site.</p>
-<p>Target values are stored in the text file named <cite>calibration_target.py</cite> in the
+<p>Target values are stored in the text file named <cite>calibration_targets.py</cite> in the
 calibration directory.</p>
 <section id="vegetation-targets">
 <h4>Vegetation Targets<a class="headerlink" href="#vegetation-targets" title="Permalink to this headline"></a></h4>
@@ -185,17 +211,17 @@ review.</p>
 <p><strong>VEGN</strong> is the target value for vegetation nitrogen pools. VEGN should be
 indicated for every compartment (i.e. leaf, stem, and root) of every plant
 functional type. Target values are based on biomass estimations and C:N ratios.
-If biomass pr C:N estimates are not available for all compartments (e.g. root)
+If biomass or C:N estimates are not available for all compartments (e.g. root)
 or all PFT (e.g. green mosses), partitioning information should be estimated
 from literature review.</p>
 </section>
 <section id="soil-targets">
 <h4>Soil Targets<a class="headerlink" href="#soil-targets" title="Permalink to this headline"></a></h4>
 <p><strong>SOILC</strong> is the target value for soil carbon pools. It is estimated separately
-for the fibric layer, the humic layer and the top 1-m of the mineral layer.</p>
+for the fibric layer, the humic layer and the top 1 meter of the mineral layer.</p>
 <p><strong>ORGN</strong> is the target value of the soil nitrogen pool. In contract to SOILC,
-ORGN is estimated for the organic layer <em>and</em> the top 1-m mineral soil. It is
-usually estimated from the soil carbons pools and estimated C:N ratios.</p>
+ORGN is estimated for the organic layer <em>and</em> the top 1 meter mineral soil. It
+is usually estimated from the soil carbons pools and estimated C:N ratios.</p>
 <p><strong>AVLN</strong> is the target value for soil available nitrogen. By definition, this
 pool is estimated across the rooting depth only (indicated in the parameter file
 cmt_dimvegetation.txt).</p>
@@ -279,12 +305,12 @@ plant functional type. Increasing Cmax increases GPP.</p></li>
 <ol class="arabic simple">
 <li><p>Set <code class="docutils literal notranslate"><span class="pre">NFEED=ON</span></code> and <code class="docutils literal notranslate"><span class="pre">AVLN=ON</span></code>.</p></li>
 <li><p>Set the level of N limitation with Nmax and Nup<sub>mic</sub> so that actual
-GPP, and AVLN matche the target values. Increasing Nmax should increase GPP,
+GPP, and AVLN match the target values. Increasing Nmax should increase GPP,
 and increasing Nup<sub>mic</sub> should decrease both GPP and AVLN.</p></li>
-<li><p>Set the ratio between GPP and NPP with Krb. Krb influencing maintenance
-respiration, it will also affect the ratio between GPP and NPP. Increasing
-Krb will increase respiration and decrease NPP. Krb should therefore be
-calibrated targeting NPP.</p></li>
+<li><p>Set the ratio between GPP and NPP with Krb. Krb influences maintenance
+respiration, and it will also affect the ratio between GPP and NPP.
+Increasing Krb will increase respiration and decrease NPP. Krb should
+therefore be calibrated targeting NPP.</p></li>
 <li><p>Calibrate Cfall targeting VEGC. Change in vegetation is a result of NPP
 (input) and Litterfall (output). Therefore, VEGC pools will be influenced
 both by Krb and Cfall parameters. Because Krb has been adjusted in step 3,
@@ -298,9 +324,9 @@ vegetation nitrogen uptake (input) and litterfall (output).</p></li>
 <ol class="arabic simple">
 <li><p>Calibrate decomposition rate limiting parameters targeting soil carbon
 stocks. The fibric layer is dominated by raw and active carbon pools. The
-humic layer is dominated active and physically resistant pools. Finally, the
-mineral layer is dominated by pools of slower turnover. Therefore, Kdc for
-the raw material should be adjusted targeting soil C stock in the fibric
+humic layer is dominated by active and physically resistant pools. Finally,
+the mineral layer is dominated by pools of slower turnover. Therefore, Kdc
+for the raw material should be adjusted targeting soil C stock in the fibric
 layer. Kdc for the active organic matter will affect primarily fibric and
 humic carbon pools. Kdc for the physically resistant pool will affect
 primarily the humic and mineral pools.</p></li>
