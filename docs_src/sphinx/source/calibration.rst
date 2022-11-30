@@ -14,18 +14,28 @@ What is calibration for ``dvmdostem``?
 ***************************************
 
     Calibration is defined as the estimation and adjustment of model parameters
-    and constants to improve the agreement between model output and a data set
-    [Rykiel_1996]_.
+    and constants to improve the agreement between model output and a data set.
+    [Rykiel_1996]_
 
 Being originally a biogeochemical model, ``dvmdostem`` calibration is mainly
 focused on the carbon (C) and nitrogen (N) cycle. Rate-limiting parameters for
-GPP (Cmax), autotrophic respiration (Kr), heterotrophic respiration (Kd),
-maximum plant N uptake (Nmax), C and N in litter production (Cfall and Nfall),
-and soil C and N immobilization are adjusted until model values of C and N
-fluxes and stocks match field-based estimates or observations, which we refer to
-as "**target values**". For this reason, calibrations are conducted at the site
-level, using sentinel sites representing typical mature ecosystems, well
-characterized and monitored over long periods of time.
+various processes are adjusted until model values of C and N fluxes and stocks
+match field-based estimates or observations, which we refer to as "target
+values". Below is a table of variables or processes and their corresponding rate
+limiting parameters:
+
+=================================  ==============================================
+Gross Primary Productivity (GPP)   Cmax
+Autotrophic Respiration (Ra)       Kr
+Heterotrophic Respiration (Rh)     Kd
+maximum plant N uptake             Nmax
+C and N litter production          Cfall, Nfall
+soil C and N immobilization        micbnup, kdcrawc, kdscoma, kdcsomapr, kdcsomcr
+=================================  ==============================================
+
+For this reason, calibrations are conducted at the site level, using sentinel 
+sites representing typical mature ecosystems, well characterized and monitored
+over long periods of time.
 
 The selection of parameters for calibration is based on:
 
@@ -64,13 +74,13 @@ values are representing the “typical” state of a mature ecosystem for the
 vegetation community for which the calibration is developed.
 
 For this reason, as often as possible, target values are computed from
-observations collected across **multiple years, at the sentinel site** where the
+observations collected across multiple years, at the sentinel site where the
 calibration is developed. In this case, a target value will be computed as the
 mean of a multi-year time series. The standard deviation is also important to
 compute and store as it can inform a subsequent uncertainty analysis at the
 sentinel site.
 
-Target values are stored in the text file named `calibration_target.py` in the
+Target values are stored in the text file named `calibration_targets.py` in the
 calibration directory.
 
 Vegetation Targets
@@ -105,7 +115,7 @@ review.
 **VEGN** is the target value for vegetation nitrogen pools. VEGN should be
 indicated for every compartment (i.e. leaf, stem, and root) of every plant
 functional type. Target values are based on biomass estimations and C:N ratios.
-If biomass pr C:N estimates are not available for all compartments (e.g. root)
+If biomass or C:N estimates are not available for all compartments (e.g. root)
 or all PFT (e.g. green mosses), partitioning information should be estimated
 from literature review.
 
@@ -113,11 +123,11 @@ Soil Targets
 ------------
 
 **SOILC** is the target value for soil carbon pools. It is estimated separately
-for the fibric layer, the humic layer and the top 1-m of the mineral layer.
+for the fibric layer, the humic layer and the top 1 meter of the mineral layer.
 
 **ORGN** is the target value of the soil nitrogen pool. In contract to SOILC,
-ORGN is estimated for the organic layer *and* the top 1-m mineral soil. It is
-usually estimated from the soil carbons pools and estimated C:N ratios.
+ORGN is estimated for the organic layer *and* the top 1 meter mineral soil. It 
+is usually estimated from the soil carbons pools and estimated C:N ratios.
 
 **AVLN** is the target value for soil available nitrogen. By definition, this
 pool is estimated across the rooting depth only (indicated in the parameter file
@@ -221,13 +231,13 @@ Calibrate vegetation parameters **with** N limitation
 #. Set ``NFEED=ON`` and ``AVLN=ON``.
 
 #. Set the level of N limitation with Nmax and Nup\ :sub:`mic` so that actual
-   GPP, and AVLN matche the target values. Increasing Nmax should increase GPP,
+   GPP, and AVLN match the target values. Increasing Nmax should increase GPP,
    and increasing Nup\ :sub:`mic` should decrease both GPP and AVLN.
 
-#. Set the ratio between GPP and NPP with Krb. Krb influencing maintenance
-   respiration, it will also affect the ratio between GPP and NPP. Increasing
-   Krb will increase respiration and decrease NPP. Krb should therefore be
-   calibrated targeting NPP.
+#. Set the ratio between GPP and NPP with Krb. Krb influences maintenance
+   respiration, and it will also affect the ratio between GPP and NPP.
+   Increasing Krb will increase respiration and decrease NPP. Krb should 
+   therefore be calibrated targeting NPP.
 
 #. Calibrate Cfall targeting VEGC. Change in vegetation is a result of NPP
    (input) and Litterfall (output). Therefore, VEGC pools will be influenced
@@ -242,9 +252,9 @@ Calibrate soil parameters
 
 #. Calibrate decomposition rate limiting parameters targeting soil carbon
    stocks. The fibric layer is dominated by raw and active carbon pools. The
-   humic layer is dominated active and physically resistant pools. Finally, the
-   mineral layer is dominated by pools of slower turnover. Therefore, Kdc for
-   the raw material should be adjusted targeting soil C stock in the fibric
+   humic layer is dominated by active and physically resistant pools. Finally,
+   the mineral layer is dominated by pools of slower turnover. Therefore, Kdc 
+   for the raw material should be adjusted targeting soil C stock in the fibric
    layer. Kdc for the active organic matter will affect primarily fibric and
    humic carbon pools. Kdc for the physically resistant pool will affect
    primarily the humic and mineral pools.
