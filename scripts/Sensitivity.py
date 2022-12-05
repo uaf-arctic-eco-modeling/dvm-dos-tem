@@ -686,39 +686,6 @@ class SensitivityDriver(object):
     
     return c
   
-  def pftnum(self):
-    '''
-    NOTE! Not really sure how this should work long term.
-    For now assume that all parameters must have the 
-    same pftnum (or None for non-pft params).
-
-    So this ensures that all the parameters are set to the same
-    PFT (for pft params). If there are no PFT params, then 
-    we return None, and if there is a problem (i.e. params 
-    set for different PFTs), then we raise an exception.
-
-    This is only a problem for processing the outputs. Presumably
-    if we are adjusting PFT 3 we want to look at outputs for PFT 3.
-    Not sure how to handle a case where we have parameters adjusted 
-    for several PFTs??? What outputs would we want??
-    '''
-    try:
-      pftnums = set([x['pftnum'] for x in self.params])
-      pftnums.discard(None)
-    except (AttributeError, KeyError) as e:
-      # AttributeError occurs when params attribute not set yet
-      # KeyError occurs if params does not have a column for pfts
-      # Not sure what the use case is for this...
-      pftnums = ''
-
-    if len(pftnums) == 1:
-      return pftnums.pop()
-    elif len(pftnums) == 0:
-      return None
-    else:
-      # For now 
-      raise RuntimeError("Invalid pftnum specificaiton in params dictionary!")
-
   def _ssrf_name(self, idx):
     '''generate the Sample Specific Run Folder name.'''
     return os.path.join(self.work_dir, 'sample_{:09d}'.format(idx))
@@ -922,14 +889,12 @@ class SensitivityDriver(object):
         elif output['type'] == 'flux':
           data_y = ou.sum_monthly_flux_to_yearly(data_m)
 
+        # Not sure what is most meaningful here, so collapsing PFT dimension
+        # into ecosystem totals...
+        data_y_eco = ou.sum_across_pfts(data_y)
+
         # TODO: Need to handle non-PFT outputs!
-        # TODO: Need to handle the PFT dimension...when this was restricted 
-        #       to a single PFT, then we could just extract that PFT's data
-        #       But now now sure what to do? Get all PFT's? Or perhaps summarize
-        #       across PFTs? Need to figure out 1) what is the proper analysis
-        #       2) what to do about selecting by the pft dimension since 
-        #       self.pftnum() returns None now...
-        ostr += '{:2.3f},'.format(data_y[-1,self.pftnum(),self.PXy,self.PXx])
+        ostr += '{:2.3f},'.format(data_y_eco[-1,self.PXy,self.PXx])
 
       ostr = ostr.rstrip(',') # remove trailing comma...
  
