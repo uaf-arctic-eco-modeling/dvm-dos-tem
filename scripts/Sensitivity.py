@@ -417,13 +417,15 @@ class SensitivityDriver(object):
     -------
     None
     '''
-    try:
-      pft_verbose_name = pu.get_pft_verbose_name(
-        cmtnum=self.cmtnum(), pftnum=self.pftnum(), 
-        lookup_path=self.get_initial_params_dir()
-      )
-    except (AttributeError, ValueError) as e:
-      pft_verbose_name = ''
+    def lookup_pft_verbose_name(row):
+      if row.pftnum >= 0 and row.pftnum < 10:
+        pft_verbose_name = pu.get_pft_verbose_name(
+          cmtnum=self.cmtnum(), pftnum=row.pftnum, 
+          lookup_path=self.get_initial_params_dir()
+        )
+      else:
+        pft_verbose_name = None
+      return pft_verbose_name
 
     # Not all class attributes might be initialized, so if an 
     # attribute is not set, then print empty string.
@@ -434,6 +436,7 @@ class SensitivityDriver(object):
       # Might want to make this more specific to PFT column, 
       # in case there somehow ends up being bad data in one of the 
       # number columns that buggers things farther along?
+      df['PFT Name'] = df.apply(lookup_pft_verbose_name, axis=1)
       df = df.where(df.notna(), '')
       ps = df.to_string()
     except AttributeError:
@@ -447,16 +450,16 @@ class SensitivityDriver(object):
 
     info_str = textwrap.dedent('''\
       --- Setup ---
-      work_dir: {}
-      site: {}
-      pixel(y,x): ({},{})
-      cmtnum: {}
-      pftnum: {} ({})
-      sampling_method: {}
+      work_dir: {workdir}
+      site: {site}
+      pixel(y,x): ({pxY},{pxX})
+      cmtnum: {cmtnum}
+      sampling_method: {sampmeth}
 
       '''.format(
-        self.work_dir, self.site, self.PXy, self.PXx, self.cmtnum(),
-        '?', '?', self.sampling_method))
+        workdir=self.work_dir, site=self.site, 
+        pxY=self.PXy, pxX=self.PXx, cmtnum=self.cmtnum(),
+        sampmeth=self.sampling_method))
 
     info_str += textwrap.dedent('''\
       --- Parameters ---
