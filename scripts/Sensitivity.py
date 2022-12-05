@@ -144,7 +144,16 @@ def generate_lhc(N, param_props):
   # ??
   sample_matrix = l * mat_diff + lo_bounds
 
-  return pd.DataFrame(sample_matrix, columns=[p['name'] for p in param_props])
+  def make_col_name(pdict):
+    '''Given a parameter, returns a column name like 'rhq10' or 'cmax_1', 
+    depending on whether the parameter is specified by PFT or not...'''
+    s = f"{pdict['name']}"
+    if 'pftnum' in pdict.keys():
+      s+= f"_pft{pdict['pftnum']}"
+    return s
+
+
+  return pd.DataFrame(sample_matrix, columns=[make_col_name(p) for p in param_props])
 
 
   
@@ -296,12 +305,24 @@ class SensitivityDriver(object):
 
       if pname in p_dd.keys():
         p_initial = p_dd[pname]
+        p_bounds = [p_initial - (p_initial*perturbation), p_initial + (p_initial*perturbation)]
+        self.params.append(dict(name=pname, bounds=p_bounds, initial=p_initial, cmtnum=cmtnum))
       else:
-        p_initial = p_dd['pft{}'.format(pftnum)][pname]
+        if pftnum == 'all':
+          for pftidx in range(0,10):
+            p_initial = p_dd['pft{}'.format(pftidx)][pname]
+            p_bounds = [p_initial - (p_initial*perturbation), p_initial + (p_initial*perturbation)]
+            self.params.append(dict(name=pname, bounds=p_bounds, initial=p_initial, cmtnum=cmtnum, pftnum=pftidx))
+        elif type(pftnum) is list:
+          for pftidx in pftnum:
+            p_initial = p_dd['pft{}'.format(pftidx)][pname]
+            p_bounds = [p_initial - (p_initial*perturbation), p_initial + (p_initial*perturbation)]
+            self.params.append(dict(name=pname, bounds=p_bounds, initial=p_initial, cmtnum=cmtnum, pftnum=pftidx))
+        elif type(pftnum) is int:
+          p_initial = p_dd['pft{}'.format(pftnum)][pname]
+          p_bounds = [p_initial - (p_initial*perturbation), p_initial + (p_initial*perturbation)]
+          self.params.append(dict(name=pname, bounds=p_bounds, initial=p_initial, cmtnum=cmtnum, pftnum=pftnum))
 
-      p_bounds = [p_initial - (p_initial*perturbation), p_initial + (p_initial*perturbation)]
-
-      self.params.append(dict(name=pname, bounds=p_bounds, initial=p_initial, cmtnum=cmtnum, pftnum=pftnum))
 
     if self.sampling_method == 'lhc':
       self.sample_matrix = generate_lhc(Nsamples, self.params)
@@ -435,7 +456,7 @@ class SensitivityDriver(object):
 
       '''.format(
         self.work_dir, self.site, self.PXy, self.PXx, self.cmtnum(),
-        self.pftnum(), pft_verbose_name, self.sampling_method))
+        '?', '?', self.sampling_method))
 
     info_str += textwrap.dedent('''\
       --- Parameters ---
@@ -487,11 +508,41 @@ class SensitivityDriver(object):
     '''
     #print("PROC:{}  ".format(multiprocessing.current_process()), row)
 
+    def rowkey2pdict(key):
+      '''
+      Examples
+      =========
+      >>> rowkey2pdict('cmax_pft3')
+      ('cmax', '3') 
+      >>> rowkey2pdict('rhq10')
+      (rhq10, None)
+      '''
+      pname, *p = key.split('_pft')
+      if len(p) > 0:
+        pftnum = p[0]
+      else:
+        pftnum = None
+      return pname, pftnum
+
+    def pdict2rowkey(pdict):
+      '''Takes a parameter dict and returns something like cmax_1
+      
+      Examples
+      ========
+      >>> pdict2rowkey({'name': 'cmax','bounds': [117.0, 143.0], 'initial': 130.0,'cmtnum': 5, 'pftnum': 0})
+      'cmax_pft0'
+      '''
+      if 'pftnum' in pdict.keys():
+        key = "{}_pft{}".format(pdict['name'], pdict['pftnum'] )
+      else:
+        key = pdict['name']
+      return key
+
     if initial:
       #print("Ignoring idx, it is not really relevant here.")
       #print("Ignoring row dict, not really relevant here.")
       # Build our own row dict, based on initial values in params
-      row = {x['name']:x['initial'] for x in self.params}
+      row = {pdict2rowkey(pd): pd['initial'] for pd in self.params}
       sample_specific_folder = os.path.join(self.work_dir, 'initial_value_run')
       if os.path.isdir(sample_specific_folder):
         shutil.rmtree(sample_specific_folder)
@@ -537,18 +588,38 @@ class SensitivityDriver(object):
       json.dump(config, f, indent=2)
 
     # modify parameters according to sample_matrix (param values)
-    # and the  param_spec (cmtnum, pftnum)
-    # Iterating over sample_matrix, which is a pandas.DataFrame, we use
-    # itertuples() which coughs up a named tuple. So here we get the
-    # name, and the sample value out of the named tuple for use in 
-    # calling param_utils update function.
-    for pname, pval in row.items():
-    #for pname, pval in zip(row._fields[1:], row[1:]):
-      pdict = list(filter(lambda x: x['name'] == pname, self.params))[0]
-      pu.update_inplace(
-          pval, os.path.join(sample_specific_folder, 'parameters'), 
-          pname, pdict['cmtnum'], pdict['pftnum']
-      )
+
+    # row is something like {'cmax_pft1':2344, 'cmax_pft2':2344, 'rhq10':45} 
+    # 
+    # iterate over the items in row, we need to find the parameter dict (out of
+    # the self.params list) that matches the item in the row. The problem is
+    # that in the parameter dict, pft is encoded with a key, where as in the
+    # row, it is a  mathced the item in the row...so we can look up the 
+    for rowkey, pval in row.items():
+      pname, pft = rowkey2pdict(rowkey)
+      for pdict in self.params:
+        if pname == pdict['name']:
+          if not pft and 'pftnum' not in pdict.keys():
+            #print("GOT ONE!", rowkey, pval, pname, pft, pdict, flush=True)
+            pu.update_inplace(
+              pval, os.path.join(sample_specific_folder, 'parameters'), 
+              pdict['name'], pdict['cmtnum'], pft
+            )
+          if pft and 'pftnum' in pdict.keys():
+            if int(pft) == int(pdict['pftnum']):
+              #print("GOT ONE!", rowkey, pval, pname, pft, pdict, flush=True)
+              pu.update_inplace(
+                pval, os.path.join(sample_specific_folder, 'parameters'), 
+                pdict['name'], pdict['cmtnum'], pft
+              )
+          else:
+            pass # might be same param name, different pft
+        else:
+          pass # wrong parameter dict
+
+
+
+
 
   def setup_multi(self, force=False):
     '''
@@ -820,7 +891,17 @@ class SensitivityDriver(object):
       # we can leverage the same parallelism for running this function
       # Then we'll need another step to collect all the csv files into one
       # at the end.
-      pstr = ','.join(['p_{}'.format(p['name']) for p in self.params]) 
+
+      def make_col_name(pdict):
+        '''Given a parameter, returns a column name like p_rhq10 or p_cmax_1, 
+        depending on whether the parameter is specified by PFT or not...'''
+        s = f"p_{pdict['name']}"
+        if 'pftnum' in pdict.keys():
+          s+= f"_pft{pdict['pftnum']}"
+        return s
+
+      pstr = ','.join(make_col_name(p) for p in self.params)
+      #pstr = ','.join(['p_{}???'.format(p['name'], ) for p in self.params]) 
       ostr = ','.join(['o_{}'.format(o['name']) for o in self.outputs])
       hdrline = pstr + ',' + ostr + '\n'
       with open(sensitivity_outfile, 'w') as f:
@@ -839,6 +920,12 @@ class SensitivityDriver(object):
           data_y = ou.sum_monthly_flux_to_yearly(data_m)
 
         # TODO: Need to handle non-PFT outputs!
+        # TODO: Need to handle the PFT dimension...when this was restricted 
+        #       to a single PFT, then we could just extract that PFT's data
+        #       But now now sure what to do? Get all PFT's? Or perhaps summarize
+        #       across PFTs? Need to figure out 1) what is the proper analysis
+        #       2) what to do about selecting by the pft dimension since 
+        #       self.pftnum() returns None now...
         ostr += '{:2.3f},'.format(data_y[-1,self.pftnum(),self.PXy,self.PXx])
 
       ostr = ostr.rstrip(',') # remove trailing comma...
