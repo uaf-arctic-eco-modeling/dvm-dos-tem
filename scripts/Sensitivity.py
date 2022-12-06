@@ -813,15 +813,19 @@ class SensitivityDriver(object):
         for f in sorted(results, key=sort_stage):
           stg_data = nc.Dataset(f, 'r')
           d = stg_data.variables[o['name']][:]
-          # if o['type'] == 'pool':
-          #   d = ou.average_monthly_pool_to_yearly(d)
-          # elif o['type'] == 'flux':
-          #   d = ou.sum_monthly_flux_to_yearly(d)
-          d = pd.DataFrame(d[:,self.pftnum(),self.PXy,self.PXx], columns=[o['name']])
+          if o['type'] == 'pool':
+            d = ou.average_monthly_pool_to_yearly(d)
+          elif o['type'] == 'flux':
+            d = ou.sum_monthly_flux_to_yearly(d)
+          else:
+            print("What the heck??")
+          d = ou.sum_across_pfts(d)
+          d = pd.DataFrame(d[:,self.PXy,self.PXx], columns=[o['name']])
           all_data = all_data.append(d, ignore_index=True)
 
         axes[i].plot(all_data)
         axes[i].set_ylabel(o['name'])
+    plt.show()
 
   def extract_data_for_sensitivity_analysis(self, posthoc=True, multi=True):
     '''
