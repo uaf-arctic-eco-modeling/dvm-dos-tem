@@ -214,12 +214,8 @@ class SensitivityDriver(object):
     clean : bool
       CAREFUL! - this will forecfully remove the entrire tree rooted at `work_dir`.
     '''
+    self.set_work_dir(work_dir) # this sets up the initial parameter directory
 
-    # Made this one private because I don't want it to get confused with 
-    # the later params directories that will be created in each run folder.
-    self.__initial_params = '/work/parameters'
-
-    self.work_dir = work_dir 
     self.site = '/data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_CALM_Toolik_LTER_10x10/'
     self.PXx = 0
     self.PXy = 0
@@ -234,6 +230,18 @@ class SensitivityDriver(object):
 
     if clean and work_dir is not None:
       self.clean()
+
+  def set_work_dir(self, path):
+    '''Sets the working directory for the object. Assumes that the working
+    directory will have an initial_value_run directory that will have the
+    initial parameter values.'''
+    if path:
+      self.work_dir = path
+      self.__initial_params = os.path.join(self.work_dir, 'initial_value_run', 'parameters')
+    else:
+      self.work_dir = None
+      self.__initial_params = None
+
 
   def get_initial_params_dir(self):
     '''Read only accessor to private member variable.'''
