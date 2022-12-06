@@ -242,37 +242,42 @@ class SensitivityDriver(object):
   def design_experiment(self, Nsamples, cmtnum, params, pftnums, 
       percent_diffs=None, sampling_method='lhc'):
     '''
-    Builds bounds based on initial values found in dvmdostem parameter 
-    files (cmt_*.txt files) and the `percent_diffs` array. 
-    The `percent_diffs` array gets used to figure out how far
-    the bounds should be from the initial value. Defaults to initial 
-    value +/-10%.
+    Builds bounds based on initial values found in dvmdostem parameter files
+    (cmt_*.txt files) and the `percent_diffs` array. The `percent_diffs` array
+    gets used to figure out how far the bounds should be from the initial value.
+    Defaults to initial value +/-10%.
 
     Sets instance values for `self.params` and `self.sample_matrix`.
 
     Parameters
     ----------
     Nsamples : int
-      How many samples to draw. One sample equates to one run to be done with 
+      How many samples to draw. One sample equates to one run to be done with
       the parameter values in the sample.
     
     cmtnum : int
-      Which community type number to use for initial parameter values, for
-      doing runs and analyzing outputs.
+      Which community type number to use for initial parameter values, for doing
+      runs and analyzing outputs.
     
     params : list of strings
-      List of parameter names to use in the experiment. Each name must be
-      in one of the dvmdostem parameter files (cmt_*.txt).
+      List of parameter names to use in the experiment. Each name must be in one
+      of the dvmdostem parameter files (cmt_*.txt).
     
-    pftnums : list of ints
-      List of PFT numbers, one number for each parameter in `params`. Use
-      `None` in the list for any non-pft parameter (i.e. a soil parameter).
+    pftnums : list, same length as params list
+      Each item in the items may be on of: 
+       1) int, 2) the string 'all', 3) list of ints, or 4) None.
+      If the list item is an int, then that is the PFT number to be used for the
+      corresponding parameter. If the list item is the string 'all' then ALL 10
+      PFTs are enabled for this parameter. If the list item is a list of ints,
+      then the corresponding parameter will be setup for each PFT in the list.
+      If the list item is None, then the parameter is assumed to be a soil
+      parameter and no PFT info is set or needed.
     
     percent_diffs : list of floats
-      List values, one for each parameter in `params`. The value is used to
-      the bounds with respect to the intial parameter value. I.e. passing
-      a value in the percent_diff array of .3 would mean that bounds should
-      be +/-30% of the initial value of the parameter.
+      List values, one for each parameter in `params`. The value is used to the
+      bounds with respect to the intial parameter value. I.e. passing a value in
+      the percent_diff array of .3 would mean that bounds should be +/-30% of
+      the initial value of the parameter.
     
     sampling_method : str
       A string indicating which sampling method to use for getting values for
