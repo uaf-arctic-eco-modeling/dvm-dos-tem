@@ -156,6 +156,47 @@ def generate_lhc(N, param_props):
   return pd.DataFrame(sample_matrix, columns=[make_col_name(p) for p in param_props])
 
 
+def params_from_seed(seedpath, params, pftnums, percent_diffs, cmtnum):
+  '''
+  Builds a list of "param specifications" from the data in the `seedpath` and
+  for params specified in `params` for the pfts specified in `pftnums` and the
+  Community specified in `cmtnum`. Sets bounds based on the intial values
+  found in the `seedpath` and according to the percent_diffs.
+  '''
+
+  assert len(params) == len(pftnums), "params list and pftnums list must be same length!"
+  assert len(params) == len(percent_diffs), "params list and percent_diffs list must be same length"
+
+  final = []
+  plu = pu.build_param_lookup(seedpath)
+
+  for pname, pftnum, perturbation in zip(params, pftnums, percent_diffs):
+    original_pdata_file = pu.which_file(seedpath, pname, lookup_struct=plu)
+
+    p_db = pu.get_CMT_datablock(original_pdata_file, cmtnum)
+    p_dd = pu.cmtdatablock2dict(p_db)
+
+    if pname in p_dd.keys():
+      p_initial = p_dd[pname]
+      p_bounds = [p_initial - (p_initial*perturbation), p_initial + (p_initial*perturbation)]
+      final.append(dict(name=pname, bounds=p_bounds, initial=p_initial, cmtnum=cmtnum, pftnum=None))
+    else:
+      if pftnum == 'all':
+        for pftidx in range(0,10):
+          p_initial = p_dd['pft{}'.format(pftidx)][pname]
+          p_bounds = [p_initial - (p_initial*perturbation), p_initial + (p_initial*perturbation)]
+          final.append(dict(name=pname, bounds=p_bounds, initial=p_initial, cmtnum=cmtnum, pftnum=pftidx))
+      elif type(pftnum) is list:
+        for pftidx in pftnum:
+          p_initial = p_dd['pft{}'.format(pftidx)][pname]
+          p_bounds = [p_initial - (p_initial*perturbation), p_initial + (p_initial*perturbation)]
+          final.append(dict(name=pname, bounds=p_bounds, initial=p_initial, cmtnum=cmtnum, pftnum=pftidx))
+      elif type(pftnum) is int:
+        p_initial = p_dd['pft{}'.format(pftnum)][pname]
+        p_bounds = [p_initial - (p_initial*perturbation), p_initial + (p_initial*perturbation)]
+        final.append(dict(name=pname, bounds=p_bounds, initial=p_initial, cmtnum=cmtnum, pftnum=pftnum))
+
+  return final
   
 
 
@@ -185,21 +226,10 @@ class SensitivityDriver(object):
   --------
   Instantiate object, sets pixel, outputs, working directory, 
   site selection (input data path)
-  >>> driver = SensitivityDriver()
+  >>> driver = SensitivityDriver('/tmp/Sensitivity-inline-test')
+  >>> driver.set_seed_path('/work/parameters')
 
-  Set the working directory for the driver (using something temporary for this
-  test case).
-  >>> driver.work_dir = '/tmp/Sensitivity-inline-test'
 
-  Show info about the driver object:
-  >>> driver.design_experiment(5, 4, params=['cmax','rhq10','nfall(1)'], pftnums=[2,None,2])
-  >>> driver.sample_matrix
-          cmax     rhq10  nfall(1)
-  0  63.536594  1.919504  0.000162
-  1  62.528847  2.161819  0.000159
-  2  67.606747  1.834203  0.000145
-  3  59.671967  2.042034  0.000171
-  4  57.711999  1.968631  0.000155
 
   '''
   def __init__(self, work_dir=None, sampling_method=None, clean=False):
@@ -214,7 +244,9 @@ class SensitivityDriver(object):
     clean : bool
       CAREFUL! - this will forecfully remove the entrire tree rooted at `work_dir`.
     '''
-    self.set_work_dir(work_dir) # this sets up the initial parameter directory
+    self.__seedpath = None
+
+    self.set_work_dir(work_dir)
 
     self.site = '/data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_CALM_Toolik_LTER_10x10/'
     self.PXx = 0
@@ -233,19 +265,22 @@ class SensitivityDriver(object):
 
   def set_work_dir(self, path):
     '''Sets the working directory for the object. Assumes that the working
-    directory will have an initial_value_run directory that will have the
+    directory will have an initial_params_rundir directory that will have the
     initial parameter values.'''
     if path:
       self.work_dir = path
-      self.__initial_params = os.path.join(self.work_dir, 'initial_value_run', 'parameters')
+      self.__initial_params_rundir = os.path.join(self.work_dir, 'initial_params_run_dir', 'parameters')
     else:
       self.work_dir = None
-      self.__initial_params = None
+      self.__initial_params_rundir = None
+
+  def set_seed_path(self, path):
+    self.__seedpath = path
 
 
   def get_initial_params_dir(self):
     '''Read only accessor to private member variable.'''
-    return self.__initial_params
+    return self.__initial_params_rundir
 
   def design_experiment(self, Nsamples, cmtnum, params, pftnums, 
       percent_diffs=None, sampling_method='lhc'):
@@ -304,43 +339,15 @@ class SensitivityDriver(object):
     if not percent_diffs:
       percent_diffs = np.ones(len(params)) * 0.1 # use 10% for default perturbation
 
-    assert len(params) == len(pftnums), "params list and pftnums list must be same length!"
-    assert len(params) == len(percent_diffs), "params list and percent_diffs list must be same length"
-
-    self.params = []
-    plu = pu.build_param_lookup(self.__initial_params)
-
-    for pname, pftnum, perturbation in zip(params, pftnums, percent_diffs):
-      original_pdata_file = pu.which_file(self.__initial_params, pname, lookup_struct=plu)
-
-      p_db = pu.get_CMT_datablock(original_pdata_file, cmtnum)
-      p_dd = pu.cmtdatablock2dict(p_db)
-
-      if pname in p_dd.keys():
-        p_initial = p_dd[pname]
-        p_bounds = [p_initial - (p_initial*perturbation), p_initial + (p_initial*perturbation)]
-        self.params.append(dict(name=pname, bounds=p_bounds, initial=p_initial, cmtnum=cmtnum))
-      else:
-        if pftnum == 'all':
-          for pftidx in range(0,10):
-            p_initial = p_dd['pft{}'.format(pftidx)][pname]
-            p_bounds = [p_initial - (p_initial*perturbation), p_initial + (p_initial*perturbation)]
-            self.params.append(dict(name=pname, bounds=p_bounds, initial=p_initial, cmtnum=cmtnum, pftnum=pftidx))
-        elif type(pftnum) is list:
-          for pftidx in pftnum:
-            p_initial = p_dd['pft{}'.format(pftidx)][pname]
-            p_bounds = [p_initial - (p_initial*perturbation), p_initial + (p_initial*perturbation)]
-            self.params.append(dict(name=pname, bounds=p_bounds, initial=p_initial, cmtnum=cmtnum, pftnum=pftidx))
-        elif type(pftnum) is int:
-          p_initial = p_dd['pft{}'.format(pftnum)][pname]
-          p_bounds = [p_initial - (p_initial*perturbation), p_initial + (p_initial*perturbation)]
-          self.params.append(dict(name=pname, bounds=p_bounds, initial=p_initial, cmtnum=cmtnum, pftnum=pftnum))
-
+    self.params = params_from_seed(seedpath=self.__seedpath, params=params, 
+        pftnums=pftnums, percent_diffs=percent_diffs, cmtnum=cmtnum)
 
     if self.sampling_method == 'lhc':
       self.sample_matrix = generate_lhc(Nsamples, self.params)
     elif sampling_method == 'uniform':
       self.sample_matrix = self.generate_uniform(Nsamples, self.params)
+    else:
+      raise RuntimeError(f"{self.sampling_method} is not implemented as a sampling method.")
 
   def save_experiment(self, name=''):
     '''Write the parameter properties and sensitivity matrix to files.'''
@@ -360,7 +367,8 @@ class SensitivityDriver(object):
     self.sample_matrix.to_csv(sm_fname, index=False)
     pd.DataFrame(self.params).to_csv(pp_fname, index=False)
     with open(info_fname, 'w') as f:
-      f.write("sampling_method: {}".format(self.sampling_method))
+      f.writelines("sampling_method: {}\n".format(self.sampling_method))
+      f.writelines("initial_params_seedpath: {}\n".format(self.__seedpath))
 
   def load_experiment(self, param_props_path, sample_matrix_path, info_path):
     '''Load parameter properties and sample matrix from files.'''
@@ -371,6 +379,8 @@ class SensitivityDriver(object):
     for l in data:
       if 'sampling_method' in l:
         self.sampling_method = l.split(':')[1].strip()
+      if 'initial_params_seedpath' in l:
+        self.__seedpath = l.split(':')[1].strip()
 
     self.sample_matrix = pd.read_csv(sample_matrix_path)
     self.params = pd.read_csv(param_props_path, 
@@ -430,6 +440,7 @@ class SensitivityDriver(object):
     -------
     None
     '''
+
     def lookup_pft_verbose_name(row):
       if row.pftnum >= 0 and row.pftnum < 10:
         pft_verbose_name = pu.get_pft_verbose_name(
@@ -559,7 +570,7 @@ class SensitivityDriver(object):
       #print("Ignoring row dict, not really relevant here.")
       # Build our own row dict, based on initial values in params
       row = {pdict2rowkey(pd): pd['initial'] for pd in self.params}
-      sample_specific_folder = os.path.join(self.work_dir, 'initial_value_run')
+      sample_specific_folder = os.path.join(self.work_dir, self.get_initial_params_dir())
       if os.path.isdir(sample_specific_folder):
         shutil.rmtree(sample_specific_folder)
     else:
@@ -622,12 +633,15 @@ class SensitivityDriver(object):
               pdict['name'], pdict['cmtnum'], pft
             )
           if pft and 'pftnum' in pdict.keys():
-            if int(pft) == int(pdict['pftnum']):
-              #print("GOT ONE!", rowkey, pval, pname, pft, pdict, flush=True)
-              pu.update_inplace(
-                pval, os.path.join(sample_specific_folder, 'parameters'), 
-                pdict['name'], pdict['cmtnum'], pft
-              )
+            if pdict['pftnum'] is not None:
+              if int(pft) == int(pdict['pftnum']):
+                #print("GOT ONE!", rowkey, pval, pname, pft, pdict, flush=True)
+                pu.update_inplace(
+                  pval, os.path.join(sample_specific_folder, 'parameters'), 
+                  pdict['name'], pdict['cmtnum'], pft
+                )
+            else:
+              pass # pftnum key is set, but value is None, so not a PFT parameter...
           else:
             pass # might be same param name, different pft
         else:
