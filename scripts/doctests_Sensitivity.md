@@ -1,7 +1,7 @@
 # Basic testing of Sensitivity.py module
 
 This file is intended to both exercise the basic functionality of the
-Sensitivity Analaysis process and to demonstrage the API. An end user would not
+Sensitivity Analysis process and to demonstrate the API. An end user would not
 be expected to follow these steps exactly, but should be able to read along with
 the tests here and see how Sensitivity.py might be used.
 
@@ -17,64 +17,155 @@ Load the library
 
     >>> import Sensitivity
 
-Instantiate an object
+Instantiate a driver object:
 
     >>> sd = Sensitivity.SensitivityDriver()
 
-See what the working directory is. It should be nothing as we have not set
-anything up yet:
+In order to conduct a sensitivity analysis we must consider the following:
+
+ - the location where the runs and outputs will be stored
+ - the source for the initial parameter values
+ - the list of parameters that should be tested
+ - for each parameter, which PFT should be tested
+ - the community type that should be analyzed
+ - the scheme by which to modify parameter values (sampling stragegy and bounds)
+ - the outputs variables upon which the analysis will be conducted
+
+The `SensitivityDriver` object has properties and methods that will allow us to
+address the issues outlined above so that we can setup and conduct an anlysis.
+
+> NOTE: at present the module is under construction, and not all of the above
+> concerns are easily modified with the API. 
+
+The `SensitivityDriver` object has the concept of a "working directory", and a
+"seed path". The working directory is the folder where all the runs will be
+setup and carried out. Each run will have its own folder which holds the
+run-specific configuration, parameters, and output files. There is one special
+run folder named the `initial_params_run_dir` which holds the run with the
+intial parameter values. The parameter values in the `initial_params_run_dir`
+are set from the `seed_path`. Each of the other run directories within the
+working directory has parameter values that vary according to the data in the
+`sample_matrix`. The values in the `sample_matrix` are set based on:
+
+ - the seed values, 
+ - the parameters and PFTs under analysis,
+ - the sampling scheme, and 
+ - the bounds.
+
+If the working directory is not passed to the `SensitivityDriver` constructor,
+then there is no directory set.
 
     >>> print(type(sd.work_dir), sd.work_dir)
     <class 'NoneType'> None
 
-Set the working directory to a temporary location for this sample run.
+Here, we will set the working directory to a temporary location for this sample
+run.
 
-    >>> sd.work_dir = '/tmp/tests-Sensitivity'
+    >>> sd.set_work_dir('/tmp/tests-Sensitivity')
+    
+    >>> print(sd.work_dir)
+    /tmp/tests-Sensitivity
 
-There are two ways to setup an experiment. You can use the `design_experiment`
-convienience function or do it manually. Lets start by using the convienience
-function for an experiment that looks at the sensitivity of both PFT parameter
-and non-PFT parameters. The first argument for the convenience function is for
-the number of samples in the experiment (rows in the sensitivity matrix) and the
-second argument is for the CMT number to work with.
+At this point we can see the folder where the initial paramter values will be
+held, but there are no files there yet because we have not set the seed path:
 
-> Note: What happens if there is already data in the `work_dir`? You will get a
+    >>> print(sd.get_initial_params_dir())
+    /tmp/tests-Sensitivity/initial_params_run_dir
+
+Here we go ahead and set the seed path.
+
+    >>> sd.set_seed_path('/work/parameters')
+
+If you investigate your files you will still find that there is nothing in the
+working directory. Nothing has been setup yet, no folders have been created, and
+no parameters set or copied. We have simply told the `SensitivityDriver` where
+we would like the files to go, but we haven't actually initialized anything yet.
+
+To finish setting up the experment we need to create the `sample_matrix` and
+have all the individual sample run directories be setup with the correct
+parameter values from the sample matrix. In addition, the
+`initial_params_run_dir` should be setup with parameter values from the
+`seed_path`. All the runs should have common configuration interms of which
+pixel to run, which outputs are enabled, how many years to run, etc. 
+
+Lets start by using the convienience function for setting up an experiment that
+looks at the sensitivity of both PFT parameter and non-PFT parameters. There is
+a convenience funciton, `design_experiment`, that helps with configuring your
+run. The function takes 5 arguments:
+
+ - `Nsamples`: the number of rows in the sample matrix (number of runs to do)
+ - `cmtnum`: which community type to work with
+ - `params`: a list of parameter names to analyze
+ - `pftnums`: a list, same length as `params`, of the PFT numbers to work with
+   for each parameter, None for non-PFT parameters, nested list for multiple
+   PFTs per parameter.
+ - `sampling_method`: a string specifying a sampling method for determining
+   parameter values.
+
+> NOTE: What happens if there is already data in the `work_dir`? You will get a
 > `RuntimeError` indicating that you should run the `.clean()` method before
 > continuing.
+> 
+>     >>> import os
+>     >>> import pathlib
+> 
+> Make a junk file in the driver's working directory:
+>
+>     >>> pathlib.Path("/tmp/tests-Sensitivity/some/path/to/junkdirectory").mkdir(parents=True, exist_ok=True)
+> 
+> And then try running the convienience function. It should fail with an
+> exception.
+> 
+>     >>> sd.design_experiment(5, 4, params=['cmax'], pftnums=[2], 
+>     ...                      sampling_method='lhc')
+>     Traceback (most recent call last):
+>       ...
+>     RuntimeError: SensitivityDriver.work_dir is not empty! You must run SensitivityDriver.clean() before designing an > experiment.
+>
+> For this purpose there is a function for cleaning up:
+>
+>     >>> sd.clean()
 
-    >>> import os
-    >>> import pathlib
-
-Make a junk file at in the driver's working directory:
-
-    >>> pathlib.Path("/tmp/tests-Sensitivity/some/path/to/junkdirectory").mkdir(parents=True, exist_ok=True)
-
-And then try running the convienience function. It should fail with an
-exception.
-
-    >>> sd.design_experiment(5, 4,
-    ...   params=['cmax','rhq10','nfall(1)'],
-    ...   pftnums=[2,None,2], 
-    ...   sampling_method='lhc')
-    Traceback (most recent call last):
-      ...
-    RuntimeError: SensitivityDriver.work_dir is not empty! You must run SensitivityDriver.clean() before designing an experiment.
-
-So first we should clean up, then try making the experiment.
+First we should clean up, then try making the experiment.
 
     >>> sd.clean()
     >>> sd.design_experiment(5, 4,
     ...   params=['cmax','rhq10','nfall(1)'],
-    ...   pftnums=[2,None,2], 
+    ...   pftnums=[1,None,3], 
     ...   sampling_method='lhc')
 
-The driver object has methods for retrieving the pft and cmt being used for this
+The above experiment will modify parameters for `cmax` PFT 1, `nfall(1)` PFT 3,
+and `rhq10`, which is a soil parameter, so not connected to a specific PFT.
+
+The driver object has methods for retrieving the cmt being used for this
 driver: 
 
-    >>> sd.pftnum()
-    2
     >>> sd.cmtnum()
     4
+
+And now we can see that the `sample_matrix` is a Pandas DataFrame:
+
+    >>> print(type(sd.sample_matrix))
+    <class 'pandas.core.frame.DataFrame'>
+
+And that the shape is as we expect - 5 rows, and 3 columns:
+
+    >>> print(sd.sample_matrix.shape)
+    (5, 3)
+
+> NOTE: Utility function for generating a list of parameter specifications from
+> a seed path:
+> 
+>     >>> Sensitivity.params_from_seed(seedpath='/work/parameters', 
+>     ...    params=['rhq10','cmax'],
+>     ...    pftnums=[None,1],
+>     ...    percent_diffs=[.4, .1],
+>     ...    cmtnum=5)
+>     [{'name': 'rhq10', 'bounds': [1.2, 2.8], 'initial': 2.0, 'cmtnum': 5, 'pftnum': None}, {'name': 'cmax', 'bounds': [54.0, 66.0], 'initial': 60.0, 'cmtnum': 5, 'pftnum': 1}]
+>
+> This function simply returns a list of "parameter specification" dictionaries
+> that map parameter names to initial values and bounds, which have been
+> determined from the values in the `seed_path`.
 
 Lets just verify again where the experiment is being stored:
 
@@ -134,9 +225,6 @@ attributes.
     >>> sd.cmtnum() == sd2.cmtnum()
     True
 
-    >>> sd.pftnum() == sd2.pftnum()
-    True
-
 We won't be using the second driver object, so we can delete it.
 
     >>> del(sd2)
@@ -163,7 +251,7 @@ one folder for the intial value run as well as the files that are written when
 the experiment is saved:
 
     >>> sorted(os.listdir(sd.work_dir))
-    ['info.txt', 'initial_value_run', 'param_props.csv', 'sample_000000000', 'sample_000000001', 'sample_000000002', 'sample_000000003', 'sample_000000004', 'sample_matrix.csv']
+    ['info.txt', 'initial_params_run_dir', 'param_props.csv', 'sample_000000000', 'sample_000000001', 'sample_000000002', 'sample_000000003', 'sample_000000004', 'sample_matrix.csv']
 
 If we try to run the setup function again, it will fail complaining about output
 that may already exists. 
@@ -181,23 +269,38 @@ Use the `force` argument to proceed and overwrite any existing files.
     
     >>> sd.setup_multi(force=True)
 
-Should have the same files we had the first time:
+Now we should have the same files we had the first time:
 
     >>> sorted(os.listdir(sd.work_dir))
-    ['info.txt', 'initial_value_run', 'param_props.csv', 'sample_000000000', 'sample_000000001', 'sample_000000002', 'sample_000000003', 'sample_000000004', 'sample_matrix.csv']
+    ['info.txt', 'initial_params_run_dir', 'param_props.csv', 'sample_000000000', 'sample_000000001', 'sample_000000002', 'sample_000000003', 'sample_000000004', 'sample_matrix.csv']
 
-First we can spot check a couple parameter values in the sample folders to see
-that they were set according to the sample matrix:
+With all the sample directories setup, we can now spot check a couple parameter
+values in the sample folders to see that they were set according to the sample
+matrix.
 
+> NOTE: A user of the`SensitivtyDriver` object will not need to perform the
+> following steps, they are here as a test of the module to make sure that the
+> sample folders are being setup correctly.
+
+    >>> # Read the data in sample folder's parameter file
     >>> import param_util as pu
     >>> idx = 0
     >>> pfile = os.path.join(sd._ssrf_name(idx), "parameters/cmt_calparbgc.txt")
     >>> data = pu.get_CMT_datablock(pfile, sd.cmtnum())
     >>> dd = pu.cmtdatablock2dict(data)
-    >>> print("Value as set in file:", round(dd["pft{}".format(sd.pftnum())]["cmax"], 3))
-    Value as set in file: 63.537
-    >>> print("Value as set in sample_matrix:", sd.sample_matrix.cmax[idx].round(3))
-    Value as set in sample_matrix: 63.537
+
+    >>> # get the correct param spec out of the params list
+    >>> PS = [pdict for pdict in sd.params if pdict['name'] == 'cmax'][0]
+    >>> colname = 'cmax_pft{}'.format(PS['pftnum'])
+    >>> value_from_sample_matrix = sd.sample_matrix[colname][idx].round(3)
+    >>> value_from_sample_run_folder = round(dd["pft{}".format(PS['pftnum'])]["cmax"], 3)
+    >>> value_from_sample_matrix == value_from_sample_run_folder
+    True
+
+    >>> print("Value from run folder: {}".format(value_from_sample_run_folder))
+    Value from run folder: 348.426
+    >>> print("Value from sample matrix: {}".format(value_from_sample_matrix))
+    Value from sample matrix: 348.426
 
 We could get fancy and write some loops to check all the rest of the parameters
 and sample folders but for now, we'll assume its working.
