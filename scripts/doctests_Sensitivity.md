@@ -305,6 +305,33 @@ matrix.
 We could get fancy and write some loops to check all the rest of the parameters
 and sample folders but for now, we'll assume its working.
 
+    >>> # Clean up
+    >>> del(sd)
+
+# Check multi-pft functionality
+
+Next we can check that the multi-PFT functionality works:
+
+    >>> sd = Sensitivity.SensitivityDriver(clean=True)
+    >>> sd.set_work_dir('/tmp/tests-Sensitivity')
+    >>> sd.set_seed_path('/work/parameters')
+
+Here we are going to setup an experiment where `nfall(1)` is modified for 3
+different PFTs.
+
+    >>> sd.clean()
+    >>> sd.design_experiment(6, 5,
+    ...   params=['cmax','rhq10','nfall(1)'],
+    ...   pftnums=[1,None,[0,2,5]], 
+    ...   sampling_method='lhc')
+
+In this case we expect the sample matrix to have 6 rows, and 5 columns:
+
+    >>> sd.sample_matrix.shape
+    (6, 5)
+
+# Check runs
+
 The next step will be checking that running the samples works. At this time this
 is not practical because there is still too much data being printed to stdout to
 make the `doctest`s easy to write.
