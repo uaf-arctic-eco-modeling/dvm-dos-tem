@@ -269,7 +269,7 @@ class SensitivityDriver(object):
     initial parameter values.'''
     if path:
       self.work_dir = path
-      self.__initial_params_rundir = os.path.join(self.work_dir, 'initial_params_run_dir', 'parameters')
+      self.__initial_params_rundir = os.path.join(self.work_dir, 'initial_params_run_dir')
     else:
       self.work_dir = None
       self.__initial_params_rundir = None
