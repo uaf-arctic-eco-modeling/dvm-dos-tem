@@ -36,8 +36,8 @@ from bokeh.tile_providers import get_provider, Vendors
 
 import geopandas
 
-# import nest_asyncio
-# nest_asyncio.apply()
+import nest_asyncio
+nest_asyncio.apply()
 
 def get_corner_coords(file_path):
   '''
@@ -191,62 +191,79 @@ def tapselect_handler(attr, old, new):
   #from IPython import embed; embed()
   #import pdb; pdb.set_trace()
 
+
+def load_data(folder):
+  '''
+  '''
+  print("Looking in the following folders for datasets to map:")
+  if len(folders) > 10:
+    for x in folders[0:3]:
+      print("    {}".format(x))
+    print("    ... {} total folders ...".format(len(folders)))  
+    for x in folders[-3:]:
+      print("    {}".format(x))
+  else:
+    print(folders)
+
+  # hand built dict trying to be valid geojson
+  feature_collection = build_feature_collection(folders)
+  print(f"feature_collection: {type(feature_collection)}")
+
+  # GEOJson is assumed to be un-projected, WGS84
+  vgj = geojson.loads(geojson.dumps(feature_collection))
+
+  # Have to explicitly extract the geometries so the column can be set 
+  # for the geopandas GeoDataFrame
+  geoms = [shapely.geometry.shape(i['geometry']) for i in vgj['features']]
+  geodf = geopandas.GeoDataFrame(vgj, geometry=geoms)
+
+  # tell geopandas what the CRS is for the data
+  geodf = geodf.set_crs(epsg=4326) # WGS84
+  print("feature collecton bounds in wgs84: ", geodf.total_bounds)
+
+  # now re-project to web mercator (use by tiling service)
+  geodf = geodf.to_crs(epsg=3857) # web mercator.
+  print("feature collection bounds in web mercator: ", geodf.total_bounds)
+
+  # Add a name column...
+  geodf['name'] = [os.path.dirname(i['properties']['name']).split('/')[-1] for i in vgj.features]
+
+  return geodf
+
+
 #### Prepare data
 #from IPython import embed; embed()
 #folders = get_io_folder_listing("/Users/tobeycarman/Documents/SEL/dvmdostem-input-catalog", pattern="*")
-folders = get_io_folder_listing("/home/UA/tcarman2/dvm-dos-tem/input-staging-area", pattern="*")
+#folders = get_io_folder_listing("/home/UA/tcarman2/dvm-dos-tem/input-staging-area", pattern="*")
 #folders = get_io_folder_listing("/workspace/Shared/Tech_Projects/dvmdostem/input-catalog/", pattern="*")
 #folders = get_io_folder_listing("/iodata", pattern="*")
-#folders = get_io_folder_listing("/data/input-catalog", pattern="*")
+folders = get_io_folder_listing("/data/input-catalog", pattern="*")
 
-print("Looking in the following folders for datasets to map:")
-if len(folders) > 10:
-  for x in folders[0:3]:
-    print("    {}".format(x))
-  print("    ... {} total folders ...".format(len(folders)))  
-  for x in folders[-3:]:
-    print("    {}".format(x))
-else:
-  print(folders)
+geodf = load_data(folders)
 
-# hand built dict trying to be valid geojson
-feature_collection = build_feature_collection(folders)
-print("feature_collection: {}".format(type(feature_collection)))
-
-# GEOJson is assumed to be un-projected, WGS84
-vgj = geojson.loads(geojson.dumps(feature_collection))
-
-# Have to explicitly extract the geometries so the column can be set 
-# for the geopandas GeoDataFrame
-geoms = [shapely.geometry.shape(i['geometry']) for i in vgj['features']]
-geodf = geopandas.GeoDataFrame(vgj,geometry=geoms)
-
-# tell geopandas what the CRS is for the data
-geodf = geodf.set_crs(epsg=4326) # WGS84
-print("feature collecton bounds in wgs84: ", geodf.total_bounds)
-
-# now re-project to web mercator (use by tiling service)
-geodf = geodf.to_crs(epsg=3857) # web mercator.
-print("feature collection bounds in web mercator: ", geodf.total_bounds)
-
-# Add a name column...
-geodf['name'] = [os.path.dirname(i['properties']['name']).split('/')[-1] for i in vgj.features]
-
-print("---- geodf columns -----")
-print(geodf.columns)
-
-print(geodf.type[0:3])
-print(geodf.features[0:3])
-print(geodf.geometry[0:3])
-print(geodf.name[0:3])
+print(geodf.head())
 
 xmin,ymin,xmax,ymax=geodf.total_bounds
 
 geosource = GeoJSONDataSource(geojson=geodf.to_json())
 
-print(geodf.head())
+
 ##### Plot
 #output_file("geojson.html")
+
+# input_areas_df = geopandas.GeoDataFrame({
+#     '':[],
+#     'geometry': [],
+#   }, crs="EPSG:4326")
+# points_df = geopandas.GeoDataFrame({
+#     'col1': ['demo1'], 
+#     'geometry': [shapely.geometry.Point(1,1)]
+#   }, crs="EPSG:4326")
+
+
+
+folder_input = bkm.TextInput(value='', placeholder='FOLDER PATH')
+folder_input.on_change('value', load_data)
 
 
 
@@ -267,8 +284,29 @@ map_plot.add_tools(bkm.CrosshairTool(overlay=[width_span, height_span]))
 
 def dot_plot(lat, lon):
 
-  print(f"Trying to place dot at lat={lat}, lon={lon}")
-  map_plot.circle([lon],[lat], size=20, color='pink', alpha=0.5)
+  try:
+    lat = float(lat)
+    lon = float(lon)
+
+    targetSR = osr.SpatialReference()
+    sourceSR = osr.SpatialReference()
+    sourceSR.ImportFromEPSG(4326) # WGS84
+    targetSR.ImportFromEPSG(3857) # Web Mercator
+    coordTrans = osr.CoordinateTransformation(sourceSR, targetSR)
+    print("**************")
+    print(f'coordTrans={coordTrans}')
+    transformed_point = coordTrans.TransformPoint(lat, lon)
+    print(f'transformed_point={transformed_point}')
+    
+
+
+    print(f"Trying to place dot at lat={lat}, lon={lon}")
+    map_plot.circle([transformed_point[0]],[transformed_point[1]], size=15, color='yellow', alpha=0.65)
+
+  except:
+    print("Can't transform point, try different numbers...")
+
+
 
 
 def dot_plot_coords_update(attr, old, new):
@@ -279,12 +317,17 @@ def dot_plot_coords_update(attr, old, new):
 
 
 
+  
+  
+
 # def dot_plot_lat_update(attr, new, old):
 #   print(f'attr={}, old={}, new={}')
 #   print()"NOW WHAT??")
 
-dot_plot_input_lat = bkm.TextInput(placeholder='LAT')
-dot_plot_input_lon = bkm.TextInput(placeholder='LON')
+dot_plot_input_lat = bkm.TextInput(value='65.4', placeholder='LAT')
+dot_plot_input_lon = bkm.TextInput(value='-155.4', placeholder='LON')
+
+dot_plot_coords_update('','','')
 
 dot_plot_input_lon.on_change('value', dot_plot_coords_update)
 dot_plot_input_lat.on_change('value', dot_plot_coords_update)
