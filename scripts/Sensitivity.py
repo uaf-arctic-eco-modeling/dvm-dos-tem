@@ -204,45 +204,52 @@ class SensitivityDriver(object):
   '''
   Sensitivity Analysis Driver class.
 
-  Driver class for conducting dvmdostem SensitivityAnalysis.
+  Driver class for conducting ``dvmdostem`` SensitivityAnalysis.
   Methods for cleaning, setup, running model, collecting outputs.
 
   Basic overview of use is like this:
-   1. Instantiate driver object.
-   2. Setup/design the experiment (parameters, to use, 
-      number of samples, etc)
-   3. Use driver object to setup the run folders.
-   4. Use driver object to carry out model runs.
-   5. Use driver object to summarize/collect outputs.
-   6. Use driver object to make plots, do analysis.
+
+    1. Instantiate driver object.
+    2. Setup/design the experiment (working directory, seed path, parameters to 
+       use, number of samples, etc)
+    3. Use driver object to setup the run folders.
+    4. Use driver object to carry out model runs.
+    5. Use driver object to summarize/collect outputs.
+    6. Use driver object to make plots, do analysis.
+
 
   Parameters
   ----------
+  work_dir : str, optional
+    The working directory path of the driver object.
+
+  sampling_method : str one of {None, 'lhc','uniform'}, optional
+    The method by which the sample should be chosen. 
+
+  clean : bool, optional
+    CAREFUL! - this will forecfully remove the entrire tree rooted at `work_dir`.
+
 
   See Also
   --------
 
   Examples
   --------
-  Instantiate object, sets pixel, outputs, working directory, 
-  site selection (input data path)
+
   >>> driver = SensitivityDriver('/tmp/Sensitivity-inline-test')
   >>> driver.set_seed_path('/work/parameters')
-
-
 
   '''
   def __init__(self, work_dir=None, sampling_method=None, clean=False):
     '''
-    Constructor
+    Constructor.
+
     Hard code a bunch of stuff for now...
 
-    Parameters
-    ----------
-    work_dir : 
-
-    clean : bool
-      CAREFUL! - this will forecfully remove the entrire tree rooted at `work_dir`.
+    Returns
+    -------
+    SensitivityDriver
+      A constructed driver object.
     '''
     self.__seedpath = None
 
@@ -265,8 +272,8 @@ class SensitivityDriver(object):
 
   def set_work_dir(self, path):
     '''Sets the working directory for the object. Assumes that the working
-    directory will have an initial_params_rundir directory that will have the
-    initial parameter values.'''
+    directory will have an ``initial_params_rundir`` directory that will have
+    the initial parameter values.'''
     if path:
       self.work_dir = path
       self.__initial_params_rundir = os.path.join(self.work_dir, 'initial_params_run_dir')
@@ -307,8 +314,13 @@ class SensitivityDriver(object):
       of the dvmdostem parameter files (cmt_*.txt).
     
     pftnums : list, same length as params list
-      Each item in the items may be on of: 
-       1) int, 2) the string 'all', 3) list of ints, or 4) None.
+      Each item in the items may be one of: 
+
+       1. int 
+       2. the string 'all' 
+       3. list of ints 
+       4. None
+
       If the list item is an int, then that is the PFT number to be used for the
       corresponding parameter. If the list item is the string 'all' then ALL 10
       PFTs are enabled for this parameter. If the list item is a list of ints,
@@ -509,12 +521,21 @@ class SensitivityDriver(object):
     return info_str
 
   def core_setup(self, row, idx, initial=False):
-    '''
+    '''Sets up a sample run folder for the given ``idx`` and ``row``.
+
+    The following things are assumed:
+
+     - you have called set_working_directory()
+     - you have called set_seed_path()
+     - you have called designe experiment - OR you at least have:
+     - you have a sample_matrix
+     - you have a list of param specs
+
     Do all the work to setup and configure a model run.
     Uses the `row` parameter (one row of the sample matrix) to
     set the parameter values for the run.
 
-    Currently relies on command line API for various dvmdostem
+    Currently relies on command line API for various ``dvmdostem``
     helper scripts. Would be nice to transition to using a Python
     API for all these helper scripts (modules).
 
@@ -621,7 +642,7 @@ class SensitivityDriver(object):
     # iterate over the items in row, we need to find the parameter dict (out of
     # the self.params list) that matches the item in the row. The problem is
     # that in the parameter dict, pft is encoded with a key, where as in the
-    # row, it is a  mathced the item in the row...so we can look up the 
+    # row, it is an item in the row...so we can look up the 
     for rowkey, pval in row.items():
       pname, pft = rowkey2pdict(rowkey)
       for pdict in self.params:
