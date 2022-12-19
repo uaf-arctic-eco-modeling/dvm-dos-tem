@@ -35,6 +35,8 @@ class BadInputFilesValueError(ValueError):
 class MissingInputFilesValueError(ValueError):
   '''Raise when not enough files are present.'''
 
+class MustSupplyPixelCoordsError(ValueError):
+  '''Raise when user must supply pixel coordinates(i.e. command line flag --yx)'''
 
 def verify_input_files(in_folder):
   '''
@@ -310,8 +312,6 @@ def climate_ts_plot(args):
   ROWS = 4
   COLS = 1
 
-  y, x = args.yx
-
   gs = gridspec.GridSpec(ROWS, COLS)
 
   def try_infer_time_axis(nc_dataset):
@@ -344,9 +344,11 @@ def climate_ts_plot(args):
     return idx
 
   if args.type == 'spatial-temporal-summary':
-
+    
     if args.stitch:
       print("Warning: Ignoring command line argument --stitch")
+
+    # Build up the indices
     hds = nc.Dataset(os.path.join(args.input_folder, CLIMATE_FILES[0]))
     pds = nc.Dataset(os.path.join(args.input_folder, CLIMATE_FILES[1]))
 
@@ -358,7 +360,7 @@ def climate_ts_plot(args):
     hidx = pd.DatetimeIndex(pd.date_range(
         start=nc.num2date(htcV[0], htcV.units, htcV.calendar).strftime(),
         end=nc.num2date(htcV[-1], htcV.units, htcV.calendar).strftime(),
-        freq='MS') # <-- month starts)
+        freq='MS') # <-- month starts
     )
     pidx = pd.DatetimeIndex(pd.date_range(
         start=nc.num2date(ptcV[0], ptcV.units, ptcV.calendar).strftime(),
@@ -372,19 +374,10 @@ def climate_ts_plot(args):
         freq='MS') # <-- month starts
     )
 
-    df = pd.DataFrame({}, index=full_index)
+    # Find statistics across spatial dimensions.
+    # Results in one timeseries for each variable. 
+    dss = {} # <-- "data summarized spatially"
     for var in VARS:
-      hS = pd.Series(hds.variables[var][:,y,x], index=hidx).reindex(full_index)
-      pS = pd.Series(pds.variables[var][:,y,x], index=pidx).reindex(full_index)
-      hckey = 'historic {}'.format(var)
-      pckey = 'projected {}'.format(var)
-      df[hckey] = hS
-      df[pckey] = pS
-
-
-    # Take means across spatial dimensions. Results in one timeseries for each
-    # variable 
-    for v in VARS:
       '''
       >>> time,Y,X = (4,2,2)
       >>> np.arange(time*Y*X).reshape((time,Y,X))
@@ -407,36 +400,56 @@ def climate_ts_plot(args):
       >>> np.average(a.reshape((-1, Y*X)), axis=1)
       array([ 1.5,  5.5,  9.5, 13.5])
       '''
+      # Get a handle to the netCDF variable
+      hncV = hds.variables[var]
+      pncV = pds.variables[var]
 
-      hncV = hds.variables[v]
-      pncV = pds.variables[v]
-
+      # Flatten the spatial dims into one single dimension
       spatial_flat_hncV = hncV[:].reshape( (-1, len(hds.variables['Y']) * len(hds.variables['X'])) )
       spatial_flat_pncV = pncV[:].reshape( (-1, len(pds.variables['Y']) * len(pds.variables['X'])) )
 
-      avh = np.mean(spatial_flat_hncV, axis=1)
-      avp = np.mean(spatial_flat_pncV, axis=1)
+      # Get stats across spatial domain for each time step
+      dss['h sp min {}'.format(var)] = pd.Series(spatial_flat_hncV.min(axis=1), index=hidx).reindex(full_index)
+      dss['h sp max {}'.format(var)] = pd.Series(spatial_flat_hncV.max(axis=1), index=hidx).reindex(full_index)
+      dss['h sp mean {}'.format(var)] = pd.Series(spatial_flat_hncV.mean(axis=1), index=hidx).reindex(full_index)
+      dss['h sp std {}'.format(var)] = pd.Series(spatial_flat_hncV.std(axis=1), index=hidx).reindex(full_index)
 
-      hS = pd.Series(avh, index=hidx).reindex(full_index)
-      pS = pd.Series(avp, index=pidx).reindex(full_index)
+      dss['p sp min {}'.format(var)] = pd.Series(spatial_flat_pncV.min(axis=1), index=pidx).reindex(full_index)
+      dss['p sp max {}'.format(var)] = pd.Series(spatial_flat_pncV.max(axis=1), index=pidx).reindex(full_index)
+      dss['p sp mean {}'.format(var)] = pd.Series(spatial_flat_pncV.mean(axis=1), index=pidx).reindex(full_index)
+      dss['p sp std {}'.format(var)] = pd.Series(spatial_flat_pncV.std(axis=1), index=pidx).reindex(full_index)
 
-      hckey = 'h sp mean {}'.format(v)
-      pckey = 'p sp mean {}'.format(v)
+    # Make it all into a giant pandas.DataFrame
+    df_summarized_spatially = pd.DataFrame(dss)
 
-      df[hckey] = hS
-      df[pckey] = pS
+    # Resample from monthly to yearly (compress time dimension)
+    # There is redundancy here -- we could drop some columns in the resampled
+    # data frames, because for example tair is not used (nor should it be) in
+    # the rsmpl_sum data frame.
+    rsmpl_mean = df_summarized_spatially.resample('A').mean()
+    rsmpl_sum = df_summarized_spatially.resample('A').sum()
 
-    # Get annual stats
-    rsmpl_mean = df.resample('A').mean()
-    rsmpl_std = df.resample('A').std()
-    rsmpl_sum = df.resample('A').sum()
+    # This fixes an issue where the variables that are resampled by sum method
+    # (precip, nirr) end up with zeros in the ends of the timeseries, 
+    # i.e. the historic columns will have zeros in the projected range
+    # of the timeseries. This is problematic for plotting, so in the following
+    # block we try to set everything to NaN.
+    for var in VARS:
+      for stat in ['min','max','mean','std']:
+        key = f'h sp {stat} {var}'
+        rsmpl_sum[key][rsmpl_sum.index > pidx[0]] = rsmpl_sum[key][rsmpl_sum.index > pidx[0]] * np.nan
 
+        key = f'p sp {stat} {var}'
+        rsmpl_sum[key][rsmpl_sum.index < pidx[0]] = rsmpl_sum[key][rsmpl_sum.index < pidx[0]] * np.nan
+
+    # Setup plot(s)
     fig = plt.figure(figsize=(11,8.5))
-    plt_title = "\n".join(("Annual Averages", args.input_folder, ",".join(CLIMATE_FILES)))
+    plt_title = "\n".join(("Spatial & Annual Averages +/- 1 std", args.input_folder, "+".join(CLIMATE_FILES)))
     fig.suptitle(plt_title) 
 
     axes = []
     for i, var in enumerate(VARS):
+      # Everyone shares axes for linked panning/zooming
       if i > 0:
         ax = plt.subplot(gs[i,0], sharex=axes[0])
         axes.append(ax)
@@ -444,23 +457,43 @@ def climate_ts_plot(args):
         ax = plt.subplot(gs[i,0])
         axes.append(ax)
 
-      hckey = 'historic {}'.format(var)
-      pckey = 'projected {}'.format(var)
-
       ax.set_title(var)
       ax.set_ylabel(hds.variables[var].units)
 
+      # These variable require resampling by SUM
       if var == 'precip' or var == 'nirr':
-        ax.plot(rsmpl_sum.index, rsmpl_sum[hckey])
-        ax.plot(rsmpl_sum.index, rsmpl_sum[pckey])
+        ax.plot(rsmpl_sum.index, rsmpl_sum[f'h sp mean {var}'], linewidth=0.5)
+        ax.plot(rsmpl_sum.index, rsmpl_sum[f'p sp mean {var}'], linewidth=0.5)
+        ax.fill_between(
+            rsmpl_sum.index, 
+            rsmpl_sum[f'h sp mean {var}'] + rsmpl_sum[f'h sp std {var}'], 
+            rsmpl_sum[f'h sp mean {var}'] - rsmpl_sum[f'h sp std {var}'], 
+            color='lightgray', alpha=1.0, edgecolor=['lightgray','lightgray'],
+        )
+        ax.fill_between(
+            rsmpl_sum.index, 
+            rsmpl_sum[f'p sp mean {var}'] + rsmpl_sum[f'p sp std {var}'], 
+            rsmpl_sum[f'p sp mean {var}'] - rsmpl_sum[f'p sp std {var}'], 
+            color='lightgray', alpha=1.0, edgecolor=['lightgray','lightgray'],
+        )
         ax.set_ylabel(hds.variables[var].units.replace('month', 'year'))
 
-      else:
-        ax.plot(rsmpl_mean.index, rsmpl_mean[hckey])
-        ax.plot(rsmpl_mean.index, rsmpl_mean[pckey])
-
-      #ax.plot(rsmpl_mean.index, rsmpl_mean['h sp mean {}'.format(var)], color='red', linewidth=.5)
-      #ax.fill_between(rsmpl_std.index, rsmpl_std['h sp mean'], 
+      # These variables require resampling by MEAN
+      elif var == 'tair' or var == 'vapor_press':
+        ax.plot(rsmpl_mean.index, rsmpl_mean[f'h sp mean {var}'], linewidth=0.5)
+        ax.plot(rsmpl_mean.index, rsmpl_mean[f'p sp mean {var}'], linewidth=0.5)
+        ax.fill_between(
+            rsmpl_mean.index, 
+            rsmpl_mean[f'h sp mean {var}'] + rsmpl_mean[f'h sp std {var}'], 
+            rsmpl_mean[f'h sp mean {var}'] - rsmpl_mean[f'h sp std {var}'], 
+            color='lightgray', alpha=1.0, edgecolor=['lightgray','lightgray'],
+        )
+        ax.fill_between(
+            rsmpl_mean.index, 
+            rsmpl_mean[f'p sp mean {var}'] + rsmpl_mean[f'p sp std {var}'], 
+            rsmpl_mean[f'p sp mean {var}'] - rsmpl_mean[f'p sp std {var}'], 
+            color='lightgray', alpha=1, edgecolor=['lightgray', 'lightgray'],
+        )
 
     for i, ax in enumerate(axes):
       if ax != axes[-1]:
@@ -469,6 +502,10 @@ def climate_ts_plot(args):
     plt.show(block=True)
 
   elif args.type == 'raw':
+
+    if not args.yx:
+      raise MustSupplyPixelCoordsError("Must supply pixel coordinates!")
+    y, x = args.yx
 
     if args.stitch:
 
@@ -620,7 +657,7 @@ if __name__ == '__main__':
     single pixel. Makes 2 figures, one for historic, one for projected.
     '''))
   climate_ts_plot_parser.add_argument('--type', choices=['spatial-temporal-summary', 'raw'], required=True, help="")
-  climate_ts_plot_parser.add_argument('--yx', type=int, nargs=2, required=True, help="The Y, X position of the pixel to plot")
+  climate_ts_plot_parser.add_argument('--yx', type=int, nargs=2, required=False, help="The Y, X position of the pixel to plot")
   climate_ts_plot_parser.add_argument('--stitch', action='store_true', help="Attempt to stitch together the historic and projected data along the time axis")
   #climate_ts_plot_parser.add_argument('--yrs-slice', type=?? help="")
 
