@@ -14,12 +14,27 @@ import bokeh.models as bkm
 import bokeh.plotting as bkp
 import bokeh.layouts as bkl
 
+# On atlas:
+# connect to vpn
+# Make tunnel: ssh -L 8686:localhost:8686 -N tcarman2@atlas01.snap.uaf.edu -i ~/.ssh/atlas-key
+# ssh to atlas01
+#   conda activate cri-py38
+#   bokeh serve scripts/bk_timeslider.py --port 8686
+#
+# access in local browser
+
+# Inside docker:
+# pip install -r requirements-general-dev.txt
+# bokeh serve scripts/bk_timeslider.py --port 7002
+# access in local browser
+
 
 # atlas
 #ff = "input-staging-area/cru-ts40_ar5_rcp85_gfdl-cm3_moose_basin_v2022_11_17_29x36/historic-explicit-fire.nc"
+ff = "input-staging-area/cru-ts40_ar5_rcp85_ncar-ccsm4_shaw_basin_v2022_11_16_40x54/historic-explicit-fire.nc"
 
 # docker
-ff = '/data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_CALM_Circle_10x10/historic-explicit-fire.nc'
+#ff = '/data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_CALM_Circle_10x10/historic-explicit-fire.nc'
 
 # MacOS
 # scp -r atlas:/home/UA/tcarman2/dvm-dos-tem/input-staging-area/cru-ts40_ar5_rcp85_gfdl-cm3_moose_basin_v2022_11_17_29x36/ ~/Downloads 
