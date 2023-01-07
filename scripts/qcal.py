@@ -207,7 +207,15 @@ class QCal(object):
         sys.path = [os.path.join('/tmp/','dvmdostem-user-{}-tmp-cal'.format(os.getuid()))]
         print("Loading calibration_targets from : {}".format(sys.path))
         import calibration_targets as ct
-        caltargets = {'CMT{:02d}'.format(v['cmtnumber']):v for k, v in iter(ct.calibration_targets.items())}
+        caltargets = {}
+        for k, v in ct.calibration_targets.items():
+          if k == 'meta' and 'cmtnumber' not in v.keys():
+            pass # no need for the meta data here...
+          elif 'cmtnumber' in v.keys():
+            cmtkey = "CMT{:02d}".format(v['cmtnumber'])
+            caltargets[cmtkey] = v
+          else:
+            print("Warning: something is wrong with target block {}".format(k))
         del ct
 
         print("Cleaning up temporary targets and __init__.py file used for import...")
@@ -220,7 +228,15 @@ class QCal(object):
         sys.path = [os.path.join(ref_targets_dir, 'calibration')]
         print("Loading calibration_targets from : {}".format(sys.path))
         import calibration_targets as ct
-        caltargets = {'CMT{:02d}'.format(v['cmtnumber']):v for k, v in iter(ct.calibration_targets.items())}
+        caltargets = {}
+        for k, v in ct.calibration_targets.items():
+          if k == 'meta' and 'cmtnumber' not in v.keys():
+            pass # no need for the meta data here...
+          elif 'cmtnumber' in v.keys():
+            cmtkey = "CMT{:02d}".format(v['cmtnumber'])
+            caltargets[cmtkey] = v
+          else:
+            print("Warning: something is wrong with target block {}".format(k))
         del ct
         print("Resetting path...")
         sys.path = old_path
