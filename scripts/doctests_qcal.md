@@ -17,7 +17,7 @@ variables to measure against the targets. So the inital work of these tests will
 simply be setting up a dummy model run, and running the model.
 
 Start by defining a working directory for the tests and making sure it is
-    cleaned of any prior experiments.
+cleaned of any prior experiments.
 
     >>> TMP_DIR = "/tmp/dvmdostem-doctests-qcal"
     >>> import shutil
