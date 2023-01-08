@@ -45,6 +45,11 @@ The code is available on Github: https://github.com/uaf-arctic-eco-modeling/dvm-
    calibration
    workshop_march_2022/lab1_basic_model_run
    workshop_march_2022/lab5_make_contribution
+   scripts_API
+
+
+.. scripts
+.. modules
 
 
 ..  
