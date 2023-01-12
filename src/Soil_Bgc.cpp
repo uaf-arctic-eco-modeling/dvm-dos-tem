@@ -586,14 +586,18 @@ void Soil_Bgc::deltac() {
   double ksomcr = 0.0;    // for CR SOM (in model, somcr)
 
   for (int il =0; il<cd->m_soil.numsl; il++) {
-
-    // Yuan: vwc normalized by total pore - this will allow
-    // respiration (methane/oxidation) implicitly
-    bd->m_soid.rhmoist[il] = getRhmoist( ed->m_soid.sws[il],
-                                         bgcpar.moistmin,
-                                         bgcpar.moistmax,
-                                         bgcpar.moistopt );
-
+    //HG: 01122023 - this condition allows for winter respiration
+    //(Natali et al. 2019, Nature Climate Change)
+    if (ed->m_sois.ts[il] <0.) {
+      bd->m_soid.rhmoist[il] = 1;
+    } else {
+      // Yuan: vwc normalized by total pore - this will allow
+      // respiration (methane/oxidation) implicitly
+      bd->m_soid.rhmoist[il] = getRhmoist( ed->m_soid.sws[il],
+                                           bgcpar.moistmin,
+                                           bgcpar.moistmax,
+                                           bgcpar.moistopt );
+    }
     bd->m_soid.rhq10[il] = getRhq10(ed->m_sois.ts[il]);
     krawc  = bgcpar.kdrawc[il];
     ksoma  = bgcpar.kdsoma[il];
