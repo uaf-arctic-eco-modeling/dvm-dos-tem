@@ -17,7 +17,7 @@ tools.
 .. note::
 
   This lab is more or less a duplicate of an existing wiki page:
-  https://github.com/ua-snap/dvm-dos-tem/wiki/How-To:-Run-dvmdostem-and-plot-output-via-Docker.
+  https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem/wiki/How-To:-Run-dvmdostem-and-plot-output-via-Docker.
 
   We are in the process of migrating all content from the wiki and assorted
   Google Documents to this Sphinx based documentation system, therefore this
@@ -178,7 +178,7 @@ Get the code
 ************
 
 With your tools setup, it is time to get started. Navigate to
-https://github.com/ua-snap/dvm-dos-tem and find the link to clone the
+https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem and find the link to clone the
 repository. On your computer, open a terminal and navigate to a place where you
 would like your copy of ``dvmdostem`` to be stored. Copy the clone address and
 use it to run the ``$ git clone`` command in your terminal. You might notice
@@ -209,11 +209,11 @@ the files in the dvm-dos-tem directory.
 .. note::
 
   Notice that when you run ``$ git remote -v`` you are presented with some text
-  indicating that your remote is named ‘origin’ and points to the Github ua-snap
-  repository. To be consistent with this tutorial and the rest of our
-  documentation, you should rename this remote to ‘upstream’ and point ‘origin’
-  to your personal fork of the code (if you have one). To do this use the ``$
-  git remote rename <old> <new>`` command.
+  indicating that your remote is named ‘origin’ and points to the Github
+  uaf-arctic-eco-modeling repository. To be consistent with this tutorial and
+  the rest of our documentation, you should rename this remote to ‘upstream’ and
+  point ‘origin’ to your personal fork of the code (if you have one). To do this
+  use the ``$ git remote rename <old> <new>`` command.
 
 .. _git branch:
 .. note::

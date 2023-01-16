@@ -386,10 +386,10 @@ people to contribute.
 ===========================
 Version Control and Hosting
 ===========================
-This project is using Git for version control and Github for hosting. The 
-primary fork of the code (referred to as “upstream”) is currently hosted under 
-the ua-snap organization [#]_, so the primary (upstream) repository address is: 
-https://github.com/ua-snap/dvm-dos-tem.
+This project is using Git for version control and Github for hosting. The
+primary fork of the code (referred to as “upstream”) is currently hosted under
+the uaf-arctic-eco-modeling organization [#]_, so the primary (upstream)
+repository address is: https://uaf-arctic-eco-modeling.github.io/dvm-dos-tem.
 
 .. note::
    * The Source Control Management (SCM) or Version Control software is 
@@ -479,8 +479,8 @@ assumes that you are using the following convention:
   codebase, so the URL will look something like: 
   ``https://github.com/<your user name>/dvm-dos-tem``.
 * The remote named ``upstream`` should generally point to
-  ``https://github.com/ua-snap/dvm-dos-tem`` or
-  ``git@github.com:ua-snap/dvm-dos-tem.git`` if you will be contributing.
+  ``https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem`` or
+  ``git@github.com:uaf-arctic-eco-modeling/dvm-dos-tem.git`` if you will be contributing.
 
 It is **strongly encouraged** that you go to the effort of making sure your
 current git branch is displayed in your terminal shell prompt. There are many
@@ -573,7 +573,7 @@ potential problem with merges.
 
     .. code:: shell
 
-        Merge branch 'master' from github.com:ua-snap/dvm-dos-tem into 'long-running-branch'
+        Merge branch 'master' from github.com:uaf-arctic-eco-modeling/dvm-dos-tem into 'long-running-branch'
 
     All well and good, but later, once you work has evolved, you may decide to
     change the name of long-running-branch to something more relevant:
@@ -690,7 +690,7 @@ Releases are currently made on an as-needed basis by tcarman2@alaska.edu or
 rarutter@alaska.edu. 
 
 The steps are described in the ``HOWTO_RELEASE.md`` document and the result is 
-that release is visible here: https://github.com/ua-snap/dvm-dos-tem/releases
+that release is visible here: https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem/releases
 
 
 *******************************
@@ -797,5 +797,5 @@ Setting up with Ubuntu
 
 
 .. _Arctic Eco Modeling Slack: https://arctic-eco-modeling.slack.com
-.. _Github Issues: https://github.com/ua-snap/dvm-dos-tem/issues
+.. _Github Issues: https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem/issues
 .. _Semantic Versioning: https://semver.org

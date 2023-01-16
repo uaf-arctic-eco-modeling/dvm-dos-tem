@@ -30,7 +30,7 @@ This tutorial also assumes that you have:
  - A Github account. 
  - The ability to set up ssh keys for access to your Github account. (optional)
  - Been added as a collaborator with write access to the 
-   http://github.com/ua-snap/dvm-dos-tem repository.
+   http://github.com/uaf-arctic-eco-modeling/dvm-dos-tem repository.
 
 Begin by reading the :ref:`Version Management <software_development_info:Version
 Management>` section of this document for an overview of how the ``dvmdostem``
@@ -208,7 +208,7 @@ The steps:
 
 #. Once you have finished your work, use the Github website to Create a
    Pull Request. You want to request that your topic branch be merged
-   into the ua-snap/dvm-dos-tem master branch.
+   into the uaf-arctic-eco-modeling/dvm-dos-tem master branch.
 
 #. Engage in discussion with other folks using Github’s comments on the
    PR, Slack, or other communications.
