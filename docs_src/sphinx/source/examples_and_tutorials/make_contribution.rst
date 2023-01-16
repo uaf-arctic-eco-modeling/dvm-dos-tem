@@ -5,9 +5,9 @@
    ^, for subsubsections
    ", for paragraphs
 
-##########################
-March 2022 Workshop Lab 5
-##########################
+######################################
+Making a Contribution to the Codebase
+######################################
 
 This lab takes you through one possible workflow using Git and Github to make a
 modification to the codebase and have it included upstream. This is a somewhat

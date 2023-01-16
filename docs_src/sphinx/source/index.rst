@@ -43,8 +43,16 @@ The code is available on Github: https://github.com/uaf-arctic-eco-modeling/dvm-
    command_cheat_sheet
    common_acronyms
    calibration
-   workshop_march_2022/lab1_basic_model_run
-   workshop_march_2022/lab5_make_contribution
+
+.. toctree::
+    :maxdepth: 5
+    :numbered: 0
+    :caption: Examples and Tutorials
+    :hidden:
+
+    examples_and_tutorials/basic_model_run
+    examples_and_tutorials/plotting_options
+    examples_and_tutorials/make_contribution
 
 
 ..  

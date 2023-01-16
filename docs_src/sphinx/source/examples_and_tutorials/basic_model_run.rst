@@ -5,11 +5,11 @@
    ^, for subsubsections
    ", for paragraphs
 
-##########################
-March 2022 Workshop Lab 1
-##########################
+################################
+Basic Model Setup and Run
+################################
 
-This lab exercise (tutorial) walks through the process of making a basic model
+This exercise/tutorial walks through the process of making a basic model
 simulation. With this exercise you will get to interact with the code and a
 bunch of the supporting tools, including Docker, Git, and some visualization
 tools.
