@@ -6,7 +6,7 @@
    ", for paragraphs
 
 ######################################
-Making a Contribution to the Codebase
+Contributing to the Codebase
 ######################################
 
 This lab takes you through one possible workflow using Git and Github to make a
