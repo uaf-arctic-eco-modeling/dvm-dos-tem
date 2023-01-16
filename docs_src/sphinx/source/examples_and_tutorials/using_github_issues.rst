@@ -6,7 +6,10 @@
    ", for paragraphs
 
 ########################
-Using the Issue tracker
+Using the Issue Tracker
 ########################
 
-Write this...
+- What is an issue tracker
+- How to navigate the website
+- what info to include in the issue
+
