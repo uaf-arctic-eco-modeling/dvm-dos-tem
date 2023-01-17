@@ -18,8 +18,12 @@ Sensitivity Analysis Tools
 
 These are tools and APIs for carrying out Sensitivity Analysis.
 
-.. automodule:: Sensitivity
-    :members:
+.. note:: 
+    Leaving this out for the time-being. The docstrings will be fixed in the 
+    ``Sensitivity-multi-pft`` branch.
+
+.. .. automodule:: Sensitivity
+..     :members:
 
 ******************
 General Utilities
