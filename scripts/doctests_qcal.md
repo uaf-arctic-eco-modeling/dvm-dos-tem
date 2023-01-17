@@ -92,9 +92,9 @@ targets:
             modeled data: /tmp/dvmdostem-doctests-qcal/output
               pixel(y,x): (0,0)
             targets file: /tmp/dvmdostem-doctests-qcal/calibration
-        parameter files: /tmp/dvmdostem-doctests-qcal/parameters
-                    CMT: {'CMT05'}
-                    QCR: 44.19473466493039
+         parameter files: /tmp/dvmdostem-doctests-qcal/parameters
+                     CMT: {'CMT05'}
+                     QCR: 44.19473466493039
             Weighted QCR: 1.3323120712593841
     <BLANKLINE> 
 
@@ -105,9 +105,9 @@ frequently a little variation due to rounding errors.
             modeled data: /tmp/dvmdostem-doctests-qcal/dvmdostem
               pixel(y,x): (n/a,n/a)
             targets file: /tmp/dvmdostem-doctests-qcal/calibration
-        parameter files: /tmp/dvmdostem-doctests-qcal/parameters
-                    CMT: {'CMT05'}
-                    QCR: 44.19473466493039
+         parameter files: /tmp/dvmdostem-doctests-qcal/parameters
+                     CMT: {'CMT05'}
+                     QCR: 44.19473466493039
             Weighted QCR: 1.3323120712593834
     <BLANKLINE>    
 
