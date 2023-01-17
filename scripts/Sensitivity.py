@@ -204,53 +204,60 @@ class SensitivityDriver(object):
   '''
   Sensitivity Analysis Driver class.
 
-  Driver class for conducting ``dvmdostem`` SensitivityAnalysis.
-  Methods for cleaning, setup, running model, collecting outputs.
+  Driver class for conducting ``dvmdostem`` SensitivityAnalysis. Methods for
+  cleaning, setup, running model, collecting outputs.
 
   Basic overview of use is like this:
 
     1. Instantiate driver object.
-    2. Setup/design the experiment (working directory, seed path, parameters to 
+    2. Setup/design the experiment (working directory, seed path, parameters to
        use, number of samples, etc)
     3. Use driver object to setup the run folders.
     4. Use driver object to carry out model runs.
     5. Use driver object to summarize/collect outputs.
     6. Use driver object to make plots, do analysis.
 
-
   Parameters
   ----------
   work_dir : str, optional
     The working directory path of the driver object.
 
-  sampling_method : str one of {None, 'lhc','uniform'}, optional
-    The method by which the sample should be chosen. 
+  sampling_method : { None, 'lhc', 'uniform' }
+    Method that should be used to draw samples from the specified ranges in
+    order to construct the sample matrix. `lhc` will use the Latin Hyper Cube
+    sampling method and `uniform` will draw from a uniform distribution. The
+    default `None` is simply a placeholder.
 
-  clean : bool, optional
-    CAREFUL! - this will forecfully remove the entrire tree rooted at `work_dir`.
-
-
-  See Also
-  --------
+  clean : bool, default=False
+    CAREFUL! - this will forecfully remove the entrire tree rooted at
+    `work_dir`.
 
   Examples
   --------
+  Instantiate object, sets pixel, outputs, working directory, site selection
+  (input data path)
 
-  >>> driver = SensitivityDriver('/tmp/Sensitivity-inline-test')
-  >>> driver.set_seed_path('/work/parameters')
+      >>> driver = SensitivityDriver()
 
+  Set the working directory for the driver (using something temporary for this
+  test case).
+
+      >>> driver.work_dir = '/tmp/Sensitivity-inline-test'
+
+  Show info about the driver object:
+
+      >>> driver.design_experiment(5, 4, params=['cmax','rhq10','nfall(1)'], pftnums=[2,None,2])
+      >>> driver.sample_matrix
+              cmax     rhq10  nfall(1)
+      0  63.536594  1.919504  0.000162
+      1  62.528847  2.161819  0.000159
+      2  67.606747  1.834203  0.000145
+      3  59.671967  2.042034  0.000171
+      4  57.711999  1.968631  0.000155
   '''
   def __init__(self, work_dir=None, sampling_method=None, clean=False):
-    '''
-    Constructor.
+    '''Create a SensitivityDriver object.'''
 
-    Hard code a bunch of stuff for now...
-
-    Returns
-    -------
-    SensitivityDriver
-      A constructed driver object.
-    '''
     self.__seedpath = None
 
     self.set_work_dir(work_dir)
@@ -543,8 +550,7 @@ class SensitivityDriver(object):
     ----------
     row : dict
       One row of the sample matrix, in dict form. So like this:
-        `{'cmax': 108.2, 'rhq10': 34.24}`
-      with one key for each parameter name.
+      `{'cmax': 108.2, 'rhq10': 34.24}` with one key for each parameter name.
 
     idx : int
       The row index of the `sample_matrix` being worked on. Gets
@@ -789,13 +795,16 @@ class SensitivityDriver(object):
     the data will look like this, with one row for each sample, 
     and one column for each parameter followed by one column for
     each output:
-    p_cmax,  p_rhq10,   p_micbnup,   o_GPP,  o_VEGC
-    1.215,   2.108,     0.432,       0.533,  5.112
-    1.315,   3.208,     0.632,       0.721,  8.325
-    1.295,   1.949,     0.468,       0.560,  5.201
-    1.189,   2.076,     0.420,       0.592,  5.310
-    1.138,   2.035,     0.441,       0.537,  5.132
-    1.156,   1.911,     0.433,       0.557,  5.192
+
+    :: 
+
+      p_cmax,  p_rhq10,   p_micbnup,   o_GPP,  o_VEGC
+      1.215,   2.108,     0.432,       0.533,  5.112
+      1.315,   3.208,     0.632,       0.721,  8.325
+      1.295,   1.949,     0.468,       0.560,  5.201
+      1.189,   2.076,     0.420,       0.592,  5.310
+      1.138,   2.035,     0.441,       0.537,  5.132
+      1.156,   1.911,     0.433,       0.557,  5.192
     
     Return
     ------
@@ -864,40 +873,36 @@ class SensitivityDriver(object):
 
   def extract_data_for_sensitivity_analysis(self, posthoc=True, multi=True):
     '''
-    Creates a csv file in each run directory that summarizes
-    the run's parameters and outut. The csv file will look 
-    something like this:
+    Creates a csv file in each run directory that summarizes the run's
+    parameters and outut. The csv file will look something like this:
 
-    p_cmax,  p_rhq10,   p_micbnup,   o_GPP,  o_VEGC
-    1.215,   2.108,     0.432,       0.533,  5.112
+    ::
 
-    with one columns for each parameter and one column for 
-    each output. The
-
-    For each row in the sensitivity matrix (and corresponding 
-    run folder), 
-      For each variable specified in self.outputs:
-          - opens the NetCDF files that were output from
-            dvmdostem
-          - grabs the last datapoint
-          - writes it to the sensitivity.csv file
-
+        p_cmax,  p_rhq10,   p_micbnup,   o_GPP,  o_VEGC
+        1.215,   2.108,     0.432,       0.533,  5.112
     
+    with one column for each parameter and one column for each output.
+
+    ::
+
+      For each row in the sensitivity matrix (and corresponding run folder), 
+        For each variable specified in self.outputs:
+            - opens the NetCDF files that were output from dvmdostem
+            - grabs the last datapoint
+            - writes it to the sensitivity.csv file
 
     Parameters
     ----------
     posthoc : bool (Not implemented yet)
-      Flag for controlling whether this step should be run after the
-      model run or as part of the model run
+      Flag for controlling whether this step should be run after the model run
+      or as part of the model run
     
-    multi : bool (Not impolemented yet)
-      Flag for if the runs are done all in one directory or each in 
-      its own directory. If all runs are done in one directory
-      then paralleization is harder and this step of collating the
-      output data must be done at the end of the run before the next run
-      overwrites it.
+    multi : bool (Not implemented yet)
+      Flag for if the runs are done all in one directory or each in its own
+      directory. If all runs are done in one directory then paralleization is
+      harder and this step of collating the output data must be done at the end
+      of the run before the next run overwrites it.
       
-
     Returns
     -------
     None
