@@ -262,7 +262,7 @@ class SensitivityDriver(object):
 
     self.set_work_dir(work_dir)
 
-    self.site = '/data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_CALM_Toolik_LTER_10x10/'
+    self.site = '/work/demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10'
     self.PXx = 0
     self.PXy = 0
     self.outputs = [
