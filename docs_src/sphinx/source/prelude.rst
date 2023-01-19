@@ -104,6 +104,151 @@ mechanics of the following Git fundamentals:
 
 
 
+
+Software Development Patterns
+=================================
+At the highest level, the process of software development is simply “write 
+some code (instructions) and get a machine to carry out the instructions”. 
+At the end of the day, this is all we are trying to accomplish. However the 
+situation is never simple and there are an infinite number of ways to 
+accomplish such a seemingly simple task. When a computer programmer talks 
+about toolchains and environment they are talking about the setup for the 
+process of “write code and make a machine run it”. There is no single best 
+way to set up your environment, and each person has their own needs and 
+preferences. Sometimes there are constraints due to hardware (i.e. working 
+on a High Performance Computing system or a tiny embedded microprocessor), 
+sometimes the constraints come from available software tools or the skills 
+of the people writing the code. You will encounter a variety of patterns for 
+the environments and toolchains used in this project. Understanding these 
+patterns will help you select the best way to perform your work and have 
+it mesh with the existing project.
+
+Usually when you start writing some code you are in a purely exploratory 
+and experimental mode and you reach for whatever environment and toolchain 
+is comfortable and close at hand. Once your code has matured and you want to 
+make it available to someone else, you need to put some thought into the 
+environment and toolchain for working with the code. Also as your code 
+grows in complexity, different environments make certain operations 
+easier or harder.
+
+The majority of the dvmdostem code is designed to be run via command line 
+interface (CLI), meaning it is expected that you have a terminal (presumably 
+bash or something similar) on an Ubuntu-like operating system. You are 
+expected to interact with the programs by running the scripts or compiled 
+binaries from the command line (REPL).
+
+Following is a brief overview of a variety of different programming 
+environments and toolchain patterns.
+
+
+* Read Eval Print Loop (REPL, shell, terminal)
+  REPL stands for "**R**\ ead **E**\ val **P**\ rint **L**\ oop". The REPL can 
+  be written in nearly any language and can be designed to interpret nearly 
+  any language. Users may be familiar with a number of REPL implementations 
+  including the basic Python interpreterprompt (``>>>``), the IPython 
+  interpreter prompt (``[In 0]:``), and R prompt (``>``) orsimply the 
+  terminal prompt in their shell of choice (commonly bash). A REPL typically 
+  ingests one line of text, follows the instructions, and returns the user 
+  to the prompt. This is handy for prototyping, but quickly becomes tedious 
+  to type if you have multi-line instructions (code). For this reason there 
+  is the concept of a script which provides a means for submitting multiple 
+  lines of code to a REPL
+
+
+* GUI Application
+  Common, intuitive for exploration. User uses a mouse and keyboard to click 
+  buttons and interact with the software. May be written in a wide variety 
+  of languages, but typically requires a “framework” of existing code that 
+  helps with common patterns. Frameworks you might hear of are: Tcl/Tkinter, 
+  QT, Cocoa, Swing, SWT, Delphi.
+
+* Interpreted Program (script)
+  An interpreted programming language is translated from human-written 
+  code (instructions) into computer instructions (machine language) 
+  on-the-fly. Python is an interpreted language meaning that there is not 
+  an explicit compile step required to run the program. You simply submit 
+  the script (your Python code) to the Python interpreter and it is 
+  translated into machine code on the fly.
+
+* Compiled Program (binary) A compiled programming language required a dedicated
+  “build step” to translate the human-written code (instructions) into machine
+  code. The result of the build step is an object file or a “compiled binary”.
+  The main dvmdostem binary is a compiled C++ program. When the source code is
+  modified, you must run make to re-compile the project and create a new binary
+  object file before running it.
+
+* Integrated Development Environment (IDE)
+  Typically this is a GUI application that bundles together a bunch of handing 
+  tools into one package. In general the tools are:
+
+    * Text editor
+    * REPL
+    * Debugger
+    * Build tools
+    * File browser
+
+  There are many different IDEs each with their own advantages and disadvantages. 
+  Often IDEs are particularly suited to a certain language (i.e. PyCharm for 
+  Python, Eclipse for C/C++, etc).
+
+* IPython
+  IPython is simply an enhanced REPL for Python. It comes with heaps of extra 
+  features that make life easier, including support for multi-line statements, 
+  built-in help, auto-complete features, and much more.
+
+* Basic IDE
+  All you really need for writing compiled or interpreted programs are a text 
+  editor and a terminal that will let you compile the program (if necessary) 
+  and execute it.
+
+* Jupyter Notebook
+  This is a novel addition to the traditional programming toolset. Jupyter 
+  Notebooks combine features of:
+
+    * an advanced (enhanced) REPL, 
+    * an IDE,
+    * formatted writing/documentation system and,
+    * run-time for the program.
+
+  This is accomplished using a client server architecture. In order to execute 
+  the code in a Jupyter Notebook, you must also run (or connect to) a 
+  “Notebook Server” which is a python environment and run-time. One advantage 
+  of this is that the client portion can be an interactive web page that is 
+  viewable for anyone with a standard web browser - provided they can make 
+  requests to a functioning backend server which provides the Python run-time.
+
+  The server can actually run a variety of languages, so it is possible to 
+  use R or Julia or a number of other languages as the notebook code cell 
+  language.
+
+  Notebooks are great for:
+
+    * Intermingling code and documentation or explanations (formatted text)
+    * Experimenting with small code snippets
+    * Presenting interactive plots from remote servers without needing an XWindow or other ``DISPLAY`` forwarding system
+    * Developing and prototyping code
+
+  Notebooks are challenging for:
+
+    * Version control
+    * Writing code that is easy to run in a non-notebook environment (library code)
+    * Groups that do not have the bandwidth or abilities for running individual notebook servers or to run and maintain a central notebook server
+    * Debugging certain types of process
+
+
+* Virtual Machine
+
+  In order to wrap up an environment such that you can preserve it or pass it to
+  someone else, people have devised the concept of a Virtual Machine (VM). In
+  2022, there are innumerable ways to run a VM (VMware, Parallels, Multipass,
+  Docker, etc), each with its own tradeoffs. The important thing to remember is
+  that a Virtual Machine attempts to encapsulate an environment. Each of the
+  items in the above list (Notebook, IPython, IDE, etc) might be able to run
+  inside a virtual machine. If you are not provided with a perfectly functioning
+  environment it is often up to you to understand what you need for an execution
+  context and set it up for yourself; a VM of some variety frequently provides
+  some way to achieve this.
+
 ********************
 Version Control
 ********************
