@@ -259,7 +259,7 @@ Version Control and Hosting
 ===========================
 This project is using Git for version control and Github for hosting. The
 primary fork of the code (referred to as “upstream”) is currently hosted under
-the uaf-arctic-eco-modeling organization [#]_, so the primary (upstream)
+the uaf-arctic-eco-modeling organization, so the primary (upstream)
 repository address is: https://uaf-arctic-eco-modeling.github.io/dvm-dos-tem.
 
 .. note::
@@ -279,10 +279,6 @@ upstream repository is only granted to trusted collaborators. We gladly
 accept contributions to the code via pull request from anyone, but the pull 
 request will have to be merged by a collaborator with write access to the 
 upstream repo. See the branching and workflow sections below for more details.
-
-.. [#] As of September 2022, this is true; we anticipate moving to a new 
-       Github Organization in the next 6 months or so. 
-
  
 
 
