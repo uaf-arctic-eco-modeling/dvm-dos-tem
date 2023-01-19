@@ -254,6 +254,85 @@ Version Control
 ********************
 
 
+Getting Help
+==============
+
+General Git help is beyond the scope of this the `dvmdostem` documentation. Here
+a few key concepts that the documentation assumes you are familiar with:
+
+ * What is a commit.
+ * What is a SHA id.
+ * Difference between a fork and a clone.
+ * Difference between git push, pull, fetch, and pull request (PR).
+ * Difference between git branch, merge and rebase.
+
+Here are several recommendations for general Git help:
+
+ * https://git-scm.com/book/en/v2
+ * https://www.atlassian.com/git
+ * http://sethrobertson.github.io/GitBestPractices
+
+.. note::
+   It is important to make commits that are concise, organized, and readable, 
+   thus fulfilling the goals of using a version control system. This comes 
+   down to using git on a day-to-day basis and learning:
+  
+   * what is a commit,
+   * how to write a good commit message,
+   * how to separate different concerns into different commits,
+   * how to fine tune a commit (interactive rebase, amend and when 
+     to use it),
+   * understanding what types of files or information should not be kept 
+   * under version control,
+   * how to use branches,
+   * how to merge branches, and
+   * the implications of making merges in an environment with multiple 
+     developers.
+
+
+Tools
+=========
+
+It is possible to use ``git`` purely from the command line, and in many 
+cases this is the easiest way to go. However for some people and some 
+situations a Graphical User Interface (GUI) is really helpful. Find a solution 
+that works for you and your computing platform! There are generally two major 
+functions of the Git GUIs, sometimes bundled in one application, and 
+sometimes not:
+
+ * Viewing the project history.
+ * Adding to the project history (making commits, pushing, pulling, 
+   merging, rebasing).
+
+In 2022 there are many many graphical front ends to Git, and many text 
+editors and IDEs have built in support for at least some Git features. You 
+will need to find a tool that works for you. Although the interfaces look 
+antiquated, you might find that the programs Gitk (history viewer) and 
+Git Gui (for making commits) are perfectly sufficient, and these are 
+readily available on most systems. At the end of the day you are likely to 
+use a combination of the command line interface and a graphical frontend tool.
+
+
+Setup
+============
+
+Your Git remote repositories should be appropriately named. This document 
+assumes that you are using the following convention:
+
+* The remote named origin should generally point to your fork of the 
+  codebase, so the URL will look something like: 
+  ``https://github.com/<your user name>/dvm-dos-tem``.
+* The remote named ``upstream`` should generally point to
+  ``https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem`` or
+  ``git@github.com:uaf-arctic-eco-modeling/dvm-dos-tem.git`` if you will be contributing.
+
+It is **strongly encouraged** that you go to the effort of making sure your
+current git branch is displayed in your terminal shell prompt. There are many
+examples floating around online of how to achieve this for all major operating
+systems and shells; one example `here
+<https://stackoverflow.com/questions/15883416/adding-git-branch-on-the-bash-command-prompt>`_ 
+
+
 *********************
 Documentation Types
 *********************
