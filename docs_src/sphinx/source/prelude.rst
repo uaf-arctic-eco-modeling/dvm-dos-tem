@@ -373,3 +373,8 @@ Documentation Types
 **********************
 Docker
 **********************
+
+.. raw:: html
+
+   <!-- shared from Tobey Carmans's Docker Diagram google drawing -->
+   <iframe src="https://docs.google.com/presentation/d/e/2PACX-1vSX3m0NGfLrNlOz_RccNyhRh11qwW1Lf0v5bQ1E5nA3RwCl_YHrWOx-S1cVA0AX6e3zZwBKnpyjD5kQ/embed?start=true&loop=true&delayms=3000" frameborder="0" width="480" height="299" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true"></iframe>
