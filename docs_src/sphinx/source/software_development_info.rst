@@ -127,17 +127,17 @@ essentially like the general coding or programing process:
 
 For more details about the coding process see the `Workflow`_ section.
 
----------------------------------
+===================================
 Project Standards and Conventions
----------------------------------
+===================================
 
  * Please hard wrap lines at 80 charachters before comiting. Many text editors
    have settings or extensions that can help with this tedium.
  * 
 
-==========
+==============
 Publishing
-==========
+==============
 
 In the current implementation with Sphinx (used to format this document), we
 have a ``docs_src`` folder within which is a subdirectory for each documentation
@@ -449,9 +449,9 @@ trust.
      * https://blog.sourcetreeapp.com/2012/08/21/merge-or-rebase/
 
 
-*******************************
+================================
 Releases and Version Numbering
-*******************************
+================================
 
 Begining in 2021, we started using the "Releases" feature of Github to package
 and distribute specific versions of ``dvmdostem``. We would like to make this a
