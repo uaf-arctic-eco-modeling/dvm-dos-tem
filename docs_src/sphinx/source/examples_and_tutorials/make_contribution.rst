@@ -36,37 +36,6 @@ Begin by reading the :ref:`Version Management <software_development_info:Version
 Management>` section of this document for an overview of how the ``dvmdostem``
 project uses Git and Github.
 
-*************************
-Why use version control?
-*************************
-
-As mentioned in the :ref:`Version Management <software_development_info:Version
-Management>` section, using version control in a project really serves several
-purposes: 
-
-   #. Provenance - being able to understand (and trust) where the code came
-      from. 
-   #. Facilitating contributions from multiple people.
-   #. Backup - being able to
-      revert the code to a previous state in case of an error or other need.
-
-These needs can of course be met without a full fledged version control system
-and as you struggle to learn Git you will almost certainly be tempted to just go
-back to periodically emailing yourself backups or printing out the code and
-locking it in your gun safe. However I would encourage you to persevere as once
-you have the basics of Git under your belt, it will fundamentally change the way
-you think about programming and will enable you to interact with a wide variety
-of software projects as well as having great control over your own projects.
-
-As you work with Git it is valuable to keep in mind the reasons you are using
-version control: backup, collaboration, and provenance. Cultivating a clean,
-readable, traceable history frequently requires extra steps and care that will
-seem extraneous in the moment. However with a multi-person project this care is
-essential to making the project history useful. When you are stuck and wondering
-what to do, it is often helpful to think in terms of how you want the code
-history (commit graph) to look when you are finished. With the idea of the
-history you want to achieve in mind, you can then find a path forward. 
-
 
 ******************************************************
 Single person topic branch and pull request process
