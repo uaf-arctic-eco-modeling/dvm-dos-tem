@@ -25,6 +25,22 @@ code, and IPython Notebooks floating around for various tasks.
 The core code is compiled with a basic Makefile. This documentation is written 
 in reStrutured Text and Sphinx and is also compiled with a Makefile.
 
+***************************
+Coding Conventions
+***************************
+
+Table? List? Subsections?
+
+Here are some first things off the top of my head.
+
+  * Indent with spaces, use 2 spaces for the tab width.
+  * Aim for lines to be <80 chars long,
+  * For Python write docstrings in ``numpydoc`` (Link?) format.
+  * For C++ write comments in Doxygen format.
+  * Favor verbose descriptive variable names.
+
+
+
 *************
 Documentation
 *************
