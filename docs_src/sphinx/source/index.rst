@@ -50,6 +50,7 @@ The code is available on Github: https://github.com/uaf-arctic-eco-modeling/dvm-
     :caption: Examples and Tutorials
     :hidden:
 
+    prelude
     examples_and_tutorials/basic_model_run
     examples_and_tutorials/plotting_discussion
     examples_and_tutorials/make_contribution
