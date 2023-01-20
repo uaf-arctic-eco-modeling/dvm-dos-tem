@@ -108,32 +108,67 @@ To build the Doxygen documentation locally, then do the following:
 The resulting files are in the ``docs_src/doxygen/doxygen_build`` directory and 
 can be viewed locally with a web browser.
 
+=====================================
+Preview -> Editing -> Contributing
+=====================================
 
-======================
-Editing / Contributing
-======================
+Previewing
+-----------
 
-The writing and editing process for this docuemtation ends up looking
-essentially like the general coding or programing process:
+Here are the steps to preview documentation changes (perhaps made by someone
+else) in your local environment. Assuming you have a development environment, a
+cloned copy of the repo, and a "clean" working state:
 
- * setup a development environment of your choice
- * clone the repository to your development environment
- * edit the source files (``docs_src/sphinx/*.rst``)
- * process the ``.rst`` files: ``cd docs_src/sphinx && make clean && make html``
- * preview the results in your browser
-   (``file:///path/to/your/repo/docs_src/sphinx/build/html``)
- * commit your changes
- * push commits upstream and make pull request
+ 1. Checkout the branch you are interested in previewing. For example someone
+    else has pushed to the ``upstream/update-docs`` branch and you'd like to see
+    what they have written or how it all looks: ``$ git remote update && git
+    checkout update-docs``.
+  
+ 2. Clean the existing docs and build them: ``$ cd docs_src/sphinx && make clean
+    && make html``
+
+ 3. Preview the results in your browser
+    (``file:///path/to/your/repo/docs_src/sphinx/build/html``).
+
+
+Editing
+---------
+
+The writing and editing process for the docuemtation ends up looking essentially
+like the general coding or programing process:
+
+ 1. setup a development environment of your choice
+ 2. clone the repository to your development environment
+ 3. checkout a new or existing topic branc to work on
+ 4. edit the source files (``docs_src/sphinx/*.rst``)
+ 5. process the ``.rst`` files: ``cd docs_src/sphinx && make clean && make html``
+ 6. preview the results in your browser
+ 7. (``file:///path/to/your/repo/docs_src/sphinx/build/html``)
+ 8. commit your changes
 
 For more details about the coding process see the `Workflow`_ section.
+
+
+Contributing
+------------
+
+If you would like to contribute your edits use a Pull Request. 
+
+To make a Pull Request, you must push your commits to Github (either your fork)
+or the ``uaf-arctic-eco-modeling/dvm-dos-tem``, depending on your choice of
+workflow and your status as a collaborator.
+
+Publishing (updating the live website at github.io) is reserved for the
+maintainers, ``tcarman2`` and ``rarutter``.
+
 
 ===================================
 Project Standards and Conventions
 ===================================
 
  * Please hard wrap lines at 80 charachters before comiting. Many text editors
-   have settings or extensions that can help with this tedium.
- * 
+   have settings or extensions that can help with this tedium. With VSCode, try 
+   the Rewrap extension. For Sublime, try "Select -> Edit -> Wrap".
 
 ==============
 Publishing
