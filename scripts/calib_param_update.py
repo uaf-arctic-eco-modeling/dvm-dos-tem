@@ -19,7 +19,7 @@ def checkifexists(filename):
         print('ERROR: {} file does not exist!!!'.format(my_file))    
     return 
 
-def copy_params(filename):
+def copy_params(filename,cmtnum):
     """
         filename: 'Calibration_ALL.finalresults'
     """
@@ -44,7 +44,7 @@ def copy_params(filename):
         print(pftnum,pname)
         param_directory = '../parameters'
         #param_directory = '/work/parameters'
-        CMTNUM = 5
+        CMTNUM = cmtnum
         print("Updating file in {} for CMT {} for parameter {} of PFT {} with new value {}".format(
         param_directory, CMTNUM, pname, pftnum, v ))
         pu.update_inplace(float(v), param_directory, pname, CMTNUM, pftnum)
@@ -73,7 +73,7 @@ def cmdline_parse(argv=None):
 
     parser.add_argument('--c', nargs=1, metavar=('FILE_NAME'),
       help=textwrap.dedent('''Copies optmimal set of params from FILE_NAME.finalresults to dvm-dos-tem/parameters/cmt_calparbgc.txt'''))
-
+    parser.add_argument("cmtnum", help="community type number", type=int)
     args = parser.parse_args(argv)
 
     return args
@@ -82,7 +82,7 @@ def cmdline_run(args):
 
   if args.c:
     print(args.c[0])
-    copy_params(args.c[0])
+    copy_params(args.c[0],args.cmtnum)
  
   return 0
 
