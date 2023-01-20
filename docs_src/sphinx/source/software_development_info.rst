@@ -39,7 +39,10 @@ Here are some first things off the top of my head.
   * For C++ write comments in Doxygen format.
   * Favor verbose descriptive variable names.
 
-
+For documentation (``*.rst`` and ``*.md`` files, ``docstring``s, etc), please
+hard wrap lines at 80 charachters before comitting. Many text editors have
+settings or extensions that can help with this tedium. With VSCode, try the
+Rewrap extension. For Sublime, try "Select -> Edit -> Wrap".
 
 *************
 Documentation
@@ -160,15 +163,6 @@ workflow and your status as a collaborator.
 
 Publishing (updating the live website at github.io) is reserved for the
 maintainers, ``tcarman2`` and ``rarutter``.
-
-
-===================================
-Project Standards and Conventions
-===================================
-
- * Please hard wrap lines at 80 charachters before comiting. Many text editors
-   have settings or extensions that can help with this tedium. With VSCode, try 
-   the Rewrap extension. For Sublime, try "Select -> Edit -> Wrap".
 
 ==============
 Publishing
