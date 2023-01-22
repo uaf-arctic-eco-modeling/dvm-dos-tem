@@ -1,11 +1,8 @@
 #!/usr/bin/env python
 
-# T. Carman Winter 2019-2020
-
-# Interactive viewer for mapping collections of dvm-dos-tem input datasets.
-
-
-#import gdal  # does not work on vagrant, or osx python 2.7x, works on atlas, and modex I think and OSX python 3.7
+# docker compose exec dvmdostem-mapping-support bokeh serve --port 7003 scripts/io_view2.py --dev scripts/io_view2.py
+# pip install nest_asyncio
+# pip install --upgrade bokeh
 
 from osgeo import gdal
 # Don't import rasterio too - they compete for some 
@@ -22,22 +19,18 @@ import glob
 
 import bokeh
 import bokeh.io as bkio
+import bokeh.events as bke
 import bokeh.models as bkm
 import bokeh.plotting as bkp
 import bokeh.layouts as bkl
 
-from bokeh.io import output_file, show, curdoc, save
-from bokeh.models.sources import GeoJSONDataSource
-from bokeh.models import HoverTool, TapTool, Patches
-from bokeh.models.callbacks import CustomJS
-from bokeh.plotting import figure
-
-from bokeh.tile_providers import get_provider, Vendors
+import bokeh.tile_providers
 
 import geopandas
 
 import nest_asyncio
 nest_asyncio.apply()
+
 
 def get_corner_coords(file_path):
   '''
@@ -61,6 +54,7 @@ def get_corner_coords(file_path):
   targetSR = osr.SpatialReference()
   targetSR.ImportFromEPSG(4326) # WGS84
   sourceSR = osr.SpatialReference(wkt=ds.GetProjectionRef())
+  print(ds.GetProjectionRef())
   coordTrans = osr.CoordinateTransformation(sourceSR,targetSR)
 
   # For some reason this seems to return (Y/lat, X/lon) instead of X,Y.
@@ -68,54 +62,43 @@ def get_corner_coords(file_path):
   return [coordTrans.TransformPoint(X, Y) for X,Y in zip((lrx,llx,ulx,urx),(lry,lly,uly,ury))]
 
 
-def get_io_folder_listing(starting_path, pattern):
-  '''Get list of folders using the starting path and matching the pattern.'''
-  folder_list = glob.glob(os.path.join(starting_path, pattern))
-  folder_list = [i for i in folder_list if ".tar.gz" not in i]
-  folder_list = [i for i in folder_list if os.path.isdir(i)]
-  folder_list = [i for i in folder_list if i.split('/')[-1].startswith('cru')]
-
-  return folder_list
-
-
-def site_table(folder_list):
+def transform(x, y, srs='EPSG:3857', trs='EPSG:4326'):
   '''
-  Print table with corner coords for each site. Assumes that each folder in 
-  `folder_list` contains a vegetation.nc file which is geo-referenced.
+  Wrapper around osr.CoordinateTransformation
+  
+  Confusion abounds with regards to the ordering of x and y.
+  It seems that the transformation functions wants them supplied like 
+  (y, x) but then returns (x, y). Go figure.
 
-  Table looks like this:
-    site,lr_lon,lr_lat,ll_lon,ll_lat,ul_lon,ul_lat,ur_lon,ur_lat
-    cru-ts40_ar5_rcp85_ncar-ccsm4_CALM_Westdock8_Met_10x10,-148.3557,70.3419,-148.6162,70.3495,-148.5949,70.4406,-148.3335,70.4330
-    cru-ts40_ar5_rcp85_ncar-ccsm4_SNOTEL_SUSITNAVALLEYHIGH_10x10,-149.8489,62.1247,-150.0409,62.1302,-150.0294,62.2194,-149.8369,62.2140
+  EPSG:3857 - Web Mercator
+  EPSG:3338 - Alaska Albers
+  EPSG:4326 - WGS84
+
   '''
-  print("site,lr_lon,lr_lat,ll_lon,ll_lat,ul_lon,ul_lat,ur_lon,ur_lat")
-  for f in folder_list:
-    f = os.path.join(f, 'vegetation.nc')
-    
-    lr,ll,ul,ur = get_corner_coords(f)
-    # CAUTION: For some reason get_corner_coords(..) is returning
-    # (Y,X) instead of (X,Y). Doesn't make sense to me with regards
-    # to the documentation for osr.CoordinateTransformation.TransformPoint(..)
+  sourceSR = osr.SpatialReference()
+  sourceSR.SetFromUserInput(srs)
 
-    print("{},{:0.4f},{:0.4f},{:0.4f},{:0.4f},{:0.4f},{:0.4f},{:0.4f},{:0.4f}".format(
-        os.path.basename(os.path.dirname(f)),
-        lr[1], lr[0], # <-- note swapped order!
-        ll[1], ll[0],
-        ul[1], ul[0],
-        ur[1], ur[0],
-      )
-    )
+  targetSR = osr.SpatialReference()
+  targetSR.SetFromUserInput(trs)
+
+  coordTrans = osr.CoordinateTransformation(sourceSR, targetSR)
+  x, y, _ = coordTrans.TransformPoint(y, x)
+  return (x, y)
 
 def build_feature_collection(folder_list):
   '''
-  Builds a GeoJSON feature collection with a polygon for site in the `folder_list`.
+  Builds a GeoJSON feature collection with a polygon for every site in the
+  `folder_list`.
 
   Parameters
   ----------
-  `folder_list` : list of folders of dvmdostem input data, expected to have vegetation.nc file within.
+  `folder_list` : list of folders 
+    Each folder is expected to be a folder of `dvmdostem` input data, and should
+    have a vegetation.nc file within it.
 
-  `Returns`
-  ---------
+  Returns
+  -------
+  geosjon_obj : a GeoJSON object
   '''
   geojson_obj = dict(type="FeatureCollection",features=[])
 
@@ -158,41 +141,7 @@ def build_feature_collection(folder_list):
   return geojson_obj
 
 
-
-
-def build_geojson(feature_collection, method='A', proj='epsg:3857'):
-  '''Not really using this function...should probably get rid of it...'''
-  if method == 'A':
-    # Write sample data to file
-    ff = "/tmp/junk.geojson"
-    with open(ff, 'w') as f:
-      f.write(geojson.dumps(feature_collection))
-
-    # Read data from file
-    gj = geopandas.read_file(ff)
-    os.remove("/tmp/junk.geojson")
-
-  if method == 'B':
-    # This messes up something with the CRS...doesn't get created correctly.
-    # Says we have to set it first...
-    gj = geopandas.GeoDataFrame.from_features(feature_collection)
-
-  # Re-project data
-  gj = gj.to_crs(epsg=3857) # Convert to web mercator projection that tile provider uses
-  return gj
-
-#for i in range(len(data["features"])):
-#  data['features'][i]["properties"]["Color"] = ["blue","red"][i%2]
-
-def tapselect_handler(attr, old, new):
-  print("attr:{}   old:{}    new:{}".format(attr, old, new))
-  print("Somewhere to stop!")
-  print(input_areas.data_source)
-  #from IPython import embed; embed()
-  #import pdb; pdb.set_trace()
-
-
-def load_data(folder):
+def build_areas_df(folders):
   '''
   '''
   print("Looking in the following folders for datasets to map:")
@@ -221,7 +170,7 @@ def load_data(folder):
   geodf = geodf.set_crs(epsg=4326) # WGS84
   print("feature collecton bounds in wgs84: ", geodf.total_bounds)
 
-  # now re-project to web mercator (use by tiling service)
+  # now re-project to web mercator (used by tiling service)
   geodf = geodf.to_crs(epsg=3857) # web mercator.
   print("feature collection bounds in web mercator: ", geodf.total_bounds)
 
@@ -231,157 +180,140 @@ def load_data(folder):
   return geodf
 
 
-#### Prepare data
-#from IPython import embed; embed()
-#folders = get_io_folder_listing("/Users/tobeycarman/Documents/SEL/dvmdostem-input-catalog", pattern="*")
-#folders = get_io_folder_listing("/home/UA/tcarman2/dvm-dos-tem/input-staging-area", pattern="*")
-#folders = get_io_folder_listing("/workspace/Shared/Tech_Projects/dvmdostem/input-catalog/", pattern="*")
-#folders = get_io_folder_listing("/iodata", pattern="*")
-folders = get_io_folder_listing("/data/input-catalog", pattern="*")
+def get_io_folder_listing(starting_path, pattern="*"):
+  '''Get list of folders using the starting path and matching the pattern.'''
+  folder_list = glob.glob(os.path.join(starting_path, pattern))
+  folder_list = [i for i in folder_list if ".tar.gz" not in i]
+  folder_list = [i for i in folder_list if os.path.isdir(i)]
+  folder_list = [i for i in folder_list if i.split('/')[-1].startswith('cru')]
 
-geodf = load_data(folders)
-
-print(geodf.head())
-
-xmin,ymin,xmax,ymax=geodf.total_bounds
-
-geosource = GeoJSONDataSource(geojson=geodf.to_json())
+  return folder_list
 
 
-##### Plot
-#output_file("geojson.html")
+def update_map(attr, old, new):
+  print(f'update_map(...): attr={attr}, old={old}, new={new}')
+  
 
-# input_areas_df = geopandas.GeoDataFrame({
-#     '':[],
-#     'geometry': [],
-#   }, crs="EPSG:4326")
-# points_df = geopandas.GeoDataFrame({
-#     'col1': ['demo1'], 
-#     'geometry': [shapely.geometry.Point(1,1)]
-#   }, crs="EPSG:4326")
+def update_points(attr, old, new):
+  print(f'update_points(...): attr={attr}, old={old}, new={new}')
+  try:
+    lat = float(points_input_lat.value)
+    lon = float(points_input_lon.value)
+  except:
+    print('Problem with value in points inputs. Nothing to do.')
 
-
-
-folder_input = bkm.TextInput(value='', placeholder='FOLDER PATH')
-folder_input.on_change('value', load_data)
+  update_map(attr, old, new)
 
 
+def update_areas(attr, old, new):
+  print(f'update_areas(...): attr={attr}, old={old}, new={new}')
 
-map_plot = figure(x_range=(xmin, xmax), y_range=(ymin, ymax),
-                  x_axis_type="mercator", y_axis_type="mercator")
+  folders = get_io_folder_listing(folder_input.value)
+
+  if len(folders) < 1:
+    print("Invalid folder path. No input folders found. Reverting to previous display.")
+    folder_input.value = old # this triggers the change event again...
+  else:
+
+    areas_df = build_areas_df(folders)
+
+    # Update the global datasource that backs all the patches..
+    data_table_source.data = dict(name=areas_df['name'])
+    geosource.geojson = areas_df.to_json()
+
+    print(data_table_source)
+    print(data_table_source.data)
+    # if you call map_figure.patches(...) here, then it draws new patches
+    # each time and they eventually overlay obsucring the alpha setting.
+    print("Done updating areas.")
+
+# Figure out some bounds that zoom default view to Alaska. Transform from 
+# WGS84 to web mercator
+xmin, ymin = transform(-179, 45, srs='EPSG:4326',trs='EPSG:3857')
+xmax, ymax = transform(-130, 75, srs='EPSG:4326',trs='EPSG:3857')
+
+## Main Map Plot ##
+map_figure = bkp.figure(
+    # Comment out bounds to show blank map (nothing) if no data is loaded, or
+    # zoom to extent of whatever data is loaded.
+    x_range = (xmin, xmax), y_range=(ymin, ymax),
+    #x_range=(-20039764, 19965065), y_range=(-20112178, 15268115), # approx full globe
+    x_axis_type="mercator", y_axis_type="mercator"
+)
 
 # Add tiles
-tile_provider = get_provider(Vendors.CARTODBPOSITRON)
-map_plot.add_tile(tile_provider)
+map_figure.add_tile(bokeh.tile_providers.Vendors.CARTODBPOSITRON, retina=True)
 
-# Have to add the patches after the tiles
-input_areas = map_plot.patches('xs','ys', source=geosource, fill_color='red', line_color='gray', line_width=0.25, fill_alpha=.3)
-
-
+# Crosshairs
 width_span = bkm.Span(dimension="width", line_dash="dotted", line_width=1, line_color='red')
 height_span = bkm.Span(dimension="height", line_dash="dotted", line_width=1, line_color='red')
-map_plot.add_tools(bkm.CrosshairTool(overlay=[width_span, height_span]))
+map_figure.add_tools(bkm.CrosshairTool(overlay=[width_span, height_span]))
 
-def dot_plot(lat, lon):
+## Widgets ##
+folder_input = bkm.TextInput(title="Path to folders", value='input-staging-area', placeholder='FOLDER PATH', width=600)
+folder_input.on_change('value', update_areas)
 
-  try:
-    lat = float(lat)
-    lon = float(lon)
+points_input_lat = bkm.TextInput(title='Lat', value='', placeholder='LAT')
+points_input_lat.on_change('value', update_points)
 
-    targetSR = osr.SpatialReference()
-    sourceSR = osr.SpatialReference()
-    sourceSR.ImportFromEPSG(4326) # WGS84
-    targetSR.ImportFromEPSG(3857) # Web Mercator
-    coordTrans = osr.CoordinateTransformation(sourceSR, targetSR)
-    print("**************")
-    print(f'coordTrans={coordTrans}')
-    transformed_point = coordTrans.TransformPoint(lat, lon)
-    print(f'transformed_point={transformed_point}')
-    
+points_input_lon = bkm.TextInput(title='Lon', value='', placeholder='LON')
+points_input_lon.on_change('value', update_points)
 
+mouse_lat, mouse_lon = [0,0]
+mouse_lat_wgs84, mouse_lon_wgs84 = transform(mouse_lat, mouse_lon, srs='EPSG:3338', trs='EPSG:4326')
 
-    print(f"Trying to place dot at lat={lat}, lon={lon}")
-    map_plot.circle([transformed_point[0]],[transformed_point[1]], size=15, color='yellow', alpha=0.65)
+parag_cur_wgs84 = bkm.Paragraph(text=f"Cursor WGS84 ({mouse_lon_wgs84:0.6f}, {mouse_lat_wgs84:0.6f})")
+parag_cur_webmerc = bkm.Paragraph(text=f"Cursor Web Mercator ({mouse_lon:0.6f}, {mouse_lat:0.6f})")
 
-  except:
-    print("Can't transform point, try different numbers...")
+# have to build the dataframe/geosource for one area or things don't work
+# well later on.
+geodf = build_areas_df(get_io_folder_listing('input-staging-area'))
+#geodf = build_areas_df(get_io_folder_listing('demo-data'))
+geosource = bkm.sources.GeoJSONDataSource(geojson=geodf.to_json())
+area_patches = map_figure.patches('xs','ys', source=geosource, fill_color='red', line_color='gray', line_width=0.25, fill_alpha=.3)
 
+taptool = bkm.TapTool(renderers = [area_patches])
+columns = [
+  bkm.TableColumn(field="name", title="Name"),
+  #bkm.TableColumn(field="", title=""),
+]
+data_table_source = bkm.ColumnDataSource( dict(name=geodf['name']) ) 
+data_table = bkm.DataTable(source=data_table_source, columns=columns, width=600)#, height=200)
+# The above works, but we need to somehow synchronize the geosource and the non-
+# geo version of the dataframe...
 
+map_figure.add_tools(taptool)
 
+## Event callbacks ##
+def update_cursor_printout(event):
+  #print(event.y, event.x,)
+  parag_cur_webmerc.text = f"Cursor Web Mercator ({event.x:0.6f}, {event.y:0.6f})"
+  mouse_lat_wgs84, mouse_lon_wgs84 = transform(event.y, event.x, srs='EPSG:3857', trs='EPSG:4326')
+  parag_cur_wgs84.text = f"Cursor WGS84 ({mouse_lon_wgs84:0.6f}, {mouse_lat_wgs84:0.6f})"
 
-def dot_plot_coords_update(attr, old, new):
-  print(f"attr={attr}, old={old}, new={new}")
-  lat = dot_plot_input_lat.value
-  lon = dot_plot_input_lon.value
-  dot_plot(lat, lon)
+def tapselect_handler(attr, old, new):
+  # value of new seems to be the indices in the data source that are selected.
+  print("attr:{}   old:{}    new:{}".format(attr, old, new))
+  print("Somewhere to stop!")
+  print(area_patches.data_source)
 
-
-
-  
-  
-
-# def dot_plot_lat_update(attr, new, old):
-#   print(f'attr={}, old={}, new={}')
-#   print()"NOW WHAT??")
-
-dot_plot_input_lat = bkm.TextInput(value='65.4', placeholder='LAT')
-dot_plot_input_lon = bkm.TextInput(value='-155.4', placeholder='LON')
-
-dot_plot_coords_update('','','')
-
-dot_plot_input_lon.on_change('value', dot_plot_coords_update)
-dot_plot_input_lat.on_change('value', dot_plot_coords_update)
-
-
-print("HERE?")
-
-
-taptool = TapTool(renderers = [input_areas])
-hovertool = HoverTool(renderers = [input_areas],
-                      tooltips = [
-                        ('Site','@name')
-                      ])
-
-selected_patches = Patches(fill_color="yellow", fill_alpha=.8, line_width=1, line_color="green")
-input_areas.selection_glyph = selected_patches
-
+# Register callbacks
+map_figure.on_event(bke.MouseMove, update_cursor_printout)
 geosource.selected.on_change('indices', tapselect_handler)
 
+selected_patches = bkm.Patches(fill_color="yellow", fill_alpha=.3, line_width=1, line_color="green")
+area_patches.selection_glyph = selected_patches
 
-print("HERE?")
-
-# CustomJS(code="""
-# // comment....
-# console.log("Somewhere to stop!");
-# """)
-
-# Create hover tool
-map_plot.add_tools(taptool, hovertool)
-
-# Put everything in a layout
+## Layout ##
 layout = bkl.layout(
     children=[
-      [map_plot, [dot_plot_input_lat, dot_plot_input_lon] ],
+      [map_figure, [folder_input, [points_input_lat, points_input_lon], data_table]],
+      [parag_cur_webmerc],
+      [parag_cur_wgs84]
     ],
     sizing_mode='fixed'
 )
 
 
-
-curdoc().add_root(layout)
-
-
-print("HERE?")
-
-#save(p)
-
-#show(p)
-
-
-
-
-
-
-
-
-
+## Render it... ##
+bkio.curdoc().add_root(layout)
