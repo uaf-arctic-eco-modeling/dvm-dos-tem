@@ -53,18 +53,7 @@ function get_itr_results(problemname)
     # set OF error as column headers
     err=multi_cal.read_error(problemname*".finalresults");
     rename!(df2, err, makeunique=true)
-    cols=size(df2,2)
     #if there are soil params, due to physical constraints, need to satisfy: Kdcraw > Kdcactive > Kdcpr > Kdccr
-    if haskey(merged_params,"kdcrawc") 
-        for nn in 1:cols
-            if ~(df2[end-3,nn] > df2[end-2,nn] > df2[end-1,nn] > df2[end,nn])
-                # assumes params are in this order at end: kdcrawc, kdcsoma, kdcsompr, kdcsomcr
-                print("Calibration run "*nn*"does not meet soil parameters physical criteria. Removing results...")
-                #discard results that don't meet criteria
-                df2=select!(df2, Not(:nn))
-            end
-        end
-    end
     return df2
 end
 
@@ -84,7 +73,7 @@ function save_model_csv(md,problemname,forward_predictions)
     if ~isa(forward_predictions,Array) 
         forward_predictions=collect(values(forward_predictions))
     end
-    df = DataFrame(parameters = keys, observation = x, model = forward_predictions[:,1])
+    df = DataFrame(obs_id = keys, observation = x, model = forward_predictions[:,1])
     cols=size(forward_predictions,2)
     if cols>1 
         for nn in 2:cols
