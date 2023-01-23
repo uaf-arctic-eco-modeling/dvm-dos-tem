@@ -390,7 +390,7 @@ class TEM_model:
         caltarget_to_ncname_map = [
         ('GPPAllIgnoringNitrogen','INGPP'),
         ('NPPAllIgnoringNitrogen','INNPP'),
-        ('GPPAll','GPP'),
+        #('GPPAll','GPP'),
         ('NPPAll','NPP'),
         #('Nuptake','NUPTAKE'), # ??? There are snuptake, lnuptake and innuptake... and TotNitrogentUptake is the sum of sn and ln...
         ('VegCarbon','VEGC'),
