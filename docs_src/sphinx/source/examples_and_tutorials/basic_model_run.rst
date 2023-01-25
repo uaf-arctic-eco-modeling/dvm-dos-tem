@@ -473,7 +473,7 @@ In general the steps to making a ``dvmdostem`` run are as follows:
 
 #. Decide where on your computer you want to store your model run(s).
 #. Decide what spatial (geographic) area you want to run.
-#. Decide what variables you want to have output
+#. Decide what variables you want to have output.
 #. Decide on all other run settings/parameters:
 
    * Which stages to run and for how many years.
@@ -541,13 +541,13 @@ to know where Chevak is.
 .. code:: bash
 
   $ docker compose exec dvmdostem-dev scripts/setup_working_directory.py \
-  /data/workflows/ws2022_lab1 \
+  /data/workflows/basic_model_run \
   --input-data-path /data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_CALM_Chevak_10x10
   Namespace(copy_inputs=False,
   input_data_path='/data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_CALM_Chevak_10x10',
-  new_directory='/data/workflows/ws2022_lab1', no_cal_targets=False)
+  new_directory='/data/workflows/basic_model_run', no_cal_targets=False)
 
-which will create a new folder (named ``ws2022_lab1``) inside your workflows
+which will create a new folder (named ``basic_model_run``) inside your workflows
 directory. This folder will have the ``dvmdostem`` default parameters copied in
 as well as config settings. The paths in the ``config.js`` file should be
 correctly set to the input data set you chose with the ``--input-data-path``
@@ -565,7 +565,7 @@ command line option.
 
     ... 
     Namespace(copy_inputs=False, input_data_path='/data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_CALM_Chevak_10x10',
-    new_directory='/data/workflows/ws2022_lab1', no_cal_targets=False)
+    new_directory='/data/workflows/basic_model_run', no_cal_targets=False)
 
   Sometimes it is useful and sometimes it isn’t. In most cases it is simply
   leftover from whatever was needed when the script was developed.
@@ -578,9 +578,9 @@ command line option.
   .. code:: bash
 
     $ docker compose exec dvmdostem-dev scripts/setup_working_directory.py \
-    /data/workflows/ws2022_lab1 --input-data-path \
+    /data/workflows/basic_model_run --input-data-path \
     /data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_CALM_Chevak_10x10
-    Namespace(copy_inputs=False, input_data_path='/data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_CALM_Chevak_10x10', new_directory='/data/workflows/ws2022_lab1', no_cal_targets=False)
+    Namespace(copy_inputs=False, input_data_path='/data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_CALM_Chevak_10x10', new_directory='/data/workflows/basic_model_run', no_cal_targets=False)
     Traceback (most recent call last):
       File "scripts/setup_working_directory.py", line 82, in <module>
         shutil.copytree(os.path.join(ddt_dir, 'config'), os.path.join(args.new_directory, 'config'))
@@ -590,7 +590,7 @@ command line option.
         os.makedirs(dst, exist_ok=dirs_exist_ok)
       File "/home/develop/.pyenv/versions/3.8.6/lib/python3.8/os.py", line 223, in makedirs
         mkdir(name, mode)
-    FileExistsError: [Errno 17] File exists: '/data/workflows/ws2022_lab1/config'
+    FileExistsError: [Errno 17] File exists: '/data/workflows/basic_model_run/config'
 
   In this case the error has to do with the directory you are trying to create
   already existing. This might happen because you ran the script once, then
@@ -611,11 +611,11 @@ Let’s look around in the directory you just created.
 .. code:: bash
 
   docker compose exec dvmdostem-dev bash
-  develop@ef7aad33441c:/work$ cd /data/workflows/ws2022_lab1/
+  develop@ef7aad33441c:/work$ cd /data/workflows/basic_model_run/
 
 
   # Check the files that should have been created with the setup script
-  develop@ef7aad33441c:/data/workflows/ws2022_lab1$ ls
+  develop@ef7aad33441c:/data/workflows/basic_model_run$ ls
   calibration  config  output  parameters  run-mask.nc
 
 The idea is that each run will exist in its own self-contained directory with
@@ -673,15 +673,15 @@ adjusting it. We'll turn on 2 pixels here, just for fun:
 .. code:: bash
 
   # First make sure all pixels are OFF (set to 0)
-  $ docker compose exec dvmdostem-dev runmask-util.py --reset /data/workflows/ws2022_lab1/run-mask.nc
+  $ docker compose exec dvmdostem-dev runmask-util.py --reset /data/workflows/basic_model_run/run-mask.nc
   Setting all pixels in runmask to '0' (OFF).
 
   # Then turn one pixel.
-  $ docker compose exec dvmdostem-dev runmask-util.py --yx 0 0 /data/workflows/ws2022_lab1/run-mask.nc 
+  $ docker compose exec dvmdostem-dev runmask-util.py --yx 0 0 /data/workflows/basic_model_run/run-mask.nc 
   Turning pixel(y,x) (0,0) to '1', (ON).
 
   # And another pixel
-  $ docker compose exec dvmdostem-dev runmask-util.py --yx 1 1 /data/workflows/ws2022_lab1/run-mask.nc
+  $ docker compose exec dvmdostem-dev runmask-util.py --yx 1 1 /data/workflows/basic_model_run/run-mask.nc
   Turning pixel(y,x) (1,1) to '1', (ON).
 
 Note that you don't want to pass ``--reset`` to the second call, or it will
@@ -708,15 +708,15 @@ the output be readable.
   $ docker compose exec dvmdostem-dev bash
 
   # Change into our working directory for this experiment
-  develop@ef7aad33441c:/work$ cd /data/workflows/ws2022_lab1/
+  develop@ef7aad33441c:/work$ cd /data/workflows/basic_model_run/
 
   # Turn on RH
-  develop@ef7aad33441c:/data/workflows/ws2022_lab1$ outspec_utils.py config/output_spec.csv --on RH y layer
+  develop@ef7aad33441c:/data/workflows/basic_model_run$ outspec_utils.py config/output_spec.csv --on RH y layer
                   Name                Units       Yearly      Monthly        Daily          PFT Compartments       Layers    Data Type     Description
                     RH            g/m2/time            y                   invalid      invalid      invalid            l       double     Heterotrophic respiration
 
   # Turn on VEGC
-  develop@ef7aad33441c:/data/workflows/ws2022_lab1$ outspec_utils.py config/output_spec.csv --on VEGC m pft
+  develop@ef7aad33441c:/data/workflows/basic_model_run$ outspec_utils.py config/output_spec.csv --on VEGC m pft
                   Name                Units       Yearly      Monthly        Daily          PFT Compartments       Layers    Data Type     Description
                   VEGC                 g/m2            y            m      invalid            p                   invalid       double     Total veg. biomass C
 
@@ -769,7 +769,7 @@ if a run fails, it can be difficult to know why.
   Despite the fact that there is a command line option for pointing to an
   arbitrary control file (config.js), this option doesn’t work when used with
   relative paths in the control file as we have for this lab. For this reason we
-  provide the ``--workdir /data/workflows/ws2022_lab1/`` command line option 
+  provide the ``--workdir /data/workflows/basic_model_run/`` command line option 
   when launching the model. Notice that this command line option is associated
   with ``docker compose exec``, not ``dvmdostem``.
 
@@ -803,7 +803,7 @@ console output has been omitted for clarity:
 
 .. code:: bash
 
-  $ docker compose exec --workdir /data/workflows/ws2022_lab1/ dvmdostem-dev dvmdostem -l err -f /data/workflows/ws2022_lab1/config/config.js -p 50 -e 100 -s 25 -t 115 -n 85
+  $ docker compose exec --workdir /data/workflows/basic_model_run/ dvmdostem-dev dvmdostem -l err -f /data/workflows/basic_model_run/config/config.js -p 50 -e 100 -s 25 -t 115 -n 85
   Setting up logging...
   [err] [] Looks like CMTNUM output is NOT enabled. Strongly recommended to enable this output! Use outspec_utils.py to turn on the CMTNUM output!
   [err] [PRE-RUN->Y] y: 0 x: 0 Year: 0
@@ -834,7 +834,7 @@ file in the output folder, for example:
 
 .. code:: bash
 
-  $ docker compose exec dvmdostem-dev ncdump /data/workflows/ws2022_lab1/output/run_status.nc 
+  $ docker compose exec dvmdostem-dev ncdump /data/workflows/basic_model_run/output/run_status.nc 
   netcdf run_status {
   dimensions:
     Y = 10 ;
@@ -874,7 +874,7 @@ like.
   
   .. code:: bash
 
-    $ docker compose exec dvmdostem-dev grep vegetation.nc /data/workflows/ws2022_lab1/config/config.js
+    $ docker compose exec dvmdostem-dev grep vegetation.nc /data/workflows/basic_model_run/config/config.js
       "veg_class_file": "/data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_CALM_Chevak_10x10/vegetation.nc",
 
   From here there are many ways we could go, but for this example we will use
