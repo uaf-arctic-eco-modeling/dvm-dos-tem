@@ -35,6 +35,7 @@ The code is available on Github: https://github.com/uaf-arctic-eco-modeling/dvm-
 .. toctree::
    :maxdepth: 5
    :caption: Contents
+   :numbered: 3
    
    model_overview
    running_dvmdostem
@@ -46,7 +47,7 @@ The code is available on Github: https://github.com/uaf-arctic-eco-modeling/dvm-
 
 .. toctree::
     :maxdepth: 5
-    :numbered: 0
+    :numbered: 3
     :caption: Examples and Tutorials
     :hidden:
 
