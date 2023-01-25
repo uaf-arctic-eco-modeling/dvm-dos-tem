@@ -528,15 +528,15 @@ Setting up the working directory
 ==================================
 
 First we are going to set up a working directory where we will conduct our model
-run and save the outputs. We will keep this directory inside the workflows
+run and save the outputs. We will keep this directory inside the ``workflows``
 folder (which you linked from your host to the container during the setup
 above). There is a helper script for setting up a working directory. This script
 will copy over the required parameter and settings files, set up an output
 folder and make some adjustments to the configuration file for the run.
 
 Using the one-off command style, run the script. For this case we just
-arbitrarily select something from the input catalog. I'd have to look at a map
-to know where Chevak is.
+arbitrarily select a dataset from your input catalog. Don't worry if you have a
+different dataset from the example shown here.
 
 .. code:: bash
 
@@ -619,19 +619,21 @@ Let’s look around in the directory you just created.
   calibration  config  output  parameters  run-mask.nc
 
 The idea is that each run will exist in its own self-contained directory with
-all the config files and the output data. This way the run can be easily
-adjusted, re-run, and archived for later use without losing any provenance data.
-The one linked item will be the actual driving input data files - they are not
-copied into the run directory, but are simply linked by specifying paths in the
-``config/config.js`` file. If you need you could copy the inputs into the run
-directory and adjust the paths in the ``config/config.js`` file accordingly. All
-the parameters for the run are in the ``parameters/`` directory, there is
-``run-mask.nc`` for controlling which pixels to run, a folder for calibration
-info, a folder for the outputs and a folder for the config file and output
-specification file.
+all the config files necessary to execute the run. The output data will also be
+stored here. This ensures that the run can be easily adjusted, re-run, and
+archived for later use without losing any provenance data. By default the
+driving input data is not copied to the experiment folder (to save space). If
+you need to copy the driving input data into your experiment directory, try the
+``--copy-inputs`` flag.
 
-Adjusting ``config`` file
-===========================
+If you inspect the ``config/config.js`` file, you will see that the paths to the
+input data are absolute (starting with ``/`` and pointing toward the input
+dataset that you specified) and the paths to the parameters, ``run-mask.nc``,
+calibration folder, ``outspec.csv`` and output folder are relative (no leading
+``/``).
+
+Adjusting the ``config`` file
+===============================
 
 .. _Input shapes:
 .. note:: 
@@ -692,12 +694,12 @@ Choosing the outputs
 
 Next we need to enable some output variables. The control for which outputs
 ``dvmdostem`` will generate and at what resolution happens using a special
-``.csv`` file. The file has one row for every possible variable and columns for
+``.csv`` file. The file has one row for every available variable and columns for
 the different resolutions. The file can be edited by hand, but we have also
 written a utility script for working with the file. We’ll use the utility script
 here. For this example we will do our command using the interactive form instead
 of the one-off form. Also notice that this script outputs a summary of the
-variable enabled in a tabular format. This means that it is hard to read on a
+variables enabled in a tabular format. This means that it is hard to read on a
 narrow screen because the lines wrap, which is why the following looks so bad.
 On your computer you can make the font smaller or your terminal wider to have
 the output be readable.
@@ -721,29 +723,67 @@ the output be readable.
                   VEGC                 g/m2            y            m      invalid            p                   invalid       double     Total veg. biomass C
 
 .. _outspec utils:
-.. note::
+.. warning::
 
   The order of arguments to ``outspec_utils.py`` is very counterintuitive!  The
   file you want to modify needs to be the first argument so that it doesn't get
   confused with the resolution specification.
+
+.. _outspec utils flags:
+.. note::
+
+  Try the ``--help`` flag for more options, inparticular, the ``-s`` flag for 
+  summarizing the current file.
+
+Every output variable can be produced for a set of dimensions. These dimensions
+are a reflection of the :ref:`structure of the model<model_overview:Structure>`
+and vary between output variables. The more dimensions are selected, the more
+information you will get, and the larger the output files will be. For regional
+runs, a trade-off between the granularity of the outputs needed and the size of
+the output files needs to be considered.
+
+Three time dimensions are available: yearly, monthly and daily. Daily outputs
+are only available for a few physical variables, and aren’t generally produced
+as (1) the model is primarily designed to represent ecological dynamics on a
+monthly basis, and (2) the amount of data created rapidly becomes unmanageable
+for multi-pixel runs.
+
+Two dimensions are specific to the vegetation: PFT, i.e. plant functional type,
+and Compartment. By default, all output variables associated with the
+vegetation are produced for the entire ecosystem (community type). But every
+community type is defined by an ensemble of plant function types, which are
+composed of single or multiple species sharing similar functional traits (e.g.
+"deciduous shrubs", "evergreen trees", "sphagnum moss" ...). Finally, every PFT is
+partitioned into multiple compartments: “leaves”, “wood” (stem and
+branches), and “roots” (coarse and fine). By selecting PFT and/or compartment,
+the outputs for a vegetation-related variable will be partitioned by these
+dimensions. 
+
+One dimension is specific to the soil column: layer. The soil column is divided
+into multiple layers, that can belong to five types of horizons – brown moss,
+fibric organic, humic organic, mineral and rock. By default, soil-related
+variables will be summed-up across the entire soil column. But if the layer
+dimension is selected in the ``output_spec.csv`` file, the selected variable
+will produce ouputs by layer.
+
 
 ************************
 Launch the dvmdostem run
 ************************
 
 Finally we are set to run the model! There are a number of command line options
-available for ``dvmdostem`` which you can investigate with the ``--help`` flag. The
-options used here are for setting the length of the :ref:`run-stages
-<model_overview:Temporal>`, for controlling the log level output, and
-for forcing the model to run as a particular community type.
+available for ``dvmdostem`` which you can investigate with the ``--help`` flag.
+The options used here are for setting the length of the :ref:`run-stages
+<model_overview:Temporal>`, for controlling the log level output, and for
+forcing the model to run as a particular community type.
 
-In a real run ``--eq-yrs`` might be something like 1500 and ``--sp-yrs`` something like
-250. But for testing we might be too impatient to wait for that. Plus for this
-toy example, we enabled fairly hi-resolution outputs so running the model for
-long time spans could result in huge volumes of output. The ``dvmdostem`` model is
-fairly flexible with respect to outputs and output resolution so the user must
-put some thought into choosing configurations that make sense and are reasonable
-for the available computing power.
+In a real run ``--eq-yrs`` might be something like 1500 and ``--sp-yrs``
+something like 250. But for testing we might be too impatient to wait for that.
+Plus for this toy example, we enabled fairly hi-resolution outputs so running
+the model for long time spans could result in huge volumes of output. The
+``dvmdostem`` model is fairly flexible with respect to outputs and output
+resolution so the user must put some thought into choosing configurations that
+make sense and are reasonable for the available computing power.
 
 In this case we are forcing the community type to be CMT 4. In a “normal”
 ``dvmdostem`` run, the community type is controlled by the input
@@ -752,8 +792,8 @@ corresponds to the CMT numbers in the parameter files. Frequently for single
 pixel runs the user wants to ignore the ``vegetation.nc`` map and force the
 pixel to run as a particular CMT. In this case we want to force our pixel to run
 as CMT 4 simply because we know that the parameters for CMT 4 have been
-calibrated. For more discussion about community types in dvmdostem see :ref:`the CMT
-section <model_overview:Community Types (CMTs)>`. 
+calibrated. For more discussion about community types in dvmdostem see :ref:`the
+CMT section <model_overview:Community Types (CMTs)>`. 
 
 The ``--log-level`` command line option controls the amount of information that is
 printed to the console during the model run. There are 5 levels to choose from:
