@@ -11,8 +11,9 @@ Basic Model Setup and Run
 
 This exercise/tutorial walks through the process of making a basic model
 simulation. With this exercise you will get to interact with the code and a
-bunch of the supporting tools, including Docker, Git, and some visualization
-tools.
+bunch of the supporting tools, including Docker, and Git. For post processing
+and visualization, see the :ref:`Plotting Example
+<examples_and_tutorials/plotting_discussion:Plotting>`. 
 
 .. note::
 
@@ -25,14 +26,18 @@ tools.
 
 This tutorial will walk you through the process of:
  
- - getting the dvmdostem code, 
+ - getting the ``dvmdostem`` code, 
  - building your Docker images, 
- - starting your Docker containers,
- - running dvmdostem in your Docker container (in a trivial and silly fashion), and
- - making a similarly trivial and silly plot.
+ - starting your Docker containers, and
+ - running ``dvmdostem`` in your Docker container (in a trivial fashion).
 
 This tutorial will walk you through most of the above steps with varying levels
 of hand-holding.
+
+If you need more background help, please see the Prelude document which has
+information on :ref:`Version Control<prelude:Version Control>`,
+:ref:`Docker<prelude:Docker>`, and :ref:`general programming<prelude:General
+Programming>`.
 
 *************
 Install tools
@@ -59,8 +64,16 @@ a server. In addition to basic code hosting Github provides a heap of additional
 features including issue tracking, access control, and various continuous
 integration, testing and publishing tools.
 
-There are more details about version control in the
-:ref:`software_development_info:Version Management` section of the Dev Info
+For more general information and help about Git, see the :ref:`Prelude - Version
+Control<prelude:Version Control>` section.
+
+For more information and details about how the ``dvmdostem`` project is using
+Git, please see the :ref:`Dev Info - Version
+Management<software_development_info:Version Management>` section.
+
+For more information about how the ``dvmdostem`` project is using Github, see
+the :ref:`Using Github
+Features<examples_and_tutorials/using_github_features:Using Github's Features>`
 document.
 
 Git terms you should familiarize yourself with before continuing: commit,
@@ -147,10 +160,15 @@ of 2022 popular text editors are Sublime, VSCode, and Atom. MacOS and Linux
 generally have an easily accessible terminal program. For Windows, look into
 MobaXTerm.
 
-So to get going, do the following:
+Summary
+========
+So to get going, do the following if you do not already have these tools:
 
+ #. Install a text editor and terminal program. 
  #. Install Git on your computer. Directions for this vary based on your
-    operating system; you should be able to get started here https://git-scm.com.
+    operating system; you should be able to get started here
+    https://git-scm.com. When you are done you should be able to run ``git
+    --version``.
  #. Install Docker. Again directions for this vary for your operating system but
     you should be able to get started here https://docs.docker.com. When
     you are done, you should be able to open a terminal and run ``$ docker
@@ -177,22 +195,40 @@ So to get going, do the following:
 Get the code
 ************
 
-With your tools setup, it is time to get started. Navigate to
-https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem and find the link to clone the
-repository. On your computer, open a terminal and navigate to a place where you
-would like your copy of ``dvmdostem`` to be stored. Copy the clone address and
-use it to run the ``$ git clone`` command in your terminal. You might notice
-that the clone address is simply the URL for the repo with ``.git`` at the end.
-This will fetch a copy of the repository from Github to your local machine. You
-should see some messages in your terminal to that extent. Notice that on your
-machine you now have a new directory entitled ``dvm-dos-tem`` with an exact copy
-of the code that is on Github. In addition, due to the power of Git, you also
-have the entire history of the project on your computer as well. This works
-because inside your dvm-dos-tem directory is another (hidden) folder named
-``.git`` - this hidden folder contains the history of the project and all the
-other information that Git needs to perform its magic. You rarely, if ever, need
-to look at the contents of the ``.git`` directory. Take a few minutes to explore
-the files in the dvm-dos-tem directory.
+With your tools setup, it is time to get the source code. Navigate to
+https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem and find the link to
+clone the repository. 
+
+.. image:: ../images/github_clone.png
+
+On your computer, open a terminal and navigate to a place where you would like
+your copy of ``dvmdostem`` to be stored. Copy the clone address and use it to
+run the ``$ git clone`` command in your terminal. 
+
+.. _ssh vs http:
+.. note::
+
+  Using ``ssh`` vs ``https`` clone address. Notice that the "clone" button on
+  github gives you the option to use either the ``https`` address (default) or
+  the ``ssh`` address. If you are have been added to the project as a
+  collaborator you should use the ``ssh`` address so that you are able to push
+  changes to the upstream fork. If you use the ``https`` address, you will still
+  be able to push to your personal fork, but will not be able to push to the
+  upstream ``uaf-arctic-eco-modelling`` fork.
+
+
+You might notice that the clone address is simply the URL for the repo with
+``.git`` at the end. This will fetch a copy of the repository from Github to
+your local machine. You should see some messages in your terminal to that
+extent. Notice that on your machine you now have a new directory entitled
+``dvm-dos-tem`` with an exact copy of the code that is on Github. In addition,
+due to the power of Git, you also have the entire history of the project on your
+computer as well. This works because inside your ``dvm-dos-tem/`` directory is
+another (hidden) folder named ``.git`` - this hidden folder contains the history
+of the project and all the other information that Git needs to perform its
+magic. You rarely, if ever, need to look at the contents of the ``.git``
+directory. Take a few minutes to explore the files in the ``dvm-dos-tem``
+directory.
 
 .. _Names:
 .. note::
@@ -206,7 +242,7 @@ the files in the dvm-dos-tem directory.
   executable does not have hyphens.
 
 .. _git remotes:
-.. note::
+.. warning::
 
   Notice that when you run ``$ git remote -v`` you are presented with some text
   indicating that your remote is named ‘origin’ and points to the Github
@@ -216,7 +252,7 @@ the files in the dvm-dos-tem directory.
   use the ``$ git remote rename <old> <new>`` command.
 
 .. _git branch:
-.. note::
+.. warning::
 
   Notice that after cloning the repository and running the ``$ git branch``
   command you are on the master branch of the code. It is highly recommended
@@ -422,9 +458,9 @@ dvmdostem source code. To do this, run the following command:
 
 which will use the environment and tools inside the container to compile the C++
 source code (which is linked into the container via the mounted volume) into the
-``dvmdostem`` binary.This can take several minutes. Once it is done you should
-have a new file in your repository folder named dvmdostem. You should not need
-to run this again unless you modify the C++ source files.
+``dvmdostem`` binary. This can take several minutes. Once it is done you should
+have a new file in your repository folder named ``dvmdostem``. You should not
+need to run this again unless you modify the C++ source files.
 
 Finally with all this setup in place we can start working on setting up a model
 run.
@@ -433,7 +469,7 @@ run.
 Setting up a dvmdostem run
 ***************************
 
-In general the steps to making a dvmdostem run are as follows:
+In general the steps to making a ``dvmdostem`` run are as follows:
 
 #. Decide where on your computer you want to store your model run(s).
 #. Decide what spatial (geographic) area you want to run.
@@ -451,7 +487,7 @@ In general the steps to making a dvmdostem run are as follows:
 #. Make plots or other analysis.
 
 The rest of this tutorial will walk through the above steps, doing a very basic
-dvmdostem run and plotting the output using the Docker stack.
+``dvmdostem`` run using the Docker stack.
 
 .. _Two ways to run Docker commands:
 .. note:: 
@@ -487,6 +523,9 @@ dvmdostem run and plotting the output using the Docker stack.
 
   Both methods will be used in this tutorial. The different methods can be used
   to leverage the shell’s tab-complete functionality in different circumstances.
+
+Setting up the working directory
+==================================
 
 First we are going to set up a working directory where we will conduct our model
 run and save the outputs. We will keep this directory inside the workflows
@@ -591,6 +630,9 @@ the parameters for the run are in the ``parameters/`` directory, there is
 info, a folder for the outputs and a folder for the config file and output
 specification file.
 
+Adjusting ``config`` file
+===========================
+
 .. _Input shapes:
 .. note:: 
 
@@ -620,6 +662,10 @@ your host machine or using ``vim`` from inside the container:
   ...
   }
 
+
+Adjusting the run mask
+========================
+
 Now let's adjust the run-mask so that we only run 1 or 2 pixels. Note that you
 can use the ``--show`` option to see what the mask looks like before and after
 adjusting it. We'll turn on 2 pixels here, just for fun:
@@ -640,6 +686,9 @@ adjusting it. We'll turn on 2 pixels here, just for fun:
 
 Note that you don't want to pass ``--reset`` to the second call, or it will
 disable the first pixel you enabled!
+
+Choosing the outputs
+=====================
 
 Next we need to enable some output variables. The control for which outputs
 ``dvmdostem`` will generate and at what resolution happens using a special
