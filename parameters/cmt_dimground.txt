@@ -222,6 +222,26 @@
 0.0996             // coefminea:
 0.8197             // coefmineb:
 //===========================================================
+// CMT31 // Boreal Bog
+// Snow characteristics
+350                // snwdenmax:  max. snow density (kg/m3)
+120                // snwdennew:  new (min.) snow density (kg/m3)
+0.0                // initsnwthick: initial snow thickness (m)
+0.0                // initsnwdense: initial snow density (kg/m3)
+// moss characteristics
+0.40               // maxmossthick: max. dead moss thickness (m) UPDATED
+0.21               // initdmossthick: initial dead moss thickness (m) UPDATED
+1                  // mosstype: // moss type (1: sphagnum; 2: furthermoss; 3: other)
+// soil characteristics
+0.33               // initfibthick: meters UPDATED
+0.90               // inithumthick: UPDATED
+0.05070            // coefshlwa: 0.0507
+1.00000            // coefshlwb: 0.708 MODIFIED to improve calibration stability of mineral c 0.925
+0.05011            // coefdeepa: 0.05011
+1.00000            // coefdeepb: 0.975
+0.18610            // coefminea: 0.1861
+1.00000            // coefmineb: 0.7577
+//===========================================================
 // CMT44 // Shrub Tundra Kougarok
 // Snow characteristics
 350                // snwdenmax:  max. snow density (kg/m3)
