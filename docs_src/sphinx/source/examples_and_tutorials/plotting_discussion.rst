@@ -146,10 +146,11 @@ command.
 
     $ ncks -A -h file1.nc file2.ncs
 
-Caution: the files need to be the same exact structure (the dimensions in common
-between files should have the same length, name and attributes). The data in
-file1.nc will be appended to file2.nc. This command processes files twice at a
-time.
+The ``-A`` flag indicate that the output file (file2.nc in this case), should
+append (vs overwrite) data. Caution: the files need to be the same exact
+structure (the dimensions in common between files should have the same length,
+name and attributes). The data in file1.nc will be appended to file2.nc. This
+command processes files twice at a time.
 
 Operations with multiple variables
 -----------------------------------
@@ -177,7 +178,7 @@ additional records can be added to it, before you can do the concatenation.
 
 $ ncks -O -h --mk_rec_dmn time input1.nc output1.nc
 $ ncks -O -h --mk_rec_dmn time input2.nc output2.nc
-$ ncecat -O -h output1.nc output2.nc output.nc
+$ ncrcat -O -h output1.nc output2.nc output.nc
 
 Unidata tools, ``ncdump`` and ``nccopy``
 =========================================
