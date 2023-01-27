@@ -28,6 +28,175 @@ with each other. Ideally code is written to work with a wide variety of
 environments as this makes it easier for other people to use the code in their
 circumstances.
 
+*****************************
+Data summary and preparation
+*****************************
+
+Frequently a first step, before plotting, is to summarize the output data and or
+reduce the dimensions. There are many ways to accomplish this and like the
+plotting, there is no single silver bullet solution.
+
+
+NetCDF Operators (NCOs)
+========================
+
+The NetCDF Operators (NCOs) are suite of command-line tools that can efficiently
+manipulate well-formed NetCDF datasets (e.g. compute statistics, concatenate,
+edit metadata, compression) and produce outputs or display results to your
+console. To our knowledge, NCOs are among the most efficient tools to manipulate
+large NetCDF files. You’ll  find a full description of the dozen existing
+operators in the nco user guide (https://nco.sourceforge.net/#RTFM). If you have
+questions on how to use an operator that is not addressed in the user guide, you
+can post them on the nco help forum:
+https://sourceforge.net/p/nco/discussion/9830. 
+
+Collected here are a few examples that show some of the capabilities. The
+examples here are far from exhaustive. If you encounter or develop a useful
+solution that you'd like to see here, plese send us a Pull Request!
+
+Subset netcdf files by dimensions
+-----------------------------------
+
+Example: we want to subset the last 10 years of an annual historical simulations
+115 years long.
+
+.. code::
+
+    $ ncks -O -h -d time,104,114,1 input.nc output.nc
+
+Caution: As in python, the indexing in nco starts at zero. So the index of the
+115th time step is actually 114. The flag ``-O`` will overwrite any existing output
+file. The flag ``-h`` will not include this command in the global attribute of the
+output file to document the history of its creation.
+
+
+Display variable values to terminal
+-------------------------------------
+
+Example: we want to display the annual active layer depth (ALD) values for upper left corner pixel of a regional run.
+
+.. code:: 
+
+    $ ncks -d x,0 -d y,0 -v ALD input.nc
+
+If you are not sure about the names of the dimensions and variables, you can
+always display the files structure using ncdump as described below.
+
+Compute sum, average and standard deviation across dimensions
+--------------------------------------------------------------
+
+Example: Model simulations produced monthly GPP time series partitioned by plant
+functional types and compartments. We now want to compute GPP at the community
+level by summing across plant functional types (dimension named pft) and
+compartments  (dimensions named pftpart).
+
+.. code::
+
+    $ ncwa -O -h -v GPP -a pftpart, pft -y ttl input.nc output.nc
+
+This command will produce sums of  GPP across two dimensions listed after the ``-a``
+flag. The variable to be summed is specified after the flag ``-v``.  Finally, the
+flag ``-y`` is used to indicate the type of operation to be done.
+
+Computations can also be done across a subset of the data. For instance the
+following command will compute the annual mean temperature for the months of
+June, July and August. To do so, you will need to make the time dimension as
+unlimited, as it is done with the ``ncks`` operator.
+
+.. code::
+
+    $ ncks -O -h --mk_rec_dmn time input.nc input1.nc
+    $ ncra --mro -O -d time,5,,12,3 -y avg -v tair input1.nc output.nc
+
+The ``-d`` flag indicate which dimension should the computation be done across.
+The indices following the dimension name indicate how to group and subset the
+dataset. The first index indicate where to start the operation (i.e. the month
+of June of the first year). The second indicate where to end the operation
+(nothing indicated means that the operation should be conducted across the
+entire time series). The third index indicate how to group the data (i.e. 12
+months chunks for yearly computations). Finally, the fifth index indicate the
+number of time step to do the operation for for every group (i.e. 3 months, from
+June to August). The ``-v`` flag indicate what variable to use for the operation.
+The ``-y`` flag indicate what type of operation to conduct. The option ``--mro``
+instructs ncra to output its results for each sub-group (in that case, each
+year).
+
+Append files of same dimensions
+-------------------------------
+``dvmdostem`` output variables are stored in single files. To append multiple
+variables from the same simulation in a single file, you can use the following
+command. 
+
+.. code::
+
+    $ ncks -A -h file1.nc file2.ncs
+
+Caution: the files need to be the same exact structure (the dimensions in common
+between files should have the same length, name and attributes). The data in
+file1.nc will be appended to file2.nc. This command processes files twice at a
+time.
+
+Operations with multiple variables
+-----------------------------------
+Example: model simulations produced annual thickness of the fibric and the humic
+horizons (namely SHLWDZ and DEEPDZ) of the organic layer and you want to compute
+the total organic layer thickness (OLDZ)
+
+.. code::
+
+    $ ncks -A -h SHLWDZ.nc DEEPDZ.nc
+    $ ncap2 -O -h -s 'OLDZ = DEEPDZ + SHLWDZ' DEEPDZ.nc OLDZ.nc
+
+The first command append the two variables in a single file. The second command
+is the arithmetic processor, accepting short scripts to create new variables. In
+this case, we create the variable OLDZ as the sum of two existing DEEPDZ and
+SHLWDZ.
+
+Concatenate files along the record dimension
+----------------------------------------------
+Whole model simulations consist of a succession of runs, i.e. pre-run,
+equilibrium, spin-up, transient (i.e. historical) and scenario. For analysis
+purposes, you may wat to concatenate the historical ad scenario runs into a
+single file. To do so, you will need to make the time dimension as unlimited, so
+additional records can be added to it, before you can do the concatenation.
+
+$ ncks -O -h --mk_rec_dmn time input1.nc output1.nc
+$ ncks -O -h --mk_rec_dmn time input2.nc output2.nc
+$ ncecat -O -h output1.nc output2.nc output.nc
+
+Unidata tools, ``ncdump`` and ``nccopy``
+=========================================
+
+Unidata also provides several very useful command-line utilities to manipulate
+NetCDF files. 
+
+``ncdump`` to explore a netcdf file structure. This command will list the
+dimensions, variables and metadata of a file. The ``-h`` specify to only display
+headers.
+
+.. code:: 
+
+    $ ncdump -h input.nc
+
+This command will list the dimensions, variables and metadata of a file AND the
+values for the coordinate variables. 	
+
+.. code::
+
+    $ ncdump -c input.nc
+
+
+Compress NetCDF files using ``nccopy``. This will copy and compress a netcdf
+file without loss of data.
+
+.. code::
+
+    $ nccopy -u -d1 input.nc output.nc This command
+
+ 
+Additional examples of file manipulation using nco can be found here
+(http://research.jisao.washington.edu/data_sets/nco/). 
+
 ***********************************
 Existing Tools, Code and Patterns
 ***********************************
