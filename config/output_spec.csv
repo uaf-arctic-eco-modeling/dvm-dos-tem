@@ -94,7 +94,7 @@ TCMINEB,Thermal conductivity middle mineral,W/m/K,,,,invalid,invalid,invalid,dou
 TCMINEC,Thermal conductivity bottom mineral,W/m/K,,,,invalid,invalid,invalid,double,
 TCSHLW,Thermal conductivity in fibrous horizon,W/m/K,,,,invalid,invalid,invalid,double,
 TDEEP,Temperature in amorphous horizon,degree_C,,,,invalid,invalid,invalid,double,
-TLAYER,Temperature by layer,degree_C,,,invalid,invalid,invalid,invalid,double,
+TLAYER,Temperature by layer,degree_C,,,invalid,invalid,invalid,,double,
 TMINEA,Temperature top mineral,degree_C,,,,invalid,invalid,invalid,double,
 TMINEB,Temperature middle mineral,degree_C,,,,invalid,invalid,invalid,double,
 TMINEC,Temperature bottom mineral,degree_C,,,,invalid,invalid,invalid,double,
