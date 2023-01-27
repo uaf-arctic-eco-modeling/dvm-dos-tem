@@ -60,14 +60,29 @@ Subset netcdf files by dimensions
 Example: we want to subset the last 10 years of an annual historical simulations
 115 years long.
 
-.. code::
+.. collapse:: ncks
 
-    $ ncks -O -h -d time,104,114,1 input.nc output.nc
+  The flag ``-O`` will overwrite any existing output file. The flag ``-h`` will
+  not include this command in the global attribute of the output file to
+  document the history of its creation.
 
-Caution: As in python, the indexing in nco starts at zero. So the index of the
-115th time step is actually 114. The flag ``-O`` will overwrite any existing output
-file. The flag ``-h`` will not include this command in the global attribute of the
-output file to document the history of its creation.
+  .. code::
+
+      $ ncks -O -h -d time,104,114,1 input.nc output.nc
+
+  .. note::
+
+    Caution: As in python, the indexing in nco starts at zero. So the index of
+    the 115th time step is actually 114. 
+  
+
+.. collapse:: python.netCDF4
+
+  .. code:: 
+
+    >>> import netCDF4 as nc
+    >>> ds = nc.Dataset('GPP_yearly_tr.nc')
+    >>> last_10yrs = ds.variables['GPP'][-10:,:,:]
 
 
 Display variable values to terminal

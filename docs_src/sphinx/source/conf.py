@@ -33,6 +33,7 @@ version = 'v0.6.1'
 # ones.
 extensions = [
   'sphinx.ext.autosectionlabel',
+  'sphinx_toolbox.collapse',
 ]
 
 # -- Config for some extensions ----------------------------------------------

@@ -9,4 +9,4 @@ jupyter==1.0.0
 lhsmdu==1.1
 Sphinx==5.1.1
 sphinx-rtd-theme==1.0.0
-
+sphinx-toolbox==3.4.0
