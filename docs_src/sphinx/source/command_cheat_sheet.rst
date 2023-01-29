@@ -54,6 +54,86 @@ Branch Management
    * - ``$git branch -D [branch-name]``
      - Force delete a branch, even if Git warns you
 
+-------------------------------
+Keeping ``master`` up to date
+-------------------------------
+
+.. list-table::
+
+   * - **Command Sequence**
+     - **Notes**
+   * - | ``$ git checkout master``  
+       | ``$ git remote update`` 
+       | ``$ git pull upstream master``
+     - | Make sure you are on the master branch
+       | Update remote refs
+       | Fetch and merge the upstream changes
+
+
+--------------------------------------------------------------
+Keeping ``master`` up to date while retaining local changes
+--------------------------------------------------------------
+
+.. list-table::
+
+   * - **Command Sequence**
+     - **Notes**
+   * - | ``$ git remote update``
+       | ``$ git stash``
+       | ``$ git checkout master``
+       | ``$ git pull upstream master``
+       | ``$ git checkout [PREVIOUS BRANCH]``
+       | ``$ git stash pop``
+     - | See what has changed upstream
+       | Set aside local changes
+       | Checkout the master branch
+       | Fetch and merge code from upstream
+       | Go back to the branch you were working on
+       | Re-apply your local changes
+
+-------------------------------
+Changing branches
+-------------------------------
+
+.. list-table::
+
+   * - **Command Sequence**
+     - **Notes**
+   * - | ``$ git status``  
+       | ``# address changes (e.g. stash, commit, or revert)`` 
+       | ``$ git checkout [BRANCH]``
+     - | See if you have any local changes
+       | Deal with your local changes
+       | Change branches
+
+-------------------------------
+Making a commit
+-------------------------------
+
+.. list-table::
+
+   * - **Command Sequence**
+     - **Notes**
+   * - | ``# edit files...make changes``  
+       | ``$ git status`` 
+       | ``$ git diff``
+       | ``$ git add [PATH TO FILE TO ADD]``
+       | ``$ git commit -m "Your message..."``
+     - | Do your coding work, whatever it may be...
+       | See what you've changed
+       | Evaluate what changed
+       | Add changes to the staging area
+       | Actually make the commit.
+
+.. note:: 
+
+   Most of the time in order to make simple, clear, consise commits, you need
+   granular control over which lines of each file shoud be comitted. This is
+   possible using the command line interface to Git but is frequently easier
+   using a graphical client such as Git Cola or Git Gui. Thre are many other
+   graphical clients available as well. 
+
+
 ---------------
 Code Management
 ---------------
