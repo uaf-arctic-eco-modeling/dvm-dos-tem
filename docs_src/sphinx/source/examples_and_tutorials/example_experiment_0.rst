@@ -27,9 +27,11 @@ Here we have designed a small experiment with answers to the unknowns posed in
 
    * - **Question**
      - **Answer**
-   * - Where on your computer you want to store your model run(s)?
+   * - | Where on your computer you want to store
+       | your model run(s)?
      - ``/data/workflows/exp0_jan26_test``
-   * - What spatial (geographic) area you want to run?
+   * - | What spatial (geographic) area you want
+       | to run?
      - | Toolik, pixels (0,0), (1,1), (2,2)
        | ``/data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_TOOLIK_FIELD_STATION_10x10/``
    * - What variables you want to output?
@@ -41,14 +43,17 @@ Here we have designed a small experiment with answers to the unknowns posed in
        | CMTNUM: yearly
    * - Which stages to run and for how many years?
      - All stages, pr 100, eq 1000, sp 250, tr 115, sc 85 
-   * - Is the community type (CMT) fixed or driven by input vegetation.nc map?
+   * - | Is the community type (CMT) fixed or driven by 
+       | input vegetation.nc map?
      - Force to CMT05
-   * - For which stages should the output files be generated and saved?
+   * - | For which stages should the output files be 
+       | generated and saved?
      - sp, tr, sc
    * - | Calibration settings if necessary
        | (i.e. ``--cal-mode``)?
      - No
-   * - Any other command line options or environment settings?
+   * - | Any other command line options or environment
+       | settings?
      - No       
 
 .. warning::
@@ -305,7 +310,7 @@ simulations. Indicate how you formulated NEE.
 
 
 ****************************
-Computing mean GPP
+Computing Mean GPP
 ****************************
 
 Compute the mean GPP, autotrophic and heterotrophic respirations and NEE for the
@@ -388,7 +393,7 @@ Plot the active layer depth from 1950 to 2100.
 
 
 ******************************
-Plot seasonal dynamic
+Plot Seasonal Dynamic
 ******************************
 
 Plot the seasonal dynamic of GPP for the same three decades: [1990-2010],
@@ -439,7 +444,7 @@ envelopes.
 
 
 *****************************
-Plot soil temperatures
+Plot Soil Temperatures
 *****************************
 
 Plot the soil temperature profile for [June-July-August] period for the same
