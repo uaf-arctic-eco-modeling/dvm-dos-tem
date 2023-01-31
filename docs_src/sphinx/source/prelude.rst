@@ -379,3 +379,86 @@ Docker
 
    <!-- shared from Tobey Carmans's Docker Diagram google drawing -->
    <iframe src="https://docs.google.com/presentation/d/e/2PACX-1vSX3m0NGfLrNlOz_RccNyhRh11qwW1Lf0v5bQ1E5nA3RwCl_YHrWOx-S1cVA0AX6e3zZwBKnpyjD5kQ/embed?start=true&loop=true&delayms=3000" frameborder="0" width="480" height="299" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true"></iframe>
+
+*********************************
+Plotting and Graphical Outputs
+*********************************
+
+Plotting is a natural and essential step in the modelling process. The use-cases
+and limitations are numerous and there is not a single silver bullet plotting
+solution that is sure to work for you.
+
+When working on or with plotting code, it is helpful to remember that problems
+can arise in two overlapping spheres: *capability* and *environment*.
+
+*Capability* refers to whether or not the analysis and visualisation you seek
+are implemented in the code you are working with.
+
+*Environment* referes to whether the computing environment(s) you work with have
+the appropriate hardware, software, tools, etc to carry out the capabilities of
+the code you are working with.
+
+These concerns are sometimes totally distinct and sometimes arise in conflict
+with each other. Ideally code is written to work with a wide variety of
+environments as this makes it easier for other people to use the code in their
+circumstances.
+
+There are several paradigms that can be used for working with plots and
+graphical output formats. The paradigms are surveyed below.
+
+
+Interactive Window
+==========================================
+The interactive window paradigm assumes that you have a "windowing" system
+available to you, i.e. something like XWindows or Quartz. In this paradigm, the
+plotting library and tools work with the windowing system to display your plot
+and (sometimes) allow you to interact with the plot. Frequently you can update
+the plot by either using interactive tools, or re-running all or part of the
+code. The ability to interact with the plot(s) is very helpful for exploring
+data as you don't need to know a-priori the best settings for axis tick marks,
+limits, etc.
+
+Matplotlib has popularized this approach, but it is available in many other
+systems and baked into some IDEs.
+
+.. image:: images/example_interactive_plot.png
+  :width: 300
+  :alt: Example of matplotlib interactive window
+
+
+Static Plot 
+==========================
+The static plot paradigm is the simplest. In this mode, code generates and
+outputs a ``.png`` or ``.jpg`` file (or similar). Because there is no way to
+interact with the image after it has been built, this method can be difficult
+when you are first exploring the data and you haven't found the best settings
+for axis bounds, ticks, etc.
+
+When using a static image, you generally need a way to control where the
+resulting files are saved. 
+
+Many libraries are able to generate static images.
+
+
+Interactive Browser Plots
+==============================
+The interactive browser plot paradigm provides the same capabilites as an
+Interactive Window plot, but instead of using a special (and often platform
+specific) windowing system, a web browser is used to display the plots. This
+offers a number of distinct advantages:
+
+  - web browsers are omni-present,
+
+  - the ecosystem of available tools for display and interaction in a web
+    browser is very rich,
+
+  - de-coupling of the genearation and display aspects of plotting.
+
+In addition to de-coupling the generation and display conerns, this approach
+allows for networking and enables plotting using and Docker container run-time
+or any other network-accessible run-time!
+
+There are many tools that leverage this functionality, notably Jupyter
+Notebooks, Bokeh, and RStudio.
+
+
