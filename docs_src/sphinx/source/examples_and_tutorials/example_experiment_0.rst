@@ -34,7 +34,7 @@ Here we have designed a small experiment with answers to the unknowns posed in
        | ``/data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_TOOLIK_FIELD_STATION_10x10/``
    * - What variables you want to output?
      - | GPP: monthly, by PFT
-       | RH, RA, RG, RM: monthly
+       | RH, RG, RM: monthly
        | TLAYER: monthly by layer
        | VEGC: yearly
        | ALD: yearly
