@@ -54,6 +54,8 @@ Branch Management
    * - ``$ git branch -D [branch-name]``
      - Force delete a branch, even if Git warns you
 
+.. _staying_udpated:
+
 -------------------------------
 Keeping ``master`` up to date
 -------------------------------

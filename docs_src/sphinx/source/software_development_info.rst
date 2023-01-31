@@ -514,6 +514,12 @@ rarutter@alaska.edu.
 The steps are described in the ``HOWTO_RELEASE.md`` document and the result is 
 that release is visible here: https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem/releases
 
+================================================
+Keeping your repo up to date with ``upstream``
+================================================
+
+See the :ref:`"Command Cheat Sheet"<staying_udpated>`.
+
 
 *******************************
 Testing and Deployment
