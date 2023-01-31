@@ -38,7 +38,6 @@ Here we have designed a small experiment with answers to the unknowns posed in
        | TLAYER: monthly by layer
        | VEGC: yearly
        | ALD: yearly
-       | SOMA: yearly
        | CMTNUM: yearly
    * - Which stages to run and for how many years?
      - All stages, pr 100, eq 1000, sp 250, tr 115, sc 85 
@@ -70,22 +69,18 @@ Here we have designed a small experiment with answers to the unknowns posed in
       $ ./scripts/setup_working_directory.py --input-data-path /data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_TOOLIK_FIELD_STATION_10x10 /data/workflows/exp0_jan26_test
       $ cd /data/workflows/exp0_jan26_test/
       $ outspec_utils.py config/output_spec.csv --on RH m
-      #$ outspec_utils.py config/output_spec.csv --on RA m
       $ outspec_utils.py config/output_spec.csv --on RG m
       $ outspec_utils.py config/output_spec.csv --on RM m
       $ outspec_utils.py config/output_spec.csv --on TLAYER l m
       $ outspec_utils.py config/output_spec.csv --on GPP m p
       $ outspec_utils.py config/output_spec.csv --on VEGC y
       $ outspec_utils.py config/output_spec.csv --on ALD y
-      $ outspec_utils.py config/output_spec.csv --on SOMA y
       $ outspec_utils.py config/output_spec.csv --on CMTNUM y
       $ outspec_utils.py config/output_spec.csv --on SHLWC y 
       $ outspec_utils.py config/output_spec.csv --on DEEPC y 
       $ outspec_utils.py config/output_spec.csv --on MINEC y 
       $ outspec_utils.py config/output_spec.csv --on LAYERDZ y l
       $ outspec_utils.py config/output_spec.csv --on LAYERDEPTH y l
-      #$ outspec_utils.py config/output_spec.csv --on DEEPDZ y
-      #$ outspec_utils.py config/output_spec.csv --on SHLWDZ y
       $ outspec_utils.py config/output_spec.csv --on LAYERTYPE y l 
       $ runmask-util.py --reset run-mask.nc 
       $ runmask-util.py --yx 0 0 run-mask.nc 
@@ -98,11 +93,10 @@ Here we have designed a small experiment with answers to the unknowns posed in
 Example Python setup
 ***************************
 
-The Python example solutions share a bunch of code. For this reason, we will
-put the common setup here and not need to repeat the these lines in each
-example. The paths assume that these examples will be run on the TEM Docker
-stack. Subsequent Python example solutions assume that these setup commands 
-have been run.
+The Python example solutions share a bunch of code. For this reason, we will put
+the common setup here and not need to repeat these lines in each example. The
+paths assume that these examples will be run on the TEM Docker stack. Subsequent
+Python example solutions assume that these setup commands have been run.
 
 .. collapse:: Common Python setup
    :class: working
