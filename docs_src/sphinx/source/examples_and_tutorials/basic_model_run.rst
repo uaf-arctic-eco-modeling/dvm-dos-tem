@@ -489,7 +489,7 @@ In general the steps to making a ``dvmdostem`` run are as follows:
 The rest of this tutorial will walk through the above steps, doing a very basic
 ``dvmdostem`` run using the Docker stack.
 
-.. _Two ways to run Docker commands:
+.. _two-ways-to-run-docker-commands:
 .. note:: 
 
   There are two distinct ways to run commands in the Docker containers:

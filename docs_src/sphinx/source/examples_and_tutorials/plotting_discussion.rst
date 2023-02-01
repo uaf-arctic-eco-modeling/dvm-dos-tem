@@ -165,9 +165,11 @@ Note that while the ``ncview`` interface appears a bit antiquated, it is an
 extremely functional program that allows exploration of NetCDF files.
 
 We can create a very similar plot to the ``ncview`` plot using our
-``plot_output_var.py`` script, for example. Notice that we have used the one-off
-style of command here, and that we are viewing the saved file after the script
-has exited. 
+``plot_output_var.py`` script, for example. Notice that we have used the Docker
+one-off style of command here, and that we are viewing the saved file after the
+script has exited. For more info on the different ways to interact with Docker,
+see :ref:`Note on Docker commands <two-ways-to-run-docker-commands>` and the
+:ref:`Prelude - Docker<prelude:Docker>` sections.
 
 .. image:: ../images/examples_and_tutorials/plotting_discussion/plot_output_var_example.png
   :width: 600
