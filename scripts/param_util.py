@@ -382,6 +382,7 @@ def csv2fwt_v1(csv_file, ref_directory='../parameters',
 
   Unrefined function that depends on the csv file being
   appropriately formatted in a variety of ways, including at least:
+
    - consistent pft names
    - all variables present
    - calibration targets variables for leaf/stem/roots being named as follows
@@ -410,7 +411,8 @@ def csv2fwt_v1(csv_file, ref_directory='../parameters',
 
   Return
   ======
-  Zero.
+  int
+    Returns zero upon successful completion.
   '''
 
   sections = csv_v1_find_section_indices(csv_file)
@@ -608,6 +610,7 @@ def csv_v1_specification():
   Each csv file will hold the data for one Community Type (CMT). As such the csv
   file will be broken into sections to accomodate the different number of
   columns in different sections. The sections of the file will be: 
+
    - a metadata section,
    - a section for PFT specific parameters, and
    - a section for non-PFT parameters.
@@ -615,13 +618,19 @@ def csv_v1_specification():
   Each section will begin with a header line that describes the columns.
   
   The header for the metadata will be: 
-  file,cmtkey,cmtname,comment
+  ::
+
+    file,cmtkey,cmtname,comment
 
   The header for the PFT section will be:
-  file,name,0,1,2,3,4,5,6,7,8,9,units,description,comment,refs
+  ::
+
+    file,name,0,1,2,3,4,5,6,7,8,9,units,description,comment,refs
 
   The header for the non-PFT section will be:
-  file,name,value,units,description,comment,refs
+  ::
+
+    file,name,value,units,description,comment,refs
 
   Each section will end with two consecutive blank lines.
 
@@ -632,34 +641,35 @@ def csv_v1_specification():
   in the sample below.
 
   Example data:
+  ::
 
-  # dvmdostem parameters: v0.5.6-178-g4cdb7c34
-  # cmtnumber: 22
-  # cmtname: Single PFT Alpine Tussock Tundra
-  # cmtdescription: alpine tussock tundra for Interior Alaska ....
-  # calibration site: The sentinel site used ....
-  # calibration notes: Calibration conducted manually by Joy ... 
-  # references file: refs.bib
-  #
-  # To convert this file back to fixed width text for use with dvmdostem
-  # see the param_util.csv2fwt_v1() function.
-  #
-  file,cmtkey,cmtname,comment,,,,,,,,,,,,
-  ../parameters/cmt_bgcvegetation.txt,CMT22,Single PFT Alpine Tussock Tundra,,,,,,,,,,,,,
-  ../parameters/cmt_dimvegetation.txt,CMT22,Single PFT Alpine Tussock Tundra,,,,,,,,,,,,,
-  ,,,,,,,,,,,,,,,
-  ,,,,,,,,,,,,,,,
-  file,name,0,1,2,3,4,5,6,7,8,9,units,description,comment,refs
-  ../calibration/calibration_targets.py,PFTNames,ecosystem,pft1,pft2,pft3,pft4,pft5,pft6,pft7,pft8,pft9,,,,
-  ../calibration/calibration_targets.py,VegCarbon:Leaf,320.2073015,0,0,0,0,0,0,0,0,0,,,,
-  ../calibration/calibration_targets.py,VegCarbon:Root,480.9949012,0,0,0,0,0,0,0,0,0,,,,
-  ,,,,,,,,,,,,,,,
-  ,,,,,,,,,,,,,,,
-  file,name,value,units,description,comment,refs,,,,,,,,,
-  ../calibration/calibration_targets.py,AvailableNitrogenSum,1.7,,,,,,,,,,,,,
-  ../calibration/calibration_targets.py,MossDeathC,0,,,,,,,,,,,,,
-  ../parameters/cmt_bgcsoil.txt,fnloss,0,,  fraction N leaching (0 - 1) when drainage occurs,,,,,,,,,,,
-  ../parameters/cmt_bgcsoil.txt,fsompr,0.611,,,,,,,,,,,,,
+    # dvmdostem parameters: v0.5.6-178-g4cdb7c34
+    # cmtnumber: 22
+    # cmtname: Single PFT Alpine Tussock Tundra
+    # cmtdescription: alpine tussock tundra for Interior Alaska ....
+    # calibration site: The sentinel site used ....
+    # calibration notes: Calibration conducted manually by Joy ... 
+    # references file: refs.bib
+    #
+    # To convert this file back to fixed width text for use with dvmdostem
+    # see the param_util.csv2fwt_v1() function.
+    #
+    file,cmtkey,cmtname,comment,,,,,,,,,,,,
+    ../parameters/cmt_bgcvegetation.txt,CMT22,Single PFT Alpine Tussock Tundra,,,,,,,,,,,,,
+    ../parameters/cmt_dimvegetation.txt,CMT22,Single PFT Alpine Tussock Tundra,,,,,,,,,,,,,
+    ,,,,,,,,,,,,,,,
+    ,,,,,,,,,,,,,,,
+    file,name,0,1,2,3,4,5,6,7,8,9,units,description,comment,refs
+    ../calibration/calibration_targets.py,PFTNames,ecosystem,pft1,pft2,pft3,pft4,pft5,pft6,pft7,pft8,pft9,,,,
+    ../calibration/calibration_targets.py,VegCarbon:Leaf,320.2073015,0,0,0,0,0,0,0,0,0,,,,
+    ../calibration/calibration_targets.py,VegCarbon:Root,480.9949012,0,0,0,0,0,0,0,0,0,,,,
+    ,,,,,,,,,,,,,,,
+    ,,,,,,,,,,,,,,,
+    file,name,value,units,description,comment,refs,,,,,,,,,
+    ../calibration/calibration_targets.py,AvailableNitrogenSum,1.7,,,,,,,,,,,,,
+    ../calibration/calibration_targets.py,MossDeathC,0,,,,,,,,,,,,,
+    ../parameters/cmt_bgcsoil.txt,fnloss,0,,  fraction N leaching (0 - 1) when drainage occurs,,,,,,,,,,,
+    ../parameters/cmt_bgcsoil.txt,fsompr,0.611,,,,,,,,,,,,,
   '''
   pass # Do nothing, simply a docstring function!
 
@@ -754,7 +764,8 @@ def csv_v0_specification():
   '''
   Specification for csv files that hold parameter data.
   
-  (DEPRECATED!!)
+  .. deprecated:: 0.6.1
+    `csv_v0` format will be removed in later versions!
 
   This csv format is intended to be used as a bridge between Excel
   and the dvmdostem space delimited parameter files. Expected usage: A user
@@ -764,6 +775,7 @@ def csv_v0_specification():
   text that can be copied into dvmdostem parameter files.
 
   The csv file should be setup as follows:
+
   - The csv file must have blank rows (lines) separating each section, or block 
     of data. Generally each block of data will be intended for a different parameter 
     file, i.e. cmt_envcanopy.txt, etc.
@@ -779,24 +791,25 @@ def csv_v0_specification():
   out, and no verification is done to see if there is a conflicting CMT number in 
   any existing parameter files.
 
-  Example File
+  Examples
   ------------
+  ::
 
-        $ cat example.csv
-        ,,,,
-        pft name,EVR TREE,DEC SHRUB,DEC TREE,MOSS
-        ,,,,
-        CALIBRATION TARGETS,,,,
-        GPPAllIgnoringNitrogen,306.07,24.53,46.53,54.20
-        NPPAllIgnoringNitrogen,229.91,18.42,34.98,40.65
-        NPPAll,153.03,12.26,23.26,27.1
-        ,,,,
-        BCGVEGETATION,,,,
-        kc,400,400,400,400
-        ki,75,75,75,75
-        tmin,-1,-1,-1,-1
-        toptmin,15,15,15,15
-  '''
+    $ cat example.csv
+    ,,,,
+    pft name,EVR TREE,DEC SHRUB,DEC TREE,MOSS
+    ,,,,
+    CALIBRATION TARGETS,,,,
+    GPPAllIgnoringNitrogen,306.07,24.53,46.53,54.20
+    NPPAllIgnoringNitrogen,229.91,18.42,34.98,40.65
+    NPPAll,153.03,12.26,23.26,27.1
+    ,,,,
+    BCGVEGETATION,,,,
+    kc,400,400,400,400
+    ki,75,75,75,75
+    tmin,-1,-1,-1,-1
+    toptmin,15,15,15,15
+'''
   # This is a do-nothing function, used simply as a way to hold a nice 
   # docstring describing the csv format.
   pass
@@ -806,7 +819,8 @@ def csv_v0_get_pftnames(data):
   '''
   Retrieves PFT names from a specially formatted csv file.
 
-  (DEPRECATED!!)
+  .. deprecated:: 0.6.1
+    `csv_v0` format will be removed in later versions!
 
   Assumes that `data` is a list of lines read from a csv file that
   is formatted according to the csv_v0_specification. See help for the
@@ -820,7 +834,8 @@ def csv_v0_get_pftnames(data):
 
   Returns
   -------
-  A list of pft names read from the incoming data.
+  list
+    A list of pft names read from the incoming data.
   '''
   csvreader = csv.reader(data, dialect='excel', strict=True, skipinitialspace=True)
   for row in csvreader:
@@ -836,7 +851,8 @@ def csv_v0_find_section_starts(data):
   '''
   Gets the starting index and name for sections of data in a specially formatted csv file.
 
-  (DEPRECATED!!)
+  .. deprecated:: 0.6.1
+    `csv_v0` format will be removed in later versions!
 
   Assumes that `data` is a list of lines read from a csv file. See help
   (docstring) for csv_v0_specification().
@@ -849,9 +865,10 @@ def csv_v0_find_section_starts(data):
 
   Returns
   -------
-  A list of tuples, where the first item in the tuple is the index in the 
-  csv file where the section starts, and the second item in the tuple is the
-  text name for the section, as read from the file.
+  list
+    A list of tuples, where the first item in the tuple is the index in the 
+    csv file where the section starts, and the second item in the tuple is the
+    text name for the section, as read from the file.
   '''
   csvreader = csv.reader(data, dialect='excel', strict=True, skipinitialspace=True)
   starts = []
@@ -871,7 +888,8 @@ def csv_v0_get_section(data, start):
   '''
   Extracts a section of block of data from a specially formatted csv file.
 
-  (DEPRECATED!!)
+  .. deprecated:: 0.6.1
+    `csv_v0` format will be removed in later versions!
 
   Assumes that `data` is a list of lines read from a csv file. See help 
   (the docstring) for the csv_v0_specification() function to get more details
@@ -887,7 +905,8 @@ def csv_v0_get_section(data, start):
 
   Returns
   -------
-  The list of lines (rows) from `data` that belongs to a section or block.
+  list
+    The list of lines (rows) from `data` that belongs to a section or block.
   '''
   sectiondata = []
   for row in data[start:]:
@@ -909,8 +928,9 @@ def converter(x):
 
   Returns
   -------
-  If x castable to a float, a float is returned. If x is an empty string, 0.0
-  is returned. Otherwise x is returned un-modified.
+  float
+    If x castable to a float, a float is returned. If x is an empty string, 0.0
+    is returned. Otherwise x is returned un-modified.
   '''
   try:
     x = float(x)
@@ -925,7 +945,8 @@ def format_section_csv_v0(section_data, full_data):
   '''
   Prints data (presumably from csv file) to dvmdostem space delimited parameter format.
 
-  (DEPRECATED!!)
+  .. deprecated:: 0.6.1
+    `csv_v0` format will be removed in later versions!
 
   No effort is made to standardize the variable names or comments in the resulting
   block. Used a fixed width column, space delimited.
@@ -945,7 +966,8 @@ def format_section_csv_v0(section_data, full_data):
 
   Returns
   -------
-  A formatted string with space delimited parameter data.
+  str
+    A formatted string with space delimited parameter data.
   '''
 
   s = ''
@@ -981,7 +1003,8 @@ def get_CMTs_in_file(aFile):
 
   Returns
   -------
-  A list of dicts with info about the CMTs found in a file.
+  list of dicts
+    A list of dicts with info about the CMTs found in a file.
   '''
   data = read_paramfile(aFile)
 
@@ -1019,7 +1042,7 @@ def find_cmt_start_idx(data, cmtkey):
 
   Returns
   -------
-  i : int 
+  int 
     The first index in the list where the CMT key is found. If key is not found
     returns None.
   '''
@@ -1046,7 +1069,7 @@ def read_paramfile(thefile):
 
   Returns
   -------
-  d : [str, str, str, ...]
+  data : [str, str, str, ...]
     A list of strings (with newlines at the end of each string).
   '''
   with open(thefile, 'r') as f:
@@ -1121,6 +1144,7 @@ def standardize_pftnames(names):
 
   Returns
   -------
+  list
     A list of strings with each item changed to CamelCase.
 
   Example
@@ -1153,7 +1177,8 @@ def replace_CMT_data(origfile, newfile, cmtnum, overwrite=False):
 
   Returns
   -------
-  List of lines.
+  list
+    List of lines.
   '''
   with open(origfile, 'r') as f:
     data = f.readlines()
@@ -1250,7 +1275,13 @@ def isCMTkey(x):
   '''
   Function for testing validity of a CMT key specifier.
 
-  Examples:
+  Parameters
+  ==========
+  x : any
+    Something to be tested for being a (str) CMT key, i.e. somehting like
+    `'CMT01'`.
+
+  Examples
   =========
   >>> [isCMTkey(x) for x in ('cmt04', 'cmt999', 'CMt56', 'CMT4y6', 'CMT00')]
   [True, False, True, False, True]
@@ -1303,7 +1334,7 @@ def get_CMT_datablock(afile, cmtnum):
 
   Returns
   -------
-  d : [str, str, ...]
+  data : [str, str, ...]
     A list of strings, one item for each line in the CMT's datablock.
     Each string will have a newline charachter in it.
   '''
@@ -1388,7 +1419,8 @@ def parse_header_line(linedata):
 
   Returns
   -------
-  A tuple containing the (cmtkey, cmtname, cmtcomment)
+  tuple
+    A tuple containing the (cmtkey, cmtname, cmtcomment)
   '''
 
   header_components = [_f for _f in linedata.strip().split('//') if _f]
@@ -1463,7 +1495,7 @@ def cmtdatablock2dict(cmtdatablock):
 
   Returns
   -------
-  d : dict
+  cmtdict : dict
     A multi-level dict mapping names (deduced from comments) to parameter 
     values.
   '''
@@ -1560,9 +1592,10 @@ def format_CMTdatadict(dd, refFile, format=None):
 
   Returns
   =======
-
-  `ll` : [str, str, ...] A list of strings that are formatted with fixed width
-  columns, 12 chars wide, with 6 places after the decimal, something like this:
+  data : [str, str, ...] 
+    A list of strings that are formatted with fixed width columns, 12 chars 
+    wide, with 6 places after the decimal, something like this:
+    ::
 
       // CMT05 // Tussock Tundra  ...
       //    Betula       Decid.   ...
@@ -1652,7 +1685,7 @@ def generate_reference_order(aFile):
 
   Returns
   -------
-  l : [str, str, ...]
+  ref_order : [str, str, ...]
     A list of strings containing the variable names, parsed from the input file
     in the order they appear in the input file.
   '''
@@ -1698,7 +1731,7 @@ def comment_splitter(line):
 
   Returns
   -------
-  t : (str, str) - Tuple of strings.
+  (str, str) - Tuple of strings.
     A tuple containing the "before comment" string, and the "after comment"
     string. The "after commnet" string will include the comment charachter.
   '''
@@ -1720,7 +1753,8 @@ def get_datablock_pftkeys(dd):
 
   Returns
   -------
-  A sorted list of the keys present in dd that contain the string 'pft'.
+  [str, str, ... ] - list of strings
+    A sorted list of the keys present in dd that contain the string 'pft'.
   '''
   return sorted([i for i in list(dd.keys()) if 'pft' in i])
 
@@ -1972,15 +2006,18 @@ def build_param_lookup(pdir):
   -------
   lu : dict 
     A dictionary mapping file names to lists of parameters (pft and non-pft)
-    e.g. 
-    lu = { 
-      'cmt_calparbgc.txt': { 
-        'non_pft_params':['kdcsoma', ...], 'pft_params':['cmax', ...] 
-      },
-      'cmt_bgcsoil.txt': { 
-        'non_pft_params':['kdcsoma', ...], 'pft_params':[] 
-      },
-    }
+    e.g.
+
+    ::
+
+      lu = { 
+        'cmt_calparbgc.txt': { 
+          'non_pft_params':['kdcsoma', ...], 'pft_params':['cmax', ...] 
+        },
+        'cmt_bgcsoil.txt': { 
+          'non_pft_params':['kdcsoma', ...], 'pft_params':[] 
+        },
+      }
   '''
   lu = {}
   for f in os.listdir(pdir):

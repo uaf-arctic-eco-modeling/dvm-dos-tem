@@ -144,9 +144,59 @@ def generate_lhc(N, param_props):
   # ??
   sample_matrix = l * mat_diff + lo_bounds
 
-  return pd.DataFrame(sample_matrix, columns=[p['name'] for p in param_props])
+  def make_col_name(pdict):
+    '''Given a parameter, returns a column name like 'rhq10' or 'cmax_1', 
+    depending on whether the parameter is specified by PFT or not...'''
+    s = f"{pdict['name']}"
+    if 'pftnum' in pdict.keys():
+      s+= f"_pft{pdict['pftnum']}"
+    return s
 
 
+  return pd.DataFrame(sample_matrix, columns=[make_col_name(p) for p in param_props])
+
+
+def params_from_seed(seedpath, params, pftnums, percent_diffs, cmtnum):
+  '''
+  Builds a list of "param specifications" from the data in the `seedpath` and
+  for params specified in `params` for the pfts specified in `pftnums` and the
+  Community specified in `cmtnum`. Sets bounds based on the intial values
+  found in the `seedpath` and according to the percent_diffs.
+  '''
+
+  assert len(params) == len(pftnums), "params list and pftnums list must be same length!"
+  assert len(params) == len(percent_diffs), "params list and percent_diffs list must be same length"
+
+  final = []
+  plu = pu.build_param_lookup(seedpath)
+
+  for pname, pftnum, perturbation in zip(params, pftnums, percent_diffs):
+    original_pdata_file = pu.which_file(seedpath, pname, lookup_struct=plu)
+
+    p_db = pu.get_CMT_datablock(original_pdata_file, cmtnum)
+    p_dd = pu.cmtdatablock2dict(p_db)
+
+    if pname in p_dd.keys():
+      p_initial = p_dd[pname]
+      p_bounds = [p_initial - (p_initial*perturbation), p_initial + (p_initial*perturbation)]
+      final.append(dict(name=pname, bounds=p_bounds, initial=p_initial, cmtnum=cmtnum, pftnum=None))
+    else:
+      if pftnum == 'all':
+        for pftidx in range(0,10):
+          p_initial = p_dd['pft{}'.format(pftidx)][pname]
+          p_bounds = [p_initial - (p_initial*perturbation), p_initial + (p_initial*perturbation)]
+          final.append(dict(name=pname, bounds=p_bounds, initial=p_initial, cmtnum=cmtnum, pftnum=pftidx))
+      elif type(pftnum) is list:
+        for pftidx in pftnum:
+          p_initial = p_dd['pft{}'.format(pftidx)][pname]
+          p_bounds = [p_initial - (p_initial*perturbation), p_initial + (p_initial*perturbation)]
+          final.append(dict(name=pname, bounds=p_bounds, initial=p_initial, cmtnum=cmtnum, pftnum=pftidx))
+      elif type(pftnum) is int:
+        p_initial = p_dd['pft{}'.format(pftnum)][pname]
+        p_bounds = [p_initial - (p_initial*perturbation), p_initial + (p_initial*perturbation)]
+        final.append(dict(name=pname, bounds=p_bounds, initial=p_initial, cmtnum=cmtnum, pftnum=pftnum))
+
+  return final
   
 
 
@@ -154,64 +204,65 @@ class SensitivityDriver(object):
   '''
   Sensitivity Analysis Driver class.
 
-  Driver class for conducting dvmdostem SensitivityAnalysis.
-  Methods for cleaning, setup, running model, collecting outputs.
+  Driver class for conducting ``dvmdostem`` SensitivityAnalysis. Methods for
+  cleaning, setup, running model, collecting outputs.
 
   Basic overview of use is like this:
-   1. Instantiate driver object.
-   2. Setup/design the experiment (parameters, to use, 
-      number of samples, etc)
-   3. Use driver object to setup the run folders.
-   4. Use driver object to carry out model runs.
-   5. Use driver object to summarize/collect outputs.
-   6. Use driver object to make plots, do analysis.
+
+    1. Instantiate driver object.
+    2. Setup/design the experiment (working directory, seed path, parameters to
+       use, number of samples, etc)
+    3. Use driver object to setup the run folders.
+    4. Use driver object to carry out model runs.
+    5. Use driver object to summarize/collect outputs.
+    6. Use driver object to make plots, do analysis.
 
   Parameters
   ----------
+  work_dir : str, optional
+    The working directory path of the driver object.
 
-  See Also
-  --------
+  sampling_method : { None, 'lhc', 'uniform' }
+    Method that should be used to draw samples from the specified ranges in
+    order to construct the sample matrix. `lhc` will use the Latin Hyper Cube
+    sampling method and `uniform` will draw from a uniform distribution. The
+    default `None` is simply a placeholder.
+
+  clean : bool, default=False
+    CAREFUL! - this will forecfully remove the entrire tree rooted at
+    `work_dir`.
 
   Examples
   --------
-  Instantiate object, sets pixel, outputs, working directory, 
-  site selection (input data path)
-  >>> driver = SensitivityDriver()
+  Instantiate object, sets pixel, outputs, working directory, site selection
+  (input data path)
+
+      >>> driver = SensitivityDriver()
 
   Set the working directory for the driver (using something temporary for this
   test case).
-  >>> driver.work_dir = '/tmp/Sensitivity-inline-test'
+
+      >>> driver.work_dir = '/tmp/Sensitivity-inline-test'
 
   Show info about the driver object:
-  >>> driver.design_experiment(5, 4, params=['cmax','rhq10','nfall(1)'], pftnums=[2,None,2])
-  >>> driver.sample_matrix
-          cmax     rhq10  nfall(1)
-  0  63.536594  1.919504  0.000162
-  1  62.528847  2.161819  0.000159
-  2  67.606747  1.834203  0.000145
-  3  59.671967  2.042034  0.000171
-  4  57.711999  1.968631  0.000155
 
+      >>> driver.design_experiment(5, 4, params=['cmax','rhq10','nfall(1)'], pftnums=[2,None,2])
+      >>> driver.sample_matrix
+              cmax     rhq10  nfall(1)
+      0  63.536594  1.919504  0.000162
+      1  62.528847  2.161819  0.000159
+      2  67.606747  1.834203  0.000145
+      3  59.671967  2.042034  0.000171
+      4  57.711999  1.968631  0.000155
   '''
   def __init__(self, work_dir=None, sampling_method=None, clean=False):
-    '''
-    Constructor
-    Hard code a bunch of stuff for now...
+    '''Create a SensitivityDriver object.'''
 
-    Parameters
-    ----------
-    work_dir : 
+    self.__seedpath = None
 
-    clean : bool
-      CAREFUL! - this will forecfully remove the entrire tree rooted at `work_dir`.
-    '''
+    self.set_work_dir(work_dir)
 
-    # Made this one private because I don't want it to get confused with 
-    # the later params directories that will be created in each run folder.
-    self.__initial_params = '/work/parameters'
-
-    self.work_dir = work_dir 
-    self.site = '/data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_CALM_Toolik_LTER_10x10/'
+    self.site = '/work/demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10'
     self.PXx = 0
     self.PXy = 0
     self.outputs = [
@@ -226,44 +277,69 @@ class SensitivityDriver(object):
     if clean and work_dir is not None:
       self.clean()
 
+  def set_work_dir(self, path):
+    '''Sets the working directory for the object. Assumes that the working
+    directory will have an ``initial_params_rundir`` directory that will have
+    the initial parameter values.'''
+    if path:
+      self.work_dir = path
+      self.__initial_params_rundir = os.path.join(self.work_dir, 'initial_params_run_dir')
+    else:
+      self.work_dir = None
+      self.__initial_params_rundir = None
+
+  def set_seed_path(self, path):
+    self.__seedpath = path
+
+
   def get_initial_params_dir(self):
     '''Read only accessor to private member variable.'''
-    return self.__initial_params
+    return self.__initial_params_rundir
 
   def design_experiment(self, Nsamples, cmtnum, params, pftnums, 
       percent_diffs=None, sampling_method='lhc'):
     '''
-    Builds bounds based on initial values found in dvmdostem parameter 
-    files (cmt_*.txt files) and the `percent_diffs` array. 
-    The `percent_diffs` array gets used to figure out how far
-    the bounds should be from the initial value. Defaults to initial 
-    value +/-10%.
+    Builds bounds based on initial values found in dvmdostem parameter files
+    (cmt_*.txt files) and the `percent_diffs` array. The `percent_diffs` array
+    gets used to figure out how far the bounds should be from the initial value.
+    Defaults to initial value +/-10%.
 
     Sets instance values for `self.params` and `self.sample_matrix`.
 
     Parameters
     ----------
     Nsamples : int
-      How many samples to draw. One sample equates to one run to be done with 
+      How many samples to draw. One sample equates to one run to be done with
       the parameter values in the sample.
     
     cmtnum : int
-      Which community type number to use for initial parameter values, for
-      doing runs and analyzing outputs.
+      Which community type number to use for initial parameter values, for doing
+      runs and analyzing outputs.
     
     params : list of strings
-      List of parameter names to use in the experiment. Each name must be
-      in one of the dvmdostem parameter files (cmt_*.txt).
+      List of parameter names to use in the experiment. Each name must be in one
+      of the dvmdostem parameter files (cmt_*.txt).
     
-    pftnums : list of ints
-      List of PFT numbers, one number for each parameter in `params`. Use
-      `None` in the list for any non-pft parameter (i.e. a soil parameter).
+    pftnums : list, same length as params list
+      Each item in the items may be one of: 
+
+       1. int 
+       2. the string 'all' 
+       3. list of ints 
+       4. None
+
+      If the list item is an int, then that is the PFT number to be used for the
+      corresponding parameter. If the list item is the string 'all' then ALL 10
+      PFTs are enabled for this parameter. If the list item is a list of ints,
+      then the corresponding parameter will be setup for each PFT in the list.
+      If the list item is None, then the parameter is assumed to be a soil
+      parameter and no PFT info is set or needed.
     
     percent_diffs : list of floats
-      List values, one for each parameter in `params`. The value is used to
-      the bounds with respect to the intial parameter value. I.e. passing
-      a value in the percent_diff array of .3 would mean that bounds should
-      be +/-30% of the initial value of the parameter.
+      List values, one for each parameter in `params`. The value is used to the
+      bounds with respect to the intial parameter value. I.e. passing a value in
+      the percent_diff array of .3 would mean that bounds should be +/-30% of
+      the initial value of the parameter.
     
     sampling_method : str
       A string indicating which sampling method to use for getting values for
@@ -282,31 +358,15 @@ class SensitivityDriver(object):
     if not percent_diffs:
       percent_diffs = np.ones(len(params)) * 0.1 # use 10% for default perturbation
 
-    assert len(params) == len(pftnums), "params list and pftnums list must be same length!"
-    assert len(params) == len(percent_diffs), "params list and percent_diffs list must be same length"
-
-    self.params = []
-    plu = pu.build_param_lookup(self.__initial_params)
-
-    for pname, pftnum, perturbation in zip(params, pftnums, percent_diffs):
-      original_pdata_file = pu.which_file(self.__initial_params, pname, lookup_struct=plu)
-
-      p_db = pu.get_CMT_datablock(original_pdata_file, cmtnum)
-      p_dd = pu.cmtdatablock2dict(p_db)
-
-      if pname in p_dd.keys():
-        p_initial = p_dd[pname]
-      else:
-        p_initial = p_dd['pft{}'.format(pftnum)][pname]
-
-      p_bounds = [p_initial - (p_initial*perturbation), p_initial + (p_initial*perturbation)]
-
-      self.params.append(dict(name=pname, bounds=p_bounds, initial=p_initial, cmtnum=cmtnum, pftnum=pftnum))
+    self.params = params_from_seed(seedpath=self.__seedpath, params=params, 
+        pftnums=pftnums, percent_diffs=percent_diffs, cmtnum=cmtnum)
 
     if self.sampling_method == 'lhc':
       self.sample_matrix = generate_lhc(Nsamples, self.params)
     elif sampling_method == 'uniform':
       self.sample_matrix = self.generate_uniform(Nsamples, self.params)
+    else:
+      raise RuntimeError(f"{self.sampling_method} is not implemented as a sampling method.")
 
   def save_experiment(self, name=''):
     '''Write the parameter properties and sensitivity matrix to files.'''
@@ -326,7 +386,8 @@ class SensitivityDriver(object):
     self.sample_matrix.to_csv(sm_fname, index=False)
     pd.DataFrame(self.params).to_csv(pp_fname, index=False)
     with open(info_fname, 'w') as f:
-      f.write("sampling_method: {}".format(self.sampling_method))
+      f.writelines("sampling_method: {}\n".format(self.sampling_method))
+      f.writelines("initial_params_seedpath: {}\n".format(self.__seedpath))
 
   def load_experiment(self, param_props_path, sample_matrix_path, info_path):
     '''Load parameter properties and sample matrix from files.'''
@@ -337,6 +398,8 @@ class SensitivityDriver(object):
     for l in data:
       if 'sampling_method' in l:
         self.sampling_method = l.split(':')[1].strip()
+      if 'initial_params_seedpath' in l:
+        self.__seedpath = l.split(':')[1].strip()
 
     self.sample_matrix = pd.read_csv(sample_matrix_path)
     self.params = pd.read_csv(param_props_path, 
@@ -396,13 +459,16 @@ class SensitivityDriver(object):
     -------
     None
     '''
-    try:
-      pft_verbose_name = pu.get_pft_verbose_name(
-        cmtnum=self.cmtnum(), pftnum=self.pftnum(), 
-        lookup_path=self.get_initial_params_dir()
-      )
-    except (AttributeError, ValueError) as e:
-      pft_verbose_name = ''
+
+    def lookup_pft_verbose_name(row):
+      if row.pftnum >= 0 and row.pftnum < 10:
+        pft_verbose_name = pu.get_pft_verbose_name(
+          cmtnum=self.cmtnum(), pftnum=row.pftnum, 
+          lookup_path=self.get_initial_params_dir()
+        )
+      else:
+        pft_verbose_name = None
+      return pft_verbose_name
 
     # Not all class attributes might be initialized, so if an 
     # attribute is not set, then print empty string.
@@ -413,6 +479,7 @@ class SensitivityDriver(object):
       # Might want to make this more specific to PFT column, 
       # in case there somehow ends up being bad data in one of the 
       # number columns that buggers things farther along?
+      df['PFT Name'] = df.apply(lookup_pft_verbose_name, axis=1)
       df = df.where(df.notna(), '')
       ps = df.to_string()
     except AttributeError:
@@ -426,16 +493,16 @@ class SensitivityDriver(object):
 
     info_str = textwrap.dedent('''\
       --- Setup ---
-      work_dir: {}
-      site: {}
-      pixel(y,x): ({},{})
-      cmtnum: {}
-      pftnum: {} ({})
-      sampling_method: {}
+      work_dir: {workdir}
+      site: {site}
+      pixel(y,x): ({pxY},{pxX})
+      cmtnum: {cmtnum}
+      sampling_method: {sampmeth}
 
       '''.format(
-        self.work_dir, self.site, self.PXy, self.PXx, self.cmtnum(),
-        self.pftnum(), pft_verbose_name, self.sampling_method))
+        workdir=self.work_dir, site=self.site, 
+        pxY=self.PXy, pxX=self.PXx, cmtnum=self.cmtnum(),
+        sampmeth=self.sampling_method))
 
     info_str += textwrap.dedent('''\
       --- Parameters ---
@@ -461,12 +528,21 @@ class SensitivityDriver(object):
     return info_str
 
   def core_setup(self, row, idx, initial=False):
-    '''
+    '''Sets up a sample run folder for the given ``idx`` and ``row``.
+
+    The following things are assumed:
+
+     - you have called set_working_directory()
+     - you have called set_seed_path()
+     - you have called designe experiment - OR you at least have:
+     - you have a sample_matrix
+     - you have a list of param specs
+
     Do all the work to setup and configure a model run.
     Uses the `row` parameter (one row of the sample matrix) to
     set the parameter values for the run.
 
-    Currently relies on command line API for various dvmdostem
+    Currently relies on command line API for various ``dvmdostem``
     helper scripts. Would be nice to transition to using a Python
     API for all these helper scripts (modules).
 
@@ -474,8 +550,7 @@ class SensitivityDriver(object):
     ----------
     row : dict
       One row of the sample matrix, in dict form. So like this:
-        `{'cmax': 108.2, 'rhq10': 34.24}`
-      with one key for each parameter name.
+      `{'cmax': 108.2, 'rhq10': 34.24}` with one key for each parameter name.
 
     idx : int
       The row index of the `sample_matrix` being worked on. Gets
@@ -487,12 +562,42 @@ class SensitivityDriver(object):
     '''
     #print("PROC:{}  ".format(multiprocessing.current_process()), row)
 
+    def rowkey2pdict(key):
+      '''
+      Examples
+      =========
+      >>> rowkey2pdict('cmax_pft3')
+      ('cmax', '3') 
+      >>> rowkey2pdict('rhq10')
+      (rhq10, None)
+      '''
+      pname, *p = key.split('_pft')
+      if len(p) > 0:
+        pftnum = p[0]
+      else:
+        pftnum = None
+      return pname, pftnum
+
+    def pdict2rowkey(pdict):
+      '''Takes a parameter dict and returns something like cmax_1
+      
+      Examples
+      ========
+      >>> pdict2rowkey({'name': 'cmax','bounds': [117.0, 143.0], 'initial': 130.0,'cmtnum': 5, 'pftnum': 0})
+      'cmax_pft0'
+      '''
+      if 'pftnum' in pdict.keys():
+        key = "{}_pft{}".format(pdict['name'], pdict['pftnum'] )
+      else:
+        key = pdict['name']
+      return key
+
     if initial:
       #print("Ignoring idx, it is not really relevant here.")
       #print("Ignoring row dict, not really relevant here.")
       # Build our own row dict, based on initial values in params
-      row = {x['name']:x['initial'] for x in self.params}
-      sample_specific_folder = os.path.join(self.work_dir, 'initial_value_run')
+      row = {pdict2rowkey(pd): pd['initial'] for pd in self.params}
+      sample_specific_folder = os.path.join(self.work_dir, self.get_initial_params_dir())
       if os.path.isdir(sample_specific_folder):
         shutil.rmtree(sample_specific_folder)
     else:
@@ -537,18 +642,41 @@ class SensitivityDriver(object):
       json.dump(config, f, indent=2)
 
     # modify parameters according to sample_matrix (param values)
-    # and the  param_spec (cmtnum, pftnum)
-    # Iterating over sample_matrix, which is a pandas.DataFrame, we use
-    # itertuples() which coughs up a named tuple. So here we get the
-    # name, and the sample value out of the named tuple for use in 
-    # calling param_utils update function.
-    for pname, pval in row.items():
-    #for pname, pval in zip(row._fields[1:], row[1:]):
-      pdict = list(filter(lambda x: x['name'] == pname, self.params))[0]
-      pu.update_inplace(
-          pval, os.path.join(sample_specific_folder, 'parameters'), 
-          pname, pdict['cmtnum'], pdict['pftnum']
-      )
+
+    # row is something like {'cmax_pft1':2344, 'cmax_pft2':2344, 'rhq10':45} 
+    # 
+    # iterate over the items in row, we need to find the parameter dict (out of
+    # the self.params list) that matches the item in the row. The problem is
+    # that in the parameter dict, pft is encoded with a key, where as in the
+    # row, it is an item in the row...so we can look up the 
+    for rowkey, pval in row.items():
+      pname, pft = rowkey2pdict(rowkey)
+      for pdict in self.params:
+        if pname == pdict['name']:
+          if not pft and 'pftnum' not in pdict.keys():
+            #print("GOT ONE!", rowkey, pval, pname, pft, pdict, flush=True)
+            pu.update_inplace(
+              pval, os.path.join(sample_specific_folder, 'parameters'), 
+              pdict['name'], pdict['cmtnum'], pft
+            )
+          if pft and 'pftnum' in pdict.keys():
+            if pdict['pftnum'] is not None:
+              if int(pft) == int(pdict['pftnum']):
+                #print("GOT ONE!", rowkey, pval, pname, pft, pdict, flush=True)
+                pu.update_inplace(
+                  pval, os.path.join(sample_specific_folder, 'parameters'), 
+                  pdict['name'], pdict['cmtnum'], pft
+                )
+            else:
+              pass # pftnum key is set, but value is None, so not a PFT parameter...
+          else:
+            pass # might be same param name, different pft
+        else:
+          pass # wrong parameter dict
+
+
+
+
 
   def setup_multi(self, force=False):
     '''
@@ -612,39 +740,6 @@ class SensitivityDriver(object):
     
     return c
   
-  def pftnum(self):
-    '''
-    NOTE! Not really sure how this should work long term.
-    For now assume that all parameters must have the 
-    same pftnum (or None for non-pft params).
-
-    So this ensures that all the parameters are set to the same
-    PFT (for pft params). If there are no PFT params, then 
-    we return None, and if there is a problem (i.e. params 
-    set for different PFTs), then we raise an exception.
-
-    This is only a problem for processing the outputs. Presumably
-    if we are adjusting PFT 3 we want to look at outputs for PFT 3.
-    Not sure how to handle a case where we have parameters adjusted 
-    for several PFTs??? What outputs would we want??
-    '''
-    try:
-      pftnums = set([x['pftnum'] for x in self.params])
-      pftnums.discard(None)
-    except (AttributeError, KeyError) as e:
-      # AttributeError occurs when params attribute not set yet
-      # KeyError occurs if params does not have a column for pfts
-      # Not sure what the use case is for this...
-      pftnums = ''
-
-    if len(pftnums) == 1:
-      return pftnums.pop()
-    elif len(pftnums) == 0:
-      return None
-    else:
-      # For now 
-      raise RuntimeError("Invalid pftnum specificaiton in params dictionary!")
-
   def _ssrf_name(self, idx):
     '''generate the Sample Specific Run Folder name.'''
     return os.path.join(self.work_dir, 'sample_{:09d}'.format(idx))
@@ -700,13 +795,16 @@ class SensitivityDriver(object):
     the data will look like this, with one row for each sample, 
     and one column for each parameter followed by one column for
     each output:
-    p_cmax,  p_rhq10,   p_micbnup,   o_GPP,  o_VEGC
-    1.215,   2.108,     0.432,       0.533,  5.112
-    1.315,   3.208,     0.632,       0.721,  8.325
-    1.295,   1.949,     0.468,       0.560,  5.201
-    1.189,   2.076,     0.420,       0.592,  5.310
-    1.138,   2.035,     0.441,       0.537,  5.132
-    1.156,   1.911,     0.433,       0.557,  5.192
+
+    :: 
+
+      p_cmax,  p_rhq10,   p_micbnup,   o_GPP,  o_VEGC
+      1.215,   2.108,     0.432,       0.533,  5.112
+      1.315,   3.208,     0.632,       0.721,  8.325
+      1.295,   1.949,     0.468,       0.560,  5.201
+      1.189,   2.076,     0.420,       0.592,  5.310
+      1.138,   2.035,     0.441,       0.537,  5.132
+      1.156,   1.911,     0.433,       0.557,  5.192
     
     Return
     ------
@@ -759,52 +857,52 @@ class SensitivityDriver(object):
         for f in sorted(results, key=sort_stage):
           stg_data = nc.Dataset(f, 'r')
           d = stg_data.variables[o['name']][:]
-          # if o['type'] == 'pool':
-          #   d = ou.average_monthly_pool_to_yearly(d)
-          # elif o['type'] == 'flux':
-          #   d = ou.sum_monthly_flux_to_yearly(d)
-          d = pd.DataFrame(d[:,self.pftnum(),self.PXy,self.PXx], columns=[o['name']])
+          if o['type'] == 'pool':
+            d = ou.average_monthly_pool_to_yearly(d)
+          elif o['type'] == 'flux':
+            d = ou.sum_monthly_flux_to_yearly(d)
+          else:
+            print("What the heck??")
+          d = ou.sum_across_pfts(d)
+          d = pd.DataFrame(d[:,self.PXy,self.PXx], columns=[o['name']])
           all_data = all_data.append(d, ignore_index=True)
 
         axes[i].plot(all_data)
         axes[i].set_ylabel(o['name'])
+    plt.show()
 
   def extract_data_for_sensitivity_analysis(self, posthoc=True, multi=True):
     '''
-    Creates a csv file in each run directory that summarizes
-    the run's parameters and outut. The csv file will look 
-    something like this:
+    Creates a csv file in each run directory that summarizes the run's
+    parameters and outut. The csv file will look something like this:
 
-    p_cmax,  p_rhq10,   p_micbnup,   o_GPP,  o_VEGC
-    1.215,   2.108,     0.432,       0.533,  5.112
+    ::
 
-    with one columns for each parameter and one column for 
-    each output. The
-
-    For each row in the sensitivity matrix (and corresponding 
-    run folder), 
-      For each variable specified in self.outputs:
-          - opens the NetCDF files that were output from
-            dvmdostem
-          - grabs the last datapoint
-          - writes it to the sensitivity.csv file
-
+        p_cmax,  p_rhq10,   p_micbnup,   o_GPP,  o_VEGC
+        1.215,   2.108,     0.432,       0.533,  5.112
     
+    with one column for each parameter and one column for each output.
+
+    ::
+
+      For each row in the sensitivity matrix (and corresponding run folder), 
+        For each variable specified in self.outputs:
+            - opens the NetCDF files that were output from dvmdostem
+            - grabs the last datapoint
+            - writes it to the sensitivity.csv file
 
     Parameters
     ----------
     posthoc : bool (Not implemented yet)
-      Flag for controlling whether this step should be run after the
-      model run or as part of the model run
+      Flag for controlling whether this step should be run after the model run
+      or as part of the model run
     
-    multi : bool (Not impolemented yet)
-      Flag for if the runs are done all in one directory or each in 
-      its own directory. If all runs are done in one directory
-      then paralleization is harder and this step of collating the
-      output data must be done at the end of the run before the next run
-      overwrites it.
+    multi : bool (Not implemented yet)
+      Flag for if the runs are done all in one directory or each in its own
+      directory. If all runs are done in one directory then paralleization is
+      harder and this step of collating the output data must be done at the end
+      of the run before the next run overwrites it.
       
-
     Returns
     -------
     None
@@ -820,7 +918,17 @@ class SensitivityDriver(object):
       # we can leverage the same parallelism for running this function
       # Then we'll need another step to collect all the csv files into one
       # at the end.
-      pstr = ','.join(['p_{}'.format(p['name']) for p in self.params]) 
+
+      def make_col_name(pdict):
+        '''Given a parameter, returns a column name like p_rhq10 or p_cmax_1, 
+        depending on whether the parameter is specified by PFT or not...'''
+        s = f"p_{pdict['name']}"
+        if 'pftnum' in pdict.keys():
+          s+= f"_pft{pdict['pftnum']}"
+        return s
+
+      pstr = ','.join(make_col_name(p) for p in self.params)
+      #pstr = ','.join(['p_{}???'.format(p['name'], ) for p in self.params]) 
       ostr = ','.join(['o_{}'.format(o['name']) for o in self.outputs])
       hdrline = pstr + ',' + ostr + '\n'
       with open(sensitivity_outfile, 'w') as f:
@@ -838,8 +946,12 @@ class SensitivityDriver(object):
         elif output['type'] == 'flux':
           data_y = ou.sum_monthly_flux_to_yearly(data_m)
 
+        # Not sure what is most meaningful here, so collapsing PFT dimension
+        # into ecosystem totals...
+        data_y_eco = ou.sum_across_pfts(data_y)
+
         # TODO: Need to handle non-PFT outputs!
-        ostr += '{:2.3f},'.format(data_y[-1,self.pftnum(),self.PXy,self.PXx])
+        ostr += '{:2.3f},'.format(data_y_eco[-1,self.PXy,self.PXx])
 
       ostr = ostr.rstrip(',') # remove trailing comma...
  

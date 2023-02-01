@@ -10,10 +10,12 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-# import os
-# import sys
-# sys.path.insert(0, os.path.abspath('.'))
+import os
+import sys
 
+# Tried a variety of options, but this seems to work the best for auto-module
+# reading of our scripts directory...
+sys.path.insert(0, os.path.abspath("../../../scripts"))
 
 # -- Project information -----------------------------------------------------
 
@@ -35,7 +37,13 @@ extensions = [
   'sphinx.ext.autosectionlabel',
   'sphinx_toolbox.collapse',
   'jupyter_sphinx', # executes inline ipython/jupyter notebook code...
+  'sphinx.ext.autodoc',
+  #'sphinx.ext.autosummary',
+  #'sphinx.ext.automodule',
+  #'numpydoc',
+  'sphinx.ext.napoleon',
 ]
+
 
 # -- Config for some extensions ----------------------------------------------
 autosectionlabel_prefix_document = True
@@ -47,6 +55,23 @@ templates_path = ['_templates']
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = []
+
+#numpydoc_use_plots = False
+
+napoleon_google_docstring = False
+napoleon_numpy_docstring = True
+# napoleon_include_init_with_doc = False
+# napoleon_include_private_with_doc = False
+# napoleon_include_special_with_doc = True
+# napoleon_use_admonition_for_examples = False
+# napoleon_use_admonition_for_notes = False
+# napoleon_use_admonition_for_references = False
+# napoleon_use_ivar = False
+# napoleon_use_param = True
+# napoleon_use_rtype = True
+# napoleon_preprocess_types = False
+# napoleon_type_aliases = None
+# napoleon_attr_annotations = True
 
 
 # -- Options for HTML output -------------------------------------------------
