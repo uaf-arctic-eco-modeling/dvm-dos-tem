@@ -27,13 +27,13 @@ These commands print information to the console and change nothing.
    :width: 100%
    :widths: 40 60
 
-   * - ``$git status``
+   * - ``$ git status``
      - See the current state of your local repository
-   * - ``$git branch``
+   * - ``$ git branch``
      - List all local branches, including the active one
-   * - ``$git branch -r``
+   * - ``$ git branch -r``
      - List all remote branches
-   * - ``$git remote -v``
+   * - ``$ git remote -v``
      - List all remote repositories
 
 -----------------
@@ -41,37 +41,121 @@ Branch Management
 -----------------
 .. list-table::
 
-   * - ``$git checkout -b [branch-name]``
+   * - ``$ git checkout -b [branch-name]``
      - Create a new branch
-   * - ``$git checkout [remote-branch-name]``
+   * - ``$ git checkout [remote-branch-name]``
      - Check out a remote branch
-   * - ``$git checkout --track [remote-name]/[branch-name]``
+   * - ``$ git checkout --track [remote-name]/[branch-name]``
      - Force a new local branch to track a remote branch
-   * - ``$git checkout [branch-name]``
+   * - ``$ git checkout [branch-name]``
      - Move to another branch
-   * - ``$git branch -d [branch-name]``
+   * - ``$ git branch -d [branch-name]``
      - Delete a merged branch
-   * - ``$git branch -D [branch-name]``
+   * - ``$ git branch -D [branch-name]``
      - Force delete a branch, even if Git warns you
+
+.. _staying_udpated:
+
+-------------------------------
+Keeping ``master`` up to date
+-------------------------------
+
+.. list-table::
+
+   * - **Command Sequence**
+     - **Notes**
+   * - | ``$ git checkout master``  
+       | ``$ git remote update`` 
+       | ``$ git pull upstream master``
+     - | Make sure you are on the master branch
+       | Update remote refs
+       | Fetch and merge the upstream changes
+
+
+--------------------------------------------------------------
+Keeping ``master`` up to date while retaining local changes
+--------------------------------------------------------------
+
+.. list-table::
+
+   * - **Command Sequence**
+     - **Notes**
+   * - | ``$ git remote update``
+       | ``$ git stash``
+       | ``$ git checkout master``
+       | ``$ git pull upstream master``
+       | ``$ git checkout [PREVIOUS BRANCH]``
+       | ``$ git stash pop``
+     - | See what has changed upstream
+       | Set aside local changes
+       | Checkout the master branch
+       | Fetch and merge code from upstream
+       | Go back to the branch you were working on
+       | Re-apply your local changes
+
+-------------------------------
+Changing branches
+-------------------------------
+
+.. list-table::
+
+   * - **Command Sequence**
+     - **Notes**
+   * - | ``$ git status``  
+       | ``# address changes (e.g. stash, commit, or revert)`` 
+       | ``$ git checkout [BRANCH]``
+     - | See if you have any local changes
+       | Deal with your local changes
+       | Change branches
+
+-------------------------------
+Making a commit
+-------------------------------
+
+.. list-table::
+
+   * - **Command Sequence**
+     - **Notes**
+   * - | ``# edit files...make changes``  
+       | ``$ git status`` 
+       | ``$ git diff``
+       | ``$ git add [PATH TO FILE TO ADD]``
+       | ``$ git commit -m "Your message..."``
+     - | Do your coding work, whatever it may be...
+       | See what you've changed
+       | Evaluate what changed
+       | Add changes to the staging area
+       | Actually make the commit.
+
+.. note:: 
+
+   Most of the time in order to make simple, clear, consise commits, you need
+   granular control over which lines of each file shoud be comitted. This is
+   possible using the command line interface to Git but is frequently easier
+   using a graphical client such as Git Cola or Git Gui. Thre are many other
+   graphical clients available as well. 
+
+
+
 
 ---------------
 Code Management
 ---------------
 .. list-table::
 
-   * - ``$git fetch``
+   * - ``$ git fetch``
      - Fetch all new commits from all remotes
-   * - ``$git pull [remote]``
+   * - ``$ git pull [remote]``
      - Update the current branch from the remote repository
-   * - ``$git add [filename]``
+   * - ``$ git add [filename]``
      - Stage the changes made to `filename` for committing
-   * - ``$git restore [filename]``
+   * - ``$ git restore [filename]``
      - Discard changes made to `filename`
-   * - ``$git restore --staged [filename]``
+   * - ``$ git restore --staged [filename]``
      - Unstage changes made to `filename` but don't discard them
-   * - ``$git commit``
+   * - ``$ git commit``
      - Commit all staged changes
-   * - ``$git push [remote] [local branch]:[remote branch]``
+   * - ``$ git push [remote] [local branch]:[remote branch]``
      - Push your local branch to the specified remote repository
 
 ======
@@ -82,19 +166,19 @@ Depending on your setup, you may need to replace ``docker-compose`` with
 
 .. list-table::
 
-   * - ``$docker-compose up -d``
+   * - ``$ docker-compose up -d``
      - Start the container(s)
-   * - ``$docker-compose exec [container name] [command]``
+   * - ``$ docker-compose exec [container name] [command]``
      - Run a one-off command inside a container
-   * - ``$docker-compose exec dvmdostem-run bash``
+   * - ``$ docker-compose exec dvmdostem-run bash``
      - Run ``bash`` inside the container ``dvmdostem-run`` so all further
        commands are executed in the container
-   * - ``$docker-compose exec -u root dvmdostem-run bash``
+   * - ``$ docker-compose exec -u root dvmdostem-run bash``
      - Run ``bash`` inside ``dvmdostem-run`` as the root user. This will avoid
        permission errors but should be used with care.
-   * - ``$exit``
+   * - ``$ exit``
      - Exit the container
-   * - ``$docker-compose down``
+   * - ``$ docker-compose down``
      - Shut down the container(s)
 
 =========
@@ -106,19 +190,19 @@ running ``dvmdostem``. More complete instructions can be found by using the
 
 .. list-table::
 
-   * - ``$./scripts/setup_working_directory.py [output_dir] --input-data-path
+   * - ``$ ./scripts/setup_working_directory.py [output_dir] --input-data-path
        [input_dir]``
      - Set up a working directory
-   * - ``$./scripts/runmask-util.py --reset [run-mask file]``
+   * - ``$ ./scripts/runmask-util.py --reset [run-mask file]``
      - Disable all cells in the run mask
-   * - ``$./scripts/runmask-util.py --yx 0 0 [run-mask file]``
+   * - ``$ ./scripts/runmask-util.py --yx 0 0 [run-mask file]``
      - Enable cell 0,0 in the run mask
-   * - ``$./scripts/outspec_utils.py [output spec file] --reset``
+   * - ``$ ./scripts/outspec_utils.py [output spec file] --reset``
      - Disable all outputs
-   * - ``$./scripts/outspec_utils.py [output spec file] --on [var] [timestep]
+   * - ``$ ./scripts/outspec_utils.py [output spec file] --on [var] [timestep]
        [granularity]``
      - Enable an output (generic)
-   * - ``$./scripts/outspec_utils.py [output spec file] --on GPP m pft``
+   * - ``$ ./scripts/outspec_utils.py [output spec file] --on GPP m pft``
      - Enable GPP output by month and pft
-   * - ``$./dvmdostem -l err -f [config file] -p 50 -e 100 -s 250 -t 115 -n 85``
+   * - ``$ ./dvmdostem -l err -f [config file] -p 50 -e 100 -s 250 -t 115 -n 85``
      - Run `dvmdostem` with error level logging and a specified config file

@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>3. EE 0 - Single Site Run &mdash; dvmdostem v0.6.1 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/jupyter-sphinx.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/thebelab.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/custom_styles.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/thebelab-helper.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="4. Data Summary and Processing" href="data_summary_processing.html" />
+    <link rel="prev" title="2. Basic Model Setup and Run" href="basic_model_run.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> dvmdostem
+          </a>
+              <div class="version">
+                v0.6.1
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../model_overview.html">1. Model Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../running_dvmdostem.html">2. Running</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../software_development_info.html">3. Dev Info</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../SA_UQ.html">4. SA and UQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../command_cheat_sheet.html">5. Command Cheat Sheet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../common_acronyms.html">6. Common Project Acronyms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../calibration.html">7. Manual Calibration</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Examples and Tutorials</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../prelude.html">1. Prelude</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basic_model_run.html">2. Basic Model Setup and Run</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">3. EE 0 - Single Site Run</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#design-specification">3.1. Design Specification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#example-python-setup">3.2. Example Python setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#explore-inputs">3.3. Explore inputs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#computing-means">3.4. Computing Means</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#computing-monthly-nee">3.5. Computing Monthly NEE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#computing-mean-gpp">3.6. Computing Mean GPP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#plot-active-layer-depth">3.7. Plot Active Layer Depth</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#plot-seasonal-dynamic">3.8. Plot Seasonal Dynamic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#plot-soil-temperatures">3.9. Plot Soil Temperatures</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="data_summary_processing.html">4. Data Summary and Processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plotting_discussion.html">5. Plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="make_contribution.html">6. Contributing to the Codebase</a></li>
+<li class="toctree-l1"><a class="reference internal" href="using_github_features.html">7. Using Github’s Features</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Python Scripts API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../scripts_API.html">Python API Docs</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">dvmdostem</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a></li>
+      <li class="breadcrumb-item active"><span class="section-number">3. </span>EE 0 - Single Site Run</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/examples_and_tutorials/example_experiment_0.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="ee-0-single-site-run">
+<h1><span class="section-number">3. </span>EE 0 - Single Site Run<a class="headerlink" href="#ee-0-single-site-run" title="Permalink to this heading"></a></h1>
+<p>Example Experiment 0: We want to conduct a full single-site simulation, explore
+the output data and produce preliminary plots.</p>
+<p>The examples assume that you are running on the <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code> Docker stack.</p>
+<section id="design-specification">
+<h2><span class="section-number">3.1. </span>Design Specification<a class="headerlink" href="#design-specification" title="Permalink to this heading"></a></h2>
+<p>Here we have designed a small experiment with answers to the unknowns posed in
+<a class="reference internal" href="basic_model_run.html#setting-up-a-dvmdostem-run"><span class="std std-ref">setting up a run</span></a></p>
+<table class="colwidths-given docutils align-default">
+<colgroup>
+<col style="width: 40%" />
+<col style="width: 60%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><strong>Question</strong></p></td>
+<td><p><strong>Answer</strong></p></td>
+</tr>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">Where on your computer you want to store</div>
+<div class="line">your model run(s)?</div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">/data/workflows/exp0_jan26_test</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line">What spatial (geographic) area you want</div>
+<div class="line">to run?</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">Toolik, pixels (0,0), (1,1), (2,2)</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">/data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_TOOLIK_FIELD_STATION_10x10/</span></code></div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><p>What variables you want to output?</p></td>
+<td><div class="line-block">
+<div class="line">GPP: monthly, by PFT</div>
+<div class="line">RH, RG, RM: monthly</div>
+<div class="line">TLAYER: monthly by layer</div>
+<div class="line">VEGC: yearly</div>
+<div class="line">ALD: yearly</div>
+<div class="line">CMTNUM: yearly</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><p>Which stages to run and for how many years?</p></td>
+<td><p>All stages, pr 100, eq 1000, sp 250, tr 115, sc 85</p></td>
+</tr>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">Is the community type (CMT) fixed or driven by</div>
+<div class="line">input vegetation.nc map?</div>
+</div>
+</td>
+<td><p>Force to CMT05</p></td>
+</tr>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line">For which stages should the output files be</div>
+<div class="line">generated and saved?</div>
+</div>
+</td>
+<td><p>sp, tr, sc</p></td>
+</tr>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">Calibration settings if necessary</div>
+<div class="line">(i.e. <code class="docutils literal notranslate"><span class="pre">--cal-mode</span></code>)?</div>
+</div>
+</td>
+<td><p>No</p></td>
+</tr>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line">Any other command line options or environment</div>
+<div class="line">settings?</div>
+</div>
+</td>
+<td><p>No</p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>I think we may need these too:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>LAYERDZ, LAYERDEPTH, LAYERTYPE</p></li>
+<li><p>MINEC,</p></li>
+<li><p>DEEPC, DEEPDZ</p></li>
+<li><p>SHLWC, SHLWDZ</p></li>
+<li><p>SOMA, SOMPR, SOMCR, SOMRAWC</p></li>
+</ul>
+</div></blockquote>
+</div>
+<details class="working summary-example-commands-for-setting-up">
+<summary>Example commands for setting up</summary><div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ ./scripts/setup_working_directory.py --input-data-path /data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_TOOLIK_FIELD_STATION_10x10 /data/workflows/exp0_jan26_test
+$ cd /data/workflows/exp0_jan26_test/
+$ outspec_utils.py config/output_spec.csv --on RH m
+$ outspec_utils.py config/output_spec.csv --on RG m
+$ outspec_utils.py config/output_spec.csv --on RM m
+$ outspec_utils.py config/output_spec.csv --on TLAYER l m
+$ outspec_utils.py config/output_spec.csv --on GPP m p
+$ outspec_utils.py config/output_spec.csv --on VEGC y
+$ outspec_utils.py config/output_spec.csv --on ALD y
+$ outspec_utils.py config/output_spec.csv --on CMTNUM y
+$ outspec_utils.py config/output_spec.csv --on SHLWC y
+$ outspec_utils.py config/output_spec.csv --on DEEPC y
+$ outspec_utils.py config/output_spec.csv --on MINEC y
+$ outspec_utils.py config/output_spec.csv --on LAYERDZ y l
+$ outspec_utils.py config/output_spec.csv --on LAYERDEPTH y l
+$ outspec_utils.py config/output_spec.csv --on LAYERTYPE y l
+$ runmask-util.py --reset run-mask.nc
+$ runmask-util.py --yx 0 0 run-mask.nc
+$ runmask-util.py --yx 0 0 run-mask.nc
+$ runmask-util.py --yx 1 1 run-mask.nc
+$ runmask-util.py --yx 2 2 run-mask.nc
+$ dvmdostem --force-cmt 5 -p 100 -s 250 -e 1000 -t 115 -n 85
+</pre></div>
+</div>
+</details></section>
+<section id="example-python-setup">
+<h2><span class="section-number">3.2. </span>Example Python setup<a class="headerlink" href="#example-python-setup" title="Permalink to this heading"></a></h2>
+<p>The Python example solutions share a bunch of code. For this reason, we will put
+the common setup here and not need to repeat these lines in each example. The
+paths assume that these examples will be run on the TEM Docker stack. Subsequent
+Python example solutions assume that these setup commands have been run.</p>
+<details class="working summary-common-python-setup">
+<summary>Common Python setup</summary><div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">sys</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;/work/scripts&#39;</span><span class="p">)</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="s1">&#39;/data/workflows/exp0_jan26_test&#39;</span><span class="p">)</span>
+
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">netCDF4</span> <span class="k">as</span> <span class="nn">nc</span>
+
+<span class="k">def</span> <span class="nf">get_start_end</span><span class="p">(</span><span class="n">timevar</span><span class="p">):</span>
+  <span class="sd">&#39;&#39;&#39;Returns CF Times. use .strftime() to convert to python datetimes&#39;&#39;&#39;</span>
+  <span class="n">start</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">num2date</span><span class="p">(</span><span class="n">timevar</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">timevar</span><span class="o">.</span><span class="n">units</span><span class="p">,</span> <span class="n">timevar</span><span class="o">.</span><span class="n">calendar</span><span class="p">)</span>
+  <span class="n">end</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">num2date</span><span class="p">(</span><span class="n">timevar</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">timevar</span><span class="o">.</span><span class="n">units</span><span class="p">,</span> <span class="n">timevar</span><span class="o">.</span><span class="n">calendar</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span>
+
+
+<span class="k">def</span> <span class="nf">load_trsc</span><span class="p">(</span><span class="n">var</span><span class="p">,</span> <span class="n">timeres</span><span class="p">):</span>
+  <span class="sd">&#39;&#39;&#39;Returns ``netCDF4.Dataset`` s in a tuple.</span>
+<span class="sd">  First item is historic, second item is projected.</span>
+<span class="sd">  &#39;&#39;&#39;</span>
+  <span class="n">trds</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;output/</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">timeres</span><span class="si">}</span><span class="s1">_tr.nc&#39;</span><span class="p">)</span>
+  <span class="n">scds</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;output/</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">timeres</span><span class="si">}</span><span class="s1">_sc.nc&#39;</span><span class="p">)</span>
+  <span class="k">return</span> <span class="p">(</span><span class="n">trds</span><span class="p">,</span> <span class="n">scds</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">build_full_datetimeindex</span><span class="p">(</span><span class="n">hds</span><span class="p">,</span> <span class="n">pds</span><span class="p">):</span>
+  <span class="sd">&#39;&#39;&#39;Returns a ``pandas.DatetimeIndex`` covering the range of the two</span>
+<span class="sd">  input datasets. Assumes that the two input datasets are consecutive</span>
+<span class="sd">  monotonic, and not missing any points.&#39;&#39;&#39;</span>
+
+  <span class="n">h_start</span><span class="p">,</span> <span class="n">h_end</span> <span class="o">=</span> <span class="n">get_start_end</span><span class="p">(</span><span class="n">hds</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">])</span>
+  <span class="n">p_start</span><span class="p">,</span> <span class="n">p_end</span> <span class="o">=</span> <span class="n">get_start_end</span><span class="p">(</span><span class="n">pds</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">])</span>
+
+  <span class="n">begin</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">([</span><span class="n">h_start</span><span class="p">,</span> <span class="n">h_end</span><span class="p">,</span> <span class="n">p_start</span><span class="p">,</span> <span class="n">p_end</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+  <span class="n">end</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">([</span><span class="n">h_start</span><span class="p">,</span> <span class="n">h_end</span><span class="p">,</span> <span class="n">p_start</span><span class="p">,</span> <span class="n">p_end</span><span class="p">])[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+  <span class="n">dti</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">date_range</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="n">begin</span><span class="o">.</span><span class="n">strftime</span><span class="p">(),</span> <span class="n">end</span><span class="o">=</span><span class="n">end</span><span class="o">.</span><span class="n">strftime</span><span class="p">(),</span> <span class="n">freq</span><span class="o">=</span><span class="s1">&#39;AS-JAN&#39;</span><span class="p">))</span>
+
+  <span class="k">return</span> <span class="n">dti</span>
+
+<span class="k">def</span> <span class="nf">build_full_dataframe</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">timeres</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">px_y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">px_x</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+  <span class="sd">&#39;&#39;&#39;Not sure how this should work for PFT and LAYER files???&#39;&#39;&#39;</span>
+
+  <span class="k">if</span> <span class="n">timeres</span> <span class="o">==</span> <span class="s1">&#39;yearly&#39;</span><span class="p">:</span>
+    <span class="n">freq</span> <span class="o">=</span> <span class="s1">&#39;AS-JAN&#39;</span>
+  <span class="k">elif</span> <span class="n">timeres</span> <span class="o">==</span> <span class="s1">&#39;monthly&#39;</span><span class="p">:</span>
+    <span class="n">freq</span> <span class="o">=</span> <span class="s1">&#39;MS&#39;</span>
+  <span class="k">else</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Invalid time resolution&quot;</span><span class="p">)</span>
+
+  <span class="n">hds</span><span class="p">,</span> <span class="n">pds</span> <span class="o">=</span> <span class="n">load_trsc</span><span class="p">(</span><span class="n">var</span><span class="p">,</span> <span class="n">timeres</span><span class="p">)</span>
+
+  <span class="n">timeslice</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+  <span class="n">yslice</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="n">px_y</span><span class="p">,</span> <span class="n">px_y</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+  <span class="n">xslice</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="n">px_x</span><span class="p">,</span> <span class="n">px_x</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+  <span class="n">pftslice</span> <span class="o">=</span> <span class="kc">None</span>
+  <span class="n">layerslice</span> <span class="o">=</span> <span class="kc">None</span>
+
+
+  <span class="k">if</span> <span class="s1">&#39;pft&#39;</span> <span class="ow">in</span> <span class="n">hds</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">dimensions</span> <span class="ow">and</span> <span class="s1">&#39;pft&#39;</span> <span class="ow">in</span> <span class="n">pds</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">dimensions</span><span class="p">:</span>
+    <span class="n">pftslice</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+  <span class="k">elif</span> <span class="s1">&#39;layer&#39;</span> <span class="ow">in</span> <span class="n">hds</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">dimensions</span> <span class="ow">and</span> <span class="s1">&#39;layer&#39;</span> <span class="ow">in</span> <span class="n">pds</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">dimensions</span><span class="p">:</span>
+    <span class="n">layerslice</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+  <span class="k">if</span> <span class="n">pftslice</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">slice_tuple</span> <span class="o">=</span> <span class="p">(</span><span class="n">timeslice</span><span class="p">,</span> <span class="n">pftslice</span><span class="p">,</span> <span class="n">yslice</span><span class="p">,</span> <span class="n">xslice</span><span class="p">)</span>
+    <span class="n">h_reshape</span> <span class="o">=</span> <span class="p">(</span><span class="n">hds</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">hds</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="s1">&#39;pft&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="p">)</span>
+    <span class="n">p_reshape</span> <span class="o">=</span> <span class="p">(</span><span class="n">pds</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">pds</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="s1">&#39;pft&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="p">)</span>
+  <span class="k">elif</span> <span class="n">layerslice</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">slice_tuple</span> <span class="o">=</span> <span class="p">(</span><span class="n">timeslice</span><span class="p">,</span> <span class="n">layerslice</span><span class="p">,</span> <span class="n">yslice</span><span class="p">,</span> <span class="n">xslice</span><span class="p">)</span>
+    <span class="n">h_reshape</span> <span class="o">=</span> <span class="p">(</span><span class="n">hds</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">hds</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="s1">&#39;layer&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="p">)</span>
+    <span class="n">p_reshape</span> <span class="o">=</span> <span class="p">(</span><span class="n">pds</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">pds</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="s1">&#39;layer&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="p">)</span>
+  <span class="k">else</span><span class="p">:</span>
+    <span class="n">slice_tuple</span> <span class="o">=</span> <span class="p">(</span><span class="n">timeslice</span><span class="p">,</span> <span class="n">yslice</span><span class="p">,</span> <span class="n">xslice</span><span class="p">)</span>
+    <span class="c1">#from IPython import embed; embed()</span>
+    <span class="c1">#print(hds.dimensions[&#39;time&#39;].size, pds.dimensions[&#39;time&#39;].size)</span>
+    <span class="n">h_reshape</span> <span class="o">=</span> <span class="p">(</span><span class="n">hds</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="p">)</span>
+    <span class="n">p_reshape</span> <span class="o">=</span> <span class="p">(</span><span class="n">pds</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="p">)</span>
+
+  <span class="c1">#print(f&quot;USING SLICETUPLE {slice_tuple}&quot;)</span>
+  <span class="c1">#print(f&quot;USING freq={freq}&quot;)</span>
+  <span class="c1">#print(hds.variables[var].shape)</span>
+
+  <span class="n">hs</span><span class="p">,</span> <span class="n">he</span> <span class="o">=</span> <span class="n">get_start_end</span><span class="p">(</span><span class="n">hds</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">])</span>
+  <span class="n">hdti</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">date_range</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="n">hs</span><span class="o">.</span><span class="n">strftime</span><span class="p">(),</span> <span class="n">end</span><span class="o">=</span><span class="n">he</span><span class="o">.</span><span class="n">strftime</span><span class="p">(),</span> <span class="n">freq</span><span class="o">=</span><span class="n">freq</span><span class="p">,))</span>
+  <span class="n">h_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">hds</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">var</span><span class="p">][</span><span class="n">slice_tuple</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span> <span class="n">h_reshape</span> <span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="n">hdti</span><span class="p">)</span>
+
+  <span class="n">ps</span><span class="p">,</span> <span class="n">pe</span> <span class="o">=</span> <span class="n">get_start_end</span><span class="p">(</span><span class="n">pds</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">])</span>
+  <span class="n">pdti</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">date_range</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="n">ps</span><span class="o">.</span><span class="n">strftime</span><span class="p">(),</span> <span class="n">end</span><span class="o">=</span><span class="n">pe</span><span class="o">.</span><span class="n">strftime</span><span class="p">(),</span> <span class="n">freq</span><span class="o">=</span><span class="n">freq</span><span class="p">,))</span>
+  <span class="n">p_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">pds</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">var</span><span class="p">][</span><span class="n">slice_tuple</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span> <span class="n">p_reshape</span> <span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="n">pdti</span><span class="p">)</span>
+
+  <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">h_df</span><span class="p">,</span> <span class="n">p_df</span><span class="p">])</span>
+
+  <span class="n">meta</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+    <span class="n">hds_units</span><span class="o">=</span><span class="n">hds</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">units</span><span class="p">,</span>
+    <span class="n">pds_units</span><span class="o">=</span><span class="n">pds</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">units</span><span class="p">,</span>
+    <span class="n">h_start</span><span class="o">=</span><span class="n">hs</span><span class="p">,</span> <span class="n">h_end</span><span class="o">=</span><span class="n">he</span><span class="p">,</span>
+    <span class="n">p_start</span><span class="o">=</span><span class="n">ps</span><span class="p">,</span> <span class="n">p_end</span><span class="o">=</span><span class="n">pe</span>
+  <span class="p">)</span>
+
+  <span class="k">return</span> <span class="n">df</span><span class="p">,</span> <span class="n">meta</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+</div>
+</div>
+</details></section>
+<section id="explore-inputs">
+<h2><span class="section-number">3.3. </span>Explore inputs<a class="headerlink" href="#explore-inputs" title="Permalink to this heading"></a></h2>
+<p>Exploring the input dataset, determine the start year of the historical, and the
+projected climate time series. From the length of the time dimension, compute
+the end year and the total number of years of the time series. Note that this
+information is used to set the number of transient and scenario years to run.</p>
+<details class="working summary-example-with-ncdump">
+<summary>Example with ncdump</summary><div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ ncdump -h /data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_TOOLIK_FIELD_STATION_10x10/historic-climate.nc  | grep time:units
+          time:units = &quot;days since 1901-1-1 0:0:0&quot; ;
+          time:long_name = &quot;time&quot; ;
+          time:calendar = &quot;365_day&quot; ;
+
+$ ncdump -h /data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_TOOLIK_FIELD_STATION_10x10/historic-climate.nc  | grep &quot;time\ =\ &quot;
+  time = UNLIMITED ; // (1380 currently)
+</pre></div>
+</div>
+<p>So <code class="docutils literal notranslate"><span class="pre">1380/12</span> <span class="pre">=</span> <span class="pre">115</span></code>. Looks like 115 years.</p>
+</details><details class="working summary-example-input-util-py-plot">
+<summary>Example input_util.py plot</summary><div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">input_util</span> <span class="k">as</span> <span class="nn">iu</span>
+<span class="kn">import</span> <span class="nn">argparse</span>
+
+<span class="n">args</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;command&#39;</span><span class="p">:</span> <span class="s1">&#39;climate-ts-plot&#39;</span><span class="p">,</span>
+  <span class="s1">&#39;input_folder&#39;</span><span class="p">:</span> <span class="s1">&#39;/data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_TOOLIK_FIELD_STATION_10x10/&#39;</span><span class="p">,</span>
+  <span class="s1">&#39;stitch&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+  <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;spatial-temporal-summary&#39;</span><span class="p">,</span>
+  <span class="c1">#&#39;yx&#39;: [0, 0],</span>
+<span class="p">}</span>
+
+<span class="n">iu</span><span class="o">.</span><span class="n">climate_ts_plot</span><span class="p">(</span><span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">(</span><span class="o">**</span><span class="n">args</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/example_experiment_0_1_0.png" src="../_images/example_experiment_0_1_0.png" />
+</div>
+</div>
+</details></section>
+<section id="computing-means">
+<h2><span class="section-number">3.4. </span>Computing Means<a class="headerlink" href="#computing-means" title="Permalink to this heading"></a></h2>
+<p>Compute the mean vegetation and soil carbon stocks for the following decades:
+[1990-2010], [2040-2050], [2090-2100].</p>
+<blockquote>
+<div><ol class="loweralpha simple">
+<li><p>What are the units of these stocks?</p></li>
+</ol>
+</div></blockquote>
+<details class="working summary-example-python-solution">
+<summary>Example Python Solution</summary><div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">VAR</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;VEGC&#39;</span><span class="p">,</span> <span class="s1">&#39;SHLWC&#39;</span><span class="p">,</span> <span class="s1">&#39;DEEPC&#39;</span><span class="p">,</span> <span class="s1">&#39;MINEC&#39;</span><span class="p">]:</span>
+  <span class="n">TIMERES</span> <span class="o">=</span> <span class="s1">&#39;yearly&#39;</span>
+  <span class="n">PX_X</span> <span class="o">=</span> <span class="mi">0</span>
+  <span class="n">PX_Y</span> <span class="o">=</span> <span class="mi">0</span>
+  <span class="n">decades</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;1990-2010&#39;</span><span class="p">,</span><span class="s1">&#39;2040-2050&#39;</span><span class="p">,</span><span class="s1">&#39;2090-2100&#39;</span><span class="p">]</span>
+
+  <span class="n">df</span><span class="p">,</span> <span class="n">meta</span> <span class="o">=</span> <span class="n">build_full_dataframe</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="n">VAR</span><span class="p">,</span> <span class="n">timeres</span><span class="o">=</span><span class="n">TIMERES</span><span class="p">,</span> <span class="n">px_y</span><span class="o">=</span><span class="n">PX_Y</span><span class="p">,</span> <span class="n">px_x</span><span class="o">=</span><span class="n">PX_X</span><span class="p">)</span>
+  <span class="nb">print</span><span class="p">(</span><span class="n">meta</span><span class="p">)</span>
+  <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">decades</span><span class="p">:</span>
+     <span class="n">s</span><span class="p">,</span> <span class="n">e</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">)</span>
+     <span class="n">mean</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">s</span><span class="p">:</span><span class="n">e</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">d</span><span class="si">}</span><span class="s1">  </span><span class="si">{</span><span class="n">VAR</span><span class="si">}</span><span class="s1">  mean: </span><span class="si">{</span><span class="n">mean</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+  <span class="nb">print</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;hds_units&#39;: &#39;g/m2&#39;, &#39;pds_units&#39;: &#39;g/m2&#39;, &#39;h_start&#39;: cftime.DatetimeNoLeap(1901, 1, 1, 0, 0, 0, 0, has_year_zero=True), &#39;h_end&#39;: cftime.DatetimeNoLeap(2015, 1, 1, 0, 0, 0, 0, has_year_zero=True), &#39;p_start&#39;: cftime.DatetimeNoLeap(2016, 1, 1, 0, 0, 0, 0, has_year_zero=True), &#39;p_end&#39;: cftime.DatetimeNoLeap(2100, 1, 1, 0, 0, 0, 0, has_year_zero=True)}
+1990-2010  VEGC  mean: 611.1421176592509
+2040-2050  VEGC  mean: 774.5512582280419
+2090-2100  VEGC  mean: 1045.069594610821
+
+{&#39;hds_units&#39;: &#39;g/m2&#39;, &#39;pds_units&#39;: &#39;g/m2&#39;, &#39;h_start&#39;: cftime.DatetimeNoLeap(1901, 1, 1, 0, 0, 0, 0, has_year_zero=True), &#39;h_end&#39;: cftime.DatetimeNoLeap(2015, 1, 1, 0, 0, 0, 0, has_year_zero=True), &#39;p_start&#39;: cftime.DatetimeNoLeap(2016, 1, 1, 0, 0, 0, 0, has_year_zero=True), &#39;p_end&#39;: cftime.DatetimeNoLeap(2100, 1, 1, 0, 0, 0, 0, has_year_zero=True)}
+1990-2010  SHLWC  mean: 4073.534336635045
+2040-2050  SHLWC  mean: 3964.839800747958
+2090-2100  SHLWC  mean: 4091.291518471458
+
+{&#39;hds_units&#39;: &#39;g/m2&#39;, &#39;pds_units&#39;: &#39;g/m2&#39;, &#39;h_start&#39;: cftime.DatetimeNoLeap(1901, 1, 1, 0, 0, 0, 0, has_year_zero=True), &#39;h_end&#39;: cftime.DatetimeNoLeap(2015, 1, 1, 0, 0, 0, 0, has_year_zero=True), &#39;p_start&#39;: cftime.DatetimeNoLeap(2016, 1, 1, 0, 0, 0, 0, has_year_zero=True), &#39;p_end&#39;: cftime.DatetimeNoLeap(2100, 1, 1, 0, 0, 0, 0, has_year_zero=True)}
+1990-2010  DEEPC  mean: 5868.939033508301
+2040-2050  DEEPC  mean: 5995.581223921342
+2090-2100  DEEPC  mean: 6076.084982785312
+
+{&#39;hds_units&#39;: &#39;g/m2&#39;, &#39;pds_units&#39;: &#39;g/m2&#39;, &#39;h_start&#39;: cftime.DatetimeNoLeap(1901, 1, 1, 0, 0, 0, 0, has_year_zero=True), &#39;h_end&#39;: cftime.DatetimeNoLeap(2015, 1, 1, 0, 0, 0, 0, has_year_zero=True), &#39;p_start&#39;: cftime.DatetimeNoLeap(2016, 1, 1, 0, 0, 0, 0, has_year_zero=True), &#39;p_end&#39;: cftime.DatetimeNoLeap(2100, 1, 1, 0, 0, 0, 0, has_year_zero=True)}
+1990-2010  MINEC  mean: 51438.521706172396
+2040-2050  MINEC  mean: 48978.47723943537
+2090-2100  MINEC  mean: 46020.50756783919
+
+</pre></div>
+</div>
+</div>
+</div>
+</details></section>
+<section id="computing-monthly-nee">
+<h2><span class="section-number">3.5. </span>Computing Monthly NEE<a class="headerlink" href="#computing-monthly-nee" title="Permalink to this heading"></a></h2>
+<p>Compute monthly Net Ecosystem Exchange (NEE) for the historical and scenario
+simulations. Indicate how you formulated NEE.</p>
+<details class="broken summary-write-this">
+<summary>WRITE THIS</summary><p>WRITE THIS…</p>
+</details></section>
+<section id="computing-mean-gpp">
+<h2><span class="section-number">3.6. </span>Computing Mean GPP<a class="headerlink" href="#computing-mean-gpp" title="Permalink to this heading"></a></h2>
+<p>Compute the mean GPP, autotrophic and heterotrophic respirations and NEE for the
+following decades: [1990-2010], [2040-2050], [2090-2100].</p>
+<blockquote>
+<div><ol class="loweralpha">
+<li><p>What are the units of these fluxes?</p>
+<details class="working summary-example-python-solution">
+<summary>Example Python Solution</summary><div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;GPP&#39;</span><span class="p">,</span> <span class="s1">&#39;RH&#39;</span><span class="p">,</span> <span class="s1">&#39;RM&#39;</span><span class="p">,</span><span class="s1">&#39;RG&#39;</span><span class="p">,]:</span>
+    <span class="n">trds</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;output/</span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s1">_monthly_tr.nc&#39;</span><span class="p">)</span>
+    <span class="n">scds</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;output/</span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s1">_monthly_sc.nc&#39;</span><span class="p">)</span>
+    <span class="n">tunits</span> <span class="o">=</span> <span class="n">trds</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">v</span><span class="p">]</span><span class="o">.</span><span class="n">units</span>
+    <span class="n">sunits</span> <span class="o">=</span> <span class="n">scds</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">v</span><span class="p">]</span><span class="o">.</span><span class="n">units</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">tunits</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">sunits</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>GPP g/m2/month g/m2/month
+RH g/m2/month g/m2/month
+RM g/m2/month g/m2/month
+RG g/m2/month g/m2/month
+</pre></div>
+</div>
+</div>
+</div>
+</details></li>
+</ol>
+</div></blockquote>
+<details class="partial summary-example-python-solution">
+<summary>Example Python Solution</summary><div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">VAR</span> <span class="o">=</span> <span class="s1">&#39;GPP&#39;</span>
+<span class="n">TIMERES</span> <span class="o">=</span> <span class="s1">&#39;monthly&#39;</span>
+<span class="n">PX_X</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">PX_Y</span> <span class="o">=</span> <span class="mi">0</span>
+
+<span class="n">df</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">build_full_dataframe</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="n">VAR</span><span class="p">,</span> <span class="n">timeres</span><span class="o">=</span><span class="n">TIMERES</span><span class="p">,</span> <span class="n">px_y</span><span class="o">=</span><span class="n">PX_Y</span><span class="p">,</span> <span class="n">px_x</span><span class="o">=</span><span class="n">PX_X</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;1990-2010&#39;</span><span class="p">,</span><span class="s1">&#39;2040-2050&#39;</span><span class="p">,</span><span class="s1">&#39;2090-2100&#39;</span><span class="p">]:</span>
+   <span class="n">s</span><span class="p">,</span> <span class="n">e</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">)</span>
+   <span class="n">mean</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">s</span><span class="p">:</span><span class="n">e</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+   <span class="n">long_string</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;</span><span class="si">{:.3f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">mean</span><span class="p">]</span>
+   <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">d</span><span class="si">}</span><span class="s2">  mean (each pft): </span><span class="si">{</span><span class="n">long_string</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+   <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">d</span><span class="si">}</span><span class="s2">  mean (across pfts): </span><span class="si">{</span><span class="n">mean</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+   <span class="nb">print</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>1990-2010  mean (each pft): [&#39;4.665&#39;, &#39;1.963&#39;, &#39;6.830&#39;, &#39;15.879&#39;, &#39;1.002&#39;, &#39;9.573&#39;, &#39;5.986&#39;, &#39;4.244&#39;, &#39;0.000&#39;, &#39;0.000&#39;]
+1990-2010  mean (across pfts): 5.0142075171490434
+
+2040-2050  mean (each pft): [&#39;6.556&#39;, &#39;2.755&#39;, &#39;9.542&#39;, &#39;21.660&#39;, &#39;1.410&#39;, &#39;14.336&#39;, &#39;8.975&#39;, &#39;6.270&#39;, &#39;0.000&#39;, &#39;0.000&#39;]
+2040-2050  mean (across pfts): 7.150392463570901
+
+2090-2100  mean (each pft): [&#39;10.556&#39;, &#39;4.503&#39;, &#39;15.638&#39;, &#39;34.493&#39;, &#39;2.304&#39;, &#39;23.104&#39;, &#39;14.825&#39;, &#39;10.422&#39;, &#39;0.000&#39;, &#39;0.000&#39;]
+2090-2100  mean (across pfts): 11.58454473529559
+
+</pre></div>
+</div>
+</div>
+</div>
+</details></section>
+<section id="plot-active-layer-depth">
+<h2><span class="section-number">3.7. </span>Plot Active Layer Depth<a class="headerlink" href="#plot-active-layer-depth" title="Permalink to this heading"></a></h2>
+<p>Plot the active layer depth from 1950 to 2100.</p>
+<details name="customname" class="working summary-example-python-solution">
+<summary>Example Python Solution</summary><div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="n">df</span><span class="p">,</span> <span class="n">meta</span> <span class="o">=</span> <span class="n">build_full_dataframe</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s1">&#39;ALD&#39;</span><span class="p">,</span> <span class="n">timeres</span><span class="o">=</span><span class="s1">&#39;yearly&#39;</span><span class="p">,</span> <span class="n">px_y</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">px_x</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s1">&#39;1950&#39;</span><span class="p">:</span><span class="s1">&#39;2100&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s1">&#39;1950&#39;</span><span class="p">:</span><span class="s1">&#39;2100&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;ALD&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">meta</span><span class="p">[</span><span class="s1">&#39;h_end&#39;</span><span class="p">],</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;dotted&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">)</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;year&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;ALD (</span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">meta</span><span class="p">[</span><span class="s1">&#39;hds_units&#39;</span><span class="p">]))</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s1">&#39;ALD_SAMPLE.png&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/example_experiment_0_5_0.png" src="../_images/example_experiment_0_5_0.png" />
+</div>
+</div>
+</details></section>
+<section id="plot-seasonal-dynamic">
+<h2><span class="section-number">3.8. </span>Plot Seasonal Dynamic<a class="headerlink" href="#plot-seasonal-dynamic" title="Permalink to this heading"></a></h2>
+<p>Plot the seasonal dynamic of GPP for the same three decades: [1990-2010],
+[2040-2050], [2090-2100]. The plot should show the mean monthly GPP computed
+across each decade as lines, and the standard deviation across the mean as
+envelopes.</p>
+<details class="broken summary-example-python-solution">
+<summary>Example Python Solution</summary><div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df</span><span class="p">,</span> <span class="n">meta</span> <span class="o">=</span> <span class="n">build_full_dataframe</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="s1">&#39;GPP&#39;</span><span class="p">,</span> <span class="n">timeres</span><span class="o">=</span><span class="s1">&#39;monthly&#39;</span><span class="p">,</span> <span class="n">px_y</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">px_x</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="n">july</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;1901-7&#39;</span><span class="p">::</span><span class="mi">12</span><span class="p">]</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">pft</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">july</span><span class="o">.</span><span class="n">columns</span><span class="p">):</span>
+  <span class="n">ax</span><span class="o">.</span><span class="n">boxplot</span><span class="p">(</span><span class="n">july</span><span class="p">[</span><span class="n">pft</span><span class="p">],</span> <span class="n">positions</span><span class="o">=</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">],</span> <span class="n">notch</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;July&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;GPP (</span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">meta</span><span class="p">[</span><span class="s1">&#39;hds_units&#39;</span><span class="p">]))</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;PFT&#39;</span><span class="p">)</span>
+
+<span class="c1"># This works too...</span>
+<span class="n">df</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="s1">&#39;box&#39;</span><span class="p">)</span>
+
+<span class="c1"># Or this</span>
+<span class="n">df</span><span class="p">[</span><span class="s1">&#39;1901-08&#39;</span><span class="p">::</span><span class="mi">12</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="s1">&#39;box&#39;</span><span class="p">)</span>
+
+<span class="c1"># Gets the monthlies</span>
+<span class="c1">#for m in range(0,12):</span>
+<span class="c1">#  print(df[m::12])</span>
+<span class="c1">#  print()</span>
+
+<span class="c1"># Make timeseries plot</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;1940&#39;</span><span class="p">:</span><span class="s1">&#39;1950&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s1">&#39;GPP_SAMPLE.png&#39;</span><span class="p">)</span>
+
+<span class="c1"># Make timeseries of July GPP values</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="mi">6</span><span class="p">::</span><span class="mi">12</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s1">&#39;SAMPLE.png&#39;</span><span class="p">)</span>
+
+<span class="c1"># Or this:, gives julys for a decade</span>
+<span class="n">df</span><span class="p">[</span><span class="mi">6</span><span class="p">::</span><span class="mi">12</span><span class="p">][</span><span class="s1">&#39;1940&#39;</span><span class="p">:</span><span class="s1">&#39;1950&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>0</th>
+      <th>1</th>
+      <th>2</th>
+      <th>3</th>
+      <th>4</th>
+      <th>5</th>
+      <th>6</th>
+      <th>7</th>
+      <th>8</th>
+      <th>9</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1940-07-01</th>
+      <td>15.222713</td>
+      <td>6.487933</td>
+      <td>22.697857</td>
+      <td>54.770477</td>
+      <td>3.358855</td>
+      <td>32.331779</td>
+      <td>20.243792</td>
+      <td>13.517817</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>1941-07-01</th>
+      <td>15.253126</td>
+      <td>6.569606</td>
+      <td>22.834174</td>
+      <td>54.760440</td>
+      <td>3.396254</td>
+      <td>32.963326</td>
+      <td>20.672771</td>
+      <td>14.296289</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>1942-07-01</th>
+      <td>15.916132</td>
+      <td>6.834508</td>
+      <td>23.789780</td>
+      <td>57.649047</td>
+      <td>3.544996</td>
+      <td>34.163540</td>
+      <td>21.440315</td>
+      <td>15.013998</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>1943-07-01</th>
+      <td>16.490040</td>
+      <td>7.046619</td>
+      <td>24.501346</td>
+      <td>58.508783</td>
+      <td>3.600999</td>
+      <td>34.736774</td>
+      <td>21.669128</td>
+      <td>14.560605</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>1944-07-01</th>
+      <td>15.957025</td>
+      <td>6.850433</td>
+      <td>23.861022</td>
+      <td>57.210692</td>
+      <td>3.526193</td>
+      <td>31.507740</td>
+      <td>19.691643</td>
+      <td>14.591763</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>1945-07-01</th>
+      <td>16.015049</td>
+      <td>6.921984</td>
+      <td>24.005116</td>
+      <td>57.002366</td>
+      <td>3.583856</td>
+      <td>34.819977</td>
+      <td>21.758690</td>
+      <td>14.688032</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>1946-07-01</th>
+      <td>14.743739</td>
+      <td>6.125533</td>
+      <td>21.778800</td>
+      <td>52.128633</td>
+      <td>3.162803</td>
+      <td>27.645397</td>
+      <td>17.268682</td>
+      <td>12.252691</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>1947-07-01</th>
+      <td>15.453876</td>
+      <td>6.579514</td>
+      <td>23.005419</td>
+      <td>54.782232</td>
+      <td>3.421549</td>
+      <td>33.026249</td>
+      <td>20.704044</td>
+      <td>13.807670</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>1948-07-01</th>
+      <td>15.879559</td>
+      <td>6.854165</td>
+      <td>23.790337</td>
+      <td>56.549851</td>
+      <td>3.581119</td>
+      <td>34.739639</td>
+      <td>21.835545</td>
+      <td>15.320406</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>1949-07-01</th>
+      <td>15.955576</td>
+      <td>6.940750</td>
+      <td>23.924105</td>
+      <td>56.192366</td>
+      <td>3.628041</td>
+      <td>35.459229</td>
+      <td>22.122131</td>
+      <td>14.832438</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>1950-07-01</th>
+      <td>15.730776</td>
+      <td>6.790662</td>
+      <td>23.549642</td>
+      <td>56.062529</td>
+      <td>3.523667</td>
+      <td>31.666155</td>
+      <td>19.762197</td>
+      <td>14.469084</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+  </tbody>
+</table>
+</div></div><img alt="../_images/example_experiment_0_6_1.png" src="../_images/example_experiment_0_6_1.png" />
+<img alt="../_images/example_experiment_0_6_2.png" src="../_images/example_experiment_0_6_2.png" />
+<img alt="../_images/example_experiment_0_6_3.png" src="../_images/example_experiment_0_6_3.png" />
+</div>
+</div>
+</details></section>
+<section id="plot-soil-temperatures">
+<h2><span class="section-number">3.9. </span>Plot Soil Temperatures<a class="headerlink" href="#plot-soil-temperatures" title="Permalink to this heading"></a></h2>
+<p>Plot the soil temperature profile for [June-July-August] period for the same
+three years: 1990, 2040, 2090. The plot should show the mean summer temperature
+computed across each decade as lines, and the standard deviation across the mean
+as envelops.</p>
+<details class="broken summary-example-python-solution">
+<summary>Example Python Solution</summary><p>Write this…</p>
+</details></section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="basic_model_run.html" class="btn btn-neutral float-left" title="2. Basic Model Setup and Run" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="data_summary_processing.html" class="btn btn-neutral float-right" title="4. Data Summary and Processing" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Tobey Carman, Ruth Rutter, Helene Genet, Eugenie Euskirchen.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

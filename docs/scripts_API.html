@@ -1,0 +1,1629 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Python API Docs &mdash; dvmdostem v0.6.1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/jupyter-sphinx.css" type="text/css" />
+      <link rel="stylesheet" href="_static/thebelab.css" type="text/css" />
+      <link rel="stylesheet" href="_static/custom_styles.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/thebelab-helper.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="7. Using Github’s Features" href="examples_and_tutorials/using_github_features.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> dvmdostem
+          </a>
+              <div class="version">
+                v0.6.1
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="model_overview.html">1. Model Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="running_dvmdostem.html">2. Running</a></li>
+<li class="toctree-l1"><a class="reference internal" href="software_development_info.html">3. Dev Info</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SA_UQ.html">4. SA and UQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="command_cheat_sheet.html">5. Command Cheat Sheet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="common_acronyms.html">6. Common Project Acronyms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">7. Manual Calibration</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Examples and Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="prelude.html">1. Prelude</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/basic_model_run.html">2. Basic Model Setup and Run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/example_experiment_0.html">3. EE 0 - Single Site Run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/data_summary_processing.html">4. Data Summary and Processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/plotting_discussion.html">5. Plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/make_contribution.html">6. Contributing to the Codebase</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/using_github_features.html">7. Using Github’s Features</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Python Scripts API</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Python API Docs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#sensitivity-analysis-tools">Sensitivity Analysis Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#general-utilities">General Utilities</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#module-param_util">param_util.py</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-output_utils">output_util.py</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-input_util">input_util.py</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">dvmdostem</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a></li>
+      <li class="breadcrumb-item active">Python API Docs</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/scripts_API.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="python-api-docs">
+<h1>Python API Docs<a class="headerlink" href="#python-api-docs" title="Permalink to this heading"></a></h1>
+<p>The content in these section has been auto-generated from the python
+<code class="docutils literal notranslate"><span class="pre">docstrings</span></code> in the project.</p>
+<section id="sensitivity-analysis-tools">
+<h2>Sensitivity Analysis Tools<a class="headerlink" href="#sensitivity-analysis-tools" title="Permalink to this heading"></a></h2>
+<p>These are tools and APIs for carrying out Sensitivity Analysis.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Leaving this out for the time-being. The docstrings will be fixed in the
+<code class="docutils literal notranslate"><span class="pre">Sensitivity-multi-pft</span></code> branch.</p>
+</div>
+</section>
+<section id="general-utilities">
+<h2>General Utilities<a class="headerlink" href="#general-utilities" title="Permalink to this heading"></a></h2>
+<p>These are general purpose utility scripts for working with <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code>.</p>
+<section id="module-param_util">
+<span id="param-util-py"></span><h3>param_util.py<a class="headerlink" href="#module-param_util" title="Permalink to this heading"></a></h3>
+<dl class="py class">
+<dt class="sig sig-object py" id="param_util.ParamUtilSpeedHelper">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">param_util.</span></span><span class="sig-name descname"><span class="pre">ParamUtilSpeedHelper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pdir</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#param_util.ParamUtilSpeedHelper" title="Permalink to this definition"></a></dt>
+<dd><p>Experimenting with having an object oriented API so that we can
+cache some data in the object. Will save lots of time for various
+look up type functionality.</p>
+<p>With param_util.py in general the idea has been to have it be flexible
+with repsect to the location of the parameter files. But that makes
+some operations expensive because the code is constantly having to
+re-build lookup data structures to find parameter names or files.</p>
+<p>With this object the idea is to set the parameter directory upon
+instantiation, and build the lookup data structure. Then future
+operations can use that cached structure.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">param_util</span> <span class="k">as</span> <span class="nn">pu</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">psh</span> <span class="o">=</span> <span class="n">pu</span><span class="o">.</span><span class="n">ParamUtilSpeedHelper</span><span class="p">(</span><span class="s2">&quot;/work/parameters&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">psh</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="n">pname</span><span class="o">=</span><span class="s1">&#39;cmax&#39;</span><span class="p">,</span> <span class="n">cmtnum</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">pftnum</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">with_metadata</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="go">13.45</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="param_util.ParamUtilSpeedHelper.get_value">
+<span class="sig-name descname"><span class="pre">get_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmtnum</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pftnum</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_metadata</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#param_util.ParamUtilSpeedHelper.get_value" title="Permalink to this definition"></a></dt>
+<dd><p>Look up the parameter value by name for given CMT and PFT.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pname</strong> (<em>str</em>) – Name of parameter as found in dvmdostem parameter files.</p></li>
+<li><p><strong>cmtnum</strong> (<em>int</em>) – The number of the community type to grab data from.</p></li>
+<li><p><strong>pftnum</strong> (<em>int</em>) – The PFT of the data to grab (for PFT parameters), None (default)
+for non-pft parameters.</p></li>
+<li><p><strong>with_metadata</strong> (<em>bool</em>) – (not implemented yet) flag for returning just the raw data or
+a package with more metadata (e.g. param directory, filename, etc)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>v</strong> – The parameter value, or if <cite>with_metadata=True</cite>, a dict with more
+info.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="param_util.ParamUtilSpeedHelper.list_non_pft_params">
+<span class="sig-name descname"><span class="pre">list_non_pft_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cmtnum</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#param_util.ParamUtilSpeedHelper.list_non_pft_params" title="Permalink to this definition"></a></dt>
+<dd><p>Gets a listing of all non-PFT parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>cmtnum</strong> (<em>int</em>) – The CMT number to read from.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>s</strong> – A formatted string of all non-PFT parameters, (i.e. soil params)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="param_util.ParamUtilSpeedHelper.list_params">
+<span class="sig-name descname"><span class="pre">list_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cmtnum</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pftnum</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#param_util.ParamUtilSpeedHelper.list_params" title="Permalink to this definition"></a></dt>
+<dd><p>Builds and returns a formatted string listing all the
+parameters for a given CMT and PFT.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cmtnum</strong> (<em>int</em>) – The community type number to list parameters for.</p></li>
+<li><p><strong>pftnum</strong> (<em>int</em>) – The PFT number to list parameters for.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>s</strong> – A formatted string listing all the parameters for a given CMT and PFT.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>string</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="param_util.build_param_lookup">
+<span class="sig-prename descclassname"><span class="pre">param_util.</span></span><span class="sig-name descname"><span class="pre">build_param_lookup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pdir</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#param_util.build_param_lookup" title="Permalink to this definition"></a></dt>
+<dd><p>Builds a lookup table, mapping file names to lists of
+parameters (separate lists for PFT and non PFT params).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>pdir</strong> (<em>str Path to a folder of parameter files.</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><p><strong>lu</strong> – A dictionary mapping file names to lists of parameters (pft and non-pft)
+e.g.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">lu</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="s1">&#39;cmt_calparbgc.txt&#39;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s1">&#39;non_pft_params&#39;</span><span class="p">:[</span><span class="s1">&#39;kdcsoma&#39;</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="s1">&#39;pft_params&#39;</span><span class="p">:[</span><span class="s1">&#39;cmax&#39;</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+  <span class="p">},</span>
+  <span class="s1">&#39;cmt_bgcsoil.txt&#39;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s1">&#39;non_pft_params&#39;</span><span class="p">:[</span><span class="s1">&#39;kdcsoma&#39;</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="s1">&#39;pft_params&#39;</span><span class="p">:[]</span>
+  <span class="p">},</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="param_util.cmdline_parse">
+<span class="sig-prename descclassname"><span class="pre">param_util.</span></span><span class="sig-name descname"><span class="pre">cmdline_parse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">argv</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#param_util.cmdline_parse" title="Permalink to this definition"></a></dt>
+<dd><p>Define and parse the command line interface.</p>
+<p>When argv is None, the parser will evaluate sys.argv[1:]</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>args</strong> – A Namespace object with all the arguments and associated values.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Namespace</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="param_util.cmtdatablock2dict">
+<span class="sig-prename descclassname"><span class="pre">param_util.</span></span><span class="sig-name descname"><span class="pre">cmtdatablock2dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cmtdatablock</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#param_util.cmtdatablock2dict" title="Permalink to this definition"></a></dt>
+<dd><p>Converts a “CMT datablock” (list of strings) into a dict structure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>cmtdatablock</strong> (<em>[</em><em>str</em><em>, </em><em>str</em><em>, </em><em>...</em><em>]</em>) – A list of strings (with new lines) holding parameter data for a CMT.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>cmtdict</strong> – A multi-level dict mapping names (deduced from comments) to parameter
+values.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="param_util.comment_splitter">
+<span class="sig-prename descclassname"><span class="pre">param_util.</span></span><span class="sig-name descname"><span class="pre">comment_splitter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">line</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#param_util.comment_splitter" title="Permalink to this definition"></a></dt>
+<dd><p>Splits a string into data before comment and after comment.</p>
+<p>The comment delimiter (‘//’) will be included in the after component.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>line</strong> (<em>str</em>) – A string representing the line of data. May or may not contain the comment
+delimiter.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A tuple containing the “before comment” string, and the “after comment”
+string. The “after commnet” string will include the comment charachter.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(str, str) - Tuple of strings.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="param_util.compare_CMTs">
+<span class="sig-prename descclassname"><span class="pre">param_util.</span></span><span class="sig-name descname"><span class="pre">compare_CMTs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fileA</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmtnumA</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fileB</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmtnumB</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_formatting</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#param_util.compare_CMTs" title="Permalink to this definition"></a></dt>
+<dd><p>Compares the specified CMT data blocks in each file line by line, prints
+“Match” if the lines are the same, otherwise print the lines for visual
+comparison.</p>
+<p>By running the datablocks thru the format function, we can compare on values
+and ignore whitespace/formatting differences.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fileA</strong> (<em>str</em>) – Path to file for comparison.</p></li>
+<li><p><strong>cmtnumA</strong> (<em>int</em>) – Number of CMT for comparison.</p></li>
+<li><p><strong>fileB</strong> (<em>str</em>) – Path to file for comparison.</p></li>
+<li><p><strong>cmtnumB</strong> (<em>int</em>) – Number of CMT for comparison.</p></li>
+<li><p><strong>ignore_formatting</strong> (<em>bool</em>) – When True (default) it is easy to see how the numbers differ. When this
+setting is False, lines with different formatting will not match, i.e.
+0.0 and  0.000 will show up as different.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="param_util.converter">
+<span class="sig-prename descclassname"><span class="pre">param_util.</span></span><span class="sig-name descname"><span class="pre">converter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#param_util.converter" title="Permalink to this definition"></a></dt>
+<dd><p>Convert data to float type for printing. Converts empty string to 0.0</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>anything</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>If x castable to a float, a float is returned. If x is an empty string, 0.0
+is returned. Otherwise x is returned un-modified.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="param_util.csv2fwt_v1">
+<span class="sig-prename descclassname"><span class="pre">param_util.</span></span><span class="sig-name descname"><span class="pre">csv2fwt_v1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">csv_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref_directory</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'../parameters'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite_files</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref_targets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#param_util.csv2fwt_v1" title="Permalink to this definition"></a></dt>
+<dd><p>Convert from csv parameter files to fixed width text format.</p>
+<p>Uses csv_v1_specification().</p>
+<p>Unrefined function that depends on the csv file being
+appropriately formatted in a variety of ways, including at least:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>consistent pft names</p></li>
+<li><p>all variables present</p></li>
+<li><p>calibration targets variables for leaf/stem/roots being named as follows
+- VegCarbon:Leaf, etc
+- VegStructuralNitrogen:Leaf, etc</p></li>
+<li><p>PFT names &lt;= 12 characters long</p></li>
+<li><p>consistent CMT names</p></li>
+</ul>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>csv_file</strong> (<em>string</em><em>, </em><em>path</em>) – Path to an input csv file to convert.</p></li>
+<li><p><strong>ref_directory</strong> (<em>string</em><em>, </em><em>path</em>) – Path to a folder containing parameter files to be used as reference for
+formatting the resulting fixed width data.</p></li>
+<li><p><strong>ref_targets</strong> (<em>string</em><em>, </em><em>path</em>) – Path to a calibration_targets.py file that will be used for reference in
+formatting the resulting data.</p></li>
+<li><p><strong>overwrite_files</strong> (<em>bool</em>) – (experimental) Flag for determining whether to print results to stdout
+(default) or to overwrite the data in the reference files. May not work if
+the CMT number in the csv file is not present in the reference files.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Returns zero upon successful completion.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="param_util.csv_v0_find_section_starts">
+<span class="sig-prename descclassname"><span class="pre">param_util.</span></span><span class="sig-name descname"><span class="pre">csv_v0_find_section_starts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#param_util.csv_v0_find_section_starts" title="Permalink to this definition"></a></dt>
+<dd><p>Gets the starting index and name for sections of data in a specially formatted csv file.</p>
+<div class="deprecated">
+<p><span class="versionmodified deprecated">Deprecated since version 0.6.1: </span><cite>csv_v0</cite> format will be removed in later versions!</p>
+</div>
+<p>Assumes that <cite>data</cite> is a list of lines read from a csv file. See help
+(docstring) for csv_v0_specification().</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>list of strings</em><em>, </em><em>required</em>) – Assumed to be a list generated by reading a csv file that is
+formatted as in csv_v0_specification.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A list of tuples, where the first item in the tuple is the index in the
+csv file where the section starts, and the second item in the tuple is the
+text name for the section, as read from the file.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="param_util.csv_v0_get_pftnames">
+<span class="sig-prename descclassname"><span class="pre">param_util.</span></span><span class="sig-name descname"><span class="pre">csv_v0_get_pftnames</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#param_util.csv_v0_get_pftnames" title="Permalink to this definition"></a></dt>
+<dd><p>Retrieves PFT names from a specially formatted csv file.</p>
+<div class="deprecated">
+<p><span class="versionmodified deprecated">Deprecated since version 0.6.1: </span><cite>csv_v0</cite> format will be removed in later versions!</p>
+</div>
+<p>Assumes that <cite>data</cite> is a list of lines read from a csv file that
+is formatted according to the csv_v0_specification. See help for the
+csv_v0_specification() function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>list of strings</em><em>, </em><em>required</em>) – Assumed to be a list generated by reading a csv file that is
+formatted as described above.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A list of pft names read from the incoming data.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="param_util.csv_v0_get_section">
+<span class="sig-prename descclassname"><span class="pre">param_util.</span></span><span class="sig-name descname"><span class="pre">csv_v0_get_section</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#param_util.csv_v0_get_section" title="Permalink to this definition"></a></dt>
+<dd><p>Extracts a section of block of data from a specially formatted csv file.</p>
+<div class="deprecated">
+<p><span class="versionmodified deprecated">Deprecated since version 0.6.1: </span><cite>csv_v0</cite> format will be removed in later versions!</p>
+</div>
+<p>Assumes that <cite>data</cite> is a list of lines read from a csv file. See help
+(the docstring) for the csv_v0_specification() function to get more details
+on how the csv file should be setup.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>list of strings</em><em>, </em><em>required</em>) – Assumed to be a list generated by reading a csv file that is formatted as
+described in the docstring for csv_v0_specification()</p></li>
+<li><p><strong>start</strong> – The index in the <cite>data</cite> list where the section starts.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The list of lines (rows) from <cite>data</cite> that belongs to a section or block.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="param_util.csv_v0_specification">
+<span class="sig-prename descclassname"><span class="pre">param_util.</span></span><span class="sig-name descname"><span class="pre">csv_v0_specification</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#param_util.csv_v0_specification" title="Permalink to this definition"></a></dt>
+<dd><p>Specification for csv files that hold parameter data.</p>
+<div class="deprecated">
+<p><span class="versionmodified deprecated">Deprecated since version 0.6.1: </span><cite>csv_v0</cite> format will be removed in later versions!</p>
+</div>
+<p>This csv format is intended to be used as a bridge between Excel
+and the dvmdostem space delimited parameter files. Expected usage: A user
+maintains or develops a spreadsheet with parameter data. Then user exports
+this spreadsheet to csv file. The utility functions in this script can then
+be used to parse the csv file and re-format the data as space delimited
+text that can be copied into dvmdostem parameter files.</p>
+<p>The csv file should be setup as follows:</p>
+<ul class="simple">
+<li><p>The csv file must have blank rows (lines) separating each section, or block
+of data. Generally each block of data will be intended for a different parameter
+file, i.e. cmt_envcanopy.txt, etc.</p></li>
+<li><p>Each section must start with a row that has all CAPS text in the first column
+and no data in the subsequent columns.</p></li>
+<li><p>There must be a row in the file with ‘pft name’ in the first column followed
+by names for each PFT in the subsequent columns. These names will be applied
+to all the sections of data in the file.</p></li>
+<li><p>There must not be more than 10 PFT columns.</p></li>
+</ul>
+<p>CAVEATS: PFT names will be converetd to CamelCase, comments
+will not be preserved or added to the file, the CMT number won’t be filled
+out, and no verification is done to see if there is a conflicting CMT number in
+any existing parameter files.</p>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cat example.csv
+,,,,
+pft name,EVR TREE,DEC SHRUB,DEC TREE,MOSS
+,,,,
+CALIBRATION TARGETS,,,,
+GPPAllIgnoringNitrogen,306.07,24.53,46.53,54.20
+NPPAllIgnoringNitrogen,229.91,18.42,34.98,40.65
+NPPAll,153.03,12.26,23.26,27.1
+,,,,
+BCGVEGETATION,,,,
+kc,400,400,400,400
+ki,75,75,75,75
+tmin,-1,-1,-1,-1
+toptmin,15,15,15,15
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="param_util.csv_v1_find_section_indices">
+<span class="sig-prename descclassname"><span class="pre">param_util.</span></span><span class="sig-name descname"><span class="pre">csv_v1_find_section_indices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">csv_file</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#param_util.csv_v1_find_section_indices" title="Permalink to this definition"></a></dt>
+<dd><p>Parses a csv file and returns the starting and ending indices for each
+section in the file.</p>
+<p>Uses csv_v1_specification().</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>sections</strong> – Mapping of section names to a pair of ints representing the start and end
+indices of the section, for example:
+{‘meta’:(0,5), ‘pft’:(8,25), ‘nonpft’:(25,35)}</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="param_util.csv_v1_read_section">
+<span class="sig-prename descclassname"><span class="pre">param_util.</span></span><span class="sig-name descname"><span class="pre">csv_v1_read_section</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bounds</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#param_util.csv_v1_read_section" title="Permalink to this definition"></a></dt>
+<dd><p>Write this…</p>
+<p>Uses csv_v1_specification().</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>list</em>) – The list of lines of a specially formatted csv file.</p></li>
+<li><p><strong>bounds</strong> (<em>tuple</em>) – Pair of ints representing the starting and ending indices of a section.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>A list of dicts produced by csv.DictReader, one key for each column name.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="param_util.csv_v1_specification">
+<span class="sig-prename descclassname"><span class="pre">param_util.</span></span><span class="sig-name descname"><span class="pre">csv_v1_specification</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#param_util.csv_v1_specification" title="Permalink to this definition"></a></dt>
+<dd><p>Specification for v1 csv files for holding parameter data.</p>
+<p>Each csv file will hold the data for one Community Type (CMT). As such the csv
+file will be broken into sections to accomodate the different number of
+columns in different sections. The sections of the file will be:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>a metadata section,</p></li>
+<li><p>a section for PFT specific parameters, and</p></li>
+<li><p>a section for non-PFT parameters.</p></li>
+</ul>
+</div></blockquote>
+<p>Each section will begin with a header line that describes the columns.</p>
+<p>The header for the metadata will be:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">file</span><span class="p">,</span><span class="n">cmtkey</span><span class="p">,</span><span class="n">cmtname</span><span class="p">,</span><span class="n">comment</span>
+</pre></div>
+</div>
+<p>The header for the PFT section will be:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">file</span><span class="p">,</span><span class="n">name</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">9</span><span class="p">,</span><span class="n">units</span><span class="p">,</span><span class="n">description</span><span class="p">,</span><span class="n">comment</span><span class="p">,</span><span class="n">refs</span>
+</pre></div>
+</div>
+<p>The header for the non-PFT section will be:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">file</span><span class="p">,</span><span class="n">name</span><span class="p">,</span><span class="n">value</span><span class="p">,</span><span class="n">units</span><span class="p">,</span><span class="n">description</span><span class="p">,</span><span class="n">comment</span><span class="p">,</span><span class="n">refs</span>
+</pre></div>
+</div>
+<p>Each section will end with two consecutive blank lines.</p>
+<p>Note that csv files prepared from different spreadsheet programs may have
+different treatment regarding blank lines and rows with varying numbers of
+columns. Many programs will produce files with lots of extra commas
+deliniating empty columns. Some of these extraneous commas have been omitted
+in the sample below.</p>
+<p>Example data:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># dvmdostem parameters: v0.5.6-178-g4cdb7c34</span>
+<span class="c1"># cmtnumber: 22</span>
+<span class="c1"># cmtname: Single PFT Alpine Tussock Tundra</span>
+<span class="c1"># cmtdescription: alpine tussock tundra for Interior Alaska ....</span>
+<span class="c1"># calibration site: The sentinel site used ....</span>
+<span class="c1"># calibration notes: Calibration conducted manually by Joy ...</span>
+<span class="c1"># references file: refs.bib</span>
+<span class="c1">#</span>
+<span class="c1"># To convert this file back to fixed width text for use with dvmdostem</span>
+<span class="c1"># see the param_util.csv2fwt_v1() function.</span>
+<span class="c1">#</span>
+<span class="n">file</span><span class="p">,</span><span class="n">cmtkey</span><span class="p">,</span><span class="n">cmtname</span><span class="p">,</span><span class="n">comment</span><span class="p">,,,,,,,,,,,,</span>
+<span class="o">../</span><span class="n">parameters</span><span class="o">/</span><span class="n">cmt_bgcvegetation</span><span class="o">.</span><span class="n">txt</span><span class="p">,</span><span class="n">CMT22</span><span class="p">,</span><span class="n">Single</span> <span class="n">PFT</span> <span class="n">Alpine</span> <span class="n">Tussock</span> <span class="n">Tundra</span><span class="p">,,,,,,,,,,,,,</span>
+<span class="o">../</span><span class="n">parameters</span><span class="o">/</span><span class="n">cmt_dimvegetation</span><span class="o">.</span><span class="n">txt</span><span class="p">,</span><span class="n">CMT22</span><span class="p">,</span><span class="n">Single</span> <span class="n">PFT</span> <span class="n">Alpine</span> <span class="n">Tussock</span> <span class="n">Tundra</span><span class="p">,,,,,,,,,,,,,</span>
+<span class="p">,,,,,,,,,,,,,,,</span>
+<span class="p">,,,,,,,,,,,,,,,</span>
+<span class="n">file</span><span class="p">,</span><span class="n">name</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">9</span><span class="p">,</span><span class="n">units</span><span class="p">,</span><span class="n">description</span><span class="p">,</span><span class="n">comment</span><span class="p">,</span><span class="n">refs</span>
+<span class="o">../</span><span class="n">calibration</span><span class="o">/</span><span class="n">calibration_targets</span><span class="o">.</span><span class="n">py</span><span class="p">,</span><span class="n">PFTNames</span><span class="p">,</span><span class="n">ecosystem</span><span class="p">,</span><span class="n">pft1</span><span class="p">,</span><span class="n">pft2</span><span class="p">,</span><span class="n">pft3</span><span class="p">,</span><span class="n">pft4</span><span class="p">,</span><span class="n">pft5</span><span class="p">,</span><span class="n">pft6</span><span class="p">,</span><span class="n">pft7</span><span class="p">,</span><span class="n">pft8</span><span class="p">,</span><span class="n">pft9</span><span class="p">,,,,</span>
+<span class="o">../</span><span class="n">calibration</span><span class="o">/</span><span class="n">calibration_targets</span><span class="o">.</span><span class="n">py</span><span class="p">,</span><span class="n">VegCarbon</span><span class="p">:</span><span class="n">Leaf</span><span class="p">,</span><span class="mf">320.2073015</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,,,,</span>
+<span class="o">../</span><span class="n">calibration</span><span class="o">/</span><span class="n">calibration_targets</span><span class="o">.</span><span class="n">py</span><span class="p">,</span><span class="n">VegCarbon</span><span class="p">:</span><span class="n">Root</span><span class="p">,</span><span class="mf">480.9949012</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,,,,</span>
+<span class="p">,,,,,,,,,,,,,,,</span>
+<span class="p">,,,,,,,,,,,,,,,</span>
+<span class="n">file</span><span class="p">,</span><span class="n">name</span><span class="p">,</span><span class="n">value</span><span class="p">,</span><span class="n">units</span><span class="p">,</span><span class="n">description</span><span class="p">,</span><span class="n">comment</span><span class="p">,</span><span class="n">refs</span><span class="p">,,,,,,,,,</span>
+<span class="o">../</span><span class="n">calibration</span><span class="o">/</span><span class="n">calibration_targets</span><span class="o">.</span><span class="n">py</span><span class="p">,</span><span class="n">AvailableNitrogenSum</span><span class="p">,</span><span class="mf">1.7</span><span class="p">,,,,,,,,,,,,,</span>
+<span class="o">../</span><span class="n">calibration</span><span class="o">/</span><span class="n">calibration_targets</span><span class="o">.</span><span class="n">py</span><span class="p">,</span><span class="n">MossDeathC</span><span class="p">,</span><span class="mi">0</span><span class="p">,,,,,,,,,,,,,</span>
+<span class="o">../</span><span class="n">parameters</span><span class="o">/</span><span class="n">cmt_bgcsoil</span><span class="o">.</span><span class="n">txt</span><span class="p">,</span><span class="n">fnloss</span><span class="p">,</span><span class="mi">0</span><span class="p">,,</span>  <span class="n">fraction</span> <span class="n">N</span> <span class="n">leaching</span> <span class="p">(</span><span class="mi">0</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="n">when</span> <span class="n">drainage</span> <span class="n">occurs</span><span class="p">,,,,,,,,,,,</span>
+<span class="o">../</span><span class="n">parameters</span><span class="o">/</span><span class="n">cmt_bgcsoil</span><span class="o">.</span><span class="n">txt</span><span class="p">,</span><span class="n">fsompr</span><span class="p">,</span><span class="mf">0.611</span><span class="p">,,,,,,,,,,,,,</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="param_util.detect_block_with_pft_info">
+<span class="sig-prename descclassname"><span class="pre">param_util.</span></span><span class="sig-name descname"><span class="pre">detect_block_with_pft_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cmtdatablock</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#param_util.detect_block_with_pft_info" title="Permalink to this definition"></a></dt>
+<dd><p>Inspects a block of CMT data and trys to figure out if it is PFT data or not.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>cmtdatablock</strong> (<em>list of strings</em>) – A list of strings representing a datablock of dvmdostem parameter data.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>result</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="param_util.enforce_initvegc_split">
+<span class="sig-prename descclassname"><span class="pre">param_util.</span></span><span class="sig-name descname"><span class="pre">enforce_initvegc_split</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">aFile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmtnum</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#param_util.enforce_initvegc_split" title="Permalink to this definition"></a></dt>
+<dd><p>Makes sure that the ‘cpart’ compartments variables match the proportions
+set in initvegc variables in a cmt_bgcvegetation.txt file.</p>
+<p>The initvegc(leaf, wood, root) variables in cmt_bgcvegetation.txt are the
+measured values from literature. The cpart(leaf, wood, root) variables, which
+are in the same file, should be set to the fractional make up of the the
+components. So if the initvegc values for l, w, r are 100, 200, 300, then the
+cpart values should be 0.166, 0.33, and 0.5. It is very easy for these values
+to get out of sync when users manually update the parameter file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>aFile</strong> (<em>str</em>) – Path to a parameter file to work on. Must have bgcvegetation.txt in the name
+and must be a ‘bgcvegetation’ parameter file for this function to make sense
+and work.</p></li>
+<li><p><strong>cmtnum</strong> (<em>int</em>) – The community number in the file to work on.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>d</strong> – A CMT data dictionary with the updated cpart values.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="param_util.error_exit">
+<span class="sig-prename descclassname"><span class="pre">param_util.</span></span><span class="sig-name descname"><span class="pre">error_exit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">msg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linenumber</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#param_util.error_exit" title="Permalink to this definition"></a></dt>
+<dd><p>Prints and error message and exits.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fname</strong> (<em>string</em><em>, </em><em>required</em>) – The path to the offending file.</p></li>
+<li><p><strong>msg</strong> (<em>string</em><em>, </em><em>required</em>) – A message or note to tbe printed.</p></li>
+<li><p><strong>linenumber</strong> (<em>int</em><em>, </em><em>optional</em>) – The problematic line in the offending file.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="param_util.find_cmt_start_idx">
+<span class="sig-prename descclassname"><span class="pre">param_util.</span></span><span class="sig-name descname"><span class="pre">find_cmt_start_idx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmtkey</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#param_util.find_cmt_start_idx" title="Permalink to this definition"></a></dt>
+<dd><p>Finds the starting index for a CMT data block in a list of lines.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>[</em><em>str</em><em>, </em><em>str</em><em>, </em><em>...</em><em>]</em>) – A list of strings (maybe from a parameter file)</p></li>
+<li><p><strong>cmtkey</strong> (<em>str</em>) – A a CMT code string like ‘CMT05’ to search for in the list.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The first index in the list where the CMT key is found. If key is not found
+returns None.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="param_util.format_CMTdatadict">
+<span class="sig-prename descclassname"><span class="pre">param_util.</span></span><span class="sig-name descname"><span class="pre">format_CMTdatadict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">refFile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#param_util.format_CMTdatadict" title="Permalink to this definition"></a></dt>
+<dd><p>Format a block of CMT data.</p>
+<p><cite>dd</cite> : dict containing parameter names and values for a CMT.</p>
+<p><cite>refFile</cite> : str with a path to a file that should be used for reference
+in formatting the output.</p>
+<p><cite>format</cite> : str (optional) specifying which format to return. Defaults to None.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><p><strong>data</strong> – A list of strings that are formatted with fixed width columns, 12 chars
+wide, with 6 places after the decimal, something like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">//</span> <span class="n">CMT05</span> <span class="o">//</span> <span class="n">Tussock</span> <span class="n">Tundra</span>  <span class="o">...</span>
+<span class="o">//</span>    <span class="n">Betula</span>       <span class="n">Decid</span><span class="o">.</span>   <span class="o">...</span>
+  <span class="mf">400.000000</span>   <span class="mf">400.000000</span>   <span class="o">...</span>
+   <span class="mf">75.000000</span>    <span class="mf">75.000000</span>   <span class="o">...</span>
+   <span class="o">-</span><span class="mf">5.000000</span>    <span class="o">-</span><span class="mf">5.000000</span>   <span class="o">...</span>
+<span class="o">...</span>
+</pre></div>
+</div>
+</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>[str, str, …]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="param_util.format_section_csv_v0">
+<span class="sig-prename descclassname"><span class="pre">param_util.</span></span><span class="sig-name descname"><span class="pre">format_section_csv_v0</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">section_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">full_data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#param_util.format_section_csv_v0" title="Permalink to this definition"></a></dt>
+<dd><p>Prints data (presumably from csv file) to dvmdostem space delimited parameter format.</p>
+<div class="deprecated">
+<p><span class="versionmodified deprecated">Deprecated since version 0.6.1: </span><cite>csv_v0</cite> format will be removed in later versions!</p>
+</div>
+<p>No effort is made to standardize the variable names or comments in the resulting
+block. Used a fixed width column, space delimited.</p>
+<p>See the help for csv_v0_specification() function to find more info on how the
+csv file should be formatted.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>section_data</strong> (<em>list</em>) – Assumed to be a list of lines for one section of data read from a csv file. The csv
+file must be formatted as described in the docstring for csv_v0_specification().</p></li>
+<li><p><strong>full_data</strong> (<em>list</em>) – Assumed to be a list of lines of all the data read from a csv file. The csv
+file must be formatted as described in the docstring for csv_v0_specification().</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A formatted string with space delimited parameter data.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="param_util.fwt2csv_v1">
+<span class="sig-prename descclassname"><span class="pre">param_util.</span></span><span class="sig-name descname"><span class="pre">fwt2csv_v1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">req_cmts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'all'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">targets_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#param_util.fwt2csv_v1" title="Permalink to this definition"></a></dt>
+<dd><p>Convert from dvmdostem fixed width text (fwt) format to CSV (comma separated
+values), version 1.</p>
+<p>Writes one file for each CMT, with all parameters from the fixed width
+files. The output files will be named like “SAMPLE_CMT_01.csv”, etc and
+will be written in your current working directory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>param_dir</strong> (<em>string</em><em>, </em><em>path</em>) – Path to a directory of parameter files to convert.</p></li>
+<li><p><strong>req_cmts</strong> (<em>list of ints</em><em> or </em><em>string</em>) – A list of the requested CMTs (numbers) or the string ‘all’.</p></li>
+<li><p><strong>targets_path</strong> (<em>string</em><em>, </em><em>path</em>) – Path to a targets file to convert.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="param_util.generate_reference_order">
+<span class="sig-prename descclassname"><span class="pre">param_util.</span></span><span class="sig-name descname"><span class="pre">generate_reference_order</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">aFile</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#param_util.generate_reference_order" title="Permalink to this definition"></a></dt>
+<dd><p>Lists order that variables should be in in a parameter file based on CMT 0.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>aFile</strong> (<em>str</em>) – The file to use as a base.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>ref_order</strong> – A list of strings containing the variable names, parsed from the input file
+in the order they appear in the input file.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>[str, str, …]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="param_util.get_CMT_datablock">
+<span class="sig-prename descclassname"><span class="pre">param_util.</span></span><span class="sig-name descname"><span class="pre">get_CMT_datablock</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">afile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmtnum</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#param_util.get_CMT_datablock" title="Permalink to this definition"></a></dt>
+<dd><p>Search file, returns the first block of data for one CMT as a list of strings.
+Ignores empty lines.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>afile</strong> (<em>str</em>) – Path to a file to search.</p></li>
+<li><p><strong>cmtnum</strong> (<em>int</em><em> or </em><em>str</em>) – The CMT number to search for. Converted (internally) to the CMT key.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>data</strong> – A list of strings, one item for each line in the CMT’s datablock.
+Each string will have a newline charachter in it.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>[str, str, …]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="param_util.get_CMTs_in_file">
+<span class="sig-prename descclassname"><span class="pre">param_util.</span></span><span class="sig-name descname"><span class="pre">get_CMTs_in_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">aFile</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#param_util.get_CMTs_in_file" title="Permalink to this definition"></a></dt>
+<dd><p>Gets a list of the CMTs found in a file.</p>
+<p>Looks at all lines in the file and considers any commented line with the
+‘CMT’ as the first non-whitespace charachters after the initial comment
+symbol to be a CMT definition line. Parses this line and sets the following
+keys in a dict: cmtkey, cmtnum, cmtname, cmtcomments</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>aFile</strong> (<em>string</em><em>, </em><em>required</em>) – The path to a file to read.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A list of dicts with info about the CMTs found in a file.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list of dicts</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="param_util.get_available_CMTs">
+<span class="sig-prename descclassname"><span class="pre">param_util.</span></span><span class="sig-name descname"><span class="pre">get_available_CMTs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pdir</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#param_util.get_available_CMTs" title="Permalink to this definition"></a></dt>
+<dd><p>Return list of available CMT numbers in directory.</p>
+<p>Only returns CMTs that are defined in all files.</p>
+<dl class="simple">
+<dt>Assumptions:</dt><dd><ul class="simple">
+<li><p>nothing else in <cite>pdir</cite></p></li>
+<li><p>parameter files in <cite>pdir</cite> are valid</p></li>
+<li><p>CMTs not defined twice in one file</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>pdir</strong> (<em>str</em>) – Path to directory of dvmdostem parameter files.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>x</strong> – A list of all the CMTs available in <cite>pdir</cite>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list of ints</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="param_util.get_datablock_pftkeys">
+<span class="sig-prename descclassname"><span class="pre">param_util.</span></span><span class="sig-name descname"><span class="pre">get_datablock_pftkeys</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dd</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#param_util.get_datablock_pftkeys" title="Permalink to this definition"></a></dt>
+<dd><p>Returns a sorted list of the pft keys present in a CMT data dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>dd</strong> (<em>dict</em>) – A CMT data dictionary (as might be created from cmtdatablock2dict(..)).</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A sorted list of the keys present in dd that contain the string ‘pft’.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>[str, str, … ] - list of strings</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="param_util.isCMTkey">
+<span class="sig-prename descclassname"><span class="pre">param_util.</span></span><span class="sig-name descname"><span class="pre">isCMTkey</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#param_util.isCMTkey" title="Permalink to this definition"></a></dt>
+<dd><p>Function for testing validity of a CMT key specifier.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>any</em>) – Something to be tested for being a (str) CMT key, i.e. somehting like
+<cite>‘CMT01’</cite>.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="n">isCMTkey</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;cmt04&#39;</span><span class="p">,</span> <span class="s1">&#39;cmt999&#39;</span><span class="p">,</span> <span class="s1">&#39;CMt56&#39;</span><span class="p">,</span> <span class="s1">&#39;CMT4y6&#39;</span><span class="p">,</span> <span class="s1">&#39;CMT00&#39;</span><span class="p">)]</span>
+<span class="go">[True, False, True, False, True]</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="n">isCMTkey</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;cmt00&#39;</span><span class="p">,</span> <span class="s1">&#39;cmt1234&#39;</span><span class="p">,</span> <span class="s1">&#39;c mtx&#39;</span><span class="p">,</span> <span class="s1">&#39; cmt09&#39;</span><span class="p">,</span> <span class="s1">&#39;cmt04 &#39;</span><span class="p">,)]</span>
+<span class="go">[True, False, False, True, True]</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="n">isCMTkey</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;cmt 23&#39;</span><span class="p">,</span> <span class="s1">&#39;4&#39;</span><span class="p">,</span> <span class="s1">&#39;04&#39;</span><span class="p">,</span> <span class="s1">&#39;0004&#39;</span><span class="p">,</span> <span class="s1">&#39;cmt4&#39;</span><span class="p">)]</span>
+<span class="go">[True, False, False, False, False]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="param_util.isParamFile">
+<span class="sig-prename descclassname"><span class="pre">param_util.</span></span><span class="sig-name descname"><span class="pre">isParamFile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#param_util.isParamFile" title="Permalink to this definition"></a></dt>
+<dd><p>Check to see if a file is likely a dvmdostem parameter file.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="param_util.is_CMT_divider_line">
+<span class="sig-prename descclassname"><span class="pre">param_util.</span></span><span class="sig-name descname"><span class="pre">is_CMT_divider_line</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">line</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#param_util.is_CMT_divider_line" title="Permalink to this definition"></a></dt>
+<dd><p>Checks to see if a line is one of the comment lines we use to divide
+CMT data blocks in parameter files, e.g. // ======</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="param_util.keyFnum">
+<span class="sig-prename descclassname"><span class="pre">param_util.</span></span><span class="sig-name descname"><span class="pre">keyFnum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#param_util.keyFnum" title="Permalink to this definition"></a></dt>
+<dd><p>Given a number</p>
+<p>Examples:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">keyFnum</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">&#39;CMT04&#39;</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">keyFnum</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="go">&#39;CMT00&#39;</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">keyFnum</span><span class="p">(</span><span class="s1">&#39;4&#39;</span><span class="p">)</span>
+<span class="go">&#39;CMT04&#39;</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">keyFnum</span><span class="p">(</span><span class="s1">&#39;000&#39;</span><span class="p">)</span>
+<span class="go">&#39;CMT00&#39;</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">keyFnum</span><span class="p">(</span><span class="s1">&#39;101&#39;</span><span class="p">)</span>
+<span class="gt">Traceback (most recent call last):</span>
+  <span class="c">...</span>
+<span class="gr">RuntimeError</span>: <span class="n">Out of range 0 &lt;= x &lt;= 99</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">keyFnum</span><span class="p">(</span><span class="mi">101</span><span class="p">)</span>
+<span class="gt">Traceback (most recent call last):</span>
+  <span class="c">...</span>
+<span class="gr">RuntimeError</span>: <span class="n">Out of range 0 &lt;= x &lt;= 99</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">keyFnum</span><span class="p">(</span><span class="s1">&#39;  5 &#39;</span><span class="p">)</span>
+<span class="go">&#39;CMT05&#39;</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">keyFnum</span><span class="p">(</span><span class="s1">&#39;50 0&#39;</span><span class="p">)</span>
+<span class="gt">Traceback (most recent call last):</span>
+  <span class="c">...</span>
+<span class="gr">ValueError</span>: <span class="n">invalid literal for int() with base 10: &#39;50 0&#39;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="param_util.parse_header_line">
+<span class="sig-prename descclassname"><span class="pre">param_util.</span></span><span class="sig-name descname"><span class="pre">parse_header_line</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">linedata</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#param_util.parse_header_line" title="Permalink to this definition"></a></dt>
+<dd><p>Splits a header line into components: cmtkey, text name, comment.</p>
+<p>Assumes a CMT block header line looks like this:
+// CMT07 // Heath Tundra - (ma…..</p>
+<p>or like this:
+// CMT07 // Heath Tundra // some other comment…</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>string</em>) – Assumed to be valid header line of a CMT datablock.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A tuple containing the (cmtkey, cmtname, cmtcomment)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="param_util.read_paramfile">
+<span class="sig-prename descclassname"><span class="pre">param_util.</span></span><span class="sig-name descname"><span class="pre">read_paramfile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thefile</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#param_util.read_paramfile" title="Permalink to this definition"></a></dt>
+<dd><p>Opens and reads a file, returning the data as a list of lines (with newlines).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>theFile</strong> (<em>str</em>) – A path to a file to open and read.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>data</strong> – A list of strings (with newlines at the end of each string).</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>[str, str, str, …]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="param_util.replace_CMT_data">
+<span class="sig-prename descclassname"><span class="pre">param_util.</span></span><span class="sig-name descname"><span class="pre">replace_CMT_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">origfile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">newfile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmtnum</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#param_util.replace_CMT_data" title="Permalink to this definition"></a></dt>
+<dd><p>Replaces the CMT datablock in <cite>origfile</cite> with the data block found in
+<cite>newfile</cite> for the provided <cite>cmtnum</cite>. If <cite>overwrite</cite> is True, then <cite>origfile</cite>
+is written with the new data. Returns a list of lines which can then be
+printed to stdout or otherwise redirected to a file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>origfile</strong> (<em>str</em>) – Path to a file with CMT data blocks.</p></li>
+<li><p><strong>newfile</strong> (<em>str</em>) – Path to a file with CMT data blocks.</p></li>
+<li><p><strong>cmtnum</strong> (<em>int</em>) – Number of the CMT to look for.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of lines.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="param_util.smart_format">
+<span class="sig-prename descclassname"><span class="pre">param_util.</span></span><span class="sig-name descname"><span class="pre">smart_format</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">basefmt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'{:12.4f}</span> <span class="pre">'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">toolongfmt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'{:12.3e}</span> <span class="pre">'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#param_util.smart_format" title="Permalink to this definition"></a></dt>
+<dd><p>Provides a flexible method for printing different number formats.</p>
+<p>Tries to assess the length of the string version of x and apply different
+formats based on the length. While the formats are flexible using
+keyword arguments, the defauts are generally for fixed decimal notation for
+shorter numbers and scientific notation for longer numbers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>anything that can cast to a float</em>) – The value to format.</p></li>
+<li><p><strong>n</strong> (<em>int</em>) – The length at which the function switches between basefmt and toolongfmt.</p></li>
+<li><p><strong>basefmt</strong> (<em>a format string</em>) – The format to use for x if string representation of x is shorter than n.</p></li>
+<li><p><strong>toolongfmt</strong> (<em>a format string</em>) – The format to use for x if string representation of x is longer than n.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>str</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>formatted version of x</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="param_util.standardize_pftnames">
+<span class="sig-prename descclassname"><span class="pre">param_util.</span></span><span class="sig-name descname"><span class="pre">standardize_pftnames</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">names</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#param_util.standardize_pftnames" title="Permalink to this definition"></a></dt>
+<dd><p>Replaces any spaces, dots, underscores or dashes with CamelCase.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>names</strong> (<em>list</em><em>, </em><em>required</em>) – A list of strings, with PFT names.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A list of strings with each item changed to CamelCase.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">standardize_pftnames</span><span class="p">([</span><span class="s1">&#39;Test 1&#39;</span><span class="p">,</span><span class="s1">&#39;Test-32&#39;</span><span class="p">,</span><span class="s1">&#39;test_6&#39;</span><span class="p">,</span><span class="s1">&#39;test.34.helper&#39;</span><span class="p">])</span>
+<span class="go">[&#39;Test1&#39;, &#39;Test32&#39;, &#39;Test6&#39;, &#39;Test34Helper&#39;]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="param_util.update_inplace">
+<span class="sig-prename descclassname"><span class="pre">param_util.</span></span><span class="sig-name descname"><span class="pre">update_inplace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmtnum</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pftnum</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#param_util.update_inplace" title="Permalink to this definition"></a></dt>
+<dd><p>Updates a parameter value in a parameter file. This will overwrite the
+existing parameter file! Also note that it will remove all other CMTs
+in the file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>new_value</strong> (<em>float</em>) – The new parameter value.</p></li>
+<li><p><strong>param_dir</strong> (<em>str</em>) – The directory of parameter files that should be updated.</p></li>
+<li><p><strong>pname</strong> (<em>str</em>) – The name of the parameter to modify.</p></li>
+<li><p><strong>cmtnum</strong> (<em>int</em>) – The number of the CMT (community type) where the parameter should be modifed</p></li>
+<li><p><strong>pftnum</strong> (<em>int</em>) – The number of the PFT that should be modified - only applicable
+for PFT specific parameters! Otherwise leave as None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="param_util.which_file">
+<span class="sig-prename descclassname"><span class="pre">param_util.</span></span><span class="sig-name descname"><span class="pre">which_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pdir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lookup_struct</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#param_util.which_file" title="Permalink to this definition"></a></dt>
+<dd><p>Given a parameter directory and parameter name, searches the
+files to find which file the parameter is defined in.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pdir</strong> (<em>str</em>) – A path to a directort of parameter files.</p></li>
+<li><p><strong>pname</strong> (<em>str</em>) – Name of the parameter to lookup.</p></li>
+<li><p><strong>lookup_struct</strong> (<em>dict</em><em>, </em><em>default=None</em>) – Mapping from filenames to parameter lists. This optional
+parameter allows passing in the lookup table which will be
+more efficient if <cite>which_file(…)</cite> is called inside a loop
+and the <cite>lookup_struct</cite> doesn’t need to be rebuilt each time.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>filename</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>if found, othewise raises RuntimeError!</p>
+</dd>
+</dl>
+<p>:raises RuntimeError : when parameter is not found in any of the files in the directory.:</p>
+</dd></dl>
+
+</section>
+<section id="module-output_utils">
+<span id="output-util-py"></span><h3>output_util.py<a class="headerlink" href="#module-output_utils" title="Permalink to this heading"></a></h3>
+<dl class="py function">
+<dt class="sig sig-object py" id="output_utils.average_monthly_pool_to_yearly">
+<span class="sig-prename descclassname"><span class="pre">output_utils.</span></span><span class="sig-name descname"><span class="pre">average_monthly_pool_to_yearly</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#output_utils.average_monthly_pool_to_yearly" title="Permalink to this definition"></a></dt>
+<dd><p>Expects <cite>data</cite> to be a 3D, 4D, or 5D numpy MASKED array with dimensions
+<cite>(time, layers, y, x)</cite>, <cite>(time, pft, y, x)</cite>  or <cite>(time, pftpart, pft, y, x)</cite>
+and the size of the time dimension to be an even multiple of 12. The calling
+client is expected to set up the mask correctly, i.e. if data is read from a
+netcdf file, then using the _FillValue for the mask.</p>
+<p>The function will compute the average of the input array along the time
+dimension in strides of 12.</p>
+<p>Returns a 3D, 4D, or 5D numpy array with dimensions e.g. <cite>(time, layers, y, x)</cite>,
+(same as input), but the length of the returned time dimension will be
+1/12th of the length of the input array.</p>
+<p>Note: this function contains a loop and could probably be vectorized somehow
+with some fancy numpy indexing.</p>
+<dl>
+<dt>Examples:</dt><dd><p>Load a monthly file with soil layer data and convert it to yearly.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">netCDF4</span> <span class="k">as</span> <span class="nn">nc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">scripts.output_utils</span> <span class="k">as</span> <span class="nn">ou</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">soc</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span><span class="s1">&#39;all-merged/SOC_monthly_tr.nc&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">masked_values</span><span class="p">(</span><span class="n">soc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;SOC&#39;</span><span class="p">][:],</span> <span class="n">soc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;SOC&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">_FillValue</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">masked_values</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="o">-</span><span class="mi">99999</span><span class="p">)</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <span class="n">average_monthly_pool_to_yearly</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">a</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">b</span><span class="o">.</span><span class="n">shape</span>
+<span class="go">(1308, 22, 10, 10) (109, 22, 10, 10)</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="output_utils.boxplot_by_pft">
+<span class="sig-prename descclassname"><span class="pre">output_utils.</span></span><span class="sig-name descname"><span class="pre">boxplot_by_pft</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestep</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmtnum</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stages</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref_veg_map</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref_run_status</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#output_utils.boxplot_by_pft" title="Permalink to this definition"></a></dt>
+<dd><p>Work in progress…</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="output_utils.boxplot_monthlies">
+<span class="sig-prename descclassname"><span class="pre">output_utils.</span></span><span class="sig-name descname"><span class="pre">boxplot_monthlies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stages</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmtnum</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref_veg_map</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref_run_status</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">facecolor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'blue'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#output_utils.boxplot_monthlies" title="Permalink to this definition"></a></dt>
+<dd><p>Makes a boxplot showing distribution of values for <cite>var</cite> for each month,
+averaged over spatial dimensions, and only considering <cite>cmtnum</cite>. If multiple
+stages are specified, the stages will be stitched together along the time
+dimension before the distributions are calculated.</p>
+<p><cite>var</cite>: (str) one of the dvmdostem output variables.
+<cite>stages</cite>: (list) must contain one or more of “pr”,”eq”,”sp”,”tr”,”sc”.
+<cite>cmtnum</cite>: (int) which CMT to work with.
+<cite>ref_veg_map</cite>: (str) path to a vegetation map to use for masking cmts
+<cite>ref_run_status</cite>: (str) path to run status map to use for masking failed cells
+<cite>facecolor</cite>: (str) color to use for the box.</p>
+<p>Returns <cite>None</cite></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="output_utils.check_files">
+<span class="sig-prename descclassname"><span class="pre">output_utils.</span></span><span class="sig-name descname"><span class="pre">check_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fnames</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#output_utils.check_files" title="Permalink to this definition"></a></dt>
+<dd><p>A work in progress for verifying assumptions about input files, <cite>fnames</cite>.</p>
+<p>Prints messages to stdout.</p>
+<p>Returns <cite>None</cite>.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="output_utils.get_last_n_eq">
+<span class="sig-prename descclassname"><span class="pre">output_utils.</span></span><span class="sig-name descname"><span class="pre">get_last_n_eq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeres</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'yearly'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fileprefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#output_utils.get_last_n_eq" title="Permalink to this definition"></a></dt>
+<dd><p>Work in progress for getting the last few year of equlibrium stage for calibration.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="output_utils.mask_by_cmt">
+<span class="sig-prename descclassname"><span class="pre">output_utils.</span></span><span class="sig-name descname"><span class="pre">mask_by_cmt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmtnum</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vegmap_filepath</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#output_utils.mask_by_cmt" title="Permalink to this definition"></a></dt>
+<dd><p>Expects <cite>data</cite> to be at least a 2D array with the last two dimensions being
+(y, x). <cite>cmtnum</cite> is the community type number that will remain unmasked
+in the final data. <cite>vegmap_filepath</cite> should be the path to dvmdostem input
+vegetation map file, which has dimensions (y,x) and an integer specifying
+the CMT number for each pixel, under the variable ‘veg_class’.</p>
+<p>Returns a numpy  masked array with the same dimensions as <cite>data</cite>. In the
+returned array, data for pixels in <cite>vegmap_filepath</cite> equal to <cite>cmtnum</cite> will
+unmasked.</p>
+<p>Example:</p>
+<blockquote>
+<div><p># An nd veg mask
+# Assumed that the shape of data is either
+# 3D (time, y, x),
+# 4D (time, pft, y, x) or (time, layer, y, x) or
+# 5D (time, pftpart, pft, y, x),
+# and that in any case, the last two dimensions are y and x</p>
+<p># For example:
+In [142]: ba = np.random.randint(0,100,(2,3,4,5,5))</p>
+<p>In [143]: np.broadcast_to(np.random.randint(0,2,(5,5)), ba.shape).shape
+Out[143]: (2, 3, 4, 5, 5)</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="output_utils.mask_by_failed_run_status">
+<span class="sig-prename descclassname"><span class="pre">output_utils.</span></span><span class="sig-name descname"><span class="pre">mask_by_failed_run_status</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_status_filepath</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'run_status.nc'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#output_utils.mask_by_failed_run_status" title="Permalink to this definition"></a></dt>
+<dd><p>Masks out any data for which the run status is &lt; 0 in the <cite>run_status_filepath</cite>.</p>
+<dl class="simple">
+<dt><cite>data</cite>: (numpy.ndarray) must have at least 2 dimensions (y, x) and they must</dt><dd><p>be the last dimensions.</p>
+</dd>
+</dl>
+<p><cite>run_status_file</cite>: (str) path to a dvmdostem run_status.nc file that has
+dimensions (y,x) and single variable run_status(y,x) that has positive values
+for successfully run pixels and negative values for failed pixels.</p>
+<p>Returns a numpy masked array the same shape as <cite>data</cite> with all the data for
+failed pixels masked out.</p>
+<p>Example: see mask_by_cmt(…)</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="output_utils.plot_basic_timeseries">
+<span class="sig-prename descclassname"><span class="pre">output_utils.</span></span><span class="sig-name descname"><span class="pre">plot_basic_timeseries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vars2plot</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spatial_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spatial_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_resolution</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stages</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">folder</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#output_utils.plot_basic_timeseries" title="Permalink to this definition"></a></dt>
+<dd><p>Make a basic timeseries plot, one subplot per variable.</p>
+<p>Not sure yet how should handle summarizing over layers, pfts, etc.</p>
+<p>Assembles expected file name for data based on args. i.e. GPP_monthly_eq.nc
+Raises FileNotFoundError if files does not exist.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>vars2plot</strong> (<em>list of variable names</em>) – </p></li>
+<li><p><strong>spatial_y</strong> (<em>pixel coordinates to plot i.e. 0</em>) – </p></li>
+<li><p><strong>spatial_x</strong> (<em>pixel coordinates to plot i.e. 0</em>) – </p></li>
+<li><p><strong>time_resolution</strong> (<em>str</em><em>, </em><em>'yearly'</em><em>, </em><em>'monthly'</em><em>, or </em><em>'daily'</em>) – </p></li>
+<li><p><strong>stages</strong> (<em>list of stages to plot e.g.</em><em> [</em><em>'eq'</em><em>, </em><em>'sp'</em><em>, </em><em>'tr'</em><em>, </em><em>'sc'</em><em>]</em>) – </p></li>
+<li><p><strong>folder</strong> (<em>str</em><em>, </em><em>path to directory with output data files</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="output_utils.plot_fronts">
+<span class="sig-prename descclassname"><span class="pre">output_utils.</span></span><span class="sig-name descname"><span class="pre">plot_fronts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#output_utils.plot_fronts" title="Permalink to this definition"></a></dt>
+<dd><p>Makes a timeseries plot of all the fronts that are output. The X axis is time,
+the Y axis is depth from surface (0 at the top of the plot). Each front will
+have a line on the plot.</p>
+<p>Blue dots are used for FREEZING fronts (frozen above, warm below, values &gt; 0)
+Red is used for THAWING fronts (warm above, frozen below, value &lt; 0)</p>
+<p># NOTE:
+# In the model, there are two places that fronts info is stored:
+# a pair of deques and a pair of arrays. The arrays are set to have a max
+# size of 10 (MAX_FRONTS or something like that) As the model runs, the
+# values are written periodically from the dequees into the arrays. The
+# arrays are the structures that are output to the netcdf files. Our output
+# netcdf files and output_spec files are not setup to deal with a “fronts”
+# dimension. So for now, since we know there will only be
+# 10 fronts, we’ll store the stuff in files with a layer dimension, using the
+# first 10 slots. After a little testing it looks like there are rarely more
+# than 2 fronts, so this setup is not space efficient.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="output_utils.plot_inputs">
+<span class="sig-prename descclassname"><span class="pre">output_utils.</span></span><span class="sig-name descname"><span class="pre">plot_inputs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cmtnum</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hist_fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">proj_fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref_veg_map</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#output_utils.plot_inputs" title="Permalink to this definition"></a></dt>
+<dd><p>Plots the historic and projected climate inputs, averaging over the spatial
+dimensions and with shading for min/max.</p>
+<p><cite>cmtnum</cite>: (int) CMT to work with, must be in the veg map, see mask_by_cmt(..).</p>
+<p><cite>hist_fname</cite>: (str) path to a dvmdostem historic input file.</p>
+<p><cite>proj_fname</cite>: (str) path to a dvmdostem projected input file.</p>
+<p>The historic and projected input files are assumed to be have the variables
+tair, precip, vapor_press, and nirr all with the dimensions (time, y, x).
+The files are assumed to be monthly resolution.</p>
+<p>Returns <cite>None</cite>.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="output_utils.plot_soil_layers">
+<span class="sig-prename descclassname"><span class="pre">output_utils.</span></span><span class="sig-name descname"><span class="pre">plot_soil_layers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#output_utils.plot_soil_layers" title="Permalink to this definition"></a></dt>
+<dd><p>WORK IN PROGRESS!</p>
+<p>Attempts to display an intuitive representation of the soil column using
+a horizontal bar chart.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>bar width is set by the value of the variable under investigation</p></li>
+<li><p>bar color is set by the LAYERTYPE</p></li>
+<li><p>bar height (thickness?) is controlled by the LAYERDZ</p></li>
+</ul>
+</div></blockquote>
+<p>The y axis is depth (cumulative sum of LAYERDZ)</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="output_utils.plot_soil_layers2">
+<span class="sig-prename descclassname"><span class="pre">output_utils.</span></span><span class="sig-name descname"><span class="pre">plot_soil_layers2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#output_utils.plot_soil_layers2" title="Permalink to this definition"></a></dt>
+<dd><p>Makes plots of soil profile variables. Generates one plot/axis for each
+variable specified. Y axis is the depth, X axis is the value of the variable.
+Plots include horizontal lines marking layer boundaries.</p>
+<p>Calling code must supply`args` which must be a dictionary with the following
+keys set:
+<cite>outfolder</cite>: (string) a path to a folder containing dvmdostem output files.
+<cite>time</cite>: (int) index along time axis to plot
+<cite>yx</cite>: (tuple) the pixel coordinates to source for the plot(s)
+<cite>timeres</cite>: (string) either ‘monthly’, ‘yearly’, or ‘daily’ (daily is untested)
+<cite>stage</cite>: (string) the run stage to plot from
+<cite>vars</cite>: a list of variables names to plot, e.g. [‘TLAYER’, ‘SOC’, ‘ORGN’]</p>
+<p>The function will look in <cite>outfolder</cite> for the appropriate dvmdostem output
+files basedon variable name, stage, and time resolution.</p>
+<p>NOTE: The LAYERDZ and LAYERDEPTH files must be present in <cite>outfolder</cite> for
+the speficied <cite>stage</cite> and <cite>timeres</cite>!</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="output_utils.plot_spatial_summary_timeseries">
+<span class="sig-prename descclassname"><span class="pre">output_utils.</span></span><span class="sig-name descname"><span class="pre">plot_spatial_summary_timeseries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestep</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmtnum</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stages</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref_veg_map</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref_run_status</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#output_utils.plot_spatial_summary_timeseries" title="Permalink to this definition"></a></dt>
+<dd><p>Plots a single line with min/max shading representing the <cite>var</cite> averaged over
+the spatial dimension, considering only pixels for <cite>cmtnum</cite>. Stitches together
+data for the specified <cite>stages</cite>.</p>
+<p><cite>var</cite>: (string) must be one of the dvmdostem output variables (upper case).</p>
+<p><cite>timesteps</cite>: (string) must be one of “monthly” or “yearly”.</p>
+<p><cite>cmtnum</cite>: (int) must be a number found in the veg map, see <cite>mask_by_cmt(..)</cite>.</p>
+<p><cite>stages</cite>: (list) must contain one or more of “pr”,”eq”,”sp”,”tr”,”sc”.</p>
+<p><cite>ref_veg_map</cite>: (str) must be a file path to a dvmdostem vegetation input map
+with dimensions (y, x) and a single variable veg_class(y,x) with a number for
+representing the community type for that pixel.</p>
+<p><cite>ref_run_status</cite>: (str) must be a file path to a dvmdostem run_status.nc map
+with dimensions (y,x) and a single variable run_status(y, with a number for
+how the pixel completed its run.</p>
+<p><cite>ax</cite>: (matplotlib.axes._subplots.AxesSubplot instance) will plot line(s) on
+this axes instance. If ax in None, then will create (and show) a new figure
+and plot.</p>
+<p>Attempts to find the requsite files for <cite>var</cite>, <cite>timestep</cite> and <cite>stages</cite>.
+Plots a timeseries of variable <cite>var</cite> after averaging over the spatial
+dimensions. If the data found in the input files is higher dimensionality
+than (time, y, x), for example (time, pft, y, x), then the data is
+summed across PFTs before plotting.</p>
+<p>Returns <cite>None</cite></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="output_utils.print_soil_table">
+<span class="sig-prename descclassname"><span class="pre">output_utils.</span></span><span class="sig-name descname"><span class="pre">print_soil_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">outdir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stage</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeres</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestep</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#output_utils.print_soil_table" title="Permalink to this definition"></a></dt>
+<dd><p>Prints a table to stdout with all the soil info.</p>
+<p>Looks in the <cite>outdir</cite> for any .nc file with ‘layer’ in the dimension list,
+and <cite>stage</cite> and <cite>timeres</cite> in the name, e.g. “SOC_monthly_tr.nc”. Each
+appropriate file found will get a column in the printed table. The printed
+table will be for the pixel specified by <cite>Y</cite> and <cite>X</cite> and for the specified
+<cite>timestep</cite></p>
+<p>Prints a very wide table if there are many by-layer outputs available. A neat
+addition to this function would be a better way to control the width.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="output_utils.pull_data_wrapper">
+<span class="sig-prename descclassname"><span class="pre">output_utils.</span></span><span class="sig-name descname"><span class="pre">pull_data_wrapper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variable</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">required_dims</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#output_utils.pull_data_wrapper" title="Permalink to this definition"></a></dt>
+<dd><p>Extracts data from an netcdf file.</p>
+<p><cite>args</cite> must be a dict with settings for outfolder, timeres, and stage.
+<cite>variable</cite> must be a string with the variable name that is expected to be in
+the netcdf file. The file is expected to be names like this:
+“VARIABLE_TIMERES_STAGE.nc” and is expected to be present in the
+args.outfolder.</p>
+<p>If required_dims is passed, then the dimensions of the variable to extract
+are checked against the list and a RuntimeError is thrown if there is a
+a problem.</p>
+<p>Returns a tuple (data, units), where data is a numpy array or masked array
+and units is a string that is extracted from the attributs of the netcdf file.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="output_utils.stitch_stages">
+<span class="sig-prename descclassname"><span class="pre">output_utils.</span></span><span class="sig-name descname"><span class="pre">stitch_stages</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestep</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stages</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fileprefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#output_utils.stitch_stages" title="Permalink to this definition"></a></dt>
+<dd><p>Expects <cite>var</cite> to be one the dvmdostem output variable names. <cite>timestep</cite> must
+be one of “yearly” or “monthly”, and stages is a (ordered) list containing
+one or more of “pr”,”eq”,”sp”,”tr”,”sc”. <cite>fileprefix</cite> is an optional path
+that will be pre-pended to the filenames for opening files in a different
+directory.</p>
+<p>Outputs from dvmdostem assume one variable per file and the following
+file-naming pattern:</p>
+<blockquote>
+<div><p><cite>var`_`timestep`_`stage</cite>.nc</p>
+</div></blockquote>
+<dl class="simple">
+<dt>This function makes the following additional assumptions about the files:</dt><dd><ul class="simple">
+<li><p>All files for different timesteps have the same dimensions</p></li>
+<li><p>The file’s variable name is the same as the variable name in the filename.</p></li>
+<li><p>There is a units attribute?</p></li>
+</ul>
+</dd>
+</dl>
+<p>Returns a tuple (<cite>data</cite>, <cite>units</cite>), where <cite>data</cite> is a multi-dimensional numpy
+array that is the concatenation of the input arrays along the time axis and
+<cite>units</cite> is the unit string that is found in the input netcdf files.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="output_utils.sum_across_compartments">
+<span class="sig-prename descclassname"><span class="pre">output_utils.</span></span><span class="sig-name descname"><span class="pre">sum_across_compartments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#output_utils.sum_across_compartments" title="Permalink to this definition"></a></dt>
+<dd><p>Expects <cite>data</cite> to be a 5D numpy array with dimensions
+<cite>(time, pftpart, pft, y, x)</cite>.</p>
+<p>Returns a 4D array that has been summed over the <cite>pftpart</cite> dimension,
+effectively creating a new array with totals for a PFT instead of having
+values split by compartment.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="output_utils.sum_across_layers">
+<span class="sig-prename descclassname"><span class="pre">output_utils.</span></span><span class="sig-name descname"><span class="pre">sum_across_layers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#output_utils.sum_across_layers" title="Permalink to this definition"></a></dt>
+<dd><p>Expects <cite>data</cite> to be a 4D numpy array with dimensions
+<cite>(time, layers, y, x)</cite>.</p>
+<p>Returns a 3D array that has been summed over the <cite>layer</cite> dimension,
+effectively creating a new array with totals for an entire gridcell/pixel
+instead of having the totals broken out by layer.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="output_utils.sum_across_pfts">
+<span class="sig-prename descclassname"><span class="pre">output_utils.</span></span><span class="sig-name descname"><span class="pre">sum_across_pfts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#output_utils.sum_across_pfts" title="Permalink to this definition"></a></dt>
+<dd><p>Expects <cite>data</cite> to be a 4D numpy array with dimensions
+<cite>(time, pft, y, x)</cite>.</p>
+<p>Returns a 3D array that has been summed over the <cite>pft</cite> dimension, effectively
+creating a new array with totals for an entire gridcell/pixel instead of
+having the totals broken out by PFT.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="output_utils.sum_monthly_flux_to_yearly">
+<span class="sig-prename descclassname"><span class="pre">output_utils.</span></span><span class="sig-name descname"><span class="pre">sum_monthly_flux_to_yearly</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#output_utils.sum_monthly_flux_to_yearly" title="Permalink to this definition"></a></dt>
+<dd><p>Expects <cite>data</cite> to be at least a 1D array, with the first axis being time.
+Also assumes that the time axis starts and stops on Jan 1 and Dec 31. In
+otherwords, if you had a 2 years of monthly data that ran from Aug 1 thru
+July 31, this function would NOT work!</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="output_utils.workhorse_spatial_summary_plot">
+<span class="sig-prename descclassname"><span class="pre">output_utils.</span></span><span class="sig-name descname"><span class="pre">workhorse_spatial_summary_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmtnum</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yunits</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">varname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stages</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#output_utils.workhorse_spatial_summary_plot" title="Permalink to this definition"></a></dt>
+<dd><p>Worker function, plots a line for average along time axis (axis 0),
+with shading for min and max.</p>
+<p><cite>data</cite>: (numpy.ndarray) must have dimensions (time, y, x).</p>
+<p><cite>cmtnum</cite>: (int)  used for the plot title.</p>
+<p><cite>varname</cite>: (str) used for the plot title</p>
+<dl class="simple">
+<dt><cite>stages</cite>: (list) used for the plot title, must contain one or</dt><dd><p>more of “pr”,”eq”,”sp”,”tr”,”sc”.</p>
+</dd>
+</dl>
+<p><cite>ax</cite>: (matplotlib.axes._subplots.AxesSubplot instance) will plot line(s) on
+this axes instance. If ax in None, then will create (and show) a new figure
+and plot.</p>
+<p>Returns <cite>None</cite></p>
+</dd></dl>
+
+</section>
+<section id="module-input_util">
+<span id="input-util-py"></span><h3>input_util.py<a class="headerlink" href="#module-input_util" title="Permalink to this heading"></a></h3>
+<dl class="py exception">
+<dt class="sig sig-object py" id="input_util.BadInputFilesValueError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">input_util.</span></span><span class="sig-name descname"><span class="pre">BadInputFilesValueError</span></span><a class="headerlink" href="#input_util.BadInputFilesValueError" title="Permalink to this definition"></a></dt>
+<dd><p>Raise when there is a problem with the input files.</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="input_util.MissingInputFilesValueError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">input_util.</span></span><span class="sig-name descname"><span class="pre">MissingInputFilesValueError</span></span><a class="headerlink" href="#input_util.MissingInputFilesValueError" title="Permalink to this definition"></a></dt>
+<dd><p>Raise when not enough files are present.</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="input_util.MustSupplyPixelCoordsError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">input_util.</span></span><span class="sig-name descname"><span class="pre">MustSupplyPixelCoordsError</span></span><a class="headerlink" href="#input_util.MustSupplyPixelCoordsError" title="Permalink to this definition"></a></dt>
+<dd><p>Raise when user must supply pixel coordinates(i.e. command line flag –yx)</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="input_util.climate_gap_count_plot">
+<span class="sig-prename descclassname"><span class="pre">input_util.</span></span><span class="sig-name descname"><span class="pre">climate_gap_count_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#input_util.climate_gap_count_plot" title="Permalink to this definition"></a></dt>
+<dd><p>Creates plots showing how many missing datapoints exist for each pixel.</p>
+<p>Creates 2 figures: first from the historic file and then from the projected
+file.</p>
+<p>Each variable is shown in a different sub-plot. There are some idiosyncracies
+surrouding the labeling of the colorbar, so use with caution! But this should
+give a rough idea where there are bad pixels and how bad they are.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="input_util.climate_ts_plot">
+<span class="sig-prename descclassname"><span class="pre">input_util.</span></span><span class="sig-name descname"><span class="pre">climate_ts_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#input_util.climate_ts_plot" title="Permalink to this definition"></a></dt>
+<dd><p>Make time series plots of the 4 climate driver variables.</p>
+<p>There are 2 modes controlled by the value of <cite>args.type</cite>. In <cite>raw</cite> mode, 2
+figures are generated, one for historic and one for projected data (with the
+<cite>args.stitch</cite> argument, the data is concatenated along the temporal
+dimension and only one figure is shown). Each figure has 4 subplots, one for
+each variable. The data on each plot is shown directly from the input files,
+so it is monthly resolution. The plot is generally too dense to read without
+zooming in, but ALL the data is shown, un-adultered.</p>
+<p>In <cite>spatial-temporal-summary</cite> mode, one figure is created (the data is
+automatically stitched along the temporal dimension) with one subplot for each
+variable. The data that is shown is also averaged over the spatial dimensions
+of the input files AND resampled to an annual resolution along the time
+dimension.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="input_util.crop_attr_string">
+<span class="sig-prename descclassname"><span class="pre">input_util.</span></span><span class="sig-name descname"><span class="pre">crop_attr_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ys</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yo</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xo</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">msg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#input_util.crop_attr_string" title="Permalink to this definition"></a></dt>
+<dd><p>Returns a string to be included as a netCDF global attribute named “crop”.</p>
+<p>The string will start with the filename and function name responsible for
+creating the (new) input file, and if provided, will include values for size
+and offset. The size attributes are relatively self-explanatory (by looking
+at the size of the resulting file), and so can generally be ignored. The
+offset arguments are much more important to include.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ys</strong> (<em>str</em>) – Strings denoting the spatial size of the domain.</p></li>
+<li><p><strong>xs</strong> (<em>str</em>) – Strings denoting the spatial size of the domain.</p></li>
+<li><p><strong>yo</strong> (<em>str</em>) – Strings denoting the pixel offsets used to crop the data from the input dataset</p></li>
+<li><p><strong>xo</strong> (<em>str</em>) – Strings denoting the pixel offsets used to crop the data from the input dataset</p></li>
+<li><p><strong>msg</strong> (<em>str</em>) – An additional message string to be included.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>s</strong> – A string something like:
+“./scripts/input_util.py::crop_file –ysize 3 –xsize 4 –yx 0 0</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="input_util.crop_file">
+<span class="sig-prename descclassname"><span class="pre">input_util.</span></span><span class="sig-name descname"><span class="pre">crop_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">infile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outfile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ysize</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xsize</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#input_util.crop_file" title="Permalink to this definition"></a></dt>
+<dd><p>Creates a new <cite>outfile</cite> and copies data from the <cite>infile</cite> to the new <cite>outfile</cite>
+according to <cite>y</cite>, <cite>x</cite>, and respective size parameters. Copys all attributes
+and adds a new attribute describing this crop step.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="input_util.crop_wrapper">
+<span class="sig-prename descclassname"><span class="pre">input_util.</span></span><span class="sig-name descname"><span class="pre">crop_wrapper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#input_util.crop_wrapper" title="Permalink to this definition"></a></dt>
+<dd><p>Parses input folder name to find tag, and creates appropriately named
+output directory alongside the input directory. Calls the crop_file
+function for each netcdf file found in the input directory.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="input_util.cropper">
+<span class="sig-prename descclassname"><span class="pre">input_util.</span></span><span class="sig-name descname"><span class="pre">cropper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xo</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yo</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ys</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'/tmp/smaller.nc'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">write_lonlat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#input_util.cropper" title="Permalink to this definition"></a></dt>
+<dd><p>Very thin wrapper around gdal_translate.</p>
+<p>Advantage: it will update the geo referencing info
+Disadvantage: this may not create a valid 1x1 dataset</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="input_util.mkdir_p">
+<span class="sig-prename descclassname"><span class="pre">input_util.</span></span><span class="sig-name descname"><span class="pre">mkdir_p</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#input_util.mkdir_p" title="Permalink to this definition"></a></dt>
+<dd><p>Emulates the shell’s <cite>mkdir -p</cite>.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="input_util.tunnel_fast">
+<span class="sig-prename descclassname"><span class="pre">input_util.</span></span><span class="sig-name descname"><span class="pre">tunnel_fast</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">latvar</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lonvar</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lat0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lon0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#input_util.tunnel_fast" title="Permalink to this definition"></a></dt>
+<dd><p>Find closest pair in a set of (lat,lon) pairs to specified query point.
+latvar - 2D latitude data, usually from reading a netCDF dataset
+lonvar - 2D longitude data, usually from reading a netCDF dataset
+lat0,lon0 - query point
+Returns iy,ix such that the square of the tunnel distance
+between (latval[it,ix],lonval[iy,ix]) and (lat0,lon0)
+is minimum.
+Code from Unidata’s Python Workshop:
+<a class="reference external" href="https://github.com/Unidata/unidata-python-workshop">https://github.com/Unidata/unidata-python-workshop</a></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="input_util.verify_input_files">
+<span class="sig-prename descclassname"><span class="pre">input_util.</span></span><span class="sig-name descname"><span class="pre">verify_input_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_folder</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#input_util.verify_input_files" title="Permalink to this definition"></a></dt>
+<dd><p>Raises various exceptions if there are problems with the files in the in_folder.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>in_folder</strong> (<em>str</em>) – A path to a folder of dvmdostem inputs.</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference internal" href="#input_util.BadInputFilesValueError" title="input_util.BadInputFilesValueError"><strong>BadInputFilesValueError</strong></a> – </p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="examples_and_tutorials/using_github_features.html" class="btn btn-neutral float-left" title="7. Using Github’s Features" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Tobey Carman, Ruth Rutter, Helene Genet, Eugenie Euskirchen.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

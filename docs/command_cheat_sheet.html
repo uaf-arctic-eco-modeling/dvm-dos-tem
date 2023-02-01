@@ -4,9 +4,12 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Command Cheat Sheet &mdash; dvmdostem v0.6.1 documentation</title>
+  <title>5. Command Cheat Sheet &mdash; dvmdostem v0.6.1 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/jupyter-sphinx.css" type="text/css" />
+      <link rel="stylesheet" href="_static/thebelab.css" type="text/css" />
+      <link rel="stylesheet" href="_static/custom_styles.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -14,12 +17,16 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/thebelab-helper.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Common Project Acronyms" href="common_acronyms.html" />
-    <link rel="prev" title="SA and UQ" href="SA_UQ.html" /> 
+    <link rel="next" title="6. Common Project Acronyms" href="common_acronyms.html" />
+    <link rel="prev" title="4. SA and UQ" href="SA_UQ.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -42,25 +49,41 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="model_overview.html">Model Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="running_dvmdostem.html">Running</a></li>
-<li class="toctree-l1"><a class="reference internal" href="software_development_info.html">Dev Info</a></li>
-<li class="toctree-l1"><a class="reference internal" href="SA_UQ.html">SA and UQ</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Command Cheat Sheet</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#git">Git</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#status">Status</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#branch-management">Branch Management</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#code-management">Code Management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="model_overview.html">1. Model Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="running_dvmdostem.html">2. Running</a></li>
+<li class="toctree-l1"><a class="reference internal" href="software_development_info.html">3. Dev Info</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SA_UQ.html">4. SA and UQ</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">5. Command Cheat Sheet</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#git">5.1. Git</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#status">5.1.1. Status</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#branch-management">5.1.2. Branch Management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#keeping-master-up-to-date">5.1.3. Keeping <code class="docutils literal notranslate"><span class="pre">master</span></code> up to date</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#keeping-master-up-to-date-while-retaining-local-changes">5.1.4. Keeping <code class="docutils literal notranslate"><span class="pre">master</span></code> up to date while retaining local changes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#changing-branches">5.1.5. Changing branches</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#making-a-commit">5.1.6. Making a commit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#code-management">5.1.7. Code Management</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#docker">Docker</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#dvmdostem">dvmdostem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#docker">5.2. Docker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dvmdostem">5.3. dvmdostem</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="common_acronyms.html">Common Project Acronyms</a></li>
-<li class="toctree-l1"><a class="reference internal" href="calibration.html">Manual Calibration</a></li>
-<li class="toctree-l1"><a class="reference internal" href="workshop_march_2022/lab1_basic_model_run.html">March 2022 Workshop Lab 1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="workshop_march_2022/lab5_make_contribution.html">March 2022 Workshop Lab 5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="common_acronyms.html">6. Common Project Acronyms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">7. Manual Calibration</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Examples and Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="prelude.html">1. Prelude</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/basic_model_run.html">2. Basic Model Setup and Run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/example_experiment_0.html">3. EE 0 - Single Site Run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/data_summary_processing.html">4. Data Summary and Processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/plotting_discussion.html">5. Plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/make_contribution.html">6. Contributing to the Codebase</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/using_github_features.html">7. Using Github’s Features</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Python Scripts API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="scripts_API.html">Python API Docs</a></li>
 </ul>
 
         </div>
@@ -76,8 +99,8 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>Command Cheat Sheet</li>
+      <li><a href="index.html" class="icon icon-home"></a></li>
+      <li class="breadcrumb-item active"><span class="section-number">5. </span>Command Cheat Sheet</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/command_cheat_sheet.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -88,16 +111,16 @@
            <div itemprop="articleBody">
              
   <section id="command-cheat-sheet">
-<h1>Command Cheat Sheet<a class="headerlink" href="#command-cheat-sheet" title="Permalink to this headline"></a></h1>
+<h1><span class="section-number">5. </span>Command Cheat Sheet<a class="headerlink" href="#command-cheat-sheet" title="Permalink to this heading"></a></h1>
 <p>This is strictly a reference document - the following commands do not define
 a specific process.</p>
 <section id="git">
-<h2>Git<a class="headerlink" href="#git" title="Permalink to this headline"></a></h2>
+<h2><span class="section-number">5.1. </span>Git<a class="headerlink" href="#git" title="Permalink to this heading"></a></h2>
 <p>This is a selection of Git commands most useful for working with dvmdostem.
 For more thorough coverage, visit the Git documentation:
 <a class="reference external" href="https://git-scm.com/doc">https://git-scm.com/doc</a></p>
 <section id="status">
-<h3>Status<a class="headerlink" href="#status" title="Permalink to this headline"></a></h3>
+<h3><span class="section-number">5.1.1. </span>Status<a class="headerlink" href="#status" title="Permalink to this heading"></a></h3>
 <p>These commands print information to the console and change nothing.</p>
 <table class="colwidths-given docutils align-default" style="width: 100%">
 <colgroup>
@@ -105,77 +128,203 @@ For more thorough coverage, visit the Git documentation:
 <col style="width: 60%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$git</span> <span class="pre">status</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">git</span> <span class="pre">status</span></code></p></td>
 <td><p>See the current state of your local repository</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$git</span> <span class="pre">branch</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">git</span> <span class="pre">branch</span></code></p></td>
 <td><p>List all local branches, including the active one</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$git</span> <span class="pre">branch</span> <span class="pre">-r</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">git</span> <span class="pre">branch</span> <span class="pre">-r</span></code></p></td>
 <td><p>List all remote branches</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$git</span> <span class="pre">remote</span> <span class="pre">-v</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">git</span> <span class="pre">remote</span> <span class="pre">-v</span></code></p></td>
 <td><p>List all remote repositories</p></td>
 </tr>
 </tbody>
 </table>
 </section>
 <section id="branch-management">
-<h3>Branch Management<a class="headerlink" href="#branch-management" title="Permalink to this headline"></a></h3>
+<h3><span class="section-number">5.1.2. </span>Branch Management<a class="headerlink" href="#branch-management" title="Permalink to this heading"></a></h3>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 50%" />
 <col style="width: 50%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$git</span> <span class="pre">checkout</span> <span class="pre">-b</span> <span class="pre">[branch-name]</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">git</span> <span class="pre">checkout</span> <span class="pre">-b</span> <span class="pre">[branch-name]</span></code></p></td>
 <td><p>Create a new branch</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$git</span> <span class="pre">checkout</span> <span class="pre">[remote-branch-name]</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">git</span> <span class="pre">checkout</span> <span class="pre">[remote-branch-name]</span></code></p></td>
 <td><p>Check out a remote branch</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$git</span> <span class="pre">checkout</span> <span class="pre">--track</span> <span class="pre">[remote-name]/[branch-name]</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">git</span> <span class="pre">checkout</span> <span class="pre">--track</span> <span class="pre">[remote-name]/[branch-name]</span></code></p></td>
 <td><p>Force a new local branch to track a remote branch</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$git</span> <span class="pre">checkout</span> <span class="pre">[branch-name]</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">git</span> <span class="pre">checkout</span> <span class="pre">[branch-name]</span></code></p></td>
 <td><p>Move to another branch</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$git</span> <span class="pre">branch</span> <span class="pre">-d</span> <span class="pre">[branch-name]</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">git</span> <span class="pre">branch</span> <span class="pre">-d</span> <span class="pre">[branch-name]</span></code></p></td>
 <td><p>Delete a merged branch</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$git</span> <span class="pre">branch</span> <span class="pre">-D</span> <span class="pre">[branch-name]</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">git</span> <span class="pre">branch</span> <span class="pre">-D</span> <span class="pre">[branch-name]</span></code></p></td>
 <td><p>Force delete a branch, even if Git warns you</p></td>
 </tr>
 </tbody>
 </table>
 </section>
-<section id="code-management">
-<h3>Code Management<a class="headerlink" href="#code-management" title="Permalink to this headline"></a></h3>
+<section id="keeping-master-up-to-date">
+<span id="staying-udpated"></span><h3><span class="section-number">5.1.3. </span>Keeping <code class="docutils literal notranslate"><span class="pre">master</span></code> up to date<a class="headerlink" href="#keeping-master-up-to-date" title="Permalink to this heading"></a></h3>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 50%" />
 <col style="width: 50%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$git</span> <span class="pre">fetch</span></code></p></td>
+<tr class="row-odd"><td><p><strong>Command Sequence</strong></p></td>
+<td><p><strong>Notes</strong></p></td>
+</tr>
+<tr class="row-even"><td><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">git</span> <span class="pre">checkout</span> <span class="pre">master</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">git</span> <span class="pre">remote</span> <span class="pre">update</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">git</span> <span class="pre">pull</span> <span class="pre">upstream</span> <span class="pre">master</span></code></div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">Make sure you are on the master branch</div>
+<div class="line">Update remote refs</div>
+<div class="line">Fetch and merge the upstream changes</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="keeping-master-up-to-date-while-retaining-local-changes">
+<h3><span class="section-number">5.1.4. </span>Keeping <code class="docutils literal notranslate"><span class="pre">master</span></code> up to date while retaining local changes<a class="headerlink" href="#keeping-master-up-to-date-while-retaining-local-changes" title="Permalink to this heading"></a></h3>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><strong>Command Sequence</strong></p></td>
+<td><p><strong>Notes</strong></p></td>
+</tr>
+<tr class="row-even"><td><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">git</span> <span class="pre">remote</span> <span class="pre">update</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">git</span> <span class="pre">stash</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">git</span> <span class="pre">checkout</span> <span class="pre">master</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">git</span> <span class="pre">pull</span> <span class="pre">upstream</span> <span class="pre">master</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">git</span> <span class="pre">checkout</span> <span class="pre">[PREVIOUS</span> <span class="pre">BRANCH]</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">git</span> <span class="pre">stash</span> <span class="pre">pop</span></code></div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">See what has changed upstream</div>
+<div class="line">Set aside local changes</div>
+<div class="line">Checkout the master branch</div>
+<div class="line">Fetch and merge code from upstream</div>
+<div class="line">Go back to the branch you were working on</div>
+<div class="line">Re-apply your local changes</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="changing-branches">
+<h3><span class="section-number">5.1.5. </span>Changing branches<a class="headerlink" href="#changing-branches" title="Permalink to this heading"></a></h3>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><strong>Command Sequence</strong></p></td>
+<td><p><strong>Notes</strong></p></td>
+</tr>
+<tr class="row-even"><td><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">git</span> <span class="pre">status</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">#</span> <span class="pre">address</span> <span class="pre">changes</span> <span class="pre">(e.g.</span> <span class="pre">stash,</span> <span class="pre">commit,</span> <span class="pre">or</span> <span class="pre">revert)</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">git</span> <span class="pre">checkout</span> <span class="pre">[BRANCH]</span></code></div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">See if you have any local changes</div>
+<div class="line">Deal with your local changes</div>
+<div class="line">Change branches</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="making-a-commit">
+<h3><span class="section-number">5.1.6. </span>Making a commit<a class="headerlink" href="#making-a-commit" title="Permalink to this heading"></a></h3>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><strong>Command Sequence</strong></p></td>
+<td><p><strong>Notes</strong></p></td>
+</tr>
+<tr class="row-even"><td><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">#</span> <span class="pre">edit</span> <span class="pre">files...make</span> <span class="pre">changes</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">git</span> <span class="pre">status</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">git</span> <span class="pre">diff</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">git</span> <span class="pre">add</span> <span class="pre">[PATH</span> <span class="pre">TO</span> <span class="pre">FILE</span> <span class="pre">TO</span> <span class="pre">ADD]</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">git</span> <span class="pre">commit</span> <span class="pre">-m</span> <span class="pre">&quot;Your</span> <span class="pre">message...&quot;</span></code></div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">Do your coding work, whatever it may be…</div>
+<div class="line">See what you’ve changed</div>
+<div class="line">Evaluate what changed</div>
+<div class="line">Add changes to the staging area</div>
+<div class="line">Actually make the commit.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Most of the time in order to make simple, clear, consise commits, you need
+granular control over which lines of each file shoud be comitted. This is
+possible using the command line interface to Git but is frequently easier
+using a graphical client such as Git Cola or Git Gui. Thre are many other
+graphical clients available as well.</p>
+</div>
+</section>
+<section id="code-management">
+<h3><span class="section-number">5.1.7. </span>Code Management<a class="headerlink" href="#code-management" title="Permalink to this heading"></a></h3>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">git</span> <span class="pre">fetch</span></code></p></td>
 <td><p>Fetch all new commits from all remotes</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$git</span> <span class="pre">pull</span> <span class="pre">[remote]</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">git</span> <span class="pre">pull</span> <span class="pre">[remote]</span></code></p></td>
 <td><p>Update the current branch from the remote repository</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$git</span> <span class="pre">add</span> <span class="pre">[filename]</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">git</span> <span class="pre">add</span> <span class="pre">[filename]</span></code></p></td>
 <td><p>Stage the changes made to <cite>filename</cite> for committing</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$git</span> <span class="pre">restore</span> <span class="pre">[filename]</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">git</span> <span class="pre">restore</span> <span class="pre">[filename]</span></code></p></td>
 <td><p>Discard changes made to <cite>filename</cite></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$git</span> <span class="pre">restore</span> <span class="pre">--staged</span> <span class="pre">[filename]</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">git</span> <span class="pre">restore</span> <span class="pre">--staged</span> <span class="pre">[filename]</span></code></p></td>
 <td><p>Unstage changes made to <cite>filename</cite> but don’t discard them</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$git</span> <span class="pre">commit</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">git</span> <span class="pre">commit</span></code></p></td>
 <td><p>Commit all staged changes</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$git</span> <span class="pre">push</span> <span class="pre">[remote]</span> <span class="pre">[local</span> <span class="pre">branch]:[remote</span> <span class="pre">branch]</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">git</span> <span class="pre">push</span> <span class="pre">[remote]</span> <span class="pre">[local</span> <span class="pre">branch]:[remote</span> <span class="pre">branch]</span></code></p></td>
 <td><p>Push your local branch to the specified remote repository</p></td>
 </tr>
 </tbody>
@@ -183,7 +332,7 @@ For more thorough coverage, visit the Git documentation:
 </section>
 </section>
 <section id="docker">
-<h2>Docker<a class="headerlink" href="#docker" title="Permalink to this headline"></a></h2>
+<h2><span class="section-number">5.2. </span>Docker<a class="headerlink" href="#docker" title="Permalink to this heading"></a></h2>
 <p>Depending on your setup, you may need to replace <code class="docutils literal notranslate"><span class="pre">docker-compose</span></code> with
 <code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">compose</span></code> in the following commands.</p>
 <table class="docutils align-default">
@@ -192,31 +341,31 @@ For more thorough coverage, visit the Git documentation:
 <col style="width: 50%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$docker-compose</span> <span class="pre">up</span> <span class="pre">-d</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">docker-compose</span> <span class="pre">up</span> <span class="pre">-d</span></code></p></td>
 <td><p>Start the container(s)</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$docker-compose</span> <span class="pre">exec</span> <span class="pre">[container</span> <span class="pre">name]</span> <span class="pre">[command]</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">docker-compose</span> <span class="pre">exec</span> <span class="pre">[container</span> <span class="pre">name]</span> <span class="pre">[command]</span></code></p></td>
 <td><p>Run a one-off command inside a container</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$docker-compose</span> <span class="pre">exec</span> <span class="pre">dvmdostem-run</span> <span class="pre">bash</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">docker-compose</span> <span class="pre">exec</span> <span class="pre">dvmdostem-run</span> <span class="pre">bash</span></code></p></td>
 <td><p>Run <code class="docutils literal notranslate"><span class="pre">bash</span></code> inside the container <code class="docutils literal notranslate"><span class="pre">dvmdostem-run</span></code> so all further
 commands are executed in the container</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$docker-compose</span> <span class="pre">exec</span> <span class="pre">-u</span> <span class="pre">root</span> <span class="pre">dvmdostem-run</span> <span class="pre">bash</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">docker-compose</span> <span class="pre">exec</span> <span class="pre">-u</span> <span class="pre">root</span> <span class="pre">dvmdostem-run</span> <span class="pre">bash</span></code></p></td>
 <td><p>Run <code class="docutils literal notranslate"><span class="pre">bash</span></code> inside <code class="docutils literal notranslate"><span class="pre">dvmdostem-run</span></code> as the root user. This will avoid
 permission errors but should be used with care.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$exit</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">exit</span></code></p></td>
 <td><p>Exit the container</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$docker-compose</span> <span class="pre">down</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">docker-compose</span> <span class="pre">down</span></code></p></td>
 <td><p>Shut down the container(s)</p></td>
 </tr>
 </tbody>
 </table>
 </section>
 <section id="dvmdostem">
-<h2>dvmdostem<a class="headerlink" href="#dvmdostem" title="Permalink to this headline"></a></h2>
+<h2><span class="section-number">5.3. </span>dvmdostem<a class="headerlink" href="#dvmdostem" title="Permalink to this heading"></a></h2>
 <p>These are a few of the most common script calls and commands related to
 running <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code>. More complete instructions can be found by using the
 <code class="docutils literal notranslate"><span class="pre">--help</span></code> option with each program.</p>
@@ -226,27 +375,27 @@ running <code class="docutils literal notranslate"><span class="pre">dvmdostem</
 <col style="width: 50%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$./scripts/setup_working_directory.py</span> <span class="pre">[output_dir]</span> <span class="pre">--input-data-path</span>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">./scripts/setup_working_directory.py</span> <span class="pre">[output_dir]</span> <span class="pre">--input-data-path</span>
 <span class="pre">[input_dir]</span></code></p></td>
 <td><p>Set up a working directory</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$./scripts/runmask-util.py</span> <span class="pre">--reset</span> <span class="pre">[run-mask</span> <span class="pre">file]</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">./scripts/runmask-util.py</span> <span class="pre">--reset</span> <span class="pre">[run-mask</span> <span class="pre">file]</span></code></p></td>
 <td><p>Disable all cells in the run mask</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$./scripts/runmask-util.py</span> <span class="pre">--yx</span> <span class="pre">0</span> <span class="pre">0</span> <span class="pre">[run-mask</span> <span class="pre">file]</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">./scripts/runmask-util.py</span> <span class="pre">--yx</span> <span class="pre">0</span> <span class="pre">0</span> <span class="pre">[run-mask</span> <span class="pre">file]</span></code></p></td>
 <td><p>Enable cell 0,0 in the run mask</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$./scripts/outspec_utils.py</span> <span class="pre">[output</span> <span class="pre">spec</span> <span class="pre">file]</span> <span class="pre">--reset</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">./scripts/outspec_utils.py</span> <span class="pre">[output</span> <span class="pre">spec</span> <span class="pre">file]</span> <span class="pre">--reset</span></code></p></td>
 <td><p>Disable all outputs</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$./scripts/outspec_utils.py</span> <span class="pre">[output</span> <span class="pre">spec</span> <span class="pre">file]</span> <span class="pre">--on</span> <span class="pre">[var]</span> <span class="pre">[timestep]</span>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">./scripts/outspec_utils.py</span> <span class="pre">[output</span> <span class="pre">spec</span> <span class="pre">file]</span> <span class="pre">--on</span> <span class="pre">[var]</span> <span class="pre">[timestep]</span>
 <span class="pre">[granularity]</span></code></p></td>
 <td><p>Enable an output (generic)</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$./scripts/outspec_utils.py</span> <span class="pre">[output</span> <span class="pre">spec</span> <span class="pre">file]</span> <span class="pre">--on</span> <span class="pre">GPP</span> <span class="pre">m</span> <span class="pre">pft</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">./scripts/outspec_utils.py</span> <span class="pre">[output</span> <span class="pre">spec</span> <span class="pre">file]</span> <span class="pre">--on</span> <span class="pre">GPP</span> <span class="pre">m</span> <span class="pre">pft</span></code></p></td>
 <td><p>Enable GPP output by month and pft</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$./dvmdostem</span> <span class="pre">-l</span> <span class="pre">err</span> <span class="pre">-f</span> <span class="pre">[config</span> <span class="pre">file]</span> <span class="pre">-p</span> <span class="pre">50</span> <span class="pre">-e</span> <span class="pre">100</span> <span class="pre">-s</span> <span class="pre">250</span> <span class="pre">-t</span> <span class="pre">115</span> <span class="pre">-n</span> <span class="pre">85</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">./dvmdostem</span> <span class="pre">-l</span> <span class="pre">err</span> <span class="pre">-f</span> <span class="pre">[config</span> <span class="pre">file]</span> <span class="pre">-p</span> <span class="pre">50</span> <span class="pre">-e</span> <span class="pre">100</span> <span class="pre">-s</span> <span class="pre">250</span> <span class="pre">-t</span> <span class="pre">115</span> <span class="pre">-n</span> <span class="pre">85</span></code></p></td>
 <td><p>Run <cite>dvmdostem</cite> with error level logging and a specified config file</p></td>
 </tr>
 </tbody>
@@ -258,8 +407,8 @@ running <code class="docutils literal notranslate"><span class="pre">dvmdostem</
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="SA_UQ.html" class="btn btn-neutral float-left" title="SA and UQ" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="common_acronyms.html" class="btn btn-neutral float-right" title="Common Project Acronyms" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="SA_UQ.html" class="btn btn-neutral float-left" title="4. SA and UQ" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="common_acronyms.html" class="btn btn-neutral float-right" title="6. Common Project Acronyms" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

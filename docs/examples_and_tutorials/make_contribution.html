@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>6. Contributing to the Codebase &mdash; dvmdostem v0.6.1 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/jupyter-sphinx.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/thebelab.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/custom_styles.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/thebelab-helper.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="7. Using Github’s Features" href="using_github_features.html" />
+    <link rel="prev" title="5. Plotting" href="plotting_discussion.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> dvmdostem
+          </a>
+              <div class="version">
+                v0.6.1
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../model_overview.html">1. Model Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../running_dvmdostem.html">2. Running</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../software_development_info.html">3. Dev Info</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../SA_UQ.html">4. SA and UQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../command_cheat_sheet.html">5. Command Cheat Sheet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../common_acronyms.html">6. Common Project Acronyms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../calibration.html">7. Manual Calibration</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Examples and Tutorials</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../prelude.html">1. Prelude</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basic_model_run.html">2. Basic Model Setup and Run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_experiment_0.html">3. EE 0 - Single Site Run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_summary_processing.html">4. Data Summary and Processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plotting_discussion.html">5. Plotting</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">6. Contributing to the Codebase</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#single-person-topic-branch-and-pull-request-process">6.1. Single person topic branch and pull request process</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#multi-person-topic-branch-process">6.2. Multi-person topic branch process</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="using_github_features.html">7. Using Github’s Features</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Python Scripts API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../scripts_API.html">Python API Docs</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">dvmdostem</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a></li>
+      <li class="breadcrumb-item active"><span class="section-number">6. </span>Contributing to the Codebase</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/examples_and_tutorials/make_contribution.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="contributing-to-the-codebase">
+<h1><span class="section-number">6. </span>Contributing to the Codebase<a class="headerlink" href="#contributing-to-the-codebase" title="Permalink to this heading"></a></h1>
+<p>This lab takes you through one possible workflow using Git and Github to make a
+modification to the codebase and have it included upstream. This is a somewhat
+simplified case and does not cover every situation you will run into. This is
+also not a basic Git tutorial and it assumes that you already are familiar with:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Installing Git on your system.</p></li>
+<li><p>Working with the command line on your system.</p></li>
+<li><p>Making commits using Git.</p></li>
+<li><p>Browsing repositories on the Github website.</p></li>
+<li><p>Viewing Git history, either with git log or a GUI program.</p></li>
+<li><p>Rough understanding of the following git concepts:
+commits, staging, branches, merging, rebasing, repositories,
+remote repositories, and Git vs Github.</p></li>
+</ul>
+</div></blockquote>
+<p>This tutorial also assumes that you have:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Cloned a copy of the dvm-dos-tem repository to your system.</p></li>
+<li><p>A functioning development environment with your cloned copy of the code.</p></li>
+<li><p>A Github account.</p></li>
+<li><p>The ability to set up ssh keys for access to your Github account. (optional)</p></li>
+<li><p>Been added as a collaborator with write access to the
+<a class="reference external" href="http://github.com/uaf-arctic-eco-modeling/dvm-dos-tem">http://github.com/uaf-arctic-eco-modeling/dvm-dos-tem</a> repository.</p></li>
+</ul>
+</div></blockquote>
+<p>Begin by reading the <a class="reference internal" href="../software_development_info.html#version-management"><span class="std std-ref">Version Management</span></a> section of this document for an overview of how the <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code>
+project uses Git and Github.</p>
+<section id="single-person-topic-branch-and-pull-request-process">
+<h2><span class="section-number">6.1. </span>Single person topic branch and pull request process<a class="headerlink" href="#single-person-topic-branch-and-pull-request-process" title="Permalink to this heading"></a></h2>
+<p>This part of the tutorial is designed to walk you through a basic case of making
+a small modification to the code and getting that change merged into the
+upstream codebase. Understand that in the “real world” as you are working on
+more complicated changes sets, unique file formats (e.g. Jupyter Notebooks) or
+changes that affect other people’s environments (e.g. modifying the Dockerfile),
+you will frequently need to take additional steps or considerations beyond what
+is shown here!</p>
+<p>A very similar example to these steps is shown graphically in the accompanying
+slides ~14-27</p>
+<!-- Shared from Tobey Carman's WS2022_Lab5 Google Slides presentation -->
+<iframe src="https://docs.google.com/presentation/d/e/2PACX-1vRhJEtl1676vpHOUTxrwcaxlf3bodLLb9s4nSh9ENlzgxYzVyMbfSzSc3bssr9fDFBzZkzslVr2ROm1/embed?start=true&loop=true&delayms=3000" frameborder="0" width="480" height="286" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true"></iframe><p>The steps:</p>
+<ol class="arabic simple">
+<li><p>Clone repo to your machine (you may already have a copy in which case
+you don’t need to clone again)</p></li>
+<li><p>Browse the code to find one (or more) of the following:</p>
+<ol class="arabic simple">
+<li><p>Find an error or omission in the dvmdostem project’s documentation -
+this should be easy 😉!</p>
+<ol class="arabic simple">
+<li><p>Read the section of this document on
+<a class="reference internal" href="../software_development_info.html#documentation"><span class="std std-ref">Documentation</span></a> and documentation systems
+so that you will understand what part of the docs you are improving
+(i.e. just a comment in the code or something that will need to be
+parsed by <code class="docutils literal notranslate"><span class="pre">doxygen</span></code> or <code class="docutils literal notranslate"><span class="pre">pydoc</span></code> or Python’s <code class="docutils literal notranslate"><span class="pre">argparse</span></code> or
+whatever)</p></li>
+<li><p>Extra credit: find a typo in the Doxygen documentation - then you
+will need to re-build the doxygen outputs to see your modification
+and will get to know about <code class="docutils literal notranslate"><span class="pre">.gitignore</span></code></p></li>
+</ol>
+</li>
+<li><p>A bug or missing feature in the program.</p></li>
+</ol>
+</li>
+<li><p>Make sure you have the master branch checked out and are up-to-date
+with the <code class="docutils literal notranslate"><span class="pre">upstream/master</span></code>.</p></li>
+<li><p>Checkout a topic branch for your fix.</p></li>
+<li><p>Engage in the core development process loop as much as necessary to
+make your modification and verify that it works. For fixing a simple
+typo in a comment string, this might be trivial - there is nothing to
+compile and run or check. For modifying the code this might take many
+cycles of the loop and many commits.</p></li>
+<li><p>Once you have committed changes on your topic branch, you can push
+your topic branch to the upstream repository. You might wait until
+you are finished with the topic branch, or you might push sooner in
+order to back up your work, or to share your work.</p></li>
+<li><p>Once you have finished your work, use the Github website to Create a
+Pull Request. You want to request that your topic branch be merged
+into the uaf-arctic-eco-modeling/dvm-dos-tem master branch.</p></li>
+<li><p>Engage in discussion with other folks using Github’s comments on the
+PR, Slack, or other communications.</p>
+<ol class="arabic simple">
+<li><p>Group reviews indicate work is complete: Go to next step</p></li>
+<li><p>Group reviews indicate more work to be done: continue coding, and
+committing. When you push the topic branch upstream, the Github Pull
+Request will track the updated commits.</p></li>
+</ol>
+</li>
+<li><p>In the meantime while waiting on this PR to be merged, you may go
+back to your master branch and checkout a new topic branch to start
+another project. It is fine to have several topic branches going at
+one time.</p></li>
+<li><p>Once your PR has been merged, you need to update your repository to reflect
+the changes: <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">checkout</span> <span class="pre">master</span> <span class="pre">&amp;&amp;</span> <span class="pre">git</span> <span class="pre">pull</span> <span class="pre">upstream</span> <span class="pre">master</span></code></p></li>
+<li><p>You are ready to start again!</p></li>
+</ol>
+<p>Discuss:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>What to do if there is interdependence between topic branches?</p></li>
+<li><p>How to choose a branch?</p></li>
+<li><p>What if you work for a long time and realize you have one branch with many topics in it?</p></li>
+</ul>
+</div></blockquote>
+</section>
+<section id="multi-person-topic-branch-process">
+<h2><span class="section-number">6.2. </span>Multi-person topic branch process<a class="headerlink" href="#multi-person-topic-branch-process" title="Permalink to this heading"></a></h2>
+<p>See accompanying slides (above) ~29-39.</p>
+<p>Lets have two people: Y and Z who are both working on the project, and in fact
+they both need to work on the same topic branch. This example is harder to write
+prescriptive steps for, so instead an example sequence will be enumerated and it
+will be up to the reader to translate that into their own concrete steps. This
+example is shown graphically in the associated slides.</p>
+<ol class="arabic simple">
+<li><p>Both people start with the master branch checked out.</p></li>
+<li><p>Person Y checks out a new topic branch and makes several commits.</p></li>
+<li><p>Person Y pushes their topic branch to the upstream repo.</p></li>
+<li><p>Person Z pulls the new topic branch.</p></li>
+<li><p>Person Y makes additional commits.</p></li>
+<li><p>Person Z makes additional commits.</p></li>
+<li><p>Person Y checks to make sure Person Z has not pushed anything.</p></li>
+<li><p>Person Y pushes their new commits.</p></li>
+<li><p>Person Z checks to make sure Person Y has not pushed - but they have!</p></li>
+<li><p>Person Z does a <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">pull</span> <span class="pre">-</span> <span class="pre">rebase</span></code> which carries out the following
+steps more or less automatically:</p>
+<ol class="arabic simple">
+<li><p>takes Person Z’s recent commits on top of the topic branch and sets
+them aside</p></li>
+<li><p>pulls (fetch + merge) Person Y’s commits from the upstream topic
+branch and (fast forward) merges the commits on top of the existing
+branch; after this step Person Y and Z’s branches are effectively the
+same</p></li>
+<li><p>replays Person Z’s commits on top of the topic branch (which now has
+everything from Person Y)</p></li>
+</ol>
+</li>
+<li><p>Person Z pushes to upstream topic branch</p></li>
+<li><p>Person Y pulls from upstream topic branch</p></li>
+<li><p>Now Person Y and Z’s repositories are identical - each repo has the
+work of both people!</p></li>
+</ol>
+<p>DISCUSS:</p>
+<ul class="simple">
+<li><p>Why use <code class="docutils literal notranslate"><span class="pre">--rebase</span></code></p>
+<ul>
+<li><p>Puts conflict resolution on the coder who is most familiar with the
+section.</p></li>
+<li><p>Avoids merge commits in the history which can be ard to read.</p></li>
+<li><p>Makes it likely that topic branch will merge cleanly into
+<code class="docutils literal notranslate"><span class="pre">upstream/master</span></code></p></li>
+<li><p>Provides opportunity for commits to be rearranged and cleaned up
+before being pushed</p></li>
+</ul>
+</li>
+<li><p>What is appropriate for committing vs keep personal?</p></li>
+</ul>
+<div class="admonition note" id="maintaining-a-personal-fork">
+<p class="admonition-title">Note</p>
+<p>Should you maintain a personal fork?</p>
+<p>This is situationally dependent. If you are not granted access to the
+upstream repo (<a class="reference external" href="https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem.git">https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem.git</a>),
+then you will need to maintain your own fork on GIthub in order to submit
+pull requests. If you do have write access to the upstream repo, then
+maintaining a personal fork is optional. For branches where you are actively
+committing with other people it is simpler to keep the branch o the upstream
+repo, but sometimes a personal fork is nice for additional separation or to
+test ideas that you want backed up to the cloud (by pushing to your fork) but
+are not comfortable having in the upstream repository.</p>
+</div>
+<div class="admonition note" id="what-should-i-commit">
+<p class="admonition-title">Note</p>
+<p>An initial reaction with version control is to simply commit everything. This
+is a great instinct when working as an individual, and aside from being
+tedious doesn’t really have any drawbacks. However when working with multiple
+people, “over committing” can be a real problem.</p>
+</div>
+<div class="admonition note" id="setting-up-ssh-keys">
+<p class="admonition-title">Note</p>
+<p>Some help here about how to setup <code class="docutils literal notranslate"><span class="pre">ssh</span></code> keys…</p>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="plotting_discussion.html" class="btn btn-neutral float-left" title="5. Plotting" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="using_github_features.html" class="btn btn-neutral float-right" title="7. Using Github’s Features" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Tobey Carman, Ruth Rutter, Helene Genet, Eugenie Euskirchen.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

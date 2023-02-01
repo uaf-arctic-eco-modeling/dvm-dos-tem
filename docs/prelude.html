@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>1. Prelude &mdash; dvmdostem v0.6.1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/jupyter-sphinx.css" type="text/css" />
+      <link rel="stylesheet" href="_static/thebelab.css" type="text/css" />
+      <link rel="stylesheet" href="_static/custom_styles.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/thebelab-helper.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="2. Basic Model Setup and Run" href="examples_and_tutorials/basic_model_run.html" />
+    <link rel="prev" title="7. Manual Calibration" href="calibration.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> dvmdostem
+          </a>
+              <div class="version">
+                v0.6.1
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="model_overview.html">1. Model Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="running_dvmdostem.html">2. Running</a></li>
+<li class="toctree-l1"><a class="reference internal" href="software_development_info.html">3. Dev Info</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SA_UQ.html">4. SA and UQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="command_cheat_sheet.html">5. Command Cheat Sheet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="common_acronyms.html">6. Common Project Acronyms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">7. Manual Calibration</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Examples and Tutorials</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">1. Prelude</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#general-programming">1.1. General Programming</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#general-workflow-loops">1.1.1. General Workflow Loops</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#core-development-process-loop">Core Development Process Loop</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#loop-with-individual-version-control">Loop with individual version control</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#incorporating-more-people">Incorporating more people</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#software-development-patterns">1.1.2. Software Development Patterns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#version-control">1.2. Version Control</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#why-use-version-control">1.2.1. Why use version control?</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#getting-help">1.2.2. Getting Help</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tools">1.2.3. Tools</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#setup">1.2.4. Setup</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#documentation-types">1.3. Documentation Types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#docker">1.4. Docker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#plotting-and-graphical-outputs">1.5. Plotting and Graphical Outputs</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#interactive-window">1.5.1. Interactive Window</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#static-plot">1.5.2. Static Plot</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#interactive-browser-plots">1.5.3. Interactive Browser Plots</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/basic_model_run.html">2. Basic Model Setup and Run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/example_experiment_0.html">3. EE 0 - Single Site Run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/data_summary_processing.html">4. Data Summary and Processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/plotting_discussion.html">5. Plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/make_contribution.html">6. Contributing to the Codebase</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/using_github_features.html">7. Using Github’s Features</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Python Scripts API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="scripts_API.html">Python API Docs</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">dvmdostem</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a></li>
+      <li class="breadcrumb-item active"><span class="section-number">1. </span>Prelude</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/prelude.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="prelude">
+<h1><span class="section-number">1. </span>Prelude<a class="headerlink" href="#prelude" title="Permalink to this heading"></a></h1>
+<p>All the stuff you should know for the rest of the documentation to make sense.</p>
+<p>When possible point towards official sources rather than re-writing
+documentation!</p>
+<section id="general-programming">
+<h2><span class="section-number">1.1. </span>General Programming<a class="headerlink" href="#general-programming" title="Permalink to this heading"></a></h2>
+<section id="general-workflow-loops">
+<h3><span class="section-number">1.1.1. </span>General Workflow Loops<a class="headerlink" href="#general-workflow-loops" title="Permalink to this heading"></a></h3>
+<p>According to the IEEE, Software Engineering is the systematic, disciplined,
+quantifiable approach to the design, development and maintenance of software
+systems. As such software engineers are frequently obsessed with processes -
+understanding the processes at play and figuring out how to make them consistent
+is one key to achieving the systematic, disciplined, and quantifiable approach
+that is called for.</p>
+<p>Below we cover several core processes before assembling them to a full workflow.</p>
+<section id="core-development-process-loop">
+<h4>Core Development Process Loop<a class="headerlink" href="#core-development-process-loop" title="Permalink to this heading"></a></h4>
+<p>The core development process loop is shown in the diagram.</p>
+<img alt="_images/edit-compile-run-check.png" src="_images/edit-compile-run-check.png" />
+<p>These four steps are at the heart of any software work. In different
+environments, some of the steps might be automated or hidden, but the steps must
+be carried out in order for software to be created. With a single person this is
+straightforward. The individual may elect to add additional steps such as
+“backup work” or “publish finished code”.</p>
+</section>
+<section id="loop-with-individual-version-control">
+<h4>Loop with individual version control<a class="headerlink" href="#loop-with-individual-version-control" title="Permalink to this heading"></a></h4>
+<p>The most basic version control process loop is simply: edit, stage, commit.</p>
+<a class="reference internal image-reference" href="_images/edit-stage-commit.png"><img alt="core process loop with individual version control" src="_images/edit-stage-commit.png" style="width: 200px;" /></a>
+<p>By itself this loop is not particularly useful - it doesn’t even involve running
+the code, let alone checking it! But if we add the compile, run and check steps
+we are getting closer to a robust development process:</p>
+<a class="reference internal image-reference" href="_images/edit-compile-run-check-stage-commit.png"><img alt="core process loop with compile run check" src="_images/edit-compile-run-check-stage-commit.png" style="width: 200px;" /></a>
+<p>There are a number of other steps that might be added:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>checkout branch,</p></li>
+<li><p>stash changes not ready to be committed</p></li>
+<li><p>merge branch(es)</p></li>
+<li><p>pull from another repo,</p></li>
+<li><p>push to another repo,</p></li>
+<li><p>rebase changes</p></li>
+</ul>
+</div></blockquote>
+<p>Also note that the loop doesn’t not strictly need to happen in the above order.
+Sometimes you might want to commit code before it runs or you might want to
+cycle through the edit → compile → run → check loop many times before
+committing.</p>
+</section>
+<section id="incorporating-more-people">
+<h4>Incorporating more people<a class="headerlink" href="#incorporating-more-people" title="Permalink to this heading"></a></h4>
+<p>When multiple people are involved their efforts must be synchronized so that
+their changes to the system are compatible and so the people do not interfere
+with each other. Git does not specify exactly how this should be done and leaves
+many of the details up to the end users. Git provides the general tools to
+accomplish collaborative (or individual) work in a wide variety of ways. When
+you are interacting with other people you will need to be pushing your changes
+to a remote repository and pulling changes from remote repositories. When things
+are working smoothly, there are rarely changes that need to be reconciled (merge
+conflicts). This leads to a clean and readable history.</p>
+<p>There are many complexities and possible scenarios that can come up as this
+process is carried out amongst multiple people. It is hard to describe the
+scenarios and the implications of different choices without the folks involved
+having a pretty solid handle on the basic core developer workflow as well as the
+mechanics of the following Git fundamentals:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Making a commit.</p></li>
+<li><p>Checking out branches.</p></li>
+<li><p>A clone vs a fork.</p></li>
+<li><p>Git vs Github.</p></li>
+<li><p>Viewing git log information (either via command line or GUI app like gitk).</p></li>
+<li><p>Interacting with remote repositories.</p></li>
+<li><p>Browsing a repository on Github</p></li>
+</ul>
+</div></blockquote>
+</section>
+</section>
+<section id="software-development-patterns">
+<h3><span class="section-number">1.1.2. </span>Software Development Patterns<a class="headerlink" href="#software-development-patterns" title="Permalink to this heading"></a></h3>
+<p>At the highest level, the process of software development is simply “write
+some code (instructions) and get a machine to carry out the instructions”.
+At the end of the day, this is all we are trying to accomplish. However the
+situation is never simple and there are an infinite number of ways to
+accomplish such a seemingly simple task. When a computer programmer talks
+about toolchains and environment they are talking about the setup for the
+process of “write code and make a machine run it”. There is no single best
+way to set up your environment, and each person has their own needs and
+preferences. Sometimes there are constraints due to hardware (i.e. working
+on a High Performance Computing system or a tiny embedded microprocessor),
+sometimes the constraints come from available software tools or the skills
+of the people writing the code. You will encounter a variety of patterns for
+the environments and toolchains used in this project. Understanding these
+patterns will help you select the best way to perform your work and have
+it mesh with the existing project.</p>
+<p>Usually when you start writing some code you are in a purely exploratory
+and experimental mode and you reach for whatever environment and toolchain
+is comfortable and close at hand. Once your code has matured and you want to
+make it available to someone else, you need to put some thought into the
+environment and toolchain for working with the code. Also as your code
+grows in complexity, different environments make certain operations
+easier or harder.</p>
+<p>The majority of the dvmdostem code is designed to be run via command line
+interface (CLI), meaning it is expected that you have a terminal (presumably
+bash or something similar) on an Ubuntu-like operating system. You are
+expected to interact with the programs by running the scripts or compiled
+binaries from the command line (REPL).</p>
+<p>Following is a brief overview of a variety of different programming
+environments and toolchain patterns.</p>
+<ul>
+<li><p>Read Eval Print Loop (REPL, shell, terminal)
+REPL stands for “<strong>R</strong>ead <strong>E</strong>val <strong>P</strong>rint <strong>L</strong>oop”. The REPL can
+be written in nearly any language and can be designed to interpret nearly
+any language. Users may be familiar with a number of REPL implementations
+including the basic Python interpreterprompt (<code class="docutils literal notranslate"><span class="pre">&gt;&gt;&gt;</span></code>), the IPython
+interpreter prompt (<code class="docutils literal notranslate"><span class="pre">[In</span> <span class="pre">0]:</span></code>), and R prompt (<code class="docutils literal notranslate"><span class="pre">&gt;</span></code>) orsimply the
+terminal prompt in their shell of choice (commonly bash). A REPL typically
+ingests one line of text, follows the instructions, and returns the user
+to the prompt. This is handy for prototyping, but quickly becomes tedious
+to type if you have multi-line instructions (code). For this reason there
+is the concept of a script which provides a means for submitting multiple
+lines of code to a REPL</p></li>
+<li><p>GUI Application
+Common, intuitive for exploration. User uses a mouse and keyboard to click
+buttons and interact with the software. May be written in a wide variety
+of languages, but typically requires a “framework” of existing code that
+helps with common patterns. Frameworks you might hear of are: Tcl/Tkinter,
+QT, Cocoa, Swing, SWT, Delphi.</p></li>
+<li><p>Interpreted Program (script)
+An interpreted programming language is translated from human-written
+code (instructions) into computer instructions (machine language)
+on-the-fly. Python is an interpreted language meaning that there is not
+an explicit compile step required to run the program. You simply submit
+the script (your Python code) to the Python interpreter and it is
+translated into machine code on the fly.</p></li>
+<li><p>Compiled Program (binary) A compiled programming language required a dedicated
+“build step” to translate the human-written code (instructions) into machine
+code. The result of the build step is an object file or a “compiled binary”.
+The main dvmdostem binary is a compiled C++ program. When the source code is
+modified, you must run make to re-compile the project and create a new binary
+object file before running it.</p></li>
+<li><p>Integrated Development Environment (IDE)
+Typically this is a GUI application that bundles together a bunch of handing
+tools into one package. In general the tools are:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Text editor</p></li>
+<li><p>REPL</p></li>
+<li><p>Debugger</p></li>
+<li><p>Build tools</p></li>
+<li><p>File browser</p></li>
+</ul>
+</div></blockquote>
+<p>There are many different IDEs each with their own advantages and disadvantages.
+Often IDEs are particularly suited to a certain language (i.e. PyCharm for
+Python, Eclipse for C/C++, etc).</p>
+</li>
+<li><p>IPython
+IPython is simply an enhanced REPL for Python. It comes with heaps of extra
+features that make life easier, including support for multi-line statements,
+built-in help, auto-complete features, and much more.</p></li>
+<li><p>Basic IDE
+All you really need for writing compiled or interpreted programs are a text
+editor and a terminal that will let you compile the program (if necessary)
+and execute it.</p></li>
+<li><p>Jupyter Notebook
+This is a novel addition to the traditional programming toolset. Jupyter
+Notebooks combine features of:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>an advanced (enhanced) REPL,</p></li>
+<li><p>an IDE,</p></li>
+<li><p>formatted writing/documentation system and,</p></li>
+<li><p>run-time for the program.</p></li>
+</ul>
+</div></blockquote>
+<p>This is accomplished using a client server architecture. In order to execute
+the code in a Jupyter Notebook, you must also run (or connect to) a
+“Notebook Server” which is a python environment and run-time. One advantage
+of this is that the client portion can be an interactive web page that is
+viewable for anyone with a standard web browser - provided they can make
+requests to a functioning backend server which provides the Python run-time.</p>
+<p>The server can actually run a variety of languages, so it is possible to
+use R or Julia or a number of other languages as the notebook code cell
+language.</p>
+<p>Notebooks are great for:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Intermingling code and documentation or explanations (formatted text)</p></li>
+<li><p>Experimenting with small code snippets</p></li>
+<li><p>Presenting interactive plots from remote servers without needing an XWindow or other <code class="docutils literal notranslate"><span class="pre">DISPLAY</span></code> forwarding system</p></li>
+<li><p>Developing and prototyping code</p></li>
+</ul>
+</div></blockquote>
+<p>Notebooks are challenging for:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Version control</p></li>
+<li><p>Writing code that is easy to run in a non-notebook environment (library code)</p></li>
+<li><p>Groups that do not have the bandwidth or abilities for running individual notebook servers or to run and maintain a central notebook server</p></li>
+<li><p>Debugging certain types of process</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p>Virtual Machine</p>
+<p>In order to wrap up an environment such that you can preserve it or pass it to
+someone else, people have devised the concept of a Virtual Machine (VM). In
+2022, there are innumerable ways to run a VM (VMware, Parallels, Multipass,
+Docker, etc), each with its own tradeoffs. The important thing to remember is
+that a Virtual Machine attempts to encapsulate an environment. Each of the
+items in the above list (Notebook, IPython, IDE, etc) might be able to run
+inside a virtual machine. If you are not provided with a perfectly functioning
+environment it is often up to you to understand what you need for an execution
+context and set it up for yourself; a VM of some variety frequently provides
+some way to achieve this.</p>
+</li>
+</ul>
+</section>
+</section>
+<section id="version-control">
+<h2><span class="section-number">1.2. </span>Version Control<a class="headerlink" href="#version-control" title="Permalink to this heading"></a></h2>
+<section id="why-use-version-control">
+<h3><span class="section-number">1.2.1. </span>Why use version control?<a class="headerlink" href="#why-use-version-control" title="Permalink to this heading"></a></h3>
+<p>As mentioned in the <a class="reference internal" href="software_development_info.html#version-management"><span class="std std-ref">Version Management</span></a> section, using version control in a project really serves several
+purposes:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>Provenance - being able to understand (and trust) where the code came
+from.</p></li>
+<li><p>Facilitating contributions from multiple people.</p></li>
+<li><p>Backup - being able to
+revert the code to a previous state in case of an error or other need.</p></li>
+</ol>
+</div></blockquote>
+<p>These needs can of course be met without a full fledged version control system
+and as you struggle to learn Git you will almost certainly be tempted to just go
+back to periodically emailing yourself backups or printing out the code and
+locking it in your gun safe. However I would encourage you to persevere as once
+you have the basics of Git under your belt, it will fundamentally change the way
+you think about programming and will enable you to interact with a wide variety
+of software projects as well as having great control over your own projects.</p>
+<p>As you work with Git it is valuable to keep in mind the reasons you are using
+version control: backup, collaboration, and provenance. Cultivating a clean,
+readable, traceable history frequently requires extra steps and care that will
+seem extraneous in the moment. However with a multi-person project this care is
+essential to making the project history useful. When you are stuck and wondering
+what to do, it is often helpful to think in terms of how you want the code
+history (commit graph) to look when you are finished. With the idea of the
+history you want to achieve in mind, you can then find a path forward.</p>
+</section>
+<section id="getting-help">
+<h3><span class="section-number">1.2.2. </span>Getting Help<a class="headerlink" href="#getting-help" title="Permalink to this heading"></a></h3>
+<p>General Git help is beyond the scope of this the <cite>dvmdostem</cite> documentation. Here
+a few key concepts that the documentation assumes you are familiar with:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>What is a commit.</p></li>
+<li><p>What is a SHA id.</p></li>
+<li><p>Difference between a fork and a clone.</p></li>
+<li><p>Difference between git push, pull, fetch, and pull request (PR).</p></li>
+<li><p>Difference between git branch, merge and rebase.</p></li>
+</ul>
+</div></blockquote>
+<p>Here are several recommendations for general Git help:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><a class="reference external" href="https://git-scm.com/book/en/v2">https://git-scm.com/book/en/v2</a></p></li>
+<li><p><a class="reference external" href="https://www.atlassian.com/git">https://www.atlassian.com/git</a></p></li>
+<li><p><a class="reference external" href="http://sethrobertson.github.io/GitBestPractices">http://sethrobertson.github.io/GitBestPractices</a></p></li>
+</ul>
+</div></blockquote>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>It is important to make commits that are concise, organized, and readable,
+thus fulfilling the goals of using a version control system. This comes
+down to using git on a day-to-day basis and learning:</p>
+<ul class="simple">
+<li><p>what is a commit,</p></li>
+<li><p>how to write a good commit message,</p></li>
+<li><p>how to separate different concerns into different commits,</p></li>
+<li><p>how to fine tune a commit (interactive rebase, amend and when
+to use it),</p></li>
+<li><p>understanding what types of files or information should not be kept</p></li>
+<li><p>under version control,</p></li>
+<li><p>how to use branches,</p></li>
+<li><p>how to merge branches, and</p></li>
+<li><p>the implications of making merges in an environment with multiple
+developers.</p></li>
+</ul>
+</div>
+</section>
+<section id="tools">
+<h3><span class="section-number">1.2.3. </span>Tools<a class="headerlink" href="#tools" title="Permalink to this heading"></a></h3>
+<p>It is possible to use <code class="docutils literal notranslate"><span class="pre">git</span></code> purely from the command line, and in many
+cases this is the easiest way to go. However for some people and some
+situations a Graphical User Interface (GUI) is really helpful. Find a solution
+that works for you and your computing platform! There are generally two major
+functions of the Git GUIs, sometimes bundled in one application, and
+sometimes not:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Viewing the project history.</p></li>
+<li><p>Adding to the project history (making commits, pushing, pulling,
+merging, rebasing).</p></li>
+</ul>
+</div></blockquote>
+<p>In 2022 there are many many graphical front ends to Git, and many text
+editors and IDEs have built in support for at least some Git features. You
+will need to find a tool that works for you. Although the interfaces look
+antiquated, you might find that the programs Gitk (history viewer) and
+Git Gui (for making commits) are perfectly sufficient, and these are
+readily available on most systems. At the end of the day you are likely to
+use a combination of the command line interface and a graphical frontend tool.</p>
+</section>
+<section id="setup">
+<h3><span class="section-number">1.2.4. </span>Setup<a class="headerlink" href="#setup" title="Permalink to this heading"></a></h3>
+<p>Your Git remote repositories should be appropriately named. This document
+assumes that you are using the following convention:</p>
+<ul class="simple">
+<li><p>The remote named origin should generally point to your fork of the
+codebase, so the URL will look something like:
+<code class="docutils literal notranslate"><span class="pre">https://github.com/&lt;your</span> <span class="pre">user</span> <span class="pre">name&gt;/dvm-dos-tem</span></code>.</p></li>
+<li><p>The remote named <code class="docutils literal notranslate"><span class="pre">upstream</span></code> should generally point to
+<code class="docutils literal notranslate"><span class="pre">https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem</span></code> or
+<code class="docutils literal notranslate"><span class="pre">git&#64;github.com:uaf-arctic-eco-modeling/dvm-dos-tem.git</span></code> if you will be contributing.</p></li>
+</ul>
+<p>It is <strong>strongly encouraged</strong> that you go to the effort of making sure your
+current git branch is displayed in your terminal shell prompt. There are many
+examples floating around online of how to achieve this for all major operating
+systems and shells; one example <a class="reference external" href="https://stackoverflow.com/questions/15883416/adding-git-branch-on-the-bash-command-prompt">here</a></p>
+</section>
+</section>
+<section id="documentation-types">
+<h2><span class="section-number">1.3. </span>Documentation Types<a class="headerlink" href="#documentation-types" title="Permalink to this heading"></a></h2>
+<p>WRITE THIS….</p>
+</section>
+<section id="docker">
+<h2><span class="section-number">1.4. </span>Docker<a class="headerlink" href="#docker" title="Permalink to this heading"></a></h2>
+<!-- shared from Tobey Carmans's Docker Diagram google drawing -->
+<iframe src="https://docs.google.com/presentation/d/e/2PACX-1vSX3m0NGfLrNlOz_RccNyhRh11qwW1Lf0v5bQ1E5nA3RwCl_YHrWOx-S1cVA0AX6e3zZwBKnpyjD5kQ/embed?start=true&loop=true&delayms=3000" frameborder="0" width="480" height="299" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true"></iframe></section>
+<section id="plotting-and-graphical-outputs">
+<h2><span class="section-number">1.5. </span>Plotting and Graphical Outputs<a class="headerlink" href="#plotting-and-graphical-outputs" title="Permalink to this heading"></a></h2>
+<p>Plotting is a natural and essential step in the modelling process. The use-cases
+and limitations are numerous and there is not a single silver bullet plotting
+solution that is sure to work for you.</p>
+<p>When working on or with plotting code, it is helpful to remember that problems
+can arise in two overlapping spheres: <em>capability</em> and <em>environment</em>.</p>
+<p><em>Capability</em> refers to whether or not the analysis and visualisation you seek
+are implemented in the code you are working with.</p>
+<p><em>Environment</em> referes to whether the computing environment(s) you work with have
+the appropriate hardware, software, tools, etc to carry out the capabilities of
+the code you are working with.</p>
+<p>These concerns are sometimes totally distinct and sometimes arise in conflict
+with each other. Ideally code is written to work with a wide variety of
+environments as this makes it easier for other people to use the code in their
+circumstances.</p>
+<p>There are several paradigms that can be used for working with plots and
+graphical output formats. The paradigms are surveyed below.</p>
+<section id="interactive-window">
+<h3><span class="section-number">1.5.1. </span>Interactive Window<a class="headerlink" href="#interactive-window" title="Permalink to this heading"></a></h3>
+<p>The interactive window paradigm assumes that you have a “windowing” system
+available to you, i.e. something like XWindows or Quartz. In this paradigm, the
+plotting library and tools work with the windowing system to display your plot
+and (sometimes) allow you to interact with the plot. Frequently you can update
+the plot by either using interactive tools, or re-running all or part of the
+code. The ability to interact with the plot(s) is very helpful for exploring
+data as you don’t need to know a-priori the best settings for axis tick marks,
+limits, etc.</p>
+<p>Matplotlib has popularized this approach, but it is available in many other
+systems and baked into some IDEs.</p>
+<a class="reference internal image-reference" href="_images/example_interactive_plot.png"><img alt="Example of matplotlib interactive window" src="_images/example_interactive_plot.png" style="width: 300px;" /></a>
+</section>
+<section id="static-plot">
+<h3><span class="section-number">1.5.2. </span>Static Plot<a class="headerlink" href="#static-plot" title="Permalink to this heading"></a></h3>
+<p>The static plot paradigm is the simplest. In this mode, code generates and
+outputs a <code class="docutils literal notranslate"><span class="pre">.png</span></code> or <code class="docutils literal notranslate"><span class="pre">.jpg</span></code> file (or similar). Because there is no way to
+interact with the image after it has been built, this method can be difficult
+when you are first exploring the data and you haven’t found the best settings
+for axis bounds, ticks, etc.</p>
+<p>When using a static image, you generally need a way to control where the
+resulting files are saved.</p>
+<p>Many libraries are able to generate static images.</p>
+</section>
+<section id="interactive-browser-plots">
+<h3><span class="section-number">1.5.3. </span>Interactive Browser Plots<a class="headerlink" href="#interactive-browser-plots" title="Permalink to this heading"></a></h3>
+<p>The interactive browser plot paradigm provides the same capabilites as an
+Interactive Window plot, but instead of using a special (and often platform
+specific) windowing system, a web browser is used to display the plots. This
+offers a number of distinct advantages:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>web browsers are omni-present,</p></li>
+<li><p>the ecosystem of available tools for display and interaction in a web
+browser is very rich,</p></li>
+<li><p>de-coupling of the genearation and display aspects of plotting.</p></li>
+</ul>
+</div></blockquote>
+<p>In addition to de-coupling the generation and display conerns, this approach
+allows for networking and enables plotting using and Docker container run-time
+or any other network-accessible run-time!</p>
+<p>There are many tools that leverage this functionality, notably Jupyter
+Notebooks, Bokeh, and RStudio.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="calibration.html" class="btn btn-neutral float-left" title="7. Manual Calibration" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="examples_and_tutorials/basic_model_run.html" class="btn btn-neutral float-right" title="2. Basic Model Setup and Run" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Tobey Carman, Ruth Rutter, Helene Genet, Eugenie Euskirchen.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

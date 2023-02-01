@@ -1,0 +1,19 @@
+details[class*='summary'] {
+  background-color: rgb(222, 222, 222);
+  margin-bottom: 10px;
+  padding: 10px;
+}
+
+/* details[class*='summary-solution-broken'] {
+  background-color: rgb(241, 164, 164);
+} */
+
+details.broken {
+  background-color: rgb(244, 126, 126);
+}
+details.working {
+  background-color: rgb(211, 243, 162);
+}
+details.partial {
+  background-color: rgb(241, 241, 117);
+}

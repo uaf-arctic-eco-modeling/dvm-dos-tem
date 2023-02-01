@@ -4,9 +4,12 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Model Overview &mdash; dvmdostem v0.6.1 documentation</title>
+  <title>1. Model Overview &mdash; dvmdostem v0.6.1 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/jupyter-sphinx.css" type="text/css" />
+      <link rel="stylesheet" href="_static/thebelab.css" type="text/css" />
+      <link rel="stylesheet" href="_static/custom_styles.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -14,11 +17,15 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/thebelab-helper.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Running" href="running_dvmdostem.html" />
+    <link rel="next" title="2. Running" href="running_dvmdostem.html" />
     <link rel="prev" title="Welcome to dvmdostem’s documentation!" href="index.html" /> 
 </head>
 
@@ -42,10 +49,10 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
 <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Model Overview</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#structure">Structure</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#spatial">Spatial</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#temporal">Temporal</a><ul>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">1. Model Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#structure">1.1. Structure</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#spatial">1.1.1. Spatial</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#temporal">1.1.2. Temporal</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#pre-run-pr">pre-run (pr)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#equilibrium-eq">equilibrium (eq)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spinup-sp">spinup (sp)</a></li>
@@ -53,24 +60,24 @@
 <li class="toctree-l4"><a class="reference internal" href="#scenario-sc">scenario (sc)</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#community-types-cmts">Community Types (CMTs)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#vegetation-types-pfts">Vegetation Types (PFTs)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#soil-layers">Soil (Layers)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#community-types-cmts">1.1.3. Community Types (CMTs)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#vegetation-types-pfts">1.1.4. Vegetation Types (PFTs)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#soil-layers">1.1.5. Soil (Layers)</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#processes">Processes</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#carbon">Carbon</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#water">Water</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#nitrogen">Nitrogen</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#energy-balance">Energy Balance</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#permafrost">Permafrost</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#disturbance">Disturbance</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#methane">Methane</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#processes">1.2. Processes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#carbon">1.2.1. Carbon</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#water">1.2.2. Water</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#nitrogen">1.2.3. Nitrogen</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#energy-balance">1.2.4. Energy Balance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#permafrost">1.2.5. Permafrost</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#disturbance">1.2.6. Disturbance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#methane">1.2.7. Methane</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#inputs-outputs-io">Inputs/Outputs (IO)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#inputs">Inputs</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#outputs">Outputs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#inputs-outputs-io">1.3. Inputs/Outputs (IO)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#inputs">1.3.1. Inputs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#outputs">1.3.2. Outputs</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#output-selection">Output Selection</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#process">Process</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#variable-output-combinations">Variable Output Combinations</a></li>
@@ -80,14 +87,26 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="running_dvmdostem.html">Running</a></li>
-<li class="toctree-l1"><a class="reference internal" href="software_development_info.html">Dev Info</a></li>
-<li class="toctree-l1"><a class="reference internal" href="SA_UQ.html">SA and UQ</a></li>
-<li class="toctree-l1"><a class="reference internal" href="command_cheat_sheet.html">Command Cheat Sheet</a></li>
-<li class="toctree-l1"><a class="reference internal" href="common_acronyms.html">Common Project Acronyms</a></li>
-<li class="toctree-l1"><a class="reference internal" href="calibration.html">Manual Calibration</a></li>
-<li class="toctree-l1"><a class="reference internal" href="workshop_march_2022/lab1_basic_model_run.html">March 2022 Workshop Lab 1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="workshop_march_2022/lab5_make_contribution.html">March 2022 Workshop Lab 5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="running_dvmdostem.html">2. Running</a></li>
+<li class="toctree-l1"><a class="reference internal" href="software_development_info.html">3. Dev Info</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SA_UQ.html">4. SA and UQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="command_cheat_sheet.html">5. Command Cheat Sheet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="common_acronyms.html">6. Common Project Acronyms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">7. Manual Calibration</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Examples and Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="prelude.html">1. Prelude</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/basic_model_run.html">2. Basic Model Setup and Run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/example_experiment_0.html">3. EE 0 - Single Site Run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/data_summary_processing.html">4. Data Summary and Processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/plotting_discussion.html">5. Plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/make_contribution.html">6. Contributing to the Codebase</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/using_github_features.html">7. Using Github’s Features</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Python Scripts API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="scripts_API.html">Python API Docs</a></li>
 </ul>
 
         </div>
@@ -103,8 +122,8 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>Model Overview</li>
+      <li><a href="index.html" class="icon icon-home"></a></li>
+      <li class="breadcrumb-item active"><span class="section-number">1. </span>Model Overview</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/model_overview.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -115,21 +134,21 @@
            <div itemprop="articleBody">
              
   <section id="model-overview">
-<h1>Model Overview<a class="headerlink" href="#model-overview" title="Permalink to this headline"></a></h1>
+<h1><span class="section-number">1. </span>Model Overview<a class="headerlink" href="#model-overview" title="Permalink to this heading"></a></h1>
 <!-- From Tobey Carman's google drawing "dvmdostem-general-idea-science"-->
 <img src="https://docs.google.com/drawings/d/17AWgyjGv3fWRLhEPX7ayJKSZt3AXcBILXN2S-FGQHeY/pub?w=960&amp;h=720"><section id="structure">
-<h2>Structure<a class="headerlink" href="#structure" title="Permalink to this headline"></a></h2>
+<h2><span class="section-number">1.1. </span>Structure<a class="headerlink" href="#structure" title="Permalink to this heading"></a></h2>
 <p><cite>dvmdostem</cite> is multi-dimensional. It operates across spatial and temporal
 dimensions, soil layers, and plant functional types.</p>
 <section id="spatial">
-<h3>Spatial<a class="headerlink" href="#spatial" title="Permalink to this headline"></a></h3>
+<h3><span class="section-number">1.1.1. </span>Spatial<a class="headerlink" href="#spatial" title="Permalink to this heading"></a></h3>
 <p>TEM is a spatially explicit model. The run domain is divided into grid cells,
 or pixels. There is no communication between the grid cells. TEM itself is
 agnostic to the spatial resolution - the resolution is controlled by the
 input files provided. Recent work has been done with 1km spatial resolution.</p>
 </section>
 <section id="temporal">
-<h3>Temporal<a class="headerlink" href="#temporal" title="Permalink to this headline"></a></h3>
+<h3><span class="section-number">1.1.2. </span>Temporal<a class="headerlink" href="#temporal" title="Permalink to this heading"></a></h3>
 <p>TEM is a temporal model in the sense that a run operates processes at consecutive
 time-steps. In addition, with TEM, the concept of a “run stage” is used to run
 the model over different climatic periods of generally increasing complexity.
@@ -150,13 +169,13 @@ used as the beginning state for each subsequent stage.</p>
 <p>A complete run utilizes all 5 stages. It is possible to work with any subset of
 the stages.</p>
 <section id="pre-run-pr">
-<h4>pre-run (pr)<a class="headerlink" href="#pre-run-pr" title="Permalink to this headline"></a></h4>
+<h4>pre-run (pr)<a class="headerlink" href="#pre-run-pr" title="Permalink to this heading"></a></h4>
 <p>The pre-run is an equilibrium run for the physical variables of the model. It is
 typically 100 years, uses constant climate (typically monthly average computed
 from the [1901-1930] period).</p>
 </section>
 <section id="equilibrium-eq">
-<h4>equilibrium (eq)<a class="headerlink" href="#equilibrium-eq" title="Permalink to this headline"></a></h4>
+<h4>equilibrium (eq)<a class="headerlink" href="#equilibrium-eq" title="Permalink to this heading"></a></h4>
 <p>In the equilibrium stage, the climate is fixed. That is, the climate does not
 vary from year to year. There will be intra-annual variability to represent the
 seasons, but from year to year the calculations will be carried out using the
@@ -177,7 +196,7 @@ equilibrium detection”.</p>
 </div>
 </section>
 <section id="spinup-sp">
-<h4>spinup (sp)<a class="headerlink" href="#spinup-sp" title="Permalink to this headline"></a></h4>
+<h4>spinup (sp)<a class="headerlink" href="#spinup-sp" title="Permalink to this heading"></a></h4>
 <p>In the spinup stage, the climate is not fixed. In the sp stage, the driving
 climate is used from the first 30 years of the historic climate dataset. Should
 the spstage be set to run longer than 30 years, the 30 year climate period is
@@ -187,14 +206,14 @@ model reaches. In the sp stage the fire date is fixed, occuring at an interval
 equal to the Fire Recurrence Interval (FRI).</p>
 </section>
 <section id="transient-tr">
-<h4>transient (tr)<a class="headerlink" href="#transient-tr" title="Permalink to this headline"></a></h4>
+<h4>transient (tr)<a class="headerlink" href="#transient-tr" title="Permalink to this heading"></a></h4>
 <p>In the transient stage, the climate varies from year to year. The tr stage is
 used to run the model over the period of historical record. The input climate
 data for the tr stage should be the historic climate. This is typically the
 climate data for the 20th century, so roughly 1901-2009.</p>
 </section>
 <section id="scenario-sc">
-<h4>scenario (sc)<a class="headerlink" href="#scenario-sc" title="Permalink to this headline"></a></h4>
+<h4>scenario (sc)<a class="headerlink" href="#scenario-sc" title="Permalink to this heading"></a></h4>
 <p>In the scenario stage, the climate also varies from year to year, but rather
 than observed variability, a predicted climate scenario is used.</p>
 <p>A complete run utilizes all 5 stages. It is possible to work with any subset of
@@ -202,20 +221,20 @@ the stages</p>
 </section>
 </section>
 <section id="community-types-cmts">
-<h3>Community Types (CMTs)<a class="headerlink" href="#community-types-cmts" title="Permalink to this headline"></a></h3>
+<h3><span class="section-number">1.1.3. </span>Community Types (CMTs)<a class="headerlink" href="#community-types-cmts" title="Permalink to this heading"></a></h3>
 <p>Each TEM grid cell can be assigned one “community type” (CMT). A community
 type is essentially a parameterization that specifies many properties for
 vegetation, and soil.</p>
 </section>
 <section id="vegetation-types-pfts">
-<h3>Vegetation Types (PFTs)<a class="headerlink" href="#vegetation-types-pfts" title="Permalink to this headline"></a></h3>
+<h3><span class="section-number">1.1.4. </span>Vegetation Types (PFTs)<a class="headerlink" href="#vegetation-types-pfts" title="Permalink to this heading"></a></h3>
 <blockquote>
 <div><p>WRITE THIS…</p>
 </div></blockquote>
 <!-- From Tobey Carman's google drawing "dvmdostem-general-idea-pft"-->
 <img src="https://docs.google.com/drawings/d/14vNsPCuorCy3PuE6ucgAmerAks42SxZCtWr4vV5p4Pg/pub?w=960&amp;h=720"></section>
 <section id="soil-layers">
-<h3>Soil (Layers)<a class="headerlink" href="#soil-layers" title="Permalink to this headline"></a></h3>
+<h3><span class="section-number">1.1.5. </span>Soil (Layers)<a class="headerlink" href="#soil-layers" title="Permalink to this heading"></a></h3>
 <blockquote>
 <div><p>WRITE THIS…</p>
 </div></blockquote>
@@ -226,57 +245,57 @@ vegetation, and soil.</p>
 <img src="https://docs.google.com/drawings/d/1TPZNC_DazpOpkxSKkTJ3oMQlLvzBjUaY6DmBW9LR9cY/pub?w=1005&amp;h=746"></section>
 </section>
 <section id="processes">
-<h2>Processes<a class="headerlink" href="#processes" title="Permalink to this headline"></a></h2>
+<h2><span class="section-number">1.2. </span>Processes<a class="headerlink" href="#processes" title="Permalink to this heading"></a></h2>
 <blockquote>
 <div><p>WRITE THIS…</p>
 </div></blockquote>
 <section id="carbon">
-<h3>Carbon<a class="headerlink" href="#carbon" title="Permalink to this headline"></a></h3>
+<h3><span class="section-number">1.2.1. </span>Carbon<a class="headerlink" href="#carbon" title="Permalink to this heading"></a></h3>
 <blockquote>
 <div><p>WRITE THIS…</p>
 </div></blockquote>
 </section>
 <section id="water">
-<h3>Water<a class="headerlink" href="#water" title="Permalink to this headline"></a></h3>
+<h3><span class="section-number">1.2.2. </span>Water<a class="headerlink" href="#water" title="Permalink to this heading"></a></h3>
 <blockquote>
 <div><p>WRITE THIS…</p>
 </div></blockquote>
 </section>
 <section id="nitrogen">
-<h3>Nitrogen<a class="headerlink" href="#nitrogen" title="Permalink to this headline"></a></h3>
+<h3><span class="section-number">1.2.3. </span>Nitrogen<a class="headerlink" href="#nitrogen" title="Permalink to this heading"></a></h3>
 <blockquote>
 <div><p>WRITE THIS…</p>
 </div></blockquote>
 </section>
 <section id="energy-balance">
-<h3>Energy Balance<a class="headerlink" href="#energy-balance" title="Permalink to this headline"></a></h3>
+<h3><span class="section-number">1.2.4. </span>Energy Balance<a class="headerlink" href="#energy-balance" title="Permalink to this heading"></a></h3>
 <blockquote>
 <div><p>WRITE THIS…</p>
 </div></blockquote>
 </section>
 <section id="permafrost">
-<h3>Permafrost<a class="headerlink" href="#permafrost" title="Permalink to this headline"></a></h3>
+<h3><span class="section-number">1.2.5. </span>Permafrost<a class="headerlink" href="#permafrost" title="Permalink to this heading"></a></h3>
 <blockquote>
 <div><p>WRITE THIS…</p>
 </div></blockquote>
 </section>
 <section id="disturbance">
-<h3>Disturbance<a class="headerlink" href="#disturbance" title="Permalink to this headline"></a></h3>
+<h3><span class="section-number">1.2.6. </span>Disturbance<a class="headerlink" href="#disturbance" title="Permalink to this heading"></a></h3>
 <blockquote>
 <div><p>WRITE THIS…</p>
 </div></blockquote>
 </section>
 <section id="methane">
-<h3>Methane<a class="headerlink" href="#methane" title="Permalink to this headline"></a></h3>
+<h3><span class="section-number">1.2.7. </span>Methane<a class="headerlink" href="#methane" title="Permalink to this heading"></a></h3>
 <blockquote>
 <div><p>WRITE THIS…</p>
 </div></blockquote>
 </section>
 </section>
 <section id="inputs-outputs-io">
-<h2>Inputs/Outputs (IO)<a class="headerlink" href="#inputs-outputs-io" title="Permalink to this headline"></a></h2>
+<h2><span class="section-number">1.3. </span>Inputs/Outputs (IO)<a class="headerlink" href="#inputs-outputs-io" title="Permalink to this heading"></a></h2>
 <section id="inputs">
-<h3>Inputs<a class="headerlink" href="#inputs" title="Permalink to this headline"></a></h3>
+<h3><span class="section-number">1.3.1. </span>Inputs<a class="headerlink" href="#inputs" title="Permalink to this heading"></a></h3>
 <p>Generally TEM requires several types of inputs:</p>
 <ul class="simple">
 <li><dl class="simple">
@@ -548,12 +567,12 @@ HH:MM:SS</p></td>
 </div>
 </section>
 <section id="outputs">
-<h3>Outputs<a class="headerlink" href="#outputs" title="Permalink to this headline"></a></h3>
+<h3><span class="section-number">1.3.2. </span>Outputs<a class="headerlink" href="#outputs" title="Permalink to this heading"></a></h3>
 <blockquote>
 <div><p>WRITE THIS…</p>
 </div></blockquote>
 <section id="output-selection">
-<h4>Output Selection<a class="headerlink" href="#output-selection" title="Permalink to this headline"></a></h4>
+<h4>Output Selection<a class="headerlink" href="#output-selection" title="Permalink to this heading"></a></h4>
 <blockquote>
 <div><p>WRITE THIS…</p>
 </div></blockquote>
@@ -582,7 +601,7 @@ dimension bound errors.</p>
 </div>
 </section>
 <section id="process">
-<h4>Process<a class="headerlink" href="#process" title="Permalink to this headline"></a></h4>
+<h4>Process<a class="headerlink" href="#process" title="Permalink to this heading"></a></h4>
 <blockquote>
 <div><p>WRITE THIS…</p>
 </div></blockquote>
@@ -602,7 +621,7 @@ monthly vs. yearly string comparisons.</p>
 </div>
 </section>
 <section id="variable-output-combinations">
-<h4>Variable Output Combinations<a class="headerlink" href="#variable-output-combinations" title="Permalink to this headline"></a></h4>
+<h4>Variable Output Combinations<a class="headerlink" href="#variable-output-combinations" title="Permalink to this heading"></a></h4>
 <blockquote>
 <div><p>WRITE THIS…</p>
 </div></blockquote>
@@ -627,7 +646,7 @@ like standard variables. Automation will need to be added in the future.</p>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="index.html" class="btn btn-neutral float-left" title="Welcome to dvmdostem’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="running_dvmdostem.html" class="btn btn-neutral float-right" title="Running" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="running_dvmdostem.html" class="btn btn-neutral float-right" title="2. Running" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

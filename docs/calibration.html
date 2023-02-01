@@ -4,9 +4,12 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Manual Calibration &mdash; dvmdostem v0.6.1 documentation</title>
+  <title>7. Manual Calibration &mdash; dvmdostem v0.6.1 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/jupyter-sphinx.css" type="text/css" />
+      <link rel="stylesheet" href="_static/thebelab.css" type="text/css" />
+      <link rel="stylesheet" href="_static/custom_styles.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -14,13 +17,17 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
-        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+        <script src="_static/thebelab-helper.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="March 2022 Workshop Lab 1" href="workshop_march_2022/lab1_basic_model_run.html" />
-    <link rel="prev" title="Common Project Acronyms" href="common_acronyms.html" /> 
+    <link rel="next" title="1. Prelude" href="prelude.html" />
+    <link rel="prev" title="6. Common Project Acronyms" href="common_acronyms.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -43,39 +50,51 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="model_overview.html">Model Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="running_dvmdostem.html">Running</a></li>
-<li class="toctree-l1"><a class="reference internal" href="software_development_info.html">Dev Info</a></li>
-<li class="toctree-l1"><a class="reference internal" href="SA_UQ.html">SA and UQ</a></li>
-<li class="toctree-l1"><a class="reference internal" href="command_cheat_sheet.html">Command Cheat Sheet</a></li>
-<li class="toctree-l1"><a class="reference internal" href="common_acronyms.html">Common Project Acronyms</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Manual Calibration</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#what-is-calibration-for-dvmdostem">What is calibration for <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code>?</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#when-to-conduct-a-calibration">When to conduct a calibration?</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#how-to-conduct-a-calibration">How to conduct a calibration?</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#calibration-targets">Calibration targets</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="model_overview.html">1. Model Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="running_dvmdostem.html">2. Running</a></li>
+<li class="toctree-l1"><a class="reference internal" href="software_development_info.html">3. Dev Info</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SA_UQ.html">4. SA and UQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="command_cheat_sheet.html">5. Command Cheat Sheet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="common_acronyms.html">6. Common Project Acronyms</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">7. Manual Calibration</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#what-is-calibration-for-dvmdostem">7.1. What is calibration for <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code>?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#when-to-conduct-a-calibration">7.2. When to conduct a calibration?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#how-to-conduct-a-calibration">7.3. How to conduct a calibration?</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#calibration-targets">7.3.1. Calibration targets</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#vegetation-targets">Vegetation Targets</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#soil-targets">Soil Targets</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#calibration-parameters">Calibration parameters</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#calibration-parameters">7.3.2. Calibration parameters</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#vegetation-parameters">Vegetation parameters</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#soil-parameters">Soil parameters</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#calibration-process">Calibration Process</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#calibrate-vegetation-parameters-without-n-limitation">Calibrate vegetation parameters <strong>without</strong> N limitation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#calibrate-vegetation-parameters-with-n-limitation">Calibrate vegetation parameters <strong>with</strong> N limitation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#calibrate-soil-parameters">Calibrate soil parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#calibration-process">7.4. Calibration Process</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#calibrate-vegetation-parameters-without-n-limitation">7.4.1. Calibrate vegetation parameters <strong>without</strong> N limitation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#calibrate-vegetation-parameters-with-n-limitation">7.4.2. Calibrate vegetation parameters <strong>with</strong> N limitation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#calibrate-soil-parameters">7.4.3. Calibrate soil parameters</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#reference">Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#reference">7.5. Reference</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="workshop_march_2022/lab1_basic_model_run.html">March 2022 Workshop Lab 1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="workshop_march_2022/lab5_make_contribution.html">March 2022 Workshop Lab 5</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Examples and Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="prelude.html">1. Prelude</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/basic_model_run.html">2. Basic Model Setup and Run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/example_experiment_0.html">3. EE 0 - Single Site Run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/data_summary_processing.html">4. Data Summary and Processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/plotting_discussion.html">5. Plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/make_contribution.html">6. Contributing to the Codebase</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/using_github_features.html">7. Using Github’s Features</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Python Scripts API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="scripts_API.html">Python API Docs</a></li>
 </ul>
 
         </div>
@@ -91,8 +110,8 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>Manual Calibration</li>
+      <li><a href="index.html" class="icon icon-home"></a></li>
+      <li class="breadcrumb-item active"><span class="section-number">7. </span>Manual Calibration</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/calibration.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -103,9 +122,9 @@
            <div itemprop="articleBody">
              
   <section id="manual-calibration">
-<h1>Manual Calibration<a class="headerlink" href="#manual-calibration" title="Permalink to this headline"></a></h1>
+<h1><span class="section-number">7. </span>Manual Calibration<a class="headerlink" href="#manual-calibration" title="Permalink to this heading"></a></h1>
 <section id="what-is-calibration-for-dvmdostem">
-<h2>What is calibration for <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code>?<a class="headerlink" href="#what-is-calibration-for-dvmdostem" title="Permalink to this headline"></a></h2>
+<h2><span class="section-number">7.1. </span>What is calibration for <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code>?<a class="headerlink" href="#what-is-calibration-for-dvmdostem" title="Permalink to this heading"></a></h2>
 <blockquote>
 <div><p>Calibration is defined as the estimation and adjustment of model parameters
 and constants to improve the agreement between model output and a data set.
@@ -157,7 +176,7 @@ parameters.</p></li>
 <!-- From google drawing: TEM UAF Only Records > Documentation Embed Images > calibration_schematic -->
 <img src="https://docs.google.com/drawings/d/e/2PACX-1vRSmEzkC53GiG8p7xrtPbvFnjOxkKcDaIJjiWb4d9JSi3Oqz9dfGDf5G4rJyTkWrVcVoW0uD8imkJJQ/pub?w=449&amp;h=249"></section>
 <section id="when-to-conduct-a-calibration">
-<h2>When to conduct a calibration?<a class="headerlink" href="#when-to-conduct-a-calibration" title="Permalink to this headline"></a></h2>
+<h2><span class="section-number">7.2. </span>When to conduct a calibration?<a class="headerlink" href="#when-to-conduct-a-calibration" title="Permalink to this heading"></a></h2>
 <p>Calibrations are typically conducted for every vegetation community type the
 model is parameterized for. However, recent studies have shown that parameter
 uncertainty may not only vary between community type, but also in space within
@@ -166,12 +185,12 @@ calibrations can be developed for the same community type but different
 eco-climatic regions.</p>
 </section>
 <section id="how-to-conduct-a-calibration">
-<h2>How to conduct a calibration?<a class="headerlink" href="#how-to-conduct-a-calibration" title="Permalink to this headline"></a></h2>
+<h2><span class="section-number">7.3. </span>How to conduct a calibration?<a class="headerlink" href="#how-to-conduct-a-calibration" title="Permalink to this heading"></a></h2>
 <p>The comparison between model outputs and target values are done at equilibrium,
 i.e. a simulation under constant environment (climate, atmospheric CO2, and
 vegetation), when all fluxes and stocks have reach a steady state.</p>
 <section id="calibration-targets">
-<h3>Calibration targets<a class="headerlink" href="#calibration-targets" title="Permalink to this headline"></a></h3>
+<h3><span class="section-number">7.3.1. </span>Calibration targets<a class="headerlink" href="#calibration-targets" title="Permalink to this heading"></a></h3>
 <p>As mentioned above, target values are based on field observations for the main
 carbon and nitrogen fluxes and stocks targeted for the calibration. Target
 values are representing the “typical” state of a mature ecosystem for the
@@ -185,7 +204,7 @@ sentinel site.</p>
 <p>Target values are stored in the text file named <cite>calibration_targets.py</cite> in the
 calibration directory.</p>
 <section id="vegetation-targets">
-<h4>Vegetation Targets<a class="headerlink" href="#vegetation-targets" title="Permalink to this headline"></a></h4>
+<h4>Vegetation Targets<a class="headerlink" href="#vegetation-targets" title="Permalink to this heading"></a></h4>
 <p><strong>INGPP, INNPP</strong> are target values for gross and net primary productivity
 reached by vegetation not limited by nutrient availability. These target values
 are typically assessed from fertilization experiments. When fertilization
@@ -216,7 +235,7 @@ or all PFT (e.g. green mosses), partitioning information should be estimated
 from literature review.</p>
 </section>
 <section id="soil-targets">
-<h4>Soil Targets<a class="headerlink" href="#soil-targets" title="Permalink to this headline"></a></h4>
+<h4>Soil Targets<a class="headerlink" href="#soil-targets" title="Permalink to this heading"></a></h4>
 <p><strong>SOILC</strong> is the target value for soil carbon pools. It is estimated separately
 for the fibric layer, the humic layer and the top 1 meter of the mineral layer.</p>
 <p><strong>ORGN</strong> is the target value of the soil nitrogen pool. In contract to SOILC,
@@ -228,11 +247,11 @@ cmt_dimvegetation.txt).</p>
 </section>
 </section>
 <section id="calibration-parameters">
-<h3>Calibration parameters<a class="headerlink" href="#calibration-parameters" title="Permalink to this headline"></a></h3>
+<h3><span class="section-number">7.3.2. </span>Calibration parameters<a class="headerlink" href="#calibration-parameters" title="Permalink to this heading"></a></h3>
 <p>Calibrated parameters are stored in the text file named <cite>cmt_calparbgc.txt</cite> in
 the parameter directory.</p>
 <section id="vegetation-parameters">
-<h4>Vegetation parameters<a class="headerlink" href="#vegetation-parameters" title="Permalink to this headline"></a></h4>
+<h4>Vegetation parameters<a class="headerlink" href="#vegetation-parameters" title="Permalink to this heading"></a></h4>
 <p><strong>Cmax</strong> is the maximum rate of carbon assimilation. It is defined by plant
 functional type. Maximum assimilation is reached when plants are exposed to no
 significant limitation in nutrient availability. For this reason, Cmax is
@@ -268,7 +287,7 @@ are no significant limitation from low temperature.</p>
 vegetation compartment: leaf, stem and root.</p>
 </section>
 <section id="soil-parameters">
-<h4>Soil parameters<a class="headerlink" href="#soil-parameters" title="Permalink to this headline"></a></h4>
+<h4>Soil parameters<a class="headerlink" href="#soil-parameters" title="Permalink to this heading"></a></h4>
 <p><span class="math notranslate nohighlight">\(Nup_{mic}\)</span> is the limiting rate of microbial nitrogen uptake per unit of
 detrital carbon respired (g/g). <span class="math notranslate nohighlight">\(Nup_{mic}\)</span> directly influences nitrogen
 immobilization by decomposers, and net mineralization which is the amount of
@@ -284,7 +303,7 @@ is. Therefore:</p>
 </section>
 </section>
 <section id="calibration-process">
-<h2>Calibration Process<a class="headerlink" href="#calibration-process" title="Permalink to this headline"></a></h2>
+<h2><span class="section-number">7.4. </span>Calibration Process<a class="headerlink" href="#calibration-process" title="Permalink to this heading"></a></h2>
 <p>Calibration is done in equilibrium simulation and in calibration mode. Because
 biogeochemical turn-overs in the vegetation are faster than in the soil,
 vegetation-related variables reach equilibrium sooner than soil-related
@@ -293,7 +312,7 @@ time when vegetation-related parameters are calibrated (e.g. 200 to 500 years),
 whereas soil calibration typically requires several thousand years to reach
 equilibrium.</p>
 <section id="calibrate-vegetation-parameters-without-n-limitation">
-<h3>Calibrate vegetation parameters <strong>without</strong> N limitation<a class="headerlink" href="#calibrate-vegetation-parameters-without-n-limitation" title="Permalink to this headline"></a></h3>
+<h3><span class="section-number">7.4.1. </span>Calibrate vegetation parameters <strong>without</strong> N limitation<a class="headerlink" href="#calibrate-vegetation-parameters-without-n-limitation" title="Permalink to this heading"></a></h3>
 <ol class="arabic simple">
 <li><p>Set <code class="docutils literal notranslate"><span class="pre">NFEED=OFF</span></code> and <code class="docutils literal notranslate"><span class="pre">AVLN=OFF</span></code>.</p></li>
 <li><p>Adjust Cmax until INGPP (GPP without N limitation) matches target for every
@@ -301,7 +320,7 @@ plant functional type. Increasing Cmax increases GPP.</p></li>
 </ol>
 </section>
 <section id="calibrate-vegetation-parameters-with-n-limitation">
-<h3>Calibrate vegetation parameters <strong>with</strong> N limitation<a class="headerlink" href="#calibrate-vegetation-parameters-with-n-limitation" title="Permalink to this headline"></a></h3>
+<h3><span class="section-number">7.4.2. </span>Calibrate vegetation parameters <strong>with</strong> N limitation<a class="headerlink" href="#calibrate-vegetation-parameters-with-n-limitation" title="Permalink to this heading"></a></h3>
 <ol class="arabic simple">
 <li><p>Set <code class="docutils literal notranslate"><span class="pre">NFEED=ON</span></code> and <code class="docutils literal notranslate"><span class="pre">AVLN=ON</span></code>.</p></li>
 <li><p>Set the level of N limitation with Nmax and Nup<sub>mic</sub> so that actual
@@ -320,7 +339,7 @@ vegetation nitrogen uptake (input) and litterfall (output).</p></li>
 </ol>
 </section>
 <section id="calibrate-soil-parameters">
-<h3>Calibrate soil parameters<a class="headerlink" href="#calibrate-soil-parameters" title="Permalink to this headline"></a></h3>
+<h3><span class="section-number">7.4.3. </span>Calibrate soil parameters<a class="headerlink" href="#calibrate-soil-parameters" title="Permalink to this heading"></a></h3>
 <ol class="arabic simple">
 <li><p>Calibrate decomposition rate limiting parameters targeting soil carbon
 stocks. The fibric layer is dominated by raw and active carbon pools. The
@@ -334,7 +353,7 @@ primarily the humic and mineral pools.</p></li>
 </section>
 </section>
 <section id="reference">
-<h2>Reference<a class="headerlink" href="#reference" title="Permalink to this headline"></a></h2>
+<h2><span class="section-number">7.5. </span>Reference<a class="headerlink" href="#reference" title="Permalink to this heading"></a></h2>
 <dl class="citation">
 <dt class="label" id="euskirchen-2021"><span class="brackets"><a class="fn-backref" href="#id2">Euskirchen_2021</a></span></dt>
 <dd><p>Euskirchen, Eugénie S. et al. 2021 Assessing dynamic
@@ -353,8 +372,8 @@ of validation. <em>Ecological Modeling</em>, 90: 229–244. <a class="reference 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="common_acronyms.html" class="btn btn-neutral float-left" title="Common Project Acronyms" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="workshop_march_2022/lab1_basic_model_run.html" class="btn btn-neutral float-right" title="March 2022 Workshop Lab 1" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="common_acronyms.html" class="btn btn-neutral float-left" title="6. Common Project Acronyms" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="prelude.html" class="btn btn-neutral float-right" title="1. Prelude" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>2. Basic Model Setup and Run &mdash; dvmdostem v0.6.1 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/jupyter-sphinx.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/thebelab.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/custom_styles.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/thebelab-helper.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="3. EE 0 - Single Site Run" href="example_experiment_0.html" />
+    <link rel="prev" title="1. Prelude" href="../prelude.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> dvmdostem
+          </a>
+              <div class="version">
+                v0.6.1
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../model_overview.html">1. Model Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../running_dvmdostem.html">2. Running</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../software_development_info.html">3. Dev Info</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../SA_UQ.html">4. SA and UQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../command_cheat_sheet.html">5. Command Cheat Sheet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../common_acronyms.html">6. Common Project Acronyms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../calibration.html">7. Manual Calibration</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Examples and Tutorials</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../prelude.html">1. Prelude</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">2. Basic Model Setup and Run</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#install-tools">2.1. Install tools</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#version-control">2.1.1. Version control</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#run-time-environment-and-virtualization-with-docker">2.1.2. Run time environment and virtualization with Docker</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#text-editors-and-terminal-emulator">2.1.3. Text editors and terminal emulator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#summary">2.1.4. Summary</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#get-the-code">2.2. Get the code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#build-docker-images">2.3. Build Docker images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#start-and-run-docker-containers">2.4. Start and run Docker containers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#setting-up-a-dvmdostem-run">2.5. Setting up a dvmdostem run</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#setting-up-the-working-directory">2.5.1. Setting up the working directory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#adjusting-the-config-file">2.5.2. Adjusting the <code class="docutils literal notranslate"><span class="pre">config</span></code> file</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#adjusting-the-run-mask">2.5.3. Adjusting the run mask</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#choosing-the-outputs">2.5.4. Choosing the outputs</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#launch-the-dvmdostem-run">2.6. Launch the dvmdostem run</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="example_experiment_0.html">3. EE 0 - Single Site Run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_summary_processing.html">4. Data Summary and Processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plotting_discussion.html">5. Plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="make_contribution.html">6. Contributing to the Codebase</a></li>
+<li class="toctree-l1"><a class="reference internal" href="using_github_features.html">7. Using Github’s Features</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Python Scripts API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../scripts_API.html">Python API Docs</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">dvmdostem</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a></li>
+      <li class="breadcrumb-item active"><span class="section-number">2. </span>Basic Model Setup and Run</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/examples_and_tutorials/basic_model_run.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="basic-model-setup-and-run">
+<h1><span class="section-number">2. </span>Basic Model Setup and Run<a class="headerlink" href="#basic-model-setup-and-run" title="Permalink to this heading"></a></h1>
+<p>This exercise/tutorial walks through the process of making a basic model
+simulation. With this exercise you will get to interact with the code and a
+bunch of the supporting tools, including Docker, and Git. For post processing
+and visualization, see the <a class="reference internal" href="plotting_discussion.html#plotting"><span class="std std-ref">Plotting Example</span></a>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This lab is more or less a duplicate of an existing wiki page:
+<a class="reference external" href="https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem/wiki/How-To:-Run-dvmdostem-and-plot-output-via-Docker">https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem/wiki/How-To:-Run-dvmdostem-and-plot-output-via-Docker</a>.</p>
+<p>We are in the process of migrating all content from the wiki and assorted
+Google Documents to this Sphinx based documentation system, therefore this
+document should be the most up-to-date.</p>
+</div>
+<p>This tutorial will walk you through the process of:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>getting the <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code> code,</p></li>
+<li><p>building your Docker images,</p></li>
+<li><p>starting your Docker containers, and</p></li>
+<li><p>running <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code> in your Docker container (in a trivial fashion).</p></li>
+</ul>
+</div></blockquote>
+<p>This tutorial will walk you through most of the above steps with varying levels
+of hand-holding.</p>
+<p>If you need more background help, please see the Prelude document which has
+information on <a class="reference internal" href="../prelude.html#version-control"><span class="std std-ref">Version Control</span></a>,
+<a class="reference internal" href="../prelude.html#docker"><span class="std std-ref">Docker</span></a>, and <a class="reference internal" href="../prelude.html#general-programming"><span class="std std-ref">general programming</span></a>.</p>
+<section id="install-tools">
+<h2><span class="section-number">2.1. </span>Install tools<a class="headerlink" href="#install-tools" title="Permalink to this heading"></a></h2>
+<p>Get started by installing all the software you will need.</p>
+<section id="version-control">
+<h3><span class="section-number">2.1.1. </span>Version control<a class="headerlink" href="#version-control" title="Permalink to this heading"></a></h3>
+<p>We are using version control software called <a class="reference external" href="https://git-scm.com">Git</a> to manage our code base. Git
+is a distributed version control system. The software works well for managing
+contributions to the code base from a lot of people, although this is not “free”
+- it still takes quite a bit of learning, practice and work to make this happen
+smoothly. Git allows you to track changes to files, to make branches for
+isolating groups of changes and to manage merging changes from different lines
+of development.</p>
+<p>In addition to Git, we are using the code hosting service <a class="reference external" href="https://github.com">Github</a>. Git is a
+stand alone version control system, whereas Github is a hosting service that
+integrates with Git. Github is a cloud based code hosting service that
+facilitates collaboration between developers without the need to host and manage
+a server. In addition to basic code hosting Github provides a heap of additional
+features including issue tracking, access control, and various continuous
+integration, testing and publishing tools.</p>
+<p>For more general information and help about Git, see the <a class="reference internal" href="../prelude.html#version-control"><span class="std std-ref">Prelude - Version
+Control</span></a> section.</p>
+<p>For more information and details about how the <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code> project is using
+Git, please see the <a class="reference internal" href="../software_development_info.html#version-management"><span class="std std-ref">Dev Info - Version
+Management</span></a> section.</p>
+<p>For more information about how the <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code> project is using Github, see
+the <a class="reference internal" href="using_github_features.html#using-github-s-features"><span class="std std-ref">Using Github
+Features</span></a>
+document.</p>
+<p>Git terms you should familiarize yourself with before continuing: commit,
+branch, merge, tag, repository, remote.</p>
+<p>Github terms you should familiarize yourself with before continuing: clone,
+fork, release, wiki, issue tracker, pull request.</p>
+</section>
+<section id="run-time-environment-and-virtualization-with-docker">
+<h3><span class="section-number">2.1.2. </span>Run time environment and virtualization with Docker<a class="headerlink" href="#run-time-environment-and-virtualization-with-docker" title="Permalink to this heading"></a></h3>
+<p>Any software, <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code> included, requires a specific set of hardware and
+supporting software in order to run. This is referred to as the “runtime
+environment”. There may be additional tools needed for compiling the software
+(translating the software from source code to machine instructions) and for
+working with the code to improve it (developing the code). We are currently
+using a containerization tool called <a class="reference external" href="https://docker.com">Docker</a> to simplify and standardize the
+creation of these environments. Docker helps to create stand alone, self
+sufficient containers in which an application can run. The idea is that a Docker
+container should be portable and able to run on a wide variety of host systems.
+The dependencies for a piece of software are isolated inside the container. This
+isolation allows software with conflicting dependencies to run on the host
+system.</p>
+<p>There are other ways you can get the environment necessary for running,
+compiling and developing <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code>, such as a native installation, or using
+a virtual machine (e.g. with Vagrant and Virtual Box or VMWare). Each path to a
+functioning runtime environment has its tradeoffs and can be useful in different
+situations. We have successfully used native installs, a VirtualBox VM with
+Vagrant, and Docker to achieve a valid runtime for <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code>. This tutorial
+is based on Docker, but the directions for building a VM using Vagrant are still
+included in the <code class="docutils literal notranslate"><span class="pre">virtualmachines/</span></code> directory of the repository. You may notice
+that both the Docker approach and the Vagrant/VirtualBox VM approach basically
+build off of a generic Ubuntu base system and then simply install a variety of
+packages, adjust some settings and manage sharing data between the host and
+guest system.</p>
+<p>Our recent switch to using Docker does not preclude you from pursuing a native
+install or a virtual machine, but Docker provides several advantages, namely
+that the containers are smaller and lighter weight than a full virtual machine
+and that the internal layout of the container is the same for everyone, so paths
+and other settings can be shared between developers.</p>
+<p>Docker also represents a paradigm shift that can take some getting used to - in
+fact we are still working on how <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code> should best fit within the
+paradigm. With Docker the concept is to isolate a single process and its
+dependencies into a container. The container is then run as a service; ideally
+there is one process per container and the process offers a single service. Not
+all work naturally fits into this paradigm and we expect to modify the
+<code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code> Docker stack in the near future as we improve how things are
+structured. See this <a class="reference internal" href="#one-way-to-think-about-docker"><span class="std std-ref">Note</span></a> for more
+information.</p>
+<div class="admonition note" id="one-way-to-think-about-docker">
+<p class="admonition-title">Note</p>
+<p>One way to think of Docker is to imagine that you have an office with several
+old computers laying around. And you have a system you want to build that
+requires a few different computers, each with slightly different software
+installed and running. And for your system, these different computers will
+need to talk to each other and share certain data. To assemble and configure
+each computer, you have a CD with the basic operating system you need, i.e. a
+Windows install CD, one for Linux, and another for a different flavor of Linux
+with some special packages installed. Once you install the operating system on
+each of your computers, you can start the computer and leave it running so it
+can talk to the other computers once you get them setup. In a notebook, you
+write down the steps for each installation and other settings to get the
+computer running and connected with the shared drives for communication. With
+this analogy, the Docker images are analogous to the CDs you have. Docker
+containers are analogous to the running instances of the computers. And
+docker-compose is analogous to the instructions you wrote in the paper
+notebook for starting the whole system.</p>
+</div>
+<p>Docker terms you should familiarize yourself with before continuing: build,
+image, container, volume, docker-compose.</p>
+</section>
+<section id="text-editors-and-terminal-emulator">
+<h3><span class="section-number">2.1.3. </span>Text editors and terminal emulator<a class="headerlink" href="#text-editors-and-terminal-emulator" title="Permalink to this heading"></a></h3>
+<p>You will also need a text editor that you will use to view and modify files and
+some kind of terminal emulator (shell or console program) on your computer. As
+of 2022 popular text editors are Sublime, VSCode, and Atom. MacOS and Linux
+generally have an easily accessible terminal program. For Windows, look into
+MobaXTerm.</p>
+</section>
+<section id="summary">
+<h3><span class="section-number">2.1.4. </span>Summary<a class="headerlink" href="#summary" title="Permalink to this heading"></a></h3>
+<p>So to get going, do the following if you do not already have these tools:</p>
+<blockquote>
+<div><ol class="arabic">
+<li><p>Install a text editor and terminal program.</p></li>
+<li><p>Install Git on your computer. Directions for this vary based on your
+operating system; you should be able to get started here
+<a class="reference external" href="https://git-scm.com">https://git-scm.com</a>. When you are done you should be able to run <code class="docutils literal notranslate"><span class="pre">git</span>
+<span class="pre">--version</span></code>.</p></li>
+<li><p>Install Docker. Again directions for this vary for your operating system but
+you should be able to get started here <a class="reference external" href="https://docs.docker.com">https://docs.docker.com</a>. When
+you are done, you should be able to open a terminal and run <code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">docker</span>
+<span class="pre">info</span></code> and <code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">docker</span> <span class="pre">--version</span></code> and get something like this:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ docker info
+Client:
+Context:    default
+Debug Mode: <span class="nb">false</span>
+Plugins:
+  buildx: Docker Buildx <span class="o">(</span>Docker Inc., v0.7.1<span class="o">)</span>
+  compose: Docker Compose <span class="o">(</span>Docker Inc., v2.2.1<span class="o">)</span>
+  scan: Docker Scan <span class="o">(</span>Docker Inc., v0.14.0<span class="o">)</span>
+Server:
+Containers: <span class="m">4</span>
+...much more info below...
+
+$ docker --version
+Docker version <span class="m">20</span>.10.11, build dea9396
+</pre></div>
+</div>
+</li>
+</ol>
+</div></blockquote>
+</section>
+</section>
+<section id="get-the-code">
+<h2><span class="section-number">2.2. </span>Get the code<a class="headerlink" href="#get-the-code" title="Permalink to this heading"></a></h2>
+<p>With your tools setup, it is time to get the source code. Navigate to
+<a class="reference external" href="https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem">https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem</a> and find the link to
+clone the repository.</p>
+<img alt="../_images/github_clone.png" src="../_images/github_clone.png" />
+<p>On your computer, open a terminal and navigate to a place where you would like
+your copy of <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code> to be stored. Copy the clone address and use it to
+run the <code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">git</span> <span class="pre">clone</span></code> command in your terminal.</p>
+<div class="admonition note" id="ssh-vs-http">
+<p class="admonition-title">Note</p>
+<p>Using <code class="docutils literal notranslate"><span class="pre">ssh</span></code> vs <code class="docutils literal notranslate"><span class="pre">https</span></code> clone address. Notice that the “clone” button on
+github gives you the option to use either the <code class="docutils literal notranslate"><span class="pre">https</span></code> address (default) or
+the <code class="docutils literal notranslate"><span class="pre">ssh</span></code> address. If you are have been added to the project as a
+collaborator you should use the <code class="docutils literal notranslate"><span class="pre">ssh</span></code> address so that you are able to push
+changes to the upstream fork. If you use the <code class="docutils literal notranslate"><span class="pre">https</span></code> address, you will still
+be able to push to your personal fork, but will not be able to push to the
+upstream <code class="docutils literal notranslate"><span class="pre">uaf-arctic-eco-modelling</span></code> fork.</p>
+</div>
+<p>You might notice that the clone address is simply the URL for the repo with
+<code class="docutils literal notranslate"><span class="pre">.git</span></code> at the end. This will fetch a copy of the repository from Github to
+your local machine. You should see some messages in your terminal to that
+extent. Notice that on your machine you now have a new directory entitled
+<code class="docutils literal notranslate"><span class="pre">dvm-dos-tem</span></code> with an exact copy of the code that is on Github. In addition,
+due to the power of Git, you also have the entire history of the project on your
+computer as well. This works because inside your <code class="docutils literal notranslate"><span class="pre">dvm-dos-tem/</span></code> directory is
+another (hidden) folder named <code class="docutils literal notranslate"><span class="pre">.git</span></code> - this hidden folder contains the history
+of the project and all the other information that Git needs to perform its
+magic. You rarely, if ever, need to look at the contents of the <code class="docutils literal notranslate"><span class="pre">.git</span></code>
+directory. Take a few minutes to explore the files in the <code class="docutils literal notranslate"><span class="pre">dvm-dos-tem</span></code>
+directory.</p>
+<div class="admonition note" id="names">
+<p class="admonition-title">Note</p>
+<p>Sometimes we write <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code>, sometimes we write <code class="docutils literal notranslate"><span class="pre">dvm-dos-tem</span></code> and
+sometimes we write DVM-DOS-TEM. These are all the same thing. The order is
+always the same, but sometimes we use capitals and sometimes lower case,
+sometimes with hyphens and sometimes without. This is a fluke of history. In
+some cases it looks better capitalized, sometimes it looks better lower case.
+The repository ended up with hyphens in the name, but the compiled binary
+executable does not have hyphens.</p>
+</div>
+<div class="admonition warning" id="git-remotes">
+<p class="admonition-title">Warning</p>
+<p>Notice that when you run <code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">git</span> <span class="pre">remote</span> <span class="pre">-v</span></code> you are presented with some text
+indicating that your remote is named ‘origin’ and points to the Github
+uaf-arctic-eco-modeling repository. To be consistent with this tutorial and
+the rest of our documentation, you should rename this remote to ‘upstream’ and
+point ‘origin’ to your personal fork of the code (if you have one). To do this
+use the <code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">git</span> <span class="pre">remote</span> <span class="pre">rename</span> <span class="pre">&lt;old&gt;</span> <span class="pre">&lt;new&gt;</span></code> command.</p>
+</div>
+<div class="admonition warning" id="git-branch">
+<p class="admonition-title">Warning</p>
+<p>Notice that after cloning the repository and running the <code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">git</span> <span class="pre">branch</span></code>
+command you are on the master branch of the code. It is highly recommended
+that you set up your terminal so that the git branch is displayed in your
+prompt. The directions for this are terminal/shell specific and widely
+available with a little web searching. A decent example for Ubuntu/bash can be
+found here:
+<a class="reference external" href="https://askubuntu.com/questions/730754/how-do-i-show-the-git-branch-with-colours-in-bash-prompt">https://askubuntu.com/questions/730754/how-do-i-show-the-git-branch-with-colours-in-bash-prompt</a>.</p>
+</div>
+</section>
+<section id="build-docker-images">
+<h2><span class="section-number">2.3. </span>Build Docker images<a class="headerlink" href="#build-docker-images" title="Permalink to this heading"></a></h2>
+<p>Now that you have the code on your machine, you need a way to interact with it.
+You can browse the files using standard tools on your computer, but to execute
+(run) the code you will need a special environment with all the dependencies
+installed. This is where Docker comes into play.</p>
+<p>With Docker there are two steps to using the software: building the images and
+starting the running containers based on the images.  As of <code class="docutils literal notranslate"><span class="pre">dvmdostem</span> <span class="pre">v0.6.0</span></code>,
+there are 5 images that we are using for this project:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">cpp-dev</span></code> - general C++ development tooling.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dvmdostem-dev</span></code> - all tools necessary for developing and working with
+<code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code>; this will be the image that most users will use most of the
+time. Relies on mounted volumes for access to the source code.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dvmdostem-build</span></code> - a stripped down image only used for compiling the C++
+portion of the code. Includes the source code inside the image instead of
+relying on mounted volumes.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dvmdostem-run</span></code> - a very small production image with only the necessary
+run-time libraries, no development or compiling tooling.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dvmdostem-mapping-support</span></code> - an image with GDAL tools installed and
+Python.</p></li>
+</ol>
+</div></blockquote>
+<div class="admonition note" id="hosted-images">
+<p class="admonition-title">Note</p>
+<p>In the (hopefully near) future it should not be necessary to build your own
+images unless you have very specific development needs. The images will be
+automatically built and published (to Github, maybe elsewhere) by Github
+Actions with each release of the code.</p>
+</div>
+<p>With the existing layout, images 1-4 are successively built on top of each other
+(layered) which allows for faster builds when you only need to re-build because
+of a change in something in one of the upper layers. The
+<code class="docutils literal notranslate"><span class="pre">dvmdostem-mapping-support</span> <span class="pre">image</span></code> is totally separate from the others and
+allows installing GDAL which is difficult to do in conjunction with some of the
+libraries that <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code> depends on.</p>
+<p>To build your images, you can use the <code class="docutils literal notranslate"><span class="pre">docker-build-wrapper.sh</span></code> script. You
+should examine the commands and comments in this script as well as the
+Dockerfile in order to understand what is going on. If the wrapper script fails,
+you can try running each step individually.</p>
+<p>Building the base image, especially cpp-dev, requires quite a bit of downloading
+and can take 15 minutes or more depending on your internet connection.</p>
+<p>When you have built all the images, you should be able to see them in Docker
+Desktop or with the command line as shown in the screenshot.</p>
+<a class="reference internal image-reference" href="../_images/docker_images.png"><img alt="docker images" src="../_images/docker_images.png" style="width: 600px;" /></a>
+</section>
+<section id="start-and-run-docker-containers">
+<h2><span class="section-number">2.4. </span>Start and run Docker containers<a class="headerlink" href="#start-and-run-docker-containers" title="Permalink to this heading"></a></h2>
+<p>There are several ways to run a Docker container. The most basic is to use the
+<code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">run</span></code> command. There are lots of options to this command and it becomes
+tedious to provide the options every time you launch the containers. Also some
+of the options are the same between different containers. To address this
+problem we are using a tool called <code class="docutils literal notranslate"><span class="pre">docker-compose</span></code> which is bundled with Docker
+in recent versions. From the Docker website:</p>
+<blockquote>
+<div><p>Compose is a tool for defining and running multi-container Docker
+applications. With Compose, you use a YAML file to configure your
+application’s services. Then, with a single command, you create and start
+all the services from your configuration. To learn more about all the
+features of Compose, <a class="reference external" href="https://docs.docker.com/compose/#features">see the list of features</a>.</p>
+</div></blockquote>
+<p>In particular the problem that <code class="docutils literal notranslate"><span class="pre">docker-compose</span></code> will help us with is mounting
+volumes. Volumes provide a way to share data between the host machine (your
+computer) and the running containers. Volumes also allow data to persist outside
+a container when a container is stopped or shutdown.</p>
+<p>Note that in addition to mapping the source code into the containers, we have
+also mapped in volumes for the input data and the model output. This means that
+on your host machine you need to choose a location for the input catalog and a
+location where you would like to store the model output. Once you have chosen
+these locations, go ahead and set the environment variables
+<code class="docutils literal notranslate"><span class="pre">DDT_INPUT_CATALOG</span></code> and <code class="docutils literal notranslate"><span class="pre">DDT_WORKFLOWS</span></code> in a special file named <code class="docutils literal notranslate"><span class="pre">.env</span></code>
+which you need to create in the root of the <code class="docutils literal notranslate"><span class="pre">dvm-dos-tem</span></code> folder. The
+directions for this are at the top of the <code class="docutils literal notranslate"><span class="pre">docker-compose.yml</span></code> file. Using
+this file allows each user to have their own custom locations on their machines
+for inputs, outputs, and source code, but inside the containers, the paths are
+standardized.</p>
+<div class="admonition note" id="volumes">
+<p class="admonition-title">Note</p>
+<p>Note that in the design of the Docker images for this project, the
+<code class="docutils literal notranslate"><span class="pre">dvm-dos-tem</span></code> source code is not actually provided inside the image (or
+container). The image (and resulting container) only contains the dependencies
+and tools for running the code. Thus the source code must somehow be made
+available inside the container for any work to be done. This is accomplished
+by mounting a volume into the containers when they start. The mounted volume
+gives us the ability to share the source code located on your host computer -
+the directory that you cloned from Github and have been working with so far in
+this tutorial - with the internal run-time environment of the container. We
+will also use this tactic to share inputs with the running containers and to
+save outputs from the model so that they are available once the container
+shuts down.</p>
+<p>If you inspect the <code class="docutils literal notranslate"><span class="pre">docker-compose.yml</span></code> file you will see that there is a
+section for each of our containers (called a “service” in docker-compose), and
+a section that specifies the volumes. A volume may be mounted in more than one
+container or service. For example the volume named “<code class="docutils literal notranslate"><span class="pre">sourcecode</span></code>” is
+specified to use the current working directory on your host  with this line:
+<code class="docutils literal notranslate"><span class="pre">device:</span> <span class="pre">'${PWD}'</span></code>. Then if you look at one of the containers,
+<code class="docutils literal notranslate"><span class="pre">dvmdostem-build</span></code> for example, you will see that the volume named
+“<code class="docutils literal notranslate"><span class="pre">sourcecode</span></code>” is mapped to the path <code class="docutils literal notranslate"><span class="pre">/work</span></code> inside the container. This
+means that the files on your host computer will be seamlessly linked to the
+files inside the container. So for example if you were log in to the container
+and create a file named “<code class="docutils literal notranslate"><span class="pre">/work/junk.txt</span></code>” with some text in it, you should
+see that file appear on your host computer at
+<code class="docutils literal notranslate"><span class="pre">/path/to/wherever/you/cloned/dvm-dos-tem/junk.txt</span></code>. This is very powerful
+because it allows you to use some of the tools on your host machine to modify
+code within the container. For example you can use your text editor of choice
+(Sublime, or VSCode, or Notepad++) on your host machine without needing to
+install it inside the container!</p>
+</div>
+<div class="admonition note" id="input-catalog">
+<p class="admonition-title">Note</p>
+<p>Currently the semi-automated scripts to generate <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code> inputs are very
+platform specific and not easy to run. So we have created inputs for about 180
+sites across Alaska and can provide them for running <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code>. For this
+tutorial, it is assumed that you have at least one of these input datasets in
+a location on your computer and have set the <code class="docutils literal notranslate"><span class="pre">DDT_INPUT_CATALOG</span></code> environment
+variable to this location.</p>
+</div>
+<p>To launch the containers, use the following command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ docker compose up -d
+</pre></div>
+</div>
+<p>You should get something like the following, and then running <code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">docker</span> <span class="pre">ps</span></code>
+you should see that two of the containers are running. For our use case, we do
+not need the <code class="docutils literal notranslate"><span class="pre">cpp-dev</span></code> or the <code class="docutils literal notranslate"><span class="pre">dvmdostem-build</span></code> containers to keep running.
+They exit immediately, and that is OK.</p>
+<a class="reference internal image-reference" href="../_images/docker_containers.png"><img alt="docker containers" src="../_images/docker_containers.png" style="width: 600px;" /></a>
+<p>With a running container, the most basic thing you can do is log in and poke
+around. Try this now by running:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ docker compose <span class="nb">exec</span> dvmdostem-dev bash
+</pre></div>
+</div>
+<p>Which will give you a bash shell inside your container, looking something like
+this:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>develop@ef7aad33441c:/work$
+</pre></div>
+</div>
+<p>Take some time to poke around. Change directories. List the files. Notice that
+you are in the <code class="docutils literal notranslate"><span class="pre">/work</span></code> directory which is mapped to be your repository folder
+on your host machine. Make a new file and see that you can find it on your host.
+Take a look at the <code class="docutils literal notranslate"><span class="pre">/data</span></code> directory and notice that the input catalog and
+workflow directory are mapped (linked) to the appropriate directories on your
+host machine.</p>
+<p>The last step before we can start setting up our model run is to compile the
+dvmdostem source code. To do this, run the following command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ docker compose <span class="nb">exec</span> dvmdostem-dev make
+
+ ... lots and lots of output ...
+
+g++  -o dvmdostem -I/usr/include/jsoncpp obj/ArgHandler.o obj/TEMLogger.o
+obj/CalController.o obj/TEMUtilityFunctions.o obj/Climate.o
+obj/OutputEstimate.o obj/Runner.o obj/BgcData.o obj/CohortData.o obj/EnvData.o
+obj/EnvDataDly.o obj/FireData.o obj/RestartData.o obj/WildFire.o
+obj/DoubleLinkedList.o obj/Ground.o obj/MineralInfo.o obj/Moss.o obj/Organic.o
+obj/Snow.o obj/SoilParent.o obj/Vegetation.o obj/CohortLookup.o obj/Cohort.o
+obj/Integrator.o obj/ModelData.o obj/Richards.o obj/Snow_Env.o obj/Soil_Bgc.o
+obj/Soil_Env.o obj/SoilParent_Env.o obj/Stefan.o obj/CrankNicholson.o
+obj/tbc-debug-util.o obj/Vegetation_Bgc.o obj/Vegetation_Env.o obj/Layer.o
+obj/MineralLayer.o obj/MossLayer.o obj/OrganicLayer.o obj/ParentLayer.o
+obj/SnowLayer.o obj/SoilLayer.o obj/TemperatureUpdator.o obj/TEM.o -I/usr/lib
+-lnetcdf -lboost_system -lboost_filesystem -lboost_program_options
+-lboost_thread -lboost_log -ljsoncpp -lpthread -lreadline -llapacke
+</pre></div>
+</div>
+<p>which will use the environment and tools inside the container to compile the C++
+source code (which is linked into the container via the mounted volume) into the
+<code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code> binary. This can take several minutes. Once it is done you should
+have a new file in your repository folder named <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code>. You should not
+need to run this again unless you modify the C++ source files.</p>
+<p>Finally with all this setup in place we can start working on setting up a model
+run.</p>
+</section>
+<section id="setting-up-a-dvmdostem-run">
+<h2><span class="section-number">2.5. </span>Setting up a dvmdostem run<a class="headerlink" href="#setting-up-a-dvmdostem-run" title="Permalink to this heading"></a></h2>
+<p>In general the steps to making a <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code> run are as follows:</p>
+<ol class="arabic simple">
+<li><p>Decide where on your computer you want to store your model run(s).</p></li>
+<li><p>Decide what spatial (geographic) area you want to run.</p></li>
+<li><p>Decide what variables you want to have output.</p></li>
+<li><p>Decide on all other run settings/parameters:</p>
+<ul class="simple">
+<li><p>Which stages to run and for how many years.</p></li>
+<li><p>Is the community type (CMT) fixed or driven by input vegetation.nc map?</p></li>
+<li><p>For which stages should the output files be generated and saved?</p></li>
+<li><p>Calibration settings if necessary (<code class="docutils literal notranslate"><span class="pre">--cal-mode</span></code>).</p></li>
+<li><p>Any other command line options or environment settings.</p></li>
+</ul>
+</li>
+<li><p>Launch the run.</p></li>
+<li><p>Verify run completed.</p></li>
+<li><p>Make plots or other analysis.</p></li>
+</ol>
+<p>The rest of this tutorial will walk through the above steps, doing a very basic
+<code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code> run using the Docker stack.</p>
+<div class="admonition note" id="two-ways-to-run-docker-commands">
+<p class="admonition-title">Note</p>
+<p>There are two distinct ways to run commands in the Docker containers:</p>
+<ol class="arabic">
+<li><p>Interactive  -  With an interactive command you start by running a one-off
+command into the Docker container, but the command you run is a shell (Read
+Eval Print Loop; REPL). With this shell running inside the container you
+can execute any sort of program that is installed in the container; when
+the program exits, you are returned to your shell prompt inside the
+container.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ docker compose <span class="nb">exec</span> dvmdostem-dev bash
+develop@ef7aad33441c:/work$ ls /data
+input-catalog  workflows
+develop@ef7aad33441c:/work$ <span class="nb">exit</span>
+<span class="nb">exit</span>
+$
+</pre></div>
+</div>
+</li>
+<li><p>One-off commands  -  With a one-off command, you execute the command inside
+an already running docker container (using <code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">exec</span></code> or <code class="docutils literal notranslate"><span class="pre">docker</span>
+<span class="pre">compose</span> <span class="pre">exec</span></code>) and when the command is finished, you are returned to the
+shell on your host computer.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ docker compose <span class="nb">exec</span> dvmdostem-dev <span class="nb">pwd</span>
+/work
+$
+</pre></div>
+</div>
+</li>
+</ol>
+<p>Both methods will be used in this tutorial. The different methods can be used
+to leverage the shell’s tab-complete functionality in different circumstances.</p>
+</div>
+<section id="setting-up-the-working-directory">
+<h3><span class="section-number">2.5.1. </span>Setting up the working directory<a class="headerlink" href="#setting-up-the-working-directory" title="Permalink to this heading"></a></h3>
+<p>First we are going to set up a working directory where we will conduct our model
+run and save the outputs. We will keep this directory inside the <code class="docutils literal notranslate"><span class="pre">workflows</span></code>
+folder (which you linked from your host to the container during the setup
+above). There is a helper script for setting up a working directory. This script
+will copy over the required parameter and settings files, set up an output
+folder and make some adjustments to the configuration file for the run.</p>
+<p>Using the one-off command style, run the script. For this case we just
+arbitrarily select a dataset from your input catalog. Don’t worry if you have a
+different dataset from the example shown here.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ docker compose <span class="nb">exec</span> dvmdostem-dev scripts/setup_working_directory.py <span class="se">\</span>
+/data/workflows/basic_model_run <span class="se">\</span>
+--input-data-path /data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_CALM_Chevak_10x10
+Namespace<span class="o">(</span><span class="nv">copy_inputs</span><span class="o">=</span>False,
+<span class="nv">input_data_path</span><span class="o">=</span><span class="s1">&#39;/data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_CALM_Chevak_10x10&#39;</span>,
+<span class="nv">new_directory</span><span class="o">=</span><span class="s1">&#39;/data/workflows/basic_model_run&#39;</span>, <span class="nv">no_cal_targets</span><span class="o">=</span>False<span class="o">)</span>
+</pre></div>
+</div>
+<p>which will create a new folder (named <code class="docutils literal notranslate"><span class="pre">basic_model_run</span></code>) inside your workflows
+directory. This folder will have the <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code> default parameters copied in
+as well as config settings. The paths in the <code class="docutils literal notranslate"><span class="pre">config.js</span></code> file should be
+correctly set to the input data set you chose with the <code class="docutils literal notranslate"><span class="pre">--input-data-path</span></code>
+command line option.</p>
+<div class="admonition note" id="script-output">
+<p class="admonition-title">Note</p>
+<p>What is with the nonsense that is printed out to your terminal when running
+various dvmdostem scripts? All of our scripts are essentially rough-draft, so
+we just haven’t had time to refine the information that is printed out to the
+console. So when you see stuff like</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>...
+Namespace<span class="o">(</span><span class="nv">copy_inputs</span><span class="o">=</span>False, <span class="nv">input_data_path</span><span class="o">=</span><span class="s1">&#39;/data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_CALM_Chevak_10x10&#39;</span>,
+<span class="nv">new_directory</span><span class="o">=</span><span class="s1">&#39;/data/workflows/basic_model_run&#39;</span>, <span class="nv">no_cal_targets</span><span class="o">=</span>False<span class="o">)</span>
+</pre></div>
+</div>
+<p>Sometimes it is useful and sometimes it isn’t. In most cases it is simply
+leftover from whatever was needed when the script was developed.</p>
+</div>
+<div class="admonition note" id="script-errors">
+<p class="admonition-title">Note</p>
+<p>What happens when you get something like this:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ docker compose <span class="nb">exec</span> dvmdostem-dev scripts/setup_working_directory.py <span class="se">\</span>
+/data/workflows/basic_model_run --input-data-path <span class="se">\</span>
+/data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_CALM_Chevak_10x10
+Namespace<span class="o">(</span><span class="nv">copy_inputs</span><span class="o">=</span>False, <span class="nv">input_data_path</span><span class="o">=</span><span class="s1">&#39;/data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_CALM_Chevak_10x10&#39;</span>, <span class="nv">new_directory</span><span class="o">=</span><span class="s1">&#39;/data/workflows/basic_model_run&#39;</span>, <span class="nv">no_cal_targets</span><span class="o">=</span>False<span class="o">)</span>
+Traceback <span class="o">(</span>most recent call last<span class="o">)</span>:
+  File <span class="s2">&quot;scripts/setup_working_directory.py&quot;</span>, line <span class="m">82</span>, <span class="k">in</span> &lt;module&gt;
+    shutil.copytree<span class="o">(</span>os.path.join<span class="o">(</span>ddt_dir, <span class="s1">&#39;config&#39;</span><span class="o">)</span>, os.path.join<span class="o">(</span>args.new_directory, <span class="s1">&#39;config&#39;</span><span class="o">))</span>
+  File <span class="s2">&quot;/home/develop/.pyenv/versions/3.8.6/lib/python3.8/shutil.py&quot;</span>, line <span class="m">554</span>, <span class="k">in</span> copytree
+    <span class="k">return</span> _copytree<span class="o">(</span><span class="nv">entries</span><span class="o">=</span>entries, <span class="nv">src</span><span class="o">=</span>src, <span class="nv">dst</span><span class="o">=</span>dst, <span class="nv">symlinks</span><span class="o">=</span>symlinks,
+  File <span class="s2">&quot;/home/develop/.pyenv/versions/3.8.6/lib/python3.8/shutil.py&quot;</span>, line <span class="m">455</span>, <span class="k">in</span> _copytree
+    os.makedirs<span class="o">(</span>dst, <span class="nv">exist_ok</span><span class="o">=</span>dirs_exist_ok<span class="o">)</span>
+  File <span class="s2">&quot;/home/develop/.pyenv/versions/3.8.6/lib/python3.8/os.py&quot;</span>, line <span class="m">223</span>, <span class="k">in</span> makedirs
+    mkdir<span class="o">(</span>name, mode<span class="o">)</span>
+FileExistsError: <span class="o">[</span>Errno <span class="m">17</span><span class="o">]</span> File exists: <span class="s1">&#39;/data/workflows/basic_model_run/config&#39;</span>
+</pre></div>
+</div>
+<p>In this case the error has to do with the directory you are trying to create
+already existing. This might happen because you ran the script once, then
+decided to change a setting and tried running it again. Again, most of our
+scripts are rough-draft and we have not figured out how to gracefully handle
+all errors yet. It is your responsibility as a user to make sure that the
+commands complete correctly and if they don’t, to read the traceback and try
+to figure out what is going on. If you encounter errors and ask a programmer
+for help, the first thing they will want to see is the command you ran, the
+error message(s) and the traceback.</p>
+<p>To fix the error in this traceback, you would need to delete the offending
+directory and run the <code class="docutils literal notranslate"><span class="pre">setup_working_directory.py</span></code> script again. Or choose a new
+directory name.</p>
+</div>
+<p>Let’s look around in the directory you just created.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker compose <span class="nb">exec</span> dvmdostem-dev bash
+develop@ef7aad33441c:/work$ <span class="nb">cd</span> /data/workflows/basic_model_run/
+
+
+<span class="c1"># Check the files that should have been created with the setup script</span>
+develop@ef7aad33441c:/data/workflows/basic_model_run$ ls
+calibration  config  output  parameters  run-mask.nc
+</pre></div>
+</div>
+<p>The idea is that each run will exist in its own self-contained directory with
+all the config files necessary to execute the run. The output data will also be
+stored here. This ensures that the run can be easily adjusted, re-run, and
+archived for later use without losing any provenance data. By default the
+driving input data is not copied to the experiment folder (to save space). If
+you need to copy the driving input data into your experiment directory, try the
+<code class="docutils literal notranslate"><span class="pre">--copy-inputs</span></code> flag.</p>
+<p>If you inspect the <code class="docutils literal notranslate"><span class="pre">config/config.js</span></code> file, you will see that the paths to the
+input data are absolute (starting with <code class="docutils literal notranslate"><span class="pre">/</span></code> and pointing toward the input
+dataset that you specified) and the paths to the parameters, <code class="docutils literal notranslate"><span class="pre">run-mask.nc</span></code>,
+calibration folder, <code class="docutils literal notranslate"><span class="pre">outspec.csv</span></code> and output folder are relative (no leading
+<code class="docutils literal notranslate"><span class="pre">/</span></code>).</p>
+</section>
+<section id="adjusting-the-config-file">
+<h3><span class="section-number">2.5.2. </span>Adjusting the <code class="docutils literal notranslate"><span class="pre">config</span></code> file<a class="headerlink" href="#adjusting-the-config-file" title="Permalink to this heading"></a></h3>
+<div class="admonition note" id="input-shapes">
+<p class="admonition-title">Note</p>
+<p>Notice that for this run, we only care to run a single pixel (a “site run”) so
+why have we chosen a 10x10 pixel dataset (as evidenced by the input dataset
+name: <code class="docutils literal notranslate"><span class="pre">...CALM_Chevak_10x10</span></code>)? Well our  input preparation scripts use <a class="reference external" href="https://gdal.org">GDAL</a>
+to extract data from georeferenced <code class="docutils literal notranslate"><span class="pre">.tifs</span></code> that were created by
+<a class="reference external" href="https://uaf-snap.org">https://uaf-snap.org</a>. GDAL’s warping tool can’t create super small grids that
+are appropriately geo-referenced. So we have made all our input datasets 10
+pixels by 10 pixels (or larger) and then the end user can disable any pixels
+they wish by using the <code class="docutils literal notranslate"><span class="pre">run-mask.nc</span></code> file.</p>
+</div>
+<p>For this totally arbitrary run, let’s turn on outputs for all run-stages (except
+pre-run). For more information on what “run stages” are, see <a class="reference internal" href="../model_overview.html#temporal"><span class="std std-ref">here</span></a>. So open the <code class="docutils literal notranslate"><span class="pre">config/config.js</span></code> file and
+make sure that the following are all set to 1. You can do this with an editor on
+your host machine or using <code class="docutils literal notranslate"><span class="pre">vim</span></code> from inside the container:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span> <span class="s2">&quot;IO&quot;</span>: <span class="o">{</span>
+  ...
+  <span class="s2">&quot;output_nc_eq&quot;</span>: <span class="m">1</span>,
+  <span class="s2">&quot;output_nc_sp&quot;</span>: <span class="m">1</span>,
+  <span class="s2">&quot;output_nc_tr&quot;</span>: <span class="m">1</span>,
+  <span class="s2">&quot;output_nc_sc&quot;</span>: <span class="m">1</span>
+...
+<span class="o">}</span>
+</pre></div>
+</div>
+</section>
+<section id="adjusting-the-run-mask">
+<h3><span class="section-number">2.5.3. </span>Adjusting the run mask<a class="headerlink" href="#adjusting-the-run-mask" title="Permalink to this heading"></a></h3>
+<p>Now let’s adjust the run-mask so that we only run 1 or 2 pixels. Note that you
+can use the <code class="docutils literal notranslate"><span class="pre">--show</span></code> option to see what the mask looks like before and after
+adjusting it. We’ll turn on 2 pixels here, just for fun:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># First make sure all pixels are OFF (set to 0)</span>
+$ docker compose <span class="nb">exec</span> dvmdostem-dev runmask-util.py --reset /data/workflows/basic_model_run/run-mask.nc
+Setting all pixels <span class="k">in</span> runmask to <span class="s1">&#39;0&#39;</span> <span class="o">(</span>OFF<span class="o">)</span>.
+
+<span class="c1"># Then turn one pixel.</span>
+$ docker compose <span class="nb">exec</span> dvmdostem-dev runmask-util.py --yx <span class="m">0</span> <span class="m">0</span> /data/workflows/basic_model_run/run-mask.nc
+Turning pixel<span class="o">(</span>y,x<span class="o">)</span> <span class="o">(</span><span class="m">0</span>,0<span class="o">)</span> to <span class="s1">&#39;1&#39;</span>, <span class="o">(</span>ON<span class="o">)</span>.
+
+<span class="c1"># And another pixel</span>
+$ docker compose <span class="nb">exec</span> dvmdostem-dev runmask-util.py --yx <span class="m">1</span> <span class="m">1</span> /data/workflows/basic_model_run/run-mask.nc
+Turning pixel<span class="o">(</span>y,x<span class="o">)</span> <span class="o">(</span><span class="m">1</span>,1<span class="o">)</span> to <span class="s1">&#39;1&#39;</span>, <span class="o">(</span>ON<span class="o">)</span>.
+</pre></div>
+</div>
+<p>Note that you don’t want to pass <code class="docutils literal notranslate"><span class="pre">--reset</span></code> to the second call, or it will
+disable the first pixel you enabled!</p>
+</section>
+<section id="choosing-the-outputs">
+<h3><span class="section-number">2.5.4. </span>Choosing the outputs<a class="headerlink" href="#choosing-the-outputs" title="Permalink to this heading"></a></h3>
+<p>Next we need to enable some output variables. The control for which outputs
+<code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code> will generate and at what resolution happens using a special
+<code class="docutils literal notranslate"><span class="pre">.csv</span></code> file. The file has one row for every available variable and columns for
+the different resolutions. The file can be edited by hand, but we have also
+written a utility script for working with the file. We’ll use the utility script
+here. For this example we will do our command using the interactive form instead
+of the one-off form. Also notice that this script outputs a summary of the
+variables enabled in a tabular format. This means that it is hard to read on a
+narrow screen because the lines wrap, which is why the following looks so bad.
+On your computer you can make the font smaller or your terminal wider to have
+the output be readable.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Get a shell on the container</span>
+$ docker compose <span class="nb">exec</span> dvmdostem-dev bash
+
+<span class="c1"># Change into our working directory for this experiment</span>
+develop@ef7aad33441c:/work$ <span class="nb">cd</span> /data/workflows/basic_model_run/
+
+<span class="c1"># Turn on RH</span>
+develop@ef7aad33441c:/data/workflows/basic_model_run$ outspec_utils.py config/output_spec.csv --on RH y layer
+                Name                Units       Yearly      Monthly        Daily          PFT Compartments       Layers    Data Type     Description
+                  RH            g/m2/time            y                   invalid      invalid      invalid            l       double     Heterotrophic respiration
+
+<span class="c1"># Turn on VEGC</span>
+develop@ef7aad33441c:/data/workflows/basic_model_run$ outspec_utils.py config/output_spec.csv --on VEGC m pft
+                Name                Units       Yearly      Monthly        Daily          PFT Compartments       Layers    Data Type     Description
+                VEGC                 g/m2            y            m      invalid            p                   invalid       double     Total veg. biomass C
+</pre></div>
+</div>
+<div class="admonition warning" id="outspec-utils">
+<p class="admonition-title">Warning</p>
+<p>The order of arguments to <code class="docutils literal notranslate"><span class="pre">outspec_utils.py</span></code> is very counterintuitive!  The
+file you want to modify needs to be the first argument so that it doesn’t get
+confused with the resolution specification.</p>
+</div>
+<div class="admonition note" id="outspec-utils-flags">
+<p class="admonition-title">Note</p>
+<p>Try the <code class="docutils literal notranslate"><span class="pre">--help</span></code> flag for more options, inparticular, the <code class="docutils literal notranslate"><span class="pre">-s</span></code> flag for
+summarizing the current file.</p>
+</div>
+<p>Every output variable can be produced for a set of dimensions. These dimensions
+are a reflection of the <a class="reference internal" href="../model_overview.html#structure"><span class="std std-ref">structure of the model</span></a>
+and vary between output variables. The more dimensions are selected, the more
+information you will get, and the larger the output files will be. For regional
+runs, a trade-off between the granularity of the outputs needed and the size of
+the output files needs to be considered.</p>
+<p>Three time dimensions are available: yearly, monthly and daily. Daily outputs
+are only available for a few physical variables, and aren’t generally produced
+as (1) the model is primarily designed to represent ecological dynamics on a
+monthly basis, and (2) the amount of data created rapidly becomes unmanageable
+for multi-pixel runs.</p>
+<p>Two dimensions are specific to the vegetation: PFT, i.e. plant functional type,
+and Compartment. By default, all output variables associated with the
+vegetation are produced for the entire ecosystem (community type). But every
+community type is defined by an ensemble of plant function types, which are
+composed of single or multiple species sharing similar functional traits (e.g.
+“deciduous shrubs”, “evergreen trees”, “sphagnum moss” …). Finally, every PFT is
+partitioned into multiple compartments: “leaves”, “wood” (stem and
+branches), and “roots” (coarse and fine). By selecting PFT and/or compartment,
+the outputs for a vegetation-related variable will be partitioned by these
+dimensions.</p>
+<p>One dimension is specific to the soil column: layer. The soil column is divided
+into multiple layers, that can belong to five types of horizons – brown moss,
+fibric organic, humic organic, mineral and rock. By default, soil-related
+variables will be summed-up across the entire soil column. But if the layer
+dimension is selected in the <code class="docutils literal notranslate"><span class="pre">output_spec.csv</span></code> file, the selected variable
+will produce ouputs by layer.</p>
+</section>
+</section>
+<section id="launch-the-dvmdostem-run">
+<h2><span class="section-number">2.6. </span>Launch the dvmdostem run<a class="headerlink" href="#launch-the-dvmdostem-run" title="Permalink to this heading"></a></h2>
+<p>Finally we are set to run the model! There are a number of command line options
+available for <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code> which you can investigate with the <code class="docutils literal notranslate"><span class="pre">--help</span></code> flag.
+The options used here are for setting the length of the <a class="reference internal" href="../model_overview.html#temporal"><span class="std std-ref">run-stages</span></a>, for controlling the log level output, and for
+forcing the model to run as a particular community type.</p>
+<p>In a real run <code class="docutils literal notranslate"><span class="pre">--eq-yrs</span></code> might be something like 1500 and <code class="docutils literal notranslate"><span class="pre">--sp-yrs</span></code>
+something like 250. But for testing we might be too impatient to wait for that.
+Plus for this toy example, we enabled fairly hi-resolution outputs so running
+the model for long time spans could result in huge volumes of output. The
+<code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code> model is fairly flexible with respect to outputs and output
+resolution so the user must put some thought into choosing configurations that
+make sense and are reasonable for the available computing power.</p>
+<p>In this case we are forcing the community type to be CMT 4. In a “normal”
+<code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code> run, the community type is controlled by the input
+<code class="docutils literal notranslate"><span class="pre">vegetation.nc</span></code> file. This file has a CMT code for each pixel, which
+corresponds to the CMT numbers in the parameter files. Frequently for single
+pixel runs the user wants to ignore the <code class="docutils literal notranslate"><span class="pre">vegetation.nc</span></code> map and force the
+pixel to run as a particular CMT. In this case we want to force our pixel to run
+as CMT 4 simply because we know that the parameters for CMT 4 have been
+calibrated. For more discussion about community types in dvmdostem see <a class="reference internal" href="../model_overview.html#community-types-cmts"><span class="std std-ref">the
+CMT section</span></a>.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">--log-level</span></code> command line option controls the amount of information that is
+printed to the console during the model run. There are 5 levels to choose from:
+debug, info, note, warn, error, fatal. With debug level, all print statements in
+the model code are enabled and the output is extremely volumnious, but useful
+for tracking down issues with the code. With the fatal level, only a small
+handful of messages will be printed out. This is useful for production runs, but
+if a run fails, it can be difficult to know why.</p>
+<div class="admonition note" id="bug-with-relative-paths">
+<p class="admonition-title">Note</p>
+<p>Despite the fact that there is a command line option for pointing to an
+arbitrary control file (config.js), this option doesn’t work when used with
+relative paths in the control file as we have for this lab. For this reason we
+provide the <code class="docutils literal notranslate"><span class="pre">--workdir</span> <span class="pre">/data/workflows/basic_model_run/</span></code> command line option
+when launching the model. Notice that this command line option is associated
+with <code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">compose</span> <span class="pre">exec</span></code>, not <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code>.</p>
+</div>
+<div class="admonition note" id="log-level-organization">
+<p class="admonition-title">Note</p>
+<p>The organization of the log messages is not complete and is actually quite
+messy. So for example you will find that when running with <code class="docutils literal notranslate"><span class="pre">--log-level</span> <span class="pre">err</span></code> you
+will get lots of mundane messages noting the year or other non-error things,
+e.g.:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">...</span>
+<span class="p">[</span><span class="n">fatal</span><span class="p">]</span> <span class="p">[</span><span class="n">EQ</span><span class="p">]</span> <span class="n">Equilibrium</span> <span class="n">Initial</span> <span class="n">Year</span> <span class="n">Count</span><span class="p">:</span> <span class="mi">5</span>
+<span class="p">[</span><span class="n">fatal</span><span class="p">]</span> <span class="p">[</span><span class="n">EQ</span><span class="p">]</span> <span class="n">Running</span> <span class="n">Equilibrium</span><span class="p">,</span> <span class="mi">5</span> <span class="n">years</span><span class="o">.</span>
+<span class="p">[</span><span class="n">err</span><span class="p">]</span> <span class="p">[</span><span class="n">EQ</span><span class="o">-&gt;</span><span class="n">Y</span><span class="p">]</span> <span class="n">y</span><span class="p">:</span> <span class="mi">0</span> <span class="n">x</span><span class="p">:</span> <span class="mi">0</span> <span class="n">Year</span><span class="p">:</span> <span class="mi">0</span>
+<span class="p">[</span><span class="n">err</span><span class="p">]</span> <span class="p">[</span><span class="n">EQ</span><span class="o">-&gt;</span><span class="n">Y</span><span class="p">]</span> <span class="n">y</span><span class="p">:</span> <span class="mi">0</span> <span class="n">x</span><span class="p">:</span> <span class="mi">0</span> <span class="n">Year</span><span class="p">:</span> <span class="mi">1</span>
+<span class="p">[</span><span class="n">err</span><span class="p">]</span> <span class="p">[</span><span class="n">EQ</span><span class="o">-&gt;</span><span class="n">Y</span><span class="p">]</span> <span class="n">y</span><span class="p">:</span> <span class="mi">0</span> <span class="n">x</span><span class="p">:</span> <span class="mi">0</span> <span class="n">Year</span><span class="p">:</span> <span class="mi">2</span>
+<span class="p">[</span><span class="n">err</span><span class="p">]</span> <span class="p">[</span><span class="n">EQ</span><span class="o">-&gt;</span><span class="n">Y</span><span class="p">]</span> <span class="n">y</span><span class="p">:</span> <span class="mi">0</span> <span class="n">x</span><span class="p">:</span> <span class="mi">0</span> <span class="n">Year</span><span class="p">:</span> <span class="mi">3</span>
+<span class="o">...</span>
+</pre></div>
+</div>
+<p>This is simply because we have not gone through the code base and
+re-categorized all the messages. Until this is fixed, you simply have to
+experiment with the different levels until you are seeing the output that is
+appropriate for your particular use-case.</p>
+</div>
+<p>Launch the model with the following command, note that the majority of the
+console output has been omitted for clarity:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ docker compose <span class="nb">exec</span> --workdir /data/workflows/basic_model_run/ dvmdostem-dev dvmdostem -l err -f /data/workflows/basic_model_run/config/config.js -p <span class="m">50</span> -e <span class="m">100</span> -s <span class="m">25</span> -t <span class="m">115</span> -n <span class="m">85</span>
+Setting up logging...
+<span class="o">[</span>err<span class="o">]</span> <span class="o">[]</span> Looks like CMTNUM output is NOT enabled. Strongly recommended to <span class="nb">enable</span> this output! Use outspec_utils.py to turn on the CMTNUM output!
+<span class="o">[</span>err<span class="o">]</span> <span class="o">[</span>PRE-RUN-&gt;Y<span class="o">]</span> y: <span class="m">0</span> x: <span class="m">0</span> Year: <span class="m">0</span>
+<span class="o">[</span>err<span class="o">]</span> <span class="o">[</span>PRE-RUN-&gt;Y<span class="o">]</span> y: <span class="m">0</span> x: <span class="m">0</span> Year: <span class="m">1</span>
+<span class="o">[</span>err<span class="o">]</span> <span class="o">[</span>PRE-RUN-&gt;Y<span class="o">]</span> y: <span class="m">0</span> x: <span class="m">0</span> Year: <span class="m">2</span>
+...
+<span class="o">[</span>err<span class="o">]</span> <span class="o">[</span>PRE-RUN-&gt;Y<span class="o">]</span> y: <span class="m">0</span> x: <span class="m">0</span> Year: <span class="m">49</span>
+<span class="o">[</span>fatal<span class="o">]</span> <span class="o">[</span>EQ<span class="o">]</span> Equilibrium Initial Year Count: <span class="m">100</span>
+<span class="o">[</span>fatal<span class="o">]</span> <span class="o">[</span>EQ<span class="o">]</span> Running Equilibrium, <span class="m">100</span> years.
+<span class="o">[</span>err<span class="o">]</span> <span class="o">[</span>EQ-&gt;Y<span class="o">]</span> y: <span class="m">0</span> x: <span class="m">0</span> Year: <span class="m">0</span>
+<span class="o">[</span>err<span class="o">]</span> <span class="o">[</span>EQ-&gt;Y<span class="o">]</span> y: <span class="m">0</span> x: <span class="m">0</span> Year: <span class="m">1</span>
+...
+<span class="o">[</span>err<span class="o">]</span> <span class="o">[</span>SC-&gt;Y<span class="o">]</span> y: <span class="m">1</span> x: <span class="m">1</span> Year: <span class="m">82</span>
+<span class="o">[</span>err<span class="o">]</span> <span class="o">[</span>SC-&gt;Y<span class="o">]</span> y: <span class="m">1</span> x: <span class="m">1</span> Year: <span class="m">83</span>
+<span class="o">[</span>err<span class="o">]</span> <span class="o">[</span>SC-&gt;Y<span class="o">]</span> y: <span class="m">1</span> x: <span class="m">1</span> Year: <span class="m">84</span>
+cell <span class="m">1</span>, <span class="m">1</span> complete.35
+<span class="o">[</span>fatal<span class="o">]</span> <span class="o">[]</span> Skipping cell <span class="o">(</span><span class="m">1</span>, <span class="m">2</span><span class="o">)</span>
+<span class="o">[</span>fatal<span class="o">]</span> <span class="o">[]</span> Skipping cell <span class="o">(</span><span class="m">1</span>, <span class="m">3</span><span class="o">)</span>
+...
+<span class="o">[</span>fatal<span class="o">]</span> <span class="o">[]</span> Skipping cell <span class="o">(</span><span class="m">9</span>, <span class="m">7</span><span class="o">)</span>
+<span class="o">[</span>fatal<span class="o">]</span> <span class="o">[]</span> Skipping cell <span class="o">(</span><span class="m">9</span>, <span class="m">8</span><span class="o">)</span>
+<span class="o">[</span>fatal<span class="o">]</span> <span class="o">[]</span> Skipping cell <span class="o">(</span><span class="m">9</span>, <span class="m">9</span><span class="o">)</span>
+Total Seconds: <span class="m">70</span>
+</pre></div>
+</div>
+<p>With a quick glance at the console output, it looks like the run completed
+without problems. We can further verify this by looking at the run-status.nc
+file in the output folder, for example:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ docker compose <span class="nb">exec</span> dvmdostem-dev ncdump /data/workflows/basic_model_run/output/run_status.nc
+netcdf run_status <span class="o">{</span>
+dimensions:
+  <span class="nv">Y</span> <span class="o">=</span> <span class="m">10</span> <span class="p">;</span>
+  <span class="nv">X</span> <span class="o">=</span> <span class="m">10</span> <span class="p">;</span>
+variables:
+  int run_status<span class="o">(</span>Y, X<span class="o">)</span> <span class="p">;</span>
+data:
+
+<span class="nv">run_status</span> <span class="o">=</span>
+  <span class="m">100</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>,
+  <span class="m">0</span>, <span class="m">100</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>,
+  <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>,
+  <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>,
+  <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>,
+  <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>,
+  <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>,
+  <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>,
+  <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>,
+  <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span> <span class="p">;</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<p>A positive status code means the pixel completed, while a negative status code
+indicates that the pixel failed for some reason. In the event of a pixel
+failing, there will be some kind of error messages in a <code class="docutils literal notranslate"><span class="pre">fail_log.txt</span></code> file in
+the output folder. In this case it appears that both our pixels completed
+successfully. The next step is digging into the output data to see what it looks
+like.</p>
+<div class="admonition note" id="extra-credit">
+<p class="admonition-title">Note</p>
+<p>To see what would happen if we did not provide the <code class="docutils literal notranslate"><span class="pre">--force-cmt</span></code> command
+line option, we need to investigate the vegetation.nc input file, and
+specifically for the two pixels we have enabled (0,0) and (1,1). The path to
+the file is in the <code class="docutils literal notranslate"><span class="pre">config/config.js</span></code> file. We can use grep to find this
+line:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ docker compose <span class="nb">exec</span> dvmdostem-dev grep vegetation.nc /data/workflows/basic_model_run/config/config.js
+  <span class="s2">&quot;veg_class_file&quot;</span>: <span class="s2">&quot;/data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_CALM_Chevak_10x10/vegetation.nc&quot;</span>,
+</pre></div>
+</div>
+<p>From here there are many ways we could go, but for this example we will use
+the command line ncks (netcdf kitchen sink) tool to print out the variable
+from the file:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ docker compose <span class="nb">exec</span> dvmdostem-dev ncks -v veg_class <span class="se">\</span>
+/data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_CALM_Chevak_10x10/vegetation.nc
+netcdf vegetation <span class="o">{</span>
+  dimensions:
+    <span class="nv">X</span> <span class="o">=</span> <span class="m">10</span> <span class="p">;</span>
+    <span class="nv">Y</span> <span class="o">=</span> <span class="m">10</span> <span class="p">;</span>
+
+  variables:
+    char albers_conical_equal_area <span class="p">;</span>
+      albers_conical_equal_area:grid_mapping_name <span class="o">=</span> <span class="s2">&quot;albers_conical_equal_area&quot;</span> <span class="p">;</span>
+      albers_conical_equal_area:false_easting <span class="o">=</span> <span class="m">0</span>. <span class="p">;</span>
+      albers_conical_equal_area:false_northing <span class="o">=</span> <span class="m">0</span>. <span class="p">;</span>
+      albers_conical_equal_area:latitude_of_projection_origin <span class="o">=</span> <span class="m">50</span>. <span class="p">;</span>
+      albers_conical_equal_area:longitude_of_central_meridian <span class="o">=</span> -154. <span class="p">;</span>
+      albers_conical_equal_area:standard_parallel <span class="o">=</span> <span class="m">55</span>., <span class="m">65</span>. <span class="p">;</span>
+      albers_conical_equal_area:longitude_of_prime_meridian <span class="o">=</span> <span class="m">0</span>. <span class="p">;</span>
+      albers_conical_equal_area:semi_major_axis <span class="o">=</span> <span class="m">6378137</span>. <span class="p">;</span>
+      albers_conical_equal_area:inverse_flattening <span class="o">=</span> <span class="m">298</span>.257222101 <span class="p">;</span>
+      albers_conical_equal_area:spatial_ref <span class="o">=</span> <span class="s2">&quot;PROJCS[\&quot;NAD83 / Alaska Albers\&quot;,GEOGCS[\&quot;NAD83\&quot;,DATUM[\&quot;North_American_Datum_1983\&quot;,SPHEROID[\&quot;GRS 1980\&quot;,6378137,298.2572221010002,AUTHORITY[\&quot;EPSG\&quot;,\&quot;7019\&quot;]],AUTHORITY[\&quot;EPSG\&quot;,\&quot;6269\&quot;]],PRIMEM[\&quot;Greenwich\&quot;,0],UNIT[\&quot;degree\&quot;,0.0174532925199433],AUTHORITY[\&quot;EPSG\&quot;,\&quot;4269\&quot;]],PROJECTION[\&quot;Albers_Conic_Equal_Area\&quot;],PARAMETER[\&quot;standard_parallel_1\&quot;,55],PARAMETER[\&quot;standard_parallel_2\&quot;,65],PARAMETER[\&quot;latitude_of_center\&quot;,50],PARAMETER[\&quot;longitude_of_center\&quot;,-154],PARAMETER[\&quot;false_easting\&quot;,0],PARAMETER[\&quot;false_northing\&quot;,0],UNIT[\&quot;metre\&quot;,1,AUTHORITY[\&quot;EPSG\&quot;,\&quot;9001\&quot;]],AUTHORITY[\&quot;EPSG\&quot;,\&quot;3338\&quot;]]&quot;</span> <span class="p">;</span>
+      albers_conical_equal_area:GeoTransform <span class="o">=</span> <span class="s2">&quot;-613280.1453076596 1000.050170338725 0 1346667.58012239 0 -999.7969847651308 &quot;</span> <span class="p">;</span>
+
+    int veg_class<span class="o">(</span>Y,X<span class="o">)</span> <span class="p">;</span>
+      veg_class:grid_mapping <span class="o">=</span> <span class="s2">&quot;albers_conical_equal_area&quot;</span> <span class="p">;</span>
+
+  data:
+    <span class="nv">albers_conical_equal_area</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span> <span class="p">;</span>
+
+    <span class="nv">veg_class</span> <span class="o">=</span>
+    <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">0</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>,
+    <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">6</span>, <span class="m">6</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>,
+    <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>,
+    <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>,
+    <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">6</span>,
+    <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">6</span>, <span class="m">4</span>,
+    <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">6</span>, <span class="m">0</span>, <span class="m">4</span>,
+    <span class="m">6</span>, <span class="m">4</span>, <span class="m">6</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>,
+    <span class="m">6</span>, <span class="m">6</span>, <span class="m">6</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>,
+    <span class="m">6</span>, <span class="m">6</span>, <span class="m">6</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span> <span class="p">;</span>
+
+<span class="o">}</span> // group /
+</pre></div>
+</div>
+<p>This output is a little bit ugly to read, mostly due to the metadata that
+addressed the geo-referencing. But if we skim past all the metadata, we find
+the actual data array for the <code class="docutils literal notranslate"><span class="pre">veg_class</span></code> variable. Because the array is
+only 10x10, the printed output is readable and we can see that incidentally,
+pixels (0,0) and (1,1) are set to CMT 4. So it turns out that the
+<code class="docutils literal notranslate"><span class="pre">--force-cmt</span></code> isn’t doing anything in this case. Oh well!</p>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../prelude.html" class="btn btn-neutral float-left" title="1. Prelude" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="example_experiment_0.html" class="btn btn-neutral float-right" title="3. EE 0 - Single Site Run" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Tobey Carman, Ruth Rutter, Helene Genet, Eugenie Euskirchen.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

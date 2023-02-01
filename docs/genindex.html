@@ -6,6 +6,9 @@
   <title>Index &mdash; dvmdostem v0.6.1 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/jupyter-sphinx.css" type="text/css" />
+      <link rel="stylesheet" href="_static/thebelab.css" type="text/css" />
+      <link rel="stylesheet" href="_static/custom_styles.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -13,7 +16,11 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/thebelab-helper.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="#" />
     <link rel="search" title="Search" href="search.html" /> 
@@ -39,15 +46,27 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="model_overview.html">Model Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="running_dvmdostem.html">Running</a></li>
-<li class="toctree-l1"><a class="reference internal" href="software_development_info.html">Dev Info</a></li>
-<li class="toctree-l1"><a class="reference internal" href="SA_UQ.html">SA and UQ</a></li>
-<li class="toctree-l1"><a class="reference internal" href="command_cheat_sheet.html">Command Cheat Sheet</a></li>
-<li class="toctree-l1"><a class="reference internal" href="common_acronyms.html">Common Project Acronyms</a></li>
-<li class="toctree-l1"><a class="reference internal" href="calibration.html">Manual Calibration</a></li>
-<li class="toctree-l1"><a class="reference internal" href="workshop_march_2022/lab1_basic_model_run.html">March 2022 Workshop Lab 1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="workshop_march_2022/lab5_make_contribution.html">March 2022 Workshop Lab 5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="model_overview.html">1. Model Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="running_dvmdostem.html">2. Running</a></li>
+<li class="toctree-l1"><a class="reference internal" href="software_development_info.html">3. Dev Info</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SA_UQ.html">4. SA and UQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="command_cheat_sheet.html">5. Command Cheat Sheet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="common_acronyms.html">6. Common Project Acronyms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">7. Manual Calibration</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Examples and Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="prelude.html">1. Prelude</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/basic_model_run.html">2. Basic Model Setup and Run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/example_experiment_0.html">3. EE 0 - Single Site Run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/data_summary_processing.html">4. Data Summary and Processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/plotting_discussion.html">5. Plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/make_contribution.html">6. Contributing to the Codebase</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/using_github_features.html">7. Using Github’s Features</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Python Scripts API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="scripts_API.html">Python API Docs</a></li>
 </ul>
 
         </div>
@@ -63,8 +82,8 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>Index</li>
+      <li><a href="index.html" class="icon icon-home"></a></li>
+      <li class="breadcrumb-item active">Index</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -77,8 +96,345 @@
 <h1 id="index">Index</h1>
 
 <div class="genindex-jumpbox">
+ <a href="#A"><strong>A</strong></a>
+ | <a href="#B"><strong>B</strong></a>
+ | <a href="#C"><strong>C</strong></a>
+ | <a href="#D"><strong>D</strong></a>
+ | <a href="#E"><strong>E</strong></a>
+ | <a href="#F"><strong>F</strong></a>
+ | <a href="#G"><strong>G</strong></a>
+ | <a href="#I"><strong>I</strong></a>
+ | <a href="#K"><strong>K</strong></a>
+ | <a href="#L"><strong>L</strong></a>
+ | <a href="#M"><strong>M</strong></a>
+ | <a href="#O"><strong>O</strong></a>
+ | <a href="#P"><strong>P</strong></a>
+ | <a href="#R"><strong>R</strong></a>
+ | <a href="#S"><strong>S</strong></a>
+ | <a href="#T"><strong>T</strong></a>
+ | <a href="#U"><strong>U</strong></a>
+ | <a href="#V"><strong>V</strong></a>
+ | <a href="#W"><strong>W</strong></a>
  
 </div>
+<h2 id="A">A</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="scripts_API.html#output_utils.average_monthly_pool_to_yearly">average_monthly_pool_to_yearly() (in module output_utils)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="B">B</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="scripts_API.html#input_util.BadInputFilesValueError">BadInputFilesValueError</a>
+</li>
+      <li><a href="scripts_API.html#output_utils.boxplot_by_pft">boxplot_by_pft() (in module output_utils)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="scripts_API.html#output_utils.boxplot_monthlies">boxplot_monthlies() (in module output_utils)</a>
+</li>
+      <li><a href="scripts_API.html#param_util.build_param_lookup">build_param_lookup() (in module param_util)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="C">C</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="scripts_API.html#output_utils.check_files">check_files() (in module output_utils)</a>
+</li>
+      <li><a href="scripts_API.html#input_util.climate_gap_count_plot">climate_gap_count_plot() (in module input_util)</a>
+</li>
+      <li><a href="scripts_API.html#input_util.climate_ts_plot">climate_ts_plot() (in module input_util)</a>
+</li>
+      <li><a href="scripts_API.html#param_util.cmdline_parse">cmdline_parse() (in module param_util)</a>
+</li>
+      <li><a href="scripts_API.html#param_util.cmtdatablock2dict">cmtdatablock2dict() (in module param_util)</a>
+</li>
+      <li><a href="scripts_API.html#param_util.comment_splitter">comment_splitter() (in module param_util)</a>
+</li>
+      <li><a href="scripts_API.html#param_util.compare_CMTs">compare_CMTs() (in module param_util)</a>
+</li>
+      <li><a href="scripts_API.html#param_util.converter">converter() (in module param_util)</a>
+</li>
+      <li><a href="scripts_API.html#input_util.crop_attr_string">crop_attr_string() (in module input_util)</a>
+</li>
+      <li><a href="scripts_API.html#input_util.crop_file">crop_file() (in module input_util)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="scripts_API.html#input_util.crop_wrapper">crop_wrapper() (in module input_util)</a>
+</li>
+      <li><a href="scripts_API.html#input_util.cropper">cropper() (in module input_util)</a>
+</li>
+      <li><a href="scripts_API.html#param_util.csv2fwt_v1">csv2fwt_v1() (in module param_util)</a>
+</li>
+      <li><a href="scripts_API.html#param_util.csv_v0_find_section_starts">csv_v0_find_section_starts() (in module param_util)</a>
+</li>
+      <li><a href="scripts_API.html#param_util.csv_v0_get_pftnames">csv_v0_get_pftnames() (in module param_util)</a>
+</li>
+      <li><a href="scripts_API.html#param_util.csv_v0_get_section">csv_v0_get_section() (in module param_util)</a>
+</li>
+      <li><a href="scripts_API.html#param_util.csv_v0_specification">csv_v0_specification() (in module param_util)</a>
+</li>
+      <li><a href="scripts_API.html#param_util.csv_v1_find_section_indices">csv_v1_find_section_indices() (in module param_util)</a>
+</li>
+      <li><a href="scripts_API.html#param_util.csv_v1_read_section">csv_v1_read_section() (in module param_util)</a>
+</li>
+      <li><a href="scripts_API.html#param_util.csv_v1_specification">csv_v1_specification() (in module param_util)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="D">D</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="scripts_API.html#param_util.detect_block_with_pft_info">detect_block_with_pft_info() (in module param_util)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="E">E</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="scripts_API.html#param_util.enforce_initvegc_split">enforce_initvegc_split() (in module param_util)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="scripts_API.html#param_util.error_exit">error_exit() (in module param_util)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="F">F</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="scripts_API.html#param_util.find_cmt_start_idx">find_cmt_start_idx() (in module param_util)</a>
+</li>
+      <li><a href="scripts_API.html#param_util.format_CMTdatadict">format_CMTdatadict() (in module param_util)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="scripts_API.html#param_util.format_section_csv_v0">format_section_csv_v0() (in module param_util)</a>
+</li>
+      <li><a href="scripts_API.html#param_util.fwt2csv_v1">fwt2csv_v1() (in module param_util)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="G">G</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="scripts_API.html#param_util.generate_reference_order">generate_reference_order() (in module param_util)</a>
+</li>
+      <li><a href="scripts_API.html#param_util.get_available_CMTs">get_available_CMTs() (in module param_util)</a>
+</li>
+      <li><a href="scripts_API.html#param_util.get_CMT_datablock">get_CMT_datablock() (in module param_util)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="scripts_API.html#param_util.get_CMTs_in_file">get_CMTs_in_file() (in module param_util)</a>
+</li>
+      <li><a href="scripts_API.html#param_util.get_datablock_pftkeys">get_datablock_pftkeys() (in module param_util)</a>
+</li>
+      <li><a href="scripts_API.html#output_utils.get_last_n_eq">get_last_n_eq() (in module output_utils)</a>
+</li>
+      <li><a href="scripts_API.html#param_util.ParamUtilSpeedHelper.get_value">get_value() (param_util.ParamUtilSpeedHelper method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="I">I</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    input_util
+
+      <ul>
+        <li><a href="scripts_API.html#module-input_util">module</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="scripts_API.html#param_util.is_CMT_divider_line">is_CMT_divider_line() (in module param_util)</a>
+</li>
+      <li><a href="scripts_API.html#param_util.isCMTkey">isCMTkey() (in module param_util)</a>
+</li>
+      <li><a href="scripts_API.html#param_util.isParamFile">isParamFile() (in module param_util)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="K">K</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="scripts_API.html#param_util.keyFnum">keyFnum() (in module param_util)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="L">L</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="scripts_API.html#param_util.ParamUtilSpeedHelper.list_non_pft_params">list_non_pft_params() (param_util.ParamUtilSpeedHelper method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="scripts_API.html#param_util.ParamUtilSpeedHelper.list_params">list_params() (param_util.ParamUtilSpeedHelper method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="M">M</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="scripts_API.html#output_utils.mask_by_cmt">mask_by_cmt() (in module output_utils)</a>
+</li>
+      <li><a href="scripts_API.html#output_utils.mask_by_failed_run_status">mask_by_failed_run_status() (in module output_utils)</a>
+</li>
+      <li><a href="scripts_API.html#input_util.MissingInputFilesValueError">MissingInputFilesValueError</a>
+</li>
+      <li><a href="scripts_API.html#input_util.mkdir_p">mkdir_p() (in module input_util)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    module
+
+      <ul>
+        <li><a href="scripts_API.html#module-input_util">input_util</a>
+</li>
+        <li><a href="scripts_API.html#module-output_utils">output_utils</a>
+</li>
+        <li><a href="scripts_API.html#module-param_util">param_util</a>
+</li>
+      </ul></li>
+      <li><a href="scripts_API.html#input_util.MustSupplyPixelCoordsError">MustSupplyPixelCoordsError</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="O">O</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    output_utils
+
+      <ul>
+        <li><a href="scripts_API.html#module-output_utils">module</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="P">P</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    param_util
+
+      <ul>
+        <li><a href="scripts_API.html#module-param_util">module</a>
+</li>
+      </ul></li>
+      <li><a href="scripts_API.html#param_util.ParamUtilSpeedHelper">ParamUtilSpeedHelper (class in param_util)</a>
+</li>
+      <li><a href="scripts_API.html#param_util.parse_header_line">parse_header_line() (in module param_util)</a>
+</li>
+      <li><a href="scripts_API.html#output_utils.plot_basic_timeseries">plot_basic_timeseries() (in module output_utils)</a>
+</li>
+      <li><a href="scripts_API.html#output_utils.plot_fronts">plot_fronts() (in module output_utils)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="scripts_API.html#output_utils.plot_inputs">plot_inputs() (in module output_utils)</a>
+</li>
+      <li><a href="scripts_API.html#output_utils.plot_soil_layers">plot_soil_layers() (in module output_utils)</a>
+</li>
+      <li><a href="scripts_API.html#output_utils.plot_soil_layers2">plot_soil_layers2() (in module output_utils)</a>
+</li>
+      <li><a href="scripts_API.html#output_utils.plot_spatial_summary_timeseries">plot_spatial_summary_timeseries() (in module output_utils)</a>
+</li>
+      <li><a href="scripts_API.html#output_utils.print_soil_table">print_soil_table() (in module output_utils)</a>
+</li>
+      <li><a href="scripts_API.html#output_utils.pull_data_wrapper">pull_data_wrapper() (in module output_utils)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="R">R</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="scripts_API.html#param_util.read_paramfile">read_paramfile() (in module param_util)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="scripts_API.html#param_util.replace_CMT_data">replace_CMT_data() (in module param_util)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="S">S</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="scripts_API.html#param_util.smart_format">smart_format() (in module param_util)</a>
+</li>
+      <li><a href="scripts_API.html#param_util.standardize_pftnames">standardize_pftnames() (in module param_util)</a>
+</li>
+      <li><a href="scripts_API.html#output_utils.stitch_stages">stitch_stages() (in module output_utils)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="scripts_API.html#output_utils.sum_across_compartments">sum_across_compartments() (in module output_utils)</a>
+</li>
+      <li><a href="scripts_API.html#output_utils.sum_across_layers">sum_across_layers() (in module output_utils)</a>
+</li>
+      <li><a href="scripts_API.html#output_utils.sum_across_pfts">sum_across_pfts() (in module output_utils)</a>
+</li>
+      <li><a href="scripts_API.html#output_utils.sum_monthly_flux_to_yearly">sum_monthly_flux_to_yearly() (in module output_utils)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="T">T</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="scripts_API.html#input_util.tunnel_fast">tunnel_fast() (in module input_util)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="U">U</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="scripts_API.html#param_util.update_inplace">update_inplace() (in module param_util)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="V">V</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="scripts_API.html#input_util.verify_input_files">verify_input_files() (in module input_util)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="W">W</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="scripts_API.html#param_util.which_file">which_file() (in module param_util)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="scripts_API.html#output_utils.workhorse_spatial_summary_plot">workhorse_spatial_summary_plot() (in module output_utils)</a>
+</li>
+  </ul></td>
+</tr></table>
+
 
 
            </div>

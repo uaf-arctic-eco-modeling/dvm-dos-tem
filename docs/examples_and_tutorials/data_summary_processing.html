@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>4. Data Summary and Processing &mdash; dvmdostem v0.6.1 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/jupyter-sphinx.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/thebelab.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/custom_styles.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/thebelab-helper.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="5. Plotting" href="plotting_discussion.html" />
+    <link rel="prev" title="3. EE 0 - Single Site Run" href="example_experiment_0.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> dvmdostem
+          </a>
+              <div class="version">
+                v0.6.1
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../model_overview.html">1. Model Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../running_dvmdostem.html">2. Running</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../software_development_info.html">3. Dev Info</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../SA_UQ.html">4. SA and UQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../command_cheat_sheet.html">5. Command Cheat Sheet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../common_acronyms.html">6. Common Project Acronyms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../calibration.html">7. Manual Calibration</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Examples and Tutorials</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../prelude.html">1. Prelude</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basic_model_run.html">2. Basic Model Setup and Run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_experiment_0.html">3. EE 0 - Single Site Run</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">4. Data Summary and Processing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#common-tools">4.1. Common Tools</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#ncos">4.1.1. NCOs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#unidata">4.1.2. Unidata</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#python-netcdf4-package">4.1.3. Python <code class="docutils literal notranslate"><span class="pre">netCDF4</span></code> package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#python-xarray-package">4.1.4. Python <code class="docutils literal notranslate"><span class="pre">xarray</span></code> package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#r">4.1.5. R</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#common-operations">4.2. Common Operations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#explore-structure-of-netcdf-file">4.2.1. Explore structure of NetCDF file</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#compress-netcdf-file">4.2.2. Compress NetCDF file</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#subset-netcdf-files-by-dimensions">4.2.3. Subset netcdf files by dimensions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#display-variable-values-to-terminal">4.2.4. Display variable values to terminal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#compute-sum-average-and-standard-deviation-across-dimensions">4.2.5. Compute sum, average and standard deviation across dimensions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#append-files-of-same-dimensions">4.2.6. Append files of same dimensions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#operations-with-multiple-variables">4.2.7. Operations with multiple variables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#concatenate-files-along-the-record-dimension">4.2.8. Concatenate files along the record dimension</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="plotting_discussion.html">5. Plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="make_contribution.html">6. Contributing to the Codebase</a></li>
+<li class="toctree-l1"><a class="reference internal" href="using_github_features.html">7. Using Github’s Features</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Python Scripts API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../scripts_API.html">Python API Docs</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">dvmdostem</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a></li>
+      <li class="breadcrumb-item active"><span class="section-number">4. </span>Data Summary and Processing</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/examples_and_tutorials/data_summary_processing.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <blockquote>
+<div></div></blockquote>
+<section id="data-summary-and-processing">
+<h1><span class="section-number">4. </span>Data Summary and Processing<a class="headerlink" href="#data-summary-and-processing" title="Permalink to this heading"></a></h1>
+<section id="common-tools">
+<h2><span class="section-number">4.1. </span>Common Tools<a class="headerlink" href="#common-tools" title="Permalink to this heading"></a></h2>
+<section id="ncos">
+<h3><span class="section-number">4.1.1. </span>NCOs<a class="headerlink" href="#ncos" title="Permalink to this heading"></a></h3>
+<p>The NetCDF Operators (NCOs) are suite of command-line tools that can efficiently
+manipulate well-formed NetCDF datasets (e.g. compute statistics, concatenate,
+edit metadata, compression) and produce outputs or display results to your
+console. To our knowledge, NCOs are among the most efficient tools to manipulate
+large NetCDF files. You’ll  find a full description of the dozen existing
+operators in the nco user guide (<a class="reference external" href="https://nco.sourceforge.net/#RTFM">https://nco.sourceforge.net/#RTFM</a>). If you have
+questions on how to use an operator that is not addressed in the user guide, you
+can post them on the nco help forum:
+<a class="reference external" href="https://sourceforge.net/p/nco/discussion/9830">https://sourceforge.net/p/nco/discussion/9830</a>.</p>
+<p>Additional examples of file manipulation using nco can be found here
+(<a class="reference external" href="http://research.jisao.washington.edu/data_sets/nco/">http://research.jisao.washington.edu/data_sets/nco/</a>).</p>
+</section>
+<section id="unidata">
+<h3><span class="section-number">4.1.2. </span>Unidata<a class="headerlink" href="#unidata" title="Permalink to this heading"></a></h3>
+<p>Unidata also provides several very useful command-line utilities to manipulate
+NetCDF files, <code class="docutils literal notranslate"><span class="pre">ncdump</span></code> and <code class="docutils literal notranslate"><span class="pre">nccopy</span></code>, more info here:</p>
+<p><a class="reference external" href="https://docs.unidata.ucar.edu/nug/current/netcdf_utilities_guide.html">https://docs.unidata.ucar.edu/nug/current/netcdf_utilities_guide.html</a></p>
+<p>Unidata also maintains a list of NetCDF compatible software:</p>
+<p><a class="reference external" href="https://www.unidata.ucar.edu/software/netcdf/software.html">https://www.unidata.ucar.edu/software/netcdf/software.html</a></p>
+</section>
+<section id="python-netcdf4-package">
+<h3><span class="section-number">4.1.3. </span>Python <code class="docutils literal notranslate"><span class="pre">netCDF4</span></code> package<a class="headerlink" href="#python-netcdf4-package" title="Permalink to this heading"></a></h3>
+<p>This is the de-facto standard Python interface to netCDF files. There are some
+higher level wrappers, but at the end of the day everything you want to do
+can be done with this package.</p>
+<p><a class="reference external" href="https://unidata.github.io/netcdf4-python/">https://unidata.github.io/netcdf4-python/</a></p>
+</section>
+<section id="python-xarray-package">
+<h3><span class="section-number">4.1.4. </span>Python <code class="docutils literal notranslate"><span class="pre">xarray</span></code> package<a class="headerlink" href="#python-xarray-package" title="Permalink to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">xarray</span></code> aims to bring a <code class="docutils literal notranslate"><span class="pre">pandas</span></code> like interface to netCDF files (and earth
+science data in general). Pandas has become a standard in the Python data
+community, but it was originally developed for users in the FINTECH space, and
+so has some awkward aspects for earth science data. <code class="docutils literal notranslate"><span class="pre">xarray</span></code> aims to fix this.</p>
+<p><a class="reference external" href="https://xarray.dev">https://xarray.dev</a></p>
+</section>
+<section id="r">
+<h3><span class="section-number">4.1.5. </span>R<a class="headerlink" href="#r" title="Permalink to this heading"></a></h3>
+<p>There are several client libraries for handling NetCDF in <code class="docutils literal notranslate"><span class="pre">R</span></code>, including:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><a class="reference external" href="https://cran.r-project.org/web/packages/RNetCDF/index.html">https://cran.r-project.org/web/packages/RNetCDF/index.html</a></p></li>
+<li><p><a class="reference external" href="https://cran.r-project.org/web/packages/ncdf4/index.html">https://cran.r-project.org/web/packages/ncdf4/index.html</a></p></li>
+</ul>
+</div></blockquote>
+</section>
+</section>
+<section id="common-operations">
+<h2><span class="section-number">4.2. </span>Common Operations<a class="headerlink" href="#common-operations" title="Permalink to this heading"></a></h2>
+<p>Collected here are a few examples of common data manipulation operations. The
+examples here are far from exhaustive. If you encounter or develop a useful
+solution that you’d like to see here, plese send us a Pull Request!</p>
+<section id="explore-structure-of-netcdf-file">
+<h3><span class="section-number">4.2.1. </span>Explore structure of NetCDF file<a class="headerlink" href="#explore-structure-of-netcdf-file" title="Permalink to this heading"></a></h3>
+<details class="summary-ncdump">
+<summary>ncdump</summary><p>This command will list the dimensions, variables and metadata of a file. The
+<code class="docutils literal notranslate"><span class="pre">-h</span></code> specify to only display headers.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ ncdump -h input.nc
+</pre></div>
+</div>
+</details><details class="summary-ncdump-details">
+<summary>ncdump details</summary><p>This command will list the dimensions, variables and metadata of a file AND
+the values for the coordinate variables.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ ncdump -c input.nc
+</pre></div>
+</div>
+</details></section>
+<section id="compress-netcdf-file">
+<h3><span class="section-number">4.2.2. </span>Compress NetCDF file<a class="headerlink" href="#compress-netcdf-file" title="Permalink to this heading"></a></h3>
+<details class="summary-nccopy">
+<summary>nccopy</summary><p>Compress NetCDF files using <code class="docutils literal notranslate"><span class="pre">nccopy</span></code>. This will copy and compress a netcdf
+file without loss of data.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ nccopy -u -d1 input.nc output.nc This command
+</pre></div>
+</div>
+</details></section>
+<section id="subset-netcdf-files-by-dimensions">
+<h3><span class="section-number">4.2.3. </span>Subset netcdf files by dimensions<a class="headerlink" href="#subset-netcdf-files-by-dimensions" title="Permalink to this heading"></a></h3>
+<p>Example: we want to subset the last 10 years of an annual historical simulation
+115 years long.</p>
+<details class="summary-ncks">
+<summary>ncks</summary><p>The flag <code class="docutils literal notranslate"><span class="pre">-O</span></code> will overwrite any existing output file. The flag <code class="docutils literal notranslate"><span class="pre">-h</span></code> will
+not include this command in the global attribute of the output file to
+document the history of its creation.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ ncks -O -h -d time,104,114,1 input.nc output.nc
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Caution: As in python, the indexing in nco starts at zero. So the index of
+the 115th time step is actually 114.</p>
+</div>
+</details><details class="summary-python-netcdf4">
+<summary>python netCDF4</summary><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">netCDF4</span> <span class="k">as</span> <span class="nn">nc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ds</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span><span class="s1">&#39;GPP_yearly_tr.nc&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">last_10yrs</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;GPP&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">10</span><span class="p">:,:,:]</span>
+</pre></div>
+</div>
+</details></section>
+<section id="display-variable-values-to-terminal">
+<h3><span class="section-number">4.2.4. </span>Display variable values to terminal<a class="headerlink" href="#display-variable-values-to-terminal" title="Permalink to this heading"></a></h3>
+<p>Example: we want to display the annual active layer depth (ALD) values for upper
+left corner pixel of a regional run.</p>
+<details class="summary-ncks">
+<summary>ncks</summary><div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ ncks -d x,0 -d y,0 -v ALD input.nc
+</pre></div>
+</div>
+<p>If you are not sure about the names of the dimensions and variables, you can
+always display the files structure using <code class="docutils literal notranslate"><span class="pre">ncdump</span></code> as described below.</p>
+</details><details class="summary-python-netcdf4">
+<summary>python netCDF4</summary><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">netCDF4</span> <span class="k">as</span> <span class="nn">nc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ds</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span><span class="s1">&#39;ALD_yearly_tr.nc&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;ALD&#39;</span><span class="p">][:</span><span class="mf">.0</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+</pre></div>
+</div>
+</details></section>
+<section id="compute-sum-average-and-standard-deviation-across-dimensions">
+<h3><span class="section-number">4.2.5. </span>Compute sum, average and standard deviation across dimensions<a class="headerlink" href="#compute-sum-average-and-standard-deviation-across-dimensions" title="Permalink to this heading"></a></h3>
+<p>Example: Model simulation produces monthly GPP time series partitioned by plant
+functional types and compartments. We now want to compute GPP at the community
+level by summing across plant functional types (dimension named pft) and
+compartments (dimensions named pftpart).</p>
+<details class="summary-ncwa">
+<summary>ncwa</summary><div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ ncwa -O -h -v GPP -a pftpart, pft -y ttl input.nc output.nc
+</pre></div>
+</div>
+<p>This command will produce sums of GPP across two dimensions listed after the
+<code class="docutils literal notranslate"><span class="pre">-a</span></code> flag. The variable to be summed is specified after the flag <code class="docutils literal notranslate"><span class="pre">-v</span></code>.
+Finally, the flag <code class="docutils literal notranslate"><span class="pre">-y</span></code> is used to indicate the type of operation to be done.</p>
+</details><details class="summary-python-netcdf4">
+<summary>python netCDF4</summary><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">netCDF4</span> <span class="k">as</span> <span class="nn">nc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ds</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span><span class="s1">&#39;GPP_yearly_tr.nc&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;GPP&#39;</span><span class="p">][:]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+</details><p>Computations can also be done across a subset of the data. For instance the
+following command will compute the annual mean temperature for the months of
+June, July and August. To do so, you will need to make the time dimension as
+unlimited, as it is done with the <code class="docutils literal notranslate"><span class="pre">ncks</span></code> operator.</p>
+<details class="summary-ncks-ncra">
+<summary>ncks, ncra</summary><div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ ncks -O -h --mk_rec_dmn time input.nc input1.nc
+$ ncra --mro -O -d time,5,,12,3 -y avg -v tair input1.nc output.nc
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">-d</span></code> flag indicate which dimension should the computation be done across.
+The indices following the dimension name indicate how to group and subset the
+dataset. The first index indicate where to start the operation (i.e. the month
+of June of the first year). The second indicate where to end the operation
+(nothing indicated means that the operation should be conducted across the
+entire time series). The third index indicate how to group the data (i.e. 12
+months chunks for yearly computations). Finally, the fifth index indicate the
+number of time step to do the operation for for every group (i.e. 3 months, from
+June to August). The <code class="docutils literal notranslate"><span class="pre">-v</span></code> flag indicate what variable to use for the operation.
+The <code class="docutils literal notranslate"><span class="pre">-y</span></code> flag indicate what type of operation to conduct. The option <code class="docutils literal notranslate"><span class="pre">--mro</span></code>
+instructs ncra to output its results for each sub-group (in that case, each
+year).</p>
+</details></section>
+<section id="append-files-of-same-dimensions">
+<h3><span class="section-number">4.2.6. </span>Append files of same dimensions<a class="headerlink" href="#append-files-of-same-dimensions" title="Permalink to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code> output variables are stored in single files. To append multiple
+variables from the same simulation in a single file, you can use the following
+command.</p>
+<details class="summary-ncks">
+<summary>ncks</summary><div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ ncks -A -h file1.nc file2.ncs
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">-A</span></code> flag indicate that the output file (file2.nc in this case), should
+append (vs overwrite) data. Caution: the files need to be the same exact
+structure (the dimensions in common between files should have the same length,
+name and attributes). The data in file1.nc will be appended to file2.nc. This
+command processes files twice at a time.</p>
+</details></section>
+<section id="operations-with-multiple-variables">
+<h3><span class="section-number">4.2.7. </span>Operations with multiple variables<a class="headerlink" href="#operations-with-multiple-variables" title="Permalink to this heading"></a></h3>
+<p>Example: model simulations produced annual thickness of the fibric and the humic
+horizons (namely SHLWDZ and DEEPDZ) of the organic layer and you want to compute
+the total organic layer thickness (OLDZ)</p>
+<details class="summary-ncks-ncap2">
+<summary>ncks, ncap2</summary><div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ ncks -A -h SHLWDZ.nc DEEPDZ.nc
+$ ncap2 -O -h -s &#39;OLDZ = DEEPDZ + SHLWDZ&#39; DEEPDZ.nc OLDZ.nc
+</pre></div>
+</div>
+<p>The first command append the two variables in a single file. The second command
+is the arithmetic processor, accepting short scripts to create new variables. In
+this case, we create the variable OLDZ as the sum of two existing DEEPDZ and
+SHLWDZ.</p>
+</details></section>
+<section id="concatenate-files-along-the-record-dimension">
+<h3><span class="section-number">4.2.8. </span>Concatenate files along the record dimension<a class="headerlink" href="#concatenate-files-along-the-record-dimension" title="Permalink to this heading"></a></h3>
+<p>Whole model simulations consist of a succession of runs, i.e. pre-run,
+equilibrium, spin-up, transient (i.e. historical) and scenario. For analysis
+purposes, you may wat to concatenate the historical ad scenario runs into a
+single file. To do so, you will need to make the time dimension as unlimited, so
+additional records can be added to it, before you can do the concatenation.</p>
+<details class="summary-ncks-ncrcat">
+<summary>ncks, ncrcat</summary><div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ ncks -O -h --mk_rec_dmn time input1.nc output1.nc
+$ ncks -O -h --mk_rec_dmn time input2.nc output2.nc
+$ ncrcat -O -h output1.nc output2.nc output.nc
+</pre></div>
+</div>
+</details></section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="example_experiment_0.html" class="btn btn-neutral float-left" title="3. EE 0 - Single Site Run" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="plotting_discussion.html" class="btn btn-neutral float-right" title="5. Plotting" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Tobey Carman, Ruth Rutter, Helene Genet, Eugenie Euskirchen.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
