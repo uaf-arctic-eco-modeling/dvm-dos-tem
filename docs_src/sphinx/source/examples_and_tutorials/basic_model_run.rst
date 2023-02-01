@@ -199,7 +199,7 @@ With your tools setup, it is time to get the source code. Navigate to
 https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem and find the link to
 clone the repository. 
 
-.. image:: ../images/github_clone.png
+.. image:: ../images/examples_and_tutorials/basic_model_run/github_clone.png
 
 On your computer, open a terminal and navigate to a place where you would like
 your copy of ``dvmdostem`` to be stored. Copy the clone address and use it to
@@ -314,7 +314,7 @@ and can take 15 minutes or more depending on your internet connection.
 When you have built all the images, you should be able to see them in Docker
 Desktop or with the command line as shown in the screenshot.
 
-.. image:: ../images/workshop_march_2022/lab1/docker_images.png
+.. image:: ../images/examples_and_tutorials/basic_model_run/docker_images.png
    :width: 600
    :alt: docker images
 
@@ -408,7 +408,7 @@ you should see that two of the containers are running. For our use case, we do
 not need the ``cpp-dev`` or the ``dvmdostem-build`` containers to keep running.
 They exit immediately, and that is OK.
 
-.. image:: ../images/workshop_march_2022/lab1/docker_containers.png
+.. image:: ../images/examples_and_tutorials/basic_model_run/docker_containers.png
    :width: 600
    :alt: docker containers
 

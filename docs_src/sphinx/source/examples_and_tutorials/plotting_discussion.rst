@@ -69,7 +69,7 @@ script ``plot_output_var.py`` with a text editor, approximately lines 250-252,
 we can see that in fact both ``plt.savefig()`` and ``plt.show()`` are being
 called. 
 
-.. image:: ../images/workshop_march_2022/lab1/plot_output_var.png
+.. image:: ../images/examples_and_tutorials/plotting_discussion/plot_output_var.png
    :width: 600
    :alt: plot_output_var script
 
@@ -156,7 +156,7 @@ and interactive plotting `docker interactive plotting`_. If you run ``ncview``
 on your host machine (from which the output files should be accessible thanks to
 the Docker volume), you will see something like this:
 
-.. image:: ../images/workshop_march_2022/lab1/ncview.png
+.. image:: ../images/examples_and_tutorials/plotting_discussion/ncview.png
   :width: 600
   :alt: example ncview
 
@@ -169,7 +169,7 @@ We can create a very similar plot to the ``ncview`` plot using our
 style of command here, and that we are viewing the saved file after the script
 has exited. 
 
-.. image:: ../images/workshop_march_2022/lab1/plot_output_var_example.png
+.. image:: ../images/examples_and_tutorials/plotting_discussion/plot_output_var_example.png
   :width: 600
   :alt: example output plot
 

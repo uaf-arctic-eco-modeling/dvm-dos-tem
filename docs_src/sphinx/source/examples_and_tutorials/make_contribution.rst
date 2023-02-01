@@ -49,9 +49,14 @@ changes that affect other people's environments (e.g. modifying the Dockerfile),
 you will frequently need to take additional steps or considerations beyond what
 is shown here!
 
-A very similar example to these steps is shown graphically in the accompanying slides ~14-27
+A very similar example to these steps is shown graphically in the accompanying
+slides ~14-27
 
-:download:`Workshop 2022 Lab 5 <../slides/WS2022_Lab5.pdf>`
+.. raw:: html
+
+  <!-- Shared from Tobey Carman's WS2022_Lab5 Google Slides presentation -->
+  <iframe src="https://docs.google.com/presentation/d/e/2PACX-1vRhJEtl1676vpHOUTxrwcaxlf3bodLLb9s4nSh9ENlzgxYzVyMbfSzSc3bssr9fDFBzZkzslVr2ROm1/embed?start=true&loop=true&delayms=3000" frameborder="0" width="480" height="286" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true"></iframe>
+
 
 The steps:
 
@@ -124,6 +129,8 @@ Discuss:
 *********************************
 Multi-person topic branch process
 *********************************
+
+See accompanying slides (above) ~29-39.
 
 Lets have two people: Y and Z who are both working on the project, and in fact
 they both need to work on the same topic branch. This example is harder to write

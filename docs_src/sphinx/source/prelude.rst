@@ -36,7 +36,7 @@ Core Development Process Loop
 
 The core development process loop is shown in the diagram.
 
-.. image:: images/workshop_march_2022/lab5/edit-compile-run-check.png
+.. image:: images/prelude/edit-compile-run-check.png
    
 These four steps are at the heart of any software work. In different
 environments, some of the steps might be automated or hidden, but the steps must
@@ -49,7 +49,7 @@ Loop with individual version control
 
 The most basic version control process loop is simply: edit, stage, commit.
 
-.. image:: images/workshop_march_2022/lab5/edit-stage-commit.png
+.. image:: images/prelude/edit-stage-commit.png
    :width: 200
    :alt: core process loop with individual version control
 
@@ -57,7 +57,7 @@ By itself this loop is not particularly useful - it doesn’t even involve runni
 the code, let alone checking it! But if we add the compile, run and check steps
 we are getting closer to a robust development process:
 
-.. image:: images/workshop_march_2022/lab5/edit-compile-run-check-stage-commit.png
+.. image:: images/prelude/edit-compile-run-check-stage-commit.png
    :width: 200
    :alt: core process loop with compile run check
 
@@ -421,7 +421,7 @@ limits, etc.
 Matplotlib has popularized this approach, but it is available in many other
 systems and baked into some IDEs.
 
-.. image:: images/example_interactive_plot.png
+.. image:: images/prelude/example_interactive_plot.png
   :width: 300
   :alt: Example of matplotlib interactive window
 
