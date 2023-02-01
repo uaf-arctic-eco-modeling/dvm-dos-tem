@@ -621,6 +621,7 @@ def plot_soil_layers():
   
   Attempts to display an intuitive representation of the soil column using
   a horizontal bar chart. 
+
    - bar width is set by the value of the variable under investigation
    - bar color is set by the LAYERTYPE
    - bar height (thickness?) is controlled by the LAYERDZ
