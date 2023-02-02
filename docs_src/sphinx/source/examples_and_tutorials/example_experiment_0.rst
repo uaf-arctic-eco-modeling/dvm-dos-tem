@@ -627,19 +627,20 @@ Plot the active layer depth from 1950 to 2100.
 
    .. jupyter-execute:: 
 
-         import matplotlib.pyplot as plt
+    import matplotlib.pyplot as plt
 
-         df, meta = build_full_dataframe(var='ALD', timeres='yearly', px_y=0, px_x=0)
+    df, meta = build_full_dataframe(var='ALD', timeres='yearly', px_y=0, px_x=0)
 
-         fig, ax = plt.subplots(1,1)
+    fig, ax = plt.subplots(1,1)
 
-         ax.plot(df.loc['1950':'2100'].index, df.loc['1950':'2100'][0], label='ALD')
-         ax.axvline(meta['h_end'], linestyle='dotted', color='red')
+    ax.plot(df.loc['1950':'2100'].index, df.loc['1950':'2100'][0], label='ALD')
+    ax.axvline(meta['h_end'], linestyle='dotted', color='red')
 
-         ax.set_xlabel('year')
-         ax.set_ylabel('ALD ({})'.format(meta['hds_units']))
+    ax.set_xlabel('year')
+    ax.set_ylabel('ALD ({})'.format(meta['hds_units']))
 
-         plt.savefig('ALD_SAMPLE.png')
+    plt.savefig('ALD_SAMPLE.png')
+
 
 
 ******************************
