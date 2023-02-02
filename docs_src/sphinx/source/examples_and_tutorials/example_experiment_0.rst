@@ -604,17 +604,6 @@ following decades: [1990-2010], [2040-2050], [2090-2100].
 
 
 
-
-   .. .. code::
-
-   ..    Fluxes                         [1990-2010]    [2040-2050]    [2090-2100]
-
-   ..    GPP
-   ..    Autotrophic respiration
-   ..    Heterotrophic respiration
-   ..    Net Ecosystem Exchange
-
-
 *******************************************
 Plot Active Layer Depth
 *******************************************
