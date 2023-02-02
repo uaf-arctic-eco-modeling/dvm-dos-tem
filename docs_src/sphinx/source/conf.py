@@ -35,7 +35,10 @@ version = 'v0.6.1'
 # ones.
 extensions = [
   'sphinx.ext.autosectionlabel',
+  'sphinx_toolbox.collapse',
+  'jupyter_sphinx', # executes inline ipython/jupyter notebook code...
   'sphinx.ext.autodoc',
+  'bokeh.sphinxext.bokeh_plot',
   #'sphinx.ext.autosummary',
   #'sphinx.ext.automodule',
   #'numpydoc',
@@ -100,3 +103,9 @@ html_theme_options = {
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
+
+# These paths are either relative to html_static_path
+# or fully qualified paths (eg. https://...)
+html_css_files = [
+    'custom_styles.css',
+]
