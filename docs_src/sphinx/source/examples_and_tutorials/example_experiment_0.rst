@@ -478,7 +478,7 @@ simulations. Indicate how you formulated NEE.
     ncwa -O -d time,35,44 -d x,0 -d y,0 -y avg -v GPP,RG,RM,RH,NEE synthesis/Cfluxes_yearly_sc.nc synthesis/Cfluxes_2040_2059.nc
     ncwa -O -d time,75,84 -d x,0 -d y,0 -y avg -v GPP,RG,RM,RH,NEE synthesis/Cfluxes_yearly_sc.nc synthesis/Cfluxes_2090_2099.nc   
 
-.. collapse:: Python solution 2
+.. collapse:: Python solution 2 (does not use common setup)
   :class: partial
 
   .. code::
@@ -583,7 +583,7 @@ following decades: [1990-2010], [2040-2050], [2090-2100].
 
 
 .. collapse:: Example Python Solution
-   :class: partial
+   :class: working
 
    .. jupyter-execute:: 
 
@@ -696,7 +696,7 @@ envelopes.
       # Or this:, gives julys for a decade
       df[6::12]['1940':'1950']
 
-.. collapse:: Python solution 2
+.. collapse:: Python solution 2 (does not use common setup)
   :class: broken
 
   .. code::
