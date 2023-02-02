@@ -13,7 +13,24 @@ EE 0 - Single Site Run
 Example Experiment 0: We want to conduct a full single-site simulation, explore
 the output data and produce preliminary plots.
 
-The examples assume that you are running on the ``dvmdostem`` Docker stack.
+The example solutions assume that you are running on the ``dvmdostem`` Docker
+stack. Example solutions are presented in collapsable blocks. The blocks are
+color coded:
+
+.. collapse:: Full working solution.
+  :class: working
+
+  This example should work.
+
+.. collapse:: Partial solution.
+  :class: partial
+
+  This example should get you most of the way there.
+
+.. collapse:: Broken or solution.
+  :class: broken
+
+  This example might have problems.
 
 ***********************
 Design Specification
@@ -41,6 +58,10 @@ Here we have designed a small experiment with answers to the unknowns posed in
        | VEGC: yearly
        | ALD: yearly
        | CMTNUM: yearly
+       | LAYERDZ, LAYERDEPTH, LAYERTYPE: yearly
+       | SHLWC, SHLWDZ: yearly
+       | DEEPC, DEEPDZ: yearly
+       | MINEC: yearly
    * - Which stages to run and for how many years?
      - All stages, pr 100, eq 1000, sp 250, tr 115, sc 85 
    * - | Is the community type (CMT) fixed or driven by 
@@ -58,13 +79,16 @@ Here we have designed a small experiment with answers to the unknowns posed in
 
 .. warning::
 
-   I think we may need these too:
+  The ``outspec_utils.py`` script prints some confusing messages when working
+  with by-layer files. For outputs that are only availale by layer, (i.e.
+  LAYERDZ), the output is flagged as 'invlaid' in the ``output_spec.csv`` file.
+  This means that if you provide the ``layer`` resolution specification when
+  requesting one of these outputs, ``outspec_utils.py`` will print a message to
+  the extent of "Not enabling layer outputs for LAYERDZ". This is true
+  (``outspec_utils.py`` finds the "invalid" marker and doesn't enable that
+  column in the ``.csv`` file), but it is not a problem - for those outputs, the
+  by-layer resolution is enforced internally in the C++ part of the model.
 
-      - LAYERDZ, LAYERDEPTH, LAYERTYPE
-      - MINEC,
-      - DEEPC, DEEPDZ
-      - SHLWC, SHLWDZ
-      - SOMA, SOMPR, SOMCR, SOMRAWC
 
 .. collapse:: Example commands for setting up
    :class: working
@@ -81,17 +105,18 @@ Here we have designed a small experiment with answers to the unknowns posed in
       $ outspec_utils.py config/output_spec.csv --on VEGC y
       $ outspec_utils.py config/output_spec.csv --on ALD y
       $ outspec_utils.py config/output_spec.csv --on CMTNUM y
-      $ outspec_utils.py config/output_spec.csv --on SHLWC y 
-      $ outspec_utils.py config/output_spec.csv --on DEEPC y 
-      $ outspec_utils.py config/output_spec.csv --on MINEC y 
-      $ outspec_utils.py config/output_spec.csv --on LAYERDZ y l
-      $ outspec_utils.py config/output_spec.csv --on LAYERDEPTH y l
-      $ outspec_utils.py config/output_spec.csv --on LAYERTYPE y l 
+      $ outspec_utils.py config/output_spec.csv --on SHLWC y l
+      $ outspec_utils.py config/output_spec.csv --on SHLWDZ y l
+      $ outspec_utils.py config/output_spec.csv --on DEEPC y l
+      $ outspec_utils.py config/output_spec.csv --on DEEPDZ y l
+      $ outspec_utils.py config/output_spec.csv --on MINEC y l
+      $ outspec_utils.py config/output_spec.csv --on LAYERDZ y
+      $ outspec_utils.py config/output_spec.csv --on LAYERDEPTH y
+      $ outspec_utils.py config/output_spec.csv --on LAYERTYPE y 
       $ runmask-util.py --reset run-mask.nc 
       $ runmask-util.py --yx 0 0 run-mask.nc 
-      $ runmask-util.py --yx 0 0 run-mask.nc 
-      $ runmask-util.py --yx 1 1 run-mask.nc 
-      $ runmask-util.py --yx 2 2 run-mask.nc 
+      $ #runmask-util.py --yx 1 1 run-mask.nc 
+      $ #runmask-util.py --yx 2 2 run-mask.nc 
       $ dvmdostem --force-cmt 5 -p 100 -s 250 -e 1000 -t 115 -n 85
 
 ***************************
@@ -101,7 +126,9 @@ Example Python setup
 The Python example solutions share a bunch of code. For this reason, we will put
 the common setup here and not need to repeat these lines in each example. The
 paths assume that these examples will be run on the TEM Docker stack. Subsequent
-Python example solutions assume that these setup commands have been run.
+Python example solutions assume that these setup commands have been run. In
+other words if you are following along, copy the following code into your Python
+interperter and run it before continuing.
 
 .. collapse:: Common Python setup
    :class: working
@@ -212,7 +239,7 @@ Python example solutions assume that these setup commands have been run.
 
 
 **************************
-Explore inputs 
+Explore Input Datasets 
 **************************
 
 Exploring the input dataset, determine the start year of the historical, and the
@@ -225,18 +252,27 @@ information is used to set the number of transient and scenario years to run.
 
    .. code:: 
 
-      $ ncdump -h /data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_TOOLIK_FIELD_STATION_10x10/historic-climate.nc  | grep time:units
-		time:units = "days since 1901-1-1 0:0:0" ;
-		time:long_name = "time" ;
-		time:calendar = "365_day" ;
+      $ ncdump -h /data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_TOOLIK_FIELD_STATION_10x10/historic-climate.nc  | grep "time:units"
+          time:units = "days since 1901-1-1 0:0:0" ;
+
+      $ ncdump -h /data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_TOOLIK_FIELD_STATION_10x10/projected-climate.nc  | grep "time:units"
+          time:units = "days since 2016-1-1 0:0:0" ;
    
       $ ncdump -h /data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_TOOLIK_FIELD_STATION_10x10/historic-climate.nc  | grep "time\ =\ "
-   	time = UNLIMITED ; // (1380 currently)
+          time = UNLIMITED ; // (1380 currently)
 
-   So ``1380/12 = 115``. Looks like 115 years. 
+      $ ncdump -h /data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_TOOLIK_FIELD_STATION_10x10/projected-climate.nc  | grep "time\ =\ "
+          time = UNLIMITED ; // (1020 currently)
+
+   So ``1380/12 = 115``. Looks like 115 years for the historic and  ``1020/85 =
+   85`` for the projected.
 
 .. collapse:: Example input_util.py plot
    :class: working
+
+   This shows how you might plot the driving inputs using one of the existing
+   utility scripts. While the graphical view is nice it makes it difficult to 
+   figure out the exact start and end years.
 
    .. jupyter-execute::
 
