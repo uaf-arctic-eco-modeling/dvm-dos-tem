@@ -38,6 +38,7 @@ extensions = [
   'sphinx_toolbox.collapse',
   'jupyter_sphinx', # executes inline ipython/jupyter notebook code...
   'sphinx.ext.autodoc',
+  'bokeh.sphinxext.bokeh_plot',
   #'sphinx.ext.autosummary',
   #'sphinx.ext.automodule',
   #'numpydoc',

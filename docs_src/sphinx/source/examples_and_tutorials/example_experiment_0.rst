@@ -365,10 +365,73 @@ Computing Monthly NEE
 Compute monthly Net Ecosystem Exchange (NEE) for the historical and scenario
 simulations. Indicate how you formulated NEE.
 
-.. collapse:: WRITE THIS
-   :class: broken
-   
-   WRITE THIS...
+.. collapse:: Python solution 1
+  :class: working
+
+  Autotrophic respiration (RA) is the sum of growth respiration (RG) and
+  maintenance respiration (RM). RG and RM encompass all vegetation respiration
+  (both above and belowground).
+
+  Heterotrphic respiration (RH) is the microbial respiration in the soil.
+
+  Ecosystem respriation (ER) is the sum of RA and RH.
+
+  Net Ecosystem Exchange (NEE) is Gross Primary Productvity (GPP) less ER.
+
+  ``dvmdostem`` does not have explicit outputs for RA, ER, or NEE, so we will
+  derive them from our existing outputs (GPP, RH, RM, RG).
+
+  .. jupyter-execute::
+
+    rh, _ = build_full_dataframe('RH', timeres='monthly', px_y=0, px_x=0)
+    rm, _ = build_full_dataframe('RM', timeres='monthly', px_y=0, px_x=0)
+    rg, _ = build_full_dataframe('RG', timeres='monthly', px_y=0, px_x=0)
+    gpp, _ = build_full_dataframe('GPP', timeres='monthly', px_y=0, px_x=0)
+
+    # GPP is output per PFT, so here we sum across PFTs to get
+    # the ecosystem GPP.
+    gpp_eco = gpp.sum(axis=1)
+
+    # Add up all the respiration fluxes
+    er = (rh + rm + rg)
+
+    nee = gpp_eco - er.squeeze() # <-- collapse single column pandas.DataFrame
+
+  .. collapse:: matplotlib
+
+    .. jupyter-execute::
+
+      import matplotlib.pyplot as plt
+
+      fig, axes = plt.subplots(2,1)
+
+      axes[0].plot(nee, color='black', label='NEE')
+      axes[1].plot(nee['1940':'1950'])
+
+      plt.savefig('NEE_SAMPLE.png')
+
+
+  .. collapse:: bokeh
+
+    .. jupyter-execute::
+
+      import bokeh.plotting as bkp
+      import bokeh.resources as bkr
+      import bokeh.io as bkio
+
+      # This helps display inline in sphinx document
+      bkio.output_notebook(bkr.CDN, verbose=False, 
+                           notebook_type='jupyter', hide_banner=True)
+
+      p = bkp.figure(title="NEE", x_axis_type='datetime',
+                     sizing_mode="stretch_width", max_width=500, height=150,
+                     toolbar_location='above', )
+
+      p.line(nee.index, nee, line_width=1)
+
+      bkp.show(p)
+
+
 
 
 ****************************
