@@ -9,11 +9,11 @@ details[class*='summary'] {
 } */
 
 details.broken {
-  background-color: rgb(244, 126, 126);
+  background-color: rgb(242, 200, 200);
 }
 details.working {
-  background-color: rgb(211, 243, 162);
+  background-color: rgb(232, 248, 209);
 }
 details.partial {
-  background-color: rgb(241, 241, 117);
+  background-color: rgb(247, 247, 194);
 }
