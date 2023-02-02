@@ -699,69 +699,71 @@ envelopes.
 .. collapse:: Python solution 2
   :class: broken
 
-  ###### SEASONAL PLOT OF GPP ######
-  ##################################
+  .. code::
+
+    ###### SEASONAL PLOT OF GPP ######
+    ##################################
 
 
-  # Compute mean monthly GPP by decades
-  final = pd.DataFrame()
-  for VAR in ['GPP']:
-    print(VAR)
-    ttl = pd.DataFrame()
-    for mode in ['tr', 'sc']:
-      print(mode)
-      # Check the output of the selected mode/variable exists
-      if (len(glob.glob(ODir + '/' + VAR + '*' + mode + '.nc')) > 0):
-        filename = os.path.basename(glob.glob(ODir + '/' + VAR + '*' + mode + '.nc')[0])
-        # Check the outputs are monthly 
-        if 'monthly' in filename:
-          # Read the dataset
-          ds = xr.open_dataset(glob.glob(ODir + '/' + VAR + '*' + mode + '.nc')[0])
-          data = ds.to_dataframe()
-          data.reset_index(inplace=True)
-          # Select pixel of iinterest
-          data = data.rename(columns={VAR: 'value'})
-          # Format the time/date dimension
-          data['time'] = data['time'].astype('|S80')
-          data['time'] = data['time'].astype('|datetime64[ns]')
-          data['year'] = data['time'].dt.year
-          data['month'] = data['time'].dt.month
-          # Sum the fluxes by secondary dimensions
-          if (('pft' in data.columns) | ('pftpart' in data.columns) | ('layer' in data.columns)):
-            data = data.groupby(['year','month','x','y'])[['value']].agg(['sum'])
+    # Compute mean monthly GPP by decades
+    final = pd.DataFrame()
+    for VAR in ['GPP']:
+      print(VAR)
+      ttl = pd.DataFrame()
+      for mode in ['tr', 'sc']:
+        print(mode)
+        # Check the output of the selected mode/variable exists
+        if (len(glob.glob(ODir + '/' + VAR + '*' + mode + '.nc')) > 0):
+          filename = os.path.basename(glob.glob(ODir + '/' + VAR + '*' + mode + '.nc')[0])
+          # Check the outputs are monthly 
+          if 'monthly' in filename:
+            # Read the dataset
+            ds = xr.open_dataset(glob.glob(ODir + '/' + VAR + '*' + mode + '.nc')[0])
+            data = ds.to_dataframe()
             data.reset_index(inplace=True)
-            data.columns = ['year','month', 'x', 'y','value']
-          ttl = ttl.append(data)
-    decade = pd.DataFrame()
-    # Compute the monthly averages by decade
-    for i in declist:
-      dec = ttl[(ttl['year'] >= i) & (ttl['year'] < i+10)].groupby(['x','y','month'])[['value']].agg(['mean','std'])
-      dec.reset_index(inplace=True)
-      dec.columns = ['x','y','month','mean','std']
-      dec['decade'] = '[' + str(i) + '-' + str(i+9) +']'
-      dec['variable'] = VAR
-      decade = decade.append(dec)
-    final = decade.append(decade)
+            # Select pixel of iinterest
+            data = data.rename(columns={VAR: 'value'})
+            # Format the time/date dimension
+            data['time'] = data['time'].astype('|S80')
+            data['time'] = data['time'].astype('|datetime64[ns]')
+            data['year'] = data['time'].dt.year
+            data['month'] = data['time'].dt.month
+            # Sum the fluxes by secondary dimensions
+            if (('pft' in data.columns) | ('pftpart' in data.columns) | ('layer' in data.columns)):
+              data = data.groupby(['year','month','x','y'])[['value']].agg(['sum'])
+              data.reset_index(inplace=True)
+              data.columns = ['year','month', 'x', 'y','value']
+            ttl = ttl.append(data)
+      decade = pd.DataFrame()
+      # Compute the monthly averages by decade
+      for i in declist:
+        dec = ttl[(ttl['year'] >= i) & (ttl['year'] < i+10)].groupby(['x','y','month'])[['value']].agg(['mean','std'])
+        dec.reset_index(inplace=True)
+        dec.columns = ['x','y','month','mean','std']
+        dec['decade'] = '[' + str(i) + '-' + str(i+9) +']'
+        dec['variable'] = VAR
+        decade = decade.append(dec)
+      final = decade.append(decade)
 
-  # Plotting the data
-  plot = final[(final['x']==0) & (final['y']==0)]
+    # Plotting the data
+    plot = final[(final['x']==0) & (final['y']==0)]
 
-  plt.plot(plot[plot['decade']=='[1940-1949]']['month'], plot[plot['decade']=='[1940-1949]']['mean'], alpha=0.5, c='blue', label='[1940-1949]')
-  plt.fill_between(plot[plot['decade']=='[1940-1949]']['month'], plot[plot['decade']=='[1940-1949]']['mean']-plot[plot['decade']=='[1940-1949]']['std'], plot[plot['decade']=='[1940-1949]']['mean']+plot[plot['decade']=='[1940-1949]']['std'], alpha=0.2,color='blue',linewidth=0.0)
+    plt.plot(plot[plot['decade']=='[1940-1949]']['month'], plot[plot['decade']=='[1940-1949]']['mean'], alpha=0.5, c='blue', label='[1940-1949]')
+    plt.fill_between(plot[plot['decade']=='[1940-1949]']['month'], plot[plot['decade']=='[1940-1949]']['mean']-plot[plot['decade']=='[1940-1949]']['std'], plot[plot['decade']=='[1940-1949]']['mean']+plot[plot['decade']=='[1940-1949]']['std'], alpha=0.2,color='blue',linewidth=0.0)
 
-  plt.plot(plot[plot['decade']=='[1990-1999]']['month'], plot[plot['decade']=='[1990-1999]']['mean'], alpha=0.5, c='cyan', label='[1990-1999]')
-  plt.fill_between(plot[plot['decade']=='[1990-1999]']['month'], plot[plot['decade']=='[1990-1999]']['mean']-plot[plot['decade']=='[1990-1999]']['std'], plot[plot['decade']=='[1990-1999]']['mean']+plot[plot['decade']=='[1990-1999]']['std'], alpha=0.2,color='cyan',linewidth=0.0)
+    plt.plot(plot[plot['decade']=='[1990-1999]']['month'], plot[plot['decade']=='[1990-1999]']['mean'], alpha=0.5, c='cyan', label='[1990-1999]')
+    plt.fill_between(plot[plot['decade']=='[1990-1999]']['month'], plot[plot['decade']=='[1990-1999]']['mean']-plot[plot['decade']=='[1990-1999]']['std'], plot[plot['decade']=='[1990-1999]']['mean']+plot[plot['decade']=='[1990-1999]']['std'], alpha=0.2,color='cyan',linewidth=0.0)
 
-  plt.plot(plot[plot['decade']=='[2040-2049]']['month'], plot[plot['decade']=='[2040-2049]']['mean'], alpha=0.5, c='orange', label='[2040-2049]')
-  plt.fill_between(plot[plot['decade']=='[2040-2049]']['month'], plot[plot['decade']=='[2040-2049]']['mean']-plot[plot['decade']=='[2040-2049]']['std'], plot[plot['decade']=='[2040-2049]']['mean']+plot[plot['decade']=='[2040-2049]']['std'], alpha=0.2,color='orange',linewidth=0.0)
+    plt.plot(plot[plot['decade']=='[2040-2049]']['month'], plot[plot['decade']=='[2040-2049]']['mean'], alpha=0.5, c='orange', label='[2040-2049]')
+    plt.fill_between(plot[plot['decade']=='[2040-2049]']['month'], plot[plot['decade']=='[2040-2049]']['mean']-plot[plot['decade']=='[2040-2049]']['std'], plot[plot['decade']=='[2040-2049]']['mean']+plot[plot['decade']=='[2040-2049]']['std'], alpha=0.2,color='orange',linewidth=0.0)
 
-  plt.plot(plot[plot['decade']=='[2090-2099]']['month'], plot[plot['decade']=='[2090-2099]']['mean'], alpha=0.5, c='red', label='[2090-2099]')
-  plt.fill_between(plot[plot['decade']=='[2090-2099]']['month'], plot[plot['decade']=='[2090-2099]']['mean']-plot[plot['decade']=='[2090-2099]']['std'], plot[plot['decade']=='[2090-2099]']['mean']+plot[plot['decade']=='[2090-2099]']['std'], alpha=0.2,color='red',linewidth=0.0)
+    plt.plot(plot[plot['decade']=='[2090-2099]']['month'], plot[plot['decade']=='[2090-2099]']['mean'], alpha=0.5, c='red', label='[2090-2099]')
+    plt.fill_between(plot[plot['decade']=='[2090-2099]']['month'], plot[plot['decade']=='[2090-2099]']['mean']-plot[plot['decade']=='[2090-2099]']['std'], plot[plot['decade']=='[2090-2099]']['mean']+plot[plot['decade']=='[2090-2099]']['std'], alpha=0.2,color='red',linewidth=0.0)
 
-  plt.xlabel('Month')
-  plt.ylabel('GPP (g/m2/y)')
-  plt.legend()
-  plt.show()
+    plt.xlabel('Month')
+    plt.ylabel('GPP (g/m2/y)')
+    plt.legend()
+    plt.show()
 
 *****************************
 Plot Soil Temperatures
