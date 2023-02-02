@@ -26,20 +26,31 @@ function save_csv(paramkey,paramdist_min,paramdist_max,initial_guess,problemname
     if isempty(obsweight)
         df = DataFrame(parameters = paramkey,dist_min = paramdist_min, dist_max = paramdist_max, initialGuess = initial_guess)
     else
-        df = DataFrame(parameters = paramkey,dist_min = paramdist_min, dist_max = paramdist_max, weights = obsweight, initialGuess = initial_guess)
+        if length(obsweight)<length(initial_guess)
+            for nn in length(obsweight)+1:length(initial_guess)
+                push!(obsweight, 0)
+                nn=nn+1
+            end
+            df = DataFrame(parameters = paramkey,dist_min = paramdist_min, dist_max = paramdist_max, target_weights = obsweight, initialGuess = initial_guess)
+        else
+            df = DataFrame(parameters = paramkey,dist_min = paramdist_min, dist_max = paramdist_max, target_weights = obsweight, initialGuess = initial_guess)
+        end
     end
     df2=get_itr_results(problemname) 
     final_results=hcat(df,df2)
-    if isfile(problemname*".csv")
-        #if the problemname has already been used, we save a new file
-        print(problemname*".csv already exists. Saving a new file: "*problemname*"_2.csv...")
-        #append!(file,df)
-        #print(file)
-        CSV.write(problemname*"_2.csv", final_results)
-    else
-        CSV.write(problemname*".csv", final_results)
-        print(problemname*".csv is saved.")
-    end
+    # if isfile(problemname*".csv")
+    #     #if the problemname has already been used, we save a new file
+    #     print(problemname*".csv already exists. Saving a new file: "*problemname*"_2.csv...")
+    #     #append!(file,df)
+    #     #print(file)
+    #     CSV.write(problemname*"_2.csv", final_results)
+    # else
+    #     CSV.write(problemname*".csv", final_results)
+    #     print(problemname*".csv is saved.")
+    # end
+    # final_results=round.(final_results[:,Not(:parameters)], digits=2)
+    CSV.write(problemname*".csv", final_results)
+    print(problemname*".csv is saved.")
 end
 
 function get_itr_results(problemname)
@@ -53,7 +64,6 @@ function get_itr_results(problemname)
     # set OF error as column headers
     err=multi_cal.read_error(problemname*".finalresults");
     rename!(df2, err, makeunique=true)
-    #if there are soil params, due to physical constraints, need to satisfy: Kdcraw > Kdcactive > Kdcpr > Kdccr
     return df2
 end
 
@@ -81,6 +91,15 @@ function save_model_csv(md,problemname,forward_predictions)
             df=hcat(df,df2,makeunique=true)
         end
     end
+    # if isfile(problemname*"_model.csv")
+    #     #if the problemname has already been used, we save a new file
+    #     print(problemname*".csv already exists. Saving a new file: "*problemname*"_2.csv...")
+    #     CSV.write(problemname*"_model_2.csv", df)
+    # else
+    #     CSV.write(problemname*"_model.csv", df)
+    #     print(problemname*"_model.csv is saved.")
+    # end
+    # df=round.(df[:,Not(:obs_id)], digits=2)
     CSV.write(problemname*"_model.csv", df)
     print(problemname*"_model.csv is saved.")
 end
