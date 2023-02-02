@@ -20,20 +20,20 @@ color coded:
 .. collapse:: Full working solution.
   :class: working
 
-  This example should work.
+  This example should work!
 
 .. collapse:: Partial solution.
   :class: partial
 
   This example should get you most of the way there.
 
-.. collapse:: Broken or solution.
+.. collapse:: Broken solution.
   :class: broken
 
-  This example might have problems.
+  This example might have problems. Use at your own risk and expect to debug.
 
 ***********************
-Design Specification
+Experiment Design
 ***********************
 
 Here we have designed a small experiment with answers to the unknowns posed in
