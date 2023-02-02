@@ -432,6 +432,131 @@ simulations. Indicate how you formulated NEE.
       bkp.show(p)
 
 
+.. collapse:: NCO solution
+  :class: partial
+
+  .. code::
+
+    ### Change into the experiment directory
+    cd /data/workflows/exp0_jan26_test
+
+    ### Create a synthesis directory to store all the summary stats
+    mkdir /data/workflows/exp0_jan26_test/synthesis
+
+    ### Sum up the GPP across PFTs
+    ncwa -O -h -v GPP -a pft -y total output/GPP_monthly_tr.nc synthesis/GPP_monthly_tr.nc
+    ncwa -O -h -v GPP -a pft -y total output/GPP_monthly_sc.nc synthesis/GPP_monthly_sc.nc
+    
+    ### Append all the necessary fluxes into single files
+    cp synthesis/GPP_monthly_tr.nc synthesis/Cfluxes_monthly_tr.nc
+    ncks -A -h output/RM_monthly_tr.nc synthesis/Cfluxes_monthly_tr.nc
+    ncks -A -h output/RG_monthly_tr.nc synthesis/Cfluxes_monthly_tr.nc
+    ncks -A -h output/RH_monthly_tr.nc synthesis/Cfluxes_monthly_tr.nc
+    cp synthesis/GPP_monthly_sc.nc synthesis/Cfluxes_monthly_sc.nc
+    ncks -A -h output/RM_monthly_sc.nc synthesis/Cfluxes_monthly_sc.nc
+    ncks -A -h output/RG_monthly_sc.nc synthesis/Cfluxes_monthly_sc.nc
+    ncks -A -h output/RH_monthly_sc.nc synthesis/Cfluxes_monthly_sc.nc
+    
+    ### Compute monthly NEE
+    ncap2 -O -h -s'NEE = RH + RG + RM - GPP' synthesis/Cfluxes_monthly_tr.nc synthesis/Cfluxes_monthly_tr.nc
+    ncap2 -O -h -s'NEE = RH + RG + RM - GPP' synthesis/Cfluxes_monthly_sc.nc synthesis/Cfluxes_monthly_sc.nc
+    
+    ### Compute yearly sums of fluxes (this is a sum by group, i.e. years, 
+    ### so we'll need to indicate the --mro option in ncra)
+    # make time dimension unlimited
+    ncks -O -h --mk_rec_dmn time synthesis/Cfluxes_monthly_tr.nc synthesis/Cfluxes_monthly_tr.nc
+    ncks -O -h --mk_rec_dmn time synthesis/Cfluxes_monthly_sc.nc synthesis/Cfluxes_monthly_sc.nc
+    # compute the annual sums
+    ncra --mro -O -d time,0,,12,12 -d x,0 -d y,0 -y ttl -v GPP,RG,RM,RH,NEE synthesis/Cfluxes_monthly_tr.nc synthesis/Cfluxes_yearly_tr.nc
+    ncra --mro -O -d time,0,,12,12 -d x,0 -d y,0 -y ttl -v GPP,RG,RM,RH,NEE synthesis/Cfluxes_monthly_sc.nc synthesis/Cfluxes_yearly_sc.nc
+    # fix back the time dimension 
+    ncks -O -h --fix_rec_dmn time synthesis/Cfluxes_monthly_tr.nc synthesis/Cfluxes_yearly_tr.nc
+    ncks -O -h --fix_rec_dmn time synthesis/Cfluxes_monthly_sc.nc synthesis/Cfluxes_yearly_sc.nc
+
+    ### Compute decadale averages of C fluxes
+    ncwa -O -d time,89,98 -d x,0 -d y,0 -y avg -v GPP,RG,RM,RH,NEE synthesis/Cfluxes_yearly_tr.nc synthesis/Cfluxes_1990_1999.nc
+    ncwa -O -d time,35,44 -d x,0 -d y,0 -y avg -v GPP,RG,RM,RH,NEE synthesis/Cfluxes_yearly_sc.nc synthesis/Cfluxes_2040_2059.nc
+    ncwa -O -d time,75,84 -d x,0 -d y,0 -y avg -v GPP,RG,RM,RH,NEE synthesis/Cfluxes_yearly_sc.nc synthesis/Cfluxes_2090_2099.nc   
+
+.. collapse:: Python solution 2
+  :class: partial
+
+  .. code::
+
+    import xarray as xr
+    import pandas as pd
+    import glob, os
+    import numpy as np
+    import matplotlib.pyplot as plt
+    import seaborn as sns
+    import scipy.stats as stats
+    from statsmodels.stats.multicomp import pairwise_tukeyhsd
+
+    # Path to the output directory
+    ODir = '/Users/helene/Helene/TEM/DVMDOSTEM/dvmdostem_workflows/exp0_jan26_test/output'
+
+    #list the starting years of the decades over which to compute the means
+    declist = [1940,1990,2040, 2090]
+
+    ###### COMPUTING NEE ######
+    ###########################
+
+    #Loop through all the modes and variables of interest
+    data_mode = pd.DataFrame()
+    for mode in ['tr', 'sc']:
+      print(mode)
+      for VAR in ['GPP','RM','RG','RH']:
+        print(VAR)
+        # Check the output of the selected mode/variable exists
+        if (len(glob.glob(ODir + '/' + VAR + '*' + mode + '.nc')) > 0):
+          filename = os.path.basename(glob.glob(ODir + '/' + VAR + '*' + mode + '.nc')[0])
+          # Read the dataset
+          ds = xr.open_dataset(glob.glob(ODir + '/' + VAR + '*' + mode + '.nc')[0])
+          data = ds.to_dataframe()
+          data.reset_index(inplace=True)
+          # Select pixel of iinterest
+          data = data.rename(columns={VAR: 'value'})
+          # Sum the fluxes by secondary dimensions
+          if (('pft' in data.columns) | ('pftpart' in data.columns) | ('layer' in data.columns)):
+            data = data.groupby(['time','x','y'])[['value']].agg(['sum'])
+            data.reset_index(inplace=True)
+            data.columns = ['time', 'x', 'y','value']
+          # Format the time/date dimension
+          data['time'] = data['time'].astype('|S80')
+          data['time'] = data['time'].astype('|datetime64[ns]')
+          data['year'] = data['time'].dt.year
+          # Check the outputs are monthly or yearly
+          if 'monthly' in filename:
+            print('Monthly outputs')
+            data['month'] = data['time'].dt.month
+            data = data.groupby(['year','x','y'])[['value']].agg(['sum'])
+            data.reset_index(inplace=True)
+            data.columns = ['year','x','y','value']
+          # Add necessary information
+          data['variable'] = VAR
+          data['mode'] = mode
+        data_mode = data_mode.append(data)
+
+    # Reshape the dataset
+    final = data_mode.pivot(index=['mode','year','x','y'], columns = 'variable',values = 'value') 
+    final.reset_index(inplace=True)
+
+    # Compute NEE
+    final['Reco'] = final['RH'] + final['RG'] + final['RM']
+    final['NEE'] = final['RH'] + final['RG'] + final['RM'] - final['GPP'] 
+    final.reset_index(inplace=True)
+
+    # Compute the decadal averages
+    decade = pd.DataFrame()
+    for i in declist:
+      print(i)
+      dec = final[(final['year'] >= i) & (final['year'] < i+10)].groupby(['x','y'])[['GPP','Reco','NEE']].agg(['mean'])
+      dec['decade'] = '[' + str(i) + '-' + str(i+9) +']'
+      dec.reset_index(inplace=True)
+      decade = decade.append(dec)
+
+    decade
+
 
 
 ****************************
