@@ -194,15 +194,20 @@ def update_map(attr, old, new):
   print(f'update_map(...): attr={attr}, old={old}, new={new}')
   
 
-def update_points(attr, old, new):
-  print(f'update_points(...): attr={attr}, old={old}, new={new}')
+def update_points(event):
+
+  print(f"Event is: {event}")
+
   try:
     lat = float(points_input_lat.value)
     lon = float(points_input_lon.value)
   except:
     print('Problem with value in points inputs. Nothing to do.')
 
-  update_map(attr, old, new)
+  lon, lat = transform(lon, lat, srs='EPSG:4326',trs='EPSG:3857')
+
+  point_data_source.data = dict(lon=[lon], lat=[lat])
+
 
 
 def update_areas(attr, old, new):
@@ -254,16 +259,21 @@ folder_input = bkm.TextInput(title="Path to folders", value='input-staging-area'
 folder_input.on_change('value', update_areas)
 
 points_input_lat = bkm.TextInput(title='Lat', value='', placeholder='LAT')
-points_input_lat.on_change('value', update_points)
-
 points_input_lon = bkm.TextInput(title='Lon', value='', placeholder='LON')
-points_input_lon.on_change('value', update_points)
+
+point_mark_button = bkm.Button(label="Mark Point")
+point_mark_button.on_click(update_points)
 
 mouse_lat, mouse_lon = [0,0]
 mouse_lat_wgs84, mouse_lon_wgs84 = transform(mouse_lat, mouse_lon, srs='EPSG:3338', trs='EPSG:4326')
 
 parag_cur_wgs84 = bkm.Paragraph(text=f"Cursor WGS84 ({mouse_lon_wgs84:0.6f}, {mouse_lat_wgs84:0.6f})")
 parag_cur_webmerc = bkm.Paragraph(text=f"Cursor Web Mercator ({mouse_lon:0.6f}, {mouse_lat:0.6f})")
+
+x, y = transform(-157, 64, srs='EPSG:4326', trs='EPSG:3857')
+point_data_source = bkm.ColumnDataSource(dict(lon=[x], lat=[y]))
+
+map_figure.circle(x='lon', y='lat', source=point_data_source, size=20, color="navy", alpha=0.5)
 
 # have to build the dataframe/geosource for one area or things don't work
 # well later on.
@@ -307,7 +317,7 @@ area_patches.selection_glyph = selected_patches
 ## Layout ##
 layout = bkl.layout(
     children=[
-      [map_figure, [folder_input, [points_input_lat, points_input_lon], data_table]],
+      [map_figure, [folder_input, [points_input_lat, points_input_lon, point_mark_button], data_table]],
       [parag_cur_webmerc],
       [parag_cur_wgs84]
     ],
