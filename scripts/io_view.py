@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 
-# docker compose exec dvmdostem-mapping-support bokeh serve --port 7003 scripts/io_view2.py --dev scripts/io_view2.py
+# For more development, consider the following:
+# docker compose exec dvmdostem-mapping-support bokeh serve --port 7003 scripts/io_view.py --dev scripts/io_view.py
 # pip install nest_asyncio
-# pip install --upgrade bokeh
+# pip install --upgrade bokeh==3.0.3
 
 from osgeo import gdal
 # Don't import rasterio too - they compete for some 
