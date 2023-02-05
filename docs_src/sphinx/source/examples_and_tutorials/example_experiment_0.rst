@@ -175,7 +175,37 @@ interperter and run it before continuing.
         return dti
       
       def build_full_dataframe(var=None, timeres=None, px_y=None, px_x=None):
-        '''Not sure how this should work for PFT and LAYER files???'''
+        ''' Builds a pandas.DataFrame for the requested output variable with the
+        transient and scenario data merged together and a complete
+        DatetimeIndex.
+
+        Parameters
+        ==========
+        var : str
+          The variable of interest. Must be a dvmdostem output variable, i.e.
+          GPP.
+
+        timeres : str
+          String of either 'monthly' or 'yearly' that will be used to find
+          and open the approproate files as well as set the DatetimeIndex.
+
+        px_y : int
+          Index of the pixel to work with, latitude dimension.
+
+        px_x : int
+          Index of pixel to work with, longitude dimension.
+
+        Returns
+        ========
+        df : pandas.DataFrame
+          A DataFrame with data for the requested ``var`` from transient and
+          scenario output files. The DataFrame should have a complete
+          DatetimeIndex.
+
+        meta : dict
+          A small dictionary containing metadata about the datasets in the
+          dataframe. Namely, the units.
+        '''
       
         if timeres == 'yearly':
           freq = 'AS-JAN'
@@ -291,8 +321,8 @@ information is used to set the number of transient and scenario years to run.
 Computing Means
 **************************
 
-Compute the mean vegetation and soil carbon stocks for the following decades:
-[1990-2010], [2040-2050], [2090-2100].
+Compute the mean vegetation and soil carbon stocks for the following time
+ranges: [1990-2010], [2040-2050], [2090-2100].
 
    a. What are the units of these stocks?
 
@@ -322,7 +352,7 @@ Compute the mean vegetation and soil carbon stocks for the following decades:
 
     Problems?
 
-      * decades don't match Question
+      * decades don't match question
       * store stock in single file step, error copying scenario files??
       * commands after ``## <--ERROR! fail``
 
