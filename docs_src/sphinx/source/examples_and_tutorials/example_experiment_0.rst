@@ -515,84 +515,7 @@ simulations. Indicate how you formulated NEE.
     ncwa -O -d time,35,44 -d x,0 -d y,0 -y avg -v GPP,RG,RM,RH,NEE synthesis/Cfluxes_yearly_sc.nc synthesis/Cfluxes_2040_2059.nc
     ncwa -O -d time,75,84 -d x,0 -d y,0 -y avg -v GPP,RG,RM,RH,NEE synthesis/Cfluxes_yearly_sc.nc synthesis/Cfluxes_2090_2099.nc   
 
-.. collapse:: Python solution 2 (does not use common setup)
-  :class: partial
 
-  .. code::
-
-    import xarray as xr
-    import pandas as pd
-    import glob, os
-    import numpy as np
-    import matplotlib.pyplot as plt
-    import seaborn as sns
-    import scipy.stats as stats
-    from statsmodels.stats.multicomp import pairwise_tukeyhsd
-
-    # Path to the output directory
-    ODir = '/Users/helene/Helene/TEM/DVMDOSTEM/dvmdostem_workflows/exp0_jan26_test/output'
-
-    #list the starting years of the decades over which to compute the means
-    declist = [1940,1990,2040, 2090]
-
-    ###### COMPUTING NEE ######
-    ###########################
-
-    #Loop through all the modes and variables of interest
-    data_mode = pd.DataFrame()
-    for mode in ['tr', 'sc']:
-      print(mode)
-      for VAR in ['GPP','RM','RG','RH']:
-        print(VAR)
-        # Check the output of the selected mode/variable exists
-        if (len(glob.glob(ODir + '/' + VAR + '*' + mode + '.nc')) > 0):
-          filename = os.path.basename(glob.glob(ODir + '/' + VAR + '*' + mode + '.nc')[0])
-          # Read the dataset
-          ds = xr.open_dataset(glob.glob(ODir + '/' + VAR + '*' + mode + '.nc')[0])
-          data = ds.to_dataframe()
-          data.reset_index(inplace=True)
-          # Select pixel of iinterest
-          data = data.rename(columns={VAR: 'value'})
-          # Sum the fluxes by secondary dimensions
-          if (('pft' in data.columns) | ('pftpart' in data.columns) | ('layer' in data.columns)):
-            data = data.groupby(['time','x','y'])[['value']].agg(['sum'])
-            data.reset_index(inplace=True)
-            data.columns = ['time', 'x', 'y','value']
-          # Format the time/date dimension
-          data['time'] = data['time'].astype('|S80')
-          data['time'] = data['time'].astype('|datetime64[ns]')
-          data['year'] = data['time'].dt.year
-          # Check the outputs are monthly or yearly
-          if 'monthly' in filename:
-            print('Monthly outputs')
-            data['month'] = data['time'].dt.month
-            data = data.groupby(['year','x','y'])[['value']].agg(['sum'])
-            data.reset_index(inplace=True)
-            data.columns = ['year','x','y','value']
-          # Add necessary information
-          data['variable'] = VAR
-          data['mode'] = mode
-        data_mode = data_mode.append(data)
-
-    # Reshape the dataset
-    final = data_mode.pivot(index=['mode','year','x','y'], columns = 'variable',values = 'value') 
-    final.reset_index(inplace=True)
-
-    # Compute NEE
-    final['Reco'] = final['RH'] + final['RG'] + final['RM']
-    final['NEE'] = final['RH'] + final['RG'] + final['RM'] - final['GPP'] 
-    final.reset_index(inplace=True)
-
-    # Compute the decadal averages
-    decade = pd.DataFrame()
-    for i in declist:
-      print(i)
-      dec = final[(final['year'] >= i) & (final['year'] < i+10)].groupby(['x','y'])[['GPP','Reco','NEE']].agg(['mean'])
-      dec['decade'] = '[' + str(i) + '-' + str(i+9) +']'
-      dec.reset_index(inplace=True)
-      decade = decade.append(dec)
-
-    decade
 
 
 
@@ -698,109 +621,14 @@ envelopes.
    .. jupyter-execute::
 
       df, meta = build_full_dataframe(var='GPP', timeres='monthly', px_y=0, px_x=0)
-      
-      july = df['1901-7'::12]
-      fig, ax = plt.subplots()
-      for i, pft in enumerate(july.columns):
-        ax.boxplot(july[pft], positions=[i+1], notch=True)
-      plt.title("July")
-      ax.set_ylabel('GPP ({})'.format(meta['hds_units']))
-      ax.set_xlabel('PFT')
-
-      # This works too...
-      df.plot(kind='box')
-
-      # Or this
-      df['1901-08'::12].plot(kind='box')
-
-      # Gets the monthlies 
-      #for m in range(0,12):
-      #  print(df[m::12])
-      #  print()
-
-      # Make timeseries plot
-      plt.close()
-      fig, ax = plt.subplots(1,1)
-      ax.plot(df['1940':'1950'][0])
-      plt.savefig('GPP_SAMPLE.png')   
-
-      # Make timeseries of July GPP values
-      plt.close()
-      fig, ax = plt.subplots(1,1)
-      ax.plot(df[6::12][0])
-      plt.savefig('SAMPLE.png')  
-
-      # Or this:, gives julys for a decade
-      df[6::12]['1940':'1950']
-
-.. collapse:: Python solution 2 (does not use common setup)
-  :class: broken
-
-  .. code::
-
-    ###### SEASONAL PLOT OF GPP ######
-    ##################################
 
 
-    # Compute mean monthly GPP by decades
-    final = pd.DataFrame()
-    for VAR in ['GPP']:
-      print(VAR)
-      ttl = pd.DataFrame()
-      for mode in ['tr', 'sc']:
-        print(mode)
-        # Check the output of the selected mode/variable exists
-        if (len(glob.glob(ODir + '/' + VAR + '*' + mode + '.nc')) > 0):
-          filename = os.path.basename(glob.glob(ODir + '/' + VAR + '*' + mode + '.nc')[0])
-          # Check the outputs are monthly 
-          if 'monthly' in filename:
-            # Read the dataset
-            ds = xr.open_dataset(glob.glob(ODir + '/' + VAR + '*' + mode + '.nc')[0])
-            data = ds.to_dataframe()
-            data.reset_index(inplace=True)
-            # Select pixel of iinterest
-            data = data.rename(columns={VAR: 'value'})
-            # Format the time/date dimension
-            data['time'] = data['time'].astype('|S80')
-            data['time'] = data['time'].astype('|datetime64[ns]')
-            data['year'] = data['time'].dt.year
-            data['month'] = data['time'].dt.month
-            # Sum the fluxes by secondary dimensions
-            if (('pft' in data.columns) | ('pftpart' in data.columns) | ('layer' in data.columns)):
-              data = data.groupby(['year','month','x','y'])[['value']].agg(['sum'])
-              data.reset_index(inplace=True)
-              data.columns = ['year','month', 'x', 'y','value']
-            ttl = ttl.append(data)
-      decade = pd.DataFrame()
-      # Compute the monthly averages by decade
-      for i in declist:
-        dec = ttl[(ttl['year'] >= i) & (ttl['year'] < i+10)].groupby(['x','y','month'])[['value']].agg(['mean','std'])
-        dec.reset_index(inplace=True)
-        dec.columns = ['x','y','month','mean','std']
-        dec['decade'] = '[' + str(i) + '-' + str(i+9) +']'
-        dec['variable'] = VAR
-        decade = decade.append(dec)
-      final = decade.append(decade)
 
-    # Plotting the data
-    plot = final[(final['x']==0) & (final['y']==0)]
 
-    plt.plot(plot[plot['decade']=='[1940-1949]']['month'], plot[plot['decade']=='[1940-1949]']['mean'], alpha=0.5, c='blue', label='[1940-1949]')
-    plt.fill_between(plot[plot['decade']=='[1940-1949]']['month'], plot[plot['decade']=='[1940-1949]']['mean']-plot[plot['decade']=='[1940-1949]']['std'], plot[plot['decade']=='[1940-1949]']['mean']+plot[plot['decade']=='[1940-1949]']['std'], alpha=0.2,color='blue',linewidth=0.0)
 
-    plt.plot(plot[plot['decade']=='[1990-1999]']['month'], plot[plot['decade']=='[1990-1999]']['mean'], alpha=0.5, c='cyan', label='[1990-1999]')
-    plt.fill_between(plot[plot['decade']=='[1990-1999]']['month'], plot[plot['decade']=='[1990-1999]']['mean']-plot[plot['decade']=='[1990-1999]']['std'], plot[plot['decade']=='[1990-1999]']['mean']+plot[plot['decade']=='[1990-1999]']['std'], alpha=0.2,color='cyan',linewidth=0.0)
 
-    plt.plot(plot[plot['decade']=='[2040-2049]']['month'], plot[plot['decade']=='[2040-2049]']['mean'], alpha=0.5, c='orange', label='[2040-2049]')
-    plt.fill_between(plot[plot['decade']=='[2040-2049]']['month'], plot[plot['decade']=='[2040-2049]']['mean']-plot[plot['decade']=='[2040-2049]']['std'], plot[plot['decade']=='[2040-2049]']['mean']+plot[plot['decade']=='[2040-2049]']['std'], alpha=0.2,color='orange',linewidth=0.0)
 
-    plt.plot(plot[plot['decade']=='[2090-2099]']['month'], plot[plot['decade']=='[2090-2099]']['mean'], alpha=0.5, c='red', label='[2090-2099]')
-    plt.fill_between(plot[plot['decade']=='[2090-2099]']['month'], plot[plot['decade']=='[2090-2099]']['mean']-plot[plot['decade']=='[2090-2099]']['std'], plot[plot['decade']=='[2090-2099]']['mean']+plot[plot['decade']=='[2090-2099]']['std'], alpha=0.2,color='red',linewidth=0.0)
 
-    plt.xlabel('Month')
-    plt.ylabel('GPP (g/m2/y)')
-    plt.legend()
-    plt.show()
 
 *****************************
 Plot Soil Temperatures
