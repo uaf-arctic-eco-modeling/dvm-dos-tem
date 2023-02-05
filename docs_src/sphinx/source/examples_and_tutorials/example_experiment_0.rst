@@ -616,19 +616,34 @@ across each decade as lines, and the standard deviation across the mean as
 envelopes.
 
 .. collapse:: Example Python Solution
-   :class: broken
+   :class: working
 
    .. jupyter-execute::
 
       df, meta = build_full_dataframe(var='GPP', timeres='monthly', px_y=0, px_x=0)
 
+      # sum across PFTs...
+      ecosystem_sum = df.sum(axis=1)
 
+      fig, ax = plt.subplots(1,1)
 
+      for time_period in ['1990-2010','2040-2050', '2090-2100']:
+        startyr, endyr = time_period.split('-')
 
+        # The result is a pandas.Series
+        range_series = ecosystem_sum[startyr:endyr]
 
+        mean = range_series.groupby(range_series.index.month).mean()
+        std =  range_series.groupby(range_series.index.month).std()
 
+        ax.plot(mean, linewidth=1, label=time_period)
+        ax.fill_between(mean.index, mean - std, mean + std, alpha=0.2)
+        ax.set_ylabel('GPP ({})'.format(meta['hds_units']))
+        ax.legend()
 
+      ax.set_xticks(range(1,13), 'J,F,M,A,M,J,J,A,S,O,N,D'.split(','))
 
+      plt.show()
 
 *****************************
 Plot Soil Temperatures
