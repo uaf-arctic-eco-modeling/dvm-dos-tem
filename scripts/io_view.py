@@ -242,7 +242,7 @@ map_figure = bkp.figure(
 )
 
 # Add tiles
-map_figure.add_tile(bokeh.tile_providers.Vendors.CARTODBPOSITRON, retina=True)
+map_figure.add_tile("CartoDB Positron", retina=True)
 
 # Crosshairs
 width_span = bkm.Span(dimension="width", line_dash="dotted", line_width=1, line_color='red')
