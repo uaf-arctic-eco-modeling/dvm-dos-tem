@@ -161,12 +161,12 @@ To make a Pull Request, you must push your commits to Github (either your fork)
 or the ``uaf-arctic-eco-modeling/dvm-dos-tem``, depending on your choice of
 workflow and your status as a collaborator.
 
-Publishing (updating the live website at github.io) is reserved for the
-maintainers, ``tcarman2`` and ``rarutter``.
-
 ==============
 Publishing
 ==============
+
+Publishing (updating the live website at github.io) is reserved for the
+maintainers, ``tcarman2`` and ``rarutter``.
 
 In the current implementation with Sphinx (used to format this document), we
 have a ``docs_src`` folder within which is a subdirectory for each documentation
