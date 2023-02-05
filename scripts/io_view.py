@@ -28,8 +28,9 @@ import bokeh.tile_providers
 
 import geopandas
 
-import nest_asyncio
-nest_asyncio.apply()
+# handy for embed debugging...
+#import nest_asyncio
+#nest_asyncio.apply()
 
 
 def get_corner_coords(file_path):
@@ -102,6 +103,19 @@ def build_feature_collection(folder_list):
   '''
   geojson_obj = dict(type="FeatureCollection",features=[])
 
+  if len(folder_list) < 1:
+    # make an empty structure; seems to be very sensitive to having all
+    # fields, especially the coordinates in the right shape!
+    geojson_obj['features'].append(
+      dict(
+        type="Feature",
+        geometry=dict(
+          type="Polygon",
+          coordinates=[[[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0]]],
+        ),
+        properties=dict(name=''),
+      )
+    )
   for folder in folder_list:
     
     f = os.path.join(folder, 'vegetation.nc')
@@ -255,7 +269,7 @@ height_span = bkm.Span(dimension="height", line_dash="dotted", line_width=1, lin
 map_figure.add_tools(bkm.CrosshairTool(overlay=[width_span, height_span]))
 
 ## Widgets ##
-folder_input = bkm.TextInput(title="Path to folders", value='input-staging-area', placeholder='FOLDER PATH', width=600)
+folder_input = bkm.TextInput(title="Path to folders", value='', placeholder='FOLDER PATH', width=600)
 folder_input.on_change('value', update_areas)
 
 points_input_lat = bkm.TextInput(title='Lat', value='', placeholder='LAT')
@@ -275,9 +289,9 @@ point_data_source = bkm.ColumnDataSource(dict(lon=[x], lat=[y]))
 
 map_figure.circle(x='lon', y='lat', source=point_data_source, size=20, color="navy", alpha=0.5)
 
-# have to build the dataframe/geosource for one area or things don't work
-# well later on.
-geodf = build_areas_df(get_io_folder_listing('input-staging-area'))
+# Start with an empty geo data source
+geodf = build_areas_df(get_io_folder_listing(''))
+
 #geodf = build_areas_df(get_io_folder_listing('demo-data'))
 geosource = bkm.sources.GeoJSONDataSource(geojson=geodf.to_json())
 area_patches = map_figure.patches('xs','ys', source=geosource, fill_color='red', line_color='gray', line_width=0.25, fill_alpha=.3)
