@@ -443,6 +443,13 @@ simulations. Indicate how you formulated NEE.
 
   .. collapse:: bokeh
 
+    .. note:: 
+
+      This does not display properly in all web browsers. Safari in particular
+      seems to have issues. It should work fine if you run the code on your own
+      machine, but for some reason when embedded in the Sphinx documentation, it
+      doesn't behave. 
+
     .. jupyter-execute::
 
       import bokeh.plotting as bkp
