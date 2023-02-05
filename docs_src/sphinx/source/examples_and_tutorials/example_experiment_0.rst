@@ -335,11 +335,11 @@ ranges: [1990-2010], [2040-2050], [2090-2100].
         TIMERES = 'yearly'
         PX_X = 0
         PX_Y = 0
-        decades = ['1990-2010','2040-2050','2090-2100']
+        time_ranges = ['1990-2010','2040-2050','2090-2100']
 
         df, meta = build_full_dataframe(var=VAR, timeres=TIMERES, px_y=PX_Y, px_x=PX_X)
         print(meta)
-        for d in decades:
+        for d in time_ranges:
            s, e = d.split('-')
            mean = df[s:e].mean()[0]
            print(f'{d}  {VAR}  mean: {mean}')
@@ -601,7 +601,7 @@ Computing Mean GPP
 ****************************
 
 Compute the mean GPP, autotrophic and heterotrophic respirations and NEE for the
-following decades: [1990-2010], [2040-2050], [2090-2100].
+following time ranges: [1990-2010], [2040-2050], [2090-2100].
 
    a. What are the units of these fluxes?
 
@@ -687,7 +687,7 @@ Plot the active layer depth from 1950 to 2100.
 Plot Seasonal Dynamic
 ******************************
 
-Plot the seasonal dynamic of GPP for the same three decades: [1990-2010],
+Plot the seasonal dynamic of GPP for the same three time ranges: [1990-2010],
 [2040-2050], [2090-2100]. The plot should show the mean monthly GPP computed
 across each decade as lines, and the standard deviation across the mean as
 envelopes.
