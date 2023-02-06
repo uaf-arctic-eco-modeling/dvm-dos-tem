@@ -193,12 +193,17 @@ information is used to set the number of transient and scenario years to run.
    utility scripts. While the graphical view is nice it makes it difficult to 
    figure out the exact start and end years.
 
+   Also notice that this technique allows us to interact with the command line
+   interface of the ``input_util.py`` script directly from a Python interperter.
+   Neat!
+
    .. jupyter-execute::
 
       import input_util as iu
       import argparse
 
-      args = {'command': 'climate-ts-plot',
+      args = {
+        'command': 'climate-ts-plot',
         'input_folder': '/data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_TOOLIK_FIELD_STATION_10x10/',
         'stitch': False,
         'type': 'spatial-temporal-summary',
@@ -320,8 +325,6 @@ simulations. Indicate how you formulated NEE.
   .. collapse:: matplotlib
 
     .. jupyter-execute::
-
-      import matplotlib.pyplot as plt
 
       fig, axes = plt.subplots(2,1)
 
@@ -466,8 +469,6 @@ Plot the active layer depth from 1950 to 2100.
    :name: customName
 
    .. jupyter-execute:: 
-
-    import matplotlib.pyplot as plt
 
     df, meta = load_trsc_dataframe(var='ALD', timeres='yearly', 
                                    px_y=0, px_x=0, fileprefix='output')
