@@ -157,7 +157,7 @@ def average_monthly_pool_to_yearly(data):
   return output
 
 
-def stitch_stages(var, timestep, stages, fileprefix=''):
+def stitch_stages(var, timestep, stages, fileprefix='', with_dti=False):
   '''
   Expects `var` to be one the dvmdostem output variable names. `timestep` must
   be one of "yearly" or "monthly", and stages is a (ordered) list containing 
@@ -183,6 +183,9 @@ def stitch_stages(var, timestep, stages, fileprefix=''):
   expected_file_names = ["{}_{}_{}.nc".format(var, timestep, stg) for stg in stages]
   expected_file_names = [os.path.join(fileprefix, i) for i in expected_file_names]
 
+  if len(expected_file_names) < 1:
+    raise RuntimeError("No files found. Can't stitch stages with no files!")
+
   full_ds = np.array([])
   units_str = ''
   for i, exp_file in enumerate(expected_file_names):
@@ -197,7 +200,14 @@ def stitch_stages(var, timestep, stages, fileprefix=''):
         if f.variables[var].units != units_str:
           raise RuntimeError("Something is wrong with your input files! Units don't match!")
 
-  return (full_ds, units_str)
+  if with_dti:
+    ds_begin = nc.Dataset(expected_file_names[0])
+    ds_end = nc.Dataset(expected_file_names[1])
+    dti = build_full_datetimeindex(ds_begin, ds_end, timeres=timestep)
+    return (full_ds, units_str, dti)
+  else:
+    return (full_ds, units_str)
+
 def get_start_end(timevar):
   '''Returns CF Times. use .strftime() to convert to python datetimes'''
   start = nc.num2date(timevar[0], timevar.units, timevar.calendar)
