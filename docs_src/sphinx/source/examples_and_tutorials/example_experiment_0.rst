@@ -128,7 +128,10 @@ the common setup here and not need to repeat these lines in each example. The
 paths assume that these examples will be run on the TEM Docker stack. Subsequent
 Python example solutions assume that these setup commands have been run. In
 other words if you are following along, copy the following code into your Python
-interperter and run it before continuing.
+interperter and run it before continuing. 
+
+**If you are not working on the TEM Docker stack or have named your experiment
+differently, please adjust your paths accordingly.**
 
 .. collapse:: Common Python setup
    :class: working
@@ -136,15 +139,21 @@ interperter and run it before continuing.
    .. jupyter-execute::
 
       import sys
+      import os
+
+      import netCDF4 as nc
+      import pandas as pd
+      import matplotlib.pyplot as plt
+
+      # This allows us to import tools from the dvm-dos-tem/scripts directory
       sys.path.insert(0, '/work/scripts')
 
-      import os
+      from output_utils import load_trsc_dataframe
+
+      # This lets us work with shorter paths relative to the experiment 
+      # directory
       os.chdir('/data/workflows/exp0_jan26_test')
 
-      import pandas as pd
-      import netCDF4 as nc
-      
-      from output_utils import build_full_dataframe
 
 
 
@@ -217,7 +226,8 @@ ranges: [1990-2010], [2040-2050], [2090-2100].
         PX_Y = 0
         time_ranges = ['1990-2010','2040-2050','2090-2100']
 
-        df, meta = build_full_dataframe(var=VAR, timeres=TIMERES, px_y=PX_Y, px_x=PX_X)
+        df, meta = load_trsc_dataframe(var=VAR, timeres=TIMERES, px_y=PX_Y,
+                                       px_x=PX_X, fileprefix='output')
         print(meta)
         for d in time_ranges:
            s, e = d.split('-')
@@ -293,10 +303,10 @@ simulations. Indicate how you formulated NEE.
 
   .. jupyter-execute::
 
-    rh, _ = build_full_dataframe('RH', timeres='monthly', px_y=0, px_x=0)
-    rm, _ = build_full_dataframe('RM', timeres='monthly', px_y=0, px_x=0)
-    rg, _ = build_full_dataframe('RG', timeres='monthly', px_y=0, px_x=0)
-    gpp, _ = build_full_dataframe('GPP', timeres='monthly', px_y=0, px_x=0)
+    rh, _ = load_trsc_dataframe('RH', timeres='monthly', px_y=0, px_x=0, fileprefix='output')
+    rm, _ = load_trsc_dataframe('RM', timeres='monthly', px_y=0, px_x=0, fileprefix='output')
+    rg, _ = load_trsc_dataframe('RG', timeres='monthly', px_y=0, px_x=0, fileprefix='output')
+    gpp, _ = load_trsc_dataframe('GPP', timeres='monthly', px_y=0, px_x=0, fileprefix='output')
 
     # GPP is output per PFT, so here we sum across PFTs to get
     # the ecosystem GPP.
@@ -432,7 +442,8 @@ following time ranges: [1990-2010], [2040-2050], [2090-2100].
       PX_X = 0
       PX_Y = 0
 
-      df, _ = build_full_dataframe(var=VAR, timeres=TIMERES, px_y=PX_Y, px_x=PX_X)
+      df, _ = load_trsc_dataframe(var=VAR, timeres=TIMERES, px_y=PX_Y, 
+                                  px_x=PX_X, fileprefix='output')
 
       for d in ['1990-2010','2040-2050','2090-2100']:
          s, e = d.split('-')
@@ -458,15 +469,16 @@ Plot the active layer depth from 1950 to 2100.
 
     import matplotlib.pyplot as plt
 
-    df, meta = build_full_dataframe(var='ALD', timeres='yearly', px_y=0, px_x=0)
+    df, meta = load_trsc_dataframe(var='ALD', timeres='yearly', 
+                                   px_y=0, px_x=0, fileprefix='output')
 
     fig, ax = plt.subplots(1,1)
 
     ax.plot(df.loc['1950':'2100'].index, df.loc['1950':'2100'][0], label='ALD')
-    ax.axvline(meta['h_end'], linestyle='dotted', color='red')
+    ax.axvline(df.index[115], linestyle='dotted', color='red')
 
     ax.set_xlabel('year')
-    ax.set_ylabel('ALD ({})'.format(meta['hds_units']))
+    ax.set_ylabel('ALD ({})'.format(meta['var_units']))
 
     plt.savefig('ALD_SAMPLE.png')
 
@@ -500,7 +512,8 @@ envelopes.
 
    .. jupyter-execute::
 
-      df, meta = build_full_dataframe(var='GPP', timeres='monthly', px_y=0, px_x=0)
+      df, meta = load_trsc_dataframe(var='GPP', timeres='monthly',
+                                     px_y=0, px_x=0, fileprefix='output')
 
       # sum across PFTs...
       ecosystem_sum = df.sum(axis=1)
@@ -518,7 +531,7 @@ envelopes.
 
         ax.plot(mean, linewidth=1, label=time_period)
         ax.fill_between(mean.index, mean - std, mean + std, alpha=0.2)
-        ax.set_ylabel('GPP ({})'.format(meta['hds_units']))
+        ax.set_ylabel('GPP ({})'.format(meta['var_units']))
         ax.legend()
 
       ax.set_xticks(range(1,13), 'J,F,M,A,M,J,J,A,S,O,N,D'.split(','))

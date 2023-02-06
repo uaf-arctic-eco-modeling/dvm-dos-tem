@@ -156,6 +156,39 @@ def average_monthly_pool_to_yearly(data):
 
   return output
 
+def load_trsc_dataframe(var=None, timeres=None, px_y=None, px_x=None, fileprefix=None):
+  '''???'''
+  data, units, dims, dti = stitch_stages(var=var, stages=['tr','sc'], 
+      timestep=timeres, fileprefix=fileprefix, with_dti=True
+  )
+
+  timeslice = slice(0, None, 1)
+  yslice = slice(px_y, px_y+1, 1)
+  xslice = slice(px_x, px_x+1, 1)
+  pftslice = None
+  layerslice = None
+
+  if 'pft' in dims:
+    pftslice = slice(0, None, 1)
+  elif 'layer' in dims:
+    layerslice = slice(0, None, 1)
+
+  if pftslice is not None:
+    slice_tuple = (timeslice, pftslice, yslice, xslice)
+    final_shape = (data.shape[0], data.shape[1])
+  elif layerslice is not None:
+    slice_tuple = (timeslice, layerslice, yslice, xslice)
+    final_shape = (data.shape[0], data.shape[1])
+  else:
+    slice_tuple = (timeslice, yslice, xslice)
+    final_shape = (data.shape[0])
+
+  meta = {
+    'var_units': units,
+  }
+
+  return pd.DataFrame(data[slice_tuple].reshape(final_shape), index=dti), meta
+
 
 def stitch_stages(var, timestep, stages, fileprefix='', with_dti=False):
   '''
@@ -199,14 +232,15 @@ def stitch_stages(var, timestep, stages, fileprefix='', with_dti=False):
         full_ds = np.concatenate( (full_ds, f.variables[var][:]), axis=0 )
         if f.variables[var].units != units_str:
           raise RuntimeError("Something is wrong with your input files! Units don't match!")
+      dimensions = f.variables[var].dimensions
 
   if with_dti:
     ds_begin = nc.Dataset(expected_file_names[0])
     ds_end = nc.Dataset(expected_file_names[1])
     dti = build_full_datetimeindex(ds_begin, ds_end, timeres=timestep)
-    return (full_ds, units_str, dti)
+    return (full_ds, units_str, dimensions, dti)
   else:
-    return (full_ds, units_str)
+    return (full_ds, units_str, dimensions)
 
 def get_start_end(timevar):
   '''Returns CF Times. use .strftime() to convert to python datetimes'''
@@ -215,13 +249,6 @@ def get_start_end(timevar):
   return start, end
 
 
-def load_trsc(var, timeres):
-  '''Returns ``netCDF4.Dataset`` s in a tuple. 
-  First item is historic, second item is projected.
-  '''
-  trds = nc.Dataset(f'output/{var}_{timeres}_tr.nc')
-  scds = nc.Dataset(f'output/{var}_{timeres}_sc.nc')
-  return (trds, scds)
 
 def build_full_datetimeindex(hds, pds, timeres):
   '''Returns a ``pandas.DatetimeIndex`` covering the range of the two
@@ -244,97 +271,6 @@ def build_full_datetimeindex(hds, pds, timeres):
   dti = pd.DatetimeIndex(pd.date_range(start=begin.strftime(), end=end.strftime(), freq=freq))
 
   return dti
-def build_full_dataframe(var=None, timeres=None, px_y=None, px_x=None):
-  ''' Builds a pandas.DataFrame for the requested output variable with the
-  transient and scenario data merged together and a complete
-  DatetimeIndex.
-
-  Parameters
-  ==========
-  var : str
-    The variable of interest. Must be a dvmdostem output variable, i.e.
-    GPP.
-
-  timeres : str
-    String of either 'monthly' or 'yearly' that will be used to find
-    and open the approproate files as well as set the DatetimeIndex.
-
-  px_y : int
-    Index of the pixel to work with, latitude dimension.
-
-  px_x : int
-    Index of pixel to work with, longitude dimension.
-
-  Returns
-  ========
-  df : pandas.DataFrame
-    A DataFrame with data for the requested ``var`` from transient and
-    scenario output files. The DataFrame should have a complete
-    DatetimeIndex.
-
-  meta : dict
-    A small dictionary containing metadata about the datasets in the
-    dataframe. Namely, the units.
-  '''
-
-  if timeres == 'yearly':
-    freq = 'AS-JAN'
-  elif timeres == 'monthly':
-    freq = 'MS'
-  else:
-    raise RuntimeError("Invalid time resolution")
-
-  hds, pds = load_trsc(var, timeres)
-
-  timeslice = slice(0, None, 1)
-  yslice = slice(px_y, px_y+1, 1)
-  xslice = slice(px_x, px_x+1, 1)
-  pftslice = None
-  layerslice = None
-
-
-  if 'pft' in hds.variables[var].dimensions and 'pft' in pds.variables[var].dimensions:
-    pftslice = slice(0, None, 1)
-  elif 'layer' in hds.variables[var].dimensions and 'layer' in pds.variables[var].dimensions:
-    layerslice = slice(0, None, 1)
-
-  if pftslice is not None:
-    slice_tuple = (timeslice, pftslice, yslice, xslice)
-    h_reshape = (hds.dimensions['time'].size, hds.dimensions['pft'].size, )
-    p_reshape = (pds.dimensions['time'].size, pds.dimensions['pft'].size, )
-  elif layerslice is not None:
-    slice_tuple = (timeslice, layerslice, yslice, xslice)
-    h_reshape = (hds.dimensions['time'].size, hds.dimensions['layer'].size, )
-    p_reshape = (pds.dimensions['time'].size, pds.dimensions['layer'].size, )
-  else:
-    slice_tuple = (timeslice, yslice, xslice)
-    #from IPython import embed; embed()
-    #print(hds.dimensions['time'].size, pds.dimensions['time'].size)
-    h_reshape = (hds.dimensions['time'].size, )
-    p_reshape = (pds.dimensions['time'].size, )
-
-  #print(f"USING SLICETUPLE {slice_tuple}")
-  #print(f"USING freq={freq}")
-  #print(hds.variables[var].shape)
-
-  hs, he = get_start_end(hds.variables['time'])
-  hdti = pd.DatetimeIndex(pd.date_range(start=hs.strftime(), end=he.strftime(), freq=freq,))
-  h_df = pd.DataFrame(hds.variables[var][slice_tuple].reshape( h_reshape ), index=hdti)
-
-  ps, pe = get_start_end(pds.variables['time'])
-  pdti = pd.DatetimeIndex(pd.date_range(start=ps.strftime(), end=pe.strftime(), freq=freq,))
-  p_df = pd.DataFrame(pds.variables[var][slice_tuple].reshape( p_reshape ), index=pdti)
-
-  df = pd.concat([h_df, p_df])
-
-  meta = dict(
-    hds_units=hds.variables[var].units, 
-    pds_units=pds.variables[var].units, 
-    h_start=hs, h_end=he,
-    p_start=ps, p_end=pe
-  )
-
-  return df, meta
 
 
 
