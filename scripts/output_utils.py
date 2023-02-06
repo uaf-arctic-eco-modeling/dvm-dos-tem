@@ -12,6 +12,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import netCDF4 as nc
+import pandas as pd
 import collections
 
 
@@ -197,6 +198,134 @@ def stitch_stages(var, timestep, stages, fileprefix=''):
           raise RuntimeError("Something is wrong with your input files! Units don't match!")
 
   return (full_ds, units_str)
+def get_start_end(timevar):
+  '''Returns CF Times. use .strftime() to convert to python datetimes'''
+  start = nc.num2date(timevar[0], timevar.units, timevar.calendar)
+  end = nc.num2date(timevar[-1], timevar.units, timevar.calendar)
+  return start, end
+
+
+def load_trsc(var, timeres):
+  '''Returns ``netCDF4.Dataset`` s in a tuple. 
+  First item is historic, second item is projected.
+  '''
+  trds = nc.Dataset(f'output/{var}_{timeres}_tr.nc')
+  scds = nc.Dataset(f'output/{var}_{timeres}_sc.nc')
+  return (trds, scds)
+
+def build_full_datetimeindex(hds, pds, timeres):
+  '''Returns a ``pandas.DatetimeIndex`` covering the range of the two
+  input datasets. Assumes that the two input datasets are consecutive
+  monotonic, and not missing any points.'''
+  
+  if timeres == 'yearly':
+    freq = 'AS-JAN'
+  elif timeres == 'monthly':
+    freq = 'MS'
+  else:
+    raise RuntimeError("Invalid time resolution")
+
+  h_start, h_end = get_start_end(hds.variables['time'])
+  p_start, p_end = get_start_end(pds.variables['time'])
+
+  begin = sorted([h_start, h_end, p_start, p_end])[0]
+  end = sorted([h_start, h_end, p_start, p_end])[-1]
+
+  dti = pd.DatetimeIndex(pd.date_range(start=begin.strftime(), end=end.strftime(), freq=freq))
+
+  return dti
+def build_full_dataframe(var=None, timeres=None, px_y=None, px_x=None):
+  ''' Builds a pandas.DataFrame for the requested output variable with the
+  transient and scenario data merged together and a complete
+  DatetimeIndex.
+
+  Parameters
+  ==========
+  var : str
+    The variable of interest. Must be a dvmdostem output variable, i.e.
+    GPP.
+
+  timeres : str
+    String of either 'monthly' or 'yearly' that will be used to find
+    and open the approproate files as well as set the DatetimeIndex.
+
+  px_y : int
+    Index of the pixel to work with, latitude dimension.
+
+  px_x : int
+    Index of pixel to work with, longitude dimension.
+
+  Returns
+  ========
+  df : pandas.DataFrame
+    A DataFrame with data for the requested ``var`` from transient and
+    scenario output files. The DataFrame should have a complete
+    DatetimeIndex.
+
+  meta : dict
+    A small dictionary containing metadata about the datasets in the
+    dataframe. Namely, the units.
+  '''
+
+  if timeres == 'yearly':
+    freq = 'AS-JAN'
+  elif timeres == 'monthly':
+    freq = 'MS'
+  else:
+    raise RuntimeError("Invalid time resolution")
+
+  hds, pds = load_trsc(var, timeres)
+
+  timeslice = slice(0, None, 1)
+  yslice = slice(px_y, px_y+1, 1)
+  xslice = slice(px_x, px_x+1, 1)
+  pftslice = None
+  layerslice = None
+
+
+  if 'pft' in hds.variables[var].dimensions and 'pft' in pds.variables[var].dimensions:
+    pftslice = slice(0, None, 1)
+  elif 'layer' in hds.variables[var].dimensions and 'layer' in pds.variables[var].dimensions:
+    layerslice = slice(0, None, 1)
+
+  if pftslice is not None:
+    slice_tuple = (timeslice, pftslice, yslice, xslice)
+    h_reshape = (hds.dimensions['time'].size, hds.dimensions['pft'].size, )
+    p_reshape = (pds.dimensions['time'].size, pds.dimensions['pft'].size, )
+  elif layerslice is not None:
+    slice_tuple = (timeslice, layerslice, yslice, xslice)
+    h_reshape = (hds.dimensions['time'].size, hds.dimensions['layer'].size, )
+    p_reshape = (pds.dimensions['time'].size, pds.dimensions['layer'].size, )
+  else:
+    slice_tuple = (timeslice, yslice, xslice)
+    #from IPython import embed; embed()
+    #print(hds.dimensions['time'].size, pds.dimensions['time'].size)
+    h_reshape = (hds.dimensions['time'].size, )
+    p_reshape = (pds.dimensions['time'].size, )
+
+  #print(f"USING SLICETUPLE {slice_tuple}")
+  #print(f"USING freq={freq}")
+  #print(hds.variables[var].shape)
+
+  hs, he = get_start_end(hds.variables['time'])
+  hdti = pd.DatetimeIndex(pd.date_range(start=hs.strftime(), end=he.strftime(), freq=freq,))
+  h_df = pd.DataFrame(hds.variables[var][slice_tuple].reshape( h_reshape ), index=hdti)
+
+  ps, pe = get_start_end(pds.variables['time'])
+  pdti = pd.DatetimeIndex(pd.date_range(start=ps.strftime(), end=pe.strftime(), freq=freq,))
+  p_df = pd.DataFrame(pds.variables[var][slice_tuple].reshape( p_reshape ), index=pdti)
+
+  df = pd.concat([h_df, p_df])
+
+  meta = dict(
+    hds_units=hds.variables[var].units, 
+    pds_units=pds.variables[var].units, 
+    h_start=hs, h_end=he,
+    p_start=ps, p_end=pe
+  )
+
+  return df, meta
+
 
 
 def check_files(fnames):
