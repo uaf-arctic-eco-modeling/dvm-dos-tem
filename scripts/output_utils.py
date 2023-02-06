@@ -156,8 +156,44 @@ def average_monthly_pool_to_yearly(data):
 
   return output
 
-def load_trsc_dataframe(var=None, timeres=None, px_y=None, px_x=None, fileprefix=None):
-  '''???'''
+def load_trsc_dataframe(var=None, timeres=None, px_y=None, px_x=None, 
+                        fileprefix=None):
+  '''Builds a pandas.DataFrame for the requested output variable with the
+  transient and scenario data merged together and a complete
+  DatetimeIndex.
+
+  This function does not handle by-compartment files yet.
+
+  Parameters
+  ==========
+  var : str
+    The variable of interest. Must be a dvmdostem output variable, i.e.
+    GPP.
+
+  timeres : str
+    String of either 'monthly' or 'yearly' that will be used to find
+    and open the appropriate files as well as set the DatetimeIndex.
+
+  px_y : int
+    Index of the pixel to work with, latitude dimension.
+
+  px_x : int
+    Index of pixel to work with, longitude dimension.
+
+  fileprefix : str
+    The path, absolute or relative, where the function will look for files.
+
+  Returns
+  ========
+  df : pandas.DataFrame
+    A DataFrame with data for the requested ``var`` from transient and
+    scenario output files. The DataFrame should have a complete
+    DatetimeIndex.
+
+  meta : dict
+    A small dictionary containing metadata about the datasets in the
+    dataframe. Namely, the units.
+  '''
   data, units, dims, dti = stitch_stages(var=var, stages=['tr','sc'], 
       timestep=timeres, fileprefix=fileprefix, with_dti=True
   )
@@ -191,28 +227,61 @@ def load_trsc_dataframe(var=None, timeres=None, px_y=None, px_x=None, fileprefix
 
 
 def stitch_stages(var, timestep, stages, fileprefix='', with_dti=False):
-  '''
-  Expects `var` to be one the dvmdostem output variable names. `timestep` must
-  be one of "yearly" or "monthly", and stages is a (ordered) list containing 
-  one or more of "pr","eq","sp","tr","sc". `fileprefix` is an optional path
-  that will be pre-pended to the filenames for opening files in a different
-  directory.
+  '''Glues files together along the time axis. 
 
-  Outputs from dvmdostem assume one variable per file and the following 
+  Outputs from ``dvmdostem`` assume one variable per file and the following
   file-naming pattern: 
   
-      `var`_`timestep`_`stage`.nc
+      ``var_timestep_stage.nc``
   
   This function makes the following additional assumptions about the files:
+
     - All files for different timesteps have the same dimensions
     - The file's variable name is the same as the variable name in the filename.
-    - There is a units attribute?
+    - There is a units attribute.
 
-  Returns a tuple (`data`, `units`), where `data` is a multi-dimensional numpy 
-  array that is the concatenation of the input arrays along the time axis and 
-  `units` is the unit string that is found in the input netcdf files.
+  Only able to return a ``pandas.DatetimeIndex`` for a transient (tr) and scenario
+  (sc) files.
+
+
+  Parameters
+  ==========
+  var : str
+    An uppercase string matching one of the dvmdostem output names.
+
+  timestep : str
+    Must be one of 'yearly' or 'monthly', and match the files present in
+    ``fileprefix`` for the ``var``.
+
+  stages : list of strings
+    Ordered list of strings for the stages to stitch together, i.e. for all
+    stages, in normal order: ``['pr','eq','sp','tr','sc']``.
+
+  fileprefix : str
+    A path that will be pre-pended to the filenames for opening files in a
+    different directory.
+
+  with_dti : bool
+    Whether or not a full pandas.DatetimeIndex should be retured. 
+
+  Returns
+  =======
+  data : np.array
+    A multi-dimensonal numpy array that is the concatenatio of the input arrays
+    along the time axis.
+
+  units_str : str
+    The units of the variable in question, read from the attributes of the
+    netCDF files.
+
+  dims : tuple
+    A list of strings naming the dimensions of the ``data`` array.
+
+  dti : (optional) pandas.DatetimeIndex 
+    The DatetimeIndex should span the time axis (first axis) of the ``data``
+    array.
+
   '''
-
   expected_file_names = ["{}_{}_{}.nc".format(var, timestep, stg) for stg in stages]
   expected_file_names = [os.path.join(fileprefix, i) for i in expected_file_names]
 
